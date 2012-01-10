@@ -1,0 +1,148 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0103 
+header_name {.h} 
+code_name {.cxx}
+class GeomUI {open
+} {
+  Function {GeomUI()} {open
+  } {
+    Fl_Window UIWindow {
+      label {Geom Browser} open
+      xywh {809 167 162 481} color 29 resizable visible
+    } {
+      Fl_Box {} {
+        label Geom
+        xywh {5 5 148 16} box ROUNDED_BOX labelfont 1 labelsize 16 labelcolor 15
+      }
+      Fl_Choice geomTypeChoice {open selected
+        xywh {50 24 104 20} down_box BORDER_BOX
+      } {
+        menuitem AddPodMenu {
+          label POD
+          xywh {0 0 100 20} labelfont 1
+        }
+        menuitem AddFuseMenu {
+          label FUSE
+          xywh {10 10 100 20} labelfont 1
+        }
+        menuitem AddHavocMenu {
+          label HAVOC
+          xywh {20 20 100 20} labelfont 1
+        }
+        menuitem AddExtMenu {
+          label {EXT STORE}
+          xywh {30 30 100 20} labelfont 1
+        }
+        menuitem AddMsWingMenu {
+          label {MS WING}
+          xywh {40 40 100 20} labelfont 1
+        }
+        menuitem AddBlankMenu {
+          label BLANK
+          xywh {50 50 100 20} labelfont 1
+        }
+        menuitem AddDuctMenu {
+          label DUCT
+          xywh {60 60 100 20} labelfont 1
+        }
+        menuitem AddPropMenu {
+          label PROP
+          xywh {70 70 100 20} labelfont 1
+        }
+        menuitem AddEngineMenu {
+          label ENGINE
+          xywh {80 80 100 20} labelfont 1
+        }
+        menuitem AddHWBMenu {
+          label HWB
+          xywh {90 90 100 20} labelfont 1
+        }
+        menuitem AddFuse2Menu {
+          label FUSE2
+          xywh {100 100 100 20} labelfont 1
+        }
+        menuitem AddCabinLayoutMenu {
+          label {CABIN LAYOUT}
+          xywh {0 0 100 20} labelfont 1
+        }
+      }
+      Fl_Button addGeomButton {
+        label Add
+        xywh {5 24 45 20} labelfont 1 labelsize 12 align 64
+      }
+      Fl_Browser geomBrowser {
+        xywh {16 109 140 236} type Multi textsize 12 resizable
+      }
+      Fl_Box {} {
+        label {Active:}
+        xywh {5 75 150 13} box BORDER_BOX labelfont 1 labelcolor 15
+      }
+      Fl_Button noshowGeomButton {
+        label NoShow
+        xywh {5 404 65 20} labelfont 1 labelsize 12 align 64
+      }
+      Fl_Button selectAllGeomButton {
+        label {Sel All}
+        xywh {5 354 65 20} labelfont 1 labelsize 12 align 64
+      }
+      Fl_Button showGeomButton {
+        label Show
+        xywh {5 383 65 20} labelfont 1 labelsize 12 align 64
+      }
+      Fl_Input activeGeomInput {
+        xywh {5 86 151 21} textfont 1
+      }
+      Fl_Button cutGeomButton {
+        label Cut
+        xywh {5 50 45 20} labelfont 1 labelsize 12
+      }
+      Fl_Button copyGeomButton {
+        label Copy
+        xywh {55 50 50 20} labelfont 1 labelsize 12
+      }
+      Fl_Button pasteGeomButton {
+        label Paste
+        xywh {110 50 44 20} labelfont 1 labelsize 12
+      }
+      Fl_Button wireGeomButton {
+        label Wire
+        xywh {95 352 63 20} labelfont 1 labelsize 12
+      }
+      Fl_Button hiddenGeomButton {
+        label Hidden
+        xywh {95 373 63 20} labelfont 1 labelsize 12
+      }
+      Fl_Button shadeGeomButton {
+        label Shade
+        xywh {95 394 63 20} labelfont 1 labelsize 12
+      }
+      Fl_Button textureGeomButton {
+        label Texture
+        xywh {95 415 63 20} labelfont 1 labelsize 12
+      }
+      Fl_Button moveTopButton {
+        label {@2<<}
+        xywh {1 112 14 50} labelfont 1 labelsize 12
+      }
+      Fl_Button moveBotButton {
+        label {@2>>}
+        xywh {1 292 14 50} labelfont 1
+      }
+      Fl_Button moveUpButton {
+        label {@2<}
+        xywh {1 172 14 50} labelfont 1
+      }
+      Fl_Button moveDownButton {
+        label {@2>}
+        xywh {1 232 14 50} labelfont 1
+      }
+      Fl_Box {} {
+        label {Def Aircraft Type:}
+        xywh {5 440 152 15} box BORDER_BOX labelfont 1 labelcolor 15
+      }
+      Fl_Choice defaultAircraftTypeChoice {open
+        xywh {5 455 152 20} down_box BORDER_BOX
+      } {}
+    }
+  }
+} 

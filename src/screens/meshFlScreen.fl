@@ -1,0 +1,341 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0103 
+header_name {.h} 
+code_name {.cxx}
+class MeshUI {open
+} {
+  Function {MeshUI()} {open
+  } {
+    Fl_Window UIWindow {
+      label {Mesh Geom} open
+      xywh {529 179 283 356} color 45 resizable visible
+    } {
+      Fl_Tabs MenuTabs {open
+        xywh {5 25 275 325}
+      } {
+        Fl_Group {} {
+          label Gen open
+          xywh {5 50 275 300} selection_color 55 labelfont 1 labelcolor 4
+        } {
+          Fl_Button nameButton {
+            label {Name:}
+            xywh {10 70 105 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+          }
+          Fl_Input nameInput {
+            xywh {115 70 160 20}
+          }
+          Fl_Button colorButton {
+            label {Color:}
+            xywh {10 115 50 45} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+          }
+          Fl_Button primColorButton {
+            xywh {60 115 35 45} box THIN_DOWN_BOX color 2
+          }
+          Fl_Button materialButton {
+            label {Material:}
+            xywh {10 90 105 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+          }
+          Fl_Choice materialChoice {open
+            xywh {115 90 160 20} down_box BORDER_BOX
+          } {}
+          Fl_Box {} {
+            label {Name & Color}
+            xywh {10 55 265 15} box BORDER_BOX color 12 labelfont 1 labelcolor 7
+          }
+          Fl_Light_Button attachUVButton {
+            label {U V}
+            xywh {130 180 35 40} labelfont 1 align 148
+          }
+          Fl_Light_Button attachFixedButton {
+            label Fixed
+            xywh {10 180 60 40} labelfont 1 align 148
+          }
+          Fl_Box {} {
+            label {Attach To Parent}
+            xywh {10 165 265 15} box BORDER_BOX color 12 labelfont 1 labelcolor 7
+          }
+          Fl_Box {} {
+            label Tesselation
+            xywh {10 225 265 15} box BORDER_BOX color 12 labelfont 1 labelcolor 55
+          }
+          Fl_Button numXsecsButton {
+            label {Num XSecs:}
+            xywh {10 240 105 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+          }
+          Fl_Slider numXsecsSlider {
+            xywh {115 240 100 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+          }
+          Fl_Input numXsecsInput {
+            xywh {215 240 60 20} type Int box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Button numPointsButton {
+            label {Num Points:}
+            xywh {10 260 105 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+          }
+          Fl_Slider numPointsSlider {
+            xywh {115 260 100 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+          }
+          Fl_Input numPointsInput {
+            xywh {215 260 60 20} type Int box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Slider uSlider {
+            xywh {165 180 70 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+          }
+          Fl_Input uInput {
+            xywh {235 180 40 20} type Float box THIN_DOWN_BOX labelsize 12 when 8 textsize 12
+          }
+          Fl_Slider vSlider {
+            xywh {165 200 70 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+          }
+          Fl_Input vInput {
+            xywh {235 200 40 20} type Float box THIN_DOWN_BOX labelsize 12 when 8 textsize 12
+          }
+          Fl_Value_Slider redSlider {
+            xywh {165 115 110 15} type {Horz Knob} color 7 selection_color 1 maximum 255 step 1
+          }
+          Fl_Value_Slider greenSlider {
+            xywh {165 130 110 15} type {Horz Knob} color 7 selection_color 2 maximum 255 step 1
+          }
+          Fl_Value_Slider blueSlider {
+            xywh {165 145 110 15} type {Horz Knob} color 7 selection_color 4 maximum 255 step 1
+          }
+          Fl_Button redButton {
+            xywh {100 115 20 15} color 1
+          }
+          Fl_Button greenButton {
+            xywh {120 115 20 15} color 2
+          }
+          Fl_Button blueButton {
+            xywh {140 115 20 15} color 4
+          }
+          Fl_Button yellowButton {
+            xywh {100 130 20 15} color 3
+          }
+          Fl_Button magentaButton {
+            xywh {120 130 20 15} color 5
+          }
+          Fl_Button cyanButton {
+            xywh {140 130 20 15} color 6
+          }
+          Fl_Button blackButton {
+            xywh {100 145 20 15} color 32
+          }
+          Fl_Button darkBlueButton {
+            xywh {120 145 20 15} color 15
+          }
+          Fl_Button greyButton {
+            xywh {140 145 20 15} color 43
+          }
+          Fl_Light_Button attachMatrixButton {
+            label Mat
+            xywh {75 180 50 40} labelfont 1 align 148
+          }
+          Fl_Box {} {
+            label Export
+            xywh {10 285 190 15} box BORDER_BOX color 12 labelfont 1 labelcolor 7
+          }
+          Fl_Button outputNameButton {
+            label {Default Name:} selected
+            xywh {10 300 105 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+          }
+          Fl_Choice outputNameChoice {open
+            xywh {115 300 160 20} down_box BORDER_BOX
+          } {}
+          Fl_Light_Button outputEnableButton {
+            label Enable
+            xywh {200 285 75 15} labelfont 1 align 148
+          }
+        }
+        Fl_Group {} {
+          label XForm open
+          xywh {5 50 275 300} selection_color 55 labelfont 1 labelcolor 4 hide
+        } {
+          Fl_Slider xLocSlider {
+            xywh {100 75 100 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+          }
+          Fl_Input xLocInput {
+            xywh {210 75 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Button xLocButton {
+            label {X Loc}
+            xywh {10 75 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+          }
+          Fl_Repeat_Button xLocButtonL {
+            label {<}
+            xywh {90 75 10 20} box THIN_UP_BOX labelcolor 4
+          }
+          Fl_Repeat_Button xLocButtonR {
+            label {>}
+            xywh {200 75 10 20} box THIN_UP_BOX labelcolor 4
+          }
+          Fl_Slider yLocSlider {
+            xywh {100 95 100 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+          }
+          Fl_Input yLocInput {
+            xywh {210 95 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Button yLocButton {
+            label {Y Loc}
+            xywh {10 95 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+          }
+          Fl_Repeat_Button yLocButtonL {
+            label {<}
+            xywh {90 95 10 20} box THIN_UP_BOX labelcolor 4
+          }
+          Fl_Repeat_Button yLocButtonR {
+            label {>}
+            xywh {200 95 10 20} box THIN_UP_BOX labelcolor 4
+          }
+          Fl_Slider zLocSlider {
+            xywh {100 115 100 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+          }
+          Fl_Input zLocInput {
+            xywh {210 115 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Button zLocButton {
+            label {Z Loc}
+            xywh {10 115 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+          }
+          Fl_Repeat_Button zLocButtonL {
+            label {<}
+            xywh {90 115 10 20} box THIN_UP_BOX labelcolor 4
+          }
+          Fl_Repeat_Button zLocButtonR {
+            label {>}
+            xywh {200 115 10 20} box THIN_UP_BOX labelcolor 4
+          }
+          Fl_Slider xRotSlider {
+            xywh {100 145 100 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+          }
+          Fl_Input xRotInput {
+            xywh {210 145 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Button xRotButton {
+            label {X Rot}
+            xywh {10 145 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+          }
+          Fl_Repeat_Button xRotButtonL {
+            label {<}
+            xywh {90 145 10 20} box THIN_UP_BOX labelcolor 4
+          }
+          Fl_Repeat_Button xRotButtonR {
+            label {>}
+            xywh {200 145 10 20} box THIN_UP_BOX labelcolor 4
+          }
+          Fl_Slider yRotSlider {
+            xywh {100 165 100 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+          }
+          Fl_Input yRotInput {
+            xywh {210 165 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Button yRotButton {
+            label {Y Rot}
+            xywh {10 165 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+          }
+          Fl_Repeat_Button yRotButtonL {
+            label {<}
+            xywh {90 165 10 20} box THIN_UP_BOX labelcolor 4
+          }
+          Fl_Repeat_Button yRotButtonR {
+            label {>}
+            xywh {200 165 10 20} box THIN_UP_BOX labelcolor 4
+          }
+          Fl_Slider zRotSlider {
+            xywh {100 185 100 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+          }
+          Fl_Input zRotInput {
+            xywh {210 185 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Button zRotButton {
+            label {Z Rot}
+            xywh {10 185 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+          }
+          Fl_Repeat_Button zRotButtonL {
+            label {<}
+            xywh {90 185 10 20} box THIN_UP_BOX labelcolor 4
+          }
+          Fl_Repeat_Button zRotButtonR {
+            label {>}
+            xywh {200 185 10 20} box THIN_UP_BOX labelcolor 4
+          }
+          Fl_Box {} {
+            label {Scale Factor}
+            xywh {10 275 265 15} box BORDER_BOX labelfont 1 labelcolor 15
+          }
+          Fl_Slider scaleSlider {
+            xywh {10 290 105 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+          }
+          Fl_Input rotOriginInput {
+            xywh {210 215 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Input scaleInput {
+            xywh {115 290 50 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Button resetScaleButton {
+            label Reset
+            xywh {165 290 55 20} labelfont 1 labelsize 12 align 64
+          }
+          Fl_Button rotOriginButton {
+            label {Rot Orig (X)}
+            xywh {10 215 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+          }
+          Fl_Slider rotOriginSlider {
+            xywh {100 215 100 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+          }
+          Fl_Repeat_Button rotOriginButtonL {
+            label {<}
+            xywh {90 215 10 20} box THIN_UP_BOX labelcolor 4
+          }
+          Fl_Repeat_Button rotOriginButtonR {
+            label {>}
+            xywh {200 215 10 20} box THIN_UP_BOX labelcolor 4
+          }
+          Fl_Button symmetryButton {
+            label {Symmetry:}
+            xywh {10 245 190 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+          }
+          Fl_Choice symmetryChoice {open
+            xywh {200 245 75 20} down_box BORDER_BOX
+          } {
+            menuitem noneSymMenu {
+              label { None}
+              xywh {0 0 100 20} labelfont 1
+            }
+            menuitem xySymMenu {
+              label { XY}
+              xywh {0 0 100 20} labelfont 1
+            }
+            menuitem xzSymMenu {
+              label { XZ}
+              xywh {0 0 100 20} labelfont 1
+            }
+            menuitem yzSymMenu {
+              label { YZ}
+              xywh {0 0 100 20} labelfont 1
+            }
+          }
+          Fl_Box {} {
+            label {Transforms:}
+            xywh {10 55 135 20} box BORDER_BOX labelfont 1 labelcolor 15
+          }
+          Fl_Button acceptScaleButton {
+            label Accept
+            xywh {220 290 55 20} labelfont 1 labelsize 12 align 64
+          }
+          Fl_Light_Button absButton {
+            label Abs
+            xywh {145 55 65 20} labelfont 1
+          }
+          Fl_Light_Button relButton {
+            label Rel
+            xywh {210 55 65 20} labelfont 1
+          }
+        }
+      }
+      Fl_Box TitleBox {
+        label {Mesh Geom}
+        xywh {5 0 275 20} box ROUNDED_BOX labelfont 1 labelsize 16 labelcolor 15
+      }
+    }
+  }
+} 

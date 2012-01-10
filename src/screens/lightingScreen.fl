@@ -1,0 +1,64 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0103 
+header_name {.h} 
+code_name {.cxx}
+class LightingUI {open
+} {
+  Function {LightingUI()} {open
+  } {
+    Fl_Window UIWindow {
+      label Lighting open
+      xywh {398 179 166 165} color 29 resizable visible
+    } {
+      Fl_Box {} {
+        label Lighting
+        xywh {5 5 155 16} box ROUNDED_BOX labelfont 1 labelsize 16 labelcolor 15
+      }
+      Fl_Value_Slider ambSlider {
+        xywh {50 90 110 20} type {Horz Knob} color 7 selection_color 23 align 0
+      }
+      Fl_Light_Button light0Button {
+        label {Light 0}
+        xywh {5 25 75 20} labelfont 1
+      }
+      Fl_Light_Button light1Button {
+        label {Light 1}
+        xywh {5 45 75 20} labelfont 1
+      }
+      Fl_Light_Button light2Button {
+        label {Light 2}
+        xywh {5 65 75 20} labelfont 1
+      }
+      Fl_Light_Button light3Button {
+        label {Light 3}
+        xywh {85 25 75 20} labelfont 1
+      }
+      Fl_Light_Button light4Button {
+        label {Light 4}
+        xywh {85 45 75 20} labelfont 1
+      }
+      Fl_Light_Button light5Button {
+        label {Light 5}
+        xywh {85 65 75 20} labelfont 1
+      }
+      Fl_Box {} {
+        label Amb
+        xywh {5 90 45 20} box BORDER_BOX selection_color 7 labelfont 1
+      }
+      Fl_Value_Slider diffSlider {
+        xywh {50 115 110 20} type {Horz Knob} color 7 selection_color 23 align 0
+      }
+      Fl_Box {} {
+        label Diff
+        xywh {5 115 45 20} box BORDER_BOX selection_color 7 labelfont 1
+      }
+      Fl_Value_Slider specSlider {selected
+        xywh {50 140 110 20} type {Horz Knob} color 7 selection_color 23 align 0
+      }
+      Fl_Box {} {
+        label Spec
+        xywh {5 140 45 20} box BORDER_BOX selection_color 7 labelfont 1
+      }
+    }
+  }
+} 

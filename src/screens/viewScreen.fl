@@ -1,0 +1,79 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0103 
+header_name {.h} 
+code_name {.cxx}
+class ViewUI {open
+} {
+  Function {ViewUI()} {open
+  } {
+    Fl_Window UIWindow {
+      label {Adjust View} open
+      xywh {425 207 140 102} color 29 resizable visible
+    } {
+      Fl_Box {} {
+        label {Adjust View}
+        xywh {5 5 130 15} box ROUNDED_BOX labelfont 1 labelsize 16 labelcolor 15
+      }
+      Fl_Button xLocButton {
+        label {X Pos}
+        xywh {45 25 50 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+      }
+      Fl_Button yLocButton {
+        label {Y Pos}
+        xywh {45 50 50 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+      }
+      Fl_Button zoomButton {
+        label Zoom selected
+        xywh {45 75 50 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+      }
+      Fl_Repeat_Button xPosMinus1 {
+        label {<}
+        xywh {25 25 20 20} box THIN_UP_BOX labelfont 1 labelcolor 4
+      }
+      Fl_Repeat_Button xPosMinus2 {
+        label {<<}
+        xywh {5 25 20 20} box THIN_UP_BOX labelfont 1 labelcolor 4
+      }
+      Fl_Repeat_Button xPosPlus2 {
+        label {>>}
+        xywh {115 25 20 20} box THIN_UP_BOX labelfont 1 labelcolor 4
+      }
+      Fl_Repeat_Button xPosPlus1 {
+        label {>}
+        xywh {95 25 20 20} box THIN_UP_BOX labelfont 1 labelcolor 4
+      }
+      Fl_Repeat_Button yPosMinus1 {
+        label {<}
+        xywh {25 50 20 20} box THIN_UP_BOX labelfont 1 labelcolor 4
+      }
+      Fl_Repeat_Button yPosMinus2 {
+        label {<<}
+        xywh {5 50 20 20} box THIN_UP_BOX labelfont 1 labelcolor 4
+      }
+      Fl_Repeat_Button yPosPlus2 {
+        label {>>}
+        xywh {115 50 20 20} box THIN_UP_BOX labelfont 1 labelcolor 4
+      }
+      Fl_Repeat_Button yPosPlus1 {
+        label {>}
+        xywh {95 50 20 20} box THIN_UP_BOX labelfont 1 labelcolor 4
+      }
+      Fl_Repeat_Button zoomMinus1 {
+        label {<} selected
+        xywh {25 75 20 20} box THIN_UP_BOX labelfont 1 labelcolor 4
+      }
+      Fl_Repeat_Button zoomMinus2 {
+        label {<<} selected
+        xywh {5 75 20 20} box THIN_UP_BOX labelfont 1 labelcolor 4
+      }
+      Fl_Repeat_Button zoomPlus2 {
+        label {>>} selected
+        xywh {115 75 20 20} box THIN_UP_BOX labelfont 1 labelcolor 4
+      }
+      Fl_Repeat_Button zoomPlus1 {
+        label {>} selected
+        xywh {95 75 20 20} box THIN_UP_BOX labelfont 1 labelcolor 4
+      }
+    }
+  }
+} 

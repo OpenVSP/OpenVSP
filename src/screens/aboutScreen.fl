@@ -1,0 +1,26 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0103 
+header_name {.h} 
+code_name {.cxx}
+class AboutScreen {open
+} {
+  Function {AboutScreen()} {open
+  } {
+    Fl_Window UIWindow {
+      label About open
+      xywh {476 153 510 350} color 29 resizable visible
+    } {
+      Fl_Box {} {
+        label {Vehicle Sketch Pad}
+        xywh {5 5 500 20} box ROUNDED_BOX labelfont 1 labelsize 16 labelcolor 15
+      }
+      Fl_Text_Display outputTextDisplay {
+        xywh {20 35 470 260} box FLAT_BOX color 23 labelcolor 32 textfont 4 textsize 12
+      }
+      Fl_Button okButton {
+        label OK selected
+        xywh {20 305 470 40}
+      }
+    }
+  }
+} 

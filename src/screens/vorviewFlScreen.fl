@@ -1,0 +1,1010 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0103 
+header_name {.h} 
+code_name {.cxx}
+class VorviewUI {open
+} {
+  Function {VorviewUI()} {open
+  } {
+    Fl_Window UIWindow {
+      label Vorview open
+      xywh {673 212 325 667} color 45 resizable visible
+    } {
+      Fl_Tabs MenuTabs {open
+        xywh {5 25 320 645} labelcolor 7
+      } {
+        Fl_Group input1Tab {
+          label {Input 1} open
+          xywh {5 50 315 610} selection_color 55 labelfont 1 labelcolor 4 hide
+        } {
+          Fl_Button {} {
+            label LAX
+            xywh {10 165 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Box {} {
+            label {Card 2 : Solution}
+            xywh {10 150 300 15} box BORDER_BOX color 12 labelfont 1 labelcolor 7
+          }
+          Fl_Box {} {
+            label {Card 6 : Geometry}
+            xywh {10 330 300 15} box BORDER_BOX color 12 labelfont 1 labelcolor 7
+          }
+          Fl_Input itrmaxInput {
+            xywh {90 225 65 20} type Int box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Input hagInput {
+            xywh {90 185 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Button {} {
+            label HAG
+            xywh {10 185 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input spcInput {
+            xywh {245 185 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Button {} {
+            label SPC
+            xywh {165 185 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Button {} {
+            label ITRMAX
+            xywh {10 225 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input srefInput {
+            xywh {90 345 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Button {} {
+            label SREF
+            xywh {10 345 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input arInput {
+            xywh {90 365 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Button {} {
+            label AR
+            xywh {10 365 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input taperInput {
+            xywh {90 385 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Button {} {
+            label TAPER
+            xywh {10 385 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input wspanInput {
+            xywh {245 385 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Button {} {
+            label WSPAN
+            xywh {165 385 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input cbarInput {
+            xywh {90 405 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Button {} {
+            label CBAR
+            xywh {10 405 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input xbarInput {
+            xywh {245 345 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Button {} {
+            label XBAR
+            xywh {165 345 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input zbarInput {
+            xywh {245 365 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Button {} {
+            label ZBAR
+            xywh {165 365 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Box {} {
+            label {Card 5 : Flight Condition}
+            xywh {10 250 300 15} box BORDER_BOX color 12 labelfont 1 labelcolor 7
+          }
+          Fl_Button {} {
+            label LATRAL
+            xywh {10 265 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input psiInput {
+            xywh {90 285 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Button {} {
+            label PSI
+            xywh {10 285 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input pitchqInput {
+            xywh {90 305 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Button {} {
+            label PITCHQ
+            xywh {10 305 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input rollqInput {
+            xywh {245 265 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Button {} {
+            label ROLLQ
+            xywh {165 265 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input yawqInput {
+            xywh {245 285 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Button {} {
+            label YAWQ
+            xywh {165 285 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Button casFileButton {
+            label {Import .cas File}
+            xywh {10 100 145 25} labelfont 1
+          }
+          Fl_Box {} {
+            label {Base File Name:}
+            xywh {10 60 150 20} box BORDER_BOX color 12 labelfont 1 labelcolor 7
+          }
+          Fl_Box hrmFileBox {
+            label junk
+            xywh {160 60 125 20} box BORDER_BOX color 48 labelfont 1 labelcolor 0
+          }
+          Fl_Button hrmFileButton {
+            label {...}
+            xywh {285 60 25 20} labelfont 1
+          }
+          Fl_Button {} {
+            label ISWEEP
+            xywh {10 205 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input laxInput {
+            xywh {90 165 65 20} type Int box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Input isweepInput {
+            xywh {90 205 65 20} type Int box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Button {} {
+            label FLOATX
+            xywh {165 205 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Button {} {
+            label FLOATX
+            xywh {165 225 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input floatxInput {
+            xywh {245 205 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Input floatyInput {
+            xywh {245 225 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Button {} {
+            label IDETAIL
+            xywh {165 165 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input idetailInput {
+            xywh {245 165 65 20} type Int box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Input latralInput {
+            xywh {90 265 65 20} type Int box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Button {} {
+            label VINF
+            xywh {165 305 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input vinfInput {
+            xywh {245 305 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Box {} {
+            label {Card 8}
+            xywh {10 430 300 15} box BORDER_BOX color 12 labelfont 1 labelcolor 7
+          }
+          Fl_Button {} {
+            label LTAIL
+            xywh {10 445 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input ltailInput {
+            xywh {90 445 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Button {} {
+            label ZTAIL
+            xywh {10 465 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input ztailInput {
+            xywh {90 465 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Button {} {
+            label ISTAB
+            xywh {165 445 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input istabInput {
+            xywh {245 445 65 20} type Int box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Button {} {
+            label IAERO
+            xywh {165 465 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input iaeroInput {
+            xywh {245 465 65 20} type Int box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Button {} {
+            label SWPWNG
+            xywh {10 485 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input swpwngInput {
+            xywh {90 485 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Button {} {
+            label CDMACH
+            xywh {10 505 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input cdmachInput {
+            xywh {90 505 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Button {} {
+            label CDO
+            xywh {165 485 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input cdoInput {
+            xywh {245 485 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Box {} {
+            label {Card 9}
+            xywh {10 530 300 15} box BORDER_BOX color 12 labelfont 1 labelcolor 7
+          }
+          Fl_Button {} {
+            label XREF
+            xywh {10 565 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input xrefInput {
+            xywh {90 565 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Button {} {
+            label IBURST
+            xywh {10 545 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input iburstInput {
+            xywh {90 545 65 20} type Int box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Button {} {
+            label ANGCRT
+            xywh {10 585 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input angcrtInput {
+            xywh {90 585 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Button {} {
+            label CK1
+            xywh {165 545 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input ck1Input {
+            xywh {245 545 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Button {} {
+            label CK2
+            xywh {165 565 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input ck2Input {
+            xywh {245 565 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Button {} {
+            label ACEPS
+            xywh {165 625 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input acepsInput {
+            xywh {245 625 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Button {} {
+            label IAC
+            xywh {10 625 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input iacInput {
+            xywh {90 625 65 20} type Int box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Box {} {
+            label {Card 10}
+            xywh {10 610 300 15} box BORDER_BOX color 12 labelfont 1 labelcolor 7
+          }
+          Fl_Button exportCasFileButton {
+            label {Export .cas File}
+            xywh {165 100 145 25} labelfont 1
+          }
+        }
+        Fl_Group input2Tab {
+          label {Input 2}
+          xywh {5 50 315 610} selection_color 55 labelfont 1 labelcolor 4 hide
+        } {
+          Fl_Box {} {
+            label {Card 11 : Trim }
+            xywh {10 270 305 15} box BORDER_BOX color 12 labelfont 1 labelcolor 7
+          }
+          Fl_Box {} {
+            label {Card 12}
+            xywh {10 550 305 15} box BORDER_BOX color 12 labelfont 1 labelcolor 7
+          }
+          Fl_Button {} {
+            label REINF
+            xywh {10 565 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input reinfInput {
+            xywh {90 565 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Button {} {
+            label REFLEN
+            xywh {10 585 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input reflenInput {
+            xywh {90 585 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Button {} {
+            label IDRAG
+            xywh {170 565 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input idragInput {
+            xywh {250 565 65 20} type Int box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Button {} {
+            label NUMREN
+            xywh {170 585 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input numrenInput {
+            xywh {250 585 65 20} type Int box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Button {} {
+            label NUMMCH
+            xywh {170 605 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input nummchInput {
+            xywh {250 605 65 20} type Int box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Input mach1Input {
+            xywh {25 125 55 20} type Float
+          }
+          Fl_Button mach1Button {
+            label 1
+            xywh {25 110 55 15} box BORDER_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Box {} {
+            label {Card 3 : Mach Numbers}
+            xywh {10 60 305 15} box BORDER_BOX color 12 labelfont 1 labelcolor 7
+          }
+          Fl_Input mach2Input {
+            xywh {80 125 55 20} type Float
+          }
+          Fl_Button mach2Button {
+            label 1
+            xywh {80 110 55 15} box BORDER_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input mach3Input {
+            xywh {135 125 55 20} type Float
+          }
+          Fl_Button mach3Button {
+            label 1
+            xywh {135 110 55 15} box BORDER_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input mach4Input {
+            xywh {190 125 55 20} type Float
+          }
+          Fl_Button mach4Button {
+            label 1
+            xywh {190 110 55 15} box BORDER_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input mach5Input {
+            xywh {245 125 55 20} type Float
+          }
+          Fl_Button mach5Button {
+            label 1
+            xywh {245 110 55 15} box BORDER_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Button machLeftButton {
+            label {<}
+            xywh {10 110 15 35} labelfont 1 labelsize 18 labelcolor 15
+          }
+          Fl_Button machRightButton {
+            label {>}
+            xywh {300 110 15 35} labelfont 1 labelsize 18 labelcolor 15
+          }
+          Fl_Button {} {
+            label NMACH
+            xywh {10 75 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input nmachInput {
+            xywh {90 75 65 20} type Int box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Button {} {
+            label XMACH
+            xywh {10 95 305 15} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input alpha1Input {
+            xywh {25 230 55 20} type Float
+          }
+          Fl_Button alpha1Button {
+            label 1
+            xywh {25 215 55 15} box BORDER_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Box {} {
+            label {Card 4 : Alpha Numbers}
+            xywh {10 165 305 15} box BORDER_BOX color 12 labelfont 1 labelcolor 7
+          }
+          Fl_Input alpha2Input {
+            xywh {80 230 55 20} type Float
+          }
+          Fl_Button alpha2Button {
+            label 1
+            xywh {80 215 55 15} box BORDER_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input alpha3Input {
+            xywh {135 230 55 20} type Float
+          }
+          Fl_Button alpha3Button {
+            label 1
+            xywh {135 215 55 15} box BORDER_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input alpha4Input {
+            xywh {190 230 55 20} type Float
+          }
+          Fl_Button alpha4Button {
+            label 1
+            xywh {190 215 55 15} box BORDER_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input alpha5Input {
+            xywh {245 230 55 20} type Float
+          }
+          Fl_Button alpha5Button {
+            label 1
+            xywh {245 215 55 15} box BORDER_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Button alphaLeftButton {
+            label {<}
+            xywh {10 215 15 35} labelfont 1 labelsize 18 labelcolor 15
+          }
+          Fl_Button alphaRightButton {
+            label {>}
+            xywh {300 215 15 35} labelfont 1 labelsize 18 labelcolor 15
+          }
+          Fl_Button {} {
+            label NALPHA
+            xywh {10 180 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input nalphaInput {
+            xywh {90 180 65 20} type Int box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Button {} {
+            label ALPHA
+            xywh {10 200 305 15} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input atrim1Input {
+            xywh {25 340 55 20} type Float
+          }
+          Fl_Button atrim1Button {
+            label 1
+            xywh {25 325 55 15} box BORDER_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input atrim2Input {
+            xywh {80 340 55 20} type Float
+          }
+          Fl_Button atrim2Button {
+            label 1
+            xywh {80 325 55 15} box BORDER_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input atrim3Input {
+            xywh {135 340 55 20} type Float
+          }
+          Fl_Button atrim3Button {
+            label 1
+            xywh {135 325 55 15} box BORDER_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input atrim4Input {
+            xywh {190 340 55 20} type Float
+          }
+          Fl_Button atrim4Button {
+            label 1
+            xywh {190 325 55 15} box BORDER_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input atrim5Input {
+            xywh {245 340 55 20} type Float
+          }
+          Fl_Button atrim5Button {
+            label 1
+            xywh {245 325 55 15} box BORDER_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Button atrimRightButton {
+            label {<}
+            xywh {10 325 15 35} labelfont 1 labelsize 18 labelcolor 15
+          }
+          Fl_Button atrimLeftButton {
+            label {>}
+            xywh {300 325 15 35} labelfont 1 labelsize 18 labelcolor 15
+          }
+          Fl_Button {} {
+            label NTRIM
+            xywh {170 285 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input ntrimInput {
+            xywh {250 285 65 20} type Int box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Button {} {
+            label ALPHA_TRIM
+            xywh {10 310 305 15} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Button {} {
+            label ITRIM
+            xywh {10 285 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input itrimInput {
+            xywh {90 285 65 20} type Int box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Input cltrim1Input {
+            xywh {25 410 55 20} type Float
+          }
+          Fl_Button cltrim1Button {
+            label 1
+            xywh {25 395 55 15} box BORDER_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input cltrim2Input {
+            xywh {80 410 55 20} type Float
+          }
+          Fl_Button cltrim2Button {
+            label 1
+            xywh {80 395 55 15} box BORDER_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input cltrim3Input {
+            xywh {135 410 55 20} type Float
+          }
+          Fl_Button cltrim3Button {
+            label 1
+            xywh {135 395 55 15} box BORDER_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input cltrim4Input {
+            xywh {190 410 55 20} type Float
+          }
+          Fl_Button cltrim4Button {
+            label 1
+            xywh {190 395 55 15} box BORDER_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input cltrim5Input {
+            xywh {245 410 55 20} type Float
+          }
+          Fl_Button cltrim5Button {
+            label 1
+            xywh {245 395 55 15} box BORDER_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Button cltrimRightButton {
+            label {<}
+            xywh {10 395 15 35} labelfont 1 labelsize 18 labelcolor 15
+          }
+          Fl_Button cltrimLeftButton {
+            label {>}
+            xywh {300 395 15 35} labelfont 1 labelsize 18 labelcolor 15
+          }
+          Fl_Button {} {
+            label CLTRIM
+            xywh {10 380 305 15} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input cmtrim1Input {
+            xywh {25 480 55 20} type Float
+          }
+          Fl_Button cmtrim1Button {
+            label 1
+            xywh {25 465 55 15} box BORDER_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input cmtrim2Input {
+            xywh {80 480 55 20} type Float
+          }
+          Fl_Button cmtrim2Button {
+            label 1
+            xywh {80 465 55 15} box BORDER_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input cmtrim3Input {
+            xywh {135 480 55 20} type Float
+          }
+          Fl_Button cmtrim3Button {
+            label 1
+            xywh {135 465 55 15} box BORDER_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input cmtrim4Input {
+            xywh {190 480 55 20} type Float
+          }
+          Fl_Button cmtrim4Button {
+            label 1
+            xywh {190 465 55 15} box BORDER_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input cmtrim5Input {
+            xywh {245 480 55 20} type Float
+          }
+          Fl_Button cmtrim5Button {
+            label 1
+            xywh {245 465 55 15} box BORDER_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Button cmtrimRightButton {
+            label {<}
+            xywh {10 465 15 35} labelfont 1 labelsize 18 labelcolor 15
+          }
+          Fl_Button cmtrimLeftButton {
+            label {>}
+            xywh {300 465 15 35} labelfont 1 labelsize 18 labelcolor 15
+          }
+          Fl_Button {} {
+            label CMTRIM
+            xywh {10 450 305 15} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Button {} {
+            label CMEPS
+            xywh {10 520 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input cmepsInput {
+            xywh {90 520 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Roller machRoller {
+            xywh {10 145 305 15} type Horizontal maximum 100 step 0.2
+          }
+          Fl_Roller alphaRoller {
+            xywh {10 250 305 15} type Horizontal maximum 100 step 0.2
+          }
+          Fl_Roller atrimRoller {
+            xywh {10 360 305 15} type Horizontal maximum 100 step 0.2
+          }
+          Fl_Roller cltrimRoller {
+            xywh {10 430 305 15} type Horizontal maximum 100 step 0.2
+          }
+          Fl_Roller cmtrimRoller {
+            xywh {10 500 305 15} type Horizontal maximum 100 step 0.2
+          }
+        }
+        Fl_Group sliceTab {
+          label Slice open selected
+          xywh {5 55 315 615} selection_color 55 labelfont 1 labelcolor 4
+        } {
+          Fl_Box {} {
+            label {Add Key Slice}
+            xywh {10 245 225 20} box BORDER_BOX color 12 labelfont 1 labelcolor 7
+          }
+          Fl_Button autoFindButton {
+            label {Auto Find}
+            xywh {10 80 145 25} labelfont 1
+          }
+          Fl_Button autoEliminateButton {
+            label {Auto Eliminate}
+            xywh {10 110 145 25} labelfont 1
+          }
+          Fl_Button autoMergeButton {
+            label {Auto Merge}
+            xywh {10 140 145 25} labelfont 1
+          }
+          Fl_Button autoSliceButton {
+            label {Auto Slice}
+            xywh {10 170 145 25} labelfont 1
+          }
+          Fl_Button autoAllButton {
+            label {Auto All}
+            xywh {10 200 145 25} labelfont 1
+          }
+          Fl_Button sliceResetButton {
+            label Reset
+            xywh {170 200 145 25} labelfont 1
+          }
+          Fl_Light_Button sliceSymButton {
+            label Symmetry
+            xywh {10 325 305 20} labelfont 1 labelsize 12
+          }
+          Fl_Light_Button sliceFlatPlateButton {
+            label {Flat Plate}
+            xywh {170 110 145 25} labelfont 1
+          }
+          Fl_Button swapXYButton {
+            label {Swap XY}
+            xywh {170 140 145 25} labelfont 1
+          }
+          Fl_Box {} {
+            label {Auto Slice}
+            xywh {10 55 305 20} box BORDER_BOX color 12 labelfont 1 labelcolor 7
+          }
+          Fl_Slider keySliceYPosSlider {
+            xywh {60 270 180 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+          }
+          Fl_Button keySliceYPosButton {
+            label Y
+            xywh {10 270 30 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Button addKeySliceButton {
+            label Add
+            xywh {10 295 305 20} labelfont 1
+          }
+          Fl_Light_Button enableKeySliceButton {
+            label Enable
+            xywh {235 245 80 20} labelfont 1
+          }
+          Fl_Button keySliceYPosLeftButton {
+            label {<}
+            xywh {40 270 20 20} labelfont 1 labelcolor 4
+          }
+          Fl_Button keySliceYPosRightButton {
+            label {>}
+            xywh {240 270 20 20} labelfont 1 labelcolor 4
+          }
+          Fl_Input keySliceYPosInput {
+            xywh {260 270 55 20} type Float when 8
+          }
+          Fl_Box {} {
+            label {Edit Key Slice}
+            xywh {10 355 305 20} box BORDER_BOX color 12 labelfont 1 labelcolor 7
+          }
+          Fl_Button {} {
+            label {Select Key Slice:}
+            xywh {10 375 160 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Counter editKeySliceSelector {
+            xywh {170 375 145 20} type Simple labelcolor 4 step 1
+          }
+          Fl_Slider editKeySliceYPosSlider {
+            xywh {60 400 180 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+          }
+          Fl_Button editKeySliceYPosButton {
+            label Y
+            xywh {10 400 30 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Button editKeySliceYPosLeftButton {
+            label {<}
+            xywh {40 400 20 20} labelfont 1 labelcolor 4
+          }
+          Fl_Button editKeySliceYPosRightButton {
+            label {>}
+            xywh {240 400 20 20} labelfont 1 labelcolor 4
+          }
+          Fl_Input editKeySliceYPosInput {
+            xywh {260 400 55 20} type Float when 8
+          }
+          Fl_Button editKeySliceDeleteButton {
+            label Delete
+            xywh {10 460 305 20} labelfont 1
+          }
+          Fl_Button {} {
+            label {Num Region Slices:}
+            xywh {10 430 160 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Counter numRegionSlices {
+            xywh {170 430 145 20} labelcolor 4 minimum 2 maximum 100 step 1 value 2
+          }
+        }
+        Fl_Group controlTab {
+          label Control
+          xywh {5 50 315 610} selection_color 55 labelfont 1 labelcolor 4 hide
+        } {
+          Fl_Box {} {
+            label {Add/Delete Control Surfaces}
+            xywh {10 390 305 15} box BORDER_BOX color 12 labelfont 1 labelcolor 7
+          }
+          Fl_Counter trapCounter {
+            xywh {180 405 135 20} type Simple labelcolor 0 minimum 0 maximum 10000 step 1 textcolor 15
+          }
+          Fl_Button {} {
+            label {Trap Number}
+            xywh {10 405 170 20} box BORDER_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Button {} {
+            label Type
+            xywh {10 275 55 20} box BORDER_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Button {} {
+            label Refl
+            xywh {165 275 55 20} box BORDER_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Button {} {
+            label Ang
+            xywh {10 300 55 20} box BORDER_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Button {} {
+            label Name
+            xywh {10 250 55 20} box BORDER_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Box {} {
+            label {Create Control Surfaces}
+            xywh {10 60 305 15} box BORDER_BOX color 12 labelfont 1 labelcolor 7
+          }
+          Fl_Browser controlBrowser {
+            xywh {10 75 305 170} type Hold
+          }
+          Fl_Button addControlButton {
+            label Create
+            xywh {10 350 145 20} labelfont 1
+          }
+          Fl_Button delControlButton {
+            label Remove
+            xywh {170 350 145 20} labelfont 1
+          }
+          Fl_Choice controlTypeChoice {open
+            xywh {65 275 95 20} down_box BORDER_BOX
+          } {}
+          Fl_Choice controlReflChoice {open
+            xywh {220 275 95 20} down_box BORDER_BOX
+          } {}
+          Fl_Input controlAngInput {
+            xywh {65 300 95 20} type Float
+          }
+          Fl_Button {} {
+            label Chord
+            xywh {10 325 55 20} box BORDER_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input controlChordInput {
+            xywh {65 325 95 20} type Float
+          }
+          Fl_Button {} {
+            label Sym
+            xywh {165 300 55 20} box BORDER_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Choice controlSymChoice {open
+            xywh {220 300 95 20} down_box BORDER_BOX
+          } {}
+          Fl_Button {} {
+            label Hinge
+            xywh {165 325 55 20} box BORDER_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Input controlHingeInput {
+            xywh {220 325 95 20} type Float
+          }
+          Fl_Input controlNameInput {
+            xywh {65 250 95 20}
+          }
+          Fl_Button {} {
+            label Color
+            xywh {165 250 55 20} box BORDER_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Box controlColorBox {
+            xywh {220 250 95 20} box BORDER_BOX color 9
+          }
+          Fl_Button addTrapControlButton {
+            label {Add/Del Control Surf}
+            xywh {10 430 305 20} labelfont 1
+          }
+        }
+        Fl_Group executeTab {
+          label Execute open
+          xywh {5 50 320 610} selection_color 55 labelfont 1 labelcolor 4 hide
+        } {
+          Fl_Box {} {
+            label Execute
+            xywh {10 55 305 15} box BORDER_BOX color 12 labelfont 1 labelcolor 7
+          }
+          Fl_Button {} {
+            label {Number of Sub Panels:}
+            xywh {10 75 195 20} box BORDER_BOX labelfont 1 labelsize 12 align 80
+          }
+          Fl_Counter numSubPanelCounter {
+            xywh {205 75 110 20} selection_color 15 labelcolor 4 minimum 100 maximum 2000 step 50
+          }
+          Fl_Button subdivideButton {
+            label SubDivide
+            xywh {10 100 145 25} labelfont 1
+          }
+          Fl_Button runVorlaxButton {
+            label {Run VORLAX}
+            xywh {10 130 305 25} labelfont 1 labelcolor 72
+          }
+          Fl_Button surfaceCpButton {
+            label {Calc Surface Cp}
+            xywh {170 100 145 25} labelfont 1
+          }
+          Fl_Progress executeProgress {
+            xywh {10 185 305 15} selection_color 2
+          }
+          Fl_Output executeOutput {
+            xywh {10 160 305 25} color 23
+          }
+          Fl_Box {} {
+            label Display
+            xywh {10 205 305 15} box BORDER_BOX color 12 labelfont 1 labelcolor 7
+          }
+          Fl_Light_Button displayXSecButton {
+            label {XSec Surf}
+            xywh {10 225 130 25} labelfont 1
+          }
+          Fl_Light_Button displaySlicesButton {
+            label Slices
+            xywh {10 285 130 25} labelfont 1
+          }
+          Fl_Light_Button displayCamberButton {
+            label Camber
+            xywh {185 225 130 25} labelfont 1
+          }
+          Fl_Light_Button displaySubPolysButton {
+            label {Sub Polys}
+            xywh {10 255 130 25} labelfont 1
+          }
+          Fl_Light_Button displayCpButton {
+            label Flat
+            xywh {10 335 50 25} labelfont 1
+          }
+          Fl_Light_Button displaySurfaceCpButton {
+            label Surf
+            xywh {10 370 50 25} labelfont 1
+          }
+          Fl_Button {} {
+            label Max
+            xywh {265 335 50 15} box BORDER_BOX labelfont 1
+          }
+          Fl_Button {} {
+            label Min
+            xywh {65 335 50 15} box BORDER_BOX labelfont 1
+          }
+          Fl_Button displayTurnOffAllButton {
+            label {Turn Off All}
+            xywh {185 285 130 25} labelfont 1
+          }
+          Fl_Output cpMaxOutput {
+            xywh {265 350 50 25} color 23 align 0
+          }
+          Fl_Output cpMinOutput {
+            xywh {65 350 50 25} color 23
+          }
+          Fl_Button {} {
+            label Cp
+            xywh {10 320 305 15} box BORDER_BOX labelfont 1
+          }
+          Fl_Output cpMaxClampOutput {
+            xywh {215 350 50 25} color 23
+          }
+          Fl_Roller cpMaxClampRoller {
+            xywh {215 335 50 15} type Horizontal minimum -100 maximum 100 step 1
+          }
+          Fl_Output cpMinClampOutput {
+            xywh {115 350 50 25} color 23
+          }
+          Fl_Roller cpMinClampRoller {
+            xywh {115 335 50 15} type Horizontal minimum -100 maximum 100 step 1
+          }
+          Fl_Box cpMinColorBox {
+            xywh {65 375 35 20} box BORDER_BOX color 9
+          }
+          Fl_Box cpColorBox1 {
+            xywh {100 375 30 20} box BORDER_BOX color 178
+          }
+          Fl_Box cpMaxColorBox {
+            xywh {280 375 35 20} box BORDER_BOX color 9
+          }
+          Fl_Box cpColorBox2 {
+            xywh {130 375 15 20} box BORDER_BOX color 178
+          }
+          Fl_Box cpColorBox3 {
+            xywh {145 375 15 20} box BORDER_BOX color 178
+          }
+          Fl_Box cpColorBox4 {
+            xywh {160 375 15 20} box BORDER_BOX color 178
+          }
+          Fl_Box cpColorBox5 {
+            xywh {175 375 15 20} box BORDER_BOX color 178
+          }
+          Fl_Box cpColorBox6 {
+            xywh {190 375 15 20} box BORDER_BOX color 178
+          }
+          Fl_Roller camberScaleRoller {
+            xywh {240 250 75 15} type Horizontal minimum 0.1 maximum 10 step 0.1 value 1
+          }
+          Fl_Box cpColorBox7 {
+            xywh {205 375 15 20} box BORDER_BOX color 178
+          }
+          Fl_Box cpColorBox8 {
+            xywh {220 375 15 20} box BORDER_BOX color 178
+          }
+          Fl_Box cpColorBox10 {
+            xywh {250 375 30 20} box BORDER_BOX color 178
+          }
+          Fl_Output cpMidOutput {
+            xywh {165 350 50 25} color 23
+          }
+          Fl_Button {} {
+            label Mid
+            xywh {165 335 50 15} box BORDER_BOX labelfont 1
+          }
+          Fl_Box cpColorBox9 {
+            xywh {235 375 15 20} box BORDER_BOX color 178
+          }
+          Fl_Button {} {
+            label Scale
+            xywh {185 250 55 15} box BORDER_BOX
+          }
+        }
+      }
+      Fl_Box TitleBox {
+        label VORVIEW
+        xywh {5 0 305 20} box ROUNDED_BOX labelfont 1 labelsize 16 labelcolor 15
+      }
+    }
+  }
+} 

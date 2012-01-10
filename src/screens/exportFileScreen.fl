@@ -1,0 +1,51 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0300 
+header_name {.h} 
+code_name {.cxx}
+class ExportFileUI {open
+} {
+  Function {ExportFileUI()} {open
+  } {
+    Fl_Window UIWindow {
+      label {Export File} open
+      xywh {529 179 148 309} type Double color 29 resizable visible
+    } {
+      Fl_Box {} {
+        label Export
+        xywh {5 5 136 16} box ROUNDED_BOX color 12 labelfont 1 labelsize 16 labelcolor 7
+      }
+      Fl_Button sterolithButton {
+        label {Sterolith File (.stl)}
+        xywh {5 95 136 25} labelfont 1 labelsize 12 align 64
+      }
+      Fl_Button xsecButton {
+        label {XSec File (.hrm)}
+        xywh {5 60 136 25} labelfont 1 labelsize 12 align 64
+      }
+      Fl_Button felisaButton {
+        label {Felisa File (.fel)}
+        xywh {5 25 136 25} labelfont 1 labelsize 12 align 64
+      }
+      Fl_Button rhinoButton {
+        label {Rhino3D File (.3dm)}
+        xywh {5 130 136 25} labelfont 1 labelsize 12 align 64
+      }
+      Fl_Button nascartButton {
+        label {NASCART File (.dat)}
+        xywh {5 165 136 25} labelfont 1 labelsize 12 align 64
+      }
+      Fl_Button povrayButton {
+        label {POVRAY (.pov)}
+        xywh {5 270 136 25} labelfont 1 labelsize 12 align 64
+      }
+      Fl_Button cart3dButton {
+        label {CART3d File (.tri)}
+        xywh {5 200 136 25} labelfont 1 labelsize 12 align 64
+      }
+      Fl_Button gmshButton {
+        label {Gmsh File (.msh)} selected
+        xywh {5 235 136 25} labelfont 1 labelsize 12 align 64
+      }
+    }
+  }
+} 

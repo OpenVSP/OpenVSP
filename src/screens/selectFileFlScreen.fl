@@ -1,0 +1,44 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0103 
+header_name {.h} 
+code_name {.cxx}
+class SelectFileUI {open
+} {
+  Function {SelectFileUI()} {open
+  } {
+    Fl_Window UIWindow {
+      label {Select File} open
+      xywh {727 195 440 348} color 29 resizable visible
+    } {
+      Fl_Box titleBox {
+        label {Select File}
+        xywh {5 5 355 20} box ROUNDED_BOX labelfont 1 labelsize 16 labelcolor 15
+      }
+      Fl_File_Browser fileBrowser {selected
+        xywh {5 60 430 225} labelsize 12
+      }
+      Fl_File_Input dirInput {
+        xywh {5 30 430 30} labelsize 10 textsize 12
+      }
+      Fl_Input fileInput {
+        xywh {85 290 350 25} labelfont 1 textfont 1
+      }
+      Fl_Button acceptButton {
+        label Accept
+        xywh {5 320 190 25} labelfont 1
+      }
+      Fl_Button cancelButton {
+        label Cancel
+        xywh {245 320 190 25} labelfont 1
+      }
+      Fl_Box {} {
+        label {File:}
+        xywh {5 290 80 25} box BORDER_BOX labelfont 1 labelcolor 15
+      }
+      Fl_Menu_Button favsMenuButton {
+        label Favs open
+        xywh {370 5 65 20} labelfont 1 align 20
+      } {}
+    }
+  }
+} 

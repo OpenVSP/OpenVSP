@@ -1,0 +1,74 @@
+
+
+#ifndef __MATRIX_H_
+#define __MATRIX_H_
+
+#include <math.h>
+#include <string.h>
+#include "defines.h"
+#include "vec3d.h"
+
+
+class Matrix 
+{
+public:
+
+  Matrix();
+
+  void loadIdentity();
+  void setIdentity(float* m);
+  void translatef( float x, float y, float z);
+  void rotateX( float ang );
+  void rotateY( float ang );
+  void rotateZ( float ang );
+
+  void getMat( float* m );
+  void matMult( float* m );
+  void postMult( float* m );
+
+  void initMat( float* m );
+  void mult( float in[4], float out[4] );
+  float * data()	{ return mat; }
+
+private:
+
+  float mat[16];
+
+
+};
+
+class Matrix4d
+{
+public:
+
+  Matrix4d();
+
+  void loadIdentity();
+  void setIdentity(double* m);
+  void translatef( double x, double y, double z);
+  void rotateX( double ang );
+  void rotateY( double ang );
+  void rotateZ( double ang );
+  void rotate( double angle, vec3d & axis );
+
+
+  void getMat( double* m );
+  void matMult( double* m );
+  void postMult( double* m );
+
+
+  void initMat( double* m );
+  void mult( double in[4], double out[4] );
+  double * data()	{ return mat; }
+
+  vec3d xform( vec3d & in );
+
+private:
+
+  double mat[16];
+
+
+};
+
+#endif
+

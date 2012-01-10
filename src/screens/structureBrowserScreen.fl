@@ -1,0 +1,204 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0103 
+header_name {.h} 
+code_name {.cxx}
+class StructureUI {open
+} {
+  Function {StructureUI()} {open
+  } {
+    Fl_Window UIWindow {
+      label Structure open
+      xywh {241 178 355 452} color 29 resizable visible
+    } {
+      Fl_Box {} {
+        label Structure
+        xywh {5 5 345 15} box ROUNDED_BOX labelfont 1 labelsize 16 labelcolor 15
+      }
+      Fl_Choice structureTypeChoice {open
+        xywh {46 69 100 20} down_box BORDER_BOX
+      } {
+        menuitem {} {
+          label {3 Pnt Slice}
+          xywh {0 0 100 20} labelfont 1
+        }
+        menuitem {} {
+          label Rib
+          xywh {10 10 100 20} labelfont 1
+        }
+        menuitem {} {
+          label Spar
+          xywh {20 20 100 20} labelfont 1
+        }
+      }
+      Fl_Button addStructureButton {
+        label Add
+        xywh {6 69 40 20} labelfont 1 labelsize 12 align 64
+      }
+      Fl_Browser structureBrowser {
+        xywh {5 109 140 303} type Hold textsize 12 resizable
+      }
+      Fl_Box {} {
+        label {Parts:}
+        xywh {6 94 138 16} box BORDER_BOX labelfont 1 labelcolor 15
+      }
+      Fl_Button deleteStructureButton {
+        label Delete
+        xywh {6 422 139 20} labelfont 1 labelsize 12
+      }
+      Fl_Choice compChoice {open
+        xywh {5 41 140 20} down_box BORDER_BOX
+      } {}
+      Fl_Box {} {
+        label Comp
+        xywh {5 26 139 15} box BORDER_BOX labelfont 1 labelcolor 15
+      }
+      Fl_Box {} {
+        xywh {151 25 5 421} box BORDER_BOX
+      }
+      Fl_Box {} {
+        label {Name:}
+        xywh {164 25 55 20} box BORDER_BOX labelfont 1 labelcolor 15
+      }
+      Fl_Input PartNameInput {
+        xywh {220 25 130 20}
+      }
+      Fl_Button finalMeshStructureButton {
+        label {Export Final Mesh}
+        xywh {160 318 190 20} labelfont 1 labelsize 12
+      }
+      Fl_Box {} {
+        label {Target Tri Area:}
+        xywh {160 294 135 20} box BORDER_BOX labelfont 1 labelsize 12 labelcolor 0
+      }
+      Fl_Input triAreaInput {
+        xywh {295 294 55 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+      }
+      Fl_Group threePointGroup {open
+        xywh {157 46 193 182} hide
+      } {
+        Fl_Button u1Button {
+          label U
+          xywh {163 66 30 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+        }
+        Fl_Slider u1Slider {
+          xywh {193 66 110 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 3 labelcolor 0
+        }
+        Fl_Box {} {
+          label {Point 1}
+          xywh {163 54 185 12} box BORDER_BOX labelfont 1 labelcolor 15
+        }
+        Fl_Input w1Input {
+          xywh {303 86 45 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+        }
+        Fl_Button w1Button {
+          label W
+          xywh {163 86 30 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+        }
+        Fl_Slider w1Slider {
+          xywh {193 86 110 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 3
+        }
+        Fl_Input u2Input {
+          xywh {303 121 45 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+        }
+        Fl_Button u2Button {
+          label U
+          xywh {163 121 30 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+        }
+        Fl_Slider u2Slider {
+          xywh {193 121 110 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 2
+        }
+        Fl_Box {} {
+          label {Point 2}
+          xywh {163 109 185 12} box BORDER_BOX labelfont 1 labelcolor 15
+        }
+        Fl_Input w2Input {
+          xywh {303 141 45 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+        }
+        Fl_Button w2Button {
+          label W
+          xywh {163 141 30 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+        }
+        Fl_Slider w2Slider {
+          xywh {193 141 110 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 2
+        }
+        Fl_Input u3Input {
+          xywh {303 176 45 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+        }
+        Fl_Button u3Button {
+          label U
+          xywh {163 176 30 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+        }
+        Fl_Slider u3Slider {
+          xywh {193 176 110 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 5
+        }
+        Fl_Box {} {
+          label {Point 3}
+          xywh {163 164 185 12} box BORDER_BOX labelfont 1 labelcolor 15
+        }
+        Fl_Input w3Input {
+          xywh {303 196 45 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+        }
+        Fl_Button w3Button {
+          label W
+          xywh {163 196 30 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+        }
+        Fl_Slider w3Slider {
+          xywh {193 196 110 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 5
+        }
+        Fl_Input u1Input {
+          xywh {303 66 45 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+        }
+      }
+      Fl_Group ribGroup {open
+        xywh {165 50 185 182} hide
+      } {
+        Fl_Box {} {
+          label {Rib - Span}
+          xywh {165 50 185 14} box BORDER_BOX labelfont 1 labelcolor 15
+        }
+        Fl_Input ribSpanInput {
+          xywh {305 64 45 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+        }
+        Fl_Button ribSpanButton {
+          label {%}
+          xywh {165 64 30 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+        }
+        Fl_Slider ribSpanSlider {
+          xywh {195 64 110 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 3
+        }
+      }
+      Fl_Group sparGroup {open
+        xywh {165 52 185 182} hide
+      } {
+        Fl_Box {} {
+          label {Spar - Chord}
+          xywh {165 52 185 14} box BORDER_BOX labelfont 1 labelcolor 15
+        }
+        Fl_Input sparChordInput {
+          xywh {305 66 45 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+        }
+        Fl_Button sparChordButton {
+          label {%}
+          xywh {165 66 30 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+        }
+        Fl_Slider sparChordSlider {
+          xywh {195 66 110 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 3
+        }
+      }
+      Fl_Box {} {
+        label {FEA Export}
+        xywh {160 251 190 15} box BORDER_BOX labelfont 1 labelcolor 15
+      }
+      Fl_Input ExportNameInput {
+        xywh {205 266 145 20}
+      }
+      Fl_Button exportFileButton {
+        label File
+        xywh {160 266 45 20} labelfont 1 labelsize 12 align 64
+      }
+      Fl_Text_Display ResultsDisplay {selected
+        xywh {160 338 190 104}
+      }
+    }
+  }
+} 

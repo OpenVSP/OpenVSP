@@ -1,0 +1,198 @@
+<?xml version="1.0"?>
+<Vsp_Preferences>
+  <Vsp_OutputNames>
+    <OutputName>
+      <Value>WING</Value>
+    </OutputName>
+    <OutputName>
+      <Value>FUSELAGE</Value>
+    </OutputName>
+    <OutputName>
+      <Value>TAIL</Value>
+    </OutputName>
+    <OutputName>
+      <Value>CANOPY</Value>
+    </OutputName>
+    <OutputName>
+      <Value>POD</Value>
+    </OutputName>
+  </Vsp_OutputNames>
+  <WindowManagerStyle>1</WindowManagerStyle>
+  <DefaultComponentFileID>0</DefaultComponentFileID>
+  <DefaultComponentFileList>
+    <DefaultComponentFile>
+      <Name>BWB</Name>
+      <File>Defaults/BWB_Def.vsp</File>
+    </DefaultComponentFile>
+  </DefaultComponentFileList>
+  <Vsp_Material_Defines>
+    <Material>
+      <Name>Emerald</Name>
+      <Ambient>0.0215, 0.1745, 0.0215, 1.0</Ambient>
+      <Diffuse>0.07568, 0.61424, 0.07568, 1.0</Diffuse>
+      <Specular>0.633, 0.727811, 0.633, 1.0</Specular>
+      <Shininess>76.0</Shininess>
+      <Emission>0.0, 0.0, 0.0, 1.0</Emission>
+    </Material>
+    <Material>
+      <Name>Jade</Name>
+      <Ambient>0.135, 0.2225, 0.1575, 1.0</Ambient>
+      <Diffuse>0.54, 0.89, 0.63, 1.0</Diffuse>
+      <Specular>0.31622, 0.316, 0.316, 1.0</Specular>
+      <Shininess>12.0</Shininess>
+      <Emission>0.0, 0.0, 0.0, 1.0</Emission>
+    </Material>
+    <Material>
+      <Name>Obsidian</Name>
+      <Ambient>0.054, 0.05, 0.066, 1.0</Ambient>
+      <Diffuse>0.183, 0.17, 0.225, 1.0</Diffuse>
+      <Specular>0.333, 0.329, 0.346, 1.0</Specular>
+      <Shininess>38.0</Shininess>
+      <Emission>0.0, 0.0, 0.0, 1.0</Emission>
+    </Material>
+    <Material>
+      <Name>Brass</Name>
+      <Ambient>0.330, 0.223, 0.0275 1.0</Ambient>
+      <Diffuse>0.78, 0.57, 0.11, 1.0</Diffuse>
+      <Specular>0.99, 0.94, 0.81, 1.0</Specular>
+      <Shininess>27.0</Shininess>
+      <Emission>0.0, 0.0, 0.0, 1.0</Emission>
+    </Material>
+    <Material>
+      <Name>Chrome</Name>
+      <Ambient>0.25, 0.25, 0.25, 1.0</Ambient>
+      <Diffuse>0.4, 0.4, 0.4, 1.0</Diffuse>
+      <Specular>0.77, 0.77, 0.77, 1.0</Specular>
+      <Shininess>77.0</Shininess>
+      <Emission>0.0, 0.0, 0.0, 1.0</Emission>
+    </Material>
+    <Material>
+      <Name>Gold</Name>
+      <Ambient>0.25, 0.20, 0.07, 1.0</Ambient>
+      <Diffuse>0.75, 0.61, 0.22, 1.0</Diffuse>
+      <Specular>0.62, 0.55, 0.37, 1.0</Specular>
+      <Shininess>51.0</Shininess>
+      <Emission>0.0, 0.0, 0.0, 1.0</Emission>
+    </Material>
+    <Material>
+      <Name>Silver</Name>
+      <Ambient>0.20, 0.20, 0.20, 1.0</Ambient>
+      <Diffuse>0.50, 0.50, 0.50, 1.0</Diffuse>
+      <Specular>0.51, 0.51, 0.51, 1.0</Specular>
+      <Shininess>51.0</Shininess>
+      <Emission>0.0, 0.0, 0.0, 1.0</Emission>
+    </Material>
+    <Material>
+      <Name>Black Plastic</Name>
+      <Ambient>0.0, 0.0, 0.0, 1.0</Ambient>
+      <Diffuse>0.01, 0.01, 0.01, 1.0</Diffuse>
+      <Specular>0.50, 0.50, 0.50, 1.0</Specular>
+      <Shininess>32.0</Shininess>
+      <Emission>0.0, 0.0, 0.0, 1.0</Emission>
+    </Material>
+    <Material>
+      <Name>Cyan Plastic</Name>
+      <Ambient>0.0, 0.1, 0.06, 1.0</Ambient>
+      <Diffuse>0.0, 0.51, 0.51, 1.0</Diffuse>
+      <Specular>0.51, 0.51, 0.51, 1.0</Specular>
+      <Shininess>32.0</Shininess>
+      <Emission>0.0, 0.0, 0.0, 1.0</Emission>
+    </Material>
+    <Material>
+      <Name>Green Plastic</Name>
+      <Ambient>0.0, 0.0, 0.0, 1.0</Ambient>
+      <Diffuse>0.1, 0.35, 0.1, 1.0</Diffuse>
+      <Specular>0.45, 0.55, 0.45, 1.0</Specular>
+      <Shininess>32.0</Shininess>
+      <Emission>0.0, 0.0, 0.0, 1.0</Emission>
+    </Material>
+    <Material>
+      <Name>Red Plastic</Name>
+      <Ambient>0.0, 0.0, 0.0, 1.0</Ambient>
+      <Diffuse>0.5, 0.0, 0.0, 1.0</Diffuse>
+      <Specular>0.7, 0.6, 0.6, 1.0</Specular>
+      <Shininess>32.0</Shininess>
+      <Emission>0.0, 0.0, 0.0, 1.0</Emission>
+    </Material>
+    <Material>
+      <Name>Blue Plastic</Name>
+      <Ambient>0.5, 0.5, 0.87, 1.0</Ambient>
+      <Diffuse>0.4, 0.4, 0.7, 1.0</Diffuse>
+      <Specular>1.0, 1.0, 1.0, 1.0</Specular>
+      <Shininess>35.0</Shininess>
+      <Emission>0.0, 0.0, 0.0, 1.0</Emission>
+    </Material>
+    <Material>
+      <Name>Yellow Plastic</Name>
+      <Ambient>0.3, 0.2, 0.0, 1.0</Ambient>
+      <Diffuse>0.6, 0.4, 0.1, 1.0</Diffuse>
+      <Specular>0.55, 0.55, 0.35, 1.0</Specular>
+      <Shininess>30.0</Shininess>
+      <Emission>0.0, 0.0, 0.0, 1.0</Emission>
+    </Material>
+    <Material>
+      <Name>White</Name>
+      <Ambient>0.9, 0.9, 0.9, 1.0</Ambient>
+      <Diffuse>0.8, 0.8, 0.8, 1.0</Diffuse>
+      <Specular>0.8, 0.8, 0.8, 1.0</Specular>
+      <Shininess>40.0</Shininess>
+      <Emission>0.0, 0.0, 0.0, 1.0</Emission>
+    </Material>
+    <Material>
+      <Name>Aluminum</Name>
+      <Ambient>0.25, 0.25, 0.25, 1.0</Ambient>
+      <Diffuse>0.5, 0.5, 0.5, 1.0</Diffuse>
+      <Specular>0.6, 0.6, 0.6, 1.0</Specular>
+      <Shininess>5.0</Shininess>
+      <Emission>0.0, 0.0, 0.0, 1.0</Emission>
+    </Material>
+    <Material>
+      <Name>Shiny Gold</Name>
+      <Ambient>0.4, 0.2, 0.0, 1.0</Ambient>
+      <Diffuse>0.9, 0.5, 0.0, 1.0</Diffuse>
+      <Specular>0.9, 0.9, 0.0, 1.0</Specular>
+      <Shininess>2.0</Shininess>
+      <Emission>0.0, 0.0, 0.0, 1.0</Emission>
+    </Material>
+    <Material>
+      <Name>Glass_Light</Name>
+      <Ambient>0.2, 0.2, 0.2, 0.2</Ambient>
+      <Diffuse>0.1, 0.1, 0.1, 0.33</Diffuse>
+      <Specular>0.7, 0.7, 0.7, 0.7</Specular>
+      <Shininess>5.0</Shininess>
+      <Emission>0.0, 0.0, 0.0, 1.0</Emission>
+    </Material>
+    <Material>
+      <Name>Glass_Med</Name>
+      <Ambient>0.2, 0.2, 0.2, 0.2</Ambient>
+      <Diffuse>0.1, 0.1, 0.1, 0.5</Diffuse>
+      <Specular>0.7, 0.7, 0.7, 0.7</Specular>
+      <Shininess>5.0</Shininess>
+      <Emission>0.0, 0.0, 0.0, 1.0</Emission>
+    </Material>
+    <Material>
+      <Name>Glass_Dark</Name>
+      <Ambient>0.0, 0.0, 0.0, 0.0</Ambient>
+      <Diffuse>0.0, 0.0, 0.0, 0.67</Diffuse>
+      <Specular>0.7, 0.7, 0.7, 0.7</Specular>
+      <Shininess>5.0</Shininess>
+      <Emission>0.0, 0.0, 0.0, 1.0</Emission>
+    </Material>
+    <Material>
+      <Name>Glass_Golden</Name>
+      <Ambient>0.27, 0.28, 0.23, 1.0</Ambient>
+      <Diffuse>0.61, 0.41, 0.27, 0.5</Diffuse>
+      <Specular>0.97, 0.64, 0.28, 1.0</Specular>
+      <Shininess>10.0</Shininess>
+      <Emission>0.0, 0.0, 0.0, 1.0</Emission>
+    </Material>
+    <Material>
+      <Name>Blank</Name>
+      <Ambient>0.0, 0.0, 0.0, 1.0</Ambient>
+      <Diffuse>0.0, 0.0, 0.0, 1.0</Diffuse>
+      <Specular>0.0, 0.0, 0.0, 1.0</Specular>
+      <Shininess>0.0</Shininess>
+      <Emission>0.0, 0.0, 0.0, 1.0</Emission>
+    </Material>
+  </Vsp_Material_Defines>
+</Vsp_Preferences>

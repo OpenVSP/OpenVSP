@@ -1,0 +1,74 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0300 
+header_name {.h} 
+code_name {.cxx}
+class CompGeomUI {open
+} {
+  Function {CompGeomUI()} {open
+  } {
+    Fl_Window UIWindow {
+      label {Comp Geom} open
+      xywh {1036 56 378 407} type Double color 45 resizable visible
+    } {
+      Fl_Box {} {
+        label {Comp Geom - Mesh, Intersect, Trim}
+        xywh {5 5 365 25} box ROUNDED_BOX labelfont 1 labelsize 16 labelcolor 15
+      }
+      Fl_Box {} {
+        xywh {5 150 365 5} box BORDER_BOX color 4
+      }
+      Fl_Button executeButton {
+        label Execute
+        xywh {5 375 260 25} labelfont 1
+      }
+      Fl_Box {} {
+        label {File Export}
+        xywh {5 38 365 17} box BORDER_BOX labelfont 1 labelcolor 15
+      }
+      Fl_Light_Button csvFileButton {
+        label {.csv}
+        xywh {5 85 60 20} labelfont 1
+      }
+      Fl_Button csvFileChooseButton {
+        label {...}
+        xywh {345 85 25 20} labelfont 1
+      }
+      Fl_Button txtFileChooseButon {
+        label {...}
+        xywh {345 60 25 20} labelfont 1
+      }
+      Fl_Text_Display outputTextDisplay {selected
+        xywh {5 160 365 210} color 23 labelcolor 32 textfont 4 textsize 12
+      }
+      Fl_Output csvFileOutput {
+        xywh {65 85 280 20} color 17
+      }
+      Fl_Output txtFileOutput {
+        xywh {65 60 280 20} color 17
+      }
+      Fl_Box {} {
+        label {.txt}
+        xywh {5 60 60 20} box BORDER_BOX labelfont 1
+      }
+      Fl_Light_Button half_mesh_button {
+        label {Half Mesh}
+        xywh {275 375 95 25} labelfont 1
+      }
+      Fl_Light_Button tsvFileButton {
+        label {.tsv}
+        xywh {5 125 60 20} labelfont 1
+      }
+      Fl_Output tsvFileOutput {
+        xywh {65 125 280 20} color 17
+      }
+      Fl_Button tsvFileChooseButton {
+        label {...}
+        xywh {345 125 25 20} labelfont 1
+      }
+      Fl_Box {} {
+        label {Parasite Drag Output}
+        xywh {5 108 365 17} box BORDER_BOX labelfont 1 labelcolor 15
+      }
+    }
+  }
+} 

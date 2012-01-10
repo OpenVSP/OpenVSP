@@ -1,0 +1,35 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0300 
+header_name {.h} 
+code_name {.cxx}
+class ImportFileUI {open
+} {
+  Function {ImportFileUI()} {open
+  } {
+    Fl_Window UIWindow {
+      label {Import File} open
+      xywh {807 678 147 216} type Double color 29 resizable visible
+    } {
+      Fl_Box {} {
+        label Import
+        xywh {5 5 136 16} box ROUNDED_BOX labelfont 1 labelsize 16 labelcolor 15
+      }
+      Fl_Button sterolithButton {
+        label {STL (.stl)}
+        xywh {5 25 136 25} labelfont 1 labelsize 12 align 64
+      }
+      Fl_Button nascartButton {
+        label {NASCART (bodyin.dat)}
+        xywh {5 60 136 25} labelfont 1 labelsize 12 align 64
+      }
+      Fl_Button xsecButton {
+        label {XSec to Mesh (.hrm)}
+        xywh {5 95 136 25} labelfont 1 labelsize 12 align 64
+      }
+      Fl_Button xsecSurfButton {
+        label {XSec to Surf (.hrm)} selected
+        xywh {5 130 136 25} labelfont 1 labelsize 12 align 64
+      }
+    }
+  }
+} 

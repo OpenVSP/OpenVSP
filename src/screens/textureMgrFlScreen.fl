@@ -1,0 +1,151 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0103 
+header_name {.h} 
+code_name {.cxx}
+class TextureMgrUI {open
+} {
+  Function {TextureMgrUI()} {open
+  } {
+    Fl_Window UIWindow {
+      label {Texture Mgr} open
+      xywh {654 246 354 507} color 45 resizable visible
+    } {
+      Fl_Box {} {
+        label {Texture Mgr}
+        xywh {5 5 345 20} box ROUNDED_BOX labelfont 1 labelsize 16 labelcolor 15
+      }
+      Fl_Choice compChoice {open
+        xywh {100 30 250 25} down_box BORDER_BOX textfont 1
+      } {}
+      Fl_Box {} {
+        label {Comp:}
+        xywh {5 30 95 25} box BORDER_BOX labelfont 1 labelcolor 15
+      }
+      Fl_Box {} {
+        label Texture
+        xywh {5 60 345 15} box BORDER_BOX color 12 labelfont 1 labelcolor 7
+      }
+      Fl_Button addTextureButton {
+        label {Add...} selected
+        xywh {5 80 185 25} labelfont 1
+      }
+      Fl_Button {} {
+        label {Edit:}
+        xywh {5 110 40 25} box THIN_UP_BOX labelfont 1 align 64
+      }
+      Fl_Input textureNameInput {
+        xywh {80 170 110 25}
+      }
+      Fl_Choice textureChoice {open
+        xywh {45 110 145 25} down_box BORDER_BOX
+      } {}
+      Fl_Button delTextureButton {
+        label Del
+        xywh {5 140 185 25} labelfont 1
+      }
+      Fl_Light_Button flipUButton {
+        label {Flip U}
+        xywh {5 440 165 20} labelfont 1 align 148
+      }
+      Fl_Button {} {
+        label {Surface:}
+        xywh {5 205 75 25} box THIN_UP_BOX labelfont 1 align 64
+      }
+      Fl_Choice textureSurfChoice {open
+        xywh {80 205 110 25} down_box BORDER_BOX
+      } {}
+      Fl_Light_Button flipWButton {
+        label {Flip W}
+        xywh {185 440 165 20} labelfont 1 align 148
+      }
+      Fl_Light_Button reflFlipUButton {
+        label {Flip U}
+        xywh {5 480 165 20} labelfont 1 align 148
+      }
+      Fl_Light_Button reflFlipWButton {
+        label {Flip W}
+        xywh {185 478 165 22} labelfont 1 align 148
+      }
+      Fl_Light_Button repeatTextureButton {
+        label {Repeat Texture}
+        xywh {5 398 345 22} labelfont 1 align 148
+      }
+      Fl_Slider uPosSlider {
+        xywh {155 240 130 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+      }
+      Fl_Input uPosInput {
+        xywh {285 240 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+      }
+      Fl_Button uPosButton {
+        label {U Position}
+        xywh {5 240 150 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+      }
+      Fl_Group texGLGroup {
+        label GL_WIN open
+        xywh {200 80 150 150} box BORDER_BOX color 29 align 16
+      } {}
+      Fl_Button {} {
+        label {Name:}
+        xywh {5 170 75 25} box THIN_UP_BOX labelfont 1 align 64
+      }
+      Fl_Slider wPosSlider {
+        xywh {155 263 130 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+      }
+      Fl_Input wPosInput {
+        xywh {285 263 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+      }
+      Fl_Button wPosButton {
+        label {W Position}
+        xywh {5 263 150 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+      }
+      Fl_Slider uScaleSlider {
+        xywh {155 290 130 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+      }
+      Fl_Input uScaleInput {
+        xywh {285 290 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+      }
+      Fl_Button uScaleButton {
+        label {U Scale}
+        xywh {5 290 150 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+      }
+      Fl_Slider wScaleSlider {
+        xywh {155 313 130 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+      }
+      Fl_Input wScaleInput {
+        xywh {285 313 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+      }
+      Fl_Button wScaleButton {
+        label {W Scale}
+        xywh {5 313 150 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+      }
+      Fl_Slider brightSlider {
+        xywh {155 340 130 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+      }
+      Fl_Input brightInput {
+        xywh {285 340 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+      }
+      Fl_Button brightButton {
+        label Brightness
+        xywh {5 340 150 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+      }
+      Fl_Slider alphaSlider {
+        xywh {155 367 130 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+      }
+      Fl_Input alphaInput {
+        xywh {285 367 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+      }
+      Fl_Button alphaButton {
+        label Transparency
+        xywh {5 367 150 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+      }
+      Fl_Box {} {
+        label {Texture Coords}
+        xywh {5 425 345 15} box BORDER_BOX color 12 labelfont 1 labelcolor 7
+      }
+      Fl_Box {} {
+        label {Reflected Comp Texture Coords}
+        xywh {5 465 345 15} box BORDER_BOX color 12 labelfont 1 labelcolor 7
+      }
+    }
+  }
+} 

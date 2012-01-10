@@ -1,0 +1,677 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0103 
+header_name {.h} 
+code_name {.cxx}
+class FEAStructUI {open
+} {
+  Function {FEAStructUI()} {open
+  } {
+    Fl_Window UIWindow {
+      label {FEA Structure} open
+      xywh {763 134 362 882} box BORDER_BOX color 45 resizable visible
+    } {
+      Fl_Box {} {
+        label {FEA Structure}
+        xywh {5 5 345 20} box ROUNDED_BOX labelfont 1 labelsize 16 labelcolor 15
+      }
+      Fl_Button computeFEAMeshButton {
+        label {Compute Mesh}
+        xywh {5 560 115 25} labelfont 1
+      }
+      Fl_Text_Display outputText {
+        xywh {5 590 350 120}
+      }
+      Fl_Box {} {
+        label {Section ID}
+        xywh {5 95 230 25} box BORDER_BOX labelfont 1 labelcolor 15 align 16
+      }
+      Fl_Input sectIDInput {
+        xywh {255 95 75 25} type Float box THIN_DOWN_BOX labelsize 12 align 16 textfont 1 textsize 16
+      }
+      Fl_Box {} {
+        xywh {5 550 350 5} box BORDER_BOX color 4
+      }
+      Fl_Box {} {
+        xywh {5 85 345 5} box BORDER_BOX color 4
+      }
+      Fl_Button sectIDLeftButton {
+        label {<}
+        xywh {235 95 20 25} labelfont 1 labelcolor 4
+      }
+      Fl_Button sectIDRightButton {
+        label {>}
+        xywh {330 95 20 25} labelfont 1 labelcolor 4
+      }
+      Fl_Slider thickScaleSlider {
+        xywh {165 55 120 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+      }
+      Fl_Input thickScaleInput {
+        xywh {285 55 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+      }
+      Fl_Button {} {
+        label {Thickness Scale}
+        xywh {5 55 160 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+      }
+      Fl_Slider elemSizeSlider {
+        xywh {165 35 120 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+      }
+      Fl_Input elemSizeInput {
+        xywh {285 35 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+      }
+      Fl_Button {} {
+        label {Default Element Size}
+        xywh {5 35 160 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+      }
+      Fl_Tabs editTabs {open
+        xywh {5 135 355 410}
+      } {
+        Fl_Group upperSkinGroup {
+          label { Up Skin } open
+          xywh {5 155 350 390} box BORDER_BOX color 46 selection_color 15 labelfont 1 labelsize 16 labelcolor 7
+        } {
+          Fl_Light_Button upSkinExportYesButton {
+            label Yes
+            xywh {160 184 95 20} labelfont 1
+          }
+          Fl_Light_Button upSkinExportNoButton {
+            label No
+            xywh {255 184 90 20} labelfont 1
+          }
+          Fl_Button {} {
+            label {Export?}
+            xywh {10 184 150 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+          }
+          Fl_Group upperSkinEditGroup {open
+            xywh {10 207 335 333}
+          } {
+            Fl_Button upSplicePosButton {
+              label Position
+              xywh {10 520 120 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+            }
+            Fl_Slider upSkinThickSlider {
+              xywh {160 211 120 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+            }
+            Fl_Input upSkinThickInput {
+              xywh {280 211 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+            }
+            Fl_Button {} {
+              label {Default Thickness}
+              xywh {10 211 150 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+            }
+            Fl_Button upSkinAddSpliceLineButton {
+              label Add
+              xywh {165 281 70 39} labelfont 1 align 64
+            }
+            Fl_Box {} {
+              label {Splice Lines}
+              xywh {10 265 335 15} box BORDER_BOX labelfont 1 labelcolor 15
+            }
+            Fl_Slider upSkinSpliceLineLocSlider {
+              xywh {170 325 110 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 4 labelcolor 0
+            }
+            Fl_Input upSkinSpliceLineLocInput {
+              xywh {280 325 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+            }
+            Fl_Button upSkinDelSpliceLineButton {
+              label Delete
+              xywh {270 280 75 40} labelfont 1 align 64
+            }
+            Fl_Button w1Button {
+              label {Splice Line Loc}
+              xywh {10 325 160 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+            }
+            Fl_Box EditSourceTitle {
+              label {Splices (Click Window to Add/Move)}
+              xywh {10 365 335 15} box BORDER_BOX labelfont 1 labelcolor 15
+            }
+            Fl_Group upSkinSpliceLineGLGroup {
+              label GL_WIN open
+              xywh {10 410 335 80} box BORDER_BOX color 29 align 16
+            } {}
+            Fl_Slider upSpliceThickSlider {
+              xywh {130 495 150 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+            }
+            Fl_Input upSpliceThickInput {
+              xywh {280 495 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+            }
+            Fl_Button upSpliceThickButton {
+              label Thickness
+              xywh {10 495 120 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+            }
+            Fl_Slider upSplicePosSlider {
+              xywh {130 520 150 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+            }
+            Fl_Input upSplicePosInput {
+              xywh {280 520 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+            }
+            Fl_Light_Button upSkinAddSpliceButton {
+              label {Add Splice}
+              xywh {10 380 120 25} labelfont 1
+            }
+            Fl_Box {} {
+              label {Splice Line ID}
+              xywh {10 280 120 20} box BORDER_BOX labelfont 1 labelcolor 15 align 16
+            }
+            Fl_Input upSpliceLineIDInput {
+              xywh {30 300 80 20} type Float box THIN_DOWN_BOX labelsize 12 align 16 textfont 1 textsize 16
+            }
+            Fl_Button upSpliceLineIDDownButton {
+              label {<}
+              xywh {10 300 20 20} labelfont 1 labelcolor 4
+            }
+            Fl_Button upSpliceLineIDUpButton {
+              label {>}
+              xywh {110 300 20 20} labelfont 1 labelcolor 4
+            }
+            Fl_Button upSkinDelSpliceButton {
+              label Delete
+              xywh {270 381 75 24} labelfont 1 align 64
+            }
+            Fl_Button upSpliceIDLeftButton {
+              label {<}
+              xywh {175 380 20 25} labelfont 1 labelcolor 4
+            }
+            Fl_Button upSpliceIDRightButton {
+              label {>}
+              xywh {200 380 20 25} labelfont 1 labelcolor 4
+            }
+            Fl_Slider upSkinDensitySlider {
+              xywh {160 234 120 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+            }
+            Fl_Input upSkinDensityInput {
+              xywh {280 234 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+            }
+            Fl_Button {} {
+              label Density
+              xywh {10 234 150 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+            }
+          }
+          Fl_Box {} {
+            label {Upper Skin}
+            xywh {10 160 335 20} box ROUNDED_BOX color 54 labelfont 1 labelsize 16 labelcolor 15
+          }
+        }
+        Fl_Group lowerSkinGroup {
+          label { Low Skin } open
+          xywh {5 155 350 390} box BORDER_BOX color 46 selection_color 15 labelfont 1 labelsize 16 labelcolor 7 hide
+        } {
+          Fl_Light_Button lowSkinExportYesButton {
+            label Yes
+            xywh {160 183 95 20} labelfont 1
+          }
+          Fl_Light_Button lowSkinExportNoButton {
+            label No
+            xywh {255 183 90 20} labelfont 1
+          }
+          Fl_Button {} {
+            label {Export?}
+            xywh {10 183 150 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+          }
+          Fl_Group lowerSkinEditGroup {open
+            xywh {10 210 335 330}
+          } {
+            Fl_Button lowSplicePosButton {
+              label Position
+              xywh {10 520 120 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+            }
+            Fl_Slider lowSkinThickSlider {
+              xywh {160 210 120 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+            }
+            Fl_Input lowSkinThickInput {
+              xywh {280 210 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+            }
+            Fl_Button {} {
+              label {Default Thickness}
+              xywh {10 210 150 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+            }
+            Fl_Button lowSkinAddSpliceLineButton {
+              label Add
+              xywh {165 281 70 39} labelfont 1 align 64
+            }
+            Fl_Box {} {
+              label {Splice Lines}
+              xywh {10 265 335 15} box BORDER_BOX labelfont 1 labelcolor 15
+            }
+            Fl_Slider lowSkinSpliceLineLocSlider {
+              xywh {170 325 110 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 4 labelcolor 0
+            }
+            Fl_Input lowSkinSpliceLineLocInput {
+              xywh {280 325 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+            }
+            Fl_Button lowSkinDelSpliceLineButton {
+              label Delete
+              xywh {270 280 75 40} labelfont 1 align 64
+            }
+            Fl_Button lowSpliceLineLocButton {
+              label {Splice Line Loc}
+              xywh {10 325 160 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+            }
+            Fl_Box {} {
+              label {Splices (Click Window to Add/Move)}
+              xywh {10 365 335 15} box BORDER_BOX labelfont 1 labelcolor 15
+            }
+            Fl_Group lowSkinSpliceLineGLGroup {
+              label GL_WIN open
+              xywh {10 410 335 80} box BORDER_BOX color 29 align 16
+            } {}
+            Fl_Slider lowSpliceThickSlider {
+              xywh {130 495 150 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+            }
+            Fl_Input lowSpliceThickInput {
+              xywh {280 495 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+            }
+            Fl_Button lowSpliceThickButton {
+              label Thickness
+              xywh {10 495 120 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+            }
+            Fl_Slider lowSplicePosSlider {
+              xywh {130 520 150 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+            }
+            Fl_Input lowSplicePosInput {
+              xywh {280 520 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+            }
+            Fl_Light_Button lowSkinAddSpliceButton {
+              label {Add Splice}
+              xywh {10 380 120 25} labelfont 1
+            }
+            Fl_Box {} {
+              label {Splice Line ID}
+              xywh {10 280 120 20} box BORDER_BOX labelfont 1 labelcolor 15 align 16
+            }
+            Fl_Input lowSpliceLineIDInput {
+              xywh {30 300 80 20} type Float box THIN_DOWN_BOX labelsize 12 align 16 textfont 1 textsize 16
+            }
+            Fl_Button lowSpliceLineIDDownButton {
+              label {<}
+              xywh {10 300 20 20} labelfont 1 labelcolor 4
+            }
+            Fl_Button lowSpliceLineIDUpButton {
+              label {>}
+              xywh {110 300 20 20} labelfont 1 labelcolor 4
+            }
+            Fl_Button lowSkinDelSpliceButton {
+              label Delete
+              xywh {270 381 75 24} labelfont 1 align 64
+            }
+            Fl_Button lowSpliceIDLeftButton {
+              label {<}
+              xywh {175 380 20 25} labelfont 1 labelcolor 4
+            }
+            Fl_Button lowSpliceIDRightButton {
+              label {>}
+              xywh {200 380 20 25} labelfont 1 labelcolor 4
+            }
+            Fl_Slider lowSkinDensitySlider {
+              xywh {160 233 120 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+            }
+            Fl_Input lowSkinDensityInput {
+              xywh {280 233 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+            }
+            Fl_Button {} {
+              label Density
+              xywh {10 233 150 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+            }
+          }
+          Fl_Box {} {
+            label {Lower Skin}
+            xywh {10 160 335 20} box ROUNDED_BOX color 54 labelfont 1 labelsize 16 labelcolor 15
+          }
+        }
+        Fl_Group ribGroup {
+          label { Ribs } open
+          xywh {5 155 350 390} box BORDER_BOX color 46 selection_color 15 labelfont 1 labelsize 16 labelcolor 7 hide
+        } {
+          Fl_Box {} {
+            label {Rib ID}
+            xywh {10 195 120 20} box BORDER_BOX labelfont 1 labelcolor 15 align 16
+          }
+          Fl_Input ribIDInput {
+            xywh {30 215 80 20} type Float box THIN_DOWN_BOX labelsize 12 align 16 textfont 1 textsize 16
+          }
+          Fl_Button ribIDDownButton {
+            label {<}
+            xywh {10 215 20 20} labelfont 1 labelcolor 4
+          }
+          Fl_Button ribIDUpButton {
+            label {>}
+            xywh {110 215 20 20} labelfont 1 labelcolor 4
+          }
+          Fl_Button delRibButton {
+            label {Delete Rib}
+            xywh {140 228 205 22} labelfont 1
+          }
+          Fl_Button addRibButton {
+            label {Add Rib}
+            xywh {140 198 205 22} labelfont 1
+          }
+          Fl_Group ribEditGroup {open
+            xywh {5 225 350 180}
+          } {
+            Fl_Slider ribThickSlider {
+              xywh {120 265 165 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+            }
+            Fl_Input ribThickInput {
+              xywh {285 265 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+            }
+            Fl_Button ribThickButton {
+              label Thickness
+              xywh {10 265 110 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+            }
+            Fl_Slider ribPosSlider {
+              xywh {120 325 165 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+            }
+            Fl_Input ribPosInput {
+              xywh {285 325 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+            }
+            Fl_Button ribPosButton {
+              label Postion
+              xywh {10 325 110 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+            }
+            Fl_Slider ribSweepSlider {
+              xywh {175 355 110 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+            }
+            Fl_Input ribSweepInput {
+              xywh {285 355 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+            }
+            Fl_Button ribSweepButton {
+              label Sweep
+              xywh {10 355 65 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+            }
+            Fl_Light_Button ribSweepAbsButton {
+              label Abs
+              xywh {75 355 50 20} labelfont 1
+            }
+            Fl_Light_Button ribSweepRelButton {
+              label Rel
+              xywh {125 355 50 20} labelfont 1
+            }
+            Fl_Light_Button trimRibButton {
+              label {Trim At Section Border}
+              xywh {10 385 340 20} labelfont 1
+            }
+            Fl_Slider ribDensitySlider {
+              xywh {120 290 165 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+            }
+            Fl_Input ribDensityInput {
+              xywh {285 290 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+            }
+            Fl_Button ribDensityButton {
+              label Density
+              xywh {10 290 110 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+            }
+          }
+          Fl_Box {} {
+            label Ribs
+            xywh {10 160 335 20} box ROUNDED_BOX color 54 labelfont 1 labelsize 16 labelcolor 15
+          }
+        }
+        Fl_Group sparGroup {
+          label Spars open
+          xywh {5 155 355 390} box BORDER_BOX color 46 selection_color 15 labelfont 1 labelsize 16 labelcolor 7 hide
+        } {
+          Fl_Box {} {
+            label {Spar ID}
+            xywh {10 195 120 20} box BORDER_BOX labelfont 1 labelcolor 15 align 16
+          }
+          Fl_Input sparIDInput {
+            xywh {30 215 80 20} type Float box THIN_DOWN_BOX labelfont 1 labelsize 16 align 16 textfont 1 textsize 16
+          }
+          Fl_Button sparIDDownButton {
+            label {<}
+            xywh {10 215 20 20} labelfont 1 labelcolor 4
+          }
+          Fl_Button sparIDUpButton {
+            label {>}
+            xywh {110 215 20 20} labelfont 1 labelcolor 4
+          }
+          Fl_Button delSparButton {
+            label {Delete Spar}
+            xywh {140 228 205 22} labelfont 1
+          }
+          Fl_Button addSparButton {
+            label {Add Spar}
+            xywh {140 198 205 22} labelfont 1
+          }
+          Fl_Group sparEditGroup {open
+            xywh {5 225 355 180}
+          } {
+            Fl_Slider sparThickSlider {
+              xywh {120 265 165 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+            }
+            Fl_Input sparThickInput {
+              xywh {285 265 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+            }
+            Fl_Button sparThickButton {
+              label Thickness
+              xywh {10 265 110 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+            }
+            Fl_Slider sparPosSlider {
+              xywh {120 325 165 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+            }
+            Fl_Input sparPosInput {
+              xywh {285 325 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+            }
+            Fl_Button sparPosButton {
+              label Postion
+              xywh {10 325 110 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+            }
+            Fl_Slider sparSweepSlider {
+              xywh {175 355 110 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+            }
+            Fl_Input sparSweepInput {
+              xywh {285 355 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+            }
+            Fl_Button sparSweepButton {
+              label Sweep
+              xywh {10 355 65 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+            }
+            Fl_Light_Button sparSweepAbsButton {
+              label Abs
+              xywh {75 355 50 20} labelfont 1
+            }
+            Fl_Light_Button sparSweepRelButton {
+              label Rel
+              xywh {125 355 50 20} labelfont 1
+            }
+            Fl_Light_Button trimSparButton {
+              label {Trim At Section Border}
+              xywh {10 385 340 20} labelfont 1
+            }
+            Fl_Slider sparDensitySlider {
+              xywh {120 290 165 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+            }
+            Fl_Input sparDensityInput {
+              xywh {285 290 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+            }
+            Fl_Button sparDensityButton {
+              label Density
+              xywh {10 290 110 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+            }
+          }
+          Fl_Box {} {
+            label Spars
+            xywh {10 160 335 20} box ROUNDED_BOX color 54 labelfont 1 labelsize 16 labelcolor 15
+          }
+        }
+        Fl_Group pointMassGroup {
+          label {Pt Mass} open
+          xywh {5 160 355 385} color 46 selection_color 15 labelfont 1 labelsize 16 labelcolor 7 hide
+        } {
+          Fl_Box {} {
+            label {Point Mass}
+            xywh {10 160 335 20} box ROUNDED_BOX color 54 labelfont 1 labelsize 16 labelcolor 15
+          }
+          Fl_Box {} {
+            label {Pt Mass ID}
+            xywh {10 195 120 20} box BORDER_BOX labelfont 1 labelcolor 15 align 16
+          }
+          Fl_Input ptMassIDInput {
+            xywh {30 215 80 20} type Float box THIN_DOWN_BOX labelfont 1 labelsize 16 align 16 textfont 1 textsize 16
+          }
+          Fl_Button ptMassIDDownButton {
+            label {<}
+            xywh {10 215 20 20} labelfont 1 labelcolor 4
+          }
+          Fl_Button ptMassIDUpButton {
+            label {>}
+            xywh {110 215 20 20} labelfont 1 labelcolor 4
+          }
+          Fl_Button delPtMassButton {
+            label {Delete Point Mass}
+            xywh {140 223 205 22} labelfont 1
+          }
+          Fl_Button addPtMassButton {
+            label {Add Point Mass}
+            xywh {140 194 205 22} labelfont 1
+          }
+          Fl_Group ptMassEditGroup {open
+            xywh {10 250 345 230}
+          } {
+            Fl_Light_Button moveAttachPointButton {
+              label {Move Attach Point}
+              xywh {15 375 235 25} labelfont 1
+            }
+            Fl_Box {} {
+              label Location
+              xywh {15 265 340 15} box BORDER_BOX labelfont 1 labelcolor 15
+            }
+            Fl_Slider pmXLocSlider {
+              xywh {45 280 245 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+            }
+            Fl_Input pmXLocInput {
+              xywh {290 280 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+            }
+            Fl_Button pmXLocButton {
+              label X
+              xywh {15 280 30 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+            }
+            Fl_Slider pmYLocSlider {
+              xywh {45 305 245 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+            }
+            Fl_Input pmYLocInput {
+              xywh {290 305 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+            }
+            Fl_Button pmYLocButton {
+              label Y
+              xywh {15 305 30 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+            }
+            Fl_Slider pmZLocSlider {
+              xywh {45 330 245 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+            }
+            Fl_Input pmZLocInput {
+              xywh {290 330 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+            }
+            Fl_Button pmZLocButton {
+              label Z
+              xywh {15 330 30 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+            }
+            Fl_Box {} {
+              label {Attach Point (Click to Set)}
+              xywh {15 360 340 15} box BORDER_BOX labelfont 1 labelcolor 15
+            }
+            Fl_Box {} {
+              label X
+              xywh {260 375 30 20} box BORDER_BOX labelfont 1 labelcolor 15
+            }
+            Fl_Input XAttachInput {
+              xywh {290 375 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+            }
+            Fl_Box {} {
+              label Y
+              xywh {260 395 30 20} box BORDER_BOX labelfont 1 labelcolor 15
+            }
+            Fl_Input YAttachInput {
+              xywh {290 395 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+            }
+            Fl_Box {} {
+              label Z
+              xywh {260 415 30 20} box BORDER_BOX labelfont 1 labelcolor 15
+            }
+            Fl_Input ZAttachInput {
+              xywh {290 415 65 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+            }
+          }
+        }
+      }
+      Fl_Light_Button drawMeshButton {
+        label {Show Mesh}
+        xywh {250 560 105 25} labelfont 1
+      }
+      Fl_Button exportFEAMeshButton {
+        label {Export Mesh}
+        xywh {128 560 115 25} labelfont 1
+      }
+      Fl_Box {} {
+        label {Export File Names}
+        xywh {5 715 350 15} box BORDER_BOX labelfont 1 labelcolor 15
+      }
+      Fl_Light_Button massToggle {
+        label mass
+        xywh {5 765 55 20} labelfont 1 labelsize 12
+      }
+      Fl_Output massName {
+        xywh {60 765 275 20} color 17
+      }
+      Fl_Button massButton {
+        label {...}
+        xywh {335 765 20 20} labelfont 1
+      }
+      Fl_Light_Button nastranToggle {
+        label nast
+        xywh {5 800 55 20} labelfont 1 labelsize 12
+      }
+      Fl_Output nastranName {
+        xywh {60 800 275 20} color 17
+      }
+      Fl_Button nastranButton {
+        label {...}
+        xywh {335 800 20 20} labelfont 1
+      }
+      Fl_Box {} {
+        label NASTRAN
+        xywh {5 788 350 12} box BORDER_BOX labelfont 1 labelsize 11 labelcolor 15
+      }
+      Fl_Light_Button geomToggle {
+        label geom
+        xywh {5 835 55 20} labelfont 1 labelsize 12
+      }
+      Fl_Output geomName {
+        xywh {60 835 275 20} color 17
+      }
+      Fl_Button geomButton {
+        label {...}
+        xywh {335 835 20 20} labelfont 1
+      }
+      Fl_Box {} {
+        label Calculix
+        xywh {5 823 350 12} box BORDER_BOX labelfont 1 labelsize 11 labelcolor 15
+      }
+      Fl_Light_Button thickToggle {
+        label thick
+        xywh {5 855 55 20} labelfont 1 labelsize 12
+      }
+      Fl_Output thickName {
+        xywh {60 855 275 20} color 17
+      }
+      Fl_Button thickButton {
+        label {...}
+        xywh {335 855 20 20} labelfont 1
+      }
+      Fl_Box {} {
+        label Mass
+        xywh {5 753 350 12} box BORDER_BOX labelfont 1 labelsize 11 labelcolor 15
+      }
+      Fl_Light_Button stlToggle {
+        label {.stl}
+        xywh {5 730 55 20} labelfont 1 labelsize 12
+      }
+      Fl_Output stlName {
+        xywh {60 730 275 20} color 17
+      }
+      Fl_Button stlButton {
+        label {...} selected
+        xywh {335 730 20 20} labelfont 1
+      }
+    }
+  }
+} 
