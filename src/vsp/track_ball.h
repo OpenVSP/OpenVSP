@@ -9,6 +9,8 @@
 //  
 //              C++ Class to handle 3D mouse motion.
 //
+//              Uses trackball.c by Gavin Bell from GLUT examples.
+// 
 //   J.R. Gloudemans - 10/5/93
 //   Sterling Software
 //       Converted to C++

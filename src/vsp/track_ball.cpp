@@ -8,8 +8,13 @@
 //  
 //              C++ Class to handle 3D mouse motion.
 //
+//              Uses trackball.c by Gavin Bell from GLUT examples.
+//
 //   J.R. Gloudemans - 10/5/93
 //   Sterling Software
+//
+//   Rob McDonald - 1/10/12
+//       Modified to call unmodified trackball.c.
 //
 
 #ifdef WIN32
@@ -233,13 +238,31 @@ void track_ball::reinit_rotation()
 //===== Trackball ====//    
 void track_ball::tball(double e[4], double p1x, double p1y, double p2x, double p2y)
 {
-// TODO
+    float q[4];
+    int i;
+
+    trackball(q, (float) p1x, (float) p1y, (float) p2x, (float) p2y);
+
+    for(i=0; i<4; i++){
+      e[i] = q[i];
+    }
 }
 
 //===== Given an axis and angle, compute quaternion. ====//
 void track_ball::ax_to_quat(vec3d& a, double phi, double e[4])
 {
-// TODO
+    float v[3], q[4];
+    int i;
+
+    for(i=0; i<3; i++){
+      v[i] = a[i];
+    }
+
+    axis_to_quat( v, (float) phi, q);
+
+    for(i=0; i<4; i++){
+      e[i] = q[i];
+    }
 }
 
 
@@ -253,13 +276,44 @@ void track_ball::gettracktransform(double mat[4][4])
 //===== Compute and Load Current Tranformation Matrix ====//
 void track_ball::add_two_quats(double e1[4], double e2[4], double dest[4])
 {
-// TODO
+    float q1[4], q2[4], qout[4];
+    int i;
+
+    for(i=0; i<4; i++){
+      q1[i] = e1[i];
+      q2[i] = e2[i];
+    }
+
+    add_quats(q1, q2, qout);
+
+    for(i=0; i<4; i++){
+      dest[i] = qout[i];
+    }
 }
 
 //===== Compute and Load Current Tranformation Matrix ====//
 void track_ball::build_Rmatrix(double m[4][4], double e[4])
 {
-// TODO
+    float r[4][4], q[4];
+    int i, j;
+
+    for(i=0; i<4; i++){
+      q[i] = e[i];
+    }
+
+    build_rotmatrix(r, q);
+
+    for(i=0; i<3; i++){
+      for(j=0; j<3; j++){
+        m[i][j] = r[i][j] * scale_val;
+      }
+      m[i][3] = r[i][3];
+    }
+
+    m[3][0] = trans_x * scale_val;
+    m[3][1] = trans_y * scale_val;
+    m[3][2] = trans_z * scale_val;
+    m[3][3] = 1.0;
 }
 
 void track_ball::translate(Axis axis, double value) 
