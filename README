@@ -66,24 +66,11 @@ DEPENDENCIES
    this distribution.
 
   -triInt by Tomas Moller (jgt.akpeters.com/papers/Moller97) Fast
-   triangle-triangle intersection test.  This code must be obtained
-   from two downloads.
-
-   The first download is saved as 'util_ciode/triInt.cpp'; this code
-   appears as HTML and must be saved in plain text format.
+   triangle-triangle intersection test.  This code comes from two
+   sources.  The routines are included in this distribution.
 
      jgt.akpeters.com/papers/Moller97/tritri.html
-
-   Upon download, the user must do a search-and-replace in 'triInt.cpp'
-   to replace all occurances of 'float' with 'double'.  There should
-   be 119 matches.
-
-   The second download is saved as 'util_code/intersect_triangle.cpp'.
-
      jgt.akpeters.com/papers/MollerTrumbore97/code.html
-
-   As provided online, this code is missing a '\' at the end of line
-   seven.
 
   -glFont2 by Brad Fish (students.cs.byu.edu/~bfish/glfont2.php)
    2D OpenGL font tool.  glFont2 has been included in this source
