@@ -325,8 +325,9 @@ void ScreenMgr::createGui()
 
 	const char* aboutText1 = "OpenVSP is a parametric aircraft geometry tool.  OpenVSP allows the user to create a 3D model of an aircraft defined by common engineering parameters.  This model can be processed into formats suitable for engineering analysis.\n\n";
         const char* aboutText2 = "The predecessors to OpenVSP have been developed by JR Gloudemans and others for NASA since the early 1990's.  In January 2012, OpenVSP was released as an open source project available to everyone free of charge.\n\n";
-        const char* aboutText3 = "OpenVSP is available under the terms of the NASA Open Source Agreement (NOSA) version 1.3.  The complete terms of the license are specified in the LICENSE file which accompanies this program.\n\n";
-        const char* aboutText4 = "Copyright (c) 2012 United States Government as represented by the Administrator for The National Aeronautics and Space Administration.  All Rights Reserved.\n";
+        const char* aboutText3 = "\t\twww.openvsp.org\n\n";
+        const char* aboutText4 = "OpenVSP is available under the terms of the NASA Open Source Agreement (NOSA) version 1.3.  The complete terms of the license are specified in the LICENSE file which accompanies this program.\n\n";
+        const char* aboutText5 = "Copyright (c) 2012 United States Government as represented by the Administrator for The National Aeronautics and Space Administration.  All Rights Reserved.\n";
 
 	aboutScreenTextBuffer = new Fl_Text_Buffer();
 	aboutScreen->outputTextDisplay->buffer( aboutScreenTextBuffer );
@@ -335,6 +336,7 @@ void ScreenMgr::createGui()
 	aboutScreen->outputTextDisplay->buffer()->insert(300,aboutText2);
 	aboutScreen->outputTextDisplay->buffer()->insert(600,aboutText3);
 	aboutScreen->outputTextDisplay->buffer()->insert(900,aboutText4);
+	aboutScreen->outputTextDisplay->buffer()->insert(1200,aboutText4);
 	aboutScreen->outputTextDisplay->wrap_mode(1, 65);
 
 	//==== Script Screen ====//
