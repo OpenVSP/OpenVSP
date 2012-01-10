@@ -1,3 +1,8 @@
+//
+// This file is released under the terms of the NASA Open Source Agreement (NOSA)
+// version 1.3 as detailed in the LICENSE file which accompanies this software.
+//
+
 /* NACA_6_series.f -- translated by f2c (version 20030306).
    You must link the resulting object file with the libraries:
 	-lf2c -lm   (in that order)
