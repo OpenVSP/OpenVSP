@@ -37,9 +37,8 @@ DEPENDENCIES
 
   -glext.h (www.opengl.org/registry) Extension header for OpenGL. This
    header provides access to OpenGL extensions which are not a part
-   of the core standard.  This header is found on many systems, but
-   on some systems (including Windows) you will need to download it
-   separately.  Download the file and place it in 'openvsp/src/vsp'.
+   of the core standard.  A copy of this header is included for systems
+   which do not provide it.
 
   -FLTK (www.fltk.org) Cross-platform windowing library.  FLTK should 
    be available as a standard package on most Linux systems and can
