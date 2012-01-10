@@ -94,44 +94,8 @@ DEPENDENCIES
    seven.
 
   -glFont2 by Brad Fish (students.cs.byu.edu/~bfish/glfont2.php)
-   2D OpenGL font tool.  Download glfont2.zip and place
-   'glfont2.cpp' and 'glfont2.h' in the 'openvsp/src/vsp'
-   directory.  Both files will need some modification.
-
-   Edit 'glfont2.h'.  Near the top of the file, add the following
-   pre-processor directives:
-
-     #ifdef WIN32
-     #include <windows.h>
-     #endif
-
-     #ifdef __APPLE__
-     #  include <OpenGL/gl.h>
-     #else
-     #  include <GL/gl.h>
-     #endif
-
-     #include <string>
-
-   Then, search for this line (it appears twice):
-
-     size->second = (int)(header.chars[header.start_char]->dy *
-
-   and change it to:
-
-     size->second = (int)(header.chars[header.start_char].dy *
-
-   the compiler should throw an error if this change is not made.
-
-   Edit 'glfont2.cpp'.  Because the preprocessor directives were
-   added to 'glfont2.h', they can be removed from here.  Remove
-   the lines:
-
-     //OpenGL headers
-     #ifdef _WINDOWS
-     #include <windows.h>
-     #endif
-     #include <GL/gl.h>
+   2D OpenGL font tool.  glFont2 has been included in this source
+   distribution.
 
   -trackball Virtual trackball code for intuitive 3D rotations.
    Gavin Bell's trackball code is included in an example program
