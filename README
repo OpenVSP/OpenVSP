@@ -62,16 +62,8 @@ DEPENDENCIES
    instructions that come with it.
 
   -Triangle by Jonathan Shewchuk (www.cs.cmu.edu/~quake/triangle.html)
-   2D Delaunay triangulator.  Download the triangle library and place
-   'triangle.c' and 'triangle.h' in the 'openvsp/src/triangle'
-   directory.  Then, edit 'triangle.h' and add the line:
-
-     #define REAL double
-
-   Before the definition of the 'triangulateio' struct (around line
-   251).  Although REAL is automatically defined in 'triangle.c',
-   OpenVSP code which includes 'triangle.h' also requires this
-   definition.
+   2D Delaunay triangulator.  This routine has been included in
+   this distribution.
 
   -triInt by Tomas Moller (jgt.akpeters.com/papers/Moller97) Fast
    triangle-triangle intersection test.  This code must be obtained
