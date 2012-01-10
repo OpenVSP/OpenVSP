@@ -1,0 +1,7 @@
+.DS_Store
+build/
+inst/
+src/opennurbs/
+src/libxml/
+src/jpeg/
+
