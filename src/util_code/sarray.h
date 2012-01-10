@@ -61,7 +61,13 @@ struct_array<Item_type>::struct_array( ) {
 //==== Copy Constructor ====//
 template<class Item_type>
 struct_array<Item_type>::struct_array( const struct_array<Item_type>& s ) {
-// TODO
+  // allocate space
+  dim=s.dimension();
+  allocate_space();
+
+  // set values
+  for (int i=0; i<dim; ++i)
+    arr[i]=s[i];
 }
 
 //==== Dimension Constructor ====//
@@ -148,8 +154,19 @@ template<class Item_type>
 struct_array<Item_type>&
 struct_array<Item_type>::operator=( const struct_array<Item_type>& s )
 {
-// TODO
-}		  
+  // only do this if not same instance
+  if (&s!=this)
+  {
+    // resize if needed
+    init(s.dimension());
+
+    // set values
+    for (int i=0; i<dim; ++i)
+      arr[i]=s[i];
+  }
+
+  return (*this);
+}
 
 template<class Item_type>
 //==== Print Error Message ====//

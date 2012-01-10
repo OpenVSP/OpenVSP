@@ -4,10 +4,10 @@
 //
 
 //******************************************************************************
-//    
+//
 //   Multiple Dimension Array Class
-//  
-// 
+//
+//
 //   J.R. Gloudemans - 10/18/93
 //   Sterling Software
 //
@@ -37,7 +37,7 @@ public:
 
 		array_2d();
 	    array_2d( int d1, int d2 );
-		array_2d( const array_2d<Item_type>& ); 
+		array_2d( const array_2d<Item_type>& );
 		~array_2d();
         void init( int d1, int d2 );
         int dimen_1()			{ return(dim1); }
@@ -45,7 +45,7 @@ public:
         Item_type& operator () (int ind1, int ind2) const;
 		array_2d<Item_type>& operator= ( const array_2d<Item_type>& );
 
-        
+
 };
 
 
@@ -81,8 +81,15 @@ template<class Item_type>
 
 //==== Clear and Delete all Elements in List and Assign New Values ====//
 array_2d<Item_type>::array_2d(const array_2d<Item_type>& array_in)
+  : dim1(array_in.dim1), dim2(array_in.dim2)
 {
-// TODO
+  // allocate space
+  allocate_space();
+
+  // set values
+  for (int j=0; j<dim2; ++j)
+    for (int i=0; i<dim1; ++i)
+      array[i][j]=array_in.array[i][j];
 }
 
 template<class Item_type>
@@ -90,9 +97,9 @@ template<class Item_type>
 //==== Clear and Delete all Elements in List ====//
 array_2d<Item_type>::~array_2d()
 {
-	clear_space();          
+	clear_space();
 }
-            
+
 template<class Item_type>
 
 //==== Allocate Memory ====//
@@ -104,7 +111,7 @@ void array_2d<Item_type>::allocate_space()
             array[i] = new Item_type [dim2];
           }
 }
-            
+
 template<class Item_type>
 
 //==== Allocate Memory ====//
@@ -159,9 +166,22 @@ Item_type& array_2d<Item_type>::operator()( int ind1, int ind2 ) const
 template<class Item_type>
 
 //==== Assignment Operator ====//
-array_2d<Item_type>& 
+array_2d<Item_type>&
 array_2d<Item_type>::operator=(const array_2d<Item_type>& array_in)
 {
-// TODO
+  // only do this if not same instance
+  if (&array_in!=this)
+  {
+    // resize if needed
+    int d1(array_in.dim1), d2(array_in.dim2);
+    init(d1, d2);
+
+    // set values
+    for (int j=0; j<dim2; ++j)
+      for (int i=0; i<dim1; ++i)
+        array[i][j]=array_in.array[i][j];
+  }
+
+  return (*this);
 }
 #endif

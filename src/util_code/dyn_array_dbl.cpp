@@ -4,10 +4,10 @@
 //
 
 //******************************************************************************
-//    
+//
 //   Single Dimension Array Class of Doubles
-//  
-// 
+//
+//
 //   J.R. Gloudemans, Paul C. Davis - 10/17/94
 //   Sterling Software
 //
@@ -30,8 +30,14 @@ Dyn_array_dbl::Dyn_array_dbl( )
 
 //==== Copy Constructor ====//
 Dyn_array_dbl::Dyn_array_dbl( const Dyn_array_dbl& d )
+  : chunk_size(d.chunk_size), total_size(d.total_size), dim(d.dim)
 {
-// TODO
+  // allocate space
+  allocate_space();
+
+  // set values
+  for (int i=0; i<dim; ++i)
+    arr[i]=d.arr[i];
 }
 
 //==== Dimension Constructor ====//
@@ -53,13 +59,25 @@ Dyn_array_dbl::Dyn_array_dbl( int d1 )
 //==== Destructor ====//
 Dyn_array_dbl::~Dyn_array_dbl()
 {
-	clear_space();          
+	clear_space();
 }
-            
+
 //==== Assignment Operator ====//
 Dyn_array_dbl& Dyn_array_dbl::operator= (const Dyn_array_dbl& array_in)
 {
-// TODO
+  // only do this if not same instance
+  if (&array_in != this)
+  {
+    // resize if needed
+    set_chunk_size(array_in.chunk_size);
+    init(array_in.dim);
+
+    // set values
+    for (int i=0; i<dim; ++i)
+      arr[i]=array_in.arr[i];
+  }
+
+  return (*this);
 }
 
 //==== Allocate Memory ====//
@@ -97,7 +115,7 @@ void Dyn_array_dbl::append(double in_item)
     {
       double* old_arr = arr;
       allocate_space();
-      if (old_arr) 
+      if (old_arr)
         {
           memcpy(arr, old_arr, (dim-1)*sizeof(double));
           delete [] old_arr;
@@ -114,7 +132,7 @@ int Dyn_array_dbl::del(double in_item)
 
   int cnt = 0;
   int del_ind = -1;
- 
+
   while ( del_ind  == -1 && cnt < dim )
     {
       //if ( arr[cnt] == in_item )
@@ -135,14 +153,14 @@ int Dyn_array_dbl::del(double in_item)
       return(1);
     }
 
-  return(0);             
+  return(0);
 }
 
 //====  Delete Item at Index ====//
 int Dyn_array_dbl::del_index(int ind)
 {
   if ( ind < 0 || ind >= dim ) return(0);
-       
+
   for ( int i = ind ; i < dim-1 ; i++ )
     {
       arr[i] = arr[i+1];
@@ -296,7 +314,7 @@ double Dyn_array_dbl::interpolate(double value, int interval)
 {
   if (dim <= 1) return(0.0);
 
-  if ( interval < 0 ) return(0.0); 
+  if ( interval < 0 ) return(0.0);
   if ( interval > dim - 2 ) return(1.0);
 
   double denom = arr[interval+1] - arr[interval];
@@ -375,7 +393,7 @@ void Dyn_array_dbl::print_error_message(int error_flag)
 double Dyn_array_dbl::interpolate_array(Dyn_array_dbl* array_ptr, double value)
 {
   //===== Check if Dimensions Are The Same =====//
-  if (dim != array_ptr->dimension()) 
+  if (dim != array_ptr->dimension())
   {
     print_error_message(ERR_INTERP_ARRAY_DIM);
     return(0.0);

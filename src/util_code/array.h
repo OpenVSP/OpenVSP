@@ -4,10 +4,10 @@
 //
 
 //******************************************************************************
-//    
+//
 //   Single Dimension Array Class
-//  
-// 
+//
+//
 //   J.R. Gloudemans - 10/18/93
 //   Sterling Software
 //
@@ -42,20 +42,20 @@ public:
 
 	array();
     array( int d1 );
-    array( const array<Item_type>& ); 
+    array( const array<Item_type>& );
 	~array();
-    
+
     void init( int d1 );
     int dimension()	const		{ return(dim); }
-    
+
     Item_type& operator [] (int ind1);
     Item_type& operator () (int ind1);
 	array<Item_type>& operator= ( const array<Item_type>& );
-            
+
     int find_interval(const Item_type& value) const;
     int find_interval(const Item_type& value, int guess) const;
     double interpolate(const Item_type& value, int interval) const;
-        
+
 };
 
 template<class Item_type>
@@ -87,8 +87,13 @@ template<class Item_type>
 //===== Copy constructor =====//
 array<Item_type>::array(const array<Item_type>& array_in)
 {
-// TODO
+  // allocate space
+  dim=array_in.dim;
+  allocate_space();
 
+  // set values
+  for (int i=0; i<dim; ++i)
+    arr[i]=array_in.arr[i];
 }
 
 template<class Item_type>
@@ -96,9 +101,9 @@ template<class Item_type>
 //==== Clear and Delete all Elements in List ====//
 array<Item_type>::~array()
 {
-	clear_space();          
+	clear_space();
 }
-            
+
 template<class Item_type>
 
 //==== Allocate Memory ====//
@@ -106,7 +111,7 @@ void array<Item_type>::allocate_space()
 {
 	arr = new Item_type [dim];
 }
-            
+
 template<class Item_type>
 
 //==== Clear Space ====//
@@ -163,7 +168,7 @@ Item_type& array<Item_type>::operator[]( int ind1 )
             cout << "ERROR - array access out of bounds" << endl;
           }
 }
-*/ 
+*/
 
 template<class Item_type>
 
@@ -187,10 +192,21 @@ Item_type& array<Item_type>::operator[]( int ind1 )
 template<class Item_type>
 
 //==== Assignment Operator ====//
-array<Item_type>& 
+array<Item_type>&
 array<Item_type>::operator=(const array<Item_type>& array_in)
 {
-// TODO
+  // only do this if not same instance
+  if (&array_in!=this)
+  {
+    // resize if needed
+    init(array_in.dim);
+
+    // set values
+    for (int i=0; i<dim; ++i)
+      arr[i]=array_in.arr[i];
+  }
+
+  return (*this);
 }
 
 template<class Item_type>
@@ -283,7 +299,7 @@ double array<Item_type>::interpolate(const Item_type& value, int interval) const
 {
   if (dim <= 0) return(0);
 
-  if ( interval < 0 ) return(0.0); 
+  if ( interval < 0 ) return(0.0);
   if ( interval > dim - 2 ) return(1.0);
 
   Item_type denom = arr[interval+1] - arr[interval];
@@ -293,7 +309,7 @@ double array<Item_type>::interpolate(const Item_type& value, int interval) const
   return( (double)(value - arr[interval])/denom);
 
 }
-            
+
 template<class Item_type>
 
 //==== Print Error Message ====//

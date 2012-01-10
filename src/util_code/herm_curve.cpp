@@ -4,10 +4,10 @@
 //
 
 //******************************************************************************
-//    
+//
 //   Hermite Curve Class
-//  
-// 
+//
+//
 //   J.R. Gloudemans - 10/10/93
 //   Sterling Software
 //
@@ -29,7 +29,17 @@ herm_curve::herm_curve() : num_pnts(0), open_closed_flag(OPEN_CURVE)
 herm_curve::herm_curve(const herm_curve& curve) : num_pnts(curve.num_pnts),
 open_closed_flag(curve.open_closed_flag)
 {
-// TODO
+  pnts.init(num_pnts);
+  tans.init(num_pnts);
+  tan_k.init(num_pnts);
+  for (int i = 0; i < num_pnts; i++)
+  {
+    pnts[i] = curve.pnts[i];
+    tans[i] = curve.tans[i];
+    tan_k[i] = curve.tan_k[i];
+  }
+
+  curr_flags.turn_all_off();
 }
 
 
@@ -39,7 +49,7 @@ herm_curve::~herm_curve()
 }
 
 //===== Equals Operator =====//
-herm_curve& herm_curve::operator=(const herm_curve& curve)		
+herm_curve& herm_curve::operator=(const herm_curve& curve)
 {
   if (this == &curve)
       return *this;
@@ -76,8 +86,8 @@ void herm_curve::init(int num_cntrl_pnts)
   for ( int i = 0 ; i < num_pnts ; i++)
     {
       tan_k(i) = 1.0;
-    }  
-  
+    }
+
 }
 
 //===== Compute Blending Functions =====//
@@ -118,7 +128,7 @@ void herm_curve::load_pnt(int index, const vec3d& pnt_in)
     }
   else
     cout << "ERROR - herm_curve.load_pnt" << endl;
-}    
+}
 
 //===== Load A Tangent  =====//
 void herm_curve::load_tan(int index, const vec3d& tan_in)
@@ -131,7 +141,7 @@ void herm_curve::load_tan(int index, const vec3d& tan_in)
     }
   else
     cout << "ERROR - herm_curve.load_tan" << endl;
-}    
+}
 
 //===== Compute A Tangent Given Intermediate Point and U =====//
 void herm_curve::comp_tan(int ind, float u, const vec3d& pnt_in)
@@ -147,8 +157,8 @@ void herm_curve::comp_tan(int ind, float u, const vec3d& pnt_in)
     }
   else
     cout << "ERROR - herm_curve.load_tan" << endl;
-}  
-  
+}
+
 //===== Compute Tangents Using Forward and Reverse Difference Method =====//
 void herm_curve::comp_tans()
 {
@@ -167,7 +177,7 @@ void herm_curve::comp_tans()
         dist_mag(i) = temp_dist1;
       else
         dist_mag(i) = temp_dist2;
-    }  
+    }
   temp_dist1 = (float) (pnts(1) - pnts(0)).mag();
   temp_dist2 = (float) (pnts(num_pnts-2) - pnts(0)).mag();
 
@@ -177,7 +187,7 @@ void herm_curve::comp_tans()
     dist_mag(0) = temp_dist2;
   dist_mag(num_pnts-1) = dist_mag(0);
 
-  
+
   if (open_closed_flag == OPEN_CURVE)
     {
       tans(0) = pnts(1) - pnts(0);
@@ -201,8 +211,8 @@ void herm_curve::comp_tans()
   for ( i = 0 ; i < num_pnts ; i++)
     {
       tans(i) = tans(i)*tan_k(i);
-    }  
-}    
+    }
+}
 
 
 //===== Compute Length If Curve Has Changed =====//
@@ -214,7 +224,7 @@ float herm_curve::get_length()
   curr_flags.turn_on(LENGTH_FLAG);
 
   if (curr_flags.is_on(SAMPLE_FLAG))
-    { 
+    {
       length = this->sum_sample_length();
       return(length);
     }
@@ -249,10 +259,10 @@ float herm_curve::compute_length()
   for ( int i = 0 ; i < NUM_SAMPLES-1 ; i++ )
     {
       u = (float) i / (float) (NUM_SAMPLES-1);
-      blend_funcs(u, F1, F2, F3, F4);       
+      blend_funcs(u, F1, F2, F3, F4);
       u = (float) (i+1) / (float) (NUM_SAMPLES-1);
-      blend_funcs(u, G1, G2, G3, G4); 
-      
+      blend_funcs(u, G1, G2, G3, G4);
+
       for ( int j = 0 ; j < num_pnts-1 ; j++ )
         {
           pnt1 = pnts[j]*F1 + pnts[j+1]*F2 + tans[j]*F3 + tans[j+1]*F4;
@@ -273,7 +283,7 @@ void herm_curve::load_sample_pnts()
   curr_flags.turn_on(SAMPLE_FLAG);
 
   int index;
-  float u, F1, F2, F3, F4; 
+  float u, F1, F2, F3, F4;
 
   int tot_num_sample_pnts = (num_pnts-1)*(NUM_SAMPLES) + 1;
 
@@ -283,14 +293,14 @@ void herm_curve::load_sample_pnts()
   for ( int i = 1 ; i < NUM_SAMPLES ; i++ )
     {
       u = (float) i / (float) (NUM_SAMPLES);
-      blend_funcs(u, F1, F2, F3, F4);       
-      
+      blend_funcs(u, F1, F2, F3, F4);
+
       for ( int j = 0 ; j < num_pnts-1 ; j++ )
         {
           index = j*NUM_SAMPLES + i;
           samp_pnts[index] = pnts[j]*F1 + pnts[j+1]*F2 + tans[j]*F3 + tans[j+1]*F4;
         }
-     }   
+     }
 
    //==== Fill Interpolated Points ====//
    for ( int j = 0 ; j < num_pnts ; j++ )
@@ -333,15 +343,15 @@ vec3d herm_curve::comp_pnt_per_xyz(int xyz_id, double per)
 
 }
 
-//===== Compute U as a Function Of Percentage Length =====// 
+//===== Compute U as a Function Of Percentage Length =====//
 void herm_curve::load_u_func_length()
 {
   //==== Check if U as a Function of Length is Current ====//
   if (curr_flags.is_on(U_FUNC_LENGTH)) return;
 
   //==== Turn On Current Flag ====//
-  curr_flags.turn_on(U_FUNC_LENGTH); 
- 
+  curr_flags.turn_on(U_FUNC_LENGTH);
+
   this->load_sample_pnts();
   int num_samp_pnts = samp_pnts.dimension();
 
@@ -392,8 +402,8 @@ vec3d herm_curve::comp_pnt(float u)
 
       float F1, F2, F3, F4;
       blend_funcs(new_u, F1, F2, F3, F4);
-   
-      new_pnt = pnts[index]*F1 + pnts[index+1]*F2 +         
+
+      new_pnt = pnts[index]*F1 + pnts[index+1]*F2 +
                 tans[index]*F3 + tans[index+1]*F4;
     }
 //  else if ( u == (float)num_pnts-1)
@@ -444,20 +454,20 @@ vec3d herm_curve::comp_pnt_per_length(float per)
 
 }
 
-//===== Compute U as a Function Of Percentage Length Along Axis=====// 
+//===== Compute U as a Function Of Percentage Length Along Axis=====//
 void herm_curve::load_u_func_length_xyz(int xyz_id)
 {
   //==== Check if U as a Function of Length is Current ====//
   if (curr_flags.is_on(xyz_id + 3)) return;
 
   //==== Turn Off All Flags ====//
-  curr_flags.turn_off(U_FUNC_X); 
-  curr_flags.turn_off(U_FUNC_Y); 
-  curr_flags.turn_off(U_FUNC_Z); 
+  curr_flags.turn_off(U_FUNC_X);
+  curr_flags.turn_off(U_FUNC_Y);
+  curr_flags.turn_off(U_FUNC_Z);
 
   //==== Turn On Current Flag ====//
-  curr_flags.turn_on(xyz_id + 3); 
- 
+  curr_flags.turn_on(xyz_id + 3);
+
   this->load_sample_pnts();
   int num_samp_pnts = samp_pnts.dimension();
 
@@ -565,8 +575,8 @@ vec3d herm_curve::get_derivative(float u)
 
       float F1, F2, F3, F4;
       deriv_blend_funcs(new_u, F1, F2, F3, F4);
-   
-      new_pnt = pnts[index]*F1 + pnts[index+1]*F2 +         
+
+      new_pnt = pnts[index]*F1 + pnts[index+1]*F2 +
                 tans[index]*F3 + tans[index+1]*F4;
     }
   //else if ( u == (float)num_pnts-1)

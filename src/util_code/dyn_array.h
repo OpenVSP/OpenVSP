@@ -4,10 +4,10 @@
 //
 
 //******************************************************************************
-//    
+//
 //   Single Dimension Array Class
-//  
-// 
+//
+//
 //   J.R. Gloudemans - 10/18/93
 //   Sterling Software
 //
@@ -64,8 +64,8 @@ public:
         void quicksort_increasing();
         void quicksort_decreasing();
 		dyn_array<Item_type>& operator= ( const dyn_array<Item_type>& );
-        
-        
+
+
 };
 
 template<class Item_type>
@@ -101,8 +101,14 @@ template<class Item_type>
 
 //==== Clear and Delete all Elements in List and Assign new Values ====//
 dyn_array<Item_type>::dyn_array( const dyn_array<Item_type>& array_in )
+  : chunk_size(array_in.chunk_size), total_size(array_in.total_size), dim(array_in.dim)
 {
-// TODO
+  // allocate space
+  allocate_space();
+
+  // set values
+  for (int i=0; i<dim; ++i)
+    arr[i]=array_in.arr[i];
 }
 
 template<class Item_type>
@@ -110,9 +116,9 @@ template<class Item_type>
 //==== Clear and Delete all Elements in List ====//
 dyn_array<Item_type>::~dyn_array()
 {
-	clear_space();          
+	clear_space();
 }
-            
+
 template<class Item_type>
 
 //==== Allocate Memory ====//
@@ -121,7 +127,7 @@ void dyn_array<Item_type>::allocate_space()
         total_size = (dim/chunk_size + 1)*chunk_size;
 	arr = new Item_type [total_size];
 }
-            
+
 template<class Item_type>
 
 //==== Allocate Memory ====//
@@ -195,7 +201,7 @@ void dyn_array<Item_type>::append(const Item_type& in_item)
     {
       Item_type* old_arr = arr;
       allocate_space();
-      if (old_arr) 
+      if (old_arr)
         {
           memcpy(arr, old_arr, (dim-1)*sizeof(Item_type));
           delete [] old_arr;
@@ -215,7 +221,7 @@ int dyn_array<Item_type>::del(const Item_type& in_item)
 
   int cnt = 0;
   int del_ind = -1;
- 
+
   while ( del_ind  == -1 && cnt < dim )
     {
       if ( arr[cnt] == in_item )
@@ -235,7 +241,7 @@ int dyn_array<Item_type>::del(const Item_type& in_item)
       return(1);
     }
 
-  return(0);             
+  return(0);
 }
 
 template<class Item_type>
@@ -244,7 +250,7 @@ template<class Item_type>
 int dyn_array<Item_type>::del_index(int ind)
 {
   if ( ind < 0 || ind >= dim ) return(0);
-       
+
   for ( int i = ind ; i < dim-1 ; i++ )
     {
       arr[i] = arr[i+1];
@@ -280,7 +286,7 @@ void dyn_array<Item_type>::insert_after_index(const Item_type& in_item, int ind)
     {
       Item_type* old_arr = arr;
       allocate_space();
-      if (old_arr) 
+      if (old_arr)
         {
           memcpy(arr, old_arr, (dim-1)*sizeof(Item_type));
           delete [] old_arr;
@@ -292,7 +298,7 @@ void dyn_array<Item_type>::insert_after_index(const Item_type& in_item, int ind)
     start_ind = 0;
   else if ( ind >= dim )
     start_ind = dim-1;
-  else 
+  else
     start_ind = ind+1;
 
   for ( int i = dim-1 ; i > start_ind ; i--)
@@ -337,7 +343,7 @@ float dyn_array<Item_type>::interpolate(const Item_type& value, int interval)
 {
   if (dim <= 0) return(0);
 
-  if ( interval < 0 ) return(0.0); 
+  if ( interval < 0 ) return(0.0);
   if ( interval > dim - 2 ) return(1.0);
 
   Item_type denom = arr[interval+1] - arr[interval];
@@ -392,7 +398,7 @@ void dyn_array<Item_type>::qs_inc(int left, int right)
         {
           j++; while ( arr[j] < arr[left] ) j++;
           k--; while ( arr[k] > arr[left] ) k--;
-    
+
           if ( j < k )
             {
               temp = arr[j];
@@ -424,7 +430,7 @@ void dyn_array<Item_type>::qs_dec(int left, int right)
         {
           j++; while ( arr[j] > arr[left] ) j++;
           k--; while ( arr[k] < arr[left] ) k--;
-    
+
           if ( j < k )
             {
               temp = arr[j];
@@ -457,7 +463,19 @@ template<class Item_type>
 dyn_array<Item_type>&
 dyn_array<Item_type>::operator= (const dyn_array<Item_type>& array_in)
 {
-// TODO
+  // only do this if not same instance
+  if (&array_in != this)
+  {
+    // resize if needed
+    chunk_size=array_in.chunk_size;
+    init(array_in.dim);
+
+    // set values
+    for (int i=0; i<dim; ++i)
+      arr[i]=array_in.arr[i];
+  }
+
+  return (*this);
 }
 
 #endif

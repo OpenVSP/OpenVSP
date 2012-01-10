@@ -40,21 +40,21 @@ public:
   sdyn_array( int d1 );
   sdyn_array( const sdyn_array& ); // copy constructor
   ~sdyn_array();
-  
+
   // initialization methods
   void set_chunk_size( int size_in )          { chunk_size = size_in; }
   void init( int d1 );
   void set_all_to(const Item_type& value);
-  
+
   // size accessor methods
   int dimension() const                       { return(dim); }
   int num_items() const                       { return(dim); }
-  
+
   // element access operators
   Item_type& operator [] (int ind1) const;
   Item_type& operator () (int ind1) const;
   sdyn_array<Item_type>& operator=(const sdyn_array<Item_type>&);
-  
+
   // element addition methods
   void append(const Item_type& in_item);
   int del_index(int ind);
@@ -82,7 +82,12 @@ sdyn_array<Item_type>::sdyn_array( const sdyn_array<Item_type>& sd ) :
   total_size( sd.total_size ),
   dim( sd.dim )
 {
-// TODO
+  // allocate space
+  allocate_space();
+
+  // set values
+  for (int i=0; i<dim; ++i)
+    arr[i]=sd[i];
 }
 
 template<class Item_type>
@@ -177,7 +182,7 @@ Item_type&
 sdyn_array<Item_type>::operator[]( int ind1 ) const {
   if ( ind1 >= 0 && ind1 < dim )
     return( arr[ind1] );
-      
+
   cout << "ERROR - sdyn_array access out of bounds" << endl;
   return arr[0];
 }
@@ -186,7 +191,19 @@ template<class Item_type>
 //==== Assignment Operator ====//
 sdyn_array<Item_type>& sdyn_array<Item_type>::operator=( const sdyn_array<Item_type>& sd )
 {
-// TODO
+  // only do this if not same instance
+  if (&sd!=this)
+  {
+    // resize if needed
+    chunk_size=sd.chunk_size;
+    init(sd.dimension());
+
+    // set values
+    for (int i=0; i<dim; ++i)
+      arr[i]=sd[i];
+  }
+
+  return (*this);
 }
 
 template<class Item_type>

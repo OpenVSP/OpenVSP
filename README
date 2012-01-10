@@ -155,10 +155,6 @@ MISSING CODE
    with the NASA open source release of OpenVSP.  This code must
    be implemented before OpenVSP will work.
 
-   In util_code, several basic data structures are missing
-   their copy constructors and assignment operators.  Each of
-   the missing bits of code are marked with '// TODO'.
-
    In src/vsp/track_ball.cpp, there are four wrapper functions
    which must call the C implementation provided in 'trackball.c'.
    Each of these wrappers is marked with '// TODO'.  Care must
