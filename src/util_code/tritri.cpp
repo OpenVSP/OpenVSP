@@ -32,7 +32,7 @@
    else no check is done (which is less robust)
 */
 #define USE_EPSILON_TEST TRUE  
-#define EPSILON 0.000001
+#define EPSILON 0.00000001
 
 
 /* some macros */
