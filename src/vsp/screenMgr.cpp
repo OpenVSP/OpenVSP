@@ -336,7 +336,7 @@ void ScreenMgr::createGui()
 	aboutScreen->outputTextDisplay->buffer()->insert(300,aboutText2);
 	aboutScreen->outputTextDisplay->buffer()->insert(600,aboutText3);
 	aboutScreen->outputTextDisplay->buffer()->insert(900,aboutText4);
-	aboutScreen->outputTextDisplay->buffer()->insert(1200,aboutText4);
+	aboutScreen->outputTextDisplay->buffer()->insert(1200,aboutText5);
 	aboutScreen->outputTextDisplay->wrap_mode(1, 65);
 
 	//==== Script Screen ====//
