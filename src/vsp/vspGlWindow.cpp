@@ -322,12 +322,16 @@ void VirtGlWindow::mouseDrag( int mx, int my )
 	if ( !showFlag ) 
 		return;
 
-	if ( (Fl::event_state(FL_BUTTON1) && Fl::event_button3() ) || Fl::event_state(FL_BUTTON2) )
+	if ( (Fl::event_state(FL_BUTTON1) && Fl::event_button3() ) ||
+             (Fl::event_state(FL_BUTTON1) && Fl::event_ctrl() ) ||
+             (Fl::event_state(FL_BUTTON1) && Fl::event_state(FL_META) ) ||
+              Fl::event_state(FL_BUTTON2) )
 		currTrack.poll( SCALE,  mx-wx, my-wy );
+	else if ( Fl::event_state(FL_BUTTON3 ) ||
+                 (Fl::event_state(FL_BUTTON1) && Fl::event_alt()))
+		currTrack.poll( TRANSLATE,  mx-wx, my-wy );
 	else if ( Fl::event_state(FL_BUTTON1 ) )
 		currTrack.poll( ROTATE,  mx-wx, my-wy );
-	else if ( Fl::event_state(FL_BUTTON3 ) )
-		currTrack.poll( TRANSLATE,  mx-wx, my-wy );
 
 }
 
