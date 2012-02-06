@@ -102,6 +102,7 @@ VspPreferences::VspPreferences()
 	}
 
 	windowMgrStyle = xmlFindInt(root, "WindowManagerStyle", 0);
+	autoSaveInterval = xmlFindInt(root, "AutoSaveInterval", 180);
 
 }
 
