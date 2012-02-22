@@ -474,17 +474,20 @@ void Aircraft::reorderGeom( int action )
 
 }
 
-void Aircraft::writeFile( const char* file_name )
+void Aircraft::writeFile( const char* file_name, bool restore_file_name )
 {
 	vector< Geom* > gVec = geomVec;
 	gVec.push_back( getUserGeom() );
-	writeFile( file_name, gVec, labelVec );
+	writeFile( file_name, gVec, labelVec, restore_file_name );
 }
 
-void Aircraft::writeFile( const char* file_name, vector< Geom * > &gVec, vector< LabelGeom * > &lVec )
+void Aircraft::writeFile( const char* file_name, vector< Geom * > &gVec, vector< LabelGeom * > &lVec, bool restore_file_name )
 {
-	fileName = file_name;
-	setTempDir( fileName, false );
+	if ( !restore_file_name )
+	{
+		fileName = file_name;
+		setTempDir( fileName, false );
+	}
 	
 	xmlDocPtr doc = xmlNewDoc((const xmlChar *)"1.0");
 
@@ -3354,9 +3357,14 @@ void Aircraft::updateExportFileNames()
 void Aircraft::setTempDir( const char* fn, bool user_set )
 {
 	Stringc dirString = fn;
+
+	int dirLen = dirString.get_length();
+	for (int i=0; i<dirLen; i++) {
+		if ( dirString[i] == '\\' ) dirString[i] = '/';
+	}
+
 	if (  dirString.count_substrings( "/" ) >= 1 )
 	{
-		int dirLen = dirString.get_length();
 		int slashLoc = dirLen-1;
 
 		while ( slashLoc > 0 )
