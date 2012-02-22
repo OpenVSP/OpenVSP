@@ -433,15 +433,22 @@ Fl_Gl_Window(x,y,w,h,"Vsp GL Window")
 	vWin[TWO_LOW]    = new VirtGlWindow( 0,   h/2, w,   h/2  );
 
 	//==== Set Up Initial Viewing Angles ====//
-	vWin[FOUR_LOW_L]->currTrack.set_init_angle(PI/2.0, 0.0, 0.0);
+	//vWin[FOUR_LOW_L]->currTrack.set_init_angle(PI/2.0, 0.0, 0.0);
+	vWin[FOUR_LOW_L]->currTrack.set_init_angle(PI/2.0, -PI/2.0, 0.0);
 	vWin[FOUR_LOW_L]->currTrack.init();
 
-	vWin[FOUR_UP_R]->currTrack.set_init_angle(PI/2.0, -PI/2.0, 0.0);
+	//vWin[FOUR_UP_R]->currTrack.set_init_angle(PI/2.0, -PI/2.0, 0.0);
+	vWin[FOUR_UP_R]->currTrack.set_init_angle(PI/4.0, -PI/6.0, -PI/6.0);
 	vWin[FOUR_UP_R]->currTrack.init();
 
-	vWin[FOUR_LOW_R]->currTrack.set_init_angle(PI/4.0, -PI/6.0, -PI/6.0);
+	//vWin[FOUR_LOW_R]->currTrack.set_init_angle(PI/4.0, -PI/6.0, -PI/6.0);
+	vWin[FOUR_LOW_R]->currTrack.set_init_angle(PI/2.0, 0.0, 0.0);
 	vWin[FOUR_LOW_R]->currTrack.init();
 	
+	//vWin[FOUR_UP_L]->currTrack.set_init_angle(0.0, 0.0, 0.0);
+	vWin[FOUR_UP_L]->currTrack.set_init_angle(0.0, 0.0, -PI/2.0);
+	vWin[FOUR_UP_L]->currTrack.init();
+
 	vWin[TWO_L]->currTrack.set_init_angle(0.0, 0.0, PI/2.0);
 	vWin[TWO_L]->currTrack.init();
 	
