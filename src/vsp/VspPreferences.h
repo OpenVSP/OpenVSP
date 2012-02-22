@@ -51,6 +51,7 @@ public:
 	int  getNumOutputNames()				{ return outputNameVec.size(); }
 	Stringc getOutputName(int i);
 	int windowMgrStyle;
+	int autoSaveInterval;
 
 	int getDefaultCompFileID()							{ return m_DefaultCompFileID; }
 	void setDefaultCompFileID( int id );

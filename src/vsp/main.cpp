@@ -33,6 +33,7 @@
 #include "scriptMgr.h"
 #include "FeaMeshMgr.h"
 #include "CfdMeshMgr.h"
+#include "VspPreferences.h"
 
 // Include OpenNurbs for Rhino Dump
 // ON Needs to be undefined for it to compile
@@ -558,7 +559,6 @@ void vsp_exit()
 }
 
 
-#define AUTO_SAVE_TIME (180)
 void autoSaveTimeoutHandler(void *data)
 {
 	if ( airPtr )
@@ -568,7 +568,7 @@ void autoSaveTimeoutHandler(void *data)
 		airPtr->writeFile(backupfn.get_char_star(), true);
 	}
 
-	Fl::repeat_timeout(AUTO_SAVE_TIME, autoSaveTimeoutHandler, data );
+	Fl::repeat_timeout(VspPreferences::Instance()->autoSaveInterval, autoSaveTimeoutHandler, data );
 }
 
 
@@ -615,7 +615,8 @@ int main( int argc, char** argv)
 	} 
 	else 
 	{
-		Fl::add_timeout( AUTO_SAVE_TIME, autoSaveTimeoutHandler, airPtr );
+		if (VspPreferences::Instance()->autoSaveInterval > 0)
+			Fl::add_timeout( VspPreferences::Instance()->autoSaveInterval, autoSaveTimeoutHandler, airPtr );
 		screenMgrPtr->showGui( argc-1, argv );
 	}
 

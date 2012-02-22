@@ -18,7 +18,8 @@
     </OutputName>
   </Vsp_OutputNames>
   <WindowManagerStyle>1</WindowManagerStyle>
-  <DefaultComponentFileID>0</DefaultComponentFileID>
+  <AutoSaveInterval>180</AutoSaveInterval>
+  <DefaultComponentFileID>1</DefaultComponentFileID>
   <DefaultComponentFileList>
     <DefaultComponentFile>
       <Name>BWB</Name>
