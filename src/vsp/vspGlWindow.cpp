@@ -322,12 +322,16 @@ void VirtGlWindow::mouseDrag( int mx, int my )
 	if ( !showFlag ) 
 		return;
 
-	if ( (Fl::event_state(FL_BUTTON1) && Fl::event_button3() ) || Fl::event_state(FL_BUTTON2) )
+	if ( (Fl::event_state(FL_BUTTON1) && Fl::event_button3() ) ||
+             (Fl::event_state(FL_BUTTON1) && Fl::event_ctrl() ) ||
+             (Fl::event_state(FL_BUTTON1) && Fl::event_state(FL_META) ) ||
+              Fl::event_state(FL_BUTTON2) )
 		currTrack.poll( SCALE,  mx-wx, my-wy );
+	else if ( Fl::event_state(FL_BUTTON3 ) ||
+                 (Fl::event_state(FL_BUTTON1) && Fl::event_alt()))
+		currTrack.poll( TRANSLATE,  mx-wx, my-wy );
 	else if ( Fl::event_state(FL_BUTTON1 ) )
 		currTrack.poll( ROTATE,  mx-wx, my-wy );
-	else if ( Fl::event_state(FL_BUTTON3 ) )
-		currTrack.poll( TRANSLATE,  mx-wx, my-wy );
 
 }
 
@@ -433,15 +437,22 @@ Fl_Gl_Window(x,y,w,h,"Vsp GL Window")
 	vWin[TWO_LOW]    = new VirtGlWindow( 0,   h/2, w,   h/2  );
 
 	//==== Set Up Initial Viewing Angles ====//
-	vWin[FOUR_LOW_L]->currTrack.set_init_angle(PI/2.0, 0.0, 0.0);
+	//vWin[FOUR_LOW_L]->currTrack.set_init_angle(PI/2.0, 0.0, 0.0);
+	vWin[FOUR_LOW_L]->currTrack.set_init_angle(PI/2.0, -PI/2.0, 0.0);
 	vWin[FOUR_LOW_L]->currTrack.init();
 
-	vWin[FOUR_UP_R]->currTrack.set_init_angle(PI/2.0, -PI/2.0, 0.0);
+	//vWin[FOUR_UP_R]->currTrack.set_init_angle(PI/2.0, -PI/2.0, 0.0);
+	vWin[FOUR_UP_R]->currTrack.set_init_angle(PI/4.0, -PI/6.0, -PI/6.0);
 	vWin[FOUR_UP_R]->currTrack.init();
 
-	vWin[FOUR_LOW_R]->currTrack.set_init_angle(PI/4.0, -PI/6.0, -PI/6.0);
+	//vWin[FOUR_LOW_R]->currTrack.set_init_angle(PI/4.0, -PI/6.0, -PI/6.0);
+	vWin[FOUR_LOW_R]->currTrack.set_init_angle(PI/2.0, 0.0, 0.0);
 	vWin[FOUR_LOW_R]->currTrack.init();
 	
+	//vWin[FOUR_UP_L]->currTrack.set_init_angle(0.0, 0.0, 0.0);
+	vWin[FOUR_UP_L]->currTrack.set_init_angle(0.0, 0.0, -PI/2.0);
+	vWin[FOUR_UP_L]->currTrack.init();
+
 	vWin[TWO_L]->currTrack.set_init_angle(0.0, 0.0, PI/2.0);
 	vWin[TWO_L]->currTrack.init();
 	

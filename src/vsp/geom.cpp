@@ -2852,17 +2852,7 @@ int XSecGeom::read_xsec( const char* file_name )
 	}
 	fclose(fp);
 
-	surfVec.clear();
-	for ( int i = 0 ; i < (int)xsecCompVec.size() ; i++ )
-	{
-		xsecCompVec[i].load_refl_pnts_xsecs();
-		xsecCompVec[i].load_hidden_surf();
-		xsecCompVec[i].load_normals();
-		xsecCompVec[i].load_uw();
-		surfVec.push_back( &xsecCompVec[i] );
-	}
-
-	update_bbox();
+	generate();
 
 	return 1;
 }
@@ -2943,7 +2933,16 @@ void XSecGeom::LoadLinkableParms( vector< Parm* > & parmVec )
 
 void XSecGeom::generate()
 {
-  update_bbox();
+	surfVec.clear();
+	for ( int i = 0 ; i < (int)xsecCompVec.size() ; i++ )
+	{
+		xsecCompVec[i].load_refl_pnts_xsecs();
+		xsecCompVec[i].load_hidden_surf();
+		xsecCompVec[i].load_normals();
+		xsecCompVec[i].load_uw();
+		surfVec.push_back( &xsecCompVec[i] );
+	}
+	update_bbox();
 }
 
 void XSecGeom::computeCenter()
