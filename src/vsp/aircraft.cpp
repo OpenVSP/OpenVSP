@@ -474,17 +474,20 @@ void Aircraft::reorderGeom( int action )
 
 }
 
-void Aircraft::writeFile( const char* file_name )
+void Aircraft::writeFile( const char* file_name, bool restore_file_name )
 {
 	vector< Geom* > gVec = geomVec;
 	gVec.push_back( getUserGeom() );
-	writeFile( file_name, gVec, labelVec );
+	writeFile( file_name, gVec, labelVec, restore_file_name );
 }
 
-void Aircraft::writeFile( const char* file_name, vector< Geom * > &gVec, vector< LabelGeom * > &lVec )
+void Aircraft::writeFile( const char* file_name, vector< Geom * > &gVec, vector< LabelGeom * > &lVec, bool restore_file_name )
 {
-	fileName = file_name;
-	setTempDir( fileName, false );
+	if ( !restore_file_name )
+	{
+		fileName = file_name;
+		setTempDir( fileName, false );
+	}
 	
 	xmlDocPtr doc = xmlNewDoc((const xmlChar *)"1.0");
 
