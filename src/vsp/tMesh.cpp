@@ -1415,23 +1415,41 @@ void TTri::triangulateSplit( int flattenAxis )
 	//==== Load Points into Traingle Struct ====//
 	in.numberofpoints = nVec.size();
 
+
+	//==== Find Bounds of NVec ====//
+	bbox box;
+	for ( j = 0 ; j < (int)nVec.size() ; j++ )
+		box.update( nVec[j]->pnt );
+
+	vec3d center = box.get_center();
+
+	double min_s = 0.0001;
+	double sx = max( box.get_max(0) - box.get_min(0), min_s );
+	double sy = max( box.get_max(1) - box.get_min(1), min_s );
+	double sz = max( box.get_max(2) - box.get_min(2), min_s );
+
 	int cnt = 0;
 	for ( j = 0 ; j < (int)nVec.size() ; j++ )
 	{
+		vec3d pnt = nVec[j]->pnt - center;
+		pnt.scale_x( 1.0/sx );
+		pnt.scale_y( 1.0/sy );
+		pnt.scale_z( 1.0/sz );
+
 		if ( flattenAxis == 0 )
 		{
-			in.pointlist[cnt] = nVec[j]->pnt.y();	cnt++;
-			in.pointlist[cnt] = nVec[j]->pnt.z();	cnt++;
+			in.pointlist[cnt] = pnt.y();	cnt++;
+			in.pointlist[cnt] = pnt.z();	cnt++;
 		}
 		else if ( flattenAxis == 1 )
 		{
-			in.pointlist[cnt] = nVec[j]->pnt.x();	cnt++;
-			in.pointlist[cnt] = nVec[j]->pnt.z();	cnt++;
+			in.pointlist[cnt] = pnt.x();	cnt++;
+			in.pointlist[cnt] = pnt.z();	cnt++;
 		}
 		else if ( flattenAxis == 2 )
 		{
-			in.pointlist[cnt] = nVec[j]->pnt.x();	cnt++;
-			in.pointlist[cnt] = nVec[j]->pnt.y();	cnt++;
+			in.pointlist[cnt] = pnt.x();	cnt++;
+			in.pointlist[cnt] = pnt.y();	cnt++;
 		}
 	}
 //static FILE* fp = fopen( "debug.txt", "w" );
@@ -1607,9 +1625,27 @@ void TTri::niceTriSplit( int flattenAxis )
 	//==== Load Points into Traingle Struct ====//
 	in.numberofpoints = nVec.size();
 
+	//==== Find Bounds of NVec ====//
+	bbox box;
+	for ( j = 0 ; j < (int)nVec.size() ; j++ )
+		box.update( nVec[j]->pnt );
+
+	vec3d center = box.get_center();
+
+	double min_s = 0.0001;
+	double sx = max( box.get_max(0) - box.get_min(0), min_s );
+	double sy = max( box.get_max(1) - box.get_min(1), min_s );
+	double sz = max( box.get_max(2) - box.get_min(2), min_s );
+
 	int cnt = 0;
 	for ( j = 0 ; j < (int)nVec.size() ; j++ )
 	{
+		//==== Center and Rescale Triangle For Better Mapping ====//
+		vec3d pnt = nVec[j]->pnt - center;
+		pnt.scale_x( 1.0/sx );
+		pnt.scale_y( 1.0/sy );
+		pnt.scale_z( 1.0/sz );
+
 		if ( flattenAxis == 0 )
 		{
 			in.pointlist[cnt] = nVec[j]->pnt.y();	cnt++;
