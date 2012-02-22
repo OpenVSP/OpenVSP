@@ -565,7 +565,7 @@ void autoSaveTimeoutHandler(void *data)
 	{
 		Stringc backupfn = airPtr->getTempDir();
 		backupfn.concatenate("vsp_autobackup.vsp"); 
-		airPtr->writeFile(backupfn.get_char_star());
+		airPtr->writeFile(backupfn.get_char_star(), true);
 	}
 
 	Fl::repeat_timeout(AUTO_SAVE_TIME, autoSaveTimeoutHandler, data );
