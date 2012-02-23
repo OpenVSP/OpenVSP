@@ -10,9 +10,9 @@
 #ifndef main_h
 #define main_h
 
-#define VSPVERSION1 "Vehicle Sketch Pad 2.0.3"
-#define VSPVERSION2 "OpenVSP 2.0.3 - 2/22/12"
-#define VSPVERSION3 "OpenVSP 2.0.3 : Vehicle Sketch Pad"
+#define VSPVERSION1 "Vehicle Sketch Pad @VSPVER_MAJOR@.@VSPVER_MINOR@.@VSPVER_PATCH@"
+#define VSPVERSION2 "OpenVSP @VSPVER_MAJOR@.@VSPVER_MINOR@.@VSPVER_PATCH@ - @VSPDATE@"
+#define VSPVERSION3 "OpenVSP @VSPVER_MAJOR@.@VSPVER_MINOR@.@VSPVER_PATCH@ : Vehicle Sketch Pad"
 
 void vsp_exit();
 
