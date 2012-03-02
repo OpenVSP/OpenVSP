@@ -1159,33 +1159,33 @@ void Ms_wing_geom::paste_sect()
 
 void Ms_wing_geom::scale()
 {
-	//double current_factor = scaleFactor()*(1.0/lastScaleFactor);
-
- //   for (  int i = 0 ; i < sects.dimension() ; i++ )
- //   {
- //   	int odriver = sects[i].driver;
-	//	int ndriver = MS_S_TC_RC;
-	//	sects[i].driver = ndriver;
-	//	if ( i == 0 )
-	//		sects[i].rc_set(sects[i].rc_val() * current_factor);
-
-	//	sects[i].tc_set( sects[i].tc_val() * current_factor );		
-	//	sects[i].span_set( sects[i].span_val() * current_factor );
-	//	sects[i].fillDependData();
-	//	sects[i].driver = odriver;
- //   }
-
-//jrg scale area not rc/tc/span
 	double current_factor = scaleFactor()*(1.0/lastScaleFactor);
+
 	for (  int i = 0 ; i < sects.dimension() ; i++ )
 	{
 		int odriver = sects[i].driver;
-		int ndriver = MS_AR_TR_A;
+		int ndriver = MS_S_TC_RC;
 		sects[i].driver = ndriver;
-		sects[i].area_set( sects[i].area_val() * current_factor );
+		if ( i == 0 )
+			sects[i].rc_set(sects[i].rc_val() * current_factor);
+
+		sects[i].tc_set( sects[i].tc_val() * current_factor );
+		sects[i].span_set( sects[i].span_val() * current_factor );
 		sects[i].fillDependData();
 		sects[i].driver = odriver;
 	}
+
+//jrg scale area not rc/tc/span
+//	double current_factor = scaleFactor()*(1.0/lastScaleFactor);
+//	for (  int i = 0 ; i < sects.dimension() ; i++ )
+//	{
+//		int odriver = sects[i].driver;
+//		int ndriver = MS_AR_TR_A;
+//		sects[i].driver = ndriver;
+//		sects[i].area_set( sects[i].area_val() * current_factor );
+//		sects[i].fillDependData();
+//		sects[i].driver = odriver;
+//	}
 
 
   	//==== Compute Totals ====//
