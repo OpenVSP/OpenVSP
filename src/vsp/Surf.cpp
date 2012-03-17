@@ -145,12 +145,21 @@ vec3d Surf::CompPnt01( double u, double w )
 //===== Compute Tangent In U Direction   =====//
 vec3d Surf::CompTanU01(double u01, double w01)
 {
+	return CompTanU( u01*m_MaxU, w01*m_MaxW );
+}
+
+//===== Compute Tangent In W Direction   =====//
+vec3d Surf::CompTanW01(double u01, double w01)
+{
+	return CompTanW( u01*m_MaxU, w01*m_MaxW );
+}
+
+//===== Compute Tangent In U Direction   =====//
+vec3d Surf::CompTanU(double uall, double wall)
+{
  	vec3d pnt;
 	if ( m_NumU < 4 || m_NumW < 4 )
 		return pnt;
-
-	double uall = u01*m_MaxU;
-	double wall = w01*m_MaxW;
 
 	double F1u, F2u, F3u, F4u;
 	double F1w, F2w, F3w, F4w;
@@ -194,15 +203,12 @@ vec3d Surf::CompTanU01(double u01, double w01)
 	return pnt;
 }
 
-//===== Compute Tangent In U Direction   =====//
-vec3d Surf::CompTanW01(double u01, double w01)
+//===== Compute Tangent In W Direction   =====//
+vec3d Surf::CompTanW(double uall, double wall)
 {
  	vec3d pnt;
 	if ( m_NumU < 4 || m_NumW < 4 )
 		return pnt;
-
-	double uall = u01*m_MaxU;
-	double wall = w01*m_MaxW;
 
 	double F1u, F2u, F3u, F4u;
 	double F1w, F2w, F3w, F4w;

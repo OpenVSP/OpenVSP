@@ -46,6 +46,8 @@ public:
 
 	//===== Bezier Funcs ====//
 	vec3d CompPnt(double u, double w);
+	vec3d CompTanU(double u, double w);
+	vec3d CompTanW(double u, double w);
 	vec3d CompPnt01( double u, double w );
 	vec3d CompTanU01(double u, double w);
 	vec3d CompTanW01(double u, double w);
