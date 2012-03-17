@@ -16,7 +16,6 @@
 #include "xsec_surf.h"
 #include "geom.h"
 
-#include "bicubic_surf.h"
 #include "bezier_surf.h"
 
 #include "tMesh.h"

@@ -7,7 +7,6 @@ bbox.cpp
 bezier_curve.cpp
 bezier_patch.cpp
 bezier_surf.cpp
-bicubic_surf.cpp
 dyn_array_dbl.cpp
 herm_curve.cpp
 int_curve.cpp
