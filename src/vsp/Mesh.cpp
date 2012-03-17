@@ -215,7 +215,7 @@ int Mesh::Split( int num_iter )
 		for ( int i = 0 ; i < num_split ; i++ )
 		{
 			double dist = longEdges[i]->ComputeLength();
-			SplitEdge( longEdges[i], m_Surf );
+			SplitEdge( longEdges[i] );
 		}
 
 		//==== Swap All Changed Edges If Needed ====//
@@ -432,7 +432,7 @@ void Mesh::SetNodeFlags()
 	}
 }
 
-void Mesh::SplitEdge( Edge* edge, Surf* surfPtr )
+void Mesh::SplitEdge( Edge* edge )
 {
 	assert( m_Surf );
 
@@ -466,7 +466,7 @@ void Mesh::SplitEdge( Edge* edge, Surf* surfPtr )
 	vec3d psplit  = (n0->pnt + n1->pnt)*0.5;	// Split
 	vec2d uwsplit = (n0->uw  + n1->uw )*0.5;
 
-	vec2d uws = surfPtr->ClosestUW( psplit, uwsplit[0], uwsplit[1] );
+	vec2d uws = m_Surf->ClosestUW( psplit, uwsplit[0], uwsplit[1] );
 	vec3d ps  = m_Surf->CompPnt( uws.x(), uws.y() );
 
 	Node* ns  = AddNode( ps, uws );

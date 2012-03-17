@@ -57,7 +57,7 @@ public:
 
 
 	int Split( int num_iter );
-	void SplitEdge( Edge* edge, Surf* surfPtr );
+	void SplitEdge( Edge* edge );
 
 	bool ThreeEdgesThreeTris( Edge* edge );
 	void SwapEdge( Edge* edge );
