@@ -45,15 +45,23 @@ public:
 	void LoadControlPnts( vector< vector< vec3d > > & pnts );
 
 	//===== Bezier Funcs ====//
-	vec3d CompPnt(double u, double w);
-	vec3d CompTanU(double u, double w);
-	vec3d CompTanW(double u, double w);
+	vec3d CompPnt( double u, double w );
+	vec3d CompTanU( double u, double w );
+	vec3d CompTanW( double u, double w );
+	vec3d CompTanUU( double u, double w );
+	vec3d CompTanWW( double u, double w );
+	vec3d CompTanUW( double u, double w );
+
 	vec3d CompPnt01( double u, double w );
-	vec3d CompTanU01(double u, double w);
-	vec3d CompTanW01(double u, double w);
+	vec3d CompTanU01( double u, double w );
+	vec3d CompTanW01( double u, double w );
+	vec3d CompTanUU01( double u, double w );
+	vec3d CompTanWW01( double u, double w );
+	vec3d CompTanUW01( double u, double w );
 
 	void BlendFuncs(double u, double& F1, double& F2, double& F3, double& F4);
 	void BlendDerivFuncs(double u, double& F1, double& F2, double& F3, double& F4);
+	void BlendDeriv2Funcs(double u, double& F1, double& F2, double& F3, double& F4);
 
 	vec2d ClosestUW( vec3d & pnt, double guess_u, double guess_w, double guess_del_u, double guess_del_w, double tol );
 

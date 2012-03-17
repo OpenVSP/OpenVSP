@@ -135,6 +135,14 @@ void Surf::BlendDerivFuncs(double u, double& F1, double& F2, double& F3, double&
 	F4 = 3.0*uu;
 }
 
+void Surf::BlendDeriv2Funcs(double u, double& F1, double& F2, double& F3, double& F4)
+{
+	F1 = 6.0 - 6.0*u;
+	F2 = -12.0 + 18.0*u;
+	F3 = 6.0 - 18.0*u;
+	F4 = 6.0*u;
+}
+
 //===== Compute Point On Surf Given  U W (Between 0 1 ) =====//
 vec3d Surf::CompPnt01( double u, double w )
 {
@@ -152,6 +160,171 @@ vec3d Surf::CompTanU01(double u01, double w01)
 vec3d Surf::CompTanW01(double u01, double w01)
 {
 	return CompTanW( u01*m_MaxU, w01*m_MaxW );
+}
+
+//===== Compute Second Derivative U,U   =====//
+vec3d Surf::CompTanUU01(double u01, double w01)
+{
+	return CompTanUU( u01*m_MaxU, w01*m_MaxW );
+}
+
+//===== Compute Second Derivative W,W   =====//
+vec3d Surf::CompTanWW01(double u01, double w01)
+{
+	return CompTanWW( u01*m_MaxU, w01*m_MaxW );
+}
+
+//===== Compute Second Derivative U,W   =====//
+vec3d Surf::CompTanUW01(double u01, double w01)
+{
+	return CompTanUW( u01*m_MaxU, w01*m_MaxW );
+}
+
+//===== Compute Second Derivative U,U   =====//
+vec3d Surf::CompTanUU(double uall, double wall)
+{
+	vec3d pnt;
+	if ( m_NumU < 4 || m_NumW < 4 )
+		return pnt;
+
+	double F1u, F2u, F3u, F4u;
+	double F1w, F2w, F3w, F4w;
+
+	int trunc_u = (int)uall;
+	int u_ind = trunc_u*3;
+	if (u_ind >= m_NumU-1 )
+	{
+		F1u = F2u = F3u = 0.0;
+		F4u = 1.0;
+		u_ind = m_NumU-4;
+	}
+	else
+	{
+		BlendDeriv2Funcs(uall-(double)trunc_u, F1u, F2u, F3u, F4u);
+	}
+
+	int trunc_w = (int)wall;
+	int w_ind = trunc_w*3;
+	if (w_ind >= m_NumW-1)
+	{
+		F1w = F2w = F3w = 0.0;
+		F4w = 1.0;
+		w_ind = m_NumW-4;
+	}
+	else
+	{
+		BlendFuncs(wall-(double)trunc_w, F1w, F2w, F3w, F4w);
+	}
+
+  pnt =
+     (( m_Pnts[u_ind][w_ind]*F1u     + m_Pnts[u_ind+1][w_ind]*F2u +
+        m_Pnts[u_ind+2][w_ind]*F3u   + m_Pnts[u_ind+3][w_ind]*F4u)*F1w) +
+     (( m_Pnts[u_ind][w_ind+1]*F1u   + m_Pnts[u_ind+1][w_ind+1]*F2u +
+        m_Pnts[u_ind+2][w_ind+1]*F3u + m_Pnts[u_ind+3][w_ind+1]*F4u)*F2w) +
+      (( m_Pnts[u_ind][w_ind+2]*F1u  + m_Pnts[u_ind+1][w_ind+2]*F2u +
+        m_Pnts[u_ind+2][w_ind+2]*F3u + m_Pnts[u_ind+3][w_ind+2]*F4u)*F3w) +
+      (( m_Pnts[u_ind][w_ind+3]*F1u  + m_Pnts[u_ind+1][w_ind+3]*F2u +
+	    m_Pnts[u_ind+2][w_ind+3]*F3u + m_Pnts[u_ind+3][w_ind+3]*F4u)*F4w);
+
+	return pnt;
+}
+
+//===== Compute Second Derivative W,W   =====//
+vec3d Surf::CompTanWW(double uall, double wall)
+{
+	vec3d pnt;
+	if ( m_NumU < 4 || m_NumW < 4 )
+		return pnt;
+
+	double F1u, F2u, F3u, F4u;
+	double F1w, F2w, F3w, F4w;
+
+	int trunc_u = (int)uall;
+	int u_ind = trunc_u*3;
+	if (u_ind >= m_NumU-1 )
+	{
+		F1u = F2u = F3u = 0.0;
+		F4u = 1.0;
+		u_ind = m_NumU-4;
+	}
+	else
+	{
+		BlendFuncs(uall-(double)trunc_u, F1u, F2u, F3u, F4u);
+	}
+
+	int trunc_w = (int)wall;
+	int w_ind = trunc_w*3;
+	if (w_ind >= m_NumW-1)
+	{
+		F1w = F2w = F3w = 0.0;
+		F4w = 1.0;
+		w_ind = m_NumW-4;
+	}
+	else
+	{
+		BlendDeriv2Funcs(wall-(double)trunc_w, F1w, F2w, F3w, F4w);
+	}
+
+  pnt =
+     (( m_Pnts[u_ind][w_ind]*F1u     + m_Pnts[u_ind+1][w_ind]*F2u +
+        m_Pnts[u_ind+2][w_ind]*F3u   + m_Pnts[u_ind+3][w_ind]*F4u)*F1w) +
+     (( m_Pnts[u_ind][w_ind+1]*F1u   + m_Pnts[u_ind+1][w_ind+1]*F2u +
+        m_Pnts[u_ind+2][w_ind+1]*F3u + m_Pnts[u_ind+3][w_ind+1]*F4u)*F2w) +
+      (( m_Pnts[u_ind][w_ind+2]*F1u  + m_Pnts[u_ind+1][w_ind+2]*F2u +
+        m_Pnts[u_ind+2][w_ind+2]*F3u + m_Pnts[u_ind+3][w_ind+2]*F4u)*F3w) +
+      (( m_Pnts[u_ind][w_ind+3]*F1u  + m_Pnts[u_ind+1][w_ind+3]*F2u +
+	    m_Pnts[u_ind+2][w_ind+3]*F3u + m_Pnts[u_ind+3][w_ind+3]*F4u)*F4w);
+
+	return pnt;
+}
+
+//===== Compute Second Derivative U,W   =====//
+vec3d Surf::CompTanUW(double uall, double wall)
+{
+	vec3d pnt;
+	if ( m_NumU < 4 || m_NumW < 4 )
+		return pnt;
+
+	double F1u, F2u, F3u, F4u;
+	double F1w, F2w, F3w, F4w;
+
+	int trunc_u = (int)uall;
+	int u_ind = trunc_u*3;
+	if (u_ind >= m_NumU-1 )
+	{
+		F1u = F2u = F3u = 0.0;
+		F4u = 1.0;
+		u_ind = m_NumU-4;
+	}
+	else
+	{
+		BlendDerivFuncs(uall-(double)trunc_u, F1u, F2u, F3u, F4u);
+	}
+
+	int trunc_w = (int)wall;
+	int w_ind = trunc_w*3;
+	if (w_ind >= m_NumW-1)
+	{
+		F1w = F2w = F3w = 0.0;
+		F4w = 1.0;
+		w_ind = m_NumW-4;
+	}
+	else
+	{
+		BlendDerivFuncs(wall-(double)trunc_w, F1w, F2w, F3w, F4w);
+	}
+
+  pnt =
+     (( m_Pnts[u_ind][w_ind]*F1u     + m_Pnts[u_ind+1][w_ind]*F2u +
+        m_Pnts[u_ind+2][w_ind]*F3u   + m_Pnts[u_ind+3][w_ind]*F4u)*F1w) +
+     (( m_Pnts[u_ind][w_ind+1]*F1u   + m_Pnts[u_ind+1][w_ind+1]*F2u +
+        m_Pnts[u_ind+2][w_ind+1]*F3u + m_Pnts[u_ind+3][w_ind+1]*F4u)*F2w) +
+      (( m_Pnts[u_ind][w_ind+2]*F1u  + m_Pnts[u_ind+1][w_ind+2]*F2u +
+        m_Pnts[u_ind+2][w_ind+2]*F3u + m_Pnts[u_ind+3][w_ind+2]*F4u)*F3w) +
+      (( m_Pnts[u_ind][w_ind+3]*F1u  + m_Pnts[u_ind+1][w_ind+3]*F2u +
+	    m_Pnts[u_ind+2][w_ind+3]*F3u + m_Pnts[u_ind+3][w_ind+3]*F4u)*F4w);
+
+	return pnt;
 }
 
 //===== Compute Tangent In U Direction   =====//
