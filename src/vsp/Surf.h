@@ -51,6 +51,7 @@ public:
 	vec3d CompTanW01(double u, double w);
 
 	void BlendFuncs(double u, double& F1, double& F2, double& F3, double& F4);
+	void BlendDerivFuncs(double u, double& F1, double& F2, double& F3, double& F4);
 
 	vec2d ClosestUW( vec3d & pnt, double guess_u, double guess_w, double guess_del_u, double guess_del_w, double tol );
 

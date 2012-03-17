@@ -125,6 +125,16 @@ void Surf::BlendFuncs(double u, double& F1, double& F2, double& F3, double& F4)
   F4 = uu*u;
 }
 
+void Surf::BlendDerivFuncs(double u, double& F1, double& F2, double& F3, double& F4)
+{
+	double uu    = u*u;
+	double one_u = 1.0 - u;
+	F1 = -3.0*one_u*one_u;
+	F2 = 3.0 - 12.0*u + 9.0*uu;
+	F3 = 6.0*u - 9.0*uu;
+	F4 = 3.0*uu;
+}
+
 //===== Compute Point On Surf Given  U W (Between 0 1 ) =====//
 vec3d Surf::CompPnt01( double u, double w )
 {
@@ -155,13 +165,7 @@ vec3d Surf::CompTanU01(double u01, double w01)
 	}
 	else
 	{
-		double u = uall-(double)trunc_u;
-		double uu    = u*u;
-		double one_u = 1.0 - u;
-		F1u   = -3.0*one_u*one_u;
-		F2u   = 3.0 - 12.0*u + 9.0*uu;
-		F3u   = 6.0*u - 9.0*uu;
-		F4u   = 3.0*uu;
+		BlendDerivFuncs(uall-(double)trunc_u, F1u, F2u, F3u, F4u);
 	}
 
 	int trunc_w = (int)wall;
@@ -174,13 +178,7 @@ vec3d Surf::CompTanU01(double u01, double w01)
 	}
 	else
 	{
-		double w = wall-(double)trunc_w;
-		double ww    = w*w;
-		double one_w = 1.0 - w;
-		F1w   = one_w*one_w*one_w;
-		F2w   = 3.0*one_w*one_w*w;
-		F3w   = 3.0*one_w*ww;
-		F4w   = ww*w;
+		BlendFuncs(wall-(double)trunc_w, F1w, F2w, F3w, F4w);
 	}
 
   pnt = 
@@ -219,13 +217,7 @@ vec3d Surf::CompTanW01(double u01, double w01)
 	}
 	else
 	{
-		double u = uall-(double)trunc_u;
-		double uu    = u*u;
-		double one_u = 1.0 - u;
-		F1u   = one_u*one_u*one_u;
-		F2u   = 3.0*one_u*one_u*u;
-		F3u   = 3.0*one_u*uu;
-		F4u   = uu*u;
+		BlendFuncs(uall-(double)trunc_u, F1u, F2u, F3u, F4u);
 	}
 
 	int trunc_w = (int)wall;
@@ -238,13 +230,7 @@ vec3d Surf::CompTanW01(double u01, double w01)
 	}
 	else
 	{
-		double w = wall-(double)trunc_w;
-		double ww    = w*w;
-		double one_w = 1.0 - w;
-		F1w   = -3.0*one_w*one_w;
-		F2w   = 3.0 - 12.0*w + 9.0*ww;
-		F3w   = 6.0*w - 9.0*ww;
-		F4w   = 3.0*ww;
+		BlendDerivFuncs(wall-(double)trunc_w, F1w, F2w, F3w, F4w);
 	}
 
   pnt = 
