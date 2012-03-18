@@ -75,8 +75,6 @@ public:
 
 	void FindBorderCurves();
 
-	void TesselateCurves();
-
 	void SetGridDensityPtr( GridDensity*  gp )				{ m_GridDensityPtr = gp; m_Mesh.SetGridDensityPtr( gp ); }
 
 	void SetCompID( int id )								{ m_CompID = id; }

@@ -580,14 +580,6 @@ void Surf::LoadSCurves( vector< SCurve* > & scurve_vec )
 	}
 }
 
-void Surf::TesselateCurves()
-{
-	for ( int i = 0 ; i < (int)m_SCurveVec.size() ; i++ )
-	{
-		m_SCurveVec[i]->Tesselate(m_GridDensityPtr);
-	}
-}
-
 void Surf::BuildGrid()
 {
 	int i;
