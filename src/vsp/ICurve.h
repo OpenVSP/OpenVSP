@@ -160,7 +160,6 @@ public:
 
 	SCurve* m_SCurve_A;
 	SCurve* m_SCurve_B;
-	bool m_FlipDirFlag;
 
 protected:
 
