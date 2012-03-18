@@ -180,252 +180,47 @@ vec3d Surf::CompTanUW01(double u01, double w01)
 	return CompTanUW( u01*m_MaxU, w01*m_MaxW );
 }
 
+
 //===== Compute Second Derivative U,U   =====//
-vec3d Surf::CompTanUU(double uall, double wall)
+vec3d Surf::CompTanUU(double u, double w)
 {
-	vec3d pnt;
-	if ( m_NumU < 4 || m_NumW < 4 )
-		return pnt;
-
-	double F1u, F2u, F3u, F4u;
-	double F1w, F2w, F3w, F4w;
-
-	int trunc_u = (int)uall;
-	int u_ind = trunc_u*3;
-	if (u_ind >= m_NumU-1 )
-	{
-		F1u = F2u = F3u = 0.0;
-		F4u = 1.0;
-		u_ind = m_NumU-4;
-	}
-	else
-	{
-		BlendDeriv2Funcs(uall-(double)trunc_u, F1u, F2u, F3u, F4u);
-	}
-
-	int trunc_w = (int)wall;
-	int w_ind = trunc_w*3;
-	if (w_ind >= m_NumW-1)
-	{
-		F1w = F2w = F3w = 0.0;
-		F4w = 1.0;
-		w_ind = m_NumW-4;
-	}
-	else
-	{
-		BlendFuncs(wall-(double)trunc_w, F1w, F2w, F3w, F4w);
-	}
-
-  pnt =
-     (( m_Pnts[u_ind][w_ind]*F1u     + m_Pnts[u_ind+1][w_ind]*F2u +
-        m_Pnts[u_ind+2][w_ind]*F3u   + m_Pnts[u_ind+3][w_ind]*F4u)*F1w) +
-     (( m_Pnts[u_ind][w_ind+1]*F1u   + m_Pnts[u_ind+1][w_ind+1]*F2u +
-        m_Pnts[u_ind+2][w_ind+1]*F3u + m_Pnts[u_ind+3][w_ind+1]*F4u)*F2w) +
-      (( m_Pnts[u_ind][w_ind+2]*F1u  + m_Pnts[u_ind+1][w_ind+2]*F2u +
-        m_Pnts[u_ind+2][w_ind+2]*F3u + m_Pnts[u_ind+3][w_ind+2]*F4u)*F3w) +
-      (( m_Pnts[u_ind][w_ind+3]*F1u  + m_Pnts[u_ind+1][w_ind+3]*F2u +
-	    m_Pnts[u_ind+2][w_ind+3]*F3u + m_Pnts[u_ind+3][w_ind+3]*F4u)*F4w);
-
-	return pnt;
+	return CompBez( u, w, &BlendDeriv2Funcs, &BlendFuncs);
 }
 
 //===== Compute Second Derivative W,W   =====//
-vec3d Surf::CompTanWW(double uall, double wall)
+vec3d Surf::CompTanWW(double u, double w)
 {
-	vec3d pnt;
-	if ( m_NumU < 4 || m_NumW < 4 )
-		return pnt;
-
-	double F1u, F2u, F3u, F4u;
-	double F1w, F2w, F3w, F4w;
-
-	int trunc_u = (int)uall;
-	int u_ind = trunc_u*3;
-	if (u_ind >= m_NumU-1 )
-	{
-		F1u = F2u = F3u = 0.0;
-		F4u = 1.0;
-		u_ind = m_NumU-4;
-	}
-	else
-	{
-		BlendFuncs(uall-(double)trunc_u, F1u, F2u, F3u, F4u);
-	}
-
-	int trunc_w = (int)wall;
-	int w_ind = trunc_w*3;
-	if (w_ind >= m_NumW-1)
-	{
-		F1w = F2w = F3w = 0.0;
-		F4w = 1.0;
-		w_ind = m_NumW-4;
-	}
-	else
-	{
-		BlendDeriv2Funcs(wall-(double)trunc_w, F1w, F2w, F3w, F4w);
-	}
-
-  pnt =
-     (( m_Pnts[u_ind][w_ind]*F1u     + m_Pnts[u_ind+1][w_ind]*F2u +
-        m_Pnts[u_ind+2][w_ind]*F3u   + m_Pnts[u_ind+3][w_ind]*F4u)*F1w) +
-     (( m_Pnts[u_ind][w_ind+1]*F1u   + m_Pnts[u_ind+1][w_ind+1]*F2u +
-        m_Pnts[u_ind+2][w_ind+1]*F3u + m_Pnts[u_ind+3][w_ind+1]*F4u)*F2w) +
-      (( m_Pnts[u_ind][w_ind+2]*F1u  + m_Pnts[u_ind+1][w_ind+2]*F2u +
-        m_Pnts[u_ind+2][w_ind+2]*F3u + m_Pnts[u_ind+3][w_ind+2]*F4u)*F3w) +
-      (( m_Pnts[u_ind][w_ind+3]*F1u  + m_Pnts[u_ind+1][w_ind+3]*F2u +
-	    m_Pnts[u_ind+2][w_ind+3]*F3u + m_Pnts[u_ind+3][w_ind+3]*F4u)*F4w);
-
-	return pnt;
+	return CompBez( u, w, &BlendFuncs, &BlendDeriv2Funcs);
 }
 
 //===== Compute Second Derivative U,W   =====//
-vec3d Surf::CompTanUW(double uall, double wall)
+vec3d Surf::CompTanUW(double u, double w)
 {
-	vec3d pnt;
-	if ( m_NumU < 4 || m_NumW < 4 )
-		return pnt;
-
-	double F1u, F2u, F3u, F4u;
-	double F1w, F2w, F3w, F4w;
-
-	int trunc_u = (int)uall;
-	int u_ind = trunc_u*3;
-	if (u_ind >= m_NumU-1 )
-	{
-		F1u = F2u = F3u = 0.0;
-		F4u = 1.0;
-		u_ind = m_NumU-4;
-	}
-	else
-	{
-		BlendDerivFuncs(uall-(double)trunc_u, F1u, F2u, F3u, F4u);
-	}
-
-	int trunc_w = (int)wall;
-	int w_ind = trunc_w*3;
-	if (w_ind >= m_NumW-1)
-	{
-		F1w = F2w = F3w = 0.0;
-		F4w = 1.0;
-		w_ind = m_NumW-4;
-	}
-	else
-	{
-		BlendDerivFuncs(wall-(double)trunc_w, F1w, F2w, F3w, F4w);
-	}
-
-  pnt =
-     (( m_Pnts[u_ind][w_ind]*F1u     + m_Pnts[u_ind+1][w_ind]*F2u +
-        m_Pnts[u_ind+2][w_ind]*F3u   + m_Pnts[u_ind+3][w_ind]*F4u)*F1w) +
-     (( m_Pnts[u_ind][w_ind+1]*F1u   + m_Pnts[u_ind+1][w_ind+1]*F2u +
-        m_Pnts[u_ind+2][w_ind+1]*F3u + m_Pnts[u_ind+3][w_ind+1]*F4u)*F2w) +
-      (( m_Pnts[u_ind][w_ind+2]*F1u  + m_Pnts[u_ind+1][w_ind+2]*F2u +
-        m_Pnts[u_ind+2][w_ind+2]*F3u + m_Pnts[u_ind+3][w_ind+2]*F4u)*F3w) +
-      (( m_Pnts[u_ind][w_ind+3]*F1u  + m_Pnts[u_ind+1][w_ind+3]*F2u +
-	    m_Pnts[u_ind+2][w_ind+3]*F3u + m_Pnts[u_ind+3][w_ind+3]*F4u)*F4w);
-
-	return pnt;
+	return CompBez( u, w, &BlendDerivFuncs, &BlendDerivFuncs);
 }
 
 //===== Compute Tangent In U Direction   =====//
-vec3d Surf::CompTanU(double uall, double wall)
+vec3d Surf::CompTanU(double u, double w)
 {
- 	vec3d pnt;
-	if ( m_NumU < 4 || m_NumW < 4 )
-		return pnt;
-
-	double F1u, F2u, F3u, F4u;
-	double F1w, F2w, F3w, F4w;
-
-	int trunc_u = (int)uall;
-	int u_ind = trunc_u*3;
-	if (u_ind >= m_NumU-1 ) 
-	{
-		F1u = F2u = F3u = 0.0;
-		F4u = 1.0;
-		u_ind = m_NumU-4;
-	}
-	else
-	{
-		BlendDerivFuncs(uall-(double)trunc_u, F1u, F2u, F3u, F4u);
-	}
-
-	int trunc_w = (int)wall;
-	int w_ind = trunc_w*3;
-	if (w_ind >= m_NumW-1) 
-	{
-		F1w = F2w = F3w = 0.0;
-		F4w = 1.0;
-		w_ind = m_NumW-4;
-	}
-	else
-	{
-		BlendFuncs(wall-(double)trunc_w, F1w, F2w, F3w, F4w);
-	}
-
-  pnt = 
-     (( m_Pnts[u_ind][w_ind]*F1u     + m_Pnts[u_ind+1][w_ind]*F2u +         
-        m_Pnts[u_ind+2][w_ind]*F3u   + m_Pnts[u_ind+3][w_ind]*F4u)*F1w) +
-     (( m_Pnts[u_ind][w_ind+1]*F1u   + m_Pnts[u_ind+1][w_ind+1]*F2u +         
-        m_Pnts[u_ind+2][w_ind+1]*F3u + m_Pnts[u_ind+3][w_ind+1]*F4u)*F2w) +
-      (( m_Pnts[u_ind][w_ind+2]*F1u  + m_Pnts[u_ind+1][w_ind+2]*F2u +         
-        m_Pnts[u_ind+2][w_ind+2]*F3u + m_Pnts[u_ind+3][w_ind+2]*F4u)*F3w) +
-      (( m_Pnts[u_ind][w_ind+3]*F1u  + m_Pnts[u_ind+1][w_ind+3]*F2u +         
-	    m_Pnts[u_ind+2][w_ind+3]*F3u + m_Pnts[u_ind+3][w_ind+3]*F4u)*F4w);
-
-	return pnt;
+	return CompBez( u, w, &BlendDerivFuncs, &BlendFuncs);
 }
 
 //===== Compute Tangent In W Direction   =====//
-vec3d Surf::CompTanW(double uall, double wall)
+vec3d Surf::CompTanW(double u, double w)
 {
- 	vec3d pnt;
-	if ( m_NumU < 4 || m_NumW < 4 )
-		return pnt;
-
-	double F1u, F2u, F3u, F4u;
-	double F1w, F2w, F3w, F4w;
-
-	int trunc_u = (int)uall;
-	int u_ind = trunc_u*3;
-	if (u_ind >= m_NumU-1 ) 
-	{
-		F1u = F2u = F3u = 0.0;
-		F4u = 1.0;
-		u_ind = m_NumU-4;
-	}
-	else
-	{
-		BlendFuncs(uall-(double)trunc_u, F1u, F2u, F3u, F4u);
-	}
-
-	int trunc_w = (int)wall;
-	int w_ind = trunc_w*3;
-	if (w_ind >= m_NumW-1) 
-	{
-		F1w = F2w = F3w = 0.0;
-		F4w = 1.0;
-		w_ind = m_NumW-4;
-	}
-	else
-	{
-		BlendDerivFuncs(wall-(double)trunc_w, F1w, F2w, F3w, F4w);
-	}
-
-  pnt = 
-     (( m_Pnts[u_ind][w_ind]*F1u     + m_Pnts[u_ind+1][w_ind]*F2u +         
-        m_Pnts[u_ind+2][w_ind]*F3u   + m_Pnts[u_ind+3][w_ind]*F4u)*F1w) +
-     (( m_Pnts[u_ind][w_ind+1]*F1u   + m_Pnts[u_ind+1][w_ind+1]*F2u +         
-        m_Pnts[u_ind+2][w_ind+1]*F3u + m_Pnts[u_ind+3][w_ind+1]*F4u)*F2w) +
-      (( m_Pnts[u_ind][w_ind+2]*F1u  + m_Pnts[u_ind+1][w_ind+2]*F2u +         
-        m_Pnts[u_ind+2][w_ind+2]*F3u + m_Pnts[u_ind+3][w_ind+2]*F4u)*F3w) +
-      (( m_Pnts[u_ind][w_ind+3]*F1u  + m_Pnts[u_ind+1][w_ind+3]*F2u +         
-	    m_Pnts[u_ind+2][w_ind+3]*F3u + m_Pnts[u_ind+3][w_ind+3]*F4u)*F4w);
-
-	return pnt;
+	return CompBez( u, w, &BlendFuncs, &BlendDerivFuncs);
 }
+
 //===== Compute Point On Surf Given  U W =====//
 vec3d Surf::CompPnt(double u, double w)
+{
+	return CompBez( u, w, &BlendFuncs, &BlendFuncs);
+}
+
+//===== Generic Bezier Surface Calculation  =====//
+vec3d Surf::CompBez( double u, double w,
+	void (*uBlendFun)(double u, double& F1, double& F2, double& F3, double& F4),
+	void (*wBlendFun)(double u, double& F1, double& F2, double& F3, double& F4) )
 {
 	vec3d pnt;
 
@@ -445,7 +240,7 @@ vec3d Surf::CompPnt(double u, double w)
 	}
 	else
 	{
-		BlendFuncs(u-(double)trunc_u, F1u, F2u, F3u, F4u);
+		uBlendFun(u-(double)trunc_u, F1u, F2u, F3u, F4u);
 	}
 
 	int trunc_w = (int)w;
@@ -458,7 +253,7 @@ vec3d Surf::CompPnt(double u, double w)
 	}
 	else
 	{
-		BlendFuncs(w-(double)trunc_w, F1w, F2w, F3w, F4w);
+		wBlendFun(w-(double)trunc_w, F1w, F2w, F3w, F4w);
 	}
 
   pnt = 
