@@ -234,27 +234,19 @@ vec3d Surf::CompBez( double u, double w,
 	int u_ind = trunc_u*3;
 	if (u_ind >= m_NumU-1 ) 
 	{
-		F1u = F2u = F3u = 0.0;
-		F4u = 1.0;
+		trunc_u = trunc_u-1;
 		u_ind = m_NumU-4;
 	}
-	else
-	{
-		uBlendFun(u-(double)trunc_u, F1u, F2u, F3u, F4u);
-	}
+	uBlendFun(u-(double)trunc_u, F1u, F2u, F3u, F4u);
 
 	int trunc_w = (int)w;
 	int w_ind = trunc_w*3;
 	if (w_ind >= m_NumW-1) 
 	{
-		F1w = F2w = F3w = 0.0;
-		F4w = 1.0;
+		trunc_w = trunc_w-1;
 		w_ind = m_NumW-4;
 	}
-	else
-	{
-		wBlendFun(w-(double)trunc_w, F1w, F2w, F3w, F4w);
-	}
+	wBlendFun(w-(double)trunc_w, F1w, F2w, F3w, F4w);
 
   pnt = 
      (( m_Pnts[u_ind][w_ind]*F1u     + m_Pnts[u_ind+1][w_ind]*F2u +         
