@@ -309,6 +309,43 @@ void Surf::CompCurvature( double u, double w, double& k1, double& k2, double& ka
 		k2 = kmax;
 	}
 }
+
+double Surf::TargetLen( double u, double w, double gap)
+{
+	double k1, k2, ka, kg;
+
+	double tol = 1e-6;
+	double len = numeric_limits<double>::max( );
+	double r = -1.0;
+
+	CompCurvature( u, w, k1, k2, ka, kg );
+
+	// Check for k1 nan.
+	if(k1 != k1)
+	{
+		// nan Occurs when we are at the absolute maximum U,W corner of a patch.
+		// Since this is only used for curvature, use a slightly inside point instead.
+		CompCurvature( u-tol, w-tol, k1, k2, ka, kg );
+	}
+
+	if( fabs(k1) > tol )
+	{
+		// Tightest radius of curvature
+		r = 1.0/fabs(k1);
+
+		if(r > gap)
+		{
+			// Pythagorean thm. to calculate edge length to match gap given radius.
+			len = 2.0*sqrt( 2.0*r*gap - gap*gap );
+		}
+		else
+		{
+			len = 2.0*gap;
+		}
+	}
+	return len;
+}
+
 vec2d Surf::ClosestUW( vec3d & pnt, double guess_u, double guess_w, double guess_del_u, double guess_del_w, double tol )
 {
 	double u = guess_u;
