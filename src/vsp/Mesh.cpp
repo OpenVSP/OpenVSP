@@ -1003,7 +1003,9 @@ void Mesh::ComputeTargetEdgeLength( Edge* edge )
 
 	double curv_len = m_Surf->TargetLen( uwc.x(), uwc.y(), 0.0025 );
 
-	edge->target_len = min(curv_len, grid_len);
+	double tlen = min(curv_len, grid_len);
+
+	edge->target_len = max(tlen, 0.005);
 
 //	double t0 = m_GridDensity->GetTargetLen( edge->n0->pnt );
 //	double t1 = m_GridDensity->GetTargetLen( edge->n1->pnt );
