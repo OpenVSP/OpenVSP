@@ -41,6 +41,7 @@ public:
 	Surf* GetSurf()											{ return m_Surf; }
 
 	void Tesselate( GridDensity* grid_den );
+	void Tesselate( GridDensity* grid_den, SCurve* BCurve );
 	void Tesselate( vector< vec3d > & target_pnts );
 
 	void SetBezierControlPnts( vector< vec3d > & pnts );

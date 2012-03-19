@@ -211,6 +211,127 @@ void SCurve::Tesselate( GridDensity* grid_den )
 
 }
 
+void SCurve::Tesselate( GridDensity* grid_den, SCurve* BCurve )
+{
+	assert( m_Surf );
+
+	m_UTess.clear();
+	m_UWTess.clear();
+	m_StartSearchIndex = 0;
+
+	vector< double > u_vec;
+	vector< double > dist_vec;
+	vector< vec3d >  pnt_vec;
+
+	//==== Build U to Dist Table ====//
+	int num_segs = 10000;
+	double total_dist = 0.0;
+	vec3d uw = m_UWCrv.comp_pnt( 0 );
+	vec3d last_p = m_Surf->CompPnt( uw.x(), uw.y() );
+	for ( int i = 0 ; i < num_segs ; i++ )
+	{
+		double u = (double)i/(double)(num_segs-1);
+
+		uw = m_UWCrv.comp_pnt( u );
+		vec3d p = m_Surf->CompPnt( uw.x(), uw.y() );
+		pnt_vec.push_back( p );
+
+		u_vec.push_back( u );
+
+		total_dist += dist( p, last_p );
+		dist_vec.push_back( total_dist );
+
+		last_p = p;
+	}
+
+
+	bool stopFlag = false;
+
+	double u = 0.0;
+	uw = m_UWCrv.comp_pnt( u );
+	m_UWTess.push_back( uw );
+
+	total_dist = 0;
+	m_StartSearchIndex = 0;
+
+	m_UTess.push_back( 0.0 );
+	while ( !stopFlag )
+	{
+		vec3d p = m_Surf->CompPnt( uw.x(), uw.y() );
+
+		double grid_len = grid_den->GetTargetLen( p );
+
+		double curv_lenA = m_Surf->TargetLen( uw.x(), uw.y(), 0.0025 );
+
+		vec3d uwB = BCurve->m_UWCrv.comp_pnt( u );
+		double curv_lenB = BCurve->m_Surf->TargetLen( uwB.x(), uwB.y(), 0.0025 );
+
+		double curv_len = min( curv_lenA, curv_lenB );
+
+		double target_len = min( grid_len, curv_len );
+
+		total_dist += target_len;
+
+//		u = FindU( p, target_len, u_vec, pnt_vec );
+		u = FindUDist( total_dist, u_vec, dist_vec );
+
+		if ( u < 1.0 )
+		{
+			m_UTess.push_back( u );
+			uw = m_UWCrv.comp_pnt( u );
+			m_UWTess.push_back( uw );
+		}
+		else
+		{
+			uw = m_UWCrv.comp_pnt( u );
+			double last_dist = dist( p, m_Surf->CompPnt( uw.x(), uw.y() ) );
+
+			//bool remove_last_point = false;
+			//if ( last_dist < 0.75*target_len )
+			//{
+			//	remove_last_point = true;
+			//}
+
+			if (  m_UTess.size() == 1 )
+			{
+				m_UTess.push_back( 1.0 );
+				uw = m_UWCrv.comp_pnt( 1.0 );
+				m_UWTess.push_back( uw );
+			}
+			else if ( last_dist < 0.75*target_len )
+			{
+				m_UTess[ m_UTess.size()-1 ]   = u;
+				m_UWTess[ m_UWTess.size()-1 ] = uw;
+			}
+			else
+			{
+				m_UTess.push_back( u );
+				m_UWTess.push_back( uw );
+			}
+			stopFlag = true;
+		}
+	}
+
+	//if ( m_UTess.size() == 1 )
+	//{
+	//	m_UTess.push_back( 1.0 );
+	//	uw = m_UWCrv.comp_pnt( 1.0 );
+	//	m_UWTess.push_back( uw );
+	//}
+
+
+//FILE* fp = fopen("curve_dist.dat", "w");
+//for ( int i = 1 ; i < m_PntVec.size() ; i++ )
+//{
+//	vec3d p0 = m_Surf1->CompPnt( m_PntVec[i-1].x(),  m_PntVec[i-1].y() );
+//	vec3d p1 = m_Surf1->CompPnt( m_PntVec[i].x(),  m_PntVec[i].y() );
+//	double d = dist( p0, p1 );
+//	fprintf(fp, "Dist = %f\n", d );
+//}
+//fclose(fp);
+
+}
+
 void SCurve::Tesselate( vector< vec3d > & target_pnts )
 {
 	assert( m_Surf );
