@@ -268,7 +268,55 @@ vec3d Surf::CompBez( double u, double w,
 
 	return pnt;
 }
-	
+
+//===== Compute Surface Curvature Metrics Given  U W =====//
+void Surf::CompCurvature( double u, double w, double& k1, double& k2, double& ka, double& kg )
+{
+	// First derivative vectors
+	vec3d S_u = CompTanU( u, w );
+	vec3d S_w = CompTanW( u, w );
+
+	// Second derivative vectors
+	vec3d S_uu = CompTanUU( u, w );
+	vec3d S_uw = CompTanUW( u, w );
+	vec3d S_ww = CompTanWW( u, w );
+
+	// Unit normal vector
+	vec3d Q = cross( S_u, S_w );
+	Q.normalize();
+
+	double E = dot( S_u, S_u );
+	double F = dot( S_u, S_w );
+	double G = dot( S_w, S_w );
+
+	double L = dot( S_uu, Q );
+	double M = dot( S_uw, Q );
+	double N = dot( S_ww, Q );
+
+	// Mean curvature
+	ka = (E*N + G*L - 2.0*F*M)/(2.0*(E*G - F*F));
+
+	// Gaussian curvature
+	kg = (L*N - M*M)/(E*G - F*F);
+
+	double b = sqrt( ka*ka - kg );
+
+	// Principal curvatures
+	double kmax = ka + b;
+	double kmin = ka - b;
+
+	// Ensure k1 has largest magnitude
+	if( fabs(kmax) > fabs(kmin) )
+	{
+		k1 = kmax;
+		k2 = kmin;
+	}
+	else
+	{
+		k1 = kmin;
+		k2 = kmax;
+	}
+}
 vec2d Surf::ClosestUW( vec3d & pnt, double guess_u, double guess_w, double guess_del_u, double guess_del_w, double tol )
 {
 	double u = guess_u;

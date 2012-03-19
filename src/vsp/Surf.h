@@ -59,6 +59,7 @@ public:
 	vec3d CompTanWW01( double u, double w );
 	vec3d CompTanUW01( double u, double w );
 
+	void CompCurvature( double u, double w, double& k1, double& k2, double& ka, double& kg );
 
 	static void BlendFuncs(double u, double& F1, double& F2, double& F3, double& F4);
 	static void BlendDerivFuncs(double u, double& F1, double& F2, double& F3, double& F4);
