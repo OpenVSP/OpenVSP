@@ -558,7 +558,8 @@ void CfdMeshMgr::Remesh(int output_type)
 {
 	char str[256];
 	int total_num_tris = 0;
-	for ( int i = 0 ; i < (int)m_SurfVec.size() ; i++ )
+	int nsurf = (int)m_SurfVec.size();
+	for ( int i = 0 ; i < nsurf ; i++ )
 	{
 		int num_tris = 0;
 
@@ -570,7 +571,7 @@ void CfdMeshMgr::Remesh(int output_type)
 
 			num_tris += m_SurfVec[i]->GetMesh()->GetTriList().size();
 
-			sprintf(str, "Surf %d Iter %d/10 Num Tris = %d\n", i, iter+1, num_tris );
+			sprintf(str, "Surf %d/%d Iter %d/10 Num Tris = %d\n", i+1, nsurf, iter+1, num_tris );
 			if ( output_type != CfdMeshMgr::NO_OUTPUT )
 				addOutputText( str, output_type );
 		}
@@ -589,7 +590,8 @@ void CfdMeshMgr::RemeshSingleComp(int comp_id, int output_type)
 {
 	char str[256];
 	int total_num_tris = 0;
-	for ( int i = 0 ; i < (int)m_SurfVec.size() ; i++ )
+	int nsurf = (int)m_SurfVec.size();
+	for ( int i = 0 ; i < nsurf ; i++ )
 	{
 		int num_tris = 0;
 		if ( m_SurfVec[i]->GetCompID() == comp_id )
@@ -602,7 +604,7 @@ void CfdMeshMgr::RemeshSingleComp(int comp_id, int output_type)
 
 				num_tris += m_SurfVec[i]->GetMesh()->GetTriList().size();
 
-				sprintf(str, "Surf %d Iter %d/10 Num Tris = %d\n", i, iter+1, num_tris );
+				sprintf(str, "Surf %d/%d Iter %d/10 Num Tris = %d\n", i+1, nsurf, iter+1, num_tris );
 				addOutputText( str, output_type );
 			}
 			total_num_tris += num_tris;
