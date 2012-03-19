@@ -250,6 +250,27 @@ public:
 	double GetBaseLen()							{ return m_BaseLen; }
 	void   SetBaseLen( double v )				{ m_BaseLen = v; }
 
+	double GetMinLen()					{ return m_MinLen; }
+	void   SetMinLen( double v )				{ m_MinLen = v; }
+
+	double GetNCircSeg()					{ return m_NCircSeg; }
+	bool   SetNCircSeg( double v )
+	{
+		if(v > 2.0)
+		{
+			m_NCircSeg = v;
+			m_RadFrac = 2.0*sin(PI/v);
+			return true;
+		}
+		else
+			return false;
+	}
+
+	double GetRadFrac()					{ return m_RadFrac; }
+
+	double GetMaxGap()					{ return m_MaxGap; }
+	void   SetMaxGap( double v )				{ m_MaxGap = v; }
+
 	double GetTargetLen( vec3d& pos );
 
 	void ClearSources()							{ m_Sources.clear(); } //Deleted in Geom
@@ -265,6 +286,11 @@ public:
 protected:
 
 	double m_BaseLen;
+
+	double m_MinLen;
+	double m_NCircSeg;
+	double m_RadFrac;
+	double m_MaxGap;
 
 	vector< BaseSource* > m_Sources;				// Sources + Ref Sources in 3D Space
 

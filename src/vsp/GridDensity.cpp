@@ -748,7 +748,9 @@ void BoxSource::ReadParms( xmlNodePtr root )
 GridDensity::GridDensity()
 {
 	m_BaseLen = 0.5;
-
+	m_MinLen = 0.005;
+	SetNCircSeg(64.0);
+	m_MaxGap = 0.0025;
 }
 
 GridDensity::~GridDensity()
