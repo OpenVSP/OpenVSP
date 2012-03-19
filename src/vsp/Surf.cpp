@@ -310,13 +310,16 @@ void Surf::CompCurvature( double u, double w, double& k1, double& k2, double& ka
 	}
 }
 
-double Surf::TargetLen( double u, double w, double gap)
+double Surf::TargetLen( double u, double w, double gap, double radfrac)
 {
 	double k1, k2, ka, kg;
 
 	double tol = 1e-6;
 	double len = numeric_limits<double>::max( );
 	double r = -1.0;
+
+	double glen = numeric_limits<double>::max( );
+	double nlen = numeric_limits<double>::max( );
 
 	CompCurvature( u, w, k1, k2, ka, kg );
 
@@ -336,12 +339,19 @@ double Surf::TargetLen( double u, double w, double gap)
 		if(r > gap)
 		{
 			// Pythagorean thm. to calculate edge length to match gap given radius.
-			len = 2.0*sqrt( 2.0*r*gap - gap*gap );
+			glen = 2.0*sqrt( 2.0*r*gap - gap*gap );
 		}
 		else
 		{
-			len = 2.0*gap;
+			glen = 2.0*gap;
 		}
+
+		// Radius fraction calculated elsewhere based on desired number of circle segments.
+		// This calculation can give unboundedly small edge lengths.  The minimum edge length
+		// is a required control to prevent this.
+		nlen = r * radfrac;
+
+		len = min( glen, nlen );
 	}
 	return len;
 }
