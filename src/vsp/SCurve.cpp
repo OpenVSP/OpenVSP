@@ -148,7 +148,12 @@ void SCurve::Tesselate( GridDensity* grid_den )
 	{
 		vec3d p = m_Surf->CompPnt( uw.x(), uw.y() );
 
-		double target_len = grid_den->GetTargetLen( p );
+		double grid_len = grid_den->GetTargetLen( p );
+
+		double curv_len = m_Surf->TargetLen( uw.x(), uw.y(), 0.0025 );
+
+		double target_len = min( grid_len, curv_len );
+
 		total_dist += target_len;
 
 //		double u = FindU( p, target_len, u_vec, pnt_vec );
