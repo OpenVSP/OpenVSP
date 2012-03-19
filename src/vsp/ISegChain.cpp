@@ -1033,7 +1033,6 @@ void ISegChain::Tessellate(GridDensity* grid_density)
 
 	m_ACurve.SetSurf( m_SurfA );
 	m_ACurve.BuildBezierCurve( auw_pnts );
-	m_ACurve.Tesselate( grid_density );
 
 	//==== B SCurve ====//
 	vector< vec3d > buw_pnts;
@@ -1047,6 +1046,8 @@ void ISegChain::Tessellate(GridDensity* grid_density)
 
 	m_BCurve.SetSurf( m_SurfB );
 	m_BCurve.BuildBezierCurve( buw_pnts );
+
+	m_ACurve.Tesselate( grid_density, &m_BCurve );
 
 	//==== Compute Target 3D Points on A Surface ====//
 	vector< vec3d > target_uw;

@@ -525,10 +525,13 @@ bool ICurve::Match( SCurve* crv_A, SCurve* crv_B )
 	
 void ICurve::Tesselate( GridDensity* grid_den )
 {
-	m_SCurve_A->Tesselate( grid_den );
-
 	if ( !m_SCurve_B )
+	{
+		m_SCurve_A->Tesselate( grid_den );
 		return;
+	}
+
+	m_SCurve_A->Tesselate( grid_den, m_SCurve_B );
 
 	vector< double > u_A = m_SCurve_A->GetUTessPnts();
 	vector< double > u_B;
