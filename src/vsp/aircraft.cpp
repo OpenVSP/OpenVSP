@@ -506,6 +506,9 @@ void Aircraft::writeFile( const char* file_name, vector< Geom * > &gVec, vector<
 	xmlAddDoubleNode( root, "CG_Y", cgLoc.y() );
 	xmlAddDoubleNode( root, "CG_Z", cgLoc.z() );
 	xmlAddDoubleNode( root, "CFD_Mesh_Base_Length", cfdMeshMgrPtr->GetGridDensityPtr()->GetBaseLen() );
+	xmlAddDoubleNode( root, "CFD_Mesh_Min_Length", cfdMeshMgrPtr->GetGridDensityPtr()->GetMinLen() );
+	xmlAddDoubleNode( root, "CFD_Mesh_Max_Gap", cfdMeshMgrPtr->GetGridDensityPtr()->GetMaxGap() );
+	xmlAddDoubleNode( root, "CFD_Mesh_Num_Circle_Segments", cfdMeshMgrPtr->GetGridDensityPtr()->GetNCircSeg() );
 	xmlAddDoubleNode( root, "CFD_Far_Field_Scale_X", cfdMeshMgrPtr->GetFarXScale() );
 	xmlAddDoubleNode( root, "CFD_Far_Field_Scale_Y", cfdMeshMgrPtr->GetFarYScale() );
 	xmlAddDoubleNode( root, "CFD_Far_Field_Scale_Z", cfdMeshMgrPtr->GetFarZScale() );
@@ -879,7 +882,9 @@ int Aircraft::readFile(const char* file_name )
 
 	double bl = xmlFindDouble( root, "CFD_Mesh_Base_Length", cfdMeshMgrPtr->GetGridDensityPtr()->GetBaseLen() );
 	cfdMeshMgrPtr->GetGridDensityPtr()->SetBaseLen(bl);
-
+	cfdMeshMgrPtr->GetGridDensityPtr()->SetMinLen( xmlFindDouble( root, "CFD_Mesh_Min_Length", cfdMeshMgrPtr->GetGridDensityPtr()->GetMinLen() ) );
+	cfdMeshMgrPtr->GetGridDensityPtr()->SetMaxGap( xmlFindDouble( root, "CFD_Mesh_Max_Gap", cfdMeshMgrPtr->GetGridDensityPtr()->GetMaxGap() ) );
+	cfdMeshMgrPtr->GetGridDensityPtr()->SetNCircSeg( xmlFindDouble( root, "CFD_Mesh_Num_Circle_Segments", cfdMeshMgrPtr->GetGridDensityPtr()->GetNCircSeg() ) );
 	cfdMeshMgrPtr->SetFarXScale( xmlFindDouble( root, "CFD_Far_Field_Scale_X", cfdMeshMgrPtr->GetFarXScale() ) );
 	cfdMeshMgrPtr->SetFarYScale( xmlFindDouble( root, "CFD_Far_Field_Scale_Y", cfdMeshMgrPtr->GetFarYScale() ) );
 	cfdMeshMgrPtr->SetFarZScale( xmlFindDouble( root, "CFD_Far_Field_Scale_Z", cfdMeshMgrPtr->GetFarZScale() ) );
