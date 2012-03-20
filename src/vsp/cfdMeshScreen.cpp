@@ -67,6 +67,24 @@ CfdMeshScreen::CfdMeshScreen(ScreenMgr* mgr, Aircraft* airPtr)
 	m_GlobalEdgeSizeSlider->SetRange( 1.0 );
 	m_GlobalEdgeSizeSlider->UpdateGui();
 
+	m_MinEdgeSizeSlider = new SliderInputCombo( ui->minEdgeSizeSlider, ui->minEdgeSizeInput );
+	m_MinEdgeSizeSlider->SetCallback( staticScreenCB, this );
+	m_MinEdgeSizeSlider->SetLimits( 0.00001, 1000000.0 );
+	m_MinEdgeSizeSlider->SetRange( 1.0 );
+	m_MinEdgeSizeSlider->UpdateGui();
+
+	m_MaxGapSizeSlider = new SliderInputCombo( ui->maxGapSizeSlider, ui->maxGapSizeInput );
+	m_MaxGapSizeSlider->SetCallback( staticScreenCB, this );
+	m_MaxGapSizeSlider->SetLimits( 0.0001, 1000000.0 );
+	m_MaxGapSizeSlider->SetRange( 1.0 );
+	m_MaxGapSizeSlider->UpdateGui();
+
+	m_NumCircSegmentSlider = new SliderInputCombo( ui->numCircSegmentSlider, ui->numCircSegmentInput );
+	m_NumCircSegmentSlider->SetCallback( staticScreenCB, this );
+	m_NumCircSegmentSlider->SetLimits( 3.0, 1000.0 );
+	m_NumCircSegmentSlider->SetRange( 100.0 );
+	m_NumCircSegmentSlider->UpdateGui();
+
 	m_FarXScaleSlider = new SliderInputCombo( ui->farXSlider, ui->farXInput );
 	m_FarXScaleSlider->SetCallback( staticScreenCB, this );
 	m_FarXScaleSlider->SetLimits( 1.1, 10000.0 );
@@ -140,6 +158,9 @@ CfdMeshScreen::~CfdMeshScreen()
 	delete m_Length2Slider;
 	delete m_Radius2Slider;
 	delete m_GlobalEdgeSizeSlider;
+	delete m_MinEdgeSizeSlider;
+	delete m_MaxGapSizeSlider;
+	delete m_NumCircSegmentSlider;
 	delete m_FarXScaleSlider;
 	delete m_FarYScaleSlider;
 	delete m_FarZScaleSlider;
@@ -155,6 +176,12 @@ void CfdMeshScreen::update()
 	//==== Base Len ====//
 	m_GlobalEdgeSizeSlider->SetVal(cfdMeshMgrPtr->GetGridDensityPtr()->GetBaseLen()); 
 	m_GlobalEdgeSizeSlider->UpdateGui();
+	m_MinEdgeSizeSlider->SetVal(cfdMeshMgrPtr->GetGridDensityPtr()->GetMinLen());
+	m_MinEdgeSizeSlider->UpdateGui();
+	m_MaxGapSizeSlider->SetVal(cfdMeshMgrPtr->GetGridDensityPtr()->GetMaxGap());
+	m_MaxGapSizeSlider->UpdateGui();
+	m_NumCircSegmentSlider->SetVal(cfdMeshMgrPtr->GetGridDensityPtr()->GetNCircSeg());
+	m_NumCircSegmentSlider->UpdateGui();
 
 	m_FarXScaleSlider->SetVal( cfdMeshMgrPtr->GetFarXScale() );
 	m_FarYScaleSlider->SetVal( cfdMeshMgrPtr->GetFarYScale() );
@@ -510,6 +537,21 @@ void CfdMeshScreen::screenCB( Fl_Widget* w )
 	else if ( m_GlobalEdgeSizeSlider->GuiChanged( w ) )
 	{
 		cfdMeshMgrPtr->GUI_Val( "GlobalEdgeSize", m_GlobalEdgeSizeSlider->GetVal() );
+		update_flag = false;
+	}
+	else if ( m_MinEdgeSizeSlider->GuiChanged( w ) )
+	{
+		cfdMeshMgrPtr->GUI_Val( "MinEdgeSize", m_MinEdgeSizeSlider->GetVal() );
+		update_flag = false;
+	}
+	else if ( m_MaxGapSizeSlider->GuiChanged( w ) )
+	{
+		cfdMeshMgrPtr->GUI_Val( "MaxGapSize", m_MaxGapSizeSlider->GetVal() );
+		update_flag = false;
+	}
+	else if ( m_NumCircSegmentSlider->GuiChanged( w ) )
+	{
+		cfdMeshMgrPtr->GUI_Val( "NumCircSeg", m_NumCircSegmentSlider->GetVal() );
 		update_flag = false;
 	}
 	else if ( m_FarXScaleSlider->GuiChanged( w ) )

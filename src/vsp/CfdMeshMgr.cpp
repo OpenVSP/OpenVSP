@@ -205,6 +205,12 @@ void CfdMeshMgr::GUI_Val( Stringc name, double val )
 	BaseSource* source = GetCurrSource();
 	if ( name == "GlobalEdgeSize"  )
 		m_GridDensity.SetBaseLen( val );
+	else if ( name == "MinEdgeSize"  )
+		m_GridDensity.SetMinLen( val );
+	else if ( name == "MaxGapSize"  )
+		m_GridDensity.SetMaxGap( val );
+	else if ( name == "NumCircSeg"  )
+		m_GridDensity.SetNCircSeg( val );
 	else if ( name == "Length1" && source )
 		source->SetLen( val );
 	else if ( name == "Radius1" && source )
