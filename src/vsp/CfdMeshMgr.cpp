@@ -392,6 +392,9 @@ void CfdMeshMgr::AddDefaultSources()
 void CfdMeshMgr::ScaleTriSize( double scale )
 {
 	m_GridDensity.SetBaseLen( scale*m_GridDensity.GetBaseLen() );
+	m_GridDensity.SetMinLen( scale*m_GridDensity.GetMinLen() );
+	m_GridDensity.SetMaxGap( scale*m_GridDensity.GetMaxGap() );
+	m_GridDensity.SetNCircSeg( m_GridDensity.GetNCircSeg()/scale );
 	m_GridDensity.ScaleAllSources( scale );
 }
 
