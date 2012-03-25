@@ -133,6 +133,7 @@ void SCurve::Tesselate( GridDensity* grid_den, SCurve* BCurve )
 
 	vector< double > u_vec;
 	vector< double > dist_vec;
+	vector< double > target_vec;
 	vector< vec3d >  pnt_vec;
 
 	//==== Build U to Dist Table ====//
@@ -146,9 +147,12 @@ void SCurve::Tesselate( GridDensity* grid_den, SCurve* BCurve )
 
 		uw = m_UWCrv.comp_pnt( u );
 		vec3d p = m_Surf->CompPnt( uw.x(), uw.y() );
-		pnt_vec.push_back( p );
 
+		double t = GetTargetLen( grid_den, BCurve, p, uw, u);
+
+		pnt_vec.push_back( p );
 		u_vec.push_back( u );
+		target_vec.push_back( t );
 
 		total_dist += dist( p, last_p );
 		dist_vec.push_back( total_dist );
