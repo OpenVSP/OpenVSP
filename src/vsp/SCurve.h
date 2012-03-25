@@ -49,9 +49,6 @@ public:
 	void SetBezierControlPnts( vector< vec3d > & pnts );
 	void BuildBezierCurve( vector< vec3d > & pnts_to_interpolate );
 
-	double FindU( vec3d & last_pnt, double target_len, vector< double > & u_vec, vector< vec3d > & pnt_vec );
-	double FindUDist( double target_dist, vector< double > & u_vec, vector< double > & dist_vec );
-
 	double Length( int num_segs );
 
 	void LoadControlPnts3D( vector< vec3d > & control_pnts );
@@ -77,9 +74,6 @@ protected:
 
 
 	Bezier_curve m_UWCrv;		// UW Curve
-
-	int m_StartSearchIndex;
-
 
 	vector< double > m_UTess;	// Tess Curve Pnts in U Space
 	vector< vec3d > m_UWTess;	// Tess Curve Pnts in UW Space

@@ -12,14 +12,12 @@
 SCurve::SCurve()
 {
 	m_Surf = NULL;
-	m_StartSearchIndex = 0;
 	m_ICurve = NULL;
 }
 
 SCurve::SCurve(Surf* s)
 {
 	m_Surf = s;
-	m_StartSearchIndex = 0;
 	m_ICurve = NULL;
 }
 
@@ -129,7 +127,6 @@ void SCurve::Tesselate( GridDensity* grid_den, SCurve* BCurve )
 
 	m_UTess.clear();
 	m_UWTess.clear();
-	m_StartSearchIndex = 0;
 
 	vector< double > u_vec;
 	vector< double > dist_vec;
@@ -333,65 +330,6 @@ void SCurve::Tesselate( vector< vec3d > & target_pnts )
 
 }
 
-double SCurve::FindU( vec3d & last_pnt, double target_len, vector< double > & u_vec, vector< vec3d > & pnt_vec )
-{
-	assert( u_vec.size() == pnt_vec.size() );
-
-	for ( int i = m_StartSearchIndex ; i < (int)pnt_vec.size()-1 ; i++ )
-	{
-		double di  = dist( last_pnt, pnt_vec[i] );
-		double dii = dist( last_pnt, pnt_vec[i+1] );
-
-		if ( target_len >= di && target_len <= dii )
-		{
-			double denom = dii - di;
-			double fract = 0.0;
-
-			if ( denom )
-				fract = (target_len - di)/denom;
-
-			double u = u_vec[i] + fract*( u_vec[i+1] - u_vec[i] );
-
-			if ( i > 0 )
-				m_StartSearchIndex = i-1;
-
-			return u;
-		}
-	}
-	return 1.0;
-}
-	
-double SCurve::FindUDist( double target_dist, vector< double > & u_vec, vector< double > & dist_vec )
-{
-	assert( u_vec.size() == dist_vec.size() );
-
-	if ( m_StartSearchIndex >= (int)dist_vec.size() )
-		m_StartSearchIndex = 0;
-
-	if ( dist_vec[m_StartSearchIndex] > target_dist )
-		m_StartSearchIndex = 0;
-
-	for ( int i = m_StartSearchIndex ; i < (int)dist_vec.size()-1 ; i++ )
-	{
-		if ( target_dist >= dist_vec[i] && target_dist <= dist_vec[i+1] )
-		{
-			double denom = dist_vec[i+1] - dist_vec[i];
-			double fract = 0.0;
-
-			if ( denom )
-				fract = (target_dist - dist_vec[i])/denom;
-
-			double u = u_vec[i] + fract*( u_vec[i+1] - u_vec[i] );
-			
-			if ( i > 0 )
-				m_StartSearchIndex = i-1;
-
-			return u;
-		}
-	}
-	return 1.0;
-}
-	
 void SCurve::Tesselate( vector< double > & u_tess )
 {
 
