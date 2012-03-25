@@ -23,6 +23,10 @@ bool ShortEdgeLengthCompare(const Edge* a, const Edge* b)
 {
     return ( a->m_Length < b->m_Length );
 }
+bool ShortEdgeTargetLengthCompare(const Edge* a, const Edge* b)
+{
+    return ( a->target_len < b->target_len );
+}
 
 
 
@@ -64,6 +68,74 @@ void Mesh::Clear()
 
 
 }
+
+void Mesh::SmoothTargetEdgeLength(Edge* e)
+{
+	Node *n;
+	vector< Edge* >::iterator ne;
+	double growratio = 1.3;
+
+	n = e->n0;
+	for ( ne = n->edgeVec.begin() ; ne != n->edgeVec.end(); ne++ )
+	{
+		double limitlen = growratio * (*ne)->target_len;
+		if( e->target_len > limitlen )
+		{
+			e->target_len = limitlen;
+		}
+	}
+
+	n = e->n1;
+	for ( ne = n->edgeVec.begin() ; ne != n->edgeVec.end(); ne++ )
+	{
+		double limitlen = growratio * (*ne)->target_len;
+		if( e->target_len > limitlen )
+		{
+			e->target_len = limitlen;
+		}
+	}
+}
+
+void Mesh::SmoothTargetEdgeLength()
+{
+	Node *n;
+	list< Edge* >::iterator e;
+	vector< Edge* >::iterator ne;
+	double growratio = 1.3;
+	double limitlen;
+
+	edgeList.sort( ShortEdgeTargetLengthCompare );
+
+	for ( e = edgeList.begin() ; e != edgeList.end(); e++ )
+	{
+		limitlen = growratio * (*e)->target_len;
+
+		n = (*e)->n0;
+		for ( ne = n->edgeVec.begin() ; ne != n->edgeVec.end(); ne++ )
+		{
+			if ( !(*ne)->border )
+			{
+				if( (*ne)->target_len > limitlen )
+				{
+					(*ne)->target_len = limitlen;
+				}
+			}
+		}
+
+		n = (*e)->n1;
+		for ( ne = n->edgeVec.begin() ; ne != n->edgeVec.end(); ne++ )
+		{
+			if ( !(*ne)->border )
+			{
+				if( (*ne)->target_len > limitlen )
+				{
+					(*ne)->target_len = limitlen;
+				}
+			}
+		}
+	}
+}
+
 
 void Mesh::Remesh()
 {

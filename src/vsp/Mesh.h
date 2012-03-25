@@ -66,6 +66,8 @@ public:
 	bool ValidCollapse( Edge* edge );
 	void CollapseEdge( Edge* edge );
 
+	void SmoothTargetEdgeLength();
+	void SmoothTargetEdgeLength( Edge* e );
 	void ComputeTargetEdgeLength( Edge* edge );
 
 	void SetNodeFlags();
