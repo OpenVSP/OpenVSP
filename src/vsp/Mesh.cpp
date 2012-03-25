@@ -994,19 +994,26 @@ void Mesh::ComputeTargetEdgeLength( Edge* edge )
 {
 	assert( m_GridDensity );
 
-	vec3d cent = (edge->n0->pnt + edge->n1->pnt)*0.5;
+	if( edge->border )
+	{
+		edge->target_len = edge->m_Length;
+	}
+	else
+	{
 
-	double grid_len = m_GridDensity->GetTargetLen( cent );
+		vec3d cent = (edge->n0->pnt + edge->n1->pnt)*0.5;
 
-	vec2d uwcent = (edge->n0->uw  + edge->n1->uw )*0.5;
-	vec2d uwc = m_Surf->ClosestUW( cent, uwcent.x(), uwcent.y() );
+		double grid_len = m_GridDensity->GetTargetLen( cent );
 
-	double curv_len = m_Surf->TargetLen( uwc.x(), uwc.y(), m_GridDensity->GetMaxGap(), m_GridDensity->GetRadFrac() );
+		vec2d uwcent = (edge->n0->uw  + edge->n1->uw )*0.5;
+		vec2d uwc = m_Surf->ClosestUW( cent, uwcent.x(), uwcent.y() );
 
-	double tlen = min(curv_len, grid_len);
+		double curv_len = m_Surf->TargetLen( uwc.x(), uwc.y(), m_GridDensity->GetMaxGap(), m_GridDensity->GetRadFrac() );
 
-	edge->target_len = max(tlen, m_GridDensity->GetMinLen() );
+		double tlen = min(curv_len, grid_len);
 
+		edge->target_len = max(tlen, m_GridDensity->GetMinLen() );
+	}
 //	double t0 = m_GridDensity->GetTargetLen( edge->n0->pnt );
 //	double t1 = m_GridDensity->GetTargetLen( edge->n1->pnt );
 ////	edge->target_len = (t0 + t1)*0.5;
