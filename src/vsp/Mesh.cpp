@@ -416,6 +416,8 @@ Edge* Mesh::AddEdge( Node* n0, Node* n1 )
 	eptr->ComputeLength();
 	ComputeTargetEdgeLength( eptr );
 
+	SmoothTargetEdgeLength( eptr );
+
 	return eptr;
 }
 
@@ -611,6 +613,12 @@ void Mesh::SplitEdge( Edge* edge )
 	
 	RemoveEdge( edge );
 
+	ComputeTargetEdgeLength( es0 );
+	SmoothTargetEdgeLength( es0 );
+
+	ComputeTargetEdgeLength( es1 );
+	SmoothTargetEdgeLength( es1 );
+
 }
 
 void Mesh::SwapEdge( Edge* edge )
@@ -681,6 +689,8 @@ void Mesh::SwapEdge( Edge* edge )
 	edge->n1 = nb;
 	edge->ComputeLength();
 	ComputeTargetEdgeLength( edge );
+
+	SmoothTargetEdgeLength( edge );
 
 	na->AddConnectEdge( edge );
 	nb->AddConnectEdge( edge );
@@ -984,6 +994,13 @@ assert ( other_tb0 != other_tb1 );
 //assert( ecb->t0->Contains( ecb ) );
 //assert( ecb->t0->Contains( ecb->n0, ecb->n1 ) );
 //}
+
+	ComputeTargetEdgeLength( eca );
+	SmoothTargetEdgeLength( eca );
+
+	ComputeTargetEdgeLength( ecb );
+	SmoothTargetEdgeLength( ecb );
+
 
 	RemoveEdge( edge );
 	RemoveNode( n0 );
