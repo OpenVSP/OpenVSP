@@ -160,6 +160,33 @@ void SCurve::Tesselate( GridDensity* grid_den, SCurve* BCurve )
 		last_p = p;
 	}
 
+// Walk the curve forward limiting target length.
+	double growratio = 1.3;
+
+	for ( int i = 1 ; i < num_segs ; i++ )
+	{
+		double dt = target_vec[i]-target_vec[i-1];
+		double ds = dist_vec[i]-dist_vec[i-1];
+
+		double dtlim = ( growratio - 1.0 ) * ds;
+		if( dt > dtlim )
+		{
+			target_vec[i] = target_vec[i-1] + dtlim;
+		}
+	}
+
+// Walk the curve backward limiting target length.
+	for ( int i = num_segs-2 ; i > -1  ; i-- )
+	{
+		double dt = target_vec[i]-target_vec[i+1];
+		double ds = dist_vec[i]-dist_vec[i+1];
+
+		double dtlim = -1.0 * ( growratio - 1.0 ) * ds;
+		if( dt > dtlim )
+		{
+			target_vec[i] = target_vec[i+1] + dtlim;
+		}
+	}
 
 	bool stopFlag = false;
 
