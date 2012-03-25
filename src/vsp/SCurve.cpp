@@ -100,6 +100,24 @@ void SCurve::LoadControlPnts3D( vector< vec3d > & control_pnts )
 	}
 }
 
+double SCurve::GetTargetLen( GridDensity* grid_den, SCurve* BCurve, vec3d p, vec3d uw, double u )
+{
+	double grid_len = grid_den->GetTargetLen( p );
+
+	double curv_len = m_Surf->TargetLen( uw.x(), uw.y(), grid_den->GetMaxGap(), grid_den->GetRadFrac() );
+
+	if(BCurve){
+		vec3d uwB = BCurve->m_UWCrv.comp_pnt( u );
+		double curv_lenB = BCurve->m_Surf->TargetLen( uwB.x(), uwB.y(), grid_den->GetMaxGap(), grid_den->GetRadFrac() );
+		curv_len = min( curv_len, curv_lenB );
+	}
+
+	double t_len = min( grid_len, curv_len );
+
+	double target_len = max( t_len, grid_den->GetMinLen() );
+	return target_len;
+}
+
 void SCurve::Tesselate( GridDensity* grid_den )
 {
 	Tesselate( grid_den, NULL );
@@ -153,20 +171,7 @@ void SCurve::Tesselate( GridDensity* grid_den, SCurve* BCurve )
 	{
 		vec3d p = m_Surf->CompPnt( uw.x(), uw.y() );
 
-		double grid_len = grid_den->GetTargetLen( p );
-
-		double curv_len = m_Surf->TargetLen( uw.x(), uw.y(), grid_den->GetMaxGap(), grid_den->GetRadFrac() );
-
-		if( !BCurve )
-		{
-			vec3d uwB = BCurve->m_UWCrv.comp_pnt( u );
-			double curv_lenB = BCurve->m_Surf->TargetLen( uwB.x(), uwB.y(), grid_den->GetMaxGap(), grid_den->GetRadFrac() );
-			curv_len = min( curv_len, curv_lenB );
-		}
-
-		double t_len = min( grid_len, curv_len );
-
-		double target_len = max( t_len, grid_den->GetMinLen() );
+		double target_len = GetTargetLen( grid_den, BCurve, p, uw, u);
 
 		total_dist += target_len;
 

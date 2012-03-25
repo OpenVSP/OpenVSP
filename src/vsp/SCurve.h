@@ -40,6 +40,8 @@ public:
 	void SetSurf( Surf* s )									{ m_Surf = s; }
 	Surf* GetSurf()											{ return m_Surf; }
 
+	double GetTargetLen( GridDensity* grid_den, SCurve* BCurve, vec3d p, vec3d uw, double u );
+
 	void Tesselate( GridDensity* grid_den );
 	void Tesselate( GridDensity* grid_den, SCurve* BCurve );
 	void Tesselate( vector< vec3d > & target_pnts );
