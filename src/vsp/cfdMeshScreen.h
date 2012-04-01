@@ -58,6 +58,7 @@ private:
 	SliderInputCombo* m_MinEdgeSizeSlider;
 	SliderInputCombo* m_MaxGapSizeSlider;
 	SliderInputCombo* m_NumCircSegmentSlider;
+	SliderInputCombo* m_GrowRatioSlider;
 
 	SliderInputCombo* m_FarXScaleSlider;
 	SliderInputCombo* m_FarYScaleSlider;

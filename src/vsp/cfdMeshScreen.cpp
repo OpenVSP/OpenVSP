@@ -85,6 +85,12 @@ CfdMeshScreen::CfdMeshScreen(ScreenMgr* mgr, Aircraft* airPtr)
 	m_NumCircSegmentSlider->SetRange( 100.0 );
 	m_NumCircSegmentSlider->UpdateGui();
 
+	m_GrowRatioSlider = new SliderInputCombo( ui->growRatioSlider, ui->growRatioInput );
+	m_GrowRatioSlider->SetCallback( staticScreenCB, this );
+	m_GrowRatioSlider->SetLimits( 1.0, 10.0 );
+	m_GrowRatioSlider->SetRange( 1.0 );
+	m_GrowRatioSlider->UpdateGui();
+
 	m_FarXScaleSlider = new SliderInputCombo( ui->farXSlider, ui->farXInput );
 	m_FarXScaleSlider->SetCallback( staticScreenCB, this );
 	m_FarXScaleSlider->SetLimits( 1.1, 10000.0 );
@@ -161,6 +167,7 @@ CfdMeshScreen::~CfdMeshScreen()
 	delete m_MinEdgeSizeSlider;
 	delete m_MaxGapSizeSlider;
 	delete m_NumCircSegmentSlider;
+	delete m_GrowRatioSlider;
 	delete m_FarXScaleSlider;
 	delete m_FarYScaleSlider;
 	delete m_FarZScaleSlider;
@@ -182,6 +189,8 @@ void CfdMeshScreen::update()
 	m_MaxGapSizeSlider->UpdateGui();
 	m_NumCircSegmentSlider->SetVal(cfdMeshMgrPtr->GetGridDensityPtr()->GetNCircSeg());
 	m_NumCircSegmentSlider->UpdateGui();
+	m_GrowRatioSlider->SetVal(cfdMeshMgrPtr->GetGridDensityPtr()->GetGrowRatio());
+	m_GrowRatioSlider->UpdateGui();
 
 	m_FarXScaleSlider->SetVal( cfdMeshMgrPtr->GetFarXScale() );
 	m_FarYScaleSlider->SetVal( cfdMeshMgrPtr->GetFarYScale() );
@@ -552,6 +561,11 @@ void CfdMeshScreen::screenCB( Fl_Widget* w )
 	else if ( m_NumCircSegmentSlider->GuiChanged( w ) )
 	{
 		cfdMeshMgrPtr->GUI_Val( "NumCircSeg", m_NumCircSegmentSlider->GetVal() );
+		update_flag = false;
+	}
+	else if ( m_GrowRatioSlider->GuiChanged( w ) )
+	{
+		cfdMeshMgrPtr->GUI_Val( "GrowRatio", m_GrowRatioSlider->GetVal() );
 		update_flag = false;
 	}
 	else if ( m_FarXScaleSlider->GuiChanged( w ) )

@@ -7,15 +7,15 @@ class CFDMeshUI {open
   Function {CFDMeshUI()} {open
   } {
     Fl_Window UIWindow {
-      label {CFD Mesh} open selected
+      label {CFD Mesh} open
       xywh {1036 47 382 849} type Double color 45 resizable visible
     } {
       Fl_Box {} {
         label {CFD Mesh}
-        xywh {5 5 370 15} box ROUNDED_BOX labelfont 1 labelsize 16 labelcolor 15
+        xywh {5 2 370 15} box ROUNDED_BOX labelfont 1 labelsize 16 labelcolor 15
       }
       Fl_Choice sourceTypeChoice {open
-        xywh {65 184 115 25} down_box BORDER_BOX
+        xywh {65 186 115 25} down_box BORDER_BOX
       } {
         MenuItem {} {
           label Point
@@ -32,25 +32,25 @@ class CFDMeshUI {open
       }
       Fl_Button addSourceButton {
         label {Add Source}
-        xywh {5 212 175 24} labelfont 1 labelsize 12 align 64
+        xywh {5 214 175 24} labelfont 1 labelsize 12 align 64
       }
       Fl_Browser sourceBrowser {
-        xywh {200 184 175 76} type Hold textsize 12 resizable
+        xywh {200 186 175 76} type Hold textsize 12 resizable
       }
       Fl_Box {} {
         label Sources
-        xywh {6 167 369 15} box BORDER_BOX labelfont 1 labelcolor 15
+        xywh {6 171 369 15} box BORDER_BOX labelfont 1 labelcolor 15
       }
       Fl_Button deleteSourceButton {
         label {Delete Source}
-        xywh {5 240 175 24} labelfont 1 labelsize 12
+        xywh {5 242 175 24} labelfont 1 labelsize 12
       }
       Fl_Choice compChoice {open
-        xywh {60 140 190 25} down_box BORDER_BOX textfont 1
+        xywh {60 146 190 25} down_box BORDER_BOX textfont 1
       } {}
       Fl_Box {} {
         label Comp
-        xywh {5 140 55 25} box BORDER_BOX labelfont 1 labelcolor 15
+        xywh {5 146 55 25} box BORDER_BOX labelfont 1 labelcolor 15
       }
       Fl_Box {} {
         label {Name:}
@@ -89,16 +89,16 @@ class CFDMeshUI {open
       }
       Fl_Box {} {
         label {Max Edge Len}
-        xywh {5 25 185 20} box BORDER_BOX labelfont 1 labelcolor 15 align 16
+        xywh {5 18 185 20} box BORDER_BOX labelfont 1 labelcolor 15 align 16
       }
       Fl_Input globalEdgeSizeInput {
-        xywh {300 25 75 20} type Float box THIN_DOWN_BOX labelsize 12 align 16 textsize 12
+        xywh {300 18 75 20} type Float box THIN_DOWN_BOX labelsize 12 align 16 textsize 12
       }
       Fl_Box EditSourceTitle {
         label {Edit Source}
         xywh {5 267 370 15} box BORDER_BOX labelfont 1 labelcolor 15
       }
-      Fl_Text_Display outputText {
+      Fl_Text_Display outputText {selected
         xywh {5 495 365 95}
       }
       Fl_Input lengthInput {
@@ -140,50 +140,50 @@ class CFDMeshUI {open
       }
       Fl_Button addDefaultsButton {
         label {Add Default Sources}
-        xywh {250 140 125 25} labelfont 1 labelsize 12
+        xywh {250 146 125 25} labelfont 1 labelsize 12
       }
       Fl_Box {} {
         label {Adjust Len}
-        xywh {45 109 85 20} box BORDER_BOX labelfont 1 labelcolor 15 align 16
+        xywh {45 121 85 20} box BORDER_BOX labelfont 1 labelcolor 15 align 16
       }
       Fl_Box {} {
-        xywh {5 132 370 5} box BORDER_BOX color 4
+        xywh {5 141 370 5} box BORDER_BOX color 4
       }
       Fl_Button adjLenDownButton {
         label {<}
-        xywh {25 109 20 20} labelfont 1 labelcolor 4
+        xywh {25 121 20 20} labelfont 1 labelcolor 4
       }
       Fl_Button adjLenUpButton {
         label {>}
-        xywh {130 109 20 20} labelfont 1 labelcolor 4
+        xywh {130 121 20 20} labelfont 1 labelcolor 4
       }
       Fl_Button adjLenUpUpButton {
         label {>>}
-        xywh {150 109 20 20} labelfont 1 labelcolor 4
+        xywh {150 121 20 20} labelfont 1 labelcolor 4
       }
       Fl_Button adjLenDownDownButton {
         label {<<}
-        xywh {5 109 20 20} labelfont 1 labelcolor 4
+        xywh {5 121 20 20} labelfont 1 labelcolor 4
       }
       Fl_Box {} {
         label {Adjust Rad}
-        xywh {250 109 85 20} box BORDER_BOX labelfont 1 labelcolor 15 align 16
+        xywh {250 121 85 20} box BORDER_BOX labelfont 1 labelcolor 15 align 16
       }
       Fl_Button adjRadDownButton {
         label {<}
-        xywh {230 109 20 20} labelfont 1 labelcolor 4
+        xywh {230 121 20 20} labelfont 1 labelcolor 4
       }
       Fl_Button adjRadUpButton {
         label {>}
-        xywh {335 109 20 20} labelfont 1 labelcolor 4
+        xywh {335 121 20 20} labelfont 1 labelcolor 4
       }
       Fl_Button adjRadUpUpButton {
         label {>>}
-        xywh {355 109 20 20} labelfont 1 labelcolor 4
+        xywh {355 121 20 20} labelfont 1 labelcolor 4
       }
       Fl_Button adjRadDownDownButton {
         label {<<}
-        xywh {210 109 20 20} labelfont 1 labelcolor 4
+        xywh {210 121 20 20} labelfont 1 labelcolor 4
       }
       Fl_Light_Button viewMeshButton {
         label {Show Mesh}
@@ -204,11 +204,11 @@ class CFDMeshUI {open
         xywh {5 470 175 20} labelfont 1 align 16
       }
       Fl_Slider globalEdgeSizeSlider {
-        xywh {190 25 110 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 4
+        xywh {190 18 110 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 4
       }
       Fl_Box {} {
         label Type
-        xywh {5 184 60 25} box BORDER_BOX labelfont 1 labelcolor 15
+        xywh {5 186 60 25} box BORDER_BOX labelfont 1 labelcolor 15
       }
       Fl_Button len1Button {
         label Len
@@ -381,33 +381,43 @@ class CFDMeshUI {open
       }
       Fl_Box {} {
         label {Min Edge Len}
-        xywh {5 45 185 20} box BORDER_BOX labelfont 1 labelcolor 15 align 16
+        xywh {5 38 185 20} box BORDER_BOX labelfont 1 labelcolor 15 align 16
       }
       Fl_Input minEdgeSizeInput {
-        xywh {300 45 75 20} type Float box THIN_DOWN_BOX labelsize 12 align 16 textsize 12
+        xywh {300 38 75 20} type Float box THIN_DOWN_BOX labelsize 12 align 16 textsize 12
       }
       Fl_Slider minEdgeSizeSlider {
-        xywh {190 45 110 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 4
+        xywh {190 38 110 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 4
       }
       Fl_Box {} {
         label {Max Gap}
-        xywh {5 65 185 20} box BORDER_BOX labelfont 1 labelcolor 15 align 16
+        xywh {5 58 185 20} box BORDER_BOX labelfont 1 labelcolor 15 align 16
       }
       Fl_Input maxGapSizeInput {
-        xywh {300 65 75 20} type Float box THIN_DOWN_BOX labelsize 12 align 16 textsize 12
+        xywh {300 58 75 20} type Float box THIN_DOWN_BOX labelsize 12 align 16 textsize 12
       }
       Fl_Slider maxGapSizeSlider {
-        xywh {190 65 110 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 4
+        xywh {190 58 110 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 4
       }
       Fl_Box {} {
         label {Num Circle Segments}
-        xywh {5 85 185 20} box BORDER_BOX labelfont 1 labelcolor 15 align 16
+        xywh {5 78 185 20} box BORDER_BOX labelfont 1 labelcolor 15 align 16
       }
       Fl_Input numCircSegmentInput {
-        xywh {300 85 75 20} type Float box THIN_DOWN_BOX labelsize 12 align 16 textsize 12
+        xywh {300 78 75 20} type Float box THIN_DOWN_BOX labelsize 12 align 16 textsize 12
       }
       Fl_Slider numCircSegmentSlider {
-        xywh {190 85 110 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 4
+        xywh {190 78 110 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 4
+      }
+      Fl_Box {} {
+        label {Growth Ratio}
+        xywh {5 98 185 20} box BORDER_BOX labelfont 1 labelcolor 15 align 16
+      }
+      Fl_Input growRatioInput {
+        xywh {300 98 75 20} type Float box THIN_DOWN_BOX labelsize 12 align 16 textsize 12
+      }
+      Fl_Slider growRatioSlider {
+        xywh {190 98 110 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 4
       }
     }
   }

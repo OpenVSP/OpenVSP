@@ -55,6 +55,12 @@ FeaStructScreen::FeaStructScreen(ScreenMgr* mgr, Aircraft* airPtr)
 	m_NumCircSegSlider->SetRange( 100.0 );
 	m_NumCircSegSlider->UpdateGui();
 
+	m_GrowRatioSlider = new SliderInputCombo( ui->growRatioSlider, ui->growRatioInput );
+	m_GrowRatioSlider->SetCallback( staticScreenCB, this );
+	m_GrowRatioSlider->SetLimits( 1.0, 10.0 );
+	m_GrowRatioSlider->SetRange( 1.0 );
+	m_GrowRatioSlider->UpdateGui();
+
 	m_ThickScaleSlider = new SliderInputCombo( ui->thickScaleSlider, ui->thickScaleInput );
 	m_ThickScaleSlider->SetCallback( staticScreenCB, this );
 	m_ThickScaleSlider->SetLimits( 0.00001, 1000000.0 );
@@ -300,6 +306,7 @@ FeaStructScreen::~FeaStructScreen()
 	delete m_MinSizeSlider;
 	delete m_MaxGapSlider;
 	delete m_NumCircSegSlider;
+	delete m_GrowRatioSlider;
 	delete m_ThickScaleSlider;
 
 	delete m_RibThickSlider;
@@ -371,6 +378,9 @@ void FeaStructScreen::update()
 
 	m_NumCircSegSlider->SetVal( feaMeshMgrPtr->GetGridDensityPtr()->GetNCircSeg() );
 	m_NumCircSegSlider->UpdateGui();
+
+	m_GrowRatioSlider->SetVal( feaMeshMgrPtr->GetGridDensityPtr()->GetGrowRatio() );
+	m_GrowRatioSlider->UpdateGui();
 
 	m_ThickScaleSlider->SetVal( feaMeshMgrPtr->GetThickScale() );
 	m_ThickScaleSlider->UpdateGui();
@@ -695,17 +705,21 @@ void FeaStructScreen::screenCB( Fl_Widget* w )
 	{
 		feaMeshMgrPtr->SetDefElemSize( m_DefEdgeSlider->GetVal() );
 	}
-	if ( m_MinSizeSlider->GuiChanged( w ) )
+	else if ( m_MinSizeSlider->GuiChanged( w ) )
 	{
 		feaMeshMgrPtr->GetGridDensityPtr()->SetMinLen( m_MinSizeSlider->GetVal() );
 	}
-	if ( m_MaxGapSlider->GuiChanged( w ) )
+	else if ( m_MaxGapSlider->GuiChanged( w ) )
 	{
 		feaMeshMgrPtr->GetGridDensityPtr()->SetMaxGap( m_MaxGapSlider->GetVal() );
 	}
-	if ( m_NumCircSegSlider->GuiChanged( w ) )
+	else if ( m_NumCircSegSlider->GuiChanged( w ) )
 	{
 		feaMeshMgrPtr->GetGridDensityPtr()->SetNCircSeg( m_NumCircSegSlider->GetVal() );
+	}
+	else if ( m_GrowRatioSlider->GuiChanged( w ) )
+	{
+		feaMeshMgrPtr->GetGridDensityPtr()->SetGrowRatio( m_GrowRatioSlider->GetVal() );
 	}
 	else if ( m_ThickScaleSlider->GuiChanged( w ) )
 	{

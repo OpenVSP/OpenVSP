@@ -211,6 +211,8 @@ void CfdMeshMgr::GUI_Val( Stringc name, double val )
 		m_GridDensity.SetMaxGap( val );
 	else if ( name == "NumCircSeg"  )
 		m_GridDensity.SetNCircSeg( val );
+	else if ( name == "GrowRatio"  )
+		m_GridDensity.SetGrowRatio( val );
 	else if ( name == "Length1" && source )
 		source->SetLen( val );
 	else if ( name == "Radius1" && source )
