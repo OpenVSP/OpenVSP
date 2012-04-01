@@ -271,6 +271,9 @@ public:
 	double GetMaxGap()					{ return m_MaxGap; }
 	void   SetMaxGap( double v )				{ m_MaxGap = v; }
 
+	double GetGrowRatio()					{ return m_GrowRatio; }
+	void   SetGrowRatio( double v )				{ m_GrowRatio = v; }
+
 	double GetTargetLen( vec3d& pos );
 
 	void ClearSources()							{ m_Sources.clear(); } //Deleted in Geom
@@ -291,6 +294,7 @@ protected:
 	double m_NCircSeg;
 	double m_RadFrac;
 	double m_MaxGap;
+	double m_GrowRatio;
 
 	vector< BaseSource* > m_Sources;				// Sources + Ref Sources in 3D Space
 
