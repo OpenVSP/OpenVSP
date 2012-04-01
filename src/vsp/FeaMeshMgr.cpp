@@ -493,6 +493,7 @@ void FeaMeshMgr::WriteFeaStructData( Geom* geom_ptr, xmlNodePtr root )
         xmlAddDoubleNode( fea_node, "FEA_Mesh_Min_Length", m_GridDensity.GetMinLen() );
         xmlAddDoubleNode( fea_node, "FEA_Mesh_Max_Gap", m_GridDensity.GetMaxGap() );
         xmlAddDoubleNode( fea_node, "FEA_Mesh_Num_Circle_Segments", m_GridDensity.GetNCircSeg() );
+        xmlAddDoubleNode( fea_node, "FEA_Mesh_Growth_Ratio", m_GridDensity.GetGrowRatio() );
 
 	xmlAddDoubleNode( fea_node, "ThickScale",  m_ThickScale );
 
@@ -565,6 +566,7 @@ void FeaMeshMgr::ReadFeaStructData()
 	m_GridDensity.SetMinLen( xmlFindDouble( struct_parms_node, "FEA_Mesh_Min_Length", m_GridDensity.GetMinLen() ) );
 	m_GridDensity.SetMaxGap( xmlFindDouble( struct_parms_node, "FEA_Mesh_Max_Gap", m_GridDensity.GetMaxGap() ) );
 	m_GridDensity.SetNCircSeg( xmlFindDouble( struct_parms_node, "FEA_Mesh_Num_Circle_Segments", m_GridDensity.GetNCircSeg() ) );
+	m_GridDensity.SetGrowRatio( xmlFindDouble( struct_parms_node, "FEA_Mesh_Growth_Ratio", m_GridDensity.GetGrowRatio() ) );
 
 	m_ThickScale  = xmlFindDouble( struct_parms_node, "ThickScale", m_ThickScale );
 
