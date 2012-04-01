@@ -73,7 +73,7 @@ void Mesh::SmoothTargetEdgeLength(Edge* e)
 {
 	Node *n;
 	vector< Edge* >::iterator ne;
-	double growratio = 1.3;
+	double growratio = m_GridDensity->GetGrowRatio();
 
 	n = e->n0;
 	for ( ne = n->edgeVec.begin() ; ne != n->edgeVec.end(); ne++ )
@@ -101,7 +101,7 @@ void Mesh::SmoothTargetEdgeLength()
 	Node *n;
 	list< Edge* >::iterator e;
 	vector< Edge* >::iterator ne;
-	double growratio = 1.3;
+	double growratio = m_GridDensity->GetGrowRatio();
 	double limitlen;
 
 	edgeList.sort( ShortEdgeTargetLengthCompare );

@@ -158,7 +158,7 @@ void SCurve::Tesselate( GridDensity* grid_den, SCurve* BCurve )
 	}
 
 // Walk the curve forward limiting target length.
-	double growratio = 1.3;
+	double growratio = grid_den->GetGrowRatio();
 
 	for ( int i = 1 ; i < num_segs ; i++ )
 	{
