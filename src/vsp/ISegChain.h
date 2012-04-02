@@ -181,6 +181,7 @@ public:
 
 	void BuildCurves();
 	void TransferTess();
+	void ApplyTess();
 
 	void Tessellate(GridDensity* grid_density);
 

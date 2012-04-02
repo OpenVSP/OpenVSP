@@ -1061,16 +1061,10 @@ void ISegChain::TransferTess( )
 	m_BCurve.Tesselate( target_pnts );
 }
 
-void ISegChain::Tessellate(GridDensity* grid_density)
+void ISegChain::ApplyTess( )
 {
 	//==== Clear Old Tess ====//
 	m_TessVec.clear();
-
-	BuildCurves();
-
-	m_ACurve.Tesselate( grid_density, &m_BCurve );
-
-	TransferTess();
 
 	vector< vec3d > tuwa = m_ACurve.GetUWTessPnts();
 	vector< vec3d > tuwb = m_BCurve.GetUWTessPnts();
@@ -1102,9 +1096,17 @@ void ISegChain::Tessellate(GridDensity* grid_density)
 
 //double d = dist( m_TessVec.front()->m_Pnt,  m_TessVec.back()->m_Pnt );
 //printf("Tess Chain Size = %d %f\n", m_TessVec.size(), d );
+}
 
+void ISegChain::Tessellate(GridDensity* grid_density)
+{
+	BuildCurves();
 
+	m_ACurve.Tesselate( grid_density, &m_BCurve );
 
+	TransferTess();
+
+	ApplyTess();
 }
 
 void ISegChain::Draw()
