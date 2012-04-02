@@ -151,7 +151,6 @@ public:
 
 	bool Match( SCurve* crv_A, SCurve* crv_B );
 	void BorderTesselate( );
-	void Tesselate( GridDensity* grid_den );
 	void SetACurve( SCurve* crv_A )						{ m_SCurve_A = crv_A; }
 
 

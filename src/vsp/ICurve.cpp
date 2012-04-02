@@ -534,31 +534,6 @@ void ICurve::BorderTesselate( )
 	m_SCurve_B->BorderTesselate( );
 }
 
-void ICurve::Tesselate( GridDensity* grid_den )
-{
-	if ( !m_SCurve_B )
-	{
-		m_SCurve_A->Tesselate( grid_den );
-		return;
-	}
-
-	m_SCurve_A->Tesselate( grid_den, m_SCurve_B );
-
-	vector< double > u_A = m_SCurve_A->GetUTessPnts();
-	vector< double > u_B;
-
-	u_B = u_A;
-
-int num_a = u_A.size();
-int num_b = u_B.size();
-
-//for ( int i = 0 ; i < num_a ; i++ )
-//{
-//	printf( "U = %f %f \n", u_A[i], u_B[i] );
-//}
-	m_SCurve_B->Tesselate( u_B );
-}
-
 void ICurve::Draw()
 {
 	
