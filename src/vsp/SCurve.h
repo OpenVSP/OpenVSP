@@ -47,6 +47,7 @@ public:
 	void CleanupDistTable();
 	void LimitTarget( GridDensity* grid_den );
 	void TessIntegrate();
+	void UWTess();
 	void Tesselate( GridDensity* grid_den, SCurve* BCurve );
 	void Tesselate( vector< vec3d > & target_pnts );
 

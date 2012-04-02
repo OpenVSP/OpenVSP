@@ -291,26 +291,30 @@ void SCurve::TessIntegrate()
 	}
 }
 
-void SCurve::Tesselate( GridDensity* grid_den, SCurve* BCurve )
+void SCurve::UWTess()
 {
-	assert( m_Surf );
-
 	m_UWTess.clear();
 
-	BuildDistTable( grid_den, BCurve );
-
 	vec3d uw;
-
-	LimitTarget( grid_den );
-
-	TessIntegrate();
-
 	for ( int i = 0 ; i < m_UTess.size() ; i++ )
 	{
 		double u = m_UTess[i];
 		uw = m_UWCrv.comp_pnt( u );
 		m_UWTess.push_back( uw );
 	}
+}
+
+void SCurve::Tesselate( GridDensity* grid_den, SCurve* BCurve )
+{
+	assert( m_Surf );
+
+	BuildDistTable( grid_den, BCurve );
+
+	LimitTarget( grid_den );
+
+	TessIntegrate();
+
+	UWTess();
 
 	CleanupDistTable();
 }
