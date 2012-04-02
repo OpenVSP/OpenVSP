@@ -368,8 +368,12 @@ void SCurve::ApplyEdgeSources( vector< vec3d > *es_pt, vector< double > *es_str,
 	}
 }
 
-void SCurve::Tesselate( )
+void SCurve::Tesselate( vector< vec3d > *es_pt, vector< double > *es_str, GridDensity* grid_den )
 {
+	ApplyEdgeSources( es_pt, es_str, grid_den );
+
+	LimitTarget( grid_den );
+
 	TessIntegrate();
 
 	UWTess();

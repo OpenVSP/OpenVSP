@@ -2064,16 +2064,31 @@ void CfdMeshMgr::MergeInteriorChainIPnts()
 
 void CfdMeshMgr::TessellateChains(GridDensity* grid_density)
 {
+	// Edge source vectors.
+	vector< vec3d > es_pt;
+	vector< double > es_str;
+
 	//==== Tessellate Chains ====//
 	list< ISegChain* >::iterator c;
 	for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
 	{
 		(*c)->BuildCurves();
-		(*c)->Tessellate(grid_density);
+		(*c)->CalcDensityBuildES( &es_pt, &es_str, grid_density );
+	}
+
+	// This loop is split due to the construction of the edge source vectors.
+	// They need to be complete before proceeding.
+
+	for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+	{
+		(*c)->Tessellate( &es_pt, &es_str, grid_density);
 
 		(*c)->TransferTess();
 		(*c)->ApplyTess();
 	}
+
+	es_pt.clear();
+	es_str.clear();
 
 	////==== Check for Zero Length Chains ====//
 	//for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )

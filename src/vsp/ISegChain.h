@@ -183,7 +183,8 @@ public:
 	void TransferTess();
 	void ApplyTess();
 
-	void Tessellate(GridDensity* grid_density);
+	void CalcDensityBuildES( vector< vec3d > *es_pt, vector< double > *es_str, GridDensity* grid_den );
+	void Tessellate( vector< vec3d > *es_pt, vector< double > *es_str, GridDensity* grid_den );
 
 	void BuildBoxes();
 

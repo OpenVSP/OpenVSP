@@ -1098,11 +1098,15 @@ void ISegChain::ApplyTess( )
 //printf("Tess Chain Size = %d %f\n", m_TessVec.size(), d );
 }
 
-void ISegChain::Tessellate(GridDensity* grid_density)
+void ISegChain::CalcDensityBuildES( vector< vec3d > *es_pt, vector< double > *es_str, GridDensity* grid_den )
 {
-	m_ACurve.CalcDensity( grid_density, &m_BCurve );
-	m_ACurve.Tesselate( );
+	m_ACurve.CalcDensity( grid_den, &m_BCurve );
+	m_ACurve.BuildEdgeSources( es_pt, es_str, grid_den );
+}
 
+void ISegChain::Tessellate( vector< vec3d > *es_pt, vector< double > *es_str, GridDensity* grid_den )
+{
+	m_ACurve.Tesselate( es_pt, es_str, grid_den );
 }
 
 void ISegChain::Draw()
