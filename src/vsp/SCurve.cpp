@@ -167,11 +167,6 @@ void SCurve::BorderTesselate( )
 	}
 }
 
-void SCurve::Tesselate( GridDensity* grid_den )
-{
-	Tesselate( grid_den, NULL );
-}
-
 void SCurve::Tesselate( GridDensity* grid_den, SCurve* BCurve )
 {
 	assert( m_Surf );
