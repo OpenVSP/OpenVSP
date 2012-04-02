@@ -313,6 +313,61 @@ void SCurve::CalcDensity( GridDensity* grid_den, SCurve* BCurve )
 	LimitTarget( grid_den );
 }
 
+void SCurve::BuildEdgeSources( vector< vec3d > *es_pt, vector< double > *es_str, GridDensity* grid_den )
+{
+	// Tesselate curve using baseline density.
+	TessIntegrate();
+	UWTess();
+
+	double edgeadjust = 1.0 - ( grid_den->GetGrowRatio() - 1.0 ) * 0.5;
+
+	vec3d uw = m_UWTess[0];
+	vec3d p0 = m_Surf->CompPnt( uw.x(), uw.y() );
+	vec3d p1;
+	for ( int i = 1 ; i < m_UTess.size() ; i++ )
+	{
+		uw = m_UWTess[i];
+		p1 = m_Surf->CompPnt( uw.x(), uw.y() );
+
+		double d = dist( p0, p1 );
+		vec3d p = ( p1 + p0 ) * 0.5;
+
+		double str = d * edgeadjust;
+
+		es_pt->push_back(p);
+		es_str->push_back(str);
+
+		p0 = p1;
+	}
+
+	m_UTess.clear();
+	m_UWTess.clear();
+}
+
+void SCurve::ApplyEdgeSources( vector< vec3d > *es_pt, vector< double > *es_str, GridDensity* grid_den )
+{
+	int nes = es_pt->size();
+	double grm1 = grid_den->GetGrowRatio() - 1.0;
+
+	for ( int i = 0 ; i < num_segs ; i++ )
+	{
+		double t = target_vec[i];
+		vec3d p1 = pnt_vec[i];
+
+		for ( int j = 0; j < nes; j++ )
+		{
+			vec3d p2 = (*es_pt)[j];
+			double r = dist( p1, p2 );
+
+			double ts = (*es_str)[j] + grm1 * r;
+
+			t = min( t, ts );
+		}
+
+		target_vec[i] = t;
+	}
+}
+
 void SCurve::Tesselate( )
 {
 	TessIntegrate();

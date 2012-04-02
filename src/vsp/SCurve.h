@@ -49,6 +49,8 @@ public:
 	void TessIntegrate();
 	void UWTess();
 	void CalcDensity( GridDensity* grid_den, SCurve* BCurve );
+	void BuildEdgeSources( vector< vec3d > *es_pt, vector< double > *es_str, GridDensity* grid_den );
+	void ApplyEdgeSources( vector< vec3d > *es_pt, vector< double > *es_str, GridDensity* grid_den );
 	void Tesselate( );
 	void Tesselate( vector< vec3d > & target_pnts );
 
