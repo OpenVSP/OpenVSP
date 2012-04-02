@@ -178,6 +178,8 @@ public:
 	void RemoveChainEndSplits();
 	vector< ISegChain* > SortAndSplit();
 	void MergeInteriorIPnts();
+
+	void BuildCurves();
 	void Tessellate(GridDensity* grid_density);
 
 	void BuildBoxes();

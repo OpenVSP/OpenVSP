@@ -1016,11 +1016,8 @@ void ISegChain::MergeInteriorIPnts()
 
 }
 
-void ISegChain::Tessellate(GridDensity* grid_density)
+void ISegChain::BuildCurves( )
 {
-	//==== Clear Old Tess ====//
-	m_TessVec.clear();
-
 	//==== A SCurve ====//
 	vector< vec3d > auw_pnts;
 	Puw* uw = m_ISegDeque.front()->m_IPnt[0]->GetPuw( m_SurfA );
@@ -1046,6 +1043,14 @@ void ISegChain::Tessellate(GridDensity* grid_density)
 
 	m_BCurve.SetSurf( m_SurfB );
 	m_BCurve.BuildBezierCurve( buw_pnts );
+}
+
+void ISegChain::Tessellate(GridDensity* grid_density)
+{
+	//==== Clear Old Tess ====//
+	m_TessVec.clear();
+
+	BuildCurves();
 
 	m_ACurve.Tesselate( grid_density, &m_BCurve );
 
