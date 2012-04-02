@@ -48,6 +48,7 @@ public:
 	void LimitTarget( GridDensity* grid_den );
 	void TessIntegrate();
 	void UWTess();
+	void CalcDensity( GridDensity* grid_den, SCurve* BCurve );
 	void Tesselate( GridDensity* grid_den, SCurve* BCurve );
 	void Tesselate( vector< vec3d > & target_pnts );
 

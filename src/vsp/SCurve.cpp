@@ -304,11 +304,17 @@ void SCurve::UWTess()
 	}
 }
 
-void SCurve::Tesselate( GridDensity* grid_den, SCurve* BCurve )
+void SCurve::CalcDensity( GridDensity* grid_den, SCurve* BCurve )
 {
 	BuildDistTable( grid_den, BCurve );
 
 	LimitTarget( grid_den );
+}
+
+
+void SCurve::Tesselate( GridDensity* grid_den, SCurve* BCurve )
+{
+	CalcDensity( grid_den, BCurve );
 
 	TessIntegrate();
 
