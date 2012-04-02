@@ -44,6 +44,7 @@ public:
 
 	void BorderTesselate( );
 	void BuildDistTable( GridDensity* grid_den, SCurve* BCurve );
+	void CleanupDistTable();
 	void Tesselate( GridDensity* grid_den, SCurve* BCurve );
 	void Tesselate( vector< vec3d > & target_pnts );
 

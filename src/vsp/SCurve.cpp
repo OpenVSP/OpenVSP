@@ -193,6 +193,13 @@ void SCurve::BuildDistTable( GridDensity* grid_den, SCurve* BCurve )
 	}
 }
 
+void SCurve::CleanupDistTable()
+{
+	u_vec.clear();
+	dist_vec.clear();
+	target_vec.clear();
+}
+
 void SCurve::Tesselate( GridDensity* grid_den, SCurve* BCurve )
 {
 	assert( m_Surf );
@@ -295,9 +302,7 @@ void SCurve::Tesselate( GridDensity* grid_den, SCurve* BCurve )
 		m_UWTess.push_back( uw );
 	}
 
-	u_vec.clear();
-	dist_vec.clear();
-	target_vec.clear();
+	CleanupDistTable();
 }
 
 void SCurve::Tesselate( vector< vec3d > & target_pnts )
