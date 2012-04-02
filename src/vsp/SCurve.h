@@ -49,7 +49,7 @@ public:
 	void TessIntegrate();
 	void UWTess();
 	void CalcDensity( GridDensity* grid_den, SCurve* BCurve );
-	void Tesselate( GridDensity* grid_den, SCurve* BCurve );
+	void Tesselate( );
 	void Tesselate( vector< vec3d > & target_pnts );
 
 	void SetBezierControlPnts( vector< vec3d > & pnts );
