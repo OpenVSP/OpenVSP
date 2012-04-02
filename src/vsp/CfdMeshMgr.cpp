@@ -2068,6 +2068,7 @@ void CfdMeshMgr::TessellateChains(GridDensity* grid_density)
 	list< ISegChain* >::iterator c;
 	for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
 	{
+		(*c)->BuildCurves();
 		(*c)->Tessellate(grid_density);
 	}
 
