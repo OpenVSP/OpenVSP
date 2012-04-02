@@ -231,19 +231,9 @@ void SCurve::LimitTarget( GridDensity* grid_den )
 	}
 }
 
-void SCurve::Tesselate( GridDensity* grid_den, SCurve* BCurve )
+void SCurve::TessIntegrate()
 {
-	assert( m_Surf );
-
 	m_UTess.clear();
-	m_UWTess.clear();
-
-	BuildDistTable( grid_den, BCurve );
-
-	vec3d uw;
-
-	LimitTarget( grid_den );
-
 	double nprev = 0.0;
 	double uprev = 0.0;
 
@@ -299,6 +289,21 @@ void SCurve::Tesselate( GridDensity* grid_den, SCurve* BCurve )
 			m_UTess.push_back( 1.0 );
 		}
 	}
+}
+
+void SCurve::Tesselate( GridDensity* grid_den, SCurve* BCurve )
+{
+	assert( m_Surf );
+
+	m_UWTess.clear();
+
+	BuildDistTable( grid_den, BCurve );
+
+	vec3d uw;
+
+	LimitTarget( grid_den );
+
+	TessIntegrate();
 
 	for ( int i = 0 ; i < m_UTess.size() ; i++ )
 	{
