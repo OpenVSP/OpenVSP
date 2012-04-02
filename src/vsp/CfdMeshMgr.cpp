@@ -1864,7 +1864,7 @@ void CfdMeshMgr::LoadBorderCurves()
 		if ( !m_ICurveVec[i]->m_SCurve_B )								// Non Closed Solid
 			m_ICurveVec[i]->m_SCurve_B = m_ICurveVec[i]->m_SCurve_A;
 
-		m_ICurveVec[i]->Tesselate( &m_GridDensity );
+		m_ICurveVec[i]->BorderTesselate( );
 
 		//==== Create New Chain ====//
 		ISegChain* chain = new ISegChain;

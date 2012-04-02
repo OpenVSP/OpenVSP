@@ -522,7 +522,18 @@ bool ICurve::Match( SCurve* crv_A, SCurve* crv_B )
 
 	return match;
 }
-	
+
+void ICurve::BorderTesselate( )
+{
+	m_SCurve_A->BorderTesselate( );
+	if ( !m_SCurve_B )
+	{
+		return;
+	}
+
+	m_SCurve_B->BorderTesselate( );
+}
+
 void ICurve::Tesselate( GridDensity* grid_den )
 {
 	if ( !m_SCurve_B )

@@ -116,6 +116,57 @@ double SCurve::GetTargetLen( GridDensity* grid_den, SCurve* BCurve, vec3d p, vec
 	return target_len;
 }
 
+void SCurve::BorderTesselate( )
+{
+	// Cheap curve Tesselate intended for boundary curves.  These curves
+	// run from 0 to max of one surface parameter, and are constant in the
+	// other parameter (either 0 or max).
+	//
+	// First, figure out the span of variation in the running parameter.
+	// That span is the number of segments in the surface along that parameter.
+	//
+	// Then, generate uniformly separated points (in the surface parameters)
+	// from the start to finish.
+	//
+	// This routine only works for border curves.
+	//
+	// This routine does not populate the m_UTess curve.  It skips straight to
+	// the m_UWTess. curve.
+
+	assert( m_Surf );
+
+	m_UTess.clear();
+	m_UWTess.clear();
+
+	int ncp = m_UWCrv.get_num_control_pnts();
+
+	vec3d uwstart = m_UWCrv.get_pnt(0);
+	vec3d uwend = m_UWCrv.get_pnt(ncp-1);
+
+	double ust = uwstart[0];
+	double wst = uwstart[1];
+
+	double du = uwend[0] - ust;
+	double dw = uwend[1] - wst;
+
+	double uspan = fabs( du );
+	double wspan = fabs( dw );
+
+	double span = max( uspan, wspan );
+
+	int ptsperseg = 5;
+
+	int npt = ( (int) span ) * (ptsperseg - 1) + 1;
+
+	for( int i = 0; i < npt ; i++ )
+	{
+		double frac = (double)i/(double)( npt - 1 );
+
+		vec3d uw = vec3d(ust + frac * du, wst + frac * dw, 0.0);
+		m_UWTess.push_back( uw );
+	}
+}
+
 void SCurve::Tesselate( GridDensity* grid_den )
 {
 	Tesselate( grid_den, NULL );
