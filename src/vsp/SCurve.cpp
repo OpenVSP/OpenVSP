@@ -185,6 +185,7 @@ void SCurve::BuildDistTable( GridDensity* grid_den, SCurve* BCurve )
 
 		u_vec.push_back( u );
 		target_vec.push_back( t );
+		pnt_vec.push_back( p );
 
 		total_dist += dist( p, last_p );
 		dist_vec.push_back( total_dist );
@@ -198,6 +199,7 @@ void SCurve::CleanupDistTable()
 	u_vec.clear();
 	dist_vec.clear();
 	target_vec.clear();
+	pnt_vec.clear();
 }
 
 void SCurve::LimitTarget( GridDensity* grid_den )

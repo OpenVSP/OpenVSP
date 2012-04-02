@@ -88,6 +88,7 @@ protected:
 	vector< double > u_vec;
 	vector< double > dist_vec;
 	vector< double > target_vec;
+	vector< vec3d >  pnt_vec;
 };
 
 
