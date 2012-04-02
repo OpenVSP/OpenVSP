@@ -167,14 +167,8 @@ void SCurve::BorderTesselate( )
 	}
 }
 
-void SCurve::Tesselate( GridDensity* grid_den, SCurve* BCurve )
+void SCurve::BuildDistTable( GridDensity* grid_den, SCurve* BCurve )
 {
-	assert( m_Surf );
-
-	m_UTess.clear();
-	m_UWTess.clear();
-
-
 	//==== Build U to Dist Table ====//
 	num_segs = 10000;
 	double total_dist = 0.0;
@@ -197,6 +191,18 @@ void SCurve::Tesselate( GridDensity* grid_den, SCurve* BCurve )
 
 		last_p = p;
 	}
+}
+
+void SCurve::Tesselate( GridDensity* grid_den, SCurve* BCurve )
+{
+	assert( m_Surf );
+
+	m_UTess.clear();
+	m_UWTess.clear();
+
+	BuildDistTable( grid_den, BCurve );
+
+	vec3d uw;
 
 // Walk the curve forward limiting target length.
 	double growratio = grid_den->GetGrowRatio();

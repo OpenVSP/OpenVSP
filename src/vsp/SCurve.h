@@ -43,6 +43,7 @@ public:
 	double GetTargetLen( GridDensity* grid_den, SCurve* BCurve, vec3d p, vec3d uw, double u );
 
 	void BorderTesselate( );
+	void BuildDistTable( GridDensity* grid_den, SCurve* BCurve );
 	void Tesselate( GridDensity* grid_den, SCurve* BCurve );
 	void Tesselate( vector< vec3d > & target_pnts );
 
