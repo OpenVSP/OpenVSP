@@ -180,6 +180,8 @@ public:
 	void MergeInteriorIPnts();
 
 	void BuildCurves();
+	void TransferTess();
+
 	void Tessellate(GridDensity* grid_density);
 
 	void BuildBoxes();

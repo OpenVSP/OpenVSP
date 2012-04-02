@@ -1045,15 +1045,8 @@ void ISegChain::BuildCurves( )
 	m_BCurve.BuildBezierCurve( buw_pnts );
 }
 
-void ISegChain::Tessellate(GridDensity* grid_density)
+void ISegChain::TransferTess( )
 {
-	//==== Clear Old Tess ====//
-	m_TessVec.clear();
-
-	BuildCurves();
-
-	m_ACurve.Tesselate( grid_density, &m_BCurve );
-
 	//==== Compute Target 3D Points on A Surface ====//
 	vector< vec3d > target_uw;
 	vector< vec3d > target_pnts;
@@ -1066,6 +1059,18 @@ void ISegChain::Tessellate(GridDensity* grid_density)
 	}
 
 	m_BCurve.Tesselate( target_pnts );
+}
+
+void ISegChain::Tessellate(GridDensity* grid_density)
+{
+	//==== Clear Old Tess ====//
+	m_TessVec.clear();
+
+	BuildCurves();
+
+	m_ACurve.Tesselate( grid_density, &m_BCurve );
+
+	TransferTess();
 
 	vector< vec3d > tuwa = m_ACurve.GetUWTessPnts();
 	vector< vec3d > tuwb = m_BCurve.GetUWTessPnts();
