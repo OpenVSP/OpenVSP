@@ -133,8 +133,6 @@ void SCurve::BorderTesselate( )
 	// This routine does not populate the m_UTess curve.  It skips straight to
 	// the m_UWTess. curve.
 
-	assert( m_Surf );
-
 	m_UTess.clear();
 	m_UWTess.clear();
 
@@ -169,6 +167,8 @@ void SCurve::BorderTesselate( )
 
 void SCurve::BuildDistTable( GridDensity* grid_den, SCurve* BCurve )
 {
+	assert( m_Surf );
+
 	//==== Build U to Dist Table ====//
 	num_segs = 10000;
 	double total_dist = 0.0;
@@ -306,8 +306,6 @@ void SCurve::UWTess()
 
 void SCurve::Tesselate( GridDensity* grid_den, SCurve* BCurve )
 {
-	assert( m_Surf );
-
 	BuildDistTable( grid_den, BCurve );
 
 	LimitTarget( grid_den );
