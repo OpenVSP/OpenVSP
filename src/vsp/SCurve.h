@@ -78,6 +78,10 @@ protected:
 	vector< double > m_UTess;	// Tess Curve Pnts in U Space
 	vector< vec3d > m_UWTess;	// Tess Curve Pnts in UW Space
 
+	int num_segs;
+	vector< double > u_vec;
+	vector< double > dist_vec;
+	vector< double > target_vec;
 };
 
 
