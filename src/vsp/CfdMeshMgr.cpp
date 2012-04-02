@@ -2070,6 +2070,9 @@ void CfdMeshMgr::TessellateChains(GridDensity* grid_density)
 	{
 		(*c)->BuildCurves();
 		(*c)->Tessellate(grid_density);
+
+		(*c)->TransferTess();
+		(*c)->ApplyTess();
 	}
 
 	////==== Check for Zero Length Chains ====//

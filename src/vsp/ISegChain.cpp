@@ -1102,9 +1102,6 @@ void ISegChain::Tessellate(GridDensity* grid_density)
 {
 	m_ACurve.Tesselate( grid_density, &m_BCurve );
 
-	TransferTess();
-
-	ApplyTess();
 }
 
 void ISegChain::Draw()
