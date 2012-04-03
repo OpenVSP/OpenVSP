@@ -170,7 +170,7 @@ void SCurve::BuildDistTable( GridDensity* grid_den, SCurve* BCurve )
 	assert( m_Surf );
 
 	//==== Build U to Dist Table ====//
-	num_segs = 10000;
+	num_segs = 1000;
 	double total_dist = 0.0;
 	vec3d uw = m_UWCrv.comp_pnt( 0 );
 	vec3d last_p = m_Surf->CompPnt( uw.x(), uw.y() );
