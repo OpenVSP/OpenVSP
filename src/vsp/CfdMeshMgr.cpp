@@ -2079,9 +2079,7 @@ unsigned int get_msec(void)
 
 void CfdMeshMgr::TessellateChains(GridDensity* grid_density)
 {
-	// Edge source vectors.
-	vector< vec3d > es_pt;
-	vector< double > es_str;
+	ESCloud es_cloud;
 
 	unsigned int msec, start;
 	start = get_msec();
@@ -2091,22 +2089,22 @@ void CfdMeshMgr::TessellateChains(GridDensity* grid_density)
 	for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
 	{
 		(*c)->BuildCurves();
-		(*c)->CalcDensityBuildES( &es_pt, &es_str, grid_density );
+		(*c)->CalcDensityBuildES( es_cloud, grid_density );
 	}
+
+	ESTree es_tree( 3, es_cloud, KDTreeSingleIndexAdaptorParams( 10 ) );
+	es_tree.buildIndex();
 
 	// This loop is split due to the construction of the edge source vectors.
 	// They need to be complete before proceeding.
 
 	for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
 	{
-		(*c)->Tessellate( &es_pt, &es_str, grid_density);
+		(*c)->Tessellate( es_tree, es_cloud, grid_density);
 
 		(*c)->TransferTess();
 		(*c)->ApplyTess();
 	}
-
-	es_pt.clear();
-	es_str.clear();
 
 	msec = get_msec() - start;
 	printf("range query returned items in %.5f sec\n",  (float)msec / 1000.0);

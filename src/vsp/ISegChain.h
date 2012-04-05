@@ -21,6 +21,8 @@
 
 #include "bbox.h"
 
+#include "edgeSource.h"
+
 #include <assert.h>
 
 #include <vector>
@@ -183,8 +185,8 @@ public:
 	void TransferTess();
 	void ApplyTess();
 
-	void CalcDensityBuildES( vector< vec3d > *es_pt, vector< double > *es_str, GridDensity* grid_den );
-	void Tessellate( vector< vec3d > *es_pt, vector< double > *es_str, GridDensity* grid_den );
+	void CalcDensityBuildES( ESCloud &es_cloud, GridDensity* grid_den );
+	void Tessellate( ESTree &es_tree, ESCloud &es_cloud, GridDensity* grid_den );
 
 	void BuildBoxes();
 

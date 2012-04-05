@@ -313,7 +313,7 @@ void SCurve::CalcDensity( GridDensity* grid_den, SCurve* BCurve )
 	LimitTarget( grid_den );
 }
 
-void SCurve::BuildEdgeSources( vector< vec3d > *es_pt, vector< double > *es_str, GridDensity* grid_den )
+void SCurve::BuildEdgeSources( ESCloud &es_cloud, GridDensity* grid_den )
 {
 	// Tesselate curve using baseline density.
 	TessIntegrate();
@@ -334,8 +334,9 @@ void SCurve::BuildEdgeSources( vector< vec3d > *es_pt, vector< double > *es_str,
 
 		double str = d * edgeadjust;
 
-		es_pt->push_back(p);
-		es_str->push_back(str);
+		EdgeSource es = EdgeSource( p, str );
+
+		es_cloud.sources.push_back( es );
 
 		p0 = p1;
 	}
@@ -344,33 +345,43 @@ void SCurve::BuildEdgeSources( vector< vec3d > *es_pt, vector< double > *es_str,
 	m_UWTess.clear();
 }
 
-void SCurve::ApplyEdgeSources( vector< vec3d > *es_pt, vector< double > *es_str, GridDensity* grid_den )
+void SCurve::ApplyEdgeSources( ESTree &es_tree, ESCloud &es_cloud, GridDensity* grid_den )
 {
-	int nes = es_pt->size();
 	double grm1 = grid_den->GetGrowRatio() - 1.0;
+
+	double rmax = grid_den->GetBaseLen() / ( grid_den->GetGrowRatio() - 1.0 );
+
+	SearchParams params;
+	params.sorted = false;
 
 	for ( int i = 0 ; i < num_segs ; i++ )
 	{
 		double t = target_vec[i];
 		vec3d p1 = pnt_vec[i];
 
-		for ( int j = 0; j < nes; j++ )
+		double *query_pt = p1.v;
+
+		ESTreeResults es_matches;
+
+		int nMatches = es_tree.radiusSearch( query_pt, rmax, es_matches, params );
+
+		for (int j = 0; j < nMatches; j++ )
 		{
-			vec3d p2 = (*es_pt)[j];
-			double r = dist( p1, p2 );
+			int imatch = es_matches[j].first;
+			double r = es_matches[j].second;
 
-			double ts = (*es_str)[j] + grm1 * r;
+			double str = es_cloud.sources[imatch].m_str;
 
+			double ts = str + grm1 * r;
 			t = min( t, ts );
 		}
-
 		target_vec[i] = t;
 	}
 }
 
-void SCurve::Tesselate( vector< vec3d > *es_pt, vector< double > *es_str, GridDensity* grid_den )
+void SCurve::Tesselate( ESTree &es_tree, ESCloud &es_cloud, GridDensity* grid_den )
 {
-	ApplyEdgeSources( es_pt, es_str, grid_den );
+	ApplyEdgeSources( es_tree, es_cloud, grid_den );
 
 	LimitTarget( grid_den );
 
