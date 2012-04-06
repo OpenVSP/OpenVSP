@@ -19,9 +19,6 @@
 #include <direct.h>
 #endif
 
-#include <sys/time.h>
-#include <time.h>
-
 //==== Singleton ====//
 CFDM_Single::CFDM_Single()
 {
@@ -2064,25 +2061,9 @@ void CfdMeshMgr::MergeInteriorChainIPnts()
 	}
 }
 
-unsigned int get_msec(void)
-{
-	static struct timeval timeval, first_timeval;
-
-	gettimeofday(&timeval, 0);
-
-	if(first_timeval.tv_sec == 0) {
-		first_timeval = timeval;
-		return 0;
-	}
-	return (timeval.tv_sec - first_timeval.tv_sec) * 1000 + (timeval.tv_usec - first_timeval.tv_usec) / 1000;
-}
-
 void CfdMeshMgr::TessellateChains(GridDensity* grid_density)
 {
 	ESCloud es_cloud;
-
-	unsigned int msec, start;
-	start = get_msec();
 
 	//==== Tessellate Chains ====//
 	list< ISegChain* >::iterator c;
@@ -2109,9 +2090,6 @@ void CfdMeshMgr::TessellateChains(GridDensity* grid_density)
 		(*c)->TransferTess();
 		(*c)->ApplyTess();
 	}
-
-	msec = get_msec() - start;
-	printf("range query returned items in %.5f sec\n",  (float)msec / 1000.0);
 
 	////==== Check for Zero Length Chains ====//
 	//for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
