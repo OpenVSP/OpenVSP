@@ -15,10 +15,18 @@
 #define EDGESOURCE_H
 
 #include "vec3d.h"
+#include "GridDensity.h"
 
 #include "nanoflann.hpp"
 
 using namespace nanoflann;
+
+struct EdgeSource;
+struct ESCloud;
+
+typedef KDTreeSingleIndexAdaptor< L2_Simple_Adaptor< double, ESCloud > ,ESCloud, 3 > ESTree;
+
+typedef vector< pair< size_t, double > > ESTreeResults;
 
 struct EdgeSource
 {
@@ -68,10 +76,10 @@ struct ESCloud
 	template <class BBOX>
 	bool kdtree_get_bbox(BBOX &bb) const { return false; }
 
+	void prune_edge_sources( ESTree &es_tree, GridDensity* grid_den );
+
 };
 
-typedef KDTreeSingleIndexAdaptor< L2_Simple_Adaptor< double, ESCloud > ,ESCloud, 3 > ESTree;
 
-typedef vector< pair< size_t, double > > ESTreeResults;
 
 #endif

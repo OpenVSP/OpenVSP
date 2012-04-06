@@ -47,6 +47,7 @@ curveEditScreen.cpp
 drawBase.cpp
 ductGeom.cpp
 ductScreen.cpp
+edgeSource.cpp
 editCurve.cpp
 engineGeom.cpp
 engineScreen.cpp
