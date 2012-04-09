@@ -358,12 +358,16 @@ double Surf::TargetLen( double u, double w, double gap, double radfrac)
 
 	CompCurvature( u, w, k1, k2, ka, kg );
 
-	// Check for k1 nan.
-	if(k1 != k1)
+	if( fabs(k1) < tol ) // If zero curvature
 	{
-		// nan Occurs when we are at the absolute maximum U,W corner of a patch.
-		// Since this is only used for curvature, use a slightly inside point instead.
-		CompCurvature( u-tol, w-tol, k1, k2, ka, kg );
+		double du = -tol;
+		if( u < tol )
+			du = tol;
+		double dw = -tol;
+		if( w < tol )
+			dw = tol;
+		// Check point offset inside the surface.
+		CompCurvature( u+du, w+dw, k1, k2, ka, kg);
 	}
 
 	if( fabs(k1) > tol )
