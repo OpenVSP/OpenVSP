@@ -2078,14 +2078,17 @@ void CfdMeshMgr::TessellateChains(GridDensity* grid_density)
 
 	// Prune sources which have no effect because other nearby sources are smaller.
 	es_cloud.prune_edge_sources( es_tree, grid_density );
-	es_tree.buildIndex();
+
+	ESTree es_tree2( 3, es_cloud, KDTreeSingleIndexAdaptorParams( 10 ) );
+
+	es_tree2.buildIndex();
 
 	// This loop is split due to the construction of the edge source vectors.
 	// They need to be complete before proceeding.
 
 	for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
 	{
-		(*c)->Tessellate( es_tree, es_cloud, grid_density);
+		(*c)->Tessellate( es_tree2, es_cloud, grid_density);
 
 		(*c)->TransferTess();
 		(*c)->ApplyTess();
