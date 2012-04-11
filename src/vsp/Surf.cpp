@@ -266,6 +266,8 @@ void Surf::CompCurvature( double u, double w, double& k1, double& k2, double& ka
 {
 	double tol = 1e-10;
 
+	double bump = 1e-3;
+
 	// First derivative vectors
 	vec3d S_u = CompTanU( u, w );
 	vec3d S_w = CompTanW( u, w );
@@ -275,73 +277,78 @@ void Surf::CompCurvature( double u, double w, double& k1, double& k2, double& ka
 
 	if( E < tol && G < tol )
 	{
-		k1 = 0.0;
-		ka = 0.0;
-		kg = 0.0;
-		k2 = 0.0;
+		double umid = m_MaxU / 2.0;
+		double wmid = m_MaxW / 2.0;
+
+		u = u + ( umid - u ) * bump;
+		w = w + ( wmid - w ) * bump;
+
+		S_u = CompTanU( u, w );
+		S_w = CompTanW( u, w );
+
+		E = dot( S_u, S_u );
+		G = dot( S_w, S_w );
 	}
 	else if( E < tol) // U direction degenerate
 	{
-		vec3d S_ww = CompTanWW( u, w );
+		double wmid = m_MaxW / 2.0;
+		w = w + ( wmid - w ) * bump;
 
-		vec3d A = cross( S_w, S_ww );
-		k1 = A.mag() / pow( G, 1.5 );
+		S_u = CompTanU( u, w );
+		S_w = CompTanW( u, w );
 
-		ka = k1 * 0.5;
-		kg = 0.0;
-		k2 = 0.0;
+		E = dot( S_u, S_u );
+		G = dot( S_w, S_w );
 	}
 	else if( G < tol ) // W direction degenerate
 	{
-		vec3d S_uu = CompTanUU( u, w );
+		double umid = m_MaxU / 2.0;
+		u = u + ( umid - u ) * bump;
 
-		vec3d A = cross( S_u, S_uu );
-		k1 = A.mag() / pow( E, 1.5 );
+		S_u = CompTanU( u, w );
+		S_w = CompTanW( u, w );
 
-		ka = k1 * 0.5;
-		kg = 0.0;
-		k2 = 0.0;
+		E = dot( S_u, S_u );
+		G = dot( S_w, S_w );
+	}
+
+	// Second derivative vectors
+	vec3d S_uu = CompTanUU( u, w );
+	vec3d S_uw = CompTanUW( u, w );
+	vec3d S_ww = CompTanWW( u, w );
+
+	// Unit normal vector
+	vec3d Q = cross( S_u, S_w );
+	Q.normalize();
+
+	double F = dot( S_u, S_w );
+
+	double L = dot( S_uu, Q );
+	double M = dot( S_uw, Q );
+	double N = dot( S_ww, Q );
+
+	// Mean curvature
+	ka = (E*N + G*L - 2.0*F*M)/(2.0*(E*G - F*F));
+
+	// Gaussian curvature
+	kg = (L*N - M*M)/(E*G - F*F);
+
+	double b = sqrt( ka*ka - kg );
+
+	// Principal curvatures
+	double kmax = ka + b;
+	double kmin = ka - b;
+
+	// Ensure k1 has largest magnitude
+	if( fabs(kmax) > fabs(kmin) )
+	{
+		k1 = kmax;
+		k2 = kmin;
 	}
 	else
 	{
-		// Second derivative vectors
-		vec3d S_uu = CompTanUU( u, w );
-		vec3d S_uw = CompTanUW( u, w );
-		vec3d S_ww = CompTanWW( u, w );
-
-		// Unit normal vector
-		vec3d Q = cross( S_u, S_w );
-		Q.normalize();
-
-		double F = dot( S_u, S_w );
-
-		double L = dot( S_uu, Q );
-		double M = dot( S_uw, Q );
-		double N = dot( S_ww, Q );
-
-		// Mean curvature
-		ka = (E*N + G*L - 2.0*F*M)/(2.0*(E*G - F*F));
-
-		// Gaussian curvature
-		kg = (L*N - M*M)/(E*G - F*F);
-
-		double b = sqrt( ka*ka - kg );
-
-		// Principal curvatures
-		double kmax = ka + b;
-		double kmin = ka - b;
-
-		// Ensure k1 has largest magnitude
-		if( fabs(kmax) > fabs(kmin) )
-		{
-			k1 = kmax;
-			k2 = kmin;
-		}
-		else
-		{
-			k1 = kmin;
-			k2 = kmax;
-		}
+		k1 = kmin;
+		k2 = kmax;
 	}
 }
 
