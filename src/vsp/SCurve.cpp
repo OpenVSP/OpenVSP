@@ -281,9 +281,15 @@ void SCurve::TessIntegrate()
 		double du = 1-ufinal;
 		double dutarget = 1.0/((1.0*num_segs) * dn);
 
-		if( du > 0.5 * dutarget )
+		if( du > 0.66 * dutarget )
 		{
 			m_UTess.push_back( 1.0 );
+		}
+		else if( du < 0.33 * dutarget )
+		{
+			int ifinal = m_UTess.size()-1;
+			if( ifinal > 0 )
+				m_UTess[ifinal] = 1.0;
 		}
 		else
 		{
