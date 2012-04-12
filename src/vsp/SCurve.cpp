@@ -278,26 +278,37 @@ void SCurve::TessIntegrate()
 
 	if( ufinal < 1.0 )
 	{
-		double du = 1-ufinal;
+		double du = 1.0 - ufinal;
 		double dutarget = 1.0/((1.0*num_segs) * dn);
 
-		if( du > 0.66 * dutarget )
+		double ucorr;
+
+		if( du > 0.5 * dutarget )
 		{
 			m_UTess.push_back( 1.0 );
-		}
-		else if( du < 0.33 * dutarget )
-		{
-			int ifinal = m_UTess.size()-1;
-			if( ifinal > 0 )
-				m_UTess[ifinal] = 1.0;
+			ucorr = ( du - dutarget ) / m_UTess.size();
 		}
 		else
 		{
 			int ifinal = m_UTess.size()-1;
+			ufinal = m_UTess[ifinal];
 			if( ifinal > 0 )
-				m_UTess[ifinal] = ( m_UTess[ifinal-1]+1.0 ) / 2.0;
-			m_UTess.push_back( 1.0 );
+				m_UTess[ifinal] = 1.0;
+			double du = 1.0 - ufinal;
+			ucorr = ( du - dutarget ) / m_UTess.size();
 		}
+
+		int Nt = m_UTess.size()-1;
+		vector<double> duvec( Nt );
+
+		for( int i = 0; i < Nt; i++ )
+			duvec[i] = m_UTess[i+1] - m_UTess[i];
+
+		m_UTess[0] = 0.0;
+		for( int i = 0; i < Nt-1; i++ )
+			m_UTess[i+1] = m_UTess[i] + duvec[i] * (1.0 + ucorr);
+		m_UTess[Nt] = 1.0;
+
 	}
 }
 
