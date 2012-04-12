@@ -257,15 +257,17 @@ void SCurve::TessIntegrate()
 
 		if( nlast != (int) n )
 		{
-			double denom = n-nprev;
+			double denom = n - nprev;
 			double frac = 0.0;
 			if(denom)
-				frac = (u-uprev)/denom;
+				frac = ( ( (int) n ) - nprev )/denom;
 
 			double ut = uprev + frac * (u-uprev);
 
 			m_UTess.push_back( ut );
 			nlast = (int) n;
+			n = nlast;
+			u = ut;
 		}
 
 		uprev = u;
