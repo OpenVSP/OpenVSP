@@ -69,6 +69,45 @@ void Mesh::Clear()
 
 }
 
+void Mesh::SmoothTargetEdgeLength( Node* n )
+{
+	for( int i = 0; i < n->edgeVec.size(); i++ )
+	{
+		SmoothTargetEdgeLength( n->edgeVec[i], n );
+	}
+
+	list< Edge* >::iterator e;
+	list< Edge* > el( n->edgeVec.begin(), n->edgeVec.end() );
+	el.sort( ShortEdgeTargetLengthCompare );
+
+	e = el.begin();
+	double limitlen = (*e)->target_len * m_GridDensity->GetGrowRatio();
+	e++;
+
+	for ( ; e != el.end(); e++ )
+	{
+		if( (*e)->target_len > limitlen )
+			(*e)->target_len = limitlen;
+	}
+}
+
+void Mesh::SmoothTargetEdgeLength( Edge* e, Node* notn )
+{
+	vector< Edge* >::iterator ne;
+	double growratio = m_GridDensity->GetGrowRatio();
+
+	Node *n = e->OtherNode( notn );
+
+	for ( ne = n->edgeVec.begin() ; ne != n->edgeVec.end(); ne++ )
+	{
+		double limitlen = growratio * (*ne)->target_len;
+		if( e->target_len > limitlen )
+		{
+			e->target_len = limitlen;
+		}
+	}
+}
+
 void Mesh::SmoothTargetEdgeLength(Edge* e)
 {
 	Node *n;
