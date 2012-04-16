@@ -1118,7 +1118,15 @@ void Mesh::AdjustEdgeLengths()
 
 	}
 }
-	
+
+void Mesh::ComputeTargetEdgeLength( Node* n )
+{
+	for( int i = 0; i < n->edgeVec.size(); i++)
+	{
+		ComputeTargetEdgeLength( n->edgeVec[i] );
+	}
+}
+
 void Mesh::ComputeTargetEdgeLength( Edge* edge )
 {
 	assert( m_GridDensity );

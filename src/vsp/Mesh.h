@@ -72,6 +72,7 @@ public:
 	void SmoothTargetEdgeLength( Edge* e, Node* notn );
 
 	void ComputeTargetEdgeLength( Edge* edge );
+	void ComputeTargetEdgeLength( Node* n );
 
 	void SetNodeFlags();
 
