@@ -69,11 +69,11 @@ void Mesh::Clear()
 
 }
 
-void Mesh::SmoothTargetEdgeLength( Node* n )
+void Mesh::LimitTargetEdgeLength( Node* n )
 {
 	for( int i = 0; i < n->edgeVec.size(); i++ )
 	{
-		SmoothTargetEdgeLength( n->edgeVec[i], n );
+		LimitTargetEdgeLength( n->edgeVec[i], n );
 	}
 
 	list< Edge* >::iterator e;
@@ -91,7 +91,7 @@ void Mesh::SmoothTargetEdgeLength( Node* n )
 	}
 }
 
-void Mesh::SmoothTargetEdgeLength( Edge* e, Node* notn )
+void Mesh::LimitTargetEdgeLength( Edge* e, Node* notn )
 {
 	vector< Edge* >::iterator ne;
 	double growratio = m_GridDensity->GetGrowRatio();
@@ -108,7 +108,7 @@ void Mesh::SmoothTargetEdgeLength( Edge* e, Node* notn )
 	}
 }
 
-void Mesh::SmoothTargetEdgeLength(Edge* e)
+void Mesh::LimitTargetEdgeLength(Edge* e)
 {
 	Node *n;
 	vector< Edge* >::iterator ne;
@@ -135,7 +135,7 @@ void Mesh::SmoothTargetEdgeLength(Edge* e)
 	}
 }
 
-void Mesh::SmoothTargetEdgeLength()
+void Mesh::LimitTargetEdgeLength()
 {
 	Node *n;
 	list< Edge* >::iterator e;
@@ -189,7 +189,7 @@ void Mesh::Remesh()
 		ComputeTargetEdgeLength(*e);
 	}
 
-	SmoothTargetEdgeLength();
+	LimitTargetEdgeLength();
 
 	for ( int i = 0 ; i < 20 ; i++ )
 	{
@@ -456,7 +456,7 @@ Edge* Mesh::AddEdge( Node* n0, Node* n1 )
 	eptr->ComputeLength();
 	ComputeTargetEdgeLength( eptr );
 
-	SmoothTargetEdgeLength( eptr );
+	LimitTargetEdgeLength( eptr );
 
 	return eptr;
 }
@@ -654,7 +654,7 @@ void Mesh::SplitEdge( Edge* edge )
 	RemoveEdge( edge );
 
 	ComputeTargetEdgeLength( ns );
-	SmoothTargetEdgeLength( ns );
+	LimitTargetEdgeLength( ns );
 }
 
 void Mesh::SwapEdge( Edge* edge )
@@ -742,7 +742,7 @@ void Mesh::SwapEdge( Edge* edge )
 	else if ( eb0->t1 == tb )	eb0->t1 = ta;
 	else assert(0);
 
-	SmoothTargetEdgeLength( edge );
+	LimitTargetEdgeLength( edge );
 
 //CheckValidAllEdges();
 }
@@ -1042,7 +1042,7 @@ assert ( other_tb0 != other_tb1 );
 	RemoveEdge( eb1 );
 
 	ComputeTargetEdgeLength( nc );
-	SmoothTargetEdgeLength( nc );
+	LimitTargetEdgeLength( nc );
 
 //CheckValidAllEdges( );
 

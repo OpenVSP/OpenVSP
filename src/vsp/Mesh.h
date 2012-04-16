@@ -66,10 +66,10 @@ public:
 	bool ValidCollapse( Edge* edge );
 	void CollapseEdge( Edge* edge );
 
-	void SmoothTargetEdgeLength();
-	void SmoothTargetEdgeLength( Edge* e );
-	void SmoothTargetEdgeLength( Node* n );
-	void SmoothTargetEdgeLength( Edge* e, Node* notn );
+	void LimitTargetEdgeLength();
+	void LimitTargetEdgeLength( Edge* e );
+	void LimitTargetEdgeLength( Node* n );
+	void LimitTargetEdgeLength( Edge* e, Node* notn );
 
 	void ComputeTargetEdgeLength( Edge* edge );
 	void ComputeTargetEdgeLength( Node* n );
