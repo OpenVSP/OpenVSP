@@ -15,9 +15,9 @@
 
 #define DEBUG_MESH 1
 
-bool LongEdgeLengthCompare(const Edge* a, const Edge* b) 
+bool LongEdgePairLengthCompare(const pair< Edge*, double >& a, const pair< Edge*, double >& b)
 {
-    return ( a->m_Length > b->m_Length );
+    return ( b.second < a.second );
 }
 bool ShortEdgeLengthCompare(const Edge* a, const Edge* b) 
 {
@@ -305,29 +305,30 @@ int Mesh::Split( int num_iter )
 	for ( int iter = 0 ; iter < num_iter ; iter++ )
 	{
 		//===== Split ====//
-		vector < Edge* > longEdges;
+		vector < pair < Edge*, double > > longEdges;
 		longEdges.reserve( edgeList.size() );
 		for ( e = edgeList.begin() ; e != edgeList.end(); e++ )	
 		{
 			if ( !(*e)->border )
 			{
-				if ( (*e)->GetLength() > 1.41*(*e)->target_len )
+				double rat = (*e)->GetLength() / (*e)->target_len;
+				if ( rat > 1.41 )
 				{
-					longEdges.push_back( (*e) );
+					longEdges.push_back( pair< Edge*, double >( (*e), rat ) );
 				}
 			}
 		}
 
 		//==== Sort Matches By Length ====//
-		sort(longEdges.begin(), longEdges.end(), LongEdgeLengthCompare );
+		sort(longEdges.begin(), longEdges.end(), LongEdgePairLengthCompare );
 
 		int num_split = longEdges.size()/10;
 		num_split = min( num_split, (int)longEdges.size() );
 
 		for ( int i = 0 ; i < num_split ; i++ )
 		{
-			double dist = longEdges[i]->ComputeLength();
-			SplitEdge( longEdges[i] );
+			double dist = longEdges[i].first->ComputeLength();
+			SplitEdge( longEdges[i].first );
 		}
 
 		//==== Swap All Changed Edges If Needed ====//
