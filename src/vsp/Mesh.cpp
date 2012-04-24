@@ -454,9 +454,6 @@ Edge* Mesh::AddEdge( Node* n0, Node* n1 )
 	n1->AddConnectEdge( eptr );
 
 	eptr->ComputeLength();
-	ComputeTargetEdgeLength( eptr );
-
-	LimitTargetEdgeLength( eptr );
 
 	return eptr;
 }
