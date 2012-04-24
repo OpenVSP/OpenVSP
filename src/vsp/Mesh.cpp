@@ -19,9 +19,9 @@ bool LongEdgePairLengthCompare(const pair< Edge*, double >& a, const pair< Edge*
 {
     return ( b.second < a.second );
 }
-bool ShortEdgeLengthCompare(const Edge* a, const Edge* b) 
+bool ShortEdgePairLengthCompare(const pair< Edge*, double >& a, const pair< Edge*, double >& b)
 {
-    return ( a->m_Length < b->m_Length );
+    return ( a.second < b.second );
 }
 bool ShortEdgeTargetLengthCompare(const Edge* a, const Edge* b)
 {
@@ -353,21 +353,22 @@ int Mesh::Collapse(int num_iter)
 		list< Edge* >::iterator e;
 
 		//==== Collapse =====//
-		vector < Edge* > shortEdges;
+		vector < pair < Edge*, double > > shortEdges;
 		shortEdges.reserve( edgeList.size() );
 		for ( e = edgeList.begin() ; e != edgeList.end(); e++ )	
 		{
 			if ( ValidCollapse(*e) )
 			{
-				if ( (*e)->GetLength() < 0.707*(*e)->target_len )
+				double rat = (*e)->GetLength() / (*e)->target_len;
+				if ( rat < 0.707 )
 				{
-					shortEdges.push_back( (*e) );
+					shortEdges.push_back( pair< Edge*, double >( (*e), rat ) );
 				}
 			}
 		}
 
 		//==== Sort Matches By Length ====//
-		sort(shortEdges.begin(), shortEdges.end(), ShortEdgeLengthCompare );
+		sort(shortEdges.begin(), shortEdges.end(), ShortEdgePairLengthCompare );
 
 		int num_colapse = shortEdges.size()/10;
 		num_colapse = min(num_colapse, (int)shortEdges.size());
@@ -375,12 +376,12 @@ int Mesh::Collapse(int num_iter)
 		num_short_edges = 0; 
 		for ( int i = 0 ; i < num_colapse ; i++ )
 		{
-			double dist = shortEdges[i]->ComputeLength();
+			double dist = shortEdges[i].first->ComputeLength();
 //			printf("  Collapse %f \n", dist );
-			if ( ValidCollapse(shortEdges[i]) && !shortEdges[i]->m_DeleteMeFlag )
+			if ( ValidCollapse(shortEdges[i].first) && !shortEdges[i].first->m_DeleteMeFlag )
 			{
 				num_short_edges++;
-				CollapseEdge( shortEdges[i] );
+				CollapseEdge( shortEdges[i].first );
 			}
 		}
 
