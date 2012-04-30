@@ -273,13 +273,22 @@ void SCurve::TessIntegrate()
 		uprev = u;
 		nprev = n;
 	}
+	m_UTess.push_back(1.0);
+}
 
-	double ufinal = m_UTess.back();
+void SCurve::SmoothTess()
+{
+	int nu = m_UTess.size();
+	double ufinal = m_UTess[ nu - 2 ];
+
+	double tfinal = target_vec[ num_segs - 1 ];
+	double dsfinal = dist_vec[ num_segs-1 ] - dist_vec[ num_segs - 2 ];
+	double dnfinal = dsfinal / tfinal;
 
 	if( ufinal < 1.0 )
 	{
 		double du = 1.0 - ufinal;
-		double dutarget = 1.0/((1.0*num_segs) * dn);
+		double dutarget = 1.0/((1.0*num_segs) * dnfinal);
 
 		double ucorr;
 
@@ -336,6 +345,7 @@ void SCurve::BuildEdgeSources( ESCloud &es_cloud, GridDensity* grid_den )
 {
 	// Tesselate curve using baseline density.
 	TessIntegrate();
+	SmoothTess();
 	UWTess();
 
 	double edgeadjust = 1.0 - ( grid_den->GetGrowRatio() - 1.0 ) * 0.5;
@@ -406,7 +416,7 @@ void SCurve::Tesselate( ESTree &es_tree, ESCloud &es_cloud, GridDensity* grid_de
 	LimitTarget( grid_den );
 
 	TessIntegrate();
-
+	SmoothTess();
 	UWTess();
 
 	CleanupDistTable();

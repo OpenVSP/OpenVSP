@@ -49,6 +49,7 @@ public:
 	void CleanupDistTable();
 	void LimitTarget( GridDensity* grid_den );
 	void TessIntegrate();
+	void SmoothTess();
 	void UWTess();
 	void CalcDensity( GridDensity* grid_den, SCurve* BCurve );
 	void BuildEdgeSources( ESCloud &es_cloud, GridDensity* grid_den );
