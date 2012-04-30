@@ -49,6 +49,7 @@ public:
 	void CleanupDistTable();
 	void LimitTarget( GridDensity* grid_den );
 	void TessIntegrate();
+	vector<double> TessRevIntegrate();
 	void SmoothTess();
 	void UWTess();
 	void CalcDensity( GridDensity* grid_den, SCurve* BCurve );

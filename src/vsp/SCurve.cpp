@@ -276,6 +276,52 @@ void SCurve::TessIntegrate()
 	m_UTess.push_back(1.0);
 }
 
+vector<double> SCurve::TessRevIntegrate()
+{
+	vector< double > m_UTessRev;
+
+	double nprev = 0.0;
+	double uprev = 1.0;
+
+	m_UTessRev.push_back( 1.0 );
+
+	int nlast = 0;
+	double n = 0.0;
+	double dn;
+
+	// Start at i = 1 because ds for the first step is zero anyway.
+	for ( int i = num_segs - 1 ; i > 0 ; i-- )
+	{
+		double t = target_vec[i];
+		double ds = dist_vec[i] - dist_vec[i-1];
+		double u = u_vec[i];
+
+		dn = ds/t;
+		n += dn;
+
+		if( nlast != (int) n )
+		{
+			double denom = n - nprev;
+			double frac = 0.0;
+			if(denom)
+				frac = ( ( (int) n ) - nprev )/denom;
+
+			double ut = uprev + frac * (u-uprev);
+
+			m_UTessRev.push_back( ut );
+			nlast = (int) n;
+			n = nlast;
+			u = ut;
+		}
+
+		uprev = u;
+		nprev = n;
+	}
+
+	m_UTessRev.push_back( 0.0 );
+	return m_UTessRev;
+}
+
 void SCurve::SmoothTess()
 {
 	int nu = m_UTess.size();
