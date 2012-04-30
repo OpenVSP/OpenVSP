@@ -324,46 +324,19 @@ vector<double> SCurve::TessRevIntegrate()
 
 void SCurve::SmoothTess()
 {
-	int nu = m_UTess.size();
-	double ufinal = m_UTess[ nu - 2 ];
+	vector< double > m_UTessRev = TessRevIntegrate();
 
-	double tfinal = target_vec[ num_segs - 1 ];
-	double dsfinal = dist_vec[ num_segs-1 ] - dist_vec[ num_segs - 2 ];
-	double dnfinal = dsfinal / tfinal;
+	int nfwd = m_UTess.size();
+	int nrev = m_UTessRev.size();
 
-	if( ufinal < 1.0 )
+	assert( nfwd == nrev );
+
+	for(int i = 1; i < nfwd - 1 ; i++)
 	{
-		double du = 1.0 - ufinal;
-		double dutarget = 1.0/((1.0*num_segs) * dnfinal);
-
-		double ucorr;
-
-		if( du > 0.5 * dutarget )
-		{
-			m_UTess.push_back( 1.0 );
-			ucorr = ( du - dutarget ) / m_UTess.size();
-		}
-		else
-		{
-			int ifinal = m_UTess.size()-1;
-			ufinal = m_UTess[ifinal];
-			if( ifinal > 0 )
-				m_UTess[ifinal] = 1.0;
-			double du = 1.0 - ufinal;
-			ucorr = ( du - dutarget ) / m_UTess.size();
-		}
-
-		int Nt = m_UTess.size()-1;
-		vector<double> duvec( Nt );
-
-		for( int i = 0; i < Nt; i++ )
-			duvec[i] = m_UTess[i+1] - m_UTess[i];
-
-		m_UTess[0] = 0.0;
-		for( int i = 0; i < Nt-1; i++ )
-			m_UTess[i+1] = m_UTess[i] + duvec[i] * (1.0 + ucorr);
-		m_UTess[Nt] = 1.0;
-
+		double u = m_UTess[ i ];
+		double ur = m_UTessRev[ nfwd - i - 1 ];
+		double uave = (2.0 * u - u * u + ur * ur )/2.0;
+		m_UTess[ i ] = uave;
 	}
 }
 
