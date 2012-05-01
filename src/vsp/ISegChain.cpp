@@ -1084,8 +1084,8 @@ void ISegChain::ApplyTess( )
 		//m_CreatedPuws.push_back( puwa );
 		//m_CreatedPuws.push_back( puwb );
 
-		vec3d pA = m_SurfA->CompPnt( tuwa[i][0], tuwa[i][1] );
-		vec3d pB = m_SurfB->CompPnt( tuwb[i][0], tuwb[i][1] );
+		//vec3d pA = m_SurfA->CompPnt( tuwa[i][0], tuwa[i][1] );
+		//vec3d pB = m_SurfB->CompPnt( tuwb[i][0], tuwb[i][1] );
 
 		//double d = dist( pA, pB );
 		//	printf( "%d Big D = %f \n",i, d );
