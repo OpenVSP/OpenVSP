@@ -235,22 +235,44 @@ void SCurve::LimitTarget( GridDensity* grid_den )
 
 void SCurve::TessIntegrate()
 {
-	m_UTess.clear();
+	vector<double> utess;
+	TessIntegrate( 1, utess );
+	m_UTess.swap( utess );
+}
+
+void SCurve::TessRevIntegrate( vector< double > &utess)
+{
+	TessIntegrate( -1, utess );
+}
+
+void SCurve::TessIntegrate( int direction, vector< double > &utess)
+{
+	utess.clear();
+
 	double nprev = 0.0;
 	double uprev = 0.0;
 
-	m_UTess.push_back( 0.0 );
+	utess.push_back( 0.0 );
 
 	int nlast = 0;
 	double n = 0.0;
 	double dn;
 
+	int j;
 	// Start at i = 1 because ds for the first step is zero anyway.
 	for ( int i = 1 ; i < num_segs ; i++ )
 	{
-		double t = target_vec[i];
-		double ds = dist_vec[i] - dist_vec[i-1];
-		double u = u_vec[i];
+		if( direction < 0 )
+			j = num_segs - i - 1;
+		else
+			j = i;
+
+		double t = target_vec[j];
+		double ds = dist_vec[j] - dist_vec[j-1];
+		double u = u_vec[j];
+
+		if( direction < 0 )
+			u = 1.0-u;
 
 		dn = ds/t;
 		n += dn;
@@ -264,7 +286,7 @@ void SCurve::TessIntegrate()
 
 			double ut = uprev + frac * (u-uprev);
 
-			m_UTess.push_back( ut );
+			utess.push_back( ut );
 			nlast = (int) n;
 			n = nlast;
 			u = ut;
@@ -273,53 +295,15 @@ void SCurve::TessIntegrate()
 		uprev = u;
 		nprev = n;
 	}
-	m_UTess.push_back(1.0);
-}
+	utess.push_back(1.0);
 
-vector<double> SCurve::TessRevIntegrate()
-{
-	vector< double > m_UTessRev;
-
-	double nprev = 0.0;
-	double uprev = 1.0;
-
-	m_UTessRev.push_back( 1.0 );
-
-	int nlast = 0;
-	double n = 0.0;
-	double dn;
-
-	// Start at i = 1 because ds for the first step is zero anyway.
-	for ( int i = num_segs - 1 ; i > 0 ; i-- )
+	if( direction < 0 )
 	{
-		double t = target_vec[i];
-		double ds = dist_vec[i] - dist_vec[i-1];
-		double u = u_vec[i];
+		int nut = utess.size();
 
-		dn = ds/t;
-		n += dn;
-
-		if( nlast != (int) n )
-		{
-			double denom = n - nprev;
-			double frac = 0.0;
-			if(denom)
-				frac = ( ( (int) n ) - nprev )/denom;
-
-			double ut = uprev + frac * (u-uprev);
-
-			m_UTessRev.push_back( ut );
-			nlast = (int) n;
-			n = nlast;
-			u = ut;
-		}
-
-		uprev = u;
-		nprev = n;
+		for( int i = 0; i < nut; i++)
+			utess[i] = 1.0 - utess[i];
 	}
-
-	m_UTessRev.push_back( 0.0 );
-	return m_UTessRev;
 }
 
 void SCurve::SmoothTess()
