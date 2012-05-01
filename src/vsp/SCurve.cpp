@@ -308,20 +308,38 @@ void SCurve::TessIntegrate( int direction, vector< double > &utess)
 
 void SCurve::SmoothTess()
 {
-	vector< double > m_UTessRev = TessRevIntegrate();
+	vector< double > UTessRev;
+	TessRevIntegrate( UTessRev );
 
 	int nfwd = m_UTess.size();
-	int nrev = m_UTessRev.size();
+	int nrev = UTessRev.size();
+	int n;
 
-	assert( nfwd == nrev );
+	if( nfwd > nrev )
+	{
+		n = nrev;
+		m_UTess.pop_back();
+		m_UTess[ n-1 ] = 1.0;
+	}
+	else if( nrev > nfwd )
+	{
+		n = nfwd;
+		UTessRev.pop_back();
+		UTessRev[ n-1 ] = 0.0;
+	}
+	else
+		n = nfwd;
 
-	for(int i = 1; i < nfwd - 1 ; i++)
+	for(int i = 1; i < n - 1; i++)
 	{
 		double u = m_UTess[ i ];
-		double ur = m_UTessRev[ nfwd - i - 1 ];
+		double ur = UTessRev[ n - i - 1 ];
 		double uave = (2.0 * u - u * u + ur * ur )/2.0;
+
 		m_UTess[ i ] = uave;
 	}
+	m_UTess[ 0 ] = 0.0;
+	m_UTess[ n - 1 ] = 1.0;
 }
 
 void SCurve::UWTess()
