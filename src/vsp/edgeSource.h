@@ -17,6 +17,14 @@
 #include "vec3d.h"
 #include "GridDensity.h"
 
+#ifdef max
+#undef max
+#endif
+
+#ifdef min
+#undef min
+#endif
+
 #include "nanoflann.hpp"
 
 using namespace nanoflann;
