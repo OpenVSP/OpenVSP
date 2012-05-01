@@ -254,17 +254,7 @@ public:
 	void   SetMinLen( double v )				{ m_MinLen = v; }
 
 	double GetNCircSeg()					{ return m_NCircSeg; }
-	bool   SetNCircSeg( double v )
-	{
-		if(v > 2.0)
-		{
-			m_NCircSeg = v;
-			m_RadFrac = 2.0*sin(PI/v);
-			return true;
-		}
-		else
-			return false;
-	}
+	void   SetNCircSeg( double v );
 
 	double GetRadFrac()					{ return m_RadFrac; }
 
