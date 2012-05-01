@@ -51,14 +51,14 @@ FeaStructScreen::FeaStructScreen(ScreenMgr* mgr, Aircraft* airPtr)
 
 	m_NumCircSegSlider = new SliderInputCombo( ui->numCircSegSlider, ui->numCircSegInput );
 	m_NumCircSegSlider->SetCallback( staticScreenCB, this );
-	m_NumCircSegSlider->SetLimits( 3.0, 1000.0 );
+	m_NumCircSegSlider->SetLimits( 0.0001, 1000.0 );
 	m_NumCircSegSlider->SetRange( 100.0 );
 	m_NumCircSegSlider->UpdateGui();
 
 	m_GrowRatioSlider = new SliderInputCombo( ui->growRatioSlider, ui->growRatioInput );
 	m_GrowRatioSlider->SetCallback( staticScreenCB, this );
-	m_GrowRatioSlider->SetLimits( 1.0, 10.0 );
-	m_GrowRatioSlider->SetRange( 1.0 );
+	m_GrowRatioSlider->SetLimits( 1.0, 3.0 );
+	m_GrowRatioSlider->SetRange( 2.0 );
 	m_GrowRatioSlider->UpdateGui();
 
 	m_ThickScaleSlider = new SliderInputCombo( ui->thickScaleSlider, ui->thickScaleInput );

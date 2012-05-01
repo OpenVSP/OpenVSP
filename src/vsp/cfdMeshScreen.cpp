@@ -81,14 +81,14 @@ CfdMeshScreen::CfdMeshScreen(ScreenMgr* mgr, Aircraft* airPtr)
 
 	m_NumCircSegmentSlider = new SliderInputCombo( ui->numCircSegmentSlider, ui->numCircSegmentInput );
 	m_NumCircSegmentSlider->SetCallback( staticScreenCB, this );
-	m_NumCircSegmentSlider->SetLimits( 3.0, 1000.0 );
+	m_NumCircSegmentSlider->SetLimits( 0.0001, 1000.0 );
 	m_NumCircSegmentSlider->SetRange( 100.0 );
 	m_NumCircSegmentSlider->UpdateGui();
 
 	m_GrowRatioSlider = new SliderInputCombo( ui->growRatioSlider, ui->growRatioInput );
 	m_GrowRatioSlider->SetCallback( staticScreenCB, this );
-	m_GrowRatioSlider->SetLimits( 1.0, 10.0 );
-	m_GrowRatioSlider->SetRange( 1.0 );
+	m_GrowRatioSlider->SetLimits( 1.0, 3.0 );
+	m_GrowRatioSlider->SetRange( 2.0 );
 	m_GrowRatioSlider->UpdateGui();
 
 	m_FarXScaleSlider = new SliderInputCombo( ui->farXSlider, ui->farXInput );
