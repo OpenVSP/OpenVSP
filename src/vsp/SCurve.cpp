@@ -260,7 +260,7 @@ void SCurve::TessIntegrate( int direction, vector< double > &utess)
 
 	int j;
 	// Start at i = 1 because ds for the first step is zero anyway.
-	for ( int i = 1 ; i < num_segs ; i++ )
+	for ( int i = 1 ; i < num_segs - 1; i++ )
 	{
 		if( direction < 0 )
 			j = num_segs - i - 1;
