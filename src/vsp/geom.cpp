@@ -61,6 +61,7 @@ Geom::Geom( Aircraft* aptr ) : GeomBase()
 	parentGeom = 0;
 	fastDrawFlag = 0;
 	displayChildrenFlag = 1;
+	m_WakeActiveFlag = false;
 
 	//===== Set Id String (Time Stamp) =====
 	Timer id_timer;

@@ -53,6 +53,8 @@ public:
 
 	void LoadControlPnts3D( vector< vec3d > & control_pnts );
 
+	void ExtractBorderControlPnts( vector< vec3d > & control_pnts );
+
 	vector< double > GetUTessPnts()						{  return m_UTess; }
 	void Tesselate( vector< double > & u_tess );
 

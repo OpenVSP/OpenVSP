@@ -120,6 +120,8 @@ public:
 	vector < vec3d >& GetSimpPntVec()		{ return simpPntVec; }
 	vector < SimpTri >& GetSimpTriVec()		{ return simpTriVec; }
 
+	void StretchSimpPnts( double start_x, double end_x, double factor );
+
 	void RemoveInteriorTrisEdgesNodes();
 
 	int m_Iteration;

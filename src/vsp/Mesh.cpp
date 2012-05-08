@@ -156,6 +156,23 @@ void Mesh::CondenseSimpTris()
 	}
 }
 
+void Mesh::StretchSimpPnts( double start_x, double end_x, double factor )
+{
+	for ( int i = 0 ; i < (int)simpPntVec.size() ; i++ )
+	{
+		double x = simpPntVec[i].x();
+		if ( x > start_x )
+		{
+			double numer = x-start_x;
+			double fract = numer/(end_x-start_x);
+			x = start_x + numer*(1.0 + factor*fract*fract);
+			simpPntVec[i].set_x( x );
+
+		}
+	} 
+
+}
+
 int Mesh::CheckDupOrAdd( int ind, map< int, vector< int > > & indMap, vector< vec3d > & pntVec )
 {
 	double tol = 0.00000001;

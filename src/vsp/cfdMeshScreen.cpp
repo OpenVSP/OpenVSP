@@ -457,13 +457,13 @@ void CfdMeshScreen::screenCB( Fl_Widget* w )
 		addOutputText( "Reading Surfaces\n");
 		cfdMeshMgrPtr->ReadSurfs( bezTempFile );
 
-		cfdMeshMgrPtr->UpdateSources();
+		cfdMeshMgrPtr->UpdateSourcesAndWakes();
 		addOutputText( "Build Grid\n");
 		cfdMeshMgrPtr->BuildGrid();
 		addOutputText( "Intersect\n");
 		cfdMeshMgrPtr->Intersect();
 		addOutputText( "Finished Intersect\n");
-		cfdMeshMgrPtr->UpdateSources();
+//		cfdMeshMgrPtr->UpdateSourcesAndWakes();
 		addOutputText( "InitMesh\n");
 		cfdMeshMgrPtr->InitMesh();
 		addOutputText( "Remesh\n");
