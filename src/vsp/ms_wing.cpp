@@ -297,6 +297,8 @@ void WingSect::SetDriver(int driver_in)
 //==== Constructor =====//
 Ms_wing_geom::Ms_wing_geom(Aircraft* aptr) : Geom(aptr)
 {
+	m_WakeActiveFlag = true;
+
 	sects.set_chunk_size( 256 );
 	currSect = 0;
 	nextSect = 0;
@@ -3465,3 +3467,29 @@ void Ms_wing_geom::GetInteriorPnts( vector< vec3d > & pVec )
 		pVec.push_back( tp );
     }
 }
+
+
+//==== Append Wake Edges ====//
+void Ms_wing_geom::AppendWakeEdges( vector< vector< vec3d > > & edges )
+{
+	if ( !m_WakeActiveFlag )
+		return;
+
+	int nxs = mwing_surf.get_num_xsecs();
+
+	vector< vec3d > teVec;
+	vector< vec3d > refTeVec;
+	for ( int i = 1 ; i < nxs-1 ; i++ )
+	{
+		vec3d p = mwing_surf.get_pnt( i, 0 );
+		teVec.push_back( p.transform( model_mat ) );
+
+		if ( sym_code != NO_SYM )
+			refTeVec.push_back( (p * sym_vec).transform(reflect_mat) );
+	}
+
+	edges.push_back( teVec );
+	if (sym_code != NO_SYM)
+		edges.push_back( refTeVec );
+}
+

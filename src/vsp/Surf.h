@@ -117,6 +117,9 @@ public:
 	bool BorderCurveMatch( vector< vec3d > & curveA, vector< vec3d > & curveB );
 	bool BorderMatch( Surf* otherSurf );
 
+	void SetWakeFlag( bool flag )					{ m_WakeFlag = flag; }
+	bool GetWakeFlag()								{ return m_WakeFlag; }
+
 	vector< vector< vec3d > > GetControlPnts()		{ return m_Pnts; }
 
 protected:
@@ -130,6 +133,7 @@ protected:
 	double m_MaxU;
 	double m_MaxW;
 
+	bool m_WakeFlag;
 
 	vector< vector< vec3d > > m_Pnts;			// Control Pnts
 

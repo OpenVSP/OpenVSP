@@ -1403,8 +1403,6 @@ void Aircraft::draw()
 	//==== Structures ====//
 	structureMgrPtr->Draw();
 
-
-	cfdMeshMgrPtr->UpdateSources();
 	cfdMeshMgrPtr->Draw();
 
 	feaMeshMgrPtr->Draw();

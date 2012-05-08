@@ -420,16 +420,16 @@ int batchMode(int argc, char *argv[], Aircraft* airPtr)
 			airPtr->write_bezier_file( bezTempFile );
 			cfdMeshMgrPtr->CleanUp();
 			cfdMeshMgrPtr->ReadSurfs( bezTempFile );
-			cfdMeshMgrPtr->UpdateSources();
+			cfdMeshMgrPtr->UpdateSourcesAndWakes();
 			if ( cfdDefaultSourcesFlag )
 			{
 				cfdMeshMgrPtr->AddDefaultSources();
-				cfdMeshMgrPtr->UpdateSources();
+				cfdMeshMgrPtr->UpdateSourcesAndWakes();
 			}
 			cfdMeshMgrPtr->ScaleTriSize( cfdMeshScale );
 			cfdMeshMgrPtr->BuildGrid();
 			cfdMeshMgrPtr->Intersect();
-			cfdMeshMgrPtr->UpdateSources();
+//			cfdMeshMgrPtr->UpdateSourcesAndWakes();
 			cfdMeshMgrPtr->InitMesh();
 			cfdMeshMgrPtr->Remesh( CfdMeshMgr::NO_OUTPUT );
 

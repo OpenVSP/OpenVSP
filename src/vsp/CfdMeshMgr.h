@@ -35,6 +35,64 @@
 using namespace std;
 
 class Aircraft;
+class WakeMgr;
+
+class Wake
+{
+public:
+
+	Wake( WakeMgr* mgr );
+	virtual ~Wake();
+
+	void Draw();
+	void MatchBorderCurve( ICurve* curve );
+	void BuildSurfs();
+	double DistToClosestLeadingEdgePnt( vec3d & p );
+
+	WakeMgr* m_WakeMgrPtr;
+	vector< vec3d > m_LeadingEdge;
+	vector< ICurve* > m_LeadingCurves;
+	vector< Surf* > m_SurfVec;
+
+	int m_CompID;
+
+};
+
+class WakeMgr
+{
+public:
+
+	WakeMgr();
+	virtual ~WakeMgr();
+
+	void ClearWakes();
+
+	void SetLeadingEdges( vector < vector < vec3d > > & wake_leading_edges );
+	void CreateWakesAppendBorderCurves( vector< ICurve* > & border_curves );
+	vector< Surf* > GetWakeSurfs();
+	void AppendWakeSurfs( vector< Surf* > & surf_vec );
+	void StretchWakes();
+
+	void Draw();
+
+ 
+	void SetEndX( double x )						{ m_EndX = x; }
+	void SetStartStretchX( double x )				{ m_StartStretchX = x; }
+	vec3d ComputeTrailEdgePnt( vec3d le_pnt );
+
+
+protected:
+
+	double m_EndX;
+	double m_StartStretchX;
+	double m_Angle;
+	vector< Wake* > m_WakeVec;
+//	vector< ICurve*  > m_ICurveVec;
+
+	vector< vector< vec3d > > m_LeadingEdgeVec;
+
+};
+
 
 //////////////////////////////////////////////////////////////////////
 class CfdMeshMgr
@@ -44,7 +102,8 @@ public:
 	CfdMeshMgr();
 	virtual ~CfdMeshMgr();
 	virtual void CleanUp();
-        virtual void addOutputText( const char* str, int output_type );
+        
+	virtual void addOutputText( const char* str, int output_type );
 
 	virtual void SetAircraftPtr( Aircraft* aptr )			{ aircraftPtr = aptr; }
 
@@ -65,7 +124,7 @@ public:
 	virtual void AdjustAllSourceRad( double mult );
 
 	virtual void AddDefaultSources();
-	virtual void UpdateSources();
+	virtual void UpdateSourcesAndWakes();
 	virtual void ScaleTriSize( double scale );
 
 	virtual void Draw();
@@ -108,6 +167,7 @@ public:
 
 	virtual void IntersectSplitChains();
 	virtual void IntersectYSlicePlane();
+	virtual void IntersectWakes();
 
 	virtual void MergeInteriorChainIPnts();
 
@@ -182,6 +242,9 @@ protected:
 	vector< Surf* > m_SurfVec;
 
 	Surf* m_YSlicePlane;
+
+	//==== Wakes ====//
+	WakeMgr m_WakeMgr;
 
 	vector< ICurve* > m_ICurveVec;
 

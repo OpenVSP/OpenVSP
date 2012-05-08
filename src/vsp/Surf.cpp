@@ -18,6 +18,7 @@ Surf::Surf()
 	m_GridDensityPtr = 0;
 	m_CompID = -1;
 	m_SurfID = -1;
+	m_WakeFlag = false;
 	m_Mesh.SetSurfPtr( this );
 }
 
