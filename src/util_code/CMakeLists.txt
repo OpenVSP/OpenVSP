@@ -19,4 +19,5 @@ tritri.cpp
 util.cpp
 vec2d.cpp
 vec3d.cpp
+vector_util.cpp
 )
