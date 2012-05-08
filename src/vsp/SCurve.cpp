@@ -383,7 +383,7 @@ void SCurve::UWTess()
 	m_UWTess.clear();
 
 	vec3d uw;
-	for ( int i = 0 ; i < m_UTess.size() ; i++ )
+	for ( int i = 0 ; i < (int)m_UTess.size() ; i++ )
 	{
 		double u = m_UTess[i];
 		uw = m_UWCrv.comp_pnt( u );
@@ -410,7 +410,7 @@ void SCurve::BuildEdgeSources( ESCloud &es_cloud, GridDensity* grid_den )
 	vec3d uw = m_UWTess[0];
 	vec3d p0 = m_Surf->CompPnt( uw.x(), uw.y() );
 	vec3d p1;
-	for ( int i = 1 ; i < m_UTess.size() ; i++ )
+	for ( int i = 1 ; i < (int)m_UTess.size() ; i++ )
 	{
 		uw = m_UWTess[i];
 		p1 = m_Surf->CompPnt( uw.x(), uw.y() );
