@@ -31,7 +31,7 @@
 #include <stdio.h>
 #include <math.h>
 
-#include "array.h"
+//#include "array.h"
 #include "array_2d.h"
 #include "vec3d.h"
 #include "vec2d.h"
@@ -62,8 +62,10 @@ protected:
    array_2d<vec3d> pnts_xsecs;
    array_2d<vec3d> hidden_surf;
    array_2d<vec3d> normals;
-   array< double > uArray;
-   array< double > wArray;
+   //..array< double > uArray;
+   //..array< double > wArray;
+   vector< double > uArray;
+   vector< double > wArray;
 
    int refl_pnts_xsecs_code;
    int refl_hidden_code;
@@ -78,8 +80,10 @@ protected:
    vec3d highlight_xsec_color;
 
    //==== Flags to Indicate Tangent Type ====//
-   array< int > pnt_tan_flags;
-   array< int > xsec_tan_flags;
+   //..array< int > pnt_tan_flags;
+   //..array< int > xsec_tan_flags;
+   vector< int > pnt_tan_flags;
+   vector< int > xsec_tan_flags;
 
    bool draw_flag;
 
