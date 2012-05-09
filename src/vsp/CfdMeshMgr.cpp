@@ -884,6 +884,15 @@ void CfdMeshMgr::BuildGrid()
 #endif
 }
 
+void CfdMeshMgr::BuildTargetMap( )
+{
+	int i, j;
+	for ( i = 0 ; i < (int)m_SurfVec.size() ; i++ )
+	{
+		m_SurfVec[i]->BuildTargetMap( &m_GridDensity );
+	}
+}
+
 void CfdMeshMgr::Remesh(int output_type)
 {
 	char str[256];

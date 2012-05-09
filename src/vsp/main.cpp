@@ -428,6 +428,7 @@ int batchMode(int argc, char *argv[], Aircraft* airPtr)
 			}
 			cfdMeshMgrPtr->ScaleTriSize( cfdMeshScale );
 			cfdMeshMgrPtr->BuildGrid();
+			cfdMeshMgrPtr->BuildTargetMap();
 			cfdMeshMgrPtr->Intersect();
 //			cfdMeshMgrPtr->UpdateSourcesAndWakes();
 			cfdMeshMgrPtr->InitMesh();

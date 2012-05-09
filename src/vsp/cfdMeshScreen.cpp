@@ -496,6 +496,8 @@ void CfdMeshScreen::screenCB( Fl_Widget* w )
 		cfdMeshMgrPtr->UpdateSourcesAndWakes();
 		addOutputText( "Build Grid\n");
 		cfdMeshMgrPtr->BuildGrid();
+		addOutputText( "Build Target Map\n");
+		cfdMeshMgrPtr->BuildTargetMap();
 		addOutputText( "Intersect\n");
 		cfdMeshMgrPtr->Intersect();
 		addOutputText( "Finished Intersect\n");

@@ -677,6 +677,10 @@ void FeaMeshMgr::Build()
 	BuildGrid();
 
 	if ( !m_BatchFlag )
+		aircraftPtr->getScreenMgr()->getFeaStructScreen()->addOutputText( "Build Target Map\n" );
+	BuildTargetMap();
+
+	if ( !m_BatchFlag )
 		aircraftPtr->getScreenMgr()->getFeaStructScreen()->addOutputText( "Intersect\n" );
 	Intersect();
 	RemoveSliceSurfaces();
