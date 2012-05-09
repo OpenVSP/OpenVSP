@@ -61,6 +61,8 @@ public:
 
 	void CompCurvature( double u, double w, double& k1, double& k2, double& ka, double& kg );
 	double TargetLen( double u, double w, double gap, double radfrac );
+	void BuildTargetMap( GridDensity* grid_den );
+	double InterpTargetMap( double u, double w );
 
 	static void BlendFuncs(double u, double& F1, double& F2, double& F3, double& F4);
 	static void BlendDerivFuncs(double u, double& F1, double& F2, double& F3, double& F4);
@@ -148,9 +150,8 @@ protected:
 
 	CfdMeshMgr* m_CfdMeshMgr;
 
-	int m_NumDistMapSegs;
-	vector< vector< vec2d > > m_UWMap;
-	vector< vector< vec2d > > m_DistMap;
+	int m_NumMap;
+	vector< vector< double > > m_TargetMap;
 
 	int m_NumWScalePnts;
 	bool m_ScaleUFlag;

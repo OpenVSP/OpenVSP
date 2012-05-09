@@ -20,6 +20,7 @@ Surf::Surf()
 	m_SurfID = -1;
 	m_WakeFlag = false;
 	m_Mesh.SetSurfPtr( this );
+	m_NumMap = 10;
 }
 
 Surf::~Surf()
@@ -401,6 +402,76 @@ double Surf::TargetLen( double u, double w, double gap, double radfrac)
 		len = min( glen, nlen );
 	}
 	return len;
+}
+
+void Surf::BuildTargetMap( GridDensity* grid_den )
+{
+	int npatchu = ( m_NumU - 1 ) / 3;
+	int npatchw = ( m_NumW - 1 ) / 3;
+
+	int nmapu = npatchu * ( m_NumMap - 1 ) + 1;
+	int nmapw = npatchw * ( m_NumMap - 1 ) + 1;
+
+	// Initialize map matrix dimensions
+	m_TargetMap.resize( nmapu );
+	for( int i = 0; i < nmapu ; i++ )
+	{
+		m_TargetMap[i].resize( nmapw );
+	}
+
+	// Loop over surface evaluating source strength and curvature
+	for( int i = 0; i < nmapu ; i++ )
+	{
+		double u = ( 1.0 * i ) / ( m_NumMap - 1 );
+		for( int j = 0; j < nmapw ; j++ )
+		{
+			double w = ( 1.0 * j ) / ( m_NumMap - 1 );
+
+			double len = numeric_limits<double>::max( );
+
+			vec3d p = CompPnt( u, w );
+			double grid_len = grid_den->GetTargetLen( p );
+			len = min( len, grid_len );
+
+			double curv_len = TargetLen( u, w, grid_den->GetMaxGap(), grid_den->GetRadFrac());
+			len = min( len, curv_len );
+
+			// check max and min size as well
+			len = min( len, grid_den->GetBaseLen() );
+			len = max( len, grid_den->GetMinLen() );
+
+			m_TargetMap[i][j] = len;
+		}
+	}
+}
+
+double Surf::InterpTargetMap( double u, double w )
+{
+	int imax = m_TargetMap.size() - 1;
+	double di = u * ( m_NumMap - 1 );
+	int i = (int) di;
+	double fraci = di - i;
+	if( i >= imax )
+	{
+		i = imax - 1;
+		fraci = 1.0;
+	}
+
+	int jmax = m_TargetMap[0].size() - 1;
+	double dj = w * ( m_NumMap - 1 );
+	int j = (int) dj;
+	double fracj = dj - j;
+	if( j >= jmax )
+	{
+		j = jmax - 1;
+		fracj = 1.0;
+	}
+
+	double ti = m_TargetMap[i][j] + fracj * ( m_TargetMap[i][j+1] - m_TargetMap[i][j] );
+	double tip1 = m_TargetMap[i+1][j] + fracj * ( m_TargetMap[i+1][j+1] - m_TargetMap[i+1][j] );
+
+	double t = ti + fraci * ( tip1 - ti );
+	return t;
 }
 
 vec2d Surf::ClosestUW( vec3d & pnt, double guess_u, double guess_w, double guess_del_u, double guess_del_w, double tol )
