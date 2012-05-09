@@ -1145,25 +1145,12 @@ void Mesh::ComputeTargetEdgeLength( Edge* edge )
 	}
 	else
 	{
-
 		vec3d cent = (edge->n0->pnt + edge->n1->pnt)*0.5;
-
-		double grid_len = m_GridDensity->GetTargetLen( cent );
-
 		vec2d uwcent = (edge->n0->uw  + edge->n1->uw )*0.5;
 		vec2d uwc = m_Surf->ClosestUW( cent, uwcent.x(), uwcent.y() );
 
-		double curv_len = m_Surf->TargetLen( uwc.x(), uwc.y(), m_GridDensity->GetMaxGap(), m_GridDensity->GetRadFrac() );
-
-		double tlen = min(curv_len, grid_len);
-
-		edge->target_len = max(tlen, m_GridDensity->GetMinLen() );
+		edge->target_len = m_Surf->InterpTargetMap( uwc.x(), uwc.y() );
 	}
-//	double t0 = m_GridDensity->GetTargetLen( edge->n0->pnt );
-//	double t1 = m_GridDensity->GetTargetLen( edge->n1->pnt );
-////	edge->target_len = (t0 + t1)*0.5;
-//	edge->target_len = min(t0, t1);
-
 }
 
 
