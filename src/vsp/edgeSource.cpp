@@ -19,9 +19,7 @@ void ESCloud::prune_edge_sources( ESTree &es_tree, GridDensity* grid_den )
 	vector<bool> remove (nsrc, false);
 
 	double grm1 = grid_den->GetGrowRatio() - 1.0;
-
-	double rmax = grid_den->GetBaseLen() / ( grid_den->GetGrowRatio() - 1.0 );
-	double r2max = rmax * rmax;
+	double tmin = grid_den->GetMinLen();
 
 	SearchParams params;
 	params.sorted = false;
@@ -33,6 +31,9 @@ void ESCloud::prune_edge_sources( ESTree &es_tree, GridDensity* grid_den )
 
 		ESTreeResults es_matches;
 
+		double rmax = ( localstr - tmin ) / grm1;
+		double r2max = rmax * rmax;
+
 		int nMatches = es_tree.radiusSearch( query_pt, r2max, es_matches, params );
 
 		for ( int j = 0; j < nMatches; j++ )
@@ -42,10 +43,13 @@ void ESCloud::prune_edge_sources( ESTree &es_tree, GridDensity* grid_den )
 
 			double targetstr = sources[imatch].m_str;
 
-			double remotestr = localstr + grm1 * r;
+			double targetlocalstr = targetstr + grm1 * r;
 
-			if( targetstr > remotestr )
-				remove[imatch] = true;
+			if( targetlocalstr < localstr )
+			{
+				remove[i] = true;
+				break;
+			}
 		}
 	}
 
