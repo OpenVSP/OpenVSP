@@ -886,10 +886,20 @@ void CfdMeshMgr::BuildGrid()
 
 void CfdMeshMgr::BuildTargetMap( )
 {
-	int i, j;
+	ESCloud ms_cloud;
+
+	int i;
 	for ( i = 0 ; i < (int)m_SurfVec.size() ; i++ )
 	{
-		m_SurfVec[i]->BuildTargetMap( &m_GridDensity );
+		m_SurfVec[i]->BuildTargetMap( &m_GridDensity, ms_cloud );
+	}
+
+	ESTree ms_tree( 3, ms_cloud, KDTreeSingleIndexAdaptorParams( 10 ) );
+	ms_tree.buildIndex();
+
+	for ( i = 0 ; i < (int)m_SurfVec.size() ; i++ )
+	{
+		m_SurfVec[i]->LimitTargetMap( &m_GridDensity, ms_cloud, ms_tree );
 	}
 }
 

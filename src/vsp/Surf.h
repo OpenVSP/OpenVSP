@@ -17,6 +17,7 @@
 #include "Mesh.h"
 #include "GridDensity.h"
 #include "SurfPatch.h"
+#include "edgeSource.h"
 
 #include <assert.h>
 
@@ -61,7 +62,8 @@ public:
 
 	void CompCurvature( double u, double w, double& k1, double& k2, double& ka, double& kg );
 	double TargetLen( double u, double w, double gap, double radfrac );
-	void BuildTargetMap( GridDensity* grid_den );
+	void BuildTargetMap( GridDensity* grid_den, ESCloud &ms_cloud );
+	void LimitTargetMap( GridDensity* grid_den, ESCloud &ms_cloud, ESTree &ms_tree );
 	double InterpTargetMap( double u, double w );
 
 	static void BlendFuncs(double u, double& F1, double& F2, double& F3, double& F4);

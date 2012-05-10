@@ -404,7 +404,7 @@ double Surf::TargetLen( double u, double w, double gap, double radfrac)
 	return len;
 }
 
-void Surf::BuildTargetMap( GridDensity* grid_den )
+void Surf::BuildTargetMap( GridDensity* grid_den, ESCloud &ms_cloud )
 {
 	int npatchu = ( m_NumU - 1 ) / 3;
 	int npatchw = ( m_NumW - 1 ) / 3;
@@ -441,6 +441,57 @@ void Surf::BuildTargetMap( GridDensity* grid_den )
 			len = max( len, grid_den->GetMinLen() );
 
 			m_TargetMap[i][j] = len;
+
+			EdgeSource ms = EdgeSource( p, len );
+			ms_cloud.sources.push_back( ms );
+		}
+	}
+}
+
+void Surf::LimitTargetMap( GridDensity* grid_den, ESCloud &ms_cloud, ESTree &ms_tree )
+{
+	double grm1 = grid_den->GetGrowRatio() - 1.0;
+
+	double tmin = grid_den->GetMinLen();
+
+	SearchParams params;
+	params.sorted = false;
+
+	int nmapu = m_TargetMap.size();
+	int nmapw = m_TargetMap[0].size();
+
+	// Loop over surface evaluating source strength and curvature
+	for( int i = 0; i < nmapu ; i++ )
+	{
+		double u = ( 1.0 * i ) / ( m_NumMap - 1 );
+		for( int j = 0; j < nmapw ; j++ )
+		{
+			double w = ( 1.0 * j ) / ( m_NumMap - 1 );
+
+			vec3d p = CompPnt( u, w );
+
+			double *query_pt = p.v;
+
+			double t = m_TargetMap[i][j];
+
+			double rmax = ( t - tmin ) / grm1;
+			double r2max = rmax * rmax;
+
+			ESTreeResults ms_matches;
+
+			int nMatches = ms_tree.radiusSearch( query_pt, r2max, ms_matches, params );
+
+			for (int k = 0; k < nMatches; k++ )
+			{
+				int imatch = ms_matches[k].first;
+				double r = sqrt( ms_matches[k].second );
+
+				double str = ms_cloud.sources[imatch].m_str;
+
+				double ts = str + grm1 * r;
+				t = min( t, ts );
+			}
+			m_TargetMap[i][j] = t;
 		}
 	}
 }
