@@ -404,7 +404,7 @@ double Surf::TargetLen( double u, double w, double gap, double radfrac)
 	return len;
 }
 
-void Surf::BuildTargetMap( GridDensity* grid_den, MSCloud &ms_cloud )
+void Surf::BuildTargetMap( MSCloud &ms_cloud )
 {
 	int npatchu = ( m_NumU - 1 ) / 3;
 	int npatchw = ( m_NumW - 1 ) / 3;
@@ -430,15 +430,15 @@ void Surf::BuildTargetMap( GridDensity* grid_den, MSCloud &ms_cloud )
 			double len = numeric_limits<double>::max( );
 
 			vec3d p = CompPnt( u, w );
-			double grid_len = grid_den->GetTargetLen( p );
+			double grid_len = m_GridDensityPtr->GetTargetLen( p );
 			len = min( len, grid_len );
 
-			double curv_len = TargetLen( u, w, grid_den->GetMaxGap(), grid_den->GetRadFrac());
+			double curv_len = TargetLen( u, w, m_GridDensityPtr->GetMaxGap(), m_GridDensityPtr->GetRadFrac());
 			len = min( len, curv_len );
 
 			// check max and min size as well
-			len = min( len, grid_den->GetBaseLen() );
-			len = max( len, grid_den->GetMinLen() );
+			len = min( len, m_GridDensityPtr->GetBaseLen() );
+			len = max( len, m_GridDensityPtr->GetMinLen() );
 
 			m_TargetMap[i][j] = len;
 
@@ -448,11 +448,11 @@ void Surf::BuildTargetMap( GridDensity* grid_den, MSCloud &ms_cloud )
 	}
 }
 
-void Surf::LimitTargetMap( GridDensity* grid_den, MSCloud &ms_cloud, MSTree &ms_tree )
+void Surf::LimitTargetMap( MSCloud &ms_cloud, MSTree &ms_tree )
 {
-	double grm1 = grid_den->GetGrowRatio() - 1.0;
+	double grm1 = m_GridDensityPtr->GetGrowRatio() - 1.0;
 
-	double tmin = grid_den->GetMinLen();
+	double tmin = m_GridDensityPtr->GetMinLen();
 
 	SearchParams params;
 	params.sorted = false;

@@ -891,7 +891,7 @@ void CfdMeshMgr::BuildTargetMap( )
 	int i;
 	for ( i = 0 ; i < (int)m_SurfVec.size() ; i++ )
 	{
-		m_SurfVec[i]->BuildTargetMap( &m_GridDensity, ms_cloud );
+		m_SurfVec[i]->BuildTargetMap( ms_cloud );
 	}
 
 	MSTree ms_tree( 3, ms_cloud, KDTreeSingleIndexAdaptorParams( 10 ) );
@@ -899,7 +899,7 @@ void CfdMeshMgr::BuildTargetMap( )
 
 	for ( i = 0 ; i < (int)m_SurfVec.size() ; i++ )
 	{
-		m_SurfVec[i]->LimitTargetMap( &m_GridDensity, ms_cloud, ms_tree );
+		m_SurfVec[i]->LimitTargetMap( ms_cloud, ms_tree );
 	}
 }
 
