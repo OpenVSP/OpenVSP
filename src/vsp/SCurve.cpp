@@ -414,9 +414,10 @@ void SCurve::BuildEdgeSources( MSCloud &es_cloud, GridDensity* grid_den )
 		double d = dist( p0, p1 );
 		vec3d p = ( p1 + p0 ) * 0.5;
 
-		double str = d * edgeadjust;
+		double *strptr = new double;
+		*strptr = d * edgeadjust;
 
-		MapSource es = MapSource( p, str );
+		MapSource es = MapSource( p, strptr );
 
 		es_cloud.sources.push_back( es );
 
@@ -453,7 +454,7 @@ void SCurve::ApplyEdgeSources( MSTree &es_tree, MSCloud &es_cloud, GridDensity* 
 			int imatch = es_matches[j].first;
 			double r = sqrt( es_matches[j].second );
 
-			double str = es_cloud.sources[imatch].m_str;
+			double str = *( es_cloud.sources[imatch].m_strptr );
 
 			double ts = str + grm1 * r;
 			t = min( t, ts );

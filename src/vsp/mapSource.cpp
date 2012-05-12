@@ -27,7 +27,7 @@ void MSCloud::prune_edge_sources( MSTree &es_tree, GridDensity* grid_den )
 	for ( int i = 0 ; i < nsrc ; i++ )
 	{
 		double *query_pt = sources[i].m_pt.v;
-		double localstr = sources[i].m_str;
+		double localstr = *( sources[i].m_strptr );
 
 		MSTreeResults es_matches;
 
@@ -41,7 +41,7 @@ void MSCloud::prune_edge_sources( MSTree &es_tree, GridDensity* grid_den )
 			int imatch = es_matches[j].first;
 			double r = sqrt( es_matches[j].second );
 
-			double targetstr = sources[imatch].m_str;
+			double targetstr = *( sources[imatch].m_strptr );
 
 			double targetlocalstr = targetstr + grm1 * r;
 
@@ -63,4 +63,14 @@ void MSCloud::prune_edge_sources( MSTree &es_tree, GridDensity* grid_den )
 	}
 
 	sources.swap( new_sources );
+}
+
+void MSCloud::free_strengths()
+{
+	int nsrc = sources.size();
+	for ( int i = 0 ; i < nsrc ; i++ )
+	{
+		double *strptr = sources[i].m_strptr;
+		delete strptr;
+	}
 }

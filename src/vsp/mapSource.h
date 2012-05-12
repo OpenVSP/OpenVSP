@@ -38,14 +38,14 @@ typedef vector< pair< size_t, double > > MSTreeResults;
 
 struct MapSource
 {
-	MapSource( vec3d pt, double str )
+	MapSource( vec3d pt, double *strptr )
 	{
 		m_pt = pt;
-		m_str = str;
+		m_strptr = strptr;
 	};
 
 	vec3d m_pt;
-	double m_str;
+	double *m_strptr;
 };
 
 // The data source fed into the KD-tree library must adhere to an interface.  The following
@@ -85,6 +85,7 @@ struct MSCloud
 	bool kdtree_get_bbox(BBOX &bb) const { return false; }
 
 	void prune_edge_sources( MSTree &es_tree, GridDensity* grid_den );
+	void free_strengths();
 
 };
 

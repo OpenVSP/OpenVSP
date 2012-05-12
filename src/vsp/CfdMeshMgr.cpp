@@ -2454,6 +2454,8 @@ void CfdMeshMgr::TessellateChains(GridDensity* grid_density)
 		(*c)->ApplyTess();
 	}
 
+	es_cloud.free_strengths();
+
 	////==== Check for Zero Length Chains ====//
 	//for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
 	//{

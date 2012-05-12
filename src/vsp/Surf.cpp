@@ -442,7 +442,7 @@ void Surf::BuildTargetMap( GridDensity* grid_den, MSCloud &ms_cloud )
 
 			m_TargetMap[i][j] = len;
 
-			MapSource ms = MapSource( p, len );
+			MapSource ms = MapSource( p, &( m_TargetMap[i][j] ) );
 			ms_cloud.sources.push_back( ms );
 		}
 	}
@@ -486,7 +486,7 @@ void Surf::LimitTargetMap( GridDensity* grid_den, MSCloud &ms_cloud, MSTree &ms_
 				int imatch = ms_matches[k].first;
 				double r = sqrt( ms_matches[k].second );
 
-				double str = ms_cloud.sources[imatch].m_str;
+				double str = *( ms_cloud.sources[imatch].m_strptr );
 
 				double ts = str + grm1 * r;
 				t = min( t, ts );
