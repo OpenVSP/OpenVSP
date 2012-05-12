@@ -27,6 +27,9 @@
 
 #include "nanoflann.hpp"
 
+#include <vector>
+using namespace std;
+
 using namespace nanoflann;
 
 struct MapSource;
@@ -42,10 +45,12 @@ struct MapSource
 	{
 		m_pt = pt;
 		m_strptr = strptr;
+		m_dominated = false;
 	};
 
 	vec3d m_pt;
 	double *m_strptr;
+	bool m_dominated;
 };
 
 // The data source fed into the KD-tree library must adhere to an interface.  The following
@@ -84,7 +89,9 @@ struct MSCloud
 	template <class BBOX>
 	bool kdtree_get_bbox(BBOX &bb) const { return false; }
 
-	void prune_edge_sources( MSTree &es_tree, GridDensity* grid_den );
+	void sort();
+	void LimitTargetMap( MSTree &ms_tree, GridDensity* grid_den );
+	void prune_map_sources( MSTree &es_tree, GridDensity* grid_den );
 	void free_strengths();
 
 };

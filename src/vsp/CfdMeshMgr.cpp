@@ -894,13 +894,12 @@ void CfdMeshMgr::BuildTargetMap( )
 		m_SurfVec[i]->BuildTargetMap( ms_cloud );
 	}
 
+    ms_cloud.sort();
+
 	MSTree ms_tree( 3, ms_cloud, KDTreeSingleIndexAdaptorParams( 10 ) );
 	ms_tree.buildIndex();
 
-	for ( i = 0 ; i < (int)m_SurfVec.size() ; i++ )
-	{
-		m_SurfVec[i]->LimitTargetMap( ms_cloud, ms_tree );
-	}
+    ms_cloud.LimitTargetMap( ms_tree, &m_GridDensity );
 }
 
 void CfdMeshMgr::Remesh(int output_type)
@@ -2440,7 +2439,7 @@ void CfdMeshMgr::TessellateChains( )
 	es_tree.buildIndex();
 
 	// Prune sources which have no effect because other nearby sources are smaller.
-	es_cloud.prune_edge_sources( es_tree, &m_GridDensity );
+	es_cloud.prune_map_sources( es_tree, &m_GridDensity );
 	es_tree.buildIndex();
 
 	// This loop is split due to the construction of the edge source vectors.
