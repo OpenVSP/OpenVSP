@@ -47,7 +47,6 @@ curveEditScreen.cpp
 drawBase.cpp
 ductGeom.cpp
 ductScreen.cpp
-edgeSource.cpp
 editCurve.cpp
 engineGeom.cpp
 engineScreen.cpp
@@ -79,6 +78,7 @@ ISegChain.cpp
 labelGeom.cpp
 labelScreen.cpp
 main.cpp
+mapSource.cpp
 materialMgr.cpp
 Mesh.cpp
 meshGeom.cpp

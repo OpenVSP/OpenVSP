@@ -394,7 +394,7 @@ void SCurve::CalcDensity( GridDensity* grid_den, SCurve* BCurve )
 	LimitTarget( grid_den );
 }
 
-void SCurve::BuildEdgeSources( ESCloud &es_cloud, GridDensity* grid_den )
+void SCurve::BuildEdgeSources( MSCloud &es_cloud, GridDensity* grid_den )
 {
 	// Tesselate curve using baseline density.
 	TessIntegrate();
@@ -416,7 +416,7 @@ void SCurve::BuildEdgeSources( ESCloud &es_cloud, GridDensity* grid_den )
 
 		double str = d * edgeadjust;
 
-		EdgeSource es = EdgeSource( p, str );
+		MapSource es = MapSource( p, str );
 
 		es_cloud.sources.push_back( es );
 
@@ -427,7 +427,7 @@ void SCurve::BuildEdgeSources( ESCloud &es_cloud, GridDensity* grid_den )
 	m_UWTess.clear();
 }
 
-void SCurve::ApplyEdgeSources( ESTree &es_tree, ESCloud &es_cloud, GridDensity* grid_den )
+void SCurve::ApplyEdgeSources( MSTree &es_tree, MSCloud &es_cloud, GridDensity* grid_den )
 {
 	double grm1 = grid_den->GetGrowRatio() - 1.0;
 
@@ -444,7 +444,7 @@ void SCurve::ApplyEdgeSources( ESTree &es_tree, ESCloud &es_cloud, GridDensity* 
 
 		double *query_pt = p1.v;
 
-		ESTreeResults es_matches;
+		MSTreeResults es_matches;
 
 		int nMatches = es_tree.radiusSearch( query_pt, r2max, es_matches, params );
 
@@ -462,7 +462,7 @@ void SCurve::ApplyEdgeSources( ESTree &es_tree, ESCloud &es_cloud, GridDensity* 
 	}
 }
 
-void SCurve::Tesselate( ESTree &es_tree, ESCloud &es_cloud, GridDensity* grid_den )
+void SCurve::Tesselate( MSTree &es_tree, MSCloud &es_cloud, GridDensity* grid_den )
 {
 	ApplyEdgeSources( es_tree, es_cloud, grid_den );
 

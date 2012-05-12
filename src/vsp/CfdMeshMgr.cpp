@@ -886,7 +886,7 @@ void CfdMeshMgr::BuildGrid()
 
 void CfdMeshMgr::BuildTargetMap( )
 {
-	ESCloud ms_cloud;
+	MSCloud ms_cloud;
 
 	int i;
 	for ( i = 0 ; i < (int)m_SurfVec.size() ; i++ )
@@ -894,7 +894,7 @@ void CfdMeshMgr::BuildTargetMap( )
 		m_SurfVec[i]->BuildTargetMap( &m_GridDensity, ms_cloud );
 	}
 
-	ESTree ms_tree( 3, ms_cloud, KDTreeSingleIndexAdaptorParams( 10 ) );
+	MSTree ms_tree( 3, ms_cloud, KDTreeSingleIndexAdaptorParams( 10 ) );
 	ms_tree.buildIndex();
 
 	for ( i = 0 ; i < (int)m_SurfVec.size() ; i++ )
@@ -2426,7 +2426,7 @@ void CfdMeshMgr::MergeInteriorChainIPnts()
 
 void CfdMeshMgr::TessellateChains(GridDensity* grid_density)
 {
-	ESCloud es_cloud;
+	MSCloud es_cloud;
 
 	//==== Tessellate Chains ====//
 	list< ISegChain* >::iterator c;
@@ -2436,7 +2436,7 @@ void CfdMeshMgr::TessellateChains(GridDensity* grid_density)
 		(*c)->CalcDensityBuildES( es_cloud, grid_density );
 	}
 
-	ESTree es_tree( 3, es_cloud, KDTreeSingleIndexAdaptorParams( 10 ) );
+	MSTree es_tree( 3, es_cloud, KDTreeSingleIndexAdaptorParams( 10 ) );
 	es_tree.buildIndex();
 
 	// Prune sources which have no effect because other nearby sources are smaller.

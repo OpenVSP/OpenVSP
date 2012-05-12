@@ -5,14 +5,14 @@
 
 //******************************************************************************
 //
-//   Edge Source and KD-Tree
+//   Map Source and KD-Tree
 //
 //   Rob McDonald 4/4/12
 //
 //******************************************************************************
 
-#ifndef EDGESOURCE_H
-#define EDGESOURCE_H
+#ifndef MAPSOURCE_H
+#define MAPSOURCE_H
 
 #include "vec3d.h"
 #include "GridDensity.h"
@@ -29,16 +29,16 @@
 
 using namespace nanoflann;
 
-struct EdgeSource;
-struct ESCloud;
+struct MapSource;
+struct MSCloud;
 
-typedef KDTreeSingleIndexAdaptor< L2_Simple_Adaptor< double, ESCloud > ,ESCloud, 3 > ESTree;
+typedef KDTreeSingleIndexAdaptor< L2_Simple_Adaptor< double, MSCloud > ,MSCloud, 3 > MSTree;
 
-typedef vector< pair< size_t, double > > ESTreeResults;
+typedef vector< pair< size_t, double > > MSTreeResults;
 
-struct EdgeSource
+struct MapSource
 {
-	EdgeSource( vec3d pt, double str )
+	MapSource( vec3d pt, double str )
 	{
 		m_pt = pt;
 		m_str = str;
@@ -51,10 +51,10 @@ struct EdgeSource
 // The data source fed into the KD-tree library must adhere to an interface.  The following
 // struct implements that interface for the edge source kd-tree.
 
-struct ESCloud
+struct MSCloud
 {
 	// Underlying storage a vector.
-	vector< EdgeSource > sources;
+	vector< MapSource > sources;
 
 	// Must return the number of data points
 	inline size_t kdtree_get_point_count() const { return sources.size(); }
@@ -84,7 +84,7 @@ struct ESCloud
 	template <class BBOX>
 	bool kdtree_get_bbox(BBOX &bb) const { return false; }
 
-	void prune_edge_sources( ESTree &es_tree, GridDensity* grid_den );
+	void prune_edge_sources( MSTree &es_tree, GridDensity* grid_den );
 
 };
 

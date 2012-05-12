@@ -18,7 +18,7 @@
 #include "vec2d.h"
 #include "vec3d.h"
 
-#include "edgeSource.h"
+#include "mapSource.h"
 
 #include <assert.h>
 
@@ -54,9 +54,9 @@ public:
 	void SmoothTess();
 	void UWTess();
 	void CalcDensity( GridDensity* grid_den, SCurve* BCurve );
-	void BuildEdgeSources( ESCloud &es_cloud, GridDensity* grid_den );
-	void ApplyEdgeSources( ESTree &es_tree, ESCloud &es_cloud, GridDensity* grid_den );
-	void Tesselate( ESTree &es_tree, ESCloud &es_cloud, GridDensity* grid_den );
+	void BuildEdgeSources( MSCloud &es_cloud, GridDensity* grid_den );
+	void ApplyEdgeSources( MSTree &es_tree, MSCloud &es_cloud, GridDensity* grid_den );
+	void Tesselate( MSTree &es_tree, MSCloud &es_cloud, GridDensity* grid_den );
 	void Tesselate( vector< vec3d > & target_pnts );
 
 	void SetBezierControlPnts( vector< vec3d > & pnts );

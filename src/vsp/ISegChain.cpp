@@ -1098,13 +1098,13 @@ void ISegChain::ApplyTess( )
 //printf("Tess Chain Size = %d %f\n", m_TessVec.size(), d );
 }
 
-void ISegChain::CalcDensityBuildES( ESCloud &es_cloud, GridDensity* grid_den )
+void ISegChain::CalcDensityBuildES( MSCloud &es_cloud, GridDensity* grid_den )
 {
 	m_ACurve.CalcDensity( grid_den, &m_BCurve );
 	m_ACurve.BuildEdgeSources( es_cloud, grid_den );
 }
 
-void ISegChain::Tessellate( ESTree &es_tree, ESCloud &es_cloud, GridDensity* grid_den )
+void ISegChain::Tessellate( MSTree &es_tree, MSCloud &es_cloud, GridDensity* grid_den )
 {
 	m_ACurve.Tesselate( es_tree, es_cloud, grid_den );
 }

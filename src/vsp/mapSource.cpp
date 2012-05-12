@@ -5,15 +5,15 @@
 
 //******************************************************************************
 //
-//   Edge Source and KD-Tree
+//   Map Source and KD-Tree
 //
 //   Rob McDonald 4/4/12
 //
 //******************************************************************************
 
-#include "edgeSource.h"
+#include "mapSource.h"
 
-void ESCloud::prune_edge_sources( ESTree &es_tree, GridDensity* grid_den )
+void MSCloud::prune_edge_sources( MSTree &es_tree, GridDensity* grid_den )
 {
 	int nsrc = sources.size();
 	vector<bool> remove (nsrc, false);
@@ -29,7 +29,7 @@ void ESCloud::prune_edge_sources( ESTree &es_tree, GridDensity* grid_den )
 		double *query_pt = sources[i].m_pt.v;
 		double localstr = sources[i].m_str;
 
-		ESTreeResults es_matches;
+		MSTreeResults es_matches;
 
 		double rmax = ( localstr - tmin ) / grm1;
 		double r2max = rmax * rmax;
@@ -53,7 +53,7 @@ void ESCloud::prune_edge_sources( ESTree &es_tree, GridDensity* grid_den )
 		}
 	}
 
-	vector< EdgeSource > new_sources;
+	vector< MapSource > new_sources;
 	new_sources.reserve( nsrc );
 
 	for ( int i = 0 ; i < nsrc ; i++ )

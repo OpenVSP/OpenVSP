@@ -404,7 +404,7 @@ double Surf::TargetLen( double u, double w, double gap, double radfrac)
 	return len;
 }
 
-void Surf::BuildTargetMap( GridDensity* grid_den, ESCloud &ms_cloud )
+void Surf::BuildTargetMap( GridDensity* grid_den, MSCloud &ms_cloud )
 {
 	int npatchu = ( m_NumU - 1 ) / 3;
 	int npatchw = ( m_NumW - 1 ) / 3;
@@ -442,13 +442,13 @@ void Surf::BuildTargetMap( GridDensity* grid_den, ESCloud &ms_cloud )
 
 			m_TargetMap[i][j] = len;
 
-			EdgeSource ms = EdgeSource( p, len );
+			MapSource ms = MapSource( p, len );
 			ms_cloud.sources.push_back( ms );
 		}
 	}
 }
 
-void Surf::LimitTargetMap( GridDensity* grid_den, ESCloud &ms_cloud, ESTree &ms_tree )
+void Surf::LimitTargetMap( GridDensity* grid_den, MSCloud &ms_cloud, MSTree &ms_tree )
 {
 	double grm1 = grid_den->GetGrowRatio() - 1.0;
 
@@ -477,7 +477,7 @@ void Surf::LimitTargetMap( GridDensity* grid_den, ESCloud &ms_cloud, ESTree &ms_
 			double rmax = ( t - tmin ) / grm1;
 			double r2max = rmax * rmax;
 
-			ESTreeResults ms_matches;
+			MSTreeResults ms_matches;
 
 			int nMatches = ms_tree.radiusSearch( query_pt, r2max, ms_matches, params );
 
