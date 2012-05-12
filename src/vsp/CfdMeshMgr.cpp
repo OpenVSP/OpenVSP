@@ -1931,7 +1931,7 @@ void CfdMeshMgr::InitMesh()
 	#endif
 
 	if ( PrintProgress )	printf("TessellateChains\n");
-	TessellateChains( &m_GridDensity );
+	TessellateChains( );
 
 //DebugWriteChains( "Tess_UW", true );
 
@@ -2424,7 +2424,7 @@ void CfdMeshMgr::MergeInteriorChainIPnts()
 	}
 }
 
-void CfdMeshMgr::TessellateChains(GridDensity* grid_density)
+void CfdMeshMgr::TessellateChains( )
 {
 	MSCloud es_cloud;
 
@@ -2433,14 +2433,14 @@ void CfdMeshMgr::TessellateChains(GridDensity* grid_density)
 	for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
 	{
 		(*c)->BuildCurves();
-		(*c)->CalcDensityBuildES( es_cloud, grid_density );
+		(*c)->CalcDensityBuildES( es_cloud, &m_GridDensity );
 	}
 
 	MSTree es_tree( 3, es_cloud, KDTreeSingleIndexAdaptorParams( 10 ) );
 	es_tree.buildIndex();
 
 	// Prune sources which have no effect because other nearby sources are smaller.
-	es_cloud.prune_edge_sources( es_tree, grid_density );
+	es_cloud.prune_edge_sources( es_tree, &m_GridDensity );
 	es_tree.buildIndex();
 
 	// This loop is split due to the construction of the edge source vectors.
@@ -2448,7 +2448,7 @@ void CfdMeshMgr::TessellateChains(GridDensity* grid_density)
 
 	for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
 	{
-		(*c)->Tessellate( es_tree, es_cloud, grid_density);
+		(*c)->Tessellate( es_tree, es_cloud, &m_GridDensity );
 
 		(*c)->TransferTess();
 		(*c)->ApplyTess();

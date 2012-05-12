@@ -175,7 +175,7 @@ public:
 	virtual void SplitBorderCurves();
 	virtual void MergeBorderEndPoints();
 	virtual void MergeIPntGroups( list< IPntGroup* > & iPntGroupList, double tol );
-	virtual void TessellateChains( GridDensity* grid_density );
+	virtual void TessellateChains( );
 	virtual void BuildMesh();
 	virtual void BuildTargetMap( );
 	virtual void RemoveInteriorTris();

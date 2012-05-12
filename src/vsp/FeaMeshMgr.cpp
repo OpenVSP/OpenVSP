@@ -769,7 +769,7 @@ void FeaMeshMgr::Intersect()
 	IntersectSplitChains();
 //DebugWriteChains("IntersectSplit_UW", false );
 
-	TessellateChains( &m_GridDensity );
+	TessellateChains( );
 //DebugWriteChains("Tess_UW", true );
 
 	MergeBorderEndPoints();
