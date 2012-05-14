@@ -411,11 +411,12 @@ void SCurve::BuildEdgeSources( MSCloud &es_cloud, GridDensity* grid_den )
 		uw = m_UWTess[i];
 		p1 = m_Surf->CompPnt( uw.x(), uw.y() );
 
-		double d = dist( p0, p1 );
+		double d = dist( p0, p1 ) * edgeadjust;
+		d = max( d, grid_den->GetMinLen() );
 		vec3d p = ( p1 + p0 ) * 0.5;
 
 		double *strptr = new double;
-		*strptr = d * edgeadjust;
+		*strptr = d;
 
 		MapSource es = MapSource( p, strptr );
 
