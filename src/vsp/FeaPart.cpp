@@ -797,6 +797,9 @@ void FeaSlice::FindUpperLowerPoints()
 	MatchUpperLowerPnts( upper_pnts, lower_pnts );
 }
 
+// This function does not account for the curvature based meshing as incorporated
+// in the surface mesh density map.  This does not appear to cause any problems,
+// but may be an issue down the road.
 int FeaSlice::ComputeNumDivisions()
 {
 	//==== Find Max Number of Elements Needed ====//

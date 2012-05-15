@@ -172,6 +172,9 @@ double IPntGroup::GroupDist( IPntGroup* g )
 	return dist( p0, p1 );
 }
 
+// This function is un-used, but it is left here in case it may be used at a later time.
+// At such time, it should be updated to use the surface density map rather than only the
+// mesh density sources.
 double IPntGroup::GroupDistFract( IPntGroup* g )
 {
 	double d = GroupDist( g );
