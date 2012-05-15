@@ -187,6 +187,7 @@ public:
 
 	void CalcDensityBuildES( MSCloud &es_cloud, GridDensity* grid_den );
 	void Tessellate( MSTree &es_tree, MSCloud &es_cloud, GridDensity* grid_den );
+	void TessEndPts();
 
 	void BuildBoxes();
 

@@ -1109,6 +1109,11 @@ void ISegChain::Tessellate( MSTree &es_tree, MSCloud &es_cloud, GridDensity* gri
 	m_ACurve.Tesselate( es_tree, es_cloud, grid_den );
 }
 
+void ISegChain::TessEndPts()
+{
+	m_ACurve.TessEndPts();
+}
+
 void ISegChain::Draw()
 {
 	//glBegin( GL_LINES );

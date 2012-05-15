@@ -265,6 +265,15 @@ void SCurve::LimitTarget( GridDensity* grid_den )
 	}
 }
 
+void SCurve::TessEndPts()
+{
+	m_UTess.clear();
+	m_UTess.push_back( 0.0 );
+	m_UTess.push_back( 1.0 );
+
+	UWTess();
+}
+
 void SCurve::TessIntegrate()
 {
 	vector<double> utess;
