@@ -45,6 +45,16 @@ void MSCloud::LimitTargetMap( MSTree &ms_tree, GridDensity* grid_den )
 
 			MSTreeResults ms_matches;
 
+// Ensuring that tmax matches the actual maximum source strength will minimize the search
+// radius required to check if this source is dominated.  Unfortunately, setting tmax
+// requires checking all remaining sources every time.  In some cases, uncommenting the
+// following three lines significantly sped up this routine.  In other cases, it significantly
+// slowed it down.
+//
+//			tmax = localstr;
+//			for ( int j = i + 1; j < nsrc; j++ )
+//				tmax = max( tmax, *( sources[j].m_strptr ) );
+
 			double rmax = ( tmax - localstr ) / grm1;
 			double r2max = rmax * rmax;
 
