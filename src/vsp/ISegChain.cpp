@@ -1098,9 +1098,9 @@ void ISegChain::ApplyTess( )
 //printf("Tess Chain Size = %d %f\n", m_TessVec.size(), d );
 }
 
-void ISegChain::CalcDensity( MSCloud &es_cloud, GridDensity* grid_den )
+double ISegChain::CalcDensity( MSCloud &es_cloud, GridDensity* grid_den )
 {
-	m_ACurve.CalcDensity( grid_den, &m_BCurve );
+	return m_ACurve.CalcDensity( grid_den, &m_BCurve );
 }
 
 void ISegChain::BuildES( MSCloud &es_cloud, GridDensity* grid_den )

@@ -396,11 +396,13 @@ void SCurve::UWTess()
 	}
 }
 
-void SCurve::CalcDensity( GridDensity* grid_den, SCurve* BCurve )
+double SCurve::CalcDensity( GridDensity* grid_den, SCurve* BCurve )
 {
 	BuildDistTable( grid_den, BCurve );
 
 	LimitTarget( grid_den );
+
+	return target_vec[0];
 }
 
 void SCurve::BuildEdgeSources( MSCloud &es_cloud, GridDensity* grid_den )
