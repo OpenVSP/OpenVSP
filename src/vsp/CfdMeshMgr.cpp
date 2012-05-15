@@ -2523,7 +2523,8 @@ void CfdMeshMgr::TessellateChains( )
 			printf("Zero Length Chain\n");
 		}
 
-		(*c)->CalcDensityBuildES( es_cloud, &m_GridDensity );
+		(*c)->CalcDensity( es_cloud, &m_GridDensity );
+		(*c)->BuildES( es_cloud, &m_GridDensity );
 	}
 
 	MSTree es_tree( 3, es_cloud, KDTreeSingleIndexAdaptorParams( 10 ) );
