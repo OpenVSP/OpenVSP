@@ -2517,16 +2517,12 @@ void CfdMeshMgr::TessellateChains( )
 		(*c)->TransferTess();
 		(*c)->ApplyTess();
 
-		(*c)->CalcDensity( es_cloud, &m_GridDensity );
+		double t = (*c)->CalcDensity( es_cloud, &m_GridDensity );
 
 		double d = dist( (*c)->m_TessVec.front()->m_Pnt, (*c)->m_TessVec.back()->m_Pnt );
-		if ( d > 0.005 )
+		if ( d > 0.7 * t )
 		{
 			(*c)->BuildES( es_cloud, &m_GridDensity );
-		}
-		else
-		{
-			printf("Zero Length Chain: %g\n", d);
 		}
 	}
 
