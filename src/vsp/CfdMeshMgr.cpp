@@ -2544,6 +2544,11 @@ void CfdMeshMgr::TessellateChains( )
 		(*c)->ApplyTess();
 	}
 
+	for ( int i = 0 ; i < (int)m_SurfVec.size() ; i++ )
+	{
+		m_SurfVec[i]->LimitTargetMap( es_cloud, es_tree );
+	}
+
 	es_cloud.free_strengths();
 
 	////==== Check for Zero Length Chains ====//
