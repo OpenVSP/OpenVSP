@@ -185,7 +185,7 @@ public:
 	void TransferTess();
 	void ApplyTess();
 
-	double CalcDensity( MSCloud &es_cloud, GridDensity* grid_den );
+	double CalcDensity( GridDensity* grid_den );
 	void BuildES( MSCloud &es_cloud, GridDensity* grid_den );
 	void Tessellate( MSTree &es_tree, MSCloud &es_cloud, GridDensity* grid_den );
 	void TessEndPts();

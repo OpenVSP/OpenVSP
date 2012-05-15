@@ -2517,7 +2517,7 @@ void CfdMeshMgr::TessellateChains( )
 		(*c)->TransferTess();
 		(*c)->ApplyTess();
 
-		double t = (*c)->CalcDensity( es_cloud, &m_GridDensity );
+		double t = (*c)->CalcDensity( &m_GridDensity );
 
 		double d = dist( (*c)->m_TessVec.front()->m_Pnt, (*c)->m_TessVec.back()->m_Pnt );
 		if ( d > 0.7 * t )
