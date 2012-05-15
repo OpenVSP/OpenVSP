@@ -2517,14 +2517,17 @@ void CfdMeshMgr::TessellateChains( )
 		(*c)->TransferTess();
 		(*c)->ApplyTess();
 
-		double d = dist( (*c)->m_TessVec.front()->m_Pnt, (*c)->m_TessVec.back()->m_Pnt );
-		if ( d < 0.001 )
-		{
-			printf("Zero Length Chain\n");
-		}
-
 		(*c)->CalcDensity( es_cloud, &m_GridDensity );
-		(*c)->BuildES( es_cloud, &m_GridDensity );
+
+		double d = dist( (*c)->m_TessVec.front()->m_Pnt, (*c)->m_TessVec.back()->m_Pnt );
+		if ( d > 0.005 )
+		{
+			(*c)->BuildES( es_cloud, &m_GridDensity );
+		}
+		else
+		{
+			printf("Zero Length Chain: %g\n", d);
+		}
 	}
 
 	MSTree es_tree( 3, es_cloud, KDTreeSingleIndexAdaptorParams( 10 ) );
