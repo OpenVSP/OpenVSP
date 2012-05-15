@@ -2511,7 +2511,6 @@ void CfdMeshMgr::TessellateChains( )
 	for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
 	{
 		(*c)->BuildCurves();
-		(*c)->CalcDensityBuildES( es_cloud, &m_GridDensity );
 
 		(*c)->TessEndPts();
 
@@ -2523,6 +2522,8 @@ void CfdMeshMgr::TessellateChains( )
 		{
 			printf("Zero Length Chain\n");
 		}
+
+		(*c)->CalcDensityBuildES( es_cloud, &m_GridDensity );
 	}
 
 	MSTree es_tree( 3, es_cloud, KDTreeSingleIndexAdaptorParams( 10 ) );
