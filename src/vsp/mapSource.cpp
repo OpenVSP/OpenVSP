@@ -31,6 +31,15 @@ void MSCloud::LimitTargetMap( MSTree &ms_tree, GridDensity* grid_den )
 	double tmin = grid_den->GetMinLen();
 	double tmax = *( sources[ nsrc - 1 ].m_strptr );
 
+	int nmax = 0;
+
+	for ( int i = 0 ; i < nsrc ; i++ )
+	{
+		if ( *( sources[i].m_strptr ) == tmax )
+			nmax++;
+	}
+
+
 	SearchParams params;
 	params.sorted = false;
 
@@ -45,15 +54,24 @@ void MSCloud::LimitTargetMap( MSTree &ms_tree, GridDensity* grid_den )
 
 			MSTreeResults ms_matches;
 
-// Ensuring that tmax matches the actual maximum source strength will minimize the search
-// radius required to check if this source is dominated.  Unfortunately, setting tmax
-// requires checking all remaining sources every time.  In some cases, uncommenting the
-// following three lines significantly sped up this routine.  In other cases, it significantly
-// slowed it down.
-//
-//			tmax = localstr;
-//			for ( int j = i + 1; j < nsrc; j++ )
-//				tmax = max( tmax, *( sources[j].m_strptr ) );
+			if( nmax <= 0 )
+			{
+				tmax = localstr;
+				nmax = 1;
+				for ( int j = i + 1; j < nsrc; j++ )
+				{
+					double tj = *( sources[j].m_strptr );
+					if( tj > tmax)
+					{
+						tmax = tj;
+						nmax = 1;
+					}
+					else if( tj == tmax )
+					{
+						nmax++;
+					}
+				}
+			}
 
 			double rmax = ( tmax - localstr ) / grm1;
 			double r2max = rmax * rmax;
@@ -69,8 +87,11 @@ void MSCloud::LimitTargetMap( MSTree &ms_tree, GridDensity* grid_den )
 
 				double targetstr = *( sources[imatch].m_strptr );
 
-				if( targetstr >= (remotestr - 1e-8) )
+				if( targetstr >= remotestr )
 				{
+					if( targetstr == tmax )
+						nmax--;
+
 					*( sources[imatch].m_strptr ) = remotestr;
 					sources[imatch].m_dominated = true;
 				}
