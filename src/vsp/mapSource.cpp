@@ -79,6 +79,47 @@ void MSCloud::LimitTargetMap( MSTree &ms_tree, GridDensity* grid_den )
 	}
 }
 
+void MSCloud::LimitTargetMapMin( MSTree &ms_tree, GridDensity* grid_den )
+{
+	int nsrc = sources.size();
+
+	double grm1 = grid_den->GetGrowRatio() - 1.0;
+	double tmin = grid_den->GetMinLen();
+	double tmax = *( sources[ nsrc - 1 ].m_strptr );
+
+	SearchParams params;
+	params.sorted = false;
+
+	for ( int i = 0 ; i < nsrc ; i++ )
+	{
+		double *query_pt = sources[i].m_pt.v;
+//		double localstr = *( sources[i].m_strptr );
+
+		MSTreeResults ms_matches;
+
+		double rmax = ( ( *( sources[i].m_strptr ) ) - tmin ) / grm1;
+		double r2max = rmax * rmax;
+
+		int nMatches = ms_tree.radiusSearch( query_pt, r2max, ms_matches, params );
+
+		for ( int j = 0; j < nMatches; j++ )
+		{
+			int imatch = ms_matches[j].first;
+			double r = sqrt( ms_matches[j].second );
+
+			double targetstr = *( sources[imatch].m_strptr );
+
+			double targetlocalstr = targetstr + grm1 * r;
+
+
+			if( targetlocalstr < ( *( sources[i].m_strptr ) ) )
+			{
+				*( sources[i].m_strptr ) = targetlocalstr;
+			}
+		}
+	}
+}
+
 void MSCloud::prune_map_sources( MSTree &ms_tree, GridDensity* grid_den )
 {
 	int nsrc = sources.size();

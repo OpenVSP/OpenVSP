@@ -91,6 +91,7 @@ struct MSCloud
 
 	void sort();
 	void LimitTargetMap( MSTree &ms_tree, GridDensity* grid_den );
+	void LimitTargetMapMin( MSTree &ms_tree, GridDensity* grid_den );
 	void prune_map_sources( MSTree &es_tree, GridDensity* grid_den );
 	void free_strengths();
 
