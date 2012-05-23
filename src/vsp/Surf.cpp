@@ -404,7 +404,7 @@ double Surf::TargetLen( double u, double w, double gap, double radfrac)
 	return len;
 }
 
-void Surf::BuildTargetMap( MSCloud &ms_cloud )
+void Surf::BuildTargetMap( MSCloudProg &ms_cloud )
 {
 	int npatchu = ( m_NumU - 1 ) / 3;
 	int npatchw = ( m_NumW - 1 ) / 3;

@@ -903,7 +903,7 @@ void CfdMeshMgr::BuildGrid()
 
 void CfdMeshMgr::BuildTargetMap( )
 {
-	MSCloud ms_cloud;
+	MSCloudProg ms_cloud;
 
 	unsigned int stop, start;
 	start = get_msec();
@@ -927,7 +927,7 @@ void CfdMeshMgr::BuildTargetMap( )
 
     printf("%d Sources\n", ms_cloud.sources.size());
 
-	MSTree ms_tree( 3, ms_cloud, KDTreeSingleIndexAdaptorParams( 10 ) );
+	MSTreeProg ms_tree( 3, ms_cloud, KDTreeSingleIndexAdaptorParams( 10 ) );
 	ms_tree.buildIndex();
 
 	stop = get_msec();
@@ -950,7 +950,7 @@ void CfdMeshMgr::BuildTargetMap( )
 //		m_SurfVec[i]->LimitTargetMap( ms_cloud, ms_tree );
 //	}
 
-    ms_cloud.LimitTargetMapMin( ms_tree, &m_GridDensity );
+    ms_cloud.LimitTargetMap( ms_tree, &m_GridDensity );
 
 	stop = get_msec();
 	printf("Map limited in %.5f sec\n",  (float)(stop-start) / 1000.0);

@@ -23,69 +23,47 @@ void MSCloud::sort()
 	std::sort( sources.begin(), sources.end(), ShortMapTargetLengthCompare );
 }
 
-void MSCloud::LimitTargetMap( MSTree &ms_tree, GridDensity* grid_den )
+void MSCloudProg::sort()
 {
-	int nsrc = sources.size();
-
-	double grm1 = grid_den->GetGrowRatio() - 1.0;
-	double tmin = grid_den->GetMinLen();
-	double tmax = *( sources[ nsrc - 1 ].m_strptr );
-
-	SearchParams params;
-	params.sorted = false;
-
-	for ( int i = 0 ; i < nsrc ; i++ )
-	{
-		// A source can only dominate others if it has not been dominated.
-		if( !(sources[i].m_dominated) )
-		{
-
-			double *query_pt = sources[i].m_pt.v;
-			double localstr = *( sources[i].m_strptr );
-
-			MSTreeResults ms_matches;
-
-// Ensuring that tmax matches the actual maximum source strength will minimize the search
-// radius required to check if this source is dominated.  Unfortunately, setting tmax
-// requires checking all remaining sources every time.  In some cases, uncommenting the
-// following three lines significantly sped up this routine.  In other cases, it significantly
-// slowed it down.
-//
-//			tmax = localstr;
-//			for ( int j = i + 1; j < nsrc; j++ )
-//				tmax = max( tmax, *( sources[j].m_strptr ) );
-
-			double rmax = ( tmax - localstr ) / grm1;
-			double r2max = rmax * rmax;
-
-			int nMatches = ms_tree.radiusSearch( query_pt, r2max, ms_matches, params );
-
-			for ( int j = 0; j < nMatches; j++ )
-			{
-				int imatch = ms_matches[j].first;
-				double r = sqrt( ms_matches[j].second );
-
-				double remotestr = localstr + grm1 * r;
-
-				double targetstr = *( sources[imatch].m_strptr );
-
-				if( targetstr >= (remotestr - 1e-8) )
-				{
-					*( sources[imatch].m_strptr ) = remotestr;
-					sources[imatch].m_dominated = true;
-				}
-			}
-		}
-	}
+	std::sort( sources.begin(), sources.end(), ShortMapTargetLengthCompare );
 }
 
-void MSCloud::LimitTargetMapMin( MSTree &ms_tree, GridDensity* grid_den )
+// Returns the distance between the vector "p1[0:size-1]" and the data point with index "idx_p2" stored in the class:
+double MSCloudProg::kdtree_distance( const double *p1, const size_t idx_p2, size_t size) const
+{
+	double rmax = ( *str - tmin ) / grm1;
+	double r2max = rmax * rmax;
+
+	const double d0 = p1[0] - sources[idx_p2].m_pt.x();
+	const double d1 = p1[1] - sources[idx_p2].m_pt.y();
+	const double d2 = p1[2] - sources[idx_p2].m_pt.z();
+
+	double r2 = d0*d0 + d1*d1 + d2*d2;
+
+	double r = sqrt( r2 );
+
+	double targetstr = *( sources[idx_p2].m_strptr );
+
+	double targetlocalstr = targetstr + grm1 * r;
+
+	if( targetlocalstr < *str )
+	{
+		*str = targetlocalstr;
+		rmax = ( *str - tmin ) / grm1;
+		r2max = rmax * rmax;
+	}
+
+	return r2/r2max;
+}
+
+
+void MSCloudProg::LimitTargetMap( MSTreeProg &ms_tree, GridDensity* grid_den )
 {
 	int nsrc = sources.size();
 
-	double grm1 = grid_den->GetGrowRatio() - 1.0;
-	double tmin = grid_den->GetMinLen();
-	double tmax = *( sources[ nsrc - 1 ].m_strptr );
+	grm1 = grid_den->GetGrowRatio() - 1.0;
+	tmin = *( sources[ 0 ].m_strptr );
+//	double tmax = *( sources[ nsrc - 1 ].m_strptr );
 
 	SearchParams params;
 	params.sorted = false;
@@ -93,30 +71,11 @@ void MSCloud::LimitTargetMapMin( MSTree &ms_tree, GridDensity* grid_den )
 	for ( int i = 0 ; i < nsrc ; i++ )
 	{
 		double *query_pt = sources[i].m_pt.v;
-//		double localstr = *( sources[i].m_strptr );
+		str = sources[i].m_strptr ;
 
 		MSTreeResults ms_matches;
 
-		double rmax = ( ( *( sources[i].m_strptr ) ) - tmin ) / grm1;
-		double r2max = rmax * rmax;
-
-		int nMatches = ms_tree.radiusSearch( query_pt, r2max, ms_matches, params );
-
-		for ( int j = 0; j < nMatches; j++ )
-		{
-			int imatch = ms_matches[j].first;
-			double r = sqrt( ms_matches[j].second );
-
-			double targetstr = *( sources[imatch].m_strptr );
-
-			double targetlocalstr = targetstr + grm1 * r;
-
-
-			if( targetlocalstr < ( *( sources[i].m_strptr ) ) )
-			{
-				*( sources[i].m_strptr ) = targetlocalstr;
-			}
-		}
+		int nMatches = ms_tree.radiusSearch( query_pt, 1.0, ms_matches, params );
 	}
 }
 
@@ -173,6 +132,16 @@ void MSCloud::prune_map_sources( MSTree &ms_tree, GridDensity* grid_den )
 }
 
 void MSCloud::free_strengths()
+{
+	int nsrc = sources.size();
+	for ( int i = 0 ; i < nsrc ; i++ )
+	{
+		double *strptr = sources[i].m_strptr;
+		delete strptr;
+	}
+}
+
+void MSCloudProg::free_strengths()
 {
 	int nsrc = sources.size();
 	for ( int i = 0 ; i < nsrc ; i++ )
