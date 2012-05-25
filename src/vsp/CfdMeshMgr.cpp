@@ -903,7 +903,7 @@ void CfdMeshMgr::BuildGrid()
 
 void CfdMeshMgr::BuildTargetMap( )
 {
-	MSCloudProg ms_cloud;
+	MSCloudFourD ms_cloud;
 
 	unsigned int stop, start;
 	start = get_msec();
@@ -927,7 +927,7 @@ void CfdMeshMgr::BuildTargetMap( )
 
     printf("%d Sources\n", ms_cloud.sources.size());
 
-	MSTreeProg ms_tree( 3, ms_cloud, KDTreeSingleIndexAdaptorParams( 10 ) );
+	MSTreeFourD ms_tree( 4, ms_cloud, KDTreeSingleIndexAdaptorParams( 10 ) );
 	ms_tree.buildIndex();
 
 	stop = get_msec();

@@ -18,52 +18,62 @@ bool ShortMapTargetLengthCompare(const MapSource &a, const MapSource &b)
     return ( *(a.m_strptr) < *(b.m_strptr) );
 }
 
+bool LongMapTargetLengthCompare(const MapSource &a, const MapSource &b)
+{
+    return ( *(b.m_strptr) < *(a.m_strptr) );
+}
+
+bool ShortMapTargetLengthCompare4D(const MapSource4D &a, const MapSource4D &b)
+{
+    return ( *(a.m_strptr) < *(b.m_strptr) );
+}
+
+bool LongMapTargetLengthCompare4D(const MapSource4D &a, const MapSource4D &b)
+{
+    return ( *(b.m_strptr) < *(a.m_strptr) );
+}
+
+
 void MSCloud::sort()
 {
 	std::sort( sources.begin(), sources.end(), ShortMapTargetLengthCompare );
 }
 
-void MSCloudProg::sort()
+void MSCloudFourD::sort()
 {
-	std::sort( sources.begin(), sources.end(), ShortMapTargetLengthCompare );
+	std::sort( sources.begin(), sources.end(), ShortMapTargetLengthCompare4D );
 }
 
 // Returns the distance between the vector "p1[0:size-1]" and the data point with index "idx_p2" stored in the class:
-double MSCloudProg::kdtree_distance( const double *p1, const size_t idx_p2, size_t size) const
+double MSCloudFourD::kdtree_distance( const double *p1, const size_t idx_p2, size_t size) const
 {
-	double rmax = ( *str - tmin ) / grm1;
-	double r2max = rmax * rmax;
-
 	const double d0 = p1[0] - sources[idx_p2].m_pt.x();
 	const double d1 = p1[1] - sources[idx_p2].m_pt.y();
 	const double d2 = p1[2] - sources[idx_p2].m_pt.z();
 
-	double r2 = d0*d0 + d1*d1 + d2*d2;
+	const double r2 = d0*d0 + d1*d1 + d2*d2;
+	const double r = sqrt( r2 );
 
-	double r = sqrt( r2 );
+	const double targetstr = *( sources[idx_p2].m_strptr );
 
-	double targetstr = *( sources[idx_p2].m_strptr );
+	const double ds = *str - targetstr;
 
-	double targetlocalstr = targetstr + grm1 * r;
+	const double deltaS = ds - r * grm1;
 
-	if( targetlocalstr < *str )
-	{
-		*str = targetlocalstr;
-		rmax = ( *str - tmin ) / grm1;
-		r2max = rmax * rmax;
-	}
+	const double R = deltaT - deltaS;
 
-	return r2/r2max;
+	return R;
 }
 
 
-void MSCloudProg::LimitTargetMap( MSTreeProg &ms_tree, GridDensity* grid_den )
+void MSCloudFourD::LimitTargetMap( MSTreeFourD &ms_tree, GridDensity* grid_den )
 {
 	int nsrc = sources.size();
 
 	grm1 = grid_den->GetGrowRatio() - 1.0;
-	tmin = *( sources[ 0 ].m_strptr );
-//	double tmax = *( sources[ nsrc - 1 ].m_strptr );
+	double tmin = *( sources[ 0 ].m_strptr );
+	double tmax = *( sources[ nsrc - 1 ].m_strptr );
+	deltaT = tmax - tmin;
 
 	SearchParams params;
 	params.sorted = false;
@@ -71,11 +81,19 @@ void MSCloudProg::LimitTargetMap( MSTreeProg &ms_tree, GridDensity* grid_den )
 	for ( int i = 0 ; i < nsrc ; i++ )
 	{
 		double *query_pt = sources[i].m_pt.v;
-		str = sources[i].m_strptr ;
+		str = sources[i].m_strptr;
 
-		MSTreeResults ms_matches;
+		size_t num_results = 1;
+		size_t ret_index[num_results];
+		double out_distances[num_results];
 
-		int nMatches = ms_tree.radiusSearch( query_pt, 1.0, ms_matches, params );
+		ms_tree.knnSearch( query_pt, num_results, ret_index, out_distances );
+
+		double deltaS = deltaT - out_distances[0];
+
+		if( deltaS > 0 )
+			*sources[i].m_strptr -= deltaS;
+
 	}
 }
 
@@ -141,7 +159,7 @@ void MSCloud::free_strengths()
 	}
 }
 
-void MSCloudProg::free_strengths()
+void MSCloudFourD::free_strengths()
 {
 	int nsrc = sources.size();
 	for ( int i = 0 ; i < nsrc ; i++ )

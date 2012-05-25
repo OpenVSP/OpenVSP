@@ -404,7 +404,7 @@ double Surf::TargetLen( double u, double w, double gap, double radfrac)
 	return len;
 }
 
-void Surf::BuildTargetMap( MSCloudProg &ms_cloud )
+void Surf::BuildTargetMap( MSCloudFourD &ms_cloud )
 {
 	int npatchu = ( m_NumU - 1 ) / 3;
 	int npatchw = ( m_NumW - 1 ) / 3;
@@ -442,7 +442,7 @@ void Surf::BuildTargetMap( MSCloudProg &ms_cloud )
 
 			m_TargetMap[i][j] = len;
 
-			MapSource ms = MapSource( p, &( m_TargetMap[i][j] ) );
+			MapSource4D ms = MapSource4D( p, &( m_TargetMap[i][j] ) );
 			ms_cloud.sources.push_back( ms );
 		}
 	}

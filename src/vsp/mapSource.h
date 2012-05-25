@@ -33,11 +33,12 @@ using namespace std;
 using namespace nanoflann;
 
 struct MapSource;
+struct MapSource4D;
 struct MSCloud;
-struct MSCloudProg;
+struct MSCloudFourD;
 
 typedef KDTreeSingleIndexAdaptor< L2_Simple_Adaptor< double, MSCloud > ,MSCloud, 3 > MSTree;
-typedef KDTreeSingleIndexAdaptor< L2_Simple_Adaptor< double, MSCloudProg > ,MSCloudProg, 3 > MSTreeProg;
+typedef KDTreeSingleIndexAdaptor< L2_Simple_Adaptor< double, MSCloudFourD > ,MSCloudFourD, 4 > MSTreeFourD;
 
 typedef vector< pair< size_t, double > > MSTreeResults;
 
@@ -54,6 +55,23 @@ struct MapSource
 	double *m_strptr;
 	bool m_dominated;
 };
+
+struct MapSource4D
+{
+	MapSource4D( vec3d pt, double *strptr )
+	{
+		m_pt = pt;
+		m_initstr = *strptr;
+		m_strptr = strptr;
+		m_dominated = false;
+	};
+
+	vec3d m_pt;
+	double m_initstr;
+	double *m_strptr;
+	bool m_dominated;
+};
+
 
 // The data source fed into the KD-tree library must adhere to an interface.  The following
 // struct implements that interface for the edge source kd-tree.
@@ -97,13 +115,13 @@ struct MSCloud
 
 };
 
-struct MSCloudProg
+struct MSCloudFourD
 {
 	// Underlying storage a vector.
-	vector< MapSource > sources;
+	vector< MapSource4D > sources;
 
 	double *str;
-	double tmin;
+	double deltaT;
 	double grm1;
 
 	// Must return the number of data points
@@ -118,7 +136,8 @@ struct MSCloudProg
 	{
 		if (dim==0) return sources[idx].m_pt.x();
 		else if (dim==1) return sources[idx].m_pt.y();
-		else return sources[idx].m_pt.z();
+		else if (dim==2) return sources[idx].m_pt.z();
+		else return sources[idx].m_initstr;
 	}
 
 	// Optional bounding-box computation: return false to default to a standard bbox computation loop.
@@ -128,7 +147,7 @@ struct MSCloudProg
 	bool kdtree_get_bbox(BBOX &bb) const { return false; }
 
 	void sort();
-	void LimitTargetMap( MSTreeProg &ms_tree, GridDensity* grid_den );
+	void LimitTargetMap( MSTreeFourD &ms_tree, GridDensity* grid_den );
 	void free_strengths();
 
 };
