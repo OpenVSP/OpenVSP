@@ -54,13 +54,13 @@ double MSCloudFourD::kdtree_distance( const double *p1, const size_t idx_p2, siz
 	const double r2 = d0*d0 + d1*d1 + d2*d2;
 	const double r = sqrt( r2 );
 
-	const double targetstr = *( sources[idx_p2].m_strptr );
+	const double targetstr = sources[idx_p2].m_initstr;
 
 	const double ds = *str - targetstr;
 
-	const double deltaS = ds - r * grm1;
+	const double deltaS = ds + r * grm1;
 
-	const double R = deltaT - deltaS;
+	const double R = deltaT + deltaS;
 
 	return R;
 }
@@ -80,20 +80,33 @@ void MSCloudFourD::LimitTargetMap( MSTreeFourD &ms_tree, GridDensity* grid_den )
 
 	for ( int i = 0 ; i < nsrc ; i++ )
 	{
-		double *query_pt = sources[i].m_pt.v;
-		str = sources[i].m_strptr;
+		if( !sources[i].m_dominated )
+		{
+			double *query_pt = sources[i].m_pt.v;
+			str = sources[i].m_strptr;
 
-		size_t num_results = 1;
-		size_t ret_index[num_results];
-		double out_distances[num_results];
+			MSTreeResults ms_matches;
 
-		ms_tree.knnSearch( query_pt, num_results, ret_index, out_distances );
+			int nMatches = ms_tree.radiusSearch( query_pt, deltaT, ms_matches, params );
 
-		double deltaS = deltaT - out_distances[0];
+			for ( int j = 0; j < nMatches; j++ )
+			{
+				int imatch = ms_matches[j].first;
+				double R = ms_matches[j].second;
 
-		if( deltaS > 0 )
-			*sources[i].m_strptr -= deltaS;
+				double deltaS = R - deltaT;
 
+				double targetinitstr = sources[imatch].m_initstr;
+
+				double targetadjust = targetinitstr + deltaS;
+
+				if( targetadjust < ( *( sources[imatch].m_strptr ) ) )
+				{
+					*( sources[imatch].m_strptr ) = targetadjust;
+					sources[imatch].m_dominated = true;
+				}
+			}
+		}
 	}
 }
 
