@@ -71,7 +71,7 @@ void Mesh::Clear()
 
 void Mesh::LimitTargetEdgeLength( Node* n )
 {
-	for( int i = 0; i < n->edgeVec.size(); i++ )
+	for( int i = 0; i < (int)n->edgeVec.size(); i++ )
 	{
 		LimitTargetEdgeLength( n->edgeVec[i], n );
 	}
@@ -1129,7 +1129,7 @@ void Mesh::AdjustEdgeLengths()
 
 void Mesh::ComputeTargetEdgeLength( Node* n )
 {
-	for( int i = 0; i < n->edgeVec.size(); i++)
+	for( int i = 0; i < (int)n->edgeVec.size(); i++)
 	{
 		ComputeTargetEdgeLength( n->edgeVec[i] );
 	}

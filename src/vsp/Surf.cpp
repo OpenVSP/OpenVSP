@@ -9,8 +9,10 @@
 
 #include "Surf.h"
 #include "SCurve.h"
+#include "ICurve.h"
 #include "ISegChain.h"
 #include "tritri.h"
+#include "CfdMeshMgr.h"
 
 Surf::Surf()
 {
@@ -228,6 +230,9 @@ vec3d Surf::CompBez( double u, double w,
 
 	if ( m_NumU < 4 || m_NumW < 4 )
 		return pnt;
+
+	if ( u < 0.0 )	u = 0.0;
+	if ( w < 0.0 )  w = 0.0;
 
 	double F1u, F2u, F3u, F4u;
 	double F1w, F2w, F3w, F4w;
@@ -878,10 +883,16 @@ void Surf::WriteSTL( const char* filename )
 void Surf::Intersect( Surf* surfPtr )
 {
 	int i;
+
 	if ( surfPtr->GetCompID() == m_CompID )
 		return;
 
 	if ( !compare( m_BBox, surfPtr->GetBBox() ) )
+		return;
+
+	if ( BorderCurveOnSurface( surfPtr ) )
+		return;
+	if ( surfPtr->BorderCurveOnSurface( this ) )
 		return;
 
 	vector< SurfPatch* > otherPatchVec = surfPtr->GetPatchVec();
@@ -952,6 +963,48 @@ void Surf::IntersectLineSegMesh( vec3d & p0, vec3d & p1, vector< double > & t_va
 				t_vals.push_back( tparm );
 		}
 	}
+}
+
+bool Surf::BorderCurveOnSurface( Surf* surfPtr )
+{
+	bool retFlag = false;
+	double tol = 1.0e-08;
+
+	vector< SCurve* > border_curves;
+	surfPtr->LoadSCurves( border_curves );
+
+	for ( int i = 0 ; i < (int)border_curves.size() ; i++ )
+	{
+		vector< vec3d > control_pnts;
+		border_curves[i]->ExtractBorderControlPnts( control_pnts );
+
+		int num_pnts_on_surf = 0;
+		for ( int c = 0 ; c < (int)control_pnts.size() ; c++ )
+		{
+			vec2d uw = ClosestUW( control_pnts[c], m_MaxU/2.0, m_MaxW/2.0 );
+
+			vec3d p = CompPnt( uw[0], uw[1] );
+
+			double d = dist( control_pnts[c], p );
+
+			if ( d < tol )
+			{
+				num_pnts_on_surf++;
+				retFlag = true;
+			}
+		}
+		if ( num_pnts_on_surf >= 2 )
+		{
+			ICurve* icrv = border_curves[i]->GetICurve();
+			if ( icrv )
+				icrv->AddCoplanerSurface( this );
+
+			m_CfdMeshMgr->AddPossCoPlanarSurf( surfPtr, this );
+		}
+	}
+
+	return retFlag;
+
 }
 
 	

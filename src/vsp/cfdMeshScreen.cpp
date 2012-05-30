@@ -109,6 +109,12 @@ CfdMeshScreen::CfdMeshScreen(ScreenMgr* mgr, Aircraft* airPtr)
 	m_FarZScaleSlider->SetRange( 10.0 );
 	m_FarZScaleSlider->UpdateGui();
 
+	m_WakeScaleSlider= new SliderInputCombo( ui->wakeScaleSlider, ui->wakeScaleInput );
+	m_WakeScaleSlider->SetCallback( staticScreenCB, this );
+	m_WakeScaleSlider->SetLimits( 1.1, 1000.0 );
+	m_WakeScaleSlider->SetRange( 10.0 );
+	m_WakeScaleSlider->UpdateGui();
+
 	ui->compChoice->callback( staticScreenCB, this );
 	ui->sourceBrowser->callback( staticScreenCB, this );
 
@@ -155,6 +161,10 @@ CfdMeshScreen::CfdMeshScreen(ScreenMgr* mgr, Aircraft* airPtr)
 	ui->gmshToggle->value(0);
 	ui->srfToggle->value(0);
 
+	ui->addWakeButton->callback( staticScreenCB, this );
+	ui->addWakeButton->value(0);
+	ui->wakeCompChoice->callback( staticScreenCB, this );
+
 }
 
 CfdMeshScreen::~CfdMeshScreen()
@@ -171,6 +181,7 @@ CfdMeshScreen::~CfdMeshScreen()
 	delete m_FarXScaleSlider;
 	delete m_FarYScaleSlider;
 	delete m_FarZScaleSlider;
+	delete m_WakeScaleSlider;
 
 	delete cfdMeshUI;
 }
@@ -199,18 +210,24 @@ void CfdMeshScreen::update()
 	m_FarYScaleSlider->UpdateGui();
 	m_FarZScaleSlider->UpdateGui();
 
+	m_WakeScaleSlider->SetVal( cfdMeshMgrPtr->GetWakeScale() );
+	m_WakeScaleSlider->UpdateGui();
+
 	//==== Load Geom Choice ====//
 	vector< Geom* > geomVec = aircraftPtr->getGeomVec();	
 	cfdMeshUI->compChoice->clear();
+	cfdMeshUI->wakeCompChoice->clear();
 	for ( i = 0 ; i < (int)geomVec.size() ; i++ )
 	{
 		cfdMeshUI->compChoice->add( geomVec[i]->getName() );
+		cfdMeshUI->wakeCompChoice->add( geomVec[i]->getName() );
 	}
 
 	int currGeomID = cfdMeshMgrPtr->GetCurrGeomID();
 	if ( currGeomID >= 0 && currGeomID < (int)geomVec.size() )
 	{
 		cfdMeshUI->compChoice->value( currGeomID );
+		cfdMeshUI->wakeCompChoice->value( currGeomID );
 	}
 
 	BaseSource* source = cfdMeshMgrPtr->GetCurrSource();
@@ -352,6 +369,16 @@ void CfdMeshScreen::update()
 	Stringc srfname = cfdMeshMgrPtr->GetExportFileName( CfdMeshMgr::SRF_FILE_NAME );
 	cfdMeshUI->srfName->value( truncateFileName(srfname, 40 ) );
 
+	//==== Wake Flag ====//
+	if ( currGeomID >= 0 && currGeomID < (int)geomVec.size() )
+	{
+		if ( geomVec[currGeomID]->GetWakeActiveFlag() )
+			cfdMeshUI->addWakeButton->value(1);
+		else
+			cfdMeshUI->addWakeButton->value(0);
+	}
+
+
 }
 
 Stringc CfdMeshScreen::truncateFileName( const char* fn, int len )
@@ -396,71 +423,6 @@ void CfdMeshScreen::screenCB( Fl_Widget* w )
 	static bool intersectFlag = false;
 	bool update_flag = true;
 
-	//if ( w == cfdMeshUI->intersectMeshButton  )
-	//{
-	//	intersectFlag = true;
-	//	addOutputText( "Writing Bezier File\n" );
-	//	aircraftPtr->write_bezier_file( "cfdmesh.bez" );
-
-	//	cfdMeshMgrPtr->CleanUp();
-	//	addOutputText( "Reading Surfaces\n");
-	//	cfdMeshMgrPtr->ReadSurfs("cfdmesh.bez");
-
-	//	cfdMeshMgrPtr->UpdateSources();
-	//	addOutputText( "Build Grid\n");
-	//	cfdMeshMgrPtr->BuildGrid();
-	//	addOutputText( "Intersect\n");
-	//	cfdMeshMgrPtr->Intersect();
-	//	addOutputText( "Finished Intersect\n");
-
-
-	//}
-	//else if ( w == cfdMeshUI->meshSingleButton  )
-	//{
-
-	//	if ( !intersectFlag )
-	//		fl_alert("Error: Press Intersect First");
-
-	//	cfdMeshMgrPtr->UpdateSources();
-	//	addOutputText( "InitMesh\n");
-	//	cfdMeshMgrPtr->InitMesh();
-	//	addOutputText( "Remesh\n");
-
-	//	int comp_id = 0;
-	//	int currGeomID = cfdMeshMgrPtr->GetCurrGeomID();
-	//	cfdMeshMgrPtr->RemeshSingleComp( currGeomID, CfdMeshMgr::CFD_OUTPUT );
-	//	addOutputText( "Write cfdmesh.stl\n");
-	//	cfdMeshMgrPtr->WriteSTL("cfdmesh.stl");
-
-	//	//==== No Show Components ====//
-	//	vector< Geom* > geomVec = aircraftPtr->getGeomVec();	
-	//	for ( int i = 0 ; i < (int)geomVec.size() ; i++ )
-	//		geomVec[i]->setNoShowFlag(1);
-	//	screenMgrPtr->update( GEOM_SCREEN );
-
-	//	cfdMeshMgrPtr->SetDrawMeshFlag( true );
-	//	cfdMeshUI->viewMeshButton->value(1);
-	//}
-	//else if ( w == cfdMeshUI->meshAllButton  )
-	//{
-	//	if ( !intersectFlag )
-	//		fl_alert("Error: Press Intersect First");
-
-	//	cfdMeshMgrPtr->UpdateSources();
-	//	addOutputText( "InitMesh\n");
-	//	cfdMeshMgrPtr->InitMesh();
-	//	addOutputText( "Remesh\n");
-	//	cfdMeshMgrPtr->Remesh( CfdMeshMgr::CFD_OUTPUT );
-	//	addOutputText( "Mesh Complete\n");
-
-	//	//==== No Show Components ====//
-	//	vector< Geom* > geomVec = aircraftPtr->getGeomVec();	
-	//	for ( int i = 0 ; i < (int)geomVec.size() ; i++ )
-	//		geomVec[i]->setNoShowFlag(1);
-	//	screenMgrPtr->update( GEOM_SCREEN );
-	//	cfdMeshMgrPtr->SetDrawMeshFlag( true );
-	//	cfdMeshUI->viewMeshButton->value(1);
-	//}
 	if ( w == cfdMeshUI->viewMeshButton )
 	{
 		if ( cfdMeshUI->viewMeshButton->value() )
@@ -585,6 +547,11 @@ void CfdMeshScreen::screenCB( Fl_Widget* w )
 		cfdMeshMgrPtr->SetFarZScale( m_FarZScaleSlider->GetVal() );
 		update_flag = false;
 	}
+	else if ( m_WakeScaleSlider->GuiChanged( w ) )
+	{
+		cfdMeshMgrPtr->SetWakeScale( m_WakeScaleSlider->GetVal() );
+		update_flag = false;
+	}
 	//else if ( w == cfdMeshUI->globalEdgeSizeInput )
 	//{
 	//	cfdMeshMgrPtr->GUI_Val( "GlobalEdgeSize", atof( cfdMeshUI->globalEdgeSizeInput->value() ) );
@@ -625,6 +592,12 @@ void CfdMeshScreen::screenCB( Fl_Widget* w )
 	{
 		//==== Load List of Parts for Comp ====//
 		int id = cfdMeshUI->compChoice->value();
+		cfdMeshMgrPtr->SetCurrGeomID( id );
+	}
+	else if ( w == cfdMeshUI->wakeCompChoice )
+	{
+		//==== Load List of Parts for Comp ====//
+		int id = cfdMeshUI->wakeCompChoice->value();
 		cfdMeshMgrPtr->SetCurrGeomID( id );
 	}
 	else if ( w == cfdMeshUI->sourceBrowser )
@@ -720,6 +693,17 @@ void CfdMeshScreen::screenCB( Fl_Widget* w )
 			cfdMeshMgrPtr->SetExportFileName( newfile, CfdMeshMgr::GMSH_FILE_NAME );
 	}
 
+	else if ( w == cfdMeshUI->addWakeButton )
+	{
+		bool flag = !!(cfdMeshUI->addWakeButton->value());
+
+		vector< Geom* > geomVec = aircraftPtr->getGeomVec();
+		int currGeomID = cfdMeshMgrPtr->GetCurrGeomID();
+		if ( currGeomID >= 0 && currGeomID < (int)geomVec.size() )
+		{
+			geomVec[currGeomID]->SetWakeActiveFlag( flag);
+		}
+	}
 
 	if ( update_flag )
 		update();

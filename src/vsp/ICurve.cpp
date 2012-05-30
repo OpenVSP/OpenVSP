@@ -576,3 +576,14 @@ void ICurve::DebugEdgeMatching(FILE* fp)
 
 
 }
+
+void ICurve::AddCoplanerSurface( Surf* sPtr )
+{
+	for ( int i = 0 ; i < (int)m_CoPlanerSurfVec.size() ; i++ )
+	{
+		//==== Check If Surface is Already Added ====//
+		if ( sPtr == m_CoPlanerSurfVec[i] )
+			return;
+	}
+	m_CoPlanerSurfVec.push_back( sPtr );
+}

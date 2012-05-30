@@ -179,6 +179,7 @@ public:
 	void MergeSplits();
 	void RemoveChainEndSplits();
 	vector< ISegChain* > SortAndSplit();
+	vector< ISegChain* > FindCoPlanarChains( Surf* surfPtr, Surf* adjSurf );
 	void MergeInteriorIPnts();
 
 	void BuildCurves();

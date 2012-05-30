@@ -64,6 +64,9 @@ private:
 	SliderInputCombo* m_FarYScaleSlider;
 	SliderInputCombo* m_FarZScaleSlider;
 
+	SliderInputCombo* m_WakeScaleSlider;
+
+
 	ScreenMgr* screenMgrPtr;
 	Aircraft* aircraftPtr;
 	CFDMeshUI* cfdMeshUI;

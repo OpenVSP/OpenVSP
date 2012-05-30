@@ -158,11 +158,15 @@ public:
 
 	void DebugEdgeMatching(FILE* fp);
 
+	void AddCoplanerSurface( Surf* sPtr );
+
 	SCurve* m_SCurve_A;
 	SCurve* m_SCurve_B;
+	vector< Surf* > m_CoPlanerSurfVec;
+
+
 
 protected:
-
 
 
 

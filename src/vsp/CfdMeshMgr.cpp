@@ -287,10 +287,12 @@ vector< Surf* > WakeMgr::GetWakeSurfs()
 
 void WakeMgr::AppendWakeSurfs( vector< Surf* > & surf_vec )
 {
+	int last_id = surf_vec.back()->GetSurfID();
 	vector< Surf* > wake_surf_vec = GetWakeSurfs();
 
 	for ( int i = 0 ; i < (int)wake_surf_vec.size() ; i++ )
 	{
+		wake_surf_vec[i]->SetSurfID( last_id+1+i );
 		surf_vec.push_back( wake_surf_vec[i] );
 	}
 
@@ -298,17 +300,15 @@ void WakeMgr::AppendWakeSurfs( vector< Surf* > & surf_vec )
 
 void WakeMgr::StretchWakes()
 {
+	double scale = cfdMeshMgrPtr->GetWakeScale();
 	for ( int i = 0 ; i < (int)m_WakeVec.size() ; i++ )
 	{
 		for ( int j = 0 ; j < (int)m_WakeVec[i]->m_SurfVec.size() ; j++ )
 		{
 			Mesh* msh = m_WakeVec[i]->m_SurfVec[j]->GetMesh();
-			msh->StretchSimpPnts( m_StartStretchX, m_EndX, 10.0 );
+			msh->StretchSimpPnts( m_StartStretchX, m_EndX, scale );
 		}
 	}
-
-
-
 }
 	
 void WakeMgr::Draw()
@@ -367,6 +367,7 @@ CfdMeshMgr::CfdMeshMgr()
 	m_DrawSourceFlag = true;
 	m_BatchFlag = false;
 	m_HalfMeshFlag = false;
+	m_WakeScale = 2.0;
 	m_FarXScale = m_FarYScale = m_FarZScale = 4.0;
 
 	m_YSlicePlane = new Surf();
@@ -431,6 +432,7 @@ void CfdMeshMgr::CleanUp()
 	m_DelISegChainVec.clear();
 
 	m_BinMap.clear();
+	m_PossCoPlanarSurfMap.clear();
 
 	debugPnts.clear();
 
@@ -702,6 +704,7 @@ void CfdMeshMgr::UpdateSourcesAndWakes()
 	}
 
 	m_WakeMgr.SetLeadingEdges( wake_leading_edges );
+	aircraftPtr->update_bbox();
 	bbox box = aircraftPtr->getBndBox();
 	m_WakeMgr.SetStartStretchX( box.get_max(0) + 0.01*box.get_largest_dim() );
 	m_WakeMgr.SetEndX( box.get_max(0) + 0.5*box.get_largest_dim() );
@@ -1290,19 +1293,23 @@ void CfdMeshMgr::WriteNASCART_Obj_Tri_Gmsh( const char* dat_fn, const char* key_
 	fprintf( m_DebugFile, "CfdMeshMgr::WriteNASCART Small Edge Length = %f \n", sqrt(small_edge) );
 #endif
 
+	//==== Any Files To Write? ====//
 	if ( !dat_fn && !key_fn && !obj_fn && !tri_fn )
 		return;
 
-	int tri_cnt = 0;
+	//==== Find All Points and Tri Counts ====//
 	vector< vec3d* > allPntVec;
+	vector< vec3d* > wakeAllPntVec;
 	for ( int i = 0 ; i < (int)m_SurfVec.size() ; i++ )
 	{
 		vector< vec3d >& sPntVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec(); 
 		for ( int v = 0 ; v < (int)sPntVec.size() ; v++ )
 		{
-			allPntVec.push_back( &sPntVec[v] );
+			if ( m_SurfVec[i]->GetWakeFlag() )
+				wakeAllPntVec.push_back( &sPntVec[v] );
+			else
+				allPntVec.push_back( &sPntVec[v] );
 		}
-		tri_cnt += m_SurfVec[i]->GetMesh()->GetSimpTriVec().size();
 	}
 
 	//==== Build Map ====//
@@ -1310,7 +1317,79 @@ void CfdMeshMgr::WriteNASCART_Obj_Tri_Gmsh( const char* dat_fn, const char* key_
 	vector< int > pntShift;
 	int numPnts = BuildIndMap( allPntVec, indMap, pntShift );
 
-	//==== Open file ====//
+	//==== Build Wake Map If Available ====//
+	map< int, vector< int > > wakeIndMap;
+	vector< int > wakePntShift;
+	int wakeNumPnts = 0;
+	if ( wakeAllPntVec.size() )
+	{
+		wakeNumPnts = BuildIndMap( wakeAllPntVec, wakeIndMap, wakePntShift );
+	}
+
+	//==== Assemble Normal Tris ====//
+	vector< SimpTri > allTriVec;
+	vector< int > allSurfIDVec;
+	for ( int i = 0 ; i < (int)m_SurfVec.size() ; i++ )
+	{
+		if ( !m_SurfVec[i]->GetWakeFlag() )
+		{
+			vector < SimpTri >& sTriVec = m_SurfVec[i]->GetMesh()->GetSimpTriVec();
+			vector< vec3d >& sPntVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
+			for ( int t = 0 ; t <  (int)sTriVec.size() ; t++ )
+			{
+				int i0 = FindPntIndex( sPntVec[sTriVec[t].ind0], allPntVec, indMap );
+				int i1 = FindPntIndex( sPntVec[sTriVec[t].ind1], allPntVec, indMap );
+				int i2 = FindPntIndex( sPntVec[sTriVec[t].ind2], allPntVec, indMap );
+				SimpTri stri;
+				stri.ind0 = pntShift[i0] + 1;
+				stri.ind1 = pntShift[i1] + 1;
+				stri.ind2 = pntShift[i2] + 1;
+				allTriVec.push_back( stri );
+				allSurfIDVec.push_back( m_SurfVec[i]->GetSurfID() );
+			}
+		}
+	}
+	//==== Assemble All Used Points ====//
+	vector< vec3d* > allUsedPntVec;
+	for ( int i = 0 ; i < (int)allPntVec.size() ; i++ )
+	{
+		if ( pntShift[i] >= 0 )
+			allUsedPntVec.push_back( allPntVec[i] );
+	}
+
+	//==== Assemble Wake Tris ====//
+	int wakeIndOffset = allUsedPntVec.size();
+	for ( int i = 0 ; i < (int)m_SurfVec.size() ; i++ )
+	{
+		if ( m_SurfVec[i]->GetWakeFlag() )
+		{
+			vector < SimpTri >& sTriVec = m_SurfVec[i]->GetMesh()->GetSimpTriVec();
+			vector< vec3d >& sPntVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
+			for ( int t = 0 ; t <  (int)sTriVec.size() ; t++ )
+			{
+				int i0 = FindPntIndex( sPntVec[sTriVec[t].ind0], wakeAllPntVec, wakeIndMap );
+				int i1 = FindPntIndex( sPntVec[sTriVec[t].ind1], wakeAllPntVec, wakeIndMap );
+				int i2 = FindPntIndex( sPntVec[sTriVec[t].ind2], wakeAllPntVec, wakeIndMap );
+				SimpTri stri;
+				stri.ind0 = wakePntShift[i0] + 1 + wakeIndOffset;
+				stri.ind1 = wakePntShift[i1] + 1 + wakeIndOffset;
+				stri.ind2 = wakePntShift[i2] + 1 + wakeIndOffset;
+				allTriVec.push_back( stri );
+				allSurfIDVec.push_back( m_SurfVec[i]->GetSurfID() );
+			}
+		}
+	}
+
+	//==== Assemble All Used Points ====//
+	for ( int i = 0 ; i < (int)wakeAllPntVec.size() ; i++ )
+	{
+		if ( wakePntShift[i] >= 0 )
+			allUsedPntVec.push_back( wakeAllPntVec[i] );
+	}
+
+	//=====================================================================================//
+	//==== Write NASCART File =================================================================//
+	//=====================================================================================//
 	if ( dat_fn )
 	{
 		FILE* fp = fopen(dat_fn, "w");
@@ -1318,32 +1397,21 @@ void CfdMeshMgr::WriteNASCART_Obj_Tri_Gmsh( const char* dat_fn, const char* key_
 		if ( fp )
 		{
 			//===== Write Num Pnts and Tris ====//
-			fprintf( fp, "%d %d\n", numPnts, tri_cnt );
+			fprintf( fp, "%d %d\n", (int)allUsedPntVec.size(), (int)allTriVec.size() );
 
 			//==== Write Pnts ====//
-			for ( int i = 0 ; i < (int)allPntVec.size() ; i++ )
+			for ( int i = 0 ; i < (int)allUsedPntVec.size() ; i++ )
 			{
-				if ( pntShift[i] >= 0 )
-					fprintf( fp, "%.16g %.16g %.16g\n", allPntVec[i]->x(), allPntVec[i]->z(), -allPntVec[i]->y() );
+				fprintf( fp, "%.16g %.16g %.16g\n", allUsedPntVec[i]->x(), allUsedPntVec[i]->z(), -allUsedPntVec[i]->y() );
 			}
 
 			//==== Write Tris ====//
-			for ( int i = 0 ; i < (int)m_SurfVec.size() ; i++ )
+			for ( int i = 0 ; i < (int)allTriVec.size() ; i++ )
 			{
-				vector < SimpTri >& sTriVec = m_SurfVec[i]->GetMesh()->GetSimpTriVec();
-				vector< vec3d >& sPntVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec(); 
-				for ( int t = 0 ; t <  (int)sTriVec.size() ; t++ )
-				{
-					int i0 = FindPntIndex( sPntVec[sTriVec[t].ind0], allPntVec, indMap );
-					int i1 = FindPntIndex( sPntVec[sTriVec[t].ind1], allPntVec, indMap );
-					int i2 = FindPntIndex( sPntVec[sTriVec[t].ind2], allPntVec, indMap );
-					int ind1 = pntShift[i0] + 1;
-					int ind2 = pntShift[i1] + 1;
-					int ind3 = pntShift[i2] + 1;
-
-					fprintf( fp, "%d %d %d %d.0\n", ind1, ind2, ind3, m_SurfVec[i]->GetCompID()+1 );
-				}
-			}			
+				fprintf( fp, "%d %d %d %d.0\n",
+					allTriVec[i].ind0, allTriVec[i].ind1, allTriVec[i].ind2,
+					allSurfIDVec[i] );
+			}
 			fclose( fp );
 		}
 	}
@@ -1357,9 +1425,25 @@ void CfdMeshMgr::WriteNASCART_Obj_Tri_Gmsh( const char* dat_fn, const char* key_
 		{
 			fprintf( fp, "Color	Name			BCType\n");
 
+			vector< int > compIDVec;
 			for ( int i = 0 ; i < (int)m_SurfVec.size() ; i++ )		
 			{
-				fprintf( fp, "%d.0  Section_%d  0\n", m_SurfVec[i]->GetCompID()+1, i );
+				if ( !m_SurfVec[i]->GetWakeFlag() )
+				{
+					compIDVec.push_back( m_SurfVec[i]->GetCompID()+1 );
+				}
+			}
+			for ( int i = 0 ; i < (int)m_SurfVec.size() ; i++ )
+			{
+				if ( m_SurfVec[i]->GetWakeFlag() )
+				{
+					compIDVec.push_back( m_SurfVec[i]->GetCompID()+1 + 100 );
+				}
+			}
+
+			for ( int i = 0 ; i < (int)compIDVec.size() ; i++ )
+			{
+				fprintf( fp, "%d.0  Section_%d  0\n", compIDVec[i], i );
 			}
 
 			fclose(fp);
@@ -1376,35 +1460,22 @@ void CfdMeshMgr::WriteNASCART_Obj_Tri_Gmsh( const char* dat_fn, const char* key_
 		if ( fp )
 		{
 			//==== Write Pnts ====//
-			for ( int i = 0 ; i < (int)allPntVec.size() ; i++ )
+			for ( int i = 0 ; i < (int)allUsedPntVec.size() ; i++ )
 			{
-				if ( pntShift[i] >= 0 )
-				   fprintf( fp, "v %16.10f %16.10f %16.10f\n", allPntVec[i]->x(), allPntVec[i]->z(), -allPntVec[i]->y() );
+			   fprintf( fp, "v %16.10f %16.10f %16.10f\n", allUsedPntVec[i]->x(), allUsedPntVec[i]->z(), -allUsedPntVec[i]->y() );
 			}
-
 			fprintf( fp, "\n");
 
 			//==== Write Tris ====//
-			for ( int i = 0 ; i < (int)m_SurfVec.size() ; i++ )
+			for ( int i = 0 ; i < (int)allTriVec.size() ; i++ )
 			{
-				vector < SimpTri >& sTriVec = m_SurfVec[i]->GetMesh()->GetSimpTriVec();
-				vector< vec3d >& sPntVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec(); 
-				for ( int t = 0 ; t <  (int)sTriVec.size() ; t++ )
-				{
-					int i0 = FindPntIndex( sPntVec[sTriVec[t].ind0], allPntVec, indMap );
-					int i1 = FindPntIndex( sPntVec[sTriVec[t].ind1], allPntVec, indMap );
-					int i2 = FindPntIndex( sPntVec[sTriVec[t].ind2], allPntVec, indMap );
-					int ind1 = pntShift[i0] + 1;
-					int ind2 = pntShift[i1] + 1;
-					int ind3 = pntShift[i2] + 1;
-					fprintf( fp, "f %d %d %d \n", ind1, ind2, ind3 );
-				}
+				fprintf( fp, "f %d %d %d \n", allTriVec[i].ind0, allTriVec[i].ind1, allTriVec[i].ind2 );
 			}
 			fclose(fp);
 		}
 	}
 
-
+/*
 	//=====================================================================================//
 	//==== Write TRI File for Cart3D ======================================================//
 	//=====================================================================================//
@@ -1505,7 +1576,7 @@ void CfdMeshMgr::WriteNASCART_Obj_Tri_Gmsh( const char* dat_fn, const char* key_
 			fclose(fp);
 		}
 	}
-
+*/
 }
 
 
@@ -1886,7 +1957,6 @@ void CfdMeshMgr::Intersect()
 		for ( int j = i+1 ; j < (int)m_SurfVec.size() ; j++ )
 		{
 			m_SurfVec[i]->Intersect( m_SurfVec[j] );
-
 		}
 
 	if ( m_HalfMeshFlag )
@@ -2107,6 +2177,34 @@ void CfdMeshMgr::AddIntersectionSeg( SurfPatch& pA, SurfPatch& pB, vec3d & ip0, 
 //}
 
 
+}
+
+
+ISeg* CfdMeshMgr::CreateSurfaceSeg(  Surf* surfA, vec2d & uwA0, vec2d & uwA1, Surf* surfB, vec2d & uwB0, vec2d & uwB1   )
+{
+	Puw* puwA0 = new Puw( surfA, uwA0 );
+	m_DelPuwVec.push_back( puwA0 );
+
+	Puw* puwB0 = new Puw( surfB, uwB0 );
+	m_DelPuwVec.push_back( puwB0 );
+
+	IPnt* ipnt0 = new IPnt( puwA0, puwB0 );
+	ipnt0->m_Pnt = surfA->CompPnt( uwA0.x(), uwA0.y() );
+	m_DelIPntVec.push_back( ipnt0 );
+
+	Puw* puwA1 = new Puw( surfA, uwA1 );
+	m_DelPuwVec.push_back( puwA1 );
+
+	Puw* puwB1 = new Puw( surfB, uwB1 );
+	m_DelPuwVec.push_back( puwB1 );
+
+	IPnt* ipnt1 = new IPnt( puwA1, puwB1 );
+	ipnt1->m_Pnt = surfA->CompPnt( uwA1.x(), uwA1.y() );
+	m_DelIPntVec.push_back( ipnt1 );
+
+	ISeg* iseg01 = new ISeg( surfA, surfB, ipnt0, ipnt1 );
+
+	return iseg01;
 }
 
 void CfdMeshMgr::BuildChains()
@@ -2342,8 +2440,8 @@ void CfdMeshMgr::LoadBorderCurves()
 			p1->CompPnt();
 
 			ISeg* seg = new ISeg( surfA, surfB, p0, p1 );
-
 			chain->m_ISegDeque.push_back( seg );
+
 		}
 	}
 
@@ -2410,6 +2508,33 @@ void CfdMeshMgr::SplitBorderCurves()
 		}
 	}
 
+	//==== Load Only Border Chains ====//
+	chains.clear();
+	for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+	{
+		if ( (*c)->m_BorderFlag )
+			chains.push_back( (*c) );
+	}
+
+	//==== Check if Border Chains Lie On Another Surfaces ====//
+	for ( int i = 0 ; i < (int)chains.size() ; i++ )
+	{
+		Surf* surfA = chains[i]->m_SurfA;
+		vector< Surf* > surfBVec = GetPossCoPlanarSurfs( surfA );
+		if ( surfBVec.size() )
+		{
+			for ( int s = 0 ; s < (int)surfBVec.size() ; s++ )
+			{
+				Surf* surfB = surfBVec[s];
+				vector< ISegChain* > new_chains = chains[i]->FindCoPlanarChains( surfB, surfA );
+				for ( int j = 0 ; j < (int)new_chains.size() ; j++ )
+				{
+					new_chains[j]->m_BorderFlag = true;
+					m_ISegChainList.push_back( new_chains[j] );
+				}
+			}
+		}
+	}
 
 #ifdef DEBUG_CFD_MESH
 	m_DebugDraw = true;
@@ -2437,7 +2562,6 @@ void CfdMeshMgr::SplitBorderCurves()
 #endif
 
 }
-
 
 void CfdMeshMgr::IntersectSplitChains()
 {
@@ -3055,6 +3179,31 @@ void CfdMeshMgr::DebugWriteChains( const char* name, bool tessFlag )
 		fclose(fp);
 	}
 }
+
+void CfdMeshMgr::AddPossCoPlanarSurf( Surf* surfA, Surf* surfB )
+{
+	vector< Surf* > surfVec = GetPossCoPlanarSurfs( surfA );
+
+	//==== Check If SurfB Already Stored ====//
+	for ( int i = 0 ; i < (int)surfVec.size() ; i++ )
+	{
+		if ( surfVec[i] == surfB )
+			return;
+	}
+
+	m_PossCoPlanarSurfMap[surfA].push_back( surfB );
+}
+
+vector< Surf* > CfdMeshMgr::GetPossCoPlanarSurfs( Surf* surfPtr )
+{
+	if ( m_PossCoPlanarSurfMap.find( surfPtr ) != m_PossCoPlanarSurfMap.end() )
+		return m_PossCoPlanarSurfMap[surfPtr];
+
+	vector< Surf* > retSurfVec;
+	return retSurfVec;
+}
+
+
 
 void CfdMeshMgr::TestStuff()
 {

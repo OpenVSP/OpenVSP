@@ -8,6 +8,47 @@
 // J.R Gloudemans
 //////////////////////////////////////////////////////////////////////
 
+//===== CfdMesh Overview ====//
+//	WriteSurfs: Each component writes out cubic Bezier surfaces (split depending on topology)
+//
+//	CleanUp: Clear all allocated resources
+//
+//	ReadSurfs: Read Bezier surf from file.  Combine components that have matching border curves.
+//
+//	UpdateSourcesAndWakes: Get all sources locations from geom components.  Set up wakes.
+//
+//	BuildGrid: Build surf dist maps, find  surf border curves, load surface curves (SCurve)
+//				Match SCurves to create ICurves.  Create wakes surfs.
+//
+//  Intersect: Intersect all surfaces.  Intersect Y Slice Plane.
+//		Surf::Intersect - subdivide in to patchs, keep splitting till planer, intersect.
+//			CfdMeshMgr::AddIntersectionSeg - Create intersection points and segments.
+//
+//		CfdMeshMgr::LoadBorderCurves: Tesselate border curves, build border chains.
+//
+//		CfdMeshMgr::BuildChains: Build chains from intersection segments.
+//
+//		CfdMeshMgr:MergeInteriorChainIPnts: For all chains merge intersection points (IPnt).
+//
+//		CfdMeshMgr:SplitBorderCurves: Split border chains at the beginning and end of intersection curves.
+//
+//		CfdMeshMgr::IntersectSplitChains: Intersect non-border chains and split.
+//
+//  InitMesh: Tesselate chaings, merge border end points, build initial mesh, remove interior tris.
+//
+//		CfdMeshMgr::TessellateChains: Teseslate all chains based on grid density
+//
+//		CfdMeshMgr::MergeBorderEndPoints: Merge IPnts into single points.
+//
+//		CfdMeshMgr::BuildMesh: For each surface, find chains and build triangle mesh.
+//
+//		CfdMeshMgr::RemoveInteriorTris: For each triangle, shoot ray and count number of crossings.
+//				Remove intierior triangles.
+//
+//		CfdMeshMgr::Remesh: Remesh (split, collapse, swap, smooth) each surface mesh triangle.
+//
+
+
 #if !defined(CfdMeshMgr_CfdMeshMgr__INCLUDED_)
 #define CfdMeshMgr_CfdMeshMgr__INCLUDED_
 
@@ -161,6 +202,8 @@ public:
 
 //	virtual void AddISeg( Surf* sA, Surf* sB, vec2d & sAuw0, vec2d & sAuw1,  vec2d & sBuw0, vec2d & sBuw1 );
 	virtual void AddIntersectionSeg( SurfPatch& pA, SurfPatch& pB, vec3d & ip0, vec3d & ip1 );
+//	virtual ISeg* CreateSurfaceSeg( Surf* sPtr, vec3d & p0, vec3d & p1, vec2d & uw0, vec2d & uw1 );
+	virtual ISeg* CreateSurfaceSeg( Surf* surfA, vec2d & uwA0, vec2d & uwA1, Surf* surfB, vec2d & uwB0, vec2d & uwB1  );
 
 	virtual void BuildChains();
 	virtual void ExpandChain( ISegChain* chain );
@@ -206,6 +249,9 @@ public:
 	virtual double GetFarYScale()					{ return m_FarYScale; }
 	virtual double GetFarZScale()					{ return m_FarZScale; }
 
+	virtual void SetWakeScale( double s )			{ m_WakeScale = s; }
+	virtual double GetWakeScale()					{ return m_WakeScale; }
+
 	virtual void WriteChains();
 
 	enum{ STL_FILE_NAME, POLY_FILE_NAME, TRI_FILE_NAME, 
@@ -216,6 +262,9 @@ public:
 	bool GetExportFileFlag( int type );
 	void SetExportFileFlag( bool flag, int type );
 	void ResetExportFileNames();
+
+	void AddPossCoPlanarSurf( Surf* surfA, Surf* surfB );
+	vector< Surf* > GetPossCoPlanarSurfs( Surf* surfPtr );
 
 	void TestStuff();
 	vector< vec3d > debugPnts;
@@ -267,6 +316,8 @@ protected:
 	double m_FarYScale;
 	double m_FarZScale;
 
+	double m_WakeScale;
+
 	vector< Puw* > m_DelPuwVec;				// Store Created Puw and Ipnts
 	vector< IPnt* > m_DelIPntVec;
 	vector< IPntGroup* > m_DelIPntGroupVec;
@@ -276,6 +327,9 @@ protected:
 
 	bool m_ExportFileFlags[NUM_FILE_NAMES];
 	Stringc m_ExportFileNames[NUM_FILE_NAMES];
+
+	//==== Vector of Surfs that may have a border that lies on Surf A ====//
+	map< Surf*, vector< Surf* > > m_PossCoPlanarSurfMap;
 
 };
 
