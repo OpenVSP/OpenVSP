@@ -63,7 +63,7 @@ public:
 	void CompCurvature( double u, double w, double& k1, double& k2, double& ka, double& kg );
 	double TargetLen( double u, double w, double gap, double radfrac );
 	void BuildTargetMap( MSCloudFourD &ms_cloud );
-	void LimitTargetMap( MSCloud &ms_cloud, MSTree &ms_tree );
+	void LimitTargetMap( MSCloud &ms_cloud, MSTree &ms_tree, double minmap );
 	double InterpTargetMap( double u, double w );
 
 	static void BlendFuncs(double u, double& F1, double& F2, double& F3, double& F4);

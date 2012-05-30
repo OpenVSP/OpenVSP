@@ -152,7 +152,7 @@ public:
 	virtual void RemeshSingleComp( int comp_id, int output_type );
 
 	virtual void Intersect();
-	virtual void InitMesh();
+	virtual void InitMesh( double minmap );
 
 	virtual void PrintQual();
 	virtual Stringc GetQualString();
@@ -175,9 +175,9 @@ public:
 	virtual void SplitBorderCurves();
 	virtual void MergeBorderEndPoints();
 	virtual void MergeIPntGroups( list< IPntGroup* > & iPntGroupList, double tol );
-	virtual void TessellateChains( );
+	virtual void TessellateChains( double minmap );
 	virtual void BuildMesh();
-	virtual void BuildTargetMap( );
+	virtual double BuildTargetMap( );
 	virtual void RemoveInteriorTris();
 	virtual void ConnectBorderEdges();
 	virtual void MatchBorderEdges( list< Edge* > edgeList );

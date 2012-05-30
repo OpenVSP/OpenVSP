@@ -452,11 +452,11 @@ void Surf::BuildTargetMap( MSCloudFourD &ms_cloud )
 	}
 }
 
-void Surf::LimitTargetMap( MSCloud &ms_cloud, MSTree &ms_tree )
+void Surf::LimitTargetMap( MSCloud &ms_cloud, MSTree &ms_tree, double minmap )
 {
 	double grm1 = m_GridDensityPtr->GetGrowRatio() - 1.0;
 
-	double tmin = *(ms_cloud.sources[0].m_strptr);
+	double tmin = min( minmap, *(ms_cloud.sources[0].m_strptr) );
 
 	SearchParams params;
 	params.sorted = false;
