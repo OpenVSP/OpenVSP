@@ -116,7 +116,7 @@ void MSCloud::prune_map_sources( MSTree &ms_tree, GridDensity* grid_den )
 	vector<bool> remove (nsrc, false);
 
 	double grm1 = grid_den->GetGrowRatio() - 1.0;
-	double tmin = grid_den->GetMinLen();
+	double tmin = *( sources[0].m_strptr );
 
 	SearchParams params;
 	params.sorted = false;

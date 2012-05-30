@@ -2526,6 +2526,8 @@ void CfdMeshMgr::TessellateChains( )
 		}
 	}
 
+	es_cloud.sort();
+
 	MSTree es_tree( 3, es_cloud, KDTreeSingleIndexAdaptorParams( 10 ) );
 	es_tree.buildIndex();
 
