@@ -904,9 +904,9 @@ void CfdMeshMgr::BuildGrid()
 #endif
 }
 
-void CfdMeshMgr::BuildTargetMap( )
+double CfdMeshMgr::BuildTargetMap( )
 {
-	MSCloud ms_cloud;
+	MSCloudFourD ms_cloud;
 
 	unsigned int stop, start;
 	start = get_msec();
@@ -922,6 +922,7 @@ void CfdMeshMgr::BuildTargetMap( )
     start = stop;
 
     ms_cloud.sort();
+    double minmap = ms_cloud.sources[0].m_initstr;
 
 	stop = get_msec();
 	printf("Basic map sorted in %.5f sec\n",  (float)(stop-start) / 1000.0);
@@ -930,7 +931,7 @@ void CfdMeshMgr::BuildTargetMap( )
 
     printf("%d Sources\n", ms_cloud.sources.size());
 
-	MSTree ms_tree( 3, ms_cloud, KDTreeSingleIndexAdaptorParams( 10 ) );
+	MSTreeFourD ms_tree( 4, ms_cloud, KDTreeSingleIndexAdaptorParams( 10 ) );
 	ms_tree.buildIndex();
 
 	stop = get_msec();
@@ -959,6 +960,7 @@ void CfdMeshMgr::BuildTargetMap( )
 	printf("Map limited in %.5f sec\n",  (float)(stop-start) / 1000.0);
     start = stop;
 
+    return minmap;
 }
 
 void CfdMeshMgr::Remesh(int output_type)
@@ -2048,7 +2050,7 @@ void CfdMeshMgr::IntersectWakes()
 	}
 }
 
-void CfdMeshMgr::InitMesh()
+void CfdMeshMgr::InitMesh( double minmap )
 {
 	bool PrintProgress = false;
 	#ifdef DEBUG_CFD_MESH
@@ -2059,7 +2061,7 @@ void CfdMeshMgr::InitMesh()
 	start = get_msec();
 
 	if ( PrintProgress )	printf("TessellateChains\n");
-	TessellateChains( );
+	TessellateChains( minmap );
 
 	stop = get_msec();
 	printf("TessellateChains in %.5f sec\n",  (float)(stop-start) / 1000.0);
@@ -2626,7 +2628,7 @@ void CfdMeshMgr::MergeInteriorChainIPnts()
 	}
 }
 
-void CfdMeshMgr::TessellateChains( )
+void CfdMeshMgr::TessellateChains( double minmap )
 {
 	MSCloud es_cloud;
 
@@ -2644,11 +2646,13 @@ void CfdMeshMgr::TessellateChains( )
 		double t = (*c)->CalcDensity( &m_GridDensity );
 
 		double d = dist( (*c)->m_TessVec.front()->m_Pnt, (*c)->m_TessVec.back()->m_Pnt );
-		if ( d > 0.7 * t )
+		if ( d > 0.001 * t )
 		{
 			(*c)->BuildES( es_cloud, &m_GridDensity );
 		}
 	}
+
+	es_cloud.sort();
 
 	MSTree es_tree( 3, es_cloud, KDTreeSingleIndexAdaptorParams( 10 ) );
 	es_tree.buildIndex();
@@ -2670,7 +2674,7 @@ void CfdMeshMgr::TessellateChains( )
 
 	for ( int i = 0 ; i < (int)m_SurfVec.size() ; i++ )
 	{
-		m_SurfVec[i]->LimitTargetMap( es_cloud, es_tree );
+		m_SurfVec[i]->LimitTargetMap( es_cloud, es_tree, minmap );
 	}
 
 	es_cloud.free_strengths();

@@ -33,9 +33,12 @@ using namespace std;
 using namespace nanoflann;
 
 struct MapSource;
+struct MapSource4D;
 struct MSCloud;
+struct MSCloudFourD;
 
 typedef KDTreeSingleIndexAdaptor< L2_Simple_Adaptor< double, MSCloud > ,MSCloud, 3 > MSTree;
+typedef KDTreeSingleIndexAdaptor< L2_Simple_Adaptor< double, MSCloudFourD > ,MSCloudFourD, 4 > MSTreeFourD;
 
 typedef vector< pair< size_t, double > > MSTreeResults;
 
@@ -52,6 +55,23 @@ struct MapSource
 	double *m_strptr;
 	bool m_dominated;
 };
+
+struct MapSource4D
+{
+	MapSource4D( vec3d pt, double *strptr )
+	{
+		m_pt = pt;
+		m_initstr = *strptr;
+		m_strptr = strptr;
+		m_dominated = false;
+	};
+
+	vec3d m_pt;
+	double m_initstr;
+	double *m_strptr;
+	bool m_dominated;
+};
+
 
 // The data source fed into the KD-tree library must adhere to an interface.  The following
 // struct implements that interface for the edge source kd-tree.
@@ -90,12 +110,46 @@ struct MSCloud
 	bool kdtree_get_bbox(BBOX &bb) const { return false; }
 
 	void sort();
-	void LimitTargetMap( MSTree &ms_tree, GridDensity* grid_den );
 	void prune_map_sources( MSTree &es_tree, GridDensity* grid_den );
 	void free_strengths();
 
 };
 
+struct MSCloudFourD
+{
+	// Underlying storage a vector.
+	vector< MapSource4D > sources;
 
+	double *str;
+	double deltaT;
+	double grm1;
+
+	// Must return the number of data points
+	inline size_t kdtree_get_point_count() const { return sources.size(); }
+
+	double kdtree_distance( const double *p1, const size_t idx_p2, size_t size) const;
+
+	// Returns the dim'th component of the idx'th point in the class:
+	// Since this is inlined and the "dim" argument is typically an immediate value, the
+	//  "if/else's" are actually solved at compile time.
+	inline double kdtree_get_pt(const size_t idx, int dim) const
+	{
+		if (dim==0) return sources[idx].m_pt.x();
+		else if (dim==1) return sources[idx].m_pt.y();
+		else if (dim==2) return sources[idx].m_pt.z();
+		else return sources[idx].m_initstr;
+	}
+
+	// Optional bounding-box computation: return false to default to a standard bbox computation loop.
+	//   Return true if the BBOX was already computed by the class and returned in "bb" so it can be avoided to redo it again.
+	//   Look at bb.size() to find out the expected dimensionality (e.g. 2 or 3 for point clouds)
+	template <class BBOX>
+	bool kdtree_get_bbox(BBOX &bb) const { return false; }
+
+	void sort();
+	void LimitTargetMap( MSTreeFourD &ms_tree, GridDensity* grid_den );
+	void free_strengths();
+
+};
 
 #endif

@@ -459,13 +459,13 @@ void CfdMeshScreen::screenCB( Fl_Widget* w )
 		addOutputText( "Build Grid\n");
 		cfdMeshMgrPtr->BuildGrid();
 		addOutputText( "Build Target Map\n");
-		cfdMeshMgrPtr->BuildTargetMap();
+		double minmap = cfdMeshMgrPtr->BuildTargetMap();
 		addOutputText( "Intersect\n");
 		cfdMeshMgrPtr->Intersect();
 		addOutputText( "Finished Intersect\n");
 //		cfdMeshMgrPtr->UpdateSourcesAndWakes();
 		addOutputText( "InitMesh\n");
-		cfdMeshMgrPtr->InitMesh();
+		cfdMeshMgrPtr->InitMesh( minmap );
 		addOutputText( "Remesh\n");
 		cfdMeshMgrPtr->Remesh( CfdMeshMgr::CFD_OUTPUT );
 		//addOutputText( "Triangle Quality\n");

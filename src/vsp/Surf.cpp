@@ -409,7 +409,7 @@ double Surf::TargetLen( double u, double w, double gap, double radfrac)
 	return len;
 }
 
-void Surf::BuildTargetMap( MSCloud &ms_cloud )
+void Surf::BuildTargetMap( MSCloudFourD &ms_cloud )
 {
 	int npatchu = ( m_NumU - 1 ) / 3;
 	int npatchw = ( m_NumW - 1 ) / 3;
@@ -434,30 +434,34 @@ void Surf::BuildTargetMap( MSCloud &ms_cloud )
 
 			double len = numeric_limits<double>::max( );
 
+			// apply curvature based limits
+			double curv_len = TargetLen( u, w, m_GridDensityPtr->GetMaxGap(), m_GridDensityPtr->GetRadFrac());
+			len = min( len, curv_len );
+
+			// apply minimum edge length as safety on curvature
+			len = max( len, m_GridDensityPtr->GetMinLen() );
+
+			// apply sources
 			vec3d p = CompPnt( u, w );
 			double grid_len = m_GridDensityPtr->GetTargetLen( p );
 			len = min( len, grid_len );
 
-			double curv_len = TargetLen( u, w, m_GridDensityPtr->GetMaxGap(), m_GridDensityPtr->GetRadFrac());
-			len = min( len, curv_len );
-
-			// check max and min size as well
+			// finally check max size
 			len = min( len, m_GridDensityPtr->GetBaseLen() );
-			len = max( len, m_GridDensityPtr->GetMinLen() );
 
 			m_TargetMap[i][j] = len;
 
-			MapSource ms = MapSource( p, &( m_TargetMap[i][j] ) );
+			MapSource4D ms = MapSource4D( p, &( m_TargetMap[i][j] ) );
 			ms_cloud.sources.push_back( ms );
 		}
 	}
 }
 
-void Surf::LimitTargetMap( MSCloud &ms_cloud, MSTree &ms_tree )
+void Surf::LimitTargetMap( MSCloud &ms_cloud, MSTree &ms_tree, double minmap )
 {
 	double grm1 = m_GridDensityPtr->GetGrowRatio() - 1.0;
 
-	double tmin = m_GridDensityPtr->GetMinLen();
+	double tmin = min( minmap, *(ms_cloud.sources[0].m_strptr) );
 
 	SearchParams params;
 	params.sorted = false;

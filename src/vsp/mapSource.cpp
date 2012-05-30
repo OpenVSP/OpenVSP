@@ -18,18 +18,62 @@ bool ShortMapTargetLengthCompare(const MapSource &a, const MapSource &b)
     return ( *(a.m_strptr) < *(b.m_strptr) );
 }
 
+bool LongMapTargetLengthCompare(const MapSource &a, const MapSource &b)
+{
+    return ( *(b.m_strptr) < *(a.m_strptr) );
+}
+
+bool ShortMapTargetLengthCompare4D(const MapSource4D &a, const MapSource4D &b)
+{
+    return ( *(a.m_strptr) < *(b.m_strptr) );
+}
+
+bool LongMapTargetLengthCompare4D(const MapSource4D &a, const MapSource4D &b)
+{
+    return ( *(b.m_strptr) < *(a.m_strptr) );
+}
+
+
 void MSCloud::sort()
 {
 	std::sort( sources.begin(), sources.end(), ShortMapTargetLengthCompare );
 }
 
-void MSCloud::LimitTargetMap( MSTree &ms_tree, GridDensity* grid_den )
+void MSCloudFourD::sort()
+{
+	std::sort( sources.begin(), sources.end(), ShortMapTargetLengthCompare4D );
+}
+
+// Returns the distance between the vector "p1[0:size-1]" and the data point with index "idx_p2" stored in the class:
+double MSCloudFourD::kdtree_distance( const double *p1, const size_t idx_p2, size_t size) const
+{
+	const double d0 = p1[0] - sources[idx_p2].m_pt.x();
+	const double d1 = p1[1] - sources[idx_p2].m_pt.y();
+	const double d2 = p1[2] - sources[idx_p2].m_pt.z();
+
+	const double r2 = d0*d0 + d1*d1 + d2*d2;
+	const double r = sqrt( r2 );
+
+	const double targetstr = sources[idx_p2].m_initstr;
+
+	const double ds = *str - targetstr;
+
+	const double deltaS = ds + r * grm1;
+
+	const double R = deltaT + deltaS;
+
+	return R;
+}
+
+
+void MSCloudFourD::LimitTargetMap( MSTreeFourD &ms_tree, GridDensity* grid_den )
 {
 	int nsrc = sources.size();
 
-	double grm1 = grid_den->GetGrowRatio() - 1.0;
-	double tmin = grid_den->GetMinLen();
+	grm1 = grid_den->GetGrowRatio() - 1.0;
+	double tmin = 0.0;
 	double tmax = *( sources[ nsrc - 1 ].m_strptr );
+	deltaT = tmax - tmin;
 
 	int nmax = 0;
 
@@ -45,54 +89,29 @@ void MSCloud::LimitTargetMap( MSTree &ms_tree, GridDensity* grid_den )
 
 	for ( int i = 0 ; i < nsrc ; i++ )
 	{
-		// A source can only dominate others if it has not been dominated.
-		if( !(sources[i].m_dominated) )
+		if( !sources[i].m_dominated )
 		{
-
 			double *query_pt = sources[i].m_pt.v;
-			double localstr = *( sources[i].m_strptr );
+			str = sources[i].m_strptr;
 
 			MSTreeResults ms_matches;
 
-			if( nmax <= 0 )
-			{
-				tmax = localstr;
-				nmax = 1;
-				for ( int j = i + 1; j < nsrc; j++ )
-				{
-					double tj = *( sources[j].m_strptr );
-					if( tj > tmax)
-					{
-						tmax = tj;
-						nmax = 1;
-					}
-					else if( tj == tmax )
-					{
-						nmax++;
-					}
-				}
-			}
-
-			double rmax = ( tmax - localstr ) / grm1;
-			double r2max = rmax * rmax;
-
-			int nMatches = ms_tree.radiusSearch( query_pt, r2max, ms_matches, params );
+			int nMatches = ms_tree.radiusSearch( query_pt, deltaT, ms_matches, params );
 
 			for ( int j = 0; j < nMatches; j++ )
 			{
 				int imatch = ms_matches[j].first;
-				double r = sqrt( ms_matches[j].second );
+				double R = ms_matches[j].second;
 
-				double remotestr = localstr + grm1 * r;
+				double deltaS = R - deltaT;
 
-				double targetstr = *( sources[imatch].m_strptr );
+				double targetinitstr = sources[imatch].m_initstr;
 
-				if( targetstr >= remotestr )
+				double targetadjust = targetinitstr + deltaS;
+
+				if( targetadjust < ( *( sources[imatch].m_strptr ) ) )
 				{
-					if( targetstr == tmax )
-						nmax--;
-
-					*( sources[imatch].m_strptr ) = remotestr;
+					*( sources[imatch].m_strptr ) = targetadjust;
 					sources[imatch].m_dominated = true;
 				}
 			}
@@ -106,7 +125,7 @@ void MSCloud::prune_map_sources( MSTree &ms_tree, GridDensity* grid_den )
 	vector<bool> remove (nsrc, false);
 
 	double grm1 = grid_den->GetGrowRatio() - 1.0;
-	double tmin = grid_den->GetMinLen();
+	double tmin = *( sources[0].m_strptr );
 
 	SearchParams params;
 	params.sorted = false;
@@ -153,6 +172,16 @@ void MSCloud::prune_map_sources( MSTree &ms_tree, GridDensity* grid_den )
 }
 
 void MSCloud::free_strengths()
+{
+	int nsrc = sources.size();
+	for ( int i = 0 ; i < nsrc ; i++ )
+	{
+		double *strptr = sources[i].m_strptr;
+		delete strptr;
+	}
+}
+
+void MSCloudFourD::free_strengths()
 {
 	int nsrc = sources.size();
 	for ( int i = 0 ; i < nsrc ; i++ )
