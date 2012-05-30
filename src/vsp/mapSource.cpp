@@ -71,7 +71,7 @@ void MSCloudFourD::LimitTargetMap( MSTreeFourD &ms_tree, GridDensity* grid_den )
 	int nsrc = sources.size();
 
 	grm1 = grid_den->GetGrowRatio() - 1.0;
-	double tmin = *( sources[ 0 ].m_strptr );
+	double tmin = 0.0;
 	double tmax = *( sources[ nsrc - 1 ].m_strptr );
 	deltaT = tmax - tmin;
 
