@@ -412,8 +412,6 @@ void SCurve::BuildEdgeSources( MSCloud &es_cloud, GridDensity* grid_den )
 	SmoothTess();
 	UWTess();
 
-	double edgeadjust = 1.0 - ( grid_den->GetGrowRatio() - 1.0 ) * 0.5;
-
 	vec3d uw = m_UWTess[0];
 	vec3d p0 = m_Surf->CompPnt( uw.x(), uw.y() );
 	vec3d p1;
@@ -422,7 +420,7 @@ void SCurve::BuildEdgeSources( MSCloud &es_cloud, GridDensity* grid_den )
 		uw = m_UWTess[i];
 		p1 = m_Surf->CompPnt( uw.x(), uw.y() );
 
-		double d = dist( p0, p1 ) * edgeadjust;
+		double d = dist( p0, p1 );
 		vec3d p = ( p1 + p0 ) * 0.5;
 
 		double *strptr = new double;
