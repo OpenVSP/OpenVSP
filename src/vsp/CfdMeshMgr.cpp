@@ -15,26 +15,9 @@
 #include "SurfPatch.h"
 #include "Tri.h"
 
-#include <sys/time.h>
-#include <time.h>
-
 #ifdef DEBUG_CFD_MESH
 #include <direct.h>
 #endif
-
-unsigned int get_msec(void)
-{
-	static struct timeval timeval, first_timeval;
-
-	gettimeofday(&timeval, 0);
-
-	if(first_timeval.tv_sec == 0) {
-		first_timeval = timeval;
-		return 0;
-	}
-	return (timeval.tv_sec - first_timeval.tv_sec) * 1000 + (timeval.tv_usec - first_timeval.tv_usec) / 1000;
-}
-
 
 //==== Singleton ====//
 CFDM_Single::CFDM_Single()
@@ -908,45 +891,23 @@ double CfdMeshMgr::BuildTargetMap( )
 {
 	MSCloudFourD ms_cloud;
 
-	unsigned int stop, start;
-	start = get_msec();
-
 	int i;
 	for ( i = 0 ; i < (int)m_SurfVec.size() ; i++ )
 	{
 		m_SurfVec[i]->BuildTargetMap( ms_cloud );
 	}
 
-	stop = get_msec();
-	printf("Basic map build in %.5f sec\n",  (float)(stop-start) / 1000.0);
-    start = stop;
-
     ms_cloud.sort();
     double minmap = ms_cloud.sources[0].m_initstr;
 
-	stop = get_msec();
-	printf("Basic map sorted in %.5f sec\n",  (float)(stop-start) / 1000.0);
-    start = stop;
-
-
-    printf("%d Sources\n", ms_cloud.sources.size());
-
 	MSTreeFourD ms_tree( 4, ms_cloud, KDTreeSingleIndexAdaptorParams( 10 ) );
 	ms_tree.buildIndex();
-
-	stop = get_msec();
-	printf("Tree built in %.5f sec\n",  (float)(stop-start) / 1000.0);
-    start = stop;
 
 //	// Prune sources which have no effect because other nearby sources are smaller.
 //	ms_cloud.prune_edge_sources( ms_tree, &m_GridDensity );
 //	ms_tree.buildIndex();
 //
 //	printf("%d Sources\n", ms_cloud.sources.size());
-//
-//	stop = get_msec();
-//	printf("Tree pruned and rebuilt %.5f sec\n",  (float)(stop-start) / 1000.0);
-//    start = stop;
 
 
 //	for ( i = 0 ; i < (int)m_SurfVec.size() ; i++ )
@@ -955,10 +916,6 @@ double CfdMeshMgr::BuildTargetMap( )
 //	}
 
     ms_cloud.LimitTargetMap( ms_tree, &m_GridDensity );
-
-	stop = get_msec();
-	printf("Map limited in %.5f sec\n",  (float)(stop-start) / 1000.0);
-    start = stop;
 
     return minmap;
 }
@@ -2057,45 +2014,23 @@ void CfdMeshMgr::InitMesh( double minmap )
 		PrintProgress = true;
 	#endif
 
-	unsigned int stop, start;
-	start = get_msec();
-
 	if ( PrintProgress )	printf("TessellateChains\n");
 	TessellateChains( minmap );
-
-	stop = get_msec();
-	printf("TessellateChains in %.5f sec\n",  (float)(stop-start) / 1000.0);
-    start = stop;
 
 //DebugWriteChains( "Tess_UW", true );
 
 	if ( PrintProgress )	printf("MergeBorderEndPoints\n");
 	MergeBorderEndPoints();
 
-	stop = get_msec();
-	printf("MergeBorderEndPoints in %.5f sec\n",  (float)(stop-start) / 1000.0);
-    start = stop;
 
 	if ( PrintProgress )	printf("BuildMesh\n");
 	BuildMesh();
 
-	stop = get_msec();
-	printf("BuildMesh in %.5f sec\n",  (float)(stop-start) / 1000.0);
-    start = stop;
-
 	if ( PrintProgress )	printf("RemoveInteriorTris\n");
 	RemoveInteriorTris();
 
-	stop = get_msec();
-	printf("RemoveInteriorTris in %.5f sec\n",  (float)(stop-start) / 1000.0);
-    start = stop;
-
 	if ( PrintProgress )	printf("ConnectBorderEdges\n");
 	ConnectBorderEdges();
-
-	stop = get_msec();
-	printf("ConnectBorderEdges in %.5f sec\n",  (float)(stop-start) / 1000.0);
-    start = stop;
 }
 
 void CfdMeshMgr::AddIntersectionSeg( SurfPatch& pA, SurfPatch& pB, vec3d & ip0, vec3d & ip1 )
