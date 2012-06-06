@@ -121,6 +121,9 @@ public:
 	void SetStartStretchX( double x )				{ m_StartStretchX = x; }
 	vec3d ComputeTrailEdgePnt( vec3d le_pnt );
 
+	void SetWakeAngle( double a )					{ m_Angle = a; }
+	double GetWakeAngle()							{ return m_Angle; }
+
 
 protected:
 
@@ -128,7 +131,6 @@ protected:
 	double m_StartStretchX;
 	double m_Angle;
 	vector< Wake* > m_WakeVec;
-//	vector< ICurve*  > m_ICurveVec;
 
 	vector< vector< vec3d > > m_LeadingEdgeVec;
 
@@ -219,10 +221,12 @@ public:
 	virtual void MergeBorderEndPoints();
 	virtual void MergeIPntGroups( list< IPntGroup* > & iPntGroupList, double tol );
 	virtual void TessellateChains( double minmap );
+	virtual void AddWakeCoPlanarSurfaceChains();
+	virtual void AddSurfaceChain( Surf* sPtr, ISegChain* chainIn );
 	virtual void BuildMesh();
 	virtual double BuildTargetMap( );
 	virtual void RemoveInteriorTris();
-	virtual void ConnectBorderEdges();
+	virtual void ConnectBorderEdges( bool wakeOnly );
 	virtual void MatchBorderEdges( list< Edge* > edgeList );
 
 	virtual void DebugWriteChains( const char* name, bool tessFlag );
@@ -251,6 +255,8 @@ public:
 
 	virtual void SetWakeScale( double s )			{ m_WakeScale = s; }
 	virtual double GetWakeScale()					{ return m_WakeScale; }
+	virtual void SetWakeAngle( double a )			{ m_WakeMgr.SetWakeAngle( a ); }
+	virtual double GetWakeAngle()					{ return m_WakeMgr.GetWakeAngle(); }
 
 	virtual void WriteChains();
 

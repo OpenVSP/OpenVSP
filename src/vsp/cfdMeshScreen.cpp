@@ -111,9 +111,15 @@ CfdMeshScreen::CfdMeshScreen(ScreenMgr* mgr, Aircraft* airPtr)
 
 	m_WakeScaleSlider= new SliderInputCombo( ui->wakeScaleSlider, ui->wakeScaleInput );
 	m_WakeScaleSlider->SetCallback( staticScreenCB, this );
-	m_WakeScaleSlider->SetLimits( 1.1, 1000.0 );
+	m_WakeScaleSlider->SetLimits( 1.0, 1000.0 );
 	m_WakeScaleSlider->SetRange( 10.0 );
 	m_WakeScaleSlider->UpdateGui();
+
+	m_WakeAngleSlider= new SliderInputCombo( ui->wakeAngleSlider, ui->wakeAngleInput );
+	m_WakeAngleSlider->SetCallback( staticScreenCB, this );
+	m_WakeAngleSlider->SetLimits( -45.0, 45.0 );
+	m_WakeAngleSlider->SetRange( 10.0 );
+	m_WakeAngleSlider->UpdateGui();
 
 	ui->compChoice->callback( staticScreenCB, this );
 	ui->sourceBrowser->callback( staticScreenCB, this );
@@ -182,6 +188,7 @@ CfdMeshScreen::~CfdMeshScreen()
 	delete m_FarYScaleSlider;
 	delete m_FarZScaleSlider;
 	delete m_WakeScaleSlider;
+	delete m_WakeAngleSlider;
 
 	delete cfdMeshUI;
 }
@@ -212,6 +219,8 @@ void CfdMeshScreen::update()
 
 	m_WakeScaleSlider->SetVal( cfdMeshMgrPtr->GetWakeScale() );
 	m_WakeScaleSlider->UpdateGui();
+	m_WakeAngleSlider->SetVal( cfdMeshMgrPtr->GetWakeAngle() );
+	m_WakeAngleSlider->UpdateGui();
 
 	//==== Load Geom Choice ====//
 	vector< Geom* > geomVec = aircraftPtr->getGeomVec();	
@@ -550,6 +559,11 @@ void CfdMeshScreen::screenCB( Fl_Widget* w )
 	else if ( m_WakeScaleSlider->GuiChanged( w ) )
 	{
 		cfdMeshMgrPtr->SetWakeScale( m_WakeScaleSlider->GetVal() );
+		update_flag = false;
+	}
+	else if ( m_WakeAngleSlider->GuiChanged( w ) )
+	{
+		cfdMeshMgrPtr->SetWakeAngle( m_WakeAngleSlider->GetVal() );
 		update_flag = false;
 	}
 	//else if ( w == cfdMeshUI->globalEdgeSizeInput )

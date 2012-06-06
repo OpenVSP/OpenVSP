@@ -514,6 +514,8 @@ void Aircraft::writeFile( const char* file_name, vector< Geom * > &gVec, vector<
 	xmlAddDoubleNode( root, "CFD_Far_Field_Scale_Y", cfdMeshMgrPtr->GetFarYScale() );
 	xmlAddDoubleNode( root, "CFD_Far_Field_Scale_Z", cfdMeshMgrPtr->GetFarZScale() );
 	xmlAddIntNode( root, "CFD_Half_Mesh_Flag", cfdMeshMgrPtr->GetHalfMeshFlag() );
+	xmlAddDoubleNode( root, "CFD_Wake_Angle", cfdMeshMgrPtr->GetWakeAngle() );
+	xmlAddDoubleNode( root, "CFD_Wake_Scale", cfdMeshMgrPtr->GetWakeScale() );
 
 	//==== Write Window Background Scale/Offset ====//
 	drawWin->writeFile( root );
@@ -892,6 +894,8 @@ int Aircraft::readFile(const char* file_name )
 	cfdMeshMgrPtr->SetFarZScale( xmlFindDouble( root, "CFD_Far_Field_Scale_Z", cfdMeshMgrPtr->GetFarZScale() ) );
 	bool hf = xmlFindInt( root, "CFD_Half_Mesh_Flag", cfdMeshMgrPtr->GetHalfMeshFlag() ) != 0;
 	cfdMeshMgrPtr->SetHalfMeshFlag( hf );
+	cfdMeshMgrPtr->SetWakeAngle( xmlFindDouble( root, "CFD_Wake_Angle", cfdMeshMgrPtr->GetWakeAngle() ) );
+	cfdMeshMgrPtr->SetWakeScale( xmlFindDouble( root, "CFD_Wake_Scale", cfdMeshMgrPtr->GetWakeScale() ) );
 
 	//==== Read Window Background Scale/Offset ====//
 	if ( drawWin )

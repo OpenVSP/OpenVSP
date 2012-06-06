@@ -297,8 +297,6 @@ void WingSect::SetDriver(int driver_in)
 //==== Constructor =====//
 Ms_wing_geom::Ms_wing_geom(Aircraft* aptr) : Geom(aptr)
 {
-	m_WakeActiveFlag = true;
-
 	sects.set_chunk_size( 256 );
 	currSect = 0;
 	nextSect = 0;

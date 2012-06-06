@@ -65,6 +65,7 @@ private:
 	SliderInputCombo* m_FarZScaleSlider;
 
 	SliderInputCombo* m_WakeScaleSlider;
+	SliderInputCombo* m_WakeAngleSlider;
 
 
 	ScreenMgr* screenMgrPtr;

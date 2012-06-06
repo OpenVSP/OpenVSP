@@ -12,6 +12,7 @@
 #include "GridDensity.h"
 #include "triangle.h"
 #include "CfdMeshMgr.h"
+#include "util.h"
 
 #define DEBUG_MESH 1
 
@@ -268,18 +269,22 @@ void Mesh::CondenseSimpTris()
 	}
 }
 
-void Mesh::StretchSimpPnts( double start_x, double end_x, double factor )
+void Mesh::StretchSimpPnts( double start_x, double end_x, double scale, double angle )
 {
+	double factor = scale - 1.0;
 	for ( int i = 0 ; i < (int)simpPntVec.size() ; i++ )
 	{
 		double x = simpPntVec[i].x();
+		double z = simpPntVec[i].z();
 		if ( x > start_x )
 		{
 			double numer = x-start_x;
 			double fract = numer/(end_x-start_x);
-			x = start_x + numer*(1.0 + factor*fract*fract);
-			simpPntVec[i].set_x( x );
+			double xx = start_x + numer*(1.0 + factor*fract*fract);
+			double zz = z + (xx - x)*tan( DEG2RAD(angle) );
 
+			simpPntVec[i].set_x( xx );
+			simpPntVec[i].set_z( zz );
 		}
 	} 
 

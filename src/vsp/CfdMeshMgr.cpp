@@ -144,7 +144,7 @@ WakeMgr::~WakeMgr()
 vec3d WakeMgr::ComputeTrailEdgePnt( vec3d p )
 {
 
-	double z = p.z() + (m_EndX - p.x())*tan( m_Angle );
+	double z = p.z() + (m_EndX - p.x())*tan( DEG2RAD(m_Angle) );
 
 	return vec3d( m_EndX, p[1], z );
 }
@@ -162,13 +162,6 @@ void WakeMgr::ClearWakes()
 		delete m_WakeVec[i];
 	}
 	m_WakeVec.clear();
-//jrg deleted in cfdmeshmgr??
-	//for ( int i = 0 ; i < (int)m_ICurveVec.size() ; i++ )
-	//{
-	//	delete m_ICurveVec[i];
-	//}
-	//m_ICurveVec.clear();
-
 
 }
 
@@ -289,51 +282,16 @@ void WakeMgr::StretchWakes()
 		for ( int j = 0 ; j < (int)m_WakeVec[i]->m_SurfVec.size() ; j++ )
 		{
 			Mesh* msh = m_WakeVec[i]->m_SurfVec[j]->GetMesh();
-			msh->StretchSimpPnts( m_StartStretchX, m_EndX, scale );
+			msh->StretchSimpPnts( m_StartStretchX, m_EndX, scale, m_Angle);
 		}
 	}
 }
+
+
 	
 void WakeMgr::Draw()
 {
-/*
-	glLineWidth(1.0);
-	glColor4ub( 0, 150, 0, 255 );
-	for ( int i = 0 ; i < (int)m_LeadingEdgeVec.size() ; i++ )
-	{
-		glBegin( GL_LINE_STRIP );
-		for ( int p = 0 ; p < (int)m_LeadingEdgeVec[i].size() ; p++ )
-		{
-			glVertex3dv( m_LeadingEdgeVec[i][p].data() );
-		}
-		glEnd();
-		glBegin( GL_LINE_STRIP );
-		for ( int p = 0 ; p < (int)m_LeadingEdgeVec[i].size() ; p++ )
-		{
-			vec3d pnt = ComputeTrailEdgePnt( m_LeadingEdgeVec[i][p] );
-			glVertex3dv( pnt.data() );
-		}
-		glEnd();
 
-		glBegin( GL_LINES );
-		for ( int p = 0 ; p < (int)m_LeadingEdgeVec[i].size() ; p++ )
-		{
-			vec3d pnt = m_LeadingEdgeVec[i][p];
-			glVertex3dv( pnt.data() );
-			vec3d tepnt = ComputeTrailEdgePnt( pnt );
-			glVertex3dv( tepnt.data() );			
-		}
-		glEnd();
-	}
-	glLineWidth(2.0);
-	glColor4ub( 255, 0, 0, 255 );
-
-	//==== Draw Wake Lines ====//
-	for ( int i = 0 ; i < (int)m_WakeVec.size() ; i++ )
-	{
-		m_WakeVec[i]->Draw();
-	}
-*/
 }
 
 
@@ -1434,7 +1392,7 @@ void CfdMeshMgr::WriteNASCART_Obj_Tri_Gmsh( const char* dat_fn, const char* key_
 		}
 	}
 
-/*
+
 	//=====================================================================================//
 	//==== Write TRI File for Cart3D ======================================================//
 	//=====================================================================================//
@@ -1445,30 +1403,18 @@ void CfdMeshMgr::WriteNASCART_Obj_Tri_Gmsh( const char* dat_fn, const char* key_
 		if ( fp )
 		{
 			//==== Write Pnt Count and Tri Count ====//
-			fprintf( fp, "%d, %d\n", numPnts, tri_cnt);
+			fprintf( fp, "%d, %d\n", (int)allUsedPntVec.size(), (int)allTriVec.size() );
 
 			//==== Write Pnts ====//
-			for ( int i = 0 ; i < (int)allPntVec.size() ; i++ )
+			for ( int i = 0 ; i < (int)allUsedPntVec.size() ; i++ )
 			{
-				if ( pntShift[i] >= 0 )
-				   fprintf( fp, "%16.10g, %16.10g, %16.10g\n", allPntVec[i]->x(), allPntVec[i]->y(), allPntVec[i]->z() );
+				fprintf( fp, "%16.10g, %16.10g, %16.10g\n", allUsedPntVec[i]->x(), allUsedPntVec[i]->y(), allUsedPntVec[i]->z() );
 			}
 
 			//==== Write Tris ====//
-			for ( int i = 0 ; i < (int)m_SurfVec.size() ; i++ )
+			for ( int i = 0 ; i < (int)allTriVec.size() ; i++ )
 			{
-				vector < SimpTri >& sTriVec = m_SurfVec[i]->GetMesh()->GetSimpTriVec();
-				vector< vec3d >& sPntVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
-				for ( int t = 0 ; t <  (int)sTriVec.size() ; t++ )
-				{
-					int i0 = FindPntIndex( sPntVec[sTriVec[t].ind0], allPntVec, indMap );
-					int i1 = FindPntIndex( sPntVec[sTriVec[t].ind1], allPntVec, indMap );
-					int i2 = FindPntIndex( sPntVec[sTriVec[t].ind2], allPntVec, indMap );
-					int ind1 = pntShift[i0] + 1;
-					int ind2 = pntShift[i1] + 1;
-					int ind3 = pntShift[i2] + 1;
-					fprintf( fp, "%d, %d, %d \n", ind1, ind2, ind3 );
-				}
+					fprintf( fp, "%d, %d, %d \n", allTriVec[i].ind0, allTriVec[i].ind1, allTriVec[i].ind2 );
 			}
 
 			//==== Write Component ID ====//
@@ -1477,15 +1423,16 @@ void CfdMeshMgr::WriteNASCART_Obj_Tri_Gmsh( const char* dat_fn, const char* key_
 				vector < SimpTri >& sTriVec = m_SurfVec[i]->GetMesh()->GetSimpTriVec();
 				for ( int t = 0 ; t <  (int)sTriVec.size() ; t++ )
 				{
-					fprintf( fp, "%d \n", m_SurfVec[i]->GetCompID()+1);
+					fprintf( fp, "%d \n", m_SurfVec[i]->GetCompID()+1 );
 				}
 			}
 
 			fclose(fp);
 		}
 	}
+
 	//=====================================================================================//
-	//==== Write TRI File for Cart3D ======================================================//
+	//==== Write gmsh File           ======================================================//
 	//=====================================================================================//
 	if ( gmsh_fn )
 	{
@@ -1498,44 +1445,29 @@ void CfdMeshMgr::WriteNASCART_Obj_Tri_Gmsh( const char* dat_fn, const char* key_
 
 			//==== Write Nodes ====//
 			fprintf(fp, "$Nodes\n" );
-			fprintf(fp, "%d\n", numPnts );
-			for ( int i = 0 ; i < (int)allPntVec.size() ; i++ )
+			fprintf(fp, "%d\n", (int)allUsedPntVec.size() );
+			for ( int i = 0 ; i < (int)allUsedPntVec.size() ; i++ )
 			{
-				if ( pntShift[i] >= 0 )
-				{
-					fprintf( fp, "%d %16.10f %16.10f %16.10f\n", pntShift[i]+1,
-						allPntVec[i]->x(), allPntVec[i]->y(), allPntVec[i]->z() );
-				}
+				fprintf( fp, "%d %16.10f %16.10f %16.10f\n", i+1,
+					allUsedPntVec[i]->x(), allUsedPntVec[i]->y(), allUsedPntVec[i]->z() );
 			}
 			fprintf(fp, "$EndNodes\n" );
 
 			//==== Write Tris ====//
 			fprintf(fp, "$Elements\n" );
-			fprintf(fp, "%d\n", tri_cnt );
+			fprintf(fp, "%d\n", (int)allTriVec.size() );
 
 			int ele_cnt = 1;
-			for ( int i = 0 ; i < (int)m_SurfVec.size() ; i++ )
+			for ( int i = 0 ; i < (int)allTriVec.size() ; i++ )
 			{
-				vector < SimpTri >& sTriVec = m_SurfVec[i]->GetMesh()->GetSimpTriVec();
-				vector< vec3d >& sPntVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
-				for ( int t = 0 ; t <  (int)sTriVec.size() ; t++ )
-				{
-					int i0 = FindPntIndex( sPntVec[sTriVec[t].ind0], allPntVec, indMap );
-					int i1 = FindPntIndex( sPntVec[sTriVec[t].ind1], allPntVec, indMap );
-					int i2 = FindPntIndex( sPntVec[sTriVec[t].ind2], allPntVec, indMap );
-					int ind1 = pntShift[i0] + 1;
-					int ind2 = pntShift[i1] + 1;
-					int ind3 = pntShift[i2] + 1;
-					fprintf( fp, "%d 2 0 %d %d %d \n", ele_cnt, ind1, ind2, ind3 );
-					ele_cnt++;
-				}
+				fprintf( fp, "%d 2 0 %d %d %d \n", ele_cnt, allTriVec[i].ind0, allTriVec[i].ind1, allTriVec[i].ind2 );
+				ele_cnt++;
 			}
 
 			fprintf(fp, "$EndElements\n" );
 			fclose(fp);
 		}
 	}
-*/
 }
 
 
@@ -1775,6 +1707,19 @@ Stringc CfdMeshMgr::CheckWaterTight()
 			Edge* e = iter->second[i];
 			if ( !(e->t0 && e->t1) )
 				num_border_edges++;
+		}
+	}
+
+	//==== Clean Up ====//
+	for ( int i = 0 ; i < (int)nodeVec.size() ; i++ )
+	{
+		delete nodeVec[i];
+	}
+	for ( iter = edgeMap.begin() ; iter != edgeMap.end() ; iter++ )
+	{
+		for ( int i = 0 ; i < (int)iter->second.size() ; i++ )
+		{
+			delete iter->second[i];
 		}
 	}
 
@@ -2022,6 +1967,7 @@ void CfdMeshMgr::InitMesh( double minmap )
 	if ( PrintProgress )	printf("MergeBorderEndPoints\n");
 	MergeBorderEndPoints();
 
+	AddWakeCoPlanarSurfaceChains();
 
 	if ( PrintProgress )	printf("BuildMesh\n");
 	BuildMesh();
@@ -2030,7 +1976,8 @@ void CfdMeshMgr::InitMesh( double minmap )
 	RemoveInteriorTris();
 
 	if ( PrintProgress )	printf("ConnectBorderEdges\n");
-	ConnectBorderEdges();
+	ConnectBorderEdges( false );		// No Wakes
+	ConnectBorderEdges( true );			// Only Wakes
 }
 
 void CfdMeshMgr::AddIntersectionSeg( SurfPatch& pA, SurfPatch& pB, vec3d & ip0, vec3d & ip1 )
@@ -2453,25 +2400,25 @@ void CfdMeshMgr::SplitBorderCurves()
 			chains.push_back( (*c) );
 	}
 
-	//==== Check if Border Chains Lie On Another Surfaces ====//
-	for ( int i = 0 ; i < (int)chains.size() ; i++ )
-	{
-		Surf* surfA = chains[i]->m_SurfA;
-		vector< Surf* > surfBVec = GetPossCoPlanarSurfs( surfA );
-		if ( surfBVec.size() )
-		{
-			for ( int s = 0 ; s < (int)surfBVec.size() ; s++ )
-			{
-				Surf* surfB = surfBVec[s];
-				vector< ISegChain* > new_chains = chains[i]->FindCoPlanarChains( surfB, surfA );
-				for ( int j = 0 ; j < (int)new_chains.size() ; j++ )
-				{
-					new_chains[j]->m_BorderFlag = true;
-					m_ISegChainList.push_back( new_chains[j] );
-				}
-			}
-		}
-	}
+	////==== Check if Border Chains Lie On Another Surfaces ====//
+	//for ( int i = 0 ; i < (int)chains.size() ; i++ )
+	//{
+	//	Surf* surfA = chains[i]->m_SurfA;
+	//	vector< Surf* > surfBVec = GetPossCoPlanarSurfs( surfA );
+	//	if ( surfBVec.size() )
+	//	{
+	//		for ( int s = 0 ; s < (int)surfBVec.size() ; s++ )
+	//		{
+	//			Surf* surfB = surfBVec[s];
+	//			vector< ISegChain* > new_chains = chains[i]->FindCoPlanarChains( surfB, surfA );
+	//			for ( int j = 0 ; j < (int)new_chains.size() ; j++ )
+	//			{
+	//				new_chains[j]->m_BorderFlag = true;
+	//				m_ISegChainList.push_back( new_chains[j] );
+	//			}
+	//		}
+	//	}
+	//}
 
 #ifdef DEBUG_CFD_MESH
 	m_DebugDraw = true;
@@ -2640,6 +2587,64 @@ void CfdMeshMgr::TessellateChains( double minmap )
 	//}
 }
 
+void CfdMeshMgr::AddWakeCoPlanarSurfaceChains()
+{
+	//==== Find All Border Chains ===//
+	list< ISegChain* >::iterator c;
+	vector< ISegChain* > borderVec;
+	for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+	{
+		if ( (*c)->m_BorderFlag )
+		{
+			borderVec.push_back( (*c) );
+		}
+	}
+
+
+	//==== Find Wake Surfaces ====//
+	map< Surf*, vector< Surf* > >::iterator iter;
+
+	for ( iter = m_PossCoPlanarSurfMap.begin() ; iter != m_PossCoPlanarSurfMap.end() ; iter++ )
+	{
+		if ( iter->first->GetWakeFlag() )
+		{
+			vector< Surf* > possSurfVec = iter->second;
+			for ( int b = 0 ; b < (int)borderVec.size() ; b++ )
+			{
+				ISegChain* chain = borderVec[b];
+
+				bool checkFlag = false;
+				for ( int s = 0 ; s < (int)possSurfVec.size() ; s++ )
+				{
+					if ( chain->m_SurfA == possSurfVec[s] ||  chain->m_SurfB == possSurfVec[s] )
+						checkFlag = true;
+				}
+				if ( checkFlag )
+				{
+					AddSurfaceChain( iter->first, chain );
+				}
+			}
+		}
+	}
+}
+
+
+void CfdMeshMgr::AddSurfaceChain( Surf* sPtr, ISegChain* chainIn )
+{
+	//==== Check if Border Chains Lie On Another Surfaces ====//
+	Surf* surfA = chainIn->m_SurfA;
+
+	vector< ISegChain* > new_chains = chainIn->FindCoPlanarChains( sPtr, surfA );
+
+	for ( int i = 0 ; i < (int)new_chains.size() ; i++ )
+	{
+		new_chains[i]->m_BorderFlag = true;
+		new_chains[i]->m_SurfA = sPtr;
+		new_chains[i]->m_SurfB = sPtr;
+
+		m_ISegChainList.push_back( new_chains[i] );
+	}
+}
 
 void CfdMeshMgr::MergeBorderEndPoints()
 {
@@ -2883,22 +2888,25 @@ void CfdMeshMgr::RemoveInteriorTris()
 	}
 }
 
-void CfdMeshMgr::ConnectBorderEdges()
+void CfdMeshMgr::ConnectBorderEdges( bool wakeOnly )
 {
 	list< Edge* >::iterator e;
 	list< Edge* > edgeList;
 	list< Tri* >::iterator t;
 	for ( int s = 0 ; s < (int)m_SurfVec.size() ; s++ )
 	{
-		list <Tri*> triList = m_SurfVec[s]->GetMesh()->GetTriList();
-		for ( t = triList.begin() ; t != triList.end(); t++ )
+		if ( m_SurfVec[s]->GetWakeFlag() == wakeOnly )
 		{
-			if ( (*t)->e0->OtherTri( (*t) ) == NULL )
-				edgeList.push_back( (*t)->e0 );
-			if ( (*t)->e1->OtherTri( (*t) ) == NULL )
-				edgeList.push_back( (*t)->e1 );
-			if ( (*t)->e2->OtherTri( (*t) ) == NULL )
-				edgeList.push_back( (*t)->e2 );
+			list <Tri*> triList = m_SurfVec[s]->GetMesh()->GetTriList();
+			for ( t = triList.begin() ; t != triList.end(); t++ )
+			{
+				if ( (*t)->e0->OtherTri( (*t) ) == NULL )
+					edgeList.push_back( (*t)->e0 );
+				if ( (*t)->e1->OtherTri( (*t) ) == NULL )
+					edgeList.push_back( (*t)->e1 );
+				if ( (*t)->e2->OtherTri( (*t) ) == NULL )
+					edgeList.push_back( (*t)->e2 );
+			}
 		}
 	}
 

@@ -476,6 +476,7 @@ void Geom::write_general_parms(xmlNodePtr root)
   xmlAddDoubleNode( root, "AeroCenter_Y", aeroCenter.y()  );
   xmlAddDoubleNode( root, "AeroCenter_Z", aeroCenter.z()  );
   xmlAddIntNode( root, "AutoAeroCenterFlag", autoAeroCenterFlag );
+  xmlAddIntNode( root, "WakeActiveFlag", m_WakeActiveFlag );
 
   //==== Write Attach Flags ====//
   xmlAddIntNode( root, "PosAttachFlag", posAttachFlag );
@@ -602,6 +603,7 @@ void Geom::read_general_parms(xmlNodePtr root)
   aeroCenter.set_y( xmlFindDouble( root, "AeroCenter_Y", aeroCenter.y() ) );
   aeroCenter.set_z( xmlFindDouble( root, "AeroCenter_Z", aeroCenter.z() ) );
   autoAeroCenterFlag = xmlFindInt( root, "AutoAeroCenterFlag", autoAeroCenterFlag );
+  autoAeroCenterFlag = !!(xmlFindInt( root, "WakeActiveFlag", m_WakeActiveFlag ));
 
   //==== Read Attach Flags ====//
   posAttachFlag = xmlFindInt( root, "PosAttachFlag", posAttachFlag );

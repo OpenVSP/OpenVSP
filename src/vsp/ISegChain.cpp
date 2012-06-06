@@ -997,50 +997,46 @@ vector< ISegChain* > ISegChain::FindCoPlanarChains( Surf* sPtr, Surf* adjSurf )
 {
 	vector< ISegChain* > new_chains;
 
-	vector< ISeg* > iseg_vec;
-	for ( int i = 0 ; i < (int)m_ISegDeque.size() ; i++ )
+	vector< IPnt* > ipnt_vec;
+	for ( int i = 0 ; i < (int)m_TessVec.size() ; i++ )
 	{
-		IPnt* ip0 = m_ISegDeque[i]->m_IPnt[0];
-		IPnt* ip1 = m_ISegDeque[i]->m_IPnt[1];
+		IPnt* ip = m_TessVec[i];
+		vec3d p = ip->m_Pnt;
 
-		vec3d p0 = ip0->m_Pnt;
-		vec3d p1 = ip1->m_Pnt;
-
-		//==== See if Segment Is On Surface ====//
+		//==== See if Point Is On Surface ====//
 		double tol = 1.0e-04;
-		vec2d uw0 = sPtr->ClosestUW( p0, sPtr->GetMaxU()/2.0, sPtr->GetMaxW()/2.0 );
-		vec2d uw1 = sPtr->ClosestUW( p1, sPtr->GetMaxU()/2.0, sPtr->GetMaxW()/2.0 );
+		vec2d uw = sPtr->ClosestUW( p, sPtr->GetMaxU()/2.0, sPtr->GetMaxW()/2.0 );
 
-		vec3d sp0 = sPtr->CompPnt( uw0[0], uw0[1] );
-		vec3d sp1 = sPtr->CompPnt( uw1[0], uw1[1] );
+		vec3d sp = sPtr->CompPnt( uw[0], uw[1] );
 
-		double d0 = dist( p0, sp0 );
-		double d1 = dist( p1, sp1 );
-
-		if ( d0 < tol && d1 < tol )
+		if ( dist( p, sp ) < tol )
 		{
-			vec2d adjuw0 = adjSurf->ClosestUW( p0, adjSurf->GetMaxU()/2.0, adjSurf->GetMaxW()/2.0 );
-			vec2d adjuw1 = adjSurf->ClosestUW( p1, adjSurf->GetMaxU()/2.0, adjSurf->GetMaxW()/2.0 );
+			Puw* puwa = new Puw( sPtr, vec2d( uw[0], uw[1] ) );
+			cfdMeshMgrPtr->AddDelPuw( puwa );
 
-			ISeg* new_seg = cfdMeshMgrPtr->CreateSurfaceSeg( sPtr, uw0, uw1, adjSurf, adjuw0, adjuw1 );
-			iseg_vec.push_back( new_seg );
+			Puw* puwb = new Puw( sPtr, vec2d( uw[0], uw[1] ) );
+			cfdMeshMgrPtr->AddDelPuw( puwb );
+
+			IPnt* ip  = new IPnt( puwa, puwb );
+			m_CreatedIPnts.push_back( ip );
+	
+			ipnt_vec.push_back( ip );
 		}
 	}
 
-	if ( iseg_vec.size() )
+	if ( ipnt_vec.size() > 1 )
 	{
 		ISegChain* nc = new ISegChain();
 		nc->m_SurfA = sPtr;
-		nc->m_SurfB = adjSurf;
+		nc->m_SurfB = sPtr;
 		nc->m_BorderFlag = true;
 		new_chains.push_back( nc );
 
-		for ( int i = 0 ; i < (int)iseg_vec.size() ; i++ )
+		for ( int i = 0 ; i < (int)ipnt_vec.size() ; i++ )
 		{
-			nc->m_ISegDeque.push_back( iseg_vec[i] );
+			nc->m_TessVec.push_back( ipnt_vec[i] );
 		}
 	}
-
 
 	return new_chains;
 }

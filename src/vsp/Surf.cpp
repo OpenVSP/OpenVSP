@@ -893,7 +893,6 @@ void Surf::Intersect( Surf* surfPtr )
 
 	if ( !compare( m_BBox, surfPtr->GetBBox() ) )
 		return;
-
 	if ( BorderCurveOnSurface( surfPtr ) )
 		return;
 	if ( surfPtr->BorderCurveOnSurface( this ) )
@@ -999,16 +998,12 @@ bool Surf::BorderCurveOnSurface( Surf* surfPtr )
 		}
 		if ( num_pnts_on_surf >= 2 )
 		{
-			ICurve* icrv = border_curves[i]->GetICurve();
-			if ( icrv )
-				icrv->AddCoplanerSurface( this );
-
-			m_CfdMeshMgr->AddPossCoPlanarSurf( surfPtr, this );
+			//==== If Surface Add To List ====//
+			m_CfdMeshMgr->AddPossCoPlanarSurf( this, surfPtr );
 		}
 	}
 
 	return retFlag;
-
 }
 
 	

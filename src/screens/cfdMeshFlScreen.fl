@@ -31,8 +31,8 @@ class CFDMeshUI {open
         xywh {5 20 395 435}
       } {
         Fl_Group {} {
-          label Global open
-          xywh {5 50 395 405} labelfont 1 labelcolor 4 hide
+          label Global open selected
+          xywh {5 50 395 405} labelfont 1 labelcolor 4
         } {
           Fl_Box {} {
             label {Growth Ratio}
@@ -433,21 +433,21 @@ class CFDMeshUI {open
         }
         Fl_Group {} {
           label Wakes open
-          xywh {5 50 395 405} labelfont 1 labelcolor 4
+          xywh {5 50 395 405} labelfont 1 labelcolor 4 hide
         } {
           Fl_Choice wakeCompChoice {open
-            xywh {140 105 245 25} down_box BORDER_BOX textfont 1
+            xywh {80 130 215 25} down_box BORDER_BOX textfont 1
           } {}
           Fl_Box {} {
-            label {Select Comp}
-            xywh {15 105 125 25} box BORDER_BOX labelfont 1 labelcolor 15
+            label Comp
+            xywh {15 130 65 25} box BORDER_BOX labelfont 1 labelcolor 15
           }
           Fl_Light_Button addWakeButton {
             label {Add Wake}
-            xywh {15 135 370 25} labelfont 1 align 16
+            xywh {295 130 90 25} labelfont 1 align 16
           }
           Fl_Box {} {
-            label {Wake Scale} selected
+            label {Scale Wake}
             xywh {15 65 185 20} box BORDER_BOX labelfont 1 labelcolor 15 align 16
           }
           Fl_Input wakeScaleInput {
@@ -455,6 +455,16 @@ class CFDMeshUI {open
           }
           Fl_Slider wakeScaleSlider {
             xywh {200 65 110 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 4
+          }
+          Fl_Box {} {
+            label {Wake Angle}
+            xywh {15 90 185 20} box BORDER_BOX labelfont 1 labelcolor 15 align 16
+          }
+          Fl_Input wakeAngleInput {
+            xywh {310 90 75 20} type Float box THIN_DOWN_BOX labelsize 12 align 16 textsize 12
+          }
+          Fl_Slider wakeAngleSlider {
+            xywh {200 90 110 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 4
           }
         }
       }

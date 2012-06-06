@@ -779,7 +779,7 @@ void FeaMeshMgr::Intersect( double minmap )
 
 //	RemoveInteriorTris();
 
-	ConnectBorderEdges();
+	ConnectBorderEdges( false );	// No Wakes
 }
 
 
