@@ -1914,13 +1914,13 @@ void Aircraft::write_cart3d_files(const char* file_name)
 
 
 	//////==== Write Pnt Count and Tri Count ====//
- ////   fprintf( fp, "%d, %d\n", numPnts, tri_cnt);
+ ////   fprintf( fp, "%d %d\n", numPnts, tri_cnt);
 
 	//////==== Write Pnts ====//
 	////for ( int i = 0 ; i < (int)allPntVec.size() ; i++ )
 	////{
 	////	if ( pntShift[i] >= 0 )
-	////	   fprintf( fp, "%16.10f, %16.10f, %16.10f\n", allPntVec[i]->x(), allPntVec[i]->y(), allPntVec[i]->z() );
+	////	   fprintf( fp, "%16.10f %16.10f %16.10f\n", allPntVec[i]->x(), allPntVec[i]->y(), allPntVec[i]->z() );
 	////}
 
 	//////==== Write Tris ====//
@@ -1936,7 +1936,7 @@ void Aircraft::write_cart3d_files(const char* file_name)
 	////		int ind1 = pntShift[i0] + 1;
 	////		int ind2 = pntShift[i1] + 1;
 	////		int ind3 = pntShift[i2] + 1;
-	////		fprintf( fp, "%d, %d, %d \n", ind1, ind2, ind3 );
+	////		fprintf( fp, "%d %d %d \n", ind1, ind2, ind3 );
 	////	}
 	////}
 

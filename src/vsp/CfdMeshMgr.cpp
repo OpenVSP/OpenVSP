@@ -1403,18 +1403,18 @@ void CfdMeshMgr::WriteNASCART_Obj_Tri_Gmsh( const char* dat_fn, const char* key_
 		if ( fp )
 		{
 			//==== Write Pnt Count and Tri Count ====//
-			fprintf( fp, "%d, %d\n", (int)allUsedPntVec.size(), (int)allTriVec.size() );
+			fprintf( fp, "%d %d\n", (int)allUsedPntVec.size(), (int)allTriVec.size() );
 
 			//==== Write Pnts ====//
 			for ( int i = 0 ; i < (int)allUsedPntVec.size() ; i++ )
 			{
-				fprintf( fp, "%16.10g, %16.10g, %16.10g\n", allUsedPntVec[i]->x(), allUsedPntVec[i]->y(), allUsedPntVec[i]->z() );
+				fprintf( fp, "%16.10g %16.10g %16.10g\n", allUsedPntVec[i]->x(), allUsedPntVec[i]->y(), allUsedPntVec[i]->z() );
 			}
 
 			//==== Write Tris ====//
 			for ( int i = 0 ; i < (int)allTriVec.size() ; i++ )
 			{
-					fprintf( fp, "%d, %d, %d \n", allTriVec[i].ind0, allTriVec[i].ind1, allTriVec[i].ind2 );
+					fprintf( fp, "%d %d %d \n", allTriVec[i].ind0, allTriVec[i].ind1, allTriVec[i].ind2 );
 			}
 
 			//==== Write Component ID ====//
