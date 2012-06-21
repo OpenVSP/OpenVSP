@@ -1726,15 +1726,15 @@ void Aircraft::write_x3d_file(const char* file_name)
 				tMeshVec[j]->name_str   = geomVec[i]->getName();
 
 				newGeom->tMeshVec.push_back( tMeshVec[j] );
+
+				newGeom->buildNascartMesh(0);
+
+				xmlNodePtr shape_node = xmlNewChild( scene_node, NULL, (const xmlChar *) "Shape", NULL );
+
+
+				newGeom->writeX3D( shape_node );
 			}
 		}
-
-
-		newGeom->buildNascartMesh(0);
-
-		xmlNodePtr shape_node = xmlNewChild( scene_node, NULL, (const xmlChar *) "Shape", NULL );
-
-		newGeom->writeX3D( shape_node );
 	}
 
 
