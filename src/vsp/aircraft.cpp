@@ -1727,7 +1727,7 @@ void Aircraft::write_x3d_file(const char* file_name)
 
 				newGeom->tMeshVec.push_back( tMeshVec[j] );
 
-				newGeom->buildNascartMesh(0);
+				newGeom->buildNascartMeshUnmerge(0);
 
 				xmlNodePtr shape_node = xmlNewChild( scene_node, NULL, (const xmlChar *) "Shape", NULL );
 

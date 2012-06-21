@@ -632,6 +632,79 @@ void MeshGeom::buildNascartMesh(int partOffset)
 
 }
 
+//==== Build NASCART Mesh Without Merging Verts ====//
+void MeshGeom::buildNascartMeshUnmerge(int partOffset)
+{
+	int m, s, t;
+
+	nascartTriVec.clear();
+	nascartNodeVec.clear();
+
+	//==== Find All Exterior and Split Tris =====//
+	for ( m = 0 ; m < (int)tMeshVec.size() ; m++ )
+	{
+		for ( t = 0 ; t < (int)tMeshVec[m]->tVec.size() ; t++ )
+		{
+			TTri* tri = tMeshVec[m]->tVec[t];
+			if ( tri->splitVec.size() )
+			{
+				for ( s = 0 ; s < (int)tri->splitVec.size() ; s++ )
+				{
+					if ( !tri->splitVec[s]->interiorFlag )
+					{
+						tri->splitVec[s]->id = partOffset+m+1;
+						nascartTriVec.push_back( tri->splitVec[s] );
+					}
+				}
+			}
+			else if ( !tri->interiorFlag )
+			{
+				tri->id = partOffset+m+1;
+				nascartTriVec.push_back( tri );
+			}
+		}
+	}
+
+	//==== Collect All Points ====//
+	vector< vec3d* > allPntVec;
+	vector< TNode* > allNodeVec;
+	for ( t = 0 ; t < (int)nascartTriVec.size() ; t++ )
+	{
+		nascartTriVec[t]->n0->id = (int)allPntVec.size();
+		allPntVec.push_back( &nascartTriVec[t]->n0->pnt );
+		allNodeVec.push_back( nascartTriVec[t]->n0 );
+		nascartTriVec[t]->n1->id = (int)allPntVec.size();
+		allPntVec.push_back( &nascartTriVec[t]->n1->pnt );
+		allNodeVec.push_back( nascartTriVec[t]->n1 );
+		nascartTriVec[t]->n2->id = (int)allPntVec.size();
+		allPntVec.push_back( &nascartTriVec[t]->n2->pnt );
+		allNodeVec.push_back( nascartTriVec[t]->n2 );
+	}
+
+	//==== Load Nodes ====//
+	for ( int i = 0 ; i < (int)allNodeVec.size() ; i++ )
+	{
+		nascartNodeVec.push_back( allNodeVec[i] );
+	}
+
+	//==== Remove Any Bogus Tris ====//
+	vector< TTri* > goodTriVec;
+
+	//==== Write Out Tris ====//
+	for ( t = 0 ; t < (int)nascartTriVec.size() ; t++ )
+	{
+		TTri* ttri = nascartTriVec[t];
+		if ( ttri->n0->id != ttri->n1->id &&
+			 ttri->n0->id != ttri->n2->id &&
+			 ttri->n1->id != ttri->n2->id )
+		{
+			goodTriVec.push_back( ttri );
+		}
+	}
+	nascartTriVec = goodTriVec;
+
+}
+
 void MeshGeom::writeNascartPnts( FILE* fp )
 {
 	//==== Write Out Nodes ====//

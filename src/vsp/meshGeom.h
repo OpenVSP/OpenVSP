@@ -123,6 +123,7 @@ public:
    virtual void write_stl_file(FILE* pov_file);
 
    virtual void buildNascartMesh(int partOffset);
+   virtual void buildNascartMeshUnmerge(int partOffset);
    virtual int  getNumNascartPnts()							{ return nascartNodeVec.size(); }
    virtual int  getNumTecplotPnts(int m)					{ return tecplotNodeVec[m].size(); }
    virtual int  getNumNascartTris()							{ return nascartTriVec.size();  }
