@@ -70,6 +70,7 @@ int batchMode(int argc, char *argv[], Aircraft* airPtr)
     int writeXsecFlag = 0;
     int writeFelisaFlag = 0;
     int writeStereoFlag = 0;
+    int writeX3DFlag = 0;
     int writeTRIFlag = 0;
     int writeRhinoFlag = 0;
     int writeNascartFlag = 0;
@@ -168,6 +169,9 @@ int batchMode(int argc, char *argv[], Aircraft* airPtr)
        if ( strcmp(argv[i],"-stereo") == 0 ) {
           writeStereoFlag = 1;
        }
+       if ( strcmp(argv[i],"-x3d") == 0 ) {
+          writeX3DFlag = 1;
+       }
        if ( strcmp(argv[i],"-tri") == 0 ) {
           writeTRIFlag = 1;
        }
@@ -251,6 +255,7 @@ int batchMode(int argc, char *argv[], Aircraft* airPtr)
          printf("  -xsec              Write Herm file (Vorview format) \n");
          printf("  -felisa            Write Felisa files \n");
          printf("  -stereo            Write Stereolith file \n");
+         printf("  -x3d               Write X3D file \n");
          printf("  -tri               Write Cart3D file \n");
          printf("  -rhino             Write Rhino3D file \n");
          printf("  -nascart           Write Nascart file \n");
@@ -492,6 +497,14 @@ int batchMode(int argc, char *argv[], Aircraft* airPtr)
 
   		  airPtr->write_stl_file( stereo_file_name );
 		  printf( "stereolith file name = %s\n",  stereo_file_name());
+		}
+		if ( writeX3DFlag )
+		{
+		  Stringc x3d_file_name = base_name;
+		  x3d_file_name.concatenate(".x3d");
+
+		  airPtr->write_x3d_file( x3d_file_name );
+		  printf( "x3d file name = %s\n",  x3d_file_name());
 		}
 		if ( writeTRIFlag )
 		{

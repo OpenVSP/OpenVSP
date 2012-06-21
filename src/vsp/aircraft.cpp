@@ -1689,6 +1689,69 @@ void Aircraft::write_stl_file(const char* file_name)
 
 }
 
+//===== Write X3D Files  =====//
+void Aircraft::write_x3d_file(const char* file_name)
+{
+	int i;
+
+	//==== Check If Mesh Geom Exist - If Not Create ====//
+	bool noMeshGeom = true;
+	for ( i = 0 ; i < (int)geomVec.size() ; i++ )
+	{
+		if ( !geomVec[i]->getNoShowFlag() && geomVec[i]->getOutputFlag() &&
+			  geomVec[i]->getType() == MESH_GEOM_TYPE )
+		{
+			noMeshGeom = false;
+		}
+	}
+
+	if ( noMeshGeom )
+		addMeshGeom();
+
+
+	//==== Count Number of Points & Tris ====//
+	int num_pnts = 0;
+	int num_tris = 0;
+	int num_parts = 0;
+	for ( i = 0 ; i < (int)geomVec.size() ; i++ )
+	{
+		if ( !geomVec[i]->getNoShowFlag() && geomVec[i]->getOutputFlag() &&
+			  geomVec[i]->getType() == MESH_GEOM_TYPE )
+		{
+			MeshGeom* mg = (MeshGeom*)geomVec[i];				// Cast
+			mg->buildNascartMesh(num_parts);
+			num_parts += mg->getNumNascartParts();
+			num_pnts += mg->getNumNascartPnts();
+			num_tris += mg->getNumNascartTris();
+		}
+	}
+
+	xmlDocPtr doc = xmlNewDoc((const xmlChar *)"1.0");
+
+	xmlNodePtr root = xmlNewNode(NULL,(const xmlChar *)"X3D");
+	xmlDocSetRootElement(doc, root);
+
+	xmlNodePtr scene_node = xmlNewChild( root, NULL, (const xmlChar *)"Scene", NULL );
+
+	//==== Dump Points ====//
+	for ( i = 0 ; i < (int)geomVec.size() ; i++ )
+	{
+		if ( !geomVec[i]->getNoShowFlag() && geomVec[i]->getOutputFlag() &&
+			  geomVec[i]->getType() == MESH_GEOM_TYPE )
+		{
+			MeshGeom* mg = (MeshGeom*)geomVec[i];				// Cast
+
+			xmlNodePtr shape_node = xmlNewChild( scene_node, NULL, (const xmlChar *) "Shape", NULL );
+
+			mg->writeX3D( shape_node );
+		}
+	}
+
+	//===== Save XML Tree and Free Doc =====//
+	xmlSaveFormatFile((const char *)file_name, doc, 1);
+	xmlFreeDoc( doc );
+}
+
 //===== Write Nascart Files  =====//
 void Aircraft::write_nascart_files(const char* file_name)
 {

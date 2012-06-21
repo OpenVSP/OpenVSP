@@ -133,6 +133,7 @@ public:
    virtual int  writeGMshNodes( FILE* file_id, int node_offset); 
    virtual int  writeNascartTris( FILE* file_id, int offset );
    virtual int  writeCart3DTris( FILE* file_id, int offset );
+   virtual void writeX3D( xmlNodePtr node );
    virtual int  writeGMshTris( FILE* file_id, int node_offset, int tri_offset );
    virtual int  writeNascartParts( FILE* file_id, int offset );
    virtual int  writeCart3DParts( FILE* file_id, int offset );
