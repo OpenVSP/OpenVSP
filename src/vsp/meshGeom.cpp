@@ -690,7 +690,7 @@ int MeshGeom::writeCart3DTris( FILE* fp, int off )
 void MeshGeom::writeX3D( xmlNodePtr node )
 {
 	xmlNodePtr set_node = xmlNewChild( node, NULL, (const xmlChar *)"IndexedFaceSet", NULL );
-	xmlSetProp( set_node, (const xmlChar *)"solid", (const xmlChar *)"false" );
+	xmlSetProp( set_node, (const xmlChar *)"solid", (const xmlChar *)"true" );
 	xmlSetProp( set_node, (const xmlChar *)"creaseAngle", (const xmlChar *)"0.1"  );
 
 	Stringc indstr;

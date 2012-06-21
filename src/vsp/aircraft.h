@@ -90,6 +90,9 @@ public:
 	VSPDLL void write_stl_file(const char* file_name);
 	bool check_for_stl_mesh();
 
+	void writeX3DMaterial( xmlNodePtr node, int matid );
+	const xmlChar* floatvec2str( float* vec );
+
 	VSPDLL void write_x3d_file(const char* file_name);
 	VSPDLL void write_rhino_file(const char* file_name);
 	VSPDLL void write_xsec_file(const char* file_name);
