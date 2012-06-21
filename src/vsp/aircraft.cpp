@@ -1692,40 +1692,6 @@ void Aircraft::write_stl_file(const char* file_name)
 //===== Write X3D Files  =====//
 void Aircraft::write_x3d_file(const char* file_name)
 {
-	int i;
-
-	//==== Check If Mesh Geom Exist - If Not Create ====//
-	bool noMeshGeom = true;
-	for ( i = 0 ; i < (int)geomVec.size() ; i++ )
-	{
-		if ( !geomVec[i]->getNoShowFlag() && geomVec[i]->getOutputFlag() &&
-			  geomVec[i]->getType() == MESH_GEOM_TYPE )
-		{
-			noMeshGeom = false;
-		}
-	}
-
-	if ( noMeshGeom )
-		addMeshGeom();
-
-
-	//==== Count Number of Points & Tris ====//
-	int num_pnts = 0;
-	int num_tris = 0;
-	int num_parts = 0;
-	for ( i = 0 ; i < (int)geomVec.size() ; i++ )
-	{
-		if ( !geomVec[i]->getNoShowFlag() && geomVec[i]->getOutputFlag() &&
-			  geomVec[i]->getType() == MESH_GEOM_TYPE )
-		{
-			MeshGeom* mg = (MeshGeom*)geomVec[i];				// Cast
-			mg->buildNascartMesh(num_parts);
-			num_parts += mg->getNumNascartParts();
-			num_pnts += mg->getNumNascartPnts();
-			num_tris += mg->getNumNascartTris();
-		}
-	}
-
 	xmlDocPtr doc = xmlNewDoc((const xmlChar *)"1.0");
 
 	xmlNodePtr root = xmlNewNode(NULL,(const xmlChar *)"X3D");
@@ -1733,19 +1699,44 @@ void Aircraft::write_x3d_file(const char* file_name)
 
 	xmlNodePtr scene_node = xmlNewChild( root, NULL, (const xmlChar *)"Scene", NULL );
 
-	//==== Dump Points ====//
-	for ( i = 0 ; i < (int)geomVec.size() ; i++ )
+	//==== All Geometry ====//
+	for ( int i = 0 ; i < (int)geomVec.size() ; i++ )
 	{
-		if ( !geomVec[i]->getNoShowFlag() && geomVec[i]->getOutputFlag() &&
-			  geomVec[i]->getType() == MESH_GEOM_TYPE )
+		MeshGeom* newGeom = new MeshGeom( this );
+		newGeom->setMeshType( MeshGeom::INTERSECTION_MESH );
+
+		if ( !geomVec[i]->getNoShowFlag() && geomVec[i]->getOutputFlag() )
 		{
-			MeshGeom* mg = (MeshGeom*)geomVec[i];				// Cast
+			//==== Create TMeshs ====//
+			vector< TMesh* > tMeshVec = geomVec[i]->createTMeshVec();
 
-			xmlNodePtr shape_node = xmlNewChild( scene_node, NULL, (const xmlChar *) "Shape", NULL );
+			//==== Load Into New Mesh Geom ====//
+			for ( int j = 0 ; j < (int)tMeshVec.size() ; j++ )
+			{
+				tMeshVec[j]->color      = geomVec[i]->getColor();
+				tMeshVec[j]->materialID = geomVec[i]->getMaterialID();
+				tMeshVec[j]->ptr_id     = geomVec[i]->getPtrID();
+				if ( tMeshVec[j]->reflected_flag )
+					tMeshVec[j]->ptr_id = -tMeshVec[j]->ptr_id;
 
-			mg->writeX3D( shape_node );
+				tMeshVec[j]->massPrior  = geomVec[i]->getMassPrior();
+				tMeshVec[j]->density    = geomVec[i]->density.get();
+
+				//==== Check for Alternate Output Name ====//
+				tMeshVec[j]->name_str   = geomVec[i]->getName();
+
+				newGeom->tMeshVec.push_back( tMeshVec[j] );
+			}
 		}
+
+
+		newGeom->buildNascartMesh(0);
+
+		xmlNodePtr shape_node = xmlNewChild( scene_node, NULL, (const xmlChar *) "Shape", NULL );
+
+		newGeom->writeX3D( shape_node );
 	}
+
 
 	//===== Save XML Tree and Free Doc =====//
 	xmlSaveFormatFile((const char *)file_name, doc, 1);
