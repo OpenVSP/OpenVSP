@@ -632,79 +632,6 @@ void MeshGeom::buildNascartMesh(int partOffset)
 
 }
 
-//==== Build NASCART Mesh Without Merging Verts ====//
-void MeshGeom::buildNascartMeshUnmerge(int partOffset)
-{
-	int m, s, t;
-
-	nascartTriVec.clear();
-	nascartNodeVec.clear();
-
-	//==== Find All Exterior and Split Tris =====//
-	for ( m = 0 ; m < (int)tMeshVec.size() ; m++ )
-	{
-		for ( t = 0 ; t < (int)tMeshVec[m]->tVec.size() ; t++ )
-		{
-			TTri* tri = tMeshVec[m]->tVec[t];
-			if ( tri->splitVec.size() )
-			{
-				for ( s = 0 ; s < (int)tri->splitVec.size() ; s++ )
-				{
-					if ( !tri->splitVec[s]->interiorFlag )
-					{
-						tri->splitVec[s]->id = partOffset+m+1;
-						nascartTriVec.push_back( tri->splitVec[s] );
-					}
-				}
-			}
-			else if ( !tri->interiorFlag )
-			{
-				tri->id = partOffset+m+1;
-				nascartTriVec.push_back( tri );
-			}
-		}
-	}
-
-	//==== Collect All Points ====//
-	vector< vec3d* > allPntVec;
-	vector< TNode* > allNodeVec;
-	for ( t = 0 ; t < (int)nascartTriVec.size() ; t++ )
-	{
-		nascartTriVec[t]->n0->id = (int)allPntVec.size();
-		allPntVec.push_back( &nascartTriVec[t]->n0->pnt );
-		allNodeVec.push_back( nascartTriVec[t]->n0 );
-		nascartTriVec[t]->n1->id = (int)allPntVec.size();
-		allPntVec.push_back( &nascartTriVec[t]->n1->pnt );
-		allNodeVec.push_back( nascartTriVec[t]->n1 );
-		nascartTriVec[t]->n2->id = (int)allPntVec.size();
-		allPntVec.push_back( &nascartTriVec[t]->n2->pnt );
-		allNodeVec.push_back( nascartTriVec[t]->n2 );
-	}
-
-	//==== Load Nodes ====//
-	for ( int i = 0 ; i < (int)allNodeVec.size() ; i++ )
-	{
-		nascartNodeVec.push_back( allNodeVec[i] );
-	}
-
-	//==== Remove Any Bogus Tris ====//
-	vector< TTri* > goodTriVec;
-
-	//==== Write Out Tris ====//
-	for ( t = 0 ; t < (int)nascartTriVec.size() ; t++ )
-	{
-		TTri* ttri = nascartTriVec[t];
-		if ( ttri->n0->id != ttri->n1->id &&
-			 ttri->n0->id != ttri->n2->id &&
-			 ttri->n1->id != ttri->n2->id )
-		{
-			goodTriVec.push_back( ttri );
-		}
-	}
-	nascartTriVec = goodTriVec;
-
-}
-
 void MeshGeom::writeNascartPnts( FILE* fp )
 {
 	//==== Write Out Nodes ====//
@@ -758,40 +685,6 @@ int MeshGeom::writeCart3DTris( FILE* fp, int off )
 	}
 
 	return (off + nascartNodeVec.size());
-}
-
-void MeshGeom::writeX3D( xmlNodePtr node )
-{
-	xmlNodePtr set_node = xmlNewChild( node, NULL, (const xmlChar *)"IndexedFaceSet", NULL );
-	xmlSetProp( set_node, (const xmlChar *)"solid", (const xmlChar *)"true" );
-	xmlSetProp( set_node, (const xmlChar *)"creaseAngle", (const xmlChar *)"0.1"  );
-
-	Stringc indstr;
-	char numstr[255];
-	for ( int t = 0 ; t < (int)nascartTriVec.size() ; t++ )
-	{
-		TTri* ttri = nascartTriVec[t];
-
-		sprintf( numstr, "%d %d %d -1 ", ttri->n0->id, ttri->n1->id, ttri->n2->id );
-		indstr.concatenate(numstr);
-	}
-	indstr.concatenate("\0");
-
-	xmlSetProp( set_node, (const xmlChar *)"coordIndex", (const xmlChar *) ((const char *) indstr) );
-
-	xmlNodePtr coord_node = xmlNewChild( set_node, NULL, (const xmlChar *)"Coordinate", NULL );
-
-	Stringc crdstr;
-	for ( int i = 0 ; i < (int)nascartNodeVec.size() ; i++)
-	{
-		TNode* tnode = nascartNodeVec[i];
-
-		sprintf( numstr, "%lf %lf %lf ", tnode->pnt.x(), tnode->pnt.y(), tnode->pnt.z() );
-		crdstr.concatenate(numstr);
-	}
-	crdstr.concatenate("\0");
-
-	xmlSetProp( coord_node, (const xmlChar *)"point", (const xmlChar *) ((const char *) crdstr) );
 }
 
 int MeshGeom::writeGMshTris( FILE* fp, int node_offset, int tri_offset )

@@ -241,6 +241,7 @@ public:
 	virtual int getNumXSecSurfs();
 	virtual void dump_xsec_file(int geom_no, FILE* dump_file);
 
+	virtual void writeX3D( xmlNodePtr node );
 
 	//===== Felisa Functions =====
 	virtual int write_felisa_file(int geom_no, FILE*)		{ return(geom_no); }

@@ -160,6 +160,8 @@ public:
    void write_xsec( int index, float mat[4][4], FILE* file_id, double scale_factor = 1. );
    void write_refl_xsec( int sym_code_in, int index, float mat[4][4], FILE* file_id, double scale_factor = 1.);
 
+   int buildX3DStrings( int offset, Stringc &crdstr, Stringc &indstr, int sym_code_in, float mat[4][4], float refl_mat[4][4] );
+
    void write_pov_smooth_tris( int sym_code_in, float mat[4][4], float refl_mat[4][4], FILE* file_id);
    void write_stl_tris(int sym_code_in, float mat[4][4], float refl_mat[4][4], FILE* file_id); 
    void write_rhino_file(int sym_code_in, float mat[4][4], float refl_mat[4][4], 

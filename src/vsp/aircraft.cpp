@@ -1707,28 +1707,8 @@ void Aircraft::write_x3d_file(const char* file_name)
 
 		if ( !geomVec[i]->getNoShowFlag() && geomVec[i]->getOutputFlag() )
 		{
-			//==== Create TMeshs ====//
-			vector< TMesh* > tMeshVec = geomVec[i]->createTMeshVec();
-
-			//==== Load Into New Mesh Geom ====//
-			for ( int j = 0 ; j < (int)tMeshVec.size() ; j++ )
+			if( geomVec[i]->getNumSurf() > 0 )
 			{
-				tMeshVec[j]->color      = geomVec[i]->getColor();
-				tMeshVec[j]->materialID = geomVec[i]->getMaterialID();
-				tMeshVec[j]->ptr_id     = geomVec[i]->getPtrID();
-				if ( tMeshVec[j]->reflected_flag )
-					tMeshVec[j]->ptr_id = -tMeshVec[j]->ptr_id;
-
-				tMeshVec[j]->massPrior  = geomVec[i]->getMassPrior();
-				tMeshVec[j]->density    = geomVec[i]->density.get();
-
-				//==== Check for Alternate Output Name ====//
-				tMeshVec[j]->name_str   = geomVec[i]->getName();
-
-				newGeom->tMeshVec.push_back( tMeshVec[j] );
-
-				newGeom->buildNascartMeshUnmerge(0);
-
 				xmlNodePtr shape_node = xmlNewChild( scene_node, NULL, (const xmlChar *) "Shape", NULL );
 
 				xmlNodePtr app_node = xmlNewChild( shape_node, NULL, (const xmlChar *) "Appearance", NULL );
@@ -1736,7 +1716,7 @@ void Aircraft::write_x3d_file(const char* file_name)
 				int matid = geomVec[i]->getMaterialID();
 				writeX3DMaterial( app_node, matid );
 
-				newGeom->writeX3D( shape_node );
+				geomVec[i]->writeX3D( shape_node );
 			}
 		}
 	}
