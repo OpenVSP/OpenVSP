@@ -1729,18 +1729,22 @@ void Aircraft::write_x3d_file(const char* file_name)
 
 void Aircraft::writeX3DMaterial( xmlNodePtr node, int matid )
 {
+	Stringc diffs, emisss, specs;
 	Material* mat = matMgrPtr->getMaterial( matid );
 
 	xmlNodePtr mat_node = xmlNewChild( node, NULL, (const xmlChar *) "Material", NULL );
 
-	const xmlChar* diffc = floatvec2str( mat->diff );
-	xmlSetProp( mat_node, (const xmlChar *)"diffuseColor", diffc );
+	floatvec2str( mat->diff, diffs );
+	diffs.concatenate("\0");
+	xmlSetProp( mat_node, (const xmlChar *)"diffuseColor", (const xmlChar *) ((const char *) diffs) );
 
-	const xmlChar* emissc = floatvec2str( mat->emiss );
-	xmlSetProp( mat_node, (const xmlChar *)"emissiveColor", emissc );
+	floatvec2str( mat->emiss, emisss );
+	emisss.concatenate("\0");
+	xmlSetProp( mat_node, (const xmlChar *)"emissiveColor", (const xmlChar *) ((const char *) emisss) );
 
-	const xmlChar* specc = floatvec2str( mat->spec );
-	xmlSetProp( mat_node, (const xmlChar *)"specularColor", specc );
+	floatvec2str( mat->spec, specs );
+	specs.concatenate("\0");
+	xmlSetProp( mat_node, (const xmlChar *)"specularColor", (const xmlChar *) ((const char *) specs) );
 
 	char alphac[255];
 	sprintf( alphac, "%lf", 1.0f - mat->diff[3] );
@@ -1762,14 +1766,12 @@ void Aircraft::writeX3DMaterial( xmlNodePtr node, int matid )
 	xmlSetProp( mat_node, (const xmlChar *)"ambientIntensity", (const xmlChar *) amb );
 }
 
-const xmlChar* Aircraft::floatvec2str( float* vec )
+void Aircraft::floatvec2str( float* vec, Stringc &str )
 {
 	char numc[255];
-	Stringc numstr;
-	sprintf( numc, "%lf %lf %lf\0", vec[0], vec[1], vec[2] );
-	numstr.concatenate( numc );
 
-	return (const xmlChar *) ((const char *) numstr );
+	sprintf( numc, "%lf %lf %lf", vec[0], vec[1], vec[2] );
+	str.concatenate( numc );
 }
 
 //===== Write Nascart Files  =====//

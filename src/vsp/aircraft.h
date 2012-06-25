@@ -91,7 +91,7 @@ public:
 	bool check_for_stl_mesh();
 
 	void writeX3DMaterial( xmlNodePtr node, int matid );
-	const xmlChar* floatvec2str( float* vec );
+	void floatvec2str( float* vec, Stringc &str );
 
 	VSPDLL void write_x3d_file(const char* file_name);
 	VSPDLL void write_rhino_file(const char* file_name);
