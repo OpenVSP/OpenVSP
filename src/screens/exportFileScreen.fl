@@ -1,6 +1,6 @@
 # data file for the Fltk User Interface Designer (fluid)
-version 1.0300 
-header_name {.h} 
+version 1.0300
+header_name {.h}
 code_name {.cxx}
 class ExportFileUI {open
 } {
@@ -8,7 +8,7 @@ class ExportFileUI {open
   } {
     Fl_Window UIWindow {
       label {Export File} open
-      xywh {529 179 148 309} type Double color 29 resizable visible
+      xywh {529 179 148 341} type Double color 29 resizable visible
     } {
       Fl_Box {} {
         label Export
@@ -43,9 +43,13 @@ class ExportFileUI {open
         xywh {5 200 136 25} labelfont 1 labelsize 12 align 64
       }
       Fl_Button gmshButton {
-        label {Gmsh File (.msh)} selected
+        label {Gmsh File (.msh)}
         xywh {5 235 136 25} labelfont 1 labelsize 12 align 64
+      }
+      Fl_Button x3dButton {
+        label {X3D (.x3d)} selected
+        xywh {5 305 136 25} labelfont 1 labelsize 12 align 64
       }
     }
   }
-} 
+}
