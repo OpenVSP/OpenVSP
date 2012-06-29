@@ -67,7 +67,9 @@ int batchMode(int argc, char *argv[], Aircraft* airPtr)
     int compgeomFlag = 0;
 	int meshFlag = 0;
     int sliceFlag = 0;
+    int massFlag = 0;
 	int numSlices = 0;
+	int numSlicesMass = 0;
     int writeXsecFlag = 0;
     int writeFelisaFlag = 0;
     int writeStereoFlag = 0;
@@ -160,6 +162,13 @@ int batchMode(int argc, char *argv[], Aircraft* airPtr)
 				sliceFlag = 1;
 		   }
        }
+       if ( strcmp(argv[i],"-mass") == 0 ) {
+		   if (i+1 < argc)
+		   {
+				numSlicesMass = atoi( argv[++i] );
+				massFlag = 1;
+		   }
+       }
        if ( strcmp(argv[i],"-xsec") == 0 ) {
           writeXsecFlag = 1;
        }
@@ -245,6 +254,7 @@ int batchMode(int argc, char *argv[], Aircraft* airPtr)
          printf("VSP batch options listed below:\n");     
          printf("  -compgeom          Batch run compgeom\n" );
          printf("  -slice Ns M Nr     Batch run AWave slice, Ns - Num Slices, M - Mach, Nr - Num Radial\n" );
+         printf("  -mass N            Batch run mass properties, N - Num Slices\n" );
          printf("  -mesh              Batch run mesh\n" );
 		 printf("  -cfdmesh val       Batch run CFD mesh ( val = scale tri size )\n" );
 		 printf("  -nocfddefsources   Do not add default sources.\n" );
@@ -397,6 +407,10 @@ int batchMode(int argc, char *argv[], Aircraft* airPtr)
 		{
 			slice_name = Stringc("slice.txt");
 			Geom* geom = airPtr->slice(MeshGeom::SLICE_AWAVE,numSlices,(double)sliceAngle,(double)coneSections,slice_name);
+		}
+		if (massFlag)
+		{
+			Geom* geom = airPtr->massprop( numSlicesMass );
 		}
 		if ( cfdMeshFlag )
 		{
