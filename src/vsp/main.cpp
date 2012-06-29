@@ -16,11 +16,23 @@
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Gl_Window.H>
 
+#include <libxml/tree.h>
+#include <libxml/nanohttp.h>
+
 #ifdef __APPLE__
 #  include <OpenGL/gl.h>
 #else
 #  include <GL/gl.h>
 #endif
+
+#ifdef WIN32
+    #include <direct.h>
+    #define GetCurrentDir _getcwd
+#else
+    #include <unistd.h>
+    #define GetCurrentDir getcwd
+#endif
+
 #include "mainScreen.h"
 
 #include "main.h"
@@ -561,6 +573,109 @@ int batchMode(int argc, char *argv[], Aircraft* airPtr)
 
 }
 
+bool ExtractVersionNumber( string & str, int* major, int* minor, int* change )
+{
+	*major = *minor = *change = -1;
+	//==== Find Leading String ====//
+	string target("The latest release of OpenVSP is version ");
+	size_t start = str.find( target ) + target.size();
+	size_t end = str.find( ".\n", start );
+
+	//==== Just The Number =====//
+	string verstr= str.substr (start, end-start);
+
+	if ( verstr.size() < 5 || verstr.size() > 9 )
+		return false;
+
+	size_t period1 = verstr.find(".");
+	size_t period2 = verstr.find(".", period1+1 );
+
+	//==== Extract Major/Minor/Change Numbers ====//
+	*major  = atoi( verstr.substr( 0, period1 ).c_str() );
+	*minor  = atoi( verstr.substr( period1+1, period2 - (period1+1) ).c_str() );
+	*change = atoi( verstr.substr( period2+1, verstr.size() ).c_str() );
+
+	if ( *major >= 0 && *minor >= 0 && *change >= 0 )
+		return true;
+
+	return false;
+}
+
+void CheckVersionNumber()
+{
+	//==== Init Nano HTTP ====//
+	xmlNanoHTTPInit();
+	xmlNanoHTTPScanProxy(NULL);
+
+	//==== Compute Version Number ====//
+	int ver_no = 10000*VSP_VERSION_MAJOR + 100*VSP_VERSION_MINOR + VSP_VERSION_CHANGE;
+
+	char cCurrentPath[FILENAME_MAX];
+	GetCurrentDir(cCurrentPath, sizeof(cCurrentPath));
+
+	int user_id = 0;
+	int path_len = strlen(cCurrentPath);
+
+	for ( int i = 0 ; i < path_len ; i++ )
+	{
+		srand ( (unsigned int)cCurrentPath[i] );
+		user_id += rand() % 100000 + 1;
+	}
+
+	//==== Post User Info To Server ====//
+	char poststr[256];
+	sprintf( poststr, "postvar1=%d&postvar2=%d\r\n", user_id, ver_no);
+	int poststrlen = strlen(poststr);
+	char*  headers = "Content-Type: application/x-www-form-urlencoded \n";
+
+	void * ctx = 0;
+	ctx = xmlNanoHTTPMethod("http://www.openvsp.org/post.php", "POST", poststr, NULL, headers, poststrlen );
+
+	if ( ctx )
+		xmlNanoHTTPClose(ctx);
+
+	ctx = 0;
+
+	//==== Webpage with Version Info ====//
+	char * pContentType = 0;
+	ctx = xmlNanoHTTPOpen("http://www.openvsp.org/latest_version.html", &pContentType);
+
+	int retCode = xmlNanoHTTPReturnCode(ctx);
+
+	//==== Http Return Code 200 -> OK  ====//
+	string contentStr;
+	if ( retCode == 200 )
+	{
+		char buf[2048];
+		int len = 1;
+		while (len > 0 && contentStr.size() < 10000 )
+		{
+			len = xmlNanoHTTPRead(ctx, buf, sizeof(buf));
+			contentStr.append( buf, len );
+		}
+	}
+
+	if ( contentStr.size() > 0 )	// Pulled A String From Server
+	{
+		int major_ver, minor_ver, change_ver;
+		bool valid = ExtractVersionNumber( contentStr, &major_ver, &minor_ver, &change_ver );
+
+		if ( valid )
+		{
+			if ( major_ver != VSP_VERSION_MAJOR ||minor_ver != VSP_VERSION_MINOR || change_ver != VSP_VERSION_CHANGE )
+			{
+				if ( screenMgrPtr )
+					screenMgrPtr->MessageBox("A new version of OpenVSP is available at http://www.openvsp.org/");
+			}
+		}
+	}
+
+	if ( ctx )
+		xmlNanoHTTPClose(ctx);
+
+	xmlNanoHTTPCleanup();
+}
+
 void vsp_exit()
 {
 	if ( screenMgrPtr )
@@ -612,6 +727,9 @@ int main( int argc, char** argv)
 	    exit(0);
 
 	screenMgrPtr = new ScreenMgr(airPtr);
+
+	//==== Check Server For Version Number ====//
+	CheckVersionNumber();
 
 	//==== Link Objects ====//
 	airPtr->setScreenMgr( screenMgrPtr );
