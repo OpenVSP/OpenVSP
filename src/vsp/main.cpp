@@ -34,6 +34,7 @@
 #include "FeaMeshMgr.h"
 #include "CfdMeshMgr.h"
 #include "VspPreferences.h"
+#include "meshGeom.h"
 
 // Include OpenNurbs for Rhino Dump
 // ON Needs to be undefined for it to compile
@@ -243,7 +244,7 @@ int batchMode(int argc, char *argv[], Aircraft* airPtr)
          printf("\n");     
          printf("VSP batch options listed below:\n");     
          printf("  -compgeom          Batch run compgeom\n" );
-         printf("  -slice #           Batch run slice\n" );
+         printf("  -slice Ns M Nr     Batch run AWave slice, Ns - Num Slices, M - Mach, Nr - Num Radial\n" );
          printf("  -mesh              Batch run mesh\n" );
 		 printf("  -cfdmesh val       Batch run CFD mesh ( val = scale tri size )\n" );
 		 printf("  -nocfddefsources   Do not add default sources.\n" );
@@ -395,7 +396,7 @@ int batchMode(int argc, char *argv[], Aircraft* airPtr)
 		if (sliceFlag)
 		{
 			slice_name = Stringc("slice.txt");
-			Geom* geom = airPtr->slice(2,numSlices,(double)sliceAngle,(double)coneSections,slice_name);
+			Geom* geom = airPtr->slice(MeshGeom::SLICE_AWAVE,numSlices,(double)sliceAngle,(double)coneSections,slice_name);
 		}
 		if ( cfdMeshFlag )
 		{
