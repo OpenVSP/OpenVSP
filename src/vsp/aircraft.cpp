@@ -95,6 +95,7 @@ Aircraft::Aircraft()
 	feaMeshMgrPtr->SetAircraftPtr(this);
 	feaMeshMgrPtr->ResetFeaExportFileNames();
 	parmLinkMgrPtr->SetAircraftPtr(this);
+	parmMgrPtr->SetAircraftPtr(this);
 
 
 	//==== Read Custom Default Components ====//
@@ -148,6 +149,9 @@ Aircraft::~Aircraft()
 
 	if ( parmLinkMgrPtr )
 		delete parmLinkMgrPtr;
+
+	if ( parmMgrPtr )
+		delete parmMgrPtr;
 
 	if ( texMgrPtr )
 		delete texMgrPtr;

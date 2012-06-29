@@ -182,6 +182,8 @@ public:
 
 	virtual void SwapGeom( Geom* gOld, Geom* gNew );
 
+	virtual Parm* GetDefaultParm()					{ return m_DefaultParm; }
+	virtual void SetDefaultParm( Parm* p )			{ m_DefaultParm = p; }
 
 
 protected:
@@ -217,6 +219,50 @@ static PLM_Single singlePLM;
 
 
 
+class ParmMgr
+{
+public:
+
+	ParmMgr();
+	virtual ~ParmMgr();
+
+	virtual void SetAircraftPtr( Aircraft* aptr )			{ aircraftPtr = aptr; }
+	virtual void LoadAllParms();
+	virtual void Register( Parm* parmPtr, GeomBase* geomPtr, string groupName );
+	virtual void RegisterParmButton( ParmButton* b );
+
+	virtual vector< string > GetGroupNameVec( GeomBase* geomPtr );
+	virtual vector< Parm* > GetParmVec( GeomBase* geomPtr, string group_name );
+	virtual string GetGroupName( GeomBase* geomPtr, int name_index );
+
+	virtual int GetCurrGeomNameVec( Parm* parmPtr, vector< string > & nameVec );
+	virtual int GetCurrGroupNameVec( Parm* parmPtr, vector< string > & nameVec );
+	virtual int GetCurrParmNameVec( Parm* parmPtr, vector< string > & nameVec );
+
+	virtual Parm* FindParm( vector< Geom* > & gVec, int ptrID,
+							Stringc& group_name, Stringc& parm_name );
+	virtual Parm* FindParm( Geom* gPtr, Stringc& group_name, Stringc& parm_name );
+
+
+protected:
+
+	Aircraft* aircraftPtr;
+
+	map< GeomBase*, map< string, vector< Parm* > > > m_ParmMap;
+
+};
+
+class PM_Single
+{
+public:
+	PM_Single();
+	ParmMgr* parmMgr;
+};
+
+
+static PM_Single singlePM;
+
+#define parmMgrPtr (singlePM.parmMgr)
 
 
 
