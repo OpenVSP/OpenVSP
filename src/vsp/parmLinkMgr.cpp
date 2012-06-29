@@ -360,102 +360,6 @@ void ParmLinkMgr::SwapGeom( Geom* gOld, Geom* gNew )
 	}
 }
 
-Parm* ParmLinkMgr::FindParm( vector< Geom* > & gVec, int ptrID, Stringc& group_name, Stringc& parm_name )
-{
-	Parm* pPtr = NULL;
-	Geom* gPtr = NULL;
-	for ( int i = 0 ; i < (int)gVec.size() ; i++ )
-	{
-		if ( gVec[i]->getPtrID() == ptrID )
-			gPtr = gVec[i];
-	}
-	//==== Check for User Geom ====//
-	if ( gPtr == NULL )
-	{
-		if ( group_name == Stringc("User") )
-		{
-			gPtr = aircraftPtr->getUserGeom();
-		}
-	}
-
-	pPtr = FindParm( gPtr, group_name, parm_name );
-
-	return pPtr;
-}
-
-Parm* ParmLinkMgr::FindParm( Geom* gPtr, Stringc& group_name, Stringc& parm_name )
-{
-	Parm* pPtr = NULL;
-	if ( gPtr )
-	{
-		vector< Parm* > pVec;
-		gPtr->LoadLinkableParms( pVec );
-		for ( int i = 0 ; i < (int)pVec.size() ; i++ )
-		{
-			if ( pVec[i]->get_name() == parm_name &&
-				 pVec[i]->get_group_name() == group_name )
-			{
-				pPtr = pVec[i];
-			}
-		}
-	}
-	return pPtr;
-}
-
-
-void ParmLinkMgr::LoadAllParms()
-{
-	//==== Clear All Existing Parms ====//
-	map< GeomBase*, map< string, vector< Parm* > > >::iterator g;
-	map< string, vector<Parm*> >::iterator itr;
-	for ( g = m_ParmMap.begin() ; g != m_ParmMap.end() ; g++ )
-	{
-		for ( itr = g->second.begin() ; itr != g->second.end() ; itr++ )
-		{
-			itr->second.clear();
-		}
-		g->second.clear();
-	}
-	m_ParmMap.clear();	
-
-	if ( aircraftPtr == NULL )
-		return;
-
-	//==== Loop Thru All Geoms ====//
-	vector< Geom* > geomVec = aircraftPtr->getGeomVec();
-	geomVec.push_back( aircraftPtr->getUserGeom() );
-	for ( int i = 0 ; i < (int)geomVec.size() ; i++ )
-	{
-		vector < Parm* > parmVec;
-		geomVec[i]->LoadLinkableParms( parmVec );
-		for ( int j = 0 ; j < (int)parmVec.size() ; j++ )
-		{
-			Parm* p = parmVec[j];
-			p->set_linked_flag( false );
-			Register( p, p->get_geom_base(), p->get_group_name().get_char_star() );
-		}
-	}
-}
-
-void ParmLinkMgr::Register( Parm* parmPtr, GeomBase* geomPtr, string groupName )
-{
-	if ( parmPtr == NULL || geomPtr == NULL )
-		return;
-
-	parmPtr->set_group_name( groupName.c_str() );
-	parmPtr->set_base_geom( geomPtr );
-
-	m_ParmMap[geomPtr][groupName].push_back( parmPtr );
-
-	if ( !m_DefaultParm )
-		m_DefaultParm = parmPtr;
-}
-
-void ParmLinkMgr::RegisterParmButton( ParmButton* b )
-{
-	if ( aircraftPtr->getScreenMgr() )
-		aircraftPtr->getScreenMgr()->getParmLinkScreen()->RegisterParmButton( b );
-}
 
 void ParmLinkMgr::RemoveAllReferences( Geom* geomPtr )
 {
@@ -520,35 +424,6 @@ void ParmLinkMgr::RebuildParmLinkMap()
 }
 
 
-vector< string > ParmLinkMgr::GetGroupNameVec( GeomBase* geomPtr )
-{
-	vector< string > groupNameVec;
-
-	map< string, vector< Parm* > >::iterator itr;
-
-	for ( itr = m_ParmMap[geomPtr].begin() ; itr != m_ParmMap[geomPtr].end() ; ++itr )
-	{
-		groupNameVec.push_back( itr->first );
-
-	}
-	return groupNameVec;
-}
-
-vector< Parm* > ParmLinkMgr::GetParmVec( GeomBase* geomPtr, string group_name  )
-{
-	return m_ParmMap[geomPtr][group_name];
-}
-
-string ParmLinkMgr::GetGroupName( GeomBase* geomPtr, int name_index )
-{
-	vector< string > group_vec = GetGroupNameVec( geomPtr );
-	if ( name_index >= (int)group_vec.size() )
-		name_index = (int)group_vec.size()-1;
-	if ( name_index >= 0 /*&& name_index < (int)group_vec.size()*/ )
-		return group_vec[name_index];
-
-	return string("Design");
-}
 void ParmLinkMgr::SetCurrParmLinkIndex( int i )
 {
 	m_CurrParmLinkIndex = i;
@@ -567,60 +442,7 @@ vector< ParmLink* > ParmLinkMgr::GetParmLinkVec()
 	return m_ParmLinkVec;
 }
 
-int ParmLinkMgr::GetCurrGeomNameVec( Parm* parmPtr, vector< string > & nameVec )
-{
-	int index = 0;
-	vector< Geom* > geomVec = aircraftPtr->getGeomVec();
-	geomVec.push_back( aircraftPtr->getUserGeom() );
 
-	for ( int i = 0 ; i < (int)geomVec.size() ; i++ )
-	{
-		nameVec.push_back( geomVec[i]->getName().get_char_star() );
-		if ( parmPtr && parmPtr->get_geom_base() == geomVec[i] )
-			index = i;
-	}
-	return index;
-}
-
-int ParmLinkMgr::GetCurrGroupNameVec( Parm* parmPtr, vector< string > & nameVec )
-{
-	int index = 0;
-	if ( !parmPtr )
-		return index;
-
-	nameVec = GetGroupNameVec( parmPtr->get_geom_base() );
-
-	string name = string( parmPtr->get_group_name().get_char_star() );
-
-	for ( int i = 0 ; i < (int)nameVec.size() ; i++ )
-	{
-		if ( name.compare( nameVec[i] ) == 0 )
-			index = i;
-	}
-
-	return index;
-}
-
-int	ParmLinkMgr::GetCurrParmNameVec( Parm* parmPtr, vector< string > & nameVec )
-{
-	int index = 0;
-
-	if ( !parmPtr )
-		return index;
-
-	string group_name = string( parmPtr->get_group_name().get_char_star() );
-	vector< Parm* > pVec = GetParmVec( parmPtr->get_geom_base(), group_name );
-
-	for ( int i = 0 ; i < (int)pVec.size() ; i++ )
-	{
-		if ( pVec[i] == parmPtr )
-			index = i;
-
-		nameVec.push_back( string( pVec[i]->get_name().get_char_star() ) );
-	}
-
-	return index;
-}
 
 void ParmLinkMgr::SetParmA( Parm* p )
 {

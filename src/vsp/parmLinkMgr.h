@@ -136,18 +136,11 @@ public:
 	virtual void ReadLinks(xmlNodePtr node, vector< Geom* > & gVec );
 
 	virtual void SetAircraftPtr( Aircraft* aptr )			{ aircraftPtr = aptr; }
-	virtual void LoadAllParms();
-	virtual void Register( Parm* parmPtr, GeomBase* geomPtr, string groupName );
-	virtual void RegisterParmButton( ParmButton* b );
 
 	virtual void RemoveAllReferences( Geom* geomPtr );
 	virtual void RemoveParmReferences( Parm* parmPtr ); 
 
 	virtual void RebuildAll();
-
-	virtual vector< string > GetGroupNameVec( GeomBase* geomPtr );
-	virtual vector< Parm* > GetParmVec( GeomBase* geomPtr, string group_name );
-	virtual string GetGroupName( GeomBase* geomPtr, int name_index );
 
 	virtual void SetCurrParmLinkIndex( int i );
 	virtual int  GetCurrParmLinkIndex()						{ return m_CurrParmLinkIndex; }
@@ -168,29 +161,19 @@ public:
 	virtual void ParmChanged( Parm* parmPtr, bool start_flag );
 
 	virtual ParmLink* ResetWorkingParmLink();
-	virtual int GetCurrGeomNameVec( Parm* parmPtr, vector< string > & nameVec );
-	virtual int GetCurrGroupNameVec( Parm* parmPtr, vector< string > & nameVec );
-	virtual int GetCurrParmNameVec( Parm* parmPtr, vector< string > & nameVec );
 
 	virtual void SetParmA( Parm* p );
 	virtual void SetParmB( Parm* p );
 	virtual void SetParm( bool flagA, int comp, int group, int parm );
-
-	virtual Parm* FindParm( vector< Geom* > & gVec, int ptrID, 
-							Stringc& group_name, Stringc& parm_name );
-	virtual Parm* FindParm( Geom* gPtr, Stringc& group_name, Stringc& parm_name );
 
 	virtual void SwapGeom( Geom* gOld, Geom* gNew );
 
 	virtual Parm* GetDefaultParm()					{ return m_DefaultParm; }
 	virtual void SetDefaultParm( Parm* p )			{ m_DefaultParm = p; }
 
-
 protected:
 
 	Aircraft* aircraftPtr;
-
-	map< GeomBase*, map< string, vector< Parm* > > > m_ParmMap;
 
 	int m_CurrParmLinkIndex;
 	vector< ParmLink* > m_ParmLinkVec;
