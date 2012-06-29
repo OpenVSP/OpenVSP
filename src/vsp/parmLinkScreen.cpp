@@ -125,7 +125,7 @@ void ParmLinkScreen::update()
 	//==== Geom Names A ====//
 	parmLinkUI->compAChoice->clear();
 	vector< string > geomNameVecA;
-	int indA = parmLinkMgrPtr->GetCurrGeomNameVec( currLink->GetParmA(), geomNameVecA );
+	int indA = parmMgrPtr->GetCurrGeomNameVec( currLink->GetParmA(), geomNameVecA );
 	for ( i = 0 ; i < (int)geomNameVecA.size() ; i++ )
 	{
 		sprintf( str, "%d-%s", i,  geomNameVecA[i].c_str() );
@@ -137,7 +137,7 @@ void ParmLinkScreen::update()
 	//==== Group Names A ====//
 	parmLinkUI->groupAChoice->clear();
 	vector< string > groupNameVecA;
-	indA = parmLinkMgrPtr->GetCurrGroupNameVec( currLink->GetParmA(), groupNameVecA );
+	indA = parmMgrPtr->GetCurrGroupNameVec( currLink->GetParmA(), groupNameVecA );
 	for ( i = 0 ; i < (int)groupNameVecA.size() ; i++ )
 		parmLinkUI->groupAChoice->add( groupNameVecA[i].c_str() );
 	parmLinkUI->groupAChoice->value( indA );
@@ -145,7 +145,7 @@ void ParmLinkScreen::update()
 	//==== Parm Names A =====//
 	parmLinkUI->parmAChoice->clear();
 	vector< string > parmNameVecA;
-	indA = parmLinkMgrPtr->GetCurrParmNameVec( currLink->GetParmA(), parmNameVecA );
+	indA = parmMgrPtr->GetCurrParmNameVec( currLink->GetParmA(), parmNameVecA );
 	for ( i = 0 ; i < (int)parmNameVecA.size() ; i++ )
 		parmLinkUI->parmAChoice->add( parmNameVecA[i].c_str() );
 	parmLinkUI->parmAChoice->value( indA );
@@ -153,7 +153,7 @@ void ParmLinkScreen::update()
 	//==== Geom Names B ====//
 	parmLinkUI->compBChoice->clear();
 	vector< string > geomNameVecB;
-	int indB = parmLinkMgrPtr->GetCurrGeomNameVec( currLink->GetParmB(), geomNameVecB );
+	int indB = parmMgrPtr->GetCurrGeomNameVec( currLink->GetParmB(), geomNameVecB );
 	for ( i = 0 ; i < (int)geomNameVecB.size() ; i++ )
 	{
 		sprintf( str, "%d-%s", i,  geomNameVecB[i].c_str() );
@@ -165,7 +165,7 @@ void ParmLinkScreen::update()
 	//==== Group Names B ====//
 	parmLinkUI->groupBChoice->clear();
 	vector< string > groupNameVecB;
-	indB = parmLinkMgrPtr->GetCurrGroupNameVec( currLink->GetParmB(), groupNameVecB );
+	indB = parmMgrPtr->GetCurrGroupNameVec( currLink->GetParmB(), groupNameVecB );
 	for ( i = 0 ; i < (int)groupNameVecB.size() ; i++ )
 		parmLinkUI->groupBChoice->add( groupNameVecB[i].c_str() );
 	parmLinkUI->groupBChoice->value( indB );
@@ -173,7 +173,7 @@ void ParmLinkScreen::update()
 	//==== Parm Names B =====//
 	parmLinkUI->parmBChoice->clear();
 	vector< string > parmNameVecB;
-	indB = parmLinkMgrPtr->GetCurrParmNameVec( currLink->GetParmB(), parmNameVecB );
+	indB = parmMgrPtr->GetCurrParmNameVec( currLink->GetParmB(), parmNameVecB );
 	for ( i = 0 ; i < (int)parmNameVecB.size() ; i++ )
 		parmLinkUI->parmBChoice->add( parmNameVecB[i].c_str() );
 	parmLinkUI->parmBChoice->value( indB );
@@ -297,7 +297,7 @@ void ParmLinkScreen::show( Geom* geomPtr )
 	m_User7Button->set_parm_ptr( &currGeom->userParm7 );
 	m_User8Button->set_parm_ptr( &currGeom->userParm8 );
 
-	parmLinkMgrPtr->LoadAllParms();
+	parmMgrPtr->LoadAllParms();
 	update();
 	parmLinkUI->UIWindow->show();
 }

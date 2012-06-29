@@ -296,13 +296,13 @@ void ParmLinkMgr::ReadLinks(xmlNodePtr root, vector< Geom* > & geomVec)
 				Stringc groupA_name = Stringc( xmlFindString( link_node, "GroupA", " " ) );
 				Stringc parmA_name =  Stringc( xmlFindString( link_node, "ParmA", " " ) );
 
-				Parm* parmA = FindParm( gVec, geomA_id, groupA_name, parmA_name );
+				Parm* parmA = parmMgrPtr->FindParm( gVec, geomA_id, groupA_name, parmA_name );
 
 				int geomB_id = xmlFindInt( link_node, "GeomB", 0 );
 				Stringc groupB_name = Stringc( xmlFindString( link_node, "GroupB", " " ) );
 				Stringc parmB_name = Stringc( xmlFindString( link_node, "ParmB", " " ) );
 
-				Parm* parmB = FindParm( gVec, geomB_id, groupB_name, parmB_name );
+				Parm* parmB = parmMgrPtr->FindParm( gVec, geomB_id, groupB_name, parmB_name );
 
 
 				if ( parmA && parmB )
@@ -342,7 +342,7 @@ void ParmLinkMgr::SwapGeom( Geom* gOld, Geom* gNew )
 		{
 			Stringc group_name = pA->get_group_name();
 			Stringc parm_name  = pA->get_name();
-			Parm* p = FindParm( gNew, group_name, parm_name );
+			Parm* p = parmMgrPtr->FindParm( gNew, group_name, parm_name );
 			if ( p )
 				m_ParmLinkVec[i]->SetParmA( p );
 		}
@@ -351,7 +351,7 @@ void ParmLinkMgr::SwapGeom( Geom* gOld, Geom* gNew )
 		{
 			Stringc group_name = pB->get_group_name();
 			Stringc parm_name  = pB->get_name();
-			Parm* p = FindParm( gNew, group_name, parm_name );
+			Parm* p = parmMgrPtr->FindParm( gNew, group_name, parm_name );
 			if ( p )
 				m_ParmLinkVec[i]->SetParmB( p );
 		}
@@ -495,7 +495,7 @@ void ParmLinkMgr::RemoveParmReferences( Parm* parmPtr )
 
 void ParmLinkMgr::RebuildAll()
 {
-	LoadAllParms();
+	parmMgrPtr->LoadAllParms();
 	RebuildParmLinkMap();
 
 	if ( aircraftPtr->getScreenMgr() )
@@ -651,9 +651,9 @@ void ParmLinkMgr::SetParm( bool flagA, int comp_ind, int group_ind, int parm_ind
 	if ( comp_ind >= (int)compVec.size() ) comp_ind = 0;
 	Geom* gPtr = compVec[comp_ind];
 
-	string group_name = GetGroupName( gPtr, group_ind );
+	string group_name = parmMgrPtr->GetGroupName( gPtr, group_ind );
 
-	vector< Parm* > parmVec = GetParmVec( gPtr, group_name );
+	vector< Parm* > parmVec = parmMgrPtr->GetParmVec( gPtr, group_name );
 
 	if ( parmVec.size() == 0 )
 	{
@@ -726,8 +726,8 @@ bool ParmLinkMgr::LinkAllComp()
 		return false;
 
 	//==== For All Parms in GeomA, Try to Find Match in GeomB and Link ====//
-	vector< string > groupAVec = GetGroupNameVec( pA->get_geom_base() );
-	vector< string > groupBVec = GetGroupNameVec( pB->get_geom_base() );
+	vector< string > groupAVec = parmMgrPtr->GetGroupNameVec( pA->get_geom_base() );
+	vector< string > groupBVec = parmMgrPtr->GetGroupNameVec( pB->get_geom_base() );
 
 	for ( int i = 0 ; i < (int)groupAVec.size() ; i++ )
 	{
@@ -735,8 +735,8 @@ bool ParmLinkMgr::LinkAllComp()
 		{
 			if ( groupAVec[i].compare( groupBVec[j] ) == 0 )
 			{
-				vector< Parm* > parmAVec = GetParmVec( pA->get_geom_base(), groupAVec[i] );
-				vector< Parm* > parmBVec = GetParmVec( pB->get_geom_base(), groupBVec[j] );
+				vector< Parm* > parmAVec = parmMgrPtr->GetParmVec( pA->get_geom_base(), groupAVec[i] );
+				vector< Parm* > parmBVec = parmMgrPtr->GetParmVec( pB->get_geom_base(), groupBVec[j] );
 
 				for ( int k = 0 ; k < (int)parmAVec.size() ; k++ )
 				{
@@ -800,8 +800,8 @@ bool ParmLinkMgr::LinkAllGroup()
 	string gnameA = string( pA->get_group_name().get_char_star() );
 	string gnameB = string( pB->get_group_name().get_char_star() );
 
-	vector< Parm* > parmAVec = GetParmVec( pA->get_geom_base(), gnameA );
-	vector< Parm* > parmBVec = GetParmVec( pB->get_geom_base(), gnameB );
+	vector< Parm* > parmAVec = parmMgrPtr->GetParmVec( pA->get_geom_base(), gnameA );
+	vector< Parm* > parmBVec = parmMgrPtr->GetParmVec( pB->get_geom_base(), gnameB );
 
 	for ( int k = 0 ; k < (int)parmAVec.size() ; k++ )
 	{
