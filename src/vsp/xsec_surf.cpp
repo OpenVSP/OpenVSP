@@ -1759,6 +1759,83 @@ void Xsec_surf::write_stl_tris( int sym_code_in, float mat[4][4], float refl_mat
 
 }
 
+int Xsec_surf::buildX3DStrings( int offset, Stringc &crdstr, Stringc &indstr, int sym_code_in, float mat[4][4], float refl_mat[4][4] )
+{
+	int i, j, k;
+	char numstr[255];
+
+	array_2d< int > ptindex;
+	ptindex.init(num_xsecs, num_pnts);
+
+	for ( i = 0 ; i < num_xsecs ; i++ )
+	{
+		for ( j = 0 ; j < num_pnts ; j++ )
+		{
+			ptindex(i, j) = offset;
+			offset++;
+
+			vec3d pnt = pnts_xsecs(i, j).transform(mat);
+
+			sprintf( numstr, "%lf %lf %lf ", pnt.x(), pnt.y(), pnt.z() );
+			crdstr.concatenate(numstr);
+		}
+	}
+
+	for ( i = 0 ; i < num_xsecs - 1 ; i++ )
+	{
+		for ( j = 0 ; j < num_pnts - 1 ; j++ )
+		{
+			int i0, i1, i2, i3;
+			i0 = ptindex(i, j);
+			i1 = ptindex(i+1, j);
+			i2 = ptindex(i+1, j+1);
+			i3 = ptindex(i, j+1);
+
+			sprintf( numstr, "%d %d %d %d -1 ", i0, i1, i2, i3 );
+			indstr.concatenate(numstr);
+		}
+	}
+
+	if (sym_code_in != NO_SYM)
+	{
+		if ( sym_code_in != refl_pnts_xsecs_code )
+		{
+			refl_pnts_xsecs_code = sym_code_in;
+			load_refl_pnts_xsecs();
+		}
+
+		for ( i = 0 ; i < num_xsecs ; i++ )
+		{
+			for ( j = 0 ; j < num_pnts ; j++ )
+			{
+				ptindex(i, j) = offset;
+				offset++;
+
+				vec3d pnt = refl_pnts_xsecs(i, j).transform(refl_mat);
+
+				sprintf( numstr, "%lf %lf %lf ", pnt.x(), pnt.y(), pnt.z() );
+				crdstr.concatenate(numstr);
+			}
+		}
+
+		for ( i = 0 ; i < num_xsecs - 1 ; i++ )
+		{
+			for ( j = 0 ; j < num_pnts - 1 ; j++ )
+			{
+				int i0, i1, i2, i3;
+				i0 = ptindex(i, j);
+				i1 = ptindex(i+1, j);
+				i2 = ptindex(i+1, j+1);
+				i3 = ptindex(i, j+1);
+
+				sprintf( numstr, "%d %d %d %d -1 ", i0, i3, i2, i1 );
+				indstr.concatenate(numstr);
+			}
+		}
+	}
+	return offset;
+}
+
 TMesh* Xsec_surf::createTMesh(float mat[4][4] )
 {
 //JRG -> DO SAME FOR REFL TMESH!!!!

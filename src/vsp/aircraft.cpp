@@ -1689,6 +1689,91 @@ void Aircraft::write_stl_file(const char* file_name)
 
 }
 
+//===== Write X3D Files  =====//
+void Aircraft::write_x3d_file(const char* file_name)
+{
+	xmlDocPtr doc = xmlNewDoc((const xmlChar *)"1.0");
+
+	xmlNodePtr root = xmlNewNode(NULL,(const xmlChar *)"X3D");
+	xmlDocSetRootElement(doc, root);
+
+	xmlNodePtr scene_node = xmlNewChild( root, NULL, (const xmlChar *)"Scene", NULL );
+
+	//==== All Geometry ====//
+	for ( int i = 0 ; i < (int)geomVec.size() ; i++ )
+	{
+		MeshGeom* newGeom = new MeshGeom( this );
+		newGeom->setMeshType( MeshGeom::INTERSECTION_MESH );
+
+		if ( !geomVec[i]->getNoShowFlag() && geomVec[i]->getOutputFlag() )
+		{
+			if( geomVec[i]->getNumSurf() > 0 )
+			{
+				xmlNodePtr shape_node = xmlNewChild( scene_node, NULL, (const xmlChar *) "Shape", NULL );
+
+				xmlNodePtr app_node = xmlNewChild( shape_node, NULL, (const xmlChar *) "Appearance", NULL );
+
+				int matid = geomVec[i]->getMaterialID();
+				writeX3DMaterial( app_node, matid );
+
+				geomVec[i]->writeX3D( shape_node );
+			}
+		}
+	}
+
+
+	//===== Save XML Tree and Free Doc =====//
+	xmlSaveFormatFile((const char *)file_name, doc, 1);
+	xmlFreeDoc( doc );
+}
+
+void Aircraft::writeX3DMaterial( xmlNodePtr node, int matid )
+{
+	Stringc diffs, emisss, specs;
+	Material* mat = matMgrPtr->getMaterial( matid );
+
+	xmlNodePtr mat_node = xmlNewChild( node, NULL, (const xmlChar *) "Material", NULL );
+
+	floatvec2str( mat->diff, diffs );
+	diffs.concatenate("\0");
+	xmlSetProp( mat_node, (const xmlChar *)"diffuseColor", (const xmlChar *) ((const char *) diffs) );
+
+	floatvec2str( mat->emiss, emisss );
+	emisss.concatenate("\0");
+	xmlSetProp( mat_node, (const xmlChar *)"emissiveColor", (const xmlChar *) ((const char *) emisss) );
+
+	floatvec2str( mat->spec, specs );
+	specs.concatenate("\0");
+	xmlSetProp( mat_node, (const xmlChar *)"specularColor", (const xmlChar *) ((const char *) specs) );
+
+	char alphac[255];
+	sprintf( alphac, "%lf", 1.0f - mat->diff[3] );
+	xmlSetProp( mat_node, (const xmlChar *)"transparency", (const xmlChar *) alphac );
+
+	char shine[255];
+	sprintf( shine, "%lf", mat->shine );
+	xmlSetProp( mat_node, (const xmlChar *)"shininess", (const xmlChar *) shine );
+
+	float ambf = 0.0f;
+	for( int i = 0; i < 3; i++ )
+	{
+		ambf += mat->amb[i] / mat->diff[i];
+	}
+	ambf = ambf / 3.0f;
+
+	char amb[255];
+	sprintf( amb, "%lf", ambf );
+	xmlSetProp( mat_node, (const xmlChar *)"ambientIntensity", (const xmlChar *) amb );
+}
+
+void Aircraft::floatvec2str( float* vec, Stringc &str )
+{
+	char numc[255];
+
+	sprintf( numc, "%lf %lf %lf", vec[0], vec[1], vec[2] );
+	str.concatenate( numc );
+}
+
 //===== Write Nascart Files  =====//
 void Aircraft::write_nascart_files(const char* file_name)
 {

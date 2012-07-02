@@ -1377,6 +1377,28 @@ void Geom::write_bezier_file( int id, FILE* file_id )
 
 }
 
+void Geom::writeX3D( xmlNodePtr node )
+{
+	xmlNodePtr set_node = xmlNewChild( node, NULL, (const xmlChar *)"IndexedFaceSet", NULL );
+	xmlSetProp( set_node, (const xmlChar *)"solid", (const xmlChar *)"true" );
+	xmlSetProp( set_node, (const xmlChar *)"creaseAngle", (const xmlChar *)"0.5"  );
+
+	Stringc indstr, crdstr;
+	int offset = 0;
+
+	for ( int i = 0 ; i < (int)surfVec.size() ; i++ )
+	{
+		offset = surfVec[i]->buildX3DStrings( offset, crdstr, indstr, sym_code, model_mat, reflect_mat );
+	}
+
+	indstr.concatenate("\0");
+	crdstr.concatenate("\0");
+
+	xmlSetProp( set_node, (const xmlChar *)"coordIndex", (const xmlChar *) ((const char *) indstr) );
+
+	xmlNodePtr coord_node = xmlNewChild( set_node, NULL, (const xmlChar *)"Coordinate", NULL );
+	xmlSetProp( coord_node, (const xmlChar *)"point", (const xmlChar *) ((const char *) crdstr) );
+}
 
 //==== Return Number of Xsec Surfs to Write ====//
 int Geom::getNumXSecSurfs()
