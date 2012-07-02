@@ -17,7 +17,7 @@
 #endif
 
 #include <FL/Fl.H>
-#include <FL/Fl_Ask.H>
+#include <FL/fl_ask.H>
 
 #ifdef __APPLE__
 #  include <OpenGL/gl.h>
