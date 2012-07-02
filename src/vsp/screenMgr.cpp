@@ -2006,3 +2006,8 @@ char* ScreenMgr::FileChooser( const char* title, const char* filter )
 	return selectFileScreen->FileChooser( title, filter ); 
 }
 
+void ScreenMgr::MessageBox( const char* msg )
+{
+	fl_message( msg );
+}
+

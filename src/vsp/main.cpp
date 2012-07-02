@@ -7,6 +7,11 @@
 //#include "vld.h"  
 
 #include <stdio.h>
+
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+
 #ifdef WIN32
 #include <windows.h>		
 #endif
@@ -629,44 +634,71 @@ void CheckVersionNumber()
 	char*  headers = "Content-Type: application/x-www-form-urlencoded \n";
 
 	void * ctx = 0;
-	ctx = xmlNanoHTTPMethod("http://www.openvsp.org/post.php", "POST", poststr, NULL, headers, poststrlen );
+	ctx = xmlNanoHTTPMethod("http://www.openvsp.org/vspuse_post.php", "POST", poststr, NULL, headers, poststrlen );
 
 	if ( ctx )
 		xmlNanoHTTPClose(ctx);
 
 	ctx = 0;
 
-	//==== Webpage with Version Info ====//
-	char * pContentType = 0;
-	ctx = xmlNanoHTTPOpen("http://www.openvsp.org/latest_version.html", &pContentType);
-
-	int retCode = xmlNanoHTTPReturnCode(ctx);
-
-	//==== Http Return Code 200 -> OK  ====//
-	string contentStr;
-	if ( retCode == 200 )
+	//==== Open Settings File ====//
+	bool check_version_flag = true;
+	FILE* vsptime_fp = fopen( ".vsptime", "r" );
+	if ( vsptime_fp )
 	{
-		char buf[2048];
-		int len = 1;
-		while (len > 0 && contentStr.size() < 10000 )
-		{
-			len = xmlNanoHTTPRead(ctx, buf, sizeof(buf));
-			contentStr.append( buf, len );
-		}
+		char str[256];
+		fgets( str, 256, vsptime_fp );
+		int vsp_time = atoi( str );
+		int del_time =  (int)time(NULL) - vsp_time;
+		if ( del_time < 60*60*24*7 )				// Check Every Week
+			check_version_flag = false;
+
+		fclose( vsptime_fp );
 	}
 
-	if ( contentStr.size() > 0 )	// Pulled A String From Server
+	//==== Enough Time Has Passed - Check For New Version ====//
+	if ( check_version_flag )
 	{
-		int major_ver, minor_ver, change_ver;
-		bool valid = ExtractVersionNumber( contentStr, &major_ver, &minor_ver, &change_ver );
+		//==== Webpage with Version Info ====//
+		char * pContentType = 0;
+		ctx = xmlNanoHTTPOpen("http://www.openvsp.org/latest_version.html", &pContentType);
 
-		if ( valid )
+		int retCode = xmlNanoHTTPReturnCode(ctx);
+
+		//==== Http Return Code 200 -> OK  ====//
+		string contentStr;
+		if ( retCode == 200 )
 		{
-			if ( major_ver != VSP_VERSION_MAJOR ||minor_ver != VSP_VERSION_MINOR || change_ver != VSP_VERSION_CHANGE )
+			char buf[2048];
+			int len = 1;
+			while (len > 0 && contentStr.size() < 10000 )
 			{
-				if ( screenMgrPtr )
-					screenMgrPtr->MessageBox("A new version of OpenVSP is available at http://www.openvsp.org/");
+				len = xmlNanoHTTPRead(ctx, buf, sizeof(buf));
+				contentStr.append( buf, len );
 			}
+		}
+
+		//==== Pulled A String From Server =====//
+		if ( contentStr.size() > 0 )
+		{
+			int major_ver, minor_ver, change_ver;
+			bool valid = ExtractVersionNumber( contentStr, &major_ver, &minor_ver, &change_ver );
+
+			if ( valid )
+			{
+				if ( major_ver != VSP_VERSION_MAJOR ||minor_ver != VSP_VERSION_MINOR || change_ver != VSP_VERSION_CHANGE )
+				{
+					if ( screenMgrPtr )
+						screenMgrPtr->MessageBox("A new version of OpenVSP is available at http://www.openvsp.org/");
+				}
+			}
+		}
+		//===== Write Time =====//
+		FILE* vsptime_fp = fopen( ".vsptime", "w" );
+		if ( vsptime_fp )
+		{
+			fprintf( vsptime_fp, "%d", time(NULL) );
+			fclose( vsptime_fp );
 		}
 	}
 
@@ -683,8 +715,6 @@ void vsp_exit()
 
 	if ( airPtr )
 		delete airPtr;
-
-
 
 	exit(0);
 }
@@ -703,6 +733,8 @@ void autoSaveTimeoutHandler(void *data)
 }
 
 
+//========================================================//
+//========================================================//
 //========================= Main =========================//
 int main( int argc, char** argv)
 {
@@ -710,17 +742,7 @@ int main( int argc, char** argv)
 //FILE* filePtr = fopen("debug.txt", "w" );
 //freopen("debug.txt", "w", stdout); 
 
-#ifdef CHECK_FOR_KEY
-	if ( !validKey() )
-	{
-		printf( "Invalid Reg Key\n" );
-		printf( "Press Enter to Exit\n" );
-		char str[256];
-		gets( str );
-		exit(0);
-	}
-#endif
-	
+	//==== Create Aircraft ====//
 	airPtr = new Aircraft();
 
 	if ( batchMode( argc, argv, airPtr ) )
