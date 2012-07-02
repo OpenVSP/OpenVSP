@@ -150,7 +150,7 @@ public:
 	virtual ~ICurve();
 
 	bool Match( SCurve* crv_A, SCurve* crv_B );
-	void Tesselate( GridDensity* grid_den );
+	void BorderTesselate( );
 	void SetACurve( SCurve* crv_A )						{ m_SCurve_A = crv_A; }
 
 
@@ -158,12 +158,13 @@ public:
 
 	void DebugEdgeMatching(FILE* fp);
 
+
 	SCurve* m_SCurve_A;
 	SCurve* m_SCurve_B;
-	bool m_FlipDirFlag;
+
+
 
 protected:
-
 
 
 

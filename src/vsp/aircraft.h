@@ -69,7 +69,7 @@ class Aircraft
 {
 public:
 
-	enum { FELISA, XSEC, STEREOLITH, RHINO3D, AWAVE, NASCART, POVRAY, CART3D, VORXSEC, XSECGEOM, GMSH };
+	enum { FELISA, XSEC, STEREOLITH, RHINO3D, AWAVE, NASCART, POVRAY, CART3D, VORXSEC, XSECGEOM, GMSH, X3D };
 
 	VSPDLL Aircraft();
 	VSPDLL virtual ~Aircraft();
@@ -90,6 +90,10 @@ public:
 	VSPDLL void write_stl_file(const char* file_name);
 	bool check_for_stl_mesh();
 
+	void writeX3DMaterial( xmlNodePtr node, int matid );
+	void floatvec2str( float* vec, Stringc &str );
+
+	VSPDLL void write_x3d_file(const char* file_name);
 	VSPDLL void write_rhino_file(const char* file_name);
 	VSPDLL void write_xsec_file(const char* file_name);
 	VSPDLL void write_nascart_files(const char* file_name);

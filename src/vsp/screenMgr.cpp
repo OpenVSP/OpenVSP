@@ -187,6 +187,7 @@ void ScreenMgr::createGui()
 	exportFileUI->cart3dButton->callback( staticMenuCB, this );
 	exportFileUI->povrayButton->callback( staticMenuCB, this );
 	exportFileUI->gmshButton->callback( staticMenuCB, this );
+	exportFileUI->x3dButton->callback( staticMenuCB, this );
 
 	//==== Export File Window ====//
 	importFileUI = new ImportFileUI();
@@ -1486,6 +1487,10 @@ void ScreenMgr::menuCB( Fl_Widget* w )
 	{
 		s_export(ScriptMgr::GUI, NULL, Aircraft::POVRAY);
 	}
+	else if ( w == 	exportFileUI->x3dButton )		// Export X3D File
+	{
+		s_export(ScriptMgr::GUI, NULL, Aircraft::X3D);
+	}
 
 	else if ( m == mainWinUI->ShowAbout )
 	{
@@ -1756,6 +1761,8 @@ void ScreenMgr::s_export(int src, const char * newfile, int type)
 			newfile = selectFileScreen->FileChooser("Write GMsh Files?", "*.msh");
 		else if (type == Aircraft::POVRAY)
 			newfile = selectFileScreen->FileChooser("Write POVRAY File?", "*.pov");
+		else if (type == Aircraft::X3D)
+			newfile = selectFileScreen->FileChooser("Write X3D File?", "*.x3d");
 		else if (type == -1)
 		{
 			exportFileUI->UIWindow->show();
@@ -1817,7 +1824,11 @@ void ScreenMgr::s_export(int src, const char * newfile, int type)
 			aircraftPtr->write_povray_file ( newfile );
 			if (src == ScriptMgr::GUI) scriptMgr->addLine("export -povray", newfile);
 		}
-
+		else if (type == Aircraft::X3D )
+		{
+			aircraftPtr->write_x3d_file ( newfile );
+			if (src == ScriptMgr::GUI) scriptMgr->addLine("export -x3d", newfile);
+		}
 	}
 	if (src != ScriptMgr::SCRIPT)
 		exportFileUI->UIWindow->hide();
@@ -2004,5 +2015,10 @@ void ScreenMgr::showParmScreen(Parm* p, int x, int y)
 char* ScreenMgr::FileChooser( const char* title, const char* filter )
 { 
 	return selectFileScreen->FileChooser( title, filter ); 
+}
+
+void ScreenMgr::MessageBox( const char* msg )
+{
+	fl_message( msg );
 }
 

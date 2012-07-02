@@ -9338,3 +9338,27 @@ pow(total_dihedral_offset_x - dihedral_pivot_point.x(), 2) ) );
   		}
 	}
 } 
+
+//==== Append Wake Edges ====//
+void HwbBaseGeom::AppendWakeEdges( vector< vector< vec3d > > & edges )
+{
+	if ( !m_WakeActiveFlag )
+		return;
+
+	int nxs = mwing_surf.get_num_xsecs();
+
+	vector< vec3d > teVec;
+	vector< vec3d > refTeVec;
+	for ( int i = 1 ; i < nxs-1 ; i++ )
+	{
+		vec3d p = mwing_surf.get_pnt( i, 0 );
+		teVec.push_back( p.transform( model_mat ) );
+
+		if ( sym_code != NO_SYM )
+			refTeVec.push_back( (p * sym_vec).transform(reflect_mat) );
+	}
+
+	edges.push_back( teVec );
+	if (sym_code != NO_SYM)
+		edges.push_back( refTeVec );
+}

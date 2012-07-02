@@ -241,6 +241,7 @@ public:
 	virtual int getNumXSecSurfs();
 	virtual void dump_xsec_file(int geom_no, FILE* dump_file);
 
+	virtual void writeX3D( xmlNodePtr node );
 
 	//===== Felisa Functions =====
 	virtual int write_felisa_file(int geom_no, FILE*)		{ return(geom_no); }
@@ -359,6 +360,11 @@ public:
 	virtual vector< BaseSource* > getCfdMeshSourceVec()		{ return sourceVec; }
 	virtual void GetInteriorPnts( vector< vec3d > & pVec )	{}
 
+	//==== Wake for CFD Mesh ====//
+	virtual void SetWakeActiveFlag( bool flag )						{ m_WakeActiveFlag = flag; }
+	virtual bool GetWakeActiveFlag()								{ return m_WakeActiveFlag; }
+	virtual void AppendWakeEdges( vector< vector< vec3d > > & edges )	{}
+
 	//==== Parm Linking ====//
 	virtual void LoadLinkableParms( vector< Parm* > & parmVec );
 	virtual void AddLinkableParm( Parm* p, vector< Parm* >& pVec, GeomBase* gPtr, const Stringc grpName );
@@ -412,7 +418,10 @@ protected:
 
    //==== CFD Mesh Sources ====//
    vector< BaseSource* > sourceVec;
- 
+
+   //==== Wake for CFD Mesh ====//
+   bool m_WakeActiveFlag;
+
    //==== Transformations ====//	
    vec3d  center;
 

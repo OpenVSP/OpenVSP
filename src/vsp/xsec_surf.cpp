@@ -14,9 +14,9 @@
 //******************************************************************************
 
 #include "xsec_surf.h"
+#include "vector_util.h"
 #include "geom.h"
 
-#include "bicubic_surf.h"
 #include "bezier_surf.h"
 
 #include "tMesh.h"
@@ -242,8 +242,10 @@ vec3d Xsec_surf::linear_interpolate_xsec(int ixs, double fract)
   if ( fract >= 1.0 ) return( pnts_xsecs(ixs, 0) );
 
 
-  array<double> dist_sqr;
-  dist_sqr.init(num_half_pnts);
+  //..array<double> dist_sqr;
+  vector<double> dist_sqr;
+  //..dist_sqr.init(num_half_pnts);
+  dist_sqr.resize(num_half_pnts);
 
   double total_dist = dist_sqr[0] = 0.0;
   for ( int i = 1 ; i < num_half_pnts ; i++ )
@@ -253,12 +255,15 @@ vec3d Xsec_surf::linear_interpolate_xsec(int ixs, double fract)
     }
   double target_dist = fract*dist_sqr[num_half_pnts-1];
 
-  int ivl = dist_sqr.find_interval(fract*total_dist);
-  double percent = dist_sqr.interpolate(fract*total_dist, ivl);
+  //..int ivl = dist_sqr.find_interval(fract*total_dist);
+  int ivl = FindInterval(dist_sqr, fract*total_dist);
+  //..double percent = dist_sqr.interpolate(fract*total_dist, ivl);
+  double percent = Interpolate( dist_sqr, fract*total_dist, ivl);
 
   return(  pnts_xsecs(ixs,ivl) + 
           (pnts_xsecs(ixs,ivl+1) - pnts_xsecs(ixs,ivl))*percent );
   
+
 }
 
 void Xsec_surf::copy_xsec( Xsec_surf* fromSurf, int fromXs, int toXs )
@@ -684,8 +689,8 @@ void Xsec_surf::draw_texture( AppliedTex& tex )
 		vector< int > uIndex;
 		vector< double > uVal;
 		vector< double > uVec;
-		for ( i = 0 ; i < uArray.dimension() ; i++ )
-			uVec.push_back( uArray(i) );
+		for ( i = 0 ; i < (int)uArray.size() ; i++ )
+			uVec.push_back( uArray[i] );
 
 		remap_texture( tex.u, tex.scaleu, tex.wrapUFlag,  uVec, uIndex, uVal );
 
@@ -700,8 +705,8 @@ void Xsec_surf::draw_texture( AppliedTex& tex )
 		vector< int > wIndex;
 		vector< double > wVal;
 		vector< double > wVec;
-		for ( i = 0 ; i < wArray.dimension() ; i++ )
-			wVec.push_back( wArray(i) );
+		for ( i = 0 ; i < (int)wArray.size() ; i++ )
+			wVec.push_back( wArray[i] );
 
 		remap_texture( tex.w, tex.scalew, tex.wrapWFlag, wVec, wIndex, wVal );
 		if ( tex.flipWFlag )
@@ -742,25 +747,25 @@ void Xsec_surf::draw_texture( AppliedTex& tex )
 	}
 	else					// Repeating Texture
 	{
-		for ( i = 0 ; i < uArray.dimension()-1 ; i++ )
+		for ( i = 0 ; i < (int)uArray.size()-1 ; i++ )
 		{
-			for ( j = 0 ; j < (int)wArray.dimension()-1 ; j ++ )
+			for ( j = 0 ; j < (int)wArray.size()-1 ; j ++ )
 			{
 			  glBegin( GL_POLYGON );		
 				glNormal3dv(normals(i,j).v);
-				glTexCoord2d( uArray(i)/tex.scaleu + tex.u, wArray(j)/tex.scalew + tex.w );
+				glTexCoord2d( uArray[i]/tex.scaleu + tex.u, wArray[j]/tex.scalew + tex.w );
 				glVertex3dv(pnts_xsecs(i,j).v);
 
 				glNormal3dv(normals(i+1,j).v);
-				glTexCoord2d( uArray(i+1)/tex.scaleu + tex.u, wArray(j)/tex.scalew + tex.w );
+				glTexCoord2d( uArray[i+1]/tex.scaleu + tex.u, wArray[j]/tex.scalew + tex.w );
 				glVertex3dv(pnts_xsecs(i+1,j).v);
 
 				glNormal3dv(normals(i+1,j+1).v);
-				glTexCoord2d( uArray(i+1)/tex.scaleu + tex.u, wArray(j+1)/tex.scalew + tex.w );
+				glTexCoord2d( uArray[i+1]/tex.scaleu + tex.u, wArray[j+1]/tex.scalew + tex.w );
 				glVertex3dv(pnts_xsecs(i+1,j+1).v);
 
 				glNormal3dv(normals(i,j+1).v);
-				glTexCoord2d( uArray(i)/tex.scaleu + tex.u, wArray(j+1)/tex.scalew + tex.w );
+				glTexCoord2d( uArray[i]/tex.scaleu + tex.u, wArray[j+1]/tex.scalew + tex.w );
 				glVertex3dv(pnts_xsecs(i,j+1).v);
 			  glEnd();
 			}
@@ -798,8 +803,8 @@ void Xsec_surf::draw_refl_texture( AppliedTex& tex, int sym_code_in )
 		vector< int > uIndex;
 		vector< double > uVal;
 		vector< double > uVec;
-		for ( i = 0 ; i < uArray.dimension() ; i++ )
-			uVec.push_back( uArray(i) );
+		for ( i = 0 ; i < (int)uArray.size() ; i++ )
+			uVec.push_back( uArray[i] );
 
 		remap_texture( tex.u, tex.scaleu, tex.wrapUFlag,  uVec, uIndex, uVal );
 		if ( tex.reflFlipUFlag )
@@ -812,8 +817,8 @@ void Xsec_surf::draw_refl_texture( AppliedTex& tex, int sym_code_in )
 		vector< int > wIndex;
 		vector< double > wVal;
 		vector< double > wVec;
-		for ( i = 0 ; i < wArray.dimension() ; i++ )
-			wVec.push_back( wArray(i) );
+		for ( i = 0 ; i < (int)wArray.size() ; i++ )
+			wVec.push_back( wArray[i] );
 
 		remap_texture( tex.w, tex.scalew, tex.wrapWFlag, wVec, wIndex, wVal );
 		if ( tex.reflFlipWFlag )
@@ -854,25 +859,25 @@ void Xsec_surf::draw_refl_texture( AppliedTex& tex, int sym_code_in )
 	}
 	else					// Repeating Texture
 	{
-		for ( i = 0 ; i < uArray.dimension()-1 ; i++ )
+		for ( i = 0 ; i < (int)uArray.size()-1 ; i++ )
 		{
-			for ( j = 0 ; j < (int)wArray.dimension()-1 ; j ++ )
+			for ( j = 0 ; j < (int)wArray.size()-1 ; j ++ )
 			{
 			  glBegin( GL_POLYGON );		
 				glNormal3dv(refl_normals(i,j).v);
-				glTexCoord2d( uArray(i)/tex.scaleu, wArray(j)/tex.scalew );
+				glTexCoord2d( uArray[i]/tex.scaleu, wArray[j]/tex.scalew );
 				glVertex3dv(refl_pnts_xsecs(i,j).v);
 
 				glNormal3dv(refl_normals(i,j+1).v);
-				glTexCoord2d( uArray(i)/tex.scaleu, wArray(j+1)/tex.scalew );
+				glTexCoord2d( uArray[i]/tex.scaleu, wArray[j+1]/tex.scalew );
 				glVertex3dv(refl_pnts_xsecs(i,j+1).v);
 
 				glNormal3dv(refl_normals(i+1,j+1).v);
-				glTexCoord2d( uArray(i+1)/tex.scaleu, wArray(j+1)/tex.scalew );
+				glTexCoord2d( uArray[i+1]/tex.scaleu, wArray[j+1]/tex.scalew );
 				glVertex3dv(refl_pnts_xsecs(i+1,j+1).v);
 
 				glNormal3dv(refl_normals(i+1,j).v);
-				glTexCoord2d( uArray(i+1)/tex.scaleu, wArray(j)/tex.scalew );
+				glTexCoord2d( uArray[i+1]/tex.scaleu, wArray[j]/tex.scalew );
 				glVertex3dv(refl_pnts_xsecs(i+1,j).v);
 
 
@@ -1203,32 +1208,32 @@ void Xsec_surf::load_sharp_normals()
 void Xsec_surf::load_uw()
 {
   int i, j;
-  uArray.init( num_xsecs );
-  wArray.init( num_pnts  );
+  uArray.resize( num_xsecs );
+  wArray.resize( num_pnts  );
 
   if ( num_xsecs == 0 || num_pnts == 0 )
 	  return;
 
   double total_d = 0;
-  uArray(0) = total_d;
+  uArray[0] = total_d;
   for ( i = 1 ; i < num_xsecs ; i++ )
   {
 	total_d += dist( pnts_xsecs(i, num_pnts/2), pnts_xsecs(i-1, num_pnts/2) ) + 0.000001;
-	uArray(i) = total_d;
+	uArray[i] = total_d;
   }
 
   for ( i = 1 ; i < num_xsecs ; i++ )
-	uArray(i) = uArray(i)/total_d;
+	uArray[i] = uArray[i]/total_d;
 
   total_d = 0;
-  wArray(0) = total_d;
+  wArray[0] = total_d;
   for ( j = 1 ; j < num_pnts ; j++ )
   {
 	total_d += dist( pnts_xsecs(num_xsecs/2, j-1), pnts_xsecs(num_xsecs/2, j) ) + 0.000001;
-	wArray(j) = total_d;
+	wArray[j] = total_d;
   }
   for ( j = 1 ; j < num_pnts ; j++ )
-	wArray(j) = wArray(j)/total_d;
+	wArray[j] = wArray[j]/total_d;
 
 }
 
@@ -1754,6 +1759,83 @@ void Xsec_surf::write_stl_tris( int sym_code_in, float mat[4][4], float refl_mat
 
 }
 
+int Xsec_surf::buildX3DStrings( int offset, Stringc &crdstr, Stringc &indstr, int sym_code_in, float mat[4][4], float refl_mat[4][4] )
+{
+	int i, j, k;
+	char numstr[255];
+
+	array_2d< int > ptindex;
+	ptindex.init(num_xsecs, num_pnts);
+
+	for ( i = 0 ; i < num_xsecs ; i++ )
+	{
+		for ( j = 0 ; j < num_pnts ; j++ )
+		{
+			ptindex(i, j) = offset;
+			offset++;
+
+			vec3d pnt = pnts_xsecs(i, j).transform(mat);
+
+			sprintf( numstr, "%lf %lf %lf ", pnt.x(), pnt.y(), pnt.z() );
+			crdstr.concatenate(numstr);
+		}
+	}
+
+	for ( i = 0 ; i < num_xsecs - 1 ; i++ )
+	{
+		for ( j = 0 ; j < num_pnts - 1 ; j++ )
+		{
+			int i0, i1, i2, i3;
+			i0 = ptindex(i, j);
+			i1 = ptindex(i+1, j);
+			i2 = ptindex(i+1, j+1);
+			i3 = ptindex(i, j+1);
+
+			sprintf( numstr, "%d %d %d %d -1 ", i0, i1, i2, i3 );
+			indstr.concatenate(numstr);
+		}
+	}
+
+	if (sym_code_in != NO_SYM)
+	{
+		if ( sym_code_in != refl_pnts_xsecs_code )
+		{
+			refl_pnts_xsecs_code = sym_code_in;
+			load_refl_pnts_xsecs();
+		}
+
+		for ( i = 0 ; i < num_xsecs ; i++ )
+		{
+			for ( j = 0 ; j < num_pnts ; j++ )
+			{
+				ptindex(i, j) = offset;
+				offset++;
+
+				vec3d pnt = refl_pnts_xsecs(i, j).transform(refl_mat);
+
+				sprintf( numstr, "%lf %lf %lf ", pnt.x(), pnt.y(), pnt.z() );
+				crdstr.concatenate(numstr);
+			}
+		}
+
+		for ( i = 0 ; i < num_xsecs - 1 ; i++ )
+		{
+			for ( j = 0 ; j < num_pnts - 1 ; j++ )
+			{
+				int i0, i1, i2, i3;
+				i0 = ptindex(i, j);
+				i1 = ptindex(i+1, j);
+				i2 = ptindex(i+1, j+1);
+				i3 = ptindex(i, j+1);
+
+				sprintf( numstr, "%d %d %d %d -1 ", i0, i3, i2, i1 );
+				indstr.concatenate(numstr);
+			}
+		}
+	}
+	return offset;
+}
+
 TMesh* Xsec_surf::createTMesh(float mat[4][4] )
 {
 //JRG -> DO SAME FOR REFL TMESH!!!!
@@ -1991,7 +2073,7 @@ void Xsec_surf::load_bezier_surface( bezier_surf* surf )
 	for ( j = 0 ; j < num_pnts ; j++ )
 	{
 		pVec[j] = pnts_xsecs( i, j );
-		pFlagVec[j] = pnt_tan_flags(j);
+		pFlagVec[j] = pnt_tan_flags[j];
 	}
 	xcrvVec[i].buildCurve2( pVec, pFlagVec, tension, closed_xsec_flag );
   }
@@ -2021,7 +2103,7 @@ void Xsec_surf::load_bezier_surface( bezier_surf* surf )
 	for ( j = 0 ; j < num_xsecs ; j++ )
 	{
 		pVec[j] = xcrvVec[j].get_pnt( i );
-		pFlagVec[j] = xsec_tan_flags(j);
+		pFlagVec[j] = xsec_tan_flags[j];
 	}
 	scrvVec[i].buildCurve2( pVec, pFlagVec, tension, closed_stringer_flag );
   }
@@ -2067,14 +2149,14 @@ void Xsec_surf::load_bezier_surface( bezier_surf* surf )
 
 void Xsec_surf::clear_pnt_tan_flags()
 {
-	pnt_tan_flags.init( num_pnts );
+	pnt_tan_flags.resize( num_pnts );
 	for ( int i = 0 ; i < num_pnts ; i++ )
 		pnt_tan_flags[i] = Bezier_curve::NADA;
 }
 
 void Xsec_surf::clear_xsec_tan_flags()
 {
-	xsec_tan_flags.init( num_xsecs );
+	xsec_tan_flags.resize( num_xsecs );
 	for ( int i = 0 ; i < num_xsecs ; i++ )
 		xsec_tan_flags[i] = Bezier_curve::NADA;
 }

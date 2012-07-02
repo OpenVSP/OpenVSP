@@ -17,7 +17,7 @@
 #endif
 
 #include <FL/Fl.H>
-//#include <FL/Fl_Ask.H>
+#include <FL/fl_ask.H>
 
 #ifdef __APPLE__
 #  include <OpenGL/gl.h>
@@ -190,6 +190,9 @@ public:
 	void s_screenshot(int src);
 
 	char* FileChooser( const char* title, const char* filter );
+
+	void MessageBox( const char* msg );
+
 
 	int antialias;
 
