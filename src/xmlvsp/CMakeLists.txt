@@ -8,4 +8,5 @@ SET(XMLVSP_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH "Path to XML wrapp
 
 ADD_LIBRARY(xmlvsp
 xmlvsp.c
+xmlvsp.h
 )

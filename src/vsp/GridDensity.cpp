@@ -748,12 +748,24 @@ void BoxSource::ReadParms( xmlNodePtr root )
 GridDensity::GridDensity()
 {
 	m_BaseLen = 0.5;
-
+	m_MinLen = 0.1;
+	SetNCircSeg(16.0);
+	m_MaxGap = 0.005;
+	m_GrowRatio = 1.3;
 }
 
 GridDensity::~GridDensity()
 {
 	ClearSources();
+}
+
+void GridDensity::SetNCircSeg( double v )
+{
+	m_NCircSeg = v;
+	if(v > 2.0)
+		m_RadFrac = 2.0*sin(PI/v);
+	else  // Switch to 4/n behavior below well defined range.
+		m_RadFrac = 4.0/v;
 }
 
 void GridDensity::RemoveSource( BaseSource* s )

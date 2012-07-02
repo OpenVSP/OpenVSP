@@ -57,7 +57,7 @@ public:
 
 
 	int Split( int num_iter );
-	void SplitEdge( Edge* edge, Surf* surfPtr );
+	void SplitEdge( Edge* edge );
 
 	bool ThreeEdgesThreeTris( Edge* edge );
 	void SwapEdge( Edge* edge );
@@ -66,7 +66,13 @@ public:
 	bool ValidCollapse( Edge* edge );
 	void CollapseEdge( Edge* edge );
 
+	void LimitTargetEdgeLength();
+	void LimitTargetEdgeLength( Edge* e );
+	void LimitTargetEdgeLength( Node* n );
+	void LimitTargetEdgeLength( Edge* e, Node* notn );
+
 	void ComputeTargetEdgeLength( Edge* edge );
+	void ComputeTargetEdgeLength( Node* n );
 
 	void SetNodeFlags();
 
@@ -119,6 +125,8 @@ public:
 
 	vector < vec3d >& GetSimpPntVec()		{ return simpPntVec; }
 	vector < SimpTri >& GetSimpTriVec()		{ return simpTriVec; }
+
+	void StretchSimpPnts( double start_x, double end_x, double factor, double angle );
 
 	void RemoveInteriorTrisEdgesNodes();
 

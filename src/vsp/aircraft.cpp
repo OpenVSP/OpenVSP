@@ -506,10 +506,16 @@ void Aircraft::writeFile( const char* file_name, vector< Geom * > &gVec, vector<
 	xmlAddDoubleNode( root, "CG_Y", cgLoc.y() );
 	xmlAddDoubleNode( root, "CG_Z", cgLoc.z() );
 	xmlAddDoubleNode( root, "CFD_Mesh_Base_Length", cfdMeshMgrPtr->GetGridDensityPtr()->GetBaseLen() );
+	xmlAddDoubleNode( root, "CFD_Mesh_Min_Length", cfdMeshMgrPtr->GetGridDensityPtr()->GetMinLen() );
+	xmlAddDoubleNode( root, "CFD_Mesh_Max_Gap", cfdMeshMgrPtr->GetGridDensityPtr()->GetMaxGap() );
+	xmlAddDoubleNode( root, "CFD_Mesh_Num_Circle_Segments", cfdMeshMgrPtr->GetGridDensityPtr()->GetNCircSeg() );
+	xmlAddDoubleNode( root, "CFD_Mesh_Growth_Ratio", cfdMeshMgrPtr->GetGridDensityPtr()->GetGrowRatio() );
 	xmlAddDoubleNode( root, "CFD_Far_Field_Scale_X", cfdMeshMgrPtr->GetFarXScale() );
 	xmlAddDoubleNode( root, "CFD_Far_Field_Scale_Y", cfdMeshMgrPtr->GetFarYScale() );
 	xmlAddDoubleNode( root, "CFD_Far_Field_Scale_Z", cfdMeshMgrPtr->GetFarZScale() );
 	xmlAddIntNode( root, "CFD_Half_Mesh_Flag", cfdMeshMgrPtr->GetHalfMeshFlag() );
+	xmlAddDoubleNode( root, "CFD_Wake_Angle", cfdMeshMgrPtr->GetWakeAngle() );
+	xmlAddDoubleNode( root, "CFD_Wake_Scale", cfdMeshMgrPtr->GetWakeScale() );
 
 	//==== Write Window Background Scale/Offset ====//
 	drawWin->writeFile( root );
@@ -879,12 +885,17 @@ int Aircraft::readFile(const char* file_name )
 
 	double bl = xmlFindDouble( root, "CFD_Mesh_Base_Length", cfdMeshMgrPtr->GetGridDensityPtr()->GetBaseLen() );
 	cfdMeshMgrPtr->GetGridDensityPtr()->SetBaseLen(bl);
-
+	cfdMeshMgrPtr->GetGridDensityPtr()->SetMinLen( xmlFindDouble( root, "CFD_Mesh_Min_Length", cfdMeshMgrPtr->GetGridDensityPtr()->GetMinLen() ) );
+	cfdMeshMgrPtr->GetGridDensityPtr()->SetMaxGap( xmlFindDouble( root, "CFD_Mesh_Max_Gap", cfdMeshMgrPtr->GetGridDensityPtr()->GetMaxGap() ) );
+	cfdMeshMgrPtr->GetGridDensityPtr()->SetNCircSeg( xmlFindDouble( root, "CFD_Mesh_Num_Circle_Segments", cfdMeshMgrPtr->GetGridDensityPtr()->GetNCircSeg() ) );
+	cfdMeshMgrPtr->GetGridDensityPtr()->SetGrowRatio( xmlFindDouble( root, "CFD_Mesh_Growth_Ratio", cfdMeshMgrPtr->GetGridDensityPtr()->GetGrowRatio() ) );
 	cfdMeshMgrPtr->SetFarXScale( xmlFindDouble( root, "CFD_Far_Field_Scale_X", cfdMeshMgrPtr->GetFarXScale() ) );
 	cfdMeshMgrPtr->SetFarYScale( xmlFindDouble( root, "CFD_Far_Field_Scale_Y", cfdMeshMgrPtr->GetFarYScale() ) );
 	cfdMeshMgrPtr->SetFarZScale( xmlFindDouble( root, "CFD_Far_Field_Scale_Z", cfdMeshMgrPtr->GetFarZScale() ) );
 	bool hf = xmlFindInt( root, "CFD_Half_Mesh_Flag", cfdMeshMgrPtr->GetHalfMeshFlag() ) != 0;
 	cfdMeshMgrPtr->SetHalfMeshFlag( hf );
+	cfdMeshMgrPtr->SetWakeAngle( xmlFindDouble( root, "CFD_Wake_Angle", cfdMeshMgrPtr->GetWakeAngle() ) );
+	cfdMeshMgrPtr->SetWakeScale( xmlFindDouble( root, "CFD_Wake_Scale", cfdMeshMgrPtr->GetWakeScale() ) );
 
 	//==== Read Window Background Scale/Offset ====//
 	if ( drawWin )
@@ -1396,8 +1407,6 @@ void Aircraft::draw()
 	//==== Structures ====//
 	structureMgrPtr->Draw();
 
-
-	cfdMeshMgrPtr->UpdateSources();
 	cfdMeshMgrPtr->Draw();
 
 	feaMeshMgrPtr->Draw();
@@ -1680,6 +1689,91 @@ void Aircraft::write_stl_file(const char* file_name)
 
 }
 
+//===== Write X3D Files  =====//
+void Aircraft::write_x3d_file(const char* file_name)
+{
+	xmlDocPtr doc = xmlNewDoc((const xmlChar *)"1.0");
+
+	xmlNodePtr root = xmlNewNode(NULL,(const xmlChar *)"X3D");
+	xmlDocSetRootElement(doc, root);
+
+	xmlNodePtr scene_node = xmlNewChild( root, NULL, (const xmlChar *)"Scene", NULL );
+
+	//==== All Geometry ====//
+	for ( int i = 0 ; i < (int)geomVec.size() ; i++ )
+	{
+		MeshGeom* newGeom = new MeshGeom( this );
+		newGeom->setMeshType( MeshGeom::INTERSECTION_MESH );
+
+		if ( !geomVec[i]->getNoShowFlag() && geomVec[i]->getOutputFlag() )
+		{
+			if( geomVec[i]->getNumSurf() > 0 )
+			{
+				xmlNodePtr shape_node = xmlNewChild( scene_node, NULL, (const xmlChar *) "Shape", NULL );
+
+				xmlNodePtr app_node = xmlNewChild( shape_node, NULL, (const xmlChar *) "Appearance", NULL );
+
+				int matid = geomVec[i]->getMaterialID();
+				writeX3DMaterial( app_node, matid );
+
+				geomVec[i]->writeX3D( shape_node );
+			}
+		}
+	}
+
+
+	//===== Save XML Tree and Free Doc =====//
+	xmlSaveFormatFile((const char *)file_name, doc, 1);
+	xmlFreeDoc( doc );
+}
+
+void Aircraft::writeX3DMaterial( xmlNodePtr node, int matid )
+{
+	Stringc diffs, emisss, specs;
+	Material* mat = matMgrPtr->getMaterial( matid );
+
+	xmlNodePtr mat_node = xmlNewChild( node, NULL, (const xmlChar *) "Material", NULL );
+
+	floatvec2str( mat->diff, diffs );
+	diffs.concatenate("\0");
+	xmlSetProp( mat_node, (const xmlChar *)"diffuseColor", (const xmlChar *) ((const char *) diffs) );
+
+	floatvec2str( mat->emiss, emisss );
+	emisss.concatenate("\0");
+	xmlSetProp( mat_node, (const xmlChar *)"emissiveColor", (const xmlChar *) ((const char *) emisss) );
+
+	floatvec2str( mat->spec, specs );
+	specs.concatenate("\0");
+	xmlSetProp( mat_node, (const xmlChar *)"specularColor", (const xmlChar *) ((const char *) specs) );
+
+	char alphac[255];
+	sprintf( alphac, "%lf", 1.0f - mat->diff[3] );
+	xmlSetProp( mat_node, (const xmlChar *)"transparency", (const xmlChar *) alphac );
+
+	char shine[255];
+	sprintf( shine, "%lf", mat->shine );
+	xmlSetProp( mat_node, (const xmlChar *)"shininess", (const xmlChar *) shine );
+
+	float ambf = 0.0f;
+	for( int i = 0; i < 3; i++ )
+	{
+		ambf += mat->amb[i] / mat->diff[i];
+	}
+	ambf = ambf / 3.0f;
+
+	char amb[255];
+	sprintf( amb, "%lf", ambf );
+	xmlSetProp( mat_node, (const xmlChar *)"ambientIntensity", (const xmlChar *) amb );
+}
+
+void Aircraft::floatvec2str( float* vec, Stringc &str )
+{
+	char numc[255];
+
+	sprintf( numc, "%lf %lf %lf", vec[0], vec[1], vec[2] );
+	str.concatenate( numc );
+}
+
 //===== Write Nascart Files  =====//
 void Aircraft::write_nascart_files(const char* file_name)
 {
@@ -1905,13 +1999,13 @@ void Aircraft::write_cart3d_files(const char* file_name)
 
 
 	//////==== Write Pnt Count and Tri Count ====//
- ////   fprintf( fp, "%d, %d\n", numPnts, tri_cnt);
+ ////   fprintf( fp, "%d %d\n", numPnts, tri_cnt);
 
 	//////==== Write Pnts ====//
 	////for ( int i = 0 ; i < (int)allPntVec.size() ; i++ )
 	////{
 	////	if ( pntShift[i] >= 0 )
-	////	   fprintf( fp, "%16.10f, %16.10f, %16.10f\n", allPntVec[i]->x(), allPntVec[i]->y(), allPntVec[i]->z() );
+	////	   fprintf( fp, "%16.10f %16.10f %16.10f\n", allPntVec[i]->x(), allPntVec[i]->y(), allPntVec[i]->z() );
 	////}
 
 	//////==== Write Tris ====//
@@ -1927,7 +2021,7 @@ void Aircraft::write_cart3d_files(const char* file_name)
 	////		int ind1 = pntShift[i0] + 1;
 	////		int ind2 = pntShift[i1] + 1;
 	////		int ind3 = pntShift[i2] + 1;
-	////		fprintf( fp, "%d, %d, %d \n", ind1, ind2, ind3 );
+	////		fprintf( fp, "%d %d %d \n", ind1, ind2, ind3 );
 	////	}
 	////}
 

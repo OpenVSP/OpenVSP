@@ -9,8 +9,10 @@
 
 #include "Surf.h"
 #include "SCurve.h"
+#include "ICurve.h"
 #include "ISegChain.h"
 #include "tritri.h"
+#include "CfdMeshMgr.h"
 
 Surf::Surf()
 {
@@ -18,7 +20,9 @@ Surf::Surf()
 	m_GridDensityPtr = 0;
 	m_CompID = -1;
 	m_SurfID = -1;
+	m_WakeFlag = false;
 	m_Mesh.SetSurfPtr( this );
+	m_NumMap = 10;
 }
 
 Surf::~Surf()
@@ -125,6 +129,24 @@ void Surf::BlendFuncs(double u, double& F1, double& F2, double& F3, double& F4)
   F4 = uu*u;
 }
 
+void Surf::BlendDerivFuncs(double u, double& F1, double& F2, double& F3, double& F4)
+{
+	double uu    = u*u;
+	double one_u = 1.0 - u;
+	F1 = -3.0*one_u*one_u;
+	F2 = 3.0 - 12.0*u + 9.0*uu;
+	F3 = 6.0*u - 9.0*uu;
+	F4 = 3.0*uu;
+}
+
+void Surf::BlendDeriv2Funcs(double u, double& F1, double& F2, double& F3, double& F4)
+{
+	F1 = 6.0 - 6.0*u;
+	F2 = -12.0 + 18.0*u;
+	F3 = 6.0 - 18.0*u;
+	F4 = 6.0*u;
+}
+
 //===== Compute Point On Surf Given  U W (Between 0 1 ) =====//
 vec3d Surf::CompPnt01( double u, double w )
 {
@@ -135,137 +157,82 @@ vec3d Surf::CompPnt01( double u, double w )
 //===== Compute Tangent In U Direction   =====//
 vec3d Surf::CompTanU01(double u01, double w01)
 {
- 	vec3d pnt;
-	if ( m_NumU < 4 || m_NumW < 4 )
-		return pnt;
+	return CompTanU( u01*m_MaxU, w01*m_MaxW );
+}
 
-	double uall = u01*m_MaxU;
-	double wall = w01*m_MaxW;
+//===== Compute Tangent In W Direction   =====//
+vec3d Surf::CompTanW01(double u01, double w01)
+{
+	return CompTanW( u01*m_MaxU, w01*m_MaxW );
+}
 
-	double F1u, F2u, F3u, F4u;
-	double F1w, F2w, F3w, F4w;
+//===== Compute Second Derivative U,U   =====//
+vec3d Surf::CompTanUU01(double u01, double w01)
+{
+	return CompTanUU( u01*m_MaxU, w01*m_MaxW );
+}
 
-	int trunc_u = (int)uall;
-	int u_ind = trunc_u*3;
-	if (u_ind >= m_NumU-1 ) 
-	{
-		F1u = F2u = F3u = 0.0;
-		F4u = 1.0;
-		u_ind = m_NumU-4;
-	}
-	else
-	{
-		double u = uall-(double)trunc_u;
-		double uu    = u*u;
-		double one_u = 1.0 - u;
-		F1u   = -3.0*one_u*one_u;
-		F2u   = 3.0 - 12.0*u + 9.0*uu;
-		F3u   = 6.0*u - 9.0*uu;
-		F4u   = 3.0*uu;
-	}
+//===== Compute Second Derivative W,W   =====//
+vec3d Surf::CompTanWW01(double u01, double w01)
+{
+	return CompTanWW( u01*m_MaxU, w01*m_MaxW );
+}
 
-	int trunc_w = (int)wall;
-	int w_ind = trunc_w*3;
-	if (w_ind >= m_NumW-1) 
-	{
-		F1w = F2w = F3w = 0.0;
-		F4w = 1.0;
-		w_ind = m_NumW-4;
-	}
-	else
-	{
-		double w = wall-(double)trunc_w;
-		double ww    = w*w;
-		double one_w = 1.0 - w;
-		F1w   = one_w*one_w*one_w;
-		F2w   = 3.0*one_w*one_w*w;
-		F3w   = 3.0*one_w*ww;
-		F4w   = ww*w;
-	}
+//===== Compute Second Derivative U,W   =====//
+vec3d Surf::CompTanUW01(double u01, double w01)
+{
+	return CompTanUW( u01*m_MaxU, w01*m_MaxW );
+}
 
-  pnt = 
-     (( m_Pnts[u_ind][w_ind]*F1u     + m_Pnts[u_ind+1][w_ind]*F2u +         
-        m_Pnts[u_ind+2][w_ind]*F3u   + m_Pnts[u_ind+3][w_ind]*F4u)*F1w) +
-     (( m_Pnts[u_ind][w_ind+1]*F1u   + m_Pnts[u_ind+1][w_ind+1]*F2u +         
-        m_Pnts[u_ind+2][w_ind+1]*F3u + m_Pnts[u_ind+3][w_ind+1]*F4u)*F2w) +
-      (( m_Pnts[u_ind][w_ind+2]*F1u  + m_Pnts[u_ind+1][w_ind+2]*F2u +         
-        m_Pnts[u_ind+2][w_ind+2]*F3u + m_Pnts[u_ind+3][w_ind+2]*F4u)*F3w) +
-      (( m_Pnts[u_ind][w_ind+3]*F1u  + m_Pnts[u_ind+1][w_ind+3]*F2u +         
-	    m_Pnts[u_ind+2][w_ind+3]*F3u + m_Pnts[u_ind+3][w_ind+3]*F4u)*F4w);
 
-	return pnt;
+//===== Compute Second Derivative U,U   =====//
+vec3d Surf::CompTanUU(double u, double w)
+{
+	return CompBez( u, w, &BlendDeriv2Funcs, &BlendFuncs);
+}
+
+//===== Compute Second Derivative W,W   =====//
+vec3d Surf::CompTanWW(double u, double w)
+{
+	return CompBez( u, w, &BlendFuncs, &BlendDeriv2Funcs);
+}
+
+//===== Compute Second Derivative U,W   =====//
+vec3d Surf::CompTanUW(double u, double w)
+{
+	return CompBez( u, w, &BlendDerivFuncs, &BlendDerivFuncs);
 }
 
 //===== Compute Tangent In U Direction   =====//
-vec3d Surf::CompTanW01(double u01, double w01)
+vec3d Surf::CompTanU(double u, double w)
 {
- 	vec3d pnt;
-	if ( m_NumU < 4 || m_NumW < 4 )
-		return pnt;
-
-	double uall = u01*m_MaxU;
-	double wall = w01*m_MaxW;
-
-	double F1u, F2u, F3u, F4u;
-	double F1w, F2w, F3w, F4w;
-
-	int trunc_u = (int)uall;
-	int u_ind = trunc_u*3;
-	if (u_ind >= m_NumU-1 ) 
-	{
-		F1u = F2u = F3u = 0.0;
-		F4u = 1.0;
-		u_ind = m_NumU-4;
-	}
-	else
-	{
-		double u = uall-(double)trunc_u;
-		double uu    = u*u;
-		double one_u = 1.0 - u;
-		F1u   = one_u*one_u*one_u;
-		F2u   = 3.0*one_u*one_u*u;
-		F3u   = 3.0*one_u*uu;
-		F4u   = uu*u;
-	}
-
-	int trunc_w = (int)wall;
-	int w_ind = trunc_w*3;
-	if (w_ind >= m_NumW-1) 
-	{
-		F1w = F2w = F3w = 0.0;
-		F4w = 1.0;
-		w_ind = m_NumW-4;
-	}
-	else
-	{
-		double w = wall-(double)trunc_w;
-		double ww    = w*w;
-		double one_w = 1.0 - w;
-		F1w   = -3.0*one_w*one_w;
-		F2w   = 3.0 - 12.0*w + 9.0*ww;
-		F3w   = 6.0*w - 9.0*ww;
-		F4w   = 3.0*ww;
-	}
-
-  pnt = 
-     (( m_Pnts[u_ind][w_ind]*F1u     + m_Pnts[u_ind+1][w_ind]*F2u +         
-        m_Pnts[u_ind+2][w_ind]*F3u   + m_Pnts[u_ind+3][w_ind]*F4u)*F1w) +
-     (( m_Pnts[u_ind][w_ind+1]*F1u   + m_Pnts[u_ind+1][w_ind+1]*F2u +         
-        m_Pnts[u_ind+2][w_ind+1]*F3u + m_Pnts[u_ind+3][w_ind+1]*F4u)*F2w) +
-      (( m_Pnts[u_ind][w_ind+2]*F1u  + m_Pnts[u_ind+1][w_ind+2]*F2u +         
-        m_Pnts[u_ind+2][w_ind+2]*F3u + m_Pnts[u_ind+3][w_ind+2]*F4u)*F3w) +
-      (( m_Pnts[u_ind][w_ind+3]*F1u  + m_Pnts[u_ind+1][w_ind+3]*F2u +         
-	    m_Pnts[u_ind+2][w_ind+3]*F3u + m_Pnts[u_ind+3][w_ind+3]*F4u)*F4w);
-
-	return pnt;
+	return CompBez( u, w, &BlendDerivFuncs, &BlendFuncs);
 }
+
+//===== Compute Tangent In W Direction   =====//
+vec3d Surf::CompTanW(double u, double w)
+{
+	return CompBez( u, w, &BlendFuncs, &BlendDerivFuncs);
+}
+
 //===== Compute Point On Surf Given  U W =====//
 vec3d Surf::CompPnt(double u, double w)
+{
+	return CompBez( u, w, &BlendFuncs, &BlendFuncs);
+}
+
+//===== Generic Bezier Surface Calculation  =====//
+vec3d Surf::CompBez( double u, double w,
+	void (*uBlendFun)(double u, double& F1, double& F2, double& F3, double& F4),
+	void (*wBlendFun)(double u, double& F1, double& F2, double& F3, double& F4) )
 {
 	vec3d pnt;
 
 	if ( m_NumU < 4 || m_NumW < 4 )
 		return pnt;
+
+	if ( u < 0.0 )	u = 0.0;
+	if ( w < 0.0 )  w = 0.0;
 
 	double F1u, F2u, F3u, F4u;
 	double F1w, F2w, F3w, F4w;
@@ -274,27 +241,19 @@ vec3d Surf::CompPnt(double u, double w)
 	int u_ind = trunc_u*3;
 	if (u_ind >= m_NumU-1 ) 
 	{
-		F1u = F2u = F3u = 0.0;
-		F4u = 1.0;
+		trunc_u = trunc_u-1;
 		u_ind = m_NumU-4;
 	}
-	else
-	{
-		BlendFuncs(u-(double)trunc_u, F1u, F2u, F3u, F4u);
-	}
+	uBlendFun(u-(double)trunc_u, F1u, F2u, F3u, F4u);
 
 	int trunc_w = (int)w;
 	int w_ind = trunc_w*3;
 	if (w_ind >= m_NumW-1) 
 	{
-		F1w = F2w = F3w = 0.0;
-		F4w = 1.0;
+		trunc_w = trunc_w-1;
 		w_ind = m_NumW-4;
 	}
-	else
-	{
-		BlendFuncs(w-(double)trunc_w, F1w, F2w, F3w, F4w);
-	}
+	wBlendFun(w-(double)trunc_w, F1w, F2w, F3w, F4w);
 
   pnt = 
      (( m_Pnts[u_ind][w_ind]*F1u     + m_Pnts[u_ind+1][w_ind]*F2u +         
@@ -308,7 +267,273 @@ vec3d Surf::CompPnt(double u, double w)
 
 	return pnt;
 }
-	
+
+//===== Compute Surface Curvature Metrics Given  U W =====//
+void Surf::CompCurvature( double u, double w, double& k1, double& k2, double& ka, double& kg )
+{
+	double tol = 1e-10;
+
+	double bump = 1e-3;
+
+	// First derivative vectors
+	vec3d S_u = CompTanU( u, w );
+	vec3d S_w = CompTanW( u, w );
+
+	double E = dot( S_u, S_u );
+	double G = dot( S_w, S_w );
+
+	if( E < tol && G < tol )
+	{
+		double umid = m_MaxU / 2.0;
+		double wmid = m_MaxW / 2.0;
+
+		u = u + ( umid - u ) * bump;
+		w = w + ( wmid - w ) * bump;
+
+		S_u = CompTanU( u, w );
+		S_w = CompTanW( u, w );
+
+		E = dot( S_u, S_u );
+		G = dot( S_w, S_w );
+	}
+	else if( E < tol) // U direction degenerate
+	{
+		double wmid = m_MaxW / 2.0;
+		w = w + ( wmid - w ) * bump;
+
+		S_u = CompTanU( u, w );
+		S_w = CompTanW( u, w );
+
+		E = dot( S_u, S_u );
+		G = dot( S_w, S_w );
+	}
+	else if( G < tol ) // W direction degenerate
+	{
+		double umid = m_MaxU / 2.0;
+		u = u + ( umid - u ) * bump;
+
+		S_u = CompTanU( u, w );
+		S_w = CompTanW( u, w );
+
+		E = dot( S_u, S_u );
+		G = dot( S_w, S_w );
+	}
+
+	// Second derivative vectors
+	vec3d S_uu = CompTanUU( u, w );
+	vec3d S_uw = CompTanUW( u, w );
+	vec3d S_ww = CompTanWW( u, w );
+
+	// Unit normal vector
+	vec3d Q = cross( S_u, S_w );
+	Q.normalize();
+
+	double F = dot( S_u, S_w );
+
+	double L = dot( S_uu, Q );
+	double M = dot( S_uw, Q );
+	double N = dot( S_ww, Q );
+
+	// Mean curvature
+	ka = (E*N + G*L - 2.0*F*M)/(2.0*(E*G - F*F));
+
+	// Gaussian curvature
+	kg = (L*N - M*M)/(E*G - F*F);
+
+	double b = sqrt( ka*ka - kg );
+
+	// Principal curvatures
+	double kmax = ka + b;
+	double kmin = ka - b;
+
+	// Ensure k1 has largest magnitude
+	if( fabs(kmax) > fabs(kmin) )
+	{
+		k1 = kmax;
+		k2 = kmin;
+	}
+	else
+	{
+		k1 = kmin;
+		k2 = kmax;
+	}
+}
+
+double Surf::TargetLen( double u, double w, double gap, double radfrac)
+{
+	double k1, k2, ka, kg;
+
+	double tol = 1e-6;
+	double len = numeric_limits<double>::max( );
+	double r = -1.0;
+
+	double glen = numeric_limits<double>::max( );
+	double nlen = numeric_limits<double>::max( );
+
+	CompCurvature( u, w, k1, k2, ka, kg );
+
+	if( fabs(k1) < tol ) // If zero curvature
+	{
+		double du = -tol;
+		if( u < tol )
+			du = tol;
+		double dw = -tol;
+		if( w < tol )
+			dw = tol;
+		// Check point offset inside the surface.
+		CompCurvature( u+du, w+dw, k1, k2, ka, kg);
+	}
+
+	if( fabs(k1) > tol )
+	{
+		// Tightest radius of curvature
+		r = 1.0/fabs(k1);
+
+		if(r > gap)
+		{
+			// Pythagorean thm. to calculate edge length to match gap given radius.
+			glen = 2.0*sqrt( 2.0*r*gap - gap*gap );
+		}
+		else
+		{
+			glen = 2.0*gap;
+		}
+
+		// Radius fraction calculated elsewhere based on desired number of circle segments.
+		// This calculation can give unboundedly small edge lengths.  The minimum edge length
+		// is a required control to prevent this.
+		nlen = r * radfrac;
+
+		len = min( glen, nlen );
+	}
+	return len;
+}
+
+void Surf::BuildTargetMap( MSCloudFourD &ms_cloud )
+{
+	int npatchu = ( m_NumU - 1 ) / 3;
+	int npatchw = ( m_NumW - 1 ) / 3;
+
+	int nmapu = npatchu * ( m_NumMap - 1 ) + 1;
+	int nmapw = npatchw * ( m_NumMap - 1 ) + 1;
+
+	// Initialize map matrix dimensions
+	m_TargetMap.resize( nmapu );
+	for( int i = 0; i < nmapu ; i++ )
+	{
+		m_TargetMap[i].resize( nmapw );
+	}
+
+	// Loop over surface evaluating source strength and curvature
+	for( int i = 0; i < nmapu ; i++ )
+	{
+		double u = ( 1.0 * i ) / ( m_NumMap - 1 );
+		for( int j = 0; j < nmapw ; j++ )
+		{
+			double w = ( 1.0 * j ) / ( m_NumMap - 1 );
+
+			double len = numeric_limits<double>::max( );
+
+			// apply curvature based limits
+			double curv_len = TargetLen( u, w, m_GridDensityPtr->GetMaxGap(), m_GridDensityPtr->GetRadFrac());
+			len = min( len, curv_len );
+
+			// apply minimum edge length as safety on curvature
+			len = max( len, m_GridDensityPtr->GetMinLen() );
+
+			// apply sources
+			vec3d p = CompPnt( u, w );
+			double grid_len = m_GridDensityPtr->GetTargetLen( p );
+			len = min( len, grid_len );
+
+			// finally check max size
+			len = min( len, m_GridDensityPtr->GetBaseLen() );
+
+			m_TargetMap[i][j] = len;
+
+			MapSource4D ms = MapSource4D( p, &( m_TargetMap[i][j] ) );
+			ms_cloud.sources.push_back( ms );
+		}
+	}
+}
+
+void Surf::LimitTargetMap( MSCloud &ms_cloud, MSTree &ms_tree, double minmap )
+{
+	double grm1 = m_GridDensityPtr->GetGrowRatio() - 1.0;
+
+	double tmin = min( minmap, *(ms_cloud.sources[0].m_strptr) );
+
+	SearchParams params;
+	params.sorted = false;
+
+	int nmapu = m_TargetMap.size();
+	int nmapw = m_TargetMap[0].size();
+
+	// Loop over surface evaluating source strength and curvature
+	for( int i = 0; i < nmapu ; i++ )
+	{
+		double u = ( 1.0 * i ) / ( m_NumMap - 1 );
+		for( int j = 0; j < nmapw ; j++ )
+		{
+			double w = ( 1.0 * j ) / ( m_NumMap - 1 );
+
+			vec3d p = CompPnt( u, w );
+
+			double *query_pt = p.v;
+
+			double t = m_TargetMap[i][j];
+
+			double rmax = ( t - tmin ) / grm1;
+			double r2max = rmax * rmax;
+
+			MSTreeResults ms_matches;
+
+			int nMatches = ms_tree.radiusSearch( query_pt, r2max, ms_matches, params );
+
+			for (int k = 0; k < nMatches; k++ )
+			{
+				int imatch = ms_matches[k].first;
+				double r = sqrt( ms_matches[k].second );
+
+				double str = *( ms_cloud.sources[imatch].m_strptr );
+
+				double ts = str + grm1 * r;
+				t = min( t, ts );
+			}
+			m_TargetMap[i][j] = t;
+		}
+	}
+}
+
+double Surf::InterpTargetMap( double u, double w )
+{
+	int imax = m_TargetMap.size() - 1;
+	double di = u * ( m_NumMap - 1 );
+	int i = (int) di;
+	double fraci = di - i;
+	if( i >= imax )
+	{
+		i = imax - 1;
+		fraci = 1.0;
+	}
+
+	int jmax = m_TargetMap[0].size() - 1;
+	double dj = w * ( m_NumMap - 1 );
+	int j = (int) dj;
+	double fracj = dj - j;
+	if( j >= jmax )
+	{
+		j = jmax - 1;
+		fracj = 1.0;
+	}
+
+	double ti = m_TargetMap[i][j] + fracj * ( m_TargetMap[i][j+1] - m_TargetMap[i][j] );
+	double tip1 = m_TargetMap[i+1][j] + fracj * ( m_TargetMap[i+1][j+1] - m_TargetMap[i+1][j] );
+
+	double t = ti + fraci * ( tip1 - ti );
+	return t;
+}
+
 vec2d Surf::ClosestUW( vec3d & pnt, double guess_u, double guess_w, double guess_del_u, double guess_del_w, double tol )
 {
 	double u = guess_u;
@@ -620,14 +845,6 @@ void Surf::LoadSCurves( vector< SCurve* > & scurve_vec )
 	}
 }
 
-void Surf::TesselateCurves()
-{
-	for ( int i = 0 ; i < (int)m_SCurveVec.size() ; i++ )
-	{
-		m_SCurveVec[i]->Tesselate(m_GridDensityPtr);
-	}
-}
-
 void Surf::BuildGrid()
 {
 	int i;
@@ -670,10 +887,15 @@ void Surf::WriteSTL( const char* filename )
 void Surf::Intersect( Surf* surfPtr )
 {
 	int i;
+
 	if ( surfPtr->GetCompID() == m_CompID )
 		return;
 
 	if ( !compare( m_BBox, surfPtr->GetBBox() ) )
+		return;
+	if ( BorderCurveOnSurface( surfPtr ) )
+		return;
+	if ( surfPtr->BorderCurveOnSurface( this ) )
 		return;
 
 	vector< SurfPatch* > otherPatchVec = surfPtr->GetPatchVec();
@@ -744,6 +966,44 @@ void Surf::IntersectLineSegMesh( vec3d & p0, vec3d & p1, vector< double > & t_va
 				t_vals.push_back( tparm );
 		}
 	}
+}
+
+bool Surf::BorderCurveOnSurface( Surf* surfPtr )
+{
+	bool retFlag = false;
+	double tol = 1.0e-08;
+
+	vector< SCurve* > border_curves;
+	surfPtr->LoadSCurves( border_curves );
+
+	for ( int i = 0 ; i < (int)border_curves.size() ; i++ )
+	{
+		vector< vec3d > control_pnts;
+		border_curves[i]->ExtractBorderControlPnts( control_pnts );
+
+		int num_pnts_on_surf = 0;
+		for ( int c = 0 ; c < (int)control_pnts.size() ; c++ )
+		{
+			vec2d uw = ClosestUW( control_pnts[c], m_MaxU/2.0, m_MaxW/2.0 );
+
+			vec3d p = CompPnt( uw[0], uw[1] );
+
+			double d = dist( control_pnts[c], p );
+
+			if ( d < tol )
+			{
+				num_pnts_on_surf++;
+				retFlag = true;
+			}
+		}
+		if ( num_pnts_on_surf >= 2 )
+		{
+			//==== If Surface Add To List ====//
+			m_CfdMeshMgr->AddPossCoPlanarSurf( this, surfPtr );
+		}
+	}
+
+	return retFlag;
 }
 
 	

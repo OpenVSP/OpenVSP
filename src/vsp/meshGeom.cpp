@@ -648,7 +648,7 @@ void MeshGeom::writeCart3DPnts( FILE* fp )
 	for ( int i = 0 ; i < (int)nascartNodeVec.size() ; i++ )
 	{
 		TNode* tnode = nascartNodeVec[i];
-		fprintf( fp, "%16.10g, %16.10g, %16.10g\n", tnode->pnt.x(), tnode->pnt.y(),  tnode->pnt.z() );
+		fprintf( fp, "%16.10g %16.10g %16.10g\n", tnode->pnt.x(), tnode->pnt.y(),  tnode->pnt.z() );
 	}
 }
 

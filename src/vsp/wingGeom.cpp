@@ -362,9 +362,13 @@ void WingGeom::scale()
 	double current_factor = scaleFactor()*(1.0/lastScaleFactor);
 
     int original_driver_group = get_driver();
-    set_driver(AR_TR_A);
+//    set_driver(AR_TR_A);
+	set_driver(S_TC_RC);
 
-	area.set( area()*current_factor );
+//	area.set( area()*current_factor );
+	span       = span()*current_factor;
+	root_chord = root_chord()*current_factor;
+	tip_chord  = tip_chord()*current_factor;
 
     //update display
     generate();

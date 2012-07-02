@@ -467,7 +467,6 @@
 ICurve::ICurve()
 {
 	m_SCurve_A = m_SCurve_B = NULL;
-	m_FlipDirFlag = false;
 }
 
 ICurve::~ICurve()
@@ -508,10 +507,6 @@ bool ICurve::Match( SCurve* crv_A, SCurve* crv_B )
 	if ( match )
 	{
 		double dist_front  = dist( control_pnts_A[0], control_pnts_B[0] );
-		//if ( dist_front < tol )
-		//	m_FlipDirFlag = false;
-		//else
-		//	m_FlipDirFlag = true;
 
 		if ( dist_front > tol )
 		{
@@ -527,38 +522,16 @@ bool ICurve::Match( SCurve* crv_A, SCurve* crv_B )
 
 	return match;
 }
-	
-void ICurve::Tesselate( GridDensity* grid_den )
+
+void ICurve::BorderTesselate( )
 {
-	m_SCurve_A->Tesselate( grid_den );
-
+	m_SCurve_A->BorderTesselate( );
 	if ( !m_SCurve_B )
+	{
 		return;
-
-	vector< double > u_A = m_SCurve_A->GetUTessPnts();
-	vector< double > u_B;
-	if ( m_FlipDirFlag )
-	{
-		double max_u = u_A.back();
-
-		for ( int i = (int)u_A.size()-1 ; i >= 0 ; i-- )
-		{
-			double u = max_u - u_A[i];
-			u_B.push_back( u );
-		}
 	}
-	else
-	{
-		u_B = u_A;
-	}
-int num_a = u_A.size();
-int num_b = u_B.size();
 
-//for ( int i = 0 ; i < num_a ; i++ )
-//{
-//	printf( "U = %f %f \n", u_A[i], u_B[i] );
-//}
-	m_SCurve_B->Tesselate( u_B );
+	m_SCurve_B->BorderTesselate( );
 }
 
 void ICurve::Draw()
@@ -577,7 +550,7 @@ void ICurve::DebugEdgeMatching(FILE* fp)
 	Surf* surfA = m_SCurve_A->GetSurf();
 	Surf* surfB = m_SCurve_B->GetSurf();
 
-	fprintf( fp, "  ICurve: %d   Surf A = %d, Surf B = %d  Flip = %d\n", this, surfA, surfB, (int)m_FlipDirFlag  );
+	fprintf( fp, "  ICurve: %d   Surf A = %d, Surf B = %d \n", this, surfA, surfB );
 
 	double total_dist = 0.0;
 	for ( int i = 0 ; i < 21 ; i++ )
@@ -603,3 +576,4 @@ void ICurve::DebugEdgeMatching(FILE* fp)
 
 
 }
+

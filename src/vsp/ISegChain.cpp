@@ -172,6 +172,9 @@ double IPntGroup::GroupDist( IPntGroup* g )
 	return dist( p0, p1 );
 }
 
+// This function is un-used, but it is left here in case it may be used at a later time.
+// At such time, it should be updated to use the surface density map rather than only the
+// mesh density sources.
 double IPntGroup::GroupDistFract( IPntGroup* g )
 {
 	double d = GroupDist( g );
@@ -990,6 +993,55 @@ vector< ISegChain* > ISegChain::SortAndSplit()
 	return new_chains;
 }
 
+vector< ISegChain* > ISegChain::FindCoPlanarChains( Surf* sPtr, Surf* adjSurf )
+{
+	vector< ISegChain* > new_chains;
+
+	vector< IPnt* > ipnt_vec;
+	for ( int i = 0 ; i < (int)m_TessVec.size() ; i++ )
+	{
+		IPnt* ip = m_TessVec[i];
+		vec3d p = ip->m_Pnt;
+
+		//==== See if Point Is On Surface ====//
+		double tol = 1.0e-04;
+		vec2d uw = sPtr->ClosestUW( p, sPtr->GetMaxU()/2.0, sPtr->GetMaxW()/2.0 );
+
+		vec3d sp = sPtr->CompPnt( uw[0], uw[1] );
+
+		if ( dist( p, sp ) < tol )
+		{
+			Puw* puwa = new Puw( sPtr, vec2d( uw[0], uw[1] ) );
+			cfdMeshMgrPtr->AddDelPuw( puwa );
+
+			Puw* puwb = new Puw( sPtr, vec2d( uw[0], uw[1] ) );
+			cfdMeshMgrPtr->AddDelPuw( puwb );
+
+			IPnt* ip  = new IPnt( puwa, puwb );
+			m_CreatedIPnts.push_back( ip );
+	
+			ipnt_vec.push_back( ip );
+		}
+	}
+
+	if ( ipnt_vec.size() > 1 )
+	{
+		ISegChain* nc = new ISegChain();
+		nc->m_SurfA = sPtr;
+		nc->m_SurfB = sPtr;
+		nc->m_BorderFlag = true;
+		new_chains.push_back( nc );
+
+		for ( int i = 0 ; i < (int)ipnt_vec.size() ; i++ )
+		{
+			nc->m_TessVec.push_back( ipnt_vec[i] );
+		}
+	}
+
+	return new_chains;
+}
+
+
 void ISegChain::MergeInteriorIPnts()
 {
 	for ( int i = 1 ; i < (int)m_ISegDeque.size() ; i++ )
@@ -1016,11 +1068,8 @@ void ISegChain::MergeInteriorIPnts()
 
 }
 
-void ISegChain::Tessellate(GridDensity* grid_density)
+void ISegChain::BuildCurves( )
 {
-	//==== Clear Old Tess ====//
-	m_TessVec.clear();
-
 	//==== A SCurve ====//
 	vector< vec3d > auw_pnts;
 	Puw* uw = m_ISegDeque.front()->m_IPnt[0]->GetPuw( m_SurfA );
@@ -1033,7 +1082,6 @@ void ISegChain::Tessellate(GridDensity* grid_density)
 
 	m_ACurve.SetSurf( m_SurfA );
 	m_ACurve.BuildBezierCurve( auw_pnts );
-	m_ACurve.Tesselate( grid_density );
 
 	//==== B SCurve ====//
 	vector< vec3d > buw_pnts;
@@ -1047,7 +1095,10 @@ void ISegChain::Tessellate(GridDensity* grid_density)
 
 	m_BCurve.SetSurf( m_SurfB );
 	m_BCurve.BuildBezierCurve( buw_pnts );
+}
 
+void ISegChain::TransferTess( )
+{
 	//==== Compute Target 3D Points on A Surface ====//
 	vector< vec3d > target_uw;
 	vector< vec3d > target_pnts;
@@ -1060,6 +1111,12 @@ void ISegChain::Tessellate(GridDensity* grid_density)
 	}
 
 	m_BCurve.Tesselate( target_pnts );
+}
+
+void ISegChain::ApplyTess( )
+{
+	//==== Clear Old Tess ====//
+	m_TessVec.clear();
 
 	vector< vec3d > tuwa = m_ACurve.GetUWTessPnts();
 	vector< vec3d > tuwb = m_BCurve.GetUWTessPnts();
@@ -1079,8 +1136,8 @@ void ISegChain::Tessellate(GridDensity* grid_density)
 		//m_CreatedPuws.push_back( puwa );
 		//m_CreatedPuws.push_back( puwb );
 
-		vec3d pA = m_SurfA->CompPnt( tuwa[i][0], tuwa[i][1] );
-		vec3d pB = m_SurfB->CompPnt( tuwb[i][0], tuwb[i][1] );
+		//vec3d pA = m_SurfA->CompPnt( tuwa[i][0], tuwa[i][1] );
+		//vec3d pB = m_SurfB->CompPnt( tuwb[i][0], tuwb[i][1] );
 
 		//double d = dist( pA, pB );
 		//	printf( "%d Big D = %f \n",i, d );
@@ -1091,9 +1148,26 @@ void ISegChain::Tessellate(GridDensity* grid_density)
 
 //double d = dist( m_TessVec.front()->m_Pnt,  m_TessVec.back()->m_Pnt );
 //printf("Tess Chain Size = %d %f\n", m_TessVec.size(), d );
+}
 
+double ISegChain::CalcDensity( GridDensity* grid_den )
+{
+	return m_ACurve.CalcDensity( grid_den, &m_BCurve );
+}
 
+void ISegChain::BuildES( MSCloud &es_cloud, GridDensity* grid_den )
+{
+	m_ACurve.BuildEdgeSources( es_cloud, grid_den );
+}
 
+void ISegChain::Tessellate( MSTree &es_tree, MSCloud &es_cloud, GridDensity* grid_den )
+{
+	m_ACurve.Tesselate( es_tree, es_cloud, grid_den );
+}
+
+void ISegChain::TessEndPts()
+{
+	m_ACurve.TessEndPts();
 }
 
 void ISegChain::Draw()

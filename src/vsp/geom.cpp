@@ -24,7 +24,6 @@
 #include "materialMgr.h"
 #include "textureMgr.h"
 #include "timer.h"
-#include "bicubic_surf.h"
 #include "bezier_surf.h"
 #include "VspPreferences.h"
 #include "part.h"
@@ -61,6 +60,7 @@ Geom::Geom( Aircraft* aptr ) : GeomBase()
 	parentGeom = 0;
 	fastDrawFlag = 0;
 	displayChildrenFlag = 1;
+	m_WakeActiveFlag = false;
 
 	//===== Set Id String (Time Stamp) =====
 	Timer id_timer;
@@ -476,6 +476,7 @@ void Geom::write_general_parms(xmlNodePtr root)
   xmlAddDoubleNode( root, "AeroCenter_Y", aeroCenter.y()  );
   xmlAddDoubleNode( root, "AeroCenter_Z", aeroCenter.z()  );
   xmlAddIntNode( root, "AutoAeroCenterFlag", autoAeroCenterFlag );
+  xmlAddIntNode( root, "WakeActiveFlag", m_WakeActiveFlag );
 
   //==== Write Attach Flags ====//
   xmlAddIntNode( root, "PosAttachFlag", posAttachFlag );
@@ -602,6 +603,7 @@ void Geom::read_general_parms(xmlNodePtr root)
   aeroCenter.set_y( xmlFindDouble( root, "AeroCenter_Y", aeroCenter.y() ) );
   aeroCenter.set_z( xmlFindDouble( root, "AeroCenter_Z", aeroCenter.z() ) );
   autoAeroCenterFlag = xmlFindInt( root, "AutoAeroCenterFlag", autoAeroCenterFlag );
+  autoAeroCenterFlag = !!(xmlFindInt( root, "WakeActiveFlag", m_WakeActiveFlag ));
 
   //==== Read Attach Flags ====//
   posAttachFlag = xmlFindInt( root, "PosAttachFlag", posAttachFlag );
@@ -1375,6 +1377,28 @@ void Geom::write_bezier_file( int id, FILE* file_id )
 
 }
 
+void Geom::writeX3D( xmlNodePtr node )
+{
+	xmlNodePtr set_node = xmlNewChild( node, NULL, (const xmlChar *)"IndexedFaceSet", NULL );
+	xmlSetProp( set_node, (const xmlChar *)"solid", (const xmlChar *)"true" );
+	xmlSetProp( set_node, (const xmlChar *)"creaseAngle", (const xmlChar *)"0.5"  );
+
+	Stringc indstr, crdstr;
+	int offset = 0;
+
+	for ( int i = 0 ; i < (int)surfVec.size() ; i++ )
+	{
+		offset = surfVec[i]->buildX3DStrings( offset, crdstr, indstr, sym_code, model_mat, reflect_mat );
+	}
+
+	indstr.concatenate("\0");
+	crdstr.concatenate("\0");
+
+	xmlSetProp( set_node, (const xmlChar *)"coordIndex", (const xmlChar *) ((const char *) indstr) );
+
+	xmlNodePtr coord_node = xmlNewChild( set_node, NULL, (const xmlChar *)"Coordinate", NULL );
+	xmlSetProp( coord_node, (const xmlChar *)"point", (const xmlChar *) ((const char *) crdstr) );
+}
 
 //==== Return Number of Xsec Surfs to Write ====//
 int Geom::getNumXSecSurfs()

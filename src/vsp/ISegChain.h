@@ -21,6 +21,8 @@
 
 #include "bbox.h"
 
+#include "mapSource.h"
+
 #include <assert.h>
 
 #include <vector>
@@ -177,8 +179,17 @@ public:
 	void MergeSplits();
 	void RemoveChainEndSplits();
 	vector< ISegChain* > SortAndSplit();
+	vector< ISegChain* > FindCoPlanarChains( Surf* surfPtr, Surf* adjSurf );
 	void MergeInteriorIPnts();
-	void Tessellate(GridDensity* grid_density);
+
+	void BuildCurves();
+	void TransferTess();
+	void ApplyTess();
+
+	double CalcDensity( GridDensity* grid_den );
+	void BuildES( MSCloud &es_cloud, GridDensity* grid_den );
+	void Tessellate( MSTree &es_tree, MSCloud &es_cloud, GridDensity* grid_den );
+	void TessEndPts();
 
 	void BuildBoxes();
 

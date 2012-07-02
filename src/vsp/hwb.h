@@ -312,6 +312,8 @@ public:
    virtual void LoadLinkableParms( vector< Parm* > & parmVec );
    virtual void GetInteriorPnts( vector< vec3d > & pVec );
 
+   virtual void AppendWakeEdges( vector< vector< vec3d > > & edges );
+
 
 protected:
 	Xsec_surf mwing_surf;

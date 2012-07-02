@@ -15,7 +15,6 @@
 
 #include "bezier_surf.h"
 #include "bezier_patch.h"
-#include "bicubic_surf.h"
 #include "int_curve.h"
 
 //===== Constructor  =====//
@@ -141,61 +140,6 @@ void bezier_surf::scale_about_line(const vec3d& pnt1, const vec3d& pnt2, float v
           pnts(iu, iw) = pnts(iu, iw) + offset*val;
         }
     }
-}
-
-//===== From BiCubic Surface  =====//
-void bezier_surf::load_bicubic(bicubic_surf* bc)
-{
-  int u_ind, w_ind;
-  vec3d tanu_00_3, tanw_00_3, tanu_10_3, tanw_10_3;
-  vec3d tanu_11_3, tanw_11_3, tanu_01_3, tanw_01_3;
-
-  id_number = bc->get_surface_number() + 1;
-  u_render = bc->get_u_render();
-  w_render = bc->get_w_render();
-  num_pnts_u = (bc->get_num_u() - 1)*3 + 1;
-  num_pnts_w = (bc->get_num_w() - 1)*3 + 1;
-
-  pnts.init(num_pnts_u, num_pnts_w);
-
-  for ( int iu = 0 ; iu < (bc->get_num_u() - 1) ; iu++ )
-    {
-      u_ind = iu*3; 
-      for ( int iw = 0 ; iw < (bc->get_num_w() - 1) ; iw++ )
-        {
-          w_ind = iw*3;
-          tanu_00_3 = bc->get_tanu(iu,  iw)/3.0;   tanw_00_3 = bc->get_tanw(iu,  iw)/3.0;
-          tanu_10_3 = bc->get_tanu(iu+1,iw)/3.0;   tanw_10_3 = bc->get_tanw(iu+1,iw)/3.0;
-          tanu_11_3 = bc->get_tanu(iu+1,iw+1)/3.0; tanw_11_3 = bc->get_tanw(iu+1,iw+1)/3.0;
-          tanu_01_3 = bc->get_tanu(iu,  iw+1)/3.0; tanw_01_3 = bc->get_tanw(iu,  iw+1)/3.0;
-
-          pnts(u_ind,   w_ind) = bc->get_pnt(iu,   iw);
-          pnts(u_ind+1, w_ind) = bc->get_pnt(iu,   iw) + tanu_00_3;
-          pnts(u_ind+2, w_ind) = bc->get_pnt(iu+1, iw) - tanu_10_3;
-          pnts(u_ind+3, w_ind) = bc->get_pnt(iu+1, iw);
-
-          pnts(u_ind,   w_ind+1) = bc->get_pnt(iu,   iw) + tanw_00_3;
-          pnts(u_ind+1, w_ind+1) = bc->get_twist(iu, iw)/9.0 + 
-                                   bc->get_pnt(iu,   iw) + tanu_00_3 + tanw_00_3;
-          pnts(u_ind+2, w_ind+1) = bc->get_twist(iu+1, iw)/-9.0 + 
-                                   bc->get_pnt(iu+1, iw) - tanu_10_3 + tanw_10_3;
-          pnts(u_ind+3, w_ind+1) = bc->get_pnt(iu+1, iw) + tanw_10_3;
-
-          pnts(u_ind,   w_ind+2) = bc->get_pnt(iu, iw+1) - tanw_01_3;
-          pnts(u_ind+1, w_ind+2) = bc->get_twist(iu, iw+1)/9.0 + 
-                                   bc->get_pnt(iu, iw+1) + tanu_01_3 - tanw_01_3;
-          pnts(u_ind+2, w_ind+2) = bc->get_twist(iu+1, iw+1)/9.0 + 
-                                   bc->get_pnt(iu+1, iw+1) - tanu_11_3 - tanw_11_3;
-          pnts(u_ind+3, w_ind+2) = bc->get_pnt(iu+1, iw+1) - tanw_11_3;
-
-          pnts(u_ind,   w_ind+3) = bc->get_pnt(iu,   iw+1);
-          pnts(u_ind+1, w_ind+3) = bc->get_pnt(iu,   iw+1) + tanu_01_3;
-          pnts(u_ind+2, w_ind+3) = bc->get_pnt(iu+1, iw+1) - tanu_11_3;
-          pnts(u_ind+3, w_ind+3) = bc->get_pnt(iu+1, iw+1);
-        }
-    }
-
-
 }
 
 //===== Compute Blending Functions  =====//

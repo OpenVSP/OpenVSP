@@ -145,6 +145,9 @@ void Node::AreaWeightedLaplacianSmooth(Surf* surfPtr)
 		fracts[i] = connectTris[i]->Area();
 		sum_area += fracts[i];
 	}
+
+	if ( sum_area < 1.0e-12 )
+		return;
 	
 	vec3d movePnt = vec3d(0,0,0);
 	vec2d moveUW  = vec2d(0,0);

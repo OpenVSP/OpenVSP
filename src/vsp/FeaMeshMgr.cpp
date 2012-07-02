@@ -489,6 +489,12 @@ void FeaMeshMgr::WriteFeaStructData( Geom* geom_ptr, xmlNodePtr root )
 	xmlNodePtr fea_node = xmlNewChild( root, NULL, (const xmlChar *)"FEA_Structure_Parms", NULL );
 
 	xmlAddDoubleNode( fea_node, "DefElemSize", m_DefElemSize );
+
+        xmlAddDoubleNode( fea_node, "FEA_Mesh_Min_Length", m_GridDensity.GetMinLen() );
+        xmlAddDoubleNode( fea_node, "FEA_Mesh_Max_Gap", m_GridDensity.GetMaxGap() );
+        xmlAddDoubleNode( fea_node, "FEA_Mesh_Num_Circle_Segments", m_GridDensity.GetNCircSeg() );
+        xmlAddDoubleNode( fea_node, "FEA_Mesh_Growth_Ratio", m_GridDensity.GetGrowRatio() );
+
 	xmlAddDoubleNode( fea_node, "ThickScale",  m_ThickScale );
 
 	xmlNodePtr sec_node;
@@ -556,6 +562,12 @@ void FeaMeshMgr::ReadFeaStructData()
 	xmlNodePtr struct_parms_node = xmlGetNode( m_XmlDataNode, "FEA_Structure_Parms", 0 );
 
 	m_DefElemSize = xmlFindDouble( struct_parms_node, "DefElemSize", m_DefElemSize );
+
+	m_GridDensity.SetMinLen( xmlFindDouble( struct_parms_node, "FEA_Mesh_Min_Length", m_GridDensity.GetMinLen() ) );
+	m_GridDensity.SetMaxGap( xmlFindDouble( struct_parms_node, "FEA_Mesh_Max_Gap", m_GridDensity.GetMaxGap() ) );
+	m_GridDensity.SetNCircSeg( xmlFindDouble( struct_parms_node, "FEA_Mesh_Num_Circle_Segments", m_GridDensity.GetNCircSeg() ) );
+	m_GridDensity.SetGrowRatio( xmlFindDouble( struct_parms_node, "FEA_Mesh_Growth_Ratio", m_GridDensity.GetGrowRatio() ) );
+
 	m_ThickScale  = xmlFindDouble( struct_parms_node, "ThickScale", m_ThickScale );
 
 	xmlNodePtr wing_sec_list_node = xmlGetNode( struct_parms_node, "Wing_Section_List", 0 );
@@ -665,13 +677,17 @@ void FeaMeshMgr::Build()
 	BuildGrid();
 
 	if ( !m_BatchFlag )
+		aircraftPtr->getScreenMgr()->getFeaStructScreen()->addOutputText( "Build Target Map\n" );
+	double minmap = BuildTargetMap();
+
+	if ( !m_BatchFlag )
 		aircraftPtr->getScreenMgr()->getFeaStructScreen()->addOutputText( "Intersect\n" );
-	Intersect();
+	Intersect( minmap );
 	RemoveSliceSurfaces();
 
 	if ( !m_BatchFlag )
 		aircraftPtr->getScreenMgr()->getFeaStructScreen()->addOutputText( "InitMesh\n" );
-	InitMesh();
+	InitMesh( minmap );
 	if ( !m_BatchFlag )
 		aircraftPtr->getScreenMgr()->getFeaStructScreen()->addOutputText( "Mesh Skins\n" );
 
@@ -720,7 +736,7 @@ void FeaMeshMgr::Export()
 
 }
 
-void FeaMeshMgr::Intersect()
+void FeaMeshMgr::Intersect( double minmap )
 {
 	for ( int i = 0 ; i < (int)m_SurfVec.size() ; i++ )
 		for ( int j = i+1 ; j < (int)m_SurfVec.size() ; j++ )
@@ -753,7 +769,7 @@ void FeaMeshMgr::Intersect()
 	IntersectSplitChains();
 //DebugWriteChains("IntersectSplit_UW", false );
 
-	TessellateChains( &m_GridDensity );
+	TessellateChains( minmap );
 //DebugWriteChains("Tess_UW", true );
 
 	MergeBorderEndPoints();
@@ -763,7 +779,7 @@ void FeaMeshMgr::Intersect()
 
 //	RemoveInteriorTris();
 
-	ConnectBorderEdges();
+	ConnectBorderEdges( false );	// No Wakes
 }
 
 

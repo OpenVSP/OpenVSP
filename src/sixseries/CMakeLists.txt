@@ -8,4 +8,5 @@ r_sign.c
 s_cmp.c
 s_copy.c
 s_stop.c
+f2c.h
 )

@@ -26,10 +26,8 @@
 #include "dl_list.h"
 #include "dyn_array.h"
 
-//class bicubic_surf;
 //class int_curve;
 
-#include "bicubic_surf.h"
 #include "int_curve.h"
 
 class bezier_patch;
@@ -64,7 +62,6 @@ private:
 public:
   void init(int num_u, int num_w);
   void put_pnt(int ind_u, int ind_w, const vec3d& pnt_in);
-  void load_bicubic(bicubic_surf* bc);
   void compute_bnd_boxes();
   void translate(const vec3d& trans_vec);
   void scale(const vec3d& scale_vec);

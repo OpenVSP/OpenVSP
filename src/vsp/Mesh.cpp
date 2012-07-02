@@ -12,16 +12,21 @@
 #include "GridDensity.h"
 #include "triangle.h"
 #include "CfdMeshMgr.h"
+#include "util.h"
 
 #define DEBUG_MESH 1
 
-bool LongEdgeLengthCompare(const Edge* a, const Edge* b) 
+bool LongEdgePairLengthCompare(const pair< Edge*, double >& a, const pair< Edge*, double >& b)
 {
-    return ( a->m_Length > b->m_Length );
+    return ( b.second < a.second );
 }
-bool ShortEdgeLengthCompare(const Edge* a, const Edge* b) 
+bool ShortEdgePairLengthCompare(const pair< Edge*, double >& a, const pair< Edge*, double >& b)
 {
-    return ( a->m_Length < b->m_Length );
+    return ( a.second < b.second );
+}
+bool ShortEdgeTargetLengthCompare(const Edge* a, const Edge* b)
+{
+    return ( a->target_len < b->target_len );
 }
 
 
@@ -65,6 +70,113 @@ void Mesh::Clear()
 
 }
 
+void Mesh::LimitTargetEdgeLength( Node* n )
+{
+	for( int i = 0; i < (int)n->edgeVec.size(); i++ )
+	{
+		LimitTargetEdgeLength( n->edgeVec[i], n );
+	}
+
+	list< Edge* >::iterator e;
+	list< Edge* > el( n->edgeVec.begin(), n->edgeVec.end() );
+	el.sort( ShortEdgeTargetLengthCompare );
+
+	e = el.begin();
+	double limitlen = (*e)->target_len * m_GridDensity->GetGrowRatio();
+	e++;
+
+	for ( ; e != el.end(); e++ )
+	{
+		if( (*e)->target_len > limitlen )
+			(*e)->target_len = limitlen;
+	}
+}
+
+void Mesh::LimitTargetEdgeLength( Edge* e, Node* notn )
+{
+	vector< Edge* >::iterator ne;
+	double growratio = m_GridDensity->GetGrowRatio();
+
+	Node *n = e->OtherNode( notn );
+
+	for ( ne = n->edgeVec.begin() ; ne != n->edgeVec.end(); ne++ )
+	{
+		double limitlen = growratio * (*ne)->target_len;
+		if( e->target_len > limitlen )
+		{
+			e->target_len = limitlen;
+		}
+	}
+}
+
+void Mesh::LimitTargetEdgeLength(Edge* e)
+{
+	Node *n;
+	vector< Edge* >::iterator ne;
+	double growratio = m_GridDensity->GetGrowRatio();
+
+	n = e->n0;
+	for ( ne = n->edgeVec.begin() ; ne != n->edgeVec.end(); ne++ )
+	{
+		double limitlen = growratio * (*ne)->target_len;
+		if( e->target_len > limitlen )
+		{
+			e->target_len = limitlen;
+		}
+	}
+
+	n = e->n1;
+	for ( ne = n->edgeVec.begin() ; ne != n->edgeVec.end(); ne++ )
+	{
+		double limitlen = growratio * (*ne)->target_len;
+		if( e->target_len > limitlen )
+		{
+			e->target_len = limitlen;
+		}
+	}
+}
+
+void Mesh::LimitTargetEdgeLength()
+{
+	Node *n;
+	list< Edge* >::iterator e;
+	vector< Edge* >::iterator ne;
+	double growratio = m_GridDensity->GetGrowRatio();
+	double limitlen;
+
+	edgeList.sort( ShortEdgeTargetLengthCompare );
+
+	for ( e = edgeList.begin() ; e != edgeList.end(); e++ )
+	{
+		limitlen = growratio * (*e)->target_len;
+
+		n = (*e)->n0;
+		for ( ne = n->edgeVec.begin() ; ne != n->edgeVec.end(); ne++ )
+		{
+			if ( !(*ne)->border )
+			{
+				if( (*ne)->target_len > limitlen )
+				{
+					(*ne)->target_len = limitlen;
+				}
+			}
+		}
+
+		n = (*e)->n1;
+		for ( ne = n->edgeVec.begin() ; ne != n->edgeVec.end(); ne++ )
+		{
+			if ( !(*ne)->border )
+			{
+				if( (*ne)->target_len > limitlen )
+				{
+					(*ne)->target_len = limitlen;
+				}
+			}
+		}
+	}
+}
+
+
 void Mesh::Remesh()
 {
 	int num_split = 1;
@@ -78,6 +190,7 @@ void Mesh::Remesh()
 		ComputeTargetEdgeLength(*e);
 	}
 
+	LimitTargetEdgeLength();
 
 	for ( int i = 0 ; i < 20 ; i++ )
 	{
@@ -156,6 +269,27 @@ void Mesh::CondenseSimpTris()
 	}
 }
 
+void Mesh::StretchSimpPnts( double start_x, double end_x, double scale, double angle )
+{
+	double factor = scale - 1.0;
+	for ( int i = 0 ; i < (int)simpPntVec.size() ; i++ )
+	{
+		double x = simpPntVec[i].x();
+		double z = simpPntVec[i].z();
+		if ( x > start_x )
+		{
+			double numer = x-start_x;
+			double fract = numer/(end_x-start_x);
+			double xx = start_x + numer*(1.0 + factor*fract*fract);
+			double zz = z + (xx - x)*tan( DEG2RAD(angle) );
+
+			simpPntVec[i].set_x( xx );
+			simpPntVec[i].set_z( zz );
+		}
+	} 
+
+}
+
 int Mesh::CheckDupOrAdd( int ind, map< int, vector< int > > & indMap, vector< vec3d > & pntVec )
 {
 	double tol = 0.00000001;
@@ -193,29 +327,30 @@ int Mesh::Split( int num_iter )
 	for ( int iter = 0 ; iter < num_iter ; iter++ )
 	{
 		//===== Split ====//
-		vector < Edge* > longEdges;
+		vector < pair < Edge*, double > > longEdges;
 		longEdges.reserve( edgeList.size() );
 		for ( e = edgeList.begin() ; e != edgeList.end(); e++ )	
 		{
 			if ( !(*e)->border )
 			{
-				if ( (*e)->GetLength() > 1.41*(*e)->target_len )
+				double rat = (*e)->GetLength() / (*e)->target_len;
+				if ( rat > 1.41 )
 				{
-					longEdges.push_back( (*e) );
+					longEdges.push_back( pair< Edge*, double >( (*e), rat ) );
 				}
 			}
 		}
 
 		//==== Sort Matches By Length ====//
-		sort(longEdges.begin(), longEdges.end(), LongEdgeLengthCompare );
+		sort(longEdges.begin(), longEdges.end(), LongEdgePairLengthCompare );
 
 		int num_split = longEdges.size()/10;
 		num_split = min( num_split, (int)longEdges.size() );
 
 		for ( int i = 0 ; i < num_split ; i++ )
 		{
-			double dist = longEdges[i]->ComputeLength();
-			SplitEdge( longEdges[i], m_Surf );
+			double dist = longEdges[i].first->ComputeLength();
+			SplitEdge( longEdges[i].first );
 		}
 
 		//==== Swap All Changed Edges If Needed ====//
@@ -240,21 +375,22 @@ int Mesh::Collapse(int num_iter)
 		list< Edge* >::iterator e;
 
 		//==== Collapse =====//
-		vector < Edge* > shortEdges;
+		vector < pair < Edge*, double > > shortEdges;
 		shortEdges.reserve( edgeList.size() );
 		for ( e = edgeList.begin() ; e != edgeList.end(); e++ )	
 		{
 			if ( ValidCollapse(*e) )
 			{
-				if ( (*e)->GetLength() < 0.707*(*e)->target_len )
+				double rat = (*e)->GetLength() / (*e)->target_len;
+				if ( rat < 0.707 )
 				{
-					shortEdges.push_back( (*e) );
+					shortEdges.push_back( pair< Edge*, double >( (*e), rat ) );
 				}
 			}
 		}
 
 		//==== Sort Matches By Length ====//
-		sort(shortEdges.begin(), shortEdges.end(), ShortEdgeLengthCompare );
+		sort(shortEdges.begin(), shortEdges.end(), ShortEdgePairLengthCompare );
 
 		int num_colapse = shortEdges.size()/10;
 		num_colapse = min(num_colapse, (int)shortEdges.size());
@@ -262,12 +398,12 @@ int Mesh::Collapse(int num_iter)
 		num_short_edges = 0; 
 		for ( int i = 0 ; i < num_colapse ; i++ )
 		{
-			double dist = shortEdges[i]->ComputeLength();
+			double dist = shortEdges[i].first->ComputeLength();
 //			printf("  Collapse %f \n", dist );
-			if ( ValidCollapse(shortEdges[i]) && !shortEdges[i]->m_DeleteMeFlag )
+			if ( ValidCollapse(shortEdges[i].first) && !shortEdges[i].first->m_DeleteMeFlag )
 			{
 				num_short_edges++;
-				CollapseEdge( shortEdges[i] );
+				CollapseEdge( shortEdges[i].first );
 			}
 		}
 
@@ -342,7 +478,6 @@ Edge* Mesh::AddEdge( Node* n0, Node* n1 )
 	n1->AddConnectEdge( eptr );
 
 	eptr->ComputeLength();
-	ComputeTargetEdgeLength( eptr );
 
 	return eptr;
 }
@@ -432,7 +567,7 @@ void Mesh::SetNodeFlags()
 	}
 }
 
-void Mesh::SplitEdge( Edge* edge, Surf* surfPtr )
+void Mesh::SplitEdge( Edge* edge )
 {
 	assert( m_Surf );
 
@@ -466,7 +601,7 @@ void Mesh::SplitEdge( Edge* edge, Surf* surfPtr )
 	vec3d psplit  = (n0->pnt + n1->pnt)*0.5;	// Split
 	vec2d uwsplit = (n0->uw  + n1->uw )*0.5;
 
-	vec2d uws = surfPtr->ClosestUW( psplit, uwsplit[0], uwsplit[1] );
+	vec2d uws = m_Surf->ClosestUW( psplit, uwsplit[0], uwsplit[1] );
 	vec3d ps  = m_Surf->CompPnt( uws.x(), uws.y() );
 
 	Node* ns  = AddNode( ps, uws );
@@ -539,6 +674,8 @@ void Mesh::SplitEdge( Edge* edge, Surf* surfPtr )
 	
 	RemoveEdge( edge );
 
+	ComputeTargetEdgeLength( ns );
+	LimitTargetEdgeLength( ns );
 }
 
 void Mesh::SwapEdge( Edge* edge )
@@ -625,6 +762,8 @@ void Mesh::SwapEdge( Edge* edge )
 	if ( eb0->t0 == tb )		eb0->t0 = ta;
 	else if ( eb0->t1 == tb )	eb0->t1 = ta;
 	else assert(0);
+
+	LimitTargetEdgeLength( edge );
 
 //CheckValidAllEdges();
 }
@@ -923,6 +1062,9 @@ assert ( other_tb0 != other_tb1 );
 	RemoveEdge( eb0 );
 	RemoveEdge( eb1 );
 
+	ComputeTargetEdgeLength( nc );
+	LimitTargetEdgeLength( nc );
+
 //CheckValidAllEdges( );
 
 }
@@ -989,20 +1131,31 @@ void Mesh::AdjustEdgeLengths()
 
 	}
 }
-	
+
+void Mesh::ComputeTargetEdgeLength( Node* n )
+{
+	for( int i = 0; i < (int)n->edgeVec.size(); i++)
+	{
+		ComputeTargetEdgeLength( n->edgeVec[i] );
+	}
+}
+
 void Mesh::ComputeTargetEdgeLength( Edge* edge )
 {
 	assert( m_GridDensity );
 
-	vec3d cent = (edge->n0->pnt + edge->n1->pnt)*0.5;
+	if( edge->border )
+	{
+		edge->target_len = edge->m_Length;
+	}
+	else
+	{
+		vec3d cent = (edge->n0->pnt + edge->n1->pnt)*0.5;
+		vec2d uwcent = (edge->n0->uw  + edge->n1->uw )*0.5;
+		vec2d uwc = m_Surf->ClosestUW( cent, uwcent.x(), uwcent.y() );
 
-	edge->target_len = m_GridDensity->GetTargetLen( cent );
-
-//	double t0 = m_GridDensity->GetTargetLen( edge->n0->pnt );
-//	double t1 = m_GridDensity->GetTargetLen( edge->n1->pnt );
-////	edge->target_len = (t0 + t1)*0.5;
-//	edge->target_len = min(t0, t1);
-
+		edge->target_len = m_Surf->InterpTargetMap( uwc.x(), uwc.y() );
+	}
 }
 
 

@@ -37,6 +37,30 @@ FeaStructScreen::FeaStructScreen(ScreenMgr* mgr, Aircraft* airPtr)
 	m_DefEdgeSlider->SetRange( 0.5 );
 	m_DefEdgeSlider->UpdateGui();
 
+	m_MinSizeSlider = new SliderInputCombo( ui->minSizeSlider, ui->minSizeInput );
+	m_MinSizeSlider->SetCallback( staticScreenCB, this );
+	m_MinSizeSlider->SetLimits( 0.00001, 10000.0 );
+	m_MinSizeSlider->SetRange( 0.5 );
+	m_MinSizeSlider->UpdateGui();
+
+	m_MaxGapSlider = new SliderInputCombo( ui->maxGapSlider, ui->maxGapInput );
+	m_MaxGapSlider->SetCallback( staticScreenCB, this );
+	m_MaxGapSlider->SetLimits( 0.0001, 10000.0 );
+	m_MaxGapSlider->SetRange( 1.0 );
+	m_MaxGapSlider->UpdateGui();
+
+	m_NumCircSegSlider = new SliderInputCombo( ui->numCircSegSlider, ui->numCircSegInput );
+	m_NumCircSegSlider->SetCallback( staticScreenCB, this );
+	m_NumCircSegSlider->SetLimits( 0.0001, 1000.0 );
+	m_NumCircSegSlider->SetRange( 100.0 );
+	m_NumCircSegSlider->UpdateGui();
+
+	m_GrowRatioSlider = new SliderInputCombo( ui->growRatioSlider, ui->growRatioInput );
+	m_GrowRatioSlider->SetCallback( staticScreenCB, this );
+	m_GrowRatioSlider->SetLimits( 1.0, 3.0 );
+	m_GrowRatioSlider->SetRange( 2.0 );
+	m_GrowRatioSlider->UpdateGui();
+
 	m_ThickScaleSlider = new SliderInputCombo( ui->thickScaleSlider, ui->thickScaleInput );
 	m_ThickScaleSlider->SetCallback( staticScreenCB, this );
 	m_ThickScaleSlider->SetLimits( 0.00001, 1000000.0 );
@@ -278,7 +302,45 @@ FeaStructScreen::FeaStructScreen(ScreenMgr* mgr, Aircraft* airPtr)
 
 FeaStructScreen::~FeaStructScreen()
 {
+	delete m_DefEdgeSlider;
+	delete m_MinSizeSlider;
+	delete m_MaxGapSlider;
+	delete m_NumCircSegSlider;
+	delete m_GrowRatioSlider;
+	delete m_ThickScaleSlider;
 
+	delete m_RibThickSlider;
+	delete m_RibPosSlider;
+	delete m_RibSweepSlider;
+	delete m_RibDensitySlider;
+
+	delete m_SparThickSlider;
+	delete m_SparPosSlider;
+	delete m_SparSweepSlider;
+	delete m_SparDensitySlider;
+
+	delete m_UpThickSlider;
+	delete m_UpDensitySlider;
+	delete m_UpDefThickSlider;
+	delete m_UpSpliceLineLocSlider;
+	delete m_UpSpliceLocSlider;
+	delete m_UpSpliceThickSlider;
+
+	delete m_LowThickSlider;
+	delete m_LowDensitySlider;
+	delete m_LowDefThickSlider;
+	delete m_LowSpliceLineLocSlider;
+	delete m_LowSpliceLocSlider;
+	delete m_LowSpliceThickSlider;
+
+	delete m_pmXPosSlider;
+	delete m_pmYPosSlider;
+	delete m_pmZPosSlider;
+
+	delete m_UpSkinGLWin;
+	delete m_LowSkinGLWin;
+
+	delete feaStructUI;
 }
 
 void FeaStructScreen::closeCB( Fl_Widget* w )
@@ -307,6 +369,18 @@ void FeaStructScreen::update()
 	//==== Default Elem Size ====//
 	m_DefEdgeSlider->SetVal( feaMeshMgrPtr->GetDefElemSize() );
 	m_DefEdgeSlider->UpdateGui();
+
+	m_MinSizeSlider->SetVal( feaMeshMgrPtr->GetGridDensityPtr()->GetMinLen() );
+	m_MinSizeSlider->UpdateGui();
+
+	m_MaxGapSlider->SetVal( feaMeshMgrPtr->GetGridDensityPtr()->GetMaxGap() );
+	m_MaxGapSlider->UpdateGui();
+
+	m_NumCircSegSlider->SetVal( feaMeshMgrPtr->GetGridDensityPtr()->GetNCircSeg() );
+	m_NumCircSegSlider->UpdateGui();
+
+	m_GrowRatioSlider->SetVal( feaMeshMgrPtr->GetGridDensityPtr()->GetGrowRatio() );
+	m_GrowRatioSlider->UpdateGui();
 
 	m_ThickScaleSlider->SetVal( feaMeshMgrPtr->GetThickScale() );
 	m_ThickScaleSlider->UpdateGui();
@@ -630,6 +704,22 @@ void FeaStructScreen::screenCB( Fl_Widget* w )
 	if ( m_DefEdgeSlider->GuiChanged( w ) )
 	{
 		feaMeshMgrPtr->SetDefElemSize( m_DefEdgeSlider->GetVal() );
+	}
+	else if ( m_MinSizeSlider->GuiChanged( w ) )
+	{
+		feaMeshMgrPtr->GetGridDensityPtr()->SetMinLen( m_MinSizeSlider->GetVal() );
+	}
+	else if ( m_MaxGapSlider->GuiChanged( w ) )
+	{
+		feaMeshMgrPtr->GetGridDensityPtr()->SetMaxGap( m_MaxGapSlider->GetVal() );
+	}
+	else if ( m_NumCircSegSlider->GuiChanged( w ) )
+	{
+		feaMeshMgrPtr->GetGridDensityPtr()->SetNCircSeg( m_NumCircSegSlider->GetVal() );
+	}
+	else if ( m_GrowRatioSlider->GuiChanged( w ) )
+	{
+		feaMeshMgrPtr->GetGridDensityPtr()->SetGrowRatio( m_GrowRatioSlider->GetVal() );
 	}
 	else if ( m_ThickScaleSlider->GuiChanged( w ) )
 	{
