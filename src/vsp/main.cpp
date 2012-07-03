@@ -374,7 +374,11 @@ int batchMode(int argc, char *argv[], Aircraft* airPtr)
 		airPtr->setActiveGeom( 0 );
 		airPtr->update_bbox();
 
-
+		if ( userParmFlag )
+		{
+			airPtr->getUserGeom()->SetUserParmValue( userParmID, userParmVal );
+			airPtr->update_bbox();
+		}
 
 		if ( compgeomFlag )
 		{
@@ -418,11 +422,6 @@ int batchMode(int argc, char *argv[], Aircraft* airPtr)
 			feaMeshMgrPtr->LoadSurfaces();
 			feaMeshMgrPtr->Build();
 			feaMeshMgrPtr->Export();
-		}
-		if ( userParmFlag )
-		{
-			airPtr->getUserGeom()->SetUserParmValue( userParmID, userParmVal );
-			airPtr->update_bbox();
 		}
 
 		if (sliceFlag)
