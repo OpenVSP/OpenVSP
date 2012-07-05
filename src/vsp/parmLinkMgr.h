@@ -140,7 +140,7 @@ public:
 	virtual void RemoveAllReferences( Geom* geomPtr );
 	virtual void RemoveParmReferences( Parm* parmPtr ); 
 
-	virtual void RebuildAll();
+	virtual void RebuildAllLink();
 
 	virtual void SetCurrParmLinkIndex( int i );
 	virtual int  GetCurrParmLinkIndex()						{ return m_CurrParmLinkIndex; }
@@ -210,6 +210,8 @@ public:
 	virtual ~ParmMgr();
 
 	virtual void SetAircraftPtr( Aircraft* aptr )			{ aircraftPtr = aptr; }
+	virtual void RebuildAll();
+
 	virtual void LoadAllParms();
 	virtual void Register( Parm* parmPtr, GeomBase* geomPtr, string groupName );
 	virtual void RegisterParmButton( ParmButton* b );

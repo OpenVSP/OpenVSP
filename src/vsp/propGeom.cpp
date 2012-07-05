@@ -321,7 +321,7 @@ void PropGeom::addStation()
 	setCurrSectID( currSectID+1 );
 	generate();
 
-	parmLinkMgrPtr->RebuildAll();
+	parmMgrPtr->RebuildAll();
 
 }
 
@@ -352,7 +352,7 @@ void PropGeom::delStation()
 	setCurrSectID( currSectID );
 	generate();
 
-	parmLinkMgrPtr->RebuildAll();
+	parmMgrPtr->RebuildAll();
 
 
 }
@@ -718,7 +718,7 @@ void PropGeom::read(xmlNodePtr root)
   currSectID = 0;
 
   generate();
-  parmLinkMgrPtr->RebuildAll();
+  parmMgrPtr->RebuildAll();
 
 }
 

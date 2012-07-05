@@ -425,7 +425,7 @@ void Ms_wing_geom::copy( Geom* fromGeom )
 		sects[i].SetGeomPtr( this );
 	}
 
-	parmLinkMgrPtr->RebuildAll();
+	parmMgrPtr->RebuildAll();
 }
 
 WingSect* Ms_wing_geom::getCurrWingSect()
@@ -1047,7 +1047,7 @@ void Ms_wing_geom::add_sect()
   generate();
 
   airPtr->geomMod( this );
-  parmLinkMgrPtr->RebuildAll();
+  parmMgrPtr->RebuildAll();
 
 }
 
@@ -1071,7 +1071,7 @@ void Ms_wing_geom::ins_sect()
   generate();
 
   airPtr->geomMod( this );
-  parmLinkMgrPtr->RebuildAll();
+  parmMgrPtr->RebuildAll();
 
 }
 
@@ -1115,7 +1115,7 @@ void Ms_wing_geom::del_sect()
 
   airPtr->geomMod( this );
 
-  parmLinkMgrPtr->RebuildAll();
+  parmMgrPtr->RebuildAll();
 
 
 }
@@ -1153,7 +1153,7 @@ void Ms_wing_geom::paste_sect()
 	generate();
   
 	airPtr->geomMod( this );
-    parmLinkMgrPtr->RebuildAll();
+	parmMgrPtr->RebuildAll();
 
 }
 
@@ -1383,7 +1383,7 @@ void Ms_wing_geom::read(xmlNodePtr root)
   set_curr_sect( 0 );
   set_depend_parms();
   generate();
-  parmLinkMgrPtr->RebuildAll();
+  parmMgrPtr->RebuildAll();
 
   feaMeshMgrPtr->SetFeaStructData( this, root );
 

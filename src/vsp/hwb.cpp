@@ -891,7 +891,7 @@ void HwbBaseGeom::del_sect()
 
   set_curr_sect( currSect );
 
-  parmLinkMgrPtr->RebuildAll();
+  parmMgrPtr->RebuildAll();
 
 
 }

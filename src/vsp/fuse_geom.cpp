@@ -274,7 +274,7 @@ void Fuse_geom::copy( Geom* fromGeom )
 
 	set_num_pnts( numPnts.iget() );
 
-	parmLinkMgrPtr->RebuildAll();
+	parmMgrPtr->RebuildAll();
 
 }
 
@@ -582,7 +582,7 @@ void Fuse_geom::read(xmlNodePtr root)
   set_iml_flag( imlFlag );
   set_pnt_space_type( space_type );
   generate();
-  parmLinkMgrPtr->RebuildAll();
+  parmMgrPtr->RebuildAll();
 
 }
 
@@ -666,7 +666,7 @@ printf("%s \n", buff );
   set_pnt_space_type( space_type );
 
   generate();
-  parmLinkMgrPtr->RebuildAll();
+  parmMgrPtr->RebuildAll();
 
 }
 
@@ -1237,7 +1237,7 @@ fuse_xsec* Fuse_geom::add_xsec(fuse_xsec* curr_xsec)
 
 	this->generate();
 
-	parmLinkMgrPtr->RebuildAll();
+	parmMgrPtr->RebuildAll();
 
 	return curr_xsec;
 }
@@ -1278,7 +1278,7 @@ fuse_xsec* Fuse_geom::delete_xsec(fuse_xsec* curr_xsec)
 
 	this->generate();
 
-	parmLinkMgrPtr->RebuildAll();
+	parmMgrPtr->RebuildAll();
 
 	return curr_xsec;
 }

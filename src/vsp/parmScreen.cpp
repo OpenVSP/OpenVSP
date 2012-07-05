@@ -101,7 +101,7 @@ void ParmScreen::SelectToLink( int sel )
 			if ( count == sel )
 			{
 				parmLinkMgrPtr->SetCurrParmLinkIndex( i );
-				parmLinkMgrPtr->RebuildAll();
+				parmLinkMgrPtr->RebuildAllLink();
 			}
 		}
 	}
@@ -119,7 +119,7 @@ void ParmScreen::SelectFromLink( int sel )
 			if ( count == sel )
 			{
 				parmLinkMgrPtr->SetCurrParmLinkIndex( i );
-				parmLinkMgrPtr->RebuildAll();
+				parmLinkMgrPtr->RebuildAllLink();
 			}
 		}
 	}

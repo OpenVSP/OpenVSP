@@ -250,7 +250,7 @@ Geom* Aircraft::createGeom( int type )
 
 	if (screenMgr) screenMgr->updateGeomScreens();
 
-	parmLinkMgrPtr->RebuildAll();
+	parmMgrPtr->RebuildAll();
 
 	return newGeom;
 
@@ -1145,7 +1145,7 @@ void Aircraft::delGeom( Geom* geomPtr )
 	setActiveGeom(NULL);
 
 	//==== Rebuild Parmeter Lists ====//
-	parmLinkMgrPtr->RebuildAll();
+	parmMgrPtr->RebuildAll();
 
 }
 
@@ -1217,7 +1217,7 @@ void Aircraft::pasteClipBoard( )
 		drawWin->redraw(); 
 	}
 
-	parmLinkMgrPtr->RebuildAll();
+	parmMgrPtr->RebuildAll();
 
 	//==== Print Hier ====//
 /*	for ( i = 0 ; i < geomVec.size() ; i++ )

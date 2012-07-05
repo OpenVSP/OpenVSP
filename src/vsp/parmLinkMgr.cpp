@@ -397,9 +397,8 @@ void ParmLinkMgr::RemoveParmReferences( Parm* parmPtr )
 	m_CurrParmLinkIndex = -1;
 }
 
-void ParmLinkMgr::RebuildAll()
+void ParmLinkMgr::RebuildAllLink()
 {
-	parmMgrPtr->LoadAllParms();
 	RebuildParmLinkMap();
 
 	if ( aircraftPtr->getScreenMgr() )
@@ -448,14 +447,14 @@ void ParmLinkMgr::SetParmA( Parm* p )
 {
 	m_WorkingParmLink.SetParmA( p );
 	m_WorkingParmLink.InitOffsetScale();
-	RebuildAll();
+	RebuildAllLink();
 }
 
 void ParmLinkMgr::SetParmB( Parm* p )
 {
 	m_WorkingParmLink.SetParmB( p );
 	m_WorkingParmLink.InitOffsetScale();
-	RebuildAll();
+	RebuildAllLink();
 }
 
 void ParmLinkMgr::SetParm( bool flagA, int comp_ind, int group_ind, int parm_ind )
@@ -812,6 +811,11 @@ Parm* ParmMgr::FindParm( Geom* gPtr, Stringc& group_name, Stringc& parm_name )
 	return pPtr;
 }
 
+void ParmMgr::RebuildAll()
+{
+	LoadAllParms();
+	parmLinkMgrPtr->RebuildAllLink();
+}
 
 void ParmMgr::LoadAllParms()
 {

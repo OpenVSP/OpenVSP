@@ -251,7 +251,7 @@ void FuselageGeom::copy( Geom* fromGeom )
 
 	set_num_pnts( numPnts.iget() );
 
-	parmLinkMgrPtr->RebuildAll();
+	parmMgrPtr->RebuildAll();
 
 }
 
@@ -500,7 +500,7 @@ void FuselageGeom::read(xmlNodePtr root)
   set_pnt_space_type( space_type );
   generate();
 
-  parmLinkMgrPtr->RebuildAll();
+  parmMgrPtr->RebuildAll();
 
 }
 
@@ -762,7 +762,7 @@ FuselageXSec* FuselageGeom::add_xsec(FuselageXSec* curr_xsec)
 
 	this->generate();
 
-	parmLinkMgrPtr->RebuildAll();
+	parmMgrPtr->RebuildAll();
 
 	return curr_xsec;
 }
@@ -801,7 +801,7 @@ FuselageXSec* FuselageGeom::delete_xsec(FuselageXSec* curr_xsec)
 
 	this->generate();
 
-	parmLinkMgrPtr->RebuildAll();
+	parmMgrPtr->RebuildAll();
 
 	return curr_xsec;
 }
