@@ -254,15 +254,70 @@ static PM_Single singlePM;
 
 
 
+class ParmListMgr
+{
+public:
+
+	ParmListMgr();
+	virtual ~ParmListMgr();
+
+	virtual void WriteList(xmlNodePtr node);
+	virtual void ReadList(xmlNodePtr node, vector< Geom* > & gVec );
+
+	virtual void SetAircraftPtr( Aircraft* aptr )			{ aircraftPtr = aptr; }
+
+	virtual void RemoveAllReferencesList( Geom* geomPtr );
+	virtual void RemoveParmReferencesList( Parm* parmPtr );
+
+	virtual void RebuildAllList();
+
+	virtual void SetCurrParmIndex( int i );
+	virtual int  GetCurrParmIndex()						{ return m_CurrParmIndex; }
+	virtual Parm* GetCurrParm();
+	virtual vector< Parm* > GetParmVec();
+
+	virtual void RebuildParmMap();
+
+	virtual bool AddCurrParm();
+	virtual void DelCurrParm();
+	virtual void DelAllParms();
+
+	virtual void AddParm( Parm* p );
+
+	virtual Parm* ResetWorkingParm();
+
+	virtual void SetParm( Parm* p );
+	virtual void SetParm( int comp, int group, int parm );
+
+	virtual Parm* GetDefaultParm()					{ return m_DefaultParm; }
+	virtual void SetDefaultParm( Parm* p )			{ m_DefaultParm = p; }
+
+protected:
+
+	Aircraft* aircraftPtr;
+
+	int m_CurrParmIndex;
+	vector< Parm* > m_ParmVec;
+	map< Parm*, vector< Parm* > > m_ParmMap;
+
+	Parm* m_WorkingParm;
+
+	Parm* m_DefaultParm;
+
+};
+
+class PL_Single
+{
+public:
+	PL_Single();
+	ParmListMgr* parmListMgr;
+};
+
+
+static PL_Single singlePL;
+
+#define parmListMgrPtr (singlePL.parmListMgr)
 
 
 
-
-
-
-   
-
-#endif
-
-
-
+#endif  //PARM_LINK_PARM_LINK_H

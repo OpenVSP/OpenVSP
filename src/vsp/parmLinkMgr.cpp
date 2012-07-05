@@ -9,6 +9,7 @@
 
 #include "parmLinkMgr.h"
 #include "parmLinkScreen.h"
+#include "parmPickerScreen.h"
 
 #include "geom.h"
 #include "aircraft.h"
@@ -47,6 +48,17 @@ PM_Single::PM_Single()
 		ptr = new ParmMgr();
 
 	parmMgr = ptr;
+}
+
+//==== Singleton ====//
+PL_Single::PL_Single()
+{
+	static ParmListMgr* ptr = 0;
+
+    if (!ptr)
+		ptr = new ParmListMgr();
+
+	parmListMgr = ptr;
 }
 
 
@@ -815,6 +827,7 @@ void ParmMgr::RebuildAll()
 {
 	LoadAllParms();
 	parmLinkMgrPtr->RebuildAllLink();
+	parmListMgrPtr->RebuildAllList();
 }
 
 void ParmMgr::LoadAllParms()
@@ -863,6 +876,8 @@ void ParmMgr::Register( Parm* parmPtr, GeomBase* geomPtr, string groupName )
 
 	if ( !parmLinkMgrPtr->GetDefaultParm() )
 		parmLinkMgrPtr->SetDefaultParm( parmPtr );
+	if ( !parmListMgrPtr->GetDefaultParm() )
+		parmListMgrPtr->SetDefaultParm( parmPtr );
 }
 
 void ParmMgr::RegisterParmButton( ParmButton* b )
@@ -874,11 +889,13 @@ void ParmMgr::RegisterParmButton( ParmButton* b )
 void ParmMgr::RemoveAllReferences( Geom* geomPtr )
 {
 	parmLinkMgrPtr->RemoveAllReferencesLink( geomPtr );
+	parmListMgrPtr->RemoveAllReferencesList( geomPtr );
 }
 
 void ParmMgr::RemoveParmReferences( Parm* parmPtr )
 {
 	parmLinkMgrPtr->RemoveParmReferencesLink( parmPtr );
+	parmListMgrPtr->RemoveParmReferencesList( parmPtr );
 }
 
 vector< string > ParmMgr::GetGroupNameVec( GeomBase* geomPtr )
@@ -966,4 +983,242 @@ int	ParmMgr::GetCurrParmNameVec( Parm* parmPtr, vector< string > & nameVec )
 	return index;
 }
 
+//=============================================================//
+//=============================================================//
+
+ParmListMgr::ParmListMgr()
+{
+	m_CurrParmIndex = -1;
+
+	aircraftPtr = NULL;
+	m_WorkingParm = NULL;
+
+	m_DefaultParm = NULL;
+}
+
+ParmListMgr::~ParmListMgr()
+{
+
+}
+
+void ParmListMgr::WriteList( xmlNodePtr root )
+{
+	xmlNodePtr parm_list_node = xmlNewChild( root, NULL, (const xmlChar *)"Parm_List", NULL );
+
+	for ( int i = 0 ; i < (int)m_ParmVec.size() ; i++ )
+	{
+		Parm* p = m_ParmVec[i];
+		xmlNodePtr parm_node = xmlNewChild( parm_list_node, NULL, (const xmlChar *)"Parm", NULL );
+		xmlAddIntNode( parm_node, "Geom", ((Geom*)p->get_geom_base())->getPtrID() );
+		xmlAddStringNode( parm_node, "Group", p->get_group_name().get_char_star() );
+		xmlAddStringNode( parm_node, "Parm",  p->get_name().get_char_star() );
+
+	}
+}
+
+void ParmListMgr::ReadList(xmlNodePtr root, vector< Geom* > & geomVec)
+{
+	vector< Geom* > gVec = geomVec;
+	gVec.push_back( aircraftPtr->getUserGeom() );
+
+	xmlNodePtr node_list = xmlGetNode( root, "Parm_List", 0 );
+	if ( node_list  )
+	{
+		int num_p = xmlGetNumNames( node_list, "Parm" );
+		for ( int i = 0 ; i < num_p ; i++ )
+		{
+			xmlNodePtr p_node = xmlGetNode( node_list, "Parm", i );
+			if ( p_node )
+			{
+				int geom_id = xmlFindInt( p_node, "Geom", 0 );
+				Stringc group_name = Stringc( xmlFindString( p_node, "Group", " " ) );
+				Stringc parm_name =  Stringc( xmlFindString( p_node, "Parm", " " ) );
+
+				Parm* p = parmMgrPtr->FindParm( gVec, geom_id, group_name, parm_name );
+
+				if ( p )
+				{
+					m_ParmVec.push_back( p );
+					m_CurrParmIndex = (int)m_ParmVec.size() - 1;
+				}
+			}
+		}
+	}
+}
+
+void ParmListMgr::RemoveAllReferencesList( Geom* geomPtr )
+{
+	vector < Parm* > parmVec;
+	geomPtr->LoadLinkableParms( parmVec );
+
+	for ( int i = 0 ; i < (int)parmVec.size() ; i++ )
+	{
+		RemoveParmReferencesList( parmVec[i] );
+	}
+	if ( aircraftPtr->getScreenMgr() )
+		aircraftPtr->getScreenMgr()->getParmPickerScreen()->RemoveAllRefs( geomPtr );
+
+}
+
+void ParmListMgr::RemoveParmReferencesList( Parm* parmPtr )
+{
+	//==== Remove From Parm Vec ====//
+	vector< Parm* > tempVec;
+	for ( int i = 0 ; i < (int)m_ParmVec.size() ; i++ )
+	{
+		if ( m_ParmVec[i] != parmPtr )
+			tempVec.push_back( m_ParmVec[i] );
+	}
+	m_ParmVec = tempVec;
+
+	if ( m_DefaultParm == parmPtr )
+		m_DefaultParm = NULL;
+	if ( m_WorkingParm == parmPtr )
+		ResetWorkingParm();
+
+	m_CurrParmIndex = -1;
+}
+
+void ParmListMgr::RebuildAllList()
+{
+	RebuildParmMap();
+
+	if ( aircraftPtr->getScreenMgr() )
+		aircraftPtr->getScreenMgr()->getParmPickerScreen()->update();
+}
+
+void ParmListMgr::RebuildParmMap()
+{
+	map< Parm*, vector< Parm* > >::iterator itr;
+	for ( itr = m_ParmMap.begin() ; itr != m_ParmMap.end() ; itr++ )
+		itr->second.clear();
+
+	m_ParmMap.clear();
+	for ( int i = 0 ; i < (int)m_ParmVec.size() ; i++ )
+	{
+		Parm* p = m_ParmVec[i];
+		m_ParmMap[p].push_back( p );
+	}
+}
+
+void ParmListMgr::SetCurrParmIndex( int i )
+{
+	m_CurrParmIndex = i;
+}
+
+Parm* ParmListMgr::GetCurrParm()
+{
+	if (  m_CurrParmIndex >= 0 && m_CurrParmIndex < (int)m_ParmVec.size() )
+		return m_ParmVec[ m_CurrParmIndex ];
+
+	return m_WorkingParm;
+}
+
+vector< Parm* > ParmListMgr::GetParmVec()
+{
+	return m_ParmVec;
+}
+
+void ParmListMgr::SetParm( Parm* p )
+{
+	m_WorkingParm = p;
+	RebuildAllList();
+}
+
+void ParmListMgr::SetParm( int comp_ind, int group_ind, int parm_ind )
+{
+	vector< Geom* > compVec = aircraftPtr->getGeomVec();
+	compVec.push_back( aircraftPtr->getUserGeom() );
+
+	if ( compVec.size() == 0 )
+	{
+		m_WorkingParm = NULL;
+		return;
+	}
+
+	if ( comp_ind >= (int)compVec.size() ) comp_ind = 0;
+	Geom* gPtr = compVec[comp_ind];
+
+	string group_name = parmMgrPtr->GetGroupName( gPtr, group_ind );
+
+	vector< Parm* > parmVec = parmMgrPtr->GetParmVec( gPtr, group_name );
+
+	if ( parmVec.size() == 0 )
+	{
+		m_WorkingParm = NULL;
+		return;
+	}
+
+	if ( parm_ind >= (int)parmVec.size() )
+		parm_ind = 0;
+
+	m_WorkingParm = parmVec[parm_ind];
+
+}
+
+
+bool ParmListMgr::AddCurrParm()
+{
+	//==== Check if Modifying Already Add Link ====//
+	if (  m_CurrParmIndex >= 0 && m_CurrParmIndex < (int)m_ParmVec.size() )
+		return false;
+
+	Parm* pl = new Parm();
+	pl = m_WorkingParm;
+
+	m_ParmVec.push_back( pl );
+	m_CurrParmIndex = (int)m_ParmVec.size() - 1;
+
+	m_ParmMap[pl].push_back( pl );
+
+	return true;
+}
+
+void ParmListMgr::AddParm( Parm* p)
+{
+	//==== Make Sure Parm Are Not Already Linked ====//
+	for ( int i = 0 ; i < (int)m_ParmVec.size() ; i++ )
+	{
+		if ( m_ParmVec[i] == p )
+		{
+			return;
+		}
+	}
+
+	m_ParmVec.push_back( p );
+	m_CurrParmIndex = (int)m_ParmVec.size() - 1;
+
+	m_ParmMap[p].push_back( p );
+}
+
+
+void ParmListMgr::DelCurrParm()
+{
+	//==== Remove From Parm Link Vec ====//
+	vector< Parm* > tempVec;
+	for ( int i = 0 ; i < (int)m_ParmVec.size() ; i++ )
+	{
+		if ( i != m_CurrParmIndex )
+			tempVec.push_back( m_ParmVec[i] );
+	}
+	m_ParmVec = tempVec;
+
+	RebuildParmMap();
+}
+
+void ParmListMgr::DelAllParms()
+{
+	m_ParmVec.clear();
+
+	RebuildParmMap();
+}
+
+
+Parm* ParmListMgr::ResetWorkingParm()
+{
+	m_CurrParmIndex = -1;
+	m_WorkingParm = m_DefaultParm;
+
+	return m_WorkingParm;
+}
 

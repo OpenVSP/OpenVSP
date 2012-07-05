@@ -88,6 +88,7 @@ msWingScreen.cpp
 parm.cpp
 parmLinkMgr.cpp
 parmLinkScreen.cpp
+parmPickerScreen.cpp
 parmScreen.cpp
 part.cpp
 propGeom.cpp
@@ -175,6 +176,7 @@ ms_wing.h
 parm.h
 parmLinkMgr.h
 parmLinkScreen.h
+parmPickerScreen.h
 parmScreen.h
 part.h
 propGeom.h

@@ -13,6 +13,7 @@
 #include "cfdMeshScreen.h"
 #include "parmScreen.h"
 #include "parmLinkScreen.h"
+#include "parmPickerScreen.h"
 #include "feaStructScreen.h"
 #include "groupScreen.h"
 #include "wingScreen.h"
@@ -80,6 +81,7 @@ ScreenMgr::~ScreenMgr()
 	delete cfdMeshScreen;
 	delete parmScreen;
 	delete parmLinkScreen;
+	delete parmPickerScreen;
 	delete feaStructScreen;
 	delete labelScreen;
 	delete vorviewScreen;
@@ -141,6 +143,7 @@ void ScreenMgr::createGui()
 //	mainWinUI->MeshMenu->callback( staticMenuCB, this );
 	mainWinUI->CFDMeshGeomMenu->callback( staticMenuCB, this );
 	mainWinUI->ParmLinkMenu->callback( staticMenuCB, this );
+	mainWinUI->ParmPickMenu->callback( staticMenuCB, this );
 	mainWinUI->MassPropMenu->callback( staticMenuCB, this );
 	mainWinUI->AeroRefMenu->callback( staticMenuCB, this );
 //	mainWinUI->SliceMenu->callback( staticMenuCB, this );
@@ -408,6 +411,7 @@ void ScreenMgr::createGui()
 	cfdMeshScreen = new CfdMeshScreen( this, aircraftPtr );
 	parmScreen = new ParmScreen( this, aircraftPtr );
 	parmLinkScreen = new ParmLinkScreen( this, aircraftPtr );
+	parmPickerScreen = new ParmPickerScreen( this, aircraftPtr );
 	feaStructScreen = new FeaStructScreen( this, aircraftPtr );
 	labelScreen = new LabelScreen(this, aircraftPtr, glWin);
 	vorviewScreen = new VorviewScreen(this, aircraftPtr, glWin);
@@ -1054,6 +1058,11 @@ void ScreenMgr::menuCB( Fl_Widget* w )
 	{
 		s_parmlinkmgr(ScriptMgr::GUI);
 		scriptMgr->addLine("parmlink");
+	}
+	else if ( m == mainWinUI->ParmPickMenu )		// Parameter Picker
+	{
+		s_parmpickmgr(ScriptMgr::GUI);
+		scriptMgr->addLine("parmpick");
 	}
 	else if ( m == mainWinUI->TextureMenu )			// Texture Mgr Screen
 	{
@@ -1921,6 +1930,14 @@ void ScreenMgr::s_parmlinkmgr(int src)
 	if (src != ScriptMgr::SCRIPT)
 	{
 		parmLinkScreen->show();
+	}
+}
+
+void ScreenMgr::s_parmpickmgr(int src)
+{
+	if (src != ScriptMgr::SCRIPT)
+	{
+		parmPickerScreen->show();
 	}
 }
 

@@ -95,6 +95,7 @@ Aircraft::Aircraft()
 	feaMeshMgrPtr->SetAircraftPtr(this);
 	feaMeshMgrPtr->ResetFeaExportFileNames();
 	parmLinkMgrPtr->SetAircraftPtr(this);
+	parmListMgrPtr->SetAircraftPtr(this);
 	parmMgrPtr->SetAircraftPtr(this);
 
 
@@ -149,6 +150,9 @@ Aircraft::~Aircraft()
 
 	if ( parmLinkMgrPtr )
 		delete parmLinkMgrPtr;
+
+	if ( parmListMgrPtr )
+		delete parmListMgrPtr;
 
 	if ( parmMgrPtr )
 		delete parmMgrPtr;
@@ -571,6 +575,7 @@ void Aircraft::newFile()
 	}
 
 	parmLinkMgrPtr->DelAllLinks();
+	parmListMgrPtr->DelAllParms();
 	updateExportFileNames();
 	cfdMeshMgrPtr->ResetExportFileNames();
 	feaMeshMgrPtr->ResetFeaExportFileNames();
