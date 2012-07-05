@@ -1127,7 +1127,7 @@ void Aircraft::delGeom( Geom* geomPtr )
 	resetAttachedLabels(geomPtr);
 
 	//==== Remove All Parms and Parm Links That Ref Geom ====//
-	parmLinkMgrPtr->RemoveAllReferences( geomPtr );		
+	parmMgrPtr->RemoveAllReferences( geomPtr );
 
 	//==== Delete GeomPtr ====//
 	if ( geomPtr != vorGeom && geomPtr != userGeomPtr )		// Only One VorGeom - Dont Del

@@ -275,7 +275,7 @@ void PropGeom::RemoveFoilParmReferences( Af* foil )
 	vector< Parm* > pVec = foil->GetLinkableParms();
 	for ( int i = 0 ; i < (int)pVec.size() ; i++ )
 	{
-		parmLinkMgrPtr->RemoveParmReferences( pVec[i] );
+		parmMgrPtr->RemoveParmReferences( pVec[i] );
 	}
 }
 
@@ -284,10 +284,10 @@ void PropGeom::RemoveSectParmReferences( int sect_id )
 	if ( sect_id < 0 || sect_id >= (int)sectVec.size() )
 		return;
 
-	parmLinkMgrPtr->RemoveParmReferences( &sectVec[sect_id].x_off );
-	parmLinkMgrPtr->RemoveParmReferences( &sectVec[sect_id].y_off );
-	parmLinkMgrPtr->RemoveParmReferences( &sectVec[sect_id].chord );
-	parmLinkMgrPtr->RemoveParmReferences( &sectVec[sect_id].twist );
+	parmMgrPtr->RemoveParmReferences( &sectVec[sect_id].x_off );
+	parmMgrPtr->RemoveParmReferences( &sectVec[sect_id].y_off );
+	parmMgrPtr->RemoveParmReferences( &sectVec[sect_id].chord );
+	parmMgrPtr->RemoveParmReferences( &sectVec[sect_id].twist );
 }
 
 void PropGeom::addStation()

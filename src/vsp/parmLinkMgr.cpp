@@ -361,21 +361,21 @@ void ParmLinkMgr::SwapGeom( Geom* gOld, Geom* gNew )
 }
 
 
-void ParmLinkMgr::RemoveAllReferences( Geom* geomPtr )
+void ParmLinkMgr::RemoveAllReferencesLink( Geom* geomPtr )
 {
 	vector < Parm* > parmVec;
 	geomPtr->LoadLinkableParms( parmVec );
 
 	for ( int i = 0 ; i < (int)parmVec.size() ; i++ )
 	{
-		RemoveParmReferences( parmVec[i] );
+		RemoveParmReferencesLink( parmVec[i] );
 	}
 	if ( aircraftPtr->getScreenMgr() )
 		aircraftPtr->getScreenMgr()->getParmLinkScreen()->RemoveAllRefs( geomPtr );
 
 }
 
-void ParmLinkMgr::RemoveParmReferences( Parm* parmPtr )
+void ParmLinkMgr::RemoveParmReferencesLink( Parm* parmPtr )
 {
 	//==== Remove From Parm Link Vec ====//
 	vector< ParmLink* > tempVec;
@@ -871,7 +871,15 @@ void ParmMgr::RegisterParmButton( ParmButton* b )
 		aircraftPtr->getScreenMgr()->getParmLinkScreen()->RegisterParmButton( b );
 }
 
+void ParmMgr::RemoveAllReferences( Geom* geomPtr )
+{
+	parmLinkMgrPtr->RemoveAllReferencesLink( geomPtr );
+}
 
+void ParmMgr::RemoveParmReferences( Parm* parmPtr )
+{
+	parmLinkMgrPtr->RemoveParmReferencesLink( parmPtr );
+}
 
 vector< string > ParmMgr::GetGroupNameVec( GeomBase* geomPtr )
 {

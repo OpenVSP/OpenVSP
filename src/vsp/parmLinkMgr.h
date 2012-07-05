@@ -137,8 +137,8 @@ public:
 
 	virtual void SetAircraftPtr( Aircraft* aptr )			{ aircraftPtr = aptr; }
 
-	virtual void RemoveAllReferences( Geom* geomPtr );
-	virtual void RemoveParmReferences( Parm* parmPtr ); 
+	virtual void RemoveAllReferencesLink( Geom* geomPtr );
+	virtual void RemoveParmReferencesLink( Parm* parmPtr );
 
 	virtual void RebuildAllLink();
 
@@ -215,6 +215,9 @@ public:
 	virtual void LoadAllParms();
 	virtual void Register( Parm* parmPtr, GeomBase* geomPtr, string groupName );
 	virtual void RegisterParmButton( ParmButton* b );
+
+	virtual void RemoveAllReferences( Geom* geomPtr );
+	virtual void RemoveParmReferences( Parm* parmPtr );
 
 	virtual vector< string > GetGroupNameVec( GeomBase* geomPtr );
 	virtual vector< Parm* > GetParmVec( GeomBase* geomPtr, string group_name );

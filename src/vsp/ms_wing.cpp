@@ -635,7 +635,7 @@ void Ms_wing_geom::RemoveWingSectParmReferences( int sect_id )
 	vector< Parm* > pVec = sects[sect_id].GetLinkableParms();
 	for ( int i = 0 ; i < (int)pVec.size() ; i++ )
 	{
-		parmLinkMgrPtr->RemoveParmReferences( pVec[i] );
+		parmMgrPtr->RemoveParmReferences( pVec[i] );
 	}
 }
 
@@ -644,7 +644,7 @@ void Ms_wing_geom::RemoveAirfoilParmReferences( Af* afPtr )
 	vector< Parm* > pVec = afPtr->GetLinkableParms();
 	for ( int i = 0 ; i < (int)pVec.size() ; i++ )
 	{
-		parmLinkMgrPtr->RemoveParmReferences( pVec[i] );
+		parmMgrPtr->RemoveParmReferences( pVec[i] );
 	}
 }
 

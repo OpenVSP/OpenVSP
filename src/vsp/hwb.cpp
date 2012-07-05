@@ -880,7 +880,7 @@ void HwbBaseGeom::del_sect()
 		}
 		else
 		{
-			parmLinkMgrPtr->RemoveParmReferences( foils[i]->get_camber() );
+			parmMgrPtr->RemoveParmReferences( foils[i]->get_camber() );
 			delete foils[i];
 		}
 	}
