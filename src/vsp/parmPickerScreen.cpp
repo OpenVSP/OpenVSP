@@ -47,15 +47,15 @@ void ParmPickerScreen::update()
 	int i;
 	char str[256];
 
-	Parm* currParm = parmListMgrPtr->GetCurrParm();
+	ParmHolder* currPHolder = pHolderListMgrPtr->GetCurrPHolder();
 
-	if ( currParm == NULL )
-		currParm = parmListMgrPtr->ResetWorkingParm();
+	if ( currPHolder->getParm() == NULL )
+		currPHolder = pHolderListMgrPtr->ResetWorkingPHolder();
 
 	//==== Geom Names ====//
 	parmPickerUI->compChoice->clear();
 	vector< string > geomNameVec;
-	int ind = parmMgrPtr->GetCurrGeomNameVec( currParm, geomNameVec );
+	int ind = parmMgrPtr->GetCurrGeomNameVec( currPHolder->getParm(), geomNameVec );
 	for ( i = 0 ; i < (int)geomNameVec.size() ; i++ )
 	{
 		sprintf( str, "%d-%s", i,  geomNameVec[i].c_str() );
@@ -67,7 +67,7 @@ void ParmPickerScreen::update()
 	//==== Group Names ====//
 	parmPickerUI->groupChoice->clear();
 	vector< string > groupNameVec;
-	ind = parmMgrPtr->GetCurrGroupNameVec( currParm, groupNameVec );
+	ind = parmMgrPtr->GetCurrGroupNameVec( currPHolder->getParm(), groupNameVec );
 	for ( i = 0 ; i < (int)groupNameVec.size() ; i++ )
 		parmPickerUI->groupChoice->add( groupNameVec[i].c_str() );
 	parmPickerUI->groupChoice->value( ind );
@@ -75,7 +75,7 @@ void ParmPickerScreen::update()
 	//==== Parm Names =====//
 	parmPickerUI->parmChoice->clear();
 	vector< string > parmNameVec;
-	ind = parmMgrPtr->GetCurrParmNameVec( currParm, parmNameVec );
+	ind = parmMgrPtr->GetCurrParmNameVec( currPHolder->getParm(), parmNameVec );
 	for ( i = 0 ; i < (int)parmNameVec.size() ; i++ )
 		parmPickerUI->parmChoice->add( parmNameVec[i].c_str() );
 	parmPickerUI->parmChoice->value( ind );
@@ -90,17 +90,17 @@ void ParmPickerScreen::update()
 	sprintf( str, "@b@.COMP_A:@b@.GROUP:@b@.PARM" );
 	parmPickerUI->parmBrowser->add( str );
 
-	vector< Parm* > parmVec = parmListMgrPtr->GetParmVec();
-	for ( i = 0 ; i < (int)parmVec.size() ; i++ )
+	vector< ParmHolder* > pHolderVec = pHolderListMgrPtr->GetPHolderVec();
+	for ( i = 0 ; i < (int)pHolderVec.size() ; i++ )
 	{
-		Parm* p = parmVec[i];
+		ParmHolder* ph = pHolderVec[i];
 		sprintf( str, "%s:%s:%s",
-			p->get_geom_base()->getName().get_char_star(), p->get_group_name().get_char_star(), p->get_name().get_char_star() );
+			ph->getParm()->get_geom_base()->getName().get_char_star(), ph->getParm()->get_group_name().get_char_star(), ph->getParm()->get_name().get_char_star() );
 		parmPickerUI->parmBrowser->add( str );
 	}
 
-	int index = parmListMgrPtr->GetCurrParmIndex();
-	if ( index >= 0 && index < (int)parmVec.size() )
+	int index = pHolderListMgrPtr->GetCurrPHolderIndex();
+	if ( index >= 0 && index < (int)pHolderVec.size() )
 		parmPickerUI->parmBrowser->select( index+2 );
 
 	parmPickerUI->UIWindow->redraw();
@@ -138,7 +138,7 @@ void ParmPickerScreen::closeCB( Fl_Widget* w)
 
 void ParmPickerScreen::screenCB( Fl_Widget* w )
 {
-	Parm* currParm = parmListMgrPtr->GetCurrParm();
+	ParmHolder* currPHolder = pHolderListMgrPtr->GetCurrPHolder();
 	if ( w == parmPickerUI->compChoice  ||
 		 w == parmPickerUI->groupChoice ||
 		 w == parmPickerUI->parmChoice )
@@ -147,20 +147,20 @@ void ParmPickerScreen::screenCB( Fl_Widget* w )
 	}
 	else if (  w == parmPickerUI->addParmButton )
 	{
-		bool success = parmListMgrPtr->AddCurrParm();
+		bool success = pHolderListMgrPtr->AddCurrPHolder();
 		if ( !success )
 			fl_alert( "Error: Identical Parameter In List" );
 		update();
 	}
 	else if (  w == parmPickerUI->deleteParmButton )
 	{
-		parmListMgrPtr->DelCurrParm();
+		pHolderListMgrPtr->DelCurrPHolder();
 		update();
 	}
 	else if (  w == parmPickerUI->parmBrowser )
 	{
 		int sel = parmPickerUI->parmBrowser->value();
-		parmListMgrPtr->SetCurrParmIndex( sel-2 );
+		pHolderListMgrPtr->SetCurrPHolderIndex( sel-2 );
 		update();
 	}
 
@@ -170,7 +170,7 @@ void ParmPickerScreen::screenCB( Fl_Widget* w )
 void ParmPickerScreen::compGroupChange()
 {
 	ParmPickerUI* ui = parmPickerUI;
-	parmListMgrPtr->SetCurrParmIndex(-1);
-	parmListMgrPtr->SetParm( ui->compChoice->value(), ui->groupChoice->value(), ui->parmChoice->value() );
+	pHolderListMgrPtr->SetCurrPHolderIndex(-1);
+	pHolderListMgrPtr->SetParm( ui->compChoice->value(), ui->groupChoice->value(), ui->parmChoice->value() );
 	update();
 }

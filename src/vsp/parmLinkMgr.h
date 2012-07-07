@@ -254,37 +254,37 @@ static PM_Single singlePM;
 
 
 
-class ParmListMgr
+class PHolderListMgr
 {
 public:
 
-	ParmListMgr();
-	virtual ~ParmListMgr();
+	PHolderListMgr();
+	virtual ~PHolderListMgr();
 
-	virtual void WriteList(xmlNodePtr node);
-	virtual void ReadList(xmlNodePtr node, vector< Geom* > & gVec );
+	virtual void WritePHolderList(xmlNodePtr node);
+	virtual void ReadPHolderList(xmlNodePtr node, vector< Geom* > & gVec );
 
 	virtual void SetAircraftPtr( Aircraft* aptr )			{ aircraftPtr = aptr; }
 
-	virtual void RemoveAllReferencesList( Geom* geomPtr );
-	virtual void RemoveParmReferencesList( Parm* parmPtr );
+	virtual void RemoveAllReferencesPHolderList( Geom* geomPtr );
+	virtual void RemoveParmReferencesPHolderList( Parm* parmPtr );
 
-	virtual void RebuildAllList();
+	virtual void RebuildAllPHolderList();
 
-	virtual void SetCurrParmIndex( int i );
-	virtual int  GetCurrParmIndex()						{ return m_CurrParmIndex; }
-	virtual Parm* GetCurrParm();
-	virtual vector< Parm* > GetParmVec();
+	virtual void SetCurrPHolderIndex( int i );
+	virtual int  GetCurrPHolderIndex()						{ return m_CurrPHolderIndex; }
+	virtual ParmHolder* GetCurrPHolder();
+	virtual vector< ParmHolder* > GetPHolderVec();
 
-	virtual void RebuildParmMap();
+	virtual void RebuildPHolderMap();
 
-	virtual bool AddCurrParm();
-	virtual void DelCurrParm();
-	virtual void DelAllParms();
+	virtual bool AddCurrPHolder();
+	virtual void DelCurrPHolder();
+	virtual void DelAllPHolders();
 
-	virtual void AddParm( Parm* p );
+	virtual void AddPHolder( Parm* p );
 
-	virtual Parm* ResetWorkingParm();
+	virtual ParmHolder* ResetWorkingPHolder();
 
 	virtual void SetParm( Parm* p );
 	virtual void SetParm( int comp, int group, int parm );
@@ -296,27 +296,27 @@ protected:
 
 	Aircraft* aircraftPtr;
 
-	int m_CurrParmIndex;
-	vector< Parm* > m_ParmVec;
-	map< Parm*, vector< Parm* > > m_ParmMap;
+	int m_CurrPHolderIndex;
+	vector< ParmHolder* > m_PHolderVec;
+	map< Parm*, vector< ParmHolder* > > m_PHolderMap;
 
-	Parm* m_WorkingParm;
+	ParmHolder m_WorkingPHolder;
 
 	Parm* m_DefaultParm;
 
 };
 
-class PL_Single
+class PHL_Single
 {
 public:
-	PL_Single();
-	ParmListMgr* parmListMgr;
+	PHL_Single();
+	PHolderListMgr* pHolderListMgr;
 };
 
 
-static PL_Single singlePL;
+static PHL_Single singlePHL;
 
-#define parmListMgrPtr (singlePL.parmListMgr)
+#define pHolderListMgrPtr (singlePHL.pHolderListMgr)
 
 
 
