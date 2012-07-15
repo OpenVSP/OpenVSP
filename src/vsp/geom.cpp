@@ -607,7 +607,7 @@ void Geom::read_general_parms(xmlNodePtr root)
   aeroCenter.set_y( xmlFindDouble( root, "AeroCenter_Y", aeroCenter.y() ) );
   aeroCenter.set_z( xmlFindDouble( root, "AeroCenter_Z", aeroCenter.z() ) );
   autoAeroCenterFlag = xmlFindInt( root, "AutoAeroCenterFlag", autoAeroCenterFlag );
-  autoAeroCenterFlag = !!(xmlFindInt( root, "WakeActiveFlag", m_WakeActiveFlag ));
+  m_WakeActiveFlag = !!(xmlFindInt( root, "WakeActiveFlag", m_WakeActiveFlag ));
 
   //==== Read Attach Flags ====//
   posAttachFlag = xmlFindInt( root, "PosAttachFlag", posAttachFlag );
