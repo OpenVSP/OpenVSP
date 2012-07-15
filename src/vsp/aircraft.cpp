@@ -616,6 +616,7 @@ int  Aircraft::insertFile( const char* file_name )
 	Geom * activeGeom = getActiveGeom();
 	if ( readFile( file_name ) )
 	{
+		resetClipBoardPtrID();
 
 		//==== Add Blank Component ====//
 		BlankGeom* blankGeom = new BlankGeom( this );
@@ -1163,7 +1164,16 @@ void Aircraft::copyGeomVec( vector< Geom* >& gVec )
 {
 	copyToClipBoard( gVec );
 }
-	
+
+void Aircraft::resetClipBoardPtrID()
+{
+	int i;
+
+	for ( i = 0 ; i < (int)clipBoard.size() ; i++ )
+	{
+		clipBoard[i]->resetPtrID();
+	}
+}
 
 void Aircraft::pasteClipBoard( )
 {
