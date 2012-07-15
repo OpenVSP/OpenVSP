@@ -67,7 +67,6 @@ PropGeom::PropGeom(Aircraft* aptr) : Geom(aptr)
 	sprintf( name, "Prop_%d", geomCnt ); 
 	geomCnt++;
 	name_str = Stringc(name);
-	id_str = name_str;			
 	setSymCode(NO_SYM);
 
 	numXsecs.deactivate();

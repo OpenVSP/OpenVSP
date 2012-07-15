@@ -37,7 +37,6 @@ EngineGeom::EngineGeom(Aircraft* aptr) : Geom(aptr)
 	sprintf( name, "Engine_%d", geomCnt ); 
 	geomCnt++;
 	name_str = Stringc(name);
-	id_str = name_str;			
 	setSymCode(NO_SYM);
 
 	define_eng_parms();

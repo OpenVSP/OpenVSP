@@ -317,7 +317,6 @@ Ms_wing_geom::Ms_wing_geom(Aircraft* aptr) : Geom(aptr)
 	sprintf( name, "Ms_Wing_%d", geomCnt ); 
 	geomCnt++;
 	name_str = Stringc(name);
-	id_str = name_str;				//jrg fix
 
 	copySect.rootAf = new Af( this );
 	copySect.rootAf->init_script("wing_foil");

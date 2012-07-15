@@ -35,7 +35,6 @@ DuctGeom::DuctGeom(Aircraft* aptr) : Geom(aptr)
 	sprintf( name, "Duct_%d", geomCnt ); 
 	geomCnt++;
 	name_str = Stringc(name);
-	id_str = name_str;			
 	setSymCode(NO_SYM);
 
 	foil = new Af(this);

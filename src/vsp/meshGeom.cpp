@@ -41,7 +41,6 @@ MeshGeom::MeshGeom(Aircraft* aptr) : Geom(aptr)
   sprintf( name, "Mesh_%d", geomCnt ); 
   geomCnt++;
   name_str = Stringc(name);
-  id_str = name_str;				//jrg fix
   setSymCode(NO_SYM);
 
   numPnts.deactivate();
