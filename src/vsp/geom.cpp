@@ -68,7 +68,6 @@ Geom::Geom( Aircraft* aptr ) : GeomBase()
 	int time_stamp = id_timer.get_start_time();
 	char str[255];
 	sprintf(str, "%i", time_stamp);
-	id_num = 0;
 	id_str = str;
 	// Nearly random integer between 1 and 1,000,000
 	// % 1000000 + 1 Loses uniform distribution as range becomes
@@ -432,7 +431,6 @@ void Geom::write_general_parms(xmlNodePtr root)
   int i;
 
   xmlAddStringNode( root, "Name", getName() );
-  xmlAddIntNode( root, "Id_Number", id_num );
   xmlAddStringNode( root, "Id_String", id_str );
   xmlAddDoubleNode( root, "ColorR", color.x() );
   xmlAddDoubleNode( root, "ColorG", color.y() );
@@ -552,7 +550,6 @@ void Geom::read_general_parms(xmlNodePtr root)
   name_str = Stringc( xmlFindString( root, "Name", "Default_Name" ) );		// name_str is Stringc
 
 //jrg id stuff  id_num = xmlFindInt( root, "Id_Number", 0 ) + jrg airPtr->get_id_offset();
-  id_num = xmlFindInt( root, "Id_Number", 0 );
   id_str = Stringc( xmlFindString( root, "Id_String", "1234567" ) );				// id_str is a Stringc
 
   double r = xmlFindDouble( root, "ColorR", 0 );
@@ -730,7 +727,9 @@ void Geom::read_general_parms(FILE* file_id)
   if ( airPtr->get_version() >= 2 )					// Read ID Num and Strings
   {
     fscanf(file_id, "%d",&temp_id);
-    id_num = temp_id;
+    // Formerly was Geom::id_num.  Since that has been removed, make it a local
+    // variable.  Still parse as before for to prevent change in behavior.
+    int id_num = temp_id;
     fgets(buff, 80, file_id);
   }
 

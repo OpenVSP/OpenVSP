@@ -146,7 +146,6 @@ public:
 	virtual int getSymCode()					{ return sym_code; }
 	virtual vec3d getSymVec()					{ return sym_vec; }
 
-	virtual int getIdNum()						{ return id_num; }
 	virtual Stringc getIdStr()					{ return id_str; }
 
 	virtual void setMaterialID( int m );
@@ -390,7 +389,6 @@ protected:
    int massPrior;
    int shellFlag;
 
-   int id_num;
    Stringc id_str;
 
    int saveFlag;
