@@ -70,7 +70,11 @@ Geom::Geom( Aircraft* aptr ) : GeomBase()
 	sprintf(str, "%i", time_stamp);
 	id_num = 0;
 	id_str = str;
-	ptrID = (long)this;
+	// Nearly random integer between 1 and 1,000,000
+	// % 1000000 + 1 Loses uniform distribution as range becomes
+	// larger fraction of RAND_MAX.
+	// srand( time(NULL) ); is called in main().
+	ptrID = rand() % 1000000 + 1;
 	massPrior = 0;
 	shellFlag = 0;
 
