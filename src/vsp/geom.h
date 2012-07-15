@@ -211,8 +211,9 @@ public:
 	virtual double get_rot_y();
 	virtual double get_rot_z();
 
-	virtual void setPtrID( int id )				{ ptrID = id; }
-	virtual int getPtrID()						{ return ptrID; }
+	virtual int getPtrID();
+	virtual void initPtrID();
+	virtual void resetPtrID()					{ ptrID = 0; }
 
 	virtual void setMassPrior( int val )		{ massPrior = val; }
 	virtual int  getMassPrior()					{ return massPrior; }

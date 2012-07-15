@@ -62,11 +62,7 @@ Geom::Geom( Aircraft* aptr ) : GeomBase()
 	displayChildrenFlag = 1;
 	m_WakeActiveFlag = false;
 
-	// Nearly random integer between 1 and 1,000,000
-	// % 1000000 + 1 Loses uniform distribution as range becomes
-	// larger fraction of RAND_MAX.
-	// srand( time(NULL) ); is called in main().
-	ptrID = rand() % 1000000 + 1;
+	ptrID = 0;
 	massPrior = 0;
 	shellFlag = 0;
 
@@ -218,6 +214,23 @@ Geom::~Geom()
 
 }
 
+void Geom::initPtrID()
+{
+	// Nearly random integer between 1 and 1,000,000
+	// % 1000000 + 1 Loses uniform distribution as range becomes
+	// larger fraction of RAND_MAX.
+	// srand( time(NULL) ); is called in main().
+	ptrID = rand() % 1000000 + 1;
+}
+
+int Geom::getPtrID()
+{
+	if( ptrID == 0 )
+		initPtrID();
+
+	return ptrID;
+}
+
 void Geom::copy( Geom* fromGeom )
 {
 	displayChildrenFlag = fromGeom->getDisplayChildrenFlag();
@@ -258,6 +271,12 @@ void Geom::copy( Geom* fromGeom )
 	numXsecs.set( fromGeom->numXsecs() );
 
 	posAttachFlag = fromGeom->posAttachFlag;
+
+	// Copy literal value of ptrID.  This will copy a zero whereas getPtrID()
+	// would force creation of a random ID if ptrID==0.  This should not cause
+	// a difference, but it emphasizes that ptrID!=0 is only required when
+	// files are read/written.
+	ptrID = fromGeom->ptrID;
 
 	density.set( fromGeom->density() );
 	shellMassArea.set( fromGeom->shellMassArea() );
@@ -478,7 +497,7 @@ void Geom::write_general_parms(xmlNodePtr root)
   xmlAddDoubleNode( root, "U_Attach", uAttach() );
   xmlAddDoubleNode( root, "V_Attach", vAttach() );
 
-  xmlAddIntNode( root, "PtrID", ptrID );
+  xmlAddIntNode( root, "PtrID", getPtrID() );
 
   if ( parentGeom )
 	xmlAddIntNode( root, "Parent_PtrID", parentGeom->getPtrID() );
@@ -601,7 +620,7 @@ void Geom::read_general_parms(xmlNodePtr root)
   vAttach = xmlFindDouble( root, "V_Attach", vAttach() );
 
   //==== Read Pointer ID and Parent/Children Info ====//
-  ptrID = xmlFindInt( root, "PtrID", ptrID );
+  ptrID = xmlFindInt( root, "PtrID", getPtrID() );
 
   parentPtrID = xmlFindInt( root, "Parent_PtrID", 0 );
 
