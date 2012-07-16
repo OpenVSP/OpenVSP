@@ -30,6 +30,13 @@ ParmPickerScreen::ParmPickerScreen(ScreenMgr* mgr, Aircraft* airPtr) : VspScreen
 	ui->deleteParmButton->callback( staticScreenCB, this );
 	ui->parmBrowser->callback( staticScreenCB, this );
 
+	ui->savePListButton->callback( staticScreenCB, this );
+	ui->loadPListButton->callback( staticScreenCB, this );
+
+	ui->fileTypeChoice->callback( staticScreenCB, this );
+
+	fileType = DES_FILE;
+	ui->fileTypeChoice->value( fileType );
 }
 
 ParmPickerScreen::~ParmPickerScreen()
@@ -163,7 +170,79 @@ void ParmPickerScreen::screenCB( Fl_Widget* w )
 		pHolderListMgrPtr->SetCurrPHolderIndex( sel-2 );
 		update();
 	}
-
+	else if ( w == parmPickerUI->savePListButton )
+	{
+		switch( fileType )
+		{
+		case DES_FILE:
+			{
+				char *newfile = screenMgrPtr->FileChooser("Write Design File?", "*.des");
+				if ( newfile != NULL )
+				{
+					pHolderListMgrPtr->WritePHolderListDES( newfile );
+				}
+			}
+			break;
+		case XDES_FILE:
+			{
+				char *newfile = screenMgrPtr->FileChooser("Write XDesign File?", "*.xdes");
+				if ( newfile != NULL )
+				{
+					pHolderListMgrPtr->WritePHolderListXDES( newfile );
+				}
+			}
+			break;
+		case XDDM_FILE:
+			{
+				char *newfile = screenMgrPtr->FileChooser("Write XDDM File?", "*.xddm");
+				if ( newfile != NULL )
+				{
+					pHolderListMgrPtr->WritePHolderListXDDM( newfile );
+				}
+			}
+			break;
+		}
+	}
+	else if ( w == parmPickerUI->loadPListButton )
+	{
+		switch( fileType )
+		{
+		case DES_FILE:
+			{
+				char *newfile = screenMgrPtr->FileChooser("Read Design File?", "*.des");
+				if ( newfile != NULL )
+				{
+					pHolderListMgrPtr->ReadPHolderListDES( newfile);
+					update();
+				}
+			}
+			break;
+		case XDES_FILE:
+			{
+				char *newfile = screenMgrPtr->FileChooser("Read XDesign File?", "*.xdes");
+				if ( newfile != NULL )
+				{
+					pHolderListMgrPtr->ReadPHolderListXDES( newfile);
+					update();
+				}
+			}
+			break;
+		case XDDM_FILE:
+			{
+				char *newfile = screenMgrPtr->FileChooser("Read XDDM File?", "*.xddm");
+				if ( newfile != NULL )
+				{
+					pHolderListMgrPtr->ReadPHolderListXDDM( newfile);
+					update();
+				}
+			}
+			break;
+		}
+	}
+	else if ( w == parmPickerUI->fileTypeChoice )
+	{
+		fileType = parmPickerUI->fileTypeChoice->value();
+	}
 	aircraftPtr->triggerDraw();
 }
 

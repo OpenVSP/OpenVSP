@@ -15,6 +15,10 @@
 #include "aircraft.h"
 #include "gui_device.h"
 
+#define DES_FILE 0
+#define XDES_FILE 1
+#define XDDM_FILE 2
+
 using namespace std;
 
 class ParmPickerScreen  : public VspScreen
@@ -48,6 +52,7 @@ protected:
 	Aircraft* aircraftPtr;
 	ParmPickerUI* parmPickerUI;
 
+	int fileType;
 };
 
 #endif	// PARMPICKERSCREEN_H
