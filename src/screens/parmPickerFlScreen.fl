@@ -7,52 +7,84 @@ class ParmPickerUI {open
   Function {ParmPickerUI()} {open
   } {
     Fl_Window UIWindow {
-      label {Parm Picker Mgr} open
-      xywh {658 93 246 451} type Double color 45 resizable visible
+      label {Design Var Mgr} open
+      xywh {646 55 246 451} type Double color 45 resizable visible
     } {
       Fl_Box {} {
-        label {Parm Picker}
+        label {Design Variables}
         xywh {5 5 235 20} box ROUNDED_BOX labelfont 1 labelsize 16 labelcolor 15
       }
-      Fl_Choice compChoice {open selected
-        xywh {60 50 180 20} down_box BORDER_BOX textfont 1
+      Fl_Choice compChoice {open
+        xywh {60 45 180 20} down_box BORDER_BOX textfont 1
       } {}
       Fl_Box {} {
         label Comp
-        xywh {5 50 55 20} box BORDER_BOX labelfont 1 labelcolor 15
+        xywh {5 45 55 20} box BORDER_BOX labelfont 1 labelcolor 15
       }
       Fl_Box {} {
-        label Parameter
-        xywh {5 35 235 15} box BORDER_BOX labelfont 1 labelcolor 15
+        label Variable
+        xywh {5 30 235 15} box BORDER_BOX labelfont 1 labelcolor 15
       }
       Fl_Choice groupChoice {open
-        xywh {60 70 180 20} down_box BORDER_BOX textfont 1
+        xywh {60 65 180 20} down_box BORDER_BOX textfont 1
       } {}
       Fl_Box {} {
-        label {Parm List}
-        xywh {5 145 235 15} box BORDER_BOX labelfont 1 labelcolor 15
+        label {Variable List}
+        xywh {5 140 235 15} box BORDER_BOX labelfont 1 labelcolor 15
       }
       Fl_Browser parmBrowser {
-        xywh {5 160 235 285} type Select labelfont 13 labelsize 12 textsize 12
+        xywh {5 155 235 220} type Select labelfont 13 labelsize 12 textsize 12
       }
       Fl_Box {} {
         label Parm
-        xywh {5 90 55 20} box BORDER_BOX labelfont 1 labelcolor 15
+        xywh {5 85 55 20} box BORDER_BOX labelfont 1 labelcolor 15
       }
       Fl_Choice parmChoice {open
-        xywh {60 90 180 20} down_box BORDER_BOX textfont 1
+        xywh {60 85 180 20} down_box BORDER_BOX textfont 1
       } {}
       Fl_Box {} {
         label Group
-        xywh {5 70 55 20} box BORDER_BOX labelfont 1 labelcolor 15
+        xywh {5 65 55 20} box BORDER_BOX labelfont 1 labelcolor 15
       }
       Fl_Button deleteParmButton {
-        label {Delete Parm}
-        xywh {125 115 115 25} color 48 labelfont 1
+        label {Delete Variable}
+        xywh {125 110 115 25} color 48 labelfont 1
       }
       Fl_Button addParmButton {
-        label {Add Parm}
-        xywh {5 115 115 25} color 48 labelfont 1
+        label {Add Variable}
+        xywh {5 110 115 25} color 48 labelfont 1
+      }
+      Fl_Button savePListButton {
+        label Save
+        xywh {5 420 115 25} color 48 labelfont 1
+      }
+      Fl_Button loadPListButton {
+        label Load
+        xywh {125 420 115 25} color 48 labelfont 1
+      }
+      Fl_Choice fileTypeChoice {open
+        xywh {60 395 180 20} down_box BORDER_BOX
+      } {
+        MenuItem desMenu {
+          label {Design file *.des}
+          xywh {25 25 100 20} labelfont 1 selected
+        }
+        MenuItem xdesMenu {
+          label {XML design file *.xdes}
+          xywh {35 35 100 20} labelfont 1
+        }
+        MenuItem xddmMenu {
+          label {Cart3D XDDM file *.xddm}
+          xywh {45 45 100 20} labelfont 1
+        }
+      }
+      Fl_Box {} {
+        label {Design File}
+        xywh {5 380 235 15} box BORDER_BOX labelfont 1 labelcolor 15
+      }
+      Fl_Box {} {
+        label Type
+        xywh {5 395 55 20} box BORDER_BOX labelfont 1 labelcolor 15
       }
     }
   }

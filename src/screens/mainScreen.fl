@@ -192,7 +192,7 @@ class MainWinUI {open
               xywh {10 10 100 20}
             }
             MenuItem ParmPickMenu {
-              label {Pick Parameters...} selected
+              label {Design Variables...} selected
               xywh {20 20 100 20}
             }
           }
