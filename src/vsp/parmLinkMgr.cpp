@@ -1001,36 +1001,146 @@ PHolderListMgr::~PHolderListMgr()
 
 }
 
-void PHolderListMgr::WritePHolderList( xmlNodePtr root )
+void PHolderListMgr::WritePHolderListDES( char *newfile )
 {
+	FILE *fp;
+	fp = fopen( newfile, "w" );
+
+	fprintf( fp, "%d\n", (int)m_PHolderVec.size() );
+
+	for ( int i = 0 ; i < (int)m_PHolderVec.size() ; i++ )
+	{
+		Parm *p = m_PHolderVec[i]->getParm();
+
+		fprintf( fp, "%d:%s:%s:%s: %g\n", ((Geom*)p->get_geom_base())->getPtrID(), p->get_geom_base()->getName().get_char_star(), p->get_group_name().get_char_star(), p->get_name().get_char_star(), p->get() );
+	}
+
+	fclose( fp );
+}
+
+void PHolderListMgr::ReadPHolderListDES( char *newfile )
+{
+	FILE *fp;
+	fp = fopen( newfile, "r" );
+	char temp[255];
+
+	fgets( temp, 255, fp );
+	Stringc line = temp;
+	int nparm = line.convert_to_integer();
+
+	if( nparm > 0 )
+	{
+		pHolderListMgrPtr->DelAllPHolders();
+
+		vector< Geom* > gVec = aircraftPtr->getGeomVec();
+		gVec.push_back( aircraftPtr->getUserGeom() );
+
+
+		for ( int i = 0 ; i < nparm ; i++ )
+		{
+			fgets( temp, 255, fp );
+			line = temp;
+
+			int istart = 0;
+			int iend = line.search_for_substring(':');
+			int id = line.get_range( istart, iend-1 ).convert_to_integer();
+
+			istart = iend + 1;
+			iend = line.search_for_substring( istart, ':' );
+			istart = iend + 1;
+			iend = line.search_for_substring( istart, ':' );
+			Stringc group = line.get_range( istart, iend-1 );
+
+			istart = iend + 1;
+			iend = line.search_for_substring( istart, ':' );
+			Stringc parm = line.get_range( istart, iend-1 );
+
+			istart = iend + 1;
+			iend = line.get_length();
+			double val = line.get_range( istart, iend-1 ).convert_to_double();
+
+			Parm* p = parmMgrPtr->FindParm( gVec, id, group, parm );
+
+			if ( p )
+			{
+				p->set_from_link( val );
+				p->get_geom()->parm_changed( p );
+
+				ParmHolder* ph = new ParmHolder();
+				ph->setParm( p );
+
+				m_PHolderVec.push_back( ph );
+				m_CurrPHolderIndex = (int)m_PHolderVec.size() - 1;
+			}
+		}
+	}
+	fclose( fp );
+}
+
+void PHolderListMgr::WritePHolderListXDES( char *newfile )
+{
+	xmlDocPtr doc = xmlNewDoc((const xmlChar *)"1.0");
+
+	xmlNodePtr root = xmlNewNode(NULL,(const xmlChar *)"Vsp_Design");
+	xmlDocSetRootElement(doc, root);
+
 	xmlNodePtr parm_list_node = xmlNewChild( root, NULL, (const xmlChar *)"Parm_List", NULL );
 
 	for ( int i = 0 ; i < (int)m_PHolderVec.size() ; i++ )
 	{
 		Parm* p = m_PHolderVec[i]->getParm();
 		xmlNodePtr parm_node = xmlNewChild( parm_list_node, NULL, (const xmlChar *)"Parm", NULL );
-		xmlAddIntNode( parm_node, "Geom", ((Geom*)p->get_geom_base())->getPtrID() );
+		xmlAddIntNode( parm_node, "GeomID", ((Geom*)p->get_geom_base())->getPtrID() );
+		xmlAddStringNode( parm_node, "Geom", p->get_geom_base()->getName().get_char_star() );
 		xmlAddStringNode( parm_node, "Group", p->get_group_name().get_char_star() );
 		xmlAddStringNode( parm_node, "Parm",  p->get_name().get_char_star() );
-
+		xmlAddDoubleNode( parm_node, "Value", p->get() );
 	}
+
+	//===== Save XML Tree and Free Doc =====//
+	xmlSaveFormatFile((const char *)newfile, doc, 1);
+	xmlFreeDoc( doc );
 }
 
-void PHolderListMgr::ReadPHolderList(xmlNodePtr root, vector< Geom* > & geomVec)
+void PHolderListMgr::ReadPHolderListXDES( char *newfile )
 {
-	vector< Geom* > gVec = geomVec;
+	pHolderListMgrPtr->DelAllPHolders();
+
+	//==== Read Xml File ====//
+	xmlDocPtr doc;
+	xmlNodePtr node;
+
+	LIBXML_TEST_VERSION
+	xmlKeepBlanksDefault(0);
+
+	//==== Build an XML tree from a the file ====//
+	doc = xmlParseFile(newfile);
+//			if (doc == NULL) return 0;
+
+	xmlNodePtr root = xmlDocGetRootElement(doc);
+	if (root == NULL)
+	{
+		fprintf(stderr,"empty document\n");
+		xmlFreeDoc(doc);
+//				return 0;
+	}
+
+	vector< Geom* > gVec = aircraftPtr->getGeomVec();
 	gVec.push_back( aircraftPtr->getUserGeom() );
 
 	xmlNodePtr node_list = xmlGetNode( root, "Parm_List", 0 );
 	if ( node_list  )
 	{
 		int num_p = xmlGetNumNames( node_list, "Parm" );
+
 		for ( int i = 0 ; i < num_p ; i++ )
 		{
 			xmlNodePtr p_node = xmlGetNode( node_list, "Parm", i );
+
 			if ( p_node )
 			{
-				int geom_id = xmlFindInt( p_node, "Geom", 0 );
+				int geom_id = xmlFindInt( p_node, "GeomID", 0 );
+				Stringc geom_name = Stringc( xmlFindString( p_node, "Geom", " " ) );
 				Stringc group_name = Stringc( xmlFindString( p_node, "Group", " " ) );
 				Stringc parm_name =  Stringc( xmlFindString( p_node, "Parm", " " ) );
 
@@ -1038,6 +1148,11 @@ void PHolderListMgr::ReadPHolderList(xmlNodePtr root, vector< Geom* > & geomVec)
 
 				if ( p )
 				{
+					double val = xmlFindDouble( p_node, "Value", p->get() );
+
+					p->set_from_link( val );
+					p->get_geom()->parm_changed( p );
+
 					ParmHolder* ph = new ParmHolder();
 					ph->setParm( p );
 
@@ -1047,6 +1162,118 @@ void PHolderListMgr::ReadPHolderList(xmlNodePtr root, vector< Geom* > & geomVec)
 			}
 		}
 	}
+
+	//===== Free Doc =====//
+	xmlFreeDoc( doc );
+
+//			return 1;
+}
+
+void PHolderListMgr::WritePHolderListXDDM( char *newfile )
+{
+	xmlDocPtr doc = xmlNewDoc((const xmlChar *)"1.0");
+
+	xmlNodePtr model_node = xmlNewNode(NULL,(const xmlChar *)"Model");
+	xmlDocSetRootElement(doc, model_node);
+
+	xmlSetProp( model_node, (const xmlChar *)"ID", (const xmlChar *)aircraftPtr->getFileName().get_char_star() );
+	xmlSetProp( model_node, (const xmlChar *)"Modeler", (const xmlChar *)"OpenVSP" );
+	xmlSetProp( model_node, (const xmlChar *)"Wrapper", (const xmlChar *)"wrap_vsp.csh" );
+
+	for ( int i = 0 ; i < (int)m_PHolderVec.size() ; i++ )
+	{
+		Parm* p = m_PHolderVec[i]->getParm();
+
+		xmlNodePtr var_node = xmlNewChild( model_node, NULL, (const xmlChar *)"Variable", NULL );
+
+		char varname[255];
+		sprintf( varname, "%d:%s:%s:%s", ((Geom*)p->get_geom_base())->getPtrID(), p->get_geom_base()->getName().get_char_star(), p->get_group_name().get_char_star(), p->get_name().get_char_star() );
+
+		xmlSetProp( var_node, (const xmlChar *)"ID", (const xmlChar *)varname );
+		xmlSetDoubleProp( var_node, "Value", p->get() );
+		xmlSetDoubleProp( var_node, "Min", p->get_lower() );
+		xmlSetDoubleProp( var_node, "Max", p->get_upper() );
+		xmlSetProp( var_node, (const xmlChar *)"Comment", (const xmlChar *)varname );
+	}
+
+	//===== Save XML Tree and Free Doc =====//
+	xmlSaveFormatFile((const char *)newfile, doc, 1);
+	xmlFreeDoc( doc );
+}
+
+void PHolderListMgr::ReadPHolderListXDDM( char *newfile )
+{
+	pHolderListMgrPtr->DelAllPHolders();
+
+	//==== Read Xml File ====//
+	xmlDocPtr doc;
+	xmlNodePtr node;
+
+	LIBXML_TEST_VERSION
+	xmlKeepBlanksDefault(0);
+
+	//==== Build an XML tree from a the file ====//
+	doc = xmlParseFile(newfile);
+//			if (doc == NULL) return 0;
+
+	xmlNodePtr root = xmlDocGetRootElement(doc);
+	if (root == NULL)
+	{
+		fprintf(stderr,"empty document\n");
+		xmlFreeDoc(doc);
+//				return 0;
+	}
+
+	vector< Geom* > gVec = aircraftPtr->getGeomVec();
+	gVec.push_back( aircraftPtr->getUserGeom() );
+
+
+	int num_v = xmlGetNumNames( root, "Variable" );
+
+	for ( int i = 0 ; i < num_v ; i++ )
+	{
+		xmlNodePtr var_node = xmlGetNode( root, "Variable", i );
+
+		if ( var_node )
+		{
+			Stringc comment = Stringc( xmlFindPropString( var_node, "Comment", " " ) );
+
+			int istart = 0;
+			int iend = comment.search_for_substring(':');
+			int id = comment.get_range( istart, iend-1 ).convert_to_integer();
+
+			istart = iend + 1;
+			iend = comment.search_for_substring( istart, ':' );
+			istart = iend + 1;
+			iend = comment.search_for_substring( istart, ':' );
+			Stringc group = comment.get_range( istart, iend-1 );
+
+			istart = iend + 1;
+			iend = comment.get_length();
+			Stringc parm = comment.get_range( istart, iend-1 );
+
+			Parm* p = parmMgrPtr->FindParm( gVec, id, group, parm );
+
+			if ( p )
+			{
+				double val = xmlFindPropDouble( var_node, "Value", p->get() );
+
+				p->set_from_link( val );
+				p->get_geom()->parm_changed( p );
+
+				ParmHolder* ph = new ParmHolder();
+				ph->setParm( p );
+
+				m_PHolderVec.push_back( ph );
+				m_CurrPHolderIndex = (int)m_PHolderVec.size() - 1;
+			}
+		}
+	}
+
+	//===== Free Doc =====//
+	xmlFreeDoc( doc );
+
+//			return 1;
 }
 
 void PHolderListMgr::RemoveAllReferencesPHolderList( Geom* geomPtr )
