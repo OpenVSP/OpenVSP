@@ -38,6 +38,7 @@
 #include "propScreen.h"
 #include "engineScreen.h"
 #include "labelScreen.h"
+#include "parmPickerScreen.h"
 #include "tMesh.h"
 #include "vorGeom.h"
 #include "structureMgr.h"
@@ -576,6 +577,9 @@ void Aircraft::newFile()
 
 	parmLinkMgrPtr->DelAllLinks();
 	pHolderListMgrPtr->DelAllPHolders();
+	if ( getScreenMgr() )
+		getScreenMgr()->getParmPickerScreen()->update();
+
 	updateExportFileNames();
 	cfdMeshMgrPtr->ResetExportFileNames();
 	feaMeshMgrPtr->ResetFeaExportFileNames();
