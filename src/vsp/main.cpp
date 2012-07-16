@@ -96,6 +96,9 @@ int batchMode(int argc, char *argv[], Aircraft* airPtr)
     int writeNascartFlag = 0;
 	int doxmlFlag = 0;
 	int scriptFlag = 0;
+	int desFlag = 0;
+	int xdesFlag = 0;
+	int xddmFlag = 0;
 	int feaMeshFlag = 0;
 	int cfdMeshFlag = 0;
 	int setTempDirFlag = 0;
@@ -105,6 +108,7 @@ int batchMode(int argc, char *argv[], Aircraft* airPtr)
 	double Mach,sliceAngle;
 	int coneSections;
 	Stringc scriptFile,xmlFile;
+	Stringc desFile, xdesFile, xddmFile;
     char airName[255];
     Stringc exec;
 	int userParmFlag = 0;
@@ -146,6 +150,27 @@ int batchMode(int argc, char *argv[], Aircraft* airPtr)
 		   {
 				scriptFile = argv[++i]; 
 		        scriptFlag = 1;
+		   }
+       }
+       if ( strcmp(argv[i],"-des") == 0 ) {
+		   if (i+1 < argc)
+		   {
+				desFile = argv[++i];
+		        desFlag = 1;
+		   }
+       }
+       if ( strcmp(argv[i],"-xdes") == 0 ) {
+		   if (i+1 < argc)
+		   {
+				xdesFile = argv[++i];
+		        xdesFlag = 1;
+		   }
+       }
+       if ( strcmp(argv[i],"-xddm") == 0 ) {
+		   if (i+1 < argc)
+		   {
+				xddmFile = argv[++i];
+		        xddmFlag = 1;
 		   }
        }
 	   if ( strcmp(argv[i],"-loop") == 0 ) {
@@ -289,6 +314,9 @@ int batchMode(int argc, char *argv[], Aircraft* airPtr)
          printf("  -nascart           Write Nascart file \n");
 		 printf("  -doxml             Process an external xml file \n");
 		 printf("  -userparm # val    Set the value of the user parm \n");
+		 printf("  -des filename      Set variables according to *.des file \n");
+		 printf("  -xdes filename     Set variables according to *.xdes file \n");
+		 printf("  -xddm filename     Set variables according to *.xddm file \n");
 		 printf("  -tempdir pathname  Set the path name of the dir to write temp files\n");
 		 printf("  -outname type name Set the filenames for output where type = \n");
 		 printf("                      %s, %s, %s, %s, \n", outFileTypes[0], outFileTypes[1], outFileTypes[2], outFileTypes[3] );
@@ -374,8 +402,19 @@ int batchMode(int argc, char *argv[], Aircraft* airPtr)
 		airPtr->setActiveGeom( 0 );
 		airPtr->update_bbox();
 
-
-
+		// Apply design variables before any geometry operations.
+		if ( desFlag )
+		{
+			pHolderListMgrPtr->ReadPHolderListDES( desFile.get_char_star() );
+		}
+		if ( xdesFlag )
+		{
+			pHolderListMgrPtr->ReadPHolderListXDES( xdesFile.get_char_star() );
+		}
+		if ( xddmFlag )
+		{
+			pHolderListMgrPtr->ReadPHolderListXDDM( xddmFile.get_char_star() );
+		}
 		if ( compgeomFlag )
 		{
 			//==== CompGeom File Names ====//
