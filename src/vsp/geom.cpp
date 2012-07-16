@@ -62,15 +62,7 @@ Geom::Geom( Aircraft* aptr ) : GeomBase()
 	displayChildrenFlag = 1;
 	m_WakeActiveFlag = false;
 
-	//===== Set Id String (Time Stamp) =====
-	Timer id_timer;
-	id_timer.start();
-	int time_stamp = id_timer.get_start_time();
-	char str[255];
-	sprintf(str, "%i", time_stamp);
-	id_num = 0;
-	id_str = str;
-	ptrID = (long)this;
+	ptrID = 0;
 	massPrior = 0;
 	shellFlag = 0;
 
@@ -222,6 +214,23 @@ Geom::~Geom()
 
 }
 
+void Geom::initPtrID()
+{
+	// Nearly random integer between 1 and 1,000,000
+	// % 1000000 + 1 Loses uniform distribution as range becomes
+	// larger fraction of RAND_MAX.
+	// srand( time(NULL) ); is called in main().
+	ptrID = rand() % 1000000 + 1;
+}
+
+int Geom::getPtrID()
+{
+	if( ptrID == 0 )
+		initPtrID();
+
+	return ptrID;
+}
+
 void Geom::copy( Geom* fromGeom )
 {
 	displayChildrenFlag = fromGeom->getDisplayChildrenFlag();
@@ -262,6 +271,12 @@ void Geom::copy( Geom* fromGeom )
 	numXsecs.set( fromGeom->numXsecs() );
 
 	posAttachFlag = fromGeom->posAttachFlag;
+
+	// Copy literal value of ptrID.  This will copy a zero whereas getPtrID()
+	// would force creation of a random ID if ptrID==0.  This should not cause
+	// a difference, but it emphasizes that ptrID!=0 is only required when
+	// files are read/written.
+	ptrID = fromGeom->ptrID;
 
 	density.set( fromGeom->density() );
 	shellMassArea.set( fromGeom->shellMassArea() );
@@ -428,8 +443,6 @@ void Geom::write_general_parms(xmlNodePtr root)
   int i;
 
   xmlAddStringNode( root, "Name", getName() );
-  xmlAddIntNode( root, "Id_Number", id_num );
-  xmlAddStringNode( root, "Id_String", id_str );
   xmlAddDoubleNode( root, "ColorR", color.x() );
   xmlAddDoubleNode( root, "ColorG", color.y() );
   xmlAddDoubleNode( root, "ColorB", color.z() );
@@ -484,7 +497,7 @@ void Geom::write_general_parms(xmlNodePtr root)
   xmlAddDoubleNode( root, "U_Attach", uAttach() );
   xmlAddDoubleNode( root, "V_Attach", vAttach() );
 
-  xmlAddIntNode( root, "PtrID", ptrID );
+  xmlAddIntNode( root, "PtrID", getPtrID() );
 
   if ( parentGeom )
 	xmlAddIntNode( root, "Parent_PtrID", parentGeom->getPtrID() );
@@ -547,10 +560,6 @@ void Geom::read_general_parms(xmlNodePtr root)
 
   name_str = Stringc( xmlFindString( root, "Name", "Default_Name" ) );		// name_str is Stringc
 
-//jrg id stuff  id_num = xmlFindInt( root, "Id_Number", 0 ) + jrg airPtr->get_id_offset();
-  id_num = xmlFindInt( root, "Id_Number", 0 );
-  id_str = Stringc( xmlFindString( root, "Id_String", "1234567" ) );				// id_str is a Stringc
-
   double r = xmlFindDouble( root, "ColorR", 0 );
   double g = xmlFindDouble( root, "ColorG", 0 );
   double b = xmlFindDouble( root, "ColorB", 0 );
@@ -603,7 +612,7 @@ void Geom::read_general_parms(xmlNodePtr root)
   aeroCenter.set_y( xmlFindDouble( root, "AeroCenter_Y", aeroCenter.y() ) );
   aeroCenter.set_z( xmlFindDouble( root, "AeroCenter_Z", aeroCenter.z() ) );
   autoAeroCenterFlag = xmlFindInt( root, "AutoAeroCenterFlag", autoAeroCenterFlag );
-  autoAeroCenterFlag = !!(xmlFindInt( root, "WakeActiveFlag", m_WakeActiveFlag ));
+  m_WakeActiveFlag = !!(xmlFindInt( root, "WakeActiveFlag", m_WakeActiveFlag ));
 
   //==== Read Attach Flags ====//
   posAttachFlag = xmlFindInt( root, "PosAttachFlag", posAttachFlag );
@@ -611,7 +620,7 @@ void Geom::read_general_parms(xmlNodePtr root)
   vAttach = xmlFindDouble( root, "V_Attach", vAttach() );
 
   //==== Read Pointer ID and Parent/Children Info ====//
-  ptrID = xmlFindInt( root, "PtrID", ptrID );
+  ptrID = xmlFindInt( root, "PtrID", getPtrID() );
 
   parentPtrID = xmlFindInt( root, "Parent_PtrID", 0 );
 
@@ -726,14 +735,18 @@ void Geom::read_general_parms(FILE* file_id)
   if ( airPtr->get_version() >= 2 )					// Read ID Num and Strings
   {
     fscanf(file_id, "%d",&temp_id);
-    id_num = temp_id;
+    // Formerly was Geom::id_num.  Since that has been removed, make it a local
+    // variable.  Still parse as before for to prevent change in behavior.
+    int id_num = temp_id;
     fgets(buff, 80, file_id);
   }
 
   if ( airPtr->get_version() >= 3 )
   {
     fscanf(file_id, "%20s", temp_name);
-	id_str = temp_name;				// id_str is a Stringc
+    // Formerly was Geom::id_str.  Since that has been removed, make it a local
+    // variable.  Still parse as before for to prevent change in behavior.
+	Stringc id_str = temp_name;				// id_str is a Stringc
     fgets(buff, 80, file_id);
   }
 

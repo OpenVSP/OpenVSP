@@ -39,7 +39,6 @@ Havoc_geom::Havoc_geom(Aircraft* aptr) : Geom(aptr)
   sprintf( name, "Havoc_%d", geomCnt ); 
   geomCnt++;
   name_str = Stringc(name);
-  id_str = name_str;				//jrg fix
   setSymCode(NO_SYM);
 
   numPnts   = 41;		

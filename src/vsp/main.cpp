@@ -751,6 +751,10 @@ void autoSaveTimeoutHandler(void *data)
 //========================= Main =========================//
 int main( int argc, char** argv)
 {
+	// Seed RNG for batch mode.
+	// rand() is used to create ptrID's in Geom constructor.
+	uint seed = time( NULL );
+	srand( seed );
 
 //FILE* filePtr = fopen("debug.txt", "w" );
 //freopen("debug.txt", "w", stdout); 
@@ -765,6 +769,12 @@ int main( int argc, char** argv)
 
 	//==== Check Server For Version Number ====//
 	CheckVersionNumber();
+
+	// Seed RNG for interactive mode.
+	// rand() is used to create ptrID's in Geom constructor.
+	// CheckVersionNumber sets the seed based on the file path.  Failure to reset the seed
+	// will leave the RNG in a repeatable state (given the same path to VSP).
+	srand( seed );
 
 	//==== Link Objects ====//
 	airPtr->setScreenMgr( screenMgrPtr );

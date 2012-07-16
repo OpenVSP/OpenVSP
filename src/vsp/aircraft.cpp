@@ -625,6 +625,8 @@ int  Aircraft::insertFile( const char* file_name )
 	Geom * activeGeom = getActiveGeom();
 	if ( readFile( file_name ) )
 	{
+		if( checkClipBoardPtrIDCollisions() )
+			resetClipBoardPtrID();
 
 		//==== Add Blank Component ====//
 		BlankGeom* blankGeom = new BlankGeom( this );
@@ -1172,7 +1174,31 @@ void Aircraft::copyGeomVec( vector< Geom* >& gVec )
 {
 	copyToClipBoard( gVec );
 }
-	
+
+void Aircraft::resetClipBoardPtrID()
+{
+	int i;
+
+	for ( i = 0 ; i < (int)clipBoard.size() ; i++ )
+	{
+		clipBoard[i]->resetPtrID();
+	}
+}
+
+bool Aircraft::checkClipBoardPtrIDCollisions()
+{
+	int i, j;
+
+	for ( i = 0 ; i < (int)clipBoard.size() ; i++ )
+	{
+		for ( j = 0 ; j < (int)geomVec.size() ; j++ )
+		{
+			if ( clipBoard[i]->getPtrID() == geomVec[j]->getPtrID() )
+				return true;  // Collision detected
+		}
+	}
+	return false; // No collisions
+}
 
 void Aircraft::pasteClipBoard( )
 {
