@@ -676,12 +676,12 @@ void Stringc::insert_string_at (int position, const char character)
 
 //----------------------------------------------------------------------------
 
-int Stringc::search_for_substring( char character )
+int Stringc::search_for_substring( int istart, char character )
 {
 
 // search for the character
 
-   for ( int i = 0; i < num_chars; i++ )
+   for ( int i = istart; i < num_chars; i++ )
       {
       if ( char_array[i] == character )
          {
@@ -692,6 +692,13 @@ int Stringc::search_for_substring( char character )
 // if no match was found, return minus 1
 
    return -1;
+}
+
+//----------------------------------------------------------------------------
+
+int Stringc::search_for_substring( char character )
+{
+	return search_for_substring( 0, character );
 }
 
 //----------------------------------------------------------------------------
