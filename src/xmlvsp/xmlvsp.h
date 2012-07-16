@@ -31,6 +31,9 @@ double xmlFindDouble( xmlNodePtr node, const char * name, double def );
 int    xmlFindInt( xmlNodePtr node, const char * name, int def );
 char*  xmlFindString( xmlNodePtr node, const char * name, char* def );
 
+double xmlFindPropDouble( xmlNodePtr node, const char * name, double def );
+char* xmlFindPropString( xmlNodePtr node, const char * name, char* def );
+
 int xmlGetNumArray( xmlNodePtr node, const char delim );
 
 int xmlExtractDoubleArray( xmlNodePtr node, const char sep, double * arr, int size );
@@ -40,6 +43,7 @@ xmlNodePtr xmlAddIntNode( xmlNodePtr root, const char * name, int val );
 xmlNodePtr xmlAddDoubleNode( xmlNodePtr root, const char * name, double val );
 xmlNodePtr xmlAddStringNode( xmlNodePtr root, const char * name, const char * val );
 
+void xmlSetDoubleProp( xmlNodePtr root, const char * name, double val );
 
 #ifdef __cplusplus
 }
