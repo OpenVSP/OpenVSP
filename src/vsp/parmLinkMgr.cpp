@@ -1193,7 +1193,7 @@ void PHolderListMgr::WritePHolderListXDDM( char *newfile )
 		xmlSetDoubleProp( var_node, "Value", p->get() );
 		xmlSetDoubleProp( var_node, "Min", p->get_lower() );
 		xmlSetDoubleProp( var_node, "Max", p->get_upper() );
-		xmlSetProp( var_node, (const xmlChar *)"Comment", (const xmlChar *)varname );
+		xmlSetProp( var_node, (const xmlChar *)"VSPVarName", (const xmlChar *)varname );
 	}
 
 	//===== Save XML Tree and Free Doc =====//
@@ -1236,21 +1236,21 @@ void PHolderListMgr::ReadPHolderListXDDM( char *newfile )
 
 		if ( var_node )
 		{
-			Stringc comment = Stringc( xmlFindPropString( var_node, "Comment", " " ) );
+			Stringc varname = Stringc( xmlFindPropString( var_node, "VSPVarName", " " ) );
 
 			int istart = 0;
-			int iend = comment.search_for_substring(':');
-			int id = comment.get_range( istart, iend-1 ).convert_to_integer();
+			int iend = varname.search_for_substring(':');
+			int id = varname.get_range( istart, iend-1 ).convert_to_integer();
 
 			istart = iend + 1;
-			iend = comment.search_for_substring( istart, ':' );
+			iend = varname.search_for_substring( istart, ':' );
 			istart = iend + 1;
-			iend = comment.search_for_substring( istart, ':' );
-			Stringc group = comment.get_range( istart, iend-1 );
+			iend = varname.search_for_substring( istart, ':' );
+			Stringc group = varname.get_range( istart, iend-1 );
 
 			istart = iend + 1;
-			iend = comment.get_length();
-			Stringc parm = comment.get_range( istart, iend-1 );
+			iend = varname.get_length();
+			Stringc parm = varname.get_range( istart, iend-1 );
 
 			Parm* p = parmMgrPtr->FindParm( gVec, id, group, parm );
 
