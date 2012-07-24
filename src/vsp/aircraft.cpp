@@ -1738,8 +1738,8 @@ void Aircraft::writeX3DViewpoints( xmlNodePtr node)
 	//==== Update box and get key values ====//
 	update_bbox();
 	vec3d center = bnd_box.get_center();
-	double len = bnd_box.get_largest_dim();
-	double fov = .1;
+	double len = bnd_box.diag_dist();
+	double fov = .4;
 	double dist = len/(2 * tan(fov/2));
 	
 	// Set the names and vectors to the different viewpoints //
