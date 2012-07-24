@@ -96,7 +96,6 @@ public:
 	void writeViewpointsProps( xmlNodePtr node, Stringc orients, Stringc cents, Stringc posits, const char* sfov, Stringc name);
 	void double4vec2str( double* vec, Stringc &str );
 	void doublevec2str(double* vec, Stringc &str );
-	quat axisangle2quat( vec3d& vec, double angle);
 	
 	void writeX3DMaterial( xmlNodePtr node, int matid );
 	void floatvec2str( float* vec, Stringc &str );

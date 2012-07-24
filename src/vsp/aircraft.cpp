@@ -1760,8 +1760,8 @@ void Aircraft::writeX3DViewpoints( xmlNodePtr node)
 		// if rotating view again combine rotations using quaternions //
 		if (view_degree[i][3] != 0)
 		{
-			quat rot1 = axisangle2quat(rot_axis, angle);
-			quat rot2 = axisangle2quat(view_axis, view_degree[i][3]);
+			quat rot1 = quat(rot_axis, angle);
+			quat rot2 = quat(view_axis, view_degree[i][3]);
 			quat combined_rot = hamilton(rot2, rot1);
 			combined_rot.quat2axisangle(rot_axis, angle);
 		}
@@ -1870,11 +1870,6 @@ void Aircraft::double4vec2str( double* vec, Stringc &str )
 
 	sprintf( numc, "%lf %lf %lf %lf", vec[0], vec[1], vec[2], vec[3] );
 	str.concatenate( numc );
-}
-
-quat Aircraft::axisangle2quat( vec3d& vec, double angle)
-{
-	return quat(cos(angle/2), vec.x()*sin(angle/2), vec.y()*sin(angle/2), vec.z()*sin(angle/2));
 }
 
 //===== Write Nascart Files  =====//

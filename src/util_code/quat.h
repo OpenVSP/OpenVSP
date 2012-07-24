@@ -36,6 +36,7 @@ public:
 
 	// convert to and from axis angle //
 	void quat2axisangle(vec3d& axis, double& angle);
+	quat(vec3d axis, double angle);
 
 
 };

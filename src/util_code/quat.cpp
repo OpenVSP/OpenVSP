@@ -2,13 +2,13 @@
 #include <stdio.h>
 #include "quat.h"
 
-// new quat with out any initial values //
+// New quat with out any initial values //
 quat::quat()
 {
 	q[0] = q[1] = q[2] = q[3] = 0.0;
 }
 
-// new quat with initial values //
+// New quat with initial values //
 
 quat::quat(double w, double x, double y, double z)
 {
@@ -16,6 +16,14 @@ quat::quat(double w, double x, double y, double z)
 	q[1] = x;
 	q[2] = y;
 	q[3] = z;
+}
+// Construct quat from axis angle //
+quat::quat(vec3d axis, double angle)
+{
+	q[0] = cos(angle/2);
+	q[1] = axis.x()*sin(angle/2);
+	q[2] = axis.y()*sin(angle/2);
+	q[3] = axis.z()*sin(angle/2);
 }
 
 quat::quat(const quat& a)		
