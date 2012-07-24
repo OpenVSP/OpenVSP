@@ -1766,8 +1766,7 @@ void Aircraft::writeX3DViewpoints( xmlNodePtr node)
 			combined_rot.quat2axisangle(rot_axis, angle);
 		}
 
-		vec3d vdist = view_axis * dist;
-		vec3d position = vec3d(center.x() + vdist.x(), center.y() + vdist.y(), center.z() + vdist.z());
+		vec3d position = center + (view_axis * dist);
 
 		double orient[] = { rot_axis.x(), rot_axis.y(), rot_axis.z(), angle };
 		double cent[] = { center.x(), center.y(), center.z() };
