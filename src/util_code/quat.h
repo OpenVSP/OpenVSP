@@ -1,9 +1,11 @@
-// Quaternion class for X3D rotations
+// Quaternion class for X3D rotations //
 
 #ifndef QUAT_H
 #define QUAT_H
 
 #include "defines.h"
+
+#include "vec3d.h"
 
 #include <iostream>
 using namespace std;
@@ -31,6 +33,9 @@ public:
 	double x() const	{ return( q[1] ); }
 	double y() const	{ return( q[2] ); }
 	double z() const	{ return( q[3] ); }
+
+	// convert to and from axis angle //
+	void quat2axisangle(vec3d& axis, double& angle);
 
 
 };

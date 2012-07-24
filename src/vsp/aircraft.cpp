@@ -1763,9 +1763,7 @@ void Aircraft::writeX3DViewpoints( xmlNodePtr node)
 			quat rot1 = axisangle2quat(rot_axis, angle);
 			quat rot2 = axisangle2quat(view_axis, view_degree[i][3]);
 			quat combined_rot = hamilton(rot2, rot1);
-			quat final_rot = quat2axisangle(combined_rot);
-			rot_axis = vec3d(final_rot.x(), final_rot.y(), final_rot.z());
-			angle = final_rot.w();
+			combined_rot.quat2axisangle(rot_axis, angle);
 		}
 
 		vec3d vdist = view_axis * dist;
@@ -1877,12 +1875,6 @@ void Aircraft::double4vec2str( double* vec, Stringc &str )
 quat Aircraft::axisangle2quat( vec3d& vec, double angle)
 {
 	return quat(cos(angle/2), vec.x()*sin(angle/2), vec.y()*sin(angle/2), vec.z()*sin(angle/2));
-}
-
-quat Aircraft::quat2axisangle( quat& qu )
-{
-	double denom = sqrt(1-qu.w()*qu.w());
-	return quat(2*acos(qu.w()), qu.x()/denom, qu.y()/denom, qu.z()/denom);
 }
 
 //===== Write Nascart Files  =====//

@@ -47,3 +47,11 @@ quat hamilton(const quat& a, const quat& b)
 		(a.q[0]*b.q[3])+(a.q[1]*b.q[2])-(a.q[2]*b.q[1])+(a.q[3]*b.q[0]));
 }
 
+// Quaternion to Axis Angle //
+// Axis is where the rotation axis will be stored, and angle is where the angle will be stored //
+void quat::quat2axisangle(vec3d& axis, double& angle)
+{
+	double denom = sqrt(1-q[0]*q[0]);
+	angle = 2*acos(q[0]);
+	axis = vec3d(q[1]/denom, q[2]/denom, q[3]/denom);
+}
