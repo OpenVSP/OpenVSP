@@ -20,10 +20,10 @@ quat::quat(double w, double x, double y, double z)
 
 quat::quat(const quat& a)		
 {
-   q[0] = a.q[0];
-   q[1] = a.q[1];
-   q[2] = a.q[2];
-   q[3] = a.q[3];
+	q[0] = a.q[0];
+	q[1] = a.q[1];
+	q[2] = a.q[2];
+	q[3] = a.q[3];
 }
 
 quat& quat::operator=(const quat& a)  
@@ -31,18 +31,19 @@ quat& quat::operator=(const quat& a)
 	if (this == &a)
 	   return *this;
 
-    q[0] = a.q[0];
-    q[1] = a.q[1];
-    q[2] = a.q[2];
+	q[0] = a.q[0];
+	q[1] = a.q[1];
+	q[2] = a.q[2];
 	q[3] = a.q[3];
-    return *this;
+	return *this;
 }
 
+// Quaternion Hamilton Product //
 quat hamilton(const quat& a, const quat& b)
 {
 	return quat((a.q[0]*b.q[0])-(a.q[1]*b.q[1])-(a.q[2]*b.q[2])-(a.q[3]*b.q[3]),
-				(a.q[0]*b.q[1])+(a.q[1]*b.q[0])+(a.q[2]*b.q[3])-(a.q[3]*b.q[2]),
-				(a.q[0]*b.q[2])-(a.q[1]*b.q[3])+(a.q[2]*b.q[0])+(a.q[3]*b.q[1]),
-				(a.q[0]*b.q[3])+(a.q[1]*b.q[2])-(a.q[2]*b.q[1])+(a.q[3]*b.q[0]));
+		(a.q[0]*b.q[1])+(a.q[1]*b.q[0])+(a.q[2]*b.q[3])-(a.q[3]*b.q[2]),
+		(a.q[0]*b.q[2])-(a.q[1]*b.q[3])+(a.q[2]*b.q[0])+(a.q[3]*b.q[1]),
+		(a.q[0]*b.q[3])+(a.q[1]*b.q[2])-(a.q[2]*b.q[1])+(a.q[3]*b.q[0]));
 }
 

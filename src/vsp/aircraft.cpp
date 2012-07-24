@@ -1739,7 +1739,7 @@ void Aircraft::writeX3DViewpoints( xmlNodePtr node)
 	update_bbox();
 	vec3d center = bnd_box.get_center();
 	double len = bnd_box.get_largest_dim();
-	double fov = .2;
+	double fov = .1;
 	double dist = len/(2 * tan(fov/2));
 	
 	// Set the names and vectors to the different viewpoints //
@@ -1748,7 +1748,7 @@ void Aircraft::writeX3DViewpoints( xmlNodePtr node)
 	vec3d k = vec3d(0,0,1);
     
 	// Write Viewpoint for each vector //
-	for(int i = 0; i < 4 ; i++)
+	for(int i = 0; i < 4 ; i++)  // Change i to match view_degree length if a new view is added //
 	{		
 		vec3d view_axis = vec3d(view_degree[i][0], view_degree[i][1], view_degree[i][2]);
 		view_axis.normalize();
@@ -1775,7 +1775,7 @@ void Aircraft::writeX3DViewpoints( xmlNodePtr node)
 		double cent[] = { center.x(), center.y(), center.z() };
 		double posit[] = { position.x(), position.y(), position.z() };
 
-		// convert vectors to strings //
+		// Convert vectors to strings //
 		Stringc orients, cents, posits, name, sfov;
 		double4vec2str( orient , orients);
 		doublevec2str( cent, cents );
@@ -1786,7 +1786,7 @@ void Aircraft::writeX3DViewpoints( xmlNodePtr node)
 		cents.concatenate("\0");
 		posits.concatenate("\0");
 
-		// write first viewpoint twice so viewpoint buttons will work //
+		// write first viewpoint twice so viewpoint buttons will work correctly //
 		if (name == x3d_views[0].c_str())
 		{
 			xmlNodePtr first_view_node = xmlNewChild( node, NULL, (const xmlChar *)"Viewpoint", (const xmlChar *)" ");

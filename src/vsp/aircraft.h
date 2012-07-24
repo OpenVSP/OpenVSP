@@ -95,7 +95,7 @@ public:
 	void writeX3DViewpoints( xmlNodePtr node);
 	void writeViewpointsProps( xmlNodePtr node, Stringc orients, Stringc cents, Stringc posits, const char* sfov, Stringc name);
 	void double4vec2str( double* vec, Stringc &str );
-	void doublevec2str(double*vec, Stringc &str );
+	void doublevec2str(double* vec, Stringc &str );
 	quat axisangle2quat( vec3d& vec, double angle);
 	quat quat2axisangle( quat& qu);
 	
