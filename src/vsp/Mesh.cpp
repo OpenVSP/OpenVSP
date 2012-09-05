@@ -1144,10 +1144,8 @@ void Mesh::ComputeTargetEdgeLength( Edge* edge )
 {
 	assert( m_GridDensity );
 
-	if( edge->border )
-	{
+	if( edge->border && edge->m_Length > m_GridDensity->GetMinLen() )
 		edge->target_len = edge->m_Length;
-	}
 	else
 	{
 		vec3d cent = (edge->n0->pnt + edge->n1->pnt)*0.5;

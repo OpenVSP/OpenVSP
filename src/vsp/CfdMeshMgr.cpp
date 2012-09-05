@@ -2528,7 +2528,7 @@ void CfdMeshMgr::TessellateChains( double minmap )
 		double t = (*c)->CalcDensity( &m_GridDensity );
 
 		double d = dist( (*c)->m_TessVec.front()->m_Pnt, (*c)->m_TessVec.back()->m_Pnt );
-		if ( d > 0.001 * t )
+		if ( d > m_GridDensity.GetMinLen() )
 		{
 			(*c)->BuildES( es_cloud, &m_GridDensity );
 		}
