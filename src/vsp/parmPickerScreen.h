@@ -16,8 +16,7 @@
 #include "gui_device.h"
 
 #define DES_FILE 0
-#define XDES_FILE 1
-#define XDDM_FILE 2
+#define XDDM_FILE 1
 
 using namespace std;
 

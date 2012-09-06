@@ -97,7 +97,6 @@ int batchMode(int argc, char *argv[], Aircraft* airPtr)
 	int doxmlFlag = 0;
 	int scriptFlag = 0;
 	int desFlag = 0;
-	int xdesFlag = 0;
 	int xddmFlag = 0;
 	int feaMeshFlag = 0;
 	int cfdMeshFlag = 0;
@@ -108,7 +107,7 @@ int batchMode(int argc, char *argv[], Aircraft* airPtr)
 	double Mach,sliceAngle;
 	int coneSections;
 	Stringc scriptFile,xmlFile;
-	Stringc desFile, xdesFile, xddmFile;
+	Stringc desFile, xddmFile;
     char airName[255];
     Stringc exec;
 	int userParmFlag = 0;
@@ -157,13 +156,6 @@ int batchMode(int argc, char *argv[], Aircraft* airPtr)
 		   {
 				desFile = argv[++i];
 		        desFlag = 1;
-		   }
-       }
-       if ( strcmp(argv[i],"-xdes") == 0 ) {
-		   if (i+1 < argc)
-		   {
-				xdesFile = argv[++i];
-		        xdesFlag = 1;
 		   }
        }
        if ( strcmp(argv[i],"-xddm") == 0 ) {
@@ -315,7 +307,6 @@ int batchMode(int argc, char *argv[], Aircraft* airPtr)
 		 printf("  -doxml             Process an external xml file \n");
 		 printf("  -userparm # val    Set the value of the user parm \n");
 		 printf("  -des filename      Set variables according to *.des file \n");
-		 printf("  -xdes filename     Set variables according to *.xdes file \n");
 		 printf("  -xddm filename     Set variables according to *.xddm file \n");
 		 printf("  -tempdir pathname  Set the path name of the dir to write temp files\n");
 		 printf("  -outname type name Set the filenames for output where type = \n");
@@ -406,10 +397,6 @@ int batchMode(int argc, char *argv[], Aircraft* airPtr)
 		if ( desFlag )
 		{
 			pHolderListMgrPtr->ReadPHolderListDES( desFile.get_char_star() );
-		}
-		if ( xdesFlag )
-		{
-			pHolderListMgrPtr->ReadPHolderListXDES( xdesFile.get_char_star() );
 		}
 		if ( xddmFlag )
 		{

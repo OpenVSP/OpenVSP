@@ -62,16 +62,12 @@ class ParmPickerUI {open
         label Load
         xywh {125 420 115 25} color 48 labelfont 1
       }
-      Fl_Choice fileTypeChoice {open
+      Fl_Choice fileTypeChoice {open selected
         xywh {60 395 180 20} down_box BORDER_BOX
       } {
         MenuItem desMenu {
           label {Design file *.des}
-          xywh {25 25 100 20} labelfont 1 selected
-        }
-        MenuItem xdesMenu {
-          label {XML design file *.xdes}
-          xywh {35 35 100 20} labelfont 1
+          xywh {25 25 100 20} labelfont 1
         }
         MenuItem xddmMenu {
           label {Cart3D XDDM file *.xddm}

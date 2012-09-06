@@ -264,9 +264,6 @@ public:
 	virtual void WritePHolderListDES( char *newfile );
 	virtual void ReadPHolderListDES( char *newfile );
 
-	virtual void WritePHolderListXDES( char *newfile );
-	virtual void ReadPHolderListXDES( char *newfile );
-
 	virtual void WritePHolderListXDDM( char *newfile );
 	virtual void ReadPHolderListXDDM( char *newfile );
 

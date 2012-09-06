@@ -183,15 +183,6 @@ void ParmPickerScreen::screenCB( Fl_Widget* w )
 				}
 			}
 			break;
-		case XDES_FILE:
-			{
-				char *newfile = screenMgrPtr->FileChooser("Write XDesign File?", "*.xdes");
-				if ( newfile != NULL )
-				{
-					pHolderListMgrPtr->WritePHolderListXDES( newfile );
-				}
-			}
-			break;
 		case XDDM_FILE:
 			{
 				char *newfile = screenMgrPtr->FileChooser("Write XDDM File?", "*.xddm");
@@ -213,16 +204,6 @@ void ParmPickerScreen::screenCB( Fl_Widget* w )
 				if ( newfile != NULL )
 				{
 					pHolderListMgrPtr->ReadPHolderListDES( newfile);
-					update();
-				}
-			}
-			break;
-		case XDES_FILE:
-			{
-				char *newfile = screenMgrPtr->FileChooser("Read XDesign File?", "*.xdes");
-				if ( newfile != NULL )
-				{
-					pHolderListMgrPtr->ReadPHolderListXDES( newfile);
 					update();
 				}
 			}
