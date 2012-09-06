@@ -12,6 +12,7 @@ herm_curve.cpp
 int_curve.cpp
 intersect_triangle.cpp
 matrix.cpp
+quat.cpp
 stringc.cpp
 timer.cpp
 tritri.cpp
@@ -33,6 +34,7 @@ herm_curve.h
 int_curve.h
 matrix.h
 misc_func.h
+quat.h
 sarray.h
 sdyn_array.h
 state.h

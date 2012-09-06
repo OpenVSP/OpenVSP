@@ -34,6 +34,7 @@
 #include "labelGeom.h"
 #include "vorGeom.h"
 #include "parmLinkMgr.h"
+#include "quat.h"
 
 class TriTest;
 
@@ -93,6 +94,12 @@ public:
 	VSPDLL void write_stl_file(const char* file_name);
 	bool check_for_stl_mesh();
 
+
+	void writeX3DViewpoints( xmlNodePtr node);
+	void writeViewpointsProps( xmlNodePtr node, Stringc orients, Stringc cents, Stringc posits, const char* sfov, Stringc name);
+	void double4vec2str( double* vec, Stringc &str );
+	void doublevec2str(double* vec, Stringc &str );
+	
 	void writeX3DMaterial( xmlNodePtr node, int matid );
 	void floatvec2str( float* vec, Stringc &str );
 

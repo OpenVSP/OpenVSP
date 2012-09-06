@@ -1728,6 +1728,8 @@ void Aircraft::write_stl_file(const char* file_name)
 
 }
 
+
+
 //===== Write X3D Files  =====//
 void Aircraft::write_x3d_file(const char* file_name)
 {
@@ -1737,6 +1739,10 @@ void Aircraft::write_x3d_file(const char* file_name)
 	xmlDocSetRootElement(doc, root);
 
 	xmlNodePtr scene_node = xmlNewChild( root, NULL, (const xmlChar *)"Scene", NULL );
+	
+
+	writeX3DViewpoints(scene_node);	
+	
 
 	//==== All Geometry ====//
 	for ( int i = 0 ; i < (int)geomVec.size() ; i++ )
@@ -1766,12 +1772,87 @@ void Aircraft::write_x3d_file(const char* file_name)
 	xmlFreeDoc( doc );
 }
 
+void Aircraft::writeX3DViewpoints( xmlNodePtr node)
+{
+	//==== Update box and get key values ====//
+	update_bbox();
+	vec3d center = bnd_box.get_center();
+	double len = bnd_box.diag_dist();
+	double fov = .4;
+	double dist = len/(2 * tan(fov/2));
+	
+	// Set the names and vectors to the different viewpoints //
+	string x3d_views[] = {"iso","front", "top", "right"};  // To add more views, add name to "x3d_views" and vector to viewpoint and rotation about that vector to "view_degree" //
+	double view_degree[4][4] = { {-1, -1, 1, -PI/4 } , { -1,0,0, -PI/2}, {0,0,1,0}, {0,-1,0,0} };
+	vec3d k = vec3d(0,0,1);
+    
+	// Write Viewpoint for each vector //
+	for(int i = 0; i < 4 ; i++)  // Change i to match view_degree length if a new view is added //
+	{		
+		vec3d view_axis = vec3d(view_degree[i][0], view_degree[i][1], view_degree[i][2]);
+		view_axis.normalize();
+		
+		vec3d rot_axis = cross(k, view_axis);
+		double angle = asin(rot_axis.mag());
+		rot_axis.normalize();
+
+		// if rotating view again combine rotations using quaternions //
+		if (view_degree[i][3] != 0)
+		{
+			quat rot1 = quat(rot_axis, angle);
+			quat rot2 = quat(view_axis, view_degree[i][3]);
+			quat combined_rot = hamilton(rot2, rot1);
+			combined_rot.quat2axisangle(rot_axis, angle);
+		}
+
+		vec3d position = center + (view_axis * dist);
+
+		double orient[] = { rot_axis.x(), rot_axis.y(), rot_axis.z(), angle };
+		double cent[] = { center.x(), center.y(), center.z() };
+		double posit[] = { position.x(), position.y(), position.z() };
+
+		// Convert vectors to strings //
+		Stringc orients, cents, posits, name, sfov;
+		double4vec2str( orient , orients);
+		doublevec2str( cent, cents );
+		doublevec2str( posit, posits);
+		name = x3d_views[i].c_str();
+		sprintf(sfov, "%f", fov);
+		orients.concatenate("\0");
+		cents.concatenate("\0");
+		posits.concatenate("\0");
+
+		// write first viewpoint twice so viewpoint buttons will work correctly //
+		if (name == x3d_views[0].c_str())
+		{
+			xmlNodePtr first_view_node = xmlNewChild( node, NULL, (const xmlChar *)"Viewpoint", (const xmlChar *)" ");
+			writeViewpointsProps(first_view_node, orients, cents, posits, sfov, "first");
+		}
+
+		// write each viewpoint node's properties //
+		xmlNodePtr viewpoint_node = xmlNewChild( node, NULL, (const xmlChar *)"Viewpoint", (const xmlChar *)" ");
+		writeViewpointsProps(viewpoint_node, orients, cents, posits, sfov, name);
+
+	}
+}
+
+void Aircraft::writeViewpointsProps( xmlNodePtr node, Stringc orients, Stringc cents, Stringc posits, const char* sfov, Stringc name)
+{
+	xmlSetProp( node, (const xmlChar *)"id", (const xmlChar *) ((const char *) name));
+	xmlSetProp( node, (const xmlChar *)"description", (const xmlChar *) ((const char *) name));
+	xmlSetProp( node, (const xmlChar *)"orientation", (const xmlChar *) ((const char *) orients));
+	xmlSetProp( node, (const xmlChar *)"centerOfRotation", (const xmlChar *) ((const char *) cents));
+	xmlSetProp( node, (const xmlChar *)"position", (const xmlChar *) ((const char *) posits));
+	xmlSetProp( node, (const xmlChar *)"fieldOfView", (const xmlChar *) ((const char *) sfov));
+
+}
+
 void Aircraft::writeX3DMaterial( xmlNodePtr node, int matid )
 {
 	Stringc diffs, emisss, specs;
 	Material* mat = matMgrPtr->getMaterial( matid );
 
-	xmlNodePtr mat_node = xmlNewChild( node, NULL, (const xmlChar *) "Material", NULL );
+	xmlNodePtr mat_node = xmlNewChild( node, NULL, (const xmlChar *) "Material", (const xmlChar *)" " );
 
 	floatvec2str( mat->diff, diffs );
 	diffs.concatenate("\0");
@@ -1810,6 +1891,22 @@ void Aircraft::floatvec2str( float* vec, Stringc &str )
 	char numc[255];
 
 	sprintf( numc, "%lf %lf %lf", vec[0], vec[1], vec[2] );
+	str.concatenate( numc );
+}
+
+void Aircraft::doublevec2str( double* vec, Stringc &str )
+{
+	char numc[255];
+
+	sprintf( numc, "%lf %lf %lf", vec[0], vec[1], vec[2] );
+	str.concatenate( numc );
+}
+
+void Aircraft::double4vec2str( double* vec, Stringc &str )
+{
+	char numc[255];
+
+	sprintf( numc, "%lf %lf %lf %lf", vec[0], vec[1], vec[2], vec[3] );
 	str.concatenate( numc );
 }
 

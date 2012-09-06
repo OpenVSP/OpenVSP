@@ -1409,7 +1409,7 @@ void Geom::writeX3D( xmlNodePtr node )
 
 	xmlSetProp( set_node, (const xmlChar *)"coordIndex", (const xmlChar *) ((const char *) indstr) );
 
-	xmlNodePtr coord_node = xmlNewChild( set_node, NULL, (const xmlChar *)"Coordinate", NULL );
+	xmlNodePtr coord_node = xmlNewChild( set_node, NULL, (const xmlChar *)"Coordinate", (const xmlChar *)" " );
 	xmlSetProp( coord_node, (const xmlChar *)"point", (const xmlChar *) ((const char *) crdstr) );
 }
 
