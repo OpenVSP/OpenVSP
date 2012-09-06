@@ -13,9 +13,10 @@
 //
 //******************************************************************************
 
+//jrg git test
+
 #ifndef AF_H
 #define AF_H
-
 
 #include "sarray.h"
 #include "vec3d.h"
