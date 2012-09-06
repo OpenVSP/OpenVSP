@@ -317,7 +317,6 @@ Ms_wing_geom::Ms_wing_geom(Aircraft* aptr) : Geom(aptr)
 	sprintf( name, "Ms_Wing_%d", geomCnt ); 
 	geomCnt++;
 	name_str = Stringc(name);
-	id_str = name_str;				//jrg fix
 
 	copySect.rootAf = new Af( this );
 	copySect.rootAf->init_script("wing_foil");
@@ -425,7 +424,7 @@ void Ms_wing_geom::copy( Geom* fromGeom )
 		sects[i].SetGeomPtr( this );
 	}
 
-	parmLinkMgrPtr->RebuildAll();
+	parmMgrPtr->RebuildAll();
 }
 
 WingSect* Ms_wing_geom::getCurrWingSect()
@@ -635,7 +634,7 @@ void Ms_wing_geom::RemoveWingSectParmReferences( int sect_id )
 	vector< Parm* > pVec = sects[sect_id].GetLinkableParms();
 	for ( int i = 0 ; i < (int)pVec.size() ; i++ )
 	{
-		parmLinkMgrPtr->RemoveParmReferences( pVec[i] );
+		parmMgrPtr->RemoveParmReferences( pVec[i] );
 	}
 }
 
@@ -644,7 +643,7 @@ void Ms_wing_geom::RemoveAirfoilParmReferences( Af* afPtr )
 	vector< Parm* > pVec = afPtr->GetLinkableParms();
 	for ( int i = 0 ; i < (int)pVec.size() ; i++ )
 	{
-		parmLinkMgrPtr->RemoveParmReferences( pVec[i] );
+		parmMgrPtr->RemoveParmReferences( pVec[i] );
 	}
 }
 
@@ -1047,7 +1046,7 @@ void Ms_wing_geom::add_sect()
   generate();
 
   airPtr->geomMod( this );
-  parmLinkMgrPtr->RebuildAll();
+  parmMgrPtr->RebuildAll();
 
 }
 
@@ -1071,7 +1070,7 @@ void Ms_wing_geom::ins_sect()
   generate();
 
   airPtr->geomMod( this );
-  parmLinkMgrPtr->RebuildAll();
+  parmMgrPtr->RebuildAll();
 
 }
 
@@ -1115,7 +1114,7 @@ void Ms_wing_geom::del_sect()
 
   airPtr->geomMod( this );
 
-  parmLinkMgrPtr->RebuildAll();
+  parmMgrPtr->RebuildAll();
 
 
 }
@@ -1153,7 +1152,7 @@ void Ms_wing_geom::paste_sect()
 	generate();
   
 	airPtr->geomMod( this );
-    parmLinkMgrPtr->RebuildAll();
+	parmMgrPtr->RebuildAll();
 
 }
 
@@ -1383,7 +1382,7 @@ void Ms_wing_geom::read(xmlNodePtr root)
   set_curr_sect( 0 );
   set_depend_parms();
   generate();
-  parmLinkMgrPtr->RebuildAll();
+  parmMgrPtr->RebuildAll();
 
   feaMeshMgrPtr->SetFeaStructData( this, root );
 

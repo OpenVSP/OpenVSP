@@ -722,7 +722,7 @@ void ParmButton::init()
   if ( !m_RegFlag )
   {
 	m_RegFlag = true;
-	parmLinkMgrPtr->RegisterParmButton( this );
+	parmMgrPtr->RegisterParmButton( this );
   }
 
   if ( parm->get_linked_flag() )

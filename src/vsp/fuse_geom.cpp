@@ -169,18 +169,18 @@ void Fuse_geom::LoadLinkableParms( vector< Parm* > & parmVec )
 }
 void Fuse_geom::RemoveXSecParmReferences( fuse_xsec* xsec )
 {
-	parmLinkMgrPtr->RemoveParmReferences( xsec->get_height() );
-	parmLinkMgrPtr->RemoveParmReferences( xsec->get_width() );
-	parmLinkMgrPtr->RemoveParmReferences( xsec->get_max_width_loc() );
-	parmLinkMgrPtr->RemoveParmReferences( xsec->get_corner_rad() );
-	parmLinkMgrPtr->RemoveParmReferences( xsec->get_top_tan_angle() );
-	parmLinkMgrPtr->RemoveParmReferences( xsec->get_bot_tan_angle() );
-	parmLinkMgrPtr->RemoveParmReferences( xsec->get_top_str() );
-	parmLinkMgrPtr->RemoveParmReferences( xsec->get_upp_str() );
-	parmLinkMgrPtr->RemoveParmReferences( xsec->get_bot_str() );
-	parmLinkMgrPtr->RemoveParmReferences( xsec->get_low_str() );
-	parmLinkMgrPtr->RemoveParmReferences( xsec->get_z_offset() );
-	parmLinkMgrPtr->RemoveParmReferences( xsec->get_location() );
+	parmMgrPtr->RemoveParmReferences( xsec->get_height() );
+	parmMgrPtr->RemoveParmReferences( xsec->get_width() );
+	parmMgrPtr->RemoveParmReferences( xsec->get_max_width_loc() );
+	parmMgrPtr->RemoveParmReferences( xsec->get_corner_rad() );
+	parmMgrPtr->RemoveParmReferences( xsec->get_top_tan_angle() );
+	parmMgrPtr->RemoveParmReferences( xsec->get_bot_tan_angle() );
+	parmMgrPtr->RemoveParmReferences( xsec->get_top_str() );
+	parmMgrPtr->RemoveParmReferences( xsec->get_upp_str() );
+	parmMgrPtr->RemoveParmReferences( xsec->get_bot_str() );
+	parmMgrPtr->RemoveParmReferences( xsec->get_low_str() );
+	parmMgrPtr->RemoveParmReferences( xsec->get_z_offset() );
+	parmMgrPtr->RemoveParmReferences( xsec->get_location() );
 }
 
 void Fuse_geom::AddDefaultSources(double base_len)
@@ -274,7 +274,7 @@ void Fuse_geom::copy( Geom* fromGeom )
 
 	set_num_pnts( numPnts.iget() );
 
-	parmLinkMgrPtr->RebuildAll();
+	parmMgrPtr->RebuildAll();
 
 }
 
@@ -582,7 +582,7 @@ void Fuse_geom::read(xmlNodePtr root)
   set_iml_flag( imlFlag );
   set_pnt_space_type( space_type );
   generate();
-  parmLinkMgrPtr->RebuildAll();
+  parmMgrPtr->RebuildAll();
 
 }
 
@@ -666,7 +666,7 @@ printf("%s \n", buff );
   set_pnt_space_type( space_type );
 
   generate();
-  parmLinkMgrPtr->RebuildAll();
+  parmMgrPtr->RebuildAll();
 
 }
 
@@ -1237,7 +1237,7 @@ fuse_xsec* Fuse_geom::add_xsec(fuse_xsec* curr_xsec)
 
 	this->generate();
 
-	parmLinkMgrPtr->RebuildAll();
+	parmMgrPtr->RebuildAll();
 
 	return curr_xsec;
 }
@@ -1278,7 +1278,7 @@ fuse_xsec* Fuse_geom::delete_xsec(fuse_xsec* curr_xsec)
 
 	this->generate();
 
-	parmLinkMgrPtr->RebuildAll();
+	parmMgrPtr->RebuildAll();
 
 	return curr_xsec;
 }

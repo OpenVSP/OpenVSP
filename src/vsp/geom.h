@@ -146,9 +146,6 @@ public:
 	virtual int getSymCode()					{ return sym_code; }
 	virtual vec3d getSymVec()					{ return sym_vec; }
 
-	virtual int getIdNum()						{ return id_num; }
-	virtual Stringc getIdStr()					{ return id_str; }
-
 	virtual void setMaterialID( int m );
 	virtual int getMaterialID()					{ return materialID; }
 
@@ -214,8 +211,9 @@ public:
 	virtual double get_rot_y();
 	virtual double get_rot_z();
 
-	virtual void setPtrID( int id )				{ ptrID = id; }
-	virtual int getPtrID()						{ return ptrID; }
+	virtual int getPtrID();
+	virtual void initPtrID();
+	virtual void resetPtrID()					{ ptrID = 0; }
 
 	virtual void setMassPrior( int val )		{ massPrior = val; }
 	virtual int  getMassPrior()					{ return massPrior; }
@@ -389,9 +387,6 @@ protected:
 
    int massPrior;
    int shellFlag;
-
-   int id_num;
-   Stringc id_str;
 
    int saveFlag;
    int noshowFlag;

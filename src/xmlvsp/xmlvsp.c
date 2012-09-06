@@ -150,6 +150,33 @@ char* xmlFindString( xmlNodePtr node, const char * name, char* def )
   return def;
 }
 
+double xmlFindPropDouble( xmlNodePtr node, const char * name, double def )
+{
+  if ( node == NULL )
+    return def;
+
+  char* str = xmlGetProp( node, name );
+  if ( str )
+  {
+	def = atof( str );
+	xmlFree( str );
+  }
+
+  return def;
+}
+
+char* xmlFindPropString( xmlNodePtr node, const char * name, char* def )
+{
+  if ( node == NULL )
+    return def;
+
+  char* ret = xmlGetProp( node, name );
+  if ( ret )
+      return ret;
+
+  return def;
+}
+
 xmlNodePtr xmlAddIntNode( xmlNodePtr root, const char * name, int val )
 {
   char str[255];
@@ -180,7 +207,13 @@ xmlNodePtr xmlAddStringNode( xmlNodePtr root, const char * name, const char * va
   return node;
 }
 
+void xmlSetDoubleProp( xmlNodePtr root, const char * name, double val )
+{
+  char str[255];
 
+  sprintf( str, "%lf\0", val );
+  xmlSetProp( root, (const xmlChar *)name, (const xmlChar *)str );
+}
 
 int xmlGetNumArray( xmlNodePtr node, const char sep )
 {

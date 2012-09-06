@@ -36,7 +36,6 @@ Ext_geom::Ext_geom(Aircraft* aptr) : Geom(aptr)
   sprintf( name, "Ext_%d", geomCnt ); 
   geomCnt++;
   name_str = Stringc(name);
-  id_str = name_str;				//jrg fix
   setSymCode(XZ_SYM);
   yLoc = 2.0;
 

@@ -145,32 +145,32 @@ void FuselageGeom::LoadLinkableParms( vector< Parm* > & parmVec )
 
 void FuselageGeom::RemoveXSecParmReferences( FuselageXSec* xsec )
 {
-	parmLinkMgrPtr->RemoveParmReferences( xsec->get_height() );
-	parmLinkMgrPtr->RemoveParmReferences( xsec->get_width() );
-	parmLinkMgrPtr->RemoveParmReferences( xsec->get_max_width_loc() );
-	parmLinkMgrPtr->RemoveParmReferences( xsec->get_corner_rad() );
-	parmLinkMgrPtr->RemoveParmReferences( xsec->get_top_tan_angle() );
-	parmLinkMgrPtr->RemoveParmReferences( xsec->get_bot_tan_angle() );
-	parmLinkMgrPtr->RemoveParmReferences( xsec->get_top_str() );
-	parmLinkMgrPtr->RemoveParmReferences( xsec->get_upp_str() );
-	parmLinkMgrPtr->RemoveParmReferences( xsec->get_bot_str() );
-	parmLinkMgrPtr->RemoveParmReferences( xsec->get_low_str() );
-	parmLinkMgrPtr->RemoveParmReferences( xsec->get_y_offset() );
-	parmLinkMgrPtr->RemoveParmReferences( xsec->get_z_offset() );
-	parmLinkMgrPtr->RemoveParmReferences( xsec->get_location() );
+	parmMgrPtr->RemoveParmReferences( xsec->get_height() );
+	parmMgrPtr->RemoveParmReferences( xsec->get_width() );
+	parmMgrPtr->RemoveParmReferences( xsec->get_max_width_loc() );
+	parmMgrPtr->RemoveParmReferences( xsec->get_corner_rad() );
+	parmMgrPtr->RemoveParmReferences( xsec->get_top_tan_angle() );
+	parmMgrPtr->RemoveParmReferences( xsec->get_bot_tan_angle() );
+	parmMgrPtr->RemoveParmReferences( xsec->get_top_str() );
+	parmMgrPtr->RemoveParmReferences( xsec->get_upp_str() );
+	parmMgrPtr->RemoveParmReferences( xsec->get_bot_str() );
+	parmMgrPtr->RemoveParmReferences( xsec->get_low_str() );
+	parmMgrPtr->RemoveParmReferences( xsec->get_y_offset() );
+	parmMgrPtr->RemoveParmReferences( xsec->get_z_offset() );
+	parmMgrPtr->RemoveParmReferences( xsec->get_location() );
 
-	parmLinkMgrPtr->RemoveParmReferences( xsec->getTopTanAng() );
-	parmLinkMgrPtr->RemoveParmReferences( xsec->getTopTanStr1() );
-	parmLinkMgrPtr->RemoveParmReferences( xsec->getTopTanStr2() );
-	parmLinkMgrPtr->RemoveParmReferences( xsec->getBotTanAng() );
-	parmLinkMgrPtr->RemoveParmReferences( xsec->getBotTanStr1() );
-	parmLinkMgrPtr->RemoveParmReferences( xsec->getBotTanStr2() );
-	parmLinkMgrPtr->RemoveParmReferences( xsec->getLeftTanAng() );
-	parmLinkMgrPtr->RemoveParmReferences( xsec->getLeftTanStr1() );
-	parmLinkMgrPtr->RemoveParmReferences( xsec->getLeftTanStr2() );
-	parmLinkMgrPtr->RemoveParmReferences( xsec->getRightTanAng() );
-	parmLinkMgrPtr->RemoveParmReferences( xsec->getRightTanStr1() );
-	parmLinkMgrPtr->RemoveParmReferences( xsec->getRightTanStr2() );
+	parmMgrPtr->RemoveParmReferences( xsec->getTopTanAng() );
+	parmMgrPtr->RemoveParmReferences( xsec->getTopTanStr1() );
+	parmMgrPtr->RemoveParmReferences( xsec->getTopTanStr2() );
+	parmMgrPtr->RemoveParmReferences( xsec->getBotTanAng() );
+	parmMgrPtr->RemoveParmReferences( xsec->getBotTanStr1() );
+	parmMgrPtr->RemoveParmReferences( xsec->getBotTanStr2() );
+	parmMgrPtr->RemoveParmReferences( xsec->getLeftTanAng() );
+	parmMgrPtr->RemoveParmReferences( xsec->getLeftTanStr1() );
+	parmMgrPtr->RemoveParmReferences( xsec->getLeftTanStr2() );
+	parmMgrPtr->RemoveParmReferences( xsec->getRightTanAng() );
+	parmMgrPtr->RemoveParmReferences( xsec->getRightTanStr1() );
+	parmMgrPtr->RemoveParmReferences( xsec->getRightTanStr2() );
 
 }
 
@@ -251,7 +251,7 @@ void FuselageGeom::copy( Geom* fromGeom )
 
 	set_num_pnts( numPnts.iget() );
 
-	parmLinkMgrPtr->RebuildAll();
+	parmMgrPtr->RebuildAll();
 
 }
 
@@ -500,7 +500,7 @@ void FuselageGeom::read(xmlNodePtr root)
   set_pnt_space_type( space_type );
   generate();
 
-  parmLinkMgrPtr->RebuildAll();
+  parmMgrPtr->RebuildAll();
 
 }
 
@@ -762,7 +762,7 @@ FuselageXSec* FuselageGeom::add_xsec(FuselageXSec* curr_xsec)
 
 	this->generate();
 
-	parmLinkMgrPtr->RebuildAll();
+	parmMgrPtr->RebuildAll();
 
 	return curr_xsec;
 }
@@ -801,7 +801,7 @@ FuselageXSec* FuselageGeom::delete_xsec(FuselageXSec* curr_xsec)
 
 	this->generate();
 
-	parmLinkMgrPtr->RebuildAll();
+	parmMgrPtr->RebuildAll();
 
 	return curr_xsec;
 }

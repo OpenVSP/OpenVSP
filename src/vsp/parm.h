@@ -132,6 +132,23 @@ public:
 
 
 };
+
+
+class VSPDLL ParmHolder
+{
+protected:
+	Parm* m_ParmPtr;
+
+public:
+
+	ParmHolder()								{ m_ParmPtr = NULL; }
+	~ParmHolder()								{ }
+
+	void setParm( Parm* p )						{ m_ParmPtr = p; }
+	Parm* getParm()								{ return m_ParmPtr; }
+};
+
+
 #endif
 
 

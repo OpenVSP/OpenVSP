@@ -44,7 +44,6 @@ WingGeom::WingGeom(Aircraft* aptr) : Geom(aptr)
 	sprintf( name, "Wing_%d", geomCnt ); 
 	geomCnt++;
 	name_str = Stringc(name);
-	id_str = name_str;				//jrg fix
 
 	curr_af_id = MW_ROOT_AF;
 	root_foil = new Af(this);

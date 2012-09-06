@@ -38,6 +38,7 @@
 #include "propScreen.h"
 #include "engineScreen.h"
 #include "labelScreen.h"
+#include "parmPickerScreen.h"
 #include "tMesh.h"
 #include "vorGeom.h"
 #include "structureMgr.h"
@@ -95,6 +96,8 @@ Aircraft::Aircraft()
 	feaMeshMgrPtr->SetAircraftPtr(this);
 	feaMeshMgrPtr->ResetFeaExportFileNames();
 	parmLinkMgrPtr->SetAircraftPtr(this);
+	pHolderListMgrPtr->SetAircraftPtr(this);
+	parmMgrPtr->SetAircraftPtr(this);
 
 
 	//==== Read Custom Default Components ====//
@@ -148,6 +151,12 @@ Aircraft::~Aircraft()
 
 	if ( parmLinkMgrPtr )
 		delete parmLinkMgrPtr;
+
+	if ( pHolderListMgrPtr )
+		delete pHolderListMgrPtr;
+
+	if ( parmMgrPtr )
+		delete parmMgrPtr;
 
 	if ( texMgrPtr )
 		delete texMgrPtr;
@@ -246,7 +255,7 @@ Geom* Aircraft::createGeom( int type )
 
 	if (screenMgr) screenMgr->updateGeomScreens();
 
-	parmLinkMgrPtr->RebuildAll();
+	parmMgrPtr->RebuildAll();
 
 	return newGeom;
 
@@ -567,6 +576,10 @@ void Aircraft::newFile()
 	}
 
 	parmLinkMgrPtr->DelAllLinks();
+	pHolderListMgrPtr->DelAllPHolders();
+	if ( getScreenMgr() )
+		getScreenMgr()->getParmPickerScreen()->update();
+
 	updateExportFileNames();
 	cfdMeshMgrPtr->ResetExportFileNames();
 	feaMeshMgrPtr->ResetFeaExportFileNames();
@@ -616,6 +629,8 @@ int  Aircraft::insertFile( const char* file_name )
 	Geom * activeGeom = getActiveGeom();
 	if ( readFile( file_name ) )
 	{
+		if( checkClipBoardPtrIDCollisions() )
+			resetClipBoardPtrID();
 
 		//==== Add Blank Component ====//
 		BlankGeom* blankGeom = new BlankGeom( this );
@@ -1123,7 +1138,7 @@ void Aircraft::delGeom( Geom* geomPtr )
 	resetAttachedLabels(geomPtr);
 
 	//==== Remove All Parms and Parm Links That Ref Geom ====//
-	parmLinkMgrPtr->RemoveAllReferences( geomPtr );		
+	parmMgrPtr->RemoveAllReferences( geomPtr );
 
 	//==== Delete GeomPtr ====//
 	if ( geomPtr != vorGeom && geomPtr != userGeomPtr )		// Only One VorGeom - Dont Del
@@ -1141,7 +1156,7 @@ void Aircraft::delGeom( Geom* geomPtr )
 	setActiveGeom(NULL);
 
 	//==== Rebuild Parmeter Lists ====//
-	parmLinkMgrPtr->RebuildAll();
+	parmMgrPtr->RebuildAll();
 
 }
 
@@ -1163,7 +1178,31 @@ void Aircraft::copyGeomVec( vector< Geom* >& gVec )
 {
 	copyToClipBoard( gVec );
 }
-	
+
+void Aircraft::resetClipBoardPtrID()
+{
+	int i;
+
+	for ( i = 0 ; i < (int)clipBoard.size() ; i++ )
+	{
+		clipBoard[i]->resetPtrID();
+	}
+}
+
+bool Aircraft::checkClipBoardPtrIDCollisions()
+{
+	int i, j;
+
+	for ( i = 0 ; i < (int)clipBoard.size() ; i++ )
+	{
+		for ( j = 0 ; j < (int)geomVec.size() ; j++ )
+		{
+			if ( clipBoard[i]->getPtrID() == geomVec[j]->getPtrID() )
+				return true;  // Collision detected
+		}
+	}
+	return false; // No collisions
+}
 
 void Aircraft::pasteClipBoard( )
 {
@@ -1213,7 +1252,7 @@ void Aircraft::pasteClipBoard( )
 		drawWin->redraw(); 
 	}
 
-	parmLinkMgrPtr->RebuildAll();
+	parmMgrPtr->RebuildAll();
 
 	//==== Print Hier ====//
 /*	for ( i = 0 ; i < geomVec.size() ; i++ )

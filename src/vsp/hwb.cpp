@@ -62,7 +62,6 @@ HwbBaseGeom::HwbBaseGeom(Aircraft* aptr) : Geom(aptr)
 	sprintf( name, "Ms_Wing_%d", geomCnt ); 
 	geomCnt++;
 	name_str = Stringc(name);
-	id_str = name_str;				//jrg fix
 
 	copySect.rootAf = new Af( this );
 	copySect.rootAf->init_script("wing_foil");
@@ -880,7 +879,7 @@ void HwbBaseGeom::del_sect()
 		}
 		else
 		{
-			parmLinkMgrPtr->RemoveParmReferences( foils[i]->get_camber() );
+			parmMgrPtr->RemoveParmReferences( foils[i]->get_camber() );
 			delete foils[i];
 		}
 	}
@@ -891,7 +890,7 @@ void HwbBaseGeom::del_sect()
 
   set_curr_sect( currSect );
 
-  parmLinkMgrPtr->RebuildAll();
+  parmMgrPtr->RebuildAll();
 
 
 }
@@ -3388,7 +3387,6 @@ Hwb_geom::Hwb_geom(Aircraft* aptr) : HwbBaseGeom(aptr)
 	sprintf( name, "Hwb_%d", geomCnt ); 
 	geomCnt++;
 	name_str = Stringc(name);
-	id_str = name_str;
 	
 	//==== Define Some Decent Default Parms ====//
 	define_parms();

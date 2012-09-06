@@ -9,6 +9,7 @@
 
 #include "parmLinkMgr.h"
 #include "parmLinkScreen.h"
+#include "parmPickerScreen.h"
 
 #include "geom.h"
 #include "aircraft.h"
@@ -37,6 +38,29 @@ PLM_Single::PLM_Single()
 
 	parmLinkMgr = ptr;     
 }
+
+//==== Singleton ====//
+PM_Single::PM_Single()
+{
+	static ParmMgr* ptr = 0;
+
+    if (!ptr)
+		ptr = new ParmMgr();
+
+	parmMgr = ptr;
+}
+
+//==== Singleton ====//
+PHL_Single::PHL_Single()
+{
+	static PHolderListMgr* ptr = 0;
+
+    if (!ptr)
+		ptr = new PHolderListMgr();
+
+	pHolderListMgr = ptr;
+}
+
 
 //====================================================================
 //====================================================================
@@ -284,13 +308,13 @@ void ParmLinkMgr::ReadLinks(xmlNodePtr root, vector< Geom* > & geomVec)
 				Stringc groupA_name = Stringc( xmlFindString( link_node, "GroupA", " " ) );
 				Stringc parmA_name =  Stringc( xmlFindString( link_node, "ParmA", " " ) );
 
-				Parm* parmA = FindParm( gVec, geomA_id, groupA_name, parmA_name );
+				Parm* parmA = parmMgrPtr->FindParm( gVec, geomA_id, groupA_name, parmA_name );
 
 				int geomB_id = xmlFindInt( link_node, "GeomB", 0 );
 				Stringc groupB_name = Stringc( xmlFindString( link_node, "GroupB", " " ) );
 				Stringc parmB_name = Stringc( xmlFindString( link_node, "ParmB", " " ) );
 
-				Parm* parmB = FindParm( gVec, geomB_id, groupB_name, parmB_name );
+				Parm* parmB = parmMgrPtr->FindParm( gVec, geomB_id, groupB_name, parmB_name );
 
 
 				if ( parmA && parmB )
@@ -330,7 +354,7 @@ void ParmLinkMgr::SwapGeom( Geom* gOld, Geom* gNew )
 		{
 			Stringc group_name = pA->get_group_name();
 			Stringc parm_name  = pA->get_name();
-			Parm* p = FindParm( gNew, group_name, parm_name );
+			Parm* p = parmMgrPtr->FindParm( gNew, group_name, parm_name );
 			if ( p )
 				m_ParmLinkVec[i]->SetParmA( p );
 		}
@@ -339,7 +363,7 @@ void ParmLinkMgr::SwapGeom( Geom* gOld, Geom* gNew )
 		{
 			Stringc group_name = pB->get_group_name();
 			Stringc parm_name  = pB->get_name();
-			Parm* p = FindParm( gNew, group_name, parm_name );
+			Parm* p = parmMgrPtr->FindParm( gNew, group_name, parm_name );
 			if ( p )
 				m_ParmLinkVec[i]->SetParmB( p );
 		}
@@ -348,118 +372,22 @@ void ParmLinkMgr::SwapGeom( Geom* gOld, Geom* gNew )
 	}
 }
 
-Parm* ParmLinkMgr::FindParm( vector< Geom* > & gVec, int ptrID, Stringc& group_name, Stringc& parm_name )
-{
-	Parm* pPtr = NULL;
-	Geom* gPtr = NULL;
-	for ( int i = 0 ; i < (int)gVec.size() ; i++ )
-	{
-		if ( gVec[i]->getPtrID() == ptrID )
-			gPtr = gVec[i];
-	}
-	//==== Check for User Geom ====//
-	if ( gPtr == NULL )
-	{
-		if ( group_name == Stringc("User") )
-		{
-			gPtr = aircraftPtr->getUserGeom();
-		}
-	}
 
-	pPtr = FindParm( gPtr, group_name, parm_name );
-
-	return pPtr;
-}
-
-Parm* ParmLinkMgr::FindParm( Geom* gPtr, Stringc& group_name, Stringc& parm_name )
-{
-	Parm* pPtr = NULL;
-	if ( gPtr )
-	{
-		vector< Parm* > pVec;
-		gPtr->LoadLinkableParms( pVec );
-		for ( int i = 0 ; i < (int)pVec.size() ; i++ )
-		{
-			if ( pVec[i]->get_name() == parm_name &&
-				 pVec[i]->get_group_name() == group_name )
-			{
-				pPtr = pVec[i];
-			}
-		}
-	}
-	return pPtr;
-}
-
-
-void ParmLinkMgr::LoadAllParms()
-{
-	//==== Clear All Existing Parms ====//
-	map< GeomBase*, map< string, vector< Parm* > > >::iterator g;
-	map< string, vector<Parm*> >::iterator itr;
-	for ( g = m_ParmMap.begin() ; g != m_ParmMap.end() ; g++ )
-	{
-		for ( itr = g->second.begin() ; itr != g->second.end() ; itr++ )
-		{
-			itr->second.clear();
-		}
-		g->second.clear();
-	}
-	m_ParmMap.clear();	
-
-	if ( aircraftPtr == NULL )
-		return;
-
-	//==== Loop Thru All Geoms ====//
-	vector< Geom* > geomVec = aircraftPtr->getGeomVec();
-	geomVec.push_back( aircraftPtr->getUserGeom() );
-	for ( int i = 0 ; i < (int)geomVec.size() ; i++ )
-	{
-		vector < Parm* > parmVec;
-		geomVec[i]->LoadLinkableParms( parmVec );
-		for ( int j = 0 ; j < (int)parmVec.size() ; j++ )
-		{
-			Parm* p = parmVec[j];
-			p->set_linked_flag( false );
-			Register( p, p->get_geom_base(), p->get_group_name().get_char_star() );
-		}
-	}
-}
-
-void ParmLinkMgr::Register( Parm* parmPtr, GeomBase* geomPtr, string groupName )
-{
-	if ( parmPtr == NULL || geomPtr == NULL )
-		return;
-
-	parmPtr->set_group_name( groupName.c_str() );
-	parmPtr->set_base_geom( geomPtr );
-
-	m_ParmMap[geomPtr][groupName].push_back( parmPtr );
-
-	if ( !m_DefaultParm )
-		m_DefaultParm = parmPtr;
-}
-
-void ParmLinkMgr::RegisterParmButton( ParmButton* b )
-{
-	if ( aircraftPtr->getScreenMgr() )
-		aircraftPtr->getScreenMgr()->getParmLinkScreen()->RegisterParmButton( b );
-}
-
-void ParmLinkMgr::RemoveAllReferences( Geom* geomPtr )
+void ParmLinkMgr::RemoveAllReferencesLink( Geom* geomPtr )
 {
 	vector < Parm* > parmVec;
 	geomPtr->LoadLinkableParms( parmVec );
 
 	for ( int i = 0 ; i < (int)parmVec.size() ; i++ )
 	{
-		RemoveParmReferences( parmVec[i] );
+		RemoveParmReferencesLink( parmVec[i] );
 	}
 	if ( aircraftPtr->getScreenMgr() )
 		aircraftPtr->getScreenMgr()->getParmLinkScreen()->RemoveAllRefs( geomPtr );
 
 }
 
-void ParmLinkMgr::RemoveParmReferences( Parm* parmPtr )
+void ParmLinkMgr::RemoveParmReferencesLink( Parm* parmPtr )
 {
 	//==== Remove From Parm Link Vec ====//
 	vector< ParmLink* > tempVec;
@@ -481,9 +409,8 @@ void ParmLinkMgr::RemoveParmReferences( Parm* parmPtr )
 	m_CurrParmLinkIndex = -1;
 }
 
-void ParmLinkMgr::RebuildAll()
+void ParmLinkMgr::RebuildAllLink()
 {
-	LoadAllParms();
 	RebuildParmLinkMap();
 
 	if ( aircraftPtr->getScreenMgr() )
@@ -508,35 +435,6 @@ void ParmLinkMgr::RebuildParmLinkMap()
 }
 
 
-vector< string > ParmLinkMgr::GetGroupNameVec( GeomBase* geomPtr )
-{
-	vector< string > groupNameVec;
-
-	map< string, vector< Parm* > >::iterator itr;
-
-	for ( itr = m_ParmMap[geomPtr].begin() ; itr != m_ParmMap[geomPtr].end() ; ++itr )
-	{
-		groupNameVec.push_back( itr->first );
-
-	}
-	return groupNameVec;
-}
-
-vector< Parm* > ParmLinkMgr::GetParmVec( GeomBase* geomPtr, string group_name  )
-{
-	return m_ParmMap[geomPtr][group_name];
-}
-
-string ParmLinkMgr::GetGroupName( GeomBase* geomPtr, int name_index )
-{
-	vector< string > group_vec = GetGroupNameVec( geomPtr );
-	if ( name_index >= (int)group_vec.size() )
-		name_index = (int)group_vec.size()-1;
-	if ( name_index >= 0 /*&& name_index < (int)group_vec.size()*/ )
-		return group_vec[name_index];
-
-	return string("Design");
-}
 void ParmLinkMgr::SetCurrParmLinkIndex( int i )
 {
 	m_CurrParmLinkIndex = i;
@@ -555,73 +453,20 @@ vector< ParmLink* > ParmLinkMgr::GetParmLinkVec()
 	return m_ParmLinkVec;
 }
 
-int ParmLinkMgr::GetCurrGeomNameVec( Parm* parmPtr, vector< string > & nameVec )
-{
-	int index = 0;
-	vector< Geom* > geomVec = aircraftPtr->getGeomVec();
-	geomVec.push_back( aircraftPtr->getUserGeom() );
 
-	for ( int i = 0 ; i < (int)geomVec.size() ; i++ )
-	{
-		nameVec.push_back( geomVec[i]->getName().get_char_star() );
-		if ( parmPtr && parmPtr->get_geom_base() == geomVec[i] )
-			index = i;
-	}
-	return index;
-}
-
-int ParmLinkMgr::GetCurrGroupNameVec( Parm* parmPtr, vector< string > & nameVec )
-{
-	int index = 0;
-	if ( !parmPtr )
-		return index;
-
-	nameVec = GetGroupNameVec( parmPtr->get_geom_base() );
-
-	string name = string( parmPtr->get_group_name().get_char_star() );
-
-	for ( int i = 0 ; i < (int)nameVec.size() ; i++ )
-	{
-		if ( name.compare( nameVec[i] ) == 0 )
-			index = i;
-	}
-
-	return index;
-}
-
-int	ParmLinkMgr::GetCurrParmNameVec( Parm* parmPtr, vector< string > & nameVec )
-{
-	int index = 0;
-
-	if ( !parmPtr )
-		return index;
-
-	string group_name = string( parmPtr->get_group_name().get_char_star() );
-	vector< Parm* > pVec = GetParmVec( parmPtr->get_geom_base(), group_name );
-
-	for ( int i = 0 ; i < (int)pVec.size() ; i++ )
-	{
-		if ( pVec[i] == parmPtr )
-			index = i;
-
-		nameVec.push_back( string( pVec[i]->get_name().get_char_star() ) );
-	}
-
-	return index;
-}
 
 void ParmLinkMgr::SetParmA( Parm* p )
 {
 	m_WorkingParmLink.SetParmA( p );
 	m_WorkingParmLink.InitOffsetScale();
-	RebuildAll();
+	RebuildAllLink();
 }
 
 void ParmLinkMgr::SetParmB( Parm* p )
 {
 	m_WorkingParmLink.SetParmB( p );
 	m_WorkingParmLink.InitOffsetScale();
-	RebuildAll();
+	RebuildAllLink();
 }
 
 void ParmLinkMgr::SetParm( bool flagA, int comp_ind, int group_ind, int parm_ind )
@@ -639,9 +484,9 @@ void ParmLinkMgr::SetParm( bool flagA, int comp_ind, int group_ind, int parm_ind
 	if ( comp_ind >= (int)compVec.size() ) comp_ind = 0;
 	Geom* gPtr = compVec[comp_ind];
 
-	string group_name = GetGroupName( gPtr, group_ind );
+	string group_name = parmMgrPtr->GetGroupName( gPtr, group_ind );
 
-	vector< Parm* > parmVec = GetParmVec( gPtr, group_name );
+	vector< Parm* > parmVec = parmMgrPtr->GetParmVec( gPtr, group_name );
 
 	if ( parmVec.size() == 0 )
 	{
@@ -714,8 +559,8 @@ bool ParmLinkMgr::LinkAllComp()
 		return false;
 
 	//==== For All Parms in GeomA, Try to Find Match in GeomB and Link ====//
-	vector< string > groupAVec = GetGroupNameVec( pA->get_geom_base() );
-	vector< string > groupBVec = GetGroupNameVec( pB->get_geom_base() );
+	vector< string > groupAVec = parmMgrPtr->GetGroupNameVec( pA->get_geom_base() );
+	vector< string > groupBVec = parmMgrPtr->GetGroupNameVec( pB->get_geom_base() );
 
 	for ( int i = 0 ; i < (int)groupAVec.size() ; i++ )
 	{
@@ -723,8 +568,8 @@ bool ParmLinkMgr::LinkAllComp()
 		{
 			if ( groupAVec[i].compare( groupBVec[j] ) == 0 )
 			{
-				vector< Parm* > parmAVec = GetParmVec( pA->get_geom_base(), groupAVec[i] );
-				vector< Parm* > parmBVec = GetParmVec( pB->get_geom_base(), groupBVec[j] );
+				vector< Parm* > parmAVec = parmMgrPtr->GetParmVec( pA->get_geom_base(), groupAVec[i] );
+				vector< Parm* > parmBVec = parmMgrPtr->GetParmVec( pB->get_geom_base(), groupBVec[j] );
 
 				for ( int k = 0 ; k < (int)parmAVec.size() ; k++ )
 				{
@@ -788,8 +633,8 @@ bool ParmLinkMgr::LinkAllGroup()
 	string gnameA = string( pA->get_group_name().get_char_star() );
 	string gnameB = string( pB->get_group_name().get_char_star() );
 
-	vector< Parm* > parmAVec = GetParmVec( pA->get_geom_base(), gnameA );
-	vector< Parm* > parmBVec = GetParmVec( pB->get_geom_base(), gnameB );
+	vector< Parm* > parmAVec = parmMgrPtr->GetParmVec( pA->get_geom_base(), gnameA );
+	vector< Parm* > parmBVec = parmMgrPtr->GetParmVec( pB->get_geom_base(), gnameB );
 
 	for ( int k = 0 ; k < (int)parmAVec.size() ; k++ )
 	{
@@ -920,13 +765,611 @@ void ParmLinkMgr::ParmChanged( Parm* parmPtr, bool start_flag  )
 }
 
 
+//=============================================================//
+//=============================================================//
 
 
 
+ParmMgr::ParmMgr()
+{
+	aircraftPtr = NULL;
+}
+
+ParmMgr::~ParmMgr()
+{
+
+}
 
 
+Parm* ParmMgr::FindParm( vector< Geom* > & gVec, int ptrID, Stringc& group_name, Stringc& parm_name )
+{
+	Parm* pPtr = NULL;
+	Geom* gPtr = NULL;
+	for ( int i = 0 ; i < (int)gVec.size() ; i++ )
+	{
+		if ( gVec[i]->getPtrID() == ptrID )
+			gPtr = gVec[i];
+	}
+	//==== Check for User Geom ====//
+	if ( gPtr == NULL )
+	{
+		if ( group_name == Stringc("User") )
+		{
+			gPtr = aircraftPtr->getUserGeom();
+		}
+	}
+
+	pPtr = FindParm( gPtr, group_name, parm_name );
+
+	return pPtr;
+}
+
+Parm* ParmMgr::FindParm( Geom* gPtr, Stringc& group_name, Stringc& parm_name )
+{
+	Parm* pPtr = NULL;
+	if ( gPtr )
+	{
+		vector< Parm* > pVec;
+		gPtr->LoadLinkableParms( pVec );
+		for ( int i = 0 ; i < (int)pVec.size() ; i++ )
+		{
+			if ( pVec[i]->get_name() == parm_name &&
+				 pVec[i]->get_group_name() == group_name )
+			{
+				pPtr = pVec[i];
+			}
+		}
+	}
+	return pPtr;
+}
+
+void ParmMgr::RebuildAll()
+{
+	LoadAllParms();
+	parmLinkMgrPtr->RebuildAllLink();
+	pHolderListMgrPtr->RebuildAllPHolderList();
+}
+
+void ParmMgr::LoadAllParms()
+{
+	//==== Clear All Existing Parms ====//
+	map< GeomBase*, map< string, vector< Parm* > > >::iterator g;
+	map< string, vector<Parm*> >::iterator itr;
+	for ( g = m_ParmMap.begin() ; g != m_ParmMap.end() ; g++ )
+	{
+		for ( itr = g->second.begin() ; itr != g->second.end() ; itr++ )
+		{
+			itr->second.clear();
+		}
+		g->second.clear();
+	}
+	m_ParmMap.clear();
+
+	if ( aircraftPtr == NULL )
+		return;
+
+	//==== Loop Thru All Geoms ====//
+	vector< Geom* > geomVec = aircraftPtr->getGeomVec();
+	geomVec.push_back( aircraftPtr->getUserGeom() );
+	for ( int i = 0 ; i < (int)geomVec.size() ; i++ )
+	{
+		vector < Parm* > parmVec;
+		geomVec[i]->LoadLinkableParms( parmVec );
+		for ( int j = 0 ; j < (int)parmVec.size() ; j++ )
+		{
+			Parm* p = parmVec[j];
+			p->set_linked_flag( false );
+			Register( p, p->get_geom_base(), p->get_group_name().get_char_star() );
+		}
+	}
+}
+
+void ParmMgr::Register( Parm* parmPtr, GeomBase* geomPtr, string groupName )
+{
+	if ( parmPtr == NULL || geomPtr == NULL )
+		return;
+
+	parmPtr->set_group_name( groupName.c_str() );
+	parmPtr->set_base_geom( geomPtr );
+
+	m_ParmMap[geomPtr][groupName].push_back( parmPtr );
+
+	if ( !parmLinkMgrPtr->GetDefaultParm() )
+		parmLinkMgrPtr->SetDefaultParm( parmPtr );
+	if ( !pHolderListMgrPtr->GetDefaultParm() )
+		pHolderListMgrPtr->SetDefaultParm( parmPtr );
+}
+
+void ParmMgr::RegisterParmButton( ParmButton* b )
+{
+	if ( aircraftPtr->getScreenMgr() )
+		aircraftPtr->getScreenMgr()->getParmLinkScreen()->RegisterParmButton( b );
+}
+
+void ParmMgr::RemoveAllReferences( Geom* geomPtr )
+{
+	parmLinkMgrPtr->RemoveAllReferencesLink( geomPtr );
+	pHolderListMgrPtr->RemoveAllReferencesPHolderList( geomPtr );
+}
+
+void ParmMgr::RemoveParmReferences( Parm* parmPtr )
+{
+	parmLinkMgrPtr->RemoveParmReferencesLink( parmPtr );
+	pHolderListMgrPtr->RemoveParmReferencesPHolderList( parmPtr );
+}
+
+vector< string > ParmMgr::GetGroupNameVec( GeomBase* geomPtr )
+{
+	vector< string > groupNameVec;
+
+	map< string, vector< Parm* > >::iterator itr;
+
+	for ( itr = m_ParmMap[geomPtr].begin() ; itr != m_ParmMap[geomPtr].end() ; ++itr )
+	{
+		groupNameVec.push_back( itr->first );
+
+	}
+	return groupNameVec;
+}
+
+vector< Parm* > ParmMgr::GetParmVec( GeomBase* geomPtr, string group_name  )
+{
+	return m_ParmMap[geomPtr][group_name];
+}
+
+string ParmMgr::GetGroupName( GeomBase* geomPtr, int name_index )
+{
+	vector< string > group_vec = GetGroupNameVec( geomPtr );
+	if ( name_index >= (int)group_vec.size() )
+		name_index = (int)group_vec.size()-1;
+	if ( name_index >= 0 /*&& name_index < (int)group_vec.size()*/ )
+		return group_vec[name_index];
+
+	return string("Design");
+}
+
+int ParmMgr::GetCurrGeomNameVec( Parm* parmPtr, vector< string > & nameVec )
+{
+	int index = 0;
+	vector< Geom* > geomVec = aircraftPtr->getGeomVec();
+	geomVec.push_back( aircraftPtr->getUserGeom() );
+
+	for ( int i = 0 ; i < (int)geomVec.size() ; i++ )
+	{
+		nameVec.push_back( geomVec[i]->getName().get_char_star() );
+		if ( parmPtr && parmPtr->get_geom_base() == geomVec[i] )
+			index = i;
+	}
+	return index;
+}
+
+int ParmMgr::GetCurrGroupNameVec( Parm* parmPtr, vector< string > & nameVec )
+{
+	int index = 0;
+	if ( !parmPtr )
+		return index;
+
+	nameVec = GetGroupNameVec( parmPtr->get_geom_base() );
+
+	string name = string( parmPtr->get_group_name().get_char_star() );
+
+	for ( int i = 0 ; i < (int)nameVec.size() ; i++ )
+	{
+		if ( name.compare( nameVec[i] ) == 0 )
+			index = i;
+	}
+
+	return index;
+}
+
+int	ParmMgr::GetCurrParmNameVec( Parm* parmPtr, vector< string > & nameVec )
+{
+	int index = 0;
+
+	if ( !parmPtr )
+		return index;
+
+	string group_name = string( parmPtr->get_group_name().get_char_star() );
+	vector< Parm* > pVec = GetParmVec( parmPtr->get_geom_base(), group_name );
+
+	for ( int i = 0 ; i < (int)pVec.size() ; i++ )
+	{
+		if ( pVec[i] == parmPtr )
+			index = i;
+
+		nameVec.push_back( string( pVec[i]->get_name().get_char_star() ) );
+	}
+
+	return index;
+}
+
+//=============================================================//
+//=============================================================//
+
+PHolderListMgr::PHolderListMgr()
+{
+	m_CurrPHolderIndex = -1;
+
+	aircraftPtr = NULL;
+	m_WorkingPHolder.setParm( NULL );
+
+	m_DefaultParm = NULL;
+}
+
+PHolderListMgr::~PHolderListMgr()
+{
+
+}
+
+void PHolderListMgr::WritePHolderListDES( char *newfile )
+{
+	FILE *fp;
+	fp = fopen( newfile, "w" );
+
+	fprintf( fp, "%d\n", (int)m_PHolderVec.size() );
+
+	for ( int i = 0 ; i < (int)m_PHolderVec.size() ; i++ )
+	{
+		Parm *p = m_PHolderVec[i]->getParm();
+
+		fprintf( fp, "%d:%s:%s:%s: %g\n", ((Geom*)p->get_geom_base())->getPtrID(), p->get_geom_base()->getName().get_char_star(), p->get_group_name().get_char_star(), p->get_name().get_char_star(), p->get() );
+	}
+
+	fclose( fp );
+}
+
+void PHolderListMgr::ReadPHolderListDES( char *newfile )
+{
+	FILE *fp;
+	fp = fopen( newfile, "r" );
+	char temp[255];
+
+	fgets( temp, 255, fp );
+	Stringc line = temp;
+	int nparm = line.convert_to_integer();
+
+	if( nparm > 0 )
+	{
+		pHolderListMgrPtr->DelAllPHolders();
+
+		vector< Geom* > gVec = aircraftPtr->getGeomVec();
+		gVec.push_back( aircraftPtr->getUserGeom() );
 
 
+		for ( int i = 0 ; i < nparm ; i++ )
+		{
+			fgets( temp, 255, fp );
+			line = temp;
+
+			int istart = 0;
+			int iend = line.search_for_substring(':');
+			int id = line.get_range( istart, iend-1 ).convert_to_integer();
+
+			istart = iend + 1;
+			iend = line.search_for_substring( istart, ':' );
+			istart = iend + 1;
+			iend = line.search_for_substring( istart, ':' );
+			Stringc group = line.get_range( istart, iend-1 );
+
+			istart = iend + 1;
+			iend = line.search_for_substring( istart, ':' );
+			Stringc parm = line.get_range( istart, iend-1 );
+
+			istart = iend + 1;
+			iend = line.get_length();
+			double val = line.get_range( istart, iend-1 ).convert_to_double();
+
+			Parm* p = parmMgrPtr->FindParm( gVec, id, group, parm );
+
+			if ( p )
+			{
+				p->set_from_link( val );
+				p->get_geom()->parm_changed( p );
+
+				ParmHolder* ph = new ParmHolder();
+				ph->setParm( p );
+
+				m_PHolderVec.push_back( ph );
+				m_CurrPHolderIndex = (int)m_PHolderVec.size() - 1;
+			}
+		}
+	}
+	fclose( fp );
+}
+
+void PHolderListMgr::WritePHolderListXDDM( char *newfile )
+{
+	xmlDocPtr doc = xmlNewDoc((const xmlChar *)"1.0");
+
+	xmlNodePtr model_node = xmlNewNode(NULL,(const xmlChar *)"Model");
+	xmlDocSetRootElement(doc, model_node);
+
+	xmlSetProp( model_node, (const xmlChar *)"ID", (const xmlChar *)aircraftPtr->getFileName().get_char_star() );
+	xmlSetProp( model_node, (const xmlChar *)"Modeler", (const xmlChar *)"OpenVSP" );
+	xmlSetProp( model_node, (const xmlChar *)"Wrapper", (const xmlChar *)"wrap_vsp.csh" );
+
+	for ( int i = 0 ; i < (int)m_PHolderVec.size() ; i++ )
+	{
+		Parm* p = m_PHolderVec[i]->getParm();
+
+		xmlNodePtr var_node = xmlNewChild( model_node, NULL, (const xmlChar *)"Variable", NULL );
+
+		char varname[255];
+		sprintf( varname, "%d:%s:%s:%s", ((Geom*)p->get_geom_base())->getPtrID(), p->get_geom_base()->getName().get_char_star(), p->get_group_name().get_char_star(), p->get_name().get_char_star() );
+
+		xmlSetProp( var_node, (const xmlChar *)"ID", (const xmlChar *)varname );
+		xmlSetDoubleProp( var_node, "Value", p->get() );
+		xmlSetDoubleProp( var_node, "Min", p->get_lower() );
+		xmlSetDoubleProp( var_node, "Max", p->get_upper() );
+		xmlSetProp( var_node, (const xmlChar *)"VSPVarName", (const xmlChar *)varname );
+	}
+
+	//===== Save XML Tree and Free Doc =====//
+	xmlSaveFormatFile((const char *)newfile, doc, 1);
+	xmlFreeDoc( doc );
+}
+
+void PHolderListMgr::ReadPHolderListXDDM( char *newfile )
+{
+	pHolderListMgrPtr->DelAllPHolders();
+
+	//==== Read Xml File ====//
+	xmlDocPtr doc;
+	xmlNodePtr node;
+
+	LIBXML_TEST_VERSION
+	xmlKeepBlanksDefault(0);
+
+	//==== Build an XML tree from a the file ====//
+	doc = xmlParseFile(newfile);
+//			if (doc == NULL) return 0;
+
+	xmlNodePtr root = xmlDocGetRootElement(doc);
+	if (root == NULL)
+	{
+		fprintf(stderr,"empty document\n");
+		xmlFreeDoc(doc);
+//				return 0;
+	}
+
+	vector< Geom* > gVec = aircraftPtr->getGeomVec();
+	gVec.push_back( aircraftPtr->getUserGeom() );
 
 
+	int num_v = xmlGetNumNames( root, "Variable" );
+
+	for ( int i = 0 ; i < num_v ; i++ )
+	{
+		xmlNodePtr var_node = xmlGetNode( root, "Variable", i );
+
+		if ( var_node )
+		{
+			Stringc varname = Stringc( xmlFindPropString( var_node, "VSPVarName", " " ) );
+
+			int istart = 0;
+			int iend = varname.search_for_substring(':');
+			int id = varname.get_range( istart, iend-1 ).convert_to_integer();
+
+			istart = iend + 1;
+			iend = varname.search_for_substring( istart, ':' );
+			istart = iend + 1;
+			iend = varname.search_for_substring( istart, ':' );
+			Stringc group = varname.get_range( istart, iend-1 );
+
+			istart = iend + 1;
+			iend = varname.get_length();
+			Stringc parm = varname.get_range( istart, iend-1 );
+
+			Parm* p = parmMgrPtr->FindParm( gVec, id, group, parm );
+
+			if ( p )
+			{
+				double val = xmlFindPropDouble( var_node, "Value", p->get() );
+
+				p->set_from_link( val );
+				p->get_geom()->parm_changed( p );
+
+				ParmHolder* ph = new ParmHolder();
+				ph->setParm( p );
+
+				m_PHolderVec.push_back( ph );
+				m_CurrPHolderIndex = (int)m_PHolderVec.size() - 1;
+			}
+		}
+	}
+
+	//===== Free Doc =====//
+	xmlFreeDoc( doc );
+
+//			return 1;
+}
+
+void PHolderListMgr::RemoveAllReferencesPHolderList( Geom* geomPtr )
+{
+	vector < Parm* > parmVec;
+	geomPtr->LoadLinkableParms( parmVec );
+
+	for ( int i = 0 ; i < (int)parmVec.size() ; i++ )
+	{
+		RemoveParmReferencesPHolderList( parmVec[i] );
+	}
+	if ( aircraftPtr->getScreenMgr() )
+		aircraftPtr->getScreenMgr()->getParmPickerScreen()->RemoveAllRefs( geomPtr );
+
+}
+
+void PHolderListMgr::RemoveParmReferencesPHolderList( Parm* parmPtr )
+{
+	//==== Remove From Parm Vec ====//
+	vector< ParmHolder* > tempVec;
+	for ( int i = 0 ; i < (int)m_PHolderVec.size() ; i++ )
+	{
+		if ( m_PHolderVec[i]->getParm() != parmPtr )
+			tempVec.push_back( m_PHolderVec[i] );
+	}
+	m_PHolderVec = tempVec;
+
+	if ( m_DefaultParm == parmPtr )
+		m_DefaultParm = NULL;
+	if ( m_WorkingPHolder.getParm() == parmPtr )
+		ResetWorkingPHolder();
+
+	m_CurrPHolderIndex = -1;
+}
+
+void PHolderListMgr::RebuildAllPHolderList()
+{
+	RebuildPHolderMap();
+
+	if ( aircraftPtr->getScreenMgr() )
+		aircraftPtr->getScreenMgr()->getParmPickerScreen()->update();
+}
+
+void PHolderListMgr::RebuildPHolderMap()
+{
+	map< Parm*, vector< ParmHolder* > >::iterator itr;
+	for ( itr = m_PHolderMap.begin() ; itr != m_PHolderMap.end() ; itr++ )
+		itr->second.clear();
+
+	m_PHolderMap.clear();
+	for ( int i = 0 ; i < (int)m_PHolderVec.size() ; i++ )
+	{
+		ParmHolder* ph = m_PHolderVec[i];
+		m_PHolderMap[ ph->getParm() ].push_back( ph );
+	}
+}
+
+void PHolderListMgr::SetCurrPHolderIndex( int i )
+{
+	m_CurrPHolderIndex = i;
+}
+
+ParmHolder* PHolderListMgr::GetCurrPHolder()
+{
+	if (  m_CurrPHolderIndex >= 0 && m_CurrPHolderIndex < (int)m_PHolderVec.size() )
+		return m_PHolderVec[ m_CurrPHolderIndex ];
+
+	return &m_WorkingPHolder;
+}
+
+vector< ParmHolder* > PHolderListMgr::GetPHolderVec()
+{
+	return m_PHolderVec;
+}
+
+void PHolderListMgr::SetParm( Parm* p )
+{
+	m_WorkingPHolder.setParm( p );
+	RebuildAllPHolderList();
+}
+
+void PHolderListMgr::SetParm( int comp_ind, int group_ind, int parm_ind )
+{
+	vector< Geom* > compVec = aircraftPtr->getGeomVec();
+	compVec.push_back( aircraftPtr->getUserGeom() );
+
+	if ( compVec.size() == 0 )
+	{
+		m_WorkingPHolder.setParm( NULL );
+		return;
+	}
+
+	if ( comp_ind >= (int)compVec.size() )
+		comp_ind = 0;
+	Geom* gPtr = compVec[comp_ind];
+
+	string group_name = parmMgrPtr->GetGroupName( gPtr, group_ind );
+
+	vector< Parm* > parmVec = parmMgrPtr->GetParmVec( gPtr, group_name );
+
+	if ( parmVec.size() == 0 )
+	{
+		m_WorkingPHolder.setParm( NULL );
+		return;
+	}
+
+	if ( parm_ind >= (int)parmVec.size() )
+		parm_ind = 0;
+
+	m_WorkingPHolder.setParm( parmVec[parm_ind] );
+
+}
+
+
+bool PHolderListMgr::AddCurrPHolder()
+{
+	//==== Check if Modifying Already Add Link ====//
+	if (  m_CurrPHolderIndex >= 0 && m_CurrPHolderIndex < (int)m_PHolderVec.size() )
+		return false;
+
+	ParmHolder* ph = new ParmHolder();
+	*ph = m_WorkingPHolder;
+
+	m_PHolderVec.push_back( ph );
+	m_CurrPHolderIndex = (int)m_PHolderVec.size() - 1;
+
+	m_PHolderMap[ ph->getParm() ].push_back( ph );
+
+	return true;
+}
+
+void PHolderListMgr::AddPHolder( Parm* p)
+{
+	//==== Make Sure Parm Are Not Already Linked ====//
+	for ( int i = 0 ; i < (int)m_PHolderVec.size() ; i++ )
+	{
+		if ( m_PHolderVec[i]->getParm() == p )
+		{
+			return;
+		}
+	}
+
+	ParmHolder *ph = new ParmHolder();
+
+	ph->setParm( p );
+
+	m_PHolderVec.push_back( ph );
+	m_CurrPHolderIndex = (int)m_PHolderVec.size() - 1;
+
+	m_PHolderMap[ ph->getParm() ].push_back( ph );
+}
+
+
+void PHolderListMgr::DelCurrPHolder()
+{
+	//==== Remove From Parm Link Vec ====//
+	vector< ParmHolder* > tempVec;
+	for ( int i = 0 ; i < (int)m_PHolderVec.size() ; i++ )
+	{
+		if ( i == m_CurrPHolderIndex )
+		{
+			delete m_PHolderVec[i];
+		}
+		else
+			tempVec.push_back( m_PHolderVec[i] );
+	}
+	m_PHolderVec = tempVec;
+
+	RebuildPHolderMap();
+}
+
+void PHolderListMgr::DelAllPHolders()
+{
+	for ( int i = 0 ; i < (int)m_PHolderVec.size() ; i++ )
+	{
+		delete m_PHolderVec[i];
+	}
+	m_PHolderVec.clear();
+
+	RebuildPHolderMap();
+}
+
+
+ParmHolder* PHolderListMgr::ResetWorkingPHolder()
+{
+	m_CurrPHolderIndex = -1;
+	m_WorkingPHolder.setParm( m_DefaultParm );
+
+	return &m_WorkingPHolder;
+}
 

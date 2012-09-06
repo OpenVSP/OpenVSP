@@ -556,6 +556,10 @@ void GeomScreen::s_copy(int src, deque< Stringc > partVec)
 void GeomScreen::s_paste(int src)
 {
 	lastSelectedGeom = NULL;
+
+	if( aircraftPtr->checkClipBoardPtrIDCollisions() )
+		aircraftPtr->resetClipBoardPtrID();
+
 	aircraftPtr->pasteClipBoard();
 
 	if (src != ScriptMgr::SCRIPT)

@@ -49,7 +49,7 @@ class MainWinUI {open
               xywh {30 30 100 20}
             }
             MenuItem ExportMenu {
-              label {Export...} selected
+              label {Export...}
               xywh {40 40 100 20}
             }
             MenuItem TempDirMenu {
@@ -190,6 +190,10 @@ class MainWinUI {open
             MenuItem ParmLinkMenu {
               label {Link...}
               xywh {10 10 100 20}
+            }
+            MenuItem ParmPickMenu {
+              label {Design Variables...} selected
+              xywh {20 20 100 20}
             }
           }
           Submenu ScriptSubMenu {
