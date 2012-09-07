@@ -1310,7 +1310,7 @@ void Xsec_surf::write_xsec( int index, float mat[4][4], FILE* file_id, double sc
   for ( int j = 0 ; j < num_pnts ; j++ )
     {
       temp = (pnts_xsecs(index, j).transform(mat)) * scale_factor;
-      fprintf(file_id, "%10.5f  %10.5f  %10.5f\n", temp.x(), temp.y(),temp.z());
+      fprintf(file_id, "%25.17e  %25.17e  %25.17e\n", temp.x(), temp.y(),temp.z());
     }
 
 }
@@ -1330,7 +1330,7 @@ void Xsec_surf::write_refl_xsec( int sym_code_in, int index, float mat[4][4], FI
   for ( int j = 0 ; j < num_pnts ; j++ )
     {
       temp = ( refl_pnts_xsecs(index, j).transform(mat) ) * scale_factor;
-      fprintf(file_id, "%10.5f  %10.5f  %10.5f\n", temp.x(), temp.y(),temp.z());
+      fprintf(file_id, "%25.17e  %25.17e  %25.17e\n", temp.x(), temp.y(),temp.z());
     }
 
 }
