@@ -660,7 +660,7 @@ class MsWingUI {open
             xywh {210 365 65 20} textsize 12
           }
           Fl_Button twistButton {
-            label Twist
+            label WashOut
             xywh {10 455 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
           }
           Fl_Slider twistSlider {
@@ -678,7 +678,7 @@ class MsWingUI {open
             xywh {200 455 10 20} box THIN_UP_BOX labelcolor 4
           }
           Fl_Button twistLocButton {
-            label {Twist Loc}
+            label {WashOut Loc}
             xywh {10 475 80 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
           }
           Fl_Slider twistLocSlider {
@@ -763,7 +763,7 @@ class MsWingUI {open
             xywh {200 435 75 20} labelfont 1 labelsize 12 align 148
           }
           Fl_Button {} {
-            label {Twist Reference}
+            label {WashOut (-Twist) Ref}
             xywh {10 435 190 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
           }
           Fl_Light_Button rotateAirfoilButton {

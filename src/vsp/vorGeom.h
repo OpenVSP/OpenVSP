@@ -245,6 +245,8 @@ public:
 
 	virtual void saveWriteSlices();
 
+	virtual bool vorlaxExeExists();
+
 private:
 
 	Stringc  baseName;

@@ -91,6 +91,7 @@ parmLinkScreen.cpp
 parmPickerScreen.cpp
 parmScreen.cpp
 part.cpp
+PntNodeMerge.cpp
 propGeom.cpp
 propScreen.cpp
 screenMgr.cpp
@@ -179,6 +180,7 @@ parmLinkScreen.h
 parmPickerScreen.h
 parmScreen.h
 part.h
+PntNodeMerge.h
 propGeom.h
 propScreen.h
 screenMgr.h

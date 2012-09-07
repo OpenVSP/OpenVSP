@@ -1498,3 +1498,23 @@ void VorGeom::setCsfSym( int val )
 		vorSlicePtr->Vor->csfsymmetry[curr_csf] = val;
 	}
 }
+
+bool VorGeom::vorlaxExeExists()
+{
+#ifdef WIN32
+	FILE* fp = fopen("vorlaxWin.exe","r");
+#else
+	#ifdef __APPLE__
+	FILE* fp = fopen("./vorlaxMac","r");
+	#else
+	FILE* fp = fopen("./vorlaxLinux","r");
+	#endif
+#endif
+
+	if ( fp )
+	{
+		fclose(fp);
+		return true;
+	}
+	return false;
+}

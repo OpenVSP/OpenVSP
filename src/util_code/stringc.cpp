@@ -18,7 +18,7 @@
 
 Stringc::Stringc()
 {
-    chunk_size = 16;
+    chunk_size = 64;
     total_size = 0;
     num_chars = 0;
     make_space();
@@ -29,7 +29,7 @@ Stringc::Stringc()
 
 Stringc::Stringc(const char ch)
 {
-    chunk_size = 16;
+    chunk_size = 64;
     num_chars = 1;
     make_space();
     (*this)[0] = ch;
@@ -40,7 +40,7 @@ Stringc::Stringc(const char ch)
 
 Stringc::Stringc(const char *ch_array)
 {
-    chunk_size = 16;
+    chunk_size = 64;
     if (ch_array)
       num_chars = strlen(ch_array);
     else
@@ -55,7 +55,7 @@ Stringc::Stringc(const char *ch_array)
 
 Stringc::Stringc(int ichar)
 {
-   chunk_size = 16;
+   chunk_size = 64;
    num_chars = ichar;
    make_space();
    for (int i=0; i<num_chars; i++)
@@ -88,6 +88,7 @@ Stringc::~Stringc()
 
 void Stringc::make_space()
 {
+
     int size_mult = (num_chars+1)/chunk_size+1;
     total_size = size_mult*chunk_size;
     char_array = new char[total_size];
@@ -98,7 +99,8 @@ void Stringc::make_space()
 void Stringc::clear_space()
 {
 //    if ( num_chars >= 0 ) delete [] char_array;
-    if ( total_size >= 0 ) delete [] char_array;
+
+	if ( total_size >= 0 ) delete [] char_array;
 }
 
 //----------------------------------------------------------------------------
@@ -985,7 +987,7 @@ Stringc& Stringc::operator=( const char ch)
    {
    (*this).clear_space();
    (*this).num_chars = 1;
-   (*this).chunk_size = 8;
+   (*this).chunk_size = 64;
    (*this).make_space();
    (*this).char_array[0] = ch;
    (*this).char_array[1] = '\0';
@@ -1013,7 +1015,7 @@ Stringc& Stringc::operator=( const char *cstring )
    {
    (*this).clear_space();
    (*this).num_chars = strlen(cstring);
-   (*this).chunk_size = 8;
+   (*this).chunk_size = 64;
    (*this).make_space();
    for (int i=0; i < (int)strlen(cstring); i++)
       (*this).char_array[i] = cstring[i];

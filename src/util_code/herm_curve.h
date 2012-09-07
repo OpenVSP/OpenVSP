@@ -33,7 +33,7 @@
 #define CLOSED_CURVE 0
 
 
-#define NUM_SAMPLES 10
+#define NUM_SAMPLES 100
 
 //===== State Flags =====//
 #define NUM_FLAGS   	6

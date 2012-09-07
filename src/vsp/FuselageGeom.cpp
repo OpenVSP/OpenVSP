@@ -1857,7 +1857,10 @@ void FuselageGeom::write_bezier_file( int id, FILE* file_id )
 			ang = angle( p01, p21 );
 
 		if ( ang < 100.0*DEG_2_RAD )
+		{
+
 			uSharpVec.push_back( i );
+		}
 	}
 
 

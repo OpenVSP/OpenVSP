@@ -8,15 +8,18 @@
 
 #include <stdio.h>
 
+
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
 #ifdef WIN32
-#include <windows.h>
+#include <windows.h>	
 #else
 #include <pthread.h>
 #endif
+
+
 
 #include <FL/Fl.H>
 #include <FL/Fl_Window.H>

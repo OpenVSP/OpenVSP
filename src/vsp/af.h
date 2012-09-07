@@ -121,6 +121,7 @@ class Af : public DrawBase
 
 	int readVspAirfoil( FILE* file_id, int* thickFlag, int* radiusLeFlag, int* radiusTeFlag );
 	int readSeligAirfoil( FILE* file_id );
+	int readLednicerAirfoil( FILE* file_id );
 
 public:
 

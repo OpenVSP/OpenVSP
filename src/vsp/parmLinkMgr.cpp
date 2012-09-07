@@ -406,6 +406,10 @@ void ParmLinkMgr::RemoveParmReferencesLink( Parm* parmPtr )
 	parmPtr->set_linked_flag( false );
 	parmPtr->clear_all_devs();
 
+	//if ( aircraftPtr->getScreenMgr() )
+	//	aircraftPtr->getScreenMgr()->getParmLinkScreen()->RemoveAllRefs( geomPtr );
+
+
 	m_CurrParmLinkIndex = -1;
 }
 

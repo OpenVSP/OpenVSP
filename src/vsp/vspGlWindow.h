@@ -91,12 +91,13 @@ public:
 	void loadTrack(int i);
 
 	void setClearColor( double r, double g, double b )	
-		{ clearR = (int)r; clearG = (int)g; clearB = (int)b; }
+		{ clearR = (int)r; clearG = (int)g; clearB = (int)b; } 
 
 	void setScale( double scale );
 	void setCenter( double x, double y, double z )		{ cx = x; cy = y; cz = z;}
 
 	void toggleFastDraw()						{ fastDrawFlag = !fastDrawFlag; }
+	void toggleAxisDraw()						{ axisDrawFlag = !axisDrawFlag; }
 
 	track_ball currTrack;
 
@@ -118,6 +119,12 @@ public:
 	double backImgOffsetX;
 	double backImgOffsetY;
 
+	double getCenterRotX()						{ return cx; }
+	double getCenterRotY()						{ return cy; }
+	double getCenterRotZ()						{ return cz; }
+
+	void DrawXYZArrows( track_ball& curr_track );
+
 private:
 
 	double orthoL, orthoR, orthoT, orthoB;
@@ -132,6 +139,7 @@ private:
 
 	double cx, cy, cz;					// Center of Rotation
 	bool fastDrawFlag;
+	bool axisDrawFlag;
 
 	int savedUserViewFlag[NUM_USER_VIEWS];
 	track_ball savedTrackVec[NUM_USER_VIEWS];
@@ -174,6 +182,7 @@ public:
 	void setWindowLayout( int layout );
 	void setView( int view );
 
+	void moveViewCenter();
 	void centerAllViews();
 
 	void setAircraftPtr( Aircraft* airPtr )		{ aircraftPtr = airPtr; }

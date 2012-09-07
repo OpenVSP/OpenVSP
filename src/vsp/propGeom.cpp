@@ -83,7 +83,7 @@ PropGeom::PropGeom(Aircraft* aptr) : Geom(aptr)
 	diameter.set_script("prop_shape diameter", 0);
 
 	cone_angle.initialize(this, "Cone_Angle", 0.0 );
-	cone_angle.set_lower_upper(-45, 45);
+	cone_angle.set_lower_upper(-89, 89);
 	cone_angle.set_script("prop_shape coneang", 0);
 
 	pitch.initialize(this, "Pitch", 0.0 );

@@ -154,6 +154,10 @@ class MainWinUI {open
               label {Texture...}
               xywh {10 10 100 20}
             }
+            MenuItem ToggleAxisMenu {
+              label {Toggle Axis}
+              xywh {20 20 100 20}
+            }
           }
           Submenu GeomSubMenu {
             label Geom open

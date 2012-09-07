@@ -169,6 +169,7 @@ void ScreenMgr::createGui()
 	mainWinUI->AdjustViewMenu->callback( staticMenuCB, this );
 	mainWinUI->AntialiasMenu->callback( staticMenuCB, this );
 	mainWinUI->TextureMenu->callback( staticMenuCB, this );
+	mainWinUI->ToggleAxisMenu->callback( staticMenuCB, this );
 
 	
 	mainWinUI->ScriptMenu->callback( staticMenuCB, this );
@@ -1069,6 +1070,10 @@ void ScreenMgr::menuCB( Fl_Widget* w )
 		s_texturemgr(ScriptMgr::GUI);
 		scriptMgr->addLine("texturemgr");
 	}
+	else if ( m == mainWinUI->ToggleAxisMenu )		// Texture Mgr Screen
+	{
+		glWin->currVWin->toggleAxisDraw();
+	}
 	else if ( m == mainWinUI->MassPropMenu )	// Mass Properties Stuff
 	{
 		Stringc fn = aircraftPtr->getExportFileName( Aircraft::MASS_PROP_TXT_TYPE);
@@ -1430,6 +1435,13 @@ void ScreenMgr::menuCB( Fl_Widget* w )
 	{
 		if ( aircraftPtr->getGeomVec().size() == 0 )
 			fl_alert("Create Some Geometry First");
+		else if ( aircraftPtr->getVorGeom() )
+		{
+			if ( aircraftPtr->getVorGeom()->vorlaxExeExists() )
+				vorviewScreen->show(NULL);
+			else
+				fl_alert("Vorlax Executable Does Not Exist");
+		}
 		else
 			vorviewScreen->show(NULL);
 	}
