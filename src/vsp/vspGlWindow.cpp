@@ -446,9 +446,12 @@ void VirtGlWindow::DrawXYZArrows( track_ball& curr_track )
 	glGetDoublev( GL_MODELVIEW_MATRIX, modelview );
 	Matrix4d mat;
 	mat.initMat( modelview );
-	vec3d xproj = mat.xform( vec3d( size + off, 0, 0) );
-	vec3d yproj = mat.xform( vec3d( 0, size + off, 0) );
-	vec3d zproj = mat.xform( vec3d( 0, 0, size + off) );
+	vec3d xv = vec3d( size + off, 0, 0);
+	vec3d yv = vec3d( 0, size + off, 0);
+	vec3d zv = vec3d( 0, 0, size + off);
+	vec3d xproj = mat.xform( xv );
+	vec3d yproj = mat.xform( yv );
+	vec3d zproj = mat.xform( zv );
 
 	//==== Axis ===//
 	glLineWidth( 4.0 );
