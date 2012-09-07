@@ -158,8 +158,8 @@ CfdMeshScreen::CfdMeshScreen(ScreenMgr* mgr, Aircraft* airPtr)
 	ui->triButton->callback( staticScreenCB, this );
 	ui->gmshButton->callback( staticScreenCB, this );
 	ui->srfButton->callback( staticScreenCB, this );
-	ui->datToggle->value(0);
-	ui->keyToggle->value(0);
+	ui->datToggle->value(1);
+	ui->keyToggle->value(1);
 	ui->objToggle->value(1);
 	ui->polyToggle->value(0);
 	ui->stlToggle->value(1);

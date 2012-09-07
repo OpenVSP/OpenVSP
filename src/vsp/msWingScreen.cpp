@@ -511,7 +511,7 @@ void MsWingScreen::screenCB( Fl_Widget* w)
 	{
 
 //		char *newfile = fl_file_chooser("Read Airfoil File?", "*.af", "");
-		char *newfile = screenMgrPtr->FileChooser("Read Airfoil File?", "*.af");
+		char *newfile = screenMgrPtr->FileChooser("Read Airfoil File?", "*.{af,dat}" );
 		if ( newfile != NULL )
 		{
 			currGeom->get_af_ptr()->read_af_file( Stringc(newfile) );

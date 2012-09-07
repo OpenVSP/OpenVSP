@@ -450,7 +450,6 @@ void Surf::BuildTargetMap( MSCloudFourD &ms_cloud )
 			len = min( len, m_GridDensityPtr->GetBaseLen() );
 
 			m_TargetMap[i][j] = len;
-
 			MapSource4D ms = MapSource4D( p, &( m_TargetMap[i][j] ) );
 			ms_cloud.sources.push_back( ms );
 		}

@@ -28,6 +28,9 @@
 #include "vec2d.h"
 #include "editCurve.h"
 
+#include <deque>
+using namespace std;	
+
 
 #define UPD_MSW_ALL              0
 #define UPD_MSW_LOC_ROT          1
@@ -228,7 +231,9 @@ public:
    virtual WingSect* getCurrWingSect(); 
 
    //==== Sections and Airfoils ====//
-   dyn_array< WingSect > sects;
+//   dyn_array< WingSect > sects;
+   deque< WingSect > sects;
+   
    int rootActiveFlag;
    dyn_array< Af* > foils;
    WingSect copySect;
@@ -295,7 +300,7 @@ public:
    virtual void inc_all_interp();
    virtual void dec_all_interp();
 
-   virtual int get_num_sect()									{ return( sects.dimension() ); }
+   virtual int get_num_sect()									{ return( sects.size() ); }
 
    virtual bool get_rel_twist_flag()							{ return rel_twist_flag; }
    virtual void set_rel_twist_flag( bool flag );

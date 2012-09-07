@@ -21,6 +21,7 @@ VirtGlWindow::VirtGlWindow(int xi, int yi, int wi, int hi)
 	activeFlag = 0;
 	focusFlag = 0;
 	fastDrawFlag = false;
+	axisDrawFlag = true;
 
 	cx = cy = cz = 0.0;
 	mousex = mousey = 0;
@@ -213,7 +214,12 @@ void VirtGlWindow::predraw()
  		
     glPushMatrix(); 
 	glLoadIdentity(); 
+
+	if ( axisDrawFlag )
+		DrawXYZArrows( currTrack );
+
 	currTrack.transform();
+
 
 	glTranslatef( (float)cx, (float)cy, (float)cz );
 
@@ -405,15 +411,94 @@ void VirtGlWindow::loadTrack(int i)
 {
 	if ( i >= 0 && i < NUM_USER_VIEWS )
 	{
-		vec3d c = savedRotationCenters[i];
-		cx = c.x(); cy = c.y(); cz = c.z();
-		currTrack = savedTrackVec[i];
+		if ( savedUserViewFlag[i] )
+		{
+			vec3d c = savedRotationCenters[i];
+			cx = c.x(); cy = c.y(); cz = c.z();
+			currTrack = savedTrackVec[i];
+		}
 	}
 }
 
 void VirtGlWindow::setFocus(int focus)
 { 
 	focusFlag = focus; 
+}
+
+void VirtGlWindow::DrawXYZArrows( track_ball& curr_track )
+{
+	track_ball rot_track = curr_track;
+
+	double scale = rot_track.get_scale();
+
+	rot_track.set_trans(0,0,0);
+	rot_track.set_scale(1.0);
+
+	double size = 0.08;
+	double ls = 0.01;
+	double off = 0.01;
+
+	glPushMatrix();
+	glTranslated( orthoL + 0.1, orthoT + 0.1, 0.0 );
+	rot_track.transform();
+
+	GLdouble modelview[16];
+	glGetDoublev( GL_MODELVIEW_MATRIX, modelview );
+	Matrix4d mat;
+	mat.initMat( modelview );
+	vec3d xproj = mat.xform( vec3d( size + off, 0, 0) );
+	vec3d yproj = mat.xform( vec3d( 0, size + off, 0) );
+	vec3d zproj = mat.xform( vec3d( 0, 0, size + off) );
+
+	//==== Axis ===//
+	glLineWidth( 4.0 );
+	glBegin( GL_LINES );
+		glColor3ub( 255, 0, 0 );
+		glVertex3d( 0.0, 0.0, 0.0 );
+		glVertex3d( size, 0.0, 0.0 );
+
+		glColor3ub( 0, 255, 0 );
+		glVertex3d( 0.0, 0.0, 0.0 );
+		glVertex3d( 0.0, size, 0.0 );
+
+		glColor3ub( 0, 0, 255 );
+		glVertex3d( 0.0, 0.0, 0.0 );
+		glVertex3d( 0.0, 0.0, size );
+	glEnd();
+
+	//==== Text ===//
+	glLoadIdentity(); 
+	glTranslated( xproj.x(), xproj.y(), xproj.z() );
+	glLineWidth( 2.0 );
+	glColor3ub( 50, 50, 50 );
+	glBegin( GL_LINES );
+		glVertex3d( ls,  ls,  0 );		// X
+		glVertex3d( -ls,  -ls,  0 );
+		glVertex3d( ls,  -ls,  0 );
+		glVertex3d( -ls,  ls,  0 );
+	glEnd();
+
+	glLoadIdentity(); 
+	glTranslated( yproj.x(), yproj.y(), yproj.z() );
+	glBegin( GL_LINES );
+		glVertex3d( ls,  ls,  0 );		// Y
+		glVertex3d(  0,   0,  0 );
+		glVertex3d(-ls,  ls,  0 );
+		glVertex3d(  0,   0,  0 );
+		glVertex3d(  0,   0,  0 );
+		glVertex3d(  0, -ls,  0 );
+	glEnd();
+
+	glLoadIdentity(); 
+	glTranslated( zproj.x(), zproj.y(), zproj.z() );
+	glBegin( GL_LINE_STRIP );
+		glVertex3d(-ls,  ls,  0 );		// Z
+		glVertex3d( ls,  ls,  0 );
+		glVertex3d(-ls, -ls,  0 );
+		glVertex3d( ls, -ls,  0 );
+	glEnd();
+
+	glPopMatrix();
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -821,6 +906,10 @@ int VspGlWindow::processKeyEvent()
 	{
 		setView( VSP_CENTER_VIEW );
 	}
+	else if ( key == 114 )		// "r" key
+	{
+		moveViewCenter();
+	}
 	else if ( key == 102 )		// "f" key	fastDraw
 	{
 		toggleFastDraw();
@@ -948,6 +1037,47 @@ void VspGlWindow::setView( int view )
 	 
 
 }
+
+void VspGlWindow::moveViewCenter()
+{
+	vec2d cursor = currVWin->getCursor();
+
+	//==== Save Current Rotation Center ====//
+	double cx = currVWin->getCenterRotX();
+	double cy = currVWin->getCenterRotY();
+	double cz = currVWin->getCenterRotZ();
+	vec3d close_pnt( cx, cy, cz );
+
+	double close_dist = 1.0e12;
+
+	//==== Look Through All Transformed Vertices to Find Closest One ====//
+	vector< Geom* > gvec = aircraftPtr->getGeomVec();
+	for (int g = 0 ; g < (int)gvec.size() ; g++ )
+	{
+		if ( !gvec[g]->getNoShowFlag() )
+		{
+			vector< VertexID > verts;
+			gvec[g]->getVertexVec(&verts);
+			for (int v = 0; v < (int)verts.size(); v++)
+			{
+				vec2d pos2d = verts[v].pos2d();
+				double d = dist( cursor, pos2d );
+				if ( d < close_dist )
+				{
+					close_dist = d;
+					close_pnt = verts[v].posXform();
+				}
+			}
+		}
+	}
+
+	//===== Reset View Center ===//
+	currVWin->setCenter( -close_pnt.x(), -close_pnt.y(), -close_pnt.z() );
+	currVWin->currTrack.set_trans( 0, 0, 0 );
+
+	redraw();
+}
+
 
 void VspGlWindow::centerAllViews()
 {

@@ -27,6 +27,7 @@ public:
 	virtual void closeCB( Fl_Widget* w );
 	virtual void setTitle( const char* name );
 	virtual void parm_changed( Parm* parm )				{}
+	virtual void clearButtonParms();
 
 	virtual void show();
 	virtual void show(Geom* geomPtr);

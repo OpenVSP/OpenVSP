@@ -215,15 +215,12 @@ double angle(const vec3d& a, const vec3d& b)
 {
    double angle = dot(a, b)/(a.mag()*b.mag());
 
-   if (angle >= -1.0 && angle <= 1.0)
-     {
-       return(acos(angle));
-     }
-   else
-     {
-       return(0.0);
-     }
-}
+   if ( angle < -1.0 )			angle = -1.0;
+   else if ( angle > 1.0 )		angle = 1.0;
+
+   return(acos(angle));
+
+ }
 		
 double signed_angle(const vec3d& a, const vec3d& b, const vec3d& ref )
 {

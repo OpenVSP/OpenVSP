@@ -1144,18 +1144,27 @@ void Mesh::ComputeTargetEdgeLength( Edge* edge )
 {
 	assert( m_GridDensity );
 
-	if( edge->border )
-	{
-		edge->target_len = edge->m_Length;
-	}
-	else
-	{
-		vec3d cent = (edge->n0->pnt + edge->n1->pnt)*0.5;
-		vec2d uwcent = (edge->n0->uw  + edge->n1->uw )*0.5;
-		vec2d uwc = m_Surf->ClosestUW( cent, uwcent.x(), uwcent.y() );
+	vec3d cent = (edge->n0->pnt + edge->n1->pnt)*0.5;
+	vec2d uwcent = (edge->n0->uw  + edge->n1->uw )*0.5;
+	vec2d uwc = m_Surf->ClosestUW( cent, uwcent.x(), uwcent.y() );
 
-		edge->target_len = m_Surf->InterpTargetMap( uwc.x(), uwc.y() );
-	}
+	edge->target_len = m_Surf->InterpTargetMap( uwc.x(), uwc.y() );
+
+
+//	if( edge->border )
+//	{
+//		edge->target_len = edge->m_Length;
+////jrg TEST
+////		edge->target_len = 0.2;
+//	}
+//	else
+//	{
+//		vec3d cent = (edge->n0->pnt + edge->n1->pnt)*0.5;
+//		vec2d uwcent = (edge->n0->uw  + edge->n1->uw )*0.5;
+//		vec2d uwc = m_Surf->ClosestUW( cent, uwcent.x(), uwcent.y() );
+//
+//		edge->target_len = m_Surf->InterpTargetMap( uwc.x(), uwc.y() );
+//	}
 }
 
 

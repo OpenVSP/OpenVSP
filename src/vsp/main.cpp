@@ -8,13 +8,18 @@
 
 #include <stdio.h>
 
+
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
 #ifdef WIN32
-#include <windows.h>		
+#include <windows.h>	
+#else
+#include <pthread.h>
 #endif
+
+
 
 #include <FL/Fl.H>
 #include <FL/Fl_Window.H>
@@ -619,7 +624,12 @@ bool ExtractVersionNumber( string & str, int* major, int* minor, int* change )
 	return false;
 }
 
-void CheckVersionNumber()
+#ifdef WIN32
+DWORD WINAPI CheckVersionNumber(LPVOID lpParameter)
+#else
+void* CheckVersionNumber( void *threadid )
+#endif
+
 {
 	//==== Init Nano HTTP ====//
 	xmlNanoHTTPInit();
@@ -719,6 +729,22 @@ void CheckVersionNumber()
 		xmlNanoHTTPClose(ctx);
 
 	xmlNanoHTTPCleanup();
+	
+	return 0;
+}
+
+void ThreadCheckVersionNumber()
+{
+#ifdef WIN32
+
+	DWORD myThreadID;
+	HANDLE myHandle = CreateThread(0, 0, CheckVersionNumber, 0, 0, &myThreadID);
+#else
+
+	long t = 0;
+	pthread_t thread;
+	int rc = pthread_create( &thread, NULL, CheckVersionNumber, (void *)t );
+#endif
 }
 
 void vsp_exit()
@@ -764,7 +790,7 @@ int main( int argc, char** argv)
 	screenMgrPtr = new ScreenMgr(airPtr);
 
 	//==== Check Server For Version Number ====//
-	CheckVersionNumber();
+	ThreadCheckVersionNumber();
 
 	//==== Link Objects ====//
 	airPtr->setScreenMgr( screenMgrPtr );

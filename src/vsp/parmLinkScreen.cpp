@@ -106,7 +106,8 @@ void ParmLinkScreen::RemoveAllRefs( GeomBase* gPtr )
 
 	for ( int i = 0 ; i < (int)m_ParmButtonVec.size() ; i++ )
 	{
-		if ( m_ParmButtonVec[i]->get_parm_ptr()->get_geom_base() != gPtr )
+		Parm* p =  m_ParmButtonVec[i]->get_parm_ptr();
+		if ( p && p->get_geom_base() != gPtr )
 			tempVec.push_back( m_ParmButtonVec[i] );
 	}
 	m_ParmButtonVec = tempVec;
@@ -257,6 +258,14 @@ void ParmLinkScreen::update()
 	}
 }
 
+void ParmLinkScreen::clearButtonParms()
+{
+	for ( int i = 0 ; i < (int)m_ParmButtonVec.size() ; i++ )
+	{
+		m_ParmButtonVec[i]->set_parm_ptr( 0 );
+	}
+
+}
 
 void ParmLinkScreen::show()
 {

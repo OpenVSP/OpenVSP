@@ -603,7 +603,7 @@ void Geom::read_general_parms(xmlNodePtr root)
   aeroCenter.set_y( xmlFindDouble( root, "AeroCenter_Y", aeroCenter.y() ) );
   aeroCenter.set_z( xmlFindDouble( root, "AeroCenter_Z", aeroCenter.z() ) );
   autoAeroCenterFlag = xmlFindInt( root, "AutoAeroCenterFlag", autoAeroCenterFlag );
-  autoAeroCenterFlag = !!(xmlFindInt( root, "WakeActiveFlag", m_WakeActiveFlag ));
+  m_WakeActiveFlag = !!(xmlFindInt( root, "WakeActiveFlag", m_WakeActiveFlag ));
 
   //==== Read Attach Flags ====//
   posAttachFlag = xmlFindInt( root, "PosAttachFlag", posAttachFlag );
@@ -1498,8 +1498,12 @@ void  Geom::buildVertexVec(Xsec_surf * xsurf, int surface, vector< VertexID > * 
 			VertexID vert;
 			vert.geomPtr = this;
 			vert.surface = surface;
-			vert.section = x/(double)(numxsec-1);
-			vert.point = p/(double)(numpnts-1);
+			vert.section = 0.0;
+			if ( numxsec > 1 )
+				vert.section = x/(double)(numxsec-1);
+			vert.point = 0.0;
+			if ( numpnts > 1 )
+				vert.point = p/(double)(numpnts-1);
 			vert.reflect = 0;
 			vertVec->push_back(vert);
 			if ( sym_code != NO_SYM )
@@ -1523,8 +1527,12 @@ void  Geom::buildVertexVec(vector<TMesh*> * meshVec, int surface, vector< Vertex
 			VertexID vert;
 			vert.geomPtr = this;
 			vert.surface = surface;
-			vert.section = x/(double)(nummesh-1);
-			vert.point = p/(double)(meshsize-1);
+			vert.section = 0.0;
+			if ( nummesh > 1 )
+				vert.section = x/(double)(nummesh-1);
+			vert.point = 0.0;
+			if ( meshsize > 1 )
+				vert.point = p/(double)(meshsize-1);
 			vert.reflect = 0;
 			vertVec->push_back(vert);
 		}

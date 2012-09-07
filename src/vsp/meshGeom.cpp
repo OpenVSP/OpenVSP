@@ -18,7 +18,8 @@
 #include "materialMgr.h"
 #include "scriptMgr.h"
 #include "vorGeom.h"
-#include "CfdMeshMgr.h"
+//#include "CfdMeshMgr.h"
+#include "PntNodeMerge.h"
 
 #ifdef __APPLE__
 #  include <OpenGL/gl.h>
@@ -535,6 +536,7 @@ int MeshGeom::read_nascart( const char* file_name )
 
 }
 
+
 //==== Build NASCART Mesh and Save ====//
 void MeshGeom::buildNascartMesh(int partOffset)
 {
@@ -569,49 +571,44 @@ void MeshGeom::buildNascartMesh(int partOffset)
 	}
 
 	//==== Collect All Points ====//
-	vector< vec3d* > allPntVec;
 	vector< TNode* > allNodeVec;
 	for ( t = 0 ; t < (int)nascartTriVec.size() ; t++ )
 	{
-		nascartTriVec[t]->n0->id = (int)allPntVec.size();
-		allPntVec.push_back( &nascartTriVec[t]->n0->pnt );
+		nascartTriVec[t]->n0->id = (int)allNodeVec.size();
 		allNodeVec.push_back( nascartTriVec[t]->n0 );
-		nascartTriVec[t]->n1->id = (int)allPntVec.size();
-		allPntVec.push_back( &nascartTriVec[t]->n1->pnt );
+		nascartTriVec[t]->n1->id = (int)allNodeVec.size();
 		allNodeVec.push_back( nascartTriVec[t]->n1 );
-		nascartTriVec[t]->n2->id = (int)allPntVec.size();
-		allPntVec.push_back( &nascartTriVec[t]->n2->pnt );
+		nascartTriVec[t]->n2->id = (int)allNodeVec.size();
 		allNodeVec.push_back( nascartTriVec[t]->n2 );
+	}
+	vector< vec3d > allPntVec;
+	for ( int i = 0 ; i < (int)allNodeVec.size() ; i++ )
+	{
+		allPntVec.push_back( allNodeVec[i]->pnt );
 	}
 
 	//==== Build Map ====//
-	map< int, vector< int > > indMap;
-	vector< int > pntShift;
-	int numPnts = cfdMeshMgrPtr->BuildIndMap( allPntVec, indMap, pntShift );
+	PntNodeCloud pnCloud;
+	pnCloud.AddPntNodes( allPntVec );
 
-	for ( t = 0 ; t < (int)nascartTriVec.size() ; t++ )
-	{
-		int i0 = cfdMeshMgrPtr->FindPntIndex( nascartTriVec[t]->n0->pnt, allPntVec, indMap );
-		int i1 = cfdMeshMgrPtr->FindPntIndex( nascartTriVec[t]->n1->pnt, allPntVec, indMap );
-		int i2 = cfdMeshMgrPtr->FindPntIndex( nascartTriVec[t]->n2->pnt, allPntVec, indMap );
-		nascartTriVec[t]->n0->id = pntShift[i0];
-		nascartTriVec[t]->n1->id = pntShift[i1];
-		nascartTriVec[t]->n2->id = pntShift[i2];
-	}
+	//==== Compute Tol ====//
+	bbox bb = airPtr->getBndBox();
+	double tol = bb.get_largest_dim()*1.0e-10;
 
-	////==== Look Thru nVecs and Redirect Dumplicates ====//
-	//for ( t = 0 ; t < (int)nascartTriVec.size() ; t++ )
-	//{
-	//	checkDupOrAdd( nascartTriVec[t]->n0, nascartNodeVec );
-	//	checkDupOrAdd( nascartTriVec[t]->n1, nascartNodeVec );
-	//	checkDupOrAdd( nascartTriVec[t]->n2, nascartNodeVec );
-	//}
-
-	//==== Load Nodes ====//
+	//==== Use NanoFlann to Find Close Points and Group ====//
+	IndexPntNodes( pnCloud, tol );
+	
+	//==== Load Used Nodes ====//
 	for ( int i = 0 ; i < (int)allNodeVec.size() ; i++ )
 	{
-		if ( pntShift[i] >= 0 )
+		if ( pnCloud.UsedNode( i ) )
 			nascartNodeVec.push_back( allNodeVec[i] );
+	}
+	
+	//==== Set Adjusted Node IDs ====//
+	for ( int i = 0 ; i < (int)allNodeVec.size() ; i++ )
+	{
+		allNodeVec[i]->id = pnCloud.GetNodeUsedIndex( i );
 	}
 
 	//==== Remove Any Bogus Tris ====//
@@ -631,6 +628,103 @@ void MeshGeom::buildNascartMesh(int partOffset)
 	nascartTriVec = goodTriVec;
 
 }
+
+////==== Build NASCART Mesh and Save ====//
+//void MeshGeom:buildNascartMesh(int partOffset)
+//{
+//	int m, s, t;
+//
+//	nascartTriVec.clear();
+//	nascartNodeVec.clear();
+//
+//	//==== Find All Exterior and Split Tris =====//
+//	for ( m = 0 ; m < (int)tMeshVec.size() ; m++ )
+//	{
+//		for ( t = 0 ; t < (int)tMeshVec[m]->tVec.size() ; t++ )
+//		{
+//			TTri* tri = tMeshVec[m]->tVec[t];
+//			if ( tri->splitVec.size() )
+//			{
+//				for ( s = 0 ; s < (int)tri->splitVec.size() ; s++ )
+//				{
+//					if ( !tri->splitVec[s]->interiorFlag )
+//					{
+//						tri->splitVec[s]->id = partOffset+m+1;
+//						nascartTriVec.push_back( tri->splitVec[s] );
+//					}
+//				}
+//			}
+//			else if ( !tri->interiorFlag )
+//			{
+//				tri->id = partOffset+m+1;
+//				nascartTriVec.push_back( tri );
+//			}
+//		}
+//	}
+//
+//	//==== Collect All Points ====//
+//	vector< vec3d* > allPntVec;
+//	vector< TNode* > allNodeVec;
+//	for ( t = 0 ; t < (int)nascartTriVec.size() ; t++ )
+//	{
+//		nascartTriVec[t]->n0->id = (int)allPntVec.size();
+//		allPntVec.push_back( &nascartTriVec[t]->n0->pnt );
+//		allNodeVec.push_back( nascartTriVec[t]->n0 );
+//		nascartTriVec[t]->n1->id = (int)allPntVec.size();
+//		allPntVec.push_back( &nascartTriVec[t]->n1->pnt );
+//		allNodeVec.push_back( nascartTriVec[t]->n1 );
+//		nascartTriVec[t]->n2->id = (int)allPntVec.size();
+//		allPntVec.push_back( &nascartTriVec[t]->n2->pnt );
+//		allNodeVec.push_back( nascartTriVec[t]->n2 );
+//	}
+//
+//	//==== Build Map ====//
+//	map< int, vector< int > > indMap;
+//	vector< int > pntShift;
+//	int numPnts = cfdMeshMgrPtr->BuildIndMap( allPntVec, indMap, pntShift );
+//
+//	for ( t = 0 ; t < (int)nascartTriVec.size() ; t++ )
+//	{
+//		int i0 = cfdMeshMgrPtr->FindPntIndex( nascartTriVec[t]->n0->pnt, allPntVec, indMap );
+//		int i1 = cfdMeshMgrPtr->FindPntIndex( nascartTriVec[t]->n1->pnt, allPntVec, indMap );
+//		int i2 = cfdMeshMgrPtr->FindPntIndex( nascartTriVec[t]->n2->pnt, allPntVec, indMap );
+//		nascartTriVec[t]->n0->id = pntShift[i0];
+//		nascartTriVec[t]->n1->id = pntShift[i1];
+//		nascartTriVec[t]->n2->id = pntShift[i2];
+//	}
+//
+//	////==== Look Thru nVecs and Redirect Dumplicates ====//
+//	//for ( t = 0 ; t < (int)nascartTriVec.size() ; t++ )
+//	//{
+//	//	checkDupOrAdd( nascartTriVec[t]->n0, nascartNodeVec );
+//	//	checkDupOrAdd( nascartTriVec[t]->n1, nascartNodeVec );
+//	//	checkDupOrAdd( nascartTriVec[t]->n2, nascartNodeVec );
+//	//}
+//
+//	//==== Load Nodes ====//
+//	for ( int i = 0 ; i < (int)allNodeVec.size() ; i++ )
+//	{
+//		if ( pntShift[i] >= 0 )
+//			nascartNodeVec.push_back( allNodeVec[i] );
+//	}
+//
+//	//==== Remove Any Bogus Tris ====//
+//	vector< TTri* > goodTriVec;
+//
+//	//==== Write Out Tris ====//
+//	for ( t = 0 ; t < (int)nascartTriVec.size() ; t++ )
+//	{
+//		TTri* ttri = nascartTriVec[t];
+//		if ( ttri->n0->id != ttri->n1->id &&
+//			 ttri->n0->id != ttri->n2->id &&
+//			 ttri->n1->id != ttri->n2->id )
+//		{
+//			goodTriVec.push_back( ttri );
+//		}
+//	}
+//	nascartTriVec = goodTriVec;
+//
+//}
 
 void MeshGeom::writeNascartPnts( FILE* fp )
 {

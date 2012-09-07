@@ -1067,27 +1067,35 @@ int Af::read_af_file( Stringc file_name )
 
   if (file_id == (FILE *)NULL) return(0);
 
-  fgets(buff, 80, file_id);  line = buff;
+  fgets(buff, 255, file_id);  line = buff;
 
-  if (line.search_for_substring("AIRFOIL FILE") < 0)
-  {
-		int ok = readSeligAirfoil( file_id );	
+	int ok = 0;
+	if (line.search_for_substring("AIRFOIL FILE") < 0)
+	{
+		ok = readSeligAirfoil( file_id );	
 
 		if ( ok )
 		{
-    	name = buff;
-    	name.remove_trailing_blanks();
-   		name.remove_all_substrings('\n');
-   		name.remove_all_substrings('\r');
+    		name = buff;
+    		name.remove_trailing_blanks();
+   			name.remove_all_substrings('\n');
+   			name.remove_all_substrings('\r');
 		}	
-  }
- 	else
+		else
+		{
+			ok = readLednicerAirfoil( file_id );	
+		}
+
+	}
+	else
 	{
-		int ok = readVspAirfoil( file_id,
-			&thickness_read_flag, &radius_le_read_flag, &radius_te_read_flag );
+		ok = readVspAirfoil( file_id, &thickness_read_flag, &radius_le_read_flag, &radius_te_read_flag );
 	}
 
   fclose( file_id );
+
+  if ( !ok )
+	  return 0;
 
   //==== Set Type and Deactivate Parameters ====//
   set_type( AIRFOIL_FILE );
@@ -1137,19 +1145,17 @@ int Af::readSeligAirfoil( FILE* file_id )
 {
   int i;
   Stringc line;
-  char buff[255];
+  char buff[256];
   float x, z;
 
   vector< float > xvec;
   vector< float > zvec;
-	//sdyn_array< float > xvec;
-	//sdyn_array< float > zvec;
 
   int more_data_flag = 1;
   while (more_data_flag)
     {
       more_data_flag = 0;
-      if ( fgets(buff, 80, file_id) )
+      if ( fgets(buff, 255, file_id) )
         {
           more_data_flag = 1;
           line = buff;
@@ -1161,8 +1167,6 @@ int Af::readSeligAirfoil( FILE* file_id )
 				sscanf(buff, "%f %f", &x, &z);
 				if ( x >= 0.0 && x <= 1.0 && z >= -1.0 && z <= 1.0 )
 				{
-					//xvec.append( x );
-					//zvec.append( z );
 					xvec.push_back( x );
 					zvec.push_back( z );
 				}
@@ -1188,8 +1192,6 @@ int Af::readSeligAirfoil( FILE* file_id )
 			smallestX = xvec[i];
 			leInd = i;
 		}
-// 		if ( fabs(xvec[i]) < 0.000001 )			// Not reliable....
-//			leInd = i;
 	}
 	
 	//==== Not Enough Pnts ====//
@@ -1227,15 +1229,59 @@ int Af::readSeligAirfoil( FILE* file_id )
 
 }
 
+int Af::readLednicerAirfoil( FILE* file_id )
+{
+	char buff[256];
+	float x, z;
+
+	rewind(file_id);
+
+	fgets(buff, 255, file_id);
+	fgets(buff, 255, file_id);
+	sscanf(buff, "%f %f", &x, &z);
+	int num_pnts_upper = (int)(x+0.5);
+	int num_pnts_lower = (int)(z+0.5);
+
+	fgets(buff, 255, file_id);
+
+	if ( num_pnts_upper < 3 || num_pnts_lower < 3 )
+		return 0;
+
+	upper_curve.init(num_pnts_upper);
+	lower_curve.init(num_pnts_lower);
+	fgets(buff, 255, file_id);
+
+	for ( int i = 0 ; i < num_pnts_upper ; i++ )
+	{
+		fgets(buff, 255, file_id);
+		sscanf(buff, "%f %f", &x, &z);
+		upper_curve.load_pnt(  i, vec3d(x, 0.0, z));
+	}
+	for ( int i = 0 ; i < num_pnts_lower ; i++ )
+	{
+		fgets(buff, 255, file_id);
+		sscanf(buff, "%f %f", &x, &z);
+		lower_curve.load_pnt(  i, vec3d(x, 0.0, z));
+	}
+
+	//==== Close Trailing Edge - Set Last Points ====//
+	vec3d last_pnt = upper_curve.get_pnt(num_pnts_upper-1) +
+				     lower_curve.get_pnt(num_pnts_lower-1);
+	upper_curve.load_pnt(num_pnts_upper-1, last_pnt*0.5);
+	lower_curve.load_pnt(num_pnts_lower-1, last_pnt*0.5);		
+
+	return 1;
+}
+
 
 int Af::readVspAirfoil( FILE* file_id,
 		int *thickness_read_flag, int *radius_le_read_flag, int *radius_te_read_flag  )
 {
    int i;
    Stringc line;
-   char buff[255];
+   char buff[256];
 
-   fgets(buff, 80, file_id);
+   fgets(buff, 255, file_id);
    name = buff;
    name.remove_trailing_blanks();
    name.remove_all_substrings('\n');
@@ -1245,10 +1291,10 @@ int Af::readVspAirfoil( FILE* file_id,
    float x, z;
 
    fscanf(file_id, "%d", &sym_flag);
-   fgets(buff, 80, file_id);
+   fgets(buff, 255, file_id);
 
    fscanf(file_id, "%d", &num_pnts_upper);
-   fgets(buff, 80, file_id);
+   fgets(buff, 255, file_id);
 
     upper_curve.init(num_pnts_upper);
     if (sym_flag)
@@ -1259,14 +1305,14 @@ int Af::readVspAirfoil( FILE* file_id,
    else
      {
        fscanf(file_id, "%d", &num_pnts_lower);
-       fgets(buff, 80, file_id);
+       fgets(buff, 255, file_id);
        lower_curve.init(num_pnts_lower);
      }
 
    for (i = 0 ; i < num_pnts_upper ; i++)
      {
        fscanf(file_id, "%f %f", &x, &z);
-       fgets(buff, 80, file_id);
+       fgets(buff, 255, file_id);
 
        upper_curve.load_pnt(  i, vec3d(x, 0.0, z));
 
@@ -1275,7 +1321,7 @@ int Af::readVspAirfoil( FILE* file_id,
            lower_curve.load_pnt(  i, vec3d(x, 0.0, -z) );
          }
      }
-   fgets(buff, 80, file_id);
+   fgets(buff, 255, file_id);
 
 
   if ( !sym_flag )
@@ -1283,10 +1329,10 @@ int Af::readVspAirfoil( FILE* file_id,
       for ( i = 0 ; i < num_pnts_lower ; i++)
         {
           fscanf(file_id, "%f %f", &x, &z);
-          fgets(buff, 80, file_id);
+          fgets(buff, 255, file_id);
           lower_curve.load_pnt( i, vec3d(x, 0.0, z) );
         }
-      fgets(buff, 80, file_id);
+      fgets(buff, 255, file_id);
     }
 
   //==== Close Trailing Edge - Set Last Points ====//
@@ -1300,7 +1346,7 @@ int Af::readVspAirfoil( FILE* file_id,
   while (more_data_flag)
     {
       more_data_flag = 0;
-      if ( fgets(buff, 80, file_id) )
+      if ( fgets(buff, 255, file_id) )
         {
           more_data_flag = 1;
           line = buff;

@@ -706,13 +706,18 @@ ParmButton::~ParmButton()
 //==== Set Parm Ptr =====//
 void ParmButton::set_parm_ptr(Parm* parm_in)
 {
-  //if (parm)
-  //  parm->del_device((Gui_device*)this);
+	if (parm)
+		parm->del_device((Gui_device*)this);
 
-  parm = parm_in;
+	parm = parm_in;
 
-  init();
+    if (parm)
+        parm->add_device((Gui_device*)this);
+
+	init();
 }
+
+
 
 //==== Initialize Button =====//
 void ParmButton::init()
