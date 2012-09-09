@@ -521,45 +521,6 @@ void FuselageGeom::comp_spine()
   } 
 }
 
-//==== Interpolate Xsecs That are From Files =====//
-void FuselageGeom::interpolate_from_file
-			( float sup_fract, FuselageXSec* xsec0, FuselageXSec* xsec1, FuselageXSec* out )
-{
-  if ( xsec0->get_type() == XSEC_POINT )
-  {
-    out->set_type( FROM_FILE );
-    out->set_file_crv( xsec1->get_file_crv() );
-  }
-  else if ( xsec0->get_type() == FROM_FILE &&  xsec1->get_type() == FROM_FILE )
-  {
-    out->set_type( FROM_FILE );
-    out->interp_file_crv( sup_fract, xsec0->get_file_crv(), xsec1->get_file_crv() );
-  }
-}
-
-//==== Interpolate Xsecs That are From Edit Crvs =====//
-void FuselageGeom::interpolate_from_edit_crv
-			( float sup_fract, FuselageXSec* xsec0, FuselageXSec* xsec1, FuselageXSec* out )
-{
-  if ( xsec0->get_type() == XSEC_POINT )
-  {
-
-    out->setEditCrv( xsec1->getEditCrv() );
-	double w = xsec1->getEditCrv()->getMaxWidth()->get();
-	double h = xsec1->getEditCrv()->getMaxHeight()->get();
-	out->getEditCrv()->scaleWH( w*sup_fract, h*sup_fract ); 
-    out->set_type( EDIT_CRV );
-	out->getEditCrv()->generate();
-  }
-  else if ( xsec0->get_type() == EDIT_CRV &&  xsec1->get_type() == EDIT_CRV )
-  {
-	out->getEditCrv()->blend( sup_fract, xsec0->getEditCrv(),xsec1->getEditCrv() );
-
-    out->set_type( EDIT_CRV );
- 	out->getEditCrv()->generate();
- }
-}
-
 //==== Cross Section Has Changed Regen Surf =====//
 void FuselageGeom::xsec_trigger()
 {

@@ -145,8 +145,6 @@ public:
 
    virtual void xsec_trigger();
    virtual void gen_surf();
-   virtual void interpolate_from_file( float sup_fract, FuselageXSec * xsec0, FuselageXSec * xsec1, FuselageXSec * out );
-   virtual void interpolate_from_edit_crv( float sup_fract, FuselageXSec * xsec0, FuselageXSec * xsec1, FuselageXSec * out );
    
    virtual void comp_spine();
 
