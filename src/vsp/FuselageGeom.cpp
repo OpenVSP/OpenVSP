@@ -2010,7 +2010,7 @@ void FuselageGeom::draw2D(vec2d & cursor)
 			double h = xsecVec[curr_xsec_num]->get_height()->get();
 			xsecVec[curr_xsec_num]->get_height()->set((h+moveZ));
 
-			if ( xsecVec[curr_xsec_num]->get_type() == EDIT_CRV )
+			if ( xsecVec[curr_xsec_num]->get_type() == FXS_EDIT_CRV )
 			{
 				EditCurve* ec =  xsecVec[curr_xsec_num]->getEditCrv();
 				double mh = ec->getMaxHeight()->get();
@@ -2037,7 +2037,7 @@ void FuselageGeom::draw2D(vec2d & cursor)
 			double h = xsecVec[curr_xsec_num]->get_height()->get();
 			xsecVec[curr_xsec_num]->get_height()->set((h-moveZ));
 
-			if ( xsecVec[curr_xsec_num]->get_type() == EDIT_CRV )
+			if ( xsecVec[curr_xsec_num]->get_type() == FXS_EDIT_CRV )
 			{
 				EditCurve* ec =  xsecVec[curr_xsec_num]->getEditCrv();
 				double mh = ec->getMaxHeight()->get();
@@ -2065,7 +2065,7 @@ void FuselageGeom::draw2D(vec2d & cursor)
 			double w = xsecVec[curr_xsec_num]->get_width()->get();
 			xsecVec[curr_xsec_num]->get_width()->set((w+moveY));
 
-			if ( xsecVec[curr_xsec_num]->get_type() == EDIT_CRV )
+			if ( xsecVec[curr_xsec_num]->get_type() == FXS_EDIT_CRV )
 			{
 				EditCurve* ec =  xsecVec[curr_xsec_num]->getEditCrv();
 				double mw = ec->getMaxWidth()->get();
