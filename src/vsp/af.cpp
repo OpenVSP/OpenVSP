@@ -1729,10 +1729,10 @@ vec3d Af::get_rounded_end_cap(int index)
 	//==== BiConvex ====//
 	int half_pnts = num_pnts/2;
 
-	if ( index == 0 || index == num_pnts-1 )
-		return vec3d( 1.0, 0.0, 0.0 );
-	else if ( index == half_pnts )
-		return vec3d( 0.0, 0.0, 0.0 );
+	//if ( index == 0 || index == num_pnts-1 )
+	//	return vec3d( 1.0, 0.0, 0.0 );
+	//else if ( index == half_pnts )
+	//	return vec3d( 0.0, 0.0, 0.0 );
 
 	int mirror = num_pnts-1-index;
 	vec3d new_pnt = (pnts[index] + pnts[mirror])*0.5;

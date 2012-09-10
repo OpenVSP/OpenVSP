@@ -57,6 +57,8 @@ public:
 	EditCurve(GeomBase* geom_ptr_in = 0);
 	virtual ~EditCurve();
 
+	virtual void copy( EditCurve & iec );
+
     virtual void write(xmlNodePtr node);
     virtual void read(xmlNodePtr node);
 
@@ -130,7 +132,7 @@ public:
 
 	virtual void blend( double fract, EditCurve* crv0,  EditCurve* crv1 );
 
-private:
+protected:
 
 	GeomBase* geom_ptr;
 

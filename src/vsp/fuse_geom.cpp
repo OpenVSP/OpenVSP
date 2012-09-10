@@ -253,7 +253,8 @@ void Fuse_geom::copy( Geom* fromGeom )
 	{
 		fuse_xsec* new_xsec = new fuse_xsec(this);
 		new_xsec->gen_parms();
-		*new_xsec = *(g->xsecVec[i]);
+//		*new_xsec = *(g->xsecVec[i]);
+		new_xsec->copy( *g->xsecVec[i] );
 		new_xsec->set_iml_flag( imlFlag );
 		new_xsec->generate();
 		new_xsec->set_loc_on_spine( g->xsecVec[i]->get_loc_on_spine() );

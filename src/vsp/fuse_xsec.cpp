@@ -184,57 +184,59 @@ fuse_xsec::~fuse_xsec()
 {
 }
 
-//===== Copy - Override Equals  =====//
-fuse_xsec& fuse_xsec::operator=(const fuse_xsec& ifx) //jrg - look at this...
-{
-  mlType = ifx.mlType;
-  num_pnts = ifx.num_pnts;
-//jrg  curr_fuse = ifx.curr_fuse;
-//  loc_on_spine = ifx.loc_on_spine;
-//  location  = ifx.location;
-  z_offset = ifx.z_offset;
-  pntSpaceType = ifx.pntSpaceType;
-
-  imlFlag = ifx.imlFlag;
-  topThick = ifx.topThick;
-  botThick = ifx.botThick;
-  sideThick = ifx.sideThick;
-  imlXOff = ifx.imlXOff;
-  imlZOff = ifx.imlZOff;
-
-  profileTanStr1 = ifx.profileTanStr1;
-  profileTanStr2 = ifx.profileTanStr2;
-  profileTanAng  = ifx.profileTanAng;
-
-  numSectInterp1 = ifx.numSectInterp1;
-  numSectInterp2 = ifx.numSectInterp2;
-
-
-  for ( int i = 0 ; i < 2 ; i++ )
-  {
-    xstype[i]   = ifx.xstype[i];
-    height[i] = ifx.height[i];
-    width[i]  = ifx.width[i];
-    max_width_loc[i] = ifx.max_width_loc[i];
-    corner_rad[i]    = ifx.corner_rad[i];
-    top_tan_angle[i] = ifx.top_tan_angle[i];
-    bot_tan_angle[i] = ifx.bot_tan_angle[i];
-    top_str[i] = ifx.top_str[i];
-    upp_str[i] = ifx.upp_str[i];
-    low_str[i] = ifx.low_str[i];
-    bot_str[i] = ifx.bot_str[i];
-    file_crv[i] = ifx.file_crv[i];
-	edit_crv[i] = ifx.edit_crv[i];
-
-
-	edit_crv[i].set_geom( this );
-	edit_crv[i].generate();
-  }
-  this->gen_parms();
-  this->generate();
-
-  return *this;  
-}
+////===== Copy - Override Equals  =====//
+//fuse_xsec& fuse_xsec::operator=(const fuse_xsec& ifx) //jrg - look at this...
+//{
+//  mlType = ifx.mlType;
+//  num_pnts = ifx.num_pnts;
+////jrg  curr_fuse = ifx.curr_fuse;
+////  loc_on_spine = ifx.loc_on_spine;
+////  location  = ifx.location;
+//  z_offset = ifx.z_offset;
+//  pntSpaceType = ifx.pntSpaceType;
+//
+//  imlFlag = ifx.imlFlag;
+//  topThick = ifx.topThick;
+//  botThick = ifx.botThick;
+//  sideThick = ifx.sideThick;
+//  imlXOff = ifx.imlXOff;
+//  imlZOff = ifx.imlZOff;
+//
+//  profileTanStr1 = ifx.profileTanStr1;
+//  profileTanStr2 = ifx.profileTanStr2;
+//  profileTanAng  = ifx.profileTanAng;
+//
+//  numSectInterp1 = ifx.numSectInterp1;
+//  numSectInterp2 = ifx.numSectInterp2;
+//
+//
+//  for ( int i = 0 ; i < 2 ; i++ )
+//  {
+//    xstype[i]   = ifx.xstype[i];
+//    height[i] = ifx.height[i];
+//    width[i]  = ifx.width[i];
+//    max_width_loc[i] = ifx.max_width_loc[i];
+//    corner_rad[i]    = ifx.corner_rad[i];
+//    top_tan_angle[i] = ifx.top_tan_angle[i];
+//    bot_tan_angle[i] = ifx.bot_tan_angle[i];
+//    top_str[i] = ifx.top_str[i];
+//    upp_str[i] = ifx.upp_str[i];
+//    low_str[i] = ifx.low_str[i];
+//    bot_str[i] = ifx.bot_str[i];
+//    file_crv[i] = ifx.file_crv[i];
+//
+//	edit_crv[i] = ifx.edit_crv[i];
+//
+////	edit_crv[i].copy( ifx.edit_crv[i] );
+//
+//	edit_crv[i].set_geom( this );
+//	edit_crv[i].generate();
+//  }
+//  this->gen_parms();
+//  this->generate();
+//
+//  return *this;  
+//}
 
 void fuse_xsec::copy( fuse_xsec & ifx )
 {
@@ -273,7 +275,7 @@ void fuse_xsec::copy( fuse_xsec & ifx )
     low_str[i] = ifx.low_str[i].get();
     bot_str[i] = ifx.bot_str[i].get();
     file_crv[i] = ifx.file_crv[i];
-	edit_crv[i] = ifx.edit_crv[i];
+	edit_crv[i].copy( ifx.edit_crv[i] );
 
 	edit_crv[i].set_geom( this );
 	edit_crv[i].generate();
