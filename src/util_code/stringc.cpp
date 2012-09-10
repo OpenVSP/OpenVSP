@@ -18,7 +18,7 @@
 
 Stringc::Stringc()
 {
-    chunk_size = 64;
+    chunk_size = STRINGC_CHUNK_SIZE;
     total_size = 0;
     num_chars = 0;
     make_space();
@@ -29,7 +29,7 @@ Stringc::Stringc()
 
 Stringc::Stringc(const char ch)
 {
-    chunk_size = 64;
+    chunk_size = STRINGC_CHUNK_SIZE;
     num_chars = 1;
     make_space();
     (*this)[0] = ch;
@@ -40,7 +40,7 @@ Stringc::Stringc(const char ch)
 
 Stringc::Stringc(const char *ch_array)
 {
-    chunk_size = 64;
+    chunk_size = STRINGC_CHUNK_SIZE;
     if (ch_array)
       num_chars = strlen(ch_array);
     else
@@ -55,7 +55,7 @@ Stringc::Stringc(const char *ch_array)
 
 Stringc::Stringc(int ichar)
 {
-   chunk_size = 64;
+   chunk_size = STRINGC_CHUNK_SIZE;
    num_chars = ichar;
    make_space();
    for (int i=0; i<num_chars; i++)
@@ -350,6 +350,7 @@ void Stringc::delete_word(int iword)
          cout << "   Word index is greater than the number of words.\n";
       }
 }
+
 
 //----------------------------------------------------------------------------
 
@@ -980,7 +981,7 @@ Stringc& Stringc::operator=( const char ch)
    {
    (*this).clear_space();
    (*this).num_chars = 1;
-   (*this).chunk_size = 64;
+   (*this).chunk_size = STRINGC_CHUNK_SIZE;
    (*this).make_space();
    (*this).char_array[0] = ch;
    (*this).char_array[1] = '\0';
@@ -1008,7 +1009,7 @@ Stringc& Stringc::operator=( const char *cstring )
    {
    (*this).clear_space();
    (*this).num_chars = strlen(cstring);
-   (*this).chunk_size = 64;
+   (*this).chunk_size = STRINGC_CHUNK_SIZE;
    (*this).make_space();
    for (int i=0; i < (int)strlen(cstring); i++)
       (*this).char_array[i] = cstring[i];

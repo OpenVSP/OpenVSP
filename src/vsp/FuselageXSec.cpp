@@ -246,8 +246,8 @@ void FuselageXSec::copy( FuselageXSec & ifx )
 	low_str = ifx.low_str.get();
 	bot_str = ifx.bot_str.get();
 	file_crv = ifx.file_crv;
-	edit_crv = ifx.edit_crv;
 
+	edit_crv.copy( ifx.edit_crv );
 	edit_crv .set_geom( this );
 	edit_crv .generate();
 
@@ -436,7 +436,7 @@ void FuselageXSec::set_pnt_on_spine(const vec3d& offset)
 
 void FuselageXSec::setEditCrv( EditCurve* crv )
 { 
-	edit_crv = *crv; 
+	edit_crv.copy( *crv ); 
 	edit_crv.set_geom( geom_ptr );
 }
 
