@@ -2458,10 +2458,12 @@ Geom* Aircraft::comp_geom(int sliceFlag, int meshFlag, int halfFlag )
 
 		newGeom->setRedFlag(1);
 
-		modifyGeom( newGeom );
+		if (!PLUGIN)
+			modifyGeom( newGeom );
 		setActiveGeom( newGeom );
 
-		if (screenMgr) screenMgr->getMeshScreen()->show( newGeom );
+		if (screenMgr && !PLUGIN) 
+			screenMgr->getMeshScreen()->show( newGeom );
 	}
 	else
 	{
