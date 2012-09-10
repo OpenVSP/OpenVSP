@@ -55,10 +55,18 @@ private:
 	SliderInputCombo* m_Radius2Slider;
 
 	SliderInputCombo* m_GlobalEdgeSizeSlider;
+	SliderInputCombo* m_MinEdgeSizeSlider;
+	SliderInputCombo* m_MaxGapSizeSlider;
+	SliderInputCombo* m_NumCircSegmentSlider;
+	SliderInputCombo* m_GrowRatioSlider;
 
 	SliderInputCombo* m_FarXScaleSlider;
 	SliderInputCombo* m_FarYScaleSlider;
 	SliderInputCombo* m_FarZScaleSlider;
+
+	SliderInputCombo* m_WakeScaleSlider;
+	SliderInputCombo* m_WakeAngleSlider;
+
 
 	ScreenMgr* screenMgrPtr;
 	Aircraft* aircraftPtr;

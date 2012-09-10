@@ -7,6 +7,11 @@
 //#include "vld.h"  
 
 #include <stdio.h>
+
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+
 #ifdef WIN32
 #include <windows.h>		
 #endif
@@ -16,11 +21,23 @@
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Gl_Window.H>
 
+#include <libxml/tree.h>
+#include <libxml/nanohttp.h>
+
 #ifdef __APPLE__
 #  include <OpenGL/gl.h>
 #else
 #  include <GL/gl.h>
 #endif
+
+#ifdef WIN32
+    #include <direct.h>
+    #define GetCurrentDir _getcwd
+#else
+    #include <unistd.h>
+    #define GetCurrentDir getcwd
+#endif
+
 #include "mainScreen.h"
 
 #include "main.h"
@@ -34,6 +51,7 @@
 #include "FeaMeshMgr.h"
 #include "CfdMeshMgr.h"
 #include "VspPreferences.h"
+#include "meshGeom.h"
 
 // Include OpenNurbs for Rhino Dump
 // ON Needs to be undefined for it to compile
@@ -66,10 +84,13 @@ int batchMode(int argc, char *argv[], Aircraft* airPtr)
     int compgeomFlag = 0;
 	int meshFlag = 0;
     int sliceFlag = 0;
+    int massFlag = 0;
 	int numSlices = 0;
+	int numSlicesMass = 0;
     int writeXsecFlag = 0;
     int writeFelisaFlag = 0;
     int writeStereoFlag = 0;
+    int writeX3DFlag = 0;
     int writeTRIFlag = 0;
     int writeRhinoFlag = 0;
     int writeNascartFlag = 0;
@@ -159,6 +180,13 @@ int batchMode(int argc, char *argv[], Aircraft* airPtr)
 				sliceFlag = 1;
 		   }
        }
+       if ( strcmp(argv[i],"-mass") == 0 ) {
+		   if (i+1 < argc)
+		   {
+				numSlicesMass = atoi( argv[++i] );
+				massFlag = 1;
+		   }
+       }
        if ( strcmp(argv[i],"-xsec") == 0 ) {
           writeXsecFlag = 1;
        }
@@ -167,6 +195,9 @@ int batchMode(int argc, char *argv[], Aircraft* airPtr)
        }
        if ( strcmp(argv[i],"-stereo") == 0 ) {
           writeStereoFlag = 1;
+       }
+       if ( strcmp(argv[i],"-x3d") == 0 ) {
+          writeX3DFlag = 1;
        }
        if ( strcmp(argv[i],"-tri") == 0 ) {
           writeTRIFlag = 1;
@@ -243,7 +274,8 @@ int batchMode(int argc, char *argv[], Aircraft* airPtr)
          printf("\n");     
          printf("VSP batch options listed below:\n");     
          printf("  -compgeom          Batch run compgeom\n" );
-         printf("  -slice #           Batch run slice\n" );
+         printf("  -slice Ns M Nr     Batch run AWave slice, Ns - Num Slices, M - Mach, Nr - Num Radial\n" );
+         printf("  -mass N            Batch run mass properties, N - Num Slices\n" );
          printf("  -mesh              Batch run mesh\n" );
 		 printf("  -cfdmesh val       Batch run CFD mesh ( val = scale tri size )\n" );
 		 printf("  -nocfddefsources   Do not add default sources.\n" );
@@ -251,6 +283,7 @@ int batchMode(int argc, char *argv[], Aircraft* airPtr)
          printf("  -xsec              Write Herm file (Vorview format) \n");
          printf("  -felisa            Write Felisa files \n");
          printf("  -stereo            Write Stereolith file \n");
+         printf("  -x3d               Write X3D file \n");
          printf("  -tri               Write Cart3D file \n");
          printf("  -rhino             Write Rhino3D file \n");
          printf("  -nascart           Write Nascart file \n");
@@ -395,7 +428,11 @@ int batchMode(int argc, char *argv[], Aircraft* airPtr)
 		if (sliceFlag)
 		{
 			slice_name = Stringc("slice.txt");
-			Geom* geom = airPtr->slice(2,numSlices,(double)sliceAngle,(double)coneSections,slice_name);
+			Geom* geom = airPtr->slice(MeshGeom::SLICE_AWAVE,numSlices,(double)sliceAngle,(double)coneSections,slice_name);
+		}
+		if (massFlag)
+		{
+			Geom* geom = airPtr->massprop( numSlicesMass );
 		}
 		if ( cfdMeshFlag )
 		{
@@ -420,17 +457,18 @@ int batchMode(int argc, char *argv[], Aircraft* airPtr)
 			airPtr->write_bezier_file( bezTempFile );
 			cfdMeshMgrPtr->CleanUp();
 			cfdMeshMgrPtr->ReadSurfs( bezTempFile );
-			cfdMeshMgrPtr->UpdateSources();
+			cfdMeshMgrPtr->UpdateSourcesAndWakes();
 			if ( cfdDefaultSourcesFlag )
 			{
 				cfdMeshMgrPtr->AddDefaultSources();
-				cfdMeshMgrPtr->UpdateSources();
+				cfdMeshMgrPtr->UpdateSourcesAndWakes();
 			}
 			cfdMeshMgrPtr->ScaleTriSize( cfdMeshScale );
 			cfdMeshMgrPtr->BuildGrid();
+			double minmap = cfdMeshMgrPtr->BuildTargetMap();
 			cfdMeshMgrPtr->Intersect();
-			cfdMeshMgrPtr->UpdateSources();
-			cfdMeshMgrPtr->InitMesh();
+//			cfdMeshMgrPtr->UpdateSourcesAndWakes();
+			cfdMeshMgrPtr->InitMesh( minmap );
 			cfdMeshMgrPtr->Remesh( CfdMeshMgr::NO_OUTPUT );
 
 			//Stringc stereo_file_name = base_name;
@@ -492,6 +530,14 @@ int batchMode(int argc, char *argv[], Aircraft* airPtr)
   		  airPtr->write_stl_file( stereo_file_name );
 		  printf( "stereolith file name = %s\n",  stereo_file_name());
 		}
+		if ( writeX3DFlag )
+		{
+		  Stringc x3d_file_name = base_name;
+		  x3d_file_name.concatenate(".x3d");
+
+		  airPtr->write_x3d_file( x3d_file_name );
+		  printf( "x3d file name = %s\n",  x3d_file_name());
+		}
 		if ( writeTRIFlag )
 		{
 		  Stringc tri_file_name = base_name;
@@ -545,6 +591,136 @@ int batchMode(int argc, char *argv[], Aircraft* airPtr)
 
 }
 
+bool ExtractVersionNumber( string & str, int* major, int* minor, int* change )
+{
+	*major = *minor = *change = -1;
+	//==== Find Leading String ====//
+	string target("The latest release of OpenVSP is version ");
+	size_t start = str.find( target ) + target.size();
+	size_t end = str.find( ".\n", start );
+
+	//==== Just The Number =====//
+	string verstr= str.substr (start, end-start);
+
+	if ( verstr.size() < 5 || verstr.size() > 9 )
+		return false;
+
+	size_t period1 = verstr.find(".");
+	size_t period2 = verstr.find(".", period1+1 );
+
+	//==== Extract Major/Minor/Change Numbers ====//
+	*major  = atoi( verstr.substr( 0, period1 ).c_str() );
+	*minor  = atoi( verstr.substr( period1+1, period2 - (period1+1) ).c_str() );
+	*change = atoi( verstr.substr( period2+1, verstr.size() ).c_str() );
+
+	if ( *major >= 0 && *minor >= 0 && *change >= 0 )
+		return true;
+
+	return false;
+}
+
+void CheckVersionNumber()
+{
+	//==== Init Nano HTTP ====//
+	xmlNanoHTTPInit();
+	xmlNanoHTTPScanProxy(NULL);
+
+	//==== Compute Version Number ====//
+	int ver_no = 10000*VSP_VERSION_MAJOR + 100*VSP_VERSION_MINOR + VSP_VERSION_CHANGE;
+
+	char cCurrentPath[FILENAME_MAX];
+	GetCurrentDir(cCurrentPath, sizeof(cCurrentPath));
+
+	int user_id = 0;
+	int path_len = strlen(cCurrentPath);
+
+	for ( int i = 0 ; i < path_len ; i++ )
+	{
+		srand ( (unsigned int)cCurrentPath[i] );
+		user_id += rand() % 100000 + 1;
+	}
+
+	//==== Post User Info To Server ====//
+	char poststr[256];
+	sprintf( poststr, "postvar1=%d&postvar2=%d\r\n", user_id, ver_no);
+	int poststrlen = strlen(poststr);
+	char*  headers = "Content-Type: application/x-www-form-urlencoded \n";
+
+	void * ctx = 0;
+	ctx = xmlNanoHTTPMethod("http://www.openvsp.org/vspuse_post.php", "POST", poststr, NULL, headers, poststrlen );
+
+	if ( ctx )
+		xmlNanoHTTPClose(ctx);
+
+	ctx = 0;
+
+	//==== Open Settings File ====//
+	bool check_version_flag = true;
+	FILE* vsptime_fp = fopen( ".vsptime", "r" );
+	if ( vsptime_fp )
+	{
+		char str[256];
+		fgets( str, 256, vsptime_fp );
+		int vsp_time = atoi( str );
+		int del_time =  (int)time(NULL) - vsp_time;
+		if ( del_time < 60*60*24*7 )				// Check Every Week
+			check_version_flag = false;
+
+		fclose( vsptime_fp );
+	}
+
+	//==== Enough Time Has Passed - Check For New Version ====//
+	if ( check_version_flag )
+	{
+		//==== Webpage with Version Info ====//
+		char * pContentType = 0;
+		ctx = xmlNanoHTTPOpen("http://www.openvsp.org/latest_version.html", &pContentType);
+
+		int retCode = xmlNanoHTTPReturnCode(ctx);
+
+		//==== Http Return Code 200 -> OK  ====//
+		string contentStr;
+		if ( retCode == 200 )
+		{
+			char buf[2048];
+			int len = 1;
+			while (len > 0 && contentStr.size() < 10000 )
+			{
+				len = xmlNanoHTTPRead(ctx, buf, sizeof(buf));
+				contentStr.append( buf, len );
+			}
+		}
+
+		//==== Pulled A String From Server =====//
+		if ( contentStr.size() > 0 )
+		{
+			int major_ver, minor_ver, change_ver;
+			bool valid = ExtractVersionNumber( contentStr, &major_ver, &minor_ver, &change_ver );
+
+			if ( valid )
+			{
+				if ( major_ver != VSP_VERSION_MAJOR ||minor_ver != VSP_VERSION_MINOR || change_ver != VSP_VERSION_CHANGE )
+				{
+					if ( screenMgrPtr )
+						screenMgrPtr->MessageBox("A new version of OpenVSP is available at http://www.openvsp.org/");
+				}
+			}
+		}
+		//===== Write Time =====//
+		FILE* vsptime_fp = fopen( ".vsptime", "w" );
+		if ( vsptime_fp )
+		{
+			fprintf( vsptime_fp, "%d", time(NULL) );
+			fclose( vsptime_fp );
+		}
+	}
+
+	if ( ctx )
+		xmlNanoHTTPClose(ctx);
+
+	xmlNanoHTTPCleanup();
+}
+
 void vsp_exit()
 {
 	if ( screenMgrPtr )
@@ -552,8 +728,6 @@ void vsp_exit()
 
 	if ( airPtr )
 		delete airPtr;
-
-
 
 	exit(0);
 }
@@ -572,6 +746,8 @@ void autoSaveTimeoutHandler(void *data)
 }
 
 
+//========================================================//
+//========================================================//
 //========================= Main =========================//
 int main( int argc, char** argv)
 {
@@ -579,23 +755,16 @@ int main( int argc, char** argv)
 //FILE* filePtr = fopen("debug.txt", "w" );
 //freopen("debug.txt", "w", stdout); 
 
-#ifdef CHECK_FOR_KEY
-	if ( !validKey() )
-	{
-		printf( "Invalid Reg Key\n" );
-		printf( "Press Enter to Exit\n" );
-		char str[256];
-		gets( str );
-		exit(0);
-	}
-#endif
-	
+	//==== Create Aircraft ====//
 	airPtr = new Aircraft();
 
 	if ( batchMode( argc, argv, airPtr ) )
 	    exit(0);
 
 	screenMgrPtr = new ScreenMgr(airPtr);
+
+	//==== Check Server For Version Number ====//
+	CheckVersionNumber();
 
 	//==== Link Objects ====//
 	airPtr->setScreenMgr( screenMgrPtr );

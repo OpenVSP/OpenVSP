@@ -1139,8 +1139,11 @@ int Af::readSeligAirfoil( FILE* file_id )
   Stringc line;
   char buff[255];
   float x, z;
-	sdyn_array< float > xvec;
-	sdyn_array< float > zvec;
+
+  vector< float > xvec;
+  vector< float > zvec;
+	//sdyn_array< float > xvec;
+	//sdyn_array< float > zvec;
 
   int more_data_flag = 1;
   while (more_data_flag)
@@ -1158,8 +1161,10 @@ int Af::readSeligAirfoil( FILE* file_id )
 				sscanf(buff, "%f %f", &x, &z);
 				if ( x >= 0.0 && x <= 1.0 && z >= -1.0 && z <= 1.0 )
 				{
-					xvec.append( x );
-					zvec.append( z );
+					//xvec.append( x );
+					//zvec.append( z );
+					xvec.push_back( x );
+					zvec.push_back( z );
 				}
 				else
 				{
@@ -1167,10 +1172,8 @@ int Af::readSeligAirfoil( FILE* file_id )
 				}									
 			}
 		}
-//	fclose(file_id);
 
-
-	int totalPnts = xvec.dimension();
+	int totalPnts = xvec.size();
 
 	if ( totalPnts < 5 )
 		return 0;

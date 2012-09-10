@@ -6,4 +6,5 @@ ADD_DEFINITIONS(-DTRILIBRARY -DNO_TIMER)
 
 ADD_LIBRARY(triangle
 triangle.c
+triangle.h
 )

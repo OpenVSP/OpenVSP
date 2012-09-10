@@ -25,7 +25,6 @@
 #include "materialMgr.h"
 #include "textureMgr.h"
 #include "timer.h"
-#include "bicubic_surf.h"
 #include "bezier_surf.h"
 #include "VspPreferences.h"
 #include "part.h"

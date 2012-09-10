@@ -2006,8 +2006,10 @@ void EngineGeom::write_felisa_line_sources(FILE* dump_file)
   if ( inl_duct_flag ) total_num_xsecs += num_duct - 1;
 
   //==== Find Xsec Center Pnts Outer Inlet ====/
-  sdyn_array<vec3d> cent_pnts;
-  cent_pnts.init( total_num_xsecs );
+  //sdyn_array<vec3d> cent_pnts;
+  //cent_pnts.init( total_num_xsecs );
+  vector<vec3d> cent_pnts;
+  cent_pnts.resize( total_num_xsecs );
   dyn_array<double> max_dists;
   max_dists.init(total_num_xsecs);
 

@@ -1,0 +1,22 @@
+//
+// This file is released under the terms of the NASA Open Source Agreement (NOSA)
+// version 1.3 as detailed in the LICENSE file which accompanies this software.
+//
+
+// main.h: version info
+//
+//////////////////////////////////////////////////////////////////////
+
+#ifndef main_h
+#define main_h
+
+#define VSP_VERSION_MAJOR @VSPVER_MAJOR@
+#define VSP_VERSION_MINOR @VSPVER_MINOR@
+#define VSP_VERSION_CHANGE @VSPVER_PATCH@
+#define VSPVERSION1 "Vehicle Sketch Pad @VSPVER_MAJOR@.@VSPVER_MINOR@.@VSPVER_PATCH@"
+#define VSPVERSION2 "OpenVSP @VSPVER_MAJOR@.@VSPVER_MINOR@.@VSPVER_PATCH@ - @VSPDATE@"
+#define VSPVERSION3 "OpenVSP @VSPVER_MAJOR@.@VSPVER_MINOR@.@VSPVER_PATCH@ : Vehicle Sketch Pad"
+
+void vsp_exit();
+
+#endif
