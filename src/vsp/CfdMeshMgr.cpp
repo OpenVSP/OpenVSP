@@ -1376,6 +1376,22 @@ void CfdMeshMgr::WriteNASCART_Obj_Tri_Gmsh( const char* dat_fn, const char* key_
 		}
 	}
 
+	vector< int > compIDVec;
+	for ( int i = 0 ; i < (int)m_SurfVec.size() ; i++ )
+	{
+		if ( !m_SurfVec[i]->GetWakeFlag() )
+		{
+			compIDVec.push_back( m_SurfVec[i]->GetCompID() + 1 );
+		}
+	}
+	for ( int i = 0 ; i < (int)m_SurfVec.size() ; i++ )
+	{
+		if ( m_SurfVec[i]->GetWakeFlag() )
+		{
+			compIDVec.push_back( m_SurfVec[i]->GetCompID() + 1 + 10000 );
+		}
+	}
+
 	if ( key_fn )
 	{
 		//==== Open file ====//
@@ -1384,22 +1400,6 @@ void CfdMeshMgr::WriteNASCART_Obj_Tri_Gmsh( const char* dat_fn, const char* key_
 		if ( fp )
 		{
 			fprintf( fp, "Color	Name			BCType\n");
-
-			vector< int > compIDVec;
-			for ( int i = 0 ; i < (int)m_SurfVec.size() ; i++ )		
-			{
-				if ( !m_SurfVec[i]->GetWakeFlag() )
-				{
-					compIDVec.push_back( m_SurfVec[i]->GetCompID()+1 );
-				}
-			}
-			for ( int i = 0 ; i < (int)m_SurfVec.size() ; i++ )
-			{
-				if ( m_SurfVec[i]->GetWakeFlag() )
-				{
-					compIDVec.push_back( m_SurfVec[i]->GetCompID()+1 + 100 );
-				}
-			}
 
 			for ( int i = 0 ; i < (int)compIDVec.size() ; i++ )
 			{
@@ -1466,7 +1466,7 @@ void CfdMeshMgr::WriteNASCART_Obj_Tri_Gmsh( const char* dat_fn, const char* key_
 				vector < SimpTri >& sTriVec = m_SurfVec[i]->GetMesh()->GetSimpTriVec();
 				for ( int t = 0 ; t <  (int)sTriVec.size() ; t++ )
 				{
-					fprintf( fp, "%d \n", m_SurfVec[i]->GetCompID()+1 );
+					fprintf( fp, "%d \n", compIDVec[i] );
 				}
 			}
 
