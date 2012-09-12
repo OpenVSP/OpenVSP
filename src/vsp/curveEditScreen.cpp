@@ -266,9 +266,7 @@ void CurveEditScreen::screenCB( Fl_Widget* w )
 	{
 		if ( curveEditUI->backgroundButton->value() )
 		{
-
-//			char *newfile = fl_file_chooser("Read Deflection File?", "*.jpg", "");
-			char *newfile = screenMgrPtr->FileChooser("Read Deflection File?", "*.jpg");
+			char *newfile = screenMgrPtr->FileChooser("Read Background File?", "*.jpg");
 			if ( newfile != NULL )
 			{
 				deleteJPEG( jpgImgData );

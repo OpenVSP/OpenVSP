@@ -1768,6 +1768,9 @@ void Af::invert_airfoil()
 
 void Af::draw()
 {
+	//==== Scale To Fit Better In Wide Window ====//
+	glScaled( 1.7, 1.7, 1.0 );
+
 	int i;
 	//==== Draw Grid ====//
 	float gridSize = 0.1f;

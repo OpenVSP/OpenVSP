@@ -172,7 +172,7 @@ class CFDMeshUI {open
             xywh {15 90 370 20} labelfont 1 align 16
           }
           Fl_Light_Button viewSourceButton {
-            label {Show Sources}
+            label {Show Sources and Wake Preview}
             xywh {15 60 370 20} labelfont 1 align 16
           }
         }

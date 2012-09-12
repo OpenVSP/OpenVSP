@@ -396,9 +396,7 @@ void HwbScreen::screenCB( Fl_Widget* w)
 
 		if ( aftype == AIRFOIL_FILE )
 		{
-
-//			char *newfile = fl_file_chooser("Read Airfoil File?", "*.af", "");
-			char *newfile = screenMgrPtr->FileChooser("Read Airfoil File?", "*.af");
+			char *newfile = screenMgrPtr->FileChooser("Read Airfoil File?", "*.{af,dat}");
 			if ( newfile != NULL )
 			{
 				currGeom->get_af_ptr()->read_af_file( Stringc(newfile) );
@@ -435,8 +433,7 @@ void HwbScreen::screenCB( Fl_Widget* w)
 	}
 	else if ( w ==  hwbUI->readFileButton )
 	{
-//		char *newfile = fl_file_chooser("Read Airfoil File?", "*.af", "");
-		char *newfile = screenMgrPtr->FileChooser("Read Airfoil File?", "*.af");
+		char *newfile = screenMgrPtr->FileChooser("Read Airfoil File?", "*.{af,dat}");
 
 		if ( newfile != NULL )
 		{

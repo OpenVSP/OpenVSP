@@ -552,13 +552,6 @@ void SCurve::Tesselate( vector< vec3d > & target_pnts )
 //	printf( "SCurve Tess Target %f %f \n", f0, f1 );
 	}
 
-
-//	if ( m_UTess.size() == 1 )
-//	{
-//int junk = 23;
-//
-//	}
-
 	//==== Reset Begin and End Points ====//
 	m_UTess.front()  = 0.0;
 	m_UWTess.front() = m_UWCrv.comp_pnt( 0.0 );

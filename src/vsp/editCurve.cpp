@@ -491,6 +491,7 @@ herm_curve EditCurve::getHermCurve()
 
 void EditCurve::draw()
 {
+
 	int i;
 	int numPnts = crv.get_num_sections()*3 + 1;
 

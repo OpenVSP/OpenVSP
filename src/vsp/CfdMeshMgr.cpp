@@ -319,7 +319,7 @@ void WakeMgr::Draw()
 	double scale = cfdMeshMgrPtr->GetWakeScale();
 	double factor = scale - 1.0;
 
-	glColor4ub( 0, 100, 0, 255 );
+	glColor4ub( 255, 204, 51, 255 );		// Yellowish
 	for ( int e = 0 ; e < (int)m_LeadingEdgeVec.size() ; e++ )
 	{
 		glBegin( GL_LINES );

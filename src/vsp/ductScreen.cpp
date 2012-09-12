@@ -96,38 +96,6 @@ DuctScreen::DuctScreen(ScreenMgr* mgr) : CompScreen( mgr )
 //==== Destructor =====//
 DuctScreen::~DuctScreen()
 {
-	//delete afCamberSlider;
-	//delete afCamberInput;
-	//delete afCamberLocSlider;
-	//delete afCamberLocInput;
-	//delete afThickSlider;
-	//delete afThickInput;
-	//delete afThickLocSlider;
-	//delete afThickLocInput;
-	//delete afIdealClSlider;
-	//delete afIdealClInput;
-	//delete afASlider;
-	//delete afAInput;
-	//delete leRadiusInput;
-	//delete lengthSlider;
-	//delete lengthInput;
-	//delete inletOutletSlider;
-	//delete inletOutletInput;
-	//delete inletDiaSlider;
-	//delete inletDiaInput;
-	//delete inletAreaInput;
-	//delete outletDiaInput;
-	//delete outletAreaInput;
-	//delete chordInput;
-	//delete lengthButton;
-	//delete inletOutletButton;
-	//delete inletDiaButton;
-	//delete afCamberButton;
-	//delete afCamberLocButton;
-	//delete afThickButton;
-	//delete afThickLocButton;
-	//delete afIdealClButton;
-	//delete afAButton;
 }
 
 void DuctScreen::show(Geom* geomPtr)
@@ -261,9 +229,7 @@ void DuctScreen::screenCB( Fl_Widget* w)
 
 		if ( aftype == AIRFOIL_FILE )
 		{
-
-//			char *newfile = fl_file_chooser("Read Airfoil File?", "*.af", "");
-			char *newfile = screenMgrPtr->FileChooser("Read Airfoil File?", "*.af");
+			char *newfile = screenMgrPtr->FileChooser("Read Airfoil File?", "*.{af,dat}");
 			if ( newfile != NULL )
 			{
 				currGeom->get_af_ptr()->read_af_file( Stringc(newfile) );
@@ -301,9 +267,7 @@ void DuctScreen::screenCB( Fl_Widget* w)
 	}
 	else if ( w ==  ductUI->readFileButton )
 	{
-
-//		char *newfile = fl_file_chooser("Read Airfoil File?", "*.af", "");
-		char *newfile = screenMgrPtr->FileChooser("Read Airfoil File?", "*.af" );
+		char *newfile = screenMgrPtr->FileChooser("Read Airfoil File?", "*.{af,dat}" );
 		if ( newfile != NULL )
 		{
 			currGeom->get_af_ptr()->read_af_file( Stringc(newfile) );
