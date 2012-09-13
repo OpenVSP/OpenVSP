@@ -1,0 +1,22 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0300 
+header_name {.h} 
+code_name {.cxx}
+class KeyHelpScreen {open
+} {
+  Function {KeyHelpScreen()} {open
+  } {
+    Fl_Window UIWindow {
+      label {Key and Mouse Help} open
+      xywh {761 191 399 449} type Double color 29 resizable visible
+    } {
+      Fl_Box {} {
+        label {Mouse and Keyboard Commands}
+        xywh {5 5 375 20} box ROUNDED_BOX labelfont 1 labelsize 16 labelcolor 15
+      }
+      Fl_Browser TextBrowser {selected
+        xywh {5 30 375 410}
+      }
+    }
+  }
+} 

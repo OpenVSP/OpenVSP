@@ -617,6 +617,43 @@ int EditCurve::processKeyEvent()
 				screenPtr->show();
 		}
 	}
+	else if ( key == 102 )		// "f" key
+	{
+		FILE* fp = fopen( "edit_curve.dat", "w" );
+		if ( fp )
+		{
+			fprintf(fp, "EditCurve\n");
+			int max_id = 0;
+			double max_x = -1.0e12;
+			vector< vec3d > pVec;
+			Bezier_curve bCrv = getBezierCurve();
+			for ( int isec = 0 ; isec < bCrv.get_num_sections() ; isec++ )
+			{
+				for ( int i = 0 ; i < 20 ; i++ )
+				{
+					double u = (double)i/(double)(19);
+					vec3d pnt = bCrv.comp_pnt( isec, u );
+					pVec.push_back( pnt );
+
+					if ( pnt.x() > max_x )
+					{
+						max_x = pnt.x();
+						max_id = (int)pVec.size()-1;
+					}
+				}
+			}
+			double off_x = 1.0-max_x;
+			for ( int i = max_id ; i >= 0 ; i-- )
+			{
+				fprintf( fp, "%f %f\n", pVec[i].x() + off_x, pVec[i].y() );
+			}
+			for ( int i = (int)(pVec.size()-1) ; i >= max_id ; i-- )
+			{
+				fprintf( fp, "%f %f\n", pVec[i].x() + off_x, pVec[i].y() );
+			}
+			fclose( fp );
+		}
+	}
 
 	return 1;
 }

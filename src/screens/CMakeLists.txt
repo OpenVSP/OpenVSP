@@ -29,6 +29,7 @@ havocFlScreen.fl
 hrmFlScreen.fl
 hwbFlScreen.fl
 importFileScreen.fl
+keyHelpScreen.fl
 labelFlScreen.fl
 lightingScreen.fl
 mainScreen.fl
