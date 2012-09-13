@@ -1073,13 +1073,13 @@ void CfdMeshMgr::WriteSTL( const char* filename )
 
 		if( numwake > 0 )
 		{
-			fprintf(file_id, "solid\n");
+			fprintf(file_id, "solid wake\n");
 			for ( int i = 0 ; i < (int)m_SurfVec.size() ; i++ )
 			{
 				if ( m_SurfVec[i]->GetWakeFlag() )
 					m_SurfVec[i]->GetMesh()->WriteSTL( file_id );
 			}
-			fprintf(file_id, "endsolid\n");
+			fprintf(file_id, "endsolid wake\n");
 		}
 		fclose(file_id);
 	}
