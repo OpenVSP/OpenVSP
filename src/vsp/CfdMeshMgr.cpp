@@ -1060,12 +1060,27 @@ void CfdMeshMgr::WriteSTL( const char* filename )
 	FILE* file_id = fopen(filename, "w");
 	if ( file_id )
 	{
+		int numwake = 0;
 		fprintf(file_id, "solid\n");
 		for ( int i = 0 ; i < (int)m_SurfVec.size() ; i++ )
 		{
-			m_SurfVec[i]->GetMesh()->WriteSTL( file_id );
+			if ( !m_SurfVec[i]->GetWakeFlag() )
+				m_SurfVec[i]->GetMesh()->WriteSTL( file_id );
+			else
+				numwake++;
 		}
 		fprintf(file_id, "endsolid\n");
+
+		if( numwake > 0 )
+		{
+			fprintf(file_id, "solid\n");
+			for ( int i = 0 ; i < (int)m_SurfVec.size() ; i++ )
+			{
+				if ( m_SurfVec[i]->GetWakeFlag() )
+					m_SurfVec[i]->GetMesh()->WriteSTL( file_id );
+			}
+			fprintf(file_id, "endsolid\n");
+		}
 		fclose(file_id);
 	}
 }
