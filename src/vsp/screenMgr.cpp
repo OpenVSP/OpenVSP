@@ -180,6 +180,7 @@ void ScreenMgr::createGui()
 
 	mainWinUI->ShowAbout->callback(staticMenuCB, this);
 	mainWinUI->ShowHelpWebsite->callback(staticMenuCB, this);
+	mainWinUI->KeyMouseHelpMenu->callback(staticMenuCB, this);
 
 	//==== Export File Window ====//
 	exportFileUI = new ExportFileUI();
@@ -343,6 +344,34 @@ void ScreenMgr::createGui()
 	aboutScreen->outputTextDisplay->buffer()->insert(900,aboutText4);
 	aboutScreen->outputTextDisplay->buffer()->insert(1200,aboutText5);
 	aboutScreen->outputTextDisplay->wrap_mode(1, 65);
+
+	//==== Key Mouse Help Screem ====//
+	keyHelpScreen = new KeyHelpScreen();
+
+	keyHelpScreen->TextBrowser->add( "@bRotate\n" );
+	keyHelpScreen->TextBrowser->add( "  Left Button\n" );
+	keyHelpScreen->TextBrowser->add( "@bZoom\n" );
+	keyHelpScreen->TextBrowser->add( "  Middle Button\n" );
+	keyHelpScreen->TextBrowser->add( "  Left and Right Button\n" );
+	keyHelpScreen->TextBrowser->add( "  Control and Left Button\n" );
+	keyHelpScreen->TextBrowser->add( "  Meta (Mac-Command, Win-Windows) and Left Button\n" );
+	keyHelpScreen->TextBrowser->add( "@bTranslate\n" );
+	keyHelpScreen->TextBrowser->add( "  Right Button\n" );
+	keyHelpScreen->TextBrowser->add( "  Alt and Left Button\n" );
+	keyHelpScreen->TextBrowser->add( "  Scroll Wheel\n" );
+	keyHelpScreen->TextBrowser->add( "  Two-Finger Click & Drag\n" );
+	keyHelpScreen->TextBrowser->add( "@bCenter Model\n" );
+	keyHelpScreen->TextBrowser->add( "  Press c Key\n" );
+	keyHelpScreen->TextBrowser->add( "@bMove Rotation Center\n" );
+	keyHelpScreen->TextBrowser->add( "  Press r Key\n" );
+	keyHelpScreen->TextBrowser->add( "@bSave Model\n" );
+	keyHelpScreen->TextBrowser->add( "  Control s Key\n" );
+	keyHelpScreen->TextBrowser->add( "@bSave View\n" );
+	keyHelpScreen->TextBrowser->add( "  Shift F1-F4 Keys\n" );
+	keyHelpScreen->TextBrowser->add( "@bRestore Saved View\n" );
+	keyHelpScreen->TextBrowser->add( "  Press F1-F4 Keys\n" );
+	keyHelpScreen->TextBrowser->add( "@bRestore Preset Views\n" );
+	keyHelpScreen->TextBrowser->add( "  Press F5-F12 Keys\n" );
 
 	//==== Script Screen ====//
 	scriptUI = new ScriptUI();
@@ -1516,6 +1545,10 @@ void ScreenMgr::menuCB( Fl_Widget* w )
 	else if ( m == mainWinUI->ShowAbout )
 	{
 		aboutScreen->UIWindow->show();
+	}
+	else if ( m == mainWinUI->KeyMouseHelpMenu  )
+	{
+		keyHelpScreen->UIWindow->show();
 	}
 	else if ( m == mainWinUI->ShowHelpWebsite )
 	{

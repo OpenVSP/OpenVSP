@@ -806,7 +806,7 @@ int main( int argc, char** argv)
 {
 	// Seed RNG for batch mode.
 	// rand() is used to create ptrID's in Geom constructor.
-	unsigned int seed = time( NULL );
+	unsigned int seed = (unsigned int)time( NULL );
 	srand( seed );
 
 //FILE* filePtr = fopen("debug.txt", "w" );

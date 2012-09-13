@@ -40,6 +40,7 @@
 #include "massPropScreen.h"
 #include "aeroRefScreen.h"
 #include "aboutScreen.h"
+#include "keyHelpScreen.h"
 
 #include "vspScreen.h"
 #include "vspGlWindow.h"
@@ -255,6 +256,7 @@ private:
 	LabelScreen* labelScreen;
 	VorviewScreen* vorviewScreen;
 	AboutScreen* aboutScreen;
+	KeyHelpScreen* keyHelpScreen;
 
 	char labelStr[256];
 
