@@ -116,7 +116,7 @@ class fuse_xsec : public DrawBase , public GeomBase
 public:
   fuse_xsec(Geom* geom_ptr_in = 0);
   ~fuse_xsec();
-  fuse_xsec& operator=(const fuse_xsec& in_fuse_xsec);
+//  fuse_xsec& operator=(const fuse_xsec& in_fuse_xsec);
 
   void copy( fuse_xsec & ifx );
 

@@ -1976,7 +1976,6 @@ PodGeom::PodGeom(Aircraft* aptr) : Geom(aptr)
 
 PodGeom::~PodGeom()
 {
-	int junk = 23;
 }
 
 void PodGeom::write(xmlNodePtr root)

@@ -1403,9 +1403,9 @@ void XSecGlWindow::draw()
 		glDrawPixels( jpgImgData.w, jpgImgData.h, GL_RGB, GL_UNSIGNED_BYTE, jpgImgData.data );
 		glPixelZoom(1.0,  1.0);
 	}
-
-	double sf = (orthoL - orthoR)/(orthoT - orthoB);
-	glScalef( (float)sf, (float)sf, 1.0 );
+// jrg remove?
+//	double sf = (orthoL - orthoR)/(orthoT - orthoB);
+//	glScalef( (float)sf, (float)sf, 1.0 );
 
 	if ( drawBasePtr )
 		drawBasePtr->draw();

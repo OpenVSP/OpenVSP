@@ -108,6 +108,43 @@ EditCurve::~EditCurve()
 
 }
 
+void EditCurve::copy( EditCurve & iec )
+{
+	scaleX = iec.scaleX.get();
+	scaleY = iec.scaleY.get();
+	pntX   = iec.pntX.get();
+	pntY   = iec.pntY.get();
+	scaleTans = iec.scaleTans.get();
+	maxWidth = iec.maxWidth.get();
+	maxHeight = iec.maxHeight.get();
+
+	crv = iec.crv;
+	pntVec = iec.pntVec;
+	controlPntVec = iec.controlPntVec;
+
+	winWidth  = iec.winWidth;
+	winHeight = iec.winHeight;
+
+	winLeft = iec.winLeft;
+	winRight = iec.winRight;
+	winTop = iec.winTop;
+	winBot = iec.winBot;
+
+	symFlag = iec.symFlag;
+	shapeType = iec.shapeType;
+
+	lastScaleX = iec.lastScaleX;
+	lastScaleY = iec.lastScaleY;
+
+	rollerScaleFactor = iec.rollerScaleFactor;
+	drawScaleFactor = iec.drawScaleFactor;
+
+
+
+
+}
+
+
 void EditCurve::write(xmlNodePtr root)
 {
 	xmlAddIntNode( root, "Sym_Flag", symFlag);
@@ -454,6 +491,7 @@ herm_curve EditCurve::getHermCurve()
 
 void EditCurve::draw()
 {
+
 	int i;
 	int numPnts = crv.get_num_sections()*3 + 1;
 

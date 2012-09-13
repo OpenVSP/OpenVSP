@@ -22,6 +22,8 @@ using namespace std;
 #include <string.h>
 #include "defines.h"
 
+#define STRINGC_CHUNK_SIZE (64)
+
 #ifndef FALSE
 #define FALSE 0
 #endif

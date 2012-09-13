@@ -1232,11 +1232,6 @@ void Mesh::CheckValidTriInput( vector< vec2d > & uw_points, vector< MeshSeg > & 
 				min_dist = d;
 		}
 	}
-
-	double junk = min_dist;
-
-
-
 }
 
 	
