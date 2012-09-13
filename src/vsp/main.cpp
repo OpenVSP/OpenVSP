@@ -14,9 +14,7 @@
 #include <sys/types.h>
 
 #ifdef WIN32
-#include <windows.h>	
-#else
-#include <pthread.h>
+#include <windows.h>
 #endif
 
 
@@ -651,12 +649,7 @@ bool ExtractVersionNumber( string & str, int* major, int* minor, int* change )
 	return false;
 }
 
-#ifdef WIN32
-DWORD WINAPI CheckVersionNumber(LPVOID lpParameter)
-#else
-void* CheckVersionNumber( void *threadid )
-#endif
-
+void CheckVersionNumber()
 {
 	//==== Init Nano HTTP ====//
 	xmlNanoHTTPInit();
@@ -756,22 +749,6 @@ void* CheckVersionNumber( void *threadid )
 		xmlNanoHTTPClose(ctx);
 
 	xmlNanoHTTPCleanup();
-
-	return 0;
-}
-
-void ThreadCheckVersionNumber()
-{
-#ifdef WIN32
-
-	DWORD myThreadID;
-	HANDLE myHandle = CreateThread(0, 0, CheckVersionNumber, 0, 0, &myThreadID);
-#else
-
-	long t = 0;
-	pthread_t thread;
-	int rc = pthread_create( &thread, NULL, CheckVersionNumber, (void *)t );
-#endif
 }
 
 void vsp_exit()
@@ -821,7 +798,7 @@ int main( int argc, char** argv)
 	screenMgrPtr = new ScreenMgr(airPtr);
 
 	//==== Check Server For Version Number ====//
-	ThreadCheckVersionNumber();
+	CheckVersionNumber();
 
 	// Seed RNG for interactive mode.
 	// rand() is used to create ptrID's in Geom constructor.
