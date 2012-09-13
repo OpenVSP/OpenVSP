@@ -289,8 +289,8 @@ public:
 
 	virtual ParmHolder* ResetWorkingPHolder();
 
-	virtual void SetParm( Parm* p );
-	virtual void SetParm( int comp, int group, int parm );
+	virtual void SetParm( Parm* p, int vtype );
+	virtual void SetParm( int comp, int group, int parm, int vtype );
 
 	virtual Parm* GetDefaultParm()					{ return m_DefaultParm; }
 	virtual void SetDefaultParm( Parm* p )			{ m_DefaultParm = p; }

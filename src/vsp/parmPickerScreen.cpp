@@ -26,6 +26,9 @@ ParmPickerScreen::ParmPickerScreen(ScreenMgr* mgr, Aircraft* airPtr) : VspScreen
 	ui->groupChoice->callback( staticScreenCB, this );
 	ui->parmChoice->callback( staticScreenCB, this );
 
+	ui->varButton->callback( staticScreenCB, this );
+	ui->constButton->callback( staticScreenCB, this );
+
 	ui->addParmButton->callback( staticScreenCB, this );
 	ui->deleteParmButton->callback( staticScreenCB, this );
 	ui->parmBrowser->callback( staticScreenCB, this );
@@ -87,22 +90,39 @@ void ParmPickerScreen::update()
 		parmPickerUI->parmChoice->add( parmNameVec[i].c_str() );
 	parmPickerUI->parmChoice->value( ind );
 
+	if ( currPHolder->getDesType() == XDDM_VAR )
+	{
+		parmPickerUI->varButton->value(1);
+		parmPickerUI->constButton->value(0);
+	}
+	else
+	{
+		parmPickerUI->varButton->value(0);
+		parmPickerUI->constButton->value(1);
+	}
+
 	//==== Update Parm Browser ====//
 	parmPickerUI->parmBrowser->clear();
 
-	static int widths[] = { 75,75,90,20,75,75,80,0 };	// widths for each column
+	static int widths[] = { 75,75,90,20 };	// widths for each column
 	parmPickerUI->parmBrowser->column_widths(widths);		// assign array to widget
 	parmPickerUI->parmBrowser->column_char(':');			// use : as the column character
 
-	sprintf( str, "@b@.COMP_A:@b@.GROUP:@b@.PARM" );
+	sprintf( str, "@b@.COMP_A:@b@.GROUP:@b@.PARM:@b@.V/C" );
 	parmPickerUI->parmBrowser->add( str );
 
 	vector< ParmHolder* > pHolderVec = pHolderListMgrPtr->GetPHolderVec();
 	for ( i = 0 ; i < (int)pHolderVec.size() ; i++ )
 	{
 		ParmHolder* ph = pHolderVec[i];
-		sprintf( str, "%s:%s:%s",
-			ph->getParm()->get_geom_base()->getName().get_char_star(), ph->getParm()->get_group_name().get_char_star(), ph->getParm()->get_name().get_char_star() );
+		char vtype;
+		if( ph->getDesType() == XDDM_VAR )
+			vtype = 'V';
+		else
+			vtype = 'C';
+
+		sprintf( str, "%s:%s:%s:%c",
+			ph->getParm()->get_geom_base()->getName().get_char_star(), ph->getParm()->get_group_name().get_char_star(), ph->getParm()->get_name().get_char_star(), vtype );
 		parmPickerUI->parmBrowser->add( str );
 	}
 
@@ -163,6 +183,20 @@ void ParmPickerScreen::screenCB( Fl_Widget* w )
 	{
 		pHolderListMgrPtr->DelCurrPHolder();
 		update();
+	}
+	if ( w == parmPickerUI->varButton  )
+	{
+		if ( parmPickerUI->varButton->value() )
+			parmPickerUI->constButton->value( 0 );
+		else
+			parmPickerUI->constButton->value( 1 );
+	}
+	else if ( w == parmPickerUI->constButton )
+	{
+		if ( parmPickerUI->constButton->value() )
+			parmPickerUI->varButton->value( 0 );
+		else
+			parmPickerUI->varButton->value( 1 );
 	}
 	else if (  w == parmPickerUI->parmBrowser )
 	{
@@ -231,6 +265,12 @@ void ParmPickerScreen::compGroupChange()
 {
 	ParmPickerUI* ui = parmPickerUI;
 	pHolderListMgrPtr->SetCurrPHolderIndex(-1);
-	pHolderListMgrPtr->SetParm( ui->compChoice->value(), ui->groupChoice->value(), ui->parmChoice->value() );
+	int vtype;
+	if( ui->varButton->value() )
+		vtype = XDDM_VAR;
+	else
+		vtype = XDDM_CONST;
+
+	pHolderListMgrPtr->SetParm( ui->compChoice->value(), ui->groupChoice->value(), ui->parmChoice->value(), vtype );
 	update();
 }

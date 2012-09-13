@@ -7,63 +7,63 @@ class ParmPickerUI {open
   Function {ParmPickerUI()} {open
   } {
     Fl_Window UIWindow {
-      label {Design Var Mgr} open
-      xywh {646 55 246 451} type Double color 45 resizable visible
+      label {Design Var Mgr} open selected
+      xywh {646 55 286 451} type Double color 45 resizable visible
     } {
       Fl_Box {} {
         label {Design Variables}
-        xywh {5 5 235 20} box ROUNDED_BOX labelfont 1 labelsize 16 labelcolor 15
+        xywh {5 5 275 20} box ROUNDED_BOX labelfont 1 labelsize 16 labelcolor 15
       }
       Fl_Choice compChoice {open
-        xywh {60 45 180 20} down_box BORDER_BOX textfont 1
+        xywh {65 45 215 20} down_box BORDER_BOX textfont 1
       } {}
       Fl_Box {} {
         label Comp
-        xywh {5 45 55 20} box BORDER_BOX labelfont 1 labelcolor 15
+        xywh {5 45 60 20} box BORDER_BOX labelfont 1 labelcolor 15
       }
       Fl_Box {} {
         label Variable
-        xywh {5 30 235 15} box BORDER_BOX labelfont 1 labelcolor 15
+        xywh {5 30 275 15} box BORDER_BOX labelfont 1 labelcolor 15
       }
       Fl_Choice groupChoice {open
-        xywh {60 65 180 20} down_box BORDER_BOX textfont 1
+        xywh {65 65 215 20} down_box BORDER_BOX textfont 1
       } {}
       Fl_Box {} {
         label {Variable List}
-        xywh {5 140 235 15} box BORDER_BOX labelfont 1 labelcolor 15
+        xywh {5 160 275 15} box BORDER_BOX labelfont 1 labelcolor 15
       }
       Fl_Browser parmBrowser {
-        xywh {5 155 235 220} type Select labelfont 13 labelsize 12 textsize 12
+        xywh {5 175 275 200} type Select labelfont 13 labelsize 12 textsize 12
       }
       Fl_Box {} {
         label Parm
-        xywh {5 85 55 20} box BORDER_BOX labelfont 1 labelcolor 15
+        xywh {5 85 60 20} box BORDER_BOX labelfont 1 labelcolor 15
       }
       Fl_Choice parmChoice {open
-        xywh {60 85 180 20} down_box BORDER_BOX textfont 1
+        xywh {65 85 215 20} down_box BORDER_BOX textfont 1
       } {}
       Fl_Box {} {
         label Group
-        xywh {5 65 55 20} box BORDER_BOX labelfont 1 labelcolor 15
+        xywh {5 65 60 20} box BORDER_BOX labelfont 1 labelcolor 15
       }
       Fl_Button deleteParmButton {
         label {Delete Variable}
-        xywh {125 110 115 25} color 48 labelfont 1
+        xywh {145 130 135 25} color 48 labelfont 1
       }
       Fl_Button addParmButton {
         label {Add Variable}
-        xywh {5 110 115 25} color 48 labelfont 1
+        xywh {5 130 135 25} color 48 labelfont 1
       }
       Fl_Button savePListButton {
         label Save
-        xywh {5 420 115 25} color 48 labelfont 1
+        xywh {5 420 135 25} color 48 labelfont 1
       }
       Fl_Button loadPListButton {
         label Load
-        xywh {125 420 115 25} color 48 labelfont 1
+        xywh {145 420 135 25} color 48 labelfont 1
       }
-      Fl_Choice fileTypeChoice {open selected
-        xywh {60 395 180 20} down_box BORDER_BOX
+      Fl_Choice fileTypeChoice {open
+        xywh {90 395 190 20} down_box BORDER_BOX
       } {
         MenuItem desMenu {
           label {Design file *.des}
@@ -76,11 +76,23 @@ class ParmPickerUI {open
       }
       Fl_Box {} {
         label {Design File}
-        xywh {5 380 235 15} box BORDER_BOX labelfont 1 labelcolor 15
+        xywh {5 380 275 15} box BORDER_BOX labelfont 1 labelcolor 15
       }
       Fl_Box {} {
-        label Type
-        xywh {5 395 55 20} box BORDER_BOX labelfont 1 labelcolor 15
+        label {File Type:}
+        xywh {5 395 85 20} box BORDER_BOX labelfont 1 labelcolor 15
+      }
+      Fl_Box {} {
+        label {XDDM Type:}
+        xywh {5 105 105 20} box BORDER_BOX labelfont 1 labelcolor 15
+      }
+      Fl_Light_Button varButton {
+        label Variable
+        xywh {110 105 85 20} labelfont 1
+      }
+      Fl_Light_Button constButton {
+        label Constant
+        xywh {195 105 85 20} labelfont 1
       }
     }
   }

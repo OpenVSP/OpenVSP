@@ -24,6 +24,8 @@
 #include <vector>				//jrg windows??	
 using namespace std;			//jrg windows??
 
+#define XDDM_VAR 0
+#define XDDM_CONST 1
 
 class Gui_device;
 class GeomBase;
@@ -138,14 +140,18 @@ class VSPDLL ParmHolder
 {
 protected:
 	Parm* m_ParmPtr;
+	int m_DesType;
 
 public:
 
-	ParmHolder()								{ m_ParmPtr = NULL; }
+	ParmHolder()								{ m_ParmPtr = NULL; m_DesType = XDDM_VAR; }
 	~ParmHolder()								{ }
 
 	void setParm( Parm* p )						{ m_ParmPtr = p; }
 	Parm* getParm()								{ return m_ParmPtr; }
+
+	void setDesType( int type )					{ m_DesType = type; }
+	int getDesType()							{ return m_DesType; }
 };
 
 

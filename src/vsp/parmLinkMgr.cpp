@@ -996,6 +996,7 @@ PHolderListMgr::PHolderListMgr()
 
 	aircraftPtr = NULL;
 	m_WorkingPHolder.setParm( NULL );
+	m_WorkingPHolder.setDesType( XDDM_VAR );
 
 	m_DefaultParm = NULL;
 }
@@ -1096,7 +1097,12 @@ void PHolderListMgr::WritePHolderListXDDM( char *newfile )
 	{
 		Parm* p = m_PHolderVec[i]->getParm();
 
-		xmlNodePtr var_node = xmlNewChild( model_node, NULL, (const xmlChar *)"Variable", NULL );
+		xmlNodePtr var_node;
+
+		if( m_PHolderVec[i]->getDesType() == XDDM_VAR )
+			var_node = xmlNewChild( model_node, NULL, (const xmlChar *)"Variable", NULL );
+		else
+			var_node = xmlNewChild( model_node, NULL, (const xmlChar *)"Constant", NULL );
 
 		char varname[255];
 		sprintf( varname, "%d:%s:%s:%s", ((Geom*)p->get_geom_base())->getPtrID(), p->get_geom_base()->getName().get_char_star(), p->get_group_name().get_char_star(), p->get_name().get_char_star() );
@@ -1139,12 +1145,27 @@ void PHolderListMgr::ReadPHolderListXDDM( char *newfile )
 	vector< Geom* > gVec = aircraftPtr->getGeomVec();
 	gVec.push_back( aircraftPtr->getUserGeom() );
 
+	vector< xmlNodePtr > vlist;
 
 	int num_v = xmlGetNumNames( root, "Variable" );
-
 	for ( int i = 0 ; i < num_v ; i++ )
 	{
 		xmlNodePtr var_node = xmlGetNode( root, "Variable", i );
+		vlist.push_back( var_node );
+	}
+
+	int num_c = xmlGetNumNames( root, "Constant" );
+	for ( int i = 0 ; i < num_c ; i++ )
+	{
+		xmlNodePtr cst_node = xmlGetNode( root, "Constant", i );
+		vlist.push_back( cst_node );
+	}
+
+	int num_tot = num_v + num_c;
+
+	for ( int i = 0 ; i < num_tot ; i++ )
+	{
+		xmlNodePtr var_node = vlist[i];
 
 		if ( var_node )
 		{
@@ -1175,6 +1196,13 @@ void PHolderListMgr::ReadPHolderListXDDM( char *newfile )
 
 				ParmHolder* ph = new ParmHolder();
 				ph->setParm( p );
+
+				const xmlChar* varstr = (xmlChar*) "Variable";
+
+				if( !xmlStrcmp(var_node->name, varstr ) )
+					ph->setDesType( XDDM_VAR );
+				else
+					ph->setDesType( XDDM_CONST );
 
 				m_PHolderVec.push_back( ph );
 				m_CurrPHolderIndex = (int)m_PHolderVec.size() - 1;
@@ -1261,13 +1289,14 @@ vector< ParmHolder* > PHolderListMgr::GetPHolderVec()
 	return m_PHolderVec;
 }
 
-void PHolderListMgr::SetParm( Parm* p )
+void PHolderListMgr::SetParm( Parm* p, int vtype )
 {
 	m_WorkingPHolder.setParm( p );
+	m_WorkingPHolder.setDesType( vtype );
 	RebuildAllPHolderList();
 }
 
-void PHolderListMgr::SetParm( int comp_ind, int group_ind, int parm_ind )
+void PHolderListMgr::SetParm( int comp_ind, int group_ind, int parm_ind, int vtype )
 {
 	vector< Geom* > compVec = aircraftPtr->getGeomVec();
 	compVec.push_back( aircraftPtr->getUserGeom() );
@@ -1275,6 +1304,7 @@ void PHolderListMgr::SetParm( int comp_ind, int group_ind, int parm_ind )
 	if ( compVec.size() == 0 )
 	{
 		m_WorkingPHolder.setParm( NULL );
+		m_WorkingPHolder.setDesType( XDDM_VAR );
 		return;
 	}
 
@@ -1289,6 +1319,7 @@ void PHolderListMgr::SetParm( int comp_ind, int group_ind, int parm_ind )
 	if ( parmVec.size() == 0 )
 	{
 		m_WorkingPHolder.setParm( NULL );
+		m_WorkingPHolder.setDesType( XDDM_VAR );
 		return;
 	}
 
@@ -1296,7 +1327,7 @@ void PHolderListMgr::SetParm( int comp_ind, int group_ind, int parm_ind )
 		parm_ind = 0;
 
 	m_WorkingPHolder.setParm( parmVec[parm_ind] );
-
+	m_WorkingPHolder.setDesType( vtype );
 }
 
 
@@ -1373,6 +1404,7 @@ ParmHolder* PHolderListMgr::ResetWorkingPHolder()
 {
 	m_CurrPHolderIndex = -1;
 	m_WorkingPHolder.setParm( m_DefaultParm );
+	m_WorkingPHolder.setDesType( XDDM_VAR );
 
 	return &m_WorkingPHolder;
 }
