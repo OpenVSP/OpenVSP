@@ -224,6 +224,7 @@ void PropGeom::copy( Geom* fromGeom )
 	for ( int i = 0 ; i < (int)sectVec.size() ; i++ )
 		sectVec[i].SetGeomPtr( this );
 
+	setCurrSectID( currSectID );
 	compose_model_matrix();
 	generate();
 
