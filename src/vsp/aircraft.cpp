@@ -251,6 +251,12 @@ Geom* Aircraft::createGeom( int type )
 		newGeom->copy( m_DefaultCompMap[type] );
 	}
 
+	for ( int j = 0; j < (int) geomVec.size(); j++ )
+	{
+		if ( newGeom->getPtrID() == geomVec[j]->getPtrID() )
+			newGeom->resetPtrID(); // Collision detected
+	}
+
 	addGeom( newGeom );
 
 	if (screenMgr) screenMgr->updateGeomScreens();
