@@ -557,8 +557,7 @@ void GeomScreen::s_paste(int src)
 {
 	lastSelectedGeom = NULL;
 
-	if( aircraftPtr->checkClipBoardPtrIDCollisions() )
-		aircraftPtr->resetClipBoardPtrID();
+	aircraftPtr->resetClipBoardPtrIDCollisions();
 
 	aircraftPtr->pasteClipBoard();
 

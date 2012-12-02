@@ -83,8 +83,7 @@ public:
 	VSPDLL int  openFile( const char* file_name );
 	int  insertFile( const char* file_name );
 
-	void resetClipBoardPtrID();
-	bool checkClipBoardPtrIDCollisions();
+	void resetClipBoardPtrIDCollisions();
 
 	void writeFile( const char* file_name , bool restore_file_name = false );
 	void writeFile( const char* file_name, vector< Geom * > &gVec, vector< LabelGeom * > &lVec, bool restore_file_name = false );
