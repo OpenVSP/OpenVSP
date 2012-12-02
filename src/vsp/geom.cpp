@@ -217,10 +217,14 @@ Geom::~Geom()
 void Geom::initPtrID()
 {
 	// Nearly random integer between 1 and 1,000,000
-	// % 1000000 + 1 Loses uniform distribution as range becomes
-	// larger fraction of RAND_MAX.
 	// srand( time(NULL) ); is called in main().
-	ptrID = rand() % 1000000 + 1;
+	// Generates product of two random numbers to effectively increase
+	// pool of possible outcomes.  Use floating point arithmetic to
+	// avoid problems of integer overflow.  Use division and multiplication
+	// to maintain uniformity of distribution for small RAND_MAX.
+	double r1 = (1.0 * rand()) / RAND_MAX;
+	double r2 = (1.0 * rand()) / RAND_MAX;
+	ptrID = r1 * r2 * 1000000.0 + 1.0;
 }
 
 int Geom::getPtrID()
