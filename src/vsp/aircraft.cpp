@@ -867,6 +867,29 @@ int Aircraft::readFile(const char* file_name )
       }
     }
 
+    bool collision = false;
+    for (  i = 0 ; i < (int)addGeomVec.size() - 1 ; i++ )
+	{
+		for ( j = i + 1 ; j < (int)addGeomVec.size() ; j++ )
+		{
+			if( addGeomVec[i]->getPtrID() == addGeomVec[j]->getPtrID() )
+			{
+				collision = true;
+				addGeomVec[j]->resetPtrID();
+			}
+		}
+	}
+    if( collision == true )
+    {
+		printf("\n\n!!!!!!!\n");
+		printf("Duplicate PtrID's detected in file.\n");
+		printf("  New PtrID's have been created, but parent/child relationships,\n");
+		printf("  parameter links, design file ID's, and similar features of your\n");
+		printf("  model may be broken.\n");
+		printf("  Check your model carefully.\n");
+		printf("!!!!!!!\n\n\n");
+    }
+
 	//==== Set Up Parent/Child Links ====//
 	for (  i = 0 ; i < (int)addGeomVec.size() ; i++ )
 	{
