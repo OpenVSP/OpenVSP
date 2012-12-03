@@ -1068,7 +1068,7 @@ void PHolderListMgr::ReadPHolderListDES( char *newfile )
 
 			if ( p )
 			{
-				p->set_from_link( val );
+				p->set( val );
 				p->get_geom()->parm_changed( p );
 
 				ParmHolder* ph = new ParmHolder();
@@ -1191,7 +1191,7 @@ void PHolderListMgr::ReadPHolderListXDDM( char *newfile )
 			{
 				double val = xmlFindPropDouble( var_node, "Value", p->get() );
 
-				p->set_from_link( val );
+				p->set( val );
 				p->get_geom()->parm_changed( p );
 
 				ParmHolder* ph = new ParmHolder();
