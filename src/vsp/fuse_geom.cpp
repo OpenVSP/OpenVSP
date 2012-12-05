@@ -133,8 +133,10 @@ Fuse_geom::Fuse_geom(Aircraft* aptr) : Geom(aptr)
 //==== Destructor =====//
 Fuse_geom::~Fuse_geom()
 {
-	DeleteAllXSecs();
-
+//	Commenting out these lines creates a memory leak.
+//	However, it also fixes a mysterious bug where parameters would occasionally
+//	take the wrong value.
+//	DeleteAllXSecs();
 
 }
 void Fuse_geom::LoadLinkableParms( vector< Parm* > & parmVec )

@@ -101,8 +101,11 @@ FuselageGeom::FuselageGeom(Aircraft* aptr) : Geom(aptr)
 //==== Destructor =====//
 FuselageGeom::~FuselageGeom()
 {
-	for ( int i = 0 ; i < (int)xsecVec.size() ; i++ )
-		delete xsecVec[i];
+//	Commenting out these lines creates a memory leak.
+//	However, it also fixes a mysterious bug where parameters would occasionally
+//	take the wrong value.
+//	for ( int i = 0 ; i < (int)xsecVec.size() ; i++ )
+//		delete xsecVec[i];
 
 }
 void FuselageGeom::LoadLinkableParms( vector< Parm* > & parmVec )
