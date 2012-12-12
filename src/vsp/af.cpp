@@ -1402,8 +1402,6 @@ int Af::readVspAirfoil( FILE* file_id,
         }
     }
 
-  fclose(file_id);
-
 	return 1;
 
 }
