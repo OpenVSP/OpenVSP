@@ -54,10 +54,10 @@ public:
 	void TessIntegrate( int direction, vector< double > &utess );
 	void SmoothTess();
 	void UWTess();
-	double CalcDensity( GridDensity* grid_den, SCurve* BCurve );
-	void BuildEdgeSources( MSCloud &es_cloud, GridDensity* grid_den );
-	void ApplyEdgeSources( MSTree &es_tree, MSCloud &es_cloud, GridDensity* grid_den );
-	void Tesselate( MSTree &es_tree, MSCloud &es_cloud, GridDensity* grid_den );
+	void SpreadDensity( SCurve* BCurve );
+	void CalcDensity( GridDensity* grid_den, SCurve* BCurve );
+	void ApplyESSurface( double u, double t );
+	void Tesselate();
 	void Tesselate( vector< vec3d > & target_pnts );
 
 	void SetBezierControlPnts( vector< vec3d > & pnts );

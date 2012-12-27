@@ -195,7 +195,7 @@ public:
 	virtual void RemeshSingleComp( int comp_id, int output_type );
 
 	virtual void Intersect();
-	virtual void InitMesh( double minmap );
+	virtual void InitMesh();
 
 	virtual void PrintQual();
 	virtual Stringc GetQualString();
@@ -210,6 +210,7 @@ public:
 	virtual void BuildChains();
 	virtual void ExpandChain( ISegChain* chain );
 
+	virtual void BuildCurves();
 	virtual void IntersectSplitChains();
 	virtual void IntersectYSlicePlane();
 	virtual void IntersectWakes();
@@ -220,11 +221,11 @@ public:
 	virtual void SplitBorderCurves();
 	virtual void MergeBorderEndPoints();
 	virtual void MergeIPntGroups( list< IPntGroup* > & iPntGroupList, double tol );
-	virtual void TessellateChains( double minmap );
+	virtual void TessellateChains();
 	virtual void AddWakeCoPlanarSurfaceChains();
 	virtual void AddSurfaceChain( Surf* sPtr, ISegChain* chainIn );
 	virtual void BuildMesh();
-	virtual double BuildTargetMap( );
+	virtual void BuildTargetMap( );
 	virtual void RemoveInteriorTris();
 	virtual void ConnectBorderEdges( bool wakeOnly );
 	virtual void MatchBorderEdges( list< Edge* > edgeList );

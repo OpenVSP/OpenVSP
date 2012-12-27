@@ -495,10 +495,10 @@ int batchMode(int argc, char *argv[], Aircraft* airPtr)
 			}
 			cfdMeshMgrPtr->ScaleTriSize( cfdMeshScale );
 			cfdMeshMgrPtr->BuildGrid();
-			double minmap = cfdMeshMgrPtr->BuildTargetMap();
 			cfdMeshMgrPtr->Intersect();
+			cfdMeshMgrPtr->BuildTargetMap();
 //			cfdMeshMgrPtr->UpdateSourcesAndWakes();
-			cfdMeshMgrPtr->InitMesh( minmap );
+			cfdMeshMgrPtr->InitMesh( );
 			cfdMeshMgrPtr->Remesh( CfdMeshMgr::NO_OUTPUT );
 
 			//Stringc stereo_file_name = base_name;

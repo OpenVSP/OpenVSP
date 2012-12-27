@@ -1099,18 +1099,8 @@ void ISegChain::BuildCurves( )
 
 void ISegChain::TransferTess( )
 {
-	//==== Compute Target 3D Points on A Surface ====//
-	vector< vec3d > target_uw;
-	vector< vec3d > target_pnts;
-	target_uw = m_ACurve.GetUWTessPnts();
-
-	for ( int i = 0 ; i < (int)target_uw.size() ; i++ )
-	{
-		vec3d p  = m_SurfA->CompPnt( target_uw[i].x(), target_uw[i].y() );
-		target_pnts.push_back( p );
-	}
-
-	m_BCurve.Tesselate( target_pnts );
+	vector< double > autess = m_ACurve.GetUTessPnts();
+	m_BCurve.Tesselate( autess );
 }
 
 void ISegChain::ApplyTess( )
@@ -1150,19 +1140,20 @@ void ISegChain::ApplyTess( )
 //printf("Tess Chain Size = %d %f\n", m_TessVec.size(), d );
 }
 
-double ISegChain::CalcDensity( GridDensity* grid_den )
+void ISegChain::SpreadDensity( )
 {
-	return m_ACurve.CalcDensity( grid_den, &m_BCurve );
+	m_ACurve.SpreadDensity( &m_BCurve );
 }
 
-void ISegChain::BuildES( MSCloud &es_cloud, GridDensity* grid_den )
+void ISegChain::CalcDensity( GridDensity* grid_den )
 {
-	m_ACurve.BuildEdgeSources( es_cloud, grid_den );
+	m_ACurve.CalcDensity( grid_den, &m_BCurve );
 }
 
-void ISegChain::Tessellate( MSTree &es_tree, MSCloud &es_cloud, GridDensity* grid_den )
+void ISegChain::Tessellate()
 {
-	m_ACurve.Tesselate( es_tree, es_cloud, grid_den );
+	m_ACurve.Tesselate();
+	m_ACurve.CleanupDistTable();
 }
 
 void ISegChain::TessEndPts()

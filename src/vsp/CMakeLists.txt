@@ -78,7 +78,6 @@ ISegChain.cpp
 labelGeom.cpp
 labelScreen.cpp
 main.cpp
-mapSource.cpp
 materialMgr.cpp
 Mesh.cpp
 meshGeom.cpp
