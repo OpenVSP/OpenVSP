@@ -888,7 +888,7 @@ void CfdMeshMgr::BuildGrid()
 #endif
 }
 
-void CfdMeshMgr::BuildTargetMap( )
+void CfdMeshMgr::BuildTargetMap( int output_type )
 {
 	MSCloud ms_cloud;
 	vector< MapSource* > allsources;
@@ -913,8 +913,11 @@ void CfdMeshMgr::BuildTargetMap( )
 		}
 	}
 
-	if( false )
+	if( m_GridDensity.GetRigorLimit() )
 	{
+		if ( output_type != CfdMeshMgr::NO_OUTPUT )
+			addOutputText( " Rigorous 3D Limiting\n", output_type );
+
 		for ( i = 0 ; i < (int)m_SurfVec.size() ; i++ )
 		{
 			ms_cloud.sources.clear();
@@ -938,6 +941,11 @@ void CfdMeshMgr::BuildTargetMap( )
 			ms_tree.buildIndex();
 
 			m_SurfVec[i]->LimitTargetMap( ms_cloud, ms_tree, minmap );
+		}
+
+		for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+		{
+			(*c)->CalcDensity( &m_GridDensity );
 		}
 	}
 }

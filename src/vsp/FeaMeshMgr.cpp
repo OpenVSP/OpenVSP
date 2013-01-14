@@ -682,7 +682,10 @@ void FeaMeshMgr::Build()
 
 	if ( !m_BatchFlag )
 		aircraftPtr->getScreenMgr()->getFeaStructScreen()->addOutputText( "Build Target Map\n" );
-	BuildTargetMap();
+	if ( !m_BatchFlag )
+		BuildTargetMap(CfdMeshMgr::FEA_OUTPUT);
+	else
+		BuildTargetMap(CfdMeshMgr::NO_OUTPUT);
 
 	RemoveSliceSurfaces();
 

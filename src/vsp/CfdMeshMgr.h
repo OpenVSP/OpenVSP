@@ -225,7 +225,7 @@ public:
 	virtual void AddWakeCoPlanarSurfaceChains();
 	virtual void AddSurfaceChain( Surf* sPtr, ISegChain* chainIn );
 	virtual void BuildMesh();
-	virtual void BuildTargetMap( );
+	virtual void BuildTargetMap( int output_type );
 	virtual void RemoveInteriorTris();
 	virtual void ConnectBorderEdges( bool wakeOnly );
 	virtual void MatchBorderEdges( list< Edge* > edgeList );
