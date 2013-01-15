@@ -142,6 +142,7 @@ public:
 
 	virtual void write(xmlNodePtr node);
 	virtual void read(xmlNodePtr node);
+	virtual void read(FILE* file_id) {Geom::read(file_id);}
 
 	virtual int  read_xsec( const char* file_name );
 	virtual void convertToHerm();

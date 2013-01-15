@@ -1292,7 +1292,7 @@ void Geom::draw_highlight_boxes()
     {
       glLineWidth(2);
       glColor3f(1.0, 0, 0);
-      draw_bbox(); 
+      draw_bbox0();
     }
 
   //==== Draw Temp Highlight Box =====//
@@ -1300,13 +1300,13 @@ void Geom::draw_highlight_boxes()
     {
       glLineWidth(2);
       glColor3f(1.0, 1.0, 0);
-      draw_bbox(); 
+      draw_bbox0();
     }
 } 
 
  
 //==== Compose Modeling Matrix ====//
-void Geom::draw_bbox()
+void Geom::draw_bbox0()
 {
   double temp[3];
   temp[0] = bnd_box_xform.get_min(0);

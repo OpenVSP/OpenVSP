@@ -127,7 +127,7 @@ public:
 	virtual void parm_changed(Parm*) = 0;
 	virtual void update_bbox() = 0;
 	virtual void update_xformed_bbox();
-	virtual void draw_bbox();
+	virtual void draw_bbox0();
 	virtual int  valid_bnd_box()				{ return 1; }
 	virtual bbox get_bnd_box()					{ return bnd_box_xform; }
 	virtual void draw_highlight_boxes();
@@ -511,6 +511,7 @@ public:
 
 	virtual void write(xmlNodePtr node);
 	virtual void read(xmlNodePtr node);
+	virtual void read(FILE* file_id) {Geom::read(file_id);}
 
 	virtual void copy( Geom* fromGeom );
 	virtual void parm_changed(Parm*);
@@ -570,6 +571,7 @@ public:
 
 	virtual void write(xmlNodePtr node)			{}	
 	virtual void read(xmlNodePtr node)			{} 
+	virtual void read(FILE* file_id) {Geom::read(file_id);}
 
 	virtual int getNumXSecSurfs()				{ return 0; }
 
@@ -613,6 +615,7 @@ public:
 	virtual void copy( Geom* fromGeom );
 	virtual void write(xmlNodePtr node);
 	virtual void read(xmlNodePtr node);
+	virtual void read(FILE* file_id) {Geom::read(file_id);}
 
 	virtual void parm_changed(Parm*);
 	virtual void draw();
@@ -652,6 +655,7 @@ public:
 
 	virtual void write(xmlNodePtr node);
 	virtual void read(xmlNodePtr node);
+	virtual void read(FILE* file_id) {Geom::read(file_id);}
 
 	virtual void copy( Geom* fromGeom );
 	virtual void parm_changed(Parm*);

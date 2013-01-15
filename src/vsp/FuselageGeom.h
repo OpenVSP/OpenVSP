@@ -116,6 +116,7 @@ public:
    virtual void regenerate();
    virtual void write(xmlNodePtr node);
    virtual void read(xmlNodePtr node);
+   virtual void read(FILE* file_id) {Geom::read(file_id);}
  
    virtual void load_normals();
    virtual void load_hidden_surf();

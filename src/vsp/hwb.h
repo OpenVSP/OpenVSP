@@ -345,8 +345,10 @@ class Hwb_geom : public HwbBaseGeom
 
    		virtual void copy( Geom* fromGeom );
 	
+		virtual void write(FILE* dump_file) {HwbBaseGeom::write(dump_file);};
 		virtual void write(xmlNodePtr);
 		virtual void read(xmlNodePtr);
+	virtual void read(FILE* file_id) {Geom::read(file_id);}
 
 		virtual void draw_sect_box();
 		virtual void draw();

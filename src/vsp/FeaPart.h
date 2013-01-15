@@ -320,6 +320,7 @@ public:
 
 	virtual void ComputeEndPoints();
 	virtual void Draw( bool highlight );
+	virtual void Draw() {FeaSlice::Draw();}
 
 	int m_SectID;				// Section
 	double m_PerChord;			// Percent Chord
@@ -339,6 +340,7 @@ public:
 	virtual bool IsCap();
 
 	virtual void Draw( bool highlight );
+	virtual void Draw() {FeaSlice::Draw();}
 
 	int m_SectID;
 	double m_PerSpan;

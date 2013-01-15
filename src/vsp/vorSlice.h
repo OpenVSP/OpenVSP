@@ -16,7 +16,9 @@
 #ifndef VORSLICE_H
 #define VORSLICE_H
 
-#include "stdio.h"
+#include <float.h>
+#include <stdio.h>
+
 #include "vorobj.h"
 
 //==== Moved from VorObj ====//
@@ -38,7 +40,7 @@
 #define MAX(a,b) ( (a)>=(b) ? (a) : (b) )
 #endif
 
-#define MINFLOAT      1.40129846432481707e-45 
+#define MINFLOAT      FLT_MIN
 
 typedef struct Point {
    float x;

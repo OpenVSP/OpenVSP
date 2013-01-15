@@ -95,6 +95,7 @@ public:
 
 	virtual void write(xmlNodePtr node);
 	virtual void read(xmlNodePtr node);
+	virtual void read(FILE* file_id) {Geom::read(file_id);}
 
 	virtual void copy( Geom* fromGeom );
 	virtual void parm_changed(Parm*);
