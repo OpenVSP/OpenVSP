@@ -477,7 +477,7 @@ void CfdMeshMgr::addOutputText( const char* str, int output_type )
         }
         else
         {
-                printf( str );
+                printf( "%s", str );
                 fflush( stdout );
         }
 }

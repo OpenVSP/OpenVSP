@@ -512,7 +512,7 @@ int batchMode(int argc, char *argv[], Aircraft* airPtr)
 //			cfdMeshMgrPtr->WriteNASCART(bodyin_dat_file_name, bodyin_key_file_name );
 			//cfdMeshMgrPtr->WriteTetGen("tetgen.poly");
 			Stringc resultTxt = cfdMeshMgrPtr->CheckWaterTight();
-			printf( resultTxt.get_char_star() );
+			printf( "%s", resultTxt.get_char_star() );
 
 			fflush( stdout );
 

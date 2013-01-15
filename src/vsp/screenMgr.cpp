@@ -2081,6 +2081,6 @@ char* ScreenMgr::FileChooser( const char* title, const char* filter )
 
 void ScreenMgr::MessageBox( const char* msg )
 {
-	fl_message( msg );
+	fl_message( "%s", msg );
 }
 

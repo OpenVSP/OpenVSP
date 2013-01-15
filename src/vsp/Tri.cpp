@@ -392,8 +392,8 @@ void Edge::ReplaceTri( Tri* t, Tri* replace_t )
 	
 bool Edge::BothAdjoiningTrisInterior()
 {
-	if ( t0 && t0->interiorFlag || t0 == NULL )
-		if ( t1 && t1->interiorFlag || t1 == NULL )
+	if ( (t0 && t0->interiorFlag) || (t0 == NULL) )
+		if ( (t1 && t1->interiorFlag) || (t1 == NULL) )
 			return true;
 	return false;
 }

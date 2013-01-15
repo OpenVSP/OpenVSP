@@ -58,7 +58,7 @@ void ScriptMgr::save(const char * file)
 	Fl_Text_Buffer * scriptBuffer = scriptUI->scriptEditor->buffer();
 
 	FILE* fid = fopen(file, "w");
-	fprintf( fid, scriptBuffer->text() );
+	fprintf( fid, "%s", scriptBuffer->text() );
 	fclose(fid);
 }
 
@@ -182,7 +182,7 @@ void ScriptMgr::appendError(const char * text)
 { 	
 	if (scriptMode == SCRIPT)
 	{
-		printf(text);
+		printf("%s", text);
 	}
 	else
 	{

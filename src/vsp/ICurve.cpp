@@ -543,7 +543,7 @@ void ICurve::DebugEdgeMatching(FILE* fp)
 {
 	if ( !m_SCurve_A || !m_SCurve_B )
 	{
-		fprintf( fp, "  ICurve: % Unmatched Curve \n", this );
+		fprintf( fp, "  ICurve: %% Unmatched Curve \n", this );
 		return;
 	}
 

@@ -692,8 +692,8 @@ void ThreePntSlice::FindPerimeter()
 	{
 		for ( j = i+1 ; j < (int)edgeVec.size() ; j++ )
 		{
-			if ( edgeVec[i]->n0 == edgeVec[j]->n0 && edgeVec[i]->n1 == edgeVec[j]->n1 || 
-				 edgeVec[i]->n1 == edgeVec[j]->n0 && edgeVec[i]->n0 == edgeVec[j]->n1 )
+			if ( (edgeVec[i]->n0 == edgeVec[j]->n0 && edgeVec[i]->n1 == edgeVec[j]->n1) ||
+				 (edgeVec[i]->n1 == edgeVec[j]->n0 && edgeVec[i]->n0 == edgeVec[j]->n1) )
 			{
 				perimFlags[i] = 0;
 				perimFlags[j] = 0;

@@ -135,9 +135,9 @@ public:
 	VSPDLL double get_total_mass()						{ return total_mass; }
 	void   set_total_mass( double m )			{ total_mass = m; }
 	VSPDLL vec3d  get_Ixx_Iyy_Ixx()					{ return Ixx_Iyy_Ixx; }
-	vec3d  set_Ixx_Iyy_Ixx( const vec3d& ivec)	{ Ixx_Iyy_Ixx = ivec; }
+	void  set_Ixx_Iyy_Ixx( const vec3d& ivec)	{ Ixx_Iyy_Ixx = ivec; }
 	VSPDLL vec3d  get_Ixy_Ixz_Iyz()					{ return Ixy_Ixz_Iyz; }
-	vec3d  set_Ixy_Ixz_Iyz( const vec3d& ivec)	{ Ixy_Ixz_Iyz = ivec; }
+	void  set_Ixy_Ixz_Iyz( const vec3d& ivec)	{ Ixy_Ixz_Iyz = ivec; }
 	int    getDrawCGFlag()						{ return drawCGFlag; }
 	void   setDrawCGFlag( int f )				{ drawCGFlag = f; }
 	int    getDrawACFlag()						{ return drawACFlag; }

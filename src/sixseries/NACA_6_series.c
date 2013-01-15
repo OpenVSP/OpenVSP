@@ -1691,8 +1691,8 @@ L990:
 /*        interval. */
 	memory = xbyarrow >= x[left] * arrow && xbyarrow < x[right] * arrow;
 	if (! memory) {
-	    memory = left == 1 && xbyarrow < x[right] * arrow || right == *
-		    ndata && xbyarrow >= x[left] * arrow;
+	    memory = ((left == 1) && xbyarrow < x[right] * arrow) || (right == *
+		    ndata && (xbyarrow >= x[left] * arrow));
 	}
     }
     if (memory) {

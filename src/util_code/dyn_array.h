@@ -203,7 +203,7 @@ void dyn_array<Item_type>::append(const Item_type& in_item)
       allocate_space();
       if (old_arr)
         {
-          memcpy(arr, old_arr, (dim-1)*sizeof(Item_type));
+          memcpy((void *)arr, (void *)old_arr, (dim-1)*sizeof(Item_type));
           delete [] old_arr;
         }
     }
@@ -288,7 +288,7 @@ void dyn_array<Item_type>::insert_after_index(const Item_type& in_item, int ind)
       allocate_space();
       if (old_arr)
         {
-          memcpy(arr, old_arr, (dim-1)*sizeof(Item_type));
+          memcpy((void *)arr, (void *)old_arr, (dim-1)*sizeof(Item_type));
           delete [] old_arr;
         }
     }

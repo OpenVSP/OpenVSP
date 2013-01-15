@@ -461,8 +461,8 @@ void Aircraft::reorderGeom( int action )
 		for ( int i = 0 ; i < (int)gVec.size() ; i++ )
 		{
 			if ( i < (int)(gVec.size()-1) &&
-				 ( action == MOVE_DOWN && gVec[i] == activeGeom || 
-				   action == MOVE_UP   && gVec[i+1] == activeGeom ) )
+				 ( (action == MOVE_DOWN && gVec[i] == activeGeom) ||
+				   (action == MOVE_UP   && gVec[i+1] == activeGeom) ) )
 			{
 				newVec.push_back( gVec[i+1] );
 				newVec.push_back( gVec[i] );
@@ -2800,7 +2800,7 @@ void Aircraft::write_felisa_file(const char* file_name)
 	geom_cnt += 6;
 
 	fprintf(dump_file, " %d       Number_Surfaces\n",geom_cnt);
-	fprintf(dump_file, "\n 0      Number_Exceptions\n",geom_cnt);
+	fprintf(dump_file, "\n 0      Number_Exceptions\n");
 
 	//==== Write Felisa Surfaces ====//
 	geom_cnt = 0;
