@@ -90,7 +90,7 @@ VspPreferences::VspPreferences()
 		for ( int i = 0 ; i < num_names ; i++ )
 		{
 			xmlNodePtr name_node = xmlGetNode( outputNames, "OutputName", i );
-			char* str = xmlFindString( name_node, "Value", "Default_Name" );
+			const char* str = xmlFindString( name_node, "Value", "Default_Name" );
 			outputNameVec.push_back( Stringc(str) );
 		}
 	}

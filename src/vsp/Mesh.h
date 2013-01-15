@@ -19,7 +19,9 @@ class Surf;
 class GridDensity;
 
 #ifndef WIN32
-#define NDEBUG
+#  ifndef NDEBUG
+#    define NDEBUG
+#  endif
 #endif
 
 #include <assert.h>
@@ -29,7 +31,7 @@ class GridDensity;
 using namespace std;
 
 extern "C"
-{ void triangulate(char *, struct triangulateio *, struct triangulateio *,
+{ void triangulate(const char *, struct triangulateio *, struct triangulateio *,
 				   struct triangulateio *); }
 
 class MeshSeg

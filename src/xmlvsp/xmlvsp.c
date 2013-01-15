@@ -132,7 +132,7 @@ int xmlFindInt( xmlNodePtr node, const char * name, int def )
   return def;
 }
 
-char* xmlFindString( xmlNodePtr node, const char * name, char* def )
+const char* xmlFindString( xmlNodePtr node, const char * name, const char* def )
 {
   xmlNodePtr n;
 
@@ -166,7 +166,7 @@ double xmlFindPropDouble( xmlNodePtr node, const char * name, double def )
   return def;
 }
 
-char* xmlFindPropString( xmlNodePtr node, const char * name, char* def )
+const char* xmlFindPropString( xmlNodePtr node, const char * name, const char* def )
 {
   char* ret;
   if ( node == NULL )

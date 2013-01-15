@@ -50,7 +50,7 @@ void Material::read( xmlNodePtr root )
 	double tmp[4];
 	xmlNodePtr node;
 
-	char* str = xmlFindString( root, "Name", "Default_Name" );
+	const char* str = xmlFindString( root, "Name", "Default_Name" );
 	name = str;				// name is a stringc
 
     node = xmlGetNode( root, "Ambient", 0 );

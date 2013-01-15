@@ -122,7 +122,7 @@ int batchMode(int argc, char *argv[], Aircraft* airPtr)
 		   CFDMESH_DAT, CFDMESH_KEY, FEAMESH_STL, FEAMESH_MASS, FEAMESH_NASTRAN, 
 		   FEAMESH_CALC_GEOM, FEAMESH_CALC_THICK, COMPGEOM_DRAG, NUM_OUT_NAMES }; 
 
-	char* outFileTypes[] = {"compgeom_txt", "compgeom_csv", "cfdmesh_stl", "cfdmesh_poly",
+	const char* outFileTypes[] = {"compgeom_txt", "compgeom_csv", "cfdmesh_stl", "cfdmesh_poly",
 	                        "cfdmesh_tri",  "cfdmesh_obj",  "cfdmesh_dat", "cfdmesh_key",
 	                        "feamesh_stl",  "feamesh_mass", "feamesh_nastran",
 	                        "feamesh_calc_geom",  "feamesh_calc_thick", "compgeom_drag" };
@@ -674,7 +674,7 @@ void CheckVersionNumber()
 	char poststr[256];
 	sprintf( poststr, "postvar1=%d&postvar2=%d\r\n", user_id, ver_no);
 	int poststrlen = strlen(poststr);
-	char*  headers = "Content-Type: application/x-www-form-urlencoded \n";
+	const char*  headers = "Content-Type: application/x-www-form-urlencoded \n";
 
 	void * ctx = 0;
 	ctx = xmlNanoHTTPMethod("http://www.openvsp.org/vspuse_post.php", "POST", poststr, NULL, headers, poststrlen );

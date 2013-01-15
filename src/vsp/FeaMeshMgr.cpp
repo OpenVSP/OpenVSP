@@ -445,7 +445,7 @@ void FeaMeshMgr::SetFeaExportFileFlag( bool flag, int type )
 void FeaMeshMgr::ResetFeaExportFileNames()
 {
 	int pos;
-	char *suffix[]={"_mass.dat","_NASTRAN.dat","_calculix_geom.dat","_calculix_thick.dat", ".stl" };
+	const char *suffix[]={"_mass.dat","_NASTRAN.dat","_calculix_geom.dat","_calculix_thick.dat", ".stl" };
 
 	for ( int i = 0 ; i < NUM_FEA_FILE_NAMES ; i++ )
 	{

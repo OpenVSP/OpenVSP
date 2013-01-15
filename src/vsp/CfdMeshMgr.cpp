@@ -453,7 +453,7 @@ void CfdMeshMgr::SetExportFileFlag( bool flag, int type )
 void CfdMeshMgr::ResetExportFileNames()
 {
 	int pos;
-	char *suffix[]={".stl",".poly",".tri",".obj", "_NASCART.dat", "_NASCART.key", ".msh", ".srf"};
+	const char *suffix[]={".stl",".poly",".tri",".obj", "_NASCART.dat", "_NASCART.key", ".msh", ".srf"};
 
 	for ( int i = 0 ; i < NUM_FILE_NAMES ; i++ )
 	{

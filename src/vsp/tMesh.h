@@ -29,7 +29,7 @@
 using namespace std;			//jrg windows??
 
 extern "C"
-{ void triangulate(char *, struct triangulateio *, struct triangulateio *,
+{ void triangulate(const char *, struct triangulateio *, struct triangulateio *,
 				   struct triangulateio *); }
 
 class TEdge;

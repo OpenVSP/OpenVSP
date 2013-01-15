@@ -3019,7 +3019,7 @@ void VorSlice::set_key_point_new_xyz(int ilist, int ielement,
  */
 int VorSlice::read_key_point(char *basename)
 {
-   static char *ext = ".kpt";
+   static const char *ext = ".kpt";
    char filename[255];
    FILE *fp;
    int nlist, i;
@@ -3064,7 +3064,7 @@ int VorSlice::read_key_point(char *basename)
  */
 int VorSlice::write_key_point(char *basename)
 {
-   static char *ext = ".kpt";
+   static const char *ext = ".kpt";
    char filename[255];
    FILE *fp;
    int nlist, i;
