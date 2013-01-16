@@ -1244,7 +1244,8 @@ void VorGeom::readVorlaxOut( int* isurf, int* icalc, double* delta, int* stab )
 	FILE* fp = fopen("fromVorlax.txt","r");
 	if (fp)
 	{
-		fscanf(fp, "%d %d %d %d %f %d %d \n", isurf, icalc, &idum, &idum, delta, &idum, stab );
+		fscanf(fp, "%d %d %d %d %lf %d %d \n", isurf, icalc, &idum, &idum, delta, &idum, stab );
+
 		fclose(fp);
 	}
 }

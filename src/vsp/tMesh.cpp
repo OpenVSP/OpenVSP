@@ -2877,7 +2877,7 @@ void TMesh::checkValid(FILE* fid)
 		if ( ivTriVec.size() == 0 )
 			fprintf( fid, "Mesh IS WaterTight\n" );
 		else
-			fprintf( fid, "There are %d Invalid Triangles\n", ivTriVec.size() );
+			fprintf( fid, "There are %d Invalid Triangles\n", (int)ivTriVec.size() );
 	}
 
 }

@@ -1248,8 +1248,8 @@ void MeshGeom::intersectTrim(int meshf, int halfFlag )
 	}
 
 	fprintf( fid, "...Comp Geom...\n" );
-	fprintf( fid, "%d Num Comps\n", compIdVec.size() );
-	fprintf( fid, "%d Total Num Meshes\n", tMeshVec.size() );
+	fprintf( fid, "%d Num Comps\n", (int)compIdVec.size() );
+	fprintf( fid, "%d Total Num Meshes\n", (int)tMeshVec.size() );
 	fprintf( fid, "%d Total Num Tris\n", numTris );
 
 	//==== Scale To 10 Units ====//
@@ -1525,8 +1525,8 @@ void MeshGeom::sliceX(int numSlices)
 	}
 
 	fprintf( fid, "...Slice...\n" );
-	fprintf( fid, "%d Num Comps\n", compIdVec.size() );
-	fprintf( fid, "%d Total Num Meshes\n", tMeshVec.size() );
+	fprintf( fid, "%d Num Comps\n", (int)compIdVec.size() );
+	fprintf( fid, "%d Total Num Meshes\n", (int)tMeshVec.size() );
 	fprintf( fid, "%d Total Num Tris\n", numTris );
 
 	//==== Create Bnd Box for  Mesh Geoms ====//
@@ -1696,8 +1696,8 @@ void MeshGeom::newSlice(int style, int numSlices, double sliceAngle, double cone
 	}
 
 	fprintf( fid, "...Slice...\n" );
-	fprintf( fid, "%d Num Comps\n", compIdVec.size() );
-	fprintf( fid, "%d Total Num Meshes\n", tMeshVec.size() );
+	fprintf( fid, "%d Num Comps\n", (int)compIdVec.size() );
+	fprintf( fid, "%d Total Num Meshes\n", (int)tMeshVec.size() );
 	fprintf( fid, "%d Total Num Tris\n", numTris );
 
 	//==== Create Bnd Box for  Mesh Geoms ====//
@@ -1950,14 +1950,14 @@ void MeshGeom::newSlice(int style, int numSlices, double sliceAngle, double cone
 
 			fprintf(fid, "%9.3f  %9.3f\n", x, sliceVec[s]->wetArea );
 		}
-	}	
+	}
 	else if (style == SLICE_AWAVE)
 	{
 		fprintf(fid, "\n");
 		fprintf(fid, "           X        ");
 		for ( i = 0; i < coneSections; i++ )
 		{
-			fprintf(fid, "        A%02d(%06.2f°)", i, 360.0 * i / (float) coneSections);
+			fprintf(fid, "        A%02d(%06.2f)", i, 360.0 * i / (float) coneSections);
 		}
 		fprintf(fid, "        TotalArea            Average\n");
 		for ( s = 0 ; s < numSlices ; s++ )
@@ -2098,8 +2098,8 @@ void MeshGeom::massSliceX(int numSlices)
 	}
 
 	fprintf( fid, "...Mass Properties...\n" );
-	fprintf( fid, "%d Num Comps\n", compIdVec.size() );
-	fprintf( fid, "%d Total Num Meshes\n", tMeshVec.size() );
+	fprintf( fid, "%d Num Comps\n", (int)compIdVec.size() );
+	fprintf( fid, "%d Total Num Meshes\n", (int)tMeshVec.size() );
 	fprintf( fid, "%d Total Num Tris\n", numTris );
 
 	//==== Create Bnd Box for  Mesh Geoms ====//
@@ -2434,9 +2434,9 @@ void MeshGeom::massSliceX(int numSlices)
 			}
 		}
 
-		fprintf(fid, "%s\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\n",
+		fprintf(fid, "%s\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\n",
 			tm->name_str.get_char_star(), compMass, cg.x(), cg.y(), cg.z(),
-			compIxx, compIyy, compIzz, compIxy, compIxz, compIyz, compVol );
+			compIxx, compIyy, compIzz, compIxy, compIxz, compIyz, compVol);
 
 
 		//fprintf(fid, "%s			 Name\n", tm->name_str.get_char_star() );
@@ -2447,9 +2447,9 @@ void MeshGeom::massSliceX(int numSlices)
 		//fprintf(fid, "%f             Volume\n", compVol);
 
 	}
-	fprintf(fid, "%s\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\n",
+	fprintf(fid, "%s\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\n",
 		"Totals", totalMass, centerOfGrav.x(), centerOfGrav.y(), centerOfGrav.z(),
-		totalIxx, totalIyy, totalIzz, totalIxy, totalIxz, totalIyz, totalVol );
+		totalIxx, totalIyy, totalIzz, totalIxy, totalIxz, totalIyz, totalVol);
 
 	//==== Clean Up Mess ====//
 	for ( i = 0 ; i < (int)tetraVec.size() ; i++ )

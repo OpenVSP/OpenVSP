@@ -740,7 +740,7 @@ void CheckVersionNumber()
 		FILE* vsptime_fp = fopen( ".vsptime", "w" );
 		if ( vsptime_fp )
 		{
-			fprintf( vsptime_fp, "%d", time(NULL) );
+			fprintf( vsptime_fp, "%d", (int)time(NULL) );
 			fclose( vsptime_fp );
 		}
 	}

@@ -635,7 +635,7 @@ int bezier_surf::number_int_curves(int start_id)
 //===== Number Intersection Curves  =====//
 void bezier_surf::dump_int_curve_indexs(FILE* file_id)
 {
-  fprintf(file_id, " %d	  %d      1	\n", id_number, id_number, int_curve_ptr_list.num_objects());
+  fprintf(file_id, " %d	  %d      1	\n", id_number, id_number);
   fprintf(file_id, "%d	 \n",int_curve_ptr_list.num_objects());
   int_curve_ptr_list.reset(); 
   while ( !int_curve_ptr_list.end_of_list() )

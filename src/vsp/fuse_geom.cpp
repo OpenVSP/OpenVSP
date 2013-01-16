@@ -2559,14 +2559,14 @@ void Fuse_geom::debug_print()
 {
 	int i;
 	printf("\n\n");
-	printf("Fuse_geom:: %d \n", (long)this);
+	printf("Fuse_geom:: %d \n",  (int)((size_t)this));
 
 	printf("Fuse_geom: curr_xsec_num %d \n", curr_xsec_num);
 	printf("Fuse_geom: curr_xsec_num %d \n", curr_xsec_num);
 
 	for ( i = 0 ; i < (int)xsecVec.size() ; i++ )
 	{
-		printf("  Fuse_geom: xsecVec[%d] = %d \n", i, (long)xsecVec[i] );
+		printf("  Fuse_geom: xsecVec[%d] = %d \n", i,  (int)((size_t)xsecVec[i]) );
 	}
 	
 	printf("Fuse_geom: imlFlag %d \n", imlFlag);

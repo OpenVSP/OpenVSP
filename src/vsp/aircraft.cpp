@@ -2235,7 +2235,7 @@ void Aircraft::write_gmsh_files(const char* file_name)
 	}
 
 	fprintf(file_id, "$MeshFormat\n" );
-	fprintf(file_id, "2.2 0 %d\n", sizeof(double) );
+	fprintf(file_id, "2.2 0 %d\n", (int)sizeof(double) );
 	fprintf(file_id, "$EndMeshFormat\n" );
 
 

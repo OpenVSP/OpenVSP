@@ -543,14 +543,14 @@ void ICurve::DebugEdgeMatching(FILE* fp)
 {
 	if ( !m_SCurve_A || !m_SCurve_B )
 	{
-		fprintf( fp, "  ICurve: %% Unmatched Curve \n", this );
+		fprintf( fp, "  ICurve: %d Unmatched Curve \n",  (int)((size_t)this) );
 		return;
 	}
 
 	Surf* surfA = m_SCurve_A->GetSurf();
 	Surf* surfB = m_SCurve_B->GetSurf();
 
-	fprintf( fp, "  ICurve: %d   Surf A = %d, Surf B = %d \n", this, surfA, surfB );
+	fprintf( fp, "  ICurve: %d   Surf A = %d, Surf B = %d \n",  (int)((size_t)this),  (int)((size_t)surfA),  (int)((size_t)surfB) );
 
 	double total_dist = 0.0;
 	for ( int i = 0 ; i < 21 ; i++ )

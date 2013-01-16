@@ -499,7 +499,7 @@ void StructureMgr::FinalMesh()
 		{
 			TTri* tri = &allTriVec[i];
 			fprintf(fp, "%d, %d, %d, %d, %d, %d, %d\n", 
-				i+1, tri->n0->id, tri->n1->id, tri->n2->id, tri->cn0->id, tri->cn1->id, tri->cn2->id,0 );
+				i+1, tri->n0->id, tri->n1->id, tri->n2->id, tri->cn0->id, tri->cn1->id, tri->cn2->id );
 		}
 
 		fclose(fp);
@@ -521,8 +521,8 @@ void StructureMgr::CheckValidity( vector< TNode* > & nVec, vector< TTri > & tVec
 	finalResultStringVec.clear();
 	smallTris.clear();
 
-	sprintf(str, "Num Nodes = %d\n", nVec.size() );			finalResultStringVec.push_back( str );
-	sprintf(str, "NumTris = %d\n", tVec.size());			finalResultStringVec.push_back( str );
+	sprintf(str, "Num Nodes = %d\n", (int)nVec.size() );			finalResultStringVec.push_back( str );
+	sprintf(str, "NumTris = %d\n", (int)tVec.size());			finalResultStringVec.push_back( str );
 
 	//==== Verify 3 Distinct Nodes for Each Tri ====//
 	for ( i = 0; i < (int)tVec.size() ; i++ )
@@ -665,10 +665,10 @@ void StructureMgr::CheckValidity( vector< TNode* > & nVec, vector< TTri > & tVec
 		}
 	}
 
-	sprintf(str, "\nInterior Edges = %d\n", twoTriEdgeVec.size());			finalResultStringVec.push_back( str );
-	sprintf(str, "Border Edges = %d\n", oneTriEdgeVec.size());				finalResultStringVec.push_back( str );
-	sprintf(str, "Isect Edges = %d\n", fourTriEdgeVec.size());				finalResultStringVec.push_back( str );
-	sprintf(str, "Bogus Edges = %d\n", otherTriEdgeVec.size());				finalResultStringVec.push_back( str );
+	sprintf(str, "\nInterior Edges = %d\n", (int)twoTriEdgeVec.size());			finalResultStringVec.push_back( str );
+	sprintf(str, "Border Edges = %d\n", (int)oneTriEdgeVec.size());				finalResultStringVec.push_back( str );
+	sprintf(str, "Isect Edges = %d\n", (int)fourTriEdgeVec.size());				finalResultStringVec.push_back( str );
+	sprintf(str, "Bogus Edges = %d\n", (int)otherTriEdgeVec.size());				finalResultStringVec.push_back( str );
 
 
 

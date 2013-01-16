@@ -1222,7 +1222,7 @@ void WingGeom::read(FILE* file_id)
     {
       fscanf(file_id, "%d",&deflect_flag);      fgets(buff, 80, file_id);
       char str[255];
-      fscanf(file_id, "%s",&str);               fgets(buff, 80, file_id);
+      fscanf(file_id, "%s",str);               fgets(buff, 80, file_id);
       deflect_name = str;
       defl_scale.read(file_id);         // Deflect
       twist_scale.read(file_id);        // Twist

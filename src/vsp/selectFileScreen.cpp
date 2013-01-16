@@ -203,7 +203,7 @@ void SelectFileScreen::screenCB( Fl_Widget* w )
 		{
 			Fl_Preferences prefs( Fl_Preferences::USER, "NASA", "VSP");
 			char favstr[256];
-			sprintf( favstr, "fav%d", m_FavDirVec.size() );
+			sprintf( favstr, "fav%d", (int)m_FavDirVec.size() );
 			prefs.set( favstr, m_DirString );
 			prefs.flush();
 			LoadFavsMenu();

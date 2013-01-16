@@ -1169,7 +1169,7 @@ void CfdMeshMgr::WriteTetGen( const char* filename )
 	}
 	else
 	{
-		fprintf( fp, "%d\n", planeIndVec.size() + 1 );
+		fprintf( fp, "%d\n", (int)(planeIndVec.size() + 1) );
 		fprintf( fp, "4  1 2 6 5\n" );
 		for ( int i = 0 ; i < (int)planeIndVec.size() ; i++ )
 		{
@@ -1204,7 +1204,7 @@ void CfdMeshMgr::WriteTetGen( const char* filename )
 			int ind3 = pntShift[i2] + 1 + 8;
 
 			fprintf( fp, "1\n" );
-			fprintf( fp, "3 %d %d %d\n", ind1, ind2, ind3, m_SurfVec[i]->GetCompID()+1 );
+			fprintf( fp, "3 %d %d %d\n", ind1, ind2, ind3);
 		}
 	}
 
@@ -1232,7 +1232,7 @@ void CfdMeshMgr::WriteTetGen( const char* filename )
 		interiorPntVec = tmpPntVec;
 	}
 
-	fprintf( fp, "%d\n", interiorPntVec.size() );
+	fprintf( fp, "%d\n", (int)interiorPntVec.size() );
 	for ( int i = 0 ; i < (int)interiorPntVec.size() ; i++ )
 	{
 		vec3d p = interiorPntVec[i];
@@ -1498,7 +1498,7 @@ void CfdMeshMgr::WriteNASCART_Obj_Tri_Gmsh( const char* dat_fn, const char* key_
 		if ( fp )
 		{
 			fprintf(fp, "$MeshFormat\n" );
-			fprintf(fp, "2.2 0 %d\n", sizeof(double) );
+			fprintf(fp, "2.2 0 %d\n", (int)sizeof(double) );
 			fprintf(fp, "$EndMeshFormat\n" );
 
 			//==== Write Nodes ====//
@@ -1555,7 +1555,7 @@ void CfdMeshMgr::WriteSurfsIntCurves( const char* filename )
 			vector< int > idVec = iter->second;
 			fprintf( fp, "BEGIN Component\n" );
 			fprintf( fp, "%d		// Comp ID \n",		compId );
-			fprintf( fp, "%d		// Num Surfs \n",	idVec.size() );
+			fprintf( fp, "%d		// Num Surfs \n",	(int)idVec.size() );
 			for (int i = 0 ; i < (int)idVec.size() ; i++ )
 			{
 				fprintf( fp, "%d		// Surf ID \n",	idVec[i] );

@@ -1731,7 +1731,7 @@ void fuse_xsec::debug_print()
 	vec3d p;
 
 	printf("\n\n");
-	printf("fuse_xsec:: Geom Ptr %d\n", (long)geom_ptr );
+	printf("fuse_xsec:: Geom Ptr %d\n", (int)((size_t)geom_ptr) );
 	printf("fuse_xsec:: pnt_on_spine %f %f %f \n", pnt_on_spine.x(), pnt_on_spine.y(), pnt_on_spine.z() );
 	printf("fuse_xsec:: iml_pnt_on_spine %f %f %f \n", iml_pnt_on_spine.x(), iml_pnt_on_spine.y(), iml_pnt_on_spine.z() );
 
