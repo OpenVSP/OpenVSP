@@ -1196,9 +1196,7 @@ void Ms_wing_geom::scale()
 		int odriver = sects[i].driver;
 		int ndriver = MS_S_TC_RC;
 		sects[i].driver = ndriver;
-		if ( i == 0 )
-			sects[i].rc_set(sects[i].rc_val() * current_factor);
-
+		sects[i].rc_set( sects[i].rc_val() * current_factor );
 		sects[i].tc_set( sects[i].tc_val() * current_factor );
 		sects[i].span_set( sects[i].span_val() * current_factor );
 		sects[i].fillDependData();
