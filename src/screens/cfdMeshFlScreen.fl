@@ -31,7 +31,7 @@ class CFDMeshUI {open
         xywh {5 20 395 435}
       } {
         Fl_Group {} {
-          label Global open selected
+          label Global open
           xywh {5 50 395 405} labelfont 1 labelcolor 4
         } {
           Fl_Box {} {
@@ -126,41 +126,45 @@ class CFDMeshUI {open
           }
           Fl_Light_Button halfMeshButton {
             label {Generate Half Mesh}
-            xywh {15 210 370 20} labelfont 1 align 16
+            xywh {15 230 370 20} labelfont 1 align 16
           }
           Fl_Box {} {
             label {Far Field Scale}
-            xywh {15 243 370 17} box BORDER_BOX labelfont 1 labelcolor 15
+            xywh {15 258 370 17} box BORDER_BOX labelfont 1 labelcolor 15
           }
           Fl_Button farXButton {
             label X
-            xywh {15 260 30 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+            xywh {15 275 30 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
           }
           Fl_Slider farXSlider {
-            xywh {45 260 280 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 4
+            xywh {45 275 280 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 4
           }
           Fl_Input farXInput {
-            xywh {325 260 60 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+            xywh {325 275 60 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
           }
           Fl_Button farYButton {
             label Y
-            xywh {15 280 30 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+            xywh {15 295 30 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
           }
           Fl_Slider farYSlider {
-            xywh {45 280 280 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 4
+            xywh {45 295 280 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 4
           }
           Fl_Input farYInput {
-            xywh {325 280 60 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+            xywh {325 295 60 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
           }
           Fl_Button farZButton {
             label Z
-            xywh {15 300 30 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+            xywh {15 315 30 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
           }
           Fl_Slider farZSlider {
-            xywh {45 300 280 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 4
+            xywh {45 315 280 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 4
           }
           Fl_Input farZInput {
-            xywh {325 300 60 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+            xywh {325 315 60 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+          }
+          Fl_Light_Button rigorLimitButton {
+            label {Rigorous 3D Growth Limiting} selected
+            xywh {15 205 370 20} labelfont 1 align 16
           }
         }
         Fl_Group {} {

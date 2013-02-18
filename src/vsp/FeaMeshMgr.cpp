@@ -677,17 +677,21 @@ void FeaMeshMgr::Build()
 	BuildGrid();
 
 	if ( !m_BatchFlag )
-		aircraftPtr->getScreenMgr()->getFeaStructScreen()->addOutputText( "Build Target Map\n" );
-	double minmap = BuildTargetMap();
+		aircraftPtr->getScreenMgr()->getFeaStructScreen()->addOutputText( "Intersect\n" );
+	Intersect();
 
 	if ( !m_BatchFlag )
-		aircraftPtr->getScreenMgr()->getFeaStructScreen()->addOutputText( "Intersect\n" );
-	Intersect( minmap );
+		aircraftPtr->getScreenMgr()->getFeaStructScreen()->addOutputText( "Build Target Map\n" );
+	if ( !m_BatchFlag )
+		BuildTargetMap(CfdMeshMgr::FEA_OUTPUT);
+	else
+		BuildTargetMap(CfdMeshMgr::NO_OUTPUT);
+
 	RemoveSliceSurfaces();
 
 	if ( !m_BatchFlag )
 		aircraftPtr->getScreenMgr()->getFeaStructScreen()->addOutputText( "InitMesh\n" );
-	InitMesh( minmap );
+	InitMesh( );
 	if ( !m_BatchFlag )
 		aircraftPtr->getScreenMgr()->getFeaStructScreen()->addOutputText( "Mesh Skins\n" );
 
@@ -736,7 +740,7 @@ void FeaMeshMgr::Export()
 
 }
 
-void FeaMeshMgr::Intersect( double minmap )
+void FeaMeshMgr::Intersect()
 {
 	for ( int i = 0 ; i < (int)m_SurfVec.size() ; i++ )
 		for ( int j = i+1 ; j < (int)m_SurfVec.size() ; j++ )
@@ -769,17 +773,7 @@ void FeaMeshMgr::Intersect( double minmap )
 	IntersectSplitChains();
 //DebugWriteChains("IntersectSplit_UW", false );
 
-	TessellateChains( minmap );
-//DebugWriteChains("Tess_UW", true );
-
-	MergeBorderEndPoints();
-//	DebugWriteChains( "chains.dat", true );
-
-	Mesh();
-
-//	RemoveInteriorTris();
-
-	ConnectBorderEdges( false );	// No Wakes
+	BuildCurves();
 }
 
 

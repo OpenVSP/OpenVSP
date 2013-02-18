@@ -888,37 +888,66 @@ void CfdMeshMgr::BuildGrid()
 #endif
 }
 
-double CfdMeshMgr::BuildTargetMap( )
+void CfdMeshMgr::BuildTargetMap( int output_type )
 {
-	MSCloudFourD ms_cloud;
+	MSCloud ms_cloud;
+	vector< MapSource* > allsources;
 
 	int i;
 	for ( i = 0 ; i < (int)m_SurfVec.size() ; i++ )
 	{
-		m_SurfVec[i]->BuildTargetMap( ms_cloud );
+		m_SurfVec[i]->BuildTargetMap( allsources, i );
+		m_SurfVec[i]->LimitTargetMap();
 	}
 
-    ms_cloud.sort();
-    double minmap = ms_cloud.sources[0].m_initstr;
+	// Number of times to propagate intersection edges through surfaces
+	int nedgeprop = 4;
 
-	MSTreeFourD ms_tree( 4, ms_cloud, KDTreeSingleIndexAdaptorParams( 10 ) );
-	ms_tree.buildIndex();
+	list< ISegChain* >::iterator c;
+	for ( i = 0; i < nedgeprop; i ++ )
+	{
+		for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+		{
+			(*c)->CalcDensity( &m_GridDensity );
+			(*c)->SpreadDensity();
+		}
+	}
 
-//	// Prune sources which have no effect because other nearby sources are smaller.
-//	ms_cloud.prune_edge_sources( ms_tree, &m_GridDensity );
-//	ms_tree.buildIndex();
-//
-//	printf("%d Sources\n", ms_cloud.sources.size());
+	if( m_GridDensity.GetRigorLimit() )
+	{
+		if ( output_type != CfdMeshMgr::NO_OUTPUT )
+			addOutputText( " Rigorous 3D Limiting\n", output_type );
 
+		for ( i = 0 ; i < (int)m_SurfVec.size() ; i++ )
+		{
+			ms_cloud.sources.clear();
+			ms_cloud.sources.reserve( allsources.size() );
 
-//	for ( i = 0 ; i < (int)m_SurfVec.size() ; i++ )
-//	{
-//		m_SurfVec[i]->LimitTargetMap( ms_cloud, ms_tree );
-//	}
+			double minmap = numeric_limits<double>::max( );
 
-    ms_cloud.LimitTargetMap( ms_tree, &m_GridDensity );
+			for( int j = 0; j < allsources.size(); j++ )
+			{
+				if( allsources[j]->m_surfid != i )
+				{
+					if( allsources[j]->m_str < minmap )
+					{
+						minmap = allsources[j]->m_str;
+					}
+					ms_cloud.sources.push_back( allsources[j] );
+				}
+			}
 
-    return minmap;
+			MSTree ms_tree( 3, ms_cloud, KDTreeSingleIndexAdaptorParams( 10 ) );
+			ms_tree.buildIndex();
+
+			m_SurfVec[i]->LimitTargetMap( ms_cloud, ms_tree, minmap );
+		}
+
+		for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+		{
+			(*c)->CalcDensity( &m_GridDensity );
+		}
+	}
 }
 
 void CfdMeshMgr::Remesh(int output_type)
@@ -1911,6 +1940,14 @@ int  CfdMeshMgr::FindPntIndex(  vec3d& pnt, vector< vec3d* > & allPntVec, map< i
 	return 0;
 }
 
+void CfdMeshMgr::BuildCurves()
+{
+	list< ISegChain* >::iterator c;
+	for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+	{
+		(*c)->BuildCurves();
+	}
+}
 void CfdMeshMgr::Intersect()
 {
 	//==== Quad Tree Intersection - Intersection Segments Get Loaded at AddIntersectionSeg ===//
@@ -1933,7 +1970,7 @@ void CfdMeshMgr::Intersect()
 
 	IntersectSplitChains();
 
-
+	BuildCurves();
 }
 
 void CfdMeshMgr::IntersectYSlicePlane()
@@ -2009,7 +2046,7 @@ void CfdMeshMgr::IntersectWakes()
 	}
 }
 
-void CfdMeshMgr::InitMesh( double minmap )
+void CfdMeshMgr::InitMesh( )
 {
 	bool PrintProgress = false;
 	#ifdef DEBUG_CFD_MESH
@@ -2017,7 +2054,7 @@ void CfdMeshMgr::InitMesh( double minmap )
 	#endif
 
 	if ( PrintProgress )	printf("TessellateChains\n");
-	TessellateChains( minmap );
+	TessellateChains();
 
 //DebugWriteChains( "Tess_UW", true );
 
@@ -2567,56 +2604,16 @@ void CfdMeshMgr::MergeInteriorChainIPnts()
 	}
 }
 
-void CfdMeshMgr::TessellateChains( double minmap )
+void CfdMeshMgr::TessellateChains()
 {
-	MSCloud es_cloud;
-
 	//==== Tessellate Chains ====//
 	list< ISegChain* >::iterator c;
 	for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
 	{
-		(*c)->BuildCurves();
-
-		(*c)->TessEndPts();
-
-		(*c)->TransferTess();
-		(*c)->ApplyTess();
-
-		double t = (*c)->CalcDensity( &m_GridDensity );
-
-		double d = dist( (*c)->m_TessVec.front()->m_Pnt, (*c)->m_TessVec.back()->m_Pnt );
-		if ( d > m_GridDensity.GetMinLen() )
-		{
-			(*c)->BuildES( es_cloud, &m_GridDensity );
-		}
-	}
-
-	es_cloud.sort();
-
-	MSTree es_tree( 3, es_cloud, KDTreeSingleIndexAdaptorParams( 10 ) );
-	es_tree.buildIndex();
-
-	// Prune sources which have no effect because other nearby sources are smaller.
-	es_cloud.prune_map_sources( es_tree, &m_GridDensity );
-	es_tree.buildIndex();
-
-	// This loop is split due to the construction of the edge source vectors.
-	// They need to be complete before proceeding.
-
-	for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
-	{
-		(*c)->Tessellate( es_tree, es_cloud, &m_GridDensity );
-
+		(*c)->Tessellate();
 		(*c)->TransferTess();
 		(*c)->ApplyTess();
 	}
-
-	for ( int i = 0 ; i < (int)m_SurfVec.size() ; i++ )
-	{
-		m_SurfVec[i]->LimitTargetMap( es_cloud, es_tree, minmap );
-	}
-
-	es_cloud.free_strengths();
 
 	////==== Check for Zero Length Chains ====//
 	//for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )

@@ -62,9 +62,16 @@ public:
 
 	void CompCurvature( double u, double w, double& k1, double& k2, double& ka, double& kg );
 	double TargetLen( double u, double w, double gap, double radfrac );
-	void BuildTargetMap( MSCloudFourD &ms_cloud );
-	void LimitTargetMap( MSCloud &ms_cloud, MSTree &ms_tree, double minmap );
+	void BuildTargetMap( vector< MapSource* > &sources, int sid );
+	void WalkMap( pair< int, int > ijstart, int kstart, pair< int, int > ijcurrent );
+	void WalkMap( pair< int, int > ijstart, pair< int, int > ijcurrent );
+	void LimitTargetMap();
+	void LimitTargetMap( MSCloud &es_cloud, MSTree &es_tree, double minmap );
 	double InterpTargetMap( double u, double w );
+	void UWtoTargetMapij( double u, double w, int &i, int &j, double &fraci, double &fracj );
+	void UWtoTargetMapij( double u, double w, int &i, int &j );
+
+	void ApplyES( vec3d uw, double t );
 
 	static void BlendFuncs(double u, double& F1, double& F2, double& F3, double& F4);
 	static void BlendDerivFuncs(double u, double& F1, double& F2, double& F3, double& F4);
@@ -155,7 +162,7 @@ protected:
 	CfdMeshMgr* m_CfdMeshMgr;
 
 	int m_NumMap;
-	vector< vector< double > > m_TargetMap;
+	vector< vector< MapSource > > m_SrcMap;
 
 	int m_NumWScalePnts;
 	bool m_ScaleUFlag;

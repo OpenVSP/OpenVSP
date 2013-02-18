@@ -208,6 +208,8 @@ void SCurve::BuildDistTable( GridDensity* grid_den, SCurve* BCurve )
 {
 	assert( m_Surf );
 
+	CleanupDistTable();
+
 	//==== Build U to Dist Table ====//
 	num_segs = 1000;
 	double total_dist = 0.0;
@@ -403,95 +405,39 @@ void SCurve::UWTess()
 	}
 }
 
-double SCurve::CalcDensity( GridDensity* grid_den, SCurve* BCurve )
+void SCurve::SpreadDensity( SCurve* BCurve )
+{
+	for ( int i = 0 ; i < num_segs ; i++ )
+	{
+		double u = u_vec[i];
+		double t = target_vec[i];
+		ApplyESSurface( u, t );
+		BCurve->ApplyESSurface( u, t );
+	}
+}
+
+void SCurve::CalcDensity( GridDensity* grid_den, SCurve* BCurve )
 {
 	BuildDistTable( grid_den, BCurve );
 
 	LimitTarget( grid_den );
-
-	return target_vec[0];
 }
 
-void SCurve::BuildEdgeSources( MSCloud &es_cloud, GridDensity* grid_den )
+void SCurve::ApplyESSurface( double u, double t )
 {
-	// Tesselate curve using baseline density.
+	vec3d uw = m_UWCrv.comp_pnt( u );
+	m_Surf->ApplyES( uw, t );
+}
+
+
+void SCurve::Tesselate()
+{
 	TessIntegrate();
 	SmoothTess();
 	UWTess();
-
-	vec3d uw = m_UWTess[0];
-	vec3d p0 = m_Surf->CompPnt( uw.x(), uw.y() );
-	vec3d p1;
-	for ( int i = 1 ; i < (int)m_UTess.size() ; i++ )
-	{
-		uw = m_UWTess[i];
-		p1 = m_Surf->CompPnt( uw.x(), uw.y() );
-
-		double d = dist( p0, p1 );
-		vec3d p = ( p1 + p0 ) * 0.5;
-
-		double *strptr = new double;
-		*strptr = d;
-
-		MapSource es = MapSource( p, strptr );
-
-		es_cloud.sources.push_back( es );
-
-		p0 = p1;
-	}
-
-	m_UTess.clear();
-	m_UWTess.clear();
 }
 
-void SCurve::ApplyEdgeSources( MSTree &es_tree, MSCloud &es_cloud, GridDensity* grid_den )
-{
-	double grm1 = grid_den->GetGrowRatio() - 1.0;
-
-	double rmax = grid_den->GetBaseLen() / ( grid_den->GetGrowRatio() - 1.0 );
-	double r2max = rmax * rmax;
-
-	SearchParams params;
-	params.sorted = false;
-
-	for ( int i = 0 ; i < num_segs ; i++ )
-	{
-		double t = target_vec[i];
-		vec3d p1 = pnt_vec[i];
-
-		double *query_pt = p1.v;
-
-		MSTreeResults es_matches;
-
-		int nMatches = es_tree.radiusSearch( query_pt, r2max, es_matches, params );
-
-		for (int j = 0; j < nMatches; j++ )
-		{
-			int imatch = es_matches[j].first;
-			double r = sqrt( es_matches[j].second );
-
-			double str = *( es_cloud.sources[imatch].m_strptr );
-
-			double ts = str + grm1 * r;
-			t = min( t, ts );
-		}
-		target_vec[i] = t;
-	}
-}
-
-void SCurve::Tesselate( MSTree &es_tree, MSCloud &es_cloud, GridDensity* grid_den )
-{
-	ApplyEdgeSources( es_tree, es_cloud, grid_den );
-
-	LimitTarget( grid_den );
-
-	TessIntegrate();
-	SmoothTess();
-	UWTess();
-
-	CleanupDistTable();
-}
-
+// This routine is currently unused.
 void SCurve::Tesselate( vector< vec3d > & target_pnts )
 {
 	assert( m_Surf );

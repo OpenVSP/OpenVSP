@@ -80,8 +80,7 @@ public:
 	virtual void Build();
 	virtual void Export();
 	virtual void BuildClean();
-	virtual void Intersect( double minmap );
-	virtual void Intersect() {CfdMeshMgr::Intersect();}
+	virtual void Intersect();
 	virtual void IdentifyUpperLowerSurfaces();
 
 	virtual void AddStructureParts();

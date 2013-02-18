@@ -752,6 +752,7 @@ GridDensity::GridDensity()
 	SetNCircSeg(16.0);
 	m_MaxGap = 0.005;
 	m_GrowRatio = 1.3;
+	m_RigorLimit = 0;
 }
 
 GridDensity::~GridDensity()

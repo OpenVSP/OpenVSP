@@ -525,6 +525,7 @@ void Aircraft::writeFile( const char* file_name, vector< Geom * > &gVec, vector<
 	xmlAddDoubleNode( root, "CFD_Mesh_Max_Gap", cfdMeshMgrPtr->GetGridDensityPtr()->GetMaxGap() );
 	xmlAddDoubleNode( root, "CFD_Mesh_Num_Circle_Segments", cfdMeshMgrPtr->GetGridDensityPtr()->GetNCircSeg() );
 	xmlAddDoubleNode( root, "CFD_Mesh_Growth_Ratio", cfdMeshMgrPtr->GetGridDensityPtr()->GetGrowRatio() );
+	xmlAddIntNode( root, "CFD_Mesh_Rigorous_Limiting", cfdMeshMgrPtr->GetGridDensityPtr()->GetRigorLimit() );
 	xmlAddDoubleNode( root, "CFD_Far_Field_Scale_X", cfdMeshMgrPtr->GetFarXScale() );
 	xmlAddDoubleNode( root, "CFD_Far_Field_Scale_Y", cfdMeshMgrPtr->GetFarYScale() );
 	xmlAddDoubleNode( root, "CFD_Far_Field_Scale_Z", cfdMeshMgrPtr->GetFarZScale() );
@@ -932,6 +933,8 @@ int Aircraft::readFile(const char* file_name )
 	cfdMeshMgrPtr->GetGridDensityPtr()->SetMaxGap( xmlFindDouble( root, "CFD_Mesh_Max_Gap", cfdMeshMgrPtr->GetGridDensityPtr()->GetMaxGap() ) );
 	cfdMeshMgrPtr->GetGridDensityPtr()->SetNCircSeg( xmlFindDouble( root, "CFD_Mesh_Num_Circle_Segments", cfdMeshMgrPtr->GetGridDensityPtr()->GetNCircSeg() ) );
 	cfdMeshMgrPtr->GetGridDensityPtr()->SetGrowRatio( xmlFindDouble( root, "CFD_Mesh_Growth_Ratio", cfdMeshMgrPtr->GetGridDensityPtr()->GetGrowRatio() ) );
+	bool rl = xmlFindInt( root, "CFD_Mesh_Rigorous_Limiting", cfdMeshMgrPtr->GetGridDensityPtr()->GetRigorLimit() ) != 0;
+	cfdMeshMgrPtr->GetGridDensityPtr()->SetRigorLimit( rl );
 	cfdMeshMgrPtr->SetFarXScale( xmlFindDouble( root, "CFD_Far_Field_Scale_X", cfdMeshMgrPtr->GetFarXScale() ) );
 	cfdMeshMgrPtr->SetFarYScale( xmlFindDouble( root, "CFD_Far_Field_Scale_Y", cfdMeshMgrPtr->GetFarYScale() ) );
 	cfdMeshMgrPtr->SetFarZScale( xmlFindDouble( root, "CFD_Far_Field_Scale_Z", cfdMeshMgrPtr->GetFarZScale() ) );

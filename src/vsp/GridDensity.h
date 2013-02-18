@@ -264,6 +264,9 @@ public:
 	double GetGrowRatio()					{ return m_GrowRatio; }
 	void   SetGrowRatio( double v )				{ m_GrowRatio = v; }
 
+	bool GetRigorLimit()					{ return m_RigorLimit; }
+	void SetRigorLimit( bool v )			{ m_RigorLimit = v; }
+
 	double GetTargetLen( vec3d& pos );
 
 	void ClearSources()							{ m_Sources.clear(); } //Deleted in Geom
@@ -285,6 +288,8 @@ protected:
 	double m_RadFrac;
 	double m_MaxGap;
 	double m_GrowRatio;
+
+	bool m_RigorLimit;
 
 	vector< BaseSource* > m_Sources;				// Sources + Ref Sources in 3D Space
 

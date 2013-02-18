@@ -409,7 +409,7 @@ double Surf::TargetLen( double u, double w, double gap, double radfrac)
 	return len;
 }
 
-void Surf::BuildTargetMap( MSCloudFourD &ms_cloud )
+void Surf::BuildTargetMap( vector< MapSource* > &sources, int sid )
 {
 	int npatchu = ( m_NumU - 1 ) / 3;
 	int npatchw = ( m_NumW - 1 ) / 3;
@@ -418,10 +418,10 @@ void Surf::BuildTargetMap( MSCloudFourD &ms_cloud )
 	int nmapw = npatchw * ( m_NumMap - 1 ) + 1;
 
 	// Initialize map matrix dimensions
-	m_TargetMap.resize( nmapu );
+	m_SrcMap.resize( nmapu );
 	for( int i = 0; i < nmapu ; i++ )
 	{
-		m_TargetMap[i].resize( nmapw );
+		m_SrcMap[i].resize( nmapw );
 	}
 
 	// Loop over surface evaluating source strength and curvature
@@ -449,88 +449,280 @@ void Surf::BuildTargetMap( MSCloudFourD &ms_cloud )
 			// finally check max size
 			len = min( len, m_GridDensityPtr->GetBaseLen() );
 
-			m_TargetMap[i][j] = len;
-			MapSource4D ms = MapSource4D( p, &( m_TargetMap[i][j] ) );
-			ms_cloud.sources.push_back( ms );
+			MapSource ms = MapSource( p, len, sid );
+			m_SrcMap[i][j] = ms;
+			sources.push_back( &( m_SrcMap[i][j] ) );
 		}
 	}
 }
 
-void Surf::LimitTargetMap( MSCloud &ms_cloud, MSTree &ms_tree, double minmap )
+bool indxcompare( const pair < double, pair < int, int > > &a, const pair < double, pair < int, int > > &b )
+{
+    return ( a.first < b.first );
+}
+
+void Surf::WalkMap( pair< int, int > ijstart, int kstart, pair< int, int > ijcurrent )
+{
+
+	int iadd[] = { -1, 1,  0, 0 };
+	int jadd[] = {  0, 0, -1, 1 };
+
+	double grm1 = m_GridDensityPtr->GetGrowRatio() - 1.0;
+
+	int nmapu = m_SrcMap.size();
+	int nmapw = m_SrcMap[0].size();
+
+	int istart = ijstart.first;
+	int jstart = ijstart.second;
+
+	MapSource srcstart = m_SrcMap[istart][jstart];
+	vec3d p = srcstart.m_pt;
+	double str = srcstart.m_str;
+
+	int icur = ijcurrent.first;
+	int jcur = ijcurrent.second;
+
+	for(int i = 0; i < 4; i++ )
+	{
+		int itarget = icur + iadd[i];
+		int jtarget = jcur + jadd[i];
+
+		if( itarget < nmapu && itarget >= 0 && jtarget < nmapw && jtarget >= 0 )
+		{
+
+			if( m_SrcMap[ itarget ][ jtarget ].m_maxvisited < kstart )
+			{
+				m_SrcMap[ itarget ][ jtarget ].m_maxvisited = kstart;
+				vec3d p2 = m_SrcMap[ itarget ][ jtarget ].m_pt;
+				double r = ( p2 - p ).mag();
+				double targetstr = str + r * grm1;
+				if( m_SrcMap[ itarget ][ jtarget ].m_str > targetstr )
+				{
+					// Mark dominated as progress is made
+					m_SrcMap[ itarget ][ jtarget ].m_dominated = true;
+					m_SrcMap[ itarget ][ jtarget ].m_str = targetstr;
+					pair< int, int > ijtarget( itarget, jtarget );
+					WalkMap( ijstart, kstart, ijtarget );
+				}
+			}
+		}
+	}
+}
+
+void Surf::WalkMap( pair< int, int > ijstart, pair< int, int > ijcurrent )
+{
+
+	int iadd[] = { -1, 1,  0, 0 };
+	int jadd[] = {  0, 0, -1, 1 };
+
+	double grm1 = m_GridDensityPtr->GetGrowRatio() - 1.0;
+
+	int nmapu = m_SrcMap.size();
+	int nmapw = m_SrcMap[0].size();
+
+	int istart = ijstart.first;
+	int jstart = ijstart.second;
+
+	MapSource srcstart = m_SrcMap[istart][jstart];
+	vec3d p = srcstart.m_pt;
+	double str = srcstart.m_str;
+
+	int icur = ijcurrent.first;
+	int jcur = ijcurrent.second;
+
+	for(int i = 0; i < 4; i++ )
+	{
+		int itarget = icur + iadd[i];
+		int jtarget = jcur + jadd[i];
+
+		if( itarget < nmapu && itarget >= 0 && jtarget < nmapw && jtarget >= 0 )
+		{
+			vec3d p2 = m_SrcMap[ itarget ][ jtarget ].m_pt;
+			double r = ( p2 - p ).mag();
+			double targetstr = str + r * grm1;
+			if( m_SrcMap[ itarget ][ jtarget ].m_str > targetstr )
+			{
+				m_SrcMap[ itarget ][ jtarget ].m_str = targetstr;
+				pair< int, int > ijtarget( itarget, jtarget );
+				WalkMap( ijstart, ijtarget );
+			}
+		}
+	}
+}
+
+void Surf::LimitTargetMap()
+{
+	int nmapu = m_SrcMap.size();
+	int nmapw = m_SrcMap[0].size();
+
+	int nmap = nmapu * nmapw;
+
+	// Create size sortable index of array i,j coordinates
+	vector< pair < double, pair < int, int > > > index;
+	index.resize( nmap );
+
+	int k = 0;
+	for( int i = 0; i < nmapu ; i++ )
+	{
+		for( int j = 0; j < nmapw ; j++ )
+		{
+			pair< int, int > ij( i, j );
+			pair < double, pair < int, int > > id( m_SrcMap[i][j].m_str, ij );
+			index[k] = id;
+			k++;
+			m_SrcMap[i][j].m_maxvisited = -1;  // Reset traversal limiter.
+		}
+	}
+
+	// Sort index
+	std::sort( index.begin(), index.end(), indxcompare );
+
+	// Start from smallest
+	for( int k = 0; k < nmap; k++ )
+	{
+		pair< int, int > ij = index[k].second;
+		int i = ij.first;
+		int j = ij.second;
+
+		MapSource src = m_SrcMap[i][j];
+
+		// Recursively limit from small to large (skip if dominated)
+		if( !src.m_dominated )
+			WalkMap( ij, k, ij );
+	}
+}
+
+void Surf::LimitTargetMap( MSCloud &es_cloud, MSTree &es_tree, double minmap )
 {
 	double grm1 = m_GridDensityPtr->GetGrowRatio() - 1.0;
 
-	double tmin = min( minmap, *(ms_cloud.sources[0].m_strptr) );
+	double tmin = min( minmap, es_cloud.sources[0]->m_str );
 
 	SearchParams params;
 	params.sorted = false;
 
-	int nmapu = m_TargetMap.size();
-	int nmapw = m_TargetMap[0].size();
+	int nmapu = m_SrcMap.size();
+	int nmapw = m_SrcMap[0].size();
 
 	// Loop over surface evaluating source strength and curvature
 	for( int i = 0; i < nmapu ; i++ )
 	{
-		double u = ( 1.0 * i ) / ( m_NumMap - 1 );
+//	 	double u = ( 1.0 * i ) / ( m_NumMap - 1 );
 		for( int j = 0; j < nmapw ; j++ )
 		{
-			double w = ( 1.0 * j ) / ( m_NumMap - 1 );
+//			double w = ( 1.0 * j ) / ( m_NumMap - 1 );
 
-			vec3d p = CompPnt( u, w );
+			double *query_pt = m_SrcMap[i][j].m_pt.v;
 
-			double *query_pt = p.v;
-
-			double t = m_TargetMap[i][j];
+			double t = m_SrcMap[i][j].m_str;
+			double torig = t;
 
 			double rmax = ( t - tmin ) / grm1;
-			double r2max = rmax * rmax;
-
-			MSTreeResults ms_matches;
-
-			int nMatches = ms_tree.radiusSearch( query_pt, r2max, ms_matches, params );
-
-			for (int k = 0; k < nMatches; k++ )
+			if( rmax > 0.0 )
 			{
-				int imatch = ms_matches[k].first;
-				double r = sqrt( ms_matches[k].second );
+				double r2max = rmax * rmax;
 
-				double str = *( ms_cloud.sources[imatch].m_strptr );
+				MSTreeResults es_matches;
 
-				double ts = str + grm1 * r;
-				t = min( t, ts );
+				int nMatches = es_tree.radiusSearch( query_pt, r2max, es_matches, params );
+
+				for (int k = 0; k < nMatches; k++ )
+				{
+					int imatch = es_matches[k].first;
+					double r = sqrt( es_matches[k].second );
+
+					double str = es_cloud.sources[imatch]->m_str;
+
+					double ts = str + grm1 * r;
+					t = min( t, ts );
+				}
+				if( t < torig )
+				{
+					m_SrcMap[i][j].m_str = t;
+					pair< int, int > ijstart( i, j );
+					WalkMap( ijstart, ijstart );
+				}
 			}
-			m_TargetMap[i][j] = t;
 		}
 	}
 }
 
 double Surf::InterpTargetMap( double u, double w )
 {
-	int imax = m_TargetMap.size() - 1;
+	int i, j;
+	double fraci, fracj;
+	UWtoTargetMapij( u, w, i, j, fraci, fracj );
+
+	double ti = m_SrcMap[i][j].m_str + fracj * ( m_SrcMap[i][j+1].m_str - m_SrcMap[i][j].m_str );
+	double tip1 = m_SrcMap[i+1][j].m_str + fracj * ( m_SrcMap[i+1][j+1].m_str - m_SrcMap[i+1][j].m_str );
+
+	double t = ti + fraci * ( tip1 - ti );
+	return t;
+}
+
+void Surf::UWtoTargetMapij( double u, double w, int &i, int &j, double &fraci, double &fracj )
+{
+	int imax = m_SrcMap.size() - 1;
 	double di = u * ( m_NumMap - 1 );
-	int i = (int) di;
-	double fraci = di - i;
+	i = (int) di;
+	fraci = di - i;
 	if( i >= imax )
 	{
 		i = imax - 1;
 		fraci = 1.0;
 	}
 
-	int jmax = m_TargetMap[0].size() - 1;
+	int jmax = m_SrcMap[0].size() - 1;
 	double dj = w * ( m_NumMap - 1 );
-	int j = (int) dj;
-	double fracj = dj - j;
+	j = (int) dj;
+	fracj = dj - j;
 	if( j >= jmax )
 	{
 		j = jmax - 1;
 		fracj = 1.0;
 	}
+}
 
-	double ti = m_TargetMap[i][j] + fracj * ( m_TargetMap[i][j+1] - m_TargetMap[i][j] );
-	double tip1 = m_TargetMap[i+1][j] + fracj * ( m_TargetMap[i+1][j+1] - m_TargetMap[i+1][j] );
+void Surf::UWtoTargetMapij( double u, double w, int &i, int &j )
+{
+	double fraci, fracj;
+	UWtoTargetMapij( u, w, i, j, fraci, fracj );
+}
 
-	double t = ti + fraci * ( tip1 - ti );
-	return t;
+void Surf::ApplyES( vec3d uw, double t )
+{
+	double grm1 = m_GridDensityPtr->GetGrowRatio() - 1.0;
+	int nmapu = m_SrcMap.size();
+	int nmapw = m_SrcMap[0].size();
+
+	int ibase, jbase;
+	double u = uw.x();
+	double w = uw.y();
+	UWtoTargetMapij( u, w, ibase, jbase );
+
+	vec3d p = CompPnt( u, w );
+
+	int iadd[] = { 0, 1, 0, 1 };
+	int jadd[] = { 0, 0, 1, 1 };
+
+	for(int i = 0; i < 4; i++ )
+	{
+		int itarget = ibase + iadd[i];
+		int jtarget = jbase + jadd[i];
+
+		if( itarget < nmapu && itarget >= 0 && jtarget < nmapw && jtarget >= 0 )
+		{
+			vec3d p2 = m_SrcMap[ itarget ][ jtarget ].m_pt;
+			double r = ( p2 - p ).mag();
+			double targetstr = t + r * grm1;
+			if( m_SrcMap[ itarget ][ jtarget ].m_str > targetstr )
+			{
+				m_SrcMap[ itarget ][ jtarget ].m_str = targetstr;
+				pair< int, int > ijstart( itarget, jtarget );
+				WalkMap( ijstart, ijstart );
+			}
+		}
+	}
 }
 
 vec2d Surf::ClosestUW( vec3d & pnt, double guess_u, double guess_w, double guess_del_u, double guess_del_w, double tol )
