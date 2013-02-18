@@ -7,60 +7,197 @@
   <CG_Y>0.000000</CG_Y>
   <CG_Z>0.000000</CG_Z>
   <CFD_Mesh_Base_Length>0.500000</CFD_Mesh_Base_Length>
+  <CFD_Mesh_Min_Length>0.100000</CFD_Mesh_Min_Length>
+  <CFD_Mesh_Max_Gap>0.005000</CFD_Mesh_Max_Gap>
+  <CFD_Mesh_Num_Circle_Segments>16.000000</CFD_Mesh_Num_Circle_Segments>
+  <CFD_Mesh_Growth_Ratio>1.300000</CFD_Mesh_Growth_Ratio>
+  <CFD_Mesh_Rigorous_Limiting>0</CFD_Mesh_Rigorous_Limiting>
+  <CFD_Far_Field_Scale_X>4.000000</CFD_Far_Field_Scale_X>
+  <CFD_Far_Field_Scale_Y>4.000000</CFD_Far_Field_Scale_Y>
+  <CFD_Far_Field_Scale_Z>4.000000</CFD_Far_Field_Scale_Z>
+  <CFD_Half_Mesh_Flag>0</CFD_Half_Mesh_Flag>
+  <CFD_Wake_Angle>0.000000</CFD_Wake_Angle>
+  <CFD_Wake_Scale>2.000000</CFD_Wake_Scale>
   <VirtWindow_List>
     <VirtWindow>
       <Back_Img_Scale_W>1.000000</Back_Img_Scale_W>
       <Back_Img_Scale_H>1.000000</Back_Img_Scale_H>
       <Back_Img_Offset_X>0.000000</Back_Img_Offset_X>
       <Back_Img_Offset_Y>0.000000</Back_Img_Offset_Y>
+      <User_View_List>
+        <User_View>
+          <Saved_User_View_Flag>0</Saved_User_View_Flag>
+        </User_View>
+        <User_View>
+          <Saved_User_View_Flag>0</Saved_User_View_Flag>
+        </User_View>
+        <User_View>
+          <Saved_User_View_Flag>0</Saved_User_View_Flag>
+        </User_View>
+        <User_View>
+          <Saved_User_View_Flag>0</Saved_User_View_Flag>
+        </User_View>
+      </User_View_List>
     </VirtWindow>
     <VirtWindow>
       <Back_Img_Scale_W>1.000000</Back_Img_Scale_W>
       <Back_Img_Scale_H>1.000000</Back_Img_Scale_H>
       <Back_Img_Offset_X>0.000000</Back_Img_Offset_X>
       <Back_Img_Offset_Y>0.000000</Back_Img_Offset_Y>
+      <User_View_List>
+        <User_View>
+          <Saved_User_View_Flag>0</Saved_User_View_Flag>
+        </User_View>
+        <User_View>
+          <Saved_User_View_Flag>0</Saved_User_View_Flag>
+        </User_View>
+        <User_View>
+          <Saved_User_View_Flag>0</Saved_User_View_Flag>
+        </User_View>
+        <User_View>
+          <Saved_User_View_Flag>0</Saved_User_View_Flag>
+        </User_View>
+      </User_View_List>
     </VirtWindow>
     <VirtWindow>
       <Back_Img_Scale_W>1.000000</Back_Img_Scale_W>
       <Back_Img_Scale_H>1.000000</Back_Img_Scale_H>
       <Back_Img_Offset_X>0.000000</Back_Img_Offset_X>
       <Back_Img_Offset_Y>0.000000</Back_Img_Offset_Y>
+      <User_View_List>
+        <User_View>
+          <Saved_User_View_Flag>0</Saved_User_View_Flag>
+        </User_View>
+        <User_View>
+          <Saved_User_View_Flag>0</Saved_User_View_Flag>
+        </User_View>
+        <User_View>
+          <Saved_User_View_Flag>0</Saved_User_View_Flag>
+        </User_View>
+        <User_View>
+          <Saved_User_View_Flag>0</Saved_User_View_Flag>
+        </User_View>
+      </User_View_List>
     </VirtWindow>
     <VirtWindow>
       <Back_Img_Scale_W>1.000000</Back_Img_Scale_W>
       <Back_Img_Scale_H>1.000000</Back_Img_Scale_H>
       <Back_Img_Offset_X>0.000000</Back_Img_Offset_X>
       <Back_Img_Offset_Y>0.000000</Back_Img_Offset_Y>
+      <User_View_List>
+        <User_View>
+          <Saved_User_View_Flag>0</Saved_User_View_Flag>
+        </User_View>
+        <User_View>
+          <Saved_User_View_Flag>0</Saved_User_View_Flag>
+        </User_View>
+        <User_View>
+          <Saved_User_View_Flag>0</Saved_User_View_Flag>
+        </User_View>
+        <User_View>
+          <Saved_User_View_Flag>0</Saved_User_View_Flag>
+        </User_View>
+      </User_View_List>
     </VirtWindow>
     <VirtWindow>
       <Back_Img_Scale_W>1.000000</Back_Img_Scale_W>
       <Back_Img_Scale_H>1.000000</Back_Img_Scale_H>
       <Back_Img_Offset_X>0.000000</Back_Img_Offset_X>
       <Back_Img_Offset_Y>0.000000</Back_Img_Offset_Y>
+      <User_View_List>
+        <User_View>
+          <Saved_User_View_Flag>0</Saved_User_View_Flag>
+        </User_View>
+        <User_View>
+          <Saved_User_View_Flag>0</Saved_User_View_Flag>
+        </User_View>
+        <User_View>
+          <Saved_User_View_Flag>0</Saved_User_View_Flag>
+        </User_View>
+        <User_View>
+          <Saved_User_View_Flag>0</Saved_User_View_Flag>
+        </User_View>
+      </User_View_List>
     </VirtWindow>
     <VirtWindow>
       <Back_Img_Scale_W>1.000000</Back_Img_Scale_W>
       <Back_Img_Scale_H>1.000000</Back_Img_Scale_H>
       <Back_Img_Offset_X>0.000000</Back_Img_Offset_X>
       <Back_Img_Offset_Y>0.000000</Back_Img_Offset_Y>
+      <User_View_List>
+        <User_View>
+          <Saved_User_View_Flag>0</Saved_User_View_Flag>
+        </User_View>
+        <User_View>
+          <Saved_User_View_Flag>0</Saved_User_View_Flag>
+        </User_View>
+        <User_View>
+          <Saved_User_View_Flag>0</Saved_User_View_Flag>
+        </User_View>
+        <User_View>
+          <Saved_User_View_Flag>0</Saved_User_View_Flag>
+        </User_View>
+      </User_View_List>
     </VirtWindow>
     <VirtWindow>
       <Back_Img_Scale_W>1.000000</Back_Img_Scale_W>
       <Back_Img_Scale_H>1.000000</Back_Img_Scale_H>
       <Back_Img_Offset_X>0.000000</Back_Img_Offset_X>
       <Back_Img_Offset_Y>0.000000</Back_Img_Offset_Y>
+      <User_View_List>
+        <User_View>
+          <Saved_User_View_Flag>0</Saved_User_View_Flag>
+        </User_View>
+        <User_View>
+          <Saved_User_View_Flag>0</Saved_User_View_Flag>
+        </User_View>
+        <User_View>
+          <Saved_User_View_Flag>0</Saved_User_View_Flag>
+        </User_View>
+        <User_View>
+          <Saved_User_View_Flag>0</Saved_User_View_Flag>
+        </User_View>
+      </User_View_List>
     </VirtWindow>
     <VirtWindow>
       <Back_Img_Scale_W>1.000000</Back_Img_Scale_W>
       <Back_Img_Scale_H>1.000000</Back_Img_Scale_H>
       <Back_Img_Offset_X>0.000000</Back_Img_Offset_X>
       <Back_Img_Offset_Y>0.000000</Back_Img_Offset_Y>
+      <User_View_List>
+        <User_View>
+          <Saved_User_View_Flag>0</Saved_User_View_Flag>
+        </User_View>
+        <User_View>
+          <Saved_User_View_Flag>0</Saved_User_View_Flag>
+        </User_View>
+        <User_View>
+          <Saved_User_View_Flag>0</Saved_User_View_Flag>
+        </User_View>
+        <User_View>
+          <Saved_User_View_Flag>0</Saved_User_View_Flag>
+        </User_View>
+      </User_View_List>
     </VirtWindow>
     <VirtWindow>
       <Back_Img_Scale_W>1.000000</Back_Img_Scale_W>
       <Back_Img_Scale_H>1.000000</Back_Img_Scale_H>
       <Back_Img_Offset_X>0.000000</Back_Img_Offset_X>
       <Back_Img_Offset_Y>0.000000</Back_Img_Offset_Y>
+      <User_View_List>
+        <User_View>
+          <Saved_User_View_Flag>0</Saved_User_View_Flag>
+        </User_View>
+        <User_View>
+          <Saved_User_View_Flag>0</Saved_User_View_Flag>
+        </User_View>
+        <User_View>
+          <Saved_User_View_Flag>0</Saved_User_View_Flag>
+        </User_View>
+        <User_View>
+          <Saved_User_View_Flag>0</Saved_User_View_Flag>
+        </User_View>
+      </User_View_List>
     </VirtWindow>
   </VirtWindow_List>
   <Component_List>
@@ -68,8 +205,6 @@
       <Type>Mswing</Type>
       <General_Parms>
         <Name>Ms_Wing_0</Name>
-        <Id_Number>0</Id_Number>
-        <Id_String>Ms_Wing_1</Id_String>
         <ColorR>0.000000</ColorR>
         <ColorG>0.000000</ColorG>
         <ColorB>255.000000</ColorB>
@@ -109,6 +244,7 @@
         <AeroCenter_Y>0.000000</AeroCenter_Y>
         <AeroCenter_Z>0.000000</AeroCenter_Z>
         <AutoAeroCenterFlag>1</AutoAeroCenterFlag>
+        <WakeActiveFlag>0</WakeActiveFlag>
         <PosAttachFlag>0</PosAttachFlag>
         <U_Attach>0.000000</U_Attach>
         <V_Attach>0.000000</V_Attach>
@@ -140,6 +276,14 @@
           <Six_Series>63</Six_Series>
           <Ideal_Cl>0.000000</Ideal_Cl>
           <A>0.000000</A>
+          <Slat_Flag>0</Slat_Flag>
+          <Slat_Shear_Flag>0</Slat_Shear_Flag>
+          <Slat_Chord>0.250000</Slat_Chord>
+          <Slat_Angle>10.000000</Slat_Angle>
+          <Flap_Flag>0</Flap_Flag>
+          <Flap_Shear_Flag>0</Flap_Shear_Flag>
+          <Flap_Chord>0.250000</Flap_Chord>
+          <Flap_Angle>10.000000</Flap_Angle>
         </Airfoil>
         <Airfoil>
           <Type>1</Type>
@@ -153,6 +297,14 @@
           <Six_Series>63</Six_Series>
           <Ideal_Cl>0.000000</Ideal_Cl>
           <A>0.000000</A>
+          <Slat_Flag>0</Slat_Flag>
+          <Slat_Shear_Flag>0</Slat_Shear_Flag>
+          <Slat_Chord>0.250000</Slat_Chord>
+          <Slat_Angle>10.000000</Slat_Angle>
+          <Flap_Flag>0</Flap_Flag>
+          <Flap_Shear_Flag>0</Flap_Shear_Flag>
+          <Flap_Chord>0.250000</Flap_Chord>
+          <Flap_Angle>10.000000</Flap_Angle>
         </Airfoil>
         <Airfoil>
           <Type>1</Type>
@@ -166,6 +318,14 @@
           <Six_Series>63</Six_Series>
           <Ideal_Cl>0.000000</Ideal_Cl>
           <A>0.000000</A>
+          <Slat_Flag>0</Slat_Flag>
+          <Slat_Shear_Flag>0</Slat_Shear_Flag>
+          <Slat_Chord>0.250000</Slat_Chord>
+          <Slat_Angle>10.000000</Slat_Angle>
+          <Flap_Flag>0</Flap_Flag>
+          <Flap_Shear_Flag>0</Flap_Shear_Flag>
+          <Flap_Chord>0.250000</Flap_Chord>
+          <Flap_Angle>10.000000</Flap_Angle>
         </Airfoil>
       </Airfoil_List>
       <Section_List>
