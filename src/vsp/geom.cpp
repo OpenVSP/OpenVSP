@@ -2765,7 +2765,9 @@ void BlankGeom::drawAlpha()
 
 void BlankGeom::loadPointMass( TetraMassProp* mp )
 {
-	vec3d loc = getTotalTranVec();
+	vec3d origin;
+	vec3d loc = this->xformPoint( origin, 0 );
+
 	mp->compId = (long)this;
 	mp->SetPointMass( pointMass(), loc );
 }
