@@ -355,6 +355,7 @@ CfdMeshMgr::CfdMeshMgr()
 	m_FarXScale = m_FarYScale = m_FarZScale = 4.0;
 
 	m_YSlicePlane = new Surf();
+	m_YSlicePlane->SetGridDensityPtr( &m_GridDensity );
 
 #ifdef DEBUG_CFD_MESH
 	m_DebugDir  = Stringc("MeshDebug/");
@@ -892,6 +893,9 @@ void CfdMeshMgr::BuildTargetMap( int output_type )
 {
 	MSCloud ms_cloud;
 	vector< MapSource* > allsources;
+
+	if ( m_HalfMeshFlag )
+		m_YSlicePlane->BuildTargetMap( allsources, -1 );
 
 	int i;
 	for ( i = 0 ; i < (int)m_SurfVec.size() ; i++ )
