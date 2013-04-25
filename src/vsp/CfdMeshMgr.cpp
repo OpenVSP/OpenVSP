@@ -113,11 +113,10 @@ void Wake::BuildSurfs(  )
 
 			for ( int i = 0 ; i < (int)cpnts.size() ; i++ )
 			{
+				vec3d te_pnt = m_WakeMgrPtr->ComputeTrailEdgePnt( le_pnts[i] );
 				for ( int j = 0 ; j < (int)cpnts[i].size() ; j++ )
 				{
 					double fract = (double)j/(double)(cpnts[i].size()-1);
-					vec3d te_pnt = m_WakeMgrPtr->ComputeTrailEdgePnt( le_pnts[i] );
-
 					cpnts[i][j] = le_pnts[i] + (te_pnt - le_pnts[i])*fract;
 				}
 			}
