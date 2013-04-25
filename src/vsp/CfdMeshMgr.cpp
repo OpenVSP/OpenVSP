@@ -827,17 +827,12 @@ void CfdMeshMgr::BuildGrid()
 {
 
 	int i, j;
+	vector< SCurve* > scurve_vec;
 	for ( i = 0 ; i < (int)m_SurfVec.size() ; i++ )
 	{
 		m_SurfVec[i]->BuildDistMap();
 		m_SurfVec[i]->SetGridDensityPtr( &m_GridDensity );
 		m_SurfVec[i]->FindBorderCurves();
-	}
-
-	//==== Find Matching Intersection/Border Curves =====//
-	vector< SCurve* > scurve_vec;
-	for ( i = 0 ; i < (int)m_SurfVec.size() ; i++ )
-	{
 		m_SurfVec[i]->LoadSCurves( scurve_vec );
 	}
 
