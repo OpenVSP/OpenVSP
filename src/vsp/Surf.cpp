@@ -21,6 +21,7 @@ Surf::Surf()
 	m_CompID = -1;
 	m_SurfID = -1;
 	m_WakeFlag = false;
+	m_WakeParentSurfID = -1;
 	m_Mesh.SetSurfPtr( this );
 	m_NumMap = 10;
 }

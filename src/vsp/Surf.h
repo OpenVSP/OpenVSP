@@ -133,6 +133,9 @@ public:
 	void SetWakeFlag( bool flag )					{ m_WakeFlag = flag; }
 	bool GetWakeFlag()								{ return m_WakeFlag; }
 
+	void SetWakeParentSurfID( int id )				{ m_WakeParentSurfID = id; }
+	int GetWakeParentSurfID()						{ return m_WakeParentSurfID; }
+
 	vector< vector< vec3d > > GetControlPnts()		{ return m_Pnts; }
 
 protected:
@@ -147,6 +150,7 @@ protected:
 	double m_MaxW;
 
 	bool m_WakeFlag;
+	int m_WakeParentSurfID;
 
 	vector< vector< vec3d > > m_Pnts;			// Control Pnts
 
