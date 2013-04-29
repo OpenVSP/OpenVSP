@@ -100,6 +100,7 @@ void Wake::BuildSurfs(  )
 	for ( int c = 0 ; c < (int)m_LeadingCurves.size() ; c++ )
 	{
 		m_CompID = m_LeadingCurves[c]->m_SCurve_A->GetSurf()->GetCompID();
+		int wakeParentSurfID = m_LeadingCurves[c]->m_SCurve_A->GetSurf()->GetSurfID();
 
 		vector< vec3d > le_pnts;
 		m_LeadingCurves[c]->m_SCurve_A->ExtractBorderControlPnts( le_pnts );
@@ -145,6 +146,7 @@ void Wake::BuildSurfs(  )
 			s->SetCfdMeshMgr( cfdMeshMgrPtr );
 			s->SetCompID( m_CompID );
 			s->SetSurfID( m_SurfVec.size() );
+			s->SetWakeParentSurfID( wakeParentSurfID );
 			s->LoadControlPnts( cpnts );
 
 			m_SurfVec.push_back( s );
