@@ -2613,10 +2613,25 @@ void CfdMeshMgr::TessellateChains()
 	list< ISegChain* >::iterator c;
 	for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
 	{
-		(*c)->Tessellate();
-		(*c)->TransferTess();
-		(*c)->ApplyTess();
+		if( (*c)->GetWakeAttachChain() == NULL )  // Non wake-attach chains.
+		{
+			(*c)->Tessellate();
+			(*c)->TransferTess();
+			(*c)->ApplyTess();
+		}
 	}
+
+	for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+	{
+		if( (*c)->GetWakeAttachChain() != NULL )  // Only wake-attach chains.
+		{
+			vector< double > u = (*c)->GetWakeAttachChain()->m_ACurve.GetUTessPnts();
+			(*c)->m_ACurve.Tesselate( u );  // Copy tessellation from matching chain.
+			(*c)->TransferTess();
+			(*c)->ApplyTess();
+		}
+	}
+
 
 	////==== Check for Zero Length Chains ====//
 	//for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
