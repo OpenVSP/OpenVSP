@@ -2053,6 +2053,9 @@ void CfdMeshMgr::InitMesh( )
 		PrintProgress = true;
 	#endif
 
+	if ( PrintProgress )	printf("MatchWakes\n");
+	MatchWakes();
+
 	if ( PrintProgress )	printf("TessellateChains\n");
 	TessellateChains();
 
@@ -2639,6 +2642,58 @@ void CfdMeshMgr::TessellateChains()
 	//	//}
 	//	//printf("Total Chain Delta = %f \n", total_dist );
 	//}
+}
+
+// Given a chain connecting a wake to its forming trailing edge, this routine
+// finds the matching chain that connects the top and bottom surface of the
+// trailing edge.  It then sets the pointer from the argument chain to the
+// matching chain.
+void CfdMeshMgr::SetWakeAttachChain( ISegChain* c )
+{
+	list< ISegChain* >::iterator d;
+	Surf* sca = c->m_SurfA;
+
+	for ( d = m_ISegChainList.begin() ; d != m_ISegChainList.end(); d++ )
+	{
+		Surf* sda = (*d)->m_SurfA;
+
+		if( (c != (*d)) && (*d)->m_BorderFlag && (sca->GetSurfID() == sda->GetSurfID()) )
+		{
+			if( c->Match( (*d) ))
+			{
+				c->SetWakeAttachChain( (*d) );
+			}
+		}
+	}
+}
+
+void CfdMeshMgr::MatchWakes()
+{
+	//==== Match Wakes ====//
+	list< ISegChain* >::iterator c, d;
+	for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+	{
+		Surf* sca = (*c)->m_SurfA;
+		Surf* scb = (*c)->m_SurfB;
+
+		// Looking for border curves
+		if( (*c)->m_BorderFlag )
+		{
+			// From construction, on attachment curve, the wake is always the 'B' surface.
+			// Where only one surface is a wake.
+			if( scb->GetWakeFlag() && (! sca->GetWakeFlag()) )
+			{
+				// And where the wake parent matches the other surface.
+				if( scb->GetWakeParentSurfID() == sca->GetSurfID() )
+				{
+					// After all this, we know that
+					// *c is a pointer to a chain that connects a wake
+					// to its constructing wing trailing edge.
+					SetWakeAttachChain( (*c) );
+				}
+			}
+		}
+	}
 }
 
 void CfdMeshMgr::AddWakeCoPlanarSurfaceChains()
