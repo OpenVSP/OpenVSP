@@ -551,6 +551,48 @@ double ISegChain::ChainDist( ISegChain* B )
 	return close_dist;
 }
 
+// Test if ISegChain B matches this ISegChain.
+bool ISegChain::Match( ISegChain* B )
+{
+	double tol = 1e-8;
+
+	// Check that parent surfaces are the same.
+	if( m_SurfA->GetSurfID() != B->m_SurfA->GetSurfID() )
+		return false;
+
+	// Find 3d x,y,z coordinates of each chain's end points.
+	ISeg* frontSegA = m_ISegDeque.front();
+	frontSegA->m_IPnt[0]->CompPnt();
+	vec3d pA0 = frontSegA->m_IPnt[0]->m_Pnt;
+
+	ISeg* frontSegB = B->m_ISegDeque.front();
+	frontSegB->m_IPnt[0]->CompPnt();
+	vec3d pB0 = frontSegB->m_IPnt[0]->m_Pnt;
+
+	ISeg* backSegA = m_ISegDeque.back();
+	backSegA->m_IPnt[1]->CompPnt();
+	vec3d pA1 = backSegA->m_IPnt[1]->m_Pnt;
+
+	ISeg* backSegB = B->m_ISegDeque.back();
+	backSegB->m_IPnt[1]->CompPnt();
+	vec3d pB1 = backSegB->m_IPnt[1]->m_Pnt;
+
+	// Test for matching end points.
+	if( dist_squared( pA0, pB0 ) < tol && dist_squared( pA1, pB1 ) < tol )
+		return true;
+
+	// Check for flipped matching end points.
+	if( dist_squared( pA0, pB1 ) < tol && dist_squared( pA1, pB0 ) < tol )
+	{
+		this->FlipDir();
+		printf("Flipping\n");
+		return true;
+	}
+
+	// No match.
+	return false;
+}
+
 void ISegChain::AddSeg( ISeg* seg, bool frontFlag )
 {
 	if ( frontFlag )

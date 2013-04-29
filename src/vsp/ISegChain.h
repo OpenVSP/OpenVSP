@@ -170,6 +170,7 @@ public:
 
 	double MatchDist( ISeg* s );
 	double ChainDist( ISegChain* B );
+	bool Match( ISegChain* B );
 
 	void Intersect( Surf* surfPtr, ISegChain* B );
 
