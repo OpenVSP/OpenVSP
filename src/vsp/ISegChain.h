@@ -191,6 +191,9 @@ public:
 	void Tessellate();
 	void TessEndPts();
 
+	virtual ISegChain* GetWakeAttachChain()				{ return m_WakeAttachChain; }
+	virtual void SetWakeAttachChain( ISegChain* c )		{ m_WakeAttachChain = c; }
+
 	void BuildBoxes();
 
 	void Draw();
@@ -198,6 +201,8 @@ public:
 	bool Valid();
 
 	bool m_BorderFlag;
+
+	ISegChain* m_WakeAttachChain;
 
 	deque < ISeg* > m_ISegDeque;
 
