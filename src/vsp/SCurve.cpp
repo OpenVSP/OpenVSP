@@ -211,7 +211,8 @@ void SCurve::BuildDistTable( GridDensity* grid_den, SCurve* BCurve )
 	CleanupDistTable();
 
 	//==== Build U to Dist Table ====//
-	num_segs = 1000;
+	int nref = 10;
+	num_segs = nref * m_UWCrv.get_num_sections() + 1;
 	double total_dist = 0.0;
 	vec3d uw = m_UWCrv.comp_pnt( 0 );
 	vec3d last_p = m_Surf->CompPnt( uw.x(), uw.y() );
