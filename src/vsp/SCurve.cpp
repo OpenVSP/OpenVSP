@@ -342,65 +342,95 @@ void SCurve::TessIntegrate( int direction, vector< double > &utess)
 {
 	utess.clear();
 
-	double nprev = 0.0;
-	double uprev = 0.0;
+	int nsubstep = 5;
 
-	utess.push_back( 0.0 );
-
-	int nlast = 0;
-	double n = 0.0;
 	double dn;
 
-	int j;
-	// Start at i = 1 because ds for the first step is zero anyway.
-	for ( int i = 1 ; i < num_segs - 1; i++ )
-	{
-		if( direction < 0 )
-			j = num_segs - i - 1;
-		else
-			j = i;
+	if( direction < 0 )
+		dn = -1.0/( (double) nsubstep );
+	else
+		dn = 1.0/( (double) nsubstep );
 
-		double t = target_vec[j];
-		double ds = dist_vec[j] - dist_vec[j-1];
-		double u = u_vec[j];
+	int isub = 0;
 
-		if( direction < 0 )
-			u = 1.0-u;
+	int itermax = 10;
+	double tol = 1e-3;
 
-		dn = ds/t;
-		n += dn;
+	double imax = ( (double) dist_vec.size() ) - 1.0;
 
-		if( nlast != (int) n )
-		{
-			double denom = n - nprev;
-			double frac = 0.0;
-			if(denom)
-				frac = ( ( (int) n ) - nprev )/denom;
-
-			double ut = uprev + frac * (u-uprev);
-
-			utess.push_back( ut );
-			nlast = (int) n;
-			n = nlast;
-			u = ut;
-		}
-
-		uprev = u;
-		nprev = n;
-	}
-	utess.push_back(1.0);
+	double ireal;
 
 	if( direction < 0 )
-	{
-		int nut = utess.size();
+		ireal = imax;
+	else
+		ireal = 0.0;
 
-		for( int i = 0; i < nut; i++)
-			utess[i] = 1.0 - utess[i];
+	double t, u, s, dsdi;
+	InterpDistTable( ireal, t, u, s, dsdi );
+
+	utess.push_back( u );
+
+	while( ireal <= imax && ireal >= 0.0)
+	{
+		double ds = t * dn;
+		double starget = s + ds;
+		double sold = s;
+
+		int iter = 0;
+		while( abs(s - starget) > tol && iter < itermax )
+		{
+			double irold = ireal;
+			double di = - (s - starget) / dsdi;
+
+			ireal = ireal + di;
+
+			InterpDistTable( ireal, t, u, s, dsdi );
+
+			// Check to keep Newton's method from exploding.  If the solution is
+			// diverging, just move one segment in the indicated direction and
+			// continue with Newton's method from there.
+			if( abs(s-starget) > abs(sold-starget) )
+			{
+				if( di < 0 )
+					di = -1.0;
+				else
+					di = 1.0;
+
+				ireal = irold + di;
+
+				InterpDistTable( ireal, t, u, s, dsdi );
+			}
+
+			iter = iter + 1;
+		}
+		isub = isub + 1;
+
+		// If we're at or beyond the last substep, add the point to the list.
+		// >= is used instead of == through an abundance of caution.  There is no
+		// reason that isub should ever be greater than nsubstep.
+		if( isub >= nsubstep)
+		{
+			utess.push_back( u );
+			isub = 0;
+		}
+	}
+
+	// Just in case, double check the final point.
+	if( direction < 0 )
+	{
+		if( utess.back() > 0.0 )
+			utess.push_back( 0.0 );
+	}
+	else
+	{
+		if( utess.back() < 1.0 )
+			utess.push_back( 1.0 );
 	}
 }
 
 void SCurve::SmoothTess()
 {
+
 	vector< double > UTessRev;
 	TessRevIntegrate( UTessRev );
 
