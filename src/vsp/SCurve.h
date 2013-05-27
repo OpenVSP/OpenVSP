@@ -45,6 +45,7 @@ public:
 	double GetTargetLen( GridDensity* grid_den, SCurve* BCurve, vec3d p, vec3d uw, double u );
 
 	void BorderTesselate( );
+	void InterpDistTable( double idouble, double &t, double &u, double &s, double &dsdi );
 	void BuildDistTable( GridDensity* grid_den, SCurve* BCurve );
 	void CleanupDistTable();
 	void LimitTarget( GridDensity* grid_den );

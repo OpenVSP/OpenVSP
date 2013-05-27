@@ -204,6 +204,48 @@ void SCurve::BorderTesselate( )
 	}
 }
 
+void SCurve::InterpDistTable( double idouble, double &t, double &u, double &s, double &dsdi )
+{
+	int imax = target_vec.size() - 1;
+
+	int ifloor = floor( idouble );
+	int iceil = ceil( idouble );
+
+	if( iceil == ifloor )
+		iceil++;
+
+	double ifrac = idouble - ifloor;
+
+	if( iceil > imax )  // Should be equivalent to idouble > imax
+	{
+		iceil = imax;
+		ifloor = imax - 1;
+		ifrac = 1.0;
+	}
+
+	if( ifloor < 0 )
+	{
+		ifloor = 0;
+		iceil = 1;
+		ifrac = 0.0;
+	}
+
+
+	double tf = target_vec[ifloor];
+	double tc = target_vec[iceil];
+	t = tf + ifrac * ( tc - tf );
+
+	double uf = u_vec[ifloor];
+	double uc = u_vec[iceil];
+	u = uf + ifrac * ( uc - uf );
+
+	double sf = dist_vec[ifloor];
+	double sc = dist_vec[iceil];
+	dsdi = sc - sf;
+	s = sf + ifrac * dsdi;
+
+}
+
 void SCurve::BuildDistTable( GridDensity* grid_den, SCurve* BCurve )
 {
 	assert( m_Surf );
