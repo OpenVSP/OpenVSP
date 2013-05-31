@@ -1163,7 +1163,7 @@ void Surf::IntersectLineSegMesh( vec3d & p0, vec3d & p1, vector< double > & t_va
 bool Surf::BorderCurveOnSurface( Surf* surfPtr )
 {
 	bool retFlag = false;
-	double tol = 1.0e-08;
+	double tol = 1.0e-05;
 
 	vector< SCurve* > border_curves;
 	surfPtr->LoadSCurves( border_curves );
