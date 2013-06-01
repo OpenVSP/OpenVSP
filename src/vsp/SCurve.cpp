@@ -259,6 +259,8 @@ void SCurve::BuildDistTable( GridDensity* grid_den, SCurve* BCurve )
 	if( num_segs > nseglim )
 	{
 		nref = nseglim / m_UWCrv.get_num_sections();
+		if( nref < 1 )
+			nref = 1;
 		num_segs = nref * m_UWCrv.get_num_sections() + 1;
 	}
 	double total_dist = 0.0;
