@@ -488,6 +488,8 @@ void SCurve::TessIntegrate( int direction, vector< double > &utess)
 
 	double imax = ( (double) dist_vec.size() ) - 1.0;
 
+	double smax = dist_vec.back();
+
 	double ireal;
 
 	if( direction < 0 )
@@ -506,32 +508,12 @@ void SCurve::TessIntegrate( int direction, vector< double > &utess)
 		double starget = s + ds;
 		double sold = s;
 
-		int iter = 0;
-		while( abs(s - starget) > tol && iter < itermax )
+		if( starget < 0.0 || starget > smax) // Reached end of integration, break out and force final point.
+			break;
+		else
 		{
-			double irold = ireal;
-			double di = - (s - starget) / dsdi;
-
-			ireal = ireal + di;
-
-			InterpDistTable( ireal, t, u, s, dsdi );
-
-			// Check to keep Newton's method from exploding.  If the solution is
-			// diverging, just move one segment in the indicated direction and
-			// continue with Newton's method from there.
-			if( abs(s-starget) > abs(sold-starget) )
-			{
-				if( di < 0 )
-					di = -1.0;
-				else
-					di = 1.0;
-
-				ireal = irold + di;
-
-				InterpDistTable( ireal, t, u, s, dsdi );
-			}
-
-			iter = iter + 1;
+			if( !NewtonFind( starget, s, ireal, t, dsdi, u, direction ) )
+				BisectFind( starget, s, ireal, t, dsdi, u, direction );
 		}
 		isub = isub + 1;
 
