@@ -346,6 +346,128 @@ void SCurve::TessRevIntegrate( vector< double > &utess)
 	TessIntegrate( -1, utess );
 }
 
+// Bisection method solver to find i,u corresponding to starget.
+//
+// starget	i		Target s input.
+// s		i/o		Initial s in, final s out.
+// ireal	i/o		Initial i in, final i out.
+// t		i/o		t at current point.  Passed in/out as optimization.
+// dsdi		i/o		ds/di at current point.  Passed in/out as optimization.
+// u		o		Final u out.
+
+bool SCurve::BisectFind( double starget, double &s, double &ireal, double &t, double &dsdi, double &u, int direction )
+{
+	double sold = s;
+	double irorig = ireal;
+
+	double tol = 1e-3;
+	double ds = abs(starget - sold);
+
+	double slower, supper;
+	double ilower, iupper;
+
+	if( direction < 0 ) // Descending, current point upper bound.
+	{
+		slower = 0.0;
+		ilower = 0.0;
+		supper = s;
+		iupper = ireal;
+	}
+	else // Ascending, current point lower bound.
+	{
+		slower = s;
+		ilower = ireal;
+		supper = dist_vec.back();
+		iupper = ( (double) dist_vec.size() ) - 1.0;
+	}
+
+	double imid, tmid, umid, smid, dsdimid;
+
+	imid = ( ilower + iupper ) / 2.0;
+
+	int iter = 0;
+	while( abs(supper - slower)/ds > tol )
+	{
+		InterpDistTable( imid, tmid, umid, smid, dsdimid );
+
+		if( smid < starget )
+		{
+			slower = smid;
+			ilower = imid;
+		}
+		else
+		{
+			supper = smid;
+			iupper = imid;
+		}
+		imid = ( ilower + iupper ) / 2.0;
+		iter++;
+	}
+
+	ireal = imid;
+	InterpDistTable( ireal, t, u, s, dsdi );
+
+	return true; // Failure no option for bisection.
+}
+
+// Newton's method solver to find i,u corresponding to starget.
+//
+// starget	i		Target s input.
+// s		i/o		Initial s in, final s out.
+// ireal	i/o		Initial i in, final i out.
+// t		i/o		t at current point.  Passed in/out as optimization.
+// dsdi		i/o		ds/di at current point.  Passed in/out as optimization.
+// u		o		Final u out.
+
+bool SCurve::NewtonFind( double starget, double &s, double &ireal, double &t, double &dsdi, double &u, int direction )
+{
+	double sold = s;
+	double irorig = ireal;
+
+	double ds = abs(starget - sold);
+
+	int itermax = 10;
+	double tol = 1e-3;
+
+	int iter = 0;
+	while( abs(s - starget)/ds > tol && iter < itermax )
+	{
+		double irold = ireal;
+		double di = - (s - starget) / dsdi;
+
+		ireal = ireal + di;
+
+		InterpDistTable( ireal, t, u, s, dsdi );
+
+		// Check to keep Newton's method from exploding.  If the solution is
+		// diverging, just move one segment in the indicated direction and
+		// continue with Newton's method from there.
+		if( abs(s-starget) > abs(sold-starget) )
+		{
+			if( di < 0 )
+				di = -1.0;
+			else
+				di = 1.0;
+
+			ireal = irold + di;
+
+			InterpDistTable( ireal, t, u, s, dsdi );
+		}
+
+		iter = iter + 1;
+	}
+
+	if( abs(s - starget) > tol )  // Failed to converge.  Reset to start point and return failure.
+	{
+		ireal = irorig;
+		InterpDistTable( ireal, t, u, s, dsdi );
+		return false;
+	}
+
+	return true;
+}
+
+
 void SCurve::TessIntegrate( int direction, vector< double > &utess)
 {
 	utess.clear();

@@ -52,6 +52,8 @@ public:
 	void TessEndPts();
 	void TessIntegrate();
 	void TessRevIntegrate( vector< double > &utess );
+	bool NewtonFind( double starget, double &s, double &ireal, double &t, double &dsdi, double &u, int direction );
+	bool BisectFind( double starget, double &s, double &ireal, double &t, double &dsdi, double &u, int direction );
 	void TessIntegrate( int direction, vector< double > &utess );
 	void SmoothTess();
 	void UWTess();
