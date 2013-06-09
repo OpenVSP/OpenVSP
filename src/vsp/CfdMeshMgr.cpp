@@ -900,15 +900,40 @@ void CfdMeshMgr::BuildTargetMap( int output_type )
 		m_SurfVec[i]->LimitTargetMap();
 	}
 
+
+	// Set up split sources to provide a source at the endpoint of curves where
+	// mesh information is hard to transfer.
+	list< MapSource* > splitSources;
+
+	list< ISegChain* >::iterator c;
+	for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+	{
+		vector< ISegSplit* >::iterator s;
+		for ( s = (*c)->m_SplitVec.begin(); s != (*c)->m_SplitVec.end(); s++ )
+		{
+			Surf* srf = (*s)->m_Surf;
+			vec2d uw = (*s)->m_UW;
+			// Initialize source with strength from underlying surface map.
+			double str = srf->InterpTargetMap( uw.x(), uw.y() );
+
+			vec3d pt = (*s)->m_Pnt;
+
+			MapSource *ss = new MapSource;
+			ss->m_pt = pt;
+			ss->m_str = str;
+
+			splitSources.push_back( ss );
+		}
+	}
+
 	// Number of times to propagate intersection edges through surfaces
 	int nedgeprop = 4;
 
-	list< ISegChain* >::iterator c;
 	for ( i = 0; i < nedgeprop; i ++ )
 	{
 		for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
 		{
-			(*c)->CalcDensity( &m_GridDensity );
+			(*c)->CalcDensity( &m_GridDensity, splitSources );
 			(*c)->SpreadDensity();
 		}
 	}
@@ -945,9 +970,16 @@ void CfdMeshMgr::BuildTargetMap( int output_type )
 
 		for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
 		{
-			(*c)->CalcDensity( &m_GridDensity );
+			(*c)->CalcDensity( &m_GridDensity, splitSources );
 		}
 	}
+
+	// Clean up split sources.
+	list< MapSource* >::iterator ss;
+	for ( ss = splitSources.begin(); ss != splitSources.end(); ss++ )
+		delete (*ss);
+
+	splitSources.clear();
 }
 
 void CfdMeshMgr::Remesh(int output_type)

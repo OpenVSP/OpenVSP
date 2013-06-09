@@ -246,7 +246,7 @@ void SCurve::InterpDistTable( double idouble, double &t, double &u, double &s, d
 
 }
 
-void SCurve::BuildDistTable( GridDensity* grid_den, SCurve* BCurve )
+void SCurve::BuildDistTable( GridDensity* grid_den, SCurve* BCurve, list< MapSource* > & splitSources )
 {
 	assert( m_Surf );
 
@@ -283,6 +283,33 @@ void SCurve::BuildDistTable( GridDensity* grid_den, SCurve* BCurve )
 		dist_vec.push_back( total_dist );
 
 		last_p = p;
+	}
+
+	double grm1 = grid_den->GetGrowRatio() - 1.0;
+
+	// Indices of first and last points in table.
+	int indx[2] = { 0, num_segs - 1 };
+
+	list< MapSource* >::iterator ss;
+	for ( ss = splitSources.begin(); ss != splitSources.end(); ss++ )
+	{
+		vec3d pt = (*ss)->m_pt;
+		double str = (*ss)->m_str;
+
+		for ( int i = 0; i < 2; i++ ) // Loop over first and last points.
+		{
+			double r = dist( pt, pnt_vec[indx[i]] );
+			double targetstr = str + r * grm1;
+
+			if ( targetstr < target_vec[indx[i]] )
+				target_vec[indx[i]] = targetstr;
+			else
+			{
+				double targetrev = target_vec[indx[i]] + r * grm1;
+				if ( targetrev < str )
+					(*ss)->m_str = targetrev;
+			}
+		}
 	}
 }
 
@@ -601,9 +628,9 @@ void SCurve::SpreadDensity( SCurve* BCurve )
 	}
 }
 
-void SCurve::CalcDensity( GridDensity* grid_den, SCurve* BCurve )
+void SCurve::CalcDensity( GridDensity* grid_den, SCurve* BCurve, list< MapSource* > & splitSources )
 {
-	BuildDistTable( grid_den, BCurve );
+	BuildDistTable( grid_den, BCurve, splitSources );
 
 	LimitTarget( grid_den );
 }

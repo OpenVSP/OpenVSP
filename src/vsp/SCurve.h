@@ -46,7 +46,7 @@ public:
 
 	void BorderTesselate( );
 	void InterpDistTable( double idouble, double &t, double &u, double &s, double &dsdi );
-	void BuildDistTable( GridDensity* grid_den, SCurve* BCurve );
+	void BuildDistTable( GridDensity* grid_den, SCurve* BCurve, list< MapSource* > & splitSources );
 	void CleanupDistTable();
 	void LimitTarget( GridDensity* grid_den );
 	void TessEndPts();
@@ -58,7 +58,7 @@ public:
 	void SmoothTess();
 	void UWTess();
 	void SpreadDensity( SCurve* BCurve );
-	void CalcDensity( GridDensity* grid_den, SCurve* BCurve );
+	void CalcDensity( GridDensity* grid_den, SCurve* BCurve, list< MapSource* > & splitSources );
 	void ApplyESSurface( double u, double t );
 	void Tesselate();
 	void Tesselate( vector< vec3d > & target_pnts );

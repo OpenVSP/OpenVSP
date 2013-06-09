@@ -1188,9 +1188,9 @@ void ISegChain::SpreadDensity( )
 	m_ACurve.SpreadDensity( &m_BCurve );
 }
 
-void ISegChain::CalcDensity( GridDensity* grid_den )
+void ISegChain::CalcDensity( GridDensity* grid_den, list< MapSource* > & splitSources )
 {
-	m_ACurve.CalcDensity( grid_den, &m_BCurve );
+	m_ACurve.CalcDensity( grid_den, &m_BCurve, splitSources );
 }
 
 void ISegChain::Tessellate()

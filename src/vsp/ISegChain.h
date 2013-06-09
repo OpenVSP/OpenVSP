@@ -188,7 +188,7 @@ public:
 	void ApplyTess();
 
 	void SpreadDensity( );
-	void CalcDensity( GridDensity* grid_den );
+	void CalcDensity( GridDensity* grid_den, list< MapSource* > & splitSources );
 	void Tessellate();
 	void TessEndPts();
 
