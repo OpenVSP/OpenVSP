@@ -1604,7 +1604,7 @@ void ScreenMgr::s_open(int src, const char * newfile)
 //	Stringc filestring = selectFileScreen->FileChooser( "Open VSP File?", "*.vsp" );
 
 	if (src != ScriptMgr::SCRIPT && newfile == NULL)
-		newfile = selectFileScreen->FileChooser( "Open VSP File?", "*.vsp" );
+		newfile = selectFileScreen->FileChooser( "Open VSP File?", "*.{vsp,ram}" );
 //		newfile = fl_file_chooser("Open VSP File?", "*.vsp", ".", 0);
 
 	if ( newfile != NULL )
