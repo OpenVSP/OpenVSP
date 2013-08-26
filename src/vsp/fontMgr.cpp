@@ -5,29 +5,20 @@
 
 #include "fontMgr.h"
 
+FontMgr::FontMgr()
+{
+	font = NULL;
+}
 
 FontMgr::~FontMgr() 
 {
-	for (int i = 0; i < (int)fontVec.size(); i++)
-	{
-		delete fontVec[i].second;
-	}
+	delete font;
 }
 
-GLFont * FontMgr::loadFont(const char * file) 
+GLFont * FontMgr::loadFont( )
 {
-
-	// get font
-	for (int i = 0; i < (int)fontVec.size(); i++)
-	{
-		pair< Stringc, GLFont * > fontPair = fontVec[i];
-
-		if ((char*)fontPair.first == file)
-		{
-			return fontPair.second;
-		}
-	}
-
+	if( font )
+		return font;
 
 	// create font
 	glClearColor(1.0, 1.0, 1.0, 1.0);
@@ -39,14 +30,14 @@ GLFont * FontMgr::loadFont(const char * file)
 	GLFont * texfont = new GLFont();
 	GLuint texID;
 	glGenTextures(1, &texID);
-	if ( !texfont->Create(file, texID) )
+	if ( !texfont->Create(texID) )
 	{
 		delete texfont;
 		texfont = 0;
 	}
 	else
 	{
-		fontVec.push_back( pair< Stringc, GLFont * >(Stringc(file), texfont) );
+		font = texfont;
 		glDisable(GL_TEXTURE_2D);
 		glDisable(GL_BLEND);
 	}

@@ -136,6 +136,7 @@ Tri.h
 VspPreferences.h
 af.h
 aircraft.h
+basic_font.h
 blankScreen.h
 cabinLayoutGeom.h
 cabinLayoutScreen.h

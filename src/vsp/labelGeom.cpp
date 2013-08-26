@@ -65,7 +65,7 @@ TextLabel::TextLabel() : LabelGeom()
 	name_str = Stringc(name);
 
 	color = vec3d( 100,100,100 );
-	font = fontMgr->loadFont("fonts/basic_font.glf");
+	font = fontMgr->loadFont( );
 
 	textOffset = 0.6f;
 
