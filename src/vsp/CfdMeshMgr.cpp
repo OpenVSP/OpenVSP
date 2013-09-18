@@ -358,6 +358,11 @@ CfdMeshMgr::CfdMeshMgr()
 	m_YSlicePlane = new Surf();
 	m_YSlicePlane->SetGridDensityPtr( &m_GridDensity );
 
+	for ( int i = 0 ; i < NUM_FILE_NAMES ; i++ )
+	{
+		m_ExportFileFlags[i] = true;
+	}
+
 #ifdef DEBUG_CFD_MESH
 	m_DebugDir  = Stringc("MeshDebug/");
 	_mkdir( m_DebugDir.get_char_star() );
@@ -950,7 +955,7 @@ void CfdMeshMgr::BuildTargetMap( int output_type )
 
 			double minmap = numeric_limits<double>::max( );
 
-			for( int j = 0; j < allsources.size(); j++ )
+			for( int j = 0; j < (int)allsources.size(); j++ )
 			{
 				if( allsources[j]->m_surfid != i )
 				{

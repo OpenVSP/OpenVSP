@@ -224,7 +224,7 @@ void Geom::initPtrID()
 	// to maintain uniformity of distribution for small RAND_MAX.
 	double r1 = (1.0 * rand()) / RAND_MAX;
 	double r2 = (1.0 * rand()) / RAND_MAX;
-	ptrID = r1 * r2 * 1000000.0 + 1.0;
+	ptrID = (int)(r1 * r2 * 1000000.0 + 1.0);
 }
 
 int Geom::getPtrID()
@@ -313,6 +313,8 @@ void Geom::copy( Geom* fromGeom )
 
 	}
 	currPartID = 0;
+
+	m_WakeActiveFlag = fromGeom->m_WakeActiveFlag;
 
 	//==== Copy CFD Sources ====//
 //	sourceVec = fromGeom->getCfdMeshSourceVec();
