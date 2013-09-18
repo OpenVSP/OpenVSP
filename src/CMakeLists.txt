@@ -57,7 +57,6 @@ INCLUDE( CPack )
 
 INSTALL( DIRECTORY ../examples/airfoil/ DESTINATION airfoil )
 INSTALL( DIRECTORY ../examples/cabin/ DESTINATION cabin )
-INSTALL( DIRECTORY ../examples/fonts/ DESTINATION fonts )
 INSTALL( DIRECTORY ../examples/fuselage/ DESTINATION fuselage )
 INSTALL( DIRECTORY ../examples/models/ DESTINATION models )
 INSTALL( DIRECTORY ../examples/textures/ DESTINATION textures )
