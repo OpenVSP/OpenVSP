@@ -53,6 +53,7 @@ public:
 	void AddTag( int type, int id );
 	bool HasTag( int type, int id );
 	bool HasTag( int type );
+	bool HasOnlyType( int type );
 	vector< FeaNodeTag > m_Tags;
 
 	void WriteNASTRAN( FILE* fp );
