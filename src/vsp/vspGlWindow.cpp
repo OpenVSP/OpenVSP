@@ -47,6 +47,8 @@ VirtGlWindow::VirtGlWindow(int xi, int yi, int wi, int hi)
 	{
 		savedUserViewFlag[i] = 0;
 	}
+
+	font = NULL;
 }
 
 VirtGlWindow::~VirtGlWindow()
@@ -427,6 +429,10 @@ void VirtGlWindow::setFocus(int focus)
 
 void VirtGlWindow::DrawXYZArrows( track_ball& curr_track )
 {
+	if( !font )
+		font = fontMgr->loadFont( );
+
+
 	track_ball rot_track = curr_track;
 
 	double scale = rot_track.get_scale();
@@ -472,34 +478,35 @@ void VirtGlWindow::DrawXYZArrows( track_ball& curr_track )
 	//==== Text ===//
 	glLoadIdentity(); 
 	glTranslated( xproj.x(), xproj.y(), xproj.z() );
-	glLineWidth( 2.0 );
 	glColor3ub( 50, 50, 50 );
-	glBegin( GL_LINES );
-		glVertex3d( ls,  ls,  0 );		// X
-		glVertex3d( -ls,  -ls,  0 );
-		glVertex3d( ls,  -ls,  0 );
-		glVertex3d( -ls,  ls,  0 );
-	glEnd();
+
+	float fscale = 1.1;
+
+	pair< int, int > dimension;
+	font->GetStringSize( "X", &dimension);
+	float w = ((float) dimension.first) * FONT_BASE_SCALE * fscale;
+	float h = ((float) dimension.second) * FONT_BASE_SCALE * fscale;
+
+	glEnable(GL_TEXTURE_2D);
+	font->Begin();
+	font->DrawString( "X", (float)( FONT_BASE_SCALE * fscale ), (float) 0.0, (float) 0.0 );
+	glDisable(GL_TEXTURE_2D);
 
 	glLoadIdentity(); 
 	glTranslated( yproj.x(), yproj.y(), yproj.z() );
-	glBegin( GL_LINES );
-		glVertex3d( ls,  ls,  0 );		// Y
-		glVertex3d(  0,   0,  0 );
-		glVertex3d(-ls,  ls,  0 );
-		glVertex3d(  0,   0,  0 );
-		glVertex3d(  0,   0,  0 );
-		glVertex3d(  0, -ls,  0 );
-	glEnd();
+
+	glEnable(GL_TEXTURE_2D);
+	font->Begin();
+	font->DrawString( "Y", (float)( FONT_BASE_SCALE * fscale ), (float) 0.0 - w/2, (float) 0.0 + h  );
+	glDisable(GL_TEXTURE_2D);
 
 	glLoadIdentity(); 
 	glTranslated( zproj.x(), zproj.y(), zproj.z() );
-	glBegin( GL_LINE_STRIP );
-		glVertex3d(-ls,  ls,  0 );		// Z
-		glVertex3d( ls,  ls,  0 );
-		glVertex3d(-ls, -ls,  0 );
-		glVertex3d( ls, -ls,  0 );
-	glEnd();
+
+	glEnable(GL_TEXTURE_2D);
+	font->Begin();
+	font->DrawString( "Z", (float)( FONT_BASE_SCALE * fscale ), (float) 0.0, (float) 0.0 );
+	glDisable(GL_TEXTURE_2D);
 
 	glPopMatrix();
 }

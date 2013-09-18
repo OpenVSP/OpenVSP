@@ -35,6 +35,7 @@
 #include "track_ball.h"
 #include "geom.h"
 #include "drawBase.h"
+#include "fontMgr.h"
 
 class Aircraft;
 
@@ -124,6 +125,10 @@ public:
 	double getCenterRotZ()						{ return cz; }
 
 	void DrawXYZArrows( track_ball& curr_track );
+
+protected:
+
+	GLFont * font;
 
 private:
 
