@@ -967,16 +967,10 @@ void FeaMeshMgr::AddStructureParts()
 			m_SliceVec.push_back( m_WingSections[s].m_SparVec[i] );
 			m_SurfVec.push_back( m_WingSections[s].m_SparVec[i]->GetSurf() );
 		}
-		//===== Add Upper Skin ====//
-		if ( m_WingSections[s].m_UpperSkin.GetExportFlag() )
-		{
-			m_SkinVec.push_back( &m_WingSections[s].m_UpperSkin );
-		}
-		//===== Add Lower Skin ====//
-		if ( m_WingSections[s].m_LowerSkin.GetExportFlag() )
-		{
-			m_SkinVec.push_back( &m_WingSections[s].m_LowerSkin );
-		}
+
+		//===== Add Upper & Lower Skins ====//
+		m_SkinVec.push_back( &m_WingSections[s].m_UpperSkin );
+		m_SkinVec.push_back( &m_WingSections[s].m_LowerSkin );
 	}
 }
 
@@ -1397,7 +1391,10 @@ void FeaMeshMgr::WriteNASTRAN( const char* filename )
 	//==== Collect All FeaNodes ====//
 	vector< FeaNode* > nodeVec;
 	for ( int i = 0 ; i < (int)m_SkinVec.size() ; i++ )
-		m_SkinVec[i]->LoadNodes( nodeVec );
+	{
+		if ( m_SkinVec[i]->GetExportFlag() )
+			m_SkinVec[i]->LoadNodes( nodeVec );
+	}
 	for ( int i = 0 ; i < (int)m_SliceVec.size() ; i++ )
 		m_SliceVec[i]->LoadNodes( nodeVec );
 
@@ -1782,12 +1779,12 @@ void FeaMeshMgr::WriteCalculix( )
 		{
 			if ( pntShift[i] >= 0 )
 			{
-				if ( nodeVec[i]->m_Tags.size() == 1 && nodeVec[i]->HasTag( SKIN_UPPER ) )
+				if ( nodeVec[i]->HasOnlyType( SKIN_UPPER ) )
 				{
 					nodeVec[i]->WriteCalculix(fp);
 				}
-				if ( nodeVec[i]->m_Tags.size() == 2 && 
-					 nodeVec[i]->HasTag( SKIN_UPPER ) && nodeVec[i]->HasTag( SKIN_LOWER  ) )
+				if ( (nodeVec[i]->HasTag( SKIN_UPPER ) && nodeVec[i]->HasTag( SKIN_LOWER))&&
+				   ( !nodeVec[i]->HasTag( RIB_ALL )    && !nodeVec[i]->HasTag( SPAR_ALL ) ) )
 				{
 					nodeVec[i]->WriteCalculix(fp);
 				}
@@ -1814,7 +1811,7 @@ void FeaMeshMgr::WriteCalculix( )
 		{
 			if ( pntShift[i] >= 0 )
 			{
-				if ( nodeVec[i]->m_Tags.size() == 1 && nodeVec[i]->HasTag( SKIN_LOWER ) )
+				if ( nodeVec[i]->HasOnlyType( SKIN_LOWER ) )
 				{
 					nodeVec[i]->WriteCalculix(fp);
 				}
@@ -2545,26 +2542,32 @@ void FeaMeshMgr::Draw()
 		glColor4ub( 150, 150, 150, 50 );
 		for ( int i = 0 ; i < (int)m_SkinVec.size() ; i++ )
 		{
-			for ( int e = 0 ; e < (int)m_SkinVec[i]->m_Elements.size() ; e++ )
+			if ( m_SkinVec[i]->GetExportFlag() )
 			{
-				FeaElement* fe = m_SkinVec[i]->m_Elements[e];
-				glBegin( GL_POLYGON );
-				for ( int p = 0 ; p < (int)fe->m_Corners.size() ; p++ )
-					glVertex3dv( fe->m_Corners[p]->m_Pnt.data() );
-				glEnd();
+				for ( int e = 0 ; e < (int)m_SkinVec[i]->m_Elements.size() ; e++ )
+				{
+					FeaElement* fe = m_SkinVec[i]->m_Elements[e];
+					glBegin( GL_POLYGON );
+					for ( int p = 0 ; p < (int)fe->m_Corners.size() ; p++ )
+						glVertex3dv( fe->m_Corners[p]->m_Pnt.data() );
+					glEnd();
+				}
 			}
 		}
 		glLineWidth(2.0);
 		glColor4ub( 0, 0, 0, 100 );
 		for ( int i = 0 ; i < (int)m_SkinVec.size() ; i++ )
 		{
-			for ( int e = 0 ; e < (int)m_SkinVec[i]->m_Elements.size() ; e++ )
+			if ( m_SkinVec[i]->GetExportFlag() )
 			{
-				FeaElement* fe = m_SkinVec[i]->m_Elements[e];
-				glBegin( GL_LINE_LOOP );
-				for ( int p = 0 ; p < (int)fe->m_Corners.size() ; p++ )
-					glVertex3dv( fe->m_Corners[p]->m_Pnt.data() );
-				glEnd();
+				for ( int e = 0 ; e < (int)m_SkinVec[i]->m_Elements.size() ; e++ )
+				{
+					FeaElement* fe = m_SkinVec[i]->m_Elements[e];
+					glBegin( GL_LINE_LOOP );
+					for ( int p = 0 ; p < (int)fe->m_Corners.size() ; p++ )
+						glVertex3dv( fe->m_Corners[p]->m_Pnt.data() );
+					glEnd();
+				}
 			}
 		}
 

@@ -35,13 +35,13 @@ using namespace glfont;
 class FontMgr
 {
 public:	
-	VSPDLL FontMgr() {}
+	VSPDLL FontMgr();
 	VSPDLL virtual ~FontMgr();
 
-	GLFont * loadFont(const char * file);
+	GLFont * loadFont( );
 
 private:
-	vector< pair< Stringc, GLFont * > > fontVec;
+	GLFont * font;
 };
 
 

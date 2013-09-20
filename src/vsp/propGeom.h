@@ -34,9 +34,14 @@ public:
 	Parm x_off;			// XOff/Radius
 	Parm y_off;			// YOff/Radius
 	Parm chord;			// Chord/Radius
-	Parm twist;			// Twsist Degrees
+	Parm twist;			// Twist Degrees
 
 	virtual void SetGeomPtr( Geom* geomPtr );
+
+	Parm* get_x_off()					{ return &(x_off); }
+	Parm* get_y_off()					{ return &(y_off); }
+	Parm* get_chord()					{ return &(chord); }
+	Parm* get_twist()					{ return &(twist); }
 
 };
 
@@ -48,11 +53,6 @@ class PropGeom : public Geom
 	Parm diameter;
 	Parm cone_angle;
 	Parm pitch;
-
-	Parm loc;
-	Parm offset;
-	Parm chord;
-	Parm twist;
 
 	int currSectID;
 	int smoothFlag;
@@ -94,10 +94,10 @@ public:
    Parm* get_cone_angle()					{ return(&cone_angle); }
    Parm* get_pitch()						{ return(&pitch); }
 
-   Parm* get_chord()						{ return(&chord); }
-   Parm* get_offset()						{ return(&offset); }
-   Parm* get_loc()							{ return(&loc); }
-   Parm* get_twist()						{ return(&twist); }
+   Parm* get_chord()						{ return(sectVec[currSectID].get_chord()); }
+   Parm* get_offset()						{ return(sectVec[currSectID].get_y_off()); }
+   Parm* get_loc()							{ return(sectVec[currSectID].get_x_off()); }
+   Parm* get_twist()						{ return(sectVec[currSectID].get_twist()); }
   
    virtual void load_hidden_surf();
    virtual void load_normals();

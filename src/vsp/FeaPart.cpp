@@ -55,6 +55,16 @@ bool FeaNode::HasTag( int type)
 	return false;
 }
 
+bool FeaNode::HasOnlyType( int type )
+{
+	for ( int i = 0 ; i < (int)m_Tags.size() ; i++ )
+	{
+		if ( m_Tags[i].m_Type != type )
+			return false;
+	}
+	return true;
+}
+
 int FeaNode::GetIndex()
 {
 	return m_Index;

@@ -266,6 +266,7 @@ private:
 	SliderInputCombo* backgroundYOffSlider;
 
 	void createGui();
+	Stringc checkAddVspExt( const char * name );
 
 //	double cursorx, cursory;
 

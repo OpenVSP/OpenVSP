@@ -10,11 +10,14 @@
 #include <utility>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 using namespace std;
 
 //glFont header
 #include "glfont2.h"
 using namespace glfont;
+
+#include "basic_font.h"
 
 //*******************************************************************
 //GLFont Class Implementation
@@ -36,22 +39,23 @@ GLFont::~GLFont ()
 	Destroy();
 }
 //*******************************************************************
-bool GLFont::Create (const char *file_name, int tex)
+bool GLFont::Create (int tex)
 {
-	ifstream input;
 	int num_chars, num_tex_bytes;
 	char *tex_bytes;
 
 	//Destroy the old font if there was one, just to be safe
 	Destroy();
 
-	//Open input file
-	input.open(file_name, ios::in | ios::binary);
+	// Wash basic_font through string to ignore null characters.
+	string s( basic_font, sizeof( basic_font ) );
+	stringstream input( s );
+
 	if (!input)
 		return false;
 
 	//Read the header from file
-	input.read((char *)&header, sizeof(header));
+	input.read((char *)&header, sizeof(header) - (sizeof(void*) - 4));
 	header.tex = tex;
 
 	//Allocate space for character array
@@ -82,16 +86,21 @@ bool GLFont::Create (const char *file_name, int tex)
 	//Free texture pixels memory
 	delete[] tex_bytes;
 
-	//Close input file
-	input.close();
+//	//Uncomment to print out the data structure. Useful for finding differences between systems
+//	cout << "Start: " << header.start_char << ", End: " << header.end_char
+//			<< ", Chars: " << header.chars << endl;
+//	cout << "Height: " << header.tex_height << ", Width: " << header.tex_width
+//			<< endl;
+//	//Read character array
+//	for (int i = header.start_char; i < header.end_char; i++) {
+//		GLFontChar c = header.chars[i - header.start_char];
+//		cout << "Char: " << i << ", dx: " << c.dx << ", dy: " << c.dy << endl;
+//		cout << "ty1: " << c.ty1 << ", ty2: " << c.ty2 << ", tx1: " << c.tx1
+//				<< ", tx2: " << c.tx2 << endl;
+//	}
 
 	//Return successfully
 	return true;
-}
-//*******************************************************************
-bool GLFont::Create (const std::string &file_name, int tex)
-{
-	return Create(file_name.c_str(), tex);
 }
 //*******************************************************************
 void GLFont::Destroy (void)

@@ -159,14 +159,15 @@ CfdMeshScreen::CfdMeshScreen(ScreenMgr* mgr, Aircraft* airPtr)
 	ui->triButton->callback( staticScreenCB, this );
 	ui->gmshButton->callback( staticScreenCB, this );
 	ui->srfButton->callback( staticScreenCB, this );
-	ui->datToggle->value(1);
-	ui->keyToggle->value(1);
-	ui->objToggle->value(1);
-	ui->polyToggle->value(0);
-	ui->stlToggle->value(1);
-	ui->triToggle->value(1);
-	ui->gmshToggle->value(0);
-	ui->srfToggle->value(0);
+
+	ui->datToggle->callback( staticScreenCB, this );
+	ui->keyToggle->callback( staticScreenCB, this );
+	ui->objToggle->callback( staticScreenCB, this );
+	ui->polyToggle->callback( staticScreenCB, this );
+	ui->stlToggle->callback( staticScreenCB, this );
+	ui->triToggle->callback( staticScreenCB, this );
+	ui->gmshToggle->callback( staticScreenCB, this );
+	ui->srfToggle->callback( staticScreenCB, this );
 
 	ui->addWakeButton->callback( staticScreenCB, this );
 	ui->addWakeButton->value(0);
@@ -229,8 +230,10 @@ void CfdMeshScreen::update()
 	cfdMeshUI->wakeCompChoice->clear();
 	for ( i = 0 ; i < (int)geomVec.size() ; i++ )
 	{
-		cfdMeshUI->compChoice->add( geomVec[i]->getName() );
-		cfdMeshUI->wakeCompChoice->add( geomVec[i]->getName() );
+		char str[256];
+		sprintf( str, "%d_%s", i, geomVec[i]->getName().get_char_star() );
+		cfdMeshUI->compChoice->add( str );
+		cfdMeshUI->wakeCompChoice->add( str );
 	}
 
 	int currGeomID = cfdMeshMgrPtr->GetCurrGeomID();
@@ -383,6 +386,17 @@ void CfdMeshScreen::update()
 	cfdMeshUI->gmshName->value( truncateFileName(gmshname, 40 ) );
 	Stringc srfname = cfdMeshMgrPtr->GetExportFileName( CfdMeshMgr::SRF_FILE_NAME );
 	cfdMeshUI->srfName->value( truncateFileName(srfname, 40 ) );
+
+	//==== Export Flags ====//
+	cfdMeshUI->datToggle->value( cfdMeshMgrPtr->GetExportFileFlag(CfdMeshMgr::DAT_FILE_NAME) );
+	cfdMeshUI->keyToggle->value( cfdMeshMgrPtr->GetExportFileFlag(CfdMeshMgr::KEY_FILE_NAME) );
+	cfdMeshUI->objToggle->value( cfdMeshMgrPtr->GetExportFileFlag(CfdMeshMgr::OBJ_FILE_NAME) );
+	cfdMeshUI->polyToggle->value(cfdMeshMgrPtr->GetExportFileFlag(CfdMeshMgr::POLY_FILE_NAME) );
+	cfdMeshUI->stlToggle->value( cfdMeshMgrPtr->GetExportFileFlag(CfdMeshMgr::STL_FILE_NAME) );
+	cfdMeshUI->triToggle->value( cfdMeshMgrPtr->GetExportFileFlag(CfdMeshMgr::TRI_FILE_NAME) );
+	cfdMeshUI->gmshToggle->value(cfdMeshMgrPtr->GetExportFileFlag(CfdMeshMgr::GMSH_FILE_NAME) );
+	cfdMeshUI->srfToggle->value( cfdMeshMgrPtr->GetExportFileFlag(CfdMeshMgr::SRF_FILE_NAME) );
+
 
 	//==== Wake Flag ====//
 	if ( currGeomID >= 0 && currGeomID < (int)geomVec.size() )
@@ -734,6 +748,12 @@ void CfdMeshScreen::screenCB( Fl_Widget* w )
 		{
 			geomVec[currGeomID]->SetWakeActiveFlag( flag);
 		}
+	}
+	else if ( w == cfdMeshUI->stlToggle || w == cfdMeshUI->polyToggle || w == cfdMeshUI->triToggle ||
+		      w == cfdMeshUI->objToggle || w == cfdMeshUI->datToggle || w == cfdMeshUI->keyToggle  ||
+			  w == cfdMeshUI->gmshToggle || w == cfdMeshUI->srfToggle )
+	{
+		setMeshExportFlags();
 	}
 
 	if ( update_flag )

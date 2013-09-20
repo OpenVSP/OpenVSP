@@ -143,28 +143,11 @@ PropGeom::PropGeom(Aircraft* aptr) : Geom(aptr)
 		sectVec[i].SetGeomPtr( this );
 
 	currSectID = 0;
-	loc.initialize(this, "Loc_xR", sectVec[0].x_off() );
-	loc.set_lower_upper(-1.0, sectVec[1].x_off()  );
-	loc.set_script("prop_station loc", 0);
-
-	offset.initialize(this, "Offset_yR", sectVec[0].y_off() );
-	offset.set_lower_upper(-1.0, 1.0);
-	offset.set_script("prop_station offset", 0);
-
-	chord.initialize(this, "Chord_cR", sectVec[0].chord() );
-	chord.set_lower_upper(0.001, 100.0);
-	chord.set_script("prop_station chord", 0);
-
-	twist.initialize(this, "Twist", sectVec[0].twist() );
-	twist.set_lower_upper(-180.0, 180.0);
-	twist.set_script("prop_station twist", 0);
 
 	smoothFlag = 1;
 	numU = 3;
 	numW = 1;
 	generate();
-
-
 }
 
 //==== Destructor =====//
@@ -216,10 +199,6 @@ void PropGeom::copy( Geom* fromGeom )
 	}
 
 	currSectID = 0;
-	chord  = sectVec[currSectID].chord;
-	loc    = sectVec[currSectID].x_off;
-	offset = sectVec[currSectID].y_off;
-	twist  = sectVec[currSectID].twist;
 
 	for ( int i = 0 ; i < (int)sectVec.size() ; i++ )
 		sectVec[i].SetGeomPtr( this );
@@ -255,10 +234,10 @@ void PropGeom::LoadLinkableParms( vector< Parm* > & parmVec )
 	{
 		sprintf( gname, "Station_%2d", i );
 
-		Geom::AddLinkableParm( &sectVec[i].x_off, parmVec, this, gname );
-		Geom::AddLinkableParm( &sectVec[i].y_off, parmVec, this, gname);
-		Geom::AddLinkableParm( &sectVec[i].chord, parmVec, this, gname );
-		Geom::AddLinkableParm( &sectVec[i].twist, parmVec, this, gname );
+		Geom::AddLinkableParm( sectVec[i].get_x_off(), parmVec, this, gname );
+		Geom::AddLinkableParm( sectVec[i].get_y_off(), parmVec, this, gname );
+		Geom::AddLinkableParm( sectVec[i].get_chord(), parmVec, this, gname );
+		Geom::AddLinkableParm( sectVec[i].get_twist(), parmVec, this, gname );
 
 		sprintf( gname, "Airfoil_%2d", i );
 		Af* foil = sectVec[i].foil;
@@ -385,16 +364,12 @@ void PropGeom::setCurrSectID( int id )
 
 	//==== Restrict Loc of Section Between 2 Adjoining Sections ====//
 	if ( currSectID == 0 )
-		loc.set_lower_upper(0.0, sectVec[currSectID+1].x_off() );
+		get_loc()->set_lower_upper(0.0, sectVec[currSectID+1].x_off() );
 	else if ( currSectID == sectVec.size()-1 )
-		loc.set_lower_upper(1.0, 1.0 );
+		get_loc()->set_lower_upper(1.0, 1.0 );
 	else
-		loc.set_lower_upper(sectVec[currSectID-1].x_off(), sectVec[currSectID+1].x_off() );
+		get_loc()->set_lower_upper(sectVec[currSectID-1].x_off(), sectVec[currSectID+1].x_off() );
 
-	chord = sectVec[currSectID].chord;
-	twist = sectVec[currSectID].twist;
-	loc = sectVec[currSectID].x_off;
-	offset = sectVec[currSectID].y_off;
 
 	//==== Tell Aircraft You Have Changed ====//
 	airPtr->geomMod( this );
@@ -430,12 +405,6 @@ void PropGeom::setNumW( int n )
 void PropGeom::generate()
 {
 	int i, j;
-
-	//==== Copy Current Section Data into SectVec ====//
-	sectVec[currSectID].chord     = chord();
-	sectVec[currSectID].twist     = twist();
-	sectVec[currSectID].x_off     = loc();
-	sectVec[currSectID].y_off     = offset();
 
 	Xsec_surf surf;
 	surf.set_num_pnts( numPnts.iget() );
@@ -708,11 +677,6 @@ void PropGeom::read(xmlNodePtr root)
 			sectVec[i].foil->load_name();
 		}
 	}
-
-	chord  = sectVec[0].chord;
-	loc    = sectVec[0].x_off;
-	offset = sectVec[0].y_off;
-	twist  = sectVec[0].twist;
   }
 
   currSectID = 0;

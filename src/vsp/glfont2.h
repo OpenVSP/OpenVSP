@@ -22,6 +22,9 @@
 
 #include <string>
 
+#pragma pack(push)
+#pragma pack(1)
+
 //*******************************************************************
 //GLFont Interface
 //*******************************************************************
@@ -65,8 +68,7 @@ public:
 public:
 
 	//Creates the glFont
-	bool Create (const char *file_name, int tex);
-	bool Create (const std::string &file_name, int tex);
+	bool Create (int tex);
 
 	//Destroys the glFont
 	void Destroy (void);
@@ -520,6 +522,7 @@ public:
 };
 
 //*******************************************************************
+#pragma pack(pop)
 
 #endif
 

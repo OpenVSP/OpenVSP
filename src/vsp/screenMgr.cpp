@@ -1604,7 +1604,7 @@ void ScreenMgr::s_open(int src, const char * newfile)
 //	Stringc filestring = selectFileScreen->FileChooser( "Open VSP File?", "*.vsp" );
 
 	if (src != ScriptMgr::SCRIPT && newfile == NULL)
-		newfile = selectFileScreen->FileChooser( "Open VSP File?", "*.vsp" );
+		newfile = selectFileScreen->FileChooser( "Open VSP File?", "*.{vsp,ram}" );
 //		newfile = fl_file_chooser("Open VSP File?", "*.vsp", ".", 0);
 
 	if ( newfile != NULL )
@@ -1661,17 +1661,19 @@ void ScreenMgr::s_saveas(int src, const char * newfile)
 	{
 		if (newfile == NULL)
 			newfile = selectFileScreen->FileChooser("Save VSP File?", "*.vsp");
-//			newfile = fl_file_chooser("Save VSP File?", "*.vsp", "");
 
 		if ( newfile != NULL )
 		{
-			aircraftPtr->writeFile(newfile);
-			if (src == ScriptMgr::GUI) scriptMgr->addLine("save", newfile);
+			Stringc vspfile = checkAddVspExt( newfile );
+
+			aircraftPtr->writeFile( vspfile.get_char_star() );
+			if (src == ScriptMgr::GUI) scriptMgr->addLine("save", vspfile.get_char_star() );
+
+			sprintf(labelStr, "File Name: %s", aircraftPtr->getFileName().get_char_star() );
+			mainWinUI->FileNameBox->label(labelStr);
+			mainWinUI->winShell->redraw();
 		}
 
-		sprintf(labelStr, "File Name: %s", aircraftPtr->getFileName().get_char_star() );
-		mainWinUI->FileNameBox->label(labelStr);
-		mainWinUI->winShell->redraw();	
 	}
 }
 
@@ -2084,3 +2086,13 @@ void ScreenMgr::MessageBox( const char* msg )
 	fl_message( "%s", msg );
 }
 
+Stringc ScreenMgr::checkAddVspExt( const char * name )
+{
+	Stringc fname = name;
+	int index = fname.search_for_substring( ".vsp" );
+	if ( index == -1 )
+	{
+		fname.concatenate( ".vsp" );
+	}
+	return fname;
+}

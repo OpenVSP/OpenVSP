@@ -1967,10 +1967,10 @@ void Xsec_surf::write_pov_smooth_tris( int sym_code_in, float mat[4][4], float r
           fprintf(file_id, "< %12.8f,  %12.8f,  %12.8f >,  \n", n0.x(), n0.z(), n0.y());
 
 		  fprintf(file_id, "< %12.8f,  %12.8f,  %12.8f >, ",    v2.x(), v2.z(), v2.y());
-		  fprintf(file_id, "< %12.8f,  %12.8f,  %12.8f >  }\n", n2.x(), n2.z(), n2.y());
+		  fprintf(file_id, "< %12.8f,  %12.8f,  %12.8f >, \n", n2.x(), n2.z(), n2.y());
 
           fprintf(file_id, "< %12.8f,  %12.8f,  %12.8f >, ",    v1.x(), v1.z(), v1.y());
-          fprintf(file_id, "< %12.8f,  %12.8f,  %12.8f >,  \n", n1.x(), n1.z(), n1.y());
+		  fprintf(file_id, "< %12.8f,  %12.8f,  %12.8f >  }\n", n1.x(), n1.z(), n1.y());
 
 
           fprintf(file_id, "smooth_triangle { \n");

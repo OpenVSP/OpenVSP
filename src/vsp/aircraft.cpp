@@ -533,6 +533,15 @@ void Aircraft::writeFile( const char* file_name, vector< Geom * > &gVec, vector<
 	xmlAddDoubleNode( root, "CFD_Wake_Angle", cfdMeshMgrPtr->GetWakeAngle() );
 	xmlAddDoubleNode( root, "CFD_Wake_Scale", cfdMeshMgrPtr->GetWakeScale() );
 
+	xmlAddIntNode( root, "CFD_Stl_File_Flag", cfdMeshMgrPtr->GetExportFileFlag( CfdMeshMgr::STL_FILE_NAME ) );
+	xmlAddIntNode( root, "CFD_Poly_File_Flag", cfdMeshMgrPtr->GetExportFileFlag( CfdMeshMgr::POLY_FILE_NAME ) );
+	xmlAddIntNode( root, "CFD_Tri_File_Flag", cfdMeshMgrPtr->GetExportFileFlag( CfdMeshMgr::TRI_FILE_NAME ) );
+	xmlAddIntNode( root, "CFD_Obj_File_Flag", cfdMeshMgrPtr->GetExportFileFlag( CfdMeshMgr::OBJ_FILE_NAME ) );
+	xmlAddIntNode( root, "CFD_Dat_File_Flag", cfdMeshMgrPtr->GetExportFileFlag( CfdMeshMgr::DAT_FILE_NAME ) );
+	xmlAddIntNode( root, "CFD_Key_File_Flag", cfdMeshMgrPtr->GetExportFileFlag( CfdMeshMgr::KEY_FILE_NAME ) );
+	xmlAddIntNode( root, "CFD_Gmsh_File_Flag", cfdMeshMgrPtr->GetExportFileFlag( CfdMeshMgr::GMSH_FILE_NAME ) );
+	xmlAddIntNode( root, "CFD_Srf_File_Flag", cfdMeshMgrPtr->GetExportFileFlag( CfdMeshMgr::SRF_FILE_NAME ) );
+
 	//==== Write Window Background Scale/Offset ====//
 	drawWin->writeFile( root );
 
@@ -615,7 +624,7 @@ int Aircraft::openFile( const char* file_name )
 		setTempDir( fileName, false );
 		pasteClipBoard();
 		updateExportFileNames();
-		cfdMeshMgrPtr->ResetExportFileNames();
+//		cfdMeshMgrPtr->ResetExportFileNames();
 		feaMeshMgrPtr->ResetFeaExportFileNames();
 
 //		nameStr = clipBoardStr;			// Set Name for Aircraft
@@ -942,6 +951,24 @@ int Aircraft::readFile(const char* file_name )
 	cfdMeshMgrPtr->SetHalfMeshFlag( hf );
 	cfdMeshMgrPtr->SetWakeAngle( xmlFindDouble( root, "CFD_Wake_Angle", cfdMeshMgrPtr->GetWakeAngle() ) );
 	cfdMeshMgrPtr->SetWakeScale( xmlFindDouble( root, "CFD_Wake_Scale", cfdMeshMgrPtr->GetWakeScale() ) );
+
+	bool def_flag = cfdMeshMgrPtr->GetExportFileFlag( CfdMeshMgr::STL_FILE_NAME );
+	cfdMeshMgrPtr->SetExportFileFlag( !!xmlFindInt( root, "CFD_Stl_File_Flag",def_flag ), CfdMeshMgr::STL_FILE_NAME );
+
+	def_flag = cfdMeshMgrPtr->GetExportFileFlag( CfdMeshMgr::POLY_FILE_NAME );
+	cfdMeshMgrPtr->SetExportFileFlag( !!xmlFindInt( root, "CFD_Poly_File_Flag",def_flag ), CfdMeshMgr::POLY_FILE_NAME );
+	def_flag = cfdMeshMgrPtr->GetExportFileFlag( CfdMeshMgr::TRI_FILE_NAME );
+	cfdMeshMgrPtr->SetExportFileFlag( !!xmlFindInt( root, "CFD_Tri_File_Flag",def_flag ), CfdMeshMgr::TRI_FILE_NAME );
+	def_flag = cfdMeshMgrPtr->GetExportFileFlag( CfdMeshMgr::OBJ_FILE_NAME );
+	cfdMeshMgrPtr->SetExportFileFlag( !!xmlFindInt( root, "CFD_Obj_File_Flag",def_flag ), CfdMeshMgr::OBJ_FILE_NAME );
+	def_flag = cfdMeshMgrPtr->GetExportFileFlag( CfdMeshMgr::DAT_FILE_NAME );
+	cfdMeshMgrPtr->SetExportFileFlag( !!xmlFindInt( root, "CFD_Dat_File_Flag",def_flag ), CfdMeshMgr::DAT_FILE_NAME );
+	def_flag = cfdMeshMgrPtr->GetExportFileFlag( CfdMeshMgr::KEY_FILE_NAME );
+	cfdMeshMgrPtr->SetExportFileFlag( !!xmlFindInt( root, "CFD_Key_File_Flag",def_flag ), CfdMeshMgr::KEY_FILE_NAME );
+	def_flag = cfdMeshMgrPtr->GetExportFileFlag( CfdMeshMgr::GMSH_FILE_NAME );
+	cfdMeshMgrPtr->SetExportFileFlag( !!xmlFindInt( root, "CFD_Gmsh_File_Flag",def_flag ), CfdMeshMgr::GMSH_FILE_NAME );
+	def_flag = cfdMeshMgrPtr->GetExportFileFlag( CfdMeshMgr::SRF_FILE_NAME );
+	cfdMeshMgrPtr->SetExportFileFlag( !!xmlFindInt( root, "CFD_Srf_File_Flag",def_flag ), CfdMeshMgr::SRF_FILE_NAME );
 
 	//==== Read Window Background Scale/Offset ====//
 	if ( drawWin )
