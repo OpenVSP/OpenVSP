@@ -753,6 +753,65 @@ int  PropGeom::get_num_bezier_comps()
 	return num_comps;
 }
 
+//==== Return Number of Xsec Surfs to Write ====//
+int PropGeom::getNumXSecSurfs()
+{
+	if ( !outputFlag )
+		return 0;
+
+	if ( sym_code == NO_SYM )
+		return bladeVec.size();
+	else
+		return 2*bladeVec.size();
+}
+
+//==== Dump Xsec File =====//
+void PropGeom::dump_xsec_file(int geom_no, FILE* dump_file)
+{
+	for(int i=0;i<4;i++)
+	{
+		for(int j=0;j<4;j++)
+			printf("%f\t ", model_mat[i][i]);
+		printf("\n");
+	}
+
+	for ( int i = 0 ; i < (int)bladeVec.size() ; i++ )
+	{
+		//==== Only Write Out OML not IML ====//
+		fprintf(dump_file, "\n");
+		fprintf(dump_file, "%s \n",(char*) getName());
+		fprintf(dump_file, " GROUP NUMBER      = %d \n",geom_no);
+		fprintf(dump_file, " TYPE              = 1\n");
+		fprintf(dump_file, " CROSS SECTIONS    = %d \n", bladeVec[i].get_num_xsecs() );
+		fprintf(dump_file, " PTS/CROSS SECTION = %d \n", bladeVec[i].get_num_pnts() );
+
+		// Write out cross sections
+		for ( int j = 0 ; j < bladeVec[i].get_num_xsecs() ; j++ )
+		{
+			bladeVec[i].write_xsec(j, model_mat, dump_file);
+		}
+	}
+
+	if ( sym_code == NO_SYM ) return;
+
+	for ( int i = 0 ; i < (int)bladeVec.size() ; i++ )
+	{
+		//==== Only Write Out OML not IML ====//
+		fprintf(dump_file, "\n");
+		fprintf(dump_file, "%s \n",(char*) getName());
+		fprintf(dump_file, " GROUP NUMBER      = %d \n",geom_no);
+		fprintf(dump_file, " TYPE              = 1\n");
+		fprintf(dump_file, " CROSS SECTIONS    = %d \n", bladeVec[i].get_num_xsecs() );
+		fprintf(dump_file, " PTS/CROSS SECTION = %d \n", bladeVec[i].get_num_pnts() );
+
+		// Write out cross sections
+		for ( int j = 0 ; j < bladeVec[i].get_num_xsecs() ; j++ )
+		{
+			bladeVec[i].write_refl_xsec(sym_code, j, model_mat, dump_file);
+		}
+	}
+}
+
 void PropGeom::write_bezier_file( int id, FILE* file_id )
 {
 	int save_num_u = numU;

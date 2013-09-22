@@ -112,11 +112,11 @@ public:
    virtual void read(FILE* dump_file);
    virtual void read(xmlNodePtr node);
 
-   virtual void dump_xsec_file(int, FILE* )	{}
+   virtual void dump_xsec_file(int, FILE* );
 
    virtual void write_rhino_file(ON_BinaryFile* archive, ON_3dmObjectAttributes* attributes );
    virtual vector< TMesh* > createTMeshVec();
-   virtual int getNumXSecSurfs()				{ return 0; }
+   virtual int getNumXSecSurfs();
 
    virtual int  get_num_bezier_comps();
    virtual void write_bezier_file( int id, FILE* file_id );
