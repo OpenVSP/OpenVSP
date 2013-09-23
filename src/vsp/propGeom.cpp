@@ -766,29 +766,21 @@ int PropGeom::getNumXSecSurfs()
 }
 
 //==== Dump Xsec File =====//
-void PropGeom::dump_xsec_file(int geom_no, FILE* dump_file)
+void PropGeom::dump_xsec_file( int geom_no, FILE* dump_file )
 {
-	for(int i=0;i<4;i++)
-	{
-		for(int j=0;j<4;j++)
-			printf("%f\t ", model_mat[i][i]);
-		printf("\n");
-	}
-
 	for ( int i = 0 ; i < (int)bladeVec.size() ; i++ )
 	{
-		//==== Only Write Out OML not IML ====//
 		fprintf(dump_file, "\n");
-		fprintf(dump_file, "%s \n",(char*) getName());
-		fprintf(dump_file, " GROUP NUMBER      = %d \n",geom_no);
-		fprintf(dump_file, " TYPE              = 1\n");
+		fprintf(dump_file, "%s \n",(char*) getName() );
+		fprintf(dump_file, " GROUP NUMBER      = %d \n", geom_no );
+		fprintf(dump_file, " TYPE              = 1\n" );
 		fprintf(dump_file, " CROSS SECTIONS    = %d \n", bladeVec[i].get_num_xsecs() );
 		fprintf(dump_file, " PTS/CROSS SECTION = %d \n", bladeVec[i].get_num_pnts() );
 
 		// Write out cross sections
-		for ( int j = 0 ; j < bladeVec[i].get_num_xsecs() ; j++ )
+		for ( int j = 0 ; j < (int)bladeVec[i].get_num_xsecs() ; j++ )
 		{
-			bladeVec[i].write_xsec(j, model_mat, dump_file);
+			bladeVec[i].write_xsec( j, model_mat, dump_file );
 		}
 	}
 
@@ -796,16 +788,15 @@ void PropGeom::dump_xsec_file(int geom_no, FILE* dump_file)
 
 	for ( int i = 0 ; i < (int)bladeVec.size() ; i++ )
 	{
-		//==== Only Write Out OML not IML ====//
 		fprintf(dump_file, "\n");
-		fprintf(dump_file, "%s \n",(char*) getName());
-		fprintf(dump_file, " GROUP NUMBER      = %d \n",geom_no);
-		fprintf(dump_file, " TYPE              = 1\n");
+		fprintf(dump_file, "%s \n",(char*) getName() );
+		fprintf(dump_file, " GROUP NUMBER      = %d \n", geom_no );
+		fprintf(dump_file, " TYPE              = 1\n" );
 		fprintf(dump_file, " CROSS SECTIONS    = %d \n", bladeVec[i].get_num_xsecs() );
 		fprintf(dump_file, " PTS/CROSS SECTION = %d \n", bladeVec[i].get_num_pnts() );
 
 		// Write out cross sections
-		for ( int j = 0 ; j < bladeVec[i].get_num_xsecs() ; j++ )
+		for ( int j = 0 ; j < (int)bladeVec[i].get_num_xsecs() ; j++ )
 		{
 			bladeVec[i].write_refl_xsec( sym_code, j, reflect_mat, dump_file );
 		}
