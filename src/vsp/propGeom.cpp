@@ -807,7 +807,7 @@ void PropGeom::dump_xsec_file(int geom_no, FILE* dump_file)
 		// Write out cross sections
 		for ( int j = 0 ; j < bladeVec[i].get_num_xsecs() ; j++ )
 		{
-			bladeVec[i].write_refl_xsec(sym_code, j, model_mat, dump_file);
+			bladeVec[i].write_refl_xsec( sym_code, j, reflect_mat, dump_file );
 		}
 	}
 }
