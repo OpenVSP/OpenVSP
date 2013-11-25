@@ -533,6 +533,11 @@ void Aircraft::writeFile( const char* file_name, vector< Geom * > &gVec, vector<
 	xmlAddDoubleNode( root, "CFD_Far_Field_Scale_Y", cfdMeshMgrPtr->GetFarYScale() );
 	xmlAddDoubleNode( root, "CFD_Far_Field_Scale_Z", cfdMeshMgrPtr->GetFarZScale() );
 	xmlAddIntNode( root, "CFD_Half_Mesh_Flag", cfdMeshMgrPtr->GetHalfMeshFlag() );
+	xmlAddIntNode( root, "CFD_Far_Mesh_Flag", cfdMeshMgrPtr->GetFarMeshFlag() );
+	xmlAddIntNode( root, "CFD_Far_Abs_Size_Flag", cfdMeshMgrPtr->GetFarAbsSizeFlag() );
+	xmlAddIntNode( root, "CFD_Far_Man_Loc_Flag", cfdMeshMgrPtr->GetFarManLocFlag() );
+	xmlAddIntNode( root, "CFD_Far_Comp_Flag", cfdMeshMgrPtr->GetFarCompFlag() );
+	xmlAddIntNode( root, "CFD_Far_Geom_PtrID", cfdMeshMgrPtr->GetFarGeomID() );
 	xmlAddDoubleNode( root, "CFD_Wake_Angle", cfdMeshMgrPtr->GetWakeAngle() );
 	xmlAddDoubleNode( root, "CFD_Wake_Scale", cfdMeshMgrPtr->GetWakeScale() );
 
@@ -955,6 +960,18 @@ int Aircraft::readFile(const char* file_name )
 	cfdMeshMgrPtr->SetFarZScale( xmlFindDouble( root, "CFD_Far_Field_Scale_Z", cfdMeshMgrPtr->GetFarZScale() ) );
 	bool hf = xmlFindInt( root, "CFD_Half_Mesh_Flag", cfdMeshMgrPtr->GetHalfMeshFlag() ) != 0;
 	cfdMeshMgrPtr->SetHalfMeshFlag( hf );
+	bool ff = xmlFindInt( root, "CFD_Far_Mesh_Flag", cfdMeshMgrPtr->GetFarMeshFlag() ) != 0;
+	cfdMeshMgrPtr->SetFarMeshFlag( ff );
+	bool sf = xmlFindInt( root, "CFD_Far_Abs_Size_Flag", cfdMeshMgrPtr->GetFarAbsSizeFlag() ) != 0;
+	cfdMeshMgrPtr->SetFarAbsSizeFlag( sf );
+	bool lf = xmlFindInt( root, "CFD_Far_Man_Loc_Flag", cfdMeshMgrPtr->GetFarManLocFlag() ) != 0;
+	cfdMeshMgrPtr->SetFarManLocFlag( lf );
+
+	bool cf = xmlFindInt( root, "CFD_Far_Comp_Flag", cfdMeshMgrPtr->GetFarCompFlag() ) != 0;
+	cfdMeshMgrPtr->SetFarCompFlag( cf );
+	cfdMeshMgrPtr->SetFarGeomID( xmlFindInt( root, "CFD_Far_Geom_PtrID", cfdMeshMgrPtr->GetFarGeomID() ) );
+
+
 	cfdMeshMgrPtr->SetWakeAngle( xmlFindDouble( root, "CFD_Wake_Angle", cfdMeshMgrPtr->GetWakeAngle() ) );
 	cfdMeshMgrPtr->SetWakeScale( xmlFindDouble( root, "CFD_Wake_Scale", cfdMeshMgrPtr->GetWakeScale() ) );
 
