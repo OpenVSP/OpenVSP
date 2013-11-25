@@ -3465,6 +3465,16 @@ Geom* Aircraft::getClipboardGeom(int index)
 	else return NULL;
 }
 
+int Aircraft::getGeomIndex(int ptrid)
+{
+	for (int i = 0; i < (int)geomVec.size(); i++)
+	{
+		if (geomVec[i]->getPtrID() == ptrid)
+			return i;
+	}
+	return -1;
+}
+
 Geom* Aircraft::getRefGeom()
 {
 	int i;
