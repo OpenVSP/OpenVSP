@@ -525,6 +525,9 @@ void Aircraft::writeFile( const char* file_name, vector< Geom * > &gVec, vector<
 	xmlAddDoubleNode( root, "CFD_Mesh_Max_Gap", cfdMeshMgrPtr->GetGridDensityPtr()->GetMaxGap() );
 	xmlAddDoubleNode( root, "CFD_Mesh_Num_Circle_Segments", cfdMeshMgrPtr->GetGridDensityPtr()->GetNCircSeg() );
 	xmlAddDoubleNode( root, "CFD_Mesh_Growth_Ratio", cfdMeshMgrPtr->GetGridDensityPtr()->GetGrowRatio() );
+	xmlAddDoubleNode( root, "CFD_Mesh_Far_Max_Length", cfdMeshMgrPtr->GetGridDensityPtr()->GetFarMaxLen() );
+	xmlAddDoubleNode( root, "CFD_Mesh_Far_Max_Gap", cfdMeshMgrPtr->GetGridDensityPtr()->GetFarMaxGap() );
+	xmlAddDoubleNode( root, "CFD_Mesh_Far_Num_Circle_Segments", cfdMeshMgrPtr->GetGridDensityPtr()->GetFarNCircSeg() );
 	xmlAddIntNode( root, "CFD_Mesh_Rigorous_Limiting", cfdMeshMgrPtr->GetGridDensityPtr()->GetRigorLimit() );
 	xmlAddDoubleNode( root, "CFD_Far_Field_Scale_X", cfdMeshMgrPtr->GetFarXScale() );
 	xmlAddDoubleNode( root, "CFD_Far_Field_Scale_Y", cfdMeshMgrPtr->GetFarYScale() );
@@ -942,6 +945,9 @@ int Aircraft::readFile(const char* file_name )
 	cfdMeshMgrPtr->GetGridDensityPtr()->SetMaxGap( xmlFindDouble( root, "CFD_Mesh_Max_Gap", cfdMeshMgrPtr->GetGridDensityPtr()->GetMaxGap() ) );
 	cfdMeshMgrPtr->GetGridDensityPtr()->SetNCircSeg( xmlFindDouble( root, "CFD_Mesh_Num_Circle_Segments", cfdMeshMgrPtr->GetGridDensityPtr()->GetNCircSeg() ) );
 	cfdMeshMgrPtr->GetGridDensityPtr()->SetGrowRatio( xmlFindDouble( root, "CFD_Mesh_Growth_Ratio", cfdMeshMgrPtr->GetGridDensityPtr()->GetGrowRatio() ) );
+	cfdMeshMgrPtr->GetGridDensityPtr()->SetFarMaxLen( xmlFindDouble( root, "CFD_Mesh_Far_Max_Length", cfdMeshMgrPtr->GetGridDensityPtr()->GetFarMaxLen() ) );
+	cfdMeshMgrPtr->GetGridDensityPtr()->SetFarMaxGap( xmlFindDouble( root, "CFD_Mesh_Far_Max_Gap", cfdMeshMgrPtr->GetGridDensityPtr()->GetFarMaxGap() ) );
+	cfdMeshMgrPtr->GetGridDensityPtr()->SetFarNCircSeg( xmlFindDouble( root, "CFD_Mesh_Far_Num_Circle_Segments", cfdMeshMgrPtr->GetGridDensityPtr()->GetFarNCircSeg() ) );
 	bool rl = xmlFindInt( root, "CFD_Mesh_Rigorous_Limiting", cfdMeshMgrPtr->GetGridDensityPtr()->GetRigorLimit() ) != 0;
 	cfdMeshMgrPtr->GetGridDensityPtr()->SetRigorLimit( rl );
 	cfdMeshMgrPtr->SetFarXScale( xmlFindDouble( root, "CFD_Far_Field_Scale_X", cfdMeshMgrPtr->GetFarXScale() ) );
