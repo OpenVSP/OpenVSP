@@ -753,6 +753,10 @@ GridDensity::GridDensity()
 	m_MaxGap = 0.005;
 	m_GrowRatio = 1.3;
 	m_RigorLimit = 0;
+
+	m_FarMaxLen = 2;
+	SetFarNCircSeg(16.0);
+	m_FarMaxGap = 0.02;
 }
 
 GridDensity::~GridDensity()
@@ -767,6 +771,15 @@ void GridDensity::SetNCircSeg( double v )
 		m_RadFrac = 2.0*sin(PI/v);
 	else  // Switch to 4/n behavior below well defined range.
 		m_RadFrac = 4.0/v;
+}
+
+void GridDensity::SetFarNCircSeg( double v )
+{
+	m_FarNCircSeg = v;
+	if(v > 2.0)
+		m_FarRadFrac = 2.0*sin(PI/v);
+	else
+		m_FarRadFrac = 4.0/v;
 }
 
 void GridDensity::RemoveSource( BaseSource* s )
@@ -833,13 +846,18 @@ void GridDensity::RemoveSource( BaseSource* s )
 //}
 
 
-double GridDensity::GetTargetLen( vec3d& pos )
+double GridDensity::GetTargetLen( vec3d& pos, bool farFlag )
 {
-	double target_len = m_BaseLen;
+	double target_len;
+
+	if( !farFlag )
+		target_len = m_BaseLen;
+	else
+		target_len = m_FarMaxLen;
 
 	for ( int i = 0 ; i < (int)m_Sources.size() ; i++ )
 	{
-		double len = m_Sources[i]->GetTargetLen( m_BaseLen, pos );
+		double len = m_Sources[i]->GetTargetLen( target_len, pos );
 		if ( len < target_len )
 			target_len = len;
 	}

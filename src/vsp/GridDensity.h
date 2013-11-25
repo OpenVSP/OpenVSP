@@ -247,19 +247,30 @@ public:
 
 	//void ReadFile( const char* filename );
 
-	double GetBaseLen()							{ return m_BaseLen; }
+	double GetBaseLen( bool farflag = false )							{ if ( !farflag) return m_BaseLen; else return m_FarMaxLen; }
 	void   SetBaseLen( double v )				{ m_BaseLen = v; }
+
+	double GetFarMaxLen()							{ return m_FarMaxLen; }
+	void   SetFarMaxLen( double v )				{ m_FarMaxLen = v; }
 
 	double GetMinLen()					{ return m_MinLen; }
 	void   SetMinLen( double v )				{ m_MinLen = v; }
 
-	double GetNCircSeg()					{ return m_NCircSeg; }
+	double GetNCircSeg( bool farflag = false )					{ if ( !farflag ) return m_NCircSeg; else return m_FarNCircSeg; }
 	void   SetNCircSeg( double v );
 
-	double GetRadFrac()					{ return m_RadFrac; }
+	double GetFarNCircSeg()						{ return m_FarNCircSeg; }
+	void   SetFarNCircSeg( double v );
 
-	double GetMaxGap()					{ return m_MaxGap; }
+	double GetRadFrac( bool farflag = false )					{ if ( !farflag ) return m_RadFrac; else return m_FarRadFrac; }
+
+	double GetFarRadFrac()							{ return m_FarRadFrac; }
+
+	double GetMaxGap( bool farflag = false )					{ if ( !farflag ) return m_MaxGap; else return m_FarMaxGap; }
 	void   SetMaxGap( double v )				{ m_MaxGap = v; }
+
+	double GetFarMaxGap()							{ return m_FarMaxGap; }
+	void   SetFarMaxGap( double v )				{ m_FarMaxGap = v; }
 
 	double GetGrowRatio()					{ return m_GrowRatio; }
 	void   SetGrowRatio( double v )				{ m_GrowRatio = v; }
@@ -267,7 +278,7 @@ public:
 	bool GetRigorLimit()					{ return m_RigorLimit; }
 	void SetRigorLimit( bool v )			{ m_RigorLimit = v; }
 
-	double GetTargetLen( vec3d& pos );
+	double GetTargetLen( vec3d& pos, bool farFlag = false );
 
 	void ClearSources()							{ m_Sources.clear(); } //Deleted in Geom
 	void RemoveSource( BaseSource* s );
@@ -282,11 +293,14 @@ public:
 protected:
 
 	double m_BaseLen;
-
+	double m_FarMaxLen;
 	double m_MinLen;
 	double m_NCircSeg;
+	double m_FarNCircSeg;
 	double m_RadFrac;
+	double m_FarRadFrac;
 	double m_MaxGap;
+	double m_FarMaxGap;
 	double m_GrowRatio;
 
 	bool m_RigorLimit;
