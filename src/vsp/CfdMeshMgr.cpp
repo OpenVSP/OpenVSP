@@ -429,6 +429,21 @@ void CfdMeshMgr::CleanUp()
 		delete m_DelISegChainVec[i];
 	m_DelISegChainVec.clear();
 
+	//==== Delete Stored Ndoes ====//
+	for ( i = 0 ; i < (int)m_nodeStore.size() ; i++ )
+		delete m_nodeStore[i];
+	m_nodeStore.clear();
+
+	//==== Delete Bad Edges ====//
+	for ( i = 0 ; i < (int)m_BadEdges.size() ; i++ )
+		delete m_BadEdges[i];
+	m_BadEdges.clear();
+
+	//==== Delete Bad Triangles ====//
+	for ( i = 0 ; i < (int)m_BadTris.size() ; i++ )
+		delete m_BadTris[i];
+	m_BadTris.clear();
+
 	m_BinMap.clear();
 	m_PossCoPlanarSurfMap.clear();
 
@@ -1764,7 +1779,6 @@ void CfdMeshMgr::WriteSurfsIntCurves( const char* filename )
 
 Stringc CfdMeshMgr::CheckWaterTight()
 {
-	vector< Node* > nodeVec;
 	vector< Tri* > triVec;
 
 	int tri_cnt = 0;
@@ -1794,7 +1808,7 @@ Stringc CfdMeshMgr::CheckWaterTight()
 		{
 			Node* n = new Node();
 			n->pnt = *allPntVec[i];
-			nodeVec.push_back(n);
+			m_nodeStore.push_back(n);
 		}
 	}
 
@@ -1816,17 +1830,31 @@ Stringc CfdMeshMgr::CheckWaterTight()
 				int ind2 = pntShift[i1];
 				int ind3 = pntShift[i2];
 
-				Edge* e0 = FindAddEdge( edgeMap, nodeVec, ind1, ind2 );
-				Edge* e1 = FindAddEdge( edgeMap, nodeVec, ind2, ind3 );
-				Edge* e2 = FindAddEdge( edgeMap, nodeVec, ind3, ind1 );
+				Edge* e0 = FindAddEdge( edgeMap, m_nodeStore, ind1, ind2 );
+				Edge* e1 = FindAddEdge( edgeMap, m_nodeStore, ind2, ind3 );
+				Edge* e2 = FindAddEdge( edgeMap, m_nodeStore, ind3, ind1 );
 
-				Tri* tri = new Tri( nodeVec[ind1], nodeVec[ind2], nodeVec[ind3], e0, e1, e2 );
+				Tri* tri = new Tri( m_nodeStore[ind1], m_nodeStore[ind2], m_nodeStore[ind3], e0, e1, e2 );
 
-				if ( !e0->SetTri( tri ) ) moreThanTwoTriPerEdge++;
-				if ( !e1->SetTri( tri ) ) moreThanTwoTriPerEdge++;
-				if ( !e2->SetTri( tri ) ) moreThanTwoTriPerEdge++;
+				if ( !e0->SetTri( tri ) )
+				{
+					tri->debugFlag = true;
+					moreThanTwoTriPerEdge++;
+				}
+				if ( !e1->SetTri( tri ) )
+				{
+					tri->debugFlag = true;
+					moreThanTwoTriPerEdge++;
+				}
+				if ( !e2->SetTri( tri ) )
+				{
+					tri->debugFlag = true;
+					moreThanTwoTriPerEdge++;
+				}
 				triVec.push_back( tri );
 
+				if ( tri->debugFlag == true )
+					m_BadTris.push_back( tri );
 			}
 		}
 	}
@@ -1840,21 +1868,28 @@ Stringc CfdMeshMgr::CheckWaterTight()
 		{
 			Edge* e = iter->second[i];
 			if ( !(e->t0 && e->t1) )
+			{
+				m_BadEdges.push_back( e );
+				e->debugFlag = true;
 				num_border_edges++;
+			}
+
 		}
 	}
 
 	//==== Clean Up ====//
-	for ( int i = 0 ; i < (int)nodeVec.size() ; i++ )
-	{
-		delete nodeVec[i];
-	}
 	for ( iter = edgeMap.begin() ; iter != edgeMap.end() ; iter++ )
 	{
 		for ( int i = 0 ; i < (int)iter->second.size() ; i++ )
 		{
-			delete iter->second[i];
+			if ( iter->second[i]->debugFlag == false )
+				delete iter->second[i];
 		}
+	}
+	for ( int i = 0 ; i < (int)triVec.size() ; i++ )
+	{
+		if ( triVec[i]->debugFlag == false )
+			delete triVec[i];
 	}
 
 	char resultStr[255];

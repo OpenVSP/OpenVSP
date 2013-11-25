@@ -362,6 +362,10 @@ protected:
 	//==== Vector of Surfs that may have a border that lies on Surf A ====//
 	map< Surf*, vector< Surf* > > m_PossCoPlanarSurfMap;
 
+	vector<Edge*> m_BadEdges;
+	vector<Tri*> m_BadTris;
+	vector< Node* > m_nodeStore;
+
 };
 
 class CFDM_Single
