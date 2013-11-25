@@ -350,8 +350,15 @@ CfdMeshMgr::CfdMeshMgr()
 	m_HighlightChainIndex = 0;
 	m_DrawMeshFlag = true;
 	m_DrawSourceFlag = true;
+	m_DrawFarFlag = false;
+	m_DrawFarPreFlag = true;
 	m_BatchFlag = false;
 	m_HalfMeshFlag = false;
+	m_FarCompFlag = false;
+	m_FarMeshFlag = false;
+	m_FarManLocFlag = false;
+	m_FarAbsSizeFlag = false;
+
 	m_WakeScale = 2.0;
 	m_FarXScale = m_FarYScale = m_FarZScale = 4.0;
 

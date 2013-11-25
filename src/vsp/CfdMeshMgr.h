@@ -158,6 +158,8 @@ public:
 
 	virtual int  GetCurrGeomID()					{ return m_CurrGeomID; }
 	virtual void SetCurrGeomID(int gid)				{ m_CurrGeomID = gid; }
+	virtual int GetFarGeomID()						{ return m_FarGeomID; }
+	virtual void SetFarGeomID( int gid )			{ m_FarGeomID = gid; }
 	virtual BaseSource* GetCurrSource();
 	virtual void AddSource( int type );
 	virtual BaseSource* CreateSource( int type );
@@ -238,8 +240,20 @@ public:
 	virtual void SetDrawMeshFlag( bool f )			{ m_DrawMeshFlag= f; }
 	virtual bool GetDrawSourceFlag()				{ return m_DrawSourceFlag; }
 	virtual void SetDrawSourceFlag( bool f )		{ m_DrawSourceFlag= f; }
+	virtual bool GetDrawFarFlag()					{ return m_DrawFarFlag; }
+	virtual void SetDrawFarFlag( bool f )			{ m_DrawFarFlag = f; }
+	virtual bool GetDrawFarPreFlag()				{ return m_DrawFarPreFlag; }
+	virtual void SetDrawFarPreFlag( bool f )		{ m_DrawFarPreFlag = f; }
+	virtual bool GetFarMeshFlag()					{ return m_FarMeshFlag; }
+	virtual void SetFarMeshFlag( bool f )			{ m_FarMeshFlag = f; }
+	virtual bool GetFarCompFlag()					{ return m_FarCompFlag; }
+	virtual void SetFarCompFlag(bool f )			{ m_FarCompFlag = f; }
+	virtual bool GetFarManLocFlag()					{ return m_FarManLocFlag; }
+	virtual void SetFarManLocFlag( bool f )			{ m_FarManLocFlag = f; }
+	virtual bool GetFarAbsSizeFlag()				{ return m_FarAbsSizeFlag; }
+	virtual void SetFarAbsSizeFlag( bool f )		{ m_FarAbsSizeFlag = f; }
 	virtual bool GetHalfMeshFlag()					{ return m_HalfMeshFlag; }
-	virtual void SetHalfMeshFlag( bool f )			{ m_HalfMeshFlag= f; }
+	virtual void SetHalfMeshFlag( bool f )			{ m_HalfMeshFlag = f; }
 
 	virtual void HighlightNextChain();	
 
@@ -295,6 +309,7 @@ protected:
 	Aircraft* aircraftPtr;
 
 	int m_CurrGeomID;
+	int m_FarGeomID;
 	bool m_BatchFlag;
 	
 	GridDensity m_GridDensity;
@@ -319,6 +334,13 @@ protected:
 	int m_HighlightChainIndex;
 	bool m_DrawMeshFlag;
 	bool m_DrawSourceFlag;
+	bool m_DrawFarFlag;
+	bool m_DrawFarPreFlag;
+
+	bool m_FarMeshFlag;
+	bool m_FarCompFlag;
+	bool m_FarManLocFlag;
+	bool m_FarAbsSizeFlag;
 	bool m_HalfMeshFlag;
 
 	double m_FarXScale;
