@@ -213,6 +213,16 @@ CfdMeshScreen::CfdMeshScreen(ScreenMgr* mgr, Aircraft* airPtr)
 	ui->addWakeButton->value(0);
 	ui->wakeCompChoice->callback( staticScreenCB, this );
 
+	ui->halfMeshButton->callback( staticScreenCB, this );
+
+	ui->farMeshButton->callback( staticScreenCB, this );
+	ui->farCompChoice->callback( staticScreenCB, this );
+	ui->farCenLocButton->callback( staticScreenCB, this );
+	ui->farManLocButton->callback( staticScreenCB, this );
+	ui->farAbsSizeButton->callback( staticScreenCB, this );
+	ui->farRelSizeButton->callback( staticScreenCB, this );
+	ui->farBoxGenButton->callback( staticScreenCB, this );
+	ui->farComponentGenButton->callback( staticScreenCB, this );
 	ui->farXScaleAbsInput->callback( staticScreenCB, this );
 	ui->farYScaleAbsInput->callback( staticScreenCB, this );
 	ui->farZScaleAbsInput->callback( staticScreenCB, this );
@@ -301,12 +311,14 @@ void CfdMeshScreen::update()
 	vector< Geom* > geomVec = aircraftPtr->getGeomVec();	
 	cfdMeshUI->compChoice->clear();
 	cfdMeshUI->wakeCompChoice->clear();
+	cfdMeshUI->farCompChoice->clear();
 	for ( i = 0 ; i < (int)geomVec.size() ; i++ )
 	{
 		char str[256];
 		sprintf( str, "%d_%s", i, geomVec[i]->getName().get_char_star() );
 		cfdMeshUI->compChoice->add( str );
 		cfdMeshUI->wakeCompChoice->add( str );
+		cfdMeshUI->farCompChoice->add( str );
 	}
 
 	int currGeomID = cfdMeshMgrPtr->GetCurrGeomID();
@@ -315,6 +327,9 @@ void CfdMeshScreen::update()
 		cfdMeshUI->compChoice->value( currGeomID );
 		cfdMeshUI->wakeCompChoice->value( currGeomID );
 	}
+
+	int farGeomID = cfdMeshMgrPtr->GetFarGeomID();
+	cfdMeshUI->farCompChoice->value( aircraftPtr->getGeomIndex( farGeomID ) );
 
 	BaseSource* source = cfdMeshMgrPtr->GetCurrSource();
 
@@ -506,6 +521,65 @@ void CfdMeshScreen::update()
 	}
 
 
+
+	//=== Domain tab GUI active areas ===//
+	if ( cfdMeshMgrPtr->GetFarMeshFlag() )
+	{
+		cfdMeshUI->farParametersGroup->activate();
+
+		if(	cfdMeshMgrPtr->GetFarCompFlag() )
+		{
+			cfdMeshUI->farBoxGroup->deactivate();
+			cfdMeshUI->farCompGroup->activate();
+		}
+		else
+		{
+			cfdMeshUI->farBoxGroup->activate();
+			cfdMeshUI->farCompGroup->deactivate();
+
+			if(	cfdMeshMgrPtr->GetFarManLocFlag() )
+				cfdMeshUI->farXYZLocationGroup->activate();
+			else
+				cfdMeshUI->farXYZLocationGroup->deactivate();
+		}
+	}
+	else
+	{
+		cfdMeshUI->farParametersGroup->deactivate();
+	}
+
+	//=== Domain tab GUI radio & highlight buttons ===//
+	if( cfdMeshMgrPtr->GetFarMeshFlag() )
+		cfdMeshUI->farMeshButton->value(1);
+	else
+		cfdMeshUI->farMeshButton->value(0);
+
+	if(	cfdMeshMgrPtr->GetFarCompFlag() )
+		cfdMeshUI->farComponentGenButton->setonly();
+	else
+		cfdMeshUI->farBoxGenButton->setonly();
+
+	if(	cfdMeshMgrPtr->GetFarAbsSizeFlag() )
+	{
+		cfdMeshUI->farAbsSizeButton->value(1);
+		cfdMeshUI->farRelSizeButton->value(0);
+	}
+	else
+	{
+		cfdMeshUI->farAbsSizeButton->value(0);
+		cfdMeshUI->farRelSizeButton->value(1);
+	}
+
+	if(	cfdMeshMgrPtr->GetFarManLocFlag() )
+	{
+		cfdMeshUI->farManLocButton->value(1);
+		cfdMeshUI->farCenLocButton->value(0);
+	}
+	else
+	{
+		cfdMeshUI->farManLocButton->value(0);
+		cfdMeshUI->farCenLocButton->value(1);
+	}
 }
 
 Stringc CfdMeshScreen::truncateFileName( const char* fn, int len )
@@ -605,6 +679,13 @@ void CfdMeshScreen::screenCB( Fl_Widget* w )
 			cfdMeshMgrPtr->GetGridDensityPtr()->SetRigorLimit( true );
 		else
 			cfdMeshMgrPtr->GetGridDensityPtr()->SetRigorLimit( false );
+	}
+	else if ( w == cfdMeshUI->farMeshButton )
+	{
+		if ( cfdMeshUI->farMeshButton->value() )
+			cfdMeshMgrPtr->SetFarMeshFlag( true );
+		else
+			cfdMeshMgrPtr->SetFarMeshFlag( false );
 	}
 	else if ( w == cfdMeshUI->halfMeshButton )
 	{
@@ -841,6 +922,13 @@ void CfdMeshScreen::screenCB( Fl_Widget* w )
 		int id = cfdMeshUI->wakeCompChoice->value();
 		cfdMeshMgrPtr->SetCurrGeomID( id );
 	}
+	else if ( w == cfdMeshUI->farCompChoice )
+	{
+		//==== Load List of Parts for Comp ====//
+		int id = cfdMeshUI->farCompChoice->value();
+		vector< Geom* > geomVec = aircraftPtr->getGeomVec();
+		cfdMeshMgrPtr->SetFarGeomID( geomVec[id]->getPtrID() );
+	}
 	else if ( w == cfdMeshUI->sourceBrowser )
 	{
 		cfdMeshMgrPtr->GUI_Val( "SourceID", cfdMeshUI->sourceBrowser->value()-1 );
@@ -950,6 +1038,30 @@ void CfdMeshScreen::screenCB( Fl_Widget* w )
 			  w == cfdMeshUI->gmshToggle || w == cfdMeshUI->srfToggle )
 	{
 		setMeshExportFlags();
+	}
+	else if ( w == cfdMeshUI->farBoxGenButton )
+	{
+		cfdMeshMgrPtr->SetFarCompFlag( false );
+	}
+	else if ( w == cfdMeshUI->farComponentGenButton )
+	{
+		cfdMeshMgrPtr->SetFarCompFlag( true );
+	}
+	else if ( w == cfdMeshUI->farCenLocButton )
+	{
+		cfdMeshMgrPtr->SetFarManLocFlag( false );
+	}
+	else if ( w == cfdMeshUI->farManLocButton )
+	{
+		cfdMeshMgrPtr->SetFarManLocFlag( true );
+	}
+	else if ( w == cfdMeshUI->farRelSizeButton )
+	{
+		cfdMeshMgrPtr->SetFarAbsSizeFlag( false );
+	}
+	else if ( w == cfdMeshUI->farAbsSizeButton )
+	{
+		cfdMeshMgrPtr->SetFarAbsSizeFlag( true );
 	}
 	else if ( w == cfdMeshUI->farXScaleAbsInput )
 	{
