@@ -322,6 +322,9 @@ public:
 	vector< vec2d > debugUWs;
 	vector< SurfPatch* > debugPatches;
 
+	vector< ICurve* > GetICurveVec()					{ return m_ICurveVec; }
+	virtual void SetICurveVec( ICurve* newcurve, int loc );
+
 #ifdef DEBUG_CFD_MESH
 	FILE* m_DebugFile;
 	Stringc m_DebugDir;

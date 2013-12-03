@@ -214,6 +214,44 @@ void SCurve::BorderTesselate( )
 	}
 }
 
+void SCurve::CheapTesselate( )
+{
+	int npts = 10000;
+
+	m_UTess.clear();
+	m_UTess.resize( npts );
+	for ( int i = 0; i < npts; i++ )
+		m_UTess[i] = (double)i/(double)( npts - 1 );
+
+	UWTess();
+}
+
+void SCurve::ProjectTessToSurf( SCurve* othercurve )
+{
+	vector< vec3d > UWTessB = othercurve->GetUWTessPnts();
+
+	Surf* SurfA = GetSurf();
+	Surf* SurfB = othercurve->GetSurf();
+
+	double uguess = SurfA->GetMaxU() / 2.0;
+	double wguess = SurfA->GetMaxW() / 2.0;
+
+	int npts = UWTessB.size();
+	m_UWTess.clear();
+	m_UWTess.resize( npts );
+	for ( int i = 0 ; i < npts ; i++ )
+	{
+		vec3d ptOther = SurfB->CompPnt( UWTessB[i].x(), UWTessB[i].y() );
+
+		vec2d uw = SurfA->ClosestUW( ptOther, uguess, wguess );
+
+		m_UWTess[i] = vec3d( uw.x(), uw.y(), 0 );
+
+		uguess = uw.x();
+		wguess = uw.y();
+	}
+}
+
 void SCurve::InterpDistTable( double idouble, double &t, double &u, double &s, double &dsdi )
 {
 	int imax = target_vec.size() - 1;

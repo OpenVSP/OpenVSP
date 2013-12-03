@@ -110,6 +110,7 @@ public:
 	void IntersectLineSegMesh( vec3d & p0, vec3d & p1, vector< double > & t_vals );
 
 	bool BorderCurveOnSurface( Surf* surfPtr );
+	void PlaneBorderCurveIntersect( Surf* surfPtr, SCurve* brdPtr );
 
 	bbox& GetBBox()											{ return m_BBox; }
 	vector< SurfPatch* >& GetPatchVec()						{ return m_PatchVec; }

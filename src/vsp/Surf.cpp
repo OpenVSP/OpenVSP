@@ -1197,14 +1197,95 @@ bool Surf::BorderCurveOnSurface( Surf* surfPtr )
 				retFlag = true;
 			}
 		}
-		if ( num_pnts_on_surf >= 2 )
+		if ( num_pnts_on_surf > 2 )
 		{
 			//==== If Surface Add To List ====//
 			m_CfdMeshMgr->AddPossCoPlanarSurf( this, surfPtr );
+			PlaneBorderCurveIntersect( surfPtr, border_curves[i] );
 		}
 	}
 
 	return retFlag;
+}
+
+void Surf::PlaneBorderCurveIntersect( Surf* surfPtr, SCurve* brdPtr )
+{
+	bool repeat_curve = false;
+	bool null_ICurve = false;
+	if ( brdPtr->GetICurve() != NULL )
+	{
+		for ( int j = 0 ; j < m_SCurveVec.size() ; j++ )
+		{
+			if (brdPtr->GetICurve() == m_SCurveVec[j]->GetICurve() )
+				repeat_curve = true;
+		}
+	}
+	else
+		null_ICurve = true;
+
+	if (!repeat_curve )
+	{
+		SCurve* pSCurve = new SCurve;
+		SCurve* bSCurve = new SCurve;
+		ICurve* pICurve = new ICurve;
+
+		ICurve* bICurve = pICurve;
+		ICurve* obICurve = brdPtr->GetICurve();
+
+		vector< vec3d > UWCrv_bordercurve;
+		vector< vec3d > UWCrv_plane;
+
+		UWCrv_plane.resize( 4 );
+
+		vector< ICurve* > ICurves = m_CfdMeshMgr->GetICurveVec();
+		int ICurveVecIndex;
+
+		for ( int i = 0 ; i < brdPtr->GetUWCrv().get_num_control_pnts() ; i++ )
+			UWCrv_bordercurve.push_back( brdPtr->GetUWCrv().get_pnt( i ) );
+
+		for ( int i = 0 ; i < UWCrv_bordercurve.size() ; i++ )
+		{
+			vec3d pnt = surfPtr->CompPnt( UWCrv_bordercurve[i].x(), UWCrv_bordercurve[i].y() );
+			vec2d uw = ClosestUW( pnt, m_MaxU/2, m_MaxW/2 );
+			UWCrv_plane[i].set_xyz( uw.x(), uw.y(), 0 );
+		}
+
+		pSCurve->SetBezierControlPnts( UWCrv_plane );
+
+		pICurve->m_SCurve_A = brdPtr;
+		pICurve->m_SCurve_B = pSCurve;
+		pICurve->m_PlaneBorderIntersectFlag = true;
+		pSCurve->SetSurf( this );
+		pSCurve->SetICurve( pICurve );
+
+		bICurve->m_SCurve_A = pSCurve;
+		bICurve->m_SCurve_B = brdPtr;
+		bICurve->m_PlaneBorderIntersectFlag = true;
+		bSCurve->SetSurf( surfPtr );
+		bSCurve->SetICurve( bICurve );
+
+		brdPtr->SetICurve( bICurve );
+
+		if ( !null_ICurve )
+		{
+			ICurveVecIndex = distance(ICurves.begin(), find( ICurves.begin(), ICurves.end(), obICurve ) );
+			if ( ICurveVecIndex < ICurves.size() )
+				m_CfdMeshMgr->SetICurveVec( brdPtr->GetICurve(), ICurveVecIndex );
+		}
+		else
+		{
+			for ( int i = 0 ; i < ICurves.size() ; i++ )
+			{
+				if ( ICurves[i]->m_SCurve_A == brdPtr && ICurves[i]->m_SCurve_B == NULL )
+				{
+					ICurves[i]->m_SCurve_B = pSCurve;
+					ICurves[i]->m_PlaneBorderIntersectFlag = true;
+				}
+			}
+		}
+
+		m_SCurveVec.push_back( pSCurve );
+	}
 }
 
 	

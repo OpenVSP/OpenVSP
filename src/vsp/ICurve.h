@@ -151,6 +151,7 @@ public:
 
 	bool Match( SCurve* crv_A, SCurve* crv_B );
 	void BorderTesselate( );
+	void PlaneBorderTesselate( SCurve* sca, SCurve* scb );
 	void SetACurve( SCurve* crv_A )						{ m_SCurve_A = crv_A; }
 
 
@@ -161,7 +162,7 @@ public:
 
 	SCurve* m_SCurve_A;
 	SCurve* m_SCurve_B;
-
+	bool m_PlaneBorderIntersectFlag;
 
 
 protected:

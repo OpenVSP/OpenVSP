@@ -45,6 +45,8 @@ public:
 	double GetTargetLen( GridDensity* grid_den, SCurve* BCurve, vec3d p, vec3d uw, double u );
 
 	void BorderTesselate( );
+	void CheapTesselate( );
+	void ProjectTessToSurf( SCurve* sca );
 	void InterpDistTable( double idouble, double &t, double &u, double &s, double &dsdi );
 	void BuildDistTable( GridDensity* grid_den, SCurve* BCurve, list< MapSource* > & splitSources );
 	void CleanupDistTable();
@@ -79,6 +81,8 @@ public:
 
 	void SetICurve( ICurve* iptr )						{ m_ICurve = iptr; }
 	ICurve* GetICurve()									{ return m_ICurve; }
+
+	Bezier_curve GetUWCrv()								{ return m_UWCrv;  }
 
 	void FlipDir();
 

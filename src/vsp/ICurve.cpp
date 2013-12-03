@@ -467,6 +467,7 @@
 ICurve::ICurve()
 {
 	m_SCurve_A = m_SCurve_B = NULL;
+	m_PlaneBorderIntersectFlag = false;
 }
 
 ICurve::~ICurve()
@@ -532,6 +533,12 @@ void ICurve::BorderTesselate( )
 	}
 
 	m_SCurve_B->BorderTesselate( );
+}
+
+void ICurve::PlaneBorderTesselate( SCurve* crv_A, SCurve* crv_B )
+{
+	crv_A->CheapTesselate();
+	crv_B->ProjectTessToSurf( crv_A );
 }
 
 void ICurve::Draw()

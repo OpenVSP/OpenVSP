@@ -2616,7 +2616,18 @@ void CfdMeshMgr::LoadBorderCurves()
 		if ( !m_ICurveVec[i]->m_SCurve_B )								// Non Closed Solid
 			m_ICurveVec[i]->m_SCurve_B = m_ICurveVec[i]->m_SCurve_A;
 
-		m_ICurveVec[i]->BorderTesselate( );
+		if ( m_ICurveVec[i]->m_PlaneBorderIntersectFlag )
+		{
+			Surf* SurfA = m_ICurveVec[i]->m_SCurve_A->GetSurf();
+			if ( !SurfA->GetSymPlaneFlag() )
+				m_ICurveVec[i]->PlaneBorderTesselate( m_ICurveVec[i]->m_SCurve_A, m_ICurveVec[i]->m_SCurve_B );
+			else
+				m_ICurveVec[i]->PlaneBorderTesselate( m_ICurveVec[i]->m_SCurve_B, m_ICurveVec[i]->m_SCurve_A );
+		}
+		else
+		{
+			m_ICurveVec[i]->BorderTesselate( );
+		}
 
 		//==== Create New Chain ====//
 		ISegChain* chain = new ISegChain;
@@ -3901,3 +3912,8 @@ void CfdMeshMgr::Draw_BBox( bbox box )
 
 }
 
+
+void CfdMeshMgr::SetICurveVec( ICurve* newcurve, int loc )
+{
+	m_ICurveVec[loc] = newcurve;
+}
