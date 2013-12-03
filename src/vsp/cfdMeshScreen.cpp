@@ -32,9 +32,13 @@ CfdMeshScreen::CfdMeshScreen(ScreenMgr* mgr, Aircraft* airPtr)
 	//ui->meshAllButton->callback( staticScreenCB, this );
 	ui->finalMeshButton->callback( staticScreenCB, this );
 	ui->viewMeshButton->callback( staticScreenCB, this );
+	ui->viewFarMeshButton->callback( staticScreenCB, this );
+	ui->viewFarPreButton->callback( staticScreenCB, this );
 	ui->viewSourceButton->callback( staticScreenCB, this );
+	ui->viewBadButton->callback( staticScreenCB, this );
+	ui->viewSymmButton->callback( staticScreenCB, this );
+	ui->viewWakeButton->callback( staticScreenCB, this );
 	ui->rigorLimitButton->callback( staticScreenCB, this );
-	ui->halfMeshButton->callback( staticScreenCB, this );
 
 	ui->SourceNameInput->callback( staticScreenCB, this );
 
@@ -429,6 +433,31 @@ void CfdMeshScreen::update()
 	else
 		cfdMeshUI->viewSourceButton->value(0);
 
+	if ( cfdMeshMgrPtr->GetDrawFarFlag() )
+		cfdMeshUI->viewFarMeshButton->value(1);
+	else
+		cfdMeshUI->viewFarMeshButton->value(0);
+
+	if ( cfdMeshMgrPtr->GetDrawFarPreFlag() )
+		cfdMeshUI->viewFarPreButton->value(1);
+	else
+		cfdMeshUI->viewFarPreButton->value(0);
+
+	if ( cfdMeshMgrPtr->GetDrawBadFlag() )
+		cfdMeshUI->viewBadButton->value(1);
+	else
+		cfdMeshUI->viewBadButton->value(0);
+
+	if ( cfdMeshMgrPtr->GetDrawSymmFlag() )
+		cfdMeshUI->viewSymmButton->value(1);
+	else
+		cfdMeshUI->viewSymmButton->value(0);
+
+	if ( cfdMeshMgrPtr->GetDrawWakeFlag() )
+		cfdMeshUI->viewWakeButton->value(1);
+	else
+		cfdMeshUI->viewWakeButton->value(0);
+
 	if ( cfdMeshMgrPtr->GetHalfMeshFlag() )
 		cfdMeshUI->halfMeshButton->value(1);
 	else
@@ -527,6 +556,41 @@ void CfdMeshScreen::screenCB( Fl_Widget* w )
 			cfdMeshMgrPtr->SetDrawMeshFlag( true );
 		else
 			cfdMeshMgrPtr->SetDrawMeshFlag( false );
+	}
+	else if ( w == cfdMeshUI->viewFarMeshButton )
+	{
+		if ( cfdMeshUI->viewFarMeshButton->value() )
+			cfdMeshMgrPtr->SetDrawFarFlag( true );
+		else
+			cfdMeshMgrPtr->SetDrawFarFlag( false );
+	}
+	else if (w == cfdMeshUI->viewFarPreButton )
+	{
+		if ( cfdMeshUI->viewFarPreButton->value() )
+			cfdMeshMgrPtr->SetDrawFarPreFlag( true );
+		else
+			cfdMeshMgrPtr->SetDrawFarPreFlag( false );
+	}
+	else if (w == cfdMeshUI->viewBadButton )
+	{
+		if ( cfdMeshUI->viewBadButton->value() )
+			cfdMeshMgrPtr->SetDrawBadFlag( true );
+		else
+			cfdMeshMgrPtr->SetDrawBadFlag( false );
+	}
+	else if (w == cfdMeshUI->viewSymmButton )
+	{
+		if ( cfdMeshUI->viewSymmButton->value() )
+			cfdMeshMgrPtr->SetDrawSymmFlag( true );
+		else
+			cfdMeshMgrPtr->SetDrawSymmFlag( false );
+	}
+	else if (w == cfdMeshUI->viewWakeButton )
+	{
+		if ( cfdMeshUI->viewWakeButton->value() )
+			cfdMeshMgrPtr->SetDrawWakeFlag( true );
+		else
+			cfdMeshMgrPtr->SetDrawWakeFlag( false );
 	}
 	else if ( w == cfdMeshUI->viewSourceButton )
 	{

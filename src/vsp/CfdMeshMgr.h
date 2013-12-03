@@ -173,6 +173,8 @@ public:
 	virtual void ScaleTriSize( double scale );
 
 	virtual void Draw();
+	virtual void Draw_BBox( bbox box );
+
 	virtual void WriteSurfs( const char* filename );
 	virtual void ReadSurfs( const char* filename );
 
@@ -244,6 +246,13 @@ public:
 	virtual void SetDrawFarFlag( bool f )			{ m_DrawFarFlag = f; }
 	virtual bool GetDrawFarPreFlag()				{ return m_DrawFarPreFlag; }
 	virtual void SetDrawFarPreFlag( bool f )		{ m_DrawFarPreFlag = f; }
+	virtual bool GetDrawBadFlag()					{ return m_DrawBadFlag; }
+	virtual void SetDrawBadFlag( bool f )			{ m_DrawBadFlag = f; }
+	virtual bool GetDrawSymmFlag()					{ return m_DrawSymmFlag; }
+	virtual void SetDrawSymmFlag( bool f )			{ m_DrawSymmFlag = f; }
+	virtual bool GetDrawWakeFlag()					{ return m_DrawWakeFlag; }
+	virtual void SetDrawWakeFlag( bool f )			{ m_DrawWakeFlag = f; }
+
 	virtual bool GetFarMeshFlag()					{ return m_FarMeshFlag; }
 	virtual void SetFarMeshFlag( bool f )			{ m_FarMeshFlag = f; }
 	virtual bool GetFarCompFlag()					{ return m_FarCompFlag; }
@@ -347,10 +356,14 @@ protected:
 
 	int m_NumComps;
 	int m_HighlightChainIndex;
+
 	bool m_DrawMeshFlag;
 	bool m_DrawSourceFlag;
 	bool m_DrawFarFlag;
 	bool m_DrawFarPreFlag;
+	bool m_DrawBadFlag;
+	bool m_DrawSymmFlag;
+	bool m_DrawWakeFlag;
 
 	bool m_FarMeshFlag;
 	bool m_FarCompFlag;

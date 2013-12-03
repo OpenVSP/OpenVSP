@@ -348,10 +348,15 @@ CfdMeshMgr::CfdMeshMgr()
 {
 	m_CurrGeomID = 0;
 	m_HighlightChainIndex = 0;
+
 	m_DrawMeshFlag = true;
 	m_DrawSourceFlag = true;
-	m_DrawFarFlag = false;
+	m_DrawFarFlag = true;
 	m_DrawFarPreFlag = true;
+	m_DrawBadFlag = true;
+	m_DrawSymmFlag = true;
+	m_DrawWakeFlag = true;
+
 	m_BatchFlag = false;
 	m_HalfMeshFlag = false;
 	m_FarCompFlag = false;
@@ -3425,11 +3430,19 @@ void CfdMeshMgr::Draw()
 	BaseSource* source = GetCurrSource();
 
 	if ( m_DrawSourceFlag )
+	{
 		m_GridDensity.Draw(source);
-
-	//==== Draw Wake Lines ====//
-	if ( m_DrawSourceFlag )
 		m_WakeMgr.Draw();
+	}
+
+	if ( m_DrawFarPreFlag )
+	{
+		if ( m_FarMeshFlag )
+		{
+			glColor4ub( 0, 200, 0, 255 );
+			Draw_BBox( m_Domain );
+		}
+	}
 
 	if ( m_DrawMeshFlag )
 	{
@@ -3473,7 +3486,9 @@ void CfdMeshMgr::Draw()
 			vector< vec3d > pVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
 			for ( int t = 0 ; t < (int)m_SurfVec[i]->GetMesh()->GetSimpTriVec().size() ; t++ )
 			{
-				if ( !m_SurfVec[i]->GetWakeFlag() )
+				if ( !m_SurfVec[i]->GetWakeFlag() &&
+						( !m_SurfVec[i]->GetFarFlag() || m_DrawFarFlag ) &&
+						( !m_SurfVec[i]->GetSymPlaneFlag() || m_DrawSymmFlag ) )
 				{
 					SimpTri* stri = &m_SurfVec[i]->GetMesh()->GetSimpTriVec()[t];
 					glBegin( GL_POLYGON );
@@ -3497,12 +3512,17 @@ void CfdMeshMgr::Draw()
 			vector< vec3d > pVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
 			for ( int t = 0 ; t < (int)m_SurfVec[i]->GetMesh()->GetSimpTriVec().size() ; t++ )
 			{
-				SimpTri* stri = &m_SurfVec[i]->GetMesh()->GetSimpTriVec()[t];
-				glBegin( GL_LINE_LOOP );
-					glVertex3dv( pVec[stri->ind0].data() );
-					glVertex3dv( pVec[stri->ind1].data() );
-					glVertex3dv( pVec[stri->ind2].data() );
-				glEnd();
+				if ( ( !m_SurfVec[i]->GetWakeFlag() || m_DrawWakeFlag ) &&
+						( !m_SurfVec[i]->GetFarFlag() || m_DrawFarFlag ) &&
+						( !m_SurfVec[i]->GetSymPlaneFlag() || m_DrawSymmFlag ) )
+				{
+					SimpTri* stri = &m_SurfVec[i]->GetMesh()->GetSimpTriVec()[t];
+					glBegin( GL_LINE_LOOP );
+						glVertex3dv( pVec[stri->ind0].data() );
+						glVertex3dv( pVec[stri->ind1].data() );
+						glVertex3dv( pVec[stri->ind2].data() );
+					glEnd();
+				}
 			}
 		}
 		glDisable( GL_CULL_FACE );
@@ -3540,6 +3560,41 @@ void CfdMeshMgr::Draw()
 	}
 
 #endif
+
+
+	if ( m_DrawBadFlag )
+	{
+		vector< Edge* >::iterator e;
+
+		glLineWidth( 3.0 );
+		glColor3ub( 255, 0, 0 );
+		glBegin( GL_LINES );
+		for ( e = m_BadEdges.begin() ; e != m_BadEdges.end(); e++ )
+		{
+			glVertex3dv( (*e)->n0->pnt.data() );
+			glVertex3dv( (*e)->n1->pnt.data() );
+		}
+		glEnd();
+
+
+		vector< Tri* >::iterator t;
+
+		for ( t = m_BadTris.begin() ; t != m_BadTris.end(); t++ )
+		{
+			glBegin( GL_POLYGON );
+				glVertex3dv( (*t)->n0->pnt.data() );
+				glVertex3dv( (*t)->n1->pnt.data() );
+				glVertex3dv( (*t)->n2->pnt.data() );
+			glEnd();
+
+			glBegin( GL_LINE_LOOP );
+				glVertex3dv( (*t)->n0->pnt.data() );
+				glVertex3dv( (*t)->n1->pnt.data() );
+				glVertex3dv( (*t)->n2->pnt.data() );
+			glEnd();
+		}
+
+	}
 
 	//glLineWidth( 1.0 );
 	//glColor4ub( 150, 150, 150, 255 );
@@ -3610,6 +3665,60 @@ void CfdMeshMgr::Draw()
 	////	//(*c)->m_ISegBoxA.Draw();
 	////	//(*c)->m_ISegBoxB.Draw();
 	//}
+
+}
+
+
+//==== Compose Modeling Matrix ====//
+void CfdMeshMgr::Draw_BBox( bbox box )
+{
+  double temp[3];
+  temp[0] = box.get_min(0);
+  temp[1] = box.get_min(1);
+  temp[2] = box.get_min(2);
+
+  glBegin( GL_LINE_STRIP );
+    glVertex3dv(temp);
+    temp[0] = box.get_max(0);
+    glVertex3dv(temp);
+    temp[1] = box.get_max(1);
+    glVertex3dv(temp);
+    temp[2] = box.get_max(2);
+    glVertex3dv(temp);
+    temp[0] = box.get_min(0);
+    glVertex3dv(temp);
+    temp[2] = box.get_min(2);
+    glVertex3dv(temp);
+    temp[1] = box.get_min(1);
+    glVertex3dv(temp);
+    temp[2] = box.get_max(2);
+    glVertex3dv(temp);
+    temp[0] = box.get_max(0);
+    glVertex3dv(temp);
+    temp[2] = box.get_min(2);
+    glVertex3dv(temp);
+  glEnd();
+
+  glBegin( GL_LINE_STRIP );
+    temp[2] = box.get_max(2);
+    glVertex3dv(temp);
+    temp[1] = box.get_max(1);
+    glVertex3dv(temp);
+  glEnd();
+
+  glBegin( GL_LINE_STRIP );
+    temp[2] = box.get_min(2);
+    glVertex3dv(temp);
+    temp[0] = box.get_min(0);
+    glVertex3dv(temp);
+  glEnd();
+
+  glBegin( GL_LINE_STRIP );
+    temp[2] = box.get_max(2);
+    glVertex3dv(temp);
+    temp[1] = box.get_min(1);
+    glVertex3dv(temp);
+  glEnd();
 
 }
 
