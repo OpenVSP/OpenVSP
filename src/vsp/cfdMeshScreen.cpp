@@ -62,11 +62,11 @@ CfdMeshScreen::CfdMeshScreen(ScreenMgr* mgr, Aircraft* airPtr)
 	m_Radius2Slider->SetRange( 1.0 );
 	m_Radius2Slider->UpdateGui();
 
-	m_GlobalEdgeSizeSlider = new SliderInputCombo( ui->globalEdgeSizeSlider, ui->globalEdgeSizeInput );
-	m_GlobalEdgeSizeSlider->SetCallback( staticScreenCB, this );
-	m_GlobalEdgeSizeSlider->SetLimits( 0.000001, 1000000.0 );
-	m_GlobalEdgeSizeSlider->SetRange( 1.0 );
-	m_GlobalEdgeSizeSlider->UpdateGui();
+	m_BodyEdgeSizeSlider = new SliderInputCombo( ui->bodyEdgeSizeSlider, ui->bodyEdgeSizeInput );
+	m_BodyEdgeSizeSlider->SetCallback( staticScreenCB, this );
+	m_BodyEdgeSizeSlider->SetLimits( 0.000001, 1000000.0 );
+	m_BodyEdgeSizeSlider->SetRange( 1.0 );
+	m_BodyEdgeSizeSlider->UpdateGui();
 
 	m_MinEdgeSizeSlider = new SliderInputCombo( ui->minEdgeSizeSlider, ui->minEdgeSizeInput );
 	m_MinEdgeSizeSlider->SetCallback( staticScreenCB, this );
@@ -92,7 +92,23 @@ CfdMeshScreen::CfdMeshScreen(ScreenMgr* mgr, Aircraft* airPtr)
 	m_GrowRatioSlider->SetRange( 2.0 );
 	m_GrowRatioSlider->UpdateGui();
 
-	m_FarXScaleSlider = new SliderInputCombo( ui->farXSlider, ui->farXInput );
+	m_FarEdgeLengthSlider = new SliderInputCombo( ui->farEdgeSizeSlider, ui->farEdgeSizeInput );
+	m_FarEdgeLengthSlider->SetCallback( staticScreenCB, this );
+	m_FarEdgeLengthSlider->SetLimits( 0.000001, 1000000.0 );
+	m_FarEdgeLengthSlider->SetRange( 1.0 );
+	m_FarEdgeLengthSlider->UpdateGui();
+
+	m_FarGapSizeSlider = new SliderInputCombo( ui->farGapSizeSlider, ui->farGapSizeInput );
+	m_FarGapSizeSlider->SetCallback( staticScreenCB, this );
+	m_FarGapSizeSlider->SetLimits( 0.0000001, 1000000.0 );
+	m_FarGapSizeSlider->SetRange( 1.0 );
+	m_FarGapSizeSlider->UpdateGui();
+
+	m_FarCircSegmentSlider = new SliderInputCombo( ui->farCircSegmentSlider, ui->farCircSegmentInput );
+	m_FarCircSegmentSlider->SetCallback( staticScreenCB, this );
+	m_FarCircSegmentSlider->SetLimits( 0.00001, 1000.0 );
+	m_FarCircSegmentSlider->SetRange( 100.0 );
+	m_FarCircSegmentSlider->UpdateGui();
 	m_FarXScaleSlider->SetCallback( staticScreenCB, this );
 	m_FarXScaleSlider->SetLimits( 1.1, 10000.0 );
 	m_FarXScaleSlider->SetRange( 10.0 );
@@ -181,7 +197,7 @@ CfdMeshScreen::~CfdMeshScreen()
 	delete m_RadiusSlider;
 	delete m_Length2Slider;
 	delete m_Radius2Slider;
-	delete m_GlobalEdgeSizeSlider;
+	delete m_BodyEdgeSizeSlider;
 	delete m_MinEdgeSizeSlider;
 	delete m_MaxGapSizeSlider;
 	delete m_NumCircSegmentSlider;
@@ -189,6 +205,9 @@ CfdMeshScreen::~CfdMeshScreen()
 	delete m_FarXScaleSlider;
 	delete m_FarYScaleSlider;
 	delete m_FarZScaleSlider;
+	delete m_FarEdgeLengthSlider;
+	delete m_FarGapSizeSlider;
+	delete m_FarCircSegmentSlider;
 	delete m_WakeScaleSlider;
 	delete m_WakeAngleSlider;
 
@@ -201,8 +220,8 @@ void CfdMeshScreen::update()
 	char str[256];
 
 	//==== Base Len ====//
-	m_GlobalEdgeSizeSlider->SetVal(cfdMeshMgrPtr->GetGridDensityPtr()->GetBaseLen()); 
-	m_GlobalEdgeSizeSlider->UpdateGui();
+	m_BodyEdgeSizeSlider->SetVal(cfdMeshMgrPtr->GetGridDensityPtr()->GetBaseLen());
+	m_BodyEdgeSizeSlider->UpdateGui();
 	m_MinEdgeSizeSlider->SetVal(cfdMeshMgrPtr->GetGridDensityPtr()->GetMinLen());
 	m_MinEdgeSizeSlider->UpdateGui();
 	m_MaxGapSizeSlider->SetVal(cfdMeshMgrPtr->GetGridDensityPtr()->GetMaxGap());
@@ -218,6 +237,13 @@ void CfdMeshScreen::update()
 	m_FarXScaleSlider->UpdateGui();
 	m_FarYScaleSlider->UpdateGui();
 	m_FarZScaleSlider->UpdateGui();
+
+	m_FarEdgeLengthSlider->SetVal( cfdMeshMgrPtr->GetGridDensityPtr()->GetFarMaxLen() );
+	m_FarEdgeLengthSlider->UpdateGui();
+	m_FarGapSizeSlider->SetVal(cfdMeshMgrPtr->GetGridDensityPtr()->GetFarMaxGap());
+	m_FarGapSizeSlider->UpdateGui();
+	m_FarCircSegmentSlider->SetVal(cfdMeshMgrPtr->GetGridDensityPtr()->GetFarNCircSeg());
+	m_FarCircSegmentSlider->UpdateGui();
 
 	m_WakeScaleSlider->SetVal( cfdMeshMgrPtr->GetWakeScale() );
 	m_WakeScaleSlider->UpdateGui();
@@ -547,9 +573,9 @@ void CfdMeshScreen::screenCB( Fl_Widget* w )
 			geomVec[currGeomID]->AddDefaultSources(base_len);
 		}
 	}
-	else if ( m_GlobalEdgeSizeSlider->GuiChanged( w ) )
+	else if ( m_BodyEdgeSizeSlider->GuiChanged( w ) )
 	{
-		cfdMeshMgrPtr->GUI_Val( "GlobalEdgeSize", m_GlobalEdgeSizeSlider->GetVal() );
+		cfdMeshMgrPtr->GUI_Val( "GlobalEdgeSize", m_BodyEdgeSizeSlider->GetVal() );
 		update_flag = false;
 	}
 	else if ( m_MinEdgeSizeSlider->GuiChanged( w ) )
@@ -570,6 +596,21 @@ void CfdMeshScreen::screenCB( Fl_Widget* w )
 	else if ( m_GrowRatioSlider->GuiChanged( w ) )
 	{
 		cfdMeshMgrPtr->GUI_Val( "GrowRatio", m_GrowRatioSlider->GetVal() );
+		update_flag = false;
+	}
+	else if ( m_FarEdgeLengthSlider->GuiChanged( w ) )
+	{
+		cfdMeshMgrPtr->GUI_Val( "FarLength", m_FarEdgeLengthSlider->GetVal() );
+		update_flag = false;
+	}
+	else if ( m_FarGapSizeSlider->GuiChanged( w ) )
+	{
+		cfdMeshMgrPtr->GUI_Val( "FarGapSize", m_FarGapSizeSlider->GetVal() );
+		update_flag = false;
+	}
+	else if ( m_FarCircSegmentSlider->GuiChanged( w ) )
+	{
+		cfdMeshMgrPtr->GUI_Val( "FarCircSeg", m_FarCircSegmentSlider->GetVal() );
 		update_flag = false;
 	}
 	else if ( m_FarXScaleSlider->GuiChanged( w ) )

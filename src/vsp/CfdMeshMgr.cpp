@@ -555,6 +555,12 @@ void CfdMeshMgr::GUI_Val( Stringc name, double val )
 		source->SetLen( val );
 	else if ( name == "Radius1" && source )
 		source->SetRad( val );
+	else if ( name == "FarLength" )
+		m_GridDensity.SetFarMaxLen( val );
+	else if ( name == "FarGapSize"  )
+		m_GridDensity.SetFarMaxGap( val );
+	else if ( name == "FarCircSeg"  )
+		m_GridDensity.SetFarNCircSeg( val );
 	else
 	{
 		if ( source ) 
