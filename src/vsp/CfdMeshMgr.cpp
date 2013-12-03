@@ -3173,26 +3173,52 @@ void CfdMeshMgr::RemoveInteriorTris()
 		for ( t = triList.begin() ; t != triList.end(); t++ )
 		{
 			vector< vector< double > > t_vec_vec;
-			t_vec_vec.resize( m_NumComps );
+			t_vec_vec.resize( m_NumComps + 6 );  // + 6 to handle possibility of outer domain and symmetry plane.
+
 			vec3d cp = (*t)->ComputeCenterPnt( m_SurfVec[s] );
 			vec3d ep = cp + vec3d( x_dist, 0.0001, 0.0001 );
 
 			for ( int i = 0 ; i < (int)m_SurfVec.size() ; i++ )
 			{
 				int comp_id = m_SurfVec[i]->GetCompID();
-				if ( comp_id != tri_comp_id && m_SurfVec[i]->GetWakeFlag() == false )
+				if ( comp_id != tri_comp_id ) // Don't check self intersection.
 				{
-					m_SurfVec[i]->IntersectLineSeg( cp, ep, t_vec_vec[comp_id] );
+					if ( m_SurfVec[i]->GetTransFlag() == false ) // Don't check against transparent surf.
+					{
+						m_SurfVec[i]->IntersectLineSeg( cp, ep, t_vec_vec[comp_id] );
+					}
+					else if ( m_SurfVec[i]->GetFarFlag() == true && m_SurfVec[s]->GetSymPlaneFlag() == true && m_FarCompFlag == true ) // Unless trimming sym plane by outer domain
+					{
+						m_SurfVec[i]->IntersectLineSeg( cp, ep, t_vec_vec[comp_id] );
+					}
 				}
 			}
 			bool interiorFlag = false;
-			for ( int c = 0 ; c < m_NumComps ; c++ )
+
+
+			// Loop over m_SurfVec instead of component id's.  Components will be addressed multiple times,
+			// but it allows access to m_SurfVec[i]->GetFarFlag() without a reverse lookup on component id.
+			for ( int i = 0 ; i < (int)m_SurfVec.size() ; i++ )
 			{
-				if ( (int)t_vec_vec[c].size()%2 == 1 )
+				int c =  m_SurfVec[i]->GetCompID();
+
+				if ( m_SurfVec[s]->GetSymPlaneFlag() == true && m_SurfVec[i]->GetFarFlag() == true  && m_FarCompFlag == true )
 				{
-					interiorFlag = true;
+					if ((int)(t_vec_vec[c].size() + 1 )%2 == 1  ) // +1 Reverse action on sym plane wrt outer boundary.
+					{
+						interiorFlag = true;
+					}
+				}
+				else
+				{
+					if ( (int)t_vec_vec[c].size()%2 == 1 )
+					{
+						interiorFlag = true;
+					}
 				}
 			}
+
+
 			(*t)->interiorFlag = interiorFlag;
 			//==== Load Adjoining Tris - NOT Crossing Borders ====//
 			set< Tri* > triSet;
@@ -3228,12 +3254,25 @@ void CfdMeshMgr::RemoveInteriorTris()
 	{
 		for ( s = 0 ; s < (int)m_SurfVec.size() ; s++ )
 		{
-			list <Tri*> triList = m_SurfVec[s]->GetMesh()->GetTriList();
-			for ( t = triList.begin() ; t != triList.end(); t++ )
+			if ( m_SurfVec[s]->GetSymPlaneFlag() == false )
 			{
-				vec3d cp = (*t)->ComputeCenterPnt( m_SurfVec[s] );
-				if ( cp[1] < 0.0000000001 )
-					(*t)->interiorFlag = true;
+				list <Tri*> triList = m_SurfVec[s]->GetMesh()->GetTriList();
+				for ( t = triList.begin() ; t != triList.end(); t++ )
+				{
+					vec3d cp = (*t)->ComputeCenterPnt( m_SurfVec[s] );
+					if ( cp[1] < -0.0000000001 )
+						(*t)->interiorFlag = true;
+				}
+			}
+
+			if( !m_FarMeshFlag ) // Don't keep symmetry plane.
+			{
+				if ( m_SurfVec[s]->GetSymPlaneFlag() == true )
+				{
+					list <Tri*> triList = m_SurfVec[s]->GetMesh()->GetTriList();
+					for ( t = triList.begin() ; t != triList.end(); t++ )
+						(*t)->interiorFlag = true;
+				}
 			}
 		}
 	}
