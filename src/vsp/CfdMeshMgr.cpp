@@ -896,7 +896,7 @@ void CfdMeshMgr::ReadSurfs( const char* filename )
 				surfPtr->ReadSurf( file_id );
 
 				bool addSurfFlag = true;
-				if ( m_HalfMeshFlag && surfPtr->LessThanY( -0.01 ) )
+				if ( m_HalfMeshFlag && surfPtr->LessThanY( 0.0 ) )
 					addSurfFlag = false;
 
 				if ( m_HalfMeshFlag && surfPtr->PlaneAtYZero() )
