@@ -143,6 +143,7 @@ void Wake::BuildSurfs(  )
 
 			Surf* s = new Surf();
 			s->SetWakeFlag( true );
+			s->SetTransFlag( true );
 			s->SetCfdMeshMgr( cfdMeshMgrPtr );
 			s->SetCompID( m_CompID );
 			s->SetSurfID( m_SurfVec.size() );
@@ -1049,7 +1050,6 @@ void CfdMeshMgr::BuildTargetMap( int output_type )
 		m_SurfVec[i]->BuildTargetMap( allsources, i );
 		m_SurfVec[i]->LimitTargetMap();
 	}
-
 
 	// Set up split sources to provide a source at the endpoint of curves where
 	// mesh information is hard to transfer.
@@ -2025,8 +2025,7 @@ Stringc CfdMeshMgr::CheckWaterTight()
 
 }
 
-Edge* CfdMeshMgr::FindAddEdge( map< int, vector<Edge*> > & edgeMap, 
-							  vector< Node* > & nodeVec, int ind1, int ind2 )
+Edge* CfdMeshMgr::FindAddEdge( map< int, vector<Edge*> > & edgeMap, vector< Node* > & nodeVec, int ind1, int ind2 )
 {
 	Edge* e = NULL;
 	map<int, vector<Edge*> >::const_iterator iter;
@@ -2049,8 +2048,6 @@ Edge* CfdMeshMgr::FindAddEdge( map< int, vector<Edge*> > & edgeMap,
 
 	return e;
 }
-
-
 
 int CfdMeshMgr::BuildIndMap( vector< vec3d* > & allPntVec, map< int, vector< int > >& indMap, vector< int > & pntShift )
 {
