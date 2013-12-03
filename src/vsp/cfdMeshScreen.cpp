@@ -109,22 +109,42 @@ CfdMeshScreen::CfdMeshScreen(ScreenMgr* mgr, Aircraft* airPtr)
 	m_FarCircSegmentSlider->SetLimits( 0.00001, 1000.0 );
 	m_FarCircSegmentSlider->SetRange( 100.0 );
 	m_FarCircSegmentSlider->UpdateGui();
+
+	m_FarXScaleSlider = new SliderInputCombo( ui->farXScaleSlider, ui->farXScaleInput );
 	m_FarXScaleSlider->SetCallback( staticScreenCB, this );
-	m_FarXScaleSlider->SetLimits( 1.1, 10000.0 );
+	m_FarXScaleSlider->SetLimits( 1.0, 10000.0 );
 	m_FarXScaleSlider->SetRange( 10.0 );
 	m_FarXScaleSlider->UpdateGui();
 
-	m_FarYScaleSlider = new SliderInputCombo( ui->farYSlider, ui->farYInput );
+	m_FarYScaleSlider = new SliderInputCombo( ui->farYScaleSlider, ui->farYScaleInput );
 	m_FarYScaleSlider->SetCallback( staticScreenCB, this );
-	m_FarYScaleSlider->SetLimits( 1.1, 10000.0 );
+	m_FarYScaleSlider->SetLimits( 1.0, 10000.0 );
 	m_FarYScaleSlider->SetRange( 10.0 );
 	m_FarYScaleSlider->UpdateGui();
 
-	m_FarZScaleSlider = new SliderInputCombo( ui->farZSlider, ui->farZInput );
+	m_FarZScaleSlider = new SliderInputCombo( ui->farZScaleSlider, ui->farZScaleInput );
 	m_FarZScaleSlider->SetCallback( staticScreenCB, this );
-	m_FarZScaleSlider->SetLimits( 1.1, 10000.0 );
+	m_FarZScaleSlider->SetLimits( 1.0, 10000.0 );
 	m_FarZScaleSlider->SetRange( 10.0 );
 	m_FarZScaleSlider->UpdateGui();
+
+	m_FarXLocationSlider = new SliderInputCombo( ui->farXLocSlider, ui->farXLocInput );
+	m_FarXLocationSlider->SetCallback( staticScreenCB, this );
+	m_FarXLocationSlider->SetLimits( -1000000.0, 1000000.0 );
+	m_FarXLocationSlider->SetRange( 5.0 );
+	m_FarXLocationSlider->UpdateGui();
+
+	m_FarYLocationSlider = new SliderInputCombo( ui->farYLocSlider, ui->farYLocInput );
+	m_FarYLocationSlider->SetCallback( staticScreenCB, this );
+	m_FarYLocationSlider->SetLimits( -1000000.0, 1000000.0 );
+	m_FarYLocationSlider->SetRange( 5.0 );
+	m_FarYLocationSlider->UpdateGui();
+
+	m_FarZLocationSlider = new SliderInputCombo( ui->farZLocSlider, ui->farZLocInput );
+	m_FarZLocationSlider->SetCallback( staticScreenCB, this );
+	m_FarZLocationSlider->SetLimits( -1000000.0, 1000000.0 );
+	m_FarZLocationSlider->SetRange( 5.0 );
+	m_FarZLocationSlider->UpdateGui();
 
 	m_WakeScaleSlider= new SliderInputCombo( ui->wakeScaleSlider, ui->wakeScaleInput );
 	m_WakeScaleSlider->SetCallback( staticScreenCB, this );
@@ -189,6 +209,9 @@ CfdMeshScreen::CfdMeshScreen(ScreenMgr* mgr, Aircraft* airPtr)
 	ui->addWakeButton->value(0);
 	ui->wakeCompChoice->callback( staticScreenCB, this );
 
+	ui->farXScaleAbsInput->callback( staticScreenCB, this );
+	ui->farYScaleAbsInput->callback( staticScreenCB, this );
+	ui->farZScaleAbsInput->callback( staticScreenCB, this );
 }
 
 CfdMeshScreen::~CfdMeshScreen()
@@ -205,6 +228,9 @@ CfdMeshScreen::~CfdMeshScreen()
 	delete m_FarXScaleSlider;
 	delete m_FarYScaleSlider;
 	delete m_FarZScaleSlider;
+	delete m_FarXLocationSlider;
+	delete m_FarYLocationSlider;
+	delete m_FarZLocationSlider;
 	delete m_FarEdgeLengthSlider;
 	delete m_FarGapSizeSlider;
 	delete m_FarCircSegmentSlider;
@@ -237,6 +263,23 @@ void CfdMeshScreen::update()
 	m_FarXScaleSlider->UpdateGui();
 	m_FarYScaleSlider->UpdateGui();
 	m_FarZScaleSlider->UpdateGui();
+
+	char xstr[255];
+	char ystr[255];
+	char zstr[255];
+	sprintf( xstr, "%0.4f", cfdMeshMgrPtr->GetFarLength() );
+	sprintf( ystr, "%0.4f", cfdMeshMgrPtr->GetFarWidth() );
+	sprintf( zstr, "%0.4f", cfdMeshMgrPtr->GetFarHeight() );
+	cfdMeshUI->farXScaleAbsInput->value(xstr);
+	cfdMeshUI->farYScaleAbsInput->value(ystr);
+	cfdMeshUI->farZScaleAbsInput->value(zstr);
+
+	m_FarXLocationSlider->SetVal( cfdMeshMgrPtr->GetFarXLocation() );
+	m_FarYLocationSlider->SetVal( cfdMeshMgrPtr->GetFarYLocation() );
+	m_FarZLocationSlider->SetVal( cfdMeshMgrPtr->GetFarZLocation() );
+	m_FarXLocationSlider->UpdateGui();
+	m_FarYLocationSlider->UpdateGui();
+	m_FarZLocationSlider->UpdateGui();
 
 	m_FarEdgeLengthSlider->SetVal( cfdMeshMgrPtr->GetGridDensityPtr()->GetFarMaxLen() );
 	m_FarEdgeLengthSlider->UpdateGui();
@@ -615,17 +658,65 @@ void CfdMeshScreen::screenCB( Fl_Widget* w )
 	}
 	else if ( m_FarXScaleSlider->GuiChanged( w ) )
 	{
-		cfdMeshMgrPtr->SetFarXScale( m_FarXScaleSlider->GetVal() );
+		double val = m_FarXScaleSlider->GetVal();
+
+		if ( cfdMeshMgrPtr->GetFarAbsSizeFlag() )
+		{
+			cfdMeshMgrPtr->SetFarAbsSizeFlag( false );
+			cfdMeshMgrPtr->SetFarXScale( val );
+			cfdMeshMgrPtr->UpdateDomain();
+			cfdMeshMgrPtr->SetFarAbsSizeFlag( true );
+		}
+		else
+			cfdMeshMgrPtr->SetFarXScale( val );
+
 		update_flag = false;
 	}
 	else if ( m_FarYScaleSlider->GuiChanged( w ) )
 	{
-		cfdMeshMgrPtr->SetFarYScale( m_FarYScaleSlider->GetVal() );
+		double val = m_FarYScaleSlider->GetVal();
+
+		if ( cfdMeshMgrPtr->GetFarAbsSizeFlag() )
+		{
+			cfdMeshMgrPtr->SetFarAbsSizeFlag( false );
+			cfdMeshMgrPtr->SetFarYScale( val );
+			cfdMeshMgrPtr->UpdateDomain();
+			cfdMeshMgrPtr->SetFarAbsSizeFlag( true );
+		}
+		else
+			cfdMeshMgrPtr->SetFarYScale( val );
+
 		update_flag = false;
 	}
 	else if ( m_FarZScaleSlider->GuiChanged( w ) )
 	{
-		cfdMeshMgrPtr->SetFarZScale( m_FarZScaleSlider->GetVal() );
+		double val = m_FarZScaleSlider->GetVal();
+
+		if ( cfdMeshMgrPtr->GetFarAbsSizeFlag() )
+		{
+			cfdMeshMgrPtr->SetFarAbsSizeFlag( false );
+			cfdMeshMgrPtr->SetFarZScale( val );
+			cfdMeshMgrPtr->UpdateDomain();
+			cfdMeshMgrPtr->SetFarAbsSizeFlag( true );
+		}
+		else
+			cfdMeshMgrPtr->SetFarZScale( val );
+
+		update_flag = false;
+	}
+	else if ( m_FarXLocationSlider->GuiChanged( w ) )
+	{
+		cfdMeshMgrPtr->SetFarXLocation( m_FarXLocationSlider->GetVal() );
+		update_flag = false;
+	}
+	else if ( m_FarYLocationSlider->GuiChanged( w ) )
+	{
+		cfdMeshMgrPtr->SetFarYLocation( m_FarYLocationSlider->GetVal() );
+		update_flag = false;
+	}
+	else if ( m_FarZLocationSlider->GuiChanged( w ) )
+	{
+		cfdMeshMgrPtr->SetFarZLocation( m_FarZLocationSlider->GetVal() );
 		update_flag = false;
 	}
 	else if ( m_WakeScaleSlider->GuiChanged( w ) )
@@ -795,6 +886,26 @@ void CfdMeshScreen::screenCB( Fl_Widget* w )
 			  w == cfdMeshUI->gmshToggle || w == cfdMeshUI->srfToggle )
 	{
 		setMeshExportFlags();
+	}
+	else if ( w == cfdMeshUI->farXScaleAbsInput )
+	{
+		double val = atof( cfdMeshUI->farXScaleAbsInput->value() );
+		cfdMeshMgrPtr->SetFarLength( val );
+		update_flag = false;
+	}
+
+	else if ( w == cfdMeshUI->farYScaleAbsInput )
+	{
+		double val = atof( cfdMeshUI->farYScaleAbsInput->value() );
+		cfdMeshMgrPtr->SetFarWidth( val );
+		update_flag = false;
+	}
+
+	else if ( w == cfdMeshUI->farZScaleAbsInput )
+	{
+		double val = atof( cfdMeshUI->farZScaleAbsInput->value() );
+		cfdMeshMgrPtr->SetFarHeight( val );
+		update_flag = false;
 	}
 
 	if ( update_flag )

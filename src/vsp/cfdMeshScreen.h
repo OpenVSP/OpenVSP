@@ -64,6 +64,10 @@ private:
 	SliderInputCombo* m_FarYScaleSlider;
 	SliderInputCombo* m_FarZScaleSlider;
 
+	SliderInputCombo* m_FarXLocationSlider;
+	SliderInputCombo* m_FarYLocationSlider;
+	SliderInputCombo* m_FarZLocationSlider;
+
 	SliderInputCombo* m_FarEdgeLengthSlider;
 	SliderInputCombo* m_FarGapSizeSlider;
 	SliderInputCombo* m_FarCircSegmentSlider;
