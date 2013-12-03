@@ -368,8 +368,6 @@ CfdMeshMgr::CfdMeshMgr()
 
 	m_FarXScale = m_FarYScale = m_FarZScale = 4.0;
 	m_FarXLocation = m_FarYLocation = m_FarZLocation = 0.0;
-	m_YSlicePlane = new Surf();
-	m_YSlicePlane->SetGridDensityPtr( &m_GridDensity );
 
 	for ( int i = 0 ; i < NUM_FILE_NAMES ; i++ )
 	{
@@ -387,7 +385,6 @@ CfdMeshMgr::CfdMeshMgr()
 CfdMeshMgr::~CfdMeshMgr()
 {
 	CleanUp();
-	delete m_YSlicePlane;
 
 #ifdef DEBUG_CFD_MESH
 	if (m_DebugFile)
@@ -736,6 +733,79 @@ void CfdMeshMgr::UpdateSourcesAndWakes()
 
 }
 
+void CfdMeshMgr::UpdateDomain()
+{
+	aircraftPtr->update_bbox();
+	m_Domain = aircraftPtr->getBndBox();
+
+	vec3d lwh = vec3d( m_Domain.get_max( 0 ) - m_Domain.get_min( 0 ),
+						m_Domain.get_max( 1 ) - m_Domain.get_min( 1 ),
+						m_Domain.get_max( 2 ) - m_Domain.get_min( 2 ) );
+
+	vec3d xyzc = m_Domain.get_center();
+
+	vec3d xyz0 = xyzc;
+	xyz0.v[0] = m_Domain.get_min( 0 );
+
+	if ( m_FarMeshFlag )
+	{
+		if( !m_FarCompFlag )
+		{
+			if ( m_FarAbsSizeFlag )
+			{
+				m_FarXScale = m_FarLength/lwh.x();
+				m_FarYScale = m_FarWidth/lwh.y();
+				m_FarZScale = m_FarHeight/lwh.z();
+
+				lwh = vec3d( m_FarLength, m_FarWidth, m_FarHeight );
+			}
+			else
+			{
+				lwh.scale_x( m_FarXScale );
+				lwh.scale_y( m_FarYScale );
+				lwh.scale_z( m_FarZScale );
+
+				m_FarLength = lwh.x();
+				m_FarWidth = lwh.y();
+				m_FarHeight = lwh.z();
+			}
+
+			if ( m_FarManLocFlag )
+			{
+				xyz0 = vec3d( m_FarXLocation, m_FarYLocation, m_FarZLocation );
+				xyzc = xyz0;
+				xyzc.v[0] += lwh.v[0]/2.0;
+			}
+			else
+			{
+				vec3d xyz0 = xyzc;
+				xyz0.v[0] -= lwh.v[0]/2.0;
+
+				m_FarXLocation = xyz0.x();
+				m_FarYLocation = xyz0.y();
+				m_FarZLocation = xyz0.z();
+			}
+
+			m_Domain.init();
+			m_Domain.update( xyzc - lwh/2.0 );
+			m_Domain.update( xyzc + lwh/2.0 );
+		}
+		else
+		{
+			m_Domain.expand( 1.0 );
+		}
+	}
+	else
+	{
+		m_Domain.expand( 1.0 );
+	}
+
+	if ( m_HalfMeshFlag )
+	{
+		m_Domain.set_min( 1, 0.0 );
+	}
+}
+
 void CfdMeshMgr::AddDefaultSources()
 {
 	if ( m_GridDensity.GetNumSources() == 0 )
@@ -866,7 +936,48 @@ void CfdMeshMgr::ReadSurfs( const char* filename )
 		}
 	}
 }
-	
+
+void CfdMeshMgr::BuildDomain()
+{
+	vector< Surf* > FFBox = CreateDomainSurfs();
+
+	int inc = FFBox.size();
+
+	//==== Bump up ID's for 'normal' components & add far field surfs ====//
+	if ( inc > 0 )
+	{
+		for ( int i = 0 ; i < m_SurfVec.size() ; i++ )
+		{
+			m_SurfVec[i]->SetCompID( m_SurfVec[i]->GetCompID() + inc );
+			m_SurfVec[i]->SetSurfID( m_SurfVec[i]->GetSurfID() + inc );
+		}
+
+		for ( int i = 0 ; i < FFBox.size() ; i++ )
+			m_SurfVec.push_back( FFBox[i] );
+	}
+
+
+	//==== Mark & Change Modes for Component Far Field ====//
+	if ( m_FarMeshFlag )
+	{
+		if ( m_FarCompFlag )
+		{
+
+			int compID = aircraftPtr->getGeomIndex( m_FarGeomID ) + inc;
+
+			for ( int i = 0 ; i < m_SurfVec.size() ; i++ )
+			{
+				if ( m_SurfVec[i]->GetCompID() == compID )
+				{
+					m_SurfVec[i]->SetFarFlag( true );
+					m_SurfVec[i]->SetTransFlag( true );
+					m_SurfVec[i]->FlipU();
+				}
+			}
+		}
+	}
+}
+
 void CfdMeshMgr::BuildGrid()
 {
 
@@ -931,9 +1042,6 @@ void CfdMeshMgr::BuildTargetMap( int output_type )
 {
 	MSCloud ms_cloud;
 	vector< MapSource* > allsources;
-
-	if ( m_HalfMeshFlag )
-		m_YSlicePlane->BuildTargetMap( allsources, -1 );
 
 	int i;
 	for ( i = 0 ; i < (int)m_SurfVec.size() ; i++ )
@@ -2051,9 +2159,6 @@ void CfdMeshMgr::Intersect()
 			m_SurfVec[i]->Intersect( m_SurfVec[j] );
 		}
 
-	if ( m_HalfMeshFlag )
-		IntersectYSlicePlane();
-
 	BuildChains();
 
 	LoadBorderCurves();
@@ -2067,60 +2172,97 @@ void CfdMeshMgr::Intersect()
 	BuildCurves();
 }
 
-void CfdMeshMgr::IntersectYSlicePlane()
+vector< Surf* > CfdMeshMgr::CreateDomainSurfs()
 {
-	//==== Get Bounding Box ====//
-	bbox bigbox;
-	for ( int i = 0 ; i < (int)m_SurfVec.size() ; i++ )
-	{
-		bigbox.update( m_SurfVec[i]->GetBBox() );
-	}
+	vector < vec3d > p0;
+	p0.resize(6);
+	p0[0] = m_Domain.get_pnt(1);	// Symmetry or pilot's left
+	p0[1] = m_Domain.get_pnt(2);	// Pilot's right
+	p0[2] = m_Domain.get_pnt(0);	// Upstream of aircraft
+	p0[3] = m_Domain.get_pnt(3);	// Downstream of aircraft
+	p0[4] = m_Domain.get_pnt(0);	// Below aircraft
+	p0[5] = m_Domain.get_pnt(5);	// Above aircraft
+	vector < vec3d > p1;
+	p1.resize(6);
+	p1[0] = m_Domain.get_pnt(0);
+	p1[1] = m_Domain.get_pnt(3);
+	p1[2] = m_Domain.get_pnt(2);
+	p1[3] = m_Domain.get_pnt(1);
+	p1[4] = m_Domain.get_pnt(1);
+	p1[5] = m_Domain.get_pnt(4);
+	vector < vec3d > p2;
+	p2.resize(6);
+	p2[0] = m_Domain.get_pnt(5);
+	p2[1] = m_Domain.get_pnt(6);
+	p2[2] = m_Domain.get_pnt(4);
+	p2[3] = m_Domain.get_pnt(7);
+	p2[4] = m_Domain.get_pnt(2);
+	p2[5] = m_Domain.get_pnt(7);
+	vector < vec3d > p3;
+	p3.resize(6);
+	p3[0] = m_Domain.get_pnt(4);
+	p3[1] = m_Domain.get_pnt(7);
+	p3[2] = m_Domain.get_pnt(6);
+	p3[3] = m_Domain.get_pnt(5);
+	p3[4] = m_Domain.get_pnt(3);
+	p3[5] = m_Domain.get_pnt(6);
 
-	double offset = 1.0;
-	double min_x = bigbox.get_min(0) - offset;
-	double min_z = bigbox.get_min(2) - offset;
-	double max_x = bigbox.get_max(0) + offset;
-	double max_z = bigbox.get_max(2) + offset;
-
-	vec3d p0 = vec3d(min_x, 0.0, min_z);
-	vec3d p1 = vec3d(max_x, 0.0, min_z);
-	vec3d p2 = vec3d(min_x, 0.0, max_z);
-	vec3d p3 = vec3d(max_x, 0.0, max_z);
-
-	//==== Build Slice Surface ====//
-	m_YSlicePlane->SetCfdMeshMgr(this);
-	m_YSlicePlane->SetCompID( -999 );
-	m_YSlicePlane->SetSurfID( 0 );
-
-	vector< vector< vec3d > > cpVec;
+	vector < vector < vec3d > > cpVec;
 	cpVec.resize(4);
-	for ( int i = 0 ; i < 4 ; i++ )
-		cpVec[i].resize(4);
+	for ( int j = 0 ; j < cpVec.size() ; j++ )
+		cpVec[j].resize(4);
 
-	cpVec[0][0] = p0;
-	cpVec[1][0] = p0 + (p1-p0)*0.333;
-	cpVec[2][0] = p0 + (p1-p0)*0.667;
-	cpVec[3][0] = p1;
-	cpVec[0][3] = p2;
-	cpVec[1][3] = p2 + (p3-p2)*0.333;
-	cpVec[2][3] = p2 + (p3-p2)*0.667;
-	cpVec[3][3] = p3;
-	cpVec[0][1] = cpVec[0][0] + (cpVec[0][3] - cpVec[0][0])*.333;
-	cpVec[1][1] = cpVec[1][0] + (cpVec[1][3] - cpVec[1][0])*.333;
-	cpVec[2][1] = cpVec[2][0] + (cpVec[2][3] - cpVec[2][0])*.333;
-	cpVec[3][1] = cpVec[3][0] + (cpVec[3][3] - cpVec[3][0])*.333;
-	cpVec[0][2] = cpVec[0][0] + (cpVec[0][3] - cpVec[0][0])*.667;
-	cpVec[1][2] = cpVec[1][0] + (cpVec[1][3] - cpVec[1][0])*.667;
-	cpVec[2][2] = cpVec[2][0] + (cpVec[2][3] - cpVec[2][0])*.667;
-	cpVec[3][2] = cpVec[3][0] + (cpVec[3][3] - cpVec[3][0])*.667;
+	// Default, no additional surfaces.
+	int ndomain = 0;
 
-	m_YSlicePlane->LoadControlPnts( cpVec );
+	// Half mesh with no outer domain or component outer domain
+	if ( m_HalfMeshFlag )
+		ndomain = 1;
 
-	for ( int i = 0 ; i < (int)m_SurfVec.size() ; i++ )
+	// Box outer domain, half or full mesh.
+	if ( m_FarMeshFlag && !m_FarCompFlag )
+		ndomain = 6;
+
+	vector< Surf* > domainSurfs;
+
+	for ( int i = 0 ; i < ndomain ; i++ )
 	{
-		if ( !m_SurfVec[i]->OnYZeroPlane() )
-			m_YSlicePlane->Intersect( m_SurfVec[i] );
+		Surf* ptr = new Surf;
+		domainSurfs.push_back( ptr );
+
+		domainSurfs[i]->SetCfdMeshMgr( this );
+
+		domainSurfs[i]->SetSurfID( i );
+		domainSurfs[i]->SetCompID( i );
+
+		domainSurfs[i]->SetTransFlag( true );
+
+		if( i == 0 && m_HalfMeshFlag )
+			domainSurfs[i]->SetSymPlaneFlag( true );
+		else
+			domainSurfs[i]->SetFarFlag( true );
+
+		cpVec[0][0] = p0[i];
+		cpVec[1][0] = p0[i] + (p1[i]-p0[i])*0.333;
+		cpVec[2][0] = p0[i] + (p1[i]-p0[i])*0.667;
+		cpVec[3][0] = p1[i];
+		cpVec[0][3] = p2[i];
+		cpVec[1][3] = p2[i] + (p3[i]-p2[i])*0.333;
+		cpVec[2][3] = p2[i] + (p3[i]-p2[i])*0.667;
+		cpVec[3][3] = p3[i];
+		cpVec[0][1] = cpVec[0][0] + (cpVec[0][3] - cpVec[0][0])*.333;
+		cpVec[1][1] = cpVec[1][0] + (cpVec[1][3] - cpVec[1][0])*.333;
+		cpVec[2][1] = cpVec[2][0] + (cpVec[2][3] - cpVec[2][0])*.333;
+		cpVec[3][1] = cpVec[3][0] + (cpVec[3][3] - cpVec[3][0])*.333;
+		cpVec[0][2] = cpVec[0][0] + (cpVec[0][3] - cpVec[0][0])*.667;
+		cpVec[1][2] = cpVec[1][0] + (cpVec[1][3] - cpVec[1][0])*.667;
+		cpVec[2][2] = cpVec[2][0] + (cpVec[2][3] - cpVec[2][0])*.667;
+		cpVec[3][2] = cpVec[3][0] + (cpVec[3][3] - cpVec[3][0])*.667;
+
+		domainSurfs[i]->LoadControlPnts( cpVec );
+
 	}
+	return domainSurfs;
 }
 
 
@@ -3423,6 +3565,7 @@ void CfdMeshMgr::Draw()
 		return;
 
 	UpdateSourcesAndWakes();
+	UpdateDomain();
 
 	glLineWidth( 1.0 );
 	glColor4ub( 255, 0, 0, 255 );

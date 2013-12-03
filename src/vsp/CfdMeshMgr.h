@@ -170,6 +170,7 @@ public:
 
 	virtual void AddDefaultSources();
 	virtual void UpdateSourcesAndWakes();
+	virtual void UpdateDomain();
 	virtual void ScaleTriSize( double scale );
 
 	virtual void Draw();
@@ -192,6 +193,7 @@ public:
 	virtual Stringc CheckWaterTight();
 	virtual Edge* FindAddEdge( map< int, vector<Edge*> > & edgeMap, vector< Node* > & nodeVec, int ind1, int ind2 );
 
+	virtual void BuildDomain();
 	virtual void BuildGrid();
 
 	enum { NO_OUTPUT, CFD_OUTPUT, FEA_OUTPUT, };
@@ -216,7 +218,9 @@ public:
 
 	virtual void BuildCurves();
 	virtual void IntersectSplitChains();
-	virtual void IntersectYSlicePlane();
+
+	virtual vector< Surf* > CreateDomainSurfs();
+
 	virtual void IntersectWakes();
 
 	virtual void MergeInteriorChainIPnts();
@@ -339,8 +343,6 @@ protected:
 	GridDensity m_GridDensity;
 	vector< Surf* > m_SurfVec;
 
-	Surf* m_YSlicePlane;
-
 	//==== Wakes ====//
 	WakeMgr m_WakeMgr;
 
@@ -382,6 +384,8 @@ protected:
 	double m_FarXLocation;
 	double m_FarYLocation;
 	double m_FarZLocation;
+
+	bbox m_Domain;
 
 	double m_WakeScale;
 

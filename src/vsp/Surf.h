@@ -124,6 +124,8 @@ public:
 	double GetUScale( double w );
 	double GetWScale( double u );
 
+	void FlipU();
+
 	bool ValidUW( vec2d & uw );
 
 	void LoadBorderCurves( vector< vector <vec3d> > & borderCurves ); 

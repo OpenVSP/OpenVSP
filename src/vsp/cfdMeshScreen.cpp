@@ -259,6 +259,8 @@ void CfdMeshScreen::update()
 	int i;
 	char str[256];
 
+	cfdMeshMgrPtr->UpdateDomain();
+
 	//==== Base Len ====//
 	m_BodyEdgeSizeSlider->SetVal(cfdMeshMgrPtr->GetGridDensityPtr()->GetBaseLen());
 	m_BodyEdgeSizeSlider->UpdateGui();
@@ -706,6 +708,9 @@ void CfdMeshScreen::screenCB( Fl_Widget* w )
 		cfdMeshMgrPtr->ReadSurfs( bezTempFile );
 
 		cfdMeshMgrPtr->UpdateSourcesAndWakes();
+		cfdMeshMgrPtr->UpdateDomain();
+		cfdMeshMgrPtr->BuildDomain();
+
 		addOutputText( "Build Grid\n");
 		cfdMeshMgrPtr->BuildGrid();
 

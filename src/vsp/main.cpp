@@ -490,12 +490,16 @@ int batchMode(int argc, char *argv[], Aircraft* airPtr)
 			cfdMeshMgrPtr->CleanUp();
 			cfdMeshMgrPtr->ReadSurfs( bezTempFile );
 			cfdMeshMgrPtr->UpdateSourcesAndWakes();
+
 			if ( cfdDefaultSourcesFlag )
 			{
 				cfdMeshMgrPtr->AddDefaultSources();
 				cfdMeshMgrPtr->UpdateSourcesAndWakes();
 			}
 			cfdMeshMgrPtr->ScaleTriSize( cfdMeshScale );
+
+			cfdMeshMgrPtr->UpdateDomain();
+			cfdMeshMgrPtr->BuildDomain();
 			cfdMeshMgrPtr->BuildGrid();
 			cfdMeshMgrPtr->Intersect();
 			cfdMeshMgrPtr->BuildTargetMap( CfdMeshMgr::NO_OUTPUT );
