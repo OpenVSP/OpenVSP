@@ -136,18 +136,28 @@ void SCurve::ExtractBorderControlPnts( vector< vec3d > & control_pnts )
 
 double SCurve::GetTargetLen( GridDensity* grid_den, SCurve* BCurve, vec3d p, vec3d uw, double u )
 {
-	double len = grid_den->GetBaseLen();
+	bool limitFlag = false;
+	if ( m_Surf->GetFarFlag() )
+		limitFlag = true;
+	if ( m_Surf->GetSymPlaneFlag() )
+		limitFlag = true;
 
-	if( m_Surf->GetCompID() >= 0 )
-	   len = m_Surf->InterpTargetMap( uw.x(), uw.y() );
+	double len = grid_den->GetBaseLen( limitFlag );
+
+	len = m_Surf->InterpTargetMap( uw.x(), uw.y() );
 
 	if(BCurve){
+		limitFlag = false;
+		if ( BCurve->m_Surf->GetFarFlag() )
+			limitFlag = true;
+		if ( BCurve->m_Surf->GetSymPlaneFlag() )
+			limitFlag = true;
+
 		vec3d uwB = BCurve->m_UWCrv.comp_pnt( u );
 
-		double lenB = grid_den->GetBaseLen();
+		double lenB = grid_den->GetBaseLen( limitFlag );
 
-		if( BCurve->m_Surf->GetCompID() >= 0 )
-			lenB = BCurve->m_Surf->InterpTargetMap( uwB.x(), uwB.y() );
+		lenB = BCurve->m_Surf->InterpTargetMap( uwB.x(), uwB.y() );
 
 		len = min( len, lenB );
 	}

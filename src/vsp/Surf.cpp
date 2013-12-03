@@ -428,6 +428,12 @@ void Surf::BuildTargetMap( vector< MapSource* > &sources, int sid )
 		m_SrcMap[i].resize( nmapw );
 	}
 
+	bool limitFlag = false;
+	if ( m_FarFlag )
+		limitFlag = true;
+	if ( m_SymPlaneFlag )
+		limitFlag = true;
+
 	// Loop over surface evaluating source strength and curvature
 	for( int i = 0; i < nmapu ; i++ )
 	{
@@ -439,7 +445,7 @@ void Surf::BuildTargetMap( vector< MapSource* > &sources, int sid )
 			double len = numeric_limits<double>::max( );
 
 			// apply curvature based limits
-			double curv_len = TargetLen( u, w, m_GridDensityPtr->GetMaxGap(), m_GridDensityPtr->GetRadFrac());
+			double curv_len = TargetLen( u, w, m_GridDensityPtr->GetMaxGap( limitFlag ), m_GridDensityPtr->GetRadFrac( limitFlag ));
 			len = min( len, curv_len );
 
 			// apply minimum edge length as safety on curvature
@@ -447,11 +453,11 @@ void Surf::BuildTargetMap( vector< MapSource* > &sources, int sid )
 
 			// apply sources
 			vec3d p = CompPnt( u, w );
-			double grid_len = m_GridDensityPtr->GetTargetLen( p );
+			double grid_len = m_GridDensityPtr->GetTargetLen( p, limitFlag );
 			len = min( len, grid_len );
 
 			// finally check max size
-			len = min( len, m_GridDensityPtr->GetBaseLen() );
+			len = min( len, m_GridDensityPtr->GetBaseLen( limitFlag ) );
 
 			MapSource ms = MapSource( p, len, sid );
 			m_SrcMap[i][j] = ms;
