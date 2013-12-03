@@ -360,8 +360,9 @@ CfdMeshMgr::CfdMeshMgr()
 	m_FarAbsSizeFlag = false;
 
 	m_WakeScale = 2.0;
-	m_FarXScale = m_FarYScale = m_FarZScale = 4.0;
 
+	m_FarXScale = m_FarYScale = m_FarZScale = 4.0;
+	m_FarXLocation = m_FarYLocation = m_FarZLocation = 0.0;
 	m_YSlicePlane = new Surf();
 	m_YSlicePlane->SetGridDensityPtr( &m_GridDensity );
 

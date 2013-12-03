@@ -270,6 +270,21 @@ public:
 	virtual double GetFarYScale()					{ return m_FarYScale; }
 	virtual double GetFarZScale()					{ return m_FarZScale; }
 
+	virtual void SetFarXLocation( double x )		{ m_FarXLocation = x; }
+	virtual void SetFarYLocation( double y )		{ m_FarYLocation = y; }
+	virtual void SetFarZLocation( double z )		{ m_FarZLocation = z; }
+	virtual double GetFarXLocation()				{ return m_FarXLocation; }
+	virtual double GetFarYLocation()				{ return m_FarYLocation; }
+	virtual double GetFarZLocation()				{ return m_FarZLocation; }
+
+	virtual void SetFarLength( double l )		{ m_FarLength = l; }
+	virtual void SetFarWidth( double w )		{ m_FarWidth = w; }
+	virtual void SetFarHeight( double h )		{ m_FarHeight = h; }
+	virtual double GetFarLength()				{ return m_FarLength; }
+	virtual double GetFarWidth()				{ return m_FarWidth; }
+	virtual double GetFarHeight()				{ return m_FarHeight; }
+
+
 	virtual void SetWakeScale( double s )			{ m_WakeScale = s; }
 	virtual double GetWakeScale()					{ return m_WakeScale; }
 	virtual void SetWakeAngle( double a )			{ m_WakeMgr.SetWakeAngle( a ); }
@@ -346,6 +361,14 @@ protected:
 	double m_FarXScale;
 	double m_FarYScale;
 	double m_FarZScale;
+
+	double m_FarLength;
+	double m_FarWidth;
+	double m_FarHeight;
+
+	double m_FarXLocation;
+	double m_FarYLocation;
+	double m_FarZLocation;
 
 	double m_WakeScale;
 
