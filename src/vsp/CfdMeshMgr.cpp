@@ -1314,16 +1314,6 @@ void CfdMeshMgr::WriteTetGen( const char* filename )
 		tri_cnt += m_SurfVec[i]->GetMesh()->GetSimpTriVec().size();
 	}
 
-	//==== Force Sliced Point onto Plane ====//
-	if ( m_HalfMeshFlag )
-	{
-		for ( int i = 0 ; i < (int)allPntVec.size() ; i++ )
-		{
-			if ( fabs( allPntVec[i]->y() ) < 0.0001 )
-				allPntVec[i]->set_y( 0.0 );
-		}
-	}
-
 	//==== Build Map ====//
 	map< int, vector< int > > indMap;
 	vector< int > pntShift;
@@ -1331,75 +1321,18 @@ void CfdMeshMgr::WriteTetGen( const char* filename )
 
 	//===== Write Num Pnts and Tris ====//
 	fprintf( fp, "# Part 1 - node list\n");
-	fprintf( fp, "%d 3 0 0\n", numPnts + 8 );	// 8 Nodes For Far Field Box
-
-	//==== Write Far Pnts ====//
-	bbox box = aircraftPtr->getBndBox();
-	vec3d cent = box.get_center();
-	double max_d = 0.5*box.get_largest_dim();
-	vec3d offset( max_d*m_FarXScale, max_d*m_FarYScale, max_d*m_FarZScale );
-	vec3d far_min = cent - offset;
-	vec3d far_max = cent + offset;
-
-	if ( m_HalfMeshFlag )
-		far_min.set_y( 0.0 );
-
-	fprintf( fp, "1 %.16g %.16g %.16g\n", far_min.x(), far_min.y(), far_min.z() );
-	fprintf( fp, "2 %.16g %.16g %.16g\n", far_max.x(), far_min.y(), far_min.z() );
-	fprintf( fp, "3 %.16g %.16g %.16g\n", far_max.x(), far_max.y(), far_min.z() );
-	fprintf( fp, "4 %.16g %.16g %.16g\n", far_min.x(), far_max.y(), far_min.z() );
-	fprintf( fp, "5 %.16g %.16g %.16g\n", far_min.x(), far_min.y(), far_max.z() );
-	fprintf( fp, "6 %.16g %.16g %.16g\n", far_max.x(), far_min.y(), far_max.z() );
-	fprintf( fp, "7 %.16g %.16g %.16g\n", far_max.x(), far_max.y(), far_max.z() );
-	fprintf( fp, "8 %.16g %.16g %.16g\n", far_min.x(), far_max.y(), far_max.z() );
+	fprintf( fp, "%d 3 0 0\n", numPnts );
 
 	//==== Write Model Pnts ====//
 	for ( int i = 0 ; i < (int)allPntVec.size() ; i++ )
 	{
 		if ( pntShift[i] >= 0 )
-			fprintf( fp, "%d %.16g %.16g %.16g\n", i+1+8, allPntVec[i]->x(), allPntVec[i]->y(), allPntVec[i]->z() );
-	}
-
-	vector< int > planeIndVec;
-	if ( m_HalfMeshFlag )
-	{
-		for ( int i = 0 ; i < (int)allPntVec.size() ; i++ )
-		{
-			if ( pntShift[i] >= 0 && fabs( allPntVec[i]->y() ) < 0.000001 )
-				planeIndVec.push_back( i );
-		}
+			fprintf( fp, "%d %.16g %.16g %.16g\n", i+1, allPntVec[i]->x(), allPntVec[i]->y(), allPntVec[i]->z() );
 	}
 
 	//==== Write Tris ====//
 	fprintf( fp, "# Part 2 - facet list\n");
-	fprintf( fp, "%d 0\n", tri_cnt + 6 );		// 6 Cube Faces
-	if ( !m_HalfMeshFlag )
-	{
-		fprintf( fp, "1\n" );
-		fprintf( fp, "4  1 2 6 5\n" );
-	}
-	else
-	{
-		fprintf( fp, "%d\n", (int)(planeIndVec.size() + 1) );
-		fprintf( fp, "4  1 2 6 5\n" );
-		for ( int i = 0 ; i < (int)planeIndVec.size() ; i++ )
-		{
-			int a_ind = planeIndVec[i];
-			int ind = FindPntIndex( *allPntVec[a_ind], allPntVec, indMap );
-			int shift_ind = pntShift[ind] + 1 + 8;
-			fprintf( fp, "1  %d\n", shift_ind);
-		}
-	}
-	fprintf( fp, "1\n" );
-	fprintf( fp, "4  5 6 7 8\n" );
-	fprintf( fp, "1\n" );
-	fprintf( fp, "4  1 2 3 4\n" );
-	fprintf( fp, "1\n" );
-	fprintf( fp, "4  2 3 7 6\n" );
-	fprintf( fp, "1\n" );
-	fprintf( fp, "4  3 4 8 7\n" );
-	fprintf( fp, "1\n" );
-	fprintf( fp, "4  4 1 5 8\n" );
+	fprintf( fp, "%d 0\n", tri_cnt );
 	 
 	for ( int i = 0 ; i < (int)m_SurfVec.size() ; i++ )
 	{
@@ -1410,9 +1343,9 @@ void CfdMeshMgr::WriteTetGen( const char* filename )
 			int i0 = FindPntIndex( sPntVec[sTriVec[t].ind0], allPntVec, indMap );
 			int i1 = FindPntIndex( sPntVec[sTriVec[t].ind1], allPntVec, indMap );
 			int i2 = FindPntIndex( sPntVec[sTriVec[t].ind2], allPntVec, indMap );
-			int ind1 = pntShift[i0] + 1 + 8;
-			int ind2 = pntShift[i1] + 1 + 8;
-			int ind3 = pntShift[i2] + 1 + 8;
+			int ind1 = pntShift[i0] + 1;
+			int ind2 = pntShift[i1] + 1;
+			int ind3 = pntShift[i2] + 1;
 
 			fprintf( fp, "1\n" );
 			fprintf( fp, "3 %d %d %d\n", ind1, ind2, ind3);
@@ -1426,7 +1359,19 @@ void CfdMeshMgr::WriteTetGen( const char* filename )
 	for ( int i = 0 ; i < (int)geomVec.size() ; i++ )
 	{
 		if ( geomVec[i]->getOutputFlag() )
-			geomVec[i]->GetInteriorPnts( interiorPntVec );
+		{
+			if ( GetFarMeshFlag() && GetFarCompFlag() )
+			{
+				if ( geomVec[i]->getPtrID() != GetFarGeomID() )
+				{
+					geomVec[i]->GetInteriorPnts( interiorPntVec );
+				}
+			}
+			else
+			{
+				geomVec[i]->GetInteriorPnts( interiorPntVec );
+			}
+		}
 	}
 
 	if ( m_HalfMeshFlag )
