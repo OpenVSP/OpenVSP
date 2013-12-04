@@ -142,7 +142,7 @@ public:
 	void SetTransFlag( bool flag )					{ m_TransFlag = flag; }
 	bool GetTransFlag()								{ return m_TransFlag; }
 
-	void SetSymPlaneFlag( bool flag )				{ m_SymPlaneFlag = flag; }
+	virtual void SetSymPlaneFlag( bool flag );
 	bool GetSymPlaneFlag()							{ return m_SymPlaneFlag; }
 
 	void SetFarFlag( bool flag )					{ m_FarFlag = flag; }

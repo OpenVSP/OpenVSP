@@ -466,6 +466,18 @@ void Surf::BuildTargetMap( vector< MapSource* > &sources, int sid )
 	}
 }
 
+void Surf::SetSymPlaneFlag( bool flag )
+{
+	m_SymPlaneFlag = flag;
+
+	// Refine background map for symmetry plane.
+	if( m_SymPlaneFlag )
+		m_NumMap = 100;
+	else
+		m_NumMap = 10;
+}
+
+
 bool indxcompare( const pair < double, pair < int, int > > &a, const pair < double, pair < int, int > > &b )
 {
     return ( a.first < b.first );
