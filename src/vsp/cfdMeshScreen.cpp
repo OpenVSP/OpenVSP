@@ -809,48 +809,66 @@ void CfdMeshScreen::screenCB( Fl_Widget* w )
 	else if ( m_FarXScaleSlider->GuiChanged( w ) )
 	{
 		double val = m_FarXScaleSlider->GetVal();
+		bool change = false;
 
 		if ( cfdMeshMgrPtr->GetFarAbsSizeFlag() )
 		{
 			cfdMeshMgrPtr->SetFarAbsSizeFlag( false );
-			cfdMeshMgrPtr->SetFarXScale( val );
-			cfdMeshMgrPtr->UpdateDomain();
-			cfdMeshMgrPtr->SetFarAbsSizeFlag( true );
+			change = true;
 		}
-		else
-			cfdMeshMgrPtr->SetFarXScale( val );
+
+		cfdMeshMgrPtr->SetFarXScale( val );
+		cfdMeshMgrPtr->UpdateDomain();
+		char xstr[255];
+		sprintf( xstr, "%0.4f", cfdMeshMgrPtr->GetFarLength() );
+		cfdMeshUI->farXScaleAbsInput->value(xstr);
+
+		if ( change )
+			cfdMeshMgrPtr->SetFarAbsSizeFlag( true );
 
 		update_flag = false;
 	}
 	else if ( m_FarYScaleSlider->GuiChanged( w ) )
 	{
 		double val = m_FarYScaleSlider->GetVal();
+		bool change = false;
 
 		if ( cfdMeshMgrPtr->GetFarAbsSizeFlag() )
 		{
 			cfdMeshMgrPtr->SetFarAbsSizeFlag( false );
-			cfdMeshMgrPtr->SetFarYScale( val );
-			cfdMeshMgrPtr->UpdateDomain();
-			cfdMeshMgrPtr->SetFarAbsSizeFlag( true );
+			change = true;
 		}
-		else
-			cfdMeshMgrPtr->SetFarYScale( val );
+
+		cfdMeshMgrPtr->SetFarYScale( val );
+		cfdMeshMgrPtr->UpdateDomain();
+		char ystr[255];
+		sprintf( ystr, "%0.4f", cfdMeshMgrPtr->GetFarWidth() );
+		cfdMeshUI->farYScaleAbsInput->value(ystr);
+
+		if ( change )
+			cfdMeshMgrPtr->SetFarAbsSizeFlag( true );
 
 		update_flag = false;
 	}
 	else if ( m_FarZScaleSlider->GuiChanged( w ) )
 	{
 		double val = m_FarZScaleSlider->GetVal();
+		bool change = false;
 
 		if ( cfdMeshMgrPtr->GetFarAbsSizeFlag() )
 		{
 			cfdMeshMgrPtr->SetFarAbsSizeFlag( false );
-			cfdMeshMgrPtr->SetFarZScale( val );
-			cfdMeshMgrPtr->UpdateDomain();
-			cfdMeshMgrPtr->SetFarAbsSizeFlag( true );
+			change = true;
 		}
-		else
-			cfdMeshMgrPtr->SetFarZScale( val );
+
+		cfdMeshMgrPtr->SetFarZScale( val );
+		cfdMeshMgrPtr->UpdateDomain();
+		char zstr[255];
+		sprintf( zstr, "%0.4f", cfdMeshMgrPtr->GetFarHeight() );
+		cfdMeshUI->farZScaleAbsInput->value(zstr);
+
+		if ( change )
+			cfdMeshMgrPtr->SetFarAbsSizeFlag( true );
 
 		update_flag = false;
 	}
@@ -1070,23 +1088,71 @@ void CfdMeshScreen::screenCB( Fl_Widget* w )
 	}
 	else if ( w == cfdMeshUI->farXScaleAbsInput )
 	{
+		bool change = false;
+
+		if ( !cfdMeshMgrPtr->GetFarAbsSizeFlag() )
+		{
+			cfdMeshMgrPtr->SetFarAbsSizeFlag( true );
+			change = true;
+		}
+		
 		double val = atof( cfdMeshUI->farXScaleAbsInput->value() );
 		cfdMeshMgrPtr->SetFarLength( val );
+		cfdMeshMgrPtr->UpdateDomain();
+		double scale = cfdMeshMgrPtr->GetFarXScale();
+		m_FarXScaleSlider->SetVal( scale );
+		m_FarXScaleSlider->UpdateGui();
+
 		update_flag = false;
+
+		if ( change )
+			cfdMeshMgrPtr->SetFarAbsSizeFlag( false );
 	}
 
 	else if ( w == cfdMeshUI->farYScaleAbsInput )
 	{
+		bool change = false;
+
+		if ( !cfdMeshMgrPtr->GetFarAbsSizeFlag() )
+		{
+			cfdMeshMgrPtr->SetFarAbsSizeFlag( true );
+			change = true;
+		}
+
 		double val = atof( cfdMeshUI->farYScaleAbsInput->value() );
 		cfdMeshMgrPtr->SetFarWidth( val );
+		cfdMeshMgrPtr->UpdateDomain();
+		double scale = cfdMeshMgrPtr->GetFarYScale();
+		m_FarYScaleSlider->SetVal( scale );
+		m_FarYScaleSlider->UpdateGui();
+
 		update_flag = false;
+
+		if ( change )
+			cfdMeshMgrPtr->SetFarAbsSizeFlag( false );
 	}
 
 	else if ( w == cfdMeshUI->farZScaleAbsInput )
 	{
+		bool change = false;
+
+		if ( !cfdMeshMgrPtr->GetFarAbsSizeFlag() )
+		{
+			cfdMeshMgrPtr->SetFarAbsSizeFlag( true );
+			change = true;
+		}
+
 		double val = atof( cfdMeshUI->farZScaleAbsInput->value() );
 		cfdMeshMgrPtr->SetFarHeight( val );
+		cfdMeshMgrPtr->UpdateDomain();
+		double scale = cfdMeshMgrPtr->GetFarZScale();
+		m_FarZScaleSlider->SetVal( scale );
+		m_FarZScaleSlider->UpdateGui();
+
 		update_flag = false;
+
+		if ( change )
+			cfdMeshMgrPtr->SetFarAbsSizeFlag( false );
 	}
 
 	if ( update_flag )
