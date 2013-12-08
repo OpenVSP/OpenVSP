@@ -806,7 +806,7 @@ void CfdMeshMgr::ReadSurfs( const char* filename )
 
 	//==== Combine Components With Matching Surface Edges ====//
 	map< int, int > mergeCompMap;
-	for ( int s = 0 ; s < (int)m_SurfVec.size() ; s++ )
+	for ( int s = 0 ; s < (int)m_SurfVec.size()-1 ; s++ )
 	{
 		for ( int t = s+1 ; t < (int)m_SurfVec.size() ; t++ )
 		{
@@ -825,6 +825,13 @@ void CfdMeshMgr::ReadSurfs( const char* filename )
 		if ( mergeCompMap.find( compID ) != mergeCompMap.end() )
 		{
 			int newCompID = mergeCompMap[compID];
+
+			// Keep looking through the merge map until we get to the root component
+			while ( mergeCompMap.find( newCompID ) != mergeCompMap.end() )
+			{
+				newCompID = mergeCompMap[newCompID];
+			}
+
 			m_SurfVec[s]->SetCompID( newCompID );
 		}
 	}
