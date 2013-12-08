@@ -216,6 +216,7 @@ CfdMeshScreen::CfdMeshScreen(ScreenMgr* mgr, Aircraft* airPtr)
 	ui->halfMeshButton->callback( staticScreenCB, this );
 
 	ui->farMeshButton->callback( staticScreenCB, this );
+	ui->farUpdateButton->callback( staticScreenCB, this );
 	ui->farCompChoice->callback( staticScreenCB, this );
 	ui->farCenLocButton->callback( staticScreenCB, this );
 	ui->farManLocButton->callback( staticScreenCB, this );
@@ -681,6 +682,10 @@ void CfdMeshScreen::screenCB( Fl_Widget* w )
 			cfdMeshMgrPtr->GetGridDensityPtr()->SetRigorLimit( true );
 		else
 			cfdMeshMgrPtr->GetGridDensityPtr()->SetRigorLimit( false );
+	}
+	else if ( w == cfdMeshUI->farUpdateButton )
+	{
+		// Don't do anything, update_flag defaults to true;
 	}
 	else if ( w == cfdMeshUI->farMeshButton )
 	{

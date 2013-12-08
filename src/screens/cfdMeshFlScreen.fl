@@ -437,6 +437,10 @@ class CFDMeshUI {open
             label {Generate Far Field Mesh}
             xywh {15 85 380 20} labelfont 1 align 16
           }
+          Fl_Button farUpdateButton {
+            label Update
+            xywh {265 250 130 20} labelfont 1
+          }
           Fl_Group farParametersGroup {open
             xywh {5 107 405 343}
           } {
