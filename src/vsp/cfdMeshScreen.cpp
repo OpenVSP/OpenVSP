@@ -828,6 +828,12 @@ void CfdMeshScreen::screenCB( Fl_Widget* w )
 		sprintf( xstr, "%0.4f", cfdMeshMgrPtr->GetFarLength() );
 		cfdMeshUI->farXScaleAbsInput->value(xstr);
 
+		if ( !cfdMeshMgrPtr->GetFarManLocFlag() )
+		{
+			m_FarXLocationSlider->SetVal( cfdMeshMgrPtr->GetFarXLocation() );
+			m_FarXLocationSlider->UpdateGui();
+		}
+
 		if ( change )
 			cfdMeshMgrPtr->SetFarAbsSizeFlag( true );
 
@@ -1108,6 +1114,11 @@ void CfdMeshScreen::screenCB( Fl_Widget* w )
 		m_FarXScaleSlider->SetVal( scale );
 		m_FarXScaleSlider->UpdateGui();
 
+		if ( !cfdMeshMgrPtr->GetFarManLocFlag() )
+		{
+			m_FarXLocationSlider->SetVal( cfdMeshMgrPtr->GetFarXLocation() );
+			m_FarXLocationSlider->UpdateGui();
+		}
 		update_flag = false;
 
 		if ( change )
