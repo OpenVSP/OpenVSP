@@ -1,0 +1,103 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0300 
+header_name {.h} 
+code_name {.cxx}
+class GeomUI {open
+} {
+  Function {GeomUI()} {open
+  } {
+    Fl_Window UIWindow {
+      label {Geom Browser} open selected
+      xywh {649 143 160 516} type Double box THIN_DOWN_BOX color 29 resizable visible
+    } {
+      Fl_Box {} {
+        label Geom
+        xywh {5 5 148 16} box ROUNDED_BOX labelfont 1 labelsize 16 labelcolor 15
+      }
+      Fl_Choice geomTypeChoice {open
+        xywh {5 25 150 20} down_box BORDER_BOX color 17 labelsize 12 align 20 textfont 1 textsize 12
+      } {}
+      Fl_Button addGeomButton {
+        label Add
+        xywh {5 45 150 20} labelfont 1 labelsize 12 align 64
+      }
+      Fl_Browser geomBrowser {
+        xywh {16 134 140 236} type Multi textsize 12 resizable
+      }
+      Fl_Box {} {
+        label {Active:}
+        xywh {5 97 150 16} box BORDER_BOX labelfont 1 labelcolor 15
+      }
+      Fl_Button noshowGeomButton {
+        label NoShow
+        xywh {5 435 65 20} labelfont 1 labelsize 12 align 64
+      }
+      Fl_Button selectAllGeomButton {
+        label {Sel All}
+        xywh {5 375 65 20} labelfont 1 labelsize 12 align 64
+      }
+      Fl_Button showGeomButton {
+        label Show
+        xywh {5 410 65 20} labelfont 1 labelsize 12 align 64
+      }
+      Fl_Input activeGeomInput {
+        xywh {5 111 151 21} textfont 1
+      }
+      Fl_Button cutGeomButton {
+        label Cut
+        xywh {5 75 45 20} labelfont 1 labelsize 12
+      }
+      Fl_Button copyGeomButton {
+        label Copy
+        xywh {55 75 50 20} labelfont 1 labelsize 12
+      }
+      Fl_Button pasteGeomButton {
+        label Paste
+        xywh {110 75 44 20} labelfont 1 labelsize 12
+      }
+      Fl_Button wireGeomButton {
+        label Wire
+        xywh {90 375 63 20} labelfont 1 labelsize 12
+      }
+      Fl_Button hiddenGeomButton {
+        label Hidden
+        xywh {90 400 63 20} labelfont 1 labelsize 12
+      }
+      Fl_Button shadeGeomButton {
+        label Shade
+        xywh {90 425 63 20} labelfont 1 labelsize 12
+      }
+      Fl_Button textureGeomButton {
+        label Texture
+        xywh {90 450 63 20} labelfont 1 labelsize 12
+      }
+      Fl_Button moveTopButton {
+        label {@2<<}
+        xywh {1 135 14 50} labelfont 1 labelsize 12
+      }
+      Fl_Button moveBotButton {
+        label {@2>>}
+        xywh {0 320 14 50} labelfont 1
+      }
+      Fl_Button moveUpButton {
+        label {@2<}
+        xywh {1 195 14 50} labelfont 1
+      }
+      Fl_Button moveDownButton {
+        label {@2>}
+        xywh {1 260 14 50} labelfont 1
+      }
+      Fl_Button showSetButton {
+        label Show
+        xywh {110 490 45 20} labelfont 1 labelsize 12 align 64
+      }
+      Fl_Choice setChoice {open
+        xywh {5 490 105 20} down_box FLAT_BOX color 17 textfont 1
+      } {}
+      Fl_Box {} {
+        label Sets
+        xywh {5 475 150 15} box BORDER_BOX labelfont 1 labelcolor 15
+      }
+    }
+  }
+} 

@@ -1,0 +1,36 @@
+From 24d138ba902a403866e1221dd556615b99a04ff1 Mon Sep 17 00:00:00 2001
+From: Rob McDonald <ramcdona@calpoly.edu>
+Date: Sat, 11 Jan 2014 08:48:30 -0800
+Subject: [PATCH 3/3] Update built-in JPEG CMake to install headers.
+
+---
+ jpeg/CMakeLists.txt | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/jpeg/CMakeLists.txt b/jpeg/CMakeLists.txt
+index ef14317..3a0edc2 100644
+--- a/jpeg/CMakeLists.txt
++++ b/jpeg/CMakeLists.txt
+@@ -31,6 +31,11 @@ set(decompression_SRCS
+    jdsample.c jdcolor.c jquant1.c jquant2.c jdmerge.c
+ )
+ 
++# headers to install to include
++set(install_HDRS
++   jconfig.h jerror.h jmorecfg.h jpeglib.h
++)
++
+ #######################################################################
+ add_library(fltk_jpeg ${systemdependent_SRCS} ${common_SRCS} ${compression_SRCS} ${decompression_SRCS})
+ 
+@@ -49,3 +54,7 @@ install(TARGETS fltk_jpeg
+    EXPORT fltk-install
+    DESTINATION ${PREFIX_LIB}
+ )
++
++install(FILES ${install_HDRS}
++   DESTINATION ${PREFIX_INCLUDE}/FL/images
++)
+-- 
+1.8.4
+

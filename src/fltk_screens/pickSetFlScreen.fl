@@ -1,0 +1,34 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0300 
+header_name {.h} 
+code_name {.cxx}
+class PickSetUI {open
+} {
+  Function {PickSetUI()} {open
+  } {
+    Fl_Window UIWindow {
+      label {Pick Set} open
+      xywh {630 89 148 128} type Double color 29 resizable visible
+    } {
+      Fl_Box pickTitleBox {
+        label {Pick Set} selected
+        xywh {5 5 136 16} box ROUNDED_BOX color 12 labelfont 1 labelsize 16 labelcolor 7
+      }
+      Fl_Button okButton {
+        label Ok
+        xywh {5 65 136 25} labelfont 1 labelsize 12 align 64
+      }
+      Fl_Button cancelButton {
+        label Cancel
+        xywh {5 95 136 25} labelfont 1 labelsize 12 align 64
+      }
+      Fl_Choice setChoice {open
+        xywh {5 40 136 20} down_box FLAT_BOX color 17 textfont 1
+      } {}
+      Fl_Box {} {
+        label Sets
+        xywh {5 25 136 15} box BORDER_BOX labelfont 1 labelcolor 15
+      }
+    }
+  }
+} 

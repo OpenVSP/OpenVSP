@@ -1,0 +1,228 @@
+//
+// This file is released under the terms of the NASA Open Source Agreement (NOSA)
+// version 1.3 as detailed in the LICENSE file which accompanies this software.
+//
+// J.R Gloudemans
+//
+//////////////////////////////////////////////////////////////////////
+
+#if !defined(GROUPLAYOUT__INCLUDED_)
+#define GROUPLAYOUT__INCLUDED_
+
+#include <FL/Fl_Box.H>
+#include <FL/Fl_Check_Browser.H>
+
+#include "GuiDevice.h"
+
+#include <vector>
+#include <string>
+
+using std::string;
+
+//  GroupLayout creates and arranges Fltk gui widgets in an input Fl_Group.
+//  The widgets are sized and placed in the group in the order they are added.
+//  The created Fltk widgets are used to initalize the GuiDevices.
+//  GroupLayout maintains a current location and default sizes used to build the GuiDevices.
+
+//  The layout starts in the upper left hand corner.
+//  --> X
+//  |
+//  Y
+
+//====GroupLayout - Handles Layout and Cleanup of Programmatically Created GUI  ====//
+class GroupLayout
+{
+public:
+
+    GroupLayout();
+    GroupLayout( VspScreen* screen );
+    GroupLayout( VspScreen* screen, Fl_Group* m_Group );
+    virtual ~GroupLayout();
+
+    //==== Provide Group and Screen Pointers ====//
+    void SetGroup( Fl_Group* group );
+    void SetScreen( VspScreen* screen )
+    {
+        m_Screen = screen;
+    }
+    void SetGroupAndScreen( Fl_Group* group, VspScreen* screen );
+
+    //==== Hide/Show All Gui Elements ====//
+    void Hide();
+    void Show();
+
+    //===== Get/Set Current GUI Placement Coords ====//
+    int GetX()
+    {
+        return m_X;
+    }
+    int GetY()
+    {
+        return m_Y;
+    }
+    void SetX( int x )
+    {
+        m_X = x;
+    }
+    void SetY( int y )
+    {
+        m_Y = y;
+    }
+
+    //==== Upper Left Coords Of Group ====//
+    int GetStartX()
+    {
+        return m_StartX;
+    }
+    int GetStartY()
+    {
+        return m_StartY;
+    }
+
+    //==== Width Height of Group ===//
+    int GetW()
+    {
+        return m_W;
+    }
+    int GetH()
+    {
+        return m_H;
+    }
+
+    //==== Remaining Space in Group ====//
+    int GetRemainX();
+    int GetRemainY();
+
+    //==== Add X/Y to Current Location ====//
+    void AddX( int offset );
+    void AddY( int offset );
+
+    //==== Add Fixed Distance (GapHeight) To Y Location ====//
+    void AddYGap()
+    {
+        m_Y += m_GapHeight;
+    }
+
+    //==== Move to Begininng of Next Line (ignore SameLineFlag) ====//
+    void ForceNewLine();
+
+    //==== Flag To Force GuiDevices to Fill Complete Line Width ====//
+    void SetFitWidthFlag( bool f )
+    {
+        m_FitWidthFlag = f;
+    }
+
+    //==== Dont Increment to Next Line After Adding GuiDevice ====//
+    void SetSameLineFlag( bool f )
+    {
+        m_SameLineFlag = f;
+    }
+
+    //==== Reset To Predefinded Widget Width/Heights ====//
+    void InitWidthHeightVals();
+
+    //==== Set/Get Widget Width/Heights ====//
+    void SetStdHeight( int h )
+    {
+        m_StdHeight = h;
+    }
+    int  GetStdHeight()
+    {
+        return m_StdHeight;
+    }
+    void SetGapHeight( int h )
+    {
+        m_GapHeight = h;
+    }
+    void SetDividerHeight( int h )
+    {
+        m_DividerHeight = h;
+    }
+    void SetButtonWidth( int w )
+    {
+        m_ButtonWidth = w;
+    }
+    void SetCoiceButtonWidth( int w )
+    {
+        m_ChoiceButtonWidth = w;
+    }
+    void SetRangeButtonWidth( int w )
+    {
+        m_RangeButtonWidth = w;
+    }
+    void SetInputWidth( int w )
+    {
+        m_InputWidth = w;
+    }
+    void SetSliderWidth( int w )
+    {
+        m_SliderWidth = w;
+    }
+
+    //==== Add FLTK Widgets and Initalize GUI Devices ====//
+    void AddDividerBox( const string& text );
+    void AddSlider(  SliderAdjRangeInput& slid_adj_input, const char* label,
+                     double range, const char* format );
+    void AddSlider(  SliderAdjRange2Input& slid_adj_input, const char* label,
+                     double range, const char* format );
+    void AddSlider(  FractParmSlider& slid_adj_input, const char* label,
+                     double range, const char* format );
+    void AddSlider( SliderInput & slider_input, const char* label, double range, const char* format );
+    void AddButton(  CheckButton& check_button, const char* label );
+    void AddButton(  ToggleButton& toggle_button, const char* label );
+    void AddButton(  CheckButtonBit& check_bit_button, const char* label, int val );
+    void AddButton(  TriggerButton& trigger_button, const char* label );
+    void AddInput(  StringInput& string_input, const char* label );
+    void AddInput(  Input& input, const char* label, const char* format  );
+    void AddOutput( StringOutput& string_output, const char* label );
+    void AddIndexSelector( IndexSelector& selector );
+    void AddColorPicker( ColorPicker& picker );
+    void AddChoice( Choice & choice, const char* label );
+    void AddCounter( Counter & count, const char* label );
+    void AddLabel( const char* label, int width );
+    void AddParmPicker( ParmPicker & parm_picker );
+
+    //==== Add Another GroupLayout as a SubSet of This GroupLayout ====//
+    //==== Subgroups can be Used To Create Multiple Column Layouts ====//
+    void AddSubGroupLayout( GroupLayout& layout, int w, int h );
+
+    //==== Standard Non-Parm Components ====//
+    Fl_Check_Browser* AddCheckBrowser( int h );
+
+private:
+
+    void Init();
+    void NewLineX( );
+    int  FitWidth( int used_w, int default_w );
+
+    Fl_Button* AddParmButton( const char* label );
+
+    VspScreen* m_Screen;
+    Fl_Group* m_Group;
+
+    int m_X;
+    int m_Y;
+    int m_StartX;
+    int m_StartY;
+    int m_W;
+    int m_H;
+
+    bool m_FitWidthFlag;
+    bool m_SameLineFlag;
+
+    int m_StdHeight;
+    int m_DividerHeight;
+    int m_GapHeight;
+    int m_ButtonWidth;
+    int m_ChoiceButtonWidth;
+    int m_RangeButtonWidth;
+    int m_InputWidth;
+    int m_SliderWidth;
+
+    GroupLayout( GroupLayout const& copy );          // Not Implemented
+    GroupLayout& operator=( GroupLayout const& copy ); // Not Implemented
+
+};
+
+
+#endif // !defined(GUIDEVICE__INCLUDED_)

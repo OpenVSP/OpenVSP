@@ -1,0 +1,31 @@
+//
+// This file is released under the terms of the NASA Open Source Agreement (NOSA)
+// version 1.3 as detailed in the LICENSE file which accompanies this software.
+//
+
+#if !defined(VSPSTRINGUTIL__INCLUDED_)
+#define VSPSTRINGUTIL__INCLUDED_
+
+
+#include <string>
+using std::string;
+
+//==== String Functions =====//
+namespace StringUtil
+{
+void change_from_to( string & str, const char from, const char to );
+void chance_underscore_to_space( string & str );
+void chance_space_to_underscore( string & str );
+
+void remove_leading( string & str, char c );
+void remove_trailing( string & str, char c );
+
+string int_to_string( int i, const char* format );
+string double_to_string( double v, const char* format );
+
+int count_char_matches( string & str, char c );
+}
+
+
+#endif
+

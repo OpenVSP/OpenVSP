@@ -1,0 +1,44 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0300 
+header_name {.h} 
+code_name {.cxx}
+class SetEditorUI {open
+} {
+  Function {SetEditorUI()} {open
+  } {
+    Fl_Window UIWindow {
+      label {Set Editor} open
+      xywh {596 181 335 295} type Double color 29 resizable visible
+    } {
+      Fl_Box {} {
+        label {Set Editor}
+        xywh {5 5 325 16} box ROUNDED_BOX labelfont 1 labelsize 16 labelcolor 15
+      }
+      Fl_Browser setBrowser {
+        xywh {10 76 155 184} type Hold textsize 12
+      }
+      Fl_Box {} {
+        label {Set Name:}
+        xywh {10 30 105 20} box BORDER_BOX labelfont 1 labelcolor 15
+      }
+      Fl_Input setNameInput {
+        xywh {115 30 210 20} textfont 1
+      }
+      Fl_Box {} {
+        label Sets
+        xywh {10 60 155 15} box BORDER_BOX labelfont 1 labelcolor 15
+      }
+      Fl_Box {} {
+        label {Geom in Set}
+        xywh {175 60 150 15} box BORDER_BOX labelfont 1 labelcolor 15
+      }
+      Fl_Check_Browser geomInSetBrowser {
+        xywh {175 75 150 185} when 4 textsize 12
+      }
+      Fl_Button highlightSetButton {
+        label {Highlight Selected Set} selected
+        xywh {10 265 315 20} labelfont 1 labelsize 12 deactivate
+      }
+    }
+  }
+} 

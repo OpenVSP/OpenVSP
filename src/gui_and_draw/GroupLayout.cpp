@@ -1,0 +1,895 @@
+//
+// This file is released under the terms of the NASA Open Source Agreement (NOSA)
+// version 1.3 as detailed in the LICENSE file which accompanies this software.
+//
+//
+//////////////////////////////////////////////////////////////////////
+
+#include "GroupLayout.h"
+#include <FL/Fl_Group.H>
+#include <FL/Fl_Value_Slider.H>
+#include <FL/Fl_Scroll.H>
+
+#include <assert.h>
+
+//==== Constructor ====//
+GroupLayout::GroupLayout()
+{
+    Init();
+    m_Screen = NULL;
+    m_Group  = NULL;
+}
+
+//==== Constructor ====//
+GroupLayout::GroupLayout( VspScreen* screen )
+{
+    Init();
+    m_Screen = screen;
+    m_Group  = NULL;
+}
+
+GroupLayout::GroupLayout( VspScreen* screen, Fl_Group* group )
+{
+    Init();
+    m_Screen = screen;
+    SetGroup( group );
+}
+
+//==== Constructor ====//
+void GroupLayout::Init()
+{
+    m_FitWidthFlag = true;
+    m_SameLineFlag = false;
+    m_X = m_X = m_W = m_H = 0;
+    m_StartX = m_StartY = 0;
+    InitWidthHeightVals();
+}
+
+void GroupLayout::InitWidthHeightVals()
+{
+    m_StdHeight = 20;
+    m_GapHeight = 6;
+    m_DividerHeight = 15;
+    m_ButtonWidth = 74;
+    m_ChoiceButtonWidth = 110;
+    m_RangeButtonWidth = 10;
+    m_InputWidth = 60;
+    m_SliderWidth = 110;
+
+}
+
+
+//==== Destructor ====//
+GroupLayout::~GroupLayout()
+{
+}
+
+//==== Hide Group ====//
+void GroupLayout::Hide()
+{
+    if ( m_Group )
+    {
+        m_Group->hide();
+    }
+}
+
+//==== Show Group ====//
+void GroupLayout::Show()
+{
+    if ( m_Group )
+    {
+        m_Group->show();
+    }
+}
+
+//==== Get Ramaing X ======//
+int GroupLayout::GetRemainX()
+{
+    return ( m_W + m_StartX ) - m_X;
+}
+
+//==== Get Ramaing Y ======//
+int GroupLayout::GetRemainY()
+{
+    return ( m_H + m_StartY ) - m_Y;
+}
+
+//==== Add To X Position ======//
+void GroupLayout::AddX( int offset )
+{
+    m_X += offset;
+}
+
+//==== Set X For NewLine ====//
+void GroupLayout::NewLineX()
+{
+    if ( !m_SameLineFlag )
+    {
+        m_X = m_Group->x();
+    }
+}
+
+//==== Set X And Y For NewLine Ignore Flags ====//
+void GroupLayout::ForceNewLine()
+{
+    m_X = m_Group->x();
+    m_Y += m_StdHeight;
+}
+
+//==== Add To Y Position ======//
+void GroupLayout::AddY( int offset )
+{
+    if ( !m_SameLineFlag )
+    {
+        m_Y += offset;
+    }
+}
+
+//==== Compute Width ======//
+int GroupLayout::FitWidth( int used_w, int default_w )
+{
+    int w = default_w;
+    if ( m_FitWidthFlag )
+    {
+        w = m_Group->w() -  used_w;
+
+        Fl_Scroll* s = dynamic_cast< Fl_Scroll* >( m_Group );
+
+        if ( s == NULL ) // Group is not a Fl_Scroll
+        {
+            return w;
+        }
+
+        int sw = s->scrollbar_size();
+
+        if ( sw == 0 )  // Check size, if zero, global size is used.
+        {
+            sw = Fl::scrollbar_size();
+        }
+
+        w = w - sw;
+    }
+
+    return w;
+}
+
+
+//==== Set Group Ptr ====//
+void GroupLayout::SetGroup( Fl_Group* group )
+{
+    m_Group = group;
+    m_StartX = m_Group->x();
+    m_StartY = m_Group->y();
+    m_X = m_StartX;
+    m_Y = m_StartY;
+    m_W = m_Group->w();
+    m_H = m_Group->h();
+}
+//==== Set Group And Screen ====//
+void GroupLayout::SetGroupAndScreen( Fl_Group* group, VspScreen* screen )
+{
+    SetGroup( group );
+    SetScreen( screen );
+}
+
+//==== Add Standard Parm Button With Label ====//
+Fl_Button* GroupLayout::AddParmButton( const char* label )
+{
+    Fl_Button* button = new Fl_Button( m_X, m_Y, m_ButtonWidth, m_StdHeight, label );
+    button->box( FL_THIN_UP_BOX );
+    button->labelfont( 1 );
+    button->labelsize( 12 );
+    button->labelcolor( FL_BLACK );
+    m_Group->add( button );
+    AddX( m_ButtonWidth );
+
+    return button;
+}
+
+
+//==== Create & Init Gui Slider Adjustable Range  ====//
+void GroupLayout::AddSlider( SliderAdjRangeInput& slid_adj_input,
+                             const char* label, double range, const char* format )
+{
+    assert( m_Group && m_Screen );
+
+    //==== Parm Button ====//
+    Fl_Button* button = AddParmButton( label );
+
+    //==== Range Button ====//
+    Fl_Repeat_Button* lbutton = new Fl_Repeat_Button( m_X, m_Y, m_RangeButtonWidth, m_StdHeight, "<" );
+    lbutton->box( FL_THIN_UP_BOX );
+    lbutton->labelcolor( ( Fl_Color )4 );
+    m_Group->add( lbutton );
+    AddX( m_RangeButtonWidth );
+
+    //==== Slider ====//
+    int sw = FitWidth( m_ButtonWidth + 2 * m_RangeButtonWidth + m_InputWidth, m_SliderWidth );
+    Fl_Slider* slider = new Fl_Slider( m_X, m_Y, sw, m_StdHeight );
+    slider->type( 5 );
+    slider->box( FL_THIN_DOWN_BOX );
+    slider->color( FL_BACKGROUND2_COLOR );
+    slider->selection_color( FL_SELECTION_COLOR );
+    m_Group->add( slider );
+    AddX( sw );
+
+    //==== Range Button ====//
+    Fl_Repeat_Button* rbutton = new Fl_Repeat_Button( m_X, m_Y,  m_RangeButtonWidth, m_StdHeight, "<" );
+    rbutton->box( FL_THIN_UP_BOX );
+    rbutton->labelcolor( ( Fl_Color )4 );
+    m_Group->add( rbutton );
+    AddX( m_RangeButtonWidth );
+
+    //==== Input ====//
+    Fl_Float_Input* input = new Fl_Float_Input( m_X, m_Y, m_InputWidth, m_StdHeight );
+    input->type( 1 );
+    input->box( FL_THIN_DOWN_BOX );
+    input->textsize( 12 );
+    input->when( FL_WHEN_ENTER_KEY );
+    m_Group->add( input );
+    AddX( m_InputWidth );
+
+    AddY( m_StdHeight );
+    NewLineX();
+
+    slid_adj_input.Init( m_Screen, slider, lbutton, rbutton, input, range, format, button );
+
+    if( strcmp( label, "AUTO_UPDATE" ) == 0 )
+    {
+        slid_adj_input.SetButtonNameUpdate( true );
+    }
+}
+
+//==== Create & Init Gui Slider Adjustable Range  ====//
+void GroupLayout::AddSlider( SliderAdjRange2Input& slid_adj_input,
+                             const char* label, double range, const char* format )
+{
+    assert( m_Group && m_Screen );
+
+    //==== Parm Button ====//
+    Fl_Button* button = AddParmButton( label );
+
+    //==== Range Button ====//
+    Fl_Repeat_Button* lbutton = new Fl_Repeat_Button( m_X, m_Y, m_RangeButtonWidth, m_StdHeight, "<" );
+    lbutton->box( FL_THIN_UP_BOX );
+    lbutton->labelcolor( ( Fl_Color )4 );
+    m_Group->add( lbutton );
+    AddX( m_RangeButtonWidth );
+
+    //==== Slider ====//
+    int sw = FitWidth( m_ButtonWidth + 2 * m_RangeButtonWidth + 2 * m_InputWidth, m_SliderWidth );
+    Fl_Slider* slider = new Fl_Slider( m_X, m_Y, sw, m_StdHeight );
+    slider->type( 5 );
+    slider->box( FL_THIN_DOWN_BOX );
+    slider->color( FL_BACKGROUND2_COLOR );
+    slider->selection_color( FL_SELECTION_COLOR );
+    m_Group->add( slider );
+    AddX( sw );
+
+    //==== Range Button ====//
+    Fl_Repeat_Button* rbutton = new Fl_Repeat_Button( m_X, m_Y,  m_RangeButtonWidth, m_StdHeight, "<" );
+    rbutton->box( FL_THIN_UP_BOX );
+    rbutton->labelcolor( ( Fl_Color )4 );
+    m_Group->add( rbutton );
+    AddX( m_RangeButtonWidth );
+
+    //==== Input ====//
+    Fl_Float_Input* input1 = new Fl_Float_Input( m_X, m_Y, m_InputWidth, m_StdHeight );
+    input1->type( 1 );
+    input1->box( FL_THIN_DOWN_BOX );
+    input1->textsize( 12 );
+    input1->when( FL_WHEN_ENTER_KEY );
+    m_Group->add( input1 );
+    AddX( m_InputWidth );
+
+    Fl_Float_Input* input2 = new Fl_Float_Input( m_X, m_Y, m_InputWidth, m_StdHeight );
+    input2->type( 1 );
+    input2->box( FL_THIN_DOWN_BOX );
+    input2->textsize( 12 );
+    input2->when( FL_WHEN_ENTER_KEY );
+    m_Group->add( input2 );
+    AddX( m_InputWidth );
+
+    AddY( m_StdHeight );
+    NewLineX();
+
+    slid_adj_input.Init( m_Screen, slider, lbutton, rbutton, input1, input2, range, format, button );
+
+    if( strcmp( label, "AUTO_UPDATE" ) == 0 )
+    {
+        slid_adj_input.SetButtonNameUpdate( true );
+    }
+}
+
+//==== Create & Init Gui Slider Adjustable Range  ====//
+void GroupLayout::AddSlider( FractParmSlider& slid_adj_input,
+                             const char* label, double range, const char* format )
+{
+    assert( m_Group && m_Screen );
+
+    //==== Parm Button ====//
+    Fl_Button* button = AddParmButton( label );
+
+    //==== Range Button ====//
+    Fl_Repeat_Button* lbutton = new Fl_Repeat_Button( m_X, m_Y, m_RangeButtonWidth, m_StdHeight, "<" );
+    lbutton->box( FL_THIN_UP_BOX );
+    lbutton->labelcolor( ( Fl_Color )4 );
+    m_Group->add( lbutton );
+    AddX( m_RangeButtonWidth );
+
+    //==== Slider ====//
+    int sw = FitWidth( m_ButtonWidth + 2 * m_RangeButtonWidth + 2 * m_InputWidth, m_SliderWidth );
+    Fl_Slider* slider = new Fl_Slider( m_X, m_Y, sw, m_StdHeight );
+    slider->type( 5 );
+    slider->box( FL_THIN_DOWN_BOX );
+    slider->color( FL_BACKGROUND2_COLOR );
+    slider->selection_color( FL_SELECTION_COLOR );
+    m_Group->add( slider );
+    AddX( sw );
+
+    //==== Range Button ====//
+    Fl_Repeat_Button* rbutton = new Fl_Repeat_Button( m_X, m_Y,  m_RangeButtonWidth, m_StdHeight, "<" );
+    rbutton->box( FL_THIN_UP_BOX );
+    rbutton->labelcolor( ( Fl_Color )4 );
+    m_Group->add( rbutton );
+    AddX( m_RangeButtonWidth );
+
+    //==== Input ====//
+    Fl_Float_Input* input1 = new Fl_Float_Input( m_X, m_Y, m_InputWidth, m_StdHeight );
+    input1->type( 1 );
+    input1->box( FL_THIN_DOWN_BOX );
+    input1->textsize( 12 );
+    input1->when( FL_WHEN_ENTER_KEY );
+    m_Group->add( input1 );
+    AddX( m_InputWidth );
+
+    Fl_Float_Input* input2 = new Fl_Float_Input( m_X, m_Y, m_InputWidth, m_StdHeight );
+    input2->type( 1 );
+    input2->box( FL_THIN_DOWN_BOX );
+    input2->textsize( 12 );
+    input2->when( FL_WHEN_ENTER_KEY );
+    m_Group->add( input2 );
+    AddX( m_InputWidth );
+
+    AddY( m_StdHeight );
+    NewLineX();
+
+    slid_adj_input.Init( m_Screen, slider, lbutton, rbutton, input1, input2, range, format, button );
+
+    if( strcmp( label, "AUTO_UPDATE" ) == 0 )
+    {
+        slid_adj_input.SetButtonNameUpdate( true );
+    }
+}
+
+
+//==== Create & Init Gui Slider Input  ====//
+void GroupLayout::AddSlider( SliderInput& slider_input, const char* label, double range, const char* format )
+{
+    assert( m_Group && m_Screen );
+
+    //==== Parm Button ====//
+    Fl_Button* button = AddParmButton( label );
+
+    //==== Slider ====//
+    int sw = FitWidth( m_ButtonWidth + m_InputWidth, m_SliderWidth );
+    Fl_Slider* slider = new Fl_Slider( m_X, m_Y, sw, m_StdHeight );
+    slider->type( 5 );
+    slider->box( FL_THIN_DOWN_BOX );
+    slider->color( FL_BACKGROUND2_COLOR );
+    slider->selection_color( FL_SELECTION_COLOR );
+    m_Group->add( slider );
+    AddX( sw );
+
+    //==== Input ====//
+    Fl_Float_Input* input = new Fl_Float_Input( m_X, m_Y,  m_InputWidth, m_StdHeight );
+    input->type( 1 );
+    input->box( FL_THIN_DOWN_BOX );
+    input->textsize( 12 );
+    input->when( FL_WHEN_ENTER_KEY );
+    m_Group->add( input );
+    AddX( m_InputWidth );
+
+    AddY( m_StdHeight );
+    NewLineX();
+
+    slider_input.Init( m_Screen, slider, input, range, format, button );
+
+    if( strcmp( label, "AUTO_UPDATE" ) == 0 )
+    {
+        slider_input.SetButtonNameUpdate( true );
+    }
+}
+
+//==== Create & Init Gui CheckButton  ====//
+void GroupLayout::AddButton( CheckButton& cbutton, const char* label )
+{
+    assert( m_Group && m_Screen );
+
+    //==== Add Check Button ====//
+    int bw = FitWidth( 0, m_ButtonWidth );
+    Fl_Check_Button* flbutton = new Fl_Check_Button( m_X, m_Y, bw, m_StdHeight, label );
+    flbutton->box( FL_DOWN_BOX );
+    flbutton->down_box( FL_DOWN_BOX );
+    flbutton->labelfont( 1 );
+    flbutton->labelsize( 12 );
+    flbutton->labelcolor( FL_DARK_BLUE );
+    m_Group->add( flbutton );
+    AddX( bw );
+
+    AddY( m_StdHeight );
+    NewLineX();
+
+    cbutton.Init( m_Screen, flbutton );
+}
+
+//==== Create & Init Gui ToggleButton  ====//
+void GroupLayout::AddButton( ToggleButton& tbutton, const char* label )
+{
+    assert( m_Group && m_Screen );
+
+    //==== Add Check Button ====//
+    int bw = FitWidth( 0, m_ButtonWidth );
+    Fl_Light_Button* flbutton = new Fl_Light_Button( m_X, m_Y, bw, m_StdHeight, label );
+    flbutton->labelfont( 1 );
+    flbutton->labelsize( 12 );
+    flbutton->align( Fl_Align( 132 | FL_ALIGN_INSIDE ) );
+    flbutton->labelcolor( FL_DARK_BLUE );
+    m_Group->add( flbutton );
+    AddX( bw );
+
+    AddY( m_StdHeight );
+    NewLineX();
+
+    tbutton.Init( m_Screen, flbutton );
+}
+
+//==== Create & Init Gui ToggleButton  ====//
+void GroupLayout::AddButton( CheckButtonBit& cbutton, const char* label, int value )
+{
+    assert( m_Group && m_Screen );
+
+    //==== Add Check Button ====//
+    int bw = FitWidth( 0, m_ButtonWidth );
+    Fl_Light_Button* flbutton = new Fl_Light_Button( m_X, m_Y, bw, m_StdHeight, label );
+    flbutton->labelfont( 1 );
+    flbutton->labelsize( 12 );
+    flbutton->align( Fl_Align( 132 | FL_ALIGN_INSIDE ) );
+    flbutton->labelcolor( FL_DARK_BLUE );
+    m_Group->add( flbutton );
+    AddX( bw );
+
+    AddY( m_StdHeight );
+    NewLineX();
+
+    cbutton.Init( m_Screen, flbutton, value );
+}
+
+
+//==== Create & Init Gui TriggerButton  ====//
+void GroupLayout::AddButton( TriggerButton& tbutton, const char* label )
+{
+    assert( m_Group && m_Screen );
+
+    //==== Add Check Button ====//
+    int bw = FitWidth( 0, m_ButtonWidth );
+    Fl_Button* flbutton = new Fl_Button( m_X, m_Y, bw, m_StdHeight, label );
+    flbutton->labelfont( 1 );
+    flbutton->labelsize( 12 );
+    flbutton->labelcolor( FL_DARK_BLUE );
+    m_Group->add( flbutton );
+    AddX( bw );
+
+    AddY( m_StdHeight );
+    NewLineX();
+
+    tbutton.Init( m_Screen, flbutton );
+}
+
+//==== Create & Init Box Divider  ====//
+void GroupLayout::AddDividerBox( const string& text )
+{
+    assert( m_Group && m_Screen );
+
+    //==== Add Divider Box ====//
+    int dw = FitWidth( 0, m_ButtonWidth );
+
+    Fl_Box* flbox = new Fl_Box( m_X, m_Y, dw, m_DividerHeight );
+    flbox->box( FL_BORDER_BOX );
+    flbox->color( ( Fl_Color )12 );
+    flbox->labelfont( 1 );
+    flbox->labelcolor( FL_BACKGROUND2_COLOR );
+    flbox->copy_label( text.c_str() );
+    m_Group->add( flbox );
+    AddX( dw );
+
+    AddY( m_DividerHeight );
+    NewLineX();
+}
+
+//==== Create & Init Text Input  ====//
+void GroupLayout::AddInput( StringInput& text_input, const char* label )
+{
+    assert( m_Group && m_Screen );
+
+    //==== Button ====//
+    Fl_Button* button = AddParmButton( label );
+
+    //==== Add Text Input ====//
+    int iw = FitWidth( m_ButtonWidth, m_InputWidth );
+    Fl_Input* input = new Fl_Input( m_X, m_Y, iw, m_StdHeight );
+    input->box( FL_THIN_DOWN_BOX );
+    input->textsize( 12 );
+    input->when( FL_WHEN_ENTER_KEY );
+    m_Group->add( input );
+    AddX( iw );
+
+    AddY( m_StdHeight );
+    NewLineX();
+
+    text_input.Init( m_Screen, input );
+}
+
+//==== Create & Init Text Output  ====//
+void GroupLayout::AddOutput( StringOutput& string_output, const char* label )
+{
+    assert( m_Group && m_Screen );
+
+    //==== Button ====//
+    Fl_Button* button = AddParmButton( label );
+
+    //==== Add Text Input ====//
+    int iw = FitWidth( m_ButtonWidth, m_InputWidth );
+    Fl_Output* output = new Fl_Output( m_X, m_Y, iw, m_StdHeight );
+    output->color( ( Fl_Color )23 );
+    output->labelfont( 1 );
+    output->labelsize( 12 );
+    output->textfont( 1 );
+    output->textsize( 12 );
+    m_Group->add( output );
+    AddX( iw );
+
+    AddY( m_StdHeight );
+    NewLineX();
+
+    string_output.Init( m_Screen, output );
+}
+
+
+//==== Create & Init Float Input  ====//
+void GroupLayout::AddInput( Input& input, const char* label, const char* format )
+{
+    assert( m_Group && m_Screen );
+
+    //==== Parm Button ====//
+    Fl_Button* button = AddParmButton( label );
+
+    //==== Add Text Input ====//
+    int iw = FitWidth( m_ButtonWidth, m_InputWidth );
+    Fl_Input* flinput = new Fl_Input( m_X, m_Y, iw, m_StdHeight );
+    flinput->type( 1 );
+    flinput->box( FL_THIN_DOWN_BOX );
+    flinput->textsize( 12 );
+    flinput->when( FL_WHEN_ENTER_KEY );
+    m_Group->add( flinput );
+    AddX( iw );
+
+    AddY( m_StdHeight );
+    NewLineX();
+
+    input.Init( m_Screen, flinput, format );
+}
+
+//==== Create & Init Index Selector  ====//
+void GroupLayout::AddIndexSelector( IndexSelector& selector )
+{
+    assert( m_Group && m_Screen );
+
+    int butw = 5 * m_ButtonWidth / 6;
+
+    Fl_Button* but_ll = new Fl_Button( m_X, m_Y, butw, m_StdHeight, "<<" );
+    but_ll->box( FL_THIN_UP_BOX );
+    but_ll->labelfont( 1 );
+    but_ll->labelsize( 20 );
+    but_ll->labelcolor( ( Fl_Color )4 );
+    but_ll->align( Fl_Align( FL_ALIGN_CLIP ) );
+
+    AddX( butw );
+
+    Fl_Button* but_l = new Fl_Button( m_X, m_Y, butw, m_StdHeight, "<" );
+    but_l->box( FL_THIN_UP_BOX );
+    but_l->labelfont( 1 );
+    but_l->labelsize( 20 );
+    but_l->labelcolor( ( Fl_Color )4 );
+    but_l->align( Fl_Align( FL_ALIGN_CLIP ) );
+
+    AddX( butw );
+
+    int iw = FitWidth( 4 * butw, m_InputWidth );
+
+    Fl_Int_Input* int_inp = new Fl_Int_Input( m_X + 4, m_Y, iw - 8, m_StdHeight );
+    int_inp->type( 2 );
+    int_inp->box( FL_THIN_DOWN_BOX );
+    int_inp->labelfont( 1 );
+    int_inp->textsize( 14 );
+    int_inp->align( Fl_Align( FL_ALIGN_CENTER ) );
+    int_inp->when( FL_WHEN_ENTER_KEY );
+
+    AddX( iw );
+
+    Fl_Button* but_r = new Fl_Button( m_X, m_Y, butw, m_StdHeight, ">" );
+    but_r->box( FL_THIN_UP_BOX );
+    but_r->labelfont( 1 );
+    but_r->labelsize( 20 );
+    but_r->labelcolor( ( Fl_Color )4 );
+    but_r->align( Fl_Align( FL_ALIGN_CLIP ) );
+
+    AddX( butw );
+
+    Fl_Button* but_rr = new Fl_Button( m_X, m_Y, butw, m_StdHeight, ">>" );
+    but_rr->box( FL_THIN_UP_BOX );
+    but_rr->labelfont( 1 );
+    but_rr->labelsize( 20 );
+    but_rr->labelcolor( ( Fl_Color )4 );
+    but_rr->align( Fl_Align( FL_ALIGN_CLIP ) );
+
+    AddX( butw );
+
+    selector.Init( m_Screen, but_ll, but_l, int_inp, but_r, but_rr );
+
+    AddY( m_StdHeight );
+    NewLineX();
+}
+
+//==== Add Color Picker ====//
+void GroupLayout::AddColorPicker( ColorPicker& picker )
+{
+    assert( m_Group && m_Screen );
+
+    //==== Button ====//
+    Fl_Button* colorButton = new Fl_Button( m_X, m_Y, m_ButtonWidth, m_StdHeight * 2, "Color:" );
+    colorButton->box( FL_THIN_UP_BOX );
+    colorButton->labelfont( 1 );
+    colorButton->labelsize( 12 );
+    colorButton->labelcolor( FL_BLACK );
+    m_Group->add( colorButton );
+    AddX( m_ButtonWidth );
+
+    //==== Current Color Button ====//
+    Fl_Button* primColorButton = new Fl_Button( m_X, m_Y, m_ButtonWidth / 2, m_StdHeight * 2 );
+    primColorButton->box( FL_THIN_DOWN_BOX );
+    primColorButton->color( ( Fl_Color )2 );
+    m_Group->add( primColorButton );
+    AddX( m_ButtonWidth / 2 + 2 );
+
+    //==== Sliders ====//
+    int ch = 2 * m_StdHeight / 3;
+    int cw = m_StdHeight;
+
+    int sw = FitWidth( m_ButtonWidth + m_ButtonWidth / 2 + 2 + 4 * cw, m_SliderWidth );
+    Fl_Slider* sliders[3];
+    for ( int i = 0 ; i < 3 ; i++ )
+    {
+        sliders[i] = new Fl_Value_Slider( m_X, m_Y + i * ch, sw, ch );
+        sliders[i]->type( 5 );
+        sliders[i]->color( FL_BACKGROUND2_COLOR );
+        sliders[i]->selection_color( ( Fl_Color )1 );
+        sliders[i]->maximum( 255 );
+        sliders[i]->step( 1 );
+        m_Group->add( sliders[i] );
+    }
+    sliders[0]->selection_color( ( Fl_Color )1 );
+    sliders[1]->selection_color( ( Fl_Color )2 );
+    sliders[2]->selection_color( ( Fl_Color )4 );
+    AddX( sw + 2 );
+
+    //==== Color Buttons ====//
+    vector< Fl_Button* > cvec;
+    int color_index = 0;
+    for ( int i = 0 ; i < 4 ; i++ )
+    {
+        for ( int j = 0 ; j < 3 ; j++ )
+        {
+            Fl_Button* b = new Fl_Button( m_X + i * cw, m_Y + j * ch, cw, ch );
+            vec3d rgb = picker.GetIndexRGB( color_index );
+            Fl_Color c = fl_rgb_color( ( int )rgb[0], ( int )rgb[1], ( int )rgb[2] );
+            b->color( c );
+            m_Group->add( b );
+            cvec.push_back( b );
+            color_index++;
+        }
+    }
+    AddX( 3 * cw );
+
+    picker.Init( m_Screen, colorButton, primColorButton, cvec, sliders );
+
+    AddY( m_StdHeight * 2 );
+    NewLineX();
+}
+
+//==== Create & Init Choice  ====//
+void GroupLayout::AddChoice( Choice & choice, const char* label )
+{
+    assert( m_Group && m_Screen );
+
+    //==== Choice Button ====//
+    Fl_Button* button = new Fl_Button( m_X, m_Y, m_ChoiceButtonWidth, m_StdHeight, label );
+    button->box( FL_THIN_UP_BOX );
+    button->labelfont( 1 );
+    button->labelsize( 12 );
+    button->labelcolor( FL_BLACK );
+    m_Group->add( button );
+    AddX( m_ChoiceButtonWidth );
+
+    //==== Choice Picker ====//
+    int choice_w = FitWidth( m_ChoiceButtonWidth, m_SliderWidth );
+    Fl_Choice* fl_choice = new Fl_Choice( m_X, m_Y, choice_w, m_StdHeight );
+    fl_choice->down_box( FL_BORDER_BOX );
+    fl_choice->textfont( 1 );
+    fl_choice->textsize( 12 );
+    fl_choice->textcolor( FL_DARK_BLUE );
+    m_Group->add( fl_choice );
+    AddX( choice_w );
+
+    //==== Add Choice Text ===//
+    vector< string > choice_vec = choice.GetItems();
+    for ( int i = 0 ; i < ( int )choice_vec.size() ; i++ )
+    {
+        fl_choice->add( choice_vec[i].c_str() );
+    }
+    fl_choice->value( 0 );
+
+    choice.Init( m_Screen, fl_choice, button );
+
+    if( strcmp( label, "AUTO_UPDATE" ) == 0 )
+    {
+        choice.SetButtonNameUpdate( true );
+    }
+
+    AddY( m_StdHeight );
+    NewLineX();
+
+}
+
+//==== Add Sub Group Layout At Current Position  ====//
+void GroupLayout::AddCounter( Counter & count, const char* label )
+{
+    assert( m_Group && m_Screen );
+
+    //==== Counter Button ====//
+    Fl_Button* button = AddParmButton( label );
+    button->align( Fl_Align( FL_ALIGN_CLIP ) );
+
+    //==== Counter ====//
+    int counter_w = FitWidth( m_ButtonWidth, m_SliderWidth );
+    Fl_Counter* fl_counter = new Fl_Counter( m_X, m_Y, counter_w, m_StdHeight );
+    fl_counter->type( FL_SIMPLE_COUNTER );
+    fl_counter->minimum( 0 );
+    fl_counter->maximum( 10 );
+    fl_counter->step( 1 );
+    m_Group->add( fl_counter );
+
+    AddX( counter_w );
+
+    count.Init( m_Screen, fl_counter );
+
+    AddY( m_StdHeight );
+    NewLineX();
+
+}
+
+//==== Add Sub Group Layout At Current Position  ====//
+void GroupLayout::AddSubGroupLayout( GroupLayout& layout, int w, int h )
+{
+    Fl_Group* grp = new Fl_Group( m_X, m_Y, w, h );
+    m_Group->add( grp );
+    layout.SetGroupAndScreen( grp,  m_Screen );
+}
+
+//==== Add Fl_CheckBrowser ====//
+Fl_Check_Browser* GroupLayout::AddCheckBrowser( int h )
+{
+    int w = FitWidth( 0, m_DividerHeight );
+
+    Fl_Check_Browser* check_browser = new Fl_Check_Browser( m_X, m_Y, w, h );
+    check_browser->labelfont( 1 );
+    check_browser->textsize( 12 );
+    check_browser->when( FL_WHEN_RELEASE );
+    m_Group->add( check_browser );
+    AddX( w );
+
+    AddY( m_StdHeight );
+    NewLineX();
+
+    return check_browser;
+}
+
+
+//==== Add Label ====//
+void GroupLayout::AddLabel( const char* label, int width )
+{
+
+    Fl_Button* button = new Fl_Button( m_X, m_Y, width, m_StdHeight, label );
+    button->box( FL_THIN_UP_BOX );
+    button->labelfont( 1 );
+    button->labelsize( 12 );
+    button->labelcolor( FL_BLACK );
+    m_Group->add( button );
+    AddX( width );
+}
+
+//==== Add Parameter Picker ====//
+void GroupLayout::AddParmPicker( ParmPicker & parm_picker )
+{
+
+    assert( m_Group && m_Screen );
+
+    //==== Container Button ====//
+    Fl_Button* button = new Fl_Button( m_X, m_Y, m_ChoiceButtonWidth, m_StdHeight, "Container" );
+    button->box( FL_THIN_UP_BOX );
+    button->labelfont( 1 );
+    button->labelsize( 12 );
+    button->labelcolor( FL_BLACK );
+    m_Group->add( button );
+    AddX( m_ChoiceButtonWidth );
+
+    //==== Container Picker ====//
+    int choice_w = FitWidth( m_ChoiceButtonWidth, m_SliderWidth );
+    Fl_Choice* container_choice = new Fl_Choice( m_X, m_Y, choice_w, m_StdHeight );
+    container_choice->down_box( FL_BORDER_BOX );
+    container_choice->textfont( 1 );
+    container_choice->textsize( 12 );
+    container_choice->textcolor( FL_DARK_BLUE );
+    m_Group->add( container_choice );
+    AddX( choice_w );
+
+    AddY( m_StdHeight );
+    NewLineX();
+
+    //==== Group Button ====//
+    button = new Fl_Button( m_X, m_Y, m_ChoiceButtonWidth, m_StdHeight, "Group" );
+    button->box( FL_THIN_UP_BOX );
+    button->labelfont( 1 );
+    button->labelsize( 12 );
+    button->labelcolor( FL_BLACK );
+    m_Group->add( button );
+    AddX( m_ChoiceButtonWidth );
+
+    //==== Group Picker ====//
+    choice_w = FitWidth( m_ChoiceButtonWidth, m_SliderWidth );
+    Fl_Choice* group_choice = new Fl_Choice( m_X, m_Y, choice_w, m_StdHeight );
+    group_choice->down_box( FL_BORDER_BOX );
+    group_choice->textfont( 1 );
+    group_choice->textsize( 12 );
+    group_choice->textcolor( FL_DARK_BLUE );
+    m_Group->add( group_choice );
+    AddX( choice_w );
+
+    AddY( m_StdHeight );
+    NewLineX();
+
+    //==== Parm Button ====//
+    button = new Fl_Button( m_X, m_Y, m_ChoiceButtonWidth, m_StdHeight, "Parm" );
+    button->box( FL_THIN_UP_BOX );
+    button->labelfont( 1 );
+    button->labelsize( 12 );
+    button->labelcolor( FL_BLACK );
+    m_Group->add( button );
+    AddX( m_ChoiceButtonWidth );
+
+    //==== Parm Picker ====//
+    choice_w = FitWidth( m_ChoiceButtonWidth, m_SliderWidth );
+    Fl_Choice* parm_choice = new Fl_Choice( m_X, m_Y, choice_w, m_StdHeight );
+    parm_choice->down_box( FL_BORDER_BOX );
+    parm_choice->textfont( 1 );
+    parm_choice->textsize( 12 );
+    parm_choice->textcolor( FL_DARK_BLUE );
+    m_Group->add( parm_choice );
+    AddX( choice_w );
+
+    AddY( m_StdHeight );
+    NewLineX();
+
+    parm_picker.Init( m_Screen, container_choice, group_choice, parm_choice );
+
+}

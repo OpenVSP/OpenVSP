@@ -1,0 +1,8 @@
+--style=break
+--pad-oper
+--pad-paren-in
+--add-brackets
+--convert-tabs
+--suffix=none
+--indent=spaces=4
+--lineend=linux

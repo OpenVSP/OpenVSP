@@ -1,0 +1,90 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+
+PROJECT (VSP)
+
+# Use this to see the command that CMake is using to build code
+#SET(CMAKE_VERBOSE_MAKEFILE   ON  CACHE BOOL "" FORCE)
+
+# add the OpenVSP specific cmake files to module path
+set(CMAKE_MODULE_PATH ${VSP_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
+
+INCLUDE( VSP_Version )
+
+INCLUDE( SetupC++11 )
+
+IF( VSP_LIBRARY_PATH )
+	INCLUDE( ${VSP_LIBRARY_PATH}/Vsp_Libraries_Config.cmake )
+ENDIF( VSP_LIBRARY_PATH )
+
+IF(WIN32)
+    ADD_DEFINITIONS(/D _CRT_SECURE_NO_WARNINGS)
+ENDIF(WIN32)
+
+INCLUDE( Today )
+TODAY( VSPDATE )
+
+FIND_PACKAGE( Doxygen )
+IF( DOXYGEN_FOUND )
+    CONFIGURE_FILE(
+        ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in
+        ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY
+    )
+    ADD_CUSTOM_TARGET( doc
+        ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        COMMENT "Generating API documentation with Doxygen" VERBATIM
+    )
+ENDIF( DOXYGEN_FOUND )
+
+
+CONFIGURE_FILE(
+      ${VSP_SOURCE_DIR}/vsp/main.h.in
+      ${VSP_BINARY_DIR}/main.h
+)
+INCLUDE_DIRECTORIES( ${VSP_BINARY_DIR} )
+
+ADD_SUBDIRECTORY( external )
+
+# INCLUDE( IdentifyLibs )  # Debugging to confirm which libraries are set.
+
+IF( NOT VSP_NO_GRAPHICS )
+	ADD_SUBDIRECTORY( load_jpg )
+	ADD_SUBDIRECTORY( vsp_graphic )
+	ADD_SUBDIRECTORY( fltk_screens )
+ENDIF()
+
+ADD_SUBDIRECTORY( util )
+ADD_SUBDIRECTORY( xmlvsp )
+ADD_SUBDIRECTORY( geom_core )
+ADD_SUBDIRECTORY( cfd_mesh_stuff )
+
+IF( NOT VSP_NO_GRAPHICS )
+	ADD_SUBDIRECTORY( gui_and_draw )
+ENDIF()
+
+ADD_SUBDIRECTORY( geom_api )
+ADD_SUBDIRECTORY( vsp )
+ADD_SUBDIRECTORY( python_api )
+
+
+SET( CPACK_GENERATOR ZIP )
+SET( CPACK_PACKAGE_NAME OpenVSP )
+SET( CPACK_PACKAGE_VERSION_MAJOR ${VSPVER_MAJOR} )
+SET( CPACK_PACKAGE_VERSION_MINOR ${VSPVER_MINOR} )
+SET( CPACK_PACKAGE_VERSION_PATCH ${VSPVER_PATCH} )
+
+IF( APPLE )
+     SET( CPACK_SYSTEM_NAME MacOS )
+ENDIF( APPLE )
+
+INCLUDE( CPack )
+
+#INSTALL( DIRECTORY ../examples/airfoil/ DESTINATION airfoil )
+#INSTALL( DIRECTORY ../examples/cabin/ DESTINATION cabin )
+#INSTALL( DIRECTORY ../examples/fuselage/ DESTINATION fuselage )
+#INSTALL( DIRECTORY ../examples/models/ DESTINATION models )
+#INSTALL( DIRECTORY ../examples/textures/ DESTINATION textures )
+#INSTALL( FILES ../examples/setup/VspPreferences.xml DESTINATION . )
+#INSTALL( FILES ../examples/models/BWB_Def.vsp DESTINATION Defaults )
+INSTALL( FILES ../LICENSE DESTINATION . )
+INSTALL( FILES ../README DESTINATION . )

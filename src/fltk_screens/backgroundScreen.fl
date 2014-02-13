@@ -1,0 +1,88 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0103 
+header_name {.h} 
+code_name {.cxx}
+class BackgroundUI {open
+} {
+  Function {BackgroundUI()} {open
+  } {
+    Fl_Window UIWindow {
+      label Background open selected
+      xywh {659 167 210 282} color 29 labelfont 1 resizable visible
+    } {
+      Fl_Box {} {
+        label Background
+        xywh {5 5 200 16} box ROUNDED_BOX labelfont 1 labelsize 16 labelcolor 15
+      }
+      Fl_Value_Slider redSlider {
+        xywh {70 25 135 20} type {Horz Knob} color 7 selection_color 1 maximum 255 step 1
+      }
+      Fl_Value_Slider greenSlider {
+        xywh {70 45 135 20} type {Horz Knob} color 7 selection_color 2 maximum 255 step 1
+      }
+      Fl_Value_Slider blueSlider {
+        xywh {70 65 135 20} type {Horz Knob} color 7 selection_color 4 maximum 255 step 1
+      }
+      Fl_Light_Button colorBackButton {
+        label Color
+        xywh {5 25 60 60} labelfont 1
+      }
+      Fl_Light_Button jpegBackButton {
+        label {JPEG Image}
+        xywh {5 115 200 20} labelfont 1
+      }
+      Fl_Box {} {
+        label Image
+        xywh {5 95 200 15} box BORDER_BOX labelfont 1 labelcolor 15
+      }
+      Fl_Input wScaleInput {
+        xywh {155 145 50 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+      }
+      Fl_Button {} {
+        label {W Scale}
+        xywh {5 145 65 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+      }
+      Fl_Input hScaleInput {
+        xywh {155 165 50 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+      }
+      Fl_Button {} {
+        label {H Scale}
+        xywh {5 165 65 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+      }
+      Fl_Light_Button preserveAspectButton {
+        label {Preserve Aspect}
+        xywh {5 185 200 20} labelfont 1
+      }
+      Fl_Input xOffsetInput {
+        xywh {155 210 50 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+      }
+      Fl_Button {} {
+        label {X Offset}
+        xywh {5 210 65 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+      }
+      Fl_Input yOffsetInput {
+        xywh {155 230 50 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
+      }
+      Fl_Button {} {
+        label {Y Offset}
+        xywh {5 230 65 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+      }
+      Fl_Slider wScaleSlider {
+        xywh {70 145 85 20} type {Horz Knob}
+      }
+      Fl_Slider hScaleSlider {
+        xywh {70 165 85 20} type {Horz Knob}
+      }
+      Fl_Slider xOffsetSlider {
+        xywh {70 210 85 20} type {Horz Knob}
+      }
+      Fl_Slider yOffsetSlider {
+        xywh {70 230 85 20} type {Horz Knob}
+      }
+      Fl_Button resetDefaultsButton {
+        label {Reset Defaults}
+        xywh {5 255 200 20} labelfont 1
+      }
+    }
+  }
+} 

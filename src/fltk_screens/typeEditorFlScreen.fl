@@ -1,0 +1,44 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0300 
+header_name {.h} 
+code_name {.cxx}
+class TypeEditorUI {open
+} {
+  Function {TypeEditorUI()} {open
+  } {
+    Fl_Window UIWindow {
+      label {Type Editor} open
+      xywh {596 181 210 244} type Double color 29 resizable visible
+    } {
+      Fl_Box {} {
+        label {Geom Type Editor}
+        xywh {5 5 200 16} box ROUNDED_BOX labelfont 1 labelsize 16 labelcolor 15
+      }
+      Fl_Browser typeBrowser {
+        xywh {5 63 200 127} type Hold textsize 12
+      }
+      Fl_Box {} {
+        label {Name:}
+        xywh {5 190 55 20} box BORDER_BOX labelfont 1 labelcolor 15
+      }
+      Fl_Input typeNameInput {
+        xywh {60 190 145 20} textfont 1
+      }
+      Fl_Box {} {
+        label {Geom Types}
+        xywh {5 50 200 15} box BORDER_BOX labelfont 1 labelcolor 15
+      }
+      Fl_Button addButton {
+        label Add
+        xywh {150 25 55 20} labelfont 1
+      }
+      Fl_Button deleteType {
+        label Delete selected
+        xywh {5 215 200 20} labelfont 1
+      }
+      Fl_Choice geomChoice {open
+        xywh {5 25 145 20} down_box BORDER_BOX textfont 1 textsize 12
+      } {}
+    }
+  }
+} 

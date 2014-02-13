@@ -1,0 +1,44 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0300 
+header_name {.h} 
+code_name {.cxx}
+class ParmUI {open
+} {
+  Function {ParmUI()} {open
+  } {
+    Fl_Window UIWindow {
+      label {Parm Links} open
+      xywh {654 246 265 234} type Double color 45 align 80 resizable visible
+    } {
+      Fl_Box nameBox {
+        label {Parm:}
+        xywh {5 5 255 20} box BORDER_BOX labelfont 1 labelsize 16 labelcolor 15
+      }
+      Fl_Box {} {
+        label {Linked To @5}
+        xywh {5 95 160 15} box BORDER_BOX labelfont 1 labelcolor 15
+      }
+      Fl_Browser linkToBrowser {
+        xywh {5 110 160 50} type Select labelfont 13 labelsize 12 textsize 12
+      }
+      Fl_Button setParmAButton {
+        label {Set Parm A}
+        xywh {170 95 90 45} color 48 labelfont 1 align 128
+      }
+      Fl_Button setParmBButton {
+        label {Set Parm B}
+        xywh {170 165 90 45} color 48 labelfont 1 align 128
+      }
+      Fl_Box {} {
+        label {@5 Linked From}
+        xywh {5 165 160 15} box BORDER_BOX labelfont 1 labelcolor 15
+      }
+      Fl_Browser linkFromBrowser {
+        xywh {5 180 160 50} type Select labelfont 13 labelsize 12 textsize 12
+      }
+      Fl_Text_Display parmDescription {selected
+        xywh {5 25 255 65}
+      }
+    }
+  }
+} 

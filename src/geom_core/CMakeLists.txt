@@ -1,0 +1,61 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+
+SET(GEOM_CORE_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH "Path to geom_core headers")
+
+INCLUDE_DIRECTORIES( 
+    ${UTIL_INCLUDE_DIR}
+    ${CPPTEST_INCLUDE_DIRS} 
+    ${LIBXML2_INCLUDE_DIR}
+    ${XMLVSP_INCLUDE_DIR}
+    ${TRIANGLE_INCLUDE_DIR}
+    ${NANOFLANN_INCLUDE_DIR}
+    ${EIGEN3_INCLUDE_DIR}
+    ${CodeEli_INCLUDE_DIRS}
+    ${TRITRI_INCLUDE_DIR}
+   )
+
+ADD_LIBRARY(geom_core
+Airfoil.cpp
+BlankGeom.cpp
+DesignVarMgr.cpp
+FuselageGeom.cpp
+Geom.cpp
+GeomCoreTestSuite.cpp
+GridDensity.cpp
+Link.cpp
+LinkMgr.cpp
+MeshGeom.cpp
+Parm.cpp
+ParmContainer.cpp
+ParmMgr.cpp
+ParmUndo.cpp
+PodGeom.cpp
+TMesh.cpp
+Vehicle.cpp
+VehicleMgr.cpp
+XSec.cpp
+XSecSurf.cpp
+Airfoil.h
+BlankGeom.h
+DesignVarMgr.h
+DragFactors.h
+FuselageGeom.h
+Geom.h
+GeomCoreTestSuite.h
+GridDensity.h
+Link.h
+LinkMgr.h
+MeshGeom.h
+Parm.h
+ParmContainer.h
+ParmMgr.h
+ParmUndo.h
+PodGeom.h
+SWIGDefines.h
+TMesh.h
+Vehicle.h
+VehicleMgr.h
+XSec.h
+XSecSurf.h
+
+)

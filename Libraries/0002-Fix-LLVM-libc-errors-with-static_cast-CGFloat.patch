@@ -1,0 +1,120 @@
+From 387c869fad081123fecacbd19991718bff0d1829 Mon Sep 17 00:00:00 2001
+From: Rob McDonald <ramcdona@calpoly.edu>
+Date: Thu, 9 Jan 2014 22:19:40 -0800
+Subject: [PATCH 2/2] Fix LLVM/libc++ errors with static_cast<CGFloat>()
+
+---
+ src/Fl_Bitmap.cxx           | 2 +-
+ src/Fl_Double_Window.cxx    | 2 +-
+ src/Fl_Gl_Device_Plugin.cxx | 2 +-
+ src/Fl_Image.cxx            | 2 +-
+ src/Fl_cocoa.mm             | 6 +++---
+ src/fl_draw_image_mac.cxx   | 2 +-
+ src/fl_scroll_area.cxx      | 2 +-
+ 7 files changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/src/Fl_Bitmap.cxx b/src/Fl_Bitmap.cxx
+index 01fb41a..3c8f4dd 100644
+--- a/src/Fl_Bitmap.cxx
++++ b/src/Fl_Bitmap.cxx
+@@ -271,7 +271,7 @@ void Fl_Quartz_Graphics_Driver::draw(Fl_Bitmap *bm, int XP, int YP, int WP, int
+   }
+   if (!bm->id_) bm->id_ = fl_create_bitmask(bm->w(), bm->h(), bm->array);
+   if (bm->id_ && fl_gc) {
+-    CGRect rect = { { X, Y }, { W, H } };
++    CGRect rect = { { static_cast<CGFloat>(X), static_cast<CGFloat>(Y) }, { static_cast<CGFloat>(W), static_cast<CGFloat>(H) } };
+     Fl_X::q_begin_image(rect, cx, cy, bm->w(), bm->h());
+     CGContextDrawImage(fl_gc, rect, (CGImageRef)bm->id_);
+     Fl_X::q_end_image();
+diff --git a/src/Fl_Double_Window.cxx b/src/Fl_Double_Window.cxx
+index e31643d..2718bc0 100644
+--- a/src/Fl_Double_Window.cxx
++++ b/src/Fl_Double_Window.cxx
+@@ -286,7 +286,7 @@ void Fl_Quartz_Graphics_Driver::copy_offscreen(int x,int y,int w,int h,Fl_Offscr
+   CGImageRef img = CGImageCreate( sw, sh, 8, 4*8, 4*sw, lut, alpha,
+     src_bytes, 0L, false, kCGRenderingIntentDefault);
+   // fl_push_clip();
+-  CGRect rect = { { x, y }, { w, h } };
++  CGRect rect = { { static_cast<CGFloat>(x), static_cast<CGFloat>(y) }, { static_cast<CGFloat>(w), static_cast<CGFloat>(h) } };
+   Fl_X::q_begin_image(rect, srcx, srcy, sw, sh);
+   CGContextDrawImage(fl_gc, rect, img);
+   Fl_X::q_end_image();
+diff --git a/src/Fl_Gl_Device_Plugin.cxx b/src/Fl_Gl_Device_Plugin.cxx
+index 53d2e1b..c24162a 100644
+--- a/src/Fl_Gl_Device_Plugin.cxx
++++ b/src/Fl_Gl_Device_Plugin.cxx
+@@ -106,7 +106,7 @@ static void print_gl_window(Fl_Gl_Window *glw, int x, int y, int height)
+   CGContextSaveGState(fl_gc);
+   CGContextTranslateCTM(fl_gc, 0, height);
+   CGContextScaleCTM(fl_gc, 1.0f, -1.0f);
+-  CGRect rect = { { x, height - y - glw->h() }, { glw->w(), glw->h() } };
++  CGRect rect = { { static_cast<CGFloat>(x), static_cast<CGFloat>(height - y - glw->h()) }, { static_cast<CGFloat>(glw->w()), static_cast<CGFloat>(glw->h()) } };
+   Fl_X::q_begin_image(rect, 0, 0, glw->w(), glw->h());
+   CGContextDrawImage(fl_gc, rect, image);
+   Fl_X::q_end_image();
+diff --git a/src/Fl_Image.cxx b/src/Fl_Image.cxx
+index 69c972b..02dae8a 100644
+--- a/src/Fl_Image.cxx
++++ b/src/Fl_Image.cxx
+@@ -489,7 +489,7 @@ void Fl_Quartz_Graphics_Driver::draw(Fl_RGB_Image *img, int XP, int YP, int WP,
+     CGDataProviderRelease(src);
+   }
+   if (img->id_ && fl_gc) {
+-    CGRect rect = { { X, Y }, { W, H } };
++    CGRect rect = { { static_cast<CGFloat>(X), static_cast<CGFloat>(Y) }, { static_cast<CGFloat>(W), static_cast<CGFloat>(H) } };
+     Fl_X::q_begin_image(rect, cx, cy, img->w(), img->h());
+     CGContextDrawImage(fl_gc, rect, (CGImageRef)img->id_);
+     Fl_X::q_end_image();
+diff --git a/src/Fl_cocoa.mm b/src/Fl_cocoa.mm
+index a361f29..adfa6ef 100644
+--- a/src/Fl_cocoa.mm
++++ b/src/Fl_cocoa.mm
+@@ -2262,8 +2262,8 @@ void Fl_Window::size_range_() {
+   int bx, by, bt;
+   get_window_frame_sizes(bx, by, bt);
+   size_range_set = 1;
+-  NSSize minSize = { minw, minh + bt };
+-  NSSize maxSize = { maxw?maxw:32000, maxh?maxh + bt:32000 };
++  NSSize minSize = { static_cast<CGFloat>(minw), static_cast<CGFloat>(minh) + bt };
++  NSSize maxSize = { static_cast<CGFloat>(maxw)?static_cast<CGFloat>(maxw):32000, static_cast<CGFloat>(maxh)?static_cast<CGFloat>(maxh) + bt:32000 };
+   if (i && i->xid) {
+     [i->xid setMinSize:minSize];
+     [i->xid setMaxSize:maxSize];
+@@ -3443,7 +3443,7 @@ void Fl_Paged_Device::print_window(Fl_Window *win, int x_offset, int y_offset)
+   // capture the window title bar
+   CGImageRef img = Fl_X::CGImage_from_window_rect(win, 0, -bt, win->w(), bt);
+   // and print it
+-  CGRect rect = { { x_offset, y_offset }, { win->w(), bt } };
++  CGRect rect = { { static_cast<CGFloat>(x_offset), static_cast<CGFloat>(y_offset) }, { static_cast<CGFloat>(win->w()), static_cast<CGFloat>(bt) } };
+   Fl_X::q_begin_image(rect, 0, 0, win->w(), bt);
+   CGContextDrawImage(fl_gc, rect, img);
+   Fl_X::q_end_image();
+diff --git a/src/fl_draw_image_mac.cxx b/src/fl_draw_image_mac.cxx
+index e81f7f1..8821816 100644
+--- a/src/fl_draw_image_mac.cxx
++++ b/src/fl_draw_image_mac.cxx
+@@ -88,7 +88,7 @@ static void innards(const uchar *buf, int X, int Y, int W, int H,
+                             src, 0L, false, kCGRenderingIntentDefault);
+   // draw the image into the destination context
+   if (img) {
+-    CGRect rect = { { X, Y }, { W, H } };
++    CGRect rect = { { static_cast<CGFloat>(X), static_cast<CGFloat>(Y) }, { static_cast<CGFloat>(W), static_cast<CGFloat>(H) } };
+     Fl_X::q_begin_image(rect, 0, 0, W, H);
+     CGContextDrawImage(fl_gc, rect, img);
+     Fl_X::q_end_image();
+diff --git a/src/fl_scroll_area.cxx b/src/fl_scroll_area.cxx
+index 99d0640..28529ee 100644
+--- a/src/fl_scroll_area.cxx
++++ b/src/fl_scroll_area.cxx
+@@ -143,7 +143,7 @@ void fl_scroll(int X, int Y, int W, int H, int dx, int dy,
+ 
+ #elif defined(__APPLE_QUARTZ__)
+   CGImageRef img = Fl_X::CGImage_from_window_rect(Fl_Window::current(), src_x, src_y, src_w, src_h);
+-  CGRect rect = { { dest_x, dest_y }, { src_w, src_h } };
++  CGRect rect = { { static_cast<CGFloat>(dest_x), static_cast<CGFloat>(dest_y) }, { static_cast<CGFloat>(src_w), static_cast<CGFloat>(src_h) } };
+   Fl_X::q_begin_image(rect, 0, 0, src_w, src_h);
+   CGContextDrawImage(fl_gc, rect, img);
+   Fl_X::q_end_image();
+-- 
+1.8.4
+

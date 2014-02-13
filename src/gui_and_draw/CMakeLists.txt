@@ -1,0 +1,98 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+
+SET(GUI_AND_DRAW_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH "Path to gui_and_draw headers")
+
+INCLUDE_DIRECTORIES( 
+    ${NANOFLANN_INCLUDE_DIR}
+    ${LIBXML2_INCLUDE_DIR}
+    ${XMLVSP_INCLUDE_DIR}
+    ${UTIL_INCLUDE_DIR}
+    ${GEOM_CORE_INCLUDE_DIR}
+    ${CFD_MESH_STUFF_INCLUDE_DIR}
+    ${FLTK_INCLUDE_DIR}
+    ${SCREENS_INCLUDE_DIR}
+    ${VSP_GRAPHIC_INCLUDE_DIR}
+    ${GLEW_INCLUDE_PATH}
+    ${GLM_INCLUDE_DIR}
+    ${EIGEN3_INCLUDE_DIR}
+    ${CodeEli_INCLUDE_DIRS}
+)
+
+ADD_LIBRARY(gui_and_draw
+AwaveScreen.cpp
+BlankScreen.cpp
+CfdMeshScreen.cpp
+CompGeomScreen.cpp
+DesignVarScreen.cpp
+ExportScreen.cpp
+FeaStructScreen.cpp
+GroupLayout.cpp
+GuiDevice.cpp
+FuselageScreen.cpp
+ImportScreen.cpp
+MainVSPScreen.cpp
+ManageGeomScreen.cpp
+MassPropScreen.cpp
+MeshScreen.cpp
+ParmDebugScreen.cpp
+ParmLinkScreen.cpp
+ParmScreen.cpp
+PickSetScreen.cpp
+PodScreen.cpp
+PSliceScreen.cpp
+SelectFileScreen.cpp
+ScreenBase.cpp
+ScreenMgr.cpp
+SetEditorScreen.cpp
+SubGLWindow.cpp
+TypeEditorScreen.cpp
+MainGLWindow.cpp
+ManageTextureScreen.cpp
+SubGLWindow.cpp
+ManageLightingScreen.cpp
+ManageViewScreen.cpp
+ManageBackgroundScreen.cpp
+AwaveScreen.h
+BlankScreen.h
+CfdMeshScreen.h
+CompGeomScreen.h
+DesignVarScreen.h
+ExportScreen.h
+FeaStructScreen.h
+GroupLayout.h
+GuiDevice.h
+FuselageScreen.h
+ImportScreen.h
+MainVSPScreen.h
+ManageGeomScreen.h
+MassPropScreen.h
+MeshScreen.h
+ParmDebugScreen.h
+ParmScreen.h
+ParmLinkScreen.h
+PickSetScreen.h
+PodScreen.h
+PSliceScreen.h
+SelectFileScreen.h
+ScreenBase.h
+ScreenMgr.h
+SetEditorScreen.h
+SubGLWindow.h
+TypeEditorScreen.h
+MainGLWindow.h
+ManageTextureScreen.h
+SubGLWindow.h
+ManageLightingScreen.h
+ManageViewScreen.h
+ManageBackgroundScreen.h
+)
+
+ADD_DEPENDENCIES(gui_and_draw
+vsp_graphic
+screens
+)
+
+TARGET_LINK_LIBRARIES(gui_and_draw
+${GLEW_LIBRARY}
+vsp_graphic
+)

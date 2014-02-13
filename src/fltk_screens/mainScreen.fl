@@ -1,0 +1,265 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0300 
+header_name {.h} 
+code_name {.cxx}
+class MainWinUI {open
+} {
+  Function {MainWinUI()} {open
+  } {
+    Fl_Window winShell {
+      label {VSP 3.0 Alpha - 1/15/2013} open selected
+      xywh {419 48 597 592} type Double resizable visible
+    } {
+      Fl_Group MenuGroup {open
+        xywh {-5 0 610 595}
+      } {
+        Fl_Menu_Bar MenuBar {open
+          xywh {0 0 605 30} box EMBOSSED_BOX
+        } {
+          Submenu FileSubMenu {
+            label File open
+            xywh {0 0 100 20} labelfont 1
+          } {
+            MenuItem NewMenu {
+              label New
+              xywh {0 0 100 20}
+            }
+            MenuItem OpenMenu {
+              label {Open...}
+              xywh {0 0 100 20}
+            }
+            MenuItem SaveMenu {
+              label Save
+              xywh {10 10 100 20} shortcut 0x40073
+            }
+            MenuItem SaveAsMenu {
+              label {Save As...}
+              xywh {20 20 100 20}
+            }
+            MenuItem SaveSetMenu {
+              label {Save Set...}
+              xywh {20 20 100 20}
+            }
+            MenuItem InsertFileMenu {
+              label {Insert...}
+              xywh {10 10 100 20}
+            }
+            MenuItem ImportMenu {
+              label {Import...}
+              xywh {30 30 100 20}
+            }
+            MenuItem ExportMenu {
+              label {Export...}
+              xywh {40 40 100 20}
+            }
+            MenuItem TempDirMenu {
+              label {Set Temp Dir...}
+              xywh {60 60 100 20}
+            }
+            MenuItem VersionMenu {
+              label {Check Latest Version...}
+              xywh {50 50 100 20}
+            }
+            MenuItem ExitMenu {
+              label Exit
+              xywh {0 0 100 20}
+            }
+          }
+          Submenu WindowSubMenu {
+            label Window open
+            xywh {10 10 100 20} labelfont 1
+          } {
+            MenuItem OneScreenMenu {
+              label One
+              xywh {0 0 100 20}
+            }
+            MenuItem FourScreenMenu {
+              label Four
+              xywh {0 0 100 20}
+            }
+            MenuItem TwoHorzScreenMenu {
+              label {Two Horizontal}
+              xywh {0 0 100 20}
+            }
+            MenuItem TwoVertScreenMenu {
+              label {Two Vertical}
+              xywh {0 0 100 20}
+            }
+            MenuItem BackgroundMenu {
+              label {Background...}
+              xywh {10 10 100 20}
+            }
+            MenuItem LightingMenu {
+              label {Lighting...}
+              xywh {20 20 100 20}
+            }
+            MenuItem LabelsMenu {
+              label {Labels...}
+              xywh {0 0 100 20}
+            }
+            MenuItem ScreenShotMenu {
+              label {Screenshot...}
+              xywh {10 10 100 20}
+            }
+          }
+          Submenu ViewSubMenu {
+            label View open
+            xywh {15 15 100 20} labelfont 1
+          } {
+            MenuItem TopViewMenu {
+              label {Top (F5)}
+              xywh {0 0 100 20}
+            }
+            MenuItem FrontViewMenu {
+              label {Front (F6)}
+              xywh {0 0 100 20}
+            }
+            MenuItem LeftSideViewMenu {
+              label {Left Side (F7)}
+              xywh {0 0 100 20}
+            }
+            MenuItem LeftIsoViewMenu {
+              label {Left Iso (F8)}
+              xywh {0 0 100 20}
+            }
+            MenuItem BottomViewMenu {
+              label {Bottom (F9)}
+              xywh {0 0 100 20}
+            }
+            MenuItem BackViewMenu {
+              label {Rear (F10)}
+              xywh {0 0 100 20}
+            }
+            MenuItem RightSideViewMenu {
+              label {Right Side (F11)}
+              xywh {0 0 100 20}
+            }
+            MenuItem RightIsoViewMenu {
+              label {Right Iso (F12)}
+              xywh {0 0 100 20}
+            }
+            MenuItem CenterViewMenu {
+              label {Center (c)}
+              xywh {0 0 100 20}
+            }
+            MenuItem AdjustViewMenu {
+              label {Adjust...}
+              xywh {10 10 100 20}
+            }
+            MenuItem AntialiasMenu {
+              label {Antialias Lines}
+              xywh {0 0 100 20}
+            }
+            MenuItem TextureMenu {
+              label {Texture...}
+              xywh {10 10 100 20}
+            }
+          }
+          Submenu GeomSubMenu {
+            label Geom open
+            xywh {15 15 100 20} labelfont 1
+          } {
+            MenuItem GeomModifyMenu {
+              label {Modify...}
+              xywh {15 15 100 20}
+            }
+            MenuItem TypeEditorMenu {
+              label {Type Editor...}
+              xywh {35 35 100 20}
+            }
+            MenuItem SetEditorMenu {
+              label {Set Editor...}
+              xywh {25 25 100 20}
+            }
+            MenuItem CompGeomMenu {
+              label {CompGeom (Union)...}
+              xywh {25 25 100 20}
+            }
+            MenuItem CFDMeshGeomMenu {
+              label {CFD Mesh...}
+              xywh {35 35 100 20}
+            }
+            MenuItem AwaveMenu {
+              label {Awave Slice...}
+              xywh {0 0 100 20}
+            }
+            MenuItem PSliceMenu {
+              label {Planar Slice}
+              user_data {"PSliceMenu"}
+              xywh {2 2 30 20}
+            }
+            MenuItem MassPropMenu {
+              label {Mass Prop...}
+              xywh {12 12 100 20}
+            }
+            MenuItem AeroRefMenu {
+              label {Aero Ref...}
+              xywh {22 22 100 20}
+            }
+            MenuItem StructureMenu {
+              label {Wing Structure...}
+              xywh {2 2 100 20}
+            }
+            MenuItem ParmLinkMenu {
+              label {Link...}
+              xywh {12 12 100 20}
+            }
+            MenuItem DesignVarMenu {
+              label {Design Variables...}
+              xywh {32 32 100 20}
+            }
+            MenuItem ParmDebugMenu {
+              label {Debug Parameters...}
+              xywh {32 32 100 20}
+            }
+          }
+          Submenu ScriptSubMenu {
+            label Script open
+            xywh {0 0 100 20} labelfont 1
+          } {
+            MenuItem ScriptMenu {
+              label {Script Window...}
+              xywh {5 5 100 20}
+            }
+            MenuItem ScriptOutMenu {
+              label {Script Output...}
+              xywh {5 5 100 20}
+            }
+          }
+          MenuItem RevertMenu {
+            label UnDo
+            xywh {0 0 30 20} labelfont 1
+          }
+          Submenu HelpMenu {
+            label Help open
+            xywh {15 15 100 20} labelfont 1
+          } {
+            MenuItem ShowAbout {
+              label {About...}
+              xywh {0 0 100 20}
+            }
+            MenuItem ShowHelpWebsite {
+              label {Online Help...}
+              xywh {10 10 100 20}
+            }
+          }
+          MenuItem ReturnToAPI {
+            label {API Return} selected
+            xywh {10 10 30 20} labelfont 1
+          }
+        }
+      }
+      Fl_Group GlWinGroup {open
+        xywh {3 37 591 531} box BORDER_BOX color 37 align 16 resizable
+      } {}
+      Fl_Box TitleBox {
+        label {VSP 3.0  : Vehicle Sketch Pad}
+        xywh {360 570 235 20} box EMBOSSED_BOX labeltype EMBOSSED_LABEL labelsize 15 labelcolor 136 align 64
+      }
+      Fl_Box FileNameBox {
+        label {File Name:}
+        xywh {0 570 360 20} box EMBOSSED_FRAME labelsize 10 align 88
+      }
+    }
+  }
+} 

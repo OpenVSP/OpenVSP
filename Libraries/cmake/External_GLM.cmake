@@ -1,0 +1,9 @@
+ExternalProject_Add( GLM
+	URL ${CMAKE_SOURCE_DIR}/glm-0.9.4.6.zip
+	UPDATE_COMMAND ""
+	CONFIGURE_COMMAND ""
+	BUILD_COMMAND ""
+	INSTALL_COMMAND ""
+)
+ExternalProject_Get_Property( GLM SOURCE_DIR )
+SET( GLM_INSTALL_DIR ${SOURCE_DIR} )

@@ -1,0 +1,26 @@
+From d77297ab1c005c70cccd678c0c278a831af57ca1 Mon Sep 17 00:00:00 2001
+From: Rob McDonald <ramcdona@calpoly.edu>
+Date: Thu, 9 Jan 2014 22:04:58 -0800
+Subject: [PATCH 1/2] Changes to CMakeLists.txt to build on llvm on MacOS
+
+---
+ CMakeLists.txt | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 9c9912d..f351413 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -51,6 +51,9 @@ if(APPLE)
+    set(HAVE_STRTOLL 1)
+    set(HAVE_STRCASECMP 1)
+    set(HAVE_DIRENT_H 1)
++   set(HAVE_SNPRINTF 1)
++   set(HAVE_VSNPRINTF 1)
++   set(HAVE_SCANDIR 1)
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework Cocoa")
+ endif(APPLE)
+ 
+-- 
+1.8.4
+

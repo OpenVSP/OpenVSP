@@ -1,0 +1,127 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0300 
+header_name {.h} 
+code_name {.cxx}
+class MassPropUI {open
+} {
+  Function {MassPropUI()} {open
+  } {
+    Fl_Window UIWindow {
+      label {Mass Properties} open
+      xywh {453 180 261 391} type Double labelsize 11 resizable visible
+    } {
+      Fl_Button computeButton {
+        label COMPUTE
+        xywh {130 45 126 30} labelfont 1 labelsize 12 labelcolor 72 align 64
+      }
+      Fl_Box {} {
+        label {Mass Properties}
+        xywh {5 5 250 15} box BORDER_BOX color 12 labelfont 1 labelcolor 7
+      }
+      Fl_Box {} {
+        label {Num Slice:}
+        xywh {5 20 85 20} box THIN_UP_BOX labelfont 1
+      }
+      Fl_Box {} {
+        label Results
+        xywh {5 110 250 15} box BORDER_BOX color 12 labelfont 1 labelcolor 55
+      }
+      Fl_Button {} {
+        label {Total Mass}
+        xywh {5 125 165 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+      }
+      Fl_Output totalMassOutput {
+        xywh {170 125 85 20} color 53
+      }
+      Fl_Button {} {
+        label {X Cg}
+        xywh {5 150 165 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+      }
+      Fl_Output xCgOuput {
+        xywh {170 150 85 20} color 53
+      }
+      Fl_Button {} {
+        label {Y Cg}
+        xywh {5 170 165 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+      }
+      Fl_Output yCgOuput {
+        xywh {170 170 85 20} color 53
+      }
+      Fl_Button {} {
+        label {Z Cg}
+        xywh {5 190 165 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+      }
+      Fl_Output zCgOuput {
+        xywh {170 190 85 20} color 53
+      }
+      Fl_Button {} {
+        label {I xx}
+        xywh {5 215 165 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+      }
+      Fl_Output ixxOuput {
+        xywh {170 215 85 20} color 53
+      }
+      Fl_Button {} {
+        label {I yy}
+        xywh {5 235 165 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+      }
+      Fl_Output iyyOutput {
+        xywh {170 235 85 20} color 53
+      }
+      Fl_Button {} {
+        label {I zz}
+        xywh {5 255 165 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+      }
+      Fl_Output izzOutput {
+        xywh {170 255 85 20} color 53
+      }
+      Fl_Light_Button drawCgButton {
+        label {Draw Cg}
+        xywh {5 80 250 20} labelfont 1
+      }
+      Fl_Button {} {
+        label {I xy}
+        xywh {5 280 165 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+      }
+      Fl_Output ixyOutput {
+        xywh {170 280 85 20} color 53
+      }
+      Fl_Button {} {
+        label {I xz}
+        xywh {5 300 165 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+      }
+      Fl_Output ixzOutput {
+        xywh {170 300 85 20} color 53
+      }
+      Fl_Button {} {
+        label {I yz}
+        xywh {5 320 165 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+      }
+      Fl_Output iyzOutput {
+        xywh {170 320 85 20} color 53
+      }
+      Fl_Box {} {
+        label {File Export}
+        xywh {5 350 250 15} box BORDER_BOX color 12 labelfont 1 labelcolor 55
+      }
+      Fl_Output fileExportOutput {
+        xywh {5 365 225 20} color 17
+      }
+      Fl_Button fileExportButton {
+        label {...}
+        xywh {230 365 25 20} labelfont 1
+      }
+      Fl_Choice setChoice {open
+        xywh {2 45 128 30} down_box FLAT_BOX color 17 textfont 1
+      } {}
+      Fl_Input numSlicesInput {
+        user_data {"numSlicesInput"}
+        xywh {222 18 34 24} type Int
+      }
+      Fl_Slider numSlicesSlider {
+        user_data {"numSlicesSlider"} selected
+        xywh {89 20 132 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+      }
+    }
+  }
+} 

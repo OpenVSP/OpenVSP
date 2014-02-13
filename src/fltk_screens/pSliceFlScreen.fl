@@ -1,0 +1,113 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0300 
+header_name {.h} 
+code_name {.cxx}
+class PSliceUI {open
+} {
+  Function {PSliceUI()} {open
+  } {
+    Fl_Window UIWindow {
+      label {Planar Slicing} open
+      xywh {672 90 298 430} type Double resizable visible
+    } {
+      Fl_Box {} {
+        label {Num Slices}
+        xywh {3 30 125 20} box BORDER_BOX labelfont 1 labelsize 13
+      }
+      Fl_Box {} {
+        label {Planar Slicing}
+        xywh {5 5 285 20} box ROUNDED_BOX labelfont 1 labelcolor 15
+      }
+      Fl_Group {} {open
+        xywh {1 155 294 272}
+      } {
+        Fl_Button startButton {
+          label {Start Slicing}
+          xywh {148 402 140 25} labelfont 1 align 64
+        }
+        Fl_Text_Display outputTextDisplay {
+          xywh {5 207 283 188}
+        }
+        Fl_Box {} {
+          label {Output File}
+          xywh {3 155 290 15} box BORDER_BOX labelfont 1 labelcolor 4
+        }
+        Fl_Button fileButton {
+          label {...}
+          xywh {268 172 20 25} labelfont 1
+        }
+        Fl_Output txtFileOutput {
+          xywh {3 172 262 25} color 17
+        }
+        Fl_Choice setChoice {open
+          xywh {3 402 140 25} down_box FLAT_BOX color 17 textfont 1
+        } {}
+      }
+      Fl_Input numSlicesInput {
+        user_data {"numSlicesInput"}
+        xywh {230 30 65 20} type Int labelsize 12 textsize 12
+      }
+      Fl_Slider numSlicesSlider {
+        user_data {"numSlicesSlider"}
+        xywh {128 30 102 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+      }
+      Fl_Box {} {
+        label {Slicing Bounds}
+        xywh {3 73 291 15} box BORDER_BOX labelfont 1 labelcolor 4
+      }
+      Fl_Input StartInput {
+        user_data {"StartInput"}
+        xywh {230 112 65 20} type Float textsize 12
+      }
+      Fl_Slider StartSlider {
+        user_data {"StartSlider"}
+        xywh {128 112 102 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+      }
+      Fl_Input EndInput {
+        user_data {"EndInput"}
+        xywh {230 135 65 20} type Float textsize 12
+      }
+      Fl_Slider EndSlider {
+        user_data {"EndSlider"}
+        xywh {128 133 102 20} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 15
+      }
+      Fl_Box {} {
+        label {Normal Axis}
+        xywh {3 52 125 20} box BORDER_BOX labelfont 1 labelsize 13
+      }
+      Fl_Choice AxisChoice {
+        user_data {"AxisChoice"} open selected
+        xywh {128 52 167 20} down_box BORDER_BOX
+      } {
+        MenuItem xAxisMenu {
+          label {X-Axis}
+          user_data {"xAxisMenu"}
+          xywh {0 0 100 20} labelfont 1
+        }
+        MenuItem yAxisMenu {
+          label {Y-Axis}
+          user_data {"yAxisMenu"}
+          xywh {0 0 100 20} labelfont 1
+        }
+        MenuItem zAxisMenu {
+          label {Z-Axis}
+          user_data {"zAxisMenu"}
+          xywh {0 0 100 20} labelfont 1
+        }
+      }
+      Fl_Box {} {
+        label {Start Locaction}
+        xywh {3 112 125 20} box BORDER_BOX labelfont 1 labelsize 13
+      }
+      Fl_Box {} {
+        label {End Locaction}
+        xywh {3 133 125 20} box BORDER_BOX labelfont 1 labelsize 13
+      }
+      Fl_Light_Button AutoBoundsButton {
+        label Auto
+        user_data {"AutoBoundsButton"}
+        xywh {3 90 291 20} labelfont 1 align 16
+      }
+    }
+  }
+} 
