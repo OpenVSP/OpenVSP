@@ -1962,7 +1962,7 @@ void ParmPicker::DeviceCB( Fl_Widget* w )
             w == m_ParmChoice )
     {
         m_ParmIDChoice = LinkMgr.PickParm(  m_ContainerChoice->value(), m_GroupChoice->value(), m_ParmChoice->value() );
-        Update();
+        m_Screen->GetScreenMgr()->SetUpdateFlag( true );
     }
 
     m_Screen->GuiDeviceCallBack( this );
