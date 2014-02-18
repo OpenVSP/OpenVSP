@@ -223,7 +223,7 @@ void Vehicle::Renew()
 //==== Parm Changed ====//
 void Vehicle::ParmChanged( Parm* parm_ptr, int type )
 {
-    UpdateBBox();
+//    UpdateBBox();
     MessageMgr::getInstance().Send( "ScreenMgr", "UpdateAllScreens" );
 }
 
