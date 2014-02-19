@@ -50,7 +50,6 @@ ScreenMgr.cpp
 SelectFileScreen.cpp
 SetEditorScreen.cpp
 SubGLWindow.cpp
-SubGLWindow.cpp
 TypeEditorScreen.cpp
 AwaveScreen.h
 BlankScreen.h
@@ -82,7 +81,6 @@ ScreenBase.h
 ScreenMgr.h
 SelectFileScreen.h
 SetEditorScreen.h
-SubGLWindow.h
 SubGLWindow.h
 TypeEditorScreen.h
 )
