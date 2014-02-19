@@ -508,6 +508,7 @@ void ManageGeomScreen::CreateScreens()
 //  m_GeomScreenVec[POD_GEOM_SCREEN] = new TestPodScreen( m_ScreenMgr, 300, 500, "Test Pod" );
     m_GeomScreenVec[POD_GEOM_SCREEN] = new PodScreen( m_ScreenMgr );
     m_GeomScreenVec[FUSELAGE_GEOM_SCREEN] = new FuselageScreen( m_ScreenMgr );
+    m_GeomScreenVec[MS_WING_GEOM_SCREEN] = new WingScreen( m_ScreenMgr );
     m_GeomScreenVec[BLANK_GEOM_SCREEN] = new BlankScreen( m_ScreenMgr );
     m_GeomScreenVec[MESH_GEOM_SCREEN] = new MeshScreen( m_ScreenMgr );
 

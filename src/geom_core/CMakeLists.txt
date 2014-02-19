@@ -33,6 +33,7 @@ PodGeom.cpp
 TMesh.cpp
 Vehicle.cpp
 VehicleMgr.cpp
+WingGeom.cpp
 XSec.cpp
 XSecSurf.cpp
 Airfoil.h
@@ -55,6 +56,7 @@ SWIGDefines.h
 TMesh.h
 Vehicle.h
 VehicleMgr.h
+WingGeom.h
 XSec.h
 XSecSurf.h
 

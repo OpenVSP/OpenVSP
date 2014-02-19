@@ -51,6 +51,7 @@ SelectFileScreen.cpp
 SetEditorScreen.cpp
 SubGLWindow.cpp
 TypeEditorScreen.cpp
+WingScreen.cpp
 AwaveScreen.h
 BlankScreen.h
 CfdMeshScreen.h
@@ -83,6 +84,7 @@ SelectFileScreen.h
 SetEditorScreen.h
 SubGLWindow.h
 TypeEditorScreen.h
+WingScreen.h
 )
 
 ADD_DEPENDENCIES(gui_and_draw
