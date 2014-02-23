@@ -175,7 +175,8 @@ void GroupLayout::SetGroupAndScreen( Fl_Group* group, VspScreen* screen )
 //==== Add Standard Parm Button With Label ====//
 Fl_Button* GroupLayout::AddParmButton( const char* label )
 {
-    Fl_Button* button = new Fl_Button( m_X, m_Y, m_ButtonWidth, m_StdHeight, label );
+    Fl_Button* button = new Fl_Button( m_X, m_Y, m_ButtonWidth, m_StdHeight );
+    button->copy_label( label );
     button->box( FL_THIN_UP_BOX );
     button->labelfont( 1 );
     button->labelsize( 12 );
