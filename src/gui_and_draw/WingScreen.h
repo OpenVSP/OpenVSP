@@ -14,13 +14,14 @@
 #include "ScreenBase.h"
 #include "GuiDevice.h"
 #include "GroupLayout.h"
+#include "WingGeom.h"
 
 #include <FL/Fl.H>
 
 class WingScreen : public GeomScreen
 {
 public:
-	WingScreen( ScreenMgr* mgr );
+    WingScreen( ScreenMgr* mgr );
     virtual ~WingScreen();
 
     virtual void Show();
@@ -31,29 +32,58 @@ public:
 
 protected:
 
-    GroupLayout m_DesignLayout;
+    // Overall planform tab
+    GroupLayout m_PlanLayout;
 
-    SliderAdjRangeInput m_LengthSlider;
-    SliderInput m_NumPntsXSecSlider;
+    SliderAdjRangeInput m_PlanSpanSlider;
+    SliderAdjRangeInput m_PlanProjSpanSlider;
+    SliderAdjRangeInput m_PlanChordSlider;
+    SliderAdjRangeInput m_PlanAreaSlider;
+    StringOutput m_PlanAROutput;
 
-    GroupLayout m_XSecLayout;
+    // Wing section tab
+    GroupLayout m_SectionLayout;
 
-    IndexSelector m_XSecIndexSelector;
+    IndexSelector m_SectIndexSelector;
 
-    TriggerButton m_InsertXSec;
-    TriggerButton m_CutXSec;
-    TriggerButton m_CopyXSec;
-    TriggerButton m_PasteXSec;
+    StringOutput m_NumSectOutput;
 
-    FractParmSlider m_XSecXSlider;
-    FractParmSlider m_XSecYSlider;
-    FractParmSlider m_XSecZSlider;
-    SliderAdjRangeInput m_XSecXRotSlider;
-    SliderAdjRangeInput m_XSecYRotSlider;
-    SliderAdjRangeInput m_XSecZRotSlider;
-    SliderAdjRangeInput m_XSecSpinSlider;
+    TriggerButton m_SplitSectButton;
+    TriggerButton m_CutSectButton;
+    TriggerButton m_CopySectButton;
+    TriggerButton m_PasteSectButton;
+    TriggerButton m_InsertSectButton;
 
-    Choice m_XSecTypeChoice;
+    SliderAdjRangeInput m_NumWSectSlider;
+
+    WingDriverGroup m_WingDriverGroup;
+    DriverGroupBank m_WingDriverGroupBank;
+
+    StringOutput m_SectProjSpanOutput;
+
+    SliderAdjRangeInput m_SweepSlider;
+    SliderAdjRangeInput m_SweepLocSlider;
+
+    SliderAdjRangeInput m_WashoutSlider;
+    SliderAdjRangeInput m_WashoutLocSlider;
+    ToggleButton m_WashoutAbsoluteToggle;
+    ToggleButton m_WashoutRelativeToggle;
+    ToggleRadioGroup m_WashoutAbsRelToggle;
+
+    SliderAdjRangeInput m_DihedralSlider;
+    ToggleButton m_DihedralAbsoluteToggle;
+    ToggleButton m_DihedralRelativeToggle;
+    ToggleRadioGroup m_DihedralAbsRelToggle;
+
+    // Airfoil tab
+    GroupLayout m_AfLayout;
+
+    IndexSelector m_AfIndexSelector;
+
+    TriggerButton m_CopyAfButton;
+    TriggerButton m_PasteAfButton;
+
+    Choice m_AfTypeChoice;
 
     GroupLayout m_PointGroup;
 
