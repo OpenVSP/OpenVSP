@@ -911,26 +911,17 @@ void GroupLayout::AddDriverGroupBank( DriverGroupBank & dgBank, const vector < s
     vector< vector< Fl_Button* > > buttons;
     buttons.resize( dgBank.GetDriverGroup()->GetNvar() );
 
-    vector< vector< Fl_Button* > > masks;
-    masks.resize( dgBank.GetDriverGroup()->GetNvar() );
-
     vector< SliderAdjRangeInput* > sliders;
     sliders.resize( dgBank.GetDriverGroup()->GetNvar() );
 
     for( int i = 0; i < dgBank.GetDriverGroup()->GetNvar(); i++ )
     {
         buttons[i].resize( dgBank.GetDriverGroup()->GetNchoice() );
-        masks[i].resize( dgBank.GetDriverGroup()->GetNchoice() );
         for( int j = 0; j < dgBank.GetDriverGroup()->GetNchoice(); j++ )
         {
             int roundW = 17;
-            buttons[i][j] = new Fl_Round_Button( m_X, m_Y, roundW, m_StdHeight );
+            buttons[i][j] = new GroupBankRoundButton( m_X, m_Y, roundW, m_StdHeight );
             m_Group->add( buttons[i][j] );
-            masks[i][j] = new Fl_Button( m_X, m_Y, roundW, m_StdHeight, "X" );
-            masks[i][j]->box( FL_NO_BOX );
-            masks[i][j]->deactivate();
-
-            m_Group->add( masks[i][j] );
             AddX( roundW );
         }
         AddX( 1 );
@@ -944,5 +935,21 @@ void GroupLayout::AddDriverGroupBank( DriverGroupBank & dgBank, const vector < s
     SetSameLineFlag( oldSameLine );
     SetFitWidthFlag( oldFitWidth );
 
-    dgBank.Init( m_Screen, buttons, masks, sliders );
+    dgBank.Init( m_Screen, buttons, sliders );
+}
+
+GroupBankRoundButton::GroupBankRoundButton( int x, int y, int w, int h, const char *label ) : Fl_Round_Button( x, y, w, h, label )
+{
+}
+
+void GroupBankRoundButton::draw()
+{
+    Fl_Round_Button::draw();
+    if ( !active() )
+    {
+        int o = 5;
+        fl_color( fl_inactive( selection_color() ) );
+        fl_line( x() + o, y() + o, x() + w() - o, y() + h() - o );
+        fl_line( x() + o, y() + h() - o, x() + w() - o, y() + o );
+    }
 }

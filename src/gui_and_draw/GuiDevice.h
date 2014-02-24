@@ -758,7 +758,6 @@ protected:
 
 };
 
-
 class DriverGroupBank : public GuiDevice
 {
 public:
@@ -766,7 +765,7 @@ public:
 
     virtual void DeviceCB( Fl_Widget *w );
 
-    virtual void Init( VspScreen* screen, vector< vector < Fl_Button* > > buttons, vector< vector < Fl_Button* > > masks, vector< SliderAdjRangeInput* > sliders );
+    virtual void Init( VspScreen* screen, vector< vector < Fl_Button* > > buttons, vector< SliderAdjRangeInput* > sliders );
 
     virtual void Update( );
     virtual void Activate();
@@ -788,7 +787,6 @@ protected:
     virtual void SetValAndLimits( Parm* parm_ptr )      {}
 
     vector< vector < Fl_Button* > > m_Buttons;
-    vector< vector < Fl_Button* > > m_ButtonMask;
     vector< SliderAdjRangeInput* > m_Sliders;
 
     DriverGroup *m_DriverGroup;

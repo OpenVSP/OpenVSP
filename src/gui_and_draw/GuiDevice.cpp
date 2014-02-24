@@ -1996,12 +1996,11 @@ DriverGroupBank::DriverGroupBank()
     m_DriverGroup = NULL;
 }
 
-void DriverGroupBank::Init( VspScreen* screen, vector< vector < Fl_Button* > > buttons, vector< vector < Fl_Button* > > masks, vector< SliderAdjRangeInput* > sliders )
+void DriverGroupBank::Init( VspScreen* screen, vector< vector < Fl_Button* > > buttons, vector< SliderAdjRangeInput* > sliders )
 {
     m_Screen = screen;
 
     m_Buttons = buttons;
-    m_ButtonMask = masks;
     m_Sliders = sliders;
 
     for( int i = 0; i < m_DriverGroup->GetNvar(); i++ )
@@ -2059,12 +2058,10 @@ void DriverGroupBank::Update( )
             if( m_DriverGroup->ValidDrivers( checkchoices ) )
             {
                 m_Buttons[i][j]->activate();
-                m_ButtonMask[i][j]->hide();
             }
             else
             {
                 m_Buttons[i][j]->deactivate();
-                m_ButtonMask[i][j]->show();
             }
 
             if( currchoices[j] == i )

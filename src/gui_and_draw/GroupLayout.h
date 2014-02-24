@@ -11,6 +11,8 @@
 
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Check_Browser.H>
+#include <FL/Fl_Round_Button.H>
+#include <FL/fl_draw.H>
 
 #include "GuiDevice.h"
 
@@ -18,6 +20,13 @@
 #include <string>
 
 using std::string;
+
+class GroupBankRoundButton : public Fl_Round_Button
+{
+public:
+    GroupBankRoundButton( int x, int y, int w, int h, const char *label = 0 );
+    void draw();
+};
 
 //  GroupLayout creates and arranges Fltk gui widgets in an input Fl_Group.
 //  The widgets are sized and placed in the group in the order they are added.
