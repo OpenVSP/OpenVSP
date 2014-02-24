@@ -11,6 +11,7 @@
 #include "ScreenBase.h"
 #include "ScreenMgr.h"
 #include "LinkMgr.h"
+#include "StlHelper.h"
 
 #include <float.h>
 #include <assert.h>
@@ -1984,4 +1985,126 @@ vector< string > ParmPicker::FindParmNames( vector< string > & parm_id_vec )
         name_vec.push_back( name );
     }
     return name_vec;
+}
+
+//=====================================================================//
+//===========       Driver Group Bank                       ===========//
+//=====================================================================//
+DriverGroupBank::DriverGroupBank()
+{
+    m_Screen = NULL;
+    m_DriverGroup = NULL;
+}
+
+void DriverGroupBank::Init( VspScreen* screen, vector< vector < Fl_Button* > > buttons, vector< vector < Fl_Button* > > masks, vector< SliderAdjRangeInput* > sliders )
+{
+    m_Screen = screen;
+
+    m_Buttons = buttons;
+    m_ButtonMask = masks;
+    m_Sliders = sliders;
+
+    for( int i = 0; i < m_DriverGroup->GetNvar(); i++ )
+    {
+        for( int j = 0; j < m_DriverGroup->GetNchoice(); j++ )
+        {
+            m_Buttons[i][j]->callback( StaticDeviceCB, this );
+        }
+    }
+}
+
+
+void DriverGroupBank::DeviceCB( Fl_Widget* w )
+{
+    assert( m_Screen );
+
+    int imatch, jmatch;
+    if( WhichButton( w, imatch, jmatch ) )
+    {
+        vector< int > newchoices = m_DriverGroup->GetChoices();
+        newchoices[jmatch] = imatch;
+
+        if( m_DriverGroup->ValidDrivers( newchoices ) )
+        {
+            m_DriverGroup->SetChoice( jmatch, imatch );
+        }
+    }
+
+
+    m_Screen->GuiDeviceCallBack( this );
+}
+
+void DriverGroupBank::Update( )
+{
+    vector< int > checkchoices;
+
+    vector< int > currchoices = m_DriverGroup->GetChoices();
+
+    for( int i = 0; i < m_DriverGroup->GetNvar(); i++ )
+    {
+        if( vector_contains_val( currchoices, i ) )
+        {
+            m_Sliders[i]->Activate();
+        }
+        else
+        {
+            m_Sliders[i]->Deactivate();
+        }
+
+        for( int j = 0; j < m_DriverGroup->GetNchoice(); j++ )
+        {
+            checkchoices = m_DriverGroup->GetChoices();
+            checkchoices[j] = i;
+
+            if( m_DriverGroup->ValidDrivers( checkchoices ) )
+            {
+                m_Buttons[i][j]->activate();
+                m_ButtonMask[i][j]->hide();
+            }
+            else
+            {
+                m_Buttons[i][j]->deactivate();
+                m_ButtonMask[i][j]->show();
+            }
+
+            if( currchoices[j] == i )
+            {
+                m_Buttons[i][j]->value( 1 );
+            }
+            else
+            {
+                m_Buttons[i][j]->value( 0 );
+            }
+
+        }
+    }
+}
+
+void DriverGroupBank::Activate()
+{
+
+}
+
+void DriverGroupBank::Deactivate()
+{
+
+}
+
+bool DriverGroupBank::WhichButton( Fl_Widget *w, int &imatch, int &jmatch )
+{
+    imatch = -1;
+    jmatch = -1;
+    for( int i = 0; i < m_DriverGroup->GetNvar(); i++ )
+    {
+        for( int j = 0; j < m_DriverGroup->GetNchoice(); j++ )
+        {
+            if( w == m_Buttons[i][j] )
+            {
+                imatch = i;
+                jmatch = j;
+                return true;
+            }
+        }
+    }
+    return false;
 }

@@ -181,6 +181,8 @@ public:
     void AddCounter( Counter & count, const char* label );
     void AddLabel( const char* label, int width );
     void AddParmPicker( ParmPicker & parm_picker );
+    void AddDriverGroupBank( DriverGroupBank & driver_group, const vector < string > &labels,
+                             double range, const char* format );
 
     //==== Add Another GroupLayout as a SubSet of This GroupLayout ====//
     //==== Subgroups can be Used To Create Multiple Column Layouts ====//

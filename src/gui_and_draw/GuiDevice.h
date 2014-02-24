@@ -24,6 +24,7 @@
 #include <FL/Fl_Counter.H>
 
 #include "Vec3d.h"
+#include "Parm.h"
 #include <vector>
 #include <string>
 #include <map>
@@ -757,5 +758,40 @@ protected:
 
 };
 
+
+class DriverGroupBank : public GuiDevice
+{
+public:
+    DriverGroupBank( );
+
+    virtual void DeviceCB( Fl_Widget *w );
+
+    virtual void Init( VspScreen* screen, vector< vector < Fl_Button* > > buttons, vector< vector < Fl_Button* > > masks, vector< SliderAdjRangeInput* > sliders );
+
+    virtual void Update( );
+    virtual void Activate();
+    virtual void Deactivate();
+
+    virtual bool WhichButton( Fl_Widget *w, int &imatch, int &jmatch );
+
+    void SetDriverGroup( DriverGroup *dg )
+    {
+        m_DriverGroup = dg;
+    }
+    DriverGroup* GetDriverGroup()
+    {
+        return m_DriverGroup;
+    }
+
+protected:
+
+    virtual void SetValAndLimits( Parm* parm_ptr )      {}
+
+    vector< vector < Fl_Button* > > m_Buttons;
+    vector< vector < Fl_Button* > > m_ButtonMask;
+    vector< SliderAdjRangeInput* > m_Sliders;
+
+    DriverGroup *m_DriverGroup;
+};
 
 #endif // !defined(GUIDEVICE__INCLUDED_)

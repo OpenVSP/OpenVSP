@@ -896,3 +896,53 @@ void GroupLayout::AddParmPicker( ParmPicker & parm_picker )
     parm_picker.Init( m_Screen, container_choice, group_choice, parm_choice );
 
 }
+
+//==== Add Parameter Driver Group ====//
+void GroupLayout::AddDriverGroupBank( DriverGroupBank & dgBank, const vector < string > &labels, double range, const char* format )
+{
+    assert( m_Group && m_Screen );
+
+    bool oldSameLine = m_SameLineFlag;
+    bool oldFitWidth = m_FitWidthFlag;
+
+    SetSameLineFlag( true );
+    SetFitWidthFlag( true );
+
+    vector< vector< Fl_Button* > > buttons;
+    buttons.resize( dgBank.GetDriverGroup()->GetNvar() );
+
+    vector< vector< Fl_Button* > > masks;
+    masks.resize( dgBank.GetDriverGroup()->GetNvar() );
+
+    vector< SliderAdjRangeInput* > sliders;
+    sliders.resize( dgBank.GetDriverGroup()->GetNvar() );
+
+    for( int i = 0; i < dgBank.GetDriverGroup()->GetNvar(); i++ )
+    {
+        buttons[i].resize( dgBank.GetDriverGroup()->GetNchoice() );
+        masks[i].resize( dgBank.GetDriverGroup()->GetNchoice() );
+        for( int j = 0; j < dgBank.GetDriverGroup()->GetNchoice(); j++ )
+        {
+            int roundW = 17;
+            buttons[i][j] = new Fl_Round_Button( m_X, m_Y, roundW, m_StdHeight );
+            m_Group->add( buttons[i][j] );
+            masks[i][j] = new Fl_Button( m_X, m_Y, roundW, m_StdHeight, "X" );
+            masks[i][j]->box( FL_NO_BOX );
+            masks[i][j]->deactivate();
+
+            m_Group->add( masks[i][j] );
+            AddX( roundW );
+        }
+        AddX( 1 );
+
+        sliders[i] = new SliderAdjRangeInput();
+        AddSlider( *sliders[i], labels[i].c_str(), range, format );
+
+        ForceNewLine();
+    }
+
+    SetSameLineFlag( oldSameLine );
+    SetFitWidthFlag( oldFitWidth );
+
+    dgBank.Init( m_Screen, buttons, masks, sliders );
+}
