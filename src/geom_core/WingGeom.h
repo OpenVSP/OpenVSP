@@ -15,6 +15,20 @@
 #include "XSec.h"
 #include "XSecSurf.h"
 
+//==== Wing Driver Group ====//
+class WingDriverGroup : public DriverGroup
+{
+public:
+    enum { AR_WSECT_DRIVER, SPAN_WSECT_DRIVER, AREA_WSECT_DRIVER, TAPER_WSECT_DRIVER,
+           AVEC_WSECT_DRIVER, ROOTC_WSECT_DRIVER, TIPC_WSECT_DRIVER, NUM_WSECT_DRIVER
+         };
+
+    WingDriverGroup();
+
+    virtual void UpdateGroup( vector< string > parmIDs );
+    virtual bool ValidDrivers( vector< int > choices );
+};
+
 //==== Wing Geom ====//
 class WingGeom : public GeomXSec
 {
