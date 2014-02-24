@@ -502,3 +502,24 @@ double FractionParm::GetResult()
 //  m_String = val;
 //  return ( m_String );
 //}
+
+//=========================================================================//
+//=======================      DriverGroup     ============================//
+//=========================================================================//
+
+DriverGroup::DriverGroup( int Nvar, int Nchoice )
+{
+    m_Nvar = Nvar;
+    m_Nchoice = Nchoice;
+
+    m_CurrChoices.resize( m_Nchoice );
+}
+
+DriverGroup::~DriverGroup()
+{
+}
+
+void DriverGroup::SetChoice( int choice, int grpid )
+{
+    m_CurrChoices[choice] = grpid;
+}

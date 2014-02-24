@@ -321,6 +321,39 @@ public:
 //  string m_String;
 //};
 
+//==== Driver Group ====//
+class DriverGroup
+{
+public:
+    DriverGroup( int Nvar, int Nchoice );
+    virtual ~DriverGroup();
 
+    void SetChoice( int choice, int grpid );
+
+    virtual void UpdateGroup( vector< string > parmIDs ) = 0;
+    virtual bool ValidDrivers( vector< int > choices ) = 0;
+
+    void SetChoices( vector< int > choices )
+    {
+        m_CurrChoices = choices;
+    }
+    vector< int > GetChoices()
+    {
+        return m_CurrChoices;
+    }
+    int GetNchoice() const
+    {
+        return m_Nchoice;
+    }
+    int GetNvar() const
+    {
+        return m_Nvar;
+    }
+
+protected:
+    int m_Nvar;
+    int m_Nchoice;
+    vector< int > m_CurrChoices;
+};
 
 #endif // !defined(VSP_PARM__INCLUDED_)
