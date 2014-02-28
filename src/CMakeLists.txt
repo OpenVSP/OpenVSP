@@ -13,7 +13,7 @@ INCLUDE( VSP_Version )
 INCLUDE( SetupC++11 )
 
 IF( VSP_LIBRARY_PATH )
-	INCLUDE( ${VSP_LIBRARY_PATH}/Vsp_Libraries_Config.cmake )
+	INCLUDE( ${VSP_LIBRARY_PATH}/VSP_Libraries_Config.cmake )
 ENDIF( VSP_LIBRARY_PATH )
 
 IF(WIN32)
