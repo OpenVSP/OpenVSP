@@ -26,6 +26,8 @@
 
 #include "Vec3d.h"
 #include "Parm.h"
+#include "Vehicle.h"
+#include "VehicleMgr.h"
 #include <vector>
 #include <string>
 #include <map>
@@ -917,6 +919,42 @@ protected:
     vector< Fl_Button* > m_Buttons;
 };
 
+class GeomPicker : public GuiDevice
+{
+public:
 
+    GeomPicker();
+
+
+    virtual void DeviceCB( Fl_Widget *w );
+
+    virtual void Init( VspScreen* screen, Fl_Choice* geom_choice );
+
+    virtual void Update( );
+    virtual void Activate();
+    virtual void Deactivate();
+
+    string GetGeomChoice()
+    {
+        return m_GeomIDChoice;
+    };
+    void SetGeomChoice( const string &gid )
+    {
+        m_GeomIDChoice = gid;
+    };
+
+protected:
+
+    virtual void SetValAndLimits( Parm* parm_ptr )      {}
+
+    Fl_Choice* m_GeomChoice;
+
+    string m_GeomIDChoice;
+
+    vector< string > m_GeomVec;
+
+    Vehicle * m_Vehicle;
+
+};
 
 #endif // !defined(GUIDEVICE__INCLUDED_)

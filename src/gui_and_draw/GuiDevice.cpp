@@ -2373,3 +2373,79 @@ Tab::Tab()
 {
     m_Type = GDEV_TAB;
 }
+
+//=====================================================================//
+//===========            Geom Picker                        ===========//
+//=====================================================================//
+GeomPicker::GeomPicker()
+{
+    m_Screen = NULL;
+    m_Vehicle = VehicleMgr::getInstance().GetVehicle();
+}
+
+void GeomPicker::Init( VspScreen* screen, Fl_Choice* geom_choice )
+{
+    m_Screen = screen;
+
+    m_GeomChoice = geom_choice;
+
+    m_GeomChoice->callback( StaticDeviceCB, this );
+}
+
+void GeomPicker::Activate()
+{
+    m_GeomChoice->activate();
+}
+
+void GeomPicker::Deactivate()
+{
+    m_GeomChoice->deactivate();
+}
+
+void GeomPicker::Update( )
+{
+    int i;
+    char str[256];
+
+    //==== Load Geom Choice ====//
+    m_GeomVec = m_Vehicle->GetGeomVec();
+
+    if ( m_GeomVec.size() == 0 )
+    {
+        m_GeomIDChoice = string();
+    }
+    else
+    {
+        if ( !m_Vehicle->FindGeom( m_GeomIDChoice ) )
+        {
+            m_GeomIDChoice = m_GeomVec[0];
+        }
+    }
+
+    m_GeomChoice->clear();
+    int ind = 0;
+    for ( i = 0 ; i < ( int )m_GeomVec.size() ; i++ )
+    {
+        char str[256];
+        sprintf( str, "%d_%s", i, m_Vehicle->FindGeom( m_GeomVec[i] )->GetName().c_str() );
+        m_GeomChoice->add( str );
+        if ( m_GeomIDChoice == m_GeomVec[i] )
+        {
+            ind = i;
+        }
+    }
+    m_GeomChoice->value( ind );
+}
+
+void GeomPicker::DeviceCB( Fl_Widget* w )
+{
+    assert( m_Screen );
+
+    if ( w == m_GeomChoice )
+    {
+        m_GeomIDChoice = m_GeomVec[ m_GeomChoice->value() ];
+        m_Screen->GetScreenMgr()->SetUpdateFlag( true );
+    }
+
+    m_Screen->GuiDeviceCallBack( this );
+}

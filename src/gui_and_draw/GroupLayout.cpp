@@ -1117,3 +1117,34 @@ void GroupLayout::AddSkinOutput( SkinOutput & skin_output )
     skin_output.Init( m_Screen, contL, order, contR, buttons );
     SetButtonWidth( oldBW );
 }
+
+//==== Add Geom Picker ====//
+void GroupLayout::AddGeomPicker( GeomPicker & geom_picker )
+{
+
+    assert( m_Group && m_Screen );
+
+    //==== Geom Button ====//
+    Fl_Button* button = new Fl_Button( m_X, m_Y, m_ChoiceButtonWidth, m_StdHeight, "Geom" );
+    button->box( FL_THIN_UP_BOX );
+    button->labelfont( 1 );
+    button->labelsize( 12 );
+    button->labelcolor( FL_BLACK );
+    m_Group->add( button );
+    AddX( m_ChoiceButtonWidth );
+
+    //==== Geom Picker ====//
+    int choice_w = FitWidth( m_ChoiceButtonWidth, m_SliderWidth );
+    Fl_Choice* geom_choice = new Fl_Choice( m_X, m_Y, choice_w, m_StdHeight );
+    geom_choice->down_box( FL_BORDER_BOX );
+    geom_choice->textfont( 1 );
+    geom_choice->textsize( 12 );
+    geom_choice->textcolor( FL_DARK_BLUE );
+    m_Group->add( geom_choice );
+    AddX( choice_w );
+
+    AddY( m_StdHeight );
+    NewLineX();
+
+    geom_picker.Init( m_Screen, geom_choice );
+}

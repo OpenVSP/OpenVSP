@@ -202,6 +202,7 @@ public:
                              double range, const char* format );
     void AddSkinControl( SkinControl & skin_control, const char* label, double range, const char* format );
     void AddSkinOutput( SkinOutput & skin_output );
+    void AddGeomPicker( GeomPicker & geom_picker );
 
     //==== Add Another GroupLayout as a SubSet of This GroupLayout ====//
     //==== Subgroups can be Used To Create Multiple Column Layouts ====//
