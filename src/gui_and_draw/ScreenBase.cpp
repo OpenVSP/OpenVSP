@@ -175,7 +175,7 @@ Fl_Group* TabScreen::AddSubGroup( Fl_Group* group, int border )
 }
 
 //==== Add A Sub Scroll To Tab ====//
-Fl_Scroll* TabScreen::AddSubScroll( Fl_Group* group, int border )
+Fl_Scroll* TabScreen::AddSubScroll( Fl_Group* group, int border, int lessh )
 {
     if ( !group )
     {
@@ -188,7 +188,7 @@ Fl_Scroll* TabScreen::AddSubScroll( Fl_Group* group, int border )
     int x = rx + border;
     int y = ry + border;
     int w = rw - 2 * border;
-    int h = rh - 2 * border;
+    int h = rh - 2 * border - lessh;
 
     Fl_Scroll* sub_group = new Fl_Scroll( x, y, w, h );
     sub_group->show();
