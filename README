@@ -93,6 +93,9 @@ DEPENDENCIES
    Mac OS X systems.  Windows users must download the source and
    build this library following the Libxml2 instructions.
 
+  -CMinpack (http://devernay.free.fr/hacks/cminpack/) C/C++ port of
+   standard Fortran Levenberg-Marquardt implementation.
+
   -FLTK (www.fltk.org) Cross-platform windowing library.  FLTK should
    be available as a standard package on most Linux systems and can
    be installed from source on Windows and Mac OS X according to the
@@ -220,6 +223,7 @@ BUILD INSTRUCTIONS
       GLEW_INSTALL_DIR
       EIGEN_INSTALL_DIR
       CODEELI_INSTALL_DIR
+      CMINPACK_INSTALL_DIR
 
    Libraries & SuperProject project variables:
 
@@ -234,3 +238,4 @@ BUILD INSTRUCTIONS
       VSP_USE_SYSTEM_FLTK
       VSP_USE_SYSTEM_GLM
       VSP_USE_SYSTEM_GLEW
+      VSP_USE_SYSTEM_CMINPACK
