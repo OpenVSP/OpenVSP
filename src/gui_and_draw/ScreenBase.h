@@ -101,7 +101,7 @@ class TabScreen : public BasicScreen
 {
 public:
 
-    TabScreen( ScreenMgr* mgr, int w, int h, const string & title  );
+    TabScreen( ScreenMgr* mgr, int w, int h, const string & title, int baseymargin = 0 );
     virtual ~TabScreen();
 
     virtual bool Update()
