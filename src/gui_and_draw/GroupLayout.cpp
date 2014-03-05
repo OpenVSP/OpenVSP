@@ -249,6 +249,8 @@ void GroupLayout::AddSlider( SliderAdjRange2Input& slid_adj_input,
 {
     assert( m_Group && m_Screen );
 
+    int init_used_w = m_X - m_Group->x();
+
     //==== Parm Button ====//
     Fl_Button* button = AddParmButton( label );
 
@@ -260,7 +262,7 @@ void GroupLayout::AddSlider( SliderAdjRange2Input& slid_adj_input,
     AddX( m_RangeButtonWidth );
 
     //==== Slider ====//
-    int sw = FitWidth( m_ButtonWidth + 2 * m_RangeButtonWidth + 2 * m_InputWidth, m_SliderWidth );
+    int sw = FitWidth( m_ButtonWidth + 2 * m_RangeButtonWidth + 2 * m_InputWidth + init_used_w, m_SliderWidth );
     Fl_Slider* slider = new Fl_Slider( m_X, m_Y, sw, m_StdHeight );
     slider->type( 5 );
     slider->box( FL_THIN_DOWN_BOX );
@@ -310,6 +312,8 @@ void GroupLayout::AddSlider( FractParmSlider& slid_adj_input,
 {
     assert( m_Group && m_Screen );
 
+    int init_used_w = m_X - m_Group->x();
+
     //==== Parm Button ====//
     Fl_Button* button = AddParmButton( label );
 
@@ -321,7 +325,7 @@ void GroupLayout::AddSlider( FractParmSlider& slid_adj_input,
     AddX( m_RangeButtonWidth );
 
     //==== Slider ====//
-    int sw = FitWidth( m_ButtonWidth + 2 * m_RangeButtonWidth + 2 * m_InputWidth, m_SliderWidth );
+    int sw = FitWidth( m_ButtonWidth + 2 * m_RangeButtonWidth + 2 * m_InputWidth + init_used_w, m_SliderWidth );
     Fl_Slider* slider = new Fl_Slider( m_X, m_Y, sw, m_StdHeight );
     slider->type( 5 );
     slider->box( FL_THIN_DOWN_BOX );
@@ -371,11 +375,13 @@ void GroupLayout::AddSlider( SliderInput& slider_input, const char* label, doubl
 {
     assert( m_Group && m_Screen );
 
+    int init_used_w = m_X - m_Group->x();
+
     //==== Parm Button ====//
     Fl_Button* button = AddParmButton( label );
 
     //==== Slider ====//
-    int sw = FitWidth( m_ButtonWidth + m_InputWidth, m_SliderWidth );
+    int sw = FitWidth( m_ButtonWidth + m_InputWidth + init_used_w, m_SliderWidth );
     Fl_Slider* slider = new Fl_Slider( m_X, m_Y, sw, m_StdHeight );
     slider->type( 5 );
     slider->box( FL_THIN_DOWN_BOX );
