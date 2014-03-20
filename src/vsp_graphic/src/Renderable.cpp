@@ -8,10 +8,10 @@
 
 namespace VSPGraphic
 {
-Renderable::Renderable( Common::VSPenum geomType )
+Renderable::Renderable()
 {
-    _geomType = geomType;
-    _renderStyle = Common::VSP_DRAW_WIRE_FRAME;
+    _type = Common::VSP_QUADS;
+    _style = Common::VSP_DRAW_WIRE_FRAME;
 
     _vBuffer = new VertexBuffer();
     _cBuffer = new ColorBuffer();
@@ -112,12 +112,12 @@ void Renderable::setPointSize( float size )
 
 void Renderable::setGeomType( Common::VSPenum type )
 {
-    _geomType = type;
+    _type = type;
 }
 
 void Renderable::setRenderStyle( Common::VSPenum style )
 {
-    _renderStyle = style;
+    _style = style;
 }
 
 void Renderable::setVisibility( bool isVisible )

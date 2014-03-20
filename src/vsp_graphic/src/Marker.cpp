@@ -6,7 +6,7 @@
 
 namespace VSPGraphic
 {
-Marker::Marker( Common::VSPenum geomType ) : Renderable( geomType )
+Marker::Marker() : Renderable()
 {
 }
 Marker::~Marker()

@@ -13,13 +13,13 @@
 
 namespace VSPGraphic
 {
-Entity::Entity( Common::VSPenum geomType ) : Renderable( geomType )
+Entity::Entity() : Renderable()
 {
     _material = _getDefaultMaterial();
     _lighting = NULL;
     _textureMgr = new TextureMgr();
 }
-Entity::Entity( Common::VSPenum geomType, Lighting * lights ) : Renderable( geomType )
+Entity::Entity( Lighting * lights ) : Renderable()
 {
     _material = _getDefaultMaterial();
     _lighting = lights;

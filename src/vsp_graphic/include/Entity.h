@@ -18,15 +18,13 @@ class Entity : public Renderable
 public:
     /*!
     * Constructor.  Build an Entity Object without lighting.
-    * geomType - type of geometry primitive.  VSP_TRIANGLES, VSP_QUADS
     */
-    Entity( Common::VSPenum geomType );
+    Entity();
     /*!
     * Constructor.  Build an Entity Object with lighting.
-    * geomType - type of geometry primitive.  VSP_TRIANGLES, VSP_QUADS
     * lights - lighting information.
     */
-    Entity( Common::VSPenum geomType, Lighting * lights );
+    Entity( Lighting * lights );
     /*!
     * Destructor.
     */

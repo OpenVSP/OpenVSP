@@ -38,15 +38,15 @@ void Scene::createObject( Common::VSPenum objectType, unsigned int * id_out )
     switch( objectType )
     {
     case Common::VSP_OBJECT_MARKER:
-        object = new Marker( Common::VSP_POINTS );
+        object = new Marker();
         break;
 
     case Common::VSP_OBJECT_ENTITY:
-        object = new Entity( Common::VSP_QUADS, _lights );
+        object = new Entity( _lights );
         break;
 
     case Common::VSP_OBJECT_PICKABLE_MARKER:
-        object = new PickableMarker( Common::VSP_POINTS );
+        object = new PickableMarker();
         _pCounter++;
         break;
     }

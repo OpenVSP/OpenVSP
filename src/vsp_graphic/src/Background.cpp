@@ -16,7 +16,7 @@
 
 namespace VSPGraphic
 {
-Background::Background() : Renderable( Common::VSP_QUADS )
+Background::Background() : Renderable()
 {
     _coord.resize( 4 );
     _coord[TOPL] = glm::vec3( -1, 1, 0 );

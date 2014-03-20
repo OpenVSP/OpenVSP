@@ -18,7 +18,7 @@ public:
     /*!
     * Constructor.
     */
-    PickableMarker( Common::VSPenum geomType );
+    PickableMarker();
     /*!
     * Destructor.
     */

@@ -11,7 +11,7 @@
 
 namespace VSPGraphic
 {
-PickableMarker::PickableMarker( Common::VSPenum geomType ) : Marker( geomType )
+PickableMarker::PickableMarker() : Marker()
 {
     _cIndexBuffer = new ColorBuffer();
 

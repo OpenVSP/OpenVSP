@@ -18,9 +18,8 @@ class Renderable
 public:
     /*!
     * Constructor.
-    * geomType identify the type of primitive for rendering.
     */
-    Renderable( Common::VSPenum geomType );
+    Renderable();
     /*!
     * Destructor.
     */
@@ -201,11 +200,11 @@ protected:
 
     Common::VSPenum _getGeomType()
     {
-        return _geomType;
+        return _type;
     }
     Common::VSPenum _getRenderStyle()
     {
-        return _renderStyle;
+        return _style;
     }
 
 protected:
@@ -223,7 +222,7 @@ protected:
     ElementBuffer * _eBuffer;
 
 protected:
-    Common::VSPenum _geomType, _renderStyle;
+    Common::VSPenum _type, _style;
 
     Color _meshColor, _lineColor, _pointColor;
     float _lineWidth, _pointSize;

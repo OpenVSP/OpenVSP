@@ -14,10 +14,8 @@ class Marker : public Renderable
 public:
     /*!
     * Constructor.
-    * geomType - type of primitive.
-    * VSP_POINTS, VSP_LINES, VSP_LINE_LOOP, VSP_LINE_STRIP.
     */
-    Marker( Common::VSPenum geomType );
+    Marker();
     /*!
     * Destructor.
     */
