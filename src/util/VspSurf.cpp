@@ -427,6 +427,20 @@ double VspSurf::FindNearest( double &u, double &w, const vec3d &pt, const double
 	return dist;
 }
 
+void VspSurf::GetUConstCurve( VspCurve &c, const double &u ) const
+{
+    piecewise_curve_type pwc;
+    m_Surface.get_uconst_curve(pwc, u);
+    c.SetCurve(pwc);
+}
+
+void VspSurf::GetWConstCurve( VspCurve &c, const double &w ) const
+{
+    piecewise_curve_type pwc;
+    m_Surface.get_vconst_curve(pwc, w);
+    c.SetCurve(pwc);
+}
+
 //===== Compute a Relative Rotation Transformation Matrix from Component's
 //      Coordinate System to a Surface Coordinate System ====//
 Matrix4d VspSurf::CompRotCoordSys( const double &u, const double &w )
