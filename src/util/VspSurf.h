@@ -106,6 +106,9 @@ public:
     void FlipNormal() { m_FlipNormal = !m_FlipNormal; }
     void ResetFlipNormal( ) { m_FlipNormal = false; }
 
+    double FindNearest( double &u, double &w, const vec3d &pt ) const;
+    double FindNearest( double &u, double &w, const vec3d &pt, const double &u0, const double &w0 ) const;
+
     Matrix4d CompRotCoordSys( const double &u, const double &w );
     Matrix4d CompTransCoordSys( const double &u, const double &w );
 

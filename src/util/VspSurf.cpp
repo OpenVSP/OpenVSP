@@ -18,6 +18,7 @@
 
 #include "eli/geom/curve/piecewise_creator.hpp"
 #include "eli/geom/surface/piecewise_creator.hpp"
+#include "eli/geom/intersect/minimum_distance_surface.hpp"
 
 typedef piecewise_surface_type::index_type surface_index_type;
 typedef piecewise_surface_type::point_type surface_point_type;
@@ -402,6 +403,28 @@ bool VspSurf::IsClosedU() const
 bool VspSurf::IsClosedW() const
 {
     return m_Surface.closed_v();
+}
+
+double VspSurf::FindNearest( double &u, double &w, const vec3d &pt ) const
+{
+    double dist;
+    surface_point_type p;
+    p << pt.x(), pt.y(), pt.z();
+
+    dist = eli::geom::intersect::minimum_distance( u, w, m_Surface, p );
+
+	return dist;
+}
+
+double VspSurf::FindNearest( double &u, double &w, const vec3d &pt, const double &u0, const double &w0 ) const
+{
+    double dist;
+    surface_point_type p;
+    p << pt.x(), pt.y(), pt.z();
+
+    dist = eli::geom::intersect::minimum_distance( u, w, m_Surface, p, u0, w0 );
+
+	return dist;
 }
 
 //===== Compute a Relative Rotation Transformation Matrix from Component's
