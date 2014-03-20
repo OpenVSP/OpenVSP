@@ -427,6 +427,38 @@ double VspSurf::FindNearest( double &u, double &w, const vec3d &pt, const double
 	return dist;
 }
 
+double VspSurf::FindNearest01( double &u, double &w, const vec3d &pt ) const
+{
+    double dist;
+    int num_sectU, num_sectW;
+
+    num_sectU = GetNumSectU();
+    num_sectW = GetNumSectW();
+
+    dist = FindNearest( u, w, pt );
+
+    u = u / num_sectU;
+    w = w / num_sectW;
+
+	return dist;
+}
+
+double VspSurf::FindNearest01( double &u, double &w, const vec3d &pt, const double &u0, const double &w0 ) const
+{
+    double dist;
+    int num_sectU, num_sectW;
+
+    num_sectU = GetNumSectU();
+    num_sectW = GetNumSectW();
+
+    dist = FindNearest( u, w, pt, u0 * num_sectU, w0 * num_sectW );
+
+    u = u / num_sectU;
+    w = w / num_sectW;
+
+	return dist;
+}
+
 void VspSurf::GetUConstCurve( VspCurve &c, const double &u ) const
 {
     piecewise_curve_type pwc;

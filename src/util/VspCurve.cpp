@@ -825,6 +825,30 @@ double VspCurve::FindNearest( double &u, const vec3d &pt, const double &u0 ) con
 	return dist;
 }
 
+double VspCurve::FindNearest01( double &u, const vec3d &pt ) const
+{
+    int num_sects = GetNumSections();
+    double dist;
+
+    dist = FindNearest( u, pt );
+
+    u = u / num_sects;
+
+	return dist;
+}
+
+double VspCurve::FindNearest01( double &u, const vec3d &pt, const double &u0 ) const
+{
+    int num_sects = GetNumSections();
+    double dist;
+
+    dist = FindNearest( u, pt, u0 * num_sects );
+
+    u = u / num_sects;
+
+	return dist;
+}
+
 //===== Compute Point  =====//
 vec3d VspCurve::CompPnt( double u )
 {

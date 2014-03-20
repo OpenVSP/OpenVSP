@@ -160,6 +160,9 @@ public:
     double FindNearest( double &u, const vec3d &pt ) const;
     double FindNearest( double &u, const vec3d &pt, const double &u0 ) const;
 
+    double FindNearest01( double &u, const vec3d &pt ) const;
+    double FindNearest01( double &u, const vec3d &pt, const double &u0 ) const;
+
     //===== Bezier Funcs ====//
     vec3d CompPnt( double u );
     vec3d CompTan( double u );

@@ -109,6 +109,9 @@ public:
     double FindNearest( double &u, double &w, const vec3d &pt ) const;
     double FindNearest( double &u, double &w, const vec3d &pt, const double &u0, const double &w0 ) const;
 
+    double FindNearest01( double &u, double &w, const vec3d &pt ) const;
+    double FindNearest01( double &u, double &w, const vec3d &pt, const double &u0, const double &w0 ) const;
+
     void GetUConstCurve( VspCurve &c, const double &u ) const;
     void GetWConstCurve( VspCurve &c, const double &w ) const;
 
