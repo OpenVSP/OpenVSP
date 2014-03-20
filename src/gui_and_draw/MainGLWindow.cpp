@@ -299,7 +299,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
             // Update scene object.
             obj = m_GEngine->getScene()->getObject( id );
             obj->setVisibility( objects[i]->m_Visible );
-            obj->setGeomType( VSPGraphic::Common::VSP_LINES );
+            obj->setPrimType( VSPGraphic::Common::VSP_LINES );
             obj->setLineColor( red, green, blue );
             obj->setLineWidth( lineWidth );
 
@@ -322,7 +322,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
             }
             obj = m_GEngine->getScene()->getObject( id );
             obj->setVisibility( objects[i]->m_Visible );
-            obj->setGeomType( VSPGraphic::Common::VSP_LINE_LOOP );
+            obj->setPrimType( VSPGraphic::Common::VSP_LINE_LOOP );
             obj->setLineColor( red, green, blue );
             obj->setLineWidth( lineWidth );
             if( objects[i]->m_GeomChanged )
@@ -343,7 +343,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
             }
             obj = m_GEngine->getScene()->getObject( id );
             obj->setVisibility( objects[i]->m_Visible );
-            obj->setGeomType( VSPGraphic::Common::VSP_LINE_STRIP );
+            obj->setPrimType( VSPGraphic::Common::VSP_LINE_STRIP );
             obj->setLineColor( red, green, blue );
             obj->setLineWidth( lineWidth );
             if( objects[i]->m_GeomChanged )
@@ -365,7 +365,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
             }
             obj = m_GEngine->getScene()->getObject( id );
             obj->setVisibility( objects[i]->m_Visible );
-            obj->setGeomType( Common::VSP_QUADS );
+            obj->setPrimType( Common::VSP_QUADS );
             obj->setRenderStyle( Common::VSP_DRAW_WIRE_FRAME );
             obj->setLineColor( red, green, blue );
             obj->setLineWidth( lineWidth );
@@ -387,7 +387,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
             }
             obj = m_GEngine->getScene()->getObject( id );
             obj->setVisibility( objects[i]->m_Visible );
-            obj->setGeomType( Common::VSP_TRIANGLES );
+            obj->setPrimType( Common::VSP_TRIANGLES );
             obj->setRenderStyle( Common::VSP_DRAW_WIRE_FRAME );
             obj->setLineColor( red, green, blue );
             obj->setLineWidth( lineWidth );
@@ -409,7 +409,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
             }
             obj = m_GEngine->getScene()->getObject( id );
             obj->setVisibility( objects[i]->m_Visible );
-            obj->setGeomType( Common::VSP_QUADS );
+            obj->setPrimType( Common::VSP_QUADS );
             obj->setRenderStyle( Common::VSP_DRAW_WIRE_FRAME_SOLID );
             obj->setLineColor( red, green, blue );
             obj->setLineWidth( lineWidth );
@@ -431,7 +431,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
             }
             obj = m_GEngine->getScene()->getObject( id );
             obj->setVisibility( objects[i]->m_Visible );
-            obj->setGeomType( Common::VSP_TRIANGLES );
+            obj->setPrimType( Common::VSP_TRIANGLES );
             obj->setRenderStyle( Common::VSP_DRAW_WIRE_FRAME_SOLID );
             obj->setLineColor( red, green, blue );
             obj->setLineWidth( lineWidth );
@@ -453,7 +453,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
             }
             obj = m_GEngine->getScene()->getObject( id );
             obj->setVisibility( objects[i]->m_Visible );
-            obj->setGeomType( Common::VSP_QUADS );
+            obj->setPrimType( Common::VSP_QUADS );
             obj->setRenderStyle( Common::VSP_DRAW_MESH_SHADED );
             if( objects[i]->m_GeomChanged )
             {
@@ -473,7 +473,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
             }
             obj = m_GEngine->getScene()->getObject( id );
             obj->setVisibility( objects[i]->m_Visible );
-            obj->setGeomType( Common::VSP_TRIANGLES );
+            obj->setPrimType( Common::VSP_TRIANGLES );
             obj->setRenderStyle( Common::VSP_DRAW_MESH_SHADED );
             if( objects[i]->m_GeomChanged )
             {
@@ -493,7 +493,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
             }
             obj = m_GEngine->getScene()->getObject( id );
             obj->setVisibility( objects[i]->m_Visible );
-            obj->setGeomType( Common::VSP_QUADS );
+            obj->setPrimType( Common::VSP_QUADS );
             obj->setRenderStyle( Common::VSP_DRAW_MESH_TEXTURED );
             if( objects[i]->m_GeomChanged )
             {

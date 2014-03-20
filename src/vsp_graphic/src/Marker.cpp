@@ -19,7 +19,7 @@ void Marker::_predraw()
 
 void Marker::_draw()
 {
-    switch( _getGeomType() )
+    switch( getPrimType() )
     {
     case Common::VSP_POINTS:
         _draw_Points();
@@ -129,7 +129,7 @@ void Marker::_draw_Lines( float r, float g, float b, float a, float width )
 
 void Marker::_draw_VBuffer()
 {
-    switch( _getGeomType() )
+    switch( getPrimType() )
     {
     case Common::VSP_POINTS:
         _vBuffer->draw( GL_POINTS );
@@ -152,7 +152,7 @@ void Marker::_draw_VBuffer()
 void Marker::_draw_EBuffer()
 {
     _eBuffer->bind();
-    switch( _getGeomType() )
+    switch( getPrimType() )
     {
     case Common::VSP_POINTS:
         _vBuffer->drawElem( GL_POINTS, _eBuffer->getElemSize(), ( void* )0 );

@@ -94,13 +94,27 @@ public:
 
 public:
     /*!
-    * Set Geometry Type.
+    * Set Geometry Primitive Type.
+	 * VSP_TRIANGLES, VSP_QUADS, VSP_LINES, VSP_POINTS, VSP_LINE_LOOP, VSP_LINE_STRIP.
     */
-    void setGeomType( Common::VSPenum type );
+    void setPrimType( Common::VSPenum type );
+	 /*!
+	 * Get primitive type.
+	 */
+	 Common::VSPenum getPrimType();
+
+public:
     /*!
     * Set render style.
+	 * VSP_DRAW_MESH_SHADED, VSP_DRAW_MESH_TEXTURED,
+	 * VSP_DRAW_WIRE_FRAME, VSP_DRAW_WIRE_FRAME_SOLID.
     */
     void setRenderStyle( Common::VSPenum style );
+	 /*!
+	 * Get render style.
+	 */
+	 Common::VSPenum getRenderStyle();
+
     /*!
     * Set visibility.
     */
@@ -196,15 +210,6 @@ protected:
     float _getPointSize()
     {
         return _pointSize;
-    }
-
-    Common::VSPenum _getGeomType()
-    {
-        return _type;
-    }
-    Common::VSPenum _getRenderStyle()
-    {
-        return _style;
     }
 
 protected:

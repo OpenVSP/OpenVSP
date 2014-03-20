@@ -44,7 +44,7 @@ void Entity::setMaterial( Material * material )
 
 void Entity::_predraw()
 {
-    switch( _getRenderStyle() )
+    switch( getRenderStyle() )
     {
     case Common::VSP_DRAW_MESH_SHADED:
         _draw_Mesh( 0.f, 0.f, 0.f, 0.f );
@@ -62,7 +62,7 @@ void Entity::_predraw()
 
 void Entity::_draw()
 {
-    switch( _getRenderStyle() )
+    switch( getRenderStyle() )
     {
     case Common::VSP_DRAW_MESH_SHADED:
         _draw_Mesh_Shaded();
@@ -250,7 +250,7 @@ void Entity::_draw_Wire_EBuffer()
 
 void Entity::_draw_VBuffer()
 {
-    switch( _getGeomType() )
+    switch( getPrimType() )
     {
     case Common::VSP_TRIANGLES:
         _vBuffer->draw( GL_TRIANGLES );
@@ -264,7 +264,7 @@ void Entity::_draw_VBuffer()
 
 void Entity::_draw_EBuffer()
 {
-    switch( _getGeomType() )
+    switch( getPrimType() )
     {
     case Common::VSP_TRIANGLES:
         _eBuffer->bind();

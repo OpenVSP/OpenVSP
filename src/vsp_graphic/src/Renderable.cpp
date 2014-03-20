@@ -110,14 +110,24 @@ void Renderable::setPointSize( float size )
     _pointSize = size;
 }
 
-void Renderable::setGeomType( Common::VSPenum type )
+void Renderable::setPrimType( Common::VSPenum type )
 {
     _type = type;
+}
+
+Common::VSPenum Renderable::getPrimType()
+{
+	return _type;
 }
 
 void Renderable::setRenderStyle( Common::VSPenum style )
 {
     _style = style;
+}
+
+Common::VSPenum Renderable::getRenderStyle()
+{
+	return _style;
 }
 
 void Renderable::setVisibility( bool isVisible )

@@ -127,7 +127,7 @@ void VspSubGlWindow::_update( std::vector<DrawObj *> objects )
 
             obj = m_GEngine->getScene()->getObject( id );
             obj->setVisibility( objects[i]->m_Visible );
-            obj->setGeomType( VSPGraphic::Common::VSP_POINTS );
+            obj->setPrimType( VSPGraphic::Common::VSP_POINTS );
             obj->setPointColor( red, green, blue );
             obj->setPointSize( size );
 
@@ -146,7 +146,7 @@ void VspSubGlWindow::_update( std::vector<DrawObj *> objects )
 
             obj = m_GEngine->getScene()->getObject( id );
             obj->setVisibility( objects[i]->m_Visible );
-            obj->setGeomType( VSPGraphic::Common::VSP_LINES );
+            obj->setPrimType( VSPGraphic::Common::VSP_LINES );
             obj->setLineColor( red, green, blue );
             obj->setLineWidth( size );
 
