@@ -143,6 +143,10 @@ public:
     {
         m_GapHeight = h;
     }
+    int GetGapHeight()
+    {
+        return m_GapHeight;
+    }
     void SetDividerHeight( int h )
     {
         m_DividerHeight = h;
