@@ -157,6 +157,9 @@ public:
     double GetCurveDt( int i ) const;
     void AppendCurveSegment( curve_segment_type &c );
 
+    double FindNearest( double &u, const vec3d &pt ) const;
+    double FindNearest( double &u, const vec3d &pt, const double &u0 ) const;
+
     //===== Bezier Funcs ====//
     vec3d CompPnt( double u );
     vec3d CompTan( double u );
