@@ -47,10 +47,6 @@ class MeshGeom : public Geom
     vector< TTri* > m_NascartTriVec;
     vector< TNode* > m_NascartNodeVec;
 
-    vector< TTri* > m_TecplotTriVec[30];
-    vector< TNode* > m_TecplotNodeVec[30];
-
-
 public:
 //  enum { SLICE_PLANAR, SLICE_AWAVE };
 
@@ -135,17 +131,9 @@ public:
     {
         return m_NascartNodeVec.size();
     }
-    virtual int  GetNumTecplotPnts( int m )
-    {
-        return m_TecplotNodeVec[m].size();
-    }
     virtual int  GetNumNascartTris()
     {
         return m_NascartTriVec.size();
-    }
-    virtual int  GetNumTecplotTris( int m )
-    {
-        return m_TecplotTriVec[m].size();
     }
     virtual int  GetNumNascartParts()
     {
