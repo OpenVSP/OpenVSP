@@ -2,6 +2,7 @@
 #define _VSP_GRAPHIC_RENDER_OPERATION_BASE_H
 
 #include "Common.h"
+#include "SceneObject.h"
 
 namespace VSPGraphic
 {
@@ -13,7 +14,7 @@ class ElementBuffer;
 * Renderable class.
 * This class is the base class for all renderable objects.
 */
-class Renderable
+class Renderable : public SceneObject
 {
 public:
     /*!
@@ -81,6 +82,10 @@ public:
     * Set point color.
     */
     void setPointColor( float r, float g, float b, float a = 1.f );
+    /*!
+    * Set text color.
+    */
+    void setTextColor( float r, float g, float b, float a = 1.f );
 
 public:
     /*!
@@ -91,105 +96,60 @@ public:
     * Set point size.
     */
     void setPointSize( float size );
+    /*!
+    * Set text size.
+    */
+    void setTextSize( float size );
 
 public:
     /*!
     * Set Geometry Primitive Type.
-	 * VSP_TRIANGLES, VSP_QUADS, VSP_LINES, VSP_POINTS, VSP_LINE_LOOP, VSP_LINE_STRIP.
+    * VSP_TRIANGLES, VSP_QUADS, VSP_LINES, VSP_POINTS, VSP_LINE_LOOP, VSP_LINE_STRIP.
     */
     void setPrimType( Common::VSPenum type );
-	 /*!
-	 * Get primitive type.
-	 */
-	 Common::VSPenum getPrimType();
+    /*!
+    * Get primitive type.
+    */
+    Common::VSPenum getPrimType();
 
 public:
     /*!
     * Set render style.
-	 * VSP_DRAW_MESH_SHADED, VSP_DRAW_MESH_TEXTURED,
-	 * VSP_DRAW_WIRE_FRAME, VSP_DRAW_WIRE_FRAME_SOLID.
+    * VSP_DRAW_MESH_SHADED, VSP_DRAW_MESH_TEXTURED,
+    * VSP_DRAW_WIRE_FRAME, VSP_DRAW_WIRE_FRAME_SOLID.
     */
     void setRenderStyle( Common::VSPenum style );
-	 /*!
-	 * Get render style.
-	 */
-	 Common::VSPenum getRenderStyle();
-
     /*!
-    * Set visibility.
+    * Get render style.
     */
-    void setVisibility( bool isVisible );
-    /*!
-    * Get visibility.
-    */
-    bool getVisibility()
-    {
-        return _visible;
-    }
+    Common::VSPenum getRenderStyle();
 
 public:
     /*!
-    * Perform preprocessing rendering.
+    * Get Vertex Buffer Pointer.
     */
-    void predraw();
-    /*!
-    * Render object.
-    */
-    void draw();
-    /*!
-    * Peform postprocessing.
-    */
-    void postdraw();
+    VertexBuffer * getVBuffer();
 
-public:
     /*!
-    * Enable / disable multi-pass rendering.
+    * Get Element Buffer Pointer.
     */
-    void enablePredraw( bool enable );
+    ElementBuffer * getEBuffer();
     /*!
-    * Enable / disable post processing.
+    * Get Element Buffer Flag.  Return true if Element Buffer is enabled.
+    * Else false.
     */
-    void enablePostdraw( bool enable );
-
-protected:
-    /*!
-    * Protected.  Perform preprocessing.
-    * All pre-render / render passes goes here.  Must implement.
-    */
-    virtual void _predraw() = 0;
-    /*!
-    * Protected.  Draw object.
-    * All actual rendering code goes here.  Must implement.
-    */
-    virtual void _draw() = 0;
-    /*!
-    * Protected.  Perform postprocessing.
-    * All postprocessing goes here.  Must implement.
-    */
-    virtual void _postdraw() = 0;
+    bool getEBufferFlag();
 
 protected:
     struct Color;
 
 protected:
-    bool _getPreDrawFlag()
-    {
-        return _predrawFlag;
-    }
-    bool _getPostDrawFlag()
-    {
-        return _postdrawFlag;
-    }
-
-    bool _getEBufferFlag()
-    {
-        return _eBufferFlag;
-    }
     bool _getCBufferFlag()
     {
         return _cBufferFlag;
     }
 
+    // Color
     Color _getMeshColor()
     {
         return _meshColor;
@@ -202,7 +162,12 @@ protected:
     {
         return _pointColor;
     }
+    Color _getTextColor()
+    {
+        return _textColor;
+    }
 
+    // Size
     float _getLineWidth()
     {
         return _lineWidth;
@@ -210,6 +175,10 @@ protected:
     float _getPointSize()
     {
         return _pointSize;
+    }
+    float _getTextSize()
+    {
+        return _textSize;
     }
 
 protected:
@@ -229,12 +198,10 @@ protected:
 protected:
     Common::VSPenum _type, _style;
 
-    Color _meshColor, _lineColor, _pointColor;
-    float _lineWidth, _pointSize;
+    Color _meshColor, _lineColor, _pointColor, _textColor;
+    float _lineWidth, _pointSize, _textSize;
 
-    bool _visible;
     bool _eBufferFlag, _cBufferFlag;
-    bool _predrawFlag, _postdrawFlag;
 };
 }
 #endif

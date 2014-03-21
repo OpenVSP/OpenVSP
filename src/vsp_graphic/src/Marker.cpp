@@ -63,7 +63,7 @@ void Marker::_draw_Points()
 
 void Marker::_draw_Points( float r, float g, float b, float a, float size )
 {
-    bool eBufferEnabled = _getEBufferFlag();
+    bool eBufferEnabled = getEBufferFlag();
 
     glColor4f( r, g, b, a );
     if( size == 0.f )
@@ -105,7 +105,7 @@ void Marker::_draw_Lines()
 
 void Marker::_draw_Lines( float r, float g, float b, float a, float width )
 {
-    bool eBufferEnabled = _getEBufferFlag();
+    bool eBufferEnabled = getEBufferFlag();
 
     glColor4f( r, g, b, a );
     if( width == 0.f )

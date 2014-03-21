@@ -165,7 +165,7 @@ void Entity::_draw_Mesh()
 
 void Entity::_draw_Mesh( float r, float g, float b, float a )
 {
-    bool eBufferEnabled = _getEBufferFlag();
+    bool eBufferEnabled = getEBufferFlag();
 
     glColor4f( r, g, b, a );
 
@@ -200,7 +200,7 @@ void Entity::_draw_Wire()
 
 void Entity::_draw_Wire( float r, float g, float b, float a, float lineWidth )
 {
-    bool eBufferEnabled = _getEBufferFlag();
+    bool eBufferEnabled = getEBufferFlag();
 
     glColor4f( r, g, b, a );
 

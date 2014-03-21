@@ -22,12 +22,12 @@ Renderable::Renderable()
     _meshColor.alpha = _lineColor.alpha = _pointColor.alpha = 1.f;
     _pointColor.red = 1.f;
     _pointColor.green = _pointColor.blue = 0.f;
+    _textColor.red = _textColor.green = _textColor.blue = 0.f;
+    _textColor.alpha = 1.f;
 
-    _lineWidth = _pointSize = 1.0f;
+    _lineWidth = _pointSize = _textSize = 1.0f;
 
-    _visible = true;
     _cBufferFlag = _eBufferFlag = false;
-    _predrawFlag = _postdrawFlag = false;
 }
 Renderable::~Renderable()
 {
@@ -128,44 +128,5 @@ void Renderable::setRenderStyle( Common::VSPenum style )
 Common::VSPenum Renderable::getRenderStyle()
 {
 	return _style;
-}
-
-void Renderable::setVisibility( bool isVisible )
-{
-    _visible = isVisible;
-}
-
-void Renderable::enablePredraw( bool enable )
-{
-    _predrawFlag = enable;
-}
-
-void Renderable::enablePostdraw( bool enable )
-{
-    _postdrawFlag = enable;
-}
-
-void Renderable::predraw()
-{
-    if( _visible && _getPreDrawFlag() )
-    {
-        _predraw();
-    }
-}
-
-void Renderable::draw()
-{
-    if( _visible )
-    {
-        _draw();
-    }
-}
-
-void Renderable::postdraw()
-{
-    if( _visible && _getPostDrawFlag() )
-    {
-        _postdraw();
-    }
 }
 }
