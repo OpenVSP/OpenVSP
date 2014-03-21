@@ -40,8 +40,8 @@ public:
 
 public:
     /*!
-    * Set this Pickable to specific group. Group identifies where
-    * the feedback is going.
+    * Set this Pickable to specific group. Group identifies who
+    * the feedback is for.
     */
     void setGroup(std::string group);
     /*!

@@ -7,14 +7,30 @@
 
 namespace VSPGraphic
 {
+/*!
+* Base class for all Selectable objects.
+*/
 class Selectable : public SceneObject
 {
 public:
+    /*!
+    * Constructor.
+    */
     Selectable();
+    /*!
+    * Destructor.
+    */
     virtual ~Selectable();
 
 public:
+    /*!
+    * Set this Selectable to a group. Group identifies who
+    * the feedback is for.
+    */
     void setGroup(std::string group);
+    /*!
+    * Get group name.
+    */
     std::string getGroup();
 
 protected:
