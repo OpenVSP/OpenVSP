@@ -58,10 +58,6 @@ protected:
     * Draw Geometry.
     */
     virtual void _draw();
-    /*!
-    * Postprocessing.
-    */
-    virtual void _postdraw();
 
 protected:
     /*!

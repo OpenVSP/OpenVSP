@@ -39,10 +39,6 @@ void Marker::_draw()
     }
 }
 
-void Marker::_postdraw()
-{
-}
-
 void Marker::_draw_Points()
 {
     bool cBufferEnabled = _getCBufferFlag();

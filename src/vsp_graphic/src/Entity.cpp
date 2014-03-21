@@ -28,6 +28,7 @@ Entity::Entity( Lighting * lights ) : Renderable()
 }
 Entity::~Entity()
 {
+    delete _textureMgr;
 }
 
 void Entity::setLighting( Lighting * lighting )
@@ -80,10 +81,6 @@ void Entity::_draw()
         _draw_Mesh_Textured();
         break;
     }
-}
-
-void Entity::_postdraw()
-{
 }
 
 Material * Entity::_getDefaultMaterial()
