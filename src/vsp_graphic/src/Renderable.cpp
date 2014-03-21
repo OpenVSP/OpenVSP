@@ -8,7 +8,7 @@
 
 namespace VSPGraphic
 {
-Renderable::Renderable()
+Renderable::Renderable() : SceneObject()
 {
     _type = Common::VSP_QUADS;
     _style = Common::VSP_DRAW_WIRE_FRAME;
@@ -128,5 +128,29 @@ void Renderable::setRenderStyle( Common::VSPenum style )
 Common::VSPenum Renderable::getRenderStyle()
 {
 	return _style;
+}
+
+glm::vec3 Renderable::getVertexVec(unsigned int bufferIndex)
+{
+    float temp[3];
+
+    _vBuffer->getVertex3f(bufferIndex, temp);
+
+    return glm::vec3(temp[0], temp[1], temp[2]);
+}
+
+VertexBuffer * Renderable::getVBuffer()
+{
+    return _vBuffer;
+}
+
+ElementBuffer * Renderable::getEBuffer()
+{
+    return _eBuffer;
+}
+
+bool Renderable::getEBufferFlag()
+{
+    return _eBufferFlag;
 }
 }

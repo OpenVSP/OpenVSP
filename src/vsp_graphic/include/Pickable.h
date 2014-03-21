@@ -10,27 +10,61 @@ namespace VSPGraphic
 class ColorBuffer;
 class Renderable;
 
+/*!
+* Base class for all Pickable objects.
+*/
 class Pickable : public SceneObject
 {
 public:
+    /*!
+    * Constructor.
+    * source - The source provides render info for this pickable.
+    */
     Pickable(Renderable * source);
+    /*!
+    * Destructor.
+    */
     virtual ~Pickable();
 
 public:
+    /*!
+    * Process picked Id. If current object is picked, return true.
+    */
     virtual bool processPickingResult(unsigned int pickedId);
 
 public:
+    /*!
+    * Get source.
+    */
     Renderable * getSource();
 
 public:
+    /*!
+    * Set this Pickable to specific group. Group identifies where
+    * the feedback is going.
+    */
     void setGroup(std::string group);
+    /*!
+    * Return the group name.
+    */
     std::string getGroup();
 
 public:
+    /*!
+    * Update pickable.  Must implement.
+    */
     virtual void update() = 0;
 
 protected:
-    virtual void _genColorBlock(bool single);
+    /*!
+    * Generate a block of unique color ids for this Pickable.
+    * If geomPicking, only generate one color for the whole
+    * Pickable.  Else generate one color per vertex.
+    */
+    virtual void _genColorBlock(bool geomPicking);
+    /*!
+    * Clear all color ids.
+    */
     virtual void _delColorBlock();
 
 protected:

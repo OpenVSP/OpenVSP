@@ -3,6 +3,7 @@
 
 #include "Common.h"
 #include "SceneObject.h"
+#include "glm/glm.hpp"
 
 namespace VSPGraphic
 {
@@ -123,6 +124,12 @@ public:
     * Get render style.
     */
     Common::VSPenum getRenderStyle();
+
+public:
+    /*!
+    * Get vertex info at specific buffer index.
+    */
+    glm::vec3 getVertexVec(unsigned int bufferIndex);
 
 public:
     /*!

@@ -54,7 +54,7 @@ std::string Pickable::getGroup()
     return _groupName;
 }
 
-void Pickable::_genColorBlock(bool single)
+void Pickable::_genColorBlock(bool geomPicking)
 {
     // Just in case this function is spammed without _delColorBlock(),
     // free block before create.
@@ -66,7 +66,7 @@ void Pickable::_genColorBlock(bool single)
     std::vector<unsigned char> colorblock;
     colorblock.resize(vbSize * 4);
 
-    if(!single)
+    if(!geomPicking)
     {
         // Create unique block of color indices.
         ColorCoderSingle.genCodeBlock(vbSize, &_colorIndexRange.start, &_colorIndexRange.end, colorblock.data());
