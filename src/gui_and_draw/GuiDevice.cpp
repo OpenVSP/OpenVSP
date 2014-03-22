@@ -2210,3 +2210,101 @@ void SkinControl::DeviceCB( Fl_Widget* w )
 
     m_Screen->GuiDeviceCallBack( this );
 }
+
+//=====================================================================//
+//===========       Skin Output Group                       ===========//
+//=====================================================================//
+SkinOutput::SkinOutput()
+{
+    m_Screen = NULL;
+
+    m_ContLOutput = NULL;
+    m_OrderOutput = NULL;
+    m_ContROutput = NULL;
+}
+
+void SkinOutput::Init( VspScreen* screen, Fl_Output* contL, Fl_Output* order, Fl_Output* contR, const vector< Fl_Button* > & buttons )
+{
+    m_Screen = screen;
+
+    m_ContLOutput = contL;
+    m_OrderOutput = order;
+    m_ContROutput = contR;
+
+    m_Buttons = buttons;
+}
+
+string SkinOutput::ContStr( int cont )
+{
+    switch(cont)
+    {
+    case C0:
+        return string("C0");
+        break;
+    case C1:
+        return string("C1");
+        break;
+    case C2:
+        return string("C2");
+        break;
+    case NONE:
+    default:
+        return string("");
+        break;
+    }
+}
+
+void SkinOutput::Update( int contL, int order, int contR )
+{
+    m_contL = ContStr(contL);
+    m_ContLOutput->value( m_contL.c_str() );
+
+    m_order = std::to_string( order );
+    m_OrderOutput->value( m_order.c_str() );
+
+    m_contR = ContStr(contR);
+    m_ContROutput->value( m_contR.c_str() );
+}
+
+void SkinOutput::Activate()
+{
+
+    assert( m_ContLOutput );
+    m_ContLOutput->activate();
+
+    assert( m_OrderOutput );
+    m_OrderOutput->activate();
+
+    assert( m_ContROutput );
+    m_ContROutput->activate();
+
+    for( int i = 0; i < m_Buttons.size(); i++ )
+    {
+        assert( m_Buttons[i] );
+        m_Buttons[i]->activate();
+    }
+}
+
+void SkinOutput::Deactivate()
+{
+    assert( m_ContLOutput );
+    m_ContLOutput->deactivate();
+
+    assert( m_OrderOutput );
+    m_OrderOutput->deactivate();
+
+    assert( m_ContROutput );
+    m_ContROutput->deactivate();
+
+    for( int i = 0; i < m_Buttons.size(); i++ )
+    {
+        assert( m_Buttons[i] );
+        m_Buttons[i]->deactivate();
+    }
+}
+
+//==== CallBack ====//
+void SkinOutput::DeviceCB( Fl_Widget* w )
+{
+    m_Screen->GuiDeviceCallBack( this );
+}

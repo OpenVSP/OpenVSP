@@ -1035,3 +1035,84 @@ void GroupLayout::AddSkinControl( SkinControl & skin_control, const char* label,
         parm_button,
         range, format);
 }
+
+//==== Add Fuselage Skin Output Group ====//
+void GroupLayout::AddSkinOutput( SkinOutput & skin_output )
+{
+    assert( m_Group && m_Screen );
+    int oldBW = GetButtonWidth();
+
+    vector< Fl_Button* > buttons;
+
+    // Size of continuity and order output text boxes
+    int iw = 30;
+    // Size of CX label buttons
+    int cxW = 20;
+    // Size of Set label buttons
+    int setW = 25;
+    // Size of Order label button
+    int ordW = oldBW - iw;
+
+    // Space to skip to properly center elements
+    int skipw = ( m_Group->w() - ( 3 * iw + ordW + 2 * cxW + 2 * setW ) ) / 2;
+
+    //==== Left CX Button ====//
+    SetButtonWidth( cxW );
+    buttons.push_back( AddParmButton( "CX" ) );
+
+    //==== Add Left Continuity Output ====//
+    Fl_Output* contL = new Fl_Output( m_X, m_Y, iw, m_StdHeight );
+    contL->color( ( Fl_Color )23 );
+    contL->labelfont( 1 );
+    contL->labelsize( 12 );
+    contL->textfont( 1 );
+    contL->textsize( 12 );
+    m_Group->add( contL );
+    AddX( iw );
+
+    AddX( skipw );
+
+    //==== Left Set Button ====//
+    SetButtonWidth( setW );
+    buttons.push_back( AddParmButton( "Set" ) );
+
+    //==== Order Button ====//
+    SetButtonWidth( ordW );
+    buttons.push_back( AddParmButton( "Order" ) );
+
+    //==== Add Order Output ====//
+    Fl_Output* order = new Fl_Output( m_X, m_Y, iw, m_StdHeight );
+    order->color( ( Fl_Color )23 );
+    order->labelfont( 1 );
+    order->labelsize( 12 );
+    order->textfont( 1 );
+    order->textsize( 12 );
+    m_Group->add( order );
+    AddX( iw );
+
+    //==== Right Set Button ====//
+    SetButtonWidth( setW );
+    buttons.push_back( AddParmButton( "Set" ) );
+
+    AddX( skipw );
+
+    //==== Add Left Continuity Output ====//
+    Fl_Output* contR = new Fl_Output( m_X, m_Y, iw, m_StdHeight );
+    contR->color( ( Fl_Color )23 );
+    contR->labelfont( 1 );
+    contR->labelsize( 12 );
+    contR->textfont( 1 );
+    contR->textsize( 12 );
+    m_Group->add( contR );
+    AddX( iw );
+
+    //==== Right CX Button ====//
+    SetButtonWidth( cxW );
+    buttons.push_back( AddParmButton( "CX" ) );
+
+    AddY( m_StdHeight );
+    NewLineX();
+
+    skin_output.Init( m_Screen, contL, order, contR, buttons );
+    SetButtonWidth( oldBW );
+}
