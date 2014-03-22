@@ -65,6 +65,8 @@ class VspScreen;
 //  IndexSelector   (IntParm)       Display and set integers. Composed of input and 5 arrow buttons.
 //  ColorPicker     (None)          Display, edit and pick colors.  Composed of buttons and sliders.
 //                                      Triggers a GuiDeviceCallBack to VspScreen
+//  ParmPicker      (None)          Container, group, and parm pulldowns for selecting parameters
+//  DriverGroupBank (None)          Bank of SliderInputs with radio button controls to implement driver group
 
 
 class GuiDevice
