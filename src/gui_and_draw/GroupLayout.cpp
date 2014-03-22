@@ -953,3 +953,85 @@ void GroupBankRoundButton::draw()
         fl_line( x() + o, y() + h() - o, x() + w() - o, y() + o );
     }
 }
+
+//==== Add Fuselage Skin Control Group ====//
+void GroupLayout::AddSkinControl( SkinControl & skin_control, const char* label, double range, const char* format )
+{
+    assert( m_Group && m_Screen );
+
+    int sw = FitWidth( 4 * m_StdHeight + m_ButtonWidth + 2 * m_InputWidth, 2 * m_SliderWidth )/2;
+
+    //==== Left Continuity Check Button ====//
+    Fl_Check_Button* contButtonL = new Fl_Check_Button( m_X, m_Y, m_StdHeight, m_StdHeight );
+    m_Group->add( contButtonL );
+    AddX( m_StdHeight );
+
+    //==== Left Slider ====//
+    Fl_Slider* sliderL = new Fl_Slider( m_X, m_Y, sw, m_StdHeight );
+    sliderL->type( 5 );
+    sliderL->box( FL_THIN_DOWN_BOX );
+    sliderL->color( FL_BACKGROUND2_COLOR );
+    sliderL->selection_color( FL_SELECTION_COLOR );
+    m_Group->add( sliderL );
+    AddX( sw );
+
+    //==== Left Input ====//
+    Fl_Float_Input* inputL = new Fl_Float_Input( m_X, m_Y,  m_InputWidth, m_StdHeight );
+    inputL->type( 1 );
+    inputL->box( FL_THIN_DOWN_BOX );
+    inputL->textsize( 12 );
+    inputL->when( FL_WHEN_ENTER_KEY );
+    m_Group->add( inputL );
+    AddX( m_InputWidth );
+
+    //==== Left Set Check Button ====//
+    Fl_Check_Button* setButtonL = new Fl_Check_Button( m_X, m_Y, m_StdHeight, m_StdHeight );
+    m_Group->add( setButtonL );
+    AddX( m_StdHeight );
+
+    //==== Parm Button ====//
+    Fl_Button* parm_button = AddParmButton( label );
+
+    //==== Right Set Check Button ====//
+    Fl_Check_Button* setButtonR = new Fl_Check_Button( m_X, m_Y, m_StdHeight, m_StdHeight );
+    m_Group->add( setButtonR );
+    AddX( m_StdHeight );
+
+    //==== Right Slider ====//
+    Fl_Slider* sliderR = new Fl_Slider( m_X, m_Y, sw, m_StdHeight );
+    sliderR->type( 5 );
+    sliderR->box( FL_THIN_DOWN_BOX );
+    sliderR->color( FL_BACKGROUND2_COLOR );
+    sliderR->selection_color( FL_SELECTION_COLOR );
+    m_Group->add( sliderR );
+    AddX( sw );
+
+    //==== Right Input ====//
+    Fl_Float_Input* inputR = new Fl_Float_Input( m_X, m_Y,  m_InputWidth, m_StdHeight );
+    inputR->type( 1 );
+    inputR->box( FL_THIN_DOWN_BOX );
+    inputR->textsize( 12 );
+    inputR->when( FL_WHEN_ENTER_KEY );
+    m_Group->add( inputR );
+    AddX( m_InputWidth );
+
+    //==== Left Continuity Check Button ====//
+    Fl_Check_Button* contButtonR = new Fl_Check_Button( m_X, m_Y, m_StdHeight, m_StdHeight );
+    m_Group->add( contButtonR );
+    AddX( m_StdHeight );
+
+    AddY( m_StdHeight );
+    NewLineX();
+
+    skin_control.Init( m_Screen,
+        contButtonL,
+        contButtonR,
+        setButtonL,
+        setButtonR,
+        sliderL,
+        sliderR,
+        inputL,
+        inputR,
+        parm_button,
+        range, format);
+}

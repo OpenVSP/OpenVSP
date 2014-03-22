@@ -2105,3 +2105,108 @@ bool DriverGroupBank::WhichButton( Fl_Widget *w, int &imatch, int &jmatch )
     }
     return false;
 }
+
+
+//=====================================================================//
+//===========       Skin Control Group                      ===========//
+//=====================================================================//
+SkinControl::SkinControl()
+{
+    m_Screen = NULL;
+
+    m_ContButtonL = NULL;
+    m_ContButtonR = NULL;
+    m_SetButtonL = NULL;
+    m_SetButtonR = NULL;
+}
+
+void SkinControl::Init( VspScreen* screen,
+	    Fl_Check_Button* contButtonL,
+	    Fl_Check_Button* contButtonR,
+	    Fl_Check_Button* setButtonL,
+	    Fl_Check_Button* setButtonR,
+	    Fl_Slider* sliderL,
+	    Fl_Slider* sliderR,
+	    Fl_Input* inputL,
+	    Fl_Input* inputR,
+	    Fl_Button* parm_button,
+	    double range, const char* format)
+{
+    m_Screen = screen;
+
+    m_ContButtonL = contButtonL;
+    m_ContButtonR = contButtonR;
+    m_SetButtonL = setButtonL;
+    m_SetButtonR = setButtonR;
+
+    m_SliderL.Init( screen, sliderL, range );
+    m_SliderR.Init( screen, sliderR, range );
+
+    m_InputL.Init( screen, inputL, format );
+    m_InputR.Init( screen, inputR, format );
+
+    m_ParmButton.Init( screen, parm_button );
+}
+
+
+void SkinControl::Update( const string& parmL_id, const string& parmR_id )
+{
+    m_SliderL.Update( parmL_id );
+    m_InputL.Update( parmL_id );
+    m_SliderR.Update( parmR_id );
+    m_InputR.Update( parmR_id );
+
+    m_ParmButton.Update( parmL_id );
+}
+
+void SkinControl::Activate()
+{
+
+    assert( m_ContButtonL );
+    m_ContButtonL->activate();
+
+    assert( m_ContButtonR );
+    m_ContButtonR->activate();
+
+    assert( m_SetButtonL );
+    m_SetButtonL->activate();
+
+    assert( m_SetButtonR );
+    m_SetButtonR->activate();
+
+    m_SliderL.Activate();
+    m_InputL.Activate();
+    m_SliderR.Activate();
+    m_InputR.Activate();
+
+    m_ParmButton.Activate();
+}
+
+void SkinControl::Deactivate()
+{
+    assert( m_ContButtonL );
+    m_ContButtonL->deactivate();
+
+    assert( m_ContButtonR );
+    m_ContButtonR->deactivate();
+
+    assert( m_SetButtonL );
+    m_SetButtonL->deactivate();
+
+    assert( m_SetButtonR );
+    m_SetButtonR->deactivate();
+
+    m_SliderL.Deactivate();
+    m_InputL.Deactivate();
+    m_SliderR.Deactivate();
+    m_InputR.Deactivate();
+
+    m_ParmButton.Deactivate();
+}
+
+//==== CallBack ====//
+void SkinControl::DeviceCB( Fl_Widget* w )
+{
+
+    m_Screen->GuiDeviceCallBack( this );
+}

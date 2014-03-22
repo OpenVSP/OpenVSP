@@ -67,6 +67,7 @@ class VspScreen;
 //                                      Triggers a GuiDeviceCallBack to VspScreen
 //  ParmPicker      (None)          Container, group, and parm pulldowns for selecting parameters
 //  DriverGroupBank (None)          Bank of SliderInputs with radio button controls to implement driver group
+//  SkinControl     (2 Parms)       Compound control for fuselage skinning
 
 
 class GuiDevice
@@ -792,6 +793,46 @@ protected:
     vector< SliderAdjRangeInput* > m_Sliders;
 
     DriverGroup *m_DriverGroup;
+};
+
+class SkinControl : public GuiDevice
+{
+public:
+	SkinControl( );
+
+    virtual void DeviceCB( Fl_Widget *w );
+
+    virtual void Init( VspScreen* screen,
+    Fl_Check_Button* contButtonL,
+    Fl_Check_Button* contButtonR,
+    Fl_Check_Button* setButtonL,
+    Fl_Check_Button* setButtonR,
+    Fl_Slider* sliderL,
+    Fl_Slider* sliderR,
+    Fl_Input* inputL,
+    Fl_Input* inputR,
+    Fl_Button* parm_button,
+    double range, const char* format);
+
+    virtual void Update( const string& parmL_id, const string& parmR_id );
+    virtual void Activate();
+    virtual void Deactivate();
+
+protected:
+
+    virtual void SetValAndLimits( Parm* parm_ptr )      {}
+
+    Fl_Check_Button* m_ContButtonL;
+    Fl_Check_Button* m_ContButtonR;
+    Fl_Check_Button* m_SetButtonL;
+    Fl_Check_Button* m_SetButtonR;
+
+    Slider m_SliderL;
+    Slider m_SliderR;
+    Input  m_InputL;
+    Input  m_InputR;
+
+    ParmButton m_ParmButton;
 };
 
 #endif // !defined(GUIDEVICE__INCLUDED_)

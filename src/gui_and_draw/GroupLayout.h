@@ -200,6 +200,7 @@ public:
     void AddParmPicker( ParmPicker & parm_picker );
     void AddDriverGroupBank( DriverGroupBank & driver_group, const vector < string > &labels,
                              double range, const char* format );
+    void AddSkinControl( SkinControl & skin_control, const char* label, double range, const char* format );
 
     //==== Add Another GroupLayout as a SubSet of This GroupLayout ====//
     //==== Subgroups can be Used To Create Multiple Column Layouts ====//
