@@ -147,9 +147,17 @@ public:
     {
         m_DividerHeight = h;
     }
+    int GetDividerHeight()
+    {
+        return m_DividerHeight;
+    }
     void SetButtonWidth( int w )
     {
         m_ButtonWidth = w;
+    }
+    int GetButtonWidth()
+    {
+        return m_ButtonWidth;
     }
     void SetCoiceButtonWidth( int w )
     {
