@@ -132,6 +132,13 @@ void ScreenMgr::Init()
     m_ScreenVec[VSP_MAIN_SCREEN]->Show();
     m_ScreenVec[VSP_MANAGE_GEOM_SCREEN]->Show();
 
+    for ( int i = 0 ; i < ( int )m_ScreenVec.size() ; i++ )
+    {
+        if( i != VSP_MAIN_SCREEN )
+        {
+            m_ScreenVec[i]->GetFlWindow()->set_non_modal();
+        }
+    }
 }
 
 //==== Update All Displayed Screens ====//
