@@ -490,12 +490,12 @@ void GroupLayout::AddButton( TriggerButton& tbutton, const char* label )
 }
 
 //==== Create & Init Box Divider  ====//
-void GroupLayout::AddDividerBox( const string& text )
+void GroupLayout::AddDividerBox( const string& text, int used_w )
 {
     assert( m_Group && m_Screen );
 
     //==== Add Divider Box ====//
-    int dw = FitWidth( 0, m_ButtonWidth );
+    int dw = FitWidth( used_w, m_ButtonWidth );
 
     Fl_Box* flbox = new Fl_Box( m_X, m_Y, dw, m_DividerHeight );
     flbox->box( FL_BORDER_BOX );
