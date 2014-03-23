@@ -10,7 +10,7 @@ quat::quat()
 
 // New quat with initial values //
 
-quat::quat( double w, double x, double y, double z )
+quat::quat( const double &w, const double &x, const double &y, const double &z )
 {
     q[0] = w;
     q[1] = x;
@@ -18,7 +18,7 @@ quat::quat( double w, double x, double y, double z )
     q[3] = z;
 }
 // Construct quat from axis angle //
-quat::quat( vec3d axis, double angle )
+quat::quat( const vec3d &axis, const double &angle )
 {
     q[0] = cos( angle / 2 );
     q[1] = axis.x() * sin( angle / 2 );
@@ -59,7 +59,7 @@ quat hamilton( const quat& a, const quat& b )
 
 // Quaternion to Axis Angle //
 // Axis is where the rotation axis will be stored, and angle is where the angle will be stored //
-void quat::quat2axisangle( vec3d& axis, double& angle )
+void quat::quat2axisangle( vec3d& axis, double& angle ) const
 {
     double denom = sqrt( 1 - q[0] * q[0] );
     angle = 2 * acos( q[0] );
