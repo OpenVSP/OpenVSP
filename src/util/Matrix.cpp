@@ -15,7 +15,7 @@ void Matrix4d::loadIdentity()
     setIdentity( mat );
 }
 
-void Matrix4d::setIdentity( double* m )
+void Matrix4d::setIdentity( double* m ) const
 {
     for ( int i = 0 ; i < 4 ; i++ )
         for ( int j = 0 ; j < 4 ; j++ )
@@ -31,7 +31,7 @@ void Matrix4d::setIdentity( double* m )
         }
 }
 
-void Matrix4d::translatef( double x, double y, double z )
+void Matrix4d::translatef( const double &x, const double &y, const double &z )
 {
     double tmat[16];
 
@@ -45,7 +45,7 @@ void Matrix4d::translatef( double x, double y, double z )
 
 }
 
-void Matrix4d::rotateX( double ang )
+void Matrix4d::rotateX( const double &ang )
 {
     double tmat[16];
     double rang = ang * ( double )PI / 180.0f;
@@ -61,7 +61,7 @@ void Matrix4d::rotateX( double ang )
     matMult( tmat );
 }
 
-void Matrix4d::rotateY( double ang )
+void Matrix4d::rotateY( const double &ang )
 {
     double tmat[16];
     double rang = ang * ( double )PI / 180.0f;
@@ -77,7 +77,7 @@ void Matrix4d::rotateY( double ang )
     matMult( tmat );
 }
 
-void Matrix4d::rotateZ( double ang )
+void Matrix4d::rotateZ( const double &ang )
 {
     double tmat[16];
     double rang = ang * ( double )PI / 180.0f;
@@ -124,17 +124,14 @@ void Matrix4d::postMult( double* m )
 void Matrix4d::getMat( double* m )
 {
     memcpy( m, mat, 16 * sizeof( double ) );
-
 }
-
-
 
 void Matrix4d::initMat( double* m )
 {
     memcpy( mat, m, 16 * sizeof( double ) );
 }
 
-void Matrix4d::mult( double in[4], double out[4] )
+void Matrix4d::mult( const double in[4], double out[4] ) const
 {
     out[0] = mat[0] * in[0] + mat[4] * in[1] + mat[8] * in[2] + mat[12] * in[3];
     out[1] = mat[1] * in[0] + mat[5] * in[1] + mat[9] * in[2] + mat[13] * in[3];
@@ -142,7 +139,7 @@ void Matrix4d::mult( double in[4], double out[4] )
     out[3] = mat[3] * in[0] + mat[7] * in[1] + mat[11] * in[2] + mat[15] * in[3];
 }
 
-void Matrix4d::rotate( double angle, vec3d & axis )
+void Matrix4d::rotate( const double angle, const vec3d & axis )
 {
     vec3d a( axis );
     a.normalize();
@@ -197,14 +194,14 @@ void Matrix4d::affineInverse()
     memcpy( mat, res, 16 * sizeof( double ) );
 }
 
-void Matrix4d::scale( double scale )
+void Matrix4d::scale( const double &scale )
 {
     mat[0] *= scale;
     mat[5] *= scale;
     mat[10] *= scale;
 }
 
-vec3d Matrix4d::xform( vec3d & in )
+vec3d Matrix4d::xform( const vec3d & in ) const
 {
     vec3d out;
     out[0] = mat[0] * in[0] + mat[4] * in[1] + mat[8] * in[2] + mat[12];
@@ -213,7 +210,7 @@ vec3d Matrix4d::xform( vec3d & in )
     return out;
 }
 
-vec3d Matrix4d::getAngles()
+vec3d Matrix4d::getAngles() const
 {
     vec3d angles;
     if ( fabs( mat[8] ) != 1 )
