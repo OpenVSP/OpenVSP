@@ -13,37 +13,6 @@
 #include "Vec3d.h"
 
 
-class Matrix
-{
-public:
-
-    Matrix();
-
-    void loadIdentity();
-    void setIdentity( float* m );
-    void translatef( float x, float y, float z );
-    void rotateX( float ang );
-    void rotateY( float ang );
-    void rotateZ( float ang );
-
-    void getMat( float* m );
-    void matMult( float* m );
-    void postMult( float* m );
-
-    void initMat( float* m );
-    void mult( float in[4], float out[4] );
-    float * data()
-    {
-        return mat;
-    }
-
-private:
-
-    float mat[16];
-
-
-};
-
 class Matrix4d
 {
 public:
