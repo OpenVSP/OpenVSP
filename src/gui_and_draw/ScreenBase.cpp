@@ -237,6 +237,7 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_GenLayout.AddDividerBox( "Set Export/Analysis" );
     int remain_y = ( m_GenLayout.GetH() + m_GenLayout.GetStartY() ) - m_GenLayout.GetY();
     m_SetBrowser = m_GenLayout.AddCheckBrowser( remain_y );
+    m_SetBrowser->callback( staticCB, this );
 
     gen_tab->show();
 
@@ -491,4 +492,25 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
+}
+
+void GeomScreen::CallBack( Fl_Widget *w )
+{
+    assert( m_ScreenMgr );
+    Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
+    if ( !geom_ptr )
+    {
+        Hide();
+        return;
+    }
+
+	if ( w == m_SetBrowser )
+    {
+        int curr_index = m_SetBrowser->value();
+        bool flag = !!m_SetBrowser->checked( curr_index );
+
+        geom_ptr->SetSetFlag( curr_index, flag );
+    }
+
+	m_ScreenMgr->SetUpdateFlag( true );
 }

@@ -129,6 +129,7 @@ public:
     virtual ~GeomScreen()                               {}
 
     virtual bool Update( );
+    virtual void CallBack( Fl_Widget *w );
     virtual void GuiDeviceCallBack( GuiDevice* device );
 
     //==== Group Layouts ====//
