@@ -17,6 +17,7 @@
 #include "Geom.h"
 #include "MessageMgr.h"
 #include "DrawObj.h"
+#include "Labels.h"
 
 #include <assert.h>
 
@@ -270,6 +271,14 @@ public:
     */
     LightInfo * FindLight( unsigned int index );
 
+    /*!
+    * Get Labels object pointer.
+    */
+    Labels * getLabels() 
+    { 
+        return &m_Labels; 
+    }
+
     //==== Export Files ====//
     string m_compGeomTxtFileName;
     string m_compGeomCsvFileName;
@@ -292,6 +301,8 @@ private:
 protected:
     vector<LightInfo> m_Lights;
     DrawObj m_LightingObj;
+
+    Labels m_Labels;
 };
 
 

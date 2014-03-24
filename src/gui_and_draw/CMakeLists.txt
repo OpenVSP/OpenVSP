@@ -52,6 +52,7 @@ SubGLWindow.cpp
 ManageLightingScreen.cpp
 ManageViewScreen.cpp
 ManageBackgroundScreen.cpp
+ManageLabelScreen.cpp
 AwaveScreen.h
 BlankScreen.h
 CfdMeshScreen.h
@@ -85,6 +86,7 @@ SubGLWindow.h
 ManageLightingScreen.h
 ManageViewScreen.h
 ManageBackgroundScreen.h
+ManageLabelScreen.h
 )
 
 ADD_DEPENDENCIES(gui_and_draw

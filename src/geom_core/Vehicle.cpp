@@ -96,6 +96,8 @@ Vehicle::Vehicle()
     m_BbYMin.SetDescript( "Minimum Y coordinate of vehicle bounding box" );
     m_BbZMin.Init( "Z_Min", "BBox", this, 0, -1e12, 1e12 );
     m_BbZMin.SetDescript( "Minimum Z coordinate of vehicle bounding box" );
+
+    m_Labels = Labels();
 }
 
 //==== Destructor ====//

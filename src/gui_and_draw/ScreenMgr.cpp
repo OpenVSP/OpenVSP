@@ -28,6 +28,7 @@
 #include "DesignVarScreen.h"
 #include "CfdMeshScreen.h"
 #include "FeaStructScreen.h"
+#include "ManageLabelScreen.h"
 
 #include <time.h>
 #include <assert.h>
@@ -128,6 +129,7 @@ void ScreenMgr::Init()
     m_ScreenVec[VSP_DESIGN_VAR_SCREEN] = new DesignVarScreen( this );
     m_ScreenVec[VSP_CFD_MESH_SCREEN] = new CfdMeshScreen( this );
     m_ScreenVec[VSP_FEA_MESH_SCREEN] = new FeaStructScreen( this );
+    m_ScreenVec[VSP_LABEL_SCREEN] = new ManageLabelScreen( this );
 
     m_ScreenVec[VSP_MAIN_SCREEN]->Show();
     m_ScreenVec[VSP_MANAGE_GEOM_SCREEN]->Show();
