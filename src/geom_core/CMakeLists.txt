@@ -35,6 +35,7 @@ Vehicle.cpp
 VehicleMgr.cpp
 XSec.cpp
 XSecSurf.cpp
+Labels.cpp
 Airfoil.h
 BlankGeom.h
 DesignVarMgr.h
@@ -57,5 +58,6 @@ Vehicle.h
 VehicleMgr.h
 XSec.h
 XSecSurf.h
+Labels.h
 
 )
