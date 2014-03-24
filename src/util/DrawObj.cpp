@@ -3,7 +3,7 @@
 // version 1.3 as detailed in the LICENSE file which accompanies this software.
 //
 
-// DrawObj.h:
+// DrawObj.h: 
 // J.R Gloudemans
 //
 //////////////////////////////////////////////////////////////////////
@@ -31,9 +31,10 @@ DrawObj::DrawObj()
     m_PointColor = vec3d( 1, 0, 0 );
 
     m_Priority = 0;
+
+    m_Ruler.Step = DrawObj::VSP_RULER_STEP_ZERO;
 }
 
 DrawObj::~DrawObj()
 {
-
 }
