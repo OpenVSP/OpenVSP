@@ -61,6 +61,14 @@ public:
         return m_ScreenMgr;
     }
 
+    /*!
+    * Return Feedback Group Name.  Feedback Group Name identifies which GUI
+    * is waitting on feedback.  By default, the names is "".  The name can
+    * be any string.  You can set GUIs to the same name and getting the
+    * same feedbacks.
+    */
+    virtual std::string getFeedbackGroupName();
+
 protected:
 
     ScreenMgr* m_ScreenMgr;

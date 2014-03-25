@@ -289,6 +289,10 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
     {
         m_ScreenMgr->ShowScreen( ScreenMgr::VSP_LIGHTING_SCREEN );
     }
+    else if ( m == m_MainUI->LabelsMenu )
+    {
+        m_ScreenMgr->ShowScreen( ScreenMgr::VSP_LABEL_SCREEN );
+    }
     else if ( m == m_MainUI->ParmDebugMenu )
     {
         m_ScreenMgr->ShowScreen( ScreenMgr::VSP_PARM_DEBUG_SCREEN );

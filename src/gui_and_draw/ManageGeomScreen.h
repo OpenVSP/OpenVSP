@@ -45,6 +45,16 @@ public:
     void CreateScreens();
     void ShowHideGeomScreens();
 
+    /*
+    * Get Feedback Group's name.
+    */
+    virtual std::string getFeedbackGroupName();
+
+    /*!
+    * Set current geom to geom with specific ID.
+    */
+    void Set(std::string geomID);
+
 protected:
 
     GeomUI* m_GeomUI;

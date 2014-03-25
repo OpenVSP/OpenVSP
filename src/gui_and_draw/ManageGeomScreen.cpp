@@ -621,6 +621,14 @@ void ManageGeomScreen::CallBack( Fl_Widget *w )
 
 }
 
+std::string ManageGeomScreen::getFeedbackGroupName()
+{
+	return std::string("GeomGUIGroup");
+}
 
-
-
+void ManageGeomScreen::Set(std::string geomId)
+{
+	m_VehiclePtr->SetActiveGeom(geomId);
+	ShowHideGeomScreens();
+	m_ScreenMgr->SetUpdateFlag( true );
+}
