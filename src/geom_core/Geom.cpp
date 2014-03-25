@@ -1147,7 +1147,7 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     {
         // Symmetry drawObjs have same m_ID. Make them unique by adding index
         // at the end of m_ID.
-        sprintf( str, "%d", i );
+        sprintf( str, "_%d", i );
         m_WireShadeDrawObj_vec[i].m_GeomID = m_ID + str;
         m_WireShadeDrawObj_vec[i].m_Visible = !m_GuiDraw.GetNoShowFlag();
 
@@ -1200,7 +1200,7 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     if ( m_Vehicle->IsGeomActive( m_ID ) )
     {
         m_HighlightDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-        m_HighlightDrawObj.m_GeomID = "BBOX" + m_ID;
+        m_HighlightDrawObj.m_GeomID = BBOXHEADER + m_ID;
         m_HighlightDrawObj.m_LineWidth = 2.0;
         m_HighlightDrawObj.m_LineColor = vec3d( 1.0, 0., 0.0 );
         m_HighlightDrawObj.m_Type = DrawObj::VSP_LINES;
