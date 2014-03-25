@@ -28,7 +28,7 @@ public:
     void Set(std::string sourceId, unsigned int sourceIndex);
     void Set(vec3d placement);
 
-    std::string getFeedbackGroupName();
+    virtual std::string getFeedbackGroupName();
 
 protected:
     std::string GenerateRuler();
