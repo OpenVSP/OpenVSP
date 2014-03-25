@@ -104,7 +104,7 @@ public:
 
 public:
     /*!
-    * Set Geometry Primitive Type.
+    * Set primitive type.
     * VSP_TRIANGLES, VSP_QUADS, VSP_LINES, VSP_POINTS, VSP_LINE_LOOP, VSP_LINE_STRIP.
     */
     void setPrimType( Common::VSPenum type );
@@ -124,12 +124,10 @@ public:
     * Get render style.
     */
     Common::VSPenum getRenderStyle();
-
-public:
     /*!
-    * Get vertex info at specific buffer index.
+    * Get vertex at specific buffer index.
     */
-    glm::vec3 getVertexVec(unsigned int bufferIndex);
+    glm::vec3 getVertexVec( unsigned int bufferIndex );
 
 public:
     /*!
@@ -138,55 +136,28 @@ public:
     VertexBuffer * getVBuffer();
 
     /*!
+    * Get Element Buffer Flag.  Return true if Element Buffer is enabled.
+    */
+    bool getEBufferFlag();
+    /*!
     * Get Element Buffer Pointer.
     */
     ElementBuffer * getEBuffer();
-    /*!
-    * Get Element Buffer Flag.  Return true if Element Buffer is enabled.
-    * Else false.
-    */
-    bool getEBufferFlag();
 
 protected:
     struct Color;
 
 protected:
-    bool _getCBufferFlag()
-    {
-        return _cBufferFlag;
-    }
+    bool _getCBufferFlag();
 
-    // Color
-    Color _getMeshColor()
-    {
-        return _meshColor;
-    }
-    Color _getLineColor()
-    {
-        return _lineColor;
-    }
-    Color _getPointColor()
-    {
-        return _pointColor;
-    }
-    Color _getTextColor()
-    {
-        return _textColor;
-    }
+    Color _getMeshColor();
+    Color _getLineColor();
+    Color _getPointColor();
+    Color _getTextColor();
 
-    // Size
-    float _getLineWidth()
-    {
-        return _lineWidth;
-    }
-    float _getPointSize()
-    {
-        return _pointSize;
-    }
-    float _getTextSize()
-    {
-        return _textSize;
-    }
+    float _getLineWidth();
+    float _getPointSize();
+    float _getTextSize();
 
 protected:
     struct Color
@@ -202,7 +173,7 @@ protected:
     ColorBuffer * _cBuffer;
     ElementBuffer * _eBuffer;
 
-protected:
+private:
     Common::VSPenum _type, _style;
 
     Color _meshColor, _lineColor, _pointColor, _textColor;

@@ -1,7 +1,5 @@
 #include "Renderable.h"
 
-#include "Common.h"
-
 #include "VertexBuffer.h"
 #include "ColorBuffer.h"
 #include "ElementBuffer.h"
@@ -17,7 +15,7 @@ Renderable::Renderable() : SceneObject()
     _cBuffer = new ColorBuffer();
     _eBuffer = new ElementBuffer();
 
-    _meshColor.red = _meshColor.green = _meshColor.blue = 1.0f;
+    _meshColor.red = _meshColor.green = _meshColor.blue = 1.f;
     _lineColor.red = _lineColor.green = _lineColor.blue = 0.f;
     _meshColor.alpha = _lineColor.alpha = _pointColor.alpha = 1.f;
     _pointColor.red = 1.f;
@@ -100,6 +98,14 @@ void Renderable::setPointColor( float r, float g, float b, float a )
     _pointColor.alpha = a;
 }
 
+void Renderable::setTextColor( float r, float g, float b, float a )
+{
+    _textColor.red = r;
+    _textColor.green = g;
+    _textColor.blue = b;
+    _textColor.alpha = a;
+}
+
 void Renderable::setLineWidth( float width )
 {
     _lineWidth = width;
@@ -110,6 +116,11 @@ void Renderable::setPointSize( float size )
     _pointSize = size;
 }
 
+void Renderable::setTextSize( float size )
+{
+    _textSize = size;
+}
+
 void Renderable::setPrimType( Common::VSPenum type )
 {
     _type = type;
@@ -117,7 +128,7 @@ void Renderable::setPrimType( Common::VSPenum type )
 
 Common::VSPenum Renderable::getPrimType()
 {
-	return _type;
+    return _type;
 }
 
 void Renderable::setRenderStyle( Common::VSPenum style )
@@ -127,10 +138,10 @@ void Renderable::setRenderStyle( Common::VSPenum style )
 
 Common::VSPenum Renderable::getRenderStyle()
 {
-	return _style;
+    return _style;
 }
 
-glm::vec3 Renderable::getVertexVec(unsigned int bufferIndex)
+glm::vec3 Renderable::getVertexVec( unsigned int bufferIndex )
 {
     float temp[3];
 
@@ -152,5 +163,45 @@ ElementBuffer * Renderable::getEBuffer()
 bool Renderable::getEBufferFlag()
 {
     return _eBufferFlag;
+}
+
+bool Renderable::_getCBufferFlag()
+{
+    return _cBufferFlag;
+}
+
+Renderable::Color Renderable::_getMeshColor()
+{
+    return _meshColor;
+}
+
+Renderable::Color Renderable::_getLineColor()
+{
+    return _lineColor;
+}
+
+Renderable::Color Renderable::_getPointColor()
+{
+    return _pointColor;
+}
+
+Renderable::Color Renderable::_getTextColor()
+{
+    return _textColor;
+}
+
+float Renderable::_getLineWidth()
+{
+    return _lineWidth;
+}
+
+float Renderable::_getPointSize()
+{
+    return _pointSize;
+}
+
+float Renderable::_getTextSize()
+{
+    return _textSize;
 }
 }

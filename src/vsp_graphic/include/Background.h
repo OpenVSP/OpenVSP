@@ -111,7 +111,6 @@ public:
 protected:
     virtual void _predraw();
     virtual void _draw();
-    virtual void _postdraw();
 
 private:
     void _build();
