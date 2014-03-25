@@ -1,17 +1,13 @@
-#include <assert.h>
-
 #include "OpenGLHeaders.h"
-
 #include "LayoutMgr.h"
-
 #include "Viewport.h"
-
 #include "Camera.h"
 #include "CameraMgr.h"
-
 #include "Background.h"
-
 #include "Scene.h"
+#include "Ruler.h"
+
+#include <assert.h>
 
 namespace VSPGraphic
 {
@@ -109,15 +105,19 @@ void LayoutMgr::predraw( Scene * scene, int x, int y )
     }
 
     // Color Picking.
-    scene->pick( x, y );
+    scene->activatePicking( x, y );
 }
 
-void LayoutMgr::draw( Scene * scene )
+void LayoutMgr::draw( Scene * scene, int x, int y )
 {
     for( int i = 0; i < ( int )_viewportList.size(); i++ )
     {
         // Set projection and modelview matrix.
         _viewportList[i]->bind();
+
+        // Set mouse location for ruler.
+        glm::vec3 mouseInWorld = _viewportList[i]->screenToWorld( glm::vec2( x, y ) );
+        Ruler::updateMouseLocation( mouseInWorld );
 
         // Clear Color and Depth Buffer.
         glClearColor( 0.95f, 0.95f, 0.95f, 1.0f );
@@ -184,11 +184,6 @@ void LayoutMgr::draw( Scene * scene )
 
         _viewportList[i]->unbind();
     }
-}
-
-void LayoutMgr::postdraw( Scene * scene )
-{
-    scene->postdraw();
 }
 
 void LayoutMgr::selectViewport( int index )
