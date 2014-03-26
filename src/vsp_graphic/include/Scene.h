@@ -2,6 +2,7 @@
 #define _VSP_GRAPHIC_SCENE_H
 
 #include <vector>
+#include <string>
 
 #include "Common.h"
 
