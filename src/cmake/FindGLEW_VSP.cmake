@@ -19,7 +19,7 @@ FIND_PATH( GLEW_INCLUDE_PATH
 	${CMAKE_INSTALL_PREFIX}/include
 	DOC "The directory where GL/glew.h resides")
 FIND_LIBRARY( GLEW_LIBRARY
-	NAMES GLEW glew glews glew32 glew32s
+	NAMES glews glew glew32 glew32s GLEW
 	HINTS
 	${GLEW_INSTALL_DIR}
 	${GLEW_INSTALL_DIR}/lib

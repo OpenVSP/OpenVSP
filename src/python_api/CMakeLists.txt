@@ -40,14 +40,14 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 	SWIG_ADD_MODULE(vsp python vsp.i )
 
 	SWIG_LINK_LIBRARIES( vsp
-		util
-		tritri
-		geom_core
 		geom_api
+		geom_core
 		cfd_mesh_stuff
 		triangle
 		xmlvsp
 		sixseries
+		util
+		tritri
 		${CPPTEST_LIBRARIES}
 		${LIBXML2_LIBRARIES}
 		${PYTHON_LIBRARIES}
@@ -59,17 +59,17 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 		SWIG_ADD_MODULE(vsp_g python vsp_g.i )
 
 		SWIG_LINK_LIBRARIES( vsp_g
-			util
-			tritri
-			geom_core
 			geom_api_g
+			geom_core
 			gui_and_draw
 			cfd_mesh_stuff
 			triangle
-			load_jpg
+			util
+			tritri
 			screens
 			xmlvsp
 			sixseries
+			load_jpg
 			${CPPTEST_LIBRARIES}
 			${JPEG_LIBRARIES}
 			${LIBXML2_LIBRARIES}

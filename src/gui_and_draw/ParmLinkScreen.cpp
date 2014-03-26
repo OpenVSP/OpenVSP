@@ -74,7 +74,8 @@ ParmLinkScreen::~ParmLinkScreen()
 void ParmLinkScreen::Show()
 {
     //Show( aircraftPtr->getUserGeom() );
-    Update();
+    m_ScreenMgr->SetUpdateFlag( true );
+
     parmLinkUI->UIWindow->show();
 }
 
@@ -425,17 +426,14 @@ void ParmLinkScreen::CallBack( Fl_Widget* w )
         {
             fl_alert( "Error: Identical Parms or Already Linked" );
         }
-        Update();
     }
     else if (  w == parmLinkUI->deleteLinkButton )
     {
         LinkMgr.DelCurrLink();
-        Update();
     }
     else if (  w == parmLinkUI->deleteAllLinksButton )
     {
         LinkMgr.DelAllLinks();
-        Update();
     }
     else if (  w == parmLinkUI->linkAllCompButton )
     {
@@ -444,7 +442,6 @@ void ParmLinkScreen::CallBack( Fl_Widget* w )
         {
             fl_alert( "Error: Identical Comps" );
         }
-        Update();
     }
     else if (  w == parmLinkUI->linkAllGroupButton )
     {
@@ -453,13 +450,11 @@ void ParmLinkScreen::CallBack( Fl_Widget* w )
         {
             fl_alert( "Error: Identical Group" );
         }
-        Update();
     }
     else if (  w == parmLinkUI->linkBrowser )
     {
         int sel = parmLinkUI->linkBrowser->value();
         LinkMgr.SetCurrLinkIndex( sel - 2 );
-        Update();
     }
     //else if ( m_OffsetSlider->GuiChanged( w ) )
     //{
@@ -497,7 +492,7 @@ void ParmLinkScreen::CompGroupLinkChange()
     LinkMgr.SetParm( true, ui->compAChoice->value(), ui->groupAChoice->value(), ui->parmAChoice->value() );
     LinkMgr.SetParm( false, ui->compBChoice->value(), ui->groupBChoice->value(), ui->parmBChoice->value() );
 
-    Update();
+    m_ScreenMgr->SetUpdateFlag( true );
 
     //parmLinkMgrPtr->SetParm( true,
     //  ui->compAChoice->value(), ui->groupAChoice->value(), ui->parmAChoice->value() );

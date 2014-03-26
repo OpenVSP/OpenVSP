@@ -26,7 +26,9 @@ glfont2
 )
 
 TARGET_LINK_LIBRARIES(vsp_graphic
-${GLEW_LIBRARY}
-load_jpg
 glfont2
+load_jpg
+${JPEG_LIBRARIES}
+${GLEW_LIBRARY}
+${OPENGL_LIBRARIES}
 )

@@ -96,8 +96,8 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : VspScreen( mgr )
 
     SetFileLabel( VehicleMgr::getInstance().GetVehicle()->GetVSP3FileName() );
 
-    m_MainUI->winShell->label(VSPVERSION2);
-    m_MainUI->TitleBox->label(VSPVERSION3);
+    m_MainUI->winShell->label( VSPVERSION2 );
+    m_MainUI->TitleBox->label( VSPVERSION3 );
 
     m_selectFileScreen = new SelectFileScreen();
 }

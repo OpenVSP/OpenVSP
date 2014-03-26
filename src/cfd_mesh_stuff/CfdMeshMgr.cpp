@@ -3978,9 +3978,6 @@ void CfdMeshMgrSingleton::TestStuff()
 
 void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 {
-    UpdateSourcesAndWakes();
-    UpdateDomain();
-
     m_GridDensity.Highlight( GetCurrSource() );
     m_GridDensity.Show( m_DrawSourceFlag.Get() );
     m_GridDensity.LoadDrawObjs( draw_obj_vec );

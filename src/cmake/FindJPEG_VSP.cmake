@@ -12,7 +12,7 @@ PATH_SUFFIXES include FL/images include/FL/images )
 
 MESSAGE( STATUS "JPEG_INCLUDE_DIR " ${JPEG_INCLUDE_DIR} )
 
-SET(JPEG_NAMES ${JPEG_NAMES} jpeg fltk_jpeg fltkjpeg fltkjpegd)
+SET(JPEG_NAMES ${JPEG_NAMES} fltk_jpeg fltkjpeg fltkjpegd jpeg )
 FIND_LIBRARY(JPEG_LIBRARY NAMES ${JPEG_NAMES} )
 
 MESSAGE( STATUS "JPEG_LIBRARY " ${JPEG_LIBRARY} )

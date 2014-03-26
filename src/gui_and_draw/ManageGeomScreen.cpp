@@ -91,7 +91,7 @@ bool ManageGeomScreen::Update()
 //==== Show Screen ====//
 void ManageGeomScreen::Show()
 {
-    Update();
+    m_ScreenMgr->SetUpdateFlag( true );
     m_FLTK_Window->show();
 }
 
