@@ -925,7 +925,7 @@ void VspGlWindow::_updateTextures( DrawObj * drawObj )
         }
         else
         {
-            // Render Object is not type of TextureableEntity.
+            // Render Object is not type of Textureable Entity.
             assert( false );
         }
     }
@@ -1056,22 +1056,22 @@ std::vector<std::vector<vec3d>> VspGlWindow::_generateTexCoordFromXSec( DrawObj 
         double currPos = 0.0;
 
         // Calculate the distance between each vertex and total distance.
-        coordinates[i][0].set_x( 0.0 );
+        coordinates[i][0].set_y( 0.0 );
         for ( j = 1 ; j < num_xsecs ; j++ )
         {
             double distance = _distance( drawObj->m_PntMesh[i][j - 1], drawObj->m_PntMesh[i][j] );
             totalDistance += distance;
-            coordinates[i][j].set_x( distance );
+            coordinates[i][j].set_y( distance );
         }
 
-        // Normalize x.
+        // Normalize y.
         for ( j = 0; j < num_xsecs; j++ )
         {
-            currPos += coordinates[i][j].x();
+            currPos += coordinates[i][j].y();
 
             // In case totalDistance equals 0 (pointy ends of pods), 
             // set normalized x to 0.0.
-            coordinates[i][j].set_x( totalDistance <= 0.0 ? (j + 1) * (1.0 / num_xsecs) : currPos / totalDistance );
+            coordinates[i][j].set_y( totalDistance <= 0.0 ? (j + 1) * (1.0 / num_xsecs) : currPos / totalDistance );
         }
     }
 
@@ -1081,22 +1081,22 @@ std::vector<std::vector<vec3d>> VspGlWindow::_generateTexCoordFromXSec( DrawObj 
         double currPos = 0.0;
 
         // Calculate the distance between each vertex and total distance.
-        coordinates[0][i].set_y( 0.0 );
+        coordinates[0][i].set_x( 0.0 );
         for( j = 1; j < num_pnts ; j++ )
         {
             double distance = _distance( drawObj->m_PntMesh[j - 1][i], drawObj->m_PntMesh[j][i] );
             totalDistance += distance;
-            coordinates[j][i].set_y( distance );
+            coordinates[j][i].set_x( distance );
         }
 
-        // Normalize y.
+        // Normalize x.
         for ( j = 0; j < num_pnts; j++ )
         {
-            currPos += coordinates[j][i].y();
+            currPos += coordinates[j][i].x();
 
             // In case totalDistance equals 0 (pointy ends of pods), 
             // set normalized y to 0.0.
-            coordinates[j][i].set_y( totalDistance <= 0.0 ? ( j + 1 ) * ( 1.0 / num_pnts ) : currPos / totalDistance );
+            coordinates[j][i].set_x( totalDistance <= 0.0 ? ( j + 1 ) * ( 1.0 / num_pnts ) : currPos / totalDistance );
         }
     }
     return coordinates;
