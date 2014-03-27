@@ -48,6 +48,7 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 		sixseries
 		util
 		tritri
+        Angelscript
 		${CPPTEST_LIBRARIES}
 		${LIBXML2_LIBRARIES}
 		${PYTHON_LIBRARIES}
@@ -66,6 +67,7 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 			triangle
 			util
 			tritri
+            Angelscript
 			screens
 			xmlvsp
 			sixseries
