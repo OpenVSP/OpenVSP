@@ -154,8 +154,8 @@ public:
     }
 
     // Transform Matrix
-    vec3d transform( float mat[4][4] );
-    vec3d transform( double mat[4][4] );
+    //vec3d transform(float mat[4][4]);
+    //vec3d transform(double mat[4][4]);
     vec3d reflect_xy() const
     {
         return( vec3d( v[0],  v[1], -v[2] ) );
