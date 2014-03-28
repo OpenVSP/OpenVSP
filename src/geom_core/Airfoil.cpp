@@ -77,83 +77,28 @@ FourSeries::FourSeries( bool use_left ) : Airfoil( use_left )
     m_Camber.Init( "Camber", m_GroupName, this, 0.0, 0.0, 0.5 );
     m_CamberLoc.Init( "CamberLoc", m_GroupName, this, 0.2, 0.0, 1.0 );
 
+    m_Creator.set_sharp_trailing_edge(true);
 }
 
 //==== Update ====//
 void FourSeries::Update()
 {
-#if 0
-    double x, xu, zu, zt, xl, zl, zc, theta;
+    piecewise_curve_type c;
 
-    //==== Initialize Array For Points ====//
-    vector< vec3d > pnts( m_NumBasePnts );
-    int half_pnts = m_NumBasePnts / 2;
+    m_Creator.set_thickness( m_ThickChord() * 100.0f );
+    m_Creator.set_camber( m_Camber() * 100.0f, m_CamberLoc() * 10.0f );
 
-    //==== Generate Airfoil ====//
-    for ( int i = 1 ; i < half_pnts ; i++ )
-    {
-        //==== More Points At Leading Edge
-        x = ( double )i / ( double )half_pnts;
-        x = x * sqrt( x );
+    m_Creator.create( c );
 
-        //==== Compute Camber Line and Thickness ====//
-        ComputeZcZtTheta( x, zc, zt, theta );
+    m_Curve.SetCurve( c );
 
-        //==== Compute Upper Surface Points ====//
-        xu = x  - zt * sin( theta );
-        zu = zc + zt * cos( theta );
-        pnts[half_pnts - i] = vec3d( 0.0, zu, xu );
+    Matrix4d mat;
+    mat.loadIdentity();
+    mat.scale( m_Chord() );
 
-        //==== Compute Lower Surface Points ====//
-        xl = x  + zt * sin( theta );
-        zl = zc - zt * cos( theta );
-        pnts[half_pnts + i] = vec3d( 0.0, zl, xl );
-    }
-
-    pnts = ScaleCheckInvert( pnts );
-
-    m_Curve.Interpolate( pnts, true );
-    m_Curve.UniformInterpolate( m_NumBasePnts, true );
+    m_Curve.Transform( mat );
 
     Airfoil::Update();
-#endif
-}
-
-void FourSeries::ComputeZcZtTheta( double x, double& zc, double& zt, double& theta )
-{
-    double xx, xo, xoxo, zo;
-
-    xx = x * x;
-    zt = ( m_ThickChord() / 0.20 ) * ( 0.2969 * sqrt( x ) - 0.1260 * x - 0.3516 * xx + 0.2843 * x * xx - 0.1015 * xx * xx );
-
-    if ( m_Camber() <= 0.0 || m_CamberLoc() <= 0.0 || m_CamberLoc() >= 1.0 )
-    {
-        zc = 0.0;
-        theta = 0.0;
-    }
-    else
-    {
-        if ( x < m_CamberLoc() )
-        {
-            zc = ( float )( ( m_Camber() / ( m_CamberLoc() * m_CamberLoc() ) ) * ( 2.0 * m_CamberLoc() * x - xx ) );
-        }
-        else
-            zc = ( float )( ( m_Camber() / ( ( 1.0 - m_CamberLoc() ) * ( 1.0 - m_CamberLoc() ) ) ) *
-                            ( 1.0 - 2.0 * m_CamberLoc() + 2.0 * m_CamberLoc() * x - xx ) );
-
-        xo = x + 0.00001;
-        xoxo = xo * xo;
-
-        if ( xo < m_CamberLoc() )
-        {
-            zo = ( m_Camber() / ( m_CamberLoc() * m_CamberLoc() ) ) * ( 2.0 * m_CamberLoc() * xo - xoxo );
-        }
-        else
-            zo = ( m_Camber() / ( ( 1.0 - m_CamberLoc() ) * ( 1.0 - m_CamberLoc() ) ) ) *
-                 ( 1.0 - 2.0 * m_CamberLoc() + 2.0 * m_CamberLoc() * xo - xoxo );
-
-        theta = atan( ( ( float )zo - zc ) / 0.00001f );
-    }
 }
 
 //===== Load Name And Number of 4 Series =====//

@@ -20,6 +20,16 @@
 #include <memory>
 #include <utility>
 
+#include "eli/geom/curve/piecewise.hpp"
+#include "eli/geom/curve/piecewise_creator.hpp"
+
+typedef piecewise_curve_type::index_type curve_index_type;
+typedef piecewise_curve_type::point_type curve_point_type;
+typedef piecewise_curve_type::rotation_matrix_type curve_rotation_matrix_type;
+typedef piecewise_curve_type::tolerance_type curve_tolerance_type;
+
+typedef eli::geom::curve::piecewise_four_digit_creator<double, 3, curve_tolerance_type> piecewise_four_digit_creator;
+
 using std::string;
 
 //==== Base Class For Airfoils ====//
@@ -62,8 +72,7 @@ public:
     Parm m_CamberLoc;
 
 protected:
-
-    virtual void ComputeZcZtTheta( double x, double& zc, double& zt, double& theta );
+    piecewise_four_digit_creator m_Creator;
 
 };
 
