@@ -224,7 +224,7 @@ public:
 
     friend bool line_line_intersect( vec3d & p1, vec3d & p2, vec3d & p3, vec3d & p4, double* s, double* t );
 
-    friend vec3d RotateArbAxis( vec3d & p, double theta, vec3d & r );
+    friend vec3d RotateArbAxis( const vec3d & p, double theta, const vec3d & r );
 
 };
 
