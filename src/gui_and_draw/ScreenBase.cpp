@@ -124,6 +124,18 @@ Fl_Group* TabScreen::AddTab( const string& title )
     return grp;
 }
 
+//==== Remove Tab ====//
+void TabScreen::RemoveTab( Fl_Group* grp )
+{
+    m_MenuTabs->remove( grp );
+}
+
+//==== Remove Tab ====//
+void TabScreen::AddTab( Fl_Group* grp )
+{
+    m_MenuTabs->add( grp );
+}
+
 //==== Get Tab At Index ====//
 Fl_Group* TabScreen::GetTab( int index )
 {

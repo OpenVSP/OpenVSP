@@ -106,6 +106,9 @@ public:
     virtual Fl_Group* AddTab( const string& title );
     virtual Fl_Group* GetTab( int index );
 
+    virtual void AddTab( Fl_Group* grp );
+    virtual void RemoveTab( Fl_Group* grp );
+
     //==== Create A Sub Group In Tab - With Border in Pixels ====//
     virtual Fl_Group* AddSubGroup( Fl_Group* group, int border  );
     virtual Fl_Scroll* AddSubScroll( Fl_Group* group, int border  );
