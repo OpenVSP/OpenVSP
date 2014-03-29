@@ -2005,3 +2005,49 @@ vector< string > ParmPicker::FindParmNames( vector< string > & parm_id_vec )
     }
     return name_vec;
 }
+
+//=====================================================================//
+//===========       Group Device                            ===========//
+//=====================================================================//
+Group::Group()
+{
+    m_Type = GDEV_GROUP;
+    m_Group = NULL;
+}
+
+void Group::Activate()
+{
+    if ( m_Group )
+    {
+        m_Group->activate();
+    }
+}
+void Group::Deactivate()
+{
+    if ( m_Group )
+    {
+        m_Group->deactivate();
+    }
+}
+void Group::Hide()
+{
+    if ( m_Group )
+    {
+        m_Group->hide();
+    }
+}
+void Group::Show()
+{
+    if ( m_Group )
+    {
+        m_Group->show();
+    }
+}
+
+//=====================================================================//
+//===========       Tab Device                          ===========//
+//=====================================================================//
+Tab::Tab()
+{
+    m_Type = GDEV_TAB;
+}

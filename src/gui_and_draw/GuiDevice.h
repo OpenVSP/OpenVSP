@@ -22,6 +22,7 @@
 #include <FL/Fl_Int_Input.H>
 #include <FL/Fl_Output.H>
 #include <FL/Fl_Counter.H>
+#include <FL/Fl_Tabs.H>
 
 #include "Vec3d.h"
 #include <vector>
@@ -210,11 +211,11 @@ public:
 
     virtual void Activate();
     virtual void Deactivate();
+    virtual void DeviceCB( Fl_Widget* w );
 
 
 protected:
 
-    virtual void DeviceCB( Fl_Widget* w );
 
     virtual void SetValAndLimits( Parm* parm_ptr );
     virtual void MinButtonCB( Parm* parm_ptr );
@@ -462,7 +463,7 @@ protected:
 
 
 //==== Slider Input Combo ====//
-class SliderAdjRangeInput
+class SliderAdjRangeInput : public GuiDevice
 {
 public:
     virtual void Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
@@ -484,8 +485,12 @@ public:
     {
         m_ParmButton.SetButtonNameUpdate( flag );
     }
+    virtual void DeviceCB( Fl_Widget* w )           {}
 
 protected:
+
+    virtual void SetValAndLimits( Parm* )           {}
+
 
     SliderAdjRange m_Slider;
     Input  m_Input;
@@ -721,6 +726,42 @@ protected:
 
 };
 
+class Group : public GuiDevice
+{
+public:
+    Group();
+
+    virtual void Init( Fl_Group* g )
+    {
+        m_Group = g;
+    }
+    virtual void Activate();
+    virtual void Deactivate();
+    virtual void Hide();
+    virtual void Show();
+
+    virtual void DeviceCB( Fl_Widget* w )           {}
+
+protected:
+
+    virtual void SetValAndLimits( Parm* parm_ptr )  {}
+
+    Fl_Group* m_Group;
+};
+
+class Tab : public Group
+{
+public:
+    Tab();
+
+    virtual Fl_Group* GetGroup()
+    {
+        return m_Group;
+    }
+
+protected:
+
+};
 
 class ParmPicker : public GuiDevice
 {
