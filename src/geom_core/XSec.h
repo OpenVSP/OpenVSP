@@ -40,6 +40,7 @@ public:
     }
 
     virtual void SetRefLength( double len );
+    virtual void SetNumBasePnts( int num );
 
     virtual VspCurve& GetUntransformedCurve();
     virtual VspCurve& GetCurve();
@@ -128,6 +129,7 @@ protected:
 
     int m_Type;
 
+    int m_NumBasePnts;
     string m_RefLengthParmID;
     double m_RefLength;
 

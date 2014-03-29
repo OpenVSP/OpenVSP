@@ -46,6 +46,7 @@ XSec::XSec( bool use_left )
     m_UseLeftRef = use_left;
     m_GroupName = "XSec";
     m_RefLength = 1.0;
+    m_NumBasePnts = 45;
     m_XLocPercent.Init( "XLocPercent", m_GroupName, this,  0.0, 0.0, 1.0 );
     m_XLocPercent.SetDescript( "X distance of cross section as a percent of fuselage length" );
     m_YLocPercent.Init( "YLocPercent", m_GroupName, this,  0.0, -1.0, 1.0 );
@@ -130,6 +131,9 @@ XSec::XSec( bool use_left )
     m_LeftSegLeftSideCurvature.SetDescript( "Curvature of cross section left connecting curve on left side of segment" );
     m_RightSegLeftSideCurvature.Init( "RightSegLeftSideCurvature", "Skinning", this, 0.0, skinningCurvatureMin, skinningCurvatureMax );
     m_RightSegLeftSideCurvature.SetDescript( "Curvature of cross section left connecting curve on right side of segment" );
+
+    m_LateUpdateFlag = true;
+
 }
 
 
@@ -170,6 +174,18 @@ void XSec::SetRefLength( double len )
     m_XLocPercent.SetRefVal( m_RefLength );
     m_YLocPercent.SetRefVal( m_RefLength );
     m_ZLocPercent.SetRefVal( m_RefLength );
+}
+
+//==== Set Number Of Base Pnts  ====//
+void XSec::SetNumBasePnts( int num )
+{
+    if ( num == m_NumBasePnts )
+    {
+        return;
+    }
+
+    m_NumBasePnts = num;
+    m_LateUpdateFlag = true;
 }
 
 //==== Set Scale ====//
@@ -1225,7 +1241,7 @@ bool FileXSec::ReadXSecFile( FILE* file_id )
         if ( fgets( buff, 255, file_id ) )
         {
             sscanf( buff, "%f %f", &y, &z );
-            if ( fabs( y ) < 1.0e12 && fabs( y ) <  1.0e12 )
+            if ( fabs( y ) < 1.0e12 && fabs( z ) <  1.0e12 )
             {
                 pnt_vec.push_back( vec3d( 0.0, y, z ) );
                 more_data = true;
