@@ -29,6 +29,7 @@ VspSurf.cpp
 BndBox.h
 Defines.h
 DrawObj.h
+GuiDeviceEnums.h
 Matrix.h
 MessageMgr.h
 PntNodeMerge.h

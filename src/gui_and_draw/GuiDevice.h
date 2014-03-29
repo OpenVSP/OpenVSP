@@ -80,6 +80,10 @@ public:
     {
         return m_ParmID;
     }
+    virtual int GetType()
+    {
+        return m_Type;
+    }
 
     virtual void DeviceCB( Fl_Widget* w ) = 0;
     static void StaticDeviceCB( Fl_Widget *w, void* data )
@@ -93,10 +97,12 @@ protected:
     virtual Parm* SetParmID( const string& parm_id );
     virtual void SetValAndLimits( Parm* parm_ptr ) = 0;
 
+    int m_Type;
     VspScreen* m_Screen;
     bool m_NewParmFlag;
     string m_ParmID;
     double m_LastVal;
+
 };
 
 //==== Parm Button ====//
