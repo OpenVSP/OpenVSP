@@ -175,7 +175,8 @@ void GroupLayout::SetGroupAndScreen( Fl_Group* group, VspScreen* screen )
 //==== Add Standard Parm Button With Label ====//
 Fl_Button* GroupLayout::AddParmButton( const char* label )
 {
-    Fl_Button* button = new Fl_Button( m_X, m_Y, m_ButtonWidth, m_StdHeight, label );
+    Fl_Button* button = new Fl_Button( m_X, m_Y, m_ButtonWidth, m_StdHeight );
+    button->copy_label( label );
     button->box( FL_THIN_UP_BOX );
     button->labelfont( 1 );
     button->labelsize( 12 );
@@ -430,10 +431,11 @@ void GroupLayout::AddButton( ToggleButton& tbutton, const char* label )
 
     //==== Add Check Button ====//
     int bw = FitWidth( 0, m_ButtonWidth );
-    Fl_Light_Button* flbutton = new Fl_Light_Button( m_X, m_Y, bw, m_StdHeight, label );
+    Fl_Light_Button* flbutton = new Fl_Light_Button( m_X, m_Y, bw, m_StdHeight );
     flbutton->labelfont( 1 );
     flbutton->labelsize( 12 );
     flbutton->align( Fl_Align( 132 | FL_ALIGN_INSIDE ) );
+    flbutton->copy_label( label );
     flbutton->labelcolor( FL_DARK_BLUE );
     m_Group->add( flbutton );
     AddX( bw );
