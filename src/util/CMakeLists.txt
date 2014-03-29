@@ -21,6 +21,7 @@ Quat.cpp
 StlHelper.cpp
 StringUtil.cpp
 SuperEllipse.cpp
+Util.cpp
 UtilTestSuite.cpp
 Vec2d.cpp
 Vec3d.cpp

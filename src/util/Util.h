@@ -37,5 +37,7 @@ template <class T> bool ContainsVal( vector< T > & vec, T const & val )
     return false;
 }
 
+extern string GenerateRandomID( int length );
+
 #endif
 

@@ -33,6 +33,7 @@ ParmContainer.cpp
 ParmMgr.cpp
 ParmUndo.cpp
 PodGeom.cpp
+ResultsMgr.cpp
 TMesh.cpp
 Vehicle.cpp
 VehicleMgr.cpp
@@ -54,6 +55,7 @@ ParmContainer.h
 ParmMgr.h
 ParmUndo.h
 PodGeom.h
+ResultsMgr.h
 SWIGDefines.h
 TMesh.h
 Vehicle.h
