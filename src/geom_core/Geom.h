@@ -289,27 +289,12 @@ public:
 public:
     /*
     * Informations for a single texture.
-    *
     * ID - ID linked to this texture. This ID is only unqiue to this Geom.
-    *
     * DisplayName - Display Name on GUI.
-    *
     * FileName - File path + file Name.
-    *
-    * U - U Position Parm.
-    *
-    * W - W Position Parm.
-    *
-    * UScale - U Scale Parm.
-    *
-    * WScale - W Scale Parm.
-    *
     * Transparency - Alpha value.
-    *
     * FlipU - Flip U coordinate.
-    *
     * FlipW - Flip W coordinate.
-    *
     */
     struct GeomTextureInfo
     {

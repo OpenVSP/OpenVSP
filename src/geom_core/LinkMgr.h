@@ -18,7 +18,7 @@ using std::vector;
 using std::deque;
 
 
-//==== Parm MLink anager ====//
+//==== Parm Link Manager ====//
 class LinkMgrSingleton
 {
 public:
