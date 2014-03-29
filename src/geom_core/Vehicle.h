@@ -207,8 +207,6 @@ public:
 
 protected:
 
-    Parm m_TestParm;
-
     vector< Geom* > m_GeomStoreVec;                 // All Geom Ptrs
 
     vector< string > m_ActiveGeom;              // Currently Active Geoms

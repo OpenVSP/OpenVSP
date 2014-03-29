@@ -136,7 +136,6 @@ void Vehicle::Init()
     m_GeomTypeVec.push_back( GeomType( POD_GEOM_TYPE, "POD", true ) );
     m_GeomTypeVec.push_back( GeomType( FUSELAGE_GEOM_TYPE, "FUSELAGE", true ) );
     m_GeomTypeVec.push_back( GeomType( BLANK_GEOM_TYPE, "BLANK", true ) );
-    m_TestParm.Init( "Test", "Design", this, 0.0, 1.0e-8, 1.0e12 );
 
     LinkMgr.RegisterContainer( this->GetID() );
 
@@ -180,8 +179,8 @@ void Vehicle::Wype()
 
     m_VSP3FileName = string();
 
-    ParmMgr.RemoveParm( &m_TestParm );
-    m_TestParm = Parm();
+//  ParmMgr.RemoveParm( &m_TestParm );
+//  m_TestParm = Parm();
 
     for ( int i = 0 ; i < ( int )m_GeomStoreVec.size() ; i++ )
     {
