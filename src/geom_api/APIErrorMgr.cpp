@@ -58,6 +58,7 @@ int ErrorMgrSingleton::GetNumTotalErrors()
     return m_ErrorStack.size();
 }
 
+//==== Return Error and Pop Off Stack =====//
 ErrorObj ErrorMgrSingleton::PopLastError()
 {
     ErrorObj ret_err;
@@ -73,6 +74,22 @@ ErrorObj ErrorMgrSingleton::PopLastError()
     return ret_err;
 
 }
+
+//==== Return Error and Pop Off Stack =====//
+ErrorObj ErrorMgrSingleton::GetLastError()
+{
+    ErrorObj ret_err;
+
+    if ( m_ErrorStack.size() == 0 )         // Nothing To Undo
+    {
+        return ret_err;
+    }
+
+    ret_err = m_ErrorStack.top();
+
+    return ret_err;
+}
+
 
 
 //==== Add Error To Stack And Set Last Call Flag ====//

@@ -34,6 +34,15 @@ public:
     ErrorObj();
     ErrorObj( ERROR_CODE err_code, const string & err_str );
 
+    ERROR_CODE GetErrorCode()
+    {
+        return m_ErrorCode;
+    }
+    string GetErrorString()
+    {
+        return m_ErrorString;
+    }
+
     ERROR_CODE m_ErrorCode;
     string m_ErrorString;
 
@@ -53,7 +62,7 @@ public:
     bool GetErrorLastCallFlag();                // Did the last call have an error?
     int  GetNumTotalErrors();                   // Total number of errors on stack
     ErrorObj PopLastError();                    // Pop last error off stack
-    //ErrorObj GetLastError();                  // Get last error but leave on stack
+    ErrorObj GetLastError();                    // Get last error but leave on stack
     bool PopErrorAndPrint( FILE* stream );      // Check for error, pop and print to stream
 
     void AddError( ERROR_CODE code, const string & desc );
