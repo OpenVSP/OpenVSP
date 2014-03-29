@@ -122,6 +122,7 @@ public:
     Parm m_LeftSegLeftSideCurvature;
     Parm m_RightSegLeftSideCurvature;
 
+    Parm m_RefLength;
 protected:
 
     Matrix4d m_rotation;
@@ -130,8 +131,6 @@ protected:
     int m_Type;
 
     int m_NumBasePnts;
-    string m_RefLengthParmID;
-    double m_RefLength;
 
     bool m_UseLeftRef;
 

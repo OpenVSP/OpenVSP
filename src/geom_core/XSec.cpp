@@ -132,6 +132,8 @@ XSec::XSec( bool use_left )
     m_RightSegLeftSideCurvature.Init( "RightSegLeftSideCurvature", "Skinning", this, 0.0, skinningCurvatureMin, skinningCurvatureMax );
     m_RightSegLeftSideCurvature.SetDescript( "Curvature of cross section left connecting curve on right side of segment" );
 
+    m_RefLength.Init( "RefLength", m_GroupName, this,  1.0, 1.0e-06, 1.0e12 );
+
     m_LateUpdateFlag = true;
 
 }
@@ -163,7 +165,7 @@ void XSec::SetGroupDisplaySuffix( int num )
 //==== Set Ref Length ====//
 void XSec::SetRefLength( double len )
 {
-    if ( fabs( len - m_RefLength ) < DBL_EPSILON )
+    if ( fabs( len - m_RefLength() ) < DBL_EPSILON )
     {
         return;
     }
@@ -171,9 +173,9 @@ void XSec::SetRefLength( double len )
     m_RefLength = len;
     m_LateUpdateFlag = true;
 
-    m_XLocPercent.SetRefVal( m_RefLength );
-    m_YLocPercent.SetRefVal( m_RefLength );
-    m_ZLocPercent.SetRefVal( m_RefLength );
+    m_XLocPercent.SetRefVal( m_RefLength() );
+    m_YLocPercent.SetRefVal( m_RefLength() );
+    m_ZLocPercent.SetRefVal( m_RefLength() );
 }
 
 //==== Set Number Of Base Pnts  ====//
@@ -279,9 +281,9 @@ void XSec::Update()
     m_TransformedCurve.RotateY( m_YRotate()*DEG_2_RAD );
     m_TransformedCurve.RotateZ( m_ZRotate()*DEG_2_RAD );
 
-    m_TransformedCurve.OffsetX( m_XLocPercent()*m_RefLength );
-    m_TransformedCurve.OffsetY( m_YLocPercent()*m_RefLength );
-    m_TransformedCurve.OffsetZ( m_ZLocPercent()*m_RefLength );
+    m_TransformedCurve.OffsetX( m_XLocPercent()*m_RefLength() );
+    m_TransformedCurve.OffsetY( m_YLocPercent()*m_RefLength() );
+    m_TransformedCurve.OffsetZ( m_ZLocPercent()*m_RefLength() );
 
     double right_value[3], left_value[3];
     int continuity;
