@@ -25,6 +25,55 @@ using std::vector;
 typedef eli::geom::curve::bezier<double, 3> curve_segment_type;
 typedef eli::geom::curve::piecewise<eli::geom::curve::bezier, double, 3> piecewise_curve_type;
 
+class VspPntData
+{
+public:
+    VspPntData();
+    VspPntData( int type );
+
+    enum { NORMAL, SHARP, ZERO, ZERO_X, ZERO_Y, ZERO_Z, ONLY_BACK,
+           ONLY_FORWARD, PREDICT
+         };
+
+    int m_Type;
+    bool m_UseTan1;
+    vec3d m_Tan1;
+    bool m_UseTan2;
+    vec3d m_Tan2;
+
+    bool m_UseTanStr1;
+    double m_TanStr1;
+    bool m_UseTanStr2;
+    double m_TanStr2;
+
+    void SetType( int t )
+    {
+        m_Type = t;
+    }
+    void SetTan1( const vec3d & t )
+    {
+        m_UseTan1 = true;
+        m_Tan1 = t;
+    }
+    void SetTan2( const vec3d & t )
+    {
+        m_UseTan2 = true;
+        m_Tan2 = t;
+    }
+    void SetTanStr1( double & s )
+    {
+        m_UseTanStr1 = true;
+        m_TanStr1 = s;
+    }
+    void SetTanStr2( double & s )
+    {
+        m_UseTanStr2 = true;
+        m_TanStr2 = s;
+    }
+};
+
+
+
 class VspCurveInfo
 {
 public:
