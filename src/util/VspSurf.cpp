@@ -1603,6 +1603,11 @@ vec3d VspSurf::CompNorm01( double u01, double v01 ) const
 //==== Tesselate Surface ====//
 void VspSurf::Tesselate( int num_u, int num_v, vector< vector< vec3d > > & pnts, vector< vector< vec3d > > & norms ) const
 {
+    if( m_Surface.number_u_patches()==0 || m_Surface.number_v_patches()==0 )
+    {
+        return;
+    }
+
     surface_index_type i, j, nu( num_u ), nv( num_v );
     double umin, umax, vmin, vmax;
     std::vector<double> u( nu ), v( nv );
