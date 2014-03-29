@@ -78,17 +78,17 @@ int main( int argc, char** argv )
 
     //==== Change Length ====//
     string len_id = vsp::GetParm( pod_id, "Length", "Design" );
-    vsp::SetParmVal( len_id, 7.0 );
+    vsp::SetParmValUpdate( len_id, 7.0 );
 
     //==== Change Finess Ration
-    vsp::SetParmVal( pod_id, "FineRatio", "Design", 10.0 );
+    vsp::SetParmValUpdate( pod_id, "FineRatio", "Design", 10.0 );
 
     //==== Change Y Location ====//
     string y_loc_id = vsp::GetParm( pod_id, "Y_Location", "XForm" );
-    vsp::SetParmVal( y_loc_id, 1.0 );
+    vsp::SetParmValUpdate( y_loc_id, 1.0 );
 
     //==== Change X Location ====//
-    vsp::SetParmVal( pod_id, "X_Location", "XForm", 3.0 );
+    vsp::SetParmValUpdate( pod_id, "X_Location", "XForm", 3.0 );
 
     //==== Change Symmetry =====//
     string sym_flag_id = vsp::GetParm( pod_id, "Sym_Planar_Flag", "Sym" );

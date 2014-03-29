@@ -682,7 +682,7 @@ vector< string > FindGeoms()
 }
 
 /// Find and return all geoms with given name
-vector< string > FindGeoms( const string & name )
+vector< string > FindGeomsWithName( const string & name )
 {
     vector< string > ret_vec;
     Vehicle* veh = GetVehicle();
@@ -932,6 +932,27 @@ void PasteXSec( const string & xsec_surf_id, int xsec_index )
     xsec_surf->PasteXSec( xsec_index );
 }
 
+/// Create an xsec of type type and add it to the end of xsecsurf
+string AppendXSec( const string & xsec_surf_id, int type  )
+{
+    XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
+    if ( !xsec_surf )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "AddXSec::Can't Find XSecSurf " + xsec_surf_id  );
+        return string();
+    }
+
+    string id  = xsec_surf->AddXSec( type );
+    if ( id.size() == 0 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "AddXSec::Invalid XSec Type " + type  );
+        return id;
+    }
+
+    ErrorMgr.NoError();
+    return id;
+}
+
 /// Create an xsec of type type and insert it after xsec_index
 string InsertXSec( const string & xsec_surf_id, int type, int xsec_index  )
 {
@@ -1034,6 +1055,25 @@ void SetXSecWidthHeight( const string& xsec_id, double w, double h )
     ErrorMgr.NoError();
 }
 
+/// Get of the linkable parms ids for this geometry
+vector< string > GetXSecParmIDs( const string & xsec_id  )
+{
+    vector< string > parm_vec;
+
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecParmIDs::Can't Find XSec " + xsec_id  );
+        return parm_vec;
+    }
+
+    xs->AddLinkableParms( parm_vec );
+
+    ErrorMgr.NoError();
+    return parm_vec;
+}
+
+
 /// Get named ParmID from XSec
 string GetXSecParm( const string& xsec_id, const string& name )
 {
@@ -1126,7 +1166,7 @@ string GetSetName( int index )
 }
 
 /// Get the set of geom ids at the given set index
-vector< string > GetGeomSet( int index )
+vector< string > GetGeomSetAtIndex( int index )
 {
     Vehicle* veh = GetVehicle();
     return veh->GetGeomSet( index );
@@ -1155,6 +1195,65 @@ vector< string > GetGeomSet( const string & name )
     return veh->GetGeomSet( index );
 }
 
+/// Get the set index given the set name
+int GetSetIndex( const string & name )
+{
+    Vehicle* veh = GetVehicle();
+    vector< string > name_vec =  veh->GetSetNameVec();
+    int index = -1;
+    for ( int i = 0 ; i < ( int )name_vec.size() ; i++ )
+    {
+        if ( name == name_vec[i] )
+        {
+            index = i;
+        }
+    }
+    if ( index == -1 )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetSetIndex::Can't Find Name " + name  );
+        return index;
+    }
+
+    ErrorMgr.NoError();
+    return index;
+}
+
+/// Check if geom in set (given index)
+bool GetSetFlag( const string & geom_id, int set_index )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSetFlag::Can't Find Geom " + geom_id );
+        return false;
+    }
+    ErrorMgr.NoError();
+    return geom_ptr->GetSetFlag( set_index );
+}
+
+/// Set set flag for geom given set index
+void SetSetFlag( const string & geom_id, int set_index, bool flag )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetSetFlag::Can't Find Geom " + geom_id );
+        return;
+    }
+    if ( set_index < 0 || set_index > ( int )veh->GetSetNameVec().size() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "SetSetFlag::Invalid Set Index " + set_index );
+        return;
+    }
+
+
+    ErrorMgr.NoError();
+
+    geom_ptr->SetSetFlag( set_index, flag );
+}
+
 //===================================================================//
 //===============       Parm Functions            ===================//
 //===================================================================//
@@ -1171,9 +1270,9 @@ bool ValidParm( const string & parm_id )
     return true;
 }
 
-/// Set the parm value.  If update is true, the parm container is updated.
+/// Set the parm value.
 /// The final value of parm is returned.
-double SetParmVal( const string & parm_id, double val, bool update )
+double SetParmVal( const string & parm_id, double val )
 {
     Parm* p = ParmMgr.FindParm( parm_id );
     if ( !p )
@@ -1182,17 +1281,25 @@ double SetParmVal( const string & parm_id, double val, bool update )
         return val;
     }
     ErrorMgr.NoError();
-    if ( !update )
+    return p->Set( val );
+}
+/// Set the parm value.
+/// The final value of parm is returned.
+double SetParmValUpdate( const string & parm_id, double val )
+{
+    Parm* p = ParmMgr.FindParm( parm_id );
+    if ( !p )
     {
-        return p->Set( val );
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "SetParmVal::Can't Find Parm " + parm_id  );
+        return val;
     }
-
+    ErrorMgr.NoError();
     return p->SetFromDevice( val );         // Force Update
 }
 
 /// Set the parm value.  If update is true, the parm container is updated.
 /// The final value of parm is returned.
-double SetParmVal( const string & geom_id, const string & name, const string & group, double val, bool update )
+double SetParmVal( const string & geom_id, const string & name, const string & group, double val )
 {
     string parm_id = GetParm( geom_id, name, group );
     Parm* p = ParmMgr.FindParm( parm_id );
@@ -1202,11 +1309,21 @@ double SetParmVal( const string & geom_id, const string & name, const string & g
         return val;
     }
     ErrorMgr.NoError();
-    if ( !update )
-    {
-        return p->Set( val );
-    }
+    return p->Set( val );
+}
 
+/// Set the parm value.  If update is true, the parm container is updated.
+/// The final value of parm is returned.
+double SetParmValUpdate( const string & geom_id, const string & name, const string & group, double val )
+{
+    string parm_id = GetParm( geom_id, name, group );
+    Parm* p = ParmMgr.FindParm( parm_id );
+    if ( !p )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "SetParmVal::Can't Find Parm " + parm_id  );
+        return val;
+    }
+    ErrorMgr.NoError();
     return p->SetFromDevice( val );         // Force Update
 }
 
@@ -1221,6 +1338,25 @@ double GetParmVal( const string & parm_id )
     }
     ErrorMgr.NoError();
     return p->Get();
+}
+
+/// Get the value of parm
+bool GetBoolParmVal( const string & parm_id )
+{
+    Parm* p = ParmMgr.FindParm( parm_id );
+    if ( !p )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetParmVal::Can't Find Parm " + parm_id  );
+        return false;
+    }
+    if ( p->GetType() != PARM_BOOL_TYPE )
+    {
+        return false;
+    }
+    ErrorMgr.NoError();
+
+    BoolParm* bp = dynamic_cast<BoolParm*>( p );
+    return bp->Get();
 }
 
 /// Set the upper limit of parm
