@@ -138,11 +138,16 @@ void ManageGeomScreen::LoadBrowser()
         {
             str.append( "--" );
         }
-//jrg FIX!!!
-        //if ( gPtr->getPosAttachFlag() == POS_ATTACH_NONE )
-        str.append( "> " );
-        //else
-        //str.append("^ ");
+
+        if ( gPtr->m_TransAttachFlag() == GeomXForm::ATTACH_TRANS_NONE &&
+                gPtr->m_RotAttachFlag() == GeomXForm::ATTACH_ROT_NONE )
+        {
+            str.append( "> " );
+        }
+        else
+        {
+            str.append( "^ " );
+        }
 
         if ( !gPtr->m_GuiDraw.GetDisplayChildrenFlag() )
         {
