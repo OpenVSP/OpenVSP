@@ -729,9 +729,9 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomTexMap( vehicle_ptr )
     m_Type.m_Type = GEOM_GEOM_TYPE;
     m_Type.m_Name = m_Name;
 
-    m_TessU.Init( "Tess_U", "Shape", this, 2, 2,  100 );
+    m_TessU.Init( "Tess_U", "Shape", this, 8, 2,  100 );
     m_TessU.SetDescript( "Number of tessellated curves in the U direction" );
-    m_TessW.Init( "Tess_W", "Shape", this, 4, 2,  100 );
+    m_TessW.Init( "Tess_W", "Shape", this, 10, 2,  100 );
     m_TessW.SetDescript( "Number of tessellated curves in the W direction" );
 
     m_BbXLen.Init( "X_Len", "BBox", this, 0, 0, 1e12 );
