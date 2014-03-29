@@ -124,7 +124,7 @@ void ManageGeomScreen::LoadBrowser()
     //==== Step Thru Comps ====//
     for ( int i = 0 ; i < ( int )m_DisplayedGeomVec.size() ; i++ )
     {
-        GeomBase* gPtr = m_VehiclePtr->FindGeom( m_DisplayedGeomVec[i] );
+        Geom* gPtr = m_VehiclePtr->FindGeom( m_DisplayedGeomVec[i] );
 
         string str;
         //==== Check if Parent is Selected ====//
