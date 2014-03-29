@@ -14,6 +14,7 @@ INCLUDE_DIRECTORIES(
 ADD_LIBRARY(util
 BndBox.cpp
 DrawObj.cpp
+FileUtil.cpp
 Matrix.cpp
 MessageMgr.cpp
 PntNodeMerge.cpp
@@ -30,6 +31,7 @@ VspSurf.cpp
 BndBox.h
 Defines.h
 DrawObj.h
+FileUtil.h
 GuiDeviceEnums.h
 Matrix.h
 MessageMgr.h
