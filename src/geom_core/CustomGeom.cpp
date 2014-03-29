@@ -308,6 +308,32 @@ string CustomGeom::FindParmID( int index )
 string CustomGeom::AddXSecSurf()
 {
     XSecSurf* xsec_surf = new XSecSurf();
+
+    Matrix4d mat;
+    double *pm( mat.data() );
+    bool center;
+
+    // rotation                ; translation
+    pm[0] = 0;
+    pm[4] = 0;
+    pm[ 8] = -1;
+    pm[12] = 0;
+    pm[1] = 1;
+    pm[5] = 0;
+    pm[ 9] = 0;
+    pm[13] = 0;
+    pm[2] = 0;
+    pm[6] = 1;
+    pm[10] = 0;
+    pm[14] = 0;
+    pm[3] = 0;
+    pm[7] = 0;
+    pm[11] = 0;
+    pm[15] = 0;
+    center = true;
+
+    xsec_surf->SetTransformation( mat, true );
+
     xsec_surf->SetParentContainer( GetID() );
 
     m_XSecSurfVec.push_back( xsec_surf );
