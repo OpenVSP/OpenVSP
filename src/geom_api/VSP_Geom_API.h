@@ -8,6 +8,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+
 #if !defined(VSPAPI__INCLUDED_)
 #define VSPAPI__INCLUDED_
 
@@ -32,12 +33,44 @@ namespace vsp
 extern void VSPCheckSetup();
 extern void VSPRenew();
 
+extern void Update();
+
 //======================== File I/O ================================//
-// jrg finish this stuff
-//extern void SetWorkingDir( const string & dir_name );
 extern void ReadVSPFile( const string & file_name );
 extern void WriteVSPFile( const string & file_name, int set = SET_ALL );
-//extern void SetOutputFileName( int file_type, const string & file_name );
+extern void ClearVSPModel();
+extern void InsertVSPFile( const string & file_name, const string & parent_geom_id );
+
+extern void ExportFile( const string & file_name, int write_set_index, int file_type );
+extern string ImportFile( const string & file_name, int file_type, const string & parent );
+
+//======================== Computations ================================//
+// jrg finish this stuff
+//extern void SetWorkingDir( const string & dir_name );
+extern void SetComputationFileName( int file_type, const string & file_name );
+extern string ComputeMassProps( int set, int num_slices );
+extern string ComputeCompGeom( int set, bool half_mesh, int file_export_types );
+extern string ComputePlaneSlice( int set, int num_slices, const vec3d & norm, bool auto_bnd,
+                                 double start_bnd = 0, double end_bnd = 0 );
+extern string ComputeAwaveSlice( int set, int num_slices, int num_rots, double ang_control, bool comp_ang,
+                                 const vec3d & norm, bool auto_bnd, double start_bnd = 0, double end_bnd = 0 );
+
+
+
+//======================== Results ================================//
+extern vector<string> GetAllResultsNames();
+extern vector<string> GetAllDataNames( const string & results_id );
+extern int GetNumResults( const string & name );
+extern string FindResultsID( const string & name, int index = 0 );
+extern string FindLatestResultsID( const string & name );
+extern int GetNumData( const string & results_id, const string & data_name );
+extern const vector<int> & GetIntResults( const string & id, const string & name, int index = 0 );
+extern const vector<double> & GetDoubleResults( const string & id, const string & name, int index = 0 );
+extern const vector<string> & GetStringResults( const string & id, const string & name, int index = 0 );
+extern const vector<vec3d> & GetVec3dResults( const string & id, const string & name, int index = 0 );
+extern string CreateGeomResults( const string & geom_id, const string & name );
+extern void DeleteAllResults();
+extern void DeleteResult( const string & id );
 
 //======================== GUI Functions ================================//
 extern void StartGui( );
