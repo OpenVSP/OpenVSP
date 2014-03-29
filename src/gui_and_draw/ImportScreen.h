@@ -20,7 +20,7 @@ class ImportScreen : public VspScreen
 {
 public:
 
-    enum { STEREOLITH, NASCART, CART3D_TRI, XSEC_SURF, XSEC_MESH };
+//  enum {  STEREOLITH, NASCART, CART3D_TRI, XSEC_SURF, XSEC_MESH };
 
     ImportScreen( ScreenMgr* mgr );
     virtual ~ImportScreen();

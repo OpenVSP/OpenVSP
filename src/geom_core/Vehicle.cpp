@@ -18,6 +18,8 @@
 #include "StringUtil.h"
 #include "DesignVarMgr.h"
 #include "XmlUtil.h"
+#include "APIDefines.h"
+using namespace vsp;
 
 #include <utility>
 
@@ -1784,7 +1786,7 @@ string Vehicle::getExportFileName( int type )
     {
         return m_compGeomCsvFileName;
     }
-    else if ( type == COMP_GEOM_TSV_TYPE )
+    else if ( type == DRAG_BUILD_TSV_TYPE )
     {
         return m_compGeomTsvFileName;
     }
@@ -1817,7 +1819,7 @@ void Vehicle::setExportFileName( int type, string f_name )
     {
         m_compGeomCsvFileName = f_name;
     }
-    else if ( type == COMP_GEOM_TSV_TYPE )
+    else if ( type == DRAG_BUILD_TSV_TYPE )
     {
         m_compGeomTsvFileName = f_name;
     }
@@ -1981,7 +1983,7 @@ string Vehicle::AwaveSlice( int set, int numSlices, int numRots, double AngleCon
         {
             AngleControlVal = asin( 1 / AngleControlVal ) * RAD_2_DEG;
         }
-        mesh_ptr->AreaSlice( MeshGeom::SLICE_AWAVE, numSlices, AngleControlVal, numRots, norm, autoBoundsFlag, start, end );
+        mesh_ptr->AreaSlice( vsp::SLICE_AWAVE, numSlices, AngleControlVal, numRots, norm, autoBoundsFlag, start, end );
     }
     else
     {
@@ -2026,7 +2028,7 @@ string Vehicle::PSlice( int set, int numSlices, vec3d axis, bool autoBoundsFlag,
 
     if ( mesh_ptr->m_TMeshVec.size() )
     {
-        mesh_ptr->AreaSlice( MeshGeom::SLICE_PLANAR, numSlices, 90, 0, axis, autoBoundsFlag, start, end );
+        mesh_ptr->AreaSlice( vsp::SLICE_PLANAR, numSlices, 90, 0, axis, autoBoundsFlag, start, end );
     }
     else
     {
@@ -2074,7 +2076,7 @@ string Vehicle::ImportFile( const string & file_name, int file_type )
     {
         validFlag = new_geom->ReadNascart( file_name.c_str() );
     }
-    else if ( file_type == IMPORT_TRI )
+    else if ( file_type == IMPORT_CART3D_TRI )
     {
         validFlag = new_geom->ReadTriFile( file_name.c_str() );
     }

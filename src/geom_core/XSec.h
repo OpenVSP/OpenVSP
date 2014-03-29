@@ -30,10 +30,6 @@ class XSec : public ParmContainer
 public:
     XSec( bool use_left );                                                      // Default Constructor
 
-    enum { POINT, CIRCLE, ELLIPSE, SUPER_ELLIPSE, ROUNDED_RECTANGLE, GENERAL_FUSE, FILE_FUSE,
-           FOUR_SERIES, SIX_SERIES, BICONVEX, WEDGE, BEZIER, FILE_AIRFOIL, NUM_XSEC_TYPES
-         };
-
     virtual void ParmChanged( Parm* parm_ptr, int type );
     virtual void Update();
 

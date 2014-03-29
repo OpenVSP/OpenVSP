@@ -14,9 +14,11 @@
 #include "VehicleMgr.h"
 #include "ParmMgr.h"
 #include "StringUtil.h"
+#include "APIDefines.h"
 #include <float.h>
 
 using std::string;
+using namespace vsp;
 
 //==== Default Constructor ====//
 Airfoil::Airfoil( bool use_left ) : XSec( use_left )
@@ -73,7 +75,7 @@ void Airfoil::SetWidthHeight( double w, double h )
 //==== Constructor ====//
 FourSeries::FourSeries( bool use_left ) : Airfoil( use_left )
 {
-    m_Type = FOUR_SERIES;
+    m_Type = XS_FOUR_SERIES;
     m_Camber.Init( "Camber", m_GroupName, this, 0.0, 0.0, 0.5 );
     m_CamberLoc.Init( "CamberLoc", m_GroupName, this, 0.2, 0.0, 1.0 );
 
@@ -188,7 +190,7 @@ string FourSeries::GetAirfoilName()
 //==== Constructor ====//
 SixSeries::SixSeries( bool use_left ) : Airfoil( use_left )
 {
-    m_Type = SIX_SERIES;
+    m_Type = XS_SIX_SERIES;
 
     m_Series.Init( "Series", m_GroupName, this, 0, 0, NUM_SERIES );
     m_IdealCl.Init( "IdealCl", m_GroupName, this, 0.0, 0.0, 1.0 );
@@ -289,7 +291,7 @@ string SixSeries::GetAirfoilName()
 //==== Constructor ====//
 Biconvex::Biconvex( bool use_left ) : Airfoil( use_left )
 {
-    m_Type = BICONVEX;
+    m_Type = XS_BICONVEX;
 }
 
 //==== Update ====//
@@ -332,7 +334,7 @@ void Biconvex::Update()
 //==== Constructor ====//
 Wedge::Wedge( bool use_left ) : Airfoil( use_left )
 {
-    m_Type = WEDGE;
+    m_Type = XS_WEDGE;
     m_ThickLoc.Init( "ThickLoc", m_GroupName, this, 0.5, 0.0, 1.0 );
 
 }
@@ -370,7 +372,7 @@ FileAirfoil::FileAirfoil( bool use_left ) : Airfoil( use_left )
 {
 #if 0
     m_NumBasePnts = 21;
-    m_Type = FILE_AIRFOIL;
+    m_Type = XS_FILE_AIRFOIL;
     m_UpperPnts.resize( m_NumBasePnts, vec3d( 0, 0, 0 ) );
     m_LowerPnts.resize( m_NumBasePnts, vec3d( 0, 0, 0 ) );
 #endif

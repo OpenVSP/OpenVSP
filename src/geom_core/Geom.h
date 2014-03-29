@@ -389,10 +389,7 @@ private:
 class Geom : public GeomTexMap
 {
 public:
-    enum { SYM_XY = ( 1 << 0 ), SYM_XZ = ( 1 << 1 ), SYM_YZ = ( 1 << 2 ), SYM_ROT_X = ( 1 << 3 ),
-           SYM_ROT_Y = ( 1 << 4 ), SYM_ROT_Z = ( 1 << 5 ), SYM_PLANAR_TYPES = 3,
-           SYM_NUM_TYPES = 6
-         }; // Symmetry Flags
+
     Geom( Vehicle* vehicle_ptr );
     virtual ~Geom();
 

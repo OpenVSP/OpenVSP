@@ -11,6 +11,8 @@
 #include "Vehicle.h"
 #include "StlHelper.h"
 
+#include "APIDefines.h"
+using namespace vsp;
 
 //==== Constructor ====//
 FuselageGeom::FuselageGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr ), m_DoneConstructing( false )
@@ -63,11 +65,11 @@ FuselageGeom::FuselageGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr ), m_
     m_XSecConnect.SetDescript( "Method of connecting cross-sections" );
 
     m_ActiveXSec = 0;
-    m_XSecSurf.AddXSec( XSec::POINT );
-    m_XSecSurf.AddXSec( XSec::ELLIPSE );
-    m_XSecSurf.AddXSec( XSec::ELLIPSE );
-    m_XSecSurf.AddXSec( XSec::ELLIPSE );
-    m_XSecSurf.AddXSec( XSec::POINT );
+    m_XSecSurf.AddXSec( XS_POINT );
+    m_XSecSurf.AddXSec( XS_ELLIPSE );
+    m_XSecSurf.AddXSec( XS_ELLIPSE );
+    m_XSecSurf.AddXSec( XS_ELLIPSE );
+    m_XSecSurf.AddXSec( XS_POINT );
 
     VspJointInfo joint;
     double angle, strength, curvature;

@@ -11,6 +11,9 @@
 #include "Vehicle.h"
 #include "StlHelper.h"
 #include "StringUtil.h"
+#include "APIDefines.h"
+using namespace vsp;
+
 
 #include <assert.h>
 

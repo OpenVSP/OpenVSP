@@ -10,6 +10,7 @@
 #include "EventMgr.h"
 #include "Vehicle.h"
 #include "StlHelper.h"
+#include "APIDefines.h"
 #include <assert.h>
 
 CompGeomScreen::CompGeomScreen( ScreenMgr* mgr ) : VspScreen( mgr )
@@ -58,9 +59,9 @@ bool CompGeomScreen::Update()
         m_CompGeomUI->tsvFileButton->value( 0 );
     }
 
-    m_CompGeomUI->csvFileOutput->value( vehiclePtr->getExportFileName( Vehicle::COMP_GEOM_CSV_TYPE ).c_str() );
-    m_CompGeomUI->tsvFileOutput->value( vehiclePtr->getExportFileName( Vehicle::COMP_GEOM_TSV_TYPE ).c_str() );
-    m_CompGeomUI->txtFileOutput->value( vehiclePtr->getExportFileName( Vehicle::COMP_GEOM_TXT_TYPE ).c_str() );
+    m_CompGeomUI->csvFileOutput->value( vehiclePtr->getExportFileName( vsp::COMP_GEOM_CSV_TYPE ).c_str() );
+    m_CompGeomUI->tsvFileOutput->value( vehiclePtr->getExportFileName( vsp::DRAG_BUILD_TSV_TYPE ).c_str() );
+    m_CompGeomUI->txtFileOutput->value( vehiclePtr->getExportFileName( vsp::COMP_GEOM_TXT_TYPE ).c_str() );
 
     return true;
 }
@@ -110,17 +111,17 @@ void CompGeomScreen::CallBack( Fl_Widget *w )
     }
     else if ( w == m_CompGeomUI->csvFileChooseButton )
     {
-        vehiclePtr->setExportFileName( Vehicle::COMP_GEOM_CSV_TYPE,
+        vehiclePtr->setExportFileName( vsp::COMP_GEOM_CSV_TYPE,
                                        m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select comp_geom output file.", "*.csv" ) );
     }
     else if ( w == m_CompGeomUI->tsvFileChooseButton )
     {
-        vehiclePtr->setExportFileName( Vehicle::COMP_GEOM_TSV_TYPE,
+        vehiclePtr->setExportFileName( vsp::DRAG_BUILD_TSV_TYPE,
                                        m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select comp_geom output file.", "*.tsv" ) );
     }
     else if ( w == m_CompGeomUI->txtFileChooseButon )
     {
-        vehiclePtr->setExportFileName( Vehicle::COMP_GEOM_TXT_TYPE,
+        vehiclePtr->setExportFileName( vsp::COMP_GEOM_TXT_TYPE,
                                        m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select comp_geom output file.", "*.txt" ) );
     }
     else if ( w == m_CompGeomUI->setChoice )
@@ -136,7 +137,7 @@ void CompGeomScreen::CallBack( Fl_Widget *w )
         string geom = vehiclePtr->CompGeomAndFlatten( m_SelectedSetIndex, 0, 0 , m_HalfMesh );
         if ( geom.compare( "NONE" ) != 0 )
         {
-            m_CompGeomUI->outputTextDisplay->buffer()->loadfile( vehiclePtr->getExportFileName( Vehicle::COMP_GEOM_TXT_TYPE ).c_str() );
+            m_CompGeomUI->outputTextDisplay->buffer()->loadfile( vehiclePtr->getExportFileName( vsp::COMP_GEOM_TXT_TYPE ).c_str() );
         }
     }
 

@@ -17,11 +17,16 @@
 #include <limits.h>
 
 #include "XmlUtil.h"
+#include "GuiDeviceEnums.h"
 
 using std::string;
 using std::map;
 
 class ParmContainer;
+
+enum PARM_TYPE { PARM_DOUBLE_TYPE = 0, PARM_INT_TYPE = 1, PARM_BOOL_TYPE = 2,
+                 PARM_FRACTION_TYPE = 3, PARM_STRING_TYPE = 4,
+               };
 
 //==== Parm ====//
 class Parm
@@ -69,9 +74,6 @@ public:
     }
     virtual void ChangeID( const string& newID );
 
-    enum { PARM_DOUBLE_TYPE = 0, PARM_INT_TYPE = 1, PARM_BOOL_TYPE = 2,
-           PARM_FRACTION_TYPE = 3, PARM_STRING_TYPE = 4,
-         };
     virtual int  GetType()
     {
         return m_Type;

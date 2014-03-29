@@ -9,6 +9,7 @@
 #include "EventMgr.h"
 #include "Vehicle.h"
 #include "StlHelper.h"
+#include "APIDefines.h"
 #include <assert.h>
 
 PSliceScreen::PSliceScreen( ScreenMgr *mgr ) : VspScreen( mgr )
@@ -71,7 +72,7 @@ bool PSliceScreen::Update()
 
     LoadSetChoice();
 
-    m_PSliceUI->txtFileOutput->value( veh->getExportFileName( Vehicle::SLICE_TXT_TYPE ).c_str() );
+    m_PSliceUI->txtFileOutput->value( veh->getExportFileName( vsp::SLICE_TXT_TYPE ).c_str() );
 
     vec3d maxBBox = veh->GetBndBox().GetMax();
     vec3d minBBox = veh->GetBndBox().GetMin();
@@ -213,7 +214,7 @@ void PSliceScreen::CallBack( Fl_Widget* w )
     {
         string newfile;
         newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Choose slice areas output file", "*.txt" );
-        veh->setExportFileName( Vehicle::SLICE_TXT_TYPE, newfile );
+        veh->setExportFileName( vsp::SLICE_TXT_TYPE, newfile );
     }
     else if ( w == m_PSliceUI->setChoice )
     {
@@ -225,7 +226,7 @@ void PSliceScreen::CallBack( Fl_Widget* w )
                                            !!m_PSliceUI->AutoBoundsButton->value(), m_StartVal, m_EndVal );
         if ( id.compare( "NONE" ) != 0 )
         {
-            m_PSliceUI->outputTextDisplay->buffer()->loadfile( veh->getExportFileName( Vehicle::SLICE_TXT_TYPE ).c_str() );
+            m_PSliceUI->outputTextDisplay->buffer()->loadfile( veh->getExportFileName( vsp::SLICE_TXT_TYPE ).c_str() );
         }
     }
 

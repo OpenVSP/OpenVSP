@@ -21,7 +21,7 @@ ErrorObj::ErrorObj()
     NoError();
 }
 
-ErrorObj::ErrorObj( ErrorCode err_code, const string & err_str )
+ErrorObj::ErrorObj( ERROR_CODE err_code, const string & err_str )
 {
     m_ErrorCode = err_code;
     m_ErrorString = err_str;
@@ -76,7 +76,7 @@ ErrorObj ErrorMgrSingleton::PopLastError()
 
 
 //==== Add Error To Stack And Set Last Call Flag ====//
-void ErrorMgrSingleton::AddError( ErrorCode code, const string & desc )
+void ErrorMgrSingleton::AddError( ERROR_CODE code, const string & desc )
 {
     if ( code == VSP_OK )
     {

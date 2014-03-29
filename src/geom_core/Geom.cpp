@@ -10,6 +10,9 @@
 #include "StlHelper.h"
 #include "StringUtil.h"
 #include "ParmMgr.h"
+#include "APIDefines.h"
+using namespace vsp;
+
 #include <time.h>
 #include <stdlib.h>
 

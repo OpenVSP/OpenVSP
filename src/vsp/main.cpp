@@ -41,7 +41,9 @@
 #include "UtilTestSuite.h"
 #include <string>
 #include <time.h>
+#include "APIDefines.h"
 
+using namespace vsp;
 using namespace std;
 
 // Bitwise adds ecode to the current exit status code and returns to current exit status code

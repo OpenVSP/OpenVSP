@@ -10,6 +10,8 @@
 #include "EventMgr.h"
 #include "Vehicle.h"
 #include "StlHelper.h"
+#include "APIDefines.h"
+using namespace vsp;
 
 #include <assert.h>
 
@@ -77,39 +79,39 @@ void ExportScreen::ExportFile( string &newfile, int write_set, int type )
 {
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
 
-    if ( type == ExportScreen::XSEC )
+    if ( type == EXPORT_XSEC )
     {
         newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write XSec File?", "*.hrm" );
     }
-    else if ( type == ExportScreen::STEREOLITH )
+    else if ( type == EXPORT_STL )
     {
         newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write STL File?", "*.stl" );
     }
-    else if ( type == ExportScreen::RHINO3D )
+    else if ( type == EXPORT_RHINO3D )
     {
         newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write Rhino3D File?", "*.3dm" );
     }
-    else if ( type == ExportScreen::NASCART )
+    else if ( type == EXPORT_NASCART )
     {
         newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write NASCART Files?", "*.dat" );
     }
-    else if ( type == ExportScreen::CART3D )
+    else if ( type == EXPORT_CART3D )
     {
         newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write Cart3D Files?", "*.tri" );
     }
-    else if ( type == ExportScreen::GMSH )
+    else if ( type == EXPORT_GMSH )
     {
         newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write GMsh Files?", "*.msh" );
     }
-    else if ( type == ExportScreen::POVRAY )
+    else if ( type == EXPORT_POVRAY )
     {
         newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write POVRAY File?", "*.pov" );
     }
-    else if ( type == ExportScreen::X3D )
+    else if ( type == EXPORT_X3D )
     {
         newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write X3D File?", "*.x3d" );
     }
-    else if ( type == ExportScreen::BEZ )
+    else if ( type == EXPORT_BEZ )
     {
         newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write Bezier File?", "*.bez" );
     }
@@ -169,35 +171,35 @@ void ExportScreen::CallBack( Fl_Widget *w )
 
     if ( w ==   m_ExportFileUI->xsecButton )        // Export CrossSection File
     {
-        ExportFile( newfile, m_SelectedSetIndex, ExportScreen::XSEC );
+        ExportFile( newfile, m_SelectedSetIndex, EXPORT_XSEC );
     }
     else if ( w == m_ExportFileUI->sterolithButton )
     {
-        ExportFile( newfile, m_SelectedSetIndex, ExportScreen::STEREOLITH );
+        ExportFile( newfile, m_SelectedSetIndex, EXPORT_STL );
     }
     else if ( w == m_ExportFileUI->nascartButton )
     {
-        ExportFile( newfile, m_SelectedSetIndex, ExportScreen::NASCART );
+        ExportFile( newfile, m_SelectedSetIndex, EXPORT_NASCART );
     }
     else if ( w == m_ExportFileUI->cart3dButton )   // Export Tri File
     {
-        ExportFile( newfile, m_SelectedSetIndex, ExportScreen::CART3D );
+        ExportFile( newfile, m_SelectedSetIndex, EXPORT_CART3D );
     }
     else if ( w == m_ExportFileUI->gmshButton )
     {
-        ExportFile( newfile, m_SelectedSetIndex, ExportScreen::GMSH );
+        ExportFile( newfile, m_SelectedSetIndex, EXPORT_GMSH );
     }
     else if ( w == m_ExportFileUI->povrayButton )
     {
-        ExportFile( newfile, m_SelectedSetIndex, ExportScreen::POVRAY );
+        ExportFile( newfile, m_SelectedSetIndex, EXPORT_POVRAY );
     }
     else if ( w == m_ExportFileUI->x3dButton )
     {
-        ExportFile( newfile, m_SelectedSetIndex, ExportScreen::X3D );
+        ExportFile( newfile, m_SelectedSetIndex, EXPORT_X3D );
     }
     else if ( w == m_ExportFileUI->bezButton )
     {
-        ExportFile( newfile, m_SelectedSetIndex, ExportScreen::BEZ );
+        ExportFile( newfile, m_SelectedSetIndex, EXPORT_BEZ );
     }
     else if ( w == m_ExportFileUI->setChoice )
     {

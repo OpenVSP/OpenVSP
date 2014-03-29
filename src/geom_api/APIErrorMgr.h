@@ -32,9 +32,9 @@ class ErrorObj
 {
 public:
     ErrorObj();
-    ErrorObj( ErrorCode err_code, const string & err_str );
+    ErrorObj( ERROR_CODE err_code, const string & err_str );
 
-    ErrorCode m_ErrorCode;
+    ERROR_CODE m_ErrorCode;
     string m_ErrorString;
 
     void NoError()
@@ -56,7 +56,7 @@ public:
     //ErrorObj GetLastError();                  // Get last error but leave on stack
     bool PopErrorAndPrint( FILE* stream );      // Check for error, pop and print to stream
 
-    void AddError( ErrorCode code, const string & desc );
+    void AddError( ERROR_CODE code, const string & desc );
     void NoError();
 
     static ErrorMgrSingleton& getInstance()

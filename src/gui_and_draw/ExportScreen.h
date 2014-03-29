@@ -24,8 +24,6 @@ class ExportScreen : public VspScreen
 {
 public:
 
-    enum { FELISA, XSEC, STEREOLITH, RHINO3D, AWAVE, NASCART, POVRAY, CART3D, VORXSEC, XSECGEOM, GMSH, X3D, BEZ };
-
     ExportScreen( ScreenMgr* mgr );
     virtual ~ExportScreen()                         {}
     void Show();

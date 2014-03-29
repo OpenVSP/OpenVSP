@@ -9,6 +9,9 @@
 
 #include "XSecSurf.h"
 #include "StlHelper.h"
+#include "APIDefines.h"
+using namespace vsp;
+
 
 //==== Default Constructor ====//
 XSecSurf::XSecSurf()
@@ -86,51 +89,52 @@ void XSecSurf::ChangeXSecID( string oldID, string newID )
 XSec* XSecSurf::CreateXSec( int type, int index )
 {
     XSec* xsec_ptr = NULL;
-    if ( type == XSec::POINT )
+
+    if ( type == XS_POINT )
     {
         xsec_ptr = new PointXSec( index != 0 );
     }
-    else if ( type == XSec::CIRCLE )
+    else if ( type == XS_CIRCLE )
     {
         xsec_ptr = new CircleXSec( index != 0 );
     }
-    else if ( type == XSec::ELLIPSE )
+    else if ( type == XS_ELLIPSE )
     {
         xsec_ptr = new EllipseXSec( index != 0 );
     }
-    else if ( type == XSec::SUPER_ELLIPSE )
+    else if ( type == XS_SUPER_ELLIPSE )
     {
         xsec_ptr = new SuperXSec( index != 0 );
     }
-    else if ( type == XSec::ROUNDED_RECTANGLE )
+    else if ( type == XS_ROUNDED_RECTANGLE )
     {
         xsec_ptr = new RoundedRectXSec( index != 0 );
     }
-    else if ( type == XSec::GENERAL_FUSE )
+    else if ( type == XS_GENERAL_FUSE )
     {
         xsec_ptr = new GeneralFuseXSec( index != 0 );
     }
-    else if ( type == XSec::FOUR_SERIES )
+    else if ( type == XS_FOUR_SERIES )
     {
         xsec_ptr = new FourSeries( index != 0 );
     }
-    else if ( type == XSec::SIX_SERIES )
+    else if ( type == XS_SIX_SERIES )
     {
         xsec_ptr = new SixSeries( index != 0 );
     }
-    else if ( type == XSec::BICONVEX )
+    else if ( type == XS_BICONVEX )
     {
         xsec_ptr = new Biconvex( index != 0 );
     }
-    else if ( type == XSec::WEDGE )
+    else if ( type == XS_WEDGE )
     {
         xsec_ptr = new Wedge( index != 0 );
     }
-    else if ( type == XSec::FILE_FUSE )
+    else if ( type == XS_FILE_FUSE )
     {
         xsec_ptr = new FileXSec( index != 0 );
     }
-    else if ( type == XSec::FILE_AIRFOIL )
+    else if ( type == XS_FILE_AIRFOIL )
     {
         xsec_ptr = new FileAirfoil( index != 0 );
     }
@@ -362,7 +366,7 @@ xmlNodePtr XSecSurf::DecodeXml( xmlNodePtr & node )
             if ( xsec_node )
             {
                 xmlNodePtr temp_node = XmlUtil::GetNode( xsec_node, "XSec", 0 );
-                int type = XmlUtil::FindInt( temp_node, "Type", XSec::POINT );
+                int type = XmlUtil::FindInt( temp_node, "Type", XS_POINT );
 
                 //==== Create New Cross Section ====//
                 XSec* xsec_ptr = FindXSec( AddXSec( type ) );

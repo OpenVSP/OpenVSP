@@ -686,7 +686,7 @@ vector<vec3d> ReadFileXSec( const string& xsec_id, const string& file_name )
         return pnt_vec;
     }
 
-    if ( xs->GetType() == XSec::FILE_FUSE )
+    if ( xs->GetType() == XS_FILE_FUSE )
     {
         FileXSec* file_xs = dynamic_cast<FileXSec*>( xs );
         assert( file_xs );
@@ -707,7 +707,7 @@ void SetXSecPnts( const string& xsec_id, vector< vec3d > & pnt_vec )
         ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecPnts::Can't Find XSec " + xsec_id  );
         return;
     }
-    if ( xs->GetType() != XSec::FILE_FUSE )
+    if ( xs->GetType() != XS_FILE_FUSE )
     {
         ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetXSecPnts::Wrong XSec Type"  );
         return;
@@ -913,7 +913,7 @@ int GetParmType( const string & parm_id )
     if ( !p )
     {
         ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetParmType::Can't Find Parm " + parm_id  );
-        return Parm::PARM_DOUBLE_TYPE;
+        return PARM_DOUBLE_TYPE;
     }
     ErrorMgr.NoError();
     return p->GetType();

@@ -19,6 +19,7 @@
 #include "VspSurf.h"
 #include "Vehicle.h"
 #include "PntNodeMerge.h"
+#include "APIDefines.h"
 
 #include "Defines.h"
 #include "Tritri.h"
@@ -1742,7 +1743,7 @@ void MeshGeom::AreaSlice( int style, int numSlices, double sliceAngle, double co
         numSlices = 3;
     }
 
-    if ( style == SLICE_PLANAR )
+    if ( style == vsp::SLICE_PLANAR )
     {
         vec3d norm( 1, 0, 0 );
 
@@ -1783,7 +1784,7 @@ void MeshGeom::AreaSlice( int style, int numSlices, double sliceAngle, double co
         }
 
     }
-    else if ( style == SLICE_AWAVE )
+    else if ( style == vsp::SLICE_AWAVE )
     {
         for ( s = 0 ; s < numSlices ; s++ )
         {
@@ -1919,7 +1920,7 @@ void MeshGeom::AreaSlice( int style, int numSlices, double sliceAngle, double co
 
     m_TMeshVec.erase( m_TMeshVec.begin(), m_TMeshVec.end() );
 
-    if ( style == SLICE_PLANAR )
+    if ( style == vsp::SLICE_PLANAR )
     {
         fprintf( fid, "\n" );
         fprintf( fid, "    Loc          Area\n" );
@@ -1931,7 +1932,7 @@ void MeshGeom::AreaSlice( int style, int numSlices, double sliceAngle, double co
             fprintf( fid, "%9.3f  %9.3f\n", x, m_SliceVec[s]->m_WetArea );
         }
     }
-    else if ( style == SLICE_AWAVE )
+    else if ( style == vsp::SLICE_AWAVE )
     {
         fprintf( fid, "\n" );
         fprintf( fid, "           Loc        " );

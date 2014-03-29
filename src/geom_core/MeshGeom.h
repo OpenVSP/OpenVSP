@@ -49,7 +49,7 @@ class MeshGeom : public Geom
 
 
 public:
-    enum { SLICE_PLANAR, SLICE_AWAVE };
+//  enum { SLICE_PLANAR, SLICE_AWAVE };
 
     //==== How Mesh Is Drawn and Saved ====//
     enum { INTERSECTION_MESH, MODEL_MESH };

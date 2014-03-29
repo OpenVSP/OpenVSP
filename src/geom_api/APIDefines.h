@@ -14,7 +14,7 @@
 namespace vsp
 {
 //======================== Error Codes ================================//
-enum ErrorCode {    VSP_OK,
+enum ERROR_CODE {   VSP_OK,
                     VSP_INVALID_PTR,
                     VSP_CANT_FIND_TYPE,
                     VSP_CANT_FIND_PARM,
@@ -25,8 +25,9 @@ enum ErrorCode {    VSP_OK,
                     VSP_WRONG_XSEC_TYPE,
                     VSP_WRONG_FILE_TYPE,
                     VSP_INDEX_OUT_RANGE,
-                    VSP_INVALID_XSEC_ID
-               };
+                    VSP_INVALID_XSEC_ID,
+                    VSP_INVALID_ID
+                };
 
 enum {  SYM_XY = ( 1 << 0 ),
         SYM_XZ = ( 1 << 1 ),
@@ -38,33 +39,74 @@ enum {  SYM_XY = ( 1 << 0 ),
         SYM_NUM_TYPES = 6
      }; // Symmetry Flags
 
-enum {  POINT,
-        CIRCLE,
-        SUPER_ELLIPSE,
-        ROUNDED_RECTANGLE,
-        GENERAL_FUSE,
-        FILE_FUSE,
-        FOUR_SERIES,
-        SIX_SERIES,
-        BICONVEX,
-        WEDGE,
-        BEZIER,
-        FILE_AIRFOIL,
-        NUM_TYPES
-     };
+enum XSEC_TYPE {    XS_POINT,
+                    XS_CIRCLE,
+                    XS_ELLIPSE,
+                    XS_SUPER_ELLIPSE,
+                    XS_ROUNDED_RECTANGLE,
+                    XS_GENERAL_FUSE,
+                    XS_FILE_FUSE,
+                    XS_FOUR_SERIES,
+                    XS_SIX_SERIES,
+                    XS_BICONVEX,
+                    XS_WEDGE,
+                    XS_BEZIER,
+                    XS_FILE_AIRFOIL,
+                    XS_NUM_TYPES
+               };
 
-enum {   COMP_GEOM_TXT_TYPE,
-         COMP_GEOM_CSV_TYPE,
-         SLICE_TXT_TYPE,
-         MASS_PROP_TXT_TYPE,
-         DRAG_BUILD_TSV_TYPE
-     };
+enum IMPORT_TYPE {  IMPORT_STL,
+                    IMPORT_NASCART,
+                    IMPORT_CART3D_TRI,
+                    IMPORT_XSEC_SURF,
+                    IMPORT_XSEC_MESH
+                 };
 
-enum {   SET_ALL = 0,
-         SET_SHOWN = 1,
-         SET_NOT_SHOWN = 2,
-         SET_FIRST_USER = 3
-     };
+enum EXPORT_TYPE {  EXPORT_FELISA,
+                    EXPORT_XSEC,
+                    EXPORT_STL,
+                    EXPORT_RHINO3D,
+                    EXPORT_AWAVE,
+                    EXPORT_NASCART,
+                    EXPORT_POVRAY,
+                    EXPORT_CART3D,
+                    EXPORT_VORXSEC,
+                    EXPORT_XSECGEOM,
+                    EXPORT_GMSH,
+                    EXPORT_X3D,
+                    EXPORT_BEZ
+                 };
+
+enum COMPUTATION_FILE_TYPE  {   NO_FILE_TYPE        = 0,
+                                COMP_GEOM_TXT_TYPE  = 1,
+                                COMP_GEOM_CSV_TYPE  = 2,
+                                DRAG_BUILD_TSV_TYPE = 4,
+                                SLICE_TXT_TYPE      = 8,
+                                MASS_PROP_TXT_TYPE  = 16,
+                            };
+
+enum SLICE_STYLE {  SLICE_PLANAR,
+                    SLICE_AWAVE,
+                 };
+
+
+enum SET_TYPE { SET_ALL = 0,
+                SET_SHOWN = 1,
+                SET_NOT_SHOWN = 2,
+                SET_FIRST_USER = 3
+              };
+
+enum RES_DATA_TYPE {    INT_DATA,
+                        DOUBLE_DATA,
+                        STRING_DATA,
+                        VEC3D_DATA
+                   };
+
+enum RES_GEOM_TYPE {    MESH_INDEXED_TRI,
+                        MESH_SLICE_TRI,
+                        GEOM_XSECS,
+                   };
+
 
 }   // Namespace
 
