@@ -19,6 +19,7 @@
 #include "DesignVarMgr.h"
 #include "XmlUtil.h"
 #include "APIDefines.h"
+#include "ResultsMgr.h"
 using namespace vsp;
 
 #include <utility>
@@ -2101,4 +2102,42 @@ string Vehicle::ImportFile( const string & file_name, int file_type )
     }
 
     return id;
+}
+
+
+//==== Import File Methods ====//
+void Vehicle::ExportFile( const string & file_name, int write_set, int file_type )
+{
+    if ( file_type == EXPORT_XSEC )
+    {
+        WriteXSecFile( file_name, write_set );
+    }
+    else if ( file_type == EXPORT_STL )
+    {
+        WriteSTLFile( file_name, write_set );
+    }
+    else if ( file_type == EXPORT_CART3D )
+    {
+        WriteTRIFile( file_name, write_set );
+    }
+    else if ( file_type == EXPORT_NASCART )
+    {
+        WriteNascartFiles( file_name, write_set );
+    }
+    else if ( file_type == EXPORT_GMSH )
+    {
+        WriteGmshFile( file_name, write_set );
+    }
+    else if ( file_type == EXPORT_POVRAY )
+    {
+        WritePovRayFile( file_name, write_set );
+    }
+    else if ( file_type == EXPORT_X3D )
+    {
+        WriteX3DFile( file_name, write_set );
+    }
+    else if ( file_type == EXPORT_BEZ )
+    {
+        WriteBezFile( file_name, write_set );
+    }
 }

@@ -125,38 +125,7 @@ void ExportScreen::ExportFile( string &newfile, int write_set, int type )
 //jrg back() only in c++11 and remove strcmp
 //  if ( newfile.compare("") != 0 && strcmp( &newfile.back(), "/") != 0 )
     {
-        if ( type == ExportScreen::XSEC )
-        {
-            veh->WriteXSecFile( newfile, write_set );
-        }
-        else if ( type == ExportScreen::STEREOLITH )
-        {
-            veh->WriteSTLFile( newfile, write_set );
-        }
-        else if ( type == ExportScreen::CART3D )
-        {
-            veh->WriteTRIFile( newfile, write_set );
-        }
-        else if ( type == ExportScreen::NASCART )
-        {
-            veh->WriteNascartFiles( newfile, write_set );
-        }
-        else if ( type == ExportScreen::GMSH )
-        {
-            veh->WriteGmshFile( newfile, write_set );
-        }
-        else if ( type == ExportScreen::POVRAY )
-        {
-            veh->WritePovRayFile( newfile, write_set );
-        }
-        else if ( type == ExportScreen::X3D )
-        {
-            veh->WriteX3DFile( newfile, write_set );
-        }
-        else if ( type == ExportScreen::BEZ )
-        {
-            veh->WriteBezFile( newfile, write_set );
-        }
+        veh->ExportFile( newfile, write_set, type );
     }
     m_ExportFileUI->UIWindow->hide();
 

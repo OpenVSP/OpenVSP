@@ -142,6 +142,7 @@ public:
     };
 
     //=== Export Files ===//
+    void ExportFile( const string & file_name, int write_set, int file_type );
     bool WriteXMLFile( const string & file_name, int set );
     void WriteXSecFile( const string & file_name, int write_set );
     void WriteSTLFile( const string & file_name, int write_set );

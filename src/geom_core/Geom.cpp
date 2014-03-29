@@ -1300,6 +1300,39 @@ void Geom::WriteXSecFile( int geom_no, FILE* dump_file )
     }
 }
 
+void Geom::CreateGeomResults( Results* res )
+{
+    res->Add( ResData( "Type", vsp::GEOM_XSECS ) );
+    res->Add( ResData( "Num_Surfs", ( int )m_SurfVec.size() ) );
+
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    {
+        //==== Tessellate Surface ====//
+        vector< vector< vec3d > > pnts;
+        vector< vector< vec3d > > norms;
+        UpdateTesselate( i, pnts, norms );
+
+        res->Add( ResData( "Num_XSecs", static_cast<int>( pnts.size() ) ) );
+
+        if ( pnts.size() )
+        {
+            res->Add( ResData( "Num_Pnts_Per_XSec", static_cast<int>( pnts[0].size() ) ) );
+        }
+
+        //==== Write XSec Data ====//
+        for ( int j = 0 ; j < ( int )pnts.size() ; j++ )
+        {
+            vector< vec3d > xsec_vec;
+            for ( int k = 0 ; k < ( int )pnts[j].size() ; k++ )
+            {
+                xsec_vec.push_back(  pnts[j][k] );
+            }
+            res->Add( ResData( "XSec_Pnts", xsec_vec ) );
+        }
+    }
+}
+
+
 void Geom::WriteX3D( xmlNodePtr node )
 {
     xmlNodePtr set_node = xmlNewChild( node, NULL, BAD_CAST "IndexedFaceSet", NULL );

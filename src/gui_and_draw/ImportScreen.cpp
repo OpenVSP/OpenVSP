@@ -64,22 +64,7 @@ void ImportScreen::ImportFile( string & in_file, int type )
 //jrg back() only in c++11 and remove strcmp
 //  if ( in_file.compare("") != 0 && strcmp( &in_file.back(), "/") != 0 )
     {
-        if ( type == ImportScreen::STEREOLITH )
-        {
-            veh->ImportFile( in_file, Vehicle::IMPORT_STL );
-        }
-        else if ( type == ImportScreen::NASCART )
-        {
-            veh->ImportFile( in_file, Vehicle::IMPORT_NASCART );
-        }
-        else if ( type == ImportScreen::CART3D_TRI )
-        {
-            veh->ImportFile( in_file, Vehicle::IMPORT_TRI );
-        }
-        else if ( type == ImportScreen::XSEC_MESH )
-        {
-            veh->ImportFile( in_file, Vehicle::IMPORT_XSEC_MESH );
-        }
+        veh->ImportFile( in_file, type );
     }
 
     m_ImportUI->UIWindow->hide();

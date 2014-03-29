@@ -21,6 +21,7 @@
 #include "TMesh.h"
 #include "DragFactors.h"
 #include "GridDensity.h"
+#include "ResultsMgr.h"
 
 //#include "xmlvsp.h"
 
@@ -454,6 +455,7 @@ public:
     virtual void WriteX3D( xmlNodePtr node );
     virtual void WritePovRay( FILE* fid, int comp_num );
     virtual void WritePovRayTri( FILE* fid, const vec3d& v, const vec3d& n, bool comma = true );
+    virtual void CreateGeomResults( Results* res );
 
     //==== Set Drag Factors ====//
     virtual void LoadDragFactors( DragFactors& drag_factors )   {};
