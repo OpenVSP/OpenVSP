@@ -11,6 +11,7 @@
 #include "BlankGeom.h"
 #include "MeshGeom.h"
 #include "CustomGeom.h"
+#include "ScriptMgr.h"
 #include "MessageMgr.h"
 #include "StlHelper.h"
 #include "ParmMgr.h"
@@ -117,7 +118,9 @@ Vehicle::~Vehicle()
 //=== Init ====//
 void Vehicle::Init()
 {
+    //==== Init Custom Geom and Script Mgr ====//
     CustomGeomMgr.Init();
+    ScriptMgr.Init();
     CustomGeomMgr.ReadCustomScripts();
 
     m_Name = "Vehicle";
@@ -165,6 +168,11 @@ void Vehicle::Init()
     m_CG = vec3d( 0, 0, 0 );
     m_NumMassSlices = 20;
     m_TotalMass = 0;
+}
+
+void Vehicle::RunTestScripts()
+{
+    ScriptMgr.RunTestScripts();
 }
 
 //=== Wype ===//

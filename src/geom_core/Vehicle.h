@@ -40,6 +40,7 @@ public:
     virtual ~Vehicle();
 
     void Init();
+    void RunTestScripts();
     void Renew();
 
     void ParmChanged( Parm* parm_ptr, int type );

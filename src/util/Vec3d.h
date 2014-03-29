@@ -228,6 +228,15 @@ public:
 
 };
 
+double dist( const vec3d& a, const vec3d& b );
+double dist_squared( const vec3d& a, const vec3d& b );
+double dot( const vec3d& a, const vec3d& b );
+vec3d cross( const vec3d& a, const vec3d& b );
+double angle( const vec3d& a, const vec3d& b );
+double signed_angle( const vec3d& a, const vec3d& b, const vec3d& ref );
+double cos_angle( const vec3d& a, const vec3d& b );
+vec3d RotateArbAxis( const vec3d & p, double theta, const vec3d & r );
+
 #endif
 
 

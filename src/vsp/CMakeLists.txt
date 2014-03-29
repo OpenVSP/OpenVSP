@@ -50,6 +50,7 @@ IF( NOT VSP_NO_GRAPHICS )
 
 	TARGET_LINK_LIBRARIES(vsp
 		geom_core
+		geom_api_g
 		gui_interface_g
 		gui_and_draw
 		cfd_mesh_stuff
