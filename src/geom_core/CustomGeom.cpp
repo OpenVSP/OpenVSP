@@ -347,10 +347,12 @@ void CustomGeom::SkinXSecSurf()
             }
         }
 
-        vector< VspPntData > tandata;
-        tandata.resize( crv_vec.size(), VspPntData( VspPntData::ZERO ) );
+//        vector< VspPntData > tandata;
+//        tandata.resize( crv_vec.size(), VspPntData( VspPntData::ZERO ) );
 
 //      m_SurfVec[i].Interpolate( crv_vec, tandata, false );
+
+        m_SurfVec[i].InterpolateLinear( crv_vec, false );
         m_SurfVec[i].SwapUWDirections();
     }
 }
