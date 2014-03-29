@@ -138,7 +138,7 @@ void Matrix4d::mult( const double in[4], double out[4] ) const
     out[3] = mat[3] * in[0] + mat[7] * in[1] + mat[11] * in[2] + mat[15] * in[3];
 }
 
-void Matrix4d::rotate( const double angle, const vec3d & axis )
+void Matrix4d::rotate( const double &angle, const vec3d & axis )
 {
     vec3d a( axis );
     a.normalize();

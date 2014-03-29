@@ -482,17 +482,17 @@ void ScriptMgrSingleton::RegisterMatrix4d( asIScriptEngine* se )
 
     r = se->RegisterObjectMethod( "Matrix4d", "void loadIdentity()", asMETHOD( Matrix4d, loadIdentity ), asCALL_THISCALL );
     assert( r >= 0 );
-    r = se->RegisterObjectMethod( "Matrix4d", "void translatef( double x, double y, double z)", asMETHOD( Matrix4d, translatef ), asCALL_THISCALL );
+    r = se->RegisterObjectMethod( "Matrix4d", "void translatef( const double & in x, const double & in y, const double & in z)", asMETHOD( Matrix4d, translatef ), asCALL_THISCALL );
     assert( r >= 0 );
-    r = se->RegisterObjectMethod( "Matrix4d", "void rotateX( double ang )", asMETHOD( Matrix4d, rotateX ), asCALL_THISCALL );
+    r = se->RegisterObjectMethod( "Matrix4d", "void rotateX( const double & in ang )", asMETHOD( Matrix4d, rotateX ), asCALL_THISCALL );
     assert( r >= 0 );
-    r = se->RegisterObjectMethod( "Matrix4d", "void rotateY( double ang )", asMETHOD( Matrix4d, rotateY ), asCALL_THISCALL );
+    r = se->RegisterObjectMethod( "Matrix4d", "void rotateY( const double & in ang )", asMETHOD( Matrix4d, rotateY ), asCALL_THISCALL );
     assert( r >= 0 );
-    r = se->RegisterObjectMethod( "Matrix4d", "void rotateZ( double ang )", asMETHOD( Matrix4d, rotateZ ), asCALL_THISCALL );
+    r = se->RegisterObjectMethod( "Matrix4d", "void rotateZ( const double & in ang )", asMETHOD( Matrix4d, rotateZ ), asCALL_THISCALL );
     assert( r >= 0 );
-    r = se->RegisterObjectMethod( "Matrix4d", "void rotate( double angle, const vec3d & in axis )", asMETHOD( Matrix4d, rotate ), asCALL_THISCALL );
+    r = se->RegisterObjectMethod( "Matrix4d", "void rotate( const double & in ang, const vec3d & in axis )", asMETHOD( Matrix4d, rotate ), asCALL_THISCALL );
     assert( r >= 0 );
-    r = se->RegisterObjectMethod( "Matrix4d", "void scale( double scale )", asMETHOD( Matrix4d, scale ), asCALL_THISCALL );
+    r = se->RegisterObjectMethod( "Matrix4d", "void scale( const double & in scale )", asMETHOD( Matrix4d, scale ), asCALL_THISCALL );
     assert( r >= 0 );
 
     r = se->RegisterObjectMethod( "Matrix4d", "vec3d xform( const vec3d & in v )", asMETHOD( Matrix4d, xform ), asCALL_THISCALL );
