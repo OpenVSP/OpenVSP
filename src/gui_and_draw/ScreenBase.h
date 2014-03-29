@@ -88,6 +88,8 @@ protected:
 
     Fl_Box* m_FL_TitleBox;
 
+    string m_Title;
+
 };
 
 //==== Tab Screen ====//

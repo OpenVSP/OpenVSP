@@ -83,8 +83,11 @@ BasicScreen::~BasicScreen()
 //==== Set Title Name on Window And Box ====//
 void BasicScreen::SetTitle( const string& title )
 {
-    m_FLTK_Window->copy_label( title.c_str() );
-    m_FL_TitleBox->copy_label( title.c_str() );
+    if ( title != m_Title )
+    {
+        m_Title = title;
+        m_FL_TitleBox->copy_label( m_Title.c_str() );
+    }
 }
 
 //=====================================================================//
