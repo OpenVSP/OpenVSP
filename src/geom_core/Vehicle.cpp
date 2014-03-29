@@ -10,6 +10,7 @@
 #include "FuselageGeom.h"
 #include "BlankGeom.h"
 #include "MeshGeom.h"
+#include "CustomGeom.h"
 #include "MessageMgr.h"
 #include "StlHelper.h"
 #include "ParmMgr.h"
@@ -116,6 +117,9 @@ Vehicle::~Vehicle()
 //=== Init ====//
 void Vehicle::Init()
 {
+    CustomGeomMgr.Init();
+    CustomGeomMgr.ReadCustomScripts();
+
     m_Name = "Vehicle";
 
     m_VSP3FileName = "Unnamed.vsp3";
@@ -136,6 +140,14 @@ void Vehicle::Init()
     m_GeomTypeVec.push_back( GeomType( POD_GEOM_TYPE, "POD", true ) );
     m_GeomTypeVec.push_back( GeomType( FUSELAGE_GEOM_TYPE, "FUSELAGE", true ) );
     m_GeomTypeVec.push_back( GeomType( BLANK_GEOM_TYPE, "BLANK", true ) );
+    m_GeomTypeVec.push_back( GeomType( CUSTOM_GEOM_TYPE, "CUSTOM", true ) );
+
+    //==== Get Custom Geom Types =====//
+    vector< GeomType > custom_types = CustomGeomMgr.GetCustomTypes();
+    for ( int i = 0 ; i < ( int ) custom_types.size() ; i++ )
+    {
+        m_GeomTypeVec.push_back( custom_types[i] );
+    }
 
     LinkMgr.RegisterContainer( this->GetID() );
 
@@ -312,6 +324,10 @@ string Vehicle::CreateGeom( const GeomType & type )
     {
         new_geom = new MeshGeom( this );
     }
+    else if ( type.m_Type == CUSTOM_GEOM_TYPE )
+    {
+        new_geom = new CustomGeom( this );
+    }
 
     if ( !new_geom )
     {
@@ -339,7 +355,16 @@ string Vehicle::AddGeom( GeomType & type )
     string add_id = CreateGeom( type );
     Geom* add_geom = FindGeom( add_id );
 
-    return AddGeom( add_geom );
+    string geom_id =  AddGeom( add_geom );
+
+    if ( type.m_Type == CUSTOM_GEOM_TYPE )
+    {
+        add_geom->SetType( type );
+        CustomGeomMgr.InitGeom( geom_id );
+        add_geom->Update();
+    }
+
+    return geom_id;
 }
 
 

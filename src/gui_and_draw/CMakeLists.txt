@@ -24,6 +24,7 @@ AwaveScreen.cpp
 BlankScreen.cpp
 CfdMeshScreen.cpp
 CompGeomScreen.cpp
+CustomScreen.cpp
 DesignVarScreen.cpp
 ExportScreen.cpp
 FeaStructScreen.cpp
@@ -57,6 +58,7 @@ AwaveScreen.h
 BlankScreen.h
 CfdMeshScreen.h
 CompGeomScreen.h
+CustomScreen.h
 DesignVarScreen.h
 ExportScreen.h
 FeaStructScreen.h

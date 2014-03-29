@@ -20,6 +20,7 @@ INCLUDE_DIRECTORIES(
 ADD_LIBRARY(geom_core
 Airfoil.cpp
 BlankGeom.cpp
+CustomGeom.cpp
 DesignVarMgr.cpp
 FuselageGeom.cpp
 Geom.cpp
@@ -41,6 +42,7 @@ XSec.cpp
 XSecSurf.cpp
 Airfoil.h
 BlankGeom.h
+CustomGeom.h
 DesignVarMgr.h
 DragFactors.h
 FuselageGeom.h

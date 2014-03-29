@@ -34,7 +34,7 @@ class XSecSurf;
 //#define stringify( name ) # name
 
 enum { BASE_GEOM_TYPE, XFORM_GEOM_TYPE, GEOM_GEOM_TYPE, POD_GEOM_TYPE, FUSELAGE_GEOM_TYPE,
-       MS_WING_GEOM_TYPE, BLANK_GEOM_TYPE, MESH_GEOM_TYPE
+       MS_WING_GEOM_TYPE, BLANK_GEOM_TYPE, MESH_GEOM_TYPE, CUSTOM_GEOM_TYPE
      };
 
 class GeomType
@@ -134,6 +134,10 @@ public:
     virtual GeomType GetType()
     {
         return m_Type;
+    }
+    virtual void SetType( GeomType & type )
+    {
+        m_Type = type;
     }
 
     virtual void Update()                                   {}

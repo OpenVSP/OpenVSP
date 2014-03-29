@@ -20,6 +20,7 @@
 #include "FuselageScreen.h"
 #include "BlankScreen.h"
 #include "MeshScreen.h"
+#include "CustomScreen.h"
 
 using std::string;
 using std::vector;
@@ -30,7 +31,9 @@ public:
     ManageGeomScreen( ScreenMgr* mgr );
     virtual ~ManageGeomScreen();
 
-    enum { POD_GEOM_SCREEN, FUSELAGE_GEOM_SCREEN, BLANK_GEOM_SCREEN, MESH_GEOM_SCREEN, NUM_GEOM_SCREENS };
+    enum { POD_GEOM_SCREEN, FUSELAGE_GEOM_SCREEN, BLANK_GEOM_SCREEN, MESH_GEOM_SCREEN, CUSTOM_GEOM_SCREEN,
+           NUM_GEOM_SCREENS
+         };
 
     void Show();
     void Hide();
