@@ -39,6 +39,7 @@ public:
     Vehicle();
     virtual ~Vehicle();
 
+    void Init();
     void Renew();
 
     void ParmChanged( Parm* parm_ptr, int type );
@@ -279,7 +280,6 @@ public:
 
 private:
 
-    void Init();
     void Wype();
 
 protected:
