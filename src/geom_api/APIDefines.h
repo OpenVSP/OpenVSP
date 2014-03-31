@@ -40,6 +40,7 @@ enum {  SYM_XY = ( 1 << 0 ),
 
 enum {  POINT,
         CIRCLE,
+        ELLIPSE,
         SUPER_ELLIPSE,
         ROUNDED_RECTANGLE,
         GENERAL_FUSE,
