@@ -6,7 +6,9 @@
 #include "DrawObj.h"
 #include "GuiDevice.h"
 
+class Ruler;
 class ScreenMgr;
+
 class ManageLabelScreen : public VspScreen
 {
 public:
@@ -25,7 +27,7 @@ public:
     void LoadDrawObjs(vector< DrawObj* > & draw_obj_vec);
 
 public:
-    void Set(std::string sourceId, unsigned int sourceIndex);
+    void Set(std::string sourceId, double pntsRatio, double xsecRatio);
     void Set(vec3d placement);
 
     virtual std::string getFeedbackGroupName();
@@ -51,6 +53,9 @@ private:
     void UpdateDrawObjs();
     void UpdatePickList();
     void UpdateNameInput();
+
+    void UpdateRulerStartDO(DrawObj * targetDO, Ruler * ruler);
+    void UpdateRulerEndDO(DrawObj * targetDO, Ruler * ruler);
 
 private:
     std::vector<DrawObj> m_LabelList;

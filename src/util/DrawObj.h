@@ -115,7 +115,8 @@ public:
     struct RulerVertex
     {
         std::string GeomID;
-        unsigned int Index;
+        double PntsRatio;
+        double XSecRatio;
     };
 
     /*

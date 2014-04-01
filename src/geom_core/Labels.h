@@ -50,9 +50,13 @@ public:
     */
     std::string m_StartGeomID;
     /*!
-    * Starting Geometry's buffer index.
+    * Starting Geometry's Points Ratio.
     */
-    Parm m_StartIndex;
+    Parm m_StartPntsRatio;
+    /*!
+    * Starting Geometry's Cross Sections Ratio.
+    */
+    Parm m_StartXSecRatio;
 
     /*!
     * Text color red.
@@ -105,9 +109,13 @@ public:
     */
     std::string m_EndGeomID;
     /*!
-    * Ending Geometry's buffer index.
+    * Ending Geometry's Points Ratio.
     */
-    Parm m_EndIndex;
+    Parm m_EndPntsRatio;
+    /*!
+    * Ending Geometry's Cross Sections Ratio.
+    */
+    Parm m_EndXSecRatio;
 
     /*!
     * Offset on x axis.

@@ -7,7 +7,8 @@ Label::Label() : ParmContainer()
     m_Stage = STAGE_ZERO;
 
     m_StartGeomID = std::string("Defalut");
-    m_StartIndex.Init("Start_Index", "Label_Parm", this, 0.0, 0.0, 2.0e12, false);
+    m_StartPntsRatio.Init("Start_Pnts_Ratio", "Label_Parm", this, 0.0, 0.0, 1.0, false);
+    m_StartXSecRatio.Init("Start_XSec_Ratio", "Label_Parm", this, 0.0, 0.0, 1.0, false);
 
     m_Red.Init("Red", "Label_Parm", this, 100, 0, 255, false);
     m_Green.Init("Green", "Label_Parm", this, 100, 0, 255, false);
@@ -33,7 +34,8 @@ void Label::Reset()
     m_Stage = STAGE_ZERO;
 
     m_StartGeomID = std::string("Defalut");
-    m_StartIndex = 0.0;
+    m_StartPntsRatio = 0.0;
+    m_StartXSecRatio = 0.0;
 
     m_Red = 100.0;
     m_Green = 100.0;
@@ -45,7 +47,8 @@ void Label::Reset()
 Ruler::Ruler() : Label()
 {
     m_EndGeomID = std::string("Default");
-    m_EndIndex.Init("End_Index", "Label_Parm", this, 0.0, 0.0, 2.0e12, false);
+    m_EndPntsRatio.Init("End_Pnts_Ratio", "Label_Parm", this, 0.0, 0.0, 1.0, false);
+    m_EndXSecRatio.Init("End_XSec_Ratio", "Label_Parm", this, 0.0, 0.0, 1.0, false);
 
     m_XOffset.Init("X_Offset", "Label_Parm", this, 0.0, -1.0e12, 1.0e12, false);
     m_YOffset.Init("Y_Offset", "Label_Parm", this, 0.0, -1.0e12, 1.0e12, false);
@@ -62,7 +65,8 @@ void Ruler::Reset()
     Label::Reset();
 
     m_EndGeomID = std::string("Default");
-    m_EndIndex = 0.0;
+    m_EndPntsRatio = 0.0;
+    m_EndXSecRatio = 0.0;
 
     m_XOffset = 0.0;
     m_YOffset = 0.0;

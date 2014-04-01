@@ -230,7 +230,7 @@ void ManageLabelScreen::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     }
 }
 
-void ManageLabelScreen::Set(std::string sourceId, unsigned int sourceIndex)
+void ManageLabelScreen::Set(std::string sourceId, double pntsRatio, double xsecRatio)
 {
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
 
@@ -246,14 +246,16 @@ void ManageLabelScreen::Set(std::string sourceId, unsigned int sourceIndex)
                 rulerType->m_Stage = STAGE_ONE;
 
                 rulerType->m_StartGeomID = sourceId;
-                rulerType->m_StartIndex = sourceIndex;
+                rulerType->m_StartPntsRatio = pntsRatio;
+                rulerType->m_StartXSecRatio = xsecRatio;
             }
             else if(rulerType->m_Stage == STAGE_ONE)
             {
                 rulerType->m_Stage = STAGE_TWO;
 
                 rulerType->m_EndGeomID = sourceId;
-                rulerType->m_EndIndex = sourceIndex;
+                rulerType->m_EndPntsRatio = pntsRatio;
+                rulerType->m_EndXSecRatio = xsecRatio;
             }
         }
     }
@@ -383,33 +385,31 @@ void ManageLabelScreen::UpdateDrawObjs()
 
             // Set label stage.  Load stage data.
             match->m_Ruler.Step = DrawObj::VSP_RULER_STEP_ZERO;
+
             if(rulerType->m_Stage == STAGE_ONE)
             {
                 match->m_Ruler.Step = DrawObj::VSP_RULER_STEP_ONE;
 
-                match->m_Ruler.Start.GeomID = rulerType->m_StartGeomID;
-                match->m_Ruler.Start.Index = rulerType->m_StartIndex.Get();
+                // Load ruler's starting info to DrawObj.
+                UpdateRulerStartDO(match, rulerType);
             }
             else if(rulerType->m_Stage == STAGE_TWO)
             {
                 match->m_Ruler.Step = DrawObj::VSP_RULER_STEP_TWO;
 
-                match->m_Ruler.Start.GeomID = rulerType->m_StartGeomID;
-                match->m_Ruler.Start.Index = rulerType->m_StartIndex.Get();
-
-                match->m_Ruler.End.GeomID = rulerType->m_EndGeomID;
-                match->m_Ruler.End.Index = rulerType->m_EndIndex.Get();
+                // Load ruler's starting and ending info to DrawObj. 
+                UpdateRulerStartDO(match, rulerType);
+                UpdateRulerEndDO(match, rulerType);
             }
             else if(rulerType->m_Stage == STAGE_COMPLETE)
             {
                 match->m_Ruler.Step = DrawObj::VSP_RULER_STEP_COMPLETE;
 
-                match->m_Ruler.Start.GeomID = rulerType->m_StartGeomID;
-                match->m_Ruler.Start.Index = rulerType->m_StartIndex.Get();
+                // Load ruler's starting and ending info to DrawObj. 
+                UpdateRulerStartDO(match, rulerType);
+                UpdateRulerEndDO(match, rulerType);
 
-                match->m_Ruler.End.GeomID = rulerType->m_EndGeomID;
-                match->m_Ruler.End.Index = rulerType->m_EndIndex.Get();
-
+                // Load placement info to DrawObj.
                 match->m_Ruler.Placement = vec3d(rulerType->m_XOffset.Get(), 
                     rulerType->m_YOffset.Get(), 
                     rulerType->m_ZOffset.Get());
@@ -489,4 +489,18 @@ void ManageLabelScreen::UpdateNameInput()
     {
         m_LabelUI->nameInput->value("");
     }
+}
+
+void ManageLabelScreen::UpdateRulerStartDO(DrawObj * targetDO, Ruler * ruler)
+{
+    targetDO->m_Ruler.Start.GeomID = ruler->m_StartGeomID;
+    targetDO->m_Ruler.Start.PntsRatio = ruler->m_StartPntsRatio.Get();
+    targetDO->m_Ruler.Start.XSecRatio = ruler->m_StartXSecRatio.Get();
+}
+
+void ManageLabelScreen::UpdateRulerEndDO(DrawObj * targetDO, Ruler * ruler)
+{
+    targetDO->m_Ruler.End.GeomID = ruler->m_EndGeomID;
+    targetDO->m_Ruler.End.PntsRatio = ruler->m_EndPntsRatio.Get();
+    targetDO->m_Ruler.End.XSecRatio = ruler->m_EndXSecRatio.Get();
 }
