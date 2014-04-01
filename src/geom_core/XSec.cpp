@@ -487,8 +487,7 @@ void XSec::SetJointInfo( const VspJointInfo &joint )
 //==== Copy From XSec ====//
 void XSec::CopyFrom( XSec* xs )
 {
-    string id = GetID();        // Save ID
-
+    ParmMgr.ResetRemapID();
     xmlNodePtr root = xmlNewNode( NULL, ( const xmlChar * )"Vsp_Geometry" );
     if ( xs->GetType() == GetType() )
     {
@@ -505,6 +504,7 @@ void XSec::CopyFrom( XSec* xs )
         SetWidthHeight( xs->GetWidth(), xs->GetHeight() );
     }
     xmlFreeNode( root );
+    ParmMgr.ResetRemapID();
 }
 
 //==== Encode XML ====//
