@@ -17,6 +17,7 @@
 #include "Texture2D.h"
 #include "TextureMgr.h"
 #include "Entity.h"
+#include "XSecEntity.h"
 #include "Ruler.h"
 #include "GraphicEngine.h"
 #include "ScreenMgr.h"
@@ -269,7 +270,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
     // Check for changes in DrawObjs and adjust accordingly.
     _updateBuffer( objects );
 
-    // Process all renderable first, order matters.
+    // Process all renderable first, then all labels, lastly pickables.  Order matters.
     for( int i = 0; i < (int)objects.size(); i++ )
     {
         // If this DrawObj is aimed for other screen, ignore.
@@ -390,7 +391,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
         case DrawObj::VSP_WIRE_MESH:
             if( id == 0xFFFFFFFF )
             {
-                m_GEngine->getScene()->createObject( Common::VSP_OBJECT_ENTITY, &id );
+                m_GEngine->getScene()->createObject( Common::VSP_OBJECT_XSEC_ENTITY, &id );
 
                 ID idInfo;
                 idInfo.bufferID = id;
@@ -442,7 +443,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
         case DrawObj::VSP_HIDDEN_MESH:
             if( id == 0xFFFFFFFF )
             {
-                m_GEngine->getScene()->createObject( Common::VSP_OBJECT_ENTITY, &id );
+                m_GEngine->getScene()->createObject( Common::VSP_OBJECT_XSEC_ENTITY, &id );
 
                 ID idInfo;
                 idInfo.bufferID = id;
@@ -494,7 +495,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
         case DrawObj::VSP_SHADED_MESH:
             if( id == 0xFFFFFFFF )
             {
-                m_GEngine->getScene()->createObject( Common::VSP_OBJECT_ENTITY, &id );
+                m_GEngine->getScene()->createObject( Common::VSP_OBJECT_XSEC_ENTITY, &id );
 
                 ID idInfo;
                 idInfo.bufferID = id;
@@ -542,7 +543,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
         case DrawObj::VSP_TEXTURED_MESH:
             if( id == 0xFFFFFFFF )
             {
-                m_GEngine->getScene()->createObject( Common::VSP_OBJECT_ENTITY, &id );
+                m_GEngine->getScene()->createObject( Common::VSP_OBJECT_XSEC_ENTITY, &id );
 
                 ID idInfo;
                 idInfo.bufferID = id;
@@ -563,7 +564,33 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
                 _updateTextures( objects[i] );
             }
             break;
+        }
+    }
 
+    // Process Labels.  Order Matters.
+    for( int i = 0; i < ( int )objects.size(); i++ )
+    {
+        // If this DrawObj is aimed for other screen, ignore.
+        if( objects[i]->m_Screen != m_LinkedScreen )
+        {
+            continue;
+        }
+
+        unsigned int id;
+        ID * idPtr = _findID( objects[i]->m_GeomID );
+        if( idPtr )
+        {
+            id = idPtr->bufferID;
+        }
+        else
+        {
+            id = 0xFFFFFFFF;
+        }
+
+        VSPGraphic::Ruler * ruler;
+
+        switch( objects[i]->m_Type )
+        {
         case DrawObj::VSP_RULER:
             if( id == 0xFFFFFFFF )
             {
@@ -579,11 +606,11 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
             {
                 glm::vec3 start, end, placement;
 
-                Renderable * source1;
-                Renderable * source2;
+                XSecEntity * startsrc;
+                XSecEntity * endsrc;
 
-                ID * sourceID1;
-                ID * sourceID2;
+                ID * startsrcId;
+                ID * endsrcId;
 
                 ruler->setTextColor( objects[i]->m_TextColor.x(),
                     objects[i]->m_TextColor.y(),
@@ -598,34 +625,46 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
                     break;
 
                 case DrawObj::VSP_RULER_STEP_ONE:
-                    sourceID1 = _findID( objects[i]->m_Ruler.Start.GeomID );
-                    if( sourceID1 )
+                    startsrcId = _findID( objects[i]->m_Ruler.Start.GeomID );
+                    if( startsrcId )
                     {
-                        source1 = dynamic_cast<Renderable*>
-                            ( m_GEngine->getScene()->getObject( sourceID1->bufferID ) );
+                        startsrc = dynamic_cast<XSecEntity*>
+                            ( m_GEngine->getScene()->getObject( startsrcId->bufferID ) );
 
-                        if( source1 )
+                        if( startsrc )
                         {
-                            start = source1->getVertexVec( objects[i]->m_Ruler.Start.Index );
+                            unsigned int remappedIndex = startsrc->getIndexWithRatio( 
+                                objects[i]->m_Ruler.Start.PntsRatio, 
+                                objects[i]->m_Ruler.Start.XSecRatio );
+                            
+                            start = startsrc->getVertexVec( remappedIndex );
                             ruler->placeRuler( glm::vec3( start[0], start[1], start[2] ) );
                         }
                     }
                     break;
 
                 case DrawObj::VSP_RULER_STEP_TWO:
-                    sourceID1 = _findID( objects[i]->m_Ruler.Start.GeomID );
-                    sourceID2 = _findID( objects[i]->m_Ruler.End.GeomID );
-                    if( sourceID1 && sourceID2 )
+                    startsrcId = _findID( objects[i]->m_Ruler.Start.GeomID );
+                    endsrcId = _findID( objects[i]->m_Ruler.End.GeomID );
+                    if( startsrcId && endsrcId )
                     {
-                        source1 = dynamic_cast<Renderable*>
-                            ( m_GEngine->getScene()->getObject( sourceID1->bufferID ) );
-                        source2 = dynamic_cast<Renderable*>
-                            ( m_GEngine->getScene()->getObject( sourceID2->bufferID ) );
+                        startsrc = dynamic_cast<XSecEntity*>
+                            ( m_GEngine->getScene()->getObject( startsrcId->bufferID ) );
+                        endsrc = dynamic_cast<XSecEntity*>
+                            ( m_GEngine->getScene()->getObject( endsrcId->bufferID ) );
 
-                        if( source1 && source2 )
+                        if( startsrc && endsrc )
                         {
-                            start = source1->getVertexVec( objects[i]->m_Ruler.Start.Index );
-                            end = source2->getVertexVec( objects[i]->m_Ruler.End.Index );
+                            int remappedIndexStart = startsrc->getIndexWithRatio( 
+                                objects[i]->m_Ruler.Start.PntsRatio, 
+                                objects[i]->m_Ruler.Start.XSecRatio );
+                            int remappedIndexEnd = endsrc->getIndexWithRatio( 
+                                objects[i]->m_Ruler.End.PntsRatio, 
+                                objects[i]->m_Ruler.End.XSecRatio );
+
+                            start = startsrc->getVertexVec( remappedIndexStart );
+                            end = endsrc->getVertexVec( remappedIndexEnd );
+
                             ruler->placeRuler(
                                 glm::vec3( start[0], start[1], start[2] ), 
                                 glm::vec3( end[0], end[1], end[2] ) );
@@ -634,19 +673,26 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
                     break;
 
                 case DrawObj::VSP_RULER_STEP_COMPLETE:
-                    sourceID1 = _findID( objects[i]->m_Ruler.Start.GeomID );
-                    sourceID2 = _findID( objects[i]->m_Ruler.End.GeomID );
-                    if( sourceID1 && sourceID2 )
+                    startsrcId = _findID( objects[i]->m_Ruler.Start.GeomID );
+                    endsrcId = _findID( objects[i]->m_Ruler.End.GeomID );
+                    if( startsrcId && endsrcId )
                     {
-                        source1 = dynamic_cast<Renderable*>
-                            ( m_GEngine->getScene()->getObject( sourceID1->bufferID ) );
-                        source2 = dynamic_cast<Renderable*>
-                            ( m_GEngine->getScene()->getObject( sourceID2->bufferID ) );
+                        startsrc = dynamic_cast<XSecEntity*>
+                            ( m_GEngine->getScene()->getObject( startsrcId->bufferID ) );
+                        endsrc = dynamic_cast<XSecEntity*>
+                            ( m_GEngine->getScene()->getObject( endsrcId->bufferID ) );
 
-                        if( source1 && source2 )
+                        if( startsrc && endsrc )
                         {
-                            start = source1->getVertexVec( objects[i]->m_Ruler.Start.Index );
-                            end = source2->getVertexVec( objects[i]->m_Ruler.End.Index );
+                            int remappedIndexStart = startsrc->getIndexWithRatio( 
+                                objects[i]->m_Ruler.Start.PntsRatio, 
+                                objects[i]->m_Ruler.Start.XSecRatio );
+                            int remappedIndexEnd = endsrc->getIndexWithRatio( 
+                                objects[i]->m_Ruler.End.PntsRatio, 
+                                objects[i]->m_Ruler.End.XSecRatio );
+
+                            start = startsrc->getVertexVec( remappedIndexStart );
+                            end = endsrc->getVertexVec( remappedIndexEnd );
 
                             vec3d placementInVec3d = objects[i]->m_Ruler.Placement;
                             placement = glm::vec3( placementInVec3d.x(), 
@@ -739,7 +785,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
         case DrawObj::VSP_PICK_LOCATION:
             if( id == 0xFFFFFFFF )
             {
-                m_GEngine->getScene()->createObject( Common::VSP_OBJECT_PICK_LOCATION, &id );
+                m_GEngine->getScene()->createObject( Common::VSP_OBJECT_PICK_LOCATION, &id, 0 );
 
                 ID idInfo;
                 idInfo.bufferID = id;
@@ -990,6 +1036,14 @@ void VspGlWindow::_loadXSecData( Renderable * destObj, DrawObj * drawObj )
     destObj->emptyEBuffer();
     destObj->appendEBuffer( edata.data(), sizeof( unsigned int ) * edata.size() );
     destObj->enableEBuffer( true );
+
+    // Update number of xsec and pnts.
+    XSecEntity * xEntity = dynamic_cast<XSecEntity*>(destObj);
+    if(xEntity)
+    {
+        xEntity->setNumXSec(num_xsecs);
+        xEntity->setNumPnts(num_pnts);
+    }
 }
 
 void VspGlWindow::_loadTrisData( Renderable * destObj, DrawObj * drawObj )
@@ -1235,10 +1289,15 @@ void VspGlWindow::OnPush( int x, int y )
                     SelectedPnt * pnt = dynamic_cast<SelectedPnt*>( selected );
                     if( pnt )
                     {
-                        ID * id = _findID( pnt->getSource()->getID() );
-                        if( id )
+                        XSecEntity * xEntity = dynamic_cast<XSecEntity*>(pnt->getSource());
+                        if(xEntity)
                         {
-                            labelScreen->Set( id->geomID, pnt->getIndex() );
+                            ID * id = _findID(xEntity->getID());
+                            if( id )
+                            {
+                                XSecEntity::Ratios ratios = xEntity->getRatiosAtIndex(pnt->getIndex());
+                                labelScreen->Set( id->geomID, ratios.Pnts, ratios.XSec );
+                            }
                         }
                     }
                 }
