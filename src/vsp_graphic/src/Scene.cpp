@@ -13,6 +13,7 @@
 #include "SelectedLoc.h"
 #include "Lighting.h"
 #include "ByteOperationUtil.h"
+#include "XSecEntity.h"
 
 #include <assert.h>
 
@@ -44,7 +45,7 @@ Scene::~Scene()
     }
 }
 
-void Scene::createObject(Common::VSPenum objectType, unsigned int * id_out, unsigned int sourceId)
+void Scene::createObject(Common::VSPenum objectType, unsigned int * id_out)
 {
     SceneObject * object = NULL;
 
@@ -58,29 +59,47 @@ void Scene::createObject(Common::VSPenum objectType, unsigned int * id_out, unsi
         object = new Entity(_lights);
         break;
 
+    case Common::VSP_OBJECT_XSEC_ENTITY:
+        object = new XSecEntity(_lights);
+        break;
+
     case Common::VSP_OBJECT_RULER:
         object = new Ruler();
         break;
+    }
 
+    assert(object);
+
+    if(object)
+    {
+        _generateUniqueId(id_out);
+
+        // Store object and cache id.
+        object->setID(*id_out);
+        _sceneList.push_back(object);
+    }
+}
+
+void Scene::createObject(Common::VSPenum objectType, unsigned int * id_out, unsigned int sourceId)
+{
+    SceneObject * object = NULL;
+    Renderable * sourceObj = NULL;
+
+    switch(objectType)
+    {
     case Common::VSP_OBJECT_PICK_GEOM:
-        if(sourceId != 0xFFFFFFFF)
+        sourceObj = dynamic_cast<Renderable*>(getObject(sourceId));
+        if(sourceObj)
         {
-            Renderable * sourceObj = dynamic_cast<Renderable*>(getObject(sourceId));
-            if(sourceObj)
-            {
-                object = new PickableGeom(sourceObj);
-            }
+            object = new PickableGeom(sourceObj);
         }
         break;
 
     case Common::VSP_OBJECT_PICK_VERTEX:
-        if(sourceId != 0xFFFFFFFF)
+        sourceObj = dynamic_cast<Renderable*>(getObject(sourceId));
+        if(sourceObj)
         {
-            Renderable * sourceObj = dynamic_cast<Renderable*>(getObject(sourceId));
-            if(sourceObj)
-            {
-                object = new PickablePnts(sourceObj);
-            }
+            object = new PickablePnts(sourceObj);
         }
         break;
 

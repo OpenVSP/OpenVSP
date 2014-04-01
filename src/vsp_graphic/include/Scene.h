@@ -30,14 +30,20 @@ public:
 
 public:
     /*!
-    * Add an object to scene.
-    * objectType - VSP_OBJECT_MARKER, VSP_OBJECT_ENTITY, VSP_OBJECT_RULER, VSP_OBJECT_PICK_VERTEX, 
-    * VSP_OBJECT_PICK_GEOM, VSP_OBJECT_PICK_LOCATION.
-    * id_out - object id out.
+    * Add an object to scene. ( Normal Entity )
+    * objectType - VSP_OBJECT_MARKER, VSP_OBJECT_ENTITY, VSP_OBJECT_XSEC_ENTITY, VSP_OBJECT_RULER.
+    * id_out - Object id out.
+    */
+    virtual void createObject( Common::VSPenum objectType, unsigned int * id_out );
+
+    /*!
+    * Add an object to scene. ( Picking )
+    * objectType - VSP_OBJECT_PICK_VERTEX, VSP_OBJECT_PICK_GEOM, VSP_OBJECT_PICK_LOCATION.
+    * id_out - Object id out.
     * sourceId - Picking / Selecting source id.  It's used to link pickable or selectable object to
     * a specific renderable object.  The renderable object provides render information for both.
     */
-    virtual void createObject(Common::VSPenum objectType, unsigned int * id_out, unsigned int sourceId = 0xFFFFFFFF);
+    virtual void createObject( Common::VSPenum objectType, unsigned int * id_out, unsigned int sourceId );
 
     /*!
     * Remove object from scene.
