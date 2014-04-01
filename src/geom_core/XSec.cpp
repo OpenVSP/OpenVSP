@@ -41,7 +41,6 @@ XSec::XSec( bool use_left )
     m_rotation.loadIdentity();
     m_center = false;
 
-    m_UseLeftRef = use_left;
     m_GroupName = "XSec";
     m_RefLength = 1.0;
     m_XLocPercent.Init( "XLocPercent", m_GroupName, this,  0.0, 0.0, 1.0 );
@@ -64,70 +63,6 @@ XSec::XSec( bool use_left )
     double skinningStrengthMin( 1e-5 ), skinningStrengthMax( 1e5 );
     double skinningCurvatureMin( -1e4 ), skinningCurvatureMax( 1e4 );
 
-    m_ContinuityFlag.Init( "TopSideContinuityFlag", "Skinning", this, VspJointInfo::C0, 0, VspJointInfo::NUM_CONTINUITY_TYPES );
-    m_ContinuityFlag.SetDescript( "Type of continuity to specify on this segment" );
-
-    m_NRightSecs.Init( "NRightSecs", "Skinning", this, 6, 2, 100 );
-    m_NRightSecs.SetDescript( "Number of sections to display on this segment" );
-
-    m_TRBLSymmetryFlag.Init( "TRBLSymmetryFlag", "Skinning", this, true, false, true );
-    m_TRBLSymmetryFlag.SetDescript( "Enforces top, bottom, left, and right sides all have same condition values." );
-    m_TBSymmetryFlag.Init( "TBSymmetryFlag", "Skinning", this, true, false, true );
-    m_TBSymmetryFlag.SetDescript( "Enforces top and bottom sides have same condition values." );
-    m_RLSymmetryFlag.Init( "RLSymmetryFlag", "Skinning", this, true, false, true );
-    m_RLSymmetryFlag.SetDescript( "Enforces left and right sides have same condition values." );
-
-    m_LeftSegTopSideAngle.Init( "LeftSegTopSideAngle", "Skinning", this, 0.0, skinningAngleMin, skinningAngleMax );
-    m_LeftSegTopSideAngle.SetDescript( "Tangent angle of cross section top connecting curve on left side of segment" );
-    m_RightSegTopSideAngle.Init( "RightSegTopSideAngle", "Skinning", this, 0.0, skinningAngleMin, skinningAngleMax );
-    m_RightSegTopSideAngle.SetDescript( "Tangent angle of cross section top connecting curve on right side of segment" );
-    m_LeftSegTopSideStrength.Init( "LeftSegTopSideStrength", "Skinning", this, 0.5, skinningStrengthMin, skinningStrengthMax );
-    m_LeftSegTopSideStrength.SetDescript( "Slope strength of cross section top connecting curve on left side of segment" );
-    m_RightSegTopSideStrength.Init( "RightSegTopSideStrength", "Skinning", this, 0.5, skinningStrengthMin, skinningStrengthMax );
-    m_RightSegTopSideStrength.SetDescript( "Slope strength of cross section top connecting curve on right side of segment" );
-    m_LeftSegTopSideCurvature.Init( "LeftSegTopSideCurvature", "Skinning", this, 0.0, skinningCurvatureMin, skinningCurvatureMax );
-    m_LeftSegTopSideCurvature.SetDescript( "Curvature of cross section top connecting curve on left side of segment" );
-    m_RightSegTopSideCurvature.Init( "RightSegTopSideCurvature", "Skinning", this, 0.0, skinningCurvatureMin, skinningCurvatureMax );
-    m_RightSegTopSideCurvature.SetDescript( "Curvature of cross section top connecting curve on right side of segment" );
-
-    m_LeftSegRightSideAngle.Init( "LeftSegRightSideAngle", "Skinning", this, 0.0, skinningAngleMin, skinningAngleMax );
-    m_LeftSegRightSideAngle.SetDescript( "Tangent angle of cross section right connecting curve on left side of segment" );
-    m_RightSegRightSideAngle.Init( "RightSegRightSideAngle", "Skinning", this, 0.0, skinningAngleMin, skinningAngleMax );
-    m_RightSegRightSideAngle.SetDescript( "Tangent angle of cross section right connecting curve on right side of segment" );
-    m_LeftSegRightSideStrength.Init( "LeftSegRightSideStrength", "Skinning", this, 0.5, skinningStrengthMin, skinningStrengthMax );
-    m_LeftSegRightSideStrength.SetDescript( "Slope strength of cross section right connecting curve on left side of segment" );
-    m_RightSegRightSideStrength.Init( "RightSegRightSideStrength", "Skinning", this, 0.5, skinningStrengthMin, skinningStrengthMax );
-    m_RightSegRightSideStrength.SetDescript( "Slope strength of cross section right connecting curve on right side of segment" );
-    m_LeftSegRightSideCurvature.Init( "LeftSegRightSideCurvature", "Skinning", this, 0.0, skinningCurvatureMin, skinningCurvatureMax );
-    m_LeftSegRightSideCurvature.SetDescript( "Curvature of cross section right connecting curve on left side of segment" );
-    m_RightSegRightSideCurvature.Init( "RightSegRightSideCurvature", "Skinning", this, 0.0, skinningCurvatureMin, skinningCurvatureMax );
-    m_RightSegRightSideCurvature.SetDescript( "Curvature of cross section right connecting curve on right side of segment" );
-
-    m_LeftSegBottomSideAngle.Init( "LeftSegBottomSideAngle", "Skinning", this, 0.0, skinningAngleMin, skinningAngleMax );
-    m_LeftSegBottomSideAngle.SetDescript( "Tangent angle of cross section bottom connecting curve on left side of segment" );
-    m_RightSegBottomSideAngle.Init( "RightSegBottomSideAngle", "Skinning", this, 0.0, skinningAngleMin, skinningAngleMax );
-    m_RightSegBottomSideAngle.SetDescript( "Tangent angle of cross section bottom connecting curve on right side of segment" );
-    m_LeftSegBottomSideStrength.Init( "LeftSegBottomSideStrength", "Skinning", this, 0.5, skinningStrengthMin, skinningStrengthMax );
-    m_LeftSegBottomSideStrength.SetDescript( "Slope strength of cross section bottom connecting curve on left side of segment" );
-    m_RightSegBottomSideStrength.Init( "RightSegBottomSideStrength", "Skinning", this, 0.5, skinningStrengthMin, skinningStrengthMax );
-    m_RightSegBottomSideStrength.SetDescript( "Slope strength of cross section bottom connecting curve on right side of segment" );
-    m_LeftSegBottomSideCurvature.Init( "LeftSegBottomSideCurvature", "Skinning", this, 0.0, skinningCurvatureMin, skinningCurvatureMax );
-    m_LeftSegBottomSideCurvature.SetDescript( "Curvature of cross section bottom connecting curve on left side of segment" );
-    m_RightSegBottomSideCurvature.Init( "RightSegBottomSideCurvature", "Skinning", this, 0.0, skinningCurvatureMin, skinningCurvatureMax );
-    m_RightSegBottomSideCurvature.SetDescript( "Curvature of cross section bottom connecting curve on right side of segment" );
-
-    m_LeftSegLeftSideAngle.Init( "LeftSegLeftSideAngle", "Skinning", this, 0.0, skinningAngleMin, skinningAngleMax );
-    m_LeftSegLeftSideAngle.SetDescript( "Tangent angle of cross section left connecting curve on left side of segment" );
-    m_RightSegLeftSideAngle.Init( "RightSegLeftSideAngle", "Skinning", this, 0.0, skinningAngleMin, skinningAngleMax );
-    m_RightSegLeftSideAngle.SetDescript( "Tangent angle of cross section left connecting curve on right side of segment" );
-    m_LeftSegLeftSideStrength.Init( "LeftSegLeftSideStrength", "Skinning", this, 0.5, skinningStrengthMin, skinningStrengthMax );
-    m_LeftSegLeftSideStrength.SetDescript( "Slope strength of cross section left connecting curve on left side of segment" );
-    m_RightSegLeftSideStrength.Init( "RightSegLeftSideStrength", "Skinning", this, 0.5, skinningStrengthMin, skinningStrengthMax );
-    m_RightSegLeftSideStrength.SetDescript( "Slope strength of cross section left connecting curve on right side of segment" );
-    m_LeftSegLeftSideCurvature.Init( "LeftSegLeftSideCurvature", "Skinning", this, 0.0, skinningCurvatureMin, skinningCurvatureMax );
-    m_LeftSegLeftSideCurvature.SetDescript( "Curvature of cross section left connecting curve on left side of segment" );
-    m_RightSegLeftSideCurvature.Init( "RightSegLeftSideCurvature", "Skinning", this, 0.0, skinningCurvatureMin, skinningCurvatureMax );
-    m_RightSegLeftSideCurvature.SetDescript( "Curvature of cross section left connecting curve on right side of segment" );
 }
 
 
@@ -174,14 +109,6 @@ void XSec::SetRefLength( double len )
 void XSec::SetScale( double scale )
 {
     SetWidthHeight( GetWidth()*scale, GetHeight()*scale );
-    m_LeftSegTopSideCurvature.Set( m_LeftSegTopSideCurvature() / scale );
-    m_RightSegTopSideCurvature.Set( m_RightSegTopSideCurvature() / scale );
-    m_LeftSegRightSideCurvature.Set( m_LeftSegRightSideCurvature() / scale );
-    m_RightSegRightSideCurvature.Set( m_RightSegRightSideCurvature() / scale );
-    m_LeftSegBottomSideCurvature.Set( m_LeftSegBottomSideCurvature() / scale );
-    m_RightSegBottomSideCurvature.Set( m_RightSegBottomSideCurvature() / scale );
-    m_LeftSegLeftSideCurvature.Set( m_LeftSegLeftSideCurvature() / scale );
-    m_RightSegLeftSideCurvature.Set( m_RightSegLeftSideCurvature() / scale );
 }
 
 //==== Parm Changed ====//
@@ -191,13 +118,6 @@ void XSec::ParmChanged( Parm* parm_ptr, int type )
     {
         m_LateUpdateFlag = true;
         return;
-    }
-
-    // if number of sections changed let geom know
-    if ( parm_ptr == &m_NRightSecs )
-    {
-        parm_ptr = 0;
-        type = -1001;
     }
 
     Update();
@@ -265,130 +185,6 @@ void XSec::Update()
     m_TransformedCurve.OffsetY( m_YLocPercent()*m_RefLength );
     m_TransformedCurve.OffsetZ( m_ZLocPercent()*m_RefLength );
 
-    double right_value[3], left_value[3];
-    int continuity;
-
-    // set the top side values
-    continuity = m_ContinuityFlag();
-    right_value[0] = m_RightSegTopSideAngle();
-    right_value[1] = m_RightSegTopSideStrength();
-    right_value[2] = m_RightSegTopSideCurvature();
-    left_value[0] = m_LeftSegTopSideAngle();
-    left_value[1] = m_LeftSegTopSideStrength();
-    left_value[2] = m_LeftSegTopSideCurvature();
-    if ( m_UseLeftRef )
-    {
-        SetValues( continuity, right_value, left_value );
-    }
-    else
-    {
-        SetValues( continuity, left_value, right_value );
-    }
-    m_RightSegTopSideAngle.Set( right_value[0] );
-    m_RightSegTopSideStrength.Set( right_value[1] );
-    m_RightSegTopSideCurvature.Set( right_value[2] );
-    m_LeftSegTopSideAngle.Set( left_value[0] );
-    m_LeftSegTopSideStrength.Set( left_value[1] );
-    m_LeftSegTopSideCurvature.Set( left_value[2] );
-
-    if ( m_TRBLSymmetryFlag() )
-    {
-        // set the other three sides values to be the same as the top
-        m_RightSegRightSideAngle.Set( right_value[0] );
-        m_RightSegRightSideStrength.Set( right_value[1] );
-        m_RightSegRightSideCurvature.Set( right_value[2] );
-        m_LeftSegRightSideAngle.Set( left_value[0] );
-        m_LeftSegRightSideStrength.Set( left_value[1] );
-        m_LeftSegRightSideCurvature.Set( left_value[2] );
-
-        m_RightSegBottomSideAngle.Set( right_value[0] );
-        m_RightSegBottomSideStrength.Set( right_value[1] );
-        m_RightSegBottomSideCurvature.Set( right_value[2] );
-        m_LeftSegBottomSideAngle.Set( left_value[0] );
-        m_LeftSegBottomSideStrength.Set( left_value[1] );
-        m_LeftSegBottomSideCurvature.Set( left_value[2] );
-
-        m_RightSegLeftSideAngle.Set( right_value[0] );
-        m_RightSegLeftSideStrength.Set( right_value[1] );
-        m_RightSegLeftSideCurvature.Set( right_value[2] );
-        m_LeftSegLeftSideAngle.Set( left_value[0] );
-        m_LeftSegLeftSideStrength.Set( left_value[1] );
-        m_LeftSegLeftSideCurvature.Set( left_value[2] );
-    }
-    else
-    {
-        if ( !m_TBSymmetryFlag() )
-        {
-            // store the bottom side values
-            right_value[0] = m_RightSegBottomSideAngle();
-            right_value[1] = m_RightSegBottomSideStrength();
-            right_value[2] = m_RightSegBottomSideCurvature();
-            left_value[0] = m_LeftSegBottomSideAngle();
-            left_value[1] = m_LeftSegBottomSideStrength();
-            left_value[2] = m_LeftSegBottomSideCurvature();
-            if ( m_UseLeftRef )
-            {
-                SetValues( continuity, right_value, left_value );
-            }
-            else
-            {
-                SetValues( continuity, left_value, right_value );
-            }
-        }
-        m_RightSegBottomSideAngle.Set( right_value[0] );
-        m_RightSegBottomSideStrength.Set( right_value[1] );
-        m_RightSegBottomSideCurvature.Set( right_value[2] );
-        m_LeftSegBottomSideAngle.Set( left_value[0] );
-        m_LeftSegBottomSideStrength.Set( left_value[1] );
-        m_LeftSegBottomSideCurvature.Set( left_value[2] );
-
-        // set the right side values
-        right_value[0] = m_RightSegRightSideAngle();
-        right_value[1] = m_RightSegRightSideStrength();
-        right_value[2] = m_RightSegRightSideCurvature();
-        left_value[0] = m_LeftSegRightSideAngle();
-        left_value[1] = m_LeftSegRightSideStrength();
-        left_value[2] = m_LeftSegRightSideCurvature();
-        if ( m_UseLeftRef )
-        {
-            SetValues( continuity, right_value, left_value );
-        }
-        else
-        {
-            SetValues( continuity, left_value, right_value );
-        }
-        m_RightSegRightSideAngle.Set( right_value[0] );
-        m_RightSegRightSideStrength.Set( right_value[1] );
-        m_RightSegRightSideCurvature.Set( right_value[2] );
-        m_LeftSegRightSideAngle.Set( left_value[0] );
-        m_LeftSegRightSideStrength.Set( left_value[1] );
-        m_LeftSegRightSideCurvature.Set( left_value[2] );
-
-        if ( !m_RLSymmetryFlag() )
-        {
-            // store the bottom side values
-            right_value[0] = m_RightSegLeftSideAngle();
-            right_value[1] = m_RightSegLeftSideStrength();
-            right_value[2] = m_RightSegLeftSideCurvature();
-            left_value[0] = m_LeftSegLeftSideAngle();
-            left_value[1] = m_LeftSegLeftSideStrength();
-            left_value[2] = m_LeftSegLeftSideCurvature();
-            if ( m_UseLeftRef )
-            {
-                SetValues( continuity, right_value, left_value );
-            }
-            else
-            {
-                SetValues( continuity, left_value, right_value );
-            }
-            m_RightSegLeftSideAngle.Set( right_value[0] );
-            m_RightSegLeftSideStrength.Set( right_value[1] );
-            m_RightSegLeftSideCurvature.Set( right_value[2] );
-            m_LeftSegLeftSideAngle.Set( left_value[0] );
-            m_LeftSegLeftSideStrength.Set( left_value[1] );
-            m_LeftSegLeftSideCurvature.Set( left_value[2] );
-        }
-    }
 }
 
 //==== Get Curve ====//
@@ -411,57 +207,6 @@ VspCurve& XSec::GetUntransformedCurve()
     }
 
     return m_Curve;
-}
-
-VspJointInfo XSec::GetJointInfo()
-{
-    VspJointInfo joint;
-
-    joint.SetState( m_ContinuityFlag() );
-
-    joint.SetLeftParams( VspJointInfo::TOP_SIDE, DEG_2_RAD * m_LeftSegTopSideAngle(), m_LeftSegTopSideStrength(), m_LeftSegTopSideCurvature() );
-    joint.SetLeftParams( VspJointInfo::RIGHT_SIDE, DEG_2_RAD * m_LeftSegRightSideAngle(), m_LeftSegRightSideStrength(), m_LeftSegRightSideCurvature() );
-    joint.SetLeftParams( VspJointInfo::BOTTOM_SIDE, DEG_2_RAD * m_LeftSegBottomSideAngle(), m_LeftSegBottomSideStrength(), m_LeftSegBottomSideCurvature() );
-    joint.SetLeftParams( VspJointInfo::LEFT_SIDE, DEG_2_RAD * m_LeftSegLeftSideAngle(), m_LeftSegLeftSideStrength(), m_LeftSegLeftSideCurvature() );
-    joint.SetRightParams( VspJointInfo::TOP_SIDE, DEG_2_RAD * m_RightSegTopSideAngle(), m_RightSegTopSideStrength(), m_RightSegTopSideCurvature() );
-    joint.SetRightParams( VspJointInfo::RIGHT_SIDE, DEG_2_RAD * m_RightSegRightSideAngle(), m_RightSegRightSideStrength(), m_RightSegRightSideCurvature() );
-    joint.SetRightParams( VspJointInfo::BOTTOM_SIDE, DEG_2_RAD * m_RightSegBottomSideAngle(), m_RightSegBottomSideStrength(), m_RightSegBottomSideCurvature() );
-    joint.SetRightParams( VspJointInfo::LEFT_SIDE, DEG_2_RAD * m_RightSegLeftSideAngle(), m_RightSegLeftSideStrength(), m_RightSegLeftSideCurvature() );
-
-    return joint;
-}
-
-void XSec::SetJointInfo( const VspJointInfo &joint )
-{
-    m_ContinuityFlag.Set( joint.GetState() );
-
-    m_LeftSegTopSideAngle.Set( RAD_2_DEG * joint.GetLeftAngle( VspJointInfo::TOP_SIDE ) );
-    m_LeftSegTopSideStrength.Set( joint.GetLeftStrength( VspJointInfo::TOP_SIDE ) );
-    m_LeftSegTopSideCurvature.Set( joint.GetLeftCurvature( VspJointInfo::TOP_SIDE ) );
-    m_RightSegTopSideAngle.Set( RAD_2_DEG * joint.GetRightAngle( VspJointInfo::TOP_SIDE ) );
-    m_RightSegTopSideStrength.Set( joint.GetRightStrength( VspJointInfo::TOP_SIDE ) );
-    m_RightSegTopSideCurvature.Set( joint.GetRightCurvature( VspJointInfo::TOP_SIDE ) );
-
-    m_LeftSegRightSideAngle.Set( RAD_2_DEG * joint.GetLeftAngle( VspJointInfo::RIGHT_SIDE ) );
-    m_LeftSegRightSideStrength.Set( joint.GetLeftStrength( VspJointInfo::RIGHT_SIDE ) );
-    m_LeftSegRightSideCurvature.Set( joint.GetLeftCurvature( VspJointInfo::RIGHT_SIDE ) );
-    m_RightSegRightSideAngle.Set( RAD_2_DEG * joint.GetRightAngle( VspJointInfo::RIGHT_SIDE ) );
-    m_RightSegRightSideStrength.Set( joint.GetRightStrength( VspJointInfo::RIGHT_SIDE ) );
-    m_RightSegRightSideCurvature.Set( joint.GetRightCurvature( VspJointInfo::RIGHT_SIDE ) );
-
-    m_LeftSegBottomSideAngle.Set( RAD_2_DEG * joint.GetLeftAngle( VspJointInfo::BOTTOM_SIDE ) );
-    m_LeftSegBottomSideStrength.Set( joint.GetLeftStrength( VspJointInfo::BOTTOM_SIDE ) );
-    m_LeftSegBottomSideCurvature.Set( joint.GetLeftCurvature( VspJointInfo::BOTTOM_SIDE ) );
-    m_RightSegBottomSideAngle.Set( RAD_2_DEG * joint.GetRightAngle( VspJointInfo::BOTTOM_SIDE ) );
-    m_RightSegBottomSideStrength.Set( joint.GetRightStrength( VspJointInfo::BOTTOM_SIDE ) );
-    m_RightSegBottomSideCurvature.Set( joint.GetRightCurvature( VspJointInfo::BOTTOM_SIDE ) );
-
-    m_LeftSegLeftSideAngle.Set( RAD_2_DEG * joint.GetLeftAngle( VspJointInfo::LEFT_SIDE ) );
-    m_LeftSegLeftSideStrength.Set( joint.GetLeftStrength( VspJointInfo::LEFT_SIDE ) );
-    m_LeftSegLeftSideCurvature.Set( joint.GetLeftCurvature( VspJointInfo::LEFT_SIDE ) );
-    m_RightSegLeftSideAngle.Set( RAD_2_DEG * joint.GetRightAngle( VspJointInfo::LEFT_SIDE ) );
-    m_RightSegLeftSideStrength.Set( joint.GetRightStrength( VspJointInfo::LEFT_SIDE ) );
-    m_RightSegLeftSideCurvature.Set( joint.GetRightCurvature( VspJointInfo::LEFT_SIDE ) );
 }
 
 //==== Copy From XSec ====//
@@ -552,45 +297,6 @@ void XSec::SetTransformation( const Matrix4d &mat, bool center )
 {
     m_rotation = mat;
     m_center = center;
-}
-
-
-void XSec::SetValues( int continuity, double dep_values[3], const double ref_values[3] ) const
-{
-    switch ( continuity )
-    {
-    case( VspJointInfo::FULL ):
-    case( VspJointInfo::C0 ):
-    case( VspJointInfo::C1_AUTO ):
-    {
-        break;
-    }
-    case( VspJointInfo::G2 ):
-    case( VspJointInfo::C2_AUTO ):
-    case( VspJointInfo::C1 ):
-    {
-        dep_values[0] = ref_values[0];
-        dep_values[1] = ref_values[1];
-        break;
-    }
-    case( VspJointInfo::G1 ):
-    {
-        dep_values[0] = ref_values[0];
-        break;
-    }
-    case( VspJointInfo::C2 ):
-    {
-        dep_values[0] = ref_values[0];
-        dep_values[1] = ref_values[1];
-        dep_values[2] = ref_values[2];
-        break;
-    }
-    default:
-    {
-        std::cerr << "Invalid Continuity value of " <<  continuity << " at line " << __LINE__ << " of XSec" << std::endl;
-        break;
-    }
-    }
 }
 
 //==========================================================================//

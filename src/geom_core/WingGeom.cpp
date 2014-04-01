@@ -250,7 +250,7 @@ bool WingDriverGroup::ValidDrivers( vector< int > choices )
 
 
 //==== Constructor ====//
-WingGeom::WingGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr ), m_DoneConstructing( false )
+WingGeom::WingGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
 {
     m_Name = "WingGeom";
     m_Type.m_Name = "Wing";
@@ -262,23 +262,11 @@ WingGeom::WingGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr ), m_DoneCons
     double *pm( mat.data() );
     bool center;
 
-    // rotation                ; translation
-    pm[0] = 0;
-    pm[4] = 0;
-    pm[ 8] = -1;
-    pm[12] = 0;
-    pm[1] = 1;
-    pm[5] = 0;
-    pm[ 9] = 0;
-    pm[13] = 0;
-    pm[2] = 0;
-    pm[6] = 1;
-    pm[10] = 0;
-    pm[14] = 0;
-    pm[3] = 0;
-    pm[7] = 0;
-    pm[11] = 0;
-    pm[15] = 0;
+    // rotation                   ; translation
+    pm[0] = 0;pm[4] = 0;pm[ 8] =-1;pm[12] = 0;
+    pm[1] = 1;pm[5] = 0;pm[ 9] = 0;pm[13] = 0;
+    pm[2] = 0;pm[6] = 1;pm[10] = 0;pm[14] = 0;
+    pm[3] = 0;pm[7] = 0;pm[11] = 0;pm[15] = 0;
     center = true;
 
     m_XSecSurf.SetTransformation( mat, true );
@@ -290,14 +278,6 @@ WingGeom::WingGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr ), m_DoneCons
 
     m_Length.Init( "Length", "Design", this, 30.0, 1.0e-8, 1.0e12 );
     m_Length.SetDescript( "Length of fuselage" );
-
-// Revert back to MANUAL_CONNECT once get skinning fixed
-#if 0
-    m_XSecConnect.Init( "XSecConnect", "Design", this, MANUAL_CONNECT, 0, NUM_CONNECT );
-#else
-    m_XSecConnect.Init( "XSecConnect", "Design", this, LINEAR_CONNECT, 0, NUM_CONNECT );
-#endif
-    m_XSecConnect.SetDescript( "Method of connecting cross-sections" );
 
     m_ActiveXSec = 0;
     m_XSecSurf.AddXSec( XSec::POINT );
@@ -315,79 +295,30 @@ WingGeom::WingGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr ), m_DoneCons
     xs = m_XSecSurf.FindXSec( j );
     xs->SetGroupDisplaySuffix( j );
     xs->m_XLocPercent = 0.0;
-    angle = 90 * DEG_2_RAD;
-    strength = 0.75;
-    curvature = 2.0;
-    joint.SetState( VspJointInfo::C1 );
-    for ( i = 0; i < 4; ++i )
-    {
-        joint.SetRightParams( i, angle, strength, curvature );
-    }
-    xs->SetJointInfo( joint );
 
     ++j;
     xs = m_XSecSurf.FindXSec( j );
     xs->SetGroupDisplaySuffix( j );
     xs->m_XLocPercent = 0.25;
     dynamic_cast<EllipseXSec *>( xs )->SetWidthHeight( 3.0, 2.5 );
-    angle = 0 * DEG_2_RAD;
-    strength = 1.0;
-    curvature = 0.0;
-    joint.SetState( VspJointInfo::C2 );
-    for ( i = 0; i < 4; ++i )
-    {
-        joint.SetLeftParams( i, angle, strength, curvature );
-        joint.SetRightParams( i, angle, strength, curvature );
-    }
-    xs->SetJointInfo( joint );
 
     ++j;
     xs = m_XSecSurf.FindXSec( j );
     xs->SetGroupDisplaySuffix( j );
     xs->m_XLocPercent = 0.5;
     dynamic_cast<EllipseXSec *>( xs )->SetWidthHeight( 3.0, 2.5 );
-    angle = 0 * DEG_2_RAD;
-    strength = 1.0;
-    curvature = 0.0;
-    joint.SetState( VspJointInfo::C2 );
-    for ( i = 0; i < 4; ++i )
-    {
-        joint.SetLeftParams( i, angle, strength, curvature );
-        joint.SetRightParams( i, angle, strength, curvature );
-    }
-    xs->SetJointInfo( joint );
 
     ++j;
     xs = m_XSecSurf.FindXSec( j );
     xs->SetGroupDisplaySuffix( j );
     xs->m_XLocPercent = 0.75;
     dynamic_cast<EllipseXSec *>( xs )->SetWidthHeight( 3.0, 2.5 );
-    angle = 0 * DEG_2_RAD;
-    strength = 1.0;
-    curvature = 0.0;
-    joint.SetState( VspJointInfo::C2 );
-    for ( i = 0; i < 4; ++i )
-    {
-        joint.SetLeftParams( i, angle, strength, curvature );
-        joint.SetRightParams( i, angle, strength, curvature );
-    }
-    xs->SetJointInfo( joint );
 
     ++j;
     xs = m_XSecSurf.FindXSec( j );
     xs->SetGroupDisplaySuffix( j );
     xs->m_XLocPercent = 1.0;
-    angle = -90 * DEG_2_RAD;
-    strength = 0.75;
-    curvature = 2.0;
-    joint.SetState( VspJointInfo::C1 );
-    for ( i = 0; i < 4; ++i )
-    {
-        joint.SetLeftParams( i, angle, strength, curvature );
-    }
-    xs->SetJointInfo( joint );
 
-    m_DoneConstructing = true;
 }
 
 //==== Destructor ====//
@@ -406,13 +337,10 @@ void WingGeom::ChangeID( string id )
 void WingGeom::UpdateSurf()
 {
     double len = m_Length();
-    int connection_type( m_XSecConnect() );
 
     //==== Cross Section Curves & joint info ====//
     vector< VspCurve > crv_vec;
-    vector<VspJointInfo> joint_info;
     crv_vec.resize( m_XSecSurf.NumXSec() );
-    joint_info.resize( m_XSecSurf.NumXSec() );
 
     //==== Update XSec Location/Rotation ====//
     char str[256];
@@ -443,131 +371,11 @@ void WingGeom::UpdateSurf()
             xs->SetRefLength( m_Length() );
 
             crv_vec[i] =  xs->GetCurve();
-            joint_info[i] = xs->GetJointInfo();
         }
     }
 
-#if 0
-    int idx = 0;
-    std::cout << "<===== in  ======>" << std::endl;
-    std::cout << "\t segment " << idx;
-    std::cout << "\tright curvature=" << joint_info[idx].GetRightCurvature( 0 );
-    std::cout << std::endl;
-#endif
+    m_SurfVec[0].InterpolateLinear( crv_vec, false );
 
-    // construct the surface
-    switch ( connection_type )
-    {
-        // linear interpolate between cross-sections
-    case( LINEAR_CONNECT ):
-    {
-        m_SurfVec[0].InterpolateLinear( crv_vec, false );
-        break;
-    }
-    // C1 PCHIP interpolate between cross-sections
-    case( PCHIP_CONNECT ):
-    {
-        m_SurfVec[0].InterpolatePCHIP( crv_vec, false );
-        break;
-    }
-    // C2 cubic spline interpolate between cross-sections
-    case( CSPLINE_CONNECT ):
-    {
-        m_SurfVec[0].InterpolateCSpline( crv_vec, false );
-        break;
-    }
-    case( MANUAL_CONNECT ):
-    {
-        m_SurfVec[0].InterpolateManual( crv_vec, joint_info, false );
-        break;
-    }
-    default:
-    {
-        std::cerr << "Invalid cross-section type" << std::endl;
-    }
-    }
-
-    // get the joint info into the cross sections
-    for ( int i = 0 ; i < m_XSecSurf.NumXSec() ; i++ )
-    {
-        XSec* xs = m_XSecSurf.FindXSec( i );
-
-        if ( xs )
-        {
-            VspJointInfo joint;
-
-            m_SurfVec[0].CompJointParams( i, joint );
-
-            switch ( connection_type )
-            {
-            case( LINEAR_CONNECT ):
-            {
-                joint.SetState( VspJointInfo::C0 );
-                break;
-            }
-            case( PCHIP_CONNECT ):
-            {
-                joint.SetState( VspJointInfo::C1 );
-                break;
-            }
-            case( CSPLINE_CONNECT ):
-            {
-                joint.SetState( VspJointInfo::C2 );
-                break;
-            }
-            case( MANUAL_CONNECT ):
-            {
-                joint.SetState( joint_info[i].GetState() );
-                break;
-            }
-            default:
-            {
-                std::cerr << "Invalid connection type" << std::endl;
-                break;
-            }
-            }
-
-            xs->SetJointInfo( joint );
-        }
-    }
-
-#if 0
-    VspJointInfo joint;
-    m_SurfVec[0].CompJointParams( idx, joint );
-    std::cout << "<===== out ======>" << std::endl;
-    std::cout << "\t segment " << idx;
-    std::cout << "\tright curvature=" << joint.GetRightCurvature( 0 );
-    std::cout << std::endl;
-    std::cout << "<================>" << std::endl;
-#endif
-}
-
-void WingGeom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms )
-{
-    vector<int> nu( NumXSec() - 1 );
-    int nv( m_TessW() );
-
-    // fill the nu vector
-    for ( size_t i = 0; i < nu.size(); ++i )
-    {
-        XSec *xs = GetXSec( i );
-        nu[i] = xs->m_NRightSecs();
-    }
-
-    // if closed in u- or w-directions then need to add another coordinate line
-    // to see desired number
-    if ( m_SurfVec[indx].IsClosedU() )
-    {
-        // FIX: Should actually increase size of nu by one and use the last xs's m_NRightSecs() for
-        // that value. The question is whether surface's tesselate can handle that.
-        std::cerr << "Cannot handle closed surface in v-direction" << std::endl;
-    }
-    if ( m_SurfVec[indx].IsClosedW() )
-    {
-        ++nv;
-    }
-
-    m_SurfVec[indx].Tesselate( nu, nv, pnts, norms );
 }
 
 //==== Compute Rotation Center ====//
@@ -596,41 +404,10 @@ xmlNodePtr WingGeom::DecodeXml( xmlNodePtr & node )
     xmlNodePtr wing_node = XmlUtil::GetNode( node, "WingGeom", 0 );
     if ( wing_node )
     {
-        m_DoneConstructing = false;
         m_XSecSurf.DecodeXml( wing_node );
-        m_DoneConstructing = true;
     }
 
     return wing_node;
-}
-
-void WingGeom::ParmChanged( Parm* parm_ptr, int type )
-{
-    // catch special case where an XSec num U changed
-    if ( ( parm_ptr == 0 ) && ( type == -1001 ) )
-    {
-        m_TessU.Set( m_XSecSurf.GetNumTess() );
-    }
-
-    // if the total number of tesselation in the v-direction change, then need to make sure the
-    // cross sections and the m_TessU values are in sync
-    if ( ( parm_ptr != 0 ) && ( parm_ptr->GetID() == m_TessU.GetID() ) )
-    {
-        int nTess( m_TessU() ), nXSec( m_XSecSurf.GetNumTess() );
-
-        // if have cross sections and the numbers don't match it means that m_TessU was updated
-        // and the cross sections need to be updated
-        if ( ( nXSec > 0 ) && ( nTess != nXSec ) )
-        {
-            m_TessU.Set( m_XSecSurf.UpdateNumTess( nTess ) );
-        }
-    }
-
-    // call base class method if have enough cross sections
-    if ( m_DoneConstructing )
-    {
-        GeomXSec::ParmChanged( parm_ptr, type );
-    }
 }
 
 //==== Set Index For Active XSec ====//

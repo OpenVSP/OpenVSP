@@ -48,9 +48,6 @@ public:
     virtual VspCurve& GetUntransformedCurve();
     virtual VspCurve& GetCurve();
 
-    VspJointInfo GetJointInfo();
-    void SetJointInfo( const VspJointInfo &joint );
-
     virtual int  GetType()
     {
         return m_Type;
@@ -89,42 +86,6 @@ public:
     Parm m_YRotate;
     Parm m_ZRotate;
 
-    IntParm m_NRightSecs;
-
-    BoolParm m_TRBLSymmetryFlag;
-    BoolParm m_TBSymmetryFlag;
-    BoolParm m_RLSymmetryFlag;
-
-    IntParm m_ContinuityFlag;
-
-    Parm m_LeftSegTopSideAngle;
-    Parm m_RightSegTopSideAngle;
-    FractionParm m_LeftSegTopSideStrength;
-    FractionParm m_RightSegTopSideStrength;
-    Parm m_LeftSegTopSideCurvature;
-    Parm m_RightSegTopSideCurvature;
-
-    Parm m_LeftSegRightSideAngle;
-    Parm m_RightSegRightSideAngle;
-    FractionParm m_LeftSegRightSideStrength;
-    FractionParm m_RightSegRightSideStrength;
-    Parm m_LeftSegRightSideCurvature;
-    Parm m_RightSegRightSideCurvature;
-
-    Parm m_LeftSegBottomSideAngle;
-    Parm m_RightSegBottomSideAngle;
-    FractionParm m_LeftSegBottomSideStrength;
-    FractionParm m_RightSegBottomSideStrength;
-    Parm m_LeftSegBottomSideCurvature;
-    Parm m_RightSegBottomSideCurvature;
-
-    Parm m_LeftSegLeftSideAngle;
-    Parm m_RightSegLeftSideAngle;
-    FractionParm m_LeftSegLeftSideStrength;
-    FractionParm m_RightSegLeftSideStrength;
-    Parm m_LeftSegLeftSideCurvature;
-    Parm m_RightSegLeftSideCurvature;
-
 protected:
 
     Matrix4d m_rotation;
@@ -135,8 +96,6 @@ protected:
     string m_RefLengthParmID;
     double m_RefLength;
 
-    bool m_UseLeftRef;
-
     string m_GroupName;
     string m_ParentGeomID;
 
@@ -144,8 +103,6 @@ protected:
     VspCurve m_TransformedCurve;
 
     virtual void ChangeID( string id );
-
-    void SetValues( int continuity, double dep_values[3], const double ref_values[3] ) const;
 };
 
 //==========================================================================//

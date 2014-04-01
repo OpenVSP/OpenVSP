@@ -50,14 +50,9 @@ public:
         return m_XSecIDDeque.size();
     }
 
-    int GetNumTess();
-    int UpdateNumTess( int nt );
-
     virtual void AddLinkableParms( vector< string > & parm_vec, const string & link_container_id = string() );
 
     void SetTransformation( const Matrix4d &mat, bool center );
-
-//  Parm m_TestParm;
 
 protected:
 
@@ -73,10 +68,6 @@ protected:
 
     Matrix4d m_rotation;
     bool m_center;
-
-
-
-
 
 };
 

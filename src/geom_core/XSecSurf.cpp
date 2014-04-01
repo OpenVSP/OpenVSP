@@ -176,8 +176,6 @@ string XSecSurf::InsertXSec( int type, int index )
         {
             m_XSecIDDeque.push_back( xs->GetID() );
         }
-
-        ParmChanged( 0, -1001 );
     }
     return id;
 }
@@ -192,8 +190,6 @@ string XSecSurf::AddXSec( int type )
     {
         id = xs->GetID();
         m_XSecIDDeque.push_back( id );
-
-        ParmChanged( 0, -1001 );
     }
     return id;
 }
@@ -228,8 +224,6 @@ void XSecSurf::CutXSec( int index )
 
     m_SavedXSec = xs->GetID();
     m_XSecIDDeque.erase( m_XSecIDDeque.begin() + index );
-
-    ParmChanged( 0, -1001 );
 }
 
 //==== Copy XSec ====//
@@ -295,8 +289,6 @@ void XSecSurf::PasteXSec( int index )
 
     deque_remove_val( m_XSecIDDeque, xs->GetID() );
     vector_remove_val( m_XSecPtrVec, xs );
-
-    ParmChanged( 0, -1001 );
 
     delete xs;
 }
@@ -395,76 +387,6 @@ void XSecSurf::ParmChanged( Parm* parm_ptr, int type )
         pc->ParmChanged( parm_ptr, type );
     }
 
-}
-
-int XSecSurf::GetNumTess()
-{
-    int numt( 1 ), nxs( NumXSec() );
-
-    // short circuit if no cross sections
-    if ( nxs == 0 )
-    {
-        return 0;
-    }
-
-    // accumulate the total number of cross sections
-    for ( int i = 0; i < nxs - 1; ++i )
-    {
-        XSec* xsp = FindXSec( i );
-        numt += xsp->m_NRightSecs() - 1;
-    }
-
-    return numt;
-}
-
-int XSecSurf::UpdateNumTess( int nt )
-{
-    int numt( GetNumTess() ), nxs( NumXSec() );
-
-    // short circuit on start up
-    if ( nxs < 3 )
-    {
-        return nt;
-    }
-
-    // catch case where set too few cross sections
-    if ( nt < nxs )
-    {
-        nt = nxs;
-    }
-
-    // compare each segments count to total desired number to be displayed
-    while( numt != nt )
-    {
-        // find the minimum and maximum sections
-        XSec *xsmin = FindXSec( 0 );
-        XSec *xsmax = FindXSec( 0 );
-        for ( int i = 1; i < nxs - 1; ++i )
-        {
-            XSec* xsp = FindXSec( i );
-            if ( xsmin->m_NRightSecs() > xsp->m_NRightSecs() )
-            {
-                xsmin = xsp;
-            }
-            if ( xsmax->m_NRightSecs() < xsp->m_NRightSecs() )
-            {
-                xsmax = xsp;
-            }
-        }
-
-        if ( numt > nt )
-        {
-            xsmax->m_NRightSecs.Set( xsmax->m_NRightSecs() - 1 );
-            --numt;
-        }
-        else
-        {
-            xsmin->m_NRightSecs.Set( xsmin->m_NRightSecs() + 1 );
-            ++numt;
-        }
-    }
-
-    return nt;
 }
 
 //==== Look Though All Parms and Load Linkable Ones ===//

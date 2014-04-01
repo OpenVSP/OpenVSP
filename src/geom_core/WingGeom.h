@@ -48,8 +48,6 @@ public:
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
-    virtual void ParmChanged( Parm* parm_ptr, int type );
-
     virtual int NumXSec()
     {
         return m_XSecSurf.NumXSec();
@@ -89,13 +87,11 @@ public:
     virtual void LoadDragFactors( DragFactors& drag_factors );
 
     Parm m_Length;                  // Length of Fuselage
-    IntParm m_XSecConnect;          // How to connect cross-sections
 
 protected:
     virtual void ChangeID( string id );
 
     virtual void UpdateSurf();
-    virtual void UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms );
 
     enum {FUSE_MONOTONIC, FUSE_DUCT, FUSE_FREE};
     virtual void EnforceOrder( XSec* xs, int indx, int ile, int policy );
@@ -105,7 +101,5 @@ protected:
 
     bool m_Closed;
 
-    bool m_DoneConstructing; // Used because of a bootstrapping problem with setting parameters before
-    // infrastructure is in place to handle parm changes.
 };
 #endif // !defined(VSPWINGGEOM__INCLUDED_)
