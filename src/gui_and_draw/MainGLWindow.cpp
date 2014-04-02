@@ -207,14 +207,6 @@ int VspGlWindow::handle( int fl_event )
     return Fl_Gl_Window::handle( fl_event );
 }
 
-void VspGlWindow::LoadDrawObjs( std::vector< DrawObj* > &draw_obj_vec )
-{
-    for( int i = 0; i < ( int )m_PickableGeoms.size(); i++ )
-    {
-        draw_obj_vec.push_back( &m_PickableGeoms[i] );
-    }
-}
-
 void VspGlWindow::update()
 {
     Vehicle* vPtr = VehicleMgr::getInstance().GetVehicle();
@@ -226,9 +218,6 @@ void VspGlWindow::update()
         // Get Render Objects from Vehicle.
         vector<DrawObj *> drawObjs = vPtr->GetDrawObjs();
 
-        // Load Render Objects from MainGLWindow.
-        this->LoadDrawObjs( drawObjs );
-
         // Load Render Objects from CfdMeshScreen.
         CfdMeshScreen * cfdScreen = dynamic_cast< CfdMeshScreen* >
             ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_CFD_MESH_SCREEN ) );
@@ -238,11 +227,19 @@ void VspGlWindow::update()
         }
 
         // Load Render Objects from labelScreen.
-        ManageLabelScreen * labelScreen = dynamic_cast<ManageLabelScreen *>
+        ManageLabelScreen * labelScreen = dynamic_cast< ManageLabelScreen* >
             ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_LABEL_SCREEN ) );
         if( labelScreen )
         {
             labelScreen->LoadDrawObjs( drawObjs );
+        }
+
+        // Load Render Objects from geomScreen.
+        ManageGeomScreen * geomScreen = dynamic_cast< ManageGeomScreen* >
+            ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_MANAGE_GEOM_SCREEN ) );
+        if( geomScreen )
+        {
+            geomScreen->LoadDrawObjs( drawObjs );
         }
 
         // Load Objects to Renderer.
@@ -803,23 +800,6 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
     }
 }
 
-bool VspGlWindow::_checkIfPickingIsNeeded( std::vector<DrawObj *> DOs )
-{
-    for( int i = 0; i < ( int )DOs.size(); i++ )
-    {
-        switch( DOs[i]->m_Type )
-        {
-        case DrawObj::VSP_RULER:
-            if( DOs[i]->m_Ruler.Step != DrawObj::VSP_RULER_STEP_COMPLETE )
-            {
-                return true;
-            }
-            break;
-        };
-    }
-    return false;
-}
-
 VspGlWindow::ID * VspGlWindow::_findID( std::string geomID )
 {
     for( int i = 0; i < ( int )m_ids.size(); i++ )
@@ -1156,45 +1136,6 @@ std::vector<std::vector<vec3d>> VspGlWindow::_generateTexCoordFromXSec( DrawObj 
     return coordinates;
 }
 
-void VspGlWindow::_generatePickGeomDOs()
-{
-    // Load all geom.
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-    vector< Geom* > geom_vec = veh->FindGeomVec( veh->GetGeomVec( false ) );
-
-    std::string feedbackGroup = "";
-    ManageGeomScreen * geomScreen = dynamic_cast<ManageGeomScreen *>
-        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_MANAGE_GEOM_SCREEN ) );
-    if( geomScreen )
-    {
-        feedbackGroup = geomScreen->getFeedbackGroupName();
-    }
-
-    for(int i = 0; i < ( int )geom_vec.size(); i++)
-    {
-        std::vector<DrawObj*> geom_drawobj_vec;
-        geom_vec[i]->LoadDrawObjs( geom_drawobj_vec );
-
-        for( int j = 0; j < ( int )geom_drawobj_vec.size(); j++ )
-        {
-            if( geom_drawobj_vec[j]->m_Visible )
-            {
-                // Ignore bounding boxes.
-                if( geom_drawobj_vec[j]->m_GeomID.compare(0, string(BBOXHEADER).size(), BBOXHEADER) != 0 )
-                {
-                    DrawObj pickDO;
-                    pickDO.m_Type = DrawObj::VSP_PICK_GEOM;
-                    pickDO.m_GeomID = PICKGEOMHEADER + geom_drawobj_vec[j]->m_GeomID;
-                    pickDO.m_PickSourceID = geom_drawobj_vec[j]->m_GeomID;
-                    pickDO.m_FeedbackGroup = feedbackGroup;
-
-                    m_PickableGeoms.push_back( pickDO );
-                }
-            }
-        }
-    }
-}
-
 void VspGlWindow::_setLighting( DrawObj * drawObj )
 {
     if( drawObj->m_Type != DrawObj::VSP_SETTING )
@@ -1463,12 +1404,6 @@ void VspGlWindow::OnKeyup( int x, int y )
         display->center();
         break;
 
-    case FL_Shift_L:
-    case FL_Shift_R:
-        m_PickableGeoms.clear();
-        update();
-        break;
-
     case FL_F+1:
         if( Fl::event_state( FL_SHIFT ) )
         {
@@ -1615,10 +1550,13 @@ void VspGlWindow::OnKeydown()
 {
     switch( Fl::event_key() )
     {
-    case FL_Shift_L:
-    case FL_Shift_R:
-        _generatePickGeomDOs();
-        update();
+    case 'p':
+        ManageGeomScreen * geomScreen = dynamic_cast<ManageGeomScreen *>
+            ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_MANAGE_GEOM_SCREEN ) );
+        if( geomScreen )
+        {
+            geomScreen->TriggerPickSwitch();
+        }
         break;
     }
     redraw();
