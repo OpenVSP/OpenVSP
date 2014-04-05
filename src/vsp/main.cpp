@@ -238,6 +238,10 @@ void* CheckVersionNumber( void *threadid )
         user_id += rand() % 100000 + 1;
     }
 
+    // Reset random seed after generating user_id.
+    // +1 is to be sure this isn't called less than zero seconds from before.
+    srand( ( unsigned int )time( NULL ) + 1 );
+
     //==== Post User Info To Server ====//
     char poststr[256];
     sprintf( poststr, "postvar1=%d&postvar2=%d\r\n", user_id, ver_no );
