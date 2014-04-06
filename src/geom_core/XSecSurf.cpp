@@ -82,61 +82,63 @@ void XSecSurf::ChangeXSecID( string oldID, string newID )
     }
 }
 
-//==== Create XSec ====//
+//==== Create XSecCurve ====//
 XSec* XSecSurf::CreateXSec( int type, int index )
 {
-    XSec* xsec_ptr = NULL;
-    if ( type == XSec::POINT )
+    XSecCurve* xscrv_ptr = NULL;
+    if ( type == XSecCurve::POINT )
     {
-        xsec_ptr = new PointXSec( index != 0 );
+        xscrv_ptr = new PointXSec( );
     }
-    else if ( type == XSec::CIRCLE )
+    else if ( type == XSecCurve::CIRCLE )
     {
-        xsec_ptr = new CircleXSec( index != 0 );
+        xscrv_ptr = new CircleXSec( );
     }
-    else if ( type == XSec::ELLIPSE )
+    else if ( type == XSecCurve::ELLIPSE )
     {
-        xsec_ptr = new EllipseXSec( index != 0 );
+        xscrv_ptr = new EllipseXSec( );
     }
-    else if ( type == XSec::SUPER_ELLIPSE )
+    else if ( type == XSecCurve::SUPER_ELLIPSE )
     {
-        xsec_ptr = new SuperXSec( index != 0 );
+        xscrv_ptr = new SuperXSec( );
     }
-    else if ( type == XSec::ROUNDED_RECTANGLE )
+    else if ( type == XSecCurve::ROUNDED_RECTANGLE )
     {
-        xsec_ptr = new RoundedRectXSec( index != 0 );
+        xscrv_ptr = new RoundedRectXSec( );
     }
-    else if ( type == XSec::GENERAL_FUSE )
+    else if ( type == XSecCurve::GENERAL_FUSE )
     {
-        xsec_ptr = new GeneralFuseXSec( index != 0 );
+        xscrv_ptr = new GeneralFuseXSec( );
     }
-    else if ( type == XSec::FOUR_SERIES )
+    else if ( type == XSecCurve::FOUR_SERIES )
     {
-        xsec_ptr = new FourSeries( index != 0 );
+        xscrv_ptr = new FourSeries( );
     }
-    else if ( type == XSec::SIX_SERIES )
+    else if ( type == XSecCurve::SIX_SERIES )
     {
-        xsec_ptr = new SixSeries( index != 0 );
+        xscrv_ptr = new SixSeries( );
     }
-    else if ( type == XSec::BICONVEX )
+    else if ( type == XSecCurve::BICONVEX )
     {
-        xsec_ptr = new Biconvex( index != 0 );
+        xscrv_ptr = new Biconvex( );
     }
-    else if ( type == XSec::WEDGE )
+    else if ( type == XSecCurve::WEDGE )
     {
-        xsec_ptr = new Wedge( index != 0 );
+        xscrv_ptr = new Wedge( );
     }
-    else if ( type == XSec::FILE_FUSE )
+    else if ( type == XSecCurve::FILE_FUSE )
     {
-        xsec_ptr = new FileXSec( index != 0 );
+        xscrv_ptr = new FileXSec( );
     }
-    else if ( type == XSec::FILE_AIRFOIL )
+    else if ( type == XSecCurve::FILE_AIRFOIL )
     {
-        xsec_ptr = new FileAirfoil( index != 0 );
+        xscrv_ptr = new FileAirfoil( );
     }
 
-    if ( xsec_ptr )
+    XSec* xsec_ptr = NULL;
+    if ( xscrv_ptr )
     {
+        xsec_ptr = new XSec( xscrv_ptr, index != 0 );
         xsec_ptr->SetParentContainer( GetID() );
         xsec_ptr->SetTransformation( m_rotation, m_center );
         m_XSecPtrVec.push_back( xsec_ptr );
@@ -238,7 +240,8 @@ void XSecSurf::CopyXSec( int index )
     XSec* saved_xs = FindXSec( m_SavedXSec );
 
     //==== Create Saved XSec ====//
-    if ( saved_xs && saved_xs->GetType() != xs->GetType() )
+    if ( saved_xs && ( saved_xs->GetType() != xs->GetType()
+            || saved_xs->GetXSecCurve()->GetType() != xs->GetXSecCurve()->GetType() ) )
     {
         vector_remove_val( m_XSecPtrVec, saved_xs );
         delete saved_xs;
@@ -248,7 +251,7 @@ void XSecSurf::CopyXSec( int index )
     //==== Saved XSec ====//
     if ( !saved_xs )
     {
-        saved_xs = CreateXSec( xs->GetType(), index );
+        saved_xs = CreateXSec( xs->GetXSecCurve()->GetType(), index );
     }
 
     //==== Copy Data ====//
@@ -274,7 +277,7 @@ void XSecSurf::PasteXSec( int index )
         return;
     }
 
-    string new_xs_id = InsertXSec( saved_xs->GetType(), index );
+    string new_xs_id = InsertXSec( saved_xs->GetXSecCurve()->GetType(), index );
     XSec* new_xs = FindXSec( new_xs_id );
     if ( !new_xs )
     {
@@ -324,6 +327,8 @@ void XSecSurf::ChangeXSecType( int index, int type )
 //==== Encode XML ====//
 xmlNodePtr XSecSurf::EncodeXml( xmlNodePtr & node )
 {
+    ParmContainer::EncodeXml( node );
+
     xmlNodePtr xsecsurf_node = xmlNewChild( node, NULL, BAD_CAST "XSecSurf", NULL );
     if ( xsecsurf_node )
     {
@@ -344,23 +349,38 @@ xmlNodePtr XSecSurf::DecodeXml( xmlNodePtr & node )
 {
     DeleteAllXSecs();
 
+    ParmContainer::DecodeXml( node );
+
     xmlNodePtr xsecsurf_node = XmlUtil::GetNode( node, "XSecSurf", 0 );
     if ( xsecsurf_node )
     {
         int num = XmlUtil::GetNumNames( xsecsurf_node, "XSec" );
+
         for ( int i = 0 ; i < num ; i++ )
         {
             xmlNodePtr xsec_node = XmlUtil::GetNode( xsecsurf_node, "XSec", i );
             if ( xsec_node )
             {
-                xmlNodePtr temp_node = XmlUtil::GetNode( xsec_node, "XSec", 0 );
-                int type = XmlUtil::FindInt( temp_node, "Type", XSec::POINT );
+                xmlNodePtr temp_node = NULL;
+                temp_node = XmlUtil::GetNode( xsec_node, "XSec", 0 );
 
-                //==== Create New Cross Section ====//
-                XSec* xsec_ptr = FindXSec( AddXSec( type ) );
-                if ( xsec_ptr )
+                if ( temp_node )
                 {
-                    xsec_ptr->DecodeXSec( xsec_node );
+                    int xs_type = XmlUtil::FindInt( temp_node, "Type", XSec::FUSE_SEC );
+
+                    xmlNodePtr xscrv_node = XmlUtil::GetNode( temp_node, "XSecCurve", 0 );
+                    if ( xscrv_node )
+                    {
+                        xmlNodePtr temp2_node = XmlUtil::GetNode( xscrv_node, "XSecCurve", 0 );
+                        int xsc_type = XmlUtil::FindInt( temp2_node, "Type", XSecCurve::POINT );
+
+                        //==== Create New Cross Section ====//
+                        XSec* xsec_ptr = FindXSec( AddXSec( xsc_type ) );
+                        if ( xsec_ptr )
+                        {
+                            xsec_ptr->DecodeXSec( xsec_node );
+                        }
+                    }
                 }
             }
         }

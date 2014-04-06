@@ -348,132 +348,136 @@ bool FuselageScreen::Update()
         m_XSecZRotSlider.Update( xs->m_ZRotate.GetID() );
         m_XSecSpinSlider.Update( xs->m_Spin.GetID() );
 
-        m_XSecTypeChoice.SetVal( xs->GetType() );
-
-        if ( xs->GetType() == XSec::POINT )
+        XSecCurve* xsc = xs->GetXSecCurve();
+        if ( xsc )
         {
-            DisplayGroup( NULL );
-        }
-        else if ( xs->GetType() == XSec::SUPER_ELLIPSE )
-        {
-            DisplayGroup( &m_SuperGroup );
+            m_XSecTypeChoice.SetVal( xsc->GetType() );
 
-            SuperXSec* super_xs = dynamic_cast< SuperXSec* >( xs );
-            assert( super_xs );
-            m_SuperHeightSlider.Update( super_xs->m_Height.GetID() );
-            m_SuperWidthSlider.Update( super_xs->m_Width.GetID() );
-            m_SuperMSlider.Update( super_xs->m_M.GetID() );
-            m_SuperNSlider.Update( super_xs->m_N.GetID() );
-        }
-        else if ( xs->GetType() == XSec::CIRCLE )
-        {
-            DisplayGroup( &m_CircleGroup );
+            if ( xsc->GetType() == XSecCurve::POINT )
+            {
+                DisplayGroup( NULL );
+            }
+            else if ( xsc->GetType() == XSecCurve::SUPER_ELLIPSE )
+            {
+                DisplayGroup( &m_SuperGroup );
 
-            CircleXSec* circle_xs = dynamic_cast< CircleXSec* >( xs );
-            assert( circle_xs );
+                SuperXSec* super_xs = dynamic_cast< SuperXSec* >( xsc );
+                assert( super_xs );
+                m_SuperHeightSlider.Update( super_xs->m_Height.GetID() );
+                m_SuperWidthSlider.Update( super_xs->m_Width.GetID() );
+                m_SuperMSlider.Update( super_xs->m_M.GetID() );
+                m_SuperNSlider.Update( super_xs->m_N.GetID() );
+            }
+            else if ( xsc->GetType() == XSecCurve::CIRCLE )
+            {
+                DisplayGroup( &m_CircleGroup );
 
-            m_DiameterSlider.Update( circle_xs->m_Diameter.GetID() );
-        }
-        else if ( xs->GetType() == XSec::ELLIPSE )
-        {
-            DisplayGroup( & m_EllipseGroup );
+                CircleXSec* circle_xs = dynamic_cast< CircleXSec* >( xsc );
+                assert( circle_xs );
 
-            EllipseXSec* ellipse_xs = dynamic_cast< EllipseXSec* >( xs );
-            m_EllipseHeightSlider.Update( ellipse_xs->m_Height.GetID() );
-            m_EllipseWidthSlider.Update( ellipse_xs->m_Width.GetID() );
-        }
-        else if ( xs->GetType() == XSec::ROUNDED_RECTANGLE  )
-        {
-            DisplayGroup( & m_RoundedRectGroup );
-            RoundedRectXSec* rect_xs = dynamic_cast< RoundedRectXSec* >( xs );
-            assert( rect_xs );
+                m_DiameterSlider.Update( circle_xs->m_Diameter.GetID() );
+            }
+            else if ( xsc->GetType() == XSecCurve::ELLIPSE )
+            {
+                DisplayGroup( & m_EllipseGroup );
 
-            m_RRHeightSlider.Update( rect_xs->m_Height.GetID() );
-            m_RRWidthSlider.Update( rect_xs->m_Width.GetID() );
-            m_RRRadiusSlider.Update( rect_xs->m_Radius.GetID() );
-        }
-        else if ( xs->GetType() == XSec::GENERAL_FUSE  )
-        {
-            DisplayGroup( &m_GenGroup );
-            GeneralFuseXSec* gen_xs = dynamic_cast< GeneralFuseXSec* >( xs );
-            assert( gen_xs );
+                EllipseXSec* ellipse_xs = dynamic_cast< EllipseXSec* >( xsc );
+                m_EllipseHeightSlider.Update( ellipse_xs->m_Height.GetID() );
+                m_EllipseWidthSlider.Update( ellipse_xs->m_Width.GetID() );
+            }
+            else if ( xsc->GetType() == XSecCurve::ROUNDED_RECTANGLE )
+            {
+                DisplayGroup( & m_RoundedRectGroup );
+                RoundedRectXSec* rect_xs = dynamic_cast< RoundedRectXSec* >( xsc );
+                assert( rect_xs );
 
-            m_GenHeightSlider.Update( gen_xs->m_Height.GetID() );
-            m_GenWidthSlider.Update( gen_xs->m_Width.GetID() );
-            m_GenMaxWidthLocSlider.Update( gen_xs->m_MaxWidthLoc.GetID() );
-            m_GenCornerRadSlider.Update( gen_xs->m_CornerRad.GetID() );
-            m_GenTopTanAngleSlider.Update( gen_xs->m_TopTanAngle.GetID() );
-            m_GenBotTanAngleSlider.Update( gen_xs->m_BotTanAngle.GetID() );
-            m_GenTopStrSlider.Update( gen_xs->m_TopStr.GetID() );
-            m_GenBotStrSlider.Update( gen_xs->m_BotStr.GetID() );
-            m_GenUpStrSlider.Update( gen_xs->m_UpStr.GetID() );
-            m_GenLowStrSlider.Update( gen_xs->m_LowStr.GetID() );
-        }
-        else if ( xs->GetType() == XSec::FOUR_SERIES  )
-        {
-            DisplayGroup( &m_FourSeriesGroup );
-            FourSeries* fs_xs = dynamic_cast< FourSeries* >( xs );
-            assert( fs_xs );
+                m_RRHeightSlider.Update( rect_xs->m_Height.GetID() );
+                m_RRWidthSlider.Update( rect_xs->m_Width.GetID() );
+                m_RRRadiusSlider.Update( rect_xs->m_Radius.GetID() );
+            }
+            else if ( xsc->GetType() == XSecCurve::GENERAL_FUSE )
+            {
+                DisplayGroup( &m_GenGroup );
+                GeneralFuseXSec* gen_xs = dynamic_cast< GeneralFuseXSec* >( xsc );
+                assert( gen_xs );
 
-            m_FourChordSlider.Update( fs_xs->m_Chord.GetID() );
-            m_FourThickChordSlider.Update( fs_xs->m_ThickChord.GetID() );
-            m_FourCamberSlider.Update( fs_xs->m_Camber.GetID() );
-            m_FourCamberLocSlider.Update( fs_xs->m_CamberLoc.GetID() );
-            m_FourInvertButton.Update( fs_xs->m_Invert.GetID() );
-            m_FourNameOutput.Update( fs_xs->GetAirfoilName() );
-        }
-        else if ( xs->GetType() == XSec::SIX_SERIES  )
-        {
-            DisplayGroup( &m_SixSeriesGroup );
-            SixSeries* ss_xs = dynamic_cast< SixSeries* >( xs );
-            assert( ss_xs );
+                m_GenHeightSlider.Update( gen_xs->m_Height.GetID() );
+                m_GenWidthSlider.Update( gen_xs->m_Width.GetID() );
+                m_GenMaxWidthLocSlider.Update( gen_xs->m_MaxWidthLoc.GetID() );
+                m_GenCornerRadSlider.Update( gen_xs->m_CornerRad.GetID() );
+                m_GenTopTanAngleSlider.Update( gen_xs->m_TopTanAngle.GetID() );
+                m_GenBotTanAngleSlider.Update( gen_xs->m_BotTanAngle.GetID() );
+                m_GenTopStrSlider.Update( gen_xs->m_TopStr.GetID() );
+                m_GenBotStrSlider.Update( gen_xs->m_BotStr.GetID() );
+                m_GenUpStrSlider.Update( gen_xs->m_UpStr.GetID() );
+                m_GenLowStrSlider.Update( gen_xs->m_LowStr.GetID() );
+            }
+            else if ( xsc->GetType() == XSecCurve::FOUR_SERIES )
+            {
+                DisplayGroup( &m_FourSeriesGroup );
+                FourSeries* fs_xs = dynamic_cast< FourSeries* >( xsc );
+                assert( fs_xs );
 
-            m_SixChordSlider.Update( ss_xs->m_Chord.GetID() );
-            m_SixThickChordSlider.Update( ss_xs->m_ThickChord.GetID() );
-            m_SixIdealClSlider.Update( ss_xs->m_IdealCl.GetID() );
-            m_SixASlider.Update( ss_xs->m_A.GetID() );
+                m_FourChordSlider.Update( fs_xs->m_Chord.GetID() );
+                m_FourThickChordSlider.Update( fs_xs->m_ThickChord.GetID() );
+                m_FourCamberSlider.Update( fs_xs->m_Camber.GetID() );
+                m_FourCamberLocSlider.Update( fs_xs->m_CamberLoc.GetID() );
+                m_FourInvertButton.Update( fs_xs->m_Invert.GetID() );
+                m_FourNameOutput.Update( fs_xs->GetAirfoilName() );
+            }
+            else if ( xsc->GetType() == XSecCurve::SIX_SERIES )
+            {
+                DisplayGroup( &m_SixSeriesGroup );
+                SixSeries* ss_xs = dynamic_cast< SixSeries* >( xsc );
+                assert( ss_xs );
 
-            m_SixInvertButton.Update( ss_xs->m_Invert.GetID() );
-            m_SixNameOutput.Update( ss_xs->GetAirfoilName() );
-            m_SixSeriesChoice.Update( ss_xs->m_Series.GetID() );
-        }
-        else if ( xs->GetType() == XSec::BICONVEX  )
-        {
-            DisplayGroup( &m_BiconvexGroup );
-            Biconvex* bi_xs = dynamic_cast< Biconvex* >( xs );
-            assert( bi_xs );
+                m_SixChordSlider.Update( ss_xs->m_Chord.GetID() );
+                m_SixThickChordSlider.Update( ss_xs->m_ThickChord.GetID() );
+                m_SixIdealClSlider.Update( ss_xs->m_IdealCl.GetID() );
+                m_SixASlider.Update( ss_xs->m_A.GetID() );
 
-            m_BiconvexChordSlider.Update( bi_xs->m_Chord.GetID() );
-            m_BiconvexThickChordSlider.Update( bi_xs->m_ThickChord.GetID() );
-        }
-        else if (  xs->GetType() == XSec::WEDGE  )
-        {
-            DisplayGroup( &m_WedgeGroup );
-            Wedge* we_xs = dynamic_cast< Wedge* >( xs );
-            assert( we_xs );
+                m_SixInvertButton.Update( ss_xs->m_Invert.GetID() );
+                m_SixNameOutput.Update( ss_xs->GetAirfoilName() );
+                m_SixSeriesChoice.Update( ss_xs->m_Series.GetID() );
+            }
+            else if ( xsc->GetType() == XSecCurve::BICONVEX )
+            {
+                DisplayGroup( &m_BiconvexGroup );
+                Biconvex* bi_xs = dynamic_cast< Biconvex* >( xsc );
+                assert( bi_xs );
 
-            m_WedgeChordSlider.Update( we_xs->m_Chord.GetID() );
-            m_WedgeThickChordSlider.Update( we_xs->m_ThickChord.GetID() );
-            m_WedgeThickLocSlider.Update( we_xs->m_ThickLoc.GetID() );
-        }
-        else if ( xs->GetType() == XSec::FILE_FUSE  )
-        {
-            DisplayGroup( &m_FuseFileGroup );
-            FileXSec* file_xs = dynamic_cast< FileXSec* >( xs );
-            assert( file_xs );
+                m_BiconvexChordSlider.Update( bi_xs->m_Chord.GetID() );
+                m_BiconvexThickChordSlider.Update( bi_xs->m_ThickChord.GetID() );
+            }
+            else if ( xsc->GetType() == XSecCurve::WEDGE )
+            {
+                DisplayGroup( &m_WedgeGroup );
+                Wedge* we_xs = dynamic_cast< Wedge* >( xsc );
+                assert( we_xs );
 
-            m_FileHeightSlider.Update( file_xs->m_Height.GetID() );
-            m_FileWidthSlider.Update( file_xs->m_Width.GetID() );
-        }
-        else if ( xs->GetType() == XSec::FILE_AIRFOIL  )
-        {
-            DisplayGroup( &m_AfFileGroup );
-            FileAirfoil* affile_xs = dynamic_cast< FileAirfoil* >( xs );
-            assert( affile_xs );
+                m_WedgeChordSlider.Update( we_xs->m_Chord.GetID() );
+                m_WedgeThickChordSlider.Update( we_xs->m_ThickChord.GetID() );
+                m_WedgeThickLocSlider.Update( we_xs->m_ThickLoc.GetID() );
+            }
+            else if ( xsc->GetType() == XSecCurve::FILE_FUSE )
+            {
+                DisplayGroup( &m_FuseFileGroup );
+                FileXSec* file_xs = dynamic_cast< FileXSec* >( xsc );
+                assert( file_xs );
 
-            m_AfFileChordSlider.Update( affile_xs->m_Chord.GetID() );
-            m_AfFileInvertButton.Update( affile_xs->m_Invert.GetID() );
-            m_AfFileNameOutput.Update( affile_xs->GetAirfoilName() );
+                m_FileHeightSlider.Update( file_xs->m_Height.GetID() );
+                m_FileWidthSlider.Update( file_xs->m_Width.GetID() );
+            }
+            else if ( xsc->GetType() == XSecCurve::FILE_AIRFOIL )
+            {
+                DisplayGroup( &m_AfFileGroup );
+                FileAirfoil* affile_xs = dynamic_cast< FileAirfoil* >( xsc );
+                assert( affile_xs );
+
+                m_AfFileChordSlider.Update( affile_xs->m_Chord.GetID() );
+                m_AfFileInvertButton.Update( affile_xs->m_Invert.GetID() );
+                m_AfFileNameOutput.Update( affile_xs->GetAirfoilName() );
+            }
         }
     }
     return true;
@@ -548,15 +552,19 @@ void FuselageScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         XSec* xs = fuselage_ptr->GetXSec( xsid );
         if ( xs )
         {
-            if ( xs->GetType() == XSec::FILE_FUSE  )
+            XSecCurve* xsc = xs->GetXSecCurve();
+            if ( xsc )
             {
-                FileXSec* file_xs = dynamic_cast< FileXSec* >( xs );
-                assert( file_xs );
-                string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Fuselage Cross Section", "*.fxs" );
+                if ( xsc->GetType() == XSecCurve::FILE_FUSE  )
+                {
+                    FileXSec* file_xs = dynamic_cast< FileXSec* >( xsc );
+                    assert( file_xs );
+                    string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Fuselage Cross Section", "*.fxs" );
 
-                file_xs->ReadXsecFile( newfile );
-                file_xs->Update();
-                fuselage_ptr->Update();
+                    file_xs->ReadXsecFile( newfile );
+                    file_xs->Update();
+                    fuselage_ptr->Update();
+                }
             }
         }
     }
@@ -566,15 +574,19 @@ void FuselageScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         XSec* xs = fuselage_ptr->GetXSec( xsid );
         if ( xs )
         {
-            if ( xs->GetType() == XSec::FILE_AIRFOIL  )
+            XSecCurve* xsc = xs->GetXSecCurve();
+            if ( xsc )
             {
-                FileAirfoil* affile_xs = dynamic_cast< FileAirfoil* >( xs );
-                assert( affile_xs );
-                string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Airfoil File", "*.{af,dat}" );
+                if ( xsc->GetType() == XSecCurve::FILE_AIRFOIL  )
+                {
+                    FileAirfoil* affile_xs = dynamic_cast< FileAirfoil* >( xsc );
+                    assert( affile_xs );
+                    string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Airfoil File", "*.{af,dat}" );
 
-                affile_xs->ReadFile( newfile );
-                affile_xs->Update();
-                fuselage_ptr->Update();
+                    affile_xs->ReadFile( newfile );
+                    affile_xs->Update();
+                    fuselage_ptr->Update();
+                }
             }
         }
     }

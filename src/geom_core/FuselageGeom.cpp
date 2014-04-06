@@ -43,15 +43,13 @@ FuselageGeom::FuselageGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_Length.SetDescript( "Length of fuselage" );
 
     m_ActiveXSec = 0;
-    m_XSecSurf.AddXSec( XSec::POINT );
-    m_XSecSurf.AddXSec( XSec::ELLIPSE );
-    m_XSecSurf.AddXSec( XSec::ELLIPSE );
-    m_XSecSurf.AddXSec( XSec::ELLIPSE );
-    m_XSecSurf.AddXSec( XSec::POINT );
+    m_XSecSurf.AddXSec( XSecCurve::POINT );
+    m_XSecSurf.AddXSec( XSecCurve::ELLIPSE );
+    m_XSecSurf.AddXSec( XSecCurve::ELLIPSE );
+    m_XSecSurf.AddXSec( XSecCurve::ELLIPSE );
+    m_XSecSurf.AddXSec( XSecCurve::POINT );
 
-    VspJointInfo joint;
-    double angle, strength, curvature;
-    int i, j;
+    int j;
     XSec* xs;
 
     j = 0;
@@ -63,19 +61,19 @@ FuselageGeom::FuselageGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     xs = m_XSecSurf.FindXSec( j );
     xs->SetGroupDisplaySuffix( j );
     xs->m_XLocPercent = 0.25;
-    dynamic_cast<EllipseXSec *>( xs )->SetWidthHeight( 3.0, 2.5 );
+    dynamic_cast<EllipseXSec *>( xs->GetXSecCurve() )->SetWidthHeight( 3.0, 2.5 );
 
     ++j;
     xs = m_XSecSurf.FindXSec( j );
     xs->SetGroupDisplaySuffix( j );
     xs->m_XLocPercent = 0.5;
-    dynamic_cast<EllipseXSec *>( xs )->SetWidthHeight( 3.0, 2.5 );
+    dynamic_cast<EllipseXSec *>( xs->GetXSecCurve() )->SetWidthHeight( 3.0, 2.5 );
 
     ++j;
     xs = m_XSecSurf.FindXSec( j );
     xs->SetGroupDisplaySuffix( j );
     xs->m_XLocPercent = 0.75;
-    dynamic_cast<EllipseXSec *>( xs )->SetWidthHeight( 3.0, 2.5 );
+    dynamic_cast<EllipseXSec *>( xs->GetXSecCurve() )->SetWidthHeight( 3.0, 2.5 );
 
     ++j;
     xs = m_XSecSurf.FindXSec( j );
@@ -198,7 +196,7 @@ void FuselageGeom::SetActiveXSecType( int type )
         return;
     }
 
-    if ( type == xs->GetType() )
+    if ( type == xs->GetXSecCurve()->GetType() )
     {
         return;
     }
@@ -224,9 +222,7 @@ void FuselageGeom::CopyActiveXSec()
 //==== Paste Cut/Copied XSec To Active XSec ====//
 void FuselageGeom::PasteActiveXSec()
 {
-	printf("FuselageGeom::PasteActiveSXec()\n");
     m_XSecSurf.PasteXSec( m_ActiveXSec );
-	printf("  Done PasteSXec(), calling ::Update()\n");
 
     Update();
 }
@@ -242,7 +238,7 @@ void FuselageGeom::InsertXSec( )
     XSec* xs = GetXSec( m_ActiveXSec );
     if ( xs )
     {
-        InsertXSec( xs->GetType() );
+        InsertXSec( xs->GetXSecCurve()->GetType() );
     }
 }
 

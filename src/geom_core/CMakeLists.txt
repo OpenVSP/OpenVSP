@@ -35,6 +35,7 @@ Vehicle.cpp
 VehicleMgr.cpp
 WingGeom.cpp
 XSec.cpp
+XSecCurve.cpp
 XSecSurf.cpp
 Airfoil.h
 BlankGeom.h
@@ -58,6 +59,7 @@ Vehicle.h
 VehicleMgr.h
 WingGeom.h
 XSec.h
+XSecCurve.h
 XSecSurf.h
 
 )

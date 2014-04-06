@@ -13,6 +13,7 @@
 
 #include "Geom.h"
 #include "XSec.h"
+#include "XSecCurve.h"
 #include "XSecSurf.h"
 
 //==== Fuselage Geom ====//

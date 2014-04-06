@@ -19,7 +19,7 @@
 using std::string;
 
 //==== Default Constructor ====//
-Airfoil::Airfoil( bool use_left ) : XSec( use_left )
+Airfoil::Airfoil( ) : XSecCurve( )
 {
     m_Invert.Init( "Invert", m_GroupName, this, 0.0, 0.0, 1.0 );
     m_Chord.Init( "Chord", m_GroupName, this, 1.0, 0.0, 1.0e12 );
@@ -39,7 +39,7 @@ void Airfoil::Update()
         m_Curve.Reverse();
     }
 
-    XSec::Update();
+    XSecCurve::Update();
 }
 
 //==== Get Width ====//
@@ -71,7 +71,7 @@ void Airfoil::SetWidthHeight( double w, double h )
 //==========================================================================//
 
 //==== Constructor ====//
-FourSeries::FourSeries( bool use_left ) : Airfoil( use_left )
+FourSeries::FourSeries( ) : Airfoil( )
 {
     m_Type = FOUR_SERIES;
     m_Camber.Init( "Camber", m_GroupName, this, 0.0, 0.0, 0.5 );
@@ -131,7 +131,7 @@ string FourSeries::GetAirfoilName()
 //==========================================================================//
 
 //==== Constructor ====//
-SixSeries::SixSeries( bool use_left ) : Airfoil( use_left )
+SixSeries::SixSeries( ) : Airfoil( )
 {
     m_Type = SIX_SERIES;
 
@@ -232,7 +232,7 @@ string SixSeries::GetAirfoilName()
 //==========================================================================//
 
 //==== Constructor ====//
-Biconvex::Biconvex( bool use_left ) : Airfoil( use_left )
+Biconvex::Biconvex( ) : Airfoil( )
 {
     m_Type = BICONVEX;
 }
@@ -275,7 +275,7 @@ void Biconvex::Update()
 //==========================================================================//
 
 //==== Constructor ====//
-Wedge::Wedge( bool use_left ) : Airfoil( use_left )
+Wedge::Wedge( ) : Airfoil( )
 {
     m_Type = WEDGE;
     m_ThickLoc.Init( "ThickLoc", m_GroupName, this, 0.5, 0.0, 1.0 );
@@ -311,7 +311,7 @@ void Wedge::Update()
 //==========================================================================//
 
 //==== Constructor ====//
-FileAirfoil::FileAirfoil( bool use_left ) : Airfoil( use_left )
+FileAirfoil::FileAirfoil( ) : Airfoil( )
 {
 #if 0
     m_NumBasePnts = 21;

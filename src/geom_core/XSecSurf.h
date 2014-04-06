@@ -12,6 +12,7 @@
 #define XSECSURF__INCLUDED_
 
 #include "XSec.h"
+#include "XSecCurve.h"
 #include "Airfoil.h"
 
 #include <string>

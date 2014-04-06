@@ -11,7 +11,7 @@
 #if !defined(AIRFOIL__INCLUDED_)
 #define AIRFOIL__INCLUDED_
 
-#include "XSec.h"
+#include "XSecCurve.h"
 #include "Vec3d.h"
 #include "VspCurve.h"
 
@@ -33,10 +33,10 @@ typedef eli::geom::curve::piecewise_four_digit_creator<double, 3, curve_toleranc
 using std::string;
 
 //==== Base Class For Airfoils ====//
-class Airfoil : public XSec
+class Airfoil : public XSecCurve
 {
 public:
-    Airfoil( bool use_left );                                                   // Default Constructor
+    Airfoil( );                                                   // Default Constructor
 
     virtual void Update();
     virtual string GetAirfoilName()
@@ -62,7 +62,7 @@ class FourSeries : public Airfoil
 {
 public:
 
-    FourSeries( bool use_left );
+    FourSeries( );
 
     virtual void Update();
 
@@ -102,7 +102,7 @@ class SixSeries : public Airfoil
 {
 public:
 
-    SixSeries( bool use_left );
+    SixSeries( );
 
     virtual void Update();
 
@@ -128,7 +128,7 @@ class Biconvex : public Airfoil
 {
 public:
 
-    Biconvex( bool use_left );
+    Biconvex( );
 
     virtual void Update();
 
@@ -145,7 +145,7 @@ class Wedge : public Airfoil
 {
 public:
 
-    Wedge( bool use_left );
+    Wedge( );
 
     virtual void Update();
 
@@ -165,7 +165,7 @@ class FileAirfoil : public Airfoil
 {
 public:
 
-    FileAirfoil( bool use_left );
+    FileAirfoil( );
 
     virtual void Update();
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
