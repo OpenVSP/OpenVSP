@@ -429,3 +429,14 @@ void XSecSurf::SetTransformation( const Matrix4d &mat, bool center )
     m_rotation = mat;
     m_center = center;
 }
+
+string XSecSurf::GetName()
+{
+    ParmContainer* pc = GetParentContainerPtr();
+
+    if ( pc )
+    {
+        return pc->GetName();
+    }
+    return ParmContainer::GetName();
+}

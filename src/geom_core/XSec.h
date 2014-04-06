@@ -43,6 +43,8 @@ public:
         return m_GroupName;
     }
 
+    virtual string GetName();
+
     virtual void SetRefLength( double len );
 
     virtual VspCurve& GetUntransformedCurve();
@@ -95,6 +97,7 @@ protected:
     double m_RefLength;
 
     string m_GroupName;
+    int m_GroupSuffix;
     string m_ParentGeomID;
 
     VspCurve m_TransformedCurve;

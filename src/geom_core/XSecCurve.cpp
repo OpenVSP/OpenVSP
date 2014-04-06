@@ -40,10 +40,12 @@ XSecCurve::XSecCurve()
 {
     m_LateUpdateFlag = true;
     m_GroupName = "XSecCurve";
+    m_GroupSuffix = -1;
 }
 
 void XSecCurve::SetGroupDisplaySuffix( int num )
 {
+    m_GroupSuffix = num;
     //==== Assign Group Suffix To All Parms ====//
     for ( int i = 0 ; i < ( int )m_ParmVec.size() ; i++ )
     {
@@ -53,6 +55,19 @@ void XSecCurve::SetGroupDisplaySuffix( int num )
             p->SetGroupDisplaySuffix( num );
         }
     }
+}
+
+string XSecCurve::GetName()
+{
+    ParmContainer* pc = GetParentContainerPtr();
+
+    if ( pc )
+    {
+        char str[256];
+        sprintf( str, "_%d", m_GroupSuffix );
+        return pc->GetParentContainerPtr()->GetName() + " " + m_GroupName + string(str);
+    }
+    return ParmContainer::GetName();
 }
 
 //==== Set Scale ====//

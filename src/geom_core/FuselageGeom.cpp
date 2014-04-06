@@ -104,7 +104,6 @@ void FuselageGeom::UpdateSurf()
     crv_vec.resize( m_XSecSurf.NumXSec() );
 
     //==== Update XSec Location/Rotation ====//
-    char str[256];
     for ( int i = 0 ; i < m_XSecSurf.NumXSec() ; i++ )
     {
         XSec* xs = m_XSecSurf.FindXSec( i );
@@ -112,7 +111,7 @@ void FuselageGeom::UpdateSurf()
         if ( xs )
         {
             //==== Reset Group Names ====//
-            sprintf( str, "XSec_%d", i );
+            xs->SetGroupDisplaySuffix( i );
 
             //==== Set X Limits ====//
 #if 0

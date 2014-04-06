@@ -55,6 +55,8 @@ public:
 
     void SetTransformation( const Matrix4d &mat, bool center );
 
+    virtual string GetName();
+
 protected:
 
     virtual void ChangeID( string id );

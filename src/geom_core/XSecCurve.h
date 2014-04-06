@@ -43,6 +43,8 @@ public:
         return m_GroupName;
     }
 
+    virtual string GetName();
+
     virtual VspCurve& GetCurve();
 
     virtual int  GetType()
@@ -71,6 +73,7 @@ protected:
     int m_Type;
 
     string m_GroupName;
+    int m_GroupSuffix;
 
     VspCurve m_Curve;
 };

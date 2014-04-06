@@ -37,6 +37,8 @@ XSec::XSec( XSecCurve *xsc, bool use_left )
     m_Type = FUSE_SEC;
 
     m_GroupName = "XSec";
+    m_GroupSuffix = -1;
+
     m_RefLength = 1.0;
     m_XLocPercent.Init( "XLocPercent", m_GroupName, this,  0.0, 0.0, 1.0 );
     m_XLocPercent.SetDescript( "X distance of cross section as a percent of fuselage length" );
@@ -74,6 +76,7 @@ void XSec::ChangeID( string newid )
 
 void XSec::SetGroupDisplaySuffix( int num )
 {
+    m_GroupSuffix = num;
     //==== Assign Group Suffix To All Parms ====//
     for ( int i = 0 ; i < ( int )m_ParmVec.size() ; i++ )
     {
@@ -88,6 +91,19 @@ void XSec::SetGroupDisplaySuffix( int num )
     {
         m_XSCurve->SetGroupDisplaySuffix( num );
     }
+}
+
+string XSec::GetName()
+{
+    ParmContainer* pc = GetParentContainerPtr();
+
+    if ( pc )
+    {
+        char str[256];
+        sprintf( str, "_%d", m_GroupSuffix );
+        return pc->GetName() + " " + m_GroupName + string(str);
+    }
+    return ParmContainer::GetName();
 }
 
 //==== Set Ref Length ====//
