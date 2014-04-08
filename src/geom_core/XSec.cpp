@@ -502,6 +502,8 @@ xmlNodePtr XSec::EncodeXml(  xmlNodePtr & node  )
 }
 
 //==== Decode XML ====//
+// Called from XSec::DecodeXSec, XSec::CopyFrom, and overridden calls to ParmContainer::DecodeXml --
+// i.e. during DecodeXml entire Geom, but also for in-XSecSurf copy/paste/insert.
 xmlNodePtr XSec::DecodeXml(  xmlNodePtr & node  )
 {
     ParmContainer::DecodeXml( node );
@@ -510,7 +512,6 @@ xmlNodePtr XSec::DecodeXml(  xmlNodePtr & node  )
     if ( child_node )
     {
         m_GroupName = XmlUtil::FindString( child_node, "GroupName", m_GroupName );
-        m_ParentGeomID = XmlUtil::FindString( child_node, "ParentGeomID", m_ParentGeomID );
     }
     return child_node;
 }
@@ -527,6 +528,7 @@ xmlNodePtr XSec::EncodeXSec(  xmlNodePtr & node  )
 }
 
 //==== Decode XSec ====//
+// Called only from XSecSurf::DecodeXml -- i.e. when DecodeXml'ing entire Geom.
 xmlNodePtr XSec::DecodeXSec(  xmlNodePtr & node   )
 {
     if ( node )

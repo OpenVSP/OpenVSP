@@ -12,6 +12,14 @@ ELSE()
 	SET( WINSOCK_LIBRARIES )
 ENDIF()
 
+IF("${CMAKE_SYSTEM}" MATCHES "Linux")
+	SET( LINUX_LIBS
+		pthread
+		)
+ELSE()
+	SET ( LINUX_LIBS )
+ENDIF()
+
 INCLUDE_DIRECTORIES( ${VSP_SOURCE_DIR}
 	${UTIL_INCLUDE_DIR}
 	${GEOM_CORE_INCLUDE_DIR}
@@ -41,8 +49,6 @@ IF( NOT VSP_NO_GRAPHICS )
 	set_target_properties( vsp PROPERTIES COMPILE_FLAGS "-DVSP_USE_FLTK=1")
 
 	TARGET_LINK_LIBRARIES(vsp
-		util
-		tritri
 		geom_core
 		gui_interface_g
 		gui_and_draw
@@ -52,12 +58,15 @@ IF( NOT VSP_NO_GRAPHICS )
 		screens
 		xmlvsp
 		sixseries
+		util
+		tritri
 		${CPPTEST_LIBRARIES}
 		${JPEG_LIBRARIES}
 		${LIBXML2_LIBRARIES}
 		${FLTK_LIBRARIES}
 		${OPENGL_LIBRARIES}
 		${WINSOCK_LIBRARIES}
+		${LINUX_LIBS}
 	)
 
 	INSTALL( TARGETS vsp RUNTIME DESTINATION . )
@@ -70,18 +79,18 @@ IF( NOT VSP_NO_GRAPHICS )
 	set_target_properties( apitest_g PROPERTIES COMPILE_FLAGS "-DVSP_USE_FLTK=1")
 
 	TARGET_LINK_LIBRARIES(apitest_g
+		geom_api_g
+		geom_core
+		gui_interface_g
+		gui_and_draw
+		cfd_mesh_stuff
+		triangle
 		util
 		tritri
-		geom_core
-		geom_api_g
-		gui_interface_g
-		cfd_mesh_stuff
-		gui_and_draw
-		triangle
-		load_jpg
 		screens
 		xmlvsp
 		sixseries
+		load_jpg
 		${CPPTEST_LIBRARIES}
 		${JPEG_LIBRARIES}
 		${LIBXML2_LIBRARIES}
@@ -100,14 +109,14 @@ apitest_main.cpp
 )
 
 TARGET_LINK_LIBRARIES(apitest
-	util
-	tritri
-	geom_core
 	geom_api
+	geom_core
 	cfd_mesh_stuff
 	triangle
 	xmlvsp
 	sixseries
+	util
+	tritri
 	${CPPTEST_LIBRARIES}
 	${LIBXML2_LIBRARIES}
 	${WINSOCK_LIBRARIES}

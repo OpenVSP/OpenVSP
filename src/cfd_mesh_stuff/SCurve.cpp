@@ -476,7 +476,7 @@ bool SCurve::BisectFind( double starget, double &s, double &ireal, double &t, do
     double irorig = ireal;
 
     double tol = 1e-3;
-    double ds = abs( starget - sold );
+    double ds = fabs( starget - sold );
 
     double slower, supper;
     double ilower, iupper;
@@ -501,7 +501,7 @@ bool SCurve::BisectFind( double starget, double &s, double &ireal, double &t, do
     imid = ( ilower + iupper ) / 2.0;
 
     int iter = 0;
-    while( abs( supper - slower ) / ds > tol )
+    while( fabs( supper - slower ) / ds > tol )
     {
         InterpDistTable( imid, tmid, umid, smid, dsdimid );
 
@@ -539,13 +539,13 @@ bool SCurve::NewtonFind( double starget, double &s, double &ireal, double &t, do
     double sold = s;
     double irorig = ireal;
 
-    double ds = abs( starget - sold );
+    double ds = fabs( starget - sold );
 
     int itermax = 10;
     double tol = 1e-3;
 
     int iter = 0;
-    while( abs( s - starget ) / ds > tol && iter < itermax )
+    while( fabs( s - starget ) / ds > tol && iter < itermax )
     {
         double irold = ireal;
         double di = - ( s - starget ) / dsdi;
@@ -557,7 +557,7 @@ bool SCurve::NewtonFind( double starget, double &s, double &ireal, double &t, do
         // Check to keep Newton's method from exploding.  If the solution is
         // diverging, just move one segment in the indicated direction and
         // continue with Newton's method from there.
-        if( abs( s - starget ) > abs( sold - starget ) )
+        if( fabs( s - starget ) > fabs( sold - starget ) )
         {
             if( di < 0 )
             {
@@ -576,7 +576,7 @@ bool SCurve::NewtonFind( double starget, double &s, double &ireal, double &t, do
         iter = iter + 1;
     }
 
-    if( abs( s - starget ) > tol ) // Failed to converge.  Reset to start point and return failure.
+    if( fabs( s - starget ) > tol ) // Failed to converge.  Reset to start point and return failure.
     {
         ireal = irorig;
         InterpDistTable( ireal, t, u, s, dsdi );
