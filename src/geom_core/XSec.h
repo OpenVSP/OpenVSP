@@ -35,7 +35,7 @@ public:
          };
 
     virtual void ParmChanged( Parm* parm_ptr, int type );
-    virtual void Update();
+    virtual void Update() = 0;
 
     virtual void SetGroupDisplaySuffix( int num );
     virtual string GetGroupName()
@@ -45,7 +45,6 @@ public:
 
     virtual string GetName();
 
-    virtual void SetRefLength( double len );
 
     virtual VspCurve& GetUntransformedCurve();
     virtual VspCurve& GetCurve();
@@ -64,6 +63,7 @@ public:
 
     //==== Copy Between Different Types ====//
     virtual void CopyFrom( XSec* xs );
+    virtual void CopyBasePos( XSec* xs ) = 0;
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
@@ -76,15 +76,7 @@ public:
 
     void SetTransformation( const Matrix4d &mat, bool center );
 
-    FractionParm m_XLocPercent;
-    FractionParm m_YLocPercent;
-    FractionParm m_ZLocPercent;
 
-    Parm m_Spin;
-
-    Parm m_XRotate;
-    Parm m_YRotate;
-    Parm m_ZRotate;
 
 protected:
 
@@ -92,9 +84,6 @@ protected:
     bool m_center;
 
     int m_Type;
-
-    string m_RefLengthParmID;
-    double m_RefLength;
 
     string m_GroupName;
     int m_GroupSuffix;
@@ -107,5 +96,29 @@ protected:
     virtual void ChangeID( string id );
 };
 
+class FuseXSec : public XSec
+{
+public:
+    FuseXSec( XSecCurve *xsc, bool use_left );
+
+    virtual void Update();
+
+    virtual void SetRefLength( double len );
+
+    virtual void CopyBasePos( XSec* xs );
+
+    FractionParm m_XLocPercent;
+    FractionParm m_YLocPercent;
+    FractionParm m_ZLocPercent;
+
+    Parm m_Spin;
+
+    Parm m_XRotate;
+    Parm m_YRotate;
+    Parm m_ZRotate;
+
+protected:
+    double m_RefLength;
+};
 
 #endif // !defined(XSEC__INCLUDED_)

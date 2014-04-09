@@ -50,33 +50,33 @@ FuselageGeom::FuselageGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_XSecSurf.AddXSec( XSecCurve::POINT );
 
     int j;
-    XSec* xs;
+    FuseXSec* xs;
 
     j = 0;
-    xs = m_XSecSurf.FindXSec( j );
+    xs = ( FuseXSec* ) m_XSecSurf.FindXSec( j );
     xs->SetGroupDisplaySuffix( j );
     xs->m_XLocPercent = 0.0;
 
     ++j;
-    xs = m_XSecSurf.FindXSec( j );
+    xs = ( FuseXSec* ) m_XSecSurf.FindXSec( j );
     xs->SetGroupDisplaySuffix( j );
     xs->m_XLocPercent = 0.25;
     dynamic_cast<EllipseXSec *>( xs->GetXSecCurve() )->SetWidthHeight( 3.0, 2.5 );
 
     ++j;
-    xs = m_XSecSurf.FindXSec( j );
+    xs = ( FuseXSec* ) m_XSecSurf.FindXSec( j );
     xs->SetGroupDisplaySuffix( j );
     xs->m_XLocPercent = 0.5;
     dynamic_cast<EllipseXSec *>( xs->GetXSecCurve() )->SetWidthHeight( 3.0, 2.5 );
 
     ++j;
-    xs = m_XSecSurf.FindXSec( j );
+    xs = ( FuseXSec* ) m_XSecSurf.FindXSec( j );
     xs->SetGroupDisplaySuffix( j );
     xs->m_XLocPercent = 0.75;
     dynamic_cast<EllipseXSec *>( xs->GetXSecCurve() )->SetWidthHeight( 3.0, 2.5 );
 
     ++j;
-    xs = m_XSecSurf.FindXSec( j );
+    xs = ( FuseXSec* ) m_XSecSurf.FindXSec( j );
     xs->SetGroupDisplaySuffix( j );
     xs->m_XLocPercent = 1.0;
 
@@ -106,7 +106,7 @@ void FuselageGeom::UpdateSurf()
     //==== Update XSec Location/Rotation ====//
     for ( int i = 0 ; i < m_XSecSurf.NumXSec() ; i++ )
     {
-        XSec* xs = m_XSecSurf.FindXSec( i );
+        FuseXSec* xs = ( FuseXSec* ) m_XSecSurf.FindXSec( i );
 
         if ( xs )
         {
@@ -249,20 +249,21 @@ void FuselageGeom::InsertXSec( int type )
         return;
     }
 
-    XSec* xs = GetXSec( m_ActiveXSec );
+    FuseXSec* xs = ( FuseXSec* ) GetXSec( m_ActiveXSec );
+    FuseXSec* xs_1 = ( FuseXSec* ) GetXSec( m_ActiveXSec + 1 );
 
     double x_loc_0 = xs->m_XLocPercent();
-    double x_loc_1 = GetXSec( m_ActiveXSec + 1 )->m_XLocPercent();
+    double x_loc_1 = xs_1->m_XLocPercent();
 
     m_XSecSurf.InsertXSec( type, m_ActiveXSec );
     m_ActiveXSec++;
 
-    XSec* inserted_xs = GetXSec( m_ActiveXSec );
+    FuseXSec* inserted_xs = ( FuseXSec* ) GetXSec( m_ActiveXSec );
 
     if ( inserted_xs )
     {
         inserted_xs->CopyFrom( xs );
-        GetXSec( m_ActiveXSec )->m_XLocPercent = ( x_loc_0 + x_loc_1 ) * 0.5;
+        inserted_xs->m_XLocPercent = ( x_loc_0 + x_loc_1 ) * 0.5;
     }
 
     Update();
@@ -325,7 +326,7 @@ bool FuselageGeom::IsClosed() const
     return m_Closed;
 }
 
-void FuselageGeom::EnforceOrder( XSec* xs, int indx, int ile, int policy )
+void FuselageGeom::EnforceOrder( FuseXSec* xs, int indx, int ile, int policy )
 {
     if( policy == FUSE_MONOTONIC )
     {
@@ -339,8 +340,10 @@ void FuselageGeom::EnforceOrder( XSec* xs, int indx, int ile, int policy )
         }
         else
         {
-            double lower = m_XSecSurf.FindXSec( indx - 1 )->m_XLocPercent();
-            double upper = m_XSecSurf.FindXSec( indx + 1 )->m_XLocPercent();
+            FuseXSec* priorxs = ( FuseXSec* ) m_XSecSurf.FindXSec( indx - 1 );
+            FuseXSec* nextxs = ( FuseXSec* ) m_XSecSurf.FindXSec( indx + 1 );
+            double lower = priorxs->m_XLocPercent();
+            double upper = nextxs->m_XLocPercent();
             xs->m_XLocPercent.SetLowerUpperLimits( lower , upper );
         }
     }

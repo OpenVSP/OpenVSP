@@ -81,7 +81,7 @@ protected:
     virtual void UpdateSurf();
 
     enum {FUSE_MONOTONIC, FUSE_DUCT, FUSE_FREE};
-    virtual void EnforceOrder( XSec* xs, int indx, int ile, int policy );
+    virtual void EnforceOrder( FuseXSec* xs, int indx, int ile, int policy );
 
     int m_ActiveXSec;
     XSecSurf m_XSecSurf;

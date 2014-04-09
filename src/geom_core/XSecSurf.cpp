@@ -138,7 +138,7 @@ XSec* XSecSurf::CreateXSec( int type, int index )
     XSec* xsec_ptr = NULL;
     if ( xscrv_ptr )
     {
-        xsec_ptr = new XSec( xscrv_ptr, index != 0 );
+        xsec_ptr = ( XSec* ) new FuseXSec( xscrv_ptr, index != 0 );
         xsec_ptr->SetParentContainer( GetID() );
         xsec_ptr->SetTransformation( m_rotation, m_center );
         m_XSecPtrVec.push_back( xsec_ptr );
@@ -286,9 +286,9 @@ void XSecSurf::PasteXSec( int index )
 
     //==== Copy Data ====//
     new_xs->CopyFrom( saved_xs );
-    new_xs->m_XLocPercent = xs->m_XLocPercent();
-    new_xs->m_YLocPercent = xs->m_YLocPercent();
-    new_xs->m_ZLocPercent = xs->m_ZLocPercent();
+
+    //==== Copy Position from xsec being replaced ====//
+    new_xs->CopyBasePos( xs );
 
     deque_remove_val( m_XSecIDDeque, xs->GetID() );
     vector_remove_val( m_XSecPtrVec, xs );

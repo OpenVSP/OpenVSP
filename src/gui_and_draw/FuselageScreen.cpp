@@ -337,7 +337,7 @@ bool FuselageScreen::Update()
     int xsid = fuselage_ptr->GetActiveXSecIndex();
     m_XSecIndexSelector.SetIndex( xsid );
 
-    XSec* xs = fuselage_ptr->GetXSec( xsid );
+    FuseXSec* xs = ( FuseXSec* ) fuselage_ptr->GetXSec( xsid );
     if ( xs )
     {
         m_XSecXSlider.Update( xs->m_XLocPercent.GetID() );

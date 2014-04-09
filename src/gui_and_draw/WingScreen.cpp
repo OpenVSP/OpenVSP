@@ -354,7 +354,7 @@ bool WingScreen::Update()
     int xsid = wing_ptr->GetActiveXSecIndex();
     m_AfIndexSelector.SetIndex( xsid );
 
-    XSec* xs = wing_ptr->GetXSec( xsid );
+    FuseXSec* xs = ( FuseXSec* ) wing_ptr->GetXSec( xsid );
     if ( xs )
     {
         XSecCurve* xsc = xs->GetXSecCurve();
