@@ -41,7 +41,9 @@
 #include "UtilTestSuite.h"
 #include <string>
 #include <time.h>
+#include "APIDefines.h"
 
+using namespace vsp;
 using namespace std;
 
 // Bitwise adds ecode to the current exit status code and returns to current exit status code
@@ -371,6 +373,11 @@ int main( int argc, char** argv )
 
     //==== Check Server For Version Number ====//
     ThreadCheckVersionNumber();
+
+    //==== Run Test Scripts =====//
+#ifndef NDEBUG
+    vPtr->RunTestScripts();
+#endif
 
     //==== Start Gui - FLTK Now Control Process ====//
     GuiInterface::getInstance().StartGui();

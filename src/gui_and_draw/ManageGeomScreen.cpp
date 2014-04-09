@@ -11,6 +11,9 @@
 #include "Vehicle.h"
 #include "StlHelper.h"
 #include "StringUtil.h"
+#include "APIDefines.h"
+using namespace vsp;
+
 
 #include <assert.h>
 
@@ -121,7 +124,7 @@ void ManageGeomScreen::LoadBrowser()
     //==== Step Thru Comps ====//
     for ( int i = 0 ; i < ( int )m_DisplayedGeomVec.size() ; i++ )
     {
-        GeomBase* gPtr = m_VehiclePtr->FindGeom( m_DisplayedGeomVec[i] );
+        Geom* gPtr = m_VehiclePtr->FindGeom( m_DisplayedGeomVec[i] );
 
         string str;
         //==== Check if Parent is Selected ====//
@@ -135,11 +138,16 @@ void ManageGeomScreen::LoadBrowser()
         {
             str.append( "--" );
         }
-//jrg FIX!!!
-        //if ( gPtr->getPosAttachFlag() == POS_ATTACH_NONE )
-        str.append( "> " );
-        //else
-        //str.append("^ ");
+
+        if ( gPtr->m_TransAttachFlag() == GeomXForm::ATTACH_TRANS_NONE &&
+                gPtr->m_RotAttachFlag() == GeomXForm::ATTACH_ROT_NONE )
+        {
+            str.append( "> " );
+        }
+        else
+        {
+            str.append( "^ " );
+        }
 
         if ( !gPtr->m_GuiDraw.GetDisplayChildrenFlag() )
         {
@@ -505,23 +513,18 @@ void ManageGeomScreen::EditName( string name )
 void ManageGeomScreen::CreateScreens()
 {
     m_GeomScreenVec.resize( NUM_GEOM_SCREENS );
-//  m_GeomScreenVec[POD_GEOM_SCREEN] = new TestPodScreen( m_ScreenMgr, 300, 500, "Test Pod" );
     m_GeomScreenVec[POD_GEOM_SCREEN] = new PodScreen( m_ScreenMgr );
     m_GeomScreenVec[FUSELAGE_GEOM_SCREEN] = new FuselageScreen( m_ScreenMgr );
     m_GeomScreenVec[MS_WING_GEOM_SCREEN] = new WingScreen( m_ScreenMgr );
     m_GeomScreenVec[BLANK_GEOM_SCREEN] = new BlankScreen( m_ScreenMgr );
     m_GeomScreenVec[MESH_GEOM_SCREEN] = new MeshScreen( m_ScreenMgr );
     m_GeomScreenVec[STACK_GEOM_SCREEN] = new StackScreen( m_ScreenMgr );
-
-
-//  vector< string > activeVec = m_VehiclePtr->GetActiveGeomVec();
+    m_GeomScreenVec[CUSTOM_GEOM_SCREEN] = new CustomScreen( m_ScreenMgr );
 
     for ( int i = 0 ; i < ( int )m_GeomScreenVec.size() ; i++ )
     {
         m_GeomScreenVec[i]->GetFlWindow()->set_non_modal();
     }
-
-
 }
 
 //==== Show Hide Geom Screen Depending on Active Geoms ====//

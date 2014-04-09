@@ -1,0 +1,203 @@
+//
+// This file is released under the terms of the NASA Open Source Agreement (NOSA)
+// version 1.3 as detailed in the LICENSE file which accompanies this software.
+//
+
+// ResultsMgr.h: Store results from analysis and computation
+// J.R Gloudemans
+//
+//////////////////////////////////////////////////////////////////////
+
+#if !defined(RESULTSMGR__INCLUDED_)
+#define RESULTSMGR__INCLUDED_
+
+#include <map>
+#include <list>
+
+//==== Results Data - Named Vectors Of Ints/Double/Strings or Vec3d ====//
+class ResData
+{
+public:
+    ResData();
+    ResData( const string & name );
+    ResData( const string & name, int i_data );
+    ResData( const string & name, double d_data );
+    ResData( const string & name, const string & s_data );
+    ResData( const string & name, const vec3d & v_data );
+    ResData( const string & name, vector< int > & i_data );
+    ResData( const string & name, vector< double > & d_data );
+    ResData( const string & name, vector< string > & s_data );
+    ResData( const string & name, vector< vec3d > & v_data );
+
+    void Init( const string & name, int type = 0, int index = 0 );
+
+    string GetName() const
+    {
+        return m_Name;
+    }
+    int GetType() const
+    {
+        return m_Type;
+    }
+
+    const vector<int> & GetIntData() const
+    {
+        return m_IntData;
+    }
+    const vector<double> & GetDoubleData() const
+    {
+        return m_DoubleData;
+    }
+    const vector<string> & GetStringData() const
+    {
+        return m_StringData;
+    }
+    const vector<vec3d> & GetVec3dData() const
+    {
+        return m_Vec3dData;
+    }
+
+    int GetInt( int index ) const;
+    double GetDouble( int index ) const;
+    string GetString( int index ) const;
+    vec3d GetVec3d( int index ) const;
+
+
+protected:
+
+    string m_Name;
+    int m_Type;
+    vector< int > m_IntData;
+    vector< double > m_DoubleData;
+    vector< string > m_StringData;
+    vector< vec3d > m_Vec3dData;
+
+};
+
+
+//======================================================================================//
+//======================================================================================//
+//======================================================================================//
+
+
+//==== A Collection of Results Data From One Computation ====//
+class Results
+{
+public:
+
+    Results( const string & name, const string & id );
+
+    string GetName()
+    {
+        return m_Name;
+    }
+    string GetID()
+    {
+        return m_ID;
+    }
+    time_t GetTimestamp()
+    {
+        return m_Timestamp;
+    }
+
+    void Add( const ResData & d );
+
+    int GetNumData( const string & name );
+    vector< string > GetAllDataNames();
+    ResData Find( const string & name, int index = 0 );
+    ResData* FindPtr( const string & name, int index = 0 );
+
+    void SetDateTime();
+
+    void WriteCSVFile( const string & file_name );
+    void WriteMassProp( const string & file_name );
+    void WriteCompGeomTxtFile( const string & file_name );
+    void WriteCompGeomCsvFile( const string & file_name );
+    void WriteDragBuildFile( const string & file_name );
+    void WriteSliceFile( const string & file_name, int type );
+
+
+
+protected:
+
+    string m_Name;
+    string m_ID;
+
+    time_t m_Timestamp;
+    int m_Sec, m_Min, m_Hour;
+    int m_Day, m_Month, m_Year;
+
+    //==== All The Data For This Computation Result =====//
+    map< string, vector< ResData > > m_DataMap;
+
+};
+
+//======================================================================================//
+//======================================================================================//
+//======================================================================================//
+
+
+
+
+//==== Results Manager ====//
+class ResultsMgrSingleton
+{
+public:
+    static ResultsMgrSingleton& getInstance()
+    {
+        static ResultsMgrSingleton instance;
+        return instance;
+    }
+
+
+    Results* CreateResults( const string & name );                      // Return Results Ptr
+
+    string CreateGeomResults( const string & geom_id, const string & name );
+
+    void DeleteAllResults();
+    void DeleteResult( const string & id );
+
+    int GetNumResults( const string & name );
+    Results* FindResults( const string & name, int index = 0 );
+    Results* FindResultsPtr( const string & id );
+    string FindResultsID( const string & name, int index = 0 );
+    string FindLatestResultsID( const string & name );
+    int GetNumData( const string & results_id, const string & data_name );
+
+    vector< string > GetAllResultsNames();
+    vector< string > GetAllDataNames( const string & results_id );
+
+    const vector<int> & GetIntResults( const string & id, const string & name, int index = 0 );
+    const vector<double> & GetDoubleResults( const string & id, const string & name, int index = 0 );
+    const vector<string> & GetStringResults( const string & id, const string & name, int index = 0 );
+    const vector<vec3d> & GetVec3dResults( const string & id, const string & name, int index = 0 );
+    time_t GetResultsTimestamp( const string & results_id );
+
+    bool ValidResultsID( const string & results_id );
+    bool ValidDataNameIndex( const string & results_id, const string & name, int index = 0 );
+
+    void WriteTestResults();        // Write Some Test Results
+    void TestSpeed();               // Test Speed
+
+
+private:
+    ResultsMgrSingleton();
+    ~ResultsMgrSingleton();
+    ResultsMgrSingleton( ResultsMgrSingleton const& copy );          // Not Implemented
+    ResultsMgrSingleton& operator=( ResultsMgrSingleton const& copy ); // Not Implemented
+
+    map< string, Results* > m_ResultsMap;                   // Map ID to Results
+    map< string, vector< string > > m_NameIDMap;            // Map Name to ID
+
+    //==== Default Return Vectors ====//
+    vector< int > m_DefaultIntVec;
+    vector< double > m_DefaultDoubleVec;
+    vector< string > m_DefaultStringVec;
+    vector< vec3d > m_DefaultVec3dVec;
+
+
+};
+
+#define ResultsMgr ResultsMgrSingleton::getInstance()
+
+#endif // !defined(RESULTSMGR__INCLUDED_)

@@ -14,6 +14,7 @@
 #include "Vehicle.h"
 #include "ParmMgr.h"
 #include "LinkMgr.h"
+#include "ResultsMgr.h"
 #include "XSecSurf.h"
 
 #ifdef VSP_USE_FLTK
@@ -113,11 +114,18 @@ void VSPCheckSetup()
 void VSPRenew()
 {
     Vehicle* veh = GetVehicle();
-
     veh->Renew();
-
     ErrorMgr.NoError();
 }
+
+void Update()
+{
+    Vehicle* veh = GetVehicle();
+    veh->Update();
+    ErrorMgr.NoError();
+}
+
+
 
 
 //===================================================================//
@@ -127,30 +135,395 @@ void VSPRenew()
 void ReadVSPFile( const string & file_name )
 {
     Vehicle* veh = GetVehicle();
-
     int err = veh->ReadXMLFile( file_name );
-
     if( err != 0 )
     {
         ErrorMgr.AddError( VSP_WRONG_FILE_TYPE, "ReadVSPFile::Error"  );
         return;
     }
-
     ErrorMgr.NoError();
 }
 
 void WriteVSPFile( const string & file_name, int set )
 {
     Vehicle* veh = GetVehicle();
-
     if( !veh->WriteXMLFile( file_name, set ) )
     {
-        ErrorMgr.AddError( VSP_FILE_WRITE_FAILURE, "WirteVSPFile::Failure Writing File"  );
+        ErrorMgr.AddError( VSP_FILE_WRITE_FAILURE, "WriteVSPFile::Failure Writing File"  );
         return;
+    }
+    ErrorMgr.NoError();
+}
+
+void ClearVSPModel()
+{
+    GetVehicle()->Renew();
+    ErrorMgr.NoError();
+}
+
+void InsertVSPFile( const string & file_name, const string & parent  )
+{
+    Vehicle* veh = GetVehicle();
+
+    Geom* parent_geom = NULL;
+    if ( parent.size() > 0 )
+    {
+        parent_geom = veh->FindGeom( parent );
+        if ( !parent_geom )
+        {
+            ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "AddGeom::Can't Find Parent " + parent  );
+        }
+    }
+
+    if ( parent_geom )
+    {
+        veh->SetActiveGeom( parent );
+    }
+    else
+    {
+        veh->ClearActiveGeom();
+    }
+
+    int err = veh->ReadXMLFile( file_name );
+    if( err != 0 )
+    {
+        ErrorMgr.AddError( VSP_WRONG_FILE_TYPE, "InsertVSPFile::Error"  );
+        return;
+    }
+    ErrorMgr.NoError();
+}
+
+string ImportFile( const string & file_name, int file_type, const string & parent  )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* parent_geom = NULL;
+    if ( parent.size() > 0 )
+    {
+        parent_geom = veh->FindGeom( parent );
+        if ( !parent_geom )
+        {
+            ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "AddGeom::Can't Find Parent " + parent  );
+        }
+    }
+
+    if ( parent_geom )
+    {
+        veh->SetActiveGeom( parent );
+    }
+    else
+    {
+        veh->ClearActiveGeom();
     }
 
     ErrorMgr.NoError();
+    return veh->ImportFile( file_name, file_type );
 }
+
+void ExportFile( const string & file_name, int write_set_index, int file_type )
+{
+    GetVehicle()->ExportFile( file_name, write_set_index, file_type );
+
+    ErrorMgr.NoError();
+}
+
+//===================================================================//
+//===============      Computations               ===================//
+//===================================================================//
+/// Set Computation File Names
+void SetComputationFileName( int file_type, const string & file_name )
+{
+    GetVehicle()->setExportFileName( file_type, file_name );
+    ErrorMgr.NoError();
+}
+
+/// Compute Mass Properties on The Components in the Set
+string ComputeMassProps( int set, int num_slices )
+{
+    Update();
+
+    string id = GetVehicle()->MassPropsAndFlatten( set, num_slices );
+
+    if ( id.size() == 0 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "ComputeMassProps::Invalid ID " );
+    }
+    else
+    {
+        ErrorMgr.NoError();
+    }
+
+    return id;
+}
+
+/// Compute the Union and Wetted Surface Area and Volumes
+string ComputeCompGeom( int set, bool half_mesh, int file_export_types )
+{
+    Update();
+    Vehicle* veh = GetVehicle();
+
+    veh->setExportCompGeomCsvFile( false );
+    if ( file_export_types & COMP_GEOM_CSV_TYPE )
+    {
+        veh->setExportCompGeomCsvFile( true );
+    }
+
+    veh->setExportDragBuildTsvFile( false );
+    if ( file_export_types & DRAG_BUILD_TSV_TYPE )
+    {
+        veh->setExportDragBuildTsvFile( true );
+    }
+
+    string id = veh->CompGeomAndFlatten( set, 0, 0, half_mesh );
+
+    if ( id.size() == 0 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "ComputeMassProps::Invalid ID " );
+    }
+    else
+    {
+        ErrorMgr.NoError();
+    }
+
+    return id;
+}
+
+//==== Compute Plane Slice =====//
+string ComputePlaneSlice( int set, int num_slices, const vec3d & norm, bool auto_bnd, double start_bnd, double end_bnd )
+{
+    Update();
+    Vehicle* veh = GetVehicle();
+
+    string id = veh->PSliceAndFlatten( set, num_slices, norm, auto_bnd, start_bnd, end_bnd );
+
+    if ( id.size() == 0 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "ComputePlaneSlice::Invalid ID " );
+    }
+    else
+    {
+        ErrorMgr.NoError();
+    }
+
+    return id;
+}
+
+//==== Compute AWave Slice =====//
+extern string ComputeAwaveSlice( int set, int num_slices, int num_rots, double ang_control, bool comp_ang,
+                                 const vec3d & norm, bool auto_bnd, double start_bnd, double end_bnd )
+{
+    Update();
+    Vehicle* veh = GetVehicle();
+
+    string id = veh->AwaveSliceAndFlatten( set, num_slices, num_rots, ang_control, comp_ang, norm, auto_bnd, start_bnd, end_bnd );
+
+    if ( id.size() == 0 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "ComputeAwaveSlice::Invalid ID " );
+    }
+    else
+    {
+        ErrorMgr.NoError();
+    }
+
+    return id;
+}
+
+
+
+
+
+//===================================================================//
+//===============       Results Functions         ===================//
+//===================================================================//
+/// Get all results names avaiable
+vector<string> GetAllResultsNames()
+{
+    return ResultsMgr.GetAllResultsNames();
+}
+
+/// Get all data names avaiable for this result
+vector< string > GetAllDataNames( const string & results_id )
+{
+    if ( !ResultsMgr.ValidResultsID( results_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetAllDataNames::Invalid ID " + results_id  );
+        vector<string> ret_vec;
+        return ret_vec;
+    }
+    return ResultsMgr.GetAllDataNames( results_id );
+}
+
+/// Get the number of results with the given name.
+int GetNumResults( const string & name )
+{
+    return ResultsMgr.GetNumResults( name );
+}
+
+/// Return the id of the results with the given results name and index
+string FindResultsID( const string & name, int index )
+{
+    string id = ResultsMgr.FindResultsID( name, index );
+    if ( id.size() == 0 )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "FindResultsID::Can't Find Name " + name  );
+        return id;
+    }
+    ErrorMgr.NoError();
+    return id;
+}
+
+/// Return the id of the latest results with the given results name
+string FindLatestResultsID( const string & name )
+{
+    string id = ResultsMgr.FindLatestResultsID( name );
+    if ( id.size() == 0 )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "FindLatestResultsID::Can't Find Name " + name  );
+        return id;
+    }
+    ErrorMgr.NoError();
+    return id;
+}
+
+/// Return the number of data entries given results_id and data name
+extern int GetNumData( const string & results_id, const string & data_name )
+{
+    if ( !ResultsMgr.ValidResultsID( results_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetIntResults::Invalid ID " + results_id  );
+        return 0;
+    }
+    ErrorMgr.NoError();
+    return ResultsMgr.GetNumData( results_id, data_name );
+}
+
+/// Return the int data given the results id, data name and data index
+const vector<int> & GetIntResults( const string & id, const string & name, int index )
+{
+    if ( !ResultsMgr.ValidResultsID( id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetIntResults::Invalid ID " + id  );
+    }
+    else if ( !ResultsMgr.ValidDataNameIndex( id, name, index ) )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetIntResults::Can't Find Name " + name  );
+    }
+    else
+    {
+        ErrorMgr.NoError();
+    }
+
+    return ResultsMgr.GetIntResults( id, name, index );
+}
+
+/// Return the double data given the results id, data name and data index
+const vector<double> & GetDoubleResults( const string & id, const string & name, int index )
+{
+    if ( !ResultsMgr.ValidResultsID( id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetDoubleResults::Invalid ID " + id  );
+    }
+    else if ( !ResultsMgr.ValidDataNameIndex( id, name, index ) )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetDoubleResults::Can't Find Name " + name  );
+    }
+    else
+    {
+        ErrorMgr.NoError();
+    }
+
+    return ResultsMgr.GetDoubleResults( id, name, index );
+}
+
+/// Return the string data given the results id, data name and data index
+const vector<string> & GetStringResults( const string & id, const string & name, int index )
+{
+    if ( !ResultsMgr.ValidResultsID( id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetStringResults::Invalid ID " + id  );
+    }
+    else if ( !ResultsMgr.ValidDataNameIndex( id, name, index ) )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetStringResults::Can't Find Name " + name  );
+    }
+    else
+    {
+        ErrorMgr.NoError();
+    }
+
+    return ResultsMgr.GetStringResults( id, name, index );
+}
+
+/// Return the vec3d data given the results id, data name and data index
+const vector<vec3d> & GetVec3dResults( const string & id, const string & name, int index )
+{
+    if ( !ResultsMgr.ValidResultsID( id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetVec3dResults::Invalid ID " + id  );
+    }
+    else if ( !ResultsMgr.ValidDataNameIndex( id, name, index ) )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetVec3dResults::Can't Find Name " + name  );
+    }
+    else
+    {
+        ErrorMgr.NoError();
+    }
+
+    return ResultsMgr.GetVec3dResults( id, name, index );
+}
+
+/// Create Geometry Results (Only Mesh Geom For Now) - Return Result ID
+extern string CreateGeomResults( const string & geom_id, const string & name )
+{
+    Vehicle* veh = GetVehicle();
+
+    Geom* geom_ptr =  veh->FindGeom( geom_id );
+
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "CreateGeomResults::Can't Find GeomID " + geom_id  );
+        return string();
+    }
+
+    string res_id = ResultsMgr.CreateGeomResults( geom_id, name );
+
+    if ( !ResultsMgr.ValidResultsID( res_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "CreateGeomResults::Invalid Results " + res_id  );
+    }
+    else
+    {
+        ErrorMgr.NoError();
+    }
+
+    return res_id;
+}
+
+
+/// Delete all results
+void DeleteAllResults()
+{
+    ResultsMgr.DeleteAllResults();
+    ErrorMgr.NoError();
+}
+
+/// Delete result given id
+void DeleteResult( const string & id )
+{
+    if ( !ResultsMgr.ValidResultsID( id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetVec3dResults::Invalid ID " + id  );
+    }
+    else
+    {
+        ErrorMgr.NoError();
+    }
+
+    ResultsMgr.DeleteResult( id );
+}
+
+
 
 
 //===================================================================//
@@ -309,7 +682,7 @@ vector< string > FindGeoms()
 }
 
 /// Find and return all geoms with given name
-vector< string > FindGeoms( const string & name )
+vector< string > FindGeomsWithName( const string & name )
 {
     vector< string > ret_vec;
     Vehicle* veh = GetVehicle();
@@ -559,6 +932,27 @@ void PasteXSec( const string & xsec_surf_id, int xsec_index )
     xsec_surf->PasteXSec( xsec_index );
 }
 
+/// Create an xsec of type type and add it to the end of xsecsurf
+string AppendXSec( const string & xsec_surf_id, int type  )
+{
+    XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
+    if ( !xsec_surf )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "AddXSec::Can't Find XSecSurf " + xsec_surf_id  );
+        return string();
+    }
+
+    string id  = xsec_surf->AddXSec( type );
+    if ( id.size() == 0 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "AddXSec::Invalid XSec Type " + type  );
+        return id;
+    }
+
+    ErrorMgr.NoError();
+    return id;
+}
+
 /// Create an xsec of type type and insert it after xsec_index
 string InsertXSec( const string & xsec_surf_id, int type, int xsec_index  )
 {
@@ -661,6 +1055,25 @@ void SetXSecWidthHeight( const string& xsec_id, double w, double h )
     ErrorMgr.NoError();
 }
 
+/// Get of the linkable parms ids for this geometry
+vector< string > GetXSecParmIDs( const string & xsec_id  )
+{
+    vector< string > parm_vec;
+
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecParmIDs::Can't Find XSec " + xsec_id  );
+        return parm_vec;
+    }
+
+    xs->AddLinkableParms( parm_vec );
+
+    ErrorMgr.NoError();
+    return parm_vec;
+}
+
+
 /// Get named ParmID from XSec
 string GetXSecParm( const string& xsec_id, const string& name )
 {
@@ -686,7 +1099,7 @@ vector<vec3d> ReadFileXSec( const string& xsec_id, const string& file_name )
         return pnt_vec;
     }
 
-    if ( xs->GetXSecCurve()->GetType() == XSecCurve::FILE_FUSE )
+    if ( xs->GetXSecCurve()->GetType() == XS_FILE_FUSE )
     {
         FileXSec* file_xs = dynamic_cast<FileXSec*>( xs );
         assert( file_xs );
@@ -707,7 +1120,7 @@ void SetXSecPnts( const string& xsec_id, vector< vec3d > & pnt_vec )
         ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecPnts::Can't Find XSec " + xsec_id  );
         return;
     }
-    if ( xs->GetXSecCurve()->GetType() != XSecCurve::FILE_FUSE )
+    if ( xs>GetXSecCurve()->GetType() != XS_FILE_FUSE )
     {
         ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetXSecPnts::Wrong XSec Type"  );
         return;
@@ -753,7 +1166,7 @@ string GetSetName( int index )
 }
 
 /// Get the set of geom ids at the given set index
-vector< string > GetGeomSet( int index )
+vector< string > GetGeomSetAtIndex( int index )
 {
     Vehicle* veh = GetVehicle();
     return veh->GetGeomSet( index );
@@ -782,6 +1195,65 @@ vector< string > GetGeomSet( const string & name )
     return veh->GetGeomSet( index );
 }
 
+/// Get the set index given the set name
+int GetSetIndex( const string & name )
+{
+    Vehicle* veh = GetVehicle();
+    vector< string > name_vec =  veh->GetSetNameVec();
+    int index = -1;
+    for ( int i = 0 ; i < ( int )name_vec.size() ; i++ )
+    {
+        if ( name == name_vec[i] )
+        {
+            index = i;
+        }
+    }
+    if ( index == -1 )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetSetIndex::Can't Find Name " + name  );
+        return index;
+    }
+
+    ErrorMgr.NoError();
+    return index;
+}
+
+/// Check if geom in set (given index)
+bool GetSetFlag( const string & geom_id, int set_index )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSetFlag::Can't Find Geom " + geom_id );
+        return false;
+    }
+    ErrorMgr.NoError();
+    return geom_ptr->GetSetFlag( set_index );
+}
+
+/// Set set flag for geom given set index
+void SetSetFlag( const string & geom_id, int set_index, bool flag )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetSetFlag::Can't Find Geom " + geom_id );
+        return;
+    }
+    if ( set_index < 0 || set_index > ( int )veh->GetSetNameVec().size() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "SetSetFlag::Invalid Set Index " + set_index );
+        return;
+    }
+
+
+    ErrorMgr.NoError();
+
+    geom_ptr->SetSetFlag( set_index, flag );
+}
+
 //===================================================================//
 //===============       Parm Functions            ===================//
 //===================================================================//
@@ -798,9 +1270,9 @@ bool ValidParm( const string & parm_id )
     return true;
 }
 
-/// Set the parm value.  If update is true, the parm container is updated.
+/// Set the parm value.
 /// The final value of parm is returned.
-double SetParmVal( const string & parm_id, double val, bool update )
+double SetParmVal( const string & parm_id, double val )
 {
     Parm* p = ParmMgr.FindParm( parm_id );
     if ( !p )
@@ -809,17 +1281,25 @@ double SetParmVal( const string & parm_id, double val, bool update )
         return val;
     }
     ErrorMgr.NoError();
-    if ( !update )
+    return p->Set( val );
+}
+/// Set the parm value.
+/// The final value of parm is returned.
+double SetParmValUpdate( const string & parm_id, double val )
+{
+    Parm* p = ParmMgr.FindParm( parm_id );
+    if ( !p )
     {
-        return p->Set( val );
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "SetParmVal::Can't Find Parm " + parm_id  );
+        return val;
     }
-
+    ErrorMgr.NoError();
     return p->SetFromDevice( val );         // Force Update
 }
 
 /// Set the parm value.  If update is true, the parm container is updated.
 /// The final value of parm is returned.
-double SetParmVal( const string & geom_id, const string & name, const string & group, double val, bool update )
+double SetParmVal( const string & geom_id, const string & name, const string & group, double val )
 {
     string parm_id = GetParm( geom_id, name, group );
     Parm* p = ParmMgr.FindParm( parm_id );
@@ -829,11 +1309,21 @@ double SetParmVal( const string & geom_id, const string & name, const string & g
         return val;
     }
     ErrorMgr.NoError();
-    if ( !update )
-    {
-        return p->Set( val );
-    }
+    return p->Set( val );
+}
 
+/// Set the parm value.  If update is true, the parm container is updated.
+/// The final value of parm is returned.
+double SetParmValUpdate( const string & geom_id, const string & name, const string & group, double val )
+{
+    string parm_id = GetParm( geom_id, name, group );
+    Parm* p = ParmMgr.FindParm( parm_id );
+    if ( !p )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "SetParmVal::Can't Find Parm " + parm_id  );
+        return val;
+    }
+    ErrorMgr.NoError();
     return p->SetFromDevice( val );         // Force Update
 }
 
@@ -848,6 +1338,25 @@ double GetParmVal( const string & parm_id )
     }
     ErrorMgr.NoError();
     return p->Get();
+}
+
+/// Get the value of parm
+bool GetBoolParmVal( const string & parm_id )
+{
+    Parm* p = ParmMgr.FindParm( parm_id );
+    if ( !p )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetParmVal::Can't Find Parm " + parm_id  );
+        return false;
+    }
+    if ( p->GetType() != PARM_BOOL_TYPE )
+    {
+        return false;
+    }
+    ErrorMgr.NoError();
+
+    BoolParm* bp = dynamic_cast<BoolParm*>( p );
+    return bp->Get();
 }
 
 /// Set the upper limit of parm
@@ -913,7 +1422,7 @@ int GetParmType( const string & parm_id )
     if ( !p )
     {
         ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetParmType::Can't Find Parm " + parm_id  );
-        return Parm::PARM_DOUBLE_TYPE;
+        return PARM_DOUBLE_TYPE;
     }
     ErrorMgr.NoError();
     return p->GetType();

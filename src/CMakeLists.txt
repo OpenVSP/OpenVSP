@@ -49,6 +49,7 @@ CONFIGURE_FILE(
 INCLUDE_DIRECTORIES( ${VSP_BINARY_DIR} )
 
 ADD_SUBDIRECTORY( external )
+ADD_SUBDIRECTORY( external/angelscript/sdk )
 
 # INCLUDE( IdentifyLibs )  # Debugging to confirm which libraries are set.
 

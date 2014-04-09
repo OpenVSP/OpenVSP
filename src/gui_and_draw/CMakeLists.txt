@@ -16,6 +16,7 @@ INCLUDE_DIRECTORIES(
     ${GLM_INCLUDE_DIR}
     ${EIGEN3_INCLUDE_DIR}
     ${CodeEli_INCLUDE_DIRS}
+    ${GEOM_API_INCLUDE_DIR}
 )
 
 ADD_LIBRARY(gui_and_draw
@@ -23,6 +24,7 @@ AwaveScreen.cpp
 BlankScreen.cpp
 CfdMeshScreen.cpp
 CompGeomScreen.cpp
+CustomScreen.cpp
 DesignVarScreen.cpp
 ExportScreen.cpp
 FeaStructScreen.cpp
@@ -57,6 +59,7 @@ AwaveScreen.h
 BlankScreen.h
 CfdMeshScreen.h
 CompGeomScreen.h
+CustomScreen.h
 DesignVarScreen.h
 ExportScreen.h
 FeaStructScreen.h

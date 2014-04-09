@@ -14,6 +14,7 @@
 #include "VehicleMgr.h"
 #include "ParmMgr.h"
 #include "StlHelper.h"
+#include "APIDefines.h"
 #include <float.h>
 #include <stdio.h>
 
@@ -330,7 +331,6 @@ void FuseXSec::Update()
     m_Transform.rotateX( m_XRotate() );
     m_Transform.rotateY( m_YRotate() );
     m_Transform.rotateZ( m_ZRotate() );
-
 
     m_TransformedCurve.Transform( m_Transform );
 }

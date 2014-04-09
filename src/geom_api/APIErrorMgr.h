@@ -32,9 +32,18 @@ class ErrorObj
 {
 public:
     ErrorObj();
-    ErrorObj( ErrorCode err_code, const string & err_str );
+    ErrorObj( ERROR_CODE err_code, const string & err_str );
 
-    ErrorCode m_ErrorCode;
+    ERROR_CODE GetErrorCode()
+    {
+        return m_ErrorCode;
+    }
+    string GetErrorString()
+    {
+        return m_ErrorString;
+    }
+
+    ERROR_CODE m_ErrorCode;
     string m_ErrorString;
 
     void NoError()
@@ -53,10 +62,10 @@ public:
     bool GetErrorLastCallFlag();                // Did the last call have an error?
     int  GetNumTotalErrors();                   // Total number of errors on stack
     ErrorObj PopLastError();                    // Pop last error off stack
-    //ErrorObj GetLastError();                  // Get last error but leave on stack
+    ErrorObj GetLastError();                    // Get last error but leave on stack
     bool PopErrorAndPrint( FILE* stream );      // Check for error, pop and print to stream
 
-    void AddError( ErrorCode code, const string & desc );
+    void AddError( ERROR_CODE code, const string & desc );
     void NoError();
 
     static ErrorMgrSingleton& getInstance()

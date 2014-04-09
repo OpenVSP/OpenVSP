@@ -433,10 +433,11 @@ void GroupLayout::AddButton( ToggleButton& tbutton, const char* label )
 
     //==== Add Check Button ====//
     int bw = FitWidth( 0, m_ButtonWidth );
-    Fl_Light_Button* flbutton = new Fl_Light_Button( m_X, m_Y, bw, m_StdHeight, label );
+    Fl_Light_Button* flbutton = new Fl_Light_Button( m_X, m_Y, bw, m_StdHeight );
     flbutton->labelfont( 1 );
     flbutton->labelsize( 12 );
     flbutton->align( Fl_Align( 132 | FL_ALIGN_INSIDE ) );
+    flbutton->copy_label( label );
     flbutton->labelcolor( FL_DARK_BLUE );
     m_Group->add( flbutton );
     AddX( bw );

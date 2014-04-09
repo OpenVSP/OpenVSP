@@ -19,7 +19,6 @@
 VehicleMgr::VehicleMgr()
 {
     m_Vehicle = new Vehicle();
-
 }
 
 Vehicle* VehicleMgr::GetVehicle()

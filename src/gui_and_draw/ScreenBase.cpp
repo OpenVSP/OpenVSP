@@ -10,6 +10,9 @@
 #include "ScreenBase.h"
 #include "ScreenMgr.h"
 #include "ParmMgr.h"
+#include "APIDefines.h"
+using namespace vsp;
+
 
 using std::map;
 
@@ -80,8 +83,11 @@ BasicScreen::~BasicScreen()
 //==== Set Title Name on Window And Box ====//
 void BasicScreen::SetTitle( const string& title )
 {
-    m_FLTK_Window->copy_label( title.c_str() );
-    m_FL_TitleBox->copy_label( title.c_str() );
+    if ( title != m_Title )
+    {
+        m_Title = title;
+        m_FL_TitleBox->copy_label( m_Title.c_str() );
+    }
 }
 
 //=====================================================================//
@@ -119,6 +125,18 @@ Fl_Group* TabScreen::AddTab( const string& title )
     m_MenuTabs->add( grp );
 
     return grp;
+}
+
+//==== Remove Tab ====//
+void TabScreen::RemoveTab( Fl_Group* grp )
+{
+    m_MenuTabs->remove( grp );
+}
+
+//==== Remove Tab ====//
+void TabScreen::AddTab( Fl_Group* grp )
+{
+    m_MenuTabs->add( grp );
 }
 
 //==== Get Tab At Index ====//
@@ -281,9 +299,9 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
 
     m_XFormLayout.AddLabel( "Planar:", 74 );
     m_XFormLayout.SetButtonWidth( m_XFormLayout.GetRemainX() / 3 );
-    m_XFormLayout.AddButton( m_XYSymToggle, "XY", Geom::SYM_XY );
-    m_XFormLayout.AddButton( m_XZSymToggle, "XZ", Geom::SYM_XZ );
-    m_XFormLayout.AddButton( m_YZSymToggle, "YZ", Geom::SYM_YZ );
+    m_XFormLayout.AddButton( m_XYSymToggle, "XY", vsp::SYM_XY );
+    m_XFormLayout.AddButton( m_XZSymToggle, "XZ", vsp::SYM_XZ );
+    m_XFormLayout.AddButton( m_YZSymToggle, "YZ", vsp::SYM_YZ );
     m_XFormLayout.ForceNewLine();
     m_XFormLayout.AddYGap();
 
@@ -304,9 +322,9 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     //==== Because SymAxFlag is Not 0-N Need To Map Vals ====//
     vector< int > axial_val_map;
     axial_val_map.push_back( 0 );
-    axial_val_map.push_back( Geom::SYM_ROT_X );
-    axial_val_map.push_back( Geom::SYM_ROT_Y );
-    axial_val_map.push_back( Geom::SYM_ROT_Z );
+    axial_val_map.push_back( vsp::SYM_ROT_X );
+    axial_val_map.push_back( vsp::SYM_ROT_Y );
+    axial_val_map.push_back( vsp::SYM_ROT_Z );
     m_AxialToggleGroup.SetValMapVec( axial_val_map );
 
     m_XFormLayout.InitWidthHeightVals();

@@ -22,6 +22,7 @@
 #include <FL/Fl_Int_Input.H>
 #include <FL/Fl_Output.H>
 #include <FL/Fl_Counter.H>
+#include <FL/Fl_Tabs.H>
 
 #include "Vec3d.h"
 #include "Parm.h"
@@ -85,6 +86,10 @@ public:
     {
         return m_ParmID;
     }
+    virtual int GetType()
+    {
+        return m_Type;
+    }
 
     virtual void DeviceCB( Fl_Widget* w ) = 0;
     static void StaticDeviceCB( Fl_Widget *w, void* data )
@@ -98,10 +103,12 @@ protected:
     virtual Parm* SetParmID( const string& parm_id );
     virtual void SetValAndLimits( Parm* parm_ptr ) = 0;
 
+    int m_Type;
     VspScreen* m_Screen;
     bool m_NewParmFlag;
     string m_ParmID;
     double m_LastVal;
+
 };
 
 //==== Parm Button ====//
@@ -209,11 +216,11 @@ public:
 
     virtual void Activate();
     virtual void Deactivate();
+    virtual void DeviceCB( Fl_Widget* w );
 
 
 protected:
 
-    virtual void DeviceCB( Fl_Widget* w );
 
     virtual void SetValAndLimits( Parm* parm_ptr );
     virtual void MinButtonCB( Parm* parm_ptr );
@@ -461,7 +468,7 @@ protected:
 
 
 //==== Slider Input Combo ====//
-class SliderAdjRangeInput
+class SliderAdjRangeInput : public GuiDevice
 {
 public:
     virtual void Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
@@ -483,8 +490,12 @@ public:
     {
         m_ParmButton.SetButtonNameUpdate( flag );
     }
+    virtual void DeviceCB( Fl_Widget* w )           {}
 
 protected:
+
+    virtual void SetValAndLimits( Parm* )           {}
+
 
     SliderAdjRange m_Slider;
     Input  m_Input;
@@ -720,6 +731,42 @@ protected:
 
 };
 
+class Group : public GuiDevice
+{
+public:
+    Group();
+
+    virtual void Init( Fl_Group* g )
+    {
+        m_Group = g;
+    }
+    virtual void Activate();
+    virtual void Deactivate();
+    virtual void Hide();
+    virtual void Show();
+
+    virtual void DeviceCB( Fl_Widget* w )           {}
+
+protected:
+
+    virtual void SetValAndLimits( Parm* parm_ptr )  {}
+
+    Fl_Group* m_Group;
+};
+
+class Tab : public Group
+{
+public:
+    Tab();
+
+    virtual Fl_Group* GetGroup()
+    {
+        return m_Group;
+    }
+
+protected:
+
+};
 
 class ParmPicker : public GuiDevice
 {

@@ -78,21 +78,21 @@ int main( int argc, char** argv )
 
     //==== Change Length ====//
     string len_id = vsp::GetParm( pod_id, "Length", "Design" );
-    vsp::SetParmVal( len_id, 7.0 );
+    vsp::SetParmValUpdate( len_id, 7.0 );
 
     //==== Change Finess Ration
-    vsp::SetParmVal( pod_id, "FineRatio", "Design", 10.0 );
+    vsp::SetParmValUpdate( pod_id, "FineRatio", "Design", 10.0 );
 
     //==== Change Y Location ====//
     string y_loc_id = vsp::GetParm( pod_id, "Y_Location", "XForm" );
-    vsp::SetParmVal( y_loc_id, 1.0 );
+    vsp::SetParmValUpdate( y_loc_id, 1.0 );
 
     //==== Change X Location ====//
-    vsp::SetParmVal( pod_id, "X_Location", "XForm", 3.0 );
+    vsp::SetParmValUpdate( pod_id, "X_Location", "XForm", 3.0 );
 
     //==== Change Symmetry =====//
     string sym_flag_id = vsp::GetParm( pod_id, "Sym_Planar_Flag", "Sym" );
-    vsp::SetParmVal( sym_flag_id, vsp::SYM_XZ  );
+    vsp::SetParmValUpdate( sym_flag_id, vsp::SYM_XZ  );
 
     //==== Copy Pod Geom =====//
     vsp::CopyGeomToClipboard( pod_id );
@@ -146,7 +146,7 @@ int main( int argc, char** argv )
     string xsurf_id = vsp::GetXSecSurf( fuse_id, 0 );
 
     //==== Change Type of First XSec ====//
-    vsp::ChangeXSecType( xsurf_id, 0, vsp::SUPER_ELLIPSE );
+    vsp::ChangeXSecType( xsurf_id, 0, vsp::XS_SUPER_ELLIPSE );
 
     //==== Change Type of First XSec ====//
     string xsec_id = vsp::GetXSec( xsurf_id, 0 );
@@ -164,7 +164,7 @@ int main( int argc, char** argv )
     vsp::PasteXSec( xsurf_id, 3 );
 
     //===== Change Type To File XSec ====//
-    vsp::ChangeXSecType( xsurf_id, 0, vsp::FILE_FUSE );
+    vsp::ChangeXSecType( xsurf_id, 0, vsp::XS_FILE_FUSE );
     string file_xsec_id = vsp::GetXSec( xsurf_id, 0 );
 
     //===== Build Point Vec ====//

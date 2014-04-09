@@ -9,6 +9,7 @@
 #include "EventMgr.h"
 #include "Vehicle.h"
 #include "StlHelper.h"
+#include "APIDefines.h"
 #include <assert.h>
 
 MassPropScreen::MassPropScreen( ScreenMgr *mgr ) : VspScreen( mgr )
@@ -68,7 +69,7 @@ bool MassPropScreen::Update()
     sprintf( str, format, pmoi.y() );
     m_MassPropUI->iyzOutput->value( str );
 
-    m_MassPropUI->fileExportOutput->value( vehiclePtr->getExportFileName( Vehicle::MASS_PROP_TXT_TYPE ).c_str() );
+    m_MassPropUI->fileExportOutput->value( vehiclePtr->getExportFileName( vsp::MASS_PROP_TXT_TYPE ).c_str() );
 
     return true;
 }
@@ -119,7 +120,7 @@ void MassPropScreen::CallBack( Fl_Widget* w )
     else if ( w == m_MassPropUI->fileExportButton )
     {
         string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Choose mass properties output file", "*.txt" );
-        veh->setExportFileName( Vehicle::MASS_PROP_TXT_TYPE, newfile );
+        veh->setExportFileName( vsp::MASS_PROP_TXT_TYPE, newfile );
     }
     else if ( w == m_MassPropUI->setChoice )
     {

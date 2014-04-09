@@ -50,6 +50,7 @@ IF( NOT VSP_NO_GRAPHICS )
 
 	TARGET_LINK_LIBRARIES(vsp
 		geom_core
+		geom_api_g
 		gui_interface_g
 		gui_and_draw
 		cfd_mesh_stuff
@@ -60,6 +61,7 @@ IF( NOT VSP_NO_GRAPHICS )
 		sixseries
 		util
 		tritri
+        Angelscript
 		${CPPTEST_LIBRARIES}
 		${JPEG_LIBRARIES}
 		${LIBXML2_LIBRARIES}
@@ -87,6 +89,7 @@ IF( NOT VSP_NO_GRAPHICS )
 		triangle
 		util
 		tritri
+        Angelscript
 		screens
 		xmlvsp
 		sixseries
@@ -117,6 +120,7 @@ TARGET_LINK_LIBRARIES(apitest
 	sixseries
 	util
 	tritri
+    Angelscript
 	${CPPTEST_LIBRARIES}
 	${LIBXML2_LIBRARIES}
 	${WINSOCK_LIBRARIES}

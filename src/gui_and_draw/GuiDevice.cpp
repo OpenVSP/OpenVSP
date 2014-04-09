@@ -23,6 +23,7 @@ using std::min;
 //==== Constructor ====//
 GuiDevice::GuiDevice()
 {
+    m_Type = -1;
     m_Screen = NULL;
     m_ParmID = string( "NOT_DEFINED" );
     m_NewParmFlag = true;
@@ -94,6 +95,7 @@ void GuiDevice::Update( const string& parm_id )
 //==== Constructor ====//
 Input::Input() : GuiDevice()
 {
+    m_Type = GDEV_INPUT;
     m_Input = NULL;
     m_Format = string( " %7.5f" );
     m_ParmButtonFlag = false;
@@ -176,6 +178,7 @@ void Input::DeviceCB( Fl_Widget* w )
 //==== Constructor ====//
 Slider::Slider( ) : GuiDevice()
 {
+    m_Type = GDEV_SLIDER;
     m_Slider = NULL;
     m_Range = 10.0;
     m_MinBound = 0.0;
@@ -253,6 +256,7 @@ void Slider::DeviceCB( Fl_Widget* w )
 //==== Constructor ====//
 SliderAdjRange::SliderAdjRange( ) : Slider()
 {
+    m_Type = GDEV_SLIDER_ADJ_RANGE;
     m_MinButton = NULL;
     m_MaxButton = NULL;
     m_MinStopState = SAR_NO_STOP;
@@ -454,6 +458,7 @@ void SliderAdjRange::MaxButtonCB( Parm* parm_ptr )
 //==== Constructor ====//
 LogSlider::LogSlider() : Slider()
 {
+    m_Type = GDEV_LOG_SLIDER;
 }
 
 //==== Set Slider Value and Limits =====//
@@ -595,6 +600,7 @@ void SliderInput::Deactivate()
 void SliderAdjRangeInput::Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
                                 Fl_Button* rbutton, Fl_Input* input, double range, const char* format, Fl_Button* parm_button )
 {
+    m_Type = GDEV_SLIDER_ADJ_RANGE_INPUT;
     m_ParmButtonFlag = false;
     if ( parm_button )
     {
@@ -708,6 +714,7 @@ void SliderAdjRange2Input::Deactivate()
 //==== Constructor ====//
 ParmButton::ParmButton( ) : GuiDevice()
 {
+    m_Type = GDEV_PARM_BUTTON;
     m_Button = NULL;
     m_ButtonNameUpdate = false;
 }
@@ -779,6 +786,7 @@ void ParmButton::DeviceCB( Fl_Widget* w )
 //==== Constructor ====//
 CheckButton::CheckButton( ) : GuiDevice()
 {
+    m_Type = GDEV_CHECK_BUTTON;
     m_Button = NULL;
 }
 
@@ -852,6 +860,7 @@ void CheckButton::DeviceCB( Fl_Widget* w )
 //==== Constructor ====//
 CheckButtonBit::CheckButtonBit() : GuiDevice()
 {
+    m_Type = GDEV_CHECK_BUTTON_BIT;
     m_Button = NULL;
     m_value = 0;
 }
@@ -935,6 +944,7 @@ void CheckButtonBit::DeviceCB( Fl_Widget* w )
 //==== Constructor ====//
 RadioButton::RadioButton() : GuiDevice()
 {
+    m_Type = GDEV_RADIO_BUTTON;
     m_Button = NULL;
     m_value = 0;
 }
@@ -1004,6 +1014,7 @@ void RadioButton::DeviceCB( Fl_Widget* w )
 //==== Constructor ====//
 ToggleButton::ToggleButton() : GuiDevice()
 {
+    m_Type = GDEV_TOGGLE_BUTTON;
     m_Button = NULL;
 }
 
@@ -1086,6 +1097,8 @@ void ToggleButton::DeviceCB( Fl_Widget* w )
 //==== Constructor ====//
 ToggleRadioGroup::ToggleRadioGroup() : GuiDevice()
 {
+    m_Type = GDEV_TOGGLE_RADIO_GROUP;
+
 }
 
 //==== Init ====//
@@ -1198,6 +1211,7 @@ void ToggleRadioGroup::SetValMapVec( vector< int > & val_map_vec )
 //==== Constructor ====//
 TriggerButton::TriggerButton() : GuiDevice()
 {
+    m_Type = GDEV_TRIGGER_BUTTON;
     m_Button = NULL;
 }
 
@@ -1239,6 +1253,7 @@ void TriggerButton::DeviceCB( Fl_Widget* w )
 //==== Constructor ====//
 Counter::Counter() : GuiDevice()
 {
+    m_Type = GDEV_COUNTER;
     m_Counter = NULL;
 }
 
@@ -1301,6 +1316,7 @@ void Counter::DeviceCB( Fl_Widget* w )
 //==== Constructor ====//
 Choice::Choice( ) : GuiDevice()
 {
+    m_Type = GDEV_CHOICE;
     m_Choice = NULL;
 }
 
@@ -1394,6 +1410,7 @@ void Choice::DeviceCB( Fl_Widget* w )
 //==== Constructor ====//
 FractParmSlider::FractParmSlider() : GuiDevice()
 {
+    m_Type = GDEV_FRACT_PARM_SLIDER;
     m_ResultFlInput = NULL;
     m_Format = string( " %7.5f" );
 }
@@ -1557,6 +1574,7 @@ void FractParmSlider::DeviceCB( Fl_Widget* w )
 
 void StringInput::Init( VspScreen* screen, Fl_Input* input )
 {
+    m_Type = GDEV_STRING_INPUT;
     m_Screen = screen;
 
     assert( input );
@@ -1619,6 +1637,7 @@ void StringOutput::Update( const string & val )
 //=====================================================================//
 IndexSelector::IndexSelector()
 {
+    m_Type = GDEV_INDEX_SLIDER;
     m_Screen = NULL;
     m_Input = NULL;
     m_Index = 0;
@@ -1754,6 +1773,7 @@ void IndexSelector::SetValAndLimits( Parm* parm_ptr )
 //=====================================================================//
 ColorPicker::ColorPicker()
 {
+    m_Type = GDEV_COLOR_PICKER;
     m_Screen = NULL;
 }
 
@@ -2106,7 +2126,6 @@ bool DriverGroupBank::WhichButton( Fl_Widget *w, int &imatch, int &jmatch )
     return false;
 }
 
-
 //=====================================================================//
 //===========       Skin Control Group                      ===========//
 //=====================================================================//
@@ -2307,4 +2326,50 @@ void SkinOutput::Deactivate()
 void SkinOutput::DeviceCB( Fl_Widget* w )
 {
     m_Screen->GuiDeviceCallBack( this );
+}
+
+//=====================================================================//
+//===========       Group Device                            ===========//
+//=====================================================================//
+Group::Group()
+{
+    m_Type = GDEV_GROUP;
+    m_Group = NULL;
+}
+
+void Group::Activate()
+{
+    if ( m_Group )
+    {
+        m_Group->activate();
+    }
+}
+void Group::Deactivate()
+{
+    if ( m_Group )
+    {
+        m_Group->deactivate();
+    }
+}
+void Group::Hide()
+{
+    if ( m_Group )
+    {
+        m_Group->hide();
+    }
+}
+void Group::Show()
+{
+    if ( m_Group )
+    {
+        m_Group->show();
+    }
+}
+
+//=====================================================================//
+//===========       Tab Device                          ===========//
+//=====================================================================//
+Tab::Tab()
+{
+    m_Type = GDEV_TAB;
 }

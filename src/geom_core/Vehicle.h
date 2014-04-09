@@ -18,6 +18,7 @@
 #include "MessageMgr.h"
 #include "DrawObj.h"
 
+
 #include <assert.h>
 
 #include <string>
@@ -26,11 +27,6 @@
 #include <stack>
 #include <memory>
 
-enum {   SET_ALL = 0,
-         SET_SHOWN = 1,
-         SET_NOT_SHOWN = 2,
-         SET_FIRST_USER = 3
-     };
 
 #define MIN_FILE_VER 4 // Lowest file version number for 3.X vsp file
 #define CURRENT_FILE_VER 4 // File version number for 3.X files that this executable writes
@@ -43,6 +39,8 @@ public:
     Vehicle();
     virtual ~Vehicle();
 
+    void Init();
+    void RunTestScripts();
     void Renew();
 
     void ParmChanged( Parm* parm_ptr, int type );
@@ -146,6 +144,7 @@ public:
     };
 
     //=== Export Files ===//
+    void ExportFile( const string & file_name, int write_set, int file_type );
     bool WriteXMLFile( const string & file_name, int set );
     void WriteXSecFile( const string & file_name, int write_set );
     void WriteSTLFile( const string & file_name, int write_set );
@@ -159,8 +158,7 @@ public:
     void WritePovRayFile( const string & file_name, int write_set );
 
     void WriteBezFile( const string & file_name, int write_set );
-    //==== Export File Names ====//
-    enum { COMP_GEOM_TXT_TYPE, COMP_GEOM_CSV_TYPE, SLICE_TXT_TYPE, MASS_PROP_TXT_TYPE, COMP_GEOM_TSV_TYPE };
+    //==== Computation File Names ====//
     string getExportFileName( int type );
     void setExportFileName( int type, string f_name );
     bool getExportCompGeomCsvFile()
@@ -181,7 +179,6 @@ public:
     };
 
     //==== Import Files ====//
-    enum { IMPORT_STL, IMPORT_NASCART, IMPORT_TRI, IMPORT_XSEC_MESH };
     string ImportFile( const string & file_name, int file_type );
 
     //Comp Geom
@@ -211,8 +208,6 @@ public:
     Parm m_BbZMin;
 
 protected:
-
-    Parm m_TestParm;
 
     vector< Geom* > m_GeomStoreVec;                 // All Geom Ptrs
 
@@ -286,7 +281,6 @@ public:
 
 private:
 
-    void Init();
     void Wype();
 
 protected:
