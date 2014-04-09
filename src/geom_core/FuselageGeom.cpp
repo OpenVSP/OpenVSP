@@ -21,18 +21,8 @@ FuselageGeom::FuselageGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
 
     m_Closed = false;
 
-    Matrix4d mat;
-    double *pm( mat.data() );
-    bool center;
+    m_XSecSurf.SetBasicOrientation( XSecSurf::X, XSecSurf::Y, XSecSurf::MID, false );
 
-    // rotation                   ; translation
-    pm[0] = 0;pm[4] = 0;pm[ 8] =-1;pm[12] = 0;
-    pm[1] = 1;pm[5] = 0;pm[ 9] = 0;pm[13] = 0;
-    pm[2] = 0;pm[6] = 1;pm[10] = 0;pm[14] = 0;
-    pm[3] = 0;pm[7] = 0;pm[11] = 0;pm[15] = 0;
-    center = true;
-
-    m_XSecSurf.SetTransformation( mat, true );
     m_XSecSurf.SetParentContainer( GetID() );
 
     //==== Init Parms ====//
@@ -139,7 +129,10 @@ void FuselageGeom::UpdateSurf()
 
 
     m_SurfVec[0].InterpolateLinear( crv_vec, false );
-
+    if ( m_XSecSurf.GetFlipUD() )
+    {
+        m_SurfVec[0].FlipNormal();
+    }
 }
 
 //==== Compute Rotation Center ====//

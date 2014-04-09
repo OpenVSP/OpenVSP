@@ -13,9 +13,11 @@
 //==== Default Constructor ====//
 XSecSurf::XSecSurf()
 {
-    m_rotation.loadIdentity();
-    m_center = false;
     m_XSecType = -1;
+    m_PrincipalDir = -1;
+    m_WidthDir = -1;
+    m_WidthShift = -1;
+    m_FlipUD = false;
 
 //  m_TestParm.Init( "Test", "XSecSurf", this, 0.0, 1.0e-8, 1.0e12 );
 }
@@ -168,7 +170,6 @@ XSec* XSecSurf::CreateXSec( int type, int index )
         }
 
         xsec_ptr->SetParentContainer( GetID() );
-        xsec_ptr->SetTransformation( m_rotation, m_center );
         m_XSecPtrVec.push_back( xsec_ptr );
     }
 
@@ -352,6 +353,67 @@ void XSecSurf::ChangeXSecType( int index, int type )
     }
 }
 
+void XSecSurf::GetBasicTransformation( double w, Matrix4d &mat )
+{
+    double *m = mat.data();
+
+    if ( m_PrincipalDir != -1 )
+    {
+        for ( int i = 0; i < 16; i++ )
+        {
+            m[i] = 0;
+        }
+
+        int prow = m_PrincipalDir;
+        // Principal direction of base curves +Z
+        m[ prow + ( Z * 4 ) ] = 1;
+
+        int wrow = m_WidthDir;
+        // Width direction of base curves +X
+        m[ wrow + ( X * 4 ) ] = 1;
+
+        // Remaining row via clever math
+        int row = 3 - ( prow + wrow );
+
+        // Cross product to ensure right handed system
+        int r1, r2;
+        switch( row )
+        {
+        case X:
+            r1 = Y;
+            r2 = Z;
+            break;
+        case Y:
+            r1 = Z;
+            r2 = X;
+            break;
+        case Z:
+            r1 = X;
+            r2 = Y;
+            break;
+        }
+
+        int flipflag = 1;
+        if ( m_FlipUD )
+        {
+            flipflag = -1;
+        }
+
+        // Specialized cross product with known zeros.
+        m[ row + ( Y * 4 ) ] = flipflag * ( m[ r1 + ( Z * 4 ) ] * m[ r2 + ( X * 4 ) ] -
+                                            m[ r1 + ( X * 4 ) ] * m[ r2 + ( Z * 4 ) ] );
+
+        // Shift in width direction if required.
+        m[ wrow + 12 ] = -w * m_WidthShift / 2.0;
+    }
+    else
+    {
+        printf( "Must call XSecSurf::SetBasicOrientation before use.\n" );
+        assert( false );
+    }
+}
+
+
 //==== Encode XML ====//
 xmlNodePtr XSecSurf::EncodeXml( xmlNodePtr & node )
 {
@@ -450,12 +512,6 @@ void XSecSurf::AddLinkableParms( vector< string > & parm_vec, const string & lin
             xsec->AddLinkableParms( parm_vec, link_container_id );
         }
     }
-}
-
-void XSecSurf::SetTransformation( const Matrix4d &mat, bool center )
-{
-    m_rotation = mat;
-    m_center = center;
 }
 
 string XSecSurf::GetName()

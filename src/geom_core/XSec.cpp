@@ -290,21 +290,10 @@ void FuseXSec::Update()
 {
     m_LateUpdateFlag = false;
 
-    // apply the needed transformation to get section into body orientation
-    Matrix4d mat( m_rotation );
-    double *pm( mat.data() );
+    XSecSurf* xsecsurf = (XSecSurf*) GetParentContainerPtr();
 
-    pm[3] = 0;
-    pm[7] = 0;
-    pm[11] = 0;
-    pm[12] = 0;
-    pm[13] = 0;
-    pm[14] = 0;
-    pm[15] = 0;
-    if ( m_center )
-    {
-        pm[13] = -m_XSCurve->GetWidth() / 2;
-    }
+	Matrix4d mat;
+	xsecsurf->GetBasicTransformation( m_XSCurve->GetWidth(), mat );
 
     VspCurve baseCurve = GetUntransformedCurve();
 
@@ -422,20 +411,9 @@ void StackXSec::Update()
 	int indx = xsecsurf->FindXSecIndex( m_ID );
 
     // apply the needed transformation to get section into body orientation
-    Matrix4d mat( m_rotation );
-    double *pm( mat.data() );
 
-    pm[3] = 0;
-    pm[7] = 0;
-    pm[11] = 0;
-    pm[12] = 0;
-    pm[13] = 0;
-    pm[14] = 0;
-    pm[15] = 0;
-    if ( m_center )
-    {
-        pm[13] = -m_XSCurve->GetWidth() / 2;
-    }
+	Matrix4d mat;
+	xsecsurf->GetBasicTransformation( m_XSCurve->GetWidth(), mat );
 
     VspCurve baseCurve = GetUntransformedCurve();
 
