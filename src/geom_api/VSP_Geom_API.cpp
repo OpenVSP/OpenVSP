@@ -1120,7 +1120,7 @@ void SetXSecPnts( const string& xsec_id, vector< vec3d > & pnt_vec )
         ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecPnts::Can't Find XSec " + xsec_id  );
         return;
     }
-    if ( xs>GetXSecCurve()->GetType() != XS_FILE_FUSE )
+    if ( xs->GetXSecCurve()->GetType() != XS_FILE_FUSE )
     {
         ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetXSecPnts::Wrong XSec Type"  );
         return;
