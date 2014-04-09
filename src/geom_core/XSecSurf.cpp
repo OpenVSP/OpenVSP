@@ -54,6 +54,19 @@ XSec* XSecSurf::FindXSec( int index )
     return FindXSec( id );
 }
 
+//==== Find XSec Index Given ID ====//
+int XSecSurf::FindXSecIndex( string ID )
+{
+    for( int i = 0; i < static_cast<int>( m_XSecIDDeque.size() ); i++ )
+    {
+        if( m_XSecIDDeque[i] == ID )
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
 //==== Find XSec ID Given Index ====//
 string XSecSurf::GetXSecID( int index )
 {

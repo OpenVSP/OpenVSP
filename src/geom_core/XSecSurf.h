@@ -30,6 +30,7 @@ public:
 
     XSec* FindXSec( string id );
     XSec* FindXSec( int index );
+    int FindXSecIndex( string id );
     string GetXSecID( int index );
     void ChangeXSecID( string oldID, string newID );
     string AddXSec( int type );
