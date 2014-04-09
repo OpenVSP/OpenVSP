@@ -49,6 +49,10 @@ public:
     {
         m_FLTK_Window = win;
     }
+    virtual Fl_Double_Window* GetFlWindow()
+    {
+        return m_FLTK_Window;
+    }
     virtual void Show();
     virtual bool IsShown();
     virtual void Hide();

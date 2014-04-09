@@ -516,6 +516,10 @@ void ManageGeomScreen::CreateScreens()
 
 //  vector< string > activeVec = m_VehiclePtr->GetActiveGeomVec();
 
+    for ( int i = 0 ; i < ( int )m_GeomScreenVec.size() ; i++ )
+    {
+        m_GeomScreenVec[i]->GetFlWindow()->set_non_modal();
+    }
 
 
 }
