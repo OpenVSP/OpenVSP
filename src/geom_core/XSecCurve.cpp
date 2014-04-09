@@ -375,11 +375,13 @@ void RoundedRectXSec::Update()
         pt.resize( 4 );
         u.resize( 5 );
 
-        pt[0].set_xyz( 0,   0,  h2 );
-        pt[1].set_xyz( 0,  w2,   0 );
-        pt[2].set_xyz( 0,   0, -h2 );
-        pt[3].set_xyz( 0, -w2,   0 );
+        // set the segment points
+        pt[0].set_xyz(  w,   0, 0 );
+        pt[1].set_xyz( w2, -h2, 0 );
+        pt[2].set_xyz(  0,   0, 0 );
+        pt[3].set_xyz( w2,  h2, 0 );
 
+        // set the corresponding parameters
         u[0] = 0;
         u[1] = 1;
         u[2] = 2;
