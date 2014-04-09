@@ -38,7 +38,6 @@ using std::string;
 //==== Default Constructor ====//
 XSecCurve::XSecCurve()
 {
-    m_LateUpdateFlag = true;
     m_GroupName = "XSecCurve";
     m_GroupSuffix = -1;
 }

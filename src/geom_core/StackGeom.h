@@ -73,15 +73,10 @@ public:
     //==== Set Drag Factors ====//
     virtual void LoadDragFactors( DragFactors& drag_factors );
 
-    Parm m_Length;                  // Length of Fuselage
-
 protected:
     virtual void ChangeID( string id );
 
     virtual void UpdateSurf();
-
-    enum {FUSE_MONOTONIC, FUSE_DUCT, FUSE_FREE};
-    virtual void EnforceOrder( FuseXSec* xs, int indx, int ile, int policy );
 
     int m_ActiveXSec;
     XSecSurf m_XSecSurf;

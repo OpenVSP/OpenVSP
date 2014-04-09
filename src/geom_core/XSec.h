@@ -30,8 +30,9 @@ class XSec : public ParmContainer
 {
 public:
     XSec( XSecCurve *xsc, bool use_left );                                                      // Default Constructor
+    virtual ~XSec();
 
-    enum { FUSE_SEC, NUM_XSEC_TYPES
+    enum { FUSE_SEC, STACK_SEC, NUM_XSEC_TYPES
          };
 
     virtual void ParmChanged( Parm* parm_ptr, int type );
@@ -58,6 +59,8 @@ public:
     {
         return m_Type;
     }
+
+    virtual Matrix4d* GetTransform();
 
     virtual void AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id = string() );
 
@@ -91,6 +94,8 @@ protected:
 
     VspCurve m_TransformedCurve;
 
+    Matrix4d m_Transform;
+
     XSecCurve *m_XSCurve;
 
     virtual void ChangeID( string id );
@@ -119,6 +124,28 @@ public:
 
 protected:
     double m_RefLength;
+};
+
+class StackXSec : public XSec
+{
+public:
+    StackXSec( XSecCurve *xsc, bool use_left );
+
+    virtual void SetScale( double scale );
+
+    virtual void Update();
+
+    virtual void CopyBasePos( XSec* xs );
+
+    Parm m_XDelta;
+    Parm m_YDelta;
+    Parm m_ZDelta;
+
+    Parm m_XRotate;
+    Parm m_YRotate;
+    Parm m_ZRotate;
+
+protected:
 };
 
 #endif // !defined(XSEC__INCLUDED_)

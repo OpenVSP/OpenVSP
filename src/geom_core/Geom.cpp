@@ -853,6 +853,8 @@ void Geom::CopyFrom( Geom* geom )
 //==== Update ====//
 void Geom::Update()
 {
+    m_LateUpdateFlag = false;
+
     Scale();
     GeomXForm::Update();
 

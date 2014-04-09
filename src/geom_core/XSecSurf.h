@@ -40,6 +40,15 @@ public:
     string InsertXSec( int type, int index );
     void ChangeXSecType( int index, int type );
 
+    void SetXSecType( int xstype )
+    {
+        m_XSecType = xstype;
+    }
+    int GetXSecType( )
+    {
+        return m_XSecType;
+    }
+
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
@@ -72,6 +81,8 @@ protected:
 
     Matrix4d m_rotation;
     bool m_center;
+
+    int m_XSecType;
 
 };
 

@@ -15,6 +15,8 @@ XSecSurf::XSecSurf()
 {
     m_rotation.loadIdentity();
     m_center = false;
+    m_XSecType = -1;
+
 //  m_TestParm.Init( "Test", "XSecSurf", this, 0.0, 1.0e-8, 1.0e12 );
 }
 
@@ -151,7 +153,20 @@ XSec* XSecSurf::CreateXSec( int type, int index )
     XSec* xsec_ptr = NULL;
     if ( xscrv_ptr )
     {
-        xsec_ptr = ( XSec* ) new FuseXSec( xscrv_ptr, index != 0 );
+        if ( m_XSecType == XSec::FUSE_SEC )
+        {
+            xsec_ptr = ( XSec* ) new FuseXSec( xscrv_ptr, index != 0 );
+        }
+        else if ( m_XSecType == XSec::STACK_SEC )
+        {
+            xsec_ptr = ( XSec* ) new StackXSec( xscrv_ptr, index != 0 );
+        }
+        else
+        {
+            fprintf( stderr, "Undefined or unknown XSec type in XSecSurf::CreateXSec\n");
+            assert(false);
+        }
+
         xsec_ptr->SetParentContainer( GetID() );
         xsec_ptr->SetTransformation( m_rotation, m_center );
         m_XSecPtrVec.push_back( xsec_ptr );

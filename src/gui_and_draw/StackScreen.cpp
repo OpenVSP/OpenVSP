@@ -26,8 +26,6 @@ StackScreen::StackScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 550, "Stack" 
     m_DesignLayout.SetGroupAndScreen( design_group, this );
     m_DesignLayout.AddDividerBox( "Design" );
     m_DesignLayout.AddYGap();
-    m_DesignLayout.AddSlider( m_LengthSlider, "Length", 10, "%6.5f" );
-    m_DesignLayout.AddYGap();
     m_DesignLayout.SetButtonWidth( 100 );
     m_DesignLayout.AddSlider( m_NumPntsXSecSlider, "Num Pnts XSec", 33, "%5.0f" );
 
@@ -134,17 +132,15 @@ StackScreen::StackScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 550, "Stack" 
     m_XSecLayout.SetSameLineFlag( false );
 
     m_XSecLayout.SetButtonWidth( 50 );
-    m_XSecLayout.AddSlider( m_XSecXSlider, "X", 1.0, "%6.5f" );
-    m_XSecLayout.AddSlider( m_XSecYSlider, "Y", 1.0, "%6.5f" );
-    m_XSecLayout.AddSlider( m_XSecZSlider, "Z", 1.0, "%6.5f" );
+    m_XSecLayout.AddSlider( m_XSecXDeltaSlider, "Delta X", 10.0, "%6.5f" );
+    m_XSecLayout.AddSlider( m_XSecYDeltaSlider, "Delta Y", 10.0, "%6.5f" );
+    m_XSecLayout.AddSlider( m_XSecZDeltaSlider, "Delta Z", 10.0, "%6.5f" );
     m_XSecLayout.AddYGap();
 
     m_XSecLayout.InitWidthHeightVals();
     m_XSecLayout.AddSlider( m_XSecXRotSlider, "Rot X", 90.0, "%6.5f" );
     m_XSecLayout.AddSlider( m_XSecYRotSlider, "Rot Y", 90.0, "%6.5f" );
     m_XSecLayout.AddSlider( m_XSecZRotSlider, "Rot Z", 90.0, "%6.5f" );
-    m_XSecLayout.AddSlider( m_XSecSpinSlider, "Spin",  90.0, "%6.5f" );
-
     m_XSecLayout.AddYGap();
 
     m_XSecLayout.AddDividerBox( "Type" );
@@ -329,24 +325,38 @@ bool StackScreen::Update()
     StackGeom* stackgeom_ptr = dynamic_cast< StackGeom* >( geom_ptr );
     assert( stackgeom_ptr );
 
-    //==== Design ====//
-//  m_NumPntsXSecSlider.Update( fuselage_ptr->m_BaseU.GetID() );
-    m_LengthSlider.Update( stackgeom_ptr->m_Length.GetID() );
-
     //==== XSec Index Display ===//
     int xsid = stackgeom_ptr->GetActiveXSecIndex();
     m_XSecIndexSelector.SetIndex( xsid );
 
-    FuseXSec* xs = ( FuseXSec* ) stackgeom_ptr->GetXSec( xsid );
+    StackXSec* xs = ( StackXSec* ) stackgeom_ptr->GetXSec( xsid );
     if ( xs )
     {
-        m_XSecXSlider.Update( xs->m_XLocPercent.GetID() );
-        m_XSecYSlider.Update( xs->m_YLocPercent.GetID() );
-        m_XSecZSlider.Update( xs->m_ZLocPercent.GetID() );
+        m_XSecXDeltaSlider.Update( xs->m_XDelta.GetID() );
+        m_XSecYDeltaSlider.Update( xs->m_YDelta.GetID() );
+        m_XSecZDeltaSlider.Update( xs->m_ZDelta.GetID() );
         m_XSecXRotSlider.Update( xs->m_XRotate.GetID() );
         m_XSecYRotSlider.Update( xs->m_YRotate.GetID() );
         m_XSecZRotSlider.Update( xs->m_ZRotate.GetID() );
-        m_XSecSpinSlider.Update( xs->m_Spin.GetID() );
+
+        if ( xsid == 0 )
+        {
+            m_XSecXDeltaSlider.Deactivate();
+            m_XSecYDeltaSlider.Deactivate();
+            m_XSecZDeltaSlider.Deactivate();
+            m_XSecXRotSlider.Deactivate();
+            m_XSecYRotSlider.Deactivate();
+            m_XSecZRotSlider.Deactivate();
+        }
+        else
+        {
+            m_XSecXDeltaSlider.Activate();
+            m_XSecYDeltaSlider.Activate();
+            m_XSecZDeltaSlider.Activate();
+            m_XSecXRotSlider.Activate();
+            m_XSecYRotSlider.Activate();
+            m_XSecZRotSlider.Activate();
+        }
 
         XSecCurve* xsc = xs->GetXSecCurve();
         if ( xsc )

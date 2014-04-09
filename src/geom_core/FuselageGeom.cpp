@@ -43,6 +43,9 @@ FuselageGeom::FuselageGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_Length.SetDescript( "Length of fuselage" );
 
     m_ActiveXSec = 0;
+
+    m_XSecSurf.SetXSecType( XSec::FUSE_SEC );
+
     m_XSecSurf.AddXSec( XSecCurve::POINT );
     m_XSecSurf.AddXSec( XSecCurve::ELLIPSE );
     m_XSecSurf.AddXSec( XSecCurve::ELLIPSE );

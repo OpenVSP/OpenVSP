@@ -40,6 +40,11 @@ XSec::XSec( XSecCurve *xsc, bool use_left )
     m_GroupSuffix = -1;
 }
 
+//==== Destructor ====//
+XSec::~XSec()
+{
+    delete m_XSCurve;
+}
 
 void XSec::ChangeID( string newid )
 {
@@ -140,6 +145,18 @@ void XSec::AddLinkableParms( vector< string > & parm_vec, const string & link_co
         m_XSCurve->AddLinkableParms( parm_vec, link_container_id );
     }
 }
+
+
+Matrix4d* XSec::GetTransform()
+{
+    if ( m_LateUpdateFlag )
+    {
+        Update();
+    }
+
+    return &m_Transform;
+}
+
 
 //==== Copy From XSec ====//
 void XSec::CopyFrom( XSec* xs )
@@ -317,14 +334,16 @@ void FuseXSec::Update()
 //      m_TransformedCurve.SetControlPnts( spin_ctl_pnts );
     }
 
-    m_TransformedCurve.RotateX( m_XRotate()*DEG_2_RAD );
-    m_TransformedCurve.RotateY( m_YRotate()*DEG_2_RAD );
-    m_TransformedCurve.RotateZ( m_ZRotate()*DEG_2_RAD );
+    m_Transform.loadIdentity();
 
-    m_TransformedCurve.OffsetX( m_XLocPercent()*m_RefLength );
-    m_TransformedCurve.OffsetY( m_YLocPercent()*m_RefLength );
-    m_TransformedCurve.OffsetZ( m_ZLocPercent()*m_RefLength );
+    m_Transform.translatef( m_XLocPercent()*m_RefLength, m_YLocPercent()*m_RefLength, m_ZLocPercent()*m_RefLength );
 
+    m_Transform.rotateX( m_XRotate() );
+    m_Transform.rotateY( m_YRotate() );
+    m_Transform.rotateZ( m_ZRotate() );
+
+
+    m_TransformedCurve.Transform( m_Transform );
 }
 
 //==== Set Ref Length ====//
@@ -358,6 +377,121 @@ void FuseXSec::CopyBasePos( XSec* xs )
         m_ZLocPercent = fxs->m_ZLocPercent();
 
         m_RefLength = fxs->m_RefLength;
+    }
+}
+
+//==========================================================================//
+//==========================================================================//
+//==========================================================================//
+
+//==== Default Constructor ====//
+StackXSec::StackXSec( XSecCurve *xsc, bool use_left ) : XSec( xsc, use_left)
+{
+    m_Type = STACK_SEC;
+
+    m_XDelta.Init( "XDelta", m_GroupName, this,  1.0, 0.0, 1.0e12 );
+    m_XDelta.SetDescript( "X distance of cross section from prior cross section" );
+    m_YDelta.Init( "YDelta", m_GroupName, this,  0.0, -1.0e12, 1.0e12 );
+    m_YDelta.SetDescript( "Y distance of cross section from prior cross section" );
+    m_ZDelta.Init( "ZDelta", m_GroupName, this,  0.0, -1.0e12, 1.0e12 );
+    m_ZDelta.SetDescript( "Z distance of cross section from prior cross section" );
+
+    m_XRotate.Init( "XRotate", m_GroupName, this,  0.0, -180.0, 180.0 );
+    m_XRotate.SetDescript( "Rotation about x-axis of cross section" );
+    m_YRotate.Init( "YRotate", m_GroupName, this,  0.0, -180.0, 180.0 );
+    m_YRotate.SetDescript( "Rotation about y-axis of cross section" );
+    m_ZRotate.Init( "ZRotate", m_GroupName, this,  0.0, -180.0, 180.0 );
+    m_YRotate.SetDescript( "Rotation about z-axis of cross section" );
+}
+
+//==== Set Scale ====//
+void StackXSec::SetScale( double scale )
+{
+    XSec::SetScale( scale );
+    m_XDelta = m_XDelta() * scale;
+    m_YDelta = m_YDelta() * scale;
+    m_ZDelta = m_ZDelta() * scale;
+}
+
+//==== Update ====//
+void StackXSec::Update()
+{
+    m_LateUpdateFlag = false;
+
+    XSecSurf* xsecsurf = (XSecSurf*) GetParentContainerPtr();
+	int indx = xsecsurf->FindXSecIndex( m_ID );
+
+    // apply the needed transformation to get section into body orientation
+    Matrix4d mat( m_rotation );
+    double *pm( mat.data() );
+
+    pm[3] = 0;
+    pm[7] = 0;
+    pm[11] = 0;
+    pm[12] = 0;
+    pm[13] = 0;
+    pm[14] = 0;
+    pm[15] = 0;
+    if ( m_center )
+    {
+        pm[13] = -m_XSCurve->GetWidth() / 2;
+    }
+
+    VspCurve baseCurve = GetUntransformedCurve();
+
+    baseCurve.Transform( mat );
+
+    //==== Apply Transform ====//
+    m_TransformedCurve = baseCurve;
+
+    m_Transform.loadIdentity();
+
+    if( indx > 0 )
+    {
+        StackXSec* prevxs = (StackXSec*) xsecsurf->FindXSec( indx - 1);
+        if( prevxs )
+        {
+            m_Transform.matMult( prevxs->GetTransform()->data() );
+        }
+    }
+
+    m_Transform.translatef( m_XDelta(), m_YDelta(), m_ZDelta() );
+
+    m_Transform.rotateX( m_XRotate() );
+    m_Transform.rotateY( m_YRotate() );
+    m_Transform.rotateZ( m_ZRotate() );
+
+    m_TransformedCurve.Transform( m_Transform );
+
+
+    if( indx < xsecsurf->NumXSec() - 1 )
+    {
+        StackXSec* nextxs = (StackXSec*) xsecsurf->FindXSec( indx + 1);
+        if( nextxs )
+        {
+            nextxs->SetLateUpdateFlag( true );
+        }
+    }
+
+}
+
+//==== Copy position from base class ====//
+// May be possible to do this using ParmContainer::EncodeXML, but all
+// we want to do is copy the values in the XSec (not XSecCurve) class
+// that control position.
+void StackXSec::CopyBasePos( XSec* xs )
+{
+    if ( xs )
+    {
+        StackXSec* sxs = ( StackXSec* ) xs;
+
+        m_XDelta = sxs->m_XDelta();
+        m_YDelta = sxs->m_YDelta();
+        m_ZDelta = sxs->m_ZDelta();
+
+        m_XRotate = sxs->m_XRotate();
+        m_YRotate = sxs->m_YRotate();
+        m_ZRotate = sxs->m_ZRotate();
     }
 }
 
