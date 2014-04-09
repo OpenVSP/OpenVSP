@@ -3,27 +3,27 @@
 // version 1.3 as detailed in the LICENSE file which accompanies this software.
 //
 
-// FuselageGeom.h:
+// StackGeom.h:
 // J.R Gloudemans
 //
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(VSPFUSELAGEGEOM__INCLUDED_)
-#define VSPFUSELAGEGEOM__INCLUDED_
+#if !defined(VSPSTACKGEOM__INCLUDED_)
+#define VSPSTACKGEOM__INCLUDED_
 
 #include "Geom.h"
 #include "XSec.h"
 #include "XSecCurve.h"
 #include "XSecSurf.h"
 
-//==== Fuselage Geom ====//
-class FuselageGeom : public GeomXSec
+//==== Stack Geom ====//
+class StackGeom : public GeomXSec
 {
 public:
     enum {LINEAR_CONNECT, PCHIP_CONNECT, CSPLINE_CONNECT, MANUAL_CONNECT, NUM_CONNECT};
 
-    FuselageGeom( Vehicle* vehicle_ptr );
-    virtual ~FuselageGeom();
+    StackGeom( Vehicle* vehicle_ptr );
+    virtual ~StackGeom();
 
     virtual int GetNumMainSurfs()
     {
@@ -73,15 +73,10 @@ public:
     //==== Set Drag Factors ====//
     virtual void LoadDragFactors( DragFactors& drag_factors );
 
-    Parm m_Length;                  // Length of Fuselage
-
 protected:
     virtual void ChangeID( string id );
 
     virtual void UpdateSurf();
-
-    enum {FUSE_MONOTONIC, FUSE_DUCT, FUSE_FREE};
-    virtual void EnforceOrder( FuseXSec* xs, int indx, int ile, int policy );
 
     int m_ActiveXSec;
     XSecSurf m_XSecSurf;
@@ -89,4 +84,4 @@ protected:
     bool m_Closed;
 
 };
-#endif // !defined(VSPPODGEOM__INCLUDED_)
+#endif // !defined(VSPSTACKGEOM__INCLUDED_)

@@ -3,25 +3,26 @@
 // version 1.3 as detailed in the LICENSE file which accompanies this software.
 //
 
-// FuselageScreen.h: UI for Fuselage Geom
+// WingScreen.h: UI for Wing Geom
 // J.R Gloudemans
 //
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(FUSELAGESCREEN__INCLUDED_)
-#define FUSELAGESCREEN__INCLUDED_
+#if !defined(WINGSCREEN__INCLUDED_)
+#define WINGSCREEN__INCLUDED_
 
 #include "ScreenBase.h"
 #include "GuiDevice.h"
 #include "GroupLayout.h"
+#include "WingGeom.h"
 
 #include <FL/Fl.H>
 
-class FuselageScreen : public GeomScreen
+class WingScreen : public GeomScreen
 {
 public:
-    FuselageScreen( ScreenMgr* mgr );
-    virtual ~FuselageScreen();
+    WingScreen( ScreenMgr* mgr );
+    virtual ~WingScreen();
 
     virtual void Show();
     virtual bool Update();
@@ -31,58 +32,58 @@ public:
 
 protected:
 
-    GroupLayout m_DesignLayout;
+    // Overall planform tab
+    GroupLayout m_PlanLayout;
 
-    SliderAdjRangeInput m_LengthSlider;
-    SliderInput m_NumPntsXSecSlider;
+    SliderAdjRangeInput m_PlanSpanSlider;
+    SliderAdjRangeInput m_PlanProjSpanSlider;
+    SliderAdjRangeInput m_PlanChordSlider;
+    SliderAdjRangeInput m_PlanAreaSlider;
+    StringOutput m_PlanAROutput;
 
-    GroupLayout m_SkinLayout;
+    // Wing section tab
+    GroupLayout m_SectionLayout;
 
-    IndexSelector m_SkinIndexSelector;
+    IndexSelector m_SectIndexSelector;
 
-    ToggleButton m_AllSymButton;
-    SkinOutput m_TopSkinOutput;
-    SkinControl m_TopAngleSkinControl;
-    SkinControl m_TopStrengthSkinControl;
-    SkinControl m_TopCurvatureSkinControl;
+    StringOutput m_NumSectOutput;
 
-    SkinOutput m_RightSkinOutput;
-    SkinControl m_RightAngleSkinControl;
-    SkinControl m_RightStrengthSkinControl;
-    SkinControl m_RightCurvatureSkinControl;
+    TriggerButton m_SplitSectButton;
+    TriggerButton m_CutSectButton;
+    TriggerButton m_CopySectButton;
+    TriggerButton m_PasteSectButton;
+    TriggerButton m_InsertSectButton;
 
-    ToggleButton m_TBSymButton;
-    SkinOutput m_BottomSkinOutput;
-    SkinControl m_BottomAngleSkinControl;
-    SkinControl m_BottomStrengthSkinControl;
-    SkinControl m_BottomCurvatureSkinControl;
+    SliderAdjRangeInput m_NumWSectSlider;
 
-    ToggleButton m_RLSymButton;
-    SkinOutput m_LeftSkinOutput;
-    SkinControl m_LeftAngleSkinControl;
-    SkinControl m_LeftStrengthSkinControl;
-    SkinControl m_LeftCurvatureSkinControl;
+    WingDriverGroup m_WingDriverGroup;
+    DriverGroupBank m_WingDriverGroupBank;
 
+    StringOutput m_SectProjSpanOutput;
 
+    SliderAdjRangeInput m_SweepSlider;
+    SliderAdjRangeInput m_SweepLocSlider;
 
-    GroupLayout m_XSecLayout;
+    SliderAdjRangeInput m_WashoutSlider;
+    SliderAdjRangeInput m_WashoutLocSlider;
+    ToggleButton m_WashoutAbsoluteToggle;
+    ToggleButton m_WashoutRelativeToggle;
+    ToggleRadioGroup m_WashoutAbsRelToggle;
 
-    IndexSelector m_XSecIndexSelector;
+    SliderAdjRangeInput m_DihedralSlider;
+    ToggleButton m_DihedralAbsoluteToggle;
+    ToggleButton m_DihedralRelativeToggle;
+    ToggleRadioGroup m_DihedralAbsRelToggle;
 
-    TriggerButton m_InsertXSec;
-    TriggerButton m_CutXSec;
-    TriggerButton m_CopyXSec;
-    TriggerButton m_PasteXSec;
+    // Airfoil tab
+    GroupLayout m_AfLayout;
 
-    FractParmSlider m_XSecXSlider;
-    FractParmSlider m_XSecYSlider;
-    FractParmSlider m_XSecZSlider;
-    SliderAdjRangeInput m_XSecXRotSlider;
-    SliderAdjRangeInput m_XSecYRotSlider;
-    SliderAdjRangeInput m_XSecZRotSlider;
-    SliderAdjRangeInput m_XSecSpinSlider;
+    IndexSelector m_AfIndexSelector;
 
-    Choice m_XSecTypeChoice;
+    TriggerButton m_CopyAfButton;
+    TriggerButton m_PasteAfButton;
+
+    Choice m_AfTypeChoice;
 
     GroupLayout m_PointGroup;
 
@@ -159,4 +160,4 @@ protected:
 };
 
 
-#endif // !defined(FUSELAGESCREEN__INCLUDED_)
+#endif // !defined(WINGSCREEN__INCLUDED_)

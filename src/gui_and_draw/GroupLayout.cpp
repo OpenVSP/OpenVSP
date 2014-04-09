@@ -175,7 +175,8 @@ void GroupLayout::SetGroupAndScreen( Fl_Group* group, VspScreen* screen )
 //==== Add Standard Parm Button With Label ====//
 Fl_Button* GroupLayout::AddParmButton( const char* label )
 {
-    Fl_Button* button = new Fl_Button( m_X, m_Y, m_ButtonWidth, m_StdHeight, label );
+    Fl_Button* button = new Fl_Button( m_X, m_Y, m_ButtonWidth, m_StdHeight );
+    button->copy_label( label );
     button->box( FL_THIN_UP_BOX );
     button->labelfont( 1 );
     button->labelsize( 12 );
@@ -193,6 +194,8 @@ void GroupLayout::AddSlider( SliderAdjRangeInput& slid_adj_input,
 {
     assert( m_Group && m_Screen );
 
+    int init_used_w = m_X - m_Group->x();
+
     //==== Parm Button ====//
     Fl_Button* button = AddParmButton( label );
 
@@ -204,7 +207,7 @@ void GroupLayout::AddSlider( SliderAdjRangeInput& slid_adj_input,
     AddX( m_RangeButtonWidth );
 
     //==== Slider ====//
-    int sw = FitWidth( m_ButtonWidth + 2 * m_RangeButtonWidth + m_InputWidth, m_SliderWidth );
+    int sw = FitWidth( m_ButtonWidth + 2 * m_RangeButtonWidth + m_InputWidth + init_used_w, m_SliderWidth );
     Fl_Slider* slider = new Fl_Slider( m_X, m_Y, sw, m_StdHeight );
     slider->type( 5 );
     slider->box( FL_THIN_DOWN_BOX );
@@ -487,12 +490,12 @@ void GroupLayout::AddButton( TriggerButton& tbutton, const char* label )
 }
 
 //==== Create & Init Box Divider  ====//
-void GroupLayout::AddDividerBox( const string& text )
+void GroupLayout::AddDividerBox( const string& text, int used_w )
 {
     assert( m_Group && m_Screen );
 
     //==== Add Divider Box ====//
-    int dw = FitWidth( 0, m_ButtonWidth );
+    int dw = FitWidth( used_w, m_ButtonWidth );
 
     Fl_Box* flbox = new Fl_Box( m_X, m_Y, dw, m_DividerHeight );
     flbox->box( FL_BORDER_BOX );
@@ -892,4 +895,224 @@ void GroupLayout::AddParmPicker( ParmPicker & parm_picker )
 
     parm_picker.Init( m_Screen, container_choice, group_choice, parm_choice );
 
+}
+
+//==== Add Parameter Driver Group ====//
+void GroupLayout::AddDriverGroupBank( DriverGroupBank & dgBank, const vector < string > &labels, double range, const char* format )
+{
+    assert( m_Group && m_Screen );
+
+    bool oldSameLine = m_SameLineFlag;
+    bool oldFitWidth = m_FitWidthFlag;
+
+    SetSameLineFlag( true );
+    SetFitWidthFlag( true );
+
+    vector< vector< Fl_Button* > > buttons;
+    buttons.resize( dgBank.GetDriverGroup()->GetNvar() );
+
+    vector< SliderAdjRangeInput* > sliders;
+    sliders.resize( dgBank.GetDriverGroup()->GetNvar() );
+
+    for( int i = 0; i < dgBank.GetDriverGroup()->GetNvar(); i++ )
+    {
+        buttons[i].resize( dgBank.GetDriverGroup()->GetNchoice() );
+        for( int j = 0; j < dgBank.GetDriverGroup()->GetNchoice(); j++ )
+        {
+            int roundW = 17;
+            buttons[i][j] = new GroupBankRoundButton( m_X, m_Y, roundW, m_StdHeight );
+            m_Group->add( buttons[i][j] );
+            AddX( roundW );
+        }
+        AddX( 1 );
+
+        sliders[i] = new SliderAdjRangeInput();
+        AddSlider( *sliders[i], labels[i].c_str(), range, format );
+
+        ForceNewLine();
+    }
+
+    SetSameLineFlag( oldSameLine );
+    SetFitWidthFlag( oldFitWidth );
+
+    dgBank.Init( m_Screen, buttons, sliders );
+}
+
+GroupBankRoundButton::GroupBankRoundButton( int x, int y, int w, int h, const char *label ) : Fl_Round_Button( x, y, w, h, label )
+{
+}
+
+void GroupBankRoundButton::draw()
+{
+    Fl_Round_Button::draw();
+    if ( !active() )
+    {
+        int o = 5;
+        fl_color( fl_inactive( selection_color() ) );
+        fl_line( x() + o, y() + o, x() + w() - o, y() + h() - o );
+        fl_line( x() + o, y() + h() - o, x() + w() - o, y() + o );
+    }
+}
+
+//==== Add Fuselage Skin Control Group ====//
+void GroupLayout::AddSkinControl( SkinControl & skin_control, const char* label, double range, const char* format )
+{
+    assert( m_Group && m_Screen );
+
+    int sw = FitWidth( 4 * m_StdHeight + m_ButtonWidth + 2 * m_InputWidth, 2 * m_SliderWidth )/2;
+
+    //==== Left Continuity Check Button ====//
+    Fl_Check_Button* contButtonL = new Fl_Check_Button( m_X, m_Y, m_StdHeight, m_StdHeight );
+    m_Group->add( contButtonL );
+    AddX( m_StdHeight );
+
+    //==== Left Slider ====//
+    Fl_Slider* sliderL = new Fl_Slider( m_X, m_Y, sw, m_StdHeight );
+    sliderL->type( 5 );
+    sliderL->box( FL_THIN_DOWN_BOX );
+    sliderL->color( FL_BACKGROUND2_COLOR );
+    sliderL->selection_color( FL_SELECTION_COLOR );
+    m_Group->add( sliderL );
+    AddX( sw );
+
+    //==== Left Input ====//
+    Fl_Float_Input* inputL = new Fl_Float_Input( m_X, m_Y,  m_InputWidth, m_StdHeight );
+    inputL->type( 1 );
+    inputL->box( FL_THIN_DOWN_BOX );
+    inputL->textsize( 12 );
+    inputL->when( FL_WHEN_ENTER_KEY );
+    m_Group->add( inputL );
+    AddX( m_InputWidth );
+
+    //==== Left Set Check Button ====//
+    Fl_Check_Button* setButtonL = new Fl_Check_Button( m_X, m_Y, m_StdHeight, m_StdHeight );
+    m_Group->add( setButtonL );
+    AddX( m_StdHeight );
+
+    //==== Parm Button ====//
+    Fl_Button* parm_button = AddParmButton( label );
+
+    //==== Right Set Check Button ====//
+    Fl_Check_Button* setButtonR = new Fl_Check_Button( m_X, m_Y, m_StdHeight, m_StdHeight );
+    m_Group->add( setButtonR );
+    AddX( m_StdHeight );
+
+    //==== Right Slider ====//
+    Fl_Slider* sliderR = new Fl_Slider( m_X, m_Y, sw, m_StdHeight );
+    sliderR->type( 5 );
+    sliderR->box( FL_THIN_DOWN_BOX );
+    sliderR->color( FL_BACKGROUND2_COLOR );
+    sliderR->selection_color( FL_SELECTION_COLOR );
+    m_Group->add( sliderR );
+    AddX( sw );
+
+    //==== Right Input ====//
+    Fl_Float_Input* inputR = new Fl_Float_Input( m_X, m_Y,  m_InputWidth, m_StdHeight );
+    inputR->type( 1 );
+    inputR->box( FL_THIN_DOWN_BOX );
+    inputR->textsize( 12 );
+    inputR->when( FL_WHEN_ENTER_KEY );
+    m_Group->add( inputR );
+    AddX( m_InputWidth );
+
+    //==== Left Continuity Check Button ====//
+    Fl_Check_Button* contButtonR = new Fl_Check_Button( m_X, m_Y, m_StdHeight, m_StdHeight );
+    m_Group->add( contButtonR );
+    AddX( m_StdHeight );
+
+    AddY( m_StdHeight );
+    NewLineX();
+
+    skin_control.Init( m_Screen,
+        contButtonL,
+        contButtonR,
+        setButtonL,
+        setButtonR,
+        sliderL,
+        sliderR,
+        inputL,
+        inputR,
+        parm_button,
+        range, format);
+}
+
+//==== Add Fuselage Skin Output Group ====//
+void GroupLayout::AddSkinOutput( SkinOutput & skin_output )
+{
+    assert( m_Group && m_Screen );
+    int oldBW = GetButtonWidth();
+
+    vector< Fl_Button* > buttons;
+
+    // Size of continuity and order output text boxes
+    int iw = 30;
+    // Size of CX label buttons
+    int cxW = 20;
+    // Size of Set label buttons
+    int setW = 25;
+    // Size of Order label button
+    int ordW = oldBW - iw;
+
+    // Space to skip to properly center elements
+    int skipw = ( m_Group->w() - ( 3 * iw + ordW + 2 * cxW + 2 * setW ) ) / 2;
+
+    //==== Left CX Button ====//
+    SetButtonWidth( cxW );
+    buttons.push_back( AddParmButton( "CX" ) );
+
+    //==== Add Left Continuity Output ====//
+    Fl_Output* contL = new Fl_Output( m_X, m_Y, iw, m_StdHeight );
+    contL->color( ( Fl_Color )23 );
+    contL->labelfont( 1 );
+    contL->labelsize( 12 );
+    contL->textfont( 1 );
+    contL->textsize( 12 );
+    m_Group->add( contL );
+    AddX( iw );
+
+    AddX( skipw );
+
+    //==== Left Set Button ====//
+    SetButtonWidth( setW );
+    buttons.push_back( AddParmButton( "Set" ) );
+
+    //==== Order Button ====//
+    SetButtonWidth( ordW );
+    buttons.push_back( AddParmButton( "Order" ) );
+
+    //==== Add Order Output ====//
+    Fl_Output* order = new Fl_Output( m_X, m_Y, iw, m_StdHeight );
+    order->color( ( Fl_Color )23 );
+    order->labelfont( 1 );
+    order->labelsize( 12 );
+    order->textfont( 1 );
+    order->textsize( 12 );
+    m_Group->add( order );
+    AddX( iw );
+
+    //==== Right Set Button ====//
+    SetButtonWidth( setW );
+    buttons.push_back( AddParmButton( "Set" ) );
+
+    AddX( skipw );
+
+    //==== Add Left Continuity Output ====//
+    Fl_Output* contR = new Fl_Output( m_X, m_Y, iw, m_StdHeight );
+    contR->color( ( Fl_Color )23 );
+    contR->labelfont( 1 );
+    contR->labelsize( 12 );
+    contR->textfont( 1 );
+    contR->textsize( 12 );
+    m_Group->add( contR );
+    AddX( iw );
+
+    //==== Right CX Button ====//
+    SetButtonWidth( cxW );
+    buttons.push_back( AddParmButton( "CX" ) );
+
+    AddY( m_StdHeight );
+    NewLineX();
+
+    skin_output.Init( m_Screen, contL, order, contR, buttons );
+    SetButtonWidth( oldBW );
 }

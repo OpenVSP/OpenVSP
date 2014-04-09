@@ -84,11 +84,11 @@ public:
         m_ParentContainer = id;
     }
 
-    string m_Name;
-
 protected:
 
     string m_ID;                                        // Unique ID
+
+    string m_Name;
 
     bool m_LockParmContainerID;
     bool m_LockParmID;

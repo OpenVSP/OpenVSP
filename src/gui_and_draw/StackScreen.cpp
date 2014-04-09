@@ -5,9 +5,9 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "FuselageScreen.h"
+#include "StackScreen.h"
 #include "ScreenMgr.h"
-#include "FuselageGeom.h"
+#include "StackGeom.h"
 #include "EventMgr.h"
 #include "Vehicle.h"
 #include "ParmMgr.h"
@@ -16,7 +16,7 @@
 
 
 //==== Constructor ====//
-FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 550, "Fuselage" )
+StackScreen::StackScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 550, "Stack" )
 {
     m_CurrDisplayGroup = NULL;
 
@@ -25,8 +25,6 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 550, "F
 
     m_DesignLayout.SetGroupAndScreen( design_group, this );
     m_DesignLayout.AddDividerBox( "Design" );
-    m_DesignLayout.AddYGap();
-    m_DesignLayout.AddSlider( m_LengthSlider, "Length", 10, "%6.5f" );
     m_DesignLayout.AddYGap();
     m_DesignLayout.SetButtonWidth( 100 );
     m_DesignLayout.AddSlider( m_NumPntsXSecSlider, "Num Pnts XSec", 33, "%5.0f" );
@@ -134,17 +132,15 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 550, "F
     m_XSecLayout.SetSameLineFlag( false );
 
     m_XSecLayout.SetButtonWidth( 50 );
-    m_XSecLayout.AddSlider( m_XSecXSlider, "X", 1.0, "%6.5f" );
-    m_XSecLayout.AddSlider( m_XSecYSlider, "Y", 1.0, "%6.5f" );
-    m_XSecLayout.AddSlider( m_XSecZSlider, "Z", 1.0, "%6.5f" );
+    m_XSecLayout.AddSlider( m_XSecXDeltaSlider, "Delta X", 10.0, "%6.5f" );
+    m_XSecLayout.AddSlider( m_XSecYDeltaSlider, "Delta Y", 10.0, "%6.5f" );
+    m_XSecLayout.AddSlider( m_XSecZDeltaSlider, "Delta Z", 10.0, "%6.5f" );
     m_XSecLayout.AddYGap();
 
     m_XSecLayout.InitWidthHeightVals();
     m_XSecLayout.AddSlider( m_XSecXRotSlider, "Rot X", 90.0, "%6.5f" );
     m_XSecLayout.AddSlider( m_XSecYRotSlider, "Rot Y", 90.0, "%6.5f" );
     m_XSecLayout.AddSlider( m_XSecZRotSlider, "Rot Z", 90.0, "%6.5f" );
-    m_XSecLayout.AddSlider( m_XSecSpinSlider, "Spin",  90.0, "%6.5f" );
-
     m_XSecLayout.AddYGap();
 
     m_XSecLayout.AddDividerBox( "Type" );
@@ -299,12 +295,12 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 550, "F
 }
 
 //==== Show Pod Screen ====//
-FuselageScreen::~FuselageScreen()
+StackScreen::~StackScreen()
 {
 }
 
 //==== Show Pod Screen ====//
-void FuselageScreen::Show()
+void StackScreen::Show()
 {
     if ( Update() )
     {
@@ -313,12 +309,12 @@ void FuselageScreen::Show()
 }
 
 //==== Update Pod Screen ====//
-bool FuselageScreen::Update()
+bool StackScreen::Update()
 {
     assert( m_ScreenMgr );
 
     Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
-    if ( !geom_ptr || geom_ptr->GetType().m_Type != FUSELAGE_GEOM_TYPE )
+    if ( !geom_ptr || geom_ptr->GetType().m_Type != STACK_GEOM_TYPE )
     {
         Hide();
         return false;
@@ -326,27 +322,41 @@ bool FuselageScreen::Update()
 
     GeomScreen::Update();
 
-    FuselageGeom* fuselage_ptr = dynamic_cast< FuselageGeom* >( geom_ptr );
-    assert( fuselage_ptr );
-
-    //==== Design ====//
-//  m_NumPntsXSecSlider.Update( fuselage_ptr->m_BaseU.GetID() );
-    m_LengthSlider.Update( fuselage_ptr->m_Length.GetID() );
+    StackGeom* stackgeom_ptr = dynamic_cast< StackGeom* >( geom_ptr );
+    assert( stackgeom_ptr );
 
     //==== XSec Index Display ===//
-    int xsid = fuselage_ptr->GetActiveXSecIndex();
+    int xsid = stackgeom_ptr->GetActiveXSecIndex();
     m_XSecIndexSelector.SetIndex( xsid );
 
-    FuseXSec* xs = ( FuseXSec* ) fuselage_ptr->GetXSec( xsid );
+    StackXSec* xs = ( StackXSec* ) stackgeom_ptr->GetXSec( xsid );
     if ( xs )
     {
-        m_XSecXSlider.Update( xs->m_XLocPercent.GetID() );
-        m_XSecYSlider.Update( xs->m_YLocPercent.GetID() );
-        m_XSecZSlider.Update( xs->m_ZLocPercent.GetID() );
+        m_XSecXDeltaSlider.Update( xs->m_XDelta.GetID() );
+        m_XSecYDeltaSlider.Update( xs->m_YDelta.GetID() );
+        m_XSecZDeltaSlider.Update( xs->m_ZDelta.GetID() );
         m_XSecXRotSlider.Update( xs->m_XRotate.GetID() );
         m_XSecYRotSlider.Update( xs->m_YRotate.GetID() );
         m_XSecZRotSlider.Update( xs->m_ZRotate.GetID() );
-        m_XSecSpinSlider.Update( xs->m_Spin.GetID() );
+
+        if ( xsid == 0 )
+        {
+            m_XSecXDeltaSlider.Deactivate();
+            m_XSecYDeltaSlider.Deactivate();
+            m_XSecZDeltaSlider.Deactivate();
+            m_XSecXRotSlider.Deactivate();
+            m_XSecYRotSlider.Deactivate();
+            m_XSecZRotSlider.Deactivate();
+        }
+        else
+        {
+            m_XSecXDeltaSlider.Activate();
+            m_XSecYDeltaSlider.Activate();
+            m_XSecZDeltaSlider.Activate();
+            m_XSecXRotSlider.Activate();
+            m_XSecYRotSlider.Activate();
+            m_XSecZRotSlider.Activate();
+        }
 
         XSecCurve* xsc = xs->GetXSecCurve();
         if ( xsc )
@@ -483,7 +493,7 @@ bool FuselageScreen::Update()
     return true;
 }
 
-void FuselageScreen::DisplayGroup( GroupLayout* group )
+void StackScreen::DisplayGroup( GroupLayout* group )
 {
     if ( m_CurrDisplayGroup == group )
     {
@@ -510,46 +520,46 @@ void FuselageScreen::DisplayGroup( GroupLayout* group )
     }
 }
 
-void FuselageScreen::GuiDeviceCallBack( GuiDevice* gui_device )
+void StackScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 {
     //==== Find Fuselage Ptr ====//
     Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
-    if ( !geom_ptr || geom_ptr->GetType().m_Type != FUSELAGE_GEOM_TYPE )
+    if ( !geom_ptr || geom_ptr->GetType().m_Type != STACK_GEOM_TYPE )
     {
         return;
     }
-    FuselageGeom* fuselage_ptr = dynamic_cast< FuselageGeom* >( geom_ptr );
-    assert( fuselage_ptr );
+    StackGeom* stackgeom_ptr = dynamic_cast< StackGeom* >( geom_ptr );
+    assert( stackgeom_ptr );
 
     if ( gui_device == &m_XSecIndexSelector )
     {
-        fuselage_ptr->SetActiveXSecIndex( m_XSecIndexSelector.GetIndex() );
+        stackgeom_ptr->SetActiveXSecIndex( m_XSecIndexSelector.GetIndex() );
     }
     else if ( gui_device == &m_XSecTypeChoice )
     {
         int t = m_XSecTypeChoice.GetVal();
-        fuselage_ptr->SetActiveXSecType( t );
+        stackgeom_ptr->SetActiveXSecType( t );
     }
     else if ( gui_device == &m_CutXSec )
     {
-        fuselage_ptr->CutActiveXSec();
+        stackgeom_ptr->CutActiveXSec();
     }
     else if ( gui_device == &m_CopyXSec   )
     {
-        fuselage_ptr->CopyActiveXSec();
+        stackgeom_ptr->CopyActiveXSec();
     }
     else if ( gui_device == &m_PasteXSec  )
     {
-        fuselage_ptr->PasteActiveXSec();
+        stackgeom_ptr->PasteActiveXSec();
     }
     else if ( gui_device == &m_InsertXSec  )
     {
-        fuselage_ptr->InsertXSec( );
+        stackgeom_ptr->InsertXSec( );
     }
     else if ( gui_device == &m_ReadFuseFileButton  )
     {
-        int xsid = fuselage_ptr->GetActiveXSecIndex();
-        XSec* xs = fuselage_ptr->GetXSec( xsid );
+        int xsid = stackgeom_ptr->GetActiveXSecIndex();
+        XSec* xs = stackgeom_ptr->GetXSec( xsid );
         if ( xs )
         {
             XSecCurve* xsc = xs->GetXSecCurve();
@@ -563,15 +573,15 @@ void FuselageScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 
                     file_xs->ReadXsecFile( newfile );
                     file_xs->Update();
-                    fuselage_ptr->Update();
+                    stackgeom_ptr->Update();
                 }
             }
         }
     }
     else if ( gui_device == &m_AfReadFileButton   )
     {
-        int xsid = fuselage_ptr->GetActiveXSecIndex();
-        XSec* xs = fuselage_ptr->GetXSec( xsid );
+        int xsid = stackgeom_ptr->GetActiveXSecIndex();
+        XSec* xs = stackgeom_ptr->GetXSec( xsid );
         if ( xs )
         {
             XSecCurve* xsc = xs->GetXSecCurve();
@@ -585,7 +595,7 @@ void FuselageScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 
                     affile_xs->ReadFile( newfile );
                     affile_xs->Update();
-                    fuselage_ptr->Update();
+                    stackgeom_ptr->Update();
                 }
             }
         }
@@ -595,7 +605,7 @@ void FuselageScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 }
 
 //==== Fltk  Callbacks ====//
-void FuselageScreen::CallBack( Fl_Widget *w )
+void StackScreen::CallBack( Fl_Widget *w )
 {
     GeomScreen::CallBack( w );
 }

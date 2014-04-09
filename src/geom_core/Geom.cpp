@@ -255,7 +255,7 @@ GeomXForm::GeomXForm( Vehicle* vehicle_ptr ) : GeomBase( vehicle_ptr )
     m_ZRelRot.SetDescript( "Z Rotation Relative to Parent" );
 
     // Attachment Parms
-    m_AbsRelFlag.Init( "Abs_Or_Relitive_flag", "XForm", this, ABSOLUTE_XFORM, ABSOLUTE_XFORM, RELATIVE_XFORM, false );
+    m_AbsRelFlag.Init( "Abs_Or_Relitive_flag", "XForm", this, RELATIVE_XFORM, ABSOLUTE_XFORM, RELATIVE_XFORM, false );
     m_TransAttachFlag.Init( "Trans_Attach_Flag", "Attach", this, ATTACH_TRANS_NONE, ATTACH_TRANS_NONE, ATTACH_TRANS_UV, false );
     m_TransAttachFlag.SetDescript( "Determines relative translation coordinate system" );
     m_RotAttachFlag.Init( "Rots_Attach_Flag", "Attach", this, ATTACH_ROT_NONE, ATTACH_ROT_NONE, ATTACH_ROT_UV, false );
@@ -853,6 +853,8 @@ void Geom::CopyFrom( Geom* geom )
 //==== Update ====//
 void Geom::Update()
 {
+    m_LateUpdateFlag = false;
+
     Scale();
     GeomXForm::Update();
 

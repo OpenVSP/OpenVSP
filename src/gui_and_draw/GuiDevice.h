@@ -24,6 +24,7 @@
 #include <FL/Fl_Counter.H>
 
 #include "Vec3d.h"
+#include "Parm.h"
 #include <vector>
 #include <string>
 #include <map>
@@ -64,6 +65,10 @@ class VspScreen;
 //  IndexSelector   (IntParm)       Display and set integers. Composed of input and 5 arrow buttons.
 //  ColorPicker     (None)          Display, edit and pick colors.  Composed of buttons and sliders.
 //                                      Triggers a GuiDeviceCallBack to VspScreen
+//  ParmPicker      (None)          Container, group, and parm pulldowns for selecting parameters
+//  DriverGroupBank (None)          Bank of SliderInputs with radio button controls to implement driver group
+//  SkinControl     (2 Parms)       Compound control for fuselage skinning
+//  SkinOutput      (None)          Fuselage skinning compound output
 
 
 class GuiDevice
@@ -756,6 +761,115 @@ protected:
     string m_ParmIDChoice;
 
 };
+
+class DriverGroupBank : public GuiDevice
+{
+public:
+    DriverGroupBank( );
+
+    virtual void DeviceCB( Fl_Widget *w );
+
+    virtual void Init( VspScreen* screen, vector< vector < Fl_Button* > > buttons, vector< SliderAdjRangeInput* > sliders );
+
+    virtual void Update( );
+    virtual void Activate();
+    virtual void Deactivate();
+
+    virtual bool WhichButton( Fl_Widget *w, int &imatch, int &jmatch );
+
+    void SetDriverGroup( DriverGroup *dg )
+    {
+        m_DriverGroup = dg;
+    }
+    DriverGroup* GetDriverGroup()
+    {
+        return m_DriverGroup;
+    }
+
+protected:
+
+    virtual void SetValAndLimits( Parm* parm_ptr )      {}
+
+    vector< vector < Fl_Button* > > m_Buttons;
+    vector< SliderAdjRangeInput* > m_Sliders;
+
+    DriverGroup *m_DriverGroup;
+};
+
+class SkinControl : public GuiDevice
+{
+public:
+	SkinControl( );
+
+    virtual void DeviceCB( Fl_Widget *w );
+
+    virtual void Init( VspScreen* screen,
+    Fl_Check_Button* contButtonL,
+    Fl_Check_Button* contButtonR,
+    Fl_Check_Button* setButtonL,
+    Fl_Check_Button* setButtonR,
+    Fl_Slider* sliderL,
+    Fl_Slider* sliderR,
+    Fl_Input* inputL,
+    Fl_Input* inputR,
+    Fl_Button* parm_button,
+    double range, const char* format);
+
+    virtual void Update( const string& parmL_id, const string& parmR_id );
+    virtual void Activate();
+    virtual void Deactivate();
+
+protected:
+
+    virtual void SetValAndLimits( Parm* parm_ptr )      {}
+
+    Fl_Check_Button* m_ContButtonL;
+    Fl_Check_Button* m_ContButtonR;
+    Fl_Check_Button* m_SetButtonL;
+    Fl_Check_Button* m_SetButtonR;
+
+    Slider m_SliderL;
+    Slider m_SliderR;
+    Input  m_InputL;
+    Input  m_InputR;
+
+    ParmButton m_ParmButton;
+};
+
+
+//==== Fuselage Skinning Output =====//
+class SkinOutput : public GuiDevice
+{
+public:
+
+	enum { C0, C1, C2, NONE };
+
+    SkinOutput();
+    virtual void DeviceCB( Fl_Widget* w );
+
+    virtual void Init( VspScreen* screen, Fl_Output* contL, Fl_Output* order, Fl_Output* contR, const vector< Fl_Button* > &buttons );
+    virtual void Update( int contL, int order, int contR );
+
+    virtual void Activate();
+    virtual void Deactivate();
+
+    virtual string ContStr( int cont );
+
+protected:
+
+    virtual void SetValAndLimits( Parm* parm_ptr )      {}
+
+    string m_contL;
+    string m_order;
+    string m_contR;
+
+    Fl_Output* m_ContLOutput;
+    Fl_Output* m_OrderOutput;
+    Fl_Output* m_ContROutput;
+
+    vector< Fl_Button* > m_Buttons;
+};
+
 
 
 #endif // !defined(GUIDEVICE__INCLUDED_)

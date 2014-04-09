@@ -18,8 +18,10 @@
 #include "geomBrowserScreen.h"
 #include "PodScreen.h"
 #include "FuselageScreen.h"
+#include "WingScreen.h"
 #include "BlankScreen.h"
 #include "MeshScreen.h"
+#include "StackScreen.h"
 
 using std::string;
 using std::vector;
@@ -30,7 +32,8 @@ public:
     ManageGeomScreen( ScreenMgr* mgr );
     virtual ~ManageGeomScreen();
 
-    enum { POD_GEOM_SCREEN, FUSELAGE_GEOM_SCREEN, BLANK_GEOM_SCREEN, MESH_GEOM_SCREEN, NUM_GEOM_SCREENS };
+    enum { POD_GEOM_SCREEN, FUSELAGE_GEOM_SCREEN, MS_WING_GEOM_SCREEN, BLANK_GEOM_SCREEN,
+        MESH_GEOM_SCREEN, STACK_GEOM_SCREEN, NUM_GEOM_SCREENS };
 
     void Show();
     void Hide();

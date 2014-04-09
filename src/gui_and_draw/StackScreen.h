@@ -8,8 +8,8 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(FUSELAGESCREEN__INCLUDED_)
-#define FUSELAGESCREEN__INCLUDED_
+#if !defined(STACKSCREEN__INCLUDED_)
+#define STACKSCREEN__INCLUDED_
 
 #include "ScreenBase.h"
 #include "GuiDevice.h"
@@ -17,11 +17,11 @@
 
 #include <FL/Fl.H>
 
-class FuselageScreen : public GeomScreen
+class StackScreen : public GeomScreen
 {
 public:
-    FuselageScreen( ScreenMgr* mgr );
-    virtual ~FuselageScreen();
+    StackScreen( ScreenMgr* mgr );
+    virtual ~StackScreen();
 
     virtual void Show();
     virtual bool Update();
@@ -33,7 +33,6 @@ protected:
 
     GroupLayout m_DesignLayout;
 
-    SliderAdjRangeInput m_LengthSlider;
     SliderInput m_NumPntsXSecSlider;
 
     GroupLayout m_SkinLayout;
@@ -74,13 +73,12 @@ protected:
     TriggerButton m_CopyXSec;
     TriggerButton m_PasteXSec;
 
-    FractParmSlider m_XSecXSlider;
-    FractParmSlider m_XSecYSlider;
-    FractParmSlider m_XSecZSlider;
+    SliderAdjRangeInput m_XSecXDeltaSlider;
+    SliderAdjRangeInput m_XSecYDeltaSlider;
+    SliderAdjRangeInput m_XSecZDeltaSlider;
     SliderAdjRangeInput m_XSecXRotSlider;
     SliderAdjRangeInput m_XSecYRotSlider;
     SliderAdjRangeInput m_XSecZRotSlider;
-    SliderAdjRangeInput m_XSecSpinSlider;
 
     Choice m_XSecTypeChoice;
 
@@ -159,4 +157,4 @@ protected:
 };
 
 
-#endif // !defined(FUSELAGESCREEN__INCLUDED_)
+#endif // !defined(STACKSCREEN__INCLUDED_)

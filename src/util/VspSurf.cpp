@@ -331,6 +331,7 @@ bool VspJointInfo::FiniteDifferenceFpp() const
 //===== Constructor  =====//
 VspSurf::VspSurf()
 {
+    m_FlipNormal = false;
 }
 
 //===== Destructor  =====//
@@ -449,6 +450,8 @@ Matrix4d VspSurf::CompTransCoordSys( const double &u, const double &w )
 void VspSurf::CreateBodyRevolution( const VspCurve &input_crv )
 {
     eli::geom::surface::create_body_of_revolution( m_Surface, input_crv.GetCurve(), 0, eli::geom::surface::OUTWARD_NORMAL );
+
+    ResetFlipNormal();
 }
 
 void VspSurf::InterpolateManual( const std::vector<VspCurve> &input_crv_vec, const vector<VspJointInfo> &joint_info_vec, bool closed_flag )
@@ -907,6 +910,8 @@ void VspSurf::InterpolateManual( const std::vector<VspCurve> &input_crv_vec, con
 
     // degree reduce patches that don't need to be so high
     DegreeReduceSections( input_crv_vec, closed_flag );
+
+    ResetFlipNormal();
 }
 
 
@@ -965,6 +970,8 @@ void VspSurf::InterpolateLinear( const vector< VspCurve > &input_crv_vec, bool c
 
     // degree reduce patches that don't need to be so high
     DegreeReduceSections( input_crv_vec, closed_flag );
+
+    ResetFlipNormal();
 }
 
 void VspSurf::InterpolatePCHIP( const vector< VspCurve > &input_crv_vec, bool closed_flag )
@@ -1055,6 +1062,8 @@ void VspSurf::InterpolatePCHIP( const vector< VspCurve > &input_crv_vec, bool cl
 
     // degree reduce patches that don't need to be so high
     DegreeReduceSections( input_crv_vec, closed_flag );
+
+    ResetFlipNormal();
 }
 
 void VspSurf::InterpolateCSpline( const vector< VspCurve > &input_crv_vec, bool closed_flag )
@@ -1145,6 +1154,8 @@ void VspSurf::InterpolateCSpline( const vector< VspCurve > &input_crv_vec, bool 
 
     // degree reduce patches that don't need to be so high
     DegreeReduceSections( input_crv_vec, closed_flag );
+
+    ResetFlipNormal();
 }
 
 void VspSurf::CompJointParams( int joint, VspJointInfo &jointInfo ) const
@@ -1590,6 +1601,11 @@ vec3d VspSurf::CompNorm( double u, double v ) const
     vec3d rtn;
     surface_point_type p( m_Surface.normal( u, v ) );
 
+    if ( m_FlipNormal )
+    {
+        p = -p;
+    }
+
     rtn.set_xyz( p.x(), p.y(), p.z() );
     return rtn;
 }
@@ -1637,6 +1653,11 @@ void VspSurf::Tesselate( int num_u, int num_v, vector< vector< vec3d > > & pnts,
             ptmp = m_Surface.f( u[i], v[j] );
             ntmp = m_Surface.normal( u[i], v[j] );
             pnts[i][j].set_xyz( ptmp.x(), ptmp.y(), ptmp.z() );
+
+            if ( m_FlipNormal )
+            {
+                ntmp = -ntmp;
+            }
             norms[i][j].set_xyz( ntmp.x(), ntmp.y(), ntmp.z() );
         }
     }
@@ -1698,6 +1719,10 @@ void VspSurf::Tesselate( const vector<int> &num_u, int num_v, std::vector< vecto
             ptmp = m_Surface.f( u[i], v[j] );
             ntmp = m_Surface.normal( u[i], v[j] );
             pnts[i][j].set_xyz( ptmp.x(), ptmp.y(), ptmp.z() );
+            if ( m_FlipNormal )
+            {
+                ntmp = -ntmp;
+            }
             norms[i][j].set_xyz( ntmp.x(), ntmp.y(), ntmp.z() );
         }
     }

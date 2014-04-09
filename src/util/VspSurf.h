@@ -102,6 +102,10 @@ public:
     bool IsClosedU() const;
     bool IsClosedW() const;
 
+    bool GetFlipNormal() { return m_FlipNormal; }
+    void FlipNormal() { m_FlipNormal = !m_FlipNormal; }
+    void ResetFlipNormal( ) { m_FlipNormal = false; }
+
     Matrix4d CompRotCoordSys( const double &u, const double &w );
     Matrix4d CompTransCoordSys( const double &u, const double &w );
 
@@ -137,6 +141,7 @@ protected:
 
 protected:
 
+    bool m_FlipNormal;
     piecewise_surface_type m_Surface;
 };
 #endif

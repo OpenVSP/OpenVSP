@@ -5,170 +5,189 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "FuselageScreen.h"
+#include "WingScreen.h"
 #include "ScreenMgr.h"
-#include "FuselageGeom.h"
+#include "WingGeom.h"
 #include "EventMgr.h"
 #include "Vehicle.h"
 #include "ParmMgr.h"
+#include "StlHelper.h"
 
 #include <assert.h>
 
 
 //==== Constructor ====//
-FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 550, "Fuselage" )
+WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 565, "Wing" )
 {
     m_CurrDisplayGroup = NULL;
 
-    Fl_Group* design_tab = AddTab( "Design" );
-    Fl_Group* design_group = AddSubGroup( design_tab, 5 );
+    Fl_Group* plan_tab = AddTab( "Plan" );
+    Fl_Group* plan_group = AddSubGroup( plan_tab, 5 );
 
-    m_DesignLayout.SetGroupAndScreen( design_group, this );
-    m_DesignLayout.AddDividerBox( "Design" );
-    m_DesignLayout.AddYGap();
-    m_DesignLayout.AddSlider( m_LengthSlider, "Length", 10, "%6.5f" );
-    m_DesignLayout.AddYGap();
-    m_DesignLayout.SetButtonWidth( 100 );
-    m_DesignLayout.AddSlider( m_NumPntsXSecSlider, "Num Pnts XSec", 33, "%5.0f" );
+    m_PlanLayout.SetGroupAndScreen( plan_group, this );
 
+    m_PlanLayout.AddDividerBox( "Total Planform" );
 
-    Fl_Group* skin_tab = AddTab( "Skinning" );
-    Fl_Group* skin_group = AddSubGroup( skin_tab, 5 );
+    m_PlanLayout.AddSlider( m_PlanSpanSlider, "Span", 10, "%6.5f" );
+    m_PlanLayout.AddSlider( m_PlanProjSpanSlider, "Proj Span", 10, "%6.5f" );
+    m_PlanLayout.AddSlider( m_PlanChordSlider, "Chord", 10, "%6.5f" );
+    m_PlanLayout.AddSlider( m_PlanAreaSlider, "Area", 10, "%6.5f" );
 
-    m_SkinLayout.SetGroupAndScreen( skin_group, this );
+    m_PlanLayout.SetButtonWidth( 100 );
+    m_PlanLayout.AddOutput( m_PlanAROutput, "Aspect Ratio" );
 
-    m_SkinLayout.AddDividerBox( "Skin Segment" );
+    Fl_Group* sect_tab = AddTab( "Sect" );
+    Fl_Group* sect_group = AddSubGroup( sect_tab, 5 );
 
-    m_SkinLayout.AddIndexSelector( m_SkinIndexSelector );
+    m_SectionLayout.SetGroupAndScreen( sect_group, this );
+    m_SectionLayout.AddDividerBox( "Wing Section" );
 
+    m_SectionLayout.AddIndexSelector( m_SectIndexSelector );
+    m_SectionLayout.AddYGap();
 
-    m_SkinLayout.AddYGap();
+    m_SectionLayout.SetFitWidthFlag( false );
+    m_SectionLayout.SetSameLineFlag( true );
 
-    m_SkinLayout.SetButtonWidth( 75 );
+    m_SectionLayout.SetButtonWidth( m_SectionLayout.GetRemainX() / 5 );
 
-    int oldDH = m_SkinLayout.GetDividerHeight();
-    m_SkinLayout.SetDividerHeight( m_SkinLayout.GetStdHeight() );
+    m_SectionLayout.AddButton( m_SplitSectButton, "Split" );
+    m_SectionLayout.AddButton( m_CutSectButton, "Cut" );
+    m_SectionLayout.AddButton( m_CopySectButton, "Copy" );
+    m_SectionLayout.AddButton( m_PasteSectButton, "Paste" );
+    m_SectionLayout.AddButton( m_InsertSectButton, "Insert" );
 
-    m_SkinLayout.AddYGap();
+    m_SectionLayout.ForceNewLine();
 
-    m_SkinLayout.SetSameLineFlag( true );
-    m_SkinLayout.AddDividerBox( "Top Side", m_SkinLayout.GetButtonWidth() );
-    m_SkinLayout.SetFitWidthFlag( false );
-    m_SkinLayout.AddButton( m_AllSymButton, "All Sym" );
-    m_SkinLayout.ForceNewLine();
-    m_SkinLayout.SetFitWidthFlag( true );
-    m_SkinLayout.SetSameLineFlag( false );
+    m_SectionLayout.SetFitWidthFlag( true );
+    m_SectionLayout.SetSameLineFlag( false );
 
-    m_SkinLayout.AddSkinOutput( m_TopSkinOutput );
-    m_SkinLayout.AddSkinControl( m_TopAngleSkinControl, "Angle", 30, "%f6.5");
-    m_SkinLayout.AddSkinControl( m_TopStrengthSkinControl, "Strength", 30, "%f6.5");
-    m_SkinLayout.AddSkinControl( m_TopCurvatureSkinControl, "Curvature", 30, "%f6.5");
+    m_SectionLayout.SetButtonWidth( 100 );
+    m_SectionLayout.AddOutput( m_NumSectOutput, "Num Sections" );
+    m_SectionLayout.AddYGap();
 
-    m_SkinLayout.AddYGap();
-    m_SkinLayout.AddDividerBox( "Right Side" );
+    m_SectionLayout.SetButtonWidth( 74 );
 
-    m_SkinLayout.AddSkinOutput( m_RightSkinOutput );
-    m_SkinLayout.AddSkinControl( m_RightAngleSkinControl, "Angle", 30, "%f6.5");
-    m_SkinLayout.AddSkinControl( m_RightStrengthSkinControl, "Strength", 30, "%f6.5");
-    m_SkinLayout.AddSkinControl( m_RightCurvatureSkinControl, "Curvature", 30, "%f6.5");
+    m_SectionLayout.AddDividerBox( "Num Interpolated XSecs" );
 
-    m_SkinLayout.AddYGap();
-    m_SkinLayout.SetSameLineFlag( true );
-    m_SkinLayout.AddDividerBox( "Bottom Side", m_SkinLayout.GetButtonWidth() );
-    m_SkinLayout.SetFitWidthFlag( false );
-    m_SkinLayout.AddButton( m_TBSymButton, "T/B Sym" );
-    m_SkinLayout.ForceNewLine();
-    m_SkinLayout.SetFitWidthFlag( true );
-    m_SkinLayout.SetSameLineFlag( false );
-
-    m_SkinLayout.AddSkinOutput( m_BottomSkinOutput );
-    m_SkinLayout.AddSkinControl( m_BottomAngleSkinControl, "Angle", 30, "%f6.5");
-    m_SkinLayout.AddSkinControl( m_BottomStrengthSkinControl, "Strength", 30, "%f6.5");
-    m_SkinLayout.AddSkinControl( m_BottomCurvatureSkinControl, "Curvature", 30, "%f6.5");
-
-    m_SkinLayout.AddYGap();
-    m_SkinLayout.SetSameLineFlag( true );
-    m_SkinLayout.AddDividerBox( "Left Side", m_SkinLayout.GetButtonWidth() );
-    m_SkinLayout.SetFitWidthFlag( false );
-    m_SkinLayout.AddButton( m_RLSymButton, "R/L Sym" );
-    m_SkinLayout.ForceNewLine();
-    m_SkinLayout.SetFitWidthFlag( true );
-    m_SkinLayout.SetSameLineFlag( false );
-
-    m_SkinLayout.AddSkinOutput( m_LeftSkinOutput );
-    m_SkinLayout.AddSkinControl( m_LeftAngleSkinControl, "Angle", 30, "%f6.5");
-    m_SkinLayout.AddSkinControl( m_LeftStrengthSkinControl, "Strength", 30, "%f6.5");
-    m_SkinLayout.AddSkinControl( m_LeftCurvatureSkinControl, "Curvature", 30, "%f6.5");
+    m_SectionLayout.AddSlider( m_NumWSectSlider, "Num Sect", 100, "%5.0f" );
 
 
+    m_SectionLayout.AddYGap();
+
+    m_SectionLayout.AddDividerBox( "Section Planform" );
+
+    vector < string > wsect_driver_labels;
+    wsect_driver_labels.resize( WingDriverGroup::NUM_WSECT_DRIVER );
+
+    wsect_driver_labels[WingDriverGroup::AR_WSECT_DRIVER] = string( "AR" );
+    wsect_driver_labels[WingDriverGroup::SPAN_WSECT_DRIVER] = "Span";
+    wsect_driver_labels[WingDriverGroup::AREA_WSECT_DRIVER] = "Area";
+    wsect_driver_labels[WingDriverGroup::TAPER_WSECT_DRIVER] = "Taper";
+    wsect_driver_labels[WingDriverGroup::AVEC_WSECT_DRIVER] = "Ave C";
+    wsect_driver_labels[WingDriverGroup::ROOTC_WSECT_DRIVER] = "Root C";
+    wsect_driver_labels[WingDriverGroup::TIPC_WSECT_DRIVER] = "Tip C";
+
+    m_SectionLayout.SetButtonWidth( 50 );
+
+    m_WingDriverGroupBank.SetDriverGroup( &m_WingDriverGroup );
+    m_SectionLayout.AddDriverGroupBank( m_WingDriverGroupBank, wsect_driver_labels, 10, "%6.5f" );
+
+    m_SectionLayout.SetButtonWidth( 100 );
+
+    m_SectionLayout.AddOutput( m_SectProjSpanOutput, "Projected Span" );
+
+    m_SectionLayout.AddYGap();
+    m_SectionLayout.AddDividerBox( "Sweep" );
+
+    m_SectionLayout.AddSlider( m_SweepSlider, "Sweep", 10, "%6.5f" );
+    m_SectionLayout.AddSlider( m_SweepLocSlider, "Sweep Loc", 10, "%6.5f" );
+
+    m_SectionLayout.AddYGap();
+    m_SectionLayout.AddDividerBox( "Washout" );
+    m_SectionLayout.AddSlider( m_WashoutSlider, "Washout", 10, "%6.5f" );
+    m_SectionLayout.AddSlider( m_WashoutLocSlider, "Washout Loc", 10, "%6.5f" );
+
+    m_SectionLayout.SetFitWidthFlag( false );
+    m_SectionLayout.SetSameLineFlag( true );
+    m_SectionLayout.AddLabel( "Reference:", 170 );
+    m_SectionLayout.SetButtonWidth( m_SectionLayout.GetRemainX() / 2 );
+    m_SectionLayout.AddButton( m_WashoutRelativeToggle, "Rel" );
+    m_SectionLayout.AddButton( m_WashoutAbsoluteToggle, "Abs" );
+    m_SectionLayout.ForceNewLine();
+
+    m_WashoutAbsRelToggle.Init( this );
+    m_WashoutAbsRelToggle.AddButton( m_WashoutRelativeToggle.GetFlButton() );
+    m_WashoutAbsRelToggle.AddButton( m_WashoutAbsoluteToggle.GetFlButton() );
+
+    m_SectionLayout.SetFitWidthFlag( true );
+    m_SectionLayout.SetSameLineFlag( false );
+
+    m_SectionLayout.AddYGap();
+    m_SectionLayout.AddDividerBox( "Dihedral" );
+    m_SectionLayout.AddSlider( m_DihedralSlider, "Dihedral", 10, "%6.5f" );
 
 
-    m_SkinLayout.SetDividerHeight( oldDH );
+    m_SectionLayout.SetFitWidthFlag( false );
+    m_SectionLayout.SetSameLineFlag( true );
+    m_SectionLayout.AddLabel( "Reference:", 170 );
+    m_SectionLayout.SetButtonWidth( m_SectionLayout.GetRemainX() / 2 );
+    m_SectionLayout.AddButton( m_DihedralRelativeToggle, "Rel" );
+    m_SectionLayout.AddButton( m_DihedralAbsoluteToggle, "Abs" );
+    m_SectionLayout.ForceNewLine();
+
+    m_DihedralAbsRelToggle.Init( this );
+    m_DihedralAbsRelToggle.AddButton( m_DihedralRelativeToggle.GetFlButton() );
+    m_DihedralAbsRelToggle.AddButton( m_DihedralAbsoluteToggle.GetFlButton() );
 
 
+    m_SectionLayout.SetButtonWidth( 74 );
 
 
-    Fl_Group* xsec_tab = AddTab( "XSec" );
-    Fl_Group* xsec_group = AddSubGroup( xsec_tab, 5 );
+    Fl_Group* af_tab = AddTab( "Airfoil" );
+    Fl_Group* af_group = AddSubGroup( af_tab, 5 );
 
-    m_XSecLayout.SetGroupAndScreen( xsec_group, this );
-    m_XSecLayout.AddDividerBox( "Cross Section" );
+    m_AfLayout.SetGroupAndScreen( af_group, this );
+    m_AfLayout.AddDividerBox( "Airfoil Section" );
 
-    m_XSecLayout.AddIndexSelector( m_XSecIndexSelector );
-    m_XSecLayout.AddYGap();
+    m_AfLayout.AddIndexSelector( m_AfIndexSelector );
+    m_AfLayout.AddYGap();
 
-    m_XSecLayout.SetFitWidthFlag( false );
-    m_XSecLayout.SetSameLineFlag( true );
-    m_XSecLayout.SetButtonWidth( ( m_XFormLayout.GetRemainX() - 30 ) / 4 );
-    m_XSecLayout.AddButton( m_InsertXSec, "Insert" );
-    m_XSecLayout.AddX( 10 );
-    m_XSecLayout.AddButton( m_CutXSec, "Cut" );
-    m_XSecLayout.AddX( 10 );
-    m_XSecLayout.AddButton( m_CopyXSec, "Copy" );
-    m_XSecLayout.AddX( 10 );
-    m_XSecLayout.AddButton( m_PasteXSec, "Paste" );
-    m_XSecLayout.ForceNewLine();
-    m_XSecLayout.AddYGap();
+    m_AfLayout.SetFitWidthFlag( false );
+    m_AfLayout.SetSameLineFlag( true );
+    m_AfLayout.SetButtonWidth( ( m_AfLayout.GetRemainX() - 10 ) / 2 );
+    m_AfLayout.AddButton( m_CopyAfButton, "Copy" );
+    m_AfLayout.AddX( 10 );
+    m_AfLayout.AddButton( m_PasteAfButton, "Paste" );
+    m_AfLayout.ForceNewLine();
+    m_AfLayout.AddYGap();
 
-    m_XSecLayout.SetFitWidthFlag( true );
-    m_XSecLayout.SetSameLineFlag( false );
+    m_AfLayout.SetFitWidthFlag( true );
+    m_AfLayout.SetSameLineFlag( false );
 
-    m_XSecLayout.SetButtonWidth( 50 );
-    m_XSecLayout.AddSlider( m_XSecXSlider, "X", 1.0, "%6.5f" );
-    m_XSecLayout.AddSlider( m_XSecYSlider, "Y", 1.0, "%6.5f" );
-    m_XSecLayout.AddSlider( m_XSecZSlider, "Z", 1.0, "%6.5f" );
-    m_XSecLayout.AddYGap();
+    m_AfLayout.AddYGap();
 
-    m_XSecLayout.InitWidthHeightVals();
-    m_XSecLayout.AddSlider( m_XSecXRotSlider, "Rot X", 90.0, "%6.5f" );
-    m_XSecLayout.AddSlider( m_XSecYRotSlider, "Rot Y", 90.0, "%6.5f" );
-    m_XSecLayout.AddSlider( m_XSecZRotSlider, "Rot Z", 90.0, "%6.5f" );
-    m_XSecLayout.AddSlider( m_XSecSpinSlider, "Spin",  90.0, "%6.5f" );
+    m_AfLayout.AddDividerBox( "Type" );
 
-    m_XSecLayout.AddYGap();
-
-    m_XSecLayout.AddDividerBox( "Type" );
-
-    m_XSecTypeChoice.AddItem( "POINT" );
-    m_XSecTypeChoice.AddItem( "CIRCLE" );
-    m_XSecTypeChoice.AddItem( "ELLIPSE" );
-    m_XSecTypeChoice.AddItem( "SUPER_ELLIPSE" );
-    m_XSecTypeChoice.AddItem( "ROUNDED_RECTANGLE" );
-    m_XSecTypeChoice.AddItem( "GENERAL_FUSE" );
-    m_XSecTypeChoice.AddItem( "FUSE_FILE" );
-    m_XSecTypeChoice.AddItem( "FOUR_SERIES" );
-    m_XSecTypeChoice.AddItem( "SIX_SERIES" );
-    m_XSecTypeChoice.AddItem( "BICONVEX" );
-    m_XSecTypeChoice.AddItem( "WEDGE" );
-    m_XSecTypeChoice.AddItem( "BEZIER" );
-    m_XSecTypeChoice.AddItem( "AF_FILE" );
-    m_XSecLayout.AddChoice( m_XSecTypeChoice, "Choose Type:" );
+    m_AfTypeChoice.AddItem( "POINT" );
+    m_AfTypeChoice.AddItem( "CIRCLE" );
+    m_AfTypeChoice.AddItem( "ELLIPSE" );
+    m_AfTypeChoice.AddItem( "SUPER_ELLIPSE" );
+    m_AfTypeChoice.AddItem( "ROUNDED_RECTANGLE" );
+    m_AfTypeChoice.AddItem( "GENERAL_FUSE" );
+    m_AfTypeChoice.AddItem( "FUSE_FILE" );
+    m_AfTypeChoice.AddItem( "FOUR_SERIES" );
+    m_AfTypeChoice.AddItem( "SIX_SERIES" );
+    m_AfTypeChoice.AddItem( "BICONVEX" );
+    m_AfTypeChoice.AddItem( "WEDGE" );
+    m_AfTypeChoice.AddItem( "BEZIER" );
+    m_AfTypeChoice.AddItem( "AF_FILE" );
+    m_AfLayout.AddChoice( m_AfTypeChoice, "Choose Type:" );
 
     //==== Location To Start XSec Layouts ====//
-    int start_y = m_XSecLayout.GetY();
+    int start_y = m_AfLayout.GetY();
 
     //==== Super XSec ====//
-    m_SuperGroup.SetGroupAndScreen( AddSubGroup( xsec_tab, 5 ), this );
+    m_SuperGroup.SetGroupAndScreen( AddSubGroup( af_tab, 5 ), this );
     m_SuperGroup.SetY( start_y );
     m_SuperGroup.AddYGap();
     m_SuperGroup.AddSlider( m_SuperHeightSlider, "Height", 10, "%6.5f" );
@@ -178,20 +197,20 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 550, "F
     m_SuperGroup.AddSlider( m_SuperNSlider, "N", 10, "%6.5f" );
 
     //==== Circle XSec ====//
-    m_CircleGroup.SetGroupAndScreen( AddSubGroup( xsec_tab, 5 ), this );
+    m_CircleGroup.SetGroupAndScreen( AddSubGroup( af_tab, 5 ), this );
     m_CircleGroup.SetY( start_y );
     m_CircleGroup.AddYGap();
     m_CircleGroup.AddSlider(  m_DiameterSlider, "Diameter", 10, "%6.5f" );
 
     //==== Ellipse XSec ====//
-    m_EllipseGroup.SetGroupAndScreen( AddSubGroup( xsec_tab, 5 ), this );
+    m_EllipseGroup.SetGroupAndScreen( AddSubGroup( af_tab, 5 ), this );
     m_EllipseGroup.SetY( start_y );
     m_EllipseGroup.AddYGap();
     m_EllipseGroup.AddSlider(  m_EllipseHeightSlider, "Height", 10, "%6.5f" );
     m_EllipseGroup.AddSlider(  m_EllipseWidthSlider, "Width", 10, "%6.5f" );
 
     //==== Rounded Rect ====//
-    m_RoundedRectGroup.SetGroupAndScreen( AddSubGroup( xsec_tab, 5 ), this );
+    m_RoundedRectGroup.SetGroupAndScreen( AddSubGroup( af_tab, 5 ), this );
     m_RoundedRectGroup.SetY( start_y );
     m_RoundedRectGroup.AddYGap();
     m_RoundedRectGroup.AddSlider( m_RRHeightSlider, "Height", 10, "%6.5f" );
@@ -200,7 +219,7 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 550, "F
     m_RoundedRectGroup.AddSlider( m_RRRadiusSlider, "Radius", 10, "%6.5f" );
 
     //==== General Fuse XSec ====//
-    m_GenGroup.SetGroupAndScreen( AddSubGroup( xsec_tab, 5 ), this );
+    m_GenGroup.SetGroupAndScreen( AddSubGroup( af_tab, 5 ), this );
     m_GenGroup.SetY( start_y );
     m_GenGroup.AddSlider( m_GenHeightSlider, "Height", 10, "%6.5f" );
     m_GenGroup.AddSlider( m_GenWidthSlider, "Width", 10, "%6.5f" );
@@ -217,7 +236,7 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 550, "F
     m_GenGroup.AddSlider( m_GenLowStrSlider, "LowStr", 1, "%7.5f" );
 
     //==== Four Series AF ====//
-    m_FourSeriesGroup.SetGroupAndScreen( AddSubGroup( xsec_tab, 5 ), this );
+    m_FourSeriesGroup.SetGroupAndScreen( AddSubGroup( af_tab, 5 ), this );
     m_FourSeriesGroup.SetY( start_y );
     m_FourSeriesGroup.AddYGap();
     m_FourSeriesGroup.AddOutput( m_FourNameOutput, "Name" );
@@ -231,7 +250,7 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 550, "F
     m_FourSeriesGroup.AddButton( m_FourInvertButton, "Invert Airfoil" );
 
     //==== Sex Series AF ====//
-    m_SixSeriesGroup.SetGroupAndScreen( AddSubGroup( xsec_tab, 5 ), this );
+    m_SixSeriesGroup.SetGroupAndScreen( AddSubGroup( af_tab, 5 ), this );
     m_SixSeriesGroup.SetY( start_y );
     m_SixSeriesGroup.AddYGap();
     m_SixSeriesGroup.AddOutput( m_SixNameOutput, "Name" );
@@ -258,14 +277,14 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 550, "F
     m_SixSeriesGroup.AddButton( m_SixInvertButton, "Invert Airfoil" );
 
     //==== Biconvex AF ====//
-    m_BiconvexGroup.SetGroupAndScreen( AddSubGroup( xsec_tab, 5 ), this );
+    m_BiconvexGroup.SetGroupAndScreen( AddSubGroup( af_tab, 5 ), this );
     m_BiconvexGroup.SetY( start_y );
     m_BiconvexGroup.AddYGap();
     m_BiconvexGroup.AddSlider( m_BiconvexChordSlider, "Chord", 10, "%7.3f" );
     m_BiconvexGroup.AddSlider( m_BiconvexThickChordSlider, "T/C", 1, "%7.5f" );
 
     //==== Wedge AF ====//
-    m_WedgeGroup.SetGroupAndScreen(  AddSubGroup( xsec_tab, 5 ), this );
+    m_WedgeGroup.SetGroupAndScreen(  AddSubGroup( af_tab, 5 ), this );
     m_WedgeGroup.SetY( start_y );
     m_WedgeGroup.AddYGap();
     m_WedgeGroup.AddSlider( m_WedgeChordSlider, "Chord", 10, "%7.3f" );
@@ -274,7 +293,7 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 550, "F
     m_WedgeGroup.AddSlider( m_WedgeThickLocSlider, "Thick_Loc", 1, "%7.5f" );
 
     //==== Fuse File ====//
-    m_FuseFileGroup.SetGroupAndScreen( AddSubGroup( xsec_tab, 5 ), this );
+    m_FuseFileGroup.SetGroupAndScreen( AddSubGroup( af_tab, 5 ), this );
     m_FuseFileGroup.SetY( start_y );
     m_FuseFileGroup.AddYGap();
     m_FuseFileGroup.AddButton( m_ReadFuseFileButton, "Read File" );
@@ -283,7 +302,7 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 550, "F
     m_FuseFileGroup.AddSlider( m_FileWidthSlider, "Width", 10, "%7.3f" );
 
     //==== Airfoil File ====//
-    m_AfFileGroup.SetGroupAndScreen( AddSubGroup( xsec_tab, 5 ), this );
+    m_AfFileGroup.SetGroupAndScreen( AddSubGroup( af_tab, 5 ), this );
     m_AfFileGroup.SetY( start_y );
     m_AfFileGroup.AddYGap();
     m_AfFileGroup.AddButton( m_AfReadFileButton, "Read File" );
@@ -298,13 +317,13 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 550, "F
 
 }
 
-//==== Show Pod Screen ====//
-FuselageScreen::~FuselageScreen()
+//==== Show Wing Screen ====//
+WingScreen::~WingScreen()
 {
 }
 
-//==== Show Pod Screen ====//
-void FuselageScreen::Show()
+//==== Show Wing Screen ====//
+void WingScreen::Show()
 {
     if ( Update() )
     {
@@ -312,13 +331,13 @@ void FuselageScreen::Show()
     }
 }
 
-//==== Update Pod Screen ====//
-bool FuselageScreen::Update()
+//==== Update Wing Screen ====//
+bool WingScreen::Update()
 {
     assert( m_ScreenMgr );
 
     Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
-    if ( !geom_ptr || geom_ptr->GetType().m_Type != FUSELAGE_GEOM_TYPE )
+    if ( !geom_ptr || geom_ptr->GetType().m_Type != MS_WING_GEOM_TYPE )
     {
         Hide();
         return false;
@@ -326,34 +345,24 @@ bool FuselageScreen::Update()
 
     GeomScreen::Update();
 
-    FuselageGeom* fuselage_ptr = dynamic_cast< FuselageGeom* >( geom_ptr );
-    assert( fuselage_ptr );
+    m_WingDriverGroupBank.Update();
 
-    //==== Design ====//
-//  m_NumPntsXSecSlider.Update( fuselage_ptr->m_BaseU.GetID() );
-    m_LengthSlider.Update( fuselage_ptr->m_Length.GetID() );
+    WingGeom* wing_ptr = dynamic_cast< WingGeom* >( geom_ptr );
+    assert( wing_ptr );
 
     //==== XSec Index Display ===//
-    int xsid = fuselage_ptr->GetActiveXSecIndex();
-    m_XSecIndexSelector.SetIndex( xsid );
+    int xsid = wing_ptr->GetActiveXSecIndex();
+    m_AfIndexSelector.SetIndex( xsid );
 
-    FuseXSec* xs = ( FuseXSec* ) fuselage_ptr->GetXSec( xsid );
+    FuseXSec* xs = ( FuseXSec* ) wing_ptr->GetXSec( xsid );
     if ( xs )
     {
-        m_XSecXSlider.Update( xs->m_XLocPercent.GetID() );
-        m_XSecYSlider.Update( xs->m_YLocPercent.GetID() );
-        m_XSecZSlider.Update( xs->m_ZLocPercent.GetID() );
-        m_XSecXRotSlider.Update( xs->m_XRotate.GetID() );
-        m_XSecYRotSlider.Update( xs->m_YRotate.GetID() );
-        m_XSecZRotSlider.Update( xs->m_ZRotate.GetID() );
-        m_XSecSpinSlider.Update( xs->m_Spin.GetID() );
-
         XSecCurve* xsc = xs->GetXSecCurve();
         if ( xsc )
         {
-            m_XSecTypeChoice.SetVal( xsc->GetType() );
+            m_AfTypeChoice.SetVal( xsc->GetType() );
 
-            if ( xsc->GetType() == XSecCurve::POINT )
+        	if ( xsc->GetType() == XSecCurve::POINT )
             {
                 DisplayGroup( NULL );
             }
@@ -483,7 +492,7 @@ bool FuselageScreen::Update()
     return true;
 }
 
-void FuselageScreen::DisplayGroup( GroupLayout* group )
+void WingScreen::DisplayGroup( GroupLayout* group )
 {
     if ( m_CurrDisplayGroup == group )
     {
@@ -510,46 +519,38 @@ void FuselageScreen::DisplayGroup( GroupLayout* group )
     }
 }
 
-void FuselageScreen::GuiDeviceCallBack( GuiDevice* gui_device )
+void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 {
     //==== Find Fuselage Ptr ====//
     Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
-    if ( !geom_ptr || geom_ptr->GetType().m_Type != FUSELAGE_GEOM_TYPE )
+    if ( !geom_ptr || geom_ptr->GetType().m_Type != MS_WING_GEOM_TYPE )
     {
         return;
     }
-    FuselageGeom* fuselage_ptr = dynamic_cast< FuselageGeom* >( geom_ptr );
-    assert( fuselage_ptr );
+    WingGeom* wing_ptr = dynamic_cast< WingGeom* >( geom_ptr );
+    assert( wing_ptr );
 
-    if ( gui_device == &m_XSecIndexSelector )
+    if ( gui_device == &m_AfIndexSelector )
     {
-        fuselage_ptr->SetActiveXSecIndex( m_XSecIndexSelector.GetIndex() );
+        wing_ptr->SetActiveXSecIndex( m_AfIndexSelector.GetIndex() );
     }
-    else if ( gui_device == &m_XSecTypeChoice )
+    else if ( gui_device == &m_AfTypeChoice )
     {
-        int t = m_XSecTypeChoice.GetVal();
-        fuselage_ptr->SetActiveXSecType( t );
+        int t = m_AfTypeChoice.GetVal();
+        wing_ptr->SetActiveXSecType( t );
     }
-    else if ( gui_device == &m_CutXSec )
+    else if ( gui_device == &m_CopyAfButton   )
     {
-        fuselage_ptr->CutActiveXSec();
+        wing_ptr->CopyActiveXSec();
     }
-    else if ( gui_device == &m_CopyXSec   )
+    else if ( gui_device == &m_PasteAfButton  )
     {
-        fuselage_ptr->CopyActiveXSec();
-    }
-    else if ( gui_device == &m_PasteXSec  )
-    {
-        fuselage_ptr->PasteActiveXSec();
-    }
-    else if ( gui_device == &m_InsertXSec  )
-    {
-        fuselage_ptr->InsertXSec( );
+        wing_ptr->PasteActiveXSec();
     }
     else if ( gui_device == &m_ReadFuseFileButton  )
     {
-        int xsid = fuselage_ptr->GetActiveXSecIndex();
-        XSec* xs = fuselage_ptr->GetXSec( xsid );
+        int xsid = wing_ptr->GetActiveXSecIndex();
+        XSec* xs = wing_ptr->GetXSec( xsid );
         if ( xs )
         {
             XSecCurve* xsc = xs->GetXSecCurve();
@@ -563,15 +564,15 @@ void FuselageScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 
                     file_xs->ReadXsecFile( newfile );
                     file_xs->Update();
-                    fuselage_ptr->Update();
+                    wing_ptr->Update();
                 }
             }
         }
     }
     else if ( gui_device == &m_AfReadFileButton   )
     {
-        int xsid = fuselage_ptr->GetActiveXSecIndex();
-        XSec* xs = fuselage_ptr->GetXSec( xsid );
+        int xsid = wing_ptr->GetActiveXSecIndex();
+        XSec* xs = wing_ptr->GetXSec( xsid );
         if ( xs )
         {
             XSecCurve* xsc = xs->GetXSecCurve();
@@ -585,7 +586,7 @@ void FuselageScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 
                     affile_xs->ReadFile( newfile );
                     affile_xs->Update();
-                    fuselage_ptr->Update();
+                    wing_ptr->Update();
                 }
             }
         }
@@ -595,11 +596,7 @@ void FuselageScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 }
 
 //==== Fltk  Callbacks ====//
-void FuselageScreen::CallBack( Fl_Widget *w )
+void WingScreen::CallBack( Fl_Widget *w )
 {
     GeomScreen::CallBack( w );
 }
-
-
-
-

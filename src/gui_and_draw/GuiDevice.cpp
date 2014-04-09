@@ -11,6 +11,7 @@
 #include "ScreenBase.h"
 #include "ScreenMgr.h"
 #include "LinkMgr.h"
+#include "StlHelper.h"
 
 #include <float.h>
 #include <assert.h>
@@ -1984,4 +1985,326 @@ vector< string > ParmPicker::FindParmNames( vector< string > & parm_id_vec )
         name_vec.push_back( name );
     }
     return name_vec;
+}
+
+//=====================================================================//
+//===========       Driver Group Bank                       ===========//
+//=====================================================================//
+DriverGroupBank::DriverGroupBank()
+{
+    m_Screen = NULL;
+    m_DriverGroup = NULL;
+}
+
+void DriverGroupBank::Init( VspScreen* screen, vector< vector < Fl_Button* > > buttons, vector< SliderAdjRangeInput* > sliders )
+{
+    m_Screen = screen;
+
+    m_Buttons = buttons;
+    m_Sliders = sliders;
+
+    for( int i = 0; i < m_DriverGroup->GetNvar(); i++ )
+    {
+        for( int j = 0; j < m_DriverGroup->GetNchoice(); j++ )
+        {
+            m_Buttons[i][j]->callback( StaticDeviceCB, this );
+        }
+    }
+}
+
+
+void DriverGroupBank::DeviceCB( Fl_Widget* w )
+{
+    assert( m_Screen );
+
+    int imatch, jmatch;
+    if( WhichButton( w, imatch, jmatch ) )
+    {
+        vector< int > newchoices = m_DriverGroup->GetChoices();
+        newchoices[jmatch] = imatch;
+
+        if( m_DriverGroup->ValidDrivers( newchoices ) )
+        {
+            m_DriverGroup->SetChoice( jmatch, imatch );
+        }
+    }
+
+
+    m_Screen->GuiDeviceCallBack( this );
+}
+
+void DriverGroupBank::Update( )
+{
+    vector< int > checkchoices;
+
+    vector< int > currchoices = m_DriverGroup->GetChoices();
+
+    for( int i = 0; i < m_DriverGroup->GetNvar(); i++ )
+    {
+        if( vector_contains_val( currchoices, i ) )
+        {
+            m_Sliders[i]->Activate();
+        }
+        else
+        {
+            m_Sliders[i]->Deactivate();
+        }
+
+        for( int j = 0; j < m_DriverGroup->GetNchoice(); j++ )
+        {
+            checkchoices = m_DriverGroup->GetChoices();
+            checkchoices[j] = i;
+
+            if( m_DriverGroup->ValidDrivers( checkchoices ) )
+            {
+                m_Buttons[i][j]->activate();
+            }
+            else
+            {
+                m_Buttons[i][j]->deactivate();
+            }
+
+            if( currchoices[j] == i )
+            {
+                m_Buttons[i][j]->value( 1 );
+            }
+            else
+            {
+                m_Buttons[i][j]->value( 0 );
+            }
+
+        }
+    }
+}
+
+void DriverGroupBank::Activate()
+{
+
+}
+
+void DriverGroupBank::Deactivate()
+{
+
+}
+
+bool DriverGroupBank::WhichButton( Fl_Widget *w, int &imatch, int &jmatch )
+{
+    imatch = -1;
+    jmatch = -1;
+    for( int i = 0; i < m_DriverGroup->GetNvar(); i++ )
+    {
+        for( int j = 0; j < m_DriverGroup->GetNchoice(); j++ )
+        {
+            if( w == m_Buttons[i][j] )
+            {
+                imatch = i;
+                jmatch = j;
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+
+//=====================================================================//
+//===========       Skin Control Group                      ===========//
+//=====================================================================//
+SkinControl::SkinControl()
+{
+    m_Screen = NULL;
+
+    m_ContButtonL = NULL;
+    m_ContButtonR = NULL;
+    m_SetButtonL = NULL;
+    m_SetButtonR = NULL;
+}
+
+void SkinControl::Init( VspScreen* screen,
+	    Fl_Check_Button* contButtonL,
+	    Fl_Check_Button* contButtonR,
+	    Fl_Check_Button* setButtonL,
+	    Fl_Check_Button* setButtonR,
+	    Fl_Slider* sliderL,
+	    Fl_Slider* sliderR,
+	    Fl_Input* inputL,
+	    Fl_Input* inputR,
+	    Fl_Button* parm_button,
+	    double range, const char* format)
+{
+    m_Screen = screen;
+
+    m_ContButtonL = contButtonL;
+    m_ContButtonR = contButtonR;
+    m_SetButtonL = setButtonL;
+    m_SetButtonR = setButtonR;
+
+    m_SliderL.Init( screen, sliderL, range );
+    m_SliderR.Init( screen, sliderR, range );
+
+    m_InputL.Init( screen, inputL, format );
+    m_InputR.Init( screen, inputR, format );
+
+    m_ParmButton.Init( screen, parm_button );
+}
+
+
+void SkinControl::Update( const string& parmL_id, const string& parmR_id )
+{
+    m_SliderL.Update( parmL_id );
+    m_InputL.Update( parmL_id );
+    m_SliderR.Update( parmR_id );
+    m_InputR.Update( parmR_id );
+
+    m_ParmButton.Update( parmL_id );
+}
+
+void SkinControl::Activate()
+{
+
+    assert( m_ContButtonL );
+    m_ContButtonL->activate();
+
+    assert( m_ContButtonR );
+    m_ContButtonR->activate();
+
+    assert( m_SetButtonL );
+    m_SetButtonL->activate();
+
+    assert( m_SetButtonR );
+    m_SetButtonR->activate();
+
+    m_SliderL.Activate();
+    m_InputL.Activate();
+    m_SliderR.Activate();
+    m_InputR.Activate();
+
+    m_ParmButton.Activate();
+}
+
+void SkinControl::Deactivate()
+{
+    assert( m_ContButtonL );
+    m_ContButtonL->deactivate();
+
+    assert( m_ContButtonR );
+    m_ContButtonR->deactivate();
+
+    assert( m_SetButtonL );
+    m_SetButtonL->deactivate();
+
+    assert( m_SetButtonR );
+    m_SetButtonR->deactivate();
+
+    m_SliderL.Deactivate();
+    m_InputL.Deactivate();
+    m_SliderR.Deactivate();
+    m_InputR.Deactivate();
+
+    m_ParmButton.Deactivate();
+}
+
+//==== CallBack ====//
+void SkinControl::DeviceCB( Fl_Widget* w )
+{
+
+    m_Screen->GuiDeviceCallBack( this );
+}
+
+//=====================================================================//
+//===========       Skin Output Group                       ===========//
+//=====================================================================//
+SkinOutput::SkinOutput()
+{
+    m_Screen = NULL;
+
+    m_ContLOutput = NULL;
+    m_OrderOutput = NULL;
+    m_ContROutput = NULL;
+}
+
+void SkinOutput::Init( VspScreen* screen, Fl_Output* contL, Fl_Output* order, Fl_Output* contR, const vector< Fl_Button* > & buttons )
+{
+    m_Screen = screen;
+
+    m_ContLOutput = contL;
+    m_OrderOutput = order;
+    m_ContROutput = contR;
+
+    m_Buttons = buttons;
+}
+
+string SkinOutput::ContStr( int cont )
+{
+    switch(cont)
+    {
+    case C0:
+        return string("C0");
+        break;
+    case C1:
+        return string("C1");
+        break;
+    case C2:
+        return string("C2");
+        break;
+    case NONE:
+    default:
+        return string("");
+        break;
+    }
+}
+
+void SkinOutput::Update( int contL, int order, int contR )
+{
+    m_contL = ContStr(contL);
+    m_ContLOutput->value( m_contL.c_str() );
+
+    m_order = std::to_string( order );
+    m_OrderOutput->value( m_order.c_str() );
+
+    m_contR = ContStr(contR);
+    m_ContROutput->value( m_contR.c_str() );
+}
+
+void SkinOutput::Activate()
+{
+
+    assert( m_ContLOutput );
+    m_ContLOutput->activate();
+
+    assert( m_OrderOutput );
+    m_OrderOutput->activate();
+
+    assert( m_ContROutput );
+    m_ContROutput->activate();
+
+    for( int i = 0; i < m_Buttons.size(); i++ )
+    {
+        assert( m_Buttons[i] );
+        m_Buttons[i]->activate();
+    }
+}
+
+void SkinOutput::Deactivate()
+{
+    assert( m_ContLOutput );
+    m_ContLOutput->deactivate();
+
+    assert( m_OrderOutput );
+    m_OrderOutput->deactivate();
+
+    assert( m_ContROutput );
+    m_ContROutput->deactivate();
+
+    for( int i = 0; i < m_Buttons.size(); i++ )
+    {
+        assert( m_Buttons[i] );
+        m_Buttons[i]->deactivate();
+    }
+}
+
+//==== CallBack ====//
+void SkinOutput::DeviceCB( Fl_Widget* w )
+{
+    m_Screen->GuiDeviceCallBack( this );
 }

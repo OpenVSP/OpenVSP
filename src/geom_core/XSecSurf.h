@@ -12,6 +12,7 @@
 #define XSECSURF__INCLUDED_
 
 #include "XSec.h"
+#include "XSecCurve.h"
 #include "Airfoil.h"
 
 #include <string>
@@ -24,11 +25,15 @@ class XSecSurf : public ParmContainer
 {
 public:
 
+	enum { X = 0, Y = 1, Z = 2 };
+	enum { LE = 0, MID = 1, TE = 2 };
+
     XSecSurf();                                 // Default Constructor
     virtual ~XSecSurf();                        // Destructor
 
     XSec* FindXSec( string id );
     XSec* FindXSec( int index );
+    int FindXSecIndex( string id );
     string GetXSecID( int index );
     void ChangeXSecID( string oldID, string newID );
     string AddXSec( int type );
@@ -37,6 +42,32 @@ public:
     void PasteXSec( int index );
     string InsertXSec( int type, int index );
     void ChangeXSecType( int index, int type );
+
+    void SetBasicOrientation( int pdir, int wdir, int wshift, bool flip )
+    {
+        m_PrincipalDir = pdir;
+        m_WidthDir = wdir;
+        if ( pdir == wdir )
+        {
+            printf("Error, principal and width directions identical.\n");
+            assert( false );
+        }
+        m_WidthShift = wshift;
+        m_FlipUD = flip;
+    }
+
+    void GetBasicTransformation( double w, Matrix4d &mat );
+
+    bool GetFlipUD() { return m_FlipUD; }
+
+    void SetXSecType( int xstype )
+    {
+        m_XSecType = xstype;
+    }
+    int GetXSecType( )
+    {
+        return m_XSecType;
+    }
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
@@ -50,14 +81,9 @@ public:
         return m_XSecIDDeque.size();
     }
 
-    int GetNumTess();
-    int UpdateNumTess( int nt );
-
     virtual void AddLinkableParms( vector< string > & parm_vec, const string & link_container_id = string() );
 
-    void SetTransformation( const Matrix4d &mat, bool center );
-
-//  Parm m_TestParm;
+    virtual string GetName();
 
 protected:
 
@@ -71,12 +97,12 @@ protected:
 
     string m_SavedXSec;
 
-    Matrix4d m_rotation;
-    bool m_center;
+    int m_XSecType;
 
-
-
-
+    int m_PrincipalDir;
+    int m_WidthDir;
+    int m_WidthShift;
+    bool m_FlipUD;
 
 };
 

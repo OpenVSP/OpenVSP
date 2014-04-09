@@ -5,7 +5,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "FuselageGeom.h"
+#include "StackGeom.h"
 #include "ParmMgr.h"
 #include "VspSurf.h"
 #include "Vehicle.h"
@@ -13,28 +13,25 @@
 
 
 //==== Constructor ====//
-FuselageGeom::FuselageGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
+StackGeom::StackGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
 {
-    m_Name = "FuselageGeom";
-    m_Type.m_Name = "Fuselage";
-    m_Type.m_Type = FUSELAGE_GEOM_TYPE;
+    m_Name = "StackGeom";
+    m_Type.m_Name = "Stack";
+    m_Type.m_Type = STACK_GEOM_TYPE;
 
     m_Closed = false;
 
-    m_XSecSurf.SetBasicOrientation( XSecSurf::X, XSecSurf::Y, XSecSurf::MID, false );
-
     m_XSecSurf.SetParentContainer( GetID() );
+
+    m_XSecSurf.SetBasicOrientation( XSecSurf::X, XSecSurf::Y, XSecSurf::MID, false );
 
     //==== Init Parms ====//
     m_TessU = 16;
     m_TessW = 11;
 
-    m_Length.Init( "Length", "Design", this, 30.0, 1.0e-8, 1.0e12 );
-    m_Length.SetDescript( "Length of fuselage" );
-
     m_ActiveXSec = 0;
 
-    m_XSecSurf.SetXSecType( XSec::FUSE_SEC );
+    m_XSecSurf.SetXSecType( XSec::STACK_SEC );
 
     m_XSecSurf.AddXSec( XSecCurve::POINT );
     m_XSecSurf.AddXSec( XSecCurve::ELLIPSE );
@@ -43,55 +40,53 @@ FuselageGeom::FuselageGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_XSecSurf.AddXSec( XSecCurve::POINT );
 
     int j;
-    FuseXSec* xs;
+    StackXSec* xs;
 
     j = 0;
-    xs = ( FuseXSec* ) m_XSecSurf.FindXSec( j );
+    xs = ( StackXSec* ) m_XSecSurf.FindXSec( j );
     xs->SetGroupDisplaySuffix( j );
-    xs->m_XLocPercent = 0.0;
+    xs->m_XDelta = 0.0;
 
     ++j;
-    xs = ( FuseXSec* ) m_XSecSurf.FindXSec( j );
+    xs = ( StackXSec* ) m_XSecSurf.FindXSec( j );
     xs->SetGroupDisplaySuffix( j );
-    xs->m_XLocPercent = 0.25;
+    xs->m_XDelta = 1.0;
     dynamic_cast<EllipseXSec *>( xs->GetXSecCurve() )->SetWidthHeight( 3.0, 2.5 );
 
     ++j;
-    xs = ( FuseXSec* ) m_XSecSurf.FindXSec( j );
+    xs = ( StackXSec* ) m_XSecSurf.FindXSec( j );
     xs->SetGroupDisplaySuffix( j );
-    xs->m_XLocPercent = 0.5;
+    xs->m_XDelta = 2.0;
     dynamic_cast<EllipseXSec *>( xs->GetXSecCurve() )->SetWidthHeight( 3.0, 2.5 );
 
     ++j;
-    xs = ( FuseXSec* ) m_XSecSurf.FindXSec( j );
+    xs = ( StackXSec* ) m_XSecSurf.FindXSec( j );
     xs->SetGroupDisplaySuffix( j );
-    xs->m_XLocPercent = 0.75;
+    xs->m_XDelta = 1.0;
     dynamic_cast<EllipseXSec *>( xs->GetXSecCurve() )->SetWidthHeight( 3.0, 2.5 );
 
     ++j;
-    xs = ( FuseXSec* ) m_XSecSurf.FindXSec( j );
+    xs = ( StackXSec* ) m_XSecSurf.FindXSec( j );
     xs->SetGroupDisplaySuffix( j );
-    xs->m_XLocPercent = 1.0;
+    xs->m_XDelta = 0.5;
 
 }
 
 //==== Destructor ====//
-FuselageGeom::~FuselageGeom()
+StackGeom::~StackGeom()
 {
 
 }
 
-void FuselageGeom::ChangeID( string id )
+void StackGeom::ChangeID( string id )
 {
     ParmContainer::ChangeID( id );
     m_XSecSurf.SetParentContainer( GetID() );
 }
 
 //==== Update Fuselage And Cross Section Placement ====//
-void FuselageGeom::UpdateSurf()
+void StackGeom::UpdateSurf()
 {
-    double len = m_Length();
-
     //==== Cross Section Curves & joint info ====//
     vector< VspCurve > crv_vec;
     crv_vec.resize( m_XSecSurf.NumXSec() );
@@ -99,29 +94,33 @@ void FuselageGeom::UpdateSurf()
     //==== Update XSec Location/Rotation ====//
     for ( int i = 0 ; i < m_XSecSurf.NumXSec() ; i++ )
     {
-        FuseXSec* xs = ( FuseXSec* ) m_XSecSurf.FindXSec( i );
+        StackXSec* xs = ( StackXSec* ) m_XSecSurf.FindXSec( i );
+
+        if ( i == 0 )
+        {
+            xs->m_XDelta.SetLowerUpperLimits( 0.0, 0.0 );
+            xs->m_YDelta.SetLowerUpperLimits( 0.0, 0.0 );
+            xs->m_ZDelta.SetLowerUpperLimits( 0.0, 0.0 );
+
+            xs->m_XRotate.SetLowerUpperLimits( 0.0, 0.0 );
+            xs->m_YRotate.SetLowerUpperLimits( 0.0, 0.0 );
+            xs->m_ZRotate.SetLowerUpperLimits( 0.0, 0.0 );
+        }
+        else
+        {
+            xs->m_XDelta.SetLowerUpperLimits( 0.0, 1.0e12 );
+            xs->m_YDelta.SetLowerUpperLimits( -1.0e12, 1.0e12 );
+            xs->m_ZDelta.SetLowerUpperLimits( -1.0e12, 1.0e12 );
+
+            xs->m_XRotate.SetLowerUpperLimits( -180.0, 180.0 );
+            xs->m_YRotate.SetLowerUpperLimits( -180.0, 180.0 );
+            xs->m_ZRotate.SetLowerUpperLimits( -180.0, 180.0 );
+        }
 
         if ( xs )
         {
             //==== Reset Group Names ====//
             xs->SetGroupDisplaySuffix( i );
-
-            //==== Set X Limits ====//
-#if 0
-            // NOTE: This code breaks cross section insertion and deletion because Update()
-            //       gets called when a new cross section is created but before the cross section
-            //       has been fully initialized. For example, trace the code through a cross section
-            //       insert and see that XSecSurf::AddXSec() needs to call ParmChanged() to let
-            //       geometry know that the number of u-curves changed because the cross section
-            //       count changed and not the Gen tab changing the count. Also, this logic should
-            //       probably be in the cross section code (perhaps XSecSurf) so that when the cross
-            //       section x-location is changed this is checked.
-            int policy = FUSE_MONOTONIC;
-            int duct_ile = 2;  // Only needed for FUSE_DUCT
-            EnforceOrder( xs, i, duct_ile, policy );
-#endif
-
-            xs->SetRefLength( m_Length() );
 
             crv_vec[i] =  xs->GetCurve();
         }
@@ -136,13 +135,15 @@ void FuselageGeom::UpdateSurf()
 }
 
 //==== Compute Rotation Center ====//
-void FuselageGeom::ComputeCenter()
+void StackGeom::ComputeCenter()
 {
-    m_Center.set_x( m_Length()*m_Origin() );
+    m_Center.set_x( 0.0 );
+    m_Center.set_y( 0.0 );
+    m_Center.set_z( 0.0 );
 }
 
 //==== Encode Data Into XML Data Struct ====//
-xmlNodePtr FuselageGeom::EncodeXml( xmlNodePtr & node )
+xmlNodePtr StackGeom::EncodeXml( xmlNodePtr & node )
 {
     Geom::EncodeXml( node );
     xmlNodePtr fuselage_node = xmlNewChild( node, NULL, BAD_CAST "FuselageGeom", NULL );
@@ -154,7 +155,7 @@ xmlNodePtr FuselageGeom::EncodeXml( xmlNodePtr & node )
 }
 
 //==== Encode Data Into XML Data Struct ====//
-xmlNodePtr FuselageGeom::DecodeXml( xmlNodePtr & node )
+xmlNodePtr StackGeom::DecodeXml( xmlNodePtr & node )
 {
     Geom::DecodeXml( node );
 
@@ -168,7 +169,7 @@ xmlNodePtr FuselageGeom::DecodeXml( xmlNodePtr & node )
 }
 
 //==== Set Index For Active XSec ====//
-void FuselageGeom::SetActiveXSecIndex( int index )
+void StackGeom::SetActiveXSecIndex( int index )
 {
     index = Clamp<int>( index, 0, m_XSecSurf.NumXSec() - 1 );
 
@@ -176,13 +177,13 @@ void FuselageGeom::SetActiveXSecIndex( int index )
 }
 
 //==== Get XSec ====//
-XSec* FuselageGeom::GetXSec( int index )
+XSec* StackGeom::GetXSec( int index )
 {
     return m_XSecSurf.FindXSec( index );
 }
 
 //==== Set Active XSec Type ====//
-void FuselageGeom::SetActiveXSecType( int type )
+void StackGeom::SetActiveXSecType( int type )
 {
     XSec* xs = GetXSec( m_ActiveXSec );
 
@@ -202,28 +203,29 @@ void FuselageGeom::SetActiveXSecType( int type )
 }
 
 //==== Cut Active XSec ====//
-void FuselageGeom::CutActiveXSec()
+void StackGeom::CutActiveXSec()
 {
     m_XSecSurf.CutXSec( m_ActiveXSec );
+    m_XSecSurf.FindXSec( m_ActiveXSec )->SetLateUpdateFlag( true );
     Update();
 }
 
 //==== Copy Active XSec ====//
-void FuselageGeom::CopyActiveXSec()
+void StackGeom::CopyActiveXSec()
 {
     m_XSecSurf.CopyXSec( m_ActiveXSec );
 }
 
 //==== Paste Cut/Copied XSec To Active XSec ====//
-void FuselageGeom::PasteActiveXSec()
+void StackGeom::PasteActiveXSec()
 {
     m_XSecSurf.PasteXSec( m_ActiveXSec );
-
+    m_XSecSurf.FindXSec( m_ActiveXSec )->SetLateUpdateFlag( true );
     Update();
 }
 
 //==== Insert XSec ====//
-void FuselageGeom::InsertXSec( )
+void StackGeom::InsertXSec( )
 {
     if ( m_ActiveXSec >= NumXSec() - 1 )
     {
@@ -238,36 +240,32 @@ void FuselageGeom::InsertXSec( )
 }
 
 //==== Insert XSec ====//
-void FuselageGeom::InsertXSec( int type )
+void StackGeom::InsertXSec( int type )
 {
     if ( m_ActiveXSec >= NumXSec() - 1 )
     {
         return;
     }
 
-    FuseXSec* xs = ( FuseXSec* ) GetXSec( m_ActiveXSec );
-    FuseXSec* xs_1 = ( FuseXSec* ) GetXSec( m_ActiveXSec + 1 );
-
-    double x_loc_0 = xs->m_XLocPercent();
-    double x_loc_1 = xs_1->m_XLocPercent();
+    StackXSec* xs = ( StackXSec* ) GetXSec( m_ActiveXSec );
 
     m_XSecSurf.InsertXSec( type, m_ActiveXSec );
     m_ActiveXSec++;
 
-    FuseXSec* inserted_xs = ( FuseXSec* ) GetXSec( m_ActiveXSec );
+    StackXSec* inserted_xs = ( StackXSec* ) GetXSec( m_ActiveXSec );
 
     if ( inserted_xs )
     {
         inserted_xs->CopyFrom( xs );
-        inserted_xs->m_XLocPercent = ( x_loc_0 + x_loc_1 ) * 0.5;
     }
 
+    inserted_xs->SetLateUpdateFlag( true );
     Update();
 }
 
 
 //==== Look Though All Parms and Load Linkable Ones ===//
-void FuselageGeom::AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id )
+void StackGeom::AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id )
 {
     ParmContainer::AddLinkableParms( linkable_parm_vec );
 
@@ -275,10 +273,9 @@ void FuselageGeom::AddLinkableParms( vector< string > & linkable_parm_vec, const
 }
 
 //==== Scale ====//
-void FuselageGeom::Scale()
+void StackGeom::Scale()
 {
     double currentScale = m_Scale() / m_LastScale;
-    m_Length *= currentScale;
     for ( int i = 0 ; i < m_XSecSurf.NumXSec() ; i++ )
     {
         XSec* xs = m_XSecSurf.FindXSec( i );
@@ -292,7 +289,7 @@ void FuselageGeom::Scale()
 }
 
 //==== Drag Parameters ====//
-void FuselageGeom::LoadDragFactors( DragFactors& drag_factors )
+void StackGeom::LoadDragFactors( DragFactors& drag_factors )
 {
     double max_xsec_area = 0.000000000001;
     for ( int i = 0 ; i < ( int )m_XSecSurf.NumXSec() ; i++ )
@@ -307,64 +304,17 @@ void FuselageGeom::LoadDragFactors( DragFactors& drag_factors )
 
     double dia = 2.0 * sqrt( max_xsec_area / PI );
 
-    drag_factors.m_Length = m_Length();
+//    drag_factors.m_Length = m_Length();
     drag_factors.m_MaxXSecArea = max_xsec_area;
-    drag_factors.m_LengthToDia = m_Length() / dia;
+//    drag_factors.m_LengthToDia = m_Length() / dia;
 }
 
-void FuselageGeom::GetJointParams( int joint, VspJointInfo &jointInfo ) const
+void StackGeom::GetJointParams( int joint, VspJointInfo &jointInfo ) const
 {
     m_SurfVec[0].CompJointParams( joint, jointInfo );
 }
 
-bool FuselageGeom::IsClosed() const
+bool StackGeom::IsClosed() const
 {
     return m_Closed;
-}
-
-void FuselageGeom::EnforceOrder( FuseXSec* xs, int indx, int ile, int policy )
-{
-    if( policy == FUSE_MONOTONIC )
-    {
-        if ( indx == 0 )
-        {
-            xs->m_XLocPercent.SetLowerUpperLimits( 0.0, 0.0 );
-        }
-        else if ( indx ==  m_XSecSurf.NumXSec() - 1 )
-        {
-            xs->m_XLocPercent.SetLowerUpperLimits( 1.0, 1.0 );
-        }
-        else
-        {
-            FuseXSec* priorxs = ( FuseXSec* ) m_XSecSurf.FindXSec( indx - 1 );
-            FuseXSec* nextxs = ( FuseXSec* ) m_XSecSurf.FindXSec( indx + 1 );
-            double lower = priorxs->m_XLocPercent();
-            double upper = nextxs->m_XLocPercent();
-            xs->m_XLocPercent.SetLowerUpperLimits( lower , upper );
-        }
-    }
-    else if( policy == FUSE_DUCT )
-    {
-        if ( indx == 0 )
-        {
-            xs->m_XLocPercent.SetLowerUpperLimits( 1.0, 1.0 );
-        }
-        else if ( indx ==  m_XSecSurf.NumXSec() - 1 )
-        {
-            xs->m_XLocPercent.SetLowerUpperLimits( 1.0, 1.0 );
-        }
-        else if ( indx == ile )
-        {
-            xs->m_XLocPercent.SetLowerUpperLimits( 0.0, 0.0 );
-        }
-        else
-        {
-            xs->m_XLocPercent.SetLowerUpperLimits( 0.0, 1.0 );
-        }
-
-    }
-    else if( policy == FUSE_FREE )
-    {
-        xs->m_XLocPercent.SetLowerUpperLimits( 0.0, 1.0 );
-    }
 }

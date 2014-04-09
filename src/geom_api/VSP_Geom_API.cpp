@@ -618,7 +618,7 @@ int GetXSecType( const string& xsec_id )
     }
 
     ErrorMgr.NoError();
-    return xs->GetType();
+    return xs->GetXSecCurve()->GetType();
 }
 
 /// Get XSec Width
@@ -631,7 +631,7 @@ double GetXSecWidth( const string& xsec_id )
         return 0;
     }
     ErrorMgr.NoError();
-    return xs->GetWidth();
+    return xs->GetXSecCurve()->GetWidth();
 }
 
 /// Get XSec Height
@@ -644,7 +644,7 @@ double GetXSecHeight( const string& xsec_id )
         return 0;
     }
     ErrorMgr.NoError();
-    return xs->GetHeight();
+    return xs->GetXSecCurve()->GetHeight();
 }
 
 /// Set XSec Width & Height
@@ -656,7 +656,7 @@ void SetXSecWidthHeight( const string& xsec_id, double w, double h )
         ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecWidthHeight::Can't Find XSec " + xsec_id  );
         return;
     }
-    xs->SetWidthHeight( w, h );
+    xs->GetXSecCurve()->SetWidthHeight( w, h );
     xs->ParmChanged( NULL, Parm::SET_FROM_DEVICE ); // Force Update
     ErrorMgr.NoError();
 }
@@ -686,7 +686,7 @@ vector<vec3d> ReadFileXSec( const string& xsec_id, const string& file_name )
         return pnt_vec;
     }
 
-    if ( xs->GetType() == XSec::FILE_FUSE )
+    if ( xs->GetXSecCurve()->GetType() == XSecCurve::FILE_FUSE )
     {
         FileXSec* file_xs = dynamic_cast<FileXSec*>( xs );
         assert( file_xs );
@@ -707,7 +707,7 @@ void SetXSecPnts( const string& xsec_id, vector< vec3d > & pnt_vec )
         ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecPnts::Can't Find XSec " + xsec_id  );
         return;
     }
-    if ( xs->GetType() != XSec::FILE_FUSE )
+    if ( xs->GetXSecCurve()->GetType() != XSecCurve::FILE_FUSE )
     {
         ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetXSecPnts::Wrong XSec Type"  );
         return;

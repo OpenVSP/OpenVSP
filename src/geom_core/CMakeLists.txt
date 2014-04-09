@@ -30,10 +30,13 @@ ParmContainer.cpp
 ParmMgr.cpp
 ParmUndo.cpp
 PodGeom.cpp
+StackGeom.cpp
 TMesh.cpp
 Vehicle.cpp
 VehicleMgr.cpp
+WingGeom.cpp
 XSec.cpp
+XSecCurve.cpp
 XSecSurf.cpp
 Airfoil.h
 BlankGeom.h
@@ -51,11 +54,14 @@ ParmContainer.h
 ParmMgr.h
 ParmUndo.h
 PodGeom.h
+StackGeom.h
 SWIGDefines.h
 TMesh.h
 Vehicle.h
 VehicleMgr.h
+WingGeom.h
 XSec.h
+XSecCurve.h
 XSecSurf.h
 
 )
