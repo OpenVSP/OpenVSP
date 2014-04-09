@@ -511,6 +511,7 @@ void ManageGeomScreen::CreateScreens()
     m_GeomScreenVec[MS_WING_GEOM_SCREEN] = new WingScreen( m_ScreenMgr );
     m_GeomScreenVec[BLANK_GEOM_SCREEN] = new BlankScreen( m_ScreenMgr );
     m_GeomScreenVec[MESH_GEOM_SCREEN] = new MeshScreen( m_ScreenMgr );
+    m_GeomScreenVec[STACK_GEOM_SCREEN] = new StackScreen( m_ScreenMgr );
 
 
 //  vector< string > activeVec = m_VehiclePtr->GetActiveGeomVec();

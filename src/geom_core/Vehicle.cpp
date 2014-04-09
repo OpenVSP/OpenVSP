@@ -11,6 +11,7 @@
 #include "WingGeom.h"
 #include "BlankGeom.h"
 #include "MeshGeom.h"
+#include "StackGeom.h"
 #include "MessageMgr.h"
 #include "StlHelper.h"
 #include "ParmMgr.h"
@@ -134,6 +135,7 @@ void Vehicle::Init()
     m_GeomTypeVec.push_back( GeomType( POD_GEOM_TYPE, "POD", true ) );
     m_GeomTypeVec.push_back( GeomType( FUSELAGE_GEOM_TYPE, "FUSELAGE", true ) );
     m_GeomTypeVec.push_back( GeomType( MS_WING_GEOM_TYPE, "WING", true ) );
+    m_GeomTypeVec.push_back( GeomType( STACK_GEOM_TYPE, "STACK", true ) );
     m_GeomTypeVec.push_back( GeomType( BLANK_GEOM_TYPE, "BLANK", true ) );
     m_TestParm.Init( "Test", "Design", this, 0.0, 1.0e-8, 1.0e12 );
 
@@ -315,6 +317,10 @@ string Vehicle::CreateGeom( const GeomType & type )
     else if ( type.m_Type == MESH_GEOM_TYPE )
     {
         new_geom = new MeshGeom( this );
+    }
+    else if ( type.m_Type == STACK_GEOM_TYPE )
+    {
+        new_geom = new StackGeom( this );
     }
 
     if ( !new_geom )

@@ -49,6 +49,7 @@ ScreenBase.cpp
 ScreenMgr.cpp
 SelectFileScreen.cpp
 SetEditorScreen.cpp
+StackScreen.cpp
 SubGLWindow.cpp
 TypeEditorScreen.cpp
 WingScreen.cpp
@@ -82,6 +83,7 @@ ScreenBase.h
 ScreenMgr.h
 SelectFileScreen.h
 SetEditorScreen.h
+StackScreen.h
 SubGLWindow.h
 TypeEditorScreen.h
 WingScreen.h
