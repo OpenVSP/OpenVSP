@@ -369,11 +369,11 @@ void XSecSurf::GetBasicTransformation( double w, Matrix4d &mat )
 
         int prow = m_PrincipalDir;
         // Principal direction of base curves +Z
-        m[ prow + ( Z * 4 ) ] = 1;
+        m[ prow + ( Z_DIR * 4 ) ] = 1;
 
         int wrow = m_WidthDir;
         // Width direction of base curves +X
-        m[ wrow + ( X * 4 ) ] = 1;
+        m[ wrow + ( X_DIR * 4 ) ] = 1;
 
         // Remaining row via clever math
         int row = 3 - ( prow + wrow );
@@ -382,17 +382,17 @@ void XSecSurf::GetBasicTransformation( double w, Matrix4d &mat )
         int r1, r2;
         switch( row )
         {
-        case X:
-            r1 = Y;
-            r2 = Z;
+        case X_DIR:
+            r1 = Y_DIR;
+            r2 = Z_DIR;
             break;
-        case Y:
-            r1 = Z;
-            r2 = X;
+        case Y_DIR:
+            r1 = Z_DIR;
+            r2 = X_DIR;
             break;
-        case Z:
-            r1 = X;
-            r2 = Y;
+        case Z_DIR:
+            r1 = X_DIR;
+            r2 = Y_DIR;
             break;
         }
 
@@ -403,8 +403,8 @@ void XSecSurf::GetBasicTransformation( double w, Matrix4d &mat )
         }
 
         // Specialized cross product with known zeros.
-        m[ row + ( Y * 4 ) ] = flipflag * ( m[ r1 + ( Z * 4 ) ] * m[ r2 + ( X * 4 ) ] -
-                                            m[ r1 + ( X * 4 ) ] * m[ r2 + ( Z * 4 ) ] );
+        m[ row + ( Y_DIR * 4 ) ] = flipflag * ( m[ r1 + ( Z_DIR * 4 ) ] * m[ r2 + ( X_DIR * 4 ) ] -
+                                                m[ r1 + ( X_DIR * 4 ) ] * m[ r2 + ( Z_DIR * 4 ) ] );
 
         // Shift in width direction if required.
         m[ wrow + 12 ] = -w * m_WidthShift / 2.0;

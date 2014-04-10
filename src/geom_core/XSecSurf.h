@@ -25,9 +25,6 @@ class XSecSurf : public ParmContainer
 {
 public:
 
-	enum { X = 0, Y = 1, Z = 2 };
-	enum { LE = 0, MID = 1, TE = 2 };
-
     XSecSurf();                                 // Default Constructor
     virtual ~XSecSurf();                        // Destructor
 

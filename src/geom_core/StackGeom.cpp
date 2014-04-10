@@ -25,7 +25,7 @@ StackGeom::StackGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
 
     m_XSecSurf.SetParentContainer( GetID() );
 
-    m_XSecSurf.SetBasicOrientation( XSecSurf::X, XSecSurf::Y, XSecSurf::MID, false );
+    m_XSecSurf.SetBasicOrientation( X_DIR, Y_DIR, XS_SHIFT_MID, false );
 
     //==== Init Parms ====//
     m_TessU = 16;

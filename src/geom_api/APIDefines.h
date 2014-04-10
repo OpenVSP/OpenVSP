@@ -44,6 +44,16 @@ enum XSEC_TYPE { XSEC_FUSE,
                  XSEC_NUM_TYPES
                };
 
+enum DIR_INDEX { X_DIR = 0,
+                 Y_DIR = 1,
+                 Z_DIR = 2
+               };
+
+enum XSEC_WIDTH_SHIFT { XS_SHIFT_LE = 0,
+                        XS_SHIFT_MID = 1,
+                        XS_SHIFT_TE = 2
+                      };
+
 enum XSEC_CRV_TYPE {XS_POINT,
                     XS_CIRCLE,
                     XS_ELLIPSE,

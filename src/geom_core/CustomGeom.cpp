@@ -15,6 +15,9 @@
 #include "ScriptMgr.h"
 #include "FileUtil.h"
 
+#include "APIDefines.h"
+using namespace vsp;
+
 //==== Constructor ====//
 CustomGeomMgrSingleton::CustomGeomMgrSingleton()
 {
@@ -309,7 +312,7 @@ string CustomGeom::AddXSecSurf()
 {
     XSecSurf* xsec_surf = new XSecSurf();
 
-    xsec_surf->SetBasicOrientation( XSecSurf::X, XSecSurf::Y, XSecSurf::MID, false );
+    xsec_surf->SetBasicOrientation( X_DIR, Y_DIR, XS_SHIFT_MID, false );
 
     xsec_surf->SetParentContainer( GetID() );
 
