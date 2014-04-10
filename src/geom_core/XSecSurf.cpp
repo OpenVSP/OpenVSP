@@ -22,6 +22,10 @@ XSecSurf::XSecSurf()
     m_WidthShift = -1;
     m_FlipUD = false;
 
+    // Assign default values different from -1 above.
+    SetXSecType( XSEC_FUSE );
+    SetBasicOrientation( X_DIR, Y_DIR, XS_SHIFT_MID, false );
+
 //  m_TestParm.Init( "Test", "XSecSurf", this, 0.0, 1.0e-8, 1.0e12 );
 }
 
