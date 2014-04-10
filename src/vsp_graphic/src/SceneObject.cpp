@@ -5,6 +5,9 @@ namespace VSPGraphic
 SceneObject::SceneObject()
 {
 	_id = 0xFFFFFFFF;
+
+    _visible = true;
+    _predrawFlag = true;
 }
 SceneObject::~SceneObject()
 {
