@@ -10,7 +10,9 @@
 #include "VspSurf.h"
 #include "Vehicle.h"
 #include "StlHelper.h"
+#include "APIDefines.h"
 
+using namespace vsp;
 
 //==== Constructor ====//
 StackGeom::StackGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
@@ -31,13 +33,13 @@ StackGeom::StackGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
 
     m_ActiveXSec = 0;
 
-    m_XSecSurf.SetXSecType( XSec::STACK_SEC );
+    m_XSecSurf.SetXSecType( XSEC_STACK );
 
-    m_XSecSurf.AddXSec( XSecCurve::POINT );
-    m_XSecSurf.AddXSec( XSecCurve::ELLIPSE );
-    m_XSecSurf.AddXSec( XSecCurve::ELLIPSE );
-    m_XSecSurf.AddXSec( XSecCurve::ELLIPSE );
-    m_XSecSurf.AddXSec( XSecCurve::POINT );
+    m_XSecSurf.AddXSec( XS_POINT );
+    m_XSecSurf.AddXSec( XS_ELLIPSE );
+    m_XSecSurf.AddXSec( XS_ELLIPSE );
+    m_XSecSurf.AddXSec( XS_ELLIPSE );
+    m_XSecSurf.AddXSec( XS_POINT );
 
     int j;
     StackXSec* xs;

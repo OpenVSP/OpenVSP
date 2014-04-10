@@ -158,11 +158,11 @@ XSec* XSecSurf::CreateXSec( int type, int index )
     XSec* xsec_ptr = NULL;
     if ( xscrv_ptr )
     {
-        if ( m_XSecType == XSec::FUSE_SEC )
+        if ( m_XSecType == XSEC_FUSE )
         {
             xsec_ptr = ( XSec* ) new FuseXSec( xscrv_ptr, index != 0 );
         }
-        else if ( m_XSecType == XSec::STACK_SEC )
+        else if ( m_XSecType == XSEC_STACK )
         {
             xsec_ptr = ( XSec* ) new StackXSec( xscrv_ptr, index != 0 );
         }
@@ -459,7 +459,7 @@ xmlNodePtr XSecSurf::DecodeXml( xmlNodePtr & node )
 
                 if ( temp_node )
                 {
-                    int xs_type = XmlUtil::FindInt( temp_node, "Type", XSec::FUSE_SEC );
+                    int xs_type = XmlUtil::FindInt( temp_node, "Type", XSEC_FUSE );
 
                     xmlNodePtr xscrv_node = XmlUtil::GetNode( temp_node, "XSecCurve", 0 );
                     if ( xscrv_node )

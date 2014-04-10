@@ -17,6 +17,7 @@
 #include "StlHelper.h"
 #include <float.h>
 #include <stdio.h>
+#include "APIDefines.h"
 
 #include "Vehicle.h"
 
@@ -34,6 +35,7 @@ typedef eli::geom::curve::piecewise_ellipse_creator<double, 3, curve_tolerance_t
 typedef eli::geom::curve::piecewise_superellipse_creator<double, 3, curve_tolerance_type> piecewise_superellipse_creator;
 
 using std::string;
+using namespace vsp;
 
 //==== Default Constructor ====//
 XSecCurve::XSecCurve()
@@ -140,7 +142,7 @@ double XSecCurve::ComputeArea( int num_pnts )
 //==== Constructor ====//
 PointXSec::PointXSec( ) : XSecCurve( )
 {
-    m_Type = POINT;
+    m_Type = XS_POINT;
 }
 
 //==== Update Geometry ====//
@@ -178,7 +180,7 @@ void PointXSec::Update()
 //==== Constructor ====//
 CircleXSec::CircleXSec( ) : XSecCurve( )
 {
-    m_Type = CIRCLE;
+    m_Type = XS_CIRCLE;
     m_Diameter.Init( "Circle_Diameter", m_GroupName, this, 1.0, 0.0, 1.0e12 );
     m_Diameter.SetDescript( "Diameter of Circle Cross-Section" );
 }
@@ -227,7 +229,7 @@ void CircleXSec::Update()
 //==== Constructor ====//
 EllipseXSec::EllipseXSec( ) : XSecCurve( )
 {
-    m_Type = ELLIPSE;
+    m_Type = XS_ELLIPSE;
 
     m_Height.Init( "Ellipse_Height", m_GroupName, this, 1.0, 0.0, 1.0e12 );
     m_Height.SetDescript( "Height of the Ellipse Cross-Section" );
@@ -281,7 +283,7 @@ void EllipseXSec::SetWidthHeight( double w, double h )
 //==== Constructor ====//
 SuperXSec::SuperXSec( ) : XSecCurve( )
 {
-    m_Type = SUPER_ELLIPSE;
+    m_Type = XS_SUPER_ELLIPSE;
 
     m_Height.Init( "Super_Height", m_GroupName, this, 1.0, 0.0, 1.0e12 );
     m_Height.SetDescript( "Height of the Super Ellipse Cross-Section" );
@@ -340,7 +342,7 @@ void SuperXSec::SetWidthHeight( double w, double h )
 //==== Constructor ====//
 RoundedRectXSec::RoundedRectXSec( ) : XSecCurve( )
 {
-    m_Type = ROUNDED_RECTANGLE;
+    m_Type = XS_ROUNDED_RECTANGLE;
 
     m_Height.Init( "RoundedRect_Height", m_GroupName, this, 1.0, 0.0, 1.0e12 );
     m_Width.Init( "RoundedRect_Width", m_GroupName, this,  1.0, 0.0, 1.0e12 );
@@ -445,7 +447,7 @@ void RoundedRectXSec::SetWidthHeight( double w, double h )
 //==== Constructor ====//
 GeneralFuseXSec::GeneralFuseXSec( ) : XSecCurve( )
 {
-    m_Type = GENERAL_FUSE;
+    m_Type = XS_GENERAL_FUSE;
 
     m_Height.Init( "Height",           m_GroupName, this, 1.0, 0.0, 1.0e12 );
     m_Width.Init( "Width",             m_GroupName, this, 1.0, 0.0, 1.0e12 );
@@ -571,7 +573,7 @@ void GeneralFuseXSec::Update()
 //==== Constructor ====//
 FileXSec::FileXSec( ) : XSecCurve( )
 {
-    m_Type = XSecCurve::FILE_FUSE;
+    m_Type = XS_FILE_FUSE;
 
     m_UnityFilePnts.resize( 21, vec3d( 0, 0, 0 ) );
 

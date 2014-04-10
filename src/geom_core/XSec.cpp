@@ -21,6 +21,7 @@
 #include "Vehicle.h"
 
 using std::string;
+using namespace vsp;
 
 //==== Default Constructor ====//
 XSec::XSec( XSecCurve *xsc, bool use_left )
@@ -265,7 +266,7 @@ void XSec::SetTransformation( const Matrix4d &mat, bool center )
 //==== Default Constructor ====//
 FuseXSec::FuseXSec( XSecCurve *xsc, bool use_left ) : XSec( xsc, use_left)
 {
-    m_Type = FUSE_SEC;
+    m_Type = XSEC_FUSE;
 
     m_RefLength = 1.0;
 
@@ -376,7 +377,7 @@ void FuseXSec::CopyBasePos( XSec* xs )
 //==== Default Constructor ====//
 StackXSec::StackXSec( XSecCurve *xsc, bool use_left ) : XSec( xsc, use_left)
 {
-    m_Type = STACK_SEC;
+    m_Type = XSEC_STACK;
 
     m_XDelta.Init( "XDelta", m_GroupName, this,  1.0, 0.0, 1.0e12 );
     m_XDelta.SetDescript( "X distance of cross section from prior cross section" );

@@ -32,9 +32,6 @@ public:
     XSec( XSecCurve *xsc, bool use_left );                                                      // Default Constructor
     virtual ~XSec();
 
-    enum { FUSE_SEC, STACK_SEC, NUM_XSEC_TYPES
-         };
-
     virtual void ParmChanged( Parm* parm_ptr, int type );
     virtual void Update() = 0;
 

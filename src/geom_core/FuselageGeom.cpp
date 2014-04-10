@@ -36,7 +36,7 @@ FuselageGeom::FuselageGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
 
     m_ActiveXSec = 0;
 
-    m_XSecSurf.SetXSecType( XSec::FUSE_SEC );
+    m_XSecSurf.SetXSecType( XSEC_FUSE );
 
     m_XSecSurf.AddXSec( XS_POINT );
     m_XSecSurf.AddXSec( XS_ELLIPSE );

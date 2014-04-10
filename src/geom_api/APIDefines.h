@@ -39,7 +39,12 @@ enum {  SYM_XY = ( 1 << 0 ),
         SYM_NUM_TYPES = 6
      }; // Symmetry Flags
 
-enum XSEC_TYPE {    XS_POINT,
+enum XSEC_TYPE { XSEC_FUSE,
+                 XSEC_STACK,
+                 XSEC_NUM_TYPES
+               };
+
+enum XSEC_CRV_TYPE {XS_POINT,
                     XS_CIRCLE,
                     XS_ELLIPSE,
                     XS_SUPER_ELLIPSE,

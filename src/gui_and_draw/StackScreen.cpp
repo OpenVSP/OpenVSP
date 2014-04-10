@@ -11,9 +11,11 @@
 #include "EventMgr.h"
 #include "Vehicle.h"
 #include "ParmMgr.h"
+#include "APIDefines.h"
 
 #include <assert.h>
 
+using namespace vsp;
 
 //==== Constructor ====//
 StackScreen::StackScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 550, "Stack" )
@@ -363,11 +365,11 @@ bool StackScreen::Update()
         {
             m_XSecTypeChoice.SetVal( xsc->GetType() );
 
-            if ( xsc->GetType() == XSecCurve::POINT )
+            if ( xsc->GetType() == XS_POINT )
             {
                 DisplayGroup( NULL );
             }
-            else if ( xsc->GetType() == XSecCurve::SUPER_ELLIPSE )
+            else if ( xsc->GetType() == XS_SUPER_ELLIPSE )
             {
                 DisplayGroup( &m_SuperGroup );
 
@@ -378,7 +380,7 @@ bool StackScreen::Update()
                 m_SuperMSlider.Update( super_xs->m_M.GetID() );
                 m_SuperNSlider.Update( super_xs->m_N.GetID() );
             }
-            else if ( xsc->GetType() == XSecCurve::CIRCLE )
+            else if ( xsc->GetType() == XS_CIRCLE )
             {
                 DisplayGroup( &m_CircleGroup );
 
@@ -387,7 +389,7 @@ bool StackScreen::Update()
 
                 m_DiameterSlider.Update( circle_xs->m_Diameter.GetID() );
             }
-            else if ( xsc->GetType() == XSecCurve::ELLIPSE )
+            else if ( xsc->GetType() == XS_ELLIPSE )
             {
                 DisplayGroup( & m_EllipseGroup );
 
@@ -395,7 +397,7 @@ bool StackScreen::Update()
                 m_EllipseHeightSlider.Update( ellipse_xs->m_Height.GetID() );
                 m_EllipseWidthSlider.Update( ellipse_xs->m_Width.GetID() );
             }
-            else if ( xsc->GetType() == XSecCurve::ROUNDED_RECTANGLE )
+            else if ( xsc->GetType() == XS_ROUNDED_RECTANGLE )
             {
                 DisplayGroup( & m_RoundedRectGroup );
                 RoundedRectXSec* rect_xs = dynamic_cast< RoundedRectXSec* >( xsc );
@@ -405,7 +407,7 @@ bool StackScreen::Update()
                 m_RRWidthSlider.Update( rect_xs->m_Width.GetID() );
                 m_RRRadiusSlider.Update( rect_xs->m_Radius.GetID() );
             }
-            else if ( xsc->GetType() == XSecCurve::GENERAL_FUSE )
+            else if ( xsc->GetType() == XS_GENERAL_FUSE )
             {
                 DisplayGroup( &m_GenGroup );
                 GeneralFuseXSec* gen_xs = dynamic_cast< GeneralFuseXSec* >( xsc );
@@ -422,7 +424,7 @@ bool StackScreen::Update()
                 m_GenUpStrSlider.Update( gen_xs->m_UpStr.GetID() );
                 m_GenLowStrSlider.Update( gen_xs->m_LowStr.GetID() );
             }
-            else if ( xsc->GetType() == XSecCurve::FOUR_SERIES )
+            else if ( xsc->GetType() == XS_FOUR_SERIES )
             {
                 DisplayGroup( &m_FourSeriesGroup );
                 FourSeries* fs_xs = dynamic_cast< FourSeries* >( xsc );
@@ -435,7 +437,7 @@ bool StackScreen::Update()
                 m_FourInvertButton.Update( fs_xs->m_Invert.GetID() );
                 m_FourNameOutput.Update( fs_xs->GetAirfoilName() );
             }
-            else if ( xsc->GetType() == XSecCurve::SIX_SERIES )
+            else if ( xsc->GetType() == XS_SIX_SERIES )
             {
                 DisplayGroup( &m_SixSeriesGroup );
                 SixSeries* ss_xs = dynamic_cast< SixSeries* >( xsc );
@@ -450,7 +452,7 @@ bool StackScreen::Update()
                 m_SixNameOutput.Update( ss_xs->GetAirfoilName() );
                 m_SixSeriesChoice.Update( ss_xs->m_Series.GetID() );
             }
-            else if ( xsc->GetType() == XSecCurve::BICONVEX )
+            else if ( xsc->GetType() == XS_BICONVEX )
             {
                 DisplayGroup( &m_BiconvexGroup );
                 Biconvex* bi_xs = dynamic_cast< Biconvex* >( xsc );
@@ -459,7 +461,7 @@ bool StackScreen::Update()
                 m_BiconvexChordSlider.Update( bi_xs->m_Chord.GetID() );
                 m_BiconvexThickChordSlider.Update( bi_xs->m_ThickChord.GetID() );
             }
-            else if ( xsc->GetType() == XSecCurve::WEDGE )
+            else if ( xsc->GetType() == XS_WEDGE )
             {
                 DisplayGroup( &m_WedgeGroup );
                 Wedge* we_xs = dynamic_cast< Wedge* >( xsc );
@@ -469,7 +471,7 @@ bool StackScreen::Update()
                 m_WedgeThickChordSlider.Update( we_xs->m_ThickChord.GetID() );
                 m_WedgeThickLocSlider.Update( we_xs->m_ThickLoc.GetID() );
             }
-            else if ( xsc->GetType() == XSecCurve::FILE_FUSE )
+            else if ( xsc->GetType() == XS_FILE_FUSE )
             {
                 DisplayGroup( &m_FuseFileGroup );
                 FileXSec* file_xs = dynamic_cast< FileXSec* >( xsc );
@@ -478,7 +480,7 @@ bool StackScreen::Update()
                 m_FileHeightSlider.Update( file_xs->m_Height.GetID() );
                 m_FileWidthSlider.Update( file_xs->m_Width.GetID() );
             }
-            else if ( xsc->GetType() == XSecCurve::FILE_AIRFOIL )
+            else if ( xsc->GetType() == XS_FILE_AIRFOIL )
             {
                 DisplayGroup( &m_AfFileGroup );
                 FileAirfoil* affile_xs = dynamic_cast< FileAirfoil* >( xsc );
@@ -565,7 +567,7 @@ void StackScreen::GuiDeviceCallBack( GuiDevice* gui_device )
             XSecCurve* xsc = xs->GetXSecCurve();
             if ( xsc )
             {
-                if ( xsc->GetType() == XSecCurve::FILE_FUSE  )
+                if ( xsc->GetType() == XS_FILE_FUSE  )
                 {
                     FileXSec* file_xs = dynamic_cast< FileXSec* >( xsc );
                     assert( file_xs );
@@ -587,7 +589,7 @@ void StackScreen::GuiDeviceCallBack( GuiDevice* gui_device )
             XSecCurve* xsc = xs->GetXSecCurve();
             if ( xsc )
             {
-                if ( xsc->GetType() == XSecCurve::FILE_AIRFOIL  )
+                if ( xsc->GetType() == XS_FILE_AIRFOIL  )
                 {
                     FileAirfoil* affile_xs = dynamic_cast< FileAirfoil* >( xsc );
                     assert( affile_xs );
