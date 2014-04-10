@@ -77,12 +77,6 @@ public:
     */
     virtual void zoom( int delta, bool precisionOn = false );
 
-public:
-    /*!
-    * Load DrawObjs.
-    */
-    void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
-
 // Override Fl_Gl_Window Functions.
 public:
     virtual void show();
@@ -106,13 +100,6 @@ private:
     void _update( std::vector<DrawObj *> objects );
 
     void _setLighting( DrawObj * drawObj );
-
-    bool _checkIfPickingIsNeeded( std::vector<DrawObj *> DOs );
-
-    void _generatePickGeomDOs();
-
-    void _generatePickVertDOs();
-    void _clearPickVertDOs();
 
     struct ID;
 
@@ -178,9 +165,6 @@ private:
     glm::vec2 m_prevCtrlLB;
     glm::vec2 m_prevMetaLB;
     glm::vec2 m_prevLBRB;
-
-    std::vector<DrawObj> m_PickableGeoms;
-    std::vector<DrawObj> m_PickableVertices;
 };
 }
 #endif
