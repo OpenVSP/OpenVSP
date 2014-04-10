@@ -40,7 +40,10 @@ void GuiInterface::InitGui( Vehicle* vPtr )
     m_Vehicle = vPtr;
 
 #ifdef VSP_USE_FLTK
-    m_ScreenMgr = new ScreenMgr( vPtr );
+    if( !m_ScreenMgr )
+    {
+        m_ScreenMgr = new ScreenMgr( vPtr );
+    }
 #endif
 
 }
@@ -58,7 +61,10 @@ void GuiInterface::InitGuiAPI( Vehicle* vPtr )
     m_Vehicle = vPtr;
 
 #ifdef VSP_USE_FLTK
-    m_ScreenMgr = new ScreenMgr( vPtr );
+    if( !m_ScreenMgr )
+    {
+        m_ScreenMgr = new ScreenMgr( vPtr );
+    }
 
     for( int i = 0; i < ScreenMgr::VSP_NUM_SCREENS; i++ )
     {
