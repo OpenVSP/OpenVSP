@@ -563,6 +563,7 @@ void FuselageScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 
                     file_xs->ReadXsecFile( newfile );
                     file_xs->Update();
+                    xs->Update();
                     fuselage_ptr->Update();
                 }
             }
