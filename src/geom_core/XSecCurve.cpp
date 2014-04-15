@@ -615,7 +615,7 @@ void FileXSec::Update()
     m_Curve.Interpolate( scaled_file_pnts, true );
     m_Curve.UniformInterpolate( m_NumBasePnts, true );
 
-    XSec::Update();
+    XSecCurve::Update();
 #endif
 }
 
