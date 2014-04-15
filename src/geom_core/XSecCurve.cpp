@@ -597,9 +597,9 @@ void FileXSec::Update()
     vector< vec3d > scaled_file_pnts;
     for ( int i = 0 ; i < ( int )m_UnityFilePnts.size() ; i++ )
     {
-        double y = m_UnityFilePnts[i].y() * m_Width();
-        double z = m_UnityFilePnts[i].z() * m_Height();
-        scaled_file_pnts.push_back( vec3d( 0.0, y, z ) );
+        double x = m_UnityFilePnts[i].x() * m_Width();
+        double y = m_UnityFilePnts[i].y() * m_Height();
+        scaled_file_pnts.push_back( vec3d( x + m_Width() / 2.0, y, 0.0 ) );
     }
 
     m_Curve.Interpolate( scaled_file_pnts, true );
@@ -695,47 +695,47 @@ bool FileXSec::ReadOldXSecFile( FILE* file_id )
     }
 
     //==== Find Points ====//
-    float y, z;
+    float x, y;
     vector< vec3d > pnt_vec;
     for ( int i = 0 ; i < num_pnts ; i++ )
     {
         if ( fgets( buff, 80, file_id ) )
         {
-            sscanf( buff, "%f  %f", &y, &z );
-            pnt_vec.push_back( vec3d( 0.0, y, z ) );
+            sscanf( buff, "%f  %f", &x, &y );
+            pnt_vec.push_back( vec3d( x, y, 0.0 ) );
         }
     }
 
     //==== Find Height & Width ====//
     vec3d p0 = pnt_vec[0];
     vec3d pn = pnt_vec[pnt_vec.size() - 1];
-    m_Height.Set( max( fabs( p0.z() - pn.z() ), 1.0e-12 ) );
+    m_Height.Set( max( fabs( p0.y() - pn.y() ), 1.0e-12 ) );
 
-    double max_y = 0;
+    double max_x = 0;
     for ( int i = 0 ; i < ( int )pnt_vec.size() ; i++ )
     {
-        double y = pnt_vec[i].y();
-        if  ( fabs( y ) > max_y )
+        double x = pnt_vec[i].x();
+        if  ( fabs( y ) > max_x )
         {
-            max_y = fabs( y );
+            max_x = fabs( x );
         }
     }
-    m_Width.Set( max( 2.0 * max_y, 1.0e-12 ) );
+    m_Width.Set( max( 2.0 * max_x, 1.0e-12 ) );
 
     //==== Scale Point By Height & Width ====//
     m_UnityFilePnts.clear();
     for ( int i = 0 ; i < ( int )pnt_vec.size() ; i++ )
     {
-        double y = pnt_vec[i].y() / m_Width();
-        double z = pnt_vec[i].z() / m_Height();
-        m_UnityFilePnts.push_back( vec3d( 0.0, y,  z ) );
+        double x = pnt_vec[i].x() / m_Width();
+        double y = pnt_vec[i].y() / m_Height();
+        m_UnityFilePnts.push_back( vec3d( x, y, 0.0 ) );
     }
     //==== Reflected Pnts ====//
     for ( int i = ( int )pnt_vec.size() - 2 ; i >= 0 ; i-- )
     {
-        double y = pnt_vec[i].y() / m_Width();
-        double z = pnt_vec[i].z() / m_Height();
-        m_UnityFilePnts.push_back( vec3d( 0.0, -y,  z ) );
+        double x = pnt_vec[i].x() / m_Width();
+        double y = pnt_vec[i].y() / m_Height();
+        m_UnityFilePnts.push_back( vec3d( -x, y, 0.0 ) );
     }
     return true;
 }
@@ -760,7 +760,7 @@ bool FileXSec::ReadXSecFile( FILE* file_id )
     }
 
     //==== Read Points ====//
-    float y, z;
+    float x, y;
     vector< vec3d > pnt_vec;
     bool more_data = true;
     while( more_data )
@@ -768,10 +768,10 @@ bool FileXSec::ReadXSecFile( FILE* file_id )
         more_data = false;
         if ( fgets( buff, 255, file_id ) )
         {
-            sscanf( buff, "%f %f", &y, &z );
-            if ( fabs( y ) < 1.0e12 && fabs( y ) <  1.0e12 )
+            sscanf( buff, "%f %f", &x, &y );
+            if ( fabs( x ) < 1.0e12 && fabs( y ) <  1.0e12 )
             {
-                pnt_vec.push_back( vec3d( 0.0, y, z ) );
+                pnt_vec.push_back( vec3d( x, y, 0.0 ) );
                 more_data = true;
             }
         }
@@ -819,12 +819,12 @@ void FileXSec::SetPnts( vector< vec3d > & pnt_vec )
     {
         for ( int j = 0 ; j < num_pnts ; j++ )
         {
-            double w = fabs( pnt_vec[i].y() - pnt_vec[j].y() );
+            double w = fabs( pnt_vec[i].x() - pnt_vec[j].x() );
             if ( w > m_Width() )
             {
                 m_Width = w;
             }
-            double h = fabs( pnt_vec[i].z() - pnt_vec[j].z() );
+            double h = fabs( pnt_vec[i].y() - pnt_vec[j].y() );
             if ( h > m_Height() )
             {
                 m_Height = h;
@@ -836,8 +836,8 @@ void FileXSec::SetPnts( vector< vec3d > & pnt_vec )
     m_UnityFilePnts.clear();
     for ( int i = 0 ; i < ( int )pnt_vec.size() ; i++ )
     {
-        double y = pnt_vec[i].y() / m_Width();
-        double z = pnt_vec[i].z() / m_Height();
-        m_UnityFilePnts.push_back( vec3d( 0.0, y,  z ) );
+        double x = pnt_vec[i].x() / m_Width();
+        double y = pnt_vec[i].y() / m_Height();
+        m_UnityFilePnts.push_back( vec3d( x, y, 0.0 ) );
     }
 }
