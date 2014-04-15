@@ -612,7 +612,7 @@ void FileXSec::Update()
 //==== Encode XML ====//
 xmlNodePtr FileXSec::EncodeXml(  xmlNodePtr & node  )
 {
-	XSecCurve::EncodeXml( node );
+    XSecCurve::EncodeXml( node );
     xmlNodePtr child_node  = xmlNewChild( node, NULL, BAD_CAST "FileXSec", NULL );
     if ( child_node )
     {
@@ -624,7 +624,7 @@ xmlNodePtr FileXSec::EncodeXml(  xmlNodePtr & node  )
 //==== Decode XML ====//
 xmlNodePtr FileXSec::DecodeXml(  xmlNodePtr & node  )
 {
-	XSecCurve::DecodeXml( node );
+    XSecCurve::DecodeXml( node );
 
     xmlNodePtr child_node = XmlUtil::GetNode( node, "FileXSec", 0 );
     if ( child_node )
