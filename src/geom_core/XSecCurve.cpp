@@ -598,7 +598,6 @@ void FileXSec::SetWidthHeight( double w, double h )
 //==== Update Geometry ====//
 void FileXSec::Update()
 {
-#if 0
     //==== Scale File Points ====//
     vector< vec3d > scaled_file_pnts;
     vector< double > arclen;
@@ -650,7 +649,6 @@ void FileXSec::Update()
     m_Curve.InterpolatePCHIP( scaled_file_pnts, arclen, true );
 
     XSecCurve::Update();
-#endif
 }
 
 //==== Encode XML ====//
