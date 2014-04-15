@@ -645,12 +645,13 @@ bool FileXSec::ReadXsecFile( string file_name )
 
     m_FileName = file_name;
 
-    if ( ReadOldXSecFile( file_id ) == true )
-    {
-        fclose( file_id );
-        return true;
-    }
-    else if ( ReadXSecFile( file_id ) == true )
+//    if ( ReadOldXSecFile( file_id ) == true )
+//    {
+//        fclose( file_id );
+//        return true;
+//    }
+//    else if ( ReadXSecFile( file_id ) == true )
+    if ( ReadXSecFile( file_id ) == true )
     {
         fclose( file_id );
         return true;
@@ -660,6 +661,7 @@ bool FileXSec::ReadXsecFile( string file_name )
     return false;
 }
 
+/*
 //==== Read Old Fuse XSec File ====//
 bool FileXSec::ReadOldXSecFile( FILE* file_id )
 {
@@ -737,7 +739,7 @@ bool FileXSec::ReadOldXSecFile( FILE* file_id )
     }
     return true;
 }
-
+*/
 
 
 //==== Read OpenVSP Fuse XSec File ====//
