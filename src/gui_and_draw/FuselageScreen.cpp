@@ -586,6 +586,7 @@ void FuselageScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 
                     affile_xs->ReadFile( newfile );
                     affile_xs->Update();
+                    xs->Update();
                     fuselage_ptr->Update();
                 }
             }

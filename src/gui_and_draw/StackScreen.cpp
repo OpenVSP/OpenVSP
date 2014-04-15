@@ -575,6 +575,7 @@ void StackScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 
                     file_xs->ReadXsecFile( newfile );
                     file_xs->Update();
+                    xs->Update();
                     stackgeom_ptr->Update();
                 }
             }
@@ -597,6 +598,7 @@ void StackScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 
                     affile_xs->ReadFile( newfile );
                     affile_xs->Update();
+                    xs->Update();
                     stackgeom_ptr->Update();
                 }
             }

@@ -566,6 +566,7 @@ void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 
                     file_xs->ReadXsecFile( newfile );
                     file_xs->Update();
+                    xs->Update();
                     wing_ptr->Update();
                 }
             }
@@ -588,6 +589,7 @@ void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 
                     affile_xs->ReadFile( newfile );
                     affile_xs->Update();
+                    xs->Update();
                     wing_ptr->Update();
                 }
             }
