@@ -601,7 +601,11 @@ void FileXSec::Update()
 #if 0
     //==== Scale File Points ====//
     vector< vec3d > scaled_file_pnts;
-    for ( int i = 0 ; i < ( int )m_UnityFilePnts.size() ; i++ )
+
+    // Point set is closed with last point repeating first.
+    int npts = m_UnityFilePnts.size() - 1;
+
+    for ( int i = 0 ; i < npts ; i++ )
     {
         double x = m_UnityFilePnts[i].x() * m_Width();
         double y = m_UnityFilePnts[i].y() * m_Height();
@@ -816,6 +820,13 @@ bool FileXSec::ReadXSecFile( FILE* file_id )
 //==== Set Pnt Vec ====//
 void FileXSec::SetPnts( vector< vec3d > & pnt_vec )
 {
+    // Check for repeated first/last point and close curve.
+    double gap = dist( pnt_vec[0], pnt_vec.back() );
+    if ( gap > 1e-8 )
+    {
+        pnt_vec.push_back( pnt_vec[0] );
+    }
+
     int num_pnts = ( int )pnt_vec.size();
 
     //==== Find Height & Width ====//
