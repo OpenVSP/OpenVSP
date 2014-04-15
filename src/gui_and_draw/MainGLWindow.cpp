@@ -1259,6 +1259,11 @@ void VspGlWindow::OnPush( int x, int y )
                             geomScreen->Set( baseId );
                         }
                     }
+                    // Mac Fix:  On Mac, FLTK window is always focus on the last shown GUI.  In 
+                    // this case where a geometry is selected, geometry's window becomes the new
+                    // focus.  The behavior locks up geometry selection process.  Set OpenGL 
+                    // window back on focus so user can proceed without interruption.
+                    focus(this);
                 }
             }
             else if( mouseInWorld != glm::vec3( 0xFFFFFFFF ) && 
