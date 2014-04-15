@@ -601,6 +601,7 @@ void FileXSec::Update()
 #if 0
     //==== Scale File Points ====//
     vector< vec3d > scaled_file_pnts;
+    vector< double > arclen;
 
     // Point set is closed with last point repeating first.
     int npts = m_UnityFilePnts.size() - 1;
@@ -610,6 +611,40 @@ void FileXSec::Update()
         double x = m_UnityFilePnts[i].x() * m_Width();
         double y = m_UnityFilePnts[i].y() * m_Height();
         scaled_file_pnts.push_back( vec3d( x + m_Width() / 2.0, y, 0.0 ) );
+
+        if ( i > 0 )
+        {
+            double ds = dist( scaled_file_pnts[i], scaled_file_pnts[i-1] );
+            if ( ds < 1e-8 )
+            {
+                ds = 1/npts;
+            }
+            arclen.push_back( arclen[i-1] + ds );
+        }
+        else
+        {
+            arclen.push_back( 0 );
+        }
+
+        // Calculate arclen to repeated final point.
+        if ( i == npts - 1 )
+        {
+            x = m_UnityFilePnts[i+1].x() * m_Width();
+            y = m_UnityFilePnts[i+1].y() * m_Height();
+            double ds = dist( scaled_file_pnts[i], vec3d( x + m_Width() / 2.0, y, 0.0 )  );
+            if ( ds < 1e-8 )
+            {
+                ds = 1/npts;
+            }
+            arclen.push_back( arclen[i] + ds );
+        }
+    }
+
+    double lenscale = 4.0/arclen.back();
+
+    for ( int i = 0; i < arclen.size(); i++ )
+    {
+        arclen[i] = arclen[i] * lenscale;
     }
 
     m_Curve.InterpolatePCHIP( scaled_file_pnts, arclen, true );
