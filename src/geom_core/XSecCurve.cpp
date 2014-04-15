@@ -575,7 +575,13 @@ FileXSec::FileXSec( ) : XSecCurve( )
 {
     m_Type = XS_FILE_FUSE;
 
-    m_UnityFilePnts.resize( 21, vec3d( 0, 0, 0 ) );
+    // Initialize to closed circle.
+    int n = 21;
+    for ( int i = 0; i < n; i++ )
+    {
+        double theta = -2.0*PI*i/(n-1);
+        m_UnityFilePnts.push_back( vec3d( 0.5*cos(theta), 0.5*sin(theta), 0.0 ) );
+    }
 
     m_Height.Init( "Height",           m_GroupName, this, 1.0, 0.0, 1.0e12 );
     m_Width.Init( "Width",             m_GroupName, this, 1.0, 0.0, 1.0e12 );
