@@ -612,8 +612,7 @@ void FileXSec::Update()
         scaled_file_pnts.push_back( vec3d( x + m_Width() / 2.0, y, 0.0 ) );
     }
 
-    m_Curve.Interpolate( scaled_file_pnts, true );
-    m_Curve.UniformInterpolate( m_NumBasePnts, true );
+    m_Curve.InterpolatePCHIP( scaled_file_pnts, arclen, true );
 
     XSecCurve::Update();
 #endif
