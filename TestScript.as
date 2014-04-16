@@ -231,6 +231,9 @@ void TestAPIScript()
 	string xsec_surf = GetXSecSurf( fuseid, 0 );
 	int num_xsecs = GetNumXSec( xsec_surf );
 
+    int xsec_type = GetXSecType( xsec_surf );
+    if ( xsec_type != XSEC_FUSE )           Print( "---> Error: API GetXSecType  " );
+
 	if ( num_xsecs < 1 )					Print( "---> Error: API GetXSecSurf/GetNumXSec  " );
 
 	string xsec = GetXSec( xsec_surf, 0 );
