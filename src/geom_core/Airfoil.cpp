@@ -315,9 +315,7 @@ void Wedge::Update()
 //==== Constructor ====//
 FileAirfoil::FileAirfoil( ) : Airfoil( )
 {
-#if 0
     m_Type = XS_FILE_AIRFOIL;
-#endif
 
     // Initialize to closed circle.
     int n = 21;
@@ -333,7 +331,6 @@ FileAirfoil::FileAirfoil( ) : Airfoil( )
 //==== Update ====//
 void FileAirfoil::Update()
 {
-#if 0
     //==== Load Points ====//
     vector< vec3d > pnts;
 
@@ -394,7 +391,6 @@ void FileAirfoil::Update()
     m_Curve.Transform( mat );
 
     Airfoil::Update();
-#endif
 }
 
 //==== Encode XML ====//
