@@ -1128,7 +1128,7 @@ vector<vec3d> ReadFileXSec( const string& xsec_id, const string& file_name )
 
     if ( xs->GetXSecCurve()->GetType() == XS_FILE_FUSE )
     {
-        FileXSec* file_xs = dynamic_cast<FileXSec*>( xs );
+        FileXSec* file_xs = dynamic_cast<FileXSec*>( xs->GetXSecCurve() );
         assert( file_xs );
         file_xs->ReadXsecFile( file_name );
         return file_xs->GetUnityFilePnts();
@@ -1153,7 +1153,7 @@ void SetXSecPnts( const string& xsec_id, vector< vec3d > & pnt_vec )
         return;
     }
 
-    FileXSec* file_xs = dynamic_cast<FileXSec*>( xs );
+    FileXSec* file_xs = dynamic_cast<FileXSec*>( xs->GetXSecCurve() );
     assert( file_xs );
     file_xs->SetPnts( pnt_vec );
     ErrorMgr.NoError();
