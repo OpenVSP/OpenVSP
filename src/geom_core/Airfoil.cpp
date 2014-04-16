@@ -613,7 +613,7 @@ bool FileAirfoil::ReadVspAirfoil( FILE* file_id )
         for ( i = 0 ; i < num_pnts_lower ; i++ )
         {
             fgets( buff, 255, file_id );
-            fscanf( file_id, "%f %f", &x, &z );
+            sscanf( buff, "%f %f", &x, &y );
             m_LowerPnts.push_back( vec3d( 0.0, z, x ) );
         }
     }
