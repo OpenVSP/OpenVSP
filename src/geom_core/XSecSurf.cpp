@@ -333,7 +333,7 @@ void XSecSurf::PasteXSec( int index )
 }
 
 //==== Change XSec Type ====//
-void XSecSurf::ChangeXSecType( int index, int type )
+void XSecSurf::ChangeXSecShape( int index, int type )
 {
     //==== Old XSec ====//
     XSec* xs = FindXSec( index );

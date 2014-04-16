@@ -38,7 +38,7 @@ public:
     void CopyXSec( int index );
     void PasteXSec( int index );
     string InsertXSec( int type, int index );
-    void ChangeXSecType( int index, int type );
+    void ChangeXSecShape( int index, int type );
 
     void SetBasicOrientation( int pdir, int wdir, int wshift, bool flip )
     {

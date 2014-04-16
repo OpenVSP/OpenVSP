@@ -100,7 +100,7 @@ extern void CutXSec( const string & xsec_surf_id, int xsec_index );
 extern void CopyXSec( const string & xsec_surf_id, int xsec_index );
 extern void PasteXSec( const string & xsec_surf_id, int xsec_index );
 extern string InsertXSec( const string & xsec_surf_id, int type, int xsec_index );
-extern void ChangeXSecType( const string & xsec_surf_id, int xsec_index, int type );
+extern void ChangeXSecShape( const string & xsec_surf_id, int xsec_index, int type );
 
 //======================== XSec ================================//
 extern int GetXSecType( const string& xsec_id );

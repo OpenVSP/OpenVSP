@@ -198,7 +198,7 @@ void FuselageGeom::SetActiveXSecType( int type )
         return;
     }
 
-    m_XSecSurf.ChangeXSecType( m_ActiveXSec, type );
+    m_XSecSurf.ChangeXSecShape( m_ActiveXSec, type );
 
     Update();
 }

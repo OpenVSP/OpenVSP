@@ -980,22 +980,22 @@ string InsertXSec( const string & xsec_surf_id, int type, int xsec_index  )
 }
 
 /// Create an xsec of type and insert it after xsec_index
-void ChangeXSecType( const string & xsec_surf_id, int xsec_index, int type )
+void ChangeXSecShape( const string & xsec_surf_id, int xsec_index, int type )
 {
     XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
     if ( !xsec_surf )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "ChangeXSecType::Can't Find XSecSurf " + xsec_surf_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "ChangeXSecShape::Can't Find XSecSurf " + xsec_surf_id  );
         return;
     }
     if ( xsec_index < 0 || xsec_index >= xsec_surf->NumXSec() )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ChangeXSecType::XSec Index Out of Range " + xsec_surf_id + ":" + to_string( ( long long )xsec_index )  );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ChangeXSecShape::XSec Index Out of Range " + xsec_surf_id + ":" + to_string( ( long long )xsec_index )  );
         return;
     }
 
     ErrorMgr.NoError();
-    xsec_surf->ChangeXSecType( xsec_index, type );
+    xsec_surf->ChangeXSecShape( xsec_index, type );
 }
 
 //===================================================================//

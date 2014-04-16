@@ -89,7 +89,7 @@ fuse_id = vsp.AddGeom( "FUSELAGE" )
 xsurf_id = vsp.GetXSecSurf( fuse_id, 0 )
 
 # Change Type of First XSec
-vsp.ChangeXSecType( xsurf_id, 0, vsp.SUPER_ELLIPSE )
+vsp.ChangeXSecShape( xsurf_id, 0, vsp.SUPER_ELLIPSE )
 errorMgr.PopErrorAndPrint( stdout )
 
 # Change Type First XSec Properties
@@ -109,7 +109,7 @@ vsp.PasteXSec( xsurf_id, 3 )
 
 # Change Type to File XSec
 
-vsp.ChangeXSecType( xsurf_id, 0, vsp.FILE_FUSE )
+vsp.ChangeXSecShape( xsurf_id, 0, vsp.FILE_FUSE )
 file_xsec_id = vsp.GetXSec( xsurf_id, 0 )
 
 # Build Point Vec

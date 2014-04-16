@@ -146,7 +146,7 @@ int main( int argc, char** argv )
     string xsurf_id = vsp::GetXSecSurf( fuse_id, 0 );
 
     //==== Change Type of First XSec ====//
-    vsp::ChangeXSecType( xsurf_id, 0, vsp::XS_SUPER_ELLIPSE );
+    vsp::ChangeXSecShape( xsurf_id, 0, vsp::XS_SUPER_ELLIPSE );
 
     //==== Change Type of First XSec ====//
     string xsec_id = vsp::GetXSec( xsurf_id, 0 );
@@ -164,7 +164,7 @@ int main( int argc, char** argv )
     vsp::PasteXSec( xsurf_id, 3 );
 
     //===== Change Type To File XSec ====//
-    vsp::ChangeXSecType( xsurf_id, 0, vsp::XS_FILE_FUSE );
+    vsp::ChangeXSecShape( xsurf_id, 0, vsp::XS_FILE_FUSE );
     string file_xsec_id = vsp::GetXSec( xsurf_id, 0 );
 
     //===== Build Point Vec ====//

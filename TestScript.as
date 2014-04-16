@@ -241,7 +241,7 @@ void TestAPIScript()
 	CopyXSec( xsec_surf, GetNumXSec( xsec_surf )-1 );
 	PasteXSec( xsec_surf, GetNumXSec( xsec_surf )-2 );
 	InsertXSec( xsec_surf, XS_ROUNDED_RECTANGLE, 0 );
-	ChangeXSecType( xsec_surf, GetNumXSec( xsec_surf )-1, XS_POINT );
+	ChangeXSecShape( xsec_surf, GetNumXSec( xsec_surf )-1, XS_POINT );
 
 	xsec = GetXSec( xsec_surf, 1 );
 	if ( GetXSecType( xsec ) != XS_ROUNDED_RECTANGLE )
@@ -257,7 +257,7 @@ void TestAPIScript()
 	string wid = GetXSecParm( xsec, "RoundedRect_Width" );
 	if ( !ValidParm( wid ) )							Print( "---> Error: API GetXSecParm " );
 
-	ChangeXSecType( xsec_surf, 0, XS_FILE_FUSE );
+	ChangeXSecShape( xsec_surf, 0, XS_FILE_FUSE );
 	xsec = GetXSec( xsec_surf, 0 );
 	array< vec3d > @vec_array = ReadFileXSec( xsec, "../../TestXSec.fxs" );
 
