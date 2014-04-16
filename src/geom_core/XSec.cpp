@@ -285,6 +285,8 @@ FuseXSec::FuseXSec( XSecCurve *xsc, bool use_left ) : XSec( xsc, use_left)
     m_YRotate.SetDescript( "Rotation about z-axis of cross section" );
 
     m_Spin.Init( "Spin", m_GroupName, this, 0.0, -180.0, 180.0 );
+
+    m_RefLength.Init( "RefLength", m_GroupName, this, 1.0, 1e-8, 1e12, false );
 }
 
 //==== Update ====//
@@ -327,7 +329,7 @@ void FuseXSec::Update()
 
     m_Transform.loadIdentity();
 
-    m_Transform.translatef( m_XLocPercent()*m_RefLength, m_YLocPercent()*m_RefLength, m_ZLocPercent()*m_RefLength );
+    m_Transform.translatef( m_XLocPercent()*m_RefLength(), m_YLocPercent()*m_RefLength(), m_ZLocPercent()*m_RefLength() );
 
     m_Transform.rotateX( m_XRotate() );
     m_Transform.rotateY( m_YRotate() );
@@ -339,7 +341,7 @@ void FuseXSec::Update()
 //==== Set Ref Length ====//
 void FuseXSec::SetRefLength( double len )
 {
-    if ( fabs( len - m_RefLength ) < DBL_EPSILON )
+    if ( fabs( len - m_RefLength() ) < DBL_EPSILON )
     {
         return;
     }
@@ -347,9 +349,9 @@ void FuseXSec::SetRefLength( double len )
     m_RefLength = len;
     m_LateUpdateFlag = true;
 
-    m_XLocPercent.SetRefVal( m_RefLength );
-    m_YLocPercent.SetRefVal( m_RefLength );
-    m_ZLocPercent.SetRefVal( m_RefLength );
+    m_XLocPercent.SetRefVal( m_RefLength() );
+    m_YLocPercent.SetRefVal( m_RefLength() );
+    m_ZLocPercent.SetRefVal( m_RefLength() );
 }
 
 //==== Copy position from base class ====//

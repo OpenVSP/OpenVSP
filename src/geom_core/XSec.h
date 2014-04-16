@@ -119,8 +119,9 @@ public:
     Parm m_YRotate;
     Parm m_ZRotate;
 
+    Parm m_RefLength;
+
 protected:
-    double m_RefLength;
 };
 
 class StackXSec : public XSec
