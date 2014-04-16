@@ -316,11 +316,18 @@ void Wedge::Update()
 FileAirfoil::FileAirfoil( ) : Airfoil( )
 {
 #if 0
-    m_NumBasePnts = 21;
     m_Type = XS_FILE_AIRFOIL;
-    m_UpperPnts.resize( m_NumBasePnts, vec3d( 0, 0, 0 ) );
-    m_LowerPnts.resize( m_NumBasePnts, vec3d( 0, 0, 0 ) );
 #endif
+
+    // Initialize to closed circle.
+    int n = 21;
+    for ( int i = 0; i < n; i++ )
+    {
+        double theta = PI-PI*i/(n-1);
+        m_UpperPnts.push_back( vec3d( 0.5 + 0.5*cos(theta), 0.5*sin(theta), 0.0 ) );
+        theta = PI+PI*i/(n-1);
+        m_LowerPnts.push_back( vec3d( 0.5 + 0.5*cos(theta), 0.5*sin(theta), 0.0 ) );
+    }
 }
 
 //==== Update ====//
@@ -329,13 +336,16 @@ void FileAirfoil::Update()
 #if 0
     //==== Load Points ====//
     vector< vec3d > pnts;
-    for ( int i = ( int )m_UpperPnts.size() - 1 ; i >= 0 ; i-- )
+
+    for ( int i = ( int )m_LowerPnts.size() - 1 ; i >= 0; i-- )
+    {
+        pnts.push_back( m_LowerPnts[i] );
+    }
+    for ( int i = 1 ; i < ( int )m_UpperPnts.size() - 1 ; i++ )
     {
         pnts.push_back( m_UpperPnts[i] );
     }
-    for ( int i = 1 ; i < ( int )m_LowerPnts.size() ; i++ )
     {
-        pnts.push_back( m_LowerPnts[i] );
     }
 
     pnts = ScaleCheckInvert( pnts );
