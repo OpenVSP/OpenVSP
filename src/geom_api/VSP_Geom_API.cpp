@@ -1111,8 +1111,23 @@ string GetXSecParm( const string& xsec_id, const string& name )
         return string();
     }
 
+    string xsparm = xs->FindParm( name );
+
+    if ( ValidParm( xsparm ) )
+    {
+        ErrorMgr.NoError();
+        return xsparm;
+    }
+
+    XSecCurve* xsc = xs->GetXSecCurve();
+    if ( !xsc )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecParm::Can't Find XSecCurve " + xsec_id  );
+        return string();
+    }
+
     ErrorMgr.NoError();
-    return xs->FindParm( name );
+    return xsc->FindParm( name );
 }
 
 //==== Read XSec From File ====//
