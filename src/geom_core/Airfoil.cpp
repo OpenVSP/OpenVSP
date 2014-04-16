@@ -345,12 +345,53 @@ void FileAirfoil::Update()
     {
         pnts.push_back( m_UpperPnts[i] );
     }
+
+    vector< double > arclen;
+    int npts = pnts.size();
+
+    int i;
+    for ( i = 0 ; i < npts ; i++ )
     {
+        if ( i > 0 )
+        {
+            double ds = dist( pnts[i], pnts[i-1] );
+            if ( ds < 1e-8 )
+            {
+                ds = 1/npts;
+            }
+            arclen.push_back( arclen[i-1] + ds );
+        }
+        else
+        {
+            arclen.push_back( 0 );
+        }
+
+        // Calculate arclen to repeated final point.
+        if ( i == npts - 1 )
+        {
+            double ds = dist( pnts[i], pnts[0] );
+            if ( ds < 1e-8 )
+            {
+                ds = 1/npts;
+            }
+            arclen.push_back( arclen[i] + ds );
+        }
     }
 
-    pnts = ScaleCheckInvert( pnts );
-    m_Curve.Interpolate( pnts, true );
-    m_Curve.UniformInterpolate( m_NumBasePnts, true );
+    double lenscale = 4.0/arclen.back();
+
+    for ( int i = 0; i < arclen.size(); i++ )
+    {
+        arclen[i] = arclen[i] * lenscale;
+    }
+
+    m_Curve.InterpolatePCHIP( pnts, arclen, true );
+
+    Matrix4d mat;
+    mat.loadIdentity();
+    mat.scale( m_Chord() );
+
+    m_Curve.Transform( mat );
 
     Airfoil::Update();
 #endif
