@@ -1001,13 +1001,13 @@ void ChangeXSecShape( const string & xsec_surf_id, int xsec_index, int type )
 //===================================================================//
 //===============       XSec Functions         ==================//
 //===================================================================//
-/// Get XSec type given xsec id
-int GetXSecType( const string& xsec_id )
+/// Get XSec shape given xsec id
+int GetXSecShape( const string& xsec_id )
 {
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecType::Can't Find XSec " + xsec_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecShape::Can't Find XSec " + xsec_id  );
         return 0;
     }
 

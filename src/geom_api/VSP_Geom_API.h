@@ -103,7 +103,7 @@ extern string InsertXSec( const string & xsec_surf_id, int type, int xsec_index 
 extern void ChangeXSecShape( const string & xsec_surf_id, int xsec_index, int type );
 
 //======================== XSec ================================//
-extern int GetXSecType( const string& xsec_id );
+extern int GetXSecShape( const string& xsec_id );
 extern double GetXSecWidth( const string& xsec_id );
 extern double GetXSecHeight( const string& xsec_id );
 extern void SetXSecWidthHeight( const string& xsec_id, double w, double h );

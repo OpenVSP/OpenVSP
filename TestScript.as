@@ -244,8 +244,8 @@ void TestAPIScript()
 	ChangeXSecShape( xsec_surf, GetNumXSec( xsec_surf )-1, XS_POINT );
 
 	xsec = GetXSec( xsec_surf, 1 );
-	if ( GetXSecType( xsec ) != XS_ROUNDED_RECTANGLE )
-		Print( "---> Error: API ChangeXSec/GetType " );
+	if ( GetXSecShape( xsec ) != XS_ROUNDED_RECTANGLE )
+		Print( "---> Error: API ChangeXSec/GetShape " );
 
 	SetXSecWidthHeight( xsec, 3.0, 6.0 );
 	if ( abs( GetXSecWidth( xsec ) - 3.0 ) > tol )		Print( "---> Error: API Get/Set Width " );

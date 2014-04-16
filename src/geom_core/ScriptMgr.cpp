@@ -682,7 +682,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
     //==== XSec Functions ====//
-    r = se->RegisterGlobalFunction( "int GetXSecType( const string& in xsec_id )", asFUNCTION( vsp::GetXSecType ), asCALL_CDECL );
+    r = se->RegisterGlobalFunction( "int GetXSecShape( const string& in xsec_id )", asFUNCTION( vsp::GetXSecShape ), asCALL_CDECL );
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "double GetXSecWidth( const string& in xsec_id )", asFUNCTION( vsp::GetXSecWidth ), asCALL_CDECL );
     assert( r >= 0 );
