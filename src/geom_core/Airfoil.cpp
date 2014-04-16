@@ -442,10 +442,10 @@ bool FileAirfoil::ReadSeligAirfoil( FILE* file_id )
 {
     int i;
     char buff[256];
-    float x, z;
+    float x, y;
 
     vector< float > xvec;
-    vector< float > zvec;
+    vector< float > yvec;
 
     int more_data_flag = 1;
     while ( more_data_flag )
@@ -458,12 +458,12 @@ bool FileAirfoil::ReadSeligAirfoil( FILE* file_id )
 
         if ( more_data_flag )
         {
-            x = z = 100000.0;
-            sscanf( buff, "%f %f", &x, &z );
-            if ( x >= 0.0 && x <= 1.0 && z >= -1.0 && z <= 1.0 )
+            x = y = 100000.0;
+            sscanf( buff, "%f %f", &x, &y );
+            if ( x >= 0.0 && x <= 1.0 && y >= -1.0 && y <= 1.0 )
             {
                 xvec.push_back( x );
-                zvec.push_back( z );
+                yvec.push_back( y );
             }
             else
             {
@@ -506,12 +506,12 @@ bool FileAirfoil::ReadSeligAirfoil( FILE* file_id )
     //==== Load Em Up ====//
     for ( i = leInd ; i >= 0 ; i-- )
     {
-        m_UpperPnts.push_back( vec3d( 0.0, zvec[i], xvec[i] ) );
+        m_UpperPnts.push_back( vec3d( xvec[i], yvec[i], 0.0 ) );
     }
 
     for ( i = leInd ; i < totalPnts ; i++ )
     {
-        m_LowerPnts.push_back( vec3d( 0.0, zvec[i], xvec[i] ) );
+        m_LowerPnts.push_back( vec3d( xvec[i], yvec[i], 0.0 ) );
     }
     //==== Close Trailing Edge - Set Last Points ====//
     vec3d last_pnt = m_UpperPnts.back() + m_LowerPnts.back();
@@ -525,15 +525,15 @@ bool FileAirfoil::ReadSeligAirfoil( FILE* file_id )
 bool FileAirfoil::ReadLednicerAirfoil( FILE* file_id )
 {
     char buff[256];
-    float x, z;
+    float x, y;
 
     rewind( file_id );
 
     fgets( buff, 255, file_id );
     fgets( buff, 255, file_id );
-    sscanf( buff, "%f %f", &x, &z );
+    sscanf( buff, "%f %f", &x, &y );
     int num_pnts_upper = ( int )( x + 0.5 );
-    int num_pnts_lower = ( int )( z + 0.5 );
+    int num_pnts_lower = ( int )( y + 0.5 );
 
     if ( num_pnts_upper < 3 || num_pnts_lower < 3 )
     {
@@ -547,15 +547,15 @@ bool FileAirfoil::ReadLednicerAirfoil( FILE* file_id )
     for ( int i = 0 ; i < num_pnts_upper ; i++ )
     {
         fgets( buff, 255, file_id );
-        sscanf( buff, "%f %f", &x, &z );
-        m_UpperPnts.push_back( vec3d( 0.0, z, x ) );
+        sscanf( buff, "%f %f", &x, &y );
+        m_UpperPnts.push_back( vec3d( x, y, 0.0 ) );
     }
     fgets( buff, 255, file_id );
     for ( int i = 0 ; i < num_pnts_lower ; i++ )
     {
         fgets( buff, 255, file_id );
-        sscanf( buff, "%f %f", &x, &z );
-        m_LowerPnts.push_back( vec3d( 0.0, z, x ) );
+        sscanf( buff, "%f %f", &x, &y );
+        m_LowerPnts.push_back( vec3d( x, y, 0.0 ) );
     }
 
     //==== Close Trailing Edge - Set Last Points ====//
@@ -574,7 +574,7 @@ bool FileAirfoil::ReadVspAirfoil( FILE* file_id )
 
     int sym_flag;
     int num_pnts_upper, num_pnts_lower;
-    float x, z;
+    float x, y;
 
     fgets( buff, 255, file_id );
     sscanf( buff, "%d", &sym_flag );
@@ -597,13 +597,13 @@ bool FileAirfoil::ReadVspAirfoil( FILE* file_id )
     for ( i = 0 ; i < num_pnts_upper ; i++ )
     {
         fgets( buff, 255, file_id );
-        sscanf( buff, "%f %f", &x, &z );
+        sscanf( buff, "%f %f", &x, &y );
 
-        m_UpperPnts.push_back( vec3d( 0.0, z, x ) );
+        m_UpperPnts.push_back( vec3d( x, y, 0.0 ) );
 
         if ( sym_flag )
         {
-            m_LowerPnts.push_back( vec3d( 0.0, z, -x ) );
+            m_LowerPnts.push_back( vec3d( x, -y, 0.0 ) );
         }
     }
     fgets( buff, 255, file_id );
@@ -614,7 +614,7 @@ bool FileAirfoil::ReadVspAirfoil( FILE* file_id )
         {
             fgets( buff, 255, file_id );
             sscanf( buff, "%f %f", &x, &y );
-            m_LowerPnts.push_back( vec3d( 0.0, z, x ) );
+            m_LowerPnts.push_back( vec3d( x, y, 0.0 ) );
         }
     }
 
