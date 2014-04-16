@@ -243,6 +243,33 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "GDEV", "GDEV_DIVIDER_BOX", GDEV_DIVIDER_BOX );
     assert( r >= 0 );
 
+    r = se->RegisterEnum( "XSEC_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "XSEC_TYPE", "XSEC_FUSE", XSEC_FUSE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "XSEC_TYPE", "XSEC_STACK", XSEC_STACK );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "XSEC_TYPE", "XSEC_NUM_TYPES", XSEC_NUM_TYPES );
+    assert( r >= 0 );
+
+    r = se->RegisterEnum( "DIR_INDEX" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "DIR_INDEX", "X_DIR", X_DIR );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "DIR_INDEX", "Y_DIR", Y_DIR );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "DIR_INDEX", "Z_DIR", Z_DIR );
+    assert( r >= 0 );
+
+    r = se->RegisterEnum( "XSEC_WIDTH_SHIFT" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "XSEC_WIDTH_SHIFT", "XS_SHIFT_LE", XS_SHIFT_LE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "XSEC_WIDTH_SHIFT", "XS_SHIFT_MID", XS_SHIFT_MID );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "XSEC_WIDTH_SHIFT", "XS_SHIFT_TE", XS_SHIFT_TE );
+    assert( r >= 0 );
+
     r = se->RegisterEnum( "XSEC_CRV_TYPE" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "XSEC_CRV_TYPE", "XS_POINT", XS_POINT );
