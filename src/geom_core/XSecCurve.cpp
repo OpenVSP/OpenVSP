@@ -83,12 +83,20 @@ void XSecCurve::ParmChanged( Parm* parm_ptr, int type )
     if ( type == Parm::SET )
     {
         m_LateUpdateFlag = true;
+
+        //==== Notify Parent Container (XSec) ====//
+        ParmContainer* pc = GetParentContainerPtr();
+        if ( pc )
+        {
+            pc->ParmChanged( parm_ptr, type );
+        }
+
         return;
     }
 
     Update();
 
-    //==== Notify Parent Container (XSecSurf) ====//
+    //==== Notify Parent Container (XSec) ====//
     ParmContainer* pc = GetParentContainerPtr();
     if ( pc )
     {
