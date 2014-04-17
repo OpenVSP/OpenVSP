@@ -17,11 +17,16 @@
 #include <limits.h>
 
 #include "XmlUtil.h"
+#include "GuiDeviceEnums.h"
 
 using std::string;
 using std::map;
 
 class ParmContainer;
+
+enum PARM_TYPE { PARM_DOUBLE_TYPE = 0, PARM_INT_TYPE = 1, PARM_BOOL_TYPE = 2,
+                 PARM_FRACTION_TYPE = 3, PARM_STRING_TYPE = 4,
+               };
 
 //==== Parm ====//
 class Parm
@@ -69,9 +74,6 @@ public:
     }
     virtual void ChangeID( const string& newID );
 
-    enum { PARM_DOUBLE_TYPE = 0, PARM_INT_TYPE = 1, PARM_BOOL_TYPE = 2,
-           PARM_FRACTION_TYPE = 3, PARM_STRING_TYPE = 4,
-         };
     virtual int  GetType()
     {
         return m_Type;
@@ -321,6 +323,39 @@ public:
 //  string m_String;
 //};
 
+//==== Driver Group ====//
+class DriverGroup
+{
+public:
+    DriverGroup( int Nvar, int Nchoice );
+    virtual ~DriverGroup();
 
+    void SetChoice( int choice, int grpid );
+
+    virtual void UpdateGroup( vector< string > parmIDs ) = 0;
+    virtual bool ValidDrivers( vector< int > choices ) = 0;
+
+    void SetChoices( vector< int > choices )
+    {
+        m_CurrChoices = choices;
+    }
+    vector< int > GetChoices()
+    {
+        return m_CurrChoices;
+    }
+    int GetNchoice() const
+    {
+        return m_Nchoice;
+    }
+    int GetNvar() const
+    {
+        return m_Nvar;
+    }
+
+protected:
+    int m_Nvar;
+    int m_Nchoice;
+    vector< int > m_CurrChoices;
+};
 
 #endif // !defined(VSP_PARM__INCLUDED_)

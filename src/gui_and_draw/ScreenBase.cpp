@@ -10,6 +10,9 @@
 #include "ScreenBase.h"
 #include "ScreenMgr.h"
 #include "ParmMgr.h"
+#include "APIDefines.h"
+using namespace vsp;
+
 
 using std::map;
 
@@ -85,8 +88,11 @@ BasicScreen::~BasicScreen()
 //==== Set Title Name on Window And Box ====//
 void BasicScreen::SetTitle( const string& title )
 {
-    m_FLTK_Window->copy_label( title.c_str() );
-    m_FL_TitleBox->copy_label( title.c_str() );
+    if ( title != m_Title )
+    {
+        m_Title = title;
+        m_FL_TitleBox->copy_label( m_Title.c_str() );
+    }
 }
 
 //=====================================================================//
@@ -94,11 +100,11 @@ void BasicScreen::SetTitle( const string& title )
 //=====================================================================//
 
 //==== Constructor ====//
-TabScreen::TabScreen( ScreenMgr* mgr, int w, int h, const string & title  ) :
+TabScreen::TabScreen( ScreenMgr* mgr, int w, int h, const string & title, int baseymargin ) :
     BasicScreen( mgr, w, h, title )
 {
     //==== Menu Tabs ====//
-    m_MenuTabs = new Fl_Tabs( 0, 25, w, h - 25 );
+    m_MenuTabs = new Fl_Tabs( 0, 25, w, h - 25 - baseymargin );
     m_MenuTabs->labelcolor( FL_BLUE );
 }
 
@@ -124,6 +130,18 @@ Fl_Group* TabScreen::AddTab( const string& title )
     m_MenuTabs->add( grp );
 
     return grp;
+}
+
+//==== Remove Tab ====//
+void TabScreen::RemoveTab( Fl_Group* grp )
+{
+    m_MenuTabs->remove( grp );
+}
+
+//==== Remove Tab ====//
+void TabScreen::AddTab( Fl_Group* grp )
+{
+    m_MenuTabs->add( grp );
 }
 
 //==== Get Tab At Index ====//
@@ -162,7 +180,7 @@ Fl_Group* TabScreen::AddSubGroup( Fl_Group* group, int border )
 }
 
 //==== Add A Sub Scroll To Tab ====//
-Fl_Scroll* TabScreen::AddSubScroll( Fl_Group* group, int border )
+Fl_Scroll* TabScreen::AddSubScroll( Fl_Group* group, int border, int lessh )
 {
     if ( !group )
     {
@@ -175,7 +193,7 @@ Fl_Scroll* TabScreen::AddSubScroll( Fl_Group* group, int border )
     int x = rx + border;
     int y = ry + border;
     int w = rw - 2 * border;
-    int h = rh - 2 * border;
+    int h = rh - 2 * border - lessh;
 
     Fl_Scroll* sub_group = new Fl_Scroll( x, y, w, h );
     sub_group->show();
@@ -242,6 +260,7 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_GenLayout.AddDividerBox( "Set Export/Analysis" );
     int remain_y = ( m_GenLayout.GetH() + m_GenLayout.GetStartY() ) - m_GenLayout.GetY();
     m_SetBrowser = m_GenLayout.AddCheckBrowser( remain_y );
+    m_SetBrowser->callback( staticCB, this );
 
     gen_tab->show();
 
@@ -285,9 +304,9 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
 
     m_XFormLayout.AddLabel( "Planar:", 74 );
     m_XFormLayout.SetButtonWidth( m_XFormLayout.GetRemainX() / 3 );
-    m_XFormLayout.AddButton( m_XYSymToggle, "XY", Geom::SYM_XY );
-    m_XFormLayout.AddButton( m_XZSymToggle, "XZ", Geom::SYM_XZ );
-    m_XFormLayout.AddButton( m_YZSymToggle, "YZ", Geom::SYM_YZ );
+    m_XFormLayout.AddButton( m_XYSymToggle, "XY", vsp::SYM_XY );
+    m_XFormLayout.AddButton( m_XZSymToggle, "XZ", vsp::SYM_XZ );
+    m_XFormLayout.AddButton( m_YZSymToggle, "YZ", vsp::SYM_YZ );
     m_XFormLayout.ForceNewLine();
     m_XFormLayout.AddYGap();
 
@@ -308,9 +327,9 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     //==== Because SymAxFlag is Not 0-N Need To Map Vals ====//
     vector< int > axial_val_map;
     axial_val_map.push_back( 0 );
-    axial_val_map.push_back( Geom::SYM_ROT_X );
-    axial_val_map.push_back( Geom::SYM_ROT_Y );
-    axial_val_map.push_back( Geom::SYM_ROT_Z );
+    axial_val_map.push_back( vsp::SYM_ROT_X );
+    axial_val_map.push_back( vsp::SYM_ROT_Y );
+    axial_val_map.push_back( vsp::SYM_ROT_Z );
     m_AxialToggleGroup.SetValMapVec( axial_val_map );
 
     m_XFormLayout.InitWidthHeightVals();
@@ -496,4 +515,25 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
+}
+
+void GeomScreen::CallBack( Fl_Widget *w )
+{
+    assert( m_ScreenMgr );
+    Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
+    if ( !geom_ptr )
+    {
+        Hide();
+        return;
+    }
+
+	if ( w == m_SetBrowser )
+    {
+        int curr_index = m_SetBrowser->value();
+        bool flag = !!m_SetBrowser->checked( curr_index );
+
+        geom_ptr->SetSetFlag( curr_index, flag );
+    }
+
+	m_ScreenMgr->SetUpdateFlag( true );
 }

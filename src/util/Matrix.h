@@ -13,37 +13,6 @@
 #include "Vec3d.h"
 
 
-class Matrix
-{
-public:
-
-    Matrix();
-
-    void loadIdentity();
-    void setIdentity( float* m );
-    void translatef( float x, float y, float z );
-    void rotateX( float ang );
-    void rotateY( float ang );
-    void rotateZ( float ang );
-
-    void getMat( float* m );
-    void matMult( float* m );
-    void postMult( float* m );
-
-    void initMat( float* m );
-    void mult( float in[4], float out[4] );
-    float * data()
-    {
-        return mat;
-    }
-
-private:
-
-    float mat[16];
-
-
-};
-
 class Matrix4d
 {
 public:
@@ -51,14 +20,14 @@ public:
     Matrix4d();
 
     void loadIdentity();
-    void setIdentity( double* m );
-    void translatef( double x, double y, double z );
-    void rotateX( double ang );
-    void rotateY( double ang );
-    void rotateZ( double ang );
-    void rotate( double angle, vec3d & axis );
+    void setIdentity( double* m ) const;
+    void translatef( const double &x, const double &y, const double & );
+    void rotateX( const double &ang );
+    void rotateY( const double &ang );
+    void rotateZ( const double &ang );
+    void rotate( const double &angle, const vec3d & axis );
     void affineInverse();
-    void scale( double scale );
+    void scale( const double &scale );
 
 
     void getMat( double* m );
@@ -67,7 +36,7 @@ public:
 
 
     void initMat( double* m );
-    void mult( double in[4], double out[4] );
+    void mult( const double in[4], double out[4] ) const;
     double * data()
     {
         return mat;
@@ -77,14 +46,12 @@ public:
     void loadXYRef();
     void loadYZRef();
 
-    vec3d xform( vec3d & in );
-    vec3d getAngles();
+    vec3d xform( const vec3d & in ) const;
+    vec3d getAngles() const;
 
 private:
 
     double mat[16];
-
-
 };
 
 #endif

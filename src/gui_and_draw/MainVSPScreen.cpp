@@ -15,8 +15,10 @@
 #include "MainGLWindow.h"
 #include "SelectFileScreen.h"
 #include "GraphicEngine.h"
+#include "APIDefines.h"
 #include "main.h"
 
+using namespace vsp;
 using VSPGUI::VspGlWindow;
 
 #include "Common.h"

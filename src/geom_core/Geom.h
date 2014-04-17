@@ -21,6 +21,7 @@
 #include "TMesh.h"
 #include "DragFactors.h"
 #include "GridDensity.h"
+#include "ResultsMgr.h"
 
 //#include "xmlvsp.h"
 
@@ -33,7 +34,7 @@ class XSecSurf;
 //#define stringify( name ) # name
 
 enum { BASE_GEOM_TYPE, XFORM_GEOM_TYPE, GEOM_GEOM_TYPE, POD_GEOM_TYPE, FUSELAGE_GEOM_TYPE,
-       MS_WING_GEOM_TYPE, BLANK_GEOM_TYPE, MESH_GEOM_TYPE
+       MS_WING_GEOM_TYPE, BLANK_GEOM_TYPE, MESH_GEOM_TYPE, STACK_GEOM_TYPE, CUSTOM_GEOM_TYPE
      };
 
 class GeomType
@@ -133,6 +134,10 @@ public:
     virtual GeomType GetType()
     {
         return m_Type;
+    }
+    virtual void SetType( GeomType & type )
+    {
+        m_Type = type;
     }
 
     virtual void Update()                                   {}
@@ -288,27 +293,12 @@ public:
 public:
     /*
     * Informations for a single texture.
-    *
     * ID - ID linked to this texture. This ID is only unqiue to this Geom.
-    *
     * DisplayName - Display Name on GUI.
-    *
     * FileName - File path + file Name.
-    *
-    * U - U Position Parm.
-    *
-    * W - W Position Parm.
-    *
-    * UScale - U Scale Parm.
-    *
-    * WScale - W Scale Parm.
-    *
     * Transparency - Alpha value.
-    *
     * FlipU - Flip U coordinate.
-    *
     * FlipW - Flip W coordinate.
-    *
     */
     struct GeomTextureInfo
     {
@@ -389,10 +379,7 @@ private:
 class Geom : public GeomTexMap
 {
 public:
-    enum { SYM_XY = ( 1 << 0 ), SYM_XZ = ( 1 << 1 ), SYM_YZ = ( 1 << 2 ), SYM_ROT_X = ( 1 << 3 ),
-           SYM_ROT_Y = ( 1 << 4 ), SYM_ROT_Z = ( 1 << 5 ), SYM_PLANAR_TYPES = 3,
-           SYM_NUM_TYPES = 6
-         }; // Symmetry Flags
+
     Geom( Vehicle* vehicle_ptr );
     virtual ~Geom();
 
@@ -457,6 +444,7 @@ public:
     virtual void WriteX3D( xmlNodePtr node );
     virtual void WritePovRay( FILE* fid, int comp_num );
     virtual void WritePovRayTri( FILE* fid, const vec3d& v, const vec3d& n, bool comma = true );
+    virtual void CreateGeomResults( Results* res );
 
     //==== Set Drag Factors ====//
     virtual void LoadDragFactors( DragFactors& drag_factors )   {};

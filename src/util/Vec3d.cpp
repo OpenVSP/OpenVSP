@@ -93,23 +93,23 @@ vec3d& vec3d::set_z( double zz )
 }
 
 
-//******* Transform *******//
-vec3d vec3d::transform( float mat[4][4] )
-{
-    return( vec3d( ( mat[0][0] * v[0] + mat[1][0] * v[1] + mat[2][0] * v[2] + mat[3][0] ),
-                   ( mat[0][1] * v[0] + mat[1][1] * v[1] + mat[2][1] * v[2] + mat[3][1] ),
-                   ( mat[0][2] * v[0] + mat[1][2] * v[1] + mat[2][2] * v[2] + mat[3][2] ) ) );
-
-}
-
-//******* Transform *******//
-vec3d vec3d::transform( double mat[4][4] )
-{
-    return( vec3d( ( mat[0][0] * v[0] + mat[1][0] * v[1] + mat[2][0] * v[2] + mat[3][0] ),
-                   ( mat[0][1] * v[0] + mat[1][1] * v[1] + mat[2][1] * v[2] + mat[3][1] ),
-                   ( mat[0][2] * v[0] + mat[1][2] * v[1] + mat[2][2] * v[2] + mat[3][2] ) ) );
-
-}
+////******* Transform *******//
+// vec3d vec3d::transform(float mat[4][4])
+//{
+//    return( vec3d( (mat[0][0]*v[0] + mat[1][0]*v[1] + mat[2][0]*v[2] + mat[3][0]),
+//                   (mat[0][1]*v[0] + mat[1][1]*v[1] + mat[2][1]*v[2] + mat[3][1]),
+//                   (mat[0][2]*v[0] + mat[1][2]*v[1] + mat[2][2]*v[2] + mat[3][2]) ) );
+//
+//}
+//
+////******* Transform *******//
+// vec3d vec3d::transform(double mat[4][4])
+//{
+//    return( vec3d( (mat[0][0]*v[0] + mat[1][0]*v[1] + mat[2][0]*v[2] + mat[3][0]),
+//                   (mat[0][1]*v[0] + mat[1][1]*v[1] + mat[2][1]*v[2] + mat[3][1]),
+//                   (mat[0][2]*v[0] + mat[1][2]*v[1] + mat[2][2]*v[2] + mat[3][2]) ) );
+//
+//}
 
 //************* x = a + b ******//
 vec3d operator+( const vec3d& a, const vec3d& b )
@@ -1213,11 +1213,12 @@ bool line_line_intersect( vec3d & p1, vec3d & p2, vec3d & p3, vec3d & p4, double
 ////    Positive angles are anticlockwise looking down the axis
 ////    towards the origin.
 ////    Assume right hand coordinate system.
-vec3d RotateArbAxis( vec3d & p, double theta, vec3d & r )   // Radians
+vec3d RotateArbAxis( const vec3d & p, double theta, const vec3d & axis )    // Radians
 {
     vec3d q( 0, 0, 0 );
     double costheta, sintheta;
 
+    vec3d r = axis;
     r.normalize();
     costheta = cos( theta );
     sintheta = sin( theta );

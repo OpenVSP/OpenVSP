@@ -11,9 +11,11 @@
 #include "Vehicle.h"
 #include "StlHelper.h"
 
+#include "APIDefines.h"
+using namespace vsp;
 
 //==== Constructor ====//
-FuselageGeom::FuselageGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr ), m_DoneConstructing( false )
+FuselageGeom::FuselageGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
 {
     m_Name = "FuselageGeom";
     m_Type.m_Name = "Fuselage";
@@ -21,30 +23,8 @@ FuselageGeom::FuselageGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr ), m_
 
     m_Closed = false;
 
-    Matrix4d mat;
-    double *pm( mat.data() );
-    bool center;
+    m_XSecSurf.SetBasicOrientation( X_DIR, Y_DIR, XS_SHIFT_MID, false );
 
-    // rotation                ; translation
-    pm[0] = 0;
-    pm[4] = 0;
-    pm[ 8] = -1;
-    pm[12] = 0;
-    pm[1] = 1;
-    pm[5] = 0;
-    pm[ 9] = 0;
-    pm[13] = 0;
-    pm[2] = 0;
-    pm[6] = 1;
-    pm[10] = 0;
-    pm[14] = 0;
-    pm[3] = 0;
-    pm[7] = 0;
-    pm[11] = 0;
-    pm[15] = 0;
-    center = true;
-
-    m_XSecSurf.SetTransformation( mat, true );
     m_XSecSurf.SetParentContainer( GetID() );
 
     //==== Init Parms ====//
@@ -54,103 +34,47 @@ FuselageGeom::FuselageGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr ), m_
     m_Length.Init( "Length", "Design", this, 30.0, 1.0e-8, 1.0e12 );
     m_Length.SetDescript( "Length of fuselage" );
 
-// Revert back to MANUAL_CONNECT once get skinning fixed
-#if 0
-    m_XSecConnect.Init( "XSecConnect", "Design", this, MANUAL_CONNECT, 0, NUM_CONNECT );
-#else
-    m_XSecConnect.Init( "XSecConnect", "Design", this, LINEAR_CONNECT, 0, NUM_CONNECT );
-#endif
-    m_XSecConnect.SetDescript( "Method of connecting cross-sections" );
-
     m_ActiveXSec = 0;
-    m_XSecSurf.AddXSec( XSec::POINT );
-    m_XSecSurf.AddXSec( XSec::ELLIPSE );
-    m_XSecSurf.AddXSec( XSec::ELLIPSE );
-    m_XSecSurf.AddXSec( XSec::ELLIPSE );
-    m_XSecSurf.AddXSec( XSec::POINT );
 
-    VspJointInfo joint;
-    double angle, strength, curvature;
-    int i, j;
-    XSec* xs;
+    m_XSecSurf.SetXSecType( XSEC_FUSE );
+
+    m_XSecSurf.AddXSec( XS_POINT );
+    m_XSecSurf.AddXSec( XS_ELLIPSE );
+    m_XSecSurf.AddXSec( XS_ELLIPSE );
+    m_XSecSurf.AddXSec( XS_ELLIPSE );
+    m_XSecSurf.AddXSec( XS_POINT );
+
+    int j;
+    FuseXSec* xs;
 
     j = 0;
-    xs = m_XSecSurf.FindXSec( j );
+    xs = ( FuseXSec* ) m_XSecSurf.FindXSec( j );
     xs->SetGroupDisplaySuffix( j );
     xs->m_XLocPercent = 0.0;
-    angle = 90 * DEG_2_RAD;
-    strength = 0.75;
-    curvature = 2.0;
-    joint.SetState( VspJointInfo::C1 );
-    for ( i = 0; i < 4; ++i )
-    {
-        joint.SetRightParams( i, angle, strength, curvature );
-    }
-    xs->SetJointInfo( joint );
 
     ++j;
-    xs = m_XSecSurf.FindXSec( j );
+    xs = ( FuseXSec* ) m_XSecSurf.FindXSec( j );
     xs->SetGroupDisplaySuffix( j );
     xs->m_XLocPercent = 0.25;
-    dynamic_cast<EllipseXSec *>( xs )->SetWidthHeight( 3.0, 2.5 );
-    angle = 0 * DEG_2_RAD;
-    strength = 1.0;
-    curvature = 0.0;
-    joint.SetState( VspJointInfo::C2 );
-    for ( i = 0; i < 4; ++i )
-    {
-        joint.SetLeftParams( i, angle, strength, curvature );
-        joint.SetRightParams( i, angle, strength, curvature );
-    }
-    xs->SetJointInfo( joint );
+    dynamic_cast<EllipseXSec *>( xs->GetXSecCurve() )->SetWidthHeight( 3.0, 2.5 );
 
     ++j;
-    xs = m_XSecSurf.FindXSec( j );
+    xs = ( FuseXSec* ) m_XSecSurf.FindXSec( j );
     xs->SetGroupDisplaySuffix( j );
     xs->m_XLocPercent = 0.5;
-    dynamic_cast<EllipseXSec *>( xs )->SetWidthHeight( 3.0, 2.5 );
-    angle = 0 * DEG_2_RAD;
-    strength = 1.0;
-    curvature = 0.0;
-    joint.SetState( VspJointInfo::C2 );
-    for ( i = 0; i < 4; ++i )
-    {
-        joint.SetLeftParams( i, angle, strength, curvature );
-        joint.SetRightParams( i, angle, strength, curvature );
-    }
-    xs->SetJointInfo( joint );
+    dynamic_cast<EllipseXSec *>( xs->GetXSecCurve() )->SetWidthHeight( 3.0, 2.5 );
 
     ++j;
-    xs = m_XSecSurf.FindXSec( j );
+    xs = ( FuseXSec* ) m_XSecSurf.FindXSec( j );
     xs->SetGroupDisplaySuffix( j );
     xs->m_XLocPercent = 0.75;
-    dynamic_cast<EllipseXSec *>( xs )->SetWidthHeight( 3.0, 2.5 );
-    angle = 0 * DEG_2_RAD;
-    strength = 1.0;
-    curvature = 0.0;
-    joint.SetState( VspJointInfo::C2 );
-    for ( i = 0; i < 4; ++i )
-    {
-        joint.SetLeftParams( i, angle, strength, curvature );
-        joint.SetRightParams( i, angle, strength, curvature );
-    }
-    xs->SetJointInfo( joint );
+    dynamic_cast<EllipseXSec *>( xs->GetXSecCurve() )->SetWidthHeight( 3.0, 2.5 );
 
     ++j;
-    xs = m_XSecSurf.FindXSec( j );
+    xs = ( FuseXSec* ) m_XSecSurf.FindXSec( j );
     xs->SetGroupDisplaySuffix( j );
     xs->m_XLocPercent = 1.0;
-    angle = -90 * DEG_2_RAD;
-    strength = 0.75;
-    curvature = 2.0;
-    joint.SetState( VspJointInfo::C1 );
-    for ( i = 0; i < 4; ++i )
-    {
-        joint.SetLeftParams( i, angle, strength, curvature );
-    }
-    xs->SetJointInfo( joint );
 
-    m_DoneConstructing = true;
 }
 
 //==== Destructor ====//
@@ -169,24 +93,20 @@ void FuselageGeom::ChangeID( string id )
 void FuselageGeom::UpdateSurf()
 {
     double len = m_Length();
-    int connection_type( m_XSecConnect() );
 
     //==== Cross Section Curves & joint info ====//
     vector< VspCurve > crv_vec;
-    vector<VspJointInfo> joint_info;
     crv_vec.resize( m_XSecSurf.NumXSec() );
-    joint_info.resize( m_XSecSurf.NumXSec() );
 
     //==== Update XSec Location/Rotation ====//
-    char str[256];
     for ( int i = 0 ; i < m_XSecSurf.NumXSec() ; i++ )
     {
-        XSec* xs = m_XSecSurf.FindXSec( i );
+        FuseXSec* xs = ( FuseXSec* ) m_XSecSurf.FindXSec( i );
 
         if ( xs )
         {
             //==== Reset Group Names ====//
-            sprintf( str, "XSec_%d", i );
+            xs->SetGroupDisplaySuffix( i );
 
             //==== Set X Limits ====//
 #if 0
@@ -206,131 +126,15 @@ void FuselageGeom::UpdateSurf()
             xs->SetRefLength( m_Length() );
 
             crv_vec[i] =  xs->GetCurve();
-            joint_info[i] = xs->GetJointInfo();
         }
     }
 
-#if 0
-    int idx = 0;
-    std::cout << "<===== in  ======>" << std::endl;
-    std::cout << "\t segment " << idx;
-    std::cout << "\tright curvature=" << joint_info[idx].GetRightCurvature( 0 );
-    std::cout << std::endl;
-#endif
 
-    // construct the surface
-    switch ( connection_type )
+    m_SurfVec[0].InterpolateLinear( crv_vec, false );
+    if ( m_XSecSurf.GetFlipUD() )
     {
-        // linear interpolate between cross-sections
-    case( LINEAR_CONNECT ):
-    {
-        m_SurfVec[0].InterpolateLinear( crv_vec, false );
-        break;
+        m_SurfVec[0].FlipNormal();
     }
-    // C1 PCHIP interpolate between cross-sections
-    case( PCHIP_CONNECT ):
-    {
-        m_SurfVec[0].InterpolatePCHIP( crv_vec, false );
-        break;
-    }
-    // C2 cubic spline interpolate between cross-sections
-    case( CSPLINE_CONNECT ):
-    {
-        m_SurfVec[0].InterpolateCSpline( crv_vec, false );
-        break;
-    }
-    case( MANUAL_CONNECT ):
-    {
-        m_SurfVec[0].InterpolateManual( crv_vec, joint_info, false );
-        break;
-    }
-    default:
-    {
-        std::cerr << "Invalid cross-section type" << std::endl;
-    }
-    }
-
-    // get the joint info into the cross sections
-    for ( int i = 0 ; i < m_XSecSurf.NumXSec() ; i++ )
-    {
-        XSec* xs = m_XSecSurf.FindXSec( i );
-
-        if ( xs )
-        {
-            VspJointInfo joint;
-
-            m_SurfVec[0].CompJointParams( i, joint );
-
-            switch ( connection_type )
-            {
-            case( LINEAR_CONNECT ):
-            {
-                joint.SetState( VspJointInfo::C0 );
-                break;
-            }
-            case( PCHIP_CONNECT ):
-            {
-                joint.SetState( VspJointInfo::C1 );
-                break;
-            }
-            case( CSPLINE_CONNECT ):
-            {
-                joint.SetState( VspJointInfo::C2 );
-                break;
-            }
-            case( MANUAL_CONNECT ):
-            {
-                joint.SetState( joint_info[i].GetState() );
-                break;
-            }
-            default:
-            {
-                std::cerr << "Invalid connection type" << std::endl;
-                break;
-            }
-            }
-
-            xs->SetJointInfo( joint );
-        }
-    }
-
-#if 0
-    VspJointInfo joint;
-    m_SurfVec[0].CompJointParams( idx, joint );
-    std::cout << "<===== out ======>" << std::endl;
-    std::cout << "\t segment " << idx;
-    std::cout << "\tright curvature=" << joint.GetRightCurvature( 0 );
-    std::cout << std::endl;
-    std::cout << "<================>" << std::endl;
-#endif
-}
-
-void FuselageGeom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms )
-{
-    vector<int> nu( NumXSec() - 1 );
-    int nv( m_TessW() );
-
-    // fill the nu vector
-    for ( size_t i = 0; i < nu.size(); ++i )
-    {
-        XSec *xs = GetXSec( i );
-        nu[i] = xs->m_NRightSecs();
-    }
-
-    // if closed in u- or w-directions then need to add another coordinate line
-    // to see desired number
-    if ( m_SurfVec[indx].IsClosedU() )
-    {
-        // FIX: Should actually increase size of nu by one and use the last xs's m_NRightSecs() for
-        // that value. The question is whether surface's tesselate can handle that.
-        std::cerr << "Cannot handle closed surface in v-direction" << std::endl;
-    }
-    if ( m_SurfVec[indx].IsClosedW() )
-    {
-        ++nv;
-    }
-
-    m_SurfVec[indx].Tesselate( nu, nv, pnts, norms );
 }
 
 //==== Compute Rotation Center ====//
@@ -359,41 +163,10 @@ xmlNodePtr FuselageGeom::DecodeXml( xmlNodePtr & node )
     xmlNodePtr fuselage_node = XmlUtil::GetNode( node, "FuselageGeom", 0 );
     if ( fuselage_node )
     {
-        m_DoneConstructing = false;
         m_XSecSurf.DecodeXml( fuselage_node );
-        m_DoneConstructing = true;
     }
 
     return fuselage_node;
-}
-
-void FuselageGeom::ParmChanged( Parm* parm_ptr, int type )
-{
-    // catch special case where an XSec num U changed
-    if ( ( parm_ptr == 0 ) && ( type == -1001 ) )
-    {
-        m_TessU.Set( m_XSecSurf.GetNumTess() );
-    }
-
-    // if the total number of tesselation in the v-direction change, then need to make sure the
-    // cross sections and the m_TessU values are in sync
-    if ( ( parm_ptr != 0 ) && ( parm_ptr->GetID() == m_TessU.GetID() ) )
-    {
-        int nTess( m_TessU() ), nXSec( m_XSecSurf.GetNumTess() );
-
-        // if have cross sections and the numbers don't match it means that m_TessU was updated
-        // and the cross sections need to be updated
-        if ( ( nXSec > 0 ) && ( nTess != nXSec ) )
-        {
-            m_TessU.Set( m_XSecSurf.UpdateNumTess( nTess ) );
-        }
-    }
-
-    // call base class method if have enough cross sections
-    if ( m_DoneConstructing )
-    {
-        GeomXSec::ParmChanged( parm_ptr, type );
-    }
 }
 
 //==== Set Index For Active XSec ====//
@@ -420,12 +193,12 @@ void FuselageGeom::SetActiveXSecType( int type )
         return;
     }
 
-    if ( type == xs->GetType() )
+    if ( type == xs->GetXSecCurve()->GetType() )
     {
         return;
     }
 
-    m_XSecSurf.ChangeXSecType( m_ActiveXSec, type );
+    m_XSecSurf.ChangeXSecShape( m_ActiveXSec, type );
 
     Update();
 }
@@ -462,7 +235,7 @@ void FuselageGeom::InsertXSec( )
     XSec* xs = GetXSec( m_ActiveXSec );
     if ( xs )
     {
-        InsertXSec( xs->GetType() );
+        InsertXSec( xs->GetXSecCurve()->GetType() );
     }
 }
 
@@ -474,20 +247,21 @@ void FuselageGeom::InsertXSec( int type )
         return;
     }
 
-    XSec* xs = GetXSec( m_ActiveXSec );
+    FuseXSec* xs = ( FuseXSec* ) GetXSec( m_ActiveXSec );
+    FuseXSec* xs_1 = ( FuseXSec* ) GetXSec( m_ActiveXSec + 1 );
 
     double x_loc_0 = xs->m_XLocPercent();
-    double x_loc_1 = GetXSec( m_ActiveXSec + 1 )->m_XLocPercent();
+    double x_loc_1 = xs_1->m_XLocPercent();
 
     m_XSecSurf.InsertXSec( type, m_ActiveXSec );
     m_ActiveXSec++;
 
-    XSec* inserted_xs = GetXSec( m_ActiveXSec );
+    FuseXSec* inserted_xs = ( FuseXSec* ) GetXSec( m_ActiveXSec );
 
     if ( inserted_xs )
     {
         inserted_xs->CopyFrom( xs );
-        GetXSec( m_ActiveXSec )->m_XLocPercent = ( x_loc_0 + x_loc_1 ) * 0.5;
+        inserted_xs->m_XLocPercent = ( x_loc_0 + x_loc_1 ) * 0.5;
     }
 
     Update();
@@ -550,7 +324,7 @@ bool FuselageGeom::IsClosed() const
     return m_Closed;
 }
 
-void FuselageGeom::EnforceOrder( XSec* xs, int indx, int ile, int policy )
+void FuselageGeom::EnforceOrder( FuseXSec* xs, int indx, int ile, int policy )
 {
     if( policy == FUSE_MONOTONIC )
     {
@@ -564,8 +338,10 @@ void FuselageGeom::EnforceOrder( XSec* xs, int indx, int ile, int policy )
         }
         else
         {
-            double lower = m_XSecSurf.FindXSec( indx - 1 )->m_XLocPercent();
-            double upper = m_XSecSurf.FindXSec( indx + 1 )->m_XLocPercent();
+            FuseXSec* priorxs = ( FuseXSec* ) m_XSecSurf.FindXSec( indx - 1 );
+            FuseXSec* nextxs = ( FuseXSec* ) m_XSecSurf.FindXSec( indx + 1 );
+            double lower = priorxs->m_XLocPercent();
+            double upper = nextxs->m_XLocPercent();
             xs->m_XLocPercent.SetLowerUpperLimits( lower , upper );
         }
     }

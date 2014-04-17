@@ -11,6 +11,7 @@
 #include "ScreenBase.h"
 #include "ScreenMgr.h"
 #include "LinkMgr.h"
+#include "StlHelper.h"
 
 #include <float.h>
 #include <assert.h>
@@ -22,6 +23,7 @@ using std::min;
 //==== Constructor ====//
 GuiDevice::GuiDevice()
 {
+    m_Type = -1;
     m_Screen = NULL;
     m_ParmID = string( "NOT_DEFINED" );
     m_NewParmFlag = true;
@@ -93,6 +95,7 @@ void GuiDevice::Update( const string& parm_id )
 //==== Constructor ====//
 Input::Input() : GuiDevice()
 {
+    m_Type = GDEV_INPUT;
     m_Input = NULL;
     m_Format = string( " %7.5f" );
     m_ParmButtonFlag = false;
@@ -175,6 +178,7 @@ void Input::DeviceCB( Fl_Widget* w )
 //==== Constructor ====//
 Slider::Slider( ) : GuiDevice()
 {
+    m_Type = GDEV_SLIDER;
     m_Slider = NULL;
     m_Range = 10.0;
     m_MinBound = 0.0;
@@ -252,6 +256,7 @@ void Slider::DeviceCB( Fl_Widget* w )
 //==== Constructor ====//
 SliderAdjRange::SliderAdjRange( ) : Slider()
 {
+    m_Type = GDEV_SLIDER_ADJ_RANGE;
     m_MinButton = NULL;
     m_MaxButton = NULL;
     m_MinStopState = SAR_NO_STOP;
@@ -453,6 +458,7 @@ void SliderAdjRange::MaxButtonCB( Parm* parm_ptr )
 //==== Constructor ====//
 LogSlider::LogSlider() : Slider()
 {
+    m_Type = GDEV_LOG_SLIDER;
 }
 
 //==== Set Slider Value and Limits =====//
@@ -594,6 +600,7 @@ void SliderInput::Deactivate()
 void SliderAdjRangeInput::Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
                                 Fl_Button* rbutton, Fl_Input* input, double range, const char* format, Fl_Button* parm_button )
 {
+    m_Type = GDEV_SLIDER_ADJ_RANGE_INPUT;
     m_ParmButtonFlag = false;
     if ( parm_button )
     {
@@ -707,6 +714,7 @@ void SliderAdjRange2Input::Deactivate()
 //==== Constructor ====//
 ParmButton::ParmButton( ) : GuiDevice()
 {
+    m_Type = GDEV_PARM_BUTTON;
     m_Button = NULL;
     m_ButtonNameUpdate = false;
 }
@@ -778,6 +786,7 @@ void ParmButton::DeviceCB( Fl_Widget* w )
 //==== Constructor ====//
 CheckButton::CheckButton( ) : GuiDevice()
 {
+    m_Type = GDEV_CHECK_BUTTON;
     m_Button = NULL;
 }
 
@@ -851,6 +860,7 @@ void CheckButton::DeviceCB( Fl_Widget* w )
 //==== Constructor ====//
 CheckButtonBit::CheckButtonBit() : GuiDevice()
 {
+    m_Type = GDEV_CHECK_BUTTON_BIT;
     m_Button = NULL;
     m_value = 0;
 }
@@ -934,6 +944,7 @@ void CheckButtonBit::DeviceCB( Fl_Widget* w )
 //==== Constructor ====//
 RadioButton::RadioButton() : GuiDevice()
 {
+    m_Type = GDEV_RADIO_BUTTON;
     m_Button = NULL;
     m_value = 0;
 }
@@ -1003,6 +1014,7 @@ void RadioButton::DeviceCB( Fl_Widget* w )
 //==== Constructor ====//
 ToggleButton::ToggleButton() : GuiDevice()
 {
+    m_Type = GDEV_TOGGLE_BUTTON;
     m_Button = NULL;
 }
 
@@ -1085,6 +1097,8 @@ void ToggleButton::DeviceCB( Fl_Widget* w )
 //==== Constructor ====//
 ToggleRadioGroup::ToggleRadioGroup() : GuiDevice()
 {
+    m_Type = GDEV_TOGGLE_RADIO_GROUP;
+
 }
 
 //==== Init ====//
@@ -1197,6 +1211,7 @@ void ToggleRadioGroup::SetValMapVec( vector< int > & val_map_vec )
 //==== Constructor ====//
 TriggerButton::TriggerButton() : GuiDevice()
 {
+    m_Type = GDEV_TRIGGER_BUTTON;
     m_Button = NULL;
 }
 
@@ -1238,6 +1253,7 @@ void TriggerButton::DeviceCB( Fl_Widget* w )
 //==== Constructor ====//
 Counter::Counter() : GuiDevice()
 {
+    m_Type = GDEV_COUNTER;
     m_Counter = NULL;
 }
 
@@ -1300,6 +1316,7 @@ void Counter::DeviceCB( Fl_Widget* w )
 //==== Constructor ====//
 Choice::Choice( ) : GuiDevice()
 {
+    m_Type = GDEV_CHOICE;
     m_Choice = NULL;
 }
 
@@ -1393,6 +1410,7 @@ void Choice::DeviceCB( Fl_Widget* w )
 //==== Constructor ====//
 FractParmSlider::FractParmSlider() : GuiDevice()
 {
+    m_Type = GDEV_FRACT_PARM_SLIDER;
     m_ResultFlInput = NULL;
     m_Format = string( " %7.5f" );
 }
@@ -1556,6 +1574,7 @@ void FractParmSlider::DeviceCB( Fl_Widget* w )
 
 void StringInput::Init( VspScreen* screen, Fl_Input* input )
 {
+    m_Type = GDEV_STRING_INPUT;
     m_Screen = screen;
 
     assert( input );
@@ -1618,6 +1637,7 @@ void StringOutput::Update( const string & val )
 //=====================================================================//
 IndexSelector::IndexSelector()
 {
+    m_Type = GDEV_INDEX_SLIDER;
     m_Screen = NULL;
     m_Input = NULL;
     m_Index = 0;
@@ -1753,6 +1773,7 @@ void IndexSelector::SetValAndLimits( Parm* parm_ptr )
 //=====================================================================//
 ColorPicker::ColorPicker()
 {
+    m_Type = GDEV_COLOR_PICKER;
     m_Screen = NULL;
 }
 
@@ -1984,4 +2005,447 @@ vector< string > ParmPicker::FindParmNames( vector< string > & parm_id_vec )
         name_vec.push_back( name );
     }
     return name_vec;
+}
+
+//=====================================================================//
+//===========       Driver Group Bank                       ===========//
+//=====================================================================//
+DriverGroupBank::DriverGroupBank()
+{
+    m_Screen = NULL;
+    m_DriverGroup = NULL;
+}
+
+void DriverGroupBank::Init( VspScreen* screen, vector< vector < Fl_Button* > > buttons, vector< SliderAdjRangeInput* > sliders )
+{
+    m_Screen = screen;
+
+    m_Buttons = buttons;
+    m_Sliders = sliders;
+
+    for( int i = 0; i < m_DriverGroup->GetNvar(); i++ )
+    {
+        for( int j = 0; j < m_DriverGroup->GetNchoice(); j++ )
+        {
+            m_Buttons[i][j]->callback( StaticDeviceCB, this );
+        }
+    }
+}
+
+
+void DriverGroupBank::DeviceCB( Fl_Widget* w )
+{
+    assert( m_Screen );
+
+    int imatch, jmatch;
+    if( WhichButton( w, imatch, jmatch ) )
+    {
+        vector< int > newchoices = m_DriverGroup->GetChoices();
+        newchoices[jmatch] = imatch;
+
+        if( m_DriverGroup->ValidDrivers( newchoices ) )
+        {
+            m_DriverGroup->SetChoice( jmatch, imatch );
+        }
+    }
+
+
+    m_Screen->GuiDeviceCallBack( this );
+}
+
+void DriverGroupBank::Update( )
+{
+    vector< int > checkchoices;
+
+    vector< int > currchoices = m_DriverGroup->GetChoices();
+
+    for( int i = 0; i < m_DriverGroup->GetNvar(); i++ )
+    {
+        if( vector_contains_val( currchoices, i ) )
+        {
+            m_Sliders[i]->Activate();
+        }
+        else
+        {
+            m_Sliders[i]->Deactivate();
+        }
+
+        for( int j = 0; j < m_DriverGroup->GetNchoice(); j++ )
+        {
+            checkchoices = m_DriverGroup->GetChoices();
+            checkchoices[j] = i;
+
+            if( m_DriverGroup->ValidDrivers( checkchoices ) )
+            {
+                m_Buttons[i][j]->activate();
+            }
+            else
+            {
+                m_Buttons[i][j]->deactivate();
+            }
+
+            if( currchoices[j] == i )
+            {
+                m_Buttons[i][j]->value( 1 );
+            }
+            else
+            {
+                m_Buttons[i][j]->value( 0 );
+            }
+
+        }
+    }
+}
+
+void DriverGroupBank::Activate()
+{
+
+}
+
+void DriverGroupBank::Deactivate()
+{
+
+}
+
+bool DriverGroupBank::WhichButton( Fl_Widget *w, int &imatch, int &jmatch )
+{
+    imatch = -1;
+    jmatch = -1;
+    for( int i = 0; i < m_DriverGroup->GetNvar(); i++ )
+    {
+        for( int j = 0; j < m_DriverGroup->GetNchoice(); j++ )
+        {
+            if( w == m_Buttons[i][j] )
+            {
+                imatch = i;
+                jmatch = j;
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+//=====================================================================//
+//===========       Skin Control Group                      ===========//
+//=====================================================================//
+SkinControl::SkinControl()
+{
+    m_Screen = NULL;
+
+    m_ContButtonL = NULL;
+    m_ContButtonR = NULL;
+    m_SetButtonL = NULL;
+    m_SetButtonR = NULL;
+}
+
+void SkinControl::Init( VspScreen* screen,
+	    Fl_Check_Button* contButtonL,
+	    Fl_Check_Button* contButtonR,
+	    Fl_Check_Button* setButtonL,
+	    Fl_Check_Button* setButtonR,
+	    Fl_Slider* sliderL,
+	    Fl_Slider* sliderR,
+	    Fl_Input* inputL,
+	    Fl_Input* inputR,
+	    Fl_Button* parm_button,
+	    double range, const char* format)
+{
+    m_Screen = screen;
+
+    m_ContButtonL = contButtonL;
+    m_ContButtonR = contButtonR;
+    m_SetButtonL = setButtonL;
+    m_SetButtonR = setButtonR;
+
+    m_SliderL.Init( screen, sliderL, range );
+    m_SliderR.Init( screen, sliderR, range );
+
+    m_InputL.Init( screen, inputL, format );
+    m_InputR.Init( screen, inputR, format );
+
+    m_ParmButton.Init( screen, parm_button );
+}
+
+
+void SkinControl::Update( const string& parmL_id, const string& parmR_id )
+{
+    m_SliderL.Update( parmL_id );
+    m_InputL.Update( parmL_id );
+    m_SliderR.Update( parmR_id );
+    m_InputR.Update( parmR_id );
+
+    m_ParmButton.Update( parmL_id );
+}
+
+void SkinControl::Activate()
+{
+
+    assert( m_ContButtonL );
+    m_ContButtonL->activate();
+
+    assert( m_ContButtonR );
+    m_ContButtonR->activate();
+
+    assert( m_SetButtonL );
+    m_SetButtonL->activate();
+
+    assert( m_SetButtonR );
+    m_SetButtonR->activate();
+
+    m_SliderL.Activate();
+    m_InputL.Activate();
+    m_SliderR.Activate();
+    m_InputR.Activate();
+
+    m_ParmButton.Activate();
+}
+
+void SkinControl::Deactivate()
+{
+    assert( m_ContButtonL );
+    m_ContButtonL->deactivate();
+
+    assert( m_ContButtonR );
+    m_ContButtonR->deactivate();
+
+    assert( m_SetButtonL );
+    m_SetButtonL->deactivate();
+
+    assert( m_SetButtonR );
+    m_SetButtonR->deactivate();
+
+    m_SliderL.Deactivate();
+    m_InputL.Deactivate();
+    m_SliderR.Deactivate();
+    m_InputR.Deactivate();
+
+    m_ParmButton.Deactivate();
+}
+
+//==== CallBack ====//
+void SkinControl::DeviceCB( Fl_Widget* w )
+{
+
+    m_Screen->GuiDeviceCallBack( this );
+}
+
+//=====================================================================//
+//===========       Skin Output Group                       ===========//
+//=====================================================================//
+SkinOutput::SkinOutput()
+{
+    m_Screen = NULL;
+
+    m_ContLOutput = NULL;
+    m_OrderOutput = NULL;
+    m_ContROutput = NULL;
+}
+
+void SkinOutput::Init( VspScreen* screen, Fl_Output* contL, Fl_Output* order, Fl_Output* contR, const vector< Fl_Button* > & buttons )
+{
+    m_Screen = screen;
+
+    m_ContLOutput = contL;
+    m_OrderOutput = order;
+    m_ContROutput = contR;
+
+    m_Buttons = buttons;
+}
+
+string SkinOutput::ContStr( int cont )
+{
+    switch(cont)
+    {
+    case C0:
+        return string("C0");
+        break;
+    case C1:
+        return string("C1");
+        break;
+    case C2:
+        return string("C2");
+        break;
+    case NONE:
+    default:
+        return string("");
+        break;
+    }
+}
+
+void SkinOutput::Update( int contL, int order, int contR )
+{
+    m_contL = ContStr(contL);
+    m_ContLOutput->value( m_contL.c_str() );
+
+    m_order = std::to_string( order );
+    m_OrderOutput->value( m_order.c_str() );
+
+    m_contR = ContStr(contR);
+    m_ContROutput->value( m_contR.c_str() );
+}
+
+void SkinOutput::Activate()
+{
+
+    assert( m_ContLOutput );
+    m_ContLOutput->activate();
+
+    assert( m_OrderOutput );
+    m_OrderOutput->activate();
+
+    assert( m_ContROutput );
+    m_ContROutput->activate();
+
+    for( int i = 0; i < m_Buttons.size(); i++ )
+    {
+        assert( m_Buttons[i] );
+        m_Buttons[i]->activate();
+    }
+}
+
+void SkinOutput::Deactivate()
+{
+    assert( m_ContLOutput );
+    m_ContLOutput->deactivate();
+
+    assert( m_OrderOutput );
+    m_OrderOutput->deactivate();
+
+    assert( m_ContROutput );
+    m_ContROutput->deactivate();
+
+    for( int i = 0; i < m_Buttons.size(); i++ )
+    {
+        assert( m_Buttons[i] );
+        m_Buttons[i]->deactivate();
+    }
+}
+
+//==== CallBack ====//
+void SkinOutput::DeviceCB( Fl_Widget* w )
+{
+    m_Screen->GuiDeviceCallBack( this );
+}
+
+//=====================================================================//
+//===========       Group Device                            ===========//
+//=====================================================================//
+Group::Group()
+{
+    m_Type = GDEV_GROUP;
+    m_Group = NULL;
+}
+
+void Group::Activate()
+{
+    if ( m_Group )
+    {
+        m_Group->activate();
+    }
+}
+void Group::Deactivate()
+{
+    if ( m_Group )
+    {
+        m_Group->deactivate();
+    }
+}
+void Group::Hide()
+{
+    if ( m_Group )
+    {
+        m_Group->hide();
+    }
+}
+void Group::Show()
+{
+    if ( m_Group )
+    {
+        m_Group->show();
+    }
+}
+
+//=====================================================================//
+//===========       Tab Device                          ===========//
+//=====================================================================//
+Tab::Tab()
+{
+    m_Type = GDEV_TAB;
+}
+
+//=====================================================================//
+//===========            Geom Picker                        ===========//
+//=====================================================================//
+GeomPicker::GeomPicker()
+{
+    m_Screen = NULL;
+    m_Vehicle = VehicleMgr::getInstance().GetVehicle();
+}
+
+void GeomPicker::Init( VspScreen* screen, Fl_Choice* geom_choice )
+{
+    m_Screen = screen;
+
+    m_GeomChoice = geom_choice;
+
+    m_GeomChoice->callback( StaticDeviceCB, this );
+}
+
+void GeomPicker::Activate()
+{
+    m_GeomChoice->activate();
+}
+
+void GeomPicker::Deactivate()
+{
+    m_GeomChoice->deactivate();
+}
+
+void GeomPicker::Update( )
+{
+    int i;
+    char str[256];
+
+    //==== Load Geom Choice ====//
+    m_GeomVec = m_Vehicle->GetGeomVec();
+
+    if ( m_GeomVec.size() == 0 )
+    {
+        m_GeomIDChoice = string();
+    }
+    else
+    {
+        if ( !m_Vehicle->FindGeom( m_GeomIDChoice ) )
+        {
+            m_GeomIDChoice = m_GeomVec[0];
+        }
+    }
+
+    m_GeomChoice->clear();
+    int ind = 0;
+    for ( i = 0 ; i < ( int )m_GeomVec.size() ; i++ )
+    {
+        char str[256];
+        sprintf( str, "%d_%s", i, m_Vehicle->FindGeom( m_GeomVec[i] )->GetName().c_str() );
+        m_GeomChoice->add( str );
+        if ( m_GeomIDChoice == m_GeomVec[i] )
+        {
+            ind = i;
+        }
+    }
+    m_GeomChoice->value( ind );
+}
+
+void GeomPicker::DeviceCB( Fl_Widget* w )
+{
+    assert( m_Screen );
+
+    if ( w == m_GeomChoice )
+    {
+        m_GeomIDChoice = m_GeomVec[ m_GeomChoice->value() ];
+        m_Screen->GetScreenMgr()->SetUpdateFlag( true );
+    }
+
+    m_Screen->GuiDeviceCallBack( this );
 }

@@ -18,6 +18,7 @@
 
 #include "eli/geom/curve/length.hpp"
 #include "eli/geom/curve/piecewise_creator.hpp"
+#include "eli/geom/intersect/minimum_distance_curve.hpp"
 
 typedef piecewise_curve_type::index_type curve_index_type;
 typedef piecewise_curve_type::point_type curve_point_type;
@@ -171,6 +172,25 @@ void VspCurveInfo::SetParameter( double u )
 double VspCurveInfo::GetParameter() const
 {
     return m_U;
+}
+
+//=============================================================================//
+//============================= VspPntData    =================================//
+//=============================================================================//
+
+
+//===== Constructor  =====//
+VspPntData::VspPntData()
+{
+    m_Type = NORMAL;
+    m_UseTan1 = m_UseTan2 = m_UseTanStr1 = m_UseTanStr2 = false;
+}
+
+//===== Constructor  =====//
+VspPntData::VspPntData( int type )
+{
+    m_Type = type;
+    m_UseTan1 = m_UseTan2 = m_UseTanStr1 = m_UseTanStr2 = false;
 }
 
 //=============================================================================//
@@ -781,6 +801,52 @@ double VspCurve::GetCurveDt( int i ) const
 void VspCurve::AppendCurveSegment( curve_segment_type &c )
 {
     m_Curve.push_back( c, 1 );
+}
+
+double VspCurve::FindNearest( double &u, const vec3d &pt ) const
+{
+    double dist;
+    curve_point_type p;
+    p << pt.x(), pt.y(), pt.z();
+
+    dist = eli::geom::intersect::minimum_distance( u, m_Curve, p );
+
+	return dist;
+}
+
+double VspCurve::FindNearest( double &u, const vec3d &pt, const double &u0 ) const
+{
+    double dist;
+    curve_point_type p;
+    p << pt.x(), pt.y(), pt.z();
+
+    dist = eli::geom::intersect::minimum_distance( u, m_Curve, p, u0 );
+
+	return dist;
+}
+
+double VspCurve::FindNearest01( double &u, const vec3d &pt ) const
+{
+    int num_sects = GetNumSections();
+    double dist;
+
+    dist = FindNearest( u, pt );
+
+    u = u / num_sects;
+
+	return dist;
+}
+
+double VspCurve::FindNearest01( double &u, const vec3d &pt, const double &u0 ) const
+{
+    int num_sects = GetNumSections();
+    double dist;
+
+    dist = FindNearest( u, pt, u0 * num_sects );
+
+    u = u / num_sects;
+
+	return dist;
 }
 
 //===== Compute Point  =====//

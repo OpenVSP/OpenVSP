@@ -12,6 +12,7 @@
 #include "MeshGeom.h"
 #include "StlHelper.h"
 #include <float.h>
+#include "APIDefines.h"
 
 
 //==== Test GeomXForm ====//
@@ -209,7 +210,7 @@ void GeomCoreTestSuite::MeshIOTest()
 
     out_file = "nascart_test.dat";
     veh.WriteNascartFiles( out_file, 0 );
-    string mesh_ncart = veh.ImportFile( out_file, Vehicle::IMPORT_NASCART );
+    string mesh_ncart = veh.ImportFile( out_file, vsp::IMPORT_NASCART );
     TEST_ASSERT( mesh_ncart.compare( "NONE" ) != 0 );
     CompareMeshes( veh, mesh_orig, mesh_ncart );
     veh.ClearActiveGeom();
@@ -218,7 +219,7 @@ void GeomCoreTestSuite::MeshIOTest()
 
     out_file = "stl_test.stl";
     veh.WriteSTLFile( out_file, 0 );
-    string mesh_stl = veh.ImportFile( out_file, Vehicle::IMPORT_STL );
+    string mesh_stl = veh.ImportFile( out_file, vsp::IMPORT_STL );
     TEST_ASSERT( mesh_stl.compare( "NONE" ) != 0 );
     CompareMeshes( veh, mesh_orig, mesh_stl );
     veh.ClearActiveGeom();
@@ -227,7 +228,7 @@ void GeomCoreTestSuite::MeshIOTest()
 
     out_file = "tri_test.tri";
     veh.WriteTRIFile( out_file, 0 );
-    string mesh_tri = veh.ImportFile( out_file, Vehicle::IMPORT_TRI );
+    string mesh_tri = veh.ImportFile( out_file, vsp::IMPORT_CART3D_TRI );
     TEST_ASSERT( mesh_tri.compare( "NONE" ) != 0 );
     CompareMeshes( veh, mesh_orig, mesh_tri );
     veh.ClearActiveGeom();
@@ -236,7 +237,7 @@ void GeomCoreTestSuite::MeshIOTest()
 
     out_file = "test_xsec.hrm";
     veh.WriteXSecFile( out_file, 0 );
-    string mesh_hrm = veh.ImportFile( out_file, Vehicle::IMPORT_XSEC_MESH );
+    string mesh_hrm = veh.ImportFile( out_file, vsp::IMPORT_XSEC_MESH );
     TEST_ASSERT( mesh_hrm.compare( "NONE" ) != 0 );
     CompareMeshes( veh, mesh_orig, mesh_hrm );
     veh.ClearActiveGeom();

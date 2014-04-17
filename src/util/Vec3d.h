@@ -154,17 +154,17 @@ public:
     }
 
     // Transform Matrix
-    vec3d transform( float mat[4][4] );
-    vec3d transform( double mat[4][4] );
-    vec3d reflect_xy()
+    //vec3d transform(float mat[4][4]);
+    //vec3d transform(double mat[4][4]);
+    vec3d reflect_xy() const
     {
         return( vec3d( v[0],  v[1], -v[2] ) );
     }
-    vec3d reflect_xz()
+    vec3d reflect_xz() const
     {
         return( vec3d( v[0], -v[1],  v[2] ) );
     }
-    vec3d reflect_yz()
+    vec3d reflect_yz() const
     {
         return( vec3d( -v[0],  v[1],  v[2] ) );
     }
@@ -224,9 +224,18 @@ public:
 
     friend bool line_line_intersect( vec3d & p1, vec3d & p2, vec3d & p3, vec3d & p4, double* s, double* t );
 
-    friend vec3d RotateArbAxis( vec3d & p, double theta, vec3d & r );
+    friend vec3d RotateArbAxis( const vec3d & p, double theta, const vec3d & r );
 
 };
+
+double dist( const vec3d& a, const vec3d& b );
+double dist_squared( const vec3d& a, const vec3d& b );
+double dot( const vec3d& a, const vec3d& b );
+vec3d cross( const vec3d& a, const vec3d& b );
+double angle( const vec3d& a, const vec3d& b );
+double signed_angle( const vec3d& a, const vec3d& b, const vec3d& ref );
+double cos_angle( const vec3d& a, const vec3d& b );
+vec3d RotateArbAxis( const vec3d & p, double theta, const vec3d & r );
 
 #endif
 

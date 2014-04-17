@@ -21,7 +21,7 @@ ErrorObj::ErrorObj()
     NoError();
 }
 
-ErrorObj::ErrorObj( ErrorCode err_code, const string & err_str )
+ErrorObj::ErrorObj( ERROR_CODE err_code, const string & err_str )
 {
     m_ErrorCode = err_code;
     m_ErrorString = err_str;
@@ -58,6 +58,7 @@ int ErrorMgrSingleton::GetNumTotalErrors()
     return m_ErrorStack.size();
 }
 
+//==== Return Error and Pop Off Stack =====//
 ErrorObj ErrorMgrSingleton::PopLastError()
 {
     ErrorObj ret_err;
@@ -74,9 +75,25 @@ ErrorObj ErrorMgrSingleton::PopLastError()
 
 }
 
+//==== Return Error and Pop Off Stack =====//
+ErrorObj ErrorMgrSingleton::GetLastError()
+{
+    ErrorObj ret_err;
+
+    if ( m_ErrorStack.size() == 0 )         // Nothing To Undo
+    {
+        return ret_err;
+    }
+
+    ret_err = m_ErrorStack.top();
+
+    return ret_err;
+}
+
+
 
 //==== Add Error To Stack And Set Last Call Flag ====//
-void ErrorMgrSingleton::AddError( ErrorCode code, const string & desc )
+void ErrorMgrSingleton::AddError( ERROR_CODE code, const string & desc )
 {
     if ( code == VSP_OK )
     {

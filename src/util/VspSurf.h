@@ -102,6 +102,19 @@ public:
     bool IsClosedU() const;
     bool IsClosedW() const;
 
+    bool GetFlipNormal() { return m_FlipNormal; }
+    void FlipNormal() { m_FlipNormal = !m_FlipNormal; }
+    void ResetFlipNormal( ) { m_FlipNormal = false; }
+
+    double FindNearest( double &u, double &w, const vec3d &pt ) const;
+    double FindNearest( double &u, double &w, const vec3d &pt, const double &u0, const double &w0 ) const;
+
+    double FindNearest01( double &u, double &w, const vec3d &pt ) const;
+    double FindNearest01( double &u, double &w, const vec3d &pt, const double &u0, const double &w0 ) const;
+
+    void GetUConstCurve( VspCurve &c, const double &u ) const;
+    void GetWConstCurve( VspCurve &c, const double &w ) const;
+
     Matrix4d CompRotCoordSys( const double &u, const double &w );
     Matrix4d CompTransCoordSys( const double &u, const double &w );
 
@@ -137,6 +150,7 @@ protected:
 
 protected:
 
+    bool m_FlipNormal;
     piecewise_surface_type m_Surface;
 };
 #endif

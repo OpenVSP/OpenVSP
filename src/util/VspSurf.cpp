@@ -18,6 +18,7 @@
 
 #include "eli/geom/curve/piecewise_creator.hpp"
 #include "eli/geom/surface/piecewise_creator.hpp"
+#include "eli/geom/intersect/minimum_distance_surface.hpp"
 
 typedef piecewise_surface_type::index_type surface_index_type;
 typedef piecewise_surface_type::point_type surface_point_type;
@@ -331,6 +332,7 @@ bool VspJointInfo::FiniteDifferenceFpp() const
 //===== Constructor  =====//
 VspSurf::VspSurf()
 {
+    m_FlipNormal = false;
 }
 
 //===== Destructor  =====//
@@ -403,6 +405,74 @@ bool VspSurf::IsClosedW() const
     return m_Surface.closed_v();
 }
 
+double VspSurf::FindNearest( double &u, double &w, const vec3d &pt ) const
+{
+    double dist;
+    surface_point_type p;
+    p << pt.x(), pt.y(), pt.z();
+
+    dist = eli::geom::intersect::minimum_distance( u, w, m_Surface, p );
+
+	return dist;
+}
+
+double VspSurf::FindNearest( double &u, double &w, const vec3d &pt, const double &u0, const double &w0 ) const
+{
+    double dist;
+    surface_point_type p;
+    p << pt.x(), pt.y(), pt.z();
+
+    dist = eli::geom::intersect::minimum_distance( u, w, m_Surface, p, u0, w0 );
+
+	return dist;
+}
+
+double VspSurf::FindNearest01( double &u, double &w, const vec3d &pt ) const
+{
+    double dist;
+    int num_sectU, num_sectW;
+
+    num_sectU = GetNumSectU();
+    num_sectW = GetNumSectW();
+
+    dist = FindNearest( u, w, pt );
+
+    u = u / num_sectU;
+    w = w / num_sectW;
+
+	return dist;
+}
+
+double VspSurf::FindNearest01( double &u, double &w, const vec3d &pt, const double &u0, const double &w0 ) const
+{
+    double dist;
+    int num_sectU, num_sectW;
+
+    num_sectU = GetNumSectU();
+    num_sectW = GetNumSectW();
+
+    dist = FindNearest( u, w, pt, u0 * num_sectU, w0 * num_sectW );
+
+    u = u / num_sectU;
+    w = w / num_sectW;
+
+	return dist;
+}
+
+void VspSurf::GetUConstCurve( VspCurve &c, const double &u ) const
+{
+    piecewise_curve_type pwc;
+    m_Surface.get_uconst_curve(pwc, u);
+    c.SetCurve(pwc);
+}
+
+void VspSurf::GetWConstCurve( VspCurve &c, const double &w ) const
+{
+    piecewise_curve_type pwc;
+    m_Surface.get_vconst_curve(pwc, w);
+    c.SetCurve(pwc);
+}
+
 //===== Compute a Relative Rotation Transformation Matrix from Component's
 //      Coordinate System to a Surface Coordinate System ====//
 Matrix4d VspSurf::CompRotCoordSys( const double &u, const double &w )
@@ -449,6 +519,8 @@ Matrix4d VspSurf::CompTransCoordSys( const double &u, const double &w )
 void VspSurf::CreateBodyRevolution( const VspCurve &input_crv )
 {
     eli::geom::surface::create_body_of_revolution( m_Surface, input_crv.GetCurve(), 0, eli::geom::surface::OUTWARD_NORMAL );
+
+    ResetFlipNormal();
 }
 
 void VspSurf::InterpolateManual( const std::vector<VspCurve> &input_crv_vec, const vector<VspJointInfo> &joint_info_vec, bool closed_flag )
@@ -907,6 +979,8 @@ void VspSurf::InterpolateManual( const std::vector<VspCurve> &input_crv_vec, con
 
     // degree reduce patches that don't need to be so high
     DegreeReduceSections( input_crv_vec, closed_flag );
+
+    ResetFlipNormal();
 }
 
 
@@ -965,6 +1039,8 @@ void VspSurf::InterpolateLinear( const vector< VspCurve > &input_crv_vec, bool c
 
     // degree reduce patches that don't need to be so high
     DegreeReduceSections( input_crv_vec, closed_flag );
+
+    ResetFlipNormal();
 }
 
 void VspSurf::InterpolatePCHIP( const vector< VspCurve > &input_crv_vec, bool closed_flag )
@@ -1055,6 +1131,8 @@ void VspSurf::InterpolatePCHIP( const vector< VspCurve > &input_crv_vec, bool cl
 
     // degree reduce patches that don't need to be so high
     DegreeReduceSections( input_crv_vec, closed_flag );
+
+    ResetFlipNormal();
 }
 
 void VspSurf::InterpolateCSpline( const vector< VspCurve > &input_crv_vec, bool closed_flag )
@@ -1145,6 +1223,8 @@ void VspSurf::InterpolateCSpline( const vector< VspCurve > &input_crv_vec, bool 
 
     // degree reduce patches that don't need to be so high
     DegreeReduceSections( input_crv_vec, closed_flag );
+
+    ResetFlipNormal();
 }
 
 void VspSurf::CompJointParams( int joint, VspJointInfo &jointInfo ) const
@@ -1590,6 +1670,11 @@ vec3d VspSurf::CompNorm( double u, double v ) const
     vec3d rtn;
     surface_point_type p( m_Surface.normal( u, v ) );
 
+    if ( m_FlipNormal )
+    {
+        p = -p;
+    }
+
     rtn.set_xyz( p.x(), p.y(), p.z() );
     return rtn;
 }
@@ -1603,6 +1688,11 @@ vec3d VspSurf::CompNorm01( double u01, double v01 ) const
 //==== Tesselate Surface ====//
 void VspSurf::Tesselate( int num_u, int num_v, vector< vector< vec3d > > & pnts, vector< vector< vec3d > > & norms ) const
 {
+    if( m_Surface.number_u_patches()==0 || m_Surface.number_v_patches()==0 )
+    {
+        return;
+    }
+
     surface_index_type i, j, nu( num_u ), nv( num_v );
     double umin, umax, vmin, vmax;
     std::vector<double> u( nu ), v( nv );
@@ -1637,6 +1727,11 @@ void VspSurf::Tesselate( int num_u, int num_v, vector< vector< vec3d > > & pnts,
             ptmp = m_Surface.f( u[i], v[j] );
             ntmp = m_Surface.normal( u[i], v[j] );
             pnts[i][j].set_xyz( ptmp.x(), ptmp.y(), ptmp.z() );
+
+            if ( m_FlipNormal )
+            {
+                ntmp = -ntmp;
+            }
             norms[i][j].set_xyz( ntmp.x(), ntmp.y(), ntmp.z() );
         }
     }
@@ -1698,6 +1793,10 @@ void VspSurf::Tesselate( const vector<int> &num_u, int num_v, std::vector< vecto
             ptmp = m_Surface.f( u[i], v[j] );
             ntmp = m_Surface.normal( u[i], v[j] );
             pnts[i][j].set_xyz( ptmp.x(), ptmp.y(), ptmp.z() );
+            if ( m_FlipNormal )
+            {
+                ntmp = -ntmp;
+            }
             norms[i][j].set_xyz( ntmp.x(), ntmp.y(), ntmp.z() );
         }
     }

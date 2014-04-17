@@ -197,7 +197,7 @@ void DesignVarScreen::RebuildAdjustTab()
         if ( contID.compare( lastContID ) != 0 )
         {
             lastContID = contID;
-            m_AdjustLayout.AddDividerBox( ParmMgr.FindParmContainer( contID )->m_Name );
+            m_AdjustLayout.AddDividerBox( ParmMgr.FindParmContainer( contID )->GetName() );
         }
 
         m_AdjustLayout.AddSlider( m_ParmSliderVec[i], "AUTO_UPDATE", 10, "%7.3f" );

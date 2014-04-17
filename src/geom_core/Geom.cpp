@@ -10,6 +10,9 @@
 #include "StlHelper.h"
 #include "StringUtil.h"
 #include "ParmMgr.h"
+#include "APIDefines.h"
+using namespace vsp;
+
 #include <time.h>
 #include <stdlib.h>
 
@@ -255,7 +258,7 @@ GeomXForm::GeomXForm( Vehicle* vehicle_ptr ) : GeomBase( vehicle_ptr )
     m_ZRelRot.SetDescript( "Z Rotation Relative to Parent" );
 
     // Attachment Parms
-    m_AbsRelFlag.Init( "Abs_Or_Relitive_flag", "XForm", this, ABSOLUTE_XFORM, ABSOLUTE_XFORM, RELATIVE_XFORM, false );
+    m_AbsRelFlag.Init( "Abs_Or_Relitive_flag", "XForm", this, RELATIVE_XFORM, ABSOLUTE_XFORM, RELATIVE_XFORM, false );
     m_TransAttachFlag.Init( "Trans_Attach_Flag", "Attach", this, ATTACH_TRANS_NONE, ATTACH_TRANS_NONE, ATTACH_TRANS_UV, false );
     m_TransAttachFlag.SetDescript( "Determines relative translation coordinate system" );
     m_RotAttachFlag.Init( "Rots_Attach_Flag", "Attach", this, ATTACH_ROT_NONE, ATTACH_ROT_NONE, ATTACH_ROT_UV, false );
@@ -726,9 +729,9 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomTexMap( vehicle_ptr )
     m_Type.m_Type = GEOM_GEOM_TYPE;
     m_Type.m_Name = m_Name;
 
-    m_TessU.Init( "Tess_U", "Shape", this, 2, 2,  100 );
+    m_TessU.Init( "Tess_U", "Shape", this, 8, 2,  100 );
     m_TessU.SetDescript( "Number of tessellated curves in the U direction" );
-    m_TessW.Init( "Tess_W", "Shape", this, 4, 2,  100 );
+    m_TessW.Init( "Tess_W", "Shape", this, 10, 2,  100 );
     m_TessW.SetDescript( "Number of tessellated curves in the W direction" );
 
     m_BbXLen.Init( "X_Len", "BBox", this, 0, 0, 1e12 );
@@ -853,6 +856,8 @@ void Geom::CopyFrom( Geom* geom )
 //==== Update ====//
 void Geom::Update()
 {
+    m_LateUpdateFlag = false;
+
     Scale();
     GeomXForm::Update();
 
@@ -1296,6 +1301,39 @@ void Geom::WriteXSecFile( int geom_no, FILE* dump_file )
         }
     }
 }
+
+void Geom::CreateGeomResults( Results* res )
+{
+    res->Add( ResData( "Type", vsp::GEOM_XSECS ) );
+    res->Add( ResData( "Num_Surfs", ( int )m_SurfVec.size() ) );
+
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    {
+        //==== Tessellate Surface ====//
+        vector< vector< vec3d > > pnts;
+        vector< vector< vec3d > > norms;
+        UpdateTesselate( i, pnts, norms );
+
+        res->Add( ResData( "Num_XSecs", static_cast<int>( pnts.size() ) ) );
+
+        if ( pnts.size() )
+        {
+            res->Add( ResData( "Num_Pnts_Per_XSec", static_cast<int>( pnts[0].size() ) ) );
+        }
+
+        //==== Write XSec Data ====//
+        for ( int j = 0 ; j < ( int )pnts.size() ; j++ )
+        {
+            vector< vec3d > xsec_vec;
+            for ( int k = 0 ; k < ( int )pnts[j].size() ; k++ )
+            {
+                xsec_vec.push_back(  pnts[j][k] );
+            }
+            res->Add( ResData( "XSec_Pnts", xsec_vec ) );
+        }
+    }
+}
+
 
 void Geom::WriteX3D( xmlNodePtr node )
 {

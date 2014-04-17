@@ -8,8 +8,12 @@
 #include "Vehicle.h"
 #include "PodGeom.h"
 #include "FuselageGeom.h"
+#include "WingGeom.h"
 #include "BlankGeom.h"
 #include "MeshGeom.h"
+#include "StackGeom.h"
+#include "CustomGeom.h"
+#include "ScriptMgr.h"
 #include "MessageMgr.h"
 #include "StlHelper.h"
 #include "ParmMgr.h"
@@ -18,6 +22,9 @@
 #include "StringUtil.h"
 #include "DesignVarMgr.h"
 #include "XmlUtil.h"
+#include "APIDefines.h"
+#include "ResultsMgr.h"
+using namespace vsp;
 
 #include <utility>
 
@@ -115,6 +122,11 @@ Vehicle::~Vehicle()
 //=== Init ====//
 void Vehicle::Init()
 {
+    //==== Init Custom Geom and Script Mgr ====//
+    CustomGeomMgr.Init();
+    ScriptMgr.Init();
+    CustomGeomMgr.ReadCustomScripts();
+
     m_Name = "Vehicle";
 
     m_VSP3FileName = "Unnamed.vsp3";
@@ -134,8 +146,17 @@ void Vehicle::Init()
     //==== Load Geom Types =====//
     m_GeomTypeVec.push_back( GeomType( POD_GEOM_TYPE, "POD", true ) );
     m_GeomTypeVec.push_back( GeomType( FUSELAGE_GEOM_TYPE, "FUSELAGE", true ) );
+    m_GeomTypeVec.push_back( GeomType( MS_WING_GEOM_TYPE, "WING", true ) );
+    m_GeomTypeVec.push_back( GeomType( STACK_GEOM_TYPE, "STACK", true ) );
     m_GeomTypeVec.push_back( GeomType( BLANK_GEOM_TYPE, "BLANK", true ) );
-    m_TestParm.Init( "Test", "Design", this, 0.0, 1.0e-8, 1.0e12 );
+    m_GeomTypeVec.push_back( GeomType( CUSTOM_GEOM_TYPE, "CUSTOM", true ) );
+
+    //==== Get Custom Geom Types =====//
+    vector< GeomType > custom_types = CustomGeomMgr.GetCustomTypes();
+    for ( int i = 0 ; i < ( int ) custom_types.size() ; i++ )
+    {
+        m_GeomTypeVec.push_back( custom_types[i] );
+    }
 
     LinkMgr.RegisterContainer( this->GetID() );
 
@@ -153,6 +174,11 @@ void Vehicle::Init()
     m_CG = vec3d( 0, 0, 0 );
     m_NumMassSlices = 20;
     m_TotalMass = 0;
+}
+
+void Vehicle::RunTestScripts()
+{
+    ScriptMgr.RunTestScripts();
 }
 
 //=== Wype ===//
@@ -179,8 +205,8 @@ void Vehicle::Wype()
 
     m_VSP3FileName = string();
 
-    ParmMgr.RemoveParm( &m_TestParm );
-    m_TestParm = Parm();
+//  ParmMgr.RemoveParm( &m_TestParm );
+//  m_TestParm = Parm();
 
     for ( int i = 0 ; i < ( int )m_GeomStoreVec.size() ; i++ )
     {
@@ -304,6 +330,10 @@ string Vehicle::CreateGeom( const GeomType & type )
     {
         new_geom = new FuselageGeom( this );
     }
+    else if ( type.m_Type == MS_WING_GEOM_TYPE )
+    {
+        new_geom = new WingGeom( this );
+    }
     else if ( type.m_Type == BLANK_GEOM_TYPE )
     {
         new_geom = new BlankGeom( this );
@@ -311,6 +341,14 @@ string Vehicle::CreateGeom( const GeomType & type )
     else if ( type.m_Type == MESH_GEOM_TYPE )
     {
         new_geom = new MeshGeom( this );
+    }
+    else if ( type.m_Type == STACK_GEOM_TYPE )
+    {
+        new_geom = new StackGeom( this );
+    }
+    else if ( type.m_Type == CUSTOM_GEOM_TYPE )
+    {
+        new_geom = new CustomGeom( this );
     }
 
     if ( !new_geom )
@@ -339,7 +377,16 @@ string Vehicle::AddGeom( GeomType & type )
     string add_id = CreateGeom( type );
     Geom* add_geom = FindGeom( add_id );
 
-    return AddGeom( add_geom );
+    string geom_id =  AddGeom( add_geom );
+
+    if ( type.m_Type == CUSTOM_GEOM_TYPE )
+    {
+        add_geom->SetType( type );
+        CustomGeomMgr.InitGeom( geom_id );
+        add_geom->Update();
+    }
+
+    return geom_id;
 }
 
 
@@ -1786,7 +1833,7 @@ string Vehicle::getExportFileName( int type )
     {
         return m_compGeomCsvFileName;
     }
-    else if ( type == COMP_GEOM_TSV_TYPE )
+    else if ( type == DRAG_BUILD_TSV_TYPE )
     {
         return m_compGeomTsvFileName;
     }
@@ -1819,7 +1866,7 @@ void Vehicle::setExportFileName( int type, string f_name )
     {
         m_compGeomCsvFileName = f_name;
     }
-    else if ( type == COMP_GEOM_TSV_TYPE )
+    else if ( type == DRAG_BUILD_TSV_TYPE )
     {
         m_compGeomTsvFileName = f_name;
     }
@@ -1983,7 +2030,7 @@ string Vehicle::AwaveSlice( int set, int numSlices, int numRots, double AngleCon
         {
             AngleControlVal = asin( 1 / AngleControlVal ) * RAD_2_DEG;
         }
-        mesh_ptr->AreaSlice( MeshGeom::SLICE_AWAVE, numSlices, AngleControlVal, numRots, norm, autoBoundsFlag, start, end );
+        mesh_ptr->AreaSlice( vsp::SLICE_AWAVE, numSlices, AngleControlVal, numRots, norm, autoBoundsFlag, start, end );
     }
     else
     {
@@ -2028,7 +2075,7 @@ string Vehicle::PSlice( int set, int numSlices, vec3d axis, bool autoBoundsFlag,
 
     if ( mesh_ptr->m_TMeshVec.size() )
     {
-        mesh_ptr->AreaSlice( MeshGeom::SLICE_PLANAR, numSlices, 90, 0, axis, autoBoundsFlag, start, end );
+        mesh_ptr->AreaSlice( vsp::SLICE_PLANAR, numSlices, 90, 0, axis, autoBoundsFlag, start, end );
     }
     else
     {
@@ -2076,7 +2123,7 @@ string Vehicle::ImportFile( const string & file_name, int file_type )
     {
         validFlag = new_geom->ReadNascart( file_name.c_str() );
     }
-    else if ( file_type == IMPORT_TRI )
+    else if ( file_type == IMPORT_CART3D_TRI )
     {
         validFlag = new_geom->ReadTriFile( file_name.c_str() );
     }
@@ -2101,4 +2148,42 @@ string Vehicle::ImportFile( const string & file_name, int file_type )
     }
 
     return id;
+}
+
+
+//==== Import File Methods ====//
+void Vehicle::ExportFile( const string & file_name, int write_set, int file_type )
+{
+    if ( file_type == EXPORT_XSEC )
+    {
+        WriteXSecFile( file_name, write_set );
+    }
+    else if ( file_type == EXPORT_STL )
+    {
+        WriteSTLFile( file_name, write_set );
+    }
+    else if ( file_type == EXPORT_CART3D )
+    {
+        WriteTRIFile( file_name, write_set );
+    }
+    else if ( file_type == EXPORT_NASCART )
+    {
+        WriteNascartFiles( file_name, write_set );
+    }
+    else if ( file_type == EXPORT_GMSH )
+    {
+        WriteGmshFile( file_name, write_set );
+    }
+    else if ( file_type == EXPORT_POVRAY )
+    {
+        WritePovRayFile( file_name, write_set );
+    }
+    else if ( file_type == EXPORT_X3D )
+    {
+        WriteX3DFile( file_name, write_set );
+    }
+    else if ( file_type == EXPORT_BEZ )
+    {
+        WriteBezFile( file_name, write_set );
+    }
 }

@@ -50,6 +50,7 @@ IF( NOT VSP_NO_GRAPHICS )
 
 	TARGET_LINK_LIBRARIES(vsp
 		geom_core
+		geom_api_g
 		gui_interface_g
 		gui_and_draw
 		cfd_mesh_stuff
@@ -60,12 +61,14 @@ IF( NOT VSP_NO_GRAPHICS )
 		sixseries
 		util
 		tritri
+        Angelscript
 		${CPPTEST_LIBRARIES}
 		${JPEG_LIBRARIES}
 		${LIBXML2_LIBRARIES}
 		${FLTK_LIBRARIES}
 		${OPENGL_LIBRARIES}
 		${WINSOCK_LIBRARIES}
+		${CMINPACK_LIBRARIES}
 		${LINUX_LIBS}
 	)
 
@@ -87,6 +90,7 @@ IF( NOT VSP_NO_GRAPHICS )
 		triangle
 		util
 		tritri
+        Angelscript
 		screens
 		xmlvsp
 		sixseries
@@ -97,6 +101,7 @@ IF( NOT VSP_NO_GRAPHICS )
 		${FLTK_LIBRARIES}
 		${OPENGL_LIBRARIES}
 		${WINSOCK_LIBRARIES}
+		${CMINPACK_LIBRARIES}
 	)
 
 #	INSTALL( TARGETS apitest_g RUNTIME DESTINATION . )
@@ -117,9 +122,11 @@ TARGET_LINK_LIBRARIES(apitest
 	sixseries
 	util
 	tritri
+    Angelscript
 	${CPPTEST_LIBRARIES}
 	${LIBXML2_LIBRARIES}
 	${WINSOCK_LIBRARIES}
+	${CMINPACK_LIBRARIES}
 )
 
 

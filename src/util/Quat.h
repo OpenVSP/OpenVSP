@@ -22,7 +22,7 @@ public:
 
     quat();  //new quaternion
     ~quat() {} // delete quaternion
-    quat( double w, double x, double y, double z );
+    quat( const double &w, const double &x, const double &y, const double &z );
     quat( const quat& a );  // quat x = y
     quat& operator=( const quat& a ); // x = y
 
@@ -47,8 +47,8 @@ public:
     }
 
     // convert to and from axis angle //
-    void quat2axisangle( vec3d& axis, double& angle );
-    quat( vec3d axis, double angle );
+    void quat2axisangle( vec3d& axis, double& angle ) const;
+    quat( const vec3d &axis, const double &angle );
 
 
 };

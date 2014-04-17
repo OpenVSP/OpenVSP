@@ -14,6 +14,7 @@ INCLUDE_DIRECTORIES(
 ADD_LIBRARY(util
 BndBox.cpp
 DrawObj.cpp
+FileUtil.cpp
 Matrix.cpp
 MessageMgr.cpp
 PntNodeMerge.cpp
@@ -21,6 +22,7 @@ Quat.cpp
 StlHelper.cpp
 StringUtil.cpp
 SuperEllipse.cpp
+Util.cpp
 UtilTestSuite.cpp
 Vec2d.cpp
 Vec3d.cpp
@@ -29,6 +31,8 @@ VspSurf.cpp
 BndBox.h
 Defines.h
 DrawObj.h
+FileUtil.h
+GuiDeviceEnums.h
 Matrix.h
 MessageMgr.h
 PntNodeMerge.h

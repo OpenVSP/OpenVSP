@@ -3,6 +3,8 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 SET(GEOM_CORE_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH "Path to geom_core headers")
 
 INCLUDE_DIRECTORIES( 
+    ${ANGELSCRIPT_INCLUDE_DIR}
+    ${ANGELSCRIPT_ADD_ON_INCLUDE_DIR}
     ${UTIL_INCLUDE_DIR}
     ${CPPTEST_INCLUDE_DIRS} 
     ${LIBXML2_INCLUDE_DIR}
@@ -12,11 +14,14 @@ INCLUDE_DIRECTORIES(
     ${EIGEN3_INCLUDE_DIR}
     ${CodeEli_INCLUDE_DIRS}
     ${TRITRI_INCLUDE_DIR}
+    ${GEOM_API_INCLUDE_DIR}
+    ${CMINPACK_INCLUDE_DIR}
    )
 
 ADD_LIBRARY(geom_core
 Airfoil.cpp
 BlankGeom.cpp
+CustomGeom.cpp
 DesignVarMgr.cpp
 FuselageGeom.cpp
 Geom.cpp
@@ -30,14 +35,20 @@ ParmContainer.cpp
 ParmMgr.cpp
 ParmUndo.cpp
 PodGeom.cpp
+ResultsMgr.cpp
+ScriptMgr.cpp
+StackGeom.cpp
 TMesh.cpp
 Vehicle.cpp
 VehicleMgr.cpp
+WingGeom.cpp
 XSec.cpp
+XSecCurve.cpp
 XSecSurf.cpp
 Labels.cpp
 Airfoil.h
 BlankGeom.h
+CustomGeom.h
 DesignVarMgr.h
 DragFactors.h
 FuselageGeom.h
@@ -52,11 +63,16 @@ ParmContainer.h
 ParmMgr.h
 ParmUndo.h
 PodGeom.h
+ResultsMgr.h
+ScriptMgr.h
+StackGeom.h
 SWIGDefines.h
 TMesh.h
 Vehicle.h
 VehicleMgr.h
+WingGeom.h
 XSec.h
+XSecCurve.h
 XSecSurf.h
 Labels.h
 

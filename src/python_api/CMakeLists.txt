@@ -48,9 +48,11 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 		sixseries
 		util
 		tritri
+        Angelscript
 		${CPPTEST_LIBRARIES}
 		${LIBXML2_LIBRARIES}
 		${PYTHON_LIBRARIES}
+		${CMINPACK_LIBRARIES}
 	)
 
 	IF( NOT VSP_NO_GRAPHICS )
@@ -66,6 +68,7 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 			triangle
 			util
 			tritri
+            Angelscript
 			screens
 			xmlvsp
 			sixseries
@@ -76,6 +79,7 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 			${FLTK_LIBRARIES}
 			${OPENGL_LIBRARIES}
 			${PYTHON_LIBRARIES}
+			${CMINPACK_LIBRARIES}
 		)
 
 	ENDIF()

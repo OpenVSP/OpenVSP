@@ -11,6 +11,8 @@
 
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Check_Browser.H>
+#include <FL/Fl_Round_Button.H>
+#include <FL/fl_draw.H>
 
 #include "GuiDevice.h"
 
@@ -18,6 +20,13 @@
 #include <string>
 
 using std::string;
+
+class GroupBankRoundButton : public Fl_Round_Button
+{
+public:
+    GroupBankRoundButton( int x, int y, int w, int h, const char *label = 0 );
+    void draw();
+};
 
 //  GroupLayout creates and arranges Fltk gui widgets in an input Fl_Group.
 //  The widgets are sized and placed in the group in the order they are added.
@@ -134,13 +143,25 @@ public:
     {
         m_GapHeight = h;
     }
+    int GetGapHeight()
+    {
+        return m_GapHeight;
+    }
     void SetDividerHeight( int h )
     {
         m_DividerHeight = h;
     }
+    int GetDividerHeight()
+    {
+        return m_DividerHeight;
+    }
     void SetButtonWidth( int w )
     {
         m_ButtonWidth = w;
+    }
+    int GetButtonWidth()
+    {
+        return m_ButtonWidth;
     }
     void SetCoiceButtonWidth( int w )
     {
@@ -160,7 +181,7 @@ public:
     }
 
     //==== Add FLTK Widgets and Initalize GUI Devices ====//
-    void AddDividerBox( const string& text );
+    void AddDividerBox( const string& text, int used_w = 0 );
     void AddSlider(  SliderAdjRangeInput& slid_adj_input, const char* label,
                      double range, const char* format );
     void AddSlider(  SliderAdjRange2Input& slid_adj_input, const char* label,
@@ -181,6 +202,11 @@ public:
     void AddCounter( Counter & count, const char* label );
     void AddLabel( const char* label, int width );
     void AddParmPicker( ParmPicker & parm_picker );
+    void AddDriverGroupBank( DriverGroupBank & driver_group, const vector < string > &labels,
+                             double range, const char* format );
+    void AddSkinControl( SkinControl & skin_control, const char* label, double range, const char* format );
+    void AddSkinOutput( SkinOutput & skin_output );
+    void AddGeomPicker( GeomPicker & geom_picker );
 
     //==== Add Another GroupLayout as a SubSet of This GroupLayout ====//
     //==== Subgroups can be Used To Create Multiple Column Layouts ====//

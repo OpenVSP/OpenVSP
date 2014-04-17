@@ -9,12 +9,23 @@
 
 #include "XSecSurf.h"
 #include "StlHelper.h"
+#include "APIDefines.h"
+using namespace vsp;
+
 
 //==== Default Constructor ====//
 XSecSurf::XSecSurf()
 {
-    m_rotation.loadIdentity();
-    m_center = false;
+    m_XSecType = -1;
+    m_PrincipalDir = -1;
+    m_WidthDir = -1;
+    m_WidthShift = -1;
+    m_FlipUD = false;
+
+    // Assign default values different from -1 above.
+    SetXSecType( XSEC_FUSE );
+    SetBasicOrientation( X_DIR, Y_DIR, XS_SHIFT_MID, false );
+
 //  m_TestParm.Init( "Test", "XSecSurf", this, 0.0, 1.0e-8, 1.0e12 );
 }
 
@@ -54,6 +65,19 @@ XSec* XSecSurf::FindXSec( int index )
     return FindXSec( id );
 }
 
+//==== Find XSec Index Given ID ====//
+int XSecSurf::FindXSecIndex( string ID )
+{
+    for( int i = 0; i < static_cast<int>( m_XSecIDDeque.size() ); i++ )
+    {
+        if( m_XSecIDDeque[i] == ID )
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
 //==== Find XSec ID Given Index ====//
 string XSecSurf::GetXSecID( int index )
 {
@@ -82,63 +106,77 @@ void XSecSurf::ChangeXSecID( string oldID, string newID )
     }
 }
 
-//==== Create XSec ====//
+//==== Create XSecCurve ====//
 XSec* XSecSurf::CreateXSec( int type, int index )
 {
-    XSec* xsec_ptr = NULL;
-    if ( type == XSec::POINT )
+    XSecCurve* xscrv_ptr = NULL;
+    if ( type == XS_POINT )
     {
-        xsec_ptr = new PointXSec( index != 0 );
+        xscrv_ptr = new PointXSec( );
     }
-    else if ( type == XSec::CIRCLE )
+    else if ( type == XS_CIRCLE )
     {
-        xsec_ptr = new CircleXSec( index != 0 );
+        xscrv_ptr = new CircleXSec( );
     }
-    else if ( type == XSec::ELLIPSE )
+    else if ( type == XS_ELLIPSE )
     {
-        xsec_ptr = new EllipseXSec( index != 0 );
+        xscrv_ptr = new EllipseXSec( );
     }
-    else if ( type == XSec::SUPER_ELLIPSE )
+    else if ( type == XS_SUPER_ELLIPSE )
     {
-        xsec_ptr = new SuperXSec( index != 0 );
+        xscrv_ptr = new SuperXSec( );
     }
-    else if ( type == XSec::ROUNDED_RECTANGLE )
+    else if ( type == XS_ROUNDED_RECTANGLE )
     {
-        xsec_ptr = new RoundedRectXSec( index != 0 );
+        xscrv_ptr = new RoundedRectXSec( );
     }
-    else if ( type == XSec::GENERAL_FUSE )
+    else if ( type == XS_GENERAL_FUSE )
     {
-        xsec_ptr = new GeneralFuseXSec( index != 0 );
+        xscrv_ptr = new GeneralFuseXSec( );
     }
-    else if ( type == XSec::FOUR_SERIES )
+    else if ( type == XS_FOUR_SERIES )
     {
-        xsec_ptr = new FourSeries( index != 0 );
+        xscrv_ptr = new FourSeries( );
     }
-    else if ( type == XSec::SIX_SERIES )
+    else if ( type == XS_SIX_SERIES )
     {
-        xsec_ptr = new SixSeries( index != 0 );
+        xscrv_ptr = new SixSeries( );
     }
-    else if ( type == XSec::BICONVEX )
+    else if ( type == XS_BICONVEX )
     {
-        xsec_ptr = new Biconvex( index != 0 );
+        xscrv_ptr = new Biconvex( );
     }
-    else if ( type == XSec::WEDGE )
+    else if ( type == XS_WEDGE )
     {
-        xsec_ptr = new Wedge( index != 0 );
+        xscrv_ptr = new Wedge( );
     }
-    else if ( type == XSec::FILE_FUSE )
+    else if ( type == XS_FILE_FUSE )
     {
-        xsec_ptr = new FileXSec( index != 0 );
+        xscrv_ptr = new FileXSec( );
     }
-    else if ( type == XSec::FILE_AIRFOIL )
+    else if ( type == XS_FILE_AIRFOIL )
     {
-        xsec_ptr = new FileAirfoil( index != 0 );
+        xscrv_ptr = new FileAirfoil( );
     }
 
-    if ( xsec_ptr )
+    XSec* xsec_ptr = NULL;
+    if ( xscrv_ptr )
     {
+        if ( m_XSecType == XSEC_FUSE )
+        {
+            xsec_ptr = ( XSec* ) new FuseXSec( xscrv_ptr, index != 0 );
+        }
+        else if ( m_XSecType == XSEC_STACK )
+        {
+            xsec_ptr = ( XSec* ) new StackXSec( xscrv_ptr, index != 0 );
+        }
+        else
+        {
+            fprintf( stderr, "Undefined or unknown XSec type in XSecSurf::CreateXSec\n");
+            assert(false);
+        }
+
         xsec_ptr->SetParentContainer( GetID() );
-        xsec_ptr->SetTransformation( m_rotation, m_center );
         m_XSecPtrVec.push_back( xsec_ptr );
     }
 
@@ -176,8 +214,6 @@ string XSecSurf::InsertXSec( int type, int index )
         {
             m_XSecIDDeque.push_back( xs->GetID() );
         }
-
-        ParmChanged( 0, -1001 );
     }
     return id;
 }
@@ -192,8 +228,6 @@ string XSecSurf::AddXSec( int type )
     {
         id = xs->GetID();
         m_XSecIDDeque.push_back( id );
-
-        ParmChanged( 0, -1001 );
     }
     return id;
 }
@@ -228,8 +262,6 @@ void XSecSurf::CutXSec( int index )
 
     m_SavedXSec = xs->GetID();
     m_XSecIDDeque.erase( m_XSecIDDeque.begin() + index );
-
-    ParmChanged( 0, -1001 );
 }
 
 //==== Copy XSec ====//
@@ -244,7 +276,8 @@ void XSecSurf::CopyXSec( int index )
     XSec* saved_xs = FindXSec( m_SavedXSec );
 
     //==== Create Saved XSec ====//
-    if ( saved_xs && saved_xs->GetType() != xs->GetType() )
+    if ( saved_xs && ( saved_xs->GetType() != xs->GetType()
+            || saved_xs->GetXSecCurve()->GetType() != xs->GetXSecCurve()->GetType() ) )
     {
         vector_remove_val( m_XSecPtrVec, saved_xs );
         delete saved_xs;
@@ -254,7 +287,7 @@ void XSecSurf::CopyXSec( int index )
     //==== Saved XSec ====//
     if ( !saved_xs )
     {
-        saved_xs = CreateXSec( xs->GetType(), index );
+        saved_xs = CreateXSec( xs->GetXSecCurve()->GetType(), index );
     }
 
     //==== Copy Data ====//
@@ -280,7 +313,7 @@ void XSecSurf::PasteXSec( int index )
         return;
     }
 
-    string new_xs_id = InsertXSec( saved_xs->GetType(), index );
+    string new_xs_id = InsertXSec( saved_xs->GetXSecCurve()->GetType(), index );
     XSec* new_xs = FindXSec( new_xs_id );
     if ( !new_xs )
     {
@@ -289,20 +322,18 @@ void XSecSurf::PasteXSec( int index )
 
     //==== Copy Data ====//
     new_xs->CopyFrom( saved_xs );
-    new_xs->m_XLocPercent = xs->m_XLocPercent();
-    new_xs->m_YLocPercent = xs->m_YLocPercent();
-    new_xs->m_ZLocPercent = xs->m_ZLocPercent();
+
+    //==== Copy Position from xsec being replaced ====//
+    new_xs->CopyBasePos( xs );
 
     deque_remove_val( m_XSecIDDeque, xs->GetID() );
     vector_remove_val( m_XSecPtrVec, xs );
-
-    ParmChanged( 0, -1001 );
 
     delete xs;
 }
 
 //==== Change XSec Type ====//
-void XSecSurf::ChangeXSecType( int index, int type )
+void XSecSurf::ChangeXSecShape( int index, int type )
 {
     //==== Old XSec ====//
     XSec* xs = FindXSec( index );
@@ -329,9 +360,72 @@ void XSecSurf::ChangeXSecType( int index, int type )
     }
 }
 
+void XSecSurf::GetBasicTransformation( double w, Matrix4d &mat )
+{
+    double *m = mat.data();
+
+    if ( m_PrincipalDir != -1 )
+    {
+        for ( int i = 0; i < 16; i++ )
+        {
+            m[i] = 0;
+        }
+
+        int prow = m_PrincipalDir;
+        // Principal direction of base curves +Z
+        m[ prow + ( Z_DIR * 4 ) ] = 1;
+
+        int wrow = m_WidthDir;
+        // Width direction of base curves +X
+        m[ wrow + ( X_DIR * 4 ) ] = 1;
+
+        // Remaining row via clever math
+        int row = 3 - ( prow + wrow );
+
+        // Cross product to ensure right handed system
+        int r1, r2;
+        switch( row )
+        {
+        case X_DIR:
+            r1 = Y_DIR;
+            r2 = Z_DIR;
+            break;
+        case Y_DIR:
+            r1 = Z_DIR;
+            r2 = X_DIR;
+            break;
+        case Z_DIR:
+            r1 = X_DIR;
+            r2 = Y_DIR;
+            break;
+        }
+
+        int flipflag = 1;
+        if ( m_FlipUD )
+        {
+            flipflag = -1;
+        }
+
+        // Specialized cross product with known zeros.
+        m[ row + ( Y_DIR * 4 ) ] = flipflag * ( m[ r1 + ( Z_DIR * 4 ) ] * m[ r2 + ( X_DIR * 4 ) ] -
+                                                m[ r1 + ( X_DIR * 4 ) ] * m[ r2 + ( Z_DIR * 4 ) ] );
+
+        // Shift in width direction if required.
+        m[ wrow + 12 ] = -w * m_WidthShift / 2.0;
+    }
+    else
+    {
+        printf( "Must call XSecSurf::SetBasicOrientation before use.\n" );
+        assert( false );
+    }
+}
+
+
 //==== Encode XML ====//
 xmlNodePtr XSecSurf::EncodeXml( xmlNodePtr & node )
 {
+    ParmContainer::EncodeXml( node );
+
     xmlNodePtr xsecsurf_node = xmlNewChild( node, NULL, BAD_CAST "XSecSurf", NULL );
     if ( xsecsurf_node )
     {
@@ -352,23 +446,38 @@ xmlNodePtr XSecSurf::DecodeXml( xmlNodePtr & node )
 {
     DeleteAllXSecs();
 
+    ParmContainer::DecodeXml( node );
+
     xmlNodePtr xsecsurf_node = XmlUtil::GetNode( node, "XSecSurf", 0 );
     if ( xsecsurf_node )
     {
         int num = XmlUtil::GetNumNames( xsecsurf_node, "XSec" );
+
         for ( int i = 0 ; i < num ; i++ )
         {
             xmlNodePtr xsec_node = XmlUtil::GetNode( xsecsurf_node, "XSec", i );
             if ( xsec_node )
             {
-                xmlNodePtr temp_node = XmlUtil::GetNode( xsec_node, "XSec", 0 );
-                int type = XmlUtil::FindInt( temp_node, "Type", XSec::POINT );
+                xmlNodePtr temp_node = NULL;
+                temp_node = XmlUtil::GetNode( xsec_node, "XSec", 0 );
 
-                //==== Create New Cross Section ====//
-                XSec* xsec_ptr = FindXSec( AddXSec( type ) );
-                if ( xsec_ptr )
+                if ( temp_node )
                 {
-                    xsec_ptr->DecodeXSec( xsec_node );
+                    int xs_type = XmlUtil::FindInt( temp_node, "Type", XSEC_FUSE );
+
+                    xmlNodePtr xscrv_node = XmlUtil::GetNode( temp_node, "XSecCurve", 0 );
+                    if ( xscrv_node )
+                    {
+                        xmlNodePtr temp2_node = XmlUtil::GetNode( xscrv_node, "XSecCurve", 0 );
+                        int xsc_type = XmlUtil::FindInt( temp2_node, "Type", XS_POINT );
+
+                        //==== Create New Cross Section ====//
+                        XSec* xsec_ptr = FindXSec( AddXSec( xsc_type ) );
+                        if ( xsec_ptr )
+                        {
+                            xsec_ptr->DecodeXSec( xsec_node );
+                        }
+                    }
                 }
             }
         }
@@ -397,76 +506,6 @@ void XSecSurf::ParmChanged( Parm* parm_ptr, int type )
 
 }
 
-int XSecSurf::GetNumTess()
-{
-    int numt( 1 ), nxs( NumXSec() );
-
-    // short circuit if no cross sections
-    if ( nxs == 0 )
-    {
-        return 0;
-    }
-
-    // accumulate the total number of cross sections
-    for ( int i = 0; i < nxs - 1; ++i )
-    {
-        XSec* xsp = FindXSec( i );
-        numt += xsp->m_NRightSecs() - 1;
-    }
-
-    return numt;
-}
-
-int XSecSurf::UpdateNumTess( int nt )
-{
-    int numt( GetNumTess() ), nxs( NumXSec() );
-
-    // short circuit on start up
-    if ( nxs < 3 )
-    {
-        return nt;
-    }
-
-    // catch case where set too few cross sections
-    if ( nt < nxs )
-    {
-        nt = nxs;
-    }
-
-    // compare each segments count to total desired number to be displayed
-    while( numt != nt )
-    {
-        // find the minimum and maximum sections
-        XSec *xsmin = FindXSec( 0 );
-        XSec *xsmax = FindXSec( 0 );
-        for ( int i = 1; i < nxs - 1; ++i )
-        {
-            XSec* xsp = FindXSec( i );
-            if ( xsmin->m_NRightSecs() > xsp->m_NRightSecs() )
-            {
-                xsmin = xsp;
-            }
-            if ( xsmax->m_NRightSecs() < xsp->m_NRightSecs() )
-            {
-                xsmax = xsp;
-            }
-        }
-
-        if ( numt > nt )
-        {
-            xsmax->m_NRightSecs.Set( xsmax->m_NRightSecs() - 1 );
-            --numt;
-        }
-        else
-        {
-            xsmin->m_NRightSecs.Set( xsmin->m_NRightSecs() + 1 );
-            ++numt;
-        }
-    }
-
-    return nt;
-}
-
 //==== Look Though All Parms and Load Linkable Ones ===//
 void XSecSurf::AddLinkableParms( vector< string > & parm_vec, const string & link_container_id )
 {
@@ -482,8 +521,13 @@ void XSecSurf::AddLinkableParms( vector< string > & parm_vec, const string & lin
     }
 }
 
-void XSecSurf::SetTransformation( const Matrix4d &mat, bool center )
+string XSecSurf::GetName()
 {
-    m_rotation = mat;
-    m_center = center;
+    ParmContainer* pc = GetParentContainerPtr();
+
+    if ( pc )
+    {
+        return pc->GetName();
+    }
+    return ParmContainer::GetName();
 }

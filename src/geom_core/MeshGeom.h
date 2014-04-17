@@ -21,6 +21,7 @@
 #include "Vec2d.h"
 #include "Geom.h"
 #include "Util.h"
+#include "ResultsMgr.h"
 
 class MeshInfo
 {
@@ -49,7 +50,7 @@ class MeshGeom : public Geom
 
 
 public:
-    enum { SLICE_PLANAR, SLICE_AWAVE };
+//  enum { SLICE_PLANAR, SLICE_AWAVE };
 
     //==== How Mesh Is Drawn and Saved ====//
     enum { INTERSECTION_MESH, MODEL_MESH };
@@ -159,6 +160,8 @@ public:
     virtual void WritePovRay( FILE* fid, int comp_num );
     virtual void WriteX3D( xmlNodePtr node );
     virtual void CheckDupOrAdd( TNode* node, vector< TNode* > & nodeVec );
+    virtual void CreateGeomResults( Results* res );
+
 
     virtual void dump_xsec_file( int, FILE* ) {}
     virtual void Scale();

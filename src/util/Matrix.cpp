@@ -3,145 +3,6 @@
 // version 1.3 as detailed in the LICENSE file which accompanies this software.
 //
 
-
-#include "Matrix.h"
-
-Matrix::Matrix()
-{
-}
-
-void Matrix::loadIdentity()
-{
-    setIdentity( mat );
-}
-
-void Matrix::setIdentity( float* m )
-{
-    for ( int i = 0 ; i < 4 ; i++ )
-        for ( int j = 0 ; j < 4 ; j++ )
-        {
-            if ( i == j )
-            {
-                m[i * 4 + j] = 1.0;
-            }
-            else
-            {
-                m[i * 4 + j] = 0.0;
-            }
-        }
-}
-
-void Matrix::translatef( float x, float y, float z )
-{
-    float tmat[16];
-
-    setIdentity( tmat );
-
-    tmat[12] = x;
-    tmat[13] = y;
-    tmat[14] = z;
-
-    matMult( tmat );
-
-}
-
-void Matrix::rotateX( float ang )
-{
-    float tmat[16];
-    float rang = ang * ( float )PI / 180.0f;
-    float ca = ( float )cos( rang );
-    float sa = ( float )sin( rang );
-
-    setIdentity( tmat );
-    tmat[5] = ca;
-    tmat[6] = sa;
-    tmat[9] = -sa;
-    tmat[10] = ca;
-
-    matMult( tmat );
-}
-
-void Matrix::rotateY( float ang )
-{
-    float tmat[16];
-    float rang = ang * ( float )PI / 180.0f;
-    float ca = ( float )cos( rang );
-    float sa = ( float )sin( rang );
-
-    setIdentity( tmat );
-    tmat[0] = ca;
-    tmat[2] = -sa;
-    tmat[8] = sa;
-    tmat[10] = ca;
-
-    matMult( tmat );
-}
-
-void Matrix::rotateZ( float ang )
-{
-    float tmat[16];
-    float rang = ang * ( float )PI / 180.0f;
-    float ca = ( float )cos( rang );
-    float sa = ( float )sin( rang );
-
-    setIdentity( tmat );
-    tmat[0] = ca;
-    tmat[1] = sa;
-    tmat[4] = -sa;
-    tmat[5] = ca;
-
-    matMult( tmat );
-}
-
-void Matrix::matMult( float* m )
-{
-    float res[16];
-
-    for ( int i = 0 ; i < 4 ; i++ )
-        for ( int j = 0 ; j < 4 ; j++ )
-        {
-            res[j * 4 + i] = mat[i] * m[j * 4]     + mat[4 + i] * m[j * 4 + 1]
-                             + mat[8 + i] * m[j * 4 + 2] + mat[12 + i] * m[j * 4 + 3];
-        }
-
-    memcpy( mat, res, 16 * sizeof( float ) );
-}
-
-void Matrix::postMult( float* m )
-{
-    float res[16];
-
-    for ( int i = 0 ; i < 4 ; i++ )
-        for ( int j = 0 ; j < 4 ; j++ )
-        {
-            res[j * 4 + i] = m[i] * mat[j * 4]     + m[4 + i] * mat[j * 4 + 1]
-                             + m[8 + i] * mat[j * 4 + 2] + m[12 + i] * mat[j * 4 + 3];
-        }
-
-    memcpy( mat, res, 16 * sizeof( float ) );
-}
-
-void Matrix::getMat( float* m )
-{
-    memcpy( m, mat, 16 * sizeof( float ) );
-
-}
-
-
-void Matrix::initMat( float* m )
-{
-    memcpy( mat, m, 16 * sizeof( float ) );
-}
-
-void Matrix::mult( float in[4], float out[4] )
-{
-    out[0] = mat[0] * in[0] + mat[4] * in[1] + mat[8] * in[2] + mat[12] * in[3];
-    out[1] = mat[1] * in[0] + mat[5] * in[1] + mat[9] * in[2] + mat[13] * in[3];
-    out[2] = mat[2] * in[0] + mat[6] * in[1] + mat[10] * in[2] + mat[14] * in[3];
-    out[3] = mat[3] * in[0] + mat[7] * in[1] + mat[11] * in[2] + mat[15] * in[3];
-}
-/////////////////////////////////////////////////////////////////////////
-
 #include "Matrix.h"
 
 Matrix4d::Matrix4d()
@@ -153,7 +14,7 @@ void Matrix4d::loadIdentity()
     setIdentity( mat );
 }
 
-void Matrix4d::setIdentity( double* m )
+void Matrix4d::setIdentity( double* m ) const
 {
     for ( int i = 0 ; i < 4 ; i++ )
         for ( int j = 0 ; j < 4 ; j++ )
@@ -169,7 +30,7 @@ void Matrix4d::setIdentity( double* m )
         }
 }
 
-void Matrix4d::translatef( double x, double y, double z )
+void Matrix4d::translatef( const double &x, const double &y, const double &z )
 {
     double tmat[16];
 
@@ -183,7 +44,7 @@ void Matrix4d::translatef( double x, double y, double z )
 
 }
 
-void Matrix4d::rotateX( double ang )
+void Matrix4d::rotateX( const double &ang )
 {
     double tmat[16];
     double rang = ang * ( double )PI / 180.0f;
@@ -199,7 +60,7 @@ void Matrix4d::rotateX( double ang )
     matMult( tmat );
 }
 
-void Matrix4d::rotateY( double ang )
+void Matrix4d::rotateY( const double &ang )
 {
     double tmat[16];
     double rang = ang * ( double )PI / 180.0f;
@@ -215,7 +76,7 @@ void Matrix4d::rotateY( double ang )
     matMult( tmat );
 }
 
-void Matrix4d::rotateZ( double ang )
+void Matrix4d::rotateZ( const double &ang )
 {
     double tmat[16];
     double rang = ang * ( double )PI / 180.0f;
@@ -262,17 +123,14 @@ void Matrix4d::postMult( double* m )
 void Matrix4d::getMat( double* m )
 {
     memcpy( m, mat, 16 * sizeof( double ) );
-
 }
-
-
 
 void Matrix4d::initMat( double* m )
 {
     memcpy( mat, m, 16 * sizeof( double ) );
 }
 
-void Matrix4d::mult( double in[4], double out[4] )
+void Matrix4d::mult( const double in[4], double out[4] ) const
 {
     out[0] = mat[0] * in[0] + mat[4] * in[1] + mat[8] * in[2] + mat[12] * in[3];
     out[1] = mat[1] * in[0] + mat[5] * in[1] + mat[9] * in[2] + mat[13] * in[3];
@@ -280,7 +138,7 @@ void Matrix4d::mult( double in[4], double out[4] )
     out[3] = mat[3] * in[0] + mat[7] * in[1] + mat[11] * in[2] + mat[15] * in[3];
 }
 
-void Matrix4d::rotate( double angle, vec3d & axis )
+void Matrix4d::rotate( const double &angle, const vec3d & axis )
 {
     vec3d a( axis );
     a.normalize();
@@ -335,14 +193,14 @@ void Matrix4d::affineInverse()
     memcpy( mat, res, 16 * sizeof( double ) );
 }
 
-void Matrix4d::scale( double scale )
+void Matrix4d::scale( const double &scale )
 {
     mat[0] *= scale;
     mat[5] *= scale;
     mat[10] *= scale;
 }
 
-vec3d Matrix4d::xform( vec3d & in )
+vec3d Matrix4d::xform( const vec3d & in ) const
 {
     vec3d out;
     out[0] = mat[0] * in[0] + mat[4] * in[1] + mat[8] * in[2] + mat[12];
@@ -351,7 +209,7 @@ vec3d Matrix4d::xform( vec3d & in )
     return out;
 }
 
-vec3d Matrix4d::getAngles()
+vec3d Matrix4d::getAngles() const
 {
     vec3d angles;
     if ( fabs( mat[8] ) != 1 )

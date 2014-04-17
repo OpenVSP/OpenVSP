@@ -14,12 +14,14 @@
 #include "VehicleMgr.h"
 #include "ParmMgr.h"
 #include "StringUtil.h"
+#include "APIDefines.h"
 #include <float.h>
 
 using std::string;
+using namespace vsp;
 
 //==== Default Constructor ====//
-Airfoil::Airfoil( bool use_left ) : XSec( use_left )
+Airfoil::Airfoil( ) : XSecCurve( )
 {
     m_Invert.Init( "Invert", m_GroupName, this, 0.0, 0.0, 1.0 );
     m_Chord.Init( "Chord", m_GroupName, this, 1.0, 0.0, 1.0e12 );
@@ -39,7 +41,7 @@ void Airfoil::Update()
         m_Curve.Reverse();
     }
 
-    XSec::Update();
+    XSecCurve::Update();
 }
 
 //==== Get Width ====//
@@ -71,89 +73,34 @@ void Airfoil::SetWidthHeight( double w, double h )
 //==========================================================================//
 
 //==== Constructor ====//
-FourSeries::FourSeries( bool use_left ) : Airfoil( use_left )
+FourSeries::FourSeries( ) : Airfoil( )
 {
-    m_Type = FOUR_SERIES;
+    m_Type = XS_FOUR_SERIES;
     m_Camber.Init( "Camber", m_GroupName, this, 0.0, 0.0, 0.5 );
     m_CamberLoc.Init( "CamberLoc", m_GroupName, this, 0.2, 0.0, 1.0 );
 
+    m_Creator.set_sharp_trailing_edge(true);
 }
 
 //==== Update ====//
 void FourSeries::Update()
 {
-#if 0
-    double x, xu, zu, zt, xl, zl, zc, theta;
+    piecewise_curve_type c;
 
-    //==== Initialize Array For Points ====//
-    vector< vec3d > pnts( m_NumBasePnts );
-    int half_pnts = m_NumBasePnts / 2;
+    m_Creator.set_thickness( m_ThickChord() * 100.0f );
+    m_Creator.set_camber( m_Camber() * 100.0f, m_CamberLoc() * 10.0f );
 
-    //==== Generate Airfoil ====//
-    for ( int i = 1 ; i < half_pnts ; i++ )
-    {
-        //==== More Points At Leading Edge
-        x = ( double )i / ( double )half_pnts;
-        x = x * sqrt( x );
+    m_Creator.create( c );
 
-        //==== Compute Camber Line and Thickness ====//
-        ComputeZcZtTheta( x, zc, zt, theta );
+    m_Curve.SetCurve( c );
 
-        //==== Compute Upper Surface Points ====//
-        xu = x  - zt * sin( theta );
-        zu = zc + zt * cos( theta );
-        pnts[half_pnts - i] = vec3d( 0.0, zu, xu );
+    Matrix4d mat;
+    mat.loadIdentity();
+    mat.scale( m_Chord() );
 
-        //==== Compute Lower Surface Points ====//
-        xl = x  + zt * sin( theta );
-        zl = zc - zt * cos( theta );
-        pnts[half_pnts + i] = vec3d( 0.0, zl, xl );
-    }
-
-    pnts = ScaleCheckInvert( pnts );
-
-    m_Curve.Interpolate( pnts, true );
-    m_Curve.UniformInterpolate( m_NumBasePnts, true );
+    m_Curve.Transform( mat );
 
     Airfoil::Update();
-#endif
-}
-
-void FourSeries::ComputeZcZtTheta( double x, double& zc, double& zt, double& theta )
-{
-    double xx, xo, xoxo, zo;
-
-    xx = x * x;
-    zt = ( m_ThickChord() / 0.20 ) * ( 0.2969 * sqrt( x ) - 0.1260 * x - 0.3516 * xx + 0.2843 * x * xx - 0.1015 * xx * xx );
-
-    if ( m_Camber() <= 0.0 || m_CamberLoc() <= 0.0 || m_CamberLoc() >= 1.0 )
-    {
-        zc = 0.0;
-        theta = 0.0;
-    }
-    else
-    {
-        if ( x < m_CamberLoc() )
-        {
-            zc = ( float )( ( m_Camber() / ( m_CamberLoc() * m_CamberLoc() ) ) * ( 2.0 * m_CamberLoc() * x - xx ) );
-        }
-        else
-            zc = ( float )( ( m_Camber() / ( ( 1.0 - m_CamberLoc() ) * ( 1.0 - m_CamberLoc() ) ) ) *
-                            ( 1.0 - 2.0 * m_CamberLoc() + 2.0 * m_CamberLoc() * x - xx ) );
-
-        xo = x + 0.00001;
-        xoxo = xo * xo;
-
-        if ( xo < m_CamberLoc() )
-        {
-            zo = ( m_Camber() / ( m_CamberLoc() * m_CamberLoc() ) ) * ( 2.0 * m_CamberLoc() * xo - xoxo );
-        }
-        else
-            zo = ( m_Camber() / ( ( 1.0 - m_CamberLoc() ) * ( 1.0 - m_CamberLoc() ) ) ) *
-                 ( 1.0 - 2.0 * m_CamberLoc() + 2.0 * m_CamberLoc() * xo - xoxo );
-
-        theta = atan( ( ( float )zo - zc ) / 0.00001f );
-    }
 }
 
 //===== Load Name And Number of 4 Series =====//
@@ -186,9 +133,9 @@ string FourSeries::GetAirfoilName()
 //==========================================================================//
 
 //==== Constructor ====//
-SixSeries::SixSeries( bool use_left ) : Airfoil( use_left )
+SixSeries::SixSeries( ) : Airfoil( )
 {
-    m_Type = SIX_SERIES;
+    m_Type = XS_SIX_SERIES;
 
     m_Series.Init( "Series", m_GroupName, this, 0, 0, NUM_SERIES );
     m_IdealCl.Init( "IdealCl", m_GroupName, this, 0.0, 0.0, 1.0 );
@@ -287,9 +234,9 @@ string SixSeries::GetAirfoilName()
 //==========================================================================//
 
 //==== Constructor ====//
-Biconvex::Biconvex( bool use_left ) : Airfoil( use_left )
+Biconvex::Biconvex( ) : Airfoil( )
 {
-    m_Type = BICONVEX;
+    m_Type = XS_BICONVEX;
 }
 
 //==== Update ====//
@@ -330,9 +277,9 @@ void Biconvex::Update()
 //==========================================================================//
 
 //==== Constructor ====//
-Wedge::Wedge( bool use_left ) : Airfoil( use_left )
+Wedge::Wedge( ) : Airfoil( )
 {
-    m_Type = WEDGE;
+    m_Type = XS_WEDGE;
     m_ThickLoc.Init( "ThickLoc", m_GroupName, this, 0.5, 0.0, 1.0 );
 
 }
@@ -366,37 +313,84 @@ void Wedge::Update()
 //==========================================================================//
 
 //==== Constructor ====//
-FileAirfoil::FileAirfoil( bool use_left ) : Airfoil( use_left )
+FileAirfoil::FileAirfoil( ) : Airfoil( )
 {
-#if 0
-    m_NumBasePnts = 21;
-    m_Type = FILE_AIRFOIL;
-    m_UpperPnts.resize( m_NumBasePnts, vec3d( 0, 0, 0 ) );
-    m_LowerPnts.resize( m_NumBasePnts, vec3d( 0, 0, 0 ) );
-#endif
+    m_Type = XS_FILE_AIRFOIL;
+
+    // Initialize to closed circle.
+    int n = 21;
+    for ( int i = 0; i < n; i++ )
+    {
+        double theta = PI-PI*i/(n-1);
+        m_UpperPnts.push_back( vec3d( 0.5 + 0.5*cos(theta), 0.5*sin(theta), 0.0 ) );
+        theta = PI+PI*i/(n-1);
+        m_LowerPnts.push_back( vec3d( 0.5 + 0.5*cos(theta), 0.5*sin(theta), 0.0 ) );
+    }
 }
 
 //==== Update ====//
 void FileAirfoil::Update()
 {
-#if 0
     //==== Load Points ====//
     vector< vec3d > pnts;
-    for ( int i = ( int )m_UpperPnts.size() - 1 ; i >= 0 ; i-- )
-    {
-        pnts.push_back( m_UpperPnts[i] );
-    }
-    for ( int i = 1 ; i < ( int )m_LowerPnts.size() ; i++ )
+
+    for ( int i = ( int )m_LowerPnts.size() - 1 ; i >= 0; i-- )
     {
         pnts.push_back( m_LowerPnts[i] );
     }
+    for ( int i = 1 ; i < ( int )m_UpperPnts.size() - 1 ; i++ )
+    {
+        pnts.push_back( m_UpperPnts[i] );
+    }
 
-    pnts = ScaleCheckInvert( pnts );
-    m_Curve.Interpolate( pnts, true );
-    m_Curve.UniformInterpolate( m_NumBasePnts, true );
+    vector< double > arclen;
+    int npts = pnts.size();
+
+    int i;
+    for ( i = 0 ; i < npts ; i++ )
+    {
+        if ( i > 0 )
+        {
+            double ds = dist( pnts[i], pnts[i-1] );
+            if ( ds < 1e-8 )
+            {
+                ds = 1/npts;
+            }
+            arclen.push_back( arclen[i-1] + ds );
+        }
+        else
+        {
+            arclen.push_back( 0 );
+        }
+
+        // Calculate arclen to repeated final point.
+        if ( i == npts - 1 )
+        {
+            double ds = dist( pnts[i], pnts[0] );
+            if ( ds < 1e-8 )
+            {
+                ds = 1/npts;
+            }
+            arclen.push_back( arclen[i] + ds );
+        }
+    }
+
+    double lenscale = 4.0/arclen.back();
+
+    for ( int i = 0; i < arclen.size(); i++ )
+    {
+        arclen[i] = arclen[i] * lenscale;
+    }
+
+    m_Curve.InterpolatePCHIP( pnts, arclen, true );
+
+    Matrix4d mat;
+    mat.loadIdentity();
+    mat.scale( m_Chord() );
+
+    m_Curve.Transform( mat );
 
     Airfoil::Update();
-#endif
 }
 
 //==== Encode XML ====//
@@ -495,10 +489,10 @@ bool FileAirfoil::ReadSeligAirfoil( FILE* file_id )
 {
     int i;
     char buff[256];
-    float x, z;
+    float x, y;
 
     vector< float > xvec;
-    vector< float > zvec;
+    vector< float > yvec;
 
     int more_data_flag = 1;
     while ( more_data_flag )
@@ -511,12 +505,12 @@ bool FileAirfoil::ReadSeligAirfoil( FILE* file_id )
 
         if ( more_data_flag )
         {
-            x = z = 100000.0;
-            sscanf( buff, "%f %f", &x, &z );
-            if ( x >= 0.0 && x <= 1.0 && z >= -1.0 && z <= 1.0 )
+            x = y = 100000.0;
+            sscanf( buff, "%f %f", &x, &y );
+            if ( x >= 0.0 && x <= 1.0 && y >= -1.0 && y <= 1.0 )
             {
                 xvec.push_back( x );
-                zvec.push_back( z );
+                yvec.push_back( y );
             }
             else
             {
@@ -559,12 +553,12 @@ bool FileAirfoil::ReadSeligAirfoil( FILE* file_id )
     //==== Load Em Up ====//
     for ( i = leInd ; i >= 0 ; i-- )
     {
-        m_UpperPnts.push_back( vec3d( 0.0, zvec[i], xvec[i] ) );
+        m_UpperPnts.push_back( vec3d( xvec[i], yvec[i], 0.0 ) );
     }
 
     for ( i = leInd ; i < totalPnts ; i++ )
     {
-        m_LowerPnts.push_back( vec3d( 0.0, zvec[i], xvec[i] ) );
+        m_LowerPnts.push_back( vec3d( xvec[i], yvec[i], 0.0 ) );
     }
     //==== Close Trailing Edge - Set Last Points ====//
     vec3d last_pnt = m_UpperPnts.back() + m_LowerPnts.back();
@@ -578,15 +572,15 @@ bool FileAirfoil::ReadSeligAirfoil( FILE* file_id )
 bool FileAirfoil::ReadLednicerAirfoil( FILE* file_id )
 {
     char buff[256];
-    float x, z;
+    float x, y;
 
     rewind( file_id );
 
     fgets( buff, 255, file_id );
     fgets( buff, 255, file_id );
-    sscanf( buff, "%f %f", &x, &z );
+    sscanf( buff, "%f %f", &x, &y );
     int num_pnts_upper = ( int )( x + 0.5 );
-    int num_pnts_lower = ( int )( z + 0.5 );
+    int num_pnts_lower = ( int )( y + 0.5 );
 
     if ( num_pnts_upper < 3 || num_pnts_lower < 3 )
     {
@@ -600,15 +594,15 @@ bool FileAirfoil::ReadLednicerAirfoil( FILE* file_id )
     for ( int i = 0 ; i < num_pnts_upper ; i++ )
     {
         fgets( buff, 255, file_id );
-        sscanf( buff, "%f %f", &x, &z );
-        m_UpperPnts.push_back( vec3d( 0.0, z, x ) );
+        sscanf( buff, "%f %f", &x, &y );
+        m_UpperPnts.push_back( vec3d( x, y, 0.0 ) );
     }
     fgets( buff, 255, file_id );
     for ( int i = 0 ; i < num_pnts_lower ; i++ )
     {
         fgets( buff, 255, file_id );
-        sscanf( buff, "%f %f", &x, &z );
-        m_LowerPnts.push_back( vec3d( 0.0, z, x ) );
+        sscanf( buff, "%f %f", &x, &y );
+        m_LowerPnts.push_back( vec3d( x, y, 0.0 ) );
     }
 
     //==== Close Trailing Edge - Set Last Points ====//
@@ -627,7 +621,7 @@ bool FileAirfoil::ReadVspAirfoil( FILE* file_id )
 
     int sym_flag;
     int num_pnts_upper, num_pnts_lower;
-    float x, z;
+    float x, y;
 
     fgets( buff, 255, file_id );
     sscanf( buff, "%d", &sym_flag );
@@ -650,13 +644,13 @@ bool FileAirfoil::ReadVspAirfoil( FILE* file_id )
     for ( i = 0 ; i < num_pnts_upper ; i++ )
     {
         fgets( buff, 255, file_id );
-        sscanf( buff, "%f %f", &x, &z );
+        sscanf( buff, "%f %f", &x, &y );
 
-        m_UpperPnts.push_back( vec3d( 0.0, z, x ) );
+        m_UpperPnts.push_back( vec3d( x, y, 0.0 ) );
 
         if ( sym_flag )
         {
-            m_LowerPnts.push_back( vec3d( 0.0, z, -x ) );
+            m_LowerPnts.push_back( vec3d( x, -y, 0.0 ) );
         }
     }
     fgets( buff, 255, file_id );
@@ -666,8 +660,8 @@ bool FileAirfoil::ReadVspAirfoil( FILE* file_id )
         for ( i = 0 ; i < num_pnts_lower ; i++ )
         {
             fgets( buff, 255, file_id );
-            fscanf( file_id, "%f %f", &x, &z );
-            m_LowerPnts.push_back( vec3d( 0.0, z, x ) );
+            sscanf( buff, "%f %f", &x, &y );
+            m_LowerPnts.push_back( vec3d( x, y, 0.0 ) );
         }
     }
 

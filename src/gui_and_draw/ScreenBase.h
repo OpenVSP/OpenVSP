@@ -49,6 +49,10 @@ public:
     {
         m_FLTK_Window = win;
     }
+    virtual Fl_Double_Window* GetFlWindow()
+    {
+        return m_FLTK_Window;
+    }
     virtual void Show();
     virtual bool IsShown();
     virtual void Hide();
@@ -96,6 +100,8 @@ protected:
 
     Fl_Box* m_FL_TitleBox;
 
+    string m_Title;
+
 };
 
 //==== Tab Screen ====//
@@ -103,7 +109,7 @@ class TabScreen : public BasicScreen
 {
 public:
 
-    TabScreen( ScreenMgr* mgr, int w, int h, const string & title  );
+    TabScreen( ScreenMgr* mgr, int w, int h, const string & title, int baseymargin = 0 );
     virtual ~TabScreen();
 
     virtual bool Update()
@@ -114,9 +120,12 @@ public:
     virtual Fl_Group* AddTab( const string& title );
     virtual Fl_Group* GetTab( int index );
 
+    virtual void AddTab( Fl_Group* grp );
+    virtual void RemoveTab( Fl_Group* grp );
+
     //==== Create A Sub Group In Tab - With Border in Pixels ====//
     virtual Fl_Group* AddSubGroup( Fl_Group* group, int border  );
-    virtual Fl_Scroll* AddSubScroll( Fl_Group* group, int border  );
+    virtual Fl_Scroll* AddSubScroll( Fl_Group* group, int border, int lessh = 0  );
 
 
 protected:
@@ -137,6 +146,7 @@ public:
     virtual ~GeomScreen()                               {}
 
     virtual bool Update( );
+    virtual void CallBack( Fl_Widget *w );
     virtual void GuiDeviceCallBack( GuiDevice* device );
 
     //==== Group Layouts ====//
