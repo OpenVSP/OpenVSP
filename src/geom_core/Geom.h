@@ -450,7 +450,7 @@ public:
     virtual void LoadDragFactors( DragFactors& drag_factors )   {};
 
     IntParm m_TessU;
-    IntParm m_TessW;
+    LimIntParm m_TessW;
 
     IntParm m_SymPlanFlag;
     IntParm m_SymAxFlag;

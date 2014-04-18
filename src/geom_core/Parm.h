@@ -25,7 +25,7 @@ using std::map;
 class ParmContainer;
 
 enum PARM_TYPE { PARM_DOUBLE_TYPE = 0, PARM_INT_TYPE = 1, PARM_BOOL_TYPE = 2,
-                 PARM_FRACTION_TYPE = 3, PARM_STRING_TYPE = 4,
+                 PARM_FRACTION_TYPE = 3, PARM_STRING_TYPE = 4, PARM_LIMITED_INT_TYPE = 5
                };
 
 //==== Parm ====//
@@ -277,6 +277,27 @@ public:
     {
         return Set( Get() - rhs );
     }
+};
+
+//==== Limited Integer Parm ====//
+// IntParm restricted to values of m_Mult*n+m_Shift, where n is an integer
+class LimIntParm : public IntParm
+{
+public:
+    LimIntParm();
+
+    virtual int operator= ( int val )
+    {
+        return IntParm::operator=( val );
+    }
+
+    virtual bool SetValCheckLimits( double val );
+
+    virtual void SetMultShift( int mult, int shift );
+
+protected:
+    int m_Mult;
+    int m_Shift;
 };
 
 //==== Bool Parm ====//

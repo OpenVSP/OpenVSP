@@ -29,7 +29,8 @@ StackGeom::StackGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
 
     //==== Init Parms ====//
     m_TessU = 16;
-    m_TessW = 11;
+    m_TessW = 17;
+    m_TessW.SetMultShift( 8, 1 );
 
     m_ActiveXSec = 0;
 

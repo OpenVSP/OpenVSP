@@ -29,7 +29,8 @@ FuselageGeom::FuselageGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
 
     //==== Init Parms ====//
     m_TessU = 16;
-    m_TessW = 11;
+    m_TessW = 17;
+    m_TessW.SetMultShift( 8, 1 );
 
     m_Length.Init( "Length", "Design", this, 30.0, 1.0e-8, 1.0e12 );
     m_Length.SetDescript( "Length of fuselage" );
