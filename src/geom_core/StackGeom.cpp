@@ -99,29 +99,29 @@ void StackGeom::UpdateSurf()
     {
         StackXSec* xs = ( StackXSec* ) m_XSecSurf.FindXSec( i );
 
-        if ( i == 0 )
-        {
-            xs->m_XDelta.SetLowerUpperLimits( 0.0, 0.0 );
-            xs->m_YDelta.SetLowerUpperLimits( 0.0, 0.0 );
-            xs->m_ZDelta.SetLowerUpperLimits( 0.0, 0.0 );
-
-            xs->m_XRotate.SetLowerUpperLimits( 0.0, 0.0 );
-            xs->m_YRotate.SetLowerUpperLimits( 0.0, 0.0 );
-            xs->m_ZRotate.SetLowerUpperLimits( 0.0, 0.0 );
-        }
-        else
-        {
-            xs->m_XDelta.SetLowerUpperLimits( 0.0, 1.0e12 );
-            xs->m_YDelta.SetLowerUpperLimits( -1.0e12, 1.0e12 );
-            xs->m_ZDelta.SetLowerUpperLimits( -1.0e12, 1.0e12 );
-
-            xs->m_XRotate.SetLowerUpperLimits( -180.0, 180.0 );
-            xs->m_YRotate.SetLowerUpperLimits( -180.0, 180.0 );
-            xs->m_ZRotate.SetLowerUpperLimits( -180.0, 180.0 );
-        }
-
         if ( xs )
         {
+            if ( i == 0 )
+            {
+                xs->m_XDelta.SetLowerUpperLimits( 0.0, 0.0 );
+                xs->m_YDelta.SetLowerUpperLimits( 0.0, 0.0 );
+                xs->m_ZDelta.SetLowerUpperLimits( 0.0, 0.0 );
+
+                xs->m_XRotate.SetLowerUpperLimits( 0.0, 0.0 );
+                xs->m_YRotate.SetLowerUpperLimits( 0.0, 0.0 );
+                xs->m_ZRotate.SetLowerUpperLimits( 0.0, 0.0 );
+            }
+            else
+            {
+                xs->m_XDelta.SetLowerUpperLimits( 0.0, 1.0e12 );
+                xs->m_YDelta.SetLowerUpperLimits( -1.0e12, 1.0e12 );
+                xs->m_ZDelta.SetLowerUpperLimits( -1.0e12, 1.0e12 );
+
+                xs->m_XRotate.SetLowerUpperLimits( -180.0, 180.0 );
+                xs->m_YRotate.SetLowerUpperLimits( -180.0, 180.0 );
+                xs->m_ZRotate.SetLowerUpperLimits( -180.0, 180.0 );
+            }
+
             //==== Reset Group Names ====//
             xs->SetGroupDisplaySuffix( i );
 
