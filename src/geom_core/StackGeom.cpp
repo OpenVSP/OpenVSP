@@ -90,6 +90,8 @@ void StackGeom::ChangeID( string id )
 //==== Update Fuselage And Cross Section Placement ====//
 void StackGeom::UpdateSurf()
 {
+    m_TessUVec.clear();
+
     //==== Cross Section Curves & joint info ====//
     vector< VspCurve > crv_vec;
     crv_vec.resize( m_XSecSurf.NumXSec() );
@@ -126,6 +128,11 @@ void StackGeom::UpdateSurf()
             xs->SetGroupDisplaySuffix( i );
 
             crv_vec[i] =  xs->GetCurve();
+
+            if ( i > 0 )
+            {
+                m_TessUVec.push_back( xs->m_SectTessU() );
+            }
         }
     }
 
@@ -135,6 +142,12 @@ void StackGeom::UpdateSurf()
     {
         m_SurfVec[0].FlipNormal();
     }
+}
+
+
+void StackGeom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms )
+{
+    m_SurfVec[indx].Tesselate( m_TessUVec, m_TessW(), pnts, norms );
 }
 
 //==== Compute Rotation Center ====//

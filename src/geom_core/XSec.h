@@ -76,7 +76,7 @@ public:
 
     void SetTransformation( const Matrix4d &mat, bool center );
 
-
+    IntParm m_SectTessU;
 
 protected:
 

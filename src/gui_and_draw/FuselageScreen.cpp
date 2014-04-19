@@ -29,9 +29,6 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 550, "F
     m_DesignLayout.AddDividerBox( "Design" );
     m_DesignLayout.AddYGap();
     m_DesignLayout.AddSlider( m_LengthSlider, "Length", 10, "%6.5f" );
-    m_DesignLayout.AddYGap();
-    m_DesignLayout.SetButtonWidth( 100 );
-    m_DesignLayout.AddSlider( m_NumPntsXSecSlider, "Num Pnts XSec", 33, "%5.0f" );
 
 
     Fl_Group* skin_tab = AddTab( "Skinning" );
@@ -134,6 +131,9 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 550, "F
 
     m_XSecLayout.SetFitWidthFlag( true );
     m_XSecLayout.SetSameLineFlag( false );
+
+    m_XSecLayout.AddYGap();
+    m_XSecLayout.AddSlider( m_SectUTessSlider, "Num U", 20, " %5.0f" );
 
     m_XSecLayout.SetButtonWidth( 50 );
     m_XSecLayout.AddSlider( m_XSecXSlider, "X", 1.0, "%6.5f" );
@@ -327,12 +327,12 @@ bool FuselageScreen::Update()
     }
 
     GeomScreen::Update();
+    m_NumUSlider.Deactivate();
 
     FuselageGeom* fuselage_ptr = dynamic_cast< FuselageGeom* >( geom_ptr );
     assert( fuselage_ptr );
 
     //==== Design ====//
-//  m_NumPntsXSecSlider.Update( fuselage_ptr->m_BaseU.GetID() );
     m_LengthSlider.Update( fuselage_ptr->m_Length.GetID() );
 
     //==== XSec Index Display ===//
@@ -342,6 +342,16 @@ bool FuselageScreen::Update()
     FuseXSec* xs = ( FuseXSec* ) fuselage_ptr->GetXSec( xsid );
     if ( xs )
     {
+        m_SectUTessSlider.Update( xs->m_SectTessU.GetID() );
+        if ( xsid == 0 )
+        {
+            m_SectUTessSlider.Deactivate();
+        }
+        else
+        {
+            m_SectUTessSlider.Activate();
+        }
+
         m_XSecXSlider.Update( xs->m_XLocPercent.GetID() );
         m_XSecYSlider.Update( xs->m_YLocPercent.GetID() );
         m_XSecZSlider.Update( xs->m_ZLocPercent.GetID() );

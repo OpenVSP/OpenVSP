@@ -33,8 +33,6 @@ protected:
 
     GroupLayout m_DesignLayout;
 
-    SliderInput m_NumPntsXSecSlider;
-
     GroupLayout m_SkinLayout;
 
     IndexSelector m_SkinIndexSelector;
@@ -72,6 +70,8 @@ protected:
     TriggerButton m_CutXSec;
     TriggerButton m_CopyXSec;
     TriggerButton m_PasteXSec;
+
+    SliderInput m_SectUTessSlider;
 
     SliderAdjRangeInput m_XSecXDeltaSlider;
     SliderAdjRangeInput m_XSecYDeltaSlider;

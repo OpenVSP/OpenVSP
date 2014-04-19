@@ -79,12 +79,15 @@ protected:
     virtual void ChangeID( string id );
 
     virtual void UpdateSurf();
+    virtual void UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms );
 
     enum {FUSE_MONOTONIC, FUSE_DUCT, FUSE_FREE};
     virtual void EnforceOrder( FuseXSec* xs, int indx, int ile, int policy );
 
     int m_ActiveXSec;
     XSecSurf m_XSecSurf;
+
+    vector<int> m_TessUVec;
 
     bool m_Closed;
 

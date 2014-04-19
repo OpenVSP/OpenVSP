@@ -1771,7 +1771,7 @@ void VspSurf::Tesselate( const vector<int> &num_u, int num_v, std::vector< vecto
     u.resize( nu );
     double uumin( umin );
     size_t ii;
-    for ( i = 0, ii = 0; ii < num_u.size(); ++ii )
+    for ( i = 0, ii = 0; ii < GetNumSectU(); ++ii )
     {
         double du, dv;
 
