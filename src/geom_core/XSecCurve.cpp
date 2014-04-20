@@ -479,63 +479,33 @@ void GeneralFuseXSec::SetWidthHeight( double w, double h )
 //==== Update Geometry ====//
 void GeneralFuseXSec::Update()
 {
-#if 0
-    double y, z;
+    double x, y;
     //==== Top Control Points ====//
-    vec3d tp0( 0.0, 0.0, m_Height() / 2.0 );
-    vec3d tp1 = tp0 + vec3d( 0.0, m_TopStr() * m_Width() / 3.0, 0.0 );
+    vec3d tp0( 0.0, m_Height() / 2.0, 0.0 );
+    vec3d tp1 = tp0 + vec3d( m_TopStr() * m_Width() / 3.0, 0.0, 0.0 );
 
-    y = m_Width() / 2.0 + m_CornerRad() * m_Height() * ( sin( DEG_2_RAD * m_TopTanAngle() ) - 1.0 );
-    z = m_MaxWidthLoc() * m_Height() / 2.0 + m_CornerRad() * m_Height() * cos( DEG_2_RAD * m_TopTanAngle() );
-    vec3d tp3( 0.0, y, z );
+    x = m_Width() / 2.0;
+    y = m_MaxWidthLoc() * m_Height() / 2.0;
+    vec3d tp3( x, y, 0.0 );
 
-    y = ( m_UpStr() * m_Height() * cos( DEG_2_RAD * m_TopTanAngle() ) ) / 3.0;
-    z = ( -m_UpStr() * m_Height() * sin( DEG_2_RAD * m_TopTanAngle() ) ) / 3.0;
-    vec3d tp2 = tp3 - vec3d( 0.0, y, z );
+    x = ( m_UpStr() * m_Height() * cos( DEG_2_RAD * m_TopTanAngle() ) ) / 3.0;
+    y = ( -m_UpStr() * m_Height() * sin( DEG_2_RAD * m_TopTanAngle() ) ) / 3.0;
+    vec3d tp2 = tp3 - vec3d( x, y, 0.0 );
 
     //==== Bot Control Points ====//
-    y = m_Width() / 2.0 + m_CornerRad() * m_Height() * ( sin( DEG_2_RAD * m_BotTanAngle() ) - 1.0 );
-    z = m_MaxWidthLoc() * m_Height() / 2.0 - m_CornerRad() * m_Height() * cos( DEG_2_RAD * m_BotTanAngle() );
-    vec3d bp0( 0.0, y, z );
+    x = m_Width() / 2.0;
+    y = m_MaxWidthLoc() * m_Height() / 2.0;
+    vec3d bp0( x, y, 0.0 );
 
-    y = ( double )( -m_LowStr() * m_Height() * cos( DEG_2_RAD * m_BotTanAngle() ) ) / 3.0;
-    z = ( double )( -m_LowStr() * m_Height() * sin( DEG_2_RAD * m_BotTanAngle() ) ) / 3.0;
-    vec3d bp1 = bp0 + vec3d( 0.0, y, z );
+    x = ( double )( -m_LowStr() * m_Height() * cos( DEG_2_RAD * m_BotTanAngle() ) ) / 3.0;
+    y = ( double )( -m_LowStr() * m_Height() * sin( DEG_2_RAD * m_BotTanAngle() ) ) / 3.0;
+    vec3d bp1 = bp0 + vec3d( x, y, 0.0 );
 
-    vec3d bp3( 0.0, 0.0, -m_Height() / 2.0 );
-    vec3d bp2 = bp3 - vec3d( 0.0, -m_BotStr() * m_Width() / 3.0, 0.0 );
-
-    //==== Corner Points ====//
-    VspCurve corner_curve;
-    bool corner_flag = true;
-    if ( m_CornerRad() < 0.001 * m_Height() )
-    {
-        corner_flag = false;
-    }
+    vec3d bp3( 0.0, -m_Height() / 2.0, 0.0 );
+    vec3d bp2 = bp3 - vec3d( -m_BotStr() * m_Width() / 3.0, 0.0, 0.0 );
 
     double top_ang =  PI / 2.0 - DEG_2_RAD * m_TopTanAngle();
     double bot_ang = -PI / 2.0 + DEG_2_RAD * m_BotTanAngle();
-
-    if ( ( top_ang - bot_ang ) < DBL_EPSILON )
-    {
-        corner_flag = false;
-    }
-
-    if ( corner_flag )
-    {
-        vector< vec3d > corner_pnts;
-        int num_corner = 6;
-        double del_ang =  ( 1.0 / ( double )( num_corner - 1 ) ) * ( top_ang - bot_ang );
-        for ( int i = 0 ; i < num_corner  ; i++ )
-        {
-            double ang = top_ang - ( double )i * del_ang;
-            y = ( double )( m_Width() / 2.0 + m_CornerRad() * m_Height() * ( cos( ang ) - 1.0 ) );
-            z = ( double )( m_MaxWidthLoc() * m_Height() / 2.0 + m_CornerRad() * m_Height() * sin( ang ) );
-            corner_pnts.push_back( vec3d( 0.0, y, z ) );
-
-        }
-        corner_curve.Interpolate( corner_pnts, false );
-    }
 
     //==== Load Bezier Control Points ====//
     vector< vec3d > bez_pnts;
@@ -544,34 +514,45 @@ void GeneralFuseXSec::Update()
     bez_pnts.push_back( tp2 );
     bez_pnts.push_back( tp3 );
 
-    if ( corner_flag )
-    {
-        vector< vec3d > corner_bez = corner_curve.GetControlPnts();
-        for ( int i = 1 ; i < ( int )corner_bez.size() ; i++ )
-        {
-            bez_pnts.push_back( corner_bez[i] );
-        }
-    }
+    int ite = bez_pnts.size() - 1;
 
     bez_pnts.push_back( bp1 );
     bez_pnts.push_back( bp2 );
     bez_pnts.push_back( bp3 );
+
+    vec3d offset;
+    offset.set_x( m_Width() / 2.0 );
 
     //==== Reflect ====//
     int nrp = bez_pnts.size();
     for ( int i = 2 ; i <= nrp ; i++ )
     {
         vec3d p = bez_pnts[nrp - i];
-        p.set_y( -p.y() );
+        p.set_x( -p.x() );
         bez_pnts.push_back( p );
     }
 
+    vector< vec3d > roll_pnts;
+    for( int i = ite; i < bez_pnts.size(); i++ )
+    {
+        roll_pnts.push_back( bez_pnts[i] + offset );
+    }
+    for ( int i = 1; i <= ite; i++ )
+    {
+        roll_pnts.push_back( bez_pnts[i] + offset );
+    }
 
-    m_Curve.SetControlPnts( bez_pnts );
-    m_Curve.UniformInterpolate( m_NumBasePnts, true );
+    m_Curve.SetCubicControlPoints( roll_pnts, true );
 
-    XSec::Update();
-#endif
+    //==== Corner Points ====//
+    VspCurve corner_curve;
+    if ( m_CornerRad() > 0.001 )
+    {
+        m_Curve.RoundJoint( m_CornerRad() * m_Height(), 2 );
+        m_Curve.RoundJoint( m_CornerRad() * m_Height(), 0 );
+    }
+
+    XSecCurve::Update();
 }
 
 //==========================================================================//
