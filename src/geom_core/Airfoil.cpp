@@ -25,7 +25,7 @@ Airfoil::Airfoil( ) : XSecCurve( )
 {
     m_Invert.Init( "Invert", m_GroupName, this, 0.0, 0.0, 1.0 );
     m_Chord.Init( "Chord", m_GroupName, this, 1.0, 0.0, 1.0e12 );
-    m_ThickChord.Init( "ThickChord", m_GroupName, this, 0.1, 0.0, 10 );
+    m_ThickChord.Init( "ThickChord", m_GroupName, this, 0.1, 0.0, 0.5 );
 }
 
 //==== Update ====//
