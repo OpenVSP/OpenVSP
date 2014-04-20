@@ -230,7 +230,7 @@ void VspCurve::Append( VspCurve & input_crv )
         curve_segment_type c;
 
         input_crv.GetCurveSegment( c, i );
-        ec = m_Curve.push_back( c );
+        ec = m_Curve.push_back( c, input_crv.GetCurveDt( i ) );
         if ( ec != piecewise_curve_type::NO_ERRORS )
         {
             std::cerr << "Could not append curve." << std::endl;
