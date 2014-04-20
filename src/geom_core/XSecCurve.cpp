@@ -624,7 +624,7 @@ void FileXSec::Update()
             double ds = dist( scaled_file_pnts[i], scaled_file_pnts[i-1] );
             if ( ds < 1e-8 )
             {
-                ds = 1/npts;
+                ds = 1.0/npts;
             }
             arclen.push_back( arclen[i-1] + ds );
         }
@@ -641,7 +641,7 @@ void FileXSec::Update()
             double ds = dist( scaled_file_pnts[i], vec3d( x + m_Width() / 2.0, y, 0.0 )  );
             if ( ds < 1e-8 )
             {
-                ds = 1/npts;
+                ds = 1.0/npts;
             }
             arclen.push_back( arclen[i] + ds );
         }

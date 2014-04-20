@@ -354,7 +354,7 @@ void FileAirfoil::Update()
             double ds = dist( pnts[i], pnts[i-1] );
             if ( ds < 1e-8 )
             {
-                ds = 1/npts;
+                ds = 1.0/npts;
             }
             arclen.push_back( arclen[i-1] + ds );
         }
@@ -369,7 +369,7 @@ void FileAirfoil::Update()
             double ds = dist( pnts[i], pnts[0] );
             if ( ds < 1e-8 )
             {
-                ds = 1/npts;
+                ds = 1.0/npts;
             }
             arclen.push_back( arclen[i] + ds );
         }
