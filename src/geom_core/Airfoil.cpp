@@ -288,34 +288,61 @@ Biconvex::Biconvex( ) : Airfoil( )
 //==== Update ====//
 void Biconvex::Update()
 {
-#if 0
-    double x, xu, zu;
+    double x, xu, yu;
+
+    int nbase = 21;
+
     //==== Initialize Array For Points ====//
-    vector< vec3d > pnts( m_NumBasePnts );
-    int half_pnts = m_NumBasePnts / 2;
+    vector< vec3d > upnts( nbase );
+    vector< vec3d > lpnts( nbase );
 
     //==== Generate Airfoil ====//
-    for ( int i = 1 ; i < half_pnts ; i++ )
+    for ( int i = 0 ; i < nbase ; i++ )
     {
         //==== More Points At Leading Edge
-        x = ( double )i / ( double )half_pnts;
-        x = x * sqrt( x );
+        x = ( double )i / ( double )( nbase - 1 );
 
         //==== Compute Upper Surface Points ====//
         xu = x;
-        zu = 2.0 * m_ThickChord() * x * ( 1.0 - x );
-        pnts[half_pnts - i] = vec3d( 0.0, zu, xu );
+        yu = 2.0 * m_ThickChord() * x * ( 1.0 - x );
+        upnts[i] = vec3d( xu, yu, 0.0 );
 
         //==== Compute Lower Surface Points ====//
-        pnts[half_pnts + i] = vec3d( 0.0, -zu, xu );
+        lpnts[nbase - 1 - i] = vec3d( xu, -yu, 0.0 );
     }
 
-    pnts = ScaleCheckInvert( pnts );
-    m_Curve.Interpolate( pnts, true );
-    m_Curve.UniformInterpolate( m_NumBasePnts, true );
+    vector< double > uarclen( nbase );
+    vector< double > larclen( nbase );
+    uarclen[0] = 0.0;
+    larclen[0] = 0.0;
+    for ( int i = 1 ; i < nbase ; i++ )
+    {
+        uarclen[ i ] = uarclen[ i - 1 ] + dist( upnts[ i ], upnts[ i - 1 ] );
+        larclen[ i ] = larclen[ i - 1 ] + dist( lpnts[ i ], lpnts[ i - 1 ] );
+    }
+
+    double lenscale = 2.0 / uarclen.back();
+
+    for ( int i = 0 ; i < nbase ; i++ )
+    {
+        uarclen[ i ] = uarclen[ i ] * lenscale;
+        larclen[ i ] = larclen[ i ] * lenscale;
+    }
+
+    VspCurve upcrv;
+    upcrv.InterpolatePCHIP( upnts, uarclen, false );
+
+    m_Curve.InterpolatePCHIP( lpnts, larclen, false );
+
+    m_Curve.Append( upcrv );
+
+    Matrix4d mat;
+    mat.loadIdentity();
+    mat.scale( m_Chord() );
+
+    m_Curve.Transform( mat );
 
     Airfoil::Update();
-#endif
 }
 
 //==========================================================================//
