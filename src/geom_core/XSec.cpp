@@ -371,7 +371,7 @@ void FuseXSec::CopyBasePos( XSec* xs )
         m_YLocPercent = fxs->m_YLocPercent();
         m_ZLocPercent = fxs->m_ZLocPercent();
 
-        m_RefLength = fxs->m_RefLength;
+        m_RefLength = fxs->m_RefLength();
     }
 }
 
