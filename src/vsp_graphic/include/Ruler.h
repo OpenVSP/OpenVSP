@@ -51,9 +51,9 @@ public:
     * height is set to offset.
     * v1 - initial or start point of ruler.
     * v2 - finish or end point of ruler.
-    * placement - placement of the ruler.
+    * offset - placement of the ruler.
     */
-    void placeRuler(glm::vec3 v1, glm::vec3 v2, glm::vec3 placement);
+    void placeRuler(glm::vec3 v1, glm::vec3 v2, glm::vec3 offset);
 
 public:
     /*!
@@ -70,7 +70,7 @@ private:
     glm::vec3 _v1;
     glm::vec3 _v2;
 
-    glm::vec3 _placement;
+    glm::vec3 _offset;
 };
 }
 #endif

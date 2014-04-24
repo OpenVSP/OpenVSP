@@ -45,27 +45,6 @@ public:
     */
     unsigned int getNumPnts();
 
-public:
-    struct Ratios
-    {
-        double Pnts;
-        double XSec;
-    };
-
-public:
-    /*!
-    * Get normalized ratios for Pnts and XSec at Buffer Index.
-    */
-    Ratios getRatiosAtIndex( unsigned int index );
-    /*!
-    * Get Buffer Index with normalized ratios.
-    */
-    unsigned int getIndexWithRatio( Ratios ratios );
-    /*!
-    * Get Buffer Index with normalized ratios.
-    */
-    unsigned int getIndexWithRatio( double pntsRatio, double xsecRatio );
-
 private:
     unsigned int _numOfXSec;
     unsigned int _numOfPnts;

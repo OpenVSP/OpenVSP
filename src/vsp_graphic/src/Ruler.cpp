@@ -61,14 +61,14 @@ void Ruler::placeRuler(glm::vec3 v1, glm::vec3 v2)
     _v2 = v2;
 }
 
-void Ruler::placeRuler(glm::vec3 v1, glm::vec3 v2, glm::vec3 placement)
+void Ruler::placeRuler(glm::vec3 v1, glm::vec3 v2, glm::vec3 offset)
 {
     reset();
 
     _v1 = v1;
     _v2 = v2;
 
-    _placement = calculateOffset(_v1, _v2, placement);;
+    _offset = calculateOffset(_v1, _v2, offset);;
 }
 
 void Ruler::reset()
@@ -78,7 +78,7 @@ void Ruler::reset()
     _v1 = glm::vec3(0xFFFFFFFF);
     _v2 = glm::vec3(0xFFFFFFFF);
 
-    _placement = glm::vec3(0xFFFFFFFF);
+    _offset = glm::vec3(0xFFFFFFFF);
 }
 
 void Ruler::_draw()
@@ -96,10 +96,10 @@ void Ruler::_draw()
     glPointSize(12);
 
     // Last Stage.
-    if(_v1 != glm::vec3(0xFFFFFFFF) && _v2 != glm::vec3(0xFFFFFFFF) && _placement != glm::vec3(0xFFFFFFFF))
+    if(_v1 != glm::vec3(0xFFFFFFFF) && _v2 != glm::vec3(0xFFFFFFFF) && _offset != glm::vec3(0xFFFFFFFF))
     {
-        rulerStart = _v1 + _placement;
-        rulerEnd = _v2 + _placement;
+        rulerStart = _v1 + _offset;
+        rulerEnd = _v2 + _offset;
 
         glBegin(GL_POINTS);
         glVertex3f(_v1[0], _v1[1], _v1[2]);
