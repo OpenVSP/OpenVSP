@@ -586,6 +586,8 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
 
         VSPGraphic::Ruler * ruler;
 
+        glm::vec3 start, end, offset;
+
         switch( objects[i]->m_Type )
         {
         case DrawObj::VSP_RULER:
@@ -601,14 +603,6 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
             ruler = dynamic_cast<VSPGraphic::Ruler*> ( m_GEngine->getScene()->getObject( id ) );
             if( ruler )
             {
-                glm::vec3 start, end, placement;
-
-                XSecEntity * startsrc;
-                XSecEntity * endsrc;
-
-                ID * startsrcId;
-                ID * endsrcId;
-
                 ruler->setTextColor( objects[i]->m_TextColor.x(),
                     objects[i]->m_TextColor.y(),
                     objects[i]->m_TextColor.z() );
@@ -622,88 +616,33 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
                     break;
 
                 case DrawObj::VSP_RULER_STEP_ONE:
-                    startsrcId = _findID( objects[i]->m_Ruler.Start.GeomID );
-                    if( startsrcId )
-                    {
-                        startsrc = dynamic_cast<XSecEntity*>
-                            ( m_GEngine->getScene()->getObject( startsrcId->bufferID ) );
-
-                        if( startsrc )
-                        {
-                            unsigned int remappedIndex = startsrc->getIndexWithRatio( 
-                                objects[i]->m_Ruler.Start.PntsRatio, 
-                                objects[i]->m_Ruler.Start.XSecRatio );
-                            
-                            start = startsrc->getVertexVec( remappedIndex );
-                            ruler->placeRuler( glm::vec3( start[0], start[1], start[2] ) );
-                        }
-                    }
+                    start = glm::vec3( objects[i]->m_Ruler.Start.x(),
+                        objects[i]->m_Ruler.Start.y(),
+                        objects[i]->m_Ruler.Start.z() );
+                    ruler->placeRuler( start );
                     break;
 
                 case DrawObj::VSP_RULER_STEP_TWO:
-                    startsrcId = _findID( objects[i]->m_Ruler.Start.GeomID );
-                    endsrcId = _findID( objects[i]->m_Ruler.End.GeomID );
-                    if( startsrcId && endsrcId )
-                    {
-                        startsrc = dynamic_cast<XSecEntity*>
-                            ( m_GEngine->getScene()->getObject( startsrcId->bufferID ) );
-                        endsrc = dynamic_cast<XSecEntity*>
-                            ( m_GEngine->getScene()->getObject( endsrcId->bufferID ) );
-
-                        if( startsrc && endsrc )
-                        {
-                            int remappedIndexStart = startsrc->getIndexWithRatio( 
-                                objects[i]->m_Ruler.Start.PntsRatio, 
-                                objects[i]->m_Ruler.Start.XSecRatio );
-                            int remappedIndexEnd = endsrc->getIndexWithRatio( 
-                                objects[i]->m_Ruler.End.PntsRatio, 
-                                objects[i]->m_Ruler.End.XSecRatio );
-
-                            start = startsrc->getVertexVec( remappedIndexStart );
-                            end = endsrc->getVertexVec( remappedIndexEnd );
-
-                            ruler->placeRuler(
-                                glm::vec3( start[0], start[1], start[2] ), 
-                                glm::vec3( end[0], end[1], end[2] ) );
-                        }
-                    }
+                    start = glm::vec3( objects[i]->m_Ruler.Start.x(),
+                        objects[i]->m_Ruler.Start.y(),
+                        objects[i]->m_Ruler.Start.z() );
+                    end = glm::vec3( objects[i]->m_Ruler.End.x(),
+                        objects[i]->m_Ruler.End.y(),
+                        objects[i]->m_Ruler.End.z() );
+                    ruler->placeRuler( start, end );
                     break;
 
                 case DrawObj::VSP_RULER_STEP_COMPLETE:
-                    startsrcId = _findID( objects[i]->m_Ruler.Start.GeomID );
-                    endsrcId = _findID( objects[i]->m_Ruler.End.GeomID );
-                    if( startsrcId && endsrcId )
-                    {
-                        startsrc = dynamic_cast<XSecEntity*>
-                            ( m_GEngine->getScene()->getObject( startsrcId->bufferID ) );
-                        endsrc = dynamic_cast<XSecEntity*>
-                            ( m_GEngine->getScene()->getObject( endsrcId->bufferID ) );
-
-                        if( startsrc && endsrc )
-                        {
-                            int remappedIndexStart = startsrc->getIndexWithRatio( 
-                                objects[i]->m_Ruler.Start.PntsRatio, 
-                                objects[i]->m_Ruler.Start.XSecRatio );
-                            int remappedIndexEnd = endsrc->getIndexWithRatio( 
-                                objects[i]->m_Ruler.End.PntsRatio, 
-                                objects[i]->m_Ruler.End.XSecRatio );
-
-                            start = startsrc->getVertexVec( remappedIndexStart );
-                            end = endsrc->getVertexVec( remappedIndexEnd );
-
-                            vec3d placementInVec3d = objects[i]->m_Ruler.Placement;
-                            placement = glm::vec3( placementInVec3d.x(), 
-                                placementInVec3d.y(), 
-                                placementInVec3d.z() );
-
-                            ruler->placeRuler( glm::vec3( start[0], start[1], start[2] ), 
-                                glm::vec3( end[0], end[1], end[2] ), 
-                                glm::vec3( placement[0], placement[1], placement[2] ) );
-                            ruler->setTextColor( objects[i]->m_TextColor.x(),
-                                objects[i]->m_TextColor.y(),
-                                objects[i]->m_TextColor.z() );
-                        }
-                    }
+                    start = glm::vec3( objects[i]->m_Ruler.Start.x(),
+                        objects[i]->m_Ruler.Start.y(),
+                        objects[i]->m_Ruler.Start.z() );
+                    end = glm::vec3( objects[i]->m_Ruler.End.x(),
+                        objects[i]->m_Ruler.End.y(),
+                        objects[i]->m_Ruler.End.z() );
+                    offset = glm::vec3( objects[i]->m_Ruler.Offset.x(),
+                        objects[i]->m_Ruler.Offset.y(),
+                        objects[i]->m_Ruler.Offset.z() );
+                    ruler->placeRuler( start, end, offset );
                     break;
                 }
             }
@@ -1227,18 +1166,15 @@ void VspGlWindow::OnPush( int x, int y )
 
                 if( labelScreen && labelScreen->getFeedbackGroupName() == selectedFeedbackName )
                 {
+                    // Cast selectable to SelectedPnt object, so that we can get Render Source Ptr.
                     SelectedPnt * pnt = dynamic_cast<SelectedPnt*>( selected );
                     if( pnt )
                     {
                         XSecEntity * xEntity = dynamic_cast<XSecEntity*>(pnt->getSource());
                         if(xEntity)
                         {
-                            ID * id = _findID(xEntity->getID());
-                            if( id )
-                            {
-                                XSecEntity::Ratios ratios = xEntity->getRatiosAtIndex(pnt->getIndex());
-                                labelScreen->Set( id->geomID, ratios.Pnts, ratios.XSec );
-                            }
+                            glm::vec3 placement = xEntity->getVertexVec(pnt->getIndex());
+                            labelScreen->Set( vec3d( placement.x, placement.y, placement.z ) );
                         }
                     }
                 }
