@@ -46,17 +46,17 @@ public:
     std::string m_Stage;
 
     /*!
-    * Starting Geometry's Id.
+    * Base Location of Label on x-axis.
     */
-    std::string m_StartGeomID;
+    Parm m_OriginX;
     /*!
-    * Starting Geometry's Points Ratio.
+    * Base Location of Label on y-axis.
     */
-    Parm m_StartPntsRatio;
+    Parm m_OriginY;
     /*!
-    * Starting Geometry's Cross Sections Ratio.
+    * Base Location of Label on z-axis.
     */
-    Parm m_StartXSecRatio;
+    Parm m_OriginZ;
 
     /*!
     * Text color red.
@@ -104,18 +104,19 @@ public:
     virtual void Reset();
 
 public:
+
     /*!
-    * Ending Geometry's Id.
+    * Ending Location on x-axis.
     */
-    std::string m_EndGeomID;
+    Parm m_EndX;
     /*!
-    * Ending Geometry's Points Ratio.
+    * Ending Location on y-axis.
     */
-    Parm m_EndPntsRatio;
+    Parm m_EndY;
     /*!
-    * Ending Geometry's Cross Sections Ratio.
+    * Ending Location on z-axis.
     */
-    Parm m_EndXSecRatio;
+    Parm m_EndZ;
 
     /*!
     * Offset on x axis.
