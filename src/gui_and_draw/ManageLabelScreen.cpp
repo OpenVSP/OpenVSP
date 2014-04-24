@@ -2,6 +2,7 @@
 #include "ScreenMgr.h"
 #include "Vehicle.h"
 #include "VehicleMgr.h"
+#include "Labels.h"
 
 ManageLabelScreen::ManageLabelScreen(ScreenMgr * mgr) : VspScreen(mgr)
 {
@@ -230,37 +231,6 @@ void ManageLabelScreen::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     }
 }
 
-void ManageLabelScreen::Set(std::string sourceId, double pntsRatio, double xsecRatio)
-{
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-
-    if(m_Current.size() == 1)
-    {
-        Label * currLabel = veh->getLabels()->Get(m_Current[0]);
-
-        Ruler * rulerType = dynamic_cast<Ruler*>(currLabel);
-        if(rulerType)
-        {
-            if(rulerType->m_Stage == STAGE_ZERO)
-            {
-                rulerType->m_Stage = STAGE_ONE;
-
-                rulerType->m_StartGeomID = sourceId;
-                rulerType->m_StartPntsRatio = pntsRatio;
-                rulerType->m_StartXSecRatio = xsecRatio;
-            }
-            else if(rulerType->m_Stage == STAGE_ONE)
-            {
-                rulerType->m_Stage = STAGE_TWO;
-
-                rulerType->m_EndGeomID = sourceId;
-                rulerType->m_EndPntsRatio = pntsRatio;
-                rulerType->m_EndXSecRatio = xsecRatio;
-            }
-        }
-    }
-}
-
 void ManageLabelScreen::Set(vec3d placement)
 {
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
@@ -269,16 +239,32 @@ void ManageLabelScreen::Set(vec3d placement)
     {
         Label * currLabel = veh->getLabels()->Get(m_Current[0]);
 
-        Ruler * rulerType = dynamic_cast<Ruler*>(currLabel);
-        if(rulerType)
+        Ruler * rulerLabel = dynamic_cast<Ruler*>(currLabel);
+        if(rulerLabel)
         {
-            if(rulerType->m_Stage == STAGE_TWO)
+            if(rulerLabel->m_Stage == STAGE_ZERO)
             {
-                rulerType->m_Stage = STAGE_COMPLETE;
+                rulerLabel->m_Stage = STAGE_ONE;
 
-                rulerType->m_XOffset = placement.x();
-                rulerType->m_YOffset = placement.y();
-                rulerType->m_ZOffset = placement.z();
+                rulerLabel->m_OriginX = placement.x();
+                rulerLabel->m_OriginY = placement.y();
+                rulerLabel->m_OriginZ = placement.z();
+            }
+            else if(rulerLabel->m_Stage == STAGE_ONE)
+            {
+                rulerLabel->m_Stage = STAGE_TWO;
+
+                rulerLabel->m_EndX = placement.x();
+                rulerLabel->m_EndY = placement.y();
+                rulerLabel->m_EndZ = placement.z();
+            }
+            else if(rulerLabel->m_Stage == STAGE_TWO)
+            {
+                rulerLabel->m_Stage = STAGE_COMPLETE;
+
+                rulerLabel->m_XOffset = placement.x();
+                rulerLabel->m_YOffset = placement.y();
+                rulerLabel->m_ZOffset = placement.z();
             }
         }
     }
@@ -410,7 +396,7 @@ void ManageLabelScreen::UpdateDrawObjs()
                 UpdateRulerEndDO(match, rulerType);
 
                 // Load placement info to DrawObj.
-                match->m_Ruler.Placement = vec3d(rulerType->m_XOffset.Get(), 
+                match->m_Ruler.Offset = vec3d(rulerType->m_XOffset.Get(), 
                     rulerType->m_YOffset.Get(), 
                     rulerType->m_ZOffset.Get());
             }
@@ -493,14 +479,14 @@ void ManageLabelScreen::UpdateNameInput()
 
 void ManageLabelScreen::UpdateRulerStartDO(DrawObj * targetDO, Ruler * ruler)
 {
-    targetDO->m_Ruler.Start.GeomID = ruler->m_StartGeomID;
-    targetDO->m_Ruler.Start.PntsRatio = ruler->m_StartPntsRatio.Get();
-    targetDO->m_Ruler.Start.XSecRatio = ruler->m_StartXSecRatio.Get();
+    targetDO->m_Ruler.Start = vec3d(ruler->m_OriginX.Get(), 
+        ruler->m_OriginY.Get(), 
+        ruler->m_OriginZ.Get());
 }
 
 void ManageLabelScreen::UpdateRulerEndDO(DrawObj * targetDO, Ruler * ruler)
 {
-    targetDO->m_Ruler.End.GeomID = ruler->m_EndGeomID;
-    targetDO->m_Ruler.End.PntsRatio = ruler->m_EndPntsRatio.Get();
-    targetDO->m_Ruler.End.XSecRatio = ruler->m_EndXSecRatio.Get();
+    targetDO->m_Ruler.End = vec3d(ruler->m_EndX.Get(), 
+        ruler->m_EndY.Get(), 
+        ruler->m_EndZ.Get());
 }

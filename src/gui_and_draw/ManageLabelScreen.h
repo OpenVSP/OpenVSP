@@ -27,7 +27,6 @@ public:
     void LoadDrawObjs(vector< DrawObj* > & draw_obj_vec);
 
 public:
-    void Set(std::string sourceId, double pntsRatio, double xsecRatio);
     void Set(vec3d placement);
 
     virtual std::string getFeedbackGroupName();
