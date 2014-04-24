@@ -108,30 +108,18 @@ public:
     };
 
     /*
-    * Ruler vertex information.
-    * GeomID - the m_GeomID of the target geometry.
-    * Index - vertex index in buffer.
-    */
-    struct RulerVertex
-    {
-        std::string GeomID;
-        double PntsRatio;
-        double XSecRatio;
-    };
-
-    /*
     * Ruler Information.
     * Step - Current step of building a ruler.
     * Start - Vertex Information of starting point.
     * End - Vertex Information of ending point.
-    * Placement - placement of the ruler.
+    * Offset - placement of the ruler.
     */
     struct Ruler
     {
         RulerEnum Step;
-        RulerVertex Start;
-        RulerVertex End;
-        vec3d Placement;
+        vec3d Start;
+        vec3d End;
+        vec3d Offset;
     };
 
     /*
