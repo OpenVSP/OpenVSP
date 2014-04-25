@@ -22,6 +22,7 @@
 #include "GraphicEngine.h"
 #include "ScreenMgr.h"
 #include "ManageLabelScreen.h"
+#include "ManageLightingScreen.h"
 #include "ManageGeomScreen.h"
 #include "Common.h"
 #include "GraphicSingletons.h"
@@ -232,6 +233,14 @@ void VspGlWindow::update()
         if( labelScreen )
         {
             labelScreen->LoadDrawObjs( drawObjs );
+        }
+
+        // Load Render Objects from lightScreen.
+        ManageLightingScreen * lightScreen = dynamic_cast< ManageLightingScreen* >
+            ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_LIGHTING_SCREEN ) );
+        if( lightScreen )
+        {
+            lightScreen->LoadDrawObjs( drawObjs );
         }
 
         // Load Render Objects from geomScreen.
