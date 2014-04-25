@@ -18,6 +18,7 @@
 #include "MessageMgr.h"
 #include "DrawObj.h"
 #include "Labels.h"
+#include "Lights.h"
 
 
 #include <assert.h>
@@ -144,6 +145,22 @@ public:
         return m_VSP3FileName;
     };
 
+    /*!
+    * Get Labels object pointer.
+    */
+    Labels * getLabels() 
+    { 
+        return m_Labels; 
+    }
+
+    /*!
+    * Get Lights object pointer.
+    */
+    Lights * getLights()
+    {
+        return m_Lights;
+    }
+
     //=== Export Files ===//
     void ExportFile( const string & file_name, int write_set, int file_type );
     bool WriteXMLFile( const string & file_name, int set );
@@ -230,50 +247,6 @@ protected:
     //==== Primary file name ====//
     string m_VSP3FileName;
 
-    /*
-    * Lighting.
-    */
-public:
-    /*
-    * Struct that describes a single light source.
-    *
-    * Active - True if light is on, else the light is off.
-    *
-    * XPos - Light position on x axis.
-    * YPos - Light position on y axis.
-    * ZPos - Light position on z axis.
-    *
-    * Amb - Ambient value.
-    * Diff - Diffuse value.
-    * Spec - Specular value.
-    */
-    struct LightInfo
-    {
-        BoolParm Active;
-
-        Parm XPos;
-        Parm YPos;
-        Parm ZPos;
-
-        Parm Amb;
-        Parm Diff;
-        Parm Spec;
-    };
-
-    /*
-    * Find LightInfo at index.  If index is invalid, return NULL.
-    * Currently only support index from 0 - 7 (eight light sources).
-    */
-    LightInfo * FindLight( unsigned int index );
-
-    /*!
-    * Get Labels object pointer.
-    */
-    Labels * getLabels() 
-    { 
-        return &m_Labels; 
-    }
-
     //==== Export Files ====//
     string m_compGeomTxtFileName;
     string m_compGeomCsvFileName;
@@ -293,10 +266,8 @@ private:
     void Wype();
 
 protected:
-    vector<LightInfo> m_Lights;
-    DrawObj m_LightingObj;
-
-    Labels m_Labels;
+    Labels * m_Labels;
+    Lights * m_Lights;
 };
 
 
