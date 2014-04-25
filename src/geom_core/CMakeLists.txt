@@ -40,6 +40,7 @@ ScriptMgr.cpp
 StackGeom.cpp
 TMesh.cpp
 Vehicle.cpp
+VehicleGuiDraw.cpp
 VehicleMgr.cpp
 WingGeom.cpp
 XSec.cpp
@@ -70,6 +71,7 @@ StackGeom.h
 SWIGDefines.h
 TMesh.h
 Vehicle.h
+VehicleGuiDraw.h
 VehicleMgr.h
 WingGeom.h
 XSec.h
