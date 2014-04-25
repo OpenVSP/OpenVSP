@@ -17,9 +17,7 @@
 #include "Geom.h"
 #include "MessageMgr.h"
 #include "DrawObj.h"
-#include "Labels.h"
-#include "Lights.h"
-
+#include "VehicleGuiDraw.h"
 
 #include <assert.h>
 
@@ -146,19 +144,11 @@ public:
     };
 
     /*!
-    * Get Labels object pointer.
+    * Get VehicleGuiDraw object pointer.
     */
-    Labels * getLabels() 
-    { 
-        return m_Labels; 
-    }
-
-    /*!
-    * Get Lights object pointer.
-    */
-    Lights * getLights()
+    VehicleGuiDraw * getVehicleGuiDraw()
     {
-        return m_Lights;
+        return m_VehicleGuiDraw;
     }
 
     //=== Export Files ===//
@@ -266,8 +256,7 @@ private:
     void Wype();
 
 protected:
-    Labels * m_Labels;
-    Lights * m_Lights;
+    VehicleGuiDraw * m_VehicleGuiDraw;
 };
 
 

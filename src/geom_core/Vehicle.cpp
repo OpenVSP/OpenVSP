@@ -48,8 +48,7 @@ Vehicle::Vehicle()
     m_BbZMin.Init( "Z_Min", "BBox", this, 0, -1e12, 1e12 );
     m_BbZMin.SetDescript( "Minimum Z coordinate of vehicle bounding box" );
 
-    m_Labels = new Labels();
-    m_Lights = new Lights();
+    m_VehicleGuiDraw = new VehicleGuiDraw();
 }
 
 //==== Destructor ====//
@@ -62,8 +61,7 @@ Vehicle::~Vehicle()
         delete m_GeomStoreVec[i];
     }
 
-    delete m_Labels;
-    delete m_Lights;
+    delete m_VehicleGuiDraw;
 }
 
 //=== Init ====//
