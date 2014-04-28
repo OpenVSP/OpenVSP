@@ -6,9 +6,8 @@ Label::Label() : ParmContainer()
 {
     m_Stage = STAGE_ZERO;
 
-    m_OriginX.Init("OriginX", "Label_Parm", this, 0.0, -1.0e12, 1.0e12, false);
-    m_OriginY.Init("OriginY", "Label_Parm", this, 0.0, -1.0e12, 1.0e12, false);
-    m_OriginZ.Init("OriginZ", "Label_Parm", this, 0.0, -1.0e12, 1.0e12, false);
+    m_OriginU.Init("OriginU", "Label_Parm", this, 0.0, -1.0e12, 1.0e12, false);
+    m_OriginW.Init("OriginW", "Label_Parm", this, 0.0, -1.0e12, 1.0e12, false);
 
     m_Red.Init("Red", "Label_Parm", this, 100, 0, 255, false);
     m_Green.Init("Green", "Label_Parm", this, 100, 0, 255, false);
@@ -33,9 +32,8 @@ void Label::Reset()
 {
     m_Stage = STAGE_ZERO;
 
-    m_OriginX = 0.0;
-    m_OriginY = 0.0;
-    m_OriginZ = 0.0;
+    m_OriginU = 0.0;
+    m_OriginW = 0.0;
 
     m_Red = 100.0;
     m_Green = 100.0;
@@ -44,11 +42,45 @@ void Label::Reset()
     m_Size = 2.0;
 }
 
+vec2d Label::MapToUW(std::string geomId, vec3d xyz)
+{
+    double u, w;
+    u = w = 0.0;
+
+    Vehicle* vPtr = VehicleMgr::getInstance().GetVehicle();
+    Geom * geom = vPtr->FindGeom(geomId);
+
+    assert(geom);
+
+    if(geom)
+    {
+        geom->GetSurfPtr()->FindNearest01(u, w, xyz);
+    }
+
+    return vec2d(u, w);
+}
+
+vec3d Label::MapToXYZ(std::string geomId, vec2d uw)
+{
+    vec3d xyz;
+
+    Vehicle* vPtr = VehicleMgr::getInstance().GetVehicle();
+    Geom * geom = vPtr->FindGeom(geomId);
+
+    assert(geom);
+
+    if(geom)
+    {
+        xyz = geom->GetSurfPtr()->CompPnt01(uw.x(), uw.y());
+    }
+
+    return xyz;
+}
+
 Ruler::Ruler() : Label()
 {
-    m_EndX.Init("RulerEndX", "Label_Parm", this, 0.0, -1.0e12, 1.0e12, false);
-    m_EndY.Init("RulerEndY", "Label_Parm", this, 0.0, -1.0e12, 1.0e12, false);
-    m_EndZ.Init("RulerEndZ", "Label_Parm", this, 0.0, -1.0e12, 1.0e12, false);
+    m_RulerEndU.Init("RulerEndU", "Label_Parm", this, 0.0, -1.0e12, 1.0e12, false);
+    m_RulerEndW.Init("RulerEndW", "Label_Parm", this, 0.0, -1.0e12, 1.0e12, false);
 
     m_XOffset.Init("X_Offset", "Label_Parm", this, 0.0, -1.0e12, 1.0e12, false);
     m_YOffset.Init("Y_Offset", "Label_Parm", this, 0.0, -1.0e12, 1.0e12, false);
@@ -64,9 +96,8 @@ void Ruler::Reset()
 {
     Label::Reset();
 
-    m_EndX = 0.0;
-    m_EndY = 0.0;
-    m_EndZ = 0.0;
+    m_RulerEndU = 0.0;
+    m_RulerEndW = 0.0;
 
     m_XOffset = 0.0;
     m_YOffset = 0.0;

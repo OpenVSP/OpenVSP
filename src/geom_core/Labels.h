@@ -3,6 +3,8 @@
 
 #include "ParmContainer.h"
 #include "Parm.h"
+#include "Vec2d.h"
+#include "Vec3d.h"
 
 #include <string>
 #include <vector>
@@ -39,6 +41,20 @@ public:
     */
     virtual void Reset();
 
+    /*!
+    * Map xyz to uw.
+    * geomId - The Id of geometry where label is attached.
+    * xyz - xyz position on geometry.
+    */
+    static vec2d MapToUW( std::string geomId, vec3d xyz );
+
+    /*!
+    * Map uw to xyz.
+    * geomId - The Id of geometry where label is attached.
+    * uw - uw value.
+    */
+    static vec3d MapToXYZ( std::string geomId, vec2d uw );
+
 public:
     /*!
     * Current render stage.
@@ -46,17 +62,18 @@ public:
     std::string m_Stage;
 
     /*!
-    * Base Location of Label on x-axis.
+    * Origin's Geometry Id.
     */
-    Parm m_OriginX;
+    std::string m_OriginGeomID;
+
     /*!
-    * Base Location of Label on y-axis.
+    * Base Location of Label along U.
     */
-    Parm m_OriginY;
+    Parm m_OriginU;
     /*!
-    * Base Location of Label on z-axis.
+    * Base Location of Label along W.
     */
-    Parm m_OriginZ;
+    Parm m_OriginW;
 
     /*!
     * Text color red.
@@ -106,17 +123,18 @@ public:
 public:
 
     /*!
-    * Ending Location on x-axis.
+    * Id of geometry where end of the ruler is attached.
     */
-    Parm m_EndX;
+    std::string m_RulerEndGeomID;
+
     /*!
-    * Ending Location on y-axis.
+    * End Location of Ruler along U.
     */
-    Parm m_EndY;
+    Parm m_RulerEndU;
     /*!
-    * Ending Location on z-axis.
+    * End Location of Ruler along W.
     */
-    Parm m_EndZ;
+    Parm m_RulerEndW;
 
     /*!
     * Offset on x axis.
