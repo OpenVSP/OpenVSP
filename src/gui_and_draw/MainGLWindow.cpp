@@ -1182,8 +1182,14 @@ void VspGlWindow::OnPush( int x, int y )
                         XSecEntity * xEntity = dynamic_cast<XSecEntity*>(pnt->getSource());
                         if(xEntity)
                         {
-                            glm::vec3 placement = xEntity->getVertexVec(pnt->getIndex());
-                            labelScreen->Set( vec3d( placement.x, placement.y, placement.z ) );
+                            ID * id = _findID( xEntity->getID() );
+                            if( id )
+                            {
+                                int index = id->geomID.find_last_of( '_' );
+                                std::string baseId = id->geomID.substr( 0, index );
+                                glm::vec3 placement = xEntity->getVertexVec(pnt->getIndex());
+                                labelScreen->Set( vec3d( placement.x, placement.y, placement.z ), baseId );
+                            }
                         }
                     }
                 }

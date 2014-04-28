@@ -232,12 +232,14 @@ void ManageLabelScreen::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     }
 }
 
-void ManageLabelScreen::Set(vec3d placement)
+void ManageLabelScreen::Set(vec3d placement, std::string targetGeomId)
 {
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
 
     if(m_Current.size() == 1)
     {
+        vec2d uw;
+
         Label * currLabel = veh->getVehicleGuiDraw()->getLabels()->Get(m_Current[0]);
 
         Ruler * rulerLabel = dynamic_cast<Ruler*>(currLabel);
@@ -246,18 +248,22 @@ void ManageLabelScreen::Set(vec3d placement)
             if(rulerLabel->m_Stage == STAGE_ZERO)
             {
                 rulerLabel->m_Stage = STAGE_ONE;
+                rulerLabel->m_OriginGeomID = targetGeomId;
 
-                rulerLabel->m_OriginX = placement.x();
-                rulerLabel->m_OriginY = placement.y();
-                rulerLabel->m_OriginZ = placement.z();
+                uw = Ruler::MapToUW( targetGeomId, placement );
+
+                rulerLabel->m_OriginU = uw.x();
+                rulerLabel->m_OriginW = uw.y();
             }
             else if(rulerLabel->m_Stage == STAGE_ONE)
             {
                 rulerLabel->m_Stage = STAGE_TWO;
+                rulerLabel->m_RulerEndGeomID = targetGeomId;
 
-                rulerLabel->m_EndX = placement.x();
-                rulerLabel->m_EndY = placement.y();
-                rulerLabel->m_EndZ = placement.z();
+                uw = Ruler::MapToUW( targetGeomId, placement );
+
+                rulerLabel->m_RulerEndU = uw.x();
+                rulerLabel->m_RulerEndW = uw.y();
             }
             else if(rulerLabel->m_Stage == STAGE_TWO)
             {
@@ -480,14 +486,14 @@ void ManageLabelScreen::UpdateNameInput()
 
 void ManageLabelScreen::UpdateRulerStartDO(DrawObj * targetDO, Ruler * ruler)
 {
-    targetDO->m_Ruler.Start = vec3d(ruler->m_OriginX.Get(), 
-        ruler->m_OriginY.Get(), 
-        ruler->m_OriginZ.Get());
+    targetDO->m_Ruler.Start = Ruler::MapToXYZ(
+        ruler->m_OriginGeomID, 
+        vec2d(ruler->m_OriginU.Get(), ruler->m_OriginW.Get()));
 }
 
 void ManageLabelScreen::UpdateRulerEndDO(DrawObj * targetDO, Ruler * ruler)
 {
-    targetDO->m_Ruler.End = vec3d(ruler->m_EndX.Get(), 
-        ruler->m_EndY.Get(), 
-        ruler->m_EndZ.Get());
+    targetDO->m_Ruler.End = Ruler::MapToXYZ(
+        ruler->m_RulerEndGeomID, 
+        vec2d(ruler->m_RulerEndU.Get(), ruler->m_RulerEndW.Get()));
 }

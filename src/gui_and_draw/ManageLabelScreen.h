@@ -27,7 +27,12 @@ public:
     void LoadDrawObjs(vector< DrawObj* > & draw_obj_vec);
 
 public:
-    void Set(vec3d placement);
+    /*!
+    * Set feedback values.
+    * placement - position feedback of label.
+    * targetGeomId - Id of geometry where this label is attached.
+    */
+    void Set(vec3d placement, std::string targetGeomId = "");
 
     virtual std::string getFeedbackGroupName();
 
