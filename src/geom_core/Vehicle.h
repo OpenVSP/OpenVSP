@@ -253,7 +253,7 @@ private:
     void Wype();
 
 protected:
-    VehicleGuiDraw * m_VehicleGuiDraw;
+    VehicleGuiDraw m_VehicleGuiDraw;
 };
 
 
