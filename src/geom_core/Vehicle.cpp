@@ -48,7 +48,7 @@ Vehicle::Vehicle()
     m_BbZMin.Init( "Z_Min", "BBox", this, 0, -1e12, 1e12 );
     m_BbZMin.SetDescript( "Minimum Z coordinate of vehicle bounding box" );
 
-    m_VehicleGuiDraw = new VehicleGuiDraw();
+    m_VehicleGuiDraw = NULL;
 }
 
 //==== Destructor ====//
@@ -61,7 +61,10 @@ Vehicle::~Vehicle()
         delete m_GeomStoreVec[i];
     }
 
-    delete m_VehicleGuiDraw;
+    if( m_VehicleGuiDraw )
+    {
+        delete m_VehicleGuiDraw;
+    }
 }
 
 //=== Init ====//
@@ -2097,4 +2100,13 @@ void Vehicle::ExportFile( const string & file_name, int write_set, int file_type
     {
         WriteBezFile( file_name, write_set );
     }
+}
+
+VehicleGuiDraw * Vehicle::getVehicleGuiDraw()
+{
+    if ( !m_VehicleGuiDraw )
+    {
+        m_VehicleGuiDraw = new VehicleGuiDraw();
+    }
+    return m_VehicleGuiDraw;
 }

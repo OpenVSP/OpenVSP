@@ -146,10 +146,7 @@ public:
     /*!
     * Get VehicleGuiDraw object pointer.
     */
-    VehicleGuiDraw * getVehicleGuiDraw()
-    {
-        return m_VehicleGuiDraw;
-    }
+    VehicleGuiDraw * getVehicleGuiDraw();
 
     //=== Export Files ===//
     void ExportFile( const string & file_name, int write_set, int file_type );
