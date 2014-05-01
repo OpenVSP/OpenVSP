@@ -124,7 +124,7 @@ private:
     struct TextureID
     {
         unsigned int bufferTexID;
-        unsigned int geomTexID;
+        std::string geomTexID;
     };
     struct ID
     {
@@ -133,7 +133,7 @@ private:
         std::string geomID;
         std::vector<TextureID> textureIDs;
 
-        TextureID * find( unsigned int geomTexID )
+        TextureID * find( std::string geomTexID )
         {
             for( int i = 0; i < ( int )textureIDs.size(); i++ )
             {
