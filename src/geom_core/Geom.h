@@ -22,6 +22,7 @@
 #include "DragFactors.h"
 #include "GridDensity.h"
 #include "ResultsMgr.h"
+#include "Textures.h"
 
 //#include "xmlvsp.h"
 
@@ -113,6 +114,11 @@ public:
         return m_DisplayChildrenFlag;
     }
 
+    /*!
+    * Get Textures pointer.
+    */
+    Textures * getTextures();
+
 protected:
 
     int  m_DrawType;
@@ -122,6 +128,8 @@ protected:
 
     vec3d m_WireColor;
     int m_MaterialID;
+
+    Textures m_Textures;
 };
 
 //==== Geom Base ====//
@@ -275,108 +283,8 @@ protected:
 
 };
 
-/*
-* This class provides functionalities for texture management.
-*/
-class GeomTexMap : public GeomXForm
-{
-public:
-    /*
-    * Constructor.
-    */
-    GeomTexMap( Vehicle* vehicle_ptr );
-    /*
-    * Destructor.
-    */
-    virtual ~GeomTexMap();
-
-public:
-    /*
-    * Informations for a single texture.
-    * ID - ID linked to this texture. This ID is only unqiue to this Geom.
-    * DisplayName - Display Name on GUI.
-    * FileName - File path + file Name.
-    * Transparency - Alpha value.
-    * FlipU - Flip U coordinate.
-    * FlipW - Flip W coordinate.
-    */
-    struct GeomTextureInfo
-    {
-        unsigned int ID;
-
-        string DisplayName;
-
-        string FileName;
-
-        Parm * U;
-        Parm * W;
-
-        Parm * UScale;
-        Parm * WScale;
-
-        Parm * Transparency;
-
-        BoolParm * FlipU;
-        BoolParm * FlipW;
-    };
-
-public:
-    /*
-    * Attach a texture to Geom.
-    *
-    * fileName - file path + texture file name.
-    * returns an ID for this texture.
-    */
-    virtual unsigned int AttachTexture( string fileName );
-
-    /*
-    * Remove a attached texture.
-    *
-    * texture_id - ID generated from AttachTexture().
-    */
-    virtual void RemoveTexture( unsigned int texture_id );
-
-    /*
-    * Find GeomTextureInfo Reference for a texture.
-    *
-    * texture_id - ID generated from AttachTexture().
-    * returns GeomTextureInfo reference.
-    */
-    virtual GeomTextureInfo * FindTexture( unsigned int texture_id );
-
-    /*
-    * Get all textures' ID.
-    *
-    * returns ID vector.
-    */
-    virtual vector<unsigned int> GetTextureVec();
-
-    /*
-    * Find and return list of GeomTextureInfo "copies" from a list of texture id.
-    * If search failed on one of texture id, that texture id will be ignored.
-    *
-    * texture_id_vec - target texture ids.
-    * returns corresponding GeomTextureInfo vector.
-    */
-    virtual vector<GeomTextureInfo> FindTextureVec( vector<unsigned int> texture_id_vec );
-
-protected:
-    /*
-    * List of textures attached to this Geom.
-    */
-    vector<GeomTextureInfo> m_TextureList;
-
-private:
-    unsigned int GenerateId();
-    //string CreateNickName(string fileName);
-
-private:
-    unsigned int IdTracker;
-    vector<unsigned int> RecycleBin;
-};
-
 //==== Geom  ====//
-class Geom : public GeomTexMap
+class Geom : public GeomXForm
 {
 public:
 

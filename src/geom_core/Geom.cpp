@@ -67,6 +67,11 @@ GeomGuiDraw::~GeomGuiDraw()
 
 }
 
+Textures * GeomGuiDraw::getTextures()
+{
+    return &m_Textures;
+}
+
 //===============================================================================//
 //===============================================================================//
 //===============================================================================//
@@ -545,185 +550,11 @@ void GeomXForm::AcceptScale()
 //}
 //
 
-
-GeomTexMap::GeomTexMap( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
-{
-    IdTracker = 0;
-}
-
-GeomTexMap::~GeomTexMap()
-{
-    for( int i = 0; i < ( int )m_TextureList.size(); i++ )
-    {
-        delete m_TextureList[i].U;
-        delete m_TextureList[i].W;
-
-        delete m_TextureList[i].UScale;
-        delete m_TextureList[i].WScale;
-
-        delete m_TextureList[i].Transparency;
-
-        delete m_TextureList[i].FlipU;
-        delete m_TextureList[i].FlipW;
-    }
-    m_TextureList.clear();
-}
-
-unsigned int GeomTexMap::AttachTexture( string fileName )
-{
-    GeomTextureInfo info;
-
-    info.ID = GenerateId();
-
-    info.FileName = fileName;
-
-    // Create Display Name.
-    std::string displayName = "";
-
-    StringUtil::change_from_to( fileName, '/', ' ' );
-    StringUtil::change_from_to( fileName, '\\', ' ' );
-
-    unsigned int displayIndex = fileName.find_last_of( ' ' );
-    if( displayIndex != std::string::npos )
-    {
-        displayName = fileName.substr( displayIndex + 1, fileName.size() - displayIndex - 1 );
-        unsigned int extIndex = displayName.find_last_of( '.' );
-        if( extIndex != std::string::npos )
-        {
-            std::string ext = displayName.substr( extIndex, displayName.size() - extIndex );
-            if( ext == ".jpg" || ext == ".tga" )
-            {
-                displayName = displayName.substr( 0, extIndex );
-            }
-        }
-    }
-    info.DisplayName = displayName;
-
-    info.U = new Parm();
-    info.U->Init( "UPosition", fileName, this, 0.0, -1.0, 1.0, false );
-    info.U->SetDescript( "Texture Mapping's Initial U Position" );
-
-    info.W = new Parm();
-    info.W->Init( "WPosition", fileName, this, 0.5, 0.0, 1.0, false );
-    info.W->SetDescript( "Texture Mapping's Initial W Position" );
-
-    info.UScale = new Parm();
-    info.UScale->Init( "UScale", fileName, this, 1.0, 0.01, 1.0, false );
-    info.UScale->SetDescript( "Texture Mapping Scaling on U Direction" );
-
-    info.WScale = new Parm();
-    info.WScale->Init( "WScale", fileName, this, 1.0, 0.01, 1.0, false );
-    info.WScale->SetDescript( "Texture Mapping Scaling on W Direction" );
-
-    info.Transparency = new Parm();
-    info.Transparency->Init( "Transparency", fileName, this, 1.0, 0.0, 1.0, false );
-    info.Transparency->SetDescript( "Texture's Alpha Value" );
-
-    info.FlipU = new BoolParm();
-    info.FlipU->Set( false );
-
-    info.FlipW = new BoolParm();
-    info.FlipW->Set( false );
-
-    m_TextureList.push_back( info );
-
-    return info.ID;
-}
-
-void GeomTexMap::RemoveTexture( unsigned int texture_id )
-{
-    for( int i = 0; i < ( int )m_TextureList.size(); i++ )
-    {
-        if( m_TextureList[i].ID == texture_id )
-        {
-            delete m_TextureList[i].U;
-            delete m_TextureList[i].W;
-
-            delete m_TextureList[i].UScale;
-            delete m_TextureList[i].WScale;
-
-            delete m_TextureList[i].Transparency;
-
-            delete m_TextureList[i].FlipU;
-            delete m_TextureList[i].FlipW;
-
-            m_TextureList.erase( m_TextureList.begin() + i );
-            break;
-        }
-    }
-}
-
-GeomTexMap::GeomTextureInfo * GeomTexMap::FindTexture( unsigned int texture_id )
-{
-    for( int i = 0; i < ( int )m_TextureList.size(); i++ )
-    {
-        if( m_TextureList[i].ID == texture_id )
-        {
-            return &m_TextureList[i];
-        }
-    }
-    return NULL;
-}
-
-vector<unsigned int> GeomTexMap::GetTextureVec()
-{
-    vector<unsigned int> textureIdVec;
-    for( int i = 0; i < ( int )m_TextureList.size(); i++ )
-    {
-        textureIdVec.push_back( m_TextureList[i].ID );
-    }
-    return textureIdVec;
-}
-
-vector<GeomTexMap::GeomTextureInfo> GeomTexMap::FindTextureVec( vector<unsigned int> texture_id_vec )
-{
-    vector<GeomTexMap::GeomTextureInfo> textureVec;
-    for( int i = 0; i < ( int )texture_id_vec.size(); i++ )
-    {
-        GeomTextureInfo * infoptr = FindTexture( texture_id_vec[i] );
-        if( infoptr )
-        {
-            textureVec.push_back( *infoptr );
-        }
-        else
-        {
-            // Shouldn't reach here.
-            assert( false );
-        }
-    }
-    return textureVec;
-}
-
-unsigned int GeomTexMap::GenerateId()
-{
-    unsigned int newId;
-
-    if( RecycleBin.empty() )
-    {
-        newId = IdTracker;
-        IdTracker++;
-    }
-    else
-    {
-        newId = RecycleBin[RecycleBin.size() - 1];
-        RecycleBin.pop_back();
-    }
-    return newId;
-}
-
-//string GeomTexMap::CreateNickName(string fileName)
-//{
-//  string nickName;
-//
-//  int ext = fileName.find_last_of('.');
-//
-//}
-
 //===============================================================================//
 //===============================================================================//
 //===============================================================================//
 //==== Constructor ====//
-Geom::Geom( Vehicle* vehicle_ptr ) : GeomTexMap( vehicle_ptr )
+Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
 {
     m_Name = "Geom";
     m_Type.m_Type = GEOM_GEOM_TYPE;
@@ -1183,19 +1014,19 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
             // Reload texture infos.
             m_WireShadeDrawObj_vec[i].m_TextureInfos.clear();
-            vector<GeomTexMap::GeomTextureInfo> textureList = FindTextureVec( GetTextureVec() );
-            for( int j = 0; j < ( int )textureList.size(); j++ )
+            vector<Texture*> texList = m_GuiDraw.getTextures()->FindTextureVec( m_GuiDraw.getTextures()->GetTextureVec() );
+            for( int j = 0; j < ( int )texList.size(); j++ )
             {
                 DrawObj::TextureInfo info;
-                info.FileName = textureList[j].FileName;
-                info.UScale = ( float )textureList[j].UScale->Get();
-                info.WScale = ( float )textureList[j].WScale->Get();
-                info.U = ( float )textureList[j].U->Get();
-                info.W = ( float )textureList[j].W->Get();
-                info.Transparency = ( float )textureList[j].Transparency->Get();
-                info.UFlip = textureList[j].FlipU->Get();
-                info.WFlip = textureList[j].FlipW->Get();
-                info.ID = textureList[j].ID;
+                info.FileName = texList[j]->m_FileName;
+                info.UScale = ( float )texList[j]->m_UScale.Get();
+                info.WScale = ( float )texList[j]->m_WScale.Get();
+                info.U = ( float )texList[j]->m_U.Get();
+                info.W = ( float )texList[j]->m_W.Get();
+                info.Transparency = ( float )texList[j]->m_Transparency.Get();
+                info.UFlip = texList[j]->m_FlipU.Get();
+                info.WFlip = texList[j]->m_FlipW.Get();
+                info.ID = texList[j]->GetID();
                 m_WireShadeDrawObj_vec[i].m_TextureInfos.push_back( info );
             }
             draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
