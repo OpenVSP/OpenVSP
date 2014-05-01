@@ -38,6 +38,7 @@ PodGeom.cpp
 ResultsMgr.cpp
 ScriptMgr.cpp
 StackGeom.cpp
+Textures.cpp
 TMesh.cpp
 Vehicle.cpp
 VehicleGuiDraw.cpp
@@ -69,6 +70,7 @@ ResultsMgr.h
 ScriptMgr.h
 StackGeom.h
 SWIGDefines.h
+Textures.h
 TMesh.h
 Vehicle.h
 VehicleGuiDraw.h
