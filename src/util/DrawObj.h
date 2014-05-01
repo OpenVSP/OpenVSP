@@ -142,7 +142,7 @@ public:
     struct TextureInfo
     {
         string FileName;
-        unsigned int ID;
+        std::string ID;
 
         float U;
         float W;
