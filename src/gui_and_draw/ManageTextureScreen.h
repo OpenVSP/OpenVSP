@@ -10,6 +10,7 @@ class VspSubGlWindow;
 }
 
 class TextureMgrUI;
+class Texture;
 
 class ManageTextureScreen : public VspScreen
 {
@@ -39,6 +40,9 @@ protected:
 
     SliderInput m_TransparencySlider;
 
+    ToggleButton m_FlipUButton;
+    ToggleButton m_FlipWButton;
+
 private:
     void UpdateCurrentSelected();
     void ResetCurrentSelected();
@@ -53,7 +57,7 @@ private:
 
     struct TexDropDownItem
     {
-        Geom::GeomTextureInfo TexInfo;
+        Texture * TexInfo;
         int GUIIndex;
     };
 
