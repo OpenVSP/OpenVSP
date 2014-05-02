@@ -4,22 +4,20 @@
 
 VehicleGuiDraw::VehicleGuiDraw()
 {
-    m_Labels = new Labels();
-    m_Lights = new Lights();
 }
 VehicleGuiDraw::~VehicleGuiDraw()
 {
-    delete m_Labels;
-    delete m_Lights;
 }
 
 Labels * VehicleGuiDraw::getLabels()
 {
-    return m_Labels;
+    static Labels labels;
+    return &labels;
 }
 
 Lights * VehicleGuiDraw::getLights()
 {
-    return m_Lights;
+    static Lights lights;
+    return &lights;
 }
 

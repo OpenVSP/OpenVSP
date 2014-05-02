@@ -24,6 +24,7 @@
 #include "XmlUtil.h"
 #include "APIDefines.h"
 #include "ResultsMgr.h"
+#include "VehicleGuiDraw.h"
 using namespace vsp;
 
 #include <utility>
@@ -2097,5 +2098,6 @@ void Vehicle::ExportFile( const string & file_name, int write_set, int file_type
 
 VehicleGuiDraw * Vehicle::getVehicleGuiDraw()
 {
-    return &m_VehicleGuiDraw;
+    static VehicleGuiDraw vehicleGuiDraw;
+    return &vehicleGuiDraw;
 }

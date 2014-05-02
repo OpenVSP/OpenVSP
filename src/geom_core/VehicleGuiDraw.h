@@ -28,9 +28,5 @@ public:
     * Get Lights pointer.
     */
     Lights * getLights();
-
-private:
-    Labels * m_Labels;
-    Lights * m_Lights;
 };
 #endif

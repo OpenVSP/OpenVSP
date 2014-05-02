@@ -17,7 +17,6 @@
 #include "Geom.h"
 #include "MessageMgr.h"
 #include "DrawObj.h"
-#include "VehicleGuiDraw.h"
 
 #include <assert.h>
 
@@ -30,6 +29,8 @@
 
 #define MIN_FILE_VER 4 // Lowest file version number for 3.X vsp file
 #define CURRENT_FILE_VER 4 // File version number for 3.X files that this executable writes
+
+class VehicleGuiDraw;
 
 //==== Vehicle ====//
 class Vehicle : public ParmContainer
@@ -251,9 +252,6 @@ protected:
 private:
 
     void Wype();
-
-protected:
-    VehicleGuiDraw m_VehicleGuiDraw;
 };
 
 
