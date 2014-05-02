@@ -1001,7 +1001,7 @@ void Geom::UpdateSymmAttach()
                 else
                 {
                     m_SurfVec[j] = m_SurfVec[j - currentIndex];
-                    m_SurfVec[j].ReverseUDirection();
+                    m_SurfVec[j].FlipNormal();
                     transMats[j].initMat( transMats[j - currentIndex].data() );
                     transMats[j].postMult( Ref.data() ); // Apply Reflection
                     addIndex++;
