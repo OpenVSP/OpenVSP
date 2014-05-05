@@ -52,6 +52,8 @@ public:
         return m_XSCurve;
     }
 
+    virtual void SetXSecCurve( XSecCurve* xs_crv );
+
     virtual int  GetType()
     {
         return m_Type;
@@ -142,6 +144,10 @@ public:
     Parm m_XRotate;
     Parm m_YRotate;
     Parm m_ZRotate;
+
+    Parm m_XCenterRot;
+    Parm m_YCenterRot;
+    Parm m_ZCenterRot;
 
 protected:
 };

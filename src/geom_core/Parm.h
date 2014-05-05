@@ -335,7 +335,17 @@ public:
     int GetNchoice() const                        { return m_Nchoice; }
     int GetNvar() const                           { return m_Nvar; }
 
+    void SetName( const string & name )           { m_Name = name; }
+    string GetName()                              { return m_Name; }
+
+    virtual void EncodeXml( xmlNodePtr & node );
+    virtual void DecodeXml( xmlNodePtr & node );
+
+
 protected:
+
+    string m_Name;
+
     int m_Nvar;
     int m_Nchoice;
     vector< int > m_CurrChoices;

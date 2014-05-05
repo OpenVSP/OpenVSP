@@ -1983,7 +1983,7 @@ void VspSurf::PrepairCrossSections( vector<piecewise_curve_type> &pc, const vect
 
 void VspSurf::DegreeReduceSections( const vector<VspCurve> &input_crv_vec, bool closed_flag )
 {
-    std::cerr << "Need to re-enable DegreeReduceSections()" << std::endl;
+//    std::cerr << "Need to re-enable DegreeReduceSections()" << std::endl;
 #if 0
     surface_index_type i, j, nu( m_Surface.number_u_patches() ), nv( m_Surface.number_v_patches() );
 

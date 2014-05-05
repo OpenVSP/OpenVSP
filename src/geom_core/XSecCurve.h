@@ -51,6 +51,8 @@ public:
     //==== Copy Between Different Types ====//
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
 
+    virtual void CopyFrom( XSecCurve* from_crv );
+
     virtual double GetWidth()
     {
         return 0.0;
@@ -61,6 +63,7 @@ public:
     }
     virtual void SetWidthHeight( double w, double h )           {}
     virtual void SetScale( double scale );
+    virtual string GetWidthParmID()                                    { return string(); }
 
     virtual double ComputeArea( int num_pnts );
 
@@ -110,6 +113,8 @@ public:
         return m_Diameter();
     }
     virtual void SetWidthHeight( double w, double h );
+    virtual string GetWidthParmID()                                    { return m_Diameter.GetID(); }
+
 
     Parm m_Diameter;
 };
@@ -136,6 +141,7 @@ public:
         return m_Height();
     }
     virtual void SetWidthHeight( double w, double h );
+    virtual string GetWidthParmID()                                    { return m_Width.GetID(); }
 
     Parm m_Width;
     Parm m_Height;
@@ -163,6 +169,7 @@ public:
         return m_Height();
     }
     virtual void SetWidthHeight( double w, double h );
+    virtual string GetWidthParmID()                                    { return m_Width.GetID(); }
 
     Parm m_Width;
     Parm m_Height;
@@ -192,6 +199,7 @@ public:
         return m_Height();
     }
     virtual void SetWidthHeight( double w, double h );
+    virtual string GetWidthParmID()                                    { return m_Width.GetID(); }
 
     Parm m_Width;
     Parm m_Height;
@@ -220,6 +228,7 @@ public:
         return m_Height();
     }
     virtual void SetWidthHeight( double w, double h );
+    virtual string GetWidthParmID()                                    { return m_Width.GetID(); }
 
     Parm m_Width;
     Parm m_Height;
@@ -262,6 +271,7 @@ public:
     {
         return m_UnityFilePnts;
     }
+    virtual string GetWidthParmID()                                    { return m_Width.GetID(); }
 
     //===== Read File ====//
     bool ReadXsecFile( string file_name );

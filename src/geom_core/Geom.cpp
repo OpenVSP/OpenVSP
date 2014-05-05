@@ -91,6 +91,8 @@ GeomBase::~GeomBase()
 //==== Parm Changed ====//
 void GeomBase::ParmChanged( Parm* parm_ptr, int type )
 {
+    m_UpdatedParmVec.push_back( parm_ptr->GetID() );
+
     if ( type == Parm::SET )
     {
         m_LateUpdateFlag = true;
@@ -100,6 +102,20 @@ void GeomBase::ParmChanged( Parm* parm_ptr, int type )
     Update();
 
     m_Vehicle->ParmChanged( parm_ptr, type );
+
+    m_UpdatedParmVec.clear();
+}
+
+//==== Check If Parm Is In Updated ParmVec ====//
+bool GeomBase::UpdatedParm( const string & id )
+{
+    for ( int i = 0 ; i < (int)m_UpdatedParmVec.size() ; i++ )
+    {
+        if ( m_UpdatedParmVec[i] == id )
+            return true;
+    }
+
+    return false;
 }
 
 //==== Recusively Load ID and Childrens ID Into Vec  =====//
@@ -869,6 +885,8 @@ void Geom::Update()
     UpdateChildren();
     UpdateBBox();
     UpdateDrawObj();
+
+    m_UpdatedParmVec.clear();
 }
 
 void Geom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms )

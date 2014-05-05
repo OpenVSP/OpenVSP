@@ -820,7 +820,7 @@ public:
 
     virtual void Init( VspScreen* screen, vector< vector < Fl_Button* > > buttons, vector< SliderAdjRangeInput* > sliders );
 
-    virtual void Update( );
+    virtual void Update( vector< string > & parm_ids );
     virtual void Activate();
     virtual void Deactivate();
 

@@ -2053,10 +2053,18 @@ void DriverGroupBank::DeviceCB( Fl_Widget* w )
     m_Screen->GuiDeviceCallBack( this );
 }
 
-void DriverGroupBank::Update( )
+void DriverGroupBank::Update( vector< string > & parm_ids )
 {
-    vector< int > checkchoices;
+     //==== Update Sliders ====//
+    for ( int i = 0 ; i < (int)m_Sliders.size() ; i++ )
+    {
+        if ( i < (int)parm_ids.size() )
+        {
+            m_Sliders[i]->Update( parm_ids[i] );
+        }
+    }
 
+    vector< int > checkchoices;
     vector< int > currchoices = m_DriverGroup->GetChoices();
 
     for( int i = 0; i < m_DriverGroup->GetNvar(); i++ )

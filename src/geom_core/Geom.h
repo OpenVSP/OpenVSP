@@ -169,6 +169,8 @@ public:
         m_ChildIDVec = vec;
     }
 
+    virtual bool UpdatedParm( const string & id );
+
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )      {}
 
     virtual void LoadIDAndChildren( vector< string > & id_vec, bool check_display_flag = false );
@@ -189,6 +191,7 @@ protected:
     string m_ParentID;                                  // ID of Parent (NONE == No Parent)
     vector< string > m_ChildIDVec;                      // Children ID
 
+    vector< string > m_UpdatedParmVec;
 };
 
 //==== Geom XForm ====//

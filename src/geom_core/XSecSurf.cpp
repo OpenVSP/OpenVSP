@@ -8,6 +8,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "XSecSurf.h"
+#include "WingGeom.h"
 #include "StlHelper.h"
 #include "APIDefines.h"
 using namespace vsp;
@@ -21,6 +22,8 @@ XSecSurf::XSecSurf()
     m_WidthDir = -1;
     m_WidthShift = -1;
     m_FlipUD = false;
+    m_CutMinNumXSecs = 2;
+    m_SavedXSecCurve = NULL;
 
     // Assign default values different from -1 above.
     SetXSecType( XSEC_FUSE );
@@ -106,8 +109,7 @@ void XSecSurf::ChangeXSecID( string oldID, string newID )
     }
 }
 
-//==== Create XSecCurve ====//
-XSec* XSecSurf::CreateXSec( int type, int index )
+XSecCurve* XSecSurf::CreateXSecCurve( int type )
 {
     XSecCurve* xscrv_ptr = NULL;
     if ( type == XS_POINT )
@@ -159,6 +161,14 @@ XSec* XSecSurf::CreateXSec( int type, int index )
         xscrv_ptr = new FileAirfoil( );
     }
 
+    return xscrv_ptr;
+}
+
+//==== Create XSecCurve ====//
+XSec* XSecSurf::CreateXSec( int type, int index )
+{
+    XSecCurve* xscrv_ptr = CreateXSecCurve( type );
+
     XSec* xsec_ptr = NULL;
     if ( xscrv_ptr )
     {
@@ -169,6 +179,10 @@ XSec* XSecSurf::CreateXSec( int type, int index )
         else if ( m_XSecType == XSEC_STACK )
         {
             xsec_ptr = ( XSec* ) new StackXSec( xscrv_ptr, index != 0 );
+        }
+        else if ( m_XSecType == XSEC_WING )
+        {
+             xsec_ptr = ( XSec* ) new WingSect( xscrv_ptr, index != 0 );
         }
         else
         {
@@ -235,16 +249,10 @@ string XSecSurf::AddXSec( int type )
 //==== Cut XSec ====//
 void XSecSurf::CutXSec( int index )
 {
-    if ( m_XSecIDDeque.size() <= 2 )
+    if ( (int)m_XSecIDDeque.size() <= m_CutMinNumXSecs )
     {
         return;
     }
-
-    if ( index == 0 || index == ( int )m_XSecIDDeque.size() - 1 )
-    {
-        return;
-    }
-
 
     XSec* xs = FindXSec( index );
     if ( !xs )
@@ -330,6 +338,53 @@ void XSecSurf::PasteXSec( int index )
     vector_remove_val( m_XSecPtrVec, xs );
 
     delete xs;
+}
+
+//==== Copy XSec Curve====//
+void XSecSurf::CopyXSecCurve( int index )
+{
+    XSec* xs = FindXSec( index );
+    if ( !xs )
+    {
+        return;
+    }
+
+    if ( m_SavedXSecCurve && m_SavedXSecCurve->GetType() != xs->GetXSecCurve()->GetType() )
+    {
+        delete m_SavedXSecCurve;
+        m_SavedXSecCurve = NULL;
+    }
+
+    if ( !m_SavedXSecCurve )
+    {
+        m_SavedXSecCurve = CreateXSecCurve( xs->GetXSecCurve()->GetType() );
+    }
+
+    if ( m_SavedXSecCurve )
+    {
+        m_SavedXSecCurve->CopyFrom( xs->GetXSecCurve() );
+    }
+}
+
+//==== Paste XSec Curve====//
+void XSecSurf::PasteXSecCurve( int index )
+{
+    XSec* xs = FindXSec( index );
+    if ( !xs )
+        return;
+
+    if ( !m_SavedXSecCurve )
+        return;
+
+    XSecCurve* duplicate_saved_crv = CreateXSecCurve( m_SavedXSecCurve->GetType() );
+    if ( duplicate_saved_crv )
+    {
+        duplicate_saved_crv->CopyFrom( m_SavedXSecCurve );
+    }
+
+    xs->SetXSecCurve( duplicate_saved_crv );
+
+
 }
 
 //==== Change XSec Type ====//
