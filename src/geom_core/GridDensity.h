@@ -12,7 +12,6 @@
 #define GRIDDENSITY_GRIDDENSITY__INCLUDED_
 
 #ifdef WIN32
-#define NOMINMAX
 #include <windows.h>
 #endif
 
