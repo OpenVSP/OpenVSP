@@ -848,7 +848,7 @@ protected:
 class SkinControl : public GuiDevice
 {
 public:
-	SkinControl( );
+    SkinControl( );
 
     virtual void DeviceCB( Fl_Widget *w );
 
@@ -891,7 +891,7 @@ class SkinOutput : public GuiDevice
 {
 public:
 
-	enum { C0, C1, C2, NONE };
+    enum { C0, C1, C2, NONE };
 
     SkinOutput();
     virtual void DeviceCB( Fl_Widget* w );

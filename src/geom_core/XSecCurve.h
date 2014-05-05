@@ -28,7 +28,7 @@ class Geom;
 class XSecCurve : public ParmContainer
 {
 public:
-	XSecCurve();
+    XSecCurve();
 
     virtual void ParmChanged( Parm* parm_ptr, int type );
     virtual void Update();

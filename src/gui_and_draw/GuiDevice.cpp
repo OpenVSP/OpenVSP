@@ -2140,16 +2140,16 @@ SkinControl::SkinControl()
 }
 
 void SkinControl::Init( VspScreen* screen,
-	    Fl_Check_Button* contButtonL,
-	    Fl_Check_Button* contButtonR,
-	    Fl_Check_Button* setButtonL,
-	    Fl_Check_Button* setButtonR,
-	    Fl_Slider* sliderL,
-	    Fl_Slider* sliderR,
-	    Fl_Input* inputL,
-	    Fl_Input* inputR,
-	    Fl_Button* parm_button,
-	    double range, const char* format)
+        Fl_Check_Button* contButtonL,
+        Fl_Check_Button* contButtonR,
+        Fl_Check_Button* setButtonL,
+        Fl_Check_Button* setButtonR,
+        Fl_Slider* sliderL,
+        Fl_Slider* sliderR,
+        Fl_Input* inputL,
+        Fl_Input* inputR,
+        Fl_Button* parm_button,
+        double range, const char* format)
 {
     m_Screen = screen;
 
