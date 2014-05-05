@@ -1,6 +1,5 @@
 #include "ManageLightingScreen.h"
 #include "ScreenMgr.h"
-#include "VehicleGuiDraw.h"
 #include "Lights.h"
 
 #include <assert.h>

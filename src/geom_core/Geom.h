@@ -113,11 +113,10 @@ public:
     {
         return m_DisplayChildrenFlag;
     }
-
-    /*!
-    * Get Textures pointer.
-    */
-    Textures * getTextures();
+    Textures * getTextures()
+    {
+        return &m_Textures;
+    }
 
 protected:
 

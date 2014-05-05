@@ -17,6 +17,8 @@
 #include "Geom.h"
 #include "MessageMgr.h"
 #include "DrawObj.h"
+#include "Labels.h"
+#include "Lights.h"
 
 #include <assert.h>
 
@@ -30,7 +32,42 @@
 #define MIN_FILE_VER 4 // Lowest file version number for 3.X vsp file
 #define CURRENT_FILE_VER 4 // File version number for 3.X files that this executable writes
 
-class VehicleGuiDraw;
+/*!
+* Centralized place to access all GUI related Parm objects.
+*/
+class VehicleGuiDraw
+{
+public:
+    /*!
+    * Constructor.
+    */
+    VehicleGuiDraw();
+    /*!
+    * Destructor.
+    */
+    ~VehicleGuiDraw();
+
+public:
+    /*!
+    * Get Labels pointer.
+    */
+    Labels * getLabels()
+    {
+        return &m_Labels;
+    }
+
+    /*!
+    * Get Lights pointer.
+    */
+    Lights * getLights()
+    {
+        return &m_Lights;
+    }
+
+private:
+    Labels m_Labels;
+    Lights m_Lights;
+};
 
 //==== Vehicle ====//
 class Vehicle : public ParmContainer
@@ -147,7 +184,11 @@ public:
     /*!
     * Get VehicleGuiDraw object pointer.
     */
-    VehicleGuiDraw * getVehicleGuiDraw();
+    VehicleGuiDraw * getVehicleGuiDraw()
+    {
+        static VehicleGuiDraw vehicleGuiDraw;
+        return &vehicleGuiDraw;
+    }
 
     //=== Export Files ===//
     void ExportFile( const string & file_name, int write_set, int file_type );

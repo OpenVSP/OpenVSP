@@ -24,12 +24,17 @@
 #include "XmlUtil.h"
 #include "APIDefines.h"
 #include "ResultsMgr.h"
-#include "VehicleGuiDraw.h"
 using namespace vsp;
 
 #include <utility>
 
-#define NUMOFLIGHTS 8
+//==== VehicleGuiDraw ====//
+VehicleGuiDraw::VehicleGuiDraw()
+{
+}
+VehicleGuiDraw::~VehicleGuiDraw()
+{
+}
 
 //==== Constructor ====//
 Vehicle::Vehicle()
@@ -2094,10 +2099,4 @@ void Vehicle::ExportFile( const string & file_name, int write_set, int file_type
     {
         WriteBezFile( file_name, write_set );
     }
-}
-
-VehicleGuiDraw * Vehicle::getVehicleGuiDraw()
-{
-    static VehicleGuiDraw vehicleGuiDraw;
-    return &vehicleGuiDraw;
 }
