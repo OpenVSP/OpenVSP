@@ -91,7 +91,10 @@ GeomBase::~GeomBase()
 //==== Parm Changed ====//
 void GeomBase::ParmChanged( Parm* parm_ptr, int type )
 {
-    m_UpdatedParmVec.push_back( parm_ptr->GetID() );
+    if ( parm_ptr )
+    {
+        m_UpdatedParmVec.push_back( parm_ptr->GetID() );
+    }
 
     if ( type == Parm::SET )
     {
