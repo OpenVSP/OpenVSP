@@ -39,14 +39,9 @@ public:
     virtual void Init( const string& name, const string& group, ParmContainer* container,
                        double val, double lower, double upper, bool linkable = true );
 
-    virtual string GetName()
-    {
-        return m_Name;
-    }
-    virtual void SetGroupDisplaySuffix( int num )
-    {
-        m_GroupDisplaySuffix = num;
-    }
+    virtual string GetName()                             { return m_Name; }
+    virtual void SetGroupDisplaySuffix( int num )        { m_GroupDisplaySuffix = num; }
+
     virtual string GetGroupName()
     {
         return m_GroupName;
@@ -335,22 +330,10 @@ public:
     virtual void UpdateGroup( vector< string > parmIDs ) = 0;
     virtual bool ValidDrivers( vector< int > choices ) = 0;
 
-    void SetChoices( vector< int > choices )
-    {
-        m_CurrChoices = choices;
-    }
-    vector< int > GetChoices()
-    {
-        return m_CurrChoices;
-    }
-    int GetNchoice() const
-    {
-        return m_Nchoice;
-    }
-    int GetNvar() const
-    {
-        return m_Nvar;
-    }
+    void SetChoices( vector< int > choices )      { m_CurrChoices = choices; }
+    vector< int > GetChoices()                    { return m_CurrChoices; }
+    int GetNchoice() const                        { return m_Nchoice; }
+    int GetNvar() const                           { return m_Nvar; }
 
 protected:
     int m_Nvar;
