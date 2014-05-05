@@ -181,13 +181,9 @@ public:
         return m_VSP3FileName;
     };
 
-    /*!
-    * Get VehicleGuiDraw object pointer.
-    */
-    VehicleGuiDraw * getVehicleGuiDraw()
+    VehicleGuiDraw * getVGuiDraw()
     {
-        static VehicleGuiDraw vehicleGuiDraw;
-        return &vehicleGuiDraw;
+        return &m_VGuiDraw;
     }
 
     //=== Export Files ===//
@@ -289,6 +285,8 @@ protected:
 
     // File Version Number
     int m_FileOpenVersion;
+
+    VehicleGuiDraw m_VGuiDraw;
 
 private:
 

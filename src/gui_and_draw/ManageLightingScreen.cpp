@@ -72,7 +72,7 @@ bool ManageLightingScreen::Update()
     }
 
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-    Lights * lights = veh->getVehicleGuiDraw()->getLights();
+    Lights * lights = veh->getVGuiDraw()->getLights();
     Light * currLight = lights->Get( m_CurrentSelected );
 
     assert( currLight );
@@ -109,7 +109,7 @@ bool ManageLightingScreen::Update()
 void ManageLightingScreen::CallBack( Fl_Widget * w )
 {
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-    Lights * lights = veh->getVehicleGuiDraw()->getLights();
+    Lights * lights = veh->getVGuiDraw()->getLights();
 
     if( w == m_LightingUI->LightSourceDropDown )
     {
@@ -122,7 +122,7 @@ void ManageLightingScreen::CallBack( Fl_Widget * w )
 void ManageLightingScreen::LoadDrawObjs(vector< DrawObj* > & draw_obj_vec)
 {
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-    Lights * lights = veh->getVehicleGuiDraw()->getLights();
+    Lights * lights = veh->getVGuiDraw()->getLights();
 
     // Create DrawObj that provides Global Lighting Setting.
     m_LightingDO.m_Type = DrawObj::VSP_SETTING;
