@@ -72,8 +72,8 @@ bool ManageLightingScreen::Update()
     }
 
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-    Lights * lights = veh->getVGuiDraw()->getLights();
-    Light * currLight = lights->Get( m_CurrentSelected );
+    LightMgr * lightMgr = veh->getVGuiDraw()->getLightMgr();
+    Light * currLight = lightMgr->Get( m_CurrentSelected );
 
     assert( currLight );
 
@@ -85,23 +85,23 @@ bool ManageLightingScreen::Update()
     m_DiffSlider.Update( currLight->m_Diff.GetID() );
     m_SpecSlider.Update( currLight->m_Spec.GetID() );
 
-    assert(lights->Get(0));
-    assert(lights->Get(1));
-    assert(lights->Get(2));
-    assert(lights->Get(3));
-    assert(lights->Get(4));
-    assert(lights->Get(5));
-    assert(lights->Get(6));
-    assert(lights->Get(7));
+    assert(lightMgr->Get(0));
+    assert(lightMgr->Get(1));
+    assert(lightMgr->Get(2));
+    assert(lightMgr->Get(3));
+    assert(lightMgr->Get(4));
+    assert(lightMgr->Get(5));
+    assert(lightMgr->Get(6));
+    assert(lightMgr->Get(7));
 
-    m_LightButton0.Update( lights->Get(0)->m_Active.GetID() );   
-    m_LightButton1.Update( lights->Get(1)->m_Active.GetID() );
-    m_LightButton2.Update( lights->Get(2)->m_Active.GetID() );
-    m_LightButton3.Update( lights->Get(3)->m_Active.GetID() );
-    m_LightButton4.Update( lights->Get(4)->m_Active.GetID() );
-    m_LightButton5.Update( lights->Get(5)->m_Active.GetID() );
-    m_LightButton6.Update( lights->Get(6)->m_Active.GetID() );
-    m_LightButton7.Update( lights->Get(7)->m_Active.GetID() );
+    m_LightButton0.Update( lightMgr->Get(0)->m_Active.GetID() );   
+    m_LightButton1.Update( lightMgr->Get(1)->m_Active.GetID() );
+    m_LightButton2.Update( lightMgr->Get(2)->m_Active.GetID() );
+    m_LightButton3.Update( lightMgr->Get(3)->m_Active.GetID() );
+    m_LightButton4.Update( lightMgr->Get(4)->m_Active.GetID() );
+    m_LightButton5.Update( lightMgr->Get(5)->m_Active.GetID() );
+    m_LightButton6.Update( lightMgr->Get(6)->m_Active.GetID() );
+    m_LightButton7.Update( lightMgr->Get(7)->m_Active.GetID() );
 
     return true;
 }
@@ -109,7 +109,7 @@ bool ManageLightingScreen::Update()
 void ManageLightingScreen::CallBack( Fl_Widget * w )
 {
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-    Lights * lights = veh->getVGuiDraw()->getLights();
+    LightMgr * lightMgr = veh->getVGuiDraw()->getLightMgr();
 
     if( w == m_LightingUI->LightSourceDropDown )
     {
@@ -122,7 +122,7 @@ void ManageLightingScreen::CallBack( Fl_Widget * w )
 void ManageLightingScreen::LoadDrawObjs(vector< DrawObj* > & draw_obj_vec)
 {
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-    Lights * lights = veh->getVGuiDraw()->getLights();
+    LightMgr * lightMgr = veh->getVGuiDraw()->getLightMgr();
 
     // Create DrawObj that provides Global Lighting Setting.
     m_LightingDO.m_Type = DrawObj::VSP_SETTING;
@@ -131,7 +131,7 @@ void ManageLightingScreen::LoadDrawObjs(vector< DrawObj* > & draw_obj_vec)
     // Clear Light info, redo list on every GetDrawObjs().
     m_LightingDO.m_LightingInfos.clear();
 
-    std::vector< Light* > lightList = lights->GetVec();
+    std::vector< Light* > lightList = lightMgr->GetVec();
 
     // Load Lighting Info.
     for ( int i = 0; i < ( int )lightList.size() ; i++ )

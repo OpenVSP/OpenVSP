@@ -1009,7 +1009,7 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
             // Reload texture infos.
             m_WireShadeDrawObj_vec[i].m_TextureInfos.clear();
-            vector<Texture*> texList = m_GuiDraw.getTextures()->FindTextureVec( m_GuiDraw.getTextures()->GetTextureVec() );
+            vector<Texture*> texList = m_GuiDraw.getTextureMgr()->FindTextureVec( m_GuiDraw.getTextureMgr()->GetTextureVec() );
             for( int j = 0; j < ( int )texList.size(); j++ )
             {
                 DrawObj::TextureInfo info;

@@ -104,10 +104,10 @@ void Ruler::Reset()
     m_Precision = 0.0;
 }
 
-Labels::Labels()
+LabelMgr::LabelMgr()
 {
 }
-Labels::~Labels()
+LabelMgr::~LabelMgr()
 {
     for(int i = 0; i < (int)m_Labels.size(); i++)
     {
@@ -116,7 +116,7 @@ Labels::~Labels()
     m_Labels.clear();
 }
 
-std::string Labels::CreateAndAddRuler(const string& name)
+std::string LabelMgr::CreateAndAddRuler(const string& name)
 {
     Ruler * ruler = new Ruler();
 
@@ -126,7 +126,7 @@ std::string Labels::CreateAndAddRuler(const string& name)
     return m_Labels[m_Labels.size() - 1]->GetID();
 }
 
-Label * Labels::Get(std::string ID)
+Label * LabelMgr::Get(std::string ID)
 {
     for(int i = 0; i < (int)m_Labels.size(); i++)
     {
@@ -138,12 +138,12 @@ Label * Labels::Get(std::string ID)
     return NULL;
 }
 
-std::vector<Label*> Labels::GetVec()
+std::vector<Label*> LabelMgr::GetVec()
 {
     return m_Labels;
 }
 
-void Labels::Remove(std::string ID)
+void LabelMgr::Remove(std::string ID)
 {
     for(int i = 0; i < (int)m_Labels.size(); i++)
     {

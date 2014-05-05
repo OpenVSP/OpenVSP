@@ -51,22 +51,22 @@ public:
     /*!
     * Get Labels pointer.
     */
-    Labels * getLabels()
+    LabelMgr * getLabelMgr()
     {
-        return &m_Labels;
+        return &m_LabelMgr;
     }
 
     /*!
     * Get Lights pointer.
     */
-    Lights * getLights()
+    LightMgr * getLightMgr()
     {
-        return &m_Lights;
+        return &m_LightMgr;
     }
 
 private:
-    Labels m_Labels;
-    Lights m_Lights;
+    LabelMgr m_LabelMgr;
+    LightMgr m_LightMgr;
 };
 
 //==== Vehicle ====//

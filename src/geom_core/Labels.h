@@ -158,17 +158,17 @@ public:
 /*!
 * Keep track a list of Labels.
 */
-class Labels
+class LabelMgr
 {
 public:
     /*!
     * Construct a Labels object.
     */
-    Labels();
+    LabelMgr();
     /*!
     * Destructor.
     */
-    virtual ~Labels();
+    virtual ~LabelMgr();
 
 public:
     /*!

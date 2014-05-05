@@ -113,9 +113,9 @@ public:
     {
         return m_DisplayChildrenFlag;
     }
-    Textures * getTextures()
+    TextureMgr * getTextureMgr()
     {
-        return &m_Textures;
+        return &m_TextureMgr;
     }
 
 protected:
@@ -128,7 +128,7 @@ protected:
     vec3d m_WireColor;
     int m_MaterialID;
 
-    Textures m_Textures;
+    TextureMgr m_TextureMgr;
 };
 
 //==== Geom Base ====//

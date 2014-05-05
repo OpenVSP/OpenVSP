@@ -59,10 +59,10 @@ void Texture::ParmChanged( Parm* parm_ptr, int type )
 }
 
 
-Textures::Textures()
+TextureMgr::TextureMgr()
 {
 }
-Textures::~Textures()
+TextureMgr::~TextureMgr()
 {
     for( int i = 0; i < (int)m_TextureList.size(); i++ )
     {
@@ -70,7 +70,7 @@ Textures::~Textures()
     }
 }
 
-std::string Textures::AttachTexture( std::string fileName )
+std::string TextureMgr::AttachTexture( std::string fileName )
 {
     Texture * texture = new Texture( fileName );
 
@@ -78,7 +78,7 @@ std::string Textures::AttachTexture( std::string fileName )
     return texture->GetID(); 
 }
 
-void Textures::RemoveTexture( std::string texture_id )
+void TextureMgr::RemoveTexture( std::string texture_id )
 {
     for( int i = 0; i < (int)m_TextureList.size(); i++ )
     {
@@ -91,7 +91,7 @@ void Textures::RemoveTexture( std::string texture_id )
     }
 }
 
-Texture * Textures::FindTexture( std::string texture_id )
+Texture * TextureMgr::FindTexture( std::string texture_id )
 {
     for( int i = 0; i < (int)m_TextureList.size(); i++ )
     {
@@ -103,7 +103,7 @@ Texture * Textures::FindTexture( std::string texture_id )
     return NULL;
 }
 
-std::vector<std::string> Textures::GetTextureVec()
+std::vector<std::string> TextureMgr::GetTextureVec()
 {
     std::vector<std::string> ids;
 
@@ -114,7 +114,7 @@ std::vector<std::string> Textures::GetTextureVec()
     return ids;
 }
 
-std::vector<Texture*> Textures::FindTextureVec( std::vector<std::string> texture_id_vec )
+std::vector<Texture*> TextureMgr::FindTextureVec( std::vector<std::string> texture_id_vec )
 {
     std::vector<Texture*> textureVec;
     for( int i = 0; i < (int)texture_id_vec.size(); i++ )

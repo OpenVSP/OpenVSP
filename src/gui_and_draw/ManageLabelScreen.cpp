@@ -48,7 +48,7 @@ void ManageLabelScreen::Hide()
 bool ManageLabelScreen::Update()
 {
     Vehicle* vPtr = VehicleMgr::getInstance().GetVehicle();
-    std::vector<Label*> labels = vPtr->getVGuiDraw()->getLabels()->GetVec();
+    std::vector<Label*> labels = vPtr->getVGuiDraw()->getLabelMgr()->GetVec();
 
     m_LabelUI->labelBrowser->clear();
 
@@ -69,7 +69,7 @@ bool ManageLabelScreen::Update()
     // Ruler / Text Panel.
     if(m_Current.size() == 1)
     {
-        Ruler * rulerType = dynamic_cast<Ruler*>(vPtr->getVGuiDraw()->getLabels()->Get(m_Current[0]));
+        Ruler * rulerType = dynamic_cast<Ruler*>(vPtr->getVGuiDraw()->getLabelMgr()->Get(m_Current[0]));
         if(rulerType)
         {
             m_LabelUI->textUIGroup->hide();
@@ -84,7 +84,7 @@ bool ManageLabelScreen::Update()
 
     for(int i = 0; i < (int)m_Current.size(); i++)
     {
-        Label * label = vPtr->getVGuiDraw()->getLabels()->Get(m_Current[i]);
+        Label * label = vPtr->getVGuiDraw()->getLabelMgr()->Get(m_Current[i]);
 
         m_RedSlider.Update(label->m_Red.GetID());
         m_GreenSlider.Update(label->m_Green.GetID());
@@ -131,7 +131,7 @@ void ManageLabelScreen::CallBack(Fl_Widget * w)
     }
     else if ( w == m_LabelUI->labelBrowser )
     {
-        std::vector<Label*> labels = vPtr->getVGuiDraw()->getLabels()->GetVec();
+        std::vector<Label*> labels = vPtr->getVGuiDraw()->getLabelMgr()->GetVec();
         assert(labels.size() == m_LabelUI->labelBrowser->size());
 
         m_Current.clear();
@@ -149,7 +149,7 @@ void ManageLabelScreen::CallBack(Fl_Widget * w)
     {
         for(int i = 0; i < (int)m_Current.size(); i++)
         {
-            Label * label = vPtr->getVGuiDraw()->getLabels()->Get(m_Current[i]);
+            Label * label = vPtr->getVGuiDraw()->getLabelMgr()->Get(m_Current[i]);
             assert(label);
             label->SetName(m_LabelUI->nameInput->value());
         }
@@ -158,7 +158,7 @@ void ManageLabelScreen::CallBack(Fl_Widget * w)
     {
         for(int i = 0; i < (int)m_Current.size(); i++)
         {
-            Label * label = vPtr->getVGuiDraw()->getLabels()->Get(m_Current[i]);
+            Label * label = vPtr->getVGuiDraw()->getLabelMgr()->Get(m_Current[i]);
             assert(label);
             label->m_Red = m_LabelUI->redSlider->value();
         }
@@ -167,7 +167,7 @@ void ManageLabelScreen::CallBack(Fl_Widget * w)
     {
         for(int i = 0; i < (int)m_Current.size(); i++)
         {
-            Label * label = vPtr->getVGuiDraw()->getLabels()->Get(m_Current[i]);
+            Label * label = vPtr->getVGuiDraw()->getLabelMgr()->Get(m_Current[i]);
             assert(label);
             label->m_Green = m_LabelUI->greenSlider->value();
         }
@@ -176,7 +176,7 @@ void ManageLabelScreen::CallBack(Fl_Widget * w)
     {
         for(int i = 0; i < (int)m_Current.size(); i++)
         {
-            Label * label = vPtr->getVGuiDraw()->getLabels()->Get(m_Current[i]);
+            Label * label = vPtr->getVGuiDraw()->getLabelMgr()->Get(m_Current[i]);
             assert(label);
             label->m_Blue = m_LabelUI->blueSlider->value();
         }
@@ -185,7 +185,7 @@ void ManageLabelScreen::CallBack(Fl_Widget * w)
     {
         for(int i = 0; i < (int)m_Current.size(); i++)
         {
-            Label * label = vPtr->getVGuiDraw()->getLabels()->Get(m_Current[i]);
+            Label * label = vPtr->getVGuiDraw()->getLabelMgr()->Get(m_Current[i]);
             assert(label);
             label->m_Size = m_LabelUI->textSizeSlider->value();
         }
@@ -194,7 +194,7 @@ void ManageLabelScreen::CallBack(Fl_Widget * w)
     {
         if(m_Current.size() == 1)
         {
-            Label * label = vPtr->getVGuiDraw()->getLabels()->Get(m_Current[0]);
+            Label * label = vPtr->getVGuiDraw()->getLabelMgr()->Get(m_Current[0]);
             assert(label);
             label->Reset();
         }
@@ -239,7 +239,7 @@ void ManageLabelScreen::Set(vec3d placement, std::string targetGeomId)
     {
         vec2d uw;
 
-        Label * currLabel = veh->getVGuiDraw()->getLabels()->Get(m_Current[0]);
+        Label * currLabel = veh->getVGuiDraw()->getLabelMgr()->Get(m_Current[0]);
 
         Ruler * rulerLabel = dynamic_cast<Ruler*>(currLabel);
         if(rulerLabel)
@@ -286,7 +286,7 @@ std::string ManageLabelScreen::GenerateRuler()
     Vehicle* vPtr = VehicleMgr::getInstance().GetVehicle();
 
     DrawObj rulerObj;
-    rulerObj.m_GeomID = vPtr->getVGuiDraw()->getLabels()->CreateAndAddRuler(GenerateName());
+    rulerObj.m_GeomID = vPtr->getVGuiDraw()->getLabelMgr()->CreateAndAddRuler(GenerateName());
     rulerObj.m_Type = DrawObj::VSP_RULER;
     rulerObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
     rulerObj.m_Ruler.Step = DrawObj::VSP_RULER_STEP_ZERO;
@@ -301,7 +301,7 @@ std::string ManageLabelScreen::GenerateRuler()
 void ManageLabelScreen::RemoveRuler(std::string geomId)
 {
     Vehicle* vPtr = VehicleMgr::getInstance().GetVehicle();
-    vPtr->getVGuiDraw()->getLabels()->Remove(geomId);
+    vPtr->getVGuiDraw()->getLabelMgr()->Remove(geomId);
 
     for(int i = 0; i < (int)m_LabelList.size(); i++)
     {
@@ -341,7 +341,7 @@ void ManageLabelScreen::UpdateDrawObjs()
 {
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
 
-    std::vector<Label*> labelList = veh->getVGuiDraw()->getLabels()->GetVec();
+    std::vector<Label*> labelList = veh->getVGuiDraw()->getLabelMgr()->GetVec();
     for(int i = 0; i < (int)labelList.size(); i++)
     {
         // Find out label type.
@@ -473,7 +473,7 @@ void ManageLabelScreen::UpdateNameInput()
     }
     else if(m_Current.size() == 1)
     {
-        Label * currLabel = vPtr->getVGuiDraw()->getLabels()->Get(m_Current[0]);
+        Label * currLabel = vPtr->getVGuiDraw()->getLabelMgr()->Get(m_Current[0]);
         assert(currLabel);
         m_LabelUI->nameInput->value(currLabel->GetName().c_str());
     }

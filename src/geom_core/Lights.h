@@ -66,17 +66,17 @@ public:
 /*!
 * This class keep tracks list of lights.
 */
-class Lights
+class LightMgr
 {
 public:
     /*!
     * Construct a list of lights.
     */
-    Lights();
+    LightMgr();
     /*!
     * Destructor.
     */
-    virtual ~Lights();
+    virtual ~LightMgr();
 
 public:
     /*!

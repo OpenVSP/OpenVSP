@@ -29,7 +29,7 @@ void Light::ParmChanged( Parm* parm_ptr, int type )
     VehicleMgr::getInstance().GetVehicle()->ParmChanged( parm_ptr, type );
 }
 
-Lights::Lights()
+LightMgr::LightMgr()
 {
     for( int i = 0; i < NUMOFLIGHTS; i++ )
     {
@@ -61,7 +61,7 @@ Lights::Lights()
     m_Lights[2]->m_Diff = 0.5;
     m_Lights[2]->m_Spec = 0.5;
 }
-Lights::~Lights()
+LightMgr::~LightMgr()
 {
     for( int i = 0; i < m_Lights.size(); i++ )
     {
@@ -69,7 +69,7 @@ Lights::~Lights()
     }
 }
 
-Light * Lights::Get( unsigned int index )
+Light * LightMgr::Get( unsigned int index )
 {
     if( index >= 0 && index < NUMOFLIGHTS )
     {
@@ -78,7 +78,7 @@ Light * Lights::Get( unsigned int index )
     return NULL;
 }
 
-std::vector< Light* > Lights::GetVec()
+std::vector< Light* > LightMgr::GetVec()
 {
     return m_Lights;
 }

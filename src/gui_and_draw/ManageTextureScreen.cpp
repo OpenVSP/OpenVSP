@@ -127,7 +127,7 @@ bool ManageTextureScreen::Update()
             viewport->getBackground()->removeImage();
 
             // Load Textures...
-            Textures * texMgr = select_vec[0]->m_GuiDraw.getTextures();
+            TextureMgr * texMgr = select_vec[0]->m_GuiDraw.getTextureMgr();
             std::vector<Texture*> texInfos = texMgr->FindTextureVec( texMgr->GetTextureVec() );
             for( int j = 0; j < ( int )texInfos.size(); j++ )
             {
@@ -175,7 +175,7 @@ bool ManageTextureScreen::Update()
             // Update Sliders and Buttons.
             if( m_SelectedTexItem )
             {
-                Texture * info = select_vec[0]->m_GuiDraw.getTextures()->FindTexture( m_SelectedTexItem->TexInfo->GetID() );
+                Texture * info = select_vec[0]->m_GuiDraw.getTextureMgr()->FindTexture( m_SelectedTexItem->TexInfo->GetID() );
 
                 m_TextureMgrUI->textureNameInput->value( info->m_DisplayName.c_str() );
 
@@ -221,7 +221,7 @@ void ManageTextureScreen::CallBack( Fl_Widget * w )
     else if( w == m_TextureMgrUI->textureNameInput )
     {
         vector< Geom* > select_vec = veh->GetActiveGeomPtrVec();
-        Texture * info = select_vec[0]->m_GuiDraw.getTextures()->FindTexture( m_SelectedTexItem->TexInfo->GetID() );
+        Texture * info = select_vec[0]->m_GuiDraw.getTextureMgr()->FindTexture( m_SelectedTexItem->TexInfo->GetID() );
         info->m_DisplayName = m_TextureMgrUI->textureNameInput->value();
     }
     else if( w == m_TextureMgrUI->addTextureButton )
@@ -240,7 +240,7 @@ void ManageTextureScreen::CallBack( Fl_Widget * w )
         {
             return;
         }
-        select_vec[0]->m_GuiDraw.getTextures()->AttachTexture( fc.value() );
+        select_vec[0]->m_GuiDraw.getTextureMgr()->AttachTexture( fc.value() );
 
         ResetCurrentSelected();
     }
@@ -249,7 +249,7 @@ void ManageTextureScreen::CallBack( Fl_Widget * w )
         if( m_SelectedTexItem )
         {
             vector< Geom* > select_vec = veh->GetActiveGeomPtrVec();
-            select_vec[0]->m_GuiDraw.getTextures()->RemoveTexture( m_SelectedTexItem->TexInfo->GetID() );
+            select_vec[0]->m_GuiDraw.getTextureMgr()->RemoveTexture( m_SelectedTexItem->TexInfo->GetID() );
 
             ResetCurrentSelected();
         }

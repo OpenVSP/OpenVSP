@@ -75,19 +75,19 @@ public:
 };
 
 /*!
-* Textures class manages textures in geometry.
+* This class manages textures in geometry.
 */
-class Textures
+class TextureMgr
 {
 public:
     /*!
-    * Construct a Textures Object.
+    * Construct a TextureMgr Object.
     */
-    Textures();
+    TextureMgr();
     /*!
     * Destructor.
     */
-    virtual ~Textures();
+    virtual ~TextureMgr();
 
 public:
     /*!
