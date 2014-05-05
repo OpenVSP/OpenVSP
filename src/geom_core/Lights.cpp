@@ -20,11 +20,14 @@ Light::~Light()
 
 void Light::ParmChanged( Parm* parm_ptr, int type )
 {
-    Vehicle* vPtr = VehicleMgr::getInstance().GetVehicle();
-    if ( vPtr )
-        vPtr->ParmChanged( parm_ptr, Parm::SET );
-}
+    if ( type == Parm::SET )
+    {
+        m_LateUpdateFlag = true;
+        return;
+    }
 
+    VehicleMgr::getInstance().GetVehicle()->ParmChanged( parm_ptr, type );
+}
 
 Lights::Lights()
 {

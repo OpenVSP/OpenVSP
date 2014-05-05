@@ -55,9 +55,7 @@ void Texture::Rename( std::string name )
 
 void Texture::ParmChanged( Parm* parm_ptr, int type )
 {
-    Vehicle* vPtr = VehicleMgr::getInstance().GetVehicle();
-    if ( vPtr )
-        vPtr->ParmChanged( parm_ptr, Parm::SET );
+    VehicleMgr::getInstance().GetVehicle()->ParmChanged( parm_ptr, type );
 }
 
 
