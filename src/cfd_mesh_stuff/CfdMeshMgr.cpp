@@ -1060,7 +1060,7 @@ void CfdMeshMgrSingleton::ReadSurfs( const string &filename )
     if ( file_id )
     {
         char buff[256];
-        int comp_id, num_surfs;
+        int num_surfs;
         char geom_id[20];
 
         fgets( buff, 256, file_id );
@@ -1151,13 +1151,13 @@ void CfdMeshMgrSingleton::BuildDomain()
     //==== Bump up ID's for 'normal' components & add far field surfs ====//
     if ( inc > 0 )
     {
-        for ( int i = 0 ; i < m_SurfVec.size() ; i++ )
+        for ( int i = 0 ; i < (int)m_SurfVec.size() ; i++ )
         {
             m_SurfVec[i]->SetCompID( m_SurfVec[i]->GetCompID() + inc );
             m_SurfVec[i]->SetSurfID( m_SurfVec[i]->GetSurfID() + inc );
         }
 
-        for ( int i = 0 ; i < FFBox.size() ; i++ )
+        for ( int i = 0 ; i < (int)FFBox.size() ; i++ )
         {
             m_SurfVec.push_back( FFBox[i] );
         }
@@ -1169,7 +1169,7 @@ void CfdMeshMgrSingleton::BuildDomain()
     {
         if ( m_FarCompFlag )
         {
-            for ( int i = 0 ; i < m_SurfVec.size() ; i++ )
+            for ( int i = 0 ; i < (int)m_SurfVec.size() ; i++ )
             {
                 if ( m_SurfVec[i]->GetGeomID() == m_FarGeomID )
                 {
@@ -2426,7 +2426,7 @@ vector< Surf* > CfdMeshMgrSingleton::CreateDomainSurfs()
 
     vector < vector < vec3d > > cpVec;
     cpVec.resize( 4 );
-    for ( int j = 0 ; j < cpVec.size() ; j++ )
+    for ( int j = 0 ; j < (int)cpVec.size() ; j++ )
     {
         cpVec[j].resize( 4 );
     }

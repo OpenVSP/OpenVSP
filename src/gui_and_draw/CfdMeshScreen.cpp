@@ -148,7 +148,6 @@ void CfdMeshScreen::Show()
 bool CfdMeshScreen::Update()
 {
     int i;
-    char str[256];
 
     CfdMeshMgr.UpdateDomain();
 
@@ -482,7 +481,7 @@ void CfdMeshScreen::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 string CfdMeshScreen::truncateFileName( const string &fn, int len )
 {
     string trunc( fn );
-    if ( trunc.length() > len )
+    if ( (int)trunc.length() > len )
     {
         trunc.erase( 0, trunc.length() - len );
         trunc.replace( 0, 3, "..." );
@@ -536,7 +535,7 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
         // Hide all geoms.
         Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
         vector<string> geomIds = veh->GetGeomVec();
-        for( int i = 0; i < geomIds.size(); i++ )
+        for( int i = 0; i < (int)geomIds.size(); i++ )
         {
             GeomBase* gPtr = veh->FindGeom( geomIds[i] );
             gPtr->m_GuiDraw.SetNoShowFlag( true );

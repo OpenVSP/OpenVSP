@@ -176,9 +176,9 @@ void WingDriverGroup::UpdateGroup( vector< string > parmIDs )
 bool WingDriverGroup::ValidDrivers( vector< int > choices )
 {
     // Check for duplicate selections.
-    for( int i = 0; i < choices.size() - 1; i++ )
+    for( int i = 0; i < (int)choices.size() - 1; i++ )
     {
-        for( int j = i + 1; j < choices.size(); j++ )
+        for( int j = i + 1; j < (int)choices.size(); j++ )
         {
             if( choices[i] == choices[j] )
             {

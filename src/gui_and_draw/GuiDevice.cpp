@@ -2278,7 +2278,7 @@ void SkinOutput::Update( int contL, int order, int contR )
     m_contL = ContStr(contL);
     m_ContLOutput->value( m_contL.c_str() );
 
-    m_order = std::to_string( order );
+    m_order = std::to_string( (long long) order );
     m_OrderOutput->value( m_order.c_str() );
 
     m_contR = ContStr(contR);
@@ -2297,7 +2297,7 @@ void SkinOutput::Activate()
     assert( m_ContROutput );
     m_ContROutput->activate();
 
-    for( int i = 0; i < m_Buttons.size(); i++ )
+    for( int i = 0; i < (int)m_Buttons.size(); i++ )
     {
         assert( m_Buttons[i] );
         m_Buttons[i]->activate();
@@ -2315,7 +2315,7 @@ void SkinOutput::Deactivate()
     assert( m_ContROutput );
     m_ContROutput->deactivate();
 
-    for( int i = 0; i < m_Buttons.size(); i++ )
+    for( int i = 0; i < (int)m_Buttons.size(); i++ )
     {
         assert( m_Buttons[i] );
         m_Buttons[i]->deactivate();
@@ -2405,7 +2405,6 @@ void GeomPicker::Deactivate()
 void GeomPicker::Update( )
 {
     int i;
-    char str[256];
 
     //==== Load Geom Choice ====//
     m_GeomVec = m_Vehicle->GetGeomVec();

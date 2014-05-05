@@ -528,7 +528,7 @@ bool FeaStructScreen::Update()
 string FeaStructScreen::truncateFileName( const string &fn, int len )
 {
     string trunc( fn );
-    if ( trunc.length() > len )
+    if ( (int)trunc.length() > len )
     {
         trunc.erase( 0, trunc.length() - len );
         trunc.replace( 0, 3, "..." );

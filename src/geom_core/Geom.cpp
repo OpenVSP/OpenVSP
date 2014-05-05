@@ -1057,7 +1057,7 @@ xmlNodePtr Geom::EncodeXml( xmlNodePtr & node )
     {
         XmlUtil::AddVectorBoolNode( geom_node, "Set_List", m_SetFlags );
 
-        for( int i = 0; i < sourceVec.size(); i++ )
+        for( int i = 0; i < (int)sourceVec.size(); i++ )
         {
             sourceVec[i]->EncodeXml( geom_node );
         }

@@ -649,7 +649,7 @@ void FileXSec::Update()
 
     double lenscale = 4.0/arclen.back();
 
-    for ( int i = 0; i < arclen.size(); i++ )
+    for ( int i = 0; i < (int)arclen.size(); i++ )
     {
         arclen[i] = arclen[i] * lenscale;
     }
