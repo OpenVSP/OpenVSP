@@ -1346,7 +1346,7 @@ void Surf::PlaneBorderCurveIntersect( Surf* surfPtr, SCurve* brdPtr )
     bool null_ICurve = false;
     if ( brdPtr->GetICurve() != NULL )
     {
-        for ( int j = 0 ; j < m_SCurveVec.size() ; j++ )
+        for ( int j = 0 ; j < (int)m_SCurveVec.size() ; j++ )
         {
             if ( brdPtr->GetICurve() == m_SCurveVec[j]->GetICurve() )
             {
@@ -1381,7 +1381,7 @@ void Surf::PlaneBorderCurveIntersect( Surf* surfPtr, SCurve* brdPtr )
             UWCrv_bordercurve.push_back( brdPtr->GetUWCrv().get_pnt( i ) );
         }
 
-        for ( int i = 0 ; i < UWCrv_bordercurve.size() ; i++ )
+        for ( int i = 0 ; i < (int)UWCrv_bordercurve.size() ; i++ )
         {
             vec3d pnt = surfPtr->CompPnt( UWCrv_bordercurve[i].x(), UWCrv_bordercurve[i].y() );
             vec2d uw = ClosestUW( pnt, m_MaxU / 2, m_MaxW / 2 );
@@ -1407,14 +1407,14 @@ void Surf::PlaneBorderCurveIntersect( Surf* surfPtr, SCurve* brdPtr )
         if ( !null_ICurve )
         {
             ICurveVecIndex = distance( ICurves.begin(), find( ICurves.begin(), ICurves.end(), obICurve ) );
-            if ( ICurveVecIndex < ICurves.size() )
+            if ( ICurveVecIndex < (int)ICurves.size() )
             {
                 CfdMeshMgr.SetICurveVec( brdPtr->GetICurve(), ICurveVecIndex );
             }
         }
         else
         {
-            for ( int i = 0 ; i < ICurves.size() ; i++ )
+            for ( int i = 0 ; i < (int)ICurves.size() ; i++ )
             {
                 if ( ICurves[i]->m_SCurve_A == brdPtr && ICurves[i]->m_SCurve_B == NULL )
                 {

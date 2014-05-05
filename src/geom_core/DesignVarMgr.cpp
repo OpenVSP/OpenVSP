@@ -390,7 +390,6 @@ void DesignVarMgrSingleton::ReadDesVarsXDDM( const string &newfile )
 
     //==== Read Xml File ====//
     xmlDocPtr doc;
-    xmlNodePtr node;
 
     LIBXML_TEST_VERSION
     xmlKeepBlanksDefault( 0 );

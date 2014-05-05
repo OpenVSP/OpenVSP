@@ -26,6 +26,12 @@ using namespace vsp;
 //==== Default Constructor ====//
 XSec::XSec( XSecCurve *xsc, bool use_left )
 {
+    if ( xsc == NULL )
+    {
+        //==== Create A Default Curve ====//
+        xsc = new XSecCurve();
+    }
+
     m_XSCurve = xsc;
 
     if ( m_XSCurve  )
@@ -290,8 +296,8 @@ void FuseXSec::Update()
 
     XSecSurf* xsecsurf = (XSecSurf*) GetParentContainerPtr();
 
-	Matrix4d mat;
-	xsecsurf->GetBasicTransformation( m_XSCurve->GetWidth(), mat );
+    Matrix4d mat;
+    xsecsurf->GetBasicTransformation( m_XSCurve->GetWidth(), mat );
 
     VspCurve baseCurve = GetUntransformedCurve();
 
@@ -375,7 +381,7 @@ StackXSec::StackXSec( XSecCurve *xsc, bool use_left ) : XSec( xsc, use_left)
 {
     m_Type = XSEC_STACK;
 
-    m_XDelta.Init( "XDelta", m_GroupName, this,  1.0, 0.0, 1.0e12 );
+    m_XDelta.Init( "XDelta", m_GroupName, this,  0.0, -1.0e12, 1.0e12 );
     m_XDelta.SetDescript( "X distance of cross section from prior cross section" );
     m_YDelta.Init( "YDelta", m_GroupName, this,  0.0, -1.0e12, 1.0e12 );
     m_YDelta.SetDescript( "Y distance of cross section from prior cross section" );
@@ -388,6 +394,15 @@ StackXSec::StackXSec( XSecCurve *xsc, bool use_left ) : XSec( xsc, use_left)
     m_YRotate.SetDescript( "Rotation about y-axis of cross section" );
     m_ZRotate.Init( "ZRotate", m_GroupName, this,  0.0, -180.0, 180.0 );
     m_YRotate.SetDescript( "Rotation about z-axis of cross section" );
+
+    m_XCenterRot.Init( "m_XCenterRot", m_GroupName, this,  0.0, -1.0e12, 1.0e12 );
+    m_XCenterRot.SetDescript( "X Center Of Rotation" );
+    m_YCenterRot.Init( "m_YCenterRot", m_GroupName, this,  0.0, -1.0e12, 1.0e12 );
+    m_YCenterRot.SetDescript( "Y Center Of Rotation" );
+    m_ZCenterRot.Init( "m_ZCenterRot", m_GroupName, this,  0.0, -1.0e12, 1.0e12 );
+    m_ZCenterRot.SetDescript( "Z Center Of Rotation" );
+
+
 }
 
 //==== Set Scale ====//
@@ -405,12 +420,12 @@ void StackXSec::Update()
     m_LateUpdateFlag = false;
 
     XSecSurf* xsecsurf = (XSecSurf*) GetParentContainerPtr();
-	int indx = xsecsurf->FindXSecIndex( m_ID );
+    int indx = xsecsurf->FindXSecIndex( m_ID );
 
     // apply the needed transformation to get section into body orientation
 
-	Matrix4d mat;
-	xsecsurf->GetBasicTransformation( m_XSCurve->GetWidth(), mat );
+    Matrix4d mat;
+    xsecsurf->GetBasicTransformation( m_XSCurve->GetWidth(), mat );
 
     VspCurve baseCurve = GetUntransformedCurve();
 
@@ -436,8 +451,15 @@ void StackXSec::Update()
     m_Transform.rotateY( m_YRotate() );
     m_Transform.rotateZ( m_ZRotate() );
 
+    m_TransformedCurve.OffsetX( m_XCenterRot() );
+    m_TransformedCurve.OffsetY( m_YCenterRot() );
+    m_TransformedCurve.OffsetZ( m_ZCenterRot() );
+
     m_TransformedCurve.Transform( m_Transform );
 
+    m_TransformedCurve.OffsetX( -m_XCenterRot() );
+    m_TransformedCurve.OffsetY( -m_YCenterRot() );
+    m_TransformedCurve.OffsetZ( -m_ZCenterRot() );
 
     if( indx < xsecsurf->NumXSec() - 1 )
     {

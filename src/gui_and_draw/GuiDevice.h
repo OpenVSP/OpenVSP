@@ -820,7 +820,7 @@ public:
 
     virtual void Init( VspScreen* screen, vector< vector < Fl_Button* > > buttons, vector< SliderAdjRangeInput* > sliders );
 
-    virtual void Update( );
+    virtual void Update( vector< string > & parm_ids );
     virtual void Activate();
     virtual void Deactivate();
 
@@ -848,7 +848,7 @@ protected:
 class SkinControl : public GuiDevice
 {
 public:
-	SkinControl( );
+    SkinControl( );
 
     virtual void DeviceCB( Fl_Widget *w );
 
@@ -891,7 +891,7 @@ class SkinOutput : public GuiDevice
 {
 public:
 
-	enum { C0, C1, C2, NONE };
+    enum { C0, C1, C2, NONE };
 
     SkinOutput();
     virtual void DeviceCB( Fl_Widget* w );

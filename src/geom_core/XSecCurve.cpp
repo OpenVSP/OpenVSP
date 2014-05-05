@@ -133,6 +133,19 @@ xmlNodePtr XSecCurve::EncodeXml(  xmlNodePtr & node  )
     return xsec_node;
 }
 
+//==== Copy From ====//
+void XSecCurve::CopyFrom( XSecCurve* from_crv )
+{
+    ParmMgr.ResetRemapID();
+    xmlNodePtr root = xmlNewNode( NULL, ( const xmlChar * )"Vsp_Geometry" );
+
+    from_crv->EncodeXml( root );
+    DecodeXml( root );
+
+    xmlFreeNode( root );
+    ParmMgr.ResetRemapID();
+}
+
 //==== Compute Area ====//
 double XSecCurve::ComputeArea( int num_pnts )
 {
@@ -630,7 +643,7 @@ void FileXSec::Update()
 
     double lenscale = 4.0/arclen.back();
 
-    for ( int i = 0; i < arclen.size(); i++ )
+    for ( int i = 0; i < (int)arclen.size(); i++ )
     {
         arclen[i] = arclen[i] * lenscale;
     }
