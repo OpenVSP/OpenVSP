@@ -33,13 +33,13 @@ XSec::XSec( XSecCurve *xsc, bool use_left )
         m_XSCurve->SetParentContainer( m_ID );
     }
 
-    m_rotation.loadIdentity();
-    m_center = false;
-
     m_Type = -1;
 
     m_GroupName = "XSec";
     m_GroupSuffix = -1;
+
+    m_SectTessU.Init( "SectTess_U", m_GroupName, this, 3, 2,  100 );
+    m_SectTessU.SetDescript( "Number of tessellated curves in the U direction for this section" );
 }
 
 //==== Destructor ====//
@@ -251,12 +251,6 @@ double XSec::ComputeArea( int num_pnts )
     curve.Tesselate( num_pnts, pnts );
     vec3d zero;
     return poly_area( pnts, zero );
-}
-
-void XSec::SetTransformation( const Matrix4d &mat, bool center )
-{
-    m_rotation = mat;
-    m_center = center;
 }
 
 //==========================================================================//

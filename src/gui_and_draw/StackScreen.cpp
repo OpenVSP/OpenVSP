@@ -27,9 +27,6 @@ StackScreen::StackScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 550, "Stack" 
 
     m_DesignLayout.SetGroupAndScreen( design_group, this );
     m_DesignLayout.AddDividerBox( "Design" );
-    m_DesignLayout.AddYGap();
-    m_DesignLayout.SetButtonWidth( 100 );
-    m_DesignLayout.AddSlider( m_NumPntsXSecSlider, "Num Pnts XSec", 33, "%5.0f" );
 
 
     Fl_Group* skin_tab = AddTab( "Skinning" );
@@ -132,6 +129,9 @@ StackScreen::StackScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 550, "Stack" 
 
     m_XSecLayout.SetFitWidthFlag( true );
     m_XSecLayout.SetSameLineFlag( false );
+
+    m_XSecLayout.AddYGap();
+    m_XSecLayout.AddSlider( m_SectUTessSlider, "Num U", 20, " %5.0f" );
 
     m_XSecLayout.SetButtonWidth( 50 );
     m_XSecLayout.AddSlider( m_XSecXDeltaSlider, "Delta X", 10.0, "%6.5f" );
@@ -323,6 +323,7 @@ bool StackScreen::Update()
     }
 
     GeomScreen::Update();
+    m_NumUSlider.Deactivate();
 
     StackGeom* stackgeom_ptr = dynamic_cast< StackGeom* >( geom_ptr );
     assert( stackgeom_ptr );
@@ -334,6 +335,7 @@ bool StackScreen::Update()
     StackXSec* xs = ( StackXSec* ) stackgeom_ptr->GetXSec( xsid );
     if ( xs )
     {
+        m_SectUTessSlider.Update( xs->m_SectTessU.GetID() );
         m_XSecXDeltaSlider.Update( xs->m_XDelta.GetID() );
         m_XSecYDeltaSlider.Update( xs->m_YDelta.GetID() );
         m_XSecZDeltaSlider.Update( xs->m_ZDelta.GetID() );
@@ -343,6 +345,7 @@ bool StackScreen::Update()
 
         if ( xsid == 0 )
         {
+            m_SectUTessSlider.Deactivate();
             m_XSecXDeltaSlider.Deactivate();
             m_XSecYDeltaSlider.Deactivate();
             m_XSecZDeltaSlider.Deactivate();
@@ -352,6 +355,7 @@ bool StackScreen::Update()
         }
         else
         {
+            m_SectUTessSlider.Activate();
             m_XSecXDeltaSlider.Activate();
             m_XSecYDeltaSlider.Activate();
             m_XSecZDeltaSlider.Activate();

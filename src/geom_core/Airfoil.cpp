@@ -25,7 +25,7 @@ Airfoil::Airfoil( ) : XSecCurve( )
 {
     m_Invert.Init( "Invert", m_GroupName, this, 0.0, 0.0, 1.0 );
     m_Chord.Init( "Chord", m_GroupName, this, 1.0, 0.0, 1.0e12 );
-    m_ThickChord.Init( "ThickChord", m_GroupName, this, 0.1, 0.0, 10 );
+    m_ThickChord.Init( "ThickChord", m_GroupName, this, 0.1, 0.0, 0.5 );
 }
 
 //==== Update ====//
@@ -137,7 +137,7 @@ SixSeries::SixSeries( ) : Airfoil( )
 {
     m_Type = XS_SIX_SERIES;
 
-    m_Series.Init( "Series", m_GroupName, this, 0, 0, NUM_SERIES );
+    m_Series.Init( "Series", m_GroupName, this, SERIES_63, SERIES_63, NUM_SERIES );
     m_IdealCl.Init( "IdealCl", m_GroupName, this, 0.0, 0.0, 1.0 );
     m_A.Init( "A", m_GroupName, this, 0.0, 0.0, 1.0 );
 
@@ -146,7 +146,6 @@ SixSeries::SixSeries( ) : Airfoil( )
 //==== Update ====//
 void SixSeries::Update()
 {
-#if 0
     //==== Run Six Series Fortran Generation Code ====//
     float cli = ( float )m_IdealCl();
     float ta = ( float )m_A();
@@ -169,21 +168,68 @@ void SixSeries::Update()
 
     //==== Load Points ====//
     vector< vec3d > pnts;
-    for ( int i = num_pnts_upper - 1 ; i >= 0 ; i-- )
+    for ( int i = num_pnts_lower - 1 ; i >= 0 ; i-- )
     {
-        pnts.push_back( vec3d( 0.0, sixpnts_.yyu[i], sixpnts_.xxu[i] ) );
+        pnts.push_back( vec3d( sixpnts_.xxl[i], sixpnts_.yyl[i], 0.0 ) );
     }
-    for ( int i = 1 ; i < num_pnts_lower ; i++ )
+    for ( int i = 1 ; i < num_pnts_upper - 1 ; i++ )
     {
-        pnts.push_back( vec3d( 0.0, sixpnts_.yyl[i], sixpnts_.xxl[i] ) );
+        pnts.push_back( vec3d( sixpnts_.xxu[i], sixpnts_.yyu[i], 0.0 ) );
     }
 
-    pnts = ScaleCheckInvert( pnts );
-    m_Curve.Interpolate( pnts, true );
-    m_Curve.UniformInterpolate( m_NumBasePnts, true );
+    //==== Close Trailing Edge - Set Last Points ====//
+    vec3d last_pnt = ( pnts[0] + pnts[pnts.size()-1] ) * 0.5;
+    pnts[0] = last_pnt;
+    pnts[pnts.size()-1] = last_pnt;
+
+    vector< double > arclen;
+    int npts = pnts.size();
+
+    int i;
+    for ( i = 0 ; i < npts ; i++ )
+    {
+        if ( i > 0 )
+        {
+            double ds = dist( pnts[i], pnts[i-1] );
+            if ( ds < 1e-8 )
+            {
+                ds = 1.0/npts;
+            }
+            arclen.push_back( arclen[i-1] + ds );
+        }
+        else
+        {
+            arclen.push_back( 0 );
+        }
+
+        // Calculate arclen to repeated final point.
+        if ( i == npts - 1 )
+        {
+            double ds = dist( pnts[i], pnts[0] );
+            if ( ds < 1e-8 )
+            {
+                ds = 1.0/npts;
+            }
+            arclen.push_back( arclen[i] + ds );
+        }
+    }
+
+    double lenscale = 4.0/arclen.back();
+
+    for ( int i = 0; i < arclen.size(); i++ )
+    {
+        arclen[i] = arclen[i] * lenscale;
+    }
+
+    m_Curve.InterpolatePCHIP( pnts, arclen, true );
+
+    Matrix4d mat;
+    mat.loadIdentity();
+    mat.scale( m_Chord() );
+
+    m_Curve.Transform( mat );
 
     Airfoil::Update();
-#endif
 }
 
 //===== Load Name And Number of 4 Series =====//
@@ -242,34 +288,61 @@ Biconvex::Biconvex( ) : Airfoil( )
 //==== Update ====//
 void Biconvex::Update()
 {
-#if 0
-    double x, xu, zu;
+    double x, xu, yu;
+
+    int nbase = 21;
+
     //==== Initialize Array For Points ====//
-    vector< vec3d > pnts( m_NumBasePnts );
-    int half_pnts = m_NumBasePnts / 2;
+    vector< vec3d > upnts( nbase );
+    vector< vec3d > lpnts( nbase );
 
     //==== Generate Airfoil ====//
-    for ( int i = 1 ; i < half_pnts ; i++ )
+    for ( int i = 0 ; i < nbase ; i++ )
     {
         //==== More Points At Leading Edge
-        x = ( double )i / ( double )half_pnts;
-        x = x * sqrt( x );
+        x = ( double )i / ( double )( nbase - 1 );
 
         //==== Compute Upper Surface Points ====//
         xu = x;
-        zu = 2.0 * m_ThickChord() * x * ( 1.0 - x );
-        pnts[half_pnts - i] = vec3d( 0.0, zu, xu );
+        yu = 2.0 * m_ThickChord() * x * ( 1.0 - x );
+        upnts[i] = vec3d( xu, yu, 0.0 );
 
         //==== Compute Lower Surface Points ====//
-        pnts[half_pnts + i] = vec3d( 0.0, -zu, xu );
+        lpnts[nbase - 1 - i] = vec3d( xu, -yu, 0.0 );
     }
 
-    pnts = ScaleCheckInvert( pnts );
-    m_Curve.Interpolate( pnts, true );
-    m_Curve.UniformInterpolate( m_NumBasePnts, true );
+    vector< double > uarclen( nbase );
+    vector< double > larclen( nbase );
+    uarclen[0] = 0.0;
+    larclen[0] = 0.0;
+    for ( int i = 1 ; i < nbase ; i++ )
+    {
+        uarclen[ i ] = uarclen[ i - 1 ] + dist( upnts[ i ], upnts[ i - 1 ] );
+        larclen[ i ] = larclen[ i - 1 ] + dist( lpnts[ i ], lpnts[ i - 1 ] );
+    }
+
+    double lenscale = 2.0 / uarclen.back();
+
+    for ( int i = 0 ; i < nbase ; i++ )
+    {
+        uarclen[ i ] = uarclen[ i ] * lenscale;
+        larclen[ i ] = larclen[ i ] * lenscale;
+    }
+
+    VspCurve upcrv;
+    upcrv.InterpolatePCHIP( upnts, uarclen, false );
+
+    m_Curve.InterpolatePCHIP( lpnts, larclen, false );
+
+    m_Curve.Append( upcrv );
+
+    Matrix4d mat;
+    mat.loadIdentity();
+    mat.scale( m_Chord() );
+
+    m_Curve.Transform( mat );
 
     Airfoil::Update();
-#endif
 }
 
 //==========================================================================//
@@ -354,7 +427,7 @@ void FileAirfoil::Update()
             double ds = dist( pnts[i], pnts[i-1] );
             if ( ds < 1e-8 )
             {
-                ds = 1/npts;
+                ds = 1.0/npts;
             }
             arclen.push_back( arclen[i-1] + ds );
         }
@@ -369,7 +442,7 @@ void FileAirfoil::Update()
             double ds = dist( pnts[i], pnts[0] );
             if ( ds < 1e-8 )
             {
-                ds = 1/npts;
+                ds = 1.0/npts;
             }
             arclen.push_back( arclen[i] + ds );
         }

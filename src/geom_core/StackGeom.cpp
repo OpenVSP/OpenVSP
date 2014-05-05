@@ -29,7 +29,8 @@ StackGeom::StackGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
 
     //==== Init Parms ====//
     m_TessU = 16;
-    m_TessW = 11;
+    m_TessW = 17;
+    m_TessW.SetMultShift( 8, 1 );
 
     m_ActiveXSec = 0;
 
@@ -89,6 +90,8 @@ void StackGeom::ChangeID( string id )
 //==== Update Fuselage And Cross Section Placement ====//
 void StackGeom::UpdateSurf()
 {
+    m_TessUVec.clear();
+
     //==== Cross Section Curves & joint info ====//
     vector< VspCurve > crv_vec;
     crv_vec.resize( m_XSecSurf.NumXSec() );
@@ -98,33 +101,38 @@ void StackGeom::UpdateSurf()
     {
         StackXSec* xs = ( StackXSec* ) m_XSecSurf.FindXSec( i );
 
-        if ( i == 0 )
-        {
-            xs->m_XDelta.SetLowerUpperLimits( 0.0, 0.0 );
-            xs->m_YDelta.SetLowerUpperLimits( 0.0, 0.0 );
-            xs->m_ZDelta.SetLowerUpperLimits( 0.0, 0.0 );
-
-            xs->m_XRotate.SetLowerUpperLimits( 0.0, 0.0 );
-            xs->m_YRotate.SetLowerUpperLimits( 0.0, 0.0 );
-            xs->m_ZRotate.SetLowerUpperLimits( 0.0, 0.0 );
-        }
-        else
-        {
-            xs->m_XDelta.SetLowerUpperLimits( 0.0, 1.0e12 );
-            xs->m_YDelta.SetLowerUpperLimits( -1.0e12, 1.0e12 );
-            xs->m_ZDelta.SetLowerUpperLimits( -1.0e12, 1.0e12 );
-
-            xs->m_XRotate.SetLowerUpperLimits( -180.0, 180.0 );
-            xs->m_YRotate.SetLowerUpperLimits( -180.0, 180.0 );
-            xs->m_ZRotate.SetLowerUpperLimits( -180.0, 180.0 );
-        }
-
         if ( xs )
         {
+            if ( i == 0 )
+            {
+                xs->m_XDelta.SetLowerUpperLimits( 0.0, 0.0 );
+                xs->m_YDelta.SetLowerUpperLimits( 0.0, 0.0 );
+                xs->m_ZDelta.SetLowerUpperLimits( 0.0, 0.0 );
+
+                xs->m_XRotate.SetLowerUpperLimits( 0.0, 0.0 );
+                xs->m_YRotate.SetLowerUpperLimits( 0.0, 0.0 );
+                xs->m_ZRotate.SetLowerUpperLimits( 0.0, 0.0 );
+            }
+            else
+            {
+                xs->m_XDelta.SetLowerUpperLimits( 0.0, 1.0e12 );
+                xs->m_YDelta.SetLowerUpperLimits( -1.0e12, 1.0e12 );
+                xs->m_ZDelta.SetLowerUpperLimits( -1.0e12, 1.0e12 );
+
+                xs->m_XRotate.SetLowerUpperLimits( -180.0, 180.0 );
+                xs->m_YRotate.SetLowerUpperLimits( -180.0, 180.0 );
+                xs->m_ZRotate.SetLowerUpperLimits( -180.0, 180.0 );
+            }
+
             //==== Reset Group Names ====//
             xs->SetGroupDisplaySuffix( i );
 
             crv_vec[i] =  xs->GetCurve();
+
+            if ( i > 0 )
+            {
+                m_TessUVec.push_back( xs->m_SectTessU() );
+            }
         }
     }
 
@@ -134,6 +142,12 @@ void StackGeom::UpdateSurf()
     {
         m_SurfVec[0].FlipNormal();
     }
+}
+
+
+void StackGeom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms )
+{
+    m_SurfVec[indx].Tesselate( m_TessUVec, m_TessW(), pnts, norms );
 }
 
 //==== Compute Rotation Center ====//

@@ -325,6 +325,38 @@ int IntParm::Set( int val )
     return ( int )( m_Val + 0.5 );
 }
 
+//=========================================================================//
+//=======================      LimIntParm      ============================//
+//=========================================================================//
+
+//==== Constructor ====//
+LimIntParm::LimIntParm() : IntParm()
+{
+    m_Type = PARM_LIMITED_INT_TYPE;
+
+    m_Shift = 0;
+    m_Mult = 1;
+}
+
+//==== Set Val And Check Limts ====//
+bool LimIntParm::SetValCheckLimits( double val )
+{
+    if ( !IntParm::SetValCheckLimits( val ) )
+    {
+        return false;
+    }
+
+    // Check that value obeys the limits.
+    m_Val = m_Mult * ceil( ( m_Val - m_Shift ) / m_Mult ) + m_Shift;
+
+    return true;
+}
+
+void LimIntParm::SetMultShift( int mult, int shift )
+{
+    m_Mult = mult;
+    m_Shift = shift;
+}
 
 //=========================================================================//
 //=======================        BoolParm       ============================//

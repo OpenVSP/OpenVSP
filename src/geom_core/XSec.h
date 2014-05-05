@@ -74,14 +74,9 @@ public:
 
     virtual double ComputeArea( int num_pnts );
 
-    void SetTransformation( const Matrix4d &mat, bool center );
-
-
+    IntParm m_SectTessU;
 
 protected:
-
-    Matrix4d m_rotation;
-    bool m_center;
 
     int m_Type;
 
