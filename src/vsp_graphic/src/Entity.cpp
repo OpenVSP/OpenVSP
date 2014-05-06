@@ -247,6 +247,15 @@ void Entity::_draw_Wire_EBuffer()
 
 void Entity::_draw_VBuffer()
 {
+    if( _getFacingCWFlag() )
+    {
+        glFrontFace(GL_CW);
+    }
+    else
+    {
+        glFrontFace(GL_CCW);
+    }
+
     switch( getPrimType() )
     {
     case Common::VSP_TRIANGLES:
@@ -257,10 +266,21 @@ void Entity::_draw_VBuffer()
         _vBuffer->draw( GL_QUADS );
         break;
     }
+
+    glFrontFace(GL_CCW);
 }
 
 void Entity::_draw_EBuffer()
 {
+    if( _getFacingCWFlag() )
+    {
+        glFrontFace(GL_CW);
+    }
+    else
+    {
+        glFrontFace(GL_CCW);
+    }
+
     switch( getPrimType() )
     {
     case Common::VSP_TRIANGLES:
@@ -275,5 +295,7 @@ void Entity::_draw_EBuffer()
         _eBuffer->unbind();
         break;
     }
+
+    glFrontFace(GL_CCW);
 }
 }
