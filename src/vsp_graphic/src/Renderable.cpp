@@ -26,6 +26,8 @@ Renderable::Renderable() : SceneObject()
     _lineWidth = _pointSize = _textSize = 1.0f;
 
     _cBufferFlag = _eBufferFlag = false;
+
+    _facingCWFlag = false;
 }
 Renderable::~Renderable()
 {
@@ -72,6 +74,11 @@ void Renderable::emptyCBuffer()
 void Renderable::enableCBuffer( bool enable )
 {
     _cBufferFlag = enable;
+}
+
+void Renderable::setFacingCW( bool flag )
+{
+    _facingCWFlag = flag;
 }
 
 void Renderable::setMeshColor( float r, float g, float b, float a )
@@ -168,6 +175,11 @@ bool Renderable::getEBufferFlag()
 bool Renderable::_getCBufferFlag()
 {
     return _cBufferFlag;
+}
+
+bool Renderable::_getFacingCWFlag()
+{
+    return _facingCWFlag;
 }
 
 Renderable::Color Renderable::_getMeshColor()

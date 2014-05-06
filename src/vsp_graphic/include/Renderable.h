@@ -72,6 +72,13 @@ public:
 
 public:
     /*!
+    * Define font and back facing polygons.  If  true, set facing to clock wise, else counter 
+    * clock wise.
+    */
+    void setFacingCW( bool flag );
+
+public:
+    /*!
     * Set mesh color.
     */
     void setMeshColor( float r, float g, float b, float a = 1.f );
@@ -149,6 +156,7 @@ protected:
 
 protected:
     bool _getCBufferFlag();
+    bool _getFacingCWFlag();
 
     Color _getMeshColor();
     Color _getLineColor();
@@ -180,6 +188,8 @@ private:
     float _lineWidth, _pointSize, _textSize;
 
     bool _eBufferFlag, _cBufferFlag;
+
+    bool _facingCWFlag;
 };
 }
 #endif
