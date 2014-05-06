@@ -869,6 +869,7 @@ void Geom::UpdateDrawObj()
     {
         UpdateTesselate( i, m_WireShadeDrawObj_vec[i].m_PntMesh, m_WireShadeDrawObj_vec[i].m_NormMesh );
         m_WireShadeDrawObj_vec[i].m_GeomChanged = true;
+        m_WireShadeDrawObj_vec[i].m_FlipNormals = m_SurfVec[i].GetFlipNormal();
     }
 
     //==== Bounding Box ====//
