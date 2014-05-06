@@ -219,6 +219,11 @@ public:
     bool m_GeomChanged;
 
     /*
+    * Flip Normals flag.  If true, Normals need to flip to the opposite direction.
+    */
+    bool m_FlipNormals;
+
+    /*
     * Desired Render type.
     * m_Type is set to VSP_POINTS by default.
     */
