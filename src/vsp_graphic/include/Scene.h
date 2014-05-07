@@ -104,6 +104,9 @@ public:
     virtual void draw();
 
 public:
+    /*!
+    * Any picking operation in session?
+    */
     bool isPickingEnabled();
 
 public:
