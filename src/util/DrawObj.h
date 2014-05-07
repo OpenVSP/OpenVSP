@@ -68,6 +68,7 @@ public:
         VSP_WIRE_TRIS,
         VSP_HIDDEN_TRIS,
         VSP_SHADED_TRIS,
+        VSP_HIDDEN_TRIS_CFD,
         VSP_SETTING,
         VSP_RULER,
         VSP_PICK_VERTEX,

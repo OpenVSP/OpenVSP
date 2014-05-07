@@ -498,6 +498,32 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
             }
             break;
 
+        case DrawObj::VSP_HIDDEN_TRIS_CFD:
+            if( id == 0xFFFFFFFF )
+            {
+                m_GEngine->getScene()->createObject( Common::VSP_OBJECT_CFD_ENTITY, &id );
+
+                ID idInfo;
+                idInfo.bufferID = id;
+                idInfo.geomID = objects[i]->m_GeomID;
+                m_ids.push_back( idInfo );
+            }
+            rObj = dynamic_cast<Renderable*> ( m_GEngine->getScene()->getObject( id ) );
+            if( rObj )
+            {
+                rObj->setVisibility( objects[i]->m_Visible );
+                rObj->setPrimType( Common::VSP_TRIANGLES );
+                rObj->setRenderStyle( Common::VSP_DRAW_WIRE_FRAME_SOLID );
+                rObj->setLineColor( red, green, blue );
+                rObj->setLineWidth( lineWidth );
+
+                if( objects[i]->m_GeomChanged )
+                {
+                    _loadTrisData( rObj, objects[i] );
+                }
+            }
+            break;
+
         case DrawObj::VSP_SHADED_MESH:
             if( id == 0xFFFFFFFF )
             {
