@@ -1532,7 +1532,9 @@ void VspGlWindow::OnKeydown()
 {
     switch( Fl::event_key() )
     {
-    case 'p':
+    // 'p'
+    case 0x50:
+    case 0x70:
         ManageGeomScreen * geomScreen = dynamic_cast<ManageGeomScreen *>
             ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_MANAGE_GEOM_SCREEN ) );
         if( geomScreen )
