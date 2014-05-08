@@ -29,6 +29,7 @@
 #include "CfdMeshScreen.h"
 #include "FeaStructScreen.h"
 #include "ManageLabelScreen.h"
+#include "ManageCORScreen.h"
 
 #include <time.h>
 #include <assert.h>
@@ -130,13 +131,14 @@ void ScreenMgr::Init()
     m_ScreenVec[VSP_CFD_MESH_SCREEN] = new CfdMeshScreen( this );
     m_ScreenVec[VSP_FEA_MESH_SCREEN] = new FeaStructScreen( this );
     m_ScreenVec[VSP_LABEL_SCREEN] = new ManageLabelScreen( this );
+    m_ScreenVec[VSP_COR_SCREEN] = new ManageCORScreen( this );
 
     m_ScreenVec[VSP_MAIN_SCREEN]->Show();
     m_ScreenVec[VSP_MANAGE_GEOM_SCREEN]->Show();
 
     for ( int i = 0 ; i < ( int )m_ScreenVec.size() ; i++ )
     {
-        if( i != VSP_MAIN_SCREEN )
+        if( i != VSP_MAIN_SCREEN && i != VSP_COR_SCREEN )
         {
             m_ScreenVec[i]->GetFlWindow()->set_non_modal();
         }
