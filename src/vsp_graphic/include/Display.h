@@ -165,6 +165,12 @@ public:
     */
     virtual void zoom( float zoomvalue );
 
+    /*!
+    * Set Center of Rotation.
+    * x, y, z - location in world space.
+    */
+    virtual void setCOR( float x, float y, float z );
+
 protected:
     std::vector<LayoutMgr *> _layoutList;
 

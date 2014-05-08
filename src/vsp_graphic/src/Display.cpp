@@ -192,6 +192,15 @@ void Display::zoom( float zoomvalue )
     }
 }
 
+void Display::setCOR( float x, float y, float z )
+{
+    Camera * camera = getCamera();
+    if( camera )
+    {
+        camera->setCOR( x, y, z );
+    }
+}
+
 void Display::selectViewport( int x, int y )
 {
     _currLayout->selectViewport( x, y );
