@@ -24,6 +24,7 @@
 #include "ManageLabelScreen.h"
 #include "ManageLightingScreen.h"
 #include "ManageGeomScreen.h"
+#include "ManageCORScreen.h"
 #include "Common.h"
 #include "GraphicSingletons.h"
 #include "SelectedPnt.h"
@@ -249,6 +250,13 @@ void VspGlWindow::update()
         if( geomScreen )
         {
             geomScreen->LoadDrawObjs( drawObjs );
+        }
+
+        ManageCORScreen * corScreen = dynamic_cast< ManageCORScreen* >
+            ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_COR_SCREEN ) );
+        if( corScreen )
+        {
+            corScreen->LoadDrawObjs( drawObjs );
         }
 
         // Load Objects to Renderer.
@@ -1242,6 +1250,28 @@ void VspGlWindow::OnPush( int x, int y )
                     // window back on focus so user can proceed without interruption.
                     focus(this);
                 }
+
+                ManageCORScreen * corScreen = dynamic_cast<ManageCORScreen*>
+                    ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_COR_SCREEN ) );
+
+                if( corScreen && corScreen->getFeedbackGroupName() == selectedFeedbackName )
+                {
+                    SelectedPnt * pnt = dynamic_cast<SelectedPnt*>( selected );
+                    if( pnt )
+                    {
+                        XSecEntity * xEntity = dynamic_cast<XSecEntity*>(pnt->getSource());
+                        if(xEntity)
+                        {
+                            glm::vec3 placement = xEntity->getVertexVec(pnt->getIndex());
+                            
+                            display->setCOR( -placement.x, -placement.y, -placement.z );
+                            display->center();
+
+                            // This is a dummy call to let corScreen know the job is done.
+                            corScreen->Set( vec3d( placement.x, placement.y, placement.z ) );
+                        }
+                    }
+                }
             }
             else if( mouseInWorld != glm::vec3( 0xFFFFFFFF ) && 
                 m_GEngine->getScene()->selectLocation( mouseInWorld.x, mouseInWorld.y, mouseInWorld.z ) )
@@ -1530,16 +1560,29 @@ void VspGlWindow::OnKeyup( int x, int y )
 
 void VspGlWindow::OnKeydown()
 {
+    ManageGeomScreen * geomScreen = NULL;
+    ManageCORScreen * corScreen = NULL;
+
     switch( Fl::event_key() )
     {
     // 'p'
     case 0x50:
     case 0x70:
-        ManageGeomScreen * geomScreen = dynamic_cast<ManageGeomScreen *>
+        geomScreen = dynamic_cast<ManageGeomScreen *>
             ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_MANAGE_GEOM_SCREEN ) );
         if( geomScreen )
         {
             geomScreen->TriggerPickSwitch();
+        }
+        break;
+
+    case 0x52:
+    case 0x72:
+        corScreen = dynamic_cast<ManageCORScreen *> 
+            ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_COR_SCREEN ) );
+        if( corScreen )
+        {
+            corScreen->EnableSelection();
         }
         break;
     }
