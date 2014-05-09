@@ -41,7 +41,6 @@ StackGeom.cpp
 Textures.cpp
 TMesh.cpp
 Vehicle.cpp
-VehicleGuiDraw.cpp
 VehicleMgr.cpp
 WingGeom.cpp
 XSec.cpp
@@ -73,7 +72,6 @@ SWIGDefines.h
 Textures.h
 TMesh.h
 Vehicle.h
-VehicleGuiDraw.h
 VehicleMgr.h
 WingGeom.h
 XSec.h
