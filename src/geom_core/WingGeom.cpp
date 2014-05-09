@@ -834,6 +834,8 @@ void WingGeom::UpdateSurf()
     vector< VspCurve > crv_vec;
     crv_vec.resize( m_XSecSurf.NumXSec() );
 
+    m_TessUVec.clear();
+
     //==== Compute Parameters For Each Section ====//
     double total_span = 0.0;
     double total_sweep_offset = 0.0;
@@ -906,6 +908,12 @@ void WingGeom::UpdateSurf()
             ws->m_YCenterRot = (0.5 - ws->m_TwistLoc())*ws->m_TipChord();
 
             crv_vec[i] =  ws->GetCurve();
+
+            if ( i > 0 )
+            {
+                m_TessUVec.push_back( ws->m_SectTessU() );
+            }
+
         }
     }
 
@@ -922,6 +930,11 @@ void WingGeom::UpdateSurf()
     m_TotalChord = ComputeTotalChord();
     m_TotalArea = ComputeTotalArea();
 
+}
+
+void WingGeom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms )
+{
+    m_SurfVec[indx].Tesselate( m_TessUVec, m_TessW(), pnts, norms );
 }
 
 //==== Get All WingSections ====//

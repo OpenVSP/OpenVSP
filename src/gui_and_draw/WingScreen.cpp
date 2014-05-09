@@ -71,9 +71,7 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 600, "Wing" )
     m_SectionLayout.SetButtonWidth( 74 );
 
     m_SectionLayout.AddDividerBox( "Num Interpolated XSecs" );
-
-    m_SectionLayout.AddSlider( m_NumWSectSlider, "Num Sect", 100, "%5.0f" );
-
+    m_SectionLayout.AddSlider( m_SectUTessSlider, "Num U", 20, " %5.0f" );
 
     m_SectionLayout.AddYGap();
 
@@ -373,6 +371,8 @@ bool WingScreen::Update()
 
     if ( wing_sect )
     {
+        m_SectUTessSlider.Update( wing_sect->m_SectTessU.GetID() );
+
         m_WingDriverGroupBank.SetDriverGroup( &wing_sect->m_DriverGroup );
         vector< string > parm_ids = wing_sect->GetDriverParms();
         wing_sect->m_DriverGroup.UpdateGroup( parm_ids );

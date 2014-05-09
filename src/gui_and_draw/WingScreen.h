@@ -54,7 +54,7 @@ protected:
     TriggerButton m_PasteSectButton;
     TriggerButton m_InsertSectButton;
 
-    SliderAdjRangeInput m_NumWSectSlider;
+    SliderInput m_SectUTessSlider;
 
     WingDriverGroup m_DefaultWingDriverGroup;
     DriverGroupBank m_WingDriverGroupBank;

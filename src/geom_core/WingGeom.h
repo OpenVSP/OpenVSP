@@ -152,6 +152,7 @@ protected:
 
     virtual void ChangeID( string id );
     virtual void UpdateSurf();
+    virtual void UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms );
     virtual void MatchWingSections();
 
     virtual double ComputeTotalSpan();
@@ -170,6 +171,8 @@ protected:
     int m_ActiveXSec;
     int m_ActiveAirfoil;
     XSecSurf m_XSecSurf;
+
+    vector<int> m_TessUVec;
 
     bool m_Closed;
 
