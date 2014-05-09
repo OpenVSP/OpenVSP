@@ -52,10 +52,7 @@ public:
         return m_XSCurve;
     }
 
-    virtual void SetXSecCurve( XSecCurve* xs_crv )
-    {
-        m_XSCurve = xs_crv;
-    }
+    virtual void SetXSecCurve( XSecCurve* xs_crv );
 
     virtual int  GetType()
     {

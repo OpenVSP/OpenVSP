@@ -143,6 +143,15 @@ VspCurve& XSec::GetUntransformedCurve()
     return m_XSCurve->GetCurve();
 }
 
+void XSec::SetXSecCurve( XSecCurve* xs_crv )
+{
+    if ( m_XSCurve )
+        delete m_XSCurve;
+
+    m_XSCurve = xs_crv;
+    m_XSCurve->SetParentContainer( m_ID );
+}
+
 //==== Look Though All Parms and Load Linkable Ones ===//
 void XSec::AddLinkableParms( vector< string > & parm_vec, const string & link_container_id )
 {
