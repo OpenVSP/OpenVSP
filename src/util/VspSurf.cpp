@@ -2072,7 +2072,7 @@ void VspSurf::WriteBezFile( FILE* file_id, const std::string &geom_id )
 
     int num_sections = ( split_u.size() - 1 ) * ( split_w.size() - 1 );
 
-    fprintf( file_id, "0 Component\n" );
+	fprintf( file_id, "%s Component\n", geom_id.c_str() );
     fprintf( file_id, "%d  Num_Sections\n", num_sections );
 
     for ( int iu = 0 ; iu < ( int )split_u.size() - 1 ; iu++ )
