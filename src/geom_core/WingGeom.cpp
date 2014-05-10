@@ -544,6 +544,7 @@ WingGeom::WingGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_TessW = 31;
     m_ActiveXSec = 1;
     m_ActiveAirfoil = 0;
+    m_SymPlanFlag = SYM_XZ;
 
     //==== Wing XSecs ====//
     m_XSecSurf.SetXSecType( XSEC_WING );
