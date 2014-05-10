@@ -349,6 +349,7 @@ bool WingScreen::Update()
     }
 
     GeomScreen::Update();
+    m_NumUSlider.Deactivate();
 
     WingGeom* wing_ptr = dynamic_cast< WingGeom* >( geom_ptr );
     assert( wing_ptr );
