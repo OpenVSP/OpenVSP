@@ -516,7 +516,7 @@ WingGeom::WingGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_Closed = false;
 
     m_XSecSurf.SetParentContainer( GetID() );
-    m_XSecSurf.SetBasicOrientation( vsp::X_DIR, Y_DIR, XS_SHIFT_MID, false );
+    m_XSecSurf.SetBasicOrientation( vsp::Y_DIR, X_DIR, XS_SHIFT_MID, true );
 
     m_RelativeDihedralFlag.Init("RelativeDihedralFlag", m_Name, this, 0, 0, 1, false );
     m_RelativeDihedralFlag.SetDescript( "Relative or Absolute Dihedral" );
@@ -900,12 +900,12 @@ void WingGeom::UpdateSurf()
             }
 
             //==== Load Transformations =====//
-            ws->m_XDelta = total_span;
-            ws->m_YDelta = total_sweep_offset + global_y_offset;
+            ws->m_YDelta = total_span;
+            ws->m_XDelta = total_sweep_offset + global_y_offset;
             ws->m_ZDelta = total_dihed_offset;
-            ws->m_XRotate = -total_twist;
-            ws->m_YRotate = dihead_rot;
-            ws->m_YCenterRot = (0.5 - ws->m_TwistLoc())*ws->m_TipChord();
+            ws->m_YRotate = total_twist;
+            ws->m_XRotate = dihead_rot;
+            ws->m_XCenterRot = (0.5 - ws->m_TwistLoc())*ws->m_TipChord();
 
             crv_vec[i] =  ws->GetCurve();
 
