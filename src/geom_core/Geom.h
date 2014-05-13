@@ -293,7 +293,7 @@ public:
     virtual void Update();
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
-    virtual void SetColor( int r, int g, int b )                {}
+    virtual void SetColor( int r, int g, int b );
 
     virtual bool GetSetFlag( int index );
     virtual vector< bool > GetSetFlags()

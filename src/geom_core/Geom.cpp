@@ -1039,6 +1039,11 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     }
 }
 
+void Geom::SetColor( int r, int g, int b )
+{
+    m_GuiDraw.SetWireColor( r, g, b );
+}
+
 //==== Set Sym Flag ====//
 int Geom::GetSymFlag()
 {
