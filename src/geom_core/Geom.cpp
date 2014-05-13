@@ -786,7 +786,7 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomTexMap( vehicle_ptr )
     m_ShellFlag.Init( "Shell_Flag", "Mass_Props", this, false, 0, 1 );
 
     // Geom needs at least one surf
-    m_SurfVec.push_back( VspSurf() );
+    m_MainSurfVec.push_back( VspSurf() );
 
     currSourceID = 0;
 
@@ -881,9 +881,6 @@ void Geom::Update()
     Scale();
     GeomXForm::Update();
 
-    int num_surf = GetNumTotalSurfs();
-    m_SurfVec.resize( num_surf, VspSurf() );
-
     UpdateSurf();       // Must be implemented by subclass.
     UpdateSymmAttach();
     UpdateChildren();
@@ -901,6 +898,14 @@ void Geom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< v
 void Geom::UpdateSymmAttach()
 {
     int num_surf = GetNumTotalSurfs();
+    m_SurfVec.clear();
+    m_SurfVec.resize( num_surf, VspSurf() );
+
+    int num_main = GetNumMainSurfs();
+    for ( int i = 0 ; i < ( int )num_main ; i++ )
+    {
+        m_SurfVec[i] = m_MainSurfVec[i];
+    }
 
     vector<Matrix4d> transMats;
     transMats.resize( num_surf, Matrix4d() );

@@ -404,7 +404,10 @@ public:
     {
         surf_vec = m_SurfVec;
     }
-    virtual int GetNumMainSurfs() = 0;
+    virtual int GetNumMainSurfs()
+    {
+        return m_MainSurfVec.size();
+    }
     virtual int GetNumSymFlags();
     virtual int GetNumTotalSurfs();
 
@@ -531,6 +534,7 @@ protected:
 
     virtual void UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms );
 
+    vector<VspSurf> m_MainSurfVec;
     vector<VspSurf> m_SurfVec;
     vector<DrawObj> m_WireShadeDrawObj_vec;
     DrawObj m_HighlightDrawObj;

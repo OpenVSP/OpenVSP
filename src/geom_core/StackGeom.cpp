@@ -137,10 +137,10 @@ void StackGeom::UpdateSurf()
     }
 
 
-    m_SurfVec[0].InterpolateLinear( crv_vec, false );
+    m_MainSurfVec[0].InterpolateLinear( crv_vec, false );
     if ( m_XSecSurf.GetFlipUD() )
     {
-        m_SurfVec[0].FlipNormal();
+        m_MainSurfVec[0].FlipNormal();
     }
 }
 
@@ -327,7 +327,7 @@ void StackGeom::LoadDragFactors( DragFactors& drag_factors )
 
 void StackGeom::GetJointParams( int joint, VspJointInfo &jointInfo ) const
 {
-    m_SurfVec[0].CompJointParams( joint, jointInfo );
+    m_MainSurfVec[0].CompJointParams( joint, jointInfo );
 }
 
 bool StackGeom::IsClosed() const

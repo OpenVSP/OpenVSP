@@ -25,11 +25,6 @@ public:
     StackGeom( Vehicle* vehicle_ptr );
     virtual ~StackGeom();
 
-    virtual int GetNumMainSurfs()
-    {
-        return 1;
-    }
-
     virtual void ComputeCenter();
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );

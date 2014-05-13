@@ -162,11 +162,6 @@ protected:
     vector< XSecSurf* > m_XSecSurfVec;
 
     virtual void UpdateSurf();
-    virtual int GetNumMainSurfs()
-    {
-        return 1;
-    }
-
 };
 
 

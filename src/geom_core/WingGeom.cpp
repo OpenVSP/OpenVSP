@@ -919,10 +919,10 @@ void WingGeom::UpdateSurf()
     }
 
 
-    m_SurfVec[0].InterpolateLinear( crv_vec, false );
+    m_MainSurfVec[0].InterpolateLinear( crv_vec, false );
     if ( m_XSecSurf.GetFlipUD() )
     {
-        m_SurfVec[0].FlipNormal();
+        m_MainSurfVec[0].FlipNormal();
     }
 
     //==== Load Totals ====//

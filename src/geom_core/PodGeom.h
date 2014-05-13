@@ -22,11 +22,6 @@ public:
     PodGeom( Vehicle* vehicle_ptr );
     virtual ~PodGeom();
 
-    virtual int GetNumMainSurfs()
-    {
-        return 1;
-    }
-
     virtual void ComputeCenter();
     virtual void Scale();
 
