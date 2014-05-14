@@ -2063,9 +2063,9 @@ void VspSurf::WriteBezFile( FILE* file_id, const std::string &geom_id )
     split_u.push_back( 0 );
     split_w.push_back( 0 );
 
-    split_w.push_back( ( nvpts - 1 ) / 4 );
-    split_w.push_back( ( nvpts - 1 ) / 2 );
-    split_w.push_back( 3 * ( nvpts - 1 ) / 4 );
+    split_w.push_back( 3 * round( (( nvpts - 1 ) / 4 ) / 3 ) );
+    split_w.push_back( 3 * round( (( nvpts - 1 ) / 2 ) / 3 ) );
+    split_w.push_back( 3 * round( (3 * ( nvpts - 1 ) / 4 ) / 3 ) );
 
     split_u.push_back( nupts - 1 );
     split_w.push_back( nvpts - 1 );
