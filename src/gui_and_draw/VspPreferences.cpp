@@ -17,32 +17,34 @@ VspPreferences::VspPreferences()
         fprintf( stderr, "empty document\n" );
         xmlFreeDoc( doc );
     }
-
-    mat_root = XmlUtil::GetNode( root, "Vsp_Material_Defines", 0 );
-
-    int numOfMats = XmlUtil::GetNumNames( mat_root, "Material" );
-    for( int i = 0; i < numOfMats; i++ )
+    else
     {
-        MaterialPref mat;
+        mat_root = XmlUtil::GetNode( root, "Vsp_Material_Defines", 0 );
 
-        xmlNodePtr mat_node = XmlUtil::GetNode( mat_root, "Material", i );
+        int numOfMats = XmlUtil::GetNumNames( mat_root, "Material" );
+        for( int i = 0; i < numOfMats; i++ )
+        {
+            MaterialPref mat;
 
-        xmlNodePtr nam_node = XmlUtil::GetNode( mat_node, "Name", 0 );
-        xmlNodePtr amb_node = XmlUtil::GetNode( mat_node, "Ambient", 0 );
-        xmlNodePtr dif_node = XmlUtil::GetNode( mat_node, "Diffuse", 0 );
-        xmlNodePtr spe_node = XmlUtil::GetNode( mat_node, "Specular", 0 );
-        xmlNodePtr emi_node = XmlUtil::GetNode( mat_node, "Emission", 0 );
-        xmlNodePtr shi_node = XmlUtil::GetNode( mat_node, "Shininess", 0 );
+            xmlNodePtr mat_node = XmlUtil::GetNode( mat_root, "Material", i );
+
+            xmlNodePtr nam_node = XmlUtil::GetNode( mat_node, "Name", 0 );
+            xmlNodePtr amb_node = XmlUtil::GetNode( mat_node, "Ambient", 0 );
+            xmlNodePtr dif_node = XmlUtil::GetNode( mat_node, "Diffuse", 0 );
+            xmlNodePtr spe_node = XmlUtil::GetNode( mat_node, "Specular", 0 );
+            xmlNodePtr emi_node = XmlUtil::GetNode( mat_node, "Emission", 0 );
+            xmlNodePtr shi_node = XmlUtil::GetNode( mat_node, "Shininess", 0 );
         
-        mat.name = XmlUtil::ExtractString( nam_node );
-        mat.shininess = XmlUtil::ExtractDouble( shi_node );
+            mat.name = XmlUtil::ExtractString( nam_node );
+            mat.shininess = XmlUtil::ExtractDouble( shi_node );
 
-        XmlUtil::ExtractDoubleArray( amb_node, ',', &mat.ambi[0], 4 );
-        XmlUtil::ExtractDoubleArray( dif_node, ',', &mat.diff[0], 4 );
-        XmlUtil::ExtractDoubleArray( spe_node, ',', &mat.spec[0], 4 );
-        XmlUtil::ExtractDoubleArray( emi_node, ',', &mat.emis[0], 4 );
-        
-        m_MaterialPrefs.push_back( mat );
+            XmlUtil::ExtractDoubleArray( amb_node, ',', &mat.ambi[0], 4 );
+            XmlUtil::ExtractDoubleArray( dif_node, ',', &mat.diff[0], 4 );
+            XmlUtil::ExtractDoubleArray( spe_node, ',', &mat.spec[0], 4 );
+            XmlUtil::ExtractDoubleArray( emi_node, ',', &mat.emis[0], 4 );
+
+            m_MaterialPrefs.push_back( mat );
+        }
     }
 }
 VspPreferences::~VspPreferences()
