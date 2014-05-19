@@ -2,12 +2,12 @@
 #define _VSP_GRAPHIC_ENTITY_OBJECT_H
 
 #include "Renderable.h"
+#include "Material.h"
+#include "TextureMgr.h"
 
 namespace VSPGraphic
 {
 class Lighting;
-class Material;
-class TextureMgr;
 
 /*!
 * This class represents a single geometry with surfaces in scene.
@@ -39,6 +39,15 @@ public:
     * Set Material.
     */
     void setMaterial( Material * material );
+    /*!
+    * Set Material.
+    * ambi - Ambient value.
+    * diff - Diffuse value.
+    * spec - Specular value.
+    * emis - Emission value.
+    * shin - Shininess.
+    */
+    void setMaterial( float ambi[], float diff[], float spec[], float emis[], float shin );
 
 public:
     /*!
@@ -46,7 +55,7 @@ public:
     */
     TextureMgr * getTextureMgr()
     {
-        return _textureMgr;
+        return &_textureMgr;
     }
 
 protected:
@@ -96,13 +105,10 @@ protected:
     void _draw_Wire( float r, float g, float b, float a = 1.f, float lineWidth = 0.f );
 
 protected:
-    Material * _material;
     Lighting * _lighting;
 
-    TextureMgr * _textureMgr;
-
-private:
-    Material * _getDefaultMaterial();
+    Material _material;
+    TextureMgr _textureMgr;
 
 private:
     void _draw_Mesh_VBuffer();
