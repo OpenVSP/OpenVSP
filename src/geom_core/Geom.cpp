@@ -56,7 +56,7 @@ GeomGuiDraw::GeomGuiDraw()
     m_DrawType = GEOM_DRAW_WIRE;
     m_NoShowFlag = false;
     m_DisplayChildrenFlag = true;
-    m_WireColor = vec3d( 0.0, 0.0, 1.0 );
+    m_WireColor = vec3d( 0.0, 0.0, 255.0 );
     m_MaterialID = 0;
 
 }
@@ -1014,16 +1014,21 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
         m_WireShadeDrawObj_vec[i].m_MaterialInfo.Shininess = material->m_Shininess.Get();
 
+        vec3d lineColor = vec3d( m_GuiDraw.GetWireColor().x() / 255.0,
+            m_GuiDraw.GetWireColor().y() / 255.0,
+            m_GuiDraw.GetWireColor().z() / 255.0 );
+
         switch( m_GuiDraw.GetDrawType() )
         {
         case GeomGuiDraw::GEOM_DRAW_WIRE:
             m_WireShadeDrawObj_vec[i].m_LineWidth = 1.0;
-            m_WireShadeDrawObj_vec[i].m_LineColor = m_GuiDraw.GetWireColor();
+            m_WireShadeDrawObj_vec[i].m_LineColor = lineColor;
             m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_MESH;
             draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
             break;
 
         case GeomGuiDraw::GEOM_DRAW_HIDDEN:
+            m_WireShadeDrawObj_vec[i].m_LineColor = lineColor;
             m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_HIDDEN_MESH;
             draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
             break;
@@ -1070,7 +1075,7 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
 void Geom::SetColor( int r, int g, int b )
 {
-    m_GuiDraw.SetWireColor( r / 255.0, g / 255.0, b / 255.0 );
+    m_GuiDraw.SetWireColor( r, g, b );
 }
 
 vec3d Geom::GetColor()

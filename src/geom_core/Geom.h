@@ -88,9 +88,10 @@ public:
     {
         m_WireColor.set_xyz( r, g, b );
     }
+
     vec3d GetWireColor( )
     {
-        return vec3d( m_WireColor.x() * 255.0, m_WireColor.y() * 255.0, m_WireColor.z() * 255.0 );
+        return m_WireColor;
     }
 
     void SetMaterial( std::string name, double ambi[], double diff[], double spec[], double emis[], double shin );
