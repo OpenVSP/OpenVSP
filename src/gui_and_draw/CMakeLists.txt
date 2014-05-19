@@ -63,6 +63,7 @@ ManageViewScreen.cpp
 ManageBackgroundScreen.cpp
 ManageLabelScreen.cpp
 ManageCORScreen.cpp
+VspPreferences.cpp
 AwaveScreen.h
 BlankScreen.h
 CfdMeshScreen.h
@@ -106,6 +107,7 @@ ManageViewScreen.h
 ManageBackgroundScreen.h
 ManageLabelScreen.h
 ManageCORScreen.h
+VspPreferences.h
 )
 
 ADD_DEPENDENCIES(gui_and_draw
