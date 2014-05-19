@@ -418,7 +418,23 @@ bool GeomScreen::Update()
     //==== Name ===//
     m_NameInput.Update(  geom_ptr->GetName() );
 
+    //==== Color ====//
     m_ColorPicker.Update( geom_ptr->GetColor() );
+
+    //==== Material ====//
+    Material mat = geom_ptr->GetMaterial();
+
+    m_MaterialChoice.SetVal( 0 );
+
+    std::vector< std::string > choices = m_MaterialChoice.GetItems();
+    for ( int i = 0; i < (int)choices.size(); i++ )
+    {
+        if( mat.m_Name == choices[i] )
+        {
+            m_MaterialChoice.SetVal(i);
+            break;
+        }
+    }
 
     //==== XForms ====//
     m_ScaleSlider.Update( geom_ptr->m_Scale.GetID() );

@@ -1088,6 +1088,11 @@ void Geom::SetMaterial( std::string name, double ambi[], double diff[], double s
     m_GuiDraw.SetMaterial( name, ambi, diff, spec, emis, shin );
 }
 
+Material Geom::GetMaterial()
+{
+    return *m_GuiDraw.getMaterialMgr()->getMaterial();
+}
+
 //==== Set Sym Flag ====//
 int Geom::GetSymFlag()
 {
