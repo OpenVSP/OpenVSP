@@ -11,6 +11,7 @@
 #include "ScreenMgr.h"
 #include "ParmMgr.h"
 #include "APIDefines.h"
+#include "VspPreferences.h"
 using namespace vsp;
 
 
@@ -222,7 +223,14 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_GenLayout.AddColorPicker( m_ColorPicker );
     m_GenLayout.AddYGap();
 
+    std::vector<VspPreferences::MaterialPref> materials;
+    materials = VspPreferences::getInstance().getMaterialPrefs();
+
     m_MaterialChoice.AddItem( "DEFAULT" );
+    for( int i = 0; i < (int) materials.size(); i++ )
+    {
+        m_MaterialChoice.AddItem( materials[i].name );
+    }
     m_GenLayout.AddChoice( m_MaterialChoice, "Material:" );
     m_GenLayout.AddYGap();
 
@@ -410,6 +418,8 @@ bool GeomScreen::Update()
     //==== Name ===//
     m_NameInput.Update(  geom_ptr->GetName() );
 
+    m_ColorPicker.Update( geom_ptr->GetColor() );
+
     //==== XForms ====//
     m_ScaleSlider.Update( geom_ptr->m_Scale.GetID() );
 
@@ -500,6 +510,17 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         vec3d c = m_ColorPicker.GetColor();
         geom_ptr->SetColor( ( int )c.x(), ( int )c.y(), ( int )c.z() );
+    }
+    else if ( device == &m_MaterialChoice )
+    {
+        int index = m_MaterialChoice.GetVal() - 1;
+
+        VspPreferences::MaterialPref mat;
+
+        if( VspPreferences::getInstance().findMaterialPref( index, mat ) )
+        {
+            geom_ptr->SetMaterial( mat.name, mat.ambi, mat.diff, mat.spec, mat.emis, mat.shininess );
+        }
     }
     else if ( device == &m_ScaleAcceptButton )
     {
