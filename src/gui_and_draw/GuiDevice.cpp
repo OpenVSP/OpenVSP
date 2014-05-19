@@ -1833,7 +1833,7 @@ vec3d ColorPicker::GetIndexRGB( int index )
     }
     if ( index == 8 )
     {
-        return vec3d(   0, 128, 128 );
+        return vec3d( 0, 128, 128 );
     }
     if ( index == 9 )
     {
