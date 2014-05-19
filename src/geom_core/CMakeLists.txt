@@ -48,6 +48,8 @@ XSecCurve.cpp
 XSecSurf.cpp
 Labels.cpp
 Lights.cpp
+Material.cpp
+MaterialMgr.cpp
 Airfoil.h
 BlankGeom.h
 CustomGeom.h
@@ -79,5 +81,7 @@ XSecCurve.h
 XSecSurf.h
 Labels.h
 Lights.h
+Material.h
+MaterialMgr.h
 
 )
