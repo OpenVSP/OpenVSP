@@ -67,6 +67,11 @@ GeomGuiDraw::~GeomGuiDraw()
 
 }
 
+void GeomGuiDraw::SetMaterial( std::string name, double ambi[], double diff[], double spec[], double emis[], double shin )
+{
+    m_MaterialMgr.SetMaterial( name, ambi, diff, spec, emis, shin );
+}
+
 //===============================================================================//
 //===============================================================================//
 //===============================================================================//
@@ -985,6 +990,30 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         // Set Render Destination to Main VSP Window.
         m_WireShadeDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
 
+        Material * material = m_GuiDraw.getMaterialMgr()->getMaterial();
+
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[0] = material->m_AmbientR.Get();
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[1] = material->m_AmbientG.Get();
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[2] = material->m_AmbientB.Get();
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[3] = material->m_AmbientA.Get();
+
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[0] = material->m_DiffuseR.Get();
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[1] = material->m_DiffuseG.Get();
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[2] = material->m_DiffuseB.Get();
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[3] = material->m_DiffuseA.Get();
+
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[0] = material->m_SpecularR.Get();
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[1] = material->m_SpecularG.Get();
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[2] = material->m_SpecularB.Get();
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[3] = material->m_SpecularA.Get();
+
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[0] = material->m_EmissionR.Get();
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[1] = material->m_EmissionG.Get();
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[2] = material->m_EmissionB.Get();
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[3] = material->m_EmissionA.Get();
+
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Shininess = material->m_Shininess.Get();
+
         switch( m_GuiDraw.GetDrawType() )
         {
         case GeomGuiDraw::GEOM_DRAW_WIRE:
@@ -1042,6 +1071,16 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 void Geom::SetColor( int r, int g, int b )
 {
     m_GuiDraw.SetWireColor( r / 255.0, g / 255.0, b / 255.0 );
+}
+
+vec3d Geom::GetColor()
+{
+    return m_GuiDraw.GetWireColor();
+}
+
+void Geom::SetMaterial( std::string name, double ambi[], double diff[], double spec[], double emis[], double shin )
+{
+    m_GuiDraw.SetMaterial( name, ambi, diff, spec, emis, shin );
 }
 
 //==== Set Sym Flag ====//

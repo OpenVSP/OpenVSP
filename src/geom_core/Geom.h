@@ -23,6 +23,7 @@
 #include "GridDensity.h"
 #include "ResultsMgr.h"
 #include "Textures.h"
+#include "MaterialMgr.h"
 
 //#include "xmlvsp.h"
 
@@ -89,9 +90,10 @@ public:
     }
     vec3d GetWireColor( )
     {
-        return m_WireColor;
+        return vec3d( m_WireColor.x() * 255.0, m_WireColor.y() * 255.0, m_WireColor.z() * 255.0 );
     }
 
+    void SetMaterial( std::string name, double ambi[], double diff[], double spec[], double emis[], double shin );
     void SetMaterialID( int m )
     {
         m_MaterialID = m;
@@ -117,7 +119,10 @@ public:
     {
         return &m_TextureMgr;
     }
-
+    MaterialMgr * getMaterialMgr()
+    {
+        return &m_MaterialMgr;
+    }
 protected:
 
     int  m_DrawType;
@@ -129,6 +134,7 @@ protected:
     int m_MaterialID;
 
     TextureMgr m_TextureMgr;
+    MaterialMgr m_MaterialMgr;
 };
 
 //==== Geom Base ====//
@@ -294,6 +300,9 @@ public:
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
     virtual void SetColor( int r, int g, int b );
+    virtual vec3d GetColor();
+
+    virtual void SetMaterial( std::string name, double ambi[], double diff[], double spec[], double emis[], double shin );
 
     virtual bool GetSetFlag( int index );
     virtual vector< bool > GetSetFlags()
