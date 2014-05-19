@@ -2,6 +2,7 @@
 #define _VSP_PREFERENCES_LOADER__INCLUDE_
 
 #include <vector>
+#include <string>
 
 class VspPreferences
 {
