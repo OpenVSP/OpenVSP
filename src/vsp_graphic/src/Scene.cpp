@@ -396,7 +396,8 @@ void Scene::draw()
     for( int i = 0; i < (int)_sceneList.size(); i++ )
     {
         Entity * entity = dynamic_cast<Entity*>( _sceneList[i] );
-        if( entity && entity->isTransparent() && entity->getRenderStyle() == Common::VSP_DRAW_MESH_SHADED )
+        if( entity && entity->isTransparent() && 
+            ( entity->getRenderStyle() == Common::VSP_DRAW_MESH_SHADED || entity->getRenderStyle() == Common::VSP_DRAW_MESH_TEXTURED ))
         {
             alphaList.push_back( _sceneList[i] );
         }
