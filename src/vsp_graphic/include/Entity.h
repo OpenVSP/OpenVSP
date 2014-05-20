@@ -49,6 +49,11 @@ public:
     */
     void setMaterial( float ambi[], float diff[], float spec[], float emis[], float shin );
 
+    /*!
+    * Is material transparent?
+    */
+    bool isTransparent();
+
 public:
     /*!
     * Get Texture Manager of this Entity.

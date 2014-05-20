@@ -55,6 +55,11 @@ void Entity::setMaterial( float ambi[], float diff[], float spec[], float emis[]
     _material.shininess = shin;
 }
 
+bool Entity::isTransparent()
+{
+    return _material.diffuse[3] < 1.0 ? true : false;
+}
+
 void Entity::_predraw()
 {
     switch( getRenderStyle() )
