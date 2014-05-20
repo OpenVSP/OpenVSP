@@ -14,6 +14,10 @@ public:
     */
     MaterialMgr();
     /*!
+    * Construct a MaterialMgr with a default material.
+    */
+    MaterialMgr(double ambi[], double diff[], double spec[], double emis[], double shin);
+    /*!
     * Destructor.
     */
     virtual ~MaterialMgr();
@@ -33,7 +37,13 @@ public:
     */
     Material * getMaterial();
 
+    /*!
+    * Get default material.
+    */
+    Material * getDefault();
+
 private:
+    Material m_Default;
     Material m_Material;
 };
 #endif

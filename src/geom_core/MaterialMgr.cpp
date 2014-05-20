@@ -3,6 +3,32 @@
 MaterialMgr::MaterialMgr()
 {
 }
+MaterialMgr::MaterialMgr( double ambi[], double diff[], double spec[], double emis[], double shin )
+{
+    m_Default = Material();
+
+    m_Default.m_AmbientR = ambi[0];
+    m_Default.m_AmbientG = ambi[1];
+    m_Default.m_AmbientB = ambi[2];
+    m_Default.m_AmbientA = ambi[3];
+
+    m_Default.m_DiffuseR = diff[0];
+    m_Default.m_DiffuseG = diff[1];
+    m_Default.m_DiffuseB = diff[2];
+    m_Default.m_DiffuseA = diff[3];
+
+    m_Default.m_SpecularR = spec[0];
+    m_Default.m_SpecularG = spec[1];
+    m_Default.m_SpecularB = spec[2];
+    m_Default.m_SpecularA = spec[3];
+
+    m_Default.m_EmissionR = emis[0];
+    m_Default.m_EmissionG = emis[1];
+    m_Default.m_EmissionB = emis[2];
+    m_Default.m_EmissionA = emis[3];
+
+    m_Default.m_Shininess = shin;
+}
 MaterialMgr::~MaterialMgr()
 {
 }
@@ -64,4 +90,9 @@ void MaterialMgr::SetMaterial( std::string name, double ambi[], double diff[], d
 Material * MaterialMgr::getMaterial()
 {
     return &m_Material;
+}
+
+Material * MaterialMgr::getDefault()
+{
+    return &m_Default;
 }

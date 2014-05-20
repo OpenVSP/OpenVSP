@@ -537,6 +537,10 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             geom_ptr->SetMaterial( mat.name, mat.ambi, mat.diff, mat.spec, mat.emis, mat.shininess );
         }
+        else
+        {
+            geom_ptr->SetMaterialToDefault();
+        }
     }
     else if ( device == &m_ScaleAcceptButton )
     {

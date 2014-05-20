@@ -67,6 +67,11 @@ GeomGuiDraw::~GeomGuiDraw()
 
 }
 
+void GeomGuiDraw::SetMaterialToDefault()
+{
+    m_MaterialMgr.SetMaterial( m_MaterialMgr.getDefault() );
+}
+
 void GeomGuiDraw::SetMaterial( std::string name, double ambi[], double diff[], double spec[], double emis[], double shin )
 {
     m_MaterialMgr.SetMaterial( name, ambi, diff, spec, emis, shin );
@@ -1081,6 +1086,11 @@ void Geom::SetColor( int r, int g, int b )
 vec3d Geom::GetColor()
 {
     return m_GuiDraw.GetWireColor();
+}
+
+void Geom::SetMaterialToDefault()
+{
+    m_GuiDraw.SetMaterialToDefault();
 }
 
 void Geom::SetMaterial( std::string name, double ambi[], double diff[], double spec[], double emis[], double shin )

@@ -94,6 +94,7 @@ public:
         return m_WireColor;
     }
 
+    void SetMaterialToDefault();
     void SetMaterial( std::string name, double ambi[], double diff[], double spec[], double emis[], double shin );
     void SetMaterialID( int m )
     {
@@ -303,6 +304,7 @@ public:
     virtual void SetColor( int r, int g, int b );
     virtual vec3d GetColor();
 
+    virtual void SetMaterialToDefault();
     virtual void SetMaterial( std::string name, double ambi[], double diff[], double spec[], double emis[], double shin );
     virtual Material GetMaterial();
 
