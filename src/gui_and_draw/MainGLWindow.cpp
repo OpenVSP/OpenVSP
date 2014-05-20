@@ -445,7 +445,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
                 m_ids.push_back( idInfo );
             }
             eObj = dynamic_cast<Entity*> ( m_GEngine->getScene()->getObject( id ) );
-            if( rObj )
+            if( eObj )
             {
                 eObj->setVisibility( objects[i]->m_Visible );
                 eObj->setPrimType( Common::VSP_TRIANGLES );
