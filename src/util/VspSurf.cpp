@@ -478,7 +478,6 @@ void VspSurf::GetWConstCurve( VspCurve &c, const double &w ) const
 Matrix4d VspSurf::CompRotCoordSys( const double &u, const double &w )
 {
     Matrix4d retMat; // Return Matrix
-    retMat.loadIdentity();
 
     double tempMat[16];
     // Get du and norm, cross them to get the last orthonormal vector
@@ -508,7 +507,6 @@ Matrix4d VspSurf::CompRotCoordSys( const double &u, const double &w )
 Matrix4d VspSurf::CompTransCoordSys( const double &u, const double &w )
 {
     Matrix4d retMat; // Return Matrix
-    retMat.loadIdentity();
 
     // Get x,y,z location of u,w coordinate and place in translation matrix
     vec3d cartCoords = CompPnt01( u, w );
@@ -1771,7 +1769,7 @@ void VspSurf::Tesselate( const vector<int> &num_u, int num_v, std::vector< vecto
     u.resize( nu );
     double uumin( umin );
     size_t ii;
-    for ( i = 0, ii = 0; ii < GetNumSectU(); ++ii )
+    for ( i = 0, ii = 0; ii < (size_t)GetNumSectU(); ++ii )
     {
         double du, dv;
 

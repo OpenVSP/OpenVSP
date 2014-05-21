@@ -50,6 +50,8 @@ public:
     void CreateScreens();
     void ShowHideGeomScreens();
 
+    void UpdateGeomScreens();
+
 protected:
 
     GeomUI* m_GeomUI;

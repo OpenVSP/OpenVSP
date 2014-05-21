@@ -81,8 +81,7 @@ void ScreenMgr::TimerCB()
     {
         m_UpdateFlag = false;
         UpdateAllScreens();
-
-    }
+   }
 
     Fl::repeat_timeout( UPDATE_TIME, StaticTimerCB, this );
 }
@@ -150,7 +149,8 @@ void ScreenMgr::UpdateAllScreens()
 //printf("Update Screens %d\n",  del_tics );
     for ( int i = 0 ; i < ( int )m_ScreenVec.size() ; i++ )
     {
-        if ( m_ScreenVec[i]->IsShown() )
+        //===== Force Update Of ManageGeomScreen ====//
+        if ( m_ScreenVec[i]->IsShown() || (i == VSP_MANAGE_GEOM_SCREEN) )
         {
             m_ScreenVec[i]->Update();
         }

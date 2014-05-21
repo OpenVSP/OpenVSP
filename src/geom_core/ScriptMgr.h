@@ -21,6 +21,7 @@
 #include <scriptmath/scriptmath.h>
 
 #include "Vec3d.h"
+#include "XmlUtil.h"
 
 #include <assert.h>
 #include <string>
@@ -41,24 +42,21 @@ public:
 
     void Init();
     void ReadScript( const char* module_name, const char* file_name );
+    void ReadScriptFromMemory( const char* module_name, const char* file_contents, int contents_size );
     void ExecuteScript(  const char* module_name,  const char* function_name );
+
+    string FindModuleFileName( const string & module_name );
 
     void RunTestScripts();
 
     //==== Test Proxy Stuff ====//
-    void SetSaveInt( int i )
-    {
-        m_SaveInt = i;
-    }
-    int  GetSaveInt( )
-    {
-        return m_SaveInt;
-    }
+    void SetSaveInt( int i )    { m_SaveInt = i; }
+    int  GetSaveInt( )            { return m_SaveInt; }
+
     CScriptArray* GetProxyVec3dArray();
     CScriptArray* GetProxyStringArray();
     CScriptArray* GetProxyIntArray();
     CScriptArray* GetProxyDoubleArray();
-
 
     //==== Common Types =====//
     asIObjectType* m_IntArrayType;
@@ -81,7 +79,9 @@ private:
 
     //==== Member Variables ====//
     asIScriptEngine* m_ScriptEngine;
+    CScriptBuilder m_Builder;
     map< string, CScriptBuilder > m_BuilderMap;
+    map< string, string > m_ModuleFileMap;
 
     //==== Test Proxy Stuff ====//
     int m_SaveInt;

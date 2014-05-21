@@ -76,11 +76,22 @@ ManageGeomScreen::~ManageGeomScreen()
 //==== Update Screen ====//
 bool ManageGeomScreen::Update()
 {
-    LoadBrowser();
-    LoadActiveGeomOutput();
-    LoadSetChoice();
-    LoadTypeChoice();
+    if ( IsShown() )
+    {
+        LoadBrowser();
+        LoadActiveGeomOutput();
+        LoadSetChoice();
+        LoadTypeChoice();
+    }
 
+    UpdateGeomScreens();
+
+    return true;
+}
+
+//==== Update All Geom Screens ====//
+void ManageGeomScreen::UpdateGeomScreens()
+{
     for ( int i = 0 ; i < ( int )m_GeomScreenVec.size() ; i++ )
     {
         if ( m_GeomScreenVec[i]->IsShown() )
@@ -88,7 +99,6 @@ bool ManageGeomScreen::Update()
             m_GeomScreenVec[i]->Update();
         }
     }
-    return true;
 }
 
 //==== Show Screen ====//

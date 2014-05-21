@@ -196,6 +196,8 @@ public:
 
     void Reverse();
 
+    bool IsEqual( const VspCurve & crv );
+
 protected:
     piecewise_curve_type m_Curve;
 };

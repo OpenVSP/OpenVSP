@@ -6,13 +6,13 @@ void Init()
 {
 	//==== Test Parm Template  =====//
 	string length = AddParm( PARM_DOUBLE_TYPE, "Length", "Design" );
-	SetParmVal( length, 5.0 );
+	SetParmValLimits( length, 5.0, 0.001, 1.0e12 );
 
 	string width = AddParm( PARM_DOUBLE_TYPE, "Width", "Design" );
-	SetParmVal( width, 7.0 );
+	SetParmValLimits( width, 7.0, 0.001, 1.0e12 );
 
 	string height = AddParm( PARM_DOUBLE_TYPE, "Height", "Design" );
-	SetParmVal( height, 3.0 );
+	SetParmValLimits( height, 3.0, 0.001, 1.0e12 );
 
 	string square_flag = AddParm( PARM_BOOL_TYPE, "SquareFlag", "Design" );
 	SetParmVal( square_flag, 0.0 );
@@ -23,6 +23,12 @@ void Init()
 	AppendXSec( xsec_surf, XS_ROUNDED_RECTANGLE);
 	AppendXSec( xsec_surf, XS_ROUNDED_RECTANGLE);
 	AppendXSec( xsec_surf, XS_POINT);
+
+	//==== Set Some Decent Tess Vals ====//
+	string geom_id = GetCurrCustomGeom();
+	SetParmVal( GetParm( geom_id, "Tess_U",  "Shape" ), 9 );
+	SetParmVal( GetParm( geom_id, "Tess_W",  "Shape" ), 13 );
+
 }
 
 //==== Global Gui IDs - These Are Consistent For All Created Boxes And Used In UpdateGUI====// 
@@ -88,11 +94,8 @@ void UpdateSurf()
 	string xsec_surf = GetXSecSurf( geom_id, 0 );
 
 	//==== Define The First/Last XSec Placement ====//
-	string xsec0 = GetXSec( xsec_surf, 0 );
-	SetParmVal( GetXSecParm( xsec0, "XLocPercent" ), 0.0);
 	string xsec3 = GetXSec( xsec_surf, 3 );
-	SetParmVal( GetXSecParm( xsec3, "XLocPercent" ), 1.0 );
-	SetParmVal( GetXSecParm( xsec3, "RefLength" ), length_val );
+	SetCustomXSecLoc( xsec3, vec3d( length_val, 0, 0 ) );
 
 	//==== Define The Middle XSecs ====//
 	string xsec1 = GetXSec( xsec_surf, 1 );
@@ -103,9 +106,8 @@ void UpdateSurf()
 	string xsec2 = GetXSec( xsec_surf, 2 );
 	SetParmVal( GetXSecParm( xsec2, "RoundedRect_Height" ), height_val );
 	SetParmVal( GetXSecParm( xsec2, "RoundedRect_Width" ),  width_val );
-	SetParmVal( GetXSecParm( xsec2, "XLocPercent" ), 1.0 );
-	SetParmVal( GetXSecParm( xsec2, "RefLength" ), length_val );
 	SetParmVal( GetXSecParm( xsec2, "RoundRectXSec_Radius" ), 0.0 );
+	SetCustomXSecLoc( xsec2, vec3d( length_val, 0, 0 ) );
 
 	SkinXSecSurf();
 }

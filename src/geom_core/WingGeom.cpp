@@ -306,10 +306,8 @@ void WingSect::Update()
     m_LateUpdateFlag = false;
 
     XSecSurf* xsecsurf = (XSecSurf*) GetParentContainerPtr();
-    int indx = xsecsurf->FindXSecIndex( m_ID );
 
     // apply the needed transformation to get section into body orientation
-
     Matrix4d mat;
     xsecsurf->GetBasicTransformation( m_XSCurve->GetWidth(), mat );
 
@@ -320,24 +318,34 @@ void WingSect::Update()
     //==== Apply Transform ====//
     m_TransformedCurve = baseCurve;
 
+    Matrix4d tran_mat;
+    tran_mat.translatef( m_XDelta, m_YDelta, m_ZDelta );
+
+    Matrix4d rotate_mat;
+    rotate_mat.rotateX( m_XRotate );
+    rotate_mat.rotateY( m_YRotate );
+    rotate_mat.rotateZ( m_ZRotate );
+
+    Matrix4d cent_mat;
+    cent_mat.translatef( -m_XCenterRot, -m_YCenterRot, -m_ZCenterRot );
+
+    Matrix4d inv_cent_mat;
+    inv_cent_mat.translatef( m_XCenterRot, m_YCenterRot, m_ZCenterRot );
+
     m_Transform.loadIdentity();
 
-    m_Transform.translatef( m_XDelta, m_YDelta, m_ZDelta );
+    m_Transform.postMult( tran_mat.data() );
+    m_Transform.postMult( cent_mat.data() );
+    m_Transform.postMult( rotate_mat.data() );
+    m_Transform.postMult( inv_cent_mat.data() );
 
-    m_Transform.rotateX( m_XRotate );
-    m_Transform.rotateY( m_YRotate );
-    m_Transform.rotateZ( m_ZRotate );
-
-    m_TransformedCurve.OffsetX( m_XCenterRot );
-    m_TransformedCurve.OffsetY( m_YCenterRot );
-    m_TransformedCurve.OffsetZ( m_ZCenterRot );
+    m_Transform.postMult( xsecsurf->GetGlobalXForm().data() );
 
     m_TransformedCurve.Transform( m_Transform );
 
-    m_TransformedCurve.OffsetX( -m_XCenterRot );
-    m_TransformedCurve.OffsetY( -m_YCenterRot );
-    m_TransformedCurve.OffsetZ( -m_ZCenterRot );
 
+    //==== Inform Outboard Section of Change ====//
+    int indx = xsecsurf->FindXSecIndex( m_ID );
     if( indx < xsecsurf->NumXSec() - 1 )
     {
         WingSect* nextxs = (WingSect*) xsecsurf->FindXSec( indx + 1);
@@ -906,7 +914,7 @@ void WingGeom::UpdateSurf()
             ws->m_ZDelta = total_dihed_offset;
             ws->m_YRotate = total_twist;
             ws->m_XRotate = dihead_rot;
-            ws->m_XCenterRot = (0.5 - ws->m_TwistLoc())*ws->m_TipChord();
+            ws->m_XCenterRot = ws->m_TwistLoc()*ws->m_TipChord();
 
             crv_vec[i] =  ws->GetCurve();
 

@@ -57,6 +57,9 @@ vector< vec3d > ExtractVectorVec3dNode( xmlNodePtr root, const char * name );
 vector< double > GetVectorDoubleNode( xmlNodePtr node );
 vector< vec3d > GetVectorVec3dNode( xmlNodePtr node );
 
+xmlNodePtr EncodeFileContents( xmlNodePtr root, const char* file_name );
+xmlNodePtr DecodeFileContents( xmlNodePtr root, const char* file_name );
+
 }
 
 

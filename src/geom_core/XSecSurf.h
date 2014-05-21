@@ -60,6 +60,9 @@ public:
 
     void GetBasicTransformation( double w, Matrix4d &mat );
 
+    void SetGlobalXForm( const Matrix4d &mat )            { m_GlobalXForm = mat; }
+    Matrix4d GetGlobalXForm()                            { return m_GlobalXForm; }
+
     bool GetFlipUD() { return m_FlipUD; }
 
     void SetXSecType( int xstype )
@@ -108,6 +111,8 @@ protected:
     bool m_FlipUD;
 
     int m_CutMinNumXSecs;
+
+    Matrix4d m_GlobalXForm;
 
 };
 

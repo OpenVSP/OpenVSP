@@ -548,3 +548,45 @@ vector< vec3d > XmlUtil::GetVectorVec3dNode( xmlNodePtr node )
 
     return ret_vec;
 }
+
+//==== Encode File Contents ====//
+xmlNodePtr XmlUtil::EncodeFileContents( xmlNodePtr root, const char* file_name )
+{
+    string str;
+    FILE* fp = fopen( file_name, "r" );
+    if ( fp )
+    {
+        char buff[256];
+        while ( fgets( buff, 256, fp ) )
+        {
+            str.append( buff );
+        }
+        str.append( "\0" );
+        fclose( fp );
+    }
+
+    return AddStringNode( root, "FileContents", str );
+}
+
+//==== Encode File Contents ====//
+xmlNodePtr XmlUtil::DecodeFileContents( xmlNodePtr root, const char* file_name )
+{
+    string str;
+
+    xmlNodePtr file_node = XmlUtil::GetNode( root, "FileContents", 0 );
+
+    if ( file_node )
+        str = ExtractString( file_node );
+
+    if ( str.size() )
+    {
+        FILE* fp = fopen( "TestDecode.txt", "w" );
+        if ( fp )
+        {
+            fprintf( fp, "%s", str.c_str() );
+            fclose( fp );
+        }
+    }
+
+    return file_node;
+}

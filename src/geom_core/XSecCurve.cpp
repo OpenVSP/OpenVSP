@@ -546,7 +546,7 @@ void GeneralFuseXSec::Update()
     }
 
     vector< vec3d > roll_pnts;
-    for( int i = ite; i < bez_pnts.size(); i++ )
+    for( int i = ite; i < (int)bez_pnts.size(); i++ )
     {
         roll_pnts.push_back( bez_pnts[i] + offset );
     }

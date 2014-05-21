@@ -46,7 +46,8 @@ Vehicle* GetVehicle()
 XSecSurf* FindXSecSurf( const string & id )
 {
     Vehicle* veh = GetVehicle();
-    vector< Geom* > geom_vec = veh->FindGeomVec( veh->GetGeomVec() );
+ //   vector< Geom* > geom_vec = veh->FindGeomVec( veh->GetGeomVec() );
+    vector< Geom* > geom_vec = veh->GetGeomStoreVec();
 
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
@@ -1025,6 +1026,18 @@ void ChangeXSecShape( const string & xsec_surf_id, int xsec_index, int type )
     xsec_surf->ChangeXSecShape( xsec_index, type );
 }
 
+/// Create an xsec of type and insert it after xsec_index
+void SetXSecSurfGlobalXForm( const string & xsec_surf_id, const Matrix4d & mat )
+{
+    XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
+    if ( !xsec_surf )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "ChangeXSecShape::Can't Find XSecSurf " + xsec_surf_id  );
+        return;
+    }
+    xsec_surf->SetGlobalXForm( mat );
+}
+
 //===================================================================//
 //===============       XSec Functions         ==================//
 //===================================================================//
@@ -1111,14 +1124,15 @@ string GetXSecParm( const string& xsec_id, const string& name )
         return string();
     }
 
+    //==== Valid XSec Parm - Return Parm ID ====//
     string xsparm = xs->FindParm( name );
-
     if ( ValidParm( xsparm ) )
     {
         ErrorMgr.NoError();
         return xsparm;
     }
 
+    //==== Check Curve For Name ====//
     XSecCurve* xsc = xs->GetXSecCurve();
     if ( !xsc )
     {
@@ -1126,8 +1140,15 @@ string GetXSecParm( const string& xsec_id, const string& name )
         return string();
     }
 
-    ErrorMgr.NoError();
-    return xsc->FindParm( name );
+    string xscparm = xsc->FindParm( name );
+    if ( ValidParm( xscparm ) )
+    {
+        ErrorMgr.NoError();
+        return xscparm;
+    }
+
+    ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetXSecParm::Can't Find XSecCurve " + name  );
+    return string();
 }
 
 //==== Read XSec From File ====//
@@ -1325,6 +1346,22 @@ double SetParmVal( const string & parm_id, double val )
     ErrorMgr.NoError();
     return p->Set( val );
 }
+
+double SetParmValLimits( const string & parm_id, double val, double lower_limit, double upper_limit )
+{
+    Parm* p = ParmMgr.FindParm( parm_id );
+    if ( !p )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "SetParmValLimits::Can't Find Parm " + parm_id  );
+        return val;
+    }
+    ErrorMgr.NoError();
+
+    p->SetLowerUpperLimits( lower_limit, upper_limit );
+    return p->Set( val );
+}
+
+
 /// Set the parm value.
 /// The final value of parm is returned.
 double SetParmValUpdate( const string & parm_id, double val )

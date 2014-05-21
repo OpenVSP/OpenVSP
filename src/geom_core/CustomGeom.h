@@ -56,20 +56,11 @@ public:
 
     //==== Init Geom ====//
     void InitGeom( const string& id );
-    void SetCurrCustomGeom( const string& id )
-    {
-        m_CurrGeom = id;
-    }
-    string GetCurrCustomGeom()
-    {
-        return m_CurrGeom;
-    }
+    void SetCurrCustomGeom( const string& id )            { m_CurrGeom = id; }
+    string GetCurrCustomGeom()                            { return m_CurrGeom; }
 
     void ReadCustomScripts();
-    vector< GeomType > GetCustomTypes()
-    {
-        return m_CustomTypeVec;
-    }
+    vector< GeomType > GetCustomTypes()                    { return m_CustomTypeVec; }
 
     //==== Adds A Parm To The Current Custom Geom - Return Index of The Added Parm ====//
     string AddParm( int type, const string & name, const string & group );
@@ -86,6 +77,12 @@ public:
     //==== Add XSec Surface To Current Geom - Return ID =====//
     string AddXSecSurf();
     void SkinXSecSurf();
+
+    //==== Custom XSecs Functions ====//
+    void SetCustomXSecLoc( const string & xsec_id, const vec3d & loc );
+
+
+
 
 private:
 
@@ -106,6 +103,34 @@ private:
 //==================================================================================================//
 //==================================================================================================//
 
+//==== Custom Geom XSec =====//
+class CustomXSec : public XSec
+{
+public:
+
+    CustomXSec( XSecCurve *xsc, bool use_left );
+
+    virtual void Update();
+    virtual void CopyBasePos( XSec* xs );
+
+    void SetLoc( const vec3d & loc );
+    void SetRot( const vec3d & rot );
+    void SetCenterRot( const vec3d & cent );
+
+protected:
+
+    vec3d m_Loc;
+    vec3d m_Rot;
+    vec3d m_CenterRot;
+
+};
+
+
+//==================================================================================================//
+//==================================================================================================//
+//==================================================================================================//
+//==================================================================================================//
+
 //==== Custom Geom ====//
 class CustomGeom : public Geom
 {
@@ -113,16 +138,10 @@ public:
     CustomGeom( Vehicle* vehicle_ptr );
     virtual ~CustomGeom();
 
+    void Clear();
     void InitGeom( const string & module_name );
-    void SetScriptModuleName( const char* name )
-    {
-        m_ScriptModuleName = name;
-    }
-    string GetScriptModuleName()
-    {
-        return m_ScriptModuleName;
-    }
-
+    void SetScriptModuleName( const char* name )    { m_ScriptModuleName = name; }
+    string GetScriptModuleName()                    { return m_ScriptModuleName; }
 
     //==== Add a Parm Return ID ====//
     string AddParm( int type, const string & name, const string & group );
@@ -130,10 +149,7 @@ public:
 
     //==== Add Gui ====//
     int AddGui( const GuiDef & gd );
-    vector< GuiDef > GetGuiDefVec()
-    {
-        return m_GuiDefVec;
-    }
+    vector< GuiDef > GetGuiDefVec()                    { return m_GuiDefVec; }
 
     void AddUpdateGui( const GuiUpdate & gu );
     vector< GuiUpdate > GetGuiUpdateVec();
@@ -141,15 +157,15 @@ public:
     //==== Add XSec Surface Return ID =====//
     string AddXSecSurf();
 
-    virtual int GetNumXSecSurfs()
-    {
-        return ( int )m_XSecSurfVec.size();
-    }
+    virtual int GetNumXSecSurfs()                    { return ( int )m_XSecSurfVec.size(); }
     virtual XSecSurf* GetXSecSurf( int index );
 
     //==== Skin XSecs ====//
     virtual void SkinXSecSurf();
 
+    //==== Encode/Decode XML ====//
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
 protected:
 
@@ -162,10 +178,7 @@ protected:
     vector< XSecSurf* > m_XSecSurfVec;
 
     virtual void UpdateSurf();
-    virtual int GetNumMainSurfs()
-    {
-        return 1;
-    }
+    virtual int GetNumMainSurfs()        { return (int)m_XSecSurfVec.size(); }
 
 };
 

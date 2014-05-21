@@ -26,6 +26,7 @@ typedef piecewise_curve_type::rotation_matrix_type curve_rotation_matrix_type;
 typedef piecewise_curve_type::bounding_box_type curve_bounding_box_type;
 typedef piecewise_curve_type::tolerance_type curve_tolerance_type;
 
+
 typedef eli::geom::curve::piecewise_cubic_spline_creator<double, 3, curve_tolerance_type> piecewise_cubic_spline_creator_type;
 typedef eli::geom::curve::piecewise_linear_creator<double, 3, curve_tolerance_type> piecewise_linear_creator_type;
 
@@ -840,7 +841,7 @@ double VspCurve::FindNearest( double &u, const vec3d &pt ) const
 
     dist = eli::geom::intersect::minimum_distance( u, m_Curve, p );
 
-	return dist;
+    return dist;
 }
 
 double VspCurve::FindNearest( double &u, const vec3d &pt, const double &u0 ) const
@@ -851,7 +852,7 @@ double VspCurve::FindNearest( double &u, const vec3d &pt, const double &u0 ) con
 
     dist = eli::geom::intersect::minimum_distance( u, m_Curve, p, u0 );
 
-	return dist;
+    return dist;
 }
 
 double VspCurve::FindNearest01( double &u, const vec3d &pt ) const
@@ -863,7 +864,7 @@ double VspCurve::FindNearest01( double &u, const vec3d &pt ) const
 
     u = u / num_sects;
 
-	return dist;
+    return dist;
 }
 
 double VspCurve::FindNearest01( double &u, const vec3d &pt, const double &u0 ) const
@@ -875,7 +876,7 @@ double VspCurve::FindNearest01( double &u, const vec3d &pt, const double &u0 ) c
 
     u = u / num_sects;
 
-	return dist;
+    return dist;
 }
 
 //===== Compute Point  =====//
@@ -1061,4 +1062,43 @@ void VspCurve::Reflect( vec3d axis, double d )
 void VspCurve::Reverse()
 {
     m_Curve.reverse();
+}
+
+
+bool VspCurve::IsEqual( const VspCurve & crv )
+{
+    int ns0 = m_Curve.number_segments();
+    int ns1 = crv.m_Curve.number_segments();
+
+    if ( ns0 != ns1 )
+        return false;
+
+    // get control points and print
+    int i, pp;
+
+    for ( pp=0 ; pp < ns0 ; ++pp )
+    {
+      curve_segment_type bez0;
+      curve_segment_type bez1;
+
+      m_Curve.get(bez0, pp);
+      crv.m_Curve.get(bez1, pp);
+
+      if ( bez0.degree() != bez1.degree() )
+          return false;
+
+      for (i=0; i<=bez0.degree(); ++i)
+      {
+          curve_point_type cp0 = bez0.get_control_point(i);
+          curve_point_type cp1 = bez1.get_control_point(i);
+          vec3d v0( cp0.x(), cp0.y(), cp0.z() );
+          vec3d v1( cp1.x(), cp1.y(), cp1.z() );
+
+          if ( dist( v0, v1 ) > 1.0e-12 )
+              return false;
+      }
+    }
+
+    return true;
+
 }

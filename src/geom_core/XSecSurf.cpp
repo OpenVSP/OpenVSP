@@ -9,6 +9,7 @@
 
 #include "XSecSurf.h"
 #include "WingGeom.h"
+#include "CustomGeom.h"
 #include "StlHelper.h"
 #include "APIDefines.h"
 using namespace vsp;
@@ -28,6 +29,8 @@ XSecSurf::XSecSurf()
     // Assign default values different from -1 above.
     SetXSecType( XSEC_FUSE );
     SetBasicOrientation( X_DIR, Y_DIR, XS_SHIFT_MID, false );
+
+    m_GlobalXForm.loadIdentity();
 
 //  m_TestParm.Init( "Test", "XSecSurf", this, 0.0, 1.0e-8, 1.0e12 );
 }
@@ -183,6 +186,10 @@ XSec* XSecSurf::CreateXSec( int type, int index )
         else if ( m_XSecType == XSEC_WING )
         {
              xsec_ptr = ( XSec* ) new WingSect( xscrv_ptr, index != 0 );
+        }
+        else if ( m_XSecType == XSEC_CUSTOM )
+        {
+             xsec_ptr = ( XSec* ) new CustomXSec( xscrv_ptr, index != 0 );
         }
         else
         {

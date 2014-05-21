@@ -116,7 +116,8 @@ void ScriptMgrSingleton::Init( )
 void ScriptMgrSingleton::RunTestScripts()
 {
     //===== Run Test Scripts ====//
-    ScriptMgr.ReadScript( "TestScript", "../../TestScript.as"  );
+ //   ScriptMgr.ReadScript( "TestScript", "../../TestScript.as"  );
+    ScriptMgr.ReadScript( "TestScript", "../../../xxxTestScript.as"  );
     ScriptMgr.ExecuteScript( "TestScript", "void main()" );
     ScriptMgr.ExecuteScript( "TestScript", "void TestAPIScript()" );
 }
@@ -127,12 +128,49 @@ void ScriptMgrSingleton::ReadScript( const char* module_name, const char* file_n
 {
     int r;
 
+    //==== Check Module If Already Loaded ===//
+    if( m_ModuleFileMap.find(module_name) != m_ModuleFileMap.end() )
+    {
+        return;
+    }
+
+    //==== Start A New Module ====//
+    r = m_Builder.StartNewModule( m_ScriptEngine, module_name );
+    assert( r >= 0 );
+
+    r = m_Builder.AddSectionFromFile( file_name );
+    if ( r < 0 )
+    {
+        return;
+    }
+
+    r = m_Builder.BuildModule();
+    if ( r < 0 )
+    {
+        return;
+    }
+
+    m_ModuleFileMap[ string(module_name) ] = string(file_name);
+
+}
+
+//==== Start A New Module And Read Script ====//
+void ScriptMgrSingleton::ReadScriptFromMemory( const char* module_name, const char* file_contents, int contents_size )
+{
+     int r;
+
+    //==== Check Module If Already Loaded ===//
+    if( m_ModuleFileMap.find(module_name) != m_ModuleFileMap.end() )
+    {
+        return;
+    }
+
     //==== Start A New Module ====//
     CScriptBuilder builder;
     r = builder.StartNewModule( m_ScriptEngine, module_name );
     assert( r >= 0 );
 
-    r = builder.AddSectionFromFile( file_name );
+    r = builder.AddSectionFromMemory( module_name, file_contents, contents_size  );
     if ( r < 0 )
     {
         return;
@@ -143,7 +181,13 @@ void ScriptMgrSingleton::ReadScript( const char* module_name, const char* file_n
     {
         return;
     }
+
+    m_ModuleFileMap[ string(module_name) ] = string(module_name);
+
 }
+
+
+
 
 //==== Execute Function in Module ====//
 void ScriptMgrSingleton::ExecuteScript(  const char* module_name,  const char* function_name )
@@ -180,7 +224,19 @@ void ScriptMgrSingleton::ExecuteScript(  const char* module_name,  const char* f
     }
 }
 
+//==== Return File Name Given Module Name ====//
+string ScriptMgrSingleton::FindModuleFileName( const string &  module_name )
+{
+    map< string, string >::iterator iter;
+    iter = m_ModuleFileMap.find( module_name );
 
+    string file_string;
+    if ( iter != m_ModuleFileMap.end() )
+    {
+        file_string = iter->second;
+    }
+    return file_string;
+}
 
 //==== Register Enums ====//
 void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
@@ -535,6 +591,10 @@ void ScriptMgrSingleton::RegisterMatrix4d( asIScriptEngine* se )
 
     r = se->RegisterObjectMethod( "Matrix4d", "void affineInverse()", asMETHOD( Matrix4d, affineInverse ), asCALL_THISCALL );
     assert( r >= 0 );
+
+    r = se->RegisterObjectMethod( "Matrix4d", "void buildXForm( const vec3d & in pos, const vec3d & in rot, const vec3d & in cent_rot )", asMETHOD( Matrix4d, buildXForm ), asCALL_THISCALL );
+    assert( r >= 0 );
+
 }
 
 //==== Register Vec3d Object ====//
@@ -562,6 +622,13 @@ void ScriptMgrSingleton::RegisterCustomGeomMgr( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "void SkinXSecSurf()",
                                     asMETHOD( CustomGeomMgrSingleton, SkinXSecSurf ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r );
+
+    r = se->RegisterGlobalFunction( "void SetCustomXSecLoc( const string & in xsec_id, const vec3d & in loc )",
+                                    asMETHOD( CustomGeomMgrSingleton, SetCustomXSecLoc ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
+    assert( r );
+
+
+
 
 }
 //==== Register API E Functions ====//
@@ -711,6 +778,8 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "void ChangeXSecShape( const string & in xsec_surf_id, int xsec_index, int type )", asFUNCTION( vsp::ChangeXSecShape ), asCALL_CDECL );
     assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void SetXSecSurfGlobalXForm( const string & in xsec_surf_id, const Matrix4d & in mat )", asFUNCTION( vsp::SetXSecSurfGlobalXForm ), asCALL_CDECL );
+    assert( r >= 0 );
 
     //==== XSec Functions ====//
     r = se->RegisterGlobalFunction( "int GetXSecShape( const string& in xsec_id )", asFUNCTION( vsp::GetXSecShape ), asCALL_CDECL );
@@ -751,6 +820,9 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "double SetParmVal(const string & in parm_id, double val )",
                                     asFUNCTIONPR( vsp::SetParmVal, ( const string &, double val ), double ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "double SetParmValLimits(const string & in parm_id, double val, double lower_limit, double upper_limit )",
+                                    asFUNCTION( vsp::SetParmValLimits ), asCALL_CDECL );
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "double SetParmValUpdate(const string & in parm_id, double val )",
                                     asFUNCTIONPR( vsp::SetParmValUpdate, ( const string &, double val ), double ), asCALL_CDECL );

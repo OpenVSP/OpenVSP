@@ -60,6 +60,7 @@ public:
 
     //==== Get All Geoms (Does NOT Return Collapsed Geoms if check_display_flag == true) ====//
     vector< string > GetGeomVec( bool check_display_flag = false );
+    vector< Geom* > GetGeomStoreVec()                                    { return m_GeomStoreVec; }
     void AddActiveGeom( string id );
     void SetActiveGeom( string id );
     void SetActiveGeomVec( vector< string > & geom_id_vec )

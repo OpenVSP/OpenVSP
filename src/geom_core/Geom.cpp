@@ -393,8 +393,6 @@ Matrix4d GeomXForm::ComposeAttachMatrix()
     {
         Matrix4d transMat;
         Matrix4d rotMat;
-        transMat.loadIdentity();
-        rotMat.loadIdentity();
 
         Matrix4d parentMat;
         parentMat = parent->getModelMatrix();

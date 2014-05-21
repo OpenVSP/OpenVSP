@@ -121,9 +121,14 @@ Vehicle::~Vehicle()
 void Vehicle::Init()
 {
     //==== Init Custom Geom and Script Mgr ====//
-    CustomGeomMgr.Init();
-    ScriptMgr.Init();
-    CustomGeomMgr.ReadCustomScripts();
+    static bool once = false;
+    if ( !once )
+    {
+        CustomGeomMgr.Init();
+        ScriptMgr.Init();
+        CustomGeomMgr.ReadCustomScripts();
+        once = true;
+    }
 
     m_Name = "Vehicle";
 
@@ -147,7 +152,7 @@ void Vehicle::Init()
     m_GeomTypeVec.push_back( GeomType( MS_WING_GEOM_TYPE, "WING", true ) );
     m_GeomTypeVec.push_back( GeomType( STACK_GEOM_TYPE, "STACK", true ) );
     m_GeomTypeVec.push_back( GeomType( BLANK_GEOM_TYPE, "BLANK", true ) );
-    m_GeomTypeVec.push_back( GeomType( CUSTOM_GEOM_TYPE, "CUSTOM", true ) );
+//    m_GeomTypeVec.push_back( GeomType( CUSTOM_GEOM_TYPE, "CUSTOM", true ) );
 
     //==== Get Custom Geom Types =====//
     vector< GeomType > custom_types = CustomGeomMgr.GetCustomTypes();
@@ -1403,7 +1408,7 @@ void Vehicle::WriteNascartFiles( const string & file_name, int write_set )
         return;
     }
 
-    fprintf( file_id, "Color	Name			BCType\n" );
+    fprintf( file_id, "Color    Name            BCType\n" );
 
     int part_count = 1;
     for ( i = 0 ; i < ( int )geom_vec.size() ; i++ )
