@@ -2,12 +2,12 @@
 #define _VSP_GRAPHIC_ENTITY_OBJECT_H
 
 #include "Renderable.h"
+#include "TextureMgr.h"
 
 namespace VSPGraphic
 {
 class Lighting;
 class Material;
-class TextureMgr;
 
 /*!
 * This class represents a single geometry with surfaces in scene.

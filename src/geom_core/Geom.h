@@ -22,7 +22,7 @@
 #include "DragFactors.h"
 #include "GridDensity.h"
 #include "ResultsMgr.h"
-#include "Textures.h"
+#include "TextureMgr.h"
 
 //#include "xmlvsp.h"
 

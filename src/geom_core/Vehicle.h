@@ -17,8 +17,8 @@
 #include "Geom.h"
 #include "MessageMgr.h"
 #include "DrawObj.h"
-#include "Labels.h"
-#include "Lights.h"
+#include "LabelMgr.h"
+#include "LightMgr.h"
 
 #include <assert.h>
 

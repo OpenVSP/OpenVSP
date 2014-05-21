@@ -13,7 +13,7 @@
 #include "GraphicSingletons.h"
 
 #include "Geom.h"
-#include "Textures.h"
+#include "TextureMgr.h"
 
 #include "FL/Fl_File_Chooser.H"
 

@@ -1,6 +1,6 @@
 #include "ManageLightingScreen.h"
 #include "ScreenMgr.h"
-#include "Lights.h"
+#include "LightMgr.h"
 
 #include <assert.h>
 

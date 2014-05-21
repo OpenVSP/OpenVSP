@@ -4,7 +4,6 @@
 
 #include "Entity.h"
 
-#include "TextureMgr.h"
 #include "Material.h"
 #include "Lighting.h"
 #include "VertexBuffer.h"

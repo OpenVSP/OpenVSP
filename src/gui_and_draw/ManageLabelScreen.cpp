@@ -2,7 +2,7 @@
 #include "ScreenMgr.h"
 #include "Vehicle.h"
 #include "VehicleMgr.h"
-#include "Labels.h"
+#include "LabelMgr.h"
 
 ManageLabelScreen::ManageLabelScreen(ScreenMgr * mgr) : VspScreen(mgr)
 {
