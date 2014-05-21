@@ -162,6 +162,16 @@ class LabelMgr
 {
 public:
     /*!
+    * Singleton entry.
+    */
+    static LabelMgr * getInstance()
+    {
+        static LabelMgr labelMgr;
+        return &labelMgr;
+    }
+
+protected:
+    /*!
     * Construct a Labels object.
     */
     LabelMgr();

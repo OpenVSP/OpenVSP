@@ -53,7 +53,7 @@ public:
     */
     LabelMgr * getLabelMgr()
     {
-        return &m_LabelMgr;
+        return LabelMgr::getInstance();
     }
 
     /*!
@@ -61,12 +61,8 @@ public:
     */
     LightMgr * getLightMgr()
     {
-        return &m_LightMgr;
+        return LightMgr::getInstance();
     }
-
-private:
-    LabelMgr m_LabelMgr;
-    LightMgr m_LightMgr;
 };
 
 //==== Vehicle ====//

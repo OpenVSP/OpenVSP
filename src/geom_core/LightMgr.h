@@ -69,6 +69,13 @@ public:
 class LightMgr
 {
 public:
+    static LightMgr * getInstance()
+    {
+        static LightMgr lightMgr;
+        return &lightMgr;
+    }
+
+protected:
     /*!
     * Construct a list of lights.
     */
