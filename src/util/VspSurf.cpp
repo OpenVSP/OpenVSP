@@ -334,6 +334,7 @@ bool VspJointInfo::FiniteDifferenceFpp() const
 VspSurf::VspSurf()
 {
     m_FlipNormal = false;
+    m_SurfType = NORMAL_SURF;
 }
 
 //===== Destructor  =====//

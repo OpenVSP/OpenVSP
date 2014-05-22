@@ -73,6 +73,11 @@ class VspSurf
 {
 public:
 
+	enum SURF_TYPE {    NORMAL_SURF,
+	                    WING_SURF,
+	                    NUM_SURF_TYPES,
+	                   };
+
     VspSurf();
     virtual ~VspSurf();
 
@@ -105,6 +110,9 @@ public:
     bool GetFlipNormal() { return m_FlipNormal; }
     void FlipNormal() { m_FlipNormal = !m_FlipNormal; }
     void ResetFlipNormal( ) { m_FlipNormal = false; }
+
+    int GetSurfType() { return m_SurfType; }
+    void SetSurfType( int type ) { m_SurfType = type; }
 
     double FindNearest( double &u, double &w, const vec3d &pt ) const;
     double FindNearest( double &u, double &w, const vec3d &pt, const double &u0, const double &w0 ) const;
@@ -154,6 +162,7 @@ protected:
 protected:
 
     bool m_FlipNormal;
+    int m_SurfType;
     piecewise_surface_type m_Surface;
 };
 #endif
