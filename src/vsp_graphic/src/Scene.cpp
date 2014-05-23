@@ -388,16 +388,37 @@ void Scene::predraw()
 
 void Scene::draw()
 {
+    std::vector<SceneObject*> alphaList;
+
     _lights->update();
 
-    for(int i = 0; i < (int)_sceneList.size(); i++)
+    // Draw markers and entities that are not transparent.  Store transparent entities to render later.
+    for( int i = 0; i < (int)_sceneList.size(); i++ )
     {
-        _sceneList[i]->draw();
+        Entity * entity = dynamic_cast<Entity*>( _sceneList[i] );
+        if( entity && entity->isTransparent() && 
+            ( entity->getRenderStyle() == Common::VSP_DRAW_MESH_SHADED || entity->getRenderStyle() == Common::VSP_DRAW_MESH_TEXTURED ))
+        {
+            alphaList.push_back( _sceneList[i] );
+        }
+        else
+        {
+            _sceneList[i]->draw();
+        }
     }
 
+    // Draw selection points.
     for(int i = 0; i < (int)_selections.size(); i++)
     {
         _selections[i]->draw();
     }
+
+    // Draw transparent entities.
+    glDepthMask( GL_FALSE );
+    for(int i = 0; i < (int)alphaList.size(); i++)
+    {
+        alphaList[i]->draw();
+    }
+    glDepthMask( GL_TRUE );
 }
 }

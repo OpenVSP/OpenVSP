@@ -29,6 +29,7 @@
 #include "GraphicSingletons.h"
 #include "SelectedPnt.h"
 #include "SelectedLoc.h"
+#include "Material.h"
 
 #define PRECISION_PAN_SPEED 0.005f
 #define PAN_SPEED 0.025f
@@ -315,6 +316,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
         }
 
         Renderable * rObj;
+        Entity * eObj;
 
         VSPGraphic::Ruler * ruler;
 
@@ -412,18 +414,22 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
                 idInfo.geomID = objects[i]->m_GeomID;
                 m_ids.push_back( idInfo );
             }
-            rObj = dynamic_cast<Renderable*> ( m_GEngine->getScene()->getObject( id ) );
-            if( rObj )
+            eObj = dynamic_cast<Entity*> ( m_GEngine->getScene()->getObject( id ) );
+            if( eObj )
             {
-                rObj->setVisibility( objects[i]->m_Visible );
-                rObj->setPrimType( Common::VSP_QUADS );
-                rObj->setRenderStyle( Common::VSP_DRAW_WIRE_FRAME );
-                rObj->setLineColor( red, green, blue );
-                rObj->setLineWidth( lineWidth );
+                eObj->setVisibility( objects[i]->m_Visible );
+                eObj->setPrimType( Common::VSP_QUADS );
+                eObj->setRenderStyle( Common::VSP_DRAW_WIRE_FRAME );
+                eObj->setLineColor( red, green, blue );
+                eObj->setLineWidth( lineWidth );
+
+                eObj->setMaterial( objects[i]->m_MaterialInfo.Ambient, objects[i]->m_MaterialInfo.Diffuse,
+                    objects[i]->m_MaterialInfo.Specular, objects[i]->m_MaterialInfo.Emission,
+                    objects[i]->m_MaterialInfo.Shininess );
 
                 if( objects[i]->m_GeomChanged )
                 {
-                    _loadXSecData( rObj, objects[i] );
+                    _loadXSecData( eObj, objects[i] );
                 }
             }
             break;
@@ -438,18 +444,22 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
                 idInfo.geomID = objects[i]->m_GeomID;
                 m_ids.push_back( idInfo );
             }
-            rObj = dynamic_cast<Renderable*> ( m_GEngine->getScene()->getObject( id ) );
-            if( rObj )
+            eObj = dynamic_cast<Entity*> ( m_GEngine->getScene()->getObject( id ) );
+            if( eObj )
             {
-                rObj->setVisibility( objects[i]->m_Visible );
-                rObj->setPrimType( Common::VSP_TRIANGLES );
-                rObj->setRenderStyle( Common::VSP_DRAW_WIRE_FRAME );
-                rObj->setLineColor( red, green, blue );
-                rObj->setLineWidth( lineWidth );
+                eObj->setVisibility( objects[i]->m_Visible );
+                eObj->setPrimType( Common::VSP_TRIANGLES );
+                eObj->setRenderStyle( Common::VSP_DRAW_WIRE_FRAME );
+                eObj->setLineColor( red, green, blue );
+                eObj->setLineWidth( lineWidth );
+
+                eObj->setMaterial( objects[i]->m_MaterialInfo.Ambient, objects[i]->m_MaterialInfo.Diffuse,
+                    objects[i]->m_MaterialInfo.Specular, objects[i]->m_MaterialInfo.Emission,
+                    objects[i]->m_MaterialInfo.Shininess );
 
                 if( objects[i]->m_GeomChanged )
                 {
-                    _loadTrisData( rObj, objects[i] );
+                    _loadTrisData( eObj, objects[i] );
                 }
             }
             break;
@@ -464,18 +474,22 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
                 idInfo.geomID = objects[i]->m_GeomID;
                 m_ids.push_back( idInfo );
             }
-            rObj = dynamic_cast<Renderable*> ( m_GEngine->getScene()->getObject( id ) );
-            if( rObj )
+            eObj = dynamic_cast<Entity*> ( m_GEngine->getScene()->getObject( id ) );
+            if( eObj )
             {
-                rObj->setVisibility( objects[i]->m_Visible );
-                rObj->setPrimType( Common::VSP_QUADS );
-                rObj->setRenderStyle( Common::VSP_DRAW_WIRE_FRAME_SOLID );
-                rObj->setLineColor( red, green, blue );
-                rObj->setLineWidth( lineWidth );
+                eObj->setVisibility( objects[i]->m_Visible );
+                eObj->setPrimType( Common::VSP_QUADS );
+                eObj->setRenderStyle( Common::VSP_DRAW_WIRE_FRAME_SOLID );
+                eObj->setLineColor( red, green, blue );
+                eObj->setLineWidth( lineWidth );
+
+                eObj->setMaterial( objects[i]->m_MaterialInfo.Ambient, objects[i]->m_MaterialInfo.Diffuse,
+                    objects[i]->m_MaterialInfo.Specular, objects[i]->m_MaterialInfo.Emission,
+                    objects[i]->m_MaterialInfo.Shininess );
 
                 if( objects[i]->m_GeomChanged )
                 {
-                    _loadXSecData( rObj, objects[i] );
+                    _loadXSecData( eObj, objects[i] );
                 }
             }
             break;
@@ -490,18 +504,22 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
                 idInfo.geomID = objects[i]->m_GeomID;
                 m_ids.push_back( idInfo );
             }
-            rObj = dynamic_cast<Renderable*> ( m_GEngine->getScene()->getObject( id ) );
-            if( rObj )
+            eObj = dynamic_cast<Entity*> ( m_GEngine->getScene()->getObject( id ) );
+            if( eObj )
             {
-                rObj->setVisibility( objects[i]->m_Visible );
-                rObj->setPrimType( Common::VSP_TRIANGLES );
-                rObj->setRenderStyle( Common::VSP_DRAW_WIRE_FRAME_SOLID );
-                rObj->setLineColor( red, green, blue );
-                rObj->setLineWidth( lineWidth );
+                eObj->setVisibility( objects[i]->m_Visible );
+                eObj->setPrimType( Common::VSP_TRIANGLES );
+                eObj->setRenderStyle( Common::VSP_DRAW_WIRE_FRAME_SOLID );
+                eObj->setLineColor( red, green, blue );
+                eObj->setLineWidth( lineWidth );
+
+                eObj->setMaterial( objects[i]->m_MaterialInfo.Ambient, objects[i]->m_MaterialInfo.Diffuse,
+                    objects[i]->m_MaterialInfo.Specular, objects[i]->m_MaterialInfo.Emission,
+                    objects[i]->m_MaterialInfo.Shininess );
 
                 if( objects[i]->m_GeomChanged )
                 {
-                    _loadTrisData( rObj, objects[i] );
+                    _loadTrisData( eObj, objects[i] );
                 }
             }
             break;
@@ -516,18 +534,22 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
                 idInfo.geomID = objects[i]->m_GeomID;
                 m_ids.push_back( idInfo );
             }
-            rObj = dynamic_cast<Renderable*> ( m_GEngine->getScene()->getObject( id ) );
-            if( rObj )
+            eObj = dynamic_cast<Entity*> ( m_GEngine->getScene()->getObject( id ) );
+            if( eObj )
             {
-                rObj->setVisibility( objects[i]->m_Visible );
-                rObj->setPrimType( Common::VSP_TRIANGLES );
-                rObj->setRenderStyle( Common::VSP_DRAW_WIRE_FRAME_SOLID );
-                rObj->setLineColor( red, green, blue );
-                rObj->setLineWidth( lineWidth );
+                eObj->setVisibility( objects[i]->m_Visible );
+                eObj->setPrimType( Common::VSP_TRIANGLES );
+                eObj->setRenderStyle( Common::VSP_DRAW_WIRE_FRAME_SOLID );
+                eObj->setLineColor( red, green, blue );
+                eObj->setLineWidth( lineWidth );
+
+                eObj->setMaterial( objects[i]->m_MaterialInfo.Ambient, objects[i]->m_MaterialInfo.Diffuse,
+                    objects[i]->m_MaterialInfo.Specular, objects[i]->m_MaterialInfo.Emission,
+                    objects[i]->m_MaterialInfo.Shininess );
 
                 if( objects[i]->m_GeomChanged )
                 {
-                    _loadTrisData( rObj, objects[i] );
+                    _loadTrisData( eObj, objects[i] );
                 }
             }
             break;
@@ -542,16 +564,20 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
                 idInfo.geomID = objects[i]->m_GeomID;
                 m_ids.push_back( idInfo );
             }
-            rObj = dynamic_cast<Renderable*> ( m_GEngine->getScene()->getObject( id ) );
-            if( rObj )
+            eObj = dynamic_cast<Entity*> ( m_GEngine->getScene()->getObject( id ) );
+            if( eObj )
             {
-                rObj->setVisibility( objects[i]->m_Visible );
-                rObj->setPrimType( Common::VSP_QUADS );
-                rObj->setRenderStyle( Common::VSP_DRAW_MESH_SHADED );
+                eObj->setVisibility( objects[i]->m_Visible );
+                eObj->setPrimType( Common::VSP_QUADS );
+                eObj->setRenderStyle( Common::VSP_DRAW_MESH_SHADED );
+
+                eObj->setMaterial( objects[i]->m_MaterialInfo.Ambient, objects[i]->m_MaterialInfo.Diffuse,
+                    objects[i]->m_MaterialInfo.Specular, objects[i]->m_MaterialInfo.Emission,
+                    objects[i]->m_MaterialInfo.Shininess );
 
                 if( objects[i]->m_GeomChanged )
                 {
-                    _loadXSecData( rObj, objects[i] );
+                    _loadXSecData( eObj, objects[i] );
                 }
             }
             break;
@@ -566,16 +592,20 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
                 idInfo.geomID = objects[i]->m_GeomID;
                 m_ids.push_back( idInfo );
             }
-            rObj = dynamic_cast<Renderable*> ( m_GEngine->getScene()->getObject( id ) );
-            if( rObj )
+            eObj = dynamic_cast<Entity*> ( m_GEngine->getScene()->getObject( id ) );
+            if( eObj )
             {
-                rObj->setVisibility( objects[i]->m_Visible );
-                rObj->setPrimType( Common::VSP_TRIANGLES );
-                rObj->setRenderStyle( Common::VSP_DRAW_MESH_SHADED );
+                eObj->setVisibility( objects[i]->m_Visible );
+                eObj->setPrimType( Common::VSP_TRIANGLES );
+                eObj->setRenderStyle( Common::VSP_DRAW_MESH_SHADED );
+
+                eObj->setMaterial( objects[i]->m_MaterialInfo.Ambient, objects[i]->m_MaterialInfo.Diffuse,
+                    objects[i]->m_MaterialInfo.Specular, objects[i]->m_MaterialInfo.Emission,
+                    objects[i]->m_MaterialInfo.Shininess );
 
                 if( objects[i]->m_GeomChanged )
                 {
-                    _loadTrisData( rObj, objects[i] );
+                    _loadTrisData( eObj, objects[i] );
                 }
             }
             break;
@@ -590,16 +620,20 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
                 idInfo.geomID = objects[i]->m_GeomID;
                 m_ids.push_back( idInfo );
             }
-            rObj = dynamic_cast<Renderable*> ( m_GEngine->getScene()->getObject( id ) );
-            if( rObj )
+            eObj = dynamic_cast<Entity*> ( m_GEngine->getScene()->getObject( id ) );
+            if( eObj )
             {
-                rObj->setVisibility( objects[i]->m_Visible );
-                rObj->setPrimType( Common::VSP_QUADS );
-                rObj->setRenderStyle( Common::VSP_DRAW_MESH_TEXTURED );
+                eObj->setVisibility( objects[i]->m_Visible );
+                eObj->setPrimType( Common::VSP_QUADS );
+                eObj->setRenderStyle( Common::VSP_DRAW_MESH_TEXTURED );
+
+                eObj->setMaterial( objects[i]->m_MaterialInfo.Ambient, objects[i]->m_MaterialInfo.Diffuse,
+                    objects[i]->m_MaterialInfo.Specular, objects[i]->m_MaterialInfo.Emission,
+                    objects[i]->m_MaterialInfo.Shininess );
 
                 if( objects[i]->m_GeomChanged )
                 {
-                    _loadXSecData( rObj, objects[i] );
+                    _loadXSecData( eObj, objects[i] );
                 }
                 _updateTextures( objects[i] );
             }

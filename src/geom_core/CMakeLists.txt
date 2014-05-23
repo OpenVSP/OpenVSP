@@ -48,6 +48,9 @@ XSecCurve.cpp
 XSecSurf.cpp
 LabelMgr.cpp
 LightMgr.cpp
+Material.cpp
+MaterialMgr.cpp
+VspPreferences.cpp
 Airfoil.h
 BlankGeom.h
 CustomGeom.h
@@ -79,5 +82,8 @@ XSecCurve.h
 XSecSurf.h
 LabelMgr.h
 LightMgr.h
+Material.h
+MaterialMgr.h
+VspPreferences.h
 
 )

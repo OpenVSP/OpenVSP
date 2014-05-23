@@ -1833,7 +1833,7 @@ vec3d ColorPicker::GetIndexRGB( int index )
     }
     if ( index == 8 )
     {
-        return vec3d(   0, 128, 128 );
+        return vec3d( 0, 128, 128 );
     }
     if ( index == 9 )
     {
@@ -1851,7 +1851,7 @@ vec3d ColorPicker::GetIndexRGB( int index )
     return vec3d( 0, 0, 0 );
 }
 
-void ColorPicker::Update( vec3d& rgb )
+void ColorPicker::Update( const vec3d& rgb )
 {
     m_Color = rgb;
     m_RGB_Sliders[0]->value( ( int )m_Color[0] );

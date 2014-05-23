@@ -10,9 +10,19 @@ class Material
 {
 public:
     /*!
-    * Constructor.
+    * Constructor a default material.
     */
     Material();
+    /*!
+    * Construct a material with set values.
+    *
+    * ambi - Ambient value for this material.  Ambient must be a four elements array.
+    * diff - Diffuse value for this material.  Diffuse must be a four elements array.
+    * spec - Specular value for this material.  Specular must be a four elements array.
+    * emis - Emission value for this material.  Emission must be a four elements array.
+    * shin - Shininess of the object.  Value is between 0 and 128.
+    */
+    Material(float ambi[], float diff[], float spec[], float emis[], float shin);
     /*!
     * Destructor.
     */

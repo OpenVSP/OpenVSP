@@ -158,6 +158,25 @@ public:
     };
 
     /*
+    * Information needed to define a material.
+    *
+    * Ambient - Ambient value for this material.
+    * Diffuse - Diffuse value for this mateiral.
+    * Specular - Specular value for this material.
+    * Emission - Emission value for this material.
+    * Shininess - Shine value, the value is between 0 and 128.
+    */
+    struct MaterialInfo
+    {
+        float Ambient[4];
+        float Diffuse[4];
+        float Specular[4];
+        float Emission[4];
+
+        float Shininess;
+    };
+
+    /*
     * Light Source Information.
     *
     * Active - True if Light Source is active.
@@ -330,6 +349,11 @@ public:
     * Otherwise m_LightingInfos is empty.
     */
     vector<LightSourceInfo> m_LightingInfos;
+
+    /*
+    * Material information of this DrawObj.
+    */
+    MaterialInfo m_MaterialInfo;
 
 protected:
 

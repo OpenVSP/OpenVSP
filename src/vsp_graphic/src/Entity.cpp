@@ -14,32 +14,49 @@ namespace VSPGraphic
 {
 Entity::Entity() : Renderable()
 {
-    _material = _getDefaultMaterial();
     _lighting = NULL;
-    _textureMgr = new TextureMgr();
 }
 Entity::Entity( Lighting * lights ) : Renderable()
 {
-    _material = _getDefaultMaterial();
     _lighting = lights;
-    _textureMgr = new TextureMgr();
-    _textureMgr->setLighting( _lighting );
+    _textureMgr.setLighting( _lighting );
 }
 Entity::~Entity()
 {
-    delete _textureMgr;
 }
 
 void Entity::setLighting( Lighting * lighting )
 {
     _lighting = lighting;
-    _textureMgr->setLighting( _lighting );
+    _textureMgr.setLighting( _lighting );
 }
 
 void Entity::setMaterial( Material * material )
 {
     assert( material );
-    _material = material;
+    setMaterial( material->ambient, material->diffuse, material->specular, material->emission, material->shininess );
+}
+
+void Entity::setMaterial( float ambi[], float diff[], float spec[], float emis[], float shin )
+{
+    _material.ambient[0] = ambi[0]; _material.ambient[1] = ambi[1]; _material.ambient[2] = ambi[2];
+    _material.ambient[3] = ambi[3];
+
+    _material.diffuse[0] = diff[0]; _material.diffuse[1] = diff[1]; _material.diffuse[2] = diff[2];
+    _material.diffuse[3] = diff[3];
+
+    _material.specular[0] = spec[0]; _material.specular[1] = spec[1]; _material.specular[2] = spec[2];
+    _material.specular[3] = spec[3];
+
+    _material.emission[0] = emis[0]; _material.emission[1] = emis[1]; _material.emission[2] = emis[2];
+    _material.emission[3] = emis[3];
+
+    _material.shininess = shin;
+}
+
+bool Entity::isTransparent()
+{
+    return _material.diffuse[3] < 1.0 ? true : false;
 }
 
 void Entity::_predraw()
@@ -82,18 +99,12 @@ void Entity::_draw()
     }
 }
 
-Material * Entity::_getDefaultMaterial()
-{
-    static Material mat;
-    return &mat;
-}
-
 void Entity::_draw_Mesh_Shaded()
 {
     if( _lighting )
     {
         glEnable( GL_LIGHTING );
-        _material->bind();
+        _material.bind();
     }
     glEnable( GL_CULL_FACE );
 
@@ -108,13 +119,13 @@ void Entity::_draw_Mesh_Textured()
     if( _lighting )
     {
         glEnable( GL_LIGHTING );
-        _material->bind();
+        _material.bind();
     }
     glEnable( GL_CULL_FACE );
 
-    _textureMgr->bind();
+    _textureMgr.bind();
     _draw_Mesh();
-    _textureMgr->unbind();
+    _textureMgr.unbind();
 
     glDisable( GL_LIGHTING );
     glDisable( GL_CULL_FACE );
