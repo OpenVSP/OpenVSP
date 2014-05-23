@@ -30,10 +30,42 @@ MaterialRepo::MaterialRepo()
     mat.shininess = 38.0;
     m_Materials.push_back(mat);
 
+    mat.name = "Pearl";
+    mat.ambi[0] = 0.250; mat.ambi[1] = 0.207; mat.ambi[2] = 0.207; mat.ambi[3] = 1.0;
+    mat.diff[0] = 1.000; mat.diff[1] = 0.829; mat.diff[2] = 0.829; mat.diff[3] = 1.0;
+    mat.spec[0] = 0.297; mat.spec[1] = 0.297; mat.spec[2] = 0.297; mat.spec[3] = 1.0;
+    mat.emis[0] = 0.0; mat.emis[1] = 0.0; mat.emis[2] = 0.0; mat.emis[3] = 1.0;
+    mat.shininess = 11.0;
+    m_Materials.push_back(mat);
+
+    mat.name = "Ruby";
+    mat.ambi[0] = 0.175; mat.ambi[1] = 0.01175; mat.ambi[2] = 0.01175; mat.ambi[3] = 1.0;
+    mat.diff[0] = 0.61424; mat.diff[1] = 0.04136; mat.diff[2] = 0.04136; mat.diff[3] = 1.0;
+    mat.spec[0] = 0.727811; mat.spec[1] = 0.626959; mat.spec[2] = 0.626959; mat.spec[3] = 1.0;
+    mat.emis[0] = 0.0; mat.emis[1] = 0.0; mat.emis[2] = 0.0; mat.emis[3] = 1.0;
+    mat.shininess = 76.0;
+    m_Materials.push_back(mat);
+
+    mat.name = "Turquoise";
+    mat.ambi[0] = 0.1; mat.ambi[1] = 0.18725; mat.ambi[2] = 0.1745; mat.ambi[3] = 1.0;
+    mat.diff[0] = 0.396; mat.diff[1] = 0.74151; mat.diff[2] = 0.69102; mat.diff[3] = 1.0;
+    mat.spec[0] = 0.297254; mat.spec[1] = 0.30829; mat.spec[2] = 0.306678; mat.spec[3] = 1.0;
+    mat.emis[0] = 0.0; mat.emis[1] = 0.0; mat.emis[2] = 0.0; mat.emis[3] = 1.0;
+    mat.shininess = 12.0;
+    m_Materials.push_back(mat);
+
     mat.name = "Brass";
     mat.ambi[0] = 0.330; mat.ambi[1] = 0.223; mat.ambi[2] = 0.0275; mat.ambi[3] = 1.0;
     mat.diff[0] = 0.78; mat.diff[1] = 0.57; mat.diff[2] = 0.11; mat.diff[3] = 1.0;
     mat.spec[0] = 0.99; mat.spec[1] = 0.94; mat.spec[2] = 0.81; mat.spec[3] = 1.0;
+    mat.emis[0] = 0.0; mat.emis[1] = 0.0; mat.emis[2] = 0.0; mat.emis[3] = 1.0;
+    mat.shininess = 27.0;
+    m_Materials.push_back(mat);
+
+    mat.name = "Bronze";
+    mat.ambi[0] = 0.2125; mat.ambi[1] = 0.1275; mat.ambi[2] = 0.054; mat.ambi[3] = 1.0;
+    mat.diff[0] = 0.714; mat.diff[1] = 0.4284; mat.diff[2] = 0.18144; mat.diff[3] = 1.0;
+    mat.spec[0] = 0.393548; mat.spec[1] = 0.271906; mat.spec[2] = 0.166721; mat.spec[3] = 1.0;
     mat.emis[0] = 0.0; mat.emis[1] = 0.0; mat.emis[2] = 0.0; mat.emis[3] = 1.0;
     mat.shininess = 27.0;
     m_Materials.push_back(mat);
@@ -44,6 +76,14 @@ MaterialRepo::MaterialRepo()
     mat.spec[0] = 0.77; mat.spec[1] = 0.77; mat.spec[2] = 0.77; mat.spec[3] = 1.0;
     mat.emis[0] = 0.0; mat.emis[1] = 0.0; mat.emis[2] = 0.0; mat.emis[3] = 1.0;
     mat.shininess = 77.0;
+    m_Materials.push_back(mat);
+
+    mat.name = "Copper";
+    mat.ambi[0] = 0.19125; mat.ambi[1] = 0.0735; mat.ambi[2] = 0.0225; mat.ambi[3] = 1.0;
+    mat.diff[0] = 0.7038; mat.diff[1] = 0.27048; mat.diff[2] = 0.0828; mat.diff[3] = 1.0;
+    mat.spec[0] = 0.256777; mat.spec[1] = 0.137622; mat.spec[2] = 0.086014; mat.spec[3] = 1.0;
+    mat.emis[0] = 0.0; mat.emis[1] = 0.0; mat.emis[2] = 0.0; mat.emis[3] = 1.0;
+    mat.shininess = 13.0;
     m_Materials.push_back(mat);
 
     mat.name = "Gold";
@@ -60,6 +100,22 @@ MaterialRepo::MaterialRepo()
     mat.spec[0] = 0.51; mat.spec[1] = 0.51; mat.spec[2] = 0.51; mat.spec[3] = 1.0;
     mat.emis[0] = 0.0; mat.emis[1] = 0.0; mat.emis[2] = 0.0; mat.emis[3] = 1.0;
     mat.shininess = 51.0;
+    m_Materials.push_back(mat);
+
+    mat.name = "Aluminum";
+    mat.ambi[0] = 0.25, mat.ambi[1] = 0.25, mat.ambi[2] = 0.25, mat.ambi[3] = 1.0;
+    mat.diff[0] = 0.5, mat.diff[1] = 0.5, mat.diff[2] = 0.5, mat.diff[3] = 1.0;
+    mat.spec[0] = 0.6, mat.spec[1] = 0.6, mat.spec[2] = 0.6, mat.spec[3] = 1.0;
+    mat.emis[0] = 0.0, mat.emis[1] = 0.0, mat.emis[2] = 0.0, mat.emis[3] = 1.0;
+    mat.shininess = 5.0;
+    m_Materials.push_back(mat);
+
+    mat.name = "Shiny Gold";
+    mat.ambi[0] = 0.4; mat.ambi[1] = 0.2; mat.ambi[2] = 0.0; mat.ambi[3] = 1.0;
+    mat.diff[0] = 0.9; mat.diff[1] = 0.5; mat.diff[2] = 0.0; mat.diff[3] = 1.0;
+    mat.spec[0] = 0.9; mat.spec[1] = 0.9; mat.spec[2] = 0.0; mat.spec[3] = 1.0;
+    mat.emis[0] = 0.0; mat.emis[1] = 0.0; mat.emis[2] = 0.0; mat.emis[3] = 1.0;
+    mat.shininess = 2.0;
     m_Materials.push_back(mat);
 
     mat.name = "Black Plastic";
@@ -110,6 +166,23 @@ MaterialRepo::MaterialRepo()
     mat.shininess = 30.0;
     m_Materials.push_back(mat);
 
+// Materials from reference, but they don't look good.
+//    mat.name = "White Plastic";
+//    mat.ambi[0] = 0.0; mat.ambi[1] = 0.0; mat.ambi[2] = 0.0; mat.ambi[3] = 1.0;
+//    mat.diff[0] = 0.55; mat.diff[1] = 0.55; mat.diff[2] = 0.55; mat.diff[3] = 1.0;
+//    mat.spec[0] = 0.7; mat.spec[1] = 0.7; mat.spec[2] = 0.7; mat.spec[3] = 1.0;
+//    mat.emis[0] = 0.0; mat.emis[1] = 0.0; mat.emis[2] = 0.0; mat.emis[3] = 1.0;
+//    mat.shininess = 32.0;
+//    m_Materials.push_back(mat);
+//
+//    mat.name = "Yellow Plastic 2";
+//    mat.ambi[0] = 0.0; mat.ambi[1] = 0.0; mat.ambi[2] = 0.0; mat.ambi[3] = 1.0;
+//    mat.diff[0] = 0.5; mat.diff[1] = 0.5; mat.diff[2] = 0.0; mat.diff[3] = 1.0;
+//    mat.spec[0] = 0.6; mat.spec[1] = 0.6; mat.spec[2] = 0.5; mat.spec[3] = 1.0;
+//    mat.emis[0] = 0.0; mat.emis[1] = 0.0; mat.emis[2] = 0.0; mat.emis[3] = 1.0;
+//    mat.shininess = 32.0;
+//    m_Materials.push_back(mat);
+
     mat.name = "White";
     mat.ambi[0] = 0.9; mat.ambi[1] = 0.9; mat.ambi[2] = 0.9; mat.ambi[3] = 1.0;
     mat.diff[0] = 0.8; mat.diff[1] = 0.8; mat.diff[2] = 0.8; mat.diff[3] = 1.0;
@@ -118,20 +191,60 @@ MaterialRepo::MaterialRepo()
     mat.shininess = 40.0;
     m_Materials.push_back(mat);
 
-    mat.name = "Aluminum";
-    mat.ambi[0] = 0.25, mat.ambi[1] = 0.25, mat.ambi[2] = 0.25, mat.ambi[3] = 1.0;
-    mat.diff[0] = 0.5, mat.diff[1] = 0.5, mat.diff[2] = 0.5, mat.diff[3] = 1.0;
-    mat.spec[0] = 0.6, mat.spec[1] = 0.6, mat.spec[2] = 0.6, mat.spec[3] = 1.0;
-    mat.emis[0] = 0.0, mat.emis[1] = 0.0, mat.emis[2] = 0.0, mat.emis[3] = 1.0;
-    mat.shininess = 5.0;
+    mat.name = "Black Rubber";
+    mat.ambi[0] = 0.02; mat.ambi[1] = 0.02; mat.ambi[2] = 0.02; mat.ambi[3] = 1.0;
+    mat.diff[0] = 0.01; mat.diff[1] = 0.01; mat.diff[2] = 0.01; mat.diff[3] = 1.0;
+    mat.spec[0] = 0.4; mat.spec[1] = 0.4; mat.spec[2] = 0.4; mat.spec[3] = 1.0;
+    mat.emis[0] = 0.0; mat.emis[1] = 0.0; mat.emis[2] = 0.0; mat.emis[3] = 1.0;
+    mat.shininess = 10.0;
     m_Materials.push_back(mat);
 
-    mat.name = "Shiny Gold";
-    mat.ambi[0] = 0.4; mat.ambi[1] = 0.2; mat.ambi[2] = 0.0; mat.ambi[3] = 1.0;
-    mat.diff[0] = 0.9; mat.diff[1] = 0.5; mat.diff[2] = 0.0; mat.diff[3] = 1.0;
-    mat.spec[0] = 0.9; mat.spec[1] = 0.9; mat.spec[2] = 0.0; mat.spec[3] = 1.0;
+    mat.name = "Cyan Rubber";
+    mat.ambi[0] = 0.0; mat.ambi[1] = 0.05; mat.ambi[2] = 0.05; mat.ambi[3] = 1.0;
+    mat.diff[0] = 0.4; mat.diff[1] = 0.5; mat.diff[2] = 0.5; mat.diff[3] = 1.0;
+    mat.spec[0] = 0.04; mat.spec[1] = 0.7; mat.spec[2] = 0.7; mat.spec[3] = 1.0;
     mat.emis[0] = 0.0; mat.emis[1] = 0.0; mat.emis[2] = 0.0; mat.emis[3] = 1.0;
-    mat.shininess = 2.0;
+    mat.shininess = 10.0;
+    m_Materials.push_back(mat);
+
+    mat.name = "Green Rubber";
+    mat.ambi[0] = 0.0; mat.ambi[1] = 0.05; mat.ambi[2] = 0.0; mat.ambi[3] = 1.0;
+    mat.diff[0] = 0.4; mat.diff[1] = 0.5; mat.diff[2] = 0.4; mat.diff[3] = 1.0;
+    mat.spec[0] = 0.04; mat.spec[1] = 0.7; mat.spec[2] = 0.04; mat.spec[3] = 1.0;
+    mat.emis[0] = 0.0; mat.emis[1] = 0.0; mat.emis[2] = 0.0; mat.emis[3] = 1.0;
+    mat.shininess = 10.0;
+    m_Materials.push_back(mat);
+
+    mat.name = "Red Rubber";
+    mat.ambi[0] = 0.05; mat.ambi[1] = 0.0; mat.ambi[2] = 0.0; mat.ambi[3] = 1.0;
+    mat.diff[0] = 0.5; mat.diff[1] = 0.4; mat.diff[2] = 0.4; mat.diff[3] = 1.0;
+    mat.spec[0] = 0.7; mat.spec[1] = 0.04; mat.spec[2] = 0.04; mat.spec[3] = 1.0;
+    mat.emis[0] = 0.0; mat.emis[1] = 0.0; mat.emis[2] = 0.0; mat.emis[3] = 1.0;
+    mat.shininess = 10.0;
+    m_Materials.push_back(mat);
+
+    mat.name = "Blue Rubber";
+    mat.ambi[0] = 0.0; mat.ambi[1] = 0.0; mat.ambi[2] = 0.05; mat.ambi[3] = 1.0;
+    mat.diff[0] = 0.4; mat.diff[1] = 0.4; mat.diff[2] = 0.5; mat.diff[3] = 1.0;
+    mat.spec[0] = 0.04; mat.spec[1] = 0.04; mat.spec[2] = 0.7; mat.spec[3] = 1.0;
+    mat.emis[0] = 0.0; mat.emis[1] = 0.0; mat.emis[2] = 0.0; mat.emis[3] = 1.0;
+    mat.shininess = 10.0;
+    m_Materials.push_back(mat);
+
+    mat.name = "White Rubber";
+    mat.ambi[0] = 0.05; mat.ambi[1] = 0.05; mat.ambi[2] = 0.05; mat.ambi[3] = 1.0;
+    mat.diff[0] = 0.5; mat.diff[1] = 0.5; mat.diff[2] = 0.5; mat.diff[3] = 1.0;
+    mat.spec[0] = 0.7; mat.spec[1] = 0.7; mat.spec[2] = 0.7; mat.spec[3] = 1.0;
+    mat.emis[0] = 0.0; mat.emis[1] = 0.0; mat.emis[2] = 0.0; mat.emis[3] = 1.0;
+    mat.shininess = 10.0;
+    m_Materials.push_back(mat);
+
+    mat.name = "Yellow Rubber";
+    mat.ambi[0] = 0.05; mat.ambi[1] = 0.05; mat.ambi[2] = 0.0; mat.ambi[3] = 1.0;
+    mat.diff[0] = 0.5; mat.diff[1] = 0.5; mat.diff[2] = 0.4; mat.diff[3] = 1.0;
+    mat.spec[0] = 0.7; mat.spec[1] = 0.7; mat.spec[2] = 0.04; mat.spec[3] = 1.0;
+    mat.emis[0] = 0.0; mat.emis[1] = 0.0; mat.emis[2] = 0.0; mat.emis[3] = 1.0;
+    mat.shininess = 10.0;
     m_Materials.push_back(mat);
 
     mat.name = "Glass Light";
