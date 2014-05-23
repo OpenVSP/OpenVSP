@@ -50,6 +50,7 @@ Labels.cpp
 Lights.cpp
 Material.cpp
 MaterialMgr.cpp
+VspPreferences.cpp
 Airfoil.h
 BlankGeom.h
 CustomGeom.h
@@ -83,5 +84,5 @@ Labels.h
 Lights.h
 Material.h
 MaterialMgr.h
-
+VspPreferences.h
 )
