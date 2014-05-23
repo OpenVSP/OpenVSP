@@ -20,6 +20,8 @@ DrawObj::DrawObj()
 
     m_GeomChanged = true;
 
+    m_FlipNormals = false;
+
     m_Type = DrawObj::VSP_POINTS;
 
     m_Screen = DrawObj::VSP_MAIN_SCREEN;

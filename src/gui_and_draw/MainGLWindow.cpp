@@ -965,13 +965,17 @@ void VspGlWindow::_loadXSecData( Renderable * destObj, DrawObj * drawObj )
             vdata.push_back( (float)drawObj->m_PntMesh[i][j].x() );
             vdata.push_back( (float)drawObj->m_PntMesh[i][j].y() );
             vdata.push_back( (float)drawObj->m_PntMesh[i][j].z() );
+
             vdata.push_back( (float)drawObj->m_NormMesh[i][j].x() );
             vdata.push_back( (float)drawObj->m_NormMesh[i][j].y() );
             vdata.push_back( (float)drawObj->m_NormMesh[i][j].z() );
+
             vdata.push_back( (float)textureCoords[i][j].x() );
             vdata.push_back( (float)textureCoords[i][j].y() );
         }
     }
+    destObj->setFacingCW( drawObj->m_FlipNormals );
+
     destObj->emptyVBuffer();
     destObj->appendVBuffer( vdata.data(), sizeof(float) * vdata.size() );
 
@@ -1019,12 +1023,16 @@ void VspGlWindow::_loadTrisData( Renderable * destObj, DrawObj * drawObj )
         data.push_back( ( float )drawObj->m_PntVec[i].x() );
         data.push_back( ( float )drawObj->m_PntVec[i].y() );
         data.push_back( ( float )drawObj->m_PntVec[i].z() );
+
         data.push_back( ( float )drawObj->m_NormVec[i].x() );
         data.push_back( ( float )drawObj->m_NormVec[i].y() );
         data.push_back( ( float )drawObj->m_NormVec[i].z() );
+
         data.push_back( 0.0f );
         data.push_back( 0.0f );
     }
+    destObj->setFacingCW( drawObj->m_FlipNormals );
+
     destObj->emptyVBuffer();
     destObj->appendVBuffer( data.data(), sizeof( float ) * data.size() );
 }

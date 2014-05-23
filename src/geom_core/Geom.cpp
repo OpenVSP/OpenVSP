@@ -557,8 +557,9 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
 
     m_TessU.Init( "Tess_U", "Shape", this, 8, 2,  100 );
     m_TessU.SetDescript( "Number of tessellated curves in the U direction" );
-    m_TessW.Init( "Tess_W", "Shape", this, 10, 2,  100 );
+    m_TessW.Init( "Tess_W", "Shape", this, 9, 2,  100 );
     m_TessW.SetDescript( "Number of tessellated curves in the W direction" );
+    m_TessW.SetMultShift( 4, 1 );
 
     m_BbXLen.Init( "X_Len", "BBox", this, 0, 0, 1e12 );
     m_BbXLen.SetDescript( "X length of geom bounding box" );
@@ -805,7 +806,7 @@ void Geom::UpdateSymmAttach()
                 else
                 {
                     m_SurfVec[j] = m_SurfVec[j - currentIndex];
-                    m_SurfVec[j].ReverseUDirection();
+                    m_SurfVec[j].FlipNormal();
                     transMats[j].initMat( transMats[j - currentIndex].data() );
                     transMats[j].postMult( Ref.data() ); // Apply Reflection
                     addIndex++;
@@ -868,6 +869,7 @@ void Geom::UpdateDrawObj()
     {
         UpdateTesselate( i, m_WireShadeDrawObj_vec[i].m_PntMesh, m_WireShadeDrawObj_vec[i].m_NormMesh );
         m_WireShadeDrawObj_vec[i].m_GeomChanged = true;
+        m_WireShadeDrawObj_vec[i].m_FlipNormals = m_SurfVec[i].GetFlipNormal();
     }
 
     //==== Bounding Box ====//

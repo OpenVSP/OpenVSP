@@ -34,7 +34,6 @@ protected:
     GroupLayout m_DesignLayout;
 
     SliderAdjRangeInput m_LengthSlider;
-    SliderInput m_NumPntsXSecSlider;
 
     GroupLayout m_SkinLayout;
 
@@ -73,6 +72,8 @@ protected:
     TriggerButton m_CutXSec;
     TriggerButton m_CopyXSec;
     TriggerButton m_PasteXSec;
+
+    SliderInput m_SectUTessSlider;
 
     FractParmSlider m_XSecXSlider;
     FractParmSlider m_XSecYSlider;
