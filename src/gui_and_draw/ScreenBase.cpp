@@ -11,7 +11,7 @@
 #include "ScreenMgr.h"
 #include "ParmMgr.h"
 #include "APIDefines.h"
-#include "VspPreferences.h"
+#include "MaterialRepo.h"
 using namespace vsp;
 
 
@@ -223,13 +223,13 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_GenLayout.AddColorPicker( m_ColorPicker );
     m_GenLayout.AddYGap();
 
-    std::vector<VspPreferences::MaterialPref> materials;
-    materials = VspPreferences::getInstance().getMaterialPrefs();
+    std::vector<std::string> matNames;
+    matNames = MaterialRepo::GetInstance()->GetNames();
 
     m_MaterialChoice.AddItem( "DEFAULT" );
-    for( int i = 0; i < (int) materials.size(); i++ )
+    for( int i = 0; i < (int) matNames.size(); i++ )
     {
-        m_MaterialChoice.AddItem( materials[i].name );
+        m_MaterialChoice.AddItem( matNames[i] );
     }
     m_GenLayout.AddChoice( m_MaterialChoice, "Material:" );
     m_GenLayout.AddYGap();
@@ -531,9 +531,9 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         int index = m_MaterialChoice.GetVal() - 1;
 
-        VspPreferences::MaterialPref mat;
+        MaterialRepo::MaterialPref mat;
 
-        if( VspPreferences::getInstance().findMaterialPref( index, mat ) )
+        if( MaterialRepo::GetInstance()->FindMaterial( index, mat ) )
         {
             geom_ptr->SetMaterial( mat.name, mat.ambi, mat.diff, mat.spec, mat.emis, mat.shininess );
         }
