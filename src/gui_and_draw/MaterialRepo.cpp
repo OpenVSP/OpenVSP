@@ -6,7 +6,7 @@ MaterialRepo::MaterialRepo()
 {
     MaterialPref mat;
 
-    mat.name = "Emerld";
+    mat.name = "Emerald";
     mat.ambi[0] = 0.0215; mat.ambi[1] = 0.1745; mat.ambi[2] = 0.0215, mat.ambi[3] = 1.0;
     mat.diff[0] = 0.07568; mat.diff[1] = 0.61424; mat.diff[2] = 0.07568; mat.diff[3] = 1.0;
     mat.spec[0] = 0.633; mat.spec[1] = 0.727811; mat.spec[2] = 0.633; mat.spec[3] = 1.0;
@@ -17,7 +17,7 @@ MaterialRepo::MaterialRepo()
     mat.name = "Jade";
     mat.ambi[0] = 0.135; mat.ambi[1] = 0.2225; mat.ambi[2] = 0.1575; mat.ambi[3] = 1.0;
     mat.diff[0] = 0.54; mat.diff[1] = 0.89; mat.diff[2] = 0.63; mat.diff[3] = 1.0;
-    mat.spec[0] = 0.31622; mat.spec[1] = 0.316; mat.spec[2] = 0.316; mat.spec[3] = 1.0;
+    mat.spec[0] = 0.316; mat.spec[1] = 0.316; mat.spec[2] = 0.316; mat.spec[3] = 1.0;
     mat.emis[0] = 0.0; mat.emis[1] = 0.0; mat.emis[2] = 0.0; mat.emis[3] = 1.0;
     mat.shininess = 12.0;
     m_Materials.push_back(mat);
@@ -73,7 +73,7 @@ MaterialRepo::MaterialRepo()
     mat.name = "Cyan Plastic";
     mat.ambi[0] = 0.0; mat.ambi[1] = 0.1; mat.ambi[2] = 0.06; mat.ambi[3] = 1.0;
     mat.diff[0] = 0.0; mat.diff[1] = 0.51; mat.diff[2] = 0.51; mat.diff[3] = 1.0;
-    mat.spec[0] = 0.51; mat.spec[1] = 0.51; mat.spec[2] = 0.51; mat.spec[3] = 1.0;
+    mat.spec[0] = 0.50; mat.spec[1] = 0.50; mat.spec[2] = 0.50; mat.spec[3] = 1.0;
     mat.emis[0] = 0.0; mat.emis[1] = 0.0; mat.emis[2] = 0.0; mat.emis[3] = 1.0;
     mat.shininess = 32.0;
     m_Materials.push_back(mat);
@@ -134,7 +134,7 @@ MaterialRepo::MaterialRepo()
     mat.shininess = 2.0;
     m_Materials.push_back(mat);
 
-    mat.name = "Glass_Light";
+    mat.name = "Glass Light";
     mat.ambi[0] = 0.2; mat.ambi[1] = 0.2; mat.ambi[2] = 0.2; mat.ambi[3] = 0.2;
     mat.diff[0] = 0.1; mat.diff[1] = 0.1; mat.diff[2] = 0.1; mat.diff[3] = 0.33;
     mat.spec[0] = 0.7; mat.spec[1] = 0.7; mat.spec[2] = 0.7; mat.spec[3] = 0.7;
@@ -142,7 +142,7 @@ MaterialRepo::MaterialRepo()
     mat.shininess = 5.0;
     m_Materials.push_back(mat);
 
-    mat.name = "Glass_Med";
+    mat.name = "Glass Med";
     mat.ambi[0] = 0.2; mat.ambi[1] = 0.2; mat.ambi[2] = 0.2; mat.ambi[3] = 0.2;
     mat.diff[0] = 0.1; mat.diff[1] = 0.1; mat.diff[2] = 0.1; mat.diff[3] = 0.5;
     mat.spec[0] = 0.7; mat.spec[1] = 0.7; mat.spec[2] = 0.7; mat.spec[3] = 0.7;
@@ -150,7 +150,7 @@ MaterialRepo::MaterialRepo()
     mat.shininess = 5.0;
     m_Materials.push_back(mat);
 
-    mat.name = "Glass_Dark";
+    mat.name = "Glass Dark";
     mat.ambi[0] = 0.0; mat.ambi[1] = 0.0; mat.ambi[2] = 0.0; mat.ambi[3] = 0.0;
     mat.diff[0] = 0.0; mat.diff[1] = 0.0; mat.diff[2] = 0.0; mat.diff[3] = 0.67;
     mat.spec[0] = 0.7; mat.spec[1] = 0.7; mat.spec[2] = 0.7; mat.spec[3] = 0.7;
@@ -158,7 +158,7 @@ MaterialRepo::MaterialRepo()
     mat.shininess = 5.0;
     m_Materials.push_back(mat);
 
-    mat.name = "Glass_Golden";
+    mat.name = "Glass Golden";
     mat.ambi[0] = 0.27; mat.ambi[1] = 0.28; mat.ambi[2] = 0.23; mat.ambi[3] = 1.0;
     mat.diff[0] = 0.61; mat.diff[1] = 0.41; mat.diff[2] = 0.27; mat.diff[3] = 0.5;
     mat.spec[0] = 0.97; mat.spec[1] = 0.64; mat.spec[2] = 0.28; mat.spec[3] = 1.0;
