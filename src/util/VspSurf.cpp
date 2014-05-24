@@ -1688,7 +1688,13 @@ vec3d VspSurf::CompNorm01( double u01, double v01 ) const
 //==== Tesselate Surface ====//
 void VspSurf::Tesselate( int num_u, int num_v, vector< vector< vec3d > > & pnts, vector< vector< vec3d > > & norms ) const
 {
-    if( m_Surface.number_u_patches()==0 || m_Surface.number_v_patches()==0 )
+    std::vector< vector< vec3d > > uw_pnts;
+    Tesselate( num_u, num_v, pnts, norms, uw_pnts );
+}
+
+void VspSurf::Tesselate( int num_u, int num_v, vector< vector< vec3d > > & pnts, vector< vector< vec3d > > & norms, vector< vector< vec3d > > & uw_pnts ) const
+{
+    if( m_Surface.number_u_patches() == 0 || m_Surface.number_v_patches() == 0 )
     {
         return;
     }
@@ -1701,10 +1707,12 @@ void VspSurf::Tesselate( int num_u, int num_v, vector< vector< vec3d > > & pnts,
     // resize pnts and norms
     pnts.resize( nu );
     norms.resize( nu );
+    uw_pnts.resize( nu );
     for ( i = 0; i < nu; ++i )
     {
         pnts[i].resize( nv );
         norms[i].resize( nv );
+        uw_pnts[i].resize( nv );
     }
 
     // calculate the u and v parameterizations
@@ -1733,11 +1741,18 @@ void VspSurf::Tesselate( int num_u, int num_v, vector< vector< vec3d > > & pnts,
                 ntmp = -ntmp;
             }
             norms[i][j].set_xyz( ntmp.x(), ntmp.y(), ntmp.z() );
+            uw_pnts[i][j].set_xyz( u[i], v[j], 0.0 );
         }
     }
 }
 
 void VspSurf::Tesselate( const vector<int> &num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms ) const
+{
+    std::vector< vector< vec3d > > uw_pnts;
+    Tesselate( num_u, num_v, pnts, norms, uw_pnts );
+}
+
+void VspSurf::Tesselate( const vector<int> &num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts ) const
 {
     surface_index_type i, j, nu, nv( num_v );
     double umin, umax, vmin, vmax;
@@ -1754,10 +1769,12 @@ void VspSurf::Tesselate( const vector<int> &num_u, int num_v, std::vector< vecto
     // resize pnts and norms
     pnts.resize( nu );
     norms.resize( nu );
+    uw_pnts.resize( nu );
     for ( i = 0; i < nu; ++i )
     {
         pnts[i].resize( nv );
         norms[i].resize( nv );
+        uw_pnts[i].resize( nv );
     }
 
     // calculate the u and v parameterizations
@@ -1798,6 +1815,7 @@ void VspSurf::Tesselate( const vector<int> &num_u, int num_v, std::vector< vecto
                 ntmp = -ntmp;
             }
             norms[i][j].set_xyz( ntmp.x(), ntmp.y(), ntmp.z() );
+            uw_pnts[i][j].set_xyz( u[i], v[j], 0.0 );
         }
     }
 }
