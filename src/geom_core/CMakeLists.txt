@@ -39,6 +39,7 @@ ResultsMgr.cpp
 ScriptMgr.cpp
 StackGeom.cpp
 SubSurface.cpp
+SubSurfaceMgr.cpp
 TMesh.cpp
 Vehicle.cpp
 VehicleMgr.cpp
@@ -67,6 +68,7 @@ ResultsMgr.h
 ScriptMgr.h
 StackGeom.h
 SubSurface.h
+SubSurfaceMgr.h
 SWIGDefines.h
 TMesh.h
 Vehicle.h

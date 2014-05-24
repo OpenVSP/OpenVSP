@@ -1,0 +1,170 @@
+//
+// This file is released under the terms of the NASA Open Source Agreement (NOSA)
+// version 1.3 as detailed in the LICENSE file which accompanies this software.
+//
+
+// SubSurfaceMgr.cpp:
+// Alex Gary
+//
+//////////////////////////////////////////////////////////////////////
+
+#include "SubSurfaceMgr.h"
+#include "Vehicle.h"
+#include "VehicleMgr.h"
+#include <algorithm>
+
+using std::vector;
+using std::string;
+using std::map;
+
+SubSurfaceMgrSingleton::SubSurfaceMgrSingleton()
+{
+    m_CurrSurfInd = -1;
+}
+
+SubSurfaceMgrSingleton::~SubSurfaceMgrSingleton()
+{
+}
+
+
+//==== Get the geom pointer matching a given comp_id ====//
+Geom* SubSurfaceMgrSingleton::GetGeom( string comp_id )
+{
+    Vehicle* veh = VehicleMgr::getInstance().GetVehicle();
+    if ( !veh )
+    {
+        return NULL;
+    }
+
+    return veh->FindGeom( comp_id );
+}
+
+void SubSurfaceMgrSingleton::SetCurrSubSurfInd( int index )
+{
+    m_CurrSurfInd = index;
+}
+
+//==== Get copy of sub surfaces from geom by id ====//
+vector< SubSurface*> SubSurfaceMgrSingleton::GetSubSurfs( string comp_id )
+{
+    vector< SubSurface* > ret_vec;
+
+    Geom* geom = GetGeom( comp_id );
+    if ( !geom )
+    {
+        return ret_vec;
+    }
+
+    return geom->GetSubSurfVec();
+}
+
+//==== Get the sub surfaces from all geoms ====//
+vector< SubSurface* > SubSurfaceMgrSingleton::GetSubSurfs()
+{
+    vector< SubSurface* > ret_vec;
+    Vehicle* veh = VehicleMgr::getInstance().GetVehicle();
+    if( !veh )
+    {
+        return ret_vec;
+    }
+
+    vector<Geom*> geoms = veh->FindGeomVec( veh->GetGeomVec() );
+    for ( int i = 0 ; i < ( int )geoms.size() ; i++ )
+    {
+        const vector< SubSurface* > SubSurfVec = geoms[i]->GetSubSurfVec();
+        for ( int j = 0 ; j < ( int )SubSurfVec.size() ; j++ )
+        {
+            ret_vec.push_back( SubSurfVec[j] );
+        }
+    }
+
+    return ret_vec;
+}
+
+void SubSurfaceMgrSingleton::PrepareToSplit()
+{
+    vector< SubSurface* > sub_surfs = GetSubSurfs();
+
+    for ( int i = 0 ; i < ( int )sub_surfs.size() ; i++ )
+    {
+        sub_surfs[i]->CleanUpSplitVec();
+        sub_surfs[i]->PrepareSplitVec();
+    }
+}
+
+//==== Manage Tag Maps ====//
+void SubSurfaceMgrSingleton::ClearTagMaps()
+{
+    m_TagCombos.clear();
+    m_TagNames.clear();
+    m_SingleTagMap.clear();
+    m_CompNames.clear();
+}
+
+//==== Set the tag number for each sub-surface of all Geoms ====//
+void SubSurfaceMgrSingleton::SetSubSurfTags( int tag_offset )
+{
+    // tag_offset should be the number of total components in mesh
+
+    vector< SubSurface* > sub_surfs = GetSubSurfs();
+    for ( int i = 0 ; i < ( int )sub_surfs.size() ; i++ )
+    {
+        sub_surfs[i]->m_Tag = tag_offset + i + 1;
+        // map tag number to surface name
+        m_TagNames[sub_surfs[i]->m_Tag] = sub_surfs[i]->GetName();
+    }
+}
+
+void SubSurfaceMgrSingleton::BuildCompNameMap()
+{
+    for ( int i = 0 ; i < ( int )m_CompNames.size() ; i++ )
+    {
+        m_TagNames[i + 1] = m_CompNames[i];
+    }
+
+    // Keys 1 - m_CompNames.size() should be empty since SetSubSurfTags
+    // should have been called with the appropriate offset
+}
+
+void SubSurfaceMgrSingleton::BuildSingleTagMap()
+{
+    m_TagKeys.clear();
+    for ( set< vector<int> >::iterator s_iter = m_TagCombos.begin() ; s_iter != m_TagCombos.end() ; s_iter++ )
+    {
+        m_TagKeys.push_back( *s_iter );
+    }
+
+    // Sort tag combos by length
+    sort( m_TagKeys.begin(), m_TagKeys.end(),
+          []( const vector<int>& a, const std::vector<int>& b )
+    {
+        return ( a.size() < b.size() );
+    } );
+
+    // Sort tag combos by first element
+    sort( m_TagKeys.begin(), m_TagKeys.end(),
+          []( const vector<int>& a, const std::vector<int>& b )
+    {
+        return ( a[0] < b[0] );
+    } );
+
+    // Map tag combos to single tag number
+    for ( int i = 0; i < ( int )m_TagKeys.size() ; i++ )
+    {
+        m_SingleTagMap[m_TagKeys[i]] = i + 1;
+    }
+}
+int SubSurfaceMgrSingleton::GetTag( const vector<int> & tags )
+{
+    map< vector<int>, int >::iterator mi;
+    mi = m_SingleTagMap.find( tags );
+
+    if ( mi != m_SingleTagMap.end() )
+    {
+        return mi->second;
+    }
+    else
+    {
+        return -1;
+    }
+}
