@@ -607,3 +607,28 @@ void UtilTestSuite::SharedPtrTest()
 
     std::swap( test_a, other_a );
 }
+
+void UtilTestSuite::PointInPolyTest()
+{
+    std::vector< vec2d > polygon;
+    vec2d test_pnt;
+
+    polygon.push_back( vec2d( 0, 0 ) );
+    polygon.push_back( vec2d( 0, 3 ) );
+    polygon.push_back( vec2d( -4, 3 ) );
+    polygon.push_back( vec2d( -2, 2 ) );
+    polygon.push_back( vec2d( -4, 0 ) );
+    polygon.push_back( vec2d( 0, 0 ) );
+
+    test_pnt = vec2d( -2.5, 1.45 );
+
+    bool in_poly = PointInPolygon( test_pnt, polygon );
+
+    TEST_ASSERT( in_poly );
+
+    test_pnt = vec2d( -3, 2 );
+    in_poly = PointInPolygon( test_pnt, polygon );
+
+    TEST_ASSERT( !in_poly );
+}
+

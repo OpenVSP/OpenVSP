@@ -455,3 +455,59 @@ double proj_pnt_on_line_u( const vec2d& line_A, const vec2d& line_B, const vec2d
 
 }
 
+bool PointInPolygon( const vec2d & R, const std::vector< vec2d > & pnts )
+{
+    // Implementation of Algorithm 6 from "The Point in Polygon Problem
+    // for Arbitrary Polygons" by Hormann and Agathos.
+    //
+    // R: the point in question
+    // pnts: vector of points defining polygon, first and last point should be the same
+    //
+    // Note: This algorithm does not test to see if the test point lies on the
+    //       an edge of the polygon
+
+    int w = 0; // winding number
+    bool modify_w = false;
+
+    for ( int i = 0; i < ( int )pnts.size() - 1; i++ )
+    {
+        if ( ( pnts[i].y() < R.y() ) != ( pnts[i + 1].y() < R.y() ) ) // if crossing
+        {
+            if ( pnts[i].x() >= R.x() )
+            {
+                if ( pnts[i + 1].x() > R.x() )
+                {
+                    modify_w = true;
+                }
+                else if ( ( det( pnts[i], pnts[i + 1], R ) > 0 ) == ( pnts[i + 1].y() > pnts[i].y() ) ) // right crossing
+                {
+                    modify_w = true;
+                }
+            }
+            else if ( pnts[i + 1].x() > R.x() )
+            {
+                if ( ( det( pnts[i], pnts[i + 1], R ) > 0 ) == ( pnts[i + 1].y() > pnts[i].y() ) ) // right crossing
+                {
+                    modify_w = true;
+                }
+            }
+        }
+
+        if ( modify_w )
+        {
+            w = w + 2 * ( pnts[i + 1].y() > pnts[i].y() ) - 1;    // modify w
+        }
+
+        modify_w = false;
+    }
+
+    return abs( w % 2 );
+
+}
+
+double det( const vec2d & p0, const vec2d & p1, const vec2d & offset )
+{
+    double d = ( p0[0] - offset[0] ) * ( p1[1] - offset[1] ) - ( p1[0] - offset[0] ) * ( p0[1] - offset[1] );
+    return d;
+}
+
