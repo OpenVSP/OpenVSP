@@ -147,4 +147,27 @@ protected:
 
 };
 
+class SSLine : public SubSurface
+{
+    // Const U or Const W Line which really just creates an SSLineSeg
+    // but with more user friendly parameters
+public:
+
+    SSLine( string compID, int type = SS_LINE );
+    virtual ~SSLine();
+
+    enum { CONST_U, CONST_W };
+    IntParm m_ConstType; // Either constant u or constant w line
+    Parm m_ConstVal; // Either the const u value or const w value of line
+
+    virtual bool Subtag( TTri* tri );
+    virtual bool Subtag( const vec3d & center );
+
+    virtual void Update();
+
+protected:
+    virtual int CompNumDrawPnts( Geom* geom );
+
+};
+
 #endif

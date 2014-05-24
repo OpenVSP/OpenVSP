@@ -499,3 +499,78 @@ TMesh* SSLineSeg::CreateTMesh()
     return tmesh;
 }
 
+//////////////////////////////////////////////////////
+//=================== SSLine =====================//
+//////////////////////////////////////////////////////
+
+SSLine::SSLine( string comp_id, int type ) : SubSurface( comp_id, type )
+{
+    m_ConstType.Init( "Const_Line_Type", "SubSurface", this, CONST_U, 0, 1, false );
+    m_ConstVal.Init( "Const_Line_Value", "SubSurface", this, 0, 0, 1 );
+    m_ConstVal.SetDescript( "Either the U or V value of the line depending on what constant line type is choosen." );
+    m_TestType.Init( "Test_Type", "SubSurface", this, SSLineSeg::GT, SSLineSeg::GT, SSLineSeg::LT, false );
+    m_TestType.SetDescript( "Tag surface as being either greater than or less than const value line" );
+
+    m_LVec.push_back( SSLineSeg() );
+}
+
+SSLine::~SSLine()
+{
+}
+
+void SSLine::Update()
+{
+    // Using m_LVec[0] since SSLine should always only have one line segment
+    // Update SSegLine points based on current values
+    if ( m_ConstType() == CONST_U )
+    {
+        m_LVec[0].SetSP0( vec3d( m_ConstVal(), 1, 0 ) );
+        m_LVec[0].SetSP1( vec3d( m_ConstVal(), 0, 0 ) );
+    }
+    else if ( m_ConstType() == CONST_W )
+    {
+        m_LVec[0].SetSP0( vec3d( 0, m_ConstVal(), 0 ) );
+        m_LVec[0].SetSP1( vec3d( 1, m_ConstVal(), 0 ) );
+    }
+
+    m_LVec[0].m_TestType = m_TestType();
+    Geom* geom = VehicleMgr::getInstance().GetVehicle()->FindGeom( m_CompID );
+    if ( !geom )
+    {
+        return;
+    }
+    m_LVec[0].Update( geom );
+
+    SubSurface::Update();
+}
+
+int SSLine::CompNumDrawPnts( Geom* geom )
+{
+    VspSurf* surf = geom->GetSurfPtr();
+    if ( !surf )
+    {
+        return 0;
+    }
+
+    if ( m_ConstType() == CONST_W )
+    {
+        return ( int )( surf->GetNumSectU() * ( geom->m_TessU() - 2 ) );
+    }
+    else if ( m_ConstType() == CONST_U )
+    {
+        return ( int )( surf->GetNumSectW() * ( geom->m_TessW() - 4 ) );
+    }
+
+    return m_LVec[0].CompNumDrawPnts( geom );
+}
+
+bool SSLine::Subtag( TTri* tri )
+{
+    return m_LVec[0].Subtag( tri );
+}
+
+bool SSLine::Subtag( const vec3d & center )
+{
+    return m_LVec[0].Subtag( center );
+}
+
