@@ -28,6 +28,8 @@
 #include <vector>               //jrg windows?? 
 #include <algorithm>            //jrg windows??
 #include <string>
+#include <map>
+#include <list>
 using namespace std;            //jrg windows??
 
 extern "C"
@@ -41,6 +43,7 @@ class TTri;
 class TBndBox;
 class NBndBox;
 class TNodeGroup;
+class TMesh;
 
 class TetraMassProp
 {
@@ -117,6 +120,7 @@ public:
     virtual ~TNode();
 
     vec3d m_Pnt;
+    vec3d m_UWPnt;
     vec3d m_Norm;
     int m_ID;
 
@@ -127,9 +131,38 @@ public:
 
     vector< TNode* > m_SplitNodeVec;
 
+    virtual void MakePntUW();
+    virtual void MakePntXYZ();
+    virtual void SetXYZFlag( bool flag )
+    {
+        m_XYZFlag = flag;
+    }
+    virtual bool GetXYZFlag()
+    {
+        return m_XYZFlag;
+    }
+    virtual void SetCoordInfo( int flag )
+    {
+        m_CoordInfo = flag;
+    }
+    virtual int GetCoordInfo()
+    {
+        return m_CoordInfo;
+    }
+    virtual vec3d GetXYZPnt();
+    virtual vec3d GetUWPnt();
+    virtual void SetXYZPnt( const vec3d & pnt );
+    virtual void SetUWPnt( const vec3d & pnt );
+
 //  TNode* mapNode;
 
     int m_IsectFlag;
+
+    enum { HAS_UNKNOWN = 0, HAS_XYZ = 1, HAS_UW = 2 };
+
+protected:
+    bool m_XYZFlag;
+    int m_CoordInfo;
 };
 
 class TNodeGroup
@@ -141,10 +174,8 @@ public:
 class TEdge
 {
 public:
-    TEdge()
-    {
-        m_N0 = m_N1 = 0;
-    }
+    TEdge();
+    TEdge( TNode* n0, TNode* n1, TTri* par_tri );
     virtual ~TEdge()        {}
 
     TNode* m_N0;
@@ -152,6 +183,19 @@ public:
 
     TTri* m_Tri0;                           // For WaterTight Check
     TTri* m_Tri1;
+
+    virtual void SetParTri( TTri* par_tri )
+    {
+        m_ParTri = par_tri;
+    }
+    virtual TTri* GetParTri()
+    {
+        return m_ParTri;
+    }
+    virtual TMesh* GetParTMesh();
+
+protected:
+    TTri* m_ParTri; // Tri that edge is apart of
 
 };
 
@@ -173,6 +217,7 @@ public:
     vector< TTri* > m_SplitVec;             // List of split tris
     vector< TNode* > m_NVec;                // Nodes for split tris
     vector< TEdge* > m_EVec;                // Edges for split tris
+    TEdge* m_PEArr[3];                          // Perimeter Edge Array
 
     virtual void SplitTri( int meshFlag = 0 );              // Split Tri to Fit ISect Edges
     virtual void TriangulateSplit( int flattenAxis );
@@ -202,8 +247,19 @@ public:
     virtual bool  ShareEdge( TTri* t );
     virtual bool MatchEdge( TNode* n0, TNode* n1, TNode* nA, TNode* nB, double tol );
 
+    virtual void SetTMeshPtr( TMesh* tmesh )
+    {
+        m_TMesh = tmesh;
+    }
+    virtual TMesh* GetTMeshPtr()
+    {
+        return m_TMesh;
+    }
+
+    virtual void BuildPermEdges();
     int m_InteriorFlag;
     string m_ID;
+    vector<int> m_Tags;
     double m_Mass;
     int m_InvalidFlag;
 
@@ -215,6 +271,8 @@ public:
     TNode* m_cn1;
     TNode* m_cn2;
 
+protected:
+    TMesh* m_TMesh;
 
 private:
 
@@ -320,6 +378,9 @@ public:
 
     virtual void AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & norm );
     virtual void AddTri( TNode* node0, TNode* node1, TNode* node2, const vec3d & norm );
+    virtual void AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & norm, const vec3d & uw0,
+                         const vec3d & uw1, const vec3d & uw2 );
+    virtual void AddUWTri( const vec3d & uw0, const vec3d & uw1, const vec3d & uw2, const vec3d & norm );
 
     virtual void WriteSTLTris( FILE* file_id, Matrix4d XFormMat );
 
@@ -353,6 +414,9 @@ public:
     static TNode* CheckDupOrAdd( TNode* node, vector< TNode* > & nodeVec, double tol = 0.00000001 );
     static TNode* CheckDupOrCreate( vec3d & p, vector< TNode* > & nodeVec, double tol = 0.00000001 );
 
+
+    virtual void MakeNodePntUW(); // Swaps Node->m_Pnt with Node->m_UWPnt
+    virtual void MakeNodePntXYZ();
     static void StressTest();
     static double Rand01();
 

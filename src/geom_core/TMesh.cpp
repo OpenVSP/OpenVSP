@@ -28,6 +28,8 @@
 #include "Geom.h"
 
 #include <map>
+#include <set>
+#include <algorithm>
 
 
 //===============================================//
@@ -38,6 +40,8 @@ TNode::TNode()
     m_ID = -1;
 //  mapNode = 0;
     m_IsectFlag = 0;
+    m_XYZFlag = true; // true if xyz
+    m_CoordInfo = HAS_UNKNOWN;
 }
 
 TNode::~TNode()
@@ -46,6 +50,103 @@ TNode::~TNode()
 
 }
 
+void TNode::MakePntUW()
+{
+    if ( m_XYZFlag )
+    {
+        std::swap( m_Pnt, m_UWPnt );
+        m_XYZFlag = false;
+    }
+}
+
+void TNode::MakePntXYZ()
+{
+    if( !m_XYZFlag )
+    {
+        std::swap( m_Pnt, m_UWPnt );
+        m_XYZFlag = true;
+    }
+}
+
+vec3d TNode::GetXYZPnt()
+{
+    if ( m_XYZFlag )
+    {
+        return m_Pnt;
+    }
+    else
+    {
+        return m_UWPnt;
+    }
+}
+
+vec3d TNode::GetUWPnt()
+{
+    if ( !m_XYZFlag )
+    {
+        return m_Pnt;
+    }
+    else
+    {
+        return m_UWPnt;
+    }
+}
+
+void TNode::SetXYZPnt( const vec3d & pnt )
+{
+    if ( m_XYZFlag )
+    {
+        m_Pnt = pnt;
+    }
+    else
+    {
+        m_UWPnt = pnt;
+    }
+
+    m_CoordInfo |= HAS_XYZ;
+}
+
+void TNode::SetUWPnt( const vec3d & pnt )
+{
+    if ( !m_XYZFlag )
+    {
+        m_Pnt = pnt;
+    }
+    else
+    {
+        m_UWPnt = pnt;
+    }
+
+    m_CoordInfo |= HAS_UW;
+}
+
+//=======================================================================//
+//===================            TEdge          =========================//
+//=======================================================================//
+
+TEdge::TEdge()
+{
+    m_N0 = m_N1 = 0;
+    m_ParTri = NULL;
+    m_Tri0 = m_Tri1 = NULL;
+}
+
+TEdge::TEdge( TNode* n0, TNode* n1, TTri* par_tri )
+{
+    m_N0 = n0;
+    m_N1 = n1;
+    m_ParTri = par_tri;
+    m_Tri0 = m_Tri1 = NULL;
+}
+
+TMesh* TEdge::GetParTMesh()
+{
+    if ( GetParTri() == NULL )
+    {
+        return NULL;
+    }
+    return GetParTri()->GetTMeshPtr();
+}
 
 //=======================================================================//
 //=======================================================================//
@@ -729,8 +830,10 @@ double TMesh::ComputeTrimVol()
 
 void TMesh::AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & norm )
 {
+    // Use For XYZ Tri
     TTri* ttri = new TTri();
     ttri->m_Norm = norm;
+    ttri->SetTMeshPtr( this );
 
     ttri->m_N0 = new TNode();
     ttri->m_N1 = new TNode();
@@ -739,6 +842,10 @@ void TMesh::AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const 
     ttri->m_N0->m_Pnt = v0;
     ttri->m_N1->m_Pnt = v1;
     ttri->m_N2->m_Pnt = v2;
+
+    ttri->m_N0->SetCoordInfo( TNode::HAS_XYZ );
+    ttri->m_N1->SetCoordInfo( TNode::HAS_XYZ );
+    ttri->m_N1->SetCoordInfo( TNode::HAS_XYZ );
 
     m_TVec.push_back( ttri );
     m_NVec.push_back( ttri->m_N0 );
@@ -750,6 +857,7 @@ void TMesh::AddTri( TNode* node0, TNode* node1, TNode* node2, const vec3d & norm
 {
     TTri* ttri = new TTri();
     ttri->m_Norm = norm;
+    ttri->SetTMeshPtr( this );
 
     ttri->m_N0 = new TNode();
     ttri->m_N1 = new TNode();
@@ -758,6 +866,15 @@ void TMesh::AddTri( TNode* node0, TNode* node1, TNode* node2, const vec3d & norm
     ttri->m_N0->m_Pnt = node0->m_Pnt;
     ttri->m_N1->m_Pnt = node1->m_Pnt;
     ttri->m_N2->m_Pnt = node2->m_Pnt;
+    ttri->m_N0->m_UWPnt = node0->m_UWPnt;
+    ttri->m_N1->m_UWPnt = node1->m_UWPnt;
+    ttri->m_N2->m_UWPnt = node2->m_UWPnt;
+    ttri->m_N0->SetXYZFlag( node0->GetXYZFlag() );
+    ttri->m_N1->SetXYZFlag( node1->GetXYZFlag() );
+    ttri->m_N2->SetXYZFlag( node2->GetXYZFlag() );
+    ttri->m_N0->SetCoordInfo( node0->GetCoordInfo() );
+    ttri->m_N1->SetCoordInfo( node1->GetCoordInfo() );
+    ttri->m_N2->SetCoordInfo( node2->GetCoordInfo() );
 
     ttri->m_N0->m_IsectFlag = node0->m_IsectFlag;
     ttri->m_N1->m_IsectFlag = node1->m_IsectFlag;
@@ -772,6 +889,48 @@ void TMesh::AddTri( TNode* node0, TNode* node1, TNode* node2, const vec3d & norm
 
 }
 
+void TMesh::AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & norm, const vec3d & uw0,
+                    const vec3d & uw1, const vec3d & uw2 )
+{
+    // AddTri with both xyz and uw info
+    AddTri( v0, v1, v2, norm );
+    TTri* tri = m_TVec.back();
+    tri->m_N0->m_UWPnt = uw0;
+    tri->m_N1->m_UWPnt = uw1;
+    tri->m_N2->m_UWPnt = uw2;
+
+    tri->m_N0->SetCoordInfo( TNode::HAS_XYZ | TNode::HAS_UW );
+    tri->m_N1->SetCoordInfo( TNode::HAS_XYZ | TNode::HAS_UW );
+    tri->m_N2->SetCoordInfo( TNode::HAS_XYZ | TNode::HAS_UW );
+}
+
+void TMesh::AddUWTri( const vec3d & uw0, const vec3d & uw1, const vec3d & uw2, const vec3d & norm )
+{
+    // Use For XYZ Tri
+    TTri* ttri = new TTri();
+    ttri->m_Norm = norm;
+    ttri->SetTMeshPtr( this );
+
+    ttri->m_N0 = new TNode();
+    ttri->m_N1 = new TNode();
+    ttri->m_N2 = new TNode();
+
+    ttri->m_N0->m_Pnt = uw0;
+    ttri->m_N1->m_Pnt = uw1;
+    ttri->m_N2->m_Pnt = uw2;
+
+    ttri->m_N0->SetCoordInfo( TNode::HAS_UW );
+    ttri->m_N1->SetCoordInfo( TNode::HAS_UW );
+    ttri->m_N1->SetCoordInfo( TNode::HAS_UW );
+    ttri->m_N0->SetXYZFlag( false );
+    ttri->m_N1->SetXYZFlag( false );
+    ttri->m_N2->SetXYZFlag( false );
+
+    m_TVec.push_back( ttri );
+    m_NVec.push_back( ttri->m_N0 );
+    m_NVec.push_back( ttri->m_N1 );
+    m_NVec.push_back( ttri->m_N2 );
+}
 
 void TMesh::LoadBndBox()
 {
@@ -891,6 +1050,8 @@ TTri::TTri()
     m_InteriorFlag = 0;
     m_InvalidFlag  = 0;
     m_Mass = 0.0;
+    m_TMesh = NULL;
+    m_PEArr[0] = m_PEArr[1] = m_PEArr[2] = NULL;
 }
 
 TTri::~TTri()
@@ -904,6 +1065,12 @@ TTri::~TTri()
     for ( i = 0 ; i < ( int )m_EVec.size() ; i++ )
     {
         delete m_EVec[i];
+    }
+
+    //==== Delete Perimeter Edges ====//
+    for ( i = 0 ; i < 3 ; i++ )
+    {
+        delete m_PEArr[i];
     }
 
     //==== Delete Nodes - Not First 3 ====//
@@ -925,6 +1092,24 @@ TTri::~TTri()
         delete m_ISectEdgeVec[i];
     }
 
+}
+
+void TTri::BuildPermEdges()
+{
+    if ( m_PEArr[0] )
+    {
+        for ( int i = 0 ; i < 3 ; i++ )
+        {
+            delete m_PEArr[i];
+            m_PEArr[i] = NULL;
+        }
+    }
+    if ( m_N0 != NULL && m_N1 != NULL && m_N2 != NULL )
+    {
+        m_PEArr[0] = new TEdge( m_N0, m_N1, this );
+        m_PEArr[1] = new TEdge( m_N1, m_N2, this );
+        m_PEArr[2] = new TEdge( m_N2, m_N0, this );
+    }
 }
 
 vec3d TTri::CompNorm()
@@ -3543,3 +3728,64 @@ void TMesh::StressTest()
 
 }
 
+void TMesh::MakeNodePntUW()
+{
+    for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
+    {
+        TTri* tri = m_TVec[t];
+
+        if ( tri->m_SplitVec.size() )
+        {
+            for ( int st = 0 ; st < ( int )tri->m_SplitVec.size() ; st++ )
+            {
+                TTri* stri = tri->m_SplitVec[st];
+                stri->m_N0->MakePntUW();
+                stri->m_N1->MakePntUW();
+                stri->m_N2->MakePntUW();
+            }
+        }
+        else
+        {
+            tri->m_N0->MakePntUW();
+            tri->m_N1->MakePntUW();
+            tri->m_N2->MakePntUW();
+        }
+
+        for ( int e = 0 ; e < ( int )tri->m_ISectEdgeVec.size() ; e++ )
+        {
+            tri->m_ISectEdgeVec[e]->m_N0->MakePntUW();
+            tri->m_ISectEdgeVec[e]->m_N1->MakePntUW();
+        }
+    }
+}
+
+void TMesh::MakeNodePntXYZ()
+{
+    for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
+    {
+        TTri* tri = m_TVec[t];
+
+        if ( tri->m_SplitVec.size() )
+        {
+            for ( int st = 0 ; st < ( int )tri->m_SplitVec.size() ; st++ )
+            {
+                TTri* stri = tri->m_SplitVec[st];
+                stri->m_N0->MakePntXYZ();
+                stri->m_N1->MakePntXYZ();
+                stri->m_N2->MakePntXYZ();
+            }
+        }
+        else
+        {
+            tri->m_N0->MakePntXYZ();
+            tri->m_N1->MakePntXYZ();
+            tri->m_N2->MakePntXYZ();
+        }
+
+        for ( int e = 0 ; e < ( int )tri->m_ISectEdgeVec.size() ; e++ )
+        {
+            tri->m_ISectEdgeVec[e]->m_N0->MakePntXYZ();
+            tri->m_ISectEdgeVec[e]->m_N1->MakePntXYZ();
+        }
+    }
+}
