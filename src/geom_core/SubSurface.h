@@ -170,4 +170,37 @@ protected:
 
 };
 
+class SSRectangle : public SubSurface
+{
+public:
+    SSRectangle( string compID, int type = SS_RECTANGLE );
+    virtual ~SSRectangle();
+
+    Parm m_CenterU; // U location of square center
+    Parm m_CenterW; // W location of square center
+    Parm m_DeltaU; // Length of U dimension
+    Parm m_DeltaW; // Length of W dimension
+    Parm m_Theta; // Rotation Angle
+
+    virtual void Update();
+};
+
+class SSEllipse : public SubSurface
+{
+public:
+    SSEllipse( string compID, int type = SS_ELLIPSE );
+    virtual ~SSEllipse();
+
+    Parm m_CenterU; // U location of ellipse center
+    Parm m_CenterW; // W location of ellipse center
+    Parm m_ULength; // length of axis along u
+    Parm m_WLength; // length of axis along w
+    Parm m_Theta; // Rotation Angle
+    IntParm m_Tess; // Number of line segments to break shape into
+
+    virtual void Update();
+    virtual void UpdateLVecSize();
+
+};
+
 #endif

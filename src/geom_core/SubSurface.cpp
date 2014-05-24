@@ -574,3 +574,186 @@ bool SSLine::Subtag( const vec3d & center )
     return m_LVec[0].Subtag( center );
 }
 
+//////////////////////////////////////////////////////
+//=================== SSSquare =====================//
+//////////////////////////////////////////////////////
+
+//===== Constructor =====//
+SSRectangle::SSRectangle( string comp_id, int type ) : SubSurface( comp_id, type )
+{
+    m_CenterU.Init( "Center_U", "SS_Rectangle", this, 0.5, 0, 1 );
+    m_CenterU.SetDescript( "Defines the U location of the rectangle center" );
+    m_CenterW.Init( "Center_W", "SS_Rectangle", this, 0.5, 0, 1 );
+    m_CenterW.SetDescript( "Defines the W location of the rectangle center" );
+    m_DeltaU.Init( "Delta_U", "SS_Rectangle", this, .2, 0, 1 );
+    m_DeltaU.SetDescript( "Defines length of rectangle in U direction before rotation" );
+    m_DeltaW.Init( "Delta_W", "SS_Rectangle", this, .2, 0, 1 );
+    m_DeltaW.SetDescript( "Defines length of rectangle in W direction before rotation" );
+    m_Theta.Init( "Theta", "SS_Rectangle", this, 0, -90, 90 );
+    m_Theta.SetDescript( "Defines angle in degrees from U axis to rotate the rectangle" );
+    m_TestType.Init( "Test_Type", "SS_Rectangle", this, INSIDE, INSIDE, OUTSIDE );
+    m_TestType.SetDescript( "Determines whether or not the inside or outside of the region is tagged" );
+
+    // Each Rectangle will always have 4 line segments
+    for ( int i = 0; i < 4 ; i++ )
+    {
+        m_LVec.push_back( SSLineSeg() );
+    }
+}
+
+//===== Destructor =====//
+SSRectangle::~SSRectangle()
+{
+}
+
+void SSRectangle::Update()
+{
+    Geom* geom = VehicleMgr::getInstance().GetVehicle()->FindGeom( m_CompID );
+    if ( !geom )
+    {
+        return;
+    }
+
+    vec3d center;
+    vector< vec3d > pntVec;
+
+    center = vec3d( m_CenterU(), m_CenterW(), 0 );
+
+    // Rotation Matrix
+    Matrix4d transMat1, transMat2;
+    Matrix4d rotMat;
+    rotMat.loadIdentity();
+    rotMat.rotateZ( m_Theta() );
+    transMat1.loadIdentity();
+    transMat1.translatef( center.x() * -1, center.y() * -1, 0 );
+    transMat2.loadIdentity();
+    transMat2.translatef( center.x(), center.y(), 0 );
+
+    // Make points in counter clockwise fashion;
+    pntVec.resize( 5 );
+    pntVec[0] = center + vec3d( m_DeltaU(), m_DeltaW(), 0 ) * -0.5;
+    pntVec[1] = center + vec3d( m_DeltaU(), -1.0 * m_DeltaW(), 0 ) * 0.5;
+    pntVec[2] = center + vec3d( m_DeltaU(), m_DeltaW(), 0 ) * 0.5;
+    pntVec[3] = center + vec3d( -1.0 * m_DeltaU(), m_DeltaW(), 0 ) * 0.5;
+    pntVec[4] = pntVec[0];
+
+    // Apply transformations
+    for ( int i = 0; i < 5 ; i++ )
+    {
+        pntVec[i] = transMat2.xform( rotMat.xform( transMat1.xform( pntVec[i] ) ) );
+    }
+
+    int pind = 0;
+
+    for ( int i = 0 ; i < 4; i++ )
+    {
+        m_LVec[i].SetSP0( pntVec[pind] );
+        pind++;
+        m_LVec[i].SetSP1( pntVec[pind] );
+        m_LVec[i].Update( geom );
+    }
+
+    SubSurface::Update();
+}
+
+//////////////////////////////////////////////////////
+//=================== SSEllipse =====================//
+//////////////////////////////////////////////////////
+
+//====== Constructor =====//
+SSEllipse::SSEllipse( string comp_id, int type ) : SubSurface( comp_id, type )
+{
+    m_CenterU.Init( "Center_U", "SS_Ellipse", this, 0.5, 0, 1 );
+    m_CenterU.SetDescript( "Defines the U location of the ellipse center" );
+    m_CenterW.Init( "Center_W", "SS_Ellipse", this, 0.5, 0, 1 );
+    m_CenterW.SetDescript( "Defines the W location of the ellipse center" );
+    m_ULength.Init( "U_Length", "SS_Ellipse", this, 0.5, 0, 1 );
+    m_ULength.SetDescript( "Length of ellipse in the u direction" );
+    m_WLength.Init( "W_Length", "SS_Ellipse", this, 0.5, 0, 1 );
+    m_WLength.SetDescript( "Length of ellipse in the w direction" );
+    m_Theta.Init( "Theta", "SS_Ellipse", this, 0, -90, 90 );
+    m_Theta.SetDescript( "Defines angle in degrees from U axis to rotate the rectangle" );
+    m_Tess.Init( "Tess_Num", "SS_Ellipse", this, 15, 3, 1000 );
+    m_Tess.SetDescript( " Number of points to discretize curve" );
+    m_TestType.Init( "Test_Type", "SS_Ellipse", this, INSIDE, INSIDE, OUTSIDE );
+    m_TestType.SetDescript( "Determines whether or not the inside or outside of the region is tagged" );
+
+    m_PolyFlag = false;
+}
+
+//===== Destructor =====//
+SSEllipse::~SSEllipse()
+{
+
+}
+
+// Resize LVec if Tessellation has changed
+void SSEllipse::UpdateLVecSize()
+{
+    // Do nothing if already the correct size
+    if ( m_LVec.size() == m_Tess() )
+    {
+        return;
+    }
+
+    // If too few more line segments
+    if ( m_LVec.size() < m_Tess() )
+    {
+        for ( int i = m_LVec.size() ; i < m_Tess() ; i++ )
+        {
+            m_LVec.push_back( SSLineSeg() );
+        }
+    }
+    else if ( m_LVec.size() > m_Tess() )
+    {
+        // if too many line segments delete extra ones
+
+        m_LVec.erase( m_LVec.begin() + m_Tess(), m_LVec.begin() + m_LVec.size() );
+    }
+}
+// Main Update Routine
+void SSEllipse::Update()
+{
+    UpdateLVecSize();
+
+    Geom* geom = VehicleMgr::getInstance().GetVehicle()->FindGeom( m_CompID );
+    if ( !geom )
+    {
+        return;
+    }
+
+    int num_pnts = m_Tess();
+
+    vec3d center;
+
+    center = vec3d( m_CenterU(), m_CenterW(), 0 );
+
+    // Rotation Matrix
+    Matrix4d transMat1, transMat2;
+    Matrix4d rotMat;
+    rotMat.loadIdentity();
+    rotMat.rotateZ( m_Theta() );
+    transMat1.loadIdentity();
+    transMat1.translatef( center.x() * -1, center.y() * -1, 0 );
+    transMat2.loadIdentity();
+    transMat2.translatef( center.x(), center.y(), 0 );
+
+    double a = m_ULength() / 2;
+    double b = m_WLength() / 2;
+    for ( int i = 0 ; i < num_pnts ; i++ )
+    {
+        double p0 = 2 * PI * ( double )i / num_pnts;
+        double p1 = 2 * PI * ( double )( i + 1 ) / num_pnts;
+        vec3d pnt = vec3d();
+        pnt.set_xyz( a * cos( p0 ) + m_CenterU(), b * sin( p0 ) + m_CenterW(), 0 );
+        pnt = transMat2.xform( rotMat.xform( transMat1.xform( pnt ) ) );
+        m_LVec[i].SetSP0( pnt );
+        pnt.set_xyz( a * cos( p1 ) + m_CenterU(), b * sin( p1 ) + m_CenterW(), 0 );
+        pnt = transMat2.xform( rotMat.xform( transMat1.xform( pnt ) ) );
+        m_LVec[i].SetSP1( pnt );
+        m_LVec[i].Update( geom );
+    }
+
+    SubSurface::Update();
+
+}
