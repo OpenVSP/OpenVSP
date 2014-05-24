@@ -20,6 +20,7 @@
 #include "VspSurf.h"
 #include "TMesh.h"
 #include "DragFactors.h"
+#include "SubSurface.h"
 #include "GridDensity.h"
 #include "ResultsMgr.h"
 
@@ -452,6 +453,24 @@ public:
     virtual void WritePovRayTri( FILE* fid, const vec3d& v, const vec3d& n, bool comma = true );
     virtual void CreateGeomResults( Results* res );
 
+    //==== Sub Surface Managment Methods ====//
+    virtual void AddSubSurf( SubSurface* sub_surf )
+    {
+        m_SubSurfVec.push_back( sub_surf );
+    }
+    virtual SubSurface* AddSubSurf( int type );
+    virtual bool ValidSubSurfInd( int ind );
+    virtual void DelSubSurf( int ind );
+    virtual SubSurface* GetSubSurf( int ind );
+    virtual vector< SubSurface* > GetSubSurfVec()
+    {
+        return m_SubSurfVec;
+    }
+
+    virtual int NumSubSurfs()
+    {
+        return m_SubSurfVec.size();
+    }
     //==== Set Drag Factors ====//
     virtual void LoadDragFactors( DragFactors& drag_factors )   {};
 
@@ -544,6 +563,8 @@ protected:
     vector< bool > m_SetFlags;
 
     vector< vec3d > GetBBoxDrawLines();
+
+    vector<SubSurface*> m_SubSurfVec;
 
 //  //==== Structure Parts ====//
 //  int currPartID;

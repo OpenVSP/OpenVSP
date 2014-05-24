@@ -796,7 +796,12 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomTexMap( vehicle_ptr )
 //==== Destructor ====//
 Geom::~Geom()
 {
-
+    // Delete SubSurfaces
+    for ( int i = 0 ; i < ( int )m_SubSurfVec.size() ; i++ )
+    {
+        delete m_SubSurfVec[i];
+    }
+    m_SubSurfVec.clear();
 }
 
 //==== Set Set Flag ====//
@@ -883,6 +888,12 @@ void Geom::Update()
 
     UpdateSurf();       // Must be implemented by subclass.
     UpdateSymmAttach();
+
+    for ( int i = 0 ; i < ( int )m_SubSurfVec.size() ; i++ )
+    {
+        m_SubSurfVec[i]->Update();
+    }
+
     UpdateChildren();
     UpdateBBox();
     UpdateDrawObj();
@@ -1531,6 +1542,65 @@ vector< TMesh* > Geom::CreateTMeshVec()
         }
     }
     return TMeshVec;
+}
+
+//==== Sub Surface Methods ====//
+bool Geom::ValidSubSurfInd( int ind )
+{
+    if ( ( int )m_SubSurfVec.size() > 0 && ind >= 0 && ind < ( int )m_SubSurfVec.size() )
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+void Geom::DelSubSurf( int ind )
+{
+    if ( ValidSubSurfInd( ind ) )
+    {
+        delete m_SubSurfVec[ind];
+        m_SubSurfVec.erase( m_SubSurfVec.begin() + ind );
+    }
+
+SubSurface* Geom::AddSubSurf( int type )
+{
+    SubSurface* ssurf = NULL;
+
+    if ( type == SubSurface::SS_LINE )
+    {
+        ssurf = new SSLine( m_ID );
+        ssurf->SetName( string( "SS_LINE_" + to_string( ( long long )m_SubSurfVec.size() ) ) );
+    }
+    else if ( type == SubSurface::SS_RECTANGLE )
+    {
+        ssurf = new SSRectangle( m_ID );
+        ssurf->SetName( string( "SS_RECT_" + to_string( ( long long )m_SubSurfVec.size() ) ) );
+    }
+    else if ( type == SubSurface::SS_ELLIPSE )
+    {
+        ssurf = new SSEllipse( m_ID );
+        ssurf->SetName( string( "SS_ELLIP_" + to_string( ( long long )m_SubSurfVec.size() ) ) );
+    }
+
+    ssurf->SetParentContainer( GetID() );
+    AddSubSurf( ssurf );
+
+    return ssurf;
+}
+
+SubSurface* Geom::GetSubSurf( int ind )
+{
+    if ( ValidSubSurfInd( ind ) )
+    {
+        return m_SubSurfVec[ind];
+    }
+
+    return NULL;
+
+}
 }
 
 void Geom::DelAllSources()
