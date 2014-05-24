@@ -901,6 +901,12 @@ void Geom::Update()
     m_UpdatedParmVec.clear();
 }
 
+void Geom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms,
+                            vector< vector< vec3d > > &uw_pnts )
+{
+    m_SurfVec[indx].Tesselate( m_TessU(), m_TessW(), pnts, norms, uw_pnts );
+}
+
 void Geom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms )
 {
     m_SurfVec[indx].Tesselate( m_TessU(), m_TessW(), pnts, norms );
@@ -1498,10 +1504,11 @@ vector< TMesh* > Geom::CreateTMeshVec()
     vector< TMesh* > TMeshVec;
     vector< vector<vec3d> > pnts;
     vector< vector<vec3d> > norms;
+    vector< vector<vec3d> > uw_pnts;
 
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
-        UpdateTesselate( i, pnts, norms );
+        UpdateTesselate( i, pnts, norms, uw_pnts );
 
         TMeshVec.push_back( new TMesh() );
         TMeshVec[i]->LoadGeomAttributes( this );

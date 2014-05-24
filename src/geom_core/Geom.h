@@ -552,6 +552,7 @@ protected:
     virtual void UpdateDrawObj();
 
     virtual void UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms );
+    virtual void UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts );
 
     vector<VspSurf> m_MainSurfVec;
     vector<VspSurf> m_SurfVec;
