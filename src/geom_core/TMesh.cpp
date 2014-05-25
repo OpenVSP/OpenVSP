@@ -616,9 +616,9 @@ void TMesh::MergeNonClosed( TMesh* tm )
     }
 }
 
-void TMesh::Intersect( TMesh* tm )
+void TMesh::Intersect( TMesh* tm, bool UWFlag )
 {
-    m_TBox.Intersect( &tm->m_TBox );
+    m_TBox.Intersect( &tm->m_TBox, UWFlag );
 }
 
 void TMesh::Split( int meshFlag )
@@ -1276,6 +1276,13 @@ void TTri::SplitTri( int meshFlag )
     m_NVec.push_back( m_N1 );
     m_NVec.push_back( m_N2 );
 
+    // Detect if currenlty in uw space
+    bool uwflag = false;
+    if ( !m_N0->GetXYZFlag() )
+    {
+        uwflag = true;
+    }
+
     //==== Add Edges For Perimeter ====//
     for ( i = 0 ; i < 3 ; i++ )
     {
@@ -1291,11 +1298,15 @@ void TTri::SplitTri( int meshFlag )
 
     //==== Load All Possible Nodes to Add ====//
     vector< vec3d > pVec;               // Pnts to be added
+    vector< vec3d > uwVec;
+    uwVec.resize( m_ISectEdgeVec.size() * 2 );
     vector< int > matchNodeIndex;       // Nodes Index Which Correspond to pVec
     for ( i = 0 ; i < ( int )m_ISectEdgeVec.size() ; i++ )
     {
-        pVec.push_back( m_ISectEdgeVec[i]->m_N0->m_Pnt );
-        pVec.push_back( m_ISectEdgeVec[i]->m_N1->m_Pnt );
+        pVec.push_back( m_ISectEdgeVec[i]->m_N0->GetXYZPnt() );
+        pVec.push_back( m_ISectEdgeVec[i]->m_N1->GetXYZPnt() );
+        uwVec[i * 2] =  m_ISectEdgeVec[i]->m_N0->GetUWPnt();
+        uwVec[i * 2 + 1] =  m_ISectEdgeVec[i]->m_N1->GetUWPnt();
     }
     matchNodeIndex.resize( pVec.size() );
     for ( i = 0 ; i < ( int )matchNodeIndex.size() ; i++ )
@@ -1308,14 +1319,30 @@ void TTri::SplitTri( int meshFlag )
     {
         for ( j = 0 ; j < ( int )m_EVec.size() ; j++ )
         {
-            if ( OnEdge( pVec[i], m_EVec[j], onEdgeTol ) )
+            bool onEdgeFlag = false;
+
+            if ( uwflag )
+            {
+                onEdgeFlag = OnEdge( uwVec[i], m_EVec[j], onEdgeTol );
+            }
+            else
+            {
+                onEdgeFlag = OnEdge( pVec[i], m_EVec[j], onEdgeTol );
+            }
+
+            if ( onEdgeFlag )
             {
                 //==== SplitEdge ====//
                 TNode* sn = new TNode();        // New node
                 sn->m_IsectFlag = 1;
                 m_NVec.push_back( sn );
                 matchNodeIndex[i] = m_NVec.size() - 1;
-                sn->m_Pnt = pVec[i];
+                sn->SetXYZPnt( pVec[i] );
+                sn->SetUWPnt( uwVec[i] );
+                if ( uwflag )
+                {
+                    sn->MakePntUW();
+                }
                 TEdge* se = new TEdge();        // New Edge
                 se->m_N0 = m_EVec[j]->m_N0;
                 se->m_N1 = sn;
@@ -1334,7 +1361,17 @@ void TTri::SplitTri( int meshFlag )
         {
             for ( j = 0 ; j < ( int )m_NVec.size() ; j++ )
             {
-                double d = dist( pVec[i], m_NVec[j]->m_Pnt );
+                double d = 2 * onEdgeTol;
+
+                if ( uwflag )
+                {
+                    d = dist( uwVec[i], m_NVec[j]->m_Pnt );
+                }
+                else
+                {
+                    d = dist( pVec[i], m_NVec[j]->m_Pnt );
+                }
+
                 if ( d < onEdgeTol )
                 {
                     matchNodeIndex[i] = j;
@@ -1349,7 +1386,12 @@ void TTri::SplitTri( int meshFlag )
             sn->m_IsectFlag = 1;
             m_NVec.push_back( sn );
             matchNodeIndex[i] = m_NVec.size() - 1;
-            sn->m_Pnt = pVec[i];
+            sn->SetXYZPnt( pVec[i] );
+            sn->SetUWPnt( uwVec[i] );
+            if ( uwflag )
+            {
+                sn->MakePntUW();
+            }
         }
     }
 
@@ -1473,7 +1515,25 @@ void TTri::SplitTri( int meshFlag )
                             TNode* sn = new TNode();
                             sn->m_IsectFlag = 1;
                             m_NVec.push_back( sn );
-                            sn->m_Pnt = ( np0 + np1 ) * 0.5;
+
+                            vec3d crossing_node = ( np0 + np1 ) * 0.5;
+
+                            // Interpolate other coordinate set
+                            if ( uwflag )
+                            {
+                                vec3d cn_xyz = CompPnt( crossing_node );
+                                sn->SetUWPnt( crossing_node );
+                                sn->SetXYZPnt( cn_xyz );
+                                sn->MakePntUW();
+                            }
+                            else
+                            {
+                                vec3d weights = BarycentricWeights( m_N0->GetXYZPnt(), m_N1->GetXYZPnt(), m_N2->GetXYZPnt(), crossing_node );
+                                vec3d cn_uw = m_N0->GetUWPnt() * weights[0] + m_N1->GetUWPnt() * weights[1] + m_N2->GetUWPnt() * weights[2];
+                                sn->SetUWPnt( cn_uw );
+                                sn->SetXYZPnt( crossing_node );
+                            }
+
                             TEdge* se0 = new TEdge();       // New Edge
                             se0->m_N0 = en0;
                             se0->m_N1 = sn;
@@ -1533,13 +1593,21 @@ void TTri::SplitTri( int meshFlag )
     double dz = MAX( dist( zn0, zn1 ), MAX( dist( zn1, zn2 ), dist( zn2, zn0 ) ) );
 
     int flattenAxis = 0;
-    if ( dy >= dx && dy > dz )
+    if ( uwflag )
+    {
+        flattenAxis = 2;
+    }
+    else if ( dy >= dx && dy > dz )
     {
         flattenAxis = 1;
     }
     else if ( dz >= dx && dz > dy )
     {
         flattenAxis = 2;
+    }
+    else if ( dy > dx && dz > dx ) // if y and z are equally good, but both better than x, then choose y
+    {
+        flattenAxis = 1;
     }
 
     //==== Use Triangle to Split Tri ====//
@@ -1721,6 +1789,8 @@ void TTri::TriangulateSplit( int flattenAxis )
             t->m_N0 = m_NVec[out.trianglelist[cnt]];
             t->m_N1 = m_NVec[out.trianglelist[cnt + 1]];
             t->m_N2 = m_NVec[out.trianglelist[cnt + 2]];
+            t->m_Tags = m_Tags; // Set split tri to have same tags as original triangle
+            t->m_Norm = m_Norm;
             m_SplitVec.push_back( t );
         }
         else
@@ -1780,8 +1850,8 @@ void TTri::TriangulateSplit( int flattenAxis )
     for ( i = 0 ; i < ( int )m_SplitVec.size() ; i++ )
     {
         TTri* t = m_SplitVec[i];
-        vec3d d01 = t->m_N0->m_Pnt - t->m_N1->m_Pnt;
-        vec3d d21 = t->m_N2->m_Pnt - t->m_N1->m_Pnt;
+        vec3d d01 = t->m_N0->GetXYZPnt() - t->m_N1->GetXYZPnt();
+        vec3d d21 = t->m_N2->GetXYZPnt() - t->m_N1->GetXYZPnt();
 
         vec3d cx = cross( d21, d01 );
         cx.normalize();
@@ -1793,6 +1863,7 @@ void TTri::TriangulateSplit( int flattenAxis )
             TNode* tmp = t->m_N1;
             t->m_N1 = t->m_N2;
             t->m_N2 = tmp;
+            t->m_Norm = m_Norm;
         }
     }
 }
@@ -2002,6 +2073,7 @@ void TTri::NiceTriSplit( int flattenAxis )
             t->m_N0 = m_NVec[out.trianglelist[cnt]];
             t->m_N1 = m_NVec[out.trianglelist[cnt + 1]];
             t->m_N2 = m_NVec[out.trianglelist[cnt + 2]];
+            t->m_Tags = m_Tags; // Set split tri to have same tags as original triangle
             m_SplitVec.push_back( t );
         }
         else
@@ -2296,7 +2368,7 @@ void  TBndBox::AddLeafNodes( vector< TBndBox* > & leafVec )
     }
 }
 
-void TBndBox::Intersect( TBndBox* iBox )
+void TBndBox::Intersect( TBndBox* iBox, bool UWFlag )
 {
     int i;
 
@@ -2309,14 +2381,14 @@ void TBndBox::Intersect( TBndBox* iBox )
     {
         for ( i = 0 ; i < 8 ; i++ )
         {
-            iBox->Intersect( m_SBoxVec[i] );
+            iBox->Intersect( m_SBoxVec[i], UWFlag );
         }
     }
     else if ( iBox->m_SBoxVec[0] )
     {
         for ( i = 0 ; i < 8 ; i++ )
         {
-            iBox->m_SBoxVec[i]->Intersect( this );
+            iBox->m_SBoxVec[i]->Intersect( this, UWFlag );
         }
     }
     else
@@ -2343,33 +2415,93 @@ void TBndBox::Intersect( TBndBox* iBox )
                 iCnt += iflag;
                 if ( iflag && !coplanarFlag )
                 {
-                    TEdge* ie0 = new TEdge();
-                    ie0->m_N0 = new TNode();
-                    ie0->m_N0->m_Pnt = e0;
-                    ie0->m_N1 = new TNode();
-                    ie0->m_N1->m_Pnt = e1;
-
-                    TEdge* ie1 = new TEdge();
-                    ie1->m_N0 = new TNode();
-                    ie1->m_N0->m_Pnt = e0;
-                    ie1->m_N1 = new TNode();
-                    ie1->m_N1->m_Pnt = e1;
-
-                    if ( dist( e0, e1 ) > 0.000001 )
+                    if ( UWFlag )
                     {
-                        t0->m_ISectEdgeVec.push_back( ie0 );
-                        t1->m_ISectEdgeVec.push_back( ie1 );
+                        if ( dist( e0, e1 ) > 0.000001 )
+                        {
+                            // Figure out with tri has xyz info
+                            TTri* tri;
+                            int d_info = TNode::HAS_XYZ; // desired info number
+                            if ( ( t0->m_N0->GetCoordInfo() & d_info ) == d_info &&  ( t0->m_N1->GetCoordInfo() & d_info ) == d_info
+                                    && ( t0->m_N2->GetCoordInfo() & d_info ) == d_info )
+                            {
+                                tri = t0;
+                            }
+                            else
+                            {
+                                tri = t1;
+                            }
+                            // Use Bilinear interpolation to convert edge uw points to xyz points
+                            vec3d e0xyz = tri->CompPnt( e0 );
+                            vec3d e1xyz = tri->CompPnt( e1 );
+
+                            // Create the new edges
+
+                            TEdge* ie0 = new TEdge();
+                            int info = TNode::HAS_UW | TNode::HAS_XYZ;
+                            ie0->m_N0 = new TNode();
+                            ie0->m_N0->SetUWPnt( e0 );
+                            ie0->m_N0->SetXYZPnt( e0xyz );
+                            ie0->m_N0->MakePntUW();
+                            ie0->m_N0->SetCoordInfo( info );
+                            ie0->m_N1 = new TNode();
+                            ie0->m_N1->SetUWPnt( e1 );
+                            ie0->m_N1->SetXYZPnt( e1xyz );
+                            ie0->m_N1->MakePntUW();
+                            ie0->m_N1->SetCoordInfo( info );
+
+                            TEdge* ie1 = new TEdge();
+                            ie1->m_N0 = new TNode();
+                            ie1->m_N0->SetUWPnt( e0 );
+                            ie1->m_N0->SetXYZPnt( e0xyz );
+                            ie1->m_N0->MakePntUW();
+                            ie1->m_N0->SetCoordInfo( info );
+                            ie1->m_N1 = new TNode();
+                            ie1->m_N1->SetUWPnt( e1 );
+                            ie1->m_N1->SetXYZPnt( e1xyz );
+                            ie1->m_N1->MakePntUW();
+                            ie1->m_N1->SetCoordInfo( info );
+
+                            t0->m_ISectEdgeVec.push_back( ie0 );
+                            t1->m_ISectEdgeVec.push_back( ie1 );
+
+                            if ( tri->GetTMeshPtr() )
+                            {
+                                tri->GetTMeshPtr()->SplitAliasEdges( tri, tri->m_ISectEdgeVec.back() );
+                            }
+
+                        }
                     }
                     else
                     {
-                        delete ie0->m_N0;
-                        delete ie0->m_N1;
-                        delete ie1->m_N0;
-                        delete ie1->m_N1;
-                        delete ie0;
-                        delete ie1;
-                    }
+                        TEdge* ie0 = new TEdge();
+                        ie0->m_N0 = new TNode();
+                        ie0->m_N0->m_Pnt = e0;
+                        ie0->m_N1 = new TNode();
+                        ie0->m_N1->m_Pnt = e1;
 
+                        TEdge* ie1 = new TEdge();
+                        ie1->m_N0 = new TNode();
+                        ie1->m_N0->m_Pnt = e0;
+                        ie1->m_N1 = new TNode();
+                        ie1->m_N1->m_Pnt = e1;
+
+
+                        if ( dist( e0, e1 ) > 0.000001 )
+                        {
+                            t0->m_ISectEdgeVec.push_back( ie0 );
+                            t1->m_ISectEdgeVec.push_back( ie1 );
+                        }
+                        else
+                        {
+                            delete ie0->m_N0;
+                            delete ie0->m_N1;
+                            delete ie1->m_N0;
+                            delete ie1->m_N1;
+                            delete ie0;
+                            delete ie1;
+                        }
+                    }
                 }
             }
         }

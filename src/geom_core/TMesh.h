@@ -297,7 +297,7 @@ public:
 
     void SplitBox();
     void AddTri( TTri* t );
-    virtual void Intersect( TBndBox* iBox );
+    virtual void Intersect( TBndBox* iBox, bool UWFlag = false );
     virtual void NumCrossXRay( vec3d & orig, vector<double> & tParmVec );
     virtual void AddLeafNodes( vector< TBndBox* > & leafVec );
 
@@ -363,7 +363,7 @@ public:
 
     void LoadGeomAttributes( Geom* geomPtr );
     int  RemoveDegenerate();
-    void Intersect( TMesh* tm );
+    void Intersect( TMesh* tm, bool UWFlag = false );
     void Split( int meshFlag = 0 );
     void DeterIntExt( vector< TMesh* >& meshVec );
     void DeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec );
