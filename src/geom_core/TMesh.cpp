@@ -2079,7 +2079,7 @@ void TTri::NiceTriSplit( int flattenAxis )
 }
 
 
-int TTri::OnEdge( vec3d & p, TEdge* e, double onEdgeTol )
+int TTri::OnEdge( vec3d & p, TEdge* e, double onEdgeTol, double * t )
 {
     //==== Make Sure Not Duplicate Points ====//
     if ( dist( p, e->m_N0->m_Pnt ) < onEdgeTol )
@@ -2092,8 +2092,13 @@ int TTri::OnEdge( vec3d & p, TEdge* e, double onEdgeTol )
         return 0;
     }
 
-    double t;
-    double d = pointSegDistSquared( p, e->m_N0->m_Pnt, e->m_N1->m_Pnt, &t );
+    double tn;
+    if ( t == NULL )
+    {
+        t = &tn;
+    }
+
+    double d = pointSegDistSquared( p, e->m_N0->m_Pnt, e->m_N1->m_Pnt, t );
 
     if ( d < onEdgeTol * onEdgeTol )
     {
@@ -4030,6 +4035,95 @@ void TMesh::MakeNodePntXYZ()
         {
             tri->m_ISectEdgeVec[e]->m_N0->MakePntXYZ();
             tri->m_ISectEdgeVec[e]->m_N1->MakePntXYZ();
+        }
+    }
+}
+
+void TMesh::SplitAliasEdges( TTri* orig_tri, TEdge* isect_edge )
+{
+    // Check to see if either of the new nodes are on the existing perimeter edges,
+    // and if so add an edge to alias edges' triangle that will cause a split to occur
+    vec3d e0, e1, e0xyz, e1xyz;
+
+    e0 = isect_edge->m_N0->GetUWPnt();
+    e1 = isect_edge->m_N1->GetUWPnt();
+    e0xyz = isect_edge->m_N0->GetXYZPnt();
+    e1xyz = isect_edge->m_N1->GetXYZPnt();
+
+    if ( orig_tri->m_PEArr[0] != NULL )
+    {
+        double edgeTol = 1e-5;
+
+        vec3d * nn;
+        TEdge * orig_e = NULL;
+        double t;
+        for ( int pei = 0 ; pei < 3 ; pei++ )
+        {
+            nn = NULL;
+            orig_e = orig_tri->m_PEArr[pei];
+            if ( orig_tri->OnEdge( e0, orig_e, edgeTol, &t ) == 1 )
+            {
+                nn = &e0xyz;
+            }
+            else if ( orig_tri->OnEdge( e1, orig_e, edgeTol, &t ) == 1 )
+            {
+                nn = &e1xyz;
+            }
+
+            if ( nn && ( t > 0 && t < 1 ) )
+            {
+                // Get alias vector
+                TEdge* master = m_ESMMap[orig_e];
+                vector<TEdge*> a_edges = m_EAMap[ master ];
+
+                a_edges.push_back( master );
+                a_edges.erase( find( a_edges.begin(), a_edges.end(), orig_e ) );
+                // Get vector of tris
+                vector<TTri*> a_tris;
+                vector<TEdge*>::iterator vit; //vector iterator
+                for ( vit = a_edges.begin(); vit != a_edges.end() ; vit++ )
+                {
+                    TEdge* e = *vit;
+                    a_tris.push_back( e->GetParTri() );
+                }
+
+                // Loop over each tri and split appropriate edge
+                for ( int ti = 0; ti < ( int )a_tris.size(); ti++ )
+                {
+                    // Compute UW of xyz point on alias triangle
+                    TTri* ta = a_tris[ti]; // alias triangle
+                    if ( !ta )
+                    {
+                        printf( "Warning: Edge is missing parent triangle\n" );
+                        continue;
+                    }
+
+                    TEdge* ea = a_edges[ti]; // alias edge
+
+                    vec3d uwn;
+                    if ( m_NSMMap[orig_e->m_N0] == m_NSMMap[ea->m_N0] ) // Make sure edges are aligned the same way for the parametric line parameter
+                    {
+                        uwn = point_on_line( ea->m_N0->GetUWPnt(), ea->m_N1->GetUWPnt(), t );
+                    }
+                    else
+                    {
+                        uwn = point_on_line( ea->m_N1->GetUWPnt(), ea->m_N0->GetUWPnt(), t );
+                    }
+
+                    // Create Fake Edge
+                    TEdge* n_edge = new TEdge();
+                    n_edge->m_N0 = new TNode();
+                    n_edge->m_N1 = new TNode();
+                    n_edge->SetParTri( ta );
+                    n_edge->m_N0->SetUWPnt( uwn );
+                    n_edge->m_N0->SetXYZPnt( *nn );
+                    n_edge->m_N0->MakePntUW();
+                    n_edge->m_N1->SetUWPnt( ea->m_N1->GetUWPnt() );
+                    n_edge->m_N1->SetXYZPnt( ea->m_N1->GetXYZPnt() );
+                    n_edge->m_N1->MakePntUW();
+                    ta->m_ISectEdgeVec.push_back( n_edge );
+                }
+            }
         }
     }
 }

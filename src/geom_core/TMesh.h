@@ -258,6 +258,7 @@ public:
 
     virtual void BuildPermEdges();
 
+    virtual int OnEdge( vec3d & p, TEdge* e, double onEdgeTol, double * t = NULL );
     virtual vec3d CompPnt( const vec3d & uw_pnt );
 
     int m_InteriorFlag;
@@ -279,7 +280,6 @@ protected:
 
 private:
 
-    virtual int OnEdge( vec3d & p, TEdge* e, double onEdgeTol );
     virtual int DupEdge( TEdge* e0, TEdge* e1, double tol );
 
 };
@@ -426,6 +426,7 @@ public:
     virtual void MakeNodePntUW(); // Swaps Node->m_Pnt with Node->m_UWPnt
     virtual void MakeNodePntXYZ();
 
+    virtual void SplitAliasEdges( TTri* orig_tri, TEdge* isect_edge );
     virtual vec3d CompPnt( const vec3d & uw_pnt );
 
     static void StressTest();
