@@ -35,6 +35,7 @@ public:
         TEST_ADD( UtilTestSuite::VspSurfTest )
         TEST_ADD( UtilTestSuite::SharedPtrTest )
         TEST_ADD( UtilTestSuite::PointInPolyTest )
+        TEST_ADD( UtilTestSuite::BilinearInterpTest )
     }
 
 private:
@@ -46,6 +47,7 @@ private:
     void VspSurfTest();
     void SharedPtrTest();
     void PointInPolyTest();
+    void BilinearInterpTest();
 
     void WritePntVecs( vector< vector< vec3d > > & pnt_vecs,  string file_name );
     void WriteCurve( VspCurve& crv, string file_name );
