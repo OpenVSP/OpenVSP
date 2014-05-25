@@ -225,6 +225,12 @@ public:
         return m_Pnts;
     }
 
+    // Mapping Functions
+    // Converts surf uw to VspSurf uw
+    vec2d Convert2VspSurf( double u, double w );
+    // Converts VspSurf uw to surf uw
+    vec2d Convert2Surf( double u, double w );
+
 protected:
 
     int m_CompID;
@@ -273,6 +279,8 @@ protected:
     vector< double > w_to_vspsurf;
     map< double, int > u_to_surf;
     map< double, int > w_to_surf;
+
+    double InterpolateToVspSurf( const vector< double> & vec, const double & surf_val ) const;
 
 };
 

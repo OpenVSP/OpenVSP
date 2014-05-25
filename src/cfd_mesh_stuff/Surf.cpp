@@ -13,6 +13,7 @@
 #include "ISegChain.h"
 #include "Tritri.h"
 #include "CfdMeshMgr.h"
+#include "StlHelper.h"
 
 Surf::Surf()
 {
@@ -1987,6 +1988,69 @@ bool Surf::BorderMatch( Surf* otherSurf )
     return false;
 }
 
+//==== Functions to Map Between Surf and VspSurf Parameterizations ====//
+vec2d Surf::Convert2VspSurf( double u, double w )
+{
+    double u_vsp = InterpolateToVspSurf( u_to_vspsurf, u );
+    double w_vsp = InterpolateToVspSurf( w_to_vspsurf, w );
+
+    return vec2d( u_vsp, w_vsp );
+}
+
+vec2d Surf::Convert2Surf( double u, double w )
+{
+    bool in_range;
+    double u_surf, w_surf;
+    vec2d ret_vec;
+
+    u_surf = interpolate( u_to_surf, u, &in_range );
+    if ( in_range )
+    {
+        ret_vec.set_x( u_surf );
+    }
+    else
+    {
+        ret_vec.set_x( -1 );
+    }
+
+    w_surf = interpolate( w_to_surf, w, &in_range );
+    if ( in_range )
+    {
+        ret_vec.set_y( w_surf );
+    }
+    else
+    {
+        ret_vec.set_y( -1 );
+    }
+
+    return ret_vec;
+}
+
+double Surf::InterpolateToVspSurf( const vector< double> & vec, const double & surf_val ) const
+{
+    int x0 = floor( surf_val );
+    int x1 = x0 + 1;
+
+    if ( x0 < 0 )
+    {
+        return vec.front();
+    }
+    if ( x1 > vec.size() - 1 )
+    {
+        return vec.back();
+    }
+    double y0 = vec[x0];
+    double y1 = vec[x1];
+
+    double denom = ( double )( x1 - x0 );
+
+    if ( denom == 0.0 )
+    {
+        return 0.0;
+    }
+
+    return ( y1 - y0 ) / denom * ( surf_val - ( double )x0 ) + y0;
+}
 /*
 void Surf::Draw()
 {
