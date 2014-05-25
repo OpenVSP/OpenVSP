@@ -15,6 +15,7 @@
 #include <set>
 
 #include "VspSurf.h"
+#include "StlHelper.h"
 
 #include "eli/geom/curve/piecewise_creator.hpp"
 #include "eli/geom/surface/piecewise_creator.hpp"
@@ -2046,6 +2047,10 @@ void VspSurf::WriteBezFile( FILE* file_id, const std::string &geom_id )
     piecewise_surface_type::data_type ttol = 1e-6;
     s.to_cubic( ttol );
 
+    vector<double> u_pmap;
+    vector<double> w_pmap;
+    s.get_pmap_uv( u_pmap, w_pmap );
+
     piecewise_surface_type::index_type ip, jp, nupatch, nvpatch;
 
     nupatch = s.number_u_patches();
@@ -2081,9 +2086,9 @@ void VspSurf::WriteBezFile( FILE* file_id, const std::string &geom_id )
     split_u.push_back( 0 );
     split_w.push_back( 0 );
 
-    split_w.push_back( 3 * round( (( nvpts - 1 ) / 4 ) / 3 ) );
-    split_w.push_back( 3 * round( (( nvpts - 1 ) / 2 ) / 3 ) );
-    split_w.push_back( 3 * round( (3 * ( nvpts - 1 ) / 4 ) / 3 ) );
+    split_w.push_back( ClosetPatchEnd( w_pmap, 0.25 * w_pmap[w_pmap.size() - 1] ) );
+    split_w.push_back( ClosetPatchEnd( w_pmap, 0.5 * w_pmap[w_pmap.size() - 1] ) );
+    split_w.push_back( ClosetPatchEnd( w_pmap, 0.75 * w_pmap[w_pmap.size() - 1] ) );
 
     split_u.push_back( nupts - 1 );
     split_w.push_back( nvpts - 1 );
@@ -2111,4 +2116,13 @@ void VspSurf::WriteBezFile( FILE* file_id, const std::string &geom_id )
                 }
         }
     }
+}
+
+int VspSurf::ClosetPatchEnd( const vector<double> & patch_endings, double end_val ) const
+{
+    // patch_endings should be a sorted vector
+    int ind = ClosestElement( patch_endings, end_val );
+
+    return ind * 3;
+
 }
