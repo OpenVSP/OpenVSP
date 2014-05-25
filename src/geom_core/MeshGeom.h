@@ -22,6 +22,8 @@
 #include "Geom.h"
 #include "Util.h"
 #include "ResultsMgr.h"
+#include <set>
+#include <map>
 
 class MeshInfo
 {
@@ -201,8 +203,14 @@ public:
     virtual Matrix4d GetTotalTransMat();
     virtual void TransformMeshVec( vector<TMesh*> & meshVec, Matrix4d & TransMat );
 
+    virtual vector< string > GetTMeshNames();
+
+    virtual void SubTagTris();
+
+    virtual void PreMerge();
 protected:
     virtual void ApplyScale(); // this is for intersectTrim
+    vector<TMesh*> m_SubSurfVec;
 
 };
 

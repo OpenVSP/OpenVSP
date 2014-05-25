@@ -26,6 +26,10 @@
 #include "BndBox.h"
 #include "StringUtil.h"
 
+#include "SubSurfaceMgr.h"
+#include <set>
+#include <map>
+
 //==== Constructor =====//
 MeshGeom::MeshGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
 {
@@ -89,6 +93,11 @@ MeshGeom::~MeshGeom()
     for ( i = 0 ; i < ( int )m_SliceVec.size() ; i++ )
     {
         delete m_SliceVec[i];
+    }
+
+    for ( i = 0 ; i < ( int )m_SubSurfVec.size(); i++ )
+    {
+        delete m_SubSurfVec[i];
     }
 
 }
@@ -1122,6 +1131,14 @@ void MeshGeom::ApplyScale()
 //              n->pnt = n->pnt*( scaleFactor()/m_lastScale );
             }
         }
+
+        for ( int j = 0 ; j < m_TMeshVec[i]->m_XYZPnts.size() ; j++ )
+        {
+            for ( int k = 0 ; k < m_TMeshVec[i]->m_XYZPnts[j].size() ; k++ )
+            {
+                m_TMeshVec[i]->m_XYZPnts[j][k] = m_TMeshVec[i]->m_XYZPnts[j][k] * ( m_Scale() / m_LastScale );
+            }
+        }
     }
     map<TNode*, int >::const_iterator iter;
     for ( iter = nodeMap.begin() ; iter != nodeMap.end() ; iter++ )
@@ -1196,7 +1213,6 @@ void MeshGeom::IntersectTrim( int meshf, int halfFlag )
 
     //==== Check For Open Meshes and Merge or Delete Them ====//
     MeshInfo info;
-    MergeRemoveOpenMeshes( &info );
 
 
     //==== Count Tris ====//
@@ -1244,6 +1260,61 @@ void MeshGeom::IntersectTrim( int meshf, int halfFlag )
     m_LastScale = 1.0;
     m_Scale = 1000.0 / m_BBox.GetLargestDist();
     ApplyScale();
+
+    //==== Intersect Subsurfaces to make clean lines ====//
+    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+    {
+        vector< TMesh* > sub_surf_meshes;
+        vector< SubSurface* > sub_surf_vec = SubSurfaceMgr.GetSubSurfs( m_TMeshVec[i]->m_PtrID );
+        int ss;
+        for ( ss = 0 ; ss < ( int )sub_surf_vec.size() ; ss++ )
+        {
+            vector< TMesh* > tmp_vec = sub_surf_vec[ss]->CreateTMeshVec();
+            sub_surf_meshes.insert( sub_surf_meshes.end(), tmp_vec.begin(), tmp_vec.end() );
+        }
+        m_SubSurfVec.insert( m_SubSurfVec.end(), sub_surf_meshes.begin(), sub_surf_meshes.end() );
+
+        if ( !sub_surf_meshes.size() )
+        {
+            continue;    // Skip if no sub surface meshes
+        }
+
+        // Load All surf_mesh_bboxes
+        for ( ss = 0 ; ss < ( int )sub_surf_meshes.size() ; ss++ )
+        {
+            // Build merge maps
+            m_TMeshVec[i]->BuildMergeMaps();
+
+            sub_surf_meshes[ss]->LoadBndBox();
+            // Swap the m_TMeshVec[i]'s nodes to be UW instead of xyz
+            m_TMeshVec[i]->MakeNodePntUW();
+            m_TMeshVec[i]->LoadBndBox();
+
+            // Intersect TMesh with sub_surface_meshes
+            m_TMeshVec[i]->Intersect( sub_surf_meshes[ss], true );
+
+            // Split the triangles
+            m_TMeshVec[i]->Split();
+
+            // Make current TMesh XYZ again and reset its octtree
+            m_TMeshVec[i]->MakeNodePntXYZ();
+            m_TMeshVec[i]->m_TBox.Reset();
+
+            // Flatten Mesh
+            TMesh* f_tmesh = new TMesh();
+            f_tmesh->CopyFlatten( m_TMeshVec[i] );
+            delete m_TMeshVec[i];
+            m_TMeshVec[i] = f_tmesh;
+        }
+
+        sub_surf_meshes.clear();
+    }
+
+    // Tag meshes before regular intersection
+    SubTagTris();
+
+    MergeRemoveOpenMeshes( &info );
+
 
     //==== Create Bnd Box for  Mesh Geoms ====//
     for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
@@ -1348,7 +1419,10 @@ void MeshGeom::IntersectTrim( int meshf, int halfFlag )
                 cidVec.push_back( m_TMeshVec[j] );
             }
         }
-        tMeshCompVec.push_back( cidVec );
+        if ( cidVec.size() > 0 )
+        {
+            tMeshCompVec.push_back( cidVec );
+        }
     }
 
     //==== Sum Area/Vol Data and Place in First TMesh Data ====//
@@ -2769,6 +2843,17 @@ void MeshGeom::MergeRemoveOpenMeshes( MeshInfo* info )
 
 }
 
+void MeshGeom::PreMerge()
+{
+    // This method pre-merges each TMesh in the TMeshVec. This builds node and edge alias maps
+    // in order to perform an intersection between non-merged meshes in UW space
+
+    for ( int i = 0; i < ( int )m_TMeshVec.size(); i++ )
+    {
+        m_TMeshVec[i]->BuildMergeMaps();
+    }
+}
+
 void MeshGeom::AddHalfBox()
 {
     //==== Find Bound Box ====//
@@ -2919,5 +3004,35 @@ Matrix4d MeshGeom::GetTotalTransMat()
     retMat.postMult( m_ModelMatrix.data() );
 
     return retMat;
+}
+
+//==== Get the Names of the TMeshes ====//
+vector< string > MeshGeom::GetTMeshNames()
+{
+    vector< string > names;
+    for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+    {
+        names.push_back( m_TMeshVec[i]->m_NameStr.append( to_string( ( long long )m_TMeshVec[i]->m_SurfNum ) ) );
+    }
+
+    return names;
+}
+
+//==== Subtag All Trianlges ====//
+void MeshGeom::SubTagTris()
+{
+    // Clear out the current Subtag Maps
+    SubSurfaceMgr.ClearTagMaps();
+    SubSurfaceMgr.m_CompNames = GetTMeshNames();
+    SubSurfaceMgr.SetSubSurfTags( GetNumNascartParts() );
+    SubSurfaceMgr.BuildCompNameMap();
+
+    for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+    {
+        m_TMeshVec[i]->SubTag( i + 1 );
+    }
+
+    SubSurfaceMgr.BuildSingleTagMap();
+
 }
 
