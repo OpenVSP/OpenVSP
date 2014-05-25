@@ -222,9 +222,13 @@ public:
     virtual void SplitTri( int meshFlag = 0 );              // Split Tri to Fit ISect Edges
     virtual void TriangulateSplit( int flattenAxis );
     virtual void NiceTriSplit( int flattenAxis );
+    virtual vec3d ComputeCenter()
+    {
+        return ( m_N0->m_Pnt + m_N1->m_Pnt + m_N2->m_Pnt ) / 3.0;
+    }
     virtual vec3d ComputeCenterUW()
     {
-        return vec3d();
+        return ( m_N0->m_UWPnt + m_N1->m_UWPnt + m_N2->m_UWPnt ) / 3.0;
     }
     virtual double ComputeArea()
     {
@@ -422,6 +426,7 @@ public:
     static TNode* CheckDupOrAdd( TNode* node, vector< TNode* > & nodeVec, double tol = 0.00000001 );
     static TNode* CheckDupOrCreate( vec3d & p, vector< TNode* > & nodeVec, double tol = 0.00000001 );
 
+    virtual void SubTag( int part_num ); // Subtag all triangles, if split triangles exist tag them the same as their parent
 
     virtual void MakeNodePntUW(); // Swaps Node->m_Pnt with Node->m_UWPnt
     virtual void MakeNodePntXYZ();

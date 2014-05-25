@@ -26,6 +26,7 @@
 #include "triangle.h"
 #include "Util.h"
 #include "Geom.h"
+#include "SubSurfaceMgr.h"
 
 #include <map>
 #include <set>
@@ -344,6 +345,7 @@ void TMesh::CopyFlatten( TMesh* m )
                 if ( !s_tri->m_InteriorFlag )
                 {
                     AddTri( s_tri->m_N0, s_tri->m_N1, s_tri->m_N2, s_tri->m_Norm );
+                    m_TVec.back()->m_Tags = s_tri->m_Tags;
                 }
             }
         }
@@ -352,6 +354,7 @@ void TMesh::CopyFlatten( TMesh* m )
             if ( !orig_tri->m_InteriorFlag )
             {
                 AddTri( orig_tri->m_N0, orig_tri->m_N1, orig_tri->m_N2, orig_tri->m_Norm );
+                m_TVec.back()->m_Tags = orig_tri->m_Tags;
             }
         }
     }
@@ -4259,6 +4262,35 @@ void TMesh::SplitAliasEdges( TTri* orig_tri, TEdge* isect_edge )
         }
     }
 }
+
+// Subtag triangles
+void TMesh::SubTag( int part_num )
+{
+    // Subtag all triangles in a given TMesh
+    // Split tris will be subtagged the same as their parent
+    vector<SubSurface*> sub_surfs = SubSurfaceMgr.GetSubSurfs( m_PtrID );
+    int ss_num = ( int )sub_surfs.size();
+    for ( int t = 0 ; t < ( int )m_TVec.size(); t ++ )
+    {
+        TTri* tri = m_TVec[t];
+        tri->m_Tags.push_back( part_num ); // Give Tri overall surface ID number
+        for ( int s = 0; s < ss_num; s++ )
+        {
+            if ( sub_surfs[s]->Subtag( tri ) )
+            {
+                tri->m_Tags.push_back( sub_surfs[s]->m_Tag );
+            }
+        }
+
+        SubSurfaceMgr.m_TagCombos.insert( tri->m_Tags );
+
+        for ( int st = 0; st < ( int )tri->m_SplitVec.size() ; st++ ) // Set split tris to have same tags as main tri
+        {
+            tri->m_SplitVec[st]->m_Tags = tri->m_Tags;
+        }
+    }
+}
+
 vec3d TMesh::CompPnt( const vec3d & uw_pnt )
 {
     // Search through uw pnts to figure out which quad the uw_pnt is in
