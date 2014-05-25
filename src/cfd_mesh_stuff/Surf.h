@@ -25,6 +25,7 @@
 #include <vector>
 #include <list>
 #include <set>
+#include <map>
 using namespace std;
 
 class CfdMeshMgrSingleton;
@@ -267,6 +268,11 @@ protected:
                    void ( *uBlendFun )( double u, double& F1, double& F2, double& F3, double& F4 ),
                    void ( *wBlendFun )( double u, double& F1, double& F2, double& F3, double& F4 ) );
 
+    int m_VspSurfInd;
+    vector< double > u_to_vspsurf;
+    vector< double > w_to_vspsurf;
+    map< double, int > u_to_surf;
+    map< double, int > w_to_surf;
 
 };
 

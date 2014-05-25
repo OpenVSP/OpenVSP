@@ -138,7 +138,7 @@ public:
     vec3d CompNorm( double u, double v ) const;
     vec3d CompNorm01( double u, double v ) const;
 
-    void WriteBezFile( FILE* id, const std::string &geom_id );
+    void WriteBezFile( FILE* id, const std::string &geom_id, int surf_ind );
 
     //===== Tesselate ====//
     void Tesselate( int num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms ) const;

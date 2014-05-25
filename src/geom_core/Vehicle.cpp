@@ -1764,9 +1764,9 @@ void Vehicle::WriteBezFile( const string & file_name, int write_set )
             vector<VspSurf> surf_vec;
             geom_vec[i]->GetSurfVec( surf_vec );
 
-            for ( int j = 0; j < (int)surf_vec.size(); j++ )
+            for ( int j = 0; j < ( int )surf_vec.size(); j++ )
             {
-                surf_vec[j].WriteBezFile( id, geom_vec[i]->GetID() );
+                surf_vec[j].WriteBezFile( id, geom_vec[i]->GetID(), j );
             }
         }
     }

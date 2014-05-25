@@ -65,10 +65,35 @@ void Surf::ReadSurf( FILE* file_id )
     {
         char buff[256];
 
-        int num_u, num_w;
-        double x, y, z;
+        int num_u, num_w, num_u_map, num_w_map, surf_ind;
+        double x, y, z, u;
         fgets( buff, 256, file_id );
         sscanf( buff, "%d %d\n", &num_u, &num_w );
+        fgets( buff, 256, file_id );
+        sscanf( buff, "%d %d\n", &num_u_map, &num_w_map );
+        fgets( buff, 256, file_id );
+        sscanf( buff, "%d\n", &surf_ind );
+
+        m_VspSurfInd = surf_ind;
+
+        u_to_vspsurf.resize( num_u_map );
+        w_to_vspsurf.resize( num_w_map );
+
+        for ( i = 0 ; i < num_u_map; i++ )
+        {
+            fgets( buff, 256, file_id );
+            sscanf( buff, "%lf\n", &u );
+            u_to_vspsurf[i] = u;
+            u_to_surf[u] = i;
+        }
+
+        for ( i = 0 ; i < num_w_map ; i++ )
+        {
+            fgets( buff, 256, file_id );
+            sscanf( buff, "%lf\n", &u );
+            w_to_vspsurf[i] = u;
+            w_to_surf[u] = i;
+        }
 
         vector< vector< vec3d > > pnts;
         pnts.resize( num_u );

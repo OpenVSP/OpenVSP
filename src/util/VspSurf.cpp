@@ -2039,7 +2039,7 @@ void VspSurf::DegreeReduceSections( const vector<VspCurve> &input_crv_vec, bool 
 #endif
 }
 
-void VspSurf::WriteBezFile( FILE* file_id, const std::string &geom_id )
+void VspSurf::WriteBezFile( FILE* file_id, const std::string &geom_id, int surf_ind )
 {
     // Make copy for local changes.
     piecewise_surface_type s( m_Surface );
@@ -2095,7 +2095,7 @@ void VspSurf::WriteBezFile( FILE* file_id, const std::string &geom_id )
 
     int num_sections = ( split_u.size() - 1 ) * ( split_w.size() - 1 );
 
-	fprintf( file_id, "%s Component\n", geom_id.c_str() );
+    fprintf( file_id, "%s Component\n", geom_id.c_str() );
     fprintf( file_id, "%d  Num_Sections\n", num_sections );
 
     for ( int iu = 0 ; iu < ( int )split_u.size() - 1 ; iu++ )
@@ -2105,7 +2105,21 @@ void VspSurf::WriteBezFile( FILE* file_id, const std::string &geom_id )
             //==== Write Section ====//
             int num_u = split_u[iu + 1] - split_u[iu] + 1;
             int num_w = split_w[iw + 1] - split_w[iw] + 1;
+            int num_u_map = split_u[iu + 1] / 3 - split_u[iu] / 3 + 1;
+            int num_w_map = split_w[iw + 1] / 3 - split_w[iw] / 3 + 1;
             fprintf ( file_id, "%d %d  NumU, NumW\n", num_u, num_w );
+            fprintf( file_id, "%d %d NumU_Map, NumW_Map\n", num_u_map, num_w_map );
+            fprintf( file_id, "%d VspSurf_Index\n", surf_ind );
+            //==== Write U,W Mapping ====//
+            for ( int umi = split_u[iu] / 3; umi <= split_u[iu + 1] / 3; umi++ )
+            {
+                fprintf( file_id, "%20.20lf\n", u_pmap[umi] );
+            }
+
+            for ( int wmi = split_w[iw] / 3; wmi <= split_w[iw + 1] / 3; wmi++ )
+            {
+                fprintf( file_id, "%20.20lf\n", w_pmap[wmi] );
+            }
 
             for ( int i = split_u[iu] ; i <= split_u[iu + 1] ; i++ )
                 for ( int j = split_w[iw] ; j <= split_w[iw + 1] ; j++ )
