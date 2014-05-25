@@ -1127,6 +1127,16 @@ vec3d TTri::CompNorm()
     return cnorm;
 }
 
+vec3d TTri::CompPnt( const vec3d & uw_pnt )
+{
+    if ( m_TMesh )
+    {
+        return m_TMesh->CompPnt( uw_pnt );
+    }
+
+    return vec3d();
+}
+
 bool TTri::ShareEdge( TTri* t )
 {
     double tol = 0.0000001;
@@ -4022,4 +4032,61 @@ void TMesh::MakeNodePntXYZ()
             tri->m_ISectEdgeVec[e]->m_N1->MakePntXYZ();
         }
     }
+}
+vec3d TMesh::CompPnt( const vec3d & uw_pnt )
+{
+    // Search through uw pnts to figure out which quad the uw_pnt is in
+
+    if ( m_UWPnts.size() == 0 )
+    {
+        return vec3d();
+    }
+
+    int start_u, start_v, i, j;
+    vec3d p0, p1, p2, p3;
+
+    start_u = start_v = 0;
+
+    // Find Starting U pnt
+    for ( i = 0 ; i < ( int )m_UWPnts.size() - 1 ; i++ )
+    {
+        if ( uw_pnt.x() > m_UWPnts[i][0].x() )
+        {
+            start_u = i;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    // Find Starting V pnt
+    for ( j = 0 ; j < ( int )m_UWPnts[start_u].size() - 1; j++ )
+    {
+        if ( uw_pnt.y() > m_UWPnts[start_u][j].y() )
+        {
+            start_v = j;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    p0 = m_XYZPnts[start_u][start_v];
+    p1 = m_XYZPnts[start_u + 1][start_v];
+    p2 = m_XYZPnts[start_u + 1][start_v + 1];
+    p3 = m_XYZPnts[start_u][start_v + 1];
+
+    vector<double> weights;
+
+    BilinearWeights( m_UWPnts[start_u][start_v], m_UWPnts[start_u + 1][start_v + 1], uw_pnt, weights );
+
+    if ( weights.size() != 4 )
+    {
+        return vec3d();
+    }
+
+    return ( p0 * weights[0] + p1 * weights[1] + p2 * weights[2] + p3 * weights[3] );
+
 }

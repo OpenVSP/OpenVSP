@@ -257,6 +257,9 @@ public:
     }
 
     virtual void BuildPermEdges();
+
+    virtual vec3d CompPnt( const vec3d & uw_pnt );
+
     int m_InteriorFlag;
     string m_ID;
     vector<int> m_Tags;
@@ -422,6 +425,9 @@ public:
 
     virtual void MakeNodePntUW(); // Swaps Node->m_Pnt with Node->m_UWPnt
     virtual void MakeNodePntXYZ();
+
+    virtual vec3d CompPnt( const vec3d & uw_pnt );
+
     static void StressTest();
     static double Rand01();
 
