@@ -278,6 +278,7 @@ TMesh::TMesh()
     m_TheoArea = m_WetArea = 0.0;
     m_TheoVol    = m_WetVol = 0.0;
     m_HalfBoxFlag = false;
+    m_SurfNum = 0;
 }
 
 TMesh::~TMesh()
@@ -359,6 +360,7 @@ void TMesh::CopyFlatten( TMesh* m )
 void TMesh::CopyAttributes( TMesh* m )
 {
     m_PtrID     = m->m_PtrID;
+    m_SurfNum   = m->m_SurfNum;
     m_NameStr   = m->m_NameStr;
     m_MaterialID = m->m_MaterialID;
     m_Color      = m->m_Color;
@@ -375,6 +377,9 @@ void TMesh::CopyAttributes( TMesh* m )
     m_ShellMassArea = m->m_ShellMassArea;
 
     m_DragFactors = m->m_DragFactors;
+
+    m_UWPnts = m->m_UWPnts;
+    m_XYZPnts = m->m_XYZPnts;
 }
 
 xmlNodePtr TMesh::EncodeXml( xmlNodePtr & node )

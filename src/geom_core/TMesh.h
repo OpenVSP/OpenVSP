@@ -343,6 +343,7 @@ public:
     string m_PtrID;
     //bool reflected_flag;
     string m_NameStr;
+    int m_SurfNum; // To keep track of geoms with multiple surfaces
     int m_MaterialID;
     vec3d m_Color;
     int m_MassPrior;
@@ -428,6 +429,9 @@ public:
     vector< vec3d > m_ISectPairs;
 
     bool m_HalfBoxFlag;
+
+    vector< vector<vec3d> > m_UWPnts;
+    vector< vector<vec3d> > m_XYZPnts;
 
 protected:
     void CopyAttributes( TMesh* m );

@@ -1512,9 +1512,14 @@ vector< TMesh* > Geom::CreateTMeshVec()
 
         TMeshVec.push_back( new TMesh() );
         TMeshVec[i]->LoadGeomAttributes( this );
+        TMeshVec[i]->m_SurfNum = i;
+        TMeshVec[i]->m_UWPnts = uw_pnts;
+        TMeshVec[i]->m_XYZPnts = pnts;
+        bool f_norm = m_SurfVec[i].GetFlipNormal();
 
         vec3d norm;
         vec3d v0, v1, v2, v3;
+        vec3d uw0, uw1, uw2, uw3;
         vec3d d21, d01, d03, d23, d20;
 
         for ( int j = 0 ; j < ( int )pnts.size() - 1 ; j++ )
@@ -1526,6 +1531,11 @@ vector< TMesh* > Geom::CreateTMeshVec()
                 v2 = pnts[j + 1][k + 1];
                 v3 = pnts[j][k + 1];
 
+                uw0 = uw_pnts[j][k];
+                uw1 = uw_pnts[j + 1][k];
+                uw2 = uw_pnts[j + 1][k + 1];
+                uw3 = uw_pnts[j][k + 1];
+
                 d21 = v2 - v1;
                 d01 = v0 - v1;
                 d20 = v2 - v0;
@@ -1534,7 +1544,14 @@ vector< TMesh* > Geom::CreateTMeshVec()
                 {
                     norm = cross( d21, d01 );
                     norm.normalize();
-                    TMeshVec[i]->AddTri( v0, v1, v2, norm );
+                    if ( f_norm )
+                    {
+                        TMeshVec[i]->AddTri( v0, v2, v1, norm * -1, uw0, uw2, uw1 );
+                    }
+                    else
+                    {
+                        TMeshVec[i]->AddTri( v0, v1, v2, norm, uw0, uw1, uw2 );
+                    }
                 }
 
                 d03 = v0 - v3;
@@ -1543,7 +1560,14 @@ vector< TMesh* > Geom::CreateTMeshVec()
                 {
                     norm = cross( d03, d23 );
                     norm.normalize();
-                    TMeshVec[i]->AddTri( v0, v2, v3, norm );
+                    if ( f_norm )
+                    {
+                        TMeshVec[i]->AddTri( v0, v3, v2, norm * -1, uw0, uw3, uw2 );
+                    }
+                    else
+                    {
+                        TMeshVec[i]->AddTri( v0, v2, v3, norm, uw0, uw2, uw3 );
+                    }
                 }
             }
         }
