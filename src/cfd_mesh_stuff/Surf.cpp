@@ -1849,7 +1849,7 @@ void Surf::FlipU()
 
 bool Surf::ValidUW( vec2d & uw )
 {
-    return true;
+    //return true;
     double slop = 0.0001;
     if ( uw[0] < -slop )
     {
