@@ -65,8 +65,8 @@ public:
     {
         return( v );
     }
-    double x();
-    double y();
+    double x() const;
+    double y() const;
     double* data()
     {
         return( v );

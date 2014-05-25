@@ -79,13 +79,13 @@ vec2d& vec2d::set_y( double yy )
 }
 
 //******* Get Point Values *******//
-double vec2d::x()
+double vec2d::x() const
 {
     return v[0];
 }
 
 //******* Get Point Values *******//
-double vec2d::y()
+double vec2d::y() const
 {
     return v[1];
 }
