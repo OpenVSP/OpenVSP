@@ -16,6 +16,8 @@
 #include "SurfPatch.h"
 #include "Tri.h"
 #include "Util.h"
+#include "SubSurfaceMgr.h"
+#include "SubSurface.h"
 
 #ifdef DEBUG_CFD_MESH
 #include <direct.h>
@@ -2369,12 +2371,15 @@ void CfdMeshMgrSingleton::BuildCurves()
 }
 void CfdMeshMgrSingleton::Intersect()
 {
+    BuildSubSurfIntChains();
+
     //==== Quad Tree Intersection - Intersection Segments Get Loaded at AddIntersectionSeg ===//
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
         for ( int j = i + 1 ; j < ( int )m_SurfVec.size() ; j++ )
         {
             m_SurfVec[i]->Intersect( m_SurfVec[j] );
         }
+
 
     BuildChains();
 
@@ -2972,6 +2977,136 @@ void CfdMeshMgrSingleton::LoadBorderCurves()
 
 }
 
+void CfdMeshMgrSingleton::BuildSubSurfIntChains()
+{
+    // Adds subsurface intersection chains
+    vec2d uw_pnt0;
+    vec2d uw_pnt1;
+    int num_sects = 100; // Number of segments to break subsurface segments up into
+
+    // If there is an issue with having a watertight mesh between the intersection of two
+    // components near a forced subsurface line, try increasing num_sects especially for highly
+    // curved surfaces
+
+    SubSurfaceMgr.PrepareToSplit(); // Prepare All SubSurfaces for Split
+    for ( int s = 0 ; s < ( int )m_SurfVec.size() ; s++ )
+    {
+        // Get all SubSurfaces for the specified geom
+        Surf* surf = m_SurfVec[s];
+        vector< SubSurface* > ss_vec = SubSurfaceMgr.GetSubSurfs( surf->GetGeomID() );
+
+        // Split SubSurfs
+        for ( int ss = 0 ; ss < ( int ) ss_vec.size(); ss++ )
+        {
+            vec2d split_0, split_1;
+            split_0 = surf->Convert2VspSurf( 0, 0 );
+            split_1 = surf->Convert2VspSurf( surf->GetMaxU(), surf->GetMaxW() );
+            ss_vec[ss]->SplitSegsU( split_0[0] );
+            ss_vec[ss]->SplitSegsU( split_1[0] );
+            ss_vec[ss]->SplitSegsW( split_0[1] );
+            ss_vec[ss]->SplitSegsW( split_1[1] );
+
+            vector< SSLineSeg >& segs = ss_vec[ss]->GetSplitSegs();
+            ISegChain* chain = NULL;
+
+            bool new_chain = true;
+            bool is_poly = ss_vec[ss]->GetPolyFlag();
+
+            // Build Intersection Chains
+            for ( int ls = 0; ls < ( int )segs.size(); ls++ )
+            {
+                if ( new_chain && chain )
+                {
+                    if ( chain->m_ISegDeque.size() > 0 )
+                    {
+                        m_ISegChainList.push_back( chain );
+                    }
+                    else
+                    {
+                        delete chain;
+                        chain = NULL;
+                    }
+                }
+
+                if ( new_chain )
+                {
+                    chain = new ISegChain;
+                    chain->m_SurfA = surf;
+                    chain->m_SurfB = surf;
+                    if ( !is_poly )
+                    {
+                        new_chain = false;
+                    }
+                }
+
+                SSLineSeg l_seg = segs[ls];
+                vec3d lp0, lp1;
+
+                lp0 = l_seg.GetP0();
+                lp1 = l_seg.GetP1();
+                uw_pnt0 = surf->Convert2Surf( lp0.x(), lp0.y() );
+                uw_pnt1 = surf->Convert2Surf( lp1.x(), lp1.y() );
+
+                if ( uw_pnt0[0] < 0 || uw_pnt0[1] < 0 || uw_pnt1[0] < 0 || uw_pnt1[1] < 0 )
+                {
+                    new_chain = true;
+                    continue; // Skip if either point has a value not on this surface
+                }
+
+                double delta_u = ( uw_pnt1[0] - uw_pnt0[0] ) / num_sects;
+                double delta_w = ( uw_pnt1[1] - uw_pnt0[1] ) / num_sects;
+
+                vector< vec2d > uw_pnts;
+                uw_pnts.resize( num_sects + 1 );
+                uw_pnts[0] = uw_pnt0;
+                uw_pnts[num_sects] = uw_pnt1;
+
+                // Add additional points between the segment endpoints to hopefully make the curve planar with the surface
+                for ( int p = 1 ; p < num_sects ; p++ )
+                {
+                    uw_pnts[p] = vec2d( uw_pnt0[0] + delta_u * p, uw_pnt0[1] + delta_w * p );
+                }
+
+                for ( int p = 1 ; p < ( int ) uw_pnts.size() ; p++ )
+                {
+                    Puw* puwA0 = new Puw( surf, uw_pnts[p - 1] );
+                    Puw* puwA1 = new Puw( surf, uw_pnts[p] );
+                    Puw* puwB0 = new Puw( surf, uw_pnts[p - 1] );
+                    Puw* puwB1 = new Puw( surf, uw_pnts[p] );
+
+                    m_DelPuwVec.push_back( puwA0 );         // Save to delete later
+                    m_DelPuwVec.push_back( puwA1 );
+                    m_DelPuwVec.push_back( puwB0 );
+                    m_DelPuwVec.push_back( puwB1 );
+
+                    IPnt* p0 = new IPnt( puwA0, puwB0 );
+                    IPnt* p1 = new IPnt( puwA1, puwB1 );
+
+                    m_DelIPntVec.push_back( p0 );           // Save to delete later
+                    m_DelIPntVec.push_back( p1 );
+
+                    p0->CompPnt();
+                    p1->CompPnt();
+
+                    ISeg* seg = new ISeg( surf, surf, p0, p1 );
+                    chain->m_ISegDeque.push_back( seg );
+                }
+            }
+            if ( chain )
+            {
+                if ( chain->m_ISegDeque.size() > 0 )
+                {
+                    m_ISegChainList.push_back( chain );
+                }
+                else
+                {
+                    delete chain;
+                    chain = NULL;
+                }
+            }
+        }
+    }
+}
 
 void CfdMeshMgrSingleton::SplitBorderCurves()
 {

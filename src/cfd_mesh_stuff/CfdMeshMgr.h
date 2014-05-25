@@ -287,6 +287,7 @@ public:
 
     virtual void DebugWriteChains( const char* name, bool tessFlag );
 
+    virtual void BuildSubSurfIntChains();
     virtual bool GetFarMeshFlag()
     {
         return m_FarMeshFlag;
