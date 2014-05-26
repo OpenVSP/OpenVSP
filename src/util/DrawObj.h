@@ -318,10 +318,6 @@ public:
     */
     vector< vec3d > m_PntVec;
     /*
-    * Array of normal data.
-    */
-    vector< vec3d > m_NormVec;
-    /*
     * XSec data.
     * m_PntMesh is available if m_Type is one of the following:
     * VSP_WIRE_MESH, VSP_HIDDEN_MESH, VSP_SHADED_MESH, VSP_TEXTURED_MESH
@@ -339,6 +335,7 @@ public:
     * m_NormMesh[pnts on xsec][xsec index]
     */ 
     vector< vector< vec3d > > m_NormMesh;
+    vector< vec3d > m_NormVec; // For triangles
 
     /*
     * List of attached textures to this drawobj.  Default is empty.
