@@ -294,6 +294,8 @@ public:
     TBndBox();
     virtual ~TBndBox();
 
+    virtual void Reset();
+
     BndBox m_Box;
     vector< TTri* > m_TriVec;
 

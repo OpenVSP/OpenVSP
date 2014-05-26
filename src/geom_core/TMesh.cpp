@@ -448,6 +448,11 @@ void TMesh::DecodeTriList( xmlNodePtr & node, int num_tris )
             m_TVec[i]->m_N1 = new TNode();
             m_TVec[i]->m_N2 = new TNode();
 
+            m_NVec.push_back( m_TVec[i]->m_N0 );
+            m_NVec.push_back( m_TVec[i]->m_N1 );
+            m_NVec.push_back( m_TVec[i]->m_N2 );
+
+
             // Insert Data
             m_TVec[i]->m_N0->m_Pnt = tri[0];
             m_TVec[i]->m_N1->m_Pnt = tri[1];
@@ -939,6 +944,7 @@ void TMesh::AddUWTri( const vec3d & uw0, const vec3d & uw1, const vec3d & uw2, c
     m_NVec.push_back( ttri->m_N1 );
     m_NVec.push_back( ttri->m_N2 );
 }
+
 
 void TMesh::LoadBndBox()
 {
@@ -2290,6 +2296,21 @@ TBndBox::~TBndBox()
             delete m_SBoxVec[i];
         }
     }
+}
+
+void TBndBox::Reset()
+{
+    for ( int i = 0 ; i < 8 ; i++ )
+    {
+        if ( m_SBoxVec[i] )
+        {
+            delete m_SBoxVec[i];
+            m_SBoxVec[i] = 0;
+        }
+    }
+
+    m_Box.Reset();
+    m_TriVec.clear();
 }
 
 //==== Create Oct Tree of Overlaping BndBoxes ====//
