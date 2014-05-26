@@ -242,7 +242,7 @@ public:
         t3.set_xyz( 0.0, m_N2->m_Pnt.y(), m_N2->m_Pnt.z() );
         return area( t1, t2, t3 );
     }
-    virtual void LoadNodesFromEdges();
+
     virtual void ComputeCosAngles( double* ang0, double* ang1, double* ang2 );
 
     virtual void SplitEdges( TNode* n01, TNode* n12, TNode* n20 );
@@ -328,6 +328,7 @@ public:
     virtual void AddLeafNodes( vector< NBndBox* > & leafVec );
 
 };
+
 class Geom;
 
 class TMesh
@@ -416,7 +417,6 @@ public:
     virtual void MatchNodes();
     virtual void CheckValid( FILE* fid );
     virtual void SwapEdges( double size );
-    virtual void RelaxMesh( vector< TMesh* > & tMeshVec );
     virtual vec3d ProjectOnISectPairs( vec3d & offPnt, vector< vec3d > & pairVec );
 
     virtual void MeshStats( double* minEdgeLen, double* minTriAng, double* maxTriAng );
