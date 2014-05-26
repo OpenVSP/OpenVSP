@@ -14,6 +14,8 @@
 #include "Tritri.h"
 #include "CfdMeshMgr.h"
 #include "StlHelper.h"
+#include "SubSurface.h"
+#include "SubSurfaceMgr.h"
 
 Surf::Surf()
 {
@@ -2051,6 +2053,31 @@ double Surf::InterpolateToVspSurf( const vector< double> & vec, const double & s
 
     return ( y1 - y0 ) / denom * ( surf_val - ( double )x0 ) + y0;
 }
+
+void Surf::Subtag()
+{
+    vector< SimpTri >& tri_vec = m_Mesh.GetSimpTriVec();
+    vector< vec2d >& pnts = m_Mesh.GetSimpUWPntVec();
+    vector< SubSurface* > s_surfs = SubSurfaceMgr.GetSubSurfs( m_GeomID );
+
+    for ( int t = 0 ; t < ( int ) tri_vec.size() ; t++ )
+    {
+        SimpTri& tri = tri_vec[t];
+        tri.m_Tags.push_back( m_CompID + 1 );
+        vec2d center = ( pnts[tri.ind0] + pnts[tri.ind1] + pnts[tri.ind2] ) * 1 / 3.0;
+        vec2d cent2d = Convert2VspSurf( center.x(), center.y() );
+
+        for ( int s = 0 ; s < ( int ) s_surfs.size() ; s++ )
+        {
+            if ( s_surfs[s]->Subtag( vec3d( cent2d.x(), cent2d.y(), 0 ) ) )
+            {
+                tri.m_Tags.push_back( s_surfs[s]->m_Tag );
+            }
+        }
+        SubSurfaceMgr.m_TagCombos.insert( tri.m_Tags );
+    }
+}
+
 /*
 void Surf::Draw()
 {

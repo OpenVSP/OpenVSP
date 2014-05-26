@@ -225,6 +225,7 @@ public:
         return m_Pnts;
     }
 
+    void Subtag();
     // Mapping Functions
     // Converts surf uw to VspSurf uw
     vec2d Convert2VspSurf( double u, double w );

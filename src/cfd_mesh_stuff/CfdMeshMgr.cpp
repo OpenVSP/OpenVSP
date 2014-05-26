@@ -511,6 +511,7 @@ void CfdMeshMgrSingleton::GenerateMesh()
     //addOutputText( qual.get_char_star() );
 
     CfdMeshMgr.addOutputText( "Exporting Files\n" );
+    CfdMeshMgr.SubTagTris();
     CfdMeshMgr.ExportFiles();
 
     CfdMeshMgr.addOutputText( "Check Water Tight\n" );
@@ -1058,6 +1059,7 @@ void CfdMeshMgrSingleton::WriteSurfs( const string &filename )
 
 void CfdMeshMgrSingleton::ReadSurfs( const string &filename )
 {
+    m_GeomIDs.clear();
     FILE* file_id = fopen( filename.c_str(), "r" );
     if ( file_id )
     {
@@ -1075,6 +1077,8 @@ void CfdMeshMgrSingleton::ReadSurfs( const string &filename )
             sscanf( buff, "%s", &geom_id );
             fgets( buff, 256, file_id );
             sscanf( buff, "%d", &num_surfs );
+
+            m_GeomIDs.push_back( string( geom_id ) );
 
             for ( int s = 0 ; s < num_surfs ; s++ )
             {
@@ -1900,7 +1904,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                 vector < SimpTri >& sTriVec = m_SurfVec[i]->GetMesh()->GetSimpTriVec();
                 for ( int t = 0 ; t <  ( int )sTriVec.size() ; t++ )
                 {
-                    fprintf( fp, "%d \n", compIDVec[i] );
+                    fprintf( fp, "%d \n", SubSurfaceMgr.GetTag( sTriVec[t].m_Tags ) );
                 }
             }
 
@@ -4568,4 +4572,31 @@ void CfdMeshMgr::Draw_BBox( bbox box )
 void CfdMeshMgrSingleton::SetICurveVec( ICurve* newcurve, int loc )
 {
     m_ICurveVec[loc] = newcurve;
+}
+
+void CfdMeshMgrSingleton::SubTagTris()
+{
+    SubSurfaceMgr.ClearTagMaps();
+    for ( int i = 0; i < ( int )m_GeomIDs.size(); i++ )
+    {
+        Geom* geomptr = m_Vehicle->FindGeom( m_GeomIDs[i] );
+        if ( geomptr )
+        {
+            vector<VspSurf> vspsurfs;
+            geomptr->GetSurfVec( vspsurfs );
+            for ( int s = 0 ; s < ( int ) vspsurfs.size() ; s++ )
+            {
+                SubSurfaceMgr.m_CompNames.push_back( geomptr->GetName() + to_string( ( long long ) s ) );
+            }
+        }
+    }
+    SubSurfaceMgr.SetSubSurfTags( m_NumComps );
+    SubSurfaceMgr.BuildCompNameMap();
+
+    for ( int s = 0 ; s < ( int )m_SurfVec.size() ; s++ )
+    {
+        m_SurfVec[s]->Subtag();
+    }
+
+    SubSurfaceMgr.BuildSingleTagMap();
 }
