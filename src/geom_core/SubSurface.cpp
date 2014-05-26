@@ -18,6 +18,288 @@
 #include "Matrix.h"
 #include "Defines.h"
 
+SubSurface::SubSurface( string compID, int type )
+{
+    m_Type = type;
+    m_CompID = compID;
+    m_Tag = 0;
+    m_UpdateDrawFlag = true;
+    m_LineColor = vec3d( 0, 0, 0 );
+    m_PolyPntsReadyFlag = false;
+    m_FirstSplit = true;
+    m_PolyFlag = true;
+}
+
+SubSurface::~SubSurface()
+{
+}
+
+void SubSurface::ParmChanged( Parm* parm_ptr, int type )
+{
+    Update();
+
+    Vehicle* veh = VehicleMgr::getInstance().GetVehicle();
+    if ( veh )
+    {
+        veh->ParmChanged( parm_ptr, type );
+    }
+}
+
+void SubSurface::LoadDrawObjs( std::vector< DrawObj* > & draw_obj_vec )
+{
+    for ( int i = 0 ; i < ( int )m_DrawObjVec.size() ; i++ )
+    {
+        m_DrawObjVec[i].m_LineColor = m_LineColor;
+        m_DrawObjVec[i].m_GeomID = ( m_ID + to_string( ( long long )i ) );
+        draw_obj_vec.push_back( &m_DrawObjVec[i] );
+    }
+}
+
+vector< TMesh* > SubSurface::CreateTMeshVec()
+{
+    vector<TMesh*> tmesh_vec;
+    tmesh_vec.resize( m_LVec.size() );
+    for ( int ls = 0 ; ls < ( int ) m_LVec.size() ; ls++ )
+    {
+        tmesh_vec[ls] = m_LVec[ls].CreateTMesh();
+    }
+
+    return tmesh_vec;
+}
+
+void SubSurface::UpdateDrawObjs()
+{
+    if ( !m_UpdateDrawFlag )
+    {
+        return;
+    }
+
+    Vehicle* veh = VehicleMgr::getInstance().GetVehicle();
+    if ( !veh ) return;
+    Geom* geom = veh->FindGeom( m_CompID );
+    m_DrawObjVec.clear();
+    m_DrawObjVec.resize( m_LVec.size(), DrawObj() );
+    if ( geom )
+    {
+        for ( int ls = 0 ; ls < ( int )m_LVec.size() ; ls++ )
+        {
+            int num_pnts = CompNumDrawPnts( geom );
+            int *num_pnts_ptr = NULL;
+            if ( num_pnts > 0 )
+            {
+                num_pnts_ptr = &num_pnts;
+            }
+            m_LVec[ls].UpdateDrawObj( geom, m_DrawObjVec[ls], num_pnts_ptr );
+        }
+    }
+}
+
+void SubSurface::Update()
+{
+    m_PolyPntsReadyFlag = false;
+    UpdateDrawObjs();
+}
+
+std::string SubSurface::GetTypeName( int type )
+{
+    if ( type == SubSurface::SS_LINE )
+    {
+        return string( "Line" );
+    }
+    if ( type == SubSurface::SS_RECTANGLE )
+    {
+        return string( "Rectangle" );
+    }
+    if ( type == SubSurface::SS_ELLIPSE )
+    {
+        return string( "Ellipse" );
+    }
+    return string( "NONE" );
+}
+
+bool SubSurface::Subtag( const vec3d & center )
+{
+    if ( !m_PolyPntsReadyFlag ) // Update polygon vector
+    {
+        m_PolyPnts.clear();
+
+        int last_ind = m_LVec.size() - 1;
+        vec3d pnt;
+        for ( int ls = 0 ; ls < last_ind + 1 ; ls++ )
+        {
+            pnt = m_LVec[ls].GetP0();
+            m_PolyPnts.push_back( vec2d( pnt.x(), pnt.y() ) );
+        }
+        pnt = m_LVec[last_ind].GetP1();
+        m_PolyPnts.push_back( vec2d( pnt.x(), pnt.y() ) );
+
+        m_PolyPntsReadyFlag = true;
+    }
+
+    bool inPoly = PointInPolygon( vec2d( center.x(), center.y() ) , m_PolyPnts );
+
+    if ( ( inPoly && m_TestType() == INSIDE ) || ( !inPoly && m_TestType() == OUTSIDE ) )
+    {
+        return true;
+    }
+
+    return false;
+}
+bool SubSurface::Subtag( TTri* tri )
+{
+    vec3d center = tri->ComputeCenterUW();
+    return Subtag( center );
+}
+
+
+void SubSurface::SplitSegs( const vector<int> & split_u, const vector<int> & split_w )
+{
+    // Method to Split subsurfaces for CFDMesh surfs
+    CleanUpSplitVec();
+
+    PrepareSplitVec();
+
+    for ( int ui = 0 ; ui < ( int )split_u.size() ; ui++ )
+    {
+        SplitSegsU( split_u[ui] );
+    }
+
+    for ( int wi = 0 ; wi < ( int )split_w.size() ; wi++ )
+    {
+        SplitSegsW( split_w[wi] );
+    }
+}
+
+void SubSurface::SplitSegsU( const double & u )
+{
+    double tol = 1e-10;
+    int num_l_segs = m_SplitLVec.size();
+    int num_splits = 0;
+    bool reorder = false;
+    vector<SSLineSeg> new_lsegs;
+    vector<int> inds;
+    for ( int i = 0 ; i < num_l_segs ; i++ )
+    {
+        SSLineSeg& seg = m_SplitLVec[i];
+        vec3d p0 = seg.GetP0();
+        vec3d p1 = seg.GetP1();
+
+        double t = ( u - p0.x() ) / ( p1.x() - p0.x() );
+
+        if ( t < 1 - tol && t > 0 + tol )
+        {
+            if ( m_FirstSplit )
+            {
+                m_FirstSplit = false;
+                reorder = true;
+            }
+            // Split the segments
+            vec3d int_pnt = point_on_line( p0, p1, t );
+            SSLineSeg split_seg = SSLineSeg( seg );
+
+            seg.SetP1( int_pnt );
+            split_seg.SetP0( int_pnt );
+            inds.push_back( i + num_splits + 1 );
+            new_lsegs.push_back( split_seg );
+            num_splits++;
+        }
+    }
+
+    for ( int i = 0; i < ( int )inds.size() ; i++ )
+    {
+        m_SplitLVec.insert( m_SplitLVec.begin() + inds[i], new_lsegs[i] );
+    }
+
+    if ( reorder )
+    {
+        ReorderSplitSegs( inds[0] );
+    }
+}
+
+void SubSurface::SplitSegsW( const double & w )
+{
+    double tol = 1e-10;
+    int num_l_segs = m_SplitLVec.size();
+    int num_splits = 0;
+    bool reorder = false;
+    vector<SSLineSeg> new_lsegs;
+    vector<int> inds;
+    for ( int i = 0 ; i < num_l_segs ; i++ )
+    {
+
+        SSLineSeg& seg = m_SplitLVec[i];
+        vec3d p0 = seg.GetP0();
+        vec3d p1 = seg.GetP1();
+
+        double t = ( w - p0.y() ) / ( p1.y() - p0.y() );
+
+        if ( t < 1 - tol && t > 0 + tol )
+        {
+            if ( m_FirstSplit )
+            {
+                m_FirstSplit = false;
+                reorder = true;
+            }
+            // Split the segments
+            vec3d int_pnt = point_on_line( p0, p1, t );
+            SSLineSeg split_seg = SSLineSeg( seg );
+
+            seg.SetP1( int_pnt );
+            split_seg.SetP0( int_pnt );
+            inds.push_back( i + num_splits + 1 );
+            new_lsegs.push_back( split_seg );
+            num_splits++;
+        }
+    }
+
+    for ( int i = 0; i < ( int )inds.size() ; i++ )
+    {
+        m_SplitLVec.insert( m_SplitLVec.begin() + inds[i], new_lsegs[i] );
+    }
+
+    if ( reorder )
+    {
+        ReorderSplitSegs( inds[0] );
+    }
+}
+
+void SubSurface::ReorderSplitSegs( int ind )
+{
+    if ( ind < 0 || ind > m_SplitLVec.size() - 1 )
+    {
+        return;
+    }
+
+    vector<SSLineSeg> ret_vec;
+    ret_vec.resize( m_SplitLVec.size() );
+
+    int cnt = 0;
+    for ( int i = ind ; i < m_SplitLVec.size() ; i++ )
+    {
+        ret_vec[cnt] = m_SplitLVec[i];
+        cnt++;
+    }
+    for ( int i = 0 ; i < ind ; i++ )
+    {
+        ret_vec[cnt] = m_SplitLVec[i];
+        cnt++;
+    }
+
+    m_SplitLVec = ret_vec;
+}
+
+void SubSurface::CleanUpSplitVec()
+{
+    m_SplitLVec.clear();
+}
+
+void SubSurface::PrepareSplitVec()
+{
+    CleanUpSplitVec();
+    m_FirstSplit = true;
+    m_SplitLVec = m_LVec;
+}
+
 //////////////////////////////////////////////////////
 //=================== SSLineSeg =====================//
 //////////////////////////////////////////////////////

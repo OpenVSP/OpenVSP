@@ -74,3 +74,77 @@ private:
     vec3d m_line;
 };
 
+class SubSurface : public ParmContainer
+{
+public:
+    SubSurface( string compID, int type );
+    virtual ~SubSurface();
+    virtual void ParmChanged( Parm* parm_ptr, int type );
+    virtual int GetType()
+    {
+        return m_Type;
+    }
+    virtual string GetCompID()
+    {
+        return m_CompID;
+    }
+    virtual std::vector< SSLineSeg >& GetSplitSegs()
+    {
+        return m_SplitLVec;
+    }
+    virtual bool GetPolyFlag()
+    {
+        return m_PolyFlag;
+    }
+    virtual void LoadDrawObjs( std::vector< DrawObj* >& draw_obj_vec );
+    virtual void SetUpdateDraw( bool flag )
+    {
+        m_UpdateDrawFlag = flag;
+    }
+
+    virtual void SetLineColor( vec3d color )
+    {
+        m_LineColor = color;
+    }
+
+    enum { SS_LINE, SS_RECTANGLE, SS_ELLIPSE, SS_NUM_TYPES };
+    enum { INSIDE, OUTSIDE };
+
+    static std::string GetTypeName( int type );
+
+    virtual bool Subtag( TTri* tri ); // Method to subtag triangles from TMesh.
+    virtual bool Subtag( const vec3d & center );
+    virtual void Update();
+    virtual std::vector< TMesh* > CreateTMeshVec(); // Method to create a TMeshVector
+    virtual void UpdateDrawObjs(); // Method to create lines to draw
+    virtual void SplitSegs( const vector<int> & split_u, const vector<int> & split_w ); // Split line segments for CfdMesh surfaces
+    virtual void SplitSegsU( const double & u ); // Split line segments that cross a constant U value
+    virtual void SplitSegsW( const double & w ); // Split line segments that cross a constant W value
+    virtual void CleanUpSplitVec();
+    virtual void PrepareSplitVec();
+    int m_Tag;
+    IntParm m_TestType;
+
+protected:
+    string m_CompID; // Component ID used to match Subsurface to a specific geom
+    int m_Type; // Type of SubSurface
+    std::vector< DrawObj > m_DrawObjVec;
+    bool m_UpdateDrawFlag;
+    vector<SSLineSeg> m_LVec; // Line Segment Vector
+    vector<SSLineSeg> m_SplitLVec; // Split Line Vector
+    vec3d m_LineColor; // Line Color Displayed when drawn on screen
+
+    std::vector< vec2d > m_PolyPnts;
+    bool m_PolyPntsReadyFlag;
+    bool m_FirstSplit;
+    bool m_PolyFlag; // Flag to indicate if the SubSurface is a Polygon ( this affects how it is treated in CFDMesh )
+
+    virtual int CompNumDrawPnts( Geom* geom )
+    {
+        return -1;
+    }
+    virtual void ReorderSplitSegs( int ind );
+
+};
+
+#endif
