@@ -288,7 +288,9 @@ public:
 
     virtual void DebugWriteChains( const char* name, bool tessFlag );
 
+    // SubSurface Methods
     virtual void BuildSubSurfIntChains();
+    virtual void BuildTestIntChains();
     virtual void SubTagTris();
 
     virtual bool GetFarMeshFlag()

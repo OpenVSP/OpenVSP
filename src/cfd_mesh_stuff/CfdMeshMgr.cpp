@@ -2986,6 +2986,61 @@ void CfdMeshMgrSingleton::LoadBorderCurves()
 
 }
 
+void CfdMeshMgrSingleton::BuildTestIntChains()
+{
+// For right now just add dummy line to first surface
+    if ( m_SurfVec.size() > 0 )
+    {
+        for ( int i = 0 ; i < ( int )m_SurfVec.size(); i++ )
+        {
+            Surf* surf = m_SurfVec[i];
+            double max_u = surf->GetMaxU();
+            double max_w = surf->GetMaxW();
+            int num_secs = 10;
+            double delta = ( 0.9 - 0.1 ) / num_secs;
+            vector< vec2d > uw_pnts;
+
+            for ( int j = 0; j <= num_secs; j++ )
+            {
+                double d = delta * j;
+                uw_pnts.push_back( vec2d( ( 0.1 + d )*max_u, 0.25 * max_w ) );
+            }
+
+            ISegChain* chain = new ISegChain;
+            m_ISegChainList.push_back( chain );
+            chain->m_SurfA = surf;
+            chain->m_SurfB = surf;
+
+            for ( int j = 1; j < ( int )uw_pnts.size(); j++ )
+            {
+
+                Puw* puw0A = new Puw( surf, uw_pnts[j - 1] );
+                Puw* puw1A = new Puw( surf, uw_pnts[j] );
+                Puw* puw0B = new Puw( surf, uw_pnts[j - 1] );
+                Puw* puw1B = new Puw( surf, uw_pnts[j] );
+
+                m_DelPuwVec.push_back( puw0A );         // Save to delete later
+                m_DelPuwVec.push_back( puw1A );
+                m_DelPuwVec.push_back( puw0B );         // Save to delete later
+                m_DelPuwVec.push_back( puw1B );
+
+                IPnt* p0 = new IPnt( puw0A, puw0B );
+                IPnt* p1 = new IPnt( puw1A, puw1B );
+
+                m_DelIPntVec.push_back( p0 );           // Save to delete later
+                m_DelIPntVec.push_back( p1 );
+
+                p0->CompPnt();
+                p1->CompPnt();
+
+                ISeg* seg = new ISeg( surf, surf, p0, p1 );
+                chain->m_ISegDeque.push_back( seg );
+            }
+        }
+    }
+
+}
+
 void CfdMeshMgrSingleton::BuildSubSurfIntChains()
 {
     // Adds subsurface intersection chains
