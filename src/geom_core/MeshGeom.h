@@ -208,6 +208,13 @@ public:
     virtual void SubTagTris();
 
     virtual void PreMerge();
+
+    // Debug Attributes
+
+    enum { DRAW_XYZ = 1, DRAW_UV = 2, DRAW_TAGS = 4, DRAW_BOTH = 3 };
+    IntParm m_DrawType;
+    BoolParm m_DrawSubSurfs;
+
 protected:
     virtual void ApplyScale(); // this is for intersectTrim
     vector<TMesh*> m_SubSurfVec;
