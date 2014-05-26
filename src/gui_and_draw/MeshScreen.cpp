@@ -18,6 +18,8 @@
 //==== Constructor ====//
 MeshScreen::MeshScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 500, "Mesh" )
 {
+    RemoveTab( GetTab( m_SubSurfTab_ind ) );
+
 }
 
 

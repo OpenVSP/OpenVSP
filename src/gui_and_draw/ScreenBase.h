@@ -12,6 +12,7 @@
 #define SCREENBASE__INCLUDED_
 
 #include <FL/Fl.H>
+#include <FL/Fl_Browser.H>
 #include <FL/Fl_Check_Browser.H>
 #include <FL/Fl_Input.H>
 #include <FL/Fl_Double_Window.H>
@@ -140,6 +141,11 @@ public:
     virtual bool Update( );
     virtual void CallBack( Fl_Widget *w );
     virtual void GuiDeviceCallBack( GuiDevice* device );
+    virtual void SubSurfDispGroup( GroupLayout * group );
+    static void staticScreenCB( Fl_Widget *w, void* data )
+    {
+        ( ( GeomScreen* )data )->CallBack( w );
+    }
 
     //==== Group Layouts ====//
     GroupLayout m_GenLayout;
@@ -147,6 +153,7 @@ public:
     GroupLayout m_Shell;
 
     GroupLayout m_XFormLayout;
+    GroupLayout m_SubSurfLayout;
 
     //==== Names, Color, Material ====//
     StringInput m_NameInput;
@@ -210,7 +217,50 @@ public:
     SliderInput m_AttachUSlider;
     SliderInput m_AttachVSlider;
 
+    //====== SubSurface Tab =====//
+    int m_SubSurfTab_ind;
+    GroupLayout* m_CurSubDispGroup;
+    Fl_Browser* m_SubSurfBrowser;
+    TriggerButton m_DelSubSurfButton;
+    TriggerButton m_AddSubSurfButton;
+    Choice m_SubSurfChoice;
 
+    GroupLayout m_SSCommonGroup;
+    StringInput m_SubNameInput;
+
+    // SS_Line
+    GroupLayout m_SSLineGroup;
+    SliderInput m_SSLineConstSlider; // Either Constant U or W
+    ToggleButton m_SSLineConstUButton;
+    ToggleButton m_SSLineConstWButton;
+    ToggleRadioGroup m_SSLineConstToggleGroup;
+
+    ToggleButton m_SSLineGreaterToggle;
+    ToggleButton m_SSLineLessToggle;
+    ToggleRadioGroup m_SSLineTestToggleGroup;
+
+    // SS_Rectangle
+    GroupLayout m_SSRecGroup;
+    SliderInput m_SSRecCentUSlider;
+    SliderInput m_SSRecCentWSlider;
+    SliderInput m_SSRecDelUSlider;
+    SliderInput m_SSRecDelWSlider;
+    SliderAdjRangeInput m_SSRecThetaSlider;
+    ToggleButton m_SSRecInsideButton;
+    ToggleButton m_SSRecOutsideButton;
+    ToggleRadioGroup m_SSRecTestToggleGroup;
+
+    // SS_Ellipse
+    GroupLayout m_SSEllGroup;
+    SliderInput m_SSEllCentUSlider;
+    SliderInput m_SSEllCentWSlider;
+    SliderInput m_SSEllULenSlider;
+    SliderInput m_SSEllWLenSlider;
+    SliderInput m_SSEllTessSlider;
+    SliderAdjRangeInput m_SSEllThetaSlider;
+    ToggleButton m_SSEllInsideButton;
+    ToggleButton m_SSEllOutsideButton;
+    ToggleRadioGroup m_SSEllTestToggleGroup;
 };
 
 

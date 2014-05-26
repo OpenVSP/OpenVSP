@@ -33,6 +33,8 @@ BlankScreen::BlankScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 500, "Blank" 
     m_MassLayout.SetInputWidth( m_MassLayout.GetRemainX() - 50 );
     m_MassLayout.AddInput( m_MassInput, "Mass", " %7.5f" );
 
+    RemoveTab( GetTab( m_SubSurfTab_ind ) );
+
 }
 
 
