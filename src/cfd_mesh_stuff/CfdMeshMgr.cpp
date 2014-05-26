@@ -3131,10 +3131,15 @@ void CfdMeshMgrSingleton::SplitBorderCurves()
         {
             for ( int i = 0 ; i < ( int )splitPnts.size() ; i++ )
             {
-                Puw* uw = splitPnts[i]->GetPuw( ( *c )->m_SurfA );
-                if ( uw )
+                Puw* uwA = splitPnts[i]->GetPuw( ( *c )->m_SurfA );
+                Puw* uwB = splitPnts[i]->GetPuw( ( *c )->m_SurfB );
+                if ( uwA )
                 {
-                    ( *c )->AddBorderSplit( splitPnts[i], uw );
+                    ( *c )->AddBorderSplit( splitPnts[i], uwA );
+                }
+                else if ( uwB )
+                {
+                    ( *c )->AddBorderSplit( splitPnts[i], uwB );
                 }
             }
         }
