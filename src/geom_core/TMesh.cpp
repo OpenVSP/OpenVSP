@@ -2909,9 +2909,106 @@ void TMesh::SwapEdge( TEdge* edge )
 
 }
 
-void TMesh::MatchNodes()
+void TMesh::BuildMergeMaps()
 {
+    BuildNodeMaps();
+    BuildEdgeMaps();
+}
+
+void TMesh::BuildEdgeMaps()
+{
+    // Build maps between shared edges using node maps
+    // Make sure BuildNodeMaps has already been called before calling this method
+
+    // Build Perimeter Edges of Each Tri and push back tri onto master nodes
+    for ( int t = 0 ; t < ( int )m_TVec.size(); t++ )
+    {
+        m_TVec[t]->BuildPermEdges();
+        m_NSMMap[m_TVec[t]->m_N0]->m_TriVec.push_back( m_TVec[t] );
+        m_NSMMap[m_TVec[t]->m_N1]->m_TriVec.push_back( m_TVec[t] );
+        m_NSMMap[m_TVec[t]->m_N2]->m_TriVec.push_back( m_TVec[t] );
+    }
+
+    // Loop through triangles sharing nodes to find alias edges
+    map< TNode*, list<TNode*> >::iterator mit; // map iterator
+
+    for ( mit = m_NAMap.begin(); mit != m_NAMap.end() ; mit++ ) // Loop over all master nodes
+    {
+        TNode* n = mit->first;
+        for ( int t = 0 ; t < ( int )n->m_TriVec.size() ; t++ ) // Loop over triangles sharing the master node
+        {
+            TTri* tri1 = n->m_TriVec[t];
+
+            for ( int pei = 0 ; pei < 3 ; pei++ ) // Loop over the perimeter edges of first triangle
+            {
+                TEdge* e1 = tri1->m_PEArr[pei];
+                if ( m_ESMMap.find( e1 ) == m_ESMMap.end() // only continue if this edge isn't already a master
+                        && ( m_NSMMap[e1->m_N0] == n || m_NSMMap[e1->m_N1] == n ) ) // only continue if this edge contains to common node
+                {
+
+                    for ( int t2 = t + 1 ; t2 < ( int )n->m_TriVec.size(); t2++ ) // Loop over the next triangle in list sharing the master node
+                    {
+                        TTri* tri2 = n->m_TriVec[t2];
+
+                        for ( int pei2 = 0 ; pei2 < 3; pei2++ ) // Loop over the next triangle's perimeter edges
+                        {
+                            TEdge* e2 = tri2->m_PEArr[pei2];
+                            if ( ( m_NSMMap[e1->m_N0] == m_NSMMap[e2->m_N0] && m_NSMMap[e1->m_N1] == m_NSMMap[e2->m_N1] ) ||
+                                    ( m_NSMMap[e1->m_N1] == m_NSMMap[e2->m_N0] && m_NSMMap[e1->m_N0] == m_NSMMap[e2->m_N1] ) )
+                            {
+                                m_ESMMap[e2] = e1;
+                                m_EAMap[e1].push_back( e2 );
+                            }
+                        }
+                    }
+
+                    m_ESMMap[e1] = e1; // Set first edge to be its own master
+                }
+            }
+        }
+    }
+
+    // Brute Force Check
+//  vector<TEdge*> edges;
+//  for (int t = 0 ; t < (int) m_TVec.size(); t++ )
+//  {
+//      for ( int pi = 0; pi < 3 ; pi++)
+//          edges.push_back( m_TVec[t]->m_PEArr[pi] );
+//  }
+//
+//  for ( int ei = 0 ; ei < (int) edges.size(); ei++ )
+//  {
+//      TEdge* e1 = edges[ei];
+//
+//      if ( m_ESMMap.find(e1) == m_ESMMap.end() ) // continue if edge doesn't already have master
+//      {
+//          for ( int ei2 = ei+1 ; ei2 < (int)edges.size(); ei2++)
+//          {
+//              TEdge* e2 = edges[ei2];
+//              if ( e1 != e2 )
+//              {
+//                  if ( ( m_NSMMap[e1->m_N0] == m_NSMMap[e2->m_N0] && m_NSMMap[e1->m_N1] == m_NSMMap[e2->m_N1] ) ||
+//                       ( m_NSMMap[e1->m_N1] == m_NSMMap[e2->m_N0] && m_NSMMap[e1->m_N0] == m_NSMMap[e2->m_N1] ) )
+//                  {
+//                      m_ESMMap[e2] = e1;
+//                      m_EAMap[e1].push_back(e2);
+//                  }
+//              }
+//          }
+//          m_ESMMap[e1] = e1;
+//      }
+//
+//  }
+}
+
+void TMesh::BuildNodeMaps()
+{
+    // This method builds the map between a node and its aliases and a map between
+    // each node to its master node
+
     int i, n, t;
+
+    map< TNode*, list<TNode*> >::iterator mi;
 
     double tol = 1.0e-12;
     double sqtol = sqrt( tol );
@@ -2939,45 +3036,59 @@ void TMesh::MatchNodes()
 
     for ( n = 0 ; n < ( int )m_NVec.size() ; n++ )
     {
-        for ( i = 0 ; i < ( int )leafVec.size() ; i++ )
+        if ( m_NSMMap.find( m_NVec[n] ) == m_NSMMap.end() ) // This node doesn't have a master so continue
         {
-            if ( leafVec[i]->m_Box.CheckPnt( m_NVec[n]->m_Pnt.x(), m_NVec[n]->m_Pnt.y(), m_NVec[n]->m_Pnt.z() ) )
+            for ( i = 0 ; i < ( int )leafVec.size() ; i++ )
             {
-                for ( int m = 0 ; m < ( int )leafVec[i]->m_NodeVec.size() ; m++ )
+
+                if ( leafVec[i]->m_Box.CheckPnt( m_NVec[n]->m_Pnt.x(), m_NVec[n]->m_Pnt.y(), m_NVec[n]->m_Pnt.z() ) )
                 {
-                    if ( dist_squared( m_NVec[n]->m_Pnt, leafVec[i]->m_NodeVec[m]->m_Pnt ) < tol )
+                    for ( int m = 0 ; m < ( int )leafVec[i]->m_NodeVec.size() ; m++ )
                     {
-                        m_NVec[n]->m_MergeVec.push_back( leafVec[i]->m_NodeVec[m] );
+                        if ( m_NVec[n] != leafVec[i]->m_NodeVec[m] ) // If it is the same node skip
+                        {
+                            if ( dist_squared( m_NVec[n]->m_Pnt, leafVec[i]->m_NodeVec[m]->m_Pnt ) < tol )
+                            {
+                                m_NVec[n]->m_MergeVec.push_back( leafVec[i]->m_NodeVec[m] );
+                                m_NAMap[m_NVec[n]].push_back( leafVec[i]->m_NodeVec[m] ); // Add node m to n's list of aliases
+                                m_NSMMap[leafVec[i]->m_NodeVec[m]] = m_NVec[n]; // Set m's master to be n
+                            }
+                        }
                     }
                 }
             }
+
+            // Set n to be its own master
+            m_NSMMap[ m_NVec[n] ] = m_NVec[n];
+
+            // Add n to its own set of aliases
+            m_NAMap[ m_NVec[n] ].push_front( m_NVec[n] );
         }
     }
 
-    /*
-        for ( i = 0 ; i < leafVec.size() ; i++ )
-        {
-            for ( n = 0 ; n < leafVec[i]->nodeVec.size() ; n++ )
-            {
-                leafVec[i]->nodeVec[n]->mergeVec.push_back( leafVec[i]->nodeVec[n] );
-                for ( int m = n+1 ; m < leafVec[i]->nodeVec.size() ; m++ )
-                {
-                    if ( dist_squared( leafVec[i]->nodeVec[n]->pnt, leafVec[i]->nodeVec[m]->pnt ) < tol )
-                    {
-                        leafVec[i]->nodeVec[n]->mergeVec.push_back( leafVec[i]->nodeVec[m] );
-                        leafVec[i]->nodeVec[m]->mergeVec.push_back( leafVec[i]->nodeVec[n] );
-                    }
-                }
-            }
-        }
-    */
+}
 
-    //==== Go Thru All Tri And Refernce Lowest Node Ptr and Add Tag Other for Deletion ====//
-    for ( t = 0 ; t < ( int )m_TVec.size() ; t++ )
+void TMesh::DeleteDupNodes()
+{
+    // Build Merge Maps should have been called before this method is called
+    // After this method is called Build Merge Maps will need to be called before this
+    // method can be called again
+
+    if ( m_NAMap.size() == 0 || m_NSMMap.size() == 0 )
     {
-        m_TVec[t]->m_N0 = LowNode( m_TVec[t]->m_N0 );
-        m_TVec[t]->m_N1 = LowNode( m_TVec[t]->m_N1 );
-        m_TVec[t]->m_N2 = LowNode( m_TVec[t]->m_N2 );
+        return;
+    }
+
+    int t;
+    map< TNode*, list< TNode* > >::iterator mit;
+    list< TNode* >::iterator lit;
+
+    //==== Go Thru All Tri And Set All Nodes to their Master ====//
+    for ( t = 0 ; t < m_TVec.size(); t++ )
+    {
+        m_TVec[t]->m_N0 = m_NSMMap[m_TVec[t]->m_N0];
+        m_TVec[t]->m_N1 = m_NSMMap[m_TVec[t]->m_N1];
+        m_TVec[t]->m_N2 = m_NSMMap[m_TVec[t]->m_N2];
     }
 
     //==== Nuke Degenerate Tris ====//
@@ -2989,6 +3100,10 @@ void TMesh::MatchNodes()
                 m_TVec[t]->m_N1 != m_TVec[t]->m_N2 )
         {
             tempTVec.push_back( m_TVec[t] );
+        }
+        else
+        {
+            delete m_TVec[t];
         }
     }
     m_TVec = tempTVec;
@@ -3005,44 +3120,158 @@ void TMesh::MatchNodes()
     }
 
     //==== Nuke Redundant Nodes And Update NVec ====//
-    vector< TNode* > tempNVec;
-    for ( n = 0 ; n < ( int )m_NVec.size() ; n++ )
+    m_NVec.clear();
+    for ( mit = m_NAMap.begin() ; mit != m_NAMap.end() ; mit++ )
     {
-        m_NVec[n]->m_TriVec.clear();
-        m_NVec[n]->m_MergeVec.clear();
-        if ( m_NVec[n]->m_ID == -999 )
+        TNode* nk = mit->first;
+        list< TNode* >& dnodes =  mit->second;
+
+        for ( lit = ++dnodes.begin() ; lit != dnodes.end() ; lit++ ) // Start at second element since first is the master node itself
         {
-            delete m_NVec[n];
+            delete *lit;
         }
-        else
-        {
-            tempNVec.push_back( m_NVec[n] );
-        }
+
+        nk->m_MergeVec.clear();
+        nk->m_TriVec.clear();
+        m_NVec.push_back( nk );
     }
-    m_NVec = tempNVec;
 
+    // Clear out Node and Edge maps since they are now useless
+    m_NAMap.clear();
+    m_NSMMap.clear();
+    m_EAMap.clear();
+    m_ESMMap.clear();
 
-    //==== Brute Force Check For Duplicate Nodes ====//
-    /****************************************************************
-        for ( n = 0 ; n < nVec.size() ; n++ )
-        {
-            for ( int m = n+1 ; m < nVec.size() ; m++ )
-            {
-                if ( dist_squared( nVec[n]->pnt, nVec[m]->pnt ) < tol )
-                {
-                    printf("Duplicate Node %d %d\n", nVec[n], nVec[m] );
-                }
-            }
-        }
-    *****************************************************************/
+}
 
-    //==== Reassign Triangles ====//
-    for ( t = 0 ; t < ( int )m_TVec.size() ; t++ )
-    {
-        m_TVec[t]->m_N0->m_TriVec.push_back( m_TVec[t] );
-        m_TVec[t]->m_N1->m_TriVec.push_back( m_TVec[t] );
-        m_TVec[t]->m_N2->m_TriVec.push_back( m_TVec[t] );
-    }
+void TMesh::MatchNodes()
+{
+//  int i, n, t;
+//
+//  double tol = 1.0e-12;
+//  double sqtol = sqrt(tol);
+//
+//  for ( n = 0 ; n < (int)m_NVec.size() ; n++ )
+//      m_NVec[n]->m_MergeVec.clear();
+//
+//  NBndBox nBox;
+//  for ( n = 0 ; n < (int)m_NVec.size() ; n++ )
+//  {
+//      nBox.AddNode( m_NVec[n] );
+//  }
+//  nBox.SplitBox(sqrt(tol));
+//
+//  //==== Find All Leaves of Oct Tree ====//
+//  vector< NBndBox* > leafVec;
+//  nBox.AddLeafNodes( leafVec );
+//
+//  for ( i = 0 ; i < (int)leafVec.size() ; i++ )
+//  {
+//      leafVec[i]->m_Box.Expand( sqtol );
+//  }
+//
+//  for ( n = 0 ; n < (int)m_NVec.size() ; n++ )
+//  {
+//      for ( i = 0 ; i < (int)leafVec.size() ; i++ )
+//      {
+//          if ( leafVec[i]->m_Box.CheckPnt( m_NVec[n]->m_Pnt.x(), m_NVec[n]->m_Pnt.y(), m_NVec[n]->m_Pnt.z() ) )
+//          {
+//              for ( int m = 0 ; m < (int)leafVec[i]->m_NodeVec.size() ; m++ )
+//              {
+//                  if ( dist_squared( m_NVec[n]->m_Pnt, leafVec[i]->m_NodeVec[m]->m_Pnt ) < tol )
+//                  {
+//                      m_NVec[n]->m_MergeVec.push_back( leafVec[i]->m_NodeVec[m] );
+//                  }
+//              }
+//          }
+//      }
+//  }
+//
+///*
+//  for ( i = 0 ; i < leafVec.size() ; i++ )
+//  {
+//      for ( n = 0 ; n < leafVec[i]->nodeVec.size() ; n++ )
+//      {
+//          leafVec[i]->nodeVec[n]->mergeVec.push_back( leafVec[i]->nodeVec[n] );
+//          for ( int m = n+1 ; m < leafVec[i]->nodeVec.size() ; m++ )
+//          {
+//              if ( dist_squared( leafVec[i]->nodeVec[n]->pnt, leafVec[i]->nodeVec[m]->pnt ) < tol )
+//              {
+//                  leafVec[i]->nodeVec[n]->mergeVec.push_back( leafVec[i]->nodeVec[m] );
+//                  leafVec[i]->nodeVec[m]->mergeVec.push_back( leafVec[i]->nodeVec[n] );
+//              }
+//          }
+//      }
+//  }
+//*/
+//
+//  //==== Go Thru All Tri And Refernce Lowest Node Ptr and Add Tag Other for Deletion ====//
+//  for ( t = 0 ; t < (int)m_TVec.size() ; t++ )
+//  {
+//      m_TVec[t]->m_N0 = LowNode( m_TVec[t]->m_N0 );
+//      m_TVec[t]->m_N1 = LowNode( m_TVec[t]->m_N1 );
+//      m_TVec[t]->m_N2 = LowNode( m_TVec[t]->m_N2 );
+//  }
+//
+//  //==== Nuke Degenerate Tris ====//
+//  vector< TTri* > tempTVec;
+//  for ( t = 0 ; t < (int)m_TVec.size() ; t++ )
+//  {
+//      if ( m_TVec[t]->m_N0 != m_TVec[t]->m_N1 &&
+//           m_TVec[t]->m_N0 != m_TVec[t]->m_N2 &&
+//           m_TVec[t]->m_N1 != m_TVec[t]->m_N2 )
+//        tempTVec.push_back( m_TVec[t] );
+//  }
+//  m_TVec = tempTVec;
+//
+//  for ( t = 0 ; t < (int)m_TVec.size() ; t++ )
+//  {
+//      m_TVec[t]->m_N0->m_TriVec.push_back( m_TVec[t] );
+//      m_TVec[t]->m_N1->m_TriVec.push_back( m_TVec[t] );
+//      m_TVec[t]->m_N2->m_TriVec.push_back( m_TVec[t] );
+//  if ( m_TVec[t]->m_N0->m_ID == -999 || m_TVec[t]->m_N1->m_ID == -999 || m_TVec[t]->m_N2->m_ID == -999 )
+//      printf("Found -999\n");
+//  }
+//
+//  //==== Nuke Redundant Nodes And Update NVec ====//
+//  vector< TNode* > tempNVec;
+//  for ( n = 0 ; n < (int)m_NVec.size() ; n++ )
+//  {
+//      m_NVec[n]->m_TriVec.clear();
+//      m_NVec[n]->m_MergeVec.clear();
+//      if ( m_NVec[n]->m_ID == -999 )
+//          delete m_NVec[n];
+//      else
+//          tempNVec.push_back( m_NVec[n] );
+//  }
+//  m_NVec = tempNVec;
+//
+//
+//  //==== Brute Force Check For Duplicate Nodes ====//
+///****************************************************************
+//  for ( n = 0 ; n < nVec.size() ; n++ )
+//  {
+//      for ( int m = n+1 ; m < nVec.size() ; m++ )
+//      {
+//          if ( dist_squared( nVec[n]->pnt, nVec[m]->pnt ) < tol )
+//          {
+//              printf("Duplicate Node %d %d\n", nVec[n], nVec[m] );
+//          }
+//      }
+//  }
+//*****************************************************************/
+//
+//  //==== Reassign Triangles ====//
+//  for ( t = 0 ; t < (int)m_TVec.size() ; t++ )
+//  {
+//      m_TVec[t]->m_N0->m_TriVec.push_back( m_TVec[t] );
+//      m_TVec[t]->m_N1->m_TriVec.push_back( m_TVec[t] );
+//      m_TVec[t]->m_N2->m_TriVec.push_back( m_TVec[t] );
+//  }
+
+    BuildMergeMaps();
+    DeleteDupNodes();
+
 }
 
 void TMesh::SwapEdges( double ang )

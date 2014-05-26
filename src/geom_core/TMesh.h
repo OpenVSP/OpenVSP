@@ -397,6 +397,10 @@ public:
     vector< TTri* > m_NonClosedTriVec;
     virtual void MergeNonClosed( TMesh* tm );
     virtual void CheckIfClosed();
+    virtual void BuildMergeMaps();
+    virtual void BuildNodeMaps();
+    virtual void BuildEdgeMaps();
+    virtual void DeleteDupNodes();
 
     virtual void MatchNodes();
     virtual void CheckValid( FILE* fid );
@@ -427,6 +431,11 @@ public:
 
 protected:
     void CopyAttributes( TMesh* m );
+
+    map< TNode*, list<TNode*> > m_NAMap; // Map from a master node to list of nodes that are aliases
+    map< TNode*, TNode* > m_NSMMap;      // Map of node slave to master node
+    map< TEdge*, vector<TEdge*> > m_EAMap; // Map from a master edge to a list of edges that are aliases
+    map< TEdge*, TEdge* > m_ESMMap;      // Map from edge slave to master edge
 
 };
 
