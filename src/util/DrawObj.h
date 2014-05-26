@@ -55,6 +55,8 @@ public:
     * VSP_PICK_GEOM - This type drawObj enables geometry picking.
     * VSP_PICK_LOCATION - This type drawObj enables location picking.
     */
+
+    vec3d ColorWheel( double angle ); // Returns rgb for an angle given in degrees
     enum TypeEnum
     {
         VSP_POINTS,
