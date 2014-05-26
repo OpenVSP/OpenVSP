@@ -62,6 +62,8 @@ public:
     void BuildSingleTagMap();
     int GetTag( const std::vector<int> & tags );
 
+    // Write Tag Key File
+    void WriteKeyFile( const string & filename );
 
     std::set< std::vector<int> > m_TagCombos;
     std::map< int, std::string > m_TagNames;

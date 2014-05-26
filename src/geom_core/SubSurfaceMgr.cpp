@@ -172,6 +172,74 @@ void SubSurfaceMgrSingleton::BuildSingleTagMap()
         m_SingleTagMap[m_TagKeys[i]] = i + 1;
     }
 }
+
+//==== Write Key File ====//
+void SubSurfaceMgrSingleton::WriteKeyFile( const string & file_name )
+{
+    // figure out basename
+    string base_name = file_name;
+    unsigned int loc = base_name.find_last_of( "." );
+    if ( loc != base_name.npos )
+    {
+        base_name = base_name.substr( 0, loc );
+    }
+    string key_name = base_name + ".tkey";
+
+    FILE* fid = fopen( key_name.c_str(), "w" );
+    if ( !fid )
+    {
+        return;
+    }
+
+    // Write Out Header Information
+    fprintf( fid, "# VSP Tag Key File\n" );
+    fprintf( fid, "%s\n", file_name.c_str() ); // Write out the file that this key information is for
+    fprintf( fid, "%d\n", m_SingleTagMap.size() ); // Total number of tags
+    fprintf( fid, "\n" );
+
+    map< vector<int>, int >::iterator ii;
+    map< int, string >::iterator si;
+
+    for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
+    {
+        string comp_list;
+        int tag;
+
+        ii = m_SingleTagMap.find( m_TagKeys[i] );
+
+        if ( ii == m_SingleTagMap.end() )
+        {
+            tag = -1;
+            comp_list = ",Error_Tag";
+        }
+        else if ( ii != m_SingleTagMap.end() )
+        {
+            tag = ii->second;
+
+            for ( int j = 0 ; j < ( int )m_TagKeys[i].size() ; j++ )
+            {
+                si = m_TagNames.find( m_TagKeys[i][j] );
+
+                if ( si == m_TagNames.end() )
+                {
+                    comp_list += ",Error_SubSurf";
+                }
+                else if ( si != m_TagNames.end() )
+                {
+                    comp_list += "," + si->second ;
+                }
+            }
+        }
+
+        // Write tag number and surface list to file
+        fprintf( fid, "%d%s\n", tag , comp_list.c_str() );
+
+    }
+
+    fclose( fid );
+
+}
+
 int SubSurfaceMgrSingleton::GetTag( const vector<int> & tags )
 {
     map< vector<int>, int >::iterator mi;
