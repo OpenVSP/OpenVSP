@@ -2563,7 +2563,7 @@ void  TBndBox::NumCrossXRay( vec3d & orig, vector<double> & tParmVec )
 
     //==== Check All Tris In Box ====//
     double tparm, uparm, vparm;
-    vec3d dir( 1.0, 0.0, 0.0 );
+    vec3d dir( 1.0, 0.000000001, 0.000000001 );
     for ( i = 0 ; i < ( int )m_TriVec.size() ; i++ )
     {
         TTri* tri = m_TriVec[i];
