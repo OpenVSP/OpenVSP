@@ -122,6 +122,10 @@ public:
     virtual void SplitSegsW( const double & w ); // Split line segments that cross a constant W value
     virtual void CleanUpSplitVec();
     virtual void PrepareSplitVec();
+    virtual void SetDisplaySuffix( int num );
+    // Save, Load
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+
     int m_Tag;
     IntParm m_TestType;
 

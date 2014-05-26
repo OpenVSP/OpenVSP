@@ -45,6 +45,19 @@ void SubSurface::ParmChanged( Parm* parm_ptr, int type )
     }
 }
 
+void SubSurface::SetDisplaySuffix( int num )
+{
+    for ( int i = 0 ; i < ( int )m_ParmVec.size() ; i++ )
+    {
+        Parm* p = ParmMgr.FindParm( m_ParmVec[i] );
+
+        if ( p )
+        {
+            p->SetGroupDisplaySuffix( num );
+        }
+    }
+}
+
 void SubSurface::LoadDrawObjs( std::vector< DrawObj* > & draw_obj_vec )
 {
     for ( int i = 0 ; i < ( int )m_DrawObjVec.size() ; i++ )
@@ -115,6 +128,18 @@ std::string SubSurface::GetTypeName( int type )
         return string( "Ellipse" );
     }
     return string( "NONE" );
+}
+
+
+// Encode Data into XML file
+xmlNodePtr SubSurface::EncodeXml( xmlNodePtr & node )
+{
+    ParmContainer::EncodeXml( node );
+
+    xmlNodePtr ss_info = xmlNewChild( node, NULL, BAD_CAST "SubSurfaceInfo", NULL );
+    XmlUtil::AddIntNode( ss_info, "Type", m_Type );
+
+    return ss_info;
 }
 
 bool SubSurface::Subtag( const vec3d & center )

@@ -92,6 +92,24 @@ void SubSurfaceMgrSingleton::PrepareToSplit()
     }
 }
 
+void SubSurfaceMgrSingleton::ReSuffixGroupNames( string comp_id )
+{
+    vector< SubSurface* > ss_vec = GetSubSurfs( comp_id );
+
+    map< int, int > t_map;
+
+    for ( int i = 0 ; i < SubSurface::SS_NUM_TYPES; i++ )
+    {
+        t_map[i] = 0;
+    }
+
+    for ( int i = 0; i < ( int )ss_vec.size() ; i++ )
+    {
+        t_map[ ss_vec[i]->GetType() ]++;
+        ss_vec[i]->SetDisplaySuffix( t_map[ ss_vec[i]->GetType() ] );
+    }
+}
+
 //==== Manage Tag Maps ====//
 void SubSurfaceMgrSingleton::ClearTagMaps()
 {

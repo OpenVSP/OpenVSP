@@ -10,6 +10,7 @@
 #include "StlHelper.h"
 #include "StringUtil.h"
 #include "ParmMgr.h"
+#include "SubSurfaceMgr.h"
 #include "APIDefines.h"
 using namespace vsp;
 
@@ -1101,9 +1102,23 @@ xmlNodePtr Geom::EncodeXml( xmlNodePtr & node )
     {
         XmlUtil::AddVectorBoolNode( geom_node, "Set_List", m_SetFlags );
 
-        for( int i = 0; i < (int)sourceVec.size(); i++ )
+        for( int i = 0; i < ( int )sourceVec.size(); i++ )
         {
             sourceVec[i]->EncodeXml( geom_node );
+        }
+
+        xmlNodePtr subsurfs_node = xmlNewChild( geom_node, NULL, BAD_CAST "SubSurfaces", NULL );
+
+        if ( subsurfs_node )
+        {
+            for( int i = 0 ; i < ( int ) m_SubSurfVec.size() ; i++ )
+            {
+                xmlNodePtr sub_node = xmlNewChild( subsurfs_node, NULL, BAD_CAST "SubSurface", NULL );
+                if ( sub_node )
+                {
+                    m_SubSurfVec[i]->EncodeXml( sub_node );
+                }
+            }
         }
     }
     return geom_node;
@@ -1134,6 +1149,31 @@ xmlNodePtr Geom::DecodeXml( xmlNodePtr & node )
                 {
                     src_ptr->DecodeXml( src_node );
                     AddCfdMeshSource( src_ptr );
+                }
+            }
+        }
+
+        // Decode SubSurfaces
+        xmlNodePtr subsurfs_node = XmlUtil::GetNode( geom_node, "SubSurfaces", 0 );
+        if ( subsurfs_node )
+        {
+            int num_ss = XmlUtil::GetNumNames( subsurfs_node, "SubSurface" );
+
+            for ( int ss = 0 ; ss < num_ss ; ss++ )
+            {
+                xmlNodePtr ss_node = XmlUtil::GetNode( subsurfs_node, "SubSurface", ss );
+                if ( ss_node )
+                {
+                    xmlNodePtr ss_info_node = XmlUtil::GetNode( ss_node, "SubSurfaceInfo", 0 );
+                    if ( ss_info_node )
+                    {
+                        int type = XmlUtil::FindInt( ss_info_node, "Type", SubSurface::SS_LINE );
+                        SubSurface* ssurf = AddSubSurf( type );
+                        if ( ssurf )
+                        {
+                            ssurf->DecodeXml( ss_node );
+                        }
+                    }
                 }
             }
         }
@@ -1575,6 +1615,27 @@ vector< TMesh* > Geom::CreateTMeshVec()
     return TMeshVec;
 }
 
+void Geom::AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id )
+{
+    ParmContainer::AddLinkableParms( linkable_parm_vec );
+
+    for ( int i = 0 ; i < ( int )m_SubSurfVec.size() ; i++ )
+    {
+        m_SubSurfVec[i]->AddLinkableParms( linkable_parm_vec, m_ID );
+    }
+}
+
+void Geom::ChangeID( string id )
+{
+    ParmContainer::ChangeID( id );
+
+    for ( int i = 0 ; i < ( int )m_SubSurfVec.size() ; i ++ )
+    {
+        m_SubSurfVec[i]->SetParentContainer( GetID() );
+    }
+}
+
+
 //==== Sub Surface Methods ====//
 bool Geom::ValidSubSurfInd( int ind )
 {
@@ -1595,6 +1656,9 @@ void Geom::DelSubSurf( int ind )
         delete m_SubSurfVec[ind];
         m_SubSurfVec.erase( m_SubSurfVec.begin() + ind );
     }
+
+    SubSurfaceMgr.ReSuffixGroupNames( GetID() );
+}
 
 SubSurface* Geom::AddSubSurf( int type )
 {
@@ -1618,6 +1682,8 @@ SubSurface* Geom::AddSubSurf( int type )
 
     ssurf->SetParentContainer( GetID() );
     AddSubSurf( ssurf );
+
+    SubSurfaceMgr.ReSuffixGroupNames( GetID() );
 
     return ssurf;
 }

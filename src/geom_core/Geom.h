@@ -453,6 +453,9 @@ public:
     virtual void WritePovRayTri( FILE* fid, const vec3d& v, const vec3d& n, bool comma = true );
     virtual void CreateGeomResults( Results* res );
 
+    virtual void AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id = string() );
+    virtual void ChangeID( string id );
+
     //==== Sub Surface Managment Methods ====//
     virtual void AddSubSurf( SubSurface* sub_surf )
     {

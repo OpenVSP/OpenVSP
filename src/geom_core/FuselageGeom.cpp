@@ -86,7 +86,7 @@ FuselageGeom::~FuselageGeom()
 
 void FuselageGeom::ChangeID( string id )
 {
-    ParmContainer::ChangeID( id );
+    Geom::ChangeID( id );
     m_XSecSurf.SetParentContainer( GetID() );
 }
 
@@ -285,7 +285,7 @@ void FuselageGeom::InsertXSec( int type )
 //==== Look Though All Parms and Load Linkable Ones ===//
 void FuselageGeom::AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id )
 {
-    ParmContainer::AddLinkableParms( linkable_parm_vec );
+    Geom::AddLinkableParms( linkable_parm_vec );
 
     m_XSecSurf.AddLinkableParms( linkable_parm_vec, m_ID  );
 }

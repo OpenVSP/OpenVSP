@@ -47,6 +47,9 @@ public:
     void SetSubSurfTags( int tag_offset );
 
     void PrepareToSplit();
+
+    void ReSuffixGroupNames( std::string comp_id );
+
     static SubSurfaceMgrSingleton& GetInstance()
     {
         static SubSurfaceMgrSingleton instance;
