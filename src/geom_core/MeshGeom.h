@@ -158,7 +158,7 @@ public:
     virtual int  WriteCart3DTris( FILE* file_id, int offset );
     virtual int  WriteGMshTris( FILE* file_id, int node_offset, int tri_offset );
     virtual int  WriteNascartParts( FILE* file_id, int offset );
-    virtual int  WriteCart3DParts( FILE* file_id, int offset );
+    virtual int  WriteCart3DParts( FILE* file_id, map< vector<int>, int > & tagMap );
     virtual void WritePovRay( FILE* fid, int comp_num );
     virtual void WriteX3D( xmlNodePtr node );
     virtual void CheckDupOrAdd( TNode* node, vector< TNode* > & nodeVec );

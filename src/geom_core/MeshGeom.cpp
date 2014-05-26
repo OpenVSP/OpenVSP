@@ -777,12 +777,25 @@ int MeshGeom::WriteNascartParts( FILE* fp, int off )
     return off + m_TMeshVec.size();
 }
 
-int MeshGeom::WriteCart3DParts( FILE* fp, int off )
+int MeshGeom::WriteCart3DParts( FILE* fp, map< vector<int>, int > & tagMap )
 {
     //==== Write Component IDs for each Tri =====//
+    map< vector<int>, int >::iterator mi;
     for ( int t = 0 ; t < ( int )m_NascartTriVec.size() ; t++ )
     {
-        fprintf( fp, "%d \n", atoi( m_NascartTriVec[t]->m_ID.c_str() ) );
+        mi = tagMap.find( m_NascartTriVec[t]->m_Tags );
+        int tag;
+
+        if ( mi != tagMap.end() )
+        {
+            tag = mi->second;
+        }
+        else
+        {
+            tag = -1;
+        }
+
+        fprintf( fp, "%d \n",  tag );
     }
     return 0;
 }

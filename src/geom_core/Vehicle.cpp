@@ -20,12 +20,16 @@
 #include "LinkMgr.h"
 #include "Quat.h"
 #include "StringUtil.h"
+#include "SubSurfaceMgr.h"
 #include "DesignVarMgr.h"
 #include "XmlUtil.h"
 #include "APIDefines.h"
 #include "ResultsMgr.h"
 using namespace vsp;
 
+#include <set>
+#include <map>
+#include <algorithm>
 #include <utility>
 
 #define NUMOFLIGHTS 8
@@ -1247,7 +1251,10 @@ void Vehicle::WriteTRIFile( const string & file_name, int write_set )
         string mesh_id = AddMeshGeom( write_set );
         if ( mesh_id.compare( "NONE" ) != 0 )
         {
-            geom_vec.push_back( FindGeom( mesh_id ) );
+            Geom* geom_ptr = FindGeom( mesh_id );
+            MeshGeom* mg = dynamic_cast<MeshGeom*>( geom_ptr );
+            mg->SubTagTris();
+            geom_vec.push_back( geom_ptr );
         }
     }
 
@@ -1267,8 +1274,7 @@ void Vehicle::WriteTRIFile( const string & file_name, int write_set )
 
     for ( i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
-        if ( geom_vec[i]->GetSetFlag( write_set ) &&
-                geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
+        if ( geom_vec[i]->GetSetFlag( write_set ) && geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
         {
             MeshGeom* mg = ( MeshGeom* )geom_vec[i];            // Cast
             mg->BuildNascartMesh( num_parts );
@@ -1310,11 +1316,15 @@ void Vehicle::WriteTRIFile( const string & file_name, int write_set )
                 geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
         {
             MeshGeom* mg = ( MeshGeom* )geom_vec[i];            // Cast
-            part_count = mg->WriteCart3DParts( file_id, part_count );
+            part_count = mg->WriteCart3DParts( file_id, SubSurfaceMgr.m_SingleTagMap );
         }
     }
 
     fclose( file_id );
+
+    //==== Write Out tag key file ====//
+
+    SubSurfaceMgr.WriteKeyFile( file_name );
 
 }
 
@@ -1333,7 +1343,10 @@ void Vehicle::WriteNascartFiles( const string & file_name, int write_set )
         string mesh_id = AddMeshGeom( write_set );
         if ( mesh_id.compare( "NONE" ) != 0 )
         {
-            geom_vec.push_back( FindGeom( mesh_id ) );
+            Geom* geom_ptr = FindGeom( mesh_id );
+            MeshGeom* mg = dynamic_cast<MeshGeom*>( geom_ptr );
+            mg->SubTagTris();
+            geom_vec.push_back( geom_ptr );
         }
     }
 
@@ -1433,7 +1446,10 @@ void Vehicle::WriteGmshFile( const string & file_name, int write_set )
         string mesh_id = AddMeshGeom( write_set );
         if ( mesh_id.compare( "NONE" ) != 0 )
         {
-            geom_vec.push_back( FindGeom( mesh_id ) );
+            Geom* geom_ptr = FindGeom( mesh_id );
+            MeshGeom* mg = dynamic_cast<MeshGeom*>( geom_ptr );
+            mg->SubTagTris();
+            geom_vec.push_back( geom_ptr );
         }
     }
 
