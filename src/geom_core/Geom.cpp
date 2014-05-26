@@ -1295,6 +1295,13 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         m_HighlightDrawObj.m_Type = DrawObj::VSP_LINES;
         draw_obj_vec.push_back( &m_HighlightDrawObj );
     }
+
+    // Load Subsurfaces
+    RecolorSubSurfs( SubSurfaceMgr.GetCurrSurfInd() );
+    for ( int i = 0 ; i < ( int )m_SubSurfVec.size() ; i++ )
+    {
+        m_SubSurfVec[i]->LoadDrawObjs( draw_obj_vec );
+    }
 }
 
 //==== Set Sym Flag ====//
@@ -1698,6 +1705,30 @@ SubSurface* Geom::GetSubSurf( int ind )
     return NULL;
 
 }
+
+//==== Highlight Active Subsurface ====//
+void Geom::RecolorSubSurfs( int active_ind )
+{
+    bool active_geom = ( m_Vehicle->IsGeomActive( m_ID ) && m_Vehicle->GetActiveGeomVec().size() == 1 ); // Is this geom the only active geom
+
+    for ( int i = 0; i < ( int )m_SubSurfVec.size() ; i++ )
+    {
+        if ( active_geom )
+        {
+            if ( i == active_ind )
+            {
+                m_SubSurfVec[i]->SetLineColor( vec3d( 1, 0, 0 ) );
+            }
+            else
+            {
+                m_SubSurfVec[i]->SetLineColor( vec3d( 0, 0, 0 ) );
+            }
+        }
+        else
+        {
+            m_SubSurfVec[i]->SetLineColor( vec3d( 0, 0, 0 ) );
+        }
+    }
 }
 
 void Geom::DelAllSources()

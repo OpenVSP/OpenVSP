@@ -474,6 +474,8 @@ public:
     {
         return m_SubSurfVec.size();
     }
+    virtual void RecolorSubSurfs( int active_ind );
+
     //==== Set Drag Factors ====//
     virtual void LoadDragFactors( DragFactors& drag_factors )   {};
 
