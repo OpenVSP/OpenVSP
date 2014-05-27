@@ -667,12 +667,14 @@ void TMesh::DeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec )
     orig = ( orig + tri->m_N2->m_Pnt ) * 0.5;
     tri->m_InteriorFlag = 0;
 
+    vec3d dir( 1.0, 0.000001, 0.000001 );
+
     for ( int m = 0 ; m < ( int )meshVec.size() ; m++ )
     {
         if ( meshVec[m] != this )
         {
             vector<double > tParmVec;
-            meshVec[m]->m_TBox.NumCrossXRay( orig, tParmVec );
+            meshVec[m]->m_TBox.RayCast( orig, dir, tParmVec );
             if ( tParmVec.size() % 2 )
             {
                 tri->m_InteriorFlag = 1;
@@ -717,12 +719,14 @@ void TMesh::MassDeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec )
     tri->m_InteriorFlag = 1;
     int prior = -1;
 
+    vec3d dir( 1.0, 0.000001, 0.000001 );
+
     for ( int m = 0 ; m < ( int )meshVec.size() ; m++ )
     {
         if ( meshVec[m] != this )
         {
             vector<double > tParmVec;
-            meshVec[m]->m_TBox.NumCrossXRay( orig, tParmVec );
+            meshVec[m]->m_TBox.RayCast( orig, dir, tParmVec );
             if ( tParmVec.size() % 2 )
             {
                 if ( meshVec[m]->m_MassPrior > prior )
