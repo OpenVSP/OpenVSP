@@ -2592,6 +2592,58 @@ void  TBndBox::NumCrossXRay( vec3d & orig, vector<double> & tParmVec )
 
 }
 
+void  TBndBox::RayCast( vec3d & orig, vec3d & dir, vector<double> & tParmVec )
+{
+    int i;
+
+    double coord[3];
+    double t;
+
+    if( !intersectRayAABB( m_Box.GetMin().v, m_Box.GetMax().v, orig.v, dir.v, coord ) )
+    {
+        return;
+    }
+
+    if ( m_SBoxVec[0] )
+    {
+        for ( i = 0 ; i < 8 ; i++ )
+        {
+            m_SBoxVec[i]->RayCast( orig, dir, tParmVec );
+        }
+        return;
+    }
+
+    //==== Check All Tris In Box ====//
+    double tparm, uparm, vparm;
+
+    for ( i = 0 ; i < ( int )m_TriVec.size() ; i++ )
+    {
+        TTri* tri = m_TriVec[i];
+        int iFlag = intersect_triangle( orig.v, dir.v,
+                                        tri->m_N0->m_Pnt.v, tri->m_N1->m_Pnt.v, tri->m_N2->m_Pnt.v, &tparm, &uparm, &vparm );
+
+        if ( iFlag && tparm > 0.0 )
+        {
+            //==== Find If T is Already Included ====//
+            int dupFlag = 0;
+            for ( int j = 0 ; j < ( int )tParmVec.size() ; j++ )
+            {
+                if ( fabs( tparm - tParmVec[j] ) < 0.0000001 )
+                {
+                    dupFlag = 1;
+                    break;
+                }
+            }
+
+            if ( !dupFlag )
+            {
+                tParmVec.push_back( tparm );
+            }
+        }
+    }
+
+}
+
 void TBndBox::SegIntersect( vec3d & p0, vec3d & p1, vector< vec3d > & ipntVec )
 {
     int i, t;

@@ -305,6 +305,7 @@ public:
     void AddTri( TTri* t );
     virtual void Intersect( TBndBox* iBox, bool UWFlag = false );
     virtual void NumCrossXRay( vec3d & orig, vector<double> & tParmVec );
+    virtual void RayCast( vec3d & orig, vec3d & dir, vector<double> & tParmVec );
     virtual void AddLeafNodes( vector< TBndBox* > & leafVec );
 
     virtual void SegIntersect( vec3d & p0, vec3d & p1, vector< vec3d > & ipntVec );
