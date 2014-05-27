@@ -55,6 +55,15 @@ StackScreen.cpp
 SubGLWindow.cpp
 TypeEditorScreen.cpp
 WingScreen.cpp
+MainGLWindow.cpp
+ManageTextureScreen.cpp
+SubGLWindow.cpp
+ManageLightingScreen.cpp
+ManageViewScreen.cpp
+ManageBackgroundScreen.cpp
+ManageLabelScreen.cpp
+ManageCORScreen.cpp
+MaterialRepo.cpp
 AwaveScreen.h
 BlankScreen.h
 CfdMeshScreen.h
@@ -90,6 +99,15 @@ StackScreen.h
 SubGLWindow.h
 TypeEditorScreen.h
 WingScreen.h
+MainGLWindow.h
+ManageTextureScreen.h
+SubGLWindow.h
+ManageLightingScreen.h
+ManageViewScreen.h
+ManageBackgroundScreen.h
+ManageLabelScreen.h
+ManageCORScreen.h
+MaterialRepo.h
 )
 
 ADD_DEPENDENCIES(gui_and_draw

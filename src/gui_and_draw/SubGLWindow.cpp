@@ -1,21 +1,13 @@
 #include "SubGLWindow.h"
-
 #include "VehicleMgr.h"
 #include "Vehicle.h"
-
 #include "GraphicEngine.h"
-
 #include "Display.h"
 #include "Scene.h"
-
 #include "Viewport.h"
-
 #include "Camera.h"
-
 #include "Renderable.h"
-
 #include "Common.h"
-
 #include <vector>
 #include <assert.h>
 
@@ -111,7 +103,7 @@ void VspSubGlWindow::_update( std::vector<DrawObj *> objects )
         // Load Settings.
         float red, green, blue, size;
 
-        Renderable * obj;
+        Renderable * rObj;
         unsigned int id;
         switch( objects[i]->m_Type )
         {
@@ -125,13 +117,16 @@ void VspSubGlWindow::_update( std::vector<DrawObj *> objects )
 
             size = ( float )objects[i]->m_PointSize;
 
-            obj = m_GEngine->getScene()->getObject( id );
-            obj->setVisibility( objects[i]->m_Visible );
-            obj->setGeomType( VSPGraphic::Common::VSP_POINTS );
-            obj->setPointColor( red, green, blue );
-            obj->setPointSize( size );
+            rObj = dynamic_cast<Renderable*>( m_GEngine->getScene()->getObject(id) );
+            if( rObj )
+            {
+                rObj->setVisibility( objects[i]->m_Visible );
+                rObj->setPrimType( VSPGraphic::Common::VSP_POINTS );
+                rObj->setPointColor( red, green, blue );
+                rObj->setPointSize( size );
 
-            _loadPointData( id, objects[i] );
+                _loadPointData( rObj, objects[i] );
+            }
             break;
 
         case DrawObj::VSP_LINES:
@@ -144,13 +139,16 @@ void VspSubGlWindow::_update( std::vector<DrawObj *> objects )
 
             size = ( float )objects[i]->m_LineWidth;
 
-            obj = m_GEngine->getScene()->getObject( id );
-            obj->setVisibility( objects[i]->m_Visible );
-            obj->setGeomType( VSPGraphic::Common::VSP_LINES );
-            obj->setLineColor( red, green, blue );
-            obj->setLineWidth( size );
+            rObj = dynamic_cast<Renderable*>( m_GEngine->getScene()->getObject( id ) );
+            if( rObj )
+            {
+                rObj->setVisibility( objects[i]->m_Visible );
+                rObj->setPrimType( VSPGraphic::Common::VSP_LINES );
+                rObj->setLineColor( red, green, blue );
+                rObj->setLineWidth( size );
 
-            _loadLineData( id, objects[i] );
+                _loadLineData( rObj, objects[i] );
+            }
             break;
         }
     }
@@ -176,7 +174,7 @@ void VspSubGlWindow::_initGLEW()
     }
 }
 
-void VspSubGlWindow::_loadPointData( unsigned int id, DrawObj * drawObj )
+void VspSubGlWindow::_loadPointData( Renderable * destObj, DrawObj * drawObj )
 {
     std::vector<float> vdata;
 
@@ -196,20 +194,20 @@ void VspSubGlWindow::_loadPointData( unsigned int id, DrawObj * drawObj )
         vdata.push_back( 0.0f );
         vdata.push_back( 0.0f );
     }
-    m_GEngine->getScene()->getObject( id )->emptyVBuffer();
-    m_GEngine->getScene()->getObject( id )->appendVBuffer( vdata.data(), sizeof( float ) * vdata.size() );
+    destObj->emptyVBuffer();
+    destObj->appendVBuffer( vdata.data(), sizeof( float ) * vdata.size() );
 }
 
-void VspSubGlWindow::_loadLineData( unsigned int id, DrawObj * drawObj )
+void VspSubGlWindow::_loadLineData( Renderable * destObj, DrawObj * drawObj )
 {
     std::vector<float> vdata;
 
     for( int i = 1; i < ( int )drawObj->m_PntVec.size(); i++ )
     {
         // Position x y z.
-        vdata.push_back( ( float )drawObj->m_PntVec[i - 1].x() );
-        vdata.push_back( ( float )drawObj->m_PntVec[i - 1].y() );
-        vdata.push_back( ( float )drawObj->m_PntVec[i - 1].z() );
+        vdata.push_back( ( float )drawObj->m_PntVec[i-1].x() );
+        vdata.push_back( ( float )drawObj->m_PntVec[i-1].y() );
+        vdata.push_back( ( float )drawObj->m_PntVec[i-1].z() );
 
         // Normal x y z.
         vdata.push_back( 0.0f );
@@ -229,7 +227,7 @@ void VspSubGlWindow::_loadLineData( unsigned int id, DrawObj * drawObj )
         vdata.push_back( 0.0f );
         vdata.push_back( 0.0f );
     }
-    m_GEngine->getScene()->getObject( id )->emptyVBuffer();
-    m_GEngine->getScene()->getObject( id )->appendVBuffer( vdata.data(), sizeof( float ) * vdata.size() );
+    destObj->emptyVBuffer();
+    destObj->appendVBuffer( vdata.data(), sizeof( float ) * vdata.size() );
 }
 }

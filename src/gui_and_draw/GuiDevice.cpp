@@ -1833,7 +1833,7 @@ vec3d ColorPicker::GetIndexRGB( int index )
     }
     if ( index == 8 )
     {
-        return vec3d(   0, 128, 128 );
+        return vec3d( 0, 128, 128 );
     }
     if ( index == 9 )
     {
@@ -1851,7 +1851,7 @@ vec3d ColorPicker::GetIndexRGB( int index )
     return vec3d( 0, 0, 0 );
 }
 
-void ColorPicker::Update( vec3d& rgb )
+void ColorPicker::Update( const vec3d& rgb )
 {
     m_Color = rgb;
     m_RGB_Sliders[0]->value( ( int )m_Color[0] );
@@ -2286,7 +2286,7 @@ void SkinOutput::Update( int contL, int order, int contR )
     m_contL = ContStr(contL);
     m_ContLOutput->value( m_contL.c_str() );
 
-    m_order = std::to_string( (long long) order );
+    m_order = std::to_string( ( long long )order );
     m_OrderOutput->value( m_order.c_str() );
 
     m_contR = ContStr(contR);

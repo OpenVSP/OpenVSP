@@ -9,6 +9,7 @@
 namespace VSPGraphic
 {
 class GraphicEngine;
+class Renderable;
 }
 
 class FuselageGeom;
@@ -75,8 +76,8 @@ protected:
     virtual void _update( std::vector<DrawObj *> objects );
 
 private:
-    void _loadPointData( unsigned int id, DrawObj * drawObj );
-    void _loadLineData( unsigned int id, DrawObj * drawObj );
+    void _loadPointData( VSPGraphic::Renderable * destObj, DrawObj * drawObj );
+    void _loadLineData( VSPGraphic::Renderable * destObj, DrawObj * drawObj );
 
 protected:
     /*

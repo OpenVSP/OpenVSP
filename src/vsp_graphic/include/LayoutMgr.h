@@ -37,12 +37,7 @@ public:
     /*!
     * Draw Scene.
     */
-    virtual void draw( Scene * scene );
-
-    /*!
-    * Perform postprocessing. Color Picking.
-    */
-    virtual void postdraw( Scene * scene );
+    virtual void draw( Scene * scene, int x, int y );
 
     /*!
     * Resize Screen.

@@ -2,6 +2,8 @@
 #define _VSP_GRAPHIC_RENDER_OPERATION_BASE_H
 
 #include "Common.h"
+#include "SceneObject.h"
+#include "glm/glm.hpp"
 
 namespace VSPGraphic
 {
@@ -13,14 +15,13 @@ class ElementBuffer;
 * Renderable class.
 * This class is the base class for all renderable objects.
 */
-class Renderable
+class Renderable : public SceneObject
 {
 public:
     /*!
     * Constructor.
-    * geomType identify the type of primitive for rendering.
     */
-    Renderable( Common::VSPenum geomType );
+    Renderable();
     /*!
     * Destructor.
     */
@@ -71,6 +72,13 @@ public:
 
 public:
     /*!
+    * Define font and back facing polygons.  If  true, set facing to clock wise, else counter 
+    * clock wise.
+    */
+    void setFacingCW( bool flag );
+
+public:
+    /*!
     * Set mesh color.
     */
     void setMeshColor( float r, float g, float b, float a = 1.f );
@@ -82,6 +90,10 @@ public:
     * Set point color.
     */
     void setPointColor( float r, float g, float b, float a = 1.f );
+    /*!
+    * Set text color.
+    */
+    void setTextColor( float r, float g, float b, float a = 1.f );
 
 public:
     /*!
@@ -92,121 +104,68 @@ public:
     * Set point size.
     */
     void setPointSize( float size );
+    /*!
+    * Set text size.
+    */
+    void setTextSize( float size );
 
 public:
     /*!
-    * Set Geometry Type.
+    * Set primitive type.
+    * VSP_TRIANGLES, VSP_QUADS, VSP_LINES, VSP_POINTS, VSP_LINE_LOOP, VSP_LINE_STRIP.
     */
-    void setGeomType( Common::VSPenum type );
+    void setPrimType( Common::VSPenum type );
+    /*!
+    * Get primitive type.
+    */
+    Common::VSPenum getPrimType();
+
+public:
     /*!
     * Set render style.
+    * VSP_DRAW_MESH_SHADED, VSP_DRAW_MESH_TEXTURED,
+    * VSP_DRAW_WIRE_FRAME, VSP_DRAW_WIRE_FRAME_SOLID.
     */
     void setRenderStyle( Common::VSPenum style );
     /*!
-    * Set visibility.
+    * Get render style.
     */
-    void setVisibility( bool isVisible );
+    Common::VSPenum getRenderStyle();
     /*!
-    * Get visibility.
+    * Get vertex at specific buffer index.
     */
-    bool getVisibility()
-    {
-        return _visible;
-    }
+    glm::vec3 getVertexVec( unsigned int bufferIndex );
 
 public:
     /*!
-    * Perform preprocessing rendering.
+    * Get Vertex Buffer Pointer.
     */
-    void predraw();
-    /*!
-    * Render object.
-    */
-    void draw();
-    /*!
-    * Peform postprocessing.
-    */
-    void postdraw();
+    VertexBuffer * getVBuffer();
 
-public:
     /*!
-    * Enable / disable multi-pass rendering.
+    * Get Element Buffer Flag.  Return true if Element Buffer is enabled.
     */
-    void enablePredraw( bool enable );
+    bool getEBufferFlag();
     /*!
-    * Enable / disable post processing.
+    * Get Element Buffer Pointer.
     */
-    void enablePostdraw( bool enable );
-
-protected:
-    /*!
-    * Protected.  Perform preprocessing.
-    * All pre-render / render passes goes here.  Must implement.
-    */
-    virtual void _predraw() = 0;
-    /*!
-    * Protected.  Draw object.
-    * All actual rendering code goes here.  Must implement.
-    */
-    virtual void _draw() = 0;
-    /*!
-    * Protected.  Perform postprocessing.
-    * All postprocessing goes here.  Must implement.
-    */
-    virtual void _postdraw() = 0;
+    ElementBuffer * getEBuffer();
 
 protected:
     struct Color;
 
 protected:
-    bool _getPreDrawFlag()
-    {
-        return _predrawFlag;
-    }
-    bool _getPostDrawFlag()
-    {
-        return _postdrawFlag;
-    }
+    bool _getCBufferFlag();
+    bool _getFacingCWFlag();
 
-    bool _getEBufferFlag()
-    {
-        return _eBufferFlag;
-    }
-    bool _getCBufferFlag()
-    {
-        return _cBufferFlag;
-    }
+    Color _getMeshColor();
+    Color _getLineColor();
+    Color _getPointColor();
+    Color _getTextColor();
 
-    Color _getMeshColor()
-    {
-        return _meshColor;
-    }
-    Color _getLineColor()
-    {
-        return _lineColor;
-    }
-    Color _getPointColor()
-    {
-        return _pointColor;
-    }
-
-    float _getLineWidth()
-    {
-        return _lineWidth;
-    }
-    float _getPointSize()
-    {
-        return _pointSize;
-    }
-
-    Common::VSPenum _getGeomType()
-    {
-        return _geomType;
-    }
-    Common::VSPenum _getRenderStyle()
-    {
-        return _renderStyle;
-    }
+    float _getLineWidth();
+    float _getPointSize();
+    float _getTextSize();
 
 protected:
     struct Color
@@ -222,15 +181,15 @@ protected:
     ColorBuffer * _cBuffer;
     ElementBuffer * _eBuffer;
 
-protected:
-    Common::VSPenum _geomType, _renderStyle;
+private:
+    Common::VSPenum _type, _style;
 
-    Color _meshColor, _lineColor, _pointColor;
-    float _lineWidth, _pointSize;
+    Color _meshColor, _lineColor, _pointColor, _textColor;
+    float _lineWidth, _pointSize, _textSize;
 
-    bool _visible;
     bool _eBufferFlag, _cBufferFlag;
-    bool _predrawFlag, _postdrawFlag;
+
+    bool _facingCWFlag;
 };
 }
 #endif

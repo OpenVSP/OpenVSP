@@ -328,4 +328,22 @@ void Viewport::showGridOverlay( bool showFlag )
 {
     _showGrid = showFlag;
 }
+
+glm::vec3 Viewport::screenToWorld(glm::vec2 screenCoord)
+{
+    return glm::unProject(glm::vec3(screenCoord, 0.5), 
+        _cameraMgr->getCamera()->getModelViewMatrix(), 
+        _cameraMgr->getCamera()->getProjectionMatrix(), 
+        glm::vec4(_x, _y, _vWidth, _vHeight));
+}
+
+glm::vec2 Viewport::screenToNDC(glm::vec2 screenCoord)
+{
+    glm::vec2 NDC = screenCoord;
+
+    NDC.x = NDC.x / (_x + _vWidth) * 2 - 1.0f;
+    NDC.y = (NDC.y / (_y + _vHeight) * 2 - 1.0f) * -1;
+
+    return NDC;
+}
 }

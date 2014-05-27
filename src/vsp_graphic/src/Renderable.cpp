@@ -1,33 +1,33 @@
 #include "Renderable.h"
 
-#include "Common.h"
-
 #include "VertexBuffer.h"
 #include "ColorBuffer.h"
 #include "ElementBuffer.h"
 
 namespace VSPGraphic
 {
-Renderable::Renderable( Common::VSPenum geomType )
+Renderable::Renderable() : SceneObject()
 {
-    _geomType = geomType;
-    _renderStyle = Common::VSP_DRAW_WIRE_FRAME;
+    _type = Common::VSP_QUADS;
+    _style = Common::VSP_DRAW_WIRE_FRAME;
 
     _vBuffer = new VertexBuffer();
     _cBuffer = new ColorBuffer();
     _eBuffer = new ElementBuffer();
 
-    _meshColor.red = _meshColor.green = _meshColor.blue = 1.0f;
+    _meshColor.red = _meshColor.green = _meshColor.blue = 1.f;
     _lineColor.red = _lineColor.green = _lineColor.blue = 0.f;
     _meshColor.alpha = _lineColor.alpha = _pointColor.alpha = 1.f;
     _pointColor.red = 1.f;
     _pointColor.green = _pointColor.blue = 0.f;
+    _textColor.red = _textColor.green = _textColor.blue = 0.f;
+    _textColor.alpha = 1.f;
 
-    _lineWidth = _pointSize = 1.0f;
+    _lineWidth = _pointSize = _textSize = 1.0f;
 
-    _visible = true;
     _cBufferFlag = _eBufferFlag = false;
-    _predrawFlag = _postdrawFlag = false;
+
+    _facingCWFlag = false;
 }
 Renderable::~Renderable()
 {
@@ -76,6 +76,11 @@ void Renderable::enableCBuffer( bool enable )
     _cBufferFlag = enable;
 }
 
+void Renderable::setFacingCW( bool flag )
+{
+    _facingCWFlag = flag;
+}
+
 void Renderable::setMeshColor( float r, float g, float b, float a )
 {
     _meshColor.red = r;
@@ -100,6 +105,14 @@ void Renderable::setPointColor( float r, float g, float b, float a )
     _pointColor.alpha = a;
 }
 
+void Renderable::setTextColor( float r, float g, float b, float a )
+{
+    _textColor.red = r;
+    _textColor.green = g;
+    _textColor.blue = b;
+    _textColor.alpha = a;
+}
+
 void Renderable::setLineWidth( float width )
 {
     _lineWidth = width;
@@ -110,52 +123,97 @@ void Renderable::setPointSize( float size )
     _pointSize = size;
 }
 
-void Renderable::setGeomType( Common::VSPenum type )
+void Renderable::setTextSize( float size )
 {
-    _geomType = type;
+    _textSize = size;
+}
+
+void Renderable::setPrimType( Common::VSPenum type )
+{
+    _type = type;
+}
+
+Common::VSPenum Renderable::getPrimType()
+{
+    return _type;
 }
 
 void Renderable::setRenderStyle( Common::VSPenum style )
 {
-    _renderStyle = style;
+    _style = style;
 }
 
-void Renderable::setVisibility( bool isVisible )
+Common::VSPenum Renderable::getRenderStyle()
 {
-    _visible = isVisible;
+    return _style;
 }
 
-void Renderable::enablePredraw( bool enable )
+glm::vec3 Renderable::getVertexVec( unsigned int bufferIndex )
 {
-    _predrawFlag = enable;
+    float temp[3];
+
+    _vBuffer->getVertex3f(bufferIndex, temp);
+
+    return glm::vec3(temp[0], temp[1], temp[2]);
 }
 
-void Renderable::enablePostdraw( bool enable )
+VertexBuffer * Renderable::getVBuffer()
 {
-    _postdrawFlag = enable;
+    return _vBuffer;
 }
 
-void Renderable::predraw()
+ElementBuffer * Renderable::getEBuffer()
 {
-    if( _visible && _getPreDrawFlag() )
-    {
-        _predraw();
-    }
+    return _eBuffer;
 }
 
-void Renderable::draw()
+bool Renderable::getEBufferFlag()
 {
-    if( _visible )
-    {
-        _draw();
-    }
+    return _eBufferFlag;
 }
 
-void Renderable::postdraw()
+bool Renderable::_getCBufferFlag()
 {
-    if( _visible && _getPostDrawFlag() )
-    {
-        _postdraw();
-    }
+    return _cBufferFlag;
+}
+
+bool Renderable::_getFacingCWFlag()
+{
+    return _facingCWFlag;
+}
+
+Renderable::Color Renderable::_getMeshColor()
+{
+    return _meshColor;
+}
+
+Renderable::Color Renderable::_getLineColor()
+{
+    return _lineColor;
+}
+
+Renderable::Color Renderable::_getPointColor()
+{
+    return _pointColor;
+}
+
+Renderable::Color Renderable::_getTextColor()
+{
+    return _textColor;
+}
+
+float Renderable::_getLineWidth()
+{
+    return _lineWidth;
+}
+
+float Renderable::_getPointSize()
+{
+    return _pointSize;
+}
+
+float Renderable::_getTextSize()
+{
+    return _textSize;
 }
 }

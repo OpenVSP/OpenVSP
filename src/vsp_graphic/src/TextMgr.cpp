@@ -21,7 +21,6 @@ TextMgr::~TextMgr()
 void TextMgr::drawText( GLFont * font, float scale, std::string str, float x0, float y0, float xoffset, float yoffset )
 {
     glEnable( GL_TEXTURE_2D );
-    glEnable( GL_BLEND );
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
     glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 
@@ -39,6 +38,5 @@ void TextMgr::drawText( GLFont * font, float scale, std::string str, float x0, f
         font->DrawString( str.data(), ( float )( FONT_BASE_SCALE * scale ), ( float )x, ( float )y );
     }
     glDisable( GL_TEXTURE_2D );
-    glDisable( GL_BLEND );
 }
 }

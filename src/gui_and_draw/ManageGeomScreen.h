@@ -23,6 +23,7 @@
 #include "MeshScreen.h"
 #include "StackScreen.h"
 #include "CustomScreen.h"
+#include "DrawObj.h"
 
 using std::string;
 using std::vector;
@@ -50,6 +51,23 @@ public:
     void CreateScreens();
     void ShowHideGeomScreens();
 
+    /*
+    * Get Feedback Group's name.
+    */
+    virtual std::string getFeedbackGroupName();
+
+    /*!
+    * Set current geom to geom with specific ID.
+    */
+    void Set(std::string geomID);
+
+    /*!
+    * Push Pick button once.
+    */
+    void TriggerPickSwitch();
+
+    void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
+
 protected:
 
     GeomUI* m_GeomUI;
@@ -62,6 +80,8 @@ protected:
     vector< VspScreen* > m_GeomScreenVec;
 
     vector< string > m_DisplayedGeomVec;
+
+    std::vector<DrawObj> m_PickList;
 
     void AddGeom();
     void LoadBrowser();
@@ -78,7 +98,8 @@ protected:
 
     vector< string > GetSelectedBrowserItems();
 
-
+    void UpdateDrawObjs();
+    
 };
 
 

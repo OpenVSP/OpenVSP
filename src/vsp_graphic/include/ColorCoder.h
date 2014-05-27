@@ -22,6 +22,16 @@ public:
     virtual ~ColorCoder();
 
 public:
+	/*!
+	* Return the static instance of ColorCoder.
+	*/
+	static ColorCoder & getInstance()
+	{
+		static ColorCoder instance;
+		return instance;
+	}
+
+public:
     /*!
     * Generate a block of unique color IDs.
     * size - number of color IDs.
@@ -43,5 +53,9 @@ private:
     };
     std::vector<_freeblock> _freelist;
 };
+
+// ColorCoder Singleton
+#define ColorCoderSingle ColorCoder::getInstance()
+
 }
 #endif

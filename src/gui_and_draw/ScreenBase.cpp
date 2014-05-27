@@ -13,6 +13,7 @@
 #include "SubSurfaceMgr.h"
 #include "SubSurface.h"
 #include "APIDefines.h"
+#include "MaterialRepo.h"
 using namespace vsp;
 
 
@@ -51,6 +52,11 @@ void VspScreen::Hide()
 {
     assert( m_FLTK_Window );
     m_FLTK_Window->hide();
+}
+
+std::string VspScreen::getFeedbackGroupName()
+{
+    return "";
 }
 
 //=====================================================================//
@@ -222,7 +228,14 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_GenLayout.AddColorPicker( m_ColorPicker );
     m_GenLayout.AddYGap();
 
+    std::vector<std::string> matNames;
+    matNames = MaterialRepo::GetInstance()->GetNames();
+
     m_MaterialChoice.AddItem( "DEFAULT" );
+    for( int i = 0; i < (int) matNames.size(); i++ )
+    {
+        m_MaterialChoice.AddItem( matNames[i] );
+    }
     m_GenLayout.AddChoice( m_MaterialChoice, "Material:" );
     m_GenLayout.AddYGap();
 
@@ -542,6 +555,24 @@ bool GeomScreen::Update()
     //==== Name ===//
     m_NameInput.Update(  geom_ptr->GetName() );
 
+    //==== Color ====//
+    m_ColorPicker.Update( geom_ptr->GetColor() );
+
+    //==== Material ====//
+    Material mat = geom_ptr->GetMaterial();
+
+    m_MaterialChoice.SetVal( 0 );
+
+    std::vector< std::string > choices = m_MaterialChoice.GetItems();
+    for ( int i = 0; i < (int)choices.size(); i++ )
+    {
+        if( mat.m_Name == choices[i] )
+        {
+            m_MaterialChoice.SetVal(i);
+            break;
+        }
+    }
+
     //==== XForms ====//
     m_ScaleSlider.Update( geom_ptr->m_Scale.GetID() );
 
@@ -709,6 +740,21 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         vec3d c = m_ColorPicker.GetColor();
         geom_ptr->SetColor( ( int )c.x(), ( int )c.y(), ( int )c.z() );
+    }
+    else if ( device == &m_MaterialChoice )
+    {
+        int index = m_MaterialChoice.GetVal() - 1;
+
+        MaterialRepo::MaterialPref mat;
+
+        if( MaterialRepo::GetInstance()->FindMaterial( index, mat ) )
+        {
+            geom_ptr->SetMaterial( mat.name, mat.ambi, mat.diff, mat.spec, mat.emis, mat.shininess );
+        }
+        else
+        {
+            geom_ptr->SetMaterialToDefault();
+        }
     }
     else if ( device == &m_ScaleAcceptButton )
     {

@@ -57,7 +57,7 @@ GeomGuiDraw::GeomGuiDraw()
     m_DrawType = GEOM_DRAW_WIRE;
     m_NoShowFlag = false;
     m_DisplayChildrenFlag = true;
-    m_WireColor = vec3d( 0.0, 0.0, 1.0 );
+    m_WireColor = vec3d( 0.0, 0.0, 255.0 );
     m_MaterialID = 0;
 
 }
@@ -66,6 +66,16 @@ GeomGuiDraw::GeomGuiDraw()
 GeomGuiDraw::~GeomGuiDraw()
 {
 
+}
+
+void GeomGuiDraw::SetMaterialToDefault()
+{
+    m_MaterialMgr.SetMaterial( m_MaterialMgr.getDefault() );
+}
+
+void GeomGuiDraw::SetMaterial( std::string name, double ambi[], double diff[], double spec[], double emis[], double shin )
+{
+    m_MaterialMgr.SetMaterial( name, ambi, diff, spec, emis, shin );
 }
 
 //===============================================================================//
@@ -565,185 +575,11 @@ void GeomXForm::AcceptScale()
 //}
 //
 
-
-GeomTexMap::GeomTexMap( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
-{
-    IdTracker = 0;
-}
-
-GeomTexMap::~GeomTexMap()
-{
-    for( int i = 0; i < ( int )m_TextureList.size(); i++ )
-    {
-        delete m_TextureList[i].U;
-        delete m_TextureList[i].W;
-
-        delete m_TextureList[i].UScale;
-        delete m_TextureList[i].WScale;
-
-        delete m_TextureList[i].Transparency;
-
-        delete m_TextureList[i].FlipU;
-        delete m_TextureList[i].FlipW;
-    }
-    m_TextureList.clear();
-}
-
-unsigned int GeomTexMap::AttachTexture( string fileName )
-{
-    GeomTextureInfo info;
-
-    info.ID = GenerateId();
-
-    info.FileName = fileName;
-
-    // Create Display Name.
-    std::string displayName = "";
-
-    StringUtil::change_from_to( fileName, '/', ' ' );
-    StringUtil::change_from_to( fileName, '\\', ' ' );
-
-    unsigned int displayIndex = fileName.find_last_of( ' ' );
-    if( displayIndex != std::string::npos )
-    {
-        displayName = fileName.substr( displayIndex + 1, fileName.size() - displayIndex - 1 );
-        unsigned int extIndex = displayName.find_last_of( '.' );
-        if( extIndex != std::string::npos )
-        {
-            std::string ext = displayName.substr( extIndex, displayName.size() - extIndex );
-            if( ext == ".jpg" || ext == ".tga" )
-            {
-                displayName = displayName.substr( 0, extIndex );
-            }
-        }
-    }
-    info.DisplayName = displayName;
-
-    info.U = new Parm();
-    info.U->Init( "UPosition", fileName, this, 0.0, -1.0, 1.0, false );
-    info.U->SetDescript( "Texture Mapping's Initial U Position" );
-
-    info.W = new Parm();
-    info.W->Init( "WPosition", fileName, this, 0.5, 0.0, 1.0, false );
-    info.W->SetDescript( "Texture Mapping's Initial W Position" );
-
-    info.UScale = new Parm();
-    info.UScale->Init( "UScale", fileName, this, 1.0, 0.01, 1.0, false );
-    info.UScale->SetDescript( "Texture Mapping Scaling on U Direction" );
-
-    info.WScale = new Parm();
-    info.WScale->Init( "WScale", fileName, this, 1.0, 0.01, 1.0, false );
-    info.WScale->SetDescript( "Texture Mapping Scaling on W Direction" );
-
-    info.Transparency = new Parm();
-    info.Transparency->Init( "Transparency", fileName, this, 1.0, 0.0, 1.0, false );
-    info.Transparency->SetDescript( "Texture's Alpha Value" );
-
-    info.FlipU = new BoolParm();
-    info.FlipU->Set( false );
-
-    info.FlipW = new BoolParm();
-    info.FlipW->Set( false );
-
-    m_TextureList.push_back( info );
-
-    return info.ID;
-}
-
-void GeomTexMap::RemoveTexture( unsigned int texture_id )
-{
-    for( int i = 0; i < ( int )m_TextureList.size(); i++ )
-    {
-        if( m_TextureList[i].ID == texture_id )
-        {
-            delete m_TextureList[i].U;
-            delete m_TextureList[i].W;
-
-            delete m_TextureList[i].UScale;
-            delete m_TextureList[i].WScale;
-
-            delete m_TextureList[i].Transparency;
-
-            delete m_TextureList[i].FlipU;
-            delete m_TextureList[i].FlipW;
-
-            m_TextureList.erase( m_TextureList.begin() + i );
-            break;
-        }
-    }
-}
-
-GeomTexMap::GeomTextureInfo * GeomTexMap::FindTexture( unsigned int texture_id )
-{
-    for( int i = 0; i < ( int )m_TextureList.size(); i++ )
-    {
-        if( m_TextureList[i].ID == texture_id )
-        {
-            return &m_TextureList[i];
-        }
-    }
-    return NULL;
-}
-
-vector<unsigned int> GeomTexMap::GetTextureVec()
-{
-    vector<unsigned int> textureIdVec;
-    for( int i = 0; i < ( int )m_TextureList.size(); i++ )
-    {
-        textureIdVec.push_back( m_TextureList[i].ID );
-    }
-    return textureIdVec;
-}
-
-vector<GeomTexMap::GeomTextureInfo> GeomTexMap::FindTextureVec( vector<unsigned int> texture_id_vec )
-{
-    vector<GeomTexMap::GeomTextureInfo> textureVec;
-    for( int i = 0; i < ( int )texture_id_vec.size(); i++ )
-    {
-        GeomTextureInfo * infoptr = FindTexture( texture_id_vec[i] );
-        if( infoptr )
-        {
-            textureVec.push_back( *infoptr );
-        }
-        else
-        {
-            // Shouldn't reach here.
-            assert( false );
-        }
-    }
-    return textureVec;
-}
-
-unsigned int GeomTexMap::GenerateId()
-{
-    unsigned int newId;
-
-    if( RecycleBin.empty() )
-    {
-        newId = IdTracker;
-        IdTracker++;
-    }
-    else
-    {
-        newId = RecycleBin[RecycleBin.size() - 1];
-        RecycleBin.pop_back();
-    }
-    return newId;
-}
-
-//string GeomTexMap::CreateNickName(string fileName)
-//{
-//  string nickName;
-//
-//  int ext = fileName.find_last_of('.');
-//
-//}
-
 //===============================================================================//
 //===============================================================================//
 //===============================================================================//
 //==== Constructor ====//
-Geom::Geom( Vehicle* vehicle_ptr ) : GeomTexMap( vehicle_ptr )
+Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
 {
     m_Name = "Geom";
     m_Type.m_Type = GEOM_GEOM_TYPE;
@@ -1087,6 +923,7 @@ void Geom::UpdateDrawObj()
     {
         UpdateTesselate( i, m_WireShadeDrawObj_vec[i].m_PntMesh, m_WireShadeDrawObj_vec[i].m_NormMesh );
         m_WireShadeDrawObj_vec[i].m_GeomChanged = true;
+        m_WireShadeDrawObj_vec[i].m_FlipNormals = m_SurfVec[i].GetFlipNormal();
     }
 
     //==== Bounding Box ====//
@@ -1236,23 +1073,52 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     {
         // Symmetry drawObjs have same m_ID. Make them unique by adding index
         // at the end of m_ID.
-        sprintf( str, "%d", i );
+        sprintf( str, "_%d", i );
         m_WireShadeDrawObj_vec[i].m_GeomID = m_ID + str;
         m_WireShadeDrawObj_vec[i].m_Visible = !m_GuiDraw.GetNoShowFlag();
 
         // Set Render Destination to Main VSP Window.
         m_WireShadeDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
 
+        Material * material = m_GuiDraw.getMaterialMgr()->getMaterial();
+
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[0] = material->m_AmbientR.Get();
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[1] = material->m_AmbientG.Get();
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[2] = material->m_AmbientB.Get();
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[3] = material->m_AmbientA.Get();
+
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[0] = material->m_DiffuseR.Get();
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[1] = material->m_DiffuseG.Get();
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[2] = material->m_DiffuseB.Get();
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[3] = material->m_DiffuseA.Get();
+
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[0] = material->m_SpecularR.Get();
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[1] = material->m_SpecularG.Get();
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[2] = material->m_SpecularB.Get();
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[3] = material->m_SpecularA.Get();
+
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[0] = material->m_EmissionR.Get();
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[1] = material->m_EmissionG.Get();
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[2] = material->m_EmissionB.Get();
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[3] = material->m_EmissionA.Get();
+
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Shininess = material->m_Shininess.Get();
+
+        vec3d lineColor = vec3d( m_GuiDraw.GetWireColor().x() / 255.0,
+            m_GuiDraw.GetWireColor().y() / 255.0,
+            m_GuiDraw.GetWireColor().z() / 255.0 );
+
         switch( m_GuiDraw.GetDrawType() )
         {
         case GeomGuiDraw::GEOM_DRAW_WIRE:
             m_WireShadeDrawObj_vec[i].m_LineWidth = 1.0;
-            m_WireShadeDrawObj_vec[i].m_LineColor = m_GuiDraw.GetWireColor();
+            m_WireShadeDrawObj_vec[i].m_LineColor = lineColor;
             m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_MESH;
             draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
             break;
 
         case GeomGuiDraw::GEOM_DRAW_HIDDEN:
+            m_WireShadeDrawObj_vec[i].m_LineColor = lineColor;
             m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_HIDDEN_MESH;
             draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
             break;
@@ -1267,19 +1133,19 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
             // Reload texture infos.
             m_WireShadeDrawObj_vec[i].m_TextureInfos.clear();
-            vector<GeomTexMap::GeomTextureInfo> textureList = FindTextureVec( GetTextureVec() );
-            for( int j = 0; j < ( int )textureList.size(); j++ )
+            vector<Texture*> texList = m_GuiDraw.getTextureMgr()->FindTextureVec( m_GuiDraw.getTextureMgr()->GetTextureVec() );
+            for( int j = 0; j < ( int )texList.size(); j++ )
             {
                 DrawObj::TextureInfo info;
-                info.FileName = textureList[j].FileName;
-                info.UScale = ( float )textureList[j].UScale->Get();
-                info.WScale = ( float )textureList[j].WScale->Get();
-                info.U = ( float )textureList[j].U->Get();
-                info.W = ( float )textureList[j].W->Get();
-                info.Transparency = ( float )textureList[j].Transparency->Get();
-                info.UFlip = textureList[j].FlipU->Get();
-                info.WFlip = textureList[j].FlipW->Get();
-                info.ID = textureList[j].ID;
+                info.FileName = texList[j]->m_FileName;
+                info.UScale = ( float )texList[j]->m_UScale.Get();
+                info.WScale = ( float )texList[j]->m_WScale.Get();
+                info.U = ( float )texList[j]->m_U.Get();
+                info.W = ( float )texList[j]->m_W.Get();
+                info.Transparency = ( float )texList[j]->m_Transparency.Get();
+                info.UFlip = texList[j]->m_FlipU.Get();
+                info.WFlip = texList[j]->m_FlipW.Get();
+                info.ID = texList[j]->GetID();
                 m_WireShadeDrawObj_vec[i].m_TextureInfos.push_back( info );
             }
             draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
@@ -1289,7 +1155,7 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     if ( m_Vehicle->IsGeomActive( m_ID ) )
     {
         m_HighlightDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-        m_HighlightDrawObj.m_GeomID = "BBOX" + m_ID;
+        m_HighlightDrawObj.m_GeomID = BBOXHEADER + m_ID;
         m_HighlightDrawObj.m_LineWidth = 2.0;
         m_HighlightDrawObj.m_LineColor = vec3d( 1.0, 0., 0.0 );
         m_HighlightDrawObj.m_Type = DrawObj::VSP_LINES;
@@ -1302,6 +1168,31 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     {
         m_SubSurfVec[i]->LoadDrawObjs( draw_obj_vec );
     }
+}
+
+void Geom::SetColor( int r, int g, int b )
+{
+    m_GuiDraw.SetWireColor( r, g, b );
+}
+
+vec3d Geom::GetColor()
+{
+    return m_GuiDraw.GetWireColor();
+}
+
+void Geom::SetMaterialToDefault()
+{
+    m_GuiDraw.SetMaterialToDefault();
+}
+
+void Geom::SetMaterial( std::string name, double ambi[], double diff[], double spec[], double emis[], double shin )
+{
+    m_GuiDraw.SetMaterial( name, ambi, diff, spec, emis, shin );
+}
+
+Material Geom::GetMaterial()
+{
+    return *m_GuiDraw.getMaterialMgr()->getMaterial();
 }
 
 //==== Set Sym Flag ====//

@@ -1,8 +1,9 @@
 #ifndef _VSP_GRAPHIC_VIEW_MANAGER_H
 #define _VSP_GRAPHIC_VIEW_MANAGER_H
 
-#include <vector>
 #include "Common.h"
+
+#include <vector>
 
 namespace VSPGraphic
 {
@@ -36,13 +37,9 @@ public:
 
     /*!
     * Draw Scene.
+    * x and y are current mouse location.
     */
-    void draw( Scene * scene );
-
-    /*!
-    * Perform postprocessing. Color Picking.
-    */
-    void postdraw( Scene * scene );
+    void draw( Scene * scene, int x, int y );
 
     /*!
     * Set Display Layout.
@@ -167,6 +164,12 @@ public:
     * negative zooms in.
     */
     virtual void zoom( float zoomvalue );
+
+    /*!
+    * Set Center of Rotation.
+    * x, y, z - location in world space.
+    */
+    virtual void setCOR( float x, float y, float z );
 
 protected:
     std::vector<LayoutMgr *> _layoutList;

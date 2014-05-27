@@ -13,11 +13,14 @@
 
 #include "DrawObj.h"
 
-class ScreenMgr;
 namespace VSPGraphic
 {
 class GraphicEngine;
+class Renderable;
 }
+
+class ScreenMgr;
+
 namespace VSPGUI
 {
 class VspGlWindow : public Fl_Gl_Window
@@ -25,10 +28,12 @@ class VspGlWindow : public Fl_Gl_Window
 public:
     /*
     * Constructor.
-    *
     * drawObjScreen - specific drawObj screen to link.
     */
     VspGlWindow( int x, int y, int w, int h, ScreenMgr * mgr, DrawObj::ScreenEnum drawObjScreen );
+    /*
+    * Destructor.
+    */
     virtual ~VspGlWindow();
 
 public:
@@ -72,26 +77,25 @@ public:
     */
     virtual void zoom( int delta, bool precisionOn = false );
 
-    // Override Fl_Gl_Window Functions.
+// Override Fl_Gl_Window Functions.
 public:
     virtual void show();
     virtual void draw();
     virtual int  handle( int fl_event );
 
-    // Util Functions.
+// Util Functions.
 public:
     virtual void update();
 
-    // Private helper classes.
+// Private helper functions.
 private:
     void _initGLEW();
 
     void _updateTextures( DrawObj * drawObj );
 
-    void _loadMeshData( unsigned int id, DrawObj * drawObj );
-    void _loadTrisData( unsigned int id, DrawObj * drawObj );
-    void _loadXSecData( unsigned int id, DrawObj * drawObj );
-    void _loadMarkData( unsigned int id, DrawObj * drawObj );
+    void _loadTrisData( VSPGraphic::Renderable * destObj, DrawObj * drawObj );
+    void _loadXSecData( VSPGraphic::Renderable * destObj, DrawObj * drawObj );
+    void _loadMarkData( VSPGraphic::Renderable * destObj, DrawObj * drawObj );
 
     void _update( std::vector<DrawObj *> objects );
 
@@ -104,13 +108,14 @@ private:
 
     void _updateBuffer( std::vector<DrawObj *> objects );
 
-    std::vector<std::vector<vec3d>> _generateTexCoordFromXSec( unsigned int id, DrawObj * drawObj );
+    std::vector<std::vector<vec3d>> _generateTexCoordFromXSec( DrawObj * drawObj );
     double _distance( vec3d pointA, vec3d pointB );
 
     void OnPush( int x, int y );
     void OnDrag( int x, int y );
     void OnRelease( int x, int y );
     void OnKeyup( int x, int y );
+    void OnKeydown();
 
 private:
     VSPGraphic::GraphicEngine * m_GEngine;
@@ -119,7 +124,7 @@ private:
     struct TextureID
     {
         unsigned int bufferTexID;
-        unsigned int geomTexID;
+        std::string geomTexID;
     };
     struct ID
     {
@@ -128,7 +133,7 @@ private:
         std::string geomID;
         std::vector<TextureID> textureIDs;
 
-        TextureID * find( unsigned int geomTexID )
+        TextureID * find( std::string geomTexID )
         {
             for( int i = 0; i < ( int )textureIDs.size(); i++ )
             {

@@ -6,7 +6,7 @@
 
 namespace VSPGraphic
 {
-Marker::Marker( Common::VSPenum geomType ) : Renderable( geomType )
+Marker::Marker() : Renderable()
 {
 }
 Marker::~Marker()
@@ -19,7 +19,7 @@ void Marker::_predraw()
 
 void Marker::_draw()
 {
-    switch( _getGeomType() )
+    switch( getPrimType() )
     {
     case Common::VSP_POINTS:
         _draw_Points();
@@ -37,10 +37,6 @@ void Marker::_draw()
         _draw_Lines();
         break;
     }
-}
-
-void Marker::_postdraw()
-{
 }
 
 void Marker::_draw_Points()
@@ -63,7 +59,7 @@ void Marker::_draw_Points()
 
 void Marker::_draw_Points( float r, float g, float b, float a, float size )
 {
-    bool eBufferEnabled = _getEBufferFlag();
+    bool eBufferEnabled = getEBufferFlag();
 
     glColor4f( r, g, b, a );
     if( size == 0.f )
@@ -105,7 +101,7 @@ void Marker::_draw_Lines()
 
 void Marker::_draw_Lines( float r, float g, float b, float a, float width )
 {
-    bool eBufferEnabled = _getEBufferFlag();
+    bool eBufferEnabled = getEBufferFlag();
 
     glColor4f( r, g, b, a );
     if( width == 0.f )
@@ -129,7 +125,7 @@ void Marker::_draw_Lines( float r, float g, float b, float a, float width )
 
 void Marker::_draw_VBuffer()
 {
-    switch( _getGeomType() )
+    switch( getPrimType() )
     {
     case Common::VSP_POINTS:
         _vBuffer->draw( GL_POINTS );
@@ -152,7 +148,7 @@ void Marker::_draw_VBuffer()
 void Marker::_draw_EBuffer()
 {
     _eBuffer->bind();
-    switch( _getGeomType() )
+    switch( getPrimType() )
     {
     case Common::VSP_POINTS:
         _vBuffer->drawElem( GL_POINTS, _eBuffer->getElemSize(), ( void* )0 );
