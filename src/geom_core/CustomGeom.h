@@ -54,8 +54,12 @@ public:
     }
     void Init()                                         {}
 
+    //==== Set/Get Script Dir ====//
+    void SetScriptDir( const string & dir )                { m_ScriptDir = dir; }
+    string GetScriptDir()                                { return m_ScriptDir; }
+
     //==== Init Geom ====//
-    void InitGeom( const string& id );
+    void InitGeom( const string& id, const string& module_name );
     void SetCurrCustomGeom( const string& id )            { m_CurrGeom = id; }
     string GetCurrCustomGeom()                            { return m_CurrGeom; }
 
@@ -81,7 +85,11 @@ public:
     //==== Custom XSecs Functions ====//
     void SetCustomXSecLoc( const string & xsec_id, const vec3d & loc );
 
+    //==== Get All Custom Script Module Name ====//
+    vector< string > GetCustomScriptModuleNames();
 
+    //==== Save Custom Script Content To File ====//
+    int SaveScriptContentToFile( const string & module_name, const string & file_name );
 
 
 private:
@@ -93,6 +101,7 @@ private:
     string m_CurrGeom;
     string m_ScriptDir;
     vector< GeomType > m_CustomTypeVec;
+    map< string, string > m_ModuleGeomIDMap;
 
 };
 
@@ -139,8 +148,8 @@ public:
     virtual ~CustomGeom();
 
     void Clear();
-    void InitGeom( const string & module_name );
-    void SetScriptModuleName( const char* name )    { m_ScriptModuleName = name; }
+    void InitGeom( );
+    void SetScriptModuleName( const string& name )    { m_ScriptModuleName = name; }
     string GetScriptModuleName()                    { return m_ScriptModuleName; }
 
     //==== Add a Parm Return ID ====//

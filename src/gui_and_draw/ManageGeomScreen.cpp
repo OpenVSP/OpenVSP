@@ -300,23 +300,21 @@ void ManageGeomScreen::LoadTypeChoice()
 
     for ( int i = 0 ; i < num_type ; i++ )
     {
-        GeomType* type_ptr = veh->GetGeomType( i );
+        GeomType type = veh->GetGeomType( i );
 
-        if ( type_ptr )
+        string item = type.m_Name.c_str();
+        if ( i == ( num_fixed - 1 ) )
         {
-            string item = type_ptr->m_Name.c_str();
-            if ( i == ( num_fixed - 1 ) )
-            {
-                item = "_" + item;
-            }
-
-            if ( !type_ptr->m_FixedFlag )
-            {
-                item = StringUtil::int_to_string( cnt, "%d.  " ) + item;
-                cnt++;
-            }
-            m_GeomUI->geomTypeChoice->add( item.c_str() );
+            item = "_" + item;
         }
+
+        if ( !type.m_FixedFlag )
+        {
+            item = StringUtil::int_to_string( cnt, "%d.  " ) + item;
+            cnt++;
+        }
+        m_GeomUI->geomTypeChoice->add( item.c_str() );
+
     }
 
     m_GeomUI->geomTypeChoice->value( m_TypeIndex );
@@ -327,11 +325,11 @@ void ManageGeomScreen::AddGeom()
 {
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
 
-    GeomType* type_ptr = veh->GetGeomType( m_TypeIndex );
+    GeomType type = veh->GetGeomType( m_TypeIndex );
 
-    if ( type_ptr )
+    if ( type.m_Type < NUM_GEOM_TYPE )
     {
-        string added_id = m_VehiclePtr->AddGeom( *type_ptr );
+        string added_id = m_VehiclePtr->AddGeom( type );
         m_VehiclePtr->SetActiveGeom( added_id );
         ShowHideGeomScreens();
     }

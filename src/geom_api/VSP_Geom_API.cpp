@@ -553,7 +553,7 @@ vector< string > GetGeomTypes()
     vector< string > ret_vec;
     for ( int i = 0 ; i < veh->GetNumGeomTypes() ; i++ )
     {
-        ret_vec.push_back( veh->GetGeomType( i )->m_Name );
+        ret_vec.push_back( veh->GetGeomType( i ).m_Name );
     }
 
     ErrorMgr.NoError();
@@ -572,7 +572,7 @@ string AddGeom( const string & type, const string & parent  )
     int type_index = -1;
     for ( int i = 0 ; i < veh->GetNumGeomTypes() ; i++ )
     {
-        if ( veh->GetGeomType( i )->m_Name == type )
+        if ( veh->GetGeomType( i ).m_Name == type )
         {
             type_index = i;
         }
@@ -604,7 +604,7 @@ string AddGeom( const string & type, const string & parent  )
         veh->ClearActiveGeom();
     }
 
-    ret_id = veh->AddGeom( *( veh->GetGeomType( type_index ) ) );
+    ret_id = veh->AddGeom( veh->GetGeomType( type_index )  );
 
     Geom* added_geom = veh->FindGeom( ret_id );
 

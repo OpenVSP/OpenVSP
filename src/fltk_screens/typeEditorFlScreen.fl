@@ -1,5 +1,5 @@
 # data file for the Fltk User Interface Designer (fluid)
-version 1.0300 
+version 1.0302 
 header_name {.h} 
 code_name {.cxx}
 class TypeEditorUI {open
@@ -8,10 +8,10 @@ class TypeEditorUI {open
   } {
     Fl_Window UIWindow {
       label {Type Editor} open
-      xywh {596 181 210 244} type Double color 29 resizable visible
+      xywh {596 181 210 422} type Double color 29 resizable visible
     } {
       Fl_Box {} {
-        label {Geom Type Editor}
+        label {Geom Type Editor} selected
         xywh {5 5 200 16} box ROUNDED_BOX labelfont 1 labelsize 16 labelcolor 15
       }
       Fl_Browser typeBrowser {
@@ -33,12 +33,26 @@ class TypeEditorUI {open
         xywh {150 25 55 20} labelfont 1
       }
       Fl_Button deleteType {
-        label Delete selected
+        label Delete
         xywh {5 215 200 20} labelfont 1
       }
       Fl_Choice geomChoice {open
         xywh {5 25 145 20} down_box BORDER_BOX textfont 1 textsize 12
       } {}
+      Fl_Browser customScriptsBrowser {
+        xywh {5 268 200 127} type Hold textsize 12
+      }
+      Fl_Box {} {
+        label {Custom Scripts}
+        xywh {5 255 200 15} box BORDER_BOX labelfont 1 labelcolor 15
+      }
+      Fl_Button customScriptFileButton {
+        label {Save To File}
+        xywh {5 400 200 20} labelfont 1
+      }
+      Fl_Button {} {
+        xywh {5 240 200 10} color 4 labelcolor 4
+      }
     }
   }
 } 

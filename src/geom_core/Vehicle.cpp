@@ -33,7 +33,6 @@ using namespace vsp;
 //==== Constructor ====//
 Vehicle::Vehicle()
 {
-    Init();
 
     // Initialize Lights.
     m_Lights.resize( NUMOFLIGHTS );
@@ -121,14 +120,9 @@ Vehicle::~Vehicle()
 void Vehicle::Init()
 {
     //==== Init Custom Geom and Script Mgr ====//
-    static bool once = false;
-    if ( !once )
-    {
-        CustomGeomMgr.Init();
-        ScriptMgr.Init();
-        CustomGeomMgr.ReadCustomScripts();
-        once = true;
-    }
+    CustomGeomMgr.Init();
+    ScriptMgr.Init();
+    CustomGeomMgr.ReadCustomScripts();
 
     m_Name = "Vehicle";
 
@@ -152,7 +146,6 @@ void Vehicle::Init()
     m_GeomTypeVec.push_back( GeomType( MS_WING_GEOM_TYPE, "WING", true ) );
     m_GeomTypeVec.push_back( GeomType( STACK_GEOM_TYPE, "STACK", true ) );
     m_GeomTypeVec.push_back( GeomType( BLANK_GEOM_TYPE, "BLANK", true ) );
-//    m_GeomTypeVec.push_back( GeomType( CUSTOM_GEOM_TYPE, "CUSTOM", true ) );
 
     //==== Get Custom Geom Types =====//
     vector< GeomType > custom_types = CustomGeomMgr.GetCustomTypes();
@@ -208,25 +201,22 @@ void Vehicle::Wype()
 
     m_VSP3FileName = string();
 
-//  ParmMgr.RemoveParm( &m_TestParm );
-//  m_TestParm = Parm();
-
     for ( int i = 0 ; i < ( int )m_GeomStoreVec.size() ; i++ )
     {
         delete m_GeomStoreVec[i];
     }
 
-    m_GeomStoreVec = vector< Geom* >();
+    m_GeomStoreVec.clear();
 
-    m_ActiveGeom = vector< string >();
-    m_TopGeom = vector< string >();
-    m_ClipBoard = vector< string >();
+    m_ActiveGeom.clear();
+    m_TopGeom.clear();
+    m_ClipBoard.clear();
+    m_SetNameVec.clear();
+
+//jrg should we clear types????
+    m_GeomTypeVec.clear();
 
     m_ParmUndoStack = stack< ParmUndo >();
-
-    m_SetNameVec = vector< string >();
-
-    m_GeomTypeVec = vector< GeomType >();
 
     m_BBox = BndBox();
 
@@ -264,18 +254,7 @@ void Vehicle::UnDo()
     ParmMgr.UnDo();
 }
 
-////=== Get Parm Based on GeomID and Parm Name and Group_Name ====//
-//Parm* Vehicle::FindParm( string geom_id, const string& parm_name, const string& group_name )
-//{
-//  Geom* geom_ptr = FindGeom( geom_id );
-//  if ( geom_ptr )
-//  {
-//      Parm* p = ParmMgr.FindParm( parm_name, group_name, geom_id );
-//      return p;
-//  }
-//  return NULL;
-//}
-
+//===== Update All Geometry ====//
 void Vehicle::Update()
 {
     for ( int i = 0 ; i < ( int )m_TopGeom.size() ; i++ )
@@ -385,7 +364,7 @@ string Vehicle::AddGeom( GeomType & type )
     if ( type.m_Type == CUSTOM_GEOM_TYPE )
     {
         add_geom->SetType( type );
-        CustomGeomMgr.InitGeom( geom_id );
+        CustomGeomMgr.InitGeom( geom_id, type.m_ModuleName );
         add_geom->Update();
     }
 
@@ -955,24 +934,31 @@ int Vehicle::GetNumFixedGeomTypes()
     return num;
 }
 
-//==== Get Pointer To Geom Type ====//
-GeomType* Vehicle::GetGeomType( int index )
+//==== Get Geom Type ====//
+GeomType Vehicle::GetGeomType( int index )
 {
-    if ( index < 0 || index >= ( int )m_GeomTypeVec.size() )
-    {
-        return NULL;
-    }
+    if ( index >= 0 &&  index < (int)m_GeomTypeVec.size() )
+        return m_GeomTypeVec[index];
 
-    return &m_GeomTypeVec[index];
+    return GeomType( 0, "" );
+}
+
+//==== Set Geom Type ====//
+void Vehicle::SetGeomType( int index, GeomType & type )
+{
+    if ( index >= 0 && index < (int)m_GeomTypeVec.size() )
+    {
+        m_GeomTypeVec[index] = type;
+    }
 }
 
 //==== Add Type From Geometry ====//
 void Vehicle::AddType( string geom_id )
 {
     Geom* gptr = FindGeom( geom_id );
-    if ( gptr )
+    if ( gptr && gptr->GetType().m_Type != CUSTOM_GEOM_TYPE )
     {
-        GeomType type( gptr->GetType().m_Type, gptr->GetName(), false );
+        GeomType type( gptr->GetType().m_Type, gptr->GetName(), false, gptr->GetType().m_ModuleName );
 
         //===== Create Geom ====//
         GeomType t = gptr->GetType();
@@ -990,21 +976,51 @@ void Vehicle::AddType( string geom_id )
 
 }
 
+//==== Get Vector of Geom IDs That Are Valid For Types ====//
+vector< string > Vehicle::GetValidTypeGeoms()
+{
+    vector< string > geom_id_vec;
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        if ( geom_vec[i]->GetType().m_Type != CUSTOM_GEOM_TYPE )
+        {
+           geom_id_vec.push_back( geom_vec[i]->GetID() );
+        }
+    }
+    return geom_id_vec;
+}
+
+
+//==== Get All Geomtry Types That Are Editable ====//
+vector< GeomType > Vehicle::GetEditableGeomTypes()
+{
+    vector< GeomType > type_vec;
+    for ( int i = 0 ; i < (int)m_GeomTypeVec.size() ; i++ )
+    {
+        if ( !m_GeomTypeVec[i].m_FixedFlag && m_GeomTypeVec[i].m_Type != CUSTOM_GEOM_TYPE )
+        {
+            type_vec.push_back( m_GeomTypeVec[i] );
+        }
+    }
+    return type_vec;
+}
+
+
 //==== Delete Type ====//
 void Vehicle::DeleteType( int index )
 {
-    GeomType* typeptr = GetGeomType( index );
+     if ( index < 0 || index >= (int)m_GeomTypeVec.size() )
+        return;
 
-    if ( !typeptr )
+    GeomType type = GetGeomType( index );
+
+    if ( type.m_FixedFlag )
     {
         return;
     }
-    if ( typeptr->m_FixedFlag )
-    {
-        return;
-    }
 
-    Geom* gPtr = FindGeom( typeptr->m_GeomID );
+    Geom* gPtr = FindGeom( type.m_GeomID );
     if ( gPtr )
     {
         vector_remove_val( m_GeomStoreVec, gPtr );
@@ -1012,8 +1028,8 @@ void Vehicle::DeleteType( int index )
     }
 
     m_GeomTypeVec.erase( m_GeomTypeVec.begin() + index );
-
 }
+
 
 xmlNodePtr Vehicle::EncodeXml( xmlNodePtr & node, int set )
 {

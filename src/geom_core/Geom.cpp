@@ -26,21 +26,26 @@ GeomType::GeomType()
 }
 
 //==== Constructor ====//
-GeomType::GeomType( int id, string name, bool fixed_flag )
+GeomType::GeomType( int id, string name, bool fixed_flag, string module_name )
 {
     m_Type = id;
     m_Name = name;
     m_FixedFlag = fixed_flag;
-
+    m_ModuleName = module_name;
 }
 
 //==== Destructor ====//
 GeomType::~GeomType()
 {
+}
 
-
-
-
+void GeomType::CopyFrom( const GeomType & t )
+{
+    m_Type = t.m_Type;
+    m_Name = t.m_Name;
+    m_FixedFlag = t.m_FixedFlag;
+    m_ModuleName = t.m_ModuleName;
+    m_GeomID = t.m_GeomID;
 }
 
 
@@ -1019,18 +1024,27 @@ void Geom::UpdateSymmAttach()
     }
 }
 
+//==== Check If Children Exist and Update ====//
 void Geom::UpdateChildren()
 {
-    // Update Children
-    for ( vector<string>::iterator childID = m_ChildIDVec.begin() ; childID != m_ChildIDVec.end(); childID++ )
+    vector< string > updated_child_vec;
+    for ( int i = 0 ; i < (int)m_ChildIDVec.size() ; i++ )
     {
-        Geom* child = m_Vehicle->FindGeom( *childID );
-        // Ignore the abs location values and only use rel values for children so a child
-        // with abs button selected stays attached to parent if the parent moves
-        child->m_ignoreAbsFlag = true;
-        child->Update();
-        child->m_ignoreAbsFlag = false;
+        Geom* child = m_Vehicle->FindGeom( m_ChildIDVec[i] );
+        if ( child )
+        {
+            // Ignore the abs location values and only use rel values for children so a child
+            // with abs button selected stays attached to parent if the parent moves
+            child->m_ignoreAbsFlag = true;
+            child->Update();
+            child->m_ignoreAbsFlag = false;
+
+            updated_child_vec.push_back( m_ChildIDVec[i] );
+        }
     }
+
+    // Update Children Vec
+    m_ChildIDVec = updated_child_vec;
 }
 
 void Geom::UpdateBBox()

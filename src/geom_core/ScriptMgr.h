@@ -41,11 +41,18 @@ public:
     }
 
     void Init();
-    void ReadScript( const char* module_name, const char* file_name );
-    void ReadScriptFromMemory( const char* module_name, const char* file_contents, int contents_size );
+
+    //==== Read Script From File - Return Module Name ====//
+    string ReadScriptFromFile( const string & module_name, const string &  file_name );
+
+    //==== Read Script From Memory - Return Module Name ====//
+    string ReadScriptFromMemory( const string &  module_name, const string & script_content );
+
+
     void ExecuteScript(  const char* module_name,  const char* function_name );
 
-    string FindModuleFileName( const string & module_name );
+    string FindModuleContent( const string & module_name );
+    int SaveScriptContentToFile( const string & module_name, const string & file_name );
 
     void RunTestScripts();
 
@@ -79,9 +86,9 @@ private:
 
     //==== Member Variables ====//
     asIScriptEngine* m_ScriptEngine;
-    CScriptBuilder m_Builder;
-    map< string, CScriptBuilder > m_BuilderMap;
-    map< string, string > m_ModuleFileMap;
+//    map< string, CScriptBuilder > m_BuilderMap;
+    CScriptBuilder m_ScriptBuilder;
+    map< string, string > m_ModuleContentMap;
 
     //==== Test Proxy Stuff ====//
     int m_SaveInt;
@@ -107,6 +114,8 @@ private:
 
     void SetXSecPnts( const string& xsec_id, CScriptArray* pnt_arr );
     void SetVec3dArray( CScriptArray* arr );
+
+    string ExtractContent( const string & file_name );
 
 
 };

@@ -34,7 +34,8 @@ class XSecSurf;
 //#define stringify( name ) # name
 
 enum { BASE_GEOM_TYPE, XFORM_GEOM_TYPE, GEOM_GEOM_TYPE, POD_GEOM_TYPE, FUSELAGE_GEOM_TYPE,
-       MS_WING_GEOM_TYPE, BLANK_GEOM_TYPE, MESH_GEOM_TYPE, STACK_GEOM_TYPE, CUSTOM_GEOM_TYPE
+       MS_WING_GEOM_TYPE, BLANK_GEOM_TYPE, MESH_GEOM_TYPE, STACK_GEOM_TYPE, CUSTOM_GEOM_TYPE,
+       NUM_GEOM_TYPE,
      };
 
 class GeomType
@@ -42,14 +43,17 @@ class GeomType
 public:
 
     GeomType();
-    GeomType( int id, string name, bool fixed_flag = false );
+    GeomType( int id, string name, bool fixed_flag = false, string module_name = string()  );
     ~GeomType();
+
+    void CopyFrom( const GeomType & t );
 
     int m_Type;
     string m_Name;
     bool m_FixedFlag;
 
     string m_GeomID;
+    string m_ModuleName;
 
 };
 

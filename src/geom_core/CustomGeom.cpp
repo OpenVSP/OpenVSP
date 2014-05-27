@@ -28,6 +28,12 @@ CustomGeomMgrSingleton::CustomGeomMgrSingleton()
 //==== Scan Custom Directory And Return All Possible Types ====//
 void CustomGeomMgrSingleton::ReadCustomScripts()
 {
+    //==== Only Read Once ====//
+    static bool init_flag = false;
+    if ( init_flag )
+        return;
+    init_flag = true;
+
     m_CustomTypeVec.clear();
     vector< string > file_vec = ScanFolder( m_ScriptDir.c_str() );
 
@@ -36,18 +42,21 @@ void CustomGeomMgrSingleton::ReadCustomScripts()
         if ( file_vec[i].compare( file_vec[i].size() - 3, 3, ".as" ) == 0 )
         {
             string sub = file_vec[i].substr( 0, file_vec[i].size() - 3 );
-            m_CustomTypeVec.push_back( GeomType( CUSTOM_GEOM_TYPE, sub, false ) );
 
-            //jrg CHheck for errors
+//jrg Check for errors
             string file_name = m_ScriptDir;
             file_name.append( file_vec[i] );
-            ScriptMgr.ReadScript( sub.c_str(), file_name.c_str()  );
+            string module_name = ScriptMgr.ReadScriptFromFile( sub, file_name );
+            m_CustomTypeVec.push_back( GeomType( CUSTOM_GEOM_TYPE, sub, false, module_name ) );
+
+            m_ModuleGeomIDMap[ module_name ] = string();
+
         }
     }
 }
 
 //==== Init Custom Geom ====//
-void CustomGeomMgrSingleton::InitGeom( const string& id )
+void CustomGeomMgrSingleton::InitGeom( const string& id, const string& module_name )
 {
     Vehicle* veh = VehicleMgr::getInstance().GetVehicle();
     Geom* gptr = veh->FindGeom( id );
@@ -57,10 +66,10 @@ void CustomGeomMgrSingleton::InitGeom( const string& id )
     {
         m_CurrGeom = id;
         CustomGeom* custom_geom = dynamic_cast<CustomGeom*>( gptr );
+        custom_geom->SetScriptModuleName( module_name );
+        custom_geom->InitGeom();
 
-        string module_name = gptr->GetType().m_Name;
-
-        custom_geom->InitGeom( module_name );
+        m_ModuleGeomIDMap[ module_name ] = id;
     }
 }
 
@@ -205,6 +214,23 @@ void CustomGeomMgrSingleton::SetCustomXSecLoc( const string & xsec_id, const vec
     cxs->SetLoc( loc );
 }
 
+//==== Get All Custom Script Module Name ====//
+vector< string > CustomGeomMgrSingleton::GetCustomScriptModuleNames()
+{
+    vector< string > module_name_vec;
+
+    map< string, string >::iterator iter;
+    for ( iter = m_ModuleGeomIDMap.begin() ; iter != m_ModuleGeomIDMap.end() ; iter++ )
+    {
+        module_name_vec.push_back( iter->first );
+    }
+    return module_name_vec;
+}
+
+int CustomGeomMgrSingleton::SaveScriptContentToFile( const string & module_name, const string & file_name )
+{
+    return ScriptMgr.SaveScriptContentToFile( module_name, file_name );
+}
 
 //==================================================================================================//
 //==================================================================================================//
@@ -344,14 +370,13 @@ void CustomGeom::Clear()
 }
 
 //==== Init Geometry ====//
-void CustomGeom::InitGeom( const string & module_name )
+void CustomGeom::InitGeom( )
 {
     Clear();
     m_InitGeomFlag = true;
-    SetScriptModuleName( module_name.c_str() );
     ScriptMgr.ExecuteScript( GetScriptModuleName().c_str(), "void Init()" );
     ScriptMgr.ExecuteScript( GetScriptModuleName().c_str(), "void InitGui()" );
-    SetName( module_name );
+    SetName( GetScriptModuleName() );
     Update();
 
 }
@@ -509,23 +534,10 @@ void CustomGeom::SkinXSecSurf()
 //==== Encode Data Into XML Data Struct ====//
 xmlNodePtr CustomGeom::EncodeXml( xmlNodePtr & node )
 {
-    Geom::EncodeXml( node );
     xmlNodePtr custom_node = xmlNewChild( node, NULL, BAD_CAST "CustomGeom", NULL );
     if ( custom_node )
     {
-        string file_contents;
-        string file_name = ScriptMgr.FindModuleFileName( GetScriptModuleName() );
-        FILE* fp = fopen( file_name.c_str(), "r" );
-        if ( fp )
-        {
-            char buff[256];
-            while ( fgets( buff, 256, fp ) )
-            {
-                file_contents.append( buff );
-            }
-            file_contents.append( "\0" );
-            fclose( fp );
-        }
+        string file_contents = ScriptMgr.FindModuleContent( GetScriptModuleName() );
 
         for ( int i = 0 ; i < (int)m_ParmVec.size() ; i++ )
         {
@@ -533,9 +545,9 @@ xmlNodePtr CustomGeom::EncodeXml( xmlNodePtr & node )
         }
 
         XmlUtil::AddStringNode( custom_node, "ScriptFileModule", GetScriptModuleName()  );
-        XmlUtil::AddStringNode( custom_node, "ScriptFileName", file_name );
         XmlUtil::AddStringNode( custom_node, "ScriptFileContents", file_contents );
     }
+    Geom::EncodeXml( node );
 
     return custom_node;
 }
@@ -543,16 +555,15 @@ xmlNodePtr CustomGeom::EncodeXml( xmlNodePtr & node )
 //==== Encode Data Into XML Data Struct ====//
 xmlNodePtr CustomGeom::DecodeXml( xmlNodePtr & node )
 {
-    Geom::DecodeXml( node );
 
     xmlNodePtr custom_node = XmlUtil::GetNode( node, "CustomGeom", 0 );
     if ( custom_node )
     {
         string module_name = XmlUtil::FindString( custom_node, "ScriptFileModule", GetScriptModuleName() );
-        string file_name   = XmlUtil::FindString( custom_node, "ScriptFileName", string() );
         string file_contents = XmlUtil::FindString( custom_node, "ScriptFileContents", string() );
 
-         CustomGeomMgr.InitGeom( GetID() );
+        string new_module_name = ScriptMgr.ReadScriptFromMemory( module_name, file_contents );
+         CustomGeomMgr.InitGeom( GetID(), new_module_name );
 
         for ( int i = 0 ; i < (int)m_ParmVec.size() ; i++ )
         {
@@ -561,6 +572,7 @@ xmlNodePtr CustomGeom::DecodeXml( xmlNodePtr & node )
 
 
     }
+    Geom::DecodeXml( node );
 
     return custom_node;
 }

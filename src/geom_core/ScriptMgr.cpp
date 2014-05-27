@@ -19,6 +19,7 @@
 #include "XSec.h"
 #include "Vehicle.h"
 #include "ResultsMgr.h"
+#include "StringUtil.h"
 
 using namespace vsp;
 
@@ -59,6 +60,11 @@ ScriptMgrSingleton::ScriptMgrSingleton()
 //==== Set Up Script Engine, Script Error Callbacks ====//
 void ScriptMgrSingleton::Init( )
 {
+    //==== Only Init Once ====//
+    static bool init_flag = false;
+    if ( init_flag )
+        return;
+    init_flag = true;
 
     //==== Create the Script Engine ====//
     m_ScriptEngine = asCreateScriptEngine( ANGELSCRIPT_VERSION );
@@ -117,76 +123,86 @@ void ScriptMgrSingleton::RunTestScripts()
 {
     //===== Run Test Scripts ====//
  //   ScriptMgr.ReadScript( "TestScript", "../../TestScript.as"  );
-    ScriptMgr.ReadScript( "TestScript", "../../../xxxTestScript.as"  );
+    ScriptMgr.ReadScriptFromFile( "TestScript", "../../../xxxTestScript.as"  );
     ScriptMgr.ExecuteScript( "TestScript", "void main()" );
     ScriptMgr.ExecuteScript( "TestScript", "void TestAPIScript()" );
 }
 
 
 //==== Start A New Module And Read Script ====//
-void ScriptMgrSingleton::ReadScript( const char* module_name, const char* file_name )
+string ScriptMgrSingleton::ReadScriptFromFile( const string & module_name, const string &  file_name )
 {
-    int r;
+    string content = ExtractContent( file_name );
 
-    //==== Check Module If Already Loaded ===//
-    if( m_ModuleFileMap.find(module_name) != m_ModuleFileMap.end() )
+    if ( content.size() < 2 )
     {
-        return;
+        return string();
     }
 
-    //==== Start A New Module ====//
-    r = m_Builder.StartNewModule( m_ScriptEngine, module_name );
-    assert( r >= 0 );
-
-    r = m_Builder.AddSectionFromFile( file_name );
-    if ( r < 0 )
-    {
-        return;
-    }
-
-    r = m_Builder.BuildModule();
-    if ( r < 0 )
-    {
-        return;
-    }
-
-    m_ModuleFileMap[ string(module_name) ] = string(file_name);
-
+    return ReadScriptFromMemory( module_name, content );
 }
 
 //==== Start A New Module And Read Script ====//
-void ScriptMgrSingleton::ReadScriptFromMemory( const char* module_name, const char* file_contents, int contents_size )
+string ScriptMgrSingleton::ReadScriptFromMemory( const string &  module_name, const string & script_content )
 {
-     int r;
+    int r;
+    string updated_module_name = module_name;
+    map< string, string >::iterator iter;
 
-    //==== Check Module If Already Loaded ===//
-    if( m_ModuleFileMap.find(module_name) != m_ModuleFileMap.end() )
+    //==== Check If Module Name Already Exists ====//
+    iter = m_ModuleContentMap.find(updated_module_name);
+    if ( iter != m_ModuleContentMap.end() )
     {
-        return;
+        //==== Check If Content is Same ====//
+        if ( iter->second == script_content )
+            return iter->first;
+
+        //==== Need To Change Module Name ====//
+        static int dup_cnt = 0;
+        updated_module_name.append( StringUtil::int_to_string( dup_cnt, "%d" ) );
+        dup_cnt++;
+    }
+
+    //==== Make Sure Not Dupicate Of Any Other Module ====//
+    for ( iter = m_ModuleContentMap.begin() ; iter != m_ModuleContentMap.end() ; iter++ )
+    {
+        if ( iter->second == script_content )
+            return iter->first;
     }
 
     //==== Start A New Module ====//
-    CScriptBuilder builder;
-    r = builder.StartNewModule( m_ScriptEngine, module_name );
-    assert( r >= 0 );
+    r = m_ScriptBuilder.StartNewModule( m_ScriptEngine, updated_module_name.c_str() );
+    if( r < 0 )        return string();
 
-    r = builder.AddSectionFromMemory( module_name, file_contents, contents_size  );
-    if ( r < 0 )
-    {
-        return;
-    }
+    r = m_ScriptBuilder.AddSectionFromMemory( updated_module_name.c_str(), script_content.c_str(), script_content.size()  );
+    if ( r < 0 )    return string();
 
-    r = builder.BuildModule();
-    if ( r < 0 )
-    {
-        return;
-    }
+    r = m_ScriptBuilder.BuildModule();
+    if ( r < 0 )    return string();
 
-    m_ModuleFileMap[ string(module_name) ] = string(module_name);
+    //==== Add To Map ====//
+    m_ModuleContentMap[ updated_module_name ] = script_content;
 
+    return updated_module_name;
 }
 
-
+//==== Extract Content From File Into String ====//
+string ScriptMgrSingleton::ExtractContent( const string & file_name )
+{
+    string file_content;
+    FILE* fp = fopen( file_name.c_str(), "r" );
+    if ( fp )
+    {
+        char buff[512];
+        while ( fgets( buff, 512, fp ) )
+        {
+            file_content.append( buff );
+        }
+        file_content.append( "\0" );
+        fclose( fp );
+    }
+    return file_content;
+}
 
 
 //==== Execute Function in Module ====//
@@ -224,19 +240,43 @@ void ScriptMgrSingleton::ExecuteScript(  const char* module_name,  const char* f
     }
 }
 
-//==== Return File Name Given Module Name ====//
-string ScriptMgrSingleton::FindModuleFileName( const string &  module_name )
+//==== Return Script Content Given Module Name ====//
+string ScriptMgrSingleton::FindModuleContent( const string &  module_name )
 {
     map< string, string >::iterator iter;
-    iter = m_ModuleFileMap.find( module_name );
+    iter = m_ModuleContentMap.find( module_name );
 
     string file_string;
-    if ( iter != m_ModuleFileMap.end() )
+    if ( iter != m_ModuleContentMap.end() )
     {
         file_string = iter->second;
     }
     return file_string;
 }
+
+//==== Write Script Content To File ====//
+int ScriptMgrSingleton::SaveScriptContentToFile( const string & module_name, const string & file_name )
+{
+    map< string, string >::iterator iter;
+    iter = m_ModuleContentMap.find( module_name );
+
+    if ( iter == m_ModuleContentMap.end() )
+        return -1;
+
+    FILE* fp = fopen( file_name.c_str(), "w" );
+    if ( !fp )
+        return -2;
+
+    if ( iter->second.size() == 0 )
+        return -3;
+
+
+    fprintf( fp, "%s", iter->second.c_str() );
+    fclose( fp );
+
+    return 0;
+}
+
 
 //==== Register Enums ====//
 void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )

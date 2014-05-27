@@ -36,6 +36,7 @@ public:
     SelectFileUI* selectFileUI;
 
     string FileChooser( const char* title, const char* filter );
+    string FileChooser( const char* title, const char* filter, const char* dir );
 
     static void staticScreenCB( Fl_Widget *w, void* data )
     {
