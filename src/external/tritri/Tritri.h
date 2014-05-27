@@ -51,5 +51,8 @@ int intersect_triangle(double orig[3], double dir[3],
                    double vert0[3], double vert1[3], double vert2[3],
                    double *t, double *u, double *v);
 
+bool intersectRayAABB( const double MinB[3], const double MaxB[3],
+                   const double origin[3], const double dir[3],
+                   double coord[3] );
 
 #endif
