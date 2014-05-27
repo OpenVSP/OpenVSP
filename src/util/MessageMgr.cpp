@@ -80,7 +80,10 @@ void MessageMgr::UnRegister( MessageBase* msg_base )
     }
 
     iter = m_MessageRegMap.begin();
-    while ( iter !=  m_MessageRegMap.end() )
+
+    // In a case where std::map has only one element in its list, map::end() returns
+    // bad pointer.  Handle one element std::map as special case.
+    if ( m_MessageRegMap.size() == 1 )
     {
         deque< int > erase_index_vec;
         for ( int i = 0 ; i < ( int )( iter->second ).size() ; i++ )
@@ -96,7 +99,27 @@ void MessageMgr::UnRegister( MessageBase* msg_base )
             int erase_index = erase_index_vec[e];
             ( iter->second ).erase( ( iter->second ).begin() + erase_index );
         }
-        iter++;
+    }
+    else
+    {
+        while ( iter !=  m_MessageRegMap.end() )
+        {
+            deque< int > erase_index_vec;
+            for ( int i = 0 ; i < ( int )( iter->second ).size() ; i++ )
+            {
+                if ( ( iter->second )[i] == msg_base )
+                {
+                    erase_index_vec.push_front( i );
+                }
+            }
+
+            for ( int e = 0 ; e < ( int )erase_index_vec.size() ; e++ )
+            {
+                int erase_index = erase_index_vec[e];
+                ( iter->second ).erase( ( iter->second ).begin() + erase_index );
+            }
+            iter++;
+        }
     }
 
 }
