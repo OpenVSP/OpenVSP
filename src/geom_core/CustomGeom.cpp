@@ -524,8 +524,7 @@ void CustomGeom::SkinXSecSurf()
         }
         if ( crv_vec.size() >= 2 )
         {
-            m_SurfVec[i].InterpolateLinear( crv_vec, false );
-            m_SurfVec[i].SwapUWDirections();
+            m_MainSurfVec[i].InterpolateLinear( crv_vec, false );
         }
     }
 }
