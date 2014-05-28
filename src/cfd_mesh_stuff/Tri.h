@@ -221,6 +221,7 @@ public:
     int ind0;
     int ind1;
     int ind2;
+    vector<int> m_Tags;
 };
 
 #endif

@@ -3,7 +3,7 @@
 // version 1.3 as detailed in the LICENSE file which accompanies this software.
 //
 
-// DrawObj.h:
+// DrawObj.h: 
 // J.R Gloudemans
 //
 //////////////////////////////////////////////////////////////////////
@@ -17,6 +17,11 @@
 #include <string>
 
 using namespace std;
+
+#define PICKGEOMHEADER "GPICKING_"
+#define PICKVERTEXHEADER "VPICKING_"
+#define PICKLOCHEADER "LPICKING_"
+#define BBOXHEADER "BBOX_"
 
 class DrawObj
 {
@@ -35,7 +40,7 @@ public:
     *
     * VSP_POINTS - Render to points.
     * VSP_LINES - Render to lines.
-    * VSP_LINE_STRIP - Render to line strip.
+    * VSP_LINE_STRIP - Render to line strip. 
     * VSP_LINE_LOOP - Render to line loop.
     * VSP_WIRE_MESH - Render to wire frame.
     * VSP_HIDDEN_MESH - Render to solid wire frame.
@@ -44,8 +49,11 @@ public:
     * VSP_WIRE_TRIS - Render Triangles to wire frame.
     * VSP_HIDDEN_TRIS - Render Triangles to solid wire frame.
     * VSP_SHADED_TRIS - Render Triangles to mesh with lighting.
-    *
     * VSP_SETTING - This drawObj provides Global Setting Info(lighting, etc...).  Does not render anything.
+    * VSP_RULER - Render Ruler.
+    * VSP_PICK_VERTEX - This type drawObj enables vertex picking for a specific geometry.
+    * VSP_PICK_GEOM - This type drawObj enables geometry picking.
+    * VSP_PICK_LOCATION - This type drawObj enables location picking.
     */
     enum TypeEnum
     {
@@ -60,7 +68,12 @@ public:
         VSP_WIRE_TRIS,
         VSP_HIDDEN_TRIS,
         VSP_SHADED_TRIS,
+        VSP_HIDDEN_TRIS_CFD,
         VSP_SETTING,
+        VSP_RULER,
+        VSP_PICK_VERTEX,
+        VSP_PICK_GEOM,
+        VSP_PICK_LOCATION,
     };
 
     /*
@@ -76,6 +89,38 @@ public:
         VSP_MAIN_SCREEN,
         VSP_XSEC_SCREEN,
         VSP_TEX_PREVIEW,
+    };
+
+    /*
+    * Ruler step enum.
+    * A ruler requires three steps to complete.  On first
+    * step, only start point is given.  Ruler is drawn
+    * between start point and mouse location.  On second
+    * step, both start and end point are given.  Ruler is
+    * drawn between those points.  Lastly, offset is set and
+    * ruler is set to appropriate height.
+    */
+    enum RulerEnum
+    {
+        VSP_RULER_STEP_ZERO,
+        VSP_RULER_STEP_ONE,
+        VSP_RULER_STEP_TWO,
+        VSP_RULER_STEP_COMPLETE,
+    };
+
+    /*
+    * Ruler Information.
+    * Step - Current step of building a ruler.
+    * Start - Vertex Information of starting point.
+    * End - Vertex Information of ending point.
+    * Offset - placement of the ruler.
+    */
+    struct Ruler
+    {
+        RulerEnum Step;
+        vec3d Start;
+        vec3d End;
+        vec3d Offset;
     };
 
     /*
@@ -98,7 +143,7 @@ public:
     struct TextureInfo
     {
         string FileName;
-        unsigned int ID;
+        std::string ID;
 
         float U;
         float W;
@@ -110,6 +155,25 @@ public:
 
         bool UFlip;
         bool WFlip;
+    };
+
+    /*
+    * Information needed to define a material.
+    *
+    * Ambient - Ambient value for this material.
+    * Diffuse - Diffuse value for this mateiral.
+    * Specular - Specular value for this material.
+    * Emission - Emission value for this material.
+    * Shininess - Shine value, the value is between 0 and 128.
+    */
+    struct MaterialInfo
+    {
+        float Ambient[4];
+        float Diffuse[4];
+        float Specular[4];
+        float Emission[4];
+
+        float Shininess;
     };
 
     /*
@@ -145,18 +209,39 @@ public:
     string m_GeomID;
 
     /*
-    * Visibility of Geom.
+    * If m_Type is a picking type, m_PickSourceID stores GeomID of 
+    * the "Host Geometry".  
+    * Picking DrawObjs do not store any data, its job is to set a target
+    * geometry to become selectable. The target geometry is the host,
+    * and its id goes here.
+    */
+    string m_PickSourceID;
+
+    /*
+    * If m_Type is a picking type, m_FeedbackGroup identifies where the
+    * picking feedback is going.  With this, we can have multiple picking
+    * sessions active at the same time.
+    */
+    string m_FeedbackGroup;
+
+    /*
+    * Visibility of Geom.  
     * Geometry is visible on true and invisible on false.
     * Visibility is set to true by default.
     */
     bool m_Visible;
 
     /*
-    * Geometry changed flag.
-    * This flag is used for optimization.  Flag true if geometry data are changed and require
+    * Geometry changed flag.  
+    * This flag is used for optimization.  Flag true if geometry data are changed and require 
     * graphic buffer update.
     */
     bool m_GeomChanged;
+
+    /*
+    * Flip Normals flag.  If true, Normals need to flip to the opposite direction.
+    */
+    bool m_FlipNormals;
 
     /*
     * Desired Render type.
@@ -171,6 +256,17 @@ public:
     ScreenEnum m_Screen;
 
     /*
+    * Holds ruler information.
+    * A ruler requires three steps to complete.  On first
+    * step, only start point is given.  Ruler is drawn
+    * between start point and mouse location.  On second
+    * step, both start and end point are given.  Ruler is
+    * drawn between those points.  Lastly, offset is set and
+    * ruler is set to appropriate height.
+    */
+    Ruler m_Ruler;
+
+    /*
     * No Use for now.
     */
     int m_Priority;
@@ -181,7 +277,7 @@ public:
     */
     double m_LineWidth;
     /*
-    * RGB Line color.
+    * RGB Line Color.
     * LineColor is set to blue(0, 0, 1) by default.
     */
     vec3d m_LineColor;
@@ -192,10 +288,19 @@ public:
     */
     double m_PointSize;
     /*
-    * RGB Point color.
+    * RGB Point Color.
     * PointColor is set to red(1, 0, 0) by default.
     */
     vec3d m_PointColor;
+
+    /*
+    * Text size for label.
+    */
+    double m_TextSize;
+    /*
+    * RGB Text Color.
+    */
+    vec3d m_TextColor;
 
     /*
     * Array of vertex data.
@@ -230,7 +335,7 @@ public:
     *
     * Data format:
     * m_NormMesh[pnts on xsec][xsec index]
-    */
+    */ 
     vector< vector< vec3d > > m_NormMesh;
 
     /*
@@ -244,6 +349,11 @@ public:
     * Otherwise m_LightingInfos is empty.
     */
     vector<LightSourceInfo> m_LightingInfos;
+
+    /*
+    * Material information of this DrawObj.
+    */
+    MaterialInfo m_MaterialInfo;
 
 protected:
 

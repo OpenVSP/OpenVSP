@@ -1101,6 +1101,12 @@ double pointLineDistSquared( vec3d& X0, vec3d& X1, vec3d& X2, double* t )
     return dist_squared( Xon, X0 );
 }
 
+vec3d point_on_line( const vec3d & lp0, const vec3d & lp1, const double & t )
+{
+    vec3d s10 = lp1 - lp0;
+    return lp0 + s10 * t;
+}
+
 double pointSegDistSquared( vec3d& p, vec3d& sp0, vec3d& sp1, double* t )
 {
     double dSqr = pointLineDistSquared( p, sp0, sp1, t );
@@ -1258,4 +1264,71 @@ double poly_area( vector< vec3d > & pnt_vec, vec3d& center )
     }
 
     return total_area;
+}
+
+vec3d BarycentricWeights( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & p )
+{
+    // Compute the Barycentric Weights of a point, p, inside of the triangle with vertices v0,v1, and v3
+    // Assumed counter-clockwise of v0, v1, v2 defines normal
+
+    vec3d weights;
+
+    vec3d n = cross( v1 - v0, v2 - v0 );
+    vec3d na = cross( v2 - v1, p - v1 );
+    vec3d nb = cross( v0 - v2, p - v2 );
+    vec3d nc = cross( v1 - v0, p - v0 );
+    double n_mag = n.mag();
+    double denom = n_mag * n_mag;
+    double tol = 0.000001;
+
+    if ( n_mag < tol )
+    {
+        return weights;
+    }
+
+    weights.set_x( dot( n, na ) / denom );
+    weights.set_y( dot( n, nb ) / denom );
+    weights.set_z( dot( n, nc ) / denom );
+
+
+    return weights;
+}
+
+// Bilinear Interpolation
+void BilinearWeights( const vec3d & p0, const vec3d & p1, const vec3d & p, std::vector< double > & weights )
+{
+    // p0 is lower left corner of rectangle
+    // p1 is upper right corner of rectangle
+    // p is a point in the rectangle
+    // weights will be filled in with the interpolation weights in order of a counter clockwise definition of
+    // a rectangle
+
+    double w0, w1, w2, w3, dx, dy, dx0p, dx1p, dy0p, dy1p, denom;
+    double zero_tol = 1e-12;
+
+    dx = ( p1.x() - p0.x() );
+    dy = ( p1.y() - p0.y() );
+    denom = dx * dy;
+
+    if ( fabs( denom ) < zero_tol )
+    {
+        return;
+    }
+
+    dx0p = p.x() - p0.x();
+    dx1p = p1.x() - p.x();
+    dy0p = p.y() - p0.y();
+    dy1p = p1.y() - p.y();
+
+    w0 = dx1p * dy1p / denom;
+    w1 = dx0p * dy1p / denom;
+    w2 = dx1p * dy0p / denom;
+    w3 = dx0p * dy0p / denom;
+
+    weights.resize( 4 );
+    weights[0] = w0;
+    weights[1] = w1;
+    weights[2] = w3;
+    weights[3] = w2;
+
 }

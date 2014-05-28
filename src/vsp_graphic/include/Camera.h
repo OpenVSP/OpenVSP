@@ -127,6 +127,11 @@ public:
     */
     virtual void center() = 0;
 
+    /*!
+    * Set Center of Rotation.  XYZ are in world space.
+    */
+    virtual void setCOR( float x, float y, float z ) = 0;
+
 protected:
     /*
     * Change View.

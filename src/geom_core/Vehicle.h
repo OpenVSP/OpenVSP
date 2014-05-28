@@ -17,7 +17,8 @@
 #include "Geom.h"
 #include "MessageMgr.h"
 #include "DrawObj.h"
-
+#include "LabelMgr.h"
+#include "LightMgr.h"
 
 #include <assert.h>
 
@@ -30,6 +31,39 @@
 
 #define MIN_FILE_VER 4 // Lowest file version number for 3.X vsp file
 #define CURRENT_FILE_VER 4 // File version number for 3.X files that this executable writes
+
+/*!
+* Centralized place to access all GUI related Parm objects.
+*/
+class VehicleGuiDraw
+{
+public:
+    /*!
+    * Constructor.
+    */
+    VehicleGuiDraw();
+    /*!
+    * Destructor.
+    */
+    ~VehicleGuiDraw();
+
+public:
+    /*!
+    * Get Labels pointer.
+    */
+    LabelMgr * getLabelMgr()
+    {
+        return LabelMgr::getInstance();
+    }
+
+    /*!
+    * Get Lights pointer.
+    */
+    LightMgr * getLightMgr()
+    {
+        return LightMgr::getInstance();
+    }
+};
 
 //==== Vehicle ====//
 class Vehicle : public ParmContainer
@@ -116,6 +150,11 @@ public:
     void SetVSP3FileName( string f_name )                    { m_VSP3FileName = f_name; }
     string GetVSP3FileName()                                { return m_VSP3FileName; }
 
+    VehicleGuiDraw * getVGuiDraw()
+    {
+        return &m_VGuiDraw;
+    }
+
     //=== Export Files ===//
     void ExportFile( const string & file_name, int write_set, int file_type );
     bool WriteXMLFile( const string & file_name, int set );
@@ -190,27 +229,6 @@ protected:
     //==== Primary file name ====//
     string m_VSP3FileName;
 
-public:
-    //==== Really Crappy Place For This!!!!!!!!!!!!!!!!! ====//
-    struct LightInfo
-    {
-        BoolParm Active;
-
-        Parm XPos;
-        Parm YPos;
-        Parm ZPos;
-
-        Parm Amb;
-        Parm Diff;
-        Parm Spec;
-    };
-
-    /*
-    * Find LightInfo at index.  If index is invalid, return NULL.
-    * Currently only support index from 0 - 7 (eight light sources).
-    */
-    LightInfo * FindLight( unsigned int index );
-
     //==== Export Files ====//
     string m_compGeomTxtFileName;
     string m_compGeomCsvFileName;
@@ -225,13 +243,11 @@ public:
     // File Version Number
     int m_FileOpenVersion;
 
+    VehicleGuiDraw m_VGuiDraw;
+
 private:
 
     void Wype();
-
-protected:
-    vector<LightInfo> m_Lights;
-    DrawObj m_LightingObj;
 };
 
 

@@ -86,7 +86,7 @@ FuselageGeom::~FuselageGeom()
 
 void FuselageGeom::ChangeID( string id )
 {
-    ParmContainer::ChangeID( id );
+    Geom::ChangeID( id );
     m_XSecSurf.SetParentContainer( GetID() );
 }
 
@@ -139,10 +139,10 @@ void FuselageGeom::UpdateSurf()
     }
 
 
-    m_SurfVec[0].InterpolateLinear( crv_vec, false );
+    m_MainSurfVec[0].InterpolateLinear( crv_vec, false );
     if ( m_XSecSurf.GetFlipUD() )
     {
-        m_SurfVec[0].FlipNormal();
+        m_MainSurfVec[0].FlipNormal();
     }
 }
 
@@ -285,7 +285,7 @@ void FuselageGeom::InsertXSec( int type )
 //==== Look Though All Parms and Load Linkable Ones ===//
 void FuselageGeom::AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id )
 {
-    ParmContainer::AddLinkableParms( linkable_parm_vec );
+    Geom::AddLinkableParms( linkable_parm_vec );
 
     m_XSecSurf.AddLinkableParms( linkable_parm_vec, m_ID  );
 }
@@ -330,7 +330,7 @@ void FuselageGeom::LoadDragFactors( DragFactors& drag_factors )
 
 void FuselageGeom::GetJointParams( int joint, VspJointInfo &jointInfo ) const
 {
-    m_SurfVec[0].CompJointParams( joint, jointInfo );
+    m_MainSurfVec[0].CompJointParams( joint, jointInfo );
 }
 
 bool FuselageGeom::IsClosed() const

@@ -56,10 +56,12 @@ ManageGeomScreen::ManageGeomScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     ui->moveTopButton->callback( staticScreenCB, this );
     ui->moveBotButton->callback( staticScreenCB, this );
 
+    ui->pickGeomButton->callback( staticScreenCB, this );
+
     ui->cutGeomButton->shortcut( FL_CTRL + 'x' );
     ui->copyGeomButton->shortcut( FL_CTRL + 'c' );
     ui->pasteGeomButton->shortcut( FL_CTRL + 'v' );
-
+    
     CreateScreens();
 }
 
@@ -633,11 +635,72 @@ void ManageGeomScreen::CallBack( Fl_Widget *w )
     {
         m_VehiclePtr->SetShowSet( m_SetIndex + SET_FIRST_USER );
     }
+    else if ( w = m_GeomUI->pickGeomButton )
+    {
+    }
 
     m_ScreenMgr->SetUpdateFlag( true );
 
 }
 
+std::string ManageGeomScreen::getFeedbackGroupName()
+{
+	return std::string("GeomGUIGroup");
+}
 
+void ManageGeomScreen::Set( std::string geomId )
+{
+	m_VehiclePtr->SetActiveGeom(geomId);
 
+	ShowHideGeomScreens();
+	m_ScreenMgr->SetUpdateFlag( true );
+}
 
+void ManageGeomScreen::TriggerPickSwitch()
+{
+    m_GeomUI->pickGeomButton->value(!m_GeomUI->pickGeomButton->value());
+    m_ScreenMgr->SetUpdateFlag( true );
+}
+
+void ManageGeomScreen::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
+{
+    UpdateDrawObjs();
+
+    for( int i = 0; i < ( int )m_PickList.size(); i++ )
+    {
+        draw_obj_vec.push_back( &m_PickList[i] );
+    }
+}
+
+void ManageGeomScreen::UpdateDrawObjs()
+{
+    m_PickList.clear();
+
+    if( m_GeomUI->pickGeomButton->value() == 1 )
+    {
+        vector< Geom* > geom_vec = m_VehiclePtr->FindGeomVec( m_VehiclePtr->GetGeomVec( false ) );
+        for( int i = 0; i < ( int )geom_vec.size(); i++ )
+        {
+            std::vector< DrawObj* > geom_drawobj_vec;
+            geom_vec[i]->LoadDrawObjs( geom_drawobj_vec );
+
+            for( int j = 0; j < ( int )geom_drawobj_vec.size(); j++ )
+            {
+                if( geom_drawobj_vec[j]->m_Visible )
+                {
+                    // Ignore bounding boxes.
+                    if( geom_drawobj_vec[j]->m_GeomID.compare(0, string(BBOXHEADER).size(), BBOXHEADER) != 0 )
+                    {
+                        DrawObj pickObj;
+                        pickObj.m_Type = DrawObj::VSP_PICK_GEOM;
+                        pickObj.m_GeomID = PICKGEOMHEADER + geom_drawobj_vec[j]->m_GeomID;
+                        pickObj.m_PickSourceID = geom_drawobj_vec[j]->m_GeomID;
+                        pickObj.m_FeedbackGroup = getFeedbackGroupName();
+
+                        m_PickList.push_back( pickObj );
+                    }
+                }
+            }
+        }
+    }
+}

@@ -39,7 +39,6 @@ GLFont * FontMgr::loadFont()
     glClearColor( 1.0, 1.0, 1.0, 1.0 );
 
     glEnable( GL_TEXTURE_2D );
-    glEnable( GL_BLEND );
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
     GLFont * texfont = new GLFont();
@@ -58,7 +57,6 @@ GLFont * FontMgr::loadFont()
         _font = texfont;
     }
     glDisable( GL_TEXTURE_2D );
-    glDisable( GL_BLEND );
 
     return texfont;
 }

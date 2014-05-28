@@ -38,6 +38,9 @@ PodGeom.cpp
 ResultsMgr.cpp
 ScriptMgr.cpp
 StackGeom.cpp
+SubSurface.cpp
+SubSurfaceMgr.cpp
+TextureMgr.cpp
 TMesh.cpp
 Vehicle.cpp
 VehicleMgr.cpp
@@ -45,6 +48,11 @@ WingGeom.cpp
 XSec.cpp
 XSecCurve.cpp
 XSecSurf.cpp
+LabelMgr.cpp
+LightMgr.cpp
+Material.cpp
+MaterialMgr.cpp
+VspPreferences.cpp
 Airfoil.h
 BlankGeom.h
 CustomGeom.h
@@ -65,7 +73,10 @@ PodGeom.h
 ResultsMgr.h
 ScriptMgr.h
 StackGeom.h
+SubSurface.h
+SubSurfaceMgr.h
 SWIGDefines.h
+TextureMgr.h
 TMesh.h
 Vehicle.h
 VehicleMgr.h
@@ -73,5 +84,10 @@ WingGeom.h
 XSec.h
 XSecCurve.h
 XSecSurf.h
+LabelMgr.h
+LightMgr.h
+Material.h
+MaterialMgr.h
+VspPreferences.h
 
 )

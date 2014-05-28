@@ -22,6 +22,8 @@
 #include "Geom.h"
 #include "Util.h"
 #include "ResultsMgr.h"
+#include <set>
+#include <map>
 
 class MeshInfo
 {
@@ -156,7 +158,7 @@ public:
     virtual int  WriteCart3DTris( FILE* file_id, int offset );
     virtual int  WriteGMshTris( FILE* file_id, int node_offset, int tri_offset );
     virtual int  WriteNascartParts( FILE* file_id, int offset );
-    virtual int  WriteCart3DParts( FILE* file_id, int offset );
+    virtual int  WriteCart3DParts( FILE* file_id, map< vector<int>, int > & tagMap );
     virtual void WritePovRay( FILE* fid, int comp_num );
     virtual void WriteX3D( xmlNodePtr node );
     virtual void CheckDupOrAdd( TNode* node, vector< TNode* > & nodeVec );
@@ -201,8 +203,14 @@ public:
     virtual Matrix4d GetTotalTransMat();
     virtual void TransformMeshVec( vector<TMesh*> & meshVec, Matrix4d & TransMat );
 
+    virtual vector< string > GetTMeshNames();
+
+    virtual void SubTagTris();
+
+    virtual void PreMerge();
 protected:
     virtual void ApplyScale(); // this is for intersectTrim
+    vector<TMesh*> m_SubSurfVec;
 
 };
 

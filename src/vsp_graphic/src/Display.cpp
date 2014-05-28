@@ -1,16 +1,12 @@
-#include <assert.h>
-
 #include "OpenGLHeaders.h"
-
 #include "Display.h"
 #include "LayoutMgr.h"
-
 #include "Viewport.h"
-
 #include "Camera.h"
 #include "CameraMgr.h"
-
 #include "Scene.h"
+
+#include <assert.h>
 
 namespace VSPGraphic
 {
@@ -110,14 +106,9 @@ void Display::predraw( Scene * scene, int x, int y )
     _currLayout->predraw( scene, x, y );
 }
 
-void Display::draw( Scene * scene )
+void Display::draw( Scene * scene, int x, int y )
 {
-    _currLayout->draw( scene );
-}
-
-void Display::postdraw( Scene * scene )
-{
-    _currLayout->postdraw( scene );
+    _currLayout->draw( scene, x, y );
 }
 
 void Display::resetView()
@@ -198,6 +189,15 @@ void Display::zoom( float zoomvalue )
     if( camera )
     {
         camera->zoom( zoomvalue );
+    }
+}
+
+void Display::setCOR( float x, float y, float z )
+{
+    Camera * camera = getCamera();
+    if( camera )
+    {
+        camera->setCOR( x, y, z );
     }
 }
 

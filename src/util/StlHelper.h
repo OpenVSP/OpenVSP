@@ -8,6 +8,8 @@
 
 #include <vector>
 #include <deque>
+#include <map>
+#include <algorithm>
 using std::vector;
 using std::deque;
 
@@ -16,6 +18,9 @@ int find_interval( vector< double > & vals, double val );
 
 //==== Interpolate ===//
 double interpolate( vector< double > & vals, double val, int interval );
+
+//==== Interpolate in Map ====//
+double interpolate( std::map< double, int > & val_map, double key, bool * in_range = NULL );
 
 //==== Check If Vector Contains Val =====//
 template <class T>
@@ -84,6 +89,10 @@ T Clamp( const T& value, const T& low, const T& high )
 {
     return value < low ? low : ( value > high ? high : value );
 }
+
+//=== Return Index to Closest Element in Vector
+int ClosestElement( const vector< double > & vec, double const & val );
+
 
 #endif
 

@@ -14,7 +14,7 @@ namespace VSPGraphic
 ArcballCam::ArcballCam() : Camera()
 {
     _globalQuat = glm::vec4( 0.0, 0.0, 0.0, 1.0 );
-    _rMat = _tMat = glm::mat4( 1.0 );
+    _rMat = _tMat = _cMat = glm::mat4( 1.0 );
     _pan = glm::vec2( 0.0f );
     _center = glm::vec2( _vx + _vWidth / 2, _vy + _vHeight / 2 );
     _radius = _vHeight < _vWidth ? _vHeight / 2.0f : _vWidth / 2.0f;
@@ -25,6 +25,7 @@ ArcballCam::ArcballCam() : Camera()
     initSave.empty = true;
     initSave.globalQuat = _globalQuat;
     initSave.pan = _pan;
+    initSave.cor = _cMat;
     initSave.orthoZoomValue = _oZoom;
     initSave.perspZoomValue = _pZoom;
     initSave.projectionType = _projectionType;
@@ -49,6 +50,7 @@ void ArcballCam::save( int index )
     _saves[index].empty = false;
     _saves[index].globalQuat = _globalQuat;
     _saves[index].pan = _pan;
+    _saves[index].cor = _cMat;
     _saves[index].projectionType = _projectionType;
     _saves[index].orthoZoomValue = _oZoom;
     _saves[index].perspZoomValue = _pZoom;
@@ -79,7 +81,8 @@ void ArcballCam::load( int index )
     _calculateProjection();
     _rMat = _toMatrix( _globalQuat );
     _tMat = glm::translate( _pan.x, _pan.y, 0.0f );
-    _modelviewMatrix = _tMat * _viewMatrix * _rMat;
+    _cMat = _saves[index].cor;
+    _modelviewMatrix = _tMat * _viewMatrix * _rMat * _cMat;
 }
 
 void ArcballCam::resetView()
@@ -90,6 +93,9 @@ void ArcballCam::resetView()
 
     // Reset panning.
     _pan = glm::vec2( 0.0f, 0.0f );
+
+    // Reset center of rotation.
+    _cMat = glm::mat4( 1.0f );
 
     // Reset modelview matrix.
     Camera::resetView();
@@ -102,7 +108,7 @@ void ArcballCam::center()
     _tMat = glm::mat4( 1.0f );
 
     // Keep View and Rotation.
-    _modelviewMatrix = _tMat * _viewMatrix * _rMat;
+    _modelviewMatrix = _tMat * _viewMatrix * _rMat * _cMat;
 }
 
 void ArcballCam::resize( int x, int y, int width, int height )
@@ -143,7 +149,7 @@ void ArcballCam::rotate( int px, int py, int cx, int cy )
     }
 
     _rMat = _toMatrix( _globalQuat );
-    _modelviewMatrix = _tMat * _viewMatrix * _rMat;
+    _modelviewMatrix = _tMat * _viewMatrix * _rMat * _cMat;
 }
 
 void ArcballCam::pan( int px, int py, int cx, int cy )
@@ -158,7 +164,7 @@ void ArcballCam::pan( int px, int py, int cx, int cy )
 
     _tMat = glm::translate( _pan.x, _pan.y, 0.0f );
 
-    _modelviewMatrix = _tMat * _viewMatrix * _rMat;
+    _modelviewMatrix = _tMat * _viewMatrix * _rMat * _cMat;
 }
 
 void ArcballCam::pan( float x, float y )
@@ -168,7 +174,7 @@ void ArcballCam::pan( float x, float y )
 
     _tMat = glm::translate( _pan.x, _pan.y, 0.0f );
 
-    _modelviewMatrix = _tMat * _viewMatrix * _rMat;
+    _modelviewMatrix = _tMat * _viewMatrix * _rMat * _cMat;
 }
 
 void ArcballCam::zoom( int px, int py, int cx, int cy )
@@ -231,6 +237,12 @@ void ArcballCam::zoom( float zoomvalue )
     }
 
     _calculateProjection();
+}
+
+void ArcballCam::setCOR( float x, float y, float z )
+{
+    _cMat = glm::translate( glm::vec3( x, y, z ) );
+    _modelviewMatrix = _tMat * _viewMatrix * _rMat * _cMat;
 }
 
 glm::vec3 ArcballCam::_toSphere3D( int x, int y )

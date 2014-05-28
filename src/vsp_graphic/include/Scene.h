@@ -2,13 +2,17 @@
 #define _VSP_GRAPHIC_SCENE_H
 
 #include <vector>
+#include <string>
 
 #include "Common.h"
 
 namespace VSPGraphic
 {
-class Renderable;
 class Lighting;
+class Selectable;
+class Pickable;
+class Renderable;
+class SceneObject;
 
 /*!
 * Scene class sets up and manages Renderable objects in scene.
@@ -27,28 +31,34 @@ public:
 
 public:
     /*!
-    * Add an object to scene.
-    * objectType - VSP_OBJECT_MARKER, VSP_OBJECT_ENTITY, VSP_OBJECT_PICKABLE_MARKER,
-    * VSP_OBJECT_TEXTUREABLE_ENTITY.
-    * id_out - object id out.
+    * Add an object to scene. ( Normal Entity )
+    * objectType - VSP_OBJECT_MARKER, VSP_OBJECT_ENTITY, VSP_OBJECT_XSEC_ENTITY, VSP_OBJECT_RULER.
+    * id_out - Object id out.
     */
-    void createObject( Common::VSPenum objectType, unsigned int * id_out );
+    virtual void createObject( Common::VSPenum objectType, unsigned int * id_out );
+
+    /*!
+    * Add an object to scene. ( Picking )
+    * objectType - VSP_OBJECT_PICK_VERTEX, VSP_OBJECT_PICK_GEOM, VSP_OBJECT_PICK_LOCATION.
+    * id_out - Object id out.
+    * sourceId - Picking / Selecting source id.  It's used to link pickable or selectable object to
+    * a specific renderable object.  The renderable object provides render information for both.
+    */
+    virtual void createObject( Common::VSPenum objectType, unsigned int * id_out, unsigned int sourceId );
+
     /*!
     * Remove object from scene.
     */
-    void removeObject( unsigned int id );
+    virtual void removeObject(unsigned int id);
 
 public:
     /*!
     * Get object.
     */
-    Renderable * getObject( unsigned int id );
+    virtual SceneObject * getObject(unsigned int id);
+
     /*!
-    * Get light.
-    */
-    Lighting * getLights();
-    /*!
-    * Get ids.
+    * Get ids of all objects in scene.
     */
     std::vector<unsigned int> getIds();
 
@@ -56,7 +66,34 @@ public:
     /*!
     * Color Picking at mouse location.
     */
-    virtual void pick( int x, int y );
+    virtual void activatePicking(int x, int y);
+
+    /*!
+    * Select current picked point.  Return true if action is successful, else
+    * return false.
+    */
+    virtual bool selectHighlight();
+
+    /*!
+    * Select a given location.  If selection is not required, return false.
+    */
+    virtual bool selectLocation(double x, double y, double z);
+
+public:
+    /*!
+    * Get last selected Object.
+    */
+    virtual Selectable * getLastSelected();
+    /*!
+    * Get last Selectable Object with a specific group name.
+    */
+    virtual Selectable * getLastSelected(std::string group);
+    /*!
+    * Get all Selectable Objects with a specific group name.
+    */
+    virtual std::vector<Selectable*> getSelected(std::string group);
+
+public:
     /*!
     * Preprocessing.
     */
@@ -65,37 +102,36 @@ public:
     * Draw Scene.
     */
     virtual void draw();
-    /*!
-    * Postprocessing.
-    */
-    virtual void postdraw();
 
 public:
     /*!
-    * Return if there is pickable object in scene.
+    * Any picking operation in session?
     */
-    bool hasPickable();
+    bool isPickingEnabled();
 
-protected:
+public:
     /*!
-    * Enable/disable predraw and postdraw.
+    * Get light.
     */
-    virtual void _updateDrawModes();
-    void _enableDrawModes( bool enablePredraw, bool enablePostdraw );
+    Lighting * getLights();
 
 private:
-    struct sceneInfo
-    {
-        unsigned int id;
-        Renderable * object;
-    };
-    std::vector<sceneInfo> _sceneList;
+    void _generateUniqueId(unsigned int * id_out);
+    void _updateFlags();
+    void _clearSelections();
+    void _removeSelections(Renderable * source);
+
+private:
+    std::vector<SceneObject*> _sceneList;
+    std::vector<Selectable*> _selections;
     std::vector<unsigned int> _recycleBin;
 
     Lighting * _lights;
 
-private:
-    unsigned int _pCounter;
+    bool _toPick;
+    bool _toSelectLoc;
+
+    Pickable * _highlighted;
 };
 }
 #endif

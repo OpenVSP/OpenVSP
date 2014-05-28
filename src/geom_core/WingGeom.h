@@ -98,7 +98,6 @@ public:
     WingGeom( Vehicle* vehicle_ptr );
     virtual ~WingGeom();
 
-    virtual int GetNumMainSurfs()                        {    return 1;    }
     virtual void ComputeCenter();
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );

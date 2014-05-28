@@ -494,8 +494,8 @@ XSecSurf* CustomGeom::GetXSecSurf( int index )
 //==== Skin XSec Surfs ====//
 void CustomGeom::SkinXSecSurf()
 {
-    m_SurfVec.resize( m_XSecSurfVec.size() );
-    assert( m_XSecSurfVec.size() == m_SurfVec.size() );
+    m_MainSurfVec.resize( m_XSecSurfVec.size() );
+    assert( m_XSecSurfVec.size() == m_MainSurfVec.size() );
 
     for ( int i = 0 ; i < ( int )m_XSecSurfVec.size() ; i++ )
     {

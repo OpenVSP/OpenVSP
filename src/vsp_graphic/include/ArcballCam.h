@@ -78,6 +78,11 @@ public:
     */
     void zoom( float zoomvalue );
 
+    /*!
+    * Set the Center of Rotation.
+    */
+    void setCOR( float x, float y, float z );
+
 public:
     /*
     * Save current camera system.
@@ -113,6 +118,7 @@ private:
     float _radius;
     glm::vec4 _globalQuat;
     glm::mat4 _rMat, _tMat;
+    glm::mat4 _cMat;
     glm::vec2 _pan;
     glm::vec2 _prevLB;
     glm::vec2 _prevMB;
@@ -126,6 +132,7 @@ private:
         bool empty;
         glm::vec4 globalQuat;
         glm::vec2 pan;
+        glm::mat4 cor;
         Common::VSPenum projectionType;
         float orthoZoomValue;
         float perspZoomValue;

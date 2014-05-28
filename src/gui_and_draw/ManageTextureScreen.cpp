@@ -12,6 +12,9 @@
 #include "Background.h"
 #include "GraphicSingletons.h"
 
+#include "Geom.h"
+#include "TextureMgr.h"
+
 #include "FL/Fl_File_Chooser.H"
 
 ManageTextureScreen::ManageTextureScreen( ScreenMgr * mgr ) : VspScreen( mgr )
@@ -29,6 +32,9 @@ ManageTextureScreen::ManageTextureScreen( ScreenMgr * mgr ) : VspScreen( mgr )
 
     m_TransparencySlider.Init( this, m_TextureMgrUI->alphaSlider, m_TextureMgrUI->alphaInput, 1, "%6.5f", m_TextureMgrUI->alphaButton );
 
+    m_FlipUButton.Init( this, m_TextureMgrUI->flipUButton );
+    m_FlipWButton.Init( this, m_TextureMgrUI->flipWButton );
+
     m_TextureMgrUI->compChoice->callback( staticCB, this );
     m_TextureMgrUI->textureChoice->callback( staticCB, this );
 
@@ -36,9 +42,6 @@ ManageTextureScreen::ManageTextureScreen( ScreenMgr * mgr ) : VspScreen( mgr )
 
     m_TextureMgrUI->addTextureButton->callback( staticCB, this );
     m_TextureMgrUI->delTextureButton->callback( staticCB, this );
-
-    m_TextureMgrUI->flipUButton->callback( staticCB, this );
-    m_TextureMgrUI->flipWButton->callback( staticCB, this );
 
     // Add GL 2D Window.
     Fl_Widget * w = m_TextureMgrUI->texGLGroup;
@@ -123,7 +126,9 @@ bool ManageTextureScreen::Update()
             assert( viewport );
             viewport->getBackground()->removeImage();
 
-            std::vector<Geom::GeomTextureInfo> texInfos = select_vec[0]->FindTextureVec( select_vec[0]->GetTextureVec() );
+            // Load Textures...
+            TextureMgr * texMgr = select_vec[0]->m_GuiDraw.getTextureMgr();
+            std::vector<Texture*> texInfos = texMgr->FindTextureVec( texMgr->GetTextureVec() );
             for( int j = 0; j < ( int )texInfos.size(); j++ )
             {
                 TexDropDownItem item;
@@ -139,7 +144,7 @@ bool ManageTextureScreen::Update()
             // Fill Hacked char array with correct names.
             for( int j = 0; j < ( int )m_TexDropDownList.size(); j++ )
             {
-                m_TextureMgrUI->textureChoice->replace( m_TexDropDownList[j].GUIIndex, m_TexDropDownList[j].TexInfo.DisplayName.c_str() );
+                m_TextureMgrUI->textureChoice->replace( m_TexDropDownList[j].GUIIndex, m_TexDropDownList[j].TexInfo->m_DisplayName.c_str() );
             }
             if( !m_TexDropDownList.empty() )
             {
@@ -157,7 +162,7 @@ bool ManageTextureScreen::Update()
                 assert( m_SelectedTexItem );
 
                 viewport->getBackground()->attachImage( VSPGraphic::GlobalTextureRepo()->
-                                                        get2DTexture( m_SelectedTexItem->TexInfo.FileName.c_str() ) );
+                    get2DTexture( m_SelectedTexItem->TexInfo->m_FileName.c_str() ) );
             }
             else
             {
@@ -170,20 +175,20 @@ bool ManageTextureScreen::Update()
             // Update Sliders and Buttons.
             if( m_SelectedTexItem )
             {
-                Geom::GeomTextureInfo * info = select_vec[0]->FindTexture( m_SelectedTexItem->TexInfo.ID );
+                Texture * info = select_vec[0]->m_GuiDraw.getTextureMgr()->FindTexture( m_SelectedTexItem->TexInfo->GetID() );
 
-                m_TextureMgrUI->textureNameInput->value( info->DisplayName.c_str() );
+                m_TextureMgrUI->textureNameInput->value( info->m_DisplayName.c_str() );
 
-                m_UScaleSlider.Update( info->UScale->GetID() );
-                m_WScaleSlider.Update( info->WScale->GetID() );
+                m_UScaleSlider.Update( info->m_UScale.GetID() );
+                m_WScaleSlider.Update( info->m_WScale.GetID() );
 
-                m_UPosSlider.Update( info->U->GetID() );
-                m_WPosSlider.Update( info->W->GetID() );
+                m_UPosSlider.Update( info->m_U.GetID() );
+                m_WPosSlider.Update( info->m_W.GetID() );
 
-                m_TransparencySlider.Update( info->Transparency->GetID() );
+                m_TransparencySlider.Update( info->m_Transparency.GetID() );
 
-                m_TextureMgrUI->flipUButton->value( info->FlipU->Get() ? 1 : 0 );
-                m_TextureMgrUI->flipWButton->value( info->FlipW->Get() ? 1 : 0 );
+                m_FlipUButton.Update( info->m_FlipU.GetID() );
+                m_FlipWButton.Update( info->m_FlipW.GetID() );
             }
             break;
         }
@@ -216,8 +221,8 @@ void ManageTextureScreen::CallBack( Fl_Widget * w )
     else if( w == m_TextureMgrUI->textureNameInput )
     {
         vector< Geom* > select_vec = veh->GetActiveGeomPtrVec();
-        Geom::GeomTextureInfo * info = select_vec[0]->FindTexture( m_SelectedTexItem->TexInfo.ID );
-        info->DisplayName = m_TextureMgrUI->textureNameInput->value();
+        Texture * info = select_vec[0]->m_GuiDraw.getTextureMgr()->FindTexture( m_SelectedTexItem->TexInfo->GetID() );
+        info->m_DisplayName = m_TextureMgrUI->textureNameInput->value();
     }
     else if( w == m_TextureMgrUI->addTextureButton )
     {
@@ -235,7 +240,7 @@ void ManageTextureScreen::CallBack( Fl_Widget * w )
         {
             return;
         }
-        select_vec[0]->AttachTexture( fc.value() );
+        select_vec[0]->m_GuiDraw.getTextureMgr()->AttachTexture( fc.value() );
 
         ResetCurrentSelected();
     }
@@ -244,43 +249,9 @@ void ManageTextureScreen::CallBack( Fl_Widget * w )
         if( m_SelectedTexItem )
         {
             vector< Geom* > select_vec = veh->GetActiveGeomPtrVec();
-            select_vec[0]->RemoveTexture( m_SelectedTexItem->TexInfo.ID );
+            select_vec[0]->m_GuiDraw.getTextureMgr()->RemoveTexture( m_SelectedTexItem->TexInfo->GetID() );
 
             ResetCurrentSelected();
-        }
-    }
-    else if( w == m_TextureMgrUI->flipUButton )
-    {
-        if( m_SelectedTexItem )
-        {
-            vector< Geom* > select_vec = veh->GetActiveGeomPtrVec();
-            Geom::GeomTextureInfo * info = select_vec[0]->FindTexture( m_SelectedTexItem->TexInfo.ID );
-
-            if( m_TextureMgrUI->flipUButton->value() == 0 )
-            {
-                info->FlipU->Set( false );
-            }
-            else
-            {
-                info->FlipU->Set( true );
-            }
-        }
-    }
-    else if( w == m_TextureMgrUI->flipWButton )
-    {
-        if( m_SelectedTexItem )
-        {
-            vector< Geom* > select_vec = veh->GetActiveGeomPtrVec();
-            Geom::GeomTextureInfo * info = select_vec[0]->FindTexture( m_SelectedTexItem->TexInfo.ID );
-
-            if( m_TextureMgrUI->flipWButton->value() == 0 )
-            {
-                info->FlipW->Set( false );
-            }
-            else
-            {
-                info->FlipW->Set( true );
-            }
         }
     }
     m_ScreenMgr->SetUpdateFlag( true );

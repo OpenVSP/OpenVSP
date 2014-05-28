@@ -9,14 +9,14 @@
 #include "Renderable.h"
 #include "VertexBuffer.h"
 
-#define TOPL    0
-#define TOPR    1
-#define BOTR    2
-#define BOTL    3
+#define TOPL	 0
+#define TOPR	 1
+#define BOTR	 2
+#define BOTL	 3
 
 namespace VSPGraphic
 {
-Background::Background() : Renderable( Common::VSP_QUADS )
+Background::Background() : Renderable()
 {
     _coord.resize( 4 );
     _coord[TOPL] = glm::vec3( -1, 1, 0 );
@@ -48,6 +48,7 @@ Background::Background() : Renderable( Common::VSP_QUADS )
     _mode = Common::VSP_BACKGROUND_COLOR;
 
     setMeshColor( 0.95f, 0.95f, 0.95f );
+    setPrimType( Common::VSP_QUADS );
 }
 Background::~Background()
 {
@@ -122,17 +123,17 @@ void Background::removeImage()
 
 void Background::setRed( float red )
 {
-    setMeshColor( red, _meshColor.green, _meshColor.blue );
+    setMeshColor( red, _getMeshColor().green, _getMeshColor().blue );
 }
 
 void Background::setGreen( float green )
 {
-    setMeshColor( _meshColor.red, green, _meshColor.blue );
+    setMeshColor( _getMeshColor().red, green, _getMeshColor().blue );
 }
 
 void Background::setBlue( float blue )
 {
-    setMeshColor( _meshColor.red, _meshColor.green, blue );
+    setMeshColor( _getMeshColor().red, _getMeshColor().green, blue );
 }
 
 void Background::setBackgroundMode( Common::VSPenum mode )
@@ -164,17 +165,17 @@ bool Background::getARFlag()
 
 float Background::getRed()
 {
-    return _meshColor.red;
+    return _getMeshColor().red;
 }
 
 float Background::getGreen()
 {
-    return _meshColor.green;
+    return _getMeshColor().green;
 }
 
 float Background::getBlue()
 {
-    return _meshColor.blue;
+    return _getMeshColor().blue;
 }
 
 float Background::getScaleW()
@@ -212,7 +213,7 @@ void Background::_draw()
 
     if( _mode == Common::VSP_BACKGROUND_COLOR )
     {
-        glColor4f( _meshColor.red, _meshColor.green, _meshColor.blue, _meshColor.alpha );
+        glColor4f( _getMeshColor().red, _getMeshColor().green, _getMeshColor().blue, _getMeshColor().alpha );
     }
     else
     {
@@ -228,10 +229,6 @@ void Background::_draw()
     }
 }
 
-void Background::_postdraw()
-{
-}
-
 void Background::_build()
 {
     assert( _coord.size() == _texCoord.size() );
@@ -239,7 +236,7 @@ void Background::_build()
     if( _hasChanged )
     {
         _background.clear();
-        for( int i = 0; i < ( int )_coord.size(); i++ )
+        for( int i = 0; i < (int)_coord.size(); i++ )
         {
             if( _mode == Common::VSP_BACKGROUND_IMAGE )
             {
@@ -260,7 +257,7 @@ void Background::_build()
             _background.push_back( _texCoord[i].y );
         }
         emptyVBuffer();
-        appendVBuffer( _background.data(), _background.size() * sizeof( float ) );
+        appendVBuffer( _background.data(), _background.size() * sizeof(float) );
 
         _hasChanged = false;
     }

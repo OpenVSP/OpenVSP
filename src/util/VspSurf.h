@@ -138,15 +138,18 @@ public:
     vec3d CompNorm( double u, double v ) const;
     vec3d CompNorm01( double u, double v ) const;
 
-    void WriteBezFile( FILE* id, const std::string &geom_id );
+    void WriteBezFile( FILE* id, const std::string &geom_id, int surf_ind );
 
     //===== Tesselate ====//
     void Tesselate( int num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms ) const;
+    void Tesselate( int num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts ) const;
     void Tesselate( const vector<int> &num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms ) const;
+    void Tesselate( const vector<int> &num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts ) const;
 
 protected:
     void PrepairCrossSections( vector<piecewise_curve_type> &pc, const vector<VspCurve> &crv_in ) const;
     void DegreeReduceSections( const vector<VspCurve> &input_crv_vec, bool closed_flag );
+    int ClosetPatchEnd( const vector<double> & patch_endings, double end_val ) const;
 
 protected:
 

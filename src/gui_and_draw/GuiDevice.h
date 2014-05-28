@@ -713,7 +713,7 @@ public:
     virtual void Init( VspScreen* screen, Fl_Button* title, Fl_Button* result,
                        vector< Fl_Button* > buttons, Fl_Slider* rgb_sliders[3] );
 
-    virtual void Update( vec3d & rgb );
+    virtual void Update( const vec3d & rgb );
     virtual vec3d GetColor()
     {
         return m_Color;

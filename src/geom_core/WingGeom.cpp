@@ -581,14 +581,14 @@ WingGeom::~WingGeom()
 //==== Change IDs =====//
 void WingGeom::ChangeID( string id )
 {
-    ParmContainer::ChangeID( id );
+    Geom::ChangeID( id );
     m_XSecSurf.SetParentContainer( GetID() );
 }
 
 //==== Look Though All Parms and Load Linkable Ones ===//
 void WingGeom::AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id )
 {
-    ParmContainer::AddLinkableParms( linkable_parm_vec );
+    Geom::AddLinkableParms( linkable_parm_vec );
 
     m_XSecSurf.AddLinkableParms( linkable_parm_vec, m_ID  );
 }
@@ -927,10 +927,10 @@ void WingGeom::UpdateSurf()
     }
 
 
-    m_SurfVec[0].InterpolateLinear( crv_vec, false );
+    m_MainSurfVec[0].InterpolateLinear( crv_vec, false );
     if ( m_XSecSurf.GetFlipUD() )
     {
-        m_SurfVec[0].FlipNormal();
+        m_MainSurfVec[0].FlipNormal();
     }
 
     //==== Load Totals ====//

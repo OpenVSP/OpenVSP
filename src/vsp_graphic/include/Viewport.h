@@ -106,6 +106,16 @@ public:
 
 public:
     /*
+    * Transform screen coordinate to world coordinates.
+    */
+    glm::vec3 screenToWorld(glm::vec2 screenCoord);
+    /*
+    * Transform screen coordinate to normalized device coordinate.
+    */
+    glm::vec2 screenToNDC(glm::vec2 screenCoord);
+
+public:
+    /*
     * Show / hide Borders.
     * Show on default.
     */

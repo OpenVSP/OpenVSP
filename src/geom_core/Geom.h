@@ -20,8 +20,11 @@
 #include "VspSurf.h"
 #include "TMesh.h"
 #include "DragFactors.h"
+#include "SubSurface.h"
 #include "GridDensity.h"
 #include "ResultsMgr.h"
+#include "TextureMgr.h"
+#include "MaterialMgr.h"
 
 //#include "xmlvsp.h"
 
@@ -90,11 +93,14 @@ public:
     {
         m_WireColor.set_xyz( r, g, b );
     }
+
     vec3d GetWireColor( )
     {
         return m_WireColor;
     }
 
+    void SetMaterialToDefault();
+    void SetMaterial( std::string name, double ambi[], double diff[], double spec[], double emis[], double shin );
     void SetMaterialID( int m )
     {
         m_MaterialID = m;
@@ -116,7 +122,14 @@ public:
     {
         return m_DisplayChildrenFlag;
     }
-
+    TextureMgr * getTextureMgr()
+    {
+        return &m_TextureMgr;
+    }
+    MaterialMgr * getMaterialMgr()
+    {
+        return &m_MaterialMgr;
+    }
 protected:
 
     int  m_DrawType;
@@ -126,6 +139,9 @@ protected:
 
     vec3d m_WireColor;
     int m_MaterialID;
+
+    TextureMgr m_TextureMgr;
+    MaterialMgr m_MaterialMgr;
 };
 
 //==== Geom Base ====//
@@ -282,108 +298,8 @@ protected:
 
 };
 
-/*
-* This class provides functionalities for texture management.
-*/
-class GeomTexMap : public GeomXForm
-{
-public:
-    /*
-    * Constructor.
-    */
-    GeomTexMap( Vehicle* vehicle_ptr );
-    /*
-    * Destructor.
-    */
-    virtual ~GeomTexMap();
-
-public:
-    /*
-    * Informations for a single texture.
-    * ID - ID linked to this texture. This ID is only unqiue to this Geom.
-    * DisplayName - Display Name on GUI.
-    * FileName - File path + file Name.
-    * Transparency - Alpha value.
-    * FlipU - Flip U coordinate.
-    * FlipW - Flip W coordinate.
-    */
-    struct GeomTextureInfo
-    {
-        unsigned int ID;
-
-        string DisplayName;
-
-        string FileName;
-
-        Parm * U;
-        Parm * W;
-
-        Parm * UScale;
-        Parm * WScale;
-
-        Parm * Transparency;
-
-        BoolParm * FlipU;
-        BoolParm * FlipW;
-    };
-
-public:
-    /*
-    * Attach a texture to Geom.
-    *
-    * fileName - file path + texture file name.
-    * returns an ID for this texture.
-    */
-    virtual unsigned int AttachTexture( string fileName );
-
-    /*
-    * Remove a attached texture.
-    *
-    * texture_id - ID generated from AttachTexture().
-    */
-    virtual void RemoveTexture( unsigned int texture_id );
-
-    /*
-    * Find GeomTextureInfo Reference for a texture.
-    *
-    * texture_id - ID generated from AttachTexture().
-    * returns GeomTextureInfo reference.
-    */
-    virtual GeomTextureInfo * FindTexture( unsigned int texture_id );
-
-    /*
-    * Get all textures' ID.
-    *
-    * returns ID vector.
-    */
-    virtual vector<unsigned int> GetTextureVec();
-
-    /*
-    * Find and return list of GeomTextureInfo "copies" from a list of texture id.
-    * If search failed on one of texture id, that texture id will be ignored.
-    *
-    * texture_id_vec - target texture ids.
-    * returns corresponding GeomTextureInfo vector.
-    */
-    virtual vector<GeomTextureInfo> FindTextureVec( vector<unsigned int> texture_id_vec );
-
-protected:
-    /*
-    * List of textures attached to this Geom.
-    */
-    vector<GeomTextureInfo> m_TextureList;
-
-private:
-    unsigned int GenerateId();
-    //string CreateNickName(string fileName);
-
-private:
-    unsigned int IdTracker;
-    vector<unsigned int> RecycleBin;
-};
-
 //==== Geom  ====//
-class Geom : public GeomTexMap
+class Geom : public GeomXForm
 {
 public:
 
@@ -393,7 +309,12 @@ public:
     virtual void Update();
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
-    virtual void SetColor( int r, int g, int b )                {}
+    virtual void SetColor( int r, int g, int b );
+    virtual vec3d GetColor();
+
+    virtual void SetMaterialToDefault();
+    virtual void SetMaterial( std::string name, double ambi[], double diff[], double spec[], double emis[], double shin );
+    virtual Material GetMaterial();
 
     virtual bool GetSetFlag( int index );
     virtual vector< bool > GetSetFlags()
@@ -408,7 +329,10 @@ public:
     {
         surf_vec = m_SurfVec;
     }
-    virtual int GetNumMainSurfs() = 0;
+    virtual int GetNumMainSurfs()
+    {
+        return m_MainSurfVec.size();
+    }
     virtual int GetNumSymFlags();
     virtual int GetNumTotalSurfs();
 
@@ -452,6 +376,29 @@ public:
     virtual void WritePovRay( FILE* fid, int comp_num );
     virtual void WritePovRayTri( FILE* fid, const vec3d& v, const vec3d& n, bool comma = true );
     virtual void CreateGeomResults( Results* res );
+
+    virtual void AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id = string() );
+    virtual void ChangeID( string id );
+
+    //==== Sub Surface Managment Methods ====//
+    virtual void AddSubSurf( SubSurface* sub_surf )
+    {
+        m_SubSurfVec.push_back( sub_surf );
+    }
+    virtual SubSurface* AddSubSurf( int type );
+    virtual bool ValidSubSurfInd( int ind );
+    virtual void DelSubSurf( int ind );
+    virtual SubSurface* GetSubSurf( int ind );
+    virtual vector< SubSurface* > GetSubSurfVec()
+    {
+        return m_SubSurfVec;
+    }
+
+    virtual int NumSubSurfs()
+    {
+        return m_SubSurfVec.size();
+    }
+    virtual void RecolorSubSurfs( int active_ind );
 
     //==== Set Drag Factors ====//
     virtual void LoadDragFactors( DragFactors& drag_factors )   {};
@@ -534,7 +481,9 @@ protected:
     virtual void UpdateDrawObj();
 
     virtual void UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms );
+    virtual void UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts );
 
+    vector<VspSurf> m_MainSurfVec;
     vector<VspSurf> m_SurfVec;
     vector<DrawObj> m_WireShadeDrawObj_vec;
     DrawObj m_HighlightDrawObj;
@@ -544,6 +493,8 @@ protected:
     vector< bool > m_SetFlags;
 
     vector< vec3d > GetBBoxDrawLines();
+
+    vector<SubSurface*> m_SubSurfVec;
 
 //  //==== Structure Parts ====//
 //  int currPartID;

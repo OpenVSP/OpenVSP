@@ -2,12 +2,12 @@
 #define _VSP_GRAPHIC_ENTITY_OBJECT_H
 
 #include "Renderable.h"
+#include "Material.h"
+#include "TextureMgr.h"
 
 namespace VSPGraphic
 {
 class Lighting;
-class Material;
-class TextureMgr;
 
 /*!
 * This class represents a single geometry with surfaces in scene.
@@ -18,15 +18,13 @@ class Entity : public Renderable
 public:
     /*!
     * Constructor.  Build an Entity Object without lighting.
-    * geomType - type of geometry primitive.  VSP_TRIANGLES, VSP_QUADS
     */
-    Entity( Common::VSPenum geomType );
+    Entity();
     /*!
     * Constructor.  Build an Entity Object with lighting.
-    * geomType - type of geometry primitive.  VSP_TRIANGLES, VSP_QUADS
     * lights - lighting information.
     */
-    Entity( Common::VSPenum geomType, Lighting * lights );
+    Entity( Lighting * lights );
     /*!
     * Destructor.
     */
@@ -41,6 +39,20 @@ public:
     * Set Material.
     */
     void setMaterial( Material * material );
+    /*!
+    * Set Material.
+    * ambi - Ambient value.
+    * diff - Diffuse value.
+    * spec - Specular value.
+    * emis - Emission value.
+    * shin - Shininess.
+    */
+    void setMaterial( float ambi[], float diff[], float spec[], float emis[], float shin );
+
+    /*!
+    * Is material transparent?
+    */
+    bool isTransparent();
 
 public:
     /*!
@@ -48,7 +60,7 @@ public:
     */
     TextureMgr * getTextureMgr()
     {
-        return _textureMgr;
+        return &_textureMgr;
     }
 
 protected:
@@ -60,28 +72,24 @@ protected:
     * Draw Geometry.
     */
     virtual void _draw();
-    /*!
-    * Postprocessing.
-    */
-    virtual void _postdraw();
 
 protected:
     /*!
     * Draw shaded mesh.
     */
-    void _draw_Mesh_Shaded();
+    virtual void _draw_Mesh_Shaded();
     /*!
     * Draw textured mesh.
     */
-    void _draw_Mesh_Textured();
+    virtual void _draw_Mesh_Textured();
     /*!
     * Draw wire frame.
     */
-    void _draw_Wire_Frame();
+    virtual void _draw_Wire_Frame();
     /*!
     * Draw hidden.
     */
-    void _draw_Wire_Frame_Solid();
+    virtual void _draw_Wire_Frame_Solid();
 
 protected:
     /*!
@@ -102,13 +110,10 @@ protected:
     void _draw_Wire( float r, float g, float b, float a = 1.f, float lineWidth = 0.f );
 
 protected:
-    Material * _material;
     Lighting * _lighting;
 
-    TextureMgr * _textureMgr;
-
-private:
-    Material * _getDefaultMaterial();
+    Material _material;
+    TextureMgr _textureMgr;
 
 private:
     void _draw_Mesh_VBuffer();

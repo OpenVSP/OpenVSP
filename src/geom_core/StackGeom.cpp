@@ -83,7 +83,7 @@ StackGeom::~StackGeom()
 
 void StackGeom::ChangeID( string id )
 {
-    ParmContainer::ChangeID( id );
+    Geom::ChangeID( id );
     m_XSecSurf.SetParentContainer( GetID() );
 }
 
@@ -137,10 +137,10 @@ void StackGeom::UpdateSurf()
     }
 
 
-    m_SurfVec[0].InterpolateLinear( crv_vec, false );
+    m_MainSurfVec[0].InterpolateLinear( crv_vec, false );
     if ( m_XSecSurf.GetFlipUD() )
     {
-        m_SurfVec[0].FlipNormal();
+        m_MainSurfVec[0].FlipNormal();
     }
 }
 
@@ -283,7 +283,7 @@ void StackGeom::InsertXSec( int type )
 //==== Look Though All Parms and Load Linkable Ones ===//
 void StackGeom::AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id )
 {
-    ParmContainer::AddLinkableParms( linkable_parm_vec );
+    Geom::AddLinkableParms( linkable_parm_vec );
 
     m_XSecSurf.AddLinkableParms( linkable_parm_vec, m_ID  );
 }
@@ -327,7 +327,7 @@ void StackGeom::LoadDragFactors( DragFactors& drag_factors )
 
 void StackGeom::GetJointParams( int joint, VspJointInfo &jointInfo ) const
 {
-    m_SurfVec[0].CompJointParams( joint, jointInfo );
+    m_MainSurfVec[0].CompJointParams( joint, jointInfo );
 }
 
 bool StackGeom::IsClosed() const

@@ -20,75 +20,29 @@
 #include "LinkMgr.h"
 #include "Quat.h"
 #include "StringUtil.h"
+#include "SubSurfaceMgr.h"
 #include "DesignVarMgr.h"
 #include "XmlUtil.h"
 #include "APIDefines.h"
 #include "ResultsMgr.h"
 using namespace vsp;
 
+#include <set>
+#include <map>
+#include <algorithm>
 #include <utility>
 
-#define NUMOFLIGHTS 8
+//==== VehicleGuiDraw ====//
+VehicleGuiDraw::VehicleGuiDraw()
+{
+}
+VehicleGuiDraw::~VehicleGuiDraw()
+{
+}
 
 //==== Constructor ====//
 Vehicle::Vehicle()
 {
-
-    // Initialize Lights.
-    m_Lights.resize( NUMOFLIGHTS );
-    for( int i = 0; i < NUMOFLIGHTS; i++ )
-    {
-        char name[256];
-
-        LightInfo light;
-        m_Lights[i] = light;
-
-        sprintf( name, "Light%d_Active", i );
-        m_Lights[i].Active.Init( name, "Lighting", this, 0, 0, 0, false );
-        m_Lights[i].Active.Set( false );
-
-        sprintf( name, "Light%d_X", i );
-        m_Lights[i].XPos.Init( name, "Lighting", this, 0, -100.0, 100.0, false );
-
-        sprintf( name, "Light%d_Y", i );
-        m_Lights[i].YPos.Init( name, "Lighting", this, 0, -100.0, 100.0, false );
-
-        sprintf( name, "Light%d_Z", i );
-        m_Lights[i].ZPos.Init( name, "Lighting", this, 0, -100.0, 100.0, false );
-
-        sprintf( name, "Light%d_Amb", i );
-        m_Lights[i].Amb.Init( name, "Lighting", this, 0, 0, 1, false );
-
-        sprintf( name, "Light%d_Diff", i );
-        m_Lights[i].Diff.Init( name, "Lighting", this, 0, 0, 1, false );
-
-        sprintf( name, "Light%d_Spec", i );
-        m_Lights[i].Spec.Init( name, "Lighting", this, 0, 0, 1, false );
-    }
-
-    m_Lights[0].Active = true;
-    m_Lights[0].XPos = 10.0;
-    m_Lights[0].YPos = -50.0;
-    m_Lights[0].ZPos = 20.0;
-    m_Lights[0].Amb = 0.5;
-    m_Lights[0].Diff = 0.35;
-    m_Lights[0].Spec = 1.0;
-
-    m_Lights[1].Active = true;
-    m_Lights[1].XPos = 10.0;
-    m_Lights[1].YPos = 15.0;
-    m_Lights[1].ZPos = 30.0;
-    m_Lights[1].Amb = 0.5;
-    m_Lights[1].Diff = 0.5;
-    m_Lights[1].Spec = 1.0;
-
-    m_Lights[2].Active = true;
-    m_Lights[2].XPos = -50.0;
-    m_Lights[2].YPos = 30.0;
-    m_Lights[2].ZPos = 10.0;
-    m_Lights[2].Amb = 0.0;
-    m_Lights[2].Diff = 0.5;
-    m_Lights[2].Spec = 0.5;
 
     m_BbXLen.Init( "X_Len", "BBox", this, 0, 0, 1e12 );
     m_BbXLen.SetDescript( "X length of vehicle bounding box" );
@@ -113,7 +67,6 @@ Vehicle::~Vehicle()
     {
         delete m_GeomStoreVec[i];
     }
-
 }
 
 //=== Init ====//
@@ -830,30 +783,6 @@ vector< DrawObj* > Vehicle::GetDrawObjs()
 {
     vector< DrawObj* > draw_obj_vec;
 
-    // Create DrawObj that provides Global Lighting Setting.
-    m_LightingObj.m_Type = DrawObj::VSP_SETTING;
-    m_LightingObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-
-    // Clear Light info, redo list on every GetDrawObjs().
-    m_LightingObj.m_LightingInfos.clear();
-
-    // Load Lighting Info.
-    for ( int i = 0; i < ( int )m_Lights.size() ; i++ )
-    {
-        DrawObj::LightSourceInfo info;
-
-        info.Active = m_Lights[i].Active();
-        info.X = ( float )m_Lights[i].XPos();
-        info.Y = ( float )m_Lights[i].YPos();
-        info.Z = ( float )m_Lights[i].ZPos();
-        info.Amb = ( float )m_Lights[i].Amb();
-        info.Diff = ( float )m_Lights[i].Diff();
-        info.Spec = ( float )m_Lights[i].Spec();
-
-        m_LightingObj.m_LightingInfos.push_back( info );
-    }
-    draw_obj_vec.push_back( &m_LightingObj );
-
     //==== Traverse All Active Displayed Geom and Load DrawObjs ====//
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
@@ -1268,7 +1197,10 @@ void Vehicle::WriteTRIFile( const string & file_name, int write_set )
         string mesh_id = AddMeshGeom( write_set );
         if ( mesh_id.compare( "NONE" ) != 0 )
         {
-            geom_vec.push_back( FindGeom( mesh_id ) );
+            Geom* geom_ptr = FindGeom( mesh_id );
+            MeshGeom* mg = dynamic_cast<MeshGeom*>( geom_ptr );
+            mg->SubTagTris();
+            geom_vec.push_back( geom_ptr );
         }
     }
 
@@ -1288,8 +1220,7 @@ void Vehicle::WriteTRIFile( const string & file_name, int write_set )
 
     for ( i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
-        if ( geom_vec[i]->GetSetFlag( write_set ) &&
-                geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
+        if ( geom_vec[i]->GetSetFlag( write_set ) && geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
         {
             MeshGeom* mg = ( MeshGeom* )geom_vec[i];            // Cast
             mg->BuildNascartMesh( num_parts );
@@ -1331,11 +1262,15 @@ void Vehicle::WriteTRIFile( const string & file_name, int write_set )
                 geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
         {
             MeshGeom* mg = ( MeshGeom* )geom_vec[i];            // Cast
-            part_count = mg->WriteCart3DParts( file_id, part_count );
+            part_count = mg->WriteCart3DParts( file_id, SubSurfaceMgr.m_SingleTagMap );
         }
     }
 
     fclose( file_id );
+
+    //==== Write Out tag key file ====//
+
+    SubSurfaceMgr.WriteKeyFile( file_name );
 
 }
 
@@ -1354,7 +1289,10 @@ void Vehicle::WriteNascartFiles( const string & file_name, int write_set )
         string mesh_id = AddMeshGeom( write_set );
         if ( mesh_id.compare( "NONE" ) != 0 )
         {
-            geom_vec.push_back( FindGeom( mesh_id ) );
+            Geom* geom_ptr = FindGeom( mesh_id );
+            MeshGeom* mg = dynamic_cast<MeshGeom*>( geom_ptr );
+            mg->SubTagTris();
+            geom_vec.push_back( geom_ptr );
         }
     }
 
@@ -1454,7 +1392,10 @@ void Vehicle::WriteGmshFile( const string & file_name, int write_set )
         string mesh_id = AddMeshGeom( write_set );
         if ( mesh_id.compare( "NONE" ) != 0 )
         {
-            geom_vec.push_back( FindGeom( mesh_id ) );
+            Geom* geom_ptr = FindGeom( mesh_id );
+            MeshGeom* mg = dynamic_cast<MeshGeom*>( geom_ptr );
+            mg->SubTagTris();
+            geom_vec.push_back( geom_ptr );
         }
     }
 
@@ -1785,9 +1726,9 @@ void Vehicle::WriteBezFile( const string & file_name, int write_set )
             vector<VspSurf> surf_vec;
             geom_vec[i]->GetSurfVec( surf_vec );
 
-            for ( int j = 0; j < (int)surf_vec.size(); j++ )
+            for ( int j = 0; j < ( int )surf_vec.size(); j++ )
             {
-                surf_vec[j].WriteBezFile( id, geom_vec[i]->GetID() );
+                surf_vec[j].WriteBezFile( id, geom_vec[i]->GetID(), j );
             }
         }
     }
@@ -1806,16 +1747,6 @@ void Vehicle::AddLinkableContainers( vector< string > & linkable_container_vec )
     {
         geom_vec[i]->AddLinkableContainers( linkable_container_vec );
     }
-}
-
-Vehicle::LightInfo * Vehicle::FindLight( unsigned int index )
-{
-    assert( index >= 0 && index < m_Lights.size() );
-    if( index < 0 || index >= m_Lights.size() )
-    {
-        return NULL;
-    }
-    return &m_Lights[index];
 }
 
 void Vehicle::UpdateBBox()
