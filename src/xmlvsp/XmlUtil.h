@@ -41,7 +41,7 @@ int ExtractIntArray( xmlNodePtr node, const char sep, int * arr, int size );
 
 xmlNodePtr AddIntNode( xmlNodePtr root, const char * name, int val );
 xmlNodePtr AddDoubleNode( xmlNodePtr root, const char * name, double val );
-xmlNodePtr AddStringNode( xmlNodePtr root, const char * name, string & val );
+xmlNodePtr AddStringNode( xmlNodePtr root, const char * name, const string & val );
 void SetDoubleProp( xmlNodePtr root, const char * name, double val );
 void SetStringProp( xmlNodePtr root, const char * name, string & val );
 

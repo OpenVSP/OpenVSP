@@ -52,7 +52,7 @@ public:
     vector< Geom* > FindGeomVec( const vector< string > & geom_id_vec );
 
     string CreateGeom( const GeomType & type );
-    string AddGeom( GeomType & type );
+    string AddGeom( const GeomType & type );
     string AddGeom( Geom* add_geom );
     string AddMeshGeom( int set );
 

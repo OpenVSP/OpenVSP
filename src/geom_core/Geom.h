@@ -139,7 +139,7 @@ public:
     {
         return m_Type;
     }
-    virtual void SetType( GeomType & type )
+    virtual void SetType( const GeomType & type )
     {
         m_Type = type;
     }

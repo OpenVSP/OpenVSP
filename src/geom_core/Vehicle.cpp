@@ -354,7 +354,7 @@ string Vehicle::CreateGeom( const GeomType & type )
 }
 
 //=== Create Geom and Set Up Parent/Child ====//
-string Vehicle::AddGeom( GeomType & type )
+string Vehicle::AddGeom( const GeomType & type )
 {
     string add_id = CreateGeom( type );
     Geom* add_geom = FindGeom( add_id );

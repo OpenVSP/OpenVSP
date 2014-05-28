@@ -226,7 +226,7 @@ xmlNodePtr XmlUtil::AddDoubleNode( xmlNodePtr root, const char * name, double va
 }
 
 //==== Add String Val With Name To Node ====//
-xmlNodePtr XmlUtil::AddStringNode( xmlNodePtr root, const char * name, string & val )
+xmlNodePtr XmlUtil::AddStringNode( xmlNodePtr root, const char * name, const string & val )
 {
     xmlNodePtr node = xmlNewChild( root, NULL, ( const xmlChar * )name, NULL );
 
