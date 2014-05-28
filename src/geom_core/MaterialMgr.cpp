@@ -35,7 +35,7 @@ MaterialMgr::~MaterialMgr()
 
 void MaterialMgr::SetMaterial( Material * mat )
 {
-    m_Material.m_Name = mat->m_Name;
+    m_Material.SetName( mat->GetName() );
 
     m_Material.m_AmbientR = mat->m_AmbientR.Get();
     m_Material.m_AmbientG = mat->m_AmbientG.Get();
@@ -62,7 +62,7 @@ void MaterialMgr::SetMaterial( Material * mat )
 
 void MaterialMgr::SetMaterial( std::string name, double ambi[], double diff[], double spec[], double emis[], double shin )
 {
-    m_Material.m_Name = name;
+    m_Material.SetName( name );
 
     m_Material.m_AmbientR = ambi[0];
     m_Material.m_AmbientG = ambi[1];
@@ -95,4 +95,23 @@ Material * MaterialMgr::getMaterial()
 Material * MaterialMgr::getDefault()
 {
     return &m_Default;
+}
+
+xmlNodePtr MaterialMgr::EncodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr child_node = xmlNewChild( node, NULL, BAD_CAST "Material", NULL );
+
+    m_Material.EncodeXml( child_node );
+
+    return child_node;
+}
+
+xmlNodePtr MaterialMgr::DecodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr child_node = XmlUtil::GetNode( node, "Material", 0 );
+    if( child_node )
+    {
+        m_Material.DecodeXml( child_node );
+    }
+    return child_node;
 }

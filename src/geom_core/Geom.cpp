@@ -946,6 +946,10 @@ void Geom::UpdateDrawObj()
 xmlNodePtr Geom::EncodeXml( xmlNodePtr & node )
 {
     GeomXForm::EncodeXml( node );
+
+    // Encode Material Info.
+    m_GuiDraw.getMaterialMgr()->EncodeXml( node );
+
     xmlNodePtr geom_node = xmlNewChild( node, NULL, BAD_CAST "Geom", NULL );
     if ( geom_node )
     {
@@ -978,6 +982,9 @@ xmlNodePtr Geom::EncodeXml( xmlNodePtr & node )
 xmlNodePtr Geom::DecodeXml( xmlNodePtr & node )
 {
     GeomXForm::DecodeXml( node );
+
+    m_GuiDraw.getMaterialMgr()->DecodeXml( node );
+
     xmlNodePtr geom_node = XmlUtil::GetNode( node, "Geom", 0 );
     if ( geom_node )
     {
@@ -1202,9 +1209,9 @@ void Geom::SetMaterial( std::string name, double ambi[], double diff[], double s
     m_GuiDraw.SetMaterial( name, ambi, diff, spec, emis, shin );
 }
 
-Material Geom::GetMaterial()
+Material * Geom::GetMaterial()
 {
-    return *m_GuiDraw.getMaterialMgr()->getMaterial();
+    return m_GuiDraw.getMaterialMgr()->getMaterial();
 }
 
 //==== Set Sym Flag ====//

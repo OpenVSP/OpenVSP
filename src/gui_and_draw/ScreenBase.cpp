@@ -559,14 +559,14 @@ bool GeomScreen::Update()
     m_ColorPicker.Update( geom_ptr->GetColor() );
 
     //==== Material ====//
-    Material mat = geom_ptr->GetMaterial();
+    Material * mat = geom_ptr->GetMaterial();
 
     m_MaterialChoice.SetVal( 0 );
 
     std::vector< std::string > choices = m_MaterialChoice.GetItems();
     for ( int i = 0; i < (int)choices.size(); i++ )
     {
-        if( mat.m_Name == choices[i] )
+        if( mat->GetName() == choices[i] )
         {
             m_MaterialChoice.SetVal(i);
             break;

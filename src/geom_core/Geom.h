@@ -314,7 +314,7 @@ public:
 
     virtual void SetMaterialToDefault();
     virtual void SetMaterial( std::string name, double ambi[], double diff[], double spec[], double emis[], double shin );
-    virtual Material GetMaterial();
+    virtual Material * GetMaterial();
 
     virtual bool GetSetFlag( int index );
     virtual vector< bool > GetSetFlags()
