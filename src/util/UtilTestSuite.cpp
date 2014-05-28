@@ -607,3 +607,67 @@ void UtilTestSuite::SharedPtrTest()
 
     std::swap( test_a, other_a );
 }
+
+void UtilTestSuite::PointInPolyTest()
+{
+    std::vector< vec2d > polygon;
+    vec2d test_pnt;
+
+    polygon.push_back( vec2d( 0, 0 ) );
+    polygon.push_back( vec2d( 0, 3 ) );
+    polygon.push_back( vec2d( -4, 3 ) );
+    polygon.push_back( vec2d( -2, 2 ) );
+    polygon.push_back( vec2d( -4, 0 ) );
+    polygon.push_back( vec2d( 0, 0 ) );
+
+    test_pnt = vec2d( -2.5, 1.45 );
+
+    bool in_poly = PointInPolygon( test_pnt, polygon );
+
+    TEST_ASSERT( in_poly );
+
+    test_pnt = vec2d( -3, 2 );
+    in_poly = PointInPolygon( test_pnt, polygon );
+
+    TEST_ASSERT( !in_poly );
+}
+
+void UtilTestSuite::BilinearInterpTest()
+{
+    vec3d p0, p1, p;
+    double z0, z1, z2, z3, interp_val;
+    p0 = vec3d( 1.3, 1.5, 0 );
+    p1 = vec3d( 1.8, 2.1, 0 );
+    p = vec3d( 1.3, 1.8, 0 );
+    z0 = 21;
+    z1 = 1.5;
+    z2 = 5;
+    z3 = 3;
+
+    vector<double> weights;
+
+    BilinearWeights( p0, p1, p, weights );
+    interp_val = z0 * weights[0] + z1 * weights[1] + z2 * weights[2] + z3 * weights[3];
+    TEST_ASSERT_DELTA( interp_val, 12.0, DBL_EPSILON );
+
+    p.set_xyz( 1.55, 1.8, 0 );
+    BilinearWeights( p0, p1, p, weights );
+    interp_val = z0 * weights[0] + z1 * weights[1] + z2 * weights[2] + z3 * weights[3];
+    TEST_ASSERT_DELTA( interp_val, 7.625, DBL_EPSILON );
+
+    p.set_xyz( 1.55, 2.1, 0 );
+    BilinearWeights( p0, p1, p, weights );
+    interp_val = z0 * weights[0] + z1 * weights[1] + z2 * weights[2] + z3 * weights[3];
+    TEST_ASSERT_DELTA( interp_val, 4.0, DBL_EPSILON );
+
+    p.set_xyz( 1.8, 1.8, 0 );
+    BilinearWeights( p0, p1, p, weights );
+    interp_val = z0 * weights[0] + z1 * weights[1] + z2 * weights[2] + z3 * weights[3];
+    TEST_ASSERT_DELTA( interp_val, 3.25, DBL_EPSILON );
+
+    p.set_xyz( 1.425, 1.8, 0 );
+    BilinearWeights( p0, p1, p, weights );
+    interp_val = z0 * weights[0] + z1 * weights[1] + z2 * weights[2] + z3 * weights[3];
+    TEST_ASSERT_DELTA( interp_val, 9.8125, DBL_EPSILON );
+
+}

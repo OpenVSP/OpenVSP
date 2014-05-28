@@ -10,6 +10,8 @@
 #include "ScreenBase.h"
 #include "ScreenMgr.h"
 #include "ParmMgr.h"
+#include "SubSurfaceMgr.h"
+#include "SubSurface.h"
 #include "APIDefines.h"
 #include "MaterialRepo.h"
 using namespace vsp;
@@ -212,8 +214,11 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
 {
     Fl_Group* gen_tab = AddTab( "Gen" );
     Fl_Group* xform_tab = AddTab( "XForm" );
+    Fl_Group* subsurf_tab = AddTab( "Sub" );
+    m_SubSurfTab_ind = m_TabGroupVec.size() - 1;
     Fl_Group* gen_group = AddSubGroup( gen_tab, 5 );
     Fl_Group* xform_group = AddSubGroup( xform_tab, 5 );
+    Fl_Group* subsurf_group = AddSubGroup( subsurf_tab, 5 );
 
     //==== Gen Group Layout ====//
     m_GenLayout.SetGroupAndScreen( gen_group, this );
@@ -400,8 +405,138 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_XFormLayout.AddSlider( m_AttachVSlider, "V", 1, " %5.4f" );
 
 
-}
+    //=============== SubSurface Tab ===================//
+    m_CurSubDispGroup = NULL;
+    m_SubSurfLayout.SetGroupAndScreen( subsurf_group, this );
+    m_SubSurfLayout.AddDividerBox( "Sub-Surface List" );
 
+    int browser_h = 100;
+    m_SubSurfBrowser = new Fl_Browser( m_SubSurfLayout.GetX(), m_SubSurfLayout.GetY(), m_SubSurfLayout.GetW(), browser_h );
+    m_SubSurfBrowser->type( 1 );
+    m_SubSurfBrowser->labelfont( 13 );
+    m_SubSurfBrowser->labelsize( 12 );
+    m_SubSurfBrowser->textsize( 12 );
+    m_SubSurfBrowser->callback( staticScreenCB, this );
+    subsurf_group->add( m_SubSurfBrowser );
+    m_SubSurfLayout.AddY( browser_h );
+    m_SubSurfLayout.AddYGap();
+
+    m_SubSurfLayout.AddButton( m_DelSubSurfButton, "Delete" );
+    m_SubSurfLayout.AddYGap();
+
+    m_SubSurfLayout.SetFitWidthFlag( false );
+    m_SubSurfLayout.SetSameLineFlag( true );
+
+    m_SubSurfChoice.AddItem( SubSurface::GetTypeName( SubSurface::SS_LINE ) );
+    m_SubSurfChoice.AddItem( SubSurface::GetTypeName( SubSurface::SS_RECTANGLE ) );
+    m_SubSurfChoice.AddItem( SubSurface::GetTypeName( SubSurface::SS_ELLIPSE ) );
+
+    int b_width = m_SubSurfLayout.GetRemainX();
+    m_SubSurfLayout.SetButtonWidth( b_width * 0.4 );
+    m_SubSurfLayout.SetChoiceButtonWidth( b_width / 5 );
+    m_SubSurfLayout.SetSliderWidth( b_width * 0.4 );
+    m_SubSurfLayout.AddChoice( m_SubSurfChoice, "Type" );
+    m_SubSurfLayout.AddButton( m_AddSubSurfButton, "Add" );
+
+    m_SubSurfLayout.SetFitWidthFlag( true );
+    m_SubSurfLayout.SetSameLineFlag( false );
+    m_SubSurfLayout.ForceNewLine();
+
+    m_SubSurfLayout.AddYGap();
+
+    m_SSCommonGroup.SetGroupAndScreen( AddSubGroup( subsurf_tab, 5 ), this );
+    m_SSCommonGroup.SetY( m_SubSurfLayout.GetY() );
+    m_SSCommonGroup.AddDividerBox( "Sub-Surface Parameters" );
+    m_SSCommonGroup.AddInput( m_SubNameInput, "Name" );
+
+    // Indivdual SubSurface Parameters
+    int start_y = m_SSCommonGroup.GetY();
+
+    //==== SSLine ====//
+    m_SSLineGroup.SetGroupAndScreen( AddSubGroup( subsurf_tab, 5 ), this );
+    m_SSLineGroup.SetY( start_y );
+
+    int remain_x = m_SubSurfLayout.GetRemainX();
+
+    m_SSLineGroup.SetFitWidthFlag( false );
+    m_SSLineGroup.SetSameLineFlag( true );
+    m_SSLineGroup.AddLabel( "Line Type", remain_x / 3 );
+    m_SSLineGroup.SetButtonWidth( remain_x / 3 );
+    m_SSLineGroup.AddButton( m_SSLineConstUButton, "U" );
+    m_SSLineGroup.AddButton( m_SSLineConstWButton, "W" );
+
+    m_SSLineConstToggleGroup.Init( this );
+    m_SSLineConstToggleGroup.AddButton( m_SSLineConstUButton.GetFlButton() );
+    m_SSLineConstToggleGroup.AddButton( m_SSLineConstWButton.GetFlButton() );
+
+    m_SSLineGroup.ForceNewLine();
+    m_SSLineGroup.AddLabel( "Test", remain_x / 3 );
+    m_SSLineGroup.AddButton( m_SSLineGreaterToggle, "Greater" );
+    m_SSLineGroup.AddButton( m_SSLineLessToggle, "Less" );
+
+    m_SSLineTestToggleGroup.Init( this );
+    m_SSLineTestToggleGroup.AddButton( m_SSLineGreaterToggle.GetFlButton() );
+    m_SSLineTestToggleGroup.AddButton( m_SSLineLessToggle.GetFlButton() );
+
+    m_SSLineGroup.SetFitWidthFlag( true );
+    m_SSLineGroup.SetSameLineFlag( false );
+    m_SSLineGroup.ForceNewLine();
+    m_SSLineGroup.AddSlider( m_SSLineConstSlider, "Value", 1, "%5.4f" );
+
+    //==== SSRectangle ====//
+    m_SSRecGroup.SetGroupAndScreen( AddSubGroup( subsurf_tab, 5 ), this );
+    m_SSRecGroup.SetY( start_y );
+    remain_x = m_SSRecGroup.GetRemainX();
+
+    m_SSRecGroup.SetFitWidthFlag( false );
+    m_SSRecGroup.SetSameLineFlag( true );
+    m_SSRecGroup.AddLabel( "Tag", remain_x / 3 );
+    m_SSRecGroup.SetButtonWidth( remain_x / 3 );
+    m_SSRecGroup.AddButton( m_SSRecInsideButton, "Inside" );
+    m_SSRecGroup.AddButton( m_SSRecOutsideButton, "Outside" );
+
+    m_SSRecTestToggleGroup.Init( this );
+    m_SSRecTestToggleGroup.AddButton( m_SSRecInsideButton.GetFlButton() );
+    m_SSRecTestToggleGroup.AddButton( m_SSRecOutsideButton.GetFlButton() );
+
+    m_SSRecGroup.SetFitWidthFlag( true );
+    m_SSRecGroup.SetSameLineFlag( false );
+    m_SSRecGroup.ForceNewLine();
+
+    m_SSRecGroup.AddSlider( m_SSRecCentUSlider, "Center U", 1, "%5.4f" );
+    m_SSRecGroup.AddSlider( m_SSRecCentWSlider, "Center W", 1, "%5.4f" );
+    m_SSRecGroup.AddSlider( m_SSRecDelUSlider, "Delta U", 1, "%5.4f" );
+    m_SSRecGroup.AddSlider( m_SSRecDelWSlider, "Delta W", 1, "%5.4f" );
+    m_SSRecGroup.AddSlider( m_SSRecThetaSlider, "Theta", 25, "%5.4f" );
+
+    //==== SS_Ellipse ====//
+    m_SSEllGroup.SetGroupAndScreen( AddSubGroup( subsurf_tab, 5 ), this );
+    m_SSEllGroup.SetY( start_y );
+    remain_x = m_SSEllGroup.GetRemainX();
+
+    m_SSEllGroup.SetFitWidthFlag( false );
+    m_SSEllGroup.SetSameLineFlag( true );
+    m_SSEllGroup.AddLabel( "Tag", remain_x / 3 );
+    m_SSEllGroup.SetButtonWidth( remain_x / 3 );
+    m_SSEllGroup.AddButton( m_SSEllInsideButton, "Inside" );
+    m_SSEllGroup.AddButton( m_SSEllOutsideButton, "Outside" );
+
+    m_SSEllTestToggleGroup.Init( this );
+    m_SSEllTestToggleGroup.AddButton( m_SSEllInsideButton.GetFlButton() );
+    m_SSEllTestToggleGroup.AddButton( m_SSEllOutsideButton.GetFlButton() );
+
+    m_SSEllGroup.SetFitWidthFlag( true );
+    m_SSEllGroup.SetSameLineFlag( false );
+    m_SSEllGroup.ForceNewLine();
+
+    m_SSEllGroup.AddSlider( m_SSEllTessSlider, "Num Points", 100, "%5.0f" );
+    m_SSEllGroup.AddSlider( m_SSEllCentUSlider, "Center U", 1, "%5.4f" );
+    m_SSEllGroup.AddSlider( m_SSEllCentWSlider, "Center W", 1, "%5.4f" );
+    m_SSEllGroup.AddSlider( m_SSEllULenSlider, "U Length", 1, "%5.4f" );
+    m_SSEllGroup.AddSlider( m_SSEllWLenSlider, "W Length", 1, "%5.4f" );
+    m_SSEllGroup.AddSlider( m_SSEllThetaSlider, "Theta", 25, "%5.4f" );
+
+}
 
 bool GeomScreen::Update()
 {
@@ -412,6 +547,8 @@ bool GeomScreen::Update()
         Hide();
         return false;
     }
+
+    char str[256];
 
     TabScreen::Update();
 
@@ -508,6 +645,83 @@ bool GeomScreen::Update()
         m_SetBrowser->add( set_name_vec[i].c_str(), static_cast<int>( set_flag_vec[i] ) );
     }
 
+    //================= SubSurfaces Tab ===================//
+    SubSurface* subsurf = geom_ptr->GetSubSurf( SubSurfaceMgr.GetCurrSurfInd() );
+
+    if ( subsurf )
+    {
+        m_SubNameInput.Update( subsurf->GetName() );
+        if ( subsurf->GetType() == SubSurface::SS_LINE )
+        {
+            SSLine* ssline = dynamic_cast< SSLine* >( subsurf );
+            assert( ssline );
+
+            m_SSLineConstToggleGroup.Update( ssline->m_ConstType.GetID() );
+            m_SSLineTestToggleGroup.Update( ssline->m_TestType.GetID() );
+            m_SSLineConstSlider.Update( ssline->m_ConstVal.GetID() );
+            SubSurfDispGroup( &m_SSLineGroup );
+
+        }
+        else if ( subsurf->GetType() == SubSurface::SS_RECTANGLE )
+        {
+            SSRectangle* ssrec = dynamic_cast< SSRectangle* >( subsurf );
+            assert( subsurf );
+
+            m_SSRecTestToggleGroup.Update( ssrec->m_TestType.GetID() );
+            m_SSRecCentUSlider.Update( ssrec->m_CenterU.GetID() );
+            m_SSRecCentWSlider.Update( ssrec->m_CenterW.GetID() );
+            m_SSRecDelUSlider.Update( ssrec->m_DeltaU.GetID() );
+            m_SSRecDelWSlider.Update( ssrec->m_DeltaW.GetID() );
+            m_SSRecThetaSlider.Update( ssrec->m_Theta.GetID() );
+            SubSurfDispGroup( &m_SSRecGroup );
+        }
+        else if ( subsurf->GetType() == SubSurface::SS_ELLIPSE )
+        {
+            SSEllipse* ssell = dynamic_cast< SSEllipse* >( subsurf );
+            assert( ssell );
+
+            m_SSEllTestToggleGroup.Update( ssell->m_TestType.GetID() );
+            m_SSEllTessSlider.Update( ssell->m_Tess.GetID() );
+            m_SSEllCentUSlider.Update( ssell->m_CenterU.GetID() );
+            m_SSEllCentWSlider.Update( ssell->m_CenterW.GetID() );
+            m_SSEllULenSlider.Update( ssell->m_ULength.GetID() );
+            m_SSEllWLenSlider.Update( ssell->m_WLength.GetID() );
+            m_SSEllThetaSlider.Update( ssell->m_Theta.GetID() );
+            SubSurfDispGroup( & m_SSEllGroup );
+        }
+    }
+    else
+    {
+        SubSurfDispGroup( NULL );
+    }
+
+    //==== SubSurfBrowser ====//
+    m_SubSurfBrowser->clear();
+    static int widths[] = { 75, 75 };
+    m_SubSurfBrowser->column_widths( widths );
+    m_SubSurfBrowser->column_char( ':' );
+
+    sprintf( str, "@b@.NAME:@b@.TYPE" );
+    m_SubSurfBrowser->add( str );
+
+    string ss_name, ss_type;
+
+    vector<SubSurface*> subsurf_vec = geom_ptr->GetSubSurfVec();
+    for ( int i = 0; i < ( int )subsurf_vec.size() ; i++ )
+    {
+
+        ss_name = subsurf_vec[i]->GetName();
+        ss_type = SubSurface::GetTypeName( subsurf_vec[i]->GetType() );
+        sprintf( str, "%s:%s", ss_name.c_str(), ss_type.c_str() );
+        m_SubSurfBrowser->add( str );
+    }
+
+    if ( geom_ptr->ValidSubSurfInd( SubSurfaceMgr.GetCurrSurfInd() ) )
+    {
+        m_SubSurfBrowser->select( SubSurfaceMgr.GetCurrSurfInd() + 2 );
+    }
+
+
     return true;
 }
 
@@ -554,8 +768,64 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         geom_ptr->SetName( m_NameInput.GetString() );
     }
+    else if ( device == &m_AddSubSurfButton )
+    {
+        SubSurface* ssurf = NULL;
+        if ( m_SubSurfChoice.GetVal() == SubSurface::SS_LINE )
+        {
+            ssurf = geom_ptr->AddSubSurf( SubSurface::SS_LINE );
+        }
+        else if ( m_SubSurfChoice.GetVal() == SubSurface::SS_RECTANGLE )
+        {
+            ssurf = geom_ptr->AddSubSurf( SubSurface::SS_RECTANGLE );
+        }
+        else if ( m_SubSurfChoice.GetVal() == SubSurface::SS_ELLIPSE )
+        {
+            ssurf = geom_ptr->AddSubSurf( SubSurface::SS_ELLIPSE );
+        }
+
+        if ( ssurf )
+        {
+            ssurf->Update();
+        }
+        SubSurfaceMgr.SetCurrSubSurfInd( geom_ptr->NumSubSurfs() - 1 );
+    }
+    else if ( device == &m_DelSubSurfButton )
+    {
+        geom_ptr->DelSubSurf( SubSurfaceMgr.GetCurrSurfInd() );
+        SubSurfaceMgr.SetCurrSubSurfInd( geom_ptr->NumSubSurfs() - 1 );
+    }
+    else if ( device == &m_SubNameInput )
+    {
+        SubSurface* sub_surf = geom_ptr->GetSubSurf( SubSurfaceMgr.GetCurrSurfInd() );
+        if ( sub_surf )
+        {
+            sub_surf->SetName( m_SubNameInput.GetString() );
+        }
+    }
 
     m_ScreenMgr->SetUpdateFlag( true );
+}
+
+void GeomScreen::SubSurfDispGroup( GroupLayout* group )
+{
+    if ( m_CurSubDispGroup == group && group )
+    {
+        return;
+    }
+
+    m_SSLineGroup.Hide();
+    m_SSRecGroup.Hide();
+    m_SSCommonGroup.Hide();
+    m_SSEllGroup.Hide();
+
+    m_CurSubDispGroup = group;
+
+    if ( group )
+    {
+        group->Show();
+        m_SSCommonGroup.Show(); // Always show the Common Group if any other subsurface group is being displayed.
+    }
 }
 
 void GeomScreen::CallBack( Fl_Widget *w )
@@ -568,7 +838,16 @@ void GeomScreen::CallBack( Fl_Widget *w )
         return;
     }
 
-	if ( w == m_SetBrowser )
+    if ( w == m_SubSurfBrowser )
+    {
+        SubSurfaceMgr.SetCurrSubSurfInd( m_SubSurfBrowser->value() - 2 );
+        SubSurface* sub_surf = geom_ptr->GetSubSurf( SubSurfaceMgr.GetCurrSurfInd() );
+        if ( sub_surf )
+        {
+            m_SubSurfChoice.SetVal( sub_surf->GetType() );
+        }
+    }
+    else if ( w == m_SetBrowser )
     {
         int curr_index = m_SetBrowser->value();
         bool flag = !!m_SetBrowser->checked( curr_index );
@@ -576,5 +855,5 @@ void GeomScreen::CallBack( Fl_Widget *w )
         geom_ptr->SetSetFlag( curr_index, flag );
     }
 
-	m_ScreenMgr->SetUpdateFlag( true );
+    m_ScreenMgr->SetUpdateFlag( true );
 }

@@ -71,6 +71,7 @@
 #include <assert.h>
 
 #include <set>
+#include <map>
 #include <vector>
 #include <list>
 #include <string>
@@ -287,6 +288,9 @@ public:
 
     virtual void DebugWriteChains( const char* name, bool tessFlag );
 
+    virtual void BuildSubSurfIntChains();
+    virtual void SubTagTris();
+
     virtual bool GetFarMeshFlag()
     {
         return m_FarMeshFlag;
@@ -480,6 +484,8 @@ protected:
     vector<Edge*> m_BadEdges;
     vector<Tri*> m_BadTris;
     vector< Node* > m_nodeStore;
+
+    vector< string > m_GeomIDs;
 
 private:
     DrawObj m_MeshTriDO;

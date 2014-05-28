@@ -16,6 +16,7 @@
 
 #include "APIErrorMgr.h"
 #include "Vec3d.h"
+#include "Matrix.h"
 
 #include <string>
 #include <stack>
@@ -103,6 +104,7 @@ extern void CopyXSec( const string & xsec_surf_id, int xsec_index );
 extern void PasteXSec( const string & xsec_surf_id, int xsec_index );
 extern string InsertXSec( const string & xsec_surf_id, int type, int xsec_index );
 extern void ChangeXSecShape( const string & xsec_surf_id, int xsec_index, int type );
+extern void SetXSecSurfGlobalXForm( const string & xsec_surf_id, const Matrix4d & mat );
 
 //======================== XSec ================================//
 extern int GetXSecShape( const string& xsec_id );
@@ -127,6 +129,7 @@ extern void SetSetFlag( const string & geom_id, int set_index, bool flag );
 //======================== Parm Functions ================================//
 extern bool ValidParm( const string & id );
 extern double SetParmVal( const string & parm_id, double val );
+extern double SetParmValLimits( const string & parm_id, double val, double lower_limit, double upper_limit );
 extern double SetParmValUpdate( const string & parm_id, double val );
 extern double SetParmVal( const string & geom_id, const string & name, const string & group, double val );
 extern double SetParmValUpdate( const string & geom_id, const string & name, const string & group, double val );

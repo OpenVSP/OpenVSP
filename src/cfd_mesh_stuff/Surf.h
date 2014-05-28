@@ -25,6 +25,7 @@
 #include <vector>
 #include <list>
 #include <set>
+#include <map>
 using namespace std;
 
 class CfdMeshMgrSingleton;
@@ -224,6 +225,13 @@ public:
         return m_Pnts;
     }
 
+    void Subtag();
+    // Mapping Functions
+    // Converts surf uw to VspSurf uw
+    vec2d Convert2VspSurf( double u, double w );
+    // Converts VspSurf uw to surf uw
+    vec2d Convert2Surf( double u, double w );
+
 protected:
 
     int m_CompID;
@@ -267,6 +275,13 @@ protected:
                    void ( *uBlendFun )( double u, double& F1, double& F2, double& F3, double& F4 ),
                    void ( *wBlendFun )( double u, double& F1, double& F2, double& F3, double& F4 ) );
 
+    int m_VspSurfInd;
+    vector< double > u_to_vspsurf;
+    vector< double > w_to_vspsurf;
+    map< double, int > u_to_surf;
+    map< double, int > w_to_surf;
+
+    double InterpolateToVspSurf( const vector< double> & vec, const double & surf_val ) const;
 
 };
 

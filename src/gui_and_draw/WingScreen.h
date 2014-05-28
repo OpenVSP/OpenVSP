@@ -54,9 +54,9 @@ protected:
     TriggerButton m_PasteSectButton;
     TriggerButton m_InsertSectButton;
 
-    SliderAdjRangeInput m_NumWSectSlider;
+    SliderInput m_SectUTessSlider;
 
-    WingDriverGroup m_WingDriverGroup;
+    WingDriverGroup m_DefaultWingDriverGroup;
     DriverGroupBank m_WingDriverGroupBank;
 
     StringOutput m_SectProjSpanOutput;
@@ -64,16 +64,17 @@ protected:
     SliderAdjRangeInput m_SweepSlider;
     SliderAdjRangeInput m_SweepLocSlider;
 
-    SliderAdjRangeInput m_WashoutSlider;
-    SliderAdjRangeInput m_WashoutLocSlider;
-    ToggleButton m_WashoutAbsoluteToggle;
-    ToggleButton m_WashoutRelativeToggle;
-    ToggleRadioGroup m_WashoutAbsRelToggle;
+    SliderAdjRangeInput m_TwistSlider;
+    SliderAdjRangeInput m_TwistLocSlider;
+    ToggleButton m_TwistAbsoluteToggle;
+    ToggleButton m_TwistRelativeToggle;
+    ToggleRadioGroup m_TwistAbsRelToggle;
 
     SliderAdjRangeInput m_DihedralSlider;
     ToggleButton m_DihedralAbsoluteToggle;
     ToggleButton m_DihedralRelativeToggle;
     ToggleRadioGroup m_DihedralAbsRelToggle;
+    ToggleButton m_RotateFoilMatchDihedral;
 
     // Airfoil tab
     GroupLayout m_AfLayout;

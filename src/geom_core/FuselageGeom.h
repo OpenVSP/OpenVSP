@@ -25,11 +25,6 @@ public:
     FuselageGeom( Vehicle* vehicle_ptr );
     virtual ~FuselageGeom();
 
-    virtual int GetNumMainSurfs()
-    {
-        return 1;
-    }
-
     virtual void ComputeCenter();
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );

@@ -19,7 +19,7 @@
 using namespace vsp;
 
 //==== Constructor ====//
-WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 565, "Wing" )
+WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 600, "Wing" )
 {
     m_CurrDisplayGroup = NULL;
 
@@ -59,20 +59,19 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 565, "Wing" )
     m_SectionLayout.AddButton( m_InsertSectButton, "Insert" );
 
     m_SectionLayout.ForceNewLine();
+    m_SectionLayout.AddYGap();
 
     m_SectionLayout.SetFitWidthFlag( true );
     m_SectionLayout.SetSameLineFlag( false );
 
-    m_SectionLayout.SetButtonWidth( 100 );
+    m_SectionLayout.SetButtonWidth( 4*m_SectionLayout.GetRemainX()/5 );
     m_SectionLayout.AddOutput( m_NumSectOutput, "Num Sections" );
     m_SectionLayout.AddYGap();
 
     m_SectionLayout.SetButtonWidth( 74 );
 
     m_SectionLayout.AddDividerBox( "Num Interpolated XSecs" );
-
-    m_SectionLayout.AddSlider( m_NumWSectSlider, "Num Sect", 100, "%5.0f" );
-
+    m_SectionLayout.AddSlider( m_SectUTessSlider, "Num U", 20, " %5.0f" );
 
     m_SectionLayout.AddYGap();
 
@@ -91,35 +90,36 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 565, "Wing" )
 
     m_SectionLayout.SetButtonWidth( 50 );
 
-    m_WingDriverGroupBank.SetDriverGroup( &m_WingDriverGroup );
+    m_WingDriverGroupBank.SetDriverGroup( &m_DefaultWingDriverGroup );
     m_SectionLayout.AddDriverGroupBank( m_WingDriverGroupBank, wsect_driver_labels, 10, "%6.5f" );
 
-    m_SectionLayout.SetButtonWidth( 100 );
+    m_SectionLayout.SetButtonWidth( 4*m_SectionLayout.GetRemainX()/5 );
 
     m_SectionLayout.AddOutput( m_SectProjSpanOutput, "Projected Span" );
 
     m_SectionLayout.AddYGap();
+    m_SectionLayout.SetButtonWidth( 74 );
     m_SectionLayout.AddDividerBox( "Sweep" );
 
     m_SectionLayout.AddSlider( m_SweepSlider, "Sweep", 10, "%6.5f" );
     m_SectionLayout.AddSlider( m_SweepLocSlider, "Sweep Loc", 10, "%6.5f" );
 
     m_SectionLayout.AddYGap();
-    m_SectionLayout.AddDividerBox( "Washout" );
-    m_SectionLayout.AddSlider( m_WashoutSlider, "Washout", 10, "%6.5f" );
-    m_SectionLayout.AddSlider( m_WashoutLocSlider, "Washout Loc", 10, "%6.5f" );
+    m_SectionLayout.AddDividerBox( "Twist" );
+    m_SectionLayout.AddSlider( m_TwistSlider, "Twist", 10, "%6.5f" );
+    m_SectionLayout.AddSlider( m_TwistLocSlider, "Twist Loc", 10, "%6.5f" );
 
     m_SectionLayout.SetFitWidthFlag( false );
     m_SectionLayout.SetSameLineFlag( true );
     m_SectionLayout.AddLabel( "Reference:", 170 );
     m_SectionLayout.SetButtonWidth( m_SectionLayout.GetRemainX() / 2 );
-    m_SectionLayout.AddButton( m_WashoutRelativeToggle, "Rel" );
-    m_SectionLayout.AddButton( m_WashoutAbsoluteToggle, "Abs" );
+    m_SectionLayout.AddButton( m_TwistRelativeToggle, "Rel" );
+    m_SectionLayout.AddButton( m_TwistAbsoluteToggle, "Abs" );
     m_SectionLayout.ForceNewLine();
 
-    m_WashoutAbsRelToggle.Init( this );
-    m_WashoutAbsRelToggle.AddButton( m_WashoutRelativeToggle.GetFlButton() );
-    m_WashoutAbsRelToggle.AddButton( m_WashoutAbsoluteToggle.GetFlButton() );
+    m_TwistAbsRelToggle.Init( this );
+    m_TwistAbsRelToggle.AddButton( m_TwistAbsoluteToggle.GetFlButton() );
+    m_TwistAbsRelToggle.AddButton( m_TwistRelativeToggle.GetFlButton() );
 
     m_SectionLayout.SetFitWidthFlag( true );
     m_SectionLayout.SetSameLineFlag( false );
@@ -138,10 +138,12 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 565, "Wing" )
     m_SectionLayout.ForceNewLine();
 
     m_DihedralAbsRelToggle.Init( this );
-    m_DihedralAbsRelToggle.AddButton( m_DihedralRelativeToggle.GetFlButton() );
     m_DihedralAbsRelToggle.AddButton( m_DihedralAbsoluteToggle.GetFlButton() );
+    m_DihedralAbsRelToggle.AddButton( m_DihedralRelativeToggle.GetFlButton() );
 
-
+    m_SectionLayout.SetButtonWidth( m_SectionLayout.GetRemainX() );
+    m_SectionLayout.AddYGap();
+    m_SectionLayout.AddButton( m_RotateFoilMatchDihedral, "Rotate Foil To Match Dihedral" );
     m_SectionLayout.SetButtonWidth( 74 );
 
 
@@ -337,6 +339,7 @@ void WingScreen::Show()
 bool WingScreen::Update()
 {
     assert( m_ScreenMgr );
+    char str[256];
 
     Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
     if ( !geom_ptr || geom_ptr->GetType().m_Type != MS_WING_GEOM_TYPE )
@@ -346,20 +349,60 @@ bool WingScreen::Update()
     }
 
     GeomScreen::Update();
-
-    m_WingDriverGroupBank.Update();
+    m_NumUSlider.Deactivate();
 
     WingGeom* wing_ptr = dynamic_cast< WingGeom* >( geom_ptr );
     assert( wing_ptr );
 
+    //==== Plan Parms ===//
+    m_PlanSpanSlider.Update( wing_ptr->m_TotalSpan.GetID() );
+    m_PlanProjSpanSlider.Update( wing_ptr->m_TotalProjSpan.GetID() );
+    m_PlanChordSlider.Update( wing_ptr->m_TotalChord.GetID() );
+    m_PlanAreaSlider.Update( wing_ptr->m_TotalArea.GetID() );
+
+
+    sprintf( str, "       %d", wing_ptr->NumXSec()-1 );
+    m_NumSectOutput.Update(  str );
+
+    ////==== Wing Section Index Display ====//
+    int ws_index = wing_ptr->GetActiveXSecIndex();
+    m_SectIndexSelector.SetIndex( ws_index );
+
+    WingSect* wing_sect = dynamic_cast<WingSect*>(wing_ptr->GetXSec( ws_index ));
+
+    if ( wing_sect )
+    {
+        m_SectUTessSlider.Update( wing_sect->m_SectTessU.GetID() );
+
+        m_WingDriverGroupBank.SetDriverGroup( &wing_sect->m_DriverGroup );
+        vector< string > parm_ids = wing_sect->GetDriverParms();
+        wing_sect->m_DriverGroup.UpdateGroup( parm_ids );
+        m_WingDriverGroupBank.Update( parm_ids );
+
+        m_SweepSlider.Update( wing_sect->m_Sweep.GetID() );
+        m_SweepLocSlider.Update( wing_sect->m_SweepLoc.GetID() );
+        m_TwistSlider.Update( wing_sect->m_Twist.GetID() );
+        m_TwistLocSlider.Update( wing_sect->m_TwistLoc.GetID() );
+
+        m_DihedralSlider.Update( wing_sect->m_Dihedral.GetID() );
+        m_DihedralAbsRelToggle.Update( wing_ptr->m_RelativeDihedralFlag.GetID() );
+        m_TwistAbsRelToggle.Update( wing_ptr->m_RelativeTwistFlag.GetID() );
+
+        m_RotateFoilMatchDihedral.Update( wing_ptr->m_RotateAirfoilMatchDiedralFlag.GetID() );
+
+        sprintf( str, " %6.4f", wing_sect->GetProjectedSpan() );
+        m_SectProjSpanOutput.Update(  str );
+
+    }
+
     //==== XSec Index Display ===//
-    int xsid = wing_ptr->GetActiveXSecIndex();
+    int xsid = wing_ptr->GetActiveAirfoilIndex();
     m_AfIndexSelector.SetIndex( xsid );
 
-    FuseXSec* xs = ( FuseXSec* ) wing_ptr->GetXSec( xsid );
-    if ( xs )
+    WingSect* ws = ( WingSect* ) wing_ptr->GetXSec( xsid );
+    if ( ws )
     {
-        XSecCurve* xsc = xs->GetXSecCurve();
+        XSecCurve* xsc = ws->GetXSecCurve();
         if ( xsc )
         {
             m_AfTypeChoice.SetVal( xsc->GetType() );
@@ -534,20 +577,58 @@ void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 
     if ( gui_device == &m_AfIndexSelector )
     {
-        wing_ptr->SetActiveXSecIndex( m_AfIndexSelector.GetIndex() );
+        wing_ptr->SetActiveAirfoilIndex( m_AfIndexSelector.GetIndex() );
+    }
+    else if ( gui_device == &m_SectIndexSelector )
+    {
+        wing_ptr->SetActiveXSecIndex( m_SectIndexSelector.GetIndex() );
+    }
+    else if ( gui_device == &m_SplitSectButton )
+    {
+        int wsid = wing_ptr->GetActiveXSecIndex();
+        wing_ptr->SplitWingSect( wsid );
+        wing_ptr->Update();
+    }
+    else if ( gui_device == &m_CutSectButton )
+    {
+        int wsid = wing_ptr->GetActiveXSecIndex();
+        wing_ptr->CutWingSect( wsid );
+        wing_ptr->Update();
+    }
+    else if ( gui_device == &m_CopySectButton )
+    {
+        int wsid = wing_ptr->GetActiveXSecIndex();
+        wing_ptr->CopyWingSect( wsid );
+        wing_ptr->Update();
+    }
+    else if ( gui_device == &m_PasteSectButton )
+    {
+        int wsid = wing_ptr->GetActiveXSecIndex();
+        wing_ptr->PasteWingSect( wsid );
+        wing_ptr->Update();
+    }
+    else if ( gui_device == &m_InsertSectButton )
+    {
+        int wsid = wing_ptr->GetActiveXSecIndex();
+        wing_ptr->InsertWingSect( wsid );
+        wing_ptr->Update();
     }
     else if ( gui_device == &m_AfTypeChoice )
     {
         int t = m_AfTypeChoice.GetVal();
-        wing_ptr->SetActiveXSecType( t );
+        wing_ptr->SetActiveAirfoilType( t );
+        wing_ptr->Update();
     }
     else if ( gui_device == &m_CopyAfButton   )
     {
-        wing_ptr->CopyActiveXSec();
-    }
+        int afid = wing_ptr->GetActiveAirfoilIndex();
+        wing_ptr->CopyAirfoil( afid );
+   }
     else if ( gui_device == &m_PasteAfButton  )
     {
-        wing_ptr->PasteActiveXSec();
+        int afid = wing_ptr->GetActiveAirfoilIndex();
+        wing_ptr->PasteAirfoil(afid);
+        wing_ptr->Update();
     }
     else if ( gui_device == &m_ReadFuseFileButton  )
     {

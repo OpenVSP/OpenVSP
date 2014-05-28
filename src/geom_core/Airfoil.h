@@ -48,6 +48,7 @@ public:
     virtual double GetWidth();
     virtual double GetHeight();
     virtual void SetWidthHeight( double w, double h );
+    virtual string GetWidthParmID()                                { return m_Chord.GetID(); }
 
     BoolParm m_Invert;
     Parm m_Chord;

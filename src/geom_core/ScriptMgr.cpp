@@ -19,6 +19,7 @@
 #include "XSec.h"
 #include "Vehicle.h"
 #include "ResultsMgr.h"
+#include "StringUtil.h"
 
 using namespace vsp;
 
@@ -59,6 +60,11 @@ ScriptMgrSingleton::ScriptMgrSingleton()
 //==== Set Up Script Engine, Script Error Callbacks ====//
 void ScriptMgrSingleton::Init( )
 {
+    //==== Only Init Once ====//
+    static bool init_flag = false;
+    if ( init_flag )
+        return;
+    init_flag = true;
 
     //==== Create the Script Engine ====//
     m_ScriptEngine = asCreateScriptEngine( ANGELSCRIPT_VERSION );
@@ -116,34 +122,88 @@ void ScriptMgrSingleton::Init( )
 void ScriptMgrSingleton::RunTestScripts()
 {
     //===== Run Test Scripts ====//
-    ScriptMgr.ReadScript( "TestScript", "../../TestScript.as"  );
+ //   ScriptMgr.ReadScript( "TestScript", "../../TestScript.as"  );
+    ScriptMgr.ReadScriptFromFile( "TestScript", "../../../xxxTestScript.as"  );
     ScriptMgr.ExecuteScript( "TestScript", "void main()" );
     ScriptMgr.ExecuteScript( "TestScript", "void TestAPIScript()" );
 }
 
 
 //==== Start A New Module And Read Script ====//
-void ScriptMgrSingleton::ReadScript( const char* module_name, const char* file_name )
+string ScriptMgrSingleton::ReadScriptFromFile( const string & module_name, const string &  file_name )
+{
+    string content = ExtractContent( file_name );
+
+    if ( content.size() < 2 )
+    {
+        return string();
+    }
+
+    return ReadScriptFromMemory( module_name, content );
+}
+
+//==== Start A New Module And Read Script ====//
+string ScriptMgrSingleton::ReadScriptFromMemory( const string &  module_name, const string & script_content )
 {
     int r;
+    string updated_module_name = module_name;
+    map< string, string >::iterator iter;
+
+    //==== Check If Module Name Already Exists ====//
+    iter = m_ModuleContentMap.find(updated_module_name);
+    if ( iter != m_ModuleContentMap.end() )
+    {
+        //==== Check If Content is Same ====//
+        if ( iter->second == script_content )
+            return iter->first;
+
+        //==== Need To Change Module Name ====//
+        static int dup_cnt = 0;
+        updated_module_name.append( StringUtil::int_to_string( dup_cnt, "%d" ) );
+        dup_cnt++;
+    }
+
+    //==== Make Sure Not Dupicate Of Any Other Module ====//
+    for ( iter = m_ModuleContentMap.begin() ; iter != m_ModuleContentMap.end() ; iter++ )
+    {
+        if ( iter->second == script_content )
+            return iter->first;
+    }
 
     //==== Start A New Module ====//
-    CScriptBuilder builder;
-    r = builder.StartNewModule( m_ScriptEngine, module_name );
-    assert( r >= 0 );
+    r = m_ScriptBuilder.StartNewModule( m_ScriptEngine, updated_module_name.c_str() );
+    if( r < 0 )        return string();
 
-    r = builder.AddSectionFromFile( file_name );
-    if ( r < 0 )
-    {
-        return;
-    }
+    r = m_ScriptBuilder.AddSectionFromMemory( updated_module_name.c_str(), script_content.c_str(), script_content.size()  );
+    if ( r < 0 )    return string();
 
-    r = builder.BuildModule();
-    if ( r < 0 )
-    {
-        return;
-    }
+    r = m_ScriptBuilder.BuildModule();
+    if ( r < 0 )    return string();
+
+    //==== Add To Map ====//
+    m_ModuleContentMap[ updated_module_name ] = script_content;
+
+    return updated_module_name;
 }
+
+//==== Extract Content From File Into String ====//
+string ScriptMgrSingleton::ExtractContent( const string & file_name )
+{
+    string file_content;
+    FILE* fp = fopen( file_name.c_str(), "r" );
+    if ( fp )
+    {
+        char buff[512];
+        while ( fgets( buff, 512, fp ) )
+        {
+            file_content.append( buff );
+        }
+        file_content.append( "\0" );
+        fclose( fp );
+    }
+    return file_content;
+}
+
 
 //==== Execute Function in Module ====//
 void ScriptMgrSingleton::ExecuteScript(  const char* module_name,  const char* function_name )
@@ -180,6 +240,42 @@ void ScriptMgrSingleton::ExecuteScript(  const char* module_name,  const char* f
     }
 }
 
+//==== Return Script Content Given Module Name ====//
+string ScriptMgrSingleton::FindModuleContent( const string &  module_name )
+{
+    map< string, string >::iterator iter;
+    iter = m_ModuleContentMap.find( module_name );
+
+    string file_string;
+    if ( iter != m_ModuleContentMap.end() )
+    {
+        file_string = iter->second;
+    }
+    return file_string;
+}
+
+//==== Write Script Content To File ====//
+int ScriptMgrSingleton::SaveScriptContentToFile( const string & module_name, const string & file_name )
+{
+    map< string, string >::iterator iter;
+    iter = m_ModuleContentMap.find( module_name );
+
+    if ( iter == m_ModuleContentMap.end() )
+        return -1;
+
+    FILE* fp = fopen( file_name.c_str(), "w" );
+    if ( !fp )
+        return -2;
+
+    if ( iter->second.size() == 0 )
+        return -3;
+
+
+    fprintf( fp, "%s", iter->second.c_str() );
+    fclose( fp );
+
+    return 0;
+}
 
 
 //==== Register Enums ====//
@@ -535,6 +631,10 @@ void ScriptMgrSingleton::RegisterMatrix4d( asIScriptEngine* se )
 
     r = se->RegisterObjectMethod( "Matrix4d", "void affineInverse()", asMETHOD( Matrix4d, affineInverse ), asCALL_THISCALL );
     assert( r >= 0 );
+
+    r = se->RegisterObjectMethod( "Matrix4d", "void buildXForm( const vec3d & in pos, const vec3d & in rot, const vec3d & in cent_rot )", asMETHOD( Matrix4d, buildXForm ), asCALL_THISCALL );
+    assert( r >= 0 );
+
 }
 
 //==== Register Vec3d Object ====//
@@ -562,6 +662,13 @@ void ScriptMgrSingleton::RegisterCustomGeomMgr( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "void SkinXSecSurf()",
                                     asMETHOD( CustomGeomMgrSingleton, SkinXSecSurf ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r );
+
+    r = se->RegisterGlobalFunction( "void SetCustomXSecLoc( const string & in xsec_id, const vec3d & in loc )",
+                                    asMETHOD( CustomGeomMgrSingleton, SetCustomXSecLoc ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
+    assert( r );
+
+
+
 
 }
 //==== Register API E Functions ====//
@@ -711,6 +818,8 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "void ChangeXSecShape( const string & in xsec_surf_id, int xsec_index, int type )", asFUNCTION( vsp::ChangeXSecShape ), asCALL_CDECL );
     assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void SetXSecSurfGlobalXForm( const string & in xsec_surf_id, const Matrix4d & in mat )", asFUNCTION( vsp::SetXSecSurfGlobalXForm ), asCALL_CDECL );
+    assert( r >= 0 );
 
     //==== XSec Functions ====//
     r = se->RegisterGlobalFunction( "int GetXSecShape( const string& in xsec_id )", asFUNCTION( vsp::GetXSecShape ), asCALL_CDECL );
@@ -751,6 +860,9 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "double SetParmVal(const string & in parm_id, double val )",
                                     asFUNCTIONPR( vsp::SetParmVal, ( const string &, double val ), double ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "double SetParmValLimits(const string & in parm_id, double val, double lower_limit, double upper_limit )",
+                                    asFUNCTION( vsp::SetParmValLimits ), asCALL_CDECL );
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "double SetParmValUpdate(const string & in parm_id, double val )",
                                     asFUNCTIONPR( vsp::SetParmValUpdate, ( const string &, double val ), double ), asCALL_CDECL );

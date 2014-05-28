@@ -7,6 +7,7 @@
 
 Matrix4d::Matrix4d()
 {
+    loadIdentity();
 }
 
 void Matrix4d::loadIdentity()
@@ -252,3 +253,24 @@ void Matrix4d::loadYZRef()
     mat[0] = -1;
 }
 
+void Matrix4d::buildXForm( const vec3d & pos, const vec3d & rot, const vec3d & cent_rot )
+{
+    Matrix4d tran_mat;
+    tran_mat.translatef( pos.x(), pos.y(), pos.z() );
+
+    Matrix4d rotate_mat;
+    rotate_mat.rotateX( rot.x() );
+    rotate_mat.rotateY( rot.y() );
+    rotate_mat.rotateZ( rot.z() );
+
+    Matrix4d cent_mat;
+    cent_mat.translatef( -cent_rot.x(), -cent_rot.y(), -cent_rot.z() );
+
+    Matrix4d inv_cent_mat;
+    inv_cent_mat.translatef(  cent_rot.x(),  cent_rot.y(),  cent_rot.z() );
+
+    postMult( cent_mat.data() );
+    postMult( rotate_mat.data() );
+    postMult( inv_cent_mat.data() );
+    postMult( tran_mat.data() );
+}

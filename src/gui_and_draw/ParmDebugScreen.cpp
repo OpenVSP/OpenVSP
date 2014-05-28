@@ -51,9 +51,6 @@ ParmDebugScreen::~ParmDebugScreen()
 
 bool ParmDebugScreen::Update()
 {
-    int i;
-    char str[256];
-
     m_ParmPicker.Update();
 
     Parm *p = ParmMgr.FindParm( m_ParmPicker.GetParmChoice() );

@@ -13,6 +13,9 @@
 #include "ISegChain.h"
 #include "Tritri.h"
 #include "CfdMeshMgr.h"
+#include "StlHelper.h"
+#include "SubSurface.h"
+#include "SubSurfaceMgr.h"
 
 Surf::Surf()
 {
@@ -65,10 +68,35 @@ void Surf::ReadSurf( FILE* file_id )
     {
         char buff[256];
 
-        int num_u, num_w;
-        double x, y, z;
+        int num_u, num_w, num_u_map, num_w_map, surf_ind;
+        double x, y, z, u;
         fgets( buff, 256, file_id );
         sscanf( buff, "%d %d\n", &num_u, &num_w );
+        fgets( buff, 256, file_id );
+        sscanf( buff, "%d %d\n", &num_u_map, &num_w_map );
+        fgets( buff, 256, file_id );
+        sscanf( buff, "%d\n", &surf_ind );
+
+        m_VspSurfInd = surf_ind;
+
+        u_to_vspsurf.resize( num_u_map );
+        w_to_vspsurf.resize( num_w_map );
+
+        for ( i = 0 ; i < num_u_map; i++ )
+        {
+            fgets( buff, 256, file_id );
+            sscanf( buff, "%lf\n", &u );
+            u_to_vspsurf[i] = u;
+            u_to_surf[u] = i;
+        }
+
+        for ( i = 0 ; i < num_w_map ; i++ )
+        {
+            fgets( buff, 256, file_id );
+            sscanf( buff, "%lf\n", &u );
+            w_to_vspsurf[i] = u;
+            w_to_surf[u] = i;
+        }
 
         vector< vector< vec3d > > pnts;
         pnts.resize( num_u );
@@ -1346,7 +1374,7 @@ void Surf::PlaneBorderCurveIntersect( Surf* surfPtr, SCurve* brdPtr )
     bool null_ICurve = false;
     if ( brdPtr->GetICurve() != NULL )
     {
-        for ( int j = 0 ; j < m_SCurveVec.size() ; j++ )
+        for ( int j = 0 ; j < (int)m_SCurveVec.size() ; j++ )
         {
             if ( brdPtr->GetICurve() == m_SCurveVec[j]->GetICurve() )
             {
@@ -1381,7 +1409,7 @@ void Surf::PlaneBorderCurveIntersect( Surf* surfPtr, SCurve* brdPtr )
             UWCrv_bordercurve.push_back( brdPtr->GetUWCrv().get_pnt( i ) );
         }
 
-        for ( int i = 0 ; i < UWCrv_bordercurve.size() ; i++ )
+        for ( int i = 0 ; i < (int)UWCrv_bordercurve.size() ; i++ )
         {
             vec3d pnt = surfPtr->CompPnt( UWCrv_bordercurve[i].x(), UWCrv_bordercurve[i].y() );
             vec2d uw = ClosestUW( pnt, m_MaxU / 2, m_MaxW / 2 );
@@ -1407,14 +1435,14 @@ void Surf::PlaneBorderCurveIntersect( Surf* surfPtr, SCurve* brdPtr )
         if ( !null_ICurve )
         {
             ICurveVecIndex = distance( ICurves.begin(), find( ICurves.begin(), ICurves.end(), obICurve ) );
-            if ( ICurveVecIndex < ICurves.size() )
+            if ( ICurveVecIndex < (int)ICurves.size() )
             {
                 CfdMeshMgr.SetICurveVec( brdPtr->GetICurve(), ICurveVecIndex );
             }
         }
         else
         {
-            for ( int i = 0 ; i < ICurves.size() ; i++ )
+            for ( int i = 0 ; i < (int)ICurves.size() ; i++ )
             {
                 if ( ICurves[i]->m_SCurve_A == brdPtr && ICurves[i]->m_SCurve_B == NULL )
                 {
@@ -1823,7 +1851,7 @@ void Surf::FlipU()
 
 bool Surf::ValidUW( vec2d & uw )
 {
-    return true;
+    //return true;
     double slop = 0.0001;
     if ( uw[0] < -slop )
     {
@@ -1960,6 +1988,94 @@ bool Surf::BorderMatch( Surf* otherSurf )
         }
     }
     return false;
+}
+
+//==== Functions to Map Between Surf and VspSurf Parameterizations ====//
+vec2d Surf::Convert2VspSurf( double u, double w )
+{
+    double u_vsp = InterpolateToVspSurf( u_to_vspsurf, u );
+    double w_vsp = InterpolateToVspSurf( w_to_vspsurf, w );
+
+    return vec2d( u_vsp, w_vsp );
+}
+
+vec2d Surf::Convert2Surf( double u, double w )
+{
+    bool in_range;
+    double u_surf, w_surf;
+    vec2d ret_vec;
+
+    u_surf = interpolate( u_to_surf, u, &in_range );
+    if ( in_range )
+    {
+        ret_vec.set_x( u_surf );
+    }
+    else
+    {
+        ret_vec.set_x( -1 );
+    }
+
+    w_surf = interpolate( w_to_surf, w, &in_range );
+    if ( in_range )
+    {
+        ret_vec.set_y( w_surf );
+    }
+    else
+    {
+        ret_vec.set_y( -1 );
+    }
+
+    return ret_vec;
+}
+
+double Surf::InterpolateToVspSurf( const vector< double> & vec, const double & surf_val ) const
+{
+    int x0 = floor( surf_val );
+    int x1 = x0 + 1;
+
+    if ( x0 < 0 )
+    {
+        return vec.front();
+    }
+    if ( x1 > vec.size() - 1 )
+    {
+        return vec.back();
+    }
+    double y0 = vec[x0];
+    double y1 = vec[x1];
+
+    double denom = ( double )( x1 - x0 );
+
+    if ( denom == 0.0 )
+    {
+        return 0.0;
+    }
+
+    return ( y1 - y0 ) / denom * ( surf_val - ( double )x0 ) + y0;
+}
+
+void Surf::Subtag()
+{
+    vector< SimpTri >& tri_vec = m_Mesh.GetSimpTriVec();
+    vector< vec2d >& pnts = m_Mesh.GetSimpUWPntVec();
+    vector< SubSurface* > s_surfs = SubSurfaceMgr.GetSubSurfs( m_GeomID );
+
+    for ( int t = 0 ; t < ( int ) tri_vec.size() ; t++ )
+    {
+        SimpTri& tri = tri_vec[t];
+        tri.m_Tags.push_back( m_CompID + 1 );
+        vec2d center = ( pnts[tri.ind0] + pnts[tri.ind1] + pnts[tri.ind2] ) * 1 / 3.0;
+        vec2d cent2d = Convert2VspSurf( center.x(), center.y() );
+
+        for ( int s = 0 ; s < ( int ) s_surfs.size() ; s++ )
+        {
+            if ( s_surfs[s]->Subtag( vec3d( cent2d.x(), cent2d.y(), 0 ) ) )
+            {
+                tri.m_Tags.push_back( s_surfs[s]->m_Tag );
+            }
+        }
+        SubSurfaceMgr.m_TagCombos.insert( tri.m_Tags );
+    }
 }
 
 /*

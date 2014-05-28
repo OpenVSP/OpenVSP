@@ -86,7 +86,7 @@ public:
     vector< Geom* > FindGeomVec( const vector< string > & geom_id_vec );
 
     string CreateGeom( const GeomType & type );
-    string AddGeom( GeomType & type );
+    string AddGeom( const GeomType & type );
     string AddGeom( Geom* add_geom );
     string AddMeshGeom( int set );
 
@@ -94,26 +94,15 @@ public:
 
     //==== Get All Geoms (Does NOT Return Collapsed Geoms if check_display_flag == true) ====//
     vector< string > GetGeomVec( bool check_display_flag = false );
+    vector< Geom* > GetGeomStoreVec()                                { return m_GeomStoreVec; }
     void AddActiveGeom( string id );
     void SetActiveGeom( string id );
-    void SetActiveGeomVec( vector< string > & geom_id_vec )
-    {
-        m_ActiveGeom = geom_id_vec;
-    }
-    void ClearActiveGeom()
-    {
-        m_ActiveGeom.clear();
-    }
-    vector< string > GetActiveGeomVec()
-    {
-        return m_ActiveGeom;
-    }
-    vector< Geom* > GetActiveGeomPtrVec()
-    {
-        return FindGeomVec( m_ActiveGeom );
-    }
-    bool IsGeomActive( string geom_id );
+    void SetActiveGeomVec( vector< string > & geom_id_vec )            { m_ActiveGeom = geom_id_vec; }
+    void ClearActiveGeom()                                            { m_ActiveGeom.clear(); }
+    vector< string > GetActiveGeomVec()                                { return m_ActiveGeom; }
+    vector< Geom* > GetActiveGeomPtrVec()                            { return FindGeomVec( m_ActiveGeom ); }
 
+    bool IsGeomActive( string geom_id );
     void ReorderActiveGeom( int direction );
 
     void CutActiveGeomVec();
@@ -123,40 +112,30 @@ public:
     void PasteClipboard();
 
     vector< DrawObj* > GetDrawObjs();
-    /*
-    * Reset DrawObjs' m_GeomChanged flag to false.
-    */
+
+    //==== Reset DrawObjs' m_GeomChanged flag to false. ====//
     void ResetDrawObjsGeomChangedFlags();
 
-    int GetFileOpenVersion()
-    {
-        return m_FileOpenVersion;
-    }
+    int GetFileOpenVersion()                                { return m_FileOpenVersion; }
 
     //==== Geom Sets ====//
     void SetSetName( int index, const string& name );
-    vector< string > GetSetNameVec()
-    {
-        return m_SetNameVec;
-    }
+    vector< string > GetSetNameVec()                        { return m_SetNameVec; }
     void SetShowSet( int index );
     vector< string > GetGeomSet( int index );
 
     //==== Geom Type Data =====//
+    vector< string > GetValidTypeGeoms();
+    vector< GeomType > GetEditableGeomTypes();
     void AddType( string geom_id );
     void DeleteType( int index );
 
-    int GetNumGeomTypes()
-    {
-        return ( int )m_GeomTypeVec.size();
-    }
+    int GetNumGeomTypes()                                    { return ( int )m_GeomTypeVec.size(); }
     int GetNumFixedGeomTypes();
-    GeomType* GetGeomType( int index );
+    GeomType GetGeomType( int index );
+    void SetGeomType( int index, GeomType & type );
 
-    BndBox GetBndBox()
-    {
-        return m_BBox;
-    }
+    BndBox GetBndBox()                                        { return m_BBox; }
     void UpdateBBox();
 
     xmlNodePtr EncodeXml( xmlNodePtr & node, int set );
@@ -168,14 +147,8 @@ public:
 
     int ReadXMLFile( const string & file_name );
 
-    void SetVSP3FileName( string f_name )
-    {
-        m_VSP3FileName = f_name;
-    };
-    string GetVSP3FileName()
-    {
-        return m_VSP3FileName;
-    };
+    void SetVSP3FileName( string f_name )                    { m_VSP3FileName = f_name; }
+    string GetVSP3FileName()                                { return m_VSP3FileName; }
 
     VehicleGuiDraw * getVGuiDraw()
     {
@@ -200,22 +173,10 @@ public:
     //==== Computation File Names ====//
     string getExportFileName( int type );
     void setExportFileName( int type, string f_name );
-    bool getExportCompGeomCsvFile()
-    {
-        return m_exportCompGeomCsvFile;
-    };
-    bool getExportDragBuildTsvFile()
-    {
-        return m_exportDragBuildTsvFile;
-    };
-    void setExportCompGeomCsvFile( bool b )
-    {
-        m_exportCompGeomCsvFile = b;
-    };
-    void setExportDragBuildTsvFile( bool b )
-    {
-        m_exportDragBuildTsvFile = b;
-    };
+    bool getExportCompGeomCsvFile()                    { return m_exportCompGeomCsvFile; }
+    bool getExportDragBuildTsvFile()                { return m_exportDragBuildTsvFile; }
+    void setExportCompGeomCsvFile( bool b )            { m_exportCompGeomCsvFile = b; }
+    void setExportDragBuildTsvFile( bool b )        { m_exportDragBuildTsvFile = b; }
 
     //==== Import Files ====//
     string ImportFile( const string & file_name, int file_type );

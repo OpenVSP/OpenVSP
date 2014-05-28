@@ -24,6 +24,8 @@ string int_to_string( int i, const char* format );
 string double_to_string( double v, const char* format );
 
 int count_char_matches( string & str, char c );
+
+int compute_hash( const string & str );
 }
 
 

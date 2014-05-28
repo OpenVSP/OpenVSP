@@ -51,6 +51,8 @@ public:
     void CreateScreens();
     void ShowHideGeomScreens();
 
+    void UpdateGeomScreens();
+
     /*
     * Get Feedback Group's name.
     */

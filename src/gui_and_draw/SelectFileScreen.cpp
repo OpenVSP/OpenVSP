@@ -133,6 +133,11 @@ string SelectFileScreen::FileChooser( const char* title, const char* filter )
     return file_name;
 }
 
+string SelectFileScreen::FileChooser( const char* title, const char* filter, const char* dir )
+{
+    m_DirString = dir;
+    return FileChooser( title, filter );
+}
 
 void SelectFileScreen::screenCB( Fl_Widget* w )
 {

@@ -95,7 +95,6 @@ void FourSeries::Update()
     m_Curve.SetCurve( c );
 
     Matrix4d mat;
-    mat.loadIdentity();
     mat.scale( m_Chord() );
 
     m_Curve.Transform( mat );
@@ -216,7 +215,7 @@ void SixSeries::Update()
 
     double lenscale = 4.0/arclen.back();
 
-    for ( int i = 0; i < arclen.size(); i++ )
+    for ( int i = 0; i < (int)arclen.size(); i++ )
     {
         arclen[i] = arclen[i] * lenscale;
     }
@@ -224,7 +223,6 @@ void SixSeries::Update()
     m_Curve.InterpolatePCHIP( pnts, arclen, true );
 
     Matrix4d mat;
-    mat.loadIdentity();
     mat.scale( m_Chord() );
 
     m_Curve.Transform( mat );
@@ -337,7 +335,6 @@ void Biconvex::Update()
     m_Curve.Append( upcrv );
 
     Matrix4d mat;
-    mat.loadIdentity();
     mat.scale( m_Chord() );
 
     m_Curve.Transform( mat );
@@ -450,7 +447,7 @@ void FileAirfoil::Update()
 
     double lenscale = 4.0/arclen.back();
 
-    for ( int i = 0; i < arclen.size(); i++ )
+    for ( int i = 0; i < (int)arclen.size(); i++ )
     {
         arclen[i] = arclen[i] * lenscale;
     }
@@ -458,7 +455,6 @@ void FileAirfoil::Update()
     m_Curve.InterpolatePCHIP( pnts, arclen, true );
 
     Matrix4d mat;
-    mat.loadIdentity();
     mat.scale( m_Chord() );
 
     m_Curve.Transform( mat );

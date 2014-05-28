@@ -216,6 +216,7 @@ public:
     friend double nearSegSeg( const vec3d& L0, const vec3d& L1, const vec3d& S0, const vec3d& S1, double* Lt, vec3d* Ln, double* St,  vec3d* Sn );
     friend double pointLineDistSquared( vec3d & p, vec3d& lp0, vec3d& lp1, double* t );
     friend double pointSegDistSquared( vec3d& p, vec3d& sp0, vec3d& sp1, double* t );
+    friend vec3d  point_on_line( const vec3d & lp0, const vec3d & lp1, const double & t );
 
     friend  vec2d MapToPlane( vec3d & p, vec3d & planeOrig, vec3d & planeVec1, vec3d & planeVec2 );
     friend  vec3d MapFromPlane( vec2d & uw, vec3d & planeOrig, vec3d & planeVec1, vec3d & planeVec2 );
@@ -225,6 +226,9 @@ public:
     friend bool line_line_intersect( vec3d & p1, vec3d & p2, vec3d & p3, vec3d & p4, double* s, double* t );
 
     friend vec3d RotateArbAxis( const vec3d & p, double theta, const vec3d & r );
+
+    friend vec3d BarycentricWeights( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & p );
+    friend void BilinearWeights( const vec3d & p0, const vec3d & p1, const vec3d & p, std::vector< double > & weights );
 
 };
 

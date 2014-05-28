@@ -136,13 +136,16 @@ void CustomScreen::ShowTabs( const string & custom_type_name )
 
     //===== Add Tabs Back In For This Type ====//
     iter = m_DeviceVecMap.find( custom_type_name );
-    for ( int i = 0 ; i < ( int )iter->second.size() ; i++ )
+    if ( iter != m_DeviceVecMap.end() )
     {
-        GuiDevice* gd = iter->second.at( i );
-        if ( gd && gd->GetType() == GDEV_TAB )
+        for ( int i = 0 ; i < ( int )iter->second.size() ; i++ )
         {
-            Tab* gd_tab = dynamic_cast< Tab* > ( gd );
-            TabScreen::AddTab( gd_tab->GetGroup() );
+            GuiDevice* gd = iter->second.at( i );
+            if ( gd && gd->GetType() == GDEV_TAB )
+            {
+                Tab* gd_tab = dynamic_cast< Tab* > ( gd );
+                TabScreen::AddTab( gd_tab->GetGroup() );
+            }
         }
     }
 

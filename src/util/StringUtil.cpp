@@ -95,3 +95,24 @@ int StringUtil::count_char_matches( string & str, char c )
 
     return cnt;
 }
+
+
+//==== Compute A Hash From String (Not Unique but Close I Think) =====//
+int StringUtil::compute_hash( const string & str )
+{
+    int hash = 0;
+
+    for ( int i = 0 ; i < (int)str.size() ; i++ )
+    {
+        hash += str[i];
+        hash += (hash << 10);
+        hash ^= (hash >> 6);
+    }
+
+    // final avalanche
+    hash += (hash << 3);
+    hash ^= (hash >> 11);
+    hash += (hash << 15);
+
+    return hash;
+}

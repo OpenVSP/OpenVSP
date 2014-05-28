@@ -10,6 +10,7 @@
 #include "StlHelper.h"
 #include "StringUtil.h"
 #include "ParmMgr.h"
+#include "SubSurfaceMgr.h"
 #include "APIDefines.h"
 using namespace vsp;
 
@@ -26,21 +27,26 @@ GeomType::GeomType()
 }
 
 //==== Constructor ====//
-GeomType::GeomType( int id, string name, bool fixed_flag )
+GeomType::GeomType( int id, string name, bool fixed_flag, string module_name )
 {
     m_Type = id;
     m_Name = name;
     m_FixedFlag = fixed_flag;
-
+    m_ModuleName = module_name;
 }
 
 //==== Destructor ====//
 GeomType::~GeomType()
 {
+}
 
-
-
-
+void GeomType::CopyFrom( const GeomType & t )
+{
+    m_Type = t.m_Type;
+    m_Name = t.m_Name;
+    m_FixedFlag = t.m_FixedFlag;
+    m_ModuleName = t.m_ModuleName;
+    m_GeomID = t.m_GeomID;
 }
 
 
@@ -101,6 +107,11 @@ GeomBase::~GeomBase()
 //==== Parm Changed ====//
 void GeomBase::ParmChanged( Parm* parm_ptr, int type )
 {
+    if ( parm_ptr )
+    {
+        m_UpdatedParmVec.push_back( parm_ptr->GetID() );
+    }
+
     if ( type == Parm::SET )
     {
         m_LateUpdateFlag = true;
@@ -110,6 +121,20 @@ void GeomBase::ParmChanged( Parm* parm_ptr, int type )
     Update();
 
     m_Vehicle->ParmChanged( parm_ptr, type );
+
+    m_UpdatedParmVec.clear();
+}
+
+//==== Check If Parm Is In Updated ParmVec ====//
+bool GeomBase::UpdatedParm( const string & id )
+{
+    for ( int i = 0 ; i < (int)m_UpdatedParmVec.size() ; i++ )
+    {
+        if ( m_UpdatedParmVec[i] == id )
+            return true;
+    }
+
+    return false;
 }
 
 //==== Recusively Load ID and Childrens ID Into Vec  =====//
@@ -384,8 +409,6 @@ Matrix4d GeomXForm::ComposeAttachMatrix()
     {
         Matrix4d transMat;
         Matrix4d rotMat;
-        transMat.loadIdentity();
-        rotMat.loadIdentity();
 
         Matrix4d parentMat;
         parentMat = parent->getModelMatrix();
@@ -603,7 +626,7 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_ShellFlag.Init( "Shell_Flag", "Mass_Props", this, false, 0, 1 );
 
     // Geom needs at least one surf
-    m_SurfVec.push_back( VspSurf() );
+    m_MainSurfVec.push_back( VspSurf() );
 
     currSourceID = 0;
 
@@ -613,7 +636,12 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
 //==== Destructor ====//
 Geom::~Geom()
 {
-
+    // Delete SubSurfaces
+    for ( int i = 0 ; i < ( int )m_SubSurfVec.size() ; i++ )
+    {
+        delete m_SubSurfVec[i];
+    }
+    m_SubSurfVec.clear();
 }
 
 //==== Set Set Flag ====//
@@ -698,14 +726,25 @@ void Geom::Update()
     Scale();
     GeomXForm::Update();
 
-    int num_surf = GetNumTotalSurfs();
-    m_SurfVec.resize( num_surf, VspSurf() );
-
     UpdateSurf();       // Must be implemented by subclass.
     UpdateSymmAttach();
+
+    for ( int i = 0 ; i < ( int )m_SubSurfVec.size() ; i++ )
+    {
+        m_SubSurfVec[i]->Update();
+    }
+
     UpdateChildren();
     UpdateBBox();
     UpdateDrawObj();
+
+    m_UpdatedParmVec.clear();
+}
+
+void Geom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms,
+                            vector< vector< vec3d > > &uw_pnts )
+{
+    m_SurfVec[indx].Tesselate( m_TessU(), m_TessW(), pnts, norms, uw_pnts );
 }
 
 void Geom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms )
@@ -716,6 +755,14 @@ void Geom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< v
 void Geom::UpdateSymmAttach()
 {
     int num_surf = GetNumTotalSurfs();
+    m_SurfVec.clear();
+    m_SurfVec.resize( num_surf, VspSurf() );
+
+    int num_main = GetNumMainSurfs();
+    for ( int i = 0 ; i < ( int )num_main ; i++ )
+    {
+        m_SurfVec[i] = m_MainSurfVec[i];
+    }
 
     vector<Matrix4d> transMats;
     transMats.resize( num_surf, Matrix4d() );
@@ -836,18 +883,27 @@ void Geom::UpdateSymmAttach()
     }
 }
 
+//==== Check If Children Exist and Update ====//
 void Geom::UpdateChildren()
 {
-    // Update Children
-    for ( vector<string>::iterator childID = m_ChildIDVec.begin() ; childID != m_ChildIDVec.end(); childID++ )
+    vector< string > updated_child_vec;
+    for ( int i = 0 ; i < (int)m_ChildIDVec.size() ; i++ )
     {
-        Geom* child = m_Vehicle->FindGeom( *childID );
-        // Ignore the abs location values and only use rel values for children so a child
-        // with abs button selected stays attached to parent if the parent moves
-        child->m_ignoreAbsFlag = true;
-        child->Update();
-        child->m_ignoreAbsFlag = false;
+        Geom* child = m_Vehicle->FindGeom( m_ChildIDVec[i] );
+        if ( child )
+        {
+            // Ignore the abs location values and only use rel values for children so a child
+            // with abs button selected stays attached to parent if the parent moves
+            child->m_ignoreAbsFlag = true;
+            child->Update();
+            child->m_ignoreAbsFlag = false;
+
+            updated_child_vec.push_back( m_ChildIDVec[i] );
+        }
     }
+
+    // Update Children Vec
+    m_ChildIDVec = updated_child_vec;
 }
 
 void Geom::UpdateBBox()
@@ -895,9 +951,23 @@ xmlNodePtr Geom::EncodeXml( xmlNodePtr & node )
     {
         XmlUtil::AddVectorBoolNode( geom_node, "Set_List", m_SetFlags );
 
-        for( int i = 0; i < sourceVec.size(); i++ )
+        for( int i = 0; i < ( int )sourceVec.size(); i++ )
         {
             sourceVec[i]->EncodeXml( geom_node );
+        }
+
+        xmlNodePtr subsurfs_node = xmlNewChild( geom_node, NULL, BAD_CAST "SubSurfaces", NULL );
+
+        if ( subsurfs_node )
+        {
+            for( int i = 0 ; i < ( int ) m_SubSurfVec.size() ; i++ )
+            {
+                xmlNodePtr sub_node = xmlNewChild( subsurfs_node, NULL, BAD_CAST "SubSurface", NULL );
+                if ( sub_node )
+                {
+                    m_SubSurfVec[i]->EncodeXml( sub_node );
+                }
+            }
         }
     }
     return geom_node;
@@ -928,6 +998,31 @@ xmlNodePtr Geom::DecodeXml( xmlNodePtr & node )
                 {
                     src_ptr->DecodeXml( src_node );
                     AddCfdMeshSource( src_ptr );
+                }
+            }
+        }
+
+        // Decode SubSurfaces
+        xmlNodePtr subsurfs_node = XmlUtil::GetNode( geom_node, "SubSurfaces", 0 );
+        if ( subsurfs_node )
+        {
+            int num_ss = XmlUtil::GetNumNames( subsurfs_node, "SubSurface" );
+
+            for ( int ss = 0 ; ss < num_ss ; ss++ )
+            {
+                xmlNodePtr ss_node = XmlUtil::GetNode( subsurfs_node, "SubSurface", ss );
+                if ( ss_node )
+                {
+                    xmlNodePtr ss_info_node = XmlUtil::GetNode( ss_node, "SubSurfaceInfo", 0 );
+                    if ( ss_info_node )
+                    {
+                        int type = XmlUtil::FindInt( ss_info_node, "Type", SubSurface::SS_LINE );
+                        SubSurface* ssurf = AddSubSurf( type );
+                        if ( ssurf )
+                        {
+                            ssurf->DecodeXml( ss_node );
+                        }
+                    }
                 }
             }
         }
@@ -1077,6 +1172,13 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         m_HighlightDrawObj.m_LineColor = vec3d( 1.0, 0., 0.0 );
         m_HighlightDrawObj.m_Type = DrawObj::VSP_LINES;
         draw_obj_vec.push_back( &m_HighlightDrawObj );
+    }
+
+    // Load Subsurfaces
+    RecolorSubSurfs( SubSurfaceMgr.GetCurrSurfInd() );
+    for ( int i = 0 ; i < ( int )m_SubSurfVec.size() ; i++ )
+    {
+        m_SubSurfVec[i]->LoadDrawObjs( draw_obj_vec );
     }
 }
 
@@ -1352,16 +1454,22 @@ vector< TMesh* > Geom::CreateTMeshVec()
     vector< TMesh* > TMeshVec;
     vector< vector<vec3d> > pnts;
     vector< vector<vec3d> > norms;
+    vector< vector<vec3d> > uw_pnts;
 
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
-        UpdateTesselate( i, pnts, norms );
+        UpdateTesselate( i, pnts, norms, uw_pnts );
 
         TMeshVec.push_back( new TMesh() );
         TMeshVec[i]->LoadGeomAttributes( this );
+        TMeshVec[i]->m_SurfNum = i;
+        TMeshVec[i]->m_UWPnts = uw_pnts;
+        TMeshVec[i]->m_XYZPnts = pnts;
+        bool f_norm = m_SurfVec[i].GetFlipNormal();
 
         vec3d norm;
         vec3d v0, v1, v2, v3;
+        vec3d uw0, uw1, uw2, uw3;
         vec3d d21, d01, d03, d23, d20;
 
         for ( int j = 0 ; j < ( int )pnts.size() - 1 ; j++ )
@@ -1373,6 +1481,11 @@ vector< TMesh* > Geom::CreateTMeshVec()
                 v2 = pnts[j + 1][k + 1];
                 v3 = pnts[j][k + 1];
 
+                uw0 = uw_pnts[j][k];
+                uw1 = uw_pnts[j + 1][k];
+                uw2 = uw_pnts[j + 1][k + 1];
+                uw3 = uw_pnts[j][k + 1];
+
                 d21 = v2 - v1;
                 d01 = v0 - v1;
                 d20 = v2 - v0;
@@ -1381,7 +1494,14 @@ vector< TMesh* > Geom::CreateTMeshVec()
                 {
                     norm = cross( d21, d01 );
                     norm.normalize();
-                    TMeshVec[i]->AddTri( v0, v1, v2, norm );
+                    if ( f_norm )
+                    {
+                        TMeshVec[i]->AddTri( v0, v2, v1, norm * -1, uw0, uw2, uw1 );
+                    }
+                    else
+                    {
+                        TMeshVec[i]->AddTri( v0, v1, v2, norm, uw0, uw1, uw2 );
+                    }
                 }
 
                 d03 = v0 - v3;
@@ -1390,12 +1510,128 @@ vector< TMesh* > Geom::CreateTMeshVec()
                 {
                     norm = cross( d03, d23 );
                     norm.normalize();
-                    TMeshVec[i]->AddTri( v0, v2, v3, norm );
+                    if ( f_norm )
+                    {
+                        TMeshVec[i]->AddTri( v0, v3, v2, norm * -1, uw0, uw3, uw2 );
+                    }
+                    else
+                    {
+                        TMeshVec[i]->AddTri( v0, v2, v3, norm, uw0, uw2, uw3 );
+                    }
                 }
             }
         }
     }
     return TMeshVec;
+}
+
+void Geom::AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id )
+{
+    ParmContainer::AddLinkableParms( linkable_parm_vec );
+
+    for ( int i = 0 ; i < ( int )m_SubSurfVec.size() ; i++ )
+    {
+        m_SubSurfVec[i]->AddLinkableParms( linkable_parm_vec, m_ID );
+    }
+}
+
+void Geom::ChangeID( string id )
+{
+    ParmContainer::ChangeID( id );
+
+    for ( int i = 0 ; i < ( int )m_SubSurfVec.size() ; i ++ )
+    {
+        m_SubSurfVec[i]->SetParentContainer( GetID() );
+    }
+}
+
+
+//==== Sub Surface Methods ====//
+bool Geom::ValidSubSurfInd( int ind )
+{
+    if ( ( int )m_SubSurfVec.size() > 0 && ind >= 0 && ind < ( int )m_SubSurfVec.size() )
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+void Geom::DelSubSurf( int ind )
+{
+    if ( ValidSubSurfInd( ind ) )
+    {
+        delete m_SubSurfVec[ind];
+        m_SubSurfVec.erase( m_SubSurfVec.begin() + ind );
+    }
+
+    SubSurfaceMgr.ReSuffixGroupNames( GetID() );
+}
+
+SubSurface* Geom::AddSubSurf( int type )
+{
+    SubSurface* ssurf = NULL;
+
+    if ( type == SubSurface::SS_LINE )
+    {
+        ssurf = new SSLine( m_ID );
+        ssurf->SetName( string( "SS_LINE_" + to_string( ( long long )m_SubSurfVec.size() ) ) );
+    }
+    else if ( type == SubSurface::SS_RECTANGLE )
+    {
+        ssurf = new SSRectangle( m_ID );
+        ssurf->SetName( string( "SS_RECT_" + to_string( ( long long )m_SubSurfVec.size() ) ) );
+    }
+    else if ( type == SubSurface::SS_ELLIPSE )
+    {
+        ssurf = new SSEllipse( m_ID );
+        ssurf->SetName( string( "SS_ELLIP_" + to_string( ( long long )m_SubSurfVec.size() ) ) );
+    }
+
+    ssurf->SetParentContainer( GetID() );
+    AddSubSurf( ssurf );
+
+    SubSurfaceMgr.ReSuffixGroupNames( GetID() );
+
+    return ssurf;
+}
+
+SubSurface* Geom::GetSubSurf( int ind )
+{
+    if ( ValidSubSurfInd( ind ) )
+    {
+        return m_SubSurfVec[ind];
+    }
+
+    return NULL;
+
+}
+
+//==== Highlight Active Subsurface ====//
+void Geom::RecolorSubSurfs( int active_ind )
+{
+    bool active_geom = ( m_Vehicle->IsGeomActive( m_ID ) && m_Vehicle->GetActiveGeomVec().size() == 1 ); // Is this geom the only active geom
+
+    for ( int i = 0; i < ( int )m_SubSurfVec.size() ; i++ )
+    {
+        if ( active_geom )
+        {
+            if ( i == active_ind )
+            {
+                m_SubSurfVec[i]->SetLineColor( vec3d( 1, 0, 0 ) );
+            }
+            else
+            {
+                m_SubSurfVec[i]->SetLineColor( vec3d( 0, 0, 0 ) );
+            }
+        }
+        else
+        {
+            m_SubSurfVec[i]->SetLineColor( vec3d( 0, 0, 0 ) );
+        }
+    }
 }
 
 void Geom::DelAllSources()

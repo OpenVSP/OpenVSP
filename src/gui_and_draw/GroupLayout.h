@@ -163,7 +163,7 @@ public:
     {
         return m_ButtonWidth;
     }
-    void SetCoiceButtonWidth( int w )
+    void SetChoiceButtonWidth( int w )
     {
         m_ChoiceButtonWidth = w;
     }

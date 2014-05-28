@@ -2053,10 +2053,18 @@ void DriverGroupBank::DeviceCB( Fl_Widget* w )
     m_Screen->GuiDeviceCallBack( this );
 }
 
-void DriverGroupBank::Update( )
+void DriverGroupBank::Update( vector< string > & parm_ids )
 {
-    vector< int > checkchoices;
+     //==== Update Sliders ====//
+    for ( int i = 0 ; i < (int)m_Sliders.size() ; i++ )
+    {
+        if ( i < (int)parm_ids.size() )
+        {
+            m_Sliders[i]->Update( parm_ids[i] );
+        }
+    }
 
+    vector< int > checkchoices;
     vector< int > currchoices = m_DriverGroup->GetChoices();
 
     for( int i = 0; i < m_DriverGroup->GetNvar(); i++ )
@@ -2140,16 +2148,16 @@ SkinControl::SkinControl()
 }
 
 void SkinControl::Init( VspScreen* screen,
-	    Fl_Check_Button* contButtonL,
-	    Fl_Check_Button* contButtonR,
-	    Fl_Check_Button* setButtonL,
-	    Fl_Check_Button* setButtonR,
-	    Fl_Slider* sliderL,
-	    Fl_Slider* sliderR,
-	    Fl_Input* inputL,
-	    Fl_Input* inputR,
-	    Fl_Button* parm_button,
-	    double range, const char* format)
+        Fl_Check_Button* contButtonL,
+        Fl_Check_Button* contButtonR,
+        Fl_Check_Button* setButtonL,
+        Fl_Check_Button* setButtonR,
+        Fl_Slider* sliderL,
+        Fl_Slider* sliderR,
+        Fl_Input* inputL,
+        Fl_Input* inputR,
+        Fl_Button* parm_button,
+        double range, const char* format)
 {
     m_Screen = screen;
 
@@ -2297,7 +2305,7 @@ void SkinOutput::Activate()
     assert( m_ContROutput );
     m_ContROutput->activate();
 
-    for( int i = 0; i < m_Buttons.size(); i++ )
+    for( int i = 0; i < (int)m_Buttons.size(); i++ )
     {
         assert( m_Buttons[i] );
         m_Buttons[i]->activate();
@@ -2315,7 +2323,7 @@ void SkinOutput::Deactivate()
     assert( m_ContROutput );
     m_ContROutput->deactivate();
 
-    for( int i = 0; i < m_Buttons.size(); i++ )
+    for( int i = 0; i < (int)m_Buttons.size(); i++ )
     {
         assert( m_Buttons[i] );
         m_Buttons[i]->deactivate();
@@ -2405,7 +2413,6 @@ void GeomPicker::Deactivate()
 void GeomPicker::Update( )
 {
     int i;
-    char str[256];
 
     //==== Load Geom Choice ====//
     m_GeomVec = m_Vehicle->GetGeomVec();

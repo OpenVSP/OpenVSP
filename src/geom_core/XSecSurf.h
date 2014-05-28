@@ -35,10 +35,15 @@ public:
     void ChangeXSecID( string oldID, string newID );
     string AddXSec( int type );
     void CutXSec( int index );
+    void SetCutMinNumXSecs( int num )                { m_CutMinNumXSecs = num; }
     void CopyXSec( int index );
     void PasteXSec( int index );
     string InsertXSec( int type, int index );
     void ChangeXSecShape( int index, int type );
+    virtual void DeleteAllXSecs();
+
+    void CopyXSecCurve( int index );
+    void PasteXSecCurve( int index );
 
     void SetBasicOrientation( int pdir, int wdir, int wshift, bool flip )
     {
@@ -54,6 +59,9 @@ public:
     }
 
     void GetBasicTransformation( double w, Matrix4d &mat );
+
+    void SetGlobalXForm( const Matrix4d &mat )            { m_GlobalXForm = mat; }
+    Matrix4d GetGlobalXForm()                            { return m_GlobalXForm; }
 
     bool GetFlipUD() { return m_FlipUD; }
 
@@ -87,12 +95,13 @@ protected:
     virtual void ChangeID( string id );
 
     XSec* CreateXSec( int type, int index );
-    virtual void DeleteAllXSecs();
+    XSecCurve* CreateXSecCurve( int type );
 
     vector< XSec* > m_XSecPtrVec;
     deque< string > m_XSecIDDeque;
 
     string m_SavedXSec;
+    XSecCurve* m_SavedXSecCurve;
 
     int m_XSecType;
 
@@ -100,6 +109,10 @@ protected:
     int m_WidthDir;
     int m_WidthShift;
     bool m_FlipUD;
+
+    int m_CutMinNumXSecs;
+
+    Matrix4d m_GlobalXForm;
 
 };
 

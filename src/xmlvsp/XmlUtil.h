@@ -41,7 +41,7 @@ int ExtractIntArray( xmlNodePtr node, const char sep, int * arr, int size );
 
 xmlNodePtr AddIntNode( xmlNodePtr root, const char * name, int val );
 xmlNodePtr AddDoubleNode( xmlNodePtr root, const char * name, double val );
-xmlNodePtr AddStringNode( xmlNodePtr root, const char * name, string & val );
+xmlNodePtr AddStringNode( xmlNodePtr root, const char * name, const string & val );
 void SetDoubleProp( xmlNodePtr root, const char * name, double val );
 void SetStringProp( xmlNodePtr root, const char * name, string & val );
 
@@ -56,6 +56,9 @@ vector< double > ExtractVectorDoubleNode( xmlNodePtr root, const char * name );
 vector< vec3d > ExtractVectorVec3dNode( xmlNodePtr root, const char * name );
 vector< double > GetVectorDoubleNode( xmlNodePtr node );
 vector< vec3d > GetVectorVec3dNode( xmlNodePtr node );
+
+xmlNodePtr EncodeFileContents( xmlNodePtr root, const char* file_name );
+xmlNodePtr DecodeFileContents( xmlNodePtr root, const char* file_name );
 
 }
 

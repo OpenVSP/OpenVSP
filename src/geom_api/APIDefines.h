@@ -41,6 +41,8 @@ enum {  SYM_XY = ( 1 << 0 ),
 
 enum XSEC_TYPE { XSEC_FUSE,
                  XSEC_STACK,
+                 XSEC_WING,
+                 XSEC_CUSTOM,
                  XSEC_NUM_TYPES
                };
 

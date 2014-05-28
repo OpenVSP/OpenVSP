@@ -146,6 +146,10 @@ public:
     {
         return simpPntVec;
     }
+    vector < vec2d >& GetSimpUWPntVec()
+    {
+        return simpUWPntVec;
+    }
     vector < SimpTri >& GetSimpTriVec()
     {
         return simpTriVec;
@@ -175,6 +179,7 @@ protected:
     int m_HighlightEdgeIndex;
 
     vector< vec3d > simpPntVec;
+    vector< vec2d > simpUWPntVec;
     vector< SimpTri > simpTriVec;
 
 };

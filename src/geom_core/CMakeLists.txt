@@ -38,6 +38,8 @@ PodGeom.cpp
 ResultsMgr.cpp
 ScriptMgr.cpp
 StackGeom.cpp
+SubSurface.cpp
+SubSurfaceMgr.cpp
 TextureMgr.cpp
 TMesh.cpp
 Vehicle.cpp
@@ -71,6 +73,8 @@ PodGeom.h
 ResultsMgr.h
 ScriptMgr.h
 StackGeom.h
+SubSurface.h
+SubSurfaceMgr.h
 SWIGDefines.h
 TextureMgr.h
 TMesh.h

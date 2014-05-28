@@ -39,6 +39,7 @@ protected:
 
     int m_SelectedIndex;
     int m_GeomIndex;
+    int m_ScriptIndex;
     TypeEditorUI* m_TypeEditorUI;
 
 };

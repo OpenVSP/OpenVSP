@@ -67,7 +67,7 @@ void PodGeom::UpdateSurf()
     cs.set_control_point( cp, 3 );
     stringer.AppendCurveSegment( cs );
 
-    m_SurfVec[0].CreateBodyRevolution( stringer );
+    m_MainSurfVec[0].CreateBodyRevolution( stringer );
 }
 
 //==== Compute Rotation Center ====//

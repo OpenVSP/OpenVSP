@@ -15,6 +15,7 @@
 #include <set>
 
 #include "VspSurf.h"
+#include "StlHelper.h"
 
 #include "eli/geom/curve/piecewise_creator.hpp"
 #include "eli/geom/surface/piecewise_creator.hpp"
@@ -478,7 +479,6 @@ void VspSurf::GetWConstCurve( VspCurve &c, const double &w ) const
 Matrix4d VspSurf::CompRotCoordSys( const double &u, const double &w )
 {
     Matrix4d retMat; // Return Matrix
-    retMat.loadIdentity();
 
     double tempMat[16];
     // Get du and norm, cross them to get the last orthonormal vector
@@ -508,7 +508,6 @@ Matrix4d VspSurf::CompRotCoordSys( const double &u, const double &w )
 Matrix4d VspSurf::CompTransCoordSys( const double &u, const double &w )
 {
     Matrix4d retMat; // Return Matrix
-    retMat.loadIdentity();
 
     // Get x,y,z location of u,w coordinate and place in translation matrix
     vec3d cartCoords = CompPnt01( u, w );
@@ -1688,7 +1687,13 @@ vec3d VspSurf::CompNorm01( double u01, double v01 ) const
 //==== Tesselate Surface ====//
 void VspSurf::Tesselate( int num_u, int num_v, vector< vector< vec3d > > & pnts, vector< vector< vec3d > > & norms ) const
 {
-    if( m_Surface.number_u_patches()==0 || m_Surface.number_v_patches()==0 )
+    std::vector< vector< vec3d > > uw_pnts;
+    Tesselate( num_u, num_v, pnts, norms, uw_pnts );
+}
+
+void VspSurf::Tesselate( int num_u, int num_v, vector< vector< vec3d > > & pnts, vector< vector< vec3d > > & norms, vector< vector< vec3d > > & uw_pnts ) const
+{
+    if( m_Surface.number_u_patches() == 0 || m_Surface.number_v_patches() == 0 )
     {
         return;
     }
@@ -1701,10 +1706,12 @@ void VspSurf::Tesselate( int num_u, int num_v, vector< vector< vec3d > > & pnts,
     // resize pnts and norms
     pnts.resize( nu );
     norms.resize( nu );
+    uw_pnts.resize( nu );
     for ( i = 0; i < nu; ++i )
     {
         pnts[i].resize( nv );
         norms[i].resize( nv );
+        uw_pnts[i].resize( nv );
     }
 
     // calculate the u and v parameterizations
@@ -1733,11 +1740,18 @@ void VspSurf::Tesselate( int num_u, int num_v, vector< vector< vec3d > > & pnts,
                 ntmp = -ntmp;
             }
             norms[i][j].set_xyz( ntmp.x(), ntmp.y(), ntmp.z() );
+            uw_pnts[i][j].set_xyz( u[i], v[j], 0.0 );
         }
     }
 }
 
 void VspSurf::Tesselate( const vector<int> &num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms ) const
+{
+    std::vector< vector< vec3d > > uw_pnts;
+    Tesselate( num_u, num_v, pnts, norms, uw_pnts );
+}
+
+void VspSurf::Tesselate( const vector<int> &num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts ) const
 {
     surface_index_type i, j, nu, nv( num_v );
     double umin, umax, vmin, vmax;
@@ -1754,10 +1768,12 @@ void VspSurf::Tesselate( const vector<int> &num_u, int num_v, std::vector< vecto
     // resize pnts and norms
     pnts.resize( nu );
     norms.resize( nu );
+    uw_pnts.resize( nu );
     for ( i = 0; i < nu; ++i )
     {
         pnts[i].resize( nv );
         norms[i].resize( nv );
+        uw_pnts[i].resize( nv );
     }
 
     // calculate the u and v parameterizations
@@ -1771,7 +1787,7 @@ void VspSurf::Tesselate( const vector<int> &num_u, int num_v, std::vector< vecto
     u.resize( nu );
     double uumin( umin );
     size_t ii;
-    for ( i = 0, ii = 0; ii < GetNumSectU(); ++ii )
+    for ( i = 0, ii = 0; ii < (size_t)GetNumSectU(); ++ii )
     {
         double du, dv;
 
@@ -1798,6 +1814,7 @@ void VspSurf::Tesselate( const vector<int> &num_u, int num_v, std::vector< vecto
                 ntmp = -ntmp;
             }
             norms[i][j].set_xyz( ntmp.x(), ntmp.y(), ntmp.z() );
+            uw_pnts[i][j].set_xyz( u[i], v[j], 0.0 );
         }
     }
 }
@@ -1983,7 +2000,7 @@ void VspSurf::PrepairCrossSections( vector<piecewise_curve_type> &pc, const vect
 
 void VspSurf::DegreeReduceSections( const vector<VspCurve> &input_crv_vec, bool closed_flag )
 {
-    std::cerr << "Need to re-enable DegreeReduceSections()" << std::endl;
+//    std::cerr << "Need to re-enable DegreeReduceSections()" << std::endl;
 #if 0
     surface_index_type i, j, nu( m_Surface.number_u_patches() ), nv( m_Surface.number_v_patches() );
 
@@ -2020,13 +2037,17 @@ void VspSurf::DegreeReduceSections( const vector<VspCurve> &input_crv_vec, bool 
 #endif
 }
 
-void VspSurf::WriteBezFile( FILE* file_id, const std::string &geom_id )
+void VspSurf::WriteBezFile( FILE* file_id, const std::string &geom_id, int surf_ind )
 {
     // Make copy for local changes.
     piecewise_surface_type s( m_Surface );
 
     piecewise_surface_type::data_type ttol = 1e-6;
     s.to_cubic( ttol );
+
+    vector<double> u_pmap;
+    vector<double> w_pmap;
+    s.get_pmap_uv( u_pmap, w_pmap );
 
     piecewise_surface_type::index_type ip, jp, nupatch, nvpatch;
 
@@ -2063,16 +2084,16 @@ void VspSurf::WriteBezFile( FILE* file_id, const std::string &geom_id )
     split_u.push_back( 0 );
     split_w.push_back( 0 );
 
-    split_w.push_back( ( nvpts - 1 ) / 4 );
-    split_w.push_back( ( nvpts - 1 ) / 2 );
-    split_w.push_back( 3 * ( nvpts - 1 ) / 4 );
+    split_w.push_back( ClosetPatchEnd( w_pmap, 0.25 * w_pmap[w_pmap.size() - 1] ) );
+    split_w.push_back( ClosetPatchEnd( w_pmap, 0.5 * w_pmap[w_pmap.size() - 1] ) );
+    split_w.push_back( ClosetPatchEnd( w_pmap, 0.75 * w_pmap[w_pmap.size() - 1] ) );
 
     split_u.push_back( nupts - 1 );
     split_w.push_back( nvpts - 1 );
 
     int num_sections = ( split_u.size() - 1 ) * ( split_w.size() - 1 );
 
-    fprintf( file_id, "0 Component\n" );
+    fprintf( file_id, "%s Component\n", geom_id.c_str() );
     fprintf( file_id, "%d  Num_Sections\n", num_sections );
 
     for ( int iu = 0 ; iu < ( int )split_u.size() - 1 ; iu++ )
@@ -2082,7 +2103,21 @@ void VspSurf::WriteBezFile( FILE* file_id, const std::string &geom_id )
             //==== Write Section ====//
             int num_u = split_u[iu + 1] - split_u[iu] + 1;
             int num_w = split_w[iw + 1] - split_w[iw] + 1;
+            int num_u_map = split_u[iu + 1] / 3 - split_u[iu] / 3 + 1;
+            int num_w_map = split_w[iw + 1] / 3 - split_w[iw] / 3 + 1;
             fprintf ( file_id, "%d %d  NumU, NumW\n", num_u, num_w );
+            fprintf( file_id, "%d %d NumU_Map, NumW_Map\n", num_u_map, num_w_map );
+            fprintf( file_id, "%d VspSurf_Index\n", surf_ind );
+            //==== Write U,W Mapping ====//
+            for ( int umi = split_u[iu] / 3; umi <= split_u[iu + 1] / 3; umi++ )
+            {
+                fprintf( file_id, "%20.20lf\n", u_pmap[umi] );
+            }
+
+            for ( int wmi = split_w[iw] / 3; wmi <= split_w[iw + 1] / 3; wmi++ )
+            {
+                fprintf( file_id, "%20.20lf\n", w_pmap[wmi] );
+            }
 
             for ( int i = split_u[iu] ; i <= split_u[iu + 1] ; i++ )
                 for ( int j = split_w[iw] ; j <= split_w[iw + 1] ; j++ )
@@ -2093,4 +2128,13 @@ void VspSurf::WriteBezFile( FILE* file_id, const std::string &geom_id )
                 }
         }
     }
+}
+
+int VspSurf::ClosetPatchEnd( const vector<double> & patch_endings, double end_val ) const
+{
+    // patch_endings should be a sorted vector
+    int ind = ClosestElement( patch_endings, end_val );
+
+    return ind * 3;
+
 }

@@ -20,6 +20,7 @@
 #include "VspSurf.h"
 #include "TMesh.h"
 #include "DragFactors.h"
+#include "SubSurface.h"
 #include "GridDensity.h"
 #include "ResultsMgr.h"
 #include "TextureMgr.h"
@@ -36,7 +37,8 @@ class XSecSurf;
 //#define stringify( name ) # name
 
 enum { BASE_GEOM_TYPE, XFORM_GEOM_TYPE, GEOM_GEOM_TYPE, POD_GEOM_TYPE, FUSELAGE_GEOM_TYPE,
-       MS_WING_GEOM_TYPE, BLANK_GEOM_TYPE, MESH_GEOM_TYPE, STACK_GEOM_TYPE, CUSTOM_GEOM_TYPE
+       MS_WING_GEOM_TYPE, BLANK_GEOM_TYPE, MESH_GEOM_TYPE, STACK_GEOM_TYPE, CUSTOM_GEOM_TYPE,
+       NUM_GEOM_TYPE,
      };
 
 class GeomType
@@ -44,14 +46,17 @@ class GeomType
 public:
 
     GeomType();
-    GeomType( int id, string name, bool fixed_flag = false );
+    GeomType( int id, string name, bool fixed_flag = false, string module_name = string()  );
     ~GeomType();
+
+    void CopyFrom( const GeomType & t );
 
     int m_Type;
     string m_Name;
     bool m_FixedFlag;
 
     string m_GeomID;
+    string m_ModuleName;
 
 };
 
@@ -150,7 +155,7 @@ public:
     {
         return m_Type;
     }
-    virtual void SetType( GeomType & type )
+    virtual void SetType( const GeomType & type )
     {
         m_Type = type;
     }
@@ -184,6 +189,8 @@ public:
         m_ChildIDVec = vec;
     }
 
+    virtual bool UpdatedParm( const string & id );
+
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )      {}
 
     virtual void LoadIDAndChildren( vector< string > & id_vec, bool check_display_flag = false );
@@ -204,6 +211,7 @@ protected:
     string m_ParentID;                                  // ID of Parent (NONE == No Parent)
     vector< string > m_ChildIDVec;                      // Children ID
 
+    vector< string > m_UpdatedParmVec;
 };
 
 //==== Geom XForm ====//
@@ -321,7 +329,10 @@ public:
     {
         surf_vec = m_SurfVec;
     }
-    virtual int GetNumMainSurfs() = 0;
+    virtual int GetNumMainSurfs()
+    {
+        return m_MainSurfVec.size();
+    }
     virtual int GetNumSymFlags();
     virtual int GetNumTotalSurfs();
 
@@ -365,6 +376,29 @@ public:
     virtual void WritePovRay( FILE* fid, int comp_num );
     virtual void WritePovRayTri( FILE* fid, const vec3d& v, const vec3d& n, bool comma = true );
     virtual void CreateGeomResults( Results* res );
+
+    virtual void AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id = string() );
+    virtual void ChangeID( string id );
+
+    //==== Sub Surface Managment Methods ====//
+    virtual void AddSubSurf( SubSurface* sub_surf )
+    {
+        m_SubSurfVec.push_back( sub_surf );
+    }
+    virtual SubSurface* AddSubSurf( int type );
+    virtual bool ValidSubSurfInd( int ind );
+    virtual void DelSubSurf( int ind );
+    virtual SubSurface* GetSubSurf( int ind );
+    virtual vector< SubSurface* > GetSubSurfVec()
+    {
+        return m_SubSurfVec;
+    }
+
+    virtual int NumSubSurfs()
+    {
+        return m_SubSurfVec.size();
+    }
+    virtual void RecolorSubSurfs( int active_ind );
 
     //==== Set Drag Factors ====//
     virtual void LoadDragFactors( DragFactors& drag_factors )   {};
@@ -447,7 +481,9 @@ protected:
     virtual void UpdateDrawObj();
 
     virtual void UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms );
+    virtual void UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts );
 
+    vector<VspSurf> m_MainSurfVec;
     vector<VspSurf> m_SurfVec;
     vector<DrawObj> m_WireShadeDrawObj_vec;
     DrawObj m_HighlightDrawObj;
@@ -457,6 +493,8 @@ protected:
     vector< bool > m_SetFlags;
 
     vector< vec3d > GetBBoxDrawLines();
+
+    vector<SubSurface*> m_SubSurfVec;
 
 //  //==== Structure Parts ====//
 //  int currPartID;

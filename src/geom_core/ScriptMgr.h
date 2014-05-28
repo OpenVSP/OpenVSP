@@ -21,6 +21,7 @@
 #include <scriptmath/scriptmath.h>
 
 #include "Vec3d.h"
+#include "XmlUtil.h"
 
 #include <assert.h>
 #include <string>
@@ -40,25 +41,29 @@ public:
     }
 
     void Init();
-    void ReadScript( const char* module_name, const char* file_name );
+
+    //==== Read Script From File - Return Module Name ====//
+    string ReadScriptFromFile( const string & module_name, const string &  file_name );
+
+    //==== Read Script From Memory - Return Module Name ====//
+    string ReadScriptFromMemory( const string &  module_name, const string & script_content );
+
+
     void ExecuteScript(  const char* module_name,  const char* function_name );
+
+    string FindModuleContent( const string & module_name );
+    int SaveScriptContentToFile( const string & module_name, const string & file_name );
 
     void RunTestScripts();
 
     //==== Test Proxy Stuff ====//
-    void SetSaveInt( int i )
-    {
-        m_SaveInt = i;
-    }
-    int  GetSaveInt( )
-    {
-        return m_SaveInt;
-    }
+    void SetSaveInt( int i )    { m_SaveInt = i; }
+    int  GetSaveInt( )            { return m_SaveInt; }
+
     CScriptArray* GetProxyVec3dArray();
     CScriptArray* GetProxyStringArray();
     CScriptArray* GetProxyIntArray();
     CScriptArray* GetProxyDoubleArray();
-
 
     //==== Common Types =====//
     asIObjectType* m_IntArrayType;
@@ -81,7 +86,9 @@ private:
 
     //==== Member Variables ====//
     asIScriptEngine* m_ScriptEngine;
-    map< string, CScriptBuilder > m_BuilderMap;
+//    map< string, CScriptBuilder > m_BuilderMap;
+    CScriptBuilder m_ScriptBuilder;
+    map< string, string > m_ModuleContentMap;
 
     //==== Test Proxy Stuff ====//
     int m_SaveInt;
@@ -107,6 +114,8 @@ private:
 
     void SetXSecPnts( const string& xsec_id, CScriptArray* pnt_arr );
     void SetVec3dArray( CScriptArray* arr );
+
+    string ExtractContent( const string & file_name );
 
 
 };

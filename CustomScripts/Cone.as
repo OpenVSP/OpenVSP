@@ -6,10 +6,10 @@ void Init()
 {
 	//==== Add Parm Types  =====//
 	string height   = AddParm( PARM_DOUBLE_TYPE, "Height", "Design" );
-	SetParmVal( height, 4.0 );
+	SetParmValLimits( height, 4.0, 0.001, 1.0e12 );
 
 	string diameter = AddParm( PARM_DOUBLE_TYPE, "Diameter", "Design" );
-	SetParmVal( diameter, 8.0 );
+	SetParmValLimits( diameter, 8.0, 0.001, 1.0e12 );
 
 	//==== Add Cross Sections  =====//
 	string xsec_surf = AddXSecSurf();
@@ -57,8 +57,6 @@ void UpdateSurf()
 
 	//==== Get The XSec To Change ====//
 	string xsec_surf = GetXSecSurf( geom_id, 0 );
-	string xsec0 = GetXSec( xsec_surf, 0 );
-	SetParmVal( GetXSecParm( xsec0, "XLocPercent" ), 0.0 );
 
 	//==== Set The Diameter ====//
 	string xsec1 = GetXSec( xsec_surf, 1 );
@@ -68,8 +66,7 @@ void UpdateSurf()
 	//==== Set The Height ====//
 	double ht_val  = GetParmVal( GetParm( geom_id, "Height", "Design" ) );
 	string xsec2 = GetXSec( xsec_surf, 2 );
-	SetParmVal( GetXSecParm( xsec2, "XLocPercent" ), 1.0 );
-	SetParmVal( GetXSecParm( xsec2, "RefLength" ), ht_val );
+	SetCustomXSecLoc( xsec2, vec3d( ht_val, 0, 0 ) );
 
 	SkinXSecSurf();
 

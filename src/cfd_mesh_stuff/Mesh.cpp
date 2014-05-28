@@ -232,6 +232,7 @@ void Mesh::LoadSimpTris()
     list< Tri* >::iterator t;
     simpTriVec.resize( triList.size() );
     simpPntVec.resize( triList.size() * 3 );
+    simpUWPntVec.resize( triList.size() * 3 );
 
     int cnt = 0;
     for ( t = triList.begin() ; t != triList.end(); t++ )
@@ -243,6 +244,10 @@ void Mesh::LoadSimpTris()
         simpPntVec[cnt * 3]   = ( *t )->n0->pnt;
         simpPntVec[cnt * 3 + 1] = ( *t )->n1->pnt;
         simpPntVec[cnt * 3 + 2] = ( *t )->n2->pnt;
+
+        simpUWPntVec[cnt * 3] = ( *t )->n0->uw;
+        simpUWPntVec[cnt * 3 + 1] = ( *t )->n1->uw;
+        simpUWPntVec[cnt * 3 + 2] = ( *t )->n2->uw;
         cnt++;
     }
 }

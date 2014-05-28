@@ -11,7 +11,6 @@
 #include "VehicleMgr.h"
 
 #ifdef WIN32
-#define NOMINMAX
 #include <windows.h>
 #endif
 
@@ -19,6 +18,7 @@
 VehicleMgr::VehicleMgr()
 {
     m_Vehicle = new Vehicle();
+    m_Vehicle->Init();
 }
 
 Vehicle* VehicleMgr::GetVehicle()
