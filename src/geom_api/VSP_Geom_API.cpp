@@ -105,7 +105,7 @@ void VSPCheckSetup()
     }
 
 #ifdef VSP_USE_FLTK
-    GuiInterface::getInstance().InitGuiAPI( GetVehicle() );
+    GuiInterface::getInstance().InitGui( GetVehicle() );
 #endif
 
     ErrorMgr.NoError();
