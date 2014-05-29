@@ -62,7 +62,6 @@ GeomGuiDraw::GeomGuiDraw()
     m_DrawType = GEOM_DRAW_WIRE;
     m_NoShowFlag = false;
     m_DisplayChildrenFlag = true;
-    m_WireColor = vec3d( 0.0, 0.0, 255.0 );
     m_MaterialID = 0;
 
 }
@@ -950,6 +949,9 @@ xmlNodePtr Geom::EncodeXml( xmlNodePtr & node )
     // Encode Material Info.
     m_GuiDraw.getMaterialMgr()->EncodeXml( node );
 
+    // Encode Color Info.
+    m_GuiDraw.getColorMgr()->EncodeXml( node );
+
     xmlNodePtr geom_node = xmlNewChild( node, NULL, BAD_CAST "Geom", NULL );
     if ( geom_node )
     {
@@ -983,7 +985,11 @@ xmlNodePtr Geom::DecodeXml( xmlNodePtr & node )
 {
     GeomXForm::DecodeXml( node );
 
+    // Decode Material Info.
     m_GuiDraw.getMaterialMgr()->DecodeXml( node );
+
+    // Decode Color Info.
+    m_GuiDraw.getColorMgr()->DecodeXml( node );
 
     xmlNodePtr geom_node = XmlUtil::GetNode( node, "Geom", 0 );
     if ( geom_node )

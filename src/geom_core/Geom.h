@@ -24,6 +24,7 @@
 #include "GridDensity.h"
 #include "ResultsMgr.h"
 #include "TextureMgr.h"
+#include "ColorMgr.h"
 #include "MaterialMgr.h"
 
 //#include "xmlvsp.h"
@@ -91,12 +92,13 @@ public:
 
     void SetWireColor( double r, double g, double b )
     {
-        m_WireColor.set_xyz( r, g, b );
+        m_ColorMgr.SetWireColor( r, g, b, 255 );
     }
 
-    vec3d GetWireColor( )
+    vec3d GetWireColor()
     {
-        return m_WireColor;
+        Color * wColor = m_ColorMgr.GetWireColor();
+        return vec3d( wColor->m_Red.Get(), wColor->m_Green.Get(), wColor->m_Blue.Get() );
     }
 
     void SetMaterialToDefault();
@@ -126,10 +128,15 @@ public:
     {
         return &m_TextureMgr;
     }
+    ColorMgr * getColorMgr()
+    {
+        return &m_ColorMgr;
+    }
     MaterialMgr * getMaterialMgr()
     {
         return &m_MaterialMgr;
     }
+
 protected:
 
     int  m_DrawType;
@@ -137,10 +144,10 @@ protected:
     bool m_NoShowFlag;
     bool m_DisplayChildrenFlag;
 
-    vec3d m_WireColor;
     int m_MaterialID;
 
     TextureMgr m_TextureMgr;
+    ColorMgr m_ColorMgr;
     MaterialMgr m_MaterialMgr;
 };
 
