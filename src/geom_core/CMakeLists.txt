@@ -40,6 +40,7 @@ ScriptMgr.cpp
 StackGeom.cpp
 SubSurface.cpp
 SubSurfaceMgr.cpp
+Texture.cpp
 TextureMgr.cpp
 TMesh.cpp
 Vehicle.cpp
@@ -78,6 +79,7 @@ StackGeom.h
 SubSurface.h
 SubSurfaceMgr.h
 SWIGDefines.h
+Texture.h
 TextureMgr.h
 TMesh.h
 Vehicle.h
