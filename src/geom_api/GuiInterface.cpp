@@ -61,10 +61,13 @@ void GuiInterface::StartGui()
 void GuiInterface::StartGuiAPI( )
 {
 #ifdef VSP_USE_FLTK
-    m_ScreenMgr->SetRunGui( true );
-    m_ScreenMgr->ShowReturnToAPI();
-    m_ScreenMgr->ShowScreen( ScreenMgr::VSP_MAIN_SCREEN );
-    while( m_ScreenMgr->CheckRunGui() && Fl::wait() );
+    if ( m_ScreenMgr )
+    {
+        m_ScreenMgr->SetRunGui( true );
+        m_ScreenMgr->ShowReturnToAPI();
+        m_ScreenMgr->ShowScreen( ScreenMgr::VSP_MAIN_SCREEN );
+        while( m_ScreenMgr->CheckRunGui() && Fl::wait() );
+    }
 #endif
 
 }
