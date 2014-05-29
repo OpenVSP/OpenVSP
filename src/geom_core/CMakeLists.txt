@@ -52,6 +52,8 @@ LabelMgr.cpp
 LightMgr.cpp
 Material.cpp
 MaterialMgr.cpp
+Color.cpp
+ColorMgr.cpp
 VspPreferences.cpp
 Airfoil.h
 BlankGeom.h
@@ -88,6 +90,8 @@ LabelMgr.h
 LightMgr.h
 Material.h
 MaterialMgr.h
+Color.h
+ColorMgr.h
 VspPreferences.h
 
 )
