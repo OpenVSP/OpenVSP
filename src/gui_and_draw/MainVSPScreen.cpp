@@ -52,7 +52,6 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     AddMenuCallBack( m_MainUI->ParmDebugMenu );
     AddMenuCallBack( m_MainUI->DesignVarMenu );
     AddMenuCallBack( m_MainUI->MassPropMenu );
-    AddMenuCallBack( m_MainUI->AeroRefMenu );
     AddMenuCallBack( m_MainUI->AwaveMenu );
     AddMenuCallBack( m_MainUI->PSliceMenu );
 
@@ -78,9 +77,6 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     AddMenuCallBack( m_MainUI->AdjustViewMenu );
     AddMenuCallBack( m_MainUI->AntialiasMenu );
     AddMenuCallBack( m_MainUI->TextureMenu );
-
-    AddMenuCallBack( m_MainUI->ScriptMenu );
-    AddMenuCallBack( m_MainUI->ScriptOutMenu );
 
     AddMenuCallBack( m_MainUI->RevertMenu );
 
