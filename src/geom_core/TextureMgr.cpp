@@ -100,7 +100,7 @@ xmlNodePtr TextureMgr::DecodeXml( xmlNodePtr node )
         sprintf( texName, "Texture%d", i );
         xmlNodePtr tex_node = XmlUtil::GetNode( child_node, texName, 0 );
         xmlNodePtr parm_node = XmlUtil::GetNode( tex_node, "ParmContainer", 0 );
-        if( tex_node )
+        if( tex_node && parm_node )
         {
             std::string file = XmlUtil::FindString( parm_node, "File_Name", "" );
             std::string id = AttachTexture( file );
