@@ -952,6 +952,9 @@ xmlNodePtr Geom::EncodeXml( xmlNodePtr & node )
     // Encode Color Info.
     m_GuiDraw.getColorMgr()->EncodeXml( node );
 
+    // Encode Texture Info.
+    m_GuiDraw.getTextureMgr()->EncodeXml( node );
+
     xmlNodePtr geom_node = xmlNewChild( node, NULL, BAD_CAST "Geom", NULL );
     if ( geom_node )
     {
@@ -990,6 +993,9 @@ xmlNodePtr Geom::DecodeXml( xmlNodePtr & node )
 
     // Decode Color Info.
     m_GuiDraw.getColorMgr()->DecodeXml( node );
+
+    // Decode Texture Info.
+    m_GuiDraw.getTextureMgr()->DecodeXml( node );
 
     xmlNodePtr geom_node = XmlUtil::GetNode( node, "Geom", 0 );
     if ( geom_node )

@@ -50,6 +50,16 @@ public:
     */
     virtual std::vector<Texture*> FindTextureVec( std::vector<std::string> texture_id_vec );
 
+public:
+    /*!
+    * Encode Texture Info to xml.
+    */
+    xmlNodePtr EncodeXml( xmlNodePtr node );
+    /*!
+    * Decode Texture Info from xml.
+    */
+    xmlNodePtr DecodeXml( xmlNodePtr node );
+
 protected:
     std::vector<Texture*> m_TextureList;
 };

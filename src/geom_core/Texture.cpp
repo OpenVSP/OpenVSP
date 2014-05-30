@@ -27,7 +27,7 @@ Texture::Texture( std::string fileName )
             }
         }
     }
-    m_DisplayName = displayName;
+    ParmContainer::SetName( displayName );
 
     // Initialized Parms.
     m_U.Init( "U", "Texture_Parm", this, 0.0, -1.0, 1.0, false );
@@ -48,12 +48,14 @@ Texture::~Texture()
 {
 }
 
-void Texture::Rename( std::string name )
-{
-    m_DisplayName = name;
-}
-
 void Texture::ParmChanged( Parm* parm_ptr, int type )
 {
     VehicleMgr::getInstance().GetVehicle()->ParmChanged( parm_ptr, type );
+}
+
+xmlNodePtr Texture::EncodeXml( xmlNodePtr node )
+{
+    xmlNodePtr container_node = ParmContainer::EncodeXml( node );
+    XmlUtil::AddStringNode( container_node, "File_Name", m_FileName );
+    return container_node;
 }

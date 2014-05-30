@@ -144,7 +144,7 @@ bool ManageTextureScreen::Update()
             // Fill Hacked char array with correct names.
             for( int j = 0; j < ( int )m_TexDropDownList.size(); j++ )
             {
-                m_TextureMgrUI->textureChoice->replace( m_TexDropDownList[j].GUIIndex, m_TexDropDownList[j].TexInfo->m_DisplayName.c_str() );
+                m_TextureMgrUI->textureChoice->replace( m_TexDropDownList[j].GUIIndex, m_TexDropDownList[j].TexInfo->GetName().c_str() );
             }
             if( !m_TexDropDownList.empty() )
             {
@@ -177,7 +177,7 @@ bool ManageTextureScreen::Update()
             {
                 Texture * info = select_vec[0]->m_GuiDraw.getTextureMgr()->FindTexture( m_SelectedTexItem->TexInfo->GetID() );
 
-                m_TextureMgrUI->textureNameInput->value( info->m_DisplayName.c_str() );
+                m_TextureMgrUI->textureNameInput->value( info->GetName().c_str() );
 
                 m_UScaleSlider.Update( info->m_UScale.GetID() );
                 m_WScaleSlider.Update( info->m_WScale.GetID() );
@@ -222,7 +222,7 @@ void ManageTextureScreen::CallBack( Fl_Widget * w )
     {
         vector< Geom* > select_vec = veh->GetActiveGeomPtrVec();
         Texture * info = select_vec[0]->m_GuiDraw.getTextureMgr()->FindTexture( m_SelectedTexItem->TexInfo->GetID() );
-        info->m_DisplayName = m_TextureMgrUI->textureNameInput->value();
+        info->SetName( m_TextureMgrUI->textureNameInput->value() );
     }
     else if( w == m_TextureMgrUI->addTextureButton )
     {

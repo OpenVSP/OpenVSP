@@ -21,21 +21,16 @@ public:
 
 public:
     /*!
-    * Rename display name.
-    */
-    virtual void Rename( std::string name );
-
-public:
-    /*!
     * On texture change, inform geometry to update.
     */
     virtual void ParmChanged( Parm* parm_ptr, int type );
 
-public:
     /*!
-    * Display or user defined name on GUI.
+    * Override ParmContainer.
     */
-    std::string m_DisplayName;
+    xmlNodePtr EncodeXml( xmlNodePtr node );
+
+public:
     /*!
     * File path + file name.
     */
