@@ -42,6 +42,16 @@ public:
     */
     std::vector< Light* > GetVec();
 
+public:
+    /*!
+    * Encode lights information to xml.
+    */
+    xmlNodePtr EncodeXml( xmlNodePtr node );
+    /*!
+    * Decode lights information from xml.
+    */
+    xmlNodePtr DecodeXml( xmlNodePtr node );
+
 private:
     std::vector< Light* > m_Lights;
 };

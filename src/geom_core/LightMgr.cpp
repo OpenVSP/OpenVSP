@@ -53,3 +53,38 @@ std::vector< Light* > LightMgr::GetVec()
 {
     return m_Lights;
 }
+
+xmlNodePtr LightMgr::EncodeXml( xmlNodePtr node )
+{
+    char lightName[256];
+
+    xmlNodePtr light_root_node = xmlNewChild( node, NULL, BAD_CAST "Lights", NULL );
+    XmlUtil::AddIntNode( light_root_node, "Num_of_Lights", NUMOFLIGHTS );
+
+    for ( int i = 0; i < (int)m_Lights.size(); i++ )
+    {
+        sprintf( lightName, "Light%d", i );
+        xmlNodePtr light_node = xmlNewChild( light_root_node, NULL, BAD_CAST lightName, NULL );
+        m_Lights[i]->EncodeXml( light_node );
+    }
+    return light_root_node;
+}
+
+xmlNodePtr LightMgr::DecodeXml( xmlNodePtr node )
+{
+    char lightName[256];
+
+    xmlNodePtr light_root_node = XmlUtil::GetNode( node, "Lights", 0 );
+
+    int numofLights = XmlUtil::FindInt( light_root_node, "Num_of_Lights", 0 );
+    for ( int i = 0; i < numofLights; i++ )
+    {
+        sprintf( lightName, "Light%d", i );
+        xmlNodePtr light_node = XmlUtil::GetNode( light_root_node, lightName, 0 );
+        if( light_node )
+        {
+            m_Lights[i]->DecodeXml( light_node );
+        }
+    }
+    return light_root_node;
+}
