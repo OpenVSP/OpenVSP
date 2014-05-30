@@ -50,6 +50,7 @@ XSec.cpp
 XSecCurve.cpp
 XSecSurf.cpp
 LabelMgr.cpp
+Light.cpp
 LightMgr.cpp
 Material.cpp
 MaterialMgr.cpp
@@ -89,6 +90,7 @@ XSec.h
 XSecCurve.h
 XSecSurf.h
 LabelMgr.h
+Light.h
 LightMgr.h
 Material.h
 MaterialMgr.h
