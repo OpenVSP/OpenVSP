@@ -49,6 +49,7 @@ WingGeom.cpp
 XSec.cpp
 XSecCurve.cpp
 XSecSurf.cpp
+Label.cpp
 LabelMgr.cpp
 Light.cpp
 LightMgr.cpp
@@ -89,6 +90,7 @@ WingGeom.h
 XSec.h
 XSecCurve.h
 XSecSurf.h
+Label.h
 LabelMgr.h
 Light.h
 LightMgr.h
