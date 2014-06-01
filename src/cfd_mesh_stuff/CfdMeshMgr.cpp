@@ -503,6 +503,8 @@ void CfdMeshMgrSingleton::GenerateMesh()
     CfdMeshMgr.addOutputText( "InitMesh\n" );
     CfdMeshMgr.InitMesh( );
 
+    CfdMeshMgr.SubTagTris();
+
     CfdMeshMgr.addOutputText( "Remesh\n" );
     CfdMeshMgr.Remesh( CfdMeshMgrSingleton::CFD_OUTPUT );
 
@@ -510,8 +512,9 @@ void CfdMeshMgrSingleton::GenerateMesh()
     //Stringc qual = CfdMeshMgr.GetQualString();
     //addOutputText( qual.get_char_star() );
 
+    SubSurfaceMgr.BuildSingleTagMap();
+
     CfdMeshMgr.addOutputText( "Exporting Files\n" );
-    CfdMeshMgr.SubTagTris();
     CfdMeshMgr.ExportFiles();
 
     CfdMeshMgr.addOutputText( "Check Water Tight\n" );
@@ -1372,6 +1375,7 @@ void CfdMeshMgrSingleton::Remesh( int output_type )
 
         m_SurfVec[i]->GetMesh()->LoadSimpTris();
         m_SurfVec[i]->GetMesh()->Clear();
+        m_SurfVec[i]->Subtag();
         m_SurfVec[i]->GetMesh()->CondenseSimpTris();
     }
 
@@ -1407,6 +1411,7 @@ void CfdMeshMgrSingleton::RemeshSingleComp( int comp_id, int output_type )
 
         m_SurfVec[i]->GetMesh()->LoadSimpTris();
         m_SurfVec[i]->GetMesh()->Clear();
+        m_SurfVec[i]->Subtag();
         m_SurfVec[i]->GetMesh()->CondenseSimpTris();
     }
 
@@ -1693,6 +1698,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
         vector< vec3d >& sPntVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
+        vector< vec2d >& sUWPntVec = m_SurfVec[i]->GetMesh()->GetSimpUWPntVec();
         for ( int v = 0 ; v < ( int )sPntVec.size() ; v++ )
         {
             if ( m_SurfVec[i]->GetWakeFlag() )
@@ -1738,6 +1744,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                 stri.ind0 = pntShift[i0] + 1;
                 stri.ind1 = pntShift[i1] + 1;
                 stri.ind2 = pntShift[i2] + 1;
+                stri.m_Tags = sTriVec[t].m_Tags;
                 allTriVec.push_back( stri );
                 allSurfIDVec.push_back( m_SurfVec[i]->GetSurfID() );
             }
@@ -1770,6 +1777,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                 stri.ind0 = wakePntShift[i0] + 1 + wakeIndOffset;
                 stri.ind1 = wakePntShift[i1] + 1 + wakeIndOffset;
                 stri.ind2 = wakePntShift[i2] + 1 + wakeIndOffset;
+                stri.m_Tags = sTriVec[t].m_Tags;
                 allTriVec.push_back( stri );
                 allSurfIDVec.push_back( m_SurfVec[i]->GetSurfID() );
             }
@@ -1899,13 +1907,9 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
             }
 
             //==== Write Component ID ====//
-            for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+            for ( int i = 0 ; i < ( int )allTriVec.size() ; i++ )
             {
-                vector < SimpTri >& sTriVec = m_SurfVec[i]->GetMesh()->GetSimpTriVec();
-                for ( int t = 0 ; t <  ( int )sTriVec.size() ; t++ )
-                {
-                    fprintf( fp, "%d \n", SubSurfaceMgr.GetTag( sTriVec[t].m_Tags ) );
-                }
+                fprintf( fp, "%d \n", SubSurfaceMgr.GetTag( allTriVec[i].m_Tags ) );
             }
 
             fclose( fp );
@@ -4597,11 +4601,4 @@ void CfdMeshMgrSingleton::SubTagTris()
     }
     SubSurfaceMgr.SetSubSurfTags( m_NumComps );
     SubSurfaceMgr.BuildCompNameMap();
-
-    for ( int s = 0 ; s < ( int )m_SurfVec.size() ; s++ )
-    {
-        m_SurfVec[s]->Subtag();
-    }
-
-    SubSurfaceMgr.BuildSingleTagMap();
 }
