@@ -426,6 +426,7 @@ public:
     BoolParm m_DrawBadFlag;
     BoolParm m_DrawSymmFlag;
     BoolParm m_DrawWakeFlag;
+    BoolParm m_ColorTagsFlag;
 
     BoolParm m_ExportFileFlags[NUM_FILE_NAMES];
 
@@ -493,6 +494,7 @@ private:
     DrawObj m_MeshBadTriDO;
     DrawObj m_BBoxLineStripDO;
     DrawObj m_BBoxLinesDO;
+    vector< DrawObj > m_TagDO;
 };
 
 #define CfdMeshMgr CfdMeshMgrSingleton::getInstance()

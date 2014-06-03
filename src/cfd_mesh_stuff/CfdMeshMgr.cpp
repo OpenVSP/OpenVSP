@@ -399,6 +399,7 @@ CfdMeshMgrSingleton::CfdMeshMgrSingleton() : ParmContainer()
     m_DrawBadFlag.Init( "Draw Bad Mesh Elements", "DrawCFD", this, true, 0, 1 );
     m_DrawSymmFlag.Init( "Draw Symmetry Plane", "DrawCFD", this, true, 0, 1 );
     m_DrawWakeFlag.Init( "Draw Wake", "DrawCFD", this, true, 0, 1 );
+    m_ColorTagsFlag.Init( "Color Tags Flag", "DrawCFD", this, true, 0, 1 );
 
     m_BatchFlag = false;
     m_HalfMeshFlag = false;
@@ -4171,6 +4172,79 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     m_MeshTriDO.m_NormVec = meshData;
 
     draw_obj_vec.push_back( &m_MeshTriDO );
+
+    // Render Tag Colors
+    int num_tags = SubSurfaceMgr.m_SingleTagMap.size();
+    m_TagDO.resize( num_tags );
+    map<int, DrawObj*> tag_dobj_map;
+    map< std::vector<int>, int >::const_iterator mit;
+    map< int, DrawObj* >::const_iterator dmit;
+    int cnt = 0;
+    double deg;
+
+    char str[256];
+    for ( mit = SubSurfaceMgr.m_SingleTagMap.begin(); mit != SubSurfaceMgr.m_SingleTagMap.end() ; mit++ )
+    {
+        m_TagDO[cnt] = DrawObj();
+        tag_dobj_map[ mit->second ] = &m_TagDO[cnt];
+        sprintf( str, "%s_TAG_%d", GetID().c_str(), cnt );
+        m_TagDO[cnt].m_GeomID = string( str );
+        m_TagDO[cnt].m_Type = DrawObj::VSP_SHADED_TRIS;
+        m_TagDO[cnt].m_Visible = m_ColorTagsFlag.Get();
+        deg = ( double )cnt / num_tags * 360.0;
+        vec3d rgb = m_TagDO[cnt].ColorWheel( deg );
+
+        m_TagDO[cnt].m_MaterialInfo.Ambient[0] = ( float )rgb.x();
+        m_TagDO[cnt].m_MaterialInfo.Ambient[1] = ( float )rgb.y();
+        m_TagDO[cnt].m_MaterialInfo.Ambient[2] = ( float )rgb.z();
+        m_TagDO[cnt].m_MaterialInfo.Ambient[3] = ( float )1.0f;
+
+        m_TagDO[cnt].m_MaterialInfo.Diffuse[0] = ( float )rgb.x();
+        m_TagDO[cnt].m_MaterialInfo.Diffuse[1] = ( float )rgb.y();
+        m_TagDO[cnt].m_MaterialInfo.Diffuse[2] = ( float )rgb.z();
+        m_TagDO[cnt].m_MaterialInfo.Diffuse[3] = ( float )1.0f;
+
+        m_TagDO[cnt].m_MaterialInfo.Specular[0] = ( float )rgb.x();
+        m_TagDO[cnt].m_MaterialInfo.Specular[1] = ( float )rgb.y();
+        m_TagDO[cnt].m_MaterialInfo.Specular[2] = ( float )rgb.z();
+        m_TagDO[cnt].m_MaterialInfo.Specular[3] = ( float )1.0f;
+
+        m_TagDO[cnt].m_MaterialInfo.Emission[0] = ( float )rgb.x();
+        m_TagDO[cnt].m_MaterialInfo.Emission[1] = ( float )rgb.y();
+        m_TagDO[cnt].m_MaterialInfo.Emission[2] = ( float )rgb.z();
+        m_TagDO[cnt].m_MaterialInfo.Emission[3] = ( float )1.0f;
+        draw_obj_vec.push_back( &m_TagDO[cnt] );
+        cnt++;
+    }
+
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    {
+        vector< vec3d > pVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
+        for ( int t = 0 ; t < ( int )m_SurfVec[i]->GetMesh()->GetSimpTriVec().size() ; t++ )
+        {
+            if ( !m_SurfVec[i]->GetWakeFlag() &&
+                    ( !m_SurfVec[i]->GetFarFlag() || m_DrawFarFlag.Get() ) &&
+                    ( !m_SurfVec[i]->GetSymPlaneFlag() || m_DrawSymmFlag.Get() ) )
+            {
+                SimpTri* stri = &m_SurfVec[i]->GetMesh()->GetSimpTriVec()[t];
+                int tag = SubSurfaceMgr.GetTag( stri->m_Tags );
+                dmit = tag_dobj_map.find( SubSurfaceMgr.GetTag( stri->m_Tags ) );
+                if ( dmit == tag_dobj_map.end() )
+                {
+                    continue;
+                }
+
+                DrawObj* obj = dmit->second;
+                vec3d norm = cross( pVec[stri->ind1] - pVec[stri->ind0], pVec[stri->ind2] - pVec[stri->ind0] );
+                obj->m_PntVec.push_back( pVec[stri->ind0] );
+                obj->m_PntVec.push_back( pVec[stri->ind1] );
+                obj->m_PntVec.push_back( pVec[stri->ind2] );
+                obj->m_NormVec.push_back( norm );
+                obj->m_NormVec.push_back( norm );
+                obj->m_NormVec.push_back( norm );
+            }
+        }
+    }
 
     // Render bad edges
     m_MeshBadEdgeDO.m_GeomID = GetID() + "BADEDGE";

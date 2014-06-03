@@ -1,5 +1,5 @@
 # data file for the Fltk User Interface Designer (fluid)
-version 1.0300 
+version 1.0302 
 header_name {.h} 
 code_name {.cxx}
 class CFDMeshUI {open
@@ -7,7 +7,7 @@ class CFDMeshUI {open
   Function {CFDMeshUI()} {open
   } {
     Fl_Window UIWindow {
-      label {CFD Mesh} open
+      label {CFD Mesh} open selected
       xywh {480 56 415 603} type Double color 45 resizable visible
     } {
       Fl_Box {} {
@@ -31,7 +31,7 @@ class CFDMeshUI {open
         xywh {0 20 420 435}
       } {
         Fl_Group {} {
-          label Global selected
+          label Global
           xywh {5 50 395 405} labelfont 1 labelcolor 4
         } {
           Fl_Box {} {
@@ -138,7 +138,7 @@ class CFDMeshUI {open
           }
         }
         Fl_Group {} {
-          label Display
+          label Display open
           xywh {5 50 395 405} labelfont 1 labelcolor 4 hide
         } {
           Fl_Light_Button viewMeshButton {
@@ -168,6 +168,10 @@ class CFDMeshUI {open
           Fl_Light_Button viewWakeButton {
             label {Show Wake}
             xywh {15 150 370 20} labelfont 1 align 16
+          }
+          Fl_Light_Button viewTags {
+            label {Color Tags}
+            xywh {15 270 370 20} labelfont 1 align 16
           }
         }
         Fl_Group {} {
