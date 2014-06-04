@@ -13,6 +13,9 @@
 #define STAGE_TWO "Stage_2"
 #define STAGE_COMPLETE "Stage_Complete"
 
+#define TYPE_LABEL "Label"
+#define TYPE_RULER "Ruler"
+
 /*!
 * Label Info.
 */
@@ -33,6 +36,15 @@ public:
     * Override from ParmContainer.  Update vehicle on change.
     */
     virtual void ParmChanged( Parm* parm_ptr, int type );
+
+    /*!
+    * Encode Ruler info to Xml.
+    */
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    /*!
+    * Decode Ruler info from Xml.
+    */
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
 public:
     /*!
@@ -96,6 +108,12 @@ public:
     * Visibility.
     */
     BoolParm m_Visible;
+
+protected:
+    /*!
+    * Type of Label.  Check out TYPE_LABEL, TYPE_RULER.
+    */
+    std::string m_Type;
 };
 
 /*!
@@ -112,6 +130,16 @@ public:
     * Destructor.
     */
     virtual ~Ruler();
+
+public:
+    /*!
+    * Encode Ruler info to Xml.
+    */
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    /*!
+    * Decode Ruler info from Xml.
+    */
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
 public:
     /*!
@@ -152,5 +180,6 @@ public:
     * Precision of distance.
     */
     Parm m_Precision;
+
 };
 #endif

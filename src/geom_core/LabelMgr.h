@@ -33,10 +33,16 @@ protected:
 public:
     /*!
     * Create and Push a ruler to list.
+    * return Label's ID.
+    */
+    virtual std::string CreateAndAddRuler();
+    /*!
+    * Create and Push a ruler to list.
     * name - Name of the ruler.
     * return Label's ID.
     */
     virtual std::string CreateAndAddRuler(const string& name);
+
     /*!
     * Get Label object with its Id.
     */
@@ -53,6 +59,16 @@ public:
     * Remove all Labels.
     */
     void Clear();
+
+public:
+    /*!
+    * Encode Label Info to XML.
+    */
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    /*!
+    * Decode Label Info from XML.
+    */
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
 protected:
     std::vector<Label*> m_Labels;
