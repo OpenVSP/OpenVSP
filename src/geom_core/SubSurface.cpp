@@ -406,24 +406,18 @@ void SSLineSeg::UpdateDrawObj( Geom* geom, DrawObj& draw_obj, const int *num_pnt
         num_pnts = CompNumDrawPnts( geom );
     }
 
-    draw_obj.m_PntVec.resize( num_pnts * 2 );
+    draw_obj.m_PntVec.resize( num_pnts+1 );
 
     VspSurf* surf = geom->GetSurfPtr();
-    draw_obj.m_PntVec[0] = CompPnt( surf, m_P0 );
-    int pi = 1;
-    for ( int i = 1 ; i < num_pnts ; i ++ )
+    for ( int i = 0 ; i <= num_pnts ; i ++ )
     {
         vec3d uw = ( m_P0 + m_line * ( ( double )i / num_pnts ) );
-        draw_obj.m_PntVec[pi] = CompPnt( surf, uw );
-        draw_obj.m_PntVec[pi + 1] = draw_obj.m_PntVec[pi];
-        pi += 2;
+        draw_obj.m_PntVec[i] = CompPnt( surf, uw );
     }
-
-    draw_obj.m_PntVec[pi] = CompPnt( surf, m_P1 );
 
     draw_obj.m_LineWidth = 3.0;
     draw_obj.m_LineColor = vec3d( 177.0 / 255, 1, 58.0 / 255 );
-    draw_obj.m_Type = DrawObj::VSP_LINES;
+    draw_obj.m_Type = DrawObj::VSP_LINE_STRIP;
     draw_obj.m_GeomChanged = true;
 }
 
