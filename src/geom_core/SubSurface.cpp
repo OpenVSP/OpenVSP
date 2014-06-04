@@ -88,12 +88,18 @@ void SubSurface::UpdateDrawObjs()
     }
 
     Vehicle* veh = VehicleMgr::getInstance().GetVehicle();
-    if ( !veh ) return;
+    if ( !veh )
+    {
+        return;
+    }
     Geom* geom = veh->FindGeom( m_CompID );
     m_DrawObjVec.clear();
-    m_DrawObjVec.resize( m_LVec.size(), DrawObj() );
     if ( geom )
     {
+        vector< VspSurf > surf_vec;
+        geom->GetSurfVec( surf_vec );
+        m_DrawObjVec.resize( m_LVec.size()*surf_vec.size(), DrawObj() );
+        int ind = 0;
         for ( int ls = 0 ; ls < ( int )m_LVec.size() ; ls++ )
         {
             int num_pnts = CompNumDrawPnts( geom );
@@ -102,7 +108,12 @@ void SubSurface::UpdateDrawObjs()
             {
                 num_pnts_ptr = &num_pnts;
             }
-            m_LVec[ls].UpdateDrawObj( geom, m_DrawObjVec[ls], num_pnts_ptr );
+
+            for ( int s = 0 ; s < ( int )surf_vec.size() ; s++ )
+            {
+                m_LVec[ls].UpdateDrawObj( &surf_vec[s], geom, m_DrawObjVec[ind], num_pnts_ptr );
+                ind++;
+            }
         }
     }
 }
@@ -381,10 +392,9 @@ void SSLineSeg::Update( Geom* geom )
     m_line = m_P1 - m_P0;
 }
 
-int SSLineSeg::CompNumDrawPnts( Geom* geom )
+int SSLineSeg::CompNumDrawPnts( VspSurf* surf, Geom* geom )
 {
-    VspSurf* surf = geom->GetSurfPtr();
-    if ( !surf )
+    if ( !surf || !geom )
     {
         return 0;
     }
@@ -394,7 +404,7 @@ int SSLineSeg::CompNumDrawPnts( Geom* geom )
     return ( int )avg_num_secs * ( avg_tess - 1 );
 }
 
-void SSLineSeg::UpdateDrawObj( Geom* geom, DrawObj& draw_obj, const int *num_pnts_ptr )
+void SSLineSeg::UpdateDrawObj( VspSurf* surf, Geom* geom, DrawObj& draw_obj, const int *num_pnts_ptr )
 {
     int num_pnts;
     if ( num_pnts_ptr )
@@ -403,12 +413,11 @@ void SSLineSeg::UpdateDrawObj( Geom* geom, DrawObj& draw_obj, const int *num_pnt
     }
     else
     {
-        num_pnts = CompNumDrawPnts( geom );
+        num_pnts = CompNumDrawPnts( surf, geom );
     }
 
-    draw_obj.m_PntVec.resize( num_pnts+1 );
+    draw_obj.m_PntVec.resize( num_pnts + 1 );
 
-    VspSurf* surf = geom->GetSurfPtr();
     for ( int i = 0 ; i <= num_pnts ; i ++ )
     {
         vec3d uw = ( m_P0 + m_line * ( ( double )i / num_pnts ) );
@@ -580,7 +589,7 @@ int SSLine::CompNumDrawPnts( Geom* geom )
         return ( int )( surf->GetNumSectW() * ( geom->m_TessW() - 4 ) );
     }
 
-    return m_LVec[0].CompNumDrawPnts( geom );
+    return -1;
 }
 
 bool SSLine::Subtag( TTri* tri )
