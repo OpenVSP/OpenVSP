@@ -781,23 +781,13 @@ int MeshGeom::WriteNascartParts( FILE* fp, int off )
     return off + m_TMeshVec.size();
 }
 
-int MeshGeom::WriteCart3DParts( FILE* fp, map< vector<int>, int > & tagMap )
+int MeshGeom::WriteCart3DParts( FILE* fp  )
 {
     //==== Write Component IDs for each Tri =====//
-    map< vector<int>, int >::iterator mi;
+    int tag;
     for ( int t = 0 ; t < ( int )m_NascartTriVec.size() ; t++ )
     {
-        mi = tagMap.find( m_NascartTriVec[t]->m_Tags );
-        int tag;
-
-        if ( mi != tagMap.end() )
-        {
-            tag = mi->second;
-        }
-        else
-        {
-            tag = -1;
-        }
+        tag = SubSurfaceMgr.GetTag( m_NascartTriVec[t]->m_Tags );
 
         fprintf( fp, "%d \n",  tag );
     }
@@ -933,7 +923,7 @@ void MeshGeom::UpdateDrawObj()
     // Add in SubSurfaces to TMeshVec if m_DrawSubSurfs is true
     int num_meshes = m_TMeshVec.size();
 
-    int num_uniq_tags = SubSurfaceMgr.m_SingleTagMap.size();
+    int num_uniq_tags = SubSurfaceMgr.GetNumTags();
 
     if ( m_DrawSubSurfs() == true )
     {
@@ -1022,8 +1012,9 @@ void MeshGeom::UpdateDrawObj()
 
         map<int, DrawObj*> tag_dobj_map;
         map< std::vector<int>, int >::const_iterator mit;
+        map< std::vector<int>, int > tagMap = SubSurfaceMgr.GetSingleTagMap();
         int cnt = 0;
-        for ( mit = SubSurfaceMgr.m_SingleTagMap.begin(); mit != SubSurfaceMgr.m_SingleTagMap.end() ; mit++ )
+        for ( mit = tagMap.begin(); mit != tagMap.end() ; mit++ )
         {
             tag_dobj_map[ mit->second ] = &m_WireShadeDrawObj_vec[cnt];
             cnt++;
@@ -1035,7 +1026,7 @@ void MeshGeom::UpdateDrawObj()
             vector<TTri*>& tris = m_TMeshVec[m]->m_TVec;
             for ( int t = 0 ; t < ( int ) num_tris ; t++ )
             {
-                DrawObj* d_obj = tag_dobj_map[ SubSurfaceMgr.m_SingleTagMap[tris[t]->m_Tags] ];
+                DrawObj* d_obj = tag_dobj_map[ SubSurfaceMgr.GetTag( tris[t]->m_Tags ) ];
                 d_obj->m_PntVec.push_back( trans.xform( tris[t]->m_N0->m_Pnt ) );
                 d_obj->m_PntVec.push_back( trans.xform( tris[t]->m_N1->m_Pnt ) );
                 d_obj->m_PntVec.push_back( trans.xform( tris[t]->m_N2->m_Pnt ) );
@@ -1095,7 +1086,7 @@ void MeshGeom::UpdateDrawObj()
 
 void MeshGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
-	int num_uniq_tags = SubSurfaceMgr.m_SingleTagMap.size();
+	int num_uniq_tags = SubSurfaceMgr.GetNumTags();
 
 	Geom::LoadDrawObjs( draw_obj_vec );
     for ( int i = 0 ; i < ( int )m_WireShadeDrawObj_vec.size() ; i++ )

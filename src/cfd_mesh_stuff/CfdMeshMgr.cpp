@@ -4229,16 +4229,17 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     draw_obj_vec.push_back( &m_MeshTriDO );
 
     // Render Tag Colors
-    int num_tags = SubSurfaceMgr.m_SingleTagMap.size();
+    int num_tags = SubSurfaceMgr.GetNumTags();
     m_TagDO.resize( num_tags );
     map<int, DrawObj*> tag_dobj_map;
     map< std::vector<int>, int >::const_iterator mit;
     map< int, DrawObj* >::const_iterator dmit;
+    map< std::vector<int>, int > tagMap = SubSurfaceMgr.GetSingleTagMap();
     int cnt = 0;
     double deg;
 
     char str[256];
-    for ( mit = SubSurfaceMgr.m_SingleTagMap.begin(); mit != SubSurfaceMgr.m_SingleTagMap.end() ; mit++ )
+    for ( mit = tagMap.begin(); mit != tagMap.end() ; mit++ )
     {
         m_TagDO[cnt] = DrawObj();
         tag_dobj_map[ mit->second ] = &m_TagDO[cnt];
