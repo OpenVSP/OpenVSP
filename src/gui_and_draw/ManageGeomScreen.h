@@ -90,6 +90,7 @@ protected:
     void LoadActiveGeomOutput();
     void LoadSetChoice();
     void LoadTypeChoice();
+    void UpdateDrawType();
     void GeomBrowserCallback();
     void SelectGeomBrowser( string geom_id );
     bool IsParentSelected( string geom_id, vector< string > & selVec );
@@ -97,6 +98,9 @@ protected:
     void SelectAll();
     void SetGeomDisplayType( int type );
     void EditName( string name );
+    void SetSubDrawFlag( bool f );
+
+    vector< string > GetActiveGeoms();
 
     vector< string > GetSelectedBrowserItems();
 

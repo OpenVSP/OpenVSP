@@ -140,13 +140,21 @@ public:
     {
         return &m_MaterialMgr;
     }
-
+    void SetDispSubSurfFlag( bool f )
+    {
+        m_DispSubSurfFlag = f;
+    }
+    bool GetDispSubSurfFlag()
+    {
+        return m_DispSubSurfFlag;
+    }
 protected:
 
     int  m_DrawType;
 
     bool m_NoShowFlag;
     bool m_DisplayChildrenFlag;
+    bool m_DispSubSurfFlag;
 
     int m_MaterialID;
 

@@ -50,6 +50,7 @@ ManageGeomScreen::ManageGeomScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     ui->shadeGeomButton->callback( staticScreenCB, this );
     ui->hiddenGeomButton->callback( staticScreenCB, this );
     ui->textureGeomButton->callback( staticScreenCB, this );
+    ui->showSubToggle->callback( staticScreenCB, this );
 
     ui->moveUpButton->callback( staticScreenCB, this );
     ui->moveDownButton->callback( staticScreenCB, this );
@@ -84,6 +85,7 @@ bool ManageGeomScreen::Update()
         LoadActiveGeomOutput();
         LoadSetChoice();
         LoadTypeChoice();
+        UpdateDrawType();
     }
 
     UpdateGeomScreens();
@@ -442,7 +444,9 @@ void ManageGeomScreen::SelectAll()
 //  aircraftPtr->triggerDraw();
 
 }
-void ManageGeomScreen::SetGeomDisplayType( int type )
+
+//==== Load Active Geom IDs and Children ===//
+vector< string > ManageGeomScreen::GetActiveGeoms()
 {
     //==== Load Active Geom IDs And Children ====//
     vector<string> geom_id_vec;
@@ -463,6 +467,11 @@ void ManageGeomScreen::SetGeomDisplayType( int type )
         }
     }
 
+    return geom_id_vec;
+}
+void ManageGeomScreen::SetGeomDisplayType( int type )
+{
+    vector<string> geom_id_vec = GetActiveGeoms();
     //==== Set Display Type ====//
     vector< Geom* > geom_vec = m_VehiclePtr->FindGeomVec( geom_id_vec );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
@@ -552,6 +561,21 @@ void ManageGeomScreen::ShowHideGeomScreens()
     }
 }
 
+//==== Show or Hide Subsurface Lines ====//
+void ManageGeomScreen::SetSubDrawFlag( bool f )
+{
+    vector<string> geom_id_vec = GetActiveGeoms();
+    vector< Geom* > geom_vec = m_VehiclePtr->FindGeomVec( geom_id_vec );
+
+    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        if ( geom_vec[i] )
+        {
+            geom_vec[i]->m_GuiDraw.SetDispSubSurfFlag( f );
+        }
+    }
+}
+
 //==== Callbacks ====//
 void ManageGeomScreen::CallBack( Fl_Widget *w )
 {
@@ -635,6 +659,13 @@ void ManageGeomScreen::CallBack( Fl_Widget *w )
     {
         m_VehiclePtr->SetShowSet( m_SetIndex + SET_FIRST_USER );
     }
+    else if ( w == m_GeomUI->showSubToggle )
+    {
+    	if ( m_GeomUI->showSubToggle->value() )
+    		SetSubDrawFlag( true );
+    	else
+    		SetSubDrawFlag( false );
+    }
     else if ( w == m_GeomUI->pickGeomButton )
     {
     }
@@ -703,4 +734,28 @@ void ManageGeomScreen::UpdateDrawObjs()
             }
         }
     }
+}
+
+void ManageGeomScreen::UpdateDrawType()
+{
+	vector<string> geom_id_vec = GetActiveGeoms();
+	vector< Geom* > geom_vec = m_VehiclePtr->FindGeomVec( geom_id_vec );
+	int num_geoms = (int)geom_vec.size();
+
+	// Handle case where there are not any geoms selected.
+	if ( num_geoms == 0 ) m_GeomUI->showSubToggle->value(0);
+
+	int num_sub_on = 0;
+
+	for ( int i = 0; i < (int)geom_vec.size(); i++ )
+	{
+		if ( geom_vec[i] && geom_vec[i]->m_GuiDraw.GetDispSubSurfFlag() )
+			num_sub_on++;
+	}
+
+	double flag_average = num_sub_on/(double)num_geoms;
+	if ( flag_average > 0.5 )
+		m_GeomUI->showSubToggle->value(1);
+	else
+		m_GeomUI->showSubToggle->value(0);
 }

@@ -63,6 +63,7 @@ GeomGuiDraw::GeomGuiDraw()
     m_NoShowFlag = false;
     m_DisplayChildrenFlag = true;
     m_MaterialID = 0;
+    m_DispSubSurfFlag = true;
 
 }
 
@@ -1187,9 +1188,12 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
     // Load Subsurfaces
     RecolorSubSurfs( SubSurfaceMgr.GetCurrSurfInd() );
-    for ( int i = 0 ; i < ( int )m_SubSurfVec.size() ; i++ )
+    if ( m_GuiDraw.GetDispSubSurfFlag() && !m_GuiDraw.GetNoShowFlag() )
     {
-        m_SubSurfVec[i]->LoadDrawObjs( draw_obj_vec );
+        for ( int i = 0 ; i < ( int )m_SubSurfVec.size() ; i++ )
+        {
+            m_SubSurfVec[i]->LoadDrawObjs( draw_obj_vec );
+        }
     }
 }
 

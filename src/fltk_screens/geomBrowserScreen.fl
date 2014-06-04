@@ -8,7 +8,7 @@ class GeomUI {open
   } {
     Fl_Window UIWindow {
       label {Geom Browser} open
-      xywh {2540 255 160 516} type Double box THIN_DOWN_BOX color 29 resizable visible
+      xywh {598 93 160 540} type Double box THIN_DOWN_BOX color 29 resizable visible
     } {
       Fl_Box {} {
         label Geom
@@ -89,18 +89,22 @@ class GeomUI {open
       }
       Fl_Button showSetButton {
         label Show
-        xywh {110 490 45 20} labelfont 1 labelsize 12 align 64
+        xywh {110 516 45 20} labelfont 1 labelsize 12 align 64
       }
       Fl_Choice setChoice {open
-        xywh {5 490 105 20} down_box FLAT_BOX color 17 textfont 1
+        xywh {5 516 105 20} down_box FLAT_BOX color 17 textfont 1
       } {}
       Fl_Box {} {
         label Sets
-        xywh {5 475 150 15} box BORDER_BOX labelfont 1 labelcolor 15
+        xywh {5 501 150 15} box BORDER_BOX labelfont 1 labelcolor 15
       }
       Fl_Light_Button pickGeomButton {
-        label Pick selected
+        label Pick
         xywh {5 400 65 20} labelfont 1 labelsize 12 align 16
+      }
+      Fl_Light_Button showSubToggle {
+        label Sub selected
+        xywh {90 475 65 20} labelfont 1 labelsize 12 align 16
       }
     }
   }
