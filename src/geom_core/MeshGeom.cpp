@@ -1009,7 +1009,7 @@ void MeshGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
             draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
             break;
 
-            // Does not support Texture Mapping.  Render Shaded instead.
+        // Does not support Texture Mapping.  Render Shaded instead.
         case GeomGuiDraw::GEOM_DRAW_TEXTURE:
             m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_TRIS;
             draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
