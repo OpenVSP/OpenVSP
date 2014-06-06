@@ -22,6 +22,7 @@ ADD_LIBRARY(geom_core
 Airfoil.cpp
 BlankGeom.cpp
 CustomGeom.cpp
+DegenGeom.cpp
 DesignVarMgr.cpp
 FuselageGeom.cpp
 Geom.cpp
@@ -56,6 +57,7 @@ VspPreferences.cpp
 Airfoil.h
 BlankGeom.h
 CustomGeom.h
+DegenGeom.h
 DesignVarMgr.h
 DragFactors.h
 FuselageGeom.h
