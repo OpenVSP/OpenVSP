@@ -1420,46 +1420,12 @@ void MeshGeom::IntersectTrim( int meshf, int halfFlag )
         }
     }
 
-    //==== Load TMeshs Into Component Based Groups ====//
-    vector < vector< TMesh* > > tMeshCompVec;
-    for ( i = 0 ; i < ( int )compIdVec.size() ; i++ )
-    {
-        vector<TMesh*> cidVec;
-        for ( j = 0 ; j < ( int )m_TMeshVec.size() ; j++ )
-        {
-            if ( compIdVec[i] == m_TMeshVec[j]->m_PtrID )
-            {
-                cidVec.push_back( m_TMeshVec[j] );
-            }
-        }
-        if ( cidVec.size() > 0 )
-        {
-            tMeshCompVec.push_back( cidVec );
-        }
-    }
-
-    //==== Sum Area/Vol Data and Place in First TMesh Data ====//
     double guessTotalWetVol = 0;
-    for ( i = 0 ; i < ( int )tMeshCompVec.size() ; i++ )
+    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
-        double ta, wa, tv, wv;          // Theo Area, Wet Area, Theo Vol, Wet Vol
-        ta = wa = tv = wv = 0.0;
-
-        for ( j = 0 ; j < ( int )tMeshCompVec[i].size() ; j++ )
-        {
-            ta += tMeshCompVec[i][j]->m_TheoArea;
-            wa += tMeshCompVec[i][j]->m_WetArea;
-            tv += tMeshCompVec[i][j]->m_TheoVol;
-        }
-
-        tMeshCompVec[i][0]->m_TheoArea = ta;
-        tMeshCompVec[i][0]->m_WetArea  = wa;
-        tMeshCompVec[i][0]->m_TheoVol  = tv;
-        tMeshCompVec[i][0]->m_GuessVol = tv * wa / ta;      // Guess
-        tMeshCompVec[i][0]->m_WetVol   = 0.0;
-
-        guessTotalWetVol += tMeshCompVec[i][0]->m_GuessVol;
-
+        m_TMeshVec[i]->m_GuessVol = m_TMeshVec[i]->m_TheoVol * m_TMeshVec[i]->m_WetArea / m_TMeshVec[i]->m_TheoArea;      // Guess
+        m_TMeshVec[i]->m_WetVol = 0.0;
+        guessTotalWetVol += m_TMeshVec[i]->m_GuessVol;
     }
 
     double leftOver = m_TotalWetVol;
@@ -1469,16 +1435,16 @@ void MeshGeom::IntersectTrim( int meshf, int halfFlag )
         leftOverCnt--;
 
         double sumWetVol = 0.0;
-        for ( i = 0 ; i < ( int )tMeshCompVec.size() ; i++ )
+        for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
         {
-            double perWetVol = tMeshCompVec[i][0]->m_GuessVol / guessTotalWetVol;
-            tMeshCompVec[i][0]->m_WetVol += perWetVol * ( leftOver );
+            double perWetVol = m_TMeshVec[i]->m_GuessVol / guessTotalWetVol;
+            m_TMeshVec[i]->m_WetVol += perWetVol * ( leftOver );
 
-            if ( tMeshCompVec[i][0]->m_WetVol > tMeshCompVec[i][0]->m_TheoVol )
+            if ( m_TMeshVec[i]->m_WetVol > m_TMeshVec[i]->m_TheoVol )
             {
-                tMeshCompVec[i][0]->m_WetVol = tMeshCompVec[i][0]->m_TheoVol;
+                m_TMeshVec[i]->m_WetVol = m_TMeshVec[i]->m_TheoVol;
             }
-            sumWetVol += tMeshCompVec[i][0]->m_WetVol;
+            sumWetVol += m_TMeshVec[i]->m_WetVol;
         }
 
         if ( sumWetVol < m_TotalWetVol )
@@ -1513,10 +1479,10 @@ void MeshGeom::IntersectTrim( int meshf, int halfFlag )
     vector< double > max_area;
     vector< double > length_dia;
 
-    res->Add( ResData( "Num_Meshes", ( int )tMeshCompVec.size() ) );
-    for ( i = 0 ; i < ( int )tMeshCompVec.size() ; i++ )
+    res->Add( ResData( "Num_Meshes", ( int )m_TMeshVec.size() ) );
+    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
-        TMesh* tmsh = tMeshCompVec[i][0];
+        TMesh* tmsh = m_TMeshVec[i];
         name_vec.push_back( tmsh->m_NameStr );
         theo_area_vec.push_back( tmsh->m_TheoArea );
         wet_area_vec.push_back( tmsh->m_WetArea );
