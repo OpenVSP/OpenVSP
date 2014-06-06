@@ -100,6 +100,8 @@ enum COMPUTATION_FILE_TYPE  {   NO_FILE_TYPE        = 0,
                                 DRAG_BUILD_TSV_TYPE = 4,
                                 SLICE_TXT_TYPE      = 8,
                                 MASS_PROP_TXT_TYPE  = 16,
+                                DEGEN_GEOM_CSV_TYPE = 32,
+                                DEGEN_GEOM_M_TYPE   = 64,
                             };
 
 enum SLICE_STYLE {  SLICE_PLANAR,

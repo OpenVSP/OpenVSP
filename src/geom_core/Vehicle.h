@@ -178,6 +178,23 @@ public:
     void setExportCompGeomCsvFile( bool b )            { m_exportCompGeomCsvFile = b; }
     void setExportDragBuildTsvFile( bool b )        { m_exportDragBuildTsvFile = b; }
 
+    bool getExportDegenGeomCsvFile( )
+    {
+        return m_exportDegenGeomCsvFile;
+    };
+    bool getExportDegenGeomMFile( )
+    {
+        return m_exportDegenGeomMFile;
+    };
+    void setExportDegenGeomCsvFile( bool b )
+    {
+        m_exportDegenGeomCsvFile = b;
+    };
+    void setExportDegenGeomMFile( bool b )
+    {
+        m_exportDegenGeomMFile = b;
+    };
+
     //==== Import Files ====//
     string ImportFile( const string & file_name, int file_type );
 
@@ -235,8 +252,12 @@ protected:
     string m_compGeomTsvFileName;
     string m_MassPropFileName;
     string m_AwaveFileName;
+    string m_degenGeomCsvFileName;
+    string m_degenGeomMFileName;
     bool m_exportCompGeomCsvFile;
     bool m_exportDragBuildTsvFile;
+    bool m_exportDegenGeomCsvFile;
+    bool m_exportDegenGeomMFile;
 
     void DeleteGeom( string geom_id );
 

@@ -110,6 +110,8 @@ void Vehicle::Init()
     LinkMgr.RegisterContainer( this->GetID() );
 
     //==== Export Files ====//
+    m_exportDegenGeomCsvFile = false;
+    m_exportDegenGeomMFile = false;
     m_exportCompGeomCsvFile = false;
     m_exportDragBuildTsvFile = false;
     m_compGeomTxtFileName = "VspAircraft_CompGeom.txt";
@@ -117,6 +119,8 @@ void Vehicle::Init()
     m_compGeomTsvFileName = "VspAircraft_DragBuild.tsv";
     m_MassPropFileName = "VspAircraft_MassProps.txt";
     m_AwaveFileName = "VspAircraft_AwaveSlice.txt";
+    m_degenGeomCsvFileName = "VspAircraft_DegenGeom.csv";
+    m_degenGeomMFileName = "VspAircraft_DegenGeom.m";
 
     m_IxxIyyIzz = vec3d( 0, 0, 0 );
     m_IxyIxzIyz = vec3d( 0, 0, 0 );
@@ -1795,6 +1799,14 @@ string Vehicle::getExportFileName( int type )
     {
         return m_AwaveFileName;
     }
+    else if ( type == DEGEN_GEOM_CSV_TYPE )
+    {
+        return m_degenGeomCsvFileName;
+    }
+    else if ( type == DEGEN_GEOM_M_TYPE )
+    {
+        return m_degenGeomMFileName;
+    }
     else
     {
         return string( "default_export.txt" );
@@ -1827,6 +1839,14 @@ void Vehicle::setExportFileName( int type, string f_name )
     else if ( type == SLICE_TXT_TYPE )
     {
         m_AwaveFileName = f_name;
+    }
+    else if ( type == DEGEN_GEOM_CSV_TYPE )
+    {
+        m_degenGeomCsvFileName = f_name;
+    }
+    else if ( type == DEGEN_GEOM_M_TYPE )
+    {
+        m_degenGeomMFileName = f_name;
     }
 }
 
