@@ -25,6 +25,7 @@
 #include "ResultsMgr.h"
 #include "TextureMgr.h"
 #include "MaterialMgr.h"
+#include "DegenGeom.h"
 
 //#include "xmlvsp.h"
 
@@ -402,6 +403,9 @@ public:
 
     //==== Set Drag Factors ====//
     virtual void LoadDragFactors( DragFactors& drag_factors )   {};
+
+    //===== Degenerate Geometry =====//
+    virtual void CreateDegenGeom( vector<DegenGeom> &dgs);
 
     IntParm m_TessU;
     LimIntParm m_TessW;

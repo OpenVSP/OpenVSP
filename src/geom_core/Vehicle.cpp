@@ -2157,3 +2157,180 @@ void Vehicle::ExportFile( const string & file_name, int write_set, int file_type
         WriteBezFile( file_name, write_set );
     }
 }
+
+void Vehicle::CreateDegenGeom( int set )
+{
+    vector< string > geom_id_vec;
+    m_DegenGeomVec.clear();
+
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        if ( geom_vec[i]->GetSetFlag( set ) )
+        {
+            geom_vec[i]->CreateDegenGeom( m_DegenGeomVec );
+        }
+    }
+
+
+    string id = AddMeshGeom( set );
+    if ( id.compare( "NONE" ) != 0 )
+    {
+        MeshGeom* mesh_ptr = dynamic_cast<MeshGeom*> ( FindGeom( id ) );
+        if ( mesh_ptr != NULL )
+        {
+            mesh_ptr->degenGeomIntersectTrim(m_DegenGeomVec);
+            DeleteGeom( id );
+        }
+    }
+
+
+    id = AddMeshGeom( set );
+    if ( id.compare( "NONE" ) != 0 )
+    {
+        MeshGeom* mesh_ptr = dynamic_cast<MeshGeom*> ( FindGeom( id ) );
+        if ( mesh_ptr != NULL )
+        {
+            mesh_ptr->degenGeomMassSliceX(m_DegenGeomVec);
+            DeleteGeom( id );
+        }
+    }
+
+}
+
+//==== Write Degen Geom File ====//
+string Vehicle::WriteDegenGeomFile()
+{
+    int geomCnt = 0, blankCnt = 0;
+    string outStr = "\n";
+
+    vector<BlankGeom*> blankGeom;
+
+    geomCnt = m_DegenGeomVec.size();
+
+//    for ( int i = 0; i < (int)geomVec.size(); i++ )
+//    {
+//        if( geomVec[i]->getType() == BLANK_GEOM_TYPE &&
+//            !!((BlankGeom*)geomVec[i])->getPointMassFlag() )
+//        {
+//            blankCnt++;
+//            blankGeom.push_back((BlankGeom*)geomVec[i]);
+//        }
+//    }
+
+    char geomCntStr[255];
+    sprintf(geomCntStr,"%d components and %d", geomCnt, blankCnt);
+    outStr += "Wrote ";
+    outStr += geomCntStr;
+    outStr += " blank geoms\nto the following files:\n\n";
+
+    if ( getExportDegenGeomCsvFile() )
+    {
+        string file_name = getExportFileName( DEGEN_GEOM_CSV_TYPE );
+        FILE* file_id = fopen(file_name.c_str(), "w");
+
+        fprintf(file_id, "# DEGENERATE GEOMETRY CSV FILE\n\n");
+        fprintf(file_id, "# NUMBER OF COMPONENTS\n%d\n", geomCnt);
+
+//        if (blankCnt > 0)
+//        {
+//            fprintf(file_id, "BLANK_GEOMS,%d\n", blankCnt);
+//            fprintf(file_id, "# Name, xLoc, yLoc, zLoc, Mass");
+//
+//            for ( int i = 0; i < (int)blankGeom.size(); i++ )
+//            {
+//                // Blank geom translated location
+//                vec3d centLoc = blankGeom[i]->xformPoint(vec3d(0,0,0), 0);
+//                fprintf(file_id, "\n%s,%f,%f,%f,%f", (char*)(blankGeom[i]->getName()),    \
+//                                                             centLoc.x(),                \
+//                                                             centLoc.y(),                \
+//                                                             centLoc.z(),                \
+//                                                             blankGeom[i]->pointMass()    );
+//            }
+//        }
+
+        for ( int i = 0; i < (int)m_DegenGeomVec.size(); i++ )
+        {
+            bool roundEndCapFlag;
+//            if ( m_DegenGeomVec[i].getParentGeom()->getType() == MS_WING_GEOM_TYPE )
+//            {
+//                roundEndCapFlag = ((Ms_wing_geom*)m_DegenGeomVec[i].getParentGeom())->get_round_end_cap_flag();
+//                ((Ms_wing_geom*)m_DegenGeomVec[i].getParentGeom())->set_round_end_cap_flag(false);
+//            }
+
+            m_DegenGeomVec[i].write_degenGeomCsv_file( file_id );
+
+//            if ( m_DegenGeomVec[i].getParentGeom()->getType() == MS_WING_GEOM_TYPE )
+//                ((Ms_wing_geom*)m_DegenGeomVec[i].getParentGeom())->set_round_end_cap_flag(roundEndCapFlag);
+
+        }
+
+        fclose(file_id);
+
+        outStr += "\t";
+        outStr += file_name;
+        outStr += "\n";
+    }
+
+    if ( getExportDegenGeomMFile() )
+    {
+        string file_name = getExportFileName( DEGEN_GEOM_M_TYPE );
+		FILE* file_id = fopen(file_name.c_str(), "w");
+
+		fprintf(file_id, "%%-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-%%\n");
+		fprintf(file_id, "%%-=-=-=-=-=-= DEGENERATE GEOMETRY M FILE =-=-=-=-=-=-=%%\n");
+		fprintf(file_id, "%%-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-%%\n\n");
+
+//		if ( blankCnt > 0)
+//		{
+//			fprintf(file_id, "blankGeom = [];");
+//
+//			for ( int i = 0; i < (int)blankGeom.size(); i++ )
+//			{
+//				// Blank geom translated location
+//				vec3d centLoc = blankGeom[i]->xformPoint(vec3d(0,0,0), 0);
+//				fprintf(file_id, "\nblankGeom(end+1).name = '%s';", \
+//								 (char*)(blankGeom[i]->getName())    );
+//
+//				fprintf(file_id, "\nblankGeom(end).X = [%f, %f, %f];", centLoc.x(),\
+//																			centLoc.y(),\
+//																			centLoc.z()    );
+//				fprintf(file_id, "\nblankGeom(end).mass = %f;", blankGeom[i]->pointMass());
+//			}
+//		}
+
+		fprintf(file_id, "degenGeom = [];");
+
+		for ( int i = 0, propIdx = 1; i < (int)m_DegenGeomVec.size(); i++, propIdx++ )
+		{
+			bool roundEndCapFlag;
+
+//			if ( m_DegenGeomVec[i].getParentGeom()->getType() == MS_WING_GEOM_TYPE )
+//			{
+//				roundEndCapFlag = ((Ms_wing_geom*)m_DegenGeomVec[i].getParentGeom())->get_round_end_cap_flag();
+//				((Ms_wing_geom*)m_DegenGeomVec[i].getParentGeom())->set_round_end_cap_flag(false);
+//			}
+//			else if(m_DegenGeomVec[i].getParentGeom()->getType() == PROP_GEOM_TYPE)
+//			{
+//				fprintf(file_id,"\nif ~exist('propGeom','var'); propGeom = []; end;");
+//				fprintf(file_id,"\npropGeom(end+1).idx = %d;",propIdx);
+//			}
+
+			m_DegenGeomVec[i].write_degenGeomM_file(file_id);
+
+//			if ( m_DegenGeomVec[i].getParentGeom()->getType() == MS_WING_GEOM_TYPE )
+//				((Ms_wing_geom*)m_DegenGeomVec[i].getParentGeom())->set_round_end_cap_flag(roundEndCapFlag);
+//
+//			// Keep a counter to index into degenGeom for propeller components.
+//			// Increment if reflected symmetry.
+//			if ( m_DegenGeomVec[i].getParentGeom()->getSymCode() != NO_SYM ) propIdx++;
+		}
+
+		fclose(file_id);
+
+		outStr += "\t";
+		outStr += file_name;
+		outStr += "\n";
+	}
+    return outStr;
+}

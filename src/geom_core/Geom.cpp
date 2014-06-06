@@ -1207,6 +1207,47 @@ Material Geom::GetMaterial()
     return *m_GuiDraw.getMaterialMgr()->getMaterial();
 }
 
+//==== Create Degenerate Geometry ====//
+void Geom::CreateDegenGeom( vector<DegenGeom> &dgs)
+{
+    vector< vector< vec3d > > pnts;
+    vector< vector< vec3d > > nrms;
+    vector< vector< vec3d > > uwpnts;
+
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    {
+        //==== Tesselate Surface ====//
+        UpdateTesselate( i, pnts, nrms, uwpnts );
+
+        DegenGeom degenGeom;
+        degenGeom.setParentGeom( this );
+
+        degenGeom.setNumXSecs( pnts.size() );
+        degenGeom.setNumPnts( pnts[0].size() );
+        degenGeom.setName( GetName() );
+        degenGeom.setRefl( false );
+
+        degenGeom.createDegenSurface( pnts, uwpnts, false );
+
+        if( m_SurfVec[i].GetSurfType() == VspSurf::WING_SURF )
+        {
+            degenGeom.setType(DegenGeom::SURFACE_TYPE);
+
+            degenGeom.createSurfDegenPlate( pnts, uwpnts );
+            degenGeom.createSurfDegenStick( pnts, uwpnts );
+        }
+        else
+        {
+            degenGeom.setType(DegenGeom::BODY_TYPE);
+
+            degenGeom.createBodyDegenPlate( pnts, uwpnts );
+            degenGeom.createBodyDegenStick( pnts, uwpnts );
+        }
+
+        dgs.push_back(degenGeom);
+    }
+}
+
 //==== Set Sym Flag ====//
 int Geom::GetSymFlag()
 {

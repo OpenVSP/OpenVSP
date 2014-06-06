@@ -19,6 +19,8 @@
 #include "DrawObj.h"
 #include "LabelMgr.h"
 #include "LightMgr.h"
+#include "DegenGeom.h"
+
 
 #include <assert.h>
 
@@ -210,6 +212,11 @@ public:
     string PSlice( int set, int numSlices, vec3d norm, bool autoBoundsFlag, double start = 0, double end = 0 );
     string PSliceAndFlatten( int set, int numSlices, vec3d norm, bool autoBoundsFlag, double start = 0, double end = 0 );
 
+    //==== Degenerate Geometry ====//
+    void CreateDegenGeom( int set );
+    vector< DegenGeom > GetDegenGeomVec()	{ return m_DegenGeomVec; }
+    string WriteDegenGeomFile();
+
     //==== Mass Properties ====//
     vec3d m_IxxIyyIzz;
     vec3d m_IxyIxzIyz;
@@ -227,6 +234,9 @@ public:
 protected:
 
     vector< Geom* > m_GeomStoreVec;                 // All Geom Ptrs
+
+    vector< DegenGeom > m_DegenGeomVec;         // Vector of components in degenerate representation
+
 
     vector< string > m_ActiveGeom;              // Currently Active Geoms
     vector< string > m_TopGeom;                 // Top (no Parent) Geom IDs
