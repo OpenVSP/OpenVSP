@@ -185,6 +185,9 @@ public:
     double mag() const;                // x = a.mag()
     void normalize();           // a.normalize()
 
+    int major_comp() const;
+    int minor_comp() const;
+
     friend double dot( const vec3d& a, const vec3d& b ); // x = dot(a,b)
     friend vec3d cross( const vec3d& a, const vec3d& b ); // a = cross(b,c)
     friend double angle( const vec3d& a, const vec3d& b );
