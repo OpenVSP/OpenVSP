@@ -12,6 +12,7 @@ backgroundScreen.fl
 cfdMeshFlScreen.fl
 compGeomFlScreen.fl
 curveEditFlScreen.fl
+degenGeomFlScreen.fl
 ductFlScreen.fl
 engineFlScreen.fl
 exportFileScreen.fl

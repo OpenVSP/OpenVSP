@@ -47,6 +47,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     AddMenuCallBack( m_MainUI->SetEditorMenu  );
     AddMenuCallBack( m_MainUI->StructureMenu );
     AddMenuCallBack( m_MainUI->CompGeomMenu );
+    AddMenuCallBack( m_MainUI->DegenGeomMenu );
     AddMenuCallBack( m_MainUI->CFDMeshGeomMenu );
     AddMenuCallBack( m_MainUI->ParmLinkMenu );
     AddMenuCallBack( m_MainUI->ParmDebugMenu );
@@ -302,6 +303,10 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
     else if ( m == m_MainUI->CompGeomMenu )
     {
         m_ScreenMgr->ShowScreen( ScreenMgr::VSP_COMP_GEOM_SCREEN );
+    }
+    else if ( m == m_MainUI->DegenGeomMenu )
+    {
+        m_ScreenMgr->ShowScreen( ScreenMgr::VSP_DEGEN_GEOM_SCREEN );
     }
     else if ( m == m_MainUI->CFDMeshGeomMenu )
     {

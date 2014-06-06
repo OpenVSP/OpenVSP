@@ -208,6 +208,10 @@ class MainWinUI {open
               label {Wing Structure...}
               xywh {7 7 100 20}
             }
+            MenuItem DegenGeomMenu {
+              label {DegenGeom...} selected
+              xywh {5 5 100 20}
+            }
           }
           MenuItem RevertMenu {
             label UnDo

@@ -19,6 +19,7 @@
 #include "ParmLinkScreen.h"
 #include "ExportScreen.h"
 #include "CompGeomScreen.h"
+#include "DegenGeomScreen.h"
 #include "MassPropScreen.h"
 #include "PSliceScreen.h"
 #include "AwaveScreen.h"
@@ -131,6 +132,7 @@ void ScreenMgr::Init()
     m_ScreenVec[VSP_FEA_MESH_SCREEN] = new FeaStructScreen( this );
     m_ScreenVec[VSP_LABEL_SCREEN] = new ManageLabelScreen( this );
     m_ScreenVec[VSP_COR_SCREEN] = new ManageCORScreen( this );
+    m_ScreenVec[VSP_DEGEN_GEOM_SCREEN] = new DegenGeomScreen( this );
 
     m_ScreenVec[VSP_MAIN_SCREEN]->Show();
     m_ScreenVec[VSP_MANAGE_GEOM_SCREEN]->Show();

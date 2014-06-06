@@ -25,6 +25,7 @@ BlankScreen.cpp
 CfdMeshScreen.cpp
 CompGeomScreen.cpp
 CustomScreen.cpp
+DegenGeomScreen.cpp
 DesignVarScreen.cpp
 ExportScreen.cpp
 FeaStructScreen.cpp
@@ -69,6 +70,7 @@ BlankScreen.h
 CfdMeshScreen.h
 CompGeomScreen.h
 CustomScreen.h
+DegenGeomScreen.h
 DesignVarScreen.h
 ExportScreen.h
 FeaStructScreen.h
