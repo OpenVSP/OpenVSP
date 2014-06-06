@@ -264,6 +264,92 @@ TriShellMassProp::TriShellMassProp( string id, double mass_area_in, vec3d& p0, v
 
 }
 
+//===========================================================================================================//
+//================================================ DegenGeom ================================================//
+//===========================================================================================================//
+
+DegenGeomTetraMassProp::DegenGeomTetraMassProp( string id, vec3d& p0, vec3d& p1, vec3d& p2, vec3d& p3 )
+{
+    m_CompId = id;
+
+    m_v0 = p0;
+    m_v1 = p1 - p0;
+    m_v2 = p2 - p0;
+    m_v3 = p3 - p0;
+
+    m_CG = m_v1 + m_v2 + m_v3;
+    m_CG = ( m_CG * 0.25 ) + p0;
+
+    m_Vol  = fabs( tetra_volume( m_v1, m_v2, m_v3 ) );
+
+    double Ix = m_Vol / 10.0 * ( m_v1.x() * m_v1.x() + m_v2.x() * m_v2.x() + m_v3.x() * m_v3.x() +
+                                 m_v1.x() * m_v2.x() + m_v1.x() * m_v3.x() + m_v2.x() * m_v3.x() );
+
+    double Iy = m_Vol / 10.0 * ( m_v1.y() * m_v1.y() + m_v2.y() * m_v2.y() + m_v3.y() * m_v3.y() +
+                                 m_v1.y() * m_v2.y() + m_v1.y() * m_v3.y() + m_v2.y() * m_v3.y() );
+
+    double Iz = m_Vol / 10.0 * ( m_v1.z() * m_v1.z() + m_v2.z() * m_v2.z() + m_v3.z() * m_v3.z() +
+                                 m_v1.z() * m_v2.z() + m_v1.z() * m_v3.z() + m_v2.z() * m_v3.z() );
+
+    m_Ixx = Iy + Iz;
+    m_Iyy = Ix + Iz;
+    m_Izz = Ix + Iy;
+
+    m_Ixy = m_Vol / 20.0 * ( 2.0 * ( m_v1.x() * m_v1.y() + m_v2.x() * m_v2.y() + m_v3.x() * m_v3.y() ) +
+                             m_v1.x() * m_v2.y() + m_v2.x() * m_v1.y() + m_v1.x() * m_v3.y() + m_v3.x() * m_v1.y() + m_v2.x() * m_v3.y() + m_v3.x() * m_v2.y() );
+
+    m_Iyz = m_Vol / 20.0 * ( 2.0 * ( m_v1.y() * m_v1.z() + m_v2.y() * m_v2.z() + m_v3.y() * m_v3.z() ) +
+                             m_v1.y() * m_v2.z() + m_v2.y() * m_v1.z() + m_v1.y() * m_v3.z() + m_v3.y() * m_v1.z() + m_v2.y() * m_v3.z() + m_v3.y() * m_v2.z() );
+
+    m_Ixz = m_Vol / 20.0 * ( 2.0 * ( m_v1.x() * m_v1.z() + m_v2.x() * m_v2.z() + m_v3.x() * m_v3.z() ) +
+                             m_v1.x() * m_v2.z() + m_v2.x() * m_v1.z() + m_v1.x() * m_v3.z() + m_v3.x() * m_v1.z() + m_v2.x() * m_v3.z() + m_v3.x() * m_v2.z() );
+
+}
+
+
+DegenGeomTriShellMassProp::DegenGeomTriShellMassProp( string id, vec3d& p0, vec3d& p1, vec3d& p2 )
+{
+    m_CompId = id;
+
+    m_CG = ( p0 + p1 + p2 ) * ( 1.0 / 3.0 );
+
+    m_v0 = p0 - m_CG;
+    m_v1 = p1 - m_CG;
+    m_v2 = p2 - m_CG;
+
+    m_TriArea = area( m_v0, m_v1, m_v2 );
+
+    double Ix = m_TriArea / 10.0 * ( m_v0.x() * m_v0.x() + m_v1.x() * m_v1.x() + m_v2.x() * m_v2.x() +
+                                     m_v0.x() * m_v1.x() + m_v0.x() * m_v2.x() + m_v1.x() * m_v2.x() );
+
+    double Iy = m_TriArea / 10.0 * ( m_v0.y() * m_v0.y() + m_v1.y() * m_v1.y() + m_v2.y() * m_v2.y() +
+                                     m_v0.y() * m_v1.y() + m_v0.y() * m_v2.y() + m_v1.y() * m_v2.y() );
+
+    double Iz = m_TriArea / 10.0 * ( m_v0.z() * m_v0.z() + m_v1.z() * m_v1.z() + m_v2.z() * m_v2.z() +
+                                     m_v0.z() * m_v1.z() + m_v0.z() * m_v2.z() + m_v1.z() * m_v2.z() );
+
+    m_Ixx = Iy + Iz;
+    m_Iyy = Ix + Iz;
+    m_Izz = Ix + Iy;
+
+    m_Ixy = m_TriArea / 20.0 * ( 2.0 * ( m_v0.x() * m_v0.y() + m_v1.x() * m_v1.y() + m_v2.x() * m_v2.y() ) +
+                                 m_v0.x() * m_v1.y() + m_v1.x() * m_v0.y() + m_v0.x() * m_v2.y() + m_v2.x() * m_v0.y() + m_v1.x() * m_v2.y() + m_v2.x() * m_v1.y() );
+
+    m_Iyz = m_TriArea / 20.0 * ( 2.0 * ( m_v0.y() * m_v0.z() + m_v1.y() * m_v1.z() + m_v2.y() * m_v2.z() ) +
+                                 m_v0.y() * m_v1.z() + m_v1.y() * m_v0.z() + m_v0.y() * m_v2.z() + m_v2.y() * m_v0.z() + m_v1.y() * m_v2.z() + m_v2.y() * m_v1.z() );
+
+    m_Ixz = m_TriArea / 20.0 * ( 2.0 * ( m_v0.x() * m_v0.z() + m_v1.x() * m_v1.z() + m_v2.x() * m_v2.z() ) +
+                                 m_v0.x() * m_v1.z() + m_v1.x() * m_v0.z() + m_v0.x() * m_v2.z() + m_v2.x() * m_v0.z() + m_v1.x() * m_v2.z() + m_v2.x() * m_v1.z() );
+
+}
+
+
+
+//===========================================================================================================//
+//============================================== END DegenGeom ==============================================//
+//===========================================================================================================//
+
+
 //===============================================//
 //===============================================//
 //===============================================//

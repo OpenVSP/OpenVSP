@@ -170,8 +170,10 @@ public:
 
     //==== Intersection, Splitting and Trimming ====//
     virtual void IntersectTrim( int meshFlag, int halfFlag = 0 );
+    virtual void degenGeomIntersectTrim( vector< DegenGeom > &degenGeom );
     virtual void SliceX( int numSlice );
     virtual void MassSliceX( int numSlice );
+    virtual void degenGeomMassSliceX( vector< DegenGeom > &degenGeom );
     virtual void AreaSlice( int style, int numSlices, double sliceAngle, double coneSections, vec3d norm, bool autoBounds,
                             double start = 0, double end = 0 );
     virtual vector<vec3d> TessTriangles( vector<vec3d> &tri );
@@ -183,6 +185,8 @@ public:
     //virtual void  getVertexVec(vector< VertexID > *vertVec);
 
     virtual void CreatePrism( vector< TetraMassProp* >& tetraVec, TTri* tri, double len );
+    virtual void createDegenGeomPrism( vector< DegenGeomTetraMassProp* >& tetraVec, TTri* tri, double len );
+
     virtual void AddPointMass( TetraMassProp* pm )
     {
         m_PointMassVec.push_back( pm );

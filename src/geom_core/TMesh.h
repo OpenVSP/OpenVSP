@@ -107,6 +107,66 @@ public:
     double m_Iyz;
 };
 
+//===========================================================================================================//
+//================================================ DegenGeom ================================================//
+//===========================================================================================================//
+
+class DegenGeomTetraMassProp
+{
+public:
+    DegenGeomTetraMassProp( string id, vec3d& p0, vec3d& p1, vec3d& p2, vec3d& p3 );
+    DegenGeomTetraMassProp()        {}
+    ~DegenGeomTetraMassProp()       {}
+
+    vec3d m_v0;
+    vec3d m_v1;
+    vec3d m_v2;
+    vec3d m_v3;
+
+    string m_CompId;
+
+    vec3d m_CG;
+
+    double m_Vol;
+
+    double m_Ixx;
+    double m_Iyy;
+    double m_Izz;
+
+    double m_Ixy;
+    double m_Ixz;
+    double m_Iyz;
+};
+
+class DegenGeomTriShellMassProp
+{
+public:
+    DegenGeomTriShellMassProp( string id, vec3d& p0, vec3d& p1, vec3d& p2 );
+    ~DegenGeomTriShellMassProp()        {}
+
+    vec3d m_v0;
+    vec3d m_v1;
+    vec3d m_v2;
+
+    vec3d m_CG;
+
+    string m_CompId;
+
+    double m_TriArea;
+
+    double m_Ixx;
+    double m_Iyy;
+    double m_Izz;
+
+    double m_Ixy;
+    double m_Ixz;
+    double m_Iyz;
+};
+
+//===========================================================================================================//
+//============================================== END DegenGeom ==============================================//
+//===========================================================================================================//
+
 class TNode
 {
 public:
