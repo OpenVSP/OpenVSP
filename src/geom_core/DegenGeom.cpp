@@ -41,13 +41,13 @@ void DegenGeom::build_trans_mat( vec3d x, vec3d y, vec3d z, const vec3d &p, Matr
     // Build rotation part of matrix.
     for( int i = 0; i < 3; i++ )
     {
-        mat.data()[ i + ( 0 * 4 ) ] = x.v[i];
-        mat.data()[ i + ( 1 * 4 ) ] = y.v[i];
-        mat.data()[ i + ( 2 * 4 ) ] = z.v[i];
+        mat.data()[ 0 + ( i * 4 ) ] = x.v[i];
+        mat.data()[ 1 + ( i * 4 ) ] = y.v[i];
+        mat.data()[ 2 + ( i * 4 ) ] = z.v[i];
 
-        invmat.data()[ 0 + ( i * 4 ) ] = x.v[i];
-        invmat.data()[ 1 + ( i * 4 ) ] = y.v[i];
-        invmat.data()[ 2 + ( i * 4 ) ] = z.v[i];
+        invmat.data()[ i + ( 0 * 4 ) ] = x.v[i];
+        invmat.data()[ i + ( 1 * 4 ) ] = y.v[i];
+        invmat.data()[ i + ( 2 * 4 ) ] = z.v[i];
     }
 
     // Build translation part of matrix.
@@ -55,8 +55,8 @@ void DegenGeom::build_trans_mat( vec3d x, vec3d y, vec3d z, const vec3d &p, Matr
 
     for( int i = 0; i < 3; i++ )
     {
-        mat.data()[ 3 + ( i * 4 ) ] = -offset.v[i];
-        invmat.data()[ 3 + ( i * 4 ) ] = p.v[i];
+        mat.data()[ i + ( 3 * 4 )  ] = -offset.v[i];
+        invmat.data()[ i + ( 3 * 4 )  ] = p.v[i];
     }
 }
 
