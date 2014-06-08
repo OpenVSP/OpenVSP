@@ -72,7 +72,7 @@ protected:
     virtual void ChangeID( string id );
 
     virtual void UpdateSurf();
-    virtual void UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms );
+    virtual void UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts );
 
     int m_ActiveXSec;
     XSecSurf m_XSecSurf;

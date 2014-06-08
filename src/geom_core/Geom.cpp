@@ -749,7 +749,8 @@ void Geom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< v
 
 void Geom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms )
 {
-    m_SurfVec[indx].Tesselate( m_TessU(), m_TessW(), pnts, norms );
+    vector< vector< vec3d > > uw_pnts;
+    UpdateTesselate( indx, pnts, norms, uw_pnts );
 }
 
 void Geom::UpdateSymmAttach()
