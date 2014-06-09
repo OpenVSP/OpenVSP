@@ -635,7 +635,7 @@ void ManageGeomScreen::CallBack( Fl_Widget *w )
     {
         m_VehiclePtr->SetShowSet( m_SetIndex + SET_FIRST_USER );
     }
-    else if ( w = m_GeomUI->pickGeomButton )
+    else if ( w == m_GeomUI->pickGeomButton )
     {
     }
 
