@@ -29,7 +29,7 @@ ImageData TGALoader::load( std::string fileName )
         return image;
     }
 
-    if( ( tgaheader.width <= 0 ) || ( tgaheader.height <= 0 ) || ( tgaheader.bpp != 24 ) && ( tgaheader.bpp != 32 ) )
+    if( ( tgaheader.width <= 0 ) || ( tgaheader.height <= 0 ) || ( ( tgaheader.bpp != 24 ) && ( tgaheader.bpp != 32 ) ) )
     {
         fclose( TGAFile );
         return image;
