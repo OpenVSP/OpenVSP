@@ -181,7 +181,7 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
 
         if( !fileName.empty() )
         {
-            unsigned int extIndex = fileName.find_last_of( '.' );
+            std::string::size_type extIndex = fileName.find_last_of( '.' );
 
             if( extIndex == std::string::npos )
             {

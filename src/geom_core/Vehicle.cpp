@@ -1349,7 +1349,7 @@ void Vehicle::WriteNascartFiles( const string & file_name, int write_set )
     fclose( file_id );
 
     string key_name = file_name;
-    unsigned int loc = key_name.find_last_of( "." );
+    std::string::size_type loc = key_name.find_last_of( "." );
     if ( loc == key_name.npos )
     {
         key_name = string( "bodyin.key" );
@@ -1628,7 +1628,7 @@ void Vehicle::WritePovRayFile( const string & file_name, int write_set )
 
     //==== Figure Out Basename ====//
     string base_name = file_name;
-    unsigned int loc = base_name.find_last_of( "." );
+    std::string::size_type loc = base_name.find_last_of( "." );
     if ( loc != base_name.npos )
     {
         base_name = base_name.substr( 0, loc );

@@ -178,7 +178,7 @@ void SubSurfaceMgrSingleton::WriteKeyFile( const string & file_name )
 {
     // figure out basename
     string base_name = file_name;
-    unsigned int loc = base_name.find_last_of( "." );
+    std::string::size_type loc = base_name.find_last_of( "." );
     if ( loc != base_name.npos )
     {
         base_name = base_name.substr( 0, loc );
