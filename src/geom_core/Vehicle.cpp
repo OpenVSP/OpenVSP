@@ -1944,7 +1944,7 @@ string Vehicle::MassProps( int set, int numSlices )
         }
     }
 
-    if ( mesh_ptr->m_TMeshVec.size() )
+    if ( mesh_ptr->m_TMeshVec.size() || mesh_ptr->m_PointMassVec.size() )
     {
         mesh_ptr->MassSliceX( numSlices );
         m_TotalMass = mesh_ptr->m_TotalMass;
