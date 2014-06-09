@@ -2372,19 +2372,10 @@ void MeshGeom::MassSliceX( int numSlices )
         numTris += m_TMeshVec[i]->m_TVec.size();
     }
 
-    //==== Count Components ====//
-    vector< string > compIdVec;
+    //==== Augment ID with index to make symmetric copies unique. ====//
     for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
-        string id = m_TMeshVec[i]->m_PtrID;
-        vector<string>::iterator iter;
-
-        iter = find( compIdVec.begin(), compIdVec.end(), id );
-
-        if ( iter == compIdVec.end() )
-        {
-            compIdVec.push_back( id );
-        }
+        m_TMeshVec[i]->m_PtrID.append( std::to_string( i ) );
     }
 
     res->Add( ResData( "Num_Total_Meshes", ( int )m_TMeshVec.size() ) );
@@ -2701,7 +2692,7 @@ void MeshGeom::MassSliceX( int numSlices )
         for ( i = 0 ; i < ( int )tetraVec.size() ; i++ )
         {
             TetraMassProp* tet = tetraVec[i];
-            if ( tet->m_CompId == id )
+            if ( !tet->m_CompId.compare( id ) )
             {
                 compIxx += tet->m_Ixx +
                            tet->m_Mass * ( ( cg.y() - tet->m_CG.y() ) * ( cg.y() - tet->m_CG.y() ) + ( cg.z() - tet->m_CG.z() ) * ( cg.z() - tet->m_CG.z() ) );
@@ -2721,7 +2712,7 @@ void MeshGeom::MassSliceX( int numSlices )
         for ( i = 0 ; i < ( int )triShellVec.size() ; i++ )
         {
             TriShellMassProp* trs = triShellVec[i];
-            if ( trs->m_CompId == id )
+            if ( !trs->m_CompId.compare( id ) )
             {
                 compIxx += trs->m_Ixx +
                            trs->m_Mass * ( ( cg.y() - trs->m_CG.y() ) * ( cg.y() - trs->m_CG.y() ) + ( cg.z() - trs->m_CG.z() ) * ( cg.z() - trs->m_CG.z() ) );
