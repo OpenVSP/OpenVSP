@@ -2807,6 +2807,12 @@ void MeshGeom::degenGeomMassSliceX( vector< DegenGeom > &degenGeom )
     MeshInfo info;
     MergeRemoveOpenMeshes( &info );
 
+    //==== Augment ID with index to make symmetric copies unique. ====//
+    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+    {
+        m_TMeshVec[i]->m_PtrID.append( std::to_string( i ) );
+    }
+
     //==== Create Bnd Box for  Mesh Geoms ====//
     for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
@@ -2986,7 +2992,7 @@ void MeshGeom::degenGeomMassSliceX( vector< DegenGeom > &degenGeom )
         double compMassSolid = 0.0, compMassShell = 0.0;
         for ( i = 0 ; i < ( int )tetraVec.size() ; i++ )
         {
-            if ( tetraVec[i]->m_CompId.compare( id ) )
+            if ( !tetraVec[i]->m_CompId.compare( id ) )
             {
                 compMassSolid += tetraVec[i]->m_Vol;
                 cgSolid = cgSolid + tetraVec[i]->m_CG * tetraVec[i]->m_Vol;
@@ -2994,7 +3000,7 @@ void MeshGeom::degenGeomMassSliceX( vector< DegenGeom > &degenGeom )
         }
         for ( i = 0 ; i < ( int )triShellVec.size() ; i++ )
         {
-            if ( triShellVec[i]->m_CompId.compare( id ) )
+            if ( !triShellVec[i]->m_CompId.compare( id ) )
             {
                 compMassShell += triShellVec[i]->m_TriArea;
                 cgShell = cgShell + triShellVec[i]->m_CG * triShellVec[i]->m_TriArea;
@@ -3022,7 +3028,7 @@ void MeshGeom::degenGeomMassSliceX( vector< DegenGeom > &degenGeom )
         for ( i = 0 ; i < ( int )tetraVec.size() ; i++ )
         {
             DegenGeomTetraMassProp* tet = tetraVec[i];
-            if ( tet->m_CompId.compare( id ) )
+            if ( !tet->m_CompId.compare( id ) )
             {
                 compIxx += tet->m_Ixx +
                            tet->m_Vol * ( ( cgSolid.y() - tet->m_CG.y() ) * ( cgSolid.y() - tet->m_CG.y() ) + ( cgSolid.z() - tet->m_CG.z() ) * ( cgSolid.z() - tet->m_CG.z() ) );
@@ -3058,7 +3064,7 @@ void MeshGeom::degenGeomMassSliceX( vector< DegenGeom > &degenGeom )
         for ( i = 0 ; i < ( int )triShellVec.size() ; i++ )
         {
             DegenGeomTriShellMassProp* trs = triShellVec[i];
-            if ( trs->m_CompId.compare( id ) )
+            if ( !trs->m_CompId.compare( id ) )
             {
                 compIxx += trs->m_Ixx +
                            trs->m_TriArea * ( ( cgShell.y() - trs->m_CG.y() ) * ( cgShell.y() - trs->m_CG.y() ) + ( cgShell.z() - trs->m_CG.z() ) * ( cgShell.z() - trs->m_CG.z() ) );
