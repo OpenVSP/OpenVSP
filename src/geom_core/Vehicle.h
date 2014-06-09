@@ -236,6 +236,7 @@ protected:
     vector< Geom* > m_GeomStoreVec;                 // All Geom Ptrs
 
     vector< DegenGeom > m_DegenGeomVec;         // Vector of components in degenerate representation
+    vector< DegenPtMass > m_DegenPtMassVec;
 
 
     vector< string > m_ActiveGeom;              // Currently Active Geoms

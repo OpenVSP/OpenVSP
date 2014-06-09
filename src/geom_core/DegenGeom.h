@@ -82,6 +82,13 @@ typedef struct
     vec3d                       nvec;
 } DegenProp;
 
+typedef struct
+{
+    string                      name;
+    double                      mass;
+    vec3d                       x;
+} DegenPtMass;
+
 class DegenGeom
 {
 public:
