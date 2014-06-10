@@ -2096,6 +2096,7 @@ void VspSurf::WriteBezFile( FILE* file_id, const std::string &geom_id, int surf_
 
     fprintf( file_id, "%s Component\n", geom_id.c_str() );
     fprintf( file_id, "%d  Num_Sections\n", num_sections );
+    fprintf( file_id, "%d Flip_Normal\n", m_FlipNormal );
 
     for ( int iu = 0 ; iu < ( int )split_u.size() - 1 ; iu++ )
     {

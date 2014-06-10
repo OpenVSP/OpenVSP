@@ -1077,6 +1077,10 @@ void CfdMeshMgrSingleton::ReadSurfs( const string &filename )
             sscanf( buff, "%s", &geom_id );
             fgets( buff, 256, file_id );
             sscanf( buff, "%d", &num_surfs );
+            int tmp;
+            fgets( buff, 256, file_id );
+            sscanf( buff, "%d", &tmp );
+            bool f_norm = !!tmp;
 
             m_GeomIDs.push_back( string( geom_id ) );
 
@@ -1087,6 +1091,7 @@ void CfdMeshMgrSingleton::ReadSurfs( const string &filename )
                 surfPtr->SetGeomID( string( geom_id ) );
                 surfPtr->SetCompID( c );
                 surfPtr->SetSurfID( s + total_surfs );
+                surfPtr->SetFlipFlag( f_norm );
 
                 surfPtr->ReadSurf( file_id );
 
@@ -1181,7 +1186,7 @@ void CfdMeshMgrSingleton::BuildDomain()
                 {
                     m_SurfVec[i]->SetFarFlag( true );
                     m_SurfVec[i]->SetTransFlag( true );
-                    m_SurfVec[i]->FlipU();
+                    m_SurfVec[i]->FlipFlipFlag();
                 }
             }
         }

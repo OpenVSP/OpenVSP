@@ -1836,19 +1836,6 @@ double Surf::GetWScale( double u )      // u 0->1
     return wscale;
 }
 
-void Surf::FlipU()
-{
-    vector< vector< vec3d > > pnts;
-    pnts.resize( m_NumU );
-
-    for ( int i = 0 ; i < m_NumU ; i++ )
-    {
-        pnts[i] = m_Pnts[m_NumU - i - 1];
-    }
-
-    LoadControlPnts( pnts );
-}
-
 bool Surf::ValidUW( vec2d & uw )
 {
     //return true;

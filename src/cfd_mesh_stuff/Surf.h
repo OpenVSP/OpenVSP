@@ -170,8 +170,6 @@ public:
     double GetUScale( double w );
     double GetWScale( double u );
 
-    void FlipU();
-
     bool ValidUW( vec2d & uw );
 
     void LoadBorderCurves( vector< vector <vec3d> > & borderCurves );
@@ -220,6 +218,20 @@ public:
         return m_FarFlag;
     }
 
+    void SetFlipFlag( bool flag )
+    {
+        m_FlipFlag = flag;
+    }
+    bool GetFlipFlag()
+    {
+        return m_FlipFlag;
+    }
+    void FlipFlipFlag()
+    {
+        m_FlipFlag = !m_FlipFlag;
+    }
+
+
     vector< vector< vec3d > > GetControlPnts()
     {
         return m_Pnts;
@@ -243,6 +255,7 @@ protected:
     int m_NumW;
     double m_MaxU;
     double m_MaxW;
+    bool m_FlipFlag;
 
     bool m_WakeFlag;
     int m_WakeParentSurfID;

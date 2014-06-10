@@ -1573,8 +1573,20 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
     for ( i = 0 ; i < out.numberoftriangles ; i++ )
     {
         Node* n0 = nodeVec[out.trianglelist[cnt]];
-        Node* n1 = nodeVec[out.trianglelist[cnt + 1]];
-        Node* n2 = nodeVec[out.trianglelist[cnt + 2]];
+        Node* n1;
+        Node* n2;
+
+        if( !m_Surf->GetFlipFlag() )
+        {
+            n1 = nodeVec[out.trianglelist[cnt + 1]];
+            n2 = nodeVec[out.trianglelist[cnt + 2]];
+        }
+        else
+        {
+            n1 = nodeVec[out.trianglelist[cnt + 2]];
+            n2 = nodeVec[out.trianglelist[cnt + 1]];
+        }
+
         cnt += 3;
 
         Edge* e0 = FindEdge( n0, n1 );
