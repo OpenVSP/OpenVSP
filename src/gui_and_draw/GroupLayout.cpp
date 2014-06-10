@@ -228,7 +228,7 @@ void GroupLayout::AddSlider( SliderAdjRangeInput& slid_adj_input,
     input->type( 1 );
     input->box( FL_THIN_DOWN_BOX );
     input->textsize( 12 );
-    input->when( FL_WHEN_ENTER_KEY );
+    input->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE );
     m_Group->add( input );
     AddX( m_InputWidth );
 
@@ -283,7 +283,7 @@ void GroupLayout::AddSlider( SliderAdjRange2Input& slid_adj_input,
     input1->type( 1 );
     input1->box( FL_THIN_DOWN_BOX );
     input1->textsize( 12 );
-    input1->when( FL_WHEN_ENTER_KEY );
+    input1->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE);
     m_Group->add( input1 );
     AddX( m_InputWidth );
 
@@ -291,7 +291,7 @@ void GroupLayout::AddSlider( SliderAdjRange2Input& slid_adj_input,
     input2->type( 1 );
     input2->box( FL_THIN_DOWN_BOX );
     input2->textsize( 12 );
-    input2->when( FL_WHEN_ENTER_KEY );
+    input2->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE);
     m_Group->add( input2 );
     AddX( m_InputWidth );
 
@@ -346,7 +346,7 @@ void GroupLayout::AddSlider( FractParmSlider& slid_adj_input,
     input1->type( 1 );
     input1->box( FL_THIN_DOWN_BOX );
     input1->textsize( 12 );
-    input1->when( FL_WHEN_ENTER_KEY );
+    input1->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE );
     m_Group->add( input1 );
     AddX( m_InputWidth );
 
@@ -354,7 +354,7 @@ void GroupLayout::AddSlider( FractParmSlider& slid_adj_input,
     input2->type( 1 );
     input2->box( FL_THIN_DOWN_BOX );
     input2->textsize( 12 );
-    input2->when( FL_WHEN_ENTER_KEY );
+    input2->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE );
     m_Group->add( input2 );
     AddX( m_InputWidth );
 
@@ -395,7 +395,7 @@ void GroupLayout::AddSlider( SliderInput& slider_input, const char* label, doubl
     input->type( 1 );
     input->box( FL_THIN_DOWN_BOX );
     input->textsize( 12 );
-    input->when( FL_WHEN_ENTER_KEY );
+    input->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE );
     m_Group->add( input );
     AddX( m_InputWidth );
 
@@ -530,7 +530,7 @@ void GroupLayout::AddInput( StringInput& text_input, const char* label )
     Fl_Input* input = new Fl_Input( m_X, m_Y, iw, m_StdHeight );
     input->box( FL_THIN_DOWN_BOX );
     input->textsize( 12 );
-    input->when( FL_WHEN_ENTER_KEY );
+    input->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE );
     m_Group->add( input );
     AddX( iw );
 
@@ -580,7 +580,7 @@ void GroupLayout::AddInput( Input& input, const char* label, const char* format 
     flinput->type( 1 );
     flinput->box( FL_THIN_DOWN_BOX );
     flinput->textsize( 12 );
-    flinput->when( FL_WHEN_ENTER_KEY );
+    flinput->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE );
     m_Group->add( flinput );
     AddX( iw );
 
@@ -623,7 +623,7 @@ void GroupLayout::AddIndexSelector( IndexSelector& selector )
     int_inp->labelfont( 1 );
     int_inp->textsize( 14 );
     int_inp->align( Fl_Align( FL_ALIGN_CENTER ) );
-    int_inp->when( FL_WHEN_ENTER_KEY );
+    int_inp->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE );
 
     AddX( iw );
 
@@ -987,7 +987,7 @@ void GroupLayout::AddSkinControl( SkinControl & skin_control, const char* label,
     inputL->type( 1 );
     inputL->box( FL_THIN_DOWN_BOX );
     inputL->textsize( 12 );
-    inputL->when( FL_WHEN_ENTER_KEY );
+    inputL->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE );
     m_Group->add( inputL );
     AddX( m_InputWidth );
 
@@ -1018,7 +1018,7 @@ void GroupLayout::AddSkinControl( SkinControl & skin_control, const char* label,
     inputR->type( 1 );
     inputR->box( FL_THIN_DOWN_BOX );
     inputR->textsize( 12 );
-    inputR->when( FL_WHEN_ENTER_KEY );
+    inputR->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE );
     m_Group->add( inputR );
     AddX( m_InputWidth );
 
