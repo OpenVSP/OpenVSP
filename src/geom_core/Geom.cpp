@@ -1226,9 +1226,8 @@ void Geom::CreateDegenGeom( vector<DegenGeom> &dgs)
         degenGeom.setNumXSecs( pnts.size() );
         degenGeom.setNumPnts( pnts[0].size() );
         degenGeom.setName( GetName() );
-        degenGeom.setRefl( false );
 
-        degenGeom.createDegenSurface( pnts, uwpnts, false );
+        degenGeom.createDegenSurface( pnts, uwpnts, m_SurfVec[i].GetFlipNormal() );
 
         if( m_SurfVec[i].GetSurfType() == VspSurf::WING_SURF )
         {

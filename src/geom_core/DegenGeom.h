@@ -98,7 +98,6 @@ public:
 
     DegenGeom()
     {
-        reflected_flag = false;
         type = BODY_TYPE;
         num_pnts = 0;
         num_xsecs = 0;
@@ -151,16 +150,6 @@ public:
         return name;
     }
 
-    void setRefl( bool ref )
-    {
-        reflected_flag = ref;
-    }
-    bool getRefl()
-    {
-        return reflected_flag;
-    }
-
-
     Geom* getParentGeom()
     {
         return parentGeom;
@@ -184,7 +173,7 @@ public:
     void transform_section( const int &startPnt, vector < vec3d > &sect, Matrix4d &trans, Matrix4d &invtrans );
     void calculate_section_prop( const vector < vec3d > &sect, double &len, double &area, vec3d &xcgshell, vec3d &xcgsolid, vector < double > &Ishell, vector < double > &Isolid );
 
-    void createDegenSurface( const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts, bool refl );
+    void createDegenSurface( const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts, bool flipnormal );
     void createSurfDegenPlate( const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts );
     void createBodyDegenPlate( const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts );
     void createDegenPlate( DegenPlate &degenPlate, const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts, int nLow, int nHigh, int startPnt );
@@ -222,9 +211,6 @@ protected:
 
     Geom* parentGeom;
     int   type;
-
-    bool reflected_flag;
-
 };
 
 

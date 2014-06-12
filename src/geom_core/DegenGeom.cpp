@@ -209,7 +209,7 @@ void DegenGeom::calculate_section_prop( const vector < vec3d > &sect, double &le
     Isolid.push_back( I12solid );
 }
 
-void DegenGeom::createDegenSurface( const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts, bool refl )
+void DegenGeom::createDegenSurface( const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts, bool flipnormal )
 {
     int nLow = 0, nHigh = num_xsecs;
 
@@ -275,7 +275,7 @@ void DegenGeom::createDegenSurface( const vector< vector< vec3d > > &pntsarr, co
 
             // Approximate normal as normal for two longest sides.
             nVec = cross( v1, v2 );
-            if( refl )
+            if( flipnormal )
             {
                 nVec = nVec * -1.0;
             }
