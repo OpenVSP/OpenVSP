@@ -377,7 +377,7 @@ void DegenGeom::createDegenPlate( DegenPlate &degenPlate, const vector< vector< 
         // rotated chord vector
         vec3d rcv = xVec[platePnts - 1] - xVec[0];
         // plate normal vector
-        nPlate = cross( rcv, anv );
+        nPlate = cross( anv, rcv );
         nPlate.normalize();
         degenPlate.nPlate.push_back( nPlate );
 
@@ -387,8 +387,8 @@ void DegenGeom::createDegenPlate( DegenPlate &degenPlate, const vector< vector< 
 
         for ( int j = 1, k = startPnt + num_pnts - 2; j < platePnts - 1; j++, k-- )
         {
-            topPnt = pntsarr[ i ][ startPnt + j ];
-            botPnt = pntsarr[ i ][ k % ( num_pnts - 1 ) ];
+            botPnt = pntsarr[ i ][ startPnt + j ];
+            topPnt = pntsarr[ i ][ k % ( num_pnts - 1 ) ];
 
             camberPnt = ( topPnt + botPnt ) / 2;
 
@@ -429,8 +429,15 @@ void DegenGeom::createDegenPlate( DegenPlate &degenPlate, const vector< vector< 
         for ( int j = 0, k = startPnt + num_pnts - 1; j < platePnts; j++, k-- )
         {
             uVec[j] = uw_pnts[i][j].x();
-            wTopVec[j] = uw_pnts[i][j].y();
-            wBotVec[j] = uw_pnts[i][k % ( num_pnts - 1 )].y();
+            wBotVec[j] = uw_pnts[i][ startPnt + j ].y();
+            if( k == ( num_pnts - 1 ) )
+            {
+                wTopVec[j] = uw_pnts[i][ num_pnts - 1 ].y();
+            }
+            else
+            {
+                wTopVec[j] = uw_pnts[i][ k % ( num_pnts - 1 ) ].y();
+            }
         }
         degenPlate.u.push_back( uVec );
         degenPlate.wTop.push_back( wTopVec );
@@ -542,8 +549,8 @@ void DegenGeom::createDegenStick( DegenStick &degenStick, const vector< vector< 
 
         for ( int j = 1, k = startPnt + num_pnts - 2; j < platePnts - 1; j++, k-- )
         {
-            topPnt = pntsarr[ i ][ startPnt + j ];
-            botPnt = pntsarr[ i ][ k % ( num_pnts - 1 ) ];
+            botPnt = pntsarr[ i ][ startPnt + j ];
+            topPnt = pntsarr[ i ][ k % ( num_pnts - 1 ) ];
 
             camberPnt = ( topPnt + botPnt ) / 2;
 
@@ -553,8 +560,8 @@ void DegenGeom::createDegenStick( DegenStick &degenStick, const vector< vector< 
                 maxThickIdx[0] = j + startPnt;
                 maxThickIdx[1] = k % ( num_pnts - 1 );
             }
-            perimTop += dist( pntsarr[ i][ startPnt + j ], pntsarr[ i ][ startPnt + j - 1 ] );
-            perimBot += dist( pntsarr[ i][ k % ( num_pnts - 1 ) ], pntsarr[ i ][ k % ( num_pnts - 1 ) + 1  ] );
+            perimBot += dist( pntsarr[ i][ startPnt + j ], pntsarr[ i ][ startPnt + j - 1 ] );
+            perimTop += dist( pntsarr[ i][ k % ( num_pnts - 1 ) ], pntsarr[ i ][ k % ( num_pnts - 1 ) + 1  ] );
         }
 
         camberPnt = ( pntsarr[ i ][ maxThickIdx[0] ] + pntsarr[ i ][ maxThickIdx[1] ] ) / 2;
@@ -570,8 +577,8 @@ void DegenGeom::createDegenStick( DegenStick &degenStick, const vector< vector< 
             degenStick.toc.push_back( 0.0 );
         }
 
-        perimTop += dist( pntsarr[ i ][ startPnt + platePnts - 1 ], pntsarr[ i ][ startPnt + platePnts - 2 ] );
-        perimBot += dist( pntsarr[ i ][ startPnt + platePnts ], pntsarr[ i ][ startPnt + platePnts - 1 ] );
+        perimBot += dist( pntsarr[ i ][ startPnt + platePnts - 1 ], pntsarr[ i ][ startPnt + platePnts - 2 ] );
+        perimTop += dist( pntsarr[ i ][ startPnt + platePnts ], pntsarr[ i ][ startPnt + platePnts - 1 ] );
         degenStick.perimTop.push_back( perimTop );
         degenStick.perimBot.push_back( perimBot );
     }
@@ -638,8 +645,8 @@ void DegenGeom::createDegenStick( DegenStick &degenStick, const vector< vector< 
         double areaTop = 0, areaBot = 0;
         for ( int j = 0, k = startPnt + num_pnts - 2; j < platePnts - 1; j++, k-- )
         {
-            areaTop += degenSurface.area[i - nLow][( startPnt + j ) % ( num_pnts - 1 )];
-            areaBot += degenSurface.area[i - nLow][k % ( num_pnts - 1 )];
+            areaBot += degenSurface.area[i - nLow][( startPnt + j ) % ( num_pnts - 1 )];
+            areaTop += degenSurface.area[i - nLow][k % ( num_pnts - 1 )];
         }
         degenStick.areaTop.push_back( areaTop );
         degenStick.areaBot.push_back( areaBot );
