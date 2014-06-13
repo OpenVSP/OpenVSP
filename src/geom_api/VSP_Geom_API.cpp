@@ -973,7 +973,7 @@ string AppendXSec( const string & xsec_surf_id, int type  )
     string id  = xsec_surf->AddXSec( type );
     if ( id.size() == 0 )
     {
-        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "AddXSec::Invalid XSec Type " + to_string( type ) );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "AddXSec::Invalid XSec Type " + to_string( ( long long ) type ) );
         return id;
     }
 
@@ -999,7 +999,7 @@ string InsertXSec( const string & xsec_surf_id, int type, int xsec_index  )
     string id  = xsec_surf->InsertXSec( type, xsec_index );
     if ( id.size() == 0 )
     {
-        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "InsertXSec::Invalid XSec Type " + to_string( type ) );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "InsertXSec::Invalid XSec Type " + to_string( ( long long ) type ) );
         return id;
     }
 
@@ -1307,7 +1307,7 @@ void SetSetFlag( const string & geom_id, int set_index, bool flag )
     }
     if ( set_index < 0 || set_index > ( int )veh->GetSetNameVec().size() )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "SetSetFlag::Invalid Set Index " + to_string( set_index ) );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "SetSetFlag::Invalid Set Index " + to_string( ( long long ) set_index ) );
         return;
     }
 
