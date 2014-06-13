@@ -2020,11 +2020,16 @@ double Surf::InterpolateToVspSurf( const vector< double> & vec, const double & s
     int x0 = floor( surf_val );
     int x1 = x0 + 1;
 
+    if ( vec.size() == 0 )
+    {
+        return 0.0;
+    }
+
     if ( x0 < 0 )
     {
         return vec.front();
     }
-    if ( x1 > vec.size() - 1 )
+    if ( x1 > ( ( int )vec.size() - 1 ) )
     {
         return vec.back();
     }

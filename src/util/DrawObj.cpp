@@ -10,6 +10,7 @@
 
 
 #include "DrawObj.h"
+#include <math.h>
 
 //====================== Contructor ======================//
 DrawObj::DrawObj()
@@ -53,4 +54,37 @@ DrawObj::DrawObj()
 
 DrawObj::~DrawObj()
 {
+}
+
+vec3d DrawObj::ColorWheel( double angle )
+{
+    // Returns rgb for an angle in degrees on color wheel
+    // 0 degrees is Red, 120 degrees is Green, 240 degrees is Blue
+    double r, g, b;
+
+    if ( angle >= 0 && angle < 120 )
+    {
+        r = 1 - angle / 120;
+        g = angle / 120;
+        b = 0;
+    }
+    else if ( angle >= 120 && angle < 240 )
+    {
+        r = 0;
+        g = 1 - ( angle - 120.0 ) / 120;
+        b = ( angle - 120.0 ) / 120;
+    }
+    else if ( angle >= 240 && angle < 360 )
+    {
+        r = ( angle - 240.0 ) / 120.0;
+        g = 0;
+        b = 1 - ( angle - 240.0 ) / 120.0;
+    }
+    else
+    {
+        r = g = b = 0;
+    }
+
+    return vec3d( r, g, b );
+
 }

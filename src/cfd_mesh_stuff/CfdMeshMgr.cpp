@@ -399,6 +399,7 @@ CfdMeshMgrSingleton::CfdMeshMgrSingleton() : ParmContainer()
     m_DrawBadFlag.Init( "Draw Bad Mesh Elements", "DrawCFD", this, true, 0, 1 );
     m_DrawSymmFlag.Init( "Draw Symmetry Plane", "DrawCFD", this, true, 0, 1 );
     m_DrawWakeFlag.Init( "Draw Wake", "DrawCFD", this, true, 0, 1 );
+    m_ColorTagsFlag.Init( "Color Tags Flag", "DrawCFD", this, true, 0, 1 );
 
     m_BatchFlag = false;
     m_HalfMeshFlag = false;
@@ -503,6 +504,8 @@ void CfdMeshMgrSingleton::GenerateMesh()
     CfdMeshMgr.addOutputText( "InitMesh\n" );
     CfdMeshMgr.InitMesh( );
 
+    CfdMeshMgr.SubTagTris();
+
     CfdMeshMgr.addOutputText( "Remesh\n" );
     CfdMeshMgr.Remesh( CfdMeshMgrSingleton::CFD_OUTPUT );
 
@@ -510,8 +513,9 @@ void CfdMeshMgrSingleton::GenerateMesh()
     //Stringc qual = CfdMeshMgr.GetQualString();
     //addOutputText( qual.get_char_star() );
 
+    SubSurfaceMgr.BuildSingleTagMap();
+
     CfdMeshMgr.addOutputText( "Exporting Files\n" );
-    CfdMeshMgr.SubTagTris();
     CfdMeshMgr.ExportFiles();
 
     CfdMeshMgr.addOutputText( "Check Water Tight\n" );
@@ -1377,6 +1381,7 @@ void CfdMeshMgrSingleton::Remesh( int output_type )
 
         m_SurfVec[i]->GetMesh()->LoadSimpTris();
         m_SurfVec[i]->GetMesh()->Clear();
+        m_SurfVec[i]->Subtag();
         m_SurfVec[i]->GetMesh()->CondenseSimpTris();
     }
 
@@ -1412,6 +1417,7 @@ void CfdMeshMgrSingleton::RemeshSingleComp( int comp_id, int output_type )
 
         m_SurfVec[i]->GetMesh()->LoadSimpTris();
         m_SurfVec[i]->GetMesh()->Clear();
+        m_SurfVec[i]->Subtag();
         m_SurfVec[i]->GetMesh()->CondenseSimpTris();
     }
 
@@ -1698,6 +1704,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
         vector< vec3d >& sPntVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
+        vector< vec2d >& sUWPntVec = m_SurfVec[i]->GetMesh()->GetSimpUWPntVec();
         for ( int v = 0 ; v < ( int )sPntVec.size() ; v++ )
         {
             if ( m_SurfVec[i]->GetWakeFlag() )
@@ -1743,6 +1750,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                 stri.ind0 = pntShift[i0] + 1;
                 stri.ind1 = pntShift[i1] + 1;
                 stri.ind2 = pntShift[i2] + 1;
+                stri.m_Tags = sTriVec[t].m_Tags;
                 allTriVec.push_back( stri );
                 allSurfIDVec.push_back( m_SurfVec[i]->GetSurfID() );
             }
@@ -1775,6 +1783,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                 stri.ind0 = wakePntShift[i0] + 1 + wakeIndOffset;
                 stri.ind1 = wakePntShift[i1] + 1 + wakeIndOffset;
                 stri.ind2 = wakePntShift[i2] + 1 + wakeIndOffset;
+                stri.m_Tags = sTriVec[t].m_Tags;
                 allTriVec.push_back( stri );
                 allSurfIDVec.push_back( m_SurfVec[i]->GetSurfID() );
             }
@@ -1904,13 +1913,9 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
             }
 
             //==== Write Component ID ====//
-            for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+            for ( int i = 0 ; i < ( int )allTriVec.size() ; i++ )
             {
-                vector < SimpTri >& sTriVec = m_SurfVec[i]->GetMesh()->GetSimpTriVec();
-                for ( int t = 0 ; t <  ( int )sTriVec.size() ; t++ )
-                {
-                    fprintf( fp, "%d \n", SubSurfaceMgr.GetTag( sTriVec[t].m_Tags ) );
-                }
+                fprintf( fp, "%d \n", SubSurfaceMgr.GetTag( allTriVec[i].m_Tags ) );
             }
 
             fclose( fp );
@@ -2983,6 +2988,61 @@ void CfdMeshMgrSingleton::LoadBorderCurves()
                  ( *c )->m_ISegDeque.size(), ( int )( ( *c )->m_BorderFlag ) );
     }
 #endif
+
+}
+
+void CfdMeshMgrSingleton::BuildTestIntChains()
+{
+// For right now just add dummy line to first surface
+    if ( m_SurfVec.size() > 0 )
+    {
+        for ( int i = 0 ; i < ( int )m_SurfVec.size(); i++ )
+        {
+            Surf* surf = m_SurfVec[i];
+            double max_u = surf->GetMaxU();
+            double max_w = surf->GetMaxW();
+            int num_secs = 10;
+            double delta = ( 0.9 - 0.1 ) / num_secs;
+            vector< vec2d > uw_pnts;
+
+            for ( int j = 0; j <= num_secs; j++ )
+            {
+                double d = delta * j;
+                uw_pnts.push_back( vec2d( ( 0.1 + d )*max_u, 0.25 * max_w ) );
+            }
+
+            ISegChain* chain = new ISegChain;
+            m_ISegChainList.push_back( chain );
+            chain->m_SurfA = surf;
+            chain->m_SurfB = surf;
+
+            for ( int j = 1; j < ( int )uw_pnts.size(); j++ )
+            {
+
+                Puw* puw0A = new Puw( surf, uw_pnts[j - 1] );
+                Puw* puw1A = new Puw( surf, uw_pnts[j] );
+                Puw* puw0B = new Puw( surf, uw_pnts[j - 1] );
+                Puw* puw1B = new Puw( surf, uw_pnts[j] );
+
+                m_DelPuwVec.push_back( puw0A );         // Save to delete later
+                m_DelPuwVec.push_back( puw1A );
+                m_DelPuwVec.push_back( puw0B );         // Save to delete later
+                m_DelPuwVec.push_back( puw1B );
+
+                IPnt* p0 = new IPnt( puw0A, puw0B );
+                IPnt* p1 = new IPnt( puw1A, puw1B );
+
+                m_DelIPntVec.push_back( p0 );           // Save to delete later
+                m_DelIPntVec.push_back( p1 );
+
+                p0->CompPnt();
+                p1->CompPnt();
+
+                ISeg* seg = new ISeg( surf, surf, p0, p1 );
+                chain->m_ISegDeque.push_back( seg );
+            }
+        }
+    }
 
 }
 
@@ -4173,6 +4233,80 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 
     draw_obj_vec.push_back( &m_MeshTriDO );
 
+    // Render Tag Colors
+    int num_tags = SubSurfaceMgr.GetNumTags();
+    m_TagDO.resize( num_tags );
+    map<int, DrawObj*> tag_dobj_map;
+    map< std::vector<int>, int >::const_iterator mit;
+    map< int, DrawObj* >::const_iterator dmit;
+    map< std::vector<int>, int > tagMap = SubSurfaceMgr.GetSingleTagMap();
+    int cnt = 0;
+    double deg;
+
+    char str[256];
+    for ( mit = tagMap.begin(); mit != tagMap.end() ; mit++ )
+    {
+        m_TagDO[cnt] = DrawObj();
+        tag_dobj_map[ mit->second ] = &m_TagDO[cnt];
+        sprintf( str, "%s_TAG_%d", GetID().c_str(), cnt );
+        m_TagDO[cnt].m_GeomID = string( str );
+        m_TagDO[cnt].m_Type = DrawObj::VSP_SHADED_TRIS;
+        m_TagDO[cnt].m_Visible = m_ColorTagsFlag.Get();
+        deg = ( double )cnt / num_tags * 360.0;
+        vec3d rgb = m_TagDO[cnt].ColorWheel( deg );
+
+        m_TagDO[cnt].m_MaterialInfo.Ambient[0] = ( float )rgb.x();
+        m_TagDO[cnt].m_MaterialInfo.Ambient[1] = ( float )rgb.y();
+        m_TagDO[cnt].m_MaterialInfo.Ambient[2] = ( float )rgb.z();
+        m_TagDO[cnt].m_MaterialInfo.Ambient[3] = ( float )1.0f;
+
+        m_TagDO[cnt].m_MaterialInfo.Diffuse[0] = ( float )rgb.x();
+        m_TagDO[cnt].m_MaterialInfo.Diffuse[1] = ( float )rgb.y();
+        m_TagDO[cnt].m_MaterialInfo.Diffuse[2] = ( float )rgb.z();
+        m_TagDO[cnt].m_MaterialInfo.Diffuse[3] = ( float )1.0f;
+
+        m_TagDO[cnt].m_MaterialInfo.Specular[0] = ( float )rgb.x();
+        m_TagDO[cnt].m_MaterialInfo.Specular[1] = ( float )rgb.y();
+        m_TagDO[cnt].m_MaterialInfo.Specular[2] = ( float )rgb.z();
+        m_TagDO[cnt].m_MaterialInfo.Specular[3] = ( float )1.0f;
+
+        m_TagDO[cnt].m_MaterialInfo.Emission[0] = ( float )rgb.x();
+        m_TagDO[cnt].m_MaterialInfo.Emission[1] = ( float )rgb.y();
+        m_TagDO[cnt].m_MaterialInfo.Emission[2] = ( float )rgb.z();
+        m_TagDO[cnt].m_MaterialInfo.Emission[3] = ( float )1.0f;
+        draw_obj_vec.push_back( &m_TagDO[cnt] );
+        cnt++;
+    }
+
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    {
+        vector< vec3d > pVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
+        for ( int t = 0 ; t < ( int )m_SurfVec[i]->GetMesh()->GetSimpTriVec().size() ; t++ )
+        {
+            if ( !m_SurfVec[i]->GetWakeFlag() &&
+                    ( !m_SurfVec[i]->GetFarFlag() || m_DrawFarFlag.Get() ) &&
+                    ( !m_SurfVec[i]->GetSymPlaneFlag() || m_DrawSymmFlag.Get() ) )
+            {
+                SimpTri* stri = &m_SurfVec[i]->GetMesh()->GetSimpTriVec()[t];
+                int tag = SubSurfaceMgr.GetTag( stri->m_Tags );
+                dmit = tag_dobj_map.find( SubSurfaceMgr.GetTag( stri->m_Tags ) );
+                if ( dmit == tag_dobj_map.end() )
+                {
+                    continue;
+                }
+
+                DrawObj* obj = dmit->second;
+                vec3d norm = cross( pVec[stri->ind1] - pVec[stri->ind0], pVec[stri->ind2] - pVec[stri->ind0] );
+                obj->m_PntVec.push_back( pVec[stri->ind0] );
+                obj->m_PntVec.push_back( pVec[stri->ind1] );
+                obj->m_PntVec.push_back( pVec[stri->ind2] );
+                obj->m_NormVec.push_back( norm );
+                obj->m_NormVec.push_back( norm );
+                obj->m_NormVec.push_back( norm );
+            }
+        }
+    }
+
     // Render bad edges
     m_MeshBadEdgeDO.m_GeomID = GetID() + "BADEDGE";
     m_MeshBadEdgeDO.m_Type = DrawObj::VSP_LINES;
@@ -4602,11 +4736,4 @@ void CfdMeshMgrSingleton::SubTagTris()
     }
     SubSurfaceMgr.SetSubSurfTags( m_NumComps );
     SubSurfaceMgr.BuildCompNameMap();
-
-    for ( int s = 0 ; s < ( int )m_SurfVec.size() ; s++ )
-    {
-        m_SurfVec[s]->Subtag();
-    }
-
-    SubSurfaceMgr.BuildSingleTagMap();
 }

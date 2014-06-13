@@ -43,6 +43,7 @@ CfdMeshScreen::CfdMeshScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     m_DrawBadButton.Init( this, ui->viewBadButton );
     m_DrawSymmButton.Init( this, ui->viewSymmButton );
     m_DrawWakeButton.Init( this, ui->viewWakeButton );
+    m_DrawTagsButton.Init( this, ui->viewTags );
 
     m_BodyEdgeSizeSlider.Init( this, ui->bodyEdgeSizeSlider, ui->bodyEdgeSizeInput, 1.0, " %7.5f" );
     m_MinEdgeSizeSlider.Init( this, ui->minEdgeSizeSlider, ui->minEdgeSizeInput, 1.0, " %7.5f" );
@@ -339,6 +340,7 @@ bool CfdMeshScreen::Update()
     m_DrawBadButton.Update( CfdMeshMgr.m_DrawBadFlag.GetID() );
     m_DrawSymmButton.Update( CfdMeshMgr.m_DrawSymmFlag.GetID() );
     m_DrawWakeButton.Update( CfdMeshMgr.m_DrawWakeFlag.GetID() );
+    m_DrawTagsButton.Update( CfdMeshMgr.m_ColorTagsFlag.GetID() );
 
     if ( CfdMeshMgr.GetHalfMeshFlag() )
     {

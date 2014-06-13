@@ -54,6 +54,7 @@ private:
     ToggleButton m_DrawBadButton;
     ToggleButton m_DrawSymmButton;
     ToggleButton m_DrawWakeButton;
+    ToggleButton m_DrawTagsButton;
 
     ToggleButton m_DatToggleButton;
     ToggleButton m_KeyToggleButton;

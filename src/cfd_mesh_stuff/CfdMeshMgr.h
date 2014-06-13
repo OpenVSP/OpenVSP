@@ -288,7 +288,9 @@ public:
 
     virtual void DebugWriteChains( const char* name, bool tessFlag );
 
+    // SubSurface Methods
     virtual void BuildSubSurfIntChains();
+    virtual void BuildTestIntChains();
     virtual void SubTagTris();
 
     virtual bool GetFarMeshFlag()
@@ -426,6 +428,7 @@ public:
     BoolParm m_DrawBadFlag;
     BoolParm m_DrawSymmFlag;
     BoolParm m_DrawWakeFlag;
+    BoolParm m_ColorTagsFlag;
 
     BoolParm m_ExportFileFlags[NUM_FILE_NAMES];
 
@@ -493,6 +496,7 @@ private:
     DrawObj m_MeshBadTriDO;
     DrawObj m_BBoxLineStripDO;
     DrawObj m_BBoxLinesDO;
+    vector< DrawObj > m_TagDO;
 };
 
 #define CfdMeshMgr CfdMeshMgrSingleton::getInstance()

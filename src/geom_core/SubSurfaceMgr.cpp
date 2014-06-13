@@ -144,6 +144,25 @@ void SubSurfaceMgrSingleton::BuildCompNameMap()
     // should have been called with the appropriate offset
 }
 
+//==== Custom Sorting Fuction ====//
+bool vector_sort( const vector<int>& a, const vector<int>& b )
+{
+    if ( a.size() == b.size() )
+    {
+        for ( int i = 0 ; i < ( int )a.size() ; i++ )
+        {
+            if ( a[i] != b[i] )
+            {
+                return a[i] < b[i];
+            }
+        }
+
+        return a[0] < b[0];
+    }
+
+    return a.size() < b.size();
+}
+
 void SubSurfaceMgrSingleton::BuildSingleTagMap()
 {
     m_TagKeys.clear();
@@ -152,19 +171,9 @@ void SubSurfaceMgrSingleton::BuildSingleTagMap()
         m_TagKeys.push_back( *s_iter );
     }
 
-    // Sort tag combos by length
+    // Sort tag combos by length then if same size sort by tag order
     sort( m_TagKeys.begin(), m_TagKeys.end(),
-          []( const vector<int>& a, const std::vector<int>& b )
-    {
-        return ( a.size() < b.size() );
-    } );
-
-    // Sort tag combos by first element
-    sort( m_TagKeys.begin(), m_TagKeys.end(),
-          []( const vector<int>& a, const std::vector<int>& b )
-    {
-        return ( a[0] < b[0] );
-    } );
+          vector_sort );
 
     // Map tag combos to single tag number
     for ( int i = 0; i < ( int )m_TagKeys.size() ; i++ )

@@ -1266,7 +1266,7 @@ void Vehicle::WriteTRIFile( const string & file_name, int write_set )
                 geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
         {
             MeshGeom* mg = ( MeshGeom* )geom_vec[i];            // Cast
-            part_count = mg->WriteCart3DParts( file_id, SubSurfaceMgr.m_SingleTagMap );
+            part_count = mg->WriteCart3DParts( file_id  );
         }
     }
 

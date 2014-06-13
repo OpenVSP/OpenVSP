@@ -61,19 +61,21 @@ public:
     void BuildCompNameMap();
     void BuildSingleTagMap();
     int GetTag( const std::vector<int> & tags );
+    int GetNumTags() { return m_SingleTagMap.size(); }
+    std::map< std::vector<int>, int > GetSingleTagMap() { return m_SingleTagMap; }
 
     // Write Tag Key File
     void WriteKeyFile( const string & filename );
 
     std::set< std::vector<int> > m_TagCombos;
     std::map< int, std::string > m_TagNames;
-    std::map< std::vector<int>, int > m_SingleTagMap;
     std::vector< std::string > m_CompNames;
 
 protected:
     int m_CurrSurfInd;
 
     std::vector< std::vector<int> > m_TagKeys;
+    std::map< std::vector<int>, int > m_SingleTagMap;
 
     Geom* GetGeom( std::string comp_id );
 };
