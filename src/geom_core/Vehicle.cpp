@@ -108,6 +108,7 @@ void Vehicle::Init()
     }
 
     LinkMgr.RegisterContainer( this->GetID() );
+    LinkMgr.RegisterContainer( m_CfdGridDensity.GetID() );
 
     //==== Export Files ====//
     m_exportDegenGeomCsvFile = false;

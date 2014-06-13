@@ -1033,12 +1033,14 @@ void GridDensity::Draw(BaseSource* curr_source )
 
 CfdGridDensity::CfdGridDensity() : GridDensity()
 {
+    m_Name = "CFDGridDensity";
     m_GroupName = "CFDGridDensity";
     InitParms();
 }
 
 FeaGridDensity::FeaGridDensity() : GridDensity()
 {
+    m_Name = "FEAGridDensity";
     m_GroupName = "FEAGridDensity";
     InitParms();
 }
