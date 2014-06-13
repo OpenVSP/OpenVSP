@@ -979,6 +979,8 @@ xmlNodePtr Vehicle::EncodeXml( xmlNodePtr & node, int set )
 
     LinkMgr.EncodeXml( node );
 
+    m_CfdGridDensity.EncodeXml( node );
+
 //  CdfMeshMgr.EncodeXml( node );
 
     return vehicle_node;
@@ -1020,6 +1022,8 @@ xmlNodePtr Vehicle::DecodeXml( xmlNodePtr & node )
     }
 
     LinkMgr.DecodeXml( node );
+
+    m_CfdGridDensity.DecodeXml( node );
 
 //  CdfMeshMgr.DecodeXml( node );
 
