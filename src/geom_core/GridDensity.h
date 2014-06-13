@@ -252,6 +252,8 @@ public:
     GridDensity();
     virtual ~GridDensity();
 
+    virtual void InitParms();
+
     virtual void ParmChanged( Parm* parm_ptr, int type );
 
     //void ReadFile( const char* filename );
@@ -329,9 +331,21 @@ public:
 
 protected:
 
+    string m_GroupName;
     vector< BaseSource* > m_Sources;                // Sources + Ref Sources in 3D Space
 
 };
 
+class CfdGridDensity : public GridDensity
+{
+public:
+    CfdGridDensity();
+};
+
+class FeaGridDensity : public GridDensity
+{
+public:
+    FeaGridDensity();
+};
 
 #endif

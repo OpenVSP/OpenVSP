@@ -285,8 +285,8 @@ protected:
     // File Version Number
     int m_FileOpenVersion;
 
-    GridDensity m_CfdGridDensity;
-    GridDensity m_FeaGridDensity;
+    CfdGridDensity m_CfdGridDensity;
+    FeaGridDensity m_FeaGridDensity;
 
     VehicleGuiDraw m_VGuiDraw;
 

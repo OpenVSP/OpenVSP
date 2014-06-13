@@ -855,30 +855,35 @@ void BoxSource::Highlight( bool flag )
 
 GridDensity::GridDensity() : ParmContainer()
 {
-    m_RigorLimit.Init( "RigorLimit", "GridDensity", this, false, 0, 1 );
+    m_GroupName = "NONE";
+}
 
-    m_BaseLen.Init( "BaseLen", "GridDensity", this, 0.5, 1.0e-8, 1.0e12 );
+void GridDensity::InitParms()
+{
+    m_RigorLimit.Init( "RigorLimit", m_GroupName, this, false, 0, 1 );
+
+    m_BaseLen.Init( "BaseLen", m_GroupName, this, 0.5, 1.0e-8, 1.0e12 );
     m_BaseLen.SetDescript( "Maximum mesh edge length" );
 
-    m_MinLen.Init( "MinLen", "GridDensity", this, 0.1, 1.0e-8, 1.0e12 );
+    m_MinLen.Init( "MinLen", m_GroupName, this, 0.1, 1.0e-8, 1.0e12 );
     m_MinLen.SetDescript( "Minimum mesh edge length" );
 
-    m_MaxGap.Init( "MaxGap", "GridDensity", this, 0.005, 1.0e-8, 1.0e12 );
+    m_MaxGap.Init( "MaxGap", m_GroupName, this, 0.005, 1.0e-8, 1.0e12 );
     m_MaxGap.SetDescript( "Maximum mesh edge gap" );
 
-    m_NCircSeg.Init( "NCircSeg", "GridDensity", this, 16, 1.0e-8, 1.0e12 );
+    m_NCircSeg.Init( "NCircSeg", m_GroupName, this, 16, 1.0e-8, 1.0e12 );
     m_NCircSeg.SetDescript( "Number of edge segments to resolve circle" );
 
-    m_GrowRatio.Init( "GrowRatio", "GridDensity", this, 1.3, 1.0, 10.0 );
+    m_GrowRatio.Init( "GrowRatio", m_GroupName, this, 1.3, 1.0, 10.0 );
     m_GrowRatio.SetDescript( "Maximum allowed edge growth ratio" );
 
-    m_FarMaxLen.Init( "MaxFar", "GridDensity", this, 2.0, 1.0e-8, 1.0e12 );
+    m_FarMaxLen.Init( "MaxFar", m_GroupName, this, 2.0, 1.0e-8, 1.0e12 );
     m_FarMaxLen.SetDescript( "Maximum far field mesh edge length" );
 
-    m_FarMaxGap.Init( "MaxFarGap", "GridDensity", this, 0.02, 1.0e-8, 1.0e12 );
+    m_FarMaxGap.Init( "MaxFarGap", m_GroupName, this, 0.02, 1.0e-8, 1.0e12 );
     m_FarMaxGap.SetDescript( "Maximum far field mesh edge gap" );
 
-    m_FarNCircSeg.Init( "FarNCircSeg", "GridDensity", this, 16, 1.0e-8, 1.0e12 );
+    m_FarNCircSeg.Init( "FarNCircSeg", m_GroupName, this, 16, 1.0e-8, 1.0e12 );
     m_FarNCircSeg.SetDescript( "Number of far field edge segments to resolve circle" );
 
 }
@@ -1022,3 +1027,18 @@ void GridDensity::Draw(BaseSource* curr_source )
     }
 }
 */
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+CfdGridDensity::CfdGridDensity() : GridDensity()
+{
+    m_GroupName = "CFDGridDensity";
+    InitParms();
+}
+
+FeaGridDensity::FeaGridDensity() : GridDensity()
+{
+    m_GroupName = "FEAGridDensity";
+    InitParms();
+}
