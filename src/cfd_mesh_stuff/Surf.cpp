@@ -23,6 +23,7 @@ Surf::Surf()
     m_GridDensityPtr = 0;
     m_CompID = -1;
     m_SurfID = -1;
+    m_FlipFlag = false;
     m_WakeFlag = false;
     m_TransFlag = false;
     m_SymPlaneFlag = false;
