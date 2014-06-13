@@ -855,7 +855,7 @@ void BoxSource::Highlight( bool flag )
 
 GridDensity::GridDensity() : ParmContainer()
 {
-    m_RigorLimit = 0;
+    m_RigorLimit.Init( "Rigorous Growth Limiting", "GridDensity", this, false, 0, 1 );
 
     m_BaseLen.Init( "Max Edge Length", "GridDensity", this, 0.5, 1.0e-8, 1.0e12 );
     m_BaseLen.SetDescript( "Maximum mesh edge length" );

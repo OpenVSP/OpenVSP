@@ -258,7 +258,7 @@ public:
 
     bool GetRigorLimit()
     {
-        return m_RigorLimit;
+        return m_RigorLimit.Get();
     }
     void SetRigorLimit( bool v )
     {
@@ -317,6 +317,7 @@ public:
     void Show( bool flag );
     void Highlight( BaseSource * source );
 
+    BoolParm m_RigorLimit;
     Parm m_BaseLen;
     Parm m_FarMaxLen;
     Parm m_MinLen;
@@ -327,8 +328,6 @@ public:
     Parm m_GrowRatio;
 
 protected:
-
-    bool m_RigorLimit;
 
     vector< BaseSource* > m_Sources;                // Sources + Ref Sources in 3D Space
 
