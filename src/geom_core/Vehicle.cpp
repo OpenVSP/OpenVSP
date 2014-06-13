@@ -109,6 +109,7 @@ void Vehicle::Init()
 
     LinkMgr.RegisterContainer( this->GetID() );
     LinkMgr.RegisterContainer( m_CfdGridDensity.GetID() );
+    LinkMgr.RegisterContainer( m_FeaGridDensity.GetID() );
 
     //==== Export Files ====//
     m_exportDegenGeomCsvFile = false;
@@ -981,6 +982,7 @@ xmlNodePtr Vehicle::EncodeXml( xmlNodePtr & node, int set )
     LinkMgr.EncodeXml( node );
 
     m_CfdGridDensity.EncodeXml( node );
+    m_FeaGridDensity.EncodeXml( node );
 
 //  CdfMeshMgr.EncodeXml( node );
 
@@ -1025,6 +1027,7 @@ xmlNodePtr Vehicle::DecodeXml( xmlNodePtr & node )
     LinkMgr.DecodeXml( node );
 
     m_CfdGridDensity.DecodeXml( node );
+    m_FeaGridDensity.DecodeXml( node );
 
 //  CdfMeshMgr.DecodeXml( node );
 
