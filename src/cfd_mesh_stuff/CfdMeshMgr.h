@@ -63,6 +63,7 @@
 #include "ISegChain.h"
 #include "GridDensity.h"
 #include "BezierCurve.h"
+#include "Vehicle.h"
 
 #include "Vec2d.h"
 #include "Vec3d.h"
@@ -79,7 +80,6 @@
 #include <sstream>
 using namespace std;
 
-class Vehicle;
 class WakeMgr;
 
 class Wake
@@ -183,7 +183,7 @@ public:
 
     virtual GridDensity* GetGridDensityPtr()
     {
-        return &m_GridDensity;
+        return m_Vehicle->GetCfdGridDensityPtr();
     }
 
     virtual string GetCurrGeomID()
@@ -445,7 +445,6 @@ protected:
     string m_FarGeomID;
     bool m_BatchFlag;
 
-    GridDensity m_GridDensity;
     vector< Surf* > m_SurfVec;
 
     //==== Wakes ====//

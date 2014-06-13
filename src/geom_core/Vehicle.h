@@ -217,6 +217,16 @@ public:
     vector< DegenGeom > GetDegenGeomVec()	{ return m_DegenGeomVec; }
     string WriteDegenGeomFile();
 
+    virtual GridDensity* GetCfdGridDensityPtr()
+    {
+        return &m_CfdGridDensity;
+    }
+
+    virtual GridDensity* GetFeaGridDensityPtr()
+    {
+        return &m_FeaGridDensity;
+    }
+
     //==== Mass Properties ====//
     vec3d m_IxxIyyIzz;
     vec3d m_IxyIxzIyz;
@@ -274,6 +284,9 @@ protected:
 
     // File Version Number
     int m_FileOpenVersion;
+
+    GridDensity m_CfdGridDensity;
+    GridDensity m_FeaGridDensity;
 
     VehicleGuiDraw m_VGuiDraw;
 
