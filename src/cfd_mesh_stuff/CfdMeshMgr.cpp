@@ -699,23 +699,23 @@ void CfdMeshMgrSingleton::GUI_Val( string name, double val )
     BaseSource* source = GetCurrSource();
     if ( name == "GlobalEdgeSize"  )
     {
-        m_GridDensity.m_BaseLen = val;
+        GetGridDensityPtr()->m_BaseLen = val;
     }
     else if ( name == "MinEdgeSize"  )
     {
-        m_GridDensity.m_MinLen = val;
+        GetGridDensityPtr()->m_MinLen = val;
     }
     else if ( name == "MaxGapSize"  )
     {
-        m_GridDensity.m_MaxGap = val;
+        GetGridDensityPtr()->m_MaxGap = val;
     }
     else if ( name == "NumCircSeg"  )
     {
-        m_GridDensity.m_NCircSeg = val;
+        GetGridDensityPtr()->m_NCircSeg = val;
     }
     else if ( name == "GrowRatio"  )
     {
-        m_GridDensity.m_GrowRatio = val;
+        GetGridDensityPtr()->m_GrowRatio = val;
     }
     else if ( name == "Length1" && source )
     {
@@ -727,15 +727,15 @@ void CfdMeshMgrSingleton::GUI_Val( string name, double val )
     }
     else if ( name == "FarLength" )
     {
-        m_GridDensity.m_FarMaxLen = val;
+        GetGridDensityPtr()->m_FarMaxLen = val;
     }
     else if ( name == "FarGapSize"  )
     {
-        m_GridDensity.m_FarMaxGap = val;
+        GetGridDensityPtr()->m_FarMaxGap = val;
     }
     else if ( name == "FarCircSeg"  )
     {
-        m_GridDensity.m_FarNCircSeg = val;
+        GetGridDensityPtr()->m_FarNCircSeg = val;
     }
     else
     {
@@ -892,7 +892,7 @@ void CfdMeshMgrSingleton::DeleteCurrSource()
 
 void CfdMeshMgrSingleton::UpdateSourcesAndWakes()
 {
-    m_GridDensity.ClearSources();
+    GetGridDensityPtr()->ClearSources();
     vector< vector< vec3d > > wake_leading_edges;
 
     vector<string> geomVec = m_Vehicle->GetGeomVec();
@@ -903,9 +903,9 @@ void CfdMeshMgrSingleton::UpdateSourcesAndWakes()
 
         for ( int s = 0 ; s < ( int )sVec.size() ; s++ )
         {
-            m_GridDensity.AddSource( sVec[s] );
+            GetGridDensityPtr()->AddSource( sVec[s] );
 //          if ( sVec[s]->GetReflSource() )
-//              m_GridDensity.AddSource( sVec[s]->GetReflSource() );
+//              GetGridDensityPtr()->AddSource( sVec[s]->GetReflSource() );
         }
         m_Vehicle->FindGeom( geomVec[g] )->AppendWakeEdges( wake_leading_edges );
     }
@@ -994,12 +994,12 @@ void CfdMeshMgrSingleton::UpdateDomain()
 
 void CfdMeshMgrSingleton::AddDefaultSources()
 {
-    if ( m_GridDensity.GetNumSources() == 0 )
+    if ( GetGridDensityPtr()->GetNumSources() == 0 )
     {
         vector<string> geomVec = m_Vehicle->GetGeomVec();
         for ( int g = 0 ; g < ( int )geomVec.size() ; g++ )
         {
-            double base_len = m_GridDensity.GetBaseLen();
+            double base_len = GetGridDensityPtr()->GetBaseLen();
             m_Vehicle->FindGeom( geomVec[g] )->AddDefaultSources( base_len );
         }
     }
@@ -1007,14 +1007,14 @@ void CfdMeshMgrSingleton::AddDefaultSources()
 
 void CfdMeshMgrSingleton::ScaleTriSize( double scale )
 {
-    m_GridDensity.m_BaseLen = scale * m_GridDensity.m_BaseLen();
-    m_GridDensity.m_MinLen = scale * m_GridDensity.m_MinLen();
-    m_GridDensity.m_MaxGap = scale * m_GridDensity.m_MaxGap();
-    m_GridDensity.m_NCircSeg = m_GridDensity.m_NCircSeg() / scale;
-    m_GridDensity.m_FarMaxLen = scale * m_GridDensity.m_FarMaxLen();
-    m_GridDensity.m_FarMaxGap = scale * m_GridDensity.m_FarMaxGap();
-    m_GridDensity.m_FarNCircSeg = m_GridDensity.m_FarNCircSeg() / scale;
-    m_GridDensity.ScaleAllSources( scale );
+    GetGridDensityPtr()->m_BaseLen = scale * GetGridDensityPtr()->m_BaseLen();
+    GetGridDensityPtr()->m_MinLen = scale * GetGridDensityPtr()->m_MinLen();
+    GetGridDensityPtr()->m_MaxGap = scale * GetGridDensityPtr()->m_MaxGap();
+    GetGridDensityPtr()->m_NCircSeg = GetGridDensityPtr()->m_NCircSeg() / scale;
+    GetGridDensityPtr()->m_FarMaxLen = scale * GetGridDensityPtr()->m_FarMaxLen();
+    GetGridDensityPtr()->m_FarMaxGap = scale * GetGridDensityPtr()->m_FarMaxGap();
+    GetGridDensityPtr()->m_FarNCircSeg = GetGridDensityPtr()->m_FarNCircSeg() / scale;
+    GetGridDensityPtr()->ScaleAllSources( scale );
 }
 
 void CfdMeshMgrSingleton::WriteSurfs( const string &filename )
@@ -1205,7 +1205,7 @@ void CfdMeshMgrSingleton::BuildGrid()
     for ( i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
         m_SurfVec[i]->BuildDistMap();
-        m_SurfVec[i]->SetGridDensityPtr( &m_GridDensity );
+        m_SurfVec[i]->SetGridDensityPtr( GetGridDensityPtr() );
         m_SurfVec[i]->FindBorderCurves();
         m_SurfVec[i]->LoadSCurves( scurve_vec );
     }
@@ -1301,12 +1301,12 @@ void CfdMeshMgrSingleton::BuildTargetMap( int output_type )
     {
         for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
         {
-            ( *c )->CalcDensity( &m_GridDensity, splitSources );
+            ( *c )->CalcDensity( GetGridDensityPtr(), splitSources );
             ( *c )->SpreadDensity();
         }
     }
 
-    if( m_GridDensity.GetRigorLimit() )
+    if( GetGridDensityPtr()->GetRigorLimit() )
     {
         if ( output_type != CfdMeshMgrSingleton::NO_OUTPUT )
         {
@@ -1340,7 +1340,7 @@ void CfdMeshMgrSingleton::BuildTargetMap( int output_type )
 
         for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
         {
-            ( *c )->CalcDensity( &m_GridDensity, splitSources );
+            ( *c )->CalcDensity( GetGridDensityPtr(), splitSources );
         }
     }
 
@@ -4187,9 +4187,9 @@ void CfdMeshMgrSingleton::TestStuff()
 
 void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 {
-    m_GridDensity.Highlight( GetCurrSource() );
-    m_GridDensity.Show( m_DrawSourceFlag.Get() );
-    m_GridDensity.LoadDrawObjs( draw_obj_vec );
+    GetGridDensityPtr()->Highlight( GetCurrSource() );
+    GetGridDensityPtr()->Show( m_DrawSourceFlag.Get() );
+    GetGridDensityPtr()->LoadDrawObjs( draw_obj_vec );
 
     m_WakeMgr.Show( m_DrawSourceFlag.Get() );
     m_WakeMgr.LoadDrawObjs( draw_obj_vec );
@@ -4366,7 +4366,7 @@ void CfdMeshMgr::Draw()
 
     if ( m_DrawSourceFlag )
     {
-        m_GridDensity.Draw(source);
+        GetGridDensityPtr()->Draw(source);
         m_WakeMgr.Draw();
     }
 
