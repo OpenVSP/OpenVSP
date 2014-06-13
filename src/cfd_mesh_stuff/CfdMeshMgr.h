@@ -295,7 +295,7 @@ public:
 
     virtual bool GetFarMeshFlag()
     {
-        return m_FarMeshFlag;
+        return m_FarMeshFlag.Get();
     }
     virtual void SetFarMeshFlag( bool f )
     {
@@ -303,7 +303,7 @@ public:
     }
     virtual bool GetFarCompFlag()
     {
-        return m_FarCompFlag;
+        return m_FarCompFlag.Get();
     }
     virtual void SetFarCompFlag( bool f )
     {
@@ -311,7 +311,7 @@ public:
     }
     virtual bool GetFarManLocFlag()
     {
-        return m_FarManLocFlag;
+        return m_FarManLocFlag.Get();
     }
     virtual void SetFarManLocFlag( bool f )
     {
@@ -319,7 +319,7 @@ public:
     }
     virtual bool GetFarAbsSizeFlag()
     {
-        return m_FarAbsSizeFlag;
+        return m_FarAbsSizeFlag.Get();
     }
     virtual void SetFarAbsSizeFlag( bool f )
     {
@@ -327,7 +327,7 @@ public:
     }
     virtual bool GetHalfMeshFlag()
     {
-        return m_HalfMeshFlag;
+        return m_HalfMeshFlag.Get();
     }
     virtual void SetHalfMeshFlag( bool f )
     {
@@ -406,6 +406,12 @@ public:
 
     ostringstream m_OutStream;
 
+    BoolParm m_FarMeshFlag;
+    BoolParm m_FarCompFlag;
+    BoolParm m_FarManLocFlag;
+    BoolParm m_FarAbsSizeFlag;
+    BoolParm m_HalfMeshFlag;
+
     FractionParm m_FarXScale;
     FractionParm m_FarYScale;
     FractionParm m_FarZScale;
@@ -462,12 +468,6 @@ protected:
 
     int m_NumComps;
     int m_HighlightChainIndex;
-
-    bool m_FarMeshFlag;
-    bool m_FarCompFlag;
-    bool m_FarManLocFlag;
-    bool m_FarAbsSizeFlag;
-    bool m_HalfMeshFlag;
 
     BndBox m_Domain;
 

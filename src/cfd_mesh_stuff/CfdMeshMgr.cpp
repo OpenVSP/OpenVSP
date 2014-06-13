@@ -933,11 +933,11 @@ void CfdMeshMgrSingleton::UpdateDomain()
     vec3d xyz0 = xyzc;
     xyz0.v[0] = m_Domain.GetMin( 0 );
 
-    if ( m_FarMeshFlag )
+    if ( GetFarMeshFlag() )
     {
-        if( !m_FarCompFlag )
+        if( !GetFarCompFlag() )
         {
-            if ( m_FarAbsSizeFlag )
+            if ( GetFarAbsSizeFlag() )
             {
                 m_FarXScale = m_FarLength() / lwh.x();
                 m_FarYScale = m_FarWidth() / lwh.y();
@@ -956,7 +956,7 @@ void CfdMeshMgrSingleton::UpdateDomain()
                 m_FarHeight = lwh.z();
             }
 
-            if ( m_FarManLocFlag )
+            if ( GetFarManLocFlag() )
             {
                 xyz0 = vec3d( m_FarXLocation(), m_FarYLocation(), m_FarZLocation() );
                 xyzc = xyz0;
@@ -986,7 +986,7 @@ void CfdMeshMgrSingleton::UpdateDomain()
         m_Domain.Expand( 1.0 );
     }
 
-    if ( m_HalfMeshFlag )
+    if ( GetHalfMeshFlag() )
     {
         m_Domain.SetMin( 1, 0.0 );
     }
@@ -1100,12 +1100,12 @@ void CfdMeshMgrSingleton::ReadSurfs( const string &filename )
                 surfPtr->ReadSurf( file_id );
 
                 bool addSurfFlag = true;
-                if ( m_HalfMeshFlag && surfPtr->LessThanY( 0.0 ) )
+                if ( GetHalfMeshFlag() && surfPtr->LessThanY( 0.0 ) )
                 {
                     addSurfFlag = false;
                 }
 
-                if ( m_HalfMeshFlag && surfPtr->PlaneAtYZero() )
+                if ( GetHalfMeshFlag() && surfPtr->PlaneAtYZero() )
                 {
                     addSurfFlag = false;
                 }
@@ -1180,9 +1180,9 @@ void CfdMeshMgrSingleton::BuildDomain()
 
 
     //==== Mark & Change Modes for Component Far Field ====//
-    if ( m_FarMeshFlag )
+    if ( GetFarMeshFlag() )
     {
-        if ( m_FarCompFlag )
+        if ( GetFarCompFlag() )
         {
             for ( int i = 0 ; i < (int)m_SurfVec.size() ; i++ )
             {
@@ -1631,7 +1631,7 @@ void CfdMeshMgrSingleton::WriteTetGen( const string &filename )
         }
     }
 
-    if ( m_HalfMeshFlag )
+    if ( GetHalfMeshFlag() )
     {
         vector< vec3d > tmpPntVec;
         for ( int i = 0 ; i < ( int )interiorPntVec.size() ; i++ )
@@ -2454,13 +2454,13 @@ vector< Surf* > CfdMeshMgrSingleton::CreateDomainSurfs()
     int ndomain = 0;
 
     // Half mesh with no outer domain or component outer domain
-    if ( m_HalfMeshFlag )
+    if ( GetHalfMeshFlag() )
     {
         ndomain = 1;
     }
 
     // Box outer domain, half or full mesh.
-    if ( m_FarMeshFlag && !m_FarCompFlag )
+    if ( GetFarMeshFlag() && !GetFarCompFlag() )
     {
         ndomain = 6;
     }
@@ -2477,7 +2477,7 @@ vector< Surf* > CfdMeshMgrSingleton::CreateDomainSurfs()
 
         domainSurfs[i]->SetTransFlag( true );
 
-        if( i == 0 && m_HalfMeshFlag )
+        if( i == 0 && GetHalfMeshFlag() )
         {
             domainSurfs[i]->SetSymPlaneFlag( true );
         }
@@ -3707,7 +3707,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
                     {
                         m_SurfVec[i]->IntersectLineSeg( cp, ep, t_vec_vec[comp_id] );
                     }
-                    else if ( m_SurfVec[i]->GetFarFlag() == true && m_SurfVec[s]->GetSymPlaneFlag() == true && m_FarCompFlag == true ) // Unless trimming sym plane by outer domain
+                    else if ( m_SurfVec[i]->GetFarFlag() == true && m_SurfVec[s]->GetSymPlaneFlag() == true && GetFarCompFlag() == true ) // Unless trimming sym plane by outer domain
                     {
                         m_SurfVec[i]->IntersectLineSeg( cp, ep, t_vec_vec[comp_id] );
                     }
@@ -3722,7 +3722,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
             {
                 int c =  m_SurfVec[i]->GetCompID();
 
-                if ( m_SurfVec[s]->GetSymPlaneFlag() == true && m_SurfVec[i]->GetFarFlag() == true  && m_FarCompFlag == true )
+                if ( m_SurfVec[s]->GetSymPlaneFlag() == true && m_SurfVec[i]->GetFarFlag() == true  && GetFarCompFlag() == true )
                 {
                     if ( ( int )( t_vec_vec[c].size() + 1 ) % 2 == 1  ) // +1 Reverse action on sym plane wrt outer boundary.
                     {
@@ -3782,7 +3782,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
     }
 
     //==== Check For Half Mesh ====//
-    if ( m_HalfMeshFlag )
+    if ( GetHalfMeshFlag() )
     {
         for ( s = 0 ; s < ( int )m_SurfVec.size() ; s++ )
         {
@@ -3799,7 +3799,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
                 }
             }
 
-            if( !m_FarMeshFlag ) // Don't keep symmetry plane.
+            if( !GetFarMeshFlag() ) // Don't keep symmetry plane.
             {
                 if ( m_SurfVec[s]->GetSymPlaneFlag() == true )
                 {
@@ -4194,13 +4194,13 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     m_WakeMgr.Show( m_DrawSourceFlag.Get() );
     m_WakeMgr.LoadDrawObjs( draw_obj_vec );
 
-    if( m_DrawFarPreFlag.Get() && m_FarMeshFlag )
+    if( m_DrawFarPreFlag.Get() && GetFarMeshFlag() )
     {
         UpdateBBoxDO( m_Domain );
     }
-    m_BBoxLineStripDO.m_Visible = m_DrawFarPreFlag.Get() && m_FarMeshFlag;
+    m_BBoxLineStripDO.m_Visible = m_DrawFarPreFlag.Get() && GetFarMeshFlag();
     draw_obj_vec.push_back( &m_BBoxLineStripDO );
-    m_BBoxLinesDO.m_Visible = m_DrawFarPreFlag.Get() && m_FarMeshFlag;
+    m_BBoxLinesDO.m_Visible = m_DrawFarPreFlag.Get() && GetFarMeshFlag();
     draw_obj_vec.push_back( &m_BBoxLinesDO );
 
     // Render Mesh
