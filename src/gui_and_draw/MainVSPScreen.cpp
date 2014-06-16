@@ -32,6 +32,20 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : VspScreen( mgr )
 
     m_FLTK_Window = ui->winShell;
 
+    int x, y, width, h, side;
+    Fl::screen_xywh( x, y, width, h );
+
+    // Figure out which is smaller, half the screen width or the height
+    if ( 0.5 * width < 0.9 * h )
+    {
+        side = 0.9 * h;
+    }
+    else
+    {
+        side = 0.5 * width;
+    }
+    m_FLTK_Window->resize( x + 10, y + 30, side, side );
+
     AddMenuCallBack( m_MainUI->NewMenu );
     AddMenuCallBack( m_MainUI->OpenMenu );
     AddMenuCallBack( m_MainUI->SaveMenu );
