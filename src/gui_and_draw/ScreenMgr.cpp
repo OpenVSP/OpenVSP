@@ -156,6 +156,13 @@ void ScreenMgr::Init()
     m_ScreenVec[VSP_XSEC_SCREEN] = new XSecViewScreen( this );
 
     m_ScreenVec[VSP_MAIN_SCREEN]->Show();
+    // Set manage geom screen to show up to the main screen as the default.
+    int x,y,w;
+    x = m_ScreenVec[VSP_MAIN_SCREEN]->GetFlWindow()->x();
+    y = m_ScreenVec[VSP_MAIN_SCREEN]->GetFlWindow()->y();
+    w = m_ScreenVec[VSP_MAIN_SCREEN]->GetFlWindow()->w();
+    m_ScreenVec[VSP_MANAGE_GEOM_SCREEN]->GetFlWindow()->position(x+w+5,y);
+
     m_ScreenVec[VSP_MANAGE_GEOM_SCREEN]->Show();
     m_ScreenVec[VSP_XSEC_SCREEN]->Show();
 
