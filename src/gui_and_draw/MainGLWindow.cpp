@@ -1627,6 +1627,15 @@ void VspGlWindow::OnKeydown()
             corScreen->EnableSelection();
         }
         break;
+    case FL_Escape:
+        Vehicle* vPtr = VehicleMgr::getInstance().GetVehicle();
+        if ( vPtr )
+        {
+            vector< string > none;
+            vPtr->SetActiveGeomVec( none );
+            m_ScreenMgr->SetUpdateFlag( true );
+        }
+        break;
     }
     redraw();
 }
