@@ -52,6 +52,7 @@ ScreenMgr::ScreenMgr( Vehicle* vPtr )
 
     Fl::scheme( "GTK+" );
     Fl::add_timeout( UPDATE_TIME, StaticTimerCB, this );
+    Fl::add_handler( GlobalHandler );
 
     m_RunGUI = true;
 
@@ -214,4 +215,20 @@ void MessageBox( void * data )
 void ScreenMgr::Alert( const char * message )
 {
     Fl::awake( MessageBox, ( void* )message );
+}
+
+int ScreenMgr::GlobalHandler(int event)
+{
+    if (Fl::event()==FL_SHORTCUT && Fl::event_key()==FL_Escape)
+    {
+        Vehicle* vPtr = VehicleMgr::getInstance().GetVehicle();
+        if ( vPtr )
+        {
+            vector< string > none;
+            vPtr->SetActiveGeomVec( none );
+            MessageMgr::getInstance().Send( "ScreenMgr", "UpdateAllScreens" );
+        }
+        return 1;
+    }
+    return 0;
 }

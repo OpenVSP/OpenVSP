@@ -87,6 +87,8 @@ protected:
 
     void Init();
 
+    static int GlobalHandler(int event);
+
     bool m_UpdateFlag;
     virtual void UpdateAllScreens();
 
