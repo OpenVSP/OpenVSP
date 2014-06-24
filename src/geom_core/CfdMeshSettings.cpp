@@ -24,8 +24,6 @@
 
 CfdMeshSettings::CfdMeshSettings() : ParmContainer()
 {
-    m_Vehicle = VehicleMgr::getInstance().GetVehicle();
-
     m_DrawMeshFlag.Init( "Draw Mesh", "DrawCFD", this, true, 0, 1 );
     m_DrawSourceFlag.Init( "Draw Source & Wake", "DrawCFD", this, true, 0, 1 );
     m_DrawFarFlag.Init( "Draw Far Field", "DrawCFD", this, true, 0, 1 );
@@ -65,9 +63,6 @@ CfdMeshSettings::CfdMeshSettings() : ParmContainer()
     m_WakeAngle.Init( "Wake Angle", "Wake", this, 0.0, -90.0, 90.0 );
     m_WakeAngle.SetDescript( "Wake angle" );
 
-
-    ResetExportFileNames();
-
     m_ExportFileFlags[ CfdMeshSettings::DAT_FILE_NAME ].Init( "DAT Export", "ExportCFD", this, true, 0, 1 );
     m_ExportFileFlags[ CfdMeshSettings::KEY_FILE_NAME ].Init( "KEY Export", "ExportCFD", this, true, 0, 1 );
     m_ExportFileFlags[ CfdMeshSettings::OBJ_FILE_NAME ].Init( "OBJ Export", "ExportCFD", this, true, 0, 1 );
@@ -85,9 +80,11 @@ CfdMeshSettings::~CfdMeshSettings()
 //==== Parm Changed ====//
 void CfdMeshSettings::ParmChanged( Parm* parm_ptr, int type )
 {
-    if ( m_Vehicle )
+    Vehicle* veh = VehicleMgr::getInstance().GetVehicle();
+
+    if ( veh )
     {
-        m_Vehicle->ParmChanged( parm_ptr, Parm::SET );
+        veh->ParmChanged( parm_ptr, Parm::SET );
     }
 }
 
@@ -111,12 +108,21 @@ void CfdMeshSettings::SetExportFileName( const string &fn, int type )
 
 void CfdMeshSettings::ResetExportFileNames()
 {
+    Vehicle* veh = VehicleMgr::getInstance().GetVehicle();
+    if ( veh )
+    {
+        ResetExportFileNames( veh->GetVSP3FileName() );
+    }
+}
+
+void CfdMeshSettings::ResetExportFileNames( string basename )
+{
     int pos;
     const char *suffix[] = {".stl", ".poly", ".tri", ".obj", "_NASCART.dat", "_NASCART.key", ".msh", ".srf"};
 
     for ( int i = 0 ; i < NUM_FILE_NAMES ; i++ )
     {
-        m_ExportFileNames[i] = m_Vehicle->GetVSP3FileName();
+        m_ExportFileNames[i] = basename;
         pos = m_ExportFileNames[i].find( ".vsp3" );
         if ( pos >= 0 )
         {

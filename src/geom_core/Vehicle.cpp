@@ -82,6 +82,8 @@ void Vehicle::Init()
     m_VSP3FileName = "Unnamed.vsp3";
     m_FileOpenVersion = -1;
 
+    m_CfdSettings.ResetExportFileNames( m_VSP3FileName );
+
     //==== Load Default Set Names =====//
     m_SetNameVec.push_back( "All" );        // SET_ALL
     m_SetNameVec.push_back( "Shown" );      // SET_SHOWN

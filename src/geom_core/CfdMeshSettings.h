@@ -98,6 +98,7 @@ public:
     string GetExportFileName( int type );
     void SetExportFileName( const string &fn, int type );
     void ResetExportFileNames();
+    void ResetExportFileNames( string basename );
 
     BoolParm GetExportFileFlag( int type );
 
@@ -141,9 +142,6 @@ public:
 
 
 protected:
-
-    Vehicle* m_Vehicle;
-
 
 };
 

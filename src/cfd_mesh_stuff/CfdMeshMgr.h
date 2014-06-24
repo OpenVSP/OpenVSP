@@ -343,13 +343,11 @@ public:
 
     CfdMeshSettings* GetCfdSettingsPtr()
     {
-        return &m_CfdSettings;
+        return m_Vehicle->GetCfdSettingsPtr();
     }
 
 
 protected:
-
-    CfdMeshSettings m_CfdSettings;
 
     /*
     * Update Bounding Box DrawObjs.

@@ -20,7 +20,7 @@
 #include "LabelMgr.h"
 #include "LightMgr.h"
 #include "DegenGeom.h"
-
+#include "CfdMeshSettings.h"
 
 #include <assert.h>
 
@@ -217,6 +217,11 @@ public:
     vector< DegenGeom > GetDegenGeomVec()	{ return m_DegenGeomVec; }
     string WriteDegenGeomFile();
 
+    CfdMeshSettings* GetCfdSettingsPtr()
+    {
+        return &m_CfdSettings;
+    }
+
     virtual GridDensity* GetCfdGridDensityPtr()
     {
         return &m_CfdGridDensity;
@@ -285,6 +290,7 @@ protected:
     // File Version Number
     int m_FileOpenVersion;
 
+    CfdMeshSettings m_CfdSettings;
     CfdGridDensity m_CfdGridDensity;
     FeaGridDensity m_FeaGridDensity;
 
