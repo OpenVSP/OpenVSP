@@ -1,0 +1,153 @@
+//
+// This file is released under the terms of the NASA Open Source Agreement (NOSA)
+// version 1.3 as detailed in the LICENSE file which accompanies this software.
+//
+
+//////////////////////////////////////////////////////////////////////
+// CfdMeshSettings.h
+//////////////////////////////////////////////////////////////////////
+
+
+#if !defined(CfdMeshSettings_CfdMeshSettings__INCLUDED_)
+#define CfdMeshSettings_CfdMeshSettings__INCLUDED_
+
+#include "GridDensity.h"
+#include "Vehicle.h"
+
+#include "Vec2d.h"
+#include "Vec3d.h"
+#include "DrawObj.h"
+
+#include <assert.h>
+
+#include <set>
+#include <map>
+#include <vector>
+#include <list>
+#include <string>
+#include <iostream>
+#include <sstream>
+using namespace std;
+
+//////////////////////////////////////////////////////////////////////
+class CfdMeshSettings : public ParmContainer
+{
+public:
+	CfdMeshSettings();
+    virtual ~CfdMeshSettings();
+
+    virtual void ParmChanged( Parm* parm_ptr, int type );
+
+    virtual bool GetFarMeshFlag()
+    {
+        return m_FarMeshFlag.Get();
+    }
+    virtual void SetFarMeshFlag( bool f )
+    {
+        m_FarMeshFlag = f;
+    }
+    virtual bool GetFarCompFlag()
+    {
+        return m_FarCompFlag.Get();
+    }
+    virtual void SetFarCompFlag( bool f )
+    {
+        m_FarCompFlag = f;
+    }
+    virtual bool GetFarManLocFlag()
+    {
+        return m_FarManLocFlag.Get();
+    }
+    virtual void SetFarManLocFlag( bool f )
+    {
+        m_FarManLocFlag = f;
+    }
+    virtual bool GetFarAbsSizeFlag()
+    {
+        return m_FarAbsSizeFlag.Get();
+    }
+    virtual void SetFarAbsSizeFlag( bool f )
+    {
+        m_FarAbsSizeFlag = f;
+    }
+    virtual bool GetHalfMeshFlag()
+    {
+        return m_HalfMeshFlag.Get();
+    }
+    virtual void SetHalfMeshFlag( bool f )
+    {
+        m_HalfMeshFlag = f;
+    }
+    virtual void SetWakeScale( double s )
+    {
+        m_WakeScale = s;
+    }
+    virtual double GetWakeScale()
+    {
+        return m_WakeScale();
+    }
+    virtual void SetWakeAngle( double a )
+    {
+        m_WakeAngle = a;
+    }
+    virtual double GetWakeAngle()
+    {
+        return m_WakeAngle();
+    }
+
+    string GetExportFileName( int type );
+    void SetExportFileName( const string &fn, int type );
+    void ResetExportFileNames();
+
+    BoolParm GetExportFileFlag( int type );
+
+    enum { STL_FILE_NAME, POLY_FILE_NAME, TRI_FILE_NAME,
+           OBJ_FILE_NAME, DAT_FILE_NAME, KEY_FILE_NAME, GMSH_FILE_NAME, SRF_FILE_NAME, NUM_FILE_NAMES
+         };
+
+    BoolParm m_FarMeshFlag;
+    BoolParm m_FarCompFlag;
+    BoolParm m_FarManLocFlag;
+    BoolParm m_FarAbsSizeFlag;
+    BoolParm m_HalfMeshFlag;
+
+    FractionParm m_FarXScale;
+    FractionParm m_FarYScale;
+    FractionParm m_FarZScale;
+
+    Parm m_FarLength;
+    Parm m_FarWidth;
+    Parm m_FarHeight;
+
+    Parm m_FarXLocation;
+    Parm m_FarYLocation;
+    Parm m_FarZLocation;
+
+    Parm m_WakeScale;
+    Parm m_WakeAngle;
+
+    BoolParm m_DrawMeshFlag;
+    BoolParm m_DrawSourceFlag;
+    BoolParm m_DrawFarFlag;
+    BoolParm m_DrawFarPreFlag;
+    BoolParm m_DrawBadFlag;
+    BoolParm m_DrawSymmFlag;
+    BoolParm m_DrawWakeFlag;
+    BoolParm m_ColorTagsFlag;
+
+    BoolParm m_ExportFileFlags[NUM_FILE_NAMES];
+
+    string m_ExportFileNames[NUM_FILE_NAMES];
+
+
+protected:
+
+    Vehicle* m_Vehicle;
+
+
+};
+
+#endif
+
+
+

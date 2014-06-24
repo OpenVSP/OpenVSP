@@ -21,6 +21,7 @@ INCLUDE_DIRECTORIES(
 ADD_LIBRARY(geom_core
 Airfoil.cpp
 BlankGeom.cpp
+CfdMeshSettings.cpp
 CustomGeom.cpp
 DegenGeom.cpp
 DesignVarMgr.cpp
@@ -56,6 +57,7 @@ MaterialMgr.cpp
 VspPreferences.cpp
 Airfoil.h
 BlankGeom.h
+CfdMeshSettings.h
 CustomGeom.h
 DegenGeom.h
 DesignVarMgr.h
