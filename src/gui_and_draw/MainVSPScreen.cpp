@@ -346,7 +346,7 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
             VehicleMgr::getInstance().GetVehicle()->SetVSP3FileName( openfile );
             VehicleMgr::getInstance().GetVehicle()->ReadXMLFile( openfile );
 
-            CfdMeshMgr.ResetExportFileNames();
+            CfdMeshMgr.GetCfdSettingsPtr()->ResetExportFileNames();
 
             SetFileLabel( openfile );
 
@@ -368,7 +368,7 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
             VehicleMgr::getInstance().GetVehicle()->SetVSP3FileName( savefile );
             VehicleMgr::getInstance().GetVehicle()->WriteXMLFile( savefile, SET_ALL );
 
-            CfdMeshMgr.ResetExportFileNames();
+            CfdMeshMgr.GetCfdSettingsPtr()->ResetExportFileNames();
 
             SetFileLabel( savefile );
 
@@ -384,7 +384,7 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
             VehicleMgr::getInstance().GetVehicle()->SetVSP3FileName( savefile );
             VehicleMgr::getInstance().GetVehicle()->WriteXMLFile( savefile, SET_ALL );
 
-            CfdMeshMgr.ResetExportFileNames();
+            CfdMeshMgr.GetCfdSettingsPtr()->ResetExportFileNames();
 
             SetFileLabel( savefile );
 

@@ -311,7 +311,7 @@ void WakeMgr::AppendWakeSurfs( vector< Surf* > & surf_vec )
 
 void WakeMgr::StretchWakes()
 {
-    double scale = CfdMeshMgr.GetWakeScale();
+    double scale = CfdMeshMgr.GetCfdSettingsPtr()->GetWakeScale();
     for ( int i = 0 ; i < ( int )m_WakeVec.size() ; i++ )
     {
         for ( int j = 0 ; j < ( int )m_WakeVec[i]->m_SurfVec.size() ; j++ )
@@ -351,7 +351,7 @@ void WakeMgr::Draw()
 
 void WakeMgr::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
-    double scale = CfdMeshMgr.GetWakeScale();
+    double scale = CfdMeshMgr.GetCfdSettingsPtr()->GetWakeScale();
     double factor = scale - 1.0;
 
     vector< vec3d > wakeData;
@@ -392,56 +392,11 @@ CfdMeshMgrSingleton::CfdMeshMgrSingleton() : ParmContainer()
 
     m_HighlightChainIndex = 0;
 
-    m_DrawMeshFlag.Init( "Draw Mesh", "DrawCFD", this, true, 0, 1 );
-    m_DrawSourceFlag.Init( "Draw Source & Wake", "DrawCFD", this, true, 0, 1 );
-    m_DrawFarFlag.Init( "Draw Far Field", "DrawCFD", this, true, 0, 1 );
-    m_DrawFarPreFlag.Init( "Draw Far Field Preview", "DrawCFD", this, true, 0, 1 );
-    m_DrawBadFlag.Init( "Draw Bad Mesh Elements", "DrawCFD", this, true, 0, 1 );
-    m_DrawSymmFlag.Init( "Draw Symmetry Plane", "DrawCFD", this, true, 0, 1 );
-    m_DrawWakeFlag.Init( "Draw Wake", "DrawCFD", this, true, 0, 1 );
-    m_ColorTagsFlag.Init( "Color Tags Flag", "DrawCFD", this, true, 0, 1 );
+
 
     m_BatchFlag = false;
-    m_HalfMeshFlag = false;
-    m_FarCompFlag = false;
-    m_FarMeshFlag = false;
-    m_FarManLocFlag = false;
-    m_FarAbsSizeFlag = false;
 
-    m_FarXScale.Init( "Far X Scale", "FarField", this, 4.0, 1.0, 1.0e12 );
-    m_FarXScale.SetDescript( "Far field X scale" );
 
-    m_FarYScale.Init( "Far Y Scale", "FarField", this, 4.0, 1.0, 1.0e12 );
-    m_FarYScale.SetDescript( "Far field Y scale" );
-
-    m_FarZScale.Init( "Far Z Scale", "FarField", this, 4.0, 1.0, 1.0e12 );
-    m_FarZScale.SetDescript( "Far field Z scale" );
-
-    m_FarXLocation.Init( "Far X Location", "FarField", this, 0.0, -1.0e12, 1.0e12 );
-    m_FarXLocation.SetDescript( "Far field X location" );
-
-    m_FarYLocation.Init( "Far Y Location", "FarField", this, 0.0, -1.0e12, 1.0e12 );
-    m_FarYLocation.SetDescript( "Far field Y location" );
-
-    m_FarZLocation.Init( "Far Z Location", "FarField", this, 0.0, -1.0e12, 1.0e12 );
-    m_FarZLocation.SetDescript( "Far field Z location" );
-
-    m_WakeScale.Init( "Wake Scale", "Wake", this, 2.0, 1.0, 1.0e12 );
-    m_WakeScale.SetDescript( "Wake length scale" );
-
-    m_WakeAngle.Init( "Wake Angle", "Wake", this, 0.0, -90.0, 90.0 );
-    m_WakeAngle.SetDescript( "Wake angle" );
-
-    ResetExportFileNames();
-
-    m_ExportFileFlags[ CfdMeshMgrSingleton::DAT_FILE_NAME ].Init( "DAT Export", "ExportCFD", this, true, 0, 1 );
-    m_ExportFileFlags[ CfdMeshMgrSingleton::KEY_FILE_NAME ].Init( "KEY Export", "ExportCFD", this, true, 0, 1 );
-    m_ExportFileFlags[ CfdMeshMgrSingleton::OBJ_FILE_NAME ].Init( "OBJ Export", "ExportCFD", this, true, 0, 1 );
-    m_ExportFileFlags[ CfdMeshMgrSingleton::POLY_FILE_NAME ].Init( "POLY Export", "ExportCFD", this, true, 0, 1 );
-    m_ExportFileFlags[ CfdMeshMgrSingleton::STL_FILE_NAME ].Init( "STL Export", "ExportCFD", this, true, 0, 1 );
-    m_ExportFileFlags[ CfdMeshMgrSingleton::TRI_FILE_NAME ].Init( "TRI Export", "ExportCFD", this, true, 0, 1 );
-    m_ExportFileFlags[ CfdMeshMgrSingleton::GMSH_FILE_NAME ].Init( "GMSH Export", "ExportCFD", this, true, 0, 1 );
-    m_ExportFileFlags[ CfdMeshMgrSingleton::SRF_FILE_NAME ].Init( "SRF Export", "ExportCFD", this, true, 0, 1 );
 
 #ifdef DEBUG_CFD_MESH
     m_DebugDir  = Stringc( "MeshDebug/" );
@@ -530,7 +485,7 @@ void CfdMeshMgrSingleton::GenerateMesh()
 //      m_Vehicle->FindGeom( geomVec[i] )->setNoShowFlag(1);
 //  m_ScreenMgr->Update( GEOM_SCREEN );
 
-    CfdMeshMgr.m_DrawMeshFlag = true;
+    GetCfdSettingsPtr()->m_DrawMeshFlag = true;
 }
 
 void CfdMeshMgrSingleton::CleanUp()
@@ -614,40 +569,7 @@ void CfdMeshMgrSingleton::CleanUp()
 
 }
 
-string CfdMeshMgrSingleton::GetExportFileName( int type )
-{
-    if ( type >= 0 && type < NUM_FILE_NAMES )
-    {
-        return m_ExportFileNames[type];
-    }
 
-    return string();
-}
-
-void CfdMeshMgrSingleton::SetExportFileName( const string &fn, int type )
-{
-    if ( type >= 0 && type < NUM_FILE_NAMES )
-    {
-        m_ExportFileNames[type] = fn;
-    }
-}
-
-void CfdMeshMgrSingleton::ResetExportFileNames()
-{
-    int pos;
-    const char *suffix[] = {".stl", ".poly", ".tri", ".obj", "_NASCART.dat", "_NASCART.key", ".msh", ".srf"};
-
-    for ( int i = 0 ; i < NUM_FILE_NAMES ; i++ )
-    {
-        m_ExportFileNames[i] = m_Vehicle->GetVSP3FileName();
-        pos = m_ExportFileNames[i].find( ".vsp3" );
-        if ( pos >= 0 )
-        {
-            m_ExportFileNames[i].erase( pos, m_ExportFileNames[i].length() - 1 );
-        }
-        m_ExportFileNames[i].append( suffix[i] );
-    }
-}
 
 void CfdMeshMgrSingleton::addOutputText( const string &str, int output_type )
 {
@@ -915,7 +837,7 @@ void CfdMeshMgrSingleton::UpdateSourcesAndWakes()
     BndBox box = m_Vehicle->GetBndBox();
     m_WakeMgr.SetStartStretchX( box.GetMax( 0 ) + 0.01 * box.GetLargestDist() );
     m_WakeMgr.SetEndX( box.GetMax( 0 ) + 0.5 * box.GetLargestDist() );
-    m_WakeMgr.SetAngle( m_WakeAngle() );
+    m_WakeMgr.SetAngle( GetCfdSettingsPtr()->GetWakeAngle() );
 
 }
 
@@ -933,32 +855,32 @@ void CfdMeshMgrSingleton::UpdateDomain()
     vec3d xyz0 = xyzc;
     xyz0.v[0] = m_Domain.GetMin( 0 );
 
-    if ( GetFarMeshFlag() )
+    if ( GetCfdSettingsPtr()->GetFarMeshFlag() )
     {
-        if( !GetFarCompFlag() )
+        if( !GetCfdSettingsPtr()->GetFarCompFlag() )
         {
-            if ( GetFarAbsSizeFlag() )
+            if ( GetCfdSettingsPtr()->GetFarAbsSizeFlag() )
             {
-                m_FarXScale = m_FarLength() / lwh.x();
-                m_FarYScale = m_FarWidth() / lwh.y();
-                m_FarZScale = m_FarHeight() / lwh.z();
+                GetCfdSettingsPtr()->m_FarXScale = GetCfdSettingsPtr()->m_FarLength() / lwh.x();
+                GetCfdSettingsPtr()->m_FarYScale = GetCfdSettingsPtr()->m_FarWidth() / lwh.y();
+                GetCfdSettingsPtr()->m_FarZScale = GetCfdSettingsPtr()->m_FarHeight() / lwh.z();
 
-                lwh = vec3d( m_FarLength(), m_FarWidth(), m_FarHeight() );
+                lwh = vec3d( GetCfdSettingsPtr()->m_FarLength(), GetCfdSettingsPtr()->m_FarWidth(), GetCfdSettingsPtr()->m_FarHeight() );
             }
             else
             {
-                lwh.scale_x( m_FarXScale() );
-                lwh.scale_y( m_FarYScale() );
-                lwh.scale_z( m_FarZScale() );
+                lwh.scale_x( GetCfdSettingsPtr()->m_FarXScale() );
+                lwh.scale_y( GetCfdSettingsPtr()->m_FarYScale() );
+                lwh.scale_z( GetCfdSettingsPtr()->m_FarZScale() );
 
-                m_FarLength = lwh.x();
-                m_FarWidth = lwh.y();
-                m_FarHeight = lwh.z();
+                GetCfdSettingsPtr()->m_FarLength = lwh.x();
+                GetCfdSettingsPtr()->m_FarWidth = lwh.y();
+                GetCfdSettingsPtr()->m_FarHeight = lwh.z();
             }
 
-            if ( GetFarManLocFlag() )
+            if ( GetCfdSettingsPtr()->GetFarManLocFlag() )
             {
-                xyz0 = vec3d( m_FarXLocation(), m_FarYLocation(), m_FarZLocation() );
+                xyz0 = vec3d( GetCfdSettingsPtr()->m_FarXLocation(), GetCfdSettingsPtr()->m_FarYLocation(), GetCfdSettingsPtr()->m_FarZLocation() );
                 xyzc = xyz0;
                 xyzc.v[0] += lwh.v[0] / 2.0;
             }
@@ -967,9 +889,9 @@ void CfdMeshMgrSingleton::UpdateDomain()
                 vec3d xyz0 = xyzc;
                 xyz0.v[0] -= lwh.v[0] / 2.0;
 
-                m_FarXLocation = xyz0.x();
-                m_FarYLocation = xyz0.y();
-                m_FarZLocation = xyz0.z();
+                GetCfdSettingsPtr()->m_FarXLocation = xyz0.x();
+                GetCfdSettingsPtr()->m_FarYLocation = xyz0.y();
+                GetCfdSettingsPtr()->m_FarZLocation = xyz0.z();
             }
 
             m_Domain.Reset();
@@ -986,7 +908,7 @@ void CfdMeshMgrSingleton::UpdateDomain()
         m_Domain.Expand( 1.0 );
     }
 
-    if ( GetHalfMeshFlag() )
+    if ( GetCfdSettingsPtr()->GetHalfMeshFlag() )
     {
         m_Domain.SetMin( 1, 0.0 );
     }
@@ -1100,12 +1022,12 @@ void CfdMeshMgrSingleton::ReadSurfs( const string &filename )
                 surfPtr->ReadSurf( file_id );
 
                 bool addSurfFlag = true;
-                if ( GetHalfMeshFlag() && surfPtr->LessThanY( 0.0 ) )
+                if ( GetCfdSettingsPtr()->GetHalfMeshFlag() && surfPtr->LessThanY( 0.0 ) )
                 {
                     addSurfFlag = false;
                 }
 
-                if ( GetHalfMeshFlag() && surfPtr->PlaneAtYZero() )
+                if ( GetCfdSettingsPtr()->GetHalfMeshFlag() && surfPtr->PlaneAtYZero() )
                 {
                     addSurfFlag = false;
                 }
@@ -1180,9 +1102,9 @@ void CfdMeshMgrSingleton::BuildDomain()
 
 
     //==== Mark & Change Modes for Component Far Field ====//
-    if ( GetFarMeshFlag() )
+    if ( GetCfdSettingsPtr()->GetFarMeshFlag() )
     {
-        if ( GetFarCompFlag() )
+        if ( GetCfdSettingsPtr()->GetFarCompFlag() )
         {
             for ( int i = 0 ; i < (int)m_SurfVec.size() ; i++ )
             {
@@ -1470,46 +1392,46 @@ void CfdMeshMgrSingleton::PrintQual()
 
 void CfdMeshMgrSingleton::ExportFiles()
 {
-    if ( m_ExportFileFlags[STL_FILE_NAME].Get() )
+    if ( GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::STL_FILE_NAME ).Get() )
     {
-        WriteSTL( m_ExportFileNames[STL_FILE_NAME] );
+        WriteSTL( GetCfdSettingsPtr()->GetExportFileName( CfdMeshSettings::STL_FILE_NAME ) );
     }
-    if ( m_ExportFileFlags[POLY_FILE_NAME].Get() )
+    if ( GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::POLY_FILE_NAME ).Get() )
     {
-        WriteTetGen( m_ExportFileNames[POLY_FILE_NAME] );
+        WriteTetGen( GetCfdSettingsPtr()->GetExportFileName( CfdMeshSettings::POLY_FILE_NAME ) );
     }
 
     string dat_fn;
-    if (  m_ExportFileFlags[DAT_FILE_NAME].Get() )
+    if (  GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::DAT_FILE_NAME ).Get() )
     {
-        dat_fn = m_ExportFileNames[DAT_FILE_NAME];
+        dat_fn = GetCfdSettingsPtr()->GetExportFileName( CfdMeshSettings::DAT_FILE_NAME );
     }
     string key_fn;
-    if (  m_ExportFileFlags[KEY_FILE_NAME].Get() )
+    if (  GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::KEY_FILE_NAME ).Get() )
     {
-        key_fn = m_ExportFileNames[KEY_FILE_NAME];
+        key_fn = GetCfdSettingsPtr()->GetExportFileName( CfdMeshSettings::KEY_FILE_NAME );
     }
     string obj_fn;
-    if (  m_ExportFileFlags[OBJ_FILE_NAME].Get() )
+    if (  GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::OBJ_FILE_NAME ).Get() )
     {
-        obj_fn = m_ExportFileNames[OBJ_FILE_NAME];
+        obj_fn = GetCfdSettingsPtr()->GetExportFileName( CfdMeshSettings::OBJ_FILE_NAME );
     }
     string tri_fn;
-    if (  m_ExportFileFlags[TRI_FILE_NAME].Get() )
+    if (  GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::TRI_FILE_NAME ).Get() )
     {
-        tri_fn = m_ExportFileNames[TRI_FILE_NAME];
+        tri_fn = GetCfdSettingsPtr()->GetExportFileName( CfdMeshSettings::TRI_FILE_NAME );
     }
     string gmsh_fn;
-    if (  m_ExportFileFlags[GMSH_FILE_NAME].Get() )
+    if (  GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::GMSH_FILE_NAME ).Get() )
     {
-        gmsh_fn = m_ExportFileNames[GMSH_FILE_NAME];
+        gmsh_fn = GetCfdSettingsPtr()->GetExportFileName( CfdMeshSettings::GMSH_FILE_NAME );
     }
 
     WriteNASCART_Obj_Tri_Gmsh( dat_fn, key_fn, obj_fn, tri_fn, gmsh_fn );
 
-    if ( m_ExportFileFlags[SRF_FILE_NAME].Get() )
+    if ( GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::SRF_FILE_NAME ).Get() )
     {
-        WriteSurfsIntCurves( m_ExportFileNames[SRF_FILE_NAME] );
+        WriteSurfsIntCurves( GetCfdSettingsPtr()->GetExportFileName( CfdMeshSettings::SRF_FILE_NAME ) );
     }
 }
 
@@ -1617,7 +1539,7 @@ void CfdMeshMgrSingleton::WriteTetGen( const string &filename )
     {
 //      if ( m_Vehicle->FindGeom( geomVec[i] )->getOutputFlag() )
         {
-            if ( GetFarMeshFlag() && GetFarCompFlag() )
+            if ( GetCfdSettingsPtr()->GetFarMeshFlag() && GetCfdSettingsPtr()->GetFarCompFlag() )
             {
                 if ( m_Vehicle->FindGeom( geomVec[i] )->GetID() != GetFarGeomID() )
                 {
@@ -1631,7 +1553,7 @@ void CfdMeshMgrSingleton::WriteTetGen( const string &filename )
         }
     }
 
-    if ( GetHalfMeshFlag() )
+    if ( GetCfdSettingsPtr()->GetHalfMeshFlag() )
     {
         vector< vec3d > tmpPntVec;
         for ( int i = 0 ; i < ( int )interiorPntVec.size() ; i++ )
@@ -2454,13 +2376,13 @@ vector< Surf* > CfdMeshMgrSingleton::CreateDomainSurfs()
     int ndomain = 0;
 
     // Half mesh with no outer domain or component outer domain
-    if ( GetHalfMeshFlag() )
+    if ( GetCfdSettingsPtr()->GetHalfMeshFlag() )
     {
         ndomain = 1;
     }
 
     // Box outer domain, half or full mesh.
-    if ( GetFarMeshFlag() && !GetFarCompFlag() )
+    if ( GetCfdSettingsPtr()->GetFarMeshFlag() && !GetCfdSettingsPtr()->GetFarCompFlag() )
     {
         ndomain = 6;
     }
@@ -2477,7 +2399,7 @@ vector< Surf* > CfdMeshMgrSingleton::CreateDomainSurfs()
 
         domainSurfs[i]->SetTransFlag( true );
 
-        if( i == 0 && GetHalfMeshFlag() )
+        if( i == 0 && GetCfdSettingsPtr()->GetHalfMeshFlag() )
         {
             domainSurfs[i]->SetSymPlaneFlag( true );
         }
@@ -3707,7 +3629,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
                     {
                         m_SurfVec[i]->IntersectLineSeg( cp, ep, t_vec_vec[comp_id] );
                     }
-                    else if ( m_SurfVec[i]->GetFarFlag() == true && m_SurfVec[s]->GetSymPlaneFlag() == true && GetFarCompFlag() == true ) // Unless trimming sym plane by outer domain
+                    else if ( m_SurfVec[i]->GetFarFlag() == true && m_SurfVec[s]->GetSymPlaneFlag() == true && GetCfdSettingsPtr()->GetFarCompFlag() == true ) // Unless trimming sym plane by outer domain
                     {
                         m_SurfVec[i]->IntersectLineSeg( cp, ep, t_vec_vec[comp_id] );
                     }
@@ -3722,7 +3644,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
             {
                 int c =  m_SurfVec[i]->GetCompID();
 
-                if ( m_SurfVec[s]->GetSymPlaneFlag() == true && m_SurfVec[i]->GetFarFlag() == true  && GetFarCompFlag() == true )
+                if ( m_SurfVec[s]->GetSymPlaneFlag() == true && m_SurfVec[i]->GetFarFlag() == true  && GetCfdSettingsPtr()->GetFarCompFlag() == true )
                 {
                     if ( ( int )( t_vec_vec[c].size() + 1 ) % 2 == 1  ) // +1 Reverse action on sym plane wrt outer boundary.
                     {
@@ -3782,7 +3704,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
     }
 
     //==== Check For Half Mesh ====//
-    if ( GetHalfMeshFlag() )
+    if ( GetCfdSettingsPtr()->GetHalfMeshFlag() )
     {
         for ( s = 0 ; s < ( int )m_SurfVec.size() ; s++ )
         {
@@ -3799,7 +3721,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
                 }
             }
 
-            if( !GetFarMeshFlag() ) // Don't keep symmetry plane.
+            if( !GetCfdSettingsPtr()->GetFarMeshFlag() ) // Don't keep symmetry plane.
             {
                 if ( m_SurfVec[s]->GetSymPlaneFlag() == true )
                 {
@@ -4188,25 +4110,25 @@ void CfdMeshMgrSingleton::TestStuff()
 void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 {
     GetGridDensityPtr()->Highlight( GetCurrSource() );
-    GetGridDensityPtr()->Show( m_DrawSourceFlag.Get() );
+    GetGridDensityPtr()->Show( GetCfdSettingsPtr()->m_DrawSourceFlag.Get() );
     GetGridDensityPtr()->LoadDrawObjs( draw_obj_vec );
 
-    m_WakeMgr.Show( m_DrawSourceFlag.Get() );
+    m_WakeMgr.Show( GetCfdSettingsPtr()->m_DrawSourceFlag.Get() );
     m_WakeMgr.LoadDrawObjs( draw_obj_vec );
 
-    if( m_DrawFarPreFlag.Get() && GetFarMeshFlag() )
+    if( GetCfdSettingsPtr()->m_DrawFarPreFlag.Get() && GetCfdSettingsPtr()->GetFarMeshFlag() )
     {
         UpdateBBoxDO( m_Domain );
     }
-    m_BBoxLineStripDO.m_Visible = m_DrawFarPreFlag.Get() && GetFarMeshFlag();
+    m_BBoxLineStripDO.m_Visible = GetCfdSettingsPtr()->m_DrawFarPreFlag.Get() && GetCfdSettingsPtr()->GetFarMeshFlag();
     draw_obj_vec.push_back( &m_BBoxLineStripDO );
-    m_BBoxLinesDO.m_Visible = m_DrawFarPreFlag.Get() && GetFarMeshFlag();
+    m_BBoxLinesDO.m_Visible = GetCfdSettingsPtr()->m_DrawFarPreFlag.Get() && GetCfdSettingsPtr()->GetFarMeshFlag();
     draw_obj_vec.push_back( &m_BBoxLinesDO );
 
     // Render Mesh
     m_MeshTriDO.m_GeomID = GetID() + "TRI";
     m_MeshTriDO.m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
-    m_MeshTriDO.m_Visible = m_DrawMeshFlag.Get();
+    m_MeshTriDO.m_Visible = GetCfdSettingsPtr()->m_DrawMeshFlag.Get();
     m_MeshTriDO.m_LineColor = vec3d( 1, 0, 1 );
 
     vector< vec3d > meshData;
@@ -4216,8 +4138,8 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
         for ( int t = 0 ; t < ( int )m_SurfVec[i]->GetMesh()->GetSimpTriVec().size() ; t++ )
         {
             if ( !m_SurfVec[i]->GetWakeFlag() &&
-                    ( !m_SurfVec[i]->GetFarFlag() || m_DrawFarFlag.Get() ) &&
-                    ( !m_SurfVec[i]->GetSymPlaneFlag() || m_DrawSymmFlag.Get() ) )
+                    ( !m_SurfVec[i]->GetFarFlag() || GetCfdSettingsPtr()->m_DrawFarFlag.Get() ) &&
+                    ( !m_SurfVec[i]->GetSymPlaneFlag() || GetCfdSettingsPtr()->m_DrawSymmFlag.Get() ) )
             {
                 SimpTri* stri = &m_SurfVec[i]->GetMesh()->GetSimpTriVec()[t];
 
@@ -4251,7 +4173,7 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
         sprintf( str, "%s_TAG_%d", GetID().c_str(), cnt );
         m_TagDO[cnt].m_GeomID = string( str );
         m_TagDO[cnt].m_Type = DrawObj::VSP_SHADED_TRIS;
-        m_TagDO[cnt].m_Visible = m_ColorTagsFlag.Get();
+        m_TagDO[cnt].m_Visible = GetCfdSettingsPtr()->m_ColorTagsFlag.Get();
         deg = ( double )cnt / num_tags * 360.0;
         vec3d rgb = m_TagDO[cnt].ColorWheel( deg );
 
@@ -4284,8 +4206,8 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
         for ( int t = 0 ; t < ( int )m_SurfVec[i]->GetMesh()->GetSimpTriVec().size() ; t++ )
         {
             if ( !m_SurfVec[i]->GetWakeFlag() &&
-                    ( !m_SurfVec[i]->GetFarFlag() || m_DrawFarFlag.Get() ) &&
-                    ( !m_SurfVec[i]->GetSymPlaneFlag() || m_DrawSymmFlag.Get() ) )
+                    ( !m_SurfVec[i]->GetFarFlag() || GetCfdSettingsPtr()->m_DrawFarFlag.Get() ) &&
+                    ( !m_SurfVec[i]->GetSymPlaneFlag() || GetCfdSettingsPtr()->m_DrawSymmFlag.Get() ) )
             {
                 SimpTri* stri = &m_SurfVec[i]->GetMesh()->GetSimpTriVec()[t];
                 int tag = SubSurfaceMgr.GetTag( stri->m_Tags );
@@ -4310,7 +4232,7 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     // Render bad edges
     m_MeshBadEdgeDO.m_GeomID = GetID() + "BADEDGE";
     m_MeshBadEdgeDO.m_Type = DrawObj::VSP_LINES;
-    m_MeshBadEdgeDO.m_Visible = m_DrawBadFlag.Get();
+    m_MeshBadEdgeDO.m_Visible = GetCfdSettingsPtr()->m_DrawBadFlag.Get();
     m_MeshBadEdgeDO.m_LineColor = vec3d( 0, 0, 0 );
     m_MeshBadEdgeDO.m_LineWidth = 3.0;
 
@@ -4330,7 +4252,7 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 
     m_MeshBadTriDO.m_GeomID = GetID() + "BADTRI";
     m_MeshBadTriDO.m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
-    m_MeshBadTriDO.m_Visible = m_DrawBadFlag.Get();
+    m_MeshBadTriDO.m_Visible = GetCfdSettingsPtr()->m_DrawBadFlag.Get();
     m_MeshBadTriDO.m_LineColor = vec3d( 0, 0, 0 );
     m_MeshBadTriDO.m_LineWidth = 3.0;
 
@@ -4736,4 +4658,118 @@ void CfdMeshMgrSingleton::SubTagTris()
     }
     SubSurfaceMgr.SetSubSurfTags( m_NumComps );
     SubSurfaceMgr.BuildCompNameMap();
+}
+
+/////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
+
+CfdMeshSettings::CfdMeshSettings() : ParmContainer()
+{
+    m_Vehicle = VehicleMgr::getInstance().GetVehicle();
+
+    m_DrawMeshFlag.Init( "Draw Mesh", "DrawCFD", this, true, 0, 1 );
+    m_DrawSourceFlag.Init( "Draw Source & Wake", "DrawCFD", this, true, 0, 1 );
+    m_DrawFarFlag.Init( "Draw Far Field", "DrawCFD", this, true, 0, 1 );
+    m_DrawFarPreFlag.Init( "Draw Far Field Preview", "DrawCFD", this, true, 0, 1 );
+    m_DrawBadFlag.Init( "Draw Bad Mesh Elements", "DrawCFD", this, true, 0, 1 );
+    m_DrawSymmFlag.Init( "Draw Symmetry Plane", "DrawCFD", this, true, 0, 1 );
+    m_DrawWakeFlag.Init( "Draw Wake", "DrawCFD", this, true, 0, 1 );
+    m_ColorTagsFlag.Init( "Color Tags Flag", "DrawCFD", this, true, 0, 1 );
+
+    m_HalfMeshFlag = false;
+    m_FarCompFlag = false;
+    m_FarMeshFlag = false;
+    m_FarManLocFlag = false;
+    m_FarAbsSizeFlag = false;
+
+    m_FarXScale.Init( "Far X Scale", "FarField", this, 4.0, 1.0, 1.0e12 );
+    m_FarXScale.SetDescript( "Far field X scale" );
+
+    m_FarYScale.Init( "Far Y Scale", "FarField", this, 4.0, 1.0, 1.0e12 );
+    m_FarYScale.SetDescript( "Far field Y scale" );
+
+    m_FarZScale.Init( "Far Z Scale", "FarField", this, 4.0, 1.0, 1.0e12 );
+    m_FarZScale.SetDescript( "Far field Z scale" );
+
+    m_FarXLocation.Init( "Far X Location", "FarField", this, 0.0, -1.0e12, 1.0e12 );
+    m_FarXLocation.SetDescript( "Far field X location" );
+
+    m_FarYLocation.Init( "Far Y Location", "FarField", this, 0.0, -1.0e12, 1.0e12 );
+    m_FarYLocation.SetDescript( "Far field Y location" );
+
+    m_FarZLocation.Init( "Far Z Location", "FarField", this, 0.0, -1.0e12, 1.0e12 );
+    m_FarZLocation.SetDescript( "Far field Z location" );
+
+    m_WakeScale.Init( "Wake Scale", "Wake", this, 2.0, 1.0, 1.0e12 );
+    m_WakeScale.SetDescript( "Wake length scale" );
+
+    m_WakeAngle.Init( "Wake Angle", "Wake", this, 0.0, -90.0, 90.0 );
+    m_WakeAngle.SetDescript( "Wake angle" );
+
+
+    ResetExportFileNames();
+
+    m_ExportFileFlags[ CfdMeshSettings::DAT_FILE_NAME ].Init( "DAT Export", "ExportCFD", this, true, 0, 1 );
+    m_ExportFileFlags[ CfdMeshSettings::KEY_FILE_NAME ].Init( "KEY Export", "ExportCFD", this, true, 0, 1 );
+    m_ExportFileFlags[ CfdMeshSettings::OBJ_FILE_NAME ].Init( "OBJ Export", "ExportCFD", this, true, 0, 1 );
+    m_ExportFileFlags[ CfdMeshSettings::POLY_FILE_NAME ].Init( "POLY Export", "ExportCFD", this, true, 0, 1 );
+    m_ExportFileFlags[ CfdMeshSettings::STL_FILE_NAME ].Init( "STL Export", "ExportCFD", this, true, 0, 1 );
+    m_ExportFileFlags[ CfdMeshSettings::TRI_FILE_NAME ].Init( "TRI Export", "ExportCFD", this, true, 0, 1 );
+    m_ExportFileFlags[ CfdMeshSettings::GMSH_FILE_NAME ].Init( "GMSH Export", "ExportCFD", this, true, 0, 1 );
+    m_ExportFileFlags[ CfdMeshSettings::SRF_FILE_NAME ].Init( "SRF Export", "ExportCFD", this, true, 0, 1 );
+}
+
+CfdMeshSettings::~CfdMeshSettings()
+{
+}
+
+//==== Parm Changed ====//
+void CfdMeshSettings::ParmChanged( Parm* parm_ptr, int type )
+{
+    if ( m_Vehicle )
+    {
+        m_Vehicle->ParmChanged( parm_ptr, Parm::SET );
+    }
+}
+
+string CfdMeshSettings::GetExportFileName( int type )
+{
+    if ( type >= 0 && type < NUM_FILE_NAMES )
+    {
+        return m_ExportFileNames[type];
+    }
+
+    return string();
+}
+
+void CfdMeshSettings::SetExportFileName( const string &fn, int type )
+{
+    if ( type >= 0 && type < NUM_FILE_NAMES )
+    {
+        m_ExportFileNames[type] = fn;
+    }
+}
+
+void CfdMeshSettings::ResetExportFileNames()
+{
+    int pos;
+    const char *suffix[] = {".stl", ".poly", ".tri", ".obj", "_NASCART.dat", "_NASCART.key", ".msh", ".srf"};
+
+    for ( int i = 0 ; i < NUM_FILE_NAMES ; i++ )
+    {
+        m_ExportFileNames[i] = m_Vehicle->GetVSP3FileName();
+        pos = m_ExportFileNames[i].find( ".vsp3" );
+        if ( pos >= 0 )
+        {
+            m_ExportFileNames[i].erase( pos, m_ExportFileNames[i].length() - 1 );
+        }
+        m_ExportFileNames[i].append( suffix[i] );
+    }
+}
+
+BoolParm CfdMeshSettings::GetExportFileFlag( int type )
+{
+    assert( type >= 0 && type < NUM_FILE_NAMES );
+
+    return m_ExportFileFlags[type];
 }
