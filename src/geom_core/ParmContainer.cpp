@@ -71,6 +71,12 @@ void ParmContainer::ChangeID( string id )
 {
     ParmMgr.RemoveParmContainer( this );
 
+    if( LinkMgr.CheckContainerRegistered( m_ID ) )
+    {
+        LinkMgr.UnRegisterContainer( m_ID );
+        LinkMgr.RegisterContainer( id );
+    }
+
     m_ID = id;
 
     for ( int i = 0 ; i < ( int )m_ParmVec.size() ; i++ )
