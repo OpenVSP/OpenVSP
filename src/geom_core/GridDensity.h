@@ -254,6 +254,9 @@ public:
 
     virtual void InitParms();
 
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+
     virtual void ParmChanged( Parm* parm_ptr, int type );
 
     //void ReadFile( const char* filename );

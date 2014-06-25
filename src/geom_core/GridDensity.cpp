@@ -893,6 +893,27 @@ GridDensity::~GridDensity()
     ClearSources();
 }
 
+
+xmlNodePtr GridDensity::EncodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr gridnode = xmlNewChild( node, NULL, BAD_CAST m_Name.c_str(), NULL );
+
+    ParmContainer::EncodeXml( gridnode );
+
+    return gridnode;
+}
+
+xmlNodePtr GridDensity::DecodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr gridnode = XmlUtil::GetNode( node, m_Name.c_str(), 0 );
+    if ( gridnode )
+    {
+        ParmContainer::DecodeXml( gridnode );
+    }
+
+    return gridnode;
+}
+
 void GridDensity::ParmChanged( Parm* parm_ptr, int type )
 {
     MessageMgr::getInstance().Send( "ScreenMgr", "UpdateAllScreens" );
