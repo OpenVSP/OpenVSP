@@ -86,6 +86,26 @@ CfdMeshSettings::~CfdMeshSettings()
 {
 }
 
+xmlNodePtr CfdMeshSettings::EncodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr cfdsetnode = xmlNewChild( node, NULL, BAD_CAST"CfdSettings", NULL );
+
+    ParmContainer::EncodeXml( cfdsetnode );
+
+    return cfdsetnode;
+}
+
+xmlNodePtr CfdMeshSettings::DecodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr cfdsetnode = XmlUtil::GetNode( node, "CfdSettings", 0 );
+    if ( cfdsetnode )
+    {
+        ParmContainer::DecodeXml( cfdsetnode );
+    }
+
+    return cfdsetnode;
+}
+
 //==== Parm Changed ====//
 void CfdMeshSettings::ParmChanged( Parm* parm_ptr, int type )
 {
