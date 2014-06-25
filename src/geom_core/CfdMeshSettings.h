@@ -138,10 +138,13 @@ public:
 
     BoolParm m_ExportFileFlags[NUM_FILE_NAMES];
 
-    string m_ExportFileNames[NUM_FILE_NAMES];
-
-
 protected:
+
+    // These file names do not get written to file.  They are reset each time
+    // the file name is set (save/save as/open).  There is no way to have good
+    // default behavior based on the main file name -- and to use the user-set
+    // file names.
+    string m_ExportFileNames[NUM_FILE_NAMES];
 
 };
 
