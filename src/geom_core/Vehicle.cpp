@@ -110,6 +110,7 @@ void Vehicle::Init()
     }
 
     LinkMgr.RegisterContainer( this->GetID() );
+    LinkMgr.RegisterContainer( m_CfdSettings.GetID() );
     LinkMgr.RegisterContainer( m_CfdGridDensity.GetID() );
     LinkMgr.RegisterContainer( m_FeaGridDensity.GetID() );
 
@@ -983,10 +984,9 @@ xmlNodePtr Vehicle::EncodeXml( xmlNodePtr & node, int set )
 
     LinkMgr.EncodeXml( node );
 
+    m_CfdSettings.EncodeXml( node );
     m_CfdGridDensity.EncodeXml( node );
     m_FeaGridDensity.EncodeXml( node );
-
-//  CdfMeshMgr.EncodeXml( node );
 
     return vehicle_node;
 }
@@ -1028,10 +1028,9 @@ xmlNodePtr Vehicle::DecodeXml( xmlNodePtr & node )
 
     LinkMgr.DecodeXml( node );
 
+    m_CfdSettings.DecodeXml( node );
     m_CfdGridDensity.DecodeXml( node );
     m_FeaGridDensity.DecodeXml( node );
-
-//  CdfMeshMgr.DecodeXml( node );
 
     return vehicle_node;
 }
