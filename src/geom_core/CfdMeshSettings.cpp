@@ -24,53 +24,62 @@
 
 CfdMeshSettings::CfdMeshSettings() : ParmContainer()
 {
-    m_DrawMeshFlag.Init( "Draw Mesh", "DrawCFD", this, true, 0, 1 );
-    m_DrawSourceFlag.Init( "Draw Source & Wake", "DrawCFD", this, true, 0, 1 );
-    m_DrawFarFlag.Init( "Draw Far Field", "DrawCFD", this, true, 0, 1 );
-    m_DrawFarPreFlag.Init( "Draw Far Field Preview", "DrawCFD", this, true, 0, 1 );
-    m_DrawBadFlag.Init( "Draw Bad Mesh Elements", "DrawCFD", this, true, 0, 1 );
-    m_DrawSymmFlag.Init( "Draw Symmetry Plane", "DrawCFD", this, true, 0, 1 );
-    m_DrawWakeFlag.Init( "Draw Wake", "DrawCFD", this, true, 0, 1 );
-    m_ColorTagsFlag.Init( "Color Tags Flag", "DrawCFD", this, true, 0, 1 );
+    m_Name = "CFDMeshSettings";
 
-    m_HalfMeshFlag = false;
-    m_FarCompFlag = false;
-    m_FarMeshFlag = false;
-    m_FarManLocFlag = false;
-    m_FarAbsSizeFlag = false;
+    m_DrawMeshFlag.Init( "DrawMesh", "DrawCFD", this, true, 0, 1 );
+    m_DrawSourceFlag.Init( "DrawSourceWake", "DrawCFD", this, true, 0, 1 );
+    m_DrawFarFlag.Init( "DrawFarField", "DrawCFD", this, true, 0, 1 );
+    m_DrawFarPreFlag.Init( "DrawFarFieldPreview", "DrawCFD", this, true, 0, 1 );
+    m_DrawBadFlag.Init( "DrawBadMeshElements", "DrawCFD", this, true, 0, 1 );
+    m_DrawSymmFlag.Init( "DrawSymmetryPlane", "DrawCFD", this, true, 0, 1 );
+    m_DrawWakeFlag.Init( "DrawWake", "DrawCFD", this, true, 0, 1 );
+    m_ColorTagsFlag.Init( "ColorTagsFlag", "DrawCFD", this, true, 0, 1 );
 
-    m_FarXScale.Init( "Far X Scale", "FarField", this, 4.0, 1.0, 1.0e12 );
+    m_HalfMeshFlag.Init( "HalfMesh", "FarField", this, false, 0, 1 );
+    m_FarCompFlag.Init( "FarComp", "FarField", this, false, 0, 1 );
+    m_FarMeshFlag.Init( "FarMesh", "FarField", this, false, 0, 1 );
+    m_FarManLocFlag.Init( "FarManualLoc", "FarField", this, false, 0, 1 );
+    m_FarAbsSizeFlag.Init( "FarAbsSize", "FarField", this, false, 0, 1 );
+
+    m_FarXScale.Init( "FarXScale", "FarField", this, 4.0, 1.0, 1.0e12 );
     m_FarXScale.SetDescript( "Far field X scale" );
 
-    m_FarYScale.Init( "Far Y Scale", "FarField", this, 4.0, 1.0, 1.0e12 );
+    m_FarYScale.Init( "FarYScale", "FarField", this, 4.0, 1.0, 1.0e12 );
     m_FarYScale.SetDescript( "Far field Y scale" );
 
-    m_FarZScale.Init( "Far Z Scale", "FarField", this, 4.0, 1.0, 1.0e12 );
+    m_FarZScale.Init( "FarZScale", "FarField", this, 4.0, 1.0, 1.0e12 );
     m_FarZScale.SetDescript( "Far field Z scale" );
 
-    m_FarXLocation.Init( "Far X Location", "FarField", this, 0.0, -1.0e12, 1.0e12 );
+    m_FarLength.Init( "FarLength", "FarField", this, 4.0, 1.0, 1.0e12 );
+    m_FarLength.SetDescript( "Far field length" );
+    m_FarWidth.Init( "FarWidth", "FarField", this, 4.0, 1.0, 1.0e12 );
+    m_FarWidth.SetDescript( "Far field width" );
+    m_FarHeight.Init( "FarHeight", "FarField", this, 4.0, 1.0, 1.0e12 );
+    m_FarHeight.SetDescript( "Far field height" );
+
+    m_FarXLocation.Init( "FarXLocation", "FarField", this, 0.0, -1.0e12, 1.0e12 );
     m_FarXLocation.SetDescript( "Far field X location" );
 
-    m_FarYLocation.Init( "Far Y Location", "FarField", this, 0.0, -1.0e12, 1.0e12 );
+    m_FarYLocation.Init( "FarYLocation", "FarField", this, 0.0, -1.0e12, 1.0e12 );
     m_FarYLocation.SetDescript( "Far field Y location" );
 
-    m_FarZLocation.Init( "Far Z Location", "FarField", this, 0.0, -1.0e12, 1.0e12 );
+    m_FarZLocation.Init( "FarZLocation", "FarField", this, 0.0, -1.0e12, 1.0e12 );
     m_FarZLocation.SetDescript( "Far field Z location" );
 
-    m_WakeScale.Init( "Wake Scale", "Wake", this, 2.0, 1.0, 1.0e12 );
+    m_WakeScale.Init( "WakeScale", "Wake", this, 2.0, 1.0, 1.0e12 );
     m_WakeScale.SetDescript( "Wake length scale" );
 
-    m_WakeAngle.Init( "Wake Angle", "Wake", this, 0.0, -90.0, 90.0 );
+    m_WakeAngle.Init( "WakeAngle", "Wake", this, 0.0, -90.0, 90.0 );
     m_WakeAngle.SetDescript( "Wake angle" );
 
-    m_ExportFileFlags[ CfdMeshSettings::DAT_FILE_NAME ].Init( "DAT Export", "ExportCFD", this, true, 0, 1 );
-    m_ExportFileFlags[ CfdMeshSettings::KEY_FILE_NAME ].Init( "KEY Export", "ExportCFD", this, true, 0, 1 );
-    m_ExportFileFlags[ CfdMeshSettings::OBJ_FILE_NAME ].Init( "OBJ Export", "ExportCFD", this, true, 0, 1 );
-    m_ExportFileFlags[ CfdMeshSettings::POLY_FILE_NAME ].Init( "POLY Export", "ExportCFD", this, true, 0, 1 );
-    m_ExportFileFlags[ CfdMeshSettings::STL_FILE_NAME ].Init( "STL Export", "ExportCFD", this, true, 0, 1 );
-    m_ExportFileFlags[ CfdMeshSettings::TRI_FILE_NAME ].Init( "TRI Export", "ExportCFD", this, true, 0, 1 );
-    m_ExportFileFlags[ CfdMeshSettings::GMSH_FILE_NAME ].Init( "GMSH Export", "ExportCFD", this, true, 0, 1 );
-    m_ExportFileFlags[ CfdMeshSettings::SRF_FILE_NAME ].Init( "SRF Export", "ExportCFD", this, true, 0, 1 );
+    m_ExportFileFlags[ DAT_FILE_NAME ].Init( "DAT_Export", "ExportCFD", this, true, 0, 1 );
+    m_ExportFileFlags[ KEY_FILE_NAME ].Init( "KEY_Export", "ExportCFD", this, true, 0, 1 );
+    m_ExportFileFlags[ OBJ_FILE_NAME ].Init( "OBJ_Export", "ExportCFD", this, true, 0, 1 );
+    m_ExportFileFlags[ POLY_FILE_NAME ].Init( "POLY_Export", "ExportCFD", this, true, 0, 1 );
+    m_ExportFileFlags[ STL_FILE_NAME ].Init( "STL_Export", "ExportCFD", this, true, 0, 1 );
+    m_ExportFileFlags[ TRI_FILE_NAME ].Init( "TRI_Export", "ExportCFD", this, true, 0, 1 );
+    m_ExportFileFlags[ GMSH_FILE_NAME ].Init( "GMSH_Export", "ExportCFD", this, true, 0, 1 );
+    m_ExportFileFlags[ SRF_FILE_NAME ].Init( "SRF_Export", "ExportCFD", this, true, 0, 1 );
 }
 
 CfdMeshSettings::~CfdMeshSettings()
