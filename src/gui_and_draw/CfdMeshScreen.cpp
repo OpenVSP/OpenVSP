@@ -379,14 +379,14 @@ bool CfdMeshScreen::Update()
 
     //==== Export Flags ====//
 
-    m_DatToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::DAT_FILE_NAME ).GetID() );
-    m_KeyToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::KEY_FILE_NAME ).GetID() );
-    m_ObjToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::OBJ_FILE_NAME ).GetID() );
-    m_PolyToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::POLY_FILE_NAME ).GetID() );
-    m_StlToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::STL_FILE_NAME ).GetID() );
-    m_TriToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::TRI_FILE_NAME ).GetID() );
-    m_GmshToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::GMSH_FILE_NAME ).GetID() );
-    m_SrfToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::SRF_FILE_NAME ).GetID() );
+    m_DatToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::DAT_FILE_NAME )->GetID() );
+    m_KeyToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::KEY_FILE_NAME )->GetID() );
+    m_ObjToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::OBJ_FILE_NAME )->GetID() );
+    m_PolyToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::POLY_FILE_NAME )->GetID() );
+    m_StlToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::STL_FILE_NAME )->GetID() );
+    m_TriToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::TRI_FILE_NAME )->GetID() );
+    m_GmshToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::GMSH_FILE_NAME )->GetID() );
+    m_SrfToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::SRF_FILE_NAME )->GetID() );
 
     //==== Wake Flag ====//
     if( currGeom )

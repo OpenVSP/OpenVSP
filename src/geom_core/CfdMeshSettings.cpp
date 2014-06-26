@@ -161,9 +161,9 @@ void CfdMeshSettings::ResetExportFileNames( string basename )
     }
 }
 
-BoolParm CfdMeshSettings::GetExportFileFlag( int type )
+BoolParm* CfdMeshSettings::GetExportFileFlag( int type )
 {
     assert( type >= 0 && type < NUM_FILE_NAMES );
 
-    return m_ExportFileFlags[type];
+    return &m_ExportFileFlags[type];
 }
