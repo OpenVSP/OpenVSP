@@ -35,6 +35,8 @@ public:
         m_CfdMeshUI->UIWindow->position( x, y );
     }
 
+    void AddOutputText( const string &text );
+
     void CallBack( Fl_Widget *w );
 
     void parm_changed( Parm* parm )             {}

@@ -573,7 +573,13 @@ void CfdMeshMgrSingleton::CleanUp()
 
 void CfdMeshMgrSingleton::addOutputText( const string &str, int output_type )
 {
-    m_OutStream << str;
+//    m_OutStream << str;
+
+    MessageData data;
+    data.m_String = "CFDMessage";
+    data.m_StringVec.push_back( str );
+    MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+
 
 //        ScreenMgr* screenMgr = m_Vehicle->getScreenMgr();
 //        if ( screenMgr )

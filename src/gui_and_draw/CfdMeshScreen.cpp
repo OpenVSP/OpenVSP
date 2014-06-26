@@ -475,6 +475,14 @@ bool CfdMeshScreen::Update()
     return false;
 }
 
+void CfdMeshScreen::AddOutputText( const string &text )
+{
+		m_TextBuffer.append( text.c_str() );
+		m_CfdMeshUI->outputText->move_down();
+		m_CfdMeshUI->outputText->show_insert_position();
+		Fl::flush();
+}
+
 void CfdMeshScreen::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 {
     CfdMeshMgr.LoadDrawObjs( draw_obj_vec );
