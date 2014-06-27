@@ -15,6 +15,13 @@
 
 using namespace std;
 
+#ifdef _MSC_VER
+#ifndef NAN
+#define INFINITY (DBL_MAX+DBL_MAX)
+#define NAN (INFINITY-INFINITY)
+#endif
+#endif
+
 class Geom;
 
 typedef struct
