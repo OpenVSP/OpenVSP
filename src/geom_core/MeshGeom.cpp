@@ -2485,7 +2485,7 @@ void MeshGeom::MassSliceX( int numSlices )
     //==== Augment ID with index to make symmetric copies unique. ====//
     for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
-        m_TMeshVec[i]->m_PtrID.append( std::to_string( i ) );
+        m_TMeshVec[i]->m_PtrID.append( std::to_string( (long long) i ) );
     }
 
     res->Add( ResData( "Num_Total_Meshes", ( int )m_TMeshVec.size() ) );
@@ -2920,7 +2920,7 @@ void MeshGeom::degenGeomMassSliceX( vector< DegenGeom > &degenGeom )
     //==== Augment ID with index to make symmetric copies unique. ====//
     for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
-        m_TMeshVec[i]->m_PtrID.append( std::to_string( i ) );
+        m_TMeshVec[i]->m_PtrID.append( std::to_string( (long long) i ) );
     }
 
     //==== Create Bnd Box for  Mesh Geoms ====//
