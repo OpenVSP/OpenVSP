@@ -1421,6 +1421,7 @@ void FractParmSlider::Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbu
                             Fl_Button* rbutton, Fl_Input* fract_input, Fl_Input* result_input,
                             double range, const char* format, Fl_Button* parm_button  )
 {
+    GuiDevice::Init( screen );
     m_ParmButtonFlag = false;
     if ( parm_button )
     {
@@ -1503,6 +1504,8 @@ void FractParmSlider::SetValAndLimits( Parm* parm_ptr )
 //==== CallBack ====//
 void FractParmSlider::DeviceCB( Fl_Widget* w )
 {
+    assert( m_Screen );
+
     //==== Set ParmID And Check For Valid ParmPtr ====//
     Parm* parm_ptr = SetParmID( m_ParmID );
     if ( !parm_ptr )
@@ -1575,7 +1578,7 @@ void FractParmSlider::DeviceCB( Fl_Widget* w )
 void StringInput::Init( VspScreen* screen, Fl_Input* input )
 {
     m_Type = GDEV_STRING_INPUT;
-    m_Screen = screen;
+    GuiDevice::Init( screen );
 
     assert( input );
     m_Input = input;
@@ -1619,7 +1622,7 @@ void StringInput::DeviceCB( Fl_Widget* w )
 //=====================================================================//
 void StringOutput::Init( VspScreen* screen, Fl_Output* output )
 {
-    m_Screen = screen;
+    GuiDevice::Init( screen );
 
     assert( output );
     m_Output = output;
@@ -1651,7 +1654,7 @@ IndexSelector::IndexSelector()
 void IndexSelector::Init( VspScreen* screen, Fl_Button* ll_but,  Fl_Button* l_but,
                           Fl_Int_Input* input, Fl_Button* r_but, Fl_Button* rr_but )
 {
-    m_Screen = screen;
+    GuiDevice::Init( screen );
 
     m_LLButton = ll_but;
     m_LButton  = l_but;
@@ -1780,7 +1783,7 @@ ColorPicker::ColorPicker()
 void ColorPicker::Init( VspScreen* screen, Fl_Button* title, Fl_Button* result,
                         vector< Fl_Button* > buttons, Fl_Slider* rgb_sliders[3] )
 {
-    m_Screen = screen;
+    GuiDevice::Init( screen );
     m_Color = vec3d( 0, 0, 255 );
     m_ColorResult = result;
     m_ColorButtons = buttons;
@@ -1903,7 +1906,7 @@ ParmPicker::ParmPicker()
 void ParmPicker::Init( VspScreen* screen, Fl_Choice* container_choice,
                        Fl_Choice* group_choice, Fl_Choice* parm_choice  )
 {
-    m_Screen = screen;
+    GuiDevice::Init( screen );
 
     m_ContainerChoice = container_choice;
     m_GroupChoice = group_choice;
@@ -2018,7 +2021,7 @@ DriverGroupBank::DriverGroupBank()
 
 void DriverGroupBank::Init( VspScreen* screen, vector< vector < Fl_Button* > > buttons, vector< SliderAdjRangeInput* > sliders )
 {
-    m_Screen = screen;
+    GuiDevice::Init( screen );
 
     m_Buttons = buttons;
     m_Sliders = sliders;
@@ -2159,7 +2162,7 @@ void SkinControl::Init( VspScreen* screen,
         Fl_Button* parm_button,
         double range, const char* format)
 {
-    m_Screen = screen;
+    GuiDevice::Init( screen );
 
     m_ContButtonL = contButtonL;
     m_ContButtonR = contButtonR;
@@ -2393,7 +2396,7 @@ GeomPicker::GeomPicker()
 
 void GeomPicker::Init( VspScreen* screen, Fl_Choice* geom_choice )
 {
-    m_Screen = screen;
+    GuiDevice::Init( screen );
 
     m_GeomChoice = geom_choice;
 
