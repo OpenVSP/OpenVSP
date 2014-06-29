@@ -53,7 +53,7 @@ IF( NOT VSP_NO_GRAPHICS )
 		gui_and_draw
 		geom_core
 		geom_api_g
-		cfd_mesh_stuff
+		cfd_mesh
 		triangle
 		load_jpg
 		screens
@@ -86,7 +86,7 @@ IF( NOT VSP_NO_GRAPHICS )
 		gui_interface_g
 		gui_and_draw
 		geom_core
-		cfd_mesh_stuff
+		cfd_mesh
 		triangle
 		util
 		tritri
@@ -116,7 +116,7 @@ apitest_main.cpp
 TARGET_LINK_LIBRARIES(apitest
 	geom_api
 	geom_core
-	cfd_mesh_stuff
+	cfd_mesh
 	triangle
 	xmlvsp
 	sixseries

@@ -62,7 +62,7 @@ ENDIF()
 ADD_SUBDIRECTORY( util )
 ADD_SUBDIRECTORY( xmlvsp )
 ADD_SUBDIRECTORY( geom_core )
-ADD_SUBDIRECTORY( cfd_mesh_stuff )
+ADD_SUBDIRECTORY( cfd_mesh )
 
 IF( NOT VSP_NO_GRAPHICS )
 	ADD_SUBDIRECTORY( gui_and_draw )
