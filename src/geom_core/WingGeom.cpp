@@ -898,13 +898,17 @@ void WingGeom::UpdateSurf()
             double dihead_rot = 0.0;
             if ( m_RotateAirfoilMatchDiedralFlag() )
             {
-                if ( i ==  m_XSecSurf.NumXSec()-1 )
+                if ( i == 0 )
                 {
-                    dihead_rot = -GetSumDihedral( i );
+                    dihead_rot = GetSumDihedral( i+1 );
+                }
+                else if ( i ==  m_XSecSurf.NumXSec()-1 )
+                {
+                    dihead_rot = GetSumDihedral( i );
                 }
                 else
                 {
-                    dihead_rot = -0.5*( GetSumDihedral( i ) + GetSumDihedral( i+1 ) );
+                    dihead_rot = 0.5*( GetSumDihedral( i ) + GetSumDihedral( i+1 ) );
                 }
             }
 
