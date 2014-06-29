@@ -2,8 +2,6 @@
 
 Material::Material()
 {
-    m_Name = "Default";
-
     m_AmbientR.Init("Ambient_R", "Material_Parm", this, 0.2, 0, 1, false);
     m_AmbientG.Init("Ambient_G", "Material_Parm", this, 0.2, 0, 1, false);
     m_AmbientB.Init("Ambient_B", "Material_Parm", this, 0.2, 0, 1, false);

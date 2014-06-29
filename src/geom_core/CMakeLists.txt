@@ -42,6 +42,7 @@ ScriptMgr.cpp
 StackGeom.cpp
 SubSurface.cpp
 SubSurfaceMgr.cpp
+Texture.cpp
 TextureMgr.cpp
 TMesh.cpp
 Vehicle.cpp
@@ -50,10 +51,14 @@ WingGeom.cpp
 XSec.cpp
 XSecCurve.cpp
 XSecSurf.cpp
+Label.cpp
 LabelMgr.cpp
+Light.cpp
 LightMgr.cpp
 Material.cpp
 MaterialMgr.cpp
+Color.cpp
+ColorMgr.cpp
 VspPreferences.cpp
 Airfoil.h
 BlankGeom.h
@@ -80,6 +85,7 @@ StackGeom.h
 SubSurface.h
 SubSurfaceMgr.h
 SWIGDefines.h
+Texture.h
 TextureMgr.h
 TMesh.h
 Vehicle.h
@@ -88,10 +94,14 @@ WingGeom.h
 XSec.h
 XSecCurve.h
 XSecSurf.h
+Label.h
 LabelMgr.h
+Light.h
 LightMgr.h
 Material.h
 MaterialMgr.h
+Color.h
+ColorMgr.h
 VspPreferences.h
 
 )

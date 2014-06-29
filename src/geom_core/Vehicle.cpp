@@ -973,6 +973,12 @@ xmlNodePtr Vehicle::EncodeXml( xmlNodePtr & node, int set )
 {
     xmlNodePtr vehicle_node = xmlNewChild( node, NULL, BAD_CAST"Vehicle", NULL );
 
+    // Encode lighting information.
+    getVGuiDraw()->getLightMgr()->EncodeXml( vehicle_node );
+
+    // Encode label information.
+    getVGuiDraw()->getLabelMgr()->EncodeXml( vehicle_node );
+
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
@@ -996,6 +1002,12 @@ xmlNodePtr Vehicle::DecodeXml( xmlNodePtr & node )
     xmlNodePtr vehicle_node = XmlUtil::GetNode( node, "Vehicle", 0 );
     if ( vehicle_node )
     {
+        // Decode lighting information.
+        getVGuiDraw()->getLightMgr()->DecodeXml( vehicle_node );
+
+        // Decode label information.
+        getVGuiDraw()->getLabelMgr()->DecodeXml( vehicle_node );
+
         int num = XmlUtil::GetNumNames( vehicle_node, "Geom" );
         for ( int i = 0 ; i < num ; i++ )
         {

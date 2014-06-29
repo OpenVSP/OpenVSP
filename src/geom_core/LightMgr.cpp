@@ -1,33 +1,4 @@
 #include "LightMgr.h"
-#include "Vehicle.h"
-#include "VehicleMgr.h"
-
-Light::Light() : ParmContainer()
-{
-    m_Active.Init( "ActiveFlag", "Light_Parm", this, 0, 0, 1, false );
-
-    m_X.Init( "X", "Light_Parm", this, 0, -1.0e12, 1.0e12, false );
-    m_Y.Init( "Y", "Light_Parm", this, 0, -1.0e12, 1.0e12, false );
-    m_Z.Init( "Z", "Light_Parm", this, 0, -1.0e12, 1.0e12, false );
-
-    m_Amb.Init( "Ambient", "Light_Parm", this, 0, 0, 1.0, false );
-    m_Diff.Init( "Diffuse", "Light_Parm", this, 0, 0, 1.0, false );
-    m_Spec.Init( "Specular", "Light_Parm", this, 0, 0, 1.0, false );
-}
-Light::~Light()
-{
-}
-
-void Light::ParmChanged( Parm* parm_ptr, int type )
-{
-    if ( type == Parm::SET )
-    {
-        m_LateUpdateFlag = true;
-        return;
-    }
-
-    VehicleMgr::getInstance().GetVehicle()->ParmChanged( parm_ptr, type );
-}
 
 LightMgr::LightMgr()
 {
@@ -81,4 +52,39 @@ Light * LightMgr::Get( unsigned int index )
 std::vector< Light* > LightMgr::GetVec()
 {
     return m_Lights;
+}
+
+xmlNodePtr LightMgr::EncodeXml( xmlNodePtr node )
+{
+    char lightName[256];
+
+    xmlNodePtr light_root_node = xmlNewChild( node, NULL, BAD_CAST "Lights", NULL );
+    XmlUtil::AddIntNode( light_root_node, "Num_of_Lights", NUMOFLIGHTS );
+
+    for ( int i = 0; i < (int)m_Lights.size(); i++ )
+    {
+        sprintf( lightName, "Light%d", i );
+        xmlNodePtr light_node = xmlNewChild( light_root_node, NULL, BAD_CAST lightName, NULL );
+        m_Lights[i]->EncodeXml( light_node );
+    }
+    return light_root_node;
+}
+
+xmlNodePtr LightMgr::DecodeXml( xmlNodePtr node )
+{
+    char lightName[256];
+
+    xmlNodePtr light_root_node = XmlUtil::GetNode( node, "Lights", 0 );
+
+    int numofLights = XmlUtil::FindInt( light_root_node, "Num_of_Lights", 0 );
+    for ( int i = 0; i < numofLights; i++ )
+    {
+        sprintf( lightName, "Light%d", i );
+        xmlNodePtr light_node = XmlUtil::GetNode( light_root_node, lightName, 0 );
+        if( light_node )
+        {
+            m_Lights[i]->DecodeXml( light_node );
+        }
+    }
+    return light_root_node;
 }
