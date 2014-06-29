@@ -912,9 +912,13 @@ void WingGeom::UpdateSurf()
             ws->m_YDelta = total_span;
             ws->m_XDelta = total_sweep_offset + global_y_offset;
             ws->m_ZDelta = total_dihed_offset;
+
             ws->m_YRotate = total_twist;
             ws->m_XRotate = dihead_rot;
+
             ws->m_XCenterRot = ws->m_XDelta + ws->m_TwistLoc()*ws->m_TipChord();
+            ws->m_YCenterRot = ws->m_YDelta;
+            ws->m_ZCenterRot = ws->m_ZDelta;
 
             crv_vec[i] =  ws->GetCurve();
 
