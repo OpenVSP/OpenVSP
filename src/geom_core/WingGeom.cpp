@@ -524,7 +524,7 @@ WingGeom::WingGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_Closed = false;
 
     m_XSecSurf.SetParentContainer( GetID() );
-    m_XSecSurf.SetBasicOrientation( vsp::Y_DIR, X_DIR, XS_SHIFT_MID, true );
+    m_XSecSurf.SetBasicOrientation( vsp::Y_DIR, X_DIR, XS_SHIFT_LE, true );
 
     m_RelativeDihedralFlag.Init("RelativeDihedralFlag", m_Name, this, 0, 0, 1, false );
     m_RelativeDihedralFlag.SetDescript( "Relative or Absolute Dihedral" );
@@ -863,7 +863,7 @@ void WingGeom::UpdateSurf()
             double ty = rad*cos(GetSumDihedral(i)*DEG_2_RAD);
             double tz = rad*sin(GetSumDihedral(i)*DEG_2_RAD);
 
-            double tan_le  = ws->GetTanSweepAt( ws->m_Sweep(), 0.5 );
+            double tan_le  = ws->GetTanSweepAt( ws->m_Sweep(), 0.0 );
             double toff    = tan_le*rad;                    // Tip X Offset
 
             if ( i == 0 )
@@ -871,7 +871,7 @@ void WingGeom::UpdateSurf()
                 ty = 0;
                 tz = 0;
                 toff = 0;
-                global_y_offset = 0.5*ws->m_TipChord();
+                global_y_offset = 0.0*ws->m_TipChord();
             }
 
             total_dihed_offset += tz;
@@ -914,7 +914,7 @@ void WingGeom::UpdateSurf()
             ws->m_ZDelta = total_dihed_offset;
             ws->m_YRotate = total_twist;
             ws->m_XRotate = dihead_rot;
-            ws->m_XCenterRot = ws->m_TwistLoc()*ws->m_TipChord();
+            ws->m_XCenterRot = ws->m_XDelta + ws->m_TwistLoc()*ws->m_TipChord();
 
             crv_vec[i] =  ws->GetCurve();
 
