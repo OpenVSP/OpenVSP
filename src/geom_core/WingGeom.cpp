@@ -850,7 +850,6 @@ void WingGeom::UpdateSurf()
     double total_sweep_offset = 0.0;
     double total_dihed_offset = 0.0;
     double total_twist = 0.0;
-    double global_y_offset = 0;
 
     //==== Load End Points for Each Section ====//
     for ( int i = 0 ; i < m_XSecSurf.NumXSec() ; i++ )
@@ -871,7 +870,6 @@ void WingGeom::UpdateSurf()
                 ty = 0;
                 tz = 0;
                 toff = 0;
-                global_y_offset = 0.0*ws->m_TipChord();
             }
 
             total_dihed_offset += tz;
@@ -914,7 +912,7 @@ void WingGeom::UpdateSurf()
 
             //==== Load Transformations =====//
             ws->m_YDelta = total_span;
-            ws->m_XDelta = total_sweep_offset + global_y_offset;
+            ws->m_XDelta = total_sweep_offset;
             ws->m_ZDelta = total_dihed_offset;
 
             ws->m_YRotate = total_twist;
