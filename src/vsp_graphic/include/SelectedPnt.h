@@ -32,6 +32,10 @@ public:
 
 protected:
     /*!
+    * Override SelectedGeom.
+    */
+    virtual void _predraw();
+    /*!
     * Overrides SelectedGeom.
     */
     virtual void _draw();
