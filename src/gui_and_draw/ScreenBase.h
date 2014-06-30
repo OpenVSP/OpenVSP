@@ -46,6 +46,12 @@ public:
         static_cast< VspScreen* >( data )->CallBack( w );
     }
 
+    virtual void CloseCallBack( Fl_Widget *w )          {}
+    static void staticCloseCB( Fl_Widget *w, void* data )
+    {
+        static_cast< VspScreen* >( data )->CloseCallBack( w );
+    }
+
     virtual void SetFlWindow( Fl_Double_Window* win )
     {
         m_FLTK_Window = win;
