@@ -690,6 +690,7 @@ void MeshGeom::BuildNascartMesh( int partOffset )
     }
     m_NascartTriVec = goodTriVec;
 
+    Update();
 }
 
 void MeshGeom::WriteNascartPnts( FILE* fp )
