@@ -27,6 +27,8 @@ Scene::Scene()
     _toPick = false;
     _toSelectLoc = false;
 
+    _showSelection = true;
+
     _highlighted = NULL;
 }
 Scene::~Scene()
@@ -266,9 +268,53 @@ bool Scene::selectLocation(double x, double y, double z)
     return false;
 }
 
+void Scene::selectAll(PickablePnts * target)
+{
+    // Select all points on target.
+    std::vector<glm::vec3> pnts = target->getAllPnts();
+    for(int i = 0; i < (int)pnts.size(); i++)
+    {
+        SelectedPnt * selected = new SelectedPnt(target->getSource(), i);
+        selected->setGroup(target->getGroup());
+
+        _selections.push_back(selected);
+    }
+}
+
+void Scene::unselectAll()
+{
+    for(int i = 0; i < (int)_selections.size(); i++)
+    {
+        delete _selections[i];
+    }
+    _selections.clear();
+}
+
 Selectable * Scene::getLastSelected()
 {
     return _selections[_selections.size() - 1];
+}
+
+void Scene::removeLastSelected()
+{
+    if ( !_selections.empty() )
+    {
+        delete _selections[_selections.size() - 1];
+        _selections.pop_back();
+    }
+}
+
+void Scene::removeSelected(Selectable* selected)
+{
+    for(int i = 0; i < (int)_selections.size(); i++)
+    {
+        if(_selections[i] == selected)
+        {
+            delete _selections[i];
+            _selections.erase(_selections.begin() + i);
+            return;
+        }
+    }
 }
 
 Selectable * Scene::getLastSelected(std::string group)
@@ -362,7 +408,7 @@ void Scene::_updateFlags()
         }
     }
 
-    // Check if scene list has pickable objects or not.  If there are non,
+    // Check if scene list has pickable objects or not.  If there are none,
     // disable picking.
     for(int i = 0; i < (int)_sceneList.size(); i++)
     {
@@ -383,6 +429,11 @@ void Scene::predraw()
     for(int i = 0; i < (int)_sceneList.size(); i++)
     {
         _sceneList[i]->predraw();
+    }
+
+    for(int i = 0; i < (int)_selections.size(); i++)
+    {
+        _selections[i]->predraw();
     }
 }
 
@@ -408,9 +459,12 @@ void Scene::draw()
     }
 
     // Draw selection points.
-    for(int i = 0; i < (int)_selections.size(); i++)
+    if(_showSelection)
     {
-        _selections[i]->draw();
+        for(int i = 0; i < (int)_selections.size(); i++)
+        {
+            _selections[i]->draw();
+        }
     }
 
     // Draw transparent entities.
@@ -420,5 +474,15 @@ void Scene::draw()
         alphaList[i]->draw();
     }
     glDepthMask( GL_TRUE );
+}
+
+void Scene::showSelection()
+{
+    _showSelection = true;
+}
+
+void Scene::hideSelection()
+{
+    _showSelection = false;
 }
 }

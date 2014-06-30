@@ -11,6 +11,7 @@ namespace VSPGraphic
 class Lighting;
 class Selectable;
 class Pickable;
+class PickablePnts;
 class Renderable;
 class SceneObject;
 
@@ -79,11 +80,35 @@ public:
     */
     virtual bool selectLocation(double x, double y, double z);
 
+    /*!
+    * Select all vertices from a pickable target.
+    */
+    virtual void selectAll(PickablePnts * target);
+
+    /*!
+    * Unselect all.
+    */
+    virtual void unselectAll();
+
+    /*!
+    * Hide all selected.
+    */
+    virtual void hideSelection();
+
+    /*!
+    * Display selected.
+    */
+    virtual void showSelection();
+
 public:
     /*!
     * Get last selected Object.
     */
     virtual Selectable * getLastSelected();
+    /*!
+    * Remove last selected Object.
+    */
+    virtual void removeLastSelected();
     /*!
     * Get last Selectable Object with a specific group name.
     */
@@ -92,6 +117,10 @@ public:
     * Get all Selectable Objects with a specific group name.
     */
     virtual std::vector<Selectable*> getSelected(std::string group);
+    /*!
+    * Remove target Selectable from selection.
+    */
+    virtual void removeSelected(Selectable * selected);
 
 public:
     /*!
@@ -130,6 +159,8 @@ private:
 
     bool _toPick;
     bool _toSelectLoc;
+
+    bool _showSelection;
 
     Pickable * _highlighted;
 };
