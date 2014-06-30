@@ -12,6 +12,7 @@
 #include "SceneObject.h"
 #include "Renderable.h"
 #include "Pickable.h"
+#include "PickablePnts.h"
 #include "Lighting.h"
 #include "Image.h"
 #include "Texture2D.h"
@@ -27,6 +28,7 @@
 #include "ManageCORScreen.h"
 #include "Common.h"
 #include "GraphicSingletons.h"
+#include "Selectable.h"
 #include "SelectedPnt.h"
 #include "SelectedLoc.h"
 #include "Material.h"
@@ -253,6 +255,7 @@ void VspGlWindow::update()
             geomScreen->LoadDrawObjs( drawObjs );
         }
 
+        // Load Render Objects from corScreen ( Center of Rotation ).
         ManageCORScreen * corScreen = dynamic_cast< ManageCORScreen* >
             ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_COR_SCREEN ) );
         if( corScreen )
@@ -285,7 +288,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
     // Check for changes in DrawObjs and adjust accordingly.
     _updateBuffer( objects );
 
-    // Process all renderable first, then all labels, lastly pickables.  Order matters.
+    // Process all geometry renderable first, then all labels, pickables, lastly the markers.  Order matters.
     for( int i = 0; i < (int)objects.size(); i++ )
     {
         // If this DrawObj is aimed for other screen, ignore.
@@ -326,7 +329,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
             _setLighting( objects[i] );
             break;
 
-        case DrawObj::VSP_LINES:
+        case DrawObj::VSP_POINTS:
             // Create new scene object if needed.
             if( id == 0xFFFFFFFF )
             {
@@ -343,11 +346,38 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
             if( rObj )
             {
                 rObj->setVisibility( objects[i]->m_Visible );
+                rObj->setPrimType( VSPGraphic::Common::VSP_POINTS );
+                rObj->setPointColor( objects[i]->m_PointColor.x(),
+                    objects[i]->m_PointColor.y(), objects[i]->m_PointColor.z() );
+                rObj->setPointSize( objects[i]->m_PointSize );
+
+                // Update buffer data if needed.
+                if( objects[i]->m_GeomChanged )
+                {
+                    _loadMarkData( rObj, objects[i] );
+                }
+            }
+            break;
+
+        case DrawObj::VSP_LINES:
+            if( id == 0xFFFFFFFF )
+            {
+                m_GEngine->getScene()->createObject( Common::VSP_OBJECT_MARKER, &id );
+
+                ID idInfo;
+                idInfo.bufferID = id;
+                idInfo.geomID = objects[i]->m_GeomID;
+                m_ids.push_back( idInfo );
+            }
+
+            rObj = dynamic_cast<Renderable*> ( m_GEngine->getScene()->getObject( id ) );
+            if( rObj )
+            {
+                rObj->setVisibility( objects[i]->m_Visible );
                 rObj->setPrimType( VSPGraphic::Common::VSP_LINES );
                 rObj->setLineColor( red, green, blue );
                 rObj->setLineWidth( lineWidth );
 
-                // Update buffer data if needed.
                 if( objects[i]->m_GeomChanged )
                 {
                     _loadMarkData( rObj, objects[i] );
@@ -405,6 +435,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
             break;
 
         case DrawObj::VSP_WIRE_MESH:
+            // Create new scene object if needed.
             if( id == 0xFFFFFFFF )
             {
                 m_GEngine->getScene()->createObject( Common::VSP_OBJECT_XSEC_ENTITY, &id );
@@ -417,6 +448,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
             eObj = dynamic_cast<Entity*> ( m_GEngine->getScene()->getObject( id ) );
             if( eObj )
             {
+                // Update scene object.
                 eObj->setVisibility( objects[i]->m_Visible );
                 eObj->setPrimType( Common::VSP_QUADS );
                 eObj->setRenderStyle( Common::VSP_DRAW_WIRE_FRAME );
@@ -728,6 +760,11 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
     }
 
     // Now process all pickables.  Order matters.
+
+    // Reset flag to show all selections.  This prevents selections from permanently hidden
+    // due to misuse of VSP_PICK_VERTEX_HIDE_SELECTION object.
+    m_GEngine->getScene()->showSelection();
+
     for( int i = 0; i < ( int )objects.size(); i++ )
     {
         // If this DrawObj is aimed for other screen, ignore.
@@ -748,9 +785,14 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
         }
 
         Pickable * pObj;
+        PickablePnts * ppntObj;
 
         switch( objects[i]->m_Type )
         {
+        case DrawObj::VSP_PICK_VERTEX_HIDE_SELECTION:
+            m_GEngine->getScene()->hideSelection();
+            break;
+
         case DrawObj::VSP_PICK_GEOM:
             if( id == 0xFFFFFFFF )
             {
@@ -768,6 +810,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
             pObj = dynamic_cast<Pickable*> ( m_GEngine->getScene()->getObject( id ) );
             if( pObj )
             {
+                pObj->setVisibility( objects[i]->m_Visible );
                 pObj->setGroup( objects[i]->m_FeedbackGroup );
                 pObj->update();
             }
@@ -787,12 +830,49 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
                     m_ids.push_back( idInfo );
                 }
             }
-            pObj = dynamic_cast<Pickable*> ( m_GEngine->getScene()->getObject( id ) );
-            if( pObj )
+            ppntObj = dynamic_cast<PickablePnts*> ( m_GEngine->getScene()->getObject( id ) );
+            if( ppntObj )
             {
-                pObj->setGroup( objects[i]->m_FeedbackGroup );
-                pObj->update();
+                ppntObj->setVisibility( objects[i]->m_Visible );
+                ppntObj->setGroup( objects[i]->m_FeedbackGroup );
+                ppntObj->setPointSize( objects[i]->m_PointSize );
+                ppntObj->update();
             }
+            break;
+
+        case DrawObj::VSP_PICK_VERTEX_SELECT_ALL:
+            if( id == 0xFFFFFFFF )
+            {
+                ID * sourceId = _findID( objects[i]->m_PickSourceID );
+                if(sourceId)
+                {
+                    m_GEngine->getScene()->createObject( Common::VSP_OBJECT_PICK_VERTEX, &id, sourceId->bufferID );
+
+                    ID idInfo;
+                    idInfo.bufferID = id;
+                    idInfo.geomID = objects[i]->m_GeomID;
+                    m_ids.push_back( idInfo );
+                }
+            }
+            ppntObj = dynamic_cast<PickablePnts*> ( m_GEngine->getScene()->getObject( id ) );
+            if( ppntObj )
+            {
+                ppntObj->setVisibility( objects[i]->m_Visible );
+                ppntObj->setGroup( objects[i]->m_FeedbackGroup );
+                ppntObj->setPointSize( objects[i]->m_PointSize );
+                ppntObj->update();
+
+                // Select all points from Pickable.
+                m_GEngine->getScene()->selectAll( ppntObj );
+
+                // Send feedback back to GUI.
+                std::string feedbackGroupName = m_GEngine->getScene()->getLastSelected()->getGroup();
+                _sendFeedback( m_GEngine->getScene()->getSelected( feedbackGroupName ) );
+            }
+            break;
+
+        case DrawObj::VSP_PICK_VERTEX_UNSELECT_ALL:
+            m_GEngine->getScene()->unselectAll();
             break;
 
         case DrawObj::VSP_PICK_LOCATION:
@@ -808,8 +888,148 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
             pObj = dynamic_cast<Pickable*> ( m_GEngine->getScene()->getObject( id ) );
             if( pObj )
             {
+                pObj->setVisibility( objects[i]->m_Visible );
                 pObj->setGroup( objects[i]->m_FeedbackGroup );
                 pObj->update();
+            }
+            break;
+        }
+    }
+
+    // Now process all markers.  Order matters.
+    for( int i = 0; i < ( int )objects.size(); i++ )
+    {
+        // If this DrawObj is aimed for other screen, ignore.
+        if( objects[i]->m_Screen != m_LinkedScreen )
+        {
+            continue;
+        }
+
+        // Load Settings.
+        float red, green, blue;
+        float lineWidth;
+
+        red = ( float )objects[i]->m_LineColor.x();
+        green = ( float )objects[i]->m_LineColor.y();
+        blue = ( float )objects[i]->m_LineColor.z();
+
+        lineWidth = ( float )objects[i]->m_LineWidth;
+
+        unsigned int id;
+        ID * idPtr = _findID( objects[i]->m_GeomID );
+        if( idPtr )
+        {
+            id = idPtr->bufferID;
+        }
+        else
+        {
+            id = 0xFFFFFFFF;
+        }
+
+        Renderable * rObj;
+
+        switch( objects[i]->m_Type )
+        {
+        case DrawObj::VSP_POINTS:
+            if( id == 0xFFFFFFFF )
+            {
+                m_GEngine->getScene()->createObject( Common::VSP_OBJECT_MARKER, &id );
+
+                ID idInfo;
+                idInfo.bufferID = id;
+                idInfo.geomID = objects[i]->m_GeomID;
+                m_ids.push_back( idInfo );
+            }
+
+            rObj = dynamic_cast<Renderable*> ( m_GEngine->getScene()->getObject( id ) );
+            if( rObj )
+            {
+                rObj->setVisibility( objects[i]->m_Visible );
+                rObj->setPrimType( VSPGraphic::Common::VSP_POINTS );
+                rObj->setPointColor( objects[i]->m_PointColor.x(),
+                    objects[i]->m_PointColor.y(), objects[i]->m_PointColor.z() );
+                rObj->setPointSize( objects[i]->m_PointSize );
+
+                // Update buffer data if needed.
+                if( objects[i]->m_GeomChanged )
+                {
+                    _loadMarkData( rObj, objects[i] );
+                }
+            }
+            break;
+
+        case DrawObj::VSP_LINES:
+            if( id == 0xFFFFFFFF )
+            {
+                m_GEngine->getScene()->createObject( Common::VSP_OBJECT_MARKER, &id );
+
+                ID idInfo;
+                idInfo.bufferID = id;
+                idInfo.geomID = objects[i]->m_GeomID;
+                m_ids.push_back( idInfo );
+            }
+
+            rObj = dynamic_cast<Renderable*> ( m_GEngine->getScene()->getObject( id ) );
+            if( rObj )
+            {
+                rObj->setVisibility( objects[i]->m_Visible );
+                rObj->setPrimType( VSPGraphic::Common::VSP_LINES );
+                rObj->setLineColor( red, green, blue );
+                rObj->setLineWidth( lineWidth );
+
+                if( objects[i]->m_GeomChanged )
+                {
+                    _loadMarkData( rObj, objects[i] );
+                }
+            }
+            break;
+
+        case DrawObj::VSP_LINE_LOOP:
+            if( id == 0xFFFFFFFF )
+            {
+                m_GEngine->getScene()->createObject( Common::VSP_OBJECT_MARKER, &id );
+
+                ID idInfo;
+                idInfo.bufferID = id;
+                idInfo.geomID = objects[i]->m_GeomID;
+                m_ids.push_back( idInfo );
+            }
+            rObj = dynamic_cast<Renderable*> ( m_GEngine->getScene()->getObject( id ) );
+            if( rObj )
+            {
+                rObj->setVisibility( objects[i]->m_Visible );
+                rObj->setLineColor( red, green, blue );
+                rObj->setLineWidth( lineWidth );
+
+                if( objects[i]->m_GeomChanged )
+                {
+                    _loadMarkData( rObj, objects[i] );
+                }
+            }
+            break;
+
+        case DrawObj::VSP_LINE_STRIP:
+            if( id == 0xFFFFFFFF )
+            {
+                m_GEngine->getScene()->createObject( Common::VSP_OBJECT_MARKER, &id );
+
+                ID idInfo;
+                idInfo.bufferID = id;
+                idInfo.geomID = objects[i]->m_GeomID;
+                m_ids.push_back( idInfo );
+            }
+            rObj = dynamic_cast<Renderable*> ( m_GEngine->getScene()->getObject( id ) );
+            if( rObj )
+            {
+                rObj->setVisibility( objects[i]->m_Visible );
+                rObj->setPrimType( VSPGraphic::Common::VSP_LINE_STRIP );
+                rObj->setLineColor( red, green, blue );
+                rObj->setLineWidth( lineWidth );
+
+                if( objects[i]->m_GeomChanged )
+                {
+                    _loadMarkData( rObj, objects[i] );
+                }
             }
             break;
         }
@@ -1235,103 +1455,27 @@ void VspGlWindow::OnPush( int x, int y )
             // LB
             glm::vec3 mouseInWorld = glm::vec3( 0xFFFFFFFF );
 
+            // Getting mouse location in world space.  This is for selectLocation().
             Viewport * vp = m_GEngine->getDisplay()->getViewport();
             if( vp )
             {
                 mouseInWorld = vp->screenToWorld( glm::vec2( m_mouse_x, m_mouse_y ) );
             }
 
+            // Select highlighted.
             if( m_GEngine->getScene()->selectHighlight() )
             {
                 Selectable * selected = m_GEngine->getScene()->getLastSelected();
-                std::string selectedFeedbackName = selected->getGroup();
-
-                ManageLabelScreen * labelScreen = dynamic_cast<ManageLabelScreen*>
-                    ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_LABEL_SCREEN ) );
-
-                if( labelScreen && labelScreen->getFeedbackGroupName() == selectedFeedbackName )
-                {
-                    // Cast selectable to SelectedPnt object, so that we can get Render Source Ptr.
-                    SelectedPnt * pnt = dynamic_cast<SelectedPnt*>( selected );
-                    if( pnt )
-                    {
-                        XSecEntity * xEntity = dynamic_cast<XSecEntity*>(pnt->getSource());
-                        if(xEntity)
-                        {
-                            ID * id = _findID( xEntity->getID() );
-                            if( id )
-                            {
-                                int index = id->geomID.find_last_of( '_' );
-                                std::string baseId = id->geomID.substr( 0, index );
-                                glm::vec3 placement = xEntity->getVertexVec(pnt->getIndex());
-                                labelScreen->Set( vec3d( placement.x, placement.y, placement.z ), baseId );
-                            }
-                        }
-                    }
-                }
-
-                ManageGeomScreen * geomScreen = dynamic_cast<ManageGeomScreen *>
-                    ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_MANAGE_GEOM_SCREEN ) );
-
-                if( geomScreen && geomScreen->getFeedbackGroupName() == selectedFeedbackName )
-                {
-                    SelectedGeom * geom = dynamic_cast<SelectedGeom*>( selected );
-                    if( geom )
-                    {
-                        ID * id = _findID( geom->getSource()->getID() );
-                        if( id )
-                        {
-                            int index = id->geomID.find_last_of( '_' );
-                            std::string baseId = id->geomID.substr( 0, index );
-                            geomScreen->Set( baseId );
-                        }
-                    }
-                    // Mac Fix:  On Mac, FLTK window is always focus on the last shown GUI.  In 
-                    // this case where a geometry is selected, geometry's window becomes the new
-                    // focus.  The behavior locks up geometry selection process.  Set OpenGL 
-                    // window back on focus so user can proceed without interruption.
-                    focus(this);
-                }
-
-                ManageCORScreen * corScreen = dynamic_cast<ManageCORScreen*>
-                    ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_COR_SCREEN ) );
-
-                if( corScreen && corScreen->getFeedbackGroupName() == selectedFeedbackName )
-                {
-                    SelectedPnt * pnt = dynamic_cast<SelectedPnt*>( selected );
-                    if( pnt )
-                    {
-                        XSecEntity * xEntity = dynamic_cast<XSecEntity*>(pnt->getSource());
-                        if(xEntity)
-                        {
-                            glm::vec3 placement = xEntity->getVertexVec(pnt->getIndex());
-                            
-                            display->setCOR( -placement.x, -placement.y, -placement.z );
-                            display->center();
-
-                            // This is a dummy call to let corScreen know the job is done.
-                            corScreen->Set( vec3d( placement.x, placement.y, placement.z ) );
-                        }
-                    }
-                }
+                _sendFeedback( selected );
             }
+            // Select location in world.
             else if( mouseInWorld != glm::vec3( 0xFFFFFFFF ) && 
                 m_GEngine->getScene()->selectLocation( mouseInWorld.x, mouseInWorld.y, mouseInWorld.z ) )
             {
-                ManageLabelScreen * labelScreen = dynamic_cast<ManageLabelScreen*>
-                    ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_LABEL_SCREEN ) );
-
-                if( labelScreen )
-                {
-                    SelectedLoc * loc = dynamic_cast<SelectedLoc*>
-                        ( m_GEngine->getScene()->getLastSelected() );
-                    if( loc )
-                    {
-                        glm::vec3 placement = loc->getLoc();
-                        labelScreen->Set( vec3d(placement.x, placement.y, placement.z ) );
-                    }
-                }
+                Selectable * selected = m_GEngine->getScene()->getLastSelected();
+                _sendFeedback( selected );
             }
+            // Rotation.
             else
             {
                 m_prevLB = glm::vec2( x, y );
@@ -1639,4 +1783,115 @@ void VspGlWindow::OnKeydown()
     }
     redraw();
 }
+
+void VspGlWindow::_sendFeedback( Selectable * selected )
+{
+    // Find out where feedback is heading...
+    std::string selectedFeedbackName = selected->getGroup();
+
+    // Label Screen Feedback
+    ManageLabelScreen * labelScreen = dynamic_cast<ManageLabelScreen*>
+        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_LABEL_SCREEN ) );
+
+    if( labelScreen && labelScreen->getFeedbackGroupName() == selectedFeedbackName )
+    {
+        // Location feedback
+        SelectedLoc * loc = dynamic_cast<SelectedLoc*> ( selected );
+        if( loc )
+        {
+            glm::vec3 placement = loc->getLoc();
+            labelScreen->Set( vec3d(placement.x, placement.y, placement.z ) );
+
+            // Only one selection is needed for label, remove this 'selected' from selection list.
+            m_GEngine->getScene()->removeSelected( selected );
+            selected = NULL;
+        }
+
+        // Vertex feedback
+        // Cast selectable to SelectedPnt object, so that we can get Render Source Ptr.
+        SelectedPnt * pnt = dynamic_cast<SelectedPnt*>( selected );
+        if( pnt )
+        {
+            XSecEntity * xEntity = dynamic_cast<XSecEntity*>(pnt->getSource());
+            if(xEntity)
+            {
+                ID * id = _findID( xEntity->getID() );
+                if( id )
+                {
+                    int index = id->geomID.find_last_of( '_' );
+                    std::string baseId = id->geomID.substr( 0, index );
+                    glm::vec3 placement = xEntity->getVertexVec(pnt->getIndex());
+                    labelScreen->Set( vec3d( placement.x, placement.y, placement.z ), baseId );
+
+                    // Only one selection is needed for label, remove this 'selected' from selection list.
+                    m_GEngine->getScene()->removeSelected( selected );
+                    selected = NULL;
+                }
+            }
+        }
+    }
+
+    // Geom Screen Feedback
+    ManageGeomScreen * geomScreen = dynamic_cast<ManageGeomScreen *>
+        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_MANAGE_GEOM_SCREEN ) );
+
+    if( geomScreen && geomScreen->getFeedbackGroupName() == selectedFeedbackName )
+    {
+        SelectedGeom * geom = dynamic_cast<SelectedGeom*>( selected );
+        if( geom )
+        {
+            ID * id = _findID( geom->getSource()->getID() );
+            if( id )
+            {
+                int index = id->geomID.find_last_of( '_' );
+                std::string baseId = id->geomID.substr( 0, index );
+                geomScreen->Set( baseId );
+
+                // Only one selection is needed for Geom, remove this 'selected' from selection list.
+                m_GEngine->getScene()->removeSelected( selected );
+                selected = NULL;
+            }
+        }
+        // Mac Fix:  On Mac, FLTK window is always focus on the last shown GUI.  In
+        // this case where a geometry is selected, geometry's window becomes the new
+        // focus.  The behavior locks up geometry selection process.  Set OpenGL
+        // window back on focus so user can proceed without interruption.
+        focus(this);
+    }
+
+    // Center of rotation Screen Feedback
+    ManageCORScreen * corScreen = dynamic_cast<ManageCORScreen*>
+        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_COR_SCREEN ) );
+
+    if( corScreen && corScreen->getFeedbackGroupName() == selectedFeedbackName )
+    {
+        SelectedPnt * pnt = dynamic_cast<SelectedPnt*>( selected );
+        if( pnt )
+        {
+            Entity * entity = dynamic_cast<Entity*>(pnt->getSource());
+            if(entity)
+            {
+                glm::vec3 placement = entity->getVertexVec(pnt->getIndex());
+
+                m_GEngine->getDisplay()->setCOR( -placement.x, -placement.y, -placement.z );
+                m_GEngine->getDisplay()->center();
+
+                // This is a dummy call to let corScreen know the job is done.
+                corScreen->Set( vec3d( placement.x, placement.y, placement.z ) );
+
+                // Only one selection is needed for Center of Rotation, remove this 'selected' from selection list.
+                m_GEngine->getScene()->removeSelected( selected );
+                selected = NULL;
+            }
+        }
+    }
 }
+
+void VspGlWindow::_sendFeedback( std::vector<Selectable *> listOfSelected )
+{
+    for ( int i = 0; i < (int) listOfSelected.size(); i++ )
+    {
+        _sendFeedback( listOfSelected[i] );
+    }
+}
+} // Close out namespace VSPGUI

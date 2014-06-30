@@ -17,6 +17,7 @@ namespace VSPGraphic
 {
 class GraphicEngine;
 class Renderable;
+class Selectable;
 }
 
 class ScreenMgr;
@@ -107,6 +108,9 @@ private:
     ID * _findID( unsigned int bufferID );
 
     void _updateBuffer( std::vector<DrawObj *> objects );
+
+    void _sendFeedback( VSPGraphic::Selectable * selected );
+    void _sendFeedback( std::vector<VSPGraphic::Selectable *> listOfSelected );
 
     std::vector<std::vector<vec3d>> _generateTexCoordFromXSec( DrawObj * drawObj );
     double _distance( vec3d pointA, vec3d pointB );
