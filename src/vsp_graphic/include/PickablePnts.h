@@ -50,6 +50,10 @@ public:
     * Adjust the range of picking.
     */
 	void setPickRange(float range);
+    /*!
+    * Adjust the size of point.
+    */
+    void setPointSize(float size);
 
 protected:
     /*!
@@ -64,6 +68,7 @@ protected:
 private:
 	float _pickRange;
 	unsigned int _highlightedId;
+    float _pointSize;
 };
 }
 #endif
