@@ -43,6 +43,18 @@ unsigned int PickablePnts::getIndex()
 	return _highlightedId - _colorIndexRange.start;
 }
 
+std::vector<glm::vec3> PickablePnts::getAllPnts()
+{
+    std::vector<glm::vec3> vertList;
+    int numOfVert = _rSource->getVBuffer()->getVertexSize();
+
+    for(int i = 0; i < numOfVert; i++)
+    {
+        vertList.push_back(_rSource->getVertexVec(i));
+    }
+    return vertList;
+}
+
 void PickablePnts::update()
 {
 	_genColorBlock(false);
