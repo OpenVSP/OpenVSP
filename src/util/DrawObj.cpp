@@ -30,7 +30,7 @@ DrawObj::DrawObj()
     m_LineWidth = 1.0;
     m_LineColor = vec3d( 0, 0, 1 );
 
-    m_PointSize = 5.0;
+    m_PointSize = 10.0;
     m_PointColor = vec3d( 1, 0, 0 );
 
     m_Priority = 0;
