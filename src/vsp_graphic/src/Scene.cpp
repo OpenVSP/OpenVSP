@@ -12,6 +12,7 @@
 #include "SelectedPnt.h"
 #include "SelectedLoc.h"
 #include "Lighting.h"
+#include "Clipping.h"
 #include "ByteOperationUtil.h"
 #include "XSecEntity.h"
 #include "CfdEntity.h"
@@ -24,6 +25,8 @@ Scene::Scene()
 {
     _lights = new Lighting();
 
+    _clip = new Clipping();
+
     _toPick = false;
     _toSelectLoc = false;
 
@@ -34,6 +37,7 @@ Scene::Scene()
 Scene::~Scene()
 {
     delete _lights;
+    delete _clip;
 
     // Clean Scene Objects.
     for(int i = 0; i < (int)_sceneList.size(); i++)
@@ -171,6 +175,11 @@ SceneObject * Scene::getObject(unsigned int id)
 Lighting * Scene::getLights()
 {
     return _lights;
+}
+
+Clipping * Scene::GetClipping()
+{
+    return _clip;
 }
 
 std::vector<unsigned int> Scene::getIds()
@@ -443,6 +452,8 @@ void Scene::draw()
 
     _lights->update();
 
+    _clip->predraw();
+
     // Draw markers and entities that are not transparent.  Store transparent entities to render later.
     for( int i = 0; i < (int)_sceneList.size(); i++ )
     {
@@ -474,6 +485,8 @@ void Scene::draw()
         alphaList[i]->draw();
     }
     glDepthMask( GL_TRUE );
+
+    _clip->postdraw();
 }
 
 void Scene::showSelection()

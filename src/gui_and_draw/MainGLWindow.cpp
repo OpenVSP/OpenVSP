@@ -32,6 +32,8 @@
 #include "SelectedPnt.h"
 #include "SelectedLoc.h"
 #include "Material.h"
+#include "ClippingScreen.h"
+#include "Clipping.h"
 
 #define PRECISION_PAN_SPEED 0.005f
 #define PAN_SPEED 0.025f
@@ -263,6 +265,14 @@ void VspGlWindow::update()
             corScreen->LoadDrawObjs( drawObjs );
         }
 
+        // Load Render Objects from clipScreen ( Clipping ).
+        ClippingScreen * clipScreen = dynamic_cast< ClippingScreen* >
+            ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_CLIPPING_SCREEN ) );
+        if( clipScreen )
+        {
+            clipScreen->LoadDrawObjs( drawObjs );
+        }
+
         // Load Objects to Renderer.
         _update( drawObjs );
 
@@ -327,6 +337,10 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
         {
         case DrawObj::VSP_SETTING:
             _setLighting( objects[i] );
+            break;
+
+        case DrawObj::VSP_CLIP:
+            _setClipping( objects[i] );
             break;
 
         case DrawObj::VSP_POINTS:
@@ -1411,6 +1425,48 @@ void VspGlWindow::_setLighting( DrawObj * drawObj )
             lSource->enable();
         else
             lSource->disable();
+    }
+}
+
+void VspGlWindow::_setClipping( DrawObj * drawObj )
+{
+    if( drawObj->m_Type != DrawObj::VSP_CLIP )
+        return;
+
+    Clipping * clip = m_GEngine->getScene()->GetClipping();
+
+    for( int i = 0; i < 6; i++ )
+    {
+        ClipPlane * cplane = clip->getPlane( i );
+
+        if( drawObj->m_ClipFlag[ i ] )
+        {
+            cplane->enable();
+        }
+        else
+        {
+            cplane->disable();
+        }
+
+        vec3d n(0, 0, 0);
+        vec3d p(0, 0, 0);
+
+        int jaxis = i / 2;  // Integer division implies floor.
+
+        if( i % 2 == 0 )
+        {
+            n.v[ jaxis ] = -1.0;
+        }
+        else
+        {
+            n.v[ jaxis ] = 1.0;
+        }
+
+        p.v[ jaxis ] = drawObj->m_ClipLoc[ i ];
+
+        double e[4] = {n.v[0], n.v[1], n.v[2], -dot( n, p )};
+
+        cplane->setEqn( e );
     }
 }
 

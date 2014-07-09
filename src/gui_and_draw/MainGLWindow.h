@@ -102,6 +102,8 @@ private:
 
     void _setLighting( DrawObj * drawObj );
 
+    void _setClipping( DrawObj * drawObj );
+
     struct ID;
 
     ID * _findID( std::string geomID );
