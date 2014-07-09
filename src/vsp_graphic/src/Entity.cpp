@@ -106,12 +106,10 @@ void Entity::_draw_Mesh_Shaded()
         glEnable( GL_LIGHTING );
         _material.bind();
     }
-    glEnable( GL_CULL_FACE );
 
     _draw_Mesh();
 
     glDisable( GL_LIGHTING );
-    glDisable( GL_CULL_FACE );
 }
 
 void Entity::_draw_Mesh_Textured()
@@ -121,14 +119,12 @@ void Entity::_draw_Mesh_Textured()
         glEnable( GL_LIGHTING );
         _material.bind();
     }
-    glEnable( GL_CULL_FACE );
 
     _textureMgr.bind();
     _draw_Mesh();
     _textureMgr.unbind();
 
     glDisable( GL_LIGHTING );
-    glDisable( GL_CULL_FACE );
 }
 
 void Entity::_draw_Wire_Frame()
