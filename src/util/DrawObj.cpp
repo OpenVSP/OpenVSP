@@ -50,6 +50,9 @@ DrawObj::DrawObj()
         m_MaterialInfo.Emission[2] = m_MaterialInfo.Emission[3] = 1.0f;
 
     m_MaterialInfo.Shininess = 1.0f;
+
+    m_ClipLoc = vector< double >( 6, 0 );
+    m_ClipFlag = vector< bool >( 6, false );
 }
 
 DrawObj::~DrawObj()
