@@ -1777,23 +1777,24 @@ void Vehicle::AddLinkableContainers( vector< string > & linkable_container_vec )
 void Vehicle::UpdateBBox()
 {
     BndBox new_box;
+    int ngeom;
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
-    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    ngeom = (int) geom_vec.size();
+    for ( int i = 0 ; i < ngeom ; i++ )
     {
         new_box.Update( geom_vec[i]->GetBndBox() );
     }
 
-    m_BbXLen = new_box.GetMax( 0 ) - new_box.GetMin( 0 );
-    m_BbYLen = new_box.GetMax( 1 ) - new_box.GetMin( 1 );
-    m_BbZLen = new_box.GetMax( 2 ) - new_box.GetMin( 2 );
+    if( ngeom > 0 )
+    {
+        m_BbXLen = new_box.GetMax( 0 ) - new_box.GetMin( 0 );
+        m_BbYLen = new_box.GetMax( 1 ) - new_box.GetMin( 1 );
+        m_BbZLen = new_box.GetMax( 2 ) - new_box.GetMin( 2 );
 
-    m_BbXMin = new_box.GetMin( 0 );
-    m_BbYMin = new_box.GetMin( 1 );
-    m_BbZMin = new_box.GetMin( 2 );
-
-//  CfdMeshMgr.m_FarXScale.SetRefVal( m_BbXLen() );
-//  CfdMeshMgr.m_FarYScale.SetRefVal( m_BbYLen() );
-//  CfdMeshMgr.m_FarZScale.SetRefVal( m_BbZLen() );
+        m_BbXMin = new_box.GetMin( 0 );
+        m_BbYMin = new_box.GetMin( 1 );
+        m_BbZMin = new_box.GetMin( 2 );
+    }
 
     m_BBox = new_box;
 }
