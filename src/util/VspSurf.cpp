@@ -1092,23 +1092,6 @@ void VspSurf::InterpolateGenCX( const vector< VspCurve > &input_crv_vec, bool cl
 }
 
 //==== Interpolate A Set Of Points =====//
-void VspSurf::InterpolateGenCMod3( const vector< VspCurve > &input_crv_vec, bool closed_flag )
-{
-    surface_index_type ncrv, i;
-
-    ncrv = input_crv_vec.size();
-
-    vector < int > cxv( ncrv, 0 );
-
-    for( i = 1; i < ncrv - 1; i++ )
-    {
-        cxv[ i ] = i % 3;
-    }
-
-    InterpolateGenCX( input_crv_vec, closed_flag, cxv );
-}
-
-//==== Interpolate A Set Of Points =====//
 void VspSurf::InterpolateGenC0( const vector< VspCurve > &input_crv_vec, bool closed_flag )
 {
     InterpolateGenCX( input_crv_vec, closed_flag, rib_data_type::C0 );

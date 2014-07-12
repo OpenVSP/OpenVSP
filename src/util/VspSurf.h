@@ -100,8 +100,6 @@ public:
     void InterpolateGenCX( const vector< VspCurve > &input_crv_vec, bool closed_flag, const vector< int > &cx );
     void InterpolateGenCX( const vector< VspCurve > &input_crv_vec, bool closed_flag, int cx );
 
-    void InterpolateGenCMod3( const vector< VspCurve > &input_crv_vec, bool closed_flag );
-
     void InterpolateGenC0( const vector< VspCurve > &input_crv_vec, bool closed_flag );
     void InterpolateGenC1( const vector< VspCurve > &input_crv_vec, bool closed_flag );
     void InterpolateGenC2( const vector< VspCurve > &input_crv_vec, bool closed_flag );
