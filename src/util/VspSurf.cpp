@@ -20,6 +20,7 @@
 #include "eli/geom/curve/piecewise_creator.hpp"
 #include "eli/geom/surface/piecewise_body_of_revolution_creator.hpp"
 #include "eli/geom/intersect/minimum_distance_surface.hpp"
+#include "eli/geom/surface/piecewise_general_skinning_surface_creator.hpp"
 
 typedef piecewise_surface_type::index_type surface_index_type;
 typedef piecewise_surface_type::point_type surface_point_type;
@@ -29,6 +30,9 @@ typedef piecewise_surface_type::tolerance_type surface_tolerance_type;
 
 typedef eli::geom::curve::piecewise_cubic_spline_creator<double, 3, surface_tolerance_type> piecewise_cubic_spline_creator_type;
 typedef eli::geom::curve::piecewise_linear_creator<double, 3, surface_tolerance_type> piecewise_linear_creator_type;
+typedef eli::geom::surface::general_skinning_surface_creator<double, 3, surface_tolerance_type> general_creator_type;
+typedef eli::geom::surface::connection_data<double, 3, surface_tolerance_type> rib_data_type;
+
 
 //=============================================================================//
 //============================ VspJointInfo    ================================//
@@ -1041,6 +1045,88 @@ void VspSurf::InterpolateLinear( const vector< VspCurve > &input_crv_vec, bool c
     DegreeReduceSections( input_crv_vec, closed_flag );
 
     ResetFlipNormal();
+}
+
+void VspSurf::InterpolateGenCX( const vector< VspCurve > &input_crv_vec, bool closed_flag, const vector< int > &cx )
+{
+    general_creator_type gc;
+    surface_index_type i, ncrv;
+
+    ncrv = input_crv_vec.size();
+
+    std::vector<rib_data_type> ribs( ncrv );
+    std::vector<typename general_creator_type::index_type> max_degree( ncrv - 1, 0 );
+
+    for( i = 0; i < ncrv; i++ )
+    {
+        ribs[i].set_f( input_crv_vec[i].GetCurve() );
+    }
+
+    for( i = 1; i < ncrv-1; i++ )
+    {
+        ribs[i].set_continuity( ( rib_data_type::connection_continuity ) cx[i] );
+    }
+
+    // create surface
+    gc.set_conditions(ribs, max_degree, false);
+
+    gc.set_u0( 0 );
+    for( i = 0; i < ncrv - 1; i++ )
+    {
+        gc.set_segment_du( 1, i);
+    }
+
+    gc.create( m_Surface );
+}
+
+
+//==== Interpolate A Set Of Points =====//
+void VspSurf::InterpolateGenCX( const vector< VspCurve > &input_crv_vec, bool closed_flag, int cx  )
+{
+    surface_index_type ncrv;
+
+    ncrv = input_crv_vec.size();
+
+    vector < int > cxv( ncrv, cx );
+    cxv[ 0 ] = 0;
+    cxv[ ncrv - 1 ] = 0;
+
+    InterpolateGenCX( input_crv_vec, closed_flag, cxv );
+}
+
+//==== Interpolate A Set Of Points =====//
+void VspSurf::InterpolateGenCMod3( const vector< VspCurve > &input_crv_vec, bool closed_flag )
+{
+    surface_index_type ncrv, i;
+
+    ncrv = input_crv_vec.size();
+
+    vector < int > cxv( ncrv, 0 );
+
+    for( i = 1; i < ncrv - 1; i++ )
+    {
+        cxv[ i ] = i % 3;
+    }
+
+    InterpolateGenCX( input_crv_vec, closed_flag, cxv );
+}
+
+//==== Interpolate A Set Of Points =====//
+void VspSurf::InterpolateGenC0( const vector< VspCurve > &input_crv_vec, bool closed_flag )
+{
+    InterpolateGenCX( input_crv_vec, closed_flag, rib_data_type::C0 );
+}
+
+//==== Interpolate A Set Of Points =====//
+void VspSurf::InterpolateGenC1( const vector< VspCurve > &input_crv_vec, bool closed_flag )
+{
+    InterpolateGenCX( input_crv_vec, closed_flag, rib_data_type::C1 );
+}
+
+//==== Interpolate A Set Of Points =====//
+void VspSurf::InterpolateGenC2( const vector< VspCurve > &input_crv_vec, bool closed_flag )
+{
+    InterpolateGenCX( input_crv_vec, closed_flag, rib_data_type::C2 );
 }
 
 void VspSurf::InterpolatePCHIP( const vector< VspCurve > &input_crv_vec, bool closed_flag )
