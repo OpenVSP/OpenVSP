@@ -627,9 +627,9 @@ void VspSurf::WriteBezFile( FILE* file_id, const std::string &geom_id, int surf_
     split_u.push_back( 0 );
     split_w.push_back( 0 );
 
-    split_w.push_back( ClosetPatchEnd( w_pmap, 0.25 * w_pmap[w_pmap.size() - 1] ) );
-    split_w.push_back( ClosetPatchEnd( w_pmap, 0.5 * w_pmap[w_pmap.size() - 1] ) );
-    split_w.push_back( ClosetPatchEnd( w_pmap, 0.75 * w_pmap[w_pmap.size() - 1] ) );
+    split_w.push_back( ClosestPatchEnd( w_pmap, 0.25 * w_pmap[w_pmap.size() - 1] ) );
+    split_w.push_back( ClosestPatchEnd( w_pmap, 0.5 * w_pmap[w_pmap.size() - 1] ) );
+    split_w.push_back( ClosestPatchEnd( w_pmap, 0.75 * w_pmap[w_pmap.size() - 1] ) );
 
     split_u.push_back( nupts - 1 );
     split_w.push_back( nvpts - 1 );
@@ -674,7 +674,7 @@ void VspSurf::WriteBezFile( FILE* file_id, const std::string &geom_id, int surf_
     }
 }
 
-int VspSurf::ClosetPatchEnd( const vector<double> & patch_endings, double end_val ) const
+int VspSurf::ClosestPatchEnd( const vector<double> & patch_endings, double end_val ) const
 {
     // patch_endings should be a sorted vector
     int ind = ClosestElement( patch_endings, end_val );

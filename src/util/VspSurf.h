@@ -117,7 +117,7 @@ public:
     void Tesselate( const vector<int> &num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts ) const;
 
 protected:
-    int ClosetPatchEnd( const vector<double> & patch_endings, double end_val ) const;
+    int ClosestPatchEnd( const vector<double> & patch_endings, double end_val ) const;
 
 protected:
 
