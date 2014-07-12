@@ -268,6 +268,116 @@ double XSec::ComputeArea( int num_pnts )
     return poly_area( pnts, zero );
 }
 
+// Given a position along a curve t, and a desired surfce angle theta, calculate
+// the tangent and normal unit vectors that will be required by the surface
+// skinning algorithm.
+void XSec::GetTanNormVec( double t, double theta, vec3d &tangent, vec3d &normal )
+{
+    Matrix4d basis;
+
+    // Get primary orientation of this XSecSurf
+    XSecSurf* xsecsurf = (XSecSurf*) GetParentContainerPtr();
+    xsecsurf->GetBasicTransformation( 0.0, basis );
+
+    // Transform primary orientation to orientation of this XSec
+    basis.postMult( GetTransform()->data() );
+
+    // Pull out width, up, and principal directions.
+    vec3d wdir, updir, pdir;
+    basis.getBasis( wdir, updir, pdir );
+
+    double tmin, tmax;
+    m_TransformedCurve.GetCurve().get_parameter_min( tmin );
+    m_TransformedCurve.GetCurve().get_parameter_max( tmax );
+
+    // Rotate basis around principal direction to point along curve
+    // according to parameter and assumed circle.
+    Matrix4d rmat;
+    rmat.rotate( 2.0*PI*(t-tmin)/(tmax-tmin), pdir );
+    basis.postMult( rmat.data() );
+
+    // Pull out rotated directions.
+    basis.getBasis( wdir, updir, pdir );
+
+    // Rotate basis to specified slope.
+    rmat.rotate( theta, updir );
+    basis.postMult( rmat.data() );
+
+    // Pull out desired normal and tangent directions.
+    basis.getBasis( normal, updir, tangent);
+}
+
+// Given a vector of positions along a curve ts, desired surface angles thetas,
+// angle strengths angstr, and curvature strengths crvstr, calculate the tangent
+// and normal vector curves that will be required by the skinning algorithm.
+void XSec::GetTanNormCrv( const vector< double > &ts, const vector< double > &thetas,
+        const vector< double > &angstr, const vector< double > &crvstr,
+        piecewise_curve_type &tangentcrv, piecewise_curve_type &normcrv )
+{
+    int nts = ts.size();
+
+    // Set up cubic spline of desired controls
+    piecewise_cubic_spline_creator_type pcc( nts - 1 );
+    pcc.set_t0( ts[0] );
+    for ( int i = 0; i < nts - 1; ++i)
+    {
+        pcc.set_segment_dt( ts[i+1] - ts[i], i );
+    }
+
+    vector< curve_point_type > pts(nts);
+    for( int i = 0; i < nts; i++ )
+    {
+        pts[i] << thetas[i], angstr[i], crvstr[i];
+    }
+    pcc.set_closed_cubic_spline( pts.begin() );
+
+    // Build control curve.
+    piecewise_curve_type crvcntrl;
+    pcc.create( crvcntrl );
+
+    // Evaluate control curve at all the piecewise endpoints
+    // used to define the XSecCurve.
+
+    // Parameters that define the XSecCurve
+    vector< double > crvts;
+    // Work around non-constness of get_pmap.
+    piecewise_curve_type crv = m_TransformedCurve.GetCurve();
+    crv.get_pmap( crvts );
+
+    int ntcrv = crvts.size();
+
+    // Evaluate controls and build tan & norm vectors at piecewise endpoints
+    vector< curve_point_type > tanpts(ntcrv), nrmpts(ntcrv);
+    for( int i = 0; i < ntcrv; i++ )
+    {
+        curve_point_type crvparm = crvcntrl.f( crvts[i] );
+
+        vec3d tangent, normal;
+
+        GetTanNormVec( crvts[i], crvparm.x(), tangent, normal );
+
+        tangent = tangent * crvparm.y();
+        normal = normal * crvparm.z();
+
+        tanpts[i] << tangent.v[0], tangent.v[1], tangent.v[2];
+        nrmpts[i] << normal.v[0], normal.v[1], normal.v[2];
+    }
+
+    pcc.set_number_segments( ntcrv - 1 );
+    pcc.set_t0( crvts[0] );
+    for ( int i = 0; i < ntcrv - 1; ++i)
+    {
+        pcc.set_segment_dt( crvts[i+1] - crvts[i], i );
+    }
+    // Build tangent and normal vector curves.
+    pcc.set_closed_cubic_spline( tanpts.begin() );
+    pcc.create( tangentcrv );
+
+    pcc.set_closed_cubic_spline( nrmpts.begin() );
+    pcc.create( normcrv );
+}
+
+
 //==========================================================================//
 //==========================================================================//
 //==========================================================================//
