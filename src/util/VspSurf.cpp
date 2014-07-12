@@ -223,7 +223,38 @@ void VspSurf::CreateBodyRevolution( const VspCurve &input_crv )
     ResetFlipNormal();
 }
 
-void VspSurf::SkinCX( const vector< VspCurve > &input_crv_vec, bool closed_flag, const vector< int > &cx )
+void VspSurf::SkinRibs( const vector<rib_data_type> &ribs, const vector < int > &degree, bool closed_flag )
+{
+    general_creator_type gc;
+    surface_index_type nrib, i;
+
+    nrib = ribs.size();
+
+    std::vector<typename general_creator_type::index_type> max_degree( nrib - 1, 0 );
+
+    assert( degree.size() == nrib - 1 );
+    for( i = 0; i < nrib - 1; i++ )
+    {
+        max_degree[i] = degree[i];
+    }
+
+    // create surface
+    bool setcond = gc.set_conditions(ribs, max_degree, closed_flag);
+    assert( setcond );
+
+    gc.create( m_Surface );
+}
+
+//==== Interpolate A Set Of Points =====//
+void VspSurf::SkinRibs( const vector<rib_data_type> &ribs, bool closed_flag )
+{
+    surface_index_type nrib;
+    nrib = ribs.size();
+    vector< int > degree( nrib - 1, 0 );
+    SkinRibs( ribs, degree, closed_flag );
+}
+
+void VspSurf::SkinCX( const vector< VspCurve > &input_crv_vec, const vector< int > &cx, const vector< int > &degree, bool closed_flag )
 {
     general_creator_type gc;
     surface_index_type i, ncrv;
@@ -231,7 +262,6 @@ void VspSurf::SkinCX( const vector< VspCurve > &input_crv_vec, bool closed_flag,
     ncrv = input_crv_vec.size();
 
     std::vector<rib_data_type> ribs( ncrv );
-    std::vector<typename general_creator_type::index_type> max_degree( ncrv - 1, 0 );
 
     for( i = 0; i < ncrv; i++ )
     {
@@ -244,20 +274,20 @@ void VspSurf::SkinCX( const vector< VspCurve > &input_crv_vec, bool closed_flag,
     }
 
     // create surface
-    gc.set_conditions(ribs, max_degree, false);
-
-    gc.set_u0( 0 );
-    for( i = 0; i < ncrv - 1; i++ )
-    {
-        gc.set_segment_du( 1, i);
-    }
-
-    gc.create( m_Surface );
+    SkinRibs( ribs, degree, closed_flag );
 }
 
+void VspSurf::SkinCX( const vector< VspCurve > &input_crv_vec, const vector< int > &cx, bool closed_flag )
+{
+    surface_index_type ncrv;
+
+    ncrv = input_crv_vec.size();
+    vector< int > degree( ncrv - 1, 0 );
+    SkinCX( input_crv_vec, cx, degree, closed_flag );
+}
 
 //==== Interpolate A Set Of Points =====//
-void VspSurf::SkinCX( const vector< VspCurve > &input_crv_vec, bool closed_flag, int cx  )
+void VspSurf::SkinCX( const vector< VspCurve > &input_crv_vec, int cx, bool closed_flag  )
 {
     surface_index_type ncrv;
 
@@ -267,42 +297,25 @@ void VspSurf::SkinCX( const vector< VspCurve > &input_crv_vec, bool closed_flag,
     cxv[ 0 ] = 0;
     cxv[ ncrv - 1 ] = 0;
 
-    SkinCX( input_crv_vec, closed_flag, cxv );
+    SkinCX( input_crv_vec, cxv, closed_flag );
 }
 
 //==== Interpolate A Set Of Points =====//
 void VspSurf::SkinC0( const vector< VspCurve > &input_crv_vec, bool closed_flag )
 {
-    SkinCX( input_crv_vec, closed_flag, rib_data_type::C0 );
-}
-
-//==== Interpolate A Set Of Points =====//
-void VspSurf::SkinRibs( const vector<rib_data_type> &ribs )
-{
-    general_creator_type gc;
-    surface_index_type nrib;
-
-    nrib = ribs.size();
-
-    std::vector<typename general_creator_type::index_type> max_degree( nrib - 1, 0 );
-
-    // create surface
-    bool setcond = gc.set_conditions(ribs, max_degree, false);
-    assert( setcond );
-
-    gc.create( m_Surface );
+    SkinCX( input_crv_vec, rib_data_type::C0, closed_flag );
 }
 
 //==== Interpolate A Set Of Points =====//
 void VspSurf::SkinC1( const vector< VspCurve > &input_crv_vec, bool closed_flag )
 {
-    SkinCX( input_crv_vec, closed_flag, rib_data_type::C1 );
+    SkinCX( input_crv_vec, rib_data_type::C1, closed_flag );
 }
 
 //==== Interpolate A Set Of Points =====//
 void VspSurf::SkinC2( const vector< VspCurve > &input_crv_vec, bool closed_flag )
 {
-    SkinCX( input_crv_vec, closed_flag, rib_data_type::C2 );
+    SkinCX( input_crv_vec, rib_data_type::C2, closed_flag );
 }
 
 //===== Compute Point On Surf Given  U V (Between 0 1 ) =====//
