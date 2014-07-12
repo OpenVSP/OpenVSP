@@ -21,6 +21,7 @@
 #include "LightMgr.h"
 #include "DegenGeom.h"
 #include "CfdMeshSettings.h"
+#include "ClippingMgr.h"
 
 #include <assert.h>
 
@@ -232,6 +233,11 @@ public:
         return &m_FeaGridDensity;
     }
 
+    ClippingMgr* GetClippinMgrPtr()
+    {
+        return &m_ClippingMgr;
+    }
+
     //==== Mass Properties ====//
     vec3d m_IxxIyyIzz;
     vec3d m_IxyIxzIyz;
@@ -293,6 +299,8 @@ protected:
     CfdMeshSettings m_CfdSettings;
     CfdGridDensity m_CfdGridDensity;
     FeaGridDensity m_FeaGridDensity;
+
+    ClippingMgr m_ClippingMgr;
 
     VehicleGuiDraw m_VGuiDraw;
 

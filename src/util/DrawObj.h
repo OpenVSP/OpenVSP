@@ -57,6 +57,7 @@ public:
     * VSP_PICK_VERTEX_HIDE_SELECTION - Send signal to hide all selections for this one update.  Does not contain render information.
     * VSP_PICK_GEOM - This type drawObj enables geometry picking.
     * VSP_PICK_LOCATION - This type drawObj enables location picking.
+    * VSP_CLIP - Add clipping plane.
     */
 
     vec3d ColorWheel( double angle ); // Returns rgb for an angle given in degrees
@@ -82,6 +83,7 @@ public:
         VSP_PICK_VERTEX_HIDE_SELECTION,
         VSP_PICK_GEOM,
         VSP_PICK_LOCATION,
+        VSP_CLIP,
     };
 
     /*
@@ -359,6 +361,9 @@ public:
     * Material information of this DrawObj.
     */
     MaterialInfo m_MaterialInfo;
+
+    vector< double > m_ClipLoc;
+    vector< bool > m_ClipFlag;
 
 protected:
 

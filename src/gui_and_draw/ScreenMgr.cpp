@@ -31,6 +31,7 @@
 #include "FeaStructScreen.h"
 #include "ManageLabelScreen.h"
 #include "ManageCORScreen.h"
+#include "ClippingScreen.h"
 
 #include <time.h>
 #include <assert.h>
@@ -145,6 +146,7 @@ void ScreenMgr::Init()
     m_ScreenVec[VSP_LABEL_SCREEN] = new ManageLabelScreen( this );
     m_ScreenVec[VSP_COR_SCREEN] = new ManageCORScreen( this );
     m_ScreenVec[VSP_DEGEN_GEOM_SCREEN] = new DegenGeomScreen( this );
+    m_ScreenVec[VSP_CLIPPING_SCREEN] = new ClippingScreen( this );
 
     m_ScreenVec[VSP_MAIN_SCREEN]->Show();
     m_ScreenVec[VSP_MANAGE_GEOM_SCREEN]->Show();

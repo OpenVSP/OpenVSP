@@ -23,6 +23,7 @@ ADD_LIBRARY(gui_and_draw
 AwaveScreen.cpp
 BlankScreen.cpp
 CfdMeshScreen.cpp
+ClippingScreen.cpp
 CompGeomScreen.cpp
 CustomScreen.cpp
 DegenGeomScreen.cpp
@@ -68,6 +69,7 @@ MaterialRepo.cpp
 AwaveScreen.h
 BlankScreen.h
 CfdMeshScreen.h
+ClippingScreen.h
 CompGeomScreen.h
 CustomScreen.h
 DegenGeomScreen.h

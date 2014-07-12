@@ -171,6 +171,10 @@ class MainWinUI {open
               label {Lighting...}
               xywh {25 25 100 20}
             }
+            MenuItem ClippingMenu {
+              label {Clipping...}
+              xywh {35 35 100 20}
+            }
             MenuItem TextureMenu {
               label {Texture...}
               xywh {15 15 100 20}

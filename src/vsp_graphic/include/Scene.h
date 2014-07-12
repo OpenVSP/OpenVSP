@@ -9,6 +9,7 @@
 namespace VSPGraphic
 {
 class Lighting;
+class Clipping;
 class Selectable;
 class Pickable;
 class PickablePnts;
@@ -143,6 +144,7 @@ public:
     * Get light.
     */
     Lighting * getLights();
+    Clipping * GetClipping();
 
 private:
     void _generateUniqueId(unsigned int * id_out);
@@ -156,6 +158,8 @@ private:
     std::vector<unsigned int> _recycleBin;
 
     Lighting * _lights;
+
+    Clipping * _clip;
 
     bool _toPick;
     bool _toSelectLoc;

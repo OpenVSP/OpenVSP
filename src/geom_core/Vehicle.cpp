@@ -993,6 +993,7 @@ xmlNodePtr Vehicle::EncodeXml( xmlNodePtr & node, int set )
     m_CfdSettings.EncodeXml( node );
     m_CfdGridDensity.EncodeXml( node );
     m_FeaGridDensity.EncodeXml( node );
+    m_ClippingMgr.EncodeXml( node );
 
     return vehicle_node;
 }
@@ -1043,6 +1044,7 @@ xmlNodePtr Vehicle::DecodeXml( xmlNodePtr & node )
     m_CfdSettings.DecodeXml( node );
     m_CfdGridDensity.DecodeXml( node );
     m_FeaGridDensity.DecodeXml( node );
+    m_ClippingMgr.DecodeXml( node );
 
     return vehicle_node;
 }

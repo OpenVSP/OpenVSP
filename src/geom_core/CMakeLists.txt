@@ -22,6 +22,7 @@ ADD_LIBRARY(geom_core
 Airfoil.cpp
 BlankGeom.cpp
 CfdMeshSettings.cpp
+ClippingMgr.cpp
 CustomGeom.cpp
 DegenGeom.cpp
 DesignVarMgr.cpp
@@ -63,6 +64,7 @@ VspPreferences.cpp
 Airfoil.h
 BlankGeom.h
 CfdMeshSettings.h
+ClippingMgr.h
 CustomGeom.h
 DegenGeom.h
 DesignVarMgr.h

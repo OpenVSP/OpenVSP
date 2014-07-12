@@ -63,6 +63,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     AddMenuCallBack( m_MainUI->BackgroundMenu );
 
     AddMenuCallBack( m_MainUI->LightingMenu );
+    AddMenuCallBack( m_MainUI->ClippingMenu );
     AddMenuCallBack( m_MainUI->LabelsMenu );
     AddMenuCallBack( m_MainUI->ScreenShotMenu );
 
@@ -287,6 +288,10 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
     else if ( m == m_MainUI->LightingMenu )
     {
         m_ScreenMgr->ShowScreen( ScreenMgr::VSP_LIGHTING_SCREEN );
+    }
+    else if ( m == m_MainUI->ClippingMenu )
+    {
+        m_ScreenMgr->ShowScreen( ScreenMgr::VSP_CLIPPING_SCREEN );
     }
     else if ( m == m_MainUI->LabelsMenu )
     {
