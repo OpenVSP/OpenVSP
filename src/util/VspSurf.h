@@ -34,47 +34,6 @@ typedef eli::geom::surface::connection_data<double, 3, surface_tolerance_type> r
 #include <string>
 using std::vector;
 
-struct VspJointInfo
-{
-public:
-    enum {FULL, C0, C1_AUTO, C1, G1, C2_AUTO, C2, G2, NUM_CONTINUITY_TYPES};
-    enum {TOP_SIDE, RIGHT_SIDE, BOTTOM_SIDE, LEFT_SIDE, NUM_SIDES};
-
-public:
-    VspJointInfo();
-    VspJointInfo( const VspJointInfo &ji );
-    ~VspJointInfo();
-
-    void SetLeftParams( int side, const double &angle, const double &strength, const double &curvature );
-    double GetLeftAngle( int side ) const;
-    double GetLeftStrength( int side ) const;
-    double GetLeftCurvature( int side ) const;
-
-    void SetRightParams( int side, const double &angle, const double &strength, const double &curvature );
-    double GetRightAngle( int side ) const;
-    double GetRightStrength( int side ) const;
-    double GetRightCurvature( int side ) const;
-
-    void SetState( int state );
-    int GetState() const;
-    bool C1Continuous() const;
-    bool G1Continuous() const;
-    bool C2Continuous() const;
-    bool G2Continuous() const;
-    int DegreesOfFreedom() const;
-    bool FiniteDifferenceFp() const;
-    bool FiniteDifferenceFpp() const;
-
-private:
-    double m_LeftAngle[4];
-    double m_LeftStrength[4];
-    double m_LeftCurvature[4];
-    double m_RightAngle[4];
-    double m_RightStrength[4];
-    double m_RightCurvature[4];
-    int m_State;
-};
-
 class VspSurf
 {
 public:
@@ -129,8 +88,6 @@ public:
 
     Matrix4d CompRotCoordSys( const double &u, const double &w );
     Matrix4d CompTransCoordSys( const double &u, const double &w );
-
-    void CompJointParams( int joint, VspJointInfo &jointInfo ) const;
 
     //===== Bezier Funcs ====//
     vec3d CompPnt( double u, double v ) const;

@@ -330,11 +330,6 @@ void FuselageGeom::LoadDragFactors( DragFactors& drag_factors )
     drag_factors.m_LengthToDia = m_Length() / dia;
 }
 
-void FuselageGeom::GetJointParams( int joint, VspJointInfo &jointInfo ) const
-{
-    m_MainSurfVec[0].CompJointParams( joint, jointInfo );
-}
-
 bool FuselageGeom::IsClosed() const
 {
     return m_Closed;

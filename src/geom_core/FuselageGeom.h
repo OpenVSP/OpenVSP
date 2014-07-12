@@ -58,8 +58,6 @@ public:
 
     virtual XSec* GetXSec( int index );
 
-    void GetJointParams( int joint, VspJointInfo &jointInfo ) const;
-
     bool IsClosed() const;
 
     virtual void AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id = string() );

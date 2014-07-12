@@ -325,11 +325,6 @@ void StackGeom::LoadDragFactors( DragFactors& drag_factors )
 //    drag_factors.m_LengthToDia = m_Length() / dia;
 }
 
-void StackGeom::GetJointParams( int joint, VspJointInfo &jointInfo ) const
-{
-    m_MainSurfVec[0].CompJointParams( joint, jointInfo );
-}
-
 bool StackGeom::IsClosed() const
 {
     return m_Closed;
