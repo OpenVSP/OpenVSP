@@ -524,7 +524,7 @@ void CustomGeom::SkinXSecSurf()
         }
         if ( crv_vec.size() >= 2 )
         {
-            m_MainSurfVec[i].InterpolateGenC0( crv_vec, false );
+            m_MainSurfVec[i].SkinC0( crv_vec, false );
         }
     }
 }

@@ -139,9 +139,7 @@ void FuselageGeom::UpdateSurf()
     }
 
 
-//    m_MainSurfVec[0].InterpolateGenC0( crv_vec, false );
-    m_MainSurfVec[0].InterpolateGenC1( crv_vec, false );
-//    m_MainSurfVec[0].InterpolateGenC2( crv_vec, false );
+    m_MainSurfVec[0].SkinC1( crv_vec, false );
     if ( m_XSecSurf.GetFlipUD() )
     {
         m_MainSurfVec[0].FlipNormal();

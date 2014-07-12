@@ -137,7 +137,7 @@ void StackGeom::UpdateSurf()
     }
 
 
-    m_MainSurfVec[0].InterpolateGenC0( crv_vec, false );
+    m_MainSurfVec[0].SkinC0( crv_vec, false );
     if ( m_XSecSurf.GetFlipUD() )
     {
         m_MainSurfVec[0].FlipNormal();

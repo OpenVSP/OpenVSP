@@ -49,14 +49,14 @@ public:
     // create surface as a body of revolution using the specified curve
     void CreateBodyRevolution( const VspCurve &input_crv );
 
-    void InterpolateGenCX( const vector< VspCurve > &input_crv_vec, bool closed_flag, const vector< int > &cx );
-    void InterpolateGenCX( const vector< VspCurve > &input_crv_vec, bool closed_flag, int cx );
+    void SkinCX( const vector< VspCurve > &input_crv_vec, bool closed_flag, const vector< int > &cx );
+    void SkinCX( const vector< VspCurve > &input_crv_vec, bool closed_flag, int cx );
 
-    void InterpolateGenC0( const vector< VspCurve > &input_crv_vec, bool closed_flag );
-    void InterpolateGenC1( const vector< VspCurve > &input_crv_vec, bool closed_flag );
-    void InterpolateGenC2( const vector< VspCurve > &input_crv_vec, bool closed_flag );
+    void SkinC0( const vector< VspCurve > &input_crv_vec, bool closed_flag );
+    void SkinC1( const vector< VspCurve > &input_crv_vec, bool closed_flag );
+    void SkinC2( const vector< VspCurve > &input_crv_vec, bool closed_flag );
 
-    void InterpolateRibs( const vector<rib_data_type> &ribs );
+    void SkinRibs( const vector<rib_data_type> &ribs );
 
 
     int GetNumSectU() const;

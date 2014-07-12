@@ -223,7 +223,7 @@ void VspSurf::CreateBodyRevolution( const VspCurve &input_crv )
     ResetFlipNormal();
 }
 
-void VspSurf::InterpolateGenCX( const vector< VspCurve > &input_crv_vec, bool closed_flag, const vector< int > &cx )
+void VspSurf::SkinCX( const vector< VspCurve > &input_crv_vec, bool closed_flag, const vector< int > &cx )
 {
     general_creator_type gc;
     surface_index_type i, ncrv;
@@ -257,7 +257,7 @@ void VspSurf::InterpolateGenCX( const vector< VspCurve > &input_crv_vec, bool cl
 
 
 //==== Interpolate A Set Of Points =====//
-void VspSurf::InterpolateGenCX( const vector< VspCurve > &input_crv_vec, bool closed_flag, int cx  )
+void VspSurf::SkinCX( const vector< VspCurve > &input_crv_vec, bool closed_flag, int cx  )
 {
     surface_index_type ncrv;
 
@@ -267,17 +267,17 @@ void VspSurf::InterpolateGenCX( const vector< VspCurve > &input_crv_vec, bool cl
     cxv[ 0 ] = 0;
     cxv[ ncrv - 1 ] = 0;
 
-    InterpolateGenCX( input_crv_vec, closed_flag, cxv );
+    SkinCX( input_crv_vec, closed_flag, cxv );
 }
 
 //==== Interpolate A Set Of Points =====//
-void VspSurf::InterpolateGenC0( const vector< VspCurve > &input_crv_vec, bool closed_flag )
+void VspSurf::SkinC0( const vector< VspCurve > &input_crv_vec, bool closed_flag )
 {
-    InterpolateGenCX( input_crv_vec, closed_flag, rib_data_type::C0 );
+    SkinCX( input_crv_vec, closed_flag, rib_data_type::C0 );
 }
 
 //==== Interpolate A Set Of Points =====//
-void VspSurf::InterpolateRibs( const vector<rib_data_type> &ribs )
+void VspSurf::SkinRibs( const vector<rib_data_type> &ribs )
 {
     general_creator_type gc;
     surface_index_type nrib;
@@ -294,15 +294,15 @@ void VspSurf::InterpolateRibs( const vector<rib_data_type> &ribs )
 }
 
 //==== Interpolate A Set Of Points =====//
-void VspSurf::InterpolateGenC1( const vector< VspCurve > &input_crv_vec, bool closed_flag )
+void VspSurf::SkinC1( const vector< VspCurve > &input_crv_vec, bool closed_flag )
 {
-    InterpolateGenCX( input_crv_vec, closed_flag, rib_data_type::C1 );
+    SkinCX( input_crv_vec, closed_flag, rib_data_type::C1 );
 }
 
 //==== Interpolate A Set Of Points =====//
-void VspSurf::InterpolateGenC2( const vector< VspCurve > &input_crv_vec, bool closed_flag )
+void VspSurf::SkinC2( const vector< VspCurve > &input_crv_vec, bool closed_flag )
 {
-    InterpolateGenCX( input_crv_vec, closed_flag, rib_data_type::C2 );
+    SkinCX( input_crv_vec, closed_flag, rib_data_type::C2 );
 }
 
 //===== Compute Point On Surf Given  U V (Between 0 1 ) =====//
