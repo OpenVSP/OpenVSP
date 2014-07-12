@@ -1378,45 +1378,6 @@ void VspSurf::PrepairCrossSections( vector<piecewise_curve_type> &pc, const vect
 #endif
 }
 
-void VspSurf::DegreeReduceSections( const vector<VspCurve> &input_crv_vec, bool closed_flag )
-{
-//    std::cerr << "Need to re-enable DegreeReduceSections()" << std::endl;
-#if 0
-    surface_index_type i, j, nu( m_Surface.number_u_patches() ), nv( m_Surface.number_v_patches() );
-
-    for ( i = 0; i < nu; ++i )
-    {
-        for ( j = 0; j < nv; ++j )
-        {
-            surface_index_type vdim;
-            surface_patch_type sp;
-            curve_segment_type clow, chigh;
-
-            input_crv_vec[i].GetCurveSegment( clow, j );
-            if ( closed_flag && ( i == nu - 1 ) )
-            {
-                input_crv_vec[0].GetCurveSegment( chigh, j );
-            }
-            else
-            {
-                input_crv_vec[i + 1].GetCurveSegment( chigh, j );
-            }
-            vdim = std::max( clow.degree(), chigh.degree() );
-
-            m_Surface.get( sp, i, j );
-
-            if ( sp.degree_v() > vdim )
-            {
-                for ( size_t jj = sp.degree_v() - 1; jj >= vdim; --jj )
-                {
-                    sp.demote_v( eli::geom::general::C0 );
-                }
-            }
-        }
-    }
-#endif
-}
-
 void VspSurf::WriteBezFile( FILE* file_id, const std::string &geom_id, int surf_ind )
 {
     // Make copy for local changes.

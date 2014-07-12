@@ -160,7 +160,6 @@ public:
 
 protected:
     void PrepairCrossSections( vector<piecewise_curve_type> &pc, const vector<VspCurve> &crv_in ) const;
-    void DegreeReduceSections( const vector<VspCurve> &input_crv_vec, bool closed_flag );
     int ClosetPatchEnd( const vector<double> & patch_endings, double end_val ) const;
 
 protected:
