@@ -30,8 +30,6 @@ typedef piecewise_surface_type::tolerance_type surface_tolerance_type;
 typedef eli::geom::curve::piecewise_cubic_spline_creator<double, 3, surface_tolerance_type> piecewise_cubic_spline_creator_type;
 typedef eli::geom::surface::connection_data<double, 3, surface_tolerance_type> rib_data_type;
 
-typedef std::pair< int, piecewise_curve_type > idcrv;
-
 #include <vector>
 #include <string>
 using std::vector;
