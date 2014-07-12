@@ -73,10 +73,10 @@ class VspSurf
 {
 public:
 
-	enum SURF_TYPE {    NORMAL_SURF,
-	                    WING_SURF,
-	                    NUM_SURF_TYPES,
-	                   };
+    enum SURF_TYPE {    NORMAL_SURF,
+                        WING_SURF,
+                        NUM_SURF_TYPES,
+                   };
 
     VspSurf();
     virtual ~VspSurf();

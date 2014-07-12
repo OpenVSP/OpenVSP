@@ -415,7 +415,7 @@ double VspSurf::FindNearest( double &u, double &w, const vec3d &pt ) const
 
     dist = eli::geom::intersect::minimum_distance( u, w, m_Surface, p );
 
-	return dist;
+    return dist;
 }
 
 double VspSurf::FindNearest( double &u, double &w, const vec3d &pt, const double &u0, const double &w0 ) const
@@ -426,7 +426,7 @@ double VspSurf::FindNearest( double &u, double &w, const vec3d &pt, const double
 
     dist = eli::geom::intersect::minimum_distance( u, w, m_Surface, p, u0, w0 );
 
-	return dist;
+    return dist;
 }
 
 double VspSurf::FindNearest01( double &u, double &w, const vec3d &pt ) const
@@ -442,7 +442,7 @@ double VspSurf::FindNearest01( double &u, double &w, const vec3d &pt ) const
     u = u / num_sectU;
     w = w / num_sectW;
 
-	return dist;
+    return dist;
 }
 
 double VspSurf::FindNearest01( double &u, double &w, const vec3d &pt, const double &u0, const double &w0 ) const
@@ -458,7 +458,7 @@ double VspSurf::FindNearest01( double &u, double &w, const vec3d &pt, const doub
     u = u / num_sectU;
     w = w / num_sectW;
 
-	return dist;
+    return dist;
 }
 
 void VspSurf::GetUConstCurve( VspCurve &c, const double &u ) const
