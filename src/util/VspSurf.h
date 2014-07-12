@@ -90,9 +90,6 @@ public:
     // create surface as a body of revolution using the specified curve
     void CreateBodyRevolution( const VspCurve &input_crv );
 
-    // creates piecewise polynomial lofting of curves with user control over slopes and curvatures
-    void InterpolateManual( const std::vector<VspCurve> &input_crv_vec, const vector<VspJointInfo> &joint_info_vec, bool closed_flag );
-
     void InterpolateGenCX( const vector< VspCurve > &input_crv_vec, bool closed_flag, const vector< int > &cx );
     void InterpolateGenCX( const vector< VspCurve > &input_crv_vec, bool closed_flag, int cx );
 
@@ -102,12 +99,6 @@ public:
 
     void InterpolateRibs( const vector<rib_data_type> &ribs );
 
-
-    // creates C1 continuous Piecewise Cubic Hermite Interpolating Polynomial
-    void InterpolatePCHIP( const vector< VspCurve > &input_crv_vec, bool closed_flag );
-
-    // creates C2 continuous piecewise cubic spline polynomial with not-a-knot or closed end conditions
-    void InterpolateCSpline( const vector< VspCurve > &input_crv_vec, bool closed_flag );
 
     int GetNumSectU() const;
     int GetNumSectW() const;
