@@ -317,23 +317,6 @@ void FuseXSec::Update()
     if ( fabs( m_Spin() ) > DBL_EPSILON )
     {
         std::cerr << "XSec spin not implemented." << std::endl;
-// NOTE: Not implementing spin. Also, this implementation doesn't spin first or last segments
-//      double val = 0.0;
-//      if ( m_Spin() > 0 )         val = 0.5*(m_Spin()/180.0);
-//      else if ( m_Spin() < 0 )    val = 1.0 + 0.5*(m_Spin()/180.0);
-//      val = Clamp( val, 0.0, 0.99999999 );
-//
-//      vector< vec3d > ctl_pnts = m_Curve.GetControlPnts();
-//      int split = (int)(val*(((int)ctl_pnts.size()-1)/3)+1);
-//
-//      vector< vec3d > spin_ctl_pnts;
-//      for ( int i = split*3 ; i < (int)ctl_pnts.size()-1 ; i++ )
-//          spin_ctl_pnts.push_back( ctl_pnts[i] );
-//
-//      for ( int i = 0 ; i <= split*3 ; i++ )
-//          spin_ctl_pnts.push_back( ctl_pnts[i] );
-//
-//      m_TransformedCurve.SetControlPnts( spin_ctl_pnts );
     }
 
     m_Transform.loadIdentity();
