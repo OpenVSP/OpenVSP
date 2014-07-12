@@ -20,9 +20,17 @@
 
 #include "eli/geom/surface/bezier.hpp"
 #include "eli/geom/surface/piecewise.hpp"
+#include "eli/geom/curve/piecewise_creator.hpp"
+#include "eli/geom/surface/piecewise_general_skinning_surface_creator.hpp"
 
 typedef eli::geom::surface::bezier<double, 3> surface_patch_type;
 typedef eli::geom::surface::piecewise<eli::geom::surface::bezier, double, 3> piecewise_surface_type;
+
+typedef piecewise_surface_type::tolerance_type surface_tolerance_type;
+typedef eli::geom::curve::piecewise_cubic_spline_creator<double, 3, surface_tolerance_type> piecewise_cubic_spline_creator_type;
+typedef eli::geom::surface::connection_data<double, 3, surface_tolerance_type> rib_data_type;
+
+typedef std::pair< int, piecewise_curve_type > idcrv;
 
 #include <vector>
 #include <string>
@@ -99,6 +107,8 @@ public:
     void InterpolateGenC0( const vector< VspCurve > &input_crv_vec, bool closed_flag );
     void InterpolateGenC1( const vector< VspCurve > &input_crv_vec, bool closed_flag );
     void InterpolateGenC2( const vector< VspCurve > &input_crv_vec, bool closed_flag );
+
+    void InterpolateRibs( const vector<rib_data_type> &ribs );
 
 
     // creates C1 continuous Piecewise Cubic Hermite Interpolating Polynomial

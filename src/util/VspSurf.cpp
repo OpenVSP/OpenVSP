@@ -20,18 +20,15 @@
 #include "eli/geom/curve/piecewise_creator.hpp"
 #include "eli/geom/surface/piecewise_body_of_revolution_creator.hpp"
 #include "eli/geom/intersect/minimum_distance_surface.hpp"
-#include "eli/geom/surface/piecewise_general_skinning_surface_creator.hpp"
 
 typedef piecewise_surface_type::index_type surface_index_type;
 typedef piecewise_surface_type::point_type surface_point_type;
 typedef piecewise_surface_type::rotation_matrix_type surface_rotation_matrix_type;
 typedef piecewise_surface_type::bounding_box_type surface_bounding_box_type;
-typedef piecewise_surface_type::tolerance_type surface_tolerance_type;
+typedef piecewise_curve_type::point_type curve_point_type;
 
-typedef eli::geom::curve::piecewise_cubic_spline_creator<double, 3, surface_tolerance_type> piecewise_cubic_spline_creator_type;
 typedef eli::geom::curve::piecewise_linear_creator<double, 3, surface_tolerance_type> piecewise_linear_creator_type;
 typedef eli::geom::surface::general_skinning_surface_creator<double, 3, surface_tolerance_type> general_creator_type;
-typedef eli::geom::surface::connection_data<double, 3, surface_tolerance_type> rib_data_type;
 
 
 //=============================================================================//
@@ -1115,6 +1112,23 @@ void VspSurf::InterpolateGenCMod3( const vector< VspCurve > &input_crv_vec, bool
 void VspSurf::InterpolateGenC0( const vector< VspCurve > &input_crv_vec, bool closed_flag )
 {
     InterpolateGenCX( input_crv_vec, closed_flag, rib_data_type::C0 );
+}
+
+//==== Interpolate A Set Of Points =====//
+void VspSurf::InterpolateRibs( const vector<rib_data_type> &ribs )
+{
+    general_creator_type gc;
+    surface_index_type nrib;
+
+    nrib = ribs.size();
+
+    std::vector<typename general_creator_type::index_type> max_degree( nrib - 1, 0 );
+
+    // create surface
+    bool setcond = gc.set_conditions(ribs, max_degree, false);
+    assert( setcond );
+
+    gc.create( m_Surface );
 }
 
 //==== Interpolate A Set Of Points =====//
