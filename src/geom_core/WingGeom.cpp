@@ -933,7 +933,7 @@ void WingGeom::UpdateSurf()
     }
 
 
-    m_MainSurfVec[0].InterpolateLinear( crv_vec, false );
+    m_MainSurfVec[0].InterpolateGenC0( crv_vec, false );
     if ( m_XSecSurf.GetFlipUD() )
     {
         m_MainSurfVec[0].FlipNormal();

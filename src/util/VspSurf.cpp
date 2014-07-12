@@ -984,66 +984,6 @@ void VspSurf::InterpolateManual( const std::vector<VspCurve> &input_crv_vec, con
     ResetFlipNormal();
 }
 
-
-//==== Interpolate A Set Of Points =====//
-void VspSurf::InterpolateLinear( const vector< VspCurve > &input_crv_vec, bool closed_flag )
-{
-    vector<piecewise_curve_type> cross_section;
-
-    // error checking
-    if ( input_crv_vec.size() < 2 )
-    {
-        std::cerr << "Too few cross sections to VspSurf::InterpolateLinear()" << std::endl;
-        return;
-    }
-
-    // get cross sections to be: (1) same number of sections, (2) same (similar) section parameterizations
-    // and (3) same degree curves on start and end of each patch
-    PrepairCrossSections( cross_section, input_crv_vec );
-
-    // add last cross section that is same as first for closed surfaces
-    if ( closed_flag )
-    {
-        cross_section.push_back( cross_section[0] );
-    }
-
-    surface_index_type i, j, nu( cross_section.size() - 1 ), nv( cross_section[0].number_segments() );
-
-    m_Surface.init_uv( nu, nv );
-
-    // connect cross-sections
-    for ( i = 0; i < nu; ++i )
-    {
-        for ( j = 0; j < nv; ++j )
-        {
-            surface_index_type ii, jj, udim( 1 ), vdim;
-            surface_patch_type s;
-            curve_segment_type cs[2];
-
-            cross_section[i].get( cs[0], j );
-            cross_section[i + 1].get( cs[1], j );
-
-            vdim = cs[0].degree();
-            s.resize( udim, vdim );
-
-            for ( jj = 0; jj <= vdim; ++jj )
-            {
-                ii = 0;
-                s.set_control_point( cs[ii].get_control_point( jj ), ii, jj );
-                ii = 1;
-                s.set_control_point( cs[ii].get_control_point( jj ), ii, jj );
-            }
-
-            m_Surface.set( s, i, j );
-        }
-    }
-
-    // degree reduce patches that don't need to be so high
-    DegreeReduceSections( input_crv_vec, closed_flag );
-
-    ResetFlipNormal();
-}
-
 void VspSurf::InterpolateGenCX( const vector< VspCurve > &input_crv_vec, bool closed_flag, const vector< int > &cx )
 {
     general_creator_type gc;
@@ -1134,7 +1074,7 @@ void VspSurf::InterpolatePCHIP( const vector< VspCurve > &input_crv_vec, bool cl
     if ( input_crv_vec.size() < 3 )
     {
         std::cerr << "Too few cross sections to VspSurf::InterpolatePCHIP()" << std::endl;
-        InterpolateLinear( input_crv_vec, closed_flag );
+        InterpolateGenC0( input_crv_vec, closed_flag );
         return;
     }
 
@@ -1226,7 +1166,7 @@ void VspSurf::InterpolateCSpline( const vector< VspCurve > &input_crv_vec, bool 
     if ( input_crv_vec.size() < 3 )
     {
         std::cerr << "Too few cross sections to VspSurf::InterpolateCSpline()" << std::endl;
-        InterpolateLinear( input_crv_vec, closed_flag );
+        InterpolateGenC0( input_crv_vec, closed_flag );
         return;
     }
 

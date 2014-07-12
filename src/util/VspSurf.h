@@ -93,10 +93,6 @@ public:
     // creates piecewise polynomial lofting of curves with user control over slopes and curvatures
     void InterpolateManual( const std::vector<VspCurve> &input_crv_vec, const vector<VspJointInfo> &joint_info_vec, bool closed_flag );
 
-    // creates C0 continuous piecewise line
-    void InterpolateLinear( const vector< VspCurve > &input_crv_vec, bool closed_flag );
-
-
     void InterpolateGenCX( const vector< VspCurve > &input_crv_vec, bool closed_flag, const vector< int > &cx );
     void InterpolateGenCX( const vector< VspCurve > &input_crv_vec, bool closed_flag, int cx );
 
