@@ -243,6 +243,7 @@ void VspSurf::SkinRibs( const vector<rib_data_type> &ribs, const vector < int > 
     assert( setcond );
 
     gc.create( m_Surface );
+    ResetFlipNormal();
 }
 
 //==== Interpolate A Set Of Points =====//
