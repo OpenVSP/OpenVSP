@@ -18,7 +18,7 @@
 #include "StlHelper.h"
 
 #include "eli/geom/curve/piecewise_creator.hpp"
-#include "eli/geom/surface/piecewise_creator.hpp"
+#include "eli/geom/surface/piecewise_body_of_revolution_creator.hpp"
 #include "eli/geom/intersect/minimum_distance_surface.hpp"
 
 typedef piecewise_surface_type::index_type surface_index_type;
@@ -518,7 +518,7 @@ Matrix4d VspSurf::CompTransCoordSys( const double &u, const double &w )
 
 void VspSurf::CreateBodyRevolution( const VspCurve &input_crv )
 {
-    eli::geom::surface::create_body_of_revolution( m_Surface, input_crv.GetCurve(), 0, eli::geom::surface::OUTWARD_NORMAL );
+    eli::geom::surface::create_body_of_revolution( m_Surface, input_crv.GetCurve(), 0, true );
 
     ResetFlipNormal();
 }
