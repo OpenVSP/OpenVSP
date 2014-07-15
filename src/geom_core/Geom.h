@@ -164,6 +164,7 @@ public:
     virtual void UpdateXForm()                              {}
 
     virtual void ParmChanged( Parm* parm_ptr, int type );
+    virtual void ForceUpdate();
 
     virtual int CountParents( int count );
 

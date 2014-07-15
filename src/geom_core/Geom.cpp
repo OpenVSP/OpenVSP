@@ -119,8 +119,15 @@ void GeomBase::ParmChanged( Parm* parm_ptr, int type )
     }
 
     Update();
-
     m_Vehicle->ParmChanged( parm_ptr, type );
+    m_UpdatedParmVec.clear();
+}
+
+void GeomBase::ForceUpdate()
+{
+    m_LateUpdateFlag = true;
+    m_Vehicle->Update();
+    m_Vehicle->UpdateGui();
 
     m_UpdatedParmVec.clear();
 }
