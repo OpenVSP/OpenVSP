@@ -81,6 +81,7 @@ public:
     void UnDo();
 
     void Update();
+    void UpdateGui();
 
     Geom* FindGeom( string geom_id );
     vector< Geom* > FindGeomVec( const vector< string > & geom_id_vec );

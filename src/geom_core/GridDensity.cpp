@@ -890,7 +890,8 @@ GridDensity::~GridDensity()
 
 void GridDensity::ParmChanged( Parm* parm_ptr, int type )
 {
-    MessageMgr::getInstance().Send( "ScreenMgr", "UpdateAllScreens" );
+    VehicleMgr.GetVehicle()->UpdateGui();
+//    MessageMgr::getInstance().Send( "ScreenMgr", "UpdateAllScreens" );
 }
 
 double GridDensity::GetRadFrac( bool farflag )

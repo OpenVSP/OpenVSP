@@ -198,6 +198,12 @@ void Vehicle::Renew()
 void Vehicle::ParmChanged( Parm* parm_ptr, int type )
 {
 //    UpdateBBox();
+    UpdateGui();
+}
+
+//==== Update All Screens ====//
+void Vehicle::UpdateGui()
+{
     MessageMgr::getInstance().Send( "ScreenMgr", "UpdateAllScreens" );
 }
 
