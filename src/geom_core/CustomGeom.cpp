@@ -58,7 +58,7 @@ void CustomGeomMgrSingleton::ReadCustomScripts()
 //==== Init Custom Geom ====//
 void CustomGeomMgrSingleton::InitGeom( const string& id, const string& module_name )
 {
-    Vehicle* veh = VehicleMgr::getInstance().GetVehicle();
+    Vehicle* veh = VehicleMgr.GetVehicle();
     Geom* gptr = veh->FindGeom( id );
 
     //==== Check If Geom is Valid and Correct Type ====//
@@ -76,7 +76,7 @@ void CustomGeomMgrSingleton::InitGeom( const string& id, const string& module_na
 //==== Add Parm To Current Custom Geom ====//
 string CustomGeomMgrSingleton::AddParm( int type, const string & name, const string & group )
 {
-    Vehicle* veh = VehicleMgr::getInstance().GetVehicle();
+    Vehicle* veh = VehicleMgr.GetVehicle();
     Geom* gptr = veh->FindGeom( m_CurrGeom );
 
     //==== Check If Geom is Valid and Correct Type ====//
@@ -92,7 +92,7 @@ string CustomGeomMgrSingleton::AddParm( int type, const string & name, const str
 
 string CustomGeomMgrSingleton::GetCustomParm( int index )
 {
-    Geom* gptr = VehicleMgr::getInstance().GetVehicle()->FindGeom( m_CurrGeom );
+    Geom* gptr = VehicleMgr.GetVehicle()->FindGeom( m_CurrGeom );
 
     //==== Check If Geom is Valid and Correct Type ====//
     if ( gptr && gptr->GetType().m_Type == CUSTOM_GEOM_TYPE )
@@ -107,7 +107,7 @@ string CustomGeomMgrSingleton::GetCustomParm( int index )
 //==== Add Gui Device Build Data For Custom Geom ====//
 int CustomGeomMgrSingleton::AddGui( int type, const string & label )
 {
-   Geom* gptr = VehicleMgr::getInstance().GetVehicle()->FindGeom( m_CurrGeom );
+    Geom* gptr = VehicleMgr.GetVehicle()->FindGeom( m_CurrGeom );
 
     //==== Check If Geom is Valid and Correct Type ====//
     if ( gptr && gptr->GetType().m_Type == CUSTOM_GEOM_TYPE )
@@ -125,7 +125,7 @@ int CustomGeomMgrSingleton::AddGui( int type, const string & label )
 //==== Update Gui ====//
 void CustomGeomMgrSingleton::AddUpdateGui( int gui_id, const string & parm_id )
 {
-    Geom* gptr = VehicleMgr::getInstance().GetVehicle()->FindGeom( m_CurrGeom );
+    Geom* gptr = VehicleMgr.GetVehicle()->FindGeom( m_CurrGeom );
     //==== Check If Geom is Valid and Correct Type ====//
     if ( gptr && gptr->GetType().m_Type == CUSTOM_GEOM_TYPE )
     {
@@ -143,7 +143,7 @@ void CustomGeomMgrSingleton::AddUpdateGui( int gui_id, const string & parm_id )
 vector< GuiDef > CustomGeomMgrSingleton::GetGuiDefVec( const string & geom_id )
 {
     SetCurrCustomGeom( geom_id );
-    Geom* gptr = VehicleMgr::getInstance().GetVehicle()->FindGeom( m_CurrGeom );
+    Geom* gptr = VehicleMgr.GetVehicle()->FindGeom( m_CurrGeom );
 
     //==== Check If Geom is Valid and Correct Type ====//
     if ( gptr && gptr->GetType().m_Type == CUSTOM_GEOM_TYPE )
@@ -160,7 +160,7 @@ vector< GuiDef > CustomGeomMgrSingleton::GetGuiDefVec( const string & geom_id )
 //==== Build Update Gui Instruction Vector ====//
 vector< GuiUpdate > CustomGeomMgrSingleton::GetGuiUpdateVec()
 {
-    Geom* gptr = VehicleMgr::getInstance().GetVehicle()->FindGeom( m_CurrGeom );
+    Geom* gptr = VehicleMgr.GetVehicle()->FindGeom( m_CurrGeom );
     //==== Check If Geom is Valid and Correct Type ====//
     if ( gptr && gptr->GetType().m_Type == CUSTOM_GEOM_TYPE )
     {
@@ -175,7 +175,7 @@ vector< GuiUpdate > CustomGeomMgrSingleton::GetGuiUpdateVec()
 //==== Add XSec Surface To Current Geom - Return ID =====//
 string CustomGeomMgrSingleton::AddXSecSurf()
 {
-    Geom* gptr = VehicleMgr::getInstance().GetVehicle()->FindGeom( m_CurrGeom );
+    Geom* gptr = VehicleMgr.GetVehicle()->FindGeom( m_CurrGeom );
 
     //==== Check If Geom is Valid and Correct Type ====//
     if ( gptr && gptr->GetType().m_Type == CUSTOM_GEOM_TYPE )
@@ -189,7 +189,7 @@ string CustomGeomMgrSingleton::AddXSecSurf()
 //==== Skin XSec Surf =====//
 void CustomGeomMgrSingleton::SkinXSecSurf()
 {
-    Geom* gptr = VehicleMgr::getInstance().GetVehicle()->FindGeom( m_CurrGeom );
+    Geom* gptr = VehicleMgr.GetVehicle()->FindGeom( m_CurrGeom );
 
     //==== Check If Geom is Valid and Correct Type ====//
     if ( gptr && gptr->GetType().m_Type == CUSTOM_GEOM_TYPE )

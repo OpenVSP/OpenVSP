@@ -33,7 +33,7 @@ Vehicle* GetVehicle()
     VSPCheckSetup();
 
     //==== Check For Valid Vehicle Ptr ====//
-    Vehicle* veh = VehicleMgr::getInstance().GetVehicle();
+    Vehicle* veh = VehicleMgr.GetVehicle();
     if ( !veh )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "GetVehicle::Invalid Vehicle Ptr"  );
@@ -98,7 +98,7 @@ void VSPCheckSetup()
     once = true;
 
     //==== Check For Valid Vehicle Ptr ====//
-    if ( !VehicleMgr::getInstance().GetVehicle() )
+    if ( !VehicleMgr.GetVehicle() )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "VSPInit::Invalid Vehicle Ptr"  );
         exit( 0 );

@@ -388,7 +388,7 @@ void WakeMgr::Show( bool flag )
 
 CfdMeshMgrSingleton::CfdMeshMgrSingleton() : ParmContainer()
 {
-    m_Vehicle = VehicleMgr::getInstance().GetVehicle();
+    m_Vehicle = VehicleMgr.GetVehicle();
 
     m_HighlightChainIndex = 0;
 

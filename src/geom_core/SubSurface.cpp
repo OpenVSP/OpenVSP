@@ -38,7 +38,7 @@ void SubSurface::ParmChanged( Parm* parm_ptr, int type )
 {
     Update();
 
-    Vehicle* veh = VehicleMgr::getInstance().GetVehicle();
+    Vehicle* veh = VehicleMgr.GetVehicle();
     if ( veh )
     {
         veh->ParmChanged( parm_ptr, type );
@@ -87,7 +87,7 @@ void SubSurface::UpdateDrawObjs()
         return;
     }
 
-    Vehicle* veh = VehicleMgr::getInstance().GetVehicle();
+    Vehicle* veh = VehicleMgr.GetVehicle();
     if ( !veh ) return;
     Geom* geom = veh->FindGeom( m_CompID );
     m_DrawObjVec.clear();
@@ -559,7 +559,7 @@ void SSLine::Update()
     }
 
     m_LVec[0].m_TestType = m_TestType();
-    Geom* geom = VehicleMgr::getInstance().GetVehicle()->FindGeom( m_CompID );
+    Geom* geom = VehicleMgr.GetVehicle()->FindGeom( m_CompID );
     if ( !geom )
     {
         return;
@@ -633,7 +633,7 @@ SSRectangle::~SSRectangle()
 
 void SSRectangle::Update()
 {
-    Geom* geom = VehicleMgr::getInstance().GetVehicle()->FindGeom( m_CompID );
+    Geom* geom = VehicleMgr.GetVehicle()->FindGeom( m_CompID );
     if ( !geom )
     {
         return;
@@ -741,7 +741,7 @@ void SSEllipse::Update()
 {
     UpdateLVecSize();
 
-    Geom* geom = VehicleMgr::getInstance().GetVehicle()->FindGeom( m_CompID );
+    Geom* geom = VehicleMgr.GetVehicle()->FindGeom( m_CompID );
     if ( !geom )
     {
         return;

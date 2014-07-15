@@ -212,7 +212,7 @@ int VspGlWindow::handle( int fl_event )
 
 void VspGlWindow::update()
 {
-    Vehicle* vPtr = VehicleMgr::getInstance().GetVehicle();
+    Vehicle* vPtr = VehicleMgr.GetVehicle();
 
     if ( vPtr )
     {

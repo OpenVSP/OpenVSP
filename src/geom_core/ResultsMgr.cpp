@@ -543,7 +543,7 @@ string ResultsMgrSingleton::CreateGeomResults( const string & geom_id, const str
 {
     Results* res_ptr = CreateResults( name );
 
-    Vehicle* veh = VehicleMgr::getInstance().GetVehicle();
+    Vehicle* veh = VehicleMgr.GetVehicle();
     if ( !veh )
     {
         return string();

@@ -96,7 +96,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     m_GlWin = new VspGlWindow( w->x(), w->y(), w->w(), w->h(), mgr, DrawObj::VSP_MAIN_SCREEN );
     m_MainUI->GlWinGroup->end();
 
-    SetFileLabel( VehicleMgr::getInstance().GetVehicle()->GetVSP3FileName() );
+    SetFileLabel( VehicleMgr.GetVehicle()->GetVSP3FileName() );
 
     m_MainUI->winShell->label( VSPVERSION2 );
     m_MainUI->TitleBox->label( VSPVERSION3 );
@@ -269,7 +269,7 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
     }
     else if ( m == m_MainUI->RevertMenu )
     {
-        VehicleMgr::getInstance().GetVehicle()->UnDo();
+        VehicleMgr.GetVehicle()->UnDo();
     }
     else if ( m == m_MainUI->SetEditorMenu )
     {
@@ -330,9 +330,9 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
     }
     else if ( m == m_MainUI->NewMenu )
     {
-        VehicleMgr::getInstance().GetVehicle()->Renew();
+        VehicleMgr.GetVehicle()->Renew();
 
-        SetFileLabel( VehicleMgr::getInstance().GetVehicle()->GetVSP3FileName() );
+        SetFileLabel( VehicleMgr.GetVehicle()->GetVSP3FileName() );
 
         m_ScreenMgr->SetUpdateFlag( true );
     }
@@ -341,9 +341,9 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
         string openfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Open VSP File", "*.vsp3" );
         if ( openfile.compare( "" ) != 0 )
         {
-            VehicleMgr::getInstance().GetVehicle()->Renew();
-            VehicleMgr::getInstance().GetVehicle()->SetVSP3FileName( openfile );
-            VehicleMgr::getInstance().GetVehicle()->ReadXMLFile( openfile );
+            VehicleMgr.GetVehicle()->Renew();
+            VehicleMgr.GetVehicle()->SetVSP3FileName( openfile );
+            VehicleMgr.GetVehicle()->ReadXMLFile( openfile );
 
             CfdMeshMgr.ResetExportFileNames();
 
@@ -354,7 +354,7 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
     }
     else if ( m == m_MainUI->SaveMenu )
     {
-        string savefile = VehicleMgr::getInstance().GetVehicle()->GetVSP3FileName();
+        string savefile = VehicleMgr.GetVehicle()->GetVSP3FileName();
 
         if ( savefile.compare( "Unnamed.vsp3" ) == 0 )
         {
@@ -364,8 +364,8 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
         if ( savefile.compare( "" ) != 0 )
         {
             savefile = CheckAddVSP3Ext( savefile );
-            VehicleMgr::getInstance().GetVehicle()->SetVSP3FileName( savefile );
-            VehicleMgr::getInstance().GetVehicle()->WriteXMLFile( savefile, SET_ALL );
+            VehicleMgr.GetVehicle()->SetVSP3FileName( savefile );
+            VehicleMgr.GetVehicle()->WriteXMLFile( savefile, SET_ALL );
 
             CfdMeshMgr.ResetExportFileNames();
 
@@ -380,8 +380,8 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
         if ( savefile.compare( "" ) != 0 )
         {
             savefile = CheckAddVSP3Ext( savefile );
-            VehicleMgr::getInstance().GetVehicle()->SetVSP3FileName( savefile );
-            VehicleMgr::getInstance().GetVehicle()->WriteXMLFile( savefile, SET_ALL );
+            VehicleMgr.GetVehicle()->SetVSP3FileName( savefile );
+            VehicleMgr.GetVehicle()->WriteXMLFile( savefile, SET_ALL );
 
             CfdMeshMgr.ResetExportFileNames();
 
@@ -400,7 +400,7 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
             if ( savefile.compare( "" ) != 0 )
             {
                 savefile = CheckAddVSP3Ext( savefile );
-                VehicleMgr::getInstance().GetVehicle()->WriteXMLFile( savefile, set );
+                VehicleMgr.GetVehicle()->WriteXMLFile( savefile, set );
             }
         }
     }
@@ -409,7 +409,7 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
         string openfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Insert VSP File", "*.vsp3" );
         if ( openfile.compare( "" ) != 0 )
         {
-            VehicleMgr::getInstance().GetVehicle()->ReadXMLFile( openfile );
+            VehicleMgr.GetVehicle()->ReadXMLFile( openfile );
             m_ScreenMgr->SetUpdateFlag( true );
         }
     }

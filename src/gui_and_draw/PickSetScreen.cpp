@@ -74,7 +74,7 @@ void PickSetScreen::LoadSetChoice()
 {
     m_PickSetUI->setChoice->clear();
 
-    Vehicle* veh = VehicleMgr::getInstance().GetVehicle();
+    Vehicle* veh = VehicleMgr.GetVehicle();
     vector< string > set_name_vec = veh->GetSetNameVec();
 
     for ( int i = 0 ; i < ( int )set_name_vec.size() ; i++ )
@@ -89,7 +89,7 @@ void PickSetScreen::LoadSetChoice()
 //==== Callbacks ====//
 void PickSetScreen::CallBack( Fl_Widget *w )
 {
-    Vehicle* veh = VehicleMgr::getInstance().GetVehicle();
+    Vehicle* veh = VehicleMgr.GetVehicle();
     string newfile;
 
     if ( w ==   m_PickSetUI->okButton )

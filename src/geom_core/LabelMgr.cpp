@@ -23,7 +23,7 @@ Label::~Label()
 
 void Label::ParmChanged( Parm* parm_ptr, int type )
 {
-    VehicleMgr::getInstance().GetVehicle()->ParmChanged( parm_ptr, type );
+    VehicleMgr.GetVehicle()->ParmChanged( parm_ptr, type );
 }
 
 void Label::Reset()
@@ -45,7 +45,7 @@ vec2d Label::MapToUW(std::string geomId, vec3d xyz)
     double u, w;
     u = w = 0.0;
 
-    Vehicle* vPtr = VehicleMgr::getInstance().GetVehicle();
+    Vehicle* vPtr = VehicleMgr.GetVehicle();
     Geom * geom = vPtr->FindGeom(geomId);
 
     assert(geom);
@@ -62,7 +62,7 @@ vec3d Label::MapToXYZ(std::string geomId, vec2d uw)
 {
     vec3d xyz;
 
-    Vehicle* vPtr = VehicleMgr::getInstance().GetVehicle();
+    Vehicle* vPtr = VehicleMgr.GetVehicle();
     Geom * geom = vPtr->FindGeom(geomId);
 
     assert(geom);

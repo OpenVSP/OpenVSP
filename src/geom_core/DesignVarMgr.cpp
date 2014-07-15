@@ -71,7 +71,7 @@ bool DesignVarNameCompare( const DesignVar *dvA, const DesignVar *dvB )
 //==== Constructor ====//
 DesignVarMgrSingleton::DesignVarMgrSingleton()
 {
-    m_WorkingXDDMType.Init( "Working_XDDM_Type", "Design", VehicleMgr::getInstance().GetVehicle(), DesignVar::XDDM_VAR, DesignVar::XDDM_VAR, DesignVar::XDDM_CONST, false );
+    m_WorkingXDDMType.Init( "Working_XDDM_Type", "Design", VehicleMgr.GetVehicle(), DesignVar::XDDM_VAR, DesignVar::XDDM_VAR, DesignVar::XDDM_CONST, false );
     Init();
 }
 
@@ -334,7 +334,7 @@ void DesignVarMgrSingleton::ReadDesVarsDES( const string &newfile )
             }
         }
         // Trigger update.
-        VehicleMgr::getInstance().GetVehicle()->Update();
+        VehicleMgr.GetVehicle()->Update();
     }
     fclose( fp );
 }
@@ -346,7 +346,7 @@ void DesignVarMgrSingleton::WriteDesVarsXDDM( const string &newfile )
     xmlNodePtr model_node = xmlNewNode( NULL, ( const xmlChar * )"Model" );
     xmlDocSetRootElement( doc, model_node );
 
-    xmlSetProp( model_node, ( const xmlChar * )"ID", ( const xmlChar * ) VehicleMgr::getInstance().GetVehicle()->GetVSP3FileName().c_str() );
+    xmlSetProp( model_node, ( const xmlChar * )"ID", ( const xmlChar * ) VehicleMgr.GetVehicle()->GetVSP3FileName().c_str() );
     xmlSetProp( model_node, ( const xmlChar * )"Modeler", ( const xmlChar * )"OpenVSP" );
     xmlSetProp( model_node, ( const xmlChar * )"Wrapper", ( const xmlChar * )"wrap_vsp.csh" );
 
@@ -457,7 +457,7 @@ void DesignVarMgrSingleton::ReadDesVarsXDDM( const string &newfile )
     }
 
     // Trigger update.
-    VehicleMgr::getInstance().GetVehicle()->Update();
+    VehicleMgr.GetVehicle()->Update();
 
     //===== Free Doc =====//
     xmlFreeDoc( doc );

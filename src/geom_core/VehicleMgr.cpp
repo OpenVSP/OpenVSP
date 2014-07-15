@@ -15,13 +15,13 @@
 #endif
 
 //==== Constructor ====//
-VehicleMgr::VehicleMgr()
+VehicleMgrSingleton::VehicleMgrSingleton()
 {
     m_Vehicle = new Vehicle();
     m_Vehicle->Init();
 }
 
-Vehicle* VehicleMgr::GetVehicle()
+Vehicle* VehicleMgrSingleton::GetVehicle()
 {
     return m_Vehicle;
 }

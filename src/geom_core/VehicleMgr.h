@@ -14,22 +14,26 @@
 class Vehicle;
 
 //==== Vehicle Manager ====//
-class VehicleMgr
+class VehicleMgrSingleton
 {
 private:
-    VehicleMgr();
-    VehicleMgr( VehicleMgr const& copy );          // Not Implemented
-    VehicleMgr& operator=( VehicleMgr const& copy ); // Not Implemented
+    VehicleMgrSingleton();
+    VehicleMgrSingleton( VehicleMgrSingleton const& copy );          // Not Implemented
+    VehicleMgrSingleton& operator=( VehicleMgrSingleton const& copy ); // Not Implemented
 
     Vehicle* m_Vehicle;
 
 public:
-    static VehicleMgr& getInstance()
+    static VehicleMgrSingleton& getInstance()
     {
-        static VehicleMgr instance;
+        static VehicleMgrSingleton instance;
         return instance;
     }
     Vehicle* GetVehicle();
 };
+
+
+#define VehicleMgr VehicleMgrSingleton::getInstance()
+
 
 #endif // !defined(VEHICLEMGR__INCLUDED_)

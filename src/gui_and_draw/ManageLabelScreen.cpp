@@ -47,7 +47,7 @@ void ManageLabelScreen::Hide()
 
 bool ManageLabelScreen::Update()
 {
-    Vehicle* vPtr = VehicleMgr::getInstance().GetVehicle();
+    Vehicle* vPtr = VehicleMgr.GetVehicle();
     std::vector<Label*> labels = vPtr->getVGuiDraw()->getLabelMgr()->GetVec();
 
     m_LabelUI->labelBrowser->clear();
@@ -98,7 +98,7 @@ bool ManageLabelScreen::Update()
 
 void ManageLabelScreen::CallBack(Fl_Widget * w)
 {
-    Vehicle* vPtr = VehicleMgr::getInstance().GetVehicle();
+    Vehicle* vPtr = VehicleMgr.GetVehicle();
 
     if ( w == m_LabelUI->addLabelButton )
     {
@@ -283,7 +283,7 @@ std::string ManageLabelScreen::getFeedbackGroupName()
 
 std::string ManageLabelScreen::GenerateRuler()
 {
-    Vehicle* vPtr = VehicleMgr::getInstance().GetVehicle();
+    Vehicle* vPtr = VehicleMgr.GetVehicle();
 
     DrawObj rulerObj;
     rulerObj.m_GeomID = vPtr->getVGuiDraw()->getLabelMgr()->CreateAndAddRuler(GenerateName());
@@ -300,7 +300,7 @@ std::string ManageLabelScreen::GenerateRuler()
 
 void ManageLabelScreen::RemoveRuler(std::string geomId)
 {
-    Vehicle* vPtr = VehicleMgr::getInstance().GetVehicle();
+    Vehicle* vPtr = VehicleMgr.GetVehicle();
     vPtr->getVGuiDraw()->getLabelMgr()->Remove(geomId);
 
     for(int i = 0; i < (int)m_LabelList.size(); i++)
@@ -465,7 +465,7 @@ void ManageLabelScreen::UpdatePickList()
 
 void ManageLabelScreen::UpdateNameInput()
 {
-    Vehicle* vPtr = VehicleMgr::getInstance().GetVehicle();
+    Vehicle* vPtr = VehicleMgr.GetVehicle();
 
     if(m_Current.size() > 1)
     {

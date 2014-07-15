@@ -430,7 +430,7 @@ void LinkMgrSingleton::ParmChanged( const string& pid, bool start_flag  )
         }
         m_UpdatedParmVec.clear();
 
-        Vehicle* veh = VehicleMgr::getInstance().GetVehicle();
+        Vehicle* veh = VehicleMgr.GetVehicle();
         if ( veh )
         {
             veh->ParmChanged( parm_ptr, Parm::SET );

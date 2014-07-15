@@ -70,7 +70,7 @@ void VspSubGlWindow::draw()
 
 void VspSubGlWindow::update()
 {
-    Vehicle* vPtr = VehicleMgr::getInstance().GetVehicle();
+    Vehicle* vPtr = VehicleMgr.GetVehicle();
 
     if ( vPtr )
     {

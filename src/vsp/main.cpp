@@ -360,7 +360,7 @@ int main( int argc, char** argv )
 //#endif
 
     //==== Get Vehicle Ptr ====//
-    Vehicle* vPtr = VehicleMgr::getInstance().GetVehicle();
+    Vehicle* vPtr = VehicleMgr.GetVehicle();
 
     if ( batchMode( argc, argv, vPtr ) )
     {

@@ -30,7 +30,7 @@ SubSurfaceMgrSingleton::~SubSurfaceMgrSingleton()
 //==== Get the geom pointer matching a given comp_id ====//
 Geom* SubSurfaceMgrSingleton::GetGeom( string comp_id )
 {
-    Vehicle* veh = VehicleMgr::getInstance().GetVehicle();
+    Vehicle* veh = VehicleMgr.GetVehicle();
     if ( !veh )
     {
         return NULL;
@@ -62,7 +62,7 @@ vector< SubSurface*> SubSurfaceMgrSingleton::GetSubSurfs( string comp_id )
 vector< SubSurface* > SubSurfaceMgrSingleton::GetSubSurfs()
 {
     vector< SubSurface* > ret_vec;
-    Vehicle* veh = VehicleMgr::getInstance().GetVehicle();
+    Vehicle* veh = VehicleMgr.GetVehicle();
     if( !veh )
     {
         return ret_vec;

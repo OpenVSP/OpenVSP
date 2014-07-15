@@ -26,7 +26,7 @@ void Light::ParmChanged( Parm* parm_ptr, int type )
         return;
     }
 
-    VehicleMgr::getInstance().GetVehicle()->ParmChanged( parm_ptr, type );
+    VehicleMgr.GetVehicle()->ParmChanged( parm_ptr, type );
 }
 
 LightMgr::LightMgr()

@@ -442,7 +442,7 @@ void UserParmContainer::Renew()
 //==== Parm Changed ====//
 void UserParmContainer::ParmChanged( Parm* parm_ptr, int type )
 {
-    Vehicle* veh = VehicleMgr::getInstance().GetVehicle();
+    Vehicle* veh = VehicleMgr.GetVehicle();
     if ( veh )
     {
         veh->ParmChanged( parm_ptr, Parm::SET );
