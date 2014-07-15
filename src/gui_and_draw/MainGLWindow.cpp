@@ -318,8 +318,6 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
         Renderable * rObj;
         Entity * eObj;
 
-        VSPGraphic::Ruler * ruler;
-
         switch( objects[i]->m_Type )
         {
         case DrawObj::VSP_SETTING:
@@ -680,11 +678,11 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
             ruler = dynamic_cast<VSPGraphic::Ruler*> ( m_GEngine->getScene()->getObject( id ) );
             if( ruler )
             {
-                ruler->setTextColor( objects[i]->m_TextColor.x(),
-                    objects[i]->m_TextColor.y(),
-                    objects[i]->m_TextColor.z() );
+                ruler->setTextColor( (float)objects[i]->m_TextColor.x(),
+                    (float)objects[i]->m_TextColor.y(),
+                    (float)objects[i]->m_TextColor.z() );
 
-                ruler->setTextSize( objects[i]->m_TextSize );
+                ruler->setTextSize( (float)objects[i]->m_TextSize );
 
                 switch( objects[i]->m_Ruler.Step )
                 {

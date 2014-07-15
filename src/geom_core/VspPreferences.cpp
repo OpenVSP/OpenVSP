@@ -36,7 +36,7 @@ VspPreferences::VspPreferences()
             xmlNodePtr shi_node = XmlUtil::GetNode( mat_node, "Shininess", 0 );
         
             mat.name = XmlUtil::ExtractString( nam_node );
-            mat.shininess = XmlUtil::ExtractDouble( shi_node );
+            mat.shininess = (float)XmlUtil::ExtractDouble( shi_node );
 
             XmlUtil::ExtractDoubleArray( amb_node, ',', &mat.ambi[0], 4 );
             XmlUtil::ExtractDoubleArray( dif_node, ',', &mat.diff[0], 4 );
@@ -66,7 +66,7 @@ bool VspPreferences::findMaterialPref( std::string name, VspPreferences::Materia
 
 bool VspPreferences::findMaterialPref( int index, VspPreferences::MaterialPref& out )
 {
-    if( index >= 0 && index < m_MaterialPrefs.size() )
+    if( index >= 0 && index < (int)m_MaterialPrefs.size() )
     {
         out = m_MaterialPrefs[index];
         return true;

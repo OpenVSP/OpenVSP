@@ -1336,11 +1336,11 @@ void TTri::SplitTri( int meshFlag )
 
             if ( uwflag )
             {
-                onEdgeFlag = OnEdge( uwVec[i], m_EVec[j], onEdgeTol );
+                onEdgeFlag = !!OnEdge( uwVec[i], m_EVec[j], onEdgeTol );
             }
             else
             {
-                onEdgeFlag = OnEdge( pVec[i], m_EVec[j], onEdgeTol );
+                onEdgeFlag = !!OnEdge( pVec[i], m_EVec[j], onEdgeTol );
             }
 
             if ( onEdgeFlag )
@@ -2601,7 +2601,6 @@ void  TBndBox::RayCast( vec3d & orig, vec3d & dir, vector<double> & tParmVec )
     int i;
 
     double coord[3];
-    double t;
 
     if( !intersectRayAABB( m_Box.GetMin().v, m_Box.GetMax().v, orig.v, dir.v, coord ) )
     {
@@ -3238,7 +3237,7 @@ void TMesh::BuildNodeMaps()
     // This method builds the map between a node and its aliases and a map between
     // each node to its master node
 
-    int i, n, t;
+    int i, n;
 
     map< TNode*, list<TNode*> >::iterator mi;
 
@@ -3316,7 +3315,7 @@ void TMesh::DeleteDupNodes()
     list< TNode* >::iterator lit;
 
     //==== Go Thru All Tri And Set All Nodes to their Master ====//
-    for ( t = 0 ; t < m_TVec.size(); t++ )
+    for ( t = 0 ; t < (int)m_TVec.size(); t++ )
     {
         m_TVec[t]->m_N0 = m_NSMMap[m_TVec[t]->m_N0];
         m_TVec[t]->m_N1 = m_NSMMap[m_TVec[t]->m_N1];

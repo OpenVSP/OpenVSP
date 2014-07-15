@@ -2030,14 +2030,14 @@ vec2d Surf::Convert2Surf( double u, double w )
 
 double Surf::InterpolateToVspSurf( const vector< double> & vec, const double & surf_val ) const
 {
-    int x0 = floor( surf_val );
+    int x0 = (int)floor( surf_val );
     int x1 = x0 + 1;
 
     if ( x0 < 0 )
     {
         return vec.front();
     }
-    if ( x1 > vec.size() - 1 )
+    if ( x1 > (int)vec.size() - 1 )
     {
         return vec.back();
     }

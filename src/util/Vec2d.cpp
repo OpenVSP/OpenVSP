@@ -501,7 +501,7 @@ bool PointInPolygon( const vec2d & R, const std::vector< vec2d > & pnts )
         modify_w = false;
     }
 
-    return abs( w % 2 );
+    return !!(abs( w % 2 ));
 
 }
 

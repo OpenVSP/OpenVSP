@@ -432,9 +432,9 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SubSurfChoice.AddItem( SubSurface::GetTypeName( SubSurface::SS_ELLIPSE ) );
 
     int b_width = m_SubSurfLayout.GetRemainX();
-    m_SubSurfLayout.SetButtonWidth( b_width * 0.4 );
+    m_SubSurfLayout.SetButtonWidth( (int)(b_width * 0.4) );
     m_SubSurfLayout.SetChoiceButtonWidth( b_width / 5 );
-    m_SubSurfLayout.SetSliderWidth( b_width * 0.4 );
+    m_SubSurfLayout.SetSliderWidth( (int)(b_width * 0.4) );
     m_SubSurfLayout.AddChoice( m_SubSurfChoice, "Type" );
     m_SubSurfLayout.AddButton( m_AddSubSurfButton, "Add" );
 

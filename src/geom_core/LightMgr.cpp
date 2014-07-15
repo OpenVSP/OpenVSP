@@ -63,7 +63,7 @@ LightMgr::LightMgr()
 }
 LightMgr::~LightMgr()
 {
-    for( int i = 0; i < m_Lights.size(); i++ )
+    for( int i = 0; i < (int)m_Lights.size(); i++ )
     {
         delete m_Lights[i];
     }

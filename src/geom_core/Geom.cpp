@@ -1094,27 +1094,27 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
         Material * material = m_GuiDraw.getMaterialMgr()->getMaterial();
 
-        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[0] = material->m_AmbientR.Get();
-        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[1] = material->m_AmbientG.Get();
-        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[2] = material->m_AmbientB.Get();
-        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[3] = material->m_AmbientA.Get();
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[0] = (float)material->m_AmbientR.Get();
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[1] = (float)material->m_AmbientG.Get();
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[2] = (float)material->m_AmbientB.Get();
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[3] = (float)material->m_AmbientA.Get();
 
-        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[0] = material->m_DiffuseR.Get();
-        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[1] = material->m_DiffuseG.Get();
-        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[2] = material->m_DiffuseB.Get();
-        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[3] = material->m_DiffuseA.Get();
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[0] = (float)material->m_DiffuseR.Get();
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[1] = (float)material->m_DiffuseG.Get();
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[2] = (float)material->m_DiffuseB.Get();
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[3] = (float)material->m_DiffuseA.Get();
 
-        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[0] = material->m_SpecularR.Get();
-        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[1] = material->m_SpecularG.Get();
-        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[2] = material->m_SpecularB.Get();
-        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[3] = material->m_SpecularA.Get();
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[0] = (float)material->m_SpecularR.Get();
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[1] = (float)material->m_SpecularG.Get();
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[2] = (float)material->m_SpecularB.Get();
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[3] = (float)material->m_SpecularA.Get();
 
-        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[0] = material->m_EmissionR.Get();
-        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[1] = material->m_EmissionG.Get();
-        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[2] = material->m_EmissionB.Get();
-        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[3] = material->m_EmissionA.Get();
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[0] = (float)material->m_EmissionR.Get();
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[1] = (float)material->m_EmissionG.Get();
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[2] = (float)material->m_EmissionB.Get();
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[3] = (float)material->m_EmissionA.Get();
 
-        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Shininess = material->m_Shininess.Get();
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Shininess = (float)material->m_Shininess.Get();
 
         vec3d lineColor = vec3d( m_GuiDraw.GetWireColor().x() / 255.0,
             m_GuiDraw.GetWireColor().y() / 255.0,

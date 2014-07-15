@@ -307,7 +307,7 @@ bool MaterialRepo::FindMaterial( std::string name, MaterialRepo::MaterialPref& m
 
 bool MaterialRepo::FindMaterial( int index, MaterialRepo::MaterialPref& mat_out )
 {
-    if( index >= 0 && index < m_Materials.size() )
+    if( index >= 0 && index < (int)m_Materials.size() )
     {
         mat_out = m_Materials[index];
         return true;

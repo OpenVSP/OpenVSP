@@ -1145,9 +1145,9 @@ void MeshGeom::ApplyScale()
             }
         }
 
-        for ( int j = 0 ; j < m_TMeshVec[i]->m_XYZPnts.size() ; j++ )
+        for ( int j = 0 ; j < (int)m_TMeshVec[i]->m_XYZPnts.size() ; j++ )
         {
-            for ( int k = 0 ; k < m_TMeshVec[i]->m_XYZPnts[j].size() ; k++ )
+            for ( int k = 0 ; k < (int)m_TMeshVec[i]->m_XYZPnts[j].size() ; k++ )
             {
                 m_TMeshVec[i]->m_XYZPnts[j][k] = m_TMeshVec[i]->m_XYZPnts[j][k] * ( m_Scale() / m_LastScale );
             }
