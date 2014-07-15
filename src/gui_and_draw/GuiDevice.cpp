@@ -36,6 +36,33 @@ void GuiDevice::Init( VspScreen* screen )
     m_Screen = screen;
 }
 
+//==== Add Widget ====//
+void GuiDevice::AddWidget( Fl_Widget* w, bool resizable_flag )
+{
+    if ( w )
+    {
+        m_WidgetVec.push_back( w );
+    }
+}
+
+//==== Activate ====//
+void GuiDevice::Activate()
+{
+    for ( int i = 0 ; i < (int)m_WidgetVec.size() ; i++ )
+    {
+        m_WidgetVec[i]->activate();
+    }
+}
+
+//==== Deactivate ====//
+void GuiDevice::Deactivate()
+{
+    for ( int i = 0 ; i < (int)m_WidgetVec.size() ; i++ )
+    {
+        m_WidgetVec[i]->deactivate();
+    }
+}
+
 //==== Set Parm Pointer ====//
 Parm* GuiDevice::SetParmID( const string& parm_id )
 {
@@ -106,6 +133,9 @@ void Input::Init( VspScreen* screen, Fl_Input* input, const char* format, Fl_But
 {
     assert( input );
     GuiDevice::Init( screen );
+    AddWidget( parm_button );
+    AddWidget( input, true );
+
     SetFormat( format );
     m_Input = input;
     m_Input->callback( StaticDeviceCB, this );
@@ -135,20 +165,6 @@ void Input::SetValAndLimits( Parm* parm_ptr )
     {
         m_ParmButton.Update( parm_ptr->GetID() );
     }
-}
-
-//==== Activate ====//
-void Input::Activate()
-{
-    assert( m_Input );
-    m_Input->activate();
-}
-
-//==== Deactivate ====//
-void Input::Deactivate()
-{
-    assert( m_Input );
-    m_Input->deactivate();
 }
 
 //==== CallBack ====//
@@ -189,6 +205,7 @@ Slider::Slider( ) : GuiDevice()
 void Slider::Init( VspScreen* screen,   Fl_Slider* slider_widget, double range )
 {
     GuiDevice::Init( screen );
+    AddWidget(slider_widget);
     SetRange( range );
     m_Slider = slider_widget;
     assert( m_Slider );
@@ -214,20 +231,6 @@ void Slider::SetValAndLimits( Parm* parm_ptr )
     }
 
     m_LastVal = new_val;
-}
-
-//==== Activate ====//
-void Slider::Activate()
-{
-    assert( m_Slider );
-    m_Slider->activate();
-}
-
-//==== Deactivate ====//
-void Slider::Deactivate()
-{
-    assert( m_Slider );
-    m_Slider->deactivate();
 }
 
 //==== CallBack ====//
@@ -271,6 +274,11 @@ void SliderAdjRange::Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbut
 {
     Slider::Init( screen, slider, range );
 
+    ClearAllWidgets();
+    AddWidget( lbutton );
+    AddWidget( slider, true );
+    AddWidget( rbutton );
+
     m_MinStopState = SAR_NO_STOP;
     m_MaxStopState = SAR_NO_STOP;
 
@@ -284,25 +292,6 @@ void SliderAdjRange::Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbut
     m_MaxButton->callback( StaticDeviceCB, this );
 }
 
-//==== Activate ====//
-void SliderAdjRange::Activate()
-{
-    Slider::Activate();
-    assert( m_MinButton );
-    assert( m_MaxButton );
-    m_MinButton->activate();
-    m_MaxButton->activate();
-}
-
-//==== Deactivate ====//
-void SliderAdjRange::Deactivate()
-{
-    Slider::Deactivate();
-    assert( m_MinButton );
-    assert( m_MaxButton );
-    m_MinButton->deactivate();
-    m_MaxButton->deactivate();
-}
 
 //==== Set Slider Value and Limits =====//
 void SliderAdjRange::SetValAndLimits( Parm* parm_ptr )
@@ -531,6 +520,12 @@ void SliderInput::Init( VspScreen* screen, Fl_Slider* slider, Fl_Input* input,
     }
 
     m_Input.Init( screen, input, format );
+
+    ClearAllWidgets();
+    AddWidget( parm_button );
+    AddWidget( slider, true );
+    AddWidget( input );
+
 }
 
 void SliderInput::Update( const string& parm_id )
@@ -552,45 +547,6 @@ void SliderInput::Update( const string& parm_id )
     }
 }
 
-void SliderInput::Activate()
-{
-    if ( m_LogSliderFlag )
-    {
-        m_LogSlider.Activate();
-    }
-    else
-    {
-        m_Slider.Activate();
-    }
-
-    m_Input.Activate();
-
-    if ( m_ParmButtonFlag )
-    {
-        m_ParmButton.Activate();
-    }
-
-
-}
-
-void SliderInput::Deactivate()
-{
-    if ( m_LogSliderFlag )
-    {
-        m_LogSlider.Deactivate();
-    }
-    else
-    {
-        m_Slider.Deactivate();
-    }
-
-    if ( m_ParmButtonFlag )
-    {
-        m_ParmButton.Deactivate();
-    }
-
-    m_Input.Deactivate();
-}
 
 //=====================================================================//
 //===========       Slider Adjustable Range Input Combo     ===========//
@@ -610,6 +566,14 @@ void SliderAdjRangeInput::Init( VspScreen* screen, Fl_Slider* slider, Fl_Button*
 
     m_Slider.Init( screen, slider, lbutton, rbutton, range );
     m_Input.Init( screen, input, format );
+
+    ClearAllWidgets();
+    AddWidget( parm_button );
+    AddWidget( lbutton );
+    AddWidget( slider, true );
+    AddWidget( rbutton );
+    AddWidget( input );
+
 }
 
 void SliderAdjRangeInput::Update( const string& parm_id )
@@ -619,26 +583,6 @@ void SliderAdjRangeInput::Update( const string& parm_id )
     if ( m_ParmButtonFlag )
     {
         m_ParmButton.Update( parm_id );
-    }
-}
-
-void SliderAdjRangeInput::Activate()
-{
-    m_Slider.Activate();
-    m_Input.Activate();
-    if ( m_ParmButtonFlag )
-    {
-        m_ParmButton.Activate();
-    }
-}
-
-void SliderAdjRangeInput::Deactivate()
-{
-    m_Slider.Deactivate();
-    m_Input.Deactivate();
-    if ( m_ParmButtonFlag )
-    {
-        m_ParmButton.Deactivate();
     }
 }
 
@@ -723,6 +667,7 @@ ParmButton::ParmButton( ) : GuiDevice()
 void ParmButton::Init( VspScreen* screen, Fl_Button* button )
 {
     GuiDevice::Init( screen );
+    AddWidget(button);
     m_Button = button;
     assert( m_Button );
     m_Button->callback( StaticDeviceCB, this );
@@ -748,19 +693,6 @@ void ParmButton::SetValAndLimits( Parm* )
 {
 }
 
-//==== Activate ====//
-void ParmButton::Activate()
-{
-    assert( m_Button );
-    m_Button->activate();
-}
-
-//==== Deactivate ====//
-void ParmButton::Deactivate()
-{
-    assert( m_Button );
-    m_Button->deactivate();
-}
 
 //==== CallBack ====//
 void ParmButton::DeviceCB( Fl_Widget* w )
@@ -794,6 +726,7 @@ CheckButton::CheckButton( ) : GuiDevice()
 void CheckButton::Init( VspScreen* screen, Fl_Check_Button* button  )
 {
     GuiDevice::Init( screen );
+    AddWidget(button);
     m_Button = button;
     assert( m_Button );
     m_Button->callback( StaticDeviceCB, this );
@@ -818,20 +751,6 @@ void CheckButton::SetValAndLimits( Parm* p )
     {
         m_Button->value( 0 );
     }
-}
-
-//==== Activate ====//
-void CheckButton::Activate()
-{
-    assert( m_Button );
-    m_Button->activate();
-}
-
-//==== Deactivate ====//
-void CheckButton::Deactivate()
-{
-    assert( m_Button );
-    m_Button->deactivate();
 }
 
 //==== CallBack ====//
@@ -869,6 +788,7 @@ CheckButtonBit::CheckButtonBit() : GuiDevice()
 void CheckButtonBit::Init( VspScreen* screen, Fl_Button* button, int value )
 {
     GuiDevice::Init( screen );
+    AddWidget(button);
     m_Button = button;
     m_value = value;
     assert( m_Button );
@@ -892,20 +812,6 @@ void CheckButtonBit::SetValAndLimits( Parm* p )
     {
         m_Button->clear();
     }
-}
-
-//==== Activate ====//
-void CheckButtonBit::Activate()
-{
-    assert( m_Button );
-    m_Button->activate();
-}
-
-//=== Deactivate ====//
-void CheckButtonBit::Deactivate()
-{
-    assert( m_Button );
-    m_Button->deactivate();
 }
 
 //==== Callback ====//
@@ -953,6 +859,7 @@ RadioButton::RadioButton() : GuiDevice()
 void RadioButton::Init( VspScreen* screen, Fl_Button* button, int value )
 {
     GuiDevice::Init( screen );
+    AddWidget(button);
     m_Button = button;
     m_value = value;
     assert( m_Button );
@@ -973,20 +880,6 @@ void RadioButton::SetValAndLimits( Parm* p )
     {
         m_Button->setonly();
     }
-}
-
-//==== Activate ====//
-void RadioButton::Activate()
-{
-    assert( m_Button );
-    m_Button->activate();
-}
-
-//=== Deactivate ====//
-void RadioButton::Deactivate()
-{
-    assert( m_Button );
-    m_Button->deactivate();
 }
 
 //==== Callback ====//
@@ -1022,6 +915,7 @@ ToggleButton::ToggleButton() : GuiDevice()
 void ToggleButton::Init( VspScreen* screen, Fl_Button* button )
 {
     GuiDevice::Init( screen );
+    AddWidget(button);
     m_Button = button;
     assert( m_Button );
     m_Button->callback( StaticDeviceCB, this );
@@ -1047,20 +941,6 @@ void ToggleButton::SetValAndLimits( Parm* p )
     {
         m_Button->clear();
     }
-}
-
-//==== Activate ====//
-void ToggleButton::Activate()
-{
-    assert( m_Button );
-    m_Button->activate();
-}
-
-//=== Deactivate ====//
-void ToggleButton::Deactivate()
-{
-    assert( m_Button );
-    m_Button->deactivate();
 }
 
 //==== Callback ====//
@@ -1149,23 +1029,6 @@ void ToggleRadioGroup::SetValAndLimits( Parm* p )
     }
 }
 
-//==== Activate ====//
-void ToggleRadioGroup::Activate()
-{
-    for ( int i = 0 ; i < ( int )m_ButtonVec.size() ; i++ )
-    {
-        m_ButtonVec[i]->activate();
-    }
-}
-
-//=== Deactivate ====//
-void ToggleRadioGroup::Deactivate()
-{
-    for ( int i = 0 ; i < ( int )m_ButtonVec.size() ; i++ )
-    {
-        m_ButtonVec[i]->deactivate();
-    }
-}
 
 //==== Callback ====//
 void ToggleRadioGroup::DeviceCB( Fl_Widget* w )
@@ -1219,23 +1082,10 @@ TriggerButton::TriggerButton() : GuiDevice()
 void TriggerButton::Init( VspScreen* screen, Fl_Button* button )
 {
     GuiDevice::Init( screen );
+    AddWidget(button);
     m_Button = button;
     assert( m_Button );
     m_Button->callback( StaticDeviceCB, this );
-}
-
-//==== Activate ====//
-void TriggerButton::Activate()
-{
-    assert( m_Button );
-    m_Button->activate();
-}
-
-//=== Deactivate ====//
-void TriggerButton::Deactivate()
-{
-    assert( m_Button );
-    m_Button->deactivate();
 }
 
 //==== Callback ====//
@@ -1264,7 +1114,10 @@ void Counter::Init( VspScreen* screen, Fl_Counter* counter )
     m_Counter = counter;
     assert( m_Counter );
     m_Counter->callback( StaticDeviceCB, this );
-}
+    ClearAllWidgets();
+    AddWidget(parm_button);
+    AddWidget(counter, true);
+ }
 
 //==== Set Counter Value ====//
 void Counter::SetValAndLimits( Parm* p )
@@ -1275,20 +1128,6 @@ void Counter::SetValAndLimits( Parm* p )
         return;
     }
     m_Counter->value( p->Get() );
-}
-
-//==== Activate ====//
-void Counter::Activate()
-{
-    assert( m_Counter );
-    m_Counter->activate();
-}
-
-//=== Deactivate ====//
-void Counter::Deactivate()
-{
-    assert( m_Counter );
-    m_Counter->deactivate();
 }
 
 //==== Callback ====//
@@ -1357,20 +1196,10 @@ void Choice::SetValAndLimits( Parm* p )
         m_ParmButton.Update( p->GetID() );
     }
 
-}
+    ClearAllWidgets();
+    AddWidget( parm_button );
+    AddWidget( fl_choice, true );
 
-//==== Activate ====//
-void Choice::Activate()
-{
-    assert( m_Choice );
-    m_Choice->activate();
-}
-
-//==== Deactivate ====//
-void Choice::Deactivate()
-{
-    assert( m_Choice );
-    m_Choice->deactivate();
 }
 
 //==== Get Current Choice Val ====//
@@ -1432,6 +1261,14 @@ void FractParmSlider::Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbu
     m_FractInput.Init( screen, fract_input, format );
     m_ResultFlInput = result_input;
     m_ResultFlInput->callback( StaticDeviceCB, this );
+
+    ClearAllWidgets();
+    AddWidget( parm_button );
+    AddWidget( lbutton );
+    AddWidget( slider, true );
+    AddWidget( rbutton );
+    AddWidget( fract_input );
+    AddWidget( result_input );
 }
 
 void FractParmSlider::Update( const string& parm_id )
@@ -1461,27 +1298,6 @@ void FractParmSlider::Update( const string& parm_id )
     }
 }
 
-void FractParmSlider::Activate()
-{
-    m_Slider.Activate();
-    m_FractInput.Activate();
-    m_ResultFlInput->activate();
-    if ( m_ParmButtonFlag )
-    {
-        m_ParmButton.Activate();
-    }
-}
-
-void FractParmSlider::Deactivate()
-{
-    m_Slider.Deactivate();
-    m_FractInput.Deactivate();
-    m_ResultFlInput->deactivate();
-    if ( m_ParmButtonFlag )
-    {
-        m_ParmButton.Deactivate();
-    }
-}
 
 //==== Set Input Value and Limits =====//
 void FractParmSlider::SetValAndLimits( Parm* parm_ptr )
@@ -1574,6 +1390,8 @@ void FractParmSlider::DeviceCB( Fl_Widget* w )
 
 void StringInput::Init( VspScreen* screen, Fl_Input* input )
 {
+    GuiDevice::Init( screen );
+    AddWidget(input);
     m_Type = GDEV_STRING_INPUT;
     m_Screen = screen;
 
@@ -1587,20 +1405,6 @@ void StringInput::Update( const string & val )
 {
     m_String = val;
     m_Input->value( m_String.c_str() );
-}
-
-//==== Activate ====//
-void StringInput::Activate()
-{
-    assert( m_Input );
-    m_Input->activate();
-}
-
-//==== Deactivate ====//
-void StringInput::Deactivate()
-{
-    assert( m_Input );
-    m_Input->deactivate();
 }
 
 //==== CallBack ====//
@@ -1623,6 +1427,8 @@ void StringOutput::Init( VspScreen* screen, Fl_Output* output )
 
     assert( output );
     m_Output = output;
+
+    AddWidget( output );
 }
 
 //==== Update ====//
@@ -1666,6 +1472,12 @@ void IndexSelector::Init( VspScreen* screen, Fl_Button* ll_but,  Fl_Button* l_bu
     m_Input->callback( StaticDeviceCB, this );
     m_RButton->callback( StaticDeviceCB, this );
     m_RRButton->callback( StaticDeviceCB, this );
+
+    AddWidget( ll_but );
+    AddWidget( l_but );
+    AddWidget( input, true );
+    AddWidget( r_but );
+    AddWidget( rr_but );
 }
 
 void IndexSelector::SetIndex( int index )
@@ -1699,24 +1511,6 @@ void IndexSelector::SetBigSmallIncrements( int big_inc, int small_inc )
 {
     m_BigInc = big_inc;
     m_SmallInc = small_inc;
-}
-
-void IndexSelector::Activate()
-{
-    m_LLButton->activate();
-    m_LButton->activate();
-    m_Input->activate();
-    m_RButton->activate();
-    m_RRButton->activate();
-}
-
-void IndexSelector::Deactivate()
-{
-    m_LLButton->deactivate();
-    m_LButton->deactivate();
-    m_Input->deactivate();
-    m_RButton->deactivate();
-    m_RRButton->deactivate();
 }
 
 void IndexSelector::DeviceCB( Fl_Widget* w )
@@ -2345,20 +2139,6 @@ Group::Group()
     m_Group = NULL;
 }
 
-void Group::Activate()
-{
-    if ( m_Group )
-    {
-        m_Group->activate();
-    }
-}
-void Group::Deactivate()
-{
-    if ( m_Group )
-    {
-        m_Group->deactivate();
-    }
-}
 void Group::Hide()
 {
     if ( m_Group )
