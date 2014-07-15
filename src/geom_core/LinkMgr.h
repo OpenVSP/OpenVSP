@@ -25,12 +25,10 @@ public:
     static LinkMgrSingleton& getInstance()
     {
         static LinkMgrSingleton instance;
-
         if( m_firsttime )
         {
             instance.Init();
         }
-
         return instance;
     }
 
@@ -45,26 +43,14 @@ public:
     virtual bool CheckForDuplicateLink( const string & pA, const string &  pB );
 
     virtual bool AddLink( const string& pA, const string& pB );         // Link Two Parms
-    virtual void AddLink( Link* link )
-    {
-        m_LinkVec.push_back( link );
-    };
+    virtual void AddLink( Link* link )                      {  m_LinkVec.push_back( link ); }
     virtual void ParmChanged( const string& pid, bool start_flag );     // A Parm Has Changed Check Links
 
-    virtual void SetCurrLinkIndex( int i )
-    {
-        m_CurrLinkIndex = i;
-    }
-    virtual int  GetCurrLinkIndex()
-    {
-        return m_CurrLinkIndex;
-    }
+    virtual void SetCurrLinkIndex( int i )                  { m_CurrLinkIndex = i; }
+    virtual int  GetCurrLinkIndex()                         { return m_CurrLinkIndex; }
     virtual Link* GetCurrLink();
 
-    virtual int GetNumLinks()
-    {
-        return ( int )m_LinkVec.size();
-    }
+    virtual int GetNumLinks()                               { return ( int )m_LinkVec.size(); }
     virtual Link* GetLink( int index );
 
     virtual void SetParm( bool flagA, string parm_id );
@@ -79,6 +65,12 @@ public:
 
     ParmContainer* FindParmContainer( int index );              // Given Index Return Linkable Parm Container
 
+    //==== User Parms ====//
+    int GetNumUserParms()                                   { return m_UserParms.GetNumUserParms(); }
+    int GetNumPredefinedUserParms()                         { return m_NumPredefinedUserParms; }
+    string GetUserParmId( int index )                       { return m_UserParms.GetUserParmId( index ); }
+    string AddUserParm(int type, const string & name, const string & group );
+
     //==== Build Container, Group And Parm Vecs Given Parm ID ====//
     int GetCurrContainerVec( const string& parm_id, vector< string > & idVec );
     int GetCurrGroupNameVec( const string& parm_id, vector< string > & nameVec );
@@ -87,7 +79,6 @@ public:
     xmlNodePtr EncodeXml( xmlNodePtr & node );
     xmlNodePtr DecodeXml( xmlNodePtr & node );
 
-    UserParmContainer m_UserParms;                              // User Defined Parms
 
 private:
 
@@ -109,6 +100,9 @@ private:
 
     vector< string > m_BaseLinkableContainers;              // Base Registered Parm Containers
     vector< string > m_LinkableContainers;                  // All valid Linkable Container
+
+    int m_NumPredefinedUserParms;
+    UserParmContainer m_UserParms;                              // User Defined Parms
 
 };
 

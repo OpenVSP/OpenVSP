@@ -48,21 +48,22 @@ ParmLinkScreen::ParmLinkScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     m_LowerLimitSlider.Init( this, ui->lowerLimitSlider, ui->lowerLimitInput, 10.0, " %7.1f" );
     m_UpperLimitSlider.Init( this, ui->upperLimitSlider, ui->upperLimitInput, 10.0, " %7.1f" );
 
-    //==== User Parms ====//
-    m_User1Group = new GroupLayout( this, ui->userParmGroup1 );
-    m_User2Group = new GroupLayout( this, ui->userParmGroup2 );
 
-    m_User1Group->AddSlider( m_UserSlider[0], "User_0", 1, "%7.3f" );
-    m_User1Group->AddSlider( m_UserSlider[1], "User_1", 1, "%7.3f" );
-    m_User1Group->AddSlider( m_UserSlider[2], "User_2", 1, "%7.3f" );
-    m_User1Group->AddSlider( m_UserSlider[3], "User_3", 1, "%7.3f" );
-    m_User1Group->AddSlider( m_UserSlider[4], "User_4", 1, "%7.3f" );
+    ////==== User Parms ====//
+    //m_User1Group = new GroupLayout( this, ui->userParmGroup1 );
+    //m_User2Group = new GroupLayout( this, ui->userParmGroup2 );
 
-    m_User2Group->AddSlider( m_UserSlider[5], "User_5", 1, "%7.3f" );
-    m_User2Group->AddSlider( m_UserSlider[6], "User_6", 1, "%7.3f" );
-    m_User2Group->AddSlider( m_UserSlider[7], "User_7", 1, "%7.3f" );
-    m_User2Group->AddSlider( m_UserSlider[8], "User_8", 1, "%7.3f" );
-    m_User2Group->AddSlider( m_UserSlider[9], "User_9", 1, "%7.3f" );
+    //m_User1Group->AddSlider( m_UserSlider[0], "User_0", 1, "%7.3f" );
+    //m_User1Group->AddSlider( m_UserSlider[1], "User_1", 1, "%7.3f" );
+    //m_User1Group->AddSlider( m_UserSlider[2], "User_2", 1, "%7.3f" );
+    //m_User1Group->AddSlider( m_UserSlider[3], "User_3", 1, "%7.3f" );
+    //m_User1Group->AddSlider( m_UserSlider[4], "User_4", 1, "%7.3f" );
+
+    //m_User2Group->AddSlider( m_UserSlider[5], "User_5", 1, "%7.3f" );
+    //m_User2Group->AddSlider( m_UserSlider[6], "User_6", 1, "%7.3f" );
+    //m_User2Group->AddSlider( m_UserSlider[7], "User_7", 1, "%7.3f" );
+    //m_User2Group->AddSlider( m_UserSlider[8], "User_8", 1, "%7.3f" );
+    //m_User2Group->AddSlider( m_UserSlider[9], "User_9", 1, "%7.3f" );
 
 }
 
@@ -295,17 +296,11 @@ bool ParmLinkScreen::Update()
         parmLinkUI->linkBrowser->select( index + 2 );
     }
 
-    for ( int i = 0 ; i < NUM_USER_SLIDERS ; i++ )
-    {
-        m_UserSlider[i].Update( LinkMgr.m_UserParms.GetUserParmId( i ) );
-    }
-//
-//  parmLinkUI->UIWindow->redraw();
-//
-//  for ( int i = 0 ; i < (int)m_ParmButtonVec.size() ; i++ )
-//  {
-//      m_ParmButtonVec[i]->update();
-//  }
+    //for ( int i = 0 ; i < NUM_USER_SLIDERS ; i++ )
+    //{
+    //    m_UserSlider[i].Update( LinkMgr.GetUserParmId( i ) );
+    //}
+
     return false;
 
 }

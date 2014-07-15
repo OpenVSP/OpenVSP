@@ -42,12 +42,12 @@ int SquareButton;
 void InitGui()
 {
 	DesignTab = AddGui( GDEV_TAB, "Design"  );
-	AddGui( GDEV_YGAP, ""  );
+	AddGui( GDEV_YGAP );
 	AddGui( GDEV_DIVIDER_BOX, "Design" );
 	LengthSlider = AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Length"  );
 	WidthSlider = AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Width"  );
 	HeightSlider = AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Height"  );
-	AddGui( GDEV_YGAP, ""  );
+	AddGui( GDEV_YGAP );
 	SquareButton = AddGui( GDEV_TOGGLE_BUTTON, "Square Box" );
 } 
 

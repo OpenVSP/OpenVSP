@@ -404,7 +404,8 @@ void ParmContainer::AddLinkableParms( vector< string > & linkable_parm_vec, cons
 //==== Constructor ====//
 UserParmContainer::UserParmContainer() : ParmContainer()
 {
-    Init();
+    m_Name = "UserParms";
+    Init(0);
 }
 
 //==== Destructor ====//
@@ -412,31 +413,34 @@ UserParmContainer::~UserParmContainer()
 {
 }
 
-void UserParmContainer::Init()
+void UserParmContainer::Init(int num_initial_parms)
 {
-    m_Name = "UserParms";
 
-    m_UserParmVec.resize( 10 );
-    for( int i = 0 ; i < ( int )m_UserParmVec.size() ; i++ )
+    m_UserParmVec.resize( num_initial_parms );
+    for( int i = 0 ; i < (int)m_UserParmVec.size() ; i++ )
     {
         string name( "User_" );
         string num = StringUtil::int_to_string( i, "%d" );
         name.append( num );
-        m_UserParmVec[i].Init( name, "User_Group", this, 0.0, -1.0e12, 1.0e12 );
-        m_UserParmVec[i].ChangeID( name );
+        m_UserParmVec[i] = new Parm();
+        m_UserParmVec[i]->Init( name, "User_Group", this, 0.0, -1.0e12, 1.0e12 );
+        m_UserParmVec[i]->ChangeID( name );
     }
 }
 
 void UserParmContainer::Wype()
 {
-    m_Name = string();
-    m_UserParmVec = vector< Parm >();
+    for( int i = 0 ; i < (int)m_UserParmVec.size() ; i++ )
+    {
+        delete m_UserParmVec[i];
+    }
+    m_UserParmVec.clear();
 }
 
-void UserParmContainer::Renew()
+void UserParmContainer::Renew(int num_initial_parms)
 {
     Wype();
-    Init();
+    Init(num_initial_parms);
 }
 
 //==== Parm Changed ====//
@@ -456,7 +460,7 @@ string UserParmContainer::GetUserParmId( int index )
 
     if ( index >= 0 && index < ( int )m_UserParmVec.size() )
     {
-        return m_UserParmVec[index].GetID();
+        return m_UserParmVec[index]->GetID();
     }
 
     return id;
@@ -472,7 +476,7 @@ xmlNodePtr UserParmContainer::EncodeXml( xmlNodePtr & node )
 
         for ( int i = 0; i < static_cast<int>( m_UserParmVec.size() ); i++ )
         {
-            m_UserParmVec[i].EncodeXml( userparmcontain_node );
+            m_UserParmVec[i]->EncodeXml( userparmcontain_node );
         }
     }
 
@@ -487,8 +491,21 @@ xmlNodePtr UserParmContainer::DecodeXml( xmlNodePtr & node )
     {
         for ( int i = 0; i < static_cast<int>( m_UserParmVec.size() ); i++ )
         {
-            m_UserParmVec[i].DecodeXml( child_node );
+            m_UserParmVec[i]->DecodeXml( child_node );
         }
     }
     return child_node;
 }
+
+ string UserParmContainer::AddParm(int type, const string & name, const string & group )
+ {
+    Parm* p = ParmMgr.CreateParm( type );
+    if ( p )
+    {
+        p->Init( name, group, this, 0.0, -1.0e6, 1.0e6, true );
+        p->SetDescript( "User Parm Descript" );
+        m_UserParmVec.push_back( p );
+        return p->GetID();
+    }
+    return string();
+ }

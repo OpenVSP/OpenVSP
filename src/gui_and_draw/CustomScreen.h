@@ -28,7 +28,7 @@ public:
     virtual void InitGuiDeviceVec( Geom* geom_ptr );
     virtual GuiDevice* AddGuiItem( GuiDef & def, int id );
     virtual void ShowTabs( const string & custom_type_name );
-
+    virtual void GuiDeviceCallBack( GuiDevice* device );
     virtual void CallBack( Fl_Widget *w );
 
 protected:
@@ -39,7 +39,17 @@ protected:
     SliderAdjRangeInput m_Slider;
     map< string, vector< GuiDevice* > > m_DeviceVecMap;
 
+    bool m_SameLineFlag;
+    vector< GuiDevice* > m_SameLineVec;
+
+    bool m_ForceWidthFlag;
+    int m_ForceWidth;
+
+    string m_Format;
+
     string m_CurrTabLayoutName;
+
+    Choice* m_LastChoiceGui;
 
 };
 

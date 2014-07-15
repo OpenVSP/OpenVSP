@@ -90,6 +90,7 @@ extern string GetGeomName( const string & geom_id );
 extern std::vector< std::string > GetGeomParmIDs( const string & geom_id );
 extern string GetParm( const string & geom_id, const string & name, const string & group );
 extern int GetNumXSecSurfs( const string & geom_id );
+extern int GetNumMainSurfs( const string & geom_id );
 
 
 //======================== XSecSurf ================================//
@@ -105,6 +106,7 @@ extern void PasteXSec( const string & xsec_surf_id, int xsec_index );
 extern string InsertXSec( const string & xsec_surf_id, int type, int xsec_index );
 extern void ChangeXSecShape( const string & xsec_surf_id, int xsec_index, int type );
 extern void SetXSecSurfGlobalXForm( const string & xsec_surf_id, const Matrix4d & mat );
+extern Matrix4d GetXSecSurfGlobalXForm( const string & xsec_surf_id );
 
 //======================== XSec ================================//
 extern int GetXSecShape( const string& xsec_id );
@@ -134,6 +136,7 @@ extern double SetParmValUpdate( const string & parm_id, double val );
 extern double SetParmVal( const string & geom_id, const string & name, const string & group, double val );
 extern double SetParmValUpdate( const string & geom_id, const string & name, const string & group, double val );
 extern double GetParmVal( const string & parm_id );
+extern int GetIntParmVal( const string & parm_id );
 extern bool GetBoolParmVal( const string & parm_id );
 extern void SetParmUpperLimit( const string & parm_id, double val );
 extern double GetParmUpperLimit( const string & parm_id );

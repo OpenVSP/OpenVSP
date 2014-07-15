@@ -12,6 +12,8 @@
 #include "ManageGeomScreen.h"
 #include "SetEditorScreen.h"
 #include "TypeEditorScreen.h"
+#include "UserParmScreen.h"
+#include "AdvLinkScreen.h"
 #include "ParmScreen.h"
 #include "ManageTextureScreen.h"
 #include "ManageLightingScreen.h"
@@ -113,6 +115,8 @@ void ScreenMgr::Init()
     m_ScreenVec[VSP_MANAGE_GEOM_SCREEN] = new ManageGeomScreen( this );
     m_ScreenVec[VSP_SET_EDITOR_SCREEN] = new SetEditorScreen( this );
     m_ScreenVec[VSP_TYPE_EDITOR_SCREEN] = new TypeEditorScreen( this );
+    m_ScreenVec[VSP_USER_PARM_SCREEN] = new UserParmScreen( this );
+    m_ScreenVec[VSP_ADV_LINK_SCREEN] = new AdvLinkScreen( this );
     m_ScreenVec[VSP_MANAGE_TEXTURE_SCREEN] = new ManageTextureScreen( this );
     m_ScreenVec[VSP_LIGHTING_SCREEN] = new ManageLightingScreen( this );
     m_ScreenVec[VSP_VIEW_SCREEN] = new ManageViewScreen( this );

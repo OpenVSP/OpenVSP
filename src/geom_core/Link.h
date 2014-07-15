@@ -22,58 +22,27 @@ using std::string;
 //==== Link ====//
 class Link : public ParmContainer
 {
-
 public:
     Link();
     virtual ~Link();
 
     virtual void SetParmA( string id );
     virtual void SetParmB( string id );
-    virtual string GetParmA()
-    {
-        return m_ParmA;
-    }
-    virtual string GetParmB()
-    {
-        return m_ParmB;
-    }
+    virtual string GetParmA()                   { return m_ParmA; }
+    virtual string GetParmB()                   { return m_ParmB; }
     virtual void InitOffsetScale();
 
-    virtual void SetOffsetFlag( bool f )
-    {
-        m_OffsetFlag = f;
-    }
-    virtual bool GetOffsetFlag()
-    {
-        return m_OffsetFlag;
-    }
+    virtual void SetOffsetFlag( bool f )        { m_OffsetFlag = f; }
+    virtual bool GetOffsetFlag()                { return m_OffsetFlag; }
 
-    virtual void SetScaleFlag( bool f )
-    {
-        m_ScaleFlag = f;
-    }
-    virtual bool GetScaleFlag()
-    {
-        return m_ScaleFlag;
-    }
+    virtual void SetScaleFlag( bool f )         { m_ScaleFlag = f; }
+    virtual bool GetScaleFlag()                 { return m_ScaleFlag; }
 
-    virtual void SetLowerLimitFlag( bool f )
-    {
-        m_LowerLimitFlag = f;
-    }
-    virtual bool GetLowerLimitFlag()
-    {
-        return m_LowerLimitFlag;
-    }
+    virtual void SetLowerLimitFlag( bool f )    { m_LowerLimitFlag = f; }
+    virtual bool GetLowerLimitFlag()            { return m_LowerLimitFlag; }
 
-    virtual void SetUpperLimitFlag( bool f )
-    {
-        m_UpperLimitFlag = f;
-    }
-    virtual bool GetUpperLimitFlag()
-    {
-        return m_UpperLimitFlag;
-    }
+    virtual void SetUpperLimitFlag( bool f )    { m_UpperLimitFlag = f; }
+    virtual bool GetUpperLimitFlag()            { return m_UpperLimitFlag; }
 
     virtual void ParmChanged( Parm* parm_ptr, int type );
 
@@ -98,8 +67,8 @@ protected:
 private:
 
     //==== Cannot Copy Link Because Of Parm Registration With ParmMgr ====//
-    Link( Link const& copy );          // Not Implemented
-    Link& operator=( Link const& copy ); // Not Implemented
+    Link( Link const& copy );               // Not Implemented
+    Link& operator=( Link const& copy );    // Not Implemented
 
 
 };

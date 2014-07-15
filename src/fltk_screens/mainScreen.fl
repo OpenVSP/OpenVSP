@@ -212,6 +212,14 @@ class MainWinUI {open
               label {Debug Parameters...}
               xywh {32 32 100 20}
             }
+            MenuItem AdvParmLinkMenu {
+              label {Adv Link...}
+              xywh {22 22 100 20}
+            }
+            MenuItem UserParmMenu {
+              label {User Parms...} selected
+              xywh {32 32 100 20}
+            }
           }
           Submenu ScriptSubMenu {
             label Script open

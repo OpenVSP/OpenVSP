@@ -18,6 +18,7 @@
 #include "StlHelper.h"
 #include "ParmMgr.h"
 #include "LinkMgr.h"
+#include "AdvLinkMgr.h"
 #include "Quat.h"
 #include "StringUtil.h"
 #include "SubSurfaceMgr.h"
@@ -75,7 +76,9 @@ void Vehicle::Init()
     //==== Init Custom Geom and Script Mgr ====//
     CustomGeomMgr.Init();
     ScriptMgr.Init();
+    AdvLinkMgr.Init();
     CustomGeomMgr.ReadCustomScripts();
+    AdvLinkMgr.ReadAdvLinkScripts();
 
     m_Name = "Vehicle";
 

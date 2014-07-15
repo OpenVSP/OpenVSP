@@ -15,10 +15,13 @@ INCLUDE_DIRECTORIES(
     ${CodeEli_INCLUDE_DIRS}
     ${TRITRI_INCLUDE_DIR}
     ${GEOM_API_INCLUDE_DIR}
+
     ${CMINPACK_INCLUDE_DIR}
    )
 
 ADD_LIBRARY(geom_core
+AdvLink.cpp
+AdvLinkMgr.cpp
 Airfoil.cpp
 BlankGeom.cpp
 CustomGeom.cpp
@@ -53,6 +56,8 @@ LightMgr.cpp
 Material.cpp
 MaterialMgr.cpp
 VspPreferences.cpp
+AdvLink.h
+AdvLinkMgr.h
 Airfoil.h
 BlankGeom.h
 CustomGeom.h

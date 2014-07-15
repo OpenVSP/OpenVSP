@@ -817,6 +817,22 @@ int GetNumXSecSurfs( const string & geom_id )
     return geom_ptr->GetNumXSecSurfs();
 }
 
+/// Get the number of main surfs for this geom
+int GetNumMainSurfs( const string & geom_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetNumMainSurfs::Can't Find Geom " + geom_id  );
+        return 0;
+    }
+
+    ErrorMgr.NoError();
+    return geom_ptr->GetNumMainSurfs();
+}
+
+
 //===================================================================//
 //===============       XSecSurf Functions         ==================//
 //===================================================================//
@@ -1026,18 +1042,29 @@ void ChangeXSecShape( const string & xsec_surf_id, int xsec_index, int type )
     xsec_surf->ChangeXSecShape( xsec_index, type );
 }
 
-/// Create an xsec of type and insert it after xsec_index
+/// Set The Global XForm Matrix For This XSec Surf
 void SetXSecSurfGlobalXForm( const string & xsec_surf_id, const Matrix4d & mat )
 {
     XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
     if ( !xsec_surf )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "ChangeXSecShape::Can't Find XSecSurf " + xsec_surf_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecSurfGlobalXForm::Can't Find XSecSurf " + xsec_surf_id  );
         return;
     }
     xsec_surf->SetGlobalXForm( mat );
 }
 
+/// Get The Global XForm Matrix For This XSec Surf
+Matrix4d GetXSecSurfGlobalXForm( const string & xsec_surf_id )
+{
+    XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
+    if ( !xsec_surf )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "ChangeXSecShape::Can't Find XSecSurf " + xsec_surf_id  );
+        return Matrix4d();
+    }
+    return xsec_surf->GetGlobalXForm();
+}
 //===================================================================//
 //===============       XSec Functions         ==================//
 //===================================================================//
@@ -1417,6 +1444,19 @@ double GetParmVal( const string & parm_id )
     }
     ErrorMgr.NoError();
     return p->Get();
+}
+
+/// Get the value of parm
+int GetIntParmVal( const string & parm_id )
+{
+    Parm* p = ParmMgr.FindParm( parm_id );
+    if ( !p )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetParmVal::Can't Find Parm " + parm_id  );
+        return 0;
+    }
+    ErrorMgr.NoError();
+    return (int)(p->Get()+0.5);
 }
 
 /// Get the value of parm

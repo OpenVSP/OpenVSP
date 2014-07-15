@@ -32,6 +32,7 @@ enum PARM_TYPE { PARM_DOUBLE_TYPE = 0, PARM_INT_TYPE = 1, PARM_BOOL_TYPE = 2,
 class Parm
 {
 
+
 public:
     Parm();
     virtual ~Parm();
@@ -57,10 +58,7 @@ public:
         return m_Descript;
     }
 
-    virtual ParmContainer* GetContainer()
-    {
-        return m_Container;
-    }
+    virtual ParmContainer* GetContainer()       { return m_Container; }
     virtual string GetContainerID();
 
     virtual string GetID()
@@ -272,6 +270,9 @@ public:
     {
         return Set( Get() - rhs );
     }
+
+    virtual bool SetValCheckLimits( double val );
+
 };
 
 //==== Limited Integer Parm ====//

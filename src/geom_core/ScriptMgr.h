@@ -45,6 +45,9 @@ public:
     //==== Read Script From File - Return Module Name ====//
     string ReadScriptFromFile( const string & module_name, const string &  file_name );
 
+    //==== Read All Scripts In Dir and Return Module Names ====//
+    vector< string > ReadScriptsFromDir( const string & dir_name );
+
     //==== Read Script From Memory - Return Module Name ====//
     string ReadScriptFromMemory( const string &  module_name, const string & script_content );
 
@@ -81,6 +84,7 @@ private:
     void RegisterVec3d( asIScriptEngine* se );
     void RegisterMatrix4d( asIScriptEngine* se );
     void RegisterCustomGeomMgr( asIScriptEngine* se );
+    void RegisterAdvLinkMgr( asIScriptEngine* se );
     void RegisterAPIErrorObj( asIScriptEngine* se );
     void RegisterAPI( asIScriptEngine* se );
 

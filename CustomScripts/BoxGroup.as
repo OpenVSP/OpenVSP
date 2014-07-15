@@ -1,0 +1,188 @@
+
+
+//==== Init Is Called Once During Each Custom Geom Construction  ============================//
+//==== Avoid Global Variables Unless You Want Shared With All Custom Geoms of This Type =====//
+void Init()
+{
+	//==== Test Parm Template  =====//
+	string length = AddParm( PARM_DOUBLE_TYPE, "Length", "Design" );
+	SetParmValLimits( length, 5.0, 0.001, 1.0e12 );
+
+	string width = AddParm( PARM_DOUBLE_TYPE, "Width", "Design" );
+	SetParmValLimits( width, 7.0, 0.001, 1.0e12 );
+
+	string height = AddParm( PARM_DOUBLE_TYPE, "Height", "Design" );
+	SetParmValLimits( height, 3.0, 0.001, 1.0e12 );
+
+	string square_flag = AddParm( PARM_BOOL_TYPE, "SquareFlag", "Design" );
+	SetParmVal( square_flag, 0.0 );
+
+	string num_row = AddParm( PARM_INT_TYPE, "NumRow", "Design" );
+	SetParmValLimits( num_row, 1, 1, 10 );
+
+	string num_col = AddParm( PARM_INT_TYPE, "NumCol", "Design" );
+	SetParmValLimits( num_col, 1, 1, 10 );
+
+	string gap_row = AddParm( PARM_DOUBLE_TYPE, "GapRow", "Design" );
+	SetParmValLimits( gap_row, 1.0, 0.001, 1.0e12 );
+
+	string gap_col = AddParm( PARM_DOUBLE_TYPE, "GapCol", "Design" );
+	SetParmValLimits( gap_col, 1.0, 0.001, 1.0e12 );
+
+	string box_layout  = AddParm( PARM_INT_TYPE, "BoxLayout", "Design" );
+	SetParmValLimits( box_layout, 0, 0, 2 );
+
+	string layout_trigger = AddParm( PARM_BOOL_TYPE, "LayoutTrigger", "Design" );
+	SetParmVal( layout_trigger, 0.0 );
+
+	//==== Set Some Decent Tess Vals ====//
+	string geom_id = GetCurrCustomGeom();
+	SetParmVal( GetParm( geom_id, "Tess_U",  "Shape" ), 4 );
+	SetParmVal( GetParm( geom_id, "Tess_W",  "Shape" ), 9 );
+}
+
+//==== Global Gui IDs - These Are Consistent For All Created Boxes And Can Be Used In UpdateGUI====// 
+int LengthSlider;
+int WidthSlider;
+int HeightSlider;
+
+//==== InitGui Is Called Once During Each Custom Geom Construction ====//
+void InitGui()
+{
+	AddGui( GDEV_TAB, "Design"  );
+	AddGui( GDEV_YGAP  );
+	AddGui( GDEV_DIVIDER_BOX, "Design" );
+
+    //==== Store the GUI Index to Use In UpdateGui ====//
+	LengthSlider = AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Length", "Length", "Design"  );
+	WidthSlider = AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Width", "Width", "Design"  );
+	HeightSlider = AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Height", "Height", "Design"  );
+
+	AddGui( GDEV_YGAP  );
+	AddGui( GDEV_TOGGLE_BUTTON, "Square Box", "SquareFlag", "Design" );
+	AddGui( GDEV_YGAP  );
+	AddGui( GDEV_DIVIDER_BOX, "Layout" );
+	AddGui( GDEV_COUNTER, "Num Row", "NumRow", "Design"  );
+	AddGui( GDEV_COUNTER, "Num Col", "NumCol", "Design"  );
+	AddGui( GDEV_YGAP  );
+	AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Gap Row", "GapRow", "Design"  );
+	AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Gap Column", "GapCol", "Design"   );
+
+ 	AddGui( GDEV_YGAP );
+
+    //===== Put Gui Devices On Same Line - Fill Line And Scale Rel To Starting Widths ====//
+    AddGui( GDEV_BEGIN_SAME_LINE );
+	AddGui( GDEV_CHOICE, "Layouts:", "BoxLayout", "Design" );
+    AddGui( GDEV_ADD_CHOICE_ITEM, "2 by 2" );
+    AddGui( GDEV_ADD_CHOICE_ITEM, "2 by 4" );
+    AddGui( GDEV_ADD_CHOICE_ITEM, "4 by 2" );
+    AddGui( GDEV_FORCE_WIDTH, "30" );           // Force the Button Small
+    AddGui( GDEV_TRIGGER_BUTTON, "Go", "LayoutTrigger", "Design" );
+    AddGui( GDEV_END_SAME_LINE );
+} 
+
+//==== UpdateGui Is Called Every Time The Gui is Updated - Use It To Deactivate/Show/Hide Gui ====//
+void UpdateGui()
+{
+	string geom_id = GetCurrCustomGeom();
+
+	//==== Check For Square Flag ====//
+	bool square_flag = GetBoolParmVal( GetParm( geom_id, "SquareFlag", "Design" ) );
+	if ( square_flag )
+	{
+		//==== Disconnect Width/Height Sliders From Parms ====//
+		UpdateGui( WidthSlider, GetParm( geom_id,  "",  "Design" ) ); 
+		UpdateGui( HeightSlider, GetParm( geom_id, "", "Design" ) ); 
+	}
+} 
+
+//==== UpdateSurf Is Called Every Time The Geom is Updated ====//
+void UpdateSurf()
+{
+	string geom_id = GetCurrCustomGeom();
+
+	//==== Check For Layout Trigger ====//
+    string layout_trigger_parm = GetParm( geom_id, "LayoutTrigger", "Design" );
+	if ( GetBoolParmVal( layout_trigger_parm )  )
+    {
+        int num_r = 1;
+        int num_c = 1;
+        int layout_choice = GetIntParmVal( GetParm( geom_id, "BoxLayout", "Design" ) );
+
+        //==== Check Choice Val and Set Number of Boxes =====//
+        if ( layout_choice == 0 )          { num_r = num_c = 2; }
+        else if ( layout_choice == 1 )     { num_r = 2;  num_c = 4; }
+        else if ( layout_choice == 2 )     { num_r = 4;  num_c = 2; }
+
+		SetParmVal( GetParm( geom_id, "NumRow",  "Design" ),  num_r );
+		SetParmVal( GetParm( geom_id, "NumCol",  "Design" ),  num_c );
+
+        //==== Reset Trigger ====//
+        SetParmVal( layout_trigger_parm, 0 );
+    }
+    
+    //==== Get Curr Vals ====//
+	double length_val = GetParmVal( GetParm( geom_id, "Length", "Design" ) );
+	double width_val  = GetParmVal( GetParm( geom_id, "Width",  "Design" ) );
+	double height_val = GetParmVal( GetParm( geom_id, "Height", "Design" ) );
+    int num_row = GetIntParmVal( GetParm( geom_id, "NumRow", "Design" ) );
+    int num_col = GetIntParmVal( GetParm( geom_id, "NumCol", "Design" ) );
+	double gap_row_val = GetParmVal( GetParm( geom_id, "GapRow", "Design" ) );
+	double gap_col_val = GetParmVal( GetParm( geom_id, "GapCol", "Design" ) );
+
+	//==== Check For Square Flag ====//
+	bool square_flag = GetBoolParmVal( GetParm( geom_id, "SquareFlag", "Design" ) );
+	if ( square_flag )
+	{
+		width_val = height_val = length_val;
+		SetParmVal( GetParm( geom_id, "Width",  "Design" ),  width_val);
+		SetParmVal( GetParm( geom_id, "Height",  "Design" ), height_val);
+	}
+
+    //==== Clear Old Surfs ====//
+    ClearXSecSurfs();
+
+    //==== Create XSec Surf And Build Box ====//
+    string xsec_surf = AddXSecSurf();
+    BuildBox( xsec_surf, length_val, width_val, height_val );
+    SkinXSecSurf();
+
+    //=== Create Clones and Move Them ====//
+    for ( int i = 0 ; i < num_row ; i++ )
+    {
+        for ( int j = 0 ; j < num_col ; j++ )
+        {
+            //==== Dont Clone Inital Box ====//
+            if ( i != 0 || j != 0 )
+            {
+                Matrix4d mat;
+                double y = i*(width_val + gap_row_val);
+                double z = j*(height_val + gap_col_val);
+                mat.translatef( 0.0, y, z );
+                CloneSurf( 0, mat );
+            }
+       }
+    }
+}
+
+void BuildBox( string surf_id, double length, double width, double height )
+{
+    //==== Add Cross-Sectopms ====//
+	string xsec0 = AppendXSec( surf_id, XS_POINT);
+	string xsec1 = AppendXSec( surf_id, XS_ROUNDED_RECTANGLE);
+	string xsec2 = AppendXSec( surf_id, XS_ROUNDED_RECTANGLE);
+	string xsec3 = AppendXSec( surf_id, XS_POINT);
+
+	//==== Define The First/Last XSec Placement ====//
+	SetCustomXSecLoc( xsec3, vec3d( length, 0, 0 ) );
+
+	//==== Define The Middle XSecs ====//
+	SetParmVal( GetXSecParm( xsec1, "RoundedRect_Height" ), height );
+	SetParmVal( GetXSecParm( xsec1, "RoundedRect_Width" ),  width );
+	SetParmVal( GetXSecParm( xsec1, "RoundRectXSec_Radius" ), 0.0 );
+
+	SetParmVal( GetXSecParm( xsec2, "RoundedRect_Height" ), height );
+	SetParmVal( GetXSecParm( xsec2, "RoundedRect_Width" ),  width );
+	SetParmVal( GetXSecParm( xsec2, "RoundRectXSec_Radius" ), 0.0 );
+	SetCustomXSecLoc( xsec2, vec3d( length, 0, 0 ) );
+}

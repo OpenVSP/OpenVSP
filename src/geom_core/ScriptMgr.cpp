@@ -16,10 +16,12 @@
 #include "VSP_Geom_API.h"
 #include "APIErrorMgr.h"
 #include "CustomGeom.h"
+#include "AdvLinkMgr.h"
 #include "XSec.h"
 #include "Vehicle.h"
 #include "ResultsMgr.h"
 #include "StringUtil.h"
+#include "FileUtil.h"
 
 using namespace vsp;
 
@@ -99,6 +101,7 @@ void ScriptMgrSingleton::Init( )
 
     RegisterMatrix4d( m_ScriptEngine );
     RegisterCustomGeomMgr( m_ScriptEngine );
+    RegisterAdvLinkMgr( m_ScriptEngine );
     RegisterAPIErrorObj( m_ScriptEngine );
     RegisterAPI( m_ScriptEngine );
 
@@ -128,6 +131,28 @@ void ScriptMgrSingleton::RunTestScripts()
     ScriptMgr.ExecuteScript( "TestScript", "void TestAPIScript()" );
 }
 
+vector< string > ScriptMgrSingleton::ReadScriptsFromDir( const string & dir_name )
+{
+    vector< string > mod_name_vec;
+
+    vector< string > file_vec = ScanFolder( dir_name.c_str() );
+
+    for ( int i = 0 ; i < ( int )file_vec.size() ; i++ )
+    {
+        if ( file_vec[i].compare( file_vec[i].size() - 3, 3, ".as" ) == 0 )
+        {
+            string sub = file_vec[i].substr( 0, file_vec[i].size() - 3 );
+            string file_name = dir_name;
+            file_name.append( file_vec[i] );
+            string module_name = ScriptMgr.ReadScriptFromFile( sub, file_name );
+
+            if ( module_name.size() )
+                mod_name_vec.push_back( module_name );
+        }
+    }
+
+    return mod_name_vec;
+}
 
 //==== Start A New Module And Read Script ====//
 string ScriptMgrSingleton::ReadScriptFromFile( const string & module_name, const string &  file_name )
@@ -316,11 +341,15 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GDEV", "GDEV_TOGGLE_BUTTON", GDEV_TOGGLE_BUTTON );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "GDEV", "GDEV_TRIGGER_BUTTON", GDEV_TRIGGER_BUTTON );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "GDEV", "GDEV_TOGGLE_RADIO_GROUP", GDEV_TOGGLE_RADIO_GROUP );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GDEV", "GDEV_COUNTER", GDEV_COUNTER );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GDEV", "GDEV_CHOICE", GDEV_CHOICE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GDEV", "GDEV_ADD_CHOICE_ITEM", GDEV_ADD_CHOICE_ITEM );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GDEV", "GDEV_SLIDER_INPUT", GDEV_SLIDER_INPUT );
     assert( r >= 0 );
@@ -330,6 +359,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GDEV", "GDEV_FRACT_PARM_SLIDER", GDEV_FRACT_PARM_SLIDER );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "GDEV", "GDEV_INDEX_SELECTOR", GDEV_INDEX_SELECTOR );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "GDEV", "GDEV_STRING_INPUT", GDEV_STRING_INPUT );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GDEV", "GDEV_COLOR_PICKER", GDEV_COLOR_PICKER );
@@ -337,6 +368,14 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "GDEV", "GDEV_YGAP", GDEV_YGAP );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GDEV", "GDEV_DIVIDER_BOX", GDEV_DIVIDER_BOX );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GDEV", "GDEV_BEGIN_SAME_LINE", GDEV_BEGIN_SAME_LINE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GDEV", "GDEV_END_SAME_LINE", GDEV_END_SAME_LINE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GDEV", "GDEV_FORCE_WIDTH", GDEV_FORCE_WIDTH );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GDEV", "GDEV_SET_FORMAT", GDEV_SET_FORMAT );
     assert( r >= 0 );
 
     r = se->RegisterEnum( "XSEC_TYPE" );
@@ -637,7 +676,7 @@ void ScriptMgrSingleton::RegisterMatrix4d( asIScriptEngine* se )
 
 }
 
-//==== Register Vec3d Object ====//
+//==== Register Custom Geom Mgr Object ====//
 void ScriptMgrSingleton::RegisterCustomGeomMgr( asIScriptEngine* se )
 {
     int r;
@@ -650,7 +689,7 @@ void ScriptMgrSingleton::RegisterCustomGeomMgr( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "string GetCustomParm( int index )",
                                     asMETHOD( CustomGeomMgrSingleton, GetCustomParm ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r );
-    r = se->RegisterGlobalFunction( "int AddGui( int type, const string & in label )",
+    r = se->RegisterGlobalFunction( "int AddGui( int type, const string & in label = string(), const string & in parm_name = string(), const string & in group_name = string() )",
                                     asMETHOD( CustomGeomMgrSingleton, AddGui ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r );
     r = se->RegisterGlobalFunction( "void UpdateGui( int gui_id, const string & in parm_id )",
@@ -659,18 +698,46 @@ void ScriptMgrSingleton::RegisterCustomGeomMgr( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "string AddXSecSurf()",
                                     asMETHOD( CustomGeomMgrSingleton, AddXSecSurf ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r );
+    r = se->RegisterGlobalFunction( "void ClearXSecSurfs()",
+                                    asMETHOD( CustomGeomMgrSingleton, ClearXSecSurfs ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
+    assert( r );
     r = se->RegisterGlobalFunction( "void SkinXSecSurf()",
                                     asMETHOD( CustomGeomMgrSingleton, SkinXSecSurf ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
+    assert( r );
+    r = se->RegisterGlobalFunction( "void CloneSurf(int index, Matrix4d & in mat)",
+                                    asMETHOD( CustomGeomMgrSingleton, CloneSurf ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
+    assert( r );
+    r = se->RegisterGlobalFunction( "void TransformSurf(int index, Matrix4d & in mat)",
+                                    asMETHOD( CustomGeomMgrSingleton, TransformSurf ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r );
 
     r = se->RegisterGlobalFunction( "void SetCustomXSecLoc( const string & in xsec_id, const vec3d & in loc )",
                                     asMETHOD( CustomGeomMgrSingleton, SetCustomXSecLoc ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r );
-
-
-
+    r = se->RegisterGlobalFunction( "bool CheckClearTriggerEvent( int gui_id )",
+                                    asMETHOD( CustomGeomMgrSingleton, CheckClearTriggerEvent ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
+    assert( r );
 
 }
+
+
+
+//==== Register Adv Link Mgr Object ====//
+void ScriptMgrSingleton::RegisterAdvLinkMgr( asIScriptEngine* se )
+{
+    int r;
+    r = se->RegisterGlobalFunction( "void AddInput( const string & in geom_name, int geom_index, const string & in parm_name, const string & in parm_group, const string & in var_name )",
+                                    asMETHOD( AdvLinkMgrSingleton, AddInput ), asCALL_THISCALL_ASGLOBAL, &AdvLinkMgr );
+    assert( r );
+    r = se->RegisterGlobalFunction( "void AddOutput( const string & in geom_name, int geom_index, const string & in parm_name, const string & in parm_group, const string & in var_name )",
+                                    asMETHOD( AdvLinkMgrSingleton, AddOutput ), asCALL_THISCALL_ASGLOBAL, &AdvLinkMgr );
+    assert( r );
+    r = se->RegisterGlobalFunction( "void SetVar( const string & in var_name, double val )", asMETHOD( AdvLinkMgrSingleton, SetVar ), asCALL_THISCALL_ASGLOBAL, &AdvLinkMgr );
+    assert( r );
+    r = se->RegisterGlobalFunction( "double GetVar( const string & in var_name )", asMETHOD( AdvLinkMgrSingleton, GetVar ), asCALL_THISCALL_ASGLOBAL, &AdvLinkMgr );
+    assert( r );
+}
+
 //==== Register API E Functions ====//
 void ScriptMgrSingleton::RegisterAPIErrorObj( asIScriptEngine* se )
 {
@@ -794,6 +861,9 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "int GetNumXSecSurfs( const string & in geom_id )", asFUNCTION( vsp::GetNumXSecSurfs ), asCALL_CDECL );
     assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "int GetNumMainSurfs( const string & in geom_id )", asFUNCTION( vsp::GetNumMainSurfs ), asCALL_CDECL );
+    assert( r >= 0 );
+
 
     //==== XSecSurf Functions ====//
     r = se->RegisterGlobalFunction( "string GetXSecSurf( const string & in geom_id, int index )", asFUNCTION( vsp::GetXSecSurf ), asCALL_CDECL );
@@ -819,6 +889,8 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "void ChangeXSecShape( const string & in xsec_surf_id, int xsec_index, int type )", asFUNCTION( vsp::ChangeXSecShape ), asCALL_CDECL );
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "void SetXSecSurfGlobalXForm( const string & in xsec_surf_id, const Matrix4d & in mat )", asFUNCTION( vsp::SetXSecSurfGlobalXForm ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "Matrix4d GetXSecSurfGlobalXForm( const string & in xsec_surf_id )", asFUNCTION( vsp::GetXSecSurfGlobalXForm ), asCALL_CDECL );
     assert( r >= 0 );
 
     //==== XSec Functions ====//
@@ -874,6 +946,8 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
                                     asFUNCTIONPR( vsp::SetParmValUpdate, ( const string &, const string &, const string &, double val ), double ), asCALL_CDECL );
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "double GetParmVal(const string & in parm_id )", asFUNCTION( vsp::GetParmVal ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "int GetIntParmVal(const string & in parm_id )", asFUNCTION( vsp::GetIntParmVal ), asCALL_CDECL );
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "bool GetBoolParmVal(const string & in parm_id )", asFUNCTION( vsp::GetBoolParmVal ), asCALL_CDECL );
     assert( r >= 0 );

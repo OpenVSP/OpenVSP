@@ -237,7 +237,7 @@ void GroupLayout::AddSlider( SliderAdjRangeInput& slid_adj_input,
 
     slid_adj_input.Init( m_Screen, slider, lbutton, rbutton, input, range, format, button );
 
-    if( strcmp( label, "AUTO_UPDATE" ) == 0 )
+    if( strcmp( label, "AUTO_UPDATE" ) == 0 || strcmp( label, "" ) == 0 )
     {
         slid_adj_input.SetButtonNameUpdate( true );
     }
@@ -300,7 +300,7 @@ void GroupLayout::AddSlider( SliderAdjRange2Input& slid_adj_input,
 
     slid_adj_input.Init( m_Screen, slider, lbutton, rbutton, input1, input2, range, format, button );
 
-    if( strcmp( label, "AUTO_UPDATE" ) == 0 )
+    if( strcmp( label, "AUTO_UPDATE" ) == 0 || strcmp( label, "" ) == 0 )
     {
         slid_adj_input.SetButtonNameUpdate( true );
     }
@@ -363,7 +363,7 @@ void GroupLayout::AddSlider( FractParmSlider& slid_adj_input,
 
     slid_adj_input.Init( m_Screen, slider, lbutton, rbutton, input1, input2, range, format, button );
 
-    if( strcmp( label, "AUTO_UPDATE" ) == 0 )
+    if( strcmp( label, "AUTO_UPDATE" ) == 0 || strcmp( label, "" ) == 0 )
     {
         slid_adj_input.SetButtonNameUpdate( true );
     }
@@ -404,7 +404,7 @@ void GroupLayout::AddSlider( SliderInput& slider_input, const char* label, doubl
 
     slider_input.Init( m_Screen, slider, input, range, format, button );
 
-    if( strcmp( label, "AUTO_UPDATE" ) == 0 )
+    if( strcmp( label, "AUTO_UPDATE" ) == 0 || strcmp( label, "" ) == 0 )
     {
         slider_input.SetButtonNameUpdate( true );
     }
@@ -423,6 +423,7 @@ void GroupLayout::AddButton( CheckButton& cbutton, const char* label )
     flbutton->labelfont( 1 );
     flbutton->labelsize( 12 );
     flbutton->labelcolor( FL_DARK_BLUE );
+    flbutton->copy_label( label );
     m_Group->add( flbutton );
     AddX( bw );
 
@@ -445,6 +446,7 @@ void GroupLayout::AddButton( ToggleButton& tbutton, const char* label )
     flbutton->align( Fl_Align( 132 | FL_ALIGN_INSIDE ) );
     flbutton->copy_label( label );
     flbutton->labelcolor( FL_DARK_BLUE );
+    flbutton->copy_label( label );
     m_Group->add( flbutton );
     AddX( bw );
 
@@ -466,6 +468,7 @@ void GroupLayout::AddButton( CheckButtonBit& cbutton, const char* label, int val
     flbutton->labelsize( 12 );
     flbutton->align( Fl_Align( 132 | FL_ALIGN_INSIDE ) );
     flbutton->labelcolor( FL_DARK_BLUE );
+    flbutton->copy_label( label );
     m_Group->add( flbutton );
     AddX( bw );
 
@@ -487,6 +490,7 @@ void GroupLayout::AddButton( TriggerButton& tbutton, const char* label )
     flbutton->labelfont( 1 );
     flbutton->labelsize( 12 );
     flbutton->labelcolor( FL_DARK_BLUE );
+    flbutton->copy_label( label );
     m_Group->add( flbutton );
     AddX( bw );
 
@@ -496,6 +500,26 @@ void GroupLayout::AddButton( TriggerButton& tbutton, const char* label )
     tbutton.Init( m_Screen, flbutton );
 }
 
+//==== Create & Init Gui ParmButton  ====//
+void GroupLayout::AddButton( ParmButton& pbutton, const char* label )
+{
+    assert( m_Group && m_Screen );
+
+    //==== Add Parm Button ====//
+    int bw = FitWidth( 0, m_ButtonWidth );
+    Fl_Button* flbutton = new Fl_Button( m_X, m_Y, bw, m_StdHeight, label );
+    flbutton->copy_label( label );
+    flbutton->labelfont( 1 );
+    flbutton->labelsize( 12 );
+    flbutton->labelcolor( FL_DARK_BLUE );
+    m_Group->add( flbutton );
+
+    AddX( bw );
+    AddY( m_StdHeight );
+    NewLineX();
+
+    pbutton.Init( m_Screen, flbutton );
+}
 //==== Create & Init Box Divider  ====//
 void GroupLayout::AddDividerBox( const string& text, int used_w )
 {
@@ -587,7 +611,7 @@ void GroupLayout::AddInput( Input& input, const char* label, const char* format 
     AddY( m_StdHeight );
     NewLineX();
 
-    input.Init( m_Screen, flinput, format );
+    input.Init( m_Screen, flinput, format, button );
 }
 
 //==== Create & Init Index Selector  ====//
@@ -728,6 +752,7 @@ void GroupLayout::AddChoice( Choice & choice, const char* label )
     button->labelfont( 1 );
     button->labelsize( 12 );
     button->labelcolor( FL_BLACK );
+    button->copy_label( label );
     m_Group->add( button );
     AddX( m_ChoiceButtonWidth );
 
@@ -751,7 +776,7 @@ void GroupLayout::AddChoice( Choice & choice, const char* label )
 
     choice.Init( m_Screen, fl_choice, button );
 
-    if( strcmp( label, "AUTO_UPDATE" ) == 0 )
+    if( strcmp( label, "AUTO_UPDATE" ) == 0 || strcmp( label, "" ) == 0 )
     {
         choice.SetButtonNameUpdate( true );
     }
@@ -767,8 +792,12 @@ void GroupLayout::AddCounter( Counter & count, const char* label )
     assert( m_Group && m_Screen );
 
     //==== Counter Button ====//
-    Fl_Button* button = AddParmButton( label );
-    button->align( Fl_Align( FL_ALIGN_CLIP ) );
+    Fl_Button* button = NULL;
+    if ( strcmp( label, "" ) != 0 )
+    {
+        Fl_Button* button = AddParmButton( label );
+        button->align( Fl_Align( FL_ALIGN_CLIP ) );
+    }
 
     //==== Counter ====//
     int counter_w = FitWidth( m_ButtonWidth, m_SliderWidth );
@@ -781,7 +810,7 @@ void GroupLayout::AddCounter( Counter & count, const char* label )
 
     AddX( counter_w );
 
-    count.Init( m_Screen, fl_counter );
+    count.Init( m_Screen, fl_counter, button );
 
     AddY( m_StdHeight );
     NewLineX();
@@ -1153,4 +1182,18 @@ void GroupLayout::AddGeomPicker( GeomPicker & geom_picker )
     NewLineX();
 
     geom_picker.Init( m_Screen, geom_choice );
+}
+
+//==== Add Fl Browser ====//
+void GroupLayout::AddFlBrowser( Fl_Browser* browser, int height )
+{
+    assert( m_Group && m_Screen );
+
+    browser = new Fl_Browser( m_X, m_Y, m_W, height);
+    browser->type(2);
+    browser->textsize(12);
+    m_Group->add( browser );
+
+    AddY( height );
+    NewLineX();
 }

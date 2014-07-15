@@ -71,16 +71,21 @@ public:
     string GetCustomParm( int index );
 
     //==== Add A Gui Device Constructor to Current Custom Geom - Gui Will Be Created By Custom Screen (if connected) ===//
-    int AddGui( int type, const string & label );
+    int AddGui( int type, const string & label, const string & parm_name, const string & group_name );
     vector< GuiDef > GetGuiDefVec( const string & geom_id );
 
     //==== Add Gui->Parm Pairing To Update Vec ====//
     void AddUpdateGui( int gui_id, const string & parm_id );
     vector< GuiUpdate > GetGuiUpdateVec();
+    bool CheckClearTriggerEvent( int gui_id );
 
     //==== Add XSec Surface To Current Geom - Return ID =====//
     string AddXSecSurf();
+    void ClearXSecSurfs();
     void SkinXSecSurf();
+    void TransformSurf( int index, Matrix4d & mat );
+    void CloneSurf( int index, Matrix4d & mat );
+
 
     //==== Custom XSecs Functions ====//
     void SetCustomXSecLoc( const string & xsec_id, const vec3d & loc );
@@ -149,8 +154,8 @@ public:
 
     void Clear();
     void InitGeom( );
-    void SetScriptModuleName( const string& name )    { m_ScriptModuleName = name; }
-    string GetScriptModuleName()                    { return m_ScriptModuleName; }
+    void SetScriptModuleName( const string& name )      { m_ScriptModuleName = name; }
+    string GetScriptModuleName()                        { return m_ScriptModuleName; }
 
     //==== Add a Parm Return ID ====//
     string AddParm( int type, const string & name, const string & group );
@@ -159,18 +164,24 @@ public:
     //==== Add Gui ====//
     int AddGui( const GuiDef & gd );
     vector< GuiDef > GetGuiDefVec()                    { return m_GuiDefVec; }
+    void AddGuiTriggerEvent( int gui_index );
+    bool CheckClearTriggerEvent( int gui_index );
 
     void AddUpdateGui( const GuiUpdate & gu );
     vector< GuiUpdate > GetGuiUpdateVec();
 
     //==== Add XSec Surface Return ID =====//
     string AddXSecSurf();
+    void ClearXSecSurfs();
 
     virtual int GetNumXSecSurfs()                    { return ( int )m_XSecSurfVec.size(); }
     virtual XSecSurf* GetXSecSurf( int index );
 
     //==== Skin XSecs ====//
     virtual void SkinXSecSurf();
+    virtual void CloneSurf( int index, Matrix4d & mat );
+    virtual void TransformSurf( int index, Matrix4d & mat );
+
 
     //==== Encode/Decode XML ====//
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
@@ -185,9 +196,10 @@ protected:
     vector< GuiDef > m_GuiDefVec;           // Gui Definition
     vector< GuiUpdate > m_UpdateGuiVec;     // Match Gui with Parms
     vector< XSecSurf* > m_XSecSurfVec;
+    vector< int > m_TriggerVec;
+
 
     virtual void UpdateSurf();
-    virtual int GetNumMainSurfs()        { return (int)m_XSecSurfVec.size(); }
 
 };
 

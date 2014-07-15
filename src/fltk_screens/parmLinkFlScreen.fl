@@ -8,7 +8,7 @@ class ParmLinkUI {open
   } {
     Fl_Window UIWindow {
       label {Parm Link Mgr} open
-      xywh {654 246 571 693} type Double color 45 resizable visible
+      xywh {654 246 571 593} type Double color 45 resizable visible
     } {
       Fl_Box {} {
         label {Parm Link  ( B = A*scale + offset)}
@@ -90,8 +90,8 @@ class ParmLinkUI {open
         label Upper
         xywh {295 180 60 20} labelfont 1 labelsize 12
       }
-      Fl_Browser linkBrowser {
-        xywh {5 255 560 285} type Select labelfont 13 labelsize 12 textsize 12
+      Fl_Browser linkBrowser {selected
+        xywh {5 255 560 330} type Select labelfont 13 labelsize 12 textsize 12
       }
       Fl_Box {} {
         label Parm
@@ -134,10 +134,6 @@ class ParmLinkUI {open
       Fl_Button linkAllGroupButton {
         label {Link All @5}
         xywh {245 70 80 20} color 48 labelfont 1
-      }
-      Fl_Box {} {
-        label {User Defined Parameters}
-        xywh {5 545 560 15} box BORDER_BOX labelfont 1 labelcolor 15
       }
       Fl_Button deleteAllLinksButton {
         label {Delete All Links}

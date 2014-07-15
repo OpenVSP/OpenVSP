@@ -53,11 +53,11 @@ int BackAngleSlider;
 void InitGui()
 {
 	DesignTab = AddGui( GDEV_TAB, "Design"  );
-	AddGui( GDEV_YGAP, ""  );
+	AddGui( GDEV_YGAP );
 	AddGui( GDEV_DIVIDER_BOX, "Design" );
 	WidthSlider = AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Width"  );
 	SeatHeightSlider = AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Seat_Ht"  );
-	AddGui( GDEV_YGAP, ""  );
+	AddGui( GDEV_YGAP  );
 	BackHeightSlider = AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Back_Ht"  );
 	BackThickSlider = AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Back_Thick"  );
 	BackAngleSlider = AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Back_Angle"  );

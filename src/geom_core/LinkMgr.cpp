@@ -8,6 +8,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "LinkMgr.h"
+#include "AdvLinkMgr.h"
 #include "ParmMgr.h"
 #include "Vehicle.h"
 #include "VehicleMgr.h"
@@ -19,6 +20,9 @@ bool LinkMgrSingleton::m_firsttime = true;
 LinkMgrSingleton::LinkMgrSingleton()
 {
     m_WorkingLink = NULL;
+    m_NumPredefinedUserParms = 8;
+    m_UserParms.Renew(m_NumPredefinedUserParms);
+
 }
 
 void LinkMgrSingleton::Init()
@@ -36,7 +40,7 @@ void LinkMgrSingleton::Wype()
 {
     // public members
     UnRegisterContainer( m_UserParms.GetID() );
-    m_UserParms.Renew();
+    m_UserParms.Renew(m_NumPredefinedUserParms);
 
     // private members
     m_CurrLinkIndex = int();
@@ -364,6 +368,9 @@ void LinkMgrSingleton::ParmChanged( const string& pid, bool start_flag  )
         return;
     }
 
+    //==== Check For Advanced Links ====//
+    AdvLinkMgr.ParmChanged( pid, start_flag );
+
     //==== Look for Links and Modify Linked Parms ====//
     vector < Link* > parm_link_vec;
     for ( int i = 0 ; i < ( int )m_LinkVec.size() ; i++ )
@@ -659,4 +666,7 @@ xmlNodePtr LinkMgrSingleton::DecodeXml( xmlNodePtr & node )
     return linkmgr_node;
 }
 
-
+string LinkMgrSingleton::AddUserParm(int type, const string & name, const string & group )
+{
+    return m_UserParms.AddParm( type, name, group );
+}

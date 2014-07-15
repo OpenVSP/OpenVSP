@@ -1,0 +1,258 @@
+
+
+//==== Init Is Called Once During Each Custom Geom Construction  ============================//
+//==== Avoid Global Variables Unless You Want Shared With All Custom Geoms of This Type =====//
+void Init()
+{
+	//==== Add Parm Types  =====//
+	string width   = AddParm( PARM_DOUBLE_TYPE, "Width", "Design" );
+	SetParmValLimits( width, 0.5, 0.001, 1.0e12);
+
+	string seat_height   = AddParm( PARM_DOUBLE_TYPE, "SeatHeight", "Design" );
+	SetParmValLimits( seat_height, 0.35, 0.001, 1.0e12 );
+
+	string seat_length   = AddParm( PARM_DOUBLE_TYPE, "SeatLength", "Design" );
+	SetParmValLimits( seat_length, 0.5, 0.001, 1.0e12 );
+
+	string back_height   = AddParm( PARM_DOUBLE_TYPE, "BackHeight", "Design" );
+	SetParmValLimits( back_height, 1.0, 0.001, 1.0e12 );
+
+	string back_thick   = AddParm( PARM_DOUBLE_TYPE, "BackThick", "Design" );
+	SetParmValLimits( back_thick, 0.1, 0.001, 1.0e12 );
+
+	string back_angle   = AddParm( PARM_DOUBLE_TYPE, "BackAngle", "Design" );
+	SetParmValLimits( back_angle, 25.0, -45, 90 );
+
+    //==== Layout Parms =====//
+	string seat_pitch   = AddParm( PARM_DOUBLE_TYPE, "SeatPitch", "Layout" );
+	SetParmValLimits( seat_pitch, 1.0, 0.001, 1.0e12 );
+
+    string seat_gap   = AddParm( PARM_DOUBLE_TYPE, "SeatGap", "Layout" );
+	SetParmValLimits( seat_gap, 0.2, 0.001, 1.0e12 );
+
+	string aisle_width    = AddParm( PARM_DOUBLE_TYPE, "AisleWidth", "Layout" );
+	SetParmValLimits( aisle_width, 1.0, 0.001, 1.0e12 );
+
+	string num_row    = AddParm( PARM_INT_TYPE, "NumRow", "Layout" );
+	SetParmValLimits( num_row, 2, 1, 100 );
+
+	string num_left   = AddParm( PARM_INT_TYPE, "NumLeft", "Layout" );
+	SetParmValLimits( num_left, 2, 0, 10 );
+
+	string num_middle = AddParm( PARM_INT_TYPE, "NumMiddle", "Layout" );
+	SetParmValLimits( num_middle, 3, 0, 10 );
+
+	string num_right  = AddParm( PARM_INT_TYPE, "NumRight", "Layout" );
+	SetParmValLimits( num_right, 2, 0, 10 );
+
+	//==== Set Some Decent Tess Vals ====//
+	string geom_id = GetCurrCustomGeom();
+	SetParmVal( GetParm( geom_id, "Tess_U",  "Shape" ), 7 );
+	SetParmVal( GetParm( geom_id, "Tess_W",  "Shape" ), 13 );
+}
+
+//==== Global Gui IDs - These Are Consistent For All Created Boxes And Used In UpdateGUI====// 
+int DesignTab;
+int WidthSlider;
+int SeatHeightSlider;
+int SeatLengthSlider;
+int BackHeightSlider;
+int BackThickSlider;
+int BackAngleSlider;
+int SeatPitchSlider;
+int SeatGapSlider;
+int AisleWidthSlider;
+int NumRowInput;
+int NumLeftInput;
+int NumMiddleInput;
+int NumRightInput;
+
+//==== InitGui Is Called Once During Each Custom Geom Construction ====//
+void InitGui()
+{
+	DesignTab = AddGui( GDEV_TAB, "Design"  );
+	AddGui( GDEV_YGAP );
+	AddGui( GDEV_DIVIDER_BOX, "Design" );
+	WidthSlider = AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Seat_Width"  );
+	SeatHeightSlider = AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Seat_Height"  );
+	SeatLengthSlider = AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Seat_Length"  );
+	AddGui( GDEV_YGAP );
+	BackHeightSlider = AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Back_Height"  );
+	BackThickSlider = AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Back_Thick"  );
+	BackAngleSlider = AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Back_Angle"  );
+
+	DesignTab = AddGui( GDEV_TAB, "Layout"  );
+	AddGui( GDEV_YGAP );
+	AddGui( GDEV_DIVIDER_BOX, "Spacing" );
+    SeatPitchSlider = AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Seat_Pitch"  ); 
+	SeatGapSlider = AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Seat_Gap"  );
+	AisleWidthSlider = AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Aisle_Width"  );
+	AddGui( GDEV_YGAP );
+
+    AddGui( GDEV_DIVIDER_BOX, "Num Rows" );
+	NumRowInput = AddGui( GDEV_INDEX_SELECTOR );
+ 
+	AddGui( GDEV_YGAP );
+	AddGui( GDEV_DIVIDER_BOX, "Row" );
+
+    AddGui( GDEV_BEGIN_SAME_LINE );
+    AddGui( GDEV_PARM_BUTTON, "Left" );
+    AddGui( GDEV_PARM_BUTTON, "Middle" );
+    AddGui( GDEV_PARM_BUTTON, "Right" );
+    AddGui( GDEV_END_SAME_LINE );
+
+    AddGui( GDEV_BEGIN_SAME_LINE );
+	NumLeftInput = AddGui( GDEV_COUNTER );
+	NumMiddleInput = AddGui( GDEV_COUNTER );
+	NumRightInput = AddGui( GDEV_COUNTER  );
+    AddGui( GDEV_END_SAME_LINE );
+
+
+} 
+
+//==== UpdateGui Is Called Every Time The Gui is Updated ====//
+void UpdateGui()
+{
+	string geom_id = GetCurrCustomGeom();
+
+    //==== Update Design Parms ====//
+	UpdateGui( WidthSlider, GetParm( geom_id, "Width", "Design" ) ); 
+	UpdateGui( SeatLengthSlider, GetParm( geom_id, "SeatLength", "Design" ) ); 
+	UpdateGui( SeatHeightSlider, GetParm( geom_id, "SeatHeight", "Design" ) ); 
+	UpdateGui( BackHeightSlider, GetParm( geom_id, "BackHeight", "Design" ) ); 
+	UpdateGui( BackThickSlider, GetParm( geom_id, "BackThick", "Design" ) ); 
+	UpdateGui( BackAngleSlider, GetParm( geom_id, "BackAngle", "Design" ) ); 
+
+    //==== Update Layout Parms ====//
+	UpdateGui( SeatPitchSlider, GetParm( geom_id, "SeatPitch", "Layout" ) ); 
+	UpdateGui( SeatGapSlider, GetParm( geom_id, "SeatGap", "Layout" ) ); 
+	UpdateGui( AisleWidthSlider, GetParm( geom_id, "AisleWidth", "Layout" ) ); 
+	UpdateGui( NumRowInput, GetParm( geom_id, "NumRow", "Layout" ) ); 
+	UpdateGui( NumLeftInput, GetParm( geom_id, "NumLeft", "Layout" ) ); 
+	UpdateGui( NumMiddleInput, GetParm( geom_id, "NumMiddle", "Layout" ) ); 
+	UpdateGui( NumRightInput, GetParm( geom_id, "NumRight", "Layout" ) ); 
+} 
+
+//==== UpdateSurf Is Called Every Time The Geom is Updated ====//
+void UpdateSurf()
+{
+	string geom_id = GetCurrCustomGeom();
+
+	//==== Get The Current Vals ====//
+	double width  = GetParmVal( GetParm( geom_id, "Width", "Design" ) );
+	double height = GetParmVal( GetParm( geom_id, "SeatHeight", "Design" ) );
+	double length = GetParmVal( GetParm( geom_id, "SeatLength", "Design" ) );
+	double back_height = GetParmVal( GetParm( geom_id, "BackHeight", "Design" ) );
+	double back_thick = GetParmVal( GetParm( geom_id, "BackThick", "Design" ) );
+	double angle = 90 + GetParmVal( GetParm( geom_id, "BackAngle", "Design" ) );
+
+    double seat_pitch  = GetParmVal( GetParm( geom_id, "SeatPitch", "Layout" ) );
+    double seat_gap    = GetParmVal( GetParm( geom_id, "SeatGap", "Layout" ) );
+    double aisle_width = GetParmVal( GetParm( geom_id, "AisleWidth", "Layout" ) );
+    int num_row = GetIntParmVal( GetParm( geom_id, "NumRow", "Layout" ) );
+    int num_left = GetIntParmVal( GetParm( geom_id, "NumLeft", "Layout" ) );
+    int num_mid = GetIntParmVal( GetParm( geom_id, "NumMiddle", "Layout" ) );
+    int num_right = GetIntParmVal( GetParm( geom_id, "NumRight", "Layout" ) );
+
+    //==== Clear Old Surfs ====//
+    ClearXSecSurfs();
+
+    //==== Create Seat Parts ====//
+    string seat_surf = AddXSecSurf();
+    BuildSeatBottom( seat_surf, width, length, height  );
+ 	string back_surf = AddXSecSurf();
+    BuildSeatBack( back_surf, width, length, height,  back_height, back_thick, angle );
+    SkinXSecSurf();
+
+    int total_col = num_left + num_mid + num_right;
+
+    for ( int row = 0 ; row < num_row ; row++ )
+    {
+        double x = row*seat_pitch;
+        for ( int col = 0 ; col < total_col ; col++ )
+        {
+            //==== Dont Clone Inital Seat ====//
+            if ( row != 0 || col != 0 )
+            {
+                double y = col*(width + seat_gap);
+
+                if ( num_right > 0 && col >= num_right )
+                    y += aisle_width;
+                if ( num_mid > 0 && col >= (num_right+num_mid) )
+                    y += aisle_width;
+
+  	            Matrix4d mat;
+                mat.translatef( 0, y, x );
+
+                CloneSurf( 0, mat );
+                CloneSurf( 1, mat );
+            }
+         }
+    }
+
+	//==== Check For API Errors ====//
+	while ( GetNumTotalErrors() > 0 ) 
+	{
+		ErrorObj err = PopLastError();
+		Print( err.GetErrorString() );
+	}
+}
+
+//==== Create The Seat Bottom ====//
+void BuildSeatBottom( string surf_id, double width, double length, double height  )
+{
+	string xsec0 = AppendXSec( surf_id, XS_POINT);
+	string xsec1 = AppendXSec( surf_id, XS_ROUNDED_RECTANGLE);
+	string xsec2 = AppendXSec( surf_id, XS_ROUNDED_RECTANGLE);
+	string xsec3 = AppendXSec( surf_id, XS_POINT);
+	
+    double rad = width*0.1;
+	SetParmVal( GetXSecParm( xsec1, "RoundRectXSec_Radius" ), rad );
+	SetParmVal( GetXSecParm( xsec2, "RoundRectXSec_Radius" ), rad );
+
+	SetParmVal( GetXSecParm( xsec1, "RoundedRect_Width" ), width );
+	SetParmVal( GetXSecParm( xsec2, "RoundedRect_Width" ), width );
+	SetParmVal( GetXSecParm( xsec1, "RoundedRect_Height" ), length );
+	SetParmVal( GetXSecParm( xsec2, "RoundedRect_Height" ), length );
+
+	SetCustomXSecLoc( xsec2, vec3d( height, 0, 0 ) );
+	SetCustomXSecLoc( xsec3, vec3d( height, 0, 0 ) );
+}
+
+//==== Create The Seat Back ====//
+void BuildSeatBack( string surf_id, double width, double length, double height, 
+                    double back_height, double back_thick, double back_angle  )
+{
+ 	string xsec0 = AppendXSec( surf_id, XS_POINT);
+	string xsec1 = AppendXSec( surf_id, XS_ROUNDED_RECTANGLE);
+	string xsec2 = AppendXSec( surf_id, XS_ROUNDED_RECTANGLE);
+	string xsec3 = AppendXSec( surf_id, XS_POINT);
+
+    double rad = width*0.1;
+	SetParmVal( GetXSecParm( xsec1, "RoundRectXSec_Radius" ), rad );
+	SetParmVal( GetXSecParm( xsec2, "RoundRectXSec_Radius" ), rad );
+
+	SetParmVal( GetXSecParm( xsec1, "RoundedRect_Width" ), width );
+	SetParmVal( GetXSecParm( xsec2, "RoundedRect_Width" ), width );
+	SetParmVal( GetXSecParm( xsec1, "RoundedRect_Height" ), back_height );
+	SetParmVal( GetXSecParm( xsec2, "RoundedRect_Height" ), back_height );
+
+	SetCustomXSecLoc( xsec2, vec3d( back_thick, 0, 0 ) );
+	SetCustomXSecLoc( xsec3, vec3d( back_thick, 0, 0 ) );
+
+    //==== Position and Rotate Seat Back ====//
+	Matrix4d mat;
+	vec3d back_pos( height, 0, back_height/2 - length/2 );
+	vec3d back_rot( 0, back_angle, 0 );
+	vec3d back_rot_cent( back_thick/2, 0, -back_height/2);
+
+	mat.buildXForm( back_pos, back_rot, back_rot_cent );
+
+    SetXSecSurfGlobalXForm( surf_id, mat );
+}
+
+
+
+
+
+

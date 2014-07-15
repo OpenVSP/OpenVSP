@@ -69,10 +69,10 @@ protected:
 
     vector< string > FindParmNames( bool A_flag, vector< string > & parm_id_vec );
 
-    GroupLayout* m_User1Group;
-    GroupLayout* m_User2Group;
-    enum { NUM_USER_SLIDERS = 10, };
-    SliderAdjRangeInput m_UserSlider[NUM_USER_SLIDERS];
+    //GroupLayout* m_User1Group;
+    //GroupLayout* m_User2Group;
+    //enum { NUM_USER_SLIDERS = 10, };
+    //SliderAdjRangeInput m_UserSlider[NUM_USER_SLIDERS];
 
 };
 

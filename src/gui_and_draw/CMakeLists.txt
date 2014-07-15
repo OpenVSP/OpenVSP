@@ -20,6 +20,7 @@ INCLUDE_DIRECTORIES(
 )
 
 ADD_LIBRARY(gui_and_draw
+AdvLinkScreen.cpp
 AwaveScreen.cpp
 BlankScreen.cpp
 CfdMeshScreen.cpp
@@ -54,6 +55,7 @@ SetEditorScreen.cpp
 StackScreen.cpp
 SubGLWindow.cpp
 TypeEditorScreen.cpp
+UserParmScreen.cpp
 WingScreen.cpp
 MainGLWindow.cpp
 ManageTextureScreen.cpp
@@ -64,6 +66,7 @@ ManageBackgroundScreen.cpp
 ManageLabelScreen.cpp
 ManageCORScreen.cpp
 MaterialRepo.cpp
+AdvLinkScreen.h
 AwaveScreen.h
 BlankScreen.h
 CfdMeshScreen.h
@@ -98,6 +101,7 @@ SetEditorScreen.h
 StackScreen.h
 SubGLWindow.h
 TypeEditorScreen.h
+UserParmScreen.h
 WingScreen.h
 MainGLWindow.h
 ManageTextureScreen.h

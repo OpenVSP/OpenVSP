@@ -61,42 +61,18 @@ public:
     void Show();
 
     //===== Get/Set Current GUI Placement Coords ====//
-    int GetX()
-    {
-        return m_X;
-    }
-    int GetY()
-    {
-        return m_Y;
-    }
-    void SetX( int x )
-    {
-        m_X = x;
-    }
-    void SetY( int y )
-    {
-        m_Y = y;
-    }
+    int GetX()              { return m_X; }
+    int GetY()              { return m_Y; }
+    void SetX( int x )      { m_X = x; }
+    void SetY( int y )      { m_Y = y; }
 
     //==== Upper Left Coords Of Group ====//
-    int GetStartX()
-    {
-        return m_StartX;
-    }
-    int GetStartY()
-    {
-        return m_StartY;
-    }
+    int GetStartX()         { return m_StartX; }
+    int GetStartY()         { return m_StartY; }
 
     //==== Width Height of Group ===//
-    int GetW()
-    {
-        return m_W;
-    }
-    int GetH()
-    {
-        return m_H;
-    }
+    int GetW()              { return m_W; }
+    int GetH()              { return m_H; }
 
     //==== Remaining Space in Group ====//
     int GetRemainX();
@@ -107,78 +83,33 @@ public:
     void AddY( int offset );
 
     //==== Add Fixed Distance (GapHeight) To Y Location ====//
-    void AddYGap()
-    {
-        m_Y += m_GapHeight;
-    }
+    void AddYGap()          { m_Y += m_GapHeight; }
 
     //==== Move to Begininng of Next Line (ignore SameLineFlag) ====//
     void ForceNewLine();
 
     //==== Flag To Force GuiDevices to Fill Complete Line Width ====//
-    void SetFitWidthFlag( bool f )
-    {
-        m_FitWidthFlag = f;
-    }
+    void SetFitWidthFlag( bool f )      { m_FitWidthFlag = f; }
 
     //==== Dont Increment to Next Line After Adding GuiDevice ====//
-    void SetSameLineFlag( bool f )
-    {
-        m_SameLineFlag = f;
-    }
+    void SetSameLineFlag( bool f )      {  m_SameLineFlag = f; }
 
     //==== Reset To Predefinded Widget Width/Heights ====//
     void InitWidthHeightVals();
 
     //==== Set/Get Widget Width/Heights ====//
-    void SetStdHeight( int h )
-    {
-        m_StdHeight = h;
-    }
-    int  GetStdHeight()
-    {
-        return m_StdHeight;
-    }
-    void SetGapHeight( int h )
-    {
-        m_GapHeight = h;
-    }
-    int GetGapHeight()
-    {
-        return m_GapHeight;
-    }
-    void SetDividerHeight( int h )
-    {
-        m_DividerHeight = h;
-    }
-    int GetDividerHeight()
-    {
-        return m_DividerHeight;
-    }
-    void SetButtonWidth( int w )
-    {
-        m_ButtonWidth = w;
-    }
-    int GetButtonWidth()
-    {
-        return m_ButtonWidth;
-    }
-    void SetChoiceButtonWidth( int w )
-    {
-        m_ChoiceButtonWidth = w;
-    }
-    void SetRangeButtonWidth( int w )
-    {
-        m_RangeButtonWidth = w;
-    }
-    void SetInputWidth( int w )
-    {
-        m_InputWidth = w;
-    }
-    void SetSliderWidth( int w )
-    {
-        m_SliderWidth = w;
-    }
+    void SetStdHeight( int h )          { m_StdHeight = h; }
+    int  GetStdHeight()                 { return m_StdHeight; }
+    void SetGapHeight( int h )          { m_GapHeight = h; }
+    int GetGapHeight()                  { return m_GapHeight; }
+    void SetDividerHeight( int h )      { m_DividerHeight = h; }
+    int GetDividerHeight()              { return m_DividerHeight; }
+    void SetButtonWidth( int w )        { m_ButtonWidth = w; }
+    int GetButtonWidth()                { return m_ButtonWidth; }
+    void SetChoiceButtonWidth( int w )  { m_ChoiceButtonWidth = w; }
+    void SetRangeButtonWidth( int w )   { m_RangeButtonWidth = w; }
+    void SetInputWidth( int w )         { m_InputWidth = w; }
+    void SetSliderWidth( int w )        { m_SliderWidth = w; }
 
     //==== Add FLTK Widgets and Initalize GUI Devices ====//
     void AddDividerBox( const string& text, int used_w = 0 );
@@ -193,6 +124,7 @@ public:
     void AddButton(  ToggleButton& toggle_button, const char* label );
     void AddButton(  CheckButtonBit& check_bit_button, const char* label, int val );
     void AddButton(  TriggerButton& trigger_button, const char* label );
+    void AddButton(  ParmButton& parm_button, const char* label );
     void AddInput(  StringInput& string_input, const char* label );
     void AddInput(  Input& input, const char* label, const char* format  );
     void AddOutput( StringOutput& string_output, const char* label );
@@ -207,6 +139,9 @@ public:
     void AddSkinControl( SkinControl & skin_control, const char* label, double range, const char* format );
     void AddSkinOutput( SkinOutput & skin_output );
     void AddGeomPicker( GeomPicker & geom_picker );
+
+    void AddFlBrowser( Fl_Browser* browser, int height );
+
 
     //==== Add Another GroupLayout as a SubSet of This GroupLayout ====//
     //==== Subgroups can be Used To Create Multiple Column Layouts ====//

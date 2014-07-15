@@ -12,6 +12,7 @@
 #include "ScreenMgr.h"
 #include "VehicleMgr.h"
 #include "CfdMeshMgr.h"
+#include "AdvLinkMgr.h"
 #include "MainGLWindow.h"
 #include "SelectFileScreen.h"
 #include "GraphicEngine.h"
@@ -44,6 +45,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : VspScreen( mgr )
 
     AddMenuCallBack( m_MainUI->GeomModifyMenu );
     AddMenuCallBack( m_MainUI->TypeEditorMenu  );
+    AddMenuCallBack( m_MainUI->UserParmMenu  );
     AddMenuCallBack( m_MainUI->SetEditorMenu  );
     AddMenuCallBack( m_MainUI->StructureMenu );
     AddMenuCallBack( m_MainUI->CompGeomMenu );
@@ -55,6 +57,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     AddMenuCallBack( m_MainUI->AeroRefMenu );
     AddMenuCallBack( m_MainUI->AwaveMenu );
     AddMenuCallBack( m_MainUI->PSliceMenu );
+    AddMenuCallBack( m_MainUI->AdvParmLinkMenu );
 
     AddMenuCallBack( m_MainUI->OneScreenMenu );
     AddMenuCallBack( m_MainUI->FourScreenMenu );
@@ -279,6 +282,10 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
     {
         m_ScreenMgr->ShowScreen( ScreenMgr::VSP_TYPE_EDITOR_SCREEN );
     }
+    else if ( m == m_MainUI->UserParmMenu )
+    {
+        m_ScreenMgr->ShowScreen( ScreenMgr::VSP_USER_PARM_SCREEN );
+    }
     else if ( m == m_MainUI->TextureMenu )
     {
         m_ScreenMgr->ShowScreen( ScreenMgr::VSP_MANAGE_TEXTURE_SCREEN );
@@ -286,6 +293,10 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
     else if ( m == m_MainUI->ParmLinkMenu )
     {
         m_ScreenMgr->ShowScreen( ScreenMgr::VSP_PARM_LINK_SCREEN );
+    }
+    else if ( m == m_MainUI->AdvParmLinkMenu )
+    {
+        m_ScreenMgr->ShowScreen( ScreenMgr::VSP_ADV_LINK_SCREEN );
     }
     else if ( m == m_MainUI->LightingMenu )
     {

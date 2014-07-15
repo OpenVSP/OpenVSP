@@ -39,34 +39,16 @@ public:
     virtual void AddParm( const string & id );
     virtual void RemoveParm( const string & id );
 
-    virtual string GetParentContainer()
-    {
-        return m_ParentContainer;
-    }
+    virtual string GetParentContainer()             { return m_ParentContainer; }
     virtual ParmContainer* GetParentContainerPtr();
 
-    virtual bool GetLateUpdateFlag()
-    {
-        return m_LateUpdateFlag;
-    };
-    virtual void SetLateUpdateFlag( bool flag )
-    {
-        m_LateUpdateFlag = flag;
-    };
+    virtual bool GetLateUpdateFlag()                { return m_LateUpdateFlag; }
+    virtual void SetLateUpdateFlag( bool flag )     { m_LateUpdateFlag = flag; }
 
-    virtual string GetID()
-    {
-        return m_ID;
-    }
+    virtual string GetID()                          { return m_ID; }
 
-    virtual void SetName( const string& name )
-    {
-        m_Name = name;
-    }
-    virtual string GetName()
-    {
-        return m_Name;
-    }
+    virtual void SetName( const string& name )      { m_Name = name; }
+    virtual string GetName()                        { return m_Name; }
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
@@ -81,10 +63,7 @@ public:
     virtual void AddLinkableContainers( vector< string > & linkable_container_vec );
     virtual void AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id = string() );
 
-    virtual void SetParentContainer( const string & id )
-    {
-        m_ParentContainer = id;
-    }
+    virtual void SetParentContainer( const string & id )    { m_ParentContainer = id; }
 
 protected:
 
@@ -125,24 +104,21 @@ public:
     UserParmContainer();
     virtual ~UserParmContainer();
 
-    virtual void Renew();
-
+    virtual void Renew( int num_initial_parms );
     virtual void ParmChanged( Parm* parm_ptr, int type );
 
-    int GetNumUserParms()
-    {
-        return m_UserParmVec.size();
-    }
+    int GetNumUserParms()                                   { return m_UserParmVec.size(); }
     string GetUserParmId( int index );
+    virtual string AddParm(int type, const string & name, const string & group );
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
-    vector< Parm > m_UserParmVec;
+protected:
 
-private:
+    vector< Parm* > m_UserParmVec;
 
-    virtual void Init();
+    virtual void Init( int num_initial_parms );
     virtual void Wype();
 
 };

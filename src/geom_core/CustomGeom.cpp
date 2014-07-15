@@ -35,23 +35,13 @@ void CustomGeomMgrSingleton::ReadCustomScripts()
     init_flag = true;
 
     m_CustomTypeVec.clear();
-    vector< string > file_vec = ScanFolder( m_ScriptDir.c_str() );
 
-    for ( int i = 0 ; i < ( int )file_vec.size() ; i++ )
+    vector< string > mod_vec = ScriptMgr.ReadScriptsFromDir( m_ScriptDir );
+
+    for ( int i = 0 ; i < (int)mod_vec.size() ; i++ )
     {
-        if ( file_vec[i].compare( file_vec[i].size() - 3, 3, ".as" ) == 0 )
-        {
-            string sub = file_vec[i].substr( 0, file_vec[i].size() - 3 );
-
-//jrg Check for errors
-            string file_name = m_ScriptDir;
-            file_name.append( file_vec[i] );
-            string module_name = ScriptMgr.ReadScriptFromFile( sub, file_name );
-            m_CustomTypeVec.push_back( GeomType( CUSTOM_GEOM_TYPE, sub, false, module_name ) );
-
-            m_ModuleGeomIDMap[ module_name ] = string();
-
-        }
+        m_CustomTypeVec.push_back( GeomType( CUSTOM_GEOM_TYPE, mod_vec[i], false, mod_vec[i] ) );
+        m_ModuleGeomIDMap[ mod_vec[i] ] = string();
     }
 }
 
@@ -105,7 +95,7 @@ string CustomGeomMgrSingleton::GetCustomParm( int index )
 
 
 //==== Add Gui Device Build Data For Custom Geom ====//
-int CustomGeomMgrSingleton::AddGui( int type, const string & label )
+int CustomGeomMgrSingleton::AddGui( int type, const string & label, const string & parm_name, const string & group_name )
 {
     Geom* gptr = VehicleMgr.GetVehicle()->FindGeom( m_CurrGeom );
 
@@ -117,6 +107,9 @@ int CustomGeomMgrSingleton::AddGui( int type, const string & label )
         GuiDef gd;
         gd.m_Type = type;
         gd.m_Label = label;
+        gd.m_ParmName = parm_name;
+        gd.m_GroupName = group_name;
+
         return custom_geom->AddGui( gd );
     }
     return -1;
@@ -157,6 +150,19 @@ vector< GuiDef > CustomGeomMgrSingleton::GetGuiDefVec( const string & geom_id )
 }
 
 
+//===== Check And Clear Trigger Event ====//
+bool CustomGeomMgrSingleton::CheckClearTriggerEvent( int gui_id )
+{
+    Geom* gptr = VehicleMgr.GetVehicle()->FindGeom( m_CurrGeom );
+    //==== Check If Geom is Valid and Correct Type ====//
+    if ( gptr && gptr->GetType().m_Type == CUSTOM_GEOM_TYPE )
+    {
+        CustomGeom* custom_geom = dynamic_cast<CustomGeom*>( gptr );
+        return custom_geom->CheckClearTriggerEvent( gui_id );
+    }
+    return false;
+}
+
 //==== Build Update Gui Instruction Vector ====//
 vector< GuiUpdate > CustomGeomMgrSingleton::GetGuiUpdateVec()
 {
@@ -186,6 +192,19 @@ string CustomGeomMgrSingleton::AddXSecSurf()
     return string();
 }
 
+//==== Clear XSec Surface From Current Geom =====//
+void CustomGeomMgrSingleton::ClearXSecSurfs()
+{
+    Geom* gptr = VehicleMgr.GetVehicle()->FindGeom( m_CurrGeom );
+
+    //==== Check If Geom is Valid and Correct Type ====//
+    if ( gptr && gptr->GetType().m_Type == CUSTOM_GEOM_TYPE )
+    {
+        CustomGeom* custom_geom = dynamic_cast<CustomGeom*>( gptr );
+        return custom_geom->ClearXSecSurfs();
+    }
+}
+
 //==== Skin XSec Surf =====//
 void CustomGeomMgrSingleton::SkinXSecSurf()
 {
@@ -196,6 +215,32 @@ void CustomGeomMgrSingleton::SkinXSecSurf()
     {
         CustomGeom* custom_geom = dynamic_cast<CustomGeom*>( gptr );
         custom_geom->SkinXSecSurf();
+    }
+}
+
+//==== Clone Surf And Apply Transform =====//
+void CustomGeomMgrSingleton::CloneSurf( int index, Matrix4d & mat )
+{
+    Geom* gptr = VehicleMgr.GetVehicle()->FindGeom( m_CurrGeom );
+
+    //==== Check If Geom is Valid and Correct Type ====//
+    if ( gptr && gptr->GetType().m_Type == CUSTOM_GEOM_TYPE )
+    {
+        CustomGeom* custom_geom = dynamic_cast<CustomGeom*>( gptr );
+        custom_geom->CloneSurf( index, mat );
+    }
+}
+
+//==== Clone Surf And Apply Transform =====//
+void CustomGeomMgrSingleton::TransformSurf( int index, Matrix4d & mat )
+{
+    Geom* gptr = VehicleMgr.GetVehicle()->FindGeom( m_CurrGeom );
+
+    //==== Check If Geom is Valid and Correct Type ====//
+    if ( gptr && gptr->GetType().m_Type == CUSTOM_GEOM_TYPE )
+    {
+        CustomGeom* custom_geom = dynamic_cast<CustomGeom*>( gptr );
+        custom_geom->TransformSurf( index, mat );
     }
 }
 
@@ -361,12 +406,8 @@ void CustomGeom::Clear()
     }
     m_ParmVec.clear();
 
-    //==== Clear XSecs ====//
-    for ( int i = 0 ; i < (int)m_XSecSurfVec.size() ; i++ )
-    {
-        delete m_XSecSurfVec[i];
-    }
-    m_XSecSurfVec.clear();
+    //==== Clear XSec Surfs====//
+    ClearXSecSurfs();
 }
 
 //==== Init Geometry ====//
@@ -399,10 +440,54 @@ vector< GuiUpdate > CustomGeom::GetGuiUpdateVec()
 {
     m_UpdateGuiVec.clear();
 
+    //==== Load Predefined UpdateGui Parm Matches ====//
+    for ( int i = 0 ; i < (int)m_GuiDefVec.size() ; i++ )
+    {
+        if ( m_GuiDefVec[i].m_ParmName.size() > 0 && m_GuiDefVec[i].m_GroupName.size() )
+        {
+            string parm_id = GetParm( m_ID, m_GuiDefVec[i].m_ParmName, m_GuiDefVec[i].m_GroupName );
+
+            GuiUpdate gu;
+            gu.m_GuiID = i;
+            gu.m_ParmID = parm_id;
+            m_UpdateGuiVec.push_back( gu );
+        }
+    }
+
     //==== Call Script ====//
     ScriptMgr.ExecuteScript( GetScriptModuleName().c_str(), "void UpdateGui()" );
 
     return m_UpdateGuiVec;
+}
+
+//==== Add A Gui Tigger Event ====//
+void CustomGeom::AddGuiTriggerEvent( int index )
+{
+    if ( m_TriggerVec.size() != m_GuiDefVec.size() )
+    {
+        m_TriggerVec.resize( m_GuiDefVec.size(), 0 );
+    }
+
+    if ( index >= 0 && index < (int)m_TriggerVec.size() )
+    {
+        m_TriggerVec[index] = 1;
+    }
+}
+
+//==== Check and Clear A Tigger Event ====//
+bool CustomGeom::CheckClearTriggerEvent( int index )
+{
+    bool trigger = false;
+    if ( index >= 0 && index < (int)m_TriggerVec.size() )
+    {
+        if ( m_TriggerVec[index] == 1 )
+        {
+            trigger = true;
+            m_TriggerVec[index] = 0;
+            ForceUpdate();
+        }
+    }
+    return trigger;
 }
 
 
@@ -424,23 +509,7 @@ void CustomGeom::UpdateSurf()
 //==== Create Parm and Add To Vector Of Parms ====//
 string CustomGeom::AddParm( int type, const string & name, const string & group )
 {
-    Parm* p = NULL;
-    if ( type == PARM_DOUBLE_TYPE )
-    {
-        p = new Parm();
-    }
-    else if ( type == PARM_INT_TYPE )
-    {
-        p = new IntParm();
-    }
-    else if ( type == PARM_BOOL_TYPE )
-    {
-        p = new BoolParm();
-    }
-    else if ( type == PARM_FRACTION_TYPE )
-    {
-        p = new FractionParm();
-    }
+    Parm* p = ParmMgr.CreateParm( type );
 
     if ( p )
     {
@@ -463,18 +532,24 @@ string CustomGeom::FindParmID( int index )
     return string();
 }
 
+//==== Remove All XSec Surfs =====//
+void CustomGeom::ClearXSecSurfs()
+{
+    //==== Clear XSec Surfs ====//
+    for ( int i = 0 ; i < (int)m_XSecSurfVec.size() ; i++ )
+    {
+        delete m_XSecSurfVec[i];
+    }
+    m_XSecSurfVec.clear();
+}
 
 //==== Add XSec Surface Return ID =====//
 string CustomGeom::AddXSecSurf()
 {
     XSecSurf* xsec_surf = new XSecSurf();
-
     xsec_surf->SetXSecType( XSEC_CUSTOM );
-
     xsec_surf->SetBasicOrientation( X_DIR, Y_DIR, XS_SHIFT_MID, false );
-
     xsec_surf->SetParentContainer( GetID() );
-
     m_XSecSurfVec.push_back( xsec_surf );
 
     return xsec_surf->GetID();
@@ -529,6 +604,25 @@ void CustomGeom::SkinXSecSurf()
     }
 }
 
+//==== Make A Copy Of MainSurf at Index and Apply XForm ====//
+void CustomGeom::CloneSurf( int index, Matrix4d & mat )
+{
+    if ( index >= 0 && index < (int)m_MainSurfVec.size() )
+    {
+        VspSurf clone = m_MainSurfVec[index];
+        clone.Transform( mat );
+        m_MainSurfVec.push_back( clone );
+    }
+}
+
+//==== Make A Copy Of MainSurf at Index and Apply XForm ====//
+void CustomGeom::TransformSurf( int index, Matrix4d & mat )
+{
+    if ( index >= 0 && index < (int)m_MainSurfVec.size() )
+    {
+        m_MainSurfVec[index].Transform( mat );
+    }
+}
 
 //==== Encode Data Into XML Data Struct ====//
 xmlNodePtr CustomGeom::EncodeXml( xmlNodePtr & node )

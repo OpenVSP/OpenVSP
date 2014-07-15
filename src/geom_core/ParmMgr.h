@@ -66,23 +66,12 @@ public:
     string RemapID( const string & oldID, const string & suggestID = "" );
     void ResetRemapID();
 
-    void SetActiveParm( string id )
-    {
-        m_ActiveParmID = id;
-    }
-    string GetActiveParmID()
-    {
-        return m_ActiveParmID;
-    }
-    Parm* GetActiveParm()
-    {
-        return FindParm( m_ActiveParmID );
-    }
+    void SetActiveParm( string id )         { m_ActiveParmID = id; }
+    string GetActiveParmID()                { return m_ActiveParmID; }
+    Parm* GetActiveParm()                   { return FindParm( m_ActiveParmID ); }
+    int GetNumParmChanges()                 { return m_NumParmChanges; }
 
-    int GetNumParmChanges()
-    {
-        return m_NumParmChanges;
-    }
+    Parm* CreateParm( int type );
 
     //=== Get Container, Group and Parm Name Given Parm ID ====//
     void GetNames( const string& parm_id, string& container_name, string& group_name, string& parm_name );

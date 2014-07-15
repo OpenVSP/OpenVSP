@@ -54,15 +54,20 @@ enum GDEV
     GDEV_TRIGGER_BUTTON,
     GDEV_COUNTER,
     GDEV_CHOICE,
+    GDEV_ADD_CHOICE_ITEM,
     GDEV_SLIDER_INPUT,
     GDEV_SLIDER_ADJ_RANGE_INPUT,
     GDEV_SLIDER_ADJ_RANGE_TWO_INPUT,
     GDEV_FRACT_PARM_SLIDER,
     GDEV_STRING_INPUT,
-    GDEV_INDEX_SLIDER,
+    GDEV_INDEX_SELECTOR,
     GDEV_COLOR_PICKER,
     GDEV_YGAP,
     GDEV_DIVIDER_BOX,
+    GDEV_BEGIN_SAME_LINE,
+    GDEV_END_SAME_LINE,
+    GDEV_FORCE_WIDTH,
+    GDEV_SET_FORMAT,
 };
 
 class GuiDef
@@ -71,7 +76,9 @@ public:
 
     int m_Type;
     string m_Label;
-    string m_ParmID;
+    string m_ParmName;
+    string m_GroupName;
+
 };
 
 class GuiUpdate

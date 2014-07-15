@@ -14,17 +14,17 @@
 
 #include <assert.h>
 
-//
-//
-// Must match parms to gui_devices
-// gui_device_vec[i].Update( geom_ptr->GetParm(i).GetID() );
-//
-
 
 //==== Constructor ====//
 CustomScreen::CustomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 500, "Custom" )
 {
     m_FLTK_Window->copy_label( "Custom Geom" );
+    m_SameLineFlag = false;
+    m_LastChoiceGui = NULL;
+    m_ForceWidthFlag = false;
+    m_ForceWidth = 10;
+    m_Format = "%7.3f";
+
 }
 
 void CustomScreen::InitGui( Geom* geom_ptr )
@@ -47,6 +47,8 @@ void CustomScreen::InitGuiDeviceVec( Geom* geom_ptr )
     for ( int i = 0 ; i < ( int )gui_def_vec.size() ; i++ )
     {
         GuiDevice* gd = AddGuiItem( gui_def_vec[i], i );
+        if ( gd )
+            gd->SetIndex( i );
 
         string custom_type_name =  geom_ptr->GetType().m_Name;
         m_DeviceVecMap[custom_type_name].push_back( gd );
@@ -71,6 +73,8 @@ GuiDevice* CustomScreen::FindGuiDevice( const string & custom_type_name, int ind
 
 GuiDevice* CustomScreen::AddGuiItem( GuiDef & def, int id )
 {
+    GuiDevice* gui_dev = NULL;
+
     if ( def.m_Type == GDEV_TAB )
     {
         Fl_Group* tab_group = AddTab( def.m_Label );
@@ -79,32 +83,141 @@ GuiDevice* CustomScreen::AddGuiItem( GuiDef & def, int id )
 
         Tab* t = new Tab();
         t->Init( tab_group );
-
-        return t;
+        gui_dev = t;
     }
     else if ( def.m_Type == GDEV_SLIDER_ADJ_RANGE_INPUT )
     {
         SliderAdjRangeInput* slider = new SliderAdjRangeInput();
-        m_Layout.AddSlider( *slider, ( const char* )def.m_Label.c_str(), 1, "%7.3f" );
-        return slider;
+        m_Layout.AddSlider( *slider, ( const char* )def.m_Label.c_str(), 10, m_Format.c_str() );
+        gui_dev = slider;
     }
-    else if ( def.m_Type == GDEV_YGAP )
+    else if ( def.m_Type == GDEV_SLIDER_INPUT )
+    {
+        SliderInput* slider = new SliderInput();
+        m_Layout.AddSlider( *slider, ( const char* )def.m_Label.c_str(), 10, m_Format.c_str() );
+        gui_dev = slider;
+    }
+    else if ( def.m_Type == GDEV_INPUT )
+    {
+        Input* input = new Input();
+        m_Layout.AddInput( *input, ( const char* )def.m_Label.c_str(), m_Format.c_str() );
+        gui_dev = input;
+    }
+    else if ( def.m_Type == GDEV_PARM_BUTTON )
+    {
+        ParmButton* pb = new ParmButton();
+        m_Layout.AddButton( *pb, ( const char* )def.m_Label.c_str() );
+        gui_dev = pb;
+    }
+   else if ( def.m_Type == GDEV_YGAP )
     {
         m_Layout.AddYGap();
-        return NULL;
     }
     else if ( def.m_Type == GDEV_DIVIDER_BOX )
     {
         m_Layout.AddDividerBox( ( const char* )def.m_Label.c_str() );
-        return NULL;
     }
     else if ( def.m_Type == GDEV_TOGGLE_BUTTON )
     {
         ToggleButton* tb = new ToggleButton();
         m_Layout.AddButton( *tb, ( const char* )def.m_Label.c_str() );
-        return tb;
+        gui_dev = tb;
     }
-    return NULL;
+    else if ( def.m_Type == GDEV_TRIGGER_BUTTON )
+    {
+        TriggerButton* tb = new TriggerButton();
+        m_Layout.AddButton( *tb, ( const char* )def.m_Label.c_str() );
+        gui_dev = tb;
+    }
+    else if ( def.m_Type == GDEV_INDEX_SELECTOR )
+    {
+        IndexSelector* tb = new IndexSelector();
+        m_Layout.AddIndexSelector( *tb );
+        gui_dev = tb;
+    }
+    else if ( def.m_Type == GDEV_COUNTER )
+    {
+        Counter* tb = new Counter();
+        m_Layout.AddCounter( *tb,  ( const char* )def.m_Label.c_str() );
+        gui_dev = tb;
+    }
+    else if ( def.m_Type == GDEV_CHOICE )
+    {
+        Choice* ch = new Choice();
+        m_LastChoiceGui = ch;
+        m_Layout.AddChoice( *ch,  ( const char* )def.m_Label.c_str() );
+        gui_dev = ch;
+    }
+    else if ( def.m_Type == GDEV_ADD_CHOICE_ITEM )
+    {
+        if ( m_LastChoiceGui )
+        {
+            m_LastChoiceGui->AddItem( def.m_Label );
+        }
+        m_LastChoiceGui->UpdateItems();
+    }
+    else if ( def.m_Type == GDEV_BEGIN_SAME_LINE )
+    {
+        m_Layout.SetFitWidthFlag( false );
+        m_Layout.SetSameLineFlag( true );
+        m_SameLineVec.clear();
+        m_SameLineFlag = true;
+    }
+    else if ( def.m_Type == GDEV_END_SAME_LINE )
+    {
+        m_Layout.SetFitWidthFlag( true );
+        m_Layout.SetSameLineFlag( false );
+        m_Layout.ForceNewLine();
+        m_SameLineFlag = false;
+
+        int num_same_line = (int)m_SameLineVec.size();
+        if ( num_same_line )
+        {
+            int dev_x = m_Layout.GetStartX();
+
+            int total_w = 1;
+            for ( int i = 0 ; i < (int)m_SameLineVec.size() ; i++ )
+            {
+                total_w += m_SameLineVec[i]->GetWidth();
+            }
+            for ( int i = 0 ; i < (int)m_SameLineVec.size() ; i++ )
+            {
+                int dev_w = (m_Layout.GetW()*m_SameLineVec[i]->GetWidth())/total_w;
+                m_SameLineVec[i]->SetWidth( dev_w );
+                m_SameLineVec[i]->SetX( dev_x );
+                dev_x += dev_w;
+            }
+        }
+    }
+    else if ( def.m_Type == GDEV_FORCE_WIDTH )
+    {
+        int w = std::stoi( def.m_Label );
+        if ( w > 0 && w < 1000 )
+        {
+            m_ForceWidthFlag = true;
+            m_ForceWidth = std::stoi( def.m_Label );
+        }
+    }
+    else if ( def.m_Type == GDEV_SET_FORMAT )
+    {
+        m_Format = def.m_Label;
+    }
+
+
+    //==== Add To Same Line Vector ====//
+    if ( m_SameLineFlag && gui_dev )
+    {
+        m_SameLineVec.push_back( gui_dev );
+    }
+
+    //==== Force Width ====//
+    if ( m_ForceWidthFlag && gui_dev )
+    {
+        gui_dev->SetWidth( m_ForceWidth );
+        m_ForceWidthFlag = false;
+    }
+
+    return gui_dev;
 
 }
 
@@ -154,7 +267,7 @@ void CustomScreen::ShowTabs( const string & custom_type_name )
 
 
 
-//==== Show Pod Screen ====//
+//==== Show Custom Screen ====//
 void CustomScreen::Show()
 {
     if ( Update() )
@@ -163,7 +276,7 @@ void CustomScreen::Show()
     }
 }
 
-//==== Update Pod Screen ====//
+//==== Update Custom Screen ====//
 bool CustomScreen::Update()
 {
     assert( m_ScreenMgr );
@@ -204,6 +317,27 @@ bool CustomScreen::Update()
 
     return true;
 }
+
+//==== Gui Device Callbacks ====//
+void CustomScreen::GuiDeviceCallBack( GuiDevice* device )
+{
+    GeomScreen::GuiDeviceCallBack( device );
+
+    //==== Find Curr Geom ====//
+    Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
+    if ( !geom_ptr || geom_ptr->GetType().m_Type != CUSTOM_GEOM_TYPE )
+        return;
+
+    //==== Cast To Custom Geom ====//
+    CustomGeom* custom_geom = dynamic_cast<CustomGeom*>( geom_ptr );
+    if ( !custom_geom )
+        return;
+
+    custom_geom->AddGuiTriggerEvent( device->GetIndex() );
+
+
+}
+
 
 
 //==== Non Menu Callbacks ====//

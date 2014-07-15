@@ -325,6 +325,36 @@ int IntParm::Set( int val )
     return ( int )( m_Val + 0.5 );
 }
 
+//==== Set Val And Check Limts ====//
+bool IntParm::SetValCheckLimits( double val )
+{
+    //==== Check If Val Has Changed ====//
+    if ( fabs( val - m_Val ) < 0.5 )
+    {
+        return false;
+    }
+
+    //==== Store Last Val For Undo ====//
+    m_LastVal = m_Val;
+
+    //==== Keep Val Within Limits ====//
+    if ( val < m_LowerLimit )
+    {
+        m_Val = m_LowerLimit;
+    }
+    else if ( val > m_UpperLimit )
+    {
+        m_Val = m_UpperLimit;
+    }
+    else
+    {
+        m_Val = ( int )( val + 0.5 );
+    }
+
+    return true;
+}
+
+
 //=========================================================================//
 //=======================      LimIntParm      ============================//
 //=========================================================================//
