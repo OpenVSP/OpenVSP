@@ -238,7 +238,7 @@ int ScreenMgr::GlobalHandler(int event)
 {
     if (Fl::event()==FL_SHORTCUT && Fl::event_key()==FL_Escape)
     {
-        Vehicle* vPtr = VehicleMgr::getInstance().GetVehicle();
+        Vehicle* vPtr = VehicleMgr.GetVehicle();
         if ( vPtr )
         {
             vector< string > none;

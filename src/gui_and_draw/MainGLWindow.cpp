@@ -1826,7 +1826,7 @@ void VspGlWindow::OnKeydown()
         }
         break;
     case FL_Escape:
-        Vehicle* vPtr = VehicleMgr::getInstance().GetVehicle();
+        Vehicle* vPtr = VehicleMgr.GetVehicle();
         if ( vPtr )
         {
             vector< string > none;

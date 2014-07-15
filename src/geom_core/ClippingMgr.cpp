@@ -75,7 +75,7 @@ xmlNodePtr ClippingMgr::DecodeXml( xmlNodePtr & node )
 //==== Parm Changed ====//
 void ClippingMgr::ParmChanged( Parm* parm_ptr, int type )
 {
-    Vehicle* veh = VehicleMgr::getInstance().GetVehicle();
+    Vehicle* veh = VehicleMgr.GetVehicle();
 
     if ( veh )
     {

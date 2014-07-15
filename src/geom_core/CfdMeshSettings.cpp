@@ -109,7 +109,7 @@ xmlNodePtr CfdMeshSettings::DecodeXml( xmlNodePtr & node )
 //==== Parm Changed ====//
 void CfdMeshSettings::ParmChanged( Parm* parm_ptr, int type )
 {
-    Vehicle* veh = VehicleMgr::getInstance().GetVehicle();
+    Vehicle* veh = VehicleMgr.GetVehicle();
 
     if ( veh )
     {
@@ -137,7 +137,7 @@ void CfdMeshSettings::SetExportFileName( const string &fn, int type )
 
 void CfdMeshSettings::ResetExportFileNames()
 {
-    Vehicle* veh = VehicleMgr::getInstance().GetVehicle();
+    Vehicle* veh = VehicleMgr.GetVehicle();
     if ( veh )
     {
         ResetExportFileNames( veh->GetVSP3FileName() );

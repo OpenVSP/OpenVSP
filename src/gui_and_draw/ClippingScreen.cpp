@@ -72,7 +72,7 @@ ClippingScreen::~ClippingScreen()
 
 bool ClippingScreen::Update()
 {
-    Vehicle *veh = VehicleMgr::getInstance().GetVehicle();
+    Vehicle *veh = VehicleMgr.GetVehicle();
 
     if( veh )
     {
@@ -128,7 +128,7 @@ void ClippingScreen::GuiDeviceCallBack( GuiDevice* device )
 
 void ClippingScreen::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 {
-    Vehicle *veh = VehicleMgr::getInstance().GetVehicle();
+    Vehicle *veh = VehicleMgr.GetVehicle();
 
     if( veh )
     {
