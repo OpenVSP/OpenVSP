@@ -2168,7 +2168,7 @@ Tab::Tab()
 GeomPicker::GeomPicker()
 {
     m_Screen = NULL;
-    m_Vehicle = VehicleMgr::getInstance().GetVehicle();
+    m_Vehicle = VehicleMgr.GetVehicle();
 }
 
 void GeomPicker::Init( VspScreen* screen, Fl_Choice* geom_choice )
