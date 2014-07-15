@@ -8,13 +8,12 @@ FLTK_WRAP_UI( screens
 advLinkFlScreen.fl
 testFlScreen.fl
 aboutScreen.fl
-aeroRefScreen.fl
 awaveFlScreen.fl
 backgroundScreen.fl
-cabinLayoutFLScreen.fl
 cfdMeshFlScreen.fl
 compGeomFlScreen.fl
 curveEditFlScreen.fl
+degenGeomFlScreen.fl
 ductFlScreen.fl
 engineFlScreen.fl
 exportFileScreen.fl
@@ -36,8 +35,6 @@ parmLinkFlScreen.fl
 pickSetFlScreen.fl
 propFlScreen.fl
 pSliceFlScreen.fl
-scriptOutScreen.fl
-scriptScreen.fl
 selectFileFlScreen.fl
 setEditorFlScreen.fl
 sliceScreen.fl

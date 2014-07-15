@@ -32,7 +32,8 @@ public:
            VSP_IMPORT_SCREEN, VSP_LIGHTING_SCREEN, VSP_MANAGE_TEXTURE_SCREEN, VSP_VIEW_SCREEN,
            VSP_BACKGROUND_SCREEN, VSP_PARM_DEBUG_SCREEN, VSP_DESIGN_VAR_SCREEN,
            VSP_CFD_MESH_SCREEN, VSP_FEA_MESH_SCREEN, VSP_LABEL_SCREEN, VSP_COR_SCREEN,
-           VSP_USER_PARM_SCREEN, VSP_ADV_LINK_SCREEN,
+           VSP_USER_PARM_SCREEN, VSP_ADV_LINK_SCREEN, VSP_DEGEN_GEOM_SCREEN,
+           VSP_CLIPPING_SCREEN,
            VSP_NUM_SCREENS
          };
 
@@ -87,6 +88,8 @@ public:
 protected:
 
     void Init();
+
+    static int GlobalHandler(int event);
 
     bool m_UpdateFlag;
     virtual void UpdateAllScreens();

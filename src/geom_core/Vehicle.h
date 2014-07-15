@@ -19,6 +19,9 @@
 #include "DrawObj.h"
 #include "LabelMgr.h"
 #include "LightMgr.h"
+#include "DegenGeom.h"
+#include "CfdMeshSettings.h"
+#include "ClippingMgr.h"
 
 #include <assert.h>
 
@@ -179,6 +182,23 @@ public:
     void setExportCompGeomCsvFile( bool b )            { m_exportCompGeomCsvFile = b; }
     void setExportDragBuildTsvFile( bool b )        { m_exportDragBuildTsvFile = b; }
 
+    bool getExportDegenGeomCsvFile( )
+    {
+        return m_exportDegenGeomCsvFile;
+    };
+    bool getExportDegenGeomMFile( )
+    {
+        return m_exportDegenGeomMFile;
+    };
+    void setExportDegenGeomCsvFile( bool b )
+    {
+        m_exportDegenGeomCsvFile = b;
+    };
+    void setExportDegenGeomMFile( bool b )
+    {
+        m_exportDegenGeomMFile = b;
+    };
+
     //==== Import Files ====//
     string ImportFile( const string & file_name, int file_type );
 
@@ -193,6 +213,31 @@ public:
                                  vec3d norm, bool autoBoundsFlag, double start = 0, double end = 0 );
     string PSlice( int set, int numSlices, vec3d norm, bool autoBoundsFlag, double start = 0, double end = 0 );
     string PSliceAndFlatten( int set, int numSlices, vec3d norm, bool autoBoundsFlag, double start = 0, double end = 0 );
+
+    //==== Degenerate Geometry ====//
+    void CreateDegenGeom( int set );
+    vector< DegenGeom > GetDegenGeomVec()	{ return m_DegenGeomVec; }
+    string WriteDegenGeomFile();
+
+    CfdMeshSettings* GetCfdSettingsPtr()
+    {
+        return &m_CfdSettings;
+    }
+
+    virtual GridDensity* GetCfdGridDensityPtr()
+    {
+        return &m_CfdGridDensity;
+    }
+
+    virtual GridDensity* GetFeaGridDensityPtr()
+    {
+        return &m_FeaGridDensity;
+    }
+
+    ClippingMgr* GetClippinMgrPtr()
+    {
+        return &m_ClippingMgr;
+    }
 
     //==== Mass Properties ====//
     vec3d m_IxxIyyIzz;
@@ -211,6 +256,10 @@ public:
 protected:
 
     vector< Geom* > m_GeomStoreVec;                 // All Geom Ptrs
+
+    vector< DegenGeom > m_DegenGeomVec;         // Vector of components in degenerate representation
+    vector< DegenPtMass > m_DegenPtMassVec;
+
 
     vector< string > m_ActiveGeom;              // Currently Active Geoms
     vector< string > m_TopGeom;                 // Top (no Parent) Geom IDs
@@ -236,13 +285,23 @@ protected:
     string m_compGeomTsvFileName;
     string m_MassPropFileName;
     string m_AwaveFileName;
+    string m_degenGeomCsvFileName;
+    string m_degenGeomMFileName;
     bool m_exportCompGeomCsvFile;
     bool m_exportDragBuildTsvFile;
+    bool m_exportDegenGeomCsvFile;
+    bool m_exportDegenGeomMFile;
 
     void DeleteGeom( string geom_id );
 
     // File Version Number
     int m_FileOpenVersion;
+
+    CfdMeshSettings m_CfdSettings;
+    CfdGridDensity m_CfdGridDensity;
+    FeaGridDensity m_FeaGridDensity;
+
+    ClippingMgr m_ClippingMgr;
 
     VehicleGuiDraw m_VGuiDraw;
 

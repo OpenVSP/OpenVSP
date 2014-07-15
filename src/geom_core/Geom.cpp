@@ -62,7 +62,6 @@ GeomGuiDraw::GeomGuiDraw()
     m_DrawType = GEOM_DRAW_WIRE;
     m_NoShowFlag = false;
     m_DisplayChildrenFlag = true;
-    m_WireColor = vec3d( 0.0, 0.0, 255.0 );
     m_MaterialID = 0;
 
 }
@@ -756,7 +755,8 @@ void Geom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< v
 
 void Geom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms )
 {
-    m_SurfVec[indx].Tesselate( m_TessU(), m_TessW(), pnts, norms );
+    vector< vector< vec3d > > uw_pnts;
+    UpdateTesselate( indx, pnts, norms, uw_pnts );
 }
 
 void Geom::UpdateSymmAttach()
@@ -953,6 +953,16 @@ void Geom::UpdateDrawObj()
 xmlNodePtr Geom::EncodeXml( xmlNodePtr & node )
 {
     GeomXForm::EncodeXml( node );
+
+    // Encode Material Info.
+    m_GuiDraw.getMaterialMgr()->EncodeXml( node );
+
+    // Encode Color Info.
+    m_GuiDraw.getColorMgr()->EncodeXml( node );
+
+    // Encode Texture Info.
+    m_GuiDraw.getTextureMgr()->EncodeXml( node );
+
     xmlNodePtr geom_node = xmlNewChild( node, NULL, BAD_CAST "Geom", NULL );
     if ( geom_node )
     {
@@ -985,6 +995,16 @@ xmlNodePtr Geom::EncodeXml( xmlNodePtr & node )
 xmlNodePtr Geom::DecodeXml( xmlNodePtr & node )
 {
     GeomXForm::DecodeXml( node );
+
+    // Decode Material Info.
+    m_GuiDraw.getMaterialMgr()->DecodeXml( node );
+
+    // Decode Color Info.
+    m_GuiDraw.getColorMgr()->DecodeXml( node );
+
+    // Decode Texture Info.
+    m_GuiDraw.getTextureMgr()->DecodeXml( node );
+
     xmlNodePtr geom_node = XmlUtil::GetNode( node, "Geom", 0 );
     if ( geom_node )
     {
@@ -1209,9 +1229,49 @@ void Geom::SetMaterial( std::string name, double ambi[], double diff[], double s
     m_GuiDraw.SetMaterial( name, ambi, diff, spec, emis, shin );
 }
 
-Material Geom::GetMaterial()
+Material * Geom::GetMaterial()
 {
-    return *m_GuiDraw.getMaterialMgr()->getMaterial();
+    return m_GuiDraw.getMaterialMgr()->getMaterial();
+}
+
+//==== Create Degenerate Geometry ====//
+void Geom::CreateDegenGeom( vector<DegenGeom> &dgs)
+{
+    vector< vector< vec3d > > pnts;
+    vector< vector< vec3d > > nrms;
+    vector< vector< vec3d > > uwpnts;
+
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    {
+        //==== Tesselate Surface ====//
+        UpdateTesselate( i, pnts, nrms, uwpnts );
+
+        DegenGeom degenGeom;
+        degenGeom.setParentGeom( this );
+
+        degenGeom.setNumXSecs( pnts.size() );
+        degenGeom.setNumPnts( pnts[0].size() );
+        degenGeom.setName( GetName() );
+
+        degenGeom.createDegenSurface( pnts, uwpnts, m_SurfVec[i].GetFlipNormal() );
+
+        if( m_SurfVec[i].GetSurfType() == VspSurf::WING_SURF )
+        {
+            degenGeom.setType(DegenGeom::SURFACE_TYPE);
+
+            degenGeom.createSurfDegenPlate( pnts, uwpnts );
+            degenGeom.createSurfDegenStick( pnts, uwpnts );
+        }
+        else
+        {
+            degenGeom.setType(DegenGeom::BODY_TYPE);
+
+            degenGeom.createBodyDegenPlate( pnts, uwpnts );
+            degenGeom.createBodyDegenStick( pnts, uwpnts );
+        }
+
+        dgs.push_back(degenGeom);
+    }
 }
 
 //==== Set Sym Flag ====//

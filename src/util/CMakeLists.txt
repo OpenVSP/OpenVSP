@@ -48,4 +48,5 @@ Vec2d.h
 Vec3d.h
 VspCurve.h
 VspSurf.h
+WriteMatlab.h
 )

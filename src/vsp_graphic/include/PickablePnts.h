@@ -50,6 +50,16 @@ public:
     * Adjust the range of picking.
     */
 	void setPickRange(float range);
+    /*!
+    * Adjust the size of point.
+    */
+    void setPointSize(float size);
+
+public:
+    /*!
+    * Get all pickable vertices.
+    */
+    std::vector<glm::vec3> getAllPnts();
 
 protected:
     /*!
@@ -62,8 +72,9 @@ protected:
 	virtual void _draw();
 
 private:
-	float _pickRange;
-	unsigned int _highlightedId;
+    float _pickRange;
+    float _pointSize;
+    unsigned int _highlightedId;
 };
 }
 #endif

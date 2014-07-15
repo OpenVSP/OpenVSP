@@ -43,6 +43,7 @@ CfdMeshScreen::CfdMeshScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     m_DrawBadButton.Init( this, ui->viewBadButton );
     m_DrawSymmButton.Init( this, ui->viewSymmButton );
     m_DrawWakeButton.Init( this, ui->viewWakeButton );
+    m_DrawTagsButton.Init( this, ui->viewTags );
 
     m_BodyEdgeSizeSlider.Init( this, ui->bodyEdgeSizeSlider, ui->bodyEdgeSizeInput, 1.0, " %7.5f" );
     m_MinEdgeSizeSlider.Init( this, ui->minEdgeSizeSlider, ui->minEdgeSizeInput, 1.0, " %7.5f" );
@@ -159,9 +160,9 @@ bool CfdMeshScreen::Update()
     m_NumCircSegmentSlider.Update( CfdMeshMgr.GetGridDensityPtr()->m_NCircSeg.GetID() );
     m_GrowRatioSlider.Update( CfdMeshMgr.GetGridDensityPtr()->m_GrowRatio.GetID() );
 
-    m_FarXScaleSlider.Update( CfdMeshMgr.m_FarXScale.GetID() );
-    m_FarYScaleSlider.Update( CfdMeshMgr.m_FarYScale.GetID() );
-    m_FarZScaleSlider.Update( CfdMeshMgr.m_FarZScale.GetID() );
+    m_FarXScaleSlider.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_FarXScale.GetID() );
+    m_FarYScaleSlider.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_FarYScale.GetID() );
+    m_FarZScaleSlider.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_FarZScale.GetID() );
 
 
 //  char xstr[255];
@@ -175,16 +176,16 @@ bool CfdMeshScreen::Update()
 //  m_CfdMeshUI->farZScaleAbsInput->value(zstr);
 
 
-    m_FarXLocationSlider.Update( CfdMeshMgr.m_FarXLocation.GetID() );
-    m_FarYLocationSlider.Update( CfdMeshMgr.m_FarYLocation.GetID() );
-    m_FarZLocationSlider.Update( CfdMeshMgr.m_FarZLocation.GetID() );
+    m_FarXLocationSlider.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_FarXLocation.GetID() );
+    m_FarYLocationSlider.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_FarYLocation.GetID() );
+    m_FarZLocationSlider.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_FarZLocation.GetID() );
 
     m_FarEdgeLengthSlider.Update( CfdMeshMgr.GetGridDensityPtr()->m_FarMaxLen.GetID() );
     m_FarGapSizeSlider.Update( CfdMeshMgr.GetGridDensityPtr()->m_FarMaxGap.GetID() );
     m_FarCircSegmentSlider.Update( CfdMeshMgr.GetGridDensityPtr()->m_FarNCircSeg.GetID() );
 
-    m_WakeScaleSlider.Update( CfdMeshMgr.m_WakeScale.GetID() );
-    m_WakeAngleSlider.Update( CfdMeshMgr.m_WakeAngle.GetID() );
+    m_WakeScaleSlider.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_WakeScale.GetID() );
+    m_WakeAngleSlider.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_WakeAngle.GetID() );
 
     //==== Load Geom Choice ====//
     m_GeomVec = m_Vehicle->GetGeomVec();
@@ -332,15 +333,16 @@ bool CfdMeshScreen::Update()
 
     }
 
-    m_DrawMeshButton.Update( CfdMeshMgr.m_DrawMeshFlag.GetID() );
-    m_DrawSourceButton.Update( CfdMeshMgr.m_DrawSourceFlag.GetID() );
-    m_DrawFarButton.Update( CfdMeshMgr.m_DrawFarFlag.GetID() );
-    m_DrawFarPreButton.Update( CfdMeshMgr.m_DrawFarPreFlag.GetID() );
-    m_DrawBadButton.Update( CfdMeshMgr.m_DrawBadFlag.GetID() );
-    m_DrawSymmButton.Update( CfdMeshMgr.m_DrawSymmFlag.GetID() );
-    m_DrawWakeButton.Update( CfdMeshMgr.m_DrawWakeFlag.GetID() );
+    m_DrawMeshButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_DrawMeshFlag.GetID() );
+    m_DrawSourceButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_DrawSourceFlag.GetID() );
+    m_DrawFarButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_DrawFarFlag.GetID() );
+    m_DrawFarPreButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_DrawFarPreFlag.GetID() );
+    m_DrawBadButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_DrawBadFlag.GetID() );
+    m_DrawSymmButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_DrawSymmFlag.GetID() );
+    m_DrawWakeButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_DrawWakeFlag.GetID() );
+    m_DrawTagsButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_ColorTagsFlag.GetID() );
 
-    if ( CfdMeshMgr.GetHalfMeshFlag() )
+    if ( CfdMeshMgr.GetCfdSettingsPtr()->GetHalfMeshFlag() )
     {
         m_CfdMeshUI->halfMeshButton->value( 1 );
     }
@@ -358,33 +360,33 @@ bool CfdMeshScreen::Update()
         m_CfdMeshUI->rigorLimitButton->value( 0 );
     }
 
-    string datname = CfdMeshMgr.GetExportFileName( CfdMeshMgrSingleton::DAT_FILE_NAME );
+    string datname = CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileName( CfdMeshSettings::DAT_FILE_NAME );
     m_CfdMeshUI->datName->value( truncateFileName( datname, 40 ).c_str() );
-    string keyname = CfdMeshMgr.GetExportFileName( CfdMeshMgrSingleton::KEY_FILE_NAME );
+    string keyname = CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileName( CfdMeshSettings::KEY_FILE_NAME );
     m_CfdMeshUI->keyName->value( truncateFileName( keyname, 40 ).c_str() );
-    string objname = CfdMeshMgr.GetExportFileName( CfdMeshMgrSingleton::OBJ_FILE_NAME );
+    string objname = CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileName( CfdMeshSettings::OBJ_FILE_NAME );
     m_CfdMeshUI->objName->value( truncateFileName( objname, 40 ).c_str() );
-    string polyname = CfdMeshMgr.GetExportFileName( CfdMeshMgrSingleton::POLY_FILE_NAME );
+    string polyname = CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileName( CfdMeshSettings::POLY_FILE_NAME );
     m_CfdMeshUI->polyName->value( truncateFileName( polyname, 40 ).c_str() );
-    string stlname = CfdMeshMgr.GetExportFileName( CfdMeshMgrSingleton::STL_FILE_NAME );
+    string stlname = CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileName( CfdMeshSettings::STL_FILE_NAME );
     m_CfdMeshUI->stlName->value( truncateFileName( stlname, 40 ).c_str() );
-    string triname = CfdMeshMgr.GetExportFileName( CfdMeshMgrSingleton::TRI_FILE_NAME );
+    string triname = CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileName( CfdMeshSettings::TRI_FILE_NAME );
     m_CfdMeshUI->triName->value( truncateFileName( triname, 40 ).c_str() );
-    string gmshname = CfdMeshMgr.GetExportFileName( CfdMeshMgrSingleton::GMSH_FILE_NAME );
+    string gmshname = CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileName( CfdMeshSettings::GMSH_FILE_NAME );
     m_CfdMeshUI->gmshName->value( truncateFileName( gmshname, 40 ).c_str() );
-    string srfname = CfdMeshMgr.GetExportFileName( CfdMeshMgrSingleton::SRF_FILE_NAME );
+    string srfname = CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileName( CfdMeshSettings::SRF_FILE_NAME );
     m_CfdMeshUI->srfName->value( truncateFileName( srfname, 40 ).c_str() );
 
     //==== Export Flags ====//
 
-    m_DatToggleButton.Update( CfdMeshMgr.m_ExportFileFlags[ CfdMeshMgrSingleton::DAT_FILE_NAME ].GetID() );
-    m_KeyToggleButton.Update( CfdMeshMgr.m_ExportFileFlags[ CfdMeshMgrSingleton::KEY_FILE_NAME ].GetID() );
-    m_ObjToggleButton.Update( CfdMeshMgr.m_ExportFileFlags[ CfdMeshMgrSingleton::OBJ_FILE_NAME ].GetID() );
-    m_PolyToggleButton.Update( CfdMeshMgr.m_ExportFileFlags[ CfdMeshMgrSingleton::POLY_FILE_NAME ].GetID() );
-    m_StlToggleButton.Update( CfdMeshMgr.m_ExportFileFlags[ CfdMeshMgrSingleton::STL_FILE_NAME ].GetID() );
-    m_TriToggleButton.Update( CfdMeshMgr.m_ExportFileFlags[ CfdMeshMgrSingleton::TRI_FILE_NAME ].GetID() );
-    m_GmshToggleButton.Update( CfdMeshMgr.m_ExportFileFlags[ CfdMeshMgrSingleton::GMSH_FILE_NAME ].GetID() );
-    m_SrfToggleButton.Update( CfdMeshMgr.m_ExportFileFlags[ CfdMeshMgrSingleton::SRF_FILE_NAME ].GetID() );
+    m_DatToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::DAT_FILE_NAME )->GetID() );
+    m_KeyToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::KEY_FILE_NAME )->GetID() );
+    m_ObjToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::OBJ_FILE_NAME )->GetID() );
+    m_PolyToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::POLY_FILE_NAME )->GetID() );
+    m_StlToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::STL_FILE_NAME )->GetID() );
+    m_TriToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::TRI_FILE_NAME )->GetID() );
+    m_GmshToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::GMSH_FILE_NAME )->GetID() );
+    m_SrfToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::SRF_FILE_NAME )->GetID() );
 
     //==== Wake Flag ====//
     if( currGeom )
@@ -400,11 +402,11 @@ bool CfdMeshScreen::Update()
     }
 
     //=== Domain tab GUI active areas ===//
-    if ( CfdMeshMgr.GetFarMeshFlag() )
+    if ( CfdMeshMgr.GetCfdSettingsPtr()->GetFarMeshFlag() )
     {
         m_CfdMeshUI->farParametersGroup->activate();
 
-        if( CfdMeshMgr.GetFarCompFlag() )
+        if( CfdMeshMgr.GetCfdSettingsPtr()->GetFarCompFlag() )
         {
             m_CfdMeshUI->farBoxGroup->deactivate();
             m_CfdMeshUI->farCompGroup->activate();
@@ -414,7 +416,7 @@ bool CfdMeshScreen::Update()
             m_CfdMeshUI->farBoxGroup->activate();
             m_CfdMeshUI->farCompGroup->deactivate();
 
-            if( CfdMeshMgr.GetFarManLocFlag() )
+            if( CfdMeshMgr.GetCfdSettingsPtr()->GetFarManLocFlag() )
             {
                 m_CfdMeshUI->farXYZLocationGroup->activate();
             }
@@ -430,7 +432,7 @@ bool CfdMeshScreen::Update()
     }
 
     //=== Domain tab GUI radio & highlight buttons ===//
-    if( CfdMeshMgr.GetFarMeshFlag() )
+    if( CfdMeshMgr.GetCfdSettingsPtr()->GetFarMeshFlag() )
     {
         m_CfdMeshUI->farMeshButton->value( 1 );
     }
@@ -439,7 +441,7 @@ bool CfdMeshScreen::Update()
         m_CfdMeshUI->farMeshButton->value( 0 );
     }
 
-    if( CfdMeshMgr.GetFarCompFlag() )
+    if( CfdMeshMgr.GetCfdSettingsPtr()->GetFarCompFlag() )
     {
         m_CfdMeshUI->farComponentGenButton->setonly();
     }
@@ -448,7 +450,7 @@ bool CfdMeshScreen::Update()
         m_CfdMeshUI->farBoxGenButton->setonly();
     }
 
-    if( CfdMeshMgr.GetFarAbsSizeFlag() )
+    if( CfdMeshMgr.GetCfdSettingsPtr()->GetFarAbsSizeFlag() )
     {
         m_CfdMeshUI->farAbsSizeButton->value( 1 );
         m_CfdMeshUI->farRelSizeButton->value( 0 );
@@ -459,7 +461,7 @@ bool CfdMeshScreen::Update()
         m_CfdMeshUI->farRelSizeButton->value( 1 );
     }
 
-    if( CfdMeshMgr.GetFarManLocFlag() )
+    if( CfdMeshMgr.GetCfdSettingsPtr()->GetFarManLocFlag() )
     {
         m_CfdMeshUI->farManLocButton->value( 1 );
         m_CfdMeshUI->farCenLocButton->value( 0 );
@@ -471,6 +473,14 @@ bool CfdMeshScreen::Update()
     }
 
     return false;
+}
+
+void CfdMeshScreen::AddOutputText( const string &text )
+{
+		m_TextBuffer.append( text.c_str() );
+		m_CfdMeshUI->outputText->move_down();
+		m_CfdMeshUI->outputText->show_insert_position();
+		Fl::flush();
 }
 
 void CfdMeshScreen::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
@@ -509,22 +519,22 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
     {
         if ( m_CfdMeshUI->farMeshButton->value() )
         {
-            CfdMeshMgr.SetFarMeshFlag( true );
+            CfdMeshMgr.GetCfdSettingsPtr()->SetFarMeshFlag( true );
         }
         else
         {
-            CfdMeshMgr.SetFarMeshFlag( false );
+            CfdMeshMgr.GetCfdSettingsPtr()->SetFarMeshFlag( false );
         }
     }
     else if ( w == m_CfdMeshUI->halfMeshButton )
     {
         if ( m_CfdMeshUI->halfMeshButton->value() )
         {
-            CfdMeshMgr.SetHalfMeshFlag( true );
+            CfdMeshMgr.GetCfdSettingsPtr()->SetHalfMeshFlag( true );
         }
         else
         {
-            CfdMeshMgr.SetHalfMeshFlag( false );
+            CfdMeshMgr.GetCfdSettingsPtr()->SetHalfMeshFlag( false );
         }
     }
     else if ( w == m_CfdMeshUI->finalMeshButton )
@@ -716,7 +726,7 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
         string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select NASCART .dat file.", "*.dat" );
         if ( newfile.compare( "" ) != 0 )
         {
-            CfdMeshMgr.SetExportFileName( newfile, CfdMeshMgrSingleton::DAT_FILE_NAME );
+            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::DAT_FILE_NAME );
         }
     }
     else if ( w == m_CfdMeshUI->keyButton )
@@ -724,7 +734,7 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
         string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select NASCART .key file.", "*.key" );
         if ( newfile.compare( "" ) != 0 )
         {
-            CfdMeshMgr.SetExportFileName( newfile, CfdMeshMgrSingleton::KEY_FILE_NAME );
+            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::KEY_FILE_NAME );
         }
     }
     else if ( w == m_CfdMeshUI->objButton  )
@@ -732,7 +742,7 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
         string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .obj file.", "*.obj" );
         if ( newfile.compare( "" ) != 0 )
         {
-            CfdMeshMgr.SetExportFileName( newfile, CfdMeshMgrSingleton::OBJ_FILE_NAME );
+            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::OBJ_FILE_NAME );
         }
     }
     else if ( w == m_CfdMeshUI->polyButton )
@@ -740,7 +750,7 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
         string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .poly file.", "*.poly" );
         if ( newfile.compare( "" ) != 0 )
         {
-            CfdMeshMgr.SetExportFileName( newfile, CfdMeshMgrSingleton::POLY_FILE_NAME );
+            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::POLY_FILE_NAME );
         }
     }
     else if ( w == m_CfdMeshUI->stlButton )
@@ -748,7 +758,7 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
         string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .stl file.", "*.stl" );
         if ( newfile.compare( "" ) != 0 )
         {
-            CfdMeshMgr.SetExportFileName( newfile, CfdMeshMgrSingleton::STL_FILE_NAME );
+            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::STL_FILE_NAME );
         }
     }
     else if ( w == m_CfdMeshUI->triButton )
@@ -756,7 +766,7 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
         string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .tri file.", "*.tri" );
         if ( newfile.compare( "" ) != 0 )
         {
-            CfdMeshMgr.SetExportFileName( newfile, CfdMeshMgrSingleton::TRI_FILE_NAME );
+            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::TRI_FILE_NAME );
         }
     }
     else if ( w == m_CfdMeshUI->gmshButton )
@@ -764,7 +774,7 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
         string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .msh file.", "*.msh" );
         if ( newfile.compare( "" ) != 0 )
         {
-            CfdMeshMgr.SetExportFileName( newfile, CfdMeshMgrSingleton::GMSH_FILE_NAME );
+            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::GMSH_FILE_NAME );
         }
     }
 
@@ -778,27 +788,27 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
     }
     else if ( w == m_CfdMeshUI->farBoxGenButton )
     {
-        CfdMeshMgr.SetFarCompFlag( false );
+        CfdMeshMgr.GetCfdSettingsPtr()->SetFarCompFlag( false );
     }
     else if ( w == m_CfdMeshUI->farComponentGenButton )
     {
-        CfdMeshMgr.SetFarCompFlag( true );
+        CfdMeshMgr.GetCfdSettingsPtr()->SetFarCompFlag( true );
     }
     else if ( w == m_CfdMeshUI->farCenLocButton )
     {
-        CfdMeshMgr.SetFarManLocFlag( false );
+        CfdMeshMgr.GetCfdSettingsPtr()->SetFarManLocFlag( false );
     }
     else if ( w == m_CfdMeshUI->farManLocButton )
     {
-        CfdMeshMgr.SetFarManLocFlag( true );
+        CfdMeshMgr.GetCfdSettingsPtr()->SetFarManLocFlag( true );
     }
     else if ( w == m_CfdMeshUI->farRelSizeButton )
     {
-        CfdMeshMgr.SetFarAbsSizeFlag( false );
+        CfdMeshMgr.GetCfdSettingsPtr()->SetFarAbsSizeFlag( false );
     }
     else if ( w == m_CfdMeshUI->farAbsSizeButton )
     {
-        CfdMeshMgr.SetFarAbsSizeFlag( true );
+        CfdMeshMgr.GetCfdSettingsPtr()->SetFarAbsSizeFlag( true );
     }
 //  else if ( w == m_CfdMeshUI->farXScaleAbsInput )
 //  {

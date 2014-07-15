@@ -8,7 +8,7 @@ INCLUDE_DIRECTORIES(
     ${XMLVSP_INCLUDE_DIR}
     ${UTIL_INCLUDE_DIR}
     ${GEOM_CORE_INCLUDE_DIR}
-    ${CFD_MESH_STUFF_INCLUDE_DIR}
+    ${CFD_MESH_INCLUDE_DIR}
     ${FLTK_INCLUDE_DIR}
     ${SCREENS_INCLUDE_DIR}
     ${VSP_GRAPHIC_INCLUDE_DIR}
@@ -24,8 +24,10 @@ AdvLinkScreen.cpp
 AwaveScreen.cpp
 BlankScreen.cpp
 CfdMeshScreen.cpp
+ClippingScreen.cpp
 CompGeomScreen.cpp
 CustomScreen.cpp
+DegenGeomScreen.cpp
 DesignVarScreen.cpp
 ExportScreen.cpp
 FeaStructScreen.cpp
@@ -70,8 +72,10 @@ AdvLinkScreen.h
 AwaveScreen.h
 BlankScreen.h
 CfdMeshScreen.h
+ClippingScreen.h
 CompGeomScreen.h
 CustomScreen.h
+DegenGeomScreen.h
 DesignVarScreen.h
 ExportScreen.h
 FeaStructScreen.h

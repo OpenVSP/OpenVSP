@@ -21,6 +21,7 @@
 #include "ParmLinkScreen.h"
 #include "ExportScreen.h"
 #include "CompGeomScreen.h"
+#include "DegenGeomScreen.h"
 #include "MassPropScreen.h"
 #include "PSliceScreen.h"
 #include "AwaveScreen.h"
@@ -32,6 +33,7 @@
 #include "FeaStructScreen.h"
 #include "ManageLabelScreen.h"
 #include "ManageCORScreen.h"
+#include "ClippingScreen.h"
 
 #include <time.h>
 #include <assert.h>
@@ -53,6 +55,7 @@ ScreenMgr::ScreenMgr( Vehicle* vPtr )
 
     Fl::scheme( "GTK+" );
     Fl::add_timeout( UPDATE_TIME, StaticTimerCB, this );
+    Fl::add_handler( GlobalHandler );
 
     m_RunGUI = true;
 
@@ -104,6 +107,17 @@ void ScreenMgr::MessageCallback( const MessageBase* from, const MessageData& dat
     {
         SetUpdateFlag( true );
     }
+    else if ( data.m_String == string( "CFDMessage" ) )
+    {
+        CfdMeshScreen* scr = ( CfdMeshScreen* ) m_ScreenVec[VSP_CFD_MESH_SCREEN];
+        if ( scr )
+        {
+            for ( int i = 0; i < data.m_StringVec.size(); i++ )
+            {
+                scr->AddOutputText( data.m_StringVec[i] );
+            }
+        }
+    }
 }
 
 //==== Init All Screens ====//
@@ -135,6 +149,8 @@ void ScreenMgr::Init()
     m_ScreenVec[VSP_FEA_MESH_SCREEN] = new FeaStructScreen( this );
     m_ScreenVec[VSP_LABEL_SCREEN] = new ManageLabelScreen( this );
     m_ScreenVec[VSP_COR_SCREEN] = new ManageCORScreen( this );
+    m_ScreenVec[VSP_DEGEN_GEOM_SCREEN] = new DegenGeomScreen( this );
+    m_ScreenVec[VSP_CLIPPING_SCREEN] = new ClippingScreen( this );
 
     m_ScreenVec[VSP_MAIN_SCREEN]->Show();
     m_ScreenVec[VSP_MANAGE_GEOM_SCREEN]->Show();
@@ -216,4 +232,20 @@ void MessageBox( void * data )
 void ScreenMgr::Alert( const char * message )
 {
     Fl::awake( MessageBox, ( void* )message );
+}
+
+int ScreenMgr::GlobalHandler(int event)
+{
+    if (Fl::event()==FL_SHORTCUT && Fl::event_key()==FL_Escape)
+    {
+        Vehicle* vPtr = VehicleMgr::getInstance().GetVehicle();
+        if ( vPtr )
+        {
+            vector< string > none;
+            vPtr->SetActiveGeomVec( none );
+            MessageMgr::getInstance().Send( "ScreenMgr", "UpdateAllScreens" );
+        }
+        return 1;
+    }
+    return 0;
 }

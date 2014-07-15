@@ -23,6 +23,7 @@ Surf::Surf()
     m_GridDensityPtr = 0;
     m_CompID = -1;
     m_SurfID = -1;
+    m_FlipFlag = false;
     m_WakeFlag = false;
     m_TransFlag = false;
     m_SymPlaneFlag = false;
@@ -1836,19 +1837,6 @@ double Surf::GetWScale( double u )      // u 0->1
     return wscale;
 }
 
-void Surf::FlipU()
-{
-    vector< vector< vec3d > > pnts;
-    pnts.resize( m_NumU );
-
-    for ( int i = 0 ; i < m_NumU ; i++ )
-    {
-        pnts[i] = m_Pnts[m_NumU - i - 1];
-    }
-
-    LoadControlPnts( pnts );
-}
-
 bool Surf::ValidUW( vec2d & uw )
 {
     //return true;
@@ -2033,11 +2021,16 @@ double Surf::InterpolateToVspSurf( const vector< double> & vec, const double & s
     int x0 = (int)floor( surf_val );
     int x1 = x0 + 1;
 
+    if ( vec.size() == 0 )
+    {
+        return 0.0;
+    }
+
     if ( x0 < 0 )
     {
         return vec.front();
     }
-    if ( x1 > (int)vec.size() - 1 )
+    if ( x1 > ( ( int )vec.size() - 1 ) )
     {
         return vec.back();
     }

@@ -20,58 +20,28 @@
 
 #include "eli/geom/surface/bezier.hpp"
 #include "eli/geom/surface/piecewise.hpp"
+#include "eli/geom/curve/piecewise_creator.hpp"
+#include "eli/geom/surface/piecewise_general_skinning_surface_creator.hpp"
 
 typedef eli::geom::surface::bezier<double, 3> surface_patch_type;
 typedef eli::geom::surface::piecewise<eli::geom::surface::bezier, double, 3> piecewise_surface_type;
+
+typedef piecewise_surface_type::tolerance_type surface_tolerance_type;
+typedef eli::geom::curve::piecewise_cubic_spline_creator<double, 3, surface_tolerance_type> piecewise_cubic_spline_creator_type;
+typedef eli::geom::surface::connection_data<double, 3, surface_tolerance_type> rib_data_type;
 
 #include <vector>
 #include <string>
 using std::vector;
 
-struct VspJointInfo
-{
-public:
-    enum {FULL, C0, C1_AUTO, C1, G1, C2_AUTO, C2, G2, NUM_CONTINUITY_TYPES};
-    enum {TOP_SIDE, RIGHT_SIDE, BOTTOM_SIDE, LEFT_SIDE, NUM_SIDES};
-
-public:
-    VspJointInfo();
-    VspJointInfo( const VspJointInfo &ji );
-    ~VspJointInfo();
-
-    void SetLeftParams( int side, const double &angle, const double &strength, const double &curvature );
-    double GetLeftAngle( int side ) const;
-    double GetLeftStrength( int side ) const;
-    double GetLeftCurvature( int side ) const;
-
-    void SetRightParams( int side, const double &angle, const double &strength, const double &curvature );
-    double GetRightAngle( int side ) const;
-    double GetRightStrength( int side ) const;
-    double GetRightCurvature( int side ) const;
-
-    void SetState( int state );
-    int GetState() const;
-    bool C1Continuous() const;
-    bool G1Continuous() const;
-    bool C2Continuous() const;
-    bool G2Continuous() const;
-    int DegreesOfFreedom() const;
-    bool FiniteDifferenceFp() const;
-    bool FiniteDifferenceFpp() const;
-
-private:
-    double m_LeftAngle[4];
-    double m_LeftStrength[4];
-    double m_LeftCurvature[4];
-    double m_RightAngle[4];
-    double m_RightStrength[4];
-    double m_RightCurvature[4];
-    int m_State;
-};
-
 class VspSurf
 {
 public:
+
+    enum SURF_TYPE {    NORMAL_SURF,
+                        WING_SURF,
+                        NUM_SURF_TYPES,
+                   };
 
     VspSurf();
     virtual ~VspSurf();
@@ -79,17 +49,16 @@ public:
     // create surface as a body of revolution using the specified curve
     void CreateBodyRevolution( const VspCurve &input_crv );
 
-    // creates piecewise polynomial lofting of curves with user control over slopes and curvatures
-    void InterpolateManual( const std::vector<VspCurve> &input_crv_vec, const vector<VspJointInfo> &joint_info_vec, bool closed_flag );
+    void SkinRibs( const vector<rib_data_type> &ribs, const vector < int > &degree, bool closed_flag );
+    void SkinRibs( const vector<rib_data_type> &ribs, bool closed_flag );
 
-    // creates C0 continuous piecewise line
-    void InterpolateLinear( const vector< VspCurve > &input_crv_vec, bool closed_flag );
+    void SkinCX( const vector< VspCurve > &input_crv_vec, const vector< int > &cx, const vector < int > &degree, bool closed_flag );
+    void SkinCX( const vector< VspCurve > &input_crv_vec, const vector< int > &cx, bool closed_flag );
+    void SkinCX( const vector< VspCurve > &input_crv_vec, int cx, bool closed_flag );
 
-    // creates C1 continuous Piecewise Cubic Hermite Interpolating Polynomial
-    void InterpolatePCHIP( const vector< VspCurve > &input_crv_vec, bool closed_flag );
-
-    // creates C2 continuous piecewise cubic spline polynomial with not-a-knot or closed end conditions
-    void InterpolateCSpline( const vector< VspCurve > &input_crv_vec, bool closed_flag );
+    void SkinC0( const vector< VspCurve > &input_crv_vec, bool closed_flag );
+    void SkinC1( const vector< VspCurve > &input_crv_vec, bool closed_flag );
+    void SkinC2( const vector< VspCurve > &input_crv_vec, bool closed_flag );
 
     int GetNumSectU() const;
     int GetNumSectW() const;
@@ -106,6 +75,9 @@ public:
     void FlipNormal() { m_FlipNormal = !m_FlipNormal; }
     void ResetFlipNormal( ) { m_FlipNormal = false; }
 
+    int GetSurfType() { return m_SurfType; }
+    void SetSurfType( int type ) { m_SurfType = type; }
+
     double FindNearest( double &u, double &w, const vec3d &pt ) const;
     double FindNearest( double &u, double &w, const vec3d &pt, const double &u0, const double &w0 ) const;
 
@@ -117,8 +89,6 @@ public:
 
     Matrix4d CompRotCoordSys( const double &u, const double &w );
     Matrix4d CompTransCoordSys( const double &u, const double &w );
-
-    void CompJointParams( int joint, VspJointInfo &jointInfo ) const;
 
     //===== Bezier Funcs ====//
     vec3d CompPnt( double u, double v ) const;
@@ -147,13 +117,12 @@ public:
     void Tesselate( const vector<int> &num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts ) const;
 
 protected:
-    void PrepairCrossSections( vector<piecewise_curve_type> &pc, const vector<VspCurve> &crv_in ) const;
-    void DegreeReduceSections( const vector<VspCurve> &input_crv_vec, bool closed_flag );
-    int ClosetPatchEnd( const vector<double> & patch_endings, double end_val ) const;
+    int ClosestPatchEnd( const vector<double> & patch_endings, double end_val ) const;
 
 protected:
 
     bool m_FlipNormal;
+    int m_SurfType;
     piecewise_surface_type m_Surface;
 };
 #endif

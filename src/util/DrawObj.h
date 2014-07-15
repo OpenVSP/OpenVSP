@@ -52,9 +52,15 @@ public:
     * VSP_SETTING - This drawObj provides Global Setting Info(lighting, etc...).  Does not render anything.
     * VSP_RULER - Render Ruler.
     * VSP_PICK_VERTEX - This type drawObj enables vertex picking for a specific geometry.
+    * VSP_PICK_VERTEX_SELECT_ALL - Same as VSP_PICK_VERTEX, but also select all vertices.
+    * VSP_PICK_VERTEX_UNSELECT_ALL - Send signal to clear all existing selections. Does not contain render information.
+    * VSP_PICK_VERTEX_HIDE_SELECTION - Send signal to hide all selections for this one update.  Does not contain render information.
     * VSP_PICK_GEOM - This type drawObj enables geometry picking.
     * VSP_PICK_LOCATION - This type drawObj enables location picking.
+    * VSP_CLIP - Add clipping plane.
     */
+
+    vec3d ColorWheel( double angle ); // Returns rgb for an angle given in degrees
     enum TypeEnum
     {
         VSP_POINTS,
@@ -72,8 +78,12 @@ public:
         VSP_SETTING,
         VSP_RULER,
         VSP_PICK_VERTEX,
+        VSP_PICK_VERTEX_SELECT_ALL,
+        VSP_PICK_VERTEX_UNSELECT_ALL,
+        VSP_PICK_VERTEX_HIDE_SELECTION,
         VSP_PICK_GEOM,
         VSP_PICK_LOCATION,
+        VSP_CLIP,
     };
 
     /*
@@ -316,10 +326,6 @@ public:
     */
     vector< vec3d > m_PntVec;
     /*
-    * Array of normal data.
-    */
-    vector< vec3d > m_NormVec;
-    /*
     * XSec data.
     * m_PntMesh is available if m_Type is one of the following:
     * VSP_WIRE_MESH, VSP_HIDDEN_MESH, VSP_SHADED_MESH, VSP_TEXTURED_MESH
@@ -337,6 +343,7 @@ public:
     * m_NormMesh[pnts on xsec][xsec index]
     */ 
     vector< vector< vec3d > > m_NormMesh;
+    vector< vec3d > m_NormVec; // For triangles
 
     /*
     * List of attached textures to this drawobj.  Default is empty.
@@ -354,6 +361,9 @@ public:
     * Material information of this DrawObj.
     */
     MaterialInfo m_MaterialInfo;
+
+    vector< double > m_ClipLoc;
+    vector< bool > m_ClipFlag;
 
 protected:
 

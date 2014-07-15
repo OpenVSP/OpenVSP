@@ -252,13 +252,18 @@ public:
     GridDensity();
     virtual ~GridDensity();
 
+    virtual void InitParms();
+
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+
     virtual void ParmChanged( Parm* parm_ptr, int type );
 
     //void ReadFile( const char* filename );
 
     bool GetRigorLimit()
     {
-        return m_RigorLimit;
+        return m_RigorLimit.Get();
     }
     void SetRigorLimit( bool v )
     {
@@ -317,6 +322,7 @@ public:
     void Show( bool flag );
     void Highlight( BaseSource * source );
 
+    BoolParm m_RigorLimit;
     Parm m_BaseLen;
     Parm m_FarMaxLen;
     Parm m_MinLen;
@@ -328,11 +334,21 @@ public:
 
 protected:
 
-    bool m_RigorLimit;
-
+    string m_GroupName;
     vector< BaseSource* > m_Sources;                // Sources + Ref Sources in 3D Space
 
 };
 
+class CfdGridDensity : public GridDensity
+{
+public:
+    CfdGridDensity();
+};
+
+class FeaGridDensity : public GridDensity
+{
+public:
+    FeaGridDensity();
+};
 
 #endif

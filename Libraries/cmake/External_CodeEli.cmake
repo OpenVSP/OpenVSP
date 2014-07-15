@@ -1,5 +1,5 @@
 ExternalProject_Add( CODEELI
-	URL ${CMAKE_SOURCE_DIR}/Code-Eli-d612a83cea07.zip
+	URL ${CMAKE_SOURCE_DIR}/Code-Eli-050040b79ade.zip
 	BUILD_COMMAND ""
 	INSTALL_COMMAND ""
 )

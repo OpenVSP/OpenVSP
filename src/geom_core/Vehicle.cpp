@@ -85,6 +85,8 @@ void Vehicle::Init()
     m_VSP3FileName = "Unnamed.vsp3";
     m_FileOpenVersion = -1;
 
+    m_CfdSettings.ResetExportFileNames( m_VSP3FileName );
+
     //==== Load Default Set Names =====//
     m_SetNameVec.push_back( "All" );        // SET_ALL
     m_SetNameVec.push_back( "Shown" );      // SET_SHOWN
@@ -111,8 +113,13 @@ void Vehicle::Init()
     }
 
     LinkMgr.RegisterContainer( this->GetID() );
+    LinkMgr.RegisterContainer( m_CfdSettings.GetID() );
+    LinkMgr.RegisterContainer( m_CfdGridDensity.GetID() );
+    LinkMgr.RegisterContainer( m_FeaGridDensity.GetID() );
 
     //==== Export Files ====//
+    m_exportDegenGeomCsvFile = false;
+    m_exportDegenGeomMFile = false;
     m_exportCompGeomCsvFile = false;
     m_exportDragBuildTsvFile = false;
     m_compGeomTxtFileName = "VspAircraft_CompGeom.txt";
@@ -120,6 +127,8 @@ void Vehicle::Init()
     m_compGeomTsvFileName = "VspAircraft_DragBuild.tsv";
     m_MassPropFileName = "VspAircraft_MassProps.txt";
     m_AwaveFileName = "VspAircraft_AwaveSlice.txt";
+    m_degenGeomCsvFileName = "VspAircraft_DegenGeom.csv";
+    m_degenGeomMFileName = "VspAircraft_DegenGeom.m";
 
     m_IxxIyyIzz = vec3d( 0, 0, 0 );
     m_IxyIxzIyz = vec3d( 0, 0, 0 );
@@ -200,7 +209,7 @@ void Vehicle::Renew()
 //==== Parm Changed ====//
 void Vehicle::ParmChanged( Parm* parm_ptr, int type )
 {
-//    UpdateBBox();
+    UpdateBBox();
     UpdateGui();
 }
 
@@ -973,6 +982,12 @@ xmlNodePtr Vehicle::EncodeXml( xmlNodePtr & node, int set )
 {
     xmlNodePtr vehicle_node = xmlNewChild( node, NULL, BAD_CAST"Vehicle", NULL );
 
+    // Encode lighting information.
+    getVGuiDraw()->getLightMgr()->EncodeXml( vehicle_node );
+
+    // Encode label information.
+    getVGuiDraw()->getLabelMgr()->EncodeXml( vehicle_node );
+
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
@@ -984,7 +999,10 @@ xmlNodePtr Vehicle::EncodeXml( xmlNodePtr & node, int set )
 
     LinkMgr.EncodeXml( node );
 
-//  CdfMeshMgr.EncodeXml( node );
+    m_CfdSettings.EncodeXml( node );
+    m_CfdGridDensity.EncodeXml( node );
+    m_FeaGridDensity.EncodeXml( node );
+    m_ClippingMgr.EncodeXml( node );
 
     return vehicle_node;
 }
@@ -994,6 +1012,12 @@ xmlNodePtr Vehicle::DecodeXml( xmlNodePtr & node )
     xmlNodePtr vehicle_node = XmlUtil::GetNode( node, "Vehicle", 0 );
     if ( vehicle_node )
     {
+        // Decode lighting information.
+        getVGuiDraw()->getLightMgr()->DecodeXml( vehicle_node );
+
+        // Decode label information.
+        getVGuiDraw()->getLabelMgr()->DecodeXml( vehicle_node );
+
         int num = XmlUtil::GetNumNames( vehicle_node, "Geom" );
         for ( int i = 0 ; i < num ; i++ )
         {
@@ -1026,7 +1050,10 @@ xmlNodePtr Vehicle::DecodeXml( xmlNodePtr & node )
 
     LinkMgr.DecodeXml( node );
 
-//  CdfMeshMgr.DecodeXml( node );
+    m_CfdSettings.DecodeXml( node );
+    m_CfdGridDensity.DecodeXml( node );
+    m_FeaGridDensity.DecodeXml( node );
+    m_ClippingMgr.DecodeXml( node );
 
     return vehicle_node;
 }
@@ -1271,7 +1298,7 @@ void Vehicle::WriteTRIFile( const string & file_name, int write_set )
                 geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
         {
             MeshGeom* mg = ( MeshGeom* )geom_vec[i];            // Cast
-            part_count = mg->WriteCart3DParts( file_id, SubSurfaceMgr.m_SingleTagMap );
+            part_count = mg->WriteCart3DParts( file_id  );
         }
     }
 
@@ -1354,7 +1381,7 @@ void Vehicle::WriteNascartFiles( const string & file_name, int write_set )
     fclose( file_id );
 
     string key_name = file_name;
-    unsigned int loc = key_name.find_last_of( "." );
+    std::string::size_type loc = key_name.find_last_of( "." );
     if ( loc == key_name.npos )
     {
         key_name = string( "bodyin.key" );
@@ -1633,7 +1660,7 @@ void Vehicle::WritePovRayFile( const string & file_name, int write_set )
 
     //==== Figure Out Basename ====//
     string base_name = file_name;
-    unsigned int loc = base_name.find_last_of( "." );
+    std::string::size_type loc = base_name.find_last_of( "." );
     if ( loc != base_name.npos )
     {
         base_name = base_name.substr( 0, loc );
@@ -1761,23 +1788,24 @@ void Vehicle::AddLinkableContainers( vector< string > & linkable_container_vec )
 void Vehicle::UpdateBBox()
 {
     BndBox new_box;
+    int ngeom;
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
-    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    ngeom = (int) geom_vec.size();
+    for ( int i = 0 ; i < ngeom ; i++ )
     {
         new_box.Update( geom_vec[i]->GetBndBox() );
     }
 
-    m_BbXLen = new_box.GetMax( 0 ) - new_box.GetMin( 0 );
-    m_BbYLen = new_box.GetMax( 1 ) - new_box.GetMin( 1 );
-    m_BbZLen = new_box.GetMax( 2 ) - new_box.GetMin( 2 );
+    if( ngeom > 0 )
+    {
+        m_BbXLen = new_box.GetMax( 0 ) - new_box.GetMin( 0 );
+        m_BbYLen = new_box.GetMax( 1 ) - new_box.GetMin( 1 );
+        m_BbZLen = new_box.GetMax( 2 ) - new_box.GetMin( 2 );
 
-    m_BbXMin = new_box.GetMin( 0 );
-    m_BbYMin = new_box.GetMin( 1 );
-    m_BbZMin = new_box.GetMin( 2 );
-
-//  CfdMeshMgr.m_FarXScale.SetRefVal( m_BbXLen() );
-//  CfdMeshMgr.m_FarYScale.SetRefVal( m_BbYLen() );
-//  CfdMeshMgr.m_FarZScale.SetRefVal( m_BbZLen() );
+        m_BbXMin = new_box.GetMin( 0 );
+        m_BbYMin = new_box.GetMin( 1 );
+        m_BbZMin = new_box.GetMin( 2 );
+    }
 
     m_BBox = new_box;
 }
@@ -1803,6 +1831,14 @@ string Vehicle::getExportFileName( int type )
     else if ( type == SLICE_TXT_TYPE )
     {
         return m_AwaveFileName;
+    }
+    else if ( type == DEGEN_GEOM_CSV_TYPE )
+    {
+        return m_degenGeomCsvFileName;
+    }
+    else if ( type == DEGEN_GEOM_M_TYPE )
+    {
+        return m_degenGeomMFileName;
     }
     else
     {
@@ -1836,6 +1872,14 @@ void Vehicle::setExportFileName( int type, string f_name )
     else if ( type == SLICE_TXT_TYPE )
     {
         m_AwaveFileName = f_name;
+    }
+    else if ( type == DEGEN_GEOM_CSV_TYPE )
+    {
+        m_degenGeomCsvFileName = f_name;
+    }
+    else if ( type == DEGEN_GEOM_M_TYPE )
+    {
+        m_degenGeomMFileName = f_name;
     }
 }
 
@@ -1924,8 +1968,7 @@ string Vehicle::MassProps( int set, int numSlices )
                 if ( BGeom->m_PointMassFlag() )
                 {
                     TetraMassProp* pm = new TetraMassProp(); // Deleted by mesh_ptr
-                    vec3d loc = vec3d( BGeom->m_XLoc(), BGeom->m_YLoc(), BGeom->m_ZLoc() );
-                    pm->SetPointMass( BGeom->m_PointMass(), loc );
+                    pm->SetPointMass( BGeom->m_PointMass(), BGeom->m_Origin );
                     pm->m_CompId = BGeom->GetID();
                     mesh_ptr->AddPointMass( pm );
                 }
@@ -1933,7 +1976,7 @@ string Vehicle::MassProps( int set, int numSlices )
         }
     }
 
-    if ( mesh_ptr->m_TMeshVec.size() )
+    if ( mesh_ptr->m_TMeshVec.size() || mesh_ptr->m_PointMassVec.size() )
     {
         mesh_ptr->MassSliceX( numSlices );
         m_TotalMass = mesh_ptr->m_TotalMass;
@@ -2145,4 +2188,187 @@ void Vehicle::ExportFile( const string & file_name, int write_set, int file_type
     {
         WriteBezFile( file_name, write_set );
     }
+}
+
+void Vehicle::CreateDegenGeom( int set )
+{
+    vector< string > geom_id_vec;
+    m_DegenGeomVec.clear();
+    m_DegenPtMassVec.clear();
+
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        if ( geom_vec[i]->GetSetFlag( set ) )
+        {
+            if( geom_vec[i]->GetType().m_Type == BLANK_GEOM_TYPE )
+            {
+                BlankGeom *g = (BlankGeom*) geom_vec[i];
+                if( g->m_PointMassFlag() )
+                {
+                    DegenPtMass pm;
+                    pm.name = g->GetName();
+                    pm.mass = g->m_PointMass();
+                    pm.x = g->m_Origin;
+                    m_DegenPtMassVec.push_back( pm );
+                }
+            }
+            else
+            {
+                geom_vec[i]->CreateDegenGeom( m_DegenGeomVec );
+            }
+        }
+    }
+
+
+    string id = AddMeshGeom( set );
+    if ( id.compare( "NONE" ) != 0 )
+    {
+        MeshGeom* mesh_ptr = dynamic_cast<MeshGeom*> ( FindGeom( id ) );
+        if ( mesh_ptr != NULL )
+        {
+            mesh_ptr->degenGeomIntersectTrim(m_DegenGeomVec);
+            DeleteGeom( id );
+        }
+    }
+
+
+    id = AddMeshGeom( set );
+    if ( id.compare( "NONE" ) != 0 )
+    {
+        MeshGeom* mesh_ptr = dynamic_cast<MeshGeom*> ( FindGeom( id ) );
+        if ( mesh_ptr != NULL )
+        {
+            mesh_ptr->degenGeomMassSliceX(m_DegenGeomVec);
+            DeleteGeom( id );
+        }
+    }
+
+}
+
+//==== Write Degen Geom File ====//
+string Vehicle::WriteDegenGeomFile()
+{
+    int geomCnt = 0, blankCnt = 0;
+    string outStr = "\n";
+
+    vector<BlankGeom*> blankGeom;
+
+    geomCnt = m_DegenGeomVec.size();
+
+    blankCnt = m_DegenPtMassVec.size();
+
+    char geomCntStr[255];
+    sprintf(geomCntStr,"%d components and %d", geomCnt, blankCnt);
+    outStr += "Wrote ";
+    outStr += geomCntStr;
+    outStr += " blank geoms\nto the following files:\n\n";
+
+    if ( getExportDegenGeomCsvFile() )
+    {
+        string file_name = getExportFileName( DEGEN_GEOM_CSV_TYPE );
+        FILE* file_id = fopen(file_name.c_str(), "w");
+
+        fprintf(file_id, "# DEGENERATE GEOMETRY CSV FILE\n\n");
+        fprintf(file_id, "# NUMBER OF COMPONENTS\n%d\n", geomCnt);
+
+        if ( m_DegenPtMassVec.size() > 0 )
+        {
+            fprintf(file_id, "BLANK_GEOMS,%d\n", blankCnt);
+            fprintf(file_id, "# Name, xLoc, yLoc, zLoc, Mass");
+
+            for ( int i = 0; i < (int)m_DegenPtMassVec.size(); i++ )
+            {
+                // Blank geom translated location
+                fprintf(file_id, "\n%s,%f,%f,%f,%f", m_DegenPtMassVec[i].name.c_str(), \
+                                                     m_DegenPtMassVec[i].x.v[0], \
+                                                     m_DegenPtMassVec[i].x.v[1], \
+                                                     m_DegenPtMassVec[i].x.v[2], \
+                                                     m_DegenPtMassVec[i].mass );
+            }
+        }
+
+        for ( int i = 0; i < (int)m_DegenGeomVec.size(); i++ )
+        {
+            bool roundEndCapFlag;
+//            if ( m_DegenGeomVec[i].getParentGeom()->getType() == MS_WING_GEOM_TYPE )
+//            {
+//                roundEndCapFlag = ((Ms_wing_geom*)m_DegenGeomVec[i].getParentGeom())->get_round_end_cap_flag();
+//                ((Ms_wing_geom*)m_DegenGeomVec[i].getParentGeom())->set_round_end_cap_flag(false);
+//            }
+
+            m_DegenGeomVec[i].write_degenGeomCsv_file( file_id );
+
+//            if ( m_DegenGeomVec[i].getParentGeom()->getType() == MS_WING_GEOM_TYPE )
+//                ((Ms_wing_geom*)m_DegenGeomVec[i].getParentGeom())->set_round_end_cap_flag(roundEndCapFlag);
+
+        }
+
+        fclose(file_id);
+
+        outStr += "\t";
+        outStr += file_name;
+        outStr += "\n";
+    }
+
+    if ( getExportDegenGeomMFile() )
+    {
+        string file_name = getExportFileName( DEGEN_GEOM_M_TYPE );
+        FILE* file_id = fopen(file_name.c_str(), "w");
+
+        fprintf( file_id, "%%-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-%%\n" );
+        fprintf( file_id, "%%-=-=-=-=-=-= DEGENERATE GEOMETRY M FILE =-=-=-=-=-=-=%%\n" );
+        fprintf( file_id, "%%-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-%%\n\n" );
+
+        if ( blankCnt > 0)
+        {
+            fprintf( file_id, "blankGeom = [];" );
+
+            for ( int i = 0; i < (int)m_DegenPtMassVec.size(); i++ )
+            {
+                fprintf( file_id, "\nblankGeom(end+1).name = '%s';", \
+                                 m_DegenPtMassVec[i].name.c_str() );
+
+                fprintf( file_id, "\nblankGeom(end).X = [%f, %f, %f];", m_DegenPtMassVec[i].x.v[0],\
+                                                                       m_DegenPtMassVec[i].x.v[1],\
+                                                                       m_DegenPtMassVec[i].x.v[2] );
+                fprintf( file_id, "\nblankGeom(end).mass = %f;", m_DegenPtMassVec[i].mass );
+            }
+            fprintf( file_id, "\n\n" );
+        }
+
+        fprintf(file_id, "degenGeom = [];");
+
+        for ( int i = 0, propIdx = 1; i < (int)m_DegenGeomVec.size(); i++, propIdx++ )
+        {
+            bool roundEndCapFlag;
+
+//            if ( m_DegenGeomVec[i].getParentGeom()->getType() == MS_WING_GEOM_TYPE )
+//            {
+//                roundEndCapFlag = ((Ms_wing_geom*)m_DegenGeomVec[i].getParentGeom())->get_round_end_cap_flag();
+//                ((Ms_wing_geom*)m_DegenGeomVec[i].getParentGeom())->set_round_end_cap_flag(false);
+//            }
+//            else if(m_DegenGeomVec[i].getParentGeom()->getType() == PROP_GEOM_TYPE)
+//            {
+//                fprintf(file_id,"\nif ~exist('propGeom','var'); propGeom = []; end;");
+//                fprintf(file_id,"\npropGeom(end+1).idx = %d;",propIdx);
+//            }
+
+            m_DegenGeomVec[i].write_degenGeomM_file(file_id);
+
+//            if ( m_DegenGeomVec[i].getParentGeom()->getType() == MS_WING_GEOM_TYPE )
+//                ((Ms_wing_geom*)m_DegenGeomVec[i].getParentGeom())->set_round_end_cap_flag(roundEndCapFlag);
+//
+//            // Keep a counter to index into degenGeom for propeller components.
+//            // Increment if reflected symmetry.
+//            if ( m_DegenGeomVec[i].getParentGeom()->getSymCode() != NO_SYM ) propIdx++;
+        }
+
+        fclose(file_id);
+
+        outStr += "\t";
+        outStr += file_name;
+        outStr += "\n";
+    }
+    return outStr;
 }

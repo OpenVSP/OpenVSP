@@ -524,7 +524,7 @@ WingGeom::WingGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_Closed = false;
 
     m_XSecSurf.SetParentContainer( GetID() );
-    m_XSecSurf.SetBasicOrientation( vsp::Y_DIR, X_DIR, XS_SHIFT_MID, true );
+    m_XSecSurf.SetBasicOrientation( vsp::Y_DIR, X_DIR, XS_SHIFT_LE, true );
 
     m_RelativeDihedralFlag.Init("RelativeDihedralFlag", m_Name, this, 0, 0, 1, false );
     m_RelativeDihedralFlag.SetDescript( "Relative or Absolute Dihedral" );
@@ -850,7 +850,6 @@ void WingGeom::UpdateSurf()
     double total_sweep_offset = 0.0;
     double total_dihed_offset = 0.0;
     double total_twist = 0.0;
-    double global_y_offset = 0;
 
     //==== Load End Points for Each Section ====//
     for ( int i = 0 ; i < m_XSecSurf.NumXSec() ; i++ )
@@ -863,7 +862,7 @@ void WingGeom::UpdateSurf()
             double ty = rad*cos(GetSumDihedral(i)*DEG_2_RAD);
             double tz = rad*sin(GetSumDihedral(i)*DEG_2_RAD);
 
-            double tan_le  = ws->GetTanSweepAt( ws->m_Sweep(), 0.5 );
+            double tan_le  = ws->GetTanSweepAt( ws->m_Sweep(), 0.0 );
             double toff    = tan_le*rad;                    // Tip X Offset
 
             if ( i == 0 )
@@ -871,7 +870,6 @@ void WingGeom::UpdateSurf()
                 ty = 0;
                 tz = 0;
                 toff = 0;
-                global_y_offset = 0.5*ws->m_TipChord();
             }
 
             total_dihed_offset += tz;
@@ -898,23 +896,31 @@ void WingGeom::UpdateSurf()
             double dihead_rot = 0.0;
             if ( m_RotateAirfoilMatchDiedralFlag() )
             {
-                if ( i ==  m_XSecSurf.NumXSec()-1 )
+                if ( i == 0 )
                 {
-                    dihead_rot = -GetSumDihedral( i );
+                    dihead_rot = GetSumDihedral( i+1 );
+                }
+                else if ( i ==  m_XSecSurf.NumXSec()-1 )
+                {
+                    dihead_rot = GetSumDihedral( i );
                 }
                 else
                 {
-                    dihead_rot = -0.5*( GetSumDihedral( i ) + GetSumDihedral( i+1 ) );
+                    dihead_rot = 0.5*( GetSumDihedral( i ) + GetSumDihedral( i+1 ) );
                 }
             }
 
             //==== Load Transformations =====//
             ws->m_YDelta = total_span;
-            ws->m_XDelta = total_sweep_offset + global_y_offset;
+            ws->m_XDelta = total_sweep_offset;
             ws->m_ZDelta = total_dihed_offset;
+
             ws->m_YRotate = total_twist;
             ws->m_XRotate = dihead_rot;
-            ws->m_XCenterRot = ws->m_TwistLoc()*ws->m_TipChord();
+
+            ws->m_XCenterRot = ws->m_XDelta + ws->m_TwistLoc()*ws->m_TipChord();
+            ws->m_YCenterRot = ws->m_YDelta;
+            ws->m_ZCenterRot = ws->m_ZDelta;
 
             crv_vec[i] =  ws->GetCurve();
 
@@ -927,11 +933,12 @@ void WingGeom::UpdateSurf()
     }
 
 
-    m_MainSurfVec[0].InterpolateLinear( crv_vec, false );
+    m_MainSurfVec[0].SkinC0( crv_vec, false );
     if ( m_XSecSurf.GetFlipUD() )
     {
         m_MainSurfVec[0].FlipNormal();
     }
+    m_MainSurfVec[0].SetSurfType( VspSurf::WING_SURF );
 
     //==== Load Totals ====//
     m_TotalSpan = ComputeTotalSpan();
@@ -941,9 +948,9 @@ void WingGeom::UpdateSurf()
 
 }
 
-void WingGeom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms )
+void WingGeom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts  )
 {
-    m_SurfVec[indx].Tesselate( m_TessUVec, m_TessW(), pnts, norms );
+    m_SurfVec[indx].Tesselate( m_TessUVec, m_TessW(), pnts, norms, uw_pnts );
 }
 
 //==== Get All WingSections ====//

@@ -42,6 +42,16 @@ public:
     */
     Material * getDefault();
 
+public:
+    /*!
+    * Encode Mateiral Info to XML.
+    */
+    xmlNodePtr EncodeXml( xmlNodePtr & node );
+    /*!
+    * Decode Mateiral Info from XML.
+    */
+    xmlNodePtr DecodeXml( xmlNodePtr & node );
+
 private:
     Material m_Default;
     Material m_Material;

@@ -59,8 +59,8 @@ public:
     {
         return m_P1;
     }
-    virtual void UpdateDrawObj( Geom* geom, DrawObj& draw_obj, const int *num_pnts_ptr );
-    virtual int CompNumDrawPnts( Geom* geom );
+    virtual void UpdateDrawObj( VspSurf* surf, Geom* geom, DrawObj& draw_obj, const int *num_pnts_ptr );
+    virtual int CompNumDrawPnts( VspSurf* surf, Geom* geom );
 
 protected:
     vec3d m_SP0; // scaled uw points

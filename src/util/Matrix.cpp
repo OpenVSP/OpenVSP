@@ -274,3 +274,13 @@ void Matrix4d::buildXForm( const vec3d & pos, const vec3d & rot, const vec3d & c
     postMult( inv_cent_mat.data() );
     postMult( tran_mat.data() );
 }
+
+void Matrix4d::getBasis( vec3d &xdir, vec3d &ydir, vec3d &zdir )
+{
+    for( int i = 0; i < 3; i++ )
+    {
+        xdir.v[i] = mat[ i ];
+        ydir.v[i] = mat[ i + 4 ];
+        zdir.v[i] = mat[ i + 8 ];
+    }
+}

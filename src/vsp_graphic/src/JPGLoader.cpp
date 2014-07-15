@@ -34,8 +34,19 @@ ImageData JPGLoader::load( std::string fileName )
     {
         iData.type = GL_RGB;
     }
-    iData.type = jpgData.d;
-    iData.data = jpgData.data;
+
+    // Flip data top to bottom.
+    iData.data = new unsigned char[ iData.width * iData.height * jpgData.d];
+    int scanLen = jpgData.d * iData.width;
+
+    for ( int i = 0 ; i < iData.height; i++ )
+    {
+        unsigned char* srcLine = &jpgData.data[ i * scanLen ];
+        unsigned char* dstLine = &iData.data[ (iData.height - i - 1) * scanLen ];
+        memcpy(  dstLine, srcLine, scanLen );
+    }
+
+    deleteJPEG( jpgData );
 
     return iData;
 }

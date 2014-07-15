@@ -42,7 +42,7 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 	SWIG_LINK_LIBRARIES( vsp
 		geom_api
 		geom_core
-		cfd_mesh_stuff
+		cfd_mesh
 		triangle
 		xmlvsp
 		sixseries
@@ -64,7 +64,7 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 			geom_api_g
 			geom_core
 			gui_and_draw
-			cfd_mesh_stuff
+			cfd_mesh
 			triangle
 			util
 			tritri

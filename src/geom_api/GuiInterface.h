@@ -34,7 +34,6 @@ public:
     }
     void InitGui( Vehicle* vPtr );
     void StartGui( );
-    void InitGuiAPI( Vehicle* vPtr );
     void StartGuiAPI( );
     void UpdateGui( );
     void PopupMsg( const char * message, bool lock_out );

@@ -440,7 +440,7 @@ int TextureMgr::getMaxTextureSize()
 int TextureMgr::getMaxCombineTextures()
 {
     static GLint max = -1;
-    if( max = -1 )
+    if( max == -1 )
     {
         glGetIntegerv( GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &max );
     }

@@ -63,6 +63,8 @@
 #include "ISegChain.h"
 #include "GridDensity.h"
 #include "BezierCurve.h"
+#include "Vehicle.h"
+#include "CfdMeshSettings.h"
 
 #include "Vec2d.h"
 #include "Vec3d.h"
@@ -79,7 +81,6 @@
 #include <sstream>
 using namespace std;
 
-class Vehicle;
 class WakeMgr;
 
 class Wake
@@ -150,7 +151,6 @@ protected:
 
 };
 
-
 //////////////////////////////////////////////////////////////////////
 class CfdMeshMgrSingleton : public ParmContainer
 {
@@ -183,7 +183,7 @@ public:
 
     virtual GridDensity* GetGridDensityPtr()
     {
-        return &m_GridDensity;
+        return m_Vehicle->GetCfdGridDensityPtr();
     }
 
     virtual string GetCurrGeomID()
@@ -288,49 +288,10 @@ public:
 
     virtual void DebugWriteChains( const char* name, bool tessFlag );
 
+    // SubSurface Methods
     virtual void BuildSubSurfIntChains();
+    virtual void BuildTestIntChains();
     virtual void SubTagTris();
-
-    virtual bool GetFarMeshFlag()
-    {
-        return m_FarMeshFlag;
-    }
-    virtual void SetFarMeshFlag( bool f )
-    {
-        m_FarMeshFlag = f;
-    }
-    virtual bool GetFarCompFlag()
-    {
-        return m_FarCompFlag;
-    }
-    virtual void SetFarCompFlag( bool f )
-    {
-        m_FarCompFlag = f;
-    }
-    virtual bool GetFarManLocFlag()
-    {
-        return m_FarManLocFlag;
-    }
-    virtual void SetFarManLocFlag( bool f )
-    {
-        m_FarManLocFlag = f;
-    }
-    virtual bool GetFarAbsSizeFlag()
-    {
-        return m_FarAbsSizeFlag;
-    }
-    virtual void SetFarAbsSizeFlag( bool f )
-    {
-        m_FarAbsSizeFlag = f;
-    }
-    virtual bool GetHalfMeshFlag()
-    {
-        return m_HalfMeshFlag;
-    }
-    virtual void SetHalfMeshFlag( bool f )
-    {
-        m_HalfMeshFlag = f;
-    }
 
     virtual void HighlightNextChain();
 
@@ -352,32 +313,7 @@ public:
         m_DelIPntVec.push_back( ip );
     }
 
-    virtual void SetWakeScale( double s )
-    {
-        m_WakeScale = s;
-    }
-    virtual double GetWakeScale()
-    {
-        return m_WakeScale();
-    }
-    virtual void SetWakeAngle( double a )
-    {
-        m_WakeAngle = a;
-    }
-    virtual double GetWakeAngle()
-    {
-        return m_WakeAngle();
-    }
-
     virtual void WriteChains();
-
-    enum { STL_FILE_NAME, POLY_FILE_NAME, TRI_FILE_NAME,
-           OBJ_FILE_NAME, DAT_FILE_NAME, KEY_FILE_NAME, GMSH_FILE_NAME, SRF_FILE_NAME, NUM_FILE_NAMES
-         };
-
-    string GetExportFileName( int type );
-    void SetExportFileName( const string &fn, int type );
-    void ResetExportFileNames();
 
     void AddPossCoPlanarSurf( Surf* surfA, Surf* surfB );
     vector< Surf* > GetPossCoPlanarSurfs( Surf* surfPtr );
@@ -404,30 +340,12 @@ public:
 
     ostringstream m_OutStream;
 
-    FractionParm m_FarXScale;
-    FractionParm m_FarYScale;
-    FractionParm m_FarZScale;
 
-    Parm m_FarLength;
-    Parm m_FarWidth;
-    Parm m_FarHeight;
+    CfdMeshSettings* GetCfdSettingsPtr()
+    {
+        return m_Vehicle->GetCfdSettingsPtr();
+    }
 
-    Parm m_FarXLocation;
-    Parm m_FarYLocation;
-    Parm m_FarZLocation;
-
-    Parm m_WakeScale;
-    Parm m_WakeAngle;
-
-    BoolParm m_DrawMeshFlag;
-    BoolParm m_DrawSourceFlag;
-    BoolParm m_DrawFarFlag;
-    BoolParm m_DrawFarPreFlag;
-    BoolParm m_DrawBadFlag;
-    BoolParm m_DrawSymmFlag;
-    BoolParm m_DrawWakeFlag;
-
-    BoolParm m_ExportFileFlags[NUM_FILE_NAMES];
 
 protected:
 
@@ -442,7 +360,6 @@ protected:
     string m_FarGeomID;
     bool m_BatchFlag;
 
-    GridDensity m_GridDensity;
     vector< Surf* > m_SurfVec;
 
     //==== Wakes ====//
@@ -461,12 +378,6 @@ protected:
     int m_NumComps;
     int m_HighlightChainIndex;
 
-    bool m_FarMeshFlag;
-    bool m_FarCompFlag;
-    bool m_FarManLocFlag;
-    bool m_FarAbsSizeFlag;
-    bool m_HalfMeshFlag;
-
     BndBox m_Domain;
 
     vector< Puw* > m_DelPuwVec;             // Store Created Puw and Ipnts
@@ -476,7 +387,6 @@ protected:
 
     vector< vector< vec3d > > debugRayIsect;
 
-    string m_ExportFileNames[NUM_FILE_NAMES];
 
     //==== Vector of Surfs that may have a border that lies on Surf A ====//
     map< Surf*, vector< Surf* > > m_PossCoPlanarSurfMap;
@@ -493,6 +403,7 @@ private:
     DrawObj m_MeshBadTriDO;
     DrawObj m_BBoxLineStripDO;
     DrawObj m_BBoxLinesDO;
+    vector< DrawObj > m_TagDO;
 };
 
 #define CfdMeshMgr CfdMeshMgrSingleton::getInstance()

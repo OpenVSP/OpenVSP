@@ -29,11 +29,6 @@ public:
 
 public:
     /*!
-    * Name of this Material.
-    */
-    std::string m_Name;
-
-    /*!
     * Ambient values.
     */
     Parm m_AmbientR;

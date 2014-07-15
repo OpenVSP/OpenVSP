@@ -46,9 +46,20 @@ void GraphicEngine::dumpScreenJPEG( std::string fileName )
     glReadBuffer( GL_BACK );
     glReadPixels( 0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, data );
 
-    writeJPEG( fileName.c_str(), w, h, data );
-
+    // Flip data top to bottom.
+    unsigned char * flipdat = new unsigned char[( w + 1 ) * ( h + 1 ) * 3];
+    int scanLen = 3 * ( w + 1 );
+    for ( int i = 0 ; i < h + 1 ; i++ )
+    {
+        unsigned char* srcLine = &data[ i * scanLen ];
+        unsigned char* dstLine = &flipdat[ (h - i) * scanLen ];
+        memcpy(  dstLine, srcLine, scanLen );
+    }
     delete data;
+
+    writeJPEG( fileName.c_str(), w + 1, h + 1, flipdat );
+
+    delete flipdat;
 }
 
 void GraphicEngine::initGlew()

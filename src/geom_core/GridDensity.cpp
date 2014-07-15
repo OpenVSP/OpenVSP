@@ -855,30 +855,35 @@ void BoxSource::Highlight( bool flag )
 
 GridDensity::GridDensity() : ParmContainer()
 {
-    m_RigorLimit = 0;
+    m_GroupName = "NONE";
+}
 
-    m_BaseLen.Init( "Max Edge Length", "GridDensity", this, 0.5, 1.0e-8, 1.0e12 );
+void GridDensity::InitParms()
+{
+    m_RigorLimit.Init( "RigorLimit", m_GroupName, this, false, 0, 1 );
+
+    m_BaseLen.Init( "BaseLen", m_GroupName, this, 0.5, 1.0e-8, 1.0e12 );
     m_BaseLen.SetDescript( "Maximum mesh edge length" );
 
-    m_MinLen.Init( "Minimum Edge Length", "GridDensity", this, 0.1, 1.0e-8, 1.0e12 );
+    m_MinLen.Init( "MinLen", m_GroupName, this, 0.1, 1.0e-8, 1.0e12 );
     m_MinLen.SetDescript( "Minimum mesh edge length" );
 
-    m_MaxGap.Init( "Max Gap", "GridDensity", this, 0.005, 1.0e-8, 1.0e12 );
+    m_MaxGap.Init( "MaxGap", m_GroupName, this, 0.005, 1.0e-8, 1.0e12 );
     m_MaxGap.SetDescript( "Maximum mesh edge gap" );
 
-    m_NCircSeg.Init( "Number Circle Segments", "GridDensity", this, 16, 1.0e-8, 1.0e12 );
+    m_NCircSeg.Init( "NCircSeg", m_GroupName, this, 16, 1.0e-8, 1.0e12 );
     m_NCircSeg.SetDescript( "Number of edge segments to resolve circle" );
 
-    m_GrowRatio.Init( "Growth Ratio", "GridDensity", this, 1.3, 1.0, 10.0 );
+    m_GrowRatio.Init( "GrowRatio", m_GroupName, this, 1.3, 1.0, 10.0 );
     m_GrowRatio.SetDescript( "Maximum allowed edge growth ratio" );
 
-    m_FarMaxLen.Init( "Max Far Field Edge Length", "GridDensity", this, 2.0, 1.0e-8, 1.0e12 );
+    m_FarMaxLen.Init( "MaxFar", m_GroupName, this, 2.0, 1.0e-8, 1.0e12 );
     m_FarMaxLen.SetDescript( "Maximum far field mesh edge length" );
 
-    m_FarMaxGap.Init( "Max Far Field Gap", "GridDensity", this, 0.02, 1.0e-8, 1.0e12 );
+    m_FarMaxGap.Init( "MaxFarGap", m_GroupName, this, 0.02, 1.0e-8, 1.0e12 );
     m_FarMaxGap.SetDescript( "Maximum far field mesh edge gap" );
 
-    m_FarNCircSeg.Init( "Number Far Field Circle Segments", "GridDensity", this, 16, 1.0e-8, 1.0e12 );
+    m_FarNCircSeg.Init( "FarNCircSeg", m_GroupName, this, 16, 1.0e-8, 1.0e12 );
     m_FarNCircSeg.SetDescript( "Number of far field edge segments to resolve circle" );
 
 }
@@ -886,6 +891,27 @@ GridDensity::GridDensity() : ParmContainer()
 GridDensity::~GridDensity()
 {
     ClearSources();
+}
+
+
+xmlNodePtr GridDensity::EncodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr gridnode = xmlNewChild( node, NULL, BAD_CAST m_Name.c_str(), NULL );
+
+    ParmContainer::EncodeXml( gridnode );
+
+    return gridnode;
+}
+
+xmlNodePtr GridDensity::DecodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr gridnode = XmlUtil::GetNode( node, m_Name.c_str(), 0 );
+    if ( gridnode )
+    {
+        ParmContainer::DecodeXml( gridnode );
+    }
+
+    return gridnode;
 }
 
 void GridDensity::ParmChanged( Parm* parm_ptr, int type )
@@ -1023,3 +1049,20 @@ void GridDensity::Draw(BaseSource* curr_source )
     }
 }
 */
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+CfdGridDensity::CfdGridDensity() : GridDensity()
+{
+    m_Name = "CFDGridDensity";
+    m_GroupName = "CFDGridDensity";
+    InitParms();
+}
+
+FeaGridDensity::FeaGridDensity() : GridDensity()
+{
+    m_Name = "FEAGridDensity";
+    m_GroupName = "FEAGridDensity";
+    InitParms();
+}

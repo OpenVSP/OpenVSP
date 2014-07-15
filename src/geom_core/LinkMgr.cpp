@@ -74,6 +74,11 @@ void LinkMgrSingleton::UnRegisterContainer( const string & id )
     vector_remove_val( m_BaseLinkableContainers, id );
 }
 
+bool LinkMgrSingleton::CheckContainerRegistered( const string & id )
+{
+    return vector_contains_val( m_BaseLinkableContainers, id );
+}
+
 //==== Get Current Parm Link ====//
 Link* LinkMgrSingleton::GetCurrLink()
 {

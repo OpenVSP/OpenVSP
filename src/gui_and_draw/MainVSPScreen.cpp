@@ -49,12 +49,12 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     AddMenuCallBack( m_MainUI->SetEditorMenu  );
     AddMenuCallBack( m_MainUI->StructureMenu );
     AddMenuCallBack( m_MainUI->CompGeomMenu );
+    AddMenuCallBack( m_MainUI->DegenGeomMenu );
     AddMenuCallBack( m_MainUI->CFDMeshGeomMenu );
     AddMenuCallBack( m_MainUI->ParmLinkMenu );
     AddMenuCallBack( m_MainUI->ParmDebugMenu );
     AddMenuCallBack( m_MainUI->DesignVarMenu );
     AddMenuCallBack( m_MainUI->MassPropMenu );
-    AddMenuCallBack( m_MainUI->AeroRefMenu );
     AddMenuCallBack( m_MainUI->AwaveMenu );
     AddMenuCallBack( m_MainUI->PSliceMenu );
     AddMenuCallBack( m_MainUI->AdvParmLinkMenu );
@@ -66,6 +66,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     AddMenuCallBack( m_MainUI->BackgroundMenu );
 
     AddMenuCallBack( m_MainUI->LightingMenu );
+    AddMenuCallBack( m_MainUI->ClippingMenu );
     AddMenuCallBack( m_MainUI->LabelsMenu );
     AddMenuCallBack( m_MainUI->ScreenShotMenu );
 
@@ -81,9 +82,6 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     AddMenuCallBack( m_MainUI->AdjustViewMenu );
     AddMenuCallBack( m_MainUI->AntialiasMenu );
     AddMenuCallBack( m_MainUI->TextureMenu );
-
-    AddMenuCallBack( m_MainUI->ScriptMenu );
-    AddMenuCallBack( m_MainUI->ScriptOutMenu );
 
     AddMenuCallBack( m_MainUI->RevertMenu );
 
@@ -187,7 +185,7 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
 
         if( !fileName.empty() )
         {
-            unsigned int extIndex = fileName.find_last_of( '.' );
+            std::string::size_type extIndex = fileName.find_last_of( '.' );
 
             if( extIndex == std::string::npos )
             {
@@ -302,6 +300,10 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
     {
         m_ScreenMgr->ShowScreen( ScreenMgr::VSP_LIGHTING_SCREEN );
     }
+    else if ( m == m_MainUI->ClippingMenu )
+    {
+        m_ScreenMgr->ShowScreen( ScreenMgr::VSP_CLIPPING_SCREEN );
+    }
     else if ( m == m_MainUI->LabelsMenu )
     {
         m_ScreenMgr->ShowScreen( ScreenMgr::VSP_LABEL_SCREEN );
@@ -317,6 +319,10 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
     else if ( m == m_MainUI->CompGeomMenu )
     {
         m_ScreenMgr->ShowScreen( ScreenMgr::VSP_COMP_GEOM_SCREEN );
+    }
+    else if ( m == m_MainUI->DegenGeomMenu )
+    {
+        m_ScreenMgr->ShowScreen( ScreenMgr::VSP_DEGEN_GEOM_SCREEN );
     }
     else if ( m == m_MainUI->CFDMeshGeomMenu )
     {
@@ -356,7 +362,7 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
             VehicleMgr.GetVehicle()->SetVSP3FileName( openfile );
             VehicleMgr.GetVehicle()->ReadXMLFile( openfile );
 
-            CfdMeshMgr.ResetExportFileNames();
+            CfdMeshMgr.GetCfdSettingsPtr()->ResetExportFileNames();
 
             SetFileLabel( openfile );
 
@@ -378,7 +384,7 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
             VehicleMgr.GetVehicle()->SetVSP3FileName( savefile );
             VehicleMgr.GetVehicle()->WriteXMLFile( savefile, SET_ALL );
 
-            CfdMeshMgr.ResetExportFileNames();
+            CfdMeshMgr.GetCfdSettingsPtr()->ResetExportFileNames();
 
             SetFileLabel( savefile );
 
@@ -394,7 +400,7 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
             VehicleMgr.GetVehicle()->SetVSP3FileName( savefile );
             VehicleMgr.GetVehicle()->WriteXMLFile( savefile, SET_ALL );
 
-            CfdMeshMgr.ResetExportFileNames();
+            CfdMeshMgr.GetCfdSettingsPtr()->ResetExportFileNames();
 
             SetFileLabel( savefile );
 

@@ -64,7 +64,7 @@ void Image::_loadImage( std::string fileName )
     bool succeed;
     std::string name = fileName;
 
-    unsigned int extIndex = name.find_last_of( '.' );
+    std::string::size_type extIndex = name.find_last_of( '.' );
     if( extIndex == std::string::npos )
     {
         succeed = _loadWithoutExt( name );

@@ -517,11 +517,11 @@ void FeaMeshMgrSingleton::WriteFeaStructData( Geom* geom_ptr, xmlNodePtr root )
 
     xmlNodePtr fea_node = xmlNewChild( root, NULL, ( const xmlChar * )"FEA_Structure_Parms", NULL );
 
-    XmlUtil::AddDoubleNode( fea_node, "DefElemSize", m_GridDensity.m_BaseLen() );
-    XmlUtil::AddDoubleNode( fea_node, "FEA_Mesh_Min_Length", m_GridDensity.m_MinLen() );
-    XmlUtil::AddDoubleNode( fea_node, "FEA_Mesh_Max_Gap", m_GridDensity.m_MaxGap() );
-    XmlUtil::AddDoubleNode( fea_node, "FEA_Mesh_Num_Circle_Segments", m_GridDensity.m_NCircSeg() );
-    XmlUtil::AddDoubleNode( fea_node, "FEA_Mesh_Growth_Ratio", m_GridDensity.m_GrowRatio() );
+    XmlUtil::AddDoubleNode( fea_node, "DefElemSize", GetGridDensityPtr()->m_BaseLen() );
+    XmlUtil::AddDoubleNode( fea_node, "FEA_Mesh_Min_Length", GetGridDensityPtr()->m_MinLen() );
+    XmlUtil::AddDoubleNode( fea_node, "FEA_Mesh_Max_Gap", GetGridDensityPtr()->m_MaxGap() );
+    XmlUtil::AddDoubleNode( fea_node, "FEA_Mesh_Num_Circle_Segments", GetGridDensityPtr()->m_NCircSeg() );
+    XmlUtil::AddDoubleNode( fea_node, "FEA_Mesh_Growth_Ratio", GetGridDensityPtr()->m_GrowRatio() );
 
     XmlUtil::AddDoubleNode( fea_node, "ThickScale",  m_ThickScale() );
 
@@ -602,12 +602,12 @@ void FeaMeshMgrSingleton::ReadFeaStructData()
 
     xmlNodePtr struct_parms_node = XmlUtil::GetNode( m_XmlDataNode, "FEA_Structure_Parms", 0 );
 
-    m_GridDensity.m_BaseLen = XmlUtil::FindDouble( struct_parms_node, "DefElemSize", m_GridDensity.m_BaseLen() );
+    GetGridDensityPtr()->m_BaseLen = XmlUtil::FindDouble( struct_parms_node, "DefElemSize", GetGridDensityPtr()->m_BaseLen() );
 
-    m_GridDensity.m_MinLen = XmlUtil::FindDouble( struct_parms_node, "FEA_Mesh_Min_Length", m_GridDensity.m_MinLen() );
-    m_GridDensity.m_MaxGap = XmlUtil::FindDouble( struct_parms_node, "FEA_Mesh_Max_Gap", m_GridDensity.m_MaxGap() );
-    m_GridDensity.m_NCircSeg = XmlUtil::FindDouble( struct_parms_node, "FEA_Mesh_Num_Circle_Segments", m_GridDensity.m_NCircSeg() );
-    m_GridDensity.m_GrowRatio = XmlUtil::FindDouble( struct_parms_node, "FEA_Mesh_Growth_Ratio", m_GridDensity.m_GrowRatio() );
+    GetGridDensityPtr()->m_MinLen = XmlUtil::FindDouble( struct_parms_node, "FEA_Mesh_Min_Length", GetGridDensityPtr()->m_MinLen() );
+    GetGridDensityPtr()->m_MaxGap = XmlUtil::FindDouble( struct_parms_node, "FEA_Mesh_Max_Gap", GetGridDensityPtr()->m_MaxGap() );
+    GetGridDensityPtr()->m_NCircSeg = XmlUtil::FindDouble( struct_parms_node, "FEA_Mesh_Num_Circle_Segments", GetGridDensityPtr()->m_NCircSeg() );
+    GetGridDensityPtr()->m_GrowRatio = XmlUtil::FindDouble( struct_parms_node, "FEA_Mesh_Growth_Ratio", GetGridDensityPtr()->m_GrowRatio() );
 
     m_ThickScale  = XmlUtil::FindDouble( struct_parms_node, "ThickScale", m_ThickScale() );
 
@@ -726,7 +726,7 @@ void FeaMeshMgrSingleton::Build()
     }
     AddStructureParts();
 
-    m_GridDensity.ClearSources();
+    GetGridDensityPtr()->ClearSources();
     if ( !m_BatchFlag )
     {
         addOutputText( "Build Slice Planes\n", FEA_OUTPUT );

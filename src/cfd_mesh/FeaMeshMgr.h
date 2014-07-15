@@ -86,6 +86,11 @@ public:
     virtual ~FeaMeshMgrSingleton();
     virtual void CleanUp();
 
+    virtual GridDensity* GetGridDensityPtr()
+    {
+        return m_Vehicle->GetFeaGridDensityPtr();
+    }
+
     virtual bool LoadSurfaces();
     virtual void Build();
     virtual void Export();

@@ -58,8 +58,6 @@ public:
 
     virtual XSec* GetXSec( int index );
 
-    void GetJointParams( int joint, VspJointInfo &jointInfo ) const;
-
     bool IsClosed() const;
 
     virtual void AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id = string() );
@@ -74,7 +72,7 @@ protected:
     virtual void ChangeID( string id );
 
     virtual void UpdateSurf();
-    virtual void UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms );
+    virtual void UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts );
 
     enum {FUSE_MONOTONIC, FUSE_DUCT, FUSE_FREE};
     virtual void EnforceOrder( FuseXSec* xs, int indx, int ile, int policy );

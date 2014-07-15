@@ -264,6 +264,92 @@ TriShellMassProp::TriShellMassProp( string id, double mass_area_in, vec3d& p0, v
 
 }
 
+//===========================================================================================================//
+//================================================ DegenGeom ================================================//
+//===========================================================================================================//
+
+DegenGeomTetraMassProp::DegenGeomTetraMassProp( string id, vec3d& p0, vec3d& p1, vec3d& p2, vec3d& p3 )
+{
+    m_CompId = id;
+
+    m_v0 = p0;
+    m_v1 = p1 - p0;
+    m_v2 = p2 - p0;
+    m_v3 = p3 - p0;
+
+    m_CG = m_v1 + m_v2 + m_v3;
+    m_CG = ( m_CG * 0.25 ) + p0;
+
+    m_Vol  = fabs( tetra_volume( m_v1, m_v2, m_v3 ) );
+
+    double Ix = m_Vol / 10.0 * ( m_v1.x() * m_v1.x() + m_v2.x() * m_v2.x() + m_v3.x() * m_v3.x() +
+                                 m_v1.x() * m_v2.x() + m_v1.x() * m_v3.x() + m_v2.x() * m_v3.x() );
+
+    double Iy = m_Vol / 10.0 * ( m_v1.y() * m_v1.y() + m_v2.y() * m_v2.y() + m_v3.y() * m_v3.y() +
+                                 m_v1.y() * m_v2.y() + m_v1.y() * m_v3.y() + m_v2.y() * m_v3.y() );
+
+    double Iz = m_Vol / 10.0 * ( m_v1.z() * m_v1.z() + m_v2.z() * m_v2.z() + m_v3.z() * m_v3.z() +
+                                 m_v1.z() * m_v2.z() + m_v1.z() * m_v3.z() + m_v2.z() * m_v3.z() );
+
+    m_Ixx = Iy + Iz;
+    m_Iyy = Ix + Iz;
+    m_Izz = Ix + Iy;
+
+    m_Ixy = m_Vol / 20.0 * ( 2.0 * ( m_v1.x() * m_v1.y() + m_v2.x() * m_v2.y() + m_v3.x() * m_v3.y() ) +
+                             m_v1.x() * m_v2.y() + m_v2.x() * m_v1.y() + m_v1.x() * m_v3.y() + m_v3.x() * m_v1.y() + m_v2.x() * m_v3.y() + m_v3.x() * m_v2.y() );
+
+    m_Iyz = m_Vol / 20.0 * ( 2.0 * ( m_v1.y() * m_v1.z() + m_v2.y() * m_v2.z() + m_v3.y() * m_v3.z() ) +
+                             m_v1.y() * m_v2.z() + m_v2.y() * m_v1.z() + m_v1.y() * m_v3.z() + m_v3.y() * m_v1.z() + m_v2.y() * m_v3.z() + m_v3.y() * m_v2.z() );
+
+    m_Ixz = m_Vol / 20.0 * ( 2.0 * ( m_v1.x() * m_v1.z() + m_v2.x() * m_v2.z() + m_v3.x() * m_v3.z() ) +
+                             m_v1.x() * m_v2.z() + m_v2.x() * m_v1.z() + m_v1.x() * m_v3.z() + m_v3.x() * m_v1.z() + m_v2.x() * m_v3.z() + m_v3.x() * m_v2.z() );
+
+}
+
+
+DegenGeomTriShellMassProp::DegenGeomTriShellMassProp( string id, vec3d& p0, vec3d& p1, vec3d& p2 )
+{
+    m_CompId = id;
+
+    m_CG = ( p0 + p1 + p2 ) * ( 1.0 / 3.0 );
+
+    m_v0 = p0 - m_CG;
+    m_v1 = p1 - m_CG;
+    m_v2 = p2 - m_CG;
+
+    m_TriArea = area( m_v0, m_v1, m_v2 );
+
+    double Ix = m_TriArea / 10.0 * ( m_v0.x() * m_v0.x() + m_v1.x() * m_v1.x() + m_v2.x() * m_v2.x() +
+                                     m_v0.x() * m_v1.x() + m_v0.x() * m_v2.x() + m_v1.x() * m_v2.x() );
+
+    double Iy = m_TriArea / 10.0 * ( m_v0.y() * m_v0.y() + m_v1.y() * m_v1.y() + m_v2.y() * m_v2.y() +
+                                     m_v0.y() * m_v1.y() + m_v0.y() * m_v2.y() + m_v1.y() * m_v2.y() );
+
+    double Iz = m_TriArea / 10.0 * ( m_v0.z() * m_v0.z() + m_v1.z() * m_v1.z() + m_v2.z() * m_v2.z() +
+                                     m_v0.z() * m_v1.z() + m_v0.z() * m_v2.z() + m_v1.z() * m_v2.z() );
+
+    m_Ixx = Iy + Iz;
+    m_Iyy = Ix + Iz;
+    m_Izz = Ix + Iy;
+
+    m_Ixy = m_TriArea / 20.0 * ( 2.0 * ( m_v0.x() * m_v0.y() + m_v1.x() * m_v1.y() + m_v2.x() * m_v2.y() ) +
+                                 m_v0.x() * m_v1.y() + m_v1.x() * m_v0.y() + m_v0.x() * m_v2.y() + m_v2.x() * m_v0.y() + m_v1.x() * m_v2.y() + m_v2.x() * m_v1.y() );
+
+    m_Iyz = m_TriArea / 20.0 * ( 2.0 * ( m_v0.y() * m_v0.z() + m_v1.y() * m_v1.z() + m_v2.y() * m_v2.z() ) +
+                                 m_v0.y() * m_v1.z() + m_v1.y() * m_v0.z() + m_v0.y() * m_v2.z() + m_v2.y() * m_v0.z() + m_v1.y() * m_v2.z() + m_v2.y() * m_v1.z() );
+
+    m_Ixz = m_TriArea / 20.0 * ( 2.0 * ( m_v0.x() * m_v0.z() + m_v1.x() * m_v1.z() + m_v2.x() * m_v2.z() ) +
+                                 m_v0.x() * m_v1.z() + m_v1.x() * m_v0.z() + m_v0.x() * m_v2.z() + m_v2.x() * m_v0.z() + m_v1.x() * m_v2.z() + m_v2.x() * m_v1.z() );
+
+}
+
+
+
+//===========================================================================================================//
+//============================================== END DegenGeom ==============================================//
+//===========================================================================================================//
+
+
 //===============================================//
 //===============================================//
 //===============================================//
@@ -1079,7 +1165,7 @@ TTri::~TTri()
 //printf("Tri Destruct Cnt = %d \n", cnt);
     int i;
 
-    //==== Delete Edges ====//
+    //==== Delete Split Edges ====//
     for ( i = 0 ; i < ( int )m_EVec.size() ; i++ )
     {
         delete m_EVec[i];
@@ -1215,33 +1301,6 @@ bool TTri::MatchEdge( TNode* n0, TNode* n1, TNode* nA, TNode* nB, double tol )
 
     return false;
 }
-
-//==== Load Nodes From Edges =====//
-void TTri::LoadNodesFromEdges()
-{
-    if ( !m_E0 || !m_E1 || !m_E2 )
-    {
-        return;
-    }
-
-//jrg TODO: Preserve Normal Direction
-    m_N0 = m_E0->m_N0;
-    m_N1 = m_E0->m_N1;
-    if ( m_E1->m_N0 != m_N0 && m_E1->m_N0 != m_N1 )
-    {
-        m_N2 = m_E1->m_N0;
-    }
-    else
-    {
-        m_N2 = m_E1->m_N1;
-    }
-
-    if ( m_N0 == m_N1 || m_N0 == m_N2 || m_N1 == m_N2 )
-    {
-        printf( "ERROR loadNodesFromEdges\n" );
-    }
-}
-
 
 //==== Split A Triangle Along Edges in ISectEdges Vec =====//
 void TTri::SplitTri( int meshFlag )
@@ -3834,167 +3893,6 @@ TTri* TMesh::FindTriPnts( TTri* ignoreTri, TNode* n0, TNode* n1 )
         }
     }
     return 0;
-}
-
-void TMesh::RelaxMesh( vector<TMesh*> & origTMeshVec )
-{
-    int n, t, e;
-    TNode* node[3];
-    TEdge* edge[3];
-
-    //==== Save Edges of Intersection Curves  =====//
-//  vector< vec3d > isectPairs;
-    m_ISectPairs.clear();
-
-    for ( n = 0 ; n < ( int )m_NVec.size() ; n++ )
-    {
-        if ( m_NVec[n]->m_IsectFlag == 1 )
-        {
-            for ( t = 0 ; t < ( int )m_NVec[n]->m_TriVec.size() ; t++ )
-            {
-                if ( m_NVec[n]->m_TriVec[t]->m_N0->m_IsectFlag == 1 &&  m_NVec[n]->m_TriVec[t]->m_N0 != m_NVec[n] )
-                {
-                    m_ISectPairs.push_back( m_NVec[n]->m_Pnt );
-                    m_ISectPairs.push_back( m_NVec[n]->m_TriVec[t]->m_N0->m_Pnt );
-                }
-                if ( m_NVec[n]->m_TriVec[t]->m_N1->m_IsectFlag == 1 &&  m_NVec[n]->m_TriVec[t]->m_N0 != m_NVec[n] )
-                {
-                    m_ISectPairs.push_back( m_NVec[n]->m_Pnt );
-                    m_ISectPairs.push_back( m_NVec[n]->m_TriVec[t]->m_N1->m_Pnt );
-                }
-                if ( m_NVec[n]->m_TriVec[t]->m_N2->m_IsectFlag == 1 &&  m_NVec[n]->m_TriVec[t]->m_N0 != m_NVec[n] )
-                {
-                    m_ISectPairs.push_back( m_NVec[n]->m_Pnt );
-                    m_ISectPairs.push_back( m_NVec[n]->m_TriVec[t]->m_N2->m_Pnt );
-                }
-            }
-        }
-    }
-
-    //==== Copy This Mesh To Project Relaxed Points On To =====//
-    TMesh* saveMesh = new TMesh;
-    for ( t = 0 ; t < ( int )m_TVec.size() ; t++ )
-    {
-        saveMesh->AddTri( m_TVec[t]->m_N0, m_TVec[t]->m_N1, m_TVec[t]->m_N2, m_TVec[t]->m_Norm );
-    }
-    saveMesh->LoadBndBox();
-
-    //==== Load Current Edges in Nodes ====//
-    for ( n = 0 ; n < ( int )m_NVec.size() ; n++ )
-    {
-        m_NVec[n]->m_EdgeVec.clear();
-    }
-
-    for ( t = 0 ; t < ( int )m_TVec.size() ; t++ )
-    {
-        node[0] = m_TVec[t]->m_N0;
-        node[1] = m_TVec[t]->m_N1;
-        node[2] = m_TVec[t]->m_N2;
-        edge[0] = m_TVec[t]->m_E0;
-        edge[1] = m_TVec[t]->m_E1;
-        edge[2] = m_TVec[t]->m_E2;
-
-        for ( n = 0 ; n < 3 ; n++ )
-        {
-            for ( e = 0 ; e < 3 ; e++ )
-            {
-                if ( edge[e]->m_N0 == node[n] )
-                {
-                    node[n]->m_EdgeVec.push_back( edge[e] );
-                }
-                else if ( edge[e]->m_N1 == node[n] )
-                {
-                    node[n]->m_EdgeVec.push_back( edge[e] );
-                }
-            }
-        }
-    }
-
-    //==== Create An Offset Vector for Each Node ====//
-    for ( int i = 0 ; i < 10 ; i++ )
-    {
-        vector< vec3d > offVec;
-        for ( n = 0 ; n < ( int )m_NVec.size() ; n++ )
-        {
-            //==== Sum Up Offset Vectors ====//
-            vec3d off;
-            for ( e = 0 ; e < ( int )m_NVec[n]->m_EdgeVec.size() ; e++ )
-            {
-                if ( m_NVec[n]->m_EdgeVec[e]->m_N0 == m_NVec[n] )
-                {
-                    off = off + ( m_NVec[n]->m_EdgeVec[e]->m_N1->m_Pnt - m_NVec[n]->m_Pnt );
-                }
-                else
-                {
-                    off = off + ( m_NVec[n]->m_EdgeVec[e]->m_N0->m_Pnt - m_NVec[n]->m_Pnt );
-                }
-            }
-            offVec.push_back( off );
-
-            //==== Find Normal ====//
-            m_NVec[n]->m_Norm.set_xyz( 0, 0, 0 );
-            for ( t = 0 ; t < ( int )m_NVec[n]->m_TriVec.size() ; t++ )
-            {
-                m_NVec[n]->m_Norm = m_NVec[n]->m_Norm + m_NVec[n]->m_TriVec[t]->CompNorm();
-            }
-            m_NVec[n]->m_Norm.normalize();
-        }
-
-        //==== Only Move Node Attached to Isect Points ====//
-        for ( t = 0 ; t < ( int )m_TVec.size() ; t++ )
-        {
-            if ( m_TVec[t]->m_N0->m_IsectFlag == 1 || m_TVec[t]->m_N1->m_IsectFlag == 1 || m_TVec[t]->m_N2->m_IsectFlag == 1 )
-            {
-                if ( m_TVec[t]->m_N0->m_IsectFlag == 0 )
-                {
-                    m_TVec[t]->m_N0->m_IsectFlag = 2;
-                }
-                if ( m_TVec[t]->m_N1->m_IsectFlag == 0 )
-                {
-                    m_TVec[t]->m_N1->m_IsectFlag = 2;
-                }
-                if ( m_TVec[t]->m_N2->m_IsectFlag == 0 )
-                {
-                    m_TVec[t]->m_N2->m_IsectFlag = 2;
-                }
-            }
-        }
-
-
-        //==== Move Each Node ====//
-        double moveFract = 0.001;
-        for ( n = 0 ; n < ( int )m_NVec.size() ; n++ )
-        {
-            if ( m_NVec[n]->m_IsectFlag == 1 )
-            {
-                vec3d offPnt = m_NVec[n]->m_Pnt + offVec[n] * moveFract;
-
-                double moveDist = offVec[n].mag() * moveFract;
-                vec3d segPnt1 = offPnt + m_NVec[n]->m_Norm * moveDist;
-                vec3d segPnt2 = offPnt - m_NVec[n]->m_Norm * moveDist;
-
-                //==== Put the Point Back on the Surface =====//
-                vector< vec3d > ipVec;
-
-                if ( m_NVec[n]->m_IsectFlag == 2 )
-                {
-                    saveMesh->m_TBox.SegIntersect( segPnt1, segPnt2, ipVec );
-                    if ( ipVec.size() )
-                    {
-                        m_NVec[n]->m_Pnt = ipVec[0];
-                    }
-                }
-                else if ( m_NVec[n]->m_IsectFlag == 1 )
-                {
-                    m_NVec[n]->m_Pnt = ProjectOnISectPairs( offPnt, m_ISectPairs );
-                }
-            }
-        }
-
-
-    }
-
-
 }
 
 vec3d TMesh::ProjectOnISectPairs( vec3d & offPnt, vector< vec3d > & pairVec )

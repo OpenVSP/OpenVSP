@@ -158,7 +158,7 @@ public:
     virtual int  WriteCart3DTris( FILE* file_id, int offset );
     virtual int  WriteGMshTris( FILE* file_id, int node_offset, int tri_offset );
     virtual int  WriteNascartParts( FILE* file_id, int offset );
-    virtual int  WriteCart3DParts( FILE* file_id, map< vector<int>, int > & tagMap );
+    virtual int  WriteCart3DParts( FILE* file_id );
     virtual void WritePovRay( FILE* fid, int comp_num );
     virtual void WriteX3D( xmlNodePtr node );
     virtual void CheckDupOrAdd( TNode* node, vector< TNode* > & nodeVec );
@@ -170,8 +170,10 @@ public:
 
     //==== Intersection, Splitting and Trimming ====//
     virtual void IntersectTrim( int meshFlag, int halfFlag = 0 );
+    virtual void degenGeomIntersectTrim( vector< DegenGeom > &degenGeom );
     virtual void SliceX( int numSlice );
     virtual void MassSliceX( int numSlice );
+    virtual void degenGeomMassSliceX( vector< DegenGeom > &degenGeom );
     virtual void AreaSlice( int style, int numSlices, double sliceAngle, double coneSections, vec3d norm, bool autoBounds,
                             double start = 0, double end = 0 );
     virtual vector<vec3d> TessTriangles( vector<vec3d> &tri );
@@ -183,6 +185,8 @@ public:
     //virtual void  getVertexVec(vector< VertexID > *vertVec);
 
     virtual void CreatePrism( vector< TetraMassProp* >& tetraVec, TTri* tri, double len );
+    virtual void createDegenGeomPrism( vector< DegenGeomTetraMassProp* >& tetraVec, TTri* tri, double len );
+
     virtual void AddPointMass( TetraMassProp* pm )
     {
         m_PointMassVec.push_back( pm );
@@ -208,6 +212,13 @@ public:
     virtual void SubTagTris();
 
     virtual void PreMerge();
+
+    // Debug Attributes
+
+    enum { DRAW_XYZ = 1, DRAW_UV = 2, DRAW_TAGS = 4, DRAW_BOTH = 3 };
+    IntParm m_DrawType;
+    BoolParm m_DrawSubSurfs;
+
 protected:
     virtual void ApplyScale(); // this is for intersectTrim
     vector<TMesh*> m_SubSurfVec;

@@ -208,6 +208,44 @@ void vec3d::normalize()
     }
 }
 
+int vec3d::major_comp() const
+{
+	int i = 0;
+	double c = abs( v[i] );
+
+	if( abs(v[1]) > c )
+	{
+		i = 1;
+		c = abs( v[i] );
+	}
+
+	if( abs(v[2]) > c )
+	{
+		i = 2;
+		c = abs( v[i] );
+	}
+	return i;
+}
+
+int vec3d::minor_comp() const
+{
+	int i = 0;
+	double c = abs( v[i] );
+
+	if( abs(v[1]) < c )
+	{
+		i = 1;
+		c = abs( v[i] );
+	}
+
+	if( abs(v[2]) < c )
+	{
+		i = 2;
+		c = abs( v[i] );
+	}
+	return i;
+}
+
 //******* Dot Product:  x = a.dot(b) ******//
 double dot( const vec3d& a, const vec3d& b )
 {

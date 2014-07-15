@@ -362,7 +362,7 @@ void ManageLabelScreen::UpdateDrawObjs()
             assert(match);
         }
 
-        match->m_Visible = labelList[i]->m_Visible;
+        match->m_Visible = labelList[i]->m_Visible.Get();
 
         match->m_TextColor = vec3d(labelList[i]->m_Red.Get() / 255,
             labelList[i]->m_Green.Get() / 255,

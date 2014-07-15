@@ -58,32 +58,16 @@ void GuiInterface::StartGui()
 #endif
 }
 
-void GuiInterface::InitGuiAPI( Vehicle* vPtr )
-{
-    m_Vehicle = vPtr;
-
-#ifdef VSP_USE_FLTK
-    if( !m_ScreenMgr )
-    {
-        m_ScreenMgr = new ScreenMgr( vPtr );
-    }
-
-    for( int i = 0; i < ScreenMgr::VSP_NUM_SCREENS; i++ )
-    {
-        m_ScreenMgr->HideScreen( i );
-    }
-
-#endif
-
-}
-
 void GuiInterface::StartGuiAPI( )
 {
 #ifdef VSP_USE_FLTK
-    m_ScreenMgr->SetRunGui( true );
-    m_ScreenMgr->ShowReturnToAPI();
-    m_ScreenMgr->ShowScreen( ScreenMgr::VSP_MAIN_SCREEN );
-    while( m_ScreenMgr->CheckRunGui() && Fl::wait() );
+    if ( m_ScreenMgr )
+    {
+        m_ScreenMgr->SetRunGui( true );
+        m_ScreenMgr->ShowReturnToAPI();
+        m_ScreenMgr->ShowScreen( ScreenMgr::VSP_MAIN_SCREEN );
+        while( m_ScreenMgr->CheckRunGui() && Fl::wait() );
+    }
 #endif
 
 }

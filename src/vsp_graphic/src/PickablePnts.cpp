@@ -13,6 +13,7 @@ namespace VSPGraphic
 PickablePnts::PickablePnts(Renderable * source) : Pickable(source)
 {
 	_pickRange = 20.0f;
+    _pointSize = 10.0f;
 }
 PickablePnts::~PickablePnts()
 {
@@ -42,6 +43,18 @@ unsigned int PickablePnts::getIndex()
 	return _highlightedId - _colorIndexRange.start;
 }
 
+std::vector<glm::vec3> PickablePnts::getAllPnts()
+{
+    std::vector<glm::vec3> vertList;
+    int numOfVert = _rSource->getVBuffer()->getVertexSize();
+
+    for(int i = 0; i < numOfVert; i++)
+    {
+        vertList.push_back(_rSource->getVertexVec(i));
+    }
+    return vertList;
+}
+
 void PickablePnts::update()
 {
 	_genColorBlock(false);
@@ -59,7 +72,7 @@ void PickablePnts::_predraw()
 void PickablePnts::_draw()
 {
 	glColor3f(0.f, 1.f, 0.f);
-	glPointSize(10.0f);
+	glPointSize(_pointSize);
 
 	_rSource->getVBuffer()->draw(GL_POINTS);
 
@@ -70,7 +83,7 @@ void PickablePnts::_draw()
 		if(hlPoint != glm::vec3(0xFFFFFFFF))
 		{
 			glColor3f(1.f, 0.f, 0.f);
-			glPointSize(12.0f);
+			glPointSize(_pointSize * 1.2f);
 			glBegin(GL_POINTS);
 			glVertex3f(hlPoint[0], hlPoint[1], hlPoint[2]);
 			glEnd();
@@ -85,5 +98,10 @@ void PickablePnts::_draw()
 void PickablePnts::setPickRange(float range)
 {
 	_pickRange = range;
+}
+
+void PickablePnts::setPointSize(float size)
+{
+    _pointSize = size;
 }
 }

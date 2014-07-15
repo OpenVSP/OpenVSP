@@ -35,6 +35,8 @@ public:
         m_CfdMeshUI->UIWindow->position( x, y );
     }
 
+    void AddOutputText( const string &text );
+
     void CallBack( Fl_Widget *w );
 
     void parm_changed( Parm* parm )             {}
@@ -54,6 +56,7 @@ private:
     ToggleButton m_DrawBadButton;
     ToggleButton m_DrawSymmButton;
     ToggleButton m_DrawWakeButton;
+    ToggleButton m_DrawTagsButton;
 
     ToggleButton m_DatToggleButton;
     ToggleButton m_KeyToggleButton;

@@ -21,8 +21,8 @@ using namespace vsp;
 //==== Constructor ====//
 CustomGeomMgrSingleton::CustomGeomMgrSingleton()
 {
-//    m_ScriptDir = "./CustomScripts/";
-    m_ScriptDir = "../../../CustomScripts/";
+    m_ScriptDir = "./CustomScripts/";
+//    m_ScriptDir = "../../../CustomScripts/";
 }
 
 //==== Scan Custom Directory And Return All Possible Types ====//
@@ -599,7 +599,7 @@ void CustomGeom::SkinXSecSurf()
         }
         if ( crv_vec.size() >= 2 )
         {
-            m_MainSurfVec[i].InterpolateLinear( crv_vec, false );
+            m_MainSurfVec[i].SkinC0( crv_vec, false );
         }
     }
 }

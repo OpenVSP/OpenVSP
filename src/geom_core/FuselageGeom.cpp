@@ -139,16 +139,16 @@ void FuselageGeom::UpdateSurf()
     }
 
 
-    m_MainSurfVec[0].InterpolateLinear( crv_vec, false );
+    m_MainSurfVec[0].SkinC1( crv_vec, false );
     if ( m_XSecSurf.GetFlipUD() )
     {
         m_MainSurfVec[0].FlipNormal();
     }
 }
 
-void FuselageGeom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms )
+void FuselageGeom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts )
 {
-    m_SurfVec[indx].Tesselate( m_TessUVec, m_TessW(), pnts, norms );
+    m_SurfVec[indx].Tesselate( m_TessUVec, m_TessW(), pnts, norms, uw_pnts );
 }
 
 //==== Compute Rotation Center ====//
@@ -326,11 +326,6 @@ void FuselageGeom::LoadDragFactors( DragFactors& drag_factors )
     drag_factors.m_Length = m_Length();
     drag_factors.m_MaxXSecArea = max_xsec_area;
     drag_factors.m_LengthToDia = m_Length() / dia;
-}
-
-void FuselageGeom::GetJointParams( int joint, VspJointInfo &jointInfo ) const
-{
-    m_MainSurfVec[0].CompJointParams( joint, jointInfo );
 }
 
 bool FuselageGeom::IsClosed() const

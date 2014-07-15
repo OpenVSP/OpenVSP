@@ -18,322 +18,23 @@
 #include "StlHelper.h"
 
 #include "eli/geom/curve/piecewise_creator.hpp"
-#include "eli/geom/surface/piecewise_creator.hpp"
+#include "eli/geom/surface/piecewise_body_of_revolution_creator.hpp"
 #include "eli/geom/intersect/minimum_distance_surface.hpp"
 
 typedef piecewise_surface_type::index_type surface_index_type;
 typedef piecewise_surface_type::point_type surface_point_type;
 typedef piecewise_surface_type::rotation_matrix_type surface_rotation_matrix_type;
 typedef piecewise_surface_type::bounding_box_type surface_bounding_box_type;
-typedef piecewise_surface_type::tolerance_type surface_tolerance_type;
+typedef piecewise_curve_type::point_type curve_point_type;
 
-typedef eli::geom::curve::piecewise_cubic_spline_creator<double, 3, surface_tolerance_type> piecewise_cubic_spline_creator_type;
 typedef eli::geom::curve::piecewise_linear_creator<double, 3, surface_tolerance_type> piecewise_linear_creator_type;
-
-//=============================================================================//
-//============================ VspJointInfo    ================================//
-//=============================================================================//
-
-VspJointInfo::VspJointInfo()
-{
-    m_State = 0;
-    for ( int i = 0; i < 4; ++i )
-    {
-        m_LeftAngle[i] = 0;
-        m_LeftStrength[i] = 0;
-        m_LeftCurvature[i] = 0;
-        m_RightAngle[i] = 0;
-        m_RightStrength[i] = 0;
-        m_RightCurvature[i] = 0;
-    }
-}
-
-VspJointInfo::VspJointInfo( const VspJointInfo &ji )
-{
-    m_State = ji.m_State;
-    for ( int i = 0; i < 4; ++i )
-    {
-        m_LeftAngle[i] = ji.m_LeftAngle[i];
-        m_LeftStrength[i] = ji.m_LeftStrength[i];
-        m_LeftCurvature[i] = ji.m_LeftCurvature[i];
-        m_RightAngle[i] = ji.m_RightAngle[i];
-        m_RightStrength[i] = ji.m_RightStrength[i];
-        m_RightCurvature[i] = ji.m_RightCurvature[i];
-    }
-}
-
-VspJointInfo::~VspJointInfo()
-{
-}
-
-void VspJointInfo::SetLeftParams( int side, const double &angle, const double &strength, const double &curvature )
-{
-    if ( side < NUM_SIDES )
-    {
-        m_LeftAngle[side] = angle;
-        m_LeftStrength[side] = strength;
-        m_LeftCurvature[side] = curvature;
-    }
-}
-
-double VspJointInfo::GetLeftAngle( int side ) const
-{
-    if ( side < NUM_SIDES )
-    {
-        return m_LeftAngle[side];
-    }
-    else
-    {
-        return -1;
-    }
-}
-
-double VspJointInfo::GetLeftStrength( int side ) const
-{
-    if ( side < NUM_SIDES )
-    {
-        return m_LeftStrength[side];
-    }
-    else
-    {
-        return -1;
-    }
-}
-
-double VspJointInfo::GetLeftCurvature( int side ) const
-{
-    if ( side < NUM_SIDES )
-    {
-        return m_LeftCurvature[side];
-    }
-    else
-    {
-        return -1;
-    }
-}
-
-void VspJointInfo::SetRightParams( int side, const double &angle, const double &strength, const double &curvature )
-{
-    if ( side < NUM_SIDES )
-    {
-        m_RightAngle[side] = angle;
-        m_RightStrength[side] = strength;
-        m_RightCurvature[side] = curvature;
-    }
-}
-
-double VspJointInfo::GetRightAngle( int side ) const
-{
-    if ( side < NUM_SIDES )
-    {
-        return m_RightAngle[side];
-    }
-    else
-    {
-        return -1;
-    }
-}
-
-double VspJointInfo::GetRightStrength( int side ) const
-{
-    if ( side < NUM_SIDES )
-    {
-        return m_RightStrength[side];
-    }
-    else
-    {
-        return -1;
-    }
-}
-
-double VspJointInfo::GetRightCurvature( int side ) const
-{
-    if ( side < NUM_SIDES )
-    {
-        return m_RightCurvature[side];
-    }
-    else
-    {
-        return -1;
-    }
-}
-
-void VspJointInfo::SetState( int state )
-{
-    if ( ( state > -1 ) && ( state < NUM_CONTINUITY_TYPES ) )
-    {
-        m_State = state;
-    }
-    else
-    {
-        assert( false );
-    }
-}
-
-int VspJointInfo::GetState() const
-{
-    return m_State;
-}
-
-bool VspJointInfo::C1Continuous() const
-{
-    switch ( m_State )
-    {
-    case( C1_AUTO ):
-    case( C1 ):
-    case( C2_AUTO ):
-    case( C2 ):
-    case( G2 ):
-    {
-        return true;
-        break;
-    }
-    case( FULL ):
-    case( C0 ):
-    case( G1 ):
-    {
-        return false;
-        break;
-    }
-    default:
-    {
-        assert( false );
-        break;
-    }
-    }
-    return false;
-}
-
-bool VspJointInfo::G1Continuous() const
-{
-    switch ( m_State )
-    {
-    case( C1_AUTO ):
-    case( C1 ):
-    case( G1 ):
-    case( C2_AUTO ):
-    case( C2 ):
-    case( G2 ):
-    {
-        return true;
-        break;
-    }
-    case( FULL ):
-    case( C0 ):
-    {
-        return false;
-        break;
-    }
-    default:
-    {
-        assert( false );
-        break;
-    }
-    }
-    return false;
-}
-
-bool VspJointInfo::C2Continuous() const
-{
-    switch ( m_State )
-    {
-    case( C2_AUTO ):
-    case( C2 ):
-    {
-        return true;
-        break;
-    }
-    case( FULL ):
-    case( C0 ):
-    case( C1_AUTO ):
-    case( C1 ):
-    case( G1 ):
-    case( G2 ):
-    {
-        return false;
-        break;
-    }
-    default:
-    {
-        assert( false );
-        break;
-    }
-    }
-    return false;
-}
-
-bool VspJointInfo::G2Continuous() const
-{
-    switch ( m_State )
-    {
-    case( C2_AUTO ):
-    case( C2 ):
-    case( G2 ):
-    {
-        return true;
-        break;
-    }
-    case( FULL ):
-    case( C0 ):
-    case( C1_AUTO ):
-    case( C1 ):
-    case( G1 ):
-    {
-        return false;
-        break;
-    }
-    default:
-    {
-        assert( false );
-        break;
-    }
-    }
-    return false;
-}
-
-int VspJointInfo::DegreesOfFreedom() const
-{
-    switch ( m_State )
-    {
-    case( FULL ):
-    case( C2_AUTO ):
-    case( C2 ):
-    case( G2 ):
-    {
-        return 3;
-        break;
-    }
-    case( C0 ):
-    case( C1_AUTO ):
-    case( C1 ):
-    case( G1 ):
-    {
-        return 2;
-        break;
-    }
-    default:
-    {
-        assert( false );
-        break;
-    }
-    }
-    return -1;
-}
-
-bool VspJointInfo::FiniteDifferenceFp() const
-{
-    return ( m_State == C1_AUTO );
-}
-
-bool VspJointInfo::FiniteDifferenceFpp() const
-{
-    return ( m_State == C2_AUTO );
-}
+typedef eli::geom::surface::general_skinning_surface_creator<double, 3, surface_tolerance_type> general_creator_type;
 
 //===== Constructor  =====//
 VspSurf::VspSurf()
 {
     m_FlipNormal = false;
+    m_SurfType = NORMAL_SURF;
 }
 
 //===== Destructor  =====//
@@ -414,7 +115,7 @@ double VspSurf::FindNearest( double &u, double &w, const vec3d &pt ) const
 
     dist = eli::geom::intersect::minimum_distance( u, w, m_Surface, p );
 
-	return dist;
+    return dist;
 }
 
 double VspSurf::FindNearest( double &u, double &w, const vec3d &pt, const double &u0, const double &w0 ) const
@@ -425,7 +126,7 @@ double VspSurf::FindNearest( double &u, double &w, const vec3d &pt, const double
 
     dist = eli::geom::intersect::minimum_distance( u, w, m_Surface, p, u0, w0 );
 
-	return dist;
+    return dist;
 }
 
 double VspSurf::FindNearest01( double &u, double &w, const vec3d &pt ) const
@@ -441,7 +142,7 @@ double VspSurf::FindNearest01( double &u, double &w, const vec3d &pt ) const
     u = u / num_sectU;
     w = w / num_sectW;
 
-	return dist;
+    return dist;
 }
 
 double VspSurf::FindNearest01( double &u, double &w, const vec3d &pt, const double &u0, const double &w0 ) const
@@ -457,7 +158,7 @@ double VspSurf::FindNearest01( double &u, double &w, const vec3d &pt, const doub
     u = u / num_sectU;
     w = w / num_sectW;
 
-	return dist;
+    return dist;
 }
 
 void VspSurf::GetUConstCurve( VspCurve &c, const double &u ) const
@@ -517,1055 +218,106 @@ Matrix4d VspSurf::CompTransCoordSys( const double &u, const double &w )
 
 void VspSurf::CreateBodyRevolution( const VspCurve &input_crv )
 {
-    eli::geom::surface::create_body_of_revolution( m_Surface, input_crv.GetCurve(), 0, eli::geom::surface::OUTWARD_NORMAL );
+    eli::geom::surface::create_body_of_revolution( m_Surface, input_crv.GetCurve(), 0, true );
 
     ResetFlipNormal();
 }
 
-void VspSurf::InterpolateManual( const std::vector<VspCurve> &input_crv_vec, const vector<VspJointInfo> &joint_info_vec, bool closed_flag )
+void VspSurf::SkinRibs( const vector<rib_data_type> &ribs, const vector < int > &degree, bool closed_flag )
 {
-    vector<piecewise_curve_type> cross_section;
-    vector<VspJointInfo> joint_info( joint_info_vec );
-    VspCurve spine;
+    general_creator_type gc;
+    surface_index_type nrib, i;
 
-    // NOTE: This should be passed in as a parameter
+    nrib = ribs.size();
+
+    std::vector<typename general_creator_type::index_type> max_degree( nrib - 1, 0 );
+
+    assert( degree.size() == nrib - 1 );
+    for( i = 0; i < nrib - 1; i++ )
     {
-        vector<vec3d> pt( 2 );
-        vector<double> param( 2 );
-
-        pt[0].set_xyz( 0, 0, 0 );
-        pt[1].set_xyz( 1, 0, 0 );
-        param[0] = 0;
-        param[1] = 1;
-        spine.InterpolateLinear( pt, param, false );
+        max_degree[i] = degree[i];
     }
 
-    // error checking
-    if ( input_crv_vec.size() < 3 )
-    {
-        std::cerr << "Too few cross sections to VspSurf::InterpolateManual()" << std::endl;
-        return;
-    }
+    // create surface
+    bool setcond = gc.set_conditions(ribs, max_degree, closed_flag);
+    assert( setcond );
 
-    if ( input_crv_vec.size() != joint_info_vec.size() )
-    {
-        std::cerr << "Cross section vector not same length as joint info vector?!?!" << std::endl;
-        return;
-    }
-
-    // get cross sections to be: (1) same number of sections, (2) same section parameterizations
-    // and (3) same degree curves on start and end of each patch
-    PrepairCrossSections( cross_section, input_crv_vec );
-
-    // add last cross section that is same as first for closed surfaces
-    if ( closed_flag )
-    {
-        VspJointInfo ji;
-
-        for ( int idx = 0; idx < 4; ++idx )
-        {
-            ji.SetRightParams( idx, joint_info[0].GetLeftAngle( idx ),
-                               joint_info[0].GetLeftStrength( idx ),
-                               joint_info[0].GetLeftCurvature( idx ) );
-            ji.SetLeftParams( idx, joint_info[joint_info.size() - 1].GetRightAngle( idx ),
-                              joint_info[joint_info.size() - 1].GetRightStrength( idx ),
-                              joint_info[joint_info.size() - 1].GetRightCurvature( idx ) );
-        }
-
-        joint_info.push_back( ji );
-        cross_section.push_back( cross_section[0] );
-    }
-
-    surface_index_type i, j, nu( cross_section.size() - 1 ), nv( cross_section[0].number_segments() );
-
-    m_Surface.init_uv( nu, nv );
-
-    // TODO: At this point should set the u- and v-parameterization since know du=1 and dv's come from cross_section[0]
-
-    bool print_left_side( false );
-    int i_print = 0;
-
-    int joint_v[4] = {VspJointInfo::TOP_SIDE, VspJointInfo::LEFT_SIDE, VspJointInfo::BOTTOM_SIDE, VspJointInfo::RIGHT_SIDE};
-    vector<VspCurve> fp_left( nu + 1 ), fpp_left( nu + 1 ), fp_right( nu + 1 ), fpp_right( nu + 1 );
-
-    // determine the top, bottom, left, & right 1st and 2nd derivatives for skinning
-    for ( i = 0; i <= nu; ++i )
-    {
-        vector<vec3d> fp_left_pt( 4 ), fpp_left_pt( 4 ), fp_right_pt( 4 ), fpp_right_pt( 4 );
-        vector<double> param( 5 );
-
-        param[0] = 0;
-        param[1] = 1;
-        param[2] = 2;
-        param[3] = 3;
-        param[4] = 4;
-        for ( j = 0; j < 4; ++j )
-        {
-            int side( joint_v[j] ), dof;
-            surface_point_type xvec, yvec, zvec;
-
-            dof = joint_info[i].DegreesOfFreedom();
-
-            if ( dof > 1 )
-            {
-                double u( i / static_cast<double>( nu ) ), v( j );
-                piecewise_curve_type sp( spine.GetCurve() );
-
-                // determine the coordinate system for this side
-                // in: cross_section, sp, u, v
-                // out: xvec, yvec, zvec
-                {
-                    surface_point_type fv;
-
-                    // TODO: xvec will be the tangent vector of the spine once generalized skinning is implemented
-                    xvec = sp.fp( u );
-
-                    fv = cross_section[i].fp( v );
-                    if ( fv.norm() == 0 )
-                    {
-                        double ang( v * PI / 2 );
-                        surface_rotation_matrix_type mat;
-
-                        fv << 0, 1, 0;
-                        mat << 1, 0,              0,
-                            0, std::cos( ang ), -std::sin( ang ),
-                            0, std::sin( ang ),  std::cos( ang );
-                        fv = fv * mat;
-                    }
-
-                    yvec = fv;
-                    yvec.normalize();
-                    zvec = xvec.cross( yvec );
-                    zvec.normalize();
-                }
-
-                // determine the left and right finite difference approximations to f_u and f_uu
-                surface_point_type fu_fd, fuu_fd;
-                if ( i == 0 )
-                {
-                    fu_fd = cross_section[1].f( v ) - cross_section[0].f( v );
-                    fuu_fd = ( cross_section[2].f( v ) - 2 * cross_section[1].f( v ) + cross_section[0].f( v ) );
-                }
-                else if ( i == nu )
-                {
-                    fu_fd = cross_section[i].f( v ) - cross_section[i - 1].f( v );
-                    fuu_fd = ( cross_section[i].f( v ) - 2 * cross_section[i - 1].f( v ) + cross_section[i - 2].f( v ) );
-                }
-                else
-                {
-                    fu_fd = 0.5 * ( cross_section[i + 1].f( v ) - cross_section[i - 1].f( v ) );
-                    fuu_fd = ( cross_section[i + 1].f( v ) - 2 * cross_section[i].f( v ) + cross_section[i - 1].f( v ) );
-                }
-
-                // calculate the first derivative
-                if ( joint_info[i].FiniteDifferenceFp() )
-                {
-                    fp_left_pt[j].set_xyz( fu_fd.x(), fu_fd.y(), fu_fd.z() );
-                    fp_right_pt[j] = fp_left_pt[j];
-                }
-                else
-                {
-                    double left_angle, right_angle, fu_fd_norm( fu_fd.norm() );
-                    surface_point_type tmp;
-
-                    left_angle = joint_info[i].GetLeftAngle( side );
-                    right_angle = joint_info[i].GetRightAngle( side );
-
-                    tmp = std::cos( left_angle ) * xvec + std::sin( left_angle ) * zvec;
-                    fp_left_pt[j].set_xyz( tmp.x(), tmp.y(), tmp.z() );
-                    if ( joint_info[i].C1Continuous() )
-                    {
-                        fp_left_pt[j] = fp_left_pt[j] * fu_fd_norm * joint_info[i].GetLeftStrength( side );
-                        fp_right_pt[j] = fp_left_pt[j];
-                    }
-                    else
-                    {
-                        if ( joint_info[i].G1Continuous() )
-                        {
-                            fp_right_pt[j] = fp_left_pt[j];
-                        }
-                        else
-                        {
-                            tmp = std::cos( right_angle ) * xvec + std::sin( right_angle ) * zvec;
-                            fp_right_pt[j].set_xyz( tmp.x(), tmp.y(), tmp.z() );
-                        }
-                        fp_left_pt[j] = fp_left_pt[j] * fu_fd_norm * joint_info[i].GetLeftStrength( side );
-                        fp_right_pt[j] = fp_right_pt[j] * fu_fd_norm * joint_info[i].GetRightStrength( side );
-                    }
-                }
-
-                if ( dof > 2 )
-                {
-                    // calculate the second derivative
-                    if ( joint_info[i].FiniteDifferenceFpp() )
-                    {
-                        fpp_left_pt[j].set_xyz( fuu_fd.x(), fuu_fd.y(), fuu_fd.z() );
-                        fpp_right_pt[j] = fpp_left_pt[j];
-                    }
-                    else
-                    {
-                        int udim[2];
-                        double alpha( 1.5 ), angle[2], curvature[2];
-                        surface_point_type cp[2], cpp[2];
-                        Eigen::Matrix<double, 3, 3> A;
-                        Eigen::Matrix<double, 3, 1> rhs;
-
-                        angle[0] = joint_info[i].GetLeftAngle( side );
-                        angle[1] = joint_info[i].GetRightAngle( side );
-                        curvature[0] = joint_info[i].GetLeftCurvature( side );
-                        curvature[1] = joint_info[i].GetRightCurvature( side );
-                        cp[0] << fp_left_pt[j].x(), fp_left_pt[j].y(), fp_left_pt[j].z();
-                        cp[1] << fp_right_pt[j].x(), fp_right_pt[j].y(), fp_right_pt[j].z();
-                        if ( i == 0 )
-                        {
-                            udim[0] = 3;
-                            udim[1] = joint_info[i].DegreesOfFreedom() + joint_info[i + 1].DegreesOfFreedom() - 1;
-                        }
-                        else if ( i == nu )
-                        {
-                            udim[0] = joint_info[i - 1].DegreesOfFreedom() + joint_info[i].DegreesOfFreedom() - 1;
-                            udim[1] = 3;
-                        }
-                        else
-                        {
-                            udim[0] = joint_info[i - 1].DegreesOfFreedom() + joint_info[i].DegreesOfFreedom() - 1;
-                            udim[1] = joint_info[i].DegreesOfFreedom() + joint_info[i + 1].DegreesOfFreedom() - 1;
-                        }
-
-                        int nit;
-
-                        if ( joint_info[i].C2Continuous() )
-                        {
-                            nit = 1;
-                        }
-                        else
-                        {
-                            nit = 2;
-                        }
-                        for ( int ii = 0; ii < nit; ++ii )
-                        {
-                            double tmp( cp[ii].norm() );
-
-                            tmp *= tmp * tmp;
-
-                            // this solves for the second derivative subject to the following conditions:
-                            // * the xvec-coordinate of the resulting control point is 1.5 times
-                            //   farther than the slope control point xvec-distance
-                            // * the second derivative vector is in the xvec-zvec plane
-                            // * the second derivative yields the specified (signed) curvature
-                            if ( ( angle[ii] < 75 * DEG_2_RAD ) && ( angle[ii] > -60 * DEG_2_RAD ) )
-                            {
-                                A.row( 0 ) = xvec;
-                                A.row( 1 ) = yvec.cross( cp[ii] );
-                                A.row( 2 ) = zvec.cross( cp[ii] );
-                                rhs( 0 ) = ( udim[ii] - 1 ) * ( alpha - 2 ) * xvec.dot( cp[ii] );
-// FIX: MIGHT NEED THIS TO MATCH OLD SKINNING RESULTS SO CHECK
-//                              if (i==0)
-//                              {
-//                                  rhs(0)*=-1;
-//                              }
-                                rhs( 1 ) = curvature[ii] * tmp;
-                                rhs( 2 ) = 0;
-                            }
-                            // if x there is too little variation in the xvec direction of the
-                            // slope, then need change set of equations to:
-                            // * the zvec-coordinate of the resulting control point is 1.5 times
-                            //   farther than the slope control point zvec-distance
-                            // * the second derivative vector is in the xvec-zvec plane
-                            // * the second derivative yields the specified (signed) curvature
-                            else
-                            {
-                                A.row( 0 ) = yvec;
-                                A.row( 1 ) = yvec.cross( cp[ii] );
-                                A.row( 2 ) = zvec;
-                                rhs( 0 ) = 0;
-                                rhs( 1 ) = curvature[ii] * tmp;
-                                rhs( 2 ) = ( udim[ii] - 1 ) * ( alpha - 2 ) * zvec.dot( cp[ii] );
-// FIX: MIGHT NEED THIS TO MATCH OLD SKINNING RESULTS SO CHECK
-//                              if (i==0)
-//                              {
-//                                  rhs(2)*=-1;
-//                              }
-                            }
-
-                            cpp[ii] = A.lu().solve( rhs ).transpose();
-                        }
-                        fpp_left_pt[j].set_xyz( cpp[0].x(), cpp[0].y(), cpp[0].z() );
-                        if ( nit == 2 )
-                        {
-                            fpp_right_pt[j].set_xyz( cpp[1].x(), cpp[1].y(), cpp[1].z() );
-                        }
-                        else
-                        {
-                            fpp_right_pt[j] = fpp_left_pt[j];
-                        }
-                    }
-                }
-            }
-        }
-
-        // build interpolating curve
-        fp_left[i].InterpolateCSpline( fp_left_pt, param, true );
-        fp_right[i].InterpolateCSpline( fp_right_pt, param, true );
-        fpp_left[i].InterpolateCSpline( fpp_left_pt, param, true );
-        fpp_right[i].InterpolateCSpline( fpp_right_pt, param, true );
-    }
-
-#if 0
-    for ( i = 0; i <= nu; ++i )
-    {
-        std::cout << "joint #" << i << std::endl;
-        for ( j = 0; j < 4; ++j )
-        {
-            std::cout << "    ";
-            switch ( j )
-            {
-            case( 0 ):
-                std::cout << "top side:    ";
-                break;
-            case( 1 ):
-                std::cout << "left side:   ";
-                break;
-            case( 2 ):
-                std::cout << "bottom side: ";
-                break;
-            case( 3 ):
-                std::cout << "right side:  ";
-                break;
-            }
-//          std::cout << "\tfp=[(" << fp_left[i].CompPnt(j) << "), (" << fp_right[i].CompPnt(j) << ")]";
-//          std::cout << "\tfpp=[(" << fpp_left[i].CompPnt(j) << "), (" << fpp_right[i].CompPnt(j) << ")]";
-            std::cout << "\tfp.degree()=[" << fp_left[i].GetNumSections() << ", " << fp_right[i].GetNumSections() << "]";
-            std::cout << "\tfpp.degree()=[" << fpp_left[i].GetNumSections() << ", " << fpp_right[i].GetNumSections() << "]";
-            std::cout << std::endl;
-        }
-    }
-#endif
-
-    // cycle through each panel along skinning direction to connect cross sections
-    for ( i = 0; i < nu; ++i )
-    {
-        double v_track( m_Surface.get_v0() );
-
-        // cycle through each panel around cross section to create surface
-        for ( j = 0; j < nv; ++j )
-        {
-            surface_patch_type s;
-            surface_index_type udim, vdim;
-            curve_segment_type cs;
-            vec3d fu_left_side, fu_right_side, fuu_left_side, fuu_right_side;
-            double dv;
-
-            // get sizes for current surface patch
-            cross_section[i].get( cs, dv, j );
-            vdim = cs.degree();
-            udim = joint_info[i].DegreesOfFreedom() + joint_info[i + 1].DegreesOfFreedom() - 1;
-            s.resize( udim, vdim );
-
-            // set the control points on the surface patch
-            for ( surface_index_type jj = 0; jj <= vdim; ++jj )
-            {
-                vec3d v3d_tmp;
-                surface_point_type pt_tmp, c;
-                double v;
-
-                // interpolate f_u and f_uu
-                v = v_track + dv * jj / static_cast<double>( vdim );
-                fu_left_side = fp_right[i].CompPnt( v );
-                assert( static_cast<size_t>( i + 1 ) < fp_left.size() );
-                fu_right_side = fp_left[i + 1].CompPnt( v );
-                fuu_left_side = fpp_right[i].CompPnt( v );
-                assert( static_cast<size_t>( i + 1 ) < fpp_left.size() );
-                fuu_right_side = fpp_left[i + 1].CompPnt( v );
-
-                // calculate the control points for the left side of this strip of the surface patch
-                if ( print_left_side && ( i == i_print ) )
-                {
-                    std::cout << "new joint " << jj;
-                    std::cout << "\tv=" << v;
-                    std::cout << "udim=" << udim;
-                }
-                c = cross_section[i].f( v );
-                switch( joint_info[i].DegreesOfFreedom() )
-                {
-                case( 3 ):
-                {
-                    v3d_tmp = ( ( fuu_left_side / ( udim - 1 ) ) + fu_left_side * 2.0 ) / udim;
-                    pt_tmp << v3d_tmp.x(), v3d_tmp.y(), v3d_tmp.z();
-                    s.set_control_point( pt_tmp + c, 2, jj );
-                    if ( print_left_side && ( i == i_print ) )
-                    {
-                        std::cout << "\tcp(2)=" << pt_tmp + c;
-                    }
-                }
-                case( 2 ):
-                {
-                    v3d_tmp = fu_left_side / udim;
-                    pt_tmp << v3d_tmp.x(), v3d_tmp.y(), v3d_tmp.z();
-                    s.set_control_point( pt_tmp + c, 1, jj );
-                    if ( print_left_side && ( i == i_print ) )
-                    {
-                        std::cout << "\tcp(1)=" << pt_tmp + c;
-                    }
-                }
-                case( 1 ):
-                {
-                    s.set_control_point( c, 0, jj );
-                    if ( print_left_side && ( i == i_print ) )
-                    {
-                        std::cout << "\tcp(0)=" << c << std::endl;
-                    }
-                    break;
-                }
-                }
-                c = cross_section[i + 1].f( v );
-                switch( joint_info[i + 1].DegreesOfFreedom() )
-                {
-                case( 3 ):
-                {
-                    v3d_tmp = ( ( fuu_right_side / ( udim - 1 ) ) - fu_right_side * 2.0 ) / udim;
-                    pt_tmp << v3d_tmp.x(), v3d_tmp.y(), v3d_tmp.z();
-                    s.set_control_point( pt_tmp + c, udim - 2, jj );
-                }
-                case( 2 ):
-                {
-                    v3d_tmp = fu_right_side / ( -udim );
-                    pt_tmp << v3d_tmp.x(), v3d_tmp.y(), v3d_tmp.z();
-                    s.set_control_point( pt_tmp + c, udim - 1, jj );
-                }
-                case( 1 ):
-                {
-                    s.set_control_point( c, udim, jj );
-                    break;
-                }
-                }
-            }
-
-            // set the patch and increment the v-coordinate tracker
-            m_Surface.set( s, i, j );
-            v_track += dv;
-        }
-    }
-
-#if 0
-    for ( i = 0; i <= nu; ++i )
-    {
-        std::cout << "joint #" << i << std::endl;
-        for ( j = 0; j < 4; ++j )
-        {
-            std::cout << "    ";
-            switch ( j )
-            {
-            case( 0 ):
-                std::cout << "top side:    ";
-                break;
-            case( 1 ):
-                std::cout << "left side:   ";
-                break;
-            case( 2 ):
-                std::cout << "bottom side: ";
-                break;
-            case( 3 ):
-                std::cout << "right side:  ";
-                break;
-            }
-            std::cout << "\tfp=[(" << m_Surface.f_u( std::max( 0.0, i - 1e-8 ), j ) << "), (" << m_Surface.f_u( std::min( static_cast<double>( nu ), i + 1e-8 ), j ) << ")]";
-            std::cout << "\tfpp=[(" << m_Surface.f_uu( std::max( 0.0, i - 1e-8 ), j ) << "), (" << m_Surface.f_uu( std::min( static_cast<double>( nu ), i + 1e-8 ), j ) << ")]";
-            std::cout << std::endl;
-        }
-    }
-#endif
-
-    // degree reduce patches that don't need to be so high
-    DegreeReduceSections( input_crv_vec, closed_flag );
-
+    gc.create( m_Surface );
     ResetFlipNormal();
 }
-
 
 //==== Interpolate A Set Of Points =====//
-void VspSurf::InterpolateLinear( const vector< VspCurve > &input_crv_vec, bool closed_flag )
+void VspSurf::SkinRibs( const vector<rib_data_type> &ribs, bool closed_flag )
 {
-    vector<piecewise_curve_type> cross_section;
-
-    // error checking
-    if ( input_crv_vec.size() < 2 )
-    {
-        std::cerr << "Too few cross sections to VspSurf::InterpolateLinear()" << std::endl;
-        return;
-    }
-
-    // get cross sections to be: (1) same number of sections, (2) same (similar) section parameterizations
-    // and (3) same degree curves on start and end of each patch
-    PrepairCrossSections( cross_section, input_crv_vec );
-
-    // add last cross section that is same as first for closed surfaces
-    if ( closed_flag )
-    {
-        cross_section.push_back( cross_section[0] );
-    }
-
-    surface_index_type i, j, nu( cross_section.size() - 1 ), nv( cross_section[0].number_segments() );
-
-    m_Surface.init_uv( nu, nv );
-
-    // connect cross-sections
-    for ( i = 0; i < nu; ++i )
-    {
-        for ( j = 0; j < nv; ++j )
-        {
-            surface_index_type ii, jj, udim( 1 ), vdim;
-            surface_patch_type s;
-            curve_segment_type cs[2];
-
-            cross_section[i].get( cs[0], j );
-            cross_section[i + 1].get( cs[1], j );
-
-            vdim = cs[0].degree();
-            s.resize( udim, vdim );
-
-            for ( jj = 0; jj <= vdim; ++jj )
-            {
-                ii = 0;
-                s.set_control_point( cs[ii].get_control_point( jj ), ii, jj );
-                ii = 1;
-                s.set_control_point( cs[ii].get_control_point( jj ), ii, jj );
-            }
-
-            m_Surface.set( s, i, j );
-        }
-    }
-
-    // degree reduce patches that don't need to be so high
-    DegreeReduceSections( input_crv_vec, closed_flag );
-
-    ResetFlipNormal();
+    surface_index_type nrib;
+    nrib = ribs.size();
+    vector< int > degree( nrib - 1, 0 );
+    SkinRibs( ribs, degree, closed_flag );
 }
 
-void VspSurf::InterpolatePCHIP( const vector< VspCurve > &input_crv_vec, bool closed_flag )
+void VspSurf::SkinCX( const vector< VspCurve > &input_crv_vec, const vector< int > &cx, const vector< int > &degree, bool closed_flag )
 {
-    vector<piecewise_curve_type> cross_section;
+    general_creator_type gc;
+    surface_index_type i, ncrv;
 
-    // error checking
-    if ( input_crv_vec.size() < 3 )
+    ncrv = input_crv_vec.size();
+
+    std::vector<rib_data_type> ribs( ncrv );
+
+    for( i = 0; i < ncrv; i++ )
     {
-        std::cerr << "Too few cross sections to VspSurf::InterpolatePCHIP()" << std::endl;
-        InterpolateLinear( input_crv_vec, closed_flag );
-        return;
+        ribs[i].set_f( input_crv_vec[i].GetCurve() );
     }
 
-    if ( closed_flag )
+    for( i = 1; i < ncrv-1; i++ )
     {
-        std::cerr << "Cannot handle closed surfaces yet" << std::endl;
+        ribs[i].set_continuity( ( rib_data_type::connection_continuity ) cx[i] );
     }
 
-    // get cross sections to be: (1) same number of sections, (2) same (similar) section parameterizations
-    // and (3) same degree curves on start and end of each patch
-    PrepairCrossSections( cross_section, input_crv_vec );
-
-    surface_index_type i, j, nu( cross_section.size() - 1 ), nv( cross_section[0].number_segments() );
-    piecewise_cubic_spline_creator_type pcsc( nu );
-
-    m_Surface.init_uv( nu, nv );
-
-    // connect cross-sections
-    for ( j = 0; j < nv; ++j )
-    {
-        surface_index_type ii, jj, nv_ctrl_pts;
-        vector<surface_point_type> pts;
-        vector<surface_patch_type> sp( nu );
-        curve_segment_type cs;
-        piecewise_curve_type pc;
-
-        // resize surface patches
-        cross_section[0].get( cs, j );
-        nv_ctrl_pts = cs.degree() + 1;
-        for ( i = 0; i < nu; ++i )
-        {
-            sp[i].resize( 3, cs.degree() );
-        }
-
-        // fill jth row of patches
-        for ( jj = 0; jj < nv_ctrl_pts; ++jj )
-        {
-            // extract points to fit
-            pts.resize( nu + 1 );
-            for ( ii = 0; ii <= nu; ++ii )
-            {
-                cross_section[ii].get( cs, j );
-                pts[ii] = cs.get_control_point( jj );
-            }
-
-            // perform fit
-            if ( closed_flag )
-            {
-                pcsc.set_chip( pts.begin(), eli::geom::general::C1 );
-            }
-            else
-            {
-                pcsc.set_chip( pts.begin(), eli::geom::general::NOT_CONNECTED );
-            }
-            if ( !pcsc.create( pc ) )
-            {
-                std::cerr << "Failed to create PCHIP surface. " << __LINE__ << std::endl;
-            }
-
-            // extract control points and fill patches
-            for ( ii = 0; ii < nu; ++ii )
-            {
-                pc.get( cs, ii );
-                sp[ii].set_control_point( cs.get_control_point( 0 ), 0, jj );
-                sp[ii].set_control_point( cs.get_control_point( 1 ), 1, jj );
-                sp[ii].set_control_point( cs.get_control_point( 2 ), 2, jj );
-                sp[ii].set_control_point( cs.get_control_point( 3 ), 3, jj );
-            }
-        }
-
-        // put patches into surface
-        for ( ii = 0; ii < nu; ++ii )
-        {
-            m_Surface.set( sp[ii], ii, j );
-        }
-    }
-
-    // degree reduce patches that don't need to be so high
-    DegreeReduceSections( input_crv_vec, closed_flag );
-
-    ResetFlipNormal();
+    // create surface
+    SkinRibs( ribs, degree, closed_flag );
 }
 
-void VspSurf::InterpolateCSpline( const vector< VspCurve > &input_crv_vec, bool closed_flag )
+void VspSurf::SkinCX( const vector< VspCurve > &input_crv_vec, const vector< int > &cx, bool closed_flag )
 {
-    vector<piecewise_curve_type> cross_section;
+    surface_index_type ncrv;
 
-    // error checking
-    if ( input_crv_vec.size() < 3 )
-    {
-        std::cerr << "Too few cross sections to VspSurf::InterpolateCSpline()" << std::endl;
-        InterpolateLinear( input_crv_vec, closed_flag );
-        return;
-    }
-
-    if ( closed_flag )
-    {
-        std::cerr << "Cannot handle closed surfaces yet" << std::endl;
-    }
-
-    // get cross sections to be: (1) same number of sections, (2) same (similar) section parameterizations
-    // and (3) same degree curves on start and end of each patch
-    PrepairCrossSections( cross_section, input_crv_vec );
-
-    surface_index_type i, j, nu( cross_section.size() - 1 ), nv( cross_section[0].number_segments() );
-    piecewise_cubic_spline_creator_type pcsc( nu );
-
-    m_Surface.init_uv( nu, nv );
-
-    // connect cross-sections
-    for ( j = 0; j < nv; ++j )
-    {
-        surface_index_type ii, jj, nv_ctrl_pts;
-        vector<surface_point_type> pts;
-        vector<surface_patch_type> sp( nu );
-        curve_segment_type cs;
-        piecewise_curve_type pc;
-
-        // resize surface patches
-        cross_section[0].get( cs, j );
-        nv_ctrl_pts = cs.degree() + 1;
-        for ( i = 0; i < nu; ++i )
-        {
-            sp[i].resize( 3, cs.degree() );
-        }
-
-        // fill jth row of patches
-        for ( jj = 0; jj < nv_ctrl_pts; ++jj )
-        {
-            // extract points to fit
-            pts.resize( nu + 1 );
-            for ( ii = 0; ii <= nu; ++ii )
-            {
-                cross_section[ii].get( cs, j );
-                pts[ii] = cs.get_control_point( jj );
-            }
-
-            // perform fit
-            if ( closed_flag )
-            {
-                pcsc.set_closed_cubic_spline( pts.begin() );
-            }
-            else
-            {
-                pcsc.set_cubic_spline( pts.begin() );
-            }
-            if ( !pcsc.create( pc ) )
-            {
-                std::cerr << "Failed to create CSpline surface. " << __LINE__ << std::endl;
-            }
-
-            // extract control points and fill patches
-            for ( ii = 0; ii < nu; ++ii )
-            {
-                pc.get( cs, ii );
-                sp[ii].set_control_point( cs.get_control_point( 0 ), 0, jj );
-                sp[ii].set_control_point( cs.get_control_point( 1 ), 1, jj );
-                sp[ii].set_control_point( cs.get_control_point( 2 ), 2, jj );
-                sp[ii].set_control_point( cs.get_control_point( 3 ), 3, jj );
-            }
-        }
-
-        // put patches into surface
-        for ( ii = 0; ii < nu; ++ii )
-        {
-            m_Surface.set( sp[ii], ii, j );
-        }
-    }
-
-    // degree reduce patches that don't need to be so high
-    DegreeReduceSections( input_crv_vec, closed_flag );
-
-    ResetFlipNormal();
+    ncrv = input_crv_vec.size();
+    vector< int > degree( ncrv - 1, 0 );
+    SkinCX( input_crv_vec, cx, degree, closed_flag );
 }
 
-void VspSurf::CompJointParams( int joint, VspJointInfo &jointInfo ) const
+//==== Interpolate A Set Of Points =====//
+void VspSurf::SkinCX( const vector< VspCurve > &input_crv_vec, int cx, bool closed_flag  )
 {
-    int l_seg( joint - 1 ), r_seg( joint ), nsegu( GetNumSectU() );
-    double small_ang( 1e-7 ), small_mag( 1e-5 );
-    int v[4] = {VspJointInfo::TOP_SIDE, VspJointInfo::LEFT_SIDE, VspJointInfo::BOTTOM_SIDE, VspJointInfo::RIGHT_SIDE};
-    bool closed( IsClosedU() );
+    surface_index_type ncrv;
 
-    if ( joint > nsegu )
-    {
-        std::cerr << "invalid joint specified in VspSurf " << __LINE__ << std::endl;
-        return;
-    }
+    ncrv = input_crv_vec.size();
 
-    // if want first joint then either get no data or wrap around
-    if ( r_seg == 0 )
-    {
-        if ( closed )
-        {
-            l_seg = nsegu;
-        }
-        else
-        {
-            l_seg = -1;
-            for ( int j = 0; j < 4; ++j )
-            {
-                jointInfo.SetLeftParams( v[j], 0, 0, 0 );
-            }
-        }
-    }
-    // else if want last joint then either get no data or wrap around
-    else if ( r_seg == nsegu )
-    {
-        if ( closed )
-        {
-            r_seg = 0;
-        }
-        else
-        {
-            r_seg = -1;
-            for ( int j = 0; j < 4; ++j )
-            {
-                jointInfo.SetRightParams( v[j], 0, 0, 0 );
-            }
-        }
-    }
+    vector < int > cxv( ncrv, cx );
+    cxv[ 0 ] = 0;
+    cxv[ ncrv - 1 ] = 0;
 
-    // cycle through 4 sides and get values
-    surface_patch_type surf;
-    surface_point_type fu, fv, fuu, curv, xvec, yvec, zvec;
-    surface_point_type pts[3], fu_approx;
-    double du, dv, tmp, ta, ts, tc;
-    for ( int j = 0; j < 4; ++j )
-    {
-        // store the three points needed for finite differences
-        if ( l_seg >= 0 )
-        {
-            // central difference
-            if ( r_seg >= 0 )
-            {
-                pts[0] = m_Surface.f( l_seg, j );
-                pts[1] = m_Surface.f( r_seg, j );
-                if ( nsegu > 2 )
-                {
-                    pts[2] = m_Surface.f( r_seg + 1, j );
-
-                    fu_approx = 0.5 * ( pts[2] - pts[0] );
-                }
-                else
-                {
-                    fu_approx = pts[1] - pts[0];
-                }
-            }
-            // backwards difference
-            else
-            {
-                pts[1] = m_Surface.f( l_seg, j );
-                pts[2] = m_Surface.f( l_seg + 1, j );
-
-                fu_approx = pts[2] - pts[1];
-            }
-        }
-        // forwards difference
-        else
-        {
-            pts[0] = m_Surface.f( r_seg, j );
-            pts[1] = m_Surface.f( r_seg + 1, j );
-
-            fu_approx = -pts[0] + pts[1];
-        }
-
-        // if have valid left segment
-        if ( l_seg >= 0 )
-        {
-//          std::cout << "side: " << j;
-
-            m_Surface.get( surf, du, dv, l_seg, j );
-            fu = surf.f_u( 1, 0 ) / du;
-            fv = surf.f_v( 1, 0 ) / dv;
-            fuu = surf.f_uu( 1, 0 ) / du / du;
-            if ( fv.norm() < 1e-10 )
-            {
-                switch( v[j] )
-                {
-                    // top
-                case( VspJointInfo::TOP_SIDE ):
-                {
-                    fv << 0, small_mag, 0;
-                    break;
-                }
-                // right
-                case( VspJointInfo::RIGHT_SIDE ):
-                {
-                    fv << 0, 0, small_mag;
-                    break;
-                }
-                // bottom
-                case( VspJointInfo::BOTTOM_SIDE ):
-                {
-                    fv << 0, -small_mag, 0;
-                    break;
-                }
-                // left
-                case( VspJointInfo::LEFT_SIDE ):
-                {
-                    fv << 0, 0, -small_mag;
-                    break;
-                }
-                default:
-                {
-                    std::cerr << "should not get here in VspSurf " << __LINE__ << std::endl;
-                    break;
-                }
-                }
-            }
-            if ( fuu.norm() == 0 )
-            {
-                switch( v[j] )
-                {
-                    // top
-                case( VspJointInfo::TOP_SIDE ):
-                {
-                    fuu << 0, 0, -small_mag;
-                    break;
-                }
-                // right
-                case( VspJointInfo::RIGHT_SIDE ):
-                {
-                    fuu << 0, -small_mag, 0;
-                    break;
-                }
-                // bottom
-                case( VspJointInfo::BOTTOM_SIDE ):
-                {
-                    fuu << 0, 0, small_mag;
-                    break;
-                }
-                // left
-                case( VspJointInfo::LEFT_SIDE ):
-                {
-                    fuu << 0, small_mag, 0;
-                    break;
-                }
-                default:
-                {
-                    std::cerr << "should not get here in VspSurf " << __LINE__ << std::endl;
-                    break;
-                }
-                }
-            }
-//          std::cout << "\t fu=" << fu << "\tfv=" << fv << "\tfvv=" << fvv;
-
-            // calculate angle
-            xvec << 1, 0, 0;
-            yvec = fv;
-            yvec.normalize();
-            zvec = xvec.cross( yvec );
-            zvec.normalize();
-            ta = std::atan2( zvec.dot( fu ), xvec.dot( fu ) );
-//          std::cout << "\tdv=" << dv << "\tfv=" << surf.f_v(1, 0)/dv << "\tz=" << zvec << "\tfu=" << fu << "\tz*fu=" << zvec.dot(fu) << "\tx*fu=" << xvec.dot(fu) << std::endl;
-//          std::cout << "\t left angle=" << ta;
-            ta = ( std::abs( ta ) < small_ang ) ? 0 : ta;
-
-            // calculate strength
-            ts = fu.norm() / fu_approx.norm();
-//          std::cout << "\tfu_approx=" << fu_approx << "\tfu=" << fu << "\t left strength=" << ts;
-
-            // calculate curvature
-            tmp = fu.norm();
-            tmp *= tmp * tmp;
-            tc = yvec.dot( fu.cross( fuu ) ) / tmp;
-//          std::cout << "\t left curvature=" << tc << std::endl;
-
-//          if (j==0)
-//          {
-//              std::cout << "GET:  ";
-//              std::cout << "\txvec=" << xvec << "\tyvec=" << yvec << "\tzvec=" << zvec;
-//              std::cout << "\tf=" << surf.f(0,1) << "\tfp=" << fu << "\tfpp=" << fuu;
-//              std::cout << "\t|fp|^3=" << tmp << "\tfp x fpp=" << fu.cross(fuu);
-//              std::cout << "\tfp_approx=" << fu_approx << "\tpt=" << pts[1] << "\tptm1=" << pts[0];
-//              std::cout << "\tangle=" << ta << "\tstrength=" << ts << "\tcurvature=" << tc;
-//              std::cout << std::endl;
-//          }
-
-            jointInfo.SetLeftParams( v[j], ta, ts, tc );
-        }
-
-        // if have valid right segment
-        if ( r_seg >= 0 )
-        {
-//          std::cout << "side: " << v[j];
-
-            m_Surface.get( surf, du, dv, r_seg, j );
-            fu = surf.f_u( 0, 0 ) / du;
-            fv = surf.f_v( 0, 0 ) / dv;
-            fuu = surf.f_uu( 0, 0 ) / du / du;
-            if ( fv.norm() < 1e-10 )
-            {
-                switch( v[j] )
-                {
-                    // top
-                case( VspJointInfo::TOP_SIDE ):
-                {
-                    fv << 0, small_mag, 0;
-                    break;
-                }
-                // right
-                case( VspJointInfo::RIGHT_SIDE ):
-                {
-                    fv << 0, 0, small_mag;
-                    break;
-                }
-                // bottom
-                case( VspJointInfo::BOTTOM_SIDE ):
-                {
-                    fv << 0, -small_mag, 0;
-                    break;
-                }
-                // left
-                case( VspJointInfo::LEFT_SIDE ):
-                {
-                    fv << 0, 0, -small_mag;
-                    break;
-                }
-                default:
-                {
-                    std::cerr << "should not get here in VspSurf " << __LINE__ << std::endl;
-                    break;
-                }
-                }
-            }
-            if ( fuu.norm() == 0 )
-            {
-                switch( v[j] )
-                {
-                    // top
-                case( VspJointInfo::TOP_SIDE ):
-                {
-                    fuu << 0, 0, -small_mag;
-                    break;
-                }
-                // right
-                case( VspJointInfo::RIGHT_SIDE ):
-                {
-                    fuu << 0, small_mag, 0;
-                    break;
-                }
-                // bottom
-                case( VspJointInfo::BOTTOM_SIDE ):
-                {
-                    fuu << 0, 0, small_mag;
-                    break;
-                }
-                // left
-                case( VspJointInfo::LEFT_SIDE ):
-                {
-                    fuu << 0, -small_mag, 0;
-                    break;
-                }
-                default:
-                {
-                    std::cerr << "should not get here in VspSurf " << __LINE__ << std::endl;
-                    break;
-                }
-                }
-            }
-//          std::cout << "\t fu=" << fu << "\tfv=" << fv << "\tfuu=" << fuu;
-
-            // calculate angle
-            xvec << 1, 0, 0;
-            yvec = fv;
-            yvec.normalize();
-            zvec = xvec.cross( yvec );
-            zvec.normalize();
-            ta = std::atan2( zvec.dot( fu ), xvec.dot( fu ) );
-//          std::cout << "\tright angle=" << ta;
-            ta = ( std::abs( ta ) < small_ang ) ? 0 : ta;
-
-            // calculate strength
-            ts = fu.norm() / fu_approx.norm();
-//          std::cout << "\tfu_approx=" << fu_approx << "\tfu=" << fu << "\tright strength=" << ts;
-
-            // calculate curvature
-            tmp = fu.norm();
-            tmp *= tmp * tmp;
-            tc = yvec.dot( fu.cross( fuu ) ) / tmp;
-//          std::cout << "\tright curvature=" << tc << std::endl;
-
-//          if (j==0)
-//          {
-//              std::cout << "GET:  ";
-//              switch(v[j])
-//              {
-//                  case(0):
-//                      std::cout << "Top Side:";
-//                      break;
-//                  case(1):
-//                      std::cout << "Right Side:";
-//                      break;
-//                  case(2):
-//                      std::cout << "Bottom Side:";
-//                      break;
-//                  case(3):
-//                      std::cout << "Left Side:";
-//                      break;
-//              }
-//              std::cout << "\txvec=" << xvec << "\tyvec=" << yvec << "\tzvec=" << zvec;
-//              std::cout << "\tf=" << surf.f(0,0) << "\tfp=" << fu << "\tfpp=" << fuu;
-//              std::cout << "\t|fp|^3=" << tmp << "\tfp x fpp=" << fv.cross(fuu);
-//              std::cout << "\tfp_approx=" << fu_approx << "\tpt=" << pts[1] << "\tptm1=" << pts[0];
-//              std::cout << "\tangle=" << ta << "\tstrength=" << ts << "\tcurvature=" << tc;
-//              std::cout << std::endl;
-//          }
-
-            jointInfo.SetRightParams( v[j], ta, ts, tc );
-        }
-    }
-
-//  std::cout << std::endl << std::endl;
+    SkinCX( input_crv_vec, cxv, closed_flag );
 }
 
+//==== Interpolate A Set Of Points =====//
+void VspSurf::SkinC0( const vector< VspCurve > &input_crv_vec, bool closed_flag )
+{
+    SkinCX( input_crv_vec, rib_data_type::C0, closed_flag );
+}
+
+//==== Interpolate A Set Of Points =====//
+void VspSurf::SkinC1( const vector< VspCurve > &input_crv_vec, bool closed_flag )
+{
+    SkinCX( input_crv_vec, rib_data_type::C1, closed_flag );
+}
+
+//==== Interpolate A Set Of Points =====//
+void VspSurf::SkinC2( const vector< VspCurve > &input_crv_vec, bool closed_flag )
+{
+    SkinCX( input_crv_vec, rib_data_type::C2, closed_flag );
+}
 
 //===== Compute Point On Surf Given  U V (Between 0 1 ) =====//
 vec3d VspSurf::CompPnt01( double u, double v ) const
@@ -1829,214 +581,6 @@ struct joint_pred
     }
 };
 
-void VspSurf::PrepairCrossSections( vector<piecewise_curve_type> &pc, const vector<VspCurve> &crv_in ) const
-{
-    size_t i, nc( crv_in.size() );
-    surface_index_type j, ns, seg_cnt( 0 );
-    vector<surface_index_type> deg_max;
-    curve_segment_type cs;
-
-    pc.resize( nc );
-
-    // cycle through each curve to find all joints params
-    typedef std::set<double> joint_param_collection;
-    joint_param_collection joint_params;
-    joint_param_collection::iterator it;
-    joint_pred pred;
-    double t, dt;
-
-    pred.tol = 1e-4;
-
-    // copy input curves to output vector and calculate the needed joint parameters
-    joint_params.insert( 0 );
-    for ( i = 0; i < nc; ++i )
-    {
-        curve_segment_type cst;
-        pc[i] = crv_in[i].GetCurve();
-        ns = pc[i].number_segments();
-        for ( j = 0, t = 0; j < ns; ++j )
-        {
-            // calculate next parameter
-            pc[i].get( cst, dt, j );
-            t += dt;
-
-            // catch case where segment is just small
-            if ( dt < pred.tol )
-            {
-                joint_params.insert( t );
-            }
-            // otherwise see if it should be added
-            else
-            {
-                pred.ref_val = t;
-                it = std::find_if( joint_params.begin(), joint_params.end(), pred );
-                if ( it == joint_params.end() )
-                {
-                    joint_params.insert( t );
-                }
-            }
-        }
-    }
-
-    // debug printout
-#if 0
-    std::cout << "xsec joints:";
-    for ( it = joint_params.begin(); it != joint_params.end(); ++it )
-    {
-        std::cout << "\t" << *it;
-    }
-    std::cout << std::endl;
-#endif
-
-    // cycle through each joint and make all curves have same number of segments and parameterization
-    it = joint_params.begin();
-    if ( *it != 0 )
-    {
-        std::cerr << "Invalid start parameter for joints " << __LINE__ << std::endl;
-        assert( false );
-        return;
-    }
-    for ( ++it, j = 0, t = 0; it != joint_params.end(); ++it, ++j )
-    {
-        curve_segment_type cst;
-        piecewise_curve_type::error_code ec;
-
-        for ( i = 0; i < nc; ++i )
-        {
-            pc[i].get( cs, dt, j );
-            pred.ref_val = t + dt;
-#if 0
-            std::cout << "pred: " << pred.ref_val << "\t" << ( *it ) << std::endl;
-#endif
-            if ( !pred( *it ) )
-            {
-                ec = pc[i].split( ( *it ) );
-                assert( ec == piecewise_curve_type::NO_ERRORS );
-            }
-        }
-        t = ( *it );
-    }
-
-    // debug printout
-#if 0
-    for ( i = 0; i < nc; ++i )
-    {
-        curve_segment_type cst;
-        std::cout << "curve #" << i << " joints:";
-
-        ns = pc[i].number_segments();
-        for ( j = 0, t = 0; j < ns; ++j )
-        {
-            pc[i].get( cs, dt, j );
-            t += dt;
-            std::cout << "\t" << t;
-        }
-        std::cout << std::endl;
-    }
-#endif
-
-    // cycle through each curve to find maximum number of segments
-    ns = joint_params.size() - 1;
-    for ( i = 0; i < nc; ++i )
-    {
-        surface_index_type seg_cnt( pc[i].number_segments() );
-        if ( ns != seg_cnt )
-        {
-            std::cerr << "XSec #" << i << " should have " << ns << " segments but have " << seg_cnt << " " << __LINE__ << std::endl;
-            assert( false );
-            return;
-        }
-    }
-    deg_max.resize( ns, 0 );
-
-    // cycle through curves to record max degree for each segment
-    for ( i = 0; i < nc; ++i )
-    {
-        for ( j = 0; j < ns; ++j )
-        {
-            pc[i].get( cs, j );
-            if ( deg_max[j] < cs.degree() )
-            {
-                deg_max[j] = cs.degree();
-            }
-        }
-    }
-
-    // make sure have same degree along strip
-    for ( i = 0; i < pc.size(); ++i )
-    {
-        for ( j = 0; j < ns; ++j )
-        {
-            pc[i].get( cs, j );
-
-            if ( cs.degree() < deg_max[j] )
-            {
-                for ( surface_index_type jj = cs.degree() + 1; jj <= deg_max[j]; ++jj )
-                {
-                    cs.degree_promote();
-                }
-                pc[i].replace( cs, j );
-            }
-        }
-    }
-
-    // debug printout
-#if 0
-    for ( i = 0; i < nc; ++i )
-    {
-        std::cout << "curve #" << i << " joints:";
-
-        ns = pc[i].number_segments();
-        for ( j = 0, t = 0; j < ns; ++j )
-        {
-            pc[i].get( cs, dt, j );
-            t += dt;
-            std::cout << "\t|" << t << ", " << cs.degree() << "|";
-        }
-        std::cout << std::endl;
-    }
-#endif
-}
-
-void VspSurf::DegreeReduceSections( const vector<VspCurve> &input_crv_vec, bool closed_flag )
-{
-//    std::cerr << "Need to re-enable DegreeReduceSections()" << std::endl;
-#if 0
-    surface_index_type i, j, nu( m_Surface.number_u_patches() ), nv( m_Surface.number_v_patches() );
-
-    for ( i = 0; i < nu; ++i )
-    {
-        for ( j = 0; j < nv; ++j )
-        {
-            surface_index_type vdim;
-            surface_patch_type sp;
-            curve_segment_type clow, chigh;
-
-            input_crv_vec[i].GetCurveSegment( clow, j );
-            if ( closed_flag && ( i == nu - 1 ) )
-            {
-                input_crv_vec[0].GetCurveSegment( chigh, j );
-            }
-            else
-            {
-                input_crv_vec[i + 1].GetCurveSegment( chigh, j );
-            }
-            vdim = std::max( clow.degree(), chigh.degree() );
-
-            m_Surface.get( sp, i, j );
-
-            if ( sp.degree_v() > vdim )
-            {
-                for ( size_t jj = sp.degree_v() - 1; jj >= vdim; --jj )
-                {
-                    sp.demote_v( eli::geom::general::C0 );
-                }
-            }
-        }
-    }
-#endif
-}
-
 void VspSurf::WriteBezFile( FILE* file_id, const std::string &geom_id, int surf_ind )
 {
     // Make copy for local changes.
@@ -2084,9 +628,9 @@ void VspSurf::WriteBezFile( FILE* file_id, const std::string &geom_id, int surf_
     split_u.push_back( 0 );
     split_w.push_back( 0 );
 
-    split_w.push_back( ClosetPatchEnd( w_pmap, 0.25 * w_pmap[w_pmap.size() - 1] ) );
-    split_w.push_back( ClosetPatchEnd( w_pmap, 0.5 * w_pmap[w_pmap.size() - 1] ) );
-    split_w.push_back( ClosetPatchEnd( w_pmap, 0.75 * w_pmap[w_pmap.size() - 1] ) );
+    split_w.push_back( ClosestPatchEnd( w_pmap, 0.25 * w_pmap[w_pmap.size() - 1] ) );
+    split_w.push_back( ClosestPatchEnd( w_pmap, 0.5 * w_pmap[w_pmap.size() - 1] ) );
+    split_w.push_back( ClosestPatchEnd( w_pmap, 0.75 * w_pmap[w_pmap.size() - 1] ) );
 
     split_u.push_back( nupts - 1 );
     split_w.push_back( nvpts - 1 );
@@ -2095,6 +639,7 @@ void VspSurf::WriteBezFile( FILE* file_id, const std::string &geom_id, int surf_
 
     fprintf( file_id, "%s Component\n", geom_id.c_str() );
     fprintf( file_id, "%d  Num_Sections\n", num_sections );
+    fprintf( file_id, "%d Flip_Normal\n", m_FlipNormal );
 
     for ( int iu = 0 ; iu < ( int )split_u.size() - 1 ; iu++ )
     {
@@ -2130,7 +675,7 @@ void VspSurf::WriteBezFile( FILE* file_id, const std::string &geom_id, int surf_
     }
 }
 
-int VspSurf::ClosetPatchEnd( const vector<double> & patch_endings, double end_val ) const
+int VspSurf::ClosestPatchEnd( const vector<double> & patch_endings, double end_val ) const
 {
     // patch_endings should be a sorted vector
     int ind = ClosestElement( patch_endings, end_val );

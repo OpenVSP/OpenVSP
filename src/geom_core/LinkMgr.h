@@ -61,6 +61,7 @@ public:
 
     virtual void RegisterContainer( const string & id );        // Register Base Containers
     virtual void UnRegisterContainer( const string & id );
+    virtual bool CheckContainerRegistered( const string & id );
     virtual void BuildLinkableParmData();                       // Build A List of Linkable Containers And Parms
 
     ParmContainer* FindParmContainer( int index );              // Given Index Return Linkable Parm Container

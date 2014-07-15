@@ -11,10 +11,10 @@ class MainWinUI {open
       xywh {419 48 597 592} type Double resizable visible
     } {
       Fl_Group MenuGroup {open
-        xywh {-5 0 610 595}
+        xywh {0 0 595 30}
       } {
         Fl_Menu_Bar MenuBar {open
-          xywh {0 0 605 30} box EMBOSSED_BOX
+          xywh {0 0 595 30} box EMBOSSED_BOX
         } {
           Submenu FileSubMenu {
             label File open
@@ -29,7 +29,7 @@ class MainWinUI {open
               xywh {0 0 100 20}
             }
             MenuItem SaveMenu {
-              label Save
+              label {Save...}
               xywh {10 10 100 20} shortcut 0x40073
             }
             MenuItem SaveAsMenu {
@@ -55,10 +55,6 @@ class MainWinUI {open
             MenuItem TempDirMenu {
               label {Set Temp Dir...}
               xywh {60 60 100 20}
-            }
-            MenuItem VersionMenu {
-              label {Check Latest Version...}
-              xywh {50 50 100 20}
             }
             MenuItem ExitMenu {
               label Exit
@@ -88,14 +84,6 @@ class MainWinUI {open
             MenuItem BackgroundMenu {
               label {Background...}
               xywh {10 10 100 20}
-            }
-            MenuItem LightingMenu {
-              label {Lighting...}
-              xywh {20 20 100 20}
-            }
-            MenuItem LabelsMenu {
-              label {Labels...}
-              xywh {0 0 100 20}
             }
             MenuItem ScreenShotMenu {
               label {Screenshot...}
@@ -150,17 +138,13 @@ class MainWinUI {open
               label {Antialias Lines}
               xywh {0 0 100 20}
             }
-            MenuItem TextureMenu {
-              label {Texture...}
-              xywh {10 10 100 20}
-            }
           }
-          Submenu GeomSubMenu {
-            label Geom open
+          Submenu ModelSubMenu {
+            label Model open
             xywh {15 15 100 20} labelfont 1
           } {
             MenuItem GeomModifyMenu {
-              label {Modify...}
+              label {Geometry...}
               xywh {15 15 100 20}
             }
             MenuItem TypeEditorMenu {
@@ -171,35 +155,6 @@ class MainWinUI {open
               label {Set Editor...}
               xywh {25 25 100 20}
             }
-            MenuItem CompGeomMenu {
-              label {CompGeom (Union)...}
-              xywh {25 25 100 20}
-            }
-            MenuItem CFDMeshGeomMenu {
-              label {CFD Mesh...}
-              xywh {35 35 100 20}
-            }
-            MenuItem AwaveMenu {
-              label {Awave Slice...}
-              xywh {0 0 100 20}
-            }
-            MenuItem PSliceMenu {
-              label {Planar Slice}
-              user_data {"PSliceMenu"}
-              xywh {2 2 30 20}
-            }
-            MenuItem MassPropMenu {
-              label {Mass Prop...}
-              xywh {12 12 100 20}
-            }
-            MenuItem AeroRefMenu {
-              label {Aero Ref...}
-              xywh {22 22 100 20}
-            }
-            MenuItem StructureMenu {
-              label {Wing Structure...}
-              xywh {2 2 100 20}
-            }
             MenuItem ParmLinkMenu {
               label {Link...}
               xywh {12 12 100 20}
@@ -207,6 +162,22 @@ class MainWinUI {open
             MenuItem DesignVarMenu {
               label {Design Variables...}
               xywh {32 32 100 20}
+            }
+            MenuItem LabelsMenu {
+              label {Labels...}
+              xywh {5 5 100 20}
+            }
+            MenuItem LightingMenu {
+              label {Lighting...}
+              xywh {25 25 100 20}
+            }
+            MenuItem ClippingMenu {
+              label {Clipping...}
+              xywh {35 35 100 20}
+            }
+            MenuItem TextureMenu {
+              label {Texture...}
+              xywh {15 15 100 20}
             }
             MenuItem ParmDebugMenu {
               label {Debug Parameters...}
@@ -221,16 +192,36 @@ class MainWinUI {open
               xywh {32 32 100 20}
             }
           }
-          Submenu ScriptSubMenu {
-            label Script open
+          Submenu AnalysisSubMenu {
+            label Analysis open
             xywh {0 0 100 20} labelfont 1
           } {
-            MenuItem ScriptMenu {
-              label {Script Window...}
+            MenuItem CompGeomMenu {
+              label {CompGeom...}
+              xywh {30 30 100 20}
+            }
+            MenuItem AwaveMenu {
+              label {Awave Slice...}
               xywh {5 5 100 20}
             }
-            MenuItem ScriptOutMenu {
-              label {Script Output...}
+            MenuItem PSliceMenu {
+              label {Planar Slice...}
+              xywh {7 7 30 20}
+            }
+            MenuItem MassPropMenu {
+              label {Mass Prop...}
+              xywh {17 17 100 20}
+            }
+            MenuItem CFDMeshGeomMenu {
+              label {CFD Mesh...}
+              xywh {40 40 100 20}
+            }
+            MenuItem StructureMenu {
+              label {Wing Structure...}
+              xywh {7 7 100 20}
+            }
+            MenuItem DegenGeomMenu {
+              label {DegenGeom...} selected
               xywh {5 5 100 20}
             }
           }
@@ -249,6 +240,10 @@ class MainWinUI {open
             MenuItem ShowHelpWebsite {
               label {Online Help...}
               xywh {10 10 100 20}
+            }
+            MenuItem VersionMenu {
+              label {Check Latest Version...}
+              xywh {55 55 100 20}
             }
           }
           MenuItem ReturnToAPI {
