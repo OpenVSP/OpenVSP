@@ -28,6 +28,7 @@ GuiDevice::GuiDevice()
     m_ParmID = string( "NOT_DEFINED" );
     m_NewParmFlag = true;
     m_LastVal = 0.0;
+    m_ResizableWidgetIndex = 0;
 }
 
 //==== Init ====//
@@ -42,6 +43,10 @@ void GuiDevice::AddWidget( Fl_Widget* w, bool resizable_flag )
     if ( w )
     {
         m_WidgetVec.push_back( w );
+    }
+    if ( resizable_flag )
+    {
+        m_ResizableWidgetIndex = (int)m_WidgetVec.size() - 1;
     }
 }
 
@@ -115,6 +120,78 @@ void GuiDevice::Update( const string& parm_id )
     }
 }
 
+//==== Set Total Width By Resizing First Widget Of List ====//
+void GuiDevice::SetWidth( int w )
+{
+    if ( m_WidgetVec.size() == 0 )
+        return;
+
+    Fl_Widget* resize_widget = m_WidgetVec[0];
+
+    if ( m_ResizableWidgetIndex < (int)m_WidgetVec.size() )
+        resize_widget = m_WidgetVec[m_ResizableWidgetIndex];
+
+    int total_w = GetWidth();
+    int new_w = resize_widget->w() + w - total_w;
+
+    //==== Limit Size ====//
+    if ( new_w < 10 )
+        new_w = 10;
+
+    resize_widget->size( new_w, m_WidgetVec[0]->h() );
+}
+
+int GuiDevice::GetWidth( )
+{
+    int total_w = 0;
+    for ( int i = 0 ; i < (int)m_WidgetVec.size() ; i++ )
+    {
+        total_w += m_WidgetVec[i]->w();
+    }
+    return total_w;
+}
+
+int GuiDevice::GetX()
+{
+    if ( m_WidgetVec.size() == 0 )
+        return 0;
+
+    int smallest_x = 10000;
+    for ( int i = 0 ; i < (int)m_WidgetVec.size() ; i++ )
+    {
+        if ( m_WidgetVec[i]->x() < smallest_x )
+            smallest_x = m_WidgetVec[i]->x();
+    }
+    return smallest_x;
+}
+
+void GuiDevice::SetX( int x )
+{
+    if ( m_WidgetVec.size() == 0 )
+        return;
+
+    int curr_x = x;
+    for ( int i = 0 ; i < (int)m_WidgetVec.size() ; i++ )
+    {
+        Fl_Widget* widget = m_WidgetVec[i];
+        widget->resize( curr_x, widget->y(), widget->w(), widget->h() );
+        curr_x += widget->w();
+    }
+}
+
+void GuiDevice::OffsetX( int x )
+{
+    if ( m_WidgetVec.size() == 0 )
+        return;
+
+    for ( int i = 0 ; i < (int)m_WidgetVec.size() ; i++ )
+    {
+        Fl_Widget* widget = m_WidgetVec[i];
+        m_WidgetVec[i]->resize( widget->x() + x, widget->y(), widget->w(), widget->h() );
+    }
+}
+
+
 //=====================================================================//
 //======================           Input         ======================//
 //=====================================================================//
@@ -138,6 +215,7 @@ void Input::Init( VspScreen* screen, Fl_Input* input, const char* format, Fl_But
 
     SetFormat( format );
     m_Input = input;
+    m_Input->when( FL_WHEN_RELEASE );
     m_Input->callback( StaticDeviceCB, this );
 
     m_ParmButtonFlag = false;
@@ -171,7 +249,7 @@ void Input::SetValAndLimits( Parm* parm_ptr )
 void Input::DeviceCB( Fl_Widget* w )
 {
     //==== Set ParmID And Check For Valid ParmPtr ====//
-    Parm* parm_ptr = SetParmID( m_ParmID );
+     Parm* parm_ptr = SetParmID( m_ParmID );
     if ( !parm_ptr )
     {
         return;
@@ -1091,11 +1169,17 @@ void TriggerButton::Init( VspScreen* screen, Fl_Button* button )
 //==== Callback ====//
 void TriggerButton::DeviceCB( Fl_Widget* w )
 {
-    assert( m_Screen );
+    //==== Set ParmID And Check For Valid ParmPtr ====//
+    Parm* parm_ptr = SetParmID( m_ParmID );
+
+    if ( w == m_Button )
+    {
+        if ( parm_ptr )
+            parm_ptr->SetFromDevice( 1.0 );
+    }
+
     m_Screen->GuiDeviceCallBack( this );
 }
-
-
 
 //=====================================================================//
 //======================           Counter            =================//
@@ -1108,12 +1192,21 @@ Counter::Counter() : GuiDevice()
 }
 
 //==== Init ====//
-void Counter::Init( VspScreen* screen, Fl_Counter* counter )
+void Counter::Init( VspScreen* screen, Fl_Counter* counter, Fl_Button* parm_button )
 {
+    assert( counter );
+
     GuiDevice::Init( screen );
     m_Counter = counter;
-    assert( m_Counter );
     m_Counter->callback( StaticDeviceCB, this );
+
+    m_ParmButtonFlag = false;
+    if ( parm_button )
+    {
+        m_ParmButtonFlag = true;
+        m_ParmButton.Init( screen, parm_button );
+    }
+
     ClearAllWidgets();
     AddWidget(parm_button);
     AddWidget(counter, true);
@@ -1174,6 +1267,10 @@ void Choice::Init( VspScreen* screen, Fl_Choice* fl_choice, Fl_Button* parm_butt
         m_ParmButton.Init( screen, parm_button );
     }
 
+    ClearAllWidgets();
+    AddWidget( parm_button );
+    AddWidget( fl_choice, true );
+
 }
 
 //==== Set Slider Value and Limits =====//
@@ -1196,10 +1293,6 @@ void Choice::SetValAndLimits( Parm* p )
         m_ParmButton.Update( p->GetID() );
     }
 
-    ClearAllWidgets();
-    AddWidget( parm_button );
-    AddWidget( fl_choice, true );
-
 }
 
 //==== Get Current Choice Val ====//
@@ -1216,6 +1309,18 @@ int Choice::GetVal()
     return m_Choice->value();
 }
 
+ void Choice::UpdateItems()
+ {
+    //==== Add Choice Text ===//
+    m_Choice->clear();
+    for ( int i = 0 ; i < ( int )m_Items.size() ; i++ )
+    {
+        m_Choice->add( m_Items[i].c_str() );
+    }
+    m_Choice->value( 0 );
+ }
+
+
 //==== CallBack ====//
 void Choice::DeviceCB( Fl_Widget* w )
 {
@@ -1230,6 +1335,22 @@ void Choice::DeviceCB( Fl_Widget* w )
 
     m_Screen->GuiDeviceCallBack( this );
 }
+
+//==== Set Total Width By Resizing First Widget Of List ====//
+void Choice::SetWidth( int w )
+{
+    if ( m_WidgetVec.size() == 0 )
+        return;
+
+    int dev_w = w/(int)m_WidgetVec.size();
+
+    for ( int i = 0 ; i < (int)m_WidgetVec.size() ; i++ )
+    {
+        m_WidgetVec[i]->size( dev_w, m_WidgetVec[i]->h() );
+
+    }
+}
+
 
 
 //=====================================================================//
@@ -1397,6 +1518,7 @@ void StringInput::Init( VspScreen* screen, Fl_Input* input )
 
     assert( input );
     m_Input = input;
+    m_Input->when( FL_WHEN_RELEASE );
     m_Input->callback( StaticDeviceCB, this );
 }
 
@@ -1443,7 +1565,7 @@ void StringOutput::Update( const string & val )
 //=====================================================================//
 IndexSelector::IndexSelector()
 {
-    m_Type = GDEV_INDEX_SLIDER;
+    m_Type = GDEV_INDEX_SELECTOR;
     m_Screen = NULL;
     m_Input = NULL;
     m_Index = 0;
@@ -1479,6 +1601,23 @@ void IndexSelector::Init( VspScreen* screen, Fl_Button* ll_but,  Fl_Button* l_bu
     AddWidget( r_but );
     AddWidget( rr_but );
 }
+
+//==== Set Total Width By Resizing First Widget Of List ====//
+void IndexSelector::SetWidth( int w )
+{
+    if ( m_WidgetVec.size() == 0 )
+        return;
+
+    int dev_w = w/5;
+
+    for ( int i = 0 ; i < (int)m_WidgetVec.size() ; i++ )
+    {
+        m_WidgetVec[i]->size( dev_w, m_WidgetVec[i]->h() );
+
+    }
+}
+
+
 
 void IndexSelector::SetIndex( int index )
 {
@@ -1552,6 +1691,12 @@ void IndexSelector::DeviceCB( Fl_Widget* w )
 void IndexSelector::SetValAndLimits( Parm* parm_ptr )
 {
     assert( m_Input );
+
+    int min_limit = (int)(parm_ptr->GetLowerLimit() + 0.5 );
+    int max_limit = (int)(parm_ptr->GetUpperLimit() + 0.5 );
+
+    SetMinMaxLimits( min_limit, max_limit );
+
     int new_val = ( int )( parm_ptr->Get() + 0.5 );
 
     if ( CheckValUpdate( new_val ) )
@@ -1706,6 +1851,7 @@ void ParmPicker::Init( VspScreen* screen, Fl_Choice* container_choice,
     m_ContainerChoice->callback( StaticDeviceCB, this );
     m_GroupChoice->callback( StaticDeviceCB, this );
     m_ParmChoice->callback( StaticDeviceCB, this );
+
 }
 
 void ParmPicker::Activate()
@@ -1731,7 +1877,7 @@ void ParmPicker::Update( )
 
     if( m_ParmIDChoice.size() == 0 )
     {
-        m_ParmIDChoice = LinkMgr.m_UserParms.GetUserParmId( 0 );
+        m_ParmIDChoice = LinkMgr.GetUserParmId( 0 );
     }
 
     //==== Container Names ====//

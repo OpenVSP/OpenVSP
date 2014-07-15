@@ -23,6 +23,7 @@
 #include <FL/Fl_Output.H>
 #include <FL/Fl_Counter.H>
 #include <FL/Fl_Tabs.H>
+#include <FL/Fl_Browser.H>
 
 #include "Vec3d.h"
 #include "Parm.h"
@@ -84,14 +85,15 @@ public:
     virtual void Update( const string& parm_id );
     virtual void Activate();
     virtual void Deactivate();
-    virtual string GetParmID()
-    {
-        return m_ParmID;
-    }
-    virtual int GetType()
-    {
-        return m_Type;
-    }
+    virtual string GetParmID()          { return m_ParmID; }
+    virtual int GetType()               { return m_Type; }
+    virtual void SetWidth( int w ) ;
+    virtual int GetWidth();
+    virtual int GetX();
+    virtual void SetX( int x );
+    virtual void OffsetX( int x );
+    virtual void SetIndex( int i )      { m_Index = i; }
+    virtual int  GetIndex()             { return m_Index; }
 
     virtual void DeviceCB( Fl_Widget* w ) = 0;
     static void StaticDeviceCB( Fl_Widget *w, void* data )
@@ -110,11 +112,13 @@ protected:
     virtual void ClearAllWidgets()                      { m_WidgetVec.clear(); }
 
     int m_Type;
+    int m_Index;
     VspScreen* m_Screen;
     bool m_NewParmFlag;
     string m_ParmID;
     double m_LastVal;
 
+    int m_ResizableWidgetIndex;
     vector< Fl_Widget* > m_WidgetVec;
 
 };
@@ -128,10 +132,7 @@ public:
     virtual void Init( VspScreen* screen, Fl_Button* button );
     virtual void Update( const string& parm_id );
     virtual void DeviceCB( Fl_Widget* w );
-    virtual void SetButtonNameUpdate( bool flag )
-    {
-        m_ButtonNameUpdate = flag;
-    }
+    virtual void SetButtonNameUpdate( bool flag )   { m_ButtonNameUpdate = flag; }
 
 protected:
 
@@ -362,13 +363,17 @@ class Counter : public GuiDevice
 public:
     Counter();
     virtual ~Counter() {}
-    virtual void Init( VspScreen* screen, Fl_Counter* counter );
+    virtual void Init( VspScreen* screen, Fl_Counter* counter, Fl_Button* parm_button = NULL );
     virtual void DeviceCB( Fl_Widget* w );
 
 protected:
 
     virtual void SetValAndLimits( Parm* p );
     Fl_Counter* m_Counter;
+
+    bool m_ParmButtonFlag;
+    ParmButton m_ParmButton;
+
 };
 
 //==== Choice ====//
@@ -395,10 +400,13 @@ public:
     {
         return m_Items;
     }
+    virtual void UpdateItems();
     virtual void SetButtonNameUpdate( bool flag )
     {
         m_ParmButton.SetButtonNameUpdate( flag );
     }
+    virtual void SetWidth( int w );
+
 
 protected:
 
@@ -416,7 +424,7 @@ protected:
 
 
 //==== Slider Input Combo ====//
-class SliderInput
+class SliderInput : public GuiDevice
 {
 public:
     virtual void Init( VspScreen* screen, Fl_Slider* slider_widget, Fl_Input* input,
@@ -435,8 +443,11 @@ public:
     {
         m_ParmButton.SetButtonNameUpdate( flag );
     }
+    virtual void DeviceCB( Fl_Widget* w )           {}
 
 protected:
+
+    virtual void SetValAndLimits( Parm* )           {}
 
     Slider m_Slider;
     Input  m_Input;
@@ -603,6 +614,8 @@ protected:
     string m_String;
     Fl_Input* m_Input;
 };
+
+
 
 //==== String Output =====//
 class StringOutput : public GuiDevice
