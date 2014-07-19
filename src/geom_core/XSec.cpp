@@ -435,11 +435,11 @@ FuseXSec::FuseXSec( XSecCurve *xsc, bool use_left ) : XSec( xsc, use_left)
     m_RefLength.Init( "RefLength", m_GroupName, this, 1.0, 1e-8, 1e12, false );
 
 
-    m_AllSymFlag.Init( "AllSym", m_GroupName, this, 0, 0, 1 );
+    m_AllSymFlag.Init( "AllSym", m_GroupName, this, 1, 0, 1 );
     m_AllSymFlag.SetDescript( "Set all skinning parameters equal." );
-    m_TBSymFlag.Init( "TBSym", m_GroupName, this, 0, 0, 1 );
+    m_TBSymFlag.Init( "TBSym", m_GroupName, this, 1, 0, 1 );
     m_TBSymFlag.SetDescript( "Set top/bottom skinning parameters equal." );
-    m_RLSymFlag.Init( "RLSym", m_GroupName, this, 0, 0, 1 );
+    m_RLSymFlag.Init( "RLSym", m_GroupName, this, 1, 0, 1 );
     m_RLSymFlag.SetDescript( "Set left/right skinning parameters equal." );
 
     // Top spline parameters
