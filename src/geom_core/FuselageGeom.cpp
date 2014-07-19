@@ -97,12 +97,14 @@ void FuselageGeom::UpdateSurf()
 
     m_TessUVec.clear();
 
+    int nxsec = m_XSecSurf.NumXSec();
+
     //==== Cross Section Curves & joint info ====//
-    vector< VspCurve > crv_vec;
-    crv_vec.resize( m_XSecSurf.NumXSec() );
+    vector< rib_data_type > rib_vec;
+    rib_vec.resize( nxsec );
 
     //==== Update XSec Location/Rotation ====//
-    for ( int i = 0 ; i < m_XSecSurf.NumXSec() ; i++ )
+    for ( int i = 0 ; i < nxsec ; i++ )
     {
         FuseXSec* xs = ( FuseXSec* ) m_XSecSurf.FindXSec( i );
 
@@ -128,18 +130,22 @@ void FuselageGeom::UpdateSurf()
 
             xs->SetRefLength( m_Length() );
 
-            crv_vec[i] =  xs->GetCurve();
+            bool first = false;
+            bool last = false;
+
+            if( i == 0 ) first = true;
+            else if( i == (nxsec-1) ) last = true;
+
+            rib_vec[i] = xs->GetRib( first, last );
 
             if ( i > 0 )
             {
                 m_TessUVec.push_back( xs->m_SectTessU() );
             }
-
         }
     }
 
-
-    m_MainSurfVec[0].SkinC1( crv_vec, false );
+    m_MainSurfVec[0].SkinRibs( rib_vec, false );
     if ( m_XSecSurf.GetFlipUD() )
     {
         m_MainSurfVec[0].FlipNormal();
