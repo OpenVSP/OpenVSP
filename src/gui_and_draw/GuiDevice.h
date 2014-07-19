@@ -829,9 +829,8 @@ public:
     virtual void DeviceCB( Fl_Widget *w );
 
     virtual void Init( VspScreen* screen,
-    Fl_Check_Button* contButtonL,
-    Fl_Check_Button* contButtonR,
     Fl_Check_Button* setButtonL,
+    Fl_Check_Button* setButtonEqual,
     Fl_Check_Button* setButtonR,
     Fl_Slider* sliderL,
     Fl_Slider* sliderR,
@@ -840,18 +839,23 @@ public:
     Fl_Button* parm_button,
     double range, const char* format);
 
-    virtual void Update( const string& parmL_id, const string& parmR_id );
+    virtual void Update( const string& parmL_id, const string& setL_id, const string& eq_id, const string& setR_id, const string& parmR_id );
     virtual void Activate();
     virtual void Deactivate();
+    virtual void DeactivateLeft();
+    virtual void DeactivateRight();
+    virtual void DeactivateEqual();
+    virtual void DeactivateSet();
+    virtual void DeactivateLSet();
+    virtual void DeactivateRSet();
 
 protected:
 
     virtual void SetValAndLimits( Parm* parm_ptr )      {}
 
-    Fl_Check_Button* m_ContButtonL;
-    Fl_Check_Button* m_ContButtonR;
-    Fl_Check_Button* m_SetButtonL;
-    Fl_Check_Button* m_SetButtonR;
+    CheckButton m_SetButtonL;
+    CheckButton m_SetButtonEqual;
+    CheckButton m_SetButtonR;
 
     Slider m_SliderL;
     Slider m_SliderR;
@@ -861,36 +865,25 @@ protected:
     ParmButton m_ParmButton;
 };
 
-
-//==== Fuselage Skinning Output =====//
-class SkinOutput : public GuiDevice
+class SkinHeader : public GuiDevice
 {
 public:
+    SkinHeader();
 
-    enum { C0, C1, C2, NONE };
 
-    SkinOutput();
-    virtual void DeviceCB( Fl_Widget* w );
+    virtual void DeviceCB( Fl_Widget *w );
 
-    virtual void Init( VspScreen* screen, Fl_Output* contL, Fl_Output* order, Fl_Output* contR, const vector< Fl_Button* > &buttons );
-    virtual void Update( int contL, int order, int contR );
+    virtual void Init( VspScreen* screen, Choice* cont_choice , const vector< Fl_Button* > &buttons );
 
     virtual void Activate();
     virtual void Deactivate();
+    virtual void DeactiveContChoice();
 
-    virtual string ContStr( int cont );
+    Choice* m_ContChoice;
 
 protected:
 
     virtual void SetValAndLimits( Parm* parm_ptr )      {}
-
-    string m_contL;
-    string m_order;
-    string m_contR;
-
-    Fl_Output* m_ContLOutput;
-    Fl_Output* m_OrderOutput;
-    Fl_Output* m_ContROutput;
 
     vector< Fl_Button* > m_Buttons;
 };

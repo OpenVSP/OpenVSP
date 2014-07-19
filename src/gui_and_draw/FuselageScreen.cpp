@@ -58,7 +58,6 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 550, "F
     m_SkinLayout.SetFitWidthFlag( true );
     m_SkinLayout.SetSameLineFlag( false );
 
-    m_SkinLayout.AddSkinOutput( m_TopSkinOutput );
     m_SkinLayout.AddSkinControl( m_TopAngleSkinControl, "Angle", 30, "%f6.5");
     m_SkinLayout.AddSkinControl( m_TopStrengthSkinControl, "Strength", 30, "%f6.5");
     m_SkinLayout.AddSkinControl( m_TopCurvatureSkinControl, "Curvature", 30, "%f6.5");
@@ -66,7 +65,6 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 550, "F
     m_SkinLayout.AddYGap();
     m_SkinLayout.AddDividerBox( "Right Side" );
 
-    m_SkinLayout.AddSkinOutput( m_RightSkinOutput );
     m_SkinLayout.AddSkinControl( m_RightAngleSkinControl, "Angle", 30, "%f6.5");
     m_SkinLayout.AddSkinControl( m_RightStrengthSkinControl, "Strength", 30, "%f6.5");
     m_SkinLayout.AddSkinControl( m_RightCurvatureSkinControl, "Curvature", 30, "%f6.5");
@@ -80,7 +78,6 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 550, "F
     m_SkinLayout.SetFitWidthFlag( true );
     m_SkinLayout.SetSameLineFlag( false );
 
-    m_SkinLayout.AddSkinOutput( m_BottomSkinOutput );
     m_SkinLayout.AddSkinControl( m_BottomAngleSkinControl, "Angle", 30, "%f6.5");
     m_SkinLayout.AddSkinControl( m_BottomStrengthSkinControl, "Strength", 30, "%f6.5");
     m_SkinLayout.AddSkinControl( m_BottomCurvatureSkinControl, "Curvature", 30, "%f6.5");
@@ -94,7 +91,6 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 550, "F
     m_SkinLayout.SetFitWidthFlag( true );
     m_SkinLayout.SetSameLineFlag( false );
 
-    m_SkinLayout.AddSkinOutput( m_LeftSkinOutput );
     m_SkinLayout.AddSkinControl( m_LeftAngleSkinControl, "Angle", 30, "%f6.5");
     m_SkinLayout.AddSkinControl( m_LeftStrengthSkinControl, "Strength", 30, "%f6.5");
     m_SkinLayout.AddSkinControl( m_LeftCurvatureSkinControl, "Curvature", 30, "%f6.5");

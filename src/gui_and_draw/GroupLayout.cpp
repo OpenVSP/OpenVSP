@@ -995,12 +995,7 @@ void GroupLayout::AddSkinControl( SkinControl & skin_control, const char* label,
 {
     assert( m_Group && m_Screen );
 
-    int sw = FitWidth( 4 * m_StdHeight + m_ButtonWidth + 2 * m_InputWidth, 2 * m_SliderWidth )/2;
-
-    //==== Left Continuity Check Button ====//
-    Fl_Check_Button* contButtonL = new Fl_Check_Button( m_X, m_Y, m_StdHeight, m_StdHeight );
-    m_Group->add( contButtonL );
-    AddX( m_StdHeight );
+    int sw = FitWidth( 3 * m_StdHeight + m_ButtonWidth + 2 * m_InputWidth, 2 * m_SliderWidth )/2;
 
     //==== Left Slider ====//
     Fl_Slider* sliderL = new Fl_Slider( m_X, m_Y, sw, m_StdHeight );
@@ -1028,6 +1023,11 @@ void GroupLayout::AddSkinControl( SkinControl & skin_control, const char* label,
     //==== Parm Button ====//
     Fl_Button* parm_button = AddParmButton( label );
 
+    //==== Set Equality Check Button ====//
+    Fl_Check_Button* setButtonEqual = new Fl_Check_Button( m_X, m_Y, m_StdHeight, m_StdHeight );
+    m_Group->add( setButtonEqual );
+    AddX( m_StdHeight );
+
     //==== Right Set Check Button ====//
     Fl_Check_Button* setButtonR = new Fl_Check_Button( m_X, m_Y, m_StdHeight, m_StdHeight );
     m_Group->add( setButtonR );
@@ -1051,18 +1051,12 @@ void GroupLayout::AddSkinControl( SkinControl & skin_control, const char* label,
     m_Group->add( inputR );
     AddX( m_InputWidth );
 
-    //==== Left Continuity Check Button ====//
-    Fl_Check_Button* contButtonR = new Fl_Check_Button( m_X, m_Y, m_StdHeight, m_StdHeight );
-    m_Group->add( contButtonR );
-    AddX( m_StdHeight );
-
     AddY( m_StdHeight );
     NewLineX();
 
     skin_control.Init( m_Screen,
-        contButtonL,
-        contButtonR,
         setButtonL,
+        setButtonEqual,
         setButtonR,
         sliderL,
         sliderR,
@@ -1072,84 +1066,65 @@ void GroupLayout::AddSkinControl( SkinControl & skin_control, const char* label,
         range, format);
 }
 
-//==== Add Fuselage Skin Output Group ====//
-void GroupLayout::AddSkinOutput( SkinOutput & skin_output )
+void GroupLayout::AddSkinHeader( SkinHeader & skin_header )
 {
     assert( m_Group && m_Screen );
     int oldBW = GetButtonWidth();
 
+
+    bool saveFitWidth = m_FitWidthFlag;
+    bool saveSameLine = m_SameLineFlag;
+
+
     vector< Fl_Button* > buttons;
 
-    // Size of continuity and order output text boxes
-    int iw = 30;
-    // Size of CX label buttons
-    int cxW = 20;
     // Size of Set label buttons
     int setW = 25;
-    // Size of Order label button
-    int ordW = oldBW - iw;
+    // Size of Equal label button
+    int eqW = 20;
 
-    // Space to skip to properly center elements
-    int skipw = ( m_Group->w() - ( 3 * iw + ordW + 2 * cxW + 2 * setW ) ) / 2;
+    // Width of choice
+    int cw = m_ChoiceButtonWidth + m_SliderWidth;
 
-    //==== Left CX Button ====//
-    SetButtonWidth( cxW );
-    buttons.push_back( AddParmButton( "CX" ) );
+    m_FitWidthFlag = true;
 
-    //==== Add Left Continuity Output ====//
-    Fl_Output* contL = new Fl_Output( m_X, m_Y, iw, m_StdHeight );
-    contL->color( ( Fl_Color )23 );
-    contL->labelfont( 1 );
-    contL->labelsize( 12 );
-    contL->textfont( 1 );
-    contL->textsize( 12 );
-    m_Group->add( contL );
-    AddX( iw );
+    // Gap width
+    int gw = FitWidth( 2 * setW + eqW + oldBW + 2 * cw, 2 * m_ButtonWidth )/2;
 
-    AddX( skipw );
+    m_FitWidthFlag = false;
+    m_SameLineFlag = true;
+
+    Choice* cont_choice = new Choice();
+    cont_choice->AddItem( "C0" );
+    cont_choice->AddItem( "C1" );
+    cont_choice->AddItem( "C2" );
+    AddChoice( *cont_choice, "Enforce" );
+
+    AddX( gw );
 
     //==== Left Set Button ====//
     SetButtonWidth( setW );
     buttons.push_back( AddParmButton( "Set" ) );
 
-    //==== Order Button ====//
-    SetButtonWidth( ordW );
-    buttons.push_back( AddParmButton( "Order" ) );
+    AddX( oldBW );
 
-    //==== Add Order Output ====//
-    Fl_Output* order = new Fl_Output( m_X, m_Y, iw, m_StdHeight );
-    order->color( ( Fl_Color )23 );
-    order->labelfont( 1 );
-    order->labelsize( 12 );
-    order->textfont( 1 );
-    order->textsize( 12 );
-    m_Group->add( order );
-    AddX( iw );
+    //==== Equal Button ====//
+    SetButtonWidth( eqW );
+    buttons.push_back( AddParmButton( "=" ) );
 
     //==== Right Set Button ====//
     SetButtonWidth( setW );
     buttons.push_back( AddParmButton( "Set" ) );
 
-    AddX( skipw );
-
-    //==== Add Left Continuity Output ====//
-    Fl_Output* contR = new Fl_Output( m_X, m_Y, iw, m_StdHeight );
-    contR->color( ( Fl_Color )23 );
-    contR->labelfont( 1 );
-    contR->labelsize( 12 );
-    contR->textfont( 1 );
-    contR->textsize( 12 );
-    m_Group->add( contR );
-    AddX( iw );
-
-    //==== Right CX Button ====//
-    SetButtonWidth( cxW );
-    buttons.push_back( AddParmButton( "CX" ) );
-
-    AddY( m_StdHeight );
     NewLineX();
 
-    skin_output.Init( m_Screen, contL, order, contR, buttons );
+    m_FitWidthFlag = saveFitWidth;
+    m_SameLineFlag = saveSameLine;
+
+    skin_header.Init( m_Screen, cont_choice, buttons );
+
+    ForceNewLine();
+
     SetButtonWidth( oldBW );
 }
 

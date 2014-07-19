@@ -2084,16 +2084,11 @@ SkinControl::SkinControl()
 {
     m_Screen = NULL;
 
-    m_ContButtonL = NULL;
-    m_ContButtonR = NULL;
-    m_SetButtonL = NULL;
-    m_SetButtonR = NULL;
 }
 
 void SkinControl::Init( VspScreen* screen,
-        Fl_Check_Button* contButtonL,
-        Fl_Check_Button* contButtonR,
         Fl_Check_Button* setButtonL,
+        Fl_Check_Button* setButtonEqual,
         Fl_Check_Button* setButtonR,
         Fl_Slider* sliderL,
         Fl_Slider* sliderR,
@@ -2104,10 +2099,9 @@ void SkinControl::Init( VspScreen* screen,
 {
     GuiDevice::Init( screen );
 
-    m_ContButtonL = contButtonL;
-    m_ContButtonR = contButtonR;
-    m_SetButtonL = setButtonL;
-    m_SetButtonR = setButtonR;
+    m_SetButtonL.Init( screen, setButtonL );
+    m_SetButtonEqual.Init( screen, setButtonEqual );
+    m_SetButtonR.Init( screen, setButtonR );
 
     m_SliderL.Init( screen, sliderL, range );
     m_SliderR.Init( screen, sliderR, range );
@@ -2119,30 +2113,46 @@ void SkinControl::Init( VspScreen* screen,
 }
 
 
-void SkinControl::Update( const string& parmL_id, const string& parmR_id )
+void SkinControl::Update( const string& parmL_id, const string& setL_id, const string& eq_id,
+        const string& setR_id, const string& parmR_id )
 {
     m_SliderL.Update( parmL_id );
     m_InputL.Update( parmL_id );
+
+    m_SetButtonL.Update( setL_id );
+    m_SetButtonEqual.Update( eq_id );
+    m_SetButtonR.Update( setR_id );
+
     m_SliderR.Update( parmR_id );
     m_InputR.Update( parmR_id );
 
     m_ParmButton.Update( parmL_id );
+
+    Parm* setL = ParmMgr.FindParm( setL_id );
+    Parm* eq = ParmMgr.FindParm( eq_id );
+    Parm* setR = ParmMgr.FindParm( setR_id );
+
+    if( !setL->Get() )
+    {
+        this->DeactivateLeft();
+        this->DeactivateEqual();
+    }
+    else if( eq->Get() )
+    {
+        this->DeactivateRSet();
+    }
+
+    if( !setR->Get() ) this->DeactivateRight();
+
+    if( eq->Get() ) this->DeactivateRight();
+
 }
 
 void SkinControl::Activate()
 {
-
-    assert( m_ContButtonL );
-    m_ContButtonL->activate();
-
-    assert( m_ContButtonR );
-    m_ContButtonR->activate();
-
-    assert( m_SetButtonL );
-    m_SetButtonL->activate();
-
-    assert( m_SetButtonR );
-    m_SetButtonR->activate();
+    m_SetButtonL.Activate();
+    m_SetButtonEqual.Activate();
+    m_SetButtonR.Activate();
 
     m_SliderL.Activate();
     m_InputL.Activate();
@@ -2154,17 +2164,9 @@ void SkinControl::Activate()
 
 void SkinControl::Deactivate()
 {
-    assert( m_ContButtonL );
-    m_ContButtonL->deactivate();
-
-    assert( m_ContButtonR );
-    m_ContButtonR->deactivate();
-
-    assert( m_SetButtonL );
-    m_SetButtonL->deactivate();
-
-    assert( m_SetButtonR );
-    m_SetButtonR->deactivate();
+    m_SetButtonL.Deactivate();
+    m_SetButtonEqual.Deactivate();
+    m_SetButtonR.Deactivate();
 
     m_SliderL.Deactivate();
     m_InputL.Deactivate();
@@ -2174,6 +2176,41 @@ void SkinControl::Deactivate()
     m_ParmButton.Deactivate();
 }
 
+void SkinControl::DeactivateLeft()
+{
+    m_SliderL.Deactivate();
+    m_InputL.Deactivate();
+}
+
+void SkinControl::DeactivateRight()
+{
+    m_SliderR.Deactivate();
+    m_InputR.Deactivate();
+}
+
+void SkinControl::DeactivateEqual()
+{
+	m_SetButtonEqual.Deactivate();
+}
+
+void SkinControl::DeactivateSet()
+{
+    m_SetButtonL.Deactivate();
+    m_SetButtonR.Deactivate();
+}
+
+void SkinControl::DeactivateLSet()
+{
+    m_SetButtonL.Deactivate();
+}
+
+void SkinControl::DeactivateRSet()
+{
+    m_SetButtonR.Deactivate();
+}
+
+
+
 //==== CallBack ====//
 void SkinControl::DeviceCB( Fl_Widget* w )
 {
@@ -2181,72 +2218,31 @@ void SkinControl::DeviceCB( Fl_Widget* w )
     m_Screen->GuiDeviceCallBack( this );
 }
 
+
 //=====================================================================//
-//===========       Skin Output Group                       ===========//
+//===========       Skin Header Group                       ===========//
 //=====================================================================//
-SkinOutput::SkinOutput()
+SkinHeader::SkinHeader()
 {
     m_Screen = NULL;
 
-    m_ContLOutput = NULL;
-    m_OrderOutput = NULL;
-    m_ContROutput = NULL;
+    m_ContChoice = NULL;
 }
 
-void SkinOutput::Init( VspScreen* screen, Fl_Output* contL, Fl_Output* order, Fl_Output* contR, const vector< Fl_Button* > & buttons )
+void SkinHeader::Init( VspScreen* screen,
+        Choice* cont_choice , const vector< Fl_Button* > &buttons )
 {
-    m_Screen = screen;
+    GuiDevice::Init( screen );
 
-    m_ContLOutput = contL;
-    m_OrderOutput = order;
-    m_ContROutput = contR;
+    m_ContChoice = cont_choice;
 
     m_Buttons = buttons;
 }
 
-string SkinOutput::ContStr( int cont )
+void SkinHeader::Activate()
 {
-    switch(cont)
-    {
-    case C0:
-        return string("C0");
-        break;
-    case C1:
-        return string("C1");
-        break;
-    case C2:
-        return string("C2");
-        break;
-    case NONE:
-    default:
-        return string("");
-        break;
-    }
-}
-
-void SkinOutput::Update( int contL, int order, int contR )
-{
-    m_contL = ContStr(contL);
-    m_ContLOutput->value( m_contL.c_str() );
-
-    m_order = std::to_string( ( long long )order );
-    m_OrderOutput->value( m_order.c_str() );
-
-    m_contR = ContStr(contR);
-    m_ContROutput->value( m_contR.c_str() );
-}
-
-void SkinOutput::Activate()
-{
-
-    assert( m_ContLOutput );
-    m_ContLOutput->activate();
-
-    assert( m_OrderOutput );
-    m_OrderOutput->activate();
-
-    assert( m_ContROutput );
-    m_ContROutput->activate();
+    assert( m_ContChoice );
+    m_ContChoice->Activate();
 
     for( int i = 0; i < (int)m_Buttons.size(); i++ )
     {
@@ -2255,16 +2251,10 @@ void SkinOutput::Activate()
     }
 }
 
-void SkinOutput::Deactivate()
+void SkinHeader::Deactivate()
 {
-    assert( m_ContLOutput );
-    m_ContLOutput->deactivate();
-
-    assert( m_OrderOutput );
-    m_OrderOutput->deactivate();
-
-    assert( m_ContROutput );
-    m_ContROutput->deactivate();
+    assert( m_ContChoice );
+    m_ContChoice->Deactivate();
 
     for( int i = 0; i < (int)m_Buttons.size(); i++ )
     {
@@ -2273,11 +2263,23 @@ void SkinOutput::Deactivate()
     }
 }
 
+void SkinHeader::DeactiveContChoice()
+{
+    assert( m_ContChoice );
+    m_ContChoice->Deactivate();
+}
+
+
 //==== CallBack ====//
-void SkinOutput::DeviceCB( Fl_Widget* w )
+void SkinHeader::DeviceCB( Fl_Widget* w )
 {
     m_Screen->GuiDeviceCallBack( this );
 }
+
+
+
+
+
 
 //=====================================================================//
 //===========       Group Device                            ===========//

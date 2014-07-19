@@ -137,7 +137,7 @@ public:
     void AddDriverGroupBank( DriverGroupBank & driver_group, const vector < string > &labels,
                              double range, const char* format );
     void AddSkinControl( SkinControl & skin_control, const char* label, double range, const char* format );
-    void AddSkinOutput( SkinOutput & skin_output );
+    void AddSkinHeader( SkinHeader & skin_header );
     void AddGeomPicker( GeomPicker & geom_picker );
 
     void AddFlBrowser( Fl_Browser* browser, int height );

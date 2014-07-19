@@ -38,24 +38,20 @@ protected:
     IndexSelector m_SkinIndexSelector;
 
     ToggleButton m_AllSymButton;
-    SkinOutput m_TopSkinOutput;
     SkinControl m_TopAngleSkinControl;
     SkinControl m_TopStrengthSkinControl;
     SkinControl m_TopCurvatureSkinControl;
 
-    SkinOutput m_RightSkinOutput;
     SkinControl m_RightAngleSkinControl;
     SkinControl m_RightStrengthSkinControl;
     SkinControl m_RightCurvatureSkinControl;
 
     ToggleButton m_TBSymButton;
-    SkinOutput m_BottomSkinOutput;
     SkinControl m_BottomAngleSkinControl;
     SkinControl m_BottomStrengthSkinControl;
     SkinControl m_BottomCurvatureSkinControl;
 
     ToggleButton m_RLSymButton;
-    SkinOutput m_LeftSkinOutput;
     SkinControl m_LeftAngleSkinControl;
     SkinControl m_LeftStrengthSkinControl;
     SkinControl m_LeftCurvatureSkinControl;
