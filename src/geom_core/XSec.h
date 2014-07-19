@@ -128,6 +128,78 @@ public:
 
     Parm m_RefLength;
 
+    BoolParm m_AllSymFlag;
+    BoolParm m_TBSymFlag;
+    BoolParm m_RLSymFlag;
+
+    IntParm m_TopCont;
+    BoolParm m_TopLAngleSet;
+    BoolParm m_TopLStrengthSet;
+    BoolParm m_TopLCurveSet;
+    BoolParm m_TopRAngleSet;
+    BoolParm m_TopRStrengthSet;
+    BoolParm m_TopRCurveSet;
+    BoolParm m_TopLRAngleEq;
+    BoolParm m_TopLRStrengthEq;
+    BoolParm m_TopLRCurveEq;
+    Parm m_TopLAngle;
+    Parm m_TopLStrength;
+    Parm m_TopLCurve;
+    Parm m_TopRAngle;
+    Parm m_TopRStrength;
+    Parm m_TopRCurve;
+
+    IntParm m_RightCont;
+    BoolParm m_RightLAngleSet;
+    BoolParm m_RightLStrengthSet;
+    BoolParm m_RightLCurveSet;
+    BoolParm m_RightRAngleSet;
+    BoolParm m_RightRStrengthSet;
+    BoolParm m_RightRCurveSet;
+    BoolParm m_RightLRAngleEq;
+    BoolParm m_RightLRStrengthEq;
+    BoolParm m_RightLRCurveEq;
+    Parm m_RightLAngle;
+    Parm m_RightLStrength;
+    Parm m_RightLCurve;
+    Parm m_RightRAngle;
+    Parm m_RightRStrength;
+    Parm m_RightRCurve;
+
+    IntParm m_BottomCont;
+    BoolParm m_BottomLAngleSet;
+    BoolParm m_BottomLStrengthSet;
+    BoolParm m_BottomLCurveSet;
+    BoolParm m_BottomRAngleSet;
+    BoolParm m_BottomRStrengthSet;
+    BoolParm m_BottomRCurveSet;
+    BoolParm m_BottomLRAngleEq;
+    BoolParm m_BottomLRStrengthEq;
+    BoolParm m_BottomLRCurveEq;
+    Parm m_BottomLAngle;
+    Parm m_BottomLStrength;
+    Parm m_BottomLCurve;
+    Parm m_BottomRAngle;
+    Parm m_BottomRStrength;
+    Parm m_BottomRCurve;
+
+    IntParm m_LeftCont;
+    BoolParm m_LeftLAngleSet;
+    BoolParm m_LeftLStrengthSet;
+    BoolParm m_LeftLCurveSet;
+    BoolParm m_LeftRAngleSet;
+    BoolParm m_LeftRStrengthSet;
+    BoolParm m_LeftRCurveSet;
+    BoolParm m_LeftLRAngleEq;
+    BoolParm m_LeftLRStrengthEq;
+    BoolParm m_LeftLRCurveEq;
+    Parm m_LeftLAngle;
+    Parm m_LeftLStrength;
+    Parm m_LeftLCurve;
+    Parm m_LeftRAngle;
+    Parm m_LeftRStrength;
+    Parm m_LeftRCurve;
+
 protected:
 };
 

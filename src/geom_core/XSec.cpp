@@ -433,6 +433,110 @@ FuseXSec::FuseXSec( XSecCurve *xsc, bool use_left ) : XSec( xsc, use_left)
     m_Spin.Init( "Spin", m_GroupName, this, 0.0, -180.0, 180.0 );
 
     m_RefLength.Init( "RefLength", m_GroupName, this, 1.0, 1e-8, 1e12, false );
+
+
+    m_AllSymFlag.Init( "AllSym", m_GroupName, this, 0, 0, 1 );
+    m_AllSymFlag.SetDescript( "Set all skinning parameters equal." );
+    m_TBSymFlag.Init( "TBSym", m_GroupName, this, 0, 0, 1 );
+    m_TBSymFlag.SetDescript( "Set top/bottom skinning parameters equal." );
+    m_RLSymFlag.Init( "RLSym", m_GroupName, this, 0, 0, 1 );
+    m_RLSymFlag.SetDescript( "Set left/right skinning parameters equal." );
+
+    // Top spline parameters
+    m_TopCont.Init( "ContinuityTop", m_GroupName, this, 0, 0, 2 );
+    m_TopCont.SetDescript( "Skinning continuity enforced on top of curve" );
+
+    m_TopLAngleSet.Init( "TopLAngleSet", m_GroupName, this, 0, 0, 1 );
+    m_TopLStrengthSet.Init( "TopLStrengthSet", m_GroupName, this, 0, 0, 1 );
+    m_TopLCurveSet.Init( "TopLCurveSet", m_GroupName, this, 0, 0, 1 );
+
+    m_TopRAngleSet.Init( "TopRAngleSet", m_GroupName, this, 0, 0, 1 );
+    m_TopRStrengthSet.Init( "TopRStrengthSet", m_GroupName, this, 0, 0, 1 );
+    m_TopRCurveSet.Init( "TopRCurveSet", m_GroupName, this, 0, 0, 1 );
+
+    m_TopLRAngleEq.Init( "TopLRAngleEq", m_GroupName, this, 0, 0, 1 );
+    m_TopLRStrengthEq.Init( "TopLRStrengthEq", m_GroupName, this, 0, 0, 1 );
+    m_TopLRCurveEq.Init( "TopLRCurveEq", m_GroupName, this, 0, 0, 1 );
+
+    m_TopLAngle.Init( "TopLAngle", m_GroupName, this,  0.0, -180.0, 180.0 );
+    m_TopLStrength.Init( "TopLStrength", m_GroupName, this,  1.0, 0.0, 10.0 );
+    m_TopLCurve.Init( "TopLCurve", m_GroupName, this,  0.0, -10.0, 10.0 );
+
+    m_TopRAngle.Init( "TopRAngle", m_GroupName, this,  0.0, -180.0, 180.0 );
+    m_TopRStrength.Init( "TopRStrength", m_GroupName, this,  1.0, 0.0, 10.0 );
+    m_TopRCurve.Init( "TopRCurve", m_GroupName, this,  0.0, -10.0, 10.0 );
+
+    // Right spline parameters
+    m_RightCont.Init( "ContinuityRight", m_GroupName, this, 0, 0, 2 );
+    m_RightCont.SetDescript( "Skinning continuity enforced on right of curve" );
+
+    m_RightLAngleSet.Init( "RightLAngleSet", m_GroupName, this, 0, 0, 1 );
+    m_RightLStrengthSet.Init( "RightLStrengthSet", m_GroupName, this, 0, 0, 1 );
+    m_RightLCurveSet.Init( "RightLCurveSet", m_GroupName, this, 0, 0, 1 );
+
+    m_RightRAngleSet.Init( "RightRAngleSet", m_GroupName, this, 0, 0, 1 );
+    m_RightRStrengthSet.Init( "RightRStrengthSet", m_GroupName, this, 0, 0, 1 );
+    m_RightRCurveSet.Init( "RightRCurveSet", m_GroupName, this, 0, 0, 1 );
+
+    m_RightLRAngleEq.Init( "RightLRAngleEq", m_GroupName, this, 0, 0, 1 );
+    m_RightLRStrengthEq.Init( "RightLRStrengthEq", m_GroupName, this, 0, 0, 1 );
+    m_RightLRCurveEq.Init( "RightLRCurveEq", m_GroupName, this, 0, 0, 1 );
+
+    m_RightLAngle.Init( "RightLAngle", m_GroupName, this,  0.0, -180.0, 180.0 );
+    m_RightLStrength.Init( "RightLStrength", m_GroupName, this,  1.0, 0.0, 10.0 );
+    m_RightLCurve.Init( "RightLCurve", m_GroupName, this,  0.0, -10.0, 10.0 );
+
+    m_RightRAngle.Init( "RightRAngle", m_GroupName, this,  0.0, -180.0, 180.0 );
+    m_RightRStrength.Init( "RightRStrength", m_GroupName, this,  1.0, 0.0, 10.0 );
+    m_RightRCurve.Init( "RightRCurve", m_GroupName, this,  0.0, -10.0, 10.0 );
+
+    // Bottom spline parameters
+    m_BottomCont.Init( "ContinuityBottom", m_GroupName, this, 0, 0, 2 );
+    m_BottomCont.SetDescript( "Skinning continuity enforced on bottom of curve" );
+
+    m_BottomLAngleSet.Init( "BottomLAngleSet", m_GroupName, this, 0, 0, 1 );
+    m_BottomLStrengthSet.Init( "BottomLStrengthSet", m_GroupName, this, 0, 0, 1 );
+    m_BottomLCurveSet.Init( "BottomLCurveSet", m_GroupName, this, 0, 0, 1 );
+
+    m_BottomRAngleSet.Init( "BottomRAngleSet", m_GroupName, this, 0, 0, 1 );
+    m_BottomRStrengthSet.Init( "BottomRStrengthSet", m_GroupName, this, 0, 0, 1 );
+    m_BottomRCurveSet.Init( "BottomRCurveSet", m_GroupName, this, 0, 0, 1 );
+
+    m_BottomLRAngleEq.Init( "BottomLRAngleEq", m_GroupName, this, 0, 0, 1 );
+    m_BottomLRStrengthEq.Init( "BottomLRStrengthEq", m_GroupName, this, 0, 0, 1 );
+    m_BottomLRCurveEq.Init( "BottomLRCurveEq", m_GroupName, this, 0, 0, 1 );
+
+    m_BottomLAngle.Init( "BottomLAngle", m_GroupName, this,  0.0, -180.0, 180.0 );
+    m_BottomLStrength.Init( "BottomLStrength", m_GroupName, this,  1.0, 0.0, 10.0 );
+    m_BottomLCurve.Init( "BottomLCurve", m_GroupName, this,  0.0, -10.0, 10.0 );
+
+    m_BottomRAngle.Init( "BottomRAngle", m_GroupName, this,  0.0, -180.0, 180.0 );
+    m_BottomRStrength.Init( "BottomRStrength", m_GroupName, this,  1.0, 0.0, 10.0 );
+    m_BottomRCurve.Init( "BottomRCurve", m_GroupName, this,  0.0, -10.0, 10.0 );
+
+    // Left spline parameters
+    m_LeftCont.Init( "ContinuityLeft", m_GroupName, this, 0, 0, 2 );
+    m_LeftCont.SetDescript( "Skinning continuity enforced on left of curve" );
+
+    m_LeftLAngleSet.Init( "LeftLAngleSet", m_GroupName, this, 0, 0, 1 );
+    m_LeftLStrengthSet.Init( "LeftLStrengthSet", m_GroupName, this, 0, 0, 1 );
+    m_LeftLCurveSet.Init( "LeftLCurveSet", m_GroupName, this, 0, 0, 1 );
+
+    m_LeftRAngleSet.Init( "LeftRAngleSet", m_GroupName, this, 0, 0, 1 );
+    m_LeftRStrengthSet.Init( "LeftRStrengthSet", m_GroupName, this, 0, 0, 1 );
+    m_LeftRCurveSet.Init( "LeftRCurveSet", m_GroupName, this, 0, 0, 1 );
+
+    m_LeftLRAngleEq.Init( "LeftLRAngleEq", m_GroupName, this, 0, 0, 1 );
+    m_LeftLRStrengthEq.Init( "LeftLRStrengthEq", m_GroupName, this, 0, 0, 1 );
+    m_LeftLRCurveEq.Init( "LeftLRCurveEq", m_GroupName, this, 0, 0, 1 );
+
+    m_LeftLAngle.Init( "LeftLAngle", m_GroupName, this,  0.0, -180.0, 180.0 );
+    m_LeftLStrength.Init( "LeftLStrength", m_GroupName, this,  1.0, 0.0, 10.0 );
+    m_LeftLCurve.Init( "LeftLCurve", m_GroupName, this,  0.0, -10.0, 10.0 );
+
+    m_LeftRAngle.Init( "LeftRAngle", m_GroupName, this,  0.0, -180.0, 180.0 );
+    m_LeftRStrength.Init( "LeftRStrength", m_GroupName, this,  1.0, 0.0, 10.0 );
+    m_LeftRCurve.Init( "LeftRCurve", m_GroupName, this,  0.0, -10.0, 10.0 );
 }
 
 //==== Update ====//
