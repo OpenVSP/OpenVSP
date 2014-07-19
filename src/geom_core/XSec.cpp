@@ -377,6 +377,20 @@ void XSec::GetTanNormCrv( const vector< double > &ts, const vector< double > &th
     pcc.create( normcrv );
 }
 
+void XSec::GetTanNormCrv( double theta, double angstr, double crvstr,
+        piecewise_curve_type &tangentcrv, piecewise_curve_type &normcrv )
+{
+    double tmin, tmax;
+    m_TransformedCurve.GetCurve().get_parameter_min( tmin );
+    m_TransformedCurve.GetCurve().get_parameter_max( tmax );
+
+    vector< double > ts = { tmin, tmax };
+    vector< double > thetas( 2, theta );
+    vector< double > angstrs( 2, angstr );
+    vector< double > crvstrs( 2, crvstr );
+
+    GetTanNormCrv( ts, thetas, angstrs, crvstrs, tangentcrv, normcrv );
+}
 
 //==========================================================================//
 //==========================================================================//

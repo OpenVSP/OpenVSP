@@ -80,6 +80,8 @@ public:
     virtual void GetTanNormCrv( const vector< double > &ts, const vector< double > &thetas,
             const vector< double > &angstr, const vector< double > &crvstr,
             piecewise_curve_type &tangentcrv, piecewise_curve_type &normcrv );
+    virtual void GetTanNormCrv( double theta, double angstr, double crvstr,
+            piecewise_curve_type &tangentcrv, piecewise_curve_type &normcrv );
 
     IntParm m_SectTessU;
 
