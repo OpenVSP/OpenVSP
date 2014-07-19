@@ -1059,6 +1059,98 @@ rib_data_type FuseXSec::GetRib( bool first, bool last )
     return rib;
 }
 
+void FuseXSec::SetUnsetParms( int irib, const VspSurf &surf )
+{
+    SetUnsetParms( 0.0, irib, surf,
+             m_RightLAngleSet,
+             m_RightLStrengthSet,
+             m_RightLCurveSet,
+             m_RightRAngleSet,
+             m_RightRStrengthSet,
+             m_RightRCurveSet,
+             m_RightLAngle,
+             m_RightLStrength,
+             m_RightLCurve,
+             m_RightRAngle,
+             m_RightRStrength,
+             m_RightRCurve );
+
+    SetUnsetParms( 1.0, irib, surf,
+             m_BottomLAngleSet,
+             m_BottomLStrengthSet,
+             m_BottomLCurveSet,
+             m_BottomRAngleSet,
+             m_BottomRStrengthSet,
+             m_BottomRCurveSet,
+             m_BottomLAngle,
+             m_BottomLStrength,
+             m_BottomLCurve,
+             m_BottomRAngle,
+             m_BottomRStrength,
+             m_BottomRCurve );
+
+    SetUnsetParms( 2.0, irib, surf,
+             m_LeftLAngleSet,
+             m_LeftLStrengthSet,
+             m_LeftLCurveSet,
+             m_LeftRAngleSet,
+             m_LeftRStrengthSet,
+             m_LeftRCurveSet,
+             m_LeftLAngle,
+             m_LeftLStrength,
+             m_LeftLCurve,
+             m_LeftRAngle,
+             m_LeftRStrength,
+             m_LeftRCurve );
+
+    SetUnsetParms( 3.0, irib, surf,
+             m_TopLAngleSet,
+             m_TopLStrengthSet,
+             m_TopLCurveSet,
+             m_TopRAngleSet,
+             m_TopRStrengthSet,
+             m_TopRCurveSet,
+             m_TopLAngle,
+             m_TopLStrength,
+             m_TopLCurve,
+             m_TopRAngle,
+             m_TopRStrength,
+             m_TopRCurve );
+
+}
+
+void FuseXSec::SetUnsetParms( double t, int irib, const VspSurf &surf,
+        BoolParm &LAngleSet,
+        BoolParm &LStrengthSet,
+        BoolParm &LCurveSet,
+        BoolParm &RAngleSet,
+        BoolParm &RStrengthSet,
+        BoolParm &RCurveSet,
+        Parm &LAngle,
+        Parm &LStrength,
+        Parm &LCurve,
+        Parm &RAngle,
+        Parm &RStrength,
+        Parm &RCurve )
+{
+    double thetaL, strengthL, curvatureL;
+    double thetaR, strengthR, curvatureR;
+
+    GetAngStrCrv(  t,  irib,
+        thetaL, strengthL, curvatureL,
+        thetaR, strengthR, curvatureR,
+        surf );
+
+    double scale =  m_RefLength();
+
+    if( !LAngleSet() ) LAngle = thetaL*180.0/PI;
+    if( !LStrengthSet() ) LStrength = strengthL/scale;
+    if( !LCurveSet() ) LCurve = curvatureL/scale;
+
+    if( !RAngleSet() ) RAngle = thetaR*180.0/PI;
+    if( !RStrengthSet() ) RStrength = strengthR/scale;
+    if( !RCurveSet() ) RCurve = curvatureR/scale;
+}
 
 //==========================================================================//
 //==========================================================================//

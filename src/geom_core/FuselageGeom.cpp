@@ -146,6 +146,16 @@ void FuselageGeom::UpdateSurf()
     }
 
     m_MainSurfVec[0].SkinRibs( rib_vec, false );
+
+    for ( int i = 0 ; i < nxsec ; i++ )
+    {
+        FuseXSec* xs = ( FuseXSec* ) m_XSecSurf.FindXSec( i );
+        if ( xs )
+        {
+            xs->SetUnsetParms( i, m_MainSurfVec[0] );
+        }
+    }
+
     if ( m_XSecSurf.GetFlipUD() )
     {
         m_MainSurfVec[0].FlipNormal();

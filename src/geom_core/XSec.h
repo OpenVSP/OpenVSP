@@ -155,6 +155,21 @@ public:
 
     virtual rib_data_type GetRib( bool first, bool last );
 
+    virtual void SetUnsetParms( int irib, const VspSurf &surf );
+
+    virtual void SetUnsetParms( double t, int irib, const VspSurf &surf,
+            BoolParm &LAngleSet,
+            BoolParm &LStrengthSet,
+            BoolParm &LCurveSet,
+            BoolParm &RAngleSet,
+            BoolParm &RStrengthSet,
+            BoolParm &RCurveSet,
+            Parm &LAngle,
+            Parm &LStrength,
+            Parm &LCurve,
+            Parm &RAngle,
+            Parm &RStrength,
+            Parm &RCurve );
 
     FractionParm m_XLocPercent;
     FractionParm m_YLocPercent;
