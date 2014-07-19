@@ -87,6 +87,11 @@ public:
     virtual void GetTanNormCrv( double theta, double angstr, double crvstr,
             piecewise_curve_type &tangentcrv, piecewise_curve_type &normcrv );
 
+    virtual void GetAngStrCrv( double t, int irib,
+            double &thetaL, double &strengthL, double &curvatureL,
+            double &thetaR, double &strengthR, double &curvatureR,
+            const VspSurf &surf );
+
     IntParm m_SectTessU;
 
 protected:

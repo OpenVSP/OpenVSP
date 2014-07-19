@@ -412,6 +412,45 @@ void XSec::GetTanNormCrv( double theta, double angstr, double crvstr,
     GetTanNormCrv( ts, thetas, angstrs, crvstrs, tangentcrv, normcrv );
 }
 
+void XSec::GetAngStrCrv( double t, int irib,
+        double &thetaL, double &strengthL, double &curvatureL,
+        double &thetaR, double &strengthR, double &curvatureR,
+        const VspSurf &surf )
+{
+    Matrix4d basis;
+    vec3d wdir, updir, pdir;
+    Matrix4d rmat;
+
+    GetBasis( t, basis );
+
+    // Pull out basis directions.
+    basis.getBasis( wdir, updir, pdir );
+
+    double uribL, uribR;
+    double tol = 1.0e-9;
+
+    if( irib > 0 ) uribL = irib - tol;
+    else uribL = irib;
+
+    if( irib < surf.GetNumSectU() ) uribR = irib + tol;
+    else uribR = irib;
+
+    vec3d tanL = surf.CompTanU( uribL, t );
+    vec3d tanR = surf.CompTanU( uribR, t );
+
+    thetaL = angle( pdir, tanL );
+    strengthL = tanL.mag();
+
+    thetaR = angle( pdir, tanR );
+    strengthR = tanR.mag();
+
+    vec3d uuL = surf.CompTanUU( uribL, t );
+    vec3d uuR = surf.CompTanUU( uribR, t );
+
+    curvatureL = uuL.mag() * sgn( dot( uuL, wdir ));
+    curvatureR = uuR.mag() * sgn( dot( uuR, wdir ));
+}
+
 //==========================================================================//
 //==========================================================================//
 //==========================================================================//
