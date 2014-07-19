@@ -36,7 +36,7 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 550, "F
 
     m_SkinLayout.SetGroupAndScreen( skin_group, this );
 
-    m_SkinLayout.AddDividerBox( "Skin Segment" );
+    m_SkinLayout.AddDividerBox( "Skin Cross Section" );
 
     m_SkinLayout.AddIndexSelector( m_SkinIndexSelector );
 
@@ -58,16 +58,21 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 550, "F
     m_SkinLayout.SetFitWidthFlag( true );
     m_SkinLayout.SetSameLineFlag( false );
 
-    m_SkinLayout.AddSkinControl( m_TopAngleSkinControl, "Angle", 30, "%f6.5");
-    m_SkinLayout.AddSkinControl( m_TopStrengthSkinControl, "Strength", 30, "%f6.5");
-    m_SkinLayout.AddSkinControl( m_TopCurvatureSkinControl, "Curvature", 30, "%f6.5");
+    m_SkinLayout.SetChoiceButtonWidth( 55 );
+    m_SkinLayout.SetSliderWidth( 50 );
+    m_SkinLayout.AddSkinHeader( m_TopHeader );
+
+    m_SkinLayout.AddSkinControl( m_TopAngleSkinControl, "Angle", 30, "%6.5f");
+    m_SkinLayout.AddSkinControl( m_TopStrengthSkinControl, "Strength", 30, "%6.5f");
+    m_SkinLayout.AddSkinControl( m_TopCurvatureSkinControl, "Curvature", 30, "%6.5f");
 
     m_SkinLayout.AddYGap();
     m_SkinLayout.AddDividerBox( "Right Side" );
 
-    m_SkinLayout.AddSkinControl( m_RightAngleSkinControl, "Angle", 30, "%f6.5");
-    m_SkinLayout.AddSkinControl( m_RightStrengthSkinControl, "Strength", 30, "%f6.5");
-    m_SkinLayout.AddSkinControl( m_RightCurvatureSkinControl, "Curvature", 30, "%f6.5");
+    m_SkinLayout.AddSkinHeader( m_RightHeader );
+    m_SkinLayout.AddSkinControl( m_RightAngleSkinControl, "Angle", 30, "%6.5f");
+    m_SkinLayout.AddSkinControl( m_RightStrengthSkinControl, "Strength", 30, "%6.5f");
+    m_SkinLayout.AddSkinControl( m_RightCurvatureSkinControl, "Curvature", 30, "%6.5f");
 
     m_SkinLayout.AddYGap();
     m_SkinLayout.SetSameLineFlag( true );
@@ -78,9 +83,10 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 550, "F
     m_SkinLayout.SetFitWidthFlag( true );
     m_SkinLayout.SetSameLineFlag( false );
 
-    m_SkinLayout.AddSkinControl( m_BottomAngleSkinControl, "Angle", 30, "%f6.5");
-    m_SkinLayout.AddSkinControl( m_BottomStrengthSkinControl, "Strength", 30, "%f6.5");
-    m_SkinLayout.AddSkinControl( m_BottomCurvatureSkinControl, "Curvature", 30, "%f6.5");
+    m_SkinLayout.AddSkinHeader( m_BottomHeader );
+    m_SkinLayout.AddSkinControl( m_BottomAngleSkinControl, "Angle", 30, "%6.5f");
+    m_SkinLayout.AddSkinControl( m_BottomStrengthSkinControl, "Strength", 30, "%6.5f");
+    m_SkinLayout.AddSkinControl( m_BottomCurvatureSkinControl, "Curvature", 30, "%6.5f");
 
     m_SkinLayout.AddYGap();
     m_SkinLayout.SetSameLineFlag( true );
@@ -91,9 +97,10 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 550, "F
     m_SkinLayout.SetFitWidthFlag( true );
     m_SkinLayout.SetSameLineFlag( false );
 
-    m_SkinLayout.AddSkinControl( m_LeftAngleSkinControl, "Angle", 30, "%f6.5");
-    m_SkinLayout.AddSkinControl( m_LeftStrengthSkinControl, "Strength", 30, "%f6.5");
-    m_SkinLayout.AddSkinControl( m_LeftCurvatureSkinControl, "Curvature", 30, "%f6.5");
+    m_SkinLayout.AddSkinHeader( m_LeftHeader );
+    m_SkinLayout.AddSkinControl( m_LeftAngleSkinControl, "Angle", 30, "%6.5f");
+    m_SkinLayout.AddSkinControl( m_LeftStrengthSkinControl, "Strength", 30, "%6.5f");
+    m_SkinLayout.AddSkinControl( m_LeftCurvatureSkinControl, "Curvature", 30, "%6.5f");
 
 
 
@@ -331,13 +338,112 @@ bool FuselageScreen::Update()
     //==== Design ====//
     m_LengthSlider.Update( fuselage_ptr->m_Length.GetID() );
 
-    //==== XSec Index Display ===//
+    //==== Skin & XSec Index Display ===//
     int xsid = fuselage_ptr->GetActiveXSecIndex();
+    m_SkinIndexSelector.SetIndex( xsid );
     m_XSecIndexSelector.SetIndex( xsid );
 
     FuseXSec* xs = ( FuseXSec* ) fuselage_ptr->GetXSec( xsid );
     if ( xs )
     {
+        //==== Skin ====//
+        // Update Symmetry flags to Parms.
+        m_AllSymButton.Update( xs->m_AllSymFlag.GetID() );
+        m_TBSymButton.Update( xs->m_TBSymFlag.GetID() );
+        m_RLSymButton.Update( xs->m_RLSymFlag.GetID() );
+
+        // Update Controls to Parms.
+        m_TopHeader.m_ContChoice->SetVal( xs->m_TopCont() );
+        m_TopAngleSkinControl.Update( xs->m_TopLAngle.GetID(), xs->m_TopLAngleSet.GetID(), xs->m_TopLRAngleEq.GetID(), xs->m_TopRAngleSet.GetID(), xs->m_TopRAngle.GetID() );
+        m_TopStrengthSkinControl.Update( xs->m_TopLStrength.GetID(), xs->m_TopLStrengthSet.GetID(), xs->m_TopLRStrengthEq.GetID(), xs->m_TopRStrengthSet.GetID(), xs->m_TopRStrength.GetID() );
+        m_TopCurvatureSkinControl.Update( xs->m_TopLCurve.GetID(), xs->m_TopLCurveSet.GetID(), xs->m_TopLRCurveEq.GetID(), xs->m_TopRCurveSet.GetID(), xs->m_TopRCurve.GetID() );
+
+        m_RightHeader.m_ContChoice->SetVal( xs->m_RightCont() );
+        m_RightAngleSkinControl.Update( xs->m_RightLAngle.GetID(), xs->m_RightLAngleSet.GetID(), xs->m_RightLRAngleEq.GetID(), xs->m_RightRAngleSet.GetID(), xs->m_RightRAngle.GetID() );
+        m_RightStrengthSkinControl.Update( xs->m_RightLStrength.GetID(), xs->m_RightLStrengthSet.GetID(), xs->m_RightLRStrengthEq.GetID(), xs->m_RightRStrengthSet.GetID(), xs->m_RightRStrength.GetID() );
+        m_RightCurvatureSkinControl.Update( xs->m_RightLCurve.GetID(), xs->m_RightLCurveSet.GetID(), xs->m_RightLRCurveEq.GetID(), xs->m_RightRCurveSet.GetID(), xs->m_RightRCurve.GetID() );
+
+        m_BottomHeader.m_ContChoice->SetVal( xs->m_BottomCont() );
+        m_BottomAngleSkinControl.Update( xs->m_BottomLAngle.GetID(), xs->m_BottomLAngleSet.GetID(), xs->m_BottomLRAngleEq.GetID(), xs->m_BottomRAngleSet.GetID(), xs->m_BottomRAngle.GetID() );
+        m_BottomStrengthSkinControl.Update( xs->m_BottomLStrength.GetID(), xs->m_BottomLStrengthSet.GetID(), xs->m_BottomLRStrengthEq.GetID(), xs->m_BottomRStrengthSet.GetID(), xs->m_BottomRStrength.GetID() );
+        m_BottomCurvatureSkinControl.Update( xs->m_BottomLCurve.GetID(), xs->m_BottomLCurveSet.GetID(), xs->m_BottomLRCurveEq.GetID(), xs->m_BottomRCurveSet.GetID(), xs->m_BottomRCurve.GetID() );
+
+        m_LeftHeader.m_ContChoice->SetVal( xs->m_LeftCont() );
+        m_LeftAngleSkinControl.Update( xs->m_LeftLAngle.GetID(), xs->m_LeftLAngleSet.GetID(), xs->m_LeftLRAngleEq.GetID(), xs->m_LeftRAngleSet.GetID(), xs->m_LeftRAngle.GetID() );
+        m_LeftStrengthSkinControl.Update( xs->m_LeftLStrength.GetID(), xs->m_LeftLStrengthSet.GetID(), xs->m_LeftLRStrengthEq.GetID(), xs->m_LeftRStrengthSet.GetID(), xs->m_LeftRStrength.GetID() );
+        m_LeftCurvatureSkinControl.Update( xs->m_LeftLCurve.GetID(), xs->m_LeftLCurveSet.GetID(), xs->m_LeftLRCurveEq.GetID(), xs->m_LeftRCurveSet.GetID(), xs->m_LeftRCurve.GetID() );
+
+        // Note that other Deactivate() calls are made in SkinControl::Update
+        // to handle Set and Equal flag settings.
+
+        // Deactivate GUI for symmetry
+        if( xs->m_AllSymFlag() )
+        {
+            m_TBSymButton.Deactivate();
+            m_RLSymButton.Deactivate();
+
+            m_RightHeader.Deactivate();
+            m_RightAngleSkinControl.Deactivate();
+            m_RightStrengthSkinControl.Deactivate();
+            m_RightCurvatureSkinControl.Deactivate();
+
+            m_BottomHeader.Deactivate();
+            m_BottomAngleSkinControl.Deactivate();
+            m_BottomStrengthSkinControl.Deactivate();
+            m_BottomCurvatureSkinControl.Deactivate();
+
+            m_LeftHeader.Deactivate();
+            m_LeftAngleSkinControl.Deactivate();
+            m_LeftStrengthSkinControl.Deactivate();
+            m_LeftCurvatureSkinControl.Deactivate();
+        }
+
+        if( xs->m_TBSymFlag() )
+        {
+            m_BottomHeader.Deactivate();
+            m_BottomAngleSkinControl.Deactivate();
+            m_BottomStrengthSkinControl.Deactivate();
+            m_BottomCurvatureSkinControl.Deactivate();
+        }
+
+        if( xs->m_RLSymFlag() )
+        {
+            m_LeftHeader.Deactivate();
+            m_LeftAngleSkinControl.Deactivate();
+            m_LeftStrengthSkinControl.Deactivate();
+            m_LeftCurvatureSkinControl.Deactivate();
+        }
+
+        // Deactivate GUI for Set Strength -- doesn't make sense unless
+        // Angle set is enabled.
+        m_TopStrengthSkinControl.DeactivateSet();
+        m_RightStrengthSkinControl.DeactivateSet();
+        m_BottomStrengthSkinControl.DeactivateSet();
+        m_LeftStrengthSkinControl.DeactivateSet();
+
+        // Deactivate GUI for non-top curves.  Code-Eli right now requires
+        // things to be set per cross section.  This restriction may someday
+        // be lifted -- while the above Strength restriction will not.
+        m_RightAngleSkinControl.DeactivateSet();
+        m_RightStrengthSkinControl.DeactivateSet();
+        m_RightCurvatureSkinControl.DeactivateSet();
+
+        m_BottomAngleSkinControl.DeactivateSet();
+        m_BottomStrengthSkinControl.DeactivateSet();
+        m_BottomCurvatureSkinControl.DeactivateSet();
+
+        m_LeftAngleSkinControl.DeactivateSet();
+        m_LeftStrengthSkinControl.DeactivateSet();
+        m_LeftCurvatureSkinControl.DeactivateSet();
+
+        // Deactivate GUI for non-top continuity control.  Code-Eli currently
+        // requires continuity to be enforced on per cross section basis.
+        m_RightHeader.DeactiveContChoice();
+        m_BottomHeader.DeactiveContChoice();
+        m_LeftHeader.DeactiveContChoice();
+
+
+        //==== XSec ====//
         m_SectUTessSlider.Update( xs->m_SectTessU.GetID() );
         if ( xsid == 0 )
         {
@@ -530,6 +636,22 @@ void FuselageScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     if ( gui_device == &m_XSecIndexSelector )
     {
         fuselage_ptr->SetActiveXSecIndex( m_XSecIndexSelector.GetIndex() );
+    }
+    else if ( gui_device == &m_SkinIndexSelector )
+    {
+        fuselage_ptr->SetActiveXSecIndex( m_SkinIndexSelector.GetIndex() );
+    }
+    else if ( gui_device == m_TopHeader.m_ContChoice )
+    {
+        int t = m_TopHeader.m_ContChoice->GetVal();
+        int xsid = fuselage_ptr->GetActiveXSecIndex();
+        FuseXSec* xs = (FuseXSec*) fuselage_ptr->GetXSec( xsid );
+        if ( xs )
+        {
+            xs->m_TopCont.Set( t );
+            xs->Update();
+            fuselage_ptr->Update();
+        }
     }
     else if ( gui_device == &m_XSecTypeChoice )
     {
