@@ -377,6 +377,19 @@ void XSec::GetTanNormCrv( const vector< double > &ts, const vector< double > &th
     pcc.create( normcrv );
 }
 
+void XSec::GetTanNormCrv( const vector< double > &thetas,
+        const vector< double > &angstr, const vector< double > &crvstr,
+        piecewise_curve_type &tangentcrv, piecewise_curve_type &normcrv )
+{
+    vector< double > ts = { 0.0, 1.0, 2.0, 3.0, 4.0 };
+
+    assert( thetas.size() == 5 );
+    assert( angstr.size() == 5 );
+    assert( crvstr.size() == 5 );
+
+    GetTanNormCrv( ts, thetas, angstr, crvstr, tangentcrv, normcrv );
+}
+
 void XSec::GetTanNormCrv( double theta, double angstr, double crvstr,
         piecewise_curve_type &tangentcrv, piecewise_curve_type &normcrv )
 {
