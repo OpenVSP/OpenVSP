@@ -268,13 +268,8 @@ double XSec::ComputeArea( int num_pnts )
     return poly_area( pnts, zero );
 }
 
-// Given a position along a curve t, and a desired surfce angle theta, calculate
-// the tangent and normal unit vectors that will be required by the surface
-// skinning algorithm.
-void XSec::GetTanNormVec( double t, double theta, vec3d &tangent, vec3d &normal )
+void XSec::GetBasis( double t, Matrix4d &basis )
 {
-    Matrix4d basis;
-
     // Get primary orientation of this XSecSurf
     XSecSurf* xsecsurf = (XSecSurf*) GetParentContainerPtr();
     xsecsurf->GetBasicTransformation( 0.0, basis );
@@ -295,6 +290,18 @@ void XSec::GetTanNormVec( double t, double theta, vec3d &tangent, vec3d &normal 
     Matrix4d rmat;
     rmat.rotate( 2.0*PI*(t-tmin)/(tmax-tmin), pdir );
     basis.postMult( rmat.data() );
+}
+
+// Given a position along a curve t, and a desired surfce angle theta, calculate
+// the tangent and normal unit vectors that will be required by the surface
+// skinning algorithm.
+void XSec::GetTanNormVec( double t, double theta, vec3d &tangent, vec3d &normal )
+{
+    Matrix4d basis;
+    vec3d wdir, updir, pdir;
+    Matrix4d rmat;
+
+    GetBasis( t, basis );
 
     // Pull out rotated directions.
     basis.getBasis( wdir, updir, pdir );

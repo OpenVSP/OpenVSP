@@ -76,6 +76,7 @@ public:
 
     virtual double ComputeArea( int num_pnts );
 
+    virtual void GetBasis( double t, Matrix4d &basis );
     virtual void GetTanNormVec( double t, double theta, vec3d &tangent, vec3d &normal );
     virtual void GetTanNormCrv( const vector< double > &ts, const vector< double > &thetas,
             const vector< double > &angstr, const vector< double > &crvstr,
