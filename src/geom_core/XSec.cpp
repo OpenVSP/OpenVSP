@@ -905,6 +905,115 @@ void FuseXSec::ValidateParms( )
     }
 }
 
+rib_data_type FuseXSec::GetRib( bool first, bool last )
+{
+    ValidateParms( );
+
+    rib_data_type rib;
+
+    // First GetCurve() forces Update() call if needed;
+    rib.set_f( GetCurve().GetCurve() );
+
+    if( !first && !last )
+        rib.set_continuity( ( rib_data_type::connection_continuity ) m_TopCont() );
+
+    piecewise_curve_type tangentcrv;
+    piecewise_curve_type normcrv;
+
+    vector< double > angles( 5, 0.0 );
+    vector< double > strengths( 5, 0.0 );
+    vector< double > curves( 5, 0.0 );
+
+    // Use 'wrong' side of first cross section to set right side.
+    if ( first && ( m_TopLAngleSet() || m_TopLCurveSet() ) )
+    {
+        angles[0] = m_LeftLAngle()*PI/180.0;
+        angles[1] = m_TopLAngle()*PI/180.0;
+        angles[2] = m_RightLAngle()*PI/180.0;
+        angles[3] = m_BottomLAngle()*PI/180.0;
+        angles[4] = angles[0];
+
+        double scale =  m_RefLength();
+        strengths[0] = m_LeftLStrength() * scale;
+        strengths[1] = m_TopLStrength() * scale;
+        strengths[2] = m_RightLStrength() * scale;
+        strengths[3] = m_BottomLStrength() * scale;
+        strengths[4] = strengths[0];
+
+        curves[0] = m_LeftLCurve() * scale;
+        curves[1] = m_TopLCurve() * scale;
+        curves[2] = m_RightLCurve() * scale;
+        curves[3] = m_BottomLCurve() * scale;
+        curves[4] = curves[0];
+
+        GetTanNormCrv( angles, strengths, curves, tangentcrv, normcrv );
+
+        if( m_TopLAngleSet() ) rib.set_right_fp( tangentcrv );
+        if( m_TopLCurveSet() ) rib.set_right_fpp( normcrv );
+    }
+
+    // Set the left side of a rib.
+    if( !first && ( m_TopLAngleSet() || m_TopLCurveSet() ) )
+    {
+
+        angles[0] = m_LeftLAngle()*PI/180.0;
+        angles[1] = m_TopLAngle()*PI/180.0;
+        angles[2] = m_RightLAngle()*PI/180.0;
+        angles[3] = m_BottomLAngle()*PI/180.0;
+        angles[4] = angles[0];
+
+        double scale =  m_RefLength();
+        strengths[0] = m_LeftLStrength() * scale;
+        strengths[1] = m_TopLStrength() * scale;
+        strengths[2] = m_RightLStrength() * scale;
+        strengths[3] = m_BottomLStrength() * scale;
+        strengths[4] = strengths[0];
+
+        curves[0] = m_LeftLCurve() * scale;
+        curves[1] = m_TopLCurve() * scale;
+        curves[2] = m_RightLCurve() * scale;
+        curves[3] = m_BottomLCurve() * scale;
+        curves[4] = curves[0];
+
+        GetTanNormCrv( angles, strengths, curves, tangentcrv, normcrv );
+
+        if( m_TopLAngleSet() ) rib.set_left_fp( tangentcrv );
+        if( m_TopLCurveSet() ) rib.set_left_fpp( normcrv );
+
+    }
+
+    // Set the right side of a rib.
+    if( !first && !last && ( m_TopRAngleSet() || m_TopRCurveSet() ) )
+    {
+        angles[0] = m_LeftRAngle()*PI/180.0;
+        angles[1] = m_TopRAngle()*PI/180.0;
+        angles[2] = m_RightRAngle()*PI/180.0;
+        angles[3] = m_BottomRAngle()*PI/180.0;
+        angles[4] = angles[0];
+
+        double scale =  m_RefLength();
+        strengths[0] = m_LeftRStrength() * scale;
+        strengths[1] = m_TopRStrength() * scale;
+        strengths[2] = m_RightRStrength() * scale;
+        strengths[3] = m_BottomRStrength() * scale;
+        strengths[4] = strengths[0];
+
+        curves[0] = m_LeftRCurve() * scale;
+        curves[1] = m_TopRCurve() * scale;
+        curves[2] = m_RightRCurve() * scale;
+        curves[3] = m_BottomRCurve() * scale;
+        curves[4] = curves[0];
+
+        GetTanNormCrv( angles, strengths, curves, tangentcrv, normcrv );
+
+        if( m_TopRAngleSet() ) rib.set_right_fp( tangentcrv );
+        if( m_TopRCurveSet() ) rib.set_right_fpp( normcrv );
+    }
+
+    return rib;
+}
+
+
 //==========================================================================//
 //==========================================================================//
 //==========================================================================//

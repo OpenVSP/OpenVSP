@@ -147,6 +147,9 @@ public:
 
     virtual void ValidateParms( );
 
+    virtual rib_data_type GetRib( bool first, bool last );
+
+
     FractionParm m_XLocPercent;
     FractionParm m_YLocPercent;
     FractionParm m_ZLocPercent;
