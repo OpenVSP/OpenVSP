@@ -605,6 +605,306 @@ void FuseXSec::CopyBasePos( XSec* xs )
     }
 }
 
+
+void FuseXSec::CopySetValidate( IntParm &Cont,
+    BoolParm &LAngleSet,
+    BoolParm &LStrengthSet,
+    BoolParm &LCurveSet,
+    BoolParm &RAngleSet,
+    BoolParm &RStrengthSet,
+    BoolParm &RCurveSet,
+    BoolParm &LRAngleEq,
+    BoolParm &LRStrengthEq,
+    BoolParm &LRCurveEq )
+{
+    Cont = m_TopCont();
+    LAngleSet = m_TopLAngleSet();
+    LStrengthSet = m_TopLStrengthSet();
+    LCurveSet = m_TopLCurveSet();
+    RAngleSet = m_TopRAngleSet();
+    RStrengthSet = m_TopRStrengthSet();
+    RCurveSet = m_TopRCurveSet();
+
+    ValidateParms( Cont,
+        LAngleSet,
+        LStrengthSet,
+        LCurveSet,
+        RAngleSet,
+        RStrengthSet,
+        RCurveSet,
+        LRAngleEq,
+        LRStrengthEq,
+        LRCurveEq );
+}
+
+void FuseXSec::ValidateParms( IntParm &Cont,
+    BoolParm &LAngleSet,
+    BoolParm &LStrengthSet,
+    BoolParm &LCurveSet,
+    BoolParm &RAngleSet,
+    BoolParm &RStrengthSet,
+    BoolParm &RCurveSet,
+    BoolParm &LRAngleEq,
+    BoolParm &LRStrengthEq,
+    BoolParm &LRCurveEq )
+{
+    if ( LAngleSet() ) LStrengthSet = true;
+    if ( !LAngleSet() ) LStrengthSet = false;
+
+    if ( RAngleSet() ) RStrengthSet = true;
+    if ( !RAngleSet() ) RStrengthSet = false;
+
+    if ( Cont() == 2 )
+    {
+        if ( LCurveSet() )
+        {
+            LRCurveEq = true;
+            RCurveSet = true;
+        }
+        else
+        {
+            LRCurveEq = false;
+            RCurveSet = false;
+        }
+    }
+
+    if ( Cont() >= 1 )
+    {
+        if ( LAngleSet() )
+        {
+            LRAngleEq = true;
+            RAngleSet = true;
+        }
+        else
+        {
+            LRAngleEq = false;
+            RAngleSet = false;
+        }
+
+        if ( LStrengthSet() )
+        {
+            LRStrengthEq = true;
+            RStrengthSet = true;
+        }
+        else
+        {
+            LRStrengthEq = false;
+            RStrengthSet = false;
+        }
+
+    }
+
+    if ( LRAngleEq() )
+    {
+        RAngleSet = true;
+        RStrengthSet = true;
+        LAngleSet = true;
+    }
+    if ( LRStrengthEq() )
+    {
+        RStrengthSet = true;
+        LStrengthSet = true;
+    }
+    if ( LRCurveEq() )
+    {
+        RCurveSet = true;
+        LCurveSet = true;
+    }
+}
+
+void FuseXSec::CrossValidateParms( BoolParm &topEq,
+        BoolParm &rightEq,
+        BoolParm &bottomEq,
+        BoolParm &leftEq,
+        BoolParm &topRSet,
+        BoolParm &topLSet )
+{
+    if ( topEq() || rightEq() || bottomEq() || leftEq() )
+    {
+        topRSet = true;
+        topLSet = true;
+    }
+}
+
+
+void FuseXSec::ValidateParms( )
+{
+    CrossValidateParms( m_TopLRAngleEq,
+            m_RightLRAngleEq,
+            m_BottomLRAngleEq,
+            m_LeftLRAngleEq,
+            m_TopRAngleSet,
+            m_TopLAngleSet );
+
+    CrossValidateParms( m_TopLRStrengthEq,
+            m_RightLRStrengthEq,
+            m_BottomLRStrengthEq,
+            m_LeftLRStrengthEq,
+            m_TopRAngleSet,
+            m_TopLAngleSet );
+
+    CrossValidateParms( m_TopLRCurveEq,
+            m_RightLRCurveEq,
+            m_BottomLRCurveEq,
+            m_LeftLRCurveEq,
+            m_TopRCurveSet,
+            m_TopLCurveSet );
+
+    ValidateParms( m_TopCont,
+               m_TopLAngleSet,
+               m_TopLStrengthSet,
+               m_TopLCurveSet,
+               m_TopRAngleSet,
+               m_TopRStrengthSet,
+               m_TopRCurveSet,
+               m_TopLRAngleEq,
+               m_TopLRStrengthEq,
+               m_TopLRCurveEq );
+
+    CopySetValidate( m_RightCont,
+               m_RightLAngleSet,
+               m_RightLStrengthSet,
+               m_RightLCurveSet,
+               m_RightRAngleSet,
+               m_RightRStrengthSet,
+               m_RightRCurveSet,
+               m_RightLRAngleEq,
+               m_RightLRStrengthEq,
+               m_RightLRCurveEq );
+
+    CopySetValidate( m_BottomCont,
+               m_BottomLAngleSet,
+               m_BottomLStrengthSet,
+               m_BottomLCurveSet,
+               m_BottomRAngleSet,
+               m_BottomRStrengthSet,
+               m_BottomRCurveSet,
+               m_BottomLRAngleEq,
+               m_BottomLRStrengthEq,
+               m_BottomLRCurveEq );
+
+    CopySetValidate( m_LeftCont,
+               m_LeftLAngleSet,
+               m_LeftLStrengthSet,
+               m_LeftLCurveSet,
+               m_LeftRAngleSet,
+               m_LeftRStrengthSet,
+               m_LeftRCurveSet,
+               m_LeftLRAngleEq,
+               m_LeftLRStrengthEq,
+               m_LeftLRCurveEq );
+
+    if ( m_TopLRAngleEq() ) m_TopRAngle = m_TopLAngle();
+    if ( m_TopLRStrengthEq() ) m_TopRStrength = m_TopLStrength();
+    if ( m_TopLRCurveEq() ) m_TopRCurve = m_TopLCurve();
+
+    if ( m_RightLRAngleEq() ) m_RightRAngle = m_RightLAngle();
+    if ( m_RightLRStrengthEq() ) m_RightRStrength = m_RightLStrength();
+    if ( m_RightLRCurveEq() ) m_RightRCurve = m_RightLCurve();
+
+    if ( m_BottomLRAngleEq() ) m_BottomRAngle = m_BottomLAngle();
+    if ( m_BottomLRStrengthEq() ) m_BottomRStrength = m_BottomLStrength();
+    if ( m_BottomLRCurveEq() ) m_BottomRCurve = m_BottomLCurve();
+
+    if ( m_RightLRAngleEq() ) m_RightRAngle = m_RightLAngle();
+    if ( m_RightLRStrengthEq() ) m_RightRStrength = m_RightLStrength();
+    if ( m_RightLRCurveEq() ) m_RightRCurve = m_RightLCurve();
+
+    if ( m_AllSymFlag() )
+    {
+        m_RightCont = m_TopCont();
+        m_RightLAngleSet = m_TopLAngleSet();
+        m_RightLStrengthSet = m_TopLStrengthSet();
+        m_RightLCurveSet = m_TopLCurveSet();
+        m_RightRAngleSet = m_TopRAngleSet();
+        m_RightRStrengthSet = m_TopRStrengthSet();
+        m_RightRCurveSet = m_TopRCurveSet();
+        m_RightLRAngleEq = m_TopLRAngleEq();
+        m_RightLRStrengthEq = m_TopLRStrengthEq();
+        m_RightLRCurveEq = m_TopLRCurveEq();
+        m_RightLAngle = m_TopLAngle();
+        m_RightLStrength = m_TopLStrength();
+        m_RightLCurve = m_TopLCurve();
+        m_RightRAngle = m_TopRAngle();
+        m_RightRStrength = m_TopRStrength();
+        m_RightRCurve = m_TopRCurve();
+
+        m_BottomCont = m_TopCont();
+        m_BottomLAngleSet = m_TopLAngleSet();
+        m_BottomLStrengthSet = m_TopLStrengthSet();
+        m_BottomLCurveSet = m_TopLCurveSet();
+        m_BottomRAngleSet = m_TopRAngleSet();
+        m_BottomRStrengthSet = m_TopRStrengthSet();
+        m_BottomRCurveSet = m_TopRCurveSet();
+        m_BottomLRAngleEq = m_TopLRAngleEq();
+        m_BottomLRStrengthEq = m_TopLRStrengthEq();
+        m_BottomLRCurveEq = m_TopLRCurveEq();
+        m_BottomLAngle = m_TopLAngle();
+        m_BottomLStrength = m_TopLStrength();
+        m_BottomLCurve = m_TopLCurve();
+        m_BottomRAngle = m_TopRAngle();
+        m_BottomRStrength = m_TopRStrength();
+        m_BottomRCurve = m_TopRCurve();
+
+        m_LeftCont = m_TopCont();
+        m_LeftLAngleSet = m_TopLAngleSet();
+        m_LeftLStrengthSet = m_TopLStrengthSet();
+        m_LeftLCurveSet = m_TopLCurveSet();
+        m_LeftRAngleSet = m_TopRAngleSet();
+        m_LeftRStrengthSet = m_TopRStrengthSet();
+        m_LeftRCurveSet = m_TopRCurveSet();
+        m_LeftLRAngleEq = m_TopLRAngleEq();
+        m_LeftLRStrengthEq = m_TopLRStrengthEq();
+        m_LeftLRCurveEq = m_TopLRCurveEq();
+        m_LeftLAngle = m_TopLAngle();
+        m_LeftLStrength = m_TopLStrength();
+        m_LeftLCurve = m_TopLCurve();
+        m_LeftRAngle = m_TopRAngle();
+        m_LeftRStrength = m_TopRStrength();
+        m_LeftRCurve = m_TopRCurve();
+    }
+
+    if ( m_TBSymFlag() )
+    {
+        m_BottomCont = m_TopCont();
+        m_BottomLAngleSet = m_TopLAngleSet();
+        m_BottomLStrengthSet = m_TopLStrengthSet();
+        m_BottomLCurveSet = m_TopLCurveSet();
+        m_BottomRAngleSet = m_TopRAngleSet();
+        m_BottomRStrengthSet = m_TopRStrengthSet();
+        m_BottomRCurveSet = m_TopRCurveSet();
+        m_BottomLRAngleEq = m_TopLRAngleEq();
+        m_BottomLRStrengthEq = m_TopLRStrengthEq();
+        m_BottomLRCurveEq = m_TopLRCurveEq();
+        m_BottomLAngle = m_TopLAngle();
+        m_BottomLStrength = m_TopLStrength();
+        m_BottomLCurve = m_TopLCurve();
+        m_BottomRAngle = m_TopRAngle();
+        m_BottomRStrength = m_TopRStrength();
+        m_BottomRCurve = m_TopRCurve();
+    }
+
+    if ( m_RLSymFlag() )
+    {
+        m_LeftCont = m_RightCont();
+        m_LeftLAngleSet = m_RightLAngleSet();
+        m_LeftLStrengthSet = m_RightLStrengthSet();
+        m_LeftLCurveSet = m_RightLCurveSet();
+        m_LeftRAngleSet = m_RightRAngleSet();
+        m_LeftRStrengthSet = m_RightRStrengthSet();
+        m_LeftRCurveSet = m_RightRCurveSet();
+        m_LeftLRAngleEq = m_RightLRAngleEq();
+        m_LeftLRStrengthEq = m_RightLRStrengthEq();
+        m_LeftLRCurveEq = m_RightLRCurveEq();
+        m_LeftLAngle = m_RightLAngle();
+        m_LeftLStrength = m_RightLStrength();
+        m_LeftLCurve = m_RightLCurve();
+        m_LeftRAngle = m_RightRAngle();
+        m_LeftRStrength = m_RightRStrength();
+        m_LeftRCurve = m_RightRCurve();
+    }
+}
+
 //==========================================================================//
 //==========================================================================//
 //==========================================================================//

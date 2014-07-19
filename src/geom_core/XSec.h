@@ -116,6 +116,37 @@ public:
 
     virtual void CopyBasePos( XSec* xs );
 
+    virtual void CopySetValidate( IntParm &m_TopCont,
+            BoolParm &m_TopLAngleSet,
+            BoolParm &m_TopLStrengthSet,
+            BoolParm &m_TopLCurveSet,
+            BoolParm &m_TopRAngleSet,
+            BoolParm &m_TopRStrengthSet,
+            BoolParm &m_TopRCurveSet,
+            BoolParm &m_TopLRAngleEq,
+            BoolParm &m_TopLRStrengthEq,
+            BoolParm &m_TopLRCurveEq );
+
+    virtual void ValidateParms( IntParm &m_TopCont,
+            BoolParm &m_TopLAngleSet,
+            BoolParm &m_TopLStrengthSet,
+            BoolParm &m_TopLCurveSet,
+            BoolParm &m_TopRAngleSet,
+            BoolParm &m_TopRStrengthSet,
+            BoolParm &m_TopRCurveSet,
+            BoolParm &m_TopLRAngleEq,
+            BoolParm &m_TopLRStrengthEq,
+            BoolParm &m_TopLRCurveEq );
+
+    virtual void CrossValidateParms( BoolParm &topEq,
+            BoolParm &rightEq,
+            BoolParm &bottomEq,
+            BoolParm &leftEq,
+            BoolParm &topRSet,
+            BoolParm &topLSet );
+
+    virtual void ValidateParms( );
+
     FractionParm m_XLocPercent;
     FractionParm m_YLocPercent;
     FractionParm m_ZLocPercent;
