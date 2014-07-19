@@ -93,6 +93,12 @@ T Clamp( const T& value, const T& low, const T& high )
 //=== Return Index to Closest Element in Vector
 int ClosestElement( const vector< double > & vec, double const & val );
 
+// Return int with sign of passed val.
+template < typename T >
+int sgn( T val )
+{
+    return ( T( 0 ) < val ) - ( val < T( 0 ) );
+}
 
 #endif
 
