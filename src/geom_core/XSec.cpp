@@ -44,7 +44,7 @@ XSec::XSec( XSecCurve *xsc, bool use_left )
     m_GroupName = "XSec";
     m_GroupSuffix = -1;
 
-    m_SectTessU.Init( "SectTess_U", m_GroupName, this, 3, 2,  100 );
+    m_SectTessU.Init( "SectTess_U", m_GroupName, this, 6, 2,  100 );
     m_SectTessU.SetDescript( "Number of tessellated curves in the U direction for this section" );
 }
 
