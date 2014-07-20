@@ -17,7 +17,7 @@
 
 #include <FL/Fl.H>
 
-class FuselageScreen : public GeomScreen
+class FuselageScreen : public SkinScreen
 {
 public:
     FuselageScreen( ScreenMgr* mgr );
@@ -34,35 +34,6 @@ protected:
     GroupLayout m_DesignLayout;
 
     SliderAdjRangeInput m_LengthSlider;
-
-    GroupLayout m_SkinLayout;
-
-    IndexSelector m_SkinIndexSelector;
-
-    ToggleButton m_AllSymButton;
-    SkinHeader m_TopHeader;
-    SkinControl m_TopAngleSkinControl;
-    SkinControl m_TopStrengthSkinControl;
-    SkinControl m_TopCurvatureSkinControl;
-
-    SkinHeader m_RightHeader;
-    SkinControl m_RightAngleSkinControl;
-    SkinControl m_RightStrengthSkinControl;
-    SkinControl m_RightCurvatureSkinControl;
-
-    ToggleButton m_TBSymButton;
-    SkinHeader m_BottomHeader;
-    SkinControl m_BottomAngleSkinControl;
-    SkinControl m_BottomStrengthSkinControl;
-    SkinControl m_BottomCurvatureSkinControl;
-
-    ToggleButton m_RLSymButton;
-    SkinHeader m_LeftHeader;
-    SkinControl m_LeftAngleSkinControl;
-    SkinControl m_LeftStrengthSkinControl;
-    SkinControl m_LeftCurvatureSkinControl;
-
-
 
     GroupLayout m_XSecLayout;
 

@@ -281,5 +281,51 @@ public:
     ToggleRadioGroup m_SSEllTestToggleGroup;
 };
 
+//==== Skin Screen ====//
+class SkinScreen : public GeomScreen
+{
+public:
+	SkinScreen( ScreenMgr* mgr, int w, int h, const string & title );
+    virtual ~SkinScreen()                               {}
+
+    virtual bool Update( );
+    virtual void CallBack( Fl_Widget *w );
+    virtual void GuiDeviceCallBack( GuiDevice* device );
+    static void staticScreenCB( Fl_Widget *w, void* data )
+    {
+        ( ( SkinScreen* )data )->CallBack( w );
+    }
+
+protected:
+
+    GroupLayout m_SkinLayout;
+
+    IndexSelector m_SkinIndexSelector;
+
+    ToggleButton m_AllSymButton;
+    SkinHeader m_TopHeader;
+    SkinControl m_TopAngleSkinControl;
+    SkinControl m_TopStrengthSkinControl;
+    SkinControl m_TopCurvatureSkinControl;
+
+    SkinHeader m_RightHeader;
+    SkinControl m_RightAngleSkinControl;
+    SkinControl m_RightStrengthSkinControl;
+    SkinControl m_RightCurvatureSkinControl;
+
+    ToggleButton m_TBSymButton;
+    SkinHeader m_BottomHeader;
+    SkinControl m_BottomAngleSkinControl;
+    SkinControl m_BottomStrengthSkinControl;
+    SkinControl m_BottomCurvatureSkinControl;
+
+    ToggleButton m_RLSymButton;
+    SkinHeader m_LeftHeader;
+    SkinControl m_LeftAngleSkinControl;
+    SkinControl m_LeftStrengthSkinControl;
+    SkinControl m_LeftCurvatureSkinControl;
+
+};
+
 
 #endif // !defined(SCREENBASE__INCLUDED_)
