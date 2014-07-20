@@ -447,8 +447,25 @@ void XSec::GetAngStrCrv( double t, int irib,
     vec3d uuL = surf.CompTanUU( uribL, t );
     vec3d uuR = surf.CompTanUU( uribR, t );
 
-    curvatureL = uuL.mag() * sgn( dot( uuL, wdir ));
-    curvatureR = uuR.mag() * sgn( dot( uuR, wdir ));
+    Matrix4d basisL, basisR;
+    basisL.initMat( basis.data() );
+    basisR.initMat( basis.data() );
+
+    // Rotate basis to specified slope.
+    rmat.rotate( thetaL, updir );
+    basisL.postMult( rmat.data() );
+
+    rmat.rotate( thetaR, updir );
+    basisR.postMult( rmat.data() );
+
+    // Pull out desired normal and tangent directions.
+    vec3d nL, uL, tL;
+    vec3d nR, uR, tR;
+    basisL.getBasis( nL, uL, tL);
+    basisR.getBasis( nR, uR, tR);
+
+    curvatureL = uuL.mag() * sgn( dot( uuL, nL ));
+    curvatureR = uuR.mag() * sgn( dot( uuR, nR ));
 }
 
 //==========================================================================//
