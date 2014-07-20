@@ -111,16 +111,11 @@ protected:
     virtual void ChangeID( string id );
 };
 
-class FuseXSec : public XSec
+class SkinXSec : public XSec
 {
 public:
-    FuseXSec( XSecCurve *xsc, bool use_left );
 
-    virtual void Update();
-
-    virtual void SetRefLength( double len );
-
-    virtual void CopyBasePos( XSec* xs );
+    SkinXSec( XSecCurve *xsc, bool use_left );
 
     virtual void CopySetValidate( IntParm &m_TopCont,
             BoolParm &m_TopLAngleSet,
@@ -171,17 +166,8 @@ public:
             Parm &RStrength,
             Parm &RCurve );
 
-    FractionParm m_XLocPercent;
-    FractionParm m_YLocPercent;
-    FractionParm m_ZLocPercent;
-
-    Parm m_Spin;
-
-    Parm m_XRotate;
-    Parm m_YRotate;
-    Parm m_ZRotate;
-
-    Parm m_RefLength;
+    virtual double GetLScale() = 0;
+    virtual double GetRScale() = 0;
 
     BoolParm m_AllSymFlag;
     BoolParm m_TBSymFlag;
@@ -254,6 +240,36 @@ public:
     Parm m_LeftRAngle;
     Parm m_LeftRStrength;
     Parm m_LeftRCurve;
+
+protected:
+};
+
+
+class FuseXSec : public SkinXSec
+{
+public:
+    FuseXSec( XSecCurve *xsc, bool use_left );
+
+    virtual void Update();
+
+    virtual void SetRefLength( double len );
+
+    virtual void CopyBasePos( XSec* xs );
+
+    virtual double GetLScale();
+    virtual double GetRScale();
+
+    FractionParm m_XLocPercent;
+    FractionParm m_YLocPercent;
+    FractionParm m_ZLocPercent;
+
+    Parm m_Spin;
+
+    Parm m_XRotate;
+    Parm m_YRotate;
+    Parm m_ZRotate;
+
+    Parm m_RefLength;
 
 protected:
 };

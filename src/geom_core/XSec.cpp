@@ -473,30 +473,8 @@ void XSec::GetAngStrCrv( double t, int irib,
 //==========================================================================//
 
 //==== Default Constructor ====//
-FuseXSec::FuseXSec( XSecCurve *xsc, bool use_left ) : XSec( xsc, use_left)
+SkinXSec::SkinXSec( XSecCurve *xsc, bool use_left ) : XSec( xsc, use_left)
 {
-    m_Type = XSEC_FUSE;
-
-    m_RefLength = 1.0;
-
-    m_XLocPercent.Init( "XLocPercent", m_GroupName, this,  0.0, 0.0, 1.0 );
-    m_XLocPercent.SetDescript( "X distance of cross section as a percent of fuselage length" );
-    m_YLocPercent.Init( "YLocPercent", m_GroupName, this,  0.0, -1.0, 1.0 );
-    m_YLocPercent.SetDescript( "Y distance of cross section as a percent of fuselage length" );
-    m_ZLocPercent.Init( "ZLocPercent", m_GroupName, this,  0.0, -1.0, 1.0 );
-    m_ZLocPercent.SetDescript( "Z distance of cross section as a percent of fuselage length" );
-
-    m_XRotate.Init( "XRotate", m_GroupName, this,  0.0, -180.0, 180.0 );
-    m_XRotate.SetDescript( "Rotation about x-axis of cross section" );
-    m_YRotate.Init( "YRotate", m_GroupName, this,  0.0, -180.0, 180.0 );
-    m_YRotate.SetDescript( "Rotation about y-axis of cross section" );
-    m_ZRotate.Init( "ZRotate", m_GroupName, this,  0.0, -180.0, 180.0 );
-    m_YRotate.SetDescript( "Rotation about z-axis of cross section" );
-
-    m_Spin.Init( "Spin", m_GroupName, this, 0.0, -180.0, 180.0 );
-
-    m_RefLength.Init( "RefLength", m_GroupName, this, 1.0, 1e-8, 1e12, false );
-
 
     m_AllSymFlag.Init( "AllSym", m_GroupName, this, 1, 0, 1 );
     m_AllSymFlag.SetDescript( "Set all skinning parameters equal." );
@@ -602,74 +580,9 @@ FuseXSec::FuseXSec( XSecCurve *xsc, bool use_left ) : XSec( xsc, use_left)
     m_LeftRCurve.Init( "LeftRCurve", m_GroupName, this,  0.0, -10.0, 10.0 );
 }
 
-//==== Update ====//
-void FuseXSec::Update()
-{
-    m_LateUpdateFlag = false;
-
-    XSecSurf* xsecsurf = (XSecSurf*) GetParentContainerPtr();
-
-    Matrix4d mat;
-    xsecsurf->GetBasicTransformation( m_XSCurve->GetWidth(), mat );
-
-    VspCurve baseCurve = GetUntransformedCurve();
-
-    baseCurve.Transform( mat );
-
-    //==== Apply Transform ====//
-    m_TransformedCurve = baseCurve;
-    if ( fabs( m_Spin() ) > DBL_EPSILON )
-    {
-        std::cerr << "XSec spin not implemented." << std::endl;
-    }
-
-    m_Transform.loadIdentity();
-
-    m_Transform.translatef( m_XLocPercent()*m_RefLength(), m_YLocPercent()*m_RefLength(), m_ZLocPercent()*m_RefLength() );
-
-    m_Transform.rotateX( m_XRotate() );
-    m_Transform.rotateY( m_YRotate() );
-    m_Transform.rotateZ( m_ZRotate() );
-
-    m_TransformedCurve.Transform( m_Transform );
-}
-
-//==== Set Ref Length ====//
-void FuseXSec::SetRefLength( double len )
-{
-    if ( fabs( len - m_RefLength() ) < DBL_EPSILON )
-    {
-        return;
-    }
-
-    m_RefLength = len;
-    m_LateUpdateFlag = true;
-
-    m_XLocPercent.SetRefVal( m_RefLength() );
-    m_YLocPercent.SetRefVal( m_RefLength() );
-    m_ZLocPercent.SetRefVal( m_RefLength() );
-}
-
-//==== Copy position from base class ====//
-// May be possible to do this using ParmContainer::EncodeXML, but all
-// we want to do is copy the values in the XSec (not XSecCurve) class
-// that control position.
-void FuseXSec::CopyBasePos( XSec* xs )
-{
-    if ( xs )
-    {
-        FuseXSec* fxs = ( FuseXSec* ) xs;
-
-        m_XLocPercent = fxs->m_XLocPercent();
-        m_YLocPercent = fxs->m_YLocPercent();
-        m_ZLocPercent = fxs->m_ZLocPercent();
-
-        m_RefLength = fxs->m_RefLength();
-    }
-}
 
 
-void FuseXSec::CopySetValidate( IntParm &Cont,
+void SkinXSec::CopySetValidate( IntParm &Cont,
     BoolParm &LAngleSet,
     BoolParm &LStrengthSet,
     BoolParm &LCurveSet,
@@ -700,7 +613,7 @@ void FuseXSec::CopySetValidate( IntParm &Cont,
         LRCurveEq );
 }
 
-void FuseXSec::ValidateParms( IntParm &Cont,
+void SkinXSec::ValidateParms( IntParm &Cont,
     BoolParm &LAngleSet,
     BoolParm &LStrengthSet,
     BoolParm &LCurveSet,
@@ -775,7 +688,7 @@ void FuseXSec::ValidateParms( IntParm &Cont,
     }
 }
 
-void FuseXSec::CrossValidateParms( BoolParm &topEq,
+void SkinXSec::CrossValidateParms( BoolParm &topEq,
         BoolParm &rightEq,
         BoolParm &bottomEq,
         BoolParm &leftEq,
@@ -790,7 +703,7 @@ void FuseXSec::CrossValidateParms( BoolParm &topEq,
 }
 
 
-void FuseXSec::ValidateParms( )
+void SkinXSec::ValidateParms( )
 {
     CrossValidateParms( m_TopLRAngleEq,
             m_RightLRAngleEq,
@@ -968,7 +881,7 @@ void FuseXSec::ValidateParms( )
     }
 }
 
-rib_data_type FuseXSec::GetRib( bool first, bool last )
+rib_data_type SkinXSec::GetRib( bool first, bool last )
 {
     ValidateParms( );
 
@@ -987,6 +900,9 @@ rib_data_type FuseXSec::GetRib( bool first, bool last )
     vector< double > strengths( 5, 0.0 );
     vector< double > curves( 5, 0.0 );
 
+    double scaleL =  GetLScale();
+    double scaleR =  GetRScale();
+
     // Use 'wrong' side of first cross section to set right side.
     if ( first && ( m_TopLAngleSet() || m_TopLCurveSet() ) )
     {
@@ -996,17 +912,16 @@ rib_data_type FuseXSec::GetRib( bool first, bool last )
         angles[3] = m_TopLAngle()*PI/180.0;
         angles[4] = angles[0];
 
-        double scale =  m_RefLength();
-        strengths[0] = m_RightLStrength() * scale;
-        strengths[1] = m_BottomLStrength() * scale;
-        strengths[2] = m_LeftLStrength() * scale;
-        strengths[3] = m_TopLStrength() * scale;
+        strengths[0] = m_RightLStrength() * scaleR;
+        strengths[1] = m_BottomLStrength() * scaleR;
+        strengths[2] = m_LeftLStrength() * scaleR;
+        strengths[3] = m_TopLStrength() * scaleR;
         strengths[4] = strengths[0];
 
-        curves[0] = m_RightLCurve() * scale;
-        curves[1] = m_BottomLCurve() * scale;
-        curves[2] = m_LeftLCurve() * scale;
-        curves[3] = m_TopLCurve() * scale;
+        curves[0] = m_RightLCurve() * scaleR;
+        curves[1] = m_BottomLCurve() * scaleR;
+        curves[2] = m_LeftLCurve() * scaleR;
+        curves[3] = m_TopLCurve() * scaleR;
         curves[4] = curves[0];
 
         GetTanNormCrv( angles, strengths, curves, tangentcrv, normcrv );
@@ -1025,17 +940,16 @@ rib_data_type FuseXSec::GetRib( bool first, bool last )
         angles[3] = m_TopLAngle()*PI/180.0;
         angles[4] = angles[0];
 
-        double scale =  m_RefLength();
-        strengths[0] = m_RightLStrength() * scale;
-        strengths[1] = m_BottomLStrength() * scale;
-        strengths[2] = m_LeftLStrength() * scale;
-        strengths[3] = m_TopLStrength() * scale;
+        strengths[0] = m_RightLStrength() * scaleL;
+        strengths[1] = m_BottomLStrength() * scaleL;
+        strengths[2] = m_LeftLStrength() * scaleL;
+        strengths[3] = m_TopLStrength() * scaleL;
         strengths[4] = strengths[0];
 
-        curves[0] = m_RightLCurve() * scale;
-        curves[1] = m_BottomLCurve() * scale;
-        curves[2] = m_LeftLCurve() * scale;
-        curves[3] = m_TopLCurve() * scale;
+        curves[0] = m_RightLCurve() * scaleL;
+        curves[1] = m_BottomLCurve() * scaleL;
+        curves[2] = m_LeftLCurve() * scaleL;
+        curves[3] = m_TopLCurve() * scaleL;
         curves[4] = curves[0];
 
         GetTanNormCrv( angles, strengths, curves, tangentcrv, normcrv );
@@ -1054,17 +968,16 @@ rib_data_type FuseXSec::GetRib( bool first, bool last )
         angles[3] = m_TopRAngle()*PI/180.0;
         angles[4] = angles[0];
 
-        double scale =  m_RefLength();
-        strengths[0] = m_RightRStrength() * scale;
-        strengths[1] = m_BottomRStrength() * scale;
-        strengths[2] = m_LeftRStrength() * scale;
-        strengths[3] = m_TopRStrength() * scale;
+        strengths[0] = m_RightRStrength() * scaleR;
+        strengths[1] = m_BottomRStrength() * scaleR;
+        strengths[2] = m_LeftRStrength() * scaleR;
+        strengths[3] = m_TopRStrength() * scaleR;
         strengths[4] = strengths[0];
 
-        curves[0] = m_RightRCurve() * scale;
-        curves[1] = m_BottomRCurve() * scale;
-        curves[2] = m_LeftRCurve() * scale;
-        curves[3] = m_TopRCurve() * scale;
+        curves[0] = m_RightRCurve() * scaleR;
+        curves[1] = m_BottomRCurve() * scaleR;
+        curves[2] = m_LeftRCurve() * scaleR;
+        curves[3] = m_TopRCurve() * scaleR;
         curves[4] = curves[0];
 
         GetTanNormCrv( angles, strengths, curves, tangentcrv, normcrv );
@@ -1076,7 +989,7 @@ rib_data_type FuseXSec::GetRib( bool first, bool last )
     return rib;
 }
 
-void FuseXSec::SetUnsetParms( int irib, const VspSurf &surf )
+void SkinXSec::SetUnsetParms( int irib, const VspSurf &surf )
 {
     SetUnsetParms( 0.0, irib, surf,
              m_RightLAngleSet,
@@ -1136,7 +1049,7 @@ void FuseXSec::SetUnsetParms( int irib, const VspSurf &surf )
 
 }
 
-void FuseXSec::SetUnsetParms( double t, int irib, const VspSurf &surf,
+void SkinXSec::SetUnsetParms( double t, int irib, const VspSurf &surf,
         BoolParm &LAngleSet,
         BoolParm &LStrengthSet,
         BoolParm &LCurveSet,
@@ -1158,15 +1071,123 @@ void FuseXSec::SetUnsetParms( double t, int irib, const VspSurf &surf,
         thetaR, strengthR, curvatureR,
         surf );
 
-    double scale =  m_RefLength();
+    double scaleL =  GetLScale();
+    double scaleR =  GetRScale();
 
     if( !LAngleSet() ) LAngle = thetaL*180.0/PI;
-    if( !LStrengthSet() ) LStrength = strengthL/scale;
-    if( !LCurveSet() ) LCurve = curvatureL/scale;
+    if( !LStrengthSet() ) LStrength = strengthL/scaleL;
+    if( !LCurveSet() ) LCurve = curvatureL/scaleL;
 
     if( !RAngleSet() ) RAngle = thetaR*180.0/PI;
-    if( !RStrengthSet() ) RStrength = strengthR/scale;
-    if( !RCurveSet() ) RCurve = curvatureR/scale;
+    if( !RStrengthSet() ) RStrength = strengthR/scaleR;
+    if( !RCurveSet() ) RCurve = curvatureR/scaleR;
+}
+
+//==========================================================================//
+//==========================================================================//
+//==========================================================================//
+
+//==== Default Constructor ====//
+FuseXSec::FuseXSec( XSecCurve *xsc, bool use_left ) : SkinXSec( xsc, use_left)
+{
+    m_Type = XSEC_FUSE;
+
+    m_RefLength = 1.0;
+
+    m_XLocPercent.Init( "XLocPercent", m_GroupName, this,  0.0, 0.0, 1.0 );
+    m_XLocPercent.SetDescript( "X distance of cross section as a percent of fuselage length" );
+    m_YLocPercent.Init( "YLocPercent", m_GroupName, this,  0.0, -1.0, 1.0 );
+    m_YLocPercent.SetDescript( "Y distance of cross section as a percent of fuselage length" );
+    m_ZLocPercent.Init( "ZLocPercent", m_GroupName, this,  0.0, -1.0, 1.0 );
+    m_ZLocPercent.SetDescript( "Z distance of cross section as a percent of fuselage length" );
+
+    m_XRotate.Init( "XRotate", m_GroupName, this,  0.0, -180.0, 180.0 );
+    m_XRotate.SetDescript( "Rotation about x-axis of cross section" );
+    m_YRotate.Init( "YRotate", m_GroupName, this,  0.0, -180.0, 180.0 );
+    m_YRotate.SetDescript( "Rotation about y-axis of cross section" );
+    m_ZRotate.Init( "ZRotate", m_GroupName, this,  0.0, -180.0, 180.0 );
+    m_YRotate.SetDescript( "Rotation about z-axis of cross section" );
+
+    m_Spin.Init( "Spin", m_GroupName, this, 0.0, -180.0, 180.0 );
+
+    m_RefLength.Init( "RefLength", m_GroupName, this, 1.0, 1e-8, 1e12, false );
+
+}
+
+//==== Update ====//
+void FuseXSec::Update()
+{
+    m_LateUpdateFlag = false;
+
+    XSecSurf* xsecsurf = (XSecSurf*) GetParentContainerPtr();
+
+    Matrix4d mat;
+    xsecsurf->GetBasicTransformation( m_XSCurve->GetWidth(), mat );
+
+    VspCurve baseCurve = GetUntransformedCurve();
+
+    baseCurve.Transform( mat );
+
+    //==== Apply Transform ====//
+    m_TransformedCurve = baseCurve;
+    if ( fabs( m_Spin() ) > DBL_EPSILON )
+    {
+        std::cerr << "XSec spin not implemented." << std::endl;
+    }
+
+    m_Transform.loadIdentity();
+
+    m_Transform.translatef( m_XLocPercent()*m_RefLength(), m_YLocPercent()*m_RefLength(), m_ZLocPercent()*m_RefLength() );
+
+    m_Transform.rotateX( m_XRotate() );
+    m_Transform.rotateY( m_YRotate() );
+    m_Transform.rotateZ( m_ZRotate() );
+
+    m_TransformedCurve.Transform( m_Transform );
+}
+
+//==== Set Ref Length ====//
+void FuseXSec::SetRefLength( double len )
+{
+    if ( fabs( len - m_RefLength() ) < DBL_EPSILON )
+    {
+        return;
+    }
+
+    m_RefLength = len;
+    m_LateUpdateFlag = true;
+
+    m_XLocPercent.SetRefVal( m_RefLength() );
+    m_YLocPercent.SetRefVal( m_RefLength() );
+    m_ZLocPercent.SetRefVal( m_RefLength() );
+}
+
+//==== Copy position from base class ====//
+// May be possible to do this using ParmContainer::EncodeXML, but all
+// we want to do is copy the values in the XSec (not XSecCurve) class
+// that control position.
+void FuseXSec::CopyBasePos( XSec* xs )
+{
+    if ( xs )
+    {
+        FuseXSec* fxs = ( FuseXSec* ) xs;
+
+        m_XLocPercent = fxs->m_XLocPercent();
+        m_YLocPercent = fxs->m_YLocPercent();
+        m_ZLocPercent = fxs->m_ZLocPercent();
+
+        m_RefLength = fxs->m_RefLength();
+    }
+}
+
+double FuseXSec::GetLScale()
+{
+	return m_RefLength();
+}
+
+double FuseXSec::GetRScale()
+{
+	return m_RefLength();
 }
 
 //==========================================================================//
