@@ -1312,10 +1312,54 @@ void StackXSec::CopyBasePos( XSec* xs )
 
 double StackXSec::GetLScale()
 {
-	return 1.0;
+    XSecSurf* xsecsurf = (XSecSurf*) GetParentContainerPtr();
+    int indx = xsecsurf->FindXSecIndex( m_ID );
+
+    double dx, dy, dz;
+
+    if( indx == 0 )
+    {
+        StackXSec* prevxs = (StackXSec*) xsecsurf->FindXSec( indx + 1);
+        if( prevxs )
+        {
+            dx = prevxs->m_XDelta();
+            dy = prevxs->m_YDelta();
+            dz = prevxs->m_ZDelta();
+        }
+    }
+    else
+    {
+        dx = m_XDelta();
+        dy = m_YDelta();
+        dz = m_ZDelta();
+    }
+
+    return sqrt( dx*dx + dy*dy + dz*dz );
 }
 
 double StackXSec::GetRScale()
 {
-	return 1.0;
+    XSecSurf* xsecsurf = (XSecSurf*) GetParentContainerPtr();
+    int indx = xsecsurf->FindXSecIndex( m_ID );
+
+    double dx, dy, dz;
+
+    if( indx < (xsecsurf->NumXSec() - 1) )
+    {
+        StackXSec* prevxs = (StackXSec*) xsecsurf->FindXSec( indx + 1);
+        if( prevxs )
+        {
+            dx = prevxs->m_XDelta();
+            dy = prevxs->m_YDelta();
+            dz = prevxs->m_ZDelta();
+        }
+    }
+    else
+    {
+        dx = m_XDelta();
+        dy = m_YDelta();
+        dz = m_ZDelta();
+    }
+
+    return sqrt( dx*dx + dy*dy + dz*dz );
 }
