@@ -116,8 +116,7 @@ TabScreen::~TabScreen()
 {
 }
 
-//==== Add Tab ====//
-Fl_Group* TabScreen::AddTab( const string& title )
+Fl_Group* TabScreen::MakeTab( const string& title )
 {
     int rx, ry, rw, rh;
     m_MenuTabs->client_area( rx, ry, rw, rh, TAB_H );
@@ -130,7 +129,25 @@ Fl_Group* TabScreen::AddTab( const string& title )
     grp->hide();
     m_TabGroupVec.push_back( grp );
 
+    return grp;
+}
+
+//==== Add Tab ====//
+Fl_Group* TabScreen::AddTab( const string& title )
+{
+    Fl_Group* grp = MakeTab( title );
+
     m_MenuTabs->add( grp );
+
+    return grp;
+}
+
+//==== Add Tab ====//
+Fl_Group* TabScreen::AddTab( const string& title, int indx )
+{
+    Fl_Group* grp = MakeTab( title );
+
+    m_MenuTabs->insert( *grp, indx );
 
     return grp;
 }
@@ -141,11 +158,18 @@ void TabScreen::RemoveTab( Fl_Group* grp )
     m_MenuTabs->remove( grp );
 }
 
-//==== Remove Tab ====//
+//==== Add Tab ====//
 void TabScreen::AddTab( Fl_Group* grp )
 {
     m_MenuTabs->add( grp );
 }
+
+//==== Insert Tab ====//
+void TabScreen::AddTab( Fl_Group* grp, int indx )
+{
+    m_MenuTabs->insert( *grp, indx );
+}
+
 
 //==== Get Tab At Index ====//
 Fl_Group* TabScreen::GetTab( int index )

@@ -125,9 +125,11 @@ public:
     }
 
     virtual Fl_Group* AddTab( const string& title );
+    virtual Fl_Group* AddTab( const string& title, int indx );
     virtual Fl_Group* GetTab( int index );
 
     virtual void AddTab( Fl_Group* grp );
+    virtual void AddTab( Fl_Group* grp, int indx );
     virtual void RemoveTab( Fl_Group* grp );
 
     //==== Create A Sub Group In Tab - With Border in Pixels ====//
@@ -136,6 +138,8 @@ public:
 
 
 protected:
+
+    virtual Fl_Group* MakeTab( const string& title );
 
     enum { TAB_H = 25 };
 
