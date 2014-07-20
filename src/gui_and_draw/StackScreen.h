@@ -17,7 +17,7 @@
 
 #include <FL/Fl.H>
 
-class StackScreen : public GeomScreen
+class StackScreen : public SkinScreen
 {
 public:
     StackScreen( ScreenMgr* mgr );

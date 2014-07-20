@@ -18,7 +18,7 @@
 using namespace vsp;
 
 //==== Constructor ====//
-StackScreen::StackScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 550, "Stack" )
+StackScreen::StackScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 550, "Stack" )
 {
     m_CurrDisplayGroup = NULL;
 
@@ -245,7 +245,7 @@ bool StackScreen::Update()
         return false;
     }
 
-    GeomScreen::Update();
+    SkinScreen::Update();
     m_NumUSlider.Deactivate();
 
     StackGeom* stackgeom_ptr = dynamic_cast< StackGeom* >( geom_ptr );
@@ -532,13 +532,13 @@ void StackScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         }
     }
 
-    GeomScreen::GuiDeviceCallBack( gui_device );
+    SkinScreen::GuiDeviceCallBack( gui_device );
 }
 
 //==== Fltk  Callbacks ====//
 void StackScreen::CallBack( Fl_Widget *w )
 {
-    GeomScreen::CallBack( w );
+    SkinScreen::CallBack( w );
 }
 
 
