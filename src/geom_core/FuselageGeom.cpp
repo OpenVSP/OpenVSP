@@ -199,20 +199,6 @@ xmlNodePtr FuselageGeom::DecodeXml( xmlNodePtr & node )
     return fuselage_node;
 }
 
-//==== Set Index For Active XSec ====//
-void FuselageGeom::SetActiveXSecIndex( int index )
-{
-    index = Clamp<int>( index, 0, m_XSecSurf.NumXSec() - 1 );
-
-    m_ActiveXSec = index;
-}
-
-//==== Get XSec ====//
-XSec* FuselageGeom::GetXSec( int index )
-{
-    return m_XSecSurf.FindXSec( index );
-}
-
 //==== Set Active XSec Type ====//
 void FuselageGeom::SetActiveXSecType( int type )
 {

@@ -184,20 +184,6 @@ xmlNodePtr StackGeom::DecodeXml( xmlNodePtr & node )
     return fuselage_node;
 }
 
-//==== Set Index For Active XSec ====//
-void StackGeom::SetActiveXSecIndex( int index )
-{
-    index = Clamp<int>( index, 0, m_XSecSurf.NumXSec() - 1 );
-
-    m_ActiveXSec = index;
-}
-
-//==== Get XSec ====//
-XSec* StackGeom::GetXSec( int index )
-{
-    return m_XSecSurf.FindXSec( index );
-}
-
 //==== Set Active XSec Type ====//
 void StackGeom::SetActiveXSecType( int type )
 {

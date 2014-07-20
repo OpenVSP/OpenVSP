@@ -34,11 +34,6 @@ public:
     {
         return m_XSecSurf.NumXSec();
     }
-    virtual int GetActiveXSecIndex()
-    {
-        return m_ActiveXSec;
-    }
-    virtual void SetActiveXSecIndex( int index );
 
     virtual void SetActiveXSecType( int type );
     virtual void CutActiveXSec();
@@ -56,8 +51,6 @@ public:
         return &m_XSecSurf;
     }
 
-    virtual XSec* GetXSec( int index );
-
     bool IsClosed() const;
 
     virtual void AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id = string() );
@@ -71,9 +64,6 @@ protected:
 
     virtual void UpdateSurf();
     virtual void UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts );
-
-    int m_ActiveXSec;
-    XSecSurf m_XSecSurf;
 
     vector<int> m_TessUVec;
 

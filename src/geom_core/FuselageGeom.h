@@ -34,11 +34,7 @@ public:
     {
         return m_XSecSurf.NumXSec();
     }
-    virtual int GetActiveXSecIndex()
-    {
-        return m_ActiveXSec;
-    }
-    virtual void SetActiveXSecIndex( int index );
+
 
     virtual void SetActiveXSecType( int type );
     virtual void CutActiveXSec();
@@ -55,8 +51,6 @@ public:
     {
         return &m_XSecSurf;
     }
-
-    virtual XSec* GetXSec( int index );
 
     bool IsClosed() const;
 
@@ -77,8 +71,6 @@ protected:
     enum {FUSE_MONOTONIC, FUSE_DUCT, FUSE_FREE};
     virtual void EnforceOrder( FuseXSec* xs, int indx, int ile, int policy );
 
-    int m_ActiveXSec;
-    XSecSurf m_XSecSurf;
 
     vector<int> m_TessUVec;
 

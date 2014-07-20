@@ -521,6 +521,8 @@ WingGeom::WingGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_Type.m_Name = "Wing";
     m_Type.m_Type = MS_WING_GEOM_TYPE;
 
+    m_MinActiveXSec = 1;
+
     m_Closed = false;
 
     m_XSecSurf.SetParentContainer( GetID() );
@@ -650,31 +652,11 @@ void WingGeom::ComputeCenter()
     m_Center.set_z( 0.0 );
 }
 
-//==== Set Index For Active Wing Sect ====//
-int WingGeom::GetActiveXSecIndex()
-{
-    return m_ActiveXSec;
-}
-
-//==== Set Index For Active Wing Sect ====//
-void WingGeom::SetActiveXSecIndex( int index )
-{
-    index = Clamp<int>( index, 1, m_XSecSurf.NumXSec() - 1 );
-    m_ActiveXSec = index;
-}
-
 //==== Set Index For Active Airfoil ====//
 void WingGeom::SetActiveAirfoilIndex( int index )
 {
     index = Clamp<int>( index, 0, m_XSecSurf.NumXSec() - 1 );
     m_ActiveAirfoil = index;
-}
-
-
-//==== Get XSec ====//
-XSec* WingGeom::GetXSec( int index )
-{
-    return m_XSecSurf.FindXSec( index );
 }
 
 //==== Set Active XSec Type ====//

@@ -27,6 +27,9 @@
 #include "ColorMgr.h"
 #include "MaterialMgr.h"
 #include "DegenGeom.h"
+#include "XSec.h"
+#include "XSecCurve.h"
+#include "XSecSurf.h"
 
 //#include "xmlvsp.h"
 
@@ -527,9 +530,20 @@ public:
     GeomXSec( Vehicle* vehicle_ptr );
     virtual ~GeomXSec();
 
+    virtual int GetActiveXSecIndex()
+    {
+        return m_ActiveXSec;
+    }
+    virtual void SetActiveXSecIndex( int index );
+
+    virtual XSec* GetXSec( int index );
+
 protected:
-//  virtual void UpdateSurface();
-//
-//  should store XSecSurf here;
+
+    XSecSurf m_XSecSurf;
+
+    int m_ActiveXSec;
+    int m_MinActiveXSec;
+
 };
 #endif // !defined(VSPGEOM__INCLUDED_)

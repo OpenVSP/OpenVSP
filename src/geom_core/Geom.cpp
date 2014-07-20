@@ -1767,6 +1767,8 @@ GeomXSec::GeomXSec( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_Name = "GeomXSec";
     m_Type.m_Type = GEOM_GEOM_TYPE;
     m_Type.m_Name = m_Name;
+
+    m_MinActiveXSec = 0;
 }
 //==== Destructor ====//
 GeomXSec::~GeomXSec()
@@ -1774,15 +1776,16 @@ GeomXSec::~GeomXSec()
 
 }
 
-//void GeomXSec::UpdateSurface()
-//{
-//        UpdateCurveStack();
-//        if (m_CurveStack.size()<3)
-//        {
-//                std::cerr << "too few curve in stack for building surface." << std::endl;
-//        }
-//        else
-//        {
-//                m_Surface.InterpolateLinear( m_CurveStack, false );
-//        }
-//}
+//==== Set Index For Active XSec ====//
+void GeomXSec::SetActiveXSecIndex( int index )
+{
+    index = Clamp<int>( index, m_MinActiveXSec, m_XSecSurf.NumXSec() - 1 );
+
+    m_ActiveXSec = index;
+}
+
+//==== Get XSec ====//
+XSec* GeomXSec::GetXSec( int index )
+{
+    return m_XSecSurf.FindXSec( index );
+}

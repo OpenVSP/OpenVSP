@@ -104,8 +104,7 @@ public:
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
     virtual int NumXSec()                                { return m_XSecSurf.NumXSec(); }
-    virtual int GetActiveXSecIndex();
-    virtual void SetActiveXSecIndex( int index );
+
     virtual int GetActiveAirfoilIndex()                    { return m_ActiveAirfoil; }
     virtual void SetActiveAirfoilIndex( int index );
 
@@ -114,7 +113,6 @@ public:
     virtual int GetNumXSecSurfs()                        { return 1; }
     virtual XSecSurf* GetXSecSurf( int index )            { return &m_XSecSurf; }
 
-    virtual XSec* GetXSec( int index );
 
     bool IsClosed() const;
 
@@ -166,9 +164,7 @@ protected:
 
     virtual double GetSumDihedral( int sect_id );
 
-    int m_ActiveXSec;
     int m_ActiveAirfoil;
-    XSecSurf m_XSecSurf;
 
     vector<int> m_TessUVec;
 
