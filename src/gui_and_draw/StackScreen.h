@@ -33,31 +33,6 @@ protected:
 
     GroupLayout m_DesignLayout;
 
-    GroupLayout m_SkinLayout;
-
-    IndexSelector m_SkinIndexSelector;
-
-    ToggleButton m_AllSymButton;
-    SkinControl m_TopAngleSkinControl;
-    SkinControl m_TopStrengthSkinControl;
-    SkinControl m_TopCurvatureSkinControl;
-
-    SkinControl m_RightAngleSkinControl;
-    SkinControl m_RightStrengthSkinControl;
-    SkinControl m_RightCurvatureSkinControl;
-
-    ToggleButton m_TBSymButton;
-    SkinControl m_BottomAngleSkinControl;
-    SkinControl m_BottomStrengthSkinControl;
-    SkinControl m_BottomCurvatureSkinControl;
-
-    ToggleButton m_RLSymButton;
-    SkinControl m_LeftAngleSkinControl;
-    SkinControl m_LeftStrengthSkinControl;
-    SkinControl m_LeftCurvatureSkinControl;
-
-
-
     GroupLayout m_XSecLayout;
 
     IndexSelector m_XSecIndexSelector;
