@@ -22,12 +22,6 @@ StackScreen::StackScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 550, "Stack" 
 {
     m_CurrDisplayGroup = NULL;
 
-    Fl_Group* design_tab = AddTab( "Design" );
-    Fl_Group* design_group = AddSubGroup( design_tab, 5 );
-
-    m_DesignLayout.SetGroupAndScreen( design_group, this );
-    m_DesignLayout.AddDividerBox( "Design" );
-
     Fl_Group* xsec_tab = AddTab( "XSec" );
     Fl_Group* xsec_group = AddSubGroup( xsec_tab, 5 );
 
