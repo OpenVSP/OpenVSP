@@ -1195,7 +1195,7 @@ double FuseXSec::GetRScale()
 //==========================================================================//
 
 //==== Default Constructor ====//
-StackXSec::StackXSec( XSecCurve *xsc, bool use_left ) : XSec( xsc, use_left)
+StackXSec::StackXSec( XSecCurve *xsc, bool use_left ) : SkinXSec( xsc, use_left)
 {
     m_Type = XSEC_STACK;
 
@@ -1310,3 +1310,12 @@ void StackXSec::CopyBasePos( XSec* xs )
     }
 }
 
+double StackXSec::GetLScale()
+{
+	return 1.0;
+}
+
+double StackXSec::GetRScale()
+{
+	return 1.0;
+}

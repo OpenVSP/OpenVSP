@@ -274,7 +274,7 @@ public:
 protected:
 };
 
-class StackXSec : public XSec
+class StackXSec : public SkinXSec
 {
 public:
     StackXSec( XSecCurve *xsc, bool use_left );
@@ -284,6 +284,9 @@ public:
     virtual void Update();
 
     virtual void CopyBasePos( XSec* xs );
+
+    virtual double GetLScale();
+    virtual double GetRScale();
 
     Parm m_XDelta;
     Parm m_YDelta;

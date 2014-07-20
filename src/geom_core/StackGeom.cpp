@@ -92,18 +92,26 @@ void StackGeom::UpdateSurf()
 {
     m_TessUVec.clear();
 
+    int nxsec = m_XSecSurf.NumXSec();
+
     //==== Cross Section Curves & joint info ====//
-    vector< VspCurve > crv_vec;
-    crv_vec.resize( m_XSecSurf.NumXSec() );
+    vector< rib_data_type > rib_vec;
+    rib_vec.resize( nxsec );
 
     //==== Update XSec Location/Rotation ====//
-    for ( int i = 0 ; i < m_XSecSurf.NumXSec() ; i++ )
+    for ( int i = 0 ; i < nxsec ; i++ )
     {
         StackXSec* xs = ( StackXSec* ) m_XSecSurf.FindXSec( i );
 
         if ( xs )
         {
-            if ( i == 0 )
+            bool first = false;
+            bool last = false;
+
+            if( i == 0 ) first = true;
+            else if( i == (nxsec-1) ) last = true;
+
+            if ( first )
             {
                 xs->m_XDelta.SetLowerUpperLimits( 0.0, 0.0 );
                 xs->m_YDelta.SetLowerUpperLimits( 0.0, 0.0 );
@@ -127,7 +135,7 @@ void StackGeom::UpdateSurf()
             //==== Reset Group Names ====//
             xs->SetGroupDisplaySuffix( i );
 
-            crv_vec[i] =  xs->GetCurve();
+            rib_vec[i] = xs->GetRib( first, last );
 
             if ( i > 0 )
             {
@@ -137,7 +145,17 @@ void StackGeom::UpdateSurf()
     }
 
 
-    m_MainSurfVec[0].SkinC0( crv_vec, false );
+    m_MainSurfVec[0].SkinRibs( rib_vec, false );
+
+    for ( int i = 0 ; i < nxsec ; i++ )
+    {
+        StackXSec* xs = ( StackXSec* ) m_XSecSurf.FindXSec( i );
+        if ( xs )
+        {
+            xs->SetUnsetParms( i, m_MainSurfVec[0] );
+        }
+    }
+
     if ( m_XSecSurf.GetFlipUD() )
     {
         m_MainSurfVec[0].FlipNormal();
