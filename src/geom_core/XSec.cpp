@@ -438,10 +438,10 @@ void XSec::GetAngStrCrv( double t, int irib,
     vec3d tanL = surf.CompTanU( uribL, t );
     vec3d tanR = surf.CompTanU( uribR, t );
 
-    thetaL = angle( pdir, tanL );
+    thetaL = signed_angle( pdir, tanL, updir );
     strengthL = tanL.mag();
 
-    thetaR = angle( pdir, tanR );
+    thetaR = signed_angle( pdir, tanR, updir );
     strengthR = tanR.mag();
 
     vec3d uuL = surf.CompTanUU( uribL, t );
