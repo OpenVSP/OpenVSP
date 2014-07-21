@@ -507,8 +507,6 @@ protected:
 
     vector< bool > m_SetFlags;
 
-    vector< vec3d > GetBBoxDrawLines();
-
     vector<SubSurface*> m_SubSurfVec;
 
 //  //==== Structure Parts ====//

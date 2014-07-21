@@ -946,7 +946,7 @@ void Geom::UpdateDrawObj()
     }
 
     //==== Bounding Box ====//
-    m_HighlightDrawObj.m_PntVec = GetBBoxDrawLines();
+    m_HighlightDrawObj.m_PntVec = m_BBox.GetBBoxDrawLines();
 }
 
 //==== Encode Data Into XML Data Struct ====//
@@ -1077,22 +1077,6 @@ xmlNodePtr Geom::DecodeGeom( xmlNodePtr & node )
         DecodeXml( geom_node );
     }
     return geom_node;
-}
-
-//==== Assemble Boundbox Draw Lines ====//
-vector< vec3d > Geom::GetBBoxDrawLines()
-{
-    static int index[24] = {0, 1, 0, 2, 1, 3, 2, 3, 0, 4, 1, 5,
-                            2, 6, 3, 7, 4, 5, 4, 6, 5, 7, 6, 7
-                           };
-
-    vector< vec3d > lines;
-
-    for ( int i = 0 ; i < 24 ; i++ )
-    {
-        lines.push_back( m_BBox.GetCornerPnt( index[i] ) );
-    }
-    return lines;
 }
 
 void Geom::ResetGeomChangedFlag()

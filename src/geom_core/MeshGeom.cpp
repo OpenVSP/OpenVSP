@@ -1045,7 +1045,7 @@ void MeshGeom::UpdateDrawObj()
     }
 
     //==== Bounding Box ====//
-    m_HighlightDrawObj.m_PntVec = GetBBoxDrawLines();
+    m_HighlightDrawObj.m_PntVec = m_BBox.GetBBoxDrawLines();
 
     //==== Draw Slices ====//
     for ( int i = 0 ; i < ( int )m_SliceVec.size(); i++ )

@@ -299,5 +299,19 @@ bool Compare( const BndBox& bb1, const BndBox& bb2, double tol )
     return true;
 }
 
+//==== Assemble Boundbox Draw Lines ====//
+std::vector< vec3d > BndBox::GetBBoxDrawLines() const
+{
+    static int index[24] = {0, 1, 0, 2, 1, 3, 2, 3, 0, 4, 1, 5,
+                            2, 6, 3, 7, 4, 5, 4, 6, 5, 7, 6, 7
+                           };
 
+    std::vector< vec3d > lines;
+
+    for ( int i = 0 ; i < 24 ; i++ )
+    {
+        lines.push_back( GetCornerPnt( index[i] ) );
+    }
+    return lines;
+}
 

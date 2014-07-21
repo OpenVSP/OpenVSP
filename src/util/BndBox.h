@@ -52,6 +52,8 @@ public:
     bool CheckPnt( const vec3d & pnt ) const;
     friend bool Compare( const BndBox& bb1, const BndBox& bb2, double tol = 1.0e-12 );
 
+    std::vector< vec3d > GetBBoxDrawLines() const;
+
 protected:
 
     vec3d m_Min;
