@@ -883,6 +883,14 @@ void SkinXSec::ValidateParms( )
 
 rib_data_type SkinXSec::GetRib( bool first, bool last )
 {
+    if( first || last )
+    {
+        m_TopCont = 0;
+        m_RightCont = 0;
+        m_BottomCont = 0;
+        m_LeftCont = 0;
+    }
+
     ValidateParms( );
 
     rib_data_type rib;

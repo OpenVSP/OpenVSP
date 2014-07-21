@@ -1067,6 +1067,13 @@ bool SkinScreen::Update()
         m_BottomStrengthSkinControl.DeactivateSet();
         m_LeftStrengthSkinControl.DeactivateSet();
 
+        // Deactivate continuity control for first/last section.
+        m_TopHeader.Activate();
+        if ( xsid == 0 || xsid == (geomxsec_ptr->GetXSecSurf( 0 )->NumXSec() - 1) )
+        {
+            m_TopHeader.DeactiveContChoice();
+        }
+
         // Deactivate GUI for non-top curves.  Code-Eli right now requires
         // things to be set per cross section.  This restriction may someday
         // be lifted -- while the above Strength restriction will not.
