@@ -578,6 +578,7 @@ void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     if ( gui_device == &m_AfIndexSelector )
     {
         wing_ptr->SetActiveAirfoilIndex( m_AfIndexSelector.GetIndex() );
+        wing_ptr->Update();
     }
     else if ( gui_device == &m_SectIndexSelector )
     {

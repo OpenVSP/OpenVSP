@@ -935,6 +935,63 @@ void WingGeom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vecto
     m_SurfVec[indx].Tesselate( m_TessUVec, m_TessW(), pnts, norms, uw_pnts );
 }
 
+void WingGeom::UpdateDrawObj()
+{
+    Geom::UpdateDrawObj();
+
+    Matrix4d attachMat;
+    Matrix4d relTrans;
+    attachMat = ComposeAttachMatrix();
+    relTrans = attachMat;
+    relTrans.affineInverse();
+    relTrans.matMult( m_ModelMatrix.data() );
+    relTrans.postMult( attachMat.data() );
+
+    int nxsec = m_XSecSurf.NumXSec();
+    m_XSecDrawObj_vec.resize( nxsec, DrawObj() );
+
+    //==== Tesselate Surface ====//
+    for ( int i = 0 ; i < nxsec ; i++ )
+    {
+        m_XSecDrawObj_vec[i].m_PntVec = m_XSecSurf.FindXSec( i )->GetDrawLines( m_TessW(), relTrans );
+        m_XSecDrawObj_vec[i].m_GeomChanged = true;
+    }
+
+    m_HighlightXSecDrawObj.m_PntVec = m_XSecSurf.FindXSec( m_ActiveAirfoil )->GetDrawLines( m_TessW(), relTrans );
+    m_HighlightXSecDrawObj.m_GeomChanged = true;
+
+
+    VspCurve inbd = m_XSecSurf.FindXSec( m_ActiveXSec - 1 )->GetCurve();
+    inbd.Transform( relTrans );
+
+    VspCurve outbd = m_XSecSurf.FindXSec( m_ActiveXSec )->GetCurve();
+    outbd.Transform( relTrans );
+
+    BndBox iBBox, oBBox;
+    inbd.GetBoundingBox( iBBox );
+    outbd.GetBoundingBox( oBBox );
+    oBBox.Update( iBBox );
+
+    m_HighlightWingSecDrawObj.m_PntVec = oBBox.GetBBoxDrawLines();
+
+}
+
+void WingGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
+{
+    GeomXSec::LoadDrawObjs( draw_obj_vec );
+
+    if ( m_Vehicle->IsGeomActive( m_ID ) )
+    {
+        m_HighlightWingSecDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+        m_HighlightWingSecDrawObj.m_GeomID = BBOXHEADER + m_ID + "ACTIVE_SECT";
+        m_HighlightWingSecDrawObj.m_LineWidth = 2.0;
+        m_HighlightWingSecDrawObj.m_LineColor = vec3d( 1.0, 0.0, 0.0 );
+        m_HighlightWingSecDrawObj.m_Type = DrawObj::VSP_LINES;
+        draw_obj_vec.push_back( &m_HighlightWingSecDrawObj );
+    }
+}
+
+
 //==== Get All WingSections ====//
 vector< WingSect* > WingGeom::GetWingSectVec()
 {

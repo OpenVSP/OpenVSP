@@ -133,6 +133,8 @@ public:
     virtual void CopyAirfoil( int index );
     virtual void PasteAirfoil( int index );
 
+    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
+
     //==== Planform Parms ====//
     Parm m_TotalSpan;
     Parm m_TotalProjSpan;
@@ -149,6 +151,7 @@ protected:
     virtual void ChangeID( string id );
     virtual void UpdateSurf();
     virtual void UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts );
+    virtual void UpdateDrawObj();
     virtual void MatchWingSections();
 
     virtual double ComputeTotalSpan();
@@ -165,6 +168,7 @@ protected:
     virtual double GetSumDihedral( int sect_id );
 
     int m_ActiveAirfoil;
+    DrawObj m_HighlightWingSecDrawObj;
 
     vector<int> m_TessUVec;
 
