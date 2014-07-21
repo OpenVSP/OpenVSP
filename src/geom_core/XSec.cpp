@@ -1182,12 +1182,52 @@ void FuseXSec::CopyBasePos( XSec* xs )
 
 double FuseXSec::GetLScale()
 {
-	return m_RefLength();
+    XSecSurf* xsecsurf = (XSecSurf*) GetParentContainerPtr();
+    int indx = xsecsurf->FindXSecIndex( m_ID );
+
+    double dx, dy, dz;
+
+    if( indx == 0 )
+    {
+        return GetRScale();
+    }
+    else
+    {
+        FuseXSec* prevxs = (FuseXSec*) xsecsurf->FindXSec( indx - 1);
+        if( prevxs )
+        {
+            dx = ( m_XLocPercent() - prevxs->m_XLocPercent() ) * m_RefLength();
+            dy = ( m_YLocPercent() - prevxs->m_YLocPercent() ) * m_RefLength();
+            dz = ( m_ZLocPercent() - prevxs->m_ZLocPercent() ) * m_RefLength();
+        }
+    }
+
+    return sqrt( dx*dx + dy*dy + dz*dz );
 }
 
 double FuseXSec::GetRScale()
 {
-	return m_RefLength();
+    XSecSurf* xsecsurf = (XSecSurf*) GetParentContainerPtr();
+    int indx = xsecsurf->FindXSecIndex( m_ID );
+
+    double dx, dy, dz;
+
+    if( indx < ( xsecsurf->NumXSec() - 1 ) )
+    {
+        FuseXSec* nxtxs = (FuseXSec*) xsecsurf->FindXSec( indx + 1);
+        if( nxtxs )
+        {
+            dx = ( nxtxs->m_XLocPercent() - m_XLocPercent() ) * m_RefLength();
+            dy = ( nxtxs->m_YLocPercent() - m_YLocPercent() ) * m_RefLength();
+            dz = ( nxtxs->m_ZLocPercent() - m_ZLocPercent() ) * m_RefLength();
+        }
+    }
+    else
+    {
+        return GetLScale();
+    }
+
+    return sqrt( dx*dx + dy*dy + dz*dz );
 }
 
 //==========================================================================//
