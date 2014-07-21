@@ -13,6 +13,7 @@
 
 #include "Matrix.h"
 #include "Vec3d.h"
+#include "BndBox.h"
 
 #include <vector>
 using std::vector;
@@ -197,6 +198,8 @@ public:
     void Reverse();
 
     bool IsEqual( const VspCurve & crv );
+
+    void GetBoundingBox( BndBox &bb ) const;
 
 protected:
     piecewise_curve_type m_Curve;
