@@ -1776,6 +1776,63 @@ GeomXSec::~GeomXSec()
 
 }
 
+void GeomXSec::UpdateDrawObj()
+{
+    Geom::UpdateDrawObj();
+
+    Matrix4d attachMat;
+    Matrix4d relTrans;
+    attachMat = ComposeAttachMatrix();
+    relTrans = attachMat;
+    relTrans.affineInverse();
+    relTrans.matMult( m_ModelMatrix.data() );
+    relTrans.postMult( attachMat.data() );
+
+    int nxsec = m_XSecSurf.NumXSec();
+    m_XSecDrawObj_vec.resize( nxsec, DrawObj() );
+
+    //==== Tesselate Surface ====//
+    for ( int i = 0 ; i < nxsec ; i++ )
+    {
+        m_XSecDrawObj_vec[i].m_PntVec = m_XSecSurf.FindXSec( i )->GetDrawLines( m_TessW(), relTrans );
+        m_XSecDrawObj_vec[i].m_GeomChanged = true;
+    }
+
+    m_HighlightXSecDrawObj.m_PntVec = m_XSecSurf.FindXSec( m_ActiveXSec )->GetDrawLines( m_TessW(), relTrans );
+    m_HighlightXSecDrawObj.m_GeomChanged = true;
+}
+
+void GeomXSec::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
+{
+    Geom::LoadDrawObjs( draw_obj_vec );
+
+
+    if ( m_Vehicle->IsGeomActive( m_ID ) )
+    {
+        char str[256];
+
+        int nxsec = m_XSecSurf.NumXSec();
+        for ( int i = 0 ; i < nxsec ; i++ )
+        {
+            sprintf( str, "_%d", i );
+
+            m_XSecDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+            m_XSecDrawObj_vec[i].m_GeomID = XSECHEADER + m_ID + str;
+            m_XSecDrawObj_vec[i].m_LineWidth = 2.0;
+            m_XSecDrawObj_vec[i].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
+            m_XSecDrawObj_vec[i].m_Type = DrawObj::VSP_LINE_STRIP;
+            draw_obj_vec.push_back( &m_XSecDrawObj_vec[i] );
+        }
+
+        m_HighlightXSecDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+        m_HighlightXSecDrawObj.m_GeomID = XSECHEADER + m_ID + "ACTIVE";
+        m_HighlightXSecDrawObj.m_LineWidth = 4.0;
+        m_HighlightXSecDrawObj.m_LineColor = vec3d( 1.0, 0.0, 0.0 );
+        m_HighlightXSecDrawObj.m_Type = DrawObj::VSP_LINE_STRIP;
+        draw_obj_vec.push_back( &m_HighlightXSecDrawObj );
+    }
+}
+
 //==== Set Index For Active XSec ====//
 void GeomXSec::SetActiveXSecIndex( int index )
 {

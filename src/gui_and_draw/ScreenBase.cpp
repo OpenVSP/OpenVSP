@@ -1112,6 +1112,7 @@ void SkinScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     if ( gui_device == &m_SkinIndexSelector )
     {
         geomxsec_ptr->SetActiveXSecIndex( m_SkinIndexSelector.GetIndex() );
+        geomxsec_ptr->Update();
     }
     else if ( gui_device == m_TopHeader.m_ContChoice )
     {

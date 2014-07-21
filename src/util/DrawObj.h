@@ -22,6 +22,7 @@ using namespace std;
 #define PICKVERTEXHEADER "VPICKING_"
 #define PICKLOCHEADER "LPICKING_"
 #define BBOXHEADER "BBOX_"
+#define XSECHEADER "XSEC_"
 
 class DrawObj
 {

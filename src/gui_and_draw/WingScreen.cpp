@@ -582,6 +582,7 @@ void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     else if ( gui_device == &m_SectIndexSelector )
     {
         wing_ptr->SetActiveXSecIndex( m_SectIndexSelector.GetIndex() );
+        wing_ptr->Update();
     }
     else if ( gui_device == &m_SplitSectButton )
     {

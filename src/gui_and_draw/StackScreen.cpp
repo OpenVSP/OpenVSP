@@ -457,6 +457,7 @@ void StackScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     if ( gui_device == &m_XSecIndexSelector )
     {
         stackgeom_ptr->SetActiveXSecIndex( m_XSecIndexSelector.GetIndex() );
+        stackgeom_ptr->Update();
     }
     else if ( gui_device == &m_XSecTypeChoice )
     {

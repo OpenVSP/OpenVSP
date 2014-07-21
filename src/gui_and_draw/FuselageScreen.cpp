@@ -459,6 +459,7 @@ void FuselageScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     if ( gui_device == &m_XSecIndexSelector )
     {
         fuselage_ptr->SetActiveXSecIndex( m_XSecIndexSelector.GetIndex() );
+        fuselage_ptr->Update();
     }
     else if ( gui_device == &m_XSecTypeChoice )
     {

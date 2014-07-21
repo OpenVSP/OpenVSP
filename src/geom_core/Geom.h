@@ -535,6 +535,9 @@ public:
         return &m_XSecSurf;
     }
 
+    virtual void UpdateDrawObj();
+    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
+
     virtual int GetActiveXSecIndex()
     {
         return m_ActiveXSec;
@@ -546,6 +549,8 @@ public:
 protected:
 
     XSecSurf m_XSecSurf;
+    vector<DrawObj> m_XSecDrawObj_vec;
+    DrawObj m_HighlightXSecDrawObj;
 
     int m_ActiveXSec;
     int m_MinActiveXSec;
