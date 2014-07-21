@@ -530,6 +530,11 @@ public:
     GeomXSec( Vehicle* vehicle_ptr );
     virtual ~GeomXSec();
 
+    virtual XSecSurf* GetXSecSurf( int index )
+    {
+        return &m_XSecSurf;
+    }
+
     virtual int GetActiveXSecIndex()
     {
         return m_ActiveXSec;
