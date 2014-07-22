@@ -285,7 +285,7 @@ public:
 class SkinScreen : public GeomScreen
 {
 public:
-	SkinScreen( ScreenMgr* mgr, int w, int h, const string & title );
+    SkinScreen( ScreenMgr* mgr, int w, int h, const string & title );
     virtual ~SkinScreen()                               {}
 
     virtual bool Update( );
