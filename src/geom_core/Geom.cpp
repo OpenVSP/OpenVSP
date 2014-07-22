@@ -1775,7 +1775,6 @@ void GeomXSec::UpdateDrawObj()
     int nxsec = m_XSecSurf.NumXSec();
     m_XSecDrawObj_vec.resize( nxsec, DrawObj() );
 
-    //==== Tesselate Surface ====//
     for ( int i = 0 ; i < nxsec ; i++ )
     {
         m_XSecDrawObj_vec[i].m_PntVec = m_XSecSurf.FindXSec( i )->GetDrawLines( m_TessW(), relTrans );
