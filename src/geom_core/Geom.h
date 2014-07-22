@@ -550,6 +550,8 @@ protected:
     vector<DrawObj> m_XSecDrawObj_vec;
     DrawObj m_HighlightXSecDrawObj;
 
+    DrawObj m_CurrentXSecDrawObj;
+
     int m_ActiveXSec;
     int m_MinActiveXSec;
 

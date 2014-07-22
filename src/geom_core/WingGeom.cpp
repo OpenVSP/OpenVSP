@@ -960,6 +960,21 @@ void WingGeom::UpdateDrawObj()
     m_HighlightXSecDrawObj.m_PntVec = m_XSecSurf.FindXSec( m_ActiveAirfoil )->GetDrawLines( m_TessW(), relTrans );
     m_HighlightXSecDrawObj.m_GeomChanged = true;
 
+    double w = m_XSecSurf.FindXSec( m_ActiveAirfoil )->GetXSecCurve()->GetWidth();
+
+    Matrix4d mat;
+    m_XSecSurf.GetBasicTransformation( Z_DIR, X_DIR, XS_SHIFT_MID, false, 1.0, mat );
+    mat.scale( 1.0/w );
+
+    VspCurve crv = m_XSecSurf.FindXSec( m_ActiveAirfoil )->GetUntransformedCurve();
+    crv.Transform( mat );
+
+    vector< vec3d > pts;
+    crv.Tesselate( m_TessW(), pts );
+
+    m_CurrentXSecDrawObj.m_PntVec = pts;
+    m_CurrentXSecDrawObj.m_GeomChanged = true;
+
 
     VspCurve inbd = m_XSecSurf.FindXSec( m_ActiveXSec - 1 )->GetCurve();
     inbd.Transform( relTrans );

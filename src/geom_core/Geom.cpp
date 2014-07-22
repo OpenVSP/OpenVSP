@@ -1784,6 +1784,25 @@ void GeomXSec::UpdateDrawObj()
 
     m_HighlightXSecDrawObj.m_PntVec = m_XSecSurf.FindXSec( m_ActiveXSec )->GetDrawLines( m_TessW(), relTrans );
     m_HighlightXSecDrawObj.m_GeomChanged = true;
+
+    double w = m_XSecSurf.FindXSec( m_ActiveXSec )->GetXSecCurve()->GetWidth();
+    double h = m_XSecSurf.FindXSec( m_ActiveXSec )->GetXSecCurve()->GetHeight();
+    double scale = 1.0;
+    if( w > h ) scale = 1.0 / w;
+    else scale = 1.0 / h;
+
+    Matrix4d mat;
+    m_XSecSurf.GetBasicTransformation( Z_DIR, X_DIR, XS_SHIFT_MID, false, w * scale, mat );
+    mat.scale( scale );
+
+    VspCurve crv = m_XSecSurf.FindXSec( m_ActiveXSec )->GetUntransformedCurve();
+    crv.Transform( mat );
+
+    vector< vec3d > pts;
+    crv.Tesselate( m_TessW(), pts );
+
+    m_CurrentXSecDrawObj.m_PntVec = pts;
+    m_CurrentXSecDrawObj.m_GeomChanged = true;
 }
 
 void GeomXSec::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
@@ -1814,6 +1833,13 @@ void GeomXSec::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         m_HighlightXSecDrawObj.m_LineColor = vec3d( 1.0, 0.0, 0.0 );
         m_HighlightXSecDrawObj.m_Type = DrawObj::VSP_LINE_STRIP;
         draw_obj_vec.push_back( &m_HighlightXSecDrawObj );
+
+        m_CurrentXSecDrawObj.m_Screen = DrawObj::VSP_XSEC_SCREEN;
+        m_CurrentXSecDrawObj.m_GeomID = XSECHEADER + m_ID + "CURRENT";
+        m_CurrentXSecDrawObj.m_LineWidth = 1.0;
+        m_CurrentXSecDrawObj.m_LineColor = vec3d( 0.0, 0.0, 0.0 );
+        m_CurrentXSecDrawObj.m_Type = DrawObj::VSP_LINES;
+        draw_obj_vec.push_back( &m_CurrentXSecDrawObj );
     }
 }
 
