@@ -375,7 +375,7 @@ void XSec::GetTanNormCrv( const vector< double > &ts, const vector< double > &th
         GetTanNormVec( crvts[i], -crvparm.x(), tangent, normal );
 
         tangent = tangent * crvparm.y();
-        normal = normal * ( -crvparm.z() );
+        normal = normal * crvparm.z();
 
         tanpts[i] << tangent.v[0], tangent.v[1], tangent.v[2];
         nrmpts[i] << normal.v[0], normal.v[1], normal.v[2];
