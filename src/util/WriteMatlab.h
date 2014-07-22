@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <string>
-#include "vec3d.h"
+#include "Vec3d.h"
 #include <cfloat>
 
 class WriteMatlab
