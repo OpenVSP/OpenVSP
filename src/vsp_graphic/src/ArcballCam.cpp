@@ -5,7 +5,8 @@
 
 #define TOLERANCE 0.00001
 #define R_SENSITIVITY 1.0f  // Rotation Sensitivity
-#define P_SENSITIVITY 15.0f // Panning Sensitivity
+#define P_SENSITIVITY 1.0f // Panning Sensitivity
+#define Z_SENSITIVITY 0.1f  // Zooming Sensitivity
 
 #define ALLOWABLE_SAVES 4
 
@@ -159,8 +160,8 @@ void ArcballCam::pan( int px, int py, int cx, int cy )
         return;
     }
 
-    _pan.x += P_SENSITIVITY * ( float )( cx - px ) / _vWidth;
-    _pan.y += P_SENSITIVITY * ( float )( cy - py ) / _vHeight;
+    _pan.x += P_SENSITIVITY * _oZoom * ( float )( cx - px );
+    _pan.y += P_SENSITIVITY * _oZoom * ( float )( cy - py );
 
     _tMat = glm::translate( _pan.x, _pan.y, 0.0f );
 
@@ -190,17 +191,17 @@ void ArcballCam::zoom( int px, int py, int cx, int cy )
     if( cy - py > 0 )
     {
         _pZoom += 0.5f;
-        _oZoom += 0.001f;
+        _oZoom += Z_SENSITIVITY * _oZoom;
     }
     else if( cy - py < 0 )
     {
         _pZoom -= 0.5f;
-        _oZoom -= 0.001f;
+        _oZoom -= Z_SENSITIVITY * _oZoom;
     }
 
-    if( _oZoom < 0.001f )
+    if( _oZoom < 0.000001f )
     {
-        _oZoom = 0.001f;
+        _oZoom = 0.000001f;
     }
 
     if( _pZoom < 10.f )
@@ -221,9 +222,9 @@ void ArcballCam::zoom( float zoomvalue )
     _oZoom += zoomvalue;
     _pZoom += zoomvalue;
 
-    if( _oZoom < 0.001f )
+    if( _oZoom < 0.000001f )
     {
-        _oZoom = 0.001f;
+        _oZoom = 0.000001f;
     }
 
     if( _pZoom < 10.f )
