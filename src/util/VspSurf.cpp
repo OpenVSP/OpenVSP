@@ -445,56 +445,8 @@ void VspSurf::Tesselate( int num_u, int num_v, vector< vector< vec3d > > & pnts,
 
 void VspSurf::Tesselate( int num_u, int num_v, vector< vector< vec3d > > & pnts, vector< vector< vec3d > > & norms, vector< vector< vec3d > > & uw_pnts ) const
 {
-    if( m_Surface.number_u_patches() == 0 || m_Surface.number_v_patches() == 0 )
-    {
-        return;
-    }
-
-    surface_index_type i, j, nu( num_u ), nv( num_v );
-    double umin, umax, vmin, vmax;
-    std::vector<double> u( nu ), v( nv );
-    surface_point_type ptmp, ntmp;
-
-    // resize pnts and norms
-    pnts.resize( nu );
-    norms.resize( nu );
-    uw_pnts.resize( nu );
-    for ( i = 0; i < nu; ++i )
-    {
-        pnts[i].resize( nv );
-        norms[i].resize( nv );
-        uw_pnts[i].resize( nv );
-    }
-
-    // calculate the u and v parameterizations
-    m_Surface.get_parameter_min( umin, vmin );
-    m_Surface.get_parameter_max( umax, vmax );
-    for ( i = 0; i < nu; ++i )
-    {
-        u[i] = umin + ( umax - umin ) * static_cast<double>( i ) / ( nu - 1 );
-    }
-    for ( j = 0; j < nv; ++j )
-    {
-        v[j] = vmin + ( vmax - vmin ) * static_cast<double>( j ) / ( nv - 1 );
-    }
-
-    // calculate the coordinate and normal at each point
-    for ( surface_index_type i = 0; i < nu; ++i )
-    {
-        for ( surface_index_type j = 0; j < nv; ++j )
-        {
-            ptmp = m_Surface.f( u[i], v[j] );
-            ntmp = m_Surface.normal( u[i], v[j] );
-            pnts[i][j].set_xyz( ptmp.x(), ptmp.y(), ptmp.z() );
-
-            if ( m_FlipNormal )
-            {
-                ntmp = -ntmp;
-            }
-            norms[i][j].set_xyz( ntmp.x(), ntmp.y(), ntmp.z() );
-            uw_pnts[i][j].set_xyz( u[i], v[j], 0.0 );
-        }
-    }
+    vector<int> num_u_vec( GetNumSectU(), num_u );
+    Tesselate( num_u_vec, num_v, pnts, norms, uw_pnts );
 }
 
 void VspSurf::Tesselate( const vector<int> &num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms ) const
@@ -505,6 +457,11 @@ void VspSurf::Tesselate( const vector<int> &num_u, int num_v, std::vector< vecto
 
 void VspSurf::Tesselate( const vector<int> &num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts ) const
 {
+    if( m_Surface.number_u_patches() == 0 || m_Surface.number_v_patches() == 0 )
+    {
+        return;
+    }
+
     surface_index_type i, j, nu, nv( num_v );
     double umin, umax, vmin, vmax;
     std::vector<double> u, v( nv );
