@@ -26,6 +26,7 @@
 
 #include "GuiDevice.h"
 #include "GroupLayout.h"
+#include "SubGLWindow.h"
 
 class ScreenMgr;
 class Vehicle;
@@ -327,5 +328,16 @@ protected:
 
 };
 
+class XSecViewScreen : public BasicScreen
+{
+public:
+    XSecViewScreen( ScreenMgr* mgr );
+    virtual ~XSecViewScreen() {}
+    virtual bool Update();
+
+protected:
+
+    VSPGUI::VspSubGlWindow * m_GlWin;
+};
 
 #endif // !defined(SCREENBASE__INCLUDED_)

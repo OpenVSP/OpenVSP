@@ -14,6 +14,11 @@
 #include "SubSurface.h"
 #include "APIDefines.h"
 #include "MaterialRepo.h"
+#include "GraphicEngine.h"
+#include "Display.h"
+#include "Viewport.h"
+#include "Camera.h"
+
 using namespace vsp;
 
 
@@ -1135,4 +1140,38 @@ void SkinScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 void SkinScreen::CallBack( Fl_Widget *w )
 {
     GeomScreen::CallBack( w );
+}
+
+
+//=====================================================================//
+//=====================================================================//
+//=====================================================================//
+
+
+
+XSecViewScreen::XSecViewScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 300, 300, "XSec View" )
+{
+    int x = m_FLTK_Window->x();
+    int y = m_FLTK_Window->y();
+    int w = m_FLTK_Window->w();
+    int h = m_FLTK_Window->h();
+
+
+    m_FLTK_Window->begin();
+    m_GlWin = new VSPGUI::VspSubGlWindow( x, y, w, h, DrawObj::VSP_XSEC_SCREEN);
+    m_FLTK_Window->end();
+
+    m_GlWin->getGraphicEngine()->getDisplay()->changeView( VSPGraphic::Common::VSP_CAM_TOP );
+    m_GlWin->getGraphicEngine()->getDisplay()->getViewport()->showGridOverlay( false );
+    m_GlWin->getGraphicEngine()->getDisplay()->getCamera()->setZoomValue(.005);
+}
+
+bool XSecViewScreen::Update()
+{
+    assert( m_ScreenMgr );
+
+    m_GlWin->update();
+    m_GlWin->redraw();
+
+    return true;
 }

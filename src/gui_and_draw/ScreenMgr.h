@@ -52,6 +52,7 @@ public:
            VSP_TYPE_EDITOR_SCREEN,
            VSP_USER_PARM_SCREEN,
            VSP_VIEW_SCREEN,
+           VSP_XSEC_SCREEN,
            VSP_NUM_SCREENS
          };
 
