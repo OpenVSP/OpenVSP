@@ -635,11 +635,8 @@ void SkinXSec::ValidateParms( IntParm &Cont,
     BoolParm &LRStrengthEq,
     BoolParm &LRCurveEq )
 {
-    if ( LAngleSet() ) LStrengthSet = true;
-    if ( !LAngleSet() ) LStrengthSet = false;
-
-    if ( RAngleSet() ) RStrengthSet = true;
-    if ( !RAngleSet() ) RStrengthSet = false;
+    LStrengthSet = LAngleSet();
+    RStrengthSet = RAngleSet();
 
     if ( Cont() == 2 )
     {
@@ -704,12 +701,24 @@ void SkinXSec::CrossValidateParms( BoolParm &topEq,
         BoolParm &bottomEq,
         BoolParm &leftEq,
         BoolParm &topRSet,
-        BoolParm &topLSet )
+        BoolParm &topLSet,
+        bool CX )
 {
-    if ( topEq() || rightEq() || bottomEq() || leftEq() )
+    if( !CX )
     {
-        topRSet = true;
-        topLSet = true;
+        if ( topEq() || rightEq() || bottomEq() || leftEq() )
+        {
+            topRSet = true;
+            topLSet = true;
+        }
+    }
+    else
+    {
+        topRSet = topLSet();
+        topEq = topLSet();
+        rightEq = topLSet();
+        bottomEq = topLSet();
+        leftEq = topLSet();
     }
 }
 
@@ -721,21 +730,24 @@ void SkinXSec::ValidateParms( )
             m_BottomLRAngleEq,
             m_LeftLRAngleEq,
             m_TopRAngleSet,
-            m_TopLAngleSet );
+            m_TopLAngleSet,
+            m_TopCont() >= 1 );
 
     CrossValidateParms( m_TopLRStrengthEq,
             m_RightLRStrengthEq,
             m_BottomLRStrengthEq,
             m_LeftLRStrengthEq,
             m_TopRAngleSet,
-            m_TopLAngleSet );
+            m_TopLAngleSet,
+            m_TopCont() >= 1 );
 
     CrossValidateParms( m_TopLRCurveEq,
             m_RightLRCurveEq,
             m_BottomLRCurveEq,
             m_LeftLRCurveEq,
             m_TopRCurveSet,
-            m_TopLCurveSet );
+            m_TopLCurveSet,
+            m_TopCont() >= 2 );
 
     ValidateParms( m_TopCont,
                m_TopLAngleSet,

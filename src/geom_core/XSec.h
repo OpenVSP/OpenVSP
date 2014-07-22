@@ -146,7 +146,8 @@ public:
             BoolParm &bottomEq,
             BoolParm &leftEq,
             BoolParm &topRSet,
-            BoolParm &topLSet );
+            BoolParm &topLSet,
+            bool CX );
 
     virtual void ValidateParms( );
 

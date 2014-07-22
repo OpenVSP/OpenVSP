@@ -1079,6 +1079,62 @@ bool SkinScreen::Update()
             m_TopHeader.DeactiveContChoice();
         }
 
+        // Deactivate RSet and Equality control to match continuity settings.
+        // The RBL versions of these are redundant given current Code-Eli limitations
+        // However, they are coded up now so fewer changes will be required later.
+        if ( xs->m_TopCont() >= 1)
+        {
+            m_TopAngleSkinControl.DeactivateRSet();
+            m_TopAngleSkinControl.DeactivateEqual();
+            m_TopStrengthSkinControl.DeactivateRSet();
+            m_TopStrengthSkinControl.DeactivateEqual();
+        }
+        if ( xs->m_TopCont() >= 2)
+        {
+            m_TopCurvatureSkinControl.DeactivateRSet();
+            m_TopCurvatureSkinControl.DeactivateEqual();
+        }
+
+        if ( xs->m_RightCont() >= 1)
+        {
+            m_RightAngleSkinControl.DeactivateRSet();
+            m_RightAngleSkinControl.DeactivateEqual();
+            m_RightStrengthSkinControl.DeactivateRSet();
+            m_RightStrengthSkinControl.DeactivateEqual();
+        }
+        if ( xs->m_RightCont() >= 2)
+        {
+            m_RightCurvatureSkinControl.DeactivateRSet();
+            m_RightCurvatureSkinControl.DeactivateEqual();
+        }
+
+        if ( xs->m_BottomCont() >= 1)
+        {
+            m_BottomAngleSkinControl.DeactivateRSet();
+            m_BottomAngleSkinControl.DeactivateEqual();
+            m_BottomStrengthSkinControl.DeactivateRSet();
+            m_BottomStrengthSkinControl.DeactivateEqual();
+        }
+        if ( xs->m_BottomCont() >= 2)
+        {
+            m_BottomCurvatureSkinControl.DeactivateRSet();
+            m_BottomCurvatureSkinControl.DeactivateEqual();
+        }
+
+        if ( xs->m_LeftCont() >= 1)
+        {
+            m_LeftAngleSkinControl.DeactivateRSet();
+            m_LeftAngleSkinControl.DeactivateEqual();
+            m_LeftStrengthSkinControl.DeactivateRSet();
+            m_LeftStrengthSkinControl.DeactivateEqual();
+        }
+        if ( xs->m_LeftCont() >= 2)
+        {
+            m_LeftCurvatureSkinControl.DeactivateRSet();
+            m_LeftCurvatureSkinControl.DeactivateEqual();
+        }
+
+
         // Deactivate GUI for non-top curves.  Code-Eli right now requires
         // things to be set per cross section.  This restriction may someday
         // be lifted -- while the above Strength restriction will not.
