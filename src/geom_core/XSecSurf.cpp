@@ -424,62 +424,67 @@ void XSecSurf::ChangeXSecShape( int index, int type )
 
 void XSecSurf::GetBasicTransformation( double w, Matrix4d &mat )
 {
-    double *m = mat.data();
-
     if ( m_PrincipalDir != -1 )
     {
-        for ( int i = 0; i < 16; i++ )
-        {
-            m[i] = 0;
-        }
-
-        int prow = m_PrincipalDir;
-        // Principal direction of base curves +Z
-        m[ prow + ( Z_DIR * 4 ) ] = 1;
-
-        int wrow = m_WidthDir;
-        // Width direction of base curves +X
-        m[ wrow + ( X_DIR * 4 ) ] = 1;
-
-        // Remaining row via clever math
-        int row = 3 - ( prow + wrow );
-
-        // Cross product to ensure right handed system
-        int r1, r2;
-        switch( row )
-        {
-        case X_DIR:
-            r1 = Y_DIR;
-            r2 = Z_DIR;
-            break;
-        case Y_DIR:
-            r1 = Z_DIR;
-            r2 = X_DIR;
-            break;
-        case Z_DIR:
-            r1 = X_DIR;
-            r2 = Y_DIR;
-            break;
-        }
-
-        int flipflag = 1;
-        if ( m_FlipUD )
-        {
-            flipflag = -1;
-        }
-
-        // Specialized cross product with known zeros.
-        m[ row + ( Y_DIR * 4 ) ] = flipflag * ( m[ r1 + ( Z_DIR * 4 ) ] * m[ r2 + ( X_DIR * 4 ) ] -
-                                                m[ r1 + ( X_DIR * 4 ) ] * m[ r2 + ( Z_DIR * 4 ) ] );
-
-        // Shift in width direction if required.
-        m[ wrow + 12 ] = -w * m_WidthShift / 2.0;
+        GetBasicTransformation( m_PrincipalDir, m_WidthDir, m_WidthShift, m_FlipUD, w, mat );
     }
     else
     {
         printf( "Must call XSecSurf::SetBasicOrientation before use.\n" );
         assert( false );
     }
+}
+
+void XSecSurf::GetBasicTransformation( int pdir, int wdir, int wshift, bool flip, double w, Matrix4d &mat )
+{
+    double *m = mat.data();
+
+    for ( int i = 0; i < 16; i++ )
+    {
+        m[i] = 0;
+    }
+
+    int prow = pdir;
+    // Principal direction of base curves +Z
+    m[ prow + ( Z_DIR * 4 ) ] = 1;
+
+    int wrow = wdir;
+    // Width direction of base curves +X
+    m[ wrow + ( X_DIR * 4 ) ] = 1;
+
+    // Remaining row via clever math
+    int row = 3 - ( prow + wrow );
+
+    // Cross product to ensure right handed system
+    int r1, r2;
+    switch( row )
+    {
+    case X_DIR:
+        r1 = Y_DIR;
+        r2 = Z_DIR;
+        break;
+    case Y_DIR:
+        r1 = Z_DIR;
+        r2 = X_DIR;
+        break;
+    case Z_DIR:
+        r1 = X_DIR;
+        r2 = Y_DIR;
+        break;
+    }
+
+    int flipflag = 1;
+    if ( flip )
+    {
+        flipflag = -1;
+    }
+
+    // Specialized cross product with known zeros.
+    m[ row + ( Y_DIR * 4 ) ] = flipflag * ( m[ r1 + ( Z_DIR * 4 ) ] * m[ r2 + ( X_DIR * 4 ) ] -
+                                            m[ r1 + ( X_DIR * 4 ) ] * m[ r2 + ( Z_DIR * 4 ) ] );
+
+    // Shift in width direction if required.
+    m[ wrow + 12 ] = -w * wshift / 2.0;
 }
 
 
