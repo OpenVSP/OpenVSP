@@ -528,16 +528,6 @@ void VspSurf::Tesselate( const vector<int> &num_u, int num_v, std::vector< vecto
     }
 }
 
-struct joint_pred
-{
-    double ref_val;
-    double tol;
-    bool operator()( double a ) const
-    {
-        return ( std::abs( a - ref_val ) < tol );
-    }
-};
-
 void VspSurf::WriteBezFile( FILE* file_id, const std::string &geom_id, int surf_ind )
 {
     // Make copy for local changes.
