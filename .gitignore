@@ -2,4 +2,3 @@
 build/
 inst/
 *.bak
-libAngelscript.a
