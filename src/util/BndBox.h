@@ -15,6 +15,9 @@
 
 #include <vector>
 
+class BndBox;
+bool Compare( const BndBox& bb1, const BndBox& bb2, double tol = 1.0e-12 );
+
 class VSPDLL BndBox
 {
 public:
@@ -50,7 +53,7 @@ public:
 
     bool CheckPnt( double x, double y, double z ) const;
     bool CheckPnt( const vec3d & pnt ) const;
-    friend bool Compare( const BndBox& bb1, const BndBox& bb2, double tol = 1.0e-12 );
+    friend bool Compare( const BndBox& bb1, const BndBox& bb2, double tol );
 
     std::vector< vec3d > GetBBoxDrawLines() const;
 
