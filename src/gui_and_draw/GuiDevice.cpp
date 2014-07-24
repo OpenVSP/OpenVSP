@@ -215,7 +215,7 @@ void Input::Init( VspScreen* screen, Fl_Input* input, const char* format, Fl_But
 
     SetFormat( format );
     m_Input = input;
-    m_Input->when( FL_WHEN_RELEASE );
+    m_Input->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE );
     m_Input->callback( StaticDeviceCB, this );
 
     m_ParmButtonFlag = false;
@@ -1521,7 +1521,7 @@ void StringInput::Init( VspScreen* screen, Fl_Input* input )
 
     assert( input );
     m_Input = input;
-    m_Input->when( FL_WHEN_RELEASE );
+    m_Input->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE );
     m_Input->callback( StaticDeviceCB, this );
 }
 
