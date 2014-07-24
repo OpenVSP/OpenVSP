@@ -7,6 +7,8 @@
 #include "loadjpg.h"
 #include "LayoutMgr.h"
 
+#include <cstring>
+
 #include <assert.h>
 
 namespace VSPGraphic
