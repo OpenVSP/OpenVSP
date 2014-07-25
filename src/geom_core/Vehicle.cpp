@@ -1259,10 +1259,10 @@ void Vehicle::WriteTRIFile( const string & file_name, int write_set )
         if ( geom_vec[i]->GetSetFlag( write_set ) && geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
         {
             MeshGeom* mg = ( MeshGeom* )geom_vec[i];            // Cast
-            mg->BuildNascartMesh( num_parts );
-            num_parts += mg->GetNumNascartParts();
-            num_pnts += mg->GetNumNascartPnts();
-            num_tris += mg->GetNumNascartTris();
+            mg->BuildIndexedMesh( num_parts );
+            num_parts += mg->GetNumIndexedParts();
+            num_pnts += mg->GetNumIndexedPnts();
+            num_tris += mg->GetNumIndexedTris();
         }
     }
 
@@ -1349,10 +1349,10 @@ void Vehicle::WriteNascartFiles( const string & file_name, int write_set )
         if ( geom_vec[i]->GetSetFlag( write_set ) && geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
         {
             MeshGeom* mg = ( MeshGeom* )geom_vec[i];            // Cast
-            mg->BuildNascartMesh( num_parts );
-            num_parts += mg->GetNumNascartParts();
-            num_pnts += mg->GetNumNascartPnts();
-            num_tris += mg->GetNumNascartTris();
+            mg->BuildIndexedMesh( num_parts );
+            num_parts += mg->GetNumIndexedParts();
+            num_pnts += mg->GetNumIndexedPnts();
+            num_tris += mg->GetNumIndexedTris();
         }
     }
     fprintf( file_id, "%d %d\n", num_pnts, num_tris );
@@ -1452,10 +1452,10 @@ void Vehicle::WriteGmshFile( const string & file_name, int write_set )
         if ( geom_vec[i]->GetSetFlag( write_set ) && geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
         {
             MeshGeom* mg = ( MeshGeom* )geom_vec[i];            // Cast
-            mg->BuildNascartMesh( num_parts );
-            num_parts += mg->GetNumNascartParts();
-            num_pnts += mg->GetNumNascartPnts();
-            num_tris += mg->GetNumNascartTris();
+            mg->BuildIndexedMesh( num_parts );
+            num_parts += mg->GetNumIndexedParts();
+            num_pnts += mg->GetNumIndexedPnts();
+            num_tris += mg->GetNumIndexedTris();
         }
     }
 

@@ -44,8 +44,8 @@ class MeshGeom : public Geom
 private:
     int m_BigEndianFlag;
 
-    vector< TTri* > m_NascartTriVec;
-    vector< TNode* > m_NascartNodeVec;
+    vector< TTri* > m_IndexedTriVec;
+    vector< TNode* > m_IndexedNodeVec;
 
     vector< TMesh* > m_SliceVec;
 
@@ -112,16 +112,16 @@ public:
     virtual int   ReadBinInt  ( FILE* fptr );
     virtual void WriteStl( FILE* pov_file );
 
-    virtual void BuildNascartMesh( int partOffset );
-    virtual int  GetNumNascartPnts()
+    virtual void BuildIndexedMesh( int partOffset );
+    virtual int  GetNumIndexedPnts()
     {
-        return m_NascartNodeVec.size();
+        return m_IndexedNodeVec.size();
     }
-    virtual int  GetNumNascartTris()
+    virtual int  GetNumIndexedTris()
     {
-        return m_NascartTriVec.size();
+        return m_IndexedTriVec.size();
     }
-    virtual int  GetNumNascartParts()
+    virtual int  GetNumIndexedParts()
     {
         return m_TMeshVec.size();
     }

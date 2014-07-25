@@ -587,13 +587,13 @@ int MeshGeom::ReadTriFile( const char * file_name )
     return 1;
 }
 
-//==== Build NASCART Mesh and Save ====//
-void MeshGeom::BuildNascartMesh( int partOffset )
+//==== Build Indexed Mesh ====//
+void MeshGeom::BuildIndexedMesh( int partOffset )
 {
     int m, s, t;
 
-    m_NascartTriVec.clear();
-    m_NascartNodeVec.clear();
+    m_IndexedTriVec.clear();
+    m_IndexedNodeVec.clear();
 
     //==== Find All Exterior and Split Tris =====//
     for ( m = 0 ; m < ( int )m_TMeshVec.size() ; m++ )
@@ -610,7 +610,7 @@ void MeshGeom::BuildNascartMesh( int partOffset )
                         char str[80];
                         sprintf( str, "%d", partOffset + m + 1 );
                         tri->m_SplitVec[s]->m_ID = str;
-                        m_NascartTriVec.push_back( tri->m_SplitVec[s] );
+                        m_IndexedTriVec.push_back( tri->m_SplitVec[s] );
                     }
                 }
             }
@@ -619,21 +619,21 @@ void MeshGeom::BuildNascartMesh( int partOffset )
                 char str[80];
                 sprintf( str, "%d", partOffset + m + 1 );
                 tri->m_ID = str;
-                m_NascartTriVec.push_back( tri );
+                m_IndexedTriVec.push_back( tri );
             }
         }
     }
 
     //==== Collect All Points ====//
     vector< TNode* > allNodeVec;
-    for ( t = 0 ; t < ( int )m_NascartTriVec.size() ; t++ )
+    for ( t = 0 ; t < ( int )m_IndexedTriVec.size() ; t++ )
     {
-        m_NascartTriVec[t]->m_N0->m_ID = ( int )allNodeVec.size();
-        allNodeVec.push_back( m_NascartTriVec[t]->m_N0 );
-        m_NascartTriVec[t]->m_N1->m_ID = ( int )allNodeVec.size();
-        allNodeVec.push_back( m_NascartTriVec[t]->m_N1 );
-        m_NascartTriVec[t]->m_N2->m_ID = ( int )allNodeVec.size();
-        allNodeVec.push_back( m_NascartTriVec[t]->m_N2 );
+        m_IndexedTriVec[t]->m_N0->m_ID = ( int )allNodeVec.size();
+        allNodeVec.push_back( m_IndexedTriVec[t]->m_N0 );
+        m_IndexedTriVec[t]->m_N1->m_ID = ( int )allNodeVec.size();
+        allNodeVec.push_back( m_IndexedTriVec[t]->m_N1 );
+        m_IndexedTriVec[t]->m_N2->m_ID = ( int )allNodeVec.size();
+        allNodeVec.push_back( m_IndexedTriVec[t]->m_N2 );
     }
     vector< vec3d > allPntVec;
     for ( int i = 0 ; i < ( int )allNodeVec.size() ; i++ )
@@ -662,7 +662,7 @@ void MeshGeom::BuildNascartMesh( int partOffset )
     {
         if ( pnCloud.UsedNode( i ) )
         {
-            m_NascartNodeVec.push_back( allNodeVec[i] );
+            m_IndexedNodeVec.push_back( allNodeVec[i] );
         }
     }
 
@@ -676,9 +676,9 @@ void MeshGeom::BuildNascartMesh( int partOffset )
     vector< TTri* > goodTriVec;
 
     //==== Write Out Tris ====//
-    for ( t = 0 ; t < ( int )m_NascartTriVec.size() ; t++ )
+    for ( t = 0 ; t < ( int )m_IndexedTriVec.size() ; t++ )
     {
-        TTri* ttri = m_NascartTriVec[t];
+        TTri* ttri = m_IndexedTriVec[t];
         if ( ttri->m_N0->m_ID != ttri->m_N1->m_ID &&
                 ttri->m_N0->m_ID != ttri->m_N2->m_ID &&
                 ttri->m_N1->m_ID != ttri->m_N2->m_ID )
@@ -686,7 +686,7 @@ void MeshGeom::BuildNascartMesh( int partOffset )
             goodTriVec.push_back( ttri );
         }
     }
-    m_NascartTriVec = goodTriVec;
+    m_IndexedTriVec = goodTriVec;
 
     Update();
 }
@@ -696,9 +696,9 @@ void MeshGeom::WriteNascartPnts( FILE* fp )
     vec3d v;
     Matrix4d XFormMat = GetTotalTransMat();
     //==== Write Out Nodes ====//
-    for ( int i = 0 ; i < ( int )m_NascartNodeVec.size() ; i++ )
+    for ( int i = 0 ; i < ( int )m_IndexedNodeVec.size() ; i++ )
     {
-        TNode* tnode = m_NascartNodeVec[i];
+        TNode* tnode = m_IndexedNodeVec[i];
         // Apply Transformations
         v = XFormMat.xform( tnode->m_Pnt );
         fprintf( fp, "%16.10g %16.10g %16.10g\n", v.x(), v.z(), -v.y() );
@@ -710,9 +710,9 @@ void MeshGeom::WriteCart3DPnts( FILE* fp )
     //==== Write Out Nodes ====//
     vec3d v;
     Matrix4d XFormMat = GetTotalTransMat();
-    for ( int i = 0 ; i < ( int )m_NascartNodeVec.size() ; i++ )
+    for ( int i = 0 ; i < ( int )m_IndexedNodeVec.size() ; i++ )
     {
-        TNode* tnode = m_NascartNodeVec[i];
+        TNode* tnode = m_IndexedNodeVec[i];
         // Apply Transformations
         v = XFormMat.xform( tnode->m_Pnt );
         fprintf( fp, "%16.10g %16.10g %16.10g\n", v.x(), v.y(),  v.z() );
@@ -723,51 +723,51 @@ int MeshGeom::WriteGMshNodes( FILE* fp, int node_offset )
 {
     vec3d v;
     Matrix4d XFormMat = GetTotalTransMat();
-    for ( int i = 0 ; i < ( int )m_NascartNodeVec.size() ; i++ )
+    for ( int i = 0 ; i < ( int )m_IndexedNodeVec.size() ; i++ )
     {
-        TNode* tnode = m_NascartNodeVec[i];
+        TNode* tnode = m_IndexedNodeVec[i];
         // Apply Transformations
         v = XFormMat.xform( tnode->m_Pnt );
         fprintf( fp, "%d %16.10f %16.10f %16.10f\n", i + node_offset + 1,
                  v.x(), v.y(), v.z() );
     }
-    return node_offset + ( int )m_NascartNodeVec.size();
+    return node_offset + ( int )m_IndexedNodeVec.size();
 }
 
 int MeshGeom::WriteNascartTris( FILE* fp, int off )
 {
     //==== Write Out Tris ====//
-    for ( int t = 0 ; t < ( int )m_NascartTriVec.size() ; t++ )
+    for ( int t = 0 ; t < ( int )m_IndexedTriVec.size() ; t++ )
     {
-        TTri* ttri = m_NascartTriVec[t];
+        TTri* ttri = m_IndexedTriVec[t];
         fprintf( fp, "%d %d %d %s.0\n", ttri->m_N0->m_ID + 1 + off,  ttri->m_N2->m_ID + 1 + off, ttri->m_N1->m_ID + 1 + off, ttri->m_ID.c_str() );
     }
 
-    return ( off + m_NascartNodeVec.size() );
+    return ( off + m_IndexedNodeVec.size() );
 }
 
 int MeshGeom::WriteCart3DTris( FILE* fp, int off )
 {
     //==== Write Out Tris ====//
-    for ( int t = 0 ; t < ( int )m_NascartTriVec.size() ; t++ )
+    for ( int t = 0 ; t < ( int )m_IndexedTriVec.size() ; t++ )
     {
-        TTri* ttri = m_NascartTriVec[t];
+        TTri* ttri = m_IndexedTriVec[t];
         fprintf( fp, "%d %d %d\n", ttri->m_N0->m_ID + 1 + off,  ttri->m_N1->m_ID + 1 + off, ttri->m_N2->m_ID + 1 + off );
     }
 
-    return ( off + m_NascartNodeVec.size() );
+    return ( off + m_IndexedNodeVec.size() );
 }
 
 int MeshGeom::WriteGMshTris( FILE* fp, int node_offset, int tri_offset )
 {
     //==== Write Out Tris ====//
-    for ( int t = 0 ; t < ( int )m_NascartTriVec.size() ; t++ )
+    for ( int t = 0 ; t < ( int )m_IndexedTriVec.size() ; t++ )
     {
-        TTri* ttri = m_NascartTriVec[t];
+        TTri* ttri = m_IndexedTriVec[t];
         fprintf( fp, "%d 2 0 %d %d %d\n", t + tri_offset + 1,
                  ttri->m_N0->m_ID + 1 + node_offset,  ttri->m_N2->m_ID + 1 + node_offset, ttri->m_N1->m_ID + 1 + node_offset );
     }
-    return ( tri_offset + m_NascartTriVec.size() );
+    return ( tri_offset + m_IndexedTriVec.size() );
 }
 
 int MeshGeom::WriteNascartParts( FILE* fp, int off )
@@ -784,9 +784,9 @@ int MeshGeom::WriteCart3DParts( FILE* fp  )
 {
     //==== Write Component IDs for each Tri =====//
     int tag;
-    for ( int t = 0 ; t < ( int )m_NascartTriVec.size() ; t++ )
+    for ( int t = 0 ; t < ( int )m_IndexedTriVec.size() ; t++ )
     {
-        tag = SubSurfaceMgr.GetTag( m_NascartTriVec[t]->m_Tags );
+        tag = SubSurfaceMgr.GetTag( m_IndexedTriVec[t]->m_Tags );
 
         fprintf( fp, "%d \n",  tag );
     }
@@ -1132,32 +1132,32 @@ void MeshGeom::CreateGeomResults( Results* res )
     {
         res->Add( ResData( "Type", vsp::MESH_INDEXED_TRI ) );
 
-        BuildNascartMesh( 0 );
+        BuildIndexedMesh( 0 );
 
         vector< vec3d > pvec;
         Matrix4d XFormMat = GetTotalTransMat();
         //==== Write Out Nodes ====//
-        for ( int i = 0 ; i < ( int )m_NascartNodeVec.size() ; i++ )
+        for ( int i = 0 ; i < ( int )m_IndexedNodeVec.size() ; i++ )
         {
-            TNode* tnode = m_NascartNodeVec[i];
+            TNode* tnode = m_IndexedNodeVec[i];
             pvec.push_back( XFormMat.xform( tnode->m_Pnt ) );
         }
-        res->Add( ResData( "Num_Pnts", ( int )m_NascartNodeVec.size() ) );
+        res->Add( ResData( "Num_Pnts", ( int )m_IndexedNodeVec.size() ) );
         res->Add( ResData( "Tri_Pnts", pvec ) );
 
         //==== Write Out Tris ====//
         vector< int > id0_vec;
         vector< int > id1_vec;
         vector< int > id2_vec;
-        for ( int t = 0 ; t < ( int )m_NascartTriVec.size() ; t++ )
+        for ( int t = 0 ; t < ( int )m_IndexedTriVec.size() ; t++ )
         {
-            TTri* ttri = m_NascartTriVec[t];
+            TTri* ttri = m_IndexedTriVec[t];
 
             id0_vec.push_back( ttri->m_N0->m_ID );
             id1_vec.push_back( ttri->m_N1->m_ID );
             id2_vec.push_back( ttri->m_N2->m_ID );
         }
-        res->Add( ResData( "Num_Tris", ( int )m_NascartTriVec.size() ) );
+        res->Add( ResData( "Num_Tris", ( int )m_IndexedTriVec.size() ) );
         res->Add( ResData( "Tri_Index0", id0_vec ) );
         res->Add( ResData( "Tri_Index1", id1_vec ) );
         res->Add( ResData( "Tri_Index2", id2_vec ) );
@@ -3629,7 +3629,7 @@ void MeshGeom::SubTagTris()
     // Clear out the current Subtag Maps
     SubSurfaceMgr.ClearTagMaps();
     SubSurfaceMgr.m_CompNames = GetTMeshNames();
-    SubSurfaceMgr.SetSubSurfTags( GetNumNascartParts() );
+    SubSurfaceMgr.SetSubSurfTags( GetNumIndexedParts() );
     SubSurfaceMgr.BuildCompNameMap();
 
     for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
