@@ -481,10 +481,6 @@ public:
     virtual TTri* FindTriNodes( TTri* ignoreTri, TNode* n0, TNode* n1 );
     virtual TTri* FindTriPnts( TTri* ignoreTri, TNode* n0, TNode* n1 );
 
-    virtual void MergeSplitNodes( vector< TTri* > & triVec, vector< TNode* > & nodeVec );
-    static TNode* CheckDupOrAdd( TNode* node, vector< TNode* > & nodeVec, double tol = 0.00000001 );
-    static TNode* CheckDupOrCreate( vec3d & p, vector< TNode* > & nodeVec, double tol = 0.00000001 );
-
     virtual void SubTag( int part_num ); // Subtag all triangles, if split triangles exist tag them the same as their parent
 
     virtual void MakeNodePntUW(); // Swaps Node->m_Pnt with Node->m_UWPnt

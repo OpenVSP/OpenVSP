@@ -135,7 +135,6 @@ public:
     virtual int  WriteCart3DParts( FILE* file_id );
     virtual void WritePovRay( FILE* fid, int comp_num );
     virtual void WriteX3D( xmlNodePtr node );
-    virtual void CheckDupOrAdd( TNode* node, vector< TNode* > & nodeVec );
     virtual void CreateGeomResults( Results* res );
 
 

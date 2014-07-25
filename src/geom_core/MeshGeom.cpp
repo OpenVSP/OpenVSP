@@ -871,35 +871,6 @@ void MeshGeom::WriteX3D( xmlNodePtr node )
     xmlSetProp( coord_node, BAD_CAST "point", BAD_CAST crdstr.c_str() );
 }
 
-//==== Check if Dupicate Node - if Not Add ====//
-void MeshGeom::CheckDupOrAdd( TNode* node, vector< TNode* > & nodeVec )
-{
-    double tol = 0.00000001;
-    int dupFlag = 0;
-    for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
-    {
-        TNode* n = nodeVec[i];
-        if ( fabs( n->m_Pnt.x() - node->m_Pnt.x() ) < tol )
-            if ( fabs( n->m_Pnt.y() - node->m_Pnt.y() ) < tol )
-                if ( fabs( n->m_Pnt.z() - node->m_Pnt.z() ) < tol )
-                {
-                    dupFlag = 1;
-                    node->m_ID = i;
-                }
-        if ( dupFlag )
-        {
-            break;
-        }
-    }
-
-    //==== Add To List ====//
-    if ( !dupFlag )
-    {
-        node->m_ID = nodeVec.size();
-        nodeVec.push_back( node );
-    }
-}
-
 //==== Generate Cross Sections =====//
 void MeshGeom::UpdateBBox()
 {
