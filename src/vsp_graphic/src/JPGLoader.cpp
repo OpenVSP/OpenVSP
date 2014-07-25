@@ -4,6 +4,8 @@
 #include "loadjpg.h"
 #include <string.h>
 
+#include <cstring>
+
 namespace VSPGraphic
 {
 JPGLoader::JPGLoader() : ImageLoader()

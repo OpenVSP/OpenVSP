@@ -8,6 +8,8 @@
 #include "LayoutMgr.h"
 #include <string.h>
 
+#include <cstring>
+
 #include <assert.h>
 
 namespace VSPGraphic
