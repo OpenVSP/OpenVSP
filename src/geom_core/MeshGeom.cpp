@@ -75,7 +75,6 @@ MeshGeom::MeshGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_MaxTriDen = 1.0;
 
     m_MeshFlag = 0;
-    m_OneMesh  = 0;
 
     m_ScaleMatrix.loadIdentity();
     m_ScaleFromOrig.Init( "Scale_From_Original", "XForm", this, 1, 1.0e-5, 1.0e12, false );
@@ -3374,8 +3373,8 @@ void MeshGeom::WaterTightCheck( FILE* fid )
     }
 
     //==== Load All Meshes into One ====//
-    m_OneMesh = new TMesh();
-    m_OneMesh->m_Color = m_TMeshVec[0]->m_Color;
+    TMesh* oneMesh = new TMesh();
+    oneMesh->m_Color = m_TMeshVec[0]->m_Color;
 
     for ( m = 0 ; m < ( int )m_TMeshVec.size() ; m++ )
     {
@@ -3389,22 +3388,22 @@ void MeshGeom::WaterTightCheck( FILE* fid )
                     if ( mesh->m_TVec[t]->m_SplitVec[i]->m_InteriorFlag == 0 )
                     {
                         TTri* tri = mesh->m_TVec[t]->m_SplitVec[i];
-                        m_OneMesh->AddTri( tri->m_N0, tri->m_N1, tri->m_N2, mesh->m_TVec[t]->m_Norm );
+                        oneMesh->AddTri( tri->m_N0, tri->m_N1, tri->m_N2, mesh->m_TVec[t]->m_Norm );
                     }
                 }
             }
             else if ( mesh->m_TVec[t]->m_InteriorFlag == 0 )
             {
                 TTri* tri = mesh->m_TVec[t];
-                m_OneMesh->AddTri( tri->m_N0, tri->m_N1, tri->m_N2, tri->m_Norm );
+                oneMesh->AddTri( tri->m_N0, tri->m_N1, tri->m_N2, tri->m_Norm );
             }
         }
     }
 
     //==== Bound Box with Oct Tree ====//
-    m_OneMesh->LoadBndBox();
+    oneMesh->LoadBndBox();
 
-    m_OneMesh->WaterTightCheck( fid, m_TMeshVec );
+    oneMesh->WaterTightCheck( fid, m_TMeshVec );
 
     //==== Delete Old Meshes and Add One Mesh ====//
     for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
@@ -3413,7 +3412,7 @@ void MeshGeom::WaterTightCheck( FILE* fid )
     }
 
     m_TMeshVec.clear();
-    m_TMeshVec.push_back( m_OneMesh );
+    m_TMeshVec.push_back( oneMesh );
 }
 
 void MeshGeom::MergeRemoveOpenMeshes( MeshInfo* info )

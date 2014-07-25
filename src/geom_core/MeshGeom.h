@@ -91,8 +91,6 @@ public:
     vector < TMesh* > m_TMeshVec;
     vector < TMesh* > m_SliceVec;
 
-    TMesh* m_OneMesh;
-
     // Scale Transformation Matrix
     Matrix4d m_ScaleMatrix;
     Parm m_ScaleFromOrig;
