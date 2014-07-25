@@ -2654,7 +2654,6 @@ void MeshGeom::MassSliceX( int numSlices )
     vector< TetraMassProp* > tetraVec;
     m_MinTriDen = 1.0e06;
     m_MaxTriDen = 0.0;
-    m_MpTriVec.clear();
 
     for ( s = 0 ; s < ( int )m_SliceVec.size() ; s++ )
     {
@@ -2670,14 +2669,12 @@ void MeshGeom::MassSliceX( int numSlices )
                     if ( tri->m_SplitVec[j]->m_InteriorFlag == 0 )
                     {
                         CreatePrism( tetraVec, tri->m_SplitVec[j], prismLength );
-                        m_MpTriVec.push_back( tri->m_SplitVec[j] );
                     }
                 }
             }
             else if ( tri->m_InteriorFlag == 0 )
             {
                 CreatePrism( tetraVec, tri, prismLength );
-                m_MpTriVec.push_back( tri );
             }
         }
     }
@@ -3070,7 +3067,6 @@ void MeshGeom::degenGeomMassSliceX( vector< DegenGeom > &degenGeom )
     vector< DegenGeomTetraMassProp* > tetraVec;
     m_MinTriDen = 1.0e06;
     m_MaxTriDen = 0.0;
-    m_MpTriVec.clear();
 
     for ( s = 0 ; s < ( int )m_SliceVec.size() ; s++ )
     {
@@ -3086,14 +3082,12 @@ void MeshGeom::degenGeomMassSliceX( vector< DegenGeom > &degenGeom )
                     if ( tri->m_SplitVec[j]->m_InteriorFlag == 0 )
                     {
                         createDegenGeomPrism( tetraVec, tri->m_SplitVec[j], prismLength );
-                        m_MpTriVec.push_back( tri->m_SplitVec[j] );
                     }
                 }
             }
             else if ( tri->m_InteriorFlag == 0 )
             {
                 createDegenGeomPrism( tetraVec, tri, prismLength );
-                m_MpTriVec.push_back( tri );
             }
         }
     }

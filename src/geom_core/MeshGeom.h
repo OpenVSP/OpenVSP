@@ -86,7 +86,6 @@ public:
 
     double m_MinTriDen;
     double m_MaxTriDen;
-    vector < TTri* > m_MpTriVec;
 
     vector < TMesh* > m_TMeshVec;
     vector < TMesh* > m_SliceVec;
