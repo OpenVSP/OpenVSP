@@ -9,7 +9,8 @@ IF( WIN32 )
 ELSE()
 	SET( FLTK_PATCH PATCH_COMMAND patch -p1 < ${CMAKE_SOURCE_DIR}/0001-Changes-to-CMakeLists.txt-to-build-on-llvm-on-MacOS.patch
 COMMAND patch -p1 < ${CMAKE_SOURCE_DIR}/0002-Fix-LLVM-libc-errors-with-static_cast-CGFloat.patch
-COMMAND patch -p1 < ${CMAKE_SOURCE_DIR}/0003-Update-built-in-JPEG-CMake-to-install-headers.patch )
+COMMAND patch -p1 < ${CMAKE_SOURCE_DIR}/0003-Update-built-in-JPEG-CMake-to-install-headers.patch
+COMMAND patch -p1 < ${CMAKE_SOURCE_DIR}/0004-Fix-friend-declaration-error.patch )
 ENDIF()
 
 ExternalProject_Add( FLTK
