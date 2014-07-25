@@ -1053,45 +1053,45 @@ void MeshGeom::UpdateDrawObj()
         if ( m_DrawType() == MeshGeom::DRAW_TAGS )
         {
             deg = 360.0 * ( double )i / num_uniq_tags;
-			vec3d rgb = m_WireShadeDrawObj_vec[i].ColorWheel( deg );
-			m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[0] = rgb[0];
-			m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[1] = rgb[1];
-			m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[2] = rgb[2];
+            vec3d rgb = m_WireShadeDrawObj_vec[i].ColorWheel( deg );
+            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[0] = rgb[0];
+            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[1] = rgb[1];
+            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[2] = rgb[2];
         }
     }
 }
 
 void MeshGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
-	int num_uniq_tags = SubSurfaceMgr.GetNumTags();
+    int num_uniq_tags = SubSurfaceMgr.GetNumTags();
 
-	Geom::LoadDrawObjs( draw_obj_vec );
+    Geom::LoadDrawObjs( draw_obj_vec );
     for ( int i = 0 ; i < ( int )m_WireShadeDrawObj_vec.size() ; i++ )
     {
-		if ( m_DrawType() == MeshGeom::DRAW_TAGS )
-		{
-			double deg = 360.0 * ( double )i / num_uniq_tags;
-			vec3d rgb = m_WireShadeDrawObj_vec[i].ColorWheel( deg );
-			m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[0] = (float)rgb.x();
-			m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[1] = (float)rgb.y();
-			m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[2] = (float)rgb.z();
-			m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[3] = (float)1.0f;
+        if ( m_DrawType() == MeshGeom::DRAW_TAGS )
+        {
+            double deg = 360.0 * ( double )i / num_uniq_tags;
+            vec3d rgb = m_WireShadeDrawObj_vec[i].ColorWheel( deg );
+            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[0] = (float)rgb.x();
+            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[1] = (float)rgb.y();
+            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[2] = (float)rgb.z();
+            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[3] = (float)1.0f;
 
-			m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[0] = (float)rgb.x();
-			m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[1] = (float)rgb.y();
-			m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[2] = (float)rgb.z();
-			m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[3] = 1.0f;
+            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[0] = (float)rgb.x();
+            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[1] = (float)rgb.y();
+            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[2] = (float)rgb.z();
+            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[3] = 1.0f;
 
-			m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[0] = (float)rgb.x();
-			m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[1] = (float)rgb.y();
-			m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[2] = (float)rgb.z();
-			m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[3] = 1.0f;
+            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[0] = (float)rgb.x();
+            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[1] = (float)rgb.y();
+            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[2] = (float)rgb.z();
+            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[3] = 1.0f;
 
-			m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[0] = (float)rgb.x();
-			m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[1] = (float)rgb.y();
-			m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[2] = (float)rgb.z();
-			m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[3] = 1.0f;
-		}
+            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[0] = (float)rgb.x();
+            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[1] = (float)rgb.y();
+            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[2] = (float)rgb.z();
+            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[3] = 1.0f;
+        }
         switch( m_GuiDraw.GetDrawType() )
         {
         case GeomGuiDraw::GEOM_DRAW_WIRE:
