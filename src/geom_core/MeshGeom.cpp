@@ -877,14 +877,21 @@ void MeshGeom::UpdateBBox()
     int i, j;
     m_BBox.Reset();
     Matrix4d transMat = GetTotalTransMat();
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+    if ( m_TMeshVec.size() > 0 )
     {
-        for ( j = 0 ; j < ( int )m_TMeshVec[i]->m_TVec.size() ; j++ )
+        for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
         {
-            m_BBox.Update( transMat.xform( m_TMeshVec[i]->m_TVec[j]->m_N0->m_Pnt ) );
-            m_BBox.Update( transMat.xform( m_TMeshVec[i]->m_TVec[j]->m_N1->m_Pnt ) );
-            m_BBox.Update( transMat.xform( m_TMeshVec[i]->m_TVec[j]->m_N2->m_Pnt ) );
+            for ( j = 0 ; j < ( int )m_TMeshVec[i]->m_TVec.size() ; j++ )
+            {
+                m_BBox.Update( transMat.xform( m_TMeshVec[i]->m_TVec[j]->m_N0->m_Pnt ) );
+                m_BBox.Update( transMat.xform( m_TMeshVec[i]->m_TVec[j]->m_N1->m_Pnt ) );
+                m_BBox.Update( transMat.xform( m_TMeshVec[i]->m_TVec[j]->m_N2->m_Pnt ) );
+            }
         }
+    }
+    else
+    {
+        m_BBox.Update( vec3d( 0.0, 0.0, 0.0 ));
     }
 }
 
