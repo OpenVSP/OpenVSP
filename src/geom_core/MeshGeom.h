@@ -41,11 +41,13 @@ public:
 
 class MeshGeom : public Geom
 {
-
+private:
     int m_BigEndianFlag;
 
     vector< TTri* > m_NascartTriVec;
     vector< TNode* > m_NascartNodeVec;
+
+    vector< TMesh* > m_SliceVec;
 
 public:
 //  enum { SLICE_PLANAR, SLICE_AWAVE };
@@ -58,8 +60,9 @@ public:
 
     //! MeshGeom's EncodeXml Implementation
     /**
-       MeshGeom's EncodeXml Method does not write out each TTri's splitVec. So make sure that FlattenTMeshVec has been called on MeshGeom
-      before calling EncodeXml.
+       MeshGeom's EncodeXml Method does not write out each TTri's splitVec.
+       So make sure that FlattenTMeshVec has been called on MeshGeom
+       before calling EncodeXml.
     */
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
@@ -88,7 +91,6 @@ public:
     double m_MaxTriDen;
 
     vector < TMesh* > m_TMeshVec;
-    vector < TMesh* > m_SliceVec;
 
     // Scale Transformation Matrix
     Matrix4d m_ScaleMatrix;
