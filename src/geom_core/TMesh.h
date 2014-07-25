@@ -335,10 +335,6 @@ public:
     TEdge* m_E1;
     TEdge* m_E2;
 
-    TNode* m_cn0;                   // Nodes on Edge Centers for FEA Export
-    TNode* m_cn1;
-    TNode* m_cn2;
-
 protected:
     TMesh* m_TMesh;
 
