@@ -456,7 +456,6 @@ public:
     virtual int   NumVerts();
 
     virtual void WaterTightCheck( FILE* fid, vector< TMesh* > & tMeshVec );
-    virtual TNode* LowNode( TNode* node );
     virtual void FindEdge( TNode* node, TTri* tri0, TTri* tri1 );
     virtual void AddEdge( TTri* tri0, TTri* tri1, TNode* node0, TNode* node1 );
     virtual void SwapEdge( TEdge* edge );

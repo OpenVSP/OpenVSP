@@ -3114,37 +3114,6 @@ void TMesh::AddEdge( TTri* tri0, TTri* tri1, TNode* node0, TNode* node1 )
 
 }
 
-TNode* TMesh::LowNode( TNode* node )
-{
-    int i;
-
-    TNode* lowN = node;
-
-    if ( node->m_MergeVec.size() <= 1 )
-    {
-        return lowN;
-    }
-
-    //==== Find Lowest Node Ptr ====//
-    for ( i = 0 ; i < ( int )node->m_MergeVec.size() ; i++ )
-    {
-        if ( ( long )( node->m_MergeVec[i] ) < ( long )lowN )
-        {
-            lowN = node->m_MergeVec[i];
-        }
-    }
-
-    for ( i = 0 ; i < ( int )node->m_MergeVec.size() ; i++ )
-    {
-        if ( node->m_MergeVec[i] != lowN )
-        {
-            node->m_MergeVec[i]->m_ID = -999;
-        }
-    }
-    return lowN;
-}
-
-
 void TMesh::SwapEdge( TEdge* edge )
 {
     if ( !edge->m_Tri0 )
