@@ -36,7 +36,6 @@ MeshGeom::MeshGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_Name = "MeshGeom";
     m_Type.m_Name = "Mesh";
     m_Type.m_Type = MESH_GEOM_TYPE;
-    m_MeshType = INTERSECTION_MESH;
     m_FileName = "";
 
     m_TessU.Deactivate();

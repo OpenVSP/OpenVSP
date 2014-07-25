@@ -52,9 +52,6 @@ private:
 public:
 //  enum { SLICE_PLANAR, SLICE_AWAVE };
 
-    //==== How Mesh Is Drawn and Saved ====//
-    enum { INTERSECTION_MESH, MODEL_MESH };
-
     MeshGeom( Vehicle* vehicle_ptr );
     ~MeshGeom();
 
@@ -76,7 +73,6 @@ public:
 
     int m_MeshFlag;              // Do WaterTight Check and Quality Mesh
     int m_MassPropFlag;
-    int m_MeshType;
     vec3d m_CenterOfGrav;
 
     double m_TotalMass;
@@ -95,15 +91,6 @@ public:
     // Scale Transformation Matrix
     Matrix4d m_ScaleMatrix;
     Parm m_ScaleFromOrig;
-
-    virtual void SetMeshType( int type )
-    {
-        m_MeshType = type;
-    }
-    virtual int  GetMeshType()
-    {
-        return m_MeshType;
-    }
 
     virtual void load_hidden_surf();
     virtual void load_normals();
