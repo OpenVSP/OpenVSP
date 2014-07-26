@@ -902,6 +902,16 @@ void MeshGeom::UpdateDrawObj()
 
     int num_uniq_tags = SubSurfaceMgr.GetNumTags();
 
+    // Update Draw type based on if the disp subsurface is true
+    if ( m_GuiDraw.GetDispSubSurfFlag() )
+    {
+        m_DrawType = MeshGeom::DRAW_TAGS;
+    }
+    else
+    {
+        m_DrawType = MeshGeom::DRAW_XYZ;
+    }
+
     if ( m_DrawSubSurfs() == true )
     {
         m_TMeshVec.insert( m_TMeshVec.end(), m_SubSurfVec.begin(), m_SubSurfVec.end() );
@@ -1049,15 +1059,6 @@ void MeshGeom::UpdateDrawObj()
     for ( int i = 0 ; i < ( int )m_WireShadeDrawObj_vec.size(); i++ )
     {
         m_WireShadeDrawObj_vec[i].m_GeomChanged = true;
-        double deg;
-        if ( m_DrawType() == MeshGeom::DRAW_TAGS )
-        {
-            deg = 360.0 * ( double )i / num_uniq_tags;
-            vec3d rgb = m_WireShadeDrawObj_vec[i].ColorWheel( deg );
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[0] = rgb[0];
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[1] = rgb[1];
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[2] = rgb[2];
-        }
     }
 }
 
@@ -1068,7 +1069,7 @@ void MeshGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     Geom::LoadDrawObjs( draw_obj_vec );
     for ( int i = 0 ; i < ( int )m_WireShadeDrawObj_vec.size() ; i++ )
     {
-        if ( m_DrawType() == MeshGeom::DRAW_TAGS )
+        if ( m_DrawType() == MeshGeom::DRAW_TAGS && m_GuiDraw.GetDispSubSurfFlag() )
         {
             double deg = 360.0 * ( double )i / num_uniq_tags;
             vec3d rgb = m_WireShadeDrawObj_vec[i].ColorWheel( deg );
@@ -1091,6 +1092,8 @@ void MeshGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
             m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[1] = (float)rgb.y();
             m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[2] = (float)rgb.z();
             m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[3] = 1.0f;
+
+            m_WireShadeDrawObj_vec[i].m_LineColor = rgb;
         }
         switch( m_GuiDraw.GetDrawType() )
         {
