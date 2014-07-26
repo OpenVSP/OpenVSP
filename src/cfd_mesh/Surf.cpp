@@ -1623,17 +1623,29 @@ void Surf::BuildDistMap()
     int i, j;
     int nump = 101;
 
+    vec2d VspMinUW = Convert2VspSurf( 0.0, 0.0 );
+    double VspMinU = VspMinUW.v[0];
+    double VspMinW = VspMinUW.v[1];
+
+    vec2d VspMaxUW = Convert2VspSurf( m_MaxU, m_MaxW );
+    double VspMaxU = VspMaxUW.v[0];
+    double VspMaxW = VspMaxUW.v[1];
+
+    double VspdU = VspMaxU - VspMinU;
+    double VspdW = VspMaxW - VspMinW;
+
     //==== Load Point Vec ====//
     vector< vector< vec3d > > pvec;
     pvec.resize( nump );
     for ( i = 0 ; i < nump ; i++ )
     {
         pvec[i].resize( nump );
-        double u = ( double )i / ( double )( nump - 1 );
+        double u = VspMinU + VspdU * ( double )i / ( double )( nump - 1 );
         for ( j = 0 ; j < nump ; j++ )
         {
-            double w = ( double )j / ( double )( nump - 1 );
-            pvec[i][j] = CompPnt01( u, w );
+            double w = VspMinW + VspdW * ( double )j / ( double )( nump - 1 );
+            vec2d uw = Convert2Surf( u, w );
+            pvec[i][j] = CompPnt( uw.v[0], uw.v[1] );
         }
     }
 
@@ -1684,7 +1696,7 @@ void Surf::BuildDistMap()
 
 
     //==== Scale U Dists ====//
-    double wu_ratio = m_MaxW / m_MaxU;
+    double wu_ratio = VspdW / VspdU;
     m_UScaleMap.resize( uDistVec.size() );
     for ( i = 0 ; i < ( int )uDistVec.size() ; i++ )
     {
@@ -1697,7 +1709,7 @@ void Surf::BuildDistMap()
     }
 
     //==== Scale W Dists ====//
-    double uw_ratio = m_MaxU / m_MaxW;
+    double uw_ratio = VspdU / VspdW;
     m_WScaleMap.resize( wDistVec.size() );
     for ( i = 0 ; i < ( int )wDistVec.size() ; i++ )
     {

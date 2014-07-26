@@ -3114,37 +3114,6 @@ void TMesh::AddEdge( TTri* tri0, TTri* tri1, TNode* node0, TNode* node1 )
 
 }
 
-TNode* TMesh::LowNode( TNode* node )
-{
-    int i;
-
-    TNode* lowN = node;
-
-    if ( node->m_MergeVec.size() <= 1 )
-    {
-        return lowN;
-    }
-
-    //==== Find Lowest Node Ptr ====//
-    for ( i = 0 ; i < ( int )node->m_MergeVec.size() ; i++ )
-    {
-        if ( ( long )( node->m_MergeVec[i] ) < ( long )lowN )
-        {
-            lowN = node->m_MergeVec[i];
-        }
-    }
-
-    for ( i = 0 ; i < ( int )node->m_MergeVec.size() ; i++ )
-    {
-        if ( node->m_MergeVec[i] != lowN )
-        {
-            node->m_MergeVec[i]->m_ID = -999;
-        }
-    }
-    return lowN;
-}
-
-
 void TMesh::SwapEdge( TEdge* edge )
 {
     if ( !edge->m_Tri0 )
@@ -3403,10 +3372,6 @@ void TMesh::DeleteDupNodes()
         m_TVec[t]->m_N0->m_TriVec.push_back( m_TVec[t] );
         m_TVec[t]->m_N1->m_TriVec.push_back( m_TVec[t] );
         m_TVec[t]->m_N2->m_TriVec.push_back( m_TVec[t] );
-        if ( m_TVec[t]->m_N0->m_ID == -999 || m_TVec[t]->m_N1->m_ID == -999 || m_TVec[t]->m_N2->m_ID == -999 )
-        {
-            printf( "Found -999\n" );
-        }
     }
 
     //==== Nuke Redundant Nodes And Update NVec ====//
@@ -3436,132 +3401,8 @@ void TMesh::DeleteDupNodes()
 
 void TMesh::MatchNodes()
 {
-//  int i, n, t;
-//
-//  double tol = 1.0e-12;
-//  double sqtol = sqrt(tol);
-//
-//  for ( n = 0 ; n < (int)m_NVec.size() ; n++ )
-//      m_NVec[n]->m_MergeVec.clear();
-//
-//  NBndBox nBox;
-//  for ( n = 0 ; n < (int)m_NVec.size() ; n++ )
-//  {
-//      nBox.AddNode( m_NVec[n] );
-//  }
-//  nBox.SplitBox(sqrt(tol));
-//
-//  //==== Find All Leaves of Oct Tree ====//
-//  vector< NBndBox* > leafVec;
-//  nBox.AddLeafNodes( leafVec );
-//
-//  for ( i = 0 ; i < (int)leafVec.size() ; i++ )
-//  {
-//      leafVec[i]->m_Box.Expand( sqtol );
-//  }
-//
-//  for ( n = 0 ; n < (int)m_NVec.size() ; n++ )
-//  {
-//      for ( i = 0 ; i < (int)leafVec.size() ; i++ )
-//      {
-//          if ( leafVec[i]->m_Box.CheckPnt( m_NVec[n]->m_Pnt.x(), m_NVec[n]->m_Pnt.y(), m_NVec[n]->m_Pnt.z() ) )
-//          {
-//              for ( int m = 0 ; m < (int)leafVec[i]->m_NodeVec.size() ; m++ )
-//              {
-//                  if ( dist_squared( m_NVec[n]->m_Pnt, leafVec[i]->m_NodeVec[m]->m_Pnt ) < tol )
-//                  {
-//                      m_NVec[n]->m_MergeVec.push_back( leafVec[i]->m_NodeVec[m] );
-//                  }
-//              }
-//          }
-//      }
-//  }
-//
-///*
-//  for ( i = 0 ; i < leafVec.size() ; i++ )
-//  {
-//      for ( n = 0 ; n < leafVec[i]->nodeVec.size() ; n++ )
-//      {
-//          leafVec[i]->nodeVec[n]->mergeVec.push_back( leafVec[i]->nodeVec[n] );
-//          for ( int m = n+1 ; m < leafVec[i]->nodeVec.size() ; m++ )
-//          {
-//              if ( dist_squared( leafVec[i]->nodeVec[n]->pnt, leafVec[i]->nodeVec[m]->pnt ) < tol )
-//              {
-//                  leafVec[i]->nodeVec[n]->mergeVec.push_back( leafVec[i]->nodeVec[m] );
-//                  leafVec[i]->nodeVec[m]->mergeVec.push_back( leafVec[i]->nodeVec[n] );
-//              }
-//          }
-//      }
-//  }
-//*/
-//
-//  //==== Go Thru All Tri And Refernce Lowest Node Ptr and Add Tag Other for Deletion ====//
-//  for ( t = 0 ; t < (int)m_TVec.size() ; t++ )
-//  {
-//      m_TVec[t]->m_N0 = LowNode( m_TVec[t]->m_N0 );
-//      m_TVec[t]->m_N1 = LowNode( m_TVec[t]->m_N1 );
-//      m_TVec[t]->m_N2 = LowNode( m_TVec[t]->m_N2 );
-//  }
-//
-//  //==== Nuke Degenerate Tris ====//
-//  vector< TTri* > tempTVec;
-//  for ( t = 0 ; t < (int)m_TVec.size() ; t++ )
-//  {
-//      if ( m_TVec[t]->m_N0 != m_TVec[t]->m_N1 &&
-//           m_TVec[t]->m_N0 != m_TVec[t]->m_N2 &&
-//           m_TVec[t]->m_N1 != m_TVec[t]->m_N2 )
-//        tempTVec.push_back( m_TVec[t] );
-//  }
-//  m_TVec = tempTVec;
-//
-//  for ( t = 0 ; t < (int)m_TVec.size() ; t++ )
-//  {
-//      m_TVec[t]->m_N0->m_TriVec.push_back( m_TVec[t] );
-//      m_TVec[t]->m_N1->m_TriVec.push_back( m_TVec[t] );
-//      m_TVec[t]->m_N2->m_TriVec.push_back( m_TVec[t] );
-//  if ( m_TVec[t]->m_N0->m_ID == -999 || m_TVec[t]->m_N1->m_ID == -999 || m_TVec[t]->m_N2->m_ID == -999 )
-//      printf("Found -999\n");
-//  }
-//
-//  //==== Nuke Redundant Nodes And Update NVec ====//
-//  vector< TNode* > tempNVec;
-//  for ( n = 0 ; n < (int)m_NVec.size() ; n++ )
-//  {
-//      m_NVec[n]->m_TriVec.clear();
-//      m_NVec[n]->m_MergeVec.clear();
-//      if ( m_NVec[n]->m_ID == -999 )
-//          delete m_NVec[n];
-//      else
-//          tempNVec.push_back( m_NVec[n] );
-//  }
-//  m_NVec = tempNVec;
-//
-//
-//  //==== Brute Force Check For Duplicate Nodes ====//
-///****************************************************************
-//  for ( n = 0 ; n < nVec.size() ; n++ )
-//  {
-//      for ( int m = n+1 ; m < nVec.size() ; m++ )
-//      {
-//          if ( dist_squared( nVec[n]->pnt, nVec[m]->pnt ) < tol )
-//          {
-//              printf("Duplicate Node %d %d\n", nVec[n], nVec[m] );
-//          }
-//      }
-//  }
-//*****************************************************************/
-//
-//  //==== Reassign Triangles ====//
-//  for ( t = 0 ; t < (int)m_TVec.size() ; t++ )
-//  {
-//      m_TVec[t]->m_N0->m_TriVec.push_back( m_TVec[t] );
-//      m_TVec[t]->m_N1->m_TriVec.push_back( m_TVec[t] );
-//      m_TVec[t]->m_N2->m_TriVec.push_back( m_TVec[t] );
-//  }
-
     BuildMergeMaps();
     DeleteDupNodes();
-
 }
 
 void TMesh::SwapEdges( double ang )
@@ -3914,97 +3755,6 @@ vec3d TMesh::ProjectOnISectPairs( vec3d & offPnt, vector< vec3d > & pairVec )
     }
 
     return closePnt;
-}
-
-void TMesh::MergeSplitNodes( vector< TTri* > & triVec, vector< TNode* > & nodeVec )
-{
-    int s, t;
-
-    //==== Find All Exterior and Split Tris =====//
-    for ( t = 0 ; t < ( int )m_TVec.size() ; t++ )
-    {
-        TTri* tri = m_TVec[t];
-        if ( tri->m_SplitVec.size() )
-        {
-            for ( s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
-            {
-                if ( !tri->m_SplitVec[s]->m_InteriorFlag )
-                {
-                    triVec.push_back( tri->m_SplitVec[s] );
-                }
-            }
-        }
-        else if ( !tri->m_InteriorFlag )
-        {
-            triVec.push_back( tri );
-        }
-    }
-
-    //==== Look Thru nVecs and Redirect Dumplicates ====//
-    for ( t = 0 ; t < ( int )triVec.size() ; t++ )
-    {
-        triVec[t]->m_N0 = CheckDupOrAdd( triVec[t]->m_N0, nodeVec );
-        triVec[t]->m_N1 = CheckDupOrAdd( triVec[t]->m_N1, nodeVec );
-        triVec[t]->m_N2 = CheckDupOrAdd( triVec[t]->m_N2, nodeVec );
-    }
-
-    //==== Remove Any Bogus Tris ====//
-    vector< TTri* > goodTriVec;
-    for ( t = 0 ; t < ( int )triVec.size() ; t++ )
-    {
-        TTri* ttri = triVec[t];
-        if ( ttri->m_N0->m_ID != ttri->m_N1->m_ID &&
-                ttri->m_N0->m_ID != ttri->m_N2->m_ID &&
-                ttri->m_N1->m_ID != ttri->m_N2->m_ID )
-        {
-            goodTriVec.push_back( ttri );
-        }
-    }
-    triVec = goodTriVec;
-
-}
-
-//==== Check if Dupicate Node - if Not Add ====//
-TNode* TMesh::CheckDupOrAdd( TNode* node, vector< TNode* > & nodeVec, double tol )
-{
-    for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
-    {
-        TNode* n = nodeVec[i];
-        if ( fabs( n->m_Pnt.x() - node->m_Pnt.x() ) < tol )
-            if ( fabs( n->m_Pnt.y() - node->m_Pnt.y() ) < tol )
-                if ( fabs( n->m_Pnt.z() - node->m_Pnt.z() ) < tol )
-                {
-                    node->m_ID = i;
-                    return n;
-                }
-    }
-
-    //==== Add To List ====//
-    node->m_ID = nodeVec.size();
-    nodeVec.push_back( node );
-    return node;
-}
-
-//==== Check if Dupicate Node - if Not Add ====//
-TNode* TMesh::CheckDupOrCreate( vec3d & p, vector< TNode* > & nodeVec, double tol )
-{
-    for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
-    {
-        TNode* n = nodeVec[i];
-        if ( fabs( n->m_Pnt.x() - p.x() ) < tol )
-            if ( fabs( n->m_Pnt.y() - p.y() ) < tol )
-                if ( fabs( n->m_Pnt.z() - p.z() ) < tol )
-                {
-                    return n;
-                }
-    }
-
-    //==== Add To List ====//
-    TNode* node = new TNode();
-    node->m_Pnt = p;
-    node->m_ID = nodeVec.size();
-    nodeVec.push_back( node );
-    return node;
 }
 
 double TMesh::Rand01()

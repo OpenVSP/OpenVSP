@@ -41,29 +41,25 @@ public:
 
 class MeshGeom : public Geom
 {
-
+private:
     int m_BigEndianFlag;
 
-    vector< TTri* > m_NascartTriVec;
-    vector< TNode* > m_NascartNodeVec;
+    vector< TTri* > m_IndexedTriVec;
+    vector< TNode* > m_IndexedNodeVec;
 
-    vector< TTri* > m_TecplotTriVec[30];
-    vector< TNode* > m_TecplotNodeVec[30];
-
+    vector< TMesh* > m_SliceVec;
 
 public:
 //  enum { SLICE_PLANAR, SLICE_AWAVE };
-
-    //==== How Mesh Is Drawn and Saved ====//
-    enum { INTERSECTION_MESH, MODEL_MESH };
 
     MeshGeom( Vehicle* vehicle_ptr );
     ~MeshGeom();
 
     //! MeshGeom's EncodeXml Implementation
     /**
-       MeshGeom's EncodeXml Method does not write out each TTri's splitVec. So make sure that FlattenTMeshVec has been called on MeshGeom
-      before calling EncodeXml.
+       MeshGeom's EncodeXml Method does not write out each TTri's splitVec.
+       So make sure that FlattenTMeshVec has been called on MeshGeom
+       before calling EncodeXml.
     */
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
@@ -77,7 +73,6 @@ public:
 
     int m_MeshFlag;              // Do WaterTight Check and Quality Mesh
     int m_MassPropFlag;
-    int m_MeshType;
     vec3d m_CenterOfGrav;
 
     double m_TotalMass;
@@ -90,25 +85,12 @@ public:
 
     double m_MinTriDen;
     double m_MaxTriDen;
-    vector < TTri* > m_MpTriVec;
 
     vector < TMesh* > m_TMeshVec;
-    vector < TMesh* > m_SliceVec;
-
-    TMesh* m_OneMesh;
 
     // Scale Transformation Matrix
     Matrix4d m_ScaleMatrix;
     Parm m_ScaleFromOrig;
-
-    virtual void SetMeshType( int type )
-    {
-        m_MeshType = type;
-    }
-    virtual int  GetMeshType()
-    {
-        return m_MeshType;
-    }
 
     virtual void load_hidden_surf();
     virtual void load_normals();
@@ -130,24 +112,16 @@ public:
     virtual int   ReadBinInt  ( FILE* fptr );
     virtual void WriteStl( FILE* pov_file );
 
-    virtual void BuildNascartMesh( int partOffset );
-    virtual int  GetNumNascartPnts()
+    virtual void BuildIndexedMesh( int partOffset );
+    virtual int  GetNumIndexedPnts()
     {
-        return m_NascartNodeVec.size();
+        return m_IndexedNodeVec.size();
     }
-    virtual int  GetNumTecplotPnts( int m )
+    virtual int  GetNumIndexedTris()
     {
-        return m_TecplotNodeVec[m].size();
+        return m_IndexedTriVec.size();
     }
-    virtual int  GetNumNascartTris()
-    {
-        return m_NascartTriVec.size();
-    }
-    virtual int  GetNumTecplotTris( int m )
-    {
-        return m_TecplotTriVec[m].size();
-    }
-    virtual int  GetNumNascartParts()
+    virtual int  GetNumIndexedParts()
     {
         return m_TMeshVec.size();
     }
@@ -161,7 +135,6 @@ public:
     virtual int  WriteCart3DParts( FILE* file_id );
     virtual void WritePovRay( FILE* fid, int comp_num );
     virtual void WriteX3D( xmlNodePtr node );
-    virtual void CheckDupOrAdd( TNode* node, vector< TNode* > & nodeVec );
     virtual void CreateGeomResults( Results* res );
 
 

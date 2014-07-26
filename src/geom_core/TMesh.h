@@ -335,10 +335,6 @@ public:
     TEdge* m_E1;
     TEdge* m_E2;
 
-    TNode* m_cn0;                   // Nodes on Edge Centers for FEA Export
-    TNode* m_cn1;
-    TNode* m_cn2;
-
 protected:
     TMesh* m_TMesh;
 
@@ -460,7 +456,6 @@ public:
     virtual int   NumVerts();
 
     virtual void WaterTightCheck( FILE* fid, vector< TMesh* > & tMeshVec );
-    virtual TNode* LowNode( TNode* node );
     virtual void FindEdge( TNode* node, TTri* tri0, TTri* tri1 );
     virtual void AddEdge( TTri* tri0, TTri* tri1, TNode* node0, TNode* node1 );
     virtual void SwapEdge( TEdge* edge );
@@ -484,10 +479,6 @@ public:
     virtual void MoveNode( TNode* n0, TNode* n1 );
     virtual TTri* FindTriNodes( TTri* ignoreTri, TNode* n0, TNode* n1 );
     virtual TTri* FindTriPnts( TTri* ignoreTri, TNode* n0, TNode* n1 );
-
-    virtual void MergeSplitNodes( vector< TTri* > & triVec, vector< TNode* > & nodeVec );
-    static TNode* CheckDupOrAdd( TNode* node, vector< TNode* > & nodeVec, double tol = 0.00000001 );
-    static TNode* CheckDupOrCreate( vec3d & p, vector< TNode* > & nodeVec, double tol = 0.00000001 );
 
     virtual void SubTag( int part_num ); // Subtag all triangles, if split triangles exist tag them the same as their parent
 

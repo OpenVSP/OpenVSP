@@ -6,8 +6,7 @@
 #include "OpenGLHeaders.h"
 #include "loadjpg.h"
 #include "LayoutMgr.h"
-
-#include <cstring>
+#include <string.h>
 
 #include <assert.h>
 

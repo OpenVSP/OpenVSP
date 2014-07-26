@@ -2,8 +2,7 @@
 
 #include "JPGLoader.h"
 #include "loadjpg.h"
-
-#include <cstring>
+#include <string.h>
 
 namespace VSPGraphic
 {
