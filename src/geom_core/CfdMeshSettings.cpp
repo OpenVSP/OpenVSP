@@ -72,6 +72,9 @@ CfdMeshSettings::CfdMeshSettings() : ParmContainer()
     m_WakeAngle.Init( "WakeAngle", "Wake", this, 0.0, -90.0, 90.0 );
     m_WakeAngle.SetDescript( "Wake angle" );
 
+    m_IntersectSubSurfs.Init( "IntersectSubSurfs", "Global", this, true, 0, 1 );
+    m_IntersectSubSurfs.SetDescript( "Flag to intersect subsurfaces" );
+
     m_ExportFileFlags[ DAT_FILE_NAME ].Init( "DAT_Export", "ExportCFD", this, true, 0, 1 );
     m_ExportFileFlags[ KEY_FILE_NAME ].Init( "KEY_Export", "ExportCFD", this, true, 0, 1 );
     m_ExportFileFlags[ OBJ_FILE_NAME ].Init( "OBJ_Export", "ExportCFD", this, true, 0, 1 );

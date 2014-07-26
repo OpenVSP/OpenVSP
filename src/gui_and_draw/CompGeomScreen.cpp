@@ -31,6 +31,8 @@ CompGeomScreen::CompGeomScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     ui->txtFileChooseButon->callback( staticScreenCB, this );
     ui->half_mesh_button->value( 0 );
     ui->outputTextDisplay->buffer( m_textBuffer );
+    ui->sub_surf_button->callback( staticScreenCB, this );
+    ui->sub_surf_button->value( 1 );
 
     m_SelectedSetIndex = 0;
     m_HalfMesh = false;
@@ -134,7 +136,8 @@ void CompGeomScreen::CallBack( Fl_Widget *w )
     }
     else if ( w == m_CompGeomUI->executeButton )
     {
-        string geom = vehiclePtr->CompGeomAndFlatten( m_SelectedSetIndex, 0, 0 , m_HalfMesh );
+        string geom = vehiclePtr->CompGeomAndFlatten( m_SelectedSetIndex, 0, 0 , m_HalfMesh,
+                      m_CompGeomUI->sub_surf_button->value() );
         if ( geom.compare( "NONE" ) != 0 )
         {
             m_CompGeomUI->outputTextDisplay->buffer()->loadfile( vehiclePtr->getExportFileName( vsp::COMP_GEOM_TXT_TYPE ).c_str() );

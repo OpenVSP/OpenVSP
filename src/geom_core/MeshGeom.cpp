@@ -1316,7 +1316,7 @@ void MeshGeom::TransformMeshVec( vector<TMesh*> & meshVec, Matrix4d & TransMat )
     }
 }
 
-void MeshGeom::IntersectTrim( int meshf, int halfFlag )
+void MeshGeom::IntersectTrim( int meshf, int halfFlag, int intSubsFlag )
 {
     int i, j;
 
@@ -1375,54 +1375,56 @@ void MeshGeom::IntersectTrim( int meshf, int halfFlag )
     ApplyScale();
 
     //==== Intersect Subsurfaces to make clean lines ====//
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+    if ( intSubsFlag )
     {
-        vector< TMesh* > sub_surf_meshes;
-        vector< SubSurface* > sub_surf_vec = SubSurfaceMgr.GetSubSurfs( m_TMeshVec[i]->m_PtrID );
-        int ss;
-        for ( ss = 0 ; ss < ( int )sub_surf_vec.size() ; ss++ )
+        for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
         {
-            vector< TMesh* > tmp_vec = sub_surf_vec[ss]->CreateTMeshVec();
-            sub_surf_meshes.insert( sub_surf_meshes.end(), tmp_vec.begin(), tmp_vec.end() );
+            vector< TMesh* > sub_surf_meshes;
+            vector< SubSurface* > sub_surf_vec = SubSurfaceMgr.GetSubSurfs( m_TMeshVec[i]->m_PtrID );
+            int ss;
+            for ( ss = 0 ; ss < ( int )sub_surf_vec.size() ; ss++ )
+            {
+                vector< TMesh* > tmp_vec = sub_surf_vec[ss]->CreateTMeshVec();
+                sub_surf_meshes.insert( sub_surf_meshes.end(), tmp_vec.begin(), tmp_vec.end() );
+            }
+            m_SubSurfVec.insert( m_SubSurfVec.end(), sub_surf_meshes.begin(), sub_surf_meshes.end() );
+
+            if ( !sub_surf_meshes.size() )
+            {
+                continue;    // Skip if no sub surface meshes
+            }
+
+            // Load All surf_mesh_bboxes
+            for ( ss = 0 ; ss < ( int )sub_surf_meshes.size() ; ss++ )
+            {
+                // Build merge maps
+                m_TMeshVec[i]->BuildMergeMaps();
+
+                sub_surf_meshes[ss]->LoadBndBox();
+                // Swap the m_TMeshVec[i]'s nodes to be UW instead of xyz
+                m_TMeshVec[i]->MakeNodePntUW();
+                m_TMeshVec[i]->LoadBndBox();
+
+                // Intersect TMesh with sub_surface_meshes
+                m_TMeshVec[i]->Intersect( sub_surf_meshes[ss], true );
+
+                // Split the triangles
+                m_TMeshVec[i]->Split();
+
+                // Make current TMesh XYZ again and reset its octtree
+                m_TMeshVec[i]->MakeNodePntXYZ();
+                m_TMeshVec[i]->m_TBox.Reset();
+
+                // Flatten Mesh
+                TMesh* f_tmesh = new TMesh();
+                f_tmesh->CopyFlatten( m_TMeshVec[i] );
+                delete m_TMeshVec[i];
+                m_TMeshVec[i] = f_tmesh;
+            }
+
+            sub_surf_meshes.clear();
         }
-        m_SubSurfVec.insert( m_SubSurfVec.end(), sub_surf_meshes.begin(), sub_surf_meshes.end() );
-
-        if ( !sub_surf_meshes.size() )
-        {
-            continue;    // Skip if no sub surface meshes
-        }
-
-        // Load All surf_mesh_bboxes
-        for ( ss = 0 ; ss < ( int )sub_surf_meshes.size() ; ss++ )
-        {
-            // Build merge maps
-            m_TMeshVec[i]->BuildMergeMaps();
-
-            sub_surf_meshes[ss]->LoadBndBox();
-            // Swap the m_TMeshVec[i]'s nodes to be UW instead of xyz
-            m_TMeshVec[i]->MakeNodePntUW();
-            m_TMeshVec[i]->LoadBndBox();
-
-            // Intersect TMesh with sub_surface_meshes
-            m_TMeshVec[i]->Intersect( sub_surf_meshes[ss], true );
-
-            // Split the triangles
-            m_TMeshVec[i]->Split();
-
-            // Make current TMesh XYZ again and reset its octtree
-            m_TMeshVec[i]->MakeNodePntXYZ();
-            m_TMeshVec[i]->m_TBox.Reset();
-
-            // Flatten Mesh
-            TMesh* f_tmesh = new TMesh();
-            f_tmesh->CopyFlatten( m_TMeshVec[i] );
-            delete m_TMeshVec[i];
-            m_TMeshVec[i] = f_tmesh;
-        }
-
-        sub_surf_meshes.clear();
     }
-
     // Tag meshes before regular intersection
     SubTagTris();
 

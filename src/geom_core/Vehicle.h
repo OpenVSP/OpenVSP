@@ -203,8 +203,8 @@ public:
     string ImportFile( const string & file_name, int file_type );
 
     //Comp Geom
-    string CompGeom( int set, int sliceFlag, int meshFlag, int halfFlag );
-    string CompGeomAndFlatten( int set, int sliceFlag, int meshFlag, int halfFlag );
+    string CompGeom( int set, int sliceFlag, int meshFlag, int halfFlag, int intSubsFlag = 1 );
+    string CompGeomAndFlatten( int set, int sliceFlag, int meshFlag, int halfFlag, int intSubsFlag = 1 );
     string MassProps( int set, int numSlices );
     string MassPropsAndFlatten( int set, int numSlices );
     string AwaveSlice( int set, int numSlices, int numRots, double AngleControlVal, bool computeAngle,

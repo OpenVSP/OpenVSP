@@ -142,7 +142,7 @@ public:
     virtual void Scale();
 
     //==== Intersection, Splitting and Trimming ====//
-    virtual void IntersectTrim( int meshFlag, int halfFlag = 0 );
+    virtual void IntersectTrim( int meshFlag, int halfFlag = 0, int intSubsFlag = 1 );
     virtual void degenGeomIntersectTrim( vector< DegenGeom > &degenGeom );
     virtual void SliceX( int numSlice );
     virtual void MassSliceX( int numSlice );

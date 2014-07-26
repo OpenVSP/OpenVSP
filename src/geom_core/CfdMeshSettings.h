@@ -97,6 +97,14 @@ public:
     {
         return m_WakeAngle();
     }
+    virtual void SetIntersectSubSurfs( bool f )
+    {
+        m_IntersectSubSurfs = f;
+    }
+    virtual bool GetIntersectSubSurfs()
+    {
+        return m_IntersectSubSurfs();
+    }
 
     string GetExportFileName( int type );
     void SetExportFileName( const string &fn, int type );
@@ -138,6 +146,8 @@ public:
     BoolParm m_DrawSymmFlag;
     BoolParm m_DrawWakeFlag;
     BoolParm m_ColorTagsFlag;
+
+    BoolParm m_IntersectSubSurfs;
 
     BoolParm m_ExportFileFlags[NUM_FILE_NAMES];
 

@@ -67,6 +67,8 @@ private:
     ToggleButton m_GmshToggleButton;
     ToggleButton m_SrfToggleButton;
 
+    ToggleButton m_IntersectSubSurfsButton;
+
     SliderInput m_LengthSlider;
     SliderInput m_RadiusSlider;
 

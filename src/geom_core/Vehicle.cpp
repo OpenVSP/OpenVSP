@@ -1883,7 +1883,7 @@ void Vehicle::setExportFileName( int type, string f_name )
     }
 }
 
-string Vehicle::CompGeom( int set, int sliceFlag, int meshFlag, int halfFlag )
+string Vehicle::CompGeom( int set, int sliceFlag, int meshFlag, int halfFlag, int intSubsFlag)
 {
 
     string id = AddMeshGeom( set );
@@ -1911,7 +1911,7 @@ string Vehicle::CompGeom( int set, int sliceFlag, int meshFlag, int halfFlag )
         }
         else
         {
-            mesh_ptr->IntersectTrim( meshFlag, halfFlag );
+            mesh_ptr->IntersectTrim( meshFlag, halfFlag, intSubsFlag );
         }
     }
     else
@@ -1925,9 +1925,9 @@ string Vehicle::CompGeom( int set, int sliceFlag, int meshFlag, int halfFlag )
     return id;
 }
 
-string Vehicle::CompGeomAndFlatten( int set, int sliceFlag, int meshFlag, int halfFlag )
+string Vehicle::CompGeomAndFlatten( int set, int sliceFlag, int meshFlag, int halfFlag, int intSubsFlag )
 {
-    string id = CompGeom( set, sliceFlag, meshFlag, halfFlag );
+    string id = CompGeom( set, sliceFlag, meshFlag, halfFlag, intSubsFlag );
     Geom* geom = FindGeom( id );
     if ( !geom )
     {

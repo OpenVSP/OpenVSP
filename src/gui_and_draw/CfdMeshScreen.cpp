@@ -36,6 +36,8 @@ CfdMeshScreen::CfdMeshScreen( ScreenMgr* mgr ) : VspScreen( mgr )
 
     ui->rigorLimitButton->callback( staticCB, this );
 
+    m_IntersectSubSurfsButton.Init( this, ui->intersectSubButton );
+
     m_DrawMeshButton.Init( this, ui->viewMeshButton );
     m_DrawSourceButton.Init( this, ui->viewSourceButton );
     m_DrawFarButton.Init( this, ui->viewFarMeshButton );
@@ -159,6 +161,7 @@ bool CfdMeshScreen::Update()
     m_MaxGapSizeSlider.Update( CfdMeshMgr.GetGridDensityPtr()->m_MaxGap.GetID() );
     m_NumCircSegmentSlider.Update( CfdMeshMgr.GetGridDensityPtr()->m_NCircSeg.GetID() );
     m_GrowRatioSlider.Update( CfdMeshMgr.GetGridDensityPtr()->m_GrowRatio.GetID() );
+    m_IntersectSubSurfsButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_IntersectSubSurfs.GetID() );
 
     m_FarXScaleSlider.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_FarXScale.GetID() );
     m_FarYScaleSlider.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_FarYScale.GetID() );

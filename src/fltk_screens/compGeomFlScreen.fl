@@ -1,5 +1,5 @@
 # data file for the Fltk User Interface Designer (fluid)
-version 1.0300 
+version 1.0302 
 header_name {.h} 
 code_name {.cxx}
 class CompGeomUI {open
@@ -7,8 +7,8 @@ class CompGeomUI {open
   Function {CompGeomUI()} {open
   } {
     Fl_Window UIWindow {
-      label {Comp Geom} open
-      xywh {467 63 378 407} type Double color 45 resizable visible
+      label {Comp Geom} open selected
+      xywh {365 56 375 430} type Double color 45 resizable visible
     } {
       Fl_Box {} {
         label {Comp Geom - Mesh, Intersect, Trim}
@@ -19,7 +19,7 @@ class CompGeomUI {open
       }
       Fl_Button executeButton {
         label Execute
-        xywh {237 375 134 25} labelfont 1
+        xywh {5 403 365 25} labelfont 1
       }
       Fl_Box {} {
         label {File Export}
@@ -52,7 +52,7 @@ class CompGeomUI {open
       }
       Fl_Light_Button half_mesh_button {
         label {Half Mesh}
-        xywh {142 375 95 25} labelfont 1
+        xywh {144 375 108 25} labelfont 1
       }
       Fl_Light_Button tsvFileButton {
         label {.tsv}
@@ -69,9 +69,13 @@ class CompGeomUI {open
         label {Parasite Drag Output}
         xywh {5 108 365 17} box BORDER_BOX labelfont 1 labelcolor 15
       }
-      Fl_Choice setChoice {open selected
+      Fl_Choice setChoice {open
         xywh {5 375 136 25} down_box FLAT_BOX color 17 textfont 1
       } {}
+      Fl_Light_Button sub_surf_button {
+        label Subsurfs
+        xywh {254 375 115 25} labelfont 1
+      }
     }
   }
 } 

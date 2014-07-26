@@ -2313,7 +2313,8 @@ void CfdMeshMgrSingleton::BuildCurves()
 }
 void CfdMeshMgrSingleton::Intersect()
 {
-    BuildSubSurfIntChains();
+
+    if ( GetCfdSettingsPtr()->GetIntersectSubSurfs() ) BuildSubSurfIntChains();
 
     //==== Quad Tree Intersection - Intersection Segments Get Loaded at AddIntersectionSeg ===//
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )

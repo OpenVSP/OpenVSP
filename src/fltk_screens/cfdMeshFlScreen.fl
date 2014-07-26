@@ -7,7 +7,7 @@ class CFDMeshUI {open
   Function {CFDMeshUI()} {open
   } {
     Fl_Window UIWindow {
-      label {CFD Mesh} open selected
+      label {CFD Mesh} open
       xywh {480 56 415 603} type Double color 45 resizable visible
     } {
       Fl_Box {} {
@@ -31,7 +31,7 @@ class CFDMeshUI {open
         xywh {0 20 420 435}
       } {
         Fl_Group {} {
-          label Global
+          label Global open
           xywh {5 50 395 405} labelfont 1 labelcolor 4
         } {
           Fl_Box {} {
@@ -94,47 +94,51 @@ class CFDMeshUI {open
           }
           Fl_Box {} {
             label {Global Source Control}
-            xywh {15 225 370 20} box BORDER_BOX color 12 labelfont 1 labelcolor 7
+            xywh {15 238 370 20} box BORDER_BOX color 12 labelfont 1 labelcolor 7
           }
           Fl_Button adjLenDownDownButton {
             label {<<}
-            xywh {15 250 20 20} labelfont 1 labelcolor 4
+            xywh {15 263 20 20} labelfont 1 labelcolor 4
           }
           Fl_Button adjLenDownButton {
             label {<}
-            xywh {35 250 20 20} labelfont 1 labelcolor 4
+            xywh {35 263 20 20} labelfont 1 labelcolor 4
           }
           Fl_Box {} {
             label {Adjust Len}
-            xywh {55 250 85 20} box BORDER_BOX labelfont 1 labelcolor 15 align 16
+            xywh {55 263 85 20} box BORDER_BOX labelfont 1 labelcolor 15 align 16
           }
           Fl_Button adjLenUpButton {
             label {>}
-            xywh {140 250 20 20} labelfont 1 labelcolor 4
+            xywh {140 263 20 20} labelfont 1 labelcolor 4
           }
           Fl_Button adjLenUpUpButton {
             label {>>}
-            xywh {160 250 20 20} labelfont 1 labelcolor 4
+            xywh {160 263 20 20} labelfont 1 labelcolor 4
           }
           Fl_Button adjRadDownDownButton {
             label {<<}
-            xywh {220 250 20 20} labelfont 1 labelcolor 4
+            xywh {220 263 20 20} labelfont 1 labelcolor 4
           }
           Fl_Button adjRadDownButton {
             label {<}
-            xywh {240 250 20 20} labelfont 1 labelcolor 4
+            xywh {240 263 20 20} labelfont 1 labelcolor 4
           }
           Fl_Box {} {
             label {Adjust Rad}
-            xywh {260 250 85 20} box BORDER_BOX labelfont 1 labelcolor 15 align 16
+            xywh {260 263 85 20} box BORDER_BOX labelfont 1 labelcolor 15 align 16
           }
           Fl_Button adjRadUpButton {
             label {>}
-            xywh {345 250 20 20} labelfont 1 labelcolor 4
+            xywh {345 263 20 20} labelfont 1 labelcolor 4
           }
           Fl_Button adjRadUpUpButton {
             label {>>}
-            xywh {365 250 20 20} labelfont 1 labelcolor 4
+            xywh {365 263 20 20} labelfont 1 labelcolor 4
+          }
+          Fl_Light_Button intersectSubButton {
+            label {Intersect Subsurfaces} selected
+            xywh {15 213 370 20} labelfont 1 align 16
           }
         }
         Fl_Group {} {
