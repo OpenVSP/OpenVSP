@@ -63,6 +63,9 @@ public:
     int GetNumSectU() const;
     int GetNumSectW() const;
 
+    double GetUMax() const;
+    double GetWMax() const;
+
     void ReverseUDirection();
     void ReverseWDirection();
     void SwapUWDirections();
