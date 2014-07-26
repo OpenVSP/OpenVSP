@@ -382,11 +382,11 @@ void SSLineSeg::Update( Geom* geom )
         return;
     }
 
-    int num_u = surf->GetNumSectU();
-    int num_w = surf->GetNumSectW();
+    double umax = surf->GetUMax();
+    double wmax = surf->GetWMax();
     // Update none scaled points
-    m_P0.set_xyz( m_SP0[0]*num_u, m_SP0[1]*num_w, 0 );
-    m_P1.set_xyz( m_SP1[0]*num_u, m_SP1[1]*num_w, 0 );
+    m_P0.set_xyz( m_SP0[0]*umax, m_SP0[1]*wmax, 0 );
+    m_P1.set_xyz( m_SP1[0]*umax, m_SP1[1]*wmax, 0 );
 
     // Update line
     m_line = m_P1 - m_P0;
@@ -398,7 +398,7 @@ int SSLineSeg::CompNumDrawPnts( VspSurf* surf, Geom* geom )
     {
         return 0;
     }
-    double avg_num_secs = ( double )( surf->GetNumSectU() + surf->GetNumSectW() ) / 2.0;
+    double avg_num_secs = ( double )( surf->GetUMax() + surf->GetWMax() ) / 2.0;
     double avg_tess = ( double )( geom->m_TessU() + geom->m_TessW() ) / 2.0;
 
     return ( int )((avg_num_secs) * ( avg_tess - 1 ));
@@ -437,8 +437,8 @@ vec3d SSLineSeg::CompPnt( VspSurf* surf, vec3d uw_pnt ) const
         return vec3d();
     }
 
-    int num_u = surf->GetNumSectU();
-    int num_w = surf->GetNumSectW();
+    int num_u = surf->GetUMax();
+    int num_w = surf->GetWMax();
 
     if ( uw_pnt.x() < 0 )
     {
@@ -582,11 +582,11 @@ int SSLine::CompNumDrawPnts( Geom* geom )
 
     if ( m_ConstType() == CONST_W )
     {
-        return ( int )( surf->GetNumSectU() * ( geom->m_TessU() - 2 ) );
+        return ( int )( surf->GetUMax() * ( geom->m_TessU() - 2 ) );
     }
     else if ( m_ConstType() == CONST_U )
     {
-        return ( int )( surf->GetNumSectW() * ( geom->m_TessW() - 4 ) );
+        return ( int )( surf->GetWMax() * ( geom->m_TessW() - 4 ) );
     }
 
     return -1;

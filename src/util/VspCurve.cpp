@@ -928,10 +928,8 @@ void VspCurve::Tesselate( int num_pnts_u, vector< vec3d > & output )
 {
     curve_index_type i;
     curve_point_type p;
-    double umin, umax, delta;
+    double umin(m_Curve.get_parameter_min()), umax(m_Curve.get_parameter_max()), delta;
 
-    m_Curve.get_parameter_min( umin );
-    m_Curve.get_parameter_max( umax );
     delta = ( umax - umin ) / ( num_pnts_u - 1 );
 
     output.resize( num_pnts_u );

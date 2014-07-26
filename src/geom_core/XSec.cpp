@@ -292,9 +292,7 @@ void XSec::GetBasis( double t, Matrix4d &basis )
     vec3d wdir, updir, pdir;
     basis.getBasis( wdir, updir, pdir );
 
-    double tmin, tmax;
-    m_TransformedCurve.GetCurve().get_parameter_min( tmin );
-    m_TransformedCurve.GetCurve().get_parameter_max( tmax );
+    double tmin(m_TransformedCurve.GetCurve().get_parameter_min()), tmax(m_TransformedCurve.GetCurve().get_parameter_max());
 
     // Rotate basis around principal direction to point along curve
     // according to parameter and assumed circle.
@@ -411,9 +409,7 @@ void XSec::GetTanNormCrv( const vector< double > &thetas,
 void XSec::GetTanNormCrv( double theta, double angstr, double crvstr,
         piecewise_curve_type &tangentcrv, piecewise_curve_type &normcrv )
 {
-    double tmin, tmax;
-    m_TransformedCurve.GetCurve().get_parameter_min( tmin );
-    m_TransformedCurve.GetCurve().get_parameter_max( tmax );
+    double tmin(m_TransformedCurve.GetCurve().get_parameter_min()), tmax(m_TransformedCurve.GetCurve().get_parameter_max());
 
     vector< double > ts = { tmin, tmax };
     vector< double > thetas( 2, theta );

@@ -52,6 +52,16 @@ int VspSurf::GetNumSectW() const
     return m_Surface.number_v_patches();
 }
 
+double VspSurf::GetUMax() const
+{
+  return m_Surface.get_umax();
+}
+
+double VspSurf::GetWMax() const
+{
+  return m_Surface.get_vmax();
+}
+
 void VspSurf::ReverseUDirection()
 {
     m_Surface.reverse_u();
