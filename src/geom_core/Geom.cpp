@@ -925,6 +925,14 @@ void Geom::UpdateBBox()
         m_BBox.Update( bb );
     }
 
+    // If the surface vec size is zero ( like blank geom )
+    // set bbox to zero size
+
+    if ( !m_SurfVec.size() )
+    {
+        m_BBox.Update( vec3d(0,0,0) );
+    }
+
     m_BbXLen = m_BBox.GetMax( 0 ) - m_BBox.GetMin( 0 );
     m_BbYLen = m_BBox.GetMax( 1 ) - m_BBox.GetMin( 1 );
     m_BbZLen = m_BBox.GetMax( 2 ) - m_BBox.GetMin( 2 );
