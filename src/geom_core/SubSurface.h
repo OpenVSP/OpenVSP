@@ -182,8 +182,8 @@ public:
 
     Parm m_CenterU; // U location of square center
     Parm m_CenterW; // W location of square center
-    Parm m_DeltaU; // Length of U dimension
-    Parm m_DeltaW; // Length of W dimension
+    Parm m_ULength; // Length of U dimension
+    Parm m_WLength; // Length of W dimension
     Parm m_Theta; // Rotation Angle
 
     virtual void Update();

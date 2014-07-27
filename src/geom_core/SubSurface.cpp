@@ -534,7 +534,7 @@ TMesh* SSLineSeg::CreateTMesh()
 SSLine::SSLine( string comp_id, int type ) : SubSurface( comp_id, type )
 {
     m_ConstType.Init( "Const_Line_Type", "SubSurface", this, CONST_U, 0, 1, false );
-    m_ConstVal.Init( "Const_Line_Value", "SubSurface", this, 0, 0, 1 );
+    m_ConstVal.Init( "Const_Line_Value", "SubSurface", this, 0.5, 0, 1 );
     m_ConstVal.SetDescript( "Either the U or V value of the line depending on what constant line type is choosen." );
     m_TestType.Init( "Test_Type", "SubSurface", this, SSLineSeg::GT, SSLineSeg::GT, SSLineSeg::LT, false );
     m_TestType.SetDescript( "Tag surface as being either greater than or less than const value line" );
@@ -613,10 +613,10 @@ SSRectangle::SSRectangle( string comp_id, int type ) : SubSurface( comp_id, type
     m_CenterU.SetDescript( "Defines the U location of the rectangle center" );
     m_CenterW.Init( "Center_W", "SS_Rectangle", this, 0.5, 0, 1 );
     m_CenterW.SetDescript( "Defines the W location of the rectangle center" );
-    m_DeltaU.Init( "Delta_U", "SS_Rectangle", this, .2, 0, 1 );
-    m_DeltaU.SetDescript( "Defines length of rectangle in U direction before rotation" );
-    m_DeltaW.Init( "Delta_W", "SS_Rectangle", this, .2, 0, 1 );
-    m_DeltaW.SetDescript( "Defines length of rectangle in W direction before rotation" );
+    m_ULength.Init( "U_Length", "SS_Rectangle", this, .2, 0, 1 );
+    m_ULength.SetDescript( "Defines length of rectangle in U direction before rotation" );
+    m_WLength.Init( "W_Length", "SS_Rectangle", this, .2, 0, 1 );
+    m_WLength.SetDescript( "Defines length of rectangle in W direction before rotation" );
     m_Theta.Init( "Theta", "SS_Rectangle", this, 0, -90, 90 );
     m_Theta.SetDescript( "Defines angle in degrees from U axis to rotate the rectangle" );
     m_TestType.Init( "Test_Type", "SS_Rectangle", this, INSIDE, INSIDE, OUTSIDE );
@@ -659,10 +659,10 @@ void SSRectangle::Update()
 
     // Make points in counter clockwise fashion;
     pntVec.resize( 5 );
-    pntVec[0] = center + vec3d( m_DeltaU(), m_DeltaW(), 0 ) * -0.5;
-    pntVec[1] = center + vec3d( m_DeltaU(), -1.0 * m_DeltaW(), 0 ) * 0.5;
-    pntVec[2] = center + vec3d( m_DeltaU(), m_DeltaW(), 0 ) * 0.5;
-    pntVec[3] = center + vec3d( -1.0 * m_DeltaU(), m_DeltaW(), 0 ) * 0.5;
+    pntVec[0] = center + vec3d( m_ULength(), m_WLength(), 0 ) * -0.5;
+    pntVec[1] = center + vec3d( m_ULength(), -1.0 * m_WLength(), 0 ) * 0.5;
+    pntVec[2] = center + vec3d( m_ULength(), m_WLength(), 0 ) * 0.5;
+    pntVec[3] = center + vec3d( -1.0 * m_ULength(), m_WLength(), 0 ) * 0.5;
     pntVec[4] = pntVec[0];
 
     // Apply transformations
@@ -695,9 +695,9 @@ SSEllipse::SSEllipse( string comp_id, int type ) : SubSurface( comp_id, type )
     m_CenterU.SetDescript( "Defines the U location of the ellipse center" );
     m_CenterW.Init( "Center_W", "SS_Ellipse", this, 0.5, 0, 1 );
     m_CenterW.SetDescript( "Defines the W location of the ellipse center" );
-    m_ULength.Init( "U_Length", "SS_Ellipse", this, 0.5, 0, 1 );
+    m_ULength.Init( "U_Length", "SS_Ellipse", this, 0.2, 0, 1 );
     m_ULength.SetDescript( "Length of ellipse in the u direction" );
-    m_WLength.Init( "W_Length", "SS_Ellipse", this, 0.5, 0, 1 );
+    m_WLength.Init( "W_Length", "SS_Ellipse", this, 0.2, 0, 1 );
     m_WLength.SetDescript( "Length of ellipse in the w direction" );
     m_Theta.Init( "Theta", "SS_Ellipse", this, 0, -90, 90 );
     m_Theta.SetDescript( "Defines angle in degrees from U axis to rotate the rectangle" );

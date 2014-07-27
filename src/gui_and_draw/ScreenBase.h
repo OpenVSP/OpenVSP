@@ -262,8 +262,8 @@ public:
     GroupLayout m_SSRecGroup;
     SliderInput m_SSRecCentUSlider;
     SliderInput m_SSRecCentWSlider;
-    SliderInput m_SSRecDelUSlider;
-    SliderInput m_SSRecDelWSlider;
+    SliderInput m_SSRecULenSlider;
+    SliderInput m_SSRecWLenSlider;
     SliderAdjRangeInput m_SSRecThetaSlider;
     ToggleButton m_SSRecInsideButton;
     ToggleButton m_SSRecOutsideButton;

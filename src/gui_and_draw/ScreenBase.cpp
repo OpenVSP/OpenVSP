@@ -534,8 +534,8 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
 
     m_SSRecGroup.AddSlider( m_SSRecCentUSlider, "Center U", 1, "%5.4f" );
     m_SSRecGroup.AddSlider( m_SSRecCentWSlider, "Center W", 1, "%5.4f" );
-    m_SSRecGroup.AddSlider( m_SSRecDelUSlider, "Delta U", 1, "%5.4f" );
-    m_SSRecGroup.AddSlider( m_SSRecDelWSlider, "Delta W", 1, "%5.4f" );
+    m_SSRecGroup.AddSlider( m_SSRecULenSlider, "U Length", 1, "%5.4f" );
+    m_SSRecGroup.AddSlider( m_SSRecWLenSlider, "W Length", 1, "%5.4f" );
     m_SSRecGroup.AddSlider( m_SSRecThetaSlider, "Theta", 25, "%5.4f" );
 
     //==== SS_Ellipse ====//
@@ -699,8 +699,8 @@ bool GeomScreen::Update()
             m_SSRecTestToggleGroup.Update( ssrec->m_TestType.GetID() );
             m_SSRecCentUSlider.Update( ssrec->m_CenterU.GetID() );
             m_SSRecCentWSlider.Update( ssrec->m_CenterW.GetID() );
-            m_SSRecDelUSlider.Update( ssrec->m_DeltaU.GetID() );
-            m_SSRecDelWSlider.Update( ssrec->m_DeltaW.GetID() );
+            m_SSRecULenSlider.Update( ssrec->m_ULength.GetID() );
+            m_SSRecWLenSlider.Update( ssrec->m_WLength.GetID() );
             m_SSRecThetaSlider.Update( ssrec->m_Theta.GetID() );
             SubSurfDispGroup( &m_SSRecGroup );
         }
