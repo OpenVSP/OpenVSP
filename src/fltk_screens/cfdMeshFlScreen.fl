@@ -281,7 +281,7 @@ class CFDMeshUI {} {
             xywh {360 255 25 20} labelfont 1
           }
           Fl_Box {} {
-            label {Surfaces & Intersection Curves}
+            label {Surface and Subsurface Key File}
             xywh {15 280 370 15} box BORDER_BOX color 12 labelfont 1 labelcolor 7
           }
           Fl_Light_Button tkeyToggle {
