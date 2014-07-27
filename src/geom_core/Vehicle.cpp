@@ -1412,6 +1412,8 @@ void Vehicle::WriteNascartFiles( const string & file_name, int write_set )
 
     fclose( file_id );
 
+    SubSurfaceMgr.WriteKeyFile( file_name );
+
 }
 
 void Vehicle::WriteGmshFile( const string & file_name, int write_set )
