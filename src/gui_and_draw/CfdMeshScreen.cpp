@@ -785,6 +785,14 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
             CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::GMSH_FILE_NAME );
         }
     }
+    else if ( w == m_CfdMeshUI->srfButton )
+    {
+        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .srf file.", "*.srf" );
+        if ( newfile.compare( "" ) != 0 )
+        {
+            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::SRF_FILE_NAME );
+        }
+    }
     else if ( w == m_CfdMeshUI->tkeyButton )
     {
         string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .tkey file.", "*.tkey" );
