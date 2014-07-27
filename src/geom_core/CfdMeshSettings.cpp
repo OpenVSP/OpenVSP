@@ -83,6 +83,7 @@ CfdMeshSettings::CfdMeshSettings() : ParmContainer()
     m_ExportFileFlags[ TRI_FILE_NAME ].Init( "TRI_Export", "ExportCFD", this, true, 0, 1 );
     m_ExportFileFlags[ GMSH_FILE_NAME ].Init( "GMSH_Export", "ExportCFD", this, true, 0, 1 );
     m_ExportFileFlags[ SRF_FILE_NAME ].Init( "SRF_Export", "ExportCFD", this, true, 0, 1 );
+    m_ExportFileFlags[ TKEY_FILE_NAME ].Init( "TKEY_Export", "ExportCFD", this, true, 0, 1 );
 }
 
 CfdMeshSettings::~CfdMeshSettings()
@@ -150,7 +151,7 @@ void CfdMeshSettings::ResetExportFileNames()
 void CfdMeshSettings::ResetExportFileNames( string basename )
 {
     int pos;
-    const char *suffix[] = {".stl", ".poly", ".tri", ".obj", "_NASCART.dat", "_NASCART.key", ".msh", ".srf"};
+    const char *suffix[] = {".stl", ".poly", ".tri", ".obj", "_NASCART.dat", "_NASCART.key", ".msh", ".srf", ".tkey" };
 
     for ( int i = 0 ; i < NUM_FILE_NAMES ; i++ )
     {

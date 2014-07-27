@@ -1439,6 +1439,11 @@ void CfdMeshMgrSingleton::ExportFiles()
     {
         WriteSurfsIntCurves( GetCfdSettingsPtr()->GetExportFileName( CfdMeshSettings::SRF_FILE_NAME ) );
     }
+
+    if ( GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::TKEY_FILE_NAME )->Get() )
+    {
+        SubSurfaceMgr.WriteKeyFile( GetCfdSettingsPtr()->GetExportFileName( CfdMeshSettings::TKEY_FILE_NAME ) );
+    }
 }
 
 void CfdMeshMgrSingleton::WriteSTL( const string &filename )

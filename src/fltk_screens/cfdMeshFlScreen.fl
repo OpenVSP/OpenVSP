@@ -32,7 +32,7 @@ class CFDMeshUI {open
       } {
         Fl_Group {} {
           label Global open
-          xywh {5 50 395 405} labelfont 1 labelcolor 4
+          xywh {5 50 395 405} labelfont 1 labelcolor 4 hide
         } {
           Fl_Box {} {
             label {Global Mesh Control}
@@ -137,7 +137,7 @@ class CFDMeshUI {open
             xywh {365 263 20 20} labelfont 1 labelcolor 4
           }
           Fl_Light_Button intersectSubButton {
-            label {Intersect Subsurfaces} selected
+            label {Intersect Subsurfaces}
             xywh {15 213 370 20} labelfont 1 align 16
           }
         }
@@ -179,8 +179,8 @@ class CFDMeshUI {open
           }
         }
         Fl_Group {} {
-          label Output
-          xywh {5 50 385 355} labelfont 1 labelcolor 4 hide
+          label Output open
+          xywh {5 50 385 355} labelfont 1 labelcolor 4
         } {
           Fl_Box {} {
             label {Export File Names}
@@ -281,6 +281,21 @@ class CFDMeshUI {open
           Fl_Button srfButton {
             label {...}
             xywh {360 255 25 20} labelfont 1
+          }
+          Fl_Box {} {
+            label {Surfaces & Intersection Curves}
+            xywh {15 280 370 15} box BORDER_BOX color 12 labelfont 1 labelcolor 7
+          }
+          Fl_Light_Button tkeyToggle {
+            label {.tkey}
+            xywh {15 295 55 20} labelfont 1
+          }
+          Fl_Output tkeyName {
+            xywh {70 295 290 20} color 17
+          }
+          Fl_Button tkeyButton {
+            label {...} selected
+            xywh {360 295 25 20} labelfont 1
           }
         }
         Fl_Group {} {

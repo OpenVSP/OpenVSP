@@ -108,6 +108,7 @@ CfdMeshScreen::CfdMeshScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     m_TriToggleButton.Init( this, ui->triToggle );
     m_GmshToggleButton.Init( this, ui->gmshToggle );
     m_SrfToggleButton.Init( this, ui->srfToggle );
+    m_TkeyToggleButton.Init( this, ui->tkeyToggle );
 
     ui->datButton->callback( staticCB, this );
     ui->keyButton->callback( staticCB, this );
@@ -117,6 +118,7 @@ CfdMeshScreen::CfdMeshScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     ui->triButton->callback( staticCB, this );
     ui->gmshButton->callback( staticCB, this );
     ui->srfButton->callback( staticCB, this );
+    ui->tkeyButton->callback( staticCB, this );
 
     ui->addWakeButton->callback( staticCB, this );
     ui->addWakeButton->value( 0 );
@@ -379,6 +381,8 @@ bool CfdMeshScreen::Update()
     m_CfdMeshUI->gmshName->value( truncateFileName( gmshname, 40 ).c_str() );
     string srfname = CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileName( CfdMeshSettings::SRF_FILE_NAME );
     m_CfdMeshUI->srfName->value( truncateFileName( srfname, 40 ).c_str() );
+    string tkeyname = CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileName( CfdMeshSettings::TKEY_FILE_NAME );
+    m_CfdMeshUI->tkeyName->value( truncateFileName( tkeyname, 40).c_str() );
 
     //==== Export Flags ====//
 
@@ -390,6 +394,7 @@ bool CfdMeshScreen::Update()
     m_TriToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::TRI_FILE_NAME )->GetID() );
     m_GmshToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::GMSH_FILE_NAME )->GetID() );
     m_SrfToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::SRF_FILE_NAME )->GetID() );
+    m_TkeyToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::TKEY_FILE_NAME)->GetID() );
 
     //==== Wake Flag ====//
     if( currGeom )
@@ -779,6 +784,14 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
         {
             CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::GMSH_FILE_NAME );
         }
+    }
+    else if ( w == m_CfdMeshUI->tkeyButton )
+    {
+        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .tkey file.", "*.tkey" );
+        if ( newfile.compare( "" ) != 0 )
+	    {
+            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::TKEY_FILE_NAME );
+	    }
     }
 
     else if ( w == m_CfdMeshUI->addWakeButton )

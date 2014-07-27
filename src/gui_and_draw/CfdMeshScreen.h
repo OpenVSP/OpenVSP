@@ -66,6 +66,7 @@ private:
     ToggleButton m_TriToggleButton;
     ToggleButton m_GmshToggleButton;
     ToggleButton m_SrfToggleButton;
+    ToggleButton m_TkeyToggleButton;
 
     ToggleButton m_IntersectSubSurfsButton;
 

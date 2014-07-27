@@ -114,7 +114,8 @@ public:
     BoolParm* GetExportFileFlag( int type );
 
     enum { STL_FILE_NAME, POLY_FILE_NAME, TRI_FILE_NAME,
-           OBJ_FILE_NAME, DAT_FILE_NAME, KEY_FILE_NAME, GMSH_FILE_NAME, SRF_FILE_NAME, NUM_FILE_NAMES
+           OBJ_FILE_NAME, DAT_FILE_NAME, KEY_FILE_NAME, GMSH_FILE_NAME, SRF_FILE_NAME,
+           TKEY_FILE_NAME, NUM_FILE_NAMES
          };
 
     BoolParm m_FarMeshFlag;
