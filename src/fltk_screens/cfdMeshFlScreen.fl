@@ -2,19 +2,17 @@
 version 1.0302 
 header_name {.h} 
 code_name {.cxx}
-class CFDMeshUI {open
-} {
-  Function {CFDMeshUI()} {open
-  } {
+class CFDMeshUI {} {
+  Function {CFDMeshUI()} {} {
     Fl_Window UIWindow {
-      label {CFD Mesh} open
+      label {CFD Mesh}
       xywh {480 56 415 603} type Double color 45 resizable visible
     } {
       Fl_Box {} {
         label {CFD Mesh}
         xywh {5 2 395 15} box ROUNDED_BOX labelfont 1 labelsize 16 labelcolor 15
       }
-      Fl_Group sourceEditGroup {open
+      Fl_Group sourceEditGroup {
         xywh {5 293 390 137}
       } {}
       Fl_Text_Display outputText {
@@ -24,15 +22,15 @@ class CFDMeshUI {open
         label {Mesh and Export}
         xywh {5 570 395 25} labelfont 1
       }
-      Fl_Group lineRadLenGroup {open
+      Fl_Group lineRadLenGroup {
         xywh {180 305 195 75}
       } {}
-      Fl_Tabs MenuTabs {open
+      Fl_Tabs MenuTabs {
         xywh {0 20 420 435}
       } {
         Fl_Group {} {
-          label Global open
-          xywh {5 50 395 405} labelfont 1 labelcolor 4 hide
+          label Global
+          xywh {5 50 395 405} labelfont 1 labelcolor 4
         } {
           Fl_Box {} {
             label {Global Mesh Control}
@@ -142,7 +140,7 @@ class CFDMeshUI {open
           }
         }
         Fl_Group {} {
-          label Display open
+          label Display
           xywh {5 50 395 405} labelfont 1 labelcolor 4 hide
         } {
           Fl_Light_Button viewMeshButton {
@@ -179,8 +177,8 @@ class CFDMeshUI {open
           }
         }
         Fl_Group {} {
-          label Output open
-          xywh {5 50 385 355} labelfont 1 labelcolor 4
+          label Output
+          xywh {5 50 385 355} labelfont 1 labelcolor 4 hide
         } {
           Fl_Box {} {
             label {Export File Names}
@@ -294,7 +292,7 @@ class CFDMeshUI {open
             xywh {70 295 290 20} color 17
           }
           Fl_Button tkeyButton {
-            label {...} selected
+            label {...}
             xywh {360 295 25 20} labelfont 1
           }
         }
@@ -302,7 +300,7 @@ class CFDMeshUI {open
           label Sources open
           xywh {5 50 395 405} labelfont 1 labelcolor 4 hide
         } {
-          Fl_Choice sourceTypeChoice {open
+          Fl_Choice sourceTypeChoice {
             xywh {75 140 115 25} down_box BORDER_BOX
           } {
             MenuItem {} {
@@ -333,7 +331,7 @@ class CFDMeshUI {open
             label {Delete Source}
             xywh {15 196 175 24} labelfont 1 labelsize 12
           }
-          Fl_Choice compChoice {open
+          Fl_Choice compChoice {
             xywh {140 60 245 25} down_box BORDER_BOX textfont 1
           } {}
           Fl_Box {} {
@@ -460,7 +458,7 @@ class CFDMeshUI {open
             label {Generate Far Field Mesh}
             xywh {15 85 380 20} labelfont 1 align 16
           }
-          Fl_Group farParametersGroup {open
+          Fl_Group farParametersGroup {
             xywh {5 107 405 343}
           } {
             Fl_Box {} {
@@ -497,17 +495,17 @@ class CFDMeshUI {open
             Fl_Input farCircSegmentInput {
               xywh {315 175 75 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
             }
-            Fl_Group farTypeGroup {open
+            Fl_Group farTypeGroup {
               xywh {15 200 380 70}
             } {
               Fl_Box {} {
                 label {Far Field Type}
                 xywh {15 205 380 20} box BORDER_BOX color 12 labelfont 1 labelcolor 7
               }
-              Fl_Group farCompGroup {open
+              Fl_Group farCompGroup {
                 xywh {125 215 270 40}
               } {
-                Fl_Choice farCompChoice {open
+                Fl_Choice farCompChoice {
                   xywh {125 230 270 20} down_box BORDER_BOX textfont 1
                 } {}
               }
@@ -520,10 +518,10 @@ class CFDMeshUI {open
                 xywh {15 250 49 20} type Radio down_box ROUND_DOWN_BOX labelfont 1
               }
             }
-            Fl_Group farBoxGroup {open
+            Fl_Group farBoxGroup {
               xywh {10 263 395 187}
             } {
-              Fl_Group farScaleGroup {open
+              Fl_Group farScaleGroup {
                 xywh {15 268 380 92}
               } {
                 Fl_Box {} {
@@ -578,7 +576,7 @@ class CFDMeshUI {open
                   xywh {330 339 65 21} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
                 }
               }
-              Fl_Group farLocationGroup {open
+              Fl_Group farLocationGroup {
                 xywh {15 360 390 90}
               } {
                 Fl_Box {} {
@@ -593,7 +591,7 @@ class CFDMeshUI {open
                   label Man
                   xywh {330 365 65 20} labelfont 1
                 }
-                Fl_Group farXYZLocationGroup {open
+                Fl_Group farXYZLocationGroup {
                   xywh {15 390 390 60}
                 } {
                   Fl_Box {} {
@@ -635,7 +633,7 @@ class CFDMeshUI {open
           label Wakes
           xywh {5 50 395 405} labelfont 1 labelcolor 4 hide
         } {
-          Fl_Choice wakeCompChoice {open
+          Fl_Choice wakeCompChoice {
             xywh {80 130 215 25} down_box BORDER_BOX textfont 1
           } {}
           Fl_Box {} {
