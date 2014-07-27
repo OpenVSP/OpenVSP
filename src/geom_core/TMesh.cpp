@@ -3988,12 +3988,14 @@ void TMesh::SplitAliasEdges( TTri* orig_tri, TEdge* isect_edge )
 }
 
 // Subtag triangles
-void TMesh::SubTag( int part_num )
+void TMesh::SubTag( int part_num, bool tag_subs )
 {
     // Subtag all triangles in a given TMesh
     // Split tris will be subtagged the same as their parent
-    vector<SubSurface*> sub_surfs = SubSurfaceMgr.GetSubSurfs( m_PtrID );
+    vector<SubSurface*> sub_surfs;
+    if ( tag_subs ) sub_surfs = SubSurfaceMgr.GetSubSurfs( m_PtrID );
     int ss_num = ( int )sub_surfs.size();
+
     for ( int t = 0 ; t < ( int )m_TVec.size(); t ++ )
     {
         TTri* tri = m_TVec[t];

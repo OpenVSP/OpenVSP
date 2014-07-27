@@ -182,7 +182,7 @@ public:
 
     virtual vector< string > GetTMeshNames();
 
-    virtual void SubTagTris();
+    virtual void SubTagTris( bool tag_subs );
 
     virtual void PreMerge();
 

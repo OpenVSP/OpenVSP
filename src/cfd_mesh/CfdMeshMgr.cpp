@@ -1316,7 +1316,7 @@ void CfdMeshMgrSingleton::Remesh( int output_type )
 
         m_SurfVec[i]->GetMesh()->LoadSimpTris();
         m_SurfVec[i]->GetMesh()->Clear();
-        m_SurfVec[i]->Subtag();
+        m_SurfVec[i]->Subtag( GetCfdSettingsPtr()->GetIntersectSubSurfs() );
         m_SurfVec[i]->GetMesh()->CondenseSimpTris();
     }
 
@@ -1352,7 +1352,7 @@ void CfdMeshMgrSingleton::RemeshSingleComp( int comp_id, int output_type )
 
         m_SurfVec[i]->GetMesh()->LoadSimpTris();
         m_SurfVec[i]->GetMesh()->Clear();
-        m_SurfVec[i]->Subtag();
+        m_SurfVec[i]->Subtag( GetCfdSettingsPtr()->GetIntersectSubSurfs() );
         m_SurfVec[i]->GetMesh()->CondenseSimpTris();
     }
 

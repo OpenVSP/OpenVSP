@@ -238,7 +238,7 @@ public:
     }
 
     void SetDefaultParmMap();
-    void Subtag();
+    void Subtag( bool tag_subs );
     // Mapping Functions
     // Converts surf uw to VspSurf uw
     vec2d Convert2VspSurf( double u, double w );

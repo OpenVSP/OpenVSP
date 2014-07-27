@@ -480,7 +480,7 @@ public:
     virtual TTri* FindTriNodes( TTri* ignoreTri, TNode* n0, TNode* n1 );
     virtual TTri* FindTriPnts( TTri* ignoreTri, TNode* n0, TNode* n1 );
 
-    virtual void SubTag( int part_num ); // Subtag all triangles, if split triangles exist tag them the same as their parent
+    virtual void SubTag( int part_num, bool tag_subs ); // Subtag all triangles, if split triangles exist tag them the same as their parent
 
     virtual void MakeNodePntUW(); // Swaps Node->m_Pnt with Node->m_UWPnt
     virtual void MakeNodePntXYZ();

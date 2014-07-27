@@ -1427,7 +1427,7 @@ void MeshGeom::IntersectTrim( int meshf, int halfFlag, int intSubsFlag )
         }
     }
     // Tag meshes before regular intersection
-    SubTagTris();
+    SubTagTris( (bool)intSubsFlag );
 
     MergeRemoveOpenMeshes( &info );
 
@@ -3630,7 +3630,7 @@ vector< string > MeshGeom::GetTMeshNames()
 }
 
 //==== Subtag All Trianlges ====//
-void MeshGeom::SubTagTris()
+void MeshGeom::SubTagTris( bool tag_subs )
 {
     // Clear out the current Subtag Maps
     SubSurfaceMgr.ClearTagMaps();
@@ -3640,7 +3640,7 @@ void MeshGeom::SubTagTris()
 
     for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
-        m_TMeshVec[i]->SubTag( i + 1 );
+        m_TMeshVec[i]->SubTag( i + 1, tag_subs );
     }
 
     SubSurfaceMgr.BuildSingleTagMap();

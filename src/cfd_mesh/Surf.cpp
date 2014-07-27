@@ -2059,11 +2059,13 @@ double Surf::InterpolateToVspSurf( const vector< double> & vec, const double & s
     return ( y1 - y0 ) / denom * ( surf_val - ( double )x0 ) + y0;
 }
 
-void Surf::Subtag()
+void Surf::Subtag( bool tag_subs )
 {
     vector< SimpTri >& tri_vec = m_Mesh.GetSimpTriVec();
     vector< vec2d >& pnts = m_Mesh.GetSimpUWPntVec();
-    vector< SubSurface* > s_surfs = SubSurfaceMgr.GetSubSurfs( m_GeomID );
+    vector< SubSurface* > s_surfs;
+
+    if ( tag_subs ) s_surfs = SubSurfaceMgr.GetSubSurfs( m_GeomID );
 
     for ( int t = 0 ; t < ( int ) tri_vec.size() ; t++ )
     {

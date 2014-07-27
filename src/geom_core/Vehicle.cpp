@@ -1235,7 +1235,7 @@ void Vehicle::WriteTRIFile( const string & file_name, int write_set )
         {
             Geom* geom_ptr = FindGeom( mesh_id );
             MeshGeom* mg = dynamic_cast<MeshGeom*>( geom_ptr );
-            mg->SubTagTris();
+            mg->SubTagTris( true );
             geom_vec.push_back( geom_ptr );
         }
     }
@@ -1327,7 +1327,7 @@ void Vehicle::WriteNascartFiles( const string & file_name, int write_set )
         {
             Geom* geom_ptr = FindGeom( mesh_id );
             MeshGeom* mg = dynamic_cast<MeshGeom*>( geom_ptr );
-            mg->SubTagTris();
+            mg->SubTagTris( true );
             geom_vec.push_back( geom_ptr );
         }
     }
@@ -1432,7 +1432,7 @@ void Vehicle::WriteGmshFile( const string & file_name, int write_set )
         {
             Geom* geom_ptr = FindGeom( mesh_id );
             MeshGeom* mg = dynamic_cast<MeshGeom*>( geom_ptr );
-            mg->SubTagTris();
+            mg->SubTagTris( true );
             geom_vec.push_back( geom_ptr );
         }
     }
