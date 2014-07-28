@@ -237,6 +237,7 @@ public:
         return m_Pnts;
     }
 
+    void SetDefaultParmMap();
     void Subtag();
     // Mapping Functions
     // Converts surf uw to VspSurf uw

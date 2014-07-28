@@ -2183,6 +2183,26 @@ void Surf::Draw()
 }
 */
 
+void Surf::SetDefaultParmMap()
+{
+	int num_u_map = 1 + ( m_NumU - 1 ) / 3;
+    int num_w_map = 1 + ( m_NumW - 1 ) / 3;
+
+    u_to_vspsurf.resize( num_u_map );
+    w_to_vspsurf.resize( num_w_map );
+
+    for ( int i = 0 ; i < num_u_map; i++ )
+    {
+        u_to_vspsurf[ i ] = 1.0 * i;
+        u_to_surf[ 1.0 * i ] = i;
+    }
+
+    for ( int i = 0 ; i < num_w_map ; i++ )
+    {
+        w_to_vspsurf[ i ] = 1.0 * i;
+        w_to_surf[ 1.0 * i ] = i;
+    }
+}
 
 
 

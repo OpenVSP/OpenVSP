@@ -2438,6 +2438,7 @@ vector< Surf* > CfdMeshMgrSingleton::CreateDomainSurfs()
         cpVec[3][2] = cpVec[3][0] + ( cpVec[3][3] - cpVec[3][0] ) * .667;
 
         domainSurfs[i]->LoadControlPnts( cpVec );
+        domainSurfs[i]->SetDefaultParmMap();
 
     }
     return domainSurfs;
