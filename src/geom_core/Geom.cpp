@@ -595,9 +595,9 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_Type.m_Type = GEOM_GEOM_TYPE;
     m_Type.m_Name = m_Name;
 
-    m_TessU.Init( "Tess_U", "Shape", this, 8, 2,  100 );
+    m_TessU.Init( "Tess_U", "Shape", this, 8, 2,  1000 );
     m_TessU.SetDescript( "Number of tessellated curves in the U direction" );
-    m_TessW.Init( "Tess_W", "Shape", this, 9, 2,  100 );
+    m_TessW.Init( "Tess_W", "Shape", this, 9, 2,  1000 );
     m_TessW.SetDescript( "Number of tessellated curves in the W direction" );
     m_TessW.SetMultShift( 4, 1 );
 
