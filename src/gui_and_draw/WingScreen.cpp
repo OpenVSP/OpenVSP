@@ -634,7 +634,7 @@ void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( gui_device == &m_ReadFuseFileButton  )
     {
-        int xsid = wing_ptr->GetActiveXSecIndex();
+        int xsid = wing_ptr->GetActiveAirfoilIndex();
         XSec* xs = wing_ptr->GetXSec( xsid );
         if ( xs )
         {
@@ -657,7 +657,7 @@ void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( gui_device == &m_AfReadFileButton   )
     {
-        int xsid = wing_ptr->GetActiveXSecIndex();
+        int xsid = wing_ptr->GetActiveAirfoilIndex();
         XSec* xs = wing_ptr->GetXSec( xsid );
         if ( xs )
         {
