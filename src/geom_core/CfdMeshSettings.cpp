@@ -75,6 +75,9 @@ CfdMeshSettings::CfdMeshSettings() : ParmContainer()
     m_IntersectSubSurfs.Init( "IntersectSubSurfs", "Global", this, true, 0, 1 );
     m_IntersectSubSurfs.SetDescript( "Flag to intersect subsurfaces" );
 
+    m_SelectedSetIndex.Init( "Set", "Global", this, 0, 0, 12 );
+    m_SelectedSetIndex.SetDescript( "Selected set for operation" );
+
     m_ExportFileFlags[ DAT_FILE_NAME ].Init( "DAT_Export", "ExportCFD", this, true, 0, 1 );
     m_ExportFileFlags[ KEY_FILE_NAME ].Init( "KEY_Export", "ExportCFD", this, true, 0, 1 );
     m_ExportFileFlags[ OBJ_FILE_NAME ].Init( "OBJ_Export", "ExportCFD", this, true, 0, 1 );

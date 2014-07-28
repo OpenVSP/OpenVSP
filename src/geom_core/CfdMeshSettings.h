@@ -150,6 +150,8 @@ public:
 
     BoolParm m_IntersectSubSurfs;
 
+    IntParm m_SelectedSetIndex;
+
     BoolParm m_ExportFileFlags[NUM_FILE_NAMES];
 
 protected:

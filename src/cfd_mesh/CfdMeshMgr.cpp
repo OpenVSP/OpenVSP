@@ -948,7 +948,7 @@ void CfdMeshMgrSingleton::ScaleTriSize( double scale )
 
 void CfdMeshMgrSingleton::WriteSurfs( const string &filename )
 {
-    m_Vehicle->WriteBezFile( filename, 0 );
+    m_Vehicle->WriteBezFile( filename, GetCfdSettingsPtr()->m_SelectedSetIndex() );
 // This logic is complex to get working now.  The meaning and scope of symmetry has changed.
 // In addition, this was fragile in VSP 2.X.  A simplified check based on the bounding box.
 // will be more simple and robust.

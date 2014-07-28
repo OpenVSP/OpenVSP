@@ -40,6 +40,9 @@ CfdMeshScreen::CfdMeshScreen( ScreenMgr* mgr ) : VspScreen( mgr )
 
     m_IntersectSubSurfsButton.Init( this, ui->intersectSubButton );
 
+    ui->setChoice->callback( staticCB, this );
+
+
     m_DrawMeshButton.Init( this, ui->viewMeshButton );
     m_DrawSourceButton.Init( this, ui->viewSourceButton );
     m_DrawFarButton.Init( this, ui->viewFarMeshButton );
@@ -161,6 +164,8 @@ void CfdMeshScreen::Hide()
 bool CfdMeshScreen::Update()
 {
     int i;
+
+    LoadSetChoice();
 
     CfdMeshMgr.UpdateDomain();
 
@@ -491,6 +496,21 @@ bool CfdMeshScreen::Update()
     return false;
 }
 
+void CfdMeshScreen::LoadSetChoice()
+{
+    m_CfdMeshUI->setChoice->clear();
+
+    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
+    vector< string > set_name_vec = veh->GetSetNameVec();
+
+    for ( int i = 0 ; i < ( int )set_name_vec.size() ; i++ )
+    {
+        m_CfdMeshUI->setChoice->add( set_name_vec[i].c_str() );
+    }
+
+    m_CfdMeshUI->setChoice->value( CfdMeshMgr.GetCfdSettingsPtr()->m_SelectedSetIndex() );
+}
+
 void CfdMeshScreen::AddOutputText( const string &text )
 {
 		m_TextBuffer.append( text.c_str() );
@@ -675,6 +695,10 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
     else if ( w == m_CfdMeshUI->sourceBrowser )
     {
         CfdMeshMgr.GUI_Val( "SourceID", m_CfdMeshUI->sourceBrowser->value() - 1 );
+    }
+    else if ( w == m_CfdMeshUI->setChoice )
+    {
+        CfdMeshMgr.GetCfdSettingsPtr()->m_SelectedSetIndex = m_CfdMeshUI->setChoice->value();
     }
 
 //  else if ( w == m_CfdMeshUI->u1Slider )
