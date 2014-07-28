@@ -47,6 +47,10 @@ public:
         static_cast< MainVSPScreen* >( data )->MenuCallBack( w );
     }
 
+    virtual void CloseCallBack( Fl_Widget *w );
+
+    virtual void ExitVSP();
+
     string CheckAddVSP3Ext( string fname );
 
     void SetFileLabel( string fname );

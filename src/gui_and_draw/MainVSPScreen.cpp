@@ -18,6 +18,7 @@
 #include "GraphicEngine.h"
 #include "APIDefines.h"
 #include "main.h"
+#include <FL/fl_ask.H>
 
 using namespace vsp;
 using VSPGUI::VspGlWindow;
@@ -101,6 +102,8 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : VspScreen( mgr )
 
     m_MainUI->winShell->label( VSPVERSION2 );
     m_MainUI->TitleBox->label( VSPVERSION3 );
+
+    m_MainUI->winShell->callback(staticCloseCB, this);
 
     m_selectFileScreen = new SelectFileScreen();
 }
@@ -432,7 +435,7 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
     }
     else if ( m == m_MainUI->ExitMenu )
     {
-        exit( 0 );
+        ExitVSP();
     }
     else if ( m == m_MainUI->ReturnToAPI )
     {
@@ -461,5 +464,38 @@ void MainVSPScreen::SetFileLabel( string fname )
     string label = "File Name: ";
     label.append( fname );
     m_MainUI->FileNameBox->copy_label( label.c_str() );
+}
+
+void MainVSPScreen::CloseCallBack( Fl_Widget *w )
+{
+    ExitVSP();
+}
+
+void MainVSPScreen::ExitVSP()
+{
+   switch( fl_choice("VSP is exiting. Save or discard your changes.", "Cancel", "Discard", "Save") )
+    {
+        case(0):
+            return;
+
+        case(1):
+            exit( 0 );
+
+        case(2):
+            string savefile = VehicleMgr.GetVehicle()->GetVSP3FileName();
+
+            if ( savefile.compare( "Unnamed.vsp3" ) == 0 )
+			{
+				savefile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Save VSP File", "*.vsp3" );
+			}
+
+			if ( savefile.compare( "" ) != 0 )
+			{
+				savefile = CheckAddVSP3Ext( savefile );
+				VehicleMgr.GetVehicle()->SetVSP3FileName( savefile );
+				VehicleMgr.GetVehicle()->WriteXMLFile( savefile, SET_ALL );
+				exit( 0 );
+			}
+    }
 }
 
