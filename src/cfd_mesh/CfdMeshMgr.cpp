@@ -443,6 +443,12 @@ void CfdMeshMgrSingleton::GenerateMesh()
     CfdMeshMgr.addOutputText( "Reading Surfaces\n" );
     CfdMeshMgr.ReadSurfs( bezTempFile );
 
+    if ( m_SurfVec.size() == 0 )
+    {
+        CfdMeshMgr.addOutputText( "No Surfaces To Mesh\n" );
+        return;
+    }
+
     CfdMeshMgr.UpdateSourcesAndWakes();
     CfdMeshMgr.UpdateDomain();
     CfdMeshMgr.BuildDomain();
