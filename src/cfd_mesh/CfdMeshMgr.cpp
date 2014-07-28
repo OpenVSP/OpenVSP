@@ -147,6 +147,7 @@ void Wake::BuildSurfs(  )
             s->SetSurfID( m_SurfVec.size() );
             s->SetWakeParentSurfID( wakeParentSurfID );
             s->LoadControlPnts( cpnts );
+            s->SetDefaultParmMap();
 
             m_SurfVec.push_back( s );
         }
