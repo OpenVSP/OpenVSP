@@ -29,6 +29,8 @@ CfdMeshScreen::CfdMeshScreen( ScreenMgr* mgr ) : VspScreen( mgr )
 
     m_FLTK_Window = ui->UIWindow;
 
+    ui->UIWindow->callback(staticCloseCB, this);
+
     //ui->intersectMeshButton->callback( staticCB, this );
     //ui->meshSingleButton->callback( staticCB, this );
     //ui->meshAllButton->callback( staticCB, this );
@@ -148,6 +150,12 @@ void CfdMeshScreen::Show()
 {
     Update();
     m_FLTK_Window->show();
+}
+
+void CfdMeshScreen::Hide()
+{
+	VspScreen::Hide();
+	m_ScreenMgr->SetUpdateFlag( true );
 }
 
 bool CfdMeshScreen::Update()
@@ -493,7 +501,10 @@ void CfdMeshScreen::AddOutputText( const string &text )
 
 void CfdMeshScreen::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 {
-    CfdMeshMgr.LoadDrawObjs( draw_obj_vec );
+    if ( IsShown() )
+    {
+        CfdMeshMgr.LoadDrawObjs( draw_obj_vec );
+    }
 }
 
 string CfdMeshScreen::truncateFileName( const string &fn, int len )
@@ -914,3 +925,7 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
 
 }
 
+void CfdMeshScreen::CloseCallBack( Fl_Widget *w )
+{
+	Hide();
+}

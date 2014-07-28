@@ -28,7 +28,8 @@ public:
     virtual ~CfdMeshScreen();
 
     virtual bool Update();
-    void Show();
+    virtual void Show();
+    virtual void Hide();
 
     void position( int x, int y )
     {
@@ -38,6 +39,7 @@ public:
     void AddOutputText( const string &text );
 
     void CallBack( Fl_Widget *w );
+    virtual void CloseCallBack( Fl_Widget *w );
 
     void parm_changed( Parm* parm )             {}
 
