@@ -68,9 +68,9 @@ public:
     Parm m_RootChord;
 
     Parm m_Sweep;
-    Parm m_SweepLoc;
+    NotEqParm m_SweepLoc;
     Parm m_SecSweep;
-    Parm m_SecSweepLoc;
+    NotEqParm m_SecSweepLoc;
 
     Parm m_Twist;
     Parm m_TwistLoc;
