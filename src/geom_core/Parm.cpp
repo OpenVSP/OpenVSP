@@ -390,6 +390,53 @@ void LimIntParm::SetMultShift( int mult, int shift )
 }
 
 //=========================================================================//
+//=======================       NotEqParm      ============================//
+//=========================================================================//
+
+//==== Constructor ====//
+NotEqParm::NotEqParm() : Parm()
+{
+    m_Type = PARM_NOTEQ_TYPE;
+    m_Tol = 1e-4;
+}
+
+void NotEqParm::ChangeID( const string& newID )
+{
+    Parm::ChangeID( newID );
+
+    NotEqParm* oparm = dynamic_cast< NotEqParm* > (ParmMgr.FindParm( m_OtherParmID ) );
+
+    if( oparm )
+    {
+        oparm->SetOtherParmID( newID, m_Tol );
+    }
+}
+
+bool NotEqParm::SetValCheckLimits( double val )
+{
+    double tmp = m_Val;
+    double tmp2 = m_LastVal;
+    if( Parm::SetValCheckLimits( val ) ) // Passed in value different.
+    {
+        Parm* oparm = ParmMgr.FindParm( m_OtherParmID );
+        if( oparm )
+        {
+            if( fabs( oparm->Get() - val ) < m_Tol )
+            {
+                m_Val = tmp;
+                m_LastVal = tmp2;
+                return false;
+            }
+        }
+    }
+    else // Passed in value the same.
+    {
+        return false;
+    }
+    return true;
+}
+
+//=========================================================================//
 //=======================        BoolParm       ============================//
 //=========================================================================//
 

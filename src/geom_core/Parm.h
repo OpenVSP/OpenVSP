@@ -25,7 +25,8 @@ using std::map;
 class ParmContainer;
 
 enum PARM_TYPE { PARM_DOUBLE_TYPE = 0, PARM_INT_TYPE = 1, PARM_BOOL_TYPE = 2,
-                 PARM_FRACTION_TYPE = 3, PARM_STRING_TYPE = 4, PARM_LIMITED_INT_TYPE = 5
+                 PARM_FRACTION_TYPE = 3, PARM_STRING_TYPE = 4, PARM_LIMITED_INT_TYPE = 5,
+                 PARM_NOTEQ_TYPE = 6
                };
 
 //==== Parm ====//
@@ -295,6 +296,27 @@ protected:
     int m_Mult;
     int m_Shift;
 };
+
+//==== Not Equal Parm ====//
+class NotEqParm : public Parm
+{
+public:
+    NotEqParm();
+    virtual void ChangeID( const string& newID );
+
+    virtual void SetOtherParmID( string pid, double tol )
+    {
+        m_OtherParmID = pid;
+        m_Tol = tol;
+    }
+
+protected:
+    string m_OtherParmID;
+    double m_Tol;
+
+    virtual bool SetValCheckLimits( double val );
+};
+
 
 //==== Bool Parm ====//
 class BoolParm : public Parm
