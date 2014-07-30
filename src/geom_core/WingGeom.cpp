@@ -33,6 +33,11 @@ void WingDriverGroup::UpdateGroup( vector< string > parmIDs )
     Parm* aveC = ParmMgr.FindParm( parmIDs[AVEC_WSECT_DRIVER] );
     Parm* rootC = ParmMgr.FindParm( parmIDs[ROOTC_WSECT_DRIVER] );
     Parm* tipC = ParmMgr.FindParm( parmIDs[TIPC_WSECT_DRIVER] );
+    Parm* secsw = ParmMgr.FindParm( parmIDs[SECSWEEP_WSECT_DRIVER] );
+
+    Parm* sweep = ParmMgr.FindParm( parmIDs[SWEEP_WSECT_DRIVER] );
+    Parm* sweeploc = ParmMgr.FindParm( parmIDs[SWEEPLOC_WSECT_DRIVER] );
+    Parm* secswloc = ParmMgr.FindParm( parmIDs[SECSWEEPLOC_WSECT_DRIVER] );
 
     vector< bool > uptodate;
     uptodate.resize( m_Nvar );
@@ -66,6 +71,13 @@ void WingDriverGroup::UpdateGroup( vector< string > parmIDs )
                 AR->Set( area->Get() / ( aveC->Get() * aveC->Get() ) );
                 uptodate[AR_WSECT_DRIVER] = true;
             }
+            else if( uptodate[SECSWEEP_WSECT_DRIVER] && uptodate[TAPER_WSECT_DRIVER] )
+            {
+                double tan1 = tan( sweep->Get() * DEG_2_RAD );
+                double tan2 = tan( secsw->Get() * DEG_2_RAD );
+                AR->Set( -2.0 * ( ( 1.0 - taper->Get() ) / ( 1.0 + taper->Get() )) * ( sweeploc->Get() - secswloc->Get() ) / ( tan1 - tan2 ) );
+                uptodate[AR_WSECT_DRIVER] = true;
+            }
         }
 
         if( !uptodate[SPAN_WSECT_DRIVER] )
@@ -83,6 +95,13 @@ void WingDriverGroup::UpdateGroup( vector< string > parmIDs )
             else if( uptodate[AR_WSECT_DRIVER] && uptodate[AVEC_WSECT_DRIVER] )
             {
                 span->Set( AR->Get() * aveC->Get() );
+                uptodate[SPAN_WSECT_DRIVER] = true;
+            }
+            else if( uptodate[SECSWEEP_WSECT_DRIVER] && uptodate[ROOTC_WSECT_DRIVER] && uptodate[TIPC_WSECT_DRIVER] )
+            {
+                double tan1 = tan( sweep->Get() * DEG_2_RAD );
+                double tan2 = tan( secsw->Get() * DEG_2_RAD );
+                span->Set( ( rootC->Get() - tipC->Get() ) * ( sweeploc->Get() - secswloc->Get() ) / ( tan2 - tan1 ) );
                 uptodate[SPAN_WSECT_DRIVER] = true;
             }
         }
@@ -119,6 +138,13 @@ void WingDriverGroup::UpdateGroup( vector< string > parmIDs )
                 aveC->Set( area->Get() / span->Get() );
                 uptodate[AVEC_WSECT_DRIVER] = true;
             }
+            else if( uptodate[SECSWEEP_WSECT_DRIVER] && uptodate[TAPER_WSECT_DRIVER] && uptodate[SPAN_WSECT_DRIVER] )
+            {
+                double tan1 = tan( sweep->Get() * DEG_2_RAD );
+                double tan2 = tan( secsw->Get() * DEG_2_RAD );
+                aveC->Set( -span->Get() * ( tan1 - tan2 ) * ( 1.0 + taper->Get() ) / ( 2.0 * ( sweeploc->Get() - secswloc->Get() ) * ( 1 - taper->Get() ) ) );
+                uptodate[AVEC_WSECT_DRIVER] = true;
+            }
         }
 
         if( !uptodate[TIPC_WSECT_DRIVER] )
@@ -136,6 +162,21 @@ void WingDriverGroup::UpdateGroup( vector< string > parmIDs )
             else if( uptodate[ROOTC_WSECT_DRIVER] && uptodate[AVEC_WSECT_DRIVER] )
             {
                 tipC->Set( 2.0 * aveC->Get() - rootC->Get() );
+                uptodate[TIPC_WSECT_DRIVER] = true;
+            }
+            else if( uptodate[SECSWEEP_WSECT_DRIVER] && uptodate[ROOTC_WSECT_DRIVER] && uptodate[SPAN_WSECT_DRIVER] )
+            {
+                double tan1 = tan( sweep->Get() * DEG_2_RAD );
+                double tan2 = tan( secsw->Get() * DEG_2_RAD );
+                tipC->Set( rootC->Get() + span->Get() * ( tan1 - tan2 ) / ( sweeploc->Get() - secswloc->Get() ) );
+                uptodate[TIPC_WSECT_DRIVER] = true;
+            }
+            else if( uptodate[SECSWEEP_WSECT_DRIVER] && uptodate[ROOTC_WSECT_DRIVER] && uptodate[AREA_WSECT_DRIVER] )
+            {
+                double tan1 = tan( sweep->Get() * DEG_2_RAD );
+                double tan2 = tan( secsw->Get() * DEG_2_RAD );
+                double coeff = 2.0 * area->Get() * ( tan1 - tan2 ) / ( sweeploc->Get() - secswloc->Get() );
+                tipC->Set( sqrt( -1.0 * ( rootC->Get() * rootC->Get() + coeff ) ) );
                 uptodate[TIPC_WSECT_DRIVER] = true;
             }
         }
@@ -157,6 +198,21 @@ void WingDriverGroup::UpdateGroup( vector< string > parmIDs )
                 rootC->Set( 2.0 * aveC->Get() - tipC->Get() );
                 uptodate[ROOTC_WSECT_DRIVER] = true;
             }
+            else if( uptodate[SECSWEEP_WSECT_DRIVER] && uptodate[TIPC_WSECT_DRIVER] && uptodate[SPAN_WSECT_DRIVER] )
+            {
+                double tan1 = tan( sweep->Get() * DEG_2_RAD );
+                double tan2 = tan( secsw->Get() * DEG_2_RAD );
+                rootC->Set( tipC->Get() - span->Get() * ( tan1 - tan2 ) / ( sweeploc->Get() - secswloc->Get() ) );
+                uptodate[ROOTC_WSECT_DRIVER] = true;
+            }
+            else if( uptodate[SECSWEEP_WSECT_DRIVER] && uptodate[TIPC_WSECT_DRIVER] && uptodate[AREA_WSECT_DRIVER] )
+            {
+                double tan1 = tan( sweep->Get() * DEG_2_RAD );
+                double tan2 = tan( secsw->Get() * DEG_2_RAD );
+                double coeff = 2.0 * area->Get() * ( tan1 - tan2 ) / ( sweeploc->Get() - secswloc->Get() );
+                rootC->Set( sqrt( tipC->Get() * tipC->Get() - coeff ) );
+                uptodate[ROOTC_WSECT_DRIVER] = true;
+            }
         }
 
         if( !uptodate[TAPER_WSECT_DRIVER] )
@@ -165,6 +221,31 @@ void WingDriverGroup::UpdateGroup( vector< string > parmIDs )
             {
                 taper->Set( tipC->Get() / rootC->Get() );
                 uptodate[TAPER_WSECT_DRIVER] = true;
+            }
+            else if( uptodate[SECSWEEP_WSECT_DRIVER] && uptodate[AR_WSECT_DRIVER] )
+            {
+                double tan1 = tan( sweep->Get() * DEG_2_RAD );
+                double tan2 = tan( secsw->Get() * DEG_2_RAD );
+                double coeff = AR->Get() * ( tan1 - tan2 ) / ( 2.0 * ( sweeploc->Get() - secswloc->Get() ) );
+                taper->Set( ( 1.0 + coeff ) / ( 1.0 - coeff ) );
+                uptodate[TAPER_WSECT_DRIVER] = true;
+            }
+        }
+
+        if( !uptodate[SECSWEEP_WSECT_DRIVER] )
+        {
+            if( uptodate[TAPER_WSECT_DRIVER] && uptodate[AR_WSECT_DRIVER] )
+            {
+                double tan2 = CalcTanSweepAt( secswloc->Get(), sweep->Get(), sweeploc->Get(), AR->Get(), taper->Get() );
+                secsw->Set( atan( tan2 ) * RAD_2_DEG );
+                uptodate[SECSWEEP_WSECT_DRIVER] = true;
+            }
+            else if( uptodate[ROOTC_WSECT_DRIVER] && uptodate[TIPC_WSECT_DRIVER] && uptodate[SPAN_WSECT_DRIVER] )
+            {
+                double tan1 = tan( sweep->Get() * DEG_2_RAD );
+                double tan2 = tan1 + ( rootC->Get() - tipC->Get() ) * ( sweeploc->Get() - secswloc->Get() ) / span->Get();
+                secsw->Set( atan( tan2 ) * RAD_2_DEG );
+                uptodate[SECSWEEP_WSECT_DRIVER] = true;
             }
         }
 
@@ -248,6 +329,13 @@ bool WingDriverGroup::ValidDrivers( vector< int > choices )
         return false;
     }
 
+    if( vector_contains_val( choices, ( int ) SECSWEEP_WSECT_DRIVER ) &&
+            vector_contains_val( choices, ( int ) AR_WSECT_DRIVER ) &&
+            vector_contains_val( choices, ( int ) TAPER_WSECT_DRIVER ) )
+    {
+        return false;
+    }
+
     return true;
 }
 
@@ -280,11 +368,15 @@ WingSect::WingSect( XSecCurve *xsc, bool use_left ) : XSec( xsc, use_left)
     m_TipChord.SetDescript( "Tip Chord of Wing Section" );
     m_RootChord.Init( "Root_Chord", m_GroupName, this, 1.0, 0.0001, 1000000.0 );
     m_RootChord.SetDescript( "Root Chord of Wing Section" );
+    m_SecSweep.Init( "Sec_Sweep", m_GroupName, this, 0.0, -89.0, 89.0 );
+    m_SecSweep.SetDescript( "Secondary Sweep of Wing Section" );
 
     m_Sweep.Init( "Sweep", m_GroupName, this, 0.0, -89.0, 89.0 );
     m_Sweep.SetDescript( "Sweep of Wing Section" );
     m_SweepLoc.Init( "Sweep_Location", m_GroupName, this, 0.0, 0.0, 1.0 );
     m_SweepLoc.SetDescript( "Location Along Chord That Sweep is Measured For Wing Section" );
+    m_SecSweepLoc.Init( "Sec_Sweep_Location", m_GroupName, this, 1.0, 0.0, 1.0 );
+    m_SecSweepLoc.SetDescript( "Location Along Chord That Secondary Sweep is Measured For Wing Section" );
     m_Twist.Init( "Twist", m_GroupName, this, 0.0, -45.0, 45.0 );
     m_Twist.SetDescript( "Twist of Wing Section" );
     m_TwistLoc.Init( "Twist_Location", m_GroupName, this, 0.25, 0.0, 1.0 );
@@ -379,7 +471,7 @@ void WingSect::CopyBasePos( XSec* xs )
 vector< string > WingSect::GetDriverParms()
 {
     vector< string > parm_ids;
-    parm_ids.resize( WingDriverGroup::NUM_WSECT_DRIVER );
+    parm_ids.resize( WingDriverGroup::NUM_WSECT_DRIVER + 3 );
     parm_ids[ WingDriverGroup::AR_WSECT_DRIVER ] = m_Aspect.GetID();
     parm_ids[ WingDriverGroup::SPAN_WSECT_DRIVER ] = m_Span.GetID();
     parm_ids[ WingDriverGroup::AREA_WSECT_DRIVER ] = m_Area.GetID();
@@ -387,6 +479,10 @@ vector< string > WingSect::GetDriverParms()
     parm_ids[ WingDriverGroup::AVEC_WSECT_DRIVER ] = m_AvgChord.GetID();
     parm_ids[ WingDriverGroup::ROOTC_WSECT_DRIVER ] = m_RootChord.GetID();
     parm_ids[ WingDriverGroup::TIPC_WSECT_DRIVER ] = m_TipChord.GetID();
+    parm_ids[ WingDriverGroup::SECSWEEP_WSECT_DRIVER ] = m_SecSweep.GetID();
+    parm_ids[ WingDriverGroup::SWEEP_WSECT_DRIVER ] = m_Sweep.GetID();
+    parm_ids[ WingDriverGroup::SWEEPLOC_WSECT_DRIVER ] = m_SweepLoc.GetID();
+    parm_ids[ WingDriverGroup::SECSWEEPLOC_WSECT_DRIVER ] = m_SecSweepLoc.GetID();
 
     return parm_ids;
 }
@@ -455,14 +551,17 @@ void WingSect::ForceAspectTaperArea( double aspect, double taper, double area )
     Update();
 }
 
+double CalcTanSweepAt( double loc, double sweep, double baseloc, double aspect, double taper )
+{
+    double tan_sweep = tan( sweep * DEG_2_RAD );
+    double tan_sweep_at = tan_sweep - ( 2.0 / aspect ) * ( loc - baseloc ) * ( 1.0 - taper ) / ( 1.0 + taper ) ;
+
+    return ( tan_sweep_at );
+}
 
 double WingSect::GetTanSweepAt( double sweep, double loc  )
 {
-  double tan_sweep = tan(sweep*DEG_2_RAD);
-  double tan_sweep_at = tan_sweep - (2.0/m_Aspect())*
-            ( (loc-m_SweepLoc()) * ((1.0-m_Taper())/(1.0+m_Taper())) );
-
-  return ( tan_sweep_at );
+    return CalcTanSweepAt( loc, sweep, m_SweepLoc.Get(), m_Aspect.Get(), m_Taper.Get() );
 }
 
 //==== Encode XML ====//

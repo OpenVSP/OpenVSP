@@ -63,6 +63,7 @@ protected:
 
     SliderAdjRangeInput m_SweepSlider;
     SliderAdjRangeInput m_SweepLocSlider;
+    SliderAdjRangeInput m_SecSweepLocSlider;
 
     SliderAdjRangeInput m_TwistSlider;
     SliderAdjRangeInput m_TwistLocSlider;

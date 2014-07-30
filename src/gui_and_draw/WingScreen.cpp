@@ -19,7 +19,7 @@
 using namespace vsp;
 
 //==== Constructor ====//
-WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 600, "Wing" )
+WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 640, "Wing" )
 {
     m_CurrDisplayGroup = NULL;
 
@@ -87,6 +87,7 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 600, "Wing" )
     wsect_driver_labels[WingDriverGroup::AVEC_WSECT_DRIVER] = "Ave C";
     wsect_driver_labels[WingDriverGroup::ROOTC_WSECT_DRIVER] = "Root C";
     wsect_driver_labels[WingDriverGroup::TIPC_WSECT_DRIVER] = "Tip C";
+    wsect_driver_labels[WingDriverGroup::SECSWEEP_WSECT_DRIVER] = "Sec SW";
 
     m_SectionLayout.SetButtonWidth( 50 );
 
@@ -103,6 +104,7 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 600, "Wing" )
 
     m_SectionLayout.AddSlider( m_SweepSlider, "Sweep", 10, "%6.5f" );
     m_SectionLayout.AddSlider( m_SweepLocSlider, "Sweep Loc", 10, "%6.5f" );
+    m_SectionLayout.AddSlider( m_SecSweepLocSlider, "Sec SW Loc", 10, "%6.5f" );
 
     m_SectionLayout.AddYGap();
     m_SectionLayout.AddDividerBox( "Twist" );
@@ -381,6 +383,7 @@ bool WingScreen::Update()
 
         m_SweepSlider.Update( wing_sect->m_Sweep.GetID() );
         m_SweepLocSlider.Update( wing_sect->m_SweepLoc.GetID() );
+        m_SecSweepLocSlider.Update( wing_sect->m_SecSweepLoc.GetID() );
         m_TwistSlider.Update( wing_sect->m_Twist.GetID() );
         m_TwistLocSlider.Update( wing_sect->m_TwistLoc.GetID() );
 
