@@ -51,6 +51,80 @@ void WingDriverGroup::UpdateGroup( vector< string > parmIDs )
         uptodate[m_CurrChoices[i]] = true;
     }
 
+    bool parallel = false;
+    if( vector_contains_val( m_CurrChoices, ( int ) SECSWEEP_WSECT_DRIVER ) )
+    {
+        if ( sweep->Get() == secsw->Get() )
+        {
+            parallel = true;
+        }
+    }
+
+    if( vector_contains_val( m_CurrChoices, ( int ) TAPER_WSECT_DRIVER ) ){
+        if ( taper->Get() == 1.0 )
+        {
+            parallel = true;
+        }
+    }
+
+    if( vector_contains_val( m_CurrChoices, ( int ) TIPC_WSECT_DRIVER ) &&
+            vector_contains_val( m_CurrChoices, ( int ) ROOTC_WSECT_DRIVER ) )
+    {
+        if ( tipC->Get() == rootC->Get() )
+        {
+            parallel = true;
+        }
+    }
+
+    if( vector_contains_val( m_CurrChoices, ( int ) AVEC_WSECT_DRIVER ) &&
+            vector_contains_val( m_CurrChoices, ( int ) ROOTC_WSECT_DRIVER ) )
+    {
+        if ( aveC->Get() == rootC->Get() )
+        {
+            parallel = true;
+        }
+    }
+
+    if( vector_contains_val( m_CurrChoices, ( int ) TIPC_WSECT_DRIVER ) &&
+            vector_contains_val( m_CurrChoices, ( int ) AVEC_WSECT_DRIVER ) )
+    {
+        if ( tipC->Get() == aveC->Get() )
+        {
+            parallel = true;
+        }
+    }
+
+    if( parallel )
+    {
+        taper->Set( 1.0 );
+        uptodate[TAPER_WSECT_DRIVER] = true;
+        secsw->Set( sweep->Get() );
+        uptodate[SECSWEEP_WSECT_DRIVER] = true;
+
+        if( vector_contains_val( m_CurrChoices, ( int ) ROOTC_WSECT_DRIVER ) )
+        {
+            tipC->Set( rootC->Get() );
+            uptodate[TIPC_WSECT_DRIVER] = true;
+            aveC->Set( rootC->Get() );
+            uptodate[AVEC_WSECT_DRIVER] = true;
+        }
+        else if( vector_contains_val( m_CurrChoices, ( int ) TIPC_WSECT_DRIVER ) )
+        {
+            rootC->Set( tipC->Get() );
+            uptodate[ROOTC_WSECT_DRIVER] = true;
+            aveC->Set( tipC->Get() );
+            uptodate[AVEC_WSECT_DRIVER] = true;
+        }
+        else if( vector_contains_val( m_CurrChoices, ( int ) AVEC_WSECT_DRIVER ) )
+        {
+            tipC->Set( aveC->Get() );
+            uptodate[TIPC_WSECT_DRIVER] = true;
+            rootC->Set( aveC->Get() );
+            uptodate[ROOTC_WSECT_DRIVER] = true;
+        }
+    }
+
+
     int niter = 0;
     while( vector_contains_val( uptodate, false ) )
     {
@@ -71,7 +145,7 @@ void WingDriverGroup::UpdateGroup( vector< string > parmIDs )
                 AR->Set( area->Get() / ( aveC->Get() * aveC->Get() ) );
                 uptodate[AR_WSECT_DRIVER] = true;
             }
-            else if( uptodate[SECSWEEP_WSECT_DRIVER] && uptodate[TAPER_WSECT_DRIVER] )
+            else if( uptodate[SECSWEEP_WSECT_DRIVER] && uptodate[TAPER_WSECT_DRIVER] && !parallel)
             {
                 double tan1 = tan( sweep->Get() * DEG_2_RAD );
                 double tan2 = tan( secsw->Get() * DEG_2_RAD );
@@ -97,7 +171,7 @@ void WingDriverGroup::UpdateGroup( vector< string > parmIDs )
                 span->Set( AR->Get() * aveC->Get() );
                 uptodate[SPAN_WSECT_DRIVER] = true;
             }
-            else if( uptodate[SECSWEEP_WSECT_DRIVER] && uptodate[ROOTC_WSECT_DRIVER] && uptodate[TIPC_WSECT_DRIVER] )
+            else if( uptodate[SECSWEEP_WSECT_DRIVER] && uptodate[ROOTC_WSECT_DRIVER] && uptodate[TIPC_WSECT_DRIVER] && !parallel)
             {
                 double tan1 = tan( sweep->Get() * DEG_2_RAD );
                 double tan2 = tan( secsw->Get() * DEG_2_RAD );
@@ -138,7 +212,7 @@ void WingDriverGroup::UpdateGroup( vector< string > parmIDs )
                 aveC->Set( area->Get() / span->Get() );
                 uptodate[AVEC_WSECT_DRIVER] = true;
             }
-            else if( uptodate[SECSWEEP_WSECT_DRIVER] && uptodate[TAPER_WSECT_DRIVER] && uptodate[SPAN_WSECT_DRIVER] )
+            else if( uptodate[SECSWEEP_WSECT_DRIVER] && uptodate[TAPER_WSECT_DRIVER] && uptodate[SPAN_WSECT_DRIVER] && !parallel)
             {
                 double tan1 = tan( sweep->Get() * DEG_2_RAD );
                 double tan2 = tan( secsw->Get() * DEG_2_RAD );
@@ -332,6 +406,35 @@ bool WingDriverGroup::ValidDrivers( vector< int > choices )
     if( vector_contains_val( choices, ( int ) SECSWEEP_WSECT_DRIVER ) &&
             vector_contains_val( choices, ( int ) AR_WSECT_DRIVER ) &&
             vector_contains_val( choices, ( int ) TAPER_WSECT_DRIVER ) )
+    {
+        return false;
+    }
+
+    // Valid unless sweep and secondary sweep are equal.  In that case,
+    // taper = 1 and provides no additional information.
+    if( vector_contains_val( choices, ( int ) SECSWEEP_WSECT_DRIVER ) &&
+            vector_contains_val( choices, ( int ) TAPER_WSECT_DRIVER ) )
+    {
+        return false;
+    }
+
+    if( vector_contains_val( choices, ( int ) SECSWEEP_WSECT_DRIVER ) &&
+            vector_contains_val( choices, ( int ) ROOTC_WSECT_DRIVER ) &&
+            vector_contains_val( choices, ( int ) TIPC_WSECT_DRIVER ) )
+    {
+        return false;
+    }
+
+    if( vector_contains_val( choices, ( int ) SECSWEEP_WSECT_DRIVER ) &&
+            vector_contains_val( choices, ( int ) AVEC_WSECT_DRIVER ) &&
+            vector_contains_val( choices, ( int ) TIPC_WSECT_DRIVER ) )
+    {
+        return false;
+    }
+
+    if( vector_contains_val( choices, ( int ) SECSWEEP_WSECT_DRIVER ) &&
+            vector_contains_val( choices, ( int ) ROOTC_WSECT_DRIVER ) &&
+            vector_contains_val( choices, ( int ) AVEC_WSECT_DRIVER ) )
     {
         return false;
     }
