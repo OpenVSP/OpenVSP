@@ -363,6 +363,8 @@ public:
     virtual void EncodeXml( xmlNodePtr & node );
     virtual void DecodeXml( xmlNodePtr & node );
 
+    virtual void Test( vector< string > parmIDs, double tol );
+
 
 protected:
 

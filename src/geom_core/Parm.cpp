@@ -17,6 +17,7 @@
 
 #include "XmlUtil.h"
 #include "StringUtil.h"
+#include "Combination.h"
 
 using std::string;
 
@@ -607,4 +608,82 @@ void DriverGroup::DecodeXml( xmlNodePtr & node )
         m_Nchoice = XmlUtil::FindInt( n, "NumChoices", m_Nvar );
         m_CurrChoices = XmlUtil::ExtractVectorIntNode( n, "ChoiceVec" );
     }
+}
+
+void DriverGroup::Test( vector< string > parmIDs, double tol )
+{
+    UpdateGroup( parmIDs );
+
+    vector< double > ovals( m_Nvar );
+    vector< int > vars( m_Nvar );
+    for( int i = 0; i < m_Nvar; i++ )
+    {
+        Parm* p = ParmMgr.FindParm( parmIDs[ i ] );
+        ovals[i] = p->Get();
+        vars[i] = i;
+    }
+    vector< int > ochoice = GetChoices();
+    bool failever = false;
+    do
+    {
+        vector< int > checkchoices( m_Nchoice );
+        for( int k = 0; k < m_Nchoice; k++ )
+        {
+            checkchoices[k] = vars[k];
+        }
+
+        if( ValidDrivers( checkchoices ) )
+        {
+            SetChoices( checkchoices );
+            UpdateGroup( parmIDs );
+
+            // Check for corrupted values.
+            bool failonce = false;
+            for( int k = 0; k < m_Nvar; k++ )
+            {
+                Parm* p = ParmMgr.FindParm( parmIDs[ k ] );
+                if( fabs( ovals[k] - p->Get() ) > tol )
+                {
+                    failonce = true;
+                    failever = true;
+                }
+            }
+
+            if( failonce )
+            {
+                printf( "Error, driver group mis-calcualted parameters.\n" );
+                printf( " Drivers: " );
+                for( int k = 0; k < m_Nchoice; k++ )
+                {
+                    Parm* p = ParmMgr.FindParm( parmIDs[ checkchoices[k] ] );
+
+                    printf( "%d %s ", checkchoices[k], p->GetName().c_str() );
+                }
+                printf( "\n" );
+
+                for( int k = 0; k < m_Nvar; k++ )
+                {
+                    Parm* p = ParmMgr.FindParm( parmIDs[ k ] );
+                    printf(" %s orig: %f this: %f\n", p->GetName().c_str(), ovals[k], p->Get() );
+                }
+                printf( "\n" );
+            }
+
+            // Restore values in case they were corrupted.
+            for( int k = 0; k < m_Nvar; k++ )
+            {
+                Parm* p = ParmMgr.FindParm( parmIDs[ k ] );
+                p->Set( ovals[k] );
+            }
+        }
+
+    }while ( next_combination ( vars.begin(), vars.begin () + m_Nchoice, vars.end () ) );
+
+    if( !failever )
+    {
+        printf( " Driver group test pass\n" );
+    }
+
+    SetChoices( ochoice );
+    UpdateGroup( parmIDs );
 }

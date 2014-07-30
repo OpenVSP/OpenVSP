@@ -29,6 +29,7 @@ Vec3d.cpp
 VspCurve.cpp
 VspSurf.cpp
 BndBox.h
+Combination.h
 Defines.h
 DrawObj.h
 FileUtil.h
