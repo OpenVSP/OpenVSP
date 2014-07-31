@@ -148,6 +148,7 @@ PointSource::PointSource()
     m_Name = "Point_Name";
 
     m_PointDO.m_GeomID = GetID();
+    m_PointDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
     m_PointDO.m_Type = DrawObj::VSP_LINE_LOOP;
     m_PointDO.m_LineWidth = 1.0;
     m_PointDO.m_LineColor = vec3d( 100.0 / 255, 100.0 / 255, 100.0 / 255 );
@@ -317,16 +318,19 @@ LineSource::LineSource()
     m_Name = "Line_Name";
 
     m_LineDO1.m_GeomID = GetID() + "1";
+    m_LineDO1.m_Screen = DrawObj::VSP_MAIN_SCREEN;
     m_LineDO1.m_Type = DrawObj::VSP_LINE_LOOP;
     m_LineDO1.m_LineWidth = 1.0;
     m_LineDO1.m_LineColor = vec3d( 100.0 / 255, 100.0 / 255, 100.0 / 255 );
 
     m_LineDO2.m_GeomID = GetID() + "2";
+    m_LineDO2.m_Screen = DrawObj::VSP_MAIN_SCREEN;
     m_LineDO2.m_Type = DrawObj::VSP_LINE_LOOP;
     m_LineDO2.m_LineWidth = 1.0;
     m_LineDO2.m_LineColor = vec3d( 100.0 / 255, 100.0 / 255, 100.0 / 255 );
 
     m_LineDO3.m_GeomID = GetID() + "3";
+    m_LineDO3.m_Screen = DrawObj::VSP_MAIN_SCREEN;
     m_LineDO3.m_Type = DrawObj::VSP_LINES;
     m_LineDO3.m_LineWidth = 1.0;
     m_LineDO3.m_LineColor = vec3d( 100.0 / 255, 100.0 / 255, 100.0 / 255 );
@@ -597,16 +601,19 @@ BoxSource::BoxSource()
     m_WLoc2.SetDescript( "Source W2 location" );
 
     m_BoxDO1.m_GeomID = GetID() + "1";
+    m_BoxDO1.m_Screen = DrawObj::VSP_MAIN_SCREEN;
     m_BoxDO1.m_Type = DrawObj::VSP_LINE_LOOP;
     m_BoxDO1.m_LineWidth = 1.0;
     m_BoxDO1.m_LineColor = vec3d( 100.0 / 255, 100.0 / 255, 100.0 / 255 );
 
     m_BoxDO2.m_GeomID = GetID() + "2";
+    m_BoxDO2.m_Screen = DrawObj::VSP_MAIN_SCREEN;
     m_BoxDO2.m_Type = DrawObj::VSP_LINE_LOOP;
     m_BoxDO2.m_LineWidth = 1.0;
     m_BoxDO2.m_LineColor = vec3d( 100.0 / 255, 100.0 / 255, 100.0 / 255 );
 
     m_BoxDO3.m_GeomID = GetID() + "3";
+    m_BoxDO3.m_Screen = DrawObj::VSP_MAIN_SCREEN;
     m_BoxDO3.m_Type = DrawObj::VSP_LINES;
     m_BoxDO3.m_LineWidth = 1.0;
     m_BoxDO3.m_LineColor = vec3d( 100.0 / 255, 100.0 / 255, 100.0 / 255 );

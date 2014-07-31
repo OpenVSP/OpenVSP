@@ -371,6 +371,8 @@ void WakeMgr::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
             wakeData.push_back( vec3d( xx, te.y(), zz ) );
         }
     }
+    m_WakeDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_WakeDO.m_GeomID = "WAKE";
     m_WakeDO.m_Type = DrawObj::VSP_LINES;
     m_WakeDO.m_LineColor = vec3d( 1, 204.0 / 255, 51.0 / 255 );
     m_WakeDO.m_PntVec = wakeData;

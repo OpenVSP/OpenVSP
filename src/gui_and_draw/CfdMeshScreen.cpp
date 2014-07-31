@@ -167,6 +167,7 @@ bool CfdMeshScreen::Update()
 
     LoadSetChoice();
 
+    CfdMeshMgr.UpdateSourcesAndWakes();
     CfdMeshMgr.UpdateDomain();
 
     //==== Base Len ====//

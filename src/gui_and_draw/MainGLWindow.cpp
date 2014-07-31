@@ -411,6 +411,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
             if( rObj )
             {
                 rObj->setVisibility( objects[i]->m_Visible );
+                rObj->setPrimType( VSPGraphic::Common::VSP_LINE_LOOP );
                 rObj->setLineColor( red, green, blue );
                 rObj->setLineWidth( lineWidth );
 
