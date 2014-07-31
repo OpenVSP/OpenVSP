@@ -3057,11 +3057,24 @@ void CfdMeshMgrSingleton::BuildSubSurfIntChains()
                 lp1 = l_seg.GetP1();
                 uw_pnt0 = surf->Convert2Surf( lp0.x(), lp0.y() );
                 uw_pnt1 = surf->Convert2Surf( lp1.x(), lp1.y() );
+                double max_u, max_w, tol;
+                tol = 1e-6;
+                max_u = surf->GetMaxU();
+                max_w = surf->GetMaxW();
 
                 if ( uw_pnt0[0] < 0 || uw_pnt0[1] < 0 || uw_pnt1[0] < 0 || uw_pnt1[1] < 0 )
                 {
                     new_chain = true;
                     continue; // Skip if either point has a value not on this surface
+                }
+                if ( ((fabs( uw_pnt0[0]-max_u ) < tol && fabs( uw_pnt1[0]-max_u ) < tol) ||
+                     (fabs( uw_pnt0[1]-max_w ) < tol && fabs( uw_pnt1[1]-max_w ) < tol) ||
+                     (fabs( uw_pnt0[0] ) < tol && fabs( uw_pnt1[0] ) < tol) ||
+                     (fabs( uw_pnt0[1] ) < tol && fabs( uw_pnt1[1] ) < tol))
+                     && is_poly  )
+                {
+                    new_chain = true;
+                    continue; // Skip if both end points are on the same edge of the surface
                 }
 
                 double delta_u = ( uw_pnt1[0] - uw_pnt0[0] ) / num_sects;
