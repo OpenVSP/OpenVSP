@@ -20,6 +20,7 @@ using std::map;
 SubSurfaceMgrSingleton::SubSurfaceMgrSingleton()
 {
     m_CurrSurfInd = -1;
+    ClearTagMaps();
 }
 
 SubSurfaceMgrSingleton::~SubSurfaceMgrSingleton()
@@ -113,10 +114,17 @@ void SubSurfaceMgrSingleton::ReSuffixGroupNames( string comp_id )
 //==== Manage Tag Maps ====//
 void SubSurfaceMgrSingleton::ClearTagMaps()
 {
+
     m_TagCombos.clear();
     m_TagNames.clear();
     m_SingleTagMap.clear();
     m_CompNames.clear();
+
+    // Add Dummy tag combo for meshes with no tags
+    // so there will a draw object for them
+    vector<int> dummy_tags;
+    dummy_tags.resize(10,9999);
+    m_SingleTagMap[dummy_tags] = -1;
 }
 
 //==== Set the tag number for each sub-surface of all Geoms ====//
@@ -203,7 +211,7 @@ void SubSurfaceMgrSingleton::WriteKeyFile( const string & file_name )
     // Write Out Header Information
     fprintf( fid, "# VSP Tag Key File\n" );
     fprintf( fid, "%s\n", file_name.c_str() ); // Write out the file that this key information is for
-    fprintf( fid, "%d\n", m_SingleTagMap.size() ); // Total number of tags
+    fprintf( fid, "%d\n", m_SingleTagMap.size()-1 ); // Total number of tags
     fprintf( fid, "\n" );
 
     map< vector<int>, int >::iterator ii;
