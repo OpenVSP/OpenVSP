@@ -216,9 +216,13 @@ bool CfdMeshScreen::Update()
     for ( i = 0 ; i < ( int )m_GeomVec.size() ; i++ )
     {
         char str[256];
-        sprintf( str, "%d_%s", i, m_Vehicle->FindGeom( m_GeomVec[i] )->GetName().c_str() );
+        Geom* g = m_Vehicle->FindGeom( m_GeomVec[i] );
+        sprintf( str, "%d_%s", i, g->GetName().c_str() );
         m_CfdMeshUI->compChoice->add( str );
-        m_CfdMeshUI->wakeCompChoice->add( str );
+        if( g->HasWingTypeSurfs() )
+        {
+            m_CfdMeshUI->wakeCompChoice->add( str );
+        }
         m_CfdMeshUI->farCompChoice->add( str );
         m_CompIDMap[ m_GeomVec[i] ] = i;
     }
