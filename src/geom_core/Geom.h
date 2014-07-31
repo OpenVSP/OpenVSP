@@ -493,7 +493,8 @@ public:
     {
         return m_WakeActiveFlag;
     }
-    virtual void AppendWakeEdges( vector< vector< vec3d > > & edges )   {}
+    virtual void AppendWakeEdges( vector< vector< vec3d > > & edges );
+    virtual bool HasWingTypeSurfs();
 
 protected:
 

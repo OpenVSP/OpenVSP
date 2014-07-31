@@ -1754,6 +1754,44 @@ BaseSource* Geom::CreateSource( int type )
     return src_ptr;
 }
 
+bool Geom::HasWingTypeSurfs()
+{
+    for( int i = 0; i < m_MainSurfVec.size(); i++ )
+    {
+        if( m_MainSurfVec[i].GetSurfType() == VspSurf::WING_SURF )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+void Geom::AppendWakeEdges( vector< vector< vec3d > > & edges )
+{
+    if( m_WakeActiveFlag )
+    {
+        for( int i = 0; i < m_SurfVec.size(); i++ )
+        {
+            if( m_SurfVec[i].GetSurfType() == VspSurf::WING_SURF )
+            {
+                vector< vector< vec3d > > pnts;
+                vector< vector< vec3d > > norms;
+
+                m_SurfVec[i].Tesselate( 2, 2, pnts, norms );
+
+                vector< vec3d > edge( pnts.size() );
+
+                for( int j = 0; j < pnts.size(); j++ )
+                {
+                    edge[j] = pnts[j][0];
+                }
+
+                edges.push_back( edge );
+            }
+        }
+    }
+}
+
 //===============================================================================//
 //===============================================================================//
 //===============================================================================//
