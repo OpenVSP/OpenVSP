@@ -59,6 +59,8 @@ protected:
     WingDriverGroup m_DefaultWingDriverGroup;
     DriverGroupBank m_WingDriverGroupBank;
 
+    TriggerButton m_TestDriverGroupButton;
+
     StringOutput m_SectProjSpanOutput;
 
     SliderAdjRangeInput m_SweepSlider;

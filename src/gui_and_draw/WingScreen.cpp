@@ -75,7 +75,15 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 640, "Wing" )
 
     m_SectionLayout.AddYGap();
 
+    m_SectionLayout.SetFitWidthFlag( false );
+    m_SectionLayout.SetSameLineFlag( true );
+    m_SectionLayout.AddButton( m_TestDriverGroupButton, "TestDrivers" );
+    m_SectionLayout.SetFitWidthFlag( true );
     m_SectionLayout.AddDividerBox( "Section Planform" );
+    m_SectionLayout.ForceNewLine();
+
+    m_SectionLayout.SetFitWidthFlag( true );
+    m_SectionLayout.SetSameLineFlag( false );
 
     vector < string > wsect_driver_labels;
     wsect_driver_labels.resize( WingDriverGroup::NUM_WSECT_DRIVER );
@@ -679,6 +687,18 @@ void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
                     wing_ptr->Update();
                 }
             }
+        }
+    }
+    else if ( gui_device == &m_TestDriverGroupButton )
+    {
+        int wsid = wing_ptr->GetActiveXSecIndex();
+
+        WingSect* wing_sect = dynamic_cast<WingSect*>(wing_ptr->GetXSec( wsid ));
+
+        if ( wing_sect )
+        {
+            vector< string > parm_ids = wing_sect->GetDriverParms();
+            wing_sect->m_DriverGroup.Test( parm_ids, 1e-4 );
         }
     }
 
