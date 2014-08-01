@@ -329,7 +329,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
         }
 
         Renderable * rObj;
-        Entity * eObj;
+        VSPGraphic::Entity * eObj;
 
         switch( objects[i]->m_Type )
         {
@@ -458,7 +458,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
                 idInfo.geomID = objects[i]->m_GeomID;
                 m_ids.push_back( idInfo );
             }
-            eObj = dynamic_cast<Entity*> ( m_GEngine->getScene()->getObject( id ) );
+            eObj = dynamic_cast<VSPGraphic::Entity*> ( m_GEngine->getScene()->getObject( id ) );
             if( eObj )
             {
                 // Update scene object.
@@ -489,7 +489,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
                 idInfo.geomID = objects[i]->m_GeomID;
                 m_ids.push_back( idInfo );
             }
-            eObj = dynamic_cast<Entity*> ( m_GEngine->getScene()->getObject( id ) );
+            eObj = dynamic_cast<VSPGraphic::Entity*> ( m_GEngine->getScene()->getObject( id ) );
             if( eObj )
             {
                 eObj->setVisibility( objects[i]->m_Visible );
@@ -519,7 +519,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
                 idInfo.geomID = objects[i]->m_GeomID;
                 m_ids.push_back( idInfo );
             }
-            eObj = dynamic_cast<Entity*> ( m_GEngine->getScene()->getObject( id ) );
+            eObj = dynamic_cast<VSPGraphic::Entity*> ( m_GEngine->getScene()->getObject( id ) );
             if( eObj )
             {
                 eObj->setVisibility( objects[i]->m_Visible );
@@ -549,7 +549,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
                 idInfo.geomID = objects[i]->m_GeomID;
                 m_ids.push_back( idInfo );
             }
-            eObj = dynamic_cast<Entity*> ( m_GEngine->getScene()->getObject( id ) );
+            eObj = dynamic_cast<VSPGraphic::Entity*> ( m_GEngine->getScene()->getObject( id ) );
             if( eObj )
             {
                 eObj->setVisibility( objects[i]->m_Visible );
@@ -579,7 +579,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
                 idInfo.geomID = objects[i]->m_GeomID;
                 m_ids.push_back( idInfo );
             }
-            eObj = dynamic_cast<Entity*> ( m_GEngine->getScene()->getObject( id ) );
+            eObj = dynamic_cast<VSPGraphic::Entity*> ( m_GEngine->getScene()->getObject( id ) );
             if( eObj )
             {
                 eObj->setVisibility( objects[i]->m_Visible );
@@ -609,7 +609,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
                 idInfo.geomID = objects[i]->m_GeomID;
                 m_ids.push_back( idInfo );
             }
-            eObj = dynamic_cast<Entity*> ( m_GEngine->getScene()->getObject( id ) );
+            eObj = dynamic_cast<VSPGraphic::Entity*> ( m_GEngine->getScene()->getObject( id ) );
             if( eObj )
             {
                 eObj->setVisibility( objects[i]->m_Visible );
@@ -637,7 +637,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
                 idInfo.geomID = objects[i]->m_GeomID;
                 m_ids.push_back( idInfo );
             }
-            eObj = dynamic_cast<Entity*> ( m_GEngine->getScene()->getObject( id ) );
+            eObj = dynamic_cast<VSPGraphic::Entity*> ( m_GEngine->getScene()->getObject( id ) );
             if( eObj )
             {
                 eObj->setVisibility( objects[i]->m_Visible );
@@ -665,7 +665,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
                 idInfo.geomID = objects[i]->m_GeomID;
                 m_ids.push_back( idInfo );
             }
-            eObj = dynamic_cast<Entity*> ( m_GEngine->getScene()->getObject( id ) );
+            eObj = dynamic_cast<VSPGraphic::Entity*> ( m_GEngine->getScene()->getObject( id ) );
             if( eObj )
             {
                 eObj->setVisibility( objects[i]->m_Visible );
@@ -1139,7 +1139,7 @@ void VspGlWindow::_updateTextures( DrawObj * drawObj )
     Renderable * renderable = dynamic_cast<Renderable*>( m_GEngine->getScene()->getObject( id->bufferID ) );
     if( renderable )
     {
-        Entity * entity = dynamic_cast<Entity *>( renderable );
+        VSPGraphic::Entity * entity = dynamic_cast<VSPGraphic::Entity *>( renderable );
         if( entity )
         {
             // Check if any textureID no long exists in drawObj.
@@ -1936,7 +1936,7 @@ void VspGlWindow::_sendFeedback( Selectable * selected )
         SelectedPnt * pnt = dynamic_cast<SelectedPnt*>( selected );
         if( pnt )
         {
-            Entity * entity = dynamic_cast<Entity*>(pnt->getSource());
+            VSPGraphic::Entity * entity = dynamic_cast<VSPGraphic::Entity*>(pnt->getSource());
             if(entity)
             {
                 glm::vec3 placement = entity->getVertexVec(pnt->getIndex());
