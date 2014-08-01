@@ -2,6 +2,15 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 PROJECT (VSP)
 
+#ADD_DEFINITIONS( /D SC_BASE_DLL_IMPORTS
+#/D SC_EXPRESS_DLL_IMPORTS
+#/D SC_EXPPP_DLL_IMPORTS
+#/D SC_UTILS_DLL_IMPORTS
+#/D SC_DAI_DLL_IMPORTS
+#/D SC_CORE_DLL_IMPORTS
+#/D SC_EDITOR_DLL_IMPORTS
+#/D SC_SCHEMA_DLL_IMPORTS )
+
 # Use this to see the command that CMake is using to build code
 #SET(CMAKE_VERBOSE_MAKEFILE   ON  CACHE BOOL "" FORCE)
 
@@ -51,7 +60,7 @@ INCLUDE_DIRECTORIES( ${VSP_BINARY_DIR} )
 ADD_SUBDIRECTORY( external )
 ADD_SUBDIRECTORY( external/angelscript/sdk )
 
-# INCLUDE( IdentifyLibs )  # Debugging to confirm which libraries are set.
+INCLUDE( IdentifyLibs )  # Debugging to confirm which libraries are set.
 
 IF( NOT VSP_NO_GRAPHICS )
 	ADD_SUBDIRECTORY( load_jpg )
