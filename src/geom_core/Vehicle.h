@@ -22,6 +22,7 @@
 #include "DegenGeom.h"
 #include "CfdMeshSettings.h"
 #include "ClippingMgr.h"
+#include "STEPutil.h"
 
 #include <assert.h>
 

@@ -16,6 +16,8 @@
 #include "VspCurve.h"
 #include "BndBox.h"
 
+#include "STEPutil.h"
+
 #include "eli/code_eli.hpp"
 
 #include "eli/geom/surface/bezier.hpp"
@@ -131,6 +133,9 @@ public:
     void TessUFeatureLine( int iu, int num_v, std::vector< vec3d > & pnts );
     void TessWFeatureLine( int iw, int num_u, std::vector< vec3d > & pnts );
     void TessLine( double umin, double umax, double wmin, double wmax, int numpts, std::vector< vec3d > & pnts );
+
+    void ToSTEP_Bez_Patches( STEPutil * step, vector<SdaiBezier_surface *> &surfs );
+    void ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface_with_knots *> &surfs );
 
 protected:
     int ClosestPatchEnd( const vector<double> & patch_endings, double end_val ) const;

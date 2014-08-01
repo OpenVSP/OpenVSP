@@ -1776,6 +1776,24 @@ void Vehicle::WriteBezFile( const string & file_name, int write_set )
 
 void Vehicle::WriteSTEPFile( const string & file_name, int write_set )
 {
+    STEPutil step;
+
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        if( geom_vec[i]->GetSetFlag( write_set ) )
+        {
+            vector<VspSurf> surf_vec;
+            geom_vec[i]->GetSurfVec( surf_vec );
+
+            for ( int j = 0; j < surf_vec.size(); j++ )
+            {
+                step.AddSurf( &surf_vec[j] );
+            }
+        }
+    }
+
+    step.WriteFile( file_name );
 }
 
 void Vehicle::AddLinkableContainers( vector< string > & linkable_container_vec )

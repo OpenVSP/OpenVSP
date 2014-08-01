@@ -725,5 +725,179 @@ int VspSurf::ClosestPatchEnd( const vector<double> & patch_endings, double end_v
     int ind = ClosestElement( patch_endings, end_val );
 
     return ind * 3;
+}
 
+void VspSurf::ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface_with_knots *> &surfs )
+{
+    // Make copy for local changes.
+    piecewise_surface_type s( m_Surface );
+
+    if( m_FlipNormal )
+    {
+        s.reverse_v();
+    }
+
+    piecewise_surface_type::index_type ip, jp, nupatch, nvpatch;
+    piecewise_surface_type::index_type minu, maxu, minv, maxv;
+
+    nupatch = s.number_u_patches();
+    nvpatch = s.number_v_patches();
+
+    s.degree_u( minu, maxu );
+    s.degree_v( minv, maxv );
+
+    SdaiB_spline_surface_with_knots *surf = ( SdaiB_spline_surface_with_knots* ) step->registry->ObjCreate( "B_SPLINE_SURFACE_WITH_KNOTS" );
+    step->instance_list->Append( ( SDAI_Application_instance * ) surf, completeSE );
+    surf->u_degree_( maxu );
+    surf->v_degree_( maxv );
+    surf->name_( "''" );
+
+    if( s.closed_u() )
+    {
+        surf->u_closed_( SDAI_LOGICAL( LTrue ) );
+    }
+    else
+    {
+        surf->u_closed_( SDAI_LOGICAL( LFalse ) );
+    }
+
+    if( s.closed_v() )
+    {
+        surf->v_closed_( SDAI_LOGICAL( LTrue ) );
+    }
+    else
+    {
+        surf->v_closed_( SDAI_LOGICAL( LFalse ) );
+    }
+
+    surf->self_intersect_( SDAI_LOGICAL( LFalse ) );
+    surf->surface_form_( B_spline_surface_form__unspecified );
+
+    int nupts = nupatch * maxu + 1;
+    int nvpts = nvpatch * maxv + 1;
+
+    vector< vector< surface_patch_type::point_type> > pts;
+    pts.resize( nupts );
+    for( int i = 0; i < nupts; ++i )
+    {
+        pts[i].resize( nvpts );
+    }
+
+    for( ip = 0; ip < nupatch; ++ip )
+    {
+        for( jp = 0; jp < nvpatch; ++jp )
+        {
+            surface_patch_type::index_type icp, jcp;
+
+            surface_patch_type *patch = s.get_patch( ip, jp );
+
+            patch->promote_u_to( maxu );
+            patch->promote_v_to( maxv );
+
+            for( icp = 0; icp <= maxu; ++icp )
+                for( jcp = 0; jcp <= maxv; ++jcp )
+                {
+                    pts[ ip * maxu + icp ][ jp * maxv + jcp ] = patch->get_control_point( icp, jcp );
+                }
+        }
+    }
+
+
+    for( int i = 0; i < nupts; ++i )
+    {
+        std::ostringstream ss;
+        ss << "(";
+        for( int j = nvpts - 1; j >= 0; --j )
+        {
+            surface_patch_type::point_type p = pts[i][j];
+
+            SdaiCartesian_point *pt = step->MakePoint( p.x(), p.y(), p.z() );
+            ss << "#" << pt->GetFileId();
+
+            if( j > 0 )
+            {
+                ss << ", ";
+            }
+        }
+        ss << ")";
+        surf->control_points_list_()->AddNode( new GenericAggrNode( ss.str().c_str() ) );
+    }
+
+    surf->u_multiplicities_()->AddNode( new IntNode( maxu + 1 ) );
+    surf->u_knots_()->AddNode( new RealNode( 0.0 ) );
+    for( ip = 1; ip < nupatch; ++ip )
+    {
+        surf->u_multiplicities_()->AddNode( new IntNode( maxu ) );
+        surf->u_knots_()->AddNode( new RealNode( ip ) );
+    }
+    surf->u_multiplicities_()->AddNode( new IntNode( maxu + 1 ) );
+    surf->u_knots_()->AddNode( new RealNode( nupatch ) );
+
+
+    surf->v_multiplicities_()->AddNode( new IntNode( maxv + 1 ) );
+    surf->v_knots_()->AddNode( new RealNode( 0.0 ) );
+    for( jp = 1; jp < nvpatch; ++jp )
+    {
+        surf->v_multiplicities_()->AddNode( new IntNode( maxv ) );
+        surf->v_knots_()->AddNode( new RealNode( jp ) );
+    }
+    surf->v_multiplicities_()->AddNode( new IntNode( maxv + 1 ) );
+    surf->v_knots_()->AddNode( new RealNode( nvpatch ) );
+
+    surf->knot_spec_( Knot_type__piecewise_bezier_knots );
+
+    surfs.push_back( surf );
+}
+
+void VspSurf::ToSTEP_Bez_Patches( STEPutil * step, vector<SdaiBezier_surface *> &surfs )
+{
+    piecewise_surface_type::index_type ip, jp, nupatch, nvpatch;
+
+    nupatch = m_Surface.number_u_patches();
+    nvpatch = m_Surface.number_v_patches();
+
+    for( ip = 0; ip < nupatch; ++ip )
+    {
+        for( jp = 0; jp < nvpatch; ++jp )
+        {
+            surface_patch_type::index_type icp, jcp, nu, nv;
+
+            surface_patch_type *patch = m_Surface.get_patch_unordered( ip, jp );
+
+            nu = patch->degree_u();
+            nv = patch->degree_v();
+
+            SdaiBezier_surface *surf = ( SdaiBezier_surface* ) step->registry->ObjCreate( "BEZIER_SURFACE" );
+            step->instance_list->Append( ( SDAI_Application_instance * ) surf, completeSE );
+            surf->u_degree_( nu );
+            surf->v_degree_( nv );
+            surf->name_( "''" );
+            surf->u_closed_( SDAI_LOGICAL( LFalse ) ); // patch->closed_u();
+            surf->v_closed_( SDAI_LOGICAL( LFalse ) ); // patch->closed_v();
+            surf->self_intersect_( SDAI_LOGICAL( LFalse ) );
+            surf->surface_form_( B_spline_surface_form__unspecified );
+
+            for( jcp = 0; jcp <= nv; ++jcp )
+            {
+                std::ostringstream ss;
+                ss << "(";
+                for( icp = 0; icp <= nu; ++icp )
+                {
+
+                    surface_patch_type::point_type p = patch->get_control_point( icp, jcp );
+
+                    SdaiCartesian_point *pt = step->MakePoint( p.x(), p.y(), p.z() );
+                    ss << "#" << pt->GetFileId();
+
+                    if( icp < nu )
+                    {
+                        ss << ", ";
+                    }
+                }
+                ss << ")";
+                surf->control_points_list_()->AddNode( new GenericAggrNode( ss.str().c_str() ) );
+            }
+            surfs.push_back( surf );
+        }
+    }
 }
