@@ -42,3 +42,7 @@ Surf.h
 SurfPatch.h
 Tri.h
 )
+
+ADD_DEPENDENCIES( cfd_mesh
+util
+)

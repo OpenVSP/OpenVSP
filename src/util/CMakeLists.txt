@@ -9,6 +9,7 @@ INCLUDE_DIRECTORIES(
     ${CPPTEST_INCLUDE_DIRS}
     ${EIGEN3_INCLUDE_DIR}
     ${CodeEli_INCLUDE_DIRS}
+    ${STEPCODE_INCLUDE_DIR}
     )
 
 ADD_LIBRARY(util
@@ -19,6 +20,7 @@ Matrix.cpp
 MessageMgr.cpp
 PntNodeMerge.cpp
 Quat.cpp
+STEPutil.cpp
 StlHelper.cpp
 StringUtil.cpp
 SuperEllipse.cpp
@@ -39,6 +41,7 @@ MessageMgr.h
 PntNodeMerge.h
 Quat.h
 StlHelper.h
+STEPutil.h
 StreamUtil.h
 StringUtil.h
 SuperEllipse.h
@@ -50,4 +53,8 @@ Vec3d.h
 VspCurve.h
 VspSurf.h
 WriteMatlab.h
+)
+
+ADD_DEPENDENCIES( util
+STEPCODE
 )

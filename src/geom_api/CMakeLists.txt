@@ -24,6 +24,10 @@ GuiInterface.h
 VSP_Geom_API.h
 )
 
+ADD_DEPENDENCIES( geom_api
+util
+)
+
 IF( NOT VSP_NO_GRAPHICS )
 	ADD_LIBRARY( geom_api_g
 	APIErrorMgr.cpp
@@ -37,6 +41,7 @@ IF( NOT VSP_NO_GRAPHICS )
 
 	ADD_DEPENDENCIES( geom_api_g
 	screens
+	util
 	)
 
 	set_target_properties( geom_api_g PROPERTIES COMPILE_FLAGS "-DVSP_USE_FLTK=1")
@@ -48,6 +53,7 @@ IF( NOT VSP_NO_GRAPHICS )
 
 	ADD_DEPENDENCIES( gui_interface_g
 	screens
+	util
 	)
 
 	set_target_properties( gui_interface_g PROPERTIES COMPILE_FLAGS "-DVSP_USE_FLTK=1")

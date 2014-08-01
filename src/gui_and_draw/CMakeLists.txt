@@ -121,6 +121,7 @@ MaterialRepo.h
 ADD_DEPENDENCIES(gui_and_draw
 vsp_graphic
 screens
+util
 )
 
 TARGET_LINK_LIBRARIES(gui_and_draw

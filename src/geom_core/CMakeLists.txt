@@ -112,3 +112,7 @@ ColorMgr.h
 VspPreferences.h
 
 )
+
+ADD_DEPENDENCIES( geom_core
+util
+)
