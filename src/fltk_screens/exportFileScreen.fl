@@ -57,6 +57,10 @@ class ExportFileUI {open
         label {Bezier (.bez)}
         xywh {5 335 136 25} labelfont 1 labelsize 12 align 64
       }
+      Fl_Button stepButton {
+        label {STEP (.stp)}
+        xywh {5 305 136 25} labelfont 1 labelsize 12 align 64
+      }
     }
   }
 } 

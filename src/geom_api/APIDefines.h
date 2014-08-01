@@ -91,6 +91,7 @@ enum EXPORT_TYPE {  EXPORT_FELISA,
                     EXPORT_XSECGEOM,
                     EXPORT_GMSH,
                     EXPORT_X3D,
+                    EXPORT_STEP,
                     EXPORT_BEZ
                  };
 

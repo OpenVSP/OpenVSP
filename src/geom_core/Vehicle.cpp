@@ -1774,6 +1774,10 @@ void Vehicle::WriteBezFile( const string & file_name, int write_set )
     fclose( id );
 }
 
+void Vehicle::WriteSTEPFile( const string & file_name, int write_set )
+{
+}
+
 void Vehicle::AddLinkableContainers( vector< string > & linkable_container_vec )
 {
     ParmContainer::AddLinkableContainers( linkable_container_vec );
@@ -2185,6 +2189,10 @@ void Vehicle::ExportFile( const string & file_name, int write_set, int file_type
     else if ( file_type == EXPORT_X3D )
     {
         WriteX3DFile( file_name, write_set );
+    }
+    else if ( file_type == EXPORT_STEP )
+    {
+        WriteSTEPFile( file_name, write_set );
     }
     else if ( file_type == EXPORT_BEZ )
     {
