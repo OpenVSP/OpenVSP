@@ -1043,6 +1043,8 @@ void WingGeom::UpdateSurf()
         WingSect* ws = ( WingSect* ) m_XSecSurf.FindXSec( i );
         if ( ws )
         {
+            //==== Reset Group Names ====//
+            ws->SetGroupDisplaySuffix( i );
 
             double rad = ws->m_Span();
             double ty = rad*cos(GetSumDihedral(i)*DEG_2_RAD);
