@@ -133,6 +133,9 @@ void PointSource::Copy( BaseSource* s )
     m_Rad = s->m_Rad();
     m_Box = s->GetBBox();
 
+    m_MainSurfIndx = s->m_MainSurfIndx;
+    m_SurfIndx = s->m_SurfIndx;
+
     m_ULoc = ( ( PointSource* )s )->m_ULoc();
     m_WLoc = ( ( PointSource* )s )->m_WLoc();
 }
@@ -276,6 +279,9 @@ void LineSource::Copy( BaseSource* s )
     m_Len = s->m_Len();
     m_Rad = s->m_Rad();
     m_Box = s->GetBBox();
+
+    m_MainSurfIndx = s->m_MainSurfIndx;
+    m_SurfIndx = s->m_SurfIndx;
 
     m_Len = ( ( LineSource* )s )->m_Len();
     m_Len2 = ( ( LineSource* )s )->m_Len2();
@@ -523,6 +529,8 @@ void BoxSource::Copy( BaseSource* s )
     m_Len = s->m_Len();
     m_Rad = s->m_Rad();
     m_Box = s->GetBBox();
+    m_MainSurfIndx = s->m_MainSurfIndx;
+    m_SurfIndx = s->m_SurfIndx;
 
     m_ULoc1 = ( ( BoxSource* )s )->m_ULoc1();
     m_WLoc1 = ( ( BoxSource* )s )->m_WLoc1();
