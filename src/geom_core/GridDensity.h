@@ -97,6 +97,7 @@ public:
     Parm m_Len;
     Parm m_Rad;
 
+    int m_MainSurfIndx;
 
 protected:
 
