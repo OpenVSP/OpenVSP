@@ -190,7 +190,7 @@ bool PointSource::ReadData( char* buff )
 
 void PointSource::Update( Geom* geomPtr )
 {
-    vec3d p = geomPtr->GetUWPt( m_ULoc(), m_WLoc() );
+    vec3d p = geomPtr->GetUWPt( m_SurfIndx, m_ULoc(), m_WLoc() );
 
     SetLoc( p );
 
@@ -421,8 +421,8 @@ double LineSource::GetTargetLen( double base_len, vec3d &  pos )
 
 void LineSource::Update( Geom* geomPtr )
 {
-    m_Pnt1 = geomPtr->GetUWPt( m_ULoc1(), m_WLoc1() );
-    m_Pnt2 = geomPtr->GetUWPt( m_ULoc2(), m_WLoc2() );
+    m_Pnt1 = geomPtr->GetUWPt( m_SurfIndx, m_ULoc1(), m_WLoc1() );
+    m_Pnt2 = geomPtr->GetUWPt( m_SurfIndx, m_ULoc2(), m_WLoc2() );
     SetEndPnts( m_Pnt1, m_Pnt2 );
 }
 
@@ -660,7 +660,7 @@ void BoxSource::Update( Geom* geomPtr )
         {
             double fw = ( double )j / ( double )( num_segs - 1 );
             double w = m_WLoc1() + fu * ( m_WLoc2() - m_WLoc1() );
-            vec3d p = geomPtr->GetUWPt( u, w );
+            vec3d p = geomPtr->GetUWPt( m_SurfIndx, u, w );
             pVec.push_back( p );
             box.Update( p );
         }
