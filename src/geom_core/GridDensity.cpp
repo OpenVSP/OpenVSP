@@ -131,7 +131,6 @@ void PointSource::Copy( BaseSource* s )
     m_Type = s->GetType();
     m_Len = s->m_Len();
     m_Rad = s->m_Rad();
-    m_Box = s->GetBBox();
 
     m_MainSurfIndx = s->m_MainSurfIndx;
     m_SurfIndx = s->m_SurfIndx;
@@ -166,26 +165,6 @@ double PointSource::GetTargetLen( double base_len, vec3d &  pos )
     double fract = dist2 / radSquared;
 
     return ( m_Len() + fract * ( base_len - m_Len()  ) );
-}
-
-bool PointSource::ReadData( char* buff )
-{
-    char name[256];
-    float x, y, z, rad, len;
-    sscanf( buff, "%s %f %f %f  %f  %f", name, &x, &y, &z, &rad, &len );
-    vec3d loc = vec3d( x, y, z );
-    SetLoc( loc );
-    m_Rad = rad;
-    m_Len = len;
-
-    m_Box.Update( vec3d( x + rad, y, z ) );
-    m_Box.Update( vec3d( x - rad, y, z ) );
-    m_Box.Update( vec3d( x , y + rad, z ) );
-    m_Box.Update( vec3d( x, y - rad, z ) );
-    m_Box.Update( vec3d( x, y, z + rad ) );
-    m_Box.Update( vec3d( x, y, z - rad ) );
-
-    return true;
 }
 
 void PointSource::Update( Geom* geomPtr )
@@ -278,7 +257,6 @@ void LineSource::Copy( BaseSource* s )
     m_Type = s->GetType();
     m_Len = s->m_Len();
     m_Rad = s->m_Rad();
-    m_Box = s->GetBBox();
 
     m_MainSurfIndx = s->m_MainSurfIndx;
     m_SurfIndx = s->m_SurfIndx;
@@ -528,7 +506,7 @@ void BoxSource::Copy( BaseSource* s )
     m_Type = s->GetType();
     m_Len = s->m_Len();
     m_Rad = s->m_Rad();
-    m_Box = s->GetBBox();
+
     m_MainSurfIndx = s->m_MainSurfIndx;
     m_SurfIndx = s->m_SurfIndx;
 
@@ -626,25 +604,6 @@ double BoxSource::GetTargetLen( double base_len, vec3d &  pos )
 
     double max_fract = max( max( fract[0], fract[1] ), fract[2] );
     return ( m_Len() + max_fract * ( base_len - m_Len()  ) );
-}
-
-bool BoxSource::ReadData( char* buff )
-{
-    char name[256];
-    float x, y, z, xx, yy, zz, rad, len;
-    sscanf( buff, "%s %f %f %f  %f %f %f  %f  %f", name, &x, &y, &z,  &xx, &yy, &zz, &rad, &len );
-    vec3d p0 = vec3d( x, y, z );
-    vec3d p1 = vec3d( xx, yy, zz );
-    SetMinMaxPnts( p0, p1 );
-    m_Rad = rad;
-    m_Len = len;
-
-    m_Box.Update( vec3d( x - rad, y - rad, z - rad ) );
-    m_Box.Update( vec3d( x + rad, y + rad, z + rad ) );
-
-    ComputeCullPnts();
-
-    return true;
 }
 
 void BoxSource::Update( Geom* geomPtr )

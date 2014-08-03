@@ -67,14 +67,6 @@ public:
 
     virtual void CheckCorrectRad( double base_len );
     virtual void Draw()                                             {}
-    virtual void SetBBox( BndBox & b )
-    {
-        m_Box = b;
-    }
-    virtual BndBox GetBBox()
-    {
-        return m_Box;
-    }
 
     virtual void Update( Geom* geomPtr )                            {}
 
@@ -121,8 +113,6 @@ public:
 
     virtual void SetNamedVal( string name, double val );
     double GetTargetLen( double base_len, vec3d &  pos );
-
-    bool ReadData( char* buff );
 
     virtual void Update( Geom* geomPtr );
 
@@ -204,7 +194,6 @@ public:
     void ComputeCullPnts();
     double GetTargetLen( double base_len, vec3d &  pos );
 
-    bool ReadData( char* buff );
     void Update( Geom* geomPtr );
 
     void SetRad( double rad );
