@@ -485,6 +485,10 @@ public:
     {
         return m_MainSourceVec;
     }
+    virtual vector< BaseSource* > getAllCfdMeshSourceVec()
+    {
+        return m_SourceVec;
+    }
     virtual void GetInteriorPnts( vector< vec3d > & pVec )  {}
 
     //==== Wake for CFD Mesh ====//
@@ -530,6 +534,7 @@ protected:
     //==== CFD Mesh Sources ====//
     int currSourceID;
     vector< BaseSource* > m_MainSourceVec;
+    vector< BaseSource* > m_SourceVec;
 
     //==== Wake for CFD Mesh ====//
     bool m_WakeActiveFlag;
