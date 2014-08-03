@@ -94,6 +94,7 @@ public:
     Parm m_Rad;
 
     int m_MainSurfIndx;
+    int m_SurfIndx;
 
 protected:
 

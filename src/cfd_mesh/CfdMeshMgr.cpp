@@ -773,6 +773,7 @@ void CfdMeshMgrSingleton::AddSource( int type )
         source->m_ULoc = 0.0;
         source->m_WLoc = 0.0;
         source->m_MainSurfIndx = m_CurrMainSurfIndx;
+        source->m_SurfIndx = m_CurrMainSurfIndx;
 
         curr_geom->AddCfdMeshSource( source );
     }
@@ -790,6 +791,7 @@ void CfdMeshMgrSingleton::AddSource( int type )
         source->m_ULoc2 = 1.0;
         source->m_WLoc2 = 0.0;
         source->m_MainSurfIndx = m_CurrMainSurfIndx;
+        source->m_SurfIndx = m_CurrMainSurfIndx;
 
         curr_geom->AddCfdMeshSource( source );
         vector< BaseSource* > sVec = curr_geom->getCfdMeshSourceVec();
@@ -807,6 +809,7 @@ void CfdMeshMgrSingleton::AddSource( int type )
         source->m_ULoc2 = 1.0;
         source->m_WLoc2 = 0.0;
         source->m_MainSurfIndx = m_CurrMainSurfIndx;
+        source->m_SurfIndx = m_CurrMainSurfIndx;
 
         curr_geom->AddCfdMeshSource( source );
         vector< BaseSource* > sVec = curr_geom->getCfdMeshSourceVec();

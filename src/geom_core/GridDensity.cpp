@@ -29,6 +29,7 @@ BaseSource::BaseSource() : ParmContainer()
     m_Rad.SetDescript( "Source influence radius" );
 
     m_MainSurfIndx = -1;
+    m_SurfIndx = -1;
 }
 
 void BaseSource::ParmChanged( Parm* parm_ptr, int type )
