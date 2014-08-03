@@ -794,8 +794,6 @@ void CfdMeshMgrSingleton::AddSource( int type )
         source->m_SurfIndx = m_CurrMainSurfIndx;
 
         curr_geom->AddCfdMeshSource( source );
-        vector< BaseSource* > sVec = curr_geom->getCfdMeshSourceVec();
-        curr_geom->SetCurrSourceID( ( int )sVec.size() - 1 );
     }
     else if ( type == BaseSource::BOX_SOURCE )
     {
@@ -812,8 +810,6 @@ void CfdMeshMgrSingleton::AddSource( int type )
         source->m_SurfIndx = m_CurrMainSurfIndx;
 
         curr_geom->AddCfdMeshSource( source );
-        vector< BaseSource* > sVec = curr_geom->getCfdMeshSourceVec();
-        curr_geom->SetCurrSourceID( ( int )sVec.size() - 1 );
     }
 
     //==== Highlight/Edit The New Source ====//
