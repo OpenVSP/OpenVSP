@@ -721,7 +721,7 @@ BaseSource* CfdMeshMgrSingleton::GetCurrSource()
     if( g )
     {
         int sourceID = g->GetCurrSourceID();
-        vector< BaseSource* > sVec = m_Vehicle->FindGeom( m_CurrGeomID )->getCfdMeshSourceVec();
+        vector< BaseSource* > sVec = g->getCfdMeshSourceVec();
 
         if ( sourceID >= 0 && sourceID < ( int )sVec.size() )
         {
