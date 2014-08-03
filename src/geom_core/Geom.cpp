@@ -1759,10 +1759,27 @@ void Geom::DelCurrSource()
 
 void Geom::UpdateSources()
 {
-    int i;
-//  if ( getSymCode() != NO_SYM )
-    for ( i = 0 ; i < ( int )m_MainSourceVec.size() ; i++ )
+    for ( int i = 0; i < m_SourceVec.size(); i++ )
     {
+        delete m_SourceVec[i];
+    }
+    m_SourceVec.clear();
+
+    int nmain = m_MainSourceVec.size();
+    int ncopy = GetNumSymmCopies();
+
+    for ( int i = 0 ; i < nmain ; i++ )
+    {
+        assert( ncopy == m_SurfSymmMap[ m_MainSourceVec[i]->m_MainSurfIndx ].size() );
+
+        for ( int j = 0; j < ncopy; j++ )
+        {
+            m_SourceVec.push_back( CreateSource( m_MainSourceVec[i]->GetType() ) );
+            int k = m_SourceVec.size() - 1;
+            m_SourceVec[k]->Copy( m_MainSourceVec[i] );
+            m_SourceVec[k]->m_SurfIndx = m_SurfSymmMap[ m_MainSourceVec[i]->m_MainSurfIndx ][j];
+            m_SourceVec[k]->Update( this );
+        }
         m_MainSourceVec[i]->Update( this );
     }
 }
