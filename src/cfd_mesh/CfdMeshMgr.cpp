@@ -839,13 +839,11 @@ void CfdMeshMgrSingleton::UpdateSourcesAndWakes()
     for ( int g = 0 ; g < ( int )geomVec.size() ; g++ )
     {
         m_Vehicle->FindGeom( geomVec[g] )->UpdateSources();
-        vector< BaseSource* > sVec = m_Vehicle->FindGeom( geomVec[g] )->getCfdMeshSourceVec();
+        vector< BaseSource* > sVec = m_Vehicle->FindGeom( geomVec[g] )->getAllCfdMeshSourceVec();
 
         for ( int s = 0 ; s < ( int )sVec.size() ; s++ )
         {
             GetGridDensityPtr()->AddSource( sVec[s] );
-//          if ( sVec[s]->GetReflSource() )
-//              GetGridDensityPtr()->AddSource( sVec[s]->GetReflSource() );
         }
         m_Vehicle->FindGeom( geomVec[g] )->AppendWakeEdges( wake_leading_edges );
     }
