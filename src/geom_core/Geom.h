@@ -345,6 +345,7 @@ public:
     virtual void UpdateSets();
 
     virtual VspSurf* GetSurfPtr();
+    virtual VspSurf* GetSurfPtr( int indx );
     virtual void GetSurfVec( vector<VspSurf> &surf_vec )
     {
         surf_vec = m_SurfVec;
@@ -362,6 +363,7 @@ public:
     virtual void ResetGeomChangedFlag();
 
     virtual vec3d GetUWPt( const double &u, const double &w );
+    virtual vec3d GetUWPt( const int &indx, const double &u, const double &w );
 
     //==== XSec Surfs ====//
     virtual int GetNumXSecSurfs()

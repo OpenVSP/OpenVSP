@@ -1286,6 +1286,17 @@ VspSurf* Geom::GetSurfPtr()
     return NULL;
 }
 
+//==== Return Pointer to Surface indx ====//
+VspSurf* Geom::GetSurfPtr( int indx )
+{
+    if ( indx >= 0 && indx < m_SurfVec.size() )
+    {
+        return &m_SurfVec[ indx ];
+    }
+    assert( true );
+    return NULL;
+}
+
 //==== Count Number of Sym Surfaces ====//
 int Geom::GetNumTotalSurfs()
 {
@@ -1328,6 +1339,11 @@ int Geom::GetNumSymFlags()
 vec3d Geom::GetUWPt( const double &u, const double &w )
 {
     return GetSurfPtr()->CompPnt01( u, w );
+}
+
+vec3d Geom::GetUWPt( const int &indx, const double &u, const double &w )
+{
+    return GetSurfPtr( indx )->CompPnt01( u, w );
 }
 
 void Geom::WriteXSecFile( int geom_no, FILE* dump_file )
