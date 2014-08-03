@@ -511,6 +511,7 @@ protected:
 
     vector<VspSurf> m_MainSurfVec;
     vector<VspSurf> m_SurfVec;
+    vector<int> m_SurfIndxVec;
     vector<DrawObj> m_WireShadeDrawObj_vec;
     DrawObj m_HighlightDrawObj;
 
