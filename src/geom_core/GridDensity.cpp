@@ -635,6 +635,8 @@ void BoxSource::Copy( BaseSource* s )
     m_Box = s->GetBBox();
 
     m_ULoc1 = ( ( BoxSource* )s )->m_ULoc1();
+    m_WLoc1 = ( ( BoxSource* )s )->m_WLoc1();
+    m_ULoc2 = ( ( BoxSource* )s )->m_ULoc2();
     m_WLoc2 = ( ( BoxSource* )s )->m_WLoc2();
 }
 
