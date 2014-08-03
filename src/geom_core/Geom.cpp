@@ -1325,6 +1325,12 @@ int Geom::GetNumTotalSurfs()
     return numSymSurfs;
 }
 
+//==== Count Number of Sym Copies of Each Surface ====//
+int Geom::GetNumSymmCopies()
+{
+    return GetNumTotalSurfs()/GetNumMainSurfs();
+}
+
 //==== Count Number of Sym Flags ====//
 int Geom::GetNumSymFlags()
 {

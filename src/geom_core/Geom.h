@@ -356,6 +356,7 @@ public:
     }
     virtual int GetNumSymFlags();
     virtual int GetNumTotalSurfs();
+    virtual int GetNumSymmCopies();
 
     /*
     * Reset m_GeomChanged flag in DrawObj to false.
