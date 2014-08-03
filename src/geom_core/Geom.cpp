@@ -764,14 +764,18 @@ void Geom::UpdateSymmAttach()
 {
     int num_surf = GetNumTotalSurfs();
     m_SurfVec.clear();
+    m_SurfIndxVec.clear();
+    m_SurfSymmMap.clear();
     m_SurfVec.resize( num_surf, VspSurf() );
     m_SurfIndxVec.resize( num_surf, -1 );
+    m_SurfSymmMap.resize( num_surf );
 
     int num_main = GetNumMainSurfs();
     for ( int i = 0 ; i < ( int )num_main ; i++ )
     {
         m_SurfVec[i] = m_MainSurfVec[i];
         m_SurfIndxVec[i] = i;
+        m_SurfSymmMap[ m_SurfIndxVec[i] ].push_back( i );
     }
 
     vector<Matrix4d> transMats;
@@ -861,6 +865,7 @@ void Geom::UpdateSymmAttach()
                     {
                         m_SurfVec[j + k * numAddSurfs] = m_SurfVec[j - currentIndex];
                         m_SurfIndxVec[j + k * numAddSurfs] = m_SurfIndxVec[j - currentIndex];
+                        m_SurfSymmMap[ m_SurfIndxVec[j + k * numAddSurfs] ].push_back( j + k * numAddSurfs );
                         transMats[j + k * numAddSurfs].initMat( transMats[j - currentIndex].data() );
                         transMats[j + k * numAddSurfs].postMult( Ref.data() ); // Apply Reflection
 
@@ -876,6 +881,7 @@ void Geom::UpdateSymmAttach()
                     m_SurfVec[j] = m_SurfVec[j - currentIndex];
                     m_SurfVec[j].FlipNormal();
                     m_SurfIndxVec[j] = m_SurfIndxVec[j - currentIndex];
+                    m_SurfSymmMap[ m_SurfIndxVec[ j ] ].push_back( j );
                     transMats[j].initMat( transMats[j - currentIndex].data() );
                     transMats[j].postMult( Ref.data() ); // Apply Reflection
                     addIndex++;
