@@ -479,11 +479,11 @@ public:
     virtual BaseSource* CreateSource( int type );
     virtual void AddCfdMeshSource( BaseSource* source )
     {
-        sourceVec.push_back( source );
+        m_MainSourceVec.push_back( source );
     }
     virtual vector< BaseSource* > getCfdMeshSourceVec()
     {
-        return sourceVec;
+        return m_MainSourceVec;
     }
     virtual void GetInteriorPnts( vector< vec3d > & pVec )  {}
 
@@ -528,7 +528,7 @@ protected:
 
     //==== CFD Mesh Sources ====//
     int currSourceID;
-    vector< BaseSource* > sourceVec;
+    vector< BaseSource* > m_MainSourceVec;
 
     //==== Wake for CFD Mesh ====//
     bool m_WakeActiveFlag;

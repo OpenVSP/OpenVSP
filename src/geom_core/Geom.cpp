@@ -981,9 +981,9 @@ xmlNodePtr Geom::EncodeXml( xmlNodePtr & node )
     {
         XmlUtil::AddVectorBoolNode( geom_node, "Set_List", m_SetFlags );
 
-        for( int i = 0; i < ( int )sourceVec.size(); i++ )
+        for( int i = 0; i < ( int )m_MainSourceVec.size(); i++ )
         {
-            sourceVec[i]->EncodeXml( geom_node );
+            m_MainSourceVec[i]->EncodeXml( geom_node );
         }
 
         xmlNodePtr subsurfs_node = xmlNewChild( geom_node, NULL, BAD_CAST "SubSurfaces", NULL );
@@ -1725,11 +1725,11 @@ void Geom::RecolorSubSurfs( int active_ind )
 
 void Geom::DelAllSources()
 {
-    for ( int i = 0 ; i < ( int )sourceVec.size() ; i++ )
+    for ( int i = 0 ; i < ( int )m_MainSourceVec.size() ; i++ )
     {
-        delete sourceVec[i];
+        delete m_MainSourceVec[i];
     }
-    sourceVec.clear();
+    m_MainSourceVec.clear();
 }
 
 void Geom::DelCurrSource()
@@ -1737,27 +1737,27 @@ void Geom::DelCurrSource()
     int id = GetCurrSourceID();
 
     vector< BaseSource* > tmpVec;
-    for ( int i = 0 ; i < ( int )sourceVec.size() ; i++ )
+    for ( int i = 0 ; i < ( int )m_MainSourceVec.size() ; i++ )
     {
         if ( i != id )
         {
-            tmpVec.push_back( sourceVec[i] );
+            tmpVec.push_back( m_MainSourceVec[i] );
         }
         else
         {
-            delete sourceVec[i];
+            delete m_MainSourceVec[i];
         }
     }
-    sourceVec = tmpVec;
+    m_MainSourceVec = tmpVec;
 }
 
 void Geom::UpdateSources()
 {
     int i;
 //  if ( getSymCode() != NO_SYM )
-    for ( i = 0 ; i < ( int )sourceVec.size() ; i++ )
+    for ( i = 0 ; i < ( int )m_MainSourceVec.size() ; i++ )
     {
-        sourceVec[i]->Update( this );
+        m_MainSourceVec[i]->Update( this );
     }
 }
 
