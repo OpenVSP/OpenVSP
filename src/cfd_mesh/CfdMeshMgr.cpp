@@ -395,6 +395,7 @@ CfdMeshMgrSingleton::CfdMeshMgrSingleton() : ParmContainer()
 
     m_HighlightChainIndex = 0;
 
+    m_CurrMainSurfIndx = 0;
 
 
     m_BatchFlag = false;

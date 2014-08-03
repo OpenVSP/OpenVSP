@@ -357,6 +357,7 @@ protected:
     Vehicle* m_Vehicle;
 
     string m_CurrGeomID;
+    int m_CurrMainSurfIndx;
     string m_FarGeomID;
     bool m_BatchFlag;
 
