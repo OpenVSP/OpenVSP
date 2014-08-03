@@ -29,7 +29,6 @@ BaseSource::BaseSource() : ParmContainer()
     m_Rad.SetDescript( "Source influence radius" );
 
     m_MainSurfIndx = -1;
-//  m_ReflSource = NULL;
 }
 
 void BaseSource::ParmChanged( Parm* parm_ptr, int type )
@@ -69,14 +68,11 @@ void BaseSource::CheckCorrectRad( double base_len )
 void BaseSource::AdjustLen( double val )
 {
     m_Len = m_Len() * val;
-//  if ( m_ReflSource )
-//      m_ReflSource->SetLen( m_Len );
 }
+
 void BaseSource::AdjustRad( double val )
 {
     m_Rad = m_Rad() * val;
-//  if ( m_ReflSource )
-//      m_ReflSource->SetRad( m_Rad );
 }
 
 vector< vec3d > BaseSource::CreateSphere( double rad, const vec3d& loc )
@@ -104,33 +100,6 @@ vector< vec3d > BaseSource::CreateSphere( double rad, const vec3d& loc )
     }
     return sphere;
 }
-
-/*
-void BaseSource::DrawSphere( double rad, const vec3d& loc )
-{
-    int i, j;
-    int num_lats = 8;
-    int num_longs = 8;
-
-    for ( i = 0 ; i < num_lats ; i++ )
-    {
-        glBegin( GL_LINE_LOOP );
-        double lat = PI * (-0.5 + (double)i/num_lats);
-        double z  = rad*sin(lat);
-        double zr = rad*cos(lat);
-
-        for ( j = 0 ; j < num_longs ; j++ )
-        {
-            double lng = 2 * PI * (double)j/num_longs;
-            double x = cos(lng)*zr;
-            double y = sin(lng)*zr;
-            glVertex3d(x + loc[0], y + loc[1], z + loc[2]);
-        }
-        glEnd();
-    }
-
-}
-*/
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -221,45 +190,7 @@ void PointSource::Update( Geom* geomPtr )
 
     SetLoc( p );
 
-//  if ( geomPtr->getSymCode() == NO_SYM )
-//  {
-//      if ( m_ReflSource )
-//      {
-//          delete m_ReflSource;
-//          m_ReflSource = NULL;
-//      }
-//  }
-//  else
-//  {
-//      if ( !m_ReflSource )
-//          m_ReflSource = new PointSource();
-//
-//      PointSource* ps = (PointSource*)m_ReflSource;
-//
-//      ps->SetGeomPtr( geomPtr );
-//      ps->SetLen( m_Len );
-//      ps->SetRad( m_Rad );
-//      ps->SetName( m_Name );
-//
-//      vec3d symVec = geomPtr->getSymVec();
-//      symVec = m_Loc*symVec;
-//      ps->SetLoc( symVec );
-//  }
-
 }
-
-/*
-void PointSource::Draw()
-{
-    glPushMatrix();
-
-    DrawSphere( m_Rad, m_Loc );
-    //glTranslated( m_Loc[0], m_Loc[1], m_Loc[2] );
-    //gluSphere(m_Quadric, m_Rad, 6, 6);
-
-    glPopMatrix();
-}
-*/
 
 void PointSource::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
@@ -406,22 +337,12 @@ void LineSource::AdjustLen( double val )
 {
     m_Len = m_Len() * val;
     m_Len2 = m_Len2() * val;
-//  if ( m_ReflSource )
-//  {
-//      ((LineSource*)m_ReflSource)->m_Len = m_Len1());
-//      ((LineSource*)m_ReflSource)->m_Len2 = m_Len2();
-//  }
 }
 
 void LineSource::AdjustRad( double val )
 {
     m_Rad = m_Rad() * val;
     m_Rad2 = m_Rad2() * val;
-//  if ( m_ReflSource )
-//  {
-//      ((LineSource*)m_ReflSource)->m_Rad = m_Rad1();
-//      ((LineSource*)m_ReflSource)->m_Rad2 = m_Rad2();
-//  }
 }
 
 double LineSource::GetTargetLen( double base_len, vec3d &  pos )
@@ -497,39 +418,6 @@ void LineSource::Update( Geom* geomPtr )
     m_Pnt2 = geomPtr->GetUWPt( m_ULoc2(), m_WLoc2() );
     SetEndPnts( m_Pnt1, m_Pnt2 );
 }
-
-/*
-void LineSource::Draw()
-{
-    vec3d p;
-
-    DrawSphere( m_Rad1, m_Pnt1 );
-    DrawSphere( m_Rad2, m_Pnt2 );
-    //glPushMatrix();
-    //glTranslated( m_Pnt1[0], m_Pnt1[1], m_Pnt1[2] );
-    //gluSphere(m_Quadric, m_Rad, 6, 6);
-    //glPopMatrix();
-    //glPushMatrix();
-    //glTranslated( m_Pnt2[0], m_Pnt2[1], m_Pnt2[2] );
-    //gluSphere(m_Quadric, m_Rad, 6, 6);
-    //glPopMatrix();
-
-    glBegin( GL_LINES );
-        glVertex3d( m_Pnt1[0], m_Pnt1[1], m_Pnt1[2]+m_Rad1);
-        glVertex3d( m_Pnt2[0], m_Pnt2[1], m_Pnt2[2]+m_Rad2);
-        glVertex3d( m_Pnt1[0], m_Pnt1[1], m_Pnt1[2]-m_Rad1 );
-        glVertex3d( m_Pnt2[0], m_Pnt2[1], m_Pnt2[2]-m_Rad2 );
-        glVertex3d( m_Pnt1[0], m_Pnt1[1]+m_Rad1, m_Pnt1[2] );
-        glVertex3d( m_Pnt2[0], m_Pnt2[1]+m_Rad2, m_Pnt2[2] );
-        glVertex3d( m_Pnt1[0], m_Pnt1[1]-m_Rad1, m_Pnt1[2] );
-        glVertex3d( m_Pnt2[0], m_Pnt2[1]-m_Rad2, m_Pnt2[2] );
-        glVertex3d( m_Pnt1[0]+m_Rad1, m_Pnt1[1], m_Pnt1[2] );
-        glVertex3d( m_Pnt2[0]+m_Rad2, m_Pnt2[1], m_Pnt2[2] );
-        glVertex3d( m_Pnt1[0]-m_Rad1, m_Pnt1[1], m_Pnt1[2] );
-        glVertex3d( m_Pnt2[0]-m_Rad2, m_Pnt2[1], m_Pnt2[2] );
-    glEnd();
-}
-*/
 
 void LineSource::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
@@ -775,37 +663,6 @@ void BoxSource::Update( Geom* geomPtr )
 
 }
 
-/*
-void BoxSource::Draw()
-{
-    glBegin( GL_LINE_LOOP );
-        glVertex3dv( m_Box.get_pnt(0).data() );
-        glVertex3dv( m_Box.get_pnt(1).data() );
-        glVertex3dv( m_Box.get_pnt(3).data() );
-        glVertex3dv( m_Box.get_pnt(2).data() );
-    glEnd();
-
-    glBegin( GL_LINE_LOOP );
-        glVertex3dv( m_Box.get_pnt(4).data() );
-        glVertex3dv( m_Box.get_pnt(5).data() );
-        glVertex3dv( m_Box.get_pnt(7).data() );
-        glVertex3dv( m_Box.get_pnt(6).data() );
-    glEnd();
-
-    glBegin( GL_LINES );
-        glVertex3dv( m_Box.get_pnt(0).data() );
-        glVertex3dv( m_Box.get_pnt(4).data() );
-        glVertex3dv( m_Box.get_pnt(1).data() );
-        glVertex3dv( m_Box.get_pnt(5).data() );
-        glVertex3dv( m_Box.get_pnt(3).data() );
-        glVertex3dv( m_Box.get_pnt(7).data() );
-        glVertex3dv( m_Box.get_pnt(2).data() );
-        glVertex3dv( m_Box.get_pnt(6).data() );
-    glEnd();
-
-}
-*/
-
 void BoxSource::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
     vector< vec3d > loop1 , loop2, lines;
@@ -1045,20 +902,6 @@ void GridDensity::Highlight( BaseSource * source )
         }
     }
 }
-
-/*
-void GridDensity::Draw(BaseSource* curr_source )
-{
-    for ( int i = 0 ; i < (int)m_Sources.size() ; i++ )
-    {
-        glColor4ub( 100, 100, 100, 255 );
-        if ( curr_source == m_Sources[i] )
-            glColor4ub( 255, 100, 0, 255 );
-
-        m_Sources[i]->Draw();
-    }
-}
-*/
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////

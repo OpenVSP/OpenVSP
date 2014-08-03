@@ -80,10 +80,6 @@ public:
 
     virtual void Copy( BaseSource* s ) = 0;
 
-//  virtual void SetReflSource( BaseSource* s )                     { m_ReflSource = s; }
-//  virtual BaseSource* GetReflSource()                             { return m_ReflSource; }
-
-//  virtual void DrawSphere( double rad, const vec3d& loc );
     virtual vector< vec3d > CreateSphere( double rad, const vec3d& loc );
 
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec ) = 0;
@@ -108,8 +104,6 @@ protected:
     BndBox m_Box;
 
     string m_GroupName;
-
-//  BaseSource* m_ReflSource;
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -133,7 +127,6 @@ public:
 
     virtual void Copy( BaseSource* s );
 
-//  virtual void Draw();
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
     virtual void Show( bool flag );
     virtual void Highlight( bool flag );
@@ -165,12 +158,10 @@ public:
 
     double GetTargetLen( double base_len, vec3d &  pos );
 
-    //bool ReadData( char* buff );
     virtual void Update( Geom* geomPtr );
 
     virtual void Copy( BaseSource* s );
 
-//  virtual void Draw();
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
     virtual void Show( bool flag );
     virtual void Highlight( bool flag );
@@ -227,7 +218,6 @@ public:
 
     virtual void Copy( BaseSource* s );
 
-//  virtual void Draw();
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
     virtual void Show( bool flag );
     virtual void Highlight( bool flag );
@@ -259,8 +249,6 @@ public:
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
     virtual void ParmChanged( Parm* parm_ptr, int type );
-
-    //void ReadFile( const char* filename );
 
     bool GetRigorLimit()
     {
