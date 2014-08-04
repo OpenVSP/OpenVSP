@@ -434,8 +434,6 @@ public:
 
     void ScaleAllSources( double scale );
 
-    void Draw( BaseSource* curr_source );
-
     void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
     void Show( bool flag );
     void Highlight( BaseSource * source );
