@@ -50,22 +50,6 @@ xmlNodePtr BaseSource::EncodeXml(  xmlNodePtr & node  )
     return src_node;
 }
 
-void BaseSource::CheckCorrectRad( double base_len )
-{
-    double len = m_Len();
-    double sum_len = 0;
-    while ( len < base_len )
-    {
-        sum_len += len;
-        len *= 1.20;            // Only Allow 20% Increase in Length
-    }
-
-    if ( m_Rad() < sum_len )
-    {
-        m_Rad = sum_len;
-    }
-}
-
 void BaseSource::AdjustLen( double val )
 {
     m_Len = m_Len() * val;
@@ -74,32 +58,6 @@ void BaseSource::AdjustLen( double val )
 void BaseSource::AdjustRad( double val )
 {
     m_Rad = m_Rad() * val;
-}
-
-vector< vec3d > BaseSource::CreateSphere( double rad, const vec3d& loc )
-{
-    int i, j;
-    int num_lats = 8;
-    int num_longs = 8;
-
-    vector< vec3d > sphere;
-
-    for ( i = 0; i < num_lats; i++ )
-    {
-        double lat = PI * ( -0.5 + ( double )i / num_lats );
-        double z  = rad * sin( lat );
-        double zr = rad * cos( lat );
-
-        for ( j = 0; j < num_longs; j++ )
-        {
-            double lng = 2 * PI * ( double )j / num_longs;
-            double x = cos( lng ) * zr;
-            double y = sin( lng ) * zr;
-
-            sphere.push_back( vec3d( x + loc[0], y + loc[1], z + loc[2] ) );
-        }
-    }
-    return sphere;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -125,20 +83,6 @@ PointSource::PointSource()
     m_PointDO.m_LineColor = vec3d( 100.0 / 255, 100.0 / 255, 100.0 / 255 );
 }
 
-void PointSource::Copy( BaseSource* s )
-{
-    m_Name = s->GetName();
-    m_Type = s->GetType();
-    m_Len = s->m_Len();
-    m_Rad = s->m_Rad();
-
-    m_MainSurfIndx = s->m_MainSurfIndx;
-    m_SurfIndx = s->m_SurfIndx;
-
-    m_ULoc = ( ( PointSource* )s )->m_ULoc();
-    m_WLoc = ( ( PointSource* )s )->m_WLoc();
-}
-
 void PointSource::SetNamedVal( string name, double val )
 {
     if ( name == "U1" )
@@ -148,53 +92,6 @@ void PointSource::SetNamedVal( string name, double val )
     else if ( name == "W1" )
     {
         m_WLoc = val;
-    }
-}
-
-double PointSource::GetTargetLen( double base_len, vec3d &  pos )
-{
-    double dist2 = dist_squared( pos, m_Loc );
-
-    double radSquared = m_Rad() * m_Rad();
-
-    if ( dist2 > radSquared )
-    {
-        return base_len;
-    }
-
-    double fract = dist2 / radSquared;
-
-    return ( m_Len() + fract * ( base_len - m_Len()  ) );
-}
-
-void PointSource::Update( Geom* geomPtr )
-{
-    vec3d p = geomPtr->GetUWPt( m_SurfIndx, m_ULoc(), m_WLoc() );
-
-    SetLoc( p );
-
-}
-
-void PointSource::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
-{
-    m_PointDO.m_PntVec = CreateSphere( m_Rad.Get(), m_Loc );
-    draw_obj_vec.push_back( &m_PointDO );
-}
-
-void PointSource::Show( bool flag )
-{
-    m_PointDO.m_Visible = flag;
-}
-
-void PointSource::Highlight( bool flag )
-{
-    if( flag )
-    {
-        m_PointDO.m_LineColor = vec3d( 1, 100.0 / 255, 0 );
-    }
-    else
-    {
-        m_PointDO.m_LineColor = vec3d( 100.0 / 255, 100.0 / 255, 100.0 / 255 );
     }
 }
 
@@ -249,28 +146,6 @@ LineSource::LineSource()
     m_LineDO3.m_Type = DrawObj::VSP_LINES;
     m_LineDO3.m_LineWidth = 1.0;
     m_LineDO3.m_LineColor = vec3d( 100.0 / 255, 100.0 / 255, 100.0 / 255 );
-}
-
-void LineSource::Copy( BaseSource* s )
-{
-    m_Name = s->GetName();
-    m_Type = s->GetType();
-    m_Len = s->m_Len();
-    m_Rad = s->m_Rad();
-
-    m_MainSurfIndx = s->m_MainSurfIndx;
-    m_SurfIndx = s->m_SurfIndx;
-
-    m_Len = ( ( LineSource* )s )->m_Len();
-    m_Len2 = ( ( LineSource* )s )->m_Len2();
-    m_Rad = ( ( LineSource* )s )->m_Rad();
-    m_Rad2 = ( ( LineSource* )s )->m_Rad2();
-
-    m_ULoc1 = ( ( LineSource* )s )->m_ULoc1();
-    m_WLoc1 = ( ( LineSource* )s )->m_WLoc1();
-
-    m_ULoc2 = ( ( LineSource* )s )->m_ULoc2();
-    m_WLoc2 = ( ( LineSource* )s )->m_WLoc2();
 }
 
 void LineSource::SetNamedVal( string name, double val )
@@ -330,129 +205,6 @@ void LineSource::AdjustRad( double val )
     m_Rad2 = m_Rad2() * val;
 }
 
-double LineSource::GetTargetLen( double base_len, vec3d &  pos )
-{
-
-    double retlen = base_len;
-    if ( !m_Box.CheckPnt( pos[0], pos[1], pos[2] ) )
-    {
-        return retlen;
-    }
-
-    vec3d origVec = pos - m_Pnt1;
-    double numer = dot( m_Line, origVec );
-
-    double dist2;
-    double t = numer / m_DotLine;
-
-    if ( t <= 0 )
-    {
-        dist2 = dist_squared( m_Pnt1, pos );
-        if ( dist2 > m_RadSquared1 )
-        {
-            return base_len;
-        }
-        double fract = dist2 / m_RadSquared1;
-        retlen = m_Len() + fract * ( base_len - m_Len()  );
-    }
-    else if ( t >= 1 )
-    {
-        dist2 = dist_squared( m_Pnt2, pos );
-        if ( dist2 > m_RadSquared2 )
-        {
-            return base_len;
-        }
-        double fract = dist2 / m_RadSquared2;
-        retlen = m_Len2() + fract * ( base_len - m_Len2()  );
-    }
-    else
-    {
-        vec3d proj = m_Pnt1 + m_Line * t;
-        dist2 = dist_squared( proj, pos );
-
-        double fract_rad = m_Rad() + ( m_Rad2() - m_Rad() ) * t;
-        double fract_rad_sqr = fract_rad * fract_rad;
-
-        if ( dist2 > fract_rad_sqr )
-        {
-            return base_len;
-        }
-
-        double fract_sqr = dist2 / fract_rad_sqr;
-        double fract_len = m_Len() + ( m_Len2() - m_Len() ) * t;
-
-        retlen = fract_len + fract_sqr * ( base_len - fract_len  );
-    }
-
-    if ( retlen > base_len )
-    {
-        printf( "Ret Len\n" );
-    }
-    else if ( retlen < m_Len() && retlen < m_Len2() )
-    {
-        printf( "Ret Len\n" );
-    }
-
-
-    return retlen;
-}
-
-void LineSource::Update( Geom* geomPtr )
-{
-    m_Pnt1 = geomPtr->GetUWPt( m_SurfIndx, m_ULoc1(), m_WLoc1() );
-    m_Pnt2 = geomPtr->GetUWPt( m_SurfIndx, m_ULoc2(), m_WLoc2() );
-    SetEndPnts( m_Pnt1, m_Pnt2 );
-}
-
-void LineSource::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
-{
-    m_LineDO1.m_PntVec = CreateSphere( m_Rad.Get(), m_Pnt1 );
-
-    m_LineDO2.m_PntVec = CreateSphere( m_Rad2.Get(), m_Pnt2 );
-
-    vector< vec3d > lines;
-    lines.push_back( vec3d( m_Pnt1[0], m_Pnt1[1], m_Pnt1[2] + m_Rad.Get() ) );
-    lines.push_back( vec3d( m_Pnt2[0], m_Pnt2[1], m_Pnt2[2] + m_Rad2.Get() ) );
-    lines.push_back( vec3d( m_Pnt1[0], m_Pnt1[1], m_Pnt1[2] - m_Rad.Get() ) );
-    lines.push_back( vec3d( m_Pnt2[0], m_Pnt2[1], m_Pnt2[2] - m_Rad2.Get() ) );
-    lines.push_back( vec3d( m_Pnt1[0], m_Pnt1[1] + m_Rad.Get(), m_Pnt1[2] ) );
-    lines.push_back( vec3d( m_Pnt2[0], m_Pnt2[1] + m_Rad2.Get(), m_Pnt2[2] ) );
-    lines.push_back( vec3d( m_Pnt1[0], m_Pnt1[1] - m_Rad.Get(), m_Pnt1[2] ) );
-    lines.push_back( vec3d( m_Pnt2[0], m_Pnt2[1] - m_Rad2.Get(), m_Pnt2[2] ) );
-    lines.push_back( vec3d( m_Pnt1[0] + m_Rad.Get(), m_Pnt1[1], m_Pnt1[2] ) );
-    lines.push_back( vec3d( m_Pnt2[0] + m_Rad2.Get(), m_Pnt2[1], m_Pnt2[2] ) );
-    lines.push_back( vec3d( m_Pnt1[0] - m_Rad.Get(), m_Pnt1[1], m_Pnt1[2] ) );
-    lines.push_back( vec3d( m_Pnt2[0] - m_Rad2.Get(), m_Pnt2[1], m_Pnt2[2] ) );
-    m_LineDO3.m_PntVec = lines;
-
-    draw_obj_vec.push_back( &m_LineDO1 );
-    draw_obj_vec.push_back( &m_LineDO2 );
-    draw_obj_vec.push_back( &m_LineDO3 );
-}
-
-void LineSource::Show( bool flag )
-{
-    m_LineDO1.m_Visible = flag;
-    m_LineDO2.m_Visible = flag;
-    m_LineDO3.m_Visible = flag;
-}
-
-void LineSource::Highlight( bool flag )
-{
-    if( flag )
-    {
-        m_LineDO1.m_LineColor = vec3d( 1, 100.0 / 255, 0 );
-        m_LineDO2.m_LineColor = vec3d( 1, 100.0 / 255, 0 );
-        m_LineDO3.m_LineColor = vec3d( 1, 100.0 / 255, 0 );
-    }
-    else
-    {
-        m_LineDO1.m_LineColor = vec3d( 100.0 / 255, 100.0 / 255, 100.0 / 255 );
-        m_LineDO2.m_LineColor = vec3d( 100.0 / 255, 100.0 / 255, 100.0 / 255 );
-        m_LineDO3.m_LineColor = vec3d( 100.0 / 255, 100.0 / 255, 100.0 / 255 );
-    }
-}
-
 /////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -499,23 +251,6 @@ void BoxSource::ComputeCullPnts()
     m_CullMaxPnt = m_MaxPnt + vec3d( m_Rad(), m_Rad(), m_Rad() );
 }
 
-
-void BoxSource::Copy( BaseSource* s )
-{
-    m_Name = s->GetName();
-    m_Type = s->GetType();
-    m_Len = s->m_Len();
-    m_Rad = s->m_Rad();
-
-    m_MainSurfIndx = s->m_MainSurfIndx;
-    m_SurfIndx = s->m_SurfIndx;
-
-    m_ULoc1 = ( ( BoxSource* )s )->m_ULoc1();
-    m_WLoc1 = ( ( BoxSource* )s )->m_WLoc1();
-    m_ULoc2 = ( ( BoxSource* )s )->m_ULoc2();
-    m_WLoc2 = ( ( BoxSource* )s )->m_WLoc2();
-}
-
 void BoxSource::SetMinMaxPnts( const vec3d & min_pnt, const vec3d & max_pnt )
 {
     m_MinPnt = min_pnt;
@@ -550,138 +285,6 @@ void BoxSource::SetNamedVal( string name, double val )
     else if ( name == "W2" )
     {
         m_WLoc2 = val;
-    }
-}
-
-double BoxSource::GetTargetLen( double base_len, vec3d &  pos )
-{
-    if ( pos[0] <= m_CullMinPnt[0] )
-    {
-        return base_len;
-    }
-    if ( pos[1] <= m_CullMinPnt[1] )
-    {
-        return base_len;
-    }
-    if ( pos[2] <= m_CullMinPnt[2] )
-    {
-        return base_len;
-    }
-    if ( pos[0] >= m_CullMaxPnt[0] )
-    {
-        return base_len;
-    }
-    if ( pos[1] >= m_CullMaxPnt[1] )
-    {
-        return base_len;
-    }
-    if ( pos[2] >= m_CullMaxPnt[2] )
-    {
-        return base_len;
-    }
-
-    if ( pos[0] > m_MinPnt[0] && pos[0] < m_MaxPnt[0] &&
-            pos[1] > m_MinPnt[1] && pos[1] < m_MaxPnt[1] &&
-            pos[2] > m_MinPnt[2] && pos[2] < m_MaxPnt[2] )
-    {
-        return m_Len();
-    }
-
-    double fract[3];
-
-    for ( int i = 0 ; i < 3 ; i++ )
-    {
-        fract[i] = 0;
-        if ( pos[i] < m_MinPnt[i] )
-        {
-            fract[i] = ( m_MinPnt[i] - pos[i] ) / m_Rad();
-        }
-        else if ( pos[i] > m_MaxPnt[i] )
-        {
-            fract[i] = ( pos[i] - m_MaxPnt[i] ) / m_Rad();
-        }
-    }
-
-    double max_fract = max( max( fract[0], fract[1] ), fract[2] );
-    return ( m_Len() + max_fract * ( base_len - m_Len()  ) );
-}
-
-void BoxSource::Update( Geom* geomPtr )
-{
-    BndBox box;
-    int num_segs = 8;
-    vector< vec3d > pVec;
-    for ( int i = 0 ; i < num_segs ; i++ )
-    {
-        double fu = ( double )i / ( double )( num_segs - 1 );
-        double u = m_ULoc1() + fu * ( m_ULoc2() - m_ULoc1() );
-        for ( int j = 0 ; j < num_segs ; j++ )
-        {
-            double fw = ( double )j / ( double )( num_segs - 1 );
-            double w = m_WLoc1() + fu * ( m_WLoc2() - m_WLoc1() );
-            vec3d p = geomPtr->GetUWPt( m_SurfIndx, u, w );
-            pVec.push_back( p );
-            box.Update( p );
-        }
-    }
-    m_Box = box;
-    vec3d p0 = box.GetCornerPnt( 0 );
-    vec3d p1 = box.GetCornerPnt( 7 );
-    SetMinMaxPnts( p0, p1 );
-
-}
-
-void BoxSource::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
-{
-    vector< vec3d > loop1 , loop2, lines;
-
-    loop1.push_back( m_Box.GetCornerPnt( 0 ) );
-    loop1.push_back( m_Box.GetCornerPnt( 1 ) );
-    loop1.push_back( m_Box.GetCornerPnt( 3 ) );
-    loop1.push_back( m_Box.GetCornerPnt( 2 ) );
-    m_BoxDO1.m_PntVec = loop1;
-
-    loop2.push_back( m_Box.GetCornerPnt( 4 ) );
-    loop2.push_back( m_Box.GetCornerPnt( 5 ) );
-    loop2.push_back( m_Box.GetCornerPnt( 7 ) );
-    loop2.push_back( m_Box.GetCornerPnt( 6 ) );
-    m_BoxDO2.m_PntVec = loop2;
-
-    lines.push_back( m_Box.GetCornerPnt( 0 ) );
-    lines.push_back( m_Box.GetCornerPnt( 4 ) );
-    lines.push_back( m_Box.GetCornerPnt( 1 ) );
-    lines.push_back( m_Box.GetCornerPnt( 5 ) );
-    lines.push_back( m_Box.GetCornerPnt( 3 ) );
-    lines.push_back( m_Box.GetCornerPnt( 7 ) );
-    lines.push_back( m_Box.GetCornerPnt( 2 ) );
-    lines.push_back( m_Box.GetCornerPnt( 6 ) );
-    m_BoxDO3.m_PntVec = lines;
-
-    draw_obj_vec.push_back( &m_BoxDO1 );
-    draw_obj_vec.push_back( &m_BoxDO2 );
-    draw_obj_vec.push_back( &m_BoxDO3 );
-}
-
-void BoxSource::Show( bool flag )
-{
-    m_BoxDO1.m_Visible = flag;
-    m_BoxDO2.m_Visible = flag;
-    m_BoxDO3.m_Visible = flag;
-}
-
-void BoxSource::Highlight( bool flag )
-{
-    if( flag )
-    {
-        m_BoxDO1.m_LineColor = vec3d( 1, 100.0 / 255, 0 );
-        m_BoxDO2.m_LineColor = vec3d( 1, 100.0 / 255, 0 );
-        m_BoxDO3.m_LineColor = vec3d( 1, 100.0 / 255, 0 );
-    }
-    else
-    {
-        m_BoxDO1.m_LineColor = vec3d( 100.0 / 255, 100.0 / 255, 100.0 / 255 );
-        m_BoxDO2.m_LineColor = vec3d( 100.0 / 255, 100.0 / 255, 100.0 / 255 );
-        m_BoxDO3.m_LineColor = vec3d( 100.0 / 255, 100.0 / 255, 100.0 / 255 );
     }
 }
 

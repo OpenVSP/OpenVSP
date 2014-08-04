@@ -53,8 +53,6 @@ public:
         return m_Name;
     }
 
-    virtual double GetTargetLen( double base_len, vec3d &  pos ) = 0;
-
     virtual void   AdjustLen( double val  );
     virtual void   AdjustRad( double val  );
 
@@ -64,19 +62,6 @@ public:
     {
         return m_Type;
     }
-
-    virtual void CheckCorrectRad( double base_len );
-    virtual void Draw()                                             {}
-
-    virtual void Update( Geom* geomPtr )                            {}
-
-    virtual void Copy( BaseSource* s ) = 0;
-
-    virtual vector< vec3d > CreateSphere( double rad, const vec3d& loc );
-
-    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec ) = 0;
-    virtual void Show( bool flag ) = 0;
-    virtual void Highlight( bool flag ) = 0;
 
     xmlNodePtr EncodeXml(  xmlNodePtr & node  );
 
@@ -112,15 +97,6 @@ public:
     }
 
     virtual void SetNamedVal( string name, double val );
-    double GetTargetLen( double base_len, vec3d &  pos );
-
-    virtual void Update( Geom* geomPtr );
-
-    virtual void Copy( BaseSource* s );
-
-    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
-    virtual void Show( bool flag );
-    virtual void Highlight( bool flag );
 
     Parm m_ULoc;
     Parm m_WLoc;
@@ -146,16 +122,6 @@ public:
     void UpdateBBox();
 
     void SetNamedVal( string name, double val );
-
-    double GetTargetLen( double base_len, vec3d &  pos );
-
-    virtual void Update( Geom* geomPtr );
-
-    virtual void Copy( BaseSource* s );
-
-    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
-    virtual void Show( bool flag );
-    virtual void Highlight( bool flag );
 
     Parm m_ULoc1;
     Parm m_WLoc1;
@@ -192,9 +158,6 @@ public:
     void SetMinMaxPnts( const vec3d & min_pnt, const vec3d & max_pnt );
 
     void ComputeCullPnts();
-    double GetTargetLen( double base_len, vec3d &  pos );
-
-    void Update( Geom* geomPtr );
 
     void SetRad( double rad );
 
@@ -205,12 +168,6 @@ public:
 
     Parm m_ULoc2;
     Parm m_WLoc2;
-
-    virtual void Copy( BaseSource* s );
-
-    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
-    virtual void Show( bool flag );
-    virtual void Highlight( bool flag );
 
 protected:
 
