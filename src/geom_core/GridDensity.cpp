@@ -1003,15 +1003,18 @@ void GridDensity::Show( bool flag )
 
 void GridDensity::Highlight( BaseSource * source )
 {
-    for ( int i = 0; i < ( int )m_Sources.size(); i++ )
+    if ( source )
     {
-        if( m_Sources[i]->m_OrigSourceID == source->GetID() )
+        for ( int i = 0; i < ( int )m_Sources.size(); i++ )
         {
-            m_Sources[i]->Highlight( true );
-        }
-        else
-        {
-            m_Sources[i]->Highlight( false );
+            if( m_Sources[i]->m_OrigSourceID == source->GetID() )
+            {
+                m_Sources[i]->Highlight( true );
+            }
+            else
+            {
+                m_Sources[i]->Highlight( false );
+            }
         }
     }
 }
