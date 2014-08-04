@@ -465,7 +465,6 @@ namespace nanoflann
 		size_t  remaining;  /* Number of bytes left in current block of storage. */
 		void*   base;     /* Pointer to base of current block of storage. */
 		void*   loc;      /* Current location in block to next allocate memory. */
-		size_t  blocksize;
 
 		void internal_init()
 		{
@@ -482,7 +481,7 @@ namespace nanoflann
 		/**
 		    Default constructor. Initializes a new pool.
 		 */
-		PooledAllocator(const size_t blocksize_ = BLOCKSIZE) : blocksize(blocksize_) {
+		PooledAllocator() {
 			internal_init();
 		}
 
