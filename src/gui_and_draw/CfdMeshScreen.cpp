@@ -92,8 +92,6 @@ CfdMeshScreen::CfdMeshScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     ui->addSourceButton->callback( staticCB, this );
     ui->deleteSourceButton->callback( staticCB, this );
 
-    ui->addDefaultsButton->callback( staticCB, this );
-
     ui->adjLenDownButton->callback( staticCB, this );
     ui->adjLenDownDownButton->callback( staticCB, this );
     ui->adjLenUpButton->callback( staticCB, this );
@@ -595,18 +593,6 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
             gPtr->m_GuiDraw.SetNoShowFlag( true );
         }
     }
-//  else if ( w == m_CfdMeshUI->addDefaultsButton )
-//  {
-//      vector<string> geomVec = m_Vehicle->GetGeomVec();
-//
-//      int currGeomID = CfdMeshMgr.GetCurrGeomID();
-//      if ( currGeomID >= 0 && currGeomID < (int)geomVec.size() )
-//      {
-//          double base_len = CfdMeshMgr.GetGridDensityPtr()->GetBaseLen();
-//          geomVec[currGeomID]->AddDefaultSources(base_len);
-//      }
-//  }
-
 //  else if ( m_FarXScaleSlider->GuiChanged( w ) )
 //  {
 //      double val = m_FarXScaleSlider->GetVal();
@@ -705,25 +691,6 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
     {
         CfdMeshMgr.GetCfdSettingsPtr()->m_SelectedSetIndex = m_CfdMeshUI->setChoice->value();
     }
-
-//  else if ( w == m_CfdMeshUI->u1Slider )
-//      CfdMeshMgr.GUI_Val( "U1", cfdMeshUI->u1Slider->value() );
-//  else if ( w == m_CfdMeshUI->w1Slider )
-//      CfdMeshMgr.GUI_Val( "W1", cfdMeshUI->w1Slider->value() );
-//  else if ( w == m_CfdMeshUI->u1Input )
-//      CfdMeshMgr.GUI_Val( "U1", atof( cfdMeshUI->u1Input->value() ) );
-//  else if ( w == m_CfdMeshUI->w1Input )
-//      CfdMeshMgr.GUI_Val( "W1", atof( cfdMeshUI->w1Input->value() ) );
-//
-//  else if ( w == m_CfdMeshUI->u2Slider )
-//      CfdMeshMgr.GUI_Val( "U2", cfdMeshUI->u2Slider->value() );
-//  else if ( w == m_CfdMeshUI->w2Slider )
-//      CfdMeshMgr.GUI_Val( "W2", cfdMeshUI->w2Slider->value() );
-//  else if ( w == m_CfdMeshUI->u2Input )
-//      CfdMeshMgr.GUI_Val( "U2", atof( cfdMeshUI->u2Input->value() ) );
-//  else if ( w == m_CfdMeshUI->w2Input )
-//      CfdMeshMgr.GUI_Val( "W2", atof( cfdMeshUI->w2Input->value() ) );
-
     else if ( w == m_CfdMeshUI->addSourceButton )
     {
         int type = m_CfdMeshUI->sourceTypeChoice->value();
@@ -949,8 +916,6 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
-
-//  m_Vehicle->triggerDraw();
 
 }
 

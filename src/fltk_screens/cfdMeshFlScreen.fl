@@ -414,10 +414,6 @@ class CFDMeshUI {} {
           Fl_Input u1Input {
             xywh {145 289 45 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
           }
-          Fl_Button addDefaultsButton {
-            label {Add Default Sources}
-            xywh {15 90 370 25} labelfont 1 labelsize 12
-          }
           Fl_Slider lengthSlider {
             xywh {55 357 80 21} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 4
           }
