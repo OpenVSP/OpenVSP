@@ -68,7 +68,7 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 			triangle
 			util
 			tritri
-            Angelscript
+			Angelscript
 			screens
 			xmlvsp
 			sixseries
