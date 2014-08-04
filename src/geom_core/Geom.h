@@ -482,13 +482,13 @@ public:
     {
         m_MainSourceVec.push_back( source );
     }
-    virtual vector< BaseSource* > getCfdMeshSourceVec()
+    virtual vector< BaseSource* > GetCfdMeshMainSourceVec()
     {
         return m_MainSourceVec;
     }
-    virtual vector< BaseSimpleSource* > getAllCfdMeshSourceVec()
+    virtual vector< BaseSimpleSource* > GetCfdMeshSimpSourceVec()
     {
-        return m_SourceVec;
+        return m_SimpSourceVec;
     }
     virtual void GetInteriorPnts( vector< vec3d > & pVec )  {}
 
@@ -535,7 +535,7 @@ protected:
     //==== CFD Mesh Sources ====//
     int currSourceID;
     vector< BaseSource* > m_MainSourceVec;
-    vector< BaseSimpleSource* > m_SourceVec;
+    vector< BaseSimpleSource* > m_SimpSourceVec;
 
     //==== Wake for CFD Mesh ====//
     bool m_WakeActiveFlag;

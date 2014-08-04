@@ -1759,11 +1759,11 @@ void Geom::DelCurrSource()
 
 void Geom::UpdateSources()
 {
-    for ( int i = 0; i < m_SourceVec.size(); i++ )
+    for ( int i = 0; i < m_SimpSourceVec.size(); i++ )
     {
-        delete m_SourceVec[i];
+        delete m_SimpSourceVec[i];
     }
-    m_SourceVec.clear();
+    m_SimpSourceVec.clear();
 
     int nmain = m_MainSourceVec.size();
     int ncopy = GetNumSymmCopies();
@@ -1774,11 +1774,11 @@ void Geom::UpdateSources()
 
         for ( int j = 0; j < ncopy; j++ )
         {
-            m_SourceVec.push_back( CreateSimpleSource( m_MainSourceVec[i]->GetType() ) );
-            int k = m_SourceVec.size() - 1;
-            m_SourceVec[k]->CopyFrom( m_MainSourceVec[i] );
-            m_SourceVec[k]->m_SurfIndx = m_SurfSymmMap[ m_MainSourceVec[i]->m_MainSurfIndx ][j];
-            m_SourceVec[k]->Update( this );
+            m_SimpSourceVec.push_back( CreateSimpleSource( m_MainSourceVec[i]->GetType() ) );
+            int k = m_SimpSourceVec.size() - 1;
+            m_SimpSourceVec[k]->CopyFrom( m_MainSourceVec[i] );
+            m_SimpSourceVec[k]->m_SurfIndx = m_SurfSymmMap[ m_MainSourceVec[i]->m_MainSurfIndx ][j];
+            m_SimpSourceVec[k]->Update( this );
         }
     }
 }

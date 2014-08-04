@@ -339,7 +339,7 @@ bool CfdMeshScreen::Update()
 
     if( currGeom )
     {
-        vector< BaseSource* > sVec = currGeom->getCfdMeshSourceVec();
+        vector< BaseSource* > sVec = currGeom->GetCfdMeshMainSourceVec();
         for ( i = 0 ; i < ( int )sVec.size() ; i++ )
         {
             if ( source == sVec[i] )

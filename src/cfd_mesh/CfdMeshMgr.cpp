@@ -611,7 +611,7 @@ void CfdMeshMgrSingleton::AdjustAllSourceLen( double mult )
     vector<string> geomVec = m_Vehicle->GetGeomVec();
     for ( int g = 0 ; g < ( int )geomVec.size() ; g++ )
     {
-        vector< BaseSource* > sVec = m_Vehicle->FindGeom( geomVec[g] )->getCfdMeshSourceVec();
+        vector< BaseSource* > sVec = m_Vehicle->FindGeom( geomVec[g] )->GetCfdMeshMainSourceVec();
         for ( int s = 0 ; s < ( int )sVec.size() ; s++ )
         {
             sVec[s]->AdjustLen( mult );
@@ -624,7 +624,7 @@ void CfdMeshMgrSingleton::AdjustAllSourceRad( double mult )
     vector<string> geomVec = m_Vehicle->GetGeomVec();
     for ( int g = 0 ; g < ( int )geomVec.size() ; g++ )
     {
-        vector< BaseSource* > sVec = m_Vehicle->FindGeom( geomVec[g] )->getCfdMeshSourceVec();
+        vector< BaseSource* > sVec = m_Vehicle->FindGeom( geomVec[g] )->GetCfdMeshMainSourceVec();
         for ( int s = 0 ; s < ( int )sVec.size() ; s++ )
         {
             sVec[s]->AdjustRad( mult );
@@ -691,7 +691,7 @@ void CfdMeshMgrSingleton::GUI_Val( string name, int val )
         Geom* geom = m_Vehicle->FindGeom( m_CurrGeomID );
         if( geom )
         {
-            vector< BaseSource* > sVec = geom->getCfdMeshSourceVec();
+            vector< BaseSource* > sVec = geom->GetCfdMeshMainSourceVec();
             if ( val >= 0 && val < ( int )sVec.size() )
             {
                 geom->SetCurrSourceID( val );
@@ -721,7 +721,7 @@ BaseSource* CfdMeshMgrSingleton::GetCurrSource()
     if( g )
     {
         int sourceID = g->GetCurrSourceID();
-        vector< BaseSource* > sVec = g->getCfdMeshSourceVec();
+        vector< BaseSource* > sVec = g->GetCfdMeshMainSourceVec();
 
         if ( sourceID >= 0 && sourceID < ( int )sVec.size() )
         {
@@ -761,7 +761,7 @@ void CfdMeshMgrSingleton::AddSource( int type )
     }
 
     char str[256];
-    int num_sources = curr_geom->getCfdMeshSourceVec().size();
+    int num_sources = curr_geom->GetCfdMeshMainSourceVec().size();
 
     if ( type == BaseSource::POINT_SOURCE )
     {
@@ -813,7 +813,7 @@ void CfdMeshMgrSingleton::AddSource( int type )
     }
 
     //==== Highlight/Edit The New Source ====//
-    vector< BaseSource* > sVec = curr_geom->getCfdMeshSourceVec();
+    vector< BaseSource* > sVec = curr_geom->GetCfdMeshMainSourceVec();
     curr_geom->SetCurrSourceID( ( int )sVec.size() - 1 );
 
 }
@@ -839,7 +839,7 @@ void CfdMeshMgrSingleton::UpdateSourcesAndWakes()
     for ( int g = 0 ; g < ( int )geomVec.size() ; g++ )
     {
         m_Vehicle->FindGeom( geomVec[g] )->UpdateSources();
-        vector< BaseSimpleSource* > sVec = m_Vehicle->FindGeom( geomVec[g] )->getAllCfdMeshSourceVec();
+        vector< BaseSimpleSource* > sVec = m_Vehicle->FindGeom( geomVec[g] )->GetCfdMeshSimpSourceVec();
 
         for ( int s = 0 ; s < ( int )sVec.size() ; s++ )
         {
