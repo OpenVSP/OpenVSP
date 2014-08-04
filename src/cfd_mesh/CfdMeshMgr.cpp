@@ -839,7 +839,7 @@ void CfdMeshMgrSingleton::UpdateSourcesAndWakes()
     for ( int g = 0 ; g < ( int )geomVec.size() ; g++ )
     {
         m_Vehicle->FindGeom( geomVec[g] )->UpdateSources();
-        vector< BaseSource* > sVec = m_Vehicle->FindGeom( geomVec[g] )->getAllCfdMeshSourceVec();
+        vector< BaseSimpleSource* > sVec = m_Vehicle->FindGeom( geomVec[g] )->getAllCfdMeshSourceVec();
 
         for ( int s = 0 ; s < ( int )sVec.size() ; s++ )
         {

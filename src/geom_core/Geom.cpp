@@ -1774,13 +1774,12 @@ void Geom::UpdateSources()
 
         for ( int j = 0; j < ncopy; j++ )
         {
-            m_SourceVec.push_back( CreateSource( m_MainSourceVec[i]->GetType() ) );
+            m_SourceVec.push_back( CreateSimpleSource( m_MainSourceVec[i]->GetType() ) );
             int k = m_SourceVec.size() - 1;
-            m_SourceVec[k]->Copy( m_MainSourceVec[i] );
+            m_SourceVec[k]->CopyFrom( m_MainSourceVec[i] );
             m_SourceVec[k]->m_SurfIndx = m_SurfSymmMap[ m_MainSourceVec[i]->m_MainSurfIndx ][j];
             m_SourceVec[k]->Update( this );
         }
-        m_MainSourceVec[i]->Update( this );
     }
 }
 
@@ -1802,6 +1801,26 @@ BaseSource* Geom::CreateSource( int type )
 
     return src_ptr;
 }
+
+BaseSimpleSource* Geom::CreateSimpleSource( int type )
+{
+    BaseSimpleSource* src_ptr = NULL;
+    if ( type == BaseSimpleSource::POINT_SOURCE )
+    {
+        src_ptr = new PointSimpleSource();
+    }
+    else if ( type == BaseSimpleSource::LINE_SOURCE )
+    {
+        src_ptr = new LineSimpleSource();
+    }
+    else if ( type == BaseSimpleSource::BOX_SOURCE )
+    {
+        src_ptr = new BoxSimpleSource();
+    }
+
+    return src_ptr;
+}
+
 
 bool Geom::HasWingTypeSurfs()
 {

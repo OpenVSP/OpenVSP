@@ -477,6 +477,7 @@ public:
     virtual void DelAllSources();
     virtual void UpdateSources();
     virtual BaseSource* CreateSource( int type );
+    virtual BaseSimpleSource* CreateSimpleSource( int type );
     virtual void AddCfdMeshSource( BaseSource* source )
     {
         m_MainSourceVec.push_back( source );
@@ -485,7 +486,7 @@ public:
     {
         return m_MainSourceVec;
     }
-    virtual vector< BaseSource* > getAllCfdMeshSourceVec()
+    virtual vector< BaseSimpleSource* > getAllCfdMeshSourceVec()
     {
         return m_SourceVec;
     }
@@ -534,7 +535,7 @@ protected:
     //==== CFD Mesh Sources ====//
     int currSourceID;
     vector< BaseSource* > m_MainSourceVec;
-    vector< BaseSource* > m_SourceVec;
+    vector< BaseSimpleSource* > m_SourceVec;
 
     //==== Wake for CFD Mesh ====//
     bool m_WakeActiveFlag;
