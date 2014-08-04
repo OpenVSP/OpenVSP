@@ -138,8 +138,8 @@ class CFDMeshUI {} {
             label {Intersect Subsurfaces}
             xywh {15 300 370 20} labelfont 1 align 16
           }
-          Fl_Choice setChoice {open selected
-            xywh {200 325 185 25} down_box FLAT_BOX color 17 textfont 1
+          Fl_Choice setChoice {open
+            xywh {200 325 185 20} down_box FLAT_BOX color 17 textfont 1
           } {}
           Fl_Box {} {
             label {Geometry Control}
@@ -147,7 +147,7 @@ class CFDMeshUI {} {
           }
           Fl_Box {} {
             label {Use Set}
-            xywh {15 325 185 25} box BORDER_BOX color 12 labelfont 1 labelcolor 7
+            xywh {15 325 185 20} box BORDER_BOX color 12 labelfont 1 labelcolor 7
           }
         }
         Fl_Group {} {
@@ -451,6 +451,13 @@ class CFDMeshUI {} {
           Fl_Button rad2Button {
             label Rad
             xywh {210 333 40 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
+          }
+          Fl_Choice surfChoice {
+            xywh {140 90 245 25} down_box BORDER_BOX textfont 1
+          } {}
+          Fl_Box {} {
+            label {Select Surface}
+            xywh {15 90 125 25} box BORDER_BOX color 12 labelfont 1 labelcolor 7
           }
         }
         Fl_Group {} {
