@@ -74,7 +74,7 @@ public:
     Parm m_Len;
     Parm m_Rad;
 
-    int m_MainSurfIndx;
+    IntParm m_MainSurfIndx;
     int m_SurfIndx;
 
 protected:
