@@ -202,6 +202,14 @@ public:
     {
         m_FarGeomID = gid;
     }
+    virtual int GetCurrMainSurfIndx()
+    {
+        return m_CurrMainSurfIndx;
+    }
+    virtual void SetCurrMainSurfIndx( int indx )
+    {
+        m_CurrMainSurfIndx = indx;
+    }
     virtual BaseSource* GetCurrSource();
     virtual void AddSource( int type );
     virtual BaseSource* CreateSource( int type );

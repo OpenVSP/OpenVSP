@@ -74,6 +74,7 @@ CfdMeshScreen::CfdMeshScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     m_WakeAngleSlider.Init( this, ui->wakeAngleSlider, ui->wakeAngleInput, 10.0, " %7.5f" );
 
     ui->compChoice->callback( staticCB, this );
+    ui->surfChoice->callback( staticCB, this );
     ui->sourceBrowser->callback( staticCB, this );
     ui->SourceNameInput->callback( staticCB, this );
 
@@ -208,6 +209,7 @@ bool CfdMeshScreen::Update()
     m_GeomVec = m_Vehicle->GetGeomVec();
 
     m_CfdMeshUI->compChoice->clear();
+    m_CfdMeshUI->surfChoice->clear();
     m_CfdMeshUI->wakeCompChoice->clear();
     m_CfdMeshUI->farCompChoice->clear();
     m_CompIDMap.clear();
@@ -346,12 +348,23 @@ bool CfdMeshScreen::Update()
             }
             m_CfdMeshUI->sourceBrowser->add( sVec[i]->GetName().c_str() );
         }
-
         if ( currSourceID >= 0 && currSourceID < ( int )sVec.size() )
         {
             m_CfdMeshUI->sourceBrowser->select( currSourceID + 1 );
         }
 
+        int nmain = currGeom->GetNumMainSurfs();
+        for ( i = 0; i < nmain; i++ )
+        {
+            char str[256];
+            sprintf( str, "Surf_%d", i );
+            m_CfdMeshUI->surfChoice->add( str );
+        }
+        int currMainSurfID = CfdMeshMgr.GetCurrMainSurfIndx();
+        if( currMainSurfID >= 0 && currMainSurfID < nmain )
+        {
+            m_CfdMeshUI->surfChoice->value( currMainSurfID );
+        }
     }
 
     m_DrawMeshButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_DrawMeshFlag.GetID() );
@@ -670,6 +683,12 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
         //==== Load List of Parts for Comp ====//
         int id = m_CfdMeshUI->compChoice->value();
         CfdMeshMgr.SetCurrGeomID( m_GeomVec[ id ] );
+        CfdMeshMgr.SetCurrMainSurfIndx( 0 );
+    }
+    else if ( w == m_CfdMeshUI->surfChoice )
+    {
+        int id = m_CfdMeshUI->surfChoice->value();
+        CfdMeshMgr.SetCurrMainSurfIndx( id );
     }
     else if ( w == m_CfdMeshUI->wakeCompChoice )
     {

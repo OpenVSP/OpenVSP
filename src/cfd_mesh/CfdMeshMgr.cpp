@@ -766,7 +766,7 @@ void CfdMeshMgrSingleton::AddSource( int type )
     if ( type == MESH_SOURCE_TYPE::POINT_SOURCE )
     {
         PointSource* source = new PointSource();
-        sprintf( str, "PointSource_%d", num_sources );
+        sprintf( str, "PointSource_srf_%d_%d", m_CurrMainSurfIndx, num_sources );
         source->SetName( str );
         source->m_Len = 0.1;
         source->m_Rad = 1.0;
@@ -780,7 +780,7 @@ void CfdMeshMgrSingleton::AddSource( int type )
     else if ( type == MESH_SOURCE_TYPE::LINE_SOURCE )
     {
         LineSource* source = new LineSource();
-        sprintf( str, "LineSource_%d", num_sources );
+        sprintf( str, "LineSource_srf_%d_%d", m_CurrMainSurfIndx, num_sources );
         source->SetName( str );
         source->m_Len = 0.1;
         source->m_Len2 = 0.1;
@@ -798,7 +798,7 @@ void CfdMeshMgrSingleton::AddSource( int type )
     else if ( type == MESH_SOURCE_TYPE::BOX_SOURCE )
     {
         BoxSource* source = new BoxSource();
-        sprintf( str, "BoxSource_%d", num_sources );
+        sprintf( str, "BoxSource_srf_%d_%d", m_CurrMainSurfIndx, num_sources );
         source->SetName( str );
         source->m_Len = 0.1;
         source->m_Rad = 1.0;
