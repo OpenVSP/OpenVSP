@@ -312,25 +312,23 @@ BaseSimpleSource::BaseSimpleSource()
 vector< vec3d > BaseSimpleSource::CreateSphere( double rad, const vec3d& loc )
 {
     int i, j;
-    int num_lats = 8;
-    int num_longs = 8;
+    int num_ptsperloop = 8;
+    int num_loops = 8;
 
     vector< vec3d > sphere;
 
-    for ( i = 0; i < num_lats; i++ )
+    for ( i = 0; i < num_ptsperloop * num_loops; i++ )
     {
-        double lat = PI * ( -0.5 + ( double )i / num_lats );
+        double lat = PI * ( -0.5 + ( double )i / (num_ptsperloop*num_loops) );
+        double lng = 2 * PI * ( double )i / num_loops;
+
         double z  = rad * sin( lat );
         double zr = rad * cos( lat );
 
-        for ( j = 0; j < num_longs; j++ )
-        {
-            double lng = 2 * PI * ( double )j / num_longs;
-            double x = cos( lng ) * zr;
-            double y = sin( lng ) * zr;
+        double x = cos( lng ) * zr;
+        double y = sin( lng ) * zr;
 
-            sphere.push_back( vec3d( x + loc[0], y + loc[1], z + loc[2] ) );
-        }
+        sphere.push_back( vec3d( x + loc[0], y + loc[1], z + loc[2] ) );
     }
     return sphere;
 }
@@ -356,7 +354,7 @@ PointSimpleSource::PointSimpleSource()
 
     m_PointDO.m_GeomID = m_DrawObjID;
     m_PointDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-    m_PointDO.m_Type = DrawObj::VSP_LINE_LOOP;
+    m_PointDO.m_Type = DrawObj::VSP_LINE_STRIP;
     m_PointDO.m_LineWidth = 1.0;
     m_PointDO.m_LineColor = vec3d( 100.0 / 255, 100.0 / 255, 100.0 / 255 );
 }
@@ -447,13 +445,13 @@ LineSimpleSource::LineSimpleSource()
 
     m_LineDO1.m_GeomID = m_DrawObjID + "1";
     m_LineDO1.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-    m_LineDO1.m_Type = DrawObj::VSP_LINE_LOOP;
+    m_LineDO1.m_Type = DrawObj::VSP_LINE_STRIP;
     m_LineDO1.m_LineWidth = 1.0;
     m_LineDO1.m_LineColor = vec3d( 100.0 / 255, 100.0 / 255, 100.0 / 255 );
 
     m_LineDO2.m_GeomID = m_DrawObjID + "2";
     m_LineDO2.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-    m_LineDO2.m_Type = DrawObj::VSP_LINE_LOOP;
+    m_LineDO2.m_Type = DrawObj::VSP_LINE_STRIP;
     m_LineDO2.m_LineWidth = 1.0;
     m_LineDO2.m_LineColor = vec3d( 100.0 / 255, 100.0 / 255, 100.0 / 255 );
 
