@@ -34,6 +34,12 @@ using namespace std;
 
 class Geom;
 
+enum MESH_SOURCE_TYPE {    POINT_SOURCE,
+                           LINE_SOURCE,
+                           BOX_SOURCE,
+                           NUM_SOURCE_TYPES,
+                      };
+
 //////////////////////////////////////////////////////////////////////
 class BaseSource : public ParmContainer
 {
@@ -64,8 +70,6 @@ public:
     }
 
     xmlNodePtr EncodeXml(  xmlNodePtr & node  );
-
-    enum { POINT_SOURCE, LINE_SOURCE, BOX_SOURCE, NUM_SOURCE_TYPES, };
 
     Parm m_Len;
     Parm m_Rad;
@@ -219,8 +223,6 @@ public:
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec ) = 0;
     virtual void Show( bool flag ) = 0;
     virtual void Highlight( bool flag ) = 0;
-
-    enum { POINT_SOURCE, LINE_SOURCE, BOX_SOURCE, NUM_SOURCE_TYPES, };
 
     double m_Len;
     double m_Rad;

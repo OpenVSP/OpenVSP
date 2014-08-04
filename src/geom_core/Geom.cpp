@@ -1036,7 +1036,7 @@ xmlNodePtr Geom::DecodeXml( xmlNodePtr & node )
             xmlNodePtr src_node = XmlUtil::GetNode( geom_node, "Source", i );
             if ( src_node )
             {
-                int type = XmlUtil::FindInt( src_node, "Type", BaseSource::POINT_SOURCE );
+                int type = XmlUtil::FindInt( src_node, "Type", MESH_SOURCE_TYPE::POINT_SOURCE );
 
                 BaseSource* src_ptr = CreateSource( type );  // Can change to CfdMeshMgr. when in scope.
 
@@ -1786,15 +1786,15 @@ void Geom::UpdateSources()
 BaseSource* Geom::CreateSource( int type )
 {
     BaseSource* src_ptr = NULL;
-    if ( type == BaseSource::POINT_SOURCE )
+    if ( type == MESH_SOURCE_TYPE::POINT_SOURCE )
     {
         src_ptr = new PointSource();
     }
-    else if ( type == BaseSource::LINE_SOURCE )
+    else if ( type == MESH_SOURCE_TYPE::LINE_SOURCE )
     {
         src_ptr = new LineSource();
     }
-    else if ( type == BaseSource::BOX_SOURCE )
+    else if ( type == MESH_SOURCE_TYPE::BOX_SOURCE )
     {
         src_ptr = new BoxSource();
     }
@@ -1805,15 +1805,15 @@ BaseSource* Geom::CreateSource( int type )
 BaseSimpleSource* Geom::CreateSimpleSource( int type )
 {
     BaseSimpleSource* src_ptr = NULL;
-    if ( type == BaseSimpleSource::POINT_SOURCE )
+    if ( type == MESH_SOURCE_TYPE::POINT_SOURCE )
     {
         src_ptr = new PointSimpleSource();
     }
-    else if ( type == BaseSimpleSource::LINE_SOURCE )
+    else if ( type == MESH_SOURCE_TYPE::LINE_SOURCE )
     {
         src_ptr = new LineSimpleSource();
     }
-    else if ( type == BaseSimpleSource::BOX_SOURCE )
+    else if ( type == MESH_SOURCE_TYPE::BOX_SOURCE )
     {
         src_ptr = new BoxSimpleSource();
     }
