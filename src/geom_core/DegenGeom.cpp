@@ -453,7 +453,6 @@ void DegenGeom::createDegenPlate( DegenPlate &degenPlate, const vector< vector< 
 void DegenGeom::createSurfDegenStick( const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts )
 {
     int nLow = 0, nHigh = num_xsecs;
-    int platePnts = ( num_pnts + 1 ) / 2;
     vec3d chordVec, camberPnt, prevCamberPnt;
 
     if ( getParentGeom()->GetType().m_Name == "wing" || getParentGeom()->GetType().m_Name == "prop" )

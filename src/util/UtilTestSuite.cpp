@@ -47,7 +47,6 @@ void UtilTestSuite::Vec2dUtilTest()
     TEST_ASSERT_DELTA( cos_angle( v1, v2 ), cos( 3.0 * M_PI / 4.0 ), DBL_EPSILON );
 
     v2 = vec2d( -1.0, -1.0 );
-    double a = angle( v1, v2 );
     TEST_ASSERT_DELTA( angle( v1, v2 ), 3.0 * M_PI / 4.0, DBL_EPSILON );    // Not signed angle
 
     vec2d A = vec2d( 0, 0 );

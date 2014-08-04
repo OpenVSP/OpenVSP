@@ -93,8 +93,6 @@ void FuselageGeom::ChangeID( string id )
 //==== Update Fuselage And Cross Section Placement ====//
 void FuselageGeom::UpdateSurf()
 {
-    double len = m_Length();
-
     m_TessUVec.clear();
 
     int nxsec = m_XSecSurf.NumXSec();

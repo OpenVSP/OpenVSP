@@ -777,7 +777,6 @@ void BoxSimpleSource::Update( Geom* geomPtr )
         double u = m_ULoc1 + fu * ( m_ULoc2 - m_ULoc1 );
         for ( int j = 0 ; j < num_segs ; j++ )
         {
-            double fw = ( double )j / ( double )( num_segs - 1 );
             double w = m_WLoc1 + fu * ( m_WLoc2 - m_WLoc1 );
             vec3d p = geomPtr->GetUWPt( m_SurfIndx, u, w );
             pVec.push_back( p );

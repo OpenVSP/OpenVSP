@@ -517,9 +517,6 @@ void GeneralFuseXSec::Update()
     vec3d bp3( 0.0, -m_Height() / 2.0, 0.0 );
     vec3d bp2 = bp3 - vec3d( -m_BotStr() * m_Width() / 3.0, 0.0, 0.0 );
 
-    double top_ang =  PI / 2.0 - DEG_2_RAD * m_TopTanAngle();
-    double bot_ang = -PI / 2.0 + DEG_2_RAD * m_BotTanAngle();
-
     //==== Load Bezier Control Points ====//
     vector< vec3d > bez_pnts;
     bez_pnts.push_back( tp0 );

@@ -1171,11 +1171,8 @@ void MeshGeom::CreateGeomResults( Results* res )
     {
         res->Add( ResData( "Type", vsp::MESH_SLICE_TRI ) );
 
-        Matrix4d transMat = GetTotalTransMat();
-
         //==== Load m_SliceVec ====//
         res->Add( ResData( "Num_Slices", ( int )m_SliceVec.size() ) );
-        int st = m_TMeshVec.size();
         for ( int i = 0; i < ( int )m_SliceVec.size(); i++ )
         {
             res->Add( ResData( "Num_Slice_Tris", ( int )( int )m_SliceVec[i]->m_TVec.size() ) );
@@ -3487,14 +3484,11 @@ void MeshGeom::AddHalfBox()
 
     m_TMeshVec.push_back( tm );
 
-    int num_div = 10;
     double xmin = box.GetMin( 0 );
     double xmax = box.GetMax( 0 );
-    double xdel = ( xmax - xmin ) / ( double )( num_div - 1 );
 
     double zmin = box.GetMin( 2 );
     double zmax = box.GetMax( 2 );
-    double zdel = ( zmax - zmin ) / ( double )( num_div - 1 );
 
     double ymin = box.GetMin( 1 );
 

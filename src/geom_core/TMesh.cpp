@@ -3830,10 +3830,6 @@ void TMesh::StressTest()
         delete t1;
 
     }
-
-    int done = 23;
-
-
 }
 
 void TMesh::MakeNodePntUW()

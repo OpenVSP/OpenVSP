@@ -322,8 +322,6 @@ void StackGeom::LoadDragFactors( DragFactors& drag_factors )
         }
     }
 
-    double dia = 2.0 * sqrt( max_xsec_area / PI );
-
 //    drag_factors.m_Length = m_Length();
     drag_factors.m_MaxXSecArea = max_xsec_area;
 //    drag_factors.m_LengthToDia = m_Length() / dia;
