@@ -423,8 +423,7 @@ public:
     {
         m_Sources.clear();    //Deleted in Geom
     }
-    void RemoveSource( BaseSource* s );
-    void AddSource( BaseSource* s )
+    void AddSource( BaseSimpleSource* s )
     {
         m_Sources.push_back( s );
     }
@@ -454,7 +453,7 @@ public:
 protected:
 
     string m_GroupName;
-    vector< BaseSource* > m_Sources;                // Sources + Ref Sources in 3D Space
+    vector< BaseSimpleSource* > m_Sources;                // Sources + Ref Sources in 3D Space
 
 };
 

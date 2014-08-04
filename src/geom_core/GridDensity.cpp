@@ -952,19 +952,6 @@ double GridDensity::GetFarRadFrac()
     return radFrac;
 }
 
-void GridDensity::RemoveSource( BaseSource* s )
-{
-    vector< BaseSource* > sVec;
-    for ( int i = 0 ; i < ( int )m_Sources.size() ; i++ )
-    {
-        if ( m_Sources[i] != s )
-        {
-            sVec.push_back( m_Sources[i] );
-        }
-    }
-    m_Sources = sVec;
-}
-
 double GridDensity::GetTargetLen( vec3d& pos, bool farFlag )
 {
     double target_len;
@@ -1018,7 +1005,7 @@ void GridDensity::Highlight( BaseSource * source )
 {
     for ( int i = 0; i < ( int )m_Sources.size(); i++ )
     {
-        if( m_Sources[i] == source )
+        if( m_Sources[i]->m_OrigSourceID == source->GetID() )
         {
             m_Sources[i]->Highlight( true );
         }
