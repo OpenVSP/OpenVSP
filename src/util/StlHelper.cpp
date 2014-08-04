@@ -123,13 +123,18 @@ double interpolate( map< double, int > & val_map, double key, bool * in_range )
 int ClosestElement( const vector< double > & vec, double const & val )
 {
     // Vector should be sorted before calling this method
-    vector< double >::const_iterator low;
+    vector< double >::const_iterator low, vend(vec.end()), vlast;
     low = std::lower_bound( vec.begin(), vec.end(), val );
+    vlast=vend; --vlast;
 
     if ( low == vec.end() )
     {
         // value is greater than all values in vector
         return vec.size();
+    }
+    else if ( low == vlast )
+    {
+        return ( low - vec.begin() );
     }
     else
     {
