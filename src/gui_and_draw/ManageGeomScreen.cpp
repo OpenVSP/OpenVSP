@@ -50,6 +50,7 @@ ManageGeomScreen::ManageGeomScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     ui->shadeGeomButton->callback( staticScreenCB, this );
     ui->hiddenGeomButton->callback( staticScreenCB, this );
     ui->textureGeomButton->callback( staticScreenCB, this );
+    ui->showFeatureToggle->callback( staticScreenCB, this );
     ui->showSubToggle->callback( staticScreenCB, this );
 
     ui->moveUpButton->callback( staticScreenCB, this );
@@ -576,6 +577,21 @@ void ManageGeomScreen::SetSubDrawFlag( bool f )
     }
 }
 
+//==== Show or Hide Feature Lines ====//
+void ManageGeomScreen::SetFeatureDrawFlag( bool f )
+{
+    vector<string> geom_id_vec = GetActiveGeoms();
+    vector< Geom* > geom_vec = m_VehiclePtr->FindGeomVec( geom_id_vec );
+
+    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        if ( geom_vec[i] )
+        {
+            geom_vec[i]->m_GuiDraw.SetDispFeatureFlag( f );
+        }
+    }
+}
+
 //==== Callbacks ====//
 void ManageGeomScreen::CallBack( Fl_Widget *w )
 {
@@ -666,6 +682,13 @@ void ManageGeomScreen::CallBack( Fl_Widget *w )
     	else
     		SetSubDrawFlag( false );
     }
+    else if ( w == m_GeomUI->showFeatureToggle )
+    {
+        if ( m_GeomUI->showFeatureToggle->value() )
+            SetFeatureDrawFlag( true );
+        else
+            SetFeatureDrawFlag( false );
+    }
     else if ( w == m_GeomUI->pickGeomButton )
     {
     }
@@ -746,11 +769,16 @@ void ManageGeomScreen::UpdateDrawType()
 	if ( num_geoms == 0 ) m_GeomUI->showSubToggle->value(0);
 
 	int num_sub_on = 0;
+	int num_feature_on = 0;
 
 	for ( int i = 0; i < (int)geom_vec.size(); i++ )
 	{
 		if ( geom_vec[i] && geom_vec[i]->m_GuiDraw.GetDispSubSurfFlag() )
 			num_sub_on++;
+
+		if ( geom_vec[i] && geom_vec[i]->m_GuiDraw.GetDispFeatureFlag() )
+			num_feature_on++;
+
 	}
 
 	double flag_average = num_sub_on/(double)num_geoms;
@@ -758,4 +786,10 @@ void ManageGeomScreen::UpdateDrawType()
 		m_GeomUI->showSubToggle->value(1);
 	else
 		m_GeomUI->showSubToggle->value(0);
+
+	flag_average = num_feature_on/(double)num_geoms;
+	if ( flag_average > 0.5 )
+		m_GeomUI->showFeatureToggle->value(1);
+	else
+		m_GeomUI->showFeatureToggle->value(0);
 }

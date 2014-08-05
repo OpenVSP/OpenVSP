@@ -148,6 +148,14 @@ public:
     {
         return m_DispSubSurfFlag;
     }
+    void SetDispFeatureFlag( bool f )
+    {
+        m_DispFeatureFlag = f;
+    }
+    bool GetDispFeatureFlag()
+    {
+        return m_DispFeatureFlag;
+    }
 protected:
 
     int  m_DrawType;
@@ -155,6 +163,7 @@ protected:
     bool m_NoShowFlag;
     bool m_DisplayChildrenFlag;
     bool m_DispSubSurfFlag;
+    bool m_DispFeatureFlag;
 
     int m_MaterialID;
 

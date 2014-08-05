@@ -64,7 +64,7 @@ GeomGuiDraw::GeomGuiDraw()
     m_DisplayChildrenFlag = true;
     m_MaterialID = 0;
     m_DispSubSurfFlag = true;
-
+    m_DispFeatureFlag = true;
 }
 
 //==== Destructor ====//

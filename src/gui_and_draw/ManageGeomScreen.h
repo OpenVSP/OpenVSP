@@ -99,6 +99,7 @@ protected:
     void SetGeomDisplayType( int type );
     void EditName( string name );
     void SetSubDrawFlag( bool f );
+    void SetFeatureDrawFlag( bool f );
 
     vector< string > GetActiveGeoms();
 
