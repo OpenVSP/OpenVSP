@@ -181,7 +181,6 @@ public:
 
     vec3d m_Pnt;
     vec3d m_UWPnt;
-    vec3d m_Norm;
     int m_ID;
 
     vector< TTri* > m_TriVec;               // For WaterTight Check
