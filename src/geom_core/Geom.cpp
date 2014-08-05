@@ -734,6 +734,7 @@ void Geom::Update()
     GeomXForm::Update();
 
     UpdateSurf();       // Must be implemented by subclass.
+    UpdateFeatureLines();
     UpdateSymmAttach();
 
     for ( int i = 0 ; i < ( int )m_SubSurfVec.size() ; i++ )
@@ -758,6 +759,14 @@ void Geom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< v
 {
     vector< vector< vec3d > > uw_pnts;
     UpdateTesselate( indx, pnts, norms, uw_pnts );
+}
+
+void Geom::UpdateFeatureLines()
+{
+    for ( int i = 0; i < m_MainSurfVec.size(); i++ )
+    {
+        m_MainSurfVec[i].BuildFeatureLines();
+    }
 }
 
 void Geom::UpdateSymmAttach()
@@ -955,6 +964,7 @@ void Geom::UpdateBBox()
 void Geom::UpdateDrawObj()
 {
     m_WireShadeDrawObj_vec.resize( m_SurfVec.size(), DrawObj() );
+    m_FeatureDrawObj_vec.clear();
 
     //==== Tesselate Surface ====//
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
@@ -962,6 +972,27 @@ void Geom::UpdateDrawObj()
         UpdateTesselate( i, m_WireShadeDrawObj_vec[i].m_PntMesh, m_WireShadeDrawObj_vec[i].m_NormMesh );
         m_WireShadeDrawObj_vec[i].m_GeomChanged = true;
         m_WireShadeDrawObj_vec[i].m_FlipNormals = m_SurfVec[i].GetFlipNormal();
+
+        if( m_GuiDraw.GetDispFeatureFlag() )
+        {
+            int nu = m_SurfVec[i].GetNumUFeature();
+            for( int j = 0; j < nu; j++ )
+            {
+                m_FeatureDrawObj_vec.push_back( DrawObj() );
+                int indx = m_FeatureDrawObj_vec.size() - 1;
+                m_SurfVec[i].TessUFeatureLine( j, 100, m_FeatureDrawObj_vec[indx].m_PntVec );
+                m_FeatureDrawObj_vec[indx].m_GeomChanged = true;
+            }
+
+            int nw = m_SurfVec[i].GetNumWFeature();
+            for( int j = 0; j < nw; j++ )
+            {
+                m_FeatureDrawObj_vec.push_back( DrawObj() );
+                int indx = m_FeatureDrawObj_vec.size() - 1;
+                m_SurfVec[i].TessWFeatureLine( j, 100, m_FeatureDrawObj_vec[indx].m_PntVec );
+                m_FeatureDrawObj_vec[indx].m_GeomChanged = true;
+            }
+        }
     }
 
     //==== Bounding Box ====//
@@ -1194,6 +1225,7 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
             break;
         }
     }
+
     if ( m_Vehicle->IsGeomActive( m_ID ) )
     {
         m_HighlightDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
@@ -1202,6 +1234,21 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         m_HighlightDrawObj.m_LineColor = vec3d( 1.0, 0., 0.0 );
         m_HighlightDrawObj.m_Type = DrawObj::VSP_LINES;
         draw_obj_vec.push_back( &m_HighlightDrawObj );
+    }
+
+    // Load Feature Lines
+    if ( m_GuiDraw.GetDispFeatureFlag() && !m_GuiDraw.GetNoShowFlag() )
+    {
+        for ( int i = 0; i < m_FeatureDrawObj_vec.size(); i++ )
+        {
+            m_FeatureDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+            sprintf( str, "_%d", i );
+            m_FeatureDrawObj_vec[i].m_GeomID = m_ID + "Feature_" + str;
+            m_FeatureDrawObj_vec[i].m_LineWidth = 2.0;
+            m_FeatureDrawObj_vec[i].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
+            m_FeatureDrawObj_vec[i].m_Type = DrawObj::VSP_LINE_STRIP;
+            draw_obj_vec.push_back( &m_FeatureDrawObj_vec[i] );
+        }
     }
 
     // Load Subsurfaces

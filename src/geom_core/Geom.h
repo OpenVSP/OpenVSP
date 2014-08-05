@@ -516,6 +516,7 @@ public:
 protected:
 
     virtual void UpdateSurf() = 0;
+    virtual void UpdateFeatureLines();
     virtual void UpdateSymmAttach();
     virtual void UpdateChildren();
     virtual void UpdateBBox();
@@ -529,6 +530,7 @@ protected:
     vector<int> m_SurfIndxVec;
     vector< vector< int > > m_SurfSymmMap;
     vector<DrawObj> m_WireShadeDrawObj_vec;
+    vector<DrawObj> m_FeatureDrawObj_vec;
     DrawObj m_HighlightDrawObj;
 
     BndBox m_BBox;
