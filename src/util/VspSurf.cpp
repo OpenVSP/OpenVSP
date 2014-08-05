@@ -620,10 +620,6 @@ void VspSurf::WriteBezFile( FILE* file_id, const std::string &geom_id, int surf_
 {
     // Make copy for local changes.
     piecewise_surface_type s( m_Surface );
-    std::vector<double> uconst, wconst;
-
-    s.find_interior_C0_edges(uconst, wconst);
-
 
     piecewise_surface_type::data_type ttol = 1e-6;
     s.to_cubic( ttol );
@@ -664,41 +660,16 @@ void VspSurf::WriteBezFile( FILE* file_id, const std::string &geom_id, int surf_
     }
 
     vector<int> split_u, split_w;
-    vector<int>::iterator sit;
 
     // add all of the C0 edges
-    for ( int i=0; i<uconst.size(); ++i )
+    for ( int i = 0; i < m_UFeature.size(); ++i )
     {
-      split_u.push_back( ClosestPatchEnd( u_pmap, uconst[i] ) );
+      split_u.push_back( ClosestPatchEnd( u_pmap, m_UFeature[i] ) );
     }
-    for ( int j=0; j<wconst.size(); ++j )
+    for ( int j = 0; j < m_WFeature.size(); ++j )
     {
-      split_w.push_back( ClosestPatchEnd( w_pmap, wconst[j] ) );
+      split_w.push_back( ClosestPatchEnd( w_pmap, m_WFeature[j] ) );
     }
-
-    // always need to split start and end of coordinate directions
-    split_u.push_back( 0 );
-    split_u.push_back( nupts - 1 );
-    split_w.push_back( 0 );
-    split_w.push_back( nvpts - 1 );
-
-    // add splits if don't have 4 C0 edges in w-direction for fuselages
-    if ( wconst.size() < 4 )
-    {
-      split_w.push_back( ClosestPatchEnd( w_pmap, 0.25 * w_pmap[w_pmap.size() - 1] ) );
-      split_w.push_back( ClosestPatchEnd( w_pmap, 0.5 * w_pmap[w_pmap.size() - 1] ) );
-      split_w.push_back( ClosestPatchEnd( w_pmap, 0.75 * w_pmap[w_pmap.size() - 1] ) );
-    }
-
-    // the vectors need to be sorted now that everything has been added
-    std::sort( split_u.begin(), split_u.end() );
-    std::sort( split_w.begin(), split_w.end() );
-
-    // remove duplicates
-    sit=std::unique( split_u.begin(), split_u.end() );
-    split_u.resize( distance( split_u.begin(), sit ) );
-    sit=std::unique( split_w.begin(), split_w.end() );
-    split_w.resize( distance( split_w.begin(), sit ) );
 
     int num_sections = ( split_u.size() - 1 ) * ( split_w.size() - 1 );
 
