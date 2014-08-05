@@ -111,6 +111,15 @@ public:
     vec3d CompNorm( double u, double v ) const;
     vec3d CompNorm01( double u, double v ) const;
 
+    int GetNumUFeature()
+    {
+        return m_UFeature.size();
+    }
+    int GetNumWFeature()
+    {
+        return m_WFeature.size();
+    }
+    void BuildFeatureLines();
     void WriteBezFile( FILE* id, const std::string &geom_id, int surf_ind );
 
     //===== Tesselate ====//
@@ -127,5 +136,8 @@ protected:
     bool m_FlipNormal;
     int m_SurfType;
     piecewise_surface_type m_Surface;
+
+    vector < double > m_UFeature;
+    vector < double > m_WFeature;
 };
 #endif

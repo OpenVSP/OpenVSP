@@ -538,6 +538,44 @@ void VspSurf::Tesselate( const vector<int> &num_u, int num_v, std::vector< vecto
     }
 }
 
+
+void VspSurf::BuildFeatureLines()
+{
+    // Detect C0 edges, clear()'s both vectors as first step.
+    m_Surface.find_interior_C0_edges( m_UFeature, m_WFeature );
+
+    // Add start/end curves.
+    m_UFeature.push_back( m_Surface.get_u0() );
+    m_UFeature.push_back( m_Surface.get_umax() );
+
+    // Add start/mid/end curves.
+    double vmin = m_Surface.get_v0();
+    double vmax = m_Surface.get_vmax();
+    double vrng = vmax - vmin;
+
+    m_WFeature.push_back( vmin );
+    m_WFeature.push_back( vmin + 0.5 * vrng );
+    m_WFeature.push_back( vmax );
+
+    // If fuse-type, add .25 and .75 curves.
+    if ( GetSurfType() != VspSurf::WING_SURF )
+    {
+        m_WFeature.push_back( vmin + 0.25 * vrng );
+        m_WFeature.push_back( vmin + 0.75 * vrng );
+    }
+
+    // Sort feature parameters
+    std::sort( m_UFeature.begin(), m_UFeature.end() );
+    std::sort( m_WFeature.begin(), m_WFeature.end() );
+
+    // Remove duplicate feature parameters
+    vector < double >::iterator sit;
+    sit=std::unique( m_UFeature.begin(), m_UFeature.end() );
+    m_UFeature.resize( distance( m_UFeature.begin(), sit ) );
+    sit=std::unique( m_WFeature.begin(), m_WFeature.end() );
+    m_WFeature.resize( distance( m_WFeature.begin(), sit ) );
+}
+
 void VspSurf::WriteBezFile( FILE* file_id, const std::string &geom_id, int surf_ind )
 {
     // Make copy for local changes.
