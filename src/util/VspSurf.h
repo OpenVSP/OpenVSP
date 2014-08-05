@@ -128,6 +128,10 @@ public:
     void Tesselate( const vector<int> &num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms ) const;
     void Tesselate( const vector<int> &num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts ) const;
 
+    void TessUFeatureLine( int iu, int num_v, std::vector< vec3d > & pnts );
+    void TessWFeatureLine( int iw, int num_u, std::vector< vec3d > & pnts );
+    void TessLine( double umin, double umax, double wmin, double wmax, int numpts, std::vector< vec3d > & pnts );
+
 protected:
     int ClosestPatchEnd( const vector<double> & patch_endings, double end_val ) const;
 

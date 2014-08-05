@@ -538,6 +538,46 @@ void VspSurf::Tesselate( const vector<int> &num_u, int num_v, std::vector< vecto
     }
 }
 
+void VspSurf::TessUFeatureLine( int iu, int num_v, std::vector< vec3d > & pnts )
+{
+    double u = m_UFeature[ iu ];
+    double vmin = m_Surface.get_v0();
+    double vmax = m_Surface.get_vmax();
+    TessLine( u, u, vmin, vmax, num_v, pnts);
+}
+
+void VspSurf::TessWFeatureLine( int iw, int num_u, std::vector< vec3d > & pnts )
+{
+    double v = m_WFeature[ iw ];
+    double umin = m_Surface.get_u0();
+    double umax = m_Surface.get_umax();
+    TessLine( umin, umax, v, v, num_u, pnts);
+}
+
+void VspSurf::TessLine( double umin, double umax, double wmin, double wmax, int numpts, std::vector< vec3d > & pnts )
+{
+    pnts.resize( numpts );
+
+    double du = (umax - umin)/(numpts - 1);
+    double dw = (wmax - wmin)/(numpts - 1);
+
+    double u = umin;
+    double w = wmin;
+
+    for ( int i = 0; i < numpts; i++ )
+    {
+        if ( i == numpts - 1 )
+        {
+            u = umax;
+            w = wmax;
+        }
+
+        pnts[i] = CompPnt( u, w );
+
+        u += du;
+        w += dw;
+    }
+}
 
 void VspSurf::BuildFeatureLines()
 {
