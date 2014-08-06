@@ -58,8 +58,7 @@ void IndexPntNodes( PntNodeCloud & cloud, double tol )
             std::vector<std::pair<size_t, double> >   ret_matches;
 
             nanoflann::SearchParams params;
-            const size_t nMatches =
-                index.radiusSearch( &cloud.m_PntNodes[i].m_Pnt[0], tol, ret_matches, params );
+            index.radiusSearch( &cloud.m_PntNodes[i].m_Pnt[0], tol, ret_matches, params );
 
             for ( size_t j = 0 ; j < ret_matches.size() ; j++ )
             {
