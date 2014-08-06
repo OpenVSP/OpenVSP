@@ -197,7 +197,7 @@ std::vector<bool> Lighting::getLightEnableStatus()
 
 LightSource * Lighting::getLightSource( unsigned int index )
 {
-    if( index < 0 || index >= _lightSources.size() )
+    if( index >= _lightSources.size() )
     {
         return NULL;
     }

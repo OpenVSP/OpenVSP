@@ -63,7 +63,7 @@ unsigned int VertexBuffer::getVertexSize()
 
 int VertexBuffer::getVertex3f( unsigned int index, float * v_out )
 {
-    if( index < 0 || index >= getVertexSize() )
+    if( index >= getVertexSize() )
     {
         return 0;
     }
