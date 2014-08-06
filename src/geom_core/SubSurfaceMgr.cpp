@@ -220,7 +220,7 @@ void SubSurfaceMgrSingleton::WriteKeyFile( const string & file_name )
     for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
     {
         string comp_list;
-        int tag;
+        int tag(-10);
 
         ii = m_SingleTagMap.find( m_TagKeys[i] );
 

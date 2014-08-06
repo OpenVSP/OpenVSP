@@ -3127,6 +3127,9 @@ void TMesh::SwapEdge( TEdge* edge )
 
     TNode *n0, *n1, *n2, *n3;
     n0 = edge->m_N0;
+    n1 = nullptr;
+    n2 = nullptr;
+    n3 = nullptr;
 
     if ( edge->m_Tri0->m_N0 != edge->m_N0 && edge->m_Tri0->m_N0 != edge->m_N1 )
     {
