@@ -1384,7 +1384,7 @@ double StackXSec::GetLScale()
     XSecSurf* xsecsurf = (XSecSurf*) GetParentContainerPtr();
     int indx = xsecsurf->FindXSecIndex( m_ID );
 
-    double dx, dy, dz;
+    double dx(0), dy(0), dz(0);
 
     if( indx == 0 )
     {
@@ -1411,7 +1411,7 @@ double StackXSec::GetRScale()
     XSecSurf* xsecsurf = (XSecSurf*) GetParentContainerPtr();
     int indx = xsecsurf->FindXSecIndex( m_ID );
 
-    double dx, dy, dz;
+    double dx(0), dy(0), dz(0);
 
     if( indx < (xsecsurf->NumXSec() - 1) )
     {
