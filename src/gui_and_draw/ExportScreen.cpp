@@ -135,7 +135,6 @@ void ExportScreen::ExportFile( string &newfile, int write_set, int type )
 //==== Callbacks ====//
 void ExportScreen::CallBack( Fl_Widget *w )
 {
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
     string newfile;
 
     if ( w ==   m_ExportFileUI->xsecButton )        // Export CrossSection File

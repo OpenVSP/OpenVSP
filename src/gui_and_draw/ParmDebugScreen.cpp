@@ -16,9 +16,6 @@
 
 ParmDebugScreen::ParmDebugScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 300, 500, "Parameter Debug" )
 {
-    int w = m_FLTK_Window->w();
-    int h = m_FLTK_Window->h();
-
     m_GenLayout.SetGroupAndScreen( m_FLTK_Window, this );
     m_GenLayout.AddY( 25 );
 

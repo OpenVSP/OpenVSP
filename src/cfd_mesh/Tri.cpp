@@ -291,42 +291,7 @@ void Node::OptSmooth()
     }
 
 }
-void Node::OptSmoothUW()
-{
-    vector< Tri* > connectTris;
-    GetConnectTris( connectTris );
 
-    if ( ( int )connectTris.size() < 3 )
-    {
-        return;
-    }
-
-    double worst_qual = 0.0;
-    Tri* worst_tri = NULL;
-    for ( int i = 0 ; i < ( int )connectTris.size() ; i++ )
-    {
-        double q = connectTris[i]->ComputeCosSmallAng();
-        if ( q > worst_qual )
-        {
-            worst_qual = q;
-            worst_tri  = connectTris[i];
-        }
-    }
-
-    //==== Good Tris -> Don't Bother ====//
-    //if ( worst_qual < 0.707 )
-    //  return;
-
-    vec2d orig_uw  = uw;
-    Edge* far_edge = worst_tri->FindEdgeWithout( this );
-
-    vec2d cuw = ( far_edge->n0->uw + far_edge->n1->uw ) * 0.5;
-
-    double dx = -0.866 * ( far_edge->n0->uw.y() - far_edge->n1->uw.y() );
-    double dy =  0.866 * ( far_edge->n0->uw.x() - far_edge->n1->uw.x() );
-
-
-}
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 

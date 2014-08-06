@@ -1624,8 +1624,6 @@ void VspGlWindow::OnDrag( int x, int y )
 
 void VspGlWindow::OnRelease( int x, int y )
 {
-    VSPGraphic::Display * display = m_GEngine->getDisplay();
-
     // Reset buttons positions.
     switch( Fl::event_button() )
     {

@@ -556,7 +556,6 @@ string CfdMeshScreen::truncateFileName( const string &fn, int len )
 
 void CfdMeshScreen::CallBack( Fl_Widget* w )
 {
-    static bool intersectFlag = false;
     bool update_flag = true;
 
     if ( w == m_CfdMeshUI->rigorLimitButton )

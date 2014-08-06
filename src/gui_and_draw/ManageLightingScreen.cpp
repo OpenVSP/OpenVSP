@@ -108,9 +108,6 @@ bool ManageLightingScreen::Update()
 
 void ManageLightingScreen::CallBack( Fl_Widget * w )
 {
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-    LightMgr * lightMgr = veh->getVGuiDraw()->getLightMgr();
-
     if( w == m_LightingUI->LightSourceDropDown )
     {
         m_CurrentSelected = m_LightingUI->LightSourceDropDown->value();

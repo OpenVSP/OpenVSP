@@ -89,7 +89,6 @@ void PickSetScreen::LoadSetChoice()
 //==== Callbacks ====//
 void PickSetScreen::CallBack( Fl_Widget *w )
 {
-    Vehicle* veh = VehicleMgr.GetVehicle();
     string newfile;
 
     if ( w ==   m_PickSetUI->okButton )

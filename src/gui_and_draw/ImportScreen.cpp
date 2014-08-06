@@ -61,8 +61,6 @@ void ImportScreen::ImportFile( string & in_file, int type )
     }
 
     if ( in_file.size() != 0 && in_file[ in_file.size() - 1] != '/' )
-//jrg back() only in c++11 and remove strcmp
-//  if ( in_file.compare("") != 0 && strcmp( &in_file.back(), "/") != 0 )
     {
         veh->ImportFile( in_file, type );
     }
@@ -73,7 +71,6 @@ void ImportScreen::ImportFile( string & in_file, int type )
 //==== Callbacks ===//
 void ImportScreen::CallBack( Fl_Widget *w )
 {
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
     string in_file;
 
     if ( w == m_ImportUI->sterolithButton )

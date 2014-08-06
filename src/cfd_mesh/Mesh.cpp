@@ -369,7 +369,7 @@ int Mesh::Split( int num_iter )
 
         for ( int i = 0 ; i < num_split ; i++ )
         {
-            double dist = longEdges[i].first->ComputeLength();
+            longEdges[i].first->ComputeLength();
             SplitEdge( longEdges[i].first );
         }
 
@@ -418,7 +418,7 @@ int Mesh::Collapse( int num_iter )
         num_short_edges = 0;
         for ( int i = 0 ; i < num_colapse ; i++ )
         {
-            double dist = shortEdges[i].first->ComputeLength();
+            shortEdges[i].first->ComputeLength();
 //          printf("  Collapse %f \n", dist );
             if ( ValidCollapse( shortEdges[i].first ) && !shortEdges[i].first->m_DeleteMeFlag )
             {
@@ -447,7 +447,6 @@ void Mesh::ColorTris()
     for ( t = triList.begin() ; t != triList.end(); t++ )
     {
         double q = ( *t )->ComputeQual();
-        double scale = q / 1.05;
 
         if ( q > M_PI / 6.0 )                                           // > 30 Deg
         {

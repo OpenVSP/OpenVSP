@@ -1647,7 +1647,6 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
         vector< vec3d >& sPntVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
-        vector< vec2d >& sUWPntVec = m_SurfVec[i]->GetMesh()->GetSimpUWPntVec();
         for ( int v = 0 ; v < ( int )sPntVec.size() ; v++ )
         {
             if ( m_SurfVec[i]->GetWakeFlag() )
@@ -3639,8 +3638,6 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
         big_box.Update( m_SurfVec[s]->GetBBox() );
     }
     double x_dist = 1.0 + big_box.GetMax( 0 ) - big_box.GetMin( 0 );
-    double y_dist = 1.0 + big_box.GetMax( 1 ) - big_box.GetMin( 1 );
-    double z_dist = 1.0 + big_box.GetMax( 2 ) - big_box.GetMin( 2 );
 
     //==== Count Number of Component Crossings for Each Component =====//
     list< Tri* >::iterator t;
@@ -3848,8 +3845,6 @@ void CfdMeshMgrSingleton::ConnectBorderEdges( bool wakeOnly )
         int iz = ( int )( ( mz - min_z ) / dz );
         edgeGrid[ix][iy][iz].push_back( ( *e ) );
     }
-    int es = edgeList.size();
-    int eg = edgeGrid[0][0][0].size();
 
     for ( i = 0 ; i < num_grid ; i++ )
         for ( j = 0 ; j < num_grid ; j++ )
@@ -4216,7 +4211,6 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                     ( !m_SurfVec[i]->GetSymPlaneFlag() || GetCfdSettingsPtr()->m_DrawSymmFlag.Get() ) )
             {
                 SimpTri* stri = &m_SurfVec[i]->GetMesh()->GetSimpTriVec()[t];
-                int tag = SubSurfaceMgr.GetTag( stri->m_Tags );
                 dmit = tag_dobj_map.find( SubSurfaceMgr.GetTag( stri->m_Tags ) );
                 if ( dmit == tag_dobj_map.end() )
                 {

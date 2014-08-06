@@ -69,7 +69,6 @@ public:
     void LaplacianSmoothUW();
 //  void AngleSmooth();
     void OptSmooth();
-    void OptSmoothUW();
 
     bool AllInteriorConnectedTris();
 

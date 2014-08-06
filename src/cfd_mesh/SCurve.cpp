@@ -473,7 +473,6 @@ void SCurve::TessRevIntegrate( vector< double > &utess )
 bool SCurve::BisectFind( double starget, double &s, double &ireal, double &t, double &dsdi, double &u, int direction )
 {
     double sold = s;
-    double irorig = ireal;
 
     double tol = 1e-3;
     double ds = fabs( starget - sold );
@@ -606,9 +605,6 @@ void SCurve::TessIntegrate( int direction, vector< double > &utess )
 
     int isub = 0;
 
-    int itermax = 10;
-    double tol = 1e-3;
-
     double imax = ( ( double ) dist_vec.size() ) - 1.0;
 
     double smax = dist_vec.back();
@@ -633,7 +629,6 @@ void SCurve::TessIntegrate( int direction, vector< double > &utess )
     {
         double ds = t * dn;
         double starget = s + ds;
-        double sold = s;
 
         if( starget < 0.0 || starget > smax ) // Reached end of integration, break out and force final point.
         {

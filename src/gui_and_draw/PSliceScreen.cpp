@@ -18,7 +18,6 @@ PSliceScreen::PSliceScreen( ScreenMgr *mgr ) : VspScreen( mgr )
     m_textBuffer = new Fl_Text_Buffer();
     ui->outputTextDisplay->buffer( m_textBuffer );
 
-    char format[10] = " %6.3f";
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
     vec3d maxBBox = veh->GetBndBox().GetMax();
     vec3d minBBox = veh->GetBndBox().GetMin();

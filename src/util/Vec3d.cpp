@@ -1177,7 +1177,6 @@ vec2d MapToPlane( vec3d & P, vec3d & B, vec3d & e0, vec3d & e1 )
     double c = dot( e1, e1 );
     double d = dot( e0, BmP );
     double e = dot( e1, BmP );
-    double f = dot( BmP, BmP );
 
     double s = 0;
     double t = 0;
