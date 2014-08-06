@@ -344,7 +344,7 @@ void ThreadCheckVersionNumber()
 
     long t = 0;
     pthread_t thread;
-    int rc = pthread_create( &thread, NULL, CheckVersionNumber, ( void * )t );
+    pthread_create( &thread, NULL, CheckVersionNumber, ( void * )t );
 #endif
 }
 

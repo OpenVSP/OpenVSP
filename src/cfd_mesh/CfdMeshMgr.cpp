@@ -1664,7 +1664,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
     //==== Build Map ====//
     map< int, vector< int > > indMap;
     vector< int > pntShift;
-    int numPnts = BuildIndMap( allPntVec, indMap, pntShift );
+    BuildIndMap( allPntVec, indMap, pntShift );
 
     //==== Build Wake Map If Available ====//
     map< int, vector< int > > wakeIndMap;
@@ -2088,7 +2088,7 @@ string CfdMeshMgrSingleton::CheckWaterTight()
     //==== Build Map ====//
     map< int, vector< int > > indMap;
     vector< int > pntShift;
-    int numPnts = BuildIndMap( allPntVec, indMap, pntShift );
+    BuildIndMap( allPntVec, indMap, pntShift );
 
     //==== Create Nodes ====//
     for ( int i = 0 ; i < ( int )allPntVec.size() ; i++ )

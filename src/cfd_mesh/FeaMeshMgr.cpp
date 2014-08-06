@@ -1950,7 +1950,7 @@ void FeaMeshMgrSingleton::WriteCalculix( )
     //==== Build Node Map ====//
     map< int, vector< int > > indMap;
     vector< int > pntShift;
-    int numPnts = CfdMeshMgr.BuildIndMap( allPntVec, indMap, pntShift );
+    CfdMeshMgr.BuildIndMap( allPntVec, indMap, pntShift );
 
     //==== Assign Index Numbers to Nodes ====//
     for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
