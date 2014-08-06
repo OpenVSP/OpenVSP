@@ -1066,9 +1066,9 @@ bool Vehicle::WriteXMLFile( const string & file_name, int set )
 
     xmlNodePtr root = xmlNewNode( NULL, ( const xmlChar * )"Vsp_Geometry" );
     xmlDocSetRootElement( doc, root );
-    xmlNodePtr versionNode = XmlUtil::AddIntNode( root, "Version", CURRENT_FILE_VER );
+    XmlUtil::AddIntNode( root, "Version", CURRENT_FILE_VER );
 
-    xmlNodePtr vehicle_node = EncodeXml( root, set );
+    EncodeXml( root, set );
 
     //===== Save XML Tree and Free Doc =====//
     int err = xmlSaveFormatFile( file_name.c_str(), doc, 1 );
@@ -2292,7 +2292,7 @@ string Vehicle::WriteDegenGeomFile()
 
         for ( int i = 0; i < (int)m_DegenGeomVec.size(); i++ )
         {
-            bool roundEndCapFlag;
+//            bool roundEndCapFlag;
 //            if ( m_DegenGeomVec[i].getParentGeom()->getType() == MS_WING_GEOM_TYPE )
 //            {
 //                roundEndCapFlag = ((Ms_wing_geom*)m_DegenGeomVec[i].getParentGeom())->get_round_end_cap_flag();
@@ -2343,7 +2343,7 @@ string Vehicle::WriteDegenGeomFile()
 
         for ( int i = 0, propIdx = 1; i < (int)m_DegenGeomVec.size(); i++, propIdx++ )
         {
-            bool roundEndCapFlag;
+//            bool roundEndCapFlag;
 
 //            if ( m_DegenGeomVec[i].getParentGeom()->getType() == MS_WING_GEOM_TYPE )
 //            {

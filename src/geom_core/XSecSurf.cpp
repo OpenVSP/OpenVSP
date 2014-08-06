@@ -530,7 +530,7 @@ xmlNodePtr XSecSurf::DecodeXml( xmlNodePtr & node )
 
                 if ( temp_node )
                 {
-                    int xs_type = XmlUtil::FindInt( temp_node, "Type", XSEC_FUSE );
+                    XmlUtil::FindInt( temp_node, "Type", XSEC_FUSE );
 
                     xmlNodePtr xscrv_node = XmlUtil::GetNode( temp_node, "XSecCurve", 0 );
                     if ( xscrv_node )
