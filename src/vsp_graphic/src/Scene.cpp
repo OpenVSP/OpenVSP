@@ -77,6 +77,9 @@ void Scene::createObject(Common::VSPenum objectType, unsigned int * id_out)
     case Common::VSP_OBJECT_RULER:
         object = new Ruler();
         break;
+
+    default:
+        break;
     }
 
     assert(object);
@@ -116,6 +119,9 @@ void Scene::createObject(Common::VSPenum objectType, unsigned int * id_out, unsi
 
     case Common::VSP_OBJECT_PICK_LOCATION:
         object = new PickableLoc();
+        break;
+
+    default:
         break;
     }
 

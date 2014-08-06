@@ -127,6 +127,9 @@ void Camera::changeView( Common::VSPenum type )
     case Common::VSP_CAM_CENTER:
         center();
         break;
+
+    default:
+        break;
     }
 }
 

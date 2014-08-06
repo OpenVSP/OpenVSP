@@ -192,6 +192,9 @@ void TextureMgr::bind()
                 case Common::VSP_TEXTURE_LAYERED:
                     shader = GlobalShaderRepo()->getShader( SHADER_MULTITEXTURE02_LAYERED );
                     break;
+
+                default:
+                    break;
                 }
                 break;
 
@@ -204,6 +207,9 @@ void TextureMgr::bind()
 
                 case Common::VSP_TEXTURE_LAYERED:
                     shader = GlobalShaderRepo()->getShader( SHADER_MULTITEXTURE03_LAYERED );
+                    break;
+
+                default:
                     break;
                 }
                 break;
@@ -218,6 +224,9 @@ void TextureMgr::bind()
                 case Common::VSP_TEXTURE_LAYERED:
                     shader = GlobalShaderRepo()->getShader( SHADER_MULTITEXTURE04_LAYERED );
                     break;
+
+                default:
+                    break;
                 }
                 break;
 
@@ -230,6 +239,9 @@ void TextureMgr::bind()
 
                 case Common::VSP_TEXTURE_LAYERED:
                     shader = GlobalShaderRepo()->getShader( SHADER_MULTITEXTURE05_LAYERED );
+                    break;
+
+                default:
                     break;
                 }
                 break;
@@ -244,6 +256,9 @@ void TextureMgr::bind()
                 case Common::VSP_TEXTURE_LAYERED:
                     shader = GlobalShaderRepo()->getShader( SHADER_MULTITEXTURE06_LAYERED );
                     break;
+
+                default:
+                    break;
                 }
                 break;
 
@@ -257,6 +272,9 @@ void TextureMgr::bind()
                 case Common::VSP_TEXTURE_LAYERED:
                     shader = GlobalShaderRepo()->getShader( SHADER_MULTITEXTURE07_LAYERED );
                     break;
+
+                default:
+                    break;
                 }
                 break;
 
@@ -269,6 +287,9 @@ void TextureMgr::bind()
 
                 case Common::VSP_TEXTURE_LAYERED:
                     shader = GlobalShaderRepo()->getShader( SHADER_MULTITEXTURE08_LAYERED );
+                    break;
+
+                default:
                     break;
                 }
                 break;

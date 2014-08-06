@@ -36,6 +36,9 @@ void Marker::_draw()
     case Common::VSP_LINE_STRIP:
         _draw_Lines();
         break;
+
+    default:
+        break;
     }
 }
 
@@ -142,6 +145,9 @@ void Marker::_draw_VBuffer()
     case Common::VSP_LINE_STRIP:
         _vBuffer->draw( GL_LINE_STRIP );
         break;
+
+    default:
+        break;
     }
 }
 
@@ -164,6 +170,9 @@ void Marker::_draw_EBuffer()
 
     case Common::VSP_LINE_STRIP:
         _vBuffer->drawElem( GL_LINE_STRIP, _eBuffer->getElemSize(), ( void* )0 );
+        break;
+
+    default:
         break;
     }
     _eBuffer->unbind();

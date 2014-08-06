@@ -74,6 +74,9 @@ void Entity::_predraw()
     case Common::VSP_DRAW_MESH_TEXTURED:
         _draw_Mesh( 0.f, 0.f, 0.f, 0.f );
         break;
+
+    default:
+        break;
     }
 }
 
@@ -95,6 +98,9 @@ void Entity::_draw()
 
     case Common::VSP_DRAW_MESH_TEXTURED:
         _draw_Mesh_Textured();
+        break;
+
+    default:
         break;
     }
 }
@@ -271,6 +277,9 @@ void Entity::_draw_VBuffer()
     case Common::VSP_QUADS:
         _vBuffer->draw( GL_QUADS );
         break;
+
+    default:
+        break;
     }
 
     glFrontFace(GL_CCW);
@@ -299,6 +308,9 @@ void Entity::_draw_EBuffer()
         _eBuffer->bind();
         _vBuffer->drawElem( GL_QUADS, _eBuffer->getElemSize(), ( void* )0 );
         _eBuffer->unbind();
+        break;
+
+    default:
         break;
     }
 
