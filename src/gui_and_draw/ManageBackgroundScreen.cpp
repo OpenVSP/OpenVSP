@@ -93,6 +93,9 @@ bool ManageBackgroundScreen::Update()
         m_BackgroundUI->colorBackButton->value( 0 );
         m_BackgroundUI->jpegBackButton->value( 1 );
         break;
+
+    default:
+        break;
     }
 
     char str[256];

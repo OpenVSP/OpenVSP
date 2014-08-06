@@ -683,6 +683,9 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
                 _updateTextures( objects[i] );
             }
             break;
+
+        default:
+            break;
         }
     }
 
@@ -766,10 +769,16 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
                         objects[i]->m_Ruler.Offset.z() );
                     ruler->placeRuler( start, end, offset );
                     break;
+
+                default:
+                    break;
                 }
             }
             break;
-        }
+ 
+        default:
+            break;
+       }
     }
 
     // Now process all pickables.  Order matters.
@@ -905,6 +914,9 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
                 pObj->setGroup( objects[i]->m_FeedbackGroup );
                 pObj->update();
             }
+            break;
+
+        default:
             break;
         }
     }
@@ -1044,6 +1056,9 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
                     _loadMarkData( rObj, objects[i] );
                 }
             }
+            break;
+
+        default:
             break;
         }
     }

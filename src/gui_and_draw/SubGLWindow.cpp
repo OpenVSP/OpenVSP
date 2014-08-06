@@ -150,6 +150,9 @@ void VspSubGlWindow::_update( std::vector<DrawObj *> objects )
                 _loadLineData( rObj, objects[i] );
             }
             break;
+
+        default:
+            break;
         }
     }
 }
