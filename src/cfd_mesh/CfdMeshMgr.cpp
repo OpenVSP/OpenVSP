@@ -1016,7 +1016,7 @@ void CfdMeshMgrSingleton::ReadSurfs( const string &filename )
         for ( int c = 0 ; c < m_NumComps ; c++ )
         {
             fgets( buff, 256, file_id );
-            sscanf( buff, "%s", &geom_id );
+            sscanf( buff, "%19s", geom_id );
             fgets( buff, 256, file_id );
             sscanf( buff, "%d", &num_surfs );
             int tmp;
