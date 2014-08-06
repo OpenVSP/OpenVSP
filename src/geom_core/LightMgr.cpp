@@ -43,7 +43,7 @@ LightMgr::~LightMgr()
 
 Light * LightMgr::Get( unsigned int index )
 {
-    if( index >= 0 && index < NUMOFLIGHTS )
+    if( index < NUMOFLIGHTS )
     {
         return m_Lights[index];
     }
