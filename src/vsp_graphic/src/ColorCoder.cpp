@@ -67,7 +67,7 @@ void ColorCoder::genCodeBlock( int size, unsigned int * start_out, unsigned int 
 
 void ColorCoder::freeCodeBlock( unsigned int start, unsigned int end )
 {
-    if( start <= 0 || end - start < 0 )
+    if( (start <= 0) || (end < start) )
     {
         return;
     }
