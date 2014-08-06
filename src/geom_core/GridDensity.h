@@ -50,7 +50,7 @@ public:
 
     virtual void ParmChanged( Parm* parm_ptr, int type );
 
-    virtual void SetName( const string str )
+    virtual void SetName( const string &str )
     {
         m_Name = str;
     }
