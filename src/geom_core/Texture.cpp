@@ -13,11 +13,11 @@ Texture::Texture( std::string fileName )
     StringUtil::change_from_to( fileName, '/', ' ' );
     StringUtil::change_from_to( fileName, '\\', ' ' );
 
-    unsigned int displayIndex = fileName.find_last_of( ' ' );
+    size_t displayIndex = fileName.find_last_of( ' ' );
     if( displayIndex != std::string::npos )
     {
         displayName = fileName.substr( displayIndex + 1, fileName.size() - displayIndex - 1 );
-        unsigned int extIndex = displayName.find_last_of( '.' );
+        size_t extIndex = displayName.find_last_of( '.' );
         if( extIndex != std::string::npos )
         {
             std::string ext = displayName.substr( extIndex, displayName.size() - extIndex );
