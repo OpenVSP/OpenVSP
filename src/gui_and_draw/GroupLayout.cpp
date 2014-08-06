@@ -547,7 +547,7 @@ void GroupLayout::AddInput( StringInput& text_input, const char* label )
     assert( m_Group && m_Screen );
 
     //==== Button ====//
-    Fl_Button* button = AddParmButton( label );
+    AddParmButton( label );
 
     //==== Add Text Input ====//
     int iw = FitWidth( m_ButtonWidth, m_InputWidth );
@@ -570,7 +570,7 @@ void GroupLayout::AddOutput( StringOutput& string_output, const char* label )
     assert( m_Group && m_Screen );
 
     //==== Button ====//
-    Fl_Button* button = AddParmButton( label );
+    AddParmButton( label );
 
     //==== Add Text Input ====//
     int iw = FitWidth( m_ButtonWidth, m_InputWidth );
