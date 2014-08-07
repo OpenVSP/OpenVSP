@@ -61,7 +61,6 @@ Label.cpp
 LabelMgr.cpp
 Light.cpp
 LightMgr.cpp
-Material.cpp
 MaterialMgr.cpp
 Color.cpp
 ColorMgr.cpp
@@ -108,7 +107,6 @@ Label.h
 LabelMgr.h
 Light.h
 LightMgr.h
-Material.h
 MaterialMgr.h
 Color.h
 ColorMgr.h

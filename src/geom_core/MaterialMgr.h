@@ -1,7 +1,7 @@
 #if !defined(VSP_MATERIAL_MANAGER__INCLUDED_)
 #define VSP_MATERIAL_MANAGER__INCLUDED_
 
-#include "Material.h"
+#include "MaterialRepo.h"
 
 /*!
 * Manage and store Material for Geometry.
