@@ -7,77 +7,29 @@
 #include <string>
 #include <vector>
 
-struct MaterialPref
-{
-    std::string name;
-
-    double ambi[4];
-    double diff[4];
-    double spec[4];
-    double emis[4];
-
-    float shininess;
-};
-
-
-/*!
-* Material Information.
-*/
-class Material : public ParmContainer
+class MaterialPref
 {
 public:
-    /*!
-    * Construct a material.
-    */
-    Material();
-    /*!
-    * Destructor.
-    */
-    virtual ~Material();
+    MaterialPref();
+    virtual ~MaterialPref();
 
-public:
-    /*!
-    * Override from ParmContainer.
-    */
-    virtual void ParmChanged( Parm* parm_ptr, int type );
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
-public:
-    /*!
-    * Ambient values.
-    */
-    Parm m_AmbientR;
-    Parm m_AmbientG;
-    Parm m_AmbientB;
-    Parm m_AmbientA;
 
-    /*!
-    * Diffuse values.
-    */
-    Parm m_DiffuseR;
-    Parm m_DiffuseG;
-    Parm m_DiffuseB;
-    Parm m_DiffuseA;
+    void SetMaterialToDefault( );
+    void SetMaterial( MaterialPref * material );
+    void SetMaterial( std::string name, double ambi[], double diff[], double spec[], double emis[], double shin );
 
-    /*!
-    * Specular values.
-    */
-    Parm m_SpecularR;
-    Parm m_SpecularG;
-    Parm m_SpecularB;
-    Parm m_SpecularA;
 
-    /*!
-    * Shininess.
-    */
-    Parm m_Shininess;
+    std::string m_Name;
 
-    /*!
-    * Emission values.
-    */
-    Parm m_EmissionR;
-    Parm m_EmissionG;
-    Parm m_EmissionB;
-    Parm m_EmissionA;
+    double m_Ambi[4];
+    double m_Diff[4];
+    double m_Spec[4];
+    double m_Emis[4];
+
+    float m_Shininess;
 };
 
 /*!

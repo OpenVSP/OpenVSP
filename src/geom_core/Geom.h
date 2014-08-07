@@ -25,7 +25,7 @@
 #include "ResultsMgr.h"
 #include "TextureMgr.h"
 #include "ColorMgr.h"
-#include "MaterialMgr.h"
+#include "MaterialRepo.h"
 #include "DegenGeom.h"
 #include "XSec.h"
 #include "XSecCurve.h"
@@ -136,9 +136,9 @@ public:
     {
         return &m_ColorMgr;
     }
-    MaterialMgr * getMaterialMgr()
+    MaterialPref * getMaterial()
     {
-        return &m_MaterialMgr;
+        return &m_Material;
     }
     void SetDispSubSurfFlag( bool f )
     {
@@ -169,7 +169,7 @@ protected:
 
     TextureMgr m_TextureMgr;
     ColorMgr m_ColorMgr;
-    MaterialMgr m_MaterialMgr;
+    MaterialPref m_Material;
 };
 
 //==== Geom Base ====//
@@ -343,7 +343,7 @@ public:
 
     virtual void SetMaterialToDefault();
     virtual void SetMaterial( std::string name, double ambi[], double diff[], double spec[], double emis[], double shin );
-    virtual Material * GetMaterial();
+    virtual MaterialPref * GetMaterial();
 
     virtual bool GetSetFlag( int index );
     virtual vector< bool > GetSetFlags()

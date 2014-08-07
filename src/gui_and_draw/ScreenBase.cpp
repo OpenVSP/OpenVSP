@@ -588,14 +588,14 @@ bool GeomScreen::Update()
     m_ColorPicker.Update( geom_ptr->GetColor() );
 
     //==== Material ====//
-    Material * mat = geom_ptr->GetMaterial();
+    MaterialPref * mat = geom_ptr->GetMaterial();
 
     m_MaterialChoice.SetVal( 0 );
 
     std::vector< std::string > choices = m_MaterialChoice.GetItems();
     for ( int i = 0; i < (int)choices.size(); i++ )
     {
-        if( mat->GetName() == choices[i] )
+        if( mat->m_Name == choices[i] )
         {
             m_MaterialChoice.SetVal(i);
             break;
@@ -778,7 +778,7 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
 
         if( MaterialRepo.FindMaterial( index, mat ) )
         {
-            geom_ptr->SetMaterial( mat.name, mat.ambi, mat.diff, mat.spec, mat.emis, mat.shininess );
+            geom_ptr->SetMaterial( mat.m_Name, mat.m_Ambi, mat.m_Diff, mat.m_Spec, mat.m_Emis, mat.m_Shininess );
         }
         else
         {

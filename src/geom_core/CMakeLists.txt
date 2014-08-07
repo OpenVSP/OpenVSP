@@ -61,7 +61,6 @@ Label.cpp
 LabelMgr.cpp
 Light.cpp
 LightMgr.cpp
-MaterialMgr.cpp
 Color.cpp
 ColorMgr.cpp
 VspPreferences.cpp
@@ -107,7 +106,6 @@ Label.h
 LabelMgr.h
 Light.h
 LightMgr.h
-MaterialMgr.h
 Color.h
 ColorMgr.h
 VspPreferences.h
