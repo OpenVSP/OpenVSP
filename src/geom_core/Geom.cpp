@@ -1357,31 +1357,29 @@ VspSurf* Geom::GetSurfPtr( int indx )
 //==== Count Number of Sym Surfaces ====//
 int Geom::GetNumTotalSurfs()
 {
+    return GetNumSymmCopies() * GetNumMainSurfs();
+}
+
+//==== Count Number of Sym Copies of Each Surface ====//
+int Geom::GetNumSymmCopies()
+{
     int symFlag = GetSymFlag();
-    int numSymSurfs = GetNumMainSurfs();
-    int counter = 0;
+    int numSymCopies = 1;
     for ( int i = 0; i < SYM_NUM_TYPES ; i++ )
     {
         if ( symFlag & ( 1 << i ) )
         {
             if ( i < SYM_PLANAR_TYPES )
             {
-                numSymSurfs *= 2;
+                numSymCopies *= 2;
             }
             else
             {
-                numSymSurfs += ( numSymSurfs ) * ( m_SymRotN() - 1 );
+                numSymCopies += ( numSymCopies ) * ( m_SymRotN() - 1 );
             }
-            counter++;
         }
     }
-    return numSymSurfs;
-}
-
-//==== Count Number of Sym Copies of Each Surface ====//
-int Geom::GetNumSymmCopies()
-{
-    return GetNumTotalSurfs()/GetNumMainSurfs();
+    return numSymCopies;
 }
 
 //==== Count Number of Sym Flags ====//
