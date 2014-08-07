@@ -69,7 +69,6 @@ ManageViewScreen.cpp
 ManageBackgroundScreen.cpp
 ManageLabelScreen.cpp
 ManageCORScreen.cpp
-MaterialRepo.cpp
 AdvLinkScreen.h
 AwaveScreen.h
 BlankScreen.h
@@ -117,7 +116,6 @@ ManageViewScreen.h
 ManageBackgroundScreen.h
 ManageLabelScreen.h
 ManageCORScreen.h
-MaterialRepo.h
 )
 
 ADD_DEPENDENCIES(gui_and_draw
