@@ -20,16 +20,16 @@ struct MaterialPref
 /*!
 * Repository for materials.
 */
-class MaterialRepo
+class MaterialRepoSingleton
 {
 public:
     /*!
     * Singleton entry.
     */
-    static MaterialRepo * GetInstance()
+    static MaterialRepoSingleton& GetInstance()
     {
-        static MaterialRepo repo;
-        return &repo;
+        static MaterialRepoSingleton repo;
+        return repo;
     }
 
 public:
@@ -50,13 +50,16 @@ protected:
     /*!
     * Constructor.
     */
-    MaterialRepo();
+    MaterialRepoSingleton();
     /*!
     * Destructor.
     */
-    virtual ~MaterialRepo();
+    virtual ~MaterialRepoSingleton();
 
 private:
     std::vector<MaterialPref> m_Materials;
 };
+
+#define MaterialRepo MaterialRepoSingleton::GetInstance()
+
 #endif

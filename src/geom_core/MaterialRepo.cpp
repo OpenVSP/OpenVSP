@@ -2,7 +2,7 @@
 
 #include <assert.h>
 
-MaterialRepo::MaterialRepo()
+MaterialRepoSingleton::MaterialRepoSingleton()
 {
     MaterialPref mat;
 
@@ -288,11 +288,11 @@ MaterialRepo::MaterialRepo()
     m_Materials.push_back(mat);
 }
 
-MaterialRepo::~MaterialRepo()
+MaterialRepoSingleton::~MaterialRepoSingleton()
 {
 }
 
-bool MaterialRepo::FindMaterial( std::string name, MaterialPref& mat_out )
+bool MaterialRepoSingleton::FindMaterial( std::string name, MaterialPref& mat_out )
 {
     for( int i = 0; i < (int)m_Materials.size(); i++ )
     {
@@ -305,7 +305,7 @@ bool MaterialRepo::FindMaterial( std::string name, MaterialPref& mat_out )
     return false;
 }
 
-bool MaterialRepo::FindMaterial( int index, MaterialPref& mat_out )
+bool MaterialRepoSingleton::FindMaterial( int index, MaterialPref& mat_out )
 {
     if( index >= 0 && index < (int)m_Materials.size() )
     {
@@ -315,7 +315,7 @@ bool MaterialRepo::FindMaterial( int index, MaterialPref& mat_out )
     return false;
 }
 
-std::vector<std::string> MaterialRepo::GetNames()
+std::vector<std::string> MaterialRepoSingleton::GetNames()
 {
     std::vector<std::string> names;
 
