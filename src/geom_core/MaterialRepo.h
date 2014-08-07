@@ -4,6 +4,19 @@
 #include <string>
 #include <vector>
 
+
+struct MaterialPref
+{
+    std::string name;
+
+    double ambi[4];
+    double diff[4];
+    double spec[4];
+    double emis[4];
+
+    float shininess;
+};
+
 /*!
 * Repository for materials.
 */
@@ -18,19 +31,6 @@ public:
         static MaterialRepo repo;
         return &repo;
     }
-
-public:
-    struct MaterialPref
-    {
-        std::string name;
-
-        double ambi[4];
-        double diff[4];
-        double spec[4];
-        double emis[4];
-
-        float shininess;
-    };
 
 public:
     /*!

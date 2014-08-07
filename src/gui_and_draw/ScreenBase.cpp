@@ -774,7 +774,7 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         int index = m_MaterialChoice.GetVal() - 1;
 
-        MaterialRepo::MaterialPref mat;
+        MaterialPref mat;
 
         if( MaterialRepo::GetInstance()->FindMaterial( index, mat ) )
         {
