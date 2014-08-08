@@ -9,6 +9,8 @@ class GeomUI {open
     Fl_Window UIWindow {
       label {Geom Browser} open
       xywh {598 93 160 565} type Double box THIN_DOWN_BOX color 29 resizable visible
+      code0 {\#include "VSPWindow.h"}
+      class VSP_Window visible
     } {
       Fl_Box {} {
         label Geom

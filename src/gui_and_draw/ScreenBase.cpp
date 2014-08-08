@@ -20,6 +20,7 @@
 #include "Camera.h"
 #include "ScreenMgr.h"
 #include "MaterialEditScreen.h"
+#include "VSPWindow.h"
 
 using namespace vsp;
 
@@ -74,7 +75,7 @@ std::string VspScreen::getFeedbackGroupName()
 BasicScreen::BasicScreen( ScreenMgr* mgr, int w, int h, const string & title  ) : VspScreen( mgr )
 {
     //==== Window ====//
-    m_FLTK_Window = new Fl_Double_Window( w, h );
+    m_FLTK_Window = new VSP_Window( w, h );
     m_FLTK_Window->resizable( m_FLTK_Window );
     VspScreen::SetFlWindow( m_FLTK_Window );
 
@@ -243,6 +244,11 @@ Fl_Scroll* TabScreen::AddSubScroll( Fl_Group* group, int border, int lessh )
 GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     TabScreen( mgr, w, h, title )
 {
+    // Set the window as a geom screen window
+    VSP_Window* vsp_win = dynamic_cast<VSP_Window*>(m_FLTK_Window);
+
+    vsp_win->SetGeomScreenFlag( true );
+
     Fl_Group* gen_tab = AddTab( "Gen" );
     Fl_Group* xform_tab = AddTab( "XForm" );
     Fl_Group* subsurf_tab = AddTab( "Sub" );

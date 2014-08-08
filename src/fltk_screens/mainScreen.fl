@@ -9,6 +9,8 @@ class MainWinUI {open
     Fl_Window winShell {
       label {VSP 3.0 Alpha - 1/15/2013} open selected
       xywh {419 48 597 592} type Double resizable visible
+      code0 {\#include "VSPWindow.h"}
+      class VSP_Window visible
     } {
       Fl_Group MenuGroup {open
         xywh {0 0 595 30}

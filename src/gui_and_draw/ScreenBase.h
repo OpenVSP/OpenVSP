@@ -27,6 +27,7 @@
 #include "GuiDevice.h"
 #include "GroupLayout.h"
 #include "SubGLWindow.h"
+#include "VSPWindow.h"
 
 class ScreenMgr;
 class Vehicle;
@@ -60,6 +61,10 @@ public:
     virtual Fl_Double_Window* GetFlWindow()
     {
         return m_FLTK_Window;
+    }
+    virtual VSP_Window* GetVSPWindow()
+    {
+        return dynamic_cast<VSP_Window*>(m_FLTK_Window);
     }
     virtual void Show();
     virtual bool IsShown();

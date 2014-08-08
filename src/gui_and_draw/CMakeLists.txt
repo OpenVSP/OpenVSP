@@ -19,6 +19,7 @@ INCLUDE_DIRECTORIES(
     ${PROJECT_SOURCE_DIR}/geom_api
     ${GEOM_API_INCLUDE_DIR}
     ${STEPCODE_INCLUDE_DIR}
+    ${GUI_AND_DRAW_INCLUDE_DIR}
 )
 
 ADD_LIBRARY(gui_and_draw
@@ -70,6 +71,8 @@ ManageViewScreen.cpp
 ManageBackgroundScreen.cpp
 ManageLabelScreen.cpp
 ManageCORScreen.cpp
+MaterialRepo.cpp
+VSPWindow.cpp
 AdvLinkScreen.h
 AwaveScreen.h
 BlankScreen.h
@@ -118,6 +121,8 @@ ManageViewScreen.h
 ManageBackgroundScreen.h
 ManageLabelScreen.h
 ManageCORScreen.h
+MaterialRepo.h
+VSPWindow.h
 )
 
 ADD_DEPENDENCIES(gui_and_draw
