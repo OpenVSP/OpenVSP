@@ -1,4 +1,7 @@
 #include "MaterialMgr.h"
+#include "VehicleMgr.h"
+#include "Vehicle.h"
+#include "ParmMGr.h"
 #include "XmlUtil.h"
 
 #include <assert.h>
@@ -195,6 +198,9 @@ void Material::GetShininess( double &shiny )
 
 MaterialMgrSingleton::MaterialMgrSingleton()
 {
+    m_Alpha.Init( "Alpha", "Material", this, 1.0, 0.0, 1.0, false );
+    m_Shininess.Init( "Shininess", "Material", this, 0.0, 0.0, 128, false );
+
     Material mat;
 
     mat.m_Name = "Emerald";
@@ -516,6 +522,27 @@ MaterialMgrSingleton::MaterialMgrSingleton()
 
 MaterialMgrSingleton::~MaterialMgrSingleton()
 {
+}
+
+void MaterialMgrSingleton::ParmChanged( Parm* parm_ptr, int type )
+{
+    Geom* g = VehicleMgr.GetVehicle()->FindGeom( m_ActiveGeom );
+    if ( g )
+    {
+        if ( parm_ptr->GetID() == m_Alpha.GetID() )
+        {
+            g->GetMaterial()->SetAlpha( m_Alpha.Get() );
+        }
+        else if ( parm_ptr->GetID() == m_Shininess.GetID() )
+        {
+            g->GetMaterial()->SetShininess( m_Shininess.Get() );
+        }
+    }
+
+    if ( VehicleMgr.GetVehicle() )
+    {
+        VehicleMgr.GetVehicle()->ParmChanged( parm_ptr, Parm::SET );
+    }
 }
 
 bool MaterialMgrSingleton::FindMaterial( std::string name, Material& mat_out )

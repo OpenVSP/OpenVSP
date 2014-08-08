@@ -53,7 +53,7 @@ public:
 /*!
 * Repository for materials.
 */
-class MaterialMgrSingleton
+class MaterialMgrSingleton : ParmContainer
 {
 public:
     /*!
@@ -65,11 +65,16 @@ public:
         return repo;
     }
 
-public:
+    virtual void ParmChanged( Parm* parm_ptr, int type );
+
     bool FindMaterial( std::string name, Material& mat_out);
     bool FindMaterial( int index, Material& mat_out );
     std::vector<std::string> GetNames();
 
+    Parm m_Alpha;
+    Parm m_Shininess;
+
+    string m_ActiveGeom;
 protected:
 
     MaterialMgrSingleton();
