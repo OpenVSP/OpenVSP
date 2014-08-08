@@ -1,4 +1,5 @@
 #include "MaterialRepo.h"
+#include "XmlUtil.h"
 
 #include <assert.h>
 
@@ -14,12 +15,23 @@ MaterialPref::~MaterialPref()
 
 xmlNodePtr MaterialPref::EncodeXml( xmlNodePtr & node )
 {
-
+    xmlNodePtr material_node = xmlNewChild( node, NULL, BAD_CAST "Material", NULL );
+    if ( material_node )
+    {
+        XmlUtil::AddStringNode( material_node, "Name", m_Name );
+    }
+    return material_node;
 }
 
 xmlNodePtr MaterialPref::DecodeXml( xmlNodePtr & node )
 {
-
+    xmlNodePtr material_node = XmlUtil::GetNode( node, "Material", 0 );
+    if ( material_node )
+    {
+        string name = XmlUtil::FindString(  material_node, "Name", m_Name );
+        MaterialRepo.FindMaterial( name, *this );
+    }
+    return material_node;
 }
 
 void MaterialPref::SetMaterialToDefault( )
