@@ -257,14 +257,8 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_GenLayout.AddColorPicker( m_ColorPicker );
     m_GenLayout.AddYGap();
 
-    std::vector<std::string> matNames;
-    matNames = MaterialMgr.GetNames();
+    UpdateMaterialNames();
 
-    m_MaterialChoice.AddItem( "DEFAULT" );
-    for( int i = 0; i < (int) matNames.size(); i++ )
-    {
-        m_MaterialChoice.AddItem( matNames[i] );
-    }
     m_GenLayout.AddChoice( m_MaterialChoice, "Material:" );
     m_GenLayout.AddYGap();
 
@@ -590,6 +584,9 @@ bool GeomScreen::Update()
     //==== Material ====//
     Material * mat = geom_ptr->GetMaterial();
 
+    UpdateMaterialNames();
+    m_MaterialChoice.UpdateItems();
+
     m_MaterialChoice.SetVal( 0 );
 
     std::vector< std::string > choices = m_MaterialChoice.GetItems();
@@ -754,6 +751,18 @@ bool GeomScreen::Update()
     return true;
 }
 
+void GeomScreen::UpdateMaterialNames()
+{
+    std::vector<std::string> matNames;
+    matNames = MaterialMgr.GetNames();
+
+    m_MaterialChoice.ClearItems();
+    m_MaterialChoice.AddItem( "DEFAULT" );
+    for( int i = 0; i < (int) matNames.size(); i++ )
+    {
+        m_MaterialChoice.AddItem( matNames[i] );
+    }
+}
 
 void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
 {

@@ -166,6 +166,8 @@ public:
         ( ( GeomScreen* )data )->CallBack( w );
     }
 
+    virtual void UpdateMaterialNames();
+
     //==== Group Layouts ====//
     GroupLayout m_GenLayout;
     GroupLayout m_Density;
