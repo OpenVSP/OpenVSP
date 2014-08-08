@@ -21,6 +21,7 @@ public:
     virtual ~MaterialEditScreen();
     virtual bool Update();
     virtual void GuiDeviceCallBack( GuiDevice* device );
+    virtual void CloseCallBack( Fl_Widget *w );
 
     GroupLayout m_GenLayout;
 
@@ -34,7 +35,9 @@ public:
 
     StringInput m_MaterialNameInput;
     TriggerButton m_SaveApplyButton;
+    TriggerButton m_CancelButton;
 
+    string m_OrigColor;
 };
 
 #endif // !defined(MATERIALEDITSCREEN__INCLUDED_)

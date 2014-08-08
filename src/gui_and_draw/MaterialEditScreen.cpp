@@ -10,20 +10,26 @@
 
 #include "MaterialEditScreen.h"
 
-MaterialEditScreen::MaterialEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 300, 400, "Material Edit" )
+MaterialEditScreen::MaterialEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 300, 365, "Material Edit" )
 {
+    m_FLTK_Window->callback( staticCloseCB, this );
 
     m_GenLayout.SetGroupAndScreen( m_FLTK_Window, this );
-    m_GenLayout.AddDividerBox( "Ambient" );
+    m_GenLayout.AddY( 25 );
+
+    m_GenLayout.AddInput( m_MaterialNameInput, "Name" );
+    m_GenLayout.AddYGap();
+
+    m_GenLayout.AddDividerBox( "Ambient Reflection" );
     m_GenLayout.AddColorPicker( m_AmbientColorPicker );
     m_GenLayout.AddYGap();
-    m_GenLayout.AddDividerBox( "Diffuse" );
+    m_GenLayout.AddDividerBox( "Diffuse Reflection" );
     m_GenLayout.AddColorPicker( m_DiffuseColorPicker );
     m_GenLayout.AddYGap();
-    m_GenLayout.AddDividerBox( "Specular" );
+    m_GenLayout.AddDividerBox( "Specular Reflection" );
     m_GenLayout.AddColorPicker( m_SpecularColorPicker );
     m_GenLayout.AddYGap();
-    m_GenLayout.AddDividerBox( "Emissive" );
+    m_GenLayout.AddDividerBox( "Emitted Light" );
     m_GenLayout.AddColorPicker( m_EmissiveColorPicker );
     m_GenLayout.AddYGap();
 
@@ -32,8 +38,15 @@ MaterialEditScreen::MaterialEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 300
 
     m_GenLayout.AddYGap();
 
-    m_GenLayout.AddInput( m_MaterialNameInput, "Name" );
-    m_GenLayout.AddButton( m_SaveApplyButton, "Save & Apply" );
+    m_GenLayout.SetFitWidthFlag( false );
+    m_GenLayout.SetSameLineFlag( true );
+
+    m_GenLayout.SetButtonWidth( m_GenLayout.GetW() / 2 );
+    m_GenLayout.AddButton( m_SaveApplyButton, "Apply" );
+    m_GenLayout.AddButton( m_CancelButton, "Cancel" );
+
+    m_GenLayout.SetFitWidthFlag( true );
+    m_GenLayout.SetSameLineFlag( false );
 }
 
 
@@ -111,6 +124,10 @@ void MaterialEditScreen::GuiDeviceCallBack( GuiDevice* device )
         vec3d c = m_EmissiveColorPicker.GetColor();
         geom_ptr->GetMaterial()->SetEmissive( c );
     }
+    else if ( device == &m_MaterialNameInput )
+    {
+        geom_ptr->GetMaterial()->m_Name = m_MaterialNameInput.GetString();
+    }
     else if ( device == &m_SaveApplyButton )
     {
         string name = geom_ptr->GetMaterial()->m_Name;
@@ -139,10 +156,23 @@ void MaterialEditScreen::GuiDeviceCallBack( GuiDevice* device )
             m_ScreenMgr->Alert( "Please enter a unique name for your material." );
         }
     }
-    else if ( device == &m_MaterialNameInput )
+    else if ( device == &m_CancelButton )
     {
-        geom_ptr->GetMaterial()->m_Name = m_MaterialNameInput.GetString();
+        geom_ptr->GetMaterial()->SetMaterial( m_OrigColor );
+        Hide();
     }
 
     geom_ptr->ForceUpdate();
+}
+
+void MaterialEditScreen::CloseCallBack( Fl_Widget *w )
+{
+    assert( m_ScreenMgr );
+    Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
+    if ( geom_ptr )
+    {
+        geom_ptr->GetMaterial()->SetMaterial( m_OrigColor );
+        geom_ptr->ForceUpdate();
+    }
+    Hide();
 }

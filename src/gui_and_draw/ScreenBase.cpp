@@ -19,6 +19,7 @@
 #include "Viewport.h"
 #include "Camera.h"
 #include "ScreenMgr.h"
+#include "MaterialEditScreen.h"
 
 using namespace vsp;
 
@@ -805,6 +806,7 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_CustomMaterialButton )
     {
+        ( ( MaterialEditScreen* ) ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_MATERIAL_EDIT_SCREEN ) ) )->m_OrigColor = geom_ptr->GetMaterial()->m_Name;
         geom_ptr->GetMaterial()->m_Name = "Custom";
         m_ScreenMgr->ShowScreen( ScreenMgr::VSP_MATERIAL_EDIT_SCREEN );
     }
