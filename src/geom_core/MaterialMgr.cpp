@@ -4,16 +4,16 @@
 #include <assert.h>
 
 
-MaterialPref::MaterialPref()
+Material::Material()
 {
     SetMaterialToDefault();
 }
 
-MaterialPref::~MaterialPref()
+Material::~Material()
 {
 }
 
-xmlNodePtr MaterialPref::EncodeXml( xmlNodePtr & node )
+xmlNodePtr Material::EncodeXml( xmlNodePtr & node )
 {
     xmlNodePtr material_node = xmlNewChild( node, NULL, BAD_CAST "Material", NULL );
     if ( material_node )
@@ -23,7 +23,7 @@ xmlNodePtr MaterialPref::EncodeXml( xmlNodePtr & node )
     return material_node;
 }
 
-xmlNodePtr MaterialPref::DecodeXml( xmlNodePtr & node )
+xmlNodePtr Material::DecodeXml( xmlNodePtr & node )
 {
     xmlNodePtr material_node = XmlUtil::GetNode( node, "Material", 0 );
     if ( material_node )
@@ -34,7 +34,7 @@ xmlNodePtr MaterialPref::DecodeXml( xmlNodePtr & node )
     return material_node;
 }
 
-void MaterialPref::SetMaterialToDefault( )
+void Material::SetMaterialToDefault( )
 {
     m_Name = "Default";
     m_Ambi[0] = 0.2; m_Ambi[1] = 0.2; m_Ambi[2] = 0.2, m_Ambi[3] = 1.0;
@@ -45,7 +45,7 @@ void MaterialPref::SetMaterialToDefault( )
 }
 
 
-void MaterialPref::SetMaterial( MaterialPref * material )
+void Material::SetMaterial( Material * material )
 {
     for ( int j = 0; j < 4; j++ )
         m_Ambi[j] = material->m_Ambi[j];
@@ -63,7 +63,7 @@ void MaterialPref::SetMaterial( MaterialPref * material )
     m_Shininess = material->m_Shininess;
 }
 
-void MaterialPref::SetMaterial( std::string name, double ambi[], double diff[], double spec[], double emis[], double shin )
+void Material::SetMaterial( std::string name, double ambi[], double diff[], double spec[], double emis[], double shin )
 {
     for ( int j = 0; j < 4; j++ )
         m_Ambi[j] = ambi[j];
@@ -83,7 +83,7 @@ void MaterialPref::SetMaterial( std::string name, double ambi[], double diff[], 
 
 MaterialMgrSingleton::MaterialMgrSingleton()
 {
-    MaterialPref mat;
+    Material mat;
 
     mat.m_Name = "Emerald";
     mat.m_Ambi[0] = 0.0215; mat.m_Ambi[1] = 0.1745; mat.m_Ambi[2] = 0.0215, mat.m_Ambi[3] = 1.0;
@@ -371,7 +371,7 @@ MaterialMgrSingleton::~MaterialMgrSingleton()
 {
 }
 
-bool MaterialMgrSingleton::FindMaterial( std::string name, MaterialPref& mat_out )
+bool MaterialMgrSingleton::FindMaterial( std::string name, Material& mat_out )
 {
     for( int i = 0; i < (int)m_Materials.size(); i++ )
     {
@@ -384,7 +384,7 @@ bool MaterialMgrSingleton::FindMaterial( std::string name, MaterialPref& mat_out
     return false;
 }
 
-bool MaterialMgrSingleton::FindMaterial( int index, MaterialPref& mat_out )
+bool MaterialMgrSingleton::FindMaterial( int index, Material& mat_out )
 {
     if( index >= 0 && index < (int)m_Materials.size() )
     {

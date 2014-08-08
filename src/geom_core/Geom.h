@@ -136,7 +136,7 @@ public:
     {
         return &m_ColorMgr;
     }
-    MaterialPref * getMaterial()
+    Material * getMaterial()
     {
         return &m_Material;
     }
@@ -169,7 +169,7 @@ protected:
 
     TextureMgr m_TextureMgr;
     ColorMgr m_ColorMgr;
-    MaterialPref m_Material;
+    Material m_Material;
 };
 
 //==== Geom Base ====//
@@ -343,7 +343,7 @@ public:
 
     virtual void SetMaterialToDefault();
     virtual void SetMaterial( std::string name, double ambi[], double diff[], double spec[], double emis[], double shin );
-    virtual MaterialPref * GetMaterial();
+    virtual Material * GetMaterial();
 
     virtual bool GetSetFlag( int index );
     virtual vector< bool > GetSetFlags()

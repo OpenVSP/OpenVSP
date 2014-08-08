@@ -1153,7 +1153,7 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         // Set Render Destination to Main VSP Window.
         m_WireShadeDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
 
-        MaterialPref * material = m_GuiDraw.getMaterial();
+        Material * material = m_GuiDraw.getMaterial();
 
         for ( int j = 0; j < 4; j++ )
             m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[j] = (float)material->m_Ambi[j];
@@ -1274,7 +1274,7 @@ void Geom::SetMaterial( std::string name, double ambi[], double diff[], double s
     m_GuiDraw.SetMaterial( name, ambi, diff, spec, emis, shin );
 }
 
-MaterialPref * Geom::GetMaterial()
+Material * Geom::GetMaterial()
 {
     return m_GuiDraw.getMaterial();
 }

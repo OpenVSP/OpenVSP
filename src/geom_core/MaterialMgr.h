@@ -7,18 +7,18 @@
 #include <string>
 #include <vector>
 
-class MaterialPref
+class Material
 {
 public:
-    MaterialPref();
-    virtual ~MaterialPref();
+    Material();
+    virtual ~Material();
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
 
     void SetMaterialToDefault( );
-    void SetMaterial( MaterialPref * material );
+    void SetMaterial( Material * material );
     void SetMaterial( std::string name, double ambi[], double diff[], double spec[], double emis[], double shin );
 
 
@@ -51,11 +51,11 @@ public:
     /*!
     * Find material with specific name.
     */
-    bool FindMaterial( std::string name, MaterialPref& mat_out);
+    bool FindMaterial( std::string name, Material& mat_out);
     /*!
     * Find mateiral with index.
     */
-    bool FindMaterial( int index, MaterialPref& mat_out );
+    bool FindMaterial( int index, Material& mat_out );
     /*!
     * Get all material names.
     */
@@ -72,7 +72,7 @@ protected:
     virtual ~MaterialMgrSingleton();
 
 private:
-    std::vector<MaterialPref> m_Materials;
+    std::vector<Material> m_Materials;
 };
 
 #define MaterialMgr MaterialMgrSingleton::GetInstance()

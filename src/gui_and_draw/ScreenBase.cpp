@@ -588,7 +588,7 @@ bool GeomScreen::Update()
     m_ColorPicker.Update( geom_ptr->GetColor() );
 
     //==== Material ====//
-    MaterialPref * mat = geom_ptr->GetMaterial();
+    Material * mat = geom_ptr->GetMaterial();
 
     m_MaterialChoice.SetVal( 0 );
 
@@ -774,7 +774,7 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         int index = m_MaterialChoice.GetVal() - 1;
 
-        MaterialPref mat;
+        Material mat;
 
         if( MaterialMgr.FindMaterial( index, mat ) )
         {
