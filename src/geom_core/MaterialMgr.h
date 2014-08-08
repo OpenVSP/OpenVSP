@@ -20,6 +20,7 @@ public:
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
     void SetMaterialToDefault( );
+    void SetMaterial( std::string name );
     void SetMaterial( Material * material );
     void SetMaterial( std::string name, double ambi[], double diff[], double spec[], double emis[], double shin );
 

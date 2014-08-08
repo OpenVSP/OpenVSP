@@ -32,7 +32,7 @@ xmlNodePtr Material::DecodeNameXml( xmlNodePtr & node )
     if ( material_node )
     {
         string name = XmlUtil::FindString(  material_node, "Name", m_Name );
-        MaterialMgr.FindMaterial( name, *this );
+        SetMaterial( name );
     }
     return material_node;
 }
@@ -91,6 +91,10 @@ void Material::SetMaterialToDefault( )
     m_UserMaterial = false;
 }
 
+void Material::SetMaterial( std::string name )
+{
+    MaterialMgr.FindMaterial( name, *this );
+}
 
 void Material::SetMaterial( Material * material )
 {
