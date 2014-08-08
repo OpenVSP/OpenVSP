@@ -16,10 +16,26 @@ public:
     virtual xmlNodePtr EncodeNameXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeNameXml( xmlNodePtr & node );
 
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
     void SetMaterialToDefault( );
     void SetMaterial( Material * material );
     void SetMaterial( std::string name, double ambi[], double diff[], double spec[], double emis[], double shin );
+
+    void SetAmbient( vec3d color );
+    void SetDiffuse( vec3d color );
+    void SetSpecular( vec3d color );
+    void SetEmissive( vec3d color );
+    void SetAlpha( double alpha );
+    void SetShininess( double shiny );
+
+    void GetAmbient( vec3d &color );
+    void GetDiffuse( vec3d &color );
+    void GetSpecular( vec3d &color );
+    void GetEmissive( vec3d &color );
+    void GetAlpha( double &alpha );
+    void GetShininess( double &shiny );
 
 
     std::string m_Name;
@@ -30,6 +46,8 @@ public:
     double m_Emis[4];
 
     float m_Shininess;
+
+    bool m_UserMaterial;
 };
 
 /*!
