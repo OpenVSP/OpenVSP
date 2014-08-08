@@ -103,6 +103,8 @@ protected:
 class WingGeom : public GeomXSec
 {
 public:
+    enum {NO_END_CAP, FLAT_END_CAP, NUM_END_CAP_OPTIONS};
+
     WingGeom( Vehicle* vehicle_ptr );
     virtual ~WingGeom();
 
@@ -123,6 +125,12 @@ public:
 
 
     bool IsClosed() const;
+
+    bool CapRoot() const;
+    void CapRoot( bool cr );
+
+    bool CapTip() const;
+    void CapTip( bool ct );
 
     virtual void AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id = string() );
     virtual void Scale();
@@ -154,6 +162,12 @@ public:
     BoolParm m_RelativeTwistFlag;
     BoolParm m_RotateAirfoilMatchDiedralFlag;
 
+    //=== End Cap Parms ===//
+    IntParm m_RootEndCapOption;
+    IntParm m_RootEndCapTess;
+    IntParm m_TipEndCapOption;
+    IntParm m_TipEndCapTess;
+
 protected:
 
     virtual void ChangeID( string id );
@@ -181,6 +195,9 @@ protected:
     vector<int> m_TessUVec;
 
     bool m_Closed;
+
+    bool m_CapRoot;
+    bool m_CapTip;
 
 
 };

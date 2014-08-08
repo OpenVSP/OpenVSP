@@ -729,6 +729,9 @@ WingGeom::WingGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
 
     m_Closed = false;
 
+    m_CapRoot = true;
+    m_CapTip  = true;
+
     m_XSecSurf.SetParentContainer( GetID() );
     m_XSecSurf.SetBasicOrientation( vsp::Y_DIR, X_DIR, XS_SHIFT_LE, true );
 
@@ -752,6 +755,18 @@ WingGeom::WingGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
 
     m_TotalArea.Init( "TotalArea", m_Name, this, 1.0, 0.0001, 1000000.0 );
     m_TotalArea.SetDescript( "Total Planform Area" );
+
+    m_RootEndCapOption.Init("RootEndCapOption", m_Name, this, FLAT_END_CAP, NO_END_CAP, NUM_END_CAP_OPTIONS);
+    m_RootEndCapOption.SetDescript("Type of End Cap on Wing Root");
+
+    m_RootEndCapTess.Init("RootCapTess", m_Name, this, 3, 3, 51);
+    m_RootEndCapTess.SetDescript("Number of tessellated curves on root end cap");
+
+    m_TipEndCapOption.Init("TipEndCapOption",   m_Name, this, FLAT_END_CAP, NO_END_CAP, NUM_END_CAP_OPTIONS);
+    m_TipEndCapOption.SetDescript("Type of End Cap on Wing Tip");
+
+    m_TipEndCapTess.Init("TipCapTess", m_Name, this, 3, 3, 51);
+    m_TipEndCapTess.SetDescript("Number of tessellated curves on tip end cap");
 
     //==== Init Parms ====//
     m_TessU = 16;
@@ -900,6 +915,25 @@ bool WingGeom::IsClosed() const
     return m_Closed;
 }
 
+bool WingGeom::CapRoot() const
+{
+  return m_CapRoot;
+}
+
+void WingGeom::CapRoot( bool cr )
+{
+  m_CapRoot = cr;
+}
+
+bool WingGeom::CapTip() const
+{
+  return m_CapTip;
+}
+
+void WingGeom::CapTip( bool ct )
+{
+  m_CapTip = ct;
+}
 
 WingSect* WingGeom::GetWingSect( int index )
 {
