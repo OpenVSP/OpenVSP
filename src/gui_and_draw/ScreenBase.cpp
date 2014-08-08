@@ -13,7 +13,7 @@
 #include "SubSurfaceMgr.h"
 #include "SubSurface.h"
 #include "APIDefines.h"
-#include "MaterialRepo.h"
+#include "MaterialMgr.h"
 #include "GraphicEngine.h"
 #include "Display.h"
 #include "Viewport.h"

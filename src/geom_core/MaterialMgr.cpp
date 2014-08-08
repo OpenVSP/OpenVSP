@@ -1,4 +1,4 @@
-#include "MaterialRepo.h"
+#include "MaterialMgr.h"
 #include "XmlUtil.h"
 
 #include <assert.h>

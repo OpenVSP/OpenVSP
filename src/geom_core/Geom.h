@@ -25,7 +25,7 @@
 #include "ResultsMgr.h"
 #include "TextureMgr.h"
 #include "ColorMgr.h"
-#include "MaterialRepo.h"
+#include "MaterialMgr.h"
 #include "DegenGeom.h"
 #include "XSec.h"
 #include "XSecCurve.h"

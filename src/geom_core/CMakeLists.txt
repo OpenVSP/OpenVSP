@@ -36,7 +36,7 @@ GeomCoreTestSuite.cpp
 GridDensity.cpp
 Link.cpp
 LinkMgr.cpp
-MaterialRepo.cpp
+MaterialMgr.cpp
 MeshGeom.cpp
 Parm.cpp
 ParmContainer.cpp
@@ -80,7 +80,7 @@ GeomCoreTestSuite.h
 GridDensity.h
 Link.h
 LinkMgr.h
-MaterialRepo.h
+MaterialMgr.h
 MeshGeom.h
 Parm.h
 ParmContainer.h
