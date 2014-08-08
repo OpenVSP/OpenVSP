@@ -995,6 +995,8 @@ xmlNodePtr Vehicle::EncodeXml( xmlNodePtr & node, int set )
     // Encode label information.
     getVGuiDraw()->getLabelMgr()->EncodeXml( vehicle_node );
 
+    MaterialMgr.EncodeXml( node );
+
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
@@ -1024,6 +1026,8 @@ xmlNodePtr Vehicle::DecodeXml( xmlNodePtr & node )
 
         // Decode label information.
         getVGuiDraw()->getLabelMgr()->DecodeXml( vehicle_node );
+
+        MaterialMgr.DecodeXml( node );
 
         int num = XmlUtil::GetNumNames( vehicle_node, "Geom" );
         for ( int i = 0 ; i < num ; i++ )
