@@ -69,6 +69,12 @@ public:
 
     bool FindMaterial( std::string name, Material& mat_out);
     bool FindMaterial( int index, Material& mat_out );
+
+    void AddMaterial( const Material &mat );
+
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+
     std::vector<std::string> GetNames();
 
     Parm m_Alpha;

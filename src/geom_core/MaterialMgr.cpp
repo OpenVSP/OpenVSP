@@ -579,3 +579,47 @@ std::vector<std::string> MaterialMgrSingleton::GetNames()
 
     return names;
 }
+
+void MaterialMgrSingleton::AddMaterial( const Material &mat )
+{
+    m_Materials.push_back( mat );
+}
+
+xmlNodePtr MaterialMgrSingleton::EncodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr materials_node = xmlNewChild( node, NULL, BAD_CAST "Materials", NULL );
+    if ( materials_node )
+    {
+        for( int i = 0; i < (int)m_Materials.size(); i++ )
+        {
+            if( m_Materials[i].m_UserMaterial )
+            {
+                m_Materials[i].EncodeXml( materials_node );
+            }
+        }
+    }
+    return materials_node;
+}
+
+xmlNodePtr MaterialMgrSingleton::DecodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr materials_node = XmlUtil::GetNode( node, "Materials", 0 );
+    if ( materials_node )
+    {
+        int num = XmlUtil::GetNumNames( materials_node, "Material" );
+        for ( int i = 0 ; i < num ; i++ )
+        {
+            xmlNodePtr mat_node = XmlUtil::GetNode( materials_node, "Material", i );
+            if ( mat_node )
+            {
+
+                Material mat;
+                mat.DecodeXml( mat_node );
+                mat.m_UserMaterial = true;
+
+                AddMaterial( mat );
+            }
+        }
+    }
+    return materials_node;
+}
