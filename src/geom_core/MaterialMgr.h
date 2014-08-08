@@ -13,8 +13,8 @@ public:
     Material();
     virtual ~Material();
 
-    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
-    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr EncodeNameXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeNameXml( xmlNodePtr & node );
 
 
     void SetMaterialToDefault( );

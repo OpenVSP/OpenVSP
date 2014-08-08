@@ -13,7 +13,7 @@ Material::~Material()
 {
 }
 
-xmlNodePtr Material::EncodeXml( xmlNodePtr & node )
+xmlNodePtr Material::EncodeNameXml( xmlNodePtr & node )
 {
     xmlNodePtr material_node = xmlNewChild( node, NULL, BAD_CAST "Material", NULL );
     if ( material_node )
@@ -23,7 +23,7 @@ xmlNodePtr Material::EncodeXml( xmlNodePtr & node )
     return material_node;
 }
 
-xmlNodePtr Material::DecodeXml( xmlNodePtr & node )
+xmlNodePtr Material::DecodeNameXml( xmlNodePtr & node )
 {
     xmlNodePtr material_node = XmlUtil::GetNode( node, "Material", 0 );
     if ( material_node )

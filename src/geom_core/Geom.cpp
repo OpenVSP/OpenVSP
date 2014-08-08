@@ -1005,7 +1005,7 @@ xmlNodePtr Geom::EncodeXml( xmlNodePtr & node )
     GeomXForm::EncodeXml( node );
 
     // Encode Material Info.
-    m_GuiDraw.getMaterial()->EncodeXml( node );
+    m_GuiDraw.getMaterial()->EncodeNameXml( node );
 
     // Encode Color Info.
     m_GuiDraw.getColorMgr()->EncodeXml( node );
@@ -1047,7 +1047,7 @@ xmlNodePtr Geom::DecodeXml( xmlNodePtr & node )
     GeomXForm::DecodeXml( node );
 
     // Decode Material Info.
-    m_GuiDraw.getMaterial()->DecodeXml( node );
+    m_GuiDraw.getMaterial()->DecodeNameXml( node );
 
     // Decode Color Info.
     m_GuiDraw.getColorMgr()->DecodeXml( node );
