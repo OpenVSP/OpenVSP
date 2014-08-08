@@ -66,27 +66,13 @@ public:
     }
 
 public:
-    /*!
-    * Find material with specific name.
-    */
     bool FindMaterial( std::string name, Material& mat_out);
-    /*!
-    * Find mateiral with index.
-    */
     bool FindMaterial( int index, Material& mat_out );
-    /*!
-    * Get all material names.
-    */
     std::vector<std::string> GetNames();
 
 protected:
-    /*!
-    * Constructor.
-    */
+
     MaterialMgrSingleton();
-    /*!
-    * Destructor.
-    */
     virtual ~MaterialMgrSingleton();
 
 private:
