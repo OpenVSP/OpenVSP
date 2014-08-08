@@ -44,6 +44,7 @@ public:
            VSP_MANAGE_GEOM_SCREEN,
            VSP_MANAGE_TEXTURE_SCREEN,
            VSP_MASS_PROP_SCREEN,
+           VSP_MATERIAL_EDIT_SCREEN,
            VSP_PARM_DEBUG_SCREEN,
            VSP_PARM_LINK_SCREEN,
            VSP_PARM_SCREEN,

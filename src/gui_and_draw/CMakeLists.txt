@@ -45,6 +45,7 @@ ManageLightingScreen.cpp
 ManageTextureScreen.cpp
 ManageViewScreen.cpp
 MassPropScreen.cpp
+MaterialEditScreen.cpp
 MeshScreen.cpp
 ParmDebugScreen.cpp
 ParmLinkScreen.cpp
@@ -92,6 +93,7 @@ ManageLightingScreen.h
 ManageTextureScreen.h
 ManageViewScreen.h
 MassPropScreen.h
+MaterialEditScreen.h
 MeshScreen.h
 ParmDebugScreen.h
 ParmLinkScreen.h

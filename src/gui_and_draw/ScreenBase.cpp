@@ -18,6 +18,7 @@
 #include "Display.h"
 #include "Viewport.h"
 #include "Camera.h"
+#include "ScreenMgr.h"
 
 using namespace vsp;
 
@@ -259,7 +260,15 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
 
     UpdateMaterialNames();
 
+    m_GenLayout.SetFitWidthFlag( false );
+    m_GenLayout.SetSameLineFlag( true );
+
     m_GenLayout.AddChoice( m_MaterialChoice, "Material:" );
+
+    m_GenLayout.AddButton( m_CustomMaterialButton, "Custom" );
+    m_GenLayout.SetFitWidthFlag( true );
+    m_GenLayout.SetSameLineFlag( false );
+
     m_GenLayout.AddYGap();
 
     m_ExportNameChoice.AddItem( "NONE" );
@@ -793,6 +802,11 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             geom_ptr->SetMaterialToDefault();
         }
+    }
+    else if ( device == &m_CustomMaterialButton )
+    {
+        geom_ptr->GetMaterial()->m_Name = "Custom";
+        m_ScreenMgr->ShowScreen( ScreenMgr::VSP_MATERIAL_EDIT_SCREEN );
     }
     else if ( device == &m_ScaleAcceptButton )
     {

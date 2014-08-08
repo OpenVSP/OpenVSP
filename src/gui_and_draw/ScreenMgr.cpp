@@ -26,6 +26,7 @@
 #include "ManageTextureScreen.h"
 #include "ManageViewScreen.h"
 #include "MassPropScreen.h"
+#include "MaterialEditScreen.h"
 #include "ParmDebugScreen.h"
 #include "ParmLinkScreen.h"
 #include "ParmScreen.h"
@@ -143,6 +144,7 @@ void ScreenMgr::Init()
     m_ScreenVec[VSP_MANAGE_GEOM_SCREEN] = new ManageGeomScreen( this );
     m_ScreenVec[VSP_MANAGE_TEXTURE_SCREEN] = new ManageTextureScreen( this );
     m_ScreenVec[VSP_MASS_PROP_SCREEN] = new MassPropScreen( this );
+    m_ScreenVec[VSP_MATERIAL_EDIT_SCREEN] = new MaterialEditScreen( this );
     m_ScreenVec[VSP_PARM_DEBUG_SCREEN] = new ParmDebugScreen( this );
     m_ScreenVec[VSP_PARM_LINK_SCREEN] = new ParmLinkScreen( this );
     m_ScreenVec[VSP_PARM_SCREEN] = new ParmScreen( this );
