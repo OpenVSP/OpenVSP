@@ -35,15 +35,15 @@ public:
 /*!
 * Repository for materials.
 */
-class MaterialRepoSingleton
+class MaterialMgrSingleton
 {
 public:
     /*!
     * Singleton entry.
     */
-    static MaterialRepoSingleton& GetInstance()
+    static MaterialMgrSingleton& GetInstance()
     {
-        static MaterialRepoSingleton repo;
+        static MaterialMgrSingleton repo;
         return repo;
     }
 
@@ -65,16 +65,16 @@ protected:
     /*!
     * Constructor.
     */
-    MaterialRepoSingleton();
+    MaterialMgrSingleton();
     /*!
     * Destructor.
     */
-    virtual ~MaterialRepoSingleton();
+    virtual ~MaterialMgrSingleton();
 
 private:
     std::vector<MaterialPref> m_Materials;
 };
 
-#define MaterialRepo MaterialRepoSingleton::GetInstance()
+#define MaterialMgr MaterialMgrSingleton::GetInstance()
 
 #endif

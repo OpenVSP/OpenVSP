@@ -29,7 +29,7 @@ xmlNodePtr MaterialPref::DecodeXml( xmlNodePtr & node )
     if ( material_node )
     {
         string name = XmlUtil::FindString(  material_node, "Name", m_Name );
-        MaterialRepo.FindMaterial( name, *this );
+        MaterialMgr.FindMaterial( name, *this );
     }
     return material_node;
 }
@@ -81,7 +81,7 @@ void MaterialPref::SetMaterial( std::string name, double ambi[], double diff[], 
     m_Shininess = shin;
 }
 
-MaterialRepoSingleton::MaterialRepoSingleton()
+MaterialMgrSingleton::MaterialMgrSingleton()
 {
     MaterialPref mat;
 
@@ -367,11 +367,11 @@ MaterialRepoSingleton::MaterialRepoSingleton()
     m_Materials.push_back(mat);
 }
 
-MaterialRepoSingleton::~MaterialRepoSingleton()
+MaterialMgrSingleton::~MaterialMgrSingleton()
 {
 }
 
-bool MaterialRepoSingleton::FindMaterial( std::string name, MaterialPref& mat_out )
+bool MaterialMgrSingleton::FindMaterial( std::string name, MaterialPref& mat_out )
 {
     for( int i = 0; i < (int)m_Materials.size(); i++ )
     {
@@ -384,7 +384,7 @@ bool MaterialRepoSingleton::FindMaterial( std::string name, MaterialPref& mat_ou
     return false;
 }
 
-bool MaterialRepoSingleton::FindMaterial( int index, MaterialPref& mat_out )
+bool MaterialMgrSingleton::FindMaterial( int index, MaterialPref& mat_out )
 {
     if( index >= 0 && index < (int)m_Materials.size() )
     {
@@ -394,7 +394,7 @@ bool MaterialRepoSingleton::FindMaterial( int index, MaterialPref& mat_out )
     return false;
 }
 
-std::vector<std::string> MaterialRepoSingleton::GetNames()
+std::vector<std::string> MaterialMgrSingleton::GetNames()
 {
     std::vector<std::string> names;
 

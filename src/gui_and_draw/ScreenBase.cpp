@@ -258,7 +258,7 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_GenLayout.AddYGap();
 
     std::vector<std::string> matNames;
-    matNames = MaterialRepo.GetNames();
+    matNames = MaterialMgr.GetNames();
 
     m_MaterialChoice.AddItem( "DEFAULT" );
     for( int i = 0; i < (int) matNames.size(); i++ )
@@ -776,7 +776,7 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
 
         MaterialPref mat;
 
-        if( MaterialRepo.FindMaterial( index, mat ) )
+        if( MaterialMgr.FindMaterial( index, mat ) )
         {
             geom_ptr->SetMaterial( mat.m_Name, mat.m_Ambi, mat.m_Diff, mat.m_Spec, mat.m_Emis, mat.m_Shininess );
         }
