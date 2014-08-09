@@ -1069,6 +1069,8 @@ void CfdMeshMgrSingleton::ReadSurfs( const string &filename )
         fclose( file_id );
     }
 
+    DeleteDuplicateSurfs();
+
     //==== Combine Components With Matching Surface Edges ====//
     map< int, int > mergeCompMap;
     for ( int s = 0 ; s < ( int )m_SurfVec.size() - 1 ; s++ )
@@ -1140,6 +1142,44 @@ void CfdMeshMgrSingleton::BuildDomain()
             }
         }
     }
+}
+
+void CfdMeshMgrSingleton::DeleteDuplicateSurfs()
+{
+    int nsurf = m_SurfVec.size();
+
+    vector < bool > delflag( nsurf );
+    for ( int i = 0 ; i < nsurf ; i++ )
+    {
+        delflag[i] = false;
+    }
+
+    for ( int s = 0 ; s < nsurf - 1 ; s++ )
+    {
+        for ( int t = s + 1 ; t < nsurf ; t++ )
+        {
+            if ( m_SurfVec[s]->SurfMatch( m_SurfVec[t] ) )
+            {
+                delflag[s] = true;
+                delflag[t] = true;
+            }
+        }
+    }
+
+    vector < Surf* > keepSurf;
+    for ( int i = 0 ; i < nsurf ; i++ )
+    {
+        if ( delflag[i] )
+        {
+            delete m_SurfVec[i];
+        }
+        else
+        {
+            keepSurf.push_back( m_SurfVec[i] );
+        }
+    }
+
+    m_SurfVec = keepSurf;
 }
 
 void CfdMeshMgrSingleton::BuildGrid()

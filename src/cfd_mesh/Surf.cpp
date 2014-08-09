@@ -1990,6 +1990,203 @@ bool Surf::BorderMatch( Surf* otherSurf )
     return false;
 }
 
+bool Surf::SurfMatch( Surf* otherSurf )
+{
+    double tol = 0.00000001;
+
+    if ( otherSurf )
+    {
+        vector< vector< vec3d > > oPnts = otherSurf->GetControlPnts();
+        int oNumU = oPnts.size();
+        int oNumW = oPnts[0].size();
+
+        if ( oNumU == m_NumU && oNumW == m_NumW ) // Possible match
+        {
+            bool match = true;
+            for ( int i = 0; i < m_NumU; i++ )
+            {
+                for ( int j = 0; j < m_NumW; j++ )
+                {
+                    if ( dist_squared( m_Pnts[ i ][ j ], oPnts[ i ][ j ] ) > tol )
+                    {
+                        match = false;
+                        break;
+                    }
+                }
+                if ( !match )
+                {
+                    break;
+                }
+            }
+
+            if ( match )
+            {
+                return true;
+            }
+
+            match = true;
+            for ( int i = 0; i < m_NumU; i++ )
+            {
+                for ( int j = 0; j < m_NumW; j++ )
+                {
+                    if ( dist_squared( m_Pnts[ i ][ j ], oPnts[ m_NumU - 1 - i ][ j ] ) > tol )
+                    {
+                        match = false;
+                        break;
+                    }
+                }
+                if ( !match )
+                {
+                    break;
+                }
+            }
+
+
+            if ( match )
+            {
+                return true;
+            }
+
+            match = true;
+            for ( int i = 0; i < m_NumU; i++ )
+            {
+                for ( int j = 0; j < m_NumW; j++ )
+                {
+                    if ( dist_squared( m_Pnts[ i ][ j ], oPnts[ i ][ m_NumW - 1 - j ] ) > tol )
+                    {
+                        match = false;
+                        break;
+                    }
+                }
+                if ( !match )
+                {
+                    break;
+                }
+            }
+
+
+            if ( match )
+            {
+                return true;
+            }
+
+            match = true;
+            for ( int i = 0; i < m_NumU; i++ )
+            {
+                for ( int j = 0; j < m_NumW; j++ )
+                {
+                    if ( dist_squared( m_Pnts[ i ][ j ], oPnts[ m_NumU - 1 - i ][ m_NumW - 1 - j ] ) > tol )
+                    {
+                        match = false;
+                        break;
+                    }
+                }
+                if ( !match )
+                {
+                    break;
+                }
+            }
+
+            if ( match )
+            {
+                return true;
+            }
+        }
+
+        if ( oNumU == m_NumW && oNumW == m_NumU ) // Possible flipped match
+        {
+            bool match = true;
+            for ( int i = 0; i < m_NumU; i++ )
+            {
+                for ( int j = 0; j < m_NumW; j++ )
+                {
+                    if ( dist_squared( m_Pnts[ i ][ j ], oPnts[ j ][ i ] ) > tol )
+                    {
+                        match = false;
+                        break;
+                    }
+                }
+                if ( !match )
+                {
+                    break;
+                }
+            }
+
+            if ( match )
+            {
+                return true;
+            }
+
+            match = true;
+            for ( int i = 0; i < m_NumU; i++ )
+            {
+                for ( int j = 0; j < m_NumW; j++ )
+                {
+                    if ( dist_squared( m_Pnts[ i ][ j ], oPnts[ m_NumW - 1 - j ][ i ] ) > tol )
+                    {
+                        match = false;
+                        break;
+                    }
+                }
+                if ( !match )
+                {
+                    break;
+                }
+            }
+
+            if ( match )
+            {
+                return true;
+            }
+
+            match = true;
+            for ( int i = 0; i < m_NumU; i++ )
+            {
+                for ( int j = 0; j < m_NumW; j++ )
+                {
+                    if ( dist_squared( m_Pnts[ i ][ j ], oPnts[ j ][ m_NumU - 1 - i ] ) > tol )
+                    {
+                        match = false;
+                        break;
+                    }
+                }
+                if ( !match )
+                {
+                    break;
+                }
+            }
+
+            if ( match )
+            {
+                return true;
+            }
+
+            match = true;
+            for ( int i = 0; i < m_NumU; i++ )
+            {
+                for ( int j = 0; j < m_NumW; j++ )
+                {
+                    if ( dist_squared( m_Pnts[ i ][ j ], oPnts[ m_NumW - 1 - j ][ m_NumU - 1 - i ] ) > tol )
+                    {
+                        match = false;
+                        break;
+                    }
+                }
+                if ( !match )
+                {
+                    break;
+                }
+            }
+
+            if ( match )
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 //==== Functions to Map Between Surf and VspSurf Parameterizations ====//
 vec2d Surf::Convert2VspSurf( double u, double w )
 {

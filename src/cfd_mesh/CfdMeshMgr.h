@@ -245,6 +245,7 @@ public:
     virtual Edge* FindAddEdge( map< int, vector<Edge*> > & edgeMap, vector< Node* > & nodeVec, int ind1, int ind2 );
 
     virtual void BuildDomain();
+    virtual void DeleteDuplicateSurfs();
     virtual void BuildGrid();
 
     enum { NO_OUTPUT, CFD_OUTPUT, FEA_OUTPUT, };

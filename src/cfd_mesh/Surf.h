@@ -175,6 +175,7 @@ public:
     void LoadBorderCurves( vector< vector <vec3d> > & borderCurves );
     bool BorderCurveMatch( vector< vec3d > & curveA, vector< vec3d > & curveB );
     bool BorderMatch( Surf* otherSurf );
+    bool SurfMatch( Surf* otherSurf );
 
     void SetWakeFlag( bool flag )
     {
