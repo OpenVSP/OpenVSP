@@ -331,6 +331,7 @@ protected:
 class Geom : public GeomXForm
 {
 public:
+    enum {NO_END_CAP, FLAT_END_CAP, NUM_END_CAP_OPTIONS};
 
     Geom( Vehicle* vehicle_ptr );
     virtual ~Geom();
@@ -513,6 +514,31 @@ public:
     virtual void AppendWakeEdges( vector< vector< vec3d > > & edges );
     virtual bool HasWingTypeSurfs();
 
+    //==== Override end capping ====//
+    bool CapRoot() const
+    {
+      return m_CapRoot;
+    }
+    void CapRoot( bool cr )
+    {
+      m_CapRoot = cr;
+    }
+
+    bool CapTip() const
+    {
+      return m_CapTip;
+    }
+    void CapTip( bool ct )
+    {
+      m_CapTip = ct;
+    }
+
+    //=== End Cap Parms ===//
+    IntParm m_RootEndCapOption;
+    IntParm m_RootEndCapTess;
+    IntParm m_TipEndCapOption;
+    IntParm m_TipEndCapTess;
+
 protected:
 
     virtual void UpdateSurf() = 0;
@@ -550,6 +576,10 @@ protected:
 
     //==== Wake for CFD Mesh ====//
     bool m_WakeActiveFlag;
+
+    //==== Manual override of caps ====//
+    bool m_CapRoot;
+    bool m_CapTip;
 };
 
 //==== GeomXSec  ====//

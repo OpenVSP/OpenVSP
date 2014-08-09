@@ -595,6 +595,9 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_Type.m_Type = GEOM_GEOM_TYPE;
     m_Type.m_Name = m_Name;
 
+    m_CapRoot = true;
+    m_CapTip  = true;
+
     m_TessU.Init( "Tess_U", "Shape", this, 8, 2,  1000 );
     m_TessU.SetDescript( "Number of tessellated curves in the U direction" );
     m_TessW.Init( "Tess_W", "Shape", this, 9, 2,  1000 );
@@ -631,6 +634,19 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_MassArea.Init( "Mass_Area", "Mass_Props", this, 1, 1e-12, 1e12 );
     m_MassPrior.Init( "Mass_Prior", "Mass_Props", this, 0, 0, 1e12 );
     m_ShellFlag.Init( "Shell_Flag", "Mass_Props", this, false, 0, 1 );
+
+    // End Cap Options
+    m_RootEndCapOption.Init("RootEndCapOption", m_Name, this, FLAT_END_CAP, NO_END_CAP, NUM_END_CAP_OPTIONS);
+    m_RootEndCapOption.SetDescript("Type of End Cap on Wing Root");
+
+    m_RootEndCapTess.Init("RootCapTess", m_Name, this, 3, 3, 51);
+    m_RootEndCapTess.SetDescript("Number of tessellated curves on root end cap");
+
+    m_TipEndCapOption.Init("TipEndCapOption",   m_Name, this, FLAT_END_CAP, NO_END_CAP, NUM_END_CAP_OPTIONS);
+    m_TipEndCapOption.SetDescript("Type of End Cap on Wing Tip");
+
+    m_TipEndCapTess.Init("TipCapTess", m_Name, this, 3, 3, 51);
+    m_TipEndCapTess.SetDescript("Number of tessellated curves on tip end cap");
 
     // Geom needs at least one surf
     m_MainSurfVec.push_back( VspSurf() );
