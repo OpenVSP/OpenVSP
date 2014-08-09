@@ -734,6 +734,7 @@ void Geom::Update()
     GeomXForm::Update();
 
     UpdateSurf();       // Must be implemented by subclass.
+// TODO:    UpdateEndCaps(); // cycle through all vspsurfs, check if wing type then cap using new Code-Eli cap surface creator
     UpdateFeatureLines();
     UpdateSymmAttach();
 

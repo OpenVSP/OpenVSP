@@ -41,6 +41,11 @@ protected:
     SliderAdjRangeInput m_PlanAreaSlider;
     StringOutput m_PlanAROutput;
 
+    Choice m_RootCapTypeChoice;
+    SliderAdjRangeInput m_RootTessSlider;
+    Choice m_TipCapTypeChoice;
+    SliderAdjRangeInput m_TipTessSlider;
+
     // Wing section tab
     GroupLayout m_SectionLayout;
 

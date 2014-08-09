@@ -38,6 +38,20 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 640, "Wing" )
     m_PlanLayout.SetButtonWidth( 100 );
     m_PlanLayout.AddOutput( m_PlanAROutput, "Aspect Ratio" );
 
+    m_PlanLayout.AddYGap();
+    
+    m_PlanLayout.AddDividerBox( "Tip Treatment" );
+
+    m_RootCapTypeChoice.AddItem("None");
+    m_RootCapTypeChoice.AddItem("Flat");
+    m_PlanLayout.AddChoice(m_RootCapTypeChoice, "Root Cap Type");
+    m_PlanLayout.AddSlider( m_RootTessSlider, "Root Cap Tess", 10, "%3.0f" );
+    m_PlanLayout.AddYGap();
+    m_TipCapTypeChoice.AddItem("None");
+    m_TipCapTypeChoice.AddItem("Flat");
+    m_PlanLayout.AddChoice(m_TipCapTypeChoice, "Tip Cap Type");
+    m_PlanLayout.AddSlider( m_TipTessSlider, "Tip Cap Tess", 10, "%3.0f" );
+
     Fl_Group* sect_tab = AddTab( "Sect" );
     Fl_Group* sect_group = AddSubGroup( sect_tab, 5 );
 
@@ -380,6 +394,25 @@ bool WingScreen::Update()
     m_PlanProjSpanSlider.Update( wing_ptr->m_TotalProjSpan.GetID() );
     m_PlanChordSlider.Update( wing_ptr->m_TotalChord.GetID() );
     m_PlanAreaSlider.Update( wing_ptr->m_TotalArea.GetID() );
+
+    m_RootCapTypeChoice.Update( wing_ptr->m_RootEndCapOption.GetID() );
+    if ( wing_ptr->m_RootEndCapOption() == WingGeom::NO_END_CAP )
+    {
+      m_RootTessSlider.Deactivate();
+    }
+    else
+    {
+      m_RootTessSlider.Update( wing_ptr->m_RootEndCapTess.GetID() );
+    }
+    m_TipCapTypeChoice.Update( wing_ptr->m_TipEndCapOption.GetID() );
+    if ( wing_ptr->m_TipEndCapOption() == WingGeom::NO_END_CAP )
+    {
+      m_TipTessSlider.Deactivate();
+    }
+    else
+    {
+      m_TipTessSlider.Update( wing_ptr->m_TipEndCapTess.GetID() );
+    }
 
 
     sprintf( str, "       %d", wing_ptr->NumXSec()-1 );
