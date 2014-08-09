@@ -980,7 +980,7 @@ void Geom::UpdateDrawObj()
             {
                 m_FeatureDrawObj_vec.push_back( DrawObj() );
                 int indx = m_FeatureDrawObj_vec.size() - 1;
-                m_SurfVec[i].TessUFeatureLine( j, 100, m_FeatureDrawObj_vec[indx].m_PntVec );
+                m_SurfVec[i].TessUFeatureLine( j, 101, m_FeatureDrawObj_vec[indx].m_PntVec );
                 m_FeatureDrawObj_vec[indx].m_GeomChanged = true;
             }
 
@@ -989,7 +989,7 @@ void Geom::UpdateDrawObj()
             {
                 m_FeatureDrawObj_vec.push_back( DrawObj() );
                 int indx = m_FeatureDrawObj_vec.size() - 1;
-                m_SurfVec[i].TessWFeatureLine( j, 100, m_FeatureDrawObj_vec[indx].m_PntVec );
+                m_SurfVec[i].TessWFeatureLine( j, 101, m_FeatureDrawObj_vec[indx].m_PntVec );
                 m_FeatureDrawObj_vec[indx].m_GeomChanged = true;
             }
         }
