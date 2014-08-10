@@ -1565,18 +1565,19 @@ void CfdMeshMgrSingleton::WriteTetGen( const string &filename )
     vector< vec3d > interiorPntVec;
     for ( int i = 0 ; i < ( int )geomVec.size() ; i++ )
     {
-        if ( m_Vehicle->FindGeom( geomVec[i] )->GetSetFlag( GetCfdSettingsPtr()->m_SelectedSetIndex() ) )
+        Geom* geom = m_Vehicle->FindGeom( geomVec[i] );
+        if ( geom->GetSetFlag( GetCfdSettingsPtr()->m_SelectedSetIndex() ) )
         {
             if ( GetCfdSettingsPtr()->GetFarMeshFlag() && GetCfdSettingsPtr()->GetFarCompFlag() )
             {
-                if ( m_Vehicle->FindGeom( geomVec[i] )->GetID() != GetFarGeomID() )
+                if ( geom->GetID() != GetFarGeomID() )
                 {
-                    m_Vehicle->FindGeom( geomVec[i] )->GetInteriorPnts( interiorPntVec );
+                    geom->GetInteriorPnts( interiorPntVec );
                 }
             }
             else
             {
-                m_Vehicle->FindGeom( geomVec[i] )->GetInteriorPnts( interiorPntVec );
+                geom->GetInteriorPnts( interiorPntVec );
             }
         }
     }
