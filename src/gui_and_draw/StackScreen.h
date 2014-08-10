@@ -52,6 +52,7 @@ protected:
     SliderAdjRangeInput m_XSecZRotSlider;
 
     Choice m_XSecTypeChoice;
+    TriggerButton m_ShowXSecButton;
 
     GroupLayout m_PointGroup;
 

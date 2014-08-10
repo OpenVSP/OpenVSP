@@ -77,7 +77,15 @@ StackScreen::StackScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 550, "Stack" 
     m_XSecTypeChoice.AddItem( "WEDGE" );
     m_XSecTypeChoice.AddItem( "BEZIER" );
     m_XSecTypeChoice.AddItem( "AF_FILE" );
-    m_XSecLayout.AddChoice( m_XSecTypeChoice, "Choose Type:" );
+
+    m_XSecLayout.SetSameLineFlag( true );
+    m_XSecLayout.AddChoice( m_XSecTypeChoice, "Choose Type:", m_XSecLayout.GetButtonWidth() );
+    m_XSecLayout.SetFitWidthFlag( false );
+    m_XSecLayout.AddButton( m_ShowXSecButton, "Show" );
+    m_XSecLayout.ForceNewLine();
+
+    m_XSecLayout.SetFitWidthFlag( true );
+    m_XSecLayout.SetSameLineFlag( false );
 
     //==== Location To Start XSec Layouts ====//
     int start_y = m_XSecLayout.GetY();
@@ -463,6 +471,10 @@ void StackScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     {
         int t = m_XSecTypeChoice.GetVal();
         stackgeom_ptr->SetActiveXSecType( t );
+    }
+    else if ( gui_device == &m_ShowXSecButton )
+    {
+        m_ScreenMgr->ShowScreen( ScreenMgr::VSP_XSEC_SCREEN );
     }
     else if ( gui_device == &m_CutXSec )
     {

@@ -195,7 +195,18 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 640, "Wing" )
     m_AfTypeChoice.AddItem( "WEDGE" );
     m_AfTypeChoice.AddItem( "BEZIER" );
     m_AfTypeChoice.AddItem( "AF_FILE" );
-    m_AfLayout.AddChoice( m_AfTypeChoice, "Choose Type:" );
+
+    m_AfLayout.SetChoiceButtonWidth( 80 );
+    m_AfLayout.SetButtonWidth( 40 );
+    m_AfLayout.SetSameLineFlag( true );
+    m_AfLayout.AddChoice( m_AfTypeChoice, "Choose Type:", m_AfLayout.GetButtonWidth() );
+    m_AfLayout.SetFitWidthFlag( false );
+
+    m_AfLayout.AddButton( m_ShowXSecButton, "Show" );
+    m_AfLayout.ForceNewLine();
+
+    m_AfLayout.SetFitWidthFlag( true );
+    m_AfLayout.SetSameLineFlag( false );
 
     //==== Location To Start XSec Layouts ====//
     int start_y = m_AfLayout.GetY();
@@ -632,11 +643,15 @@ void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         wing_ptr->SetActiveAirfoilType( t );
         wing_ptr->Update();
     }
+    else if ( gui_device == &m_ShowXSecButton )
+    {
+        m_ScreenMgr->ShowScreen( ScreenMgr::VSP_XSEC_SCREEN );
+    }
     else if ( gui_device == &m_CopyAfButton   )
     {
         int afid = wing_ptr->GetActiveAirfoilIndex();
         wing_ptr->CopyAirfoil( afid );
-   }
+    }
     else if ( gui_device == &m_PasteAfButton  )
     {
         int afid = wing_ptr->GetActiveAirfoilIndex();

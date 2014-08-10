@@ -88,6 +88,7 @@ protected:
     TriggerButton m_PasteAfButton;
 
     Choice m_AfTypeChoice;
+    TriggerButton m_ShowXSecButton;
 
     GroupLayout m_PointGroup;
 
