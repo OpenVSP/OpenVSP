@@ -838,14 +838,15 @@ void CfdMeshMgrSingleton::UpdateSourcesAndWakes()
     vector<string> geomVec = m_Vehicle->GetGeomVec();
     for ( int g = 0 ; g < ( int )geomVec.size() ; g++ )
     {
-        m_Vehicle->FindGeom( geomVec[g] )->UpdateSources();
-        vector< BaseSimpleSource* > sVec = m_Vehicle->FindGeom( geomVec[g] )->GetCfdMeshSimpSourceVec();
+        Geom* geom = m_Vehicle->FindGeom( geomVec[g] );
+        geom->UpdateSources();
+        vector< BaseSimpleSource* > sVec = geom->GetCfdMeshSimpSourceVec();
 
         for ( int s = 0 ; s < ( int )sVec.size() ; s++ )
         {
             GetGridDensityPtr()->AddSource( sVec[s] );
         }
-        m_Vehicle->FindGeom( geomVec[g] )->AppendWakeEdges( wake_leading_edges );
+        geom->AppendWakeEdges( wake_leading_edges );
     }
 
     m_WakeMgr.SetLeadingEdges( wake_leading_edges );
