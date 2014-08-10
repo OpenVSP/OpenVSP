@@ -1565,7 +1565,7 @@ void CfdMeshMgrSingleton::WriteTetGen( const string &filename )
     vector< vec3d > interiorPntVec;
     for ( int i = 0 ; i < ( int )geomVec.size() ; i++ )
     {
-//      if ( m_Vehicle->FindGeom( geomVec[i] )->getOutputFlag() )
+        if ( m_Vehicle->FindGeom( geomVec[i] )->GetSetFlag( GetCfdSettingsPtr()->m_SelectedSetIndex() ) )
         {
             if ( GetCfdSettingsPtr()->GetFarMeshFlag() && GetCfdSettingsPtr()->GetFarCompFlag() )
             {
