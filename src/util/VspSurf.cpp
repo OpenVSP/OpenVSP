@@ -639,6 +639,27 @@ void VspSurf::BuildFeatureLines()
     }
 }
 
+void VspSurf::CapUMin()
+{
+    std::cout << "Am Capping UMin on this one!" << std::endl;
+}
+
+void VspSurf::CapUMax()
+{
+    std::cout << "Am Capping UMax on this one!" << std::endl;
+}
+
+void VspSurf::CapWMin()
+{
+    std::cout << "Am Capping WMin on this one!" << std::endl;
+}
+
+void VspSurf::CapWMax()
+{
+    std::cout << "Am Capping WMax on this one!" << std::endl;
+}
+
+
 void VspSurf::WriteBezFile( FILE* file_id, const std::string &geom_id, int surf_ind )
 {
     // Make copy for local changes.

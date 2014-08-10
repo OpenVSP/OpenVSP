@@ -750,7 +750,7 @@ void Geom::Update()
     GeomXForm::Update();
 
     UpdateSurf();       // Must be implemented by subclass.
-// TODO:    UpdateEndCaps(); // cycle through all vspsurfs, check if wing type then cap using new Code-Eli cap surface creator
+    UpdateEndCaps();
     UpdateFeatureLines();
     UpdateSymmAttach();
 
@@ -776,6 +776,22 @@ void Geom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< v
 {
     vector< vector< vec3d > > uw_pnts;
     UpdateTesselate( indx, pnts, norms, uw_pnts );
+}
+
+void Geom::UpdateEndCaps()
+{
+    // cycle through all vspsurfs, check if wing type then cap using new Code-Eli cap surface creator
+    for ( int i = 0; i < m_MainSurfVec.size(); i++ )
+    {
+        if ( m_CapRoot && (m_RootEndCapOption() != NO_END_CAP) )
+        {
+          m_MainSurfVec[i].CapUMin();
+        }
+        if ( m_CapTip && (m_TipEndCapOption() != NO_END_CAP) )
+        {
+          m_MainSurfVec[i].CapUMax();
+        }
+    }
 }
 
 void Geom::UpdateFeatureLines()

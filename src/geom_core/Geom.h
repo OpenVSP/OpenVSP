@@ -542,6 +542,7 @@ public:
 protected:
 
     virtual void UpdateSurf() = 0;
+    void UpdateEndCaps();
     virtual void UpdateFeatureLines();
     virtual void UpdateSymmAttach();
     virtual void UpdateChildren();

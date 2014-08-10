@@ -122,6 +122,10 @@ public:
         return m_WFeature.size();
     }
     void BuildFeatureLines();
+    void CapUMin();
+    void CapUMax();
+    void CapWMin();
+    void CapWMax();
     void WriteBezFile( FILE* id, const std::string &geom_id, int surf_ind );
 
     //===== Tesselate ====//
