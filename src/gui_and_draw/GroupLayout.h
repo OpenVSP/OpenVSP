@@ -130,7 +130,7 @@ public:
     void AddOutput( StringOutput& string_output, const char* label );
     void AddIndexSelector( IndexSelector& selector );
     void AddColorPicker( ColorPicker& picker );
-    void AddChoice( Choice & choice, const char* label );
+    void AddChoice( Choice & choice, const char* label, int used_w = 0 );
     void AddCounter( Counter & count, const char* label );
     void AddLabel( const char* label, int width );
     void AddParmPicker( ParmPicker & parm_picker );

@@ -742,7 +742,7 @@ void GroupLayout::AddColorPicker( ColorPicker& picker )
 }
 
 //==== Create & Init Choice  ====//
-void GroupLayout::AddChoice( Choice & choice, const char* label )
+void GroupLayout::AddChoice( Choice & choice, const char* label, int used_w )
 {
     assert( m_Group && m_Screen );
 
@@ -757,7 +757,7 @@ void GroupLayout::AddChoice( Choice & choice, const char* label )
     AddX( m_ChoiceButtonWidth );
 
     //==== Choice Picker ====//
-    int choice_w = FitWidth( m_ChoiceButtonWidth, m_SliderWidth );
+    int choice_w = FitWidth( m_ChoiceButtonWidth + used_w, m_SliderWidth );
     Fl_Choice* fl_choice = new Fl_Choice( m_X, m_Y, choice_w, m_StdHeight );
     fl_choice->down_box( FL_BORDER_BOX );
     fl_choice->textfont( 1 );
