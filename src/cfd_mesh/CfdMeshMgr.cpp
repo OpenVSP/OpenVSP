@@ -4717,11 +4717,14 @@ void CfdMeshMgrSingleton::SubTagTris()
         Geom* geomptr = m_Vehicle->FindGeom( m_GeomIDs[i] );
         if ( geomptr )
         {
-            vector<VspSurf> vspsurfs;
-            geomptr->GetSurfVec( vspsurfs );
-            for ( int s = 0 ; s < ( int ) vspsurfs.size() ; s++ )
+            if ( geomptr->GetSetFlag( GetCfdSettingsPtr()->m_SelectedSetIndex() ) )
             {
-                SubSurfaceMgr.m_CompNames.push_back( geomptr->GetName() + to_string( ( long long ) s ) );
+                vector<VspSurf> vspsurfs;
+                geomptr->GetSurfVec( vspsurfs );
+                for ( int s = 0 ; s < ( int ) vspsurfs.size() ; s++ )
+                {
+                    SubSurfaceMgr.m_CompNames.push_back( geomptr->GetName() + to_string( ( long long ) s ) );
+                }
             }
         }
     }
