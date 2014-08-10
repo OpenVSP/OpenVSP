@@ -638,25 +638,25 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_ShellFlag.Init( "Shell_Flag", "Mass_Props", this, false, 0, 1 );
 
     // End Cap Options
-    m_CapUMinOption.Init("CapUMinOption", m_Name, this, VspSurf::NO_END_CAP, VspSurf::NO_END_CAP, VspSurf::NUM_END_CAP_OPTIONS);
+    m_CapUMinOption.Init("CapUMinOption", m_Name, this, VspSurf::NO_END_CAP, VspSurf::NO_END_CAP, VspSurf::NUM_END_CAP_OPTIONS-1);
     m_CapUMinOption.SetDescript("Type of End Cap on UMin end");
 
     m_CapUMinTess.Init("CapUMinTess", m_Name, this, 3, 3, 51);
     m_CapUMinTess.SetDescript("Number of tessellated curves on UMin end");
 
-    m_CapUMaxOption.Init("CapUMaxOption",   m_Name, this, VspSurf::NO_END_CAP, VspSurf::NO_END_CAP, VspSurf::NUM_END_CAP_OPTIONS);
+    m_CapUMaxOption.Init("CapUMaxOption",   m_Name, this, VspSurf::NO_END_CAP, VspSurf::NO_END_CAP, VspSurf::NUM_END_CAP_OPTIONS-1);
     m_CapUMaxOption.SetDescript("Type of End Cap on UMax end");
 
     m_CapUMaxTess.Init("CapUMaxTess", m_Name, this, 3, 3, 51);
     m_CapUMaxTess.SetDescript("Number of tessellated curves on UMax end");
 
-    m_CapWMinOption.Init("CapWMinOption", m_Name, this, VspSurf::NO_END_CAP, VspSurf::NO_END_CAP, VspSurf::NUM_END_CAP_OPTIONS);
+    m_CapWMinOption.Init("CapWMinOption", m_Name, this, VspSurf::NO_END_CAP, VspSurf::NO_END_CAP, VspSurf::NUM_END_CAP_OPTIONS-1);
     m_CapWMinOption.SetDescript("Type of End Cap on WMin end");
 
     m_CapWMinTess.Init("CapWMinTess", m_Name, this, 3, 3, 51);
     m_CapWMinTess.SetDescript("Number of tessellated curves on WMin end");
 
-    m_CapWMaxOption.Init("CapWMaxOption",   m_Name, this, VspSurf::NO_END_CAP, VspSurf::NO_END_CAP, VspSurf::NUM_END_CAP_OPTIONS);
+    m_CapWMaxOption.Init("CapWMaxOption",   m_Name, this, VspSurf::NO_END_CAP, VspSurf::NO_END_CAP, VspSurf::NUM_END_CAP_OPTIONS-1);
     m_CapWMaxOption.SetDescript("Type of End Cap on WMax end");
 
     m_CapWMaxTess.Init("CapWMaxTess", m_Name, this, 3, 3, 51);
