@@ -1053,12 +1053,6 @@ void WingGeom::UpdateSurf()
     // Set up the root capping
     if ( m_CapUMin && (m_CapUMinOption() != VspSurf::NO_END_CAP) )
     {
-      // ensure have odd number of tessellations
-      if ( m_CapUMinTess()%2 == 0 )
-      {
-        m_CapUMinTess.Set( m_CapUMinTess()+1 );
-      }
-
       // there will be more options of capping
       switch ( m_CapUMinOption() )
       {
@@ -1078,12 +1072,6 @@ void WingGeom::UpdateSurf()
     // Set up the tip capping
     if ( m_CapUMax && (m_CapUMaxOption() != VspSurf::NO_END_CAP) )
     {
-      // ensure have odd number of tessellations
-      if ( m_CapUMaxTess()%2 == 0 )
-      {
-        m_CapUMaxTess.Set( m_CapUMaxTess()+1 );
-      }
-
       // there will be more options of capping
       switch ( m_CapUMaxOption() )
       {

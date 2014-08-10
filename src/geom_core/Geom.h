@@ -552,13 +552,13 @@ public:
 
     //=== End Cap Parms ===//
     IntParm m_CapUMinOption;
-    IntParm m_CapUMinTess;
+    LimIntParm m_CapUMinTess;
     IntParm m_CapUMaxOption;
-    IntParm m_CapUMaxTess;
+    LimIntParm m_CapUMaxTess;
     IntParm m_CapWMinOption;
-    IntParm m_CapWMinTess;
+    LimIntParm m_CapWMinTess;
     IntParm m_CapWMaxOption;
-    IntParm m_CapWMaxTess;
+    LimIntParm m_CapWMaxTess;
 
 protected:
 
