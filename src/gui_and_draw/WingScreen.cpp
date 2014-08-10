@@ -395,23 +395,23 @@ bool WingScreen::Update()
     m_PlanChordSlider.Update( wing_ptr->m_TotalChord.GetID() );
     m_PlanAreaSlider.Update( wing_ptr->m_TotalArea.GetID() );
 
-    m_RootCapTypeChoice.Update( wing_ptr->m_RootEndCapOption.GetID() );
-    if ( wing_ptr->m_RootEndCapOption() == WingGeom::NO_END_CAP )
+    m_RootCapTypeChoice.Update( wing_ptr->m_CapUMinOption.GetID() );
+    if ( wing_ptr->m_CapUMinOption() == VspSurf::NO_END_CAP )
     {
       m_RootTessSlider.Deactivate();
     }
     else
     {
-      m_RootTessSlider.Update( wing_ptr->m_RootEndCapTess.GetID() );
+      m_RootTessSlider.Update( wing_ptr->m_CapUMinTess.GetID() );
     }
-    m_TipCapTypeChoice.Update( wing_ptr->m_TipEndCapOption.GetID() );
-    if ( wing_ptr->m_TipEndCapOption() == WingGeom::NO_END_CAP )
+    m_TipCapTypeChoice.Update( wing_ptr->m_CapUMaxOption.GetID() );
+    if ( wing_ptr->m_CapUMaxOption() == VspSurf::NO_END_CAP )
     {
       m_TipTessSlider.Deactivate();
     }
     else
     {
-      m_TipTessSlider.Update( wing_ptr->m_TipEndCapTess.GetID() );
+      m_TipTessSlider.Update( wing_ptr->m_CapUMaxTess.GetID() );
     }
 
 

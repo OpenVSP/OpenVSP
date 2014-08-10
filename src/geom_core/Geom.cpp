@@ -595,8 +595,10 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_Type.m_Type = GEOM_GEOM_TYPE;
     m_Type.m_Name = m_Name;
 
-    m_CapRoot = true;
-    m_CapTip  = true;
+    m_CapUMin = true;
+    m_CapUMax = true;
+    m_CapWMin = true;
+    m_CapWMax = true;
 
     m_TessU.Init( "Tess_U", "Shape", this, 8, 2,  1000 );
     m_TessU.SetDescript( "Number of tessellated curves in the U direction" );
@@ -636,17 +638,29 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_ShellFlag.Init( "Shell_Flag", "Mass_Props", this, false, 0, 1 );
 
     // End Cap Options
-    m_RootEndCapOption.Init("RootEndCapOption", m_Name, this, FLAT_END_CAP, NO_END_CAP, NUM_END_CAP_OPTIONS);
-    m_RootEndCapOption.SetDescript("Type of End Cap on Wing Root");
+    m_CapUMinOption.Init("CapUMinOption", m_Name, this, VspSurf::NO_END_CAP, VspSurf::NO_END_CAP, VspSurf::NUM_END_CAP_OPTIONS);
+    m_CapUMinOption.SetDescript("Type of End Cap on UMin end");
 
-    m_RootEndCapTess.Init("RootCapTess", m_Name, this, 3, 3, 51);
-    m_RootEndCapTess.SetDescript("Number of tessellated curves on root end cap");
+    m_CapUMinTess.Init("CapUMinTess", m_Name, this, 3, 3, 51);
+    m_CapUMinTess.SetDescript("Number of tessellated curves on UMin end");
 
-    m_TipEndCapOption.Init("TipEndCapOption",   m_Name, this, FLAT_END_CAP, NO_END_CAP, NUM_END_CAP_OPTIONS);
-    m_TipEndCapOption.SetDescript("Type of End Cap on Wing Tip");
+    m_CapUMaxOption.Init("CapUMaxOption",   m_Name, this, VspSurf::NO_END_CAP, VspSurf::NO_END_CAP, VspSurf::NUM_END_CAP_OPTIONS);
+    m_CapUMaxOption.SetDescript("Type of End Cap on UMax end");
 
-    m_TipEndCapTess.Init("TipCapTess", m_Name, this, 3, 3, 51);
-    m_TipEndCapTess.SetDescript("Number of tessellated curves on tip end cap");
+    m_CapUMaxTess.Init("CapUMaxTess", m_Name, this, 3, 3, 51);
+    m_CapUMaxTess.SetDescript("Number of tessellated curves on UMax end");
+
+    m_CapWMinOption.Init("CapWMinOption", m_Name, this, VspSurf::NO_END_CAP, VspSurf::NO_END_CAP, VspSurf::NUM_END_CAP_OPTIONS);
+    m_CapWMinOption.SetDescript("Type of End Cap on WMin end");
+
+    m_CapWMinTess.Init("CapWMinTess", m_Name, this, 3, 3, 51);
+    m_CapWMinTess.SetDescript("Number of tessellated curves on WMin end");
+
+    m_CapWMaxOption.Init("CapWMaxOption",   m_Name, this, VspSurf::NO_END_CAP, VspSurf::NO_END_CAP, VspSurf::NUM_END_CAP_OPTIONS);
+    m_CapWMaxOption.SetDescript("Type of End Cap on WMax end");
+
+    m_CapWMaxTess.Init("CapWMaxTess", m_Name, this, 3, 3, 51);
+    m_CapWMaxTess.SetDescript("Number of tessellated curves on WMax end");
 
     // Geom needs at least one surf
     m_MainSurfVec.push_back( VspSurf() );
@@ -783,14 +797,11 @@ void Geom::UpdateEndCaps()
     // cycle through all vspsurfs, check if wing type then cap using new Code-Eli cap surface creator
     for ( int i = 0; i < m_MainSurfVec.size(); i++ )
     {
-        if ( m_CapRoot && (m_RootEndCapOption() != NO_END_CAP) )
-        {
-          m_MainSurfVec[i].CapUMin();
-        }
-        if ( m_CapTip && (m_TipEndCapOption() != NO_END_CAP) )
-        {
-          m_MainSurfVec[i].CapUMax();
-        }
+        // NOTE: These return a bool that is true if it modified the surface to create a cap
+        m_MainSurfVec[i].CapUMin(m_CapUMinOption());
+        m_MainSurfVec[i].CapUMax(m_CapUMaxOption());
+        m_MainSurfVec[i].CapWMin(m_CapWMinOption());
+        m_MainSurfVec[i].CapWMax(m_CapWMaxOption());
     }
 }
 

@@ -753,6 +753,14 @@ WingGeom::WingGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_TotalArea.Init( "TotalArea", m_Name, this, 1.0, 0.0001, 1000000.0 );
     m_TotalArea.SetDescript( "Total Planform Area" );
 
+    //==== rename capping controls for wing specific terminology ====//
+    m_CapUMinOption.SetDescript("Type of End Cap on Wing Root");
+    m_CapUMinOption.Parm::Set(VspSurf::FLAT_END_CAP);
+    m_CapUMinTess.SetDescript("Number of tessellated curves on Wing Root");
+    m_CapUMaxOption.SetDescript("Type of End Cap on Wing Tip");
+    m_CapUMaxOption.Parm::Set(VspSurf::FLAT_END_CAP);
+    m_CapUMaxTess.SetDescript("Number of tessellated curves on Wing Tip");
+
     //==== Init Parms ====//
     m_TessU = 16;
     m_TessW = 31;
@@ -1043,18 +1051,18 @@ void WingGeom::UpdateSurf()
     vector< VspCurve > crv_vec;
 
     // Set up the root capping
-    if ( m_CapRoot && (m_RootEndCapOption() != NO_END_CAP) )
+    if ( m_CapUMin && (m_CapUMinOption() != VspSurf::NO_END_CAP) )
     {
       // ensure have odd number of tessellations
-      if ( m_RootEndCapTess()%2 == 0 )
+      if ( m_CapUMinTess()%2 == 0 )
       {
-        m_RootEndCapTess.Set( m_RootEndCapTess()+1 );
+        m_CapUMinTess.Set( m_CapUMinTess()+1 );
       }
 
       // there will be more options of capping
-      switch ( m_RootEndCapOption() )
+      switch ( m_CapUMinOption() )
       {
-        case (FLAT_END_CAP):
+        case (VspSurf::FLAT_END_CAP):
         {
           root_offset = 1;
           break;
@@ -1068,18 +1076,18 @@ void WingGeom::UpdateSurf()
     }
 
     // Set up the tip capping
-    if ( m_CapTip && (m_TipEndCapOption() != NO_END_CAP) )
+    if ( m_CapUMax && (m_CapUMaxOption() != VspSurf::NO_END_CAP) )
     {
       // ensure have odd number of tessellations
-      if ( m_TipEndCapTess()%2 == 0 )
+      if ( m_CapUMaxTess()%2 == 0 )
       {
-        m_TipEndCapTess.Set( m_TipEndCapTess()+1 );
+        m_CapUMaxTess.Set( m_CapUMaxTess()+1 );
       }
 
       // there will be more options of capping
-      switch ( m_TipEndCapOption() )
+      switch ( m_CapUMaxOption() )
       {
-        case (FLAT_END_CAP):
+        case (VspSurf::FLAT_END_CAP):
         {
           tip_offset = 1;
           break;
@@ -1176,7 +1184,7 @@ void WingGeom::UpdateSurf()
             // cap the root airfoil
             if ( i == 0 )
             {
-              if ( m_CapRoot && (m_RootEndCapOption() != NO_END_CAP) )
+              if ( m_CapUMin && (m_CapUMinOption() != VspSurf::NO_END_CAP) )
               {
                 std::vector< vec3d > camb_pts;
                 std::vector< double > camb_params;
@@ -1203,7 +1211,7 @@ void WingGeom::UpdateSurf()
 
                   // create curve
                   crv_vec[0].InterpolateLinear( camb_pts, camb_params, false );
-                  m_TessUVec.push_back( (m_RootEndCapTess()+1)/2 );
+                  m_TessUVec.push_back( (m_CapUMinTess()+1)/2 );
                 }
               }
             }
@@ -1218,7 +1226,7 @@ void WingGeom::UpdateSurf()
     }
 
     // add the wing tip cap here
-    if ( m_CapTip && (m_TipEndCapOption() != NO_END_CAP) )
+    if ( m_CapUMax && (m_CapUMaxOption() != VspSurf::NO_END_CAP) )
     {
       std::vector< vec3d > camb_pts;
       std::vector< double > camb_params;
@@ -1247,7 +1255,7 @@ void WingGeom::UpdateSurf()
 
         // create curve
         crv_vec[m_XSecSurf.NumXSec()+root_offset].InterpolateLinear( camb_pts, camb_params, false );
-        m_TessUVec.push_back( (m_TipEndCapTess()+1)/2 );
+        m_TessUVec.push_back( (m_CapUMaxTess()+1)/2 );
       }
     }
 

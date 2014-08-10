@@ -45,6 +45,11 @@ public:
                         NUM_SURF_TYPES,
                    };
 
+    enum { NO_END_CAP,
+           FLAT_END_CAP,
+           NUM_END_CAP_OPTIONS
+         };
+
     VspSurf();
     virtual ~VspSurf();
 
@@ -122,10 +127,10 @@ public:
         return m_WFeature.size();
     }
     void BuildFeatureLines();
-    void CapUMin();
-    void CapUMax();
-    void CapWMin();
-    void CapWMax();
+    bool CapUMin(int capType);
+    bool CapUMax(int capType);
+    bool CapWMin(int capType);
+    bool CapWMax(int capType);
     void WriteBezFile( FILE* id, const std::string &geom_id, int surf_ind );
 
     //===== Tesselate ====//

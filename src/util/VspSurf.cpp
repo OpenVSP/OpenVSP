@@ -639,24 +639,40 @@ void VspSurf::BuildFeatureLines()
     }
 }
 
-void VspSurf::CapUMin()
+bool VspSurf::CapUMin(int CapType)
 {
+    if (CapType == NO_END_CAP)
+      return false;
+
     std::cout << "Am Capping UMin on this one!" << std::endl;
+    return false;
 }
 
-void VspSurf::CapUMax()
+bool VspSurf::CapUMax(int CapType)
 {
+    if (CapType == NO_END_CAP)
+      return false;
+
     std::cout << "Am Capping UMax on this one!" << std::endl;
+    return false;
 }
 
-void VspSurf::CapWMin()
+bool VspSurf::CapWMin(int CapType)
 {
+    if (CapType == NO_END_CAP)
+      return false;
+
     std::cout << "Am Capping WMin on this one!" << std::endl;
+    return false;
 }
 
-void VspSurf::CapWMax()
+bool VspSurf::CapWMax(int CapType)
 {
+    if (CapType == NO_END_CAP)
+      return false;
+
     std::cout << "Am Capping WMax on this one!" << std::endl;
+    return false;
 }
 
 

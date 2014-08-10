@@ -331,7 +331,6 @@ protected:
 class Geom : public GeomXForm
 {
 public:
-    enum {NO_END_CAP, FLAT_END_CAP, NUM_END_CAP_OPTIONS};
 
     Geom( Vehicle* vehicle_ptr );
     virtual ~Geom();
@@ -515,29 +514,51 @@ public:
     virtual bool HasWingTypeSurfs();
 
     //==== Override end capping ====//
-    bool CapRoot() const
+    bool CapUMin() const
     {
-      return m_CapRoot;
+      return m_CapUMin;
     }
-    void CapRoot( bool cr )
+    void CapUMin( bool cp )
     {
-      m_CapRoot = cr;
+      m_CapUMin = cp;
     }
 
-    bool CapTip() const
+    bool CapUMax() const
     {
-      return m_CapTip;
+      return m_CapWMax;
     }
-    void CapTip( bool ct )
+    void CapUMax( bool cp )
     {
-      m_CapTip = ct;
+      m_CapWMax = cp;
+    }
+
+    bool CapWMin() const
+    {
+      return m_CapWMin;
+    }
+    void CapWMin( bool cp )
+    {
+      m_CapWMin = cp;
+    }
+
+    bool CapWMax() const
+    {
+      return m_CapWMax;
+    }
+    void CapWMax( bool cp )
+    {
+      m_CapWMax = cp;
     }
 
     //=== End Cap Parms ===//
-    IntParm m_RootEndCapOption;
-    IntParm m_RootEndCapTess;
-    IntParm m_TipEndCapOption;
-    IntParm m_TipEndCapTess;
+    IntParm m_CapUMinOption;
+    IntParm m_CapUMinTess;
+    IntParm m_CapUMaxOption;
+    IntParm m_CapUMaxTess;
+    IntParm m_CapWMinOption;
+    IntParm m_CapWMinTess;
+    IntParm m_CapWMaxOption;
+    IntParm m_CapWMaxTess;
 
 protected:
 
@@ -579,8 +600,10 @@ protected:
     bool m_WakeActiveFlag;
 
     //==== Manual override of caps ====//
-    bool m_CapRoot;
-    bool m_CapTip;
+    bool m_CapUMin;
+    bool m_CapUMax;
+    bool m_CapWMin;
+    bool m_CapWMax;
 };
 
 //==== GeomXSec  ====//
