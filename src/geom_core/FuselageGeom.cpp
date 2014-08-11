@@ -221,6 +221,7 @@ void FuselageGeom::SetActiveXSecType( int type )
 void FuselageGeom::CutActiveXSec()
 {
     m_XSecSurf.CutXSec( m_ActiveXSec );
+    SetActiveXSecIndex( GetActiveXSecIndex() );
     Update();
 }
 

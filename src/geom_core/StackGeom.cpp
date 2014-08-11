@@ -226,6 +226,7 @@ void StackGeom::SetActiveXSecType( int type )
 void StackGeom::CutActiveXSec()
 {
     m_XSecSurf.CutXSec( m_ActiveXSec );
+    SetActiveXSecIndex( GetActiveXSecIndex() );
     m_XSecSurf.FindXSec( m_ActiveXSec )->SetLateUpdateFlag( true );
     Update();
 }

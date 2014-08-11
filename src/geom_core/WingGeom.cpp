@@ -943,7 +943,7 @@ void WingGeom::CutWingSect( int index  )
 
         //==== Reset Active Indeices ====//
         SetActiveXSecIndex( GetActiveXSecIndex() );
-        SetActiveXSecIndex( GetActiveAirfoilIndex() );
+        SetActiveAirfoilIndex( GetActiveAirfoilIndex() );
     }
 }
 
