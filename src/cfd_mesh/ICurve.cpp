@@ -42,25 +42,43 @@ bool ICurve::Match( SCurve* crv_A, SCurve* crv_B )
     }
 
 
-    bool match = true;
+    bool fmatch = true;
+    bool bmatch = true;
 
     int num_pnts = ( int )control_pnts_A.size();
     for ( int i = 0 ; i < num_pnts ; i++ )
     {
         double dist_forward  = dist( control_pnts_A[i], control_pnts_B[i] );
         double dist_backward = dist( control_pnts_A[i], control_pnts_B[num_pnts - i - 1] );
-        if ( dist_forward > tol && dist_backward > tol )
+        if ( dist_forward > tol )
         {
-            match = false;
+            fmatch = false;
+        }
+
+        if ( dist_backward > tol )
+        {
+            bmatch = false;
+        }
+
+        if ( (bmatch == false) && (fmatch == false) )
+        {
             break;
         }
     }
 
+    bool match = false;
+    if ( (fmatch == true) || (bmatch == true) )
+    {
+        match = true;
+    }
+
+    if( (fmatch == true) && (bmatch == true) )
+    {
+    }
+
     if ( match )
     {
-        double dist_front  = dist( control_pnts_A[0], control_pnts_B[0] );
-
-        if ( dist_front > tol )
+        if ( bmatch )
         {
             //=== Flip Direction ====//
             crv_B->FlipDir();
