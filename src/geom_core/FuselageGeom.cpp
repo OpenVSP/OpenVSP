@@ -21,8 +21,6 @@ FuselageGeom::FuselageGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_Type.m_Name = "Fuselage";
     m_Type.m_Type = FUSELAGE_GEOM_TYPE;
 
-    m_Closed = false;
-
     m_XSecSurf.SetBasicOrientation( X_DIR, Y_DIR, XS_SHIFT_MID, false );
 
     m_XSecSurf.SetParentContainer( GetID() );
@@ -327,11 +325,6 @@ void FuselageGeom::LoadDragFactors( DragFactors& drag_factors )
     drag_factors.m_Length = m_Length();
     drag_factors.m_MaxXSecArea = max_xsec_area;
     drag_factors.m_LengthToDia = m_Length() / dia;
-}
-
-bool FuselageGeom::IsClosed() const
-{
-    return m_Closed;
 }
 
 void FuselageGeom::EnforceOrder( FuseXSec* xs, int indx, int ile, int policy )

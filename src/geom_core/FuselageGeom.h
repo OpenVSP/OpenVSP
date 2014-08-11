@@ -52,8 +52,6 @@ public:
         return &m_XSecSurf;
     }
 
-    bool IsClosed() const;
-
     virtual void AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id = string() );
     virtual void Scale();
 
@@ -73,8 +71,5 @@ protected:
 
 
     vector<int> m_TessUVec;
-
-    bool m_Closed;
-
 };
 #endif // !defined(VSPPODGEOM__INCLUDED_)
