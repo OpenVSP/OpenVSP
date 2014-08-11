@@ -1932,43 +1932,61 @@ void GeomXSec::UpdateDrawObj()
 
     for ( int i = 0 ; i < nxsec ; i++ )
     {
-        m_XSecDrawObj_vec[i].m_PntVec = m_XSecSurf.FindXSec( i )->GetDrawLines( m_TessW(), relTrans );
+        XSec* xs = m_XSecSurf.FindXSec( i );
+        if ( xs )
+        {
+            m_XSecDrawObj_vec[i].m_PntVec = xs->GetDrawLines( m_TessW(), relTrans );
+        }
+        else
+        {
+            m_XSecDrawObj_vec[i].m_PntVec = vector < vec3d > (0);
+        }
         m_XSecDrawObj_vec[i].m_GeomChanged = true;
     }
 
-    m_HighlightXSecDrawObj.m_PntVec = m_XSecSurf.FindXSec( m_ActiveXSec )->GetDrawLines( m_TessW(), relTrans );
-    m_HighlightXSecDrawObj.m_GeomChanged = true;
-
-    double w = m_XSecSurf.FindXSec( m_ActiveXSec )->GetXSecCurve()->GetWidth();
-    double h = m_XSecSurf.FindXSec( m_ActiveXSec )->GetXSecCurve()->GetHeight();
-    double scale = 1.0;
-    if( w > h ) scale = 1.0 / w;
-    else scale = 1.0 / h;
-
-    Matrix4d mat;
-    m_XSecSurf.GetBasicTransformation( Z_DIR, X_DIR, XS_SHIFT_MID, false, w * scale, mat );
-    mat.scale( scale );
-
-    VspCurve crv = m_XSecSurf.FindXSec( m_ActiveXSec )->GetUntransformedCurve();
-    crv.Transform( mat );
-
-    if( w == 0 && h == 0 )
+    XSec* axs = m_XSecSurf.FindXSec( m_ActiveXSec );
+    if ( axs )
     {
-        vector< vec3d > pts( 1, vec3d( 0, 0, 0 ) );
-        m_CurrentXSecDrawObj.m_PntVec = pts;
-        m_CurrentXSecDrawObj.m_PointSize = 5.0;
-        m_CurrentXSecDrawObj.m_PointColor = vec3d( 0.0, 0.0, 0.0 );
-        m_CurrentXSecDrawObj.m_Type = DrawObj::VSP_POINTS;
+        m_HighlightXSecDrawObj.m_PntVec = axs->GetDrawLines( m_TessW(), relTrans );
+
+        double w = axs->GetXSecCurve()->GetWidth();
+        double h = axs->GetXSecCurve()->GetHeight();
+        double scale = 1.0;
+        if( w > h ) scale = 1.0 / w;
+        else scale = 1.0 / h;
+
+        Matrix4d mat;
+        m_XSecSurf.GetBasicTransformation( Z_DIR, X_DIR, XS_SHIFT_MID, false, w * scale, mat );
+        mat.scale( scale );
+
+        VspCurve crv = axs->GetUntransformedCurve();
+        crv.Transform( mat );
+
+        if( w == 0 && h == 0 )
+        {
+            vector< vec3d > pts( 1, vec3d( 0, 0, 0 ) );
+            m_CurrentXSecDrawObj.m_PntVec = pts;
+            m_CurrentXSecDrawObj.m_PointSize = 5.0;
+            m_CurrentXSecDrawObj.m_PointColor = vec3d( 0.0, 0.0, 0.0 );
+            m_CurrentXSecDrawObj.m_Type = DrawObj::VSP_POINTS;
+        }
+        else
+        {
+            vector< vec3d > pts;
+            crv.Tesselate( m_TessW(), pts );
+            m_CurrentXSecDrawObj.m_PntVec = pts;
+            m_CurrentXSecDrawObj.m_LineWidth = 1.0;
+            m_CurrentXSecDrawObj.m_LineColor = vec3d( 0.0, 0.0, 0.0 );
+            m_CurrentXSecDrawObj.m_Type = DrawObj::VSP_LINES;
+        }
     }
     else
     {
-        vector< vec3d > pts;
-        crv.Tesselate( m_TessW(), pts );
-        m_CurrentXSecDrawObj.m_PntVec = pts;
-        m_CurrentXSecDrawObj.m_LineWidth = 1.0;
-        m_CurrentXSecDrawObj.m_LineColor = vec3d( 0.0, 0.0, 0.0 );
-        m_CurrentXSecDrawObj.m_Type = DrawObj::VSP_LINES;
+        m_HighlightXSecDrawObj.m_PntVec = vector < vec3d > (0);
+        m_CurrentXSecDrawObj.m_PntVec = vector < vec3d > (0);
     }
+
+    m_HighlightXSecDrawObj.m_GeomChanged = true;
     m_CurrentXSecDrawObj.m_GeomChanged = true;
 }
 
