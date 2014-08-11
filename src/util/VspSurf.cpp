@@ -587,8 +587,11 @@ void VspSurf::BuildFeatureLines()
         m_Surface.find_interior_C0_edges( m_UFeature, m_WFeature );
 
         // Add start/end curves.
-        m_UFeature.push_back( m_Surface.get_u0() );
-        m_UFeature.push_back( m_Surface.get_umax() );
+        double umin = m_Surface.get_u0();
+        double umax = m_Surface.get_umax();
+        double urng = umax - umin;
+        m_UFeature.push_back( umin );
+        m_UFeature.push_back( umax );
 
         // Add start/mid/end curves.
         double vmin = m_Surface.get_v0();
@@ -616,6 +619,18 @@ void VspSurf::BuildFeatureLines()
         m_UFeature.resize( distance( m_UFeature.begin(), sit ) );
         sit=std::unique( m_WFeature.begin(), m_WFeature.end() );
         m_WFeature.resize( distance( m_WFeature.begin(), sit ) );
+
+        if ( m_UFeature.size() < 3 )
+        {
+            m_UFeature.push_back( umin + 0.5 * urng );
+
+            // Sort feature parameters
+            std::sort( m_UFeature.begin(), m_UFeature.end() );
+
+            // Remove duplicate feature parameters
+            sit=std::unique( m_UFeature.begin(), m_UFeature.end() );
+            m_UFeature.resize( distance( m_UFeature.begin(), sit ) );
+        }
     }
     else
     {
