@@ -1343,6 +1343,32 @@ void FuseXSec::CopyBasePos( XSec* xs )
     }
 }
 
+
+//==== Copy FuseXSec parameters only ====//
+// This is used by the 'loop' capability to make first/last XSecs
+// match.  We need to copy all of the FuseXSec parms without
+// copying the skinning parameters.
+// XSecCurve parms are handled separately.
+void FuseXSec::CopyFuseXSParms( XSec* xs )
+{
+    if ( xs )
+    {
+        FuseXSec* fxs = ( FuseXSec* ) xs;
+
+        m_XLocPercent = fxs->m_XLocPercent();
+        m_YLocPercent = fxs->m_YLocPercent();
+        m_ZLocPercent = fxs->m_ZLocPercent();
+
+        m_RefLength = fxs->m_RefLength();
+
+        m_Spin = fxs->m_Spin();
+
+        m_XRotate = fxs->m_XRotate();
+        m_YRotate = fxs->m_YRotate();
+        m_ZRotate = fxs->m_ZRotate();
+    }
+}
+
 double FuseXSec::GetLScale()
 {
     XSecSurf* xsecsurf = (XSecSurf*) GetParentContainerPtr();

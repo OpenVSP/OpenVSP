@@ -98,6 +98,27 @@ void FuselageGeom::UpdateSurf()
 
     int nxsec = m_XSecSurf.NumXSec();
 
+    if ( m_OrderPolicy() == FUSE_LOOP )
+    {
+        FuseXSec* first_xs = (FuseXSec*) m_XSecSurf.FindXSec( 0 );
+        FuseXSec* last_xs = (FuseXSec*) m_XSecSurf.FindXSec( nxsec - 1 );
+
+        if ( first_xs && last_xs )
+        {
+            if ( last_xs->GetXSecCurve()->GetType() != first_xs->GetXSecCurve()->GetType() )
+            {
+                m_XSecSurf.ChangeXSecShape( nxsec - 1, first_xs->GetXSecCurve()->GetType() );
+                last_xs = (FuseXSec*) m_XSecSurf.FindXSec( nxsec - 1 );
+            }
+
+            if( last_xs )
+            {
+                last_xs->CopyFuseXSParms( first_xs );
+                last_xs->GetXSecCurve()->CopyFrom( first_xs->GetXSecCurve() );
+            }
+        }
+    }
+
     //==== Cross Section Curves & joint info ====//
     vector< rib_data_type > rib_vec;
     rib_vec.resize( nxsec );

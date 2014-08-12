@@ -265,6 +265,7 @@ public:
     virtual void SetRefLength( double len );
 
     virtual void CopyBasePos( XSec* xs );
+    virtual void CopyFuseXSParms( XSec* xs );
 
     virtual double GetLScale();
     virtual double GetRScale();
