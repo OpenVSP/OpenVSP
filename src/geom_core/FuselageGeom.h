@@ -20,7 +20,7 @@
 class FuselageGeom : public GeomXSec
 {
 public:
-    enum {LINEAR_CONNECT, PCHIP_CONNECT, CSPLINE_CONNECT, MANUAL_CONNECT, NUM_CONNECT};
+    enum {FUSE_MONOTONIC, FUSE_LOOP, FUSE_FREE, NUM_FUSE_POLICY};
 
     FuselageGeom( Vehicle* vehicle_ptr );
     virtual ~FuselageGeom();
@@ -67,7 +67,6 @@ protected:
     virtual void UpdateSurf();
     virtual void UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts );
 
-    enum {FUSE_MONOTONIC, FUSE_LOOP, FUSE_FREE, NUM_FUSE_POLICY};
     virtual void EnforceOrder( FuseXSec* xs, int indx, int policy );
 
 
