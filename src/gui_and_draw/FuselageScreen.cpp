@@ -282,15 +282,14 @@ bool FuselageScreen::Update()
     FuseXSec* xs = ( FuseXSec* ) fuselage_ptr->GetXSec( xsid );
     if ( xs )
     {
+        bool firstxs = xsid == 0;
+        bool lastxs = xsid == ( fuselage_ptr->GetXSecSurf( 0 )->NumXSec() - 1 );
+
         //==== XSec ====//
         m_SectUTessSlider.Update( xs->m_SectTessU.GetID() );
-        if ( xsid == 0 )
+        if ( firstxs )
         {
             m_SectUTessSlider.Deactivate();
-        }
-        else
-        {
-            m_SectUTessSlider.Activate();
         }
 
         m_XSecXSlider.Update( xs->m_XLocPercent.GetID() );
@@ -301,12 +300,47 @@ bool FuselageScreen::Update()
         m_XSecZRotSlider.Update( xs->m_ZRotate.GetID() );
         m_XSecSpinSlider.Update( xs->m_Spin.GetID() );
 
+        if ( firstxs && ( fuselage_ptr->m_OrderPolicy() == FuselageGeom::FUSE_MONOTONIC || fuselage_ptr->m_OrderPolicy() == FuselageGeom::FUSE_LOOP ) )
+        {
+            m_XSecXSlider.Deactivate();
+        }
+
+        if ( lastxs && fuselage_ptr->m_OrderPolicy() == FuselageGeom::FUSE_MONOTONIC )
+        {
+            m_XSecXSlider.Deactivate();
+        }
+
+        if ( lastxs && fuselage_ptr->m_OrderPolicy() == FuselageGeom::FUSE_LOOP )
+        {
+            m_XSecXSlider.Deactivate();
+            m_XSecYSlider.Deactivate();
+            m_XSecZSlider.Deactivate();
+            m_XSecXRotSlider.Deactivate();
+            m_XSecYRotSlider.Deactivate();
+            m_XSecZRotSlider.Deactivate();
+            m_XSecSpinSlider.Deactivate();
+        }
+
+
         XSecCurve* xsc = xs->GetXSecCurve();
         if ( xsc )
         {
             m_XSecTypeChoice.SetVal( xsc->GetType() );
 
-            if ( xsc->GetType() == XS_POINT )
+            if ( lastxs && fuselage_ptr->m_OrderPolicy() == FuselageGeom::FUSE_LOOP )
+            {
+                m_XSecTypeChoice.Deactivate();
+            }
+            else
+            {
+                m_XSecTypeChoice.Activate();
+            }
+
+            if ( lastxs && fuselage_ptr->m_OrderPolicy() == FuselageGeom::FUSE_LOOP )
+            {
+                DisplayGroup ( NULL);
+            }
+            else if ( xsc->GetType() == XS_POINT )
             {
                 DisplayGroup( NULL );
             }
