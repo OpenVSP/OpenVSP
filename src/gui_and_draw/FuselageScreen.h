@@ -35,6 +35,9 @@ protected:
 
     SliderAdjRangeInput m_LengthSlider;
 
+
+    Choice m_DesignPolicyChoice;
+
     GroupLayout m_XSecLayout;
 
     IndexSelector m_XSecIndexSelector;

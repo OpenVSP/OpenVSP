@@ -28,8 +28,14 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 550, "F
 
     m_DesignLayout.SetGroupAndScreen( design_group, this );
     m_DesignLayout.AddDividerBox( "Design" );
-    m_DesignLayout.AddYGap();
     m_DesignLayout.AddSlider( m_LengthSlider, "Length", 10, "%6.5f" );
+
+    m_DesignLayout.AddYGap();
+    m_DesignLayout.AddDividerBox( "Design Policy" );
+    m_DesignPolicyChoice.AddItem( "MONOTONIC" );
+    m_DesignPolicyChoice.AddItem( "LOOP" );
+    m_DesignPolicyChoice.AddItem( "FREE" );
+    m_DesignLayout.AddChoice( m_DesignPolicyChoice, "XSec Order: " );
 
     Fl_Group* xsec_tab = AddTab( "XSec" );
     Fl_Group* xsec_group = AddSubGroup( xsec_tab, 5 );
@@ -266,6 +272,8 @@ bool FuselageScreen::Update()
 
     //==== Design ====//
     m_LengthSlider.Update( fuselage_ptr->m_Length.GetID() );
+
+    m_DesignPolicyChoice.Update( fuselage_ptr->m_OrderPolicy.GetID() );
 
     //==== Skin & XSec Index Display ===//
     int xsid = fuselage_ptr->GetActiveXSecIndex();
@@ -538,6 +546,19 @@ void FuselageScreen::GuiDeviceCallBack( GuiDevice* gui_device )
                     fuselage_ptr->Update();
                 }
             }
+        }
+    }
+    else if ( gui_device == &m_DesignPolicyChoice )
+    {
+        // This is a hack to get the XSecXSlider to update its ranges.  This
+        // requires setting the ID to another valid FractionParm's ID.  In this
+        // case, m_YLocPercent of the same XSec.  It will get set back to
+        // m_XLocPercent in Update() before anyone notices the change.
+        int xsid = fuselage_ptr->GetActiveXSecIndex();
+        FuseXSec* xs = (FuseXSec*) fuselage_ptr->GetXSec( xsid );
+        if ( xs )
+        {
+            m_XSecXSlider.Update( xs->m_YLocPercent.GetID() );
         }
     }
 
