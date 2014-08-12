@@ -1409,6 +1409,15 @@ void FractParmSlider::Update( const string& parm_id )
     //else
     //  Deactivate();
 
+    if ( parm_ptr->GetActiveFlag() )
+    {
+        m_ResultFlInput->activate();
+    }
+    else
+    {
+        m_ResultFlInput->deactivate();
+    }
+
 
     m_Slider.Update( parm_id );
     m_FractInput.Update( parm_id );
