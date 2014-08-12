@@ -339,7 +339,7 @@ void FuselageGeom::EnforceOrder( FuseXSec* xs, int indx, int policy )
             xs->m_XLocPercent.SetLowerUpperLimits( lower , upper );
         }
     }
-    else if( policy == FUSE_DUCT )
+    else if( policy == FUSE_LOOP )
     {
         if ( indx == 0 )
         {
