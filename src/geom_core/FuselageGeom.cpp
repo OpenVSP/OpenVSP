@@ -325,10 +325,12 @@ void FuselageGeom::EnforceOrder( FuseXSec* xs, int indx, int policy )
         if ( indx == 0 )
         {
             xs->m_XLocPercent.SetLowerUpperLimits( 0.0, 0.0 );
+            xs->m_XLocPercent.Set( 0.0 );
         }
         else if ( indx ==  m_XSecSurf.NumXSec() - 1 )
         {
             xs->m_XLocPercent.SetLowerUpperLimits( 1.0, 1.0 );
+            xs->m_XLocPercent.Set( 1.0 );
         }
         else
         {
@@ -344,10 +346,12 @@ void FuselageGeom::EnforceOrder( FuseXSec* xs, int indx, int policy )
         if ( indx == 0 )
         {
             xs->m_XLocPercent.SetLowerUpperLimits( 1.0, 1.0 );
+            xs->m_XLocPercent.Set( 1.0 );
         }
         else if ( indx ==  m_XSecSurf.NumXSec() - 1 )
         {
             xs->m_XLocPercent.SetLowerUpperLimits( 1.0, 1.0 );
+            xs->m_XLocPercent.Set( 1.0 );
         }
         else
         {
