@@ -33,6 +33,9 @@ FuselageGeom::FuselageGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_Length.Init( "Length", "Design", this, 30.0, 1.0e-8, 1.0e12 );
     m_Length.SetDescript( "Length of fuselage" );
 
+    m_OrderPolicy.Init( "OrderPolicy", "Design", this, FUSE_MONOTONIC, FUSE_MONOTONIC, NUM_FUSE_POLICY - 1 );
+    m_OrderPolicy.SetDescript( "XSec ordering policy for fuselage" );
+
     m_ActiveXSec = 0;
 
     m_XSecSurf.SetXSecType( XSEC_FUSE );
@@ -110,8 +113,7 @@ void FuselageGeom::UpdateSurf()
             xs->SetGroupDisplaySuffix( i );
 
             //==== Set X Limits ====//
-
-            EnforceOrder( xs, i, policy );
+            EnforceOrder( xs, i, m_OrderPolicy() );
 
             xs->SetRefLength( m_Length() );
 

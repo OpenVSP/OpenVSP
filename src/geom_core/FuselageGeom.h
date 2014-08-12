@@ -59,6 +59,7 @@ public:
     virtual void LoadDragFactors( DragFactors& drag_factors );
 
     Parm m_Length;                  // Length of Fuselage
+    IntParm m_OrderPolicy;
 
 protected:
     virtual void ChangeID( string id );
@@ -66,7 +67,7 @@ protected:
     virtual void UpdateSurf();
     virtual void UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts );
 
-    enum {FUSE_MONOTONIC, FUSE_DUCT, FUSE_FREE};
+    enum {FUSE_MONOTONIC, FUSE_DUCT, FUSE_FREE, NUM_FUSE_POLICY};
     virtual void EnforceOrder( FuseXSec* xs, int indx, int policy );
 
 
