@@ -67,7 +67,7 @@ protected:
     virtual void UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts );
 
     enum {FUSE_MONOTONIC, FUSE_DUCT, FUSE_FREE};
-    virtual void EnforceOrder( FuseXSec* xs, int indx, int ile, int policy );
+    virtual void EnforceOrder( FuseXSec* xs, int indx, int policy );
 
 
     vector<int> m_TessUVec;

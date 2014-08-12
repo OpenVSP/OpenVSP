@@ -110,19 +110,8 @@ void FuselageGeom::UpdateSurf()
             xs->SetGroupDisplaySuffix( i );
 
             //==== Set X Limits ====//
-#if 0
-            // NOTE: This code breaks cross section insertion and deletion because Update()
-            //       gets called when a new cross section is created but before the cross section
-            //       has been fully initialized. For example, trace the code through a cross section
-            //       insert and see that XSecSurf::AddXSec() needs to call ParmChanged() to let
-            //       geometry know that the number of u-curves changed because the cross section
-            //       count changed and not the Gen tab changing the count. Also, this logic should
-            //       probably be in the cross section code (perhaps XSecSurf) so that when the cross
-            //       section x-location is changed this is checked.
-            int policy = FUSE_MONOTONIC;
-            int duct_ile = 2;  // Only needed for FUSE_DUCT
-            EnforceOrder( xs, i, duct_ile, policy );
-#endif
+
+            EnforceOrder( xs, i, policy );
 
             xs->SetRefLength( m_Length() );
 
@@ -327,7 +316,7 @@ void FuselageGeom::LoadDragFactors( DragFactors& drag_factors )
     drag_factors.m_LengthToDia = m_Length() / dia;
 }
 
-void FuselageGeom::EnforceOrder( FuseXSec* xs, int indx, int ile, int policy )
+void FuselageGeom::EnforceOrder( FuseXSec* xs, int indx, int policy )
 {
     if( policy == FUSE_MONOTONIC )
     {
@@ -357,10 +346,6 @@ void FuselageGeom::EnforceOrder( FuseXSec* xs, int indx, int ile, int policy )
         else if ( indx ==  m_XSecSurf.NumXSec() - 1 )
         {
             xs->m_XLocPercent.SetLowerUpperLimits( 1.0, 1.0 );
-        }
-        else if ( indx == ile )
-        {
-            xs->m_XLocPercent.SetLowerUpperLimits( 0.0, 0.0 );
         }
         else
         {
