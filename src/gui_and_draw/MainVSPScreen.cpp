@@ -42,6 +42,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     AddMenuCallBack( m_MainUI->ExportMenu );
     AddMenuCallBack( m_MainUI->TempDirMenu );
     AddMenuCallBack( m_MainUI->VersionMenu );
+    AddMenuCallBack( m_MainUI->RunScriptMenu  );
     AddMenuCallBack( m_MainUI->ExitMenu );
 
     AddMenuCallBack( m_MainUI->GeomModifyMenu );
@@ -430,6 +431,15 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
         if ( openfile.compare( "" ) != 0 )
         {
             VehicleMgr.GetVehicle()->ReadXMLFile( openfile );
+            m_ScreenMgr->SetUpdateFlag( true );
+        }
+    }
+    else if ( m == m_MainUI->RunScriptMenu )
+    {
+        string scriptfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Script File To Run", "*.as" );
+        if ( scriptfile.compare( "" ) != 0 )
+        {
+            VehicleMgr.GetVehicle()->RunScript( scriptfile );
             m_ScreenMgr->SetUpdateFlag( true );
         }
     }
