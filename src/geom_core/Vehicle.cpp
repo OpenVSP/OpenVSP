@@ -238,6 +238,13 @@ void Vehicle::Update()
     }
 }
 
+//===== Run Script ====//
+void Vehicle::RunScript( const string & file_name, const string & function_name )
+{
+    ScriptMgr.ReadExecuteScriptFile( file_name, function_name );
+}
+
+
 //==== Find Geom Based on GeomID ====//
 Geom* Vehicle::FindGeom( string geom_id )
 {

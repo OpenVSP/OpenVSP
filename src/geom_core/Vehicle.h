@@ -86,6 +86,7 @@ public:
 
     void Update();
     void UpdateGui();
+    void RunScript( const string & file_name, const string & function_name = "void main()" );
 
     Geom* FindGeom( string geom_id );
     vector< Geom* > FindGeomVec( const vector< string > & geom_id_vec );
