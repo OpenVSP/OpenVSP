@@ -508,7 +508,7 @@ void VspSurf::Tesselate( const vector<int> &num_u, int num_v, std::vector< vecto
     u.resize( nu );
     double uumin( umin );
     size_t ii;
-    i = 0;
+    size_t iu = 0;
     for ( ii = 0; ii < (size_t)GetNumSectU(); ++ii )
     {
         double du, dv;
@@ -517,8 +517,8 @@ void VspSurf::Tesselate( const vector<int> &num_u, int num_v, std::vector< vecto
         m_Surface.get( surf, du, dv, ii, 0 );
         for ( int iii = 0; iii < num_u[ii] - 1; ++iii )
         {
-            u[i] = uumin + du * static_cast<double>( iii ) / ( num_u[ii] - 1 );
-            i++;
+            u[iu] = uumin + du * static_cast<double>( iii ) / ( num_u[ii] - 1 );
+            iu++;
         }
         uumin += du;
     }
