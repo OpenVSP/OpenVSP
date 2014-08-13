@@ -515,9 +515,9 @@ void VspSurf::Tesselate( const vector<int> &num_u, int num_v, std::vector< vecto
 
         surface_patch_type surf;
         m_Surface.get( surf, du, dv, iusect, 0 );
-        for ( int iii = 0; iii < num_u[iusect] - 1; ++iii )
+        for ( int isecttess = 0; isecttess < num_u[iusect] - 1; ++isecttess )
         {
-            u[iu] = uumin + du * static_cast<double>( iii ) / ( num_u[iusect] - 1 );
+            u[iu] = uumin + du * static_cast<double>( isecttess ) / ( num_u[iusect] - 1 );
             iu++;
         }
         uumin += du;
