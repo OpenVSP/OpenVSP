@@ -112,7 +112,7 @@ void ScreenMgr::MessageCallback( const MessageBase* from, const MessageData& dat
         CfdMeshScreen* scr = ( CfdMeshScreen* ) m_ScreenVec[VSP_CFD_MESH_SCREEN];
         if ( scr )
         {
-            for ( int i = 0; i < data.m_StringVec.size(); i++ )
+            for ( int i = 0; i < (int)data.m_StringVec.size(); i++ )
             {
                 scr->AddOutputText( data.m_StringVec[i] );
             }
