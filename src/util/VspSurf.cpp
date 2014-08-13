@@ -507,17 +507,17 @@ void VspSurf::Tesselate( const vector<int> &num_u, int num_v, std::vector< vecto
 
     u.resize( nu );
     double uumin( umin );
-    size_t ii;
+    size_t iusect;
     size_t iu = 0;
-    for ( ii = 0; ii < (size_t)GetNumSectU(); ++ii )
+    for ( iusect = 0; iusect < (size_t)GetNumSectU(); ++iusect )
     {
         double du, dv;
 
         surface_patch_type surf;
-        m_Surface.get( surf, du, dv, ii, 0 );
-        for ( int iii = 0; iii < num_u[ii] - 1; ++iii )
+        m_Surface.get( surf, du, dv, iusect, 0 );
+        for ( int iii = 0; iii < num_u[iusect] - 1; ++iii )
         {
-            u[iu] = uumin + du * static_cast<double>( iii ) / ( num_u[ii] - 1 );
+            u[iu] = uumin + du * static_cast<double>( iii ) / ( num_u[iusect] - 1 );
             iu++;
         }
         uumin += du;
