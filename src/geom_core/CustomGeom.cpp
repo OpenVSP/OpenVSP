@@ -22,6 +22,7 @@ using namespace vsp;
 CustomGeomMgrSingleton::CustomGeomMgrSingleton()
 {
 //    m_ScriptDir = "./CustomScripts/";
+printf("Fix Custom Script Path\n");
     m_ScriptDir = "../../../CustomScripts/";
 }
 
