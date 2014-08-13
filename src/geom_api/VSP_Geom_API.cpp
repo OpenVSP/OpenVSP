@@ -104,9 +104,10 @@ void VSPCheckSetup()
         exit( 0 );
     }
 
-#ifdef VSP_USE_FLTK
-    GuiInterface::getInstance().InitGui( GetVehicle() );
-#endif
+// Please dont do this - messes up the batch script mode
+//#ifdef VSP_USE_FLTK
+//    GuiInterface::getInstance().InitGui( GetVehicle() );
+//#endif
 
     ErrorMgr.NoError();
 }
