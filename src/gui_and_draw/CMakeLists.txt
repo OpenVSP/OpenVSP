@@ -71,7 +71,6 @@ ManageViewScreen.cpp
 ManageBackgroundScreen.cpp
 ManageLabelScreen.cpp
 ManageCORScreen.cpp
-MaterialRepo.cpp
 VSPWindow.cpp
 AdvLinkScreen.h
 AwaveScreen.h
@@ -121,7 +120,6 @@ ManageViewScreen.h
 ManageBackgroundScreen.h
 ManageLabelScreen.h
 ManageCORScreen.h
-MaterialRepo.h
 VSPWindow.h
 )
 
