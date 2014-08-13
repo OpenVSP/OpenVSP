@@ -54,7 +54,7 @@ void InitGui()
 	AddGui( GDEV_DIVIDER_BOX, "Design" );
 
     //==== Store the GUI Index to Use In UpdateGui ====//
-	LengthSlider = AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Length", "Length", "Design"  );
+	LengthSlider = AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Length", "Length", "Design", 100  );
 	WidthSlider = AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Width", "Width", "Design"  );
 	HeightSlider = AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Height", "Height", "Design"  );
 
@@ -101,7 +101,7 @@ void UpdateSurf()
 {
 	string geom_id = GetCurrCustomGeom();
 
-	//==== Check For Layout Trigger ====//
+    //==== Check For Layout Trigger ====//
     string layout_trigger_parm = GetParm( geom_id, "LayoutTrigger", "Design" );
 	if ( GetBoolParmVal( layout_trigger_parm )  )
     {

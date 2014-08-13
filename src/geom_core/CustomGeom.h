@@ -71,7 +71,7 @@ public:
     string GetCustomParm( int index );
 
     //==== Add A Gui Device Constructor to Current Custom Geom - Gui Will Be Created By Custom Screen (if connected) ===//
-    int AddGui( int type, const string & label, const string & parm_name, const string & group_name );
+    int AddGui( int type, const string & label, const string & parm_name, const string & group_name, double range );
     vector< GuiDef > GetGuiDefVec( const string & geom_id );
 
     //==== Add Gui->Parm Pairing To Update Vec ====//
@@ -81,14 +81,16 @@ public:
 
     //==== Add XSec Surface To Current Geom - Return ID =====//
     string AddXSecSurf();
+    void RemoveXSecSurf( const string& id );
     void ClearXSecSurfs();
-    void SkinXSecSurf();
+    void SkinXSecSurf( bool closed_flag );
     void TransformSurf( int index, Matrix4d & mat );
     void CloneSurf( int index, Matrix4d & mat );
 
 
     //==== Custom XSecs Functions ====//
     void SetCustomXSecLoc( const string & xsec_id, const vec3d & loc );
+    void SetCustomXSecRot( const string & xsec_id, const vec3d & rot );
 
     //==== Get All Custom Script Module Name ====//
     vector< string > GetCustomScriptModuleNames();
@@ -118,7 +120,7 @@ private:
 //==================================================================================================//
 
 //==== Custom Geom XSec =====//
-class CustomXSec : public XSec
+class CustomXSec : public SkinXSec
 {
 public:
 
@@ -127,9 +129,15 @@ public:
     virtual void Update();
     virtual void CopyBasePos( XSec* xs );
 
-    void SetLoc( const vec3d & loc );
-    void SetRot( const vec3d & rot );
-    void SetCenterRot( const vec3d & cent );
+    virtual void SetLoc( const vec3d & loc );
+    virtual vec3d GetLoc()                                  { return m_Loc; }
+    virtual void SetRot( const vec3d & rot );
+    virtual vec3d GetRot()                                  { return m_Rot; }
+    virtual void SetCenterRot( const vec3d & cent );
+    virtual vec3d GetCenterRot()                            { return m_CenterRot; }
+
+    virtual double GetLScale();
+    virtual double GetRScale();
 
 protected:
 
@@ -172,16 +180,16 @@ public:
 
     //==== Add XSec Surface Return ID =====//
     string AddXSecSurf();
+    void RemoveXSecSurf( const string& id );
     void ClearXSecSurfs();
 
     virtual int GetNumXSecSurfs()                    { return ( int )m_XSecSurfVec.size(); }
     virtual XSecSurf* GetXSecSurf( int index );
 
     //==== Skin XSecs ====//
-    virtual void SkinXSecSurf();
+    virtual void SkinXSecSurf( bool closed_flag );
     virtual void CloneSurf( int index, Matrix4d & mat );
     virtual void TransformSurf( int index, Matrix4d & mat );
-
 
     //==== Encode/Decode XML ====//
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );

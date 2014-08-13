@@ -88,13 +88,13 @@ GuiDevice* CustomScreen::AddGuiItem( GuiDef & def, int id )
     else if ( def.m_Type == GDEV_SLIDER_ADJ_RANGE_INPUT )
     {
         SliderAdjRangeInput* slider = new SliderAdjRangeInput();
-        m_Layout.AddSlider( *slider, ( const char* )def.m_Label.c_str(), 10, m_Format.c_str() );
+        m_Layout.AddSlider( *slider, ( const char* )def.m_Label.c_str(), def.m_Range, m_Format.c_str() );
         gui_dev = slider;
     }
     else if ( def.m_Type == GDEV_SLIDER_INPUT )
     {
         SliderInput* slider = new SliderInput();
-        m_Layout.AddSlider( *slider, ( const char* )def.m_Label.c_str(), 10, m_Format.c_str() );
+        m_Layout.AddSlider( *slider, ( const char* )def.m_Label.c_str(), def.m_Range, m_Format.c_str() );
         gui_dev = slider;
     }
     else if ( def.m_Type == GDEV_INPUT )

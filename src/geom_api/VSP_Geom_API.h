@@ -117,6 +117,12 @@ extern vector< string > GetXSecParmIDs( const string& xsec_id );
 extern string GetXSecParm( const string& xsec_id, const string& name );
 extern std::vector<vec3d> ReadFileXSec( const string& xsec_id, const string& file_name );
 extern void SetXSecPnts( const string& xsec_id, std::vector< vec3d > & pnt_vec );
+extern vec3d ComputeXSecPnt( const string& xsec_id, double fract );
+extern vec3d ComputeXSecTan( const string& xsec_id, double fract );
+extern void SetXSecContinuity( const string& xsec_id, int cx );
+extern void SetXSecTanAngles( const string& xsec_id, int side, double top, double right, double bottom, double left );
+extern void SetXSecTanStrengths( const string& xsec_id, int side, double top, double right, double bottom, double left );
+extern void SetXSecCurvatures( const string& xsec_id, int side, double top, double right, double bottom, double left );
 
 //======================== Sets ================================//
 extern int GetNumSets();
@@ -146,9 +152,6 @@ extern int GetParmType( const string & parm_id );
 extern string GetParmName( const string & parm_id );
 extern string GetParmContainer( const string & parm_id );
 
-// jrg To Do List
-//
-// Only linkable parms can be found - GetParm???
 
 
 }           // End vsp namespace

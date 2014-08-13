@@ -74,6 +74,17 @@ public:
     asIObjectType* m_Vec3dArrayType;
     asIObjectType* m_StringArrayType;
 
+    //==== Utility ====//
+    void Print( const string & data, bool new_line );
+    void Print( const vec3d & data, bool new_line );
+    void Print( double data, bool new_line );
+    void Print( int data, bool new_line );
+
+    double Rad2Deg( double r )                      { return r*RAD_2_DEG; }
+    double Deg2Rad( double d )                      { return d*DEG_2_RAD; }
+    double Min( double x, double y )                { return  (x < y ) ? x : y; }
+    double Max( double x, double y )                { return  (x > y ) ? x : y; }
+
 private:
 
     ScriptMgrSingleton();
@@ -87,6 +98,7 @@ private:
     void RegisterAdvLinkMgr( asIScriptEngine* se );
     void RegisterAPIErrorObj( asIScriptEngine* se );
     void RegisterAPI( asIScriptEngine* se );
+    void RegisterUtility( asIScriptEngine* se );
 
     //==== Member Variables ====//
     asIScriptEngine* m_ScriptEngine;

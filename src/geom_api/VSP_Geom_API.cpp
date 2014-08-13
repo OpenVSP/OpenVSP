@@ -1222,6 +1222,119 @@ void SetXSecPnts( const string& xsec_id, vector< vec3d > & pnt_vec )
     ErrorMgr.NoError();
 }
 
+//==== Compute Point Along XSec ====//
+vec3d ComputeXSecPnt( const string& xsec_id, double fract )
+{
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "ComputePnt::Can't Find XSec " + xsec_id  );
+        return vec3d();
+    }
+
+    vec3d pnt = xs->GetCurve().CompPnt01( fract );
+    ErrorMgr.NoError();
+
+    return pnt;
+}
+
+//==== Compute Tan Along XSec ====//
+vec3d ComputeXSecTan( const string& xsec_id, double fract )
+{
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "ComputeTan::Can't Find XSec " + xsec_id  );
+        return vec3d();
+    }
+
+    vec3d pnt = xs->GetCurve().CompTan01( fract );
+    ErrorMgr.NoError();
+
+    return pnt;
+}
+
+//==== Set Continuity At XSec ====//
+void SetXSecContinuity( const string& xsec_id, int cx )
+{
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecContinuity::Can't Find XSec " + xsec_id  );
+        return;
+    }
+    SkinXSec* skinxs = dynamic_cast<SkinXSec*>(xs);
+    if ( !skinxs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecContinuity::Can't Convert To Skin XSec " + xsec_id  );
+        return;
+    }
+
+    skinxs->SetContinuity( cx );
+    ErrorMgr.NoError();
+}
+
+//==== Set Tan Angles At XSec ====//
+void SetXSecTanAngles( const string& xsec_id, int side, double top, double right, double bottom, double left )
+{
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecTanAngles::Can't Find XSec " + xsec_id  );
+        return;
+    }
+    SkinXSec* skinxs = dynamic_cast<SkinXSec*>(xs);
+    if ( !skinxs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecTanAngles::Can't Convert To Skin XSec " + xsec_id  );
+        return;
+    }
+
+    skinxs->SetTanAngles( side, top, right, bottom, left );
+    ErrorMgr.NoError();
+}
+
+//==== Set Tan Strengths At XSec ====//
+void SetXSecTanStrengths( const string& xsec_id, int side, double top, double right, double bottom, double left )
+{
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecTanStrengths::Can't Find XSec " + xsec_id  );
+        return;
+    }
+    SkinXSec* skinxs = dynamic_cast<SkinXSec*>(xs);
+    if ( !skinxs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecTanStrengths::Can't Convert To Skin XSec " + xsec_id  );
+        return;
+    }
+
+    skinxs->SetTanStrengths( side, top, right, bottom, left );
+    ErrorMgr.NoError();
+}
+
+//==== Set Curvature Angles At XSec ====//
+void SetXSecCurvatures( const string& xsec_id, int side, double top, double right, double bottom, double left )
+{
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecCurvatures::Can't Find XSec " + xsec_id  );
+        return;
+    }
+    SkinXSec* skinxs = dynamic_cast<SkinXSec*>(xs);
+    if ( !skinxs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecCurvatures::Can't Convert To Skin XSec " + xsec_id  );
+        return;
+    }
+
+    skinxs->SetCurvatures( side, top, right, bottom, left );
+    ErrorMgr.NoError();
+}
+
+
 //===================================================================//
 //===============       Set Functions            ===================//
 //===================================================================//

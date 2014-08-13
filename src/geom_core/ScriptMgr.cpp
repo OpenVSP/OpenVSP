@@ -40,12 +40,6 @@ void MessageCallback( const asSMessageInfo *msg, void *param )
     printf( "%s (%d, %d) : %s : %s\n", msg->section, msg->row, msg->col, type, msg->message );
 }
 
-//==== Console Print A String ====//
-void Print( const string &msg )
-{
-    printf( "%s\n", msg.c_str() );
-}
-
 //==================================================================================================//
 //========================================= ScriptMgr      =========================================//
 //==================================================================================================//
@@ -104,20 +98,7 @@ void ScriptMgrSingleton::Init( )
     RegisterAdvLinkMgr( m_ScriptEngine );
     RegisterAPIErrorObj( m_ScriptEngine );
     RegisterAPI( m_ScriptEngine );
-
-    //==== Register Utility Functions ====//
-    r = se->RegisterGlobalFunction( "void Print(const string &in)", asFUNCTION( Print ), asCALL_CDECL );
-    assert( r >= 0 );
-
-    //====  Register Proxy Utility Functions ====//
-    r = se->RegisterGlobalFunction( "void SetSaveInt(int i)", asMETHOD( ScriptMgrSingleton, SetSaveInt ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
-    assert( r >= 0 );
-    r = se->RegisterGlobalFunction( "int  GetSaveInt()", asMETHOD( ScriptMgrSingleton, GetSaveInt ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
-    assert( r >= 0 );
-    r = se->RegisterGlobalFunction( "array<vec3d>@ GetProxyVec3dArray()", asMETHOD( ScriptMgrSingleton, GetProxyVec3dArray ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
-    assert( r >= 0 );
-    r = se->RegisterGlobalFunction( "void SetVec3dArray( array<vec3d>@ arr )", asMETHOD( ScriptMgrSingleton, SetVec3dArray ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
-    assert( r >= 0 );
+    RegisterUtility(  m_ScriptEngine );
 
 
 }
@@ -411,6 +392,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "XSEC_CRV_TYPE", "XS_CIRCLE", XS_CIRCLE );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "XSEC_CRV_TYPE", "XS_ELLIPSE", XS_ELLIPSE );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "XSEC_CRV_TYPE", "XS_SUPER_ELLIPSE", XS_SUPER_ELLIPSE );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "XSEC_CRV_TYPE", "XS_ROUNDED_RECTANGLE", XS_ROUNDED_RECTANGLE );
@@ -431,6 +414,16 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "XSEC_CRV_TYPE", "XS_FILE_AIRFOIL", XS_FILE_AIRFOIL );
     assert( r >= 0 );
+
+    r = se->RegisterEnum( "XSEC_SIDES_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "XSEC_SIDES_TYPE", "XSEC_BOTH_SIDES", XSEC_BOTH_SIDES );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "XSEC_SIDES_TYPE", "XSEC_LEFT_SIDE", XSEC_LEFT_SIDE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "XSEC_SIDES_TYPE", "XSEC_RIGHT_SIDE", XSEC_RIGHT_SIDE );
+    assert( r >= 0 );
+
 
     r = se->RegisterEnum( "SET_TYPE" );
     assert( r >= 0 );
@@ -689,7 +682,7 @@ void ScriptMgrSingleton::RegisterCustomGeomMgr( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "string GetCustomParm( int index )",
                                     asMETHOD( CustomGeomMgrSingleton, GetCustomParm ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r );
-    r = se->RegisterGlobalFunction( "int AddGui( int type, const string & in label = string(), const string & in parm_name = string(), const string & in group_name = string() )",
+    r = se->RegisterGlobalFunction( "int AddGui( int type, const string & in label = string(), const string & in parm_name = string(), const string & in group_name = string(), double range = 10.0 )",
                                     asMETHOD( CustomGeomMgrSingleton, AddGui ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r );
     r = se->RegisterGlobalFunction( "void UpdateGui( int gui_id, const string & in parm_id )",
@@ -698,10 +691,13 @@ void ScriptMgrSingleton::RegisterCustomGeomMgr( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "string AddXSecSurf()",
                                     asMETHOD( CustomGeomMgrSingleton, AddXSecSurf ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r );
+    r = se->RegisterGlobalFunction( "void RemoveXSecSurf(const string & in xsec_id)",
+                                    asMETHOD( CustomGeomMgrSingleton, RemoveXSecSurf ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
+    assert( r );
     r = se->RegisterGlobalFunction( "void ClearXSecSurfs()",
                                     asMETHOD( CustomGeomMgrSingleton, ClearXSecSurfs ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r );
-    r = se->RegisterGlobalFunction( "void SkinXSecSurf()",
+    r = se->RegisterGlobalFunction( "void SkinXSecSurf( bool closed_flag = false )",
                                     asMETHOD( CustomGeomMgrSingleton, SkinXSecSurf ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r );
     r = se->RegisterGlobalFunction( "void CloneSurf(int index, Matrix4d & in mat)",
@@ -713,6 +709,9 @@ void ScriptMgrSingleton::RegisterCustomGeomMgr( asIScriptEngine* se )
 
     r = se->RegisterGlobalFunction( "void SetCustomXSecLoc( const string & in xsec_id, const vec3d & in loc )",
                                     asMETHOD( CustomGeomMgrSingleton, SetCustomXSecLoc ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
+    assert( r );
+    r = se->RegisterGlobalFunction( "void SetCustomXSecRot( const string & in xsec_id, const vec3d & in rot )",
+                                    asMETHOD( CustomGeomMgrSingleton, SetCustomXSecRot ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r );
     r = se->RegisterGlobalFunction( "bool CheckClearTriggerEvent( int gui_id )",
                                     asMETHOD( CustomGeomMgrSingleton, CheckClearTriggerEvent ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
@@ -910,6 +909,18 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "void SetXSecPnts( const string& in xsec_id, array<vec3d>@ pnt_arr )", asMETHOD( ScriptMgrSingleton, SetXSecPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "vec3d ComputeXSecPnt( const string& in xsec_id, double fract )", asFUNCTION( vsp::ComputeXSecPnt ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "vec3d ComputeXSecTan( const string& in xsec_id, double fract )", asFUNCTION( vsp::ComputeXSecTan ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void SetXSecContinuity( const string& in xsec_id, int cx )", asFUNCTION( vsp::SetXSecContinuity ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void SetXSecTanAngles( const string& in xsec_id, int side, double top, double right = -1.0e12, double bottom = -1.0e12, double left = -1.0e12 )", asFUNCTION( vsp::SetXSecTanAngles ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void SetXSecTanStrengths( const string& in xsec_id, int side, double top, double right = -1.0e12, double bottom = -1.0e12, double left = -1.0e12 )", asFUNCTION( vsp::SetXSecTanStrengths ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void SetXSecCurvatures( const string& in xsec_id, int side, double top, double right = -1.0e12, double bottom = -1.0e12, double left = -1.0e12 )", asFUNCTION( vsp::SetXSecCurvatures ), asCALL_CDECL );
+    assert( r >= 0 );
 
     //==== Sets Functions ====//
     r = se->RegisterGlobalFunction( "int GetNumSets()", asFUNCTION( vsp::GetNumSets ), asCALL_CDECL );
@@ -966,15 +977,37 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "string GetParmContainer( const string & in parm_id )", asFUNCTION( vsp::GetParmContainer ), asCALL_CDECL );
     assert( r >= 0 );
 
-
-
-    //==== Register ResData Object =====//
-    //r = se->RegisterObjectType("Results", 0, asOBJ_REF | asOBJ_NOCOUNT );             assert( r >= 0 );
-    //r = se->RegisterGlobalFunction("Results@ FindLatestResult( const string & in name)", asMETHOD(ResultsMgrSingleton, FindLatestResult), asCALL_THISCALL_ASGLOBAL,&ResultsMgr);  assert( r >= 0 );
-    //r = se->RegisterGlobalFunction("void GetResultName( Results@ res )", asMETHOD(ResultsMgrSingleton, GetResultName), asCALL_THISCALL_ASGLOBAL,&ResultsMgr); assert( r >= 0 );
-
-//r = engine->RegisterObjectType("ref", 0, asOBJ_REF); assert( r >= 0 );
 }
+
+void ScriptMgrSingleton::RegisterUtility( asIScriptEngine* se )
+{
+    //==== Register Utility Functions ====//
+    int r;
+    r = se->RegisterGlobalFunction( "void Print(const string & in data, bool new_line = true )", asMETHODPR( ScriptMgrSingleton, Print, (const string &, bool), void ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );  
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void Print(const vec3d & in data, bool new_line = true )", asMETHODPR( ScriptMgrSingleton, Print, (const vec3d &, bool), void ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );  
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void Print(double data, bool new_line = true )", asMETHODPR( ScriptMgrSingleton, Print, (double, bool), void ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );  
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void Print(int data, bool new_line = true )", asMETHODPR( ScriptMgrSingleton, Print, (int, bool), void ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );  
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "double Min( double x, double y)", asMETHOD( ScriptMgrSingleton, Min ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "double Max( double x, double y)", asMETHOD( ScriptMgrSingleton, Max ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "double Rad2Deg( double r )", asMETHOD( ScriptMgrSingleton, Rad2Deg ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "double Deg2Rad( double d )", asMETHOD( ScriptMgrSingleton, Deg2Rad ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+
+    //====  Register Proxy Utility Functions ====//
+    r = se->RegisterGlobalFunction( "array<vec3d>@ GetProxyVec3dArray()", asMETHOD( ScriptMgrSingleton, GetProxyVec3dArray ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void SetVec3dArray( array<vec3d>@ arr )", asMETHOD( ScriptMgrSingleton, SetVec3dArray ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+}
+
 
 void ScriptMgrSingleton::SetVec3dArray( CScriptArray* varr )
 {
@@ -1131,4 +1164,32 @@ void ScriptMgrSingleton::SetXSecPnts( const string& xsec_id, CScriptArray* pnt_a
         pnt_vec[i] = * ( vec3d* )( pnt_arr->At( i ) );
     }
     vsp::SetXSecPnts( xsec_id, pnt_vec );
+}
+
+//==== Console Print String Data ====//
+void ScriptMgrSingleton::Print( const string & data, bool new_line )
+{
+    printf( " %s ", data.c_str() );
+    if ( new_line ) printf( "\n" );
+}
+
+//==== Console Print Vec3d Data ====//
+void ScriptMgrSingleton::Print( const vec3d & data, bool new_line )
+{
+    printf( " %f, %f, %f ", data.x(), data.y(), data.z() );
+    if ( new_line ) printf( "\n" );
+}
+
+//==== Console Print Double Data ====//
+void ScriptMgrSingleton::Print( double data, bool new_line )
+{
+    printf( " %f ", data );
+    if ( new_line ) printf( "\n" );
+}
+
+//==== Console Print Int Data ====//
+void ScriptMgrSingleton::Print( int data, bool new_line )
+{
+    printf( " %d ", data );
+    if ( new_line ) printf( "\n" );
 }

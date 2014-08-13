@@ -78,6 +78,7 @@ public:
     string m_Label;
     string m_ParmName;
     string m_GroupName;
+    double m_Range;
 
 };
 

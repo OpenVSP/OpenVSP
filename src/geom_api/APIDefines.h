@@ -72,6 +72,10 @@ enum XSEC_CRV_TYPE {XS_POINT,
                     XS_NUM_TYPES
                };
 
+enum XSEC_SIDES_TYPE {  XSEC_BOTH_SIDES,
+                        XSEC_LEFT_SIDE,
+                        XSEC_RIGHT_SIDE };
+
 enum IMPORT_TYPE {  IMPORT_STL,
                     IMPORT_NASCART,
                     IMPORT_CART3D_TRI,

@@ -95,7 +95,7 @@ string CustomGeomMgrSingleton::GetCustomParm( int index )
 
 
 //==== Add Gui Device Build Data For Custom Geom ====//
-int CustomGeomMgrSingleton::AddGui( int type, const string & label, const string & parm_name, const string & group_name )
+int CustomGeomMgrSingleton::AddGui( int type, const string & label, const string & parm_name, const string & group_name, double range )
 {
     Geom* gptr = VehicleMgr.GetVehicle()->FindGeom( m_CurrGeom );
 
@@ -109,6 +109,7 @@ int CustomGeomMgrSingleton::AddGui( int type, const string & label, const string
         gd.m_Label = label;
         gd.m_ParmName = parm_name;
         gd.m_GroupName = group_name;
+        gd.m_Range = range;
 
         return custom_geom->AddGui( gd );
     }
@@ -192,6 +193,19 @@ string CustomGeomMgrSingleton::AddXSecSurf()
     return string();
 }
 
+//==== Remove XSec Surface To Current Geom ====//
+void CustomGeomMgrSingleton::RemoveXSecSurf( const string& id )
+{
+    Geom* gptr = VehicleMgr.GetVehicle()->FindGeom( m_CurrGeom );
+
+    //==== Check If Geom is Valid and Correct Type ====//
+    if ( gptr && gptr->GetType().m_Type == CUSTOM_GEOM_TYPE )
+    {
+        CustomGeom* custom_geom = dynamic_cast<CustomGeom*>( gptr );
+        custom_geom->RemoveXSecSurf( id );
+    }
+}
+
 //==== Clear XSec Surface From Current Geom =====//
 void CustomGeomMgrSingleton::ClearXSecSurfs()
 {
@@ -206,7 +220,7 @@ void CustomGeomMgrSingleton::ClearXSecSurfs()
 }
 
 //==== Skin XSec Surf =====//
-void CustomGeomMgrSingleton::SkinXSecSurf()
+void CustomGeomMgrSingleton::SkinXSecSurf( bool closed_flag )
 {
     Geom* gptr = VehicleMgr.GetVehicle()->FindGeom( m_CurrGeom );
 
@@ -214,7 +228,7 @@ void CustomGeomMgrSingleton::SkinXSecSurf()
     if ( gptr && gptr->GetType().m_Type == CUSTOM_GEOM_TYPE )
     {
         CustomGeom* custom_geom = dynamic_cast<CustomGeom*>( gptr );
-        custom_geom->SkinXSecSurf();
+        custom_geom->SkinXSecSurf(closed_flag );
     }
 }
 
@@ -259,6 +273,21 @@ void CustomGeomMgrSingleton::SetCustomXSecLoc( const string & xsec_id, const vec
     cxs->SetLoc( loc );
 }
 
+//==== Custom XSecs Functions =====//
+void CustomGeomMgrSingleton::SetCustomXSecRot( const string & xsec_id, const vec3d & rot )
+{
+    ParmContainer* pc = ParmMgr.FindParmContainer( xsec_id );
+    if ( !pc )
+        return;
+
+    CustomXSec* cxs = dynamic_cast<CustomXSec*>( pc );
+    if ( !cxs )
+        return;
+
+    cxs->SetRot( rot );
+}
+
+
 //==== Get All Custom Script Module Name ====//
 vector< string > CustomGeomMgrSingleton::GetCustomScriptModuleNames()
 {
@@ -282,11 +311,11 @@ int CustomGeomMgrSingleton::SaveScriptContentToFile( const string & module_name,
 //==================================================================================================//
 //==================================================================================================//
 //==== Constructor ====//
-CustomXSec::CustomXSec( XSecCurve *xsc, bool use_left ) : XSec( xsc, use_left)
+CustomXSec::CustomXSec( XSecCurve *xsc, bool use_left ) : SkinXSec( xsc, use_left)
 {
     m_Type = vsp::XSEC_CUSTOM;
-};
 
+};
 
 //==== Update ====//
 void CustomXSec::Update()
@@ -318,10 +347,11 @@ void CustomXSec::Update()
     rotate_mat.rotateZ( m_Rot.z() );
 
     Matrix4d cent_mat;
-    cent_mat.translatef( -m_CenterRot.x(), -m_CenterRot.y(), -m_CenterRot.z() );
+    vec3d cent = m_CenterRot + m_Loc;
+    cent_mat.translatef( -cent.x(), -cent.y(), -cent.z() );
 
     Matrix4d inv_cent_mat;
-    inv_cent_mat.translatef( m_CenterRot.x(), m_CenterRot.y(), m_CenterRot.z() );
+    inv_cent_mat.translatef(  cent.x(),  cent.y(),  cent.z() );
 
     m_Transform.loadIdentity();
 
@@ -371,7 +401,51 @@ void CustomXSec::SetCenterRot( const vec3d & cent )
     m_LateUpdateFlag = true;
 }
 
+double CustomXSec::GetLScale()
+{
+return 1.0;
+    XSecSurf* xsecsurf = (XSecSurf*) GetParentContainerPtr();
+    int indx = xsecsurf->FindXSecIndex( m_ID );
 
+    vec3d prevLoc;
+    if( indx == 0 )
+    {
+        return GetRScale();
+    }
+    else
+    {
+        CustomXSec* prevxs = (CustomXSec*) xsecsurf->FindXSec( indx - 1);
+        if( prevxs )
+        {
+            prevLoc = prevxs->GetLoc();
+        }
+    }
+
+    return dist( m_Loc, prevLoc );
+}
+
+double CustomXSec::GetRScale()
+{
+return 1.0;
+    XSecSurf* xsecsurf = (XSecSurf*) GetParentContainerPtr();
+    int indx = xsecsurf->FindXSecIndex( m_ID );
+
+    vec3d nextLoc;
+    if( indx < ( xsecsurf->NumXSec() - 1 ) )
+    {
+        CustomXSec* nxtxs = (CustomXSec*) xsecsurf->FindXSec( indx + 1);
+        if( nxtxs )
+        {
+            nextLoc = nxtxs->GetLoc();
+        }
+    }
+    else
+    {
+        return GetLScale();
+    }
+
+    return dist( m_Loc, nextLoc );
+}
 
 //==================================================================================================//
 //==================================================================================================//
@@ -555,6 +629,26 @@ string CustomGeom::AddXSecSurf()
     return xsec_surf->GetID();
 }
 
+//==== Remove XSec Surface  ====//
+void CustomGeom::RemoveXSecSurf( const string& id )
+{
+    vector< XSecSurf* > new_vec;
+    for ( int i = 0 ; i < (int)m_XSecSurfVec.size() ; i++ )
+    {
+        if ( m_XSecSurfVec[i]->GetID() == id )
+        {
+            delete m_XSecSurfVec[i];
+        }
+        else
+        {
+            new_vec.push_back( m_XSecSurfVec[i] );
+        }
+    }
+
+    m_XSecSurfVec = new_vec;
+}
+
+
 //==== Get XSecSurf At Index =====//
 XSecSurf* CustomGeom::GetXSecSurf( int index )
 {
@@ -567,39 +661,66 @@ XSecSurf* CustomGeom::GetXSecSurf( int index )
 
 
 //==== Skin XSec Surfs ====//
-void CustomGeom::SkinXSecSurf()
+void CustomGeom::SkinXSecSurf( bool closed_flag )
 {
     m_MainSurfVec.resize( m_XSecSurfVec.size() );
     assert( m_XSecSurfVec.size() == m_MainSurfVec.size() );
 
     for ( int i = 0 ; i < ( int )m_XSecSurfVec.size() ; i++ )
     {
-        vector< VspCurve > crv_vec;
-
-        //==== Update XSec Location/Rotation ====//
-       for ( int j = 0 ; j < m_XSecSurfVec[i]->NumXSec() ; j++ )
+        //==== Remove Duplicate XSecs ====//
+        vector< CustomXSec* > xsec_vec;
+        for ( int j = 0 ; j < m_XSecSurfVec[i]->NumXSec() ; j++ )
         {
-            XSec* xs = m_XSecSurfVec[i]->FindXSec( j );
+            VspCurve last_crv;
+            CustomXSec* xs = dynamic_cast<CustomXSec*>( m_XSecSurfVec[i]->FindXSec( j ) );
             if ( xs )
             {
-                xs->SetLateUpdateFlag( true );
-
-                VspCurve crv = xs->GetCurve();
-                //==== Check If Curve Exactly Matches Procedding Curve ====//
-                if ( crv_vec.size() )
+                if ( j == 0 )
                 {
-                    if ( !crv_vec.back().IsEqual( crv ) )
-                        crv_vec.push_back(crv );
+                    xsec_vec.push_back( xs );
+                    last_crv = xs->GetCurve();;
                 }
                 else
                 {
-                    crv_vec.push_back( crv );
+                    VspCurve crv = xs->GetCurve();
+                    if ( !last_crv.IsEqual( crv ) )
+                    {
+                        xsec_vec.push_back( xs );
+                        last_crv = crv;
+                    }
                 }
             }
         }
-        if ( crv_vec.size() >= 2 )
+        //===== Make Sure Last XS is Exact ====//
+        if ( xsec_vec.size() > 2 && closed_flag )
         {
-            m_MainSurfVec[i].SkinC0( crv_vec, false );
+            xsec_vec[ xsec_vec.size()-1] = xsec_vec[0];
+        }
+
+        //==== Cross Section Curves & joint info ====//
+        vector< rib_data_type > rib_vec;
+
+        //==== Update XSec Location/Rotation ====//
+       for ( int j = 0 ; j < (int)xsec_vec.size() ; j++ )
+       {
+            CustomXSec* xs = xsec_vec[j];
+            xs->SetLateUpdateFlag( true );
+
+            VspCurve crv = xs->GetCurve();
+
+            //==== Load Ribs ====//
+            if ( j == 0 )
+                rib_vec.push_back( xs->GetRib( true, false ) );
+            else if ( j == m_XSecSurfVec[i]->NumXSec() -1 )
+                rib_vec.push_back( xs->GetRib( false, true ) );
+            else
+                rib_vec.push_back( xs->GetRib( false, false ) );
+       }
+
+        if ( xsec_vec.size() >= 2 )
+        {
+            m_MainSurfVec[i].SkinRibs( rib_vec, false );
         }
     }
 }

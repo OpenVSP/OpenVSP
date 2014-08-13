@@ -1112,6 +1112,138 @@ void SkinXSec::SetUnsetParms( double t, int irib, const VspSurf &surf,
     if( !RCurveSet() ) RCurve = curvatureR/scaleR;
 }
 
+void SkinXSec::SetContinuity( int cx )
+{
+    m_TopCont = cx;
+}
+
+void SkinXSec::SetTanAngles( int side, double top, double right, double bottom, double left )
+{
+    m_AllSymFlag = false;
+    m_TBSymFlag = false;
+    m_RLSymFlag = false;
+    if ( side == XSEC_BOTH_SIDES || side == XSEC_LEFT_SIDE )
+    {
+        m_TopLAngleSet = true;
+        m_RightLAngleSet = true;
+        m_BottomLAngleSet = true;
+        m_LeftLAngleSet = true;
+
+        m_TopLAngle = top;
+        if ( right > XSEC_NO_VAL )      { m_RightLAngle = right; }
+        else                            { m_RightLAngle = m_TopLAngle; }
+
+        if ( bottom > XSEC_NO_VAL )     { m_BottomLAngle = bottom; }
+        else                            { m_BottomLAngle = m_TopLAngle; }
+
+        if ( left > XSEC_NO_VAL )       { m_LeftLAngle = left; }
+        else                            { m_LeftLAngle = m_RightLAngle; }
+    }
+
+    if ( side == XSEC_BOTH_SIDES || side == XSEC_RIGHT_SIDE )
+    {
+        m_TopRAngleSet = true;
+        m_RightRAngleSet = true;
+        m_BottomRAngleSet = true;
+        m_LeftRAngleSet = true;
+
+        m_TopRAngle = top;
+        if ( right > XSEC_NO_VAL )      { m_RightRAngle = right; }
+        else                            { m_RightRAngle = m_TopRAngle; }
+
+        if ( bottom > XSEC_NO_VAL )     { m_BottomRAngle = bottom; }
+        else                            { m_BottomRAngle = m_TopRAngle; }
+
+        if ( left > XSEC_NO_VAL )       { m_LeftRAngle = left; }
+        else                            { m_LeftRAngle = m_RightRAngle; }
+    }
+}
+
+void SkinXSec::SetTanStrengths( int side, double top, double right, double bottom, double left )
+{
+    m_AllSymFlag = false;
+    m_TBSymFlag = false;
+    m_RLSymFlag = false;
+    if ( side == XSEC_BOTH_SIDES || side == XSEC_LEFT_SIDE )
+    {
+        m_TopLStrengthSet = true;
+        m_RightLStrengthSet = true;
+        m_BottomLStrengthSet = true;
+        m_LeftLStrengthSet = true;
+
+        m_TopLStrength = top;
+        if ( right > XSEC_NO_VAL )      { m_RightLStrength = right; }
+        else                            { m_RightLStrength = m_TopLStrength; }
+
+        if ( bottom > XSEC_NO_VAL )     { m_BottomLStrength = bottom; }
+        else                            { m_BottomLStrength = m_TopLStrength; }
+
+        if ( left > XSEC_NO_VAL )       { m_LeftLStrength = left; }
+        else                            { m_LeftLStrength = m_RightLStrength; }
+    }
+
+    if ( side == XSEC_BOTH_SIDES || side == XSEC_RIGHT_SIDE )
+    {
+        m_TopRStrengthSet = true;
+        m_RightRStrengthSet = true;
+        m_BottomRStrengthSet = true;
+        m_LeftRStrengthSet = true;
+
+        m_TopRStrength = top;
+        if ( right > XSEC_NO_VAL )      { m_RightRStrength = right; }
+        else                            { m_RightRStrength = m_TopRStrength; }
+
+        if ( bottom > XSEC_NO_VAL )     { m_BottomRStrength = bottom; }
+        else                            { m_BottomRStrength = m_TopRStrength; }
+
+        if ( left > XSEC_NO_VAL )       { m_LeftRStrength = left; }
+        else                            { m_LeftRStrength = m_RightRStrength; }
+    }
+}
+
+void SkinXSec::SetCurvatures( int side, double top, double right, double bottom, double left )
+{
+    m_AllSymFlag = false;
+    m_TBSymFlag = false;
+    m_RLSymFlag = false;
+    if ( side == XSEC_BOTH_SIDES || side == XSEC_LEFT_SIDE )
+    {
+        m_TopLCurveSet = true;
+        m_RightLCurveSet = true;
+        m_BottomLCurveSet = true;
+        m_LeftLCurveSet = true;
+
+        m_TopLCurve = top;
+        if ( right > XSEC_NO_VAL )      { m_RightLCurve = right; }
+        else                            { m_RightLCurve = m_TopLCurve; }
+
+        if ( bottom > XSEC_NO_VAL )     { m_BottomLCurve = bottom; }
+        else                            { m_BottomLCurve = m_TopLCurve; }
+
+        if ( left > XSEC_NO_VAL)        { m_LeftLCurve = left; }
+        else                            { m_LeftLCurve = m_RightLCurve; }
+    }
+
+    if ( side == XSEC_BOTH_SIDES || side == XSEC_RIGHT_SIDE )
+    {
+        m_TopRCurveSet = true;
+        m_RightRCurveSet = true;
+        m_BottomRCurveSet = true;
+        m_LeftRCurveSet = true;
+
+        m_TopRCurve = top;
+        if ( right > XSEC_NO_VAL )      { m_RightRCurve = right; }
+        else                            { m_RightRCurve = m_TopRCurve; }
+
+        if ( bottom > XSEC_NO_VAL )     { m_BottomRCurve = bottom; }
+        else                            { m_BottomRCurve = m_TopRCurve; }
+
+        if ( left > XSEC_NO_VAL )       { m_LeftRCurve = left; }
+        else                            { m_LeftRCurve = m_RightRCurve; }
+    }
+}
+
+
 //==========================================================================//
 //==========================================================================//
 //==========================================================================//
