@@ -1,0 +1,75 @@
+
+
+//==== Init Is Called Once During Each Custom Geom Construction  ============================//
+//==== Avoid Global Variables Unless You Want Shared With All Custom Geoms of This Type =====//
+void Init()
+{
+	//==== OnOff Flag  =====//
+	string onoff_flag = AddParm( PARM_BOOL_TYPE, "OnOffFlag", "Design" );
+	SetParmVal( onoff_flag, 0.0 );
+
+	//==== Set Some Decent Tess Vals ====//
+	string geom_id = GetCurrCustomGeom();
+	SetParmVal( GetParm( geom_id, "Tess_U",  "Shape" ), 13 );
+	SetParmVal( GetParm( geom_id, "Tess_W",  "Shape" ), 13 );
+}
+
+//==== InitGui Is Called Once During Each Custom Geom Construction ====//
+void InitGui()
+{
+	AddGui( GDEV_TAB, "Design"  );
+	AddGui( GDEV_YGAP  );
+	AddGui( GDEV_DIVIDER_BOX, "Test On/Off" );
+	AddGui( GDEV_TOGGLE_BUTTON, "On", "OnOffFlag", "Design" );
+} 
+
+//==== UpdateGui Is Called Every Time The Gui is Updated - Use It To Deactivate/Show/Hide Gui ====//
+void UpdateGui()
+{
+} 
+
+//==== UpdateSurf Is Called Every Time The Geom is Updated ====//
+void UpdateSurf()
+{
+	string geom_id = GetCurrCustomGeom();
+
+	//==== Check For Square Flag ====//
+	bool onoff_flag = GetBoolParmVal( GetParm( geom_id, "OnOffFlag", "Design" ) );
+
+    //==== Clear Old Surfs ====//
+    ClearXSecSurfs();
+
+    //==== Create XSec Surf And Build Box ====//
+    string xsec_surf = AddXSecSurf();
+    BuildObj( xsec_surf, 3, 1 );
+
+    //==== Check Flag And Create Second Object ====//
+    if ( onoff_flag )
+    {
+        string second_box = AddXSecSurf();
+        BuildObj( second_box, 3, 2 );
+        Matrix4d mat;
+        mat.translatef( 3.0, 0.0, 0.0 );
+        SetXSecSurfGlobalXForm( second_box, mat );
+    }
+
+    //==== Skin All Defined XSecSurf ====//
+    SkinXSecSurf();
+
+}
+
+void BuildObj( string surf_id, double length, double dia )
+{
+    //==== Add Cross-Sectopms ====//
+	string xsec0 = AppendXSec( surf_id, XS_POINT);
+	string xsec1 = AppendXSec( surf_id, XS_CIRCLE );
+	string xsec2 = AppendXSec( surf_id, XS_POINT);
+
+	//==== Define The Middle XSecs ====//
+	SetCustomXSecLoc( xsec1, vec3d( length/2, 0, 0 ) );
+	SetParmVal( GetXSecParm( xsec1, "Circle_Diameter" ), dia );
+
+	//==== Define The Last XSec Placement ====//
+	SetCustomXSecLoc( xsec2, vec3d( length, 0, 0 ) );
+
+}

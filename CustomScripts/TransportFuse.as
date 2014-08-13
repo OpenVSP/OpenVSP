@@ -1,0 +1,135 @@
+
+
+//==== Init Is Called Once During Each Custom Geom Construction  ============================//
+//==== Avoid Global Variables Unless You Want Shared With All Custom Geoms of This Type =====//
+void Init()
+{
+	//==== Test Parm Template  =====//
+	string length = AddParm( PARM_DOUBLE_TYPE, "Length", "Design" );
+	SetParmValLimits( length, 10.0, 0.001, 1.0e12 );
+
+	string diameter = AddParm( PARM_DOUBLE_TYPE, "Diameter", "Design" );
+	SetParmValLimits( diameter, 1.0, 0.001, 1.0e12 );
+
+	string nose_mult = AddParm( PARM_DOUBLE_TYPE, "NoseMult", "Design" );
+	SetParmValLimits( nose_mult, 1.5, 0.1, 10.0 );
+
+	string aft_mult = AddParm( PARM_DOUBLE_TYPE, "AftMult", "Design" );
+	SetParmValLimits( aft_mult, 3.0, 0.1, 10.0 );
+
+	string nose_center = AddParm( PARM_DOUBLE_TYPE, "NoseCenter", "Design" );
+	SetParmValLimits( nose_center, -0.2, -0.5, 0.5 );
+
+	string aft_center = AddParm( PARM_DOUBLE_TYPE, "AftCenter", "Design" );
+	SetParmValLimits( aft_center, 0.3, -0.5, 0.5 );
+
+	string aft_width = AddParm( PARM_DOUBLE_TYPE, "AftWidth", "Design" );
+	SetParmValLimits( aft_width, 0.1, 0.01, 1.0 );
+
+	string aft_height = AddParm( PARM_DOUBLE_TYPE, "AftHeight", "Design" );
+	SetParmValLimits( aft_height, 0.3, 0.01, 1.0 );
+
+
+    //==== Add Cross Sections  =====//
+	string xsec_surf = AddXSecSurf();
+	AppendXSec( xsec_surf, XS_POINT);
+	AppendXSec( xsec_surf, XS_CIRCLE );
+	AppendXSec( xsec_surf, XS_CIRCLE );
+	AppendXSec( xsec_surf, XS_ELLIPSE );
+	AppendXSec( xsec_surf, XS_POINT);
+
+	//==== Set Some Decent Tess Vals ====//
+	string geom_id = GetCurrCustomGeom();
+	SetParmVal( GetParm( geom_id, "Tess_U",  "Shape" ), 33 );
+	SetParmVal( GetParm( geom_id, "Tess_W",  "Shape" ), 13 );
+
+}
+
+//==== InitGui Is Called Once During Each Custom Geom Construction ====//
+void InitGui()
+{
+	AddGui( GDEV_TAB, "Design"  );
+	AddGui( GDEV_YGAP );
+	AddGui( GDEV_DIVIDER_BOX, "Design" );
+	AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Length", "Length", "Design"  );
+	AddGui( GDEV_YGAP );
+	AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Diameter", "Diameter", "Design"  );
+	AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Nose Mult", "NoseMult", "Design"  );
+	AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Aft Mult", "AftMult", "Design"  );
+	AddGui( GDEV_YGAP );
+	AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Nose Center", "NoseCenter", "Design"  );
+	AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Aft Center", "AftCenter", "Design"  );
+	AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Aft Width", "AftWidth", "Design"  );
+	AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Aft Height", "AftHeight", "Design"  );
+} 
+
+//==== UpdateGui Is Called Every Time The Gui is Updated ====//
+void UpdateGui()
+{
+} 
+
+//==== UpdateSurf Is Called Every Time The Geom is Updated ====//
+void UpdateSurf()
+{
+	string geom_id = GetCurrCustomGeom();
+
+	//==== Get Curr Vals ====//
+	double length_val = GetParmVal( GetParm( geom_id, "Length", "Design" ) );
+	double diameter_val = GetParmVal( GetParm( geom_id, "Diameter", "Design" ) );
+	double nose_mult_val = GetParmVal( GetParm( geom_id, "NoseMult", "Design" ) );
+	double aft_mult_val = GetParmVal( GetParm( geom_id, "AftMult", "Design" ) );
+	double nose_center_val = GetParmVal( GetParm( geom_id, "NoseCenter", "Design" ) );
+	double aft_center_val = GetParmVal( GetParm( geom_id, "AftCenter", "Design" ) );
+	double aft_width_val = GetParmVal( GetParm( geom_id, "AftWidth", "Design" ) );
+	double aft_height_val = GetParmVal( GetParm( geom_id, "AftHeight", "Design" ) );
+
+	//==== Get The XSec Surf ====//
+	string xsec_surf = GetXSecSurf( geom_id, 0 );
+
+    //==== Figure Out Lengths ====//
+    double nose_len = nose_mult_val*diameter_val;
+    double aft_len = aft_mult_val*diameter_val;
+    double body_len = length_val - (nose_len + aft_len);
+    if ( body_len < 0.0001 )
+    {
+        nose_len += body_len/2;
+        aft_len  += body_len/2;
+        body_len = 0.0001;
+    }
+
+	//==== Nose ====//
+	string xsec0 = GetXSec( xsec_surf, 0 );
+    SetCustomXSecLoc( xsec0, vec3d( 0.0, 0.0, nose_center_val*diameter_val ) );
+	SetXSecTanAngles( xsec0, XSEC_BOTH_SIDES, 90 );
+    SetXSecTanStrengths( xsec0, XSEC_BOTH_SIDES, diameter_val );
+
+	string xsec1 = GetXSec( xsec_surf, 1 );
+	SetParmVal( GetXSecParm( xsec1, "Circle_Diameter" ), diameter_val );
+    SetCustomXSecLoc( xsec1, vec3d( nose_len, 0.0, 0.0  ) );
+    SetXSecContinuity( xsec1, 1 );
+	SetXSecTanAngles( xsec1, XSEC_BOTH_SIDES, 0 );
+    SetXSecTanStrengths( xsec1, XSEC_BOTH_SIDES, nose_len*0.5 );
+
+	string xsec2 = GetXSec( xsec_surf, 2 );
+	SetParmVal( GetXSecParm( xsec2, "Circle_Diameter" ), diameter_val );
+    SetCustomXSecLoc( xsec2, vec3d( (nose_len+body_len), 0.0,  0.0 ) );
+    SetXSecContinuity( xsec2, 1 );
+	SetXSecTanAngles( xsec2, XSEC_BOTH_SIDES, 0 );
+    SetXSecTanStrengths( xsec2, XSEC_BOTH_SIDES, body_len*0.5 );
+
+	string xsec3 = GetXSec( xsec_surf, 3 );
+	SetParmVal( GetXSecParm( xsec3, "Ellipse_Height" ), aft_height_val*diameter_val );
+	SetParmVal( GetXSecParm( xsec3, "Ellipse_Width" ),  aft_width_val*diameter_val );
+    SetCustomXSecLoc( xsec3, vec3d( nose_len+body_len+0.99*aft_len, 0.0, aft_center_val*diameter_val )  );
+    SetXSecContinuity( xsec3, 1 );
+	SetXSecTanAngles( xsec3, XSEC_BOTH_SIDES, -45 );
+    SetXSecTanStrengths(  xsec3, XSEC_BOTH_SIDES, 0.01*aft_len );
+
+	string xsec4 = GetXSec( xsec_surf, 4 );
+    SetCustomXSecLoc( xsec4, vec3d( nose_len+body_len+aft_len, 0.0, aft_center_val*diameter_val ) );
+	SetXSecTanAngles( xsec4, XSEC_BOTH_SIDES, -90 );
+    double aft_str = 0.33*(aft_width_val + aft_height_val);
+    SetXSecTanStrengths( xsec4, XSEC_BOTH_SIDES, aft_str );
+
+	SkinXSecSurf();
+}
