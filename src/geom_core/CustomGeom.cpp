@@ -460,9 +460,6 @@ CustomGeom::CustomGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_Name = "CustomGeom";
     m_Type.m_Name = "Custom";
     m_Type.m_Type = CUSTOM_GEOM_TYPE;
-
-
-
 }
 
 //==== Destructor ====//

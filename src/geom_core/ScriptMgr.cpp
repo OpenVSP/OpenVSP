@@ -48,8 +48,6 @@ void MessageCallback( const asSMessageInfo *msg, void *param )
 //==== Constructor ====//
 ScriptMgrSingleton::ScriptMgrSingleton()
 {
-    m_ProxyVec3dArray.push_back( vec3d( 1.9, 2.1, 3.1 ) );
-    m_ProxyVec3dArray.push_back( vec3d( 3.9, 4.1, 5.1 ) );
 
 }
 

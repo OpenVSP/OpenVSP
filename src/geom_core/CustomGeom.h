@@ -55,8 +55,8 @@ public:
     void Init()                                         {}
 
     //==== Set/Get Script Dir ====//
-    void SetScriptDir( const string & dir )                { m_ScriptDir = dir; }
-    string GetScriptDir()                                { return m_ScriptDir; }
+    void SetScriptDir( const string & dir )                 { m_ScriptDir = dir; }
+    string GetScriptDir()                                   { return m_ScriptDir; }
 
     //==== Init Geom ====//
     void InitGeom( const string& id, const string& module_name );
