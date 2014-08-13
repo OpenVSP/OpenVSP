@@ -124,6 +124,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : VspScreen( mgr )
 
     m_MainUI->AdvParmLinkMenu->hide();
     m_MainUI->UserParmMenu->hide();
+    m_MainUI->ParmDebugMenu->hide();
 }
 
 MainVSPScreen::~MainVSPScreen()
