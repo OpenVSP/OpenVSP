@@ -156,7 +156,7 @@ void TestProxy()
 	Print(string("--> Testing Proxy"));
 
 	//==== Test Proxy Stuff =====//
-	SetSaveInt( 23 );
+//	SetSaveInt( 23 );
 
 //	//==== Get Vector of Vec3d From App =====//
 	array< vec3d > @vec3d_array = GetProxyVec3dArray();
@@ -172,21 +172,26 @@ void TestProxy()
 	//test_vec3d_array.insertLast( vec3d(3,4,5) );
 	//SetVec3dArray( test_vec3d_array );
 
-	TestProxy2();
+//	TestProxy2();
 }
 
 
-void TestProxy2()
-{
-	if ( GetSaveInt() != 23 )						Print( "---> Error: Int Proxy  " );
-}
+//void TestProxy2()
+//{
+//	if ( GetSaveInt() != 23 )						Print( "---> Error: Int Proxy  " );
+//}
 
 void TestAPIScript()
 {
 	Print(string("--> Testing API Code"));
 
-	ReadVSPFile( "TestGeomScript.vsp3" );
+    string pod1 = AddGeom( "POD", "");
+    string pod2 = AddGeom( "POD", "");
+
+	Print(string("---> Test Write/Read"));
 	WriteVSPFile( "TestWrite.vsp3", SET_ALL );
+    ClearVSPModel();
+	ReadVSPFile( "TestWrite.vsp3" );
 
 	//==== There Should Be Two Geoms in the File =====//
 	array< string > @geom_ids = FindGeoms();
@@ -196,6 +201,7 @@ void TestAPIScript()
 	if ( type_array.size() < 1 )					Print( "---> Error: API GetGeomTypes  " );
 	else if ( type_array[0] != "POD" )				Print( "---> Error: API GetGeomTypes  " );
 
+	Print(string("---> Test Cut/Paste"));
 	string gid0 = AddGeom( "POD", "" );
 	SetGeomName( gid0, "ParentPod" );
 	CutGeomToClipboard( gid0 );
@@ -208,6 +214,7 @@ void TestAPIScript()
 		return;
 	}
 
+	Print(string("---> Test Copy/Paste"));
 	string gid1 = AddGeom( "POD", geom_ids[0] );
 	SetGeomName( gid1, "ChildPod" );
 	CopyGeomToClipboard( gid1 );
@@ -218,12 +225,14 @@ void TestAPIScript()
 	string geom_name = GetGeomName( gid1 );
 	if ( geom_name != "ChildPod" )			Print( "---> Error: API GetGeomName  " );
 
+	Print(string("---> Test Get Parm Arrays"));
 	array< string > @parm_array = GetGeomParmIDs( gid1 );
 	if ( parm_array.size() < 1 )			Print( "---> Error: API GetGeomParmIDs " );
 
 	string lenid = GetParm( gid1, "Length", "Design" );
 	if ( !ValidParm( lenid ) )				Print( "---> Error: API GetParm  " );
 
+	Print(string("---> Test Get Num XSec Surfs"));
 	string fuseid = AddGeom( "FUSELAGE", "" );
 	int num_xsec_surfs = GetNumXSecSurfs( fuseid );
 	if ( num_xsec_surfs != 1 )				Print( "---> Error: API GetNumXSecSurfs  " );
@@ -231,11 +240,13 @@ void TestAPIScript()
 	string xsec_surf = GetXSecSurf( fuseid, 0 );
 	int num_xsecs = GetNumXSec( xsec_surf );
 
+	Print(string("---> Test Get XSec Type"));
     int xsec_type = GetXSecType( xsec_surf );
     if ( xsec_type != XSEC_FUSE )           Print( "---> Error: API GetXSecType  " );
 
 	if ( num_xsecs < 1 )					Print( "---> Error: API GetXSecSurf/GetNumXSec  " );
 
+	Print(string("---> Test Get XSec"));
 	string xsec = GetXSec( xsec_surf, 0 );
 	if ( xsec.size() == 0 )					Print( "---> Error: API GetXSec " );
 
@@ -244,12 +255,15 @@ void TestAPIScript()
 	CopyXSec( xsec_surf, GetNumXSec( xsec_surf )-1 );
 	PasteXSec( xsec_surf, GetNumXSec( xsec_surf )-2 );
 	InsertXSec( xsec_surf, XS_ROUNDED_RECTANGLE, 0 );
+    	
+    Print(string("---> Test Change XSec Shape"));
 	ChangeXSecShape( xsec_surf, GetNumXSec( xsec_surf )-1, XS_POINT );
 
 	xsec = GetXSec( xsec_surf, 1 );
 	if ( GetXSecShape( xsec ) != XS_ROUNDED_RECTANGLE )
 		Print( "---> Error: API ChangeXSec/GetShape " );
 
+    Print(string("---> Test Change Set XSec W/H"));
 	SetXSecWidthHeight( xsec, 3.0, 6.0 );
 	if ( abs( GetXSecWidth( xsec ) - 3.0 ) > tol )		Print( "---> Error: API Get/Set Width " );
 	if ( abs( GetXSecHeight( xsec ) - 6.0 ) > tol )		Print( "---> Error: API Get/Set Height " );
@@ -260,6 +274,7 @@ void TestAPIScript()
 	string wid = GetXSecParm( xsec, "RoundedRect_Width" );
 	if ( !ValidParm( wid ) )							Print( "---> Error: API GetXSecParm " );
 
+    Print(string("---> Test Read Fuse File"));
 	ChangeXSecShape( xsec_surf, 0, XS_FILE_FUSE );
 	xsec = GetXSec( xsec_surf, 0 );
 	array< vec3d > @vec_array = ReadFileXSec( xsec, "../../TestXSec.fxs" );
@@ -272,6 +287,7 @@ void TestAPIScript()
 	if ( ( abs( wh_ratio ) - 2.0 ) > tol )				Print( "---> Error: API Read/Set XSecPnts " );
 
 	//==== Sets ====//
+    Print(string("---> Test Sets"));
 	if ( GetNumSets() <= 0 )							Print( "---> Error: API GetNumSets " );
 	SetSetName( 3, "SetFromScript" );
 	if ( GetSetName( 3) != "SetFromScript" )			Print( "---> Error: API Get/Set Set Name " );
@@ -285,6 +301,7 @@ void TestAPIScript()
 	if ( !GetSetFlag( fuseid, 3 ) )						Print( "---> Error: API Set/Get Set Flag " );
 
 	//==== Parms ====//
+    Print(string("---> Test Parms"));
 	SetParmVal( wid, 23.0 );
 	if ( abs( GetParmVal(wid) - 23) > tol )				Print( "---> Error: API Parm Val Set/Get " );
 
@@ -304,6 +321,7 @@ void TestAPIScript()
 	Update();
 
 	//==== Bogus Call To Create API Error ====//
+    Print(string("---> Test Error Handling"));
 	SetParmVal( "BogusParmID", 23.0 );
 
 	if ( !GetErrorLastCallFlag() )						Print( "---> Error: API GetErrorLastCallFlag " );
@@ -318,17 +336,10 @@ void TestAPIScript()
 
 	ClearVSPModel();
 
-	//==== Import/Export ====//
-	//gid0 = AddGeom( "POD", "" );
-	//ExportFile( "ExportTest.stl", 0, EXPORT_STL );
-	//string import_geom = ImportFile( "ExportTest.stl", IMPORT_STL, "" );
-	//SetGeomName( import_geom, "ImportedGeom" );
-	//SetGeomName( gid0, "ParentPod" );
-	//InsertVSPFile( "TestGeomScript.vsp3", gid0 );
-	//ClearVSPModel();
-	//==== Results =====//
+	//==== Write Some Fake Test Results =====//
 	WriteTestResults();
 
+    Print(string("---> Test Results"));
 	array<string> @res_names_vec = GetAllResultsNames();
 
 	bool found_name = false;
@@ -363,6 +374,7 @@ void TestAPIScript()
 	if ( !CloseVec3d( vec3d_vec[0], vec3d( 1.0, 2.0, 4.0 ), tol ))		Print( "---> Error: API GetVec3dResults" );
 
 	//==== Test Mass Props ====//
+    Print(string("---> Test Mass Properties"));
 	gid0 = AddGeom( "POD", "" );
 	string sliced_id = ComputeMassProps( 0, 4 );
 	string mass_res_id = FindLatestResultsID( "Mass_Properties" );
@@ -371,6 +383,7 @@ void TestAPIScript()
 	CutGeomToClipboard( mass_res_id );
 
 	//==== Test Comp Geom ====//
+    Print(string("---> Test Comp Geom"));
 	gid1 = AddGeom( "POD", "" );
 	string p0 = GetParm( gid1, "Length", "Design" );
 	string p1 = GetParm( gid1, "X_Location", "XForm" );
@@ -389,6 +402,7 @@ void TestAPIScript()
 	CutGeomToClipboard( mesh_id );
 
 	//==== Test Geom Results ====//
+    Print(string("---> Test Geom Export Results"));
 	string geom_xsec_results = CreateGeomResults( gid1, "Geom_XSecs" );
 	file f;
 	if( f.open("geom_xsecs.stl", "w") >= 0 )
@@ -419,6 +433,7 @@ void TestAPIScript()
 
 
 	//==== Test Plane Slice ====//
+    Print(string("---> Test Plane Slice"));
 	string slice_mesh_id = ComputePlaneSlice( 0, 6, vec3d(0.0, 0.0, 1.0), true );
 	string pslice_results = FindLatestResultsID( "Slice" );
 	double_arr = GetDoubleResults( pslice_results, "Slice_Area" );
@@ -457,6 +472,7 @@ void TestAPIScript()
 	CutGeomToClipboard( slice_mesh_id );
 
 	//==== Test AWave Slice ====//
+    Print(string("---> Test Awave Slice"));
 	mesh_id = ComputeAwaveSlice( 0, 4, 4, 22.0, true, vec3d(1.0, 0.0, 0.0), true );
 	string aslice_results = FindLatestResultsID( "Slice" );
 	if ( GetNumResults( "Slice" ) != 2 )							Print( "---> Error: API ComputeAwaveSlice" );
