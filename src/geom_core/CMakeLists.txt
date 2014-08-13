@@ -70,6 +70,8 @@ Airfoil.h
 BlankGeom.h
 CfdMeshSettings.h
 ClippingMgr.h
+Color.h
+ColorMgr.h
 CustomGeom.h
 DegenGeom.h
 DesignVarMgr.h
@@ -78,6 +80,10 @@ FuselageGeom.h
 Geom.h
 GeomCoreTestSuite.h
 GridDensity.h
+Label.h
+LabelMgr.h
+Light.h
+LightMgr.h
 Link.h
 LinkMgr.h
 MaterialMgr.h
@@ -98,18 +104,11 @@ TextureMgr.h
 TMesh.h
 Vehicle.h
 VehicleMgr.h
+VspPreferences.h
 WingGeom.h
 XSec.h
 XSecCurve.h
 XSecSurf.h
-Label.h
-LabelMgr.h
-Light.h
-LightMgr.h
-Color.h
-ColorMgr.h
-VspPreferences.h
-
 )
 
 ADD_DEPENDENCIES( geom_core
