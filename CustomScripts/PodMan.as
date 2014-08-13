@@ -28,8 +28,8 @@ void Init()
 
 	//==== Set Some Decent Tess Vals ====//
 	string geom_id = GetCurrCustomGeom();
-	SetParmVal( GetParm( geom_id, "Tess_U",  "Shape" ), 9 );
-	SetParmVal( GetParm( geom_id, "Tess_W",  "Shape" ), 10 );
+	SetParmVal( GetParm( geom_id, "Tess_U",  "Shape" ), 13 );
+	SetParmVal( GetParm( geom_id, "Tess_W",  "Shape" ), 9 );
 }
 
 
@@ -133,8 +133,6 @@ void UpdateSurf()
 	double shoulder_angle_val  = GetParmVal( GetParm( geom_id, "ShoulderAngle",  "Design" ) );
 	double elbow_angle_val  = GetParmVal( GetParm( geom_id, "ElbowAngle",  "Design" ) );
 
-
-
     double hd = height_val/7.0;
 
     //==== Clear Old Surfs ====//
@@ -142,67 +140,67 @@ void UpdateSurf()
 
     //==== Build Head ====//
     string head = AddXSecSurf();
-    BuildPod( head, hd, hd, .1, .8 );
+    BuildPod( head, hd, hd, hd );
 
     //==== Build Torso ====//
     string torso = AddXSecSurf();
-    BuildPod( torso, 3.0*hd, 1.5*hd, 0.01, 1.2 );
+    BuildPod( torso, 3.0*hd, hd*1.5, hd*0.75, 1.8 );
     Matrix4d torso_mat;
     torso_mat.translatef( 1.2*hd, 0, 0 );
     SetXSecSurfGlobalXForm( torso, torso_mat );
 
     //==== Build Left Arm ====//
     string upper_left_arm = AddXSecSurf();
-    BuildPod( upper_left_arm, 1.5*hd, 0.5*hd, 0.05, 1.2 );
+    BuildPod( upper_left_arm, 1.5*hd, 0.40*hd, 0.40*hd, 1.8 );
     Matrix4d left_arm_mat = torso_mat;
     left_arm_mat.translatef( 0, 1.0*hd, 0 );
     left_arm_mat.rotateY( shoulder_angle_val );
     SetXSecSurfGlobalXForm( upper_left_arm, left_arm_mat );
 
     string lower_left_arm = AddXSecSurf();
-    BuildPod( lower_left_arm, 1.5*hd, 0.35*hd, 0.05, 1.2 );
+    BuildPod( lower_left_arm, 1.5*hd, 0.30*hd, 0.30*hd, 1.8 );
     left_arm_mat.translatef( 1.5*hd, 0.0, 0 );
     left_arm_mat.rotateY( elbow_angle_val );
     SetXSecSurfGlobalXForm( lower_left_arm, left_arm_mat );
 
     //==== Build Right Arm ====//
     string upper_right_arm = AddXSecSurf();
-    BuildPod( upper_right_arm, 1.5*hd, 0.5*hd, 0.05, 1.2 );
+    BuildPod( upper_right_arm, 1.5*hd, 0.40*hd, 0.40*hd, 1.8 );
     Matrix4d right_arm_mat = torso_mat;
     right_arm_mat.translatef( 0, -1.0*hd, 0 );
     right_arm_mat.rotateY( shoulder_angle_val );
     SetXSecSurfGlobalXForm( upper_right_arm, right_arm_mat );
 
     string lower_right_arm = AddXSecSurf();
-    BuildPod( lower_right_arm, 1.5*hd, 0.35*hd, 0.05, 1.2 );
+    BuildPod( lower_right_arm, 1.5*hd, 0.30*hd, 0.30*hd, 1.8 );
     right_arm_mat.translatef(  1.5*hd, 0.0, 0 );
     right_arm_mat.rotateY( elbow_angle_val );
     SetXSecSurfGlobalXForm( lower_right_arm, right_arm_mat );
 
     //==== Build Left Leg ====//
     string upper_left_leg = AddXSecSurf();
-    BuildPod( upper_left_leg, 1.5*hd, 0.6*hd, 0.05, 1.2 );
+    BuildPod( upper_left_leg, 1.5*hd, 0.6*hd, 0.6*hd, 1.6 );
     Matrix4d left_leg_mat = torso_mat;
     left_leg_mat.translatef( 3.0*hd, 0.4*hd, 0 );
     left_leg_mat.rotateY( hip_angle_val );
     SetXSecSurfGlobalXForm( upper_left_leg, left_leg_mat );
 
     string lower_left_leg = AddXSecSurf();
-    BuildPod( lower_left_leg, 1.5*hd, 0.5*hd, 0.05, 1.2 );
+    BuildPod( lower_left_leg, 1.5*hd, 0.5*hd, 0.5*hd, 1.6 );
     left_leg_mat.translatef( 1.5*hd , 0.0, 0 );
     left_leg_mat.rotateY( knee_angle_val );
     SetXSecSurfGlobalXForm( lower_left_leg, left_leg_mat );
 
     //==== Build Left Leg ====//
     string upper_right_leg = AddXSecSurf();
-    BuildPod( upper_right_leg, 1.5*hd, 0.6*hd, 0.05, 1.2 );
+    BuildPod( upper_right_leg, 1.5*hd, 0.6*hd, 0.6*hd, 1.6  );
     Matrix4d right_leg_mat = torso_mat;
     right_leg_mat.translatef( 3.0*hd, -0.4*hd, 0 );
     right_leg_mat.rotateY( hip_angle_val );
     SetXSecSurfGlobalXForm( upper_right_leg, right_leg_mat );
 
     string lower_right_leg = AddXSecSurf();
-    BuildPod( lower_right_leg, 1.5*hd, 0.5*hd, 0.05, 1.2 );
+    BuildPod( lower_right_leg, 1.5*hd, 0.5*hd, 0.5*hd, 1.6 );
     right_leg_mat.translatef( 1.5*hd , 0.0, 0 );
     right_leg_mat.rotateY( knee_angle_val );
     SetXSecSurfGlobalXForm( lower_right_leg, right_leg_mat );
@@ -211,33 +209,26 @@ void UpdateSurf()
 
 }
 
-void BuildPod( string surf_id, double length, double diameter, double bluntness, double end_taper )
+void BuildPod( string surf_id, double length, double width, double thickness, double tan_str = 1.0 )
 {
     //==== Add Cross-Sectopms ====//
 	string xsec0 = AppendXSec( surf_id, XS_POINT);
-	string xsec1 = AppendXSec( surf_id, XS_CIRCLE);
-	string xsec2 = AppendXSec( surf_id, XS_CIRCLE);
-	string xsec3 = AppendXSec( surf_id, XS_CIRCLE);
+	string xsec2 = AppendXSec( surf_id, XS_ELLIPSE );
 	string xsec4 = AppendXSec( surf_id, XS_POINT);
 
+	SetXSecTanAngles( xsec0, XSEC_BOTH_SIDES, 90 );
+    SetXSecTanStrengths( xsec0, XSEC_BOTH_SIDES, width*tan_str );
 
-	//==== Define The Middle XSecs ====//
-    double end_dia = end_taper*diameter;
-    double center_dia = diameter;
-    if ( end_taper > 1.0 )
-    {
-        end_dia = diameter;
-        center_dia = (2.0 - end_taper)*diameter;
-    }
-
-	SetParmVal( GetXSecParm( xsec1, "Circle_Diameter" ), end_dia );
-	SetCustomXSecLoc( xsec1, vec3d( length*bluntness, 0, 0 ) );
-	SetParmVal( GetXSecParm( xsec2, "Circle_Diameter" ), center_dia );
+	SetParmVal( GetXSecParm( xsec2, "Ellipse_Height" ), thickness );
+	SetParmVal( GetXSecParm( xsec2, "Ellipse_Width" ),  width );
 	SetCustomXSecLoc( xsec2, vec3d( length/2, 0, 0 ) );
-	SetParmVal( GetXSecParm( xsec3, "Circle_Diameter" ), end_dia );
-	SetCustomXSecLoc( xsec3, vec3d( length*(1.0-bluntness), 0, 0 ) );
+    SetXSecContinuity( xsec2, 1 );
+ 	SetXSecTanAngles( xsec2, XSEC_BOTH_SIDES, 0 );
+    SetXSecTanStrengths( xsec2, XSEC_BOTH_SIDES, length*0.5 );
 
  	//==== Define The Last XSec Placement ====//
 	SetCustomXSecLoc( xsec4, vec3d( length, 0, 0 ) );
-   
+ 	SetXSecTanAngles( xsec4, XSEC_BOTH_SIDES, -90 );
+    SetXSecTanStrengths( xsec4, XSEC_BOTH_SIDES, width*tan_str );
+  
 }

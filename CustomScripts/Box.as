@@ -26,8 +26,8 @@ void Init()
 
 	//==== Set Some Decent Tess Vals ====//
 	string geom_id = GetCurrCustomGeom();
-	SetParmVal( GetParm( geom_id, "Tess_U",  "Shape" ), 9 );
-	SetParmVal( GetParm( geom_id, "Tess_W",  "Shape" ), 13 );
+	SetParmVal( GetParm( geom_id, "Tess_U",  "Shape" ), 10 );
+	SetParmVal( GetParm( geom_id, "Tess_W",  "Shape" ), 9 );
 
 }
 
