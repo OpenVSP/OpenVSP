@@ -42,6 +42,9 @@ public:
 
     void Init();
 
+    //==== Read And Execute Script File  ====//
+    void ReadExecuteScriptFile( const string &  file_name, const string &  function_name = "void main()" );
+
     //==== Read Script From File - Return Module Name ====//
     string ReadScriptFromFile( const string & module_name, const string &  file_name );
 
