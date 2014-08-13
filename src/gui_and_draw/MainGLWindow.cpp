@@ -40,6 +40,8 @@
 #define PRECISION_ZOOM_SPEED 0.00005f
 #define ZOOM_SPEED 0.00025f
 
+#pragma warning(disable:4244)
+
 using namespace VSPGraphic;
 
 namespace VSPGUI
