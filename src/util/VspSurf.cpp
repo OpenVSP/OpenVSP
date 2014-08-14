@@ -554,7 +554,10 @@ void VspSurf::Tesselate( const vector<int> &num_u, int num_v, std::vector< vecto
     nu = 1;
     for ( int ii = 0; ii < GetNumSectU(); ++ii )
     {
-        nu += num_u[ii] - 1;
+        if ( !m_USkip[ii] )
+        {
+            nu += num_u[ii] - 1;
+        }
     }
 
     // resize pnts and norms
@@ -583,13 +586,16 @@ void VspSurf::Tesselate( const vector<int> &num_u, int num_v, std::vector< vecto
     for ( iusect = 0; iusect < (size_t)GetNumSectU(); ++iusect )
     {
         double du, dv;
-
         surface_patch_type surf;
         m_Surface.get( surf, du, dv, iusect, 0 );
-        for ( int isecttess = 0; isecttess < num_u[iusect] - 1; ++isecttess )
+
+        if ( !m_USkip[ iusect] )
         {
-            u[iu] = uumin + du * static_cast<double>( isecttess ) / ( num_u[iusect] - 1 );
-            iu++;
+            for ( int isecttess = 0; isecttess < num_u[iusect] - 1; ++isecttess )
+            {
+                u[iu] = uumin + du * static_cast<double>( isecttess ) / ( num_u[iusect] - 1 );
+                iu++;
+            }
         }
         uumin += du;
     }
