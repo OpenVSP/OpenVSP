@@ -133,6 +133,9 @@ public:
     bool CapWMax(int capType);
     void WriteBezFile( FILE* id, const std::string &geom_id, int surf_ind );
 
+    void ResetUWSkip();
+    void FlagDuplicate( VspSurf *othersurf );
+
     //===== Tesselate ====//
     void Tesselate( int num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms ) const;
     void Tesselate( int num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts ) const;
@@ -157,5 +160,8 @@ protected:
 
     vector < double > m_UFeature;
     vector < double > m_WFeature;
+
+    vector < bool > m_USkip;
+    vector < bool > m_WSkip;
 };
 #endif

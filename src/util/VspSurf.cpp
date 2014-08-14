@@ -233,6 +233,7 @@ void VspSurf::CreateBodyRevolution( const VspCurve &input_crv )
     eli::geom::surface::create_body_of_revolution( m_Surface, input_crv.GetCurve(), 0, true );
 
     ResetFlipNormal();
+    ResetUWSkip();
 }
 
 void VspSurf::SkinRibs( const vector<rib_data_type> &ribs, const vector < int > &degree, bool closed_flag )
@@ -256,6 +257,7 @@ void VspSurf::SkinRibs( const vector<rib_data_type> &ribs, const vector < int > 
 
     gc.create( m_Surface );
     ResetFlipNormal();
+    ResetUWSkip();
 }
 
 //==== Interpolate A Set Of Points =====//
@@ -446,6 +448,75 @@ vec3d VspSurf::CompNorm( double u, double v ) const
 vec3d VspSurf::CompNorm01( double u01, double v01 ) const
 {
     return CompNorm( u01 * ( double )GetNumSectU(), v01 * ( double )GetNumSectW() );
+}
+
+void VspSurf::ResetUWSkip()
+{
+    piecewise_surface_type::index_type ip, jp, nupatch, nwpatch;
+
+    nupatch = m_Surface.number_u_patches();
+    nwpatch = m_Surface.number_v_patches();
+
+	m_USkip.resize( nupatch );
+	m_WSkip.resize( nwpatch );
+
+	for ( ip = 0; ip < nupatch; ip++ )
+	    m_USkip[ip] = false;
+
+	for ( jp = 0; jp < nwpatch; jp++ )
+	    m_WSkip[jp] = false;
+}
+
+void VspSurf::FlagDuplicate( VspSurf *othersurf )
+{
+    piecewise_surface_type::index_type ip, jp, nupatch, nvpatch;
+
+    nupatch = m_Surface.number_u_patches();
+    nvpatch = m_Surface.number_v_patches();
+
+    vector < int > umatchcnt( nupatch, 0 );
+    vector < int > vmatchcnt( nvpatch, 0 );
+
+    double tol = 0.00000001;
+
+    for( ip = 0; ip < nupatch; ++ip )
+    {
+        for( jp = 0; jp < nvpatch; ++jp )
+        {
+
+            surface_patch_type *patch = m_Surface.get_patch( ip, jp );
+            surface_patch_type *otherpatch = othersurf->m_Surface.get_patch( ip, jp );
+
+            if ( patch->abouteq( *otherpatch, tol ) )
+            {
+                umatchcnt[ip]++;
+                vmatchcnt[jp]++;
+            }
+            else
+            {
+                umatchcnt[ip]--;
+                vmatchcnt[jp]--;
+            }
+        }
+    }
+
+    for( ip = 0; ip < nupatch; ++ip )
+    {
+        if ( umatchcnt[ip] == nvpatch )
+        {
+            m_USkip[ip] = true;
+            othersurf->m_USkip[ip] = true;
+        }
+    }
+
+    for( jp = 0; jp < nvpatch; ++jp )
+    {
+        if ( vmatchcnt[jp] == nupatch )
+        {
+            m_WSkip[jp] = true;
+            othersurf->m_WSkip[jp] = true;
+        }
+    }
 }
 
 //==== Tesselate Surface ====//
