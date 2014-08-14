@@ -14,26 +14,17 @@ cfdMeshFlScreen.fl
 compGeomFlScreen.fl
 curveEditFlScreen.fl
 degenGeomFlScreen.fl
-ductFlScreen.fl
-engineFlScreen.fl
 exportFileScreen.fl
-extStoreFlScreen.fl
 feaStructFlScreen.fl
 geomBrowserScreen.fl
-groupFlScreen.fl
-havocFlScreen.fl
-hrmFlScreen.fl
-hwbFlScreen.fl
 importFileScreen.fl
 labelFlScreen.fl
 lightingScreen.fl
 mainScreen.fl
 massPropFlScreen.fl
-msWingFlScreen.fl
 parmFlScreen.fl
 parmLinkFlScreen.fl
 pickSetFlScreen.fl
-propFlScreen.fl
 pSliceFlScreen.fl
 selectFileFlScreen.fl
 setEditorFlScreen.fl
@@ -43,8 +34,6 @@ textureMgrFlScreen.fl
 typeEditorFlScreen.fl
 userParmFlScreen.fl
 viewScreen.fl
-wingFlScreen.fl
-xsecGeomFlScreen.fl
 )
 
 ADD_LIBRARY(screens ${screens_FLTK_UI_SRCS} )
