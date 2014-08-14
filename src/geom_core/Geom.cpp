@@ -1636,9 +1636,26 @@ vector< TMesh* > Geom::CreateTMeshVec()
     vector< vector<vec3d> > norms;
     vector< vector<vec3d> > uw_pnts;
 
+    for ( int i = 0 ; i < ( int )m_SurfVec.size(); i++ )
+    {
+        m_SurfVec[i].ResetUWSkip();
+    }
+
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() - 1 ; i++ )
+    {
+        for ( int j = i + 1 ; j < ( int )m_SurfVec.size() ; j++ )
+        {
+            if ( m_SurfIndxVec[i] == m_SurfIndxVec[j] )
+            {
+                m_SurfVec[i].FlagDuplicate( &m_SurfVec[j] );
+            }
+        }
+    }
+
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
         UpdateTesselate( i, pnts, norms, uw_pnts );
+        m_SurfVec[i].ResetUWSkip(); // Done with skip flags.
 
         TMeshVec.push_back( new TMesh() );
         TMeshVec[i]->LoadGeomAttributes( this );
