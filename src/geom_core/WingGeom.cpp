@@ -766,6 +766,7 @@ WingGeom::WingGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
 
     m_XSecSurf.AddXSec( vsp::XS_FOUR_SERIES );
     m_XSecSurf.AddXSec( vsp::XS_FOUR_SERIES );
+    m_XSecSurf.AddXSec( vsp::XS_FOUR_SERIES );
 
     WingSect* ws;
 
@@ -774,6 +775,16 @@ WingGeom::WingGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
 
     ws = ( WingSect* ) m_XSecSurf.FindXSec( 1 );
     ws->SetGroupDisplaySuffix( 1 );
+    ws->m_Sweep = 30.0;
+    ws->m_RootChord = 4.0;
+    ws->m_TipChord = 2.0;
+    ws->m_Span = 3.0;
+
+    ws = ( WingSect* ) m_XSecSurf.FindXSec( 2 );
+    ws->SetGroupDisplaySuffix( 2 );
+    ws->m_Sweep = 30.0;
+    ws->m_TipChord = 1.0;
+    ws->m_Span = 6.0;
 
     UpdateSurf();
 }
