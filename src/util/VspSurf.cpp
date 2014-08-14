@@ -19,6 +19,7 @@
 
 #include "eli/geom/curve/piecewise_creator.hpp"
 #include "eli/geom/surface/piecewise_body_of_revolution_creator.hpp"
+#include "eli/geom/surface/piecewise_capped_surface_creator.hpp"
 #include "eli/geom/intersect/minimum_distance_surface.hpp"
 
 typedef piecewise_surface_type::index_type surface_index_type;
@@ -28,7 +29,8 @@ typedef piecewise_surface_type::bounding_box_type surface_bounding_box_type;
 typedef piecewise_curve_type::point_type curve_point_type;
 
 typedef eli::geom::curve::piecewise_linear_creator<double, 3, surface_tolerance_type> piecewise_linear_creator_type;
-typedef eli::geom::surface::general_skinning_surface_creator<double, 3, surface_tolerance_type> general_creator_type;
+typedef eli::geom::surface::piecewise_general_skinning_surface_creator<double, 3, surface_tolerance_type> general_creator_type;
+typedef eli::geom::surface::piecewise_capped_surface_creator<double, 3, surface_tolerance_type> capped_creator_type;
 
 //===== Constructor  =====//
 VspSurf::VspSurf()
@@ -644,8 +646,24 @@ bool VspSurf::CapUMin(int CapType)
     if (CapType == NO_END_CAP)
       return false;
 
-    std::cout << "Am Capping UMin on this one!" << std::endl;
-    return false;
+    capped_creator_type cc;
+    bool rtn_flag;
+
+    rtn_flag = cc.set_conditions(m_Surface, 0.5, capped_creator_type::CAP_UMIN);
+    if (!rtn_flag)
+    {
+      assert(false);
+      return false;
+    }
+
+    rtn_flag = cc.create(m_Surface);
+    if (!rtn_flag)
+    {
+      assert(false);
+      return false;
+    }
+
+    return true;
 }
 
 bool VspSurf::CapUMax(int CapType)
@@ -653,8 +671,24 @@ bool VspSurf::CapUMax(int CapType)
     if (CapType == NO_END_CAP)
       return false;
 
-    std::cout << "Am Capping UMax on this one!" << std::endl;
-    return false;
+    capped_creator_type cc;
+    bool rtn_flag;
+
+    rtn_flag = cc.set_conditions(m_Surface, 0.5, capped_creator_type::CAP_UMAX);
+    if (!rtn_flag)
+    {
+      assert(false);
+      return false;
+    }
+
+    rtn_flag = cc.create(m_Surface);
+    if (!rtn_flag)
+    {
+      assert(false);
+      return false;
+    }
+
+    return true;
 }
 
 bool VspSurf::CapWMin(int CapType)

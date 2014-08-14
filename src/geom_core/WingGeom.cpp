@@ -1046,49 +1046,7 @@ void WingGeom::UpdateSurf()
     // clear the u tessellation vector
     m_TessUVec.clear();
 
-    //==== Cross Section Curves & joint info ====//
-    int root_offset(0), tip_offset(0);
-    vector< VspCurve > crv_vec;
-
-    // Set up the root capping
-    if ( m_CapUMin && (m_CapUMinOption() != VspSurf::NO_END_CAP) )
-    {
-      // there will be more options of capping
-      switch ( m_CapUMinOption() )
-      {
-        case (VspSurf::FLAT_END_CAP):
-        {
-          root_offset = 1;
-          break;
-        }
-        default:
-        {
-          // should not get here
-          assert(false);
-        }
-      }
-    }
-
-    // Set up the tip capping
-    if ( m_CapUMax && (m_CapUMaxOption() != VspSurf::NO_END_CAP) )
-    {
-      // there will be more options of capping
-      switch ( m_CapUMaxOption() )
-      {
-        case (VspSurf::FLAT_END_CAP):
-        {
-          tip_offset = 1;
-          break;
-        }
-        default:
-        {
-          // should not get here
-          assert(false);
-        }
-      }
-    }
-
-    crv_vec.resize( m_XSecSurf.NumXSec() + root_offset + tip_offset );
+    vector< VspCurve > crv_vec( m_XSecSurf.NumXSec() );
 
     //==== Compute Parameters For Each Section ====//
     double total_span = 0.0;
@@ -1169,82 +1127,13 @@ void WingGeom::UpdateSurf()
             ws->m_YCenterRot = ws->m_YDelta;
             ws->m_ZCenterRot = ws->m_ZDelta;
 
-            // cap the root airfoil
-            if ( i == 0 )
-            {
-              if ( m_CapUMin && (m_CapUMinOption() != VspSurf::NO_END_CAP) )
-              {
-                std::vector< vec3d > camb_pts;
-                std::vector< double > camb_params;
-
-                if (ws != 0)
-                {
-                  piecewise_curve_type first_af( ws->GetCurve().GetCurve() );
-
-                  // TODO: turn this into method
-                  // HACK: this needs to change. just proof of concept.
-                  camb_params.resize(3);
-                  camb_pts.resize(3);
-
-                  // set the parameters
-                  camb_params[0] = first_af.get_t0();
-                  camb_params[1] = ( first_af.get_t0()+first_af.get_tmax() )/2;
-                  camb_params[2] = first_af.get_tmax();
-
-                  // set the points
-                  piecewise_curve_type::point_type pt;
-                  pt = first_af.f( camb_params[0] ); camb_pts[0].set_xyz( pt.x(), pt.y(), pt.z() );
-                  pt = first_af.f( camb_params[1] ); camb_pts[1].set_xyz( pt.x(), pt.y(), pt.z() );
-                  camb_pts[2] = camb_pts[0];
-
-                  // create curve
-                  crv_vec[0].InterpolateLinear( camb_pts, camb_params, false );
-                  m_TessUVec.push_back( (m_CapUMinTess()+1)/2 );
-                }
-              }
-            }
-
-            crv_vec[i+root_offset] =  ws->GetCurve();
+            crv_vec[i] =  ws->GetCurve();
 
             if ( i > 0 )
             {
                 m_TessUVec.push_back( ws->m_SectTessU() );
             }
         }
-    }
-
-    // add the wing tip cap here
-    if ( m_CapUMax && (m_CapUMaxOption() != VspSurf::NO_END_CAP) )
-    {
-      std::vector< vec3d > camb_pts;
-      std::vector< double > camb_params;
-
-      WingSect* ws = ( WingSect* ) m_XSecSurf.FindXSec( m_XSecSurf.NumXSec() - 1 );
-
-      if (ws != 0)
-      {
-        piecewise_curve_type last_af( ws->GetCurve().GetCurve() );
-
-        // TODO: turn this into method
-        // HACK: this needs to change. just proof of concept.
-        camb_params.resize(3);
-        camb_pts.resize(3);
-
-        // set the parameters
-        camb_params[0] = last_af.get_t0();
-        camb_params[1] = ( last_af.get_t0()+last_af.get_tmax() )/2;
-        camb_params[2] = last_af.get_tmax();
-
-        // set the points
-        piecewise_curve_type::point_type pt;
-        pt = last_af.f( camb_params[0] ); camb_pts[0].set_xyz( pt.x(), pt.y(), pt.z() );
-        pt = last_af.f( camb_params[1] ); camb_pts[1].set_xyz( pt.x(), pt.y(), pt.z() );
-        camb_pts[2] = camb_pts[0];
-
-        // create curve
-        crv_vec[m_XSecSurf.NumXSec()+root_offset].InterpolateLinear( camb_pts, camb_params, false );
-        m_TessUVec.push_back( (m_CapUMaxTess()+1)/2 );
-      }
     }
 
     m_MainSurfVec[0].SkinC0( crv_vec, false );
@@ -1264,6 +1153,15 @@ void WingGeom::UpdateSurf()
 
 void WingGeom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts  )
 {
+    if (m_CapUMinOption()!=VspSurf::NO_END_CAP)
+    {
+      m_TessUVec.insert(m_TessUVec.begin(), m_CapUMinTess());
+    }
+    if (m_CapUMaxOption()!=VspSurf::NO_END_CAP)
+    {
+      m_TessUVec.insert(m_TessUVec.end(), m_CapUMaxTess());
+    }
+
     m_SurfVec[indx].Tesselate( m_TessUVec, m_TessW(), pnts, norms, uw_pnts );
 }
 
