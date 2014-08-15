@@ -267,12 +267,15 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
 
     UpdateMaterialNames();
 
-    m_GenLayout.SetFitWidthFlag( false );
+    m_GenLayout.SetFitWidthFlag( true );
     m_GenLayout.SetSameLineFlag( true );
 
-    m_GenLayout.AddChoice( m_MaterialChoice, "Material:" );
+    m_GenLayout.AddChoice( m_MaterialChoice, "Material:", m_GenLayout.GetButtonWidth() );
 
+    m_GenLayout.SetFitWidthFlag( false );
     m_GenLayout.AddButton( m_CustomMaterialButton, "Custom" );
+    m_GenLayout.ForceNewLine();
+
     m_GenLayout.SetFitWidthFlag( true );
     m_GenLayout.SetSameLineFlag( false );
 
