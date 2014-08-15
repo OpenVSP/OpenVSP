@@ -190,13 +190,14 @@ public:
 
     vector< TNode* > m_SplitNodeVec;
 
+    virtual void CopyFrom( const TNode* node);
     virtual void MakePntUW();
     virtual void MakePntXYZ();
     virtual void SetXYZFlag( bool flag )
     {
         m_XYZFlag = flag;
     }
-    virtual bool GetXYZFlag()
+    virtual bool GetXYZFlag() const
     {
         return m_XYZFlag;
     }
@@ -204,7 +205,7 @@ public:
     {
         m_CoordInfo = flag;
     }
-    virtual int GetCoordInfo()
+    virtual int GetCoordInfo() const
     {
         return m_CoordInfo;
     }
@@ -278,6 +279,7 @@ public:
     vector< TEdge* > m_EVec;                // Edges for split tris
     TEdge* m_PEArr[3];                          // Perimeter Edge Array
 
+    virtual void CopyFrom( const TTri* tri );
     virtual void SplitTri( int meshFlag = 0 );              // Split Tri to Fit ISect Edges
     virtual void TriangulateSplit( int flattenAxis );
     virtual void NiceTriSplit( int flattenAxis );
@@ -447,6 +449,7 @@ public:
     virtual void AddTri( TNode* node0, TNode* node1, TNode* node2, const vec3d & norm );
     virtual void AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & norm, const vec3d & uw0,
                          const vec3d & uw1, const vec3d & uw2 );
+    virtual void AddTri( const TTri* tri );
     virtual void AddUWTri( const vec3d & uw0, const vec3d & uw1, const vec3d & uw2, const vec3d & norm );
 
     virtual void WriteSTLTris( FILE* file_id, Matrix4d XFormMat );

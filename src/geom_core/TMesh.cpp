@@ -51,6 +51,16 @@ TNode::~TNode()
 
 }
 
+void TNode::CopyFrom( const TNode* node )
+{
+    m_Pnt = node->m_Pnt;
+    m_UWPnt = node->m_UWPnt;
+    m_XYZFlag = node->GetXYZFlag();
+    m_CoordInfo = node->GetCoordInfo();
+    m_IsectFlag = node->m_IsectFlag;
+    m_ID = node->m_ID;
+}
+
 void TNode::MakePntUW()
 {
     if ( m_XYZFlag )
@@ -696,7 +706,8 @@ void TMesh::MergeNonClosed( TMesh* tm )
         for ( int t = 0 ; t < ( int )tm->m_TVec.size() ; t++ )
         {
             TTri* tri = tm->m_TVec[t];
-            AddTri( tri->m_N0->m_Pnt, tri->m_N1->m_Pnt, tri->m_N2->m_Pnt, tri->m_Norm );
+            AddTri( tri );
+            m_TVec.back()->m_InvalidFlag = 0;
         }
         for ( int i = 0 ; i < ( int )m_NonClosedTriVec.size() ; i++ )
         {
@@ -1007,6 +1018,18 @@ void TMesh::AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const 
     tri->m_N2->SetCoordInfo( TNode::HAS_XYZ | TNode::HAS_UW );
 }
 
+void TMesh::AddTri( const TTri* tri)
+{
+    // Copys and existing triangle and pushes back into the existing
+    TTri* new_tri = new TTri();
+
+    new_tri->CopyFrom( tri );
+    m_TVec.push_back( new_tri );
+    m_NVec.push_back( new_tri->m_N0 );
+    m_NVec.push_back( new_tri->m_N1 );
+    m_NVec.push_back( new_tri->m_N2 );
+}
+
 void TMesh::AddUWTri( const vec3d & uw0, const vec3d & uw1, const vec3d & uw2, const vec3d & norm )
 {
     // Use For XYZ Tri
@@ -1196,6 +1219,24 @@ TTri::~TTri()
         delete m_ISectEdgeVec[i];
     }
 
+}
+
+void TTri::CopyFrom( const TTri* tri )
+{
+    m_N0 = new TNode();
+    m_N1 = new TNode();
+    m_N2 = new TNode();
+
+    m_N0->CopyFrom( tri->m_N0 );
+    m_N1->CopyFrom( tri->m_N1 );
+    m_N2->CopyFrom( tri->m_N2 );
+
+    m_Norm = tri->m_Norm;
+    m_Mass = tri->m_Mass;
+    m_Tags = tri->m_Tags;
+    m_ID = tri->m_ID;
+    m_InvalidFlag = tri->m_InvalidFlag;
+    m_InteriorFlag = tri->m_InteriorFlag;
 }
 
 void TTri::BuildPermEdges()
