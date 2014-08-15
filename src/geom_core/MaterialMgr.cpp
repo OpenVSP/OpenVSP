@@ -1,7 +1,7 @@
 #include "MaterialMgr.h"
 #include "VehicleMgr.h"
 #include "Vehicle.h"
-#include "ParmMGr.h"
+#include "ParmMgr.h"
 #include "XmlUtil.h"
 
 #include <assert.h>
