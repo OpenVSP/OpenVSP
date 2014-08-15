@@ -376,6 +376,7 @@ TMesh::TMesh()
     m_TheoVol    = m_WetVol = 0.0;
     m_HalfBoxFlag = false;
     m_SurfNum = 0;
+    m_AreaCenter = vec3d(0,0,0);
 }
 
 TMesh::~TMesh()
@@ -479,6 +480,8 @@ void TMesh::CopyAttributes( TMesh* m )
 
     m_UWPnts = m->m_UWPnts;
     m_XYZPnts = m->m_XYZPnts;
+
+    m_AreaCenter = m->m_AreaCenter;
 }
 
 xmlNodePtr TMesh::EncodeXml( xmlNodePtr & node )
@@ -851,6 +854,7 @@ double TMesh::ComputeTheoArea()
 double TMesh::ComputeWetArea()
 {
     m_WetArea = 0;
+    m_AreaCenter = vec3d(0,0,0);
 
     for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
     {
@@ -863,21 +867,29 @@ double TMesh::ComputeWetArea()
             {
                 if ( !tri->m_SplitVec[s]->m_InteriorFlag )
                 {
-                    m_WetArea += tri->m_SplitVec[s]->ComputeArea();
+                    double area = tri->m_SplitVec[s]->ComputeArea();
+                    m_AreaCenter = m_AreaCenter + tri->m_SplitVec[s]->ComputeCenter()*area;
+                    vec3d center = tri->m_SplitVec[s]->ComputeCenter();
+                    m_WetArea += area;
                 }
             }
         }
         else if ( !tri->m_InteriorFlag )
         {
+            double area = tri->ComputeArea();
+            m_AreaCenter = m_AreaCenter + tri->ComputeCenter()*area;
+            vec3d center = tri->ComputeCenter();
             m_WetArea += tri->ComputeArea();
         }
     }
+    m_AreaCenter = m_AreaCenter/m_WetArea;
     return m_WetArea;
 }
 
 double TMesh::ComputeAwaveArea()
 {
     m_WetArea = 0;
+    m_AreaCenter = vec3d(0,0,0);
 
     for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
     {
@@ -890,15 +902,20 @@ double TMesh::ComputeAwaveArea()
             {
                 if ( !tri->m_SplitVec[s]->m_InteriorFlag )
                 {
-                    m_WetArea += tri->m_SplitVec[s]->ComputeAwArea();
+                    double area = tri->m_SplitVec[s]->ComputeAwArea();
+                    m_AreaCenter = m_AreaCenter + tri->m_SplitVec[s]->ComputeCenter()*area;
+                    m_WetArea += area;
                 }
             }
         }
         else if ( !tri->m_InteriorFlag )
         {
-            m_WetArea += tri->ComputeAwArea();
+            double area = tri->ComputeAwArea();
+            m_AreaCenter = m_AreaCenter + tri->ComputeCenter()*area;
+            m_WetArea += area;
         }
     }
+    m_AreaCenter = m_AreaCenter/m_WetArea;
     return m_WetArea;
 }
 

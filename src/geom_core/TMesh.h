@@ -425,6 +425,7 @@ public:
     double m_TheoVol;
     double m_GuessVol;
     double m_WetVol;
+    vec3d m_AreaCenter;
 
     void LoadGeomAttributes( Geom* geomPtr );
     int  RemoveDegenerate();

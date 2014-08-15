@@ -1304,6 +1304,9 @@ void MeshGeom::TransformMeshVec( vector<TMesh*> & meshVec, Matrix4d & TransMat )
                 tri->m_Norm = TransMat.xform( tri->m_Norm );
             }
         }
+
+       // Apply Transformation to Mesh's area center
+       meshVec[i]->m_AreaCenter = TransMat.xform( meshVec[i]->m_AreaCenter );
     }
 }
 
@@ -2298,17 +2301,21 @@ void MeshGeom::AreaSlice( int style, int numSlices, double sliceAngle, double co
 
     m_TMeshVec.erase( m_TMeshVec.begin(), m_TMeshVec.end() );
 
+    TransMat.affineInverse();
     if ( style == vsp::SLICE_PLANAR )
     {
         vector< double > loc_vec;
         vector< double > area_vec;
+        vector < vec3d > AreaCenter;
         for ( s = 0 ; s < ( int )m_SliceVec.size() ; s++ )
         {
             double x = xMin + ( ( double )s / ( double )( numSlices - 1 ) ) * ( xMax - xMin );
             m_SliceVec[s]->ComputeWetArea();
             loc_vec.push_back( x );
             area_vec.push_back( m_SliceVec[s]->m_WetArea );
+            AreaCenter.push_back( TransMat.xform( m_SliceVec[s]->m_AreaCenter ) );
         }
+        res->Add( ResData( "Slice_Area_Center", AreaCenter ) );
         res->Add( ResData( "Num_Slices", ( int )m_SliceVec.size() ) );
         res->Add( ResData( "Slice_Loc", loc_vec ) );
         res->Add( ResData( "Slice_Area", area_vec ) );
@@ -2332,13 +2339,16 @@ void MeshGeom::AreaSlice( int style, int numSlices, double sliceAngle, double co
             x_vec.push_back( x );
 
             vector< double > wet_vec;
+            vector < vec3d > AreaCenter;
             for ( int r = 0; r < coneSections; r++ )
             {
                 int sindex = ( int )( s * coneSections + r );
                 m_SliceVec[sindex]->ComputeAwaveArea();
                 sum += m_SliceVec[sindex]->m_WetArea;
                 wet_vec.push_back( m_SliceVec[sindex]->m_WetArea );
+                AreaCenter.push_back( TransMat.xform( m_SliceVec[sindex]->m_AreaCenter ) );
             }
+            res->Add( ResData( "Slice_Area_Center",  AreaCenter) );
             res->Add( ResData( "Slice_Wet_Area", wet_vec ) );
             res->Add( ResData( "Slice_Sum_Area", sum ) );
             res->Add( ResData( "Slice_Avg_Area", sum / coneSections ) );
@@ -2350,7 +2360,6 @@ void MeshGeom::AreaSlice( int style, int numSlices, double sliceAngle, double co
     res->WriteSliceFile( filename, style );
 
     //==== TransForm Slices to Match Orignal Coord Sys ====//
-    TransMat.affineInverse();
     TransformMeshVec( m_SliceVec, TransMat );
 }
 

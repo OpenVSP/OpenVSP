@@ -469,10 +469,12 @@ void Results::WriteSliceFile( const string & file_name, int type )
         if ( type == vsp::SLICE_PLANAR )
         {
             fprintf( fid, "\n" );
-            fprintf( fid, "    Loc          Area\n" );
+            fprintf( fid, "    Loc    XCenter  YCenter  ZCenter         Area\n" );
             for ( int s = 0 ; s <  Find( "Num_Slices" ).GetInt( 0 ) ; s++ )
             {
-                fprintf( fid, "%9.3f  %9.3f\n", Find( "Slice_Loc" ).GetDouble( s ), Find( "Slice_Area" ).GetDouble( s ) );
+                vec3d area_center = Find( "Slice_Area_Center" ).GetVec3d( s );
+                fprintf( fid, "%9.3f %9.3f %9.3f %9.3f %9.3f\n", Find( "Slice_Loc" ).GetDouble( s ), area_center[0],
+                         area_center[1], area_center[2], Find( "Slice_Area" ).GetDouble( s ) );
             }
         }
         else if ( type == vsp::SLICE_AWAVE )
