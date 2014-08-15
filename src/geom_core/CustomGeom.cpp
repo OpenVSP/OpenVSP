@@ -21,9 +21,9 @@ using namespace vsp;
 //==== Constructor ====//
 CustomGeomMgrSingleton::CustomGeomMgrSingleton()
 {
-//    m_ScriptDir = "./CustomScripts/";
-printf("Fix Custom Script Path\n");
-    m_ScriptDir = "../../../CustomScripts/";
+    m_ScriptDir = "./CustomScripts/";
+//printf("Fix Custom Script Path\n");
+//    m_ScriptDir = "../../../CustomScripts/";
 }
 
 //==== Scan Custom Directory And Return All Possible Types ====//
