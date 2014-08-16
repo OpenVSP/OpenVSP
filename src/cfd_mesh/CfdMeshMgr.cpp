@@ -1045,7 +1045,7 @@ void CfdMeshMgrSingleton::ReadSurfs( const string &filename )
                 surfPtr->ReadSurf( file_id );
 
                 bool addSurfFlag = true;
-                if ( GetCfdSettingsPtr()->GetHalfMeshFlag() && surfPtr->LessThanY( 0.0 ) )
+                if ( GetCfdSettingsPtr()->GetHalfMeshFlag() && surfPtr->LessThanY( 1e-6 ) )
                 {
                     addSurfFlag = false;
                 }
