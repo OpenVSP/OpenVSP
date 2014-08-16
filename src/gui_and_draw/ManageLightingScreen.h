@@ -3,37 +3,35 @@
 
 #include "ScreenBase.h"
 #include "GuiDevice.h"
-#include "lightingScreen.h"
 
 #include <vector>
 
-class ManageLightingScreen : public VspScreen
+class ManageLightingScreen : public BasicScreen
 {
 public:
     ManageLightingScreen( ScreenMgr * mgr );
     virtual ~ManageLightingScreen();
 
-public:
     virtual void Show();
-    virtual void Hide();
     virtual bool Update();
 
-    void CallBack( Fl_Widget * w );
-    static void staticCB( Fl_Widget * w, void * data ) { static_cast<ManageLightingScreen *>( data )->CallBack( w ); }
+    virtual void GuiDeviceCallBack( GuiDevice* device );
 
-public:
     void LoadDrawObjs(vector< DrawObj* > & draw_obj_vec);
 
 protected:
-    LightingUI * m_LightingUI;
+
+    GroupLayout m_GenLayout;
 
     SliderInput m_XPosSlider;
     SliderInput m_YPosSlider;
     SliderInput m_ZPosSlider;
 
-    Slider m_AmbSlider;
-    Slider m_DiffSlider;
-    Slider m_SpecSlider;
+    SliderInput m_AmbSlider;
+    SliderInput m_DiffSlider;
+    SliderInput m_SpecSlider;
+
+    Choice m_LightChoice;
 
     ToggleButton m_LightButton0;
     ToggleButton m_LightButton1;

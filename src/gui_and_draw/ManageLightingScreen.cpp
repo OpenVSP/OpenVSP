@@ -4,115 +4,122 @@
 
 #include <assert.h>
 
-ManageLightingScreen::ManageLightingScreen( ScreenMgr * mgr ) : VspScreen( mgr )
+ManageLightingScreen::ManageLightingScreen( ScreenMgr * mgr ) : BasicScreen( mgr, 250, 325, "Manage Lighting" )
 {
-    m_LightingUI = new LightingUI();
-    m_FLTK_Window = m_LightingUI->UIWindow;
+    m_GenLayout.SetGroupAndScreen( m_FLTK_Window, this );
+    m_GenLayout.AddY( 25 );
 
-    m_XPosSlider.Init( this, m_LightingUI->xSlider, m_LightingUI->xInput, 2.0e12, "%4.2f" );
-    m_YPosSlider.Init( this, m_LightingUI->ySlider, m_LightingUI->yInput, 2.0e12, "%4.2f" );
-    m_ZPosSlider.Init( this, m_LightingUI->zSlider, m_LightingUI->zInput, 2.0e12, "%4.2f" );
+    m_GenLayout.AddDividerBox( "Activate Lights" );
 
-    m_AmbSlider.Init( this, m_LightingUI->ambSlider, 1 );
-    m_DiffSlider.Init( this, m_LightingUI->diffSlider, 1 );
-    m_SpecSlider.Init( this, m_LightingUI->specSlider, 1 );
+    m_GenLayout.SetButtonWidth( m_GenLayout.GetW() / 2 );
 
-    m_LightButton0.Init( this, m_LightingUI->light0Button );
-    m_LightButton1.Init( this, m_LightingUI->light1Button );
-    m_LightButton2.Init( this, m_LightingUI->light2Button );
-    m_LightButton3.Init( this, m_LightingUI->light3Button );
-    m_LightButton4.Init( this, m_LightingUI->light4Button );
-    m_LightButton5.Init( this, m_LightingUI->light5Button );
-    m_LightButton6.Init( this, m_LightingUI->light6Button );
-    m_LightButton7.Init( this, m_LightingUI->light7Button );
+    m_GenLayout.SetFitWidthFlag( false );
+    m_GenLayout.SetSameLineFlag( true );
 
-    m_LightingUI->UIWindow->position( 775, 50 );
+    m_GenLayout.AddButton( m_LightButton0, "Light 0" );
+    m_GenLayout.AddButton( m_LightButton1, "Light 1" );
+    m_GenLayout.ForceNewLine();
+    m_GenLayout.AddButton( m_LightButton2, "Light 2" );
+    m_GenLayout.AddButton( m_LightButton3, "Light 3" );
+    m_GenLayout.ForceNewLine();
+    m_GenLayout.AddButton( m_LightButton4, "Light 4" );
+    m_GenLayout.AddButton( m_LightButton5, "Light 5" );
+    m_GenLayout.ForceNewLine();
+    m_GenLayout.AddButton( m_LightButton6, "Light 6" );
+    m_GenLayout.AddButton( m_LightButton7, "Light 7" );
+    m_GenLayout.ForceNewLine();
 
-    m_LightingUI->LightSourceDropDown->callback( staticCB, this );
-    m_CurrentSelected = -1;
+    m_GenLayout.InitWidthHeightVals();
+
+    m_GenLayout.SetFitWidthFlag( true );
+    m_GenLayout.SetSameLineFlag( false );
+
+    m_GenLayout.AddYGap();
+
+    m_GenLayout.AddDividerBox( "Edit Lights" );
+
+    char name[256];
+    for( int i = 0; i < NUMOFLIGHTS; i++ )
+    {
+        sprintf( name, "Light %d", i );
+        m_LightChoice.AddItem( name );
+    }
+    m_GenLayout.AddChoice( m_LightChoice, "Light:" );
+
+    m_GenLayout.AddYGap();
+    m_GenLayout.AddDividerBox( "Location" );
+    m_GenLayout.AddSlider( m_XPosSlider, "X Loc", 100, "%4.2f" );
+    m_GenLayout.AddSlider( m_YPosSlider, "Y Loc", 100, "%4.2f" );
+    m_GenLayout.AddSlider( m_ZPosSlider, "Z Loc", 100, "%4.2f" );
+
+    m_GenLayout.AddYGap();
+    m_GenLayout.AddDividerBox( "Light Quality" );
+    m_GenLayout.AddSlider( m_AmbSlider, "Ambient", 1.0, "%3.2f" );
+    m_GenLayout.AddSlider( m_DiffSlider, "Diffuse", 1.0, "%3.2f" );
+    m_GenLayout.AddSlider( m_SpecSlider, "Specular", 1.0, "%3.2f" );
+
+    m_CurrentSelected = 0;
 }
 
 ManageLightingScreen::~ManageLightingScreen()
 {
-    delete m_LightingUI;
 }
 
 void ManageLightingScreen::Show()
 {
-    if( Update() )
-    {
-        m_FLTK_Window->show();
-    }
-}
+    BasicScreen::Show();
+    m_ScreenMgr->SetUpdateFlag( true );
 
-void ManageLightingScreen::Hide()
-{
-    m_FLTK_Window->hide();
 }
 
 bool ManageLightingScreen::Update()
 {
-    char name[256];
-
-    m_LightingUI->LightSourceDropDown->clear();
-
-    for( int i = 0; i < NUMOFLIGHTS; i++ )
-    {
-        sprintf( name, "Light %d", i );
-        m_LightingUI->LightSourceDropDown->add( name );
-    }
-    if( m_CurrentSelected < 0 )
-    {
-        m_LightingUI->LightSourceDropDown->value( 0 );
-        m_CurrentSelected = 0;
-    }
-    else
-    {
-        m_LightingUI->LightSourceDropDown->value( m_CurrentSelected );
-    }
+    m_LightChoice.SetVal( m_CurrentSelected );
 
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
     LightMgr * lightMgr = veh->getVGuiDraw()->getLightMgr();
     Light * currLight = lightMgr->Get( m_CurrentSelected );
 
-    assert( currLight );
+    if ( currLight )
+    {
 
-    m_XPosSlider.Update( currLight->m_X.GetID() );
-    m_YPosSlider.Update( currLight->m_Y.GetID() );
-    m_ZPosSlider.Update( currLight->m_Z.GetID() );
+        m_XPosSlider.Update( currLight->m_X.GetID() );
+        m_YPosSlider.Update( currLight->m_Y.GetID() );
+        m_ZPosSlider.Update( currLight->m_Z.GetID() );
 
-    m_AmbSlider.Update( currLight->m_Amb.GetID() );
-    m_DiffSlider.Update( currLight->m_Diff.GetID() );
-    m_SpecSlider.Update( currLight->m_Spec.GetID() );
+        m_AmbSlider.Update( currLight->m_Amb.GetID() );
+        m_DiffSlider.Update( currLight->m_Diff.GetID() );
+        m_SpecSlider.Update( currLight->m_Spec.GetID() );
 
-    assert(lightMgr->Get(0));
-    assert(lightMgr->Get(1));
-    assert(lightMgr->Get(2));
-    assert(lightMgr->Get(3));
-    assert(lightMgr->Get(4));
-    assert(lightMgr->Get(5));
-    assert(lightMgr->Get(6));
-    assert(lightMgr->Get(7));
+        assert(lightMgr->Get(0));
+        assert(lightMgr->Get(1));
+        assert(lightMgr->Get(2));
+        assert(lightMgr->Get(3));
+        assert(lightMgr->Get(4));
+        assert(lightMgr->Get(5));
+        assert(lightMgr->Get(6));
+        assert(lightMgr->Get(7));
 
-    m_LightButton0.Update( lightMgr->Get(0)->m_Active.GetID() );   
-    m_LightButton1.Update( lightMgr->Get(1)->m_Active.GetID() );
-    m_LightButton2.Update( lightMgr->Get(2)->m_Active.GetID() );
-    m_LightButton3.Update( lightMgr->Get(3)->m_Active.GetID() );
-    m_LightButton4.Update( lightMgr->Get(4)->m_Active.GetID() );
-    m_LightButton5.Update( lightMgr->Get(5)->m_Active.GetID() );
-    m_LightButton6.Update( lightMgr->Get(6)->m_Active.GetID() );
-    m_LightButton7.Update( lightMgr->Get(7)->m_Active.GetID() );
-
+        m_LightButton0.Update( lightMgr->Get(0)->m_Active.GetID() );
+        m_LightButton1.Update( lightMgr->Get(1)->m_Active.GetID() );
+        m_LightButton2.Update( lightMgr->Get(2)->m_Active.GetID() );
+        m_LightButton3.Update( lightMgr->Get(3)->m_Active.GetID() );
+        m_LightButton4.Update( lightMgr->Get(4)->m_Active.GetID() );
+        m_LightButton5.Update( lightMgr->Get(5)->m_Active.GetID() );
+        m_LightButton6.Update( lightMgr->Get(6)->m_Active.GetID() );
+        m_LightButton7.Update( lightMgr->Get(7)->m_Active.GetID() );
+    }
     return true;
 }
 
-void ManageLightingScreen::CallBack( Fl_Widget * w )
+void ManageLightingScreen::GuiDeviceCallBack( GuiDevice* device )
 {
-    if( w == m_LightingUI->LightSourceDropDown )
-    {
-        m_CurrentSelected = m_LightingUI->LightSourceDropDown->value();
-    }
+    assert( m_ScreenMgr );
 
+    if ( device == &m_LightChoice )
+    {
+        m_CurrentSelected = m_LightChoice.GetVal();
+    }
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
