@@ -664,8 +664,9 @@ void VspSurf::BuildFeatureLines()
 {
     if ( m_Surface.number_u_patches() > 0 && m_Surface.number_v_patches() > 0 )
     {
-        // Detect C0 edges, clear()'s both vectors as first step.
-        m_Surface.find_interior_C0_edges( m_UFeature, m_WFeature );
+        // Detect feature lines, clear()'s both vectors as first step. Any derivative vectors with
+        // angle larger than acos(1-0.01)~8.1 deg will be considered a feature edge.
+        m_Surface.find_interior_feature_edges( m_UFeature, m_WFeature, 0.01 );
 
         // Add start/end curves.
         double umin = m_Surface.get_u0();
