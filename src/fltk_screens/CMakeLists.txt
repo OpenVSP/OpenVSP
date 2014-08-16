@@ -19,7 +19,6 @@ feaStructFlScreen.fl
 geomBrowserScreen.fl
 importFileScreen.fl
 labelFlScreen.fl
-lightingScreen.fl
 mainScreen.fl
 massPropFlScreen.fl
 parmFlScreen.fl
