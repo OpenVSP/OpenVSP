@@ -4361,7 +4361,7 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     m_MeshBadEdgeDO.m_GeomID = GetID() + "BADEDGE";
     m_MeshBadEdgeDO.m_Type = DrawObj::VSP_LINES;
     m_MeshBadEdgeDO.m_Visible = GetCfdSettingsPtr()->m_DrawBadFlag.Get();
-    m_MeshBadEdgeDO.m_LineColor = vec3d( 0, 0, 0 );
+    m_MeshBadEdgeDO.m_LineColor = vec3d( 1, 0, 0 );
     m_MeshBadEdgeDO.m_LineWidth = 3.0;
 
     vector< vec3d > badEdgeData;
@@ -4381,7 +4381,7 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     m_MeshBadTriDO.m_GeomID = GetID() + "BADTRI";
     m_MeshBadTriDO.m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
     m_MeshBadTriDO.m_Visible = GetCfdSettingsPtr()->m_DrawBadFlag.Get();
-    m_MeshBadTriDO.m_LineColor = vec3d( 0, 0, 0 );
+    m_MeshBadTriDO.m_LineColor = vec3d( 1, 0, 0 );
     m_MeshBadTriDO.m_LineWidth = 3.0;
 
     vector< vec3d > badTriData;
