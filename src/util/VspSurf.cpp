@@ -729,7 +729,7 @@ bool VspSurf::CapUMin(int CapType)
     capped_creator_type cc;
     bool rtn_flag;
 
-    rtn_flag = cc.set_conditions(m_Surface, 0.5, capped_creator_type::CAP_UMIN);
+    rtn_flag = cc.set_conditions(m_Surface, 1.0, capped_creator_type::CAP_UMIN);
     if (!rtn_flag)
     {
       assert(false);
@@ -743,6 +743,8 @@ bool VspSurf::CapUMin(int CapType)
       return false;
     }
 
+    m_Surface.set_u0( 0.0 );
+
     return true;
 }
 
@@ -754,7 +756,7 @@ bool VspSurf::CapUMax(int CapType)
     capped_creator_type cc;
     bool rtn_flag;
 
-    rtn_flag = cc.set_conditions(m_Surface, 0.5, capped_creator_type::CAP_UMAX);
+    rtn_flag = cc.set_conditions(m_Surface, 1.0, capped_creator_type::CAP_UMAX);
     if (!rtn_flag)
     {
       assert(false);
