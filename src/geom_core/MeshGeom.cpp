@@ -79,8 +79,8 @@ MeshGeom::MeshGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_ScaleFromOrig.Init( "Scale_From_Original", "XForm", this, 1, 1.0e-5, 1.0e12, false );
 
     // Debug
-    m_DrawType.Init( "Draw_Type", "Debug", this, DRAW_XYZ, DRAW_XYZ, DRAW_TAGS, false );
-    m_DrawSubSurfs.Init( "Draw SubSurfaces in UV", "Debug", this, 0, 0, 1, false );
+    m_DrawType.Init( "Draw_Type", "Draw", this, DRAW_XYZ, DRAW_XYZ, DRAW_TAGS, false );
+    m_DrawSubSurfs.Init( "Draw_Sub_UV", "Debug", this, 0, 0, 1, false );
 }
 
 //==== Destructor =====//
@@ -740,8 +740,8 @@ int MeshGeom::WriteNascartTris( FILE* fp, int off )
     for ( int t = 0 ; t < ( int )m_IndexedTriVec.size() ; t++ )
     {
         TTri* ttri = m_IndexedTriVec[t];
-        fprintf( fp, "%d %d %d %s.%d\n", ttri->m_N0->m_ID + 1 + off,  ttri->m_N2->m_ID + 1 + off, ttri->m_N1->m_ID + 1 + off, ttri->m_ID.c_str(),
-                      SubSurfaceMgr.GetTag( ttri->m_Tags ) );
+        fprintf( fp, "%d %d %d %d.0\n", ttri->m_N0->m_ID + 1 + off,  ttri->m_N2->m_ID + 1 + off,
+                 ttri->m_N1->m_ID + 1 + off, SubSurfaceMgr.GetTag( ttri->m_Tags ) );
     }
 
     return ( off + m_IndexedNodeVec.size() );
