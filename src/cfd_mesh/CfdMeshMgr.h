@@ -408,8 +408,8 @@ protected:
     vector< string > m_GeomIDs;
 
 private:
-    DrawObj m_MeshTriDO;
-    DrawObj m_MeshWakeTriDO;
+    vector < DrawObj > m_MeshTriDO;
+    vector < DrawObj > m_MeshWakeTriDO;
     DrawObj m_MeshBadEdgeDO;
     DrawObj m_MeshBadTriDO;
     DrawObj m_BBoxLineStripDO;

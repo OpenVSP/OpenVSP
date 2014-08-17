@@ -4263,15 +4263,23 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
         }
     }
 
-    // Render Mesh
-    m_MeshTriDO.m_GeomID = GetID() + "TRI";
-    m_MeshTriDO.m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
-    m_MeshTriDO.m_Visible = GetCfdSettingsPtr()->m_DrawMeshFlag.Get();
-    m_MeshTriDO.m_LineColor = vec3d( 0.4, 0.4, 0.4 );
     vector< vec3d > meshData;
     vector< vec3d > normData;
+
+    m_MeshTriDO.resize( m_SurfVec.size() );
+    // Render Mesh
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
+        m_MeshTriDO[i] = DrawObj();
+        sprintf( str, "%s_TRI_%d", GetID().c_str(), i );
+        m_MeshTriDO[i].m_GeomID = string( str );
+        m_MeshTriDO[i].m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
+        m_MeshTriDO[i].m_Visible = GetCfdSettingsPtr()->m_DrawMeshFlag.Get();
+        m_MeshTriDO[i].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
+
+        meshData.clear();
+        normData.clear();
+
         vector< vec3d > pVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
         for ( int t = 0 ; t < ( int )m_SurfVec[i]->GetMesh()->GetSimpTriVec().size() ; t++ )
         {
@@ -4292,22 +4300,27 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 
             }
         }
-    }
-    m_MeshTriDO.m_PntVec = meshData;
-    // Normal Vec has no use in this case, set to meshData as placeholder.
-    m_MeshTriDO.m_NormVec = normData;
+        m_MeshTriDO[i].m_PntVec = meshData;
+        m_MeshTriDO[i].m_NormVec = normData;
 
-    draw_obj_vec.push_back( &m_MeshTriDO );
+        draw_obj_vec.push_back( &m_MeshTriDO[i] );
+    }
+
 
     // Render Wake Wireframe
-    m_MeshWakeTriDO.m_GeomID = GetID() + "WAKE_TRI";
-    m_MeshWakeTriDO.m_Type = DrawObj::VSP_WIRE_TRIS;
-    m_MeshWakeTriDO.m_Visible = GetCfdSettingsPtr()->m_DrawMeshFlag.Get();
-    m_MeshWakeTriDO.m_LineColor = vec3d( 0.1, 0.1, 0.1 );
-    meshData.clear();
-    normData.clear();
+    m_MeshWakeTriDO.resize( m_SurfVec.size() );
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
+        m_MeshWakeTriDO[i] = DrawObj();
+        sprintf( str, "%s_WAKE_TRI_%d", GetID().c_str(), i );
+        m_MeshWakeTriDO[i].m_GeomID = string( str );
+        m_MeshWakeTriDO[i].m_Type = DrawObj::VSP_WIRE_TRIS;
+        m_MeshWakeTriDO[i].m_Visible = GetCfdSettingsPtr()->m_DrawMeshFlag.Get();
+        m_MeshWakeTriDO[i].m_LineColor = vec3d( 0.1, 0.1, 0.1 );
+
+        meshData.clear();
+        normData.clear();
+
         vector< vec3d > pVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
         for ( int t = 0 ; t < ( int )m_SurfVec[i]->GetMesh()->GetSimpTriVec().size() ; t++ )
         {
@@ -4326,13 +4339,11 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 
             }
         }
+        m_MeshWakeTriDO[i].m_PntVec = meshData;
+        m_MeshWakeTriDO[i].m_NormVec = normData;
+
+        draw_obj_vec.push_back( &m_MeshWakeTriDO[i] );
     }
-    m_MeshWakeTriDO.m_PntVec = meshData;
-    // Normal Vec has no use in this case, set to meshData as placeholder.
-    m_MeshWakeTriDO.m_NormVec = normData;
-
-    draw_obj_vec.push_back( &m_MeshWakeTriDO );
-
 
 
     // Render bad edges
