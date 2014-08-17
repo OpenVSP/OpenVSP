@@ -821,17 +821,24 @@ void WingGeom::AddLinkableParms( vector< string > & linkable_parm_vec, const str
 //==== Scale ====//
 void WingGeom::Scale()
 {
-    //double currentScale = m_Scale() / m_LastScale;
-    //for ( int i = 0 ; i < m_XSecSurf.NumXSec() ; i++ )
-    //{
-    //    XSec* xs = m_XSecSurf.FindXSec( i );
-    //    if ( xs )
-    //    {
-    //        xs->SetScale( currentScale );
-    //    }
-    //}
+    double currentScale = m_Scale() / m_LastScale;
 
-    //m_LastScale = m_Scale();
+    if( abs( 1.0 - currentScale ) > 1e-6 )
+    {
+        //==== Adjust Sections Area ====//
+        vector< WingSect* > ws_vec = GetWingSectVec();
+        for ( int i = 1 ; i < (int)ws_vec.size() ; i++ )
+        {
+            WingSect* ws = ws_vec[i];
+            if ( ws )
+            {
+                double area = ws->m_Area()*currentScale;
+                ws->ForceAspectTaperArea( ws->m_Aspect(), ws->m_Taper(), area );
+            }
+        }
+
+        m_LastScale = m_Scale();
+    }
 }
 
 //==== Drag Parameters ====//
