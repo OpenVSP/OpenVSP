@@ -97,7 +97,9 @@ void Wake::BuildSurfs(  )
     for ( int c = 0 ; c < ( int )m_LeadingCurves.size() ; c++ )
     {
         m_CompID = m_LeadingCurves[c]->m_SCurve_A->GetSurf()->GetCompID();
+        int unmerged_comp_id = m_LeadingCurves[c]->m_SCurve_A->GetSurf()->GetUnmergedCompID();
         int wakeParentSurfID = m_LeadingCurves[c]->m_SCurve_A->GetSurf()->GetSurfID();
+        string geom_id = m_LeadingCurves[c]->m_SCurve_A->GetSurf()->GetGeomID();
 
         vector< vec3d > le_pnts;
         m_LeadingCurves[c]->m_SCurve_A->ExtractBorderControlPnts( le_pnts );
@@ -144,6 +146,8 @@ void Wake::BuildSurfs(  )
             s->SetWakeFlag( true );
             s->SetTransFlag( true );
             s->SetCompID( m_CompID );
+            s->SetUnmergedCompID( unmerged_comp_id );
+            s->SetRefGeomID( geom_id );
             s->SetSurfID( m_SurfVec.size() );
             s->SetWakeParentSurfID( wakeParentSurfID );
             s->LoadControlPnts( cpnts );
@@ -1039,6 +1043,7 @@ void CfdMeshMgrSingleton::ReadSurfs( const string &filename )
 
                 surfPtr->SetGeomID( string( geom_id ) );
                 surfPtr->SetCompID( c );
+                surfPtr->SetUnmergedCompID( c );
                 surfPtr->SetSurfID( s + total_surfs );
                 surfPtr->SetFlipFlag( f_norm );
 
@@ -1117,6 +1122,7 @@ void CfdMeshMgrSingleton::BuildDomain()
         {
             m_SurfVec[i]->SetCompID( m_SurfVec[i]->GetCompID() + inc );
             m_SurfVec[i]->SetSurfID( m_SurfVec[i]->GetSurfID() + inc );
+            m_SurfVec[i]->SetUnmergedCompID( m_SurfVec[i]->GetUnmergedCompID() + inc );
         }
 
         for ( int i = 0 ; i < (int)FFBox.size() ; i++ )
@@ -2468,6 +2474,7 @@ vector< Surf* > CfdMeshMgrSingleton::CreateDomainSurfs()
 
         domainSurfs[i]->SetSurfID( i );
         domainSurfs[i]->SetCompID( i );
+        domainSurfs[i]->SetUnmergedCompID( i );
 
         domainSurfs[i]->SetTransFlag( true );
 
@@ -4771,23 +4778,63 @@ void CfdMeshMgrSingleton::SetICurveVec( ICurve* newcurve, int loc )
 void CfdMeshMgrSingleton::SubTagTris()
 {
     SubSurfaceMgr.ClearTagMaps();
-    for ( int i = 0; i < ( int )m_GeomIDs.size(); i++ )
+    map< string, int > tag_map;
+    map< string, set<int> > geom_comp_map;
+    map< int, int >  comp_num_map; // map from an unmerged component number to the surface number of geom
+    int tag_number = 0;
+
+    for ( int i = 0; i < (int)m_SurfVec.size(); i++ )
     {
-        Geom* geomptr = m_Vehicle->FindGeom( m_GeomIDs[i] );
-        if ( geomptr )
+        Surf* surf = m_SurfVec[i];
+        string geom_id = surf->GetGeomID();
+        string id = geom_id + to_string( (long long) surf->GetUnmergedCompID() );
+        string name;
+
+        geom_comp_map[geom_id].insert( surf->GetUnmergedCompID() );
+
+        if ( !surf->GetWakeFlag() && !surf->GetSymPlaneFlag() && !surf->GetFarFlag() )
+            comp_num_map[ surf->GetUnmergedCompID() ] = geom_comp_map[geom_id].size();
+
+        if ( surf->GetWakeFlag() )
         {
-            if ( geomptr->GetSetFlag( GetCfdSettingsPtr()->m_SelectedSetIndex() ) )
-            {
-                vector<VspSurf> vspsurfs;
-                geomptr->GetSurfVec( vspsurfs );
-                for ( int s = 0 ; s < ( int ) vspsurfs.size() ; s++ )
-                {
-                    SubSurfaceMgr.m_CompNames.push_back( geomptr->GetName() + to_string( ( long long ) s ) );
-                }
-            }
+            id += "_Wake";
         }
+        else if ( surf->GetSymPlaneFlag() )
+        {
+            id = "SymPlane";
+            name = "SymPlane";
+        }
+        else if ( surf->GetFarFlag() )
+        {
+            id = "FarField";
+            name = "FarField";
+        }
+
+        if ( tag_map.find(id) == tag_map.end() )
+        {
+            tag_number++;
+            tag_map[id] = tag_number;
+
+            Geom* geom_ptr = m_Vehicle->FindGeom( geom_id );
+            if ( surf->GetWakeFlag() )
+                geom_ptr = m_Vehicle->FindGeom( surf->GetRefGeomID() );
+
+            if ( geom_ptr )
+            {
+                name = geom_ptr->GetName() + to_string( (long long)geom_comp_map[geom_id].size() );
+                if ( surf->GetWakeFlag() ) name = geom_ptr->GetName()
+                                                 + to_string( (long long)comp_num_map[ surf->GetUnmergedCompID() ] )
+                                                 + "_Wake";
+            }
+
+            SubSurfaceMgr.m_CompNames.push_back(name);
+        }
+
+        surf->SetBaseTag( tag_map[id] );
+
     }
-    SubSurfaceMgr.SetSubSurfTags( m_NumComps );
+
+    SubSurfaceMgr.SetSubSurfTags( tag_number );
     SubSurfaceMgr.BuildCompNameMap();
 }
 

@@ -22,6 +22,7 @@ Surf::Surf()
     m_NumU = m_NumW = 0;
     m_GridDensityPtr = 0;
     m_CompID = -1;
+    m_UnmergedCompID = -1;
     m_SurfID = -1;
     m_FlipFlag = false;
     m_WakeFlag = false;
@@ -31,6 +32,7 @@ Surf::Surf()
     m_WakeParentSurfID = -1;
     m_Mesh.SetSurfPtr( this );
     m_NumMap = 10;
+    m_BaseTag = 1;
 }
 
 Surf::~Surf()
@@ -2267,7 +2269,7 @@ void Surf::Subtag( bool tag_subs )
     for ( int t = 0 ; t < ( int ) tri_vec.size() ; t++ )
     {
         SimpTri& tri = tri_vec[t];
-        tri.m_Tags.push_back( m_CompID + 1 );
+        tri.m_Tags.push_back( m_BaseTag );
         vec2d center = ( pnts[tri.ind0] + pnts[tri.ind1] + pnts[tri.ind2] ) * 1 / 3.0;
         vec2d cent2d = Convert2VspSurf( center.x(), center.y() );
 

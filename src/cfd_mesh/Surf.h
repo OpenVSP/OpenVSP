@@ -102,6 +102,14 @@ public:
     {
         return m_CompID;
     }
+    void SetUnmergedCompID( int id )
+    {
+        m_UnmergedCompID = id;
+    }
+    int GetUnmergedCompID()
+    {
+        return m_UnmergedCompID;
+    }
     void SetGeomID( const string &id )
     {
         m_GeomID = id;
@@ -109,6 +117,14 @@ public:
     string GetGeomID()
     {
         return m_GeomID;
+    }
+    void SetRefGeomID( const string &id )
+    {
+        m_RefGeomID = id;
+    }
+    string GetRefGeomID()
+    {
+        return m_RefGeomID;
     }
     void SetSurfID( int id )
     {
@@ -231,6 +247,14 @@ public:
     {
         m_FlipFlag = !m_FlipFlag;
     }
+    void SetBaseTag( int tag )
+    {
+        m_BaseTag = tag;
+    }
+    int GetBaseTag()
+    {
+        return m_BaseTag;
+    }
 
 
     vector< vector< vec3d > > GetControlPnts()
@@ -249,9 +273,13 @@ public:
 protected:
 
     int m_CompID;
+    int m_UnmergedCompID; // Comp ID that does not change when open components are merged
     string m_GeomID;
+    string m_RefGeomID;   // Geom ID of the surface a wake attaches to
     string m_CompName;
     int m_SurfID;
+
+    int m_BaseTag; // Tag number that will be applied to all triangles of this surface
 
     int m_NumU;
     int m_NumW;
