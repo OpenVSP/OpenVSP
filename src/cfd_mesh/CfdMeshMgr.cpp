@@ -4274,6 +4274,7 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 
                 DrawObj* obj = dmit->second;
                 vec3d norm = cross( pVec[stri->ind1] - pVec[stri->ind0], pVec[stri->ind2] - pVec[stri->ind0] );
+                norm.normalize();
                 obj->m_PntVec.push_back( pVec[stri->ind0] );
                 obj->m_PntVec.push_back( pVec[stri->ind1] );
                 obj->m_PntVec.push_back( pVec[stri->ind2] );
@@ -4290,6 +4291,7 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     m_MeshTriDO.m_Visible = GetCfdSettingsPtr()->m_DrawMeshFlag.Get();
     m_MeshTriDO.m_LineColor = vec3d( 0.1, 0.1, 0.1 );
     vector< vec3d > meshData;
+    vector< vec3d > normData;
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
         vector< vec3d > pVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
@@ -4304,12 +4306,18 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 meshData.push_back( pVec[stri->ind0] );
                 meshData.push_back( pVec[stri->ind1] );
                 meshData.push_back( pVec[stri->ind2] );
+                vec3d norm = cross( pVec[stri->ind1] - pVec[stri->ind0],  pVec[stri->ind2] - pVec[stri->ind0] );
+                norm.normalize();
+                normData.push_back( norm );
+                normData.push_back( norm );
+                normData.push_back( norm );
+
             }
         }
     }
     m_MeshTriDO.m_PntVec = meshData;
     // Normal Vec has no use in this case, set to meshData as placeholder.
-    m_MeshTriDO.m_NormVec = meshData;
+    m_MeshTriDO.m_NormVec = normData;
 
     draw_obj_vec.push_back( &m_MeshTriDO );
 
@@ -4319,6 +4327,7 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     m_MeshWakeTriDO.m_Visible = GetCfdSettingsPtr()->m_DrawMeshFlag.Get();
     m_MeshWakeTriDO.m_LineColor = vec3d( 0.1, 0.1, 0.1 );
     meshData.clear();
+    normData.clear();
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
         vector< vec3d > pVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
@@ -4331,12 +4340,18 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 meshData.push_back( pVec[stri->ind0] );
                 meshData.push_back( pVec[stri->ind1] );
                 meshData.push_back( pVec[stri->ind2] );
+                vec3d norm = cross( pVec[stri->ind1] - pVec[stri->ind0],  pVec[stri->ind2] - pVec[stri->ind0] );
+                norm.normalize();
+                normData.push_back( norm );
+                normData.push_back( norm );
+                normData.push_back( norm );
+
             }
         }
     }
     m_MeshWakeTriDO.m_PntVec = meshData;
     // Normal Vec has no use in this case, set to meshData as placeholder.
-    m_MeshWakeTriDO.m_NormVec = meshData;
+    m_MeshWakeTriDO.m_NormVec = normData;
 
     draw_obj_vec.push_back( &m_MeshWakeTriDO );
 
