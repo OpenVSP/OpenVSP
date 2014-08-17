@@ -459,17 +459,17 @@ WingSect::WingSect( XSecCurve *xsc, bool use_left ) : XSec( xsc, use_left)
 
     m_Aspect.Init( "Aspect", m_GroupName, this, 1.0, 0.001, 1000.0 );
     m_Aspect.SetDescript( "Aspect Ratio of Wing Section" );
-    m_Taper.Init( "Taper", m_GroupName, this, 1.0, 0.001, 1000.0 );
+    m_Taper.Init( "Taper", m_GroupName, this, 1.0, 0.0, 1000.0 );
     m_Taper.SetDescript( "Taper Ratio of Wing Section" );
     m_Area.Init( "Area", m_GroupName, this, 1.0, 0.0001, 1000000.0 );
     m_Area.SetDescript( "Area of Wing Section" );
     m_Span.Init( "Span", m_GroupName, this, 1.0, 0.0001, 1000000.0 );
     m_Span.SetDescript( "Span of Wing Section" );
-    m_AvgChord.Init( "Avg_Chord", m_GroupName, this, 1.0, 0.0001, 1000000.0 );
+    m_AvgChord.Init( "Avg_Chord", m_GroupName, this, 1.0, 0.0, 1000000.0 );
     m_AvgChord.SetDescript( "Avg Chord of Wing Section" );
-    m_TipChord.Init( "Tip_Chord", m_GroupName, this, 1.0, 0.0001, 1000000.0 );
+    m_TipChord.Init( "Tip_Chord", m_GroupName, this, 1.0, 0.0, 1000000.0 );
     m_TipChord.SetDescript( "Tip Chord of Wing Section" );
-    m_RootChord.Init( "Root_Chord", m_GroupName, this, 1.0, 0.0001, 1000000.0 );
+    m_RootChord.Init( "Root_Chord", m_GroupName, this, 1.0, 0.0, 1000000.0 );
     m_RootChord.SetDescript( "Root Chord of Wing Section" );
     m_SecSweep.Init( "Sec_Sweep", m_GroupName, this, 0.0, -89.0, 89.0 );
     m_SecSweep.SetDescript( "Secondary Sweep of Wing Section" );
