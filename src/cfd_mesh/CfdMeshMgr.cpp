@@ -4289,7 +4289,7 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     m_MeshTriDO.m_GeomID = GetID() + "TRI";
     m_MeshTriDO.m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
     m_MeshTriDO.m_Visible = GetCfdSettingsPtr()->m_DrawMeshFlag.Get();
-    m_MeshTriDO.m_LineColor = vec3d( 0.1, 0.1, 0.1 );
+    m_MeshTriDO.m_LineColor = vec3d( 0.4, 0.4, 0.4 );
     vector< vec3d > meshData;
     vector< vec3d > normData;
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
