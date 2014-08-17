@@ -947,6 +947,7 @@ void MeshGeom::UpdateDrawObj()
 
 
     Matrix4d trans = GetTotalTransMat();
+    vec3d zeroV = m_ModelMatrix.xform( vec3d( 0.0, 0.0, 0.0 ) );
 
     if ( m_DrawType() & MeshGeom::DRAW_XYZ )
     {
@@ -962,9 +963,10 @@ void MeshGeom::UpdateDrawObj()
                 m_WireShadeDrawObj_vec[m].m_PntVec[pi] = trans.xform( tris[t]->m_N0->m_Pnt );
                 m_WireShadeDrawObj_vec[m].m_PntVec[pi + 1] = trans.xform( tris[t]->m_N1->m_Pnt );
                 m_WireShadeDrawObj_vec[m].m_PntVec[pi + 2] = trans.xform( tris[t]->m_N2->m_Pnt );
-                m_WireShadeDrawObj_vec[m].m_NormVec[pi] = tris[t]->m_Norm; // Don't apply scale to norms
-                m_WireShadeDrawObj_vec[m].m_NormVec[pi + 1] = tris[t]->m_Norm;
-                m_WireShadeDrawObj_vec[m].m_NormVec[pi + 2] = tris[t]->m_Norm;
+                vec3d norm =  m_ModelMatrix.xform( tris[t]->m_Norm ) - zeroV;
+                m_WireShadeDrawObj_vec[m].m_NormVec[pi] = norm;
+                m_WireShadeDrawObj_vec[m].m_NormVec[pi + 1] = norm;
+                m_WireShadeDrawObj_vec[m].m_NormVec[pi + 2] = norm;
                 pi += 3;
             }
         }
@@ -985,9 +987,10 @@ void MeshGeom::UpdateDrawObj()
                 m_WireShadeDrawObj_vec[m + add_ind].m_PntVec[pi] = trans.xform( tris[t]->m_N0->m_Pnt );
                 m_WireShadeDrawObj_vec[m + add_ind].m_PntVec[pi + 1] = trans.xform( tris[t]->m_N1->m_Pnt );
                 m_WireShadeDrawObj_vec[m + add_ind].m_PntVec[pi + 2] = trans.xform( tris[t]->m_N2->m_Pnt );
-                m_WireShadeDrawObj_vec[m + add_ind].m_NormVec[pi] = m_ModelMatrix.xform( tris[t]->m_Norm ); // Don't apply scale to norms
-                m_WireShadeDrawObj_vec[m + add_ind].m_NormVec[pi + 1] = m_ModelMatrix.xform( tris[t]->m_Norm );
-                m_WireShadeDrawObj_vec[m + add_ind].m_NormVec[pi + 2] = m_ModelMatrix.xform( tris[t]->m_Norm );
+                vec3d norm =  m_ModelMatrix.xform( tris[t]->m_Norm ) - zeroV;
+                m_WireShadeDrawObj_vec[m + add_ind].m_NormVec[pi] = norm;
+                m_WireShadeDrawObj_vec[m + add_ind].m_NormVec[pi + 1] = norm;
+                m_WireShadeDrawObj_vec[m + add_ind].m_NormVec[pi + 2] = norm;
                 pi += 3;
             }
             m_TMeshVec[m]->MakeNodePntXYZ();
@@ -1018,9 +1021,10 @@ void MeshGeom::UpdateDrawObj()
                 d_obj->m_PntVec.push_back( trans.xform( tris[t]->m_N0->m_Pnt ) );
                 d_obj->m_PntVec.push_back( trans.xform( tris[t]->m_N1->m_Pnt ) );
                 d_obj->m_PntVec.push_back( trans.xform( tris[t]->m_N2->m_Pnt ) );
-                d_obj->m_NormVec.push_back( m_ModelMatrix.xform( tris[t]->m_Norm ) ); // Don't apply scale to norms
-                d_obj->m_NormVec.push_back( m_ModelMatrix.xform( tris[t]->m_Norm ) );
-                d_obj->m_NormVec.push_back( m_ModelMatrix.xform( tris[t]->m_Norm ) );
+                vec3d norm =  m_ModelMatrix.xform( tris[t]->m_Norm ) - zeroV;
+                d_obj->m_NormVec.push_back( norm );
+                d_obj->m_NormVec.push_back( norm );
+                d_obj->m_NormVec.push_back( norm );
             }
         }
     }
@@ -1049,9 +1053,10 @@ void MeshGeom::UpdateDrawObj()
             m_WireShadeDrawObj_vec[draw_ind].m_PntVec[pi] = trans.xform( tris[t]->m_N0->m_Pnt );
             m_WireShadeDrawObj_vec[draw_ind].m_PntVec[pi + 1] = trans.xform( tris[t]->m_N1->m_Pnt );
             m_WireShadeDrawObj_vec[draw_ind].m_PntVec[pi + 2] = trans.xform( tris[t]->m_N2->m_Pnt );
-            m_WireShadeDrawObj_vec[draw_ind].m_NormVec[pi] = tris[t]->m_Norm; // Don't apply scale to norms
-            m_WireShadeDrawObj_vec[draw_ind].m_NormVec[pi + 1] = tris[t]->m_Norm;
-            m_WireShadeDrawObj_vec[draw_ind].m_NormVec[pi + 2] = tris[t]->m_Norm;
+            vec3d norm =  m_ModelMatrix.xform( tris[t]->m_Norm ) - zeroV;
+            m_WireShadeDrawObj_vec[draw_ind].m_NormVec[pi] = norm;
+            m_WireShadeDrawObj_vec[draw_ind].m_NormVec[pi + 1] = norm;
+            m_WireShadeDrawObj_vec[draw_ind].m_NormVec[pi + 2] = norm;
             pi += 3;
         }
     }
@@ -1285,6 +1290,9 @@ void MeshGeom::TransformMeshVec( vector<TMesh*> & meshVec, Matrix4d & TransMat )
         n->m_Pnt = TransMat.xform( n->m_Pnt );
     }
 
+    vec3d zeroV = vec3d( 0.0, 0.0, 0.0 );
+    zeroV = TransMat.xform( zeroV );
+
     // Apply Transformation to each triangle's normal vector
     for ( int i = 0 ; i < ( int )meshVec.size() ; i ++ )
     {
@@ -1295,13 +1303,13 @@ void MeshGeom::TransformMeshVec( vector<TMesh*> & meshVec, Matrix4d & TransMat )
                 for ( int t = 0 ; t < ( int ) meshVec[i]->m_TVec[j]->m_SplitVec.size() ; t++ )
                 {
                     TTri* tri = meshVec[i]->m_TVec[j]->m_SplitVec[t];
-                    tri->m_Norm = TransMat.xform( tri->m_Norm );
+                    tri->m_Norm = TransMat.xform( tri->m_Norm ) - zeroV;
                 }
             }
             else
             {
                 TTri* tri = meshVec[i]->m_TVec[j];
-                tri->m_Norm = TransMat.xform( tri->m_Norm );
+                tri->m_Norm = TransMat.xform( tri->m_Norm ) - zeroV;
             }
         }
 
