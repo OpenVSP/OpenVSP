@@ -186,7 +186,19 @@ void SubSurfaceMgrSingleton::BuildSingleTagMap()
     // Map tag combos to single tag number
     for ( int i = 0; i < ( int )m_TagKeys.size() ; i++ )
     {
-        m_SingleTagMap[m_TagKeys[i]] = i + 1;
+        // If a tag key only has one tag, check to see if the name contains
+        // "Wake". If this is true, then this is a wake from CFDMesh and
+        // it should be assigned a tag number greater than 100 for
+        // CBAero
+
+        if ( m_TagKeys[i].size() == 1 && string::npos != m_TagNames[ m_TagKeys[i][0] ].find("Wake") )
+        {
+            m_SingleTagMap[m_TagKeys[i]] = i + 1 + 1000;
+        }
+        else
+        {
+            m_SingleTagMap[m_TagKeys[i]] = i + 1;
+        }
     }
 }
 
@@ -211,7 +223,7 @@ void SubSurfaceMgrSingleton::WriteKeyFile( const string & file_name )
     // Write Out Header Information
     fprintf( fid, "# VSP Tag Key File\n" );
     fprintf( fid, "%s\n", file_name.c_str() ); // Write out the file that this key information is for
-    fprintf( fid, "%lu\n", m_SingleTagMap.size()-1 ); // Total number of tags
+    fprintf( fid, "%lu\n", m_SingleTagMap.size()-1 ); // Total number of tags ( the minus 1 is from the dummy tags )
     fprintf( fid, "\n" );
 
     map< vector<int>, int >::iterator ii;
@@ -219,42 +231,76 @@ void SubSurfaceMgrSingleton::WriteKeyFile( const string & file_name )
 
     for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
     {
-        string comp_list;
-        int tag(-10);
-
-        ii = m_SingleTagMap.find( m_TagKeys[i] );
-
-        if ( ii == m_SingleTagMap.end() )
-        {
-            tag = -1;
-            comp_list = ",Error_Tag";
-        }
-        else if ( ii != m_SingleTagMap.end() )
-        {
-            tag = ii->second;
-
-            for ( int j = 0 ; j < ( int )m_TagKeys[i].size() ; j++ )
-            {
-                si = m_TagNames.find( m_TagKeys[i][j] );
-
-                if ( si == m_TagNames.end() )
-                {
-                    comp_list += ",Error_SubSurf";
-                }
-                else if ( si != m_TagNames.end() )
-                {
-                    comp_list += "," + si->second ;
-                }
-            }
-        }
+        string comp_list = GetTagNames( m_TagKeys[i] );
+        int tag = GetTag( m_TagKeys[i] );
 
         // Write tag number and surface list to file
-        fprintf( fid, "%d%s\n", tag , comp_list.c_str() );
+        fprintf( fid, "%d,%s\n", tag , comp_list.c_str() );
 
     }
 
     fclose( fid );
 
+}
+
+void SubSurfaceMgrSingleton::WriteNascartKeyFile( const string & filename )
+{
+    // Writes a Nascart Key File that is consistent between both CompGeom and CFDMesh
+
+    if ( filename.size() == 0 ) return;
+
+    FILE* fp = fopen( filename.c_str(), "w" );
+
+    if ( fp )
+    {
+        fprintf( fp, "Color Name            BCType\n" );
+
+        for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
+        {
+            string comp_list = GetTagNames( m_TagKeys[i] );
+            int tag = GetTag( m_TagKeys[i] );
+            fprintf( fp, "%d.0  %s  0\n", tag, comp_list.c_str() );
+        }
+
+        fclose( fp );
+    }
+
+}
+
+string SubSurfaceMgrSingleton::GetTagNames( const vector<int> & tags )
+{
+    string comp_list;
+    map< int, string >::iterator si;
+
+    int tag = GetTag( tags );
+
+    if ( tag == -1 )
+    {
+        comp_list = "Error_Tag";
+        return comp_list;
+    }
+    else
+    {
+        for ( int i = 0 ; i < ( int )tags.size() ; i++ )
+        {
+            si = m_TagNames.find( tags[i] );
+
+            if ( si == m_TagNames.end() )
+            {
+                comp_list += ",Error_SubSurf";
+            }
+            else if ( si != m_TagNames.end() )
+            {
+                comp_list += "," + si->second ;
+            }
+
+            // Remove leading comma on first loop
+            if ( i == 0 )
+                comp_list.erase( comp_list.begin(),comp_list.begin()+1 );
+        }
+    }
+
+    return comp_list;
 }
 
 int SubSurfaceMgrSingleton::GetTag( const vector<int> & tags )

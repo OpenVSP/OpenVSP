@@ -1402,26 +1402,7 @@ void Vehicle::WriteNascartFiles( const string & file_name, int write_set )
         key_name = key_name.substr( 0, loc ).append( ".key" );
     }
 
-    //==== Open file ====//
-    file_id = fopen( key_name.c_str(), "w" );
-    if ( !file_id )
-    {
-        return;
-    }
-
-    fprintf( file_id, "Color    Name            BCType\n" );
-
-    int part_count = 1;
-    for ( i = 0 ; i < ( int )geom_vec.size() ; i++ )
-    {
-        if ( geom_vec[i]->GetSetFlag( write_set ) && geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
-        {
-            MeshGeom* mg = ( MeshGeom* )geom_vec[i];            // Cast
-            part_count = mg->WriteNascartParts( file_id, part_count );
-        }
-    }
-
-    fclose( file_id );
+    SubSurfaceMgr.WriteNascartKeyFile( key_name );
 
     SubSurfaceMgr.WriteKeyFile( file_name );
 

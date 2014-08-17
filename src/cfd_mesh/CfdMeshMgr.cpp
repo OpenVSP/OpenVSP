@@ -1819,46 +1819,17 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
             //==== Write Tris ====//
             for ( int i = 0 ; i < ( int )allTriVec.size() ; i++ )
             {
-                fprintf( fp, "%d %d %d %d.%d\n",
+                fprintf( fp, "%d %d %d %d.0\n",
                          allTriVec[i].ind0, allTriVec[i].ind1, allTriVec[i].ind2,
-                         allSurfIDVec[i], SubSurfaceMgr.GetTag( allTriVec[i].m_Tags ) );
+                         SubSurfaceMgr.GetTag( allTriVec[i].m_Tags ) );
             }
             fclose( fp );
-        }
-    }
-
-    vector< int > compIDVec;
-    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
-    {
-        if ( !m_SurfVec[i]->GetWakeFlag() )
-        {
-            compIDVec.push_back( m_SurfVec[i]->GetCompID() + 1 );
-        }
-    }
-    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
-    {
-        if ( m_SurfVec[i]->GetWakeFlag() )
-        {
-            compIDVec.push_back( m_SurfVec[i]->GetCompID() + 1 + 10000 );
         }
     }
 
     if ( key_fn.length() != 0 )
     {
-        //==== Open file ====//
-        FILE* fp = fopen( key_fn.c_str(), "w" );
-
-        if ( fp )
-        {
-            fprintf( fp, "Color	Name			BCType\n" );
-
-            for ( int i = 0 ; i < ( int )compIDVec.size() ; i++ )
-            {
-                fprintf( fp, "%d.0  Section_%d  0\n", compIDVec[i], i );
-            }
-
-            fclose( fp );
-        }
+        SubSurfaceMgr.WriteNascartKeyFile( key_fn );
     }
 
     //=====================================================================================//

@@ -67,6 +67,12 @@ public:
     // Write Tag Key File
     void WriteKeyFile( const string & filename );
 
+    // Write Nascart Key File
+    void WriteNascartKeyFile( const string & filename );
+
+    // Get Comma Delimited list of names for a set of tags
+    std::string GetTagNames( const std::vector<int> & tags );
+
     std::set< std::vector<int> > m_TagCombos;
     std::map< int, std::string > m_TagNames;
     std::vector< std::string > m_CompNames;
