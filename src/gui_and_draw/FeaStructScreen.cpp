@@ -198,9 +198,11 @@ void FeaStructScreen::closeCB( Fl_Widget* w )
     for ( int i = 0 ; i < ( int )geomVec.size() ; i++ )
     {
         Geom *g = m_Vehicle->FindGeom( geomVec[i] );
-
-        g->SetSetFlag( SET_SHOWN, false );
-        g->SetSetFlag( SET_NOT_SHOWN, true );
+        if ( g )
+        {
+            g->SetSetFlag( SET_SHOWN, false );
+            g->SetSetFlag( SET_NOT_SHOWN, true );
+        }
     }
 
     m_FLTK_Window->hide();
@@ -221,9 +223,11 @@ void FeaStructScreen::Show()
     for ( int i = 0 ; i < ( int )geomVec.size() ; i++ )
     {
         Geom *g = m_Vehicle->FindGeom( geomVec[i] );
-
-        g->SetSetFlag( SET_SHOWN, true );
-        g->SetSetFlag( SET_NOT_SHOWN, false );
+        if ( g )
+        {
+            g->SetSetFlag( SET_SHOWN, true );
+            g->SetSetFlag( SET_NOT_SHOWN, false );
+        }
     }
     m_ScreenMgr->SetUpdateFlag( true );
 

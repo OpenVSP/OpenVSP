@@ -218,14 +218,17 @@ bool CfdMeshScreen::Update()
     {
         char str[256];
         Geom* g = m_Vehicle->FindGeom( m_GeomVec[i] );
-        sprintf( str, "%d_%s", i, g->GetName().c_str() );
-        m_CfdMeshUI->compChoice->add( str );
-        if( g->HasWingTypeSurfs() )
+        if ( g )
         {
-            m_CfdMeshUI->wakeCompChoice->add( str );
+            sprintf( str, "%d_%s", i, g->GetName().c_str() );
+            m_CfdMeshUI->compChoice->add( str );
+            if( g->HasWingTypeSurfs() )
+            {
+                m_CfdMeshUI->wakeCompChoice->add( str );
+            }
+            m_CfdMeshUI->farCompChoice->add( str );
+            m_CompIDMap[ m_GeomVec[i] ] = i;
         }
-        m_CfdMeshUI->farCompChoice->add( str );
-        m_CompIDMap[ m_GeomVec[i] ] = i;
     }
 
     string currGeomID = CfdMeshMgr.GetCurrGeomID();
@@ -602,7 +605,10 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
         for( int i = 0; i < (int)geomIds.size(); i++ )
         {
             GeomBase* gPtr = veh->FindGeom( geomIds[i] );
-            gPtr->m_GuiDraw.SetNoShowFlag( true );
+            if ( gPtr )
+            {
+                gPtr->m_GuiDraw.SetNoShowFlag( true );
+            }
         }
     }
 //  else if ( m_FarXScaleSlider->GuiChanged( w ) )
@@ -833,7 +839,11 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
 
         vector<string> geomVec = m_Vehicle->GetGeomVec();
         string currGeomID = CfdMeshMgr.GetCurrGeomID();
-        m_Vehicle->FindGeom( currGeomID )->SetWakeActiveFlag( flag );
+        Geom* g = m_Vehicle->FindGeom( currGeomID );
+        if ( g )
+        {
+            g->SetWakeActiveFlag( flag );
+        }
     }
     else if ( w == m_CfdMeshUI->farBoxGenButton )
     {

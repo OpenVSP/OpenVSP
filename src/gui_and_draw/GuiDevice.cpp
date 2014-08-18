@@ -2371,12 +2371,16 @@ void GeomPicker::Update( )
     int ind = 0;
     for ( i = 0 ; i < ( int )m_GeomVec.size() ; i++ )
     {
-        char str[256];
-        sprintf( str, "%d_%s", i, m_Vehicle->FindGeom( m_GeomVec[i] )->GetName().c_str() );
-        m_GeomChoice->add( str );
-        if ( m_GeomIDChoice == m_GeomVec[i] )
+        Geom* g = m_Vehicle->FindGeom( m_GeomVec[i] );
+        if ( g )
         {
-            ind = i;
+            char str[256];
+            sprintf( str, "%d_%s", i, g->GetName().c_str() );
+            m_GeomChoice->add( str );
+            if ( m_GeomIDChoice == m_GeomVec[i] )
+            {
+                ind = i;
+            }
         }
     }
     m_GeomChoice->value( ind );

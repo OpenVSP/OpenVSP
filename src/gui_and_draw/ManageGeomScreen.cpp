@@ -140,43 +140,45 @@ void ManageGeomScreen::LoadBrowser()
     for ( int i = 0 ; i < ( int )m_DisplayedGeomVec.size() ; i++ )
     {
         Geom* gPtr = m_VehiclePtr->FindGeom( m_DisplayedGeomVec[i] );
-
-        string str;
-        //==== Check if Parent is Selected ====//
-        if ( IsParentSelected( m_DisplayedGeomVec[i], activeVec ) )
+        if ( gPtr )
         {
-            str.append( "@b@." );
-        }
+            string str;
+            //==== Check if Parent is Selected ====//
+            if ( IsParentSelected( m_DisplayedGeomVec[i], activeVec ) )
+            {
+                str.append( "@b@." );
+            }
 
-        int numindents = gPtr->CountParents( 0 );
-        for ( int j = 0 ; j < numindents ; j++ )
-        {
-            str.append( "--" );
-        }
+            int numindents = gPtr->CountParents( 0 );
+            for ( int j = 0 ; j < numindents ; j++ )
+            {
+                str.append( "--" );
+            }
 
-        if ( gPtr->m_TransAttachFlag() == GeomXForm::ATTACH_TRANS_NONE &&
-                gPtr->m_RotAttachFlag() == GeomXForm::ATTACH_ROT_NONE )
-        {
-            str.append( "> " );
-        }
-        else
-        {
-            str.append( "^ " );
-        }
+            if ( gPtr->m_TransAttachFlag() == GeomXForm::ATTACH_TRANS_NONE &&
+                    gPtr->m_RotAttachFlag() == GeomXForm::ATTACH_ROT_NONE )
+            {
+                str.append( "> " );
+            }
+            else
+            {
+                str.append( "^ " );
+            }
 
-        if ( !gPtr->m_GuiDraw.GetDisplayChildrenFlag() )
-        {
-            str.append( "(+) " );
+            if ( !gPtr->m_GuiDraw.GetDisplayChildrenFlag() )
+            {
+                str.append( "(+) " );
+            }
+
+            str.append( gPtr->GetName() );
+
+            if ( gPtr->m_GuiDraw.GetNoShowFlag() )
+            {
+                str.append( "(no show)" );
+            }
+
+            m_GeomUI->geomBrowser->add( str.c_str() );
         }
-
-        str.append( gPtr->GetName() );
-
-        if ( gPtr->m_GuiDraw.GetNoShowFlag() )
-        {
-            str.append( "(no show)" );
-        }
-
-        m_GeomUI->geomBrowser->add( str.c_str() );
     }
 
     //==== Restore List of Selected Geoms ====//
@@ -352,13 +354,15 @@ void ManageGeomScreen::GeomBrowserCallback()
     if ( ( last >= 2 ) && Fl::event_state( FL_ALT ) )   // Select Children
     {
         Geom* lastSelGeom = m_VehiclePtr->FindGeom( m_DisplayedGeomVec[last - 2] );
-
-        vector<string> cVec;
-        lastSelGeom->LoadIDAndChildren( cVec );
-        for ( int i = 1 ; i < ( int )cVec.size(); i++ )
+        if ( lastSelGeom )
         {
-            SelectGeomBrowser( cVec[i] );
-            selVec.push_back( cVec[i] );
+            vector<string> cVec;
+            lastSelGeom->LoadIDAndChildren( cVec );
+            for ( int i = 1 ; i < ( int )cVec.size(); i++ )
+            {
+                SelectGeomBrowser( cVec[i] );
+                selVec.push_back( cVec[i] );
+            }
         }
     }
 
@@ -371,10 +375,13 @@ void ManageGeomScreen::GeomBrowserCallback()
         {
             m_CollapseFlag = true;
             Geom* lastSelGeom = m_VehiclePtr->FindGeom( m_LastSelectedGeomID );
-            lastSelGeom->m_GuiDraw.ToggleDisplayChildrenFlag();
-            if ( lastSelGeom->GetChildIDVec().size() == 0 )     // No Children Dont Collapse
+            if ( lastSelGeom )
             {
-                lastSelGeom->m_GuiDraw.SetDisplayChildrenFlag( true );
+                lastSelGeom->m_GuiDraw.ToggleDisplayChildrenFlag();
+                if ( lastSelGeom->GetChildIDVec().size() == 0 )     // No Children Dont Collapse
+                {
+                    lastSelGeom->m_GuiDraw.SetDisplayChildrenFlag( true );
+                }
             }
         }
     }
