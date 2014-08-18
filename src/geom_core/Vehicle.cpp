@@ -339,13 +339,15 @@ string Vehicle::AddGeom( const GeomType & type )
 
     string geom_id =  AddGeom( add_geom );
 
-    if ( type.m_Type == CUSTOM_GEOM_TYPE )
+    if ( add_geom )
     {
-        add_geom->SetType( type );
-        CustomGeomMgr.InitGeom( geom_id, type.m_ModuleName );
-        add_geom->Update();
+        if ( type.m_Type == CUSTOM_GEOM_TYPE )
+        {
+            add_geom->SetType( type );
+            CustomGeomMgr.InitGeom( geom_id, type.m_ModuleName );
+            add_geom->Update();
+        }
     }
-
     return geom_id;
 }
 
@@ -536,8 +538,11 @@ void Vehicle::CutGeomVec( vector< string > cut_vec )
                     }
                     else                                                // No ancestor
                     {
-                        childPtr->SetParentID( "NONE" );
-                        m_TopGeom.push_back( child_id );
+                        if ( childPtr )
+                        {
+                            childPtr->SetParentID( "NONE" );
+                            m_TopGeom.push_back( child_id );
+                        }
                     }
                     gPtr->RemoveChildID( child_id );
                 }
@@ -1210,7 +1215,11 @@ void Vehicle::WriteSTLFile( const string & file_name, int write_set )
         string mesh_id = AddMeshGeom( write_set );
         if ( mesh_id.compare( "NONE" ) != 0 )
         {
-            geom_vec.push_back( FindGeom( mesh_id ) );
+            Geom* gPtr = FindGeom( mesh_id );
+            if ( gPtr )
+            {
+                geom_vec.push_back( gPtr );
+            }
         }
     }
 
@@ -1245,9 +1254,12 @@ void Vehicle::WriteTRIFile( const string & file_name, int write_set )
         if ( mesh_id.compare( "NONE" ) != 0 )
         {
             Geom* geom_ptr = FindGeom( mesh_id );
-            MeshGeom* mg = dynamic_cast<MeshGeom*>( geom_ptr );
-            mg->SubTagTris( true );
-            geom_vec.push_back( geom_ptr );
+            if ( geom_ptr )
+            {
+                MeshGeom* mg = dynamic_cast<MeshGeom*>( geom_ptr );
+                mg->SubTagTris( true );
+                geom_vec.push_back( geom_ptr );
+            }
         }
     }
 
@@ -1337,9 +1349,12 @@ void Vehicle::WriteNascartFiles( const string & file_name, int write_set )
         if ( mesh_id.compare( "NONE" ) != 0 )
         {
             Geom* geom_ptr = FindGeom( mesh_id );
-            MeshGeom* mg = dynamic_cast<MeshGeom*>( geom_ptr );
-            mg->SubTagTris( true );
-            geom_vec.push_back( geom_ptr );
+            if ( geom_ptr )
+            {
+                MeshGeom* mg = dynamic_cast<MeshGeom*>( geom_ptr );
+                mg->SubTagTris( true );
+                geom_vec.push_back( geom_ptr );
+            }
         }
     }
 
@@ -1423,9 +1438,12 @@ void Vehicle::WriteGmshFile( const string & file_name, int write_set )
         if ( mesh_id.compare( "NONE" ) != 0 )
         {
             Geom* geom_ptr = FindGeom( mesh_id );
-            MeshGeom* mg = dynamic_cast<MeshGeom*>( geom_ptr );
-            mg->SubTagTris( true );
-            geom_vec.push_back( geom_ptr );
+            if ( geom_ptr )
+            {
+                MeshGeom* mg = dynamic_cast<MeshGeom*>( geom_ptr );
+                mg->SubTagTris( true );
+                geom_vec.push_back( geom_ptr );
+            }
         }
     }
 
@@ -1976,17 +1994,19 @@ string Vehicle::MassProps( int set, int numSlices )
         if ( geom_vec[i].compare( id ) != 0 )
         {
             Geom* geom_ptr = FindGeom( geom_vec[i] );
-
-            if ( geom_ptr->GetSetFlag( set ) && geom_ptr->GetType().m_Type == BLANK_GEOM_TYPE )
+            if ( geom_ptr )
             {
-                BlankGeom* BGeom = ( BlankGeom* ) geom_ptr;
-
-                if ( BGeom->m_PointMassFlag() )
+                if ( geom_ptr->GetSetFlag( set ) && geom_ptr->GetType().m_Type == BLANK_GEOM_TYPE )
                 {
-                    TetraMassProp* pm = new TetraMassProp(); // Deleted by mesh_ptr
-                    pm->SetPointMass( BGeom->m_PointMass(), BGeom->m_Origin );
-                    pm->m_CompId = BGeom->GetID();
-                    mesh_ptr->AddPointMass( pm );
+                    BlankGeom* BGeom = ( BlankGeom* ) geom_ptr;
+
+                    if ( BGeom->m_PointMassFlag() )
+                    {
+                        TetraMassProp* pm = new TetraMassProp(); // Deleted by mesh_ptr
+                        pm->SetPointMass( BGeom->m_PointMass(), BGeom->m_Origin );
+                        pm->m_CompId = BGeom->GetID();
+                        mesh_ptr->AddPointMass( pm );
+                    }
                 }
             }
         }
@@ -2131,40 +2151,41 @@ string Vehicle::ImportFile( const string & file_name, int file_type )
     }
 
     MeshGeom* new_geom = ( MeshGeom* )FindGeom( id );
+    if ( new_geom )
+    {
+        int validFlag;
+        if ( file_type == IMPORT_STL )
+        {
+            validFlag = new_geom->ReadSTL( file_name.c_str() );
+        }
+        else if ( file_type == IMPORT_NASCART )
+        {
+            validFlag = new_geom->ReadNascart( file_name.c_str() );
+        }
+        else if ( file_type == IMPORT_CART3D_TRI )
+        {
+            validFlag = new_geom->ReadTriFile( file_name.c_str() );
+        }
+        else if ( file_type == IMPORT_XSEC_MESH )
+        {
+            validFlag = new_geom->ReadXSec( file_name.c_str() );
+        }
+        else
+        {
+            validFlag = 0;
+        }
 
-    int validFlag;
-    if ( file_type == IMPORT_STL )
-    {
-        validFlag = new_geom->ReadSTL( file_name.c_str() );
+        if ( !validFlag )
+        {
+            DeleteGeom( id );
+            id = "NONE";
+        }
+        else
+        {
+            SetActiveGeom( id );
+            new_geom->Update();
+        }
     }
-    else if ( file_type == IMPORT_NASCART )
-    {
-        validFlag = new_geom->ReadNascart( file_name.c_str() );
-    }
-    else if ( file_type == IMPORT_CART3D_TRI )
-    {
-        validFlag = new_geom->ReadTriFile( file_name.c_str() );
-    }
-    else if ( file_type == IMPORT_XSEC_MESH )
-    {
-        validFlag = new_geom->ReadXSec( file_name.c_str() );
-    }
-    else
-    {
-        validFlag = 0;
-    }
-
-    if ( !validFlag )
-    {
-        DeleteGeom( id );
-        id = "NONE";
-    }
-    else
-    {
-        SetActiveGeom( id );
-        new_geom->Update();
-    }
-
     return id;
 }
 

@@ -250,22 +250,26 @@ void GeomCoreTestSuite::CompareMeshes( Vehicle & veh, string mesh_a, string mesh
     MeshGeom* mesh_1 = ( MeshGeom* )veh.FindGeom( mesh_a );
     MeshGeom* mesh_2 = ( MeshGeom* )veh.FindGeom( mesh_b );
 
-    mesh_1->FlattenTMeshVec();
-    mesh_2->FlattenTMeshVec();
-
-    TEST_ASSERT( mesh_1->m_TMeshVec.size() == mesh_2->m_TMeshVec.size() );
-
-    for ( int i = 0 ; i < ( int )mesh_1->m_TMeshVec.size() ; i++ )
+    if ( mesh_1 && mesh_2 )
     {
-        TEST_ASSERT( mesh_1->m_TMeshVec[i]->m_TVec.size() == mesh_2->m_TMeshVec[i]->m_TVec.size() )
-        for ( int t = 0 ; t < ( int )mesh_1->m_TMeshVec[i]->m_TVec.size() ; t++ )
+
+        mesh_1->FlattenTMeshVec();
+        mesh_2->FlattenTMeshVec();
+
+        TEST_ASSERT( mesh_1->m_TMeshVec.size() == mesh_2->m_TMeshVec.size() );
+
+        for ( int i = 0 ; i < ( int )mesh_1->m_TMeshVec.size() ; i++ )
         {
-            TTri* tri1 = mesh_1->m_TMeshVec[i]->m_TVec[t];
-            TTri* tri2 = mesh_2->m_TMeshVec[i]->m_TVec[t];
-            CompareVec3ds( tri1->m_N0->m_Pnt, tri2->m_N0->m_Pnt );
-            CompareVec3ds( tri1->m_N1->m_Pnt, tri2->m_N1->m_Pnt );
-            CompareVec3ds( tri1->m_N2->m_Pnt, tri2->m_N2->m_Pnt );
-            CompareVec3ds( tri1->m_Norm, tri2->m_Norm, "Norm" );
+            TEST_ASSERT( mesh_1->m_TMeshVec[i]->m_TVec.size() == mesh_2->m_TMeshVec[i]->m_TVec.size() )
+            for ( int t = 0 ; t < ( int )mesh_1->m_TMeshVec[i]->m_TVec.size() ; t++ )
+            {
+                TTri* tri1 = mesh_1->m_TMeshVec[i]->m_TVec[t];
+                TTri* tri2 = mesh_2->m_TMeshVec[i]->m_TVec[t];
+                CompareVec3ds( tri1->m_N0->m_Pnt, tri2->m_N0->m_Pnt );
+                CompareVec3ds( tri1->m_N1->m_Pnt, tri2->m_N1->m_Pnt );
+                CompareVec3ds( tri1->m_N2->m_Pnt, tri2->m_N2->m_Pnt );
+                CompareVec3ds( tri1->m_Norm, tri2->m_Norm, "Norm" );
+            }
         }
     }
 }
