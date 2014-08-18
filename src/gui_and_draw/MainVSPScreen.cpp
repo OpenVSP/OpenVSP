@@ -373,6 +373,7 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
         VehicleMgr.GetVehicle()->Renew();
 
         SetFileLabel( VehicleMgr.GetVehicle()->GetVSP3FileName() );
+        m_GlWin->getGraphicEngine()->getDisplay()->setCOR( 0.0, 0.0, 0.0 );
 
         m_ScreenMgr->SetUpdateFlag( true );
     }
