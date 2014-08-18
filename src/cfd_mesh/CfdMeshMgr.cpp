@@ -615,10 +615,14 @@ void CfdMeshMgrSingleton::AdjustAllSourceLen( double mult )
     vector<string> geomVec = m_Vehicle->GetGeomVec();
     for ( int g = 0 ; g < ( int )geomVec.size() ; g++ )
     {
-        vector< BaseSource* > sVec = m_Vehicle->FindGeom( geomVec[g] )->GetCfdMeshMainSourceVec();
-        for ( int s = 0 ; s < ( int )sVec.size() ; s++ )
+        Geom* gi = m_Vehicle->FindGeom( geomVec[g] );
+        if ( gi )
         {
-            sVec[s]->AdjustLen( mult );
+            vector< BaseSource* > sVec = gi->GetCfdMeshMainSourceVec();
+            for ( int s = 0 ; s < ( int )sVec.size() ; s++ )
+            {
+                sVec[s]->AdjustLen( mult );
+            }
         }
     }
 }
@@ -628,10 +632,14 @@ void CfdMeshMgrSingleton::AdjustAllSourceRad( double mult )
     vector<string> geomVec = m_Vehicle->GetGeomVec();
     for ( int g = 0 ; g < ( int )geomVec.size() ; g++ )
     {
-        vector< BaseSource* > sVec = m_Vehicle->FindGeom( geomVec[g] )->GetCfdMeshMainSourceVec();
-        for ( int s = 0 ; s < ( int )sVec.size() ; s++ )
+        Geom* gi = m_Vehicle->FindGeom( geomVec[g] );
+        if ( gi )
         {
-            sVec[s]->AdjustRad( mult );
+            vector< BaseSource* > sVec = gi->GetCfdMeshMainSourceVec();
+            for ( int s = 0 ; s < ( int )sVec.size() ; s++ )
+            {
+                sVec[s]->AdjustRad( mult );
+            }
         }
     }
 }
@@ -949,7 +957,11 @@ void CfdMeshMgrSingleton::AddDefaultSources()
         for ( int g = 0 ; g < ( int )geomVec.size() ; g++ )
         {
             double base_len = GetGridDensityPtr()->GetBaseLen();
-            m_Vehicle->FindGeom( geomVec[g] )->AddDefaultSources( base_len );
+            Geom* gi = m_Vehicle->FindGeom( geomVec[g] );
+            if ( gi )
+            {
+                gi->AddDefaultSources( base_len );
+            }
         }
     }
 }

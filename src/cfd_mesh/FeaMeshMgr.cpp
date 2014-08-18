@@ -884,10 +884,14 @@ bool FeaMeshMgrSingleton::WriteWingBezierFile( const char* file_name )
     {
         for ( int i = 0 ; i < ( int )activeVec.size() ; i++ )
         {
-            if ( m_Vehicle->FindGeom( activeVec[i] )->GetType().m_Type == MS_WING_GEOM_TYPE )
+            Geom* g = m_Vehicle->FindGeom( activeVec[i] );
+            if ( g )
             {
-                wing_geom = m_Vehicle->FindGeom( activeVec[i] );
-                break;
+                if ( g->GetType().m_Type == MS_WING_GEOM_TYPE )
+                {
+                    wing_geom = g;
+                    break;
+                }
             }
         }
     }
@@ -896,10 +900,14 @@ bool FeaMeshMgrSingleton::WriteWingBezierFile( const char* file_name )
     {
         for ( int i = 0 ; i < ( int )geomVec.size() ; i++ )
         {
-            if ( m_Vehicle->FindGeom( geomVec[i] )->GetType().m_Type == MS_WING_GEOM_TYPE )
+            Geom* g = m_Vehicle->FindGeom( geomVec[i] );
+            if ( g )
             {
-                wing_geom = m_Vehicle->FindGeom( geomVec[i] );
-                break;
+                if ( g->GetType().m_Type == MS_WING_GEOM_TYPE )
+                {
+                    wing_geom = g;
+                    break;
+                }
             }
         }
     }
