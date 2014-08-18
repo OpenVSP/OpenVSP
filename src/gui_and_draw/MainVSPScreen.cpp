@@ -19,6 +19,7 @@
 #include "APIDefines.h"
 #include "main.h"
 #include <FL/fl_ask.H>
+#include "Display.h"
 
 using namespace vsp;
 using VSPGUI::VspGlWindow;
@@ -387,6 +388,10 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
             CfdMeshMgr.GetCfdSettingsPtr()->ResetExportFileNames();
 
             SetFileLabel( openfile );
+
+            BndBox bbox = VehicleMgr.GetVehicle()->GetBndBox();
+            vec3d p = bbox.GetCenter();
+            m_GlWin->getGraphicEngine()->getDisplay()->setCOR( -p.x(), -p.y(), -p.z() );
 
             m_ScreenMgr->SetUpdateFlag( true );
         }
