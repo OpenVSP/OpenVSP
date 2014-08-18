@@ -34,6 +34,7 @@
 #include "Material.h"
 #include "ClippingScreen.h"
 #include "Clipping.h"
+#include "Bndbox.h"
 
 #define PRECISION_PAN_SPEED 0.005f
 #define PAN_SPEED 0.025f
@@ -1669,8 +1670,17 @@ void VspGlWindow::OnKeyup( int x, int y )
     case 0x43:
     case 0x63:
         // Key 'C', center.
+    {
+        Vehicle* vPtr = VehicleMgr.GetVehicle();
+        if ( vPtr )
+        {
+            BndBox bbox = vPtr->GetBndBox();
+            vec3d p = bbox.GetCenter();
+            m_GEngine->getDisplay()->setCOR( -p.x(), -p.y(), -p.z() );
+        }
         display->center();
         break;
+    }
 
     case FL_F+1:
         if( Fl::event_state( FL_SHIFT ) )
@@ -1831,7 +1841,7 @@ void VspGlWindow::OnKeydown()
             geomScreen->TriggerPickSwitch();
         }
         break;
-
+    // 'r'
     case 0x52:
     case 0x72:
         corScreen = dynamic_cast<ManageCORScreen *> 
