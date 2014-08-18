@@ -684,10 +684,10 @@ void ManageGeomScreen::CallBack( Fl_Widget *w )
     }
     else if ( w == m_GeomUI->showSubToggle )
     {
-    	if ( m_GeomUI->showSubToggle->value() )
-    		SetSubDrawFlag( true );
-    	else
-    		SetSubDrawFlag( false );
+        if ( m_GeomUI->showSubToggle->value() )
+            SetSubDrawFlag( true );
+        else
+            SetSubDrawFlag( false );
     }
     else if ( w == m_GeomUI->showFeatureToggle )
     {
@@ -706,15 +706,15 @@ void ManageGeomScreen::CallBack( Fl_Widget *w )
 
 std::string ManageGeomScreen::getFeedbackGroupName()
 {
-	return std::string("GeomGUIGroup");
+    return std::string("GeomGUIGroup");
 }
 
 void ManageGeomScreen::Set( std::string geomId )
 {
-	m_VehiclePtr->SetActiveGeom(geomId);
+    m_VehiclePtr->SetActiveGeom(geomId);
 
-	ShowHideGeomScreens();
-	m_ScreenMgr->SetUpdateFlag( true );
+    ShowHideGeomScreens();
+    m_ScreenMgr->SetUpdateFlag( true );
 }
 
 void ManageGeomScreen::TriggerPickSwitch()
@@ -768,35 +768,35 @@ void ManageGeomScreen::UpdateDrawObjs()
 
 void ManageGeomScreen::UpdateDrawType()
 {
-	vector<string> geom_id_vec = GetActiveGeoms();
-	vector< Geom* > geom_vec = m_VehiclePtr->FindGeomVec( geom_id_vec );
-	int num_geoms = (int)geom_vec.size();
+    vector<string> geom_id_vec = GetActiveGeoms();
+    vector< Geom* > geom_vec = m_VehiclePtr->FindGeomVec( geom_id_vec );
+    int num_geoms = (int)geom_vec.size();
 
-	// Handle case where there are not any geoms selected.
-	if ( num_geoms == 0 ) m_GeomUI->showSubToggle->value(0);
+    // Handle case where there are not any geoms selected.
+    if ( num_geoms == 0 ) m_GeomUI->showSubToggle->value(0);
 
-	int num_sub_on = 0;
-	int num_feature_on = 0;
+    int num_sub_on = 0;
+    int num_feature_on = 0;
 
-	for ( int i = 0; i < (int)geom_vec.size(); i++ )
-	{
-		if ( geom_vec[i] && geom_vec[i]->m_GuiDraw.GetDispSubSurfFlag() )
-			num_sub_on++;
+    for ( int i = 0; i < (int)geom_vec.size(); i++ )
+    {
+        if ( geom_vec[i] && geom_vec[i]->m_GuiDraw.GetDispSubSurfFlag() )
+            num_sub_on++;
 
-		if ( geom_vec[i] && geom_vec[i]->m_GuiDraw.GetDispFeatureFlag() )
-			num_feature_on++;
+        if ( geom_vec[i] && geom_vec[i]->m_GuiDraw.GetDispFeatureFlag() )
+            num_feature_on++;
 
-	}
+    }
 
-	double flag_average = num_sub_on/(double)num_geoms;
-	if ( flag_average > 0.5 )
-		m_GeomUI->showSubToggle->value(1);
-	else
-		m_GeomUI->showSubToggle->value(0);
+    double flag_average = num_sub_on/(double)num_geoms;
+    if ( flag_average > 0.5 )
+        m_GeomUI->showSubToggle->value(1);
+    else
+        m_GeomUI->showSubToggle->value(0);
 
-	flag_average = num_feature_on/(double)num_geoms;
-	if ( flag_average > 0.5 )
-		m_GeomUI->showFeatureToggle->value(1);
-	else
-		m_GeomUI->showFeatureToggle->value(0);
+    flag_average = num_feature_on/(double)num_geoms;
+    if ( flag_average > 0.5 )
+        m_GeomUI->showFeatureToggle->value(1);
+    else
+        m_GeomUI->showFeatureToggle->value(0);
 }
