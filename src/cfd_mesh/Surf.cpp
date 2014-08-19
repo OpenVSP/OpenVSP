@@ -592,7 +592,7 @@ void Surf::WalkMap( pair< int, int > ijstart, int kstart, pair< int, int > ijcur
     }
 }
 
-void Surf::WalkMap( pair< int, int > ijstart, int icurrent, int jcurrent )
+void Surf::WalkMap( int istart, int jstart, int icurrent, int jcurrent )
 {
     static const int iadd[] = { -1, 1,  0, 0 };
     static const int jadd[] = {  0, 0, -1, 1 };
@@ -607,13 +607,13 @@ void Surf::WalkMap( pair< int, int > ijstart, int icurrent, int jcurrent )
         if( itarget < m_SrcMap.size() && itarget >= 0 && jtarget < m_SrcMap[0].size() && jtarget >= 0 )
         {
             static double targetstr;
-            targetstr = m_SrcMap[ijstart.first][ijstart.second].m_str +
-                    ( m_SrcMap[ itarget ][ jtarget ].m_pt - m_SrcMap[ijstart.first][ijstart.second].m_pt ).mag() *
+            targetstr = m_SrcMap[istart][jstart].m_str +
+                    ( m_SrcMap[ itarget ][ jtarget ].m_pt - m_SrcMap[istart][jstart].m_pt ).mag() *
                     (m_GridDensityPtr->m_GrowRatio() - 1.0);
             if( m_SrcMap[ itarget ][ jtarget ].m_str > targetstr )
             {
                 m_SrcMap[ itarget ][ jtarget ].m_str = targetstr;
-                WalkMap( ijstart, itarget, jtarget );
+                WalkMap( istart, jstart, itarget, jtarget );
             }
         }
     }
@@ -710,8 +710,7 @@ void Surf::LimitTargetMap( MSCloud &es_cloud, MSTree &es_tree, double minmap )
                 if( t < torig )
                 {
                     m_SrcMap[i][j].m_str = t;
-                    pair< int, int > ijstart( i, j );
-                    WalkMap( ijstart, i, j );
+                    WalkMap( i, j, i, j );
                 }
             }
         }
@@ -789,8 +788,7 @@ void Surf::ApplyES( vec3d uw, double t )
             if( m_SrcMap[ itarget ][ jtarget ].m_str > targetstr )
             {
                 m_SrcMap[ itarget ][ jtarget ].m_str = targetstr;
-                pair< int, int > ijstart( itarget, jtarget );
-                WalkMap( ijstart, itarget, jtarget );
+                WalkMap( itarget, jtarget, itarget, jtarget );
             }
         }
     }
