@@ -592,7 +592,7 @@ void Surf::WalkMap( pair< int, int > ijstart, int kstart, pair< int, int > ijcur
     }
 }
 
-void Surf::WalkMap( pair< int, int > ijstart, pair< int, int > ijcurrent )
+void Surf::WalkMap( pair< int, int > ijstart, int icurrent, int jcurrent )
 {
     static const int iadd[] = { -1, 1,  0, 0 };
     static const int jadd[] = {  0, 0, -1, 1 };
@@ -600,9 +600,9 @@ void Surf::WalkMap( pair< int, int > ijstart, pair< int, int > ijcurrent )
     for( int i = 0; i < 4; i++ )
     {
         static int itarget;
-        itarget = ijcurrent.first + iadd[i];
+        itarget = icurrent + iadd[i];
         static int jtarget;
-        jtarget = ijcurrent.second + jadd[i];
+        jtarget = jcurrent + jadd[i];
 
         if( itarget < m_SrcMap.size() && itarget >= 0 && jtarget < m_SrcMap[0].size() && jtarget >= 0 )
         {
@@ -613,8 +613,7 @@ void Surf::WalkMap( pair< int, int > ijstart, pair< int, int > ijcurrent )
             if( m_SrcMap[ itarget ][ jtarget ].m_str > targetstr )
             {
                 m_SrcMap[ itarget ][ jtarget ].m_str = targetstr;
-                pair< int, int > ijtarget( itarget, jtarget );
-                WalkMap( ijstart, ijtarget );
+                WalkMap( ijstart, itarget, jtarget );
             }
         }
     }
@@ -712,7 +711,7 @@ void Surf::LimitTargetMap( MSCloud &es_cloud, MSTree &es_tree, double minmap )
                 {
                     m_SrcMap[i][j].m_str = t;
                     pair< int, int > ijstart( i, j );
-                    WalkMap( ijstart, ijstart );
+                    WalkMap( ijstart, i, j );
                 }
             }
         }
@@ -791,7 +790,7 @@ void Surf::ApplyES( vec3d uw, double t )
             {
                 m_SrcMap[ itarget ][ jtarget ].m_str = targetstr;
                 pair< int, int > ijstart( itarget, jtarget );
-                WalkMap( ijstart, ijstart );
+                WalkMap( ijstart, itarget, jtarget );
             }
         }
     }

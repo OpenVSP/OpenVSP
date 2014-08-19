@@ -64,7 +64,7 @@ public:
     double TargetLen( double u, double w, double gap, double radfrac );
     void BuildTargetMap( vector< MapSource* > &sources, int sid );
     void WalkMap( pair< int, int > ijstart, int kstart, pair< int, int > ijcurrent );
-    void WalkMap( pair< int, int > ijstart, pair< int, int > ijcurrent );
+    void WalkMap( pair< int, int > ijstart, int icurrent, int jcurrent );
     void LimitTargetMap();
     void LimitTargetMap( MSCloud &es_cloud, MSTree &es_tree, double minmap );
     double InterpTargetMap( double u, double w );
