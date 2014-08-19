@@ -419,7 +419,7 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_XFormLayout.SetButtonWidth( ( m_XFormLayout.GetRemainX() ) / 3 );
     m_XFormLayout.AddButton( m_TransNoneButton, "None" );
     m_XFormLayout.AddButton( m_TransCompButton, "Comp" );
-    m_XFormLayout.AddButton( m_TransUVButton, "UV" );
+    m_XFormLayout.AddButton( m_TransUVButton, "UW" );
     m_XFormLayout.ForceNewLine();
     m_XFormLayout.AddYGap();
 
@@ -431,7 +431,7 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_XFormLayout.AddLabel( "Rotate:", 74 );
     m_XFormLayout.AddButton( m_RotNoneButton, "None" );
     m_XFormLayout.AddButton( m_RotCompButton, "Comp" );
-    m_XFormLayout.AddButton( m_RotUVButton, "UV" );
+    m_XFormLayout.AddButton( m_RotUVButton, "UW" );
     m_XFormLayout.ForceNewLine();
     m_XFormLayout.AddYGap();
 
@@ -444,7 +444,7 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_XFormLayout.SetSameLineFlag( false );
 
     m_XFormLayout.AddSlider( m_AttachUSlider, "U", 1, " %5.4f" );
-    m_XFormLayout.AddSlider( m_AttachVSlider, "V", 1, " %5.4f" );
+    m_XFormLayout.AddSlider( m_AttachVSlider, "W", 1, " %5.4f" );
 
 
     //=============== SubSurface Tab ===================//
