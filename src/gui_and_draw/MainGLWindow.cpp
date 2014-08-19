@@ -34,7 +34,7 @@
 #include "Material.h"
 #include "ClippingScreen.h"
 #include "Clipping.h"
-#include "Bndbox.h"
+#include "BndBox.h"
 
 #define PRECISION_PAN_SPEED 0.005f
 #define PAN_SPEED 0.025f
