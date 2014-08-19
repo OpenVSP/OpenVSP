@@ -550,6 +550,9 @@ void VspSurf::Tesselate( const vector<int> &num_u, int num_v, std::vector< vecto
     std::vector<double> u, v( nv );
     surface_point_type ptmp, ntmp;
 
+    assert( num_u.size() == GetNumSectU() );
+    assert( m_USkip.size() == GetNumSectU() );
+
     // calculate nu
     nu = 1;
     for ( int ii = 0; ii < GetNumSectU(); ++ii )
@@ -744,7 +747,7 @@ bool VspSurf::CapUMin(int CapType)
     }
 
     m_Surface.set_u0( 0.0 );
-
+    ResetUWSkip();
     return true;
 }
 
@@ -769,7 +772,7 @@ bool VspSurf::CapUMax(int CapType)
       assert(false);
       return false;
     }
-
+    ResetUWSkip();
     return true;
 }
 
