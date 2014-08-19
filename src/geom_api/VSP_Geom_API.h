@@ -72,6 +72,7 @@ extern const vector<vec3d> & GetVec3dResults( const string & id, const string & 
 extern string CreateGeomResults( const string & geom_id, const string & name );
 extern void DeleteAllResults();
 extern void DeleteResult( const string & id );
+extern void WriteResultsCSVFile( const string & id, const string & file_name );
 
 //======================== GUI Functions ================================//
 extern void StartGui( );
@@ -119,6 +120,7 @@ extern std::vector<vec3d> ReadFileXSec( const string& xsec_id, const string& fil
 extern void SetXSecPnts( const string& xsec_id, std::vector< vec3d > & pnt_vec );
 extern vec3d ComputeXSecPnt( const string& xsec_id, double fract );
 extern vec3d ComputeXSecTan( const string& xsec_id, double fract );
+extern void ResetXSecSkinParms( const string& xsec_id );
 extern void SetXSecContinuity( const string& xsec_id, int cx );
 extern void SetXSecTanAngles( const string& xsec_id, int side, double top, double right, double bottom, double left );
 extern void SetXSecTanStrengths( const string& xsec_id, int side, double top, double right, double bottom, double left );
@@ -151,6 +153,7 @@ extern double GetParmLowerLimit( const string & parm_id );
 extern int GetParmType( const string & parm_id );
 extern string GetParmName( const string & parm_id );
 extern string GetParmContainer( const string & parm_id );
+extern void SetParmDescript( const string & parm_id, const string & desc );
 
 
 

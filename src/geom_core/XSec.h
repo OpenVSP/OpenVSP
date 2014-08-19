@@ -246,6 +246,7 @@ public:
     Parm m_LeftRStrength;
     Parm m_LeftRCurve;
 
+    virtual void Reset();
     virtual void SetContinuity( int cx );
     virtual void SetTanAngles( int side, double top, double right, double bottom, double left );
     virtual void SetTanStrengths( int side, double top, double right, double bottom, double left );

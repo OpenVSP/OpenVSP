@@ -7,9 +7,11 @@ void Init()
 	//==== Add Parm Types  =====//
 	string height   = AddParm( PARM_DOUBLE_TYPE, "Height", "Design" );
 	SetParmValLimits( height, 4.0, 0.001, 1.0e12 );
+    SetParmDescript( height, "Height of Cone" );
 
 	string diameter = AddParm( PARM_DOUBLE_TYPE, "Diameter", "Design" );
 	SetParmValLimits( diameter, 8.0, 0.001, 1.0e12 );
+    SetParmDescript( height, "Diameter of Cone" );
 
 	//==== Add Cross Sections  =====//
 	string xsec_surf = AddXSecSurf();
@@ -26,24 +28,17 @@ int DiameterSlider;
 //==== InitGui Is Called Once During Each Custom Geom Construction ====//
 void InitGui()
 {
-	DesignTab = AddGui( GDEV_TAB, "Design"  );
-	AddGui( GDEV_YGAP, ""  );
+	AddGui( GDEV_TAB, "Design"  );
+	AddGui( GDEV_YGAP  );
 	AddGui( GDEV_DIVIDER_BOX, "Design" );
-	HeightSlider = AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Height"  );
-	DiameterSlider = AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Diameter"  );
+	AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Height", "Height", "Design"  );
+	AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Diameter", "Diameter", "Design"  );
 	AddGui( GDEV_YGAP, ""  );
-
 } 
 
 //==== UpdateGui Is Called Every Time The Gui is Updated ====//
 void UpdateGui()
 {
-	string geom_id = GetCurrCustomGeom();
-	string dia = GetParm( geom_id, "Diameter", "Design" );
-	string ht  = GetParm( geom_id, "Height", "Design" );
-
-	UpdateGui( HeightSlider, ht ); 
-	UpdateGui( DiameterSlider, dia ); 
 } 
 
 //==== UpdateSurf Is Called Every Time The Geom is Updated ====//
@@ -55,17 +50,17 @@ void UpdateSurf()
 	string dia_parm = GetParm( geom_id, "Diameter", "Design" );
 	double dia_val  = GetParmVal( dia_parm );
 
-	//==== Get The XSec To Change ====//
+	//==== Get The XSecs To Change ====//
 	string xsec_surf = GetXSecSurf( geom_id, 0 );
+	string xsec1 = GetXSec( xsec_surf, 1 );
+	string xsec2 = GetXSec( xsec_surf, 2 );
 
 	//==== Set The Diameter ====//
-	string xsec1 = GetXSec( xsec_surf, 1 );
 	string xsec1_dia = GetXSecParm( xsec1, "Circle_Diameter" );
 	SetParmVal( xsec1_dia, dia_val );
 
 	//==== Set The Height ====//
 	double ht_val  = GetParmVal( GetParm( geom_id, "Height", "Design" ) );
-	string xsec2 = GetXSec( xsec_surf, 2 );
 	SetCustomXSecLoc( xsec2, vec3d( ht_val, 0, 0 ) );
 
 	SkinXSecSurf();

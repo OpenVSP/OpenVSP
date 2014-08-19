@@ -515,7 +515,7 @@ void DeleteResult( const string & id )
 {
     if ( !ResultsMgr.ValidResultsID( id ) )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "GetVec3dResults::Invalid ID " + id  );
+        ErrorMgr.AddError( VSP_INVALID_ID, "DeleteResult::Invalid ID " + id  );
     }
     else
     {
@@ -525,6 +525,19 @@ void DeleteResult( const string & id )
     ResultsMgr.DeleteResult( id );
 }
 
+// Write Results To CSV File ====//
+void WriteResultsCSVFile( const string & id, const string & file_name )
+{
+    Results* resptr = ResultsMgr.FindResultsPtr( id );
+
+    if ( !resptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "WriteResultsCSVFile::Invalid ID " + id  );
+        return;
+    }
+    resptr->WriteCSVFile( file_name );
+    ErrorMgr.NoError();
+ }
 
 
 
@@ -1255,6 +1268,26 @@ vec3d ComputeXSecTan( const string& xsec_id, double fract )
     return pnt;
 }
 
+//==== Reset All XSec Skining Parms ====//
+void ResetXSecSkinParms( const string& xsec_id )
+{
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "ResetXSecSkinParms::Can't Find XSec " + xsec_id  );
+        return;
+    }
+    SkinXSec* skinxs = dynamic_cast<SkinXSec*>(xs);
+    if ( !skinxs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "ResetXSecSkinParms::Can't Convert To Skin XSec " + xsec_id  );
+        return;
+    }
+
+    skinxs->Reset();
+    ErrorMgr.NoError();
+}
+
 //==== Set Continuity At XSec ====//
 void SetXSecContinuity( const string& xsec_id, int cx )
 {
@@ -1685,6 +1718,19 @@ string GetParmContainer( const string & parm_id )
     }
     ErrorMgr.NoError();
     return p->GetContainerID();
+}
+
+/// Set the parm desciption
+void SetParmDescript( const string & parm_id, const string & desc )
+{
+    Parm* p = ParmMgr.FindParm( parm_id );
+    if ( !p )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "SetParmDescript::Can't Find Parm " + parm_id  );
+        return;
+    }
+    ErrorMgr.NoError();
+    return p->SetDescript( desc );
 }
 
 //============================================================================//

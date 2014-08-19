@@ -7,6 +7,7 @@ void Init()
 	//==== Define Parameters  =====//
 	string height = AddParm( PARM_DOUBLE_TYPE, "Height", "Design" );
 	SetParmValLimits( height, 6.0, 0.001, 1.0e12 );
+    SetParmDescript( height, "Height of Pod Man" );
 
 	string hip_angle = AddParm( PARM_DOUBLE_TYPE, "HipAngle", "Design" );
 	SetParmValLimits( hip_angle, 0.0, 0, 150 );
@@ -40,7 +41,6 @@ void InitGui()
 	AddGui( GDEV_YGAP  );
 	AddGui( GDEV_DIVIDER_BOX, "Design" );
 
-    //==== Store the GUI Index to Use In UpdateGui ====//
 	AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Height", "Height", "Design"  );
 
  	AddGui( GDEV_YGAP  );

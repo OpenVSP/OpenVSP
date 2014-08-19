@@ -1114,6 +1114,78 @@ void SkinXSec::SetUnsetParms( double t, int irib, const VspSurf &surf,
     if( !RCurveSet() ) RCurve = curvatureR/scaleR;
 }
 
+void SkinXSec::Reset()
+{
+    m_AllSymFlag = 1;
+    m_TBSymFlag = 1;
+    m_RLSymFlag = 1;
+
+    m_TopLAngleSet = false;
+    m_TopLStrengthSet = false;
+    m_TopLCurveSet = false;
+    m_TopRAngleSet = false;
+    m_TopRStrengthSet = false;
+    m_TopRCurveSet = false;
+    m_TopLRAngleEq = false;
+    m_TopLRStrengthEq = false;
+    m_TopLRCurveEq = false;
+    m_TopLAngle = 0.0;
+    m_TopLStrength = 0.0;
+    m_TopLCurve = 0.0;
+    m_TopRAngle = 0.0;
+    m_TopRStrength = 0.0;
+    m_TopRCurve = 0.0;
+
+    m_RightLAngleSet = false;
+    m_RightLStrengthSet = false;
+    m_RightLCurveSet = false;
+    m_RightRAngleSet = false;
+    m_RightRStrengthSet = false;
+    m_RightRCurveSet = false;
+    m_RightLRAngleEq = false;
+    m_RightLRStrengthEq = false;
+    m_RightLRCurveEq = false;
+    m_RightLAngle = 0.0;
+    m_RightLStrength = 0.0;
+    m_RightLCurve = 0.0;
+    m_RightRAngle = 0.0;
+    m_RightRStrength = 0.0;
+    m_RightRCurve = 0.0;
+
+    m_BottomLAngleSet = false;
+    m_BottomLStrengthSet = false;
+    m_BottomLCurveSet = false;
+    m_BottomRAngleSet = false;
+    m_BottomRStrengthSet = false;
+    m_BottomRCurveSet = false;
+    m_BottomLRAngleEq = false;
+    m_BottomLRStrengthEq = false;
+    m_BottomLRCurveEq = false;
+    m_BottomLAngle = 0.0;
+    m_BottomLStrength = 0.0;
+    m_BottomLCurve = 0.0;
+    m_BottomRAngle = 0.0;
+    m_BottomRStrength = 0.0;
+    m_BottomRCurve = 0.0;
+
+    m_LeftLAngleSet = false;
+    m_LeftLStrengthSet = false;
+    m_LeftLCurveSet = false;
+    m_LeftRAngleSet = false;
+    m_LeftRStrengthSet = false;
+    m_LeftRCurveSet = false;
+    m_LeftLRAngleEq = false;
+    m_LeftLRStrengthEq = false;
+    m_LeftLRCurveEq = false;
+    m_LeftLAngle = 0.0;
+    m_LeftLStrength = 0.0;
+    m_LeftLCurve = 0.0;
+    m_LeftRAngle = 0.0;
+    m_LeftRStrength = 0.0;
+    m_LeftRCurve = 0.0;
+
+}
+
 void SkinXSec::SetContinuity( int cx )
 {
     m_TopCont = cx;

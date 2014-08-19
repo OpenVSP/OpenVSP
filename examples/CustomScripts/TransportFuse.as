@@ -7,27 +7,35 @@ void Init()
 	//==== Test Parm Template  =====//
 	string length = AddParm( PARM_DOUBLE_TYPE, "Length", "Design" );
 	SetParmValLimits( length, 10.0, 0.001, 1.0e12 );
+    SetParmDescript( length, "Total Length of Fuselage" );
 
 	string diameter = AddParm( PARM_DOUBLE_TYPE, "Diameter", "Design" );
 	SetParmValLimits( diameter, 1.0, 0.001, 1.0e12 );
+    SetParmDescript( diameter, "Diameter of Fuselage" );
 
 	string nose_mult = AddParm( PARM_DOUBLE_TYPE, "NoseMult", "Design" );
 	SetParmValLimits( nose_mult, 1.5, 0.1, 10.0 );
+    SetParmDescript( nose_mult, "Length of Nose as a Multiplier of Diameter" );
 
 	string aft_mult = AddParm( PARM_DOUBLE_TYPE, "AftMult", "Design" );
 	SetParmValLimits( aft_mult, 3.0, 0.1, 10.0 );
+    SetParmDescript( aft_mult, "Length of Aft Section as a Multiplier of Diameter" );
 
 	string nose_center = AddParm( PARM_DOUBLE_TYPE, "NoseCenter", "Design" );
 	SetParmValLimits( nose_center, -0.2, -0.5, 0.5 );
+    SetParmDescript( nose_center, "Nose Z Offset as a Fraction of Diameter" );
 
 	string aft_center = AddParm( PARM_DOUBLE_TYPE, "AftCenter", "Design" );
 	SetParmValLimits( aft_center, 0.3, -0.5, 0.5 );
+    SetParmDescript( aft_center, "Aft Z Offset as a Fraction of Diameter" );
 
 	string aft_width = AddParm( PARM_DOUBLE_TYPE, "AftWidth", "Design" );
 	SetParmValLimits( aft_width, 0.1, 0.01, 1.0 );
+    SetParmDescript( aft_width, "Aft XSec Width" );
 
 	string aft_height = AddParm( PARM_DOUBLE_TYPE, "AftHeight", "Design" );
 	SetParmValLimits( aft_height, 0.3, 0.01, 1.0 );
+   SetParmDescript( aft_width, "Aft XSec Height" );
 
 
     //==== Add Cross Sections  =====//
