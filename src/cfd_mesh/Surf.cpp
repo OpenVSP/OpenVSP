@@ -594,35 +594,22 @@ void Surf::WalkMap( pair< int, int > ijstart, int kstart, pair< int, int > ijcur
 
 void Surf::WalkMap( pair< int, int > ijstart, pair< int, int > ijcurrent )
 {
-
-    int iadd[] = { -1, 1,  0, 0 };
-    int jadd[] = {  0, 0, -1, 1 };
-
-    double grm1 = m_GridDensityPtr->m_GrowRatio() - 1.0;
-
-    int nmapu = m_SrcMap.size();
-    int nmapw = m_SrcMap[0].size();
-
-    int istart = ijstart.first;
-    int jstart = ijstart.second;
-
-    MapSource srcstart = m_SrcMap[istart][jstart];
-    vec3d p = srcstart.m_pt;
-    double str = srcstart.m_str;
-
-    int icur = ijcurrent.first;
-    int jcur = ijcurrent.second;
+    static const int iadd[] = { -1, 1,  0, 0 };
+    static const int jadd[] = {  0, 0, -1, 1 };
 
     for( int i = 0; i < 4; i++ )
     {
-        int itarget = icur + iadd[i];
-        int jtarget = jcur + jadd[i];
+        static int itarget;
+        itarget = ijcurrent.first + iadd[i];
+        static int jtarget;
+        jtarget = ijcurrent.second + jadd[i];
 
-        if( itarget < nmapu && itarget >= 0 && jtarget < nmapw && jtarget >= 0 )
+        if( itarget < m_SrcMap.size() && itarget >= 0 && jtarget < m_SrcMap[0].size() && jtarget >= 0 )
         {
-            vec3d p2 = m_SrcMap[ itarget ][ jtarget ].m_pt;
-            double r = ( p2 - p ).mag();
-            double targetstr = str + r * grm1;
+            static double targetstr;
+            targetstr = m_SrcMap[ijstart.first][ijstart.second].m_str +
+                    ( m_SrcMap[ itarget ][ jtarget ].m_pt - m_SrcMap[ijstart.first][ijstart.second].m_pt ).mag() *
+                    (m_GridDensityPtr->m_GrowRatio() - 1.0);
             if( m_SrcMap[ itarget ][ jtarget ].m_str > targetstr )
             {
                 m_SrcMap[ itarget ][ jtarget ].m_str = targetstr;
