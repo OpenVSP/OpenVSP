@@ -20,7 +20,7 @@
 class StackGeom : public GeomXSec
 {
 public:
-    enum {LINEAR_CONNECT, PCHIP_CONNECT, CSPLINE_CONNECT, MANUAL_CONNECT, NUM_CONNECT};
+    enum {STACK_FREE, STACK_LOOP, NUM_STACK_POLICY};
 
     StackGeom( Vehicle* vehicle_ptr );
     virtual ~StackGeom();
@@ -59,11 +59,15 @@ public:
     //==== Set Drag Factors ====//
     virtual void LoadDragFactors( DragFactors& drag_factors );
 
+    IntParm m_OrderPolicy;
+
 protected:
     virtual void ChangeID( string id );
 
     virtual void UpdateSurf();
     virtual void UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts );
+
+    virtual void EnforceOrder( StackXSec* xs, int indx, int policy );
 
     vector<int> m_TessUVec;
 

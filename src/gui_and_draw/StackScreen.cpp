@@ -22,6 +22,19 @@ StackScreen::StackScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 550, "Stack" 
 {
     m_CurrDisplayGroup = NULL;
 
+    Fl_Group* design_tab = AddTab( "Design", 3 );
+
+    Fl_Group* design_group = AddSubGroup( design_tab, 5 );
+
+    m_DesignLayout.SetGroupAndScreen( design_group, this );
+    m_DesignLayout.AddDividerBox( "Design" );
+
+    m_DesignLayout.AddYGap();
+    m_DesignLayout.AddDividerBox( "Design Policy" );
+    m_DesignPolicyChoice.AddItem( "FREE" );
+    m_DesignPolicyChoice.AddItem( "LOOP" );
+    m_DesignLayout.AddChoice( m_DesignPolicyChoice, "XSec Order: " );
+
     Fl_Group* xsec_tab = AddTab( "XSec" );
     Fl_Group* xsec_group = AddSubGroup( xsec_tab, 5 );
 
@@ -253,6 +266,8 @@ bool StackScreen::Update()
     StackGeom* stackgeom_ptr = dynamic_cast< StackGeom* >( geom_ptr );
     assert( stackgeom_ptr );
 
+    m_DesignPolicyChoice.Update( stackgeom_ptr->m_OrderPolicy.GetID() );
+
     //==== XSec Index Display ===//
     int xsid = stackgeom_ptr->GetActiveXSecIndex();
     m_XSecIndexSelector.SetIndex( xsid );
@@ -260,6 +275,10 @@ bool StackScreen::Update()
     StackXSec* xs = ( StackXSec* ) stackgeom_ptr->GetXSec( xsid );
     if ( xs )
     {
+        bool firstxs = xsid == 0;
+        bool lastxs = xsid == ( stackgeom_ptr->GetXSecSurf( 0 )->NumXSec() - 1 );
+        bool nextlastxs = xsid == ( stackgeom_ptr->GetXSecSurf( 0 )->NumXSec() - 2 );
+
         m_SectUTessSlider.Update( xs->m_SectTessU.GetID() );
         m_XSecXDeltaSlider.Update( xs->m_XDelta.GetID() );
         m_XSecYDeltaSlider.Update( xs->m_YDelta.GetID() );
@@ -268,7 +287,7 @@ bool StackScreen::Update()
         m_XSecYRotSlider.Update( xs->m_YRotate.GetID() );
         m_XSecZRotSlider.Update( xs->m_ZRotate.GetID() );
 
-        if ( xsid == 0 )
+        if ( firstxs )
         {
             m_SectUTessSlider.Deactivate();
             m_XSecXDeltaSlider.Deactivate();
@@ -287,6 +306,16 @@ bool StackScreen::Update()
             m_XSecXRotSlider.Activate();
             m_XSecYRotSlider.Activate();
             m_XSecZRotSlider.Activate();
+        }
+
+        if ( lastxs && stackgeom_ptr->m_OrderPolicy() == StackGeom::STACK_LOOP)
+        {
+            m_XSecXDeltaSlider.Deactivate();
+            m_XSecYDeltaSlider.Deactivate();
+            m_XSecZDeltaSlider.Deactivate();
+            m_XSecXRotSlider.Deactivate();
+            m_XSecYRotSlider.Deactivate();
+            m_XSecZRotSlider.Deactivate();
         }
 
         XSecCurve* xsc = xs->GetXSecCurve();

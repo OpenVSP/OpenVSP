@@ -33,6 +33,8 @@ protected:
 
     GroupLayout m_DesignLayout;
 
+    Choice m_DesignPolicyChoice;
+
     GroupLayout m_XSecLayout;
 
     IndexSelector m_XSecIndexSelector;
