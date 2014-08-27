@@ -877,9 +877,15 @@ xmlNodePtr WingGeom::DecodeXml( xmlNodePtr & node )
 //==== Compute Rotation Center ====//
 void WingGeom::ComputeCenter()
 {
-    m_Center.set_x( 0.0 );
-    m_Center.set_y( 0.0 );
-    m_Center.set_z( 0.0 );
+    WingSect* ws = GetWingSect( 1 );
+    if ( ws )
+    {
+        m_Center.set_xyz( ws->m_RootChord() * m_Origin(), 0.0, 0.0 );
+    }
+    else
+    {
+        m_Center.set_xyz( 0.0, 0.0, 0.0 );
+    }
 }
 
 //==== Set Index For Active Airfoil ====//
