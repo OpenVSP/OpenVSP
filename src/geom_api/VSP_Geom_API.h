@@ -96,8 +96,8 @@ extern int GetNumMainSurfs( const string & geom_id );
 
 //======================== XSecSurf ================================//
 extern string GetXSecSurf( const string & geom_id, int index );
-extern void SetXSecType( const string & xsec_surf_id, int type );
-extern int GetXSecType( const string & xsec_surf_id );
+//extern void SetXSecType( const string & xsec_surf_id, int type );
+//extern int GetXSecType( const string & xsec_surf_id );
 extern int GetNumXSec( const string & xsec_surf_id );
 extern string GetXSec( const string & xsec_surf_id, int xsec_index );
 extern string AppendXSec( const string & xsec_surf_id, int type );
@@ -139,11 +139,12 @@ extern void SetSetFlag( const string & geom_id, int set_index, bool flag );
 //======================== Parm Functions ================================//
 extern bool ValidParm( const string & id );
 extern double SetParmVal( const string & parm_id, double val );
+extern double SetParmVal( const string & geom_id, const string & name, const string & group, double val );
 extern double SetParmValLimits( const string & parm_id, double val, double lower_limit, double upper_limit );
 extern double SetParmValUpdate( const string & parm_id, double val );
-extern double SetParmVal( const string & geom_id, const string & name, const string & group, double val );
 extern double SetParmValUpdate( const string & geom_id, const string & name, const string & group, double val );
 extern double GetParmVal( const string & parm_id );
+extern double GetParmVal( const string & geom_id, const string & name, const string & group );
 extern int GetIntParmVal( const string & parm_id );
 extern bool GetBoolParmVal( const string & parm_id );
 extern void SetParmUpperLimit( const string & parm_id, double val );

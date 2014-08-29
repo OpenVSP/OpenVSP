@@ -15,6 +15,8 @@
 #include "ScriptMgr.h"
 #include "FileUtil.h"
 
+
+
 #include "APIDefines.h"
 using namespace vsp;
 
@@ -22,8 +24,8 @@ using namespace vsp;
 CustomGeomMgrSingleton::CustomGeomMgrSingleton()
 {
     m_ScriptDir = "./CustomScripts/";
-//printf("Fix Custom Script Path\n");
-//    m_ScriptDir = "../../../CustomScripts/";
+
+
 }
 
 //==== Scan Custom Directory And Return All Possible Types ====//
@@ -404,48 +406,12 @@ void CustomXSec::SetCenterRot( const vec3d & cent )
 
 double CustomXSec::GetLScale()
 {
-return 1.0;
-    XSecSurf* xsecsurf = (XSecSurf*) GetParentContainerPtr();
-    int indx = xsecsurf->FindXSecIndex( m_ID );
-
-    vec3d prevLoc;
-    if( indx == 0 )
-    {
-        return GetRScale();
-    }
-    else
-    {
-        CustomXSec* prevxs = (CustomXSec*) xsecsurf->FindXSec( indx - 1);
-        if( prevxs )
-        {
-            prevLoc = prevxs->GetLoc();
-        }
-    }
-
-    return dist( m_Loc, prevLoc );
+    return 1.0;
 }
 
 double CustomXSec::GetRScale()
 {
-return 1.0;
-    XSecSurf* xsecsurf = (XSecSurf*) GetParentContainerPtr();
-    int indx = xsecsurf->FindXSecIndex( m_ID );
-
-    vec3d nextLoc;
-    if( indx < ( xsecsurf->NumXSec() - 1 ) )
-    {
-        CustomXSec* nxtxs = (CustomXSec*) xsecsurf->FindXSec( indx + 1);
-        if( nxtxs )
-        {
-            nextLoc = nxtxs->GetLoc();
-        }
-    }
-    else
-    {
-        return GetLScale();
-    }
-
-    return dist( m_Loc, nextLoc );
+    return 1.0;
 }
 
 //==================================================================================================//
@@ -750,14 +716,15 @@ xmlNodePtr CustomGeom::EncodeXml( xmlNodePtr & node )
     if ( custom_node )
     {
         string file_contents = ScriptMgr.FindModuleContent( GetScriptModuleName() );
+        string safe_file_contents = XmlUtil::ConvertToXMLSafeChars( file_contents );
 
         for ( int i = 0 ; i < (int)m_ParmVec.size() ; i++ )
         {
             m_ParmVec[i]->EncodeXml( custom_node );
         }
-
+        
         XmlUtil::AddStringNode( custom_node, "ScriptFileModule", GetScriptModuleName()  );
-        XmlUtil::AddStringNode( custom_node, "ScriptFileContents", file_contents );
+        XmlUtil::AddStringNode( custom_node, "ScriptFileContents", safe_file_contents );
     }
     Geom::EncodeXml( node );
 
@@ -772,19 +739,36 @@ xmlNodePtr CustomGeom::DecodeXml( xmlNodePtr & node )
     if ( custom_node )
     {
         string module_name = XmlUtil::FindString( custom_node, "ScriptFileModule", GetScriptModuleName() );
-        string file_contents = XmlUtil::FindString( custom_node, "ScriptFileContents", string() );
+        string safe_file_contents = XmlUtil::FindString( custom_node, "ScriptFileContents", string() );
+        string file_contents = XmlUtil::ConvertFromXMLSafeChars( safe_file_contents );
 
         string new_module_name = ScriptMgr.ReadScriptFromMemory( module_name, file_contents );
-         CustomGeomMgr.InitGeom( GetID(), new_module_name );
+        CustomGeomMgr.InitGeom( GetID(), new_module_name );
 
         for ( int i = 0 ; i < (int)m_ParmVec.size() ; i++ )
         {
             m_ParmVec[i]->DecodeXml( custom_node );
         }
-
-
     }
     Geom::DecodeXml( node );
 
     return custom_node;
 }
+
+ void CustomGeom::ComputeCenter()
+ {
+     if ( m_XSecSurfVec.size() < 1 )
+         return;
+
+    int index = m_XSecSurfVec[0]->NumXSec() - 1;
+    CustomXSec* xs = dynamic_cast<CustomXSec*>( m_XSecSurfVec[0]->FindXSec( index - 1 ) );
+
+    if ( xs )
+    {
+        m_Center = vec3d(0,0,0);
+
+        m_Center.set_x( m_Origin()*xs->GetLoc().x() );
+
+    }
+
+ }
