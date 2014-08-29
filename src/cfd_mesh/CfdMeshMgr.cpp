@@ -984,46 +984,7 @@ void CfdMeshMgrSingleton::ScaleTriSize( double scale )
 void CfdMeshMgrSingleton::WriteSurfs( const string &filename )
 {
     m_Vehicle->WriteBezFile( filename, GetCfdSettingsPtr()->m_SelectedSetIndex() );
-// This logic is complex to get working now.  The meaning and scope of symmetry has changed.
-// In addition, this was fragile in VSP 2.X.  A simplified check based on the bounding box.
-// will be more simple and robust.
-    /*
-        if ( m_HalfMeshFlag )
-        {
-            vector< Geom* > changedSymGeomVec;
-            vector< Geom* > movedGeomVec;
-            vector<string> geomVec = m_Vehicle->GetGeomVec();
-            for ( int i = 0 ; i < (int)geomVec.size() ; i++ )
-            {
-                Geom* g = m_Vehicle->FindGeom( geomVec[i] );
-                if ( g->getSymCode() == XZ_SYM )
-                {
-                    if ( g->yLoc() < 0.0 )
-                    {
-                        g->yLoc.set( -g->yLoc() );
-                        movedGeomVec.push_back( g );
-                    }
-
-                    g->setSymCode( NO_SYM );
-                    changedSymGeomVec.push_back( g );
-                }
-            }
-            m_Vehicle->WriteBezFile( filename, 0 );
-
-            //==== Restore Changes =====//
-            for ( int i = 0 ; i < (int)changedSymGeomVec.size() ; i++ )
-                changedSymGeomVec[i]->setSymCode( XZ_SYM );
-
-            for ( int i = 0 ; i < (int)movedGeomVec.size() ; i++ )
-                movedGeomVec[i]->yLoc.set( -movedGeomVec[i]->yLoc() );
-        }
-        else
-        {
-            m_Vehicle->WriteBezFile( filename, 0 );
-        }
-    */
 }
-
 
 void CfdMeshMgrSingleton::ReadSurfs( const string &filename )
 {
