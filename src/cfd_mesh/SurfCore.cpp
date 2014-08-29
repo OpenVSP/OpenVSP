@@ -44,25 +44,6 @@ vec3d SurfCore::CompTanW01( double u01, double w01 )
 }
 
 //===== Compute Second Derivative U,U   =====//
-vec3d SurfCore::CompTanUU01( double u01, double w01 )
-{
-    return CompTanUU( u01 * m_MaxU, w01 * m_MaxW );
-}
-
-//===== Compute Second Derivative W,W   =====//
-vec3d SurfCore::CompTanWW01( double u01, double w01 )
-{
-    return CompTanWW( u01 * m_MaxU, w01 * m_MaxW );
-}
-
-//===== Compute Second Derivative U,W   =====//
-vec3d SurfCore::CompTanUW01( double u01, double w01 )
-{
-    return CompTanUW( u01 * m_MaxU, w01 * m_MaxW );
-}
-
-
-//===== Compute Second Derivative U,U   =====//
 vec3d SurfCore::CompTanUU( double u, double w )
 {
     return CompBez( u, w, &BlendDeriv2Funcs, &BlendFuncs );

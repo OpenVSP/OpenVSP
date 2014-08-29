@@ -34,19 +34,12 @@ public:
     vec3d CompPnt( double u, double w );
     vec3d CompTanU( double u, double w );
     vec3d CompTanW( double u, double w );
-    vec3d CompTanUU( double u, double w );
-    vec3d CompTanWW( double u, double w );
-    vec3d CompTanUW( double u, double w );
 
     vec3d CompPnt01( double u, double w );
     vec3d CompTanU01( double u, double w );
     vec3d CompTanW01( double u, double w );
-    vec3d CompTanUU01( double u, double w );
-    vec3d CompTanWW01( double u, double w );
-    vec3d CompTanUW01( double u, double w );
 
     void CompCurvature( double u, double w, double& k1, double& k2, double& ka, double& kg );
-
 
     double GetUWArea()
     {
@@ -94,6 +87,9 @@ protected:
     double m_MaxW;
     vector< vector< vec3d > > m_Pnts;           // Control Pnts
 
+    vec3d CompTanUU( double u, double w );
+    vec3d CompTanWW( double u, double w );
+    vec3d CompTanUW( double u, double w );
 
     vec3d CompBez( double u, double w,
                    void ( *uBlendFun )( double u, double& F1, double& F2, double& F3, double& F4 ),
