@@ -452,6 +452,8 @@ void CfdMeshMgrSingleton::GenerateMesh()
     CfdMeshMgr.addOutputText( "Reading Surfaces\n" );
     CfdMeshMgr.ReadSurfs( bezTempFile );
 
+    CfdMeshMgr.CleanMergeSurfs();
+
     if ( m_SurfVec.size() == 0 )
     {
         CfdMeshMgr.addOutputText( "No Surfaces To Mesh\n" );
@@ -1026,29 +1028,46 @@ void CfdMeshMgrSingleton::ReadSurfs( const string &filename )
 
                 surfPtr->ReadSurf( file_id );
 
-                bool addSurfFlag = true;
-                if ( GetCfdSettingsPtr()->GetHalfMeshFlag() && surfPtr->GetSurfCore()->LessThanY( 1e-6 ) )
-                {
-                    addSurfFlag = false;
-                }
+                m_SurfVec.push_back( surfPtr );
 
-                if ( GetCfdSettingsPtr()->GetHalfMeshFlag() && surfPtr->GetSurfCore()->PlaneAtYZero() )
-                {
-                    addSurfFlag = false;
-                }
-
-                if ( addSurfFlag )
-                {
-                    m_SurfVec.push_back( surfPtr );
-                }
-                else
-                {
-                    delete surfPtr;
-                }
             }
             total_surfs += num_surfs;
         }
         fclose( file_id );
+    }
+
+}
+
+void CfdMeshMgrSingleton::CleanMergeSurfs()
+{
+
+    vector < Surf* > surfs = m_SurfVec;
+    m_SurfVec.clear();
+
+    for ( int s = 0 ; s < ( int )surfs.size(); s++ )
+    {
+
+        Surf* surfPtr = surfs[s];
+
+        bool addSurfFlag = true;
+        if ( GetCfdSettingsPtr()->GetHalfMeshFlag() && surfPtr->GetSurfCore()->LessThanY( 1e-6 ) )
+        {
+            addSurfFlag = false;
+        }
+
+        if ( GetCfdSettingsPtr()->GetHalfMeshFlag() && surfPtr->GetSurfCore()->PlaneAtYZero() )
+        {
+            addSurfFlag = false;
+        }
+
+        if ( addSurfFlag )
+        {
+            m_SurfVec.push_back( surfPtr );
+        }
+        else
+        {
+            delete surfPtr;
+        }
     }
 
     DeleteDuplicateSurfs();
