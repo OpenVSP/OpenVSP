@@ -30,7 +30,6 @@ vec3d SurfCore::CompPnt01( double u, double w )
     return CompPnt( u * m_MaxU, w * m_MaxW );
 }
 
-
 //===== Compute Tangent In U Direction   =====//
 vec3d SurfCore::CompTanU01( double u01, double w01 )
 {
@@ -78,8 +77,6 @@ vec3d SurfCore::CompPnt( double u, double w )
 {
     return CompBez( u, w, &BlendFuncs, &BlendFuncs );
 }
-
-
 
 //===== Generic Bezier Surface Calculation  =====//
 vec3d SurfCore::CompBez( double u, double w,
@@ -167,7 +164,6 @@ void SurfCore::BlendDeriv2Funcs( double u, double& F1, double& F2, double& F3, d
     F3 = 6.0 - 18.0 * u;
     F4 = 6.0 * u;
 }
-
 
 //===== Compute Surface Curvature Metrics Given  U W =====//
 void SurfCore::CompCurvature( double u, double w, double& k1, double& k2, double& ka, double& kg )
@@ -271,8 +267,6 @@ bool SurfCore::LessThanY( double val )
             }
         }
     return true;
-
-
 }
 
 bool SurfCore::OnYZeroPlane()
@@ -577,4 +571,3 @@ bool SurfCore::SurfMatch( SurfCore* otherSurf )
     }
     return false;
 }
-
