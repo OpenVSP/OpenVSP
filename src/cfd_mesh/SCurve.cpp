@@ -84,7 +84,7 @@ void SCurve::ExtractBorderControlPnts( vector< vec3d > & control_pnts )
         return;
     }
 
-    vector< vector< vec3d > > cpnts = m_Surf->GetControlPnts();
+    vector< vector< vec3d > > cpnts = m_Surf->GetSurfCore()->GetControlPnts();
     int nu = cpnts.size();
     if ( nu < 4 )
     {
@@ -239,8 +239,8 @@ void SCurve::ProjectTessToSurf( SCurve* othercurve )
     Surf* SurfA = GetSurf();
     Surf* SurfB = othercurve->GetSurf();
 
-    double uguess = SurfA->GetMaxU() / 2.0;
-    double wguess = SurfA->GetMaxW() / 2.0;
+    double uguess = SurfA->GetSurfCore()->GetMaxU() / 2.0;
+    double wguess = SurfA->GetSurfCore()->GetMaxW() / 2.0;
 
     int npts = UWTessB.size();
     m_UWTess.clear();

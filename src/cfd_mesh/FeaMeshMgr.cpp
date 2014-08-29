@@ -173,10 +173,10 @@ void WingSection::Load( Surf* upper_surf, Surf* lower_surf )
     m_LowerSkin.SetWingSection( this );
 
     //==== Load Corner Pnts ====//
-    m_CornerPnts[UW00] = upper_surf->CompPnt01( 0, 0 ); // Inner TE
-    m_CornerPnts[UW10] = upper_surf->CompPnt01( 1, 0 );  // Outer TE
-    m_CornerPnts[UW01] = upper_surf->CompPnt01( 0, 1 ); // Inner LE
-    m_CornerPnts[UW11] = upper_surf->CompPnt01( 1, 1 );  // Outer LE
+    m_CornerPnts[UW00] = upper_surf->GetSurfCore()->CompPnt01( 0, 0 ); // Inner TE
+    m_CornerPnts[UW10] = upper_surf->GetSurfCore()->CompPnt01( 1, 0 );  // Outer TE
+    m_CornerPnts[UW01] = upper_surf->GetSurfCore()->CompPnt01( 0, 1 ); // Inner LE
+    m_CornerPnts[UW11] = upper_surf->GetSurfCore()->CompPnt01( 1, 1 );  // Outer LE
 
     //==== Compute Section Normal =====//
     vec3d vchd = m_CornerPnts[UW00] - m_CornerPnts[UW01];
@@ -208,7 +208,7 @@ void WingSection::Load( Surf* upper_surf, Surf* lower_surf )
         for ( i = 0 ; i < num_pnts ; i++ )
         {
             uw  = m_Edges[e].m_UWVec[i];
-            pnt = upper_surf->CompPnt01( uw[0], uw[1] );
+            pnt = upper_surf->GetSurfCore()->CompPnt01( uw[0], uw[1] );
             m_Edges[e].m_PntVec.push_back( pnt );
         }
     }
@@ -266,7 +266,7 @@ vec2d WingSection::GetUW( int edge_id, double fract )
 vec3d WingSection::CompPnt( int edge_id, double fract )
 {
     vec2d uw = GetUW( edge_id, fract );
-    vec3d p = m_UpperSurfPtr->CompPnt01( uw[0], uw[1] );
+    vec3d p = m_UpperSurfPtr->GetSurfCore()->CompPnt01( uw[0], uw[1] );
     return p;
 }
 
@@ -1035,11 +1035,11 @@ vec3d FeaMeshMgrSingleton::ComputePoint( vec2d & uw, bool upperFlag )
 
     if ( upperFlag  )
     {
-        pnt = m_UpperSurfVec[sid]->CompPnt01( u, uw[1] );
+        pnt = m_UpperSurfVec[sid]->GetSurfCore()->CompPnt01( u, uw[1] );
     }
     else
     {
-        pnt = m_LowerSurfVec[sid]->CompPnt01( u, 1.0 - uw[1] );
+        pnt = m_LowerSurfVec[sid]->GetSurfCore()->CompPnt01( u, 1.0 - uw[1] );
     }
 
     return pnt;

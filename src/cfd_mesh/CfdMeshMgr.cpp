@@ -19,6 +19,7 @@
 #include "SubSurfaceMgr.h"
 #include "SubSurface.h"
 #include "APIDefines.h"
+#include "SurfCore.h"
 
 #ifdef DEBUG_CFD_MESH
 #include <direct.h>
@@ -1026,12 +1027,12 @@ void CfdMeshMgrSingleton::ReadSurfs( const string &filename )
                 surfPtr->ReadSurf( file_id );
 
                 bool addSurfFlag = true;
-                if ( GetCfdSettingsPtr()->GetHalfMeshFlag() && surfPtr->LessThanY( 1e-6 ) )
+                if ( GetCfdSettingsPtr()->GetHalfMeshFlag() && surfPtr->GetSurfCore()->LessThanY( 1e-6 ) )
                 {
                     addSurfFlag = false;
                 }
 
-                if ( GetCfdSettingsPtr()->GetHalfMeshFlag() && surfPtr->PlaneAtYZero() )
+                if ( GetCfdSettingsPtr()->GetHalfMeshFlag() && surfPtr->GetSurfCore()->PlaneAtYZero() )
                 {
                     addSurfFlag = false;
                 }
@@ -1140,7 +1141,7 @@ void CfdMeshMgrSingleton::DeleteDuplicateSurfs()
     {
         for ( int t = s + 1 ; t < nsurf ; t++ )
         {
-            if ( m_SurfVec[s]->SurfMatch( m_SurfVec[t] ) )
+            if ( m_SurfVec[s]->GetSurfCore()->SurfMatch( m_SurfVec[t]->GetSurfCore() ) )
             {
                 delflag[s] = true;
                 delflag[t] = true;
@@ -1952,7 +1953,7 @@ void CfdMeshMgrSingleton::WriteSurfsIntCurves( const string &filename )
             fprintf( fp, "%d		// Surface ID \n",    surfPtr->GetSurfID() );
             fprintf( fp, "%d		// Comp ID \n",       surfPtr->GetCompID() );
 
-            vector< vector< vec3d > > pntVec = surfPtr->GetControlPnts();
+            vector< vector< vec3d > > pntVec = surfPtr->GetSurfCore()->GetControlPnts();
             int numU = pntVec.size();
             int numW = pntVec[0].size();
 
@@ -2948,8 +2949,8 @@ void CfdMeshMgrSingleton::BuildTestIntChains()
         for ( int i = 0 ; i < ( int )m_SurfVec.size(); i++ )
         {
             Surf* surf = m_SurfVec[i];
-            double max_u = surf->GetMaxU();
-            double max_w = surf->GetMaxW();
+            double max_u = surf->GetSurfCore()->GetMaxU();
+            double max_w = surf->GetSurfCore()->GetMaxW();
             int num_secs = 10;
             double delta = ( 0.9 - 0.1 ) / num_secs;
             vector< vec2d > uw_pnts;
@@ -3018,7 +3019,7 @@ void CfdMeshMgrSingleton::BuildSubSurfIntChains()
         {
             vec2d split_0, split_1;
             split_0 = surf->Convert2VspSurf( 0, 0 );
-            split_1 = surf->Convert2VspSurf( surf->GetMaxU(), surf->GetMaxW() );
+            split_1 = surf->Convert2VspSurf( surf->GetSurfCore()->GetMaxU(), surf->GetSurfCore()->GetMaxW() );
             ss_vec[ss]->SplitSegsU( split_0[0] );
             ss_vec[ss]->SplitSegsU( split_1[0] );
             ss_vec[ss]->SplitSegsW( split_0[1] );
@@ -3066,8 +3067,8 @@ void CfdMeshMgrSingleton::BuildSubSurfIntChains()
                 uw_pnt1 = surf->Convert2Surf( lp1.x(), lp1.y() );
                 double max_u, max_w, tol;
                 tol = 1e-6;
-                max_u = surf->GetMaxU();
-                max_w = surf->GetMaxW();
+                max_u = surf->GetSurfCore()->GetMaxU();
+                max_w = surf->GetSurfCore()->GetMaxW();
 
                 if ( uw_pnt0[0] < 0 || uw_pnt0[1] < 0 || uw_pnt1[0] < 0 || uw_pnt1[1] < 0 )
                 {

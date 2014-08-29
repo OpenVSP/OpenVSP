@@ -18,6 +18,7 @@
 #include "GridDensity.h"
 #include "SurfPatch.h"
 #include "MapSource.h"
+#include "SurfCore.h"
 
 #include <assert.h>
 
@@ -45,22 +46,13 @@ public:
     void ReadSurf( FILE* file_id );
     void LoadControlPnts( vector< vector< vec3d > > & pnts );
 
-    //===== Bezier Funcs ====//
     vec3d CompPnt( double u, double w );
-    vec3d CompTanU( double u, double w );
-    vec3d CompTanW( double u, double w );
-    vec3d CompTanUU( double u, double w );
-    vec3d CompTanWW( double u, double w );
-    vec3d CompTanUW( double u, double w );
 
-    vec3d CompPnt01( double u, double w );
-    vec3d CompTanU01( double u, double w );
-    vec3d CompTanW01( double u, double w );
-    vec3d CompTanUU01( double u, double w );
-    vec3d CompTanWW01( double u, double w );
-    vec3d CompTanUW01( double u, double w );
+    SurfCore* GetSurfCore()
+    {
+        return &m_SurfCore;
+    }
 
-    void CompCurvature( double u, double w, double& k1, double& k2, double& ka, double& kg );
     double TargetLen( double u, double w, double gap, double radfrac );
     void BuildTargetMap( vector< MapSource* > &sources, int sid );
     void WalkMap( int istart, int jstart, int kstart, int icurrent, int jcurrent);
@@ -73,18 +65,11 @@ public:
 
     void ApplyES( vec3d uw, double t );
 
-    static void BlendFuncs( double u, double& F1, double& F2, double& F3, double& F4 );
-    static void BlendDerivFuncs( double u, double& F1, double& F2, double& F3, double& F4 );
-    static void BlendDeriv2Funcs( double u, double& F1, double& F2, double& F3, double& F4 );
-
     vec2d ClosestUW( vec3d & pnt, double guess_u, double guess_w, double guess_del_u, double guess_del_w, double tol );
 
     vec2d ClosestUW( vec3d & pnt_in, double guess_u, double guess_w );
     void CompDeltaUW( vec3d& pnt_in, vec3d& guess_pnt, double norm_uw[2], double delta_uw[2] );
 
-    bool LessThanY( double val );
-    bool OnYZeroPlane();
-    bool PlaneAtYZero();
 
     void FindBorderCurves();
 
@@ -169,29 +154,15 @@ public:
 
     void InitMesh( vector< ISegChain* > chains );
 
-    double GetUWArea()
-    {
-        return m_MaxU * m_MaxW;
-    }
 
-    double GetMaxU()
-    {
-        return m_MaxU;
-    }
-    double GetMaxW()
-    {
-        return m_MaxW;
-    }
     void BuildDistMap();
     double GetUScale( double w );
     double GetWScale( double u );
 
     bool ValidUW( vec2d & uw );
 
-    void LoadBorderCurves( vector< vector <vec3d> > & borderCurves );
     bool BorderCurveMatch( vector< vec3d > & curveA, vector< vec3d > & curveB );
     bool BorderMatch( Surf* otherSurf );
-    bool SurfMatch( Surf* otherSurf );
 
     void SetWakeFlag( bool flag )
     {
@@ -256,12 +227,6 @@ public:
         return m_BaseTag;
     }
 
-
-    vector< vector< vec3d > > GetControlPnts()
-    {
-        return m_Pnts;
-    }
-
     void SetDefaultParmMap();
     void Subtag( bool tag_subs );
     // Mapping Functions
@@ -281,10 +246,6 @@ protected:
 
     int m_BaseTag; // Tag number that will be applied to all triangles of this surface
 
-    int m_NumU;
-    int m_NumW;
-    double m_MaxU;
-    double m_MaxW;
     bool m_FlipFlag;
 
     bool m_WakeFlag;
@@ -294,7 +255,7 @@ protected:
     bool m_SymPlaneFlag;
     bool m_FarFlag;
 
-    vector< vector< vec3d > > m_Pnts;           // Control Pnts
+    SurfCore m_SurfCore;
 
     BndBox m_BBox;
     vector< SurfPatch* > m_PatchVec;
@@ -312,11 +273,6 @@ protected:
     bool m_ScaleUFlag;
     vector< double > m_UScaleMap;
     vector< double > m_WScaleMap;
-
-
-    vec3d CompBez( double u, double w,
-                   void ( *uBlendFun )( double u, double& F1, double& F2, double& F3, double& F4 ),
-                   void ( *wBlendFun )( double u, double& F1, double& F2, double& F3, double& F4 ) );
 
     int m_VspSurfInd;
     vector< double > u_to_vspsurf;

@@ -19,7 +19,6 @@
 
 Surf::Surf()
 {
-    m_NumU = m_NumW = 0;
     m_GridDensityPtr = 0;
     m_CompID = -1;
     m_UnmergedCompID = -1;
@@ -124,12 +123,7 @@ void Surf::LoadControlPnts( vector< vector< vec3d > > & control_pnts )
     int i, j;
     assert( control_pnts.size() >= 4 );
     assert( control_pnts[0].size() >= 4 );
-    m_Pnts = control_pnts;
-
-    m_NumU = m_Pnts.size();
-    m_NumW = m_Pnts[0].size();
-    m_MaxU = ( m_NumU - 1 ) / 3;
-    m_MaxW = ( m_NumW - 1 ) / 3;
+    m_SurfCore.SetControlPnts( control_pnts );
 
     //==== Load Patch Vec ====//
     m_BBox.Reset();
@@ -139,16 +133,20 @@ void Surf::LoadControlPnts( vector< vector< vec3d > > & control_pnts )
     }
     m_PatchVec.clear();
 
-    for ( i = 0 ; i < m_NumU - 1 ; i += 3 )
+
+    int numU = control_pnts.size();
+    int numW = control_pnts[0].size();
+
+    for ( i = 0 ; i < numU - 1 ; i += 3 )
     {
-        for ( j = 0 ; j < m_NumW - 1 ; j += 3 )
+        for ( j = 0 ; j < numW - 1 ; j += 3 )
         {
             SurfPatch* patch = new SurfPatch();
             for ( int pi = 0 ; pi < 4 ; pi++ )
                 for ( int pj = 0 ; pj < 4 ; pj++ )
                 {
-                    m_BBox.Update( m_Pnts[pi + i][pj + j] );
-                    patch->put_pnt( pi, pj, m_Pnts[pi + i][pj + j] );
+                    m_BBox.Update( control_pnts[pi + i][pj + j] );
+                    patch->put_pnt( pi, pj, control_pnts[pi + i][pj + j] );
 
                     patch->set_u_min_max( i / 3, i / 3 + 1.0 );
                     patch->set_w_min_max( j / 3, j / 3 + 1.0 );
@@ -157,258 +155,6 @@ void Surf::LoadControlPnts( vector< vector< vec3d > > & control_pnts )
             patch->compute_bnd_box();
             m_PatchVec.push_back( patch );
         }
-    }
-}
-
-//===== Compute Blending Functions  =====//
-void Surf::BlendFuncs( double u, double& F1, double& F2, double& F3, double& F4 )
-{
-    //==== Compute All Blending Functions ====//
-    double uu = u * u;
-    double one_u = 1.0 - u;
-    double one_u_sqr = one_u * one_u;
-
-    F1 = one_u * one_u_sqr;
-    F2 = 3.0 * u * one_u_sqr;
-    F3 = 3.0 * uu * one_u;
-    F4 = uu * u;
-}
-
-void Surf::BlendDerivFuncs( double u, double& F1, double& F2, double& F3, double& F4 )
-{
-    double uu    = u * u;
-    double one_u = 1.0 - u;
-    F1 = -3.0 * one_u * one_u;
-    F2 = 3.0 - 12.0 * u + 9.0 * uu;
-    F3 = 6.0 * u - 9.0 * uu;
-    F4 = 3.0 * uu;
-}
-
-void Surf::BlendDeriv2Funcs( double u, double& F1, double& F2, double& F3, double& F4 )
-{
-    F1 = 6.0 - 6.0 * u;
-    F2 = -12.0 + 18.0 * u;
-    F3 = 6.0 - 18.0 * u;
-    F4 = 6.0 * u;
-}
-
-//===== Compute Point On Surf Given  U W (Between 0 1 ) =====//
-vec3d Surf::CompPnt01( double u, double w )
-{
-    return CompPnt( u * m_MaxU, w * m_MaxW );
-}
-
-
-//===== Compute Tangent In U Direction   =====//
-vec3d Surf::CompTanU01( double u01, double w01 )
-{
-    return CompTanU( u01 * m_MaxU, w01 * m_MaxW );
-}
-
-//===== Compute Tangent In W Direction   =====//
-vec3d Surf::CompTanW01( double u01, double w01 )
-{
-    return CompTanW( u01 * m_MaxU, w01 * m_MaxW );
-}
-
-//===== Compute Second Derivative U,U   =====//
-vec3d Surf::CompTanUU01( double u01, double w01 )
-{
-    return CompTanUU( u01 * m_MaxU, w01 * m_MaxW );
-}
-
-//===== Compute Second Derivative W,W   =====//
-vec3d Surf::CompTanWW01( double u01, double w01 )
-{
-    return CompTanWW( u01 * m_MaxU, w01 * m_MaxW );
-}
-
-//===== Compute Second Derivative U,W   =====//
-vec3d Surf::CompTanUW01( double u01, double w01 )
-{
-    return CompTanUW( u01 * m_MaxU, w01 * m_MaxW );
-}
-
-
-//===== Compute Second Derivative U,U   =====//
-vec3d Surf::CompTanUU( double u, double w )
-{
-    return CompBez( u, w, &BlendDeriv2Funcs, &BlendFuncs );
-}
-
-//===== Compute Second Derivative W,W   =====//
-vec3d Surf::CompTanWW( double u, double w )
-{
-    return CompBez( u, w, &BlendFuncs, &BlendDeriv2Funcs );
-}
-
-//===== Compute Second Derivative U,W   =====//
-vec3d Surf::CompTanUW( double u, double w )
-{
-    return CompBez( u, w, &BlendDerivFuncs, &BlendDerivFuncs );
-}
-
-//===== Compute Tangent In U Direction   =====//
-vec3d Surf::CompTanU( double u, double w )
-{
-    return CompBez( u, w, &BlendDerivFuncs, &BlendFuncs );
-}
-
-//===== Compute Tangent In W Direction   =====//
-vec3d Surf::CompTanW( double u, double w )
-{
-    return CompBez( u, w, &BlendFuncs, &BlendDerivFuncs );
-}
-
-//===== Compute Point On Surf Given  U W =====//
-vec3d Surf::CompPnt( double u, double w )
-{
-    return CompBez( u, w, &BlendFuncs, &BlendFuncs );
-}
-
-//===== Generic Bezier Surface Calculation  =====//
-vec3d Surf::CompBez( double u, double w,
-                     void ( *uBlendFun )( double u, double& F1, double& F2, double& F3, double& F4 ),
-                     void ( *wBlendFun )( double u, double& F1, double& F2, double& F3, double& F4 ) )
-{
-    vec3d pnt;
-
-    if ( m_NumU < 4 || m_NumW < 4 )
-    {
-        return pnt;
-    }
-
-    if ( u < 0.0 )
-    {
-        u = 0.0;
-    }
-    if ( w < 0.0 )
-    {
-        w = 0.0;
-    }
-
-    double F1u, F2u, F3u, F4u;
-    double F1w, F2w, F3w, F4w;
-
-    int trunc_u = ( int )u;
-    int u_ind = trunc_u * 3;
-    if ( u_ind >= m_NumU - 1 )
-    {
-        trunc_u = trunc_u - 1;
-        u_ind = m_NumU - 4;
-    }
-    uBlendFun( u - ( double )trunc_u, F1u, F2u, F3u, F4u );
-
-    int trunc_w = ( int )w;
-    int w_ind = trunc_w * 3;
-    if ( w_ind >= m_NumW - 1 )
-    {
-        trunc_w = trunc_w - 1;
-        w_ind = m_NumW - 4;
-    }
-    wBlendFun( w - ( double )trunc_w, F1w, F2w, F3w, F4w );
-
-    pnt =
-        ( ( m_Pnts[u_ind][w_ind] * F1u     + m_Pnts[u_ind + 1][w_ind] * F2u +
-            m_Pnts[u_ind + 2][w_ind] * F3u   + m_Pnts[u_ind + 3][w_ind] * F4u ) * F1w ) +
-        ( ( m_Pnts[u_ind][w_ind + 1] * F1u   + m_Pnts[u_ind + 1][w_ind + 1] * F2u +
-            m_Pnts[u_ind + 2][w_ind + 1] * F3u + m_Pnts[u_ind + 3][w_ind + 1] * F4u ) * F2w ) +
-        ( ( m_Pnts[u_ind][w_ind + 2] * F1u  + m_Pnts[u_ind + 1][w_ind + 2] * F2u +
-            m_Pnts[u_ind + 2][w_ind + 2] * F3u + m_Pnts[u_ind + 3][w_ind + 2] * F4u ) * F3w ) +
-        ( ( m_Pnts[u_ind][w_ind + 3] * F1u  + m_Pnts[u_ind + 1][w_ind + 3] * F2u +
-            m_Pnts[u_ind + 2][w_ind + 3] * F3u + m_Pnts[u_ind + 3][w_ind + 3] * F4u ) * F4w );
-
-    return pnt;
-}
-
-//===== Compute Surface Curvature Metrics Given  U W =====//
-void Surf::CompCurvature( double u, double w, double& k1, double& k2, double& ka, double& kg )
-{
-    double tol = 1e-10;
-
-    double bump = 1e-3;
-
-    // First derivative vectors
-    vec3d S_u = CompTanU( u, w );
-    vec3d S_w = CompTanW( u, w );
-
-    double E = dot( S_u, S_u );
-    double G = dot( S_w, S_w );
-
-    if( E < tol && G < tol )
-    {
-        double umid = m_MaxU / 2.0;
-        double wmid = m_MaxW / 2.0;
-
-        u = u + ( umid - u ) * bump;
-        w = w + ( wmid - w ) * bump;
-
-        S_u = CompTanU( u, w );
-        S_w = CompTanW( u, w );
-
-        E = dot( S_u, S_u );
-        G = dot( S_w, S_w );
-    }
-    else if( E < tol ) // U direction degenerate
-    {
-        double wmid = m_MaxW / 2.0;
-        w = w + ( wmid - w ) * bump;
-
-        S_u = CompTanU( u, w );
-        S_w = CompTanW( u, w );
-
-        E = dot( S_u, S_u );
-        G = dot( S_w, S_w );
-    }
-    else if( G < tol ) // W direction degenerate
-    {
-        double umid = m_MaxU / 2.0;
-        u = u + ( umid - u ) * bump;
-
-        S_u = CompTanU( u, w );
-        S_w = CompTanW( u, w );
-
-        E = dot( S_u, S_u );
-        G = dot( S_w, S_w );
-    }
-
-    // Second derivative vectors
-    vec3d S_uu = CompTanUU( u, w );
-    vec3d S_uw = CompTanUW( u, w );
-    vec3d S_ww = CompTanWW( u, w );
-
-    // Unit normal vector
-    vec3d Q = cross( S_u, S_w );
-    Q.normalize();
-
-    double F = dot( S_u, S_w );
-
-    double L = dot( S_uu, Q );
-    double M = dot( S_uw, Q );
-    double N = dot( S_ww, Q );
-
-    // Mean curvature
-    ka = ( E * N + G * L - 2.0 * F * M ) / ( 2.0 * ( E * G - F * F ) );
-
-    // Gaussian curvature
-    kg = ( L * N - M * M ) / ( E * G - F * F );
-
-    double b = sqrt( ka * ka - kg );
-
-    // Principal curvatures
-    double kmax = ka + b;
-    double kmin = ka - b;
-
-    // Ensure k1 has largest magnitude
-    if( fabs( kmax ) > fabs( kmin ) )
-    {
-        k1 = kmax;
-        k2 = kmin;
-    }
-    else
-    {
-        k1 = kmin;
-        k2 = kmax;
     }
 }
 
@@ -423,7 +169,7 @@ double Surf::TargetLen( double u, double w, double gap, double radfrac )
     double glen = numeric_limits<double>::max( );
     double nlen = numeric_limits<double>::max( );
 
-    CompCurvature( u, w, k1, k2, ka, kg );
+    m_SurfCore.CompCurvature( u, w, k1, k2, ka, kg );
 
     if( fabs( k1 ) < tol ) // If zero curvature
     {
@@ -438,7 +184,7 @@ double Surf::TargetLen( double u, double w, double gap, double radfrac )
             dw = tol;
         }
         // Check point offset inside the surface.
-        CompCurvature( u + du, w + dw, k1, k2, ka, kg );
+        m_SurfCore.CompCurvature( u + du, w + dw, k1, k2, ka, kg );
     }
 
     if( fabs( k1 ) > tol )
@@ -468,8 +214,8 @@ double Surf::TargetLen( double u, double w, double gap, double radfrac )
 
 void Surf::BuildTargetMap( vector< MapSource* > &sources, int sid )
 {
-    int npatchu = ( m_NumU - 1 ) / 3;
-    int npatchw = ( m_NumW - 1 ) / 3;
+    int npatchu = ( m_SurfCore.GetNumU() - 1 ) / 3;
+    int npatchw = ( m_SurfCore.GetNumW() - 1 ) / 3;
 
     int nmapu = npatchu * ( m_NumMap - 1 ) + 1;
     int nmapw = npatchw * ( m_NumMap - 1 ) + 1;
@@ -509,7 +255,7 @@ void Surf::BuildTargetMap( vector< MapSource* > &sources, int sid )
             len = max( len, m_GridDensityPtr->m_MinLen() );
 
             // apply sources
-            vec3d p = CompPnt( u, w );
+            vec3d p = m_SurfCore.CompPnt( u, w );
             double grid_len = m_GridDensityPtr->GetTargetLen( p, limitFlag );
             len = min( len, grid_len );
 
@@ -756,7 +502,7 @@ void Surf::ApplyES( vec3d uw, double t )
     double w = uw.y();
     UWtoTargetMapij( u, w, ibase, jbase );
 
-    vec3d p = CompPnt( u, w );
+    vec3d p = m_SurfCore.CompPnt( u, w );
 
     int iadd[] = { 0, 1, 0, 1 };
     int jadd[] = { 0, 0, 1, 1 };
@@ -786,7 +532,7 @@ vec2d Surf::ClosestUW( vec3d & pnt, double guess_u, double guess_w, double guess
     double w = guess_w;
     double del_u = guess_del_u;
     double del_w = guess_del_w;
-    double dist = dist_squared( pnt, CompPnt( u, w ) );
+    double dist = dist_squared( pnt, m_SurfCore.CompPnt( u, w ) );
 
     if ( dist < tol )
     {
@@ -798,9 +544,9 @@ vec2d Surf::ClosestUW( vec3d & pnt, double guess_u, double guess_w, double guess
     {
         double u_plus  = u + del_u;
         double u_minus = u - del_u;
-        if ( u_plus  > m_MaxU )
+        if ( u_plus  > m_SurfCore.GetMaxU() )
         {
-            u_plus  = m_MaxU;
+            u_plus  = m_SurfCore.GetMaxU();
             del_u *= 0.25;
         }
         if ( u_minus < 0 )
@@ -809,8 +555,8 @@ vec2d Surf::ClosestUW( vec3d & pnt, double guess_u, double guess_w, double guess
             del_u *= 0.25;
         }
 
-        double dist_plus_u  = dist_squared( pnt, CompPnt( u_plus, w ) );
-        double dist_minus_u = dist_squared( pnt, CompPnt( u_minus, w ) );
+        double dist_plus_u  = dist_squared( pnt, m_SurfCore.CompPnt( u_plus, w ) );
+        double dist_minus_u = dist_squared( pnt, m_SurfCore.CompPnt( u_minus, w ) );
         if ( dist_plus_u < dist )
         {
             u = u_plus;
@@ -831,9 +577,9 @@ vec2d Surf::ClosestUW( vec3d & pnt, double guess_u, double guess_w, double guess
 
         double w_plus = w + del_w;
         double w_minus = w - del_w;
-        if ( w_plus > m_MaxW )
+        if ( w_plus > m_SurfCore.GetMaxW() )
         {
-            w_plus = m_MaxW;
+            w_plus = m_SurfCore.GetMaxW();
             del_w *= 0.25;
         }
         if ( w_minus < 0 )
@@ -842,8 +588,8 @@ vec2d Surf::ClosestUW( vec3d & pnt, double guess_u, double guess_w, double guess
             del_w *= 0.25;
         }
 
-        double dist_plus_w  = dist_squared( pnt, CompPnt( u, w_plus ) );
-        double dist_minus_w = dist_squared( pnt, CompPnt( u, w_minus ) );
+        double dist_plus_w  = dist_squared( pnt, m_SurfCore.CompPnt( u, w_plus ) );
+        double dist_minus_w = dist_squared( pnt, m_SurfCore.CompPnt( u, w_minus ) );
         if ( dist_plus_w < dist )
         {
             w = w_plus;
@@ -877,21 +623,21 @@ vec2d Surf::ClosestUW( vec3d & pnt_in, double guess_u, double guess_w )
 //  double orig_d = dist_squared( pnt_in, CompPnt( guess_u, guess_w ) );
 
     //==== Normalize uw Values Between 0 and 1 ====//
-    norm_uw[0] = guess_u / m_MaxU;
-    norm_uw[1] = guess_w / m_MaxW;
+    norm_uw[0] = guess_u / m_SurfCore.GetMaxU();
+    norm_uw[1] = guess_w / m_SurfCore.GetMaxW();
 
     //===== Loop Until U and W Stops Changing or Max Iterations is Hit  =====//
     int cnt = 0;
     int stop_flag = false;
     while ( !stop_flag )
     {
-        guess_pnt = CompPnt01( norm_uw[0], norm_uw[1] );
+        guess_pnt = m_SurfCore.CompPnt01( norm_uw[0], norm_uw[1] );
 
         //==== Find Delta U and W Values ====//
         CompDeltaUW( pnt_in, guess_pnt, norm_uw, del_uw );
 
-        norm_uw[0] += del_uw[0] / m_MaxU;
-        norm_uw[1] -= del_uw[1] / m_MaxW;
+        norm_uw[0] += del_uw[0] / m_SurfCore.GetMaxU();
+        norm_uw[1] -= del_uw[1] / m_SurfCore.GetMaxW();
 
         if ( norm_uw[0] < 0.0 )
         {
@@ -927,8 +673,8 @@ vec2d Surf::ClosestUW( vec3d & pnt_in, double guess_u, double guess_w )
 
     //==== Convert uw Values Back to Original Space ====//
     vec2d uw;
-    uw[0] = norm_uw[0] * m_MaxU;
-    uw[1] = norm_uw[1] * m_MaxW;
+    uw[0] = norm_uw[0] * m_SurfCore.GetMaxU();
+    uw[1] = norm_uw[1] * m_SurfCore.GetMaxW();
 //
 //  double new_d = dist_squared( pnt_in, guess_pnt );
 //  if ( new_d > orig_d )
@@ -942,18 +688,18 @@ vec2d Surf::ClosestUW( vec3d & pnt_in, double guess_u, double guess_w )
     {
         uw[0] = 0.0;
     }
-    else if ( uw[0] > m_MaxU )
+    else if ( uw[0] > m_SurfCore.GetMaxU() )
     {
-        uw[0] = m_MaxU;
+        uw[0] = m_SurfCore.GetMaxU();
     }
 
     if      ( uw[1] < 0.0 )
     {
         uw[1] = 0.0;
     }
-    else if ( uw[1] > m_MaxW )
+    else if ( uw[1] > m_SurfCore.GetMaxW() )
     {
-        uw[1] = m_MaxW;
+        uw[1] = m_SurfCore.GetMaxW();
     }
 
     return uw;
@@ -963,8 +709,8 @@ vec2d Surf::ClosestUW( vec3d & pnt_in, double guess_u, double guess_w )
 //===== Compute Point On Patch  =====//
 void Surf::CompDeltaUW( vec3d& pnt_in, vec3d& guess_pnt, double norm_uw[2], double delta_uw[2] )
 {
-    vec3d tan_u = CompTanU01( norm_uw[0], norm_uw[1] );
-    vec3d tan_w = CompTanW01( norm_uw[0], norm_uw[1] );
+    vec3d tan_u = m_SurfCore.CompTanU01( norm_uw[0], norm_uw[1] );
+    vec3d tan_w = m_SurfCore.CompTanW01( norm_uw[0], norm_uw[1] );
 
     vec3d dist_vec = guess_pnt - pnt_in;
 
@@ -986,93 +732,7 @@ void Surf::CompDeltaUW( vec3d& pnt_in, vec3d& guess_pnt, double norm_uw[2], doub
     }
 }
 
-bool Surf::LessThanY( double val )
-{
-    for ( int i = 0 ; i < m_NumU ; i++ )
-        for ( int j = 0 ; j < m_NumW ; j++ )
-        {
-            if ( m_Pnts[i][j][1] > val )
-            {
-                return false;
-            }
-        }
-    return true;
 
-
-}
-
-bool Surf::OnYZeroPlane()
-{
-    double tol = 0.0000001;
-    bool onPlaneFlag = true;
-    for ( int i = 0 ; i < m_NumU ; i++ )                // Border Curve 1 w = 0
-    {
-        if ( fabs( m_Pnts[i][0][1] ) > tol )
-        {
-            onPlaneFlag = false;
-        }
-    }
-    if ( onPlaneFlag )
-    {
-        return onPlaneFlag;
-    }
-
-    onPlaneFlag = true;
-    for ( int i = 0 ; i < m_NumU ; i++ )                // Border Curve 2 w = max
-    {
-        if ( fabs( m_Pnts[i][m_NumW - 1][1] ) > tol )
-        {
-            onPlaneFlag = false;
-        }
-    }
-    if ( onPlaneFlag )
-    {
-        return onPlaneFlag;
-    }
-
-    onPlaneFlag = true;
-    for ( int i = 0 ; i < m_NumW ; i++ )                // Border Curve 3 u = 0
-    {
-        if ( fabs( m_Pnts[0][i][1] ) > tol )
-        {
-            onPlaneFlag = false;
-        }
-    }
-    if ( onPlaneFlag )
-    {
-        return onPlaneFlag;
-    }
-
-    onPlaneFlag = true;
-    for ( int i = 0 ; i < m_NumW ; i++ )                // Border Curve 4 u = max
-    {
-        if ( fabs( m_Pnts[m_NumU - 1][i][1] ) > tol )
-        {
-            onPlaneFlag = false;
-        }
-    }
-    if ( onPlaneFlag )
-    {
-        return onPlaneFlag;
-    }
-
-    return false;
-}
-
-bool Surf::PlaneAtYZero()
-{
-    double tol = 0.000001;
-    for ( int i = 0 ; i < m_NumU ; i++ )
-        for ( int j = 0 ; j < m_NumW ; j++ )
-        {
-            double yval = m_Pnts[i][j][1];
-            if ( fabs( yval ) > tol )
-            {
-                return false;
-            }
-        }
-    return true;
-}
 
 void Surf::FindBorderCurves()
 {
@@ -1080,8 +740,8 @@ void Surf::FindBorderCurves()
 
     //==== Load 4 Border Curves if Not Degenerate ====//
     SCurve* scrv;
-    double max_u = ( m_NumU - 1 ) / 3.0;
-    double max_w = ( m_NumW - 1 ) / 3.0;
+    double max_u = m_SurfCore.GetMaxU();
+    double max_w = m_SurfCore.GetMaxW();
 
     vector< vec3d > pnts;
     pnts.resize( 4 );
@@ -1318,9 +978,9 @@ bool Surf::BorderCurveOnSurface( Surf* surfPtr )
         int num_pnts_on_surf = 0;
         for ( int c = 0 ; c < ( int )control_pnts.size() ; c++ )
         {
-            vec2d uw = ClosestUW( control_pnts[c], m_MaxU / 2.0, m_MaxW / 2.0 );
+            vec2d uw = ClosestUW( control_pnts[c], m_SurfCore.GetMaxU() / 2.0, m_SurfCore.GetMaxW() / 2.0 );
 
-            vec3d p = CompPnt( uw[0], uw[1] );
+            vec3d p = m_SurfCore.CompPnt( uw[0], uw[1] );
 
             double d = dist( control_pnts[c], p );
 
@@ -1384,8 +1044,8 @@ void Surf::PlaneBorderCurveIntersect( Surf* surfPtr, SCurve* brdPtr )
 
         for ( int i = 0 ; i < (int)UWCrv_bordercurve.size() ; i++ )
         {
-            vec3d pnt = surfPtr->CompPnt( UWCrv_bordercurve[i].x(), UWCrv_bordercurve[i].y() );
-            vec2d uw = ClosestUW( pnt, m_MaxU / 2, m_MaxW / 2 );
+            vec3d pnt = surfPtr->GetSurfCore()->CompPnt( UWCrv_bordercurve[i].x(), UWCrv_bordercurve[i].y() );
+            vec2d uw = ClosestUW( pnt, m_SurfCore.GetMaxU() / 2, m_SurfCore.GetMaxW() / 2 );
             UWCrv_plane[i].set_xyz( uw.x(), uw.y(), 0 );
         }
 
@@ -1599,7 +1259,7 @@ void Surf::BuildDistMap()
     double VspMinU = VspMinUW.v[0];
     double VspMinW = VspMinUW.v[1];
 
-    vec2d VspMaxUW = Convert2VspSurf( m_MaxU, m_MaxW );
+    vec2d VspMaxUW = Convert2VspSurf( m_SurfCore.GetMaxU(), m_SurfCore.GetMaxW() );
     double VspMaxU = VspMaxUW.v[0];
     double VspMaxW = VspMaxUW.v[1];
 
@@ -1617,7 +1277,7 @@ void Surf::BuildDistMap()
         {
             double w = VspMinW + VspdW * ( double )j / ( double )( nump - 1 );
             vec2d uw = Convert2Surf( u, w );
-            pvec[i][j] = CompPnt( uw.v[0], uw.v[1] );
+            pvec[i][j] = m_SurfCore.CompPnt( uw.v[0], uw.v[1] );
         }
     }
 
@@ -1833,11 +1493,11 @@ bool Surf::ValidUW( vec2d & uw )
     {
         return false;
     }
-    if ( uw[0] > m_MaxU + slop )
+    if ( uw[0] > m_SurfCore.GetMaxU() + slop )
     {
         return false;
     }
-    if ( uw[1] > m_MaxW + slop )
+    if ( uw[1] > m_SurfCore.GetMaxW() + slop )
     {
         return false;
     }
@@ -1850,49 +1510,16 @@ bool Surf::ValidUW( vec2d & uw )
     {
         uw[1] = 0.0;
     }
-    if ( uw[0] > m_MaxU )
+    if ( uw[0] > m_SurfCore.GetMaxU() )
     {
-        uw[0] = m_MaxU;
+        uw[0] = m_SurfCore.GetMaxU();
     }
-    if ( uw[1] > m_MaxW )
+    if ( uw[1] > m_SurfCore.GetMaxW() )
     {
-        uw[1] = m_MaxW;
+        uw[1] = m_SurfCore.GetMaxW();
     }
 
     return true;
-}
-
-void Surf::LoadBorderCurves( vector< vector <vec3d> > & borderCurves )
-{
-    vector< vec3d > borderPnts;
-
-    borderPnts.clear();
-    for ( int i = 0 ; i < m_NumU ; i++ )                // Border Curve w = 0
-    {
-        borderPnts.push_back( m_Pnts[i][0] );
-    }
-    borderCurves.push_back( borderPnts );
-
-    borderPnts.clear();
-    for ( int i = 0 ; i < m_NumU ; i++ )                // Border Curve w = max
-    {
-        borderPnts.push_back( m_Pnts[i][m_NumW - 1] );
-    }
-    borderCurves.push_back( borderPnts );
-
-    borderPnts.clear();
-    for ( int i = 0 ; i < m_NumW ; i++ )                // Border Curve u = 0
-    {
-        borderPnts.push_back( m_Pnts[0][i] );
-    }
-    borderCurves.push_back( borderPnts );
-
-    borderPnts.clear();
-    for ( int i = 0 ; i < m_NumW ; i++ )                // Border Curve u = max
-    {
-        borderPnts.push_back( m_Pnts[m_NumU - 1][i] );
-    }
-    borderCurves.push_back( borderPnts );
 }
 
 bool Surf::BorderCurveMatch( vector< vec3d > & curveA, vector< vec3d > & curveB )
@@ -1944,213 +1571,16 @@ bool Surf::BorderCurveMatch( vector< vec3d > & curveA, vector< vec3d > & curveB 
 bool Surf::BorderMatch( Surf* otherSurf )
 {
     vector< vector< vec3d > > borderCurvesA;
-    LoadBorderCurves( borderCurvesA );
+    m_SurfCore.LoadBorderCurves( borderCurvesA );
 
     vector< vector< vec3d > > borderCurvesB;
-    otherSurf->LoadBorderCurves( borderCurvesB );
+    otherSurf->GetSurfCore()->LoadBorderCurves( borderCurvesB );
 
     for ( int i = 0 ; i < ( int )borderCurvesA.size() ; i++ )
     {
         for ( int j = 0 ; j < ( int )borderCurvesB.size() ; j++ )
         {
             if ( BorderCurveMatch( borderCurvesA[i], borderCurvesB[j] ) )
-            {
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
-bool Surf::SurfMatch( Surf* otherSurf )
-{
-    double tol = 0.00000001;
-
-    if ( otherSurf )
-    {
-        vector< vector< vec3d > > oPnts = otherSurf->GetControlPnts();
-        int oNumU = oPnts.size();
-        int oNumW = oPnts[0].size();
-
-        if ( oNumU == m_NumU && oNumW == m_NumW ) // Possible match
-        {
-            bool match = true;
-            for ( int i = 0; i < m_NumU; i++ )
-            {
-                for ( int j = 0; j < m_NumW; j++ )
-                {
-                    if ( dist_squared( m_Pnts[ i ][ j ], oPnts[ i ][ j ] ) > tol )
-                    {
-                        match = false;
-                        break;
-                    }
-                }
-                if ( !match )
-                {
-                    break;
-                }
-            }
-
-            if ( match )
-            {
-                return true;
-            }
-
-            match = true;
-            for ( int i = 0; i < m_NumU; i++ )
-            {
-                for ( int j = 0; j < m_NumW; j++ )
-                {
-                    if ( dist_squared( m_Pnts[ i ][ j ], oPnts[ m_NumU - 1 - i ][ j ] ) > tol )
-                    {
-                        match = false;
-                        break;
-                    }
-                }
-                if ( !match )
-                {
-                    break;
-                }
-            }
-
-
-            if ( match )
-            {
-                return true;
-            }
-
-            match = true;
-            for ( int i = 0; i < m_NumU; i++ )
-            {
-                for ( int j = 0; j < m_NumW; j++ )
-                {
-                    if ( dist_squared( m_Pnts[ i ][ j ], oPnts[ i ][ m_NumW - 1 - j ] ) > tol )
-                    {
-                        match = false;
-                        break;
-                    }
-                }
-                if ( !match )
-                {
-                    break;
-                }
-            }
-
-
-            if ( match )
-            {
-                return true;
-            }
-
-            match = true;
-            for ( int i = 0; i < m_NumU; i++ )
-            {
-                for ( int j = 0; j < m_NumW; j++ )
-                {
-                    if ( dist_squared( m_Pnts[ i ][ j ], oPnts[ m_NumU - 1 - i ][ m_NumW - 1 - j ] ) > tol )
-                    {
-                        match = false;
-                        break;
-                    }
-                }
-                if ( !match )
-                {
-                    break;
-                }
-            }
-
-            if ( match )
-            {
-                return true;
-            }
-        }
-
-        if ( oNumU == m_NumW && oNumW == m_NumU ) // Possible flipped match
-        {
-            bool match = true;
-            for ( int i = 0; i < m_NumU; i++ )
-            {
-                for ( int j = 0; j < m_NumW; j++ )
-                {
-                    if ( dist_squared( m_Pnts[ i ][ j ], oPnts[ j ][ i ] ) > tol )
-                    {
-                        match = false;
-                        break;
-                    }
-                }
-                if ( !match )
-                {
-                    break;
-                }
-            }
-
-            if ( match )
-            {
-                return true;
-            }
-
-            match = true;
-            for ( int i = 0; i < m_NumU; i++ )
-            {
-                for ( int j = 0; j < m_NumW; j++ )
-                {
-                    if ( dist_squared( m_Pnts[ i ][ j ], oPnts[ m_NumW - 1 - j ][ i ] ) > tol )
-                    {
-                        match = false;
-                        break;
-                    }
-                }
-                if ( !match )
-                {
-                    break;
-                }
-            }
-
-            if ( match )
-            {
-                return true;
-            }
-
-            match = true;
-            for ( int i = 0; i < m_NumU; i++ )
-            {
-                for ( int j = 0; j < m_NumW; j++ )
-                {
-                    if ( dist_squared( m_Pnts[ i ][ j ], oPnts[ j ][ m_NumU - 1 - i ] ) > tol )
-                    {
-                        match = false;
-                        break;
-                    }
-                }
-                if ( !match )
-                {
-                    break;
-                }
-            }
-
-            if ( match )
-            {
-                return true;
-            }
-
-            match = true;
-            for ( int i = 0; i < m_NumU; i++ )
-            {
-                for ( int j = 0; j < m_NumW; j++ )
-                {
-                    if ( dist_squared( m_Pnts[ i ][ j ], oPnts[ m_NumW - 1 - j ][ m_NumU - 1 - i ] ) > tol )
-                    {
-                        match = false;
-                        break;
-                    }
-                }
-                if ( !match )
-                {
-                    break;
-                }
-            }
-
-            if ( match )
             {
                 return true;
             }
@@ -2356,8 +1786,8 @@ void Surf::Draw()
 
 void Surf::SetDefaultParmMap()
 {
-	int num_u_map = 1 + ( m_NumU - 1 ) / 3;
-    int num_w_map = 1 + ( m_NumW - 1 ) / 3;
+	int num_u_map = 1 + ( m_SurfCore.GetNumU() - 1 ) / 3;
+    int num_w_map = 1 + ( m_SurfCore.GetNumW() - 1 ) / 3;
 
     u_to_vspsurf.resize( num_u_map );
     w_to_vspsurf.resize( num_w_map );
@@ -2375,5 +1805,7 @@ void Surf::SetDefaultParmMap()
     }
 }
 
-
-
+vec3d Surf::CompPnt( double u, double w )
+{
+    return m_SurfCore.CompPnt( u, w );
+}

@@ -28,6 +28,7 @@ ISegChain.cpp
 Mesh.cpp
 SCurve.cpp
 Surf.cpp
+SurfCore.cpp
 SurfPatch.cpp
 Tri.cpp
 BezierCurve.h
@@ -41,6 +42,7 @@ MapSource.h
 Mesh.h
 SCurve.h
 Surf.h
+SurfCore.h
 SurfPatch.h
 Tri.h
 )

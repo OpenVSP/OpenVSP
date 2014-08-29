@@ -1138,7 +1138,7 @@ vector< ISegChain* > ISegChain::FindCoPlanarChains( Surf* sPtr, Surf* adjSurf )
 
         //==== See if Point Is On Surface ====//
         double tol = 1.0e-04;
-        vec2d uw = sPtr->ClosestUW( p, sPtr->GetMaxU() / 2.0, sPtr->GetMaxW() / 2.0 );
+        vec2d uw = sPtr->ClosestUW( p, sPtr->GetSurfCore()->GetMaxU() / 2.0, sPtr->GetSurfCore()->GetMaxW() / 2.0 );
 
         vec3d sp = sPtr->CompPnt( uw[0], uw[1] );
 
