@@ -27,12 +27,13 @@ using namespace std;            //jrg windows??
 
 class Bezier_curve
 {
+protected:
+
     int num_sections;
     vector <vec3d> pnts;
 
     void blend_funcs( double u, double& F1, double& F2, double& F3, double& F4 );
-    void der_blend_funcs( double u, double& F1, double& F2, double& F3, double& F4 );
-
+    vec3d comp_pnt( int sec_num, double u );      // Section and u between 0 and 1
 
 public:
 
@@ -57,26 +58,9 @@ public:
         return( pnts[ind] );
     }
 
-    vec3d comp_pnt( int sec_num, double u );      // Section and u between 0 and 1
-    vec3d comp_tan( int sec_num, double u );
-
     vec3d comp_pnt( double u );                   // u between 0 and 1
 
-    double get_length();
-
     void buildCurve( const vector< vec3d > & pVec, double tanStr, int closeFlag );
-
-    enum { NADA, SHARP, ZERO, ZERO_X, ZERO_Y, ZERO_Z, ONLY_BACK, ONLY_FORWARD, PREDICT, MIRROR_END_CAP, };
-    void buildCurve( const vector< vec3d > & pVec, const vector< int > & pFlagVec, double tanStr, int closeFlag );
-    void buildCurve2( const vector< vec3d > & pVec, const vector< int > & pFlagVec, double tanStr, int closeFlag );
-
-    void buildCurve( const vector< vec3d > & pVec, const vector< vec3d > & spineVec,
-                     const vector< int > & pFlagVec, const vector< double > & tAngVec,
-                     const vector< double > & tStr1Vec, const vector< double > & tStr2Vec, int closeFlag );
-    void buildCurve( const vector< vec3d > & pVec, vec3d & axis, const vector< double > & tAngVec,
-                     const vector< double > & tStr1Vec, const vector< double > & tStr2Vec );
-
-    void setTan( vec3d & tan, const vector< vec3d > & pVec, int ind, int type, int forward, int close  );
 };
 
 #endif
