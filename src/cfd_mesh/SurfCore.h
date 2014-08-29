@@ -6,21 +6,10 @@
 #if !defined(SURF_CORE__INCLUDED_)
 #define SURF_CORE__INCLUDED_
 
-#include "Vec2d.h"
 #include "Vec3d.h"
 
-#include "Mesh.h"
-#include "GridDensity.h"
-#include "SurfPatch.h"
-#include "MapSource.h"
-
-#include <assert.h>
-
-#include <string>
 #include <vector>
-#include <list>
-#include <set>
-#include <map>
+using std::vector;
 
 //////////////////////////////////////////////////////////////////////
 class SurfCore
