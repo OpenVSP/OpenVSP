@@ -47,32 +47,6 @@ void SCurve::BuildBezierCurve( vector< vec3d > & pnts_to_interpolate )
     m_UWCrv.buildCurve( pnts_to_interpolate, 0.3, 0 );
 }
 
-
-//===== Read Surf From File  =====//
-void SCurve::ReadFile( const char* file_name )
-{
-    FILE* file_id = fopen( file_name, "r" );
-
-    if ( file_id )
-    {
-        int num_u;
-        float u, w;
-
-        fscanf( file_id, "%d\n", &num_u );
-        m_UWCrv.init_num_sections( num_u );
-
-        int num_pnts = num_u * 3 + 1;
-
-        for ( int i = 0 ; i < num_pnts ; i++ )
-        {
-            fscanf( file_id, "%f %f\n", &u, &w );
-            m_UWCrv.put_pnt( i, vec3d( u, w, 0 ) );
-        }
-
-        fclose( file_id );
-    }
-}
-
 double SCurve::Length( int num_segs )
 {
     assert ( m_Surf );
@@ -752,85 +726,6 @@ void SCurve::Tesselate()
     TessIntegrate();
     SmoothTess();
     UWTess();
-}
-
-// This routine is currently unused.
-void SCurve::Tesselate( vector< vec3d > & target_pnts )
-{
-    assert( m_Surf );
-
-    m_UTess.clear();
-    m_UWTess.clear();
-
-    vector< double > u_vec;
-    vector< vec3d >  pnt_vec;
-
-    //==== Build U to Pnt Table ====//
-    int num_segs = 10000;
-    vec3d uw = m_UWCrv.comp_pnt( 0 );
-    vec3d last_p = m_Surf->CompPnt( uw.x(), uw.y() );
-    for ( int i = 0 ; i < num_segs ; i++ )
-    {
-        double u = ( double )i / ( double )( num_segs - 1 );
-
-        uw = m_UWCrv.comp_pnt( u );
-        vec3d p = m_Surf->CompPnt( uw.x(), uw.y() );
-        pnt_vec.push_back( p );
-        u_vec.push_back( u );
-        last_p = p;
-    }
-
-    //===== Look For Closest U For Each Target Point ====//
-    for ( int i = 0 ; i < ( int )target_pnts.size() ; i++ )
-    {
-        int close_ind = 0;
-        double close_d2 = 1.0e12;
-
-        for ( int j = 1 ; j < ( int )pnt_vec.size() - 1 ; j++ )
-        {
-            double d2 = dist_squared( target_pnts[i], pnt_vec[j] );
-            if ( d2 < close_d2 )
-            {
-                close_d2 = d2;
-                close_ind = j;
-            }
-        }
-
-        //==== Make Sure Ind is Valid ====//
-        double f0, f1;
-        double d0 = pointSegDistSquared( target_pnts[i], pnt_vec[close_ind], pnt_vec[close_ind - 1], &f0 );
-        double d1 = pointSegDistSquared( target_pnts[i], pnt_vec[close_ind], pnt_vec[close_ind + 1], &f1 );
-        double u;
-        if ( d0 < d1 )
-        {
-            u = u_vec[close_ind] + ( u_vec[close_ind - 1] - u_vec[close_ind] ) * f0;
-        }
-        else
-        {
-            u = u_vec[close_ind] + ( u_vec[close_ind + 1] - u_vec[close_ind] ) * f1;
-        }
-
-        m_UTess.push_back( u );
-        m_UWTess.push_back( m_UWCrv.comp_pnt( u ) );
-
-//vec3d uw = m_UWCrv.comp_pnt( u );
-//double d = dist(  target_pnts[i], m_Surf->CompPnt( uw[0], uw[1] ) );
-//if ( d > 0.01 )
-//  printf( "SCurve Tess Target %f %f \n", f0, f1 );
-    }
-
-    //==== Reset Begin and End Points ====//
-    m_UTess.front()  = 0.0;
-    m_UWTess.front() = m_UWCrv.comp_pnt( 0.0 );
-    m_UTess.back()   = 1.0;
-    m_UWTess.back()  = m_UWCrv.comp_pnt( 1.0 );
-
-
-
-
-
-
-
 }
 
 void SCurve::Tesselate( vector< double > & u_tess )

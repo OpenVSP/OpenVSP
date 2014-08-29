@@ -37,8 +37,6 @@ public:
     SCurve( Surf* s );
     virtual ~SCurve();
 
-    void ReadFile( const char* filename );
-
     void SetSurf( Surf* s )
     {
         m_Surf = s;
@@ -69,7 +67,6 @@ public:
     void CalcDensity( GridDensity* grid_den, SCurve* BCurve, list< MapSource* > & splitSources );
     void ApplyESSurface( double u, double t );
     void Tesselate();
-    void Tesselate( vector< vec3d > & target_pnts );
 
     void SetBezierControlPnts( vector< vec3d > & pnts );
     void BuildBezierCurve( vector< vec3d > & pnts_to_interpolate );
