@@ -38,7 +38,7 @@ void SCurve::SetBezierControlPnts( vector< vec3d > & pnts )
 
 void SCurve::BuildBezierCurve( vector< vec3d > & pnts_to_interpolate )
 {
-    m_UWCrv.buildCurve( pnts_to_interpolate, 0.3, 0 );
+    m_UWCrv.buildCurve( pnts_to_interpolate );
 }
 
 double SCurve::Length( int num_segs )
@@ -61,11 +61,14 @@ double SCurve::Length( int num_segs )
 
 void SCurve::LoadControlPnts3D( vector< vec3d > & control_pnts )
 {
-    int num_pnts = m_UWCrv.get_num_control_pnts();
+    vector < vec3d > cpnts;
+    m_UWCrv.get_pnts( cpnts );
+
+	int num_pnts = cpnts.size();
 
     for ( int i = 0 ; i < num_pnts ; i++ )
     {
-        vec3d uw = m_UWCrv.get_pnt( i );
+        vec3d uw = cpnts[i];
         control_pnts.push_back( m_Surf->CompPnt( uw.x(), uw.y() ) );
     }
 }

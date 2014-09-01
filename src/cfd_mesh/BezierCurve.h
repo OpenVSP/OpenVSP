@@ -23,17 +23,21 @@
 #include <stdio.h>
 #include <math.h>
 
+#include "eli/code_eli.hpp"
+
+#include "eli/geom/curve/bezier.hpp"
+#include "eli/geom/curve/piecewise.hpp"
+
+typedef eli::geom::curve::bezier<double, 3> curve_segment_type;
+typedef eli::geom::curve::piecewise<eli::geom::curve::bezier, double, 3> piecewise_curve_type;
+
 using namespace std;            //jrg windows??
 
 class Bezier_curve
 {
 protected:
 
-    int num_sections;
-    vector <vec3d> pnts;
-
-    void blend_funcs( double u, double& F1, double& F2, double& F3, double& F4 );
-    vec3d comp_pnt( int sec_num, double u );      // Section and u between 0 and 1
+    piecewise_curve_type m_Curve;
 
 public:
 
@@ -42,31 +46,18 @@ public:
 
     int  get_num_sections()
     {
-        return( num_sections );
+        return m_Curve.number_segments();
     }
-    int  get_num_control_pnts()
-    {
-        return pnts.size();
-    }
+
     void put_pnts( const vector< vec3d > &pnts_in );
-    vec3d& get_pnt( int ind )
-    {
-        return( pnts[ind] );
-    }
+    void get_pnts( vector< vec3d > &pnts_out );
 
-    vec3d& first_pnt()  // Could be implemented with comp_pnt, but should be faster/more accurate.
-    {
-        return pnts[0];
-    }
-
-    vec3d& last_pnt()
-    {
-        return pnts.back();
-    }
+    vec3d first_pnt();
+    vec3d last_pnt();
 
     vec3d comp_pnt( double u );                   // u between 0 and 1
 
-    void buildCurve( const vector< vec3d > & pVec, double tanStr, int closeFlag );
+    void buildCurve( const vector< vec3d > & pVec );
     void flipCurve();
 };
 

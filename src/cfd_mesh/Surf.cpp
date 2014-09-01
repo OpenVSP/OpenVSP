@@ -1037,10 +1037,7 @@ void Surf::PlaneBorderCurveIntersect( Surf* surfPtr, SCurve* brdPtr )
         vector< ICurve* > ICurves = CfdMeshMgr.GetICurveVec();
         int ICurveVecIndex;
 
-        for ( int i = 0 ; i < brdPtr->GetUWCrv().get_num_control_pnts() ; i++ )
-        {
-            UWCrv_bordercurve.push_back( brdPtr->GetUWCrv().get_pnt( i ) );
-        }
+        brdPtr->GetUWCrv().get_pnts( UWCrv_bordercurve );
 
         for ( int i = 0 ; i < (int)UWCrv_bordercurve.size() ; i++ )
         {
