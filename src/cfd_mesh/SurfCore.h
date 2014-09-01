@@ -79,10 +79,6 @@ public:
     bool SurfMatch( SurfCore* otherSurf );
 
 protected:
-
-    int m_NumU;
-    int m_NumW;
-
     piecewise_surface_type m_Surface;
 
     vec3d CompTanUU( double u, double w );
