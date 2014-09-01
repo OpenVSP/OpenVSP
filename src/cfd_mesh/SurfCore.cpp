@@ -5,6 +5,22 @@
 
 #include "SurfCore.h"
 
+#include "eli/geom/curve/piecewise_creator.hpp"
+#include "eli/geom/surface/piecewise_body_of_revolution_creator.hpp"
+#include "eli/geom/surface/piecewise_capped_surface_creator.hpp"
+#include "eli/geom/intersect/minimum_distance_surface.hpp"
+
+typedef piecewise_surface_type::index_type surface_index_type;
+typedef piecewise_surface_type::point_type surface_point_type;
+typedef piecewise_surface_type::rotation_matrix_type surface_rotation_matrix_type;
+typedef piecewise_surface_type::bounding_box_type surface_bounding_box_type;
+
+typedef eli::geom::curve::piecewise_linear_creator<double, 3, surface_tolerance_type> piecewise_linear_creator_type;
+typedef eli::geom::surface::piecewise_general_skinning_surface_creator<double, 3, surface_tolerance_type> general_creator_type;
+typedef eli::geom::surface::piecewise_capped_surface_creator<double, 3, surface_tolerance_type> capped_creator_type;
+
+
+
 SurfCore::SurfCore()
 {
     m_NumU = m_NumW = 0;
@@ -16,13 +32,84 @@ SurfCore::~SurfCore()
 
 void SurfCore::SetControlPnts( vector< vector < vec3d > > pnts )
 {
-    m_Pnts = pnts;
-
-    m_NumU = m_Pnts.size();
-    m_NumW = m_Pnts[0].size();
+    m_NumU = pnts.size();
+    m_NumW = pnts[0].size();
     m_MaxU = ( m_NumU - 1 ) / 3;
     m_MaxW = ( m_NumW - 1 ) / 3;
+
+    // Assume Cubic patches.
+    int nupatch = ( m_NumU - 1 ) / 3;
+    int nvpatch = ( m_NumW - 1 ) / 3;
+
+    m_Surface.init_uv( nupatch, nvpatch ); // du = 1, dv = 1, u0 = 0, & v0 = 0 implied
+
+    surface_patch_type::index_type ip, jp;
+    for( ip = 0; ip < nupatch; ++ip )
+    {
+        for( jp = 0; jp < nvpatch; ++jp )
+        {
+            surface_patch_type::index_type icp, jcp;
+
+            surface_patch_type patch;
+            patch.resize( 3, 3 );
+
+            for( icp = 0; icp <= 3; ++icp )
+            {
+                for( jcp = 0; jcp <= 3; ++jcp )
+                {
+                    vec3d p = pnts[ ip * 3 + icp ][ jp * 3 + jcp ];
+                    surface_point_type cp( p.x(), p.y(), p.z() );
+                    patch.set_control_point( cp, icp, jcp );
+                }
+            }
+            m_Surface.set( patch, ip, jp );
+        }
+    }
 }
+
+vector< vector< vec3d > > SurfCore::GetControlPnts()
+{
+    vector< vector < vec3d > > ret;
+
+    piecewise_surface_type::index_type ip, jp, nupatch, nvpatch;
+
+
+    nupatch = m_Surface.number_u_patches();
+    nvpatch = m_Surface.number_v_patches();
+
+    int nupts = nupatch * 3 + 1;
+    int nvpts = nvpatch * 3 + 1;
+
+    ret.resize( nupts );
+    for( int i = 0; i < nupts; ++i )
+    {
+        ret[i].resize( nvpts );
+    }
+
+    for( ip = 0; ip < nupatch; ++ip )
+    {
+        for( jp = 0; jp < nvpatch; ++jp )
+        {
+            surface_patch_type::index_type icp, jcp;
+
+            surface_patch_type *patch = m_Surface.get_patch( ip, jp );
+
+            for( icp = 0; icp <= 3; ++icp )
+            {
+                for( jcp = 0; jcp <= 3; ++jcp )
+                {
+                    surface_point_type cp;
+                    cp = patch->get_control_point( icp, jcp );
+                    ret[ ip * 3 + icp ][ jp * 3 + jcp ]  = vec3d( cp.x(), cp.y(), cp.z() );
+                }
+            }
+        }
+    }
+
+    return ret;
+}
+
+
 
 //===== Compute Point On Surf Given  U W (Between 0 1 ) =====//
 vec3d SurfCore::CompPnt01( double u, double w )
@@ -45,129 +132,86 @@ vec3d SurfCore::CompTanW01( double u01, double w01 )
 //===== Compute Second Derivative U,U   =====//
 vec3d SurfCore::CompTanUU( double u, double w )
 {
-    return CompBez( u, w, &BlendDeriv2Funcs, &BlendFuncs );
+    vec3d rtn;
+    surface_point_type p( m_Surface.f_uu( u, w ) );
+
+    rtn.set_xyz( p.x(), p.y(), p.z() );
+    return rtn;
 }
 
 //===== Compute Second Derivative W,W   =====//
 vec3d SurfCore::CompTanWW( double u, double w )
 {
-    return CompBez( u, w, &BlendFuncs, &BlendDeriv2Funcs );
+    vec3d rtn;
+    surface_point_type p( m_Surface.f_vv( u, w ) );
+
+    rtn.set_xyz( p.x(), p.y(), p.z() );
+    return rtn;
 }
 
 //===== Compute Second Derivative U,W   =====//
 vec3d SurfCore::CompTanUW( double u, double w )
 {
-    return CompBez( u, w, &BlendDerivFuncs, &BlendDerivFuncs );
+    vec3d rtn;
+    surface_point_type p( m_Surface.f_uv( u, w ) );
+
+    rtn.set_xyz( p.x(), p.y(), p.z() );
+    return rtn;
 }
 
 //===== Compute Tangent In U Direction   =====//
 vec3d SurfCore::CompTanU( double u, double w )
 {
-    return CompBez( u, w, &BlendDerivFuncs, &BlendFuncs );
+    vec3d rtn;
+    surface_point_type p( m_Surface.f_u( u, w ) );
+
+    rtn.set_xyz( p.x(), p.y(), p.z() );
+    return rtn;
 }
 
 //===== Compute Tangent In W Direction   =====//
 vec3d SurfCore::CompTanW( double u, double w )
 {
-    return CompBez( u, w, &BlendFuncs, &BlendDerivFuncs );
+    vec3d rtn;
+    surface_point_type p( m_Surface.f_v( u, w ) );
+
+    rtn.set_xyz( p.x(), p.y(), p.z() );
+    return rtn;
 }
 
 //===== Compute Point On Surf Given  U W =====//
 vec3d SurfCore::CompPnt( double u, double w )
 {
-    return CompBez( u, w, &BlendFuncs, &BlendFuncs );
-}
+    vec3d rtn;
 
-//===== Generic Bezier Surface Calculation  =====//
-vec3d SurfCore::CompBez( double u, double w,
-                     void ( *uBlendFun )( double u, double& F1, double& F2, double& F3, double& F4 ),
-                     void ( *wBlendFun )( double u, double& F1, double& F2, double& F3, double& F4 ) )
-{
-    vec3d pnt;
+    double u0 = m_Surface.get_u0();
+    double w0 = m_Surface.get_v0();
 
-    if ( m_NumU < 4 || m_NumW < 4 )
-    {
-        return pnt;
-    }
+    double umx = m_Surface.get_umax();
+    double wmx = m_Surface.get_vmax();
 
-    if ( u < 0.0 )
-    {
-        u = 0.0;
-    }
-    if ( w < 0.0 )
-    {
-        w = 0.0;
-    }
+    if ( u < u0 )
+        u = u0;
 
-    double F1u, F2u, F3u, F4u;
-    double F1w, F2w, F3w, F4w;
+    if ( w < w0 )
+        w = w0;
 
-    int trunc_u = ( int )u;
-    int u_ind = trunc_u * 3;
-    if ( u_ind >= m_NumU - 1 )
-    {
-        trunc_u = trunc_u - 1;
-        u_ind = m_NumU - 4;
-    }
-    uBlendFun( u - ( double )trunc_u, F1u, F2u, F3u, F4u );
+    if ( u > umx )
+        u = umx;
 
-    int trunc_w = ( int )w;
-    int w_ind = trunc_w * 3;
-    if ( w_ind >= m_NumW - 1 )
-    {
-        trunc_w = trunc_w - 1;
-        w_ind = m_NumW - 4;
-    }
-    wBlendFun( w - ( double )trunc_w, F1w, F2w, F3w, F4w );
+    if ( w > wmx )
+        w = wmx;
 
-    pnt =
-        ( ( m_Pnts[u_ind][w_ind] * F1u     + m_Pnts[u_ind + 1][w_ind] * F2u +
-            m_Pnts[u_ind + 2][w_ind] * F3u   + m_Pnts[u_ind + 3][w_ind] * F4u ) * F1w ) +
-        ( ( m_Pnts[u_ind][w_ind + 1] * F1u   + m_Pnts[u_ind + 1][w_ind + 1] * F2u +
-            m_Pnts[u_ind + 2][w_ind + 1] * F3u + m_Pnts[u_ind + 3][w_ind + 1] * F4u ) * F2w ) +
-        ( ( m_Pnts[u_ind][w_ind + 2] * F1u  + m_Pnts[u_ind + 1][w_ind + 2] * F2u +
-            m_Pnts[u_ind + 2][w_ind + 2] * F3u + m_Pnts[u_ind + 3][w_ind + 2] * F4u ) * F3w ) +
-        ( ( m_Pnts[u_ind][w_ind + 3] * F1u  + m_Pnts[u_ind + 1][w_ind + 3] * F2u +
-            m_Pnts[u_ind + 2][w_ind + 3] * F3u + m_Pnts[u_ind + 3][w_ind + 3] * F4u ) * F4w );
+    surface_point_type p( m_Surface.f( u, w ) );
 
-    return pnt;
-}
-
-//===== Compute Blending Functions  =====//
-void SurfCore::BlendFuncs( double u, double& F1, double& F2, double& F3, double& F4 )
-{
-    //==== Compute All Blending Functions ====//
-    double uu = u * u;
-    double one_u = 1.0 - u;
-    double one_u_sqr = one_u * one_u;
-
-    F1 = one_u * one_u_sqr;
-    F2 = 3.0 * u * one_u_sqr;
-    F3 = 3.0 * uu * one_u;
-    F4 = uu * u;
-}
-
-void SurfCore::BlendDerivFuncs( double u, double& F1, double& F2, double& F3, double& F4 )
-{
-    double uu    = u * u;
-    double one_u = 1.0 - u;
-    F1 = -3.0 * one_u * one_u;
-    F2 = 3.0 - 12.0 * u + 9.0 * uu;
-    F3 = 6.0 * u - 9.0 * uu;
-    F4 = 3.0 * uu;
-}
-
-void SurfCore::BlendDeriv2Funcs( double u, double& F1, double& F2, double& F3, double& F4 )
-{
-    F1 = 6.0 - 6.0 * u;
-    F2 = -12.0 + 18.0 * u;
-    F3 = 6.0 - 18.0 * u;
-    F4 = 6.0 * u;
+    rtn.set_xyz( p.x(), p.y(), p.z() );
+    return rtn;
 }
 
 //===== Compute Surface Curvature Metrics Given  U W =====//
 void SurfCore::CompCurvature( double u, double w, double& k1, double& k2, double& ka, double& kg )
 {
+
     double tol = 1e-10;
 
     double bump = 1e-3;
@@ -258,24 +302,43 @@ void SurfCore::CompCurvature( double u, double w, double& k1, double& k2, double
 
 bool SurfCore::LessThanY( double val )
 {
-    for ( int i = 0 ; i < m_NumU ; i++ )
-        for ( int j = 0 ; j < m_NumW ; j++ )
+    piecewise_surface_type::index_type ip, jp, nupatch, nvpatch;
+    nupatch = m_Surface.number_u_patches();
+    nvpatch = m_Surface.number_v_patches();
+
+    for( ip = 0; ip < nupatch; ++ip )
+    {
+        for( jp = 0; jp < nvpatch; ++jp )
         {
-            if ( m_Pnts[i][j][1] > val )
+            surface_patch_type::index_type icp, jcp;
+            surface_patch_type *patch = m_Surface.get_patch( ip, jp );
+
+            for( icp = 0; icp <= patch->degree_u(); ++icp )
             {
-                return false;
+                for( jcp = 0; jcp <= patch->degree_v(); ++jcp )
+                {
+                    surface_point_type cp;
+                    cp = patch->get_control_point( icp, jcp );
+                    if ( cp.y() > val )
+                    {
+                        return false;
+                    }
+                }
             }
         }
+    }
     return true;
 }
 
 bool SurfCore::OnYZeroPlane()
 {
+    vector< vector< vec3d > > pnts = GetControlPnts();
+
     double tol = 0.0000001;
     bool onPlaneFlag = true;
     for ( int i = 0 ; i < m_NumU ; i++ )                // Border Curve 1 w = 0
     {
-        if ( fabs( m_Pnts[i][0][1] ) > tol )
+        if ( fabs( pnts[i][0][1] ) > tol )
         {
             onPlaneFlag = false;
         }
@@ -288,7 +351,7 @@ bool SurfCore::OnYZeroPlane()
     onPlaneFlag = true;
     for ( int i = 0 ; i < m_NumU ; i++ )                // Border Curve 2 w = max
     {
-        if ( fabs( m_Pnts[i][m_NumW - 1][1] ) > tol )
+        if ( fabs( pnts[i][m_NumW - 1][1] ) > tol )
         {
             onPlaneFlag = false;
         }
@@ -301,7 +364,7 @@ bool SurfCore::OnYZeroPlane()
     onPlaneFlag = true;
     for ( int i = 0 ; i < m_NumW ; i++ )                // Border Curve 3 u = 0
     {
-        if ( fabs( m_Pnts[0][i][1] ) > tol )
+        if ( fabs( pnts[0][i][1] ) > tol )
         {
             onPlaneFlag = false;
         }
@@ -314,7 +377,7 @@ bool SurfCore::OnYZeroPlane()
     onPlaneFlag = true;
     for ( int i = 0 ; i < m_NumW ; i++ )                // Border Curve 4 u = max
     {
-        if ( fabs( m_Pnts[m_NumU - 1][i][1] ) > tol )
+        if ( fabs( pnts[m_NumU - 1][i][1] ) > tol )
         {
             onPlaneFlag = false;
         }
@@ -330,53 +393,74 @@ bool SurfCore::OnYZeroPlane()
 bool SurfCore::PlaneAtYZero()
 {
     double tol = 0.000001;
-    for ( int i = 0 ; i < m_NumU ; i++ )
-        for ( int j = 0 ; j < m_NumW ; j++ )
+
+    piecewise_surface_type::index_type ip, jp, nupatch, nvpatch;
+    nupatch = m_Surface.number_u_patches();
+    nvpatch = m_Surface.number_v_patches();
+
+    for( ip = 0; ip < nupatch; ++ip )
+    {
+        for( jp = 0; jp < nvpatch; ++jp )
         {
-            double yval = m_Pnts[i][j][1];
-            if ( fabs( yval ) > tol )
+            surface_patch_type::index_type icp, jcp;
+            surface_patch_type *patch = m_Surface.get_patch( ip, jp );
+
+            for( icp = 0; icp <= patch->degree_u(); ++icp )
             {
-                return false;
+                for( jcp = 0; jcp <= patch->degree_v(); ++jcp )
+                {
+                    surface_point_type cp;
+                    cp = patch->get_control_point( icp, jcp );
+                    if ( fabs( cp.y() ) > tol )
+                    {
+                        return false;
+                    }
+                }
             }
         }
+    }
     return true;
 }
 
 void SurfCore::LoadBorderCurves( vector< vector <vec3d> > & borderCurves )
 {
+    vector< vector< vec3d > > pnts = GetControlPnts();
+
     vector< vec3d > borderPnts;
 
     borderPnts.clear();
     for ( int i = 0 ; i < m_NumU ; i++ )                // Border Curve w = 0
     {
-        borderPnts.push_back( m_Pnts[i][0] );
+        borderPnts.push_back( pnts[i][0] );
     }
     borderCurves.push_back( borderPnts );
 
     borderPnts.clear();
     for ( int i = 0 ; i < m_NumU ; i++ )                // Border Curve w = max
     {
-        borderPnts.push_back( m_Pnts[i][m_NumW - 1] );
+        borderPnts.push_back( pnts[i][m_NumW - 1] );
     }
     borderCurves.push_back( borderPnts );
 
     borderPnts.clear();
     for ( int i = 0 ; i < m_NumW ; i++ )                // Border Curve u = 0
     {
-        borderPnts.push_back( m_Pnts[0][i] );
+        borderPnts.push_back( pnts[0][i] );
     }
     borderCurves.push_back( borderPnts );
 
     borderPnts.clear();
     for ( int i = 0 ; i < m_NumW ; i++ )                // Border Curve u = max
     {
-        borderPnts.push_back( m_Pnts[m_NumU - 1][i] );
+        borderPnts.push_back( pnts[m_NumU - 1][i] );
     }
     borderCurves.push_back( borderPnts );
 }
 
 bool SurfCore::SurfMatch( SurfCore* otherSurf )
 {
+    vector< vector< vec3d > > pnts = GetControlPnts();
+
     double tol = 0.00000001;
 
     if ( otherSurf )
@@ -392,7 +476,7 @@ bool SurfCore::SurfMatch( SurfCore* otherSurf )
             {
                 for ( int j = 0; j < m_NumW; j++ )
                 {
-                    if ( dist_squared( m_Pnts[ i ][ j ], oPnts[ i ][ j ] ) > tol )
+                    if ( dist_squared( pnts[ i ][ j ], oPnts[ i ][ j ] ) > tol )
                     {
                         match = false;
                         break;
@@ -414,30 +498,7 @@ bool SurfCore::SurfMatch( SurfCore* otherSurf )
             {
                 for ( int j = 0; j < m_NumW; j++ )
                 {
-                    if ( dist_squared( m_Pnts[ i ][ j ], oPnts[ m_NumU - 1 - i ][ j ] ) > tol )
-                    {
-                        match = false;
-                        break;
-                    }
-                }
-                if ( !match )
-                {
-                    break;
-                }
-            }
-
-
-            if ( match )
-            {
-                return true;
-            }
-
-            match = true;
-            for ( int i = 0; i < m_NumU; i++ )
-            {
-                for ( int j = 0; j < m_NumW; j++ )
-                {
-                    if ( dist_squared( m_Pnts[ i ][ j ], oPnts[ i ][ m_NumW - 1 - j ] ) > tol )
+                    if ( dist_squared( pnts[ i ][ j ], oPnts[ m_NumU - 1 - i ][ j ] ) > tol )
                     {
                         match = false;
                         break;
@@ -460,7 +521,30 @@ bool SurfCore::SurfMatch( SurfCore* otherSurf )
             {
                 for ( int j = 0; j < m_NumW; j++ )
                 {
-                    if ( dist_squared( m_Pnts[ i ][ j ], oPnts[ m_NumU - 1 - i ][ m_NumW - 1 - j ] ) > tol )
+                    if ( dist_squared( pnts[ i ][ j ], oPnts[ i ][ m_NumW - 1 - j ] ) > tol )
+                    {
+                        match = false;
+                        break;
+                    }
+                }
+                if ( !match )
+                {
+                    break;
+                }
+            }
+
+
+            if ( match )
+            {
+                return true;
+            }
+
+            match = true;
+            for ( int i = 0; i < m_NumU; i++ )
+            {
+                for ( int j = 0; j < m_NumW; j++ )
+                {
+                    if ( dist_squared( pnts[ i ][ j ], oPnts[ m_NumU - 1 - i ][ m_NumW - 1 - j ] ) > tol )
                     {
                         match = false;
                         break;
@@ -485,7 +569,7 @@ bool SurfCore::SurfMatch( SurfCore* otherSurf )
             {
                 for ( int j = 0; j < m_NumW; j++ )
                 {
-                    if ( dist_squared( m_Pnts[ i ][ j ], oPnts[ j ][ i ] ) > tol )
+                    if ( dist_squared( pnts[ i ][ j ], oPnts[ j ][ i ] ) > tol )
                     {
                         match = false;
                         break;
@@ -507,7 +591,7 @@ bool SurfCore::SurfMatch( SurfCore* otherSurf )
             {
                 for ( int j = 0; j < m_NumW; j++ )
                 {
-                    if ( dist_squared( m_Pnts[ i ][ j ], oPnts[ m_NumW - 1 - j ][ i ] ) > tol )
+                    if ( dist_squared( pnts[ i ][ j ], oPnts[ m_NumW - 1 - j ][ i ] ) > tol )
                     {
                         match = false;
                         break;
@@ -529,7 +613,7 @@ bool SurfCore::SurfMatch( SurfCore* otherSurf )
             {
                 for ( int j = 0; j < m_NumW; j++ )
                 {
-                    if ( dist_squared( m_Pnts[ i ][ j ], oPnts[ j ][ m_NumU - 1 - i ] ) > tol )
+                    if ( dist_squared( pnts[ i ][ j ], oPnts[ j ][ m_NumU - 1 - i ] ) > tol )
                     {
                         match = false;
                         break;
@@ -551,7 +635,7 @@ bool SurfCore::SurfMatch( SurfCore* otherSurf )
             {
                 for ( int j = 0; j < m_NumW; j++ )
                 {
-                    if ( dist_squared( m_Pnts[ i ][ j ], oPnts[ m_NumW - 1 - j ][ m_NumU - 1 - i ] ) > tol )
+                    if ( dist_squared( pnts[ i ][ j ], oPnts[ m_NumW - 1 - j ][ m_NumU - 1 - i ] ) > tol )
                     {
                         match = false;
                         break;

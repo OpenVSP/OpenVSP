@@ -8,6 +8,20 @@
 
 #include "Vec3d.h"
 
+#include "eli/code_eli.hpp"
+
+#include "eli/geom/surface/bezier.hpp"
+#include "eli/geom/surface/piecewise.hpp"
+#include "eli/geom/curve/piecewise_creator.hpp"
+#include "eli/geom/surface/piecewise_general_skinning_surface_creator.hpp"
+
+typedef eli::geom::surface::bezier<double, 3> surface_patch_type;
+typedef eli::geom::surface::piecewise<eli::geom::surface::bezier, double, 3> piecewise_surface_type;
+
+typedef piecewise_surface_type::tolerance_type surface_tolerance_type;
+typedef eli::geom::curve::piecewise_cubic_spline_creator<double, 3, surface_tolerance_type> piecewise_cubic_spline_creator_type;
+typedef eli::geom::surface::connection_data<double, 3, surface_tolerance_type> rib_data_type;
+
 #include <vector>
 using std::vector;
 
@@ -53,10 +67,7 @@ public:
     }
 
     void SetControlPnts( vector< vector < vec3d > > pnts );
-    vector< vector< vec3d > > GetControlPnts()
-    {
-        return m_Pnts;
-    }
+    vector< vector< vec3d > > GetControlPnts();
 
 
     bool LessThanY( double val );
@@ -74,19 +85,12 @@ protected:
 
     double m_MaxU;
     double m_MaxW;
-    vector< vector< vec3d > > m_Pnts;           // Control Pnts
+
+    piecewise_surface_type m_Surface;
 
     vec3d CompTanUU( double u, double w );
     vec3d CompTanWW( double u, double w );
     vec3d CompTanUW( double u, double w );
-
-    vec3d CompBez( double u, double w,
-                   void ( *uBlendFun )( double u, double& F1, double& F2, double& F3, double& F4 ),
-                   void ( *wBlendFun )( double u, double& F1, double& F2, double& F3, double& F4 ) );
-
-    static void BlendFuncs( double u, double& F1, double& F2, double& F3, double& F4 );
-    static void BlendDerivFuncs( double u, double& F1, double& F2, double& F3, double& F4 );
-    static void BlendDeriv2Funcs( double u, double& F1, double& F2, double& F3, double& F4 );
 };
 
 #endif
