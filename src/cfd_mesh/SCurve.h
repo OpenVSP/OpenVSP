@@ -100,6 +100,11 @@ public:
         return m_UWCrv;
     }
 
+    void SetUWCrv( const Bezier_curve &crv )
+    {
+        m_UWCrv = crv;
+    }
+
     void FlipDir();
 
     void Draw();
