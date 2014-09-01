@@ -45,18 +45,18 @@ public:
     Bezier_curve();
     ~Bezier_curve();
 
-    int  get_num_sections()
+    int  get_num_sections() const
     {
         return m_Curve.number_segments();
     }
 
     void put_pnts( const vector< vec3d > &pnts_in );
-    void get_pnts( vector< vec3d > &pnts_out );
+    void get_pnts( vector< vec3d > &pnts_out ) const;
 
-    vec3d first_pnt();
-    vec3d last_pnt();
+    vec3d first_pnt() const;
+    vec3d last_pnt() const;
 
-    vec3d comp_pnt( double u );                   // u between 0 and 1
+    vec3d comp_pnt( double u ) const;                   // u between 0 and 1
 
     void buildCurve( const vector< vec3d > & pVec );
     void flipCurve();

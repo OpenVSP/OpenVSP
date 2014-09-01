@@ -41,7 +41,7 @@ Bezier_curve::~Bezier_curve()
 }
 
 //===== Compute Point  =====//
-vec3d Bezier_curve::comp_pnt( double u )
+vec3d Bezier_curve::comp_pnt( double u ) const
 {
     vec3d rtn;
 
@@ -204,7 +204,7 @@ void Bezier_curve::put_pnts( const vector< vec3d > &pnts_in )
     }
 }
 
-void Bezier_curve::get_pnts( vector< vec3d > &pnts_out )
+void Bezier_curve::get_pnts( vector< vec3d > &pnts_out ) const
 {
     int nsect = m_Curve.number_segments();
     pnts_out.resize( nsect * 3 + 1 );
@@ -223,7 +223,7 @@ void Bezier_curve::get_pnts( vector< vec3d > &pnts_out )
     }
 }
 
-vec3d Bezier_curve::first_pnt()  // Could be implemented with comp_pnt, but should be faster/more accurate.
+vec3d Bezier_curve::first_pnt() const  // Could be implemented with comp_pnt, but should be faster/more accurate.
 {
     curve_segment_type c;
     m_Curve.get( c, 0 );
@@ -232,7 +232,7 @@ vec3d Bezier_curve::first_pnt()  // Could be implemented with comp_pnt, but shou
     return p;
 }
 
-vec3d Bezier_curve::last_pnt()
+vec3d Bezier_curve::last_pnt() const
 {
     curve_segment_type c;
     m_Curve.get( c, m_Curve.number_segments() - 1 );
