@@ -28,8 +28,13 @@ bool ICurve::Match( SCurve* crv_A, SCurve* crv_B )
     vector< vec3d > control_pnts_A;
     vector< vec3d > control_pnts_B;
 
-    crv_A->LoadControlPnts3D( control_pnts_A );
-    crv_B->LoadControlPnts3D( control_pnts_B );
+    Bezier_curve xyzcrvA = crv_A->GetUWCrv();
+    xyzcrvA.UWCurveToXYZCurve( crv_A->GetSurf() );
+    xyzcrvA.get_pnts( control_pnts_A );
+
+    Bezier_curve xyzcrvB = crv_B->GetUWCrv();
+    xyzcrvB.UWCurveToXYZCurve( crv_B->GetSurf() );
+    xyzcrvB.get_pnts( control_pnts_B );
 
     if ( control_pnts_A.size() == 0 )
     {
