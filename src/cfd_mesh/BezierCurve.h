@@ -51,7 +51,6 @@ public:
     }
 
     void put_pnts( const vector< vec3d > &pnts_in );
-    void get_pnts( vector< vec3d > &pnts_out ) const;
 
     vec3d first_pnt() const;
     vec3d last_pnt() const;
