@@ -40,19 +40,15 @@ public:
     Bezier_curve();
     ~Bezier_curve();
 
-    void init_num_sections( int num_sections_in );
     int  get_num_sections()
     {
         return( num_sections );
     }
     int  get_num_control_pnts()
     {
-        return( num_sections * 3 + 1 );
+        return pnts.size();
     }
-    void put_pnt( int ind, const vec3d& pnt_in )
-    {
-        pnts[ind] = pnt_in;
-    }
+    void put_pnts( const vector< vec3d > &pnts_in );
     vec3d& get_pnt( int ind )
     {
         return( pnts[ind] );

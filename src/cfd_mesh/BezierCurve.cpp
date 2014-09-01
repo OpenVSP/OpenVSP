@@ -42,19 +42,6 @@ void Bezier_curve::blend_funcs( double u, double& F1, double& F2, double& F3, do
     F4 = uu * u;
 }
 
-//===== Initialize Number of Sections  =====//
-void Bezier_curve::init_num_sections( int num_sections_in )
-{
-    if ( num_sections == num_sections_in )      // Already correct size
-    {
-        return;
-    }
-
-    num_sections = num_sections_in;
-//  pnts.init(num_sections*3 + 1);
-    pnts.resize( num_sections * 3 + 1 );
-}
-
 //===== Compute Point  =====//
 vec3d Bezier_curve::comp_pnt( int sec_num, double u )
 {
@@ -108,7 +95,8 @@ void Bezier_curve::buildCurve( const vector< vec3d > & pVec, double tanStr, int 
     vec3d tan;
 
     //==== Allocate Space ====//
-    init_num_sections( pVec.size() - 1  );      // Init New Curve
+    num_sections = pVec.size() - 1;
+    pnts.resize( num_sections * 3 + 1 );
 
     //==== First Point ====//
     pnts[0] = pVec[0];
@@ -164,4 +152,11 @@ void Bezier_curve::buildCurve( const vector< vec3d > & pVec, double tanStr, int 
 void Bezier_curve::flipCurve()
 {
     std::reverse( pnts.begin(), pnts.end() );
+}
+
+void Bezier_curve::put_pnts( const vector< vec3d > &pnts_in )
+{
+    int npts = pnts_in.size();
+    num_sections = ( npts - 1 ) / 3;
+    pnts = pnts_in;
 }

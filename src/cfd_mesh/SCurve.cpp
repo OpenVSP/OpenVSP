@@ -33,13 +33,7 @@ void SCurve::SetBezierControlPnts( vector< vec3d > & pnts )
         return;
     }
 
-    int num_sects = ( ( int )pnts.size() - 1 ) / 3;
-    m_UWCrv.init_num_sections( num_sects );
-
-    for ( int i = 0 ; i < ( int )pnts.size() ; i++ )
-    {
-        m_UWCrv.put_pnt( i, pnts[i] );
-    }
+    m_UWCrv.put_pnts( pnts );
 }
 
 void SCurve::BuildBezierCurve( vector< vec3d > & pnts_to_interpolate )
