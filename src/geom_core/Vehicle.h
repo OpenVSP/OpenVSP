@@ -43,19 +43,9 @@ class VehicleGuiDraw
 {
 public:
     /*!
-    * Constructor.
-    */
-    VehicleGuiDraw();
-    /*!
-    * Destructor.
-    */
-    ~VehicleGuiDraw();
-
-public:
-    /*!
     * Get Labels pointer.
     */
-    LabelMgr * getLabelMgr()
+    static LabelMgr * getLabelMgr()
     {
         return LabelMgr::getInstance();
     }
@@ -63,7 +53,7 @@ public:
     /*!
     * Get Lights pointer.
     */
-    LightMgr * getLightMgr()
+    static LightMgr * getLightMgr()
     {
         return LightMgr::getInstance();
     }
@@ -88,7 +78,7 @@ public:
     void UpdateGui();
     void RunScript( const string & file_name, const string & function_name = "void main()" );
 
-    Geom* FindGeom( string geom_id );
+    Geom* FindGeom( const string & geom_id );
     vector< Geom* > FindGeomVec( const vector< string > & geom_id_vec );
 
     string CreateGeom( const GeomType & type );
@@ -101,19 +91,19 @@ public:
     //==== Get All Geoms (Does NOT Return Collapsed Geoms if check_display_flag == true) ====//
     vector< string > GetGeomVec( bool check_display_flag = false );
     vector< Geom* > GetGeomStoreVec()                                { return m_GeomStoreVec; }
-    void AddActiveGeom( string id );
-    void SetActiveGeom( string id );
-    void SetActiveGeomVec( vector< string > & geom_id_vec )            { m_ActiveGeom = geom_id_vec; }
-    void ClearActiveGeom()                                            { m_ActiveGeom.clear(); }
-    vector< string > GetActiveGeomVec()                                { return m_ActiveGeom; }
+    void AddActiveGeom( const string & id );
+    void SetActiveGeom( const string & id );
+    void SetActiveGeomVec( vector< string > const & geom_id_vec )    { m_ActiveGeom = geom_id_vec; }
+    void ClearActiveGeom()                                           { m_ActiveGeom.clear(); }
+    vector< string > GetActiveGeomVec()                              { return m_ActiveGeom; }
     vector< Geom* > GetActiveGeomPtrVec()                            { return FindGeomVec( m_ActiveGeom ); }
 
-    bool IsGeomActive( string geom_id );
+    bool IsGeomActive( const string & geom_id );
     void ReorderActiveGeom( int direction );
 
     void CutActiveGeomVec();
     void CopyActiveGeomVec();
-    void CutGeomVec( vector<string> cut_vec );
+    void CutGeomVec( const vector<string> & cut_vec );
     void DeleteClipBoard();
     void PasteClipboard();
 
@@ -133,7 +123,7 @@ public:
     //==== Geom Type Data =====//
     vector< string > GetValidTypeGeoms();
     vector< GeomType > GetEditableGeomTypes();
-    void AddType( string geom_id );
+    void AddType( const string & geom_id );
     void DeleteType( int index );
 
     int GetNumGeomTypes()                                    { return ( int )m_GeomTypeVec.size(); }
@@ -153,10 +143,10 @@ public:
 
     int ReadXMLFile( const string & file_name );
 
-    void SetVSP3FileName( string f_name )                    { m_VSP3FileName = f_name; }
+    void SetVSP3FileName( const string & f_name )           { m_VSP3FileName = f_name; }
     string GetVSP3FileName()                                { return m_VSP3FileName; }
 
-    VehicleGuiDraw * getVGuiDraw()
+    const VehicleGuiDraw * getVGuiDraw() const
     {
         return &m_VGuiDraw;
     }
@@ -188,19 +178,19 @@ public:
     bool getExportDegenGeomCsvFile( )
     {
         return m_exportDegenGeomCsvFile;
-    };
+    }
     bool getExportDegenGeomMFile( )
     {
         return m_exportDegenGeomMFile;
-    };
+    }
     void setExportDegenGeomCsvFile( bool b )
     {
         m_exportDegenGeomCsvFile = b;
-    };
+    }
     void setExportDegenGeomMFile( bool b )
     {
         m_exportDegenGeomMFile = b;
-    };
+    }
 
     //==== Import Files ====//
     string ImportFile( const string & file_name, int file_type );
@@ -276,8 +266,8 @@ protected:
 
     BndBox m_BBox;                              // Bounding Box Around All Geometries
 
-    vector< string > CopyGeomVec( vector<string> geom_vec );
-    void InsertIntoActiveDeque( string add_id, string parent_id );  // Insert Geom After Parent
+    vector< string > CopyGeomVec( const vector<string> & geom_vec );
+    void InsertIntoActiveDeque( const string & add_id, const string & parent_id );  // Insert Geom After Parent
 
     //==== Primary file name ====//
     string m_VSP3FileName;
@@ -295,7 +285,7 @@ protected:
     bool m_exportDegenGeomCsvFile;
     bool m_exportDegenGeomMFile;
 
-    void DeleteGeom( string geom_id );
+    void DeleteGeom( const string & geom_id );
 
     // File Version Number
     int m_FileOpenVersion;
