@@ -48,6 +48,11 @@ public:
 
     vec3d CompPnt( double u, double w ) const;
 
+    const SurfCore* GetSurfCore() const
+    {
+        return &m_SurfCore;
+    }
+
     SurfCore* GetSurfCore()
     {
         return &m_SurfCore;
