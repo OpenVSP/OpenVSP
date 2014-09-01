@@ -61,6 +61,7 @@ public:
     vec3d comp_pnt( double u );                   // u between 0 and 1
 
     void buildCurve( const vector< vec3d > & pVec, double tanStr, int closeFlag );
+    void flipCurve();
 };
 
 #endif

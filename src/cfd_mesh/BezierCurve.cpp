@@ -14,7 +14,7 @@
 //******************************************************************************
 
 #include "BezierCurve.h"
-
+#include <algorithm>
 
 //===== Constructor  =====//
 Bezier_curve::Bezier_curve()
@@ -161,3 +161,7 @@ void Bezier_curve::buildCurve( const vector< vec3d > & pVec, double tanStr, int 
 
 }
 
+void Bezier_curve::flipCurve()
+{
+    std::reverse( pnts.begin(), pnts.end() );
+}

@@ -743,18 +743,7 @@ void SCurve::Tesselate( vector< double > & u_tess )
 
 void SCurve::FlipDir()
 {
-    int i;
-    vector <vec3d> pnts;
-    int num_pnts = m_UWCrv.get_num_control_pnts();
-    for (  i = 0 ; i < num_pnts ; i++ )
-    {
-        pnts.push_back( m_UWCrv.get_pnt( i ) );
-    }
-
-    for (  i = 0 ; i < num_pnts ; i++ )
-    {
-        m_UWCrv.put_pnt( i, pnts[num_pnts - 1 - i] );
-    }
+    m_UWCrv.flipCurve();
 }
 
 vec3d SCurve::CompPntUW( double u )
