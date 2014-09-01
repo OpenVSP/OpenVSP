@@ -49,13 +49,13 @@ public:
         return GetMaxU() * GetMaxW();
     }
 
-    int GetNumU()
+    int GetNumUPatches()
     {
-        return m_NumU;
+        return m_Surface.number_u_patches();
     }
-    int GetNumW()
+    int GetNumWPatches()
     {
-        return m_NumW;
+        return m_Surface.number_v_patches();
     }
     double GetMaxU()
     {

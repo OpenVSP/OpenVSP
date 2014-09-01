@@ -214,8 +214,8 @@ double Surf::TargetLen( double u, double w, double gap, double radfrac )
 
 void Surf::BuildTargetMap( vector< MapSource* > &sources, int sid )
 {
-    int npatchu = ( m_SurfCore.GetNumU() - 1 ) / 3;
-    int npatchw = ( m_SurfCore.GetNumW() - 1 ) / 3;
+    int npatchu = m_SurfCore.GetNumUPatches();
+    int npatchw = m_SurfCore.GetNumWPatches();
 
     int nmapu = npatchu * ( m_NumMap - 1 ) + 1;
     int nmapw = npatchw * ( m_NumMap - 1 ) + 1;
@@ -1786,8 +1786,8 @@ void Surf::Draw()
 
 void Surf::SetDefaultParmMap()
 {
-	int num_u_map = 1 + ( m_SurfCore.GetNumU() - 1 ) / 3;
-    int num_w_map = 1 + ( m_SurfCore.GetNumW() - 1 ) / 3;
+    int num_u_map = 1 + m_SurfCore.GetNumUPatches();
+    int num_w_map = 1 + m_SurfCore.GetNumWPatches();
 
     u_to_vspsurf.resize( num_u_map );
     w_to_vspsurf.resize( num_w_map );
