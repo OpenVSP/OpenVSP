@@ -46,7 +46,7 @@ public:
 
     double GetUWArea()
     {
-        return m_MaxU * m_MaxW;
+        return GetMaxU() * GetMaxW();
     }
 
     int GetNumU()
@@ -59,11 +59,11 @@ public:
     }
     double GetMaxU()
     {
-        return m_MaxU;
+        return m_Surface.get_umax();
     }
     double GetMaxW()
     {
-        return m_MaxW;
+        return m_Surface.get_vmax();
     }
 
     void SetControlPnts( vector< vector < vec3d > > pnts );
@@ -82,9 +82,6 @@ protected:
 
     int m_NumU;
     int m_NumW;
-
-    double m_MaxU;
-    double m_MaxW;
 
     piecewise_surface_type m_Surface;
 

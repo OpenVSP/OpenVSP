@@ -34,8 +34,6 @@ void SurfCore::SetControlPnts( vector< vector < vec3d > > pnts )
 {
     m_NumU = pnts.size();
     m_NumW = pnts[0].size();
-    m_MaxU = ( m_NumU - 1 ) / 3;
-    m_MaxW = ( m_NumW - 1 ) / 3;
 
     // Assume Cubic patches.
     int nupatch = ( m_NumU - 1 ) / 3;
@@ -114,19 +112,19 @@ vector< vector< vec3d > > SurfCore::GetControlPnts()
 //===== Compute Point On Surf Given  U W (Between 0 1 ) =====//
 vec3d SurfCore::CompPnt01( double u, double w )
 {
-    return CompPnt( u * m_MaxU, w * m_MaxW );
+    return CompPnt( u * GetMaxU(), w * GetMaxW() );
 }
 
 //===== Compute Tangent In U Direction   =====//
 vec3d SurfCore::CompTanU01( double u01, double w01 )
 {
-    return CompTanU( u01 * m_MaxU, w01 * m_MaxW );
+    return CompTanU( u01 * GetMaxU(), w01 * GetMaxW() );
 }
 
 //===== Compute Tangent In W Direction   =====//
 vec3d SurfCore::CompTanW01( double u01, double w01 )
 {
-    return CompTanW( u01 * m_MaxU, w01 * m_MaxW );
+    return CompTanW( u01 * GetMaxU(), w01 * GetMaxW() );
 }
 
 //===== Compute Second Derivative U,U   =====//
@@ -225,8 +223,8 @@ void SurfCore::CompCurvature( double u, double w, double& k1, double& k2, double
 
     if( E < tol && G < tol )
     {
-        double umid = m_MaxU / 2.0;
-        double wmid = m_MaxW / 2.0;
+        double umid = GetMaxU() / 2.0;
+        double wmid = GetMaxW() / 2.0;
 
         u = u + ( umid - u ) * bump;
         w = w + ( wmid - w ) * bump;
@@ -239,7 +237,7 @@ void SurfCore::CompCurvature( double u, double w, double& k1, double& k2, double
     }
     else if( E < tol ) // U direction degenerate
     {
-        double wmid = m_MaxW / 2.0;
+        double wmid = GetMaxW() / 2.0;
         w = w + ( wmid - w ) * bump;
 
         S_u = CompTanU( u, w );
@@ -250,7 +248,7 @@ void SurfCore::CompCurvature( double u, double w, double& k1, double& k2, double
     }
     else if( G < tol ) // W direction degenerate
     {
-        double umid = m_MaxU / 2.0;
+        double umid = GetMaxU() / 2.0;
         u = u + ( umid - u ) * bump;
 
         S_u = CompTanU( u, w );
