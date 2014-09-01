@@ -58,6 +58,16 @@ public:
         return( pnts[ind] );
     }
 
+    vec3d& first_pnt()  // Could be implemented with comp_pnt, but should be faster/more accurate.
+    {
+        return pnts[0];
+    }
+
+    vec3d& last_pnt()
+    {
+        return pnts.back();
+    }
+
     vec3d comp_pnt( double u );                   // u between 0 and 1
 
     void buildCurve( const vector< vec3d > & pVec, double tanStr, int closeFlag );

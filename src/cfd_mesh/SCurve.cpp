@@ -78,12 +78,6 @@ void SCurve::LoadControlPnts3D( vector< vec3d > & control_pnts )
 
 void SCurve::ExtractBorderControlPnts( vector< vec3d > & control_pnts )
 {
-    int np = m_UWCrv.get_num_control_pnts();
-    if ( np < 2 )
-    {
-        return;
-    }
-
     vector< vector< vec3d > > cpnts = m_Surf->GetSurfCore()->GetControlPnts();
     int nu = cpnts.size();
     if ( nu < 4 )
@@ -97,8 +91,8 @@ void SCurve::ExtractBorderControlPnts( vector< vec3d > & control_pnts )
     }
 
     double tol = 1.0e-12;
-    vec3d uw0 = m_UWCrv.get_pnt( 0 );
-    vec3d uw1 = m_UWCrv.get_pnt( np - 1 );
+    vec3d uw0 = m_UWCrv.first_pnt();
+    vec3d uw1 = m_UWCrv.last_pnt();
 
     if ( fabs( uw0.x() - uw1.x() ) < tol )
     {
@@ -189,10 +183,8 @@ void SCurve::BorderTesselate( )
     m_UTess.clear();
     m_UWTess.clear();
 
-    int ncp = m_UWCrv.get_num_control_pnts();
-
-    vec3d uwstart = m_UWCrv.get_pnt( 0 );
-    vec3d uwend = m_UWCrv.get_pnt( ncp - 1 );
+    vec3d uwstart = m_UWCrv.first_pnt();
+    vec3d uwend = m_UWCrv.last_pnt();
 
     double ust = uwstart[0];
     double wst = uwstart[1];
