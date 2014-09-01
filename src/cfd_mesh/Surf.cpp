@@ -612,7 +612,7 @@ vec2d Surf::ClosestUW( vec3d & pnt, double guess_u, double guess_w, double guess
     return vec2d( u, w );
 }
 
-vec2d Surf::ClosestUW( vec3d & pnt_in, double guess_u, double guess_w )
+vec2d Surf::ClosestUW( vec3d & pnt_in, double guess_u, double guess_w ) const
 {
     int Max_Iter  = 10;
     double UW_Tol = 1.0e-14;
@@ -707,7 +707,7 @@ vec2d Surf::ClosestUW( vec3d & pnt_in, double guess_u, double guess_w )
 
 
 //===== Compute Point On Patch  =====//
-void Surf::CompDeltaUW( vec3d& pnt_in, vec3d& guess_pnt, double norm_uw[2], double delta_uw[2] )
+void Surf::CompDeltaUW( vec3d& pnt_in, vec3d& guess_pnt, double norm_uw[2], double delta_uw[2] ) const
 {
     vec3d tan_u = m_SurfCore.CompTanU01( norm_uw[0], norm_uw[1] );
     vec3d tan_w = m_SurfCore.CompTanW01( norm_uw[0], norm_uw[1] );
@@ -1802,7 +1802,7 @@ void Surf::SetDefaultParmMap()
     }
 }
 
-vec3d Surf::CompPnt( double u, double w )
+vec3d Surf::CompPnt( double u, double w ) const
 {
     return m_SurfCore.CompPnt( u, w );
 }

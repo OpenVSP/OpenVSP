@@ -46,7 +46,7 @@ public:
     void ReadSurf( FILE* file_id );
     void LoadControlPnts( vector< vector< vec3d > > & pnts );
 
-    vec3d CompPnt( double u, double w );
+    vec3d CompPnt( double u, double w ) const;
 
     SurfCore* GetSurfCore()
     {
@@ -67,8 +67,8 @@ public:
 
     vec2d ClosestUW( vec3d & pnt, double guess_u, double guess_w, double guess_del_u, double guess_del_w, double tol );
 
-    vec2d ClosestUW( vec3d & pnt_in, double guess_u, double guess_w );
-    void CompDeltaUW( vec3d& pnt_in, vec3d& guess_pnt, double norm_uw[2], double delta_uw[2] );
+    vec2d ClosestUW( vec3d & pnt_in, double guess_u, double guess_w ) const;
+    void CompDeltaUW( vec3d& pnt_in, vec3d& guess_pnt, double norm_uw[2], double delta_uw[2] ) const;
 
 
     void FindBorderCurves();
