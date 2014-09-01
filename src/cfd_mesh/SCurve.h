@@ -73,8 +73,6 @@ public:
 
     double Length( int num_segs );
 
-    void LoadControlPnts3D( vector< vec3d > & control_pnts );
-
     void ExtractBorderControlPnts( vector< vec3d > & control_pnts );
 
     vector< double > GetUTessPnts()

@@ -59,20 +59,6 @@ double SCurve::Length( int num_segs )
     return total_dist;
 }
 
-void SCurve::LoadControlPnts3D( vector< vec3d > & control_pnts )
-{
-    vector < vec3d > cpnts;
-    m_UWCrv.get_pnts( cpnts );
-
-	int num_pnts = cpnts.size();
-
-    for ( int i = 0 ; i < num_pnts ; i++ )
-    {
-        vec3d uw = cpnts[i];
-        control_pnts.push_back( m_Surf->CompPnt( uw.x(), uw.y() ) );
-    }
-}
-
 void SCurve::ExtractBorderControlPnts( vector< vec3d > & control_pnts )
 {
     vector< vector< vec3d > > cpnts = m_Surf->GetSurfCore()->GetControlPnts();
