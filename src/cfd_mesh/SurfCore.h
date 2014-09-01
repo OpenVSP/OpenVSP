@@ -34,56 +34,56 @@ public:
     virtual ~SurfCore();
 
     //===== Bezier Funcs ====//
-    vec3d CompPnt( double u, double w );
-    vec3d CompTanU( double u, double w );
-    vec3d CompTanW( double u, double w );
+    vec3d CompPnt( double u, double w ) const;
+    vec3d CompTanU( double u, double w ) const;
+    vec3d CompTanW( double u, double w ) const;
 
-    vec3d CompPnt01( double u, double w );
-    vec3d CompTanU01( double u, double w );
-    vec3d CompTanW01( double u, double w );
+    vec3d CompPnt01( double u, double w ) const;
+    vec3d CompTanU01( double u, double w ) const;
+    vec3d CompTanW01( double u, double w ) const;
 
-    void CompCurvature( double u, double w, double& k1, double& k2, double& ka, double& kg );
+    void CompCurvature( double u, double w, double& k1, double& k2, double& ka, double& kg ) const;
 
-    double GetUWArea()
+    double GetUWArea() const
     {
         return GetMaxU() * GetMaxW();
     }
 
-    int GetNumUPatches()
+    int GetNumUPatches() const
     {
         return m_Surface.number_u_patches();
     }
-    int GetNumWPatches()
+    int GetNumWPatches() const
     {
         return m_Surface.number_v_patches();
     }
-    double GetMaxU()
+    double GetMaxU() const
     {
         return m_Surface.get_umax();
     }
-    double GetMaxW()
+    double GetMaxW() const
     {
         return m_Surface.get_vmax();
     }
 
     void SetControlPnts( vector< vector < vec3d > > pnts );
-    vector< vector< vec3d > > GetControlPnts();
+    vector< vector< vec3d > > GetControlPnts() const;
 
 
-    bool LessThanY( double val );
-    bool OnYZeroPlane();
-    bool PlaneAtYZero();
+    bool LessThanY( double val ) const;
+    bool OnYZeroPlane() const;
+    bool PlaneAtYZero() const;
 
-    void LoadBorderCurves( vector< vector <vec3d> > & borderCurves );
+    void LoadBorderCurves( vector< vector <vec3d> > & borderCurves ) const;
 
-    bool SurfMatch( SurfCore* otherSurf );
+    bool SurfMatch( SurfCore* otherSurf ) const;
 
 protected:
     piecewise_surface_type m_Surface;
 
-    vec3d CompTanUU( double u, double w );
-    vec3d CompTanWW( double u, double w );
-    vec3d CompTanUW( double u, double w );
+    vec3d CompTanUU( double u, double w ) const;
+    vec3d CompTanWW( double u, double w ) const;
+    vec3d CompTanUW( double u, double w ) const;
 };
 
 #endif

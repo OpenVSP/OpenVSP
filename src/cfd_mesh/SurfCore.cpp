@@ -64,7 +64,7 @@ void SurfCore::SetControlPnts( vector< vector < vec3d > > pnts )
     }
 }
 
-vector< vector< vec3d > > SurfCore::GetControlPnts()
+vector< vector< vec3d > > SurfCore::GetControlPnts() const
 {
     vector< vector < vec3d > > ret;
 
@@ -89,7 +89,7 @@ vector< vector< vec3d > > SurfCore::GetControlPnts()
         {
             surface_patch_type::index_type icp, jcp;
 
-            surface_patch_type *patch = m_Surface.get_patch( ip, jp );
+            const surface_patch_type *patch = m_Surface.get_patch( ip, jp );
 
             for( icp = 0; icp <= 3; ++icp )
             {
@@ -109,25 +109,25 @@ vector< vector< vec3d > > SurfCore::GetControlPnts()
 
 
 //===== Compute Point On Surf Given  U W (Between 0 1 ) =====//
-vec3d SurfCore::CompPnt01( double u, double w )
+vec3d SurfCore::CompPnt01( double u, double w ) const
 {
     return CompPnt( u * GetMaxU(), w * GetMaxW() );
 }
 
 //===== Compute Tangent In U Direction   =====//
-vec3d SurfCore::CompTanU01( double u01, double w01 )
+vec3d SurfCore::CompTanU01( double u01, double w01 ) const
 {
     return CompTanU( u01 * GetMaxU(), w01 * GetMaxW() );
 }
 
 //===== Compute Tangent In W Direction   =====//
-vec3d SurfCore::CompTanW01( double u01, double w01 )
+vec3d SurfCore::CompTanW01( double u01, double w01 ) const
 {
     return CompTanW( u01 * GetMaxU(), w01 * GetMaxW() );
 }
 
 //===== Compute Second Derivative U,U   =====//
-vec3d SurfCore::CompTanUU( double u, double w )
+vec3d SurfCore::CompTanUU( double u, double w ) const
 {
     vec3d rtn;
     surface_point_type p( m_Surface.f_uu( u, w ) );
@@ -137,7 +137,7 @@ vec3d SurfCore::CompTanUU( double u, double w )
 }
 
 //===== Compute Second Derivative W,W   =====//
-vec3d SurfCore::CompTanWW( double u, double w )
+vec3d SurfCore::CompTanWW( double u, double w ) const
 {
     vec3d rtn;
     surface_point_type p( m_Surface.f_vv( u, w ) );
@@ -147,7 +147,7 @@ vec3d SurfCore::CompTanWW( double u, double w )
 }
 
 //===== Compute Second Derivative U,W   =====//
-vec3d SurfCore::CompTanUW( double u, double w )
+vec3d SurfCore::CompTanUW( double u, double w ) const
 {
     vec3d rtn;
     surface_point_type p( m_Surface.f_uv( u, w ) );
@@ -157,7 +157,7 @@ vec3d SurfCore::CompTanUW( double u, double w )
 }
 
 //===== Compute Tangent In U Direction   =====//
-vec3d SurfCore::CompTanU( double u, double w )
+vec3d SurfCore::CompTanU( double u, double w ) const
 {
     vec3d rtn;
     surface_point_type p( m_Surface.f_u( u, w ) );
@@ -167,7 +167,7 @@ vec3d SurfCore::CompTanU( double u, double w )
 }
 
 //===== Compute Tangent In W Direction   =====//
-vec3d SurfCore::CompTanW( double u, double w )
+vec3d SurfCore::CompTanW( double u, double w ) const
 {
     vec3d rtn;
     surface_point_type p( m_Surface.f_v( u, w ) );
@@ -177,7 +177,7 @@ vec3d SurfCore::CompTanW( double u, double w )
 }
 
 //===== Compute Point On Surf Given  U W =====//
-vec3d SurfCore::CompPnt( double u, double w )
+vec3d SurfCore::CompPnt( double u, double w ) const
 {
     vec3d rtn;
 
@@ -206,7 +206,7 @@ vec3d SurfCore::CompPnt( double u, double w )
 }
 
 //===== Compute Surface Curvature Metrics Given  U W =====//
-void SurfCore::CompCurvature( double u, double w, double& k1, double& k2, double& ka, double& kg )
+void SurfCore::CompCurvature( double u, double w, double& k1, double& k2, double& ka, double& kg ) const
 {
 
     double tol = 1e-10;
@@ -297,7 +297,7 @@ void SurfCore::CompCurvature( double u, double w, double& k1, double& k2, double
     }
 }
 
-bool SurfCore::LessThanY( double val )
+bool SurfCore::LessThanY( double val ) const
 {
     piecewise_surface_type::index_type ip, jp, nupatch, nvpatch;
     nupatch = m_Surface.number_u_patches();
@@ -308,7 +308,7 @@ bool SurfCore::LessThanY( double val )
         for( jp = 0; jp < nvpatch; ++jp )
         {
             surface_patch_type::index_type icp, jcp;
-            surface_patch_type *patch = m_Surface.get_patch( ip, jp );
+            const surface_patch_type *patch = m_Surface.get_patch( ip, jp );
 
             for( icp = 0; icp <= patch->degree_u(); ++icp )
             {
@@ -327,7 +327,7 @@ bool SurfCore::LessThanY( double val )
     return true;
 }
 
-bool SurfCore::OnYZeroPlane()
+bool SurfCore::OnYZeroPlane() const
 {
     vector< vector< vec3d > > pnts = GetControlPnts();
     int numU = pnts.size();
@@ -389,7 +389,7 @@ bool SurfCore::OnYZeroPlane()
     return false;
 }
 
-bool SurfCore::PlaneAtYZero()
+bool SurfCore::PlaneAtYZero() const
 {
     double tol = 0.000001;
 
@@ -402,7 +402,7 @@ bool SurfCore::PlaneAtYZero()
         for( jp = 0; jp < nvpatch; ++jp )
         {
             surface_patch_type::index_type icp, jcp;
-            surface_patch_type *patch = m_Surface.get_patch( ip, jp );
+            const surface_patch_type *patch = m_Surface.get_patch( ip, jp );
 
             for( icp = 0; icp <= patch->degree_u(); ++icp )
             {
@@ -421,7 +421,7 @@ bool SurfCore::PlaneAtYZero()
     return true;
 }
 
-void SurfCore::LoadBorderCurves( vector< vector <vec3d> > & borderCurves )
+void SurfCore::LoadBorderCurves( vector< vector <vec3d> > & borderCurves ) const
 {
     vector< vector< vec3d > > pnts = GetControlPnts();
     int numU = pnts.size();
@@ -458,7 +458,7 @@ void SurfCore::LoadBorderCurves( vector< vector <vec3d> > & borderCurves )
     borderCurves.push_back( borderPnts );
 }
 
-bool SurfCore::SurfMatch( SurfCore* otherSurf )
+bool SurfCore::SurfMatch( SurfCore* otherSurf ) const
 {
     vector< vector< vec3d > > pnts = GetControlPnts();
     int numU = pnts.size();
