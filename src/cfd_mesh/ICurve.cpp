@@ -30,46 +30,12 @@ bool ICurve::Match( SCurve* crv_A, SCurve* crv_B )
 
     Bezier_curve xyzcrvA = crv_A->GetUWCrv();
     xyzcrvA.UWCurveToXYZCurve( crv_A->GetSurf() );
-    xyzcrvA.get_pnts( control_pnts_A );
 
     Bezier_curve xyzcrvB = crv_B->GetUWCrv();
     xyzcrvB.UWCurveToXYZCurve( crv_B->GetSurf() );
-    xyzcrvB.get_pnts( control_pnts_B );
 
-    if ( control_pnts_A.size() == 0 )
-    {
-        return false;
-    }
-
-    if ( control_pnts_A.size() != control_pnts_B.size() )
-    {
-        return false;
-    }
-
-
-    bool fmatch = true;
-    bool bmatch = true;
-
-    int num_pnts = ( int )control_pnts_A.size();
-    for ( int i = 0 ; i < num_pnts ; i++ )
-    {
-        double dist_forward  = dist( control_pnts_A[i], control_pnts_B[i] );
-        double dist_backward = dist( control_pnts_A[i], control_pnts_B[num_pnts - i - 1] );
-        if ( dist_forward > tol )
-        {
-            fmatch = false;
-        }
-
-        if ( dist_backward > tol )
-        {
-            bmatch = false;
-        }
-
-        if ( (bmatch == false) && (fmatch == false) )
-        {
-            break;
-        }
-    }
+    bool fmatch = xyzcrvA.MatchFwd( xyzcrvB );
+    bool bmatch = xyzcrvA.MatchBkwd( xyzcrvB );
 
     bool match = false;
     if ( (fmatch == true) || (bmatch == true) )
