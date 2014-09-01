@@ -14,17 +14,17 @@ using std::vector;
 using std::deque;
 
 //==== Find Interval for Single Valued Increasing or Decreasing Array ===//
-int find_interval( vector< double > & vals, double val );
+int find_interval( const vector< double > & vals, double val );
 
 //==== Interpolate ===//
-double interpolate( vector< double > & vals, double val, int interval );
+double interpolate( const vector< double > & vals, double val, int interval );
 
 //==== Interpolate in Map ====//
-double interpolate( std::map< double, int > & val_map, double key, bool * in_range = NULL );
+double interpolate( const std::map< double, int > & val_map, double key, bool * in_range = NULL );
 
 //==== Check If Vector Contains Val =====//
 template <class T>
-bool vector_contains_val( vector< T > & vec, T const & val )
+bool vector_contains_val( const vector< T > & vec, T const & val )
 {
     for ( int i = 0 ; i < ( int )vec.size() ; i++ )
     {
@@ -38,7 +38,7 @@ bool vector_contains_val( vector< T > & vec, T const & val )
 
 //==== Check If Deque Contains Val =====//
 template <class T>
-bool deque_contains_val( deque< T > & deque, T const & val )
+bool deque_contains_val( const deque< T > & deque, T const & val )
 {
     for ( int i = 0 ; i < ( int )deque.size() ; i++ )
     {
@@ -101,4 +101,3 @@ int sgn( T val )
 }
 
 #endif
-
