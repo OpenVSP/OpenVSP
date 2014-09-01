@@ -1029,24 +1029,13 @@ void Surf::PlaneBorderCurveIntersect( Surf* surfPtr, SCurve* brdPtr )
         ICurve* bICurve = pICurve;
         ICurve* obICurve = brdPtr->GetICurve();
 
-        vector< vec3d > UWCrv_bordercurve;
-        vector< vec3d > UWCrv_plane;
-
-        UWCrv_plane.resize( 4 );
-
         vector< ICurve* > ICurves = CfdMeshMgr.GetICurveVec();
         int ICurveVecIndex;
 
-        brdPtr->GetUWCrv().get_pnts( UWCrv_bordercurve );
-
-        for ( int i = 0 ; i < (int)UWCrv_bordercurve.size() ; i++ )
-        {
-            vec3d pnt = surfPtr->GetSurfCore()->CompPnt( UWCrv_bordercurve[i].x(), UWCrv_bordercurve[i].y() );
-            vec2d uw = ClosestUW( pnt, m_SurfCore.GetMaxU() / 2, m_SurfCore.GetMaxW() / 2 );
-            UWCrv_plane[i].set_xyz( uw.x(), uw.y(), 0 );
-        }
-
-        pSCurve->SetBezierControlPnts( UWCrv_plane );
+        Bezier_curve crv = brdPtr->GetUWCrv();
+        crv.UWCurveToXYZCurve( surfPtr );
+        crv.XYZCurveToUWCurve( this );
+        pSCurve->SetUWCrv( crv );
 
         pICurve->m_SCurve_A = brdPtr;
         pICurve->m_SCurve_B = pSCurve;
