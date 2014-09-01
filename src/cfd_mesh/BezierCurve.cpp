@@ -240,3 +240,54 @@ vec3d Bezier_curve::last_pnt()
     vec3d p( cp.x(), cp.y(), cp.z() );
     return p;
 }
+
+void Bezier_curve::UWCurveToXYZCurve( const Surf *srf )
+{
+    int nsect = m_Curve.number_segments();
+
+    piecewise_curve_type newcurve;
+    newcurve.set_t0( m_Curve.get_t0() );
+
+    for ( int i = 0; i < nsect; i++ )
+    {
+        curve_segment_type c;
+        double dt;
+        m_Curve.get( c, dt, i );
+
+        for ( int j = 0; j <= c.degree(); j++ )
+        {
+            curve_point_type cp = c.get_control_point( j );
+            vec3d newpt = srf->CompPnt( cp.x(), cp.y() );
+            cp << newpt.x(), newpt.y(), newpt.z();
+            c.set_control_point( cp, j );
+        }
+        newcurve.push_back( c, dt );
+    }
+    m_Curve = newcurve;
+}
+
+void Bezier_curve::XYZCurveToUWCurve( const Surf *srf )
+{
+    int nsect = m_Curve.number_segments();
+
+    piecewise_curve_type newcurve;
+    newcurve.set_t0( m_Curve.get_t0() );
+
+    for ( int i = 0; i < nsect; i++ )
+    {
+        curve_segment_type c;
+        double dt;
+        m_Curve.get( c, dt, i );
+
+        for ( int j = 0; j <= c.degree(); j++ )
+        {
+            curve_point_type cp = c.get_control_point( j );
+            vec3d p = vec3d( cp.x(), cp.y(), cp.z() );
+            vec2d uw = srf->ClosestUW( p, srf->GetSurfCore()->GetMaxU() / 2.0, srf->GetSurfCore()->GetMaxW() / 2.0 );
+            cp << uw.x(), uw.y(), 0.0;
+            c.set_control_point( cp, j );
+        }
+        newcurve.push_back( c, dt );
+    }
+    m_Curve = newcurve;
+}

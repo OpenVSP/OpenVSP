@@ -18,6 +18,7 @@
 #define BEZIER_CURVE_H
 
 #include "Vec3d.h"
+#include "Surf.h"
 
 #include <vector>               //jrg windows?? 
 #include <stdio.h>
@@ -59,6 +60,9 @@ public:
 
     void buildCurve( const vector< vec3d > & pVec );
     void flipCurve();
+
+    void UWCurveToXYZCurve( const Surf *srf );
+    void XYZCurveToUWCurve( const Surf *srf );
 };
 
 #endif
