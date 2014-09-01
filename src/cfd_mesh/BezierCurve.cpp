@@ -126,6 +126,54 @@ void Bezier_curve::buildCurve( const vector< vec3d > & pVec )
     // Assign control points to Code-Eli curve.
     put_pnts( pnts );
 
+// Code-Eli 'native' fit.  Does not work with CFDMesh for some reason.
+//    if ( pVec.size() < 2 )
+//    {
+//        return;
+//    }
+//
+//    //==== Allocate Space ====//
+//    num_sections = pVec.size() - 1;
+//
+//    // copy points over to new type
+//    vector<curve_point_type> pts( pVec.size() );
+//    for ( size_t i = 0; i < pts.size(); ++i )
+//    {
+//        pts[i] << pVec[i].x(), pVec[i].y(), pVec[i].z();
+//    }
+//
+//    // create creator for known number of segments
+//    int nseg( pts.size() - 1 );
+//
+//    piecewise_cubic_spline_creator_type pcsc;
+//    // Sets dt = 1;
+//    pcsc.set_number_segments( nseg );
+//
+////    pcsc.set_cubic_spline( pts.begin() );
+////    pcsc.set_chip( pts.begin(), eli::geom::general::NOT_CONNECTED );
+//    pcsc.set_cardinal( pts.begin(), 0.1, eli::geom::general::NOT_CONNECTED );
+//
+//    if ( !pcsc.create( m_Curve ) )
+//    {
+//        std::cerr << "Failed to create CSpline. " << __LINE__ << std::endl;
+//    }
+//
+//
+//    printf("JR's control points\n");
+//    for ( int i = 0; i < pnts.size(); i++ )
+//    {
+//        printf("%d %f %f %f \n", i, pnts[i].x(), pnts[i].y(), pnts[i].z() );
+//    }
+//
+//    get_pnts( pnts );
+//
+//    printf("Code-Eli's control points\n");
+//    for ( int i = 0; i < pnts.size(); i++ )
+//    {
+//        printf("%d %f %f %f \n", i, pnts[i].x(), pnts[i].y(), pnts[i].z() );
+//    }
+//
+//    exit(0);
 }
 
 void Bezier_curve::flipCurve()
