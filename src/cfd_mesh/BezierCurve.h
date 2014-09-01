@@ -63,6 +63,9 @@ public:
 
     void UWCurveToXYZCurve( const Surf *srf );
     void XYZCurveToUWCurve( const Surf *srf );
+
+    bool MatchFwd( const Bezier_curve &ocrv ) const;
+    bool MatchBkwd( const Bezier_curve &ocrv ) const;
 };
 
 #endif

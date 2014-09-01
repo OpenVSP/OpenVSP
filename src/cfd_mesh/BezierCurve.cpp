@@ -291,3 +291,18 @@ void Bezier_curve::XYZCurveToUWCurve( const Surf *srf )
     }
     m_Curve = newcurve;
 }
+
+bool Bezier_curve::MatchFwd( const Bezier_curve &ocrv ) const
+{
+    if ( m_Curve == ocrv.m_Curve )
+        return true;
+    else
+        return false;
+}
+
+bool Bezier_curve::MatchBkwd( const Bezier_curve &ocrv ) const
+{
+    Bezier_curve revcrv = ocrv;
+    revcrv.flipCurve();
+    return MatchFwd( revcrv );
+}
