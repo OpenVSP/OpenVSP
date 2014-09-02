@@ -39,6 +39,7 @@ class Bezier_curve
 protected:
 
     piecewise_curve_type m_Curve;
+    void put_pnts( const vector< vec3d > &pnts_in );
 
 public:
 
@@ -49,8 +50,6 @@ public:
     {
         return m_Curve.number_segments();
     }
-
-    void put_pnts( const vector< vec3d > &pnts_in );
 
     vec3d first_pnt() const;
     vec3d last_pnt() const;
