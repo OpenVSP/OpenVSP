@@ -30,6 +30,8 @@ class SurfCore
 {
 public:
 
+    enum { UMIN, UMAX, WMIN, WMAX};
+
     SurfCore();
     virtual ~SurfCore();
 
@@ -75,6 +77,7 @@ public:
     bool PlaneAtYZero() const;
 
     void LoadBorderCurves( vector< vector <vec3d> > & borderCurves ) const;
+    void LoadBorderCurves( int iborder, vector <vec3d> & borderPnts ) const;
 
     bool SurfMatch( SurfCore* otherSurf ) const;
 
