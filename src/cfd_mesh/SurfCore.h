@@ -79,9 +79,7 @@ public:
     bool PlaneAtYZero() const;
 
     Bezier_curve GetBorderCurve( int iborder ) const;
-    void LoadBorderCurves( vector< vector <vec3d> > & borderCurves ) const;
     void LoadBorderCurves( vector < Bezier_curve > & borderCurves ) const;
-    void LoadBorderCurves( int iborder, vector <vec3d> & borderPnts ) const;
 
     bool SurfMatch( SurfCore* otherSurf ) const;
 

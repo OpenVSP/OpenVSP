@@ -545,68 +545,12 @@ Bezier_curve SurfCore::GetBorderCurve( int iborder ) const
     return crv;
 }
 
-void SurfCore::LoadBorderCurves( int iborder, vector <vec3d> & borderPnts ) const
-{
-    vector< vector< vec3d > > pnts = GetControlPnts();
-    int numU = pnts.size();
-    int numW = pnts[0].size();
-
-    borderPnts.clear();
-
-    if ( iborder == UMIN )
-    {
-        for ( int i = 0 ; i < numW ; i++ )                // Border Curve u = 0
-        {
-            borderPnts.push_back( pnts[0][i] );
-        }
-    }
-    else if ( iborder == UMAX )
-    {
-        for ( int i = 0 ; i < numW ; i++ )                // Border Curve u = max
-        {
-            borderPnts.push_back( pnts[numU - 1][i] );
-        }
-    }
-    else if ( iborder == WMIN )
-    {
-        for ( int i = 0 ; i < numU ; i++ )                // Border Curve w = 0
-        {
-            borderPnts.push_back( pnts[i][0] );
-        }
-    }
-    else if ( iborder == WMAX )
-    {
-        for ( int i = 0 ; i < numU ; i++ )                // Border Curve w = max
-        {
-            borderPnts.push_back( pnts[i][numW - 1] );
-        }
-    }
-
-}
-
 void SurfCore::LoadBorderCurves( vector < Bezier_curve > & borderCurves ) const
 {
 	borderCurves.push_back( GetBorderCurve( WMIN ) );
 	borderCurves.push_back( GetBorderCurve( WMAX ) );
 	borderCurves.push_back( GetBorderCurve( UMIN ) );
 	borderCurves.push_back( GetBorderCurve( UMAX ) );
-}
-
-void SurfCore::LoadBorderCurves( vector< vector <vec3d> > & borderCurves ) const
-{
-    vector< vec3d > borderPnts;
-
-    LoadBorderCurves( WMIN, borderPnts );
-    borderCurves.push_back( borderPnts );
-
-    LoadBorderCurves( WMAX, borderPnts );
-    borderCurves.push_back( borderPnts );
-
-    LoadBorderCurves( UMIN, borderPnts );
-    borderCurves.push_back( borderPnts );
-
-    LoadBorderCurves( UMAX, borderPnts );
-    borderCurves.push_back( borderPnts );
 }
 
 bool SurfCore::SurfMatch( SurfCore* otherSurf ) const
