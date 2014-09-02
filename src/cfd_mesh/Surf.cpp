@@ -1554,17 +1554,19 @@ bool Surf::BorderCurveMatch( vector< vec3d > & curveA, vector< vec3d > & curveB 
 
 bool Surf::BorderMatch( Surf* otherSurf )
 {
-    vector< vector< vec3d > > borderCurvesA;
-    m_SurfCore.LoadBorderCurves( borderCurvesA );
+    double tol = 1e-4;
 
-    vector< vector< vec3d > > borderCurvesB;
-    otherSurf->GetSurfCore()->LoadBorderCurves( borderCurvesB );
+	vector < Bezier_curve > borderCurvesA;
+	m_SurfCore.LoadBorderCurves( borderCurvesA );
 
-    for ( int i = 0 ; i < ( int )borderCurvesA.size() ; i++ )
+	vector < Bezier_curve > borderCurvesB;
+	otherSurf->GetSurfCore()->LoadBorderCurves( borderCurvesB );
+
+	for ( int i = 0 ; i < ( int )borderCurvesA.size() ; i++ )
     {
         for ( int j = 0 ; j < ( int )borderCurvesB.size() ; j++ )
         {
-            if ( BorderCurveMatch( borderCurvesA[i], borderCurvesB[j] ) )
+            if ( borderCurvesA[i].Match( borderCurvesB[j], tol ) )
             {
                 return true;
             }
