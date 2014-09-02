@@ -744,15 +744,13 @@ void Surf::FindBorderCurves()
     double max_w = m_SurfCore.GetMaxW();
 
     vector< vec3d > pnts;
-    pnts.resize( 4 );
+    pnts.resize( 2 );
 
     pnts[0].set_xyz( 0,         0, 0 );         // Inc U
-    pnts[1].set_xyz( 0.25 * max_u, 0, 0 );
-    pnts[2].set_xyz( 0.75 * max_u, 0, 0 );
-    pnts[3].set_xyz( max_u,     0, 0 );
+    pnts[1].set_xyz( max_u,     0, 0 );
 
     scrv = new SCurve( this );
-    scrv->SetBezierControlPnts( pnts );
+    scrv->BuildBezierCurve( pnts, 0.25 );
 
     if ( scrv->Length( 10 ) > degen_tol )
     {
@@ -764,12 +762,10 @@ void Surf::FindBorderCurves()
     }
 
     pnts[0].set_xyz( max_u,       0, 0 );       // Inc W
-    pnts[1].set_xyz( max_u, 0.25 * max_w, 0 );
-    pnts[2].set_xyz( max_u, 0.75 * max_w, 0 );
-    pnts[3].set_xyz( max_u,     max_w, 0 );
+    pnts[1].set_xyz( max_u,     max_w, 0 );
 
     scrv = new SCurve( this );
-    scrv->SetBezierControlPnts( pnts );
+    scrv->BuildBezierCurve( pnts, 0.25 );
 
     if ( scrv->Length( 10 ) > degen_tol )
     {
@@ -781,12 +777,10 @@ void Surf::FindBorderCurves()
     }
 
     pnts[0].set_xyz( max_u,     max_w, 0 );         // Dec U
-    pnts[1].set_xyz( 0.75 * max_u, max_w, 0 );
-    pnts[2].set_xyz( 0.25 * max_u, max_w, 0 );
-    pnts[3].set_xyz( 0,         max_w, 0 );
+    pnts[1].set_xyz( 0,         max_w, 0 );
 
     scrv = new SCurve( this );
-    scrv->SetBezierControlPnts( pnts );
+    scrv->BuildBezierCurve( pnts, 0.25 );
 
     if ( scrv->Length( 10 ) > degen_tol )
     {
@@ -798,12 +792,10 @@ void Surf::FindBorderCurves()
     }
 
     pnts[0].set_xyz( 0, max_w,   0 );           // Dec W
-    pnts[1].set_xyz( 0, 0.75 * max_w, 0 );
-    pnts[2].set_xyz( 0, 0.25 * max_w, 0 );
-    pnts[3].set_xyz( 0, 0,       0 );
+    pnts[1].set_xyz( 0, 0,       0 );
 
     scrv = new SCurve( this );
-    scrv->SetBezierControlPnts( pnts );
+    scrv->BuildBezierCurve( pnts, 0.25 );
 
     if ( scrv->Length( 10 ) > degen_tol )
     {

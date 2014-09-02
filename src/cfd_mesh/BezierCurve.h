@@ -57,7 +57,7 @@ public:
 
     vec3d comp_pnt( double u ) const;                   // u between 0 and 1
 
-    void buildCurve( const vector< vec3d > & pVec );
+    void buildCurve( const vector< vec3d > & pVec, double tanStr );
     void flipCurve();
 
     void UWCurveToXYZCurve( const Surf *srf );

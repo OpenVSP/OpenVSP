@@ -25,20 +25,9 @@ SCurve::~SCurve()
 {
 }
 
-//==== Load Bezier Control Points =====//
-void SCurve::SetBezierControlPnts( vector< vec3d > & pnts )
+void SCurve::BuildBezierCurve( vector< vec3d > & pnts_to_interpolate, double tanStr )
 {
-    if ( pnts.size() < 4 )
-    {
-        return;
-    }
-
-    m_UWCrv.put_pnts( pnts );
-}
-
-void SCurve::BuildBezierCurve( vector< vec3d > & pnts_to_interpolate )
-{
-    m_UWCrv.buildCurve( pnts_to_interpolate );
+    m_UWCrv.buildCurve( pnts_to_interpolate, tanStr );
 }
 
 double SCurve::Length( int num_segs )

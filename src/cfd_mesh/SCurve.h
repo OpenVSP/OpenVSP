@@ -68,8 +68,7 @@ public:
     void ApplyESSurface( double u, double t );
     void Tesselate();
 
-    void SetBezierControlPnts( vector< vec3d > & pnts );
-    void BuildBezierCurve( vector< vec3d > & pnts_to_interpolate );
+    void BuildBezierCurve( vector< vec3d > & pnts_to_interpolate, double tanStr );
 
     double Length( int num_segs );
 

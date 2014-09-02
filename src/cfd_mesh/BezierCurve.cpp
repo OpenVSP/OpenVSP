@@ -56,9 +56,8 @@ vec3d Bezier_curve::comp_pnt( double u ) const
     return rtn;
 }
 
-void Bezier_curve::buildCurve( const vector< vec3d > & pVec )
+void Bezier_curve::buildCurve( const vector< vec3d > & pVec, double tanStr )
 {
-    double tanStr = 0.3;
     int closeFlag = 0;
     if ( pVec.size() < 2 )
     {

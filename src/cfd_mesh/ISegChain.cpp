@@ -1214,7 +1214,7 @@ void ISegChain::BuildCurves( )
     }
 
     m_ACurve.SetSurf( m_SurfA );
-    m_ACurve.BuildBezierCurve( auw_pnts );
+    m_ACurve.BuildBezierCurve( auw_pnts, 0.3 );
 
     //==== B SCurve ====//
     vector< vec3d > buw_pnts;
@@ -1227,7 +1227,7 @@ void ISegChain::BuildCurves( )
     }
 
     m_BCurve.SetSurf( m_SurfB );
-    m_BCurve.BuildBezierCurve( buw_pnts );
+    m_BCurve.BuildBezierCurve( buw_pnts, 0.3 );
 }
 
 void ISegChain::TransferTess( )
