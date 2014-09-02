@@ -658,3 +658,23 @@ bool SurfCore::SurfMatch( SurfCore* otherSurf ) const
     }
     return false;
 }
+
+void SurfCore::WriteSurf( FILE* fp ) const
+{
+    vector< vector< vec3d > > pntVec = GetControlPnts();
+    int numU = pntVec.size();
+    int numW = pntVec[0].size();
+
+    fprintf( fp, "%d		// Num Pnts U \n",    numU );
+    fprintf( fp, "%d		// Num Pnts W \n",    numW );
+    fprintf( fp, "%d		// Total Pnts (0,0),(0,1),(0,2)..(0,numW-1),(1,0)..(1,numW-1)..(numU-1,0)..(numU-1,numW-1)\n",    numU * numW );
+
+    for ( int i = 0 ; i < numU ; i++ )
+    {
+        for ( int j = 0 ; j < numW ; j++ )
+        {
+            fprintf( fp, "%20.20lf, %20.20lf, %20.20lf \n",
+                     pntVec[i][j].x(), pntVec[i][j].y(), pntVec[i][j].z() );
+        }
+    }
+}

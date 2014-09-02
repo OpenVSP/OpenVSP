@@ -78,6 +78,8 @@ public:
 
     bool SurfMatch( SurfCore* otherSurf ) const;
 
+    void WriteSurf( FILE* fp ) const;
+
 protected:
     piecewise_surface_type m_Surface;
 
