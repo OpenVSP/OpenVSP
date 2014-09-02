@@ -1506,52 +1506,6 @@ bool Surf::ValidUW( vec2d & uw )
     return true;
 }
 
-bool Surf::BorderCurveMatch( vector< vec3d > & curveA, vector< vec3d > & curveB )
-{
-    double tol = 0.00000001;
-
-    if ( curveA.size() != curveB.size() )
-    {
-        return false;
-    }
-
-    bool match = true;
-
-    //==== Check Same Way ====//
-    for ( int i = 0 ; i < ( int )curveA.size() ; i++ )
-    {
-        if ( dist_squared( curveA[i], curveB[i] ) > tol )
-        {
-            match = false;
-            break;
-        }
-    }
-
-    if ( match )
-    {
-        return true;
-    }
-
-    match = true;
-    int max_ind = ( int )curveB.size() - 1;
-    //==== Check Opposite Way ====//
-    for ( int i = 0 ; i < ( int )curveA.size() ; i++ )
-    {
-        if ( dist_squared( curveA[i], curveB[max_ind - i] ) > tol )
-        {
-            match = false;
-            break;
-        }
-    }
-
-    if ( match )
-    {
-        return true;
-    }
-
-    return false;
-}
-
 bool Surf::BorderMatch( Surf* otherSurf )
 {
     double tol = 1e-4;

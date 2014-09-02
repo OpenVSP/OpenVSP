@@ -167,7 +167,6 @@ public:
 
     bool ValidUW( vec2d & uw );
 
-    bool BorderCurveMatch( vector< vec3d > & curveA, vector< vec3d > & curveB );
     bool BorderMatch( Surf* otherSurf );
 
     void SetWakeFlag( bool flag )
