@@ -19,6 +19,7 @@
 #include "eli/geom/curve/length.hpp"
 #include "eli/geom/curve/piecewise_creator.hpp"
 #include "eli/geom/intersect/minimum_distance_curve.hpp"
+#include "eli/geom/point/distance.hpp"
 
 typedef piecewise_curve_type::index_type curve_index_type;
 typedef piecewise_curve_type::point_type curve_point_type;
@@ -275,10 +276,37 @@ void Bezier_curve::XYZCurveToUWCurve( const Surf *srf )
 
 bool Bezier_curve::MatchFwd( const Bezier_curve &ocrv ) const
 {
-    if ( m_Curve == ocrv.m_Curve )
-        return true;
-    else
+    double tol = 0.00001;
+
+    int nsect = m_Curve.number_segments();
+
+    if ( nsect != ocrv.m_Curve.number_segments() )
         return false;
+
+    for ( int i = 0; i < nsect; i++ )
+    {
+        curve_segment_type cA, cB;
+        m_Curve.get( cA, i );
+        ocrv.m_Curve.get( cB, i );
+
+        if ( cA.degree() != cB.degree() )
+        {
+            return false;
+        }
+
+        for ( int j = 0; j <= cA.degree(); j++ )
+        {
+            curve_point_type cpA = cA.get_control_point( j );
+            curve_point_type cpB = cB.get_control_point( j );
+
+            if ( eli::geom::point::distance( cpA, cpB ) > tol )
+            {
+                return false;
+            }
+        }
+    }
+
+    return true;
 }
 
 bool Bezier_curve::MatchBkwd( const Bezier_curve &ocrv ) const
