@@ -42,7 +42,7 @@ Bezier_curve::~Bezier_curve()
 }
 
 //===== Compute Point  =====//
-vec3d Bezier_curve::comp_pnt( double u ) const
+vec3d Bezier_curve::CompPnt01( double u ) const
 {
     vec3d rtn;
 
@@ -56,7 +56,7 @@ vec3d Bezier_curve::comp_pnt( double u ) const
     return rtn;
 }
 
-void Bezier_curve::buildCurve( const vector< vec3d > & pVec, double tanStr )
+void Bezier_curve::BuildCurve( const vector< vec3d > & pVec, double tanStr )
 {
     int closeFlag = 0;
     if ( pVec.size() < 2 )
@@ -124,15 +124,15 @@ void Bezier_curve::buildCurve( const vector< vec3d > & pVec, double tanStr )
     pnts[ind + 1] = pVec[pVec.size() - 1];
 
     // Assign control points to Code-Eli curve.
-    put_pnts( pnts );
+    PutControlPoints( pnts );
 }
 
-void Bezier_curve::flipCurve()
+void Bezier_curve::FlipCurve()
 {
     m_Curve.reverse();
 }
 
-void Bezier_curve::put_pnts( const vector< vec3d > &pnts_in )
+void Bezier_curve::PutControlPoints( const vector< vec3d > &pnts_in )
 {
     int npts = pnts_in.size();
     int num_sections = ( npts - 1 ) / 3;
@@ -155,7 +155,7 @@ void Bezier_curve::put_pnts( const vector< vec3d > &pnts_in )
     }
 }
 
-vec3d Bezier_curve::first_pnt() const  // Could be implemented with comp_pnt, but should be faster/more accurate.
+vec3d Bezier_curve::FirstPnt() const  // Could be implemented with comp_pnt, but should be faster/more accurate.
 {
     curve_segment_type c;
     m_Curve.get( c, 0 );
@@ -164,7 +164,7 @@ vec3d Bezier_curve::first_pnt() const  // Could be implemented with comp_pnt, bu
     return p;
 }
 
-vec3d Bezier_curve::last_pnt() const
+vec3d Bezier_curve::LastPnt() const
 {
     curve_segment_type c;
     m_Curve.get( c, m_Curve.number_segments() - 1 );
@@ -260,6 +260,6 @@ bool Bezier_curve::MatchFwd( const Bezier_curve &ocrv, double tol ) const
 bool Bezier_curve::MatchBkwd( const Bezier_curve &ocrv, double tol ) const
 {
     Bezier_curve revcrv = ocrv;
-    revcrv.flipCurve();
+    revcrv.FlipCurve();
     return MatchFwd( revcrv, tol );
 }

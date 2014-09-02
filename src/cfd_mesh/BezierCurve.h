@@ -39,25 +39,25 @@ class Bezier_curve
 protected:
 
     piecewise_curve_type m_Curve;
-    void put_pnts( const vector< vec3d > &pnts_in );
+    void PutControlPoints( const vector< vec3d > &pnts_in );
 
 public:
 
     Bezier_curve();
     ~Bezier_curve();
 
-    int  get_num_sections() const
+    int  GetNumSections() const
     {
         return m_Curve.number_segments();
     }
 
-    vec3d first_pnt() const;
-    vec3d last_pnt() const;
+    vec3d FirstPnt() const;
+    vec3d LastPnt() const;
 
-    vec3d comp_pnt( double u ) const;                   // u between 0 and 1
+    vec3d CompPnt01( double u ) const;
 
-    void buildCurve( const vector< vec3d > & pVec, double tanStr );
-    void flipCurve();
+    void BuildCurve( const vector< vec3d > & pVec, double tanStr );
+    void FlipCurve();
 
     void UWCurveToXYZCurve( const Surf *srf );
     void XYZCurveToUWCurve( const Surf *srf );

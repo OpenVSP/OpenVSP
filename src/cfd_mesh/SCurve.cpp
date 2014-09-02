@@ -27,7 +27,7 @@ SCurve::~SCurve()
 
 void SCurve::BuildBezierCurve( vector< vec3d > & pnts_to_interpolate, double tanStr )
 {
-    m_UWCrv.buildCurve( pnts_to_interpolate, tanStr );
+    m_UWCrv.BuildCurve( pnts_to_interpolate, tanStr );
 }
 
 double SCurve::Length( int num_segs )
@@ -35,12 +35,12 @@ double SCurve::Length( int num_segs )
     assert ( m_Surf );
 
     double total_dist = 0;
-    vec3d uw = m_UWCrv.comp_pnt( 0 );
+    vec3d uw = m_UWCrv.CompPnt01( 0 );
     vec3d last_p = m_Surf->CompPnt( uw.x(), uw.y() );
     for ( int i = 1 ; i < num_segs ; i++ )
     {
         double u = ( double )i / ( double )( num_segs - 1 );
-        uw = m_UWCrv.comp_pnt( u );
+        uw = m_UWCrv.CompPnt01( u );
         vec3d p = m_Surf->CompPnt( uw.x(), uw.y() );
         total_dist += dist( p, last_p );
     }
@@ -63,8 +63,8 @@ void SCurve::ExtractBorderControlPnts( vector< vec3d > & control_pnts )
     }
 
     double tol = 1.0e-12;
-    vec3d uw0 = m_UWCrv.first_pnt();
-    vec3d uw1 = m_UWCrv.last_pnt();
+    vec3d uw0 = m_UWCrv.FirstPnt();
+    vec3d uw1 = m_UWCrv.LastPnt();
 
     if ( fabs( uw0.x() - uw1.x() ) < tol )
     {
@@ -123,7 +123,7 @@ double SCurve::GetTargetLen( GridDensity* grid_den, SCurve* BCurve, vec3d p, vec
             limitFlag = true;
         }
 
-        vec3d uwB = BCurve->m_UWCrv.comp_pnt( u );
+        vec3d uwB = BCurve->m_UWCrv.CompPnt01( u );
 
         double lenB = grid_den->GetBaseLen( limitFlag );
 
@@ -155,8 +155,8 @@ void SCurve::BorderTesselate( )
     m_UTess.clear();
     m_UWTess.clear();
 
-    vec3d uwstart = m_UWCrv.first_pnt();
-    vec3d uwend = m_UWCrv.last_pnt();
+    vec3d uwstart = m_UWCrv.FirstPnt();
+    vec3d uwend = m_UWCrv.LastPnt();
 
     double ust = uwstart[0];
     double wst = uwstart[1];
@@ -275,24 +275,24 @@ void SCurve::BuildDistTable( GridDensity* grid_den, SCurve* BCurve, list< MapSou
     //==== Build U to Dist Table ====//
     int nref = 10;
     int nseglim = 10000;
-    num_segs = nref * m_UWCrv.get_num_sections() + 1;
+    num_segs = nref * m_UWCrv.GetNumSections() + 1;
     if( num_segs > nseglim )
     {
-        nref = nseglim / m_UWCrv.get_num_sections();
+        nref = nseglim / m_UWCrv.GetNumSections();
         if( nref < 1 )
         {
             nref = 1;
         }
-        num_segs = nref * m_UWCrv.get_num_sections() + 1;
+        num_segs = nref * m_UWCrv.GetNumSections() + 1;
     }
     double total_dist = 0.0;
-    vec3d uw = m_UWCrv.comp_pnt( 0 );
+    vec3d uw = m_UWCrv.CompPnt01( 0 );
     vec3d last_p = m_Surf->CompPnt( uw.x(), uw.y() );
     for ( int i = 0 ; i < num_segs ; i++ )
     {
         double u = ( double )i / ( double )( num_segs - 1 );
 
-        uw = m_UWCrv.comp_pnt( u );
+        uw = m_UWCrv.CompPnt01( u );
         vec3d p = m_Surf->CompPnt( uw.x(), uw.y() );
 
         double t = GetTargetLen( grid_den, BCurve, p, uw, u );
@@ -655,7 +655,7 @@ void SCurve::UWTess()
     for ( int i = 0 ; i < ( int )m_UTess.size() ; i++ )
     {
         double u = m_UTess[i];
-        uw = m_UWCrv.comp_pnt( u );
+        uw = m_UWCrv.CompPnt01( u );
         m_UWTess.push_back( uw );
     }
 }
@@ -680,7 +680,7 @@ void SCurve::CalcDensity( GridDensity* grid_den, SCurve* BCurve, list< MapSource
 
 void SCurve::ApplyESSurface( double u, double t )
 {
-    vec3d uw = m_UWCrv.comp_pnt( u );
+    vec3d uw = m_UWCrv.CompPnt01( u );
     m_Surf->ApplyES( uw, t );
 }
 
@@ -700,19 +700,19 @@ void SCurve::Tesselate( vector< double > & u_tess )
     for ( int i = 0 ; i < ( int )m_UTess.size() ; i++ )
     {
         double u = m_UTess[i];
-        vec3d uw = m_UWCrv.comp_pnt( u );
+        vec3d uw = m_UWCrv.CompPnt01( u );
         m_UWTess.push_back( uw );
     }
 }
 
 void SCurve::FlipDir()
 {
-    m_UWCrv.flipCurve();
+    m_UWCrv.FlipCurve();
 }
 
 vec3d SCurve::CompPntUW( double u )
 {
-    return m_UWCrv.comp_pnt( u );
+    return m_UWCrv.CompPnt01( u );
 }
 
 /*
