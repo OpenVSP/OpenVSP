@@ -65,6 +65,8 @@ public:
 
     bool MatchFwd( const Bezier_curve &ocrv ) const;
     bool MatchBkwd( const Bezier_curve &ocrv ) const;
+    bool MatchFwd( const Bezier_curve &ocrv, double tol ) const;
+    bool MatchBkwd( const Bezier_curve &ocrv, double tol ) const;
 };
 
 #endif

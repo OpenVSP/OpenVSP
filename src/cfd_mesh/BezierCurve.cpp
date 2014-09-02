@@ -277,7 +277,11 @@ void Bezier_curve::XYZCurveToUWCurve( const Surf *srf )
 bool Bezier_curve::MatchFwd( const Bezier_curve &ocrv ) const
 {
     double tol = 0.00001;
+    return MatchFwd( ocrv, tol );
+}
 
+bool Bezier_curve::MatchFwd( const Bezier_curve &ocrv, double tol ) const
+{
     int nsect = m_Curve.number_segments();
 
     if ( nsect != ocrv.m_Curve.number_segments() )
@@ -314,4 +318,11 @@ bool Bezier_curve::MatchBkwd( const Bezier_curve &ocrv ) const
     Bezier_curve revcrv = ocrv;
     revcrv.flipCurve();
     return MatchFwd( revcrv );
+}
+
+bool Bezier_curve::MatchBkwd( const Bezier_curve &ocrv, double tol ) const
+{
+    Bezier_curve revcrv = ocrv;
+    revcrv.flipCurve();
+    return MatchFwd( revcrv, tol );
 }

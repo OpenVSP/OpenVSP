@@ -25,8 +25,6 @@ ICurve::~ICurve()
 bool ICurve::Match( SCurve* crv_A, SCurve* crv_B )
 {
     double tol = 0.00001;
-    vector< vec3d > control_pnts_A;
-    vector< vec3d > control_pnts_B;
 
     Bezier_curve xyzcrvA = crv_A->GetUWCrv();
     xyzcrvA.UWCurveToXYZCurve( crv_A->GetSurf() );
@@ -34,8 +32,8 @@ bool ICurve::Match( SCurve* crv_A, SCurve* crv_B )
     Bezier_curve xyzcrvB = crv_B->GetUWCrv();
     xyzcrvB.UWCurveToXYZCurve( crv_B->GetSurf() );
 
-    bool fmatch = xyzcrvA.MatchFwd( xyzcrvB );
-    bool bmatch = xyzcrvA.MatchBkwd( xyzcrvB );
+    bool fmatch = xyzcrvA.MatchFwd( xyzcrvB, tol );
+    bool bmatch = xyzcrvA.MatchBkwd( xyzcrvB, tol );
 
     bool match = false;
     if ( (fmatch == true) || (bmatch == true) )
