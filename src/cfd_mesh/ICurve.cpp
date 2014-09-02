@@ -21,7 +21,6 @@ ICurve::~ICurve()
 {
 }
 
-
 bool ICurve::Match( SCurve* crv_A, SCurve* crv_B )
 {
     double tol = 0.00001;
@@ -35,17 +34,7 @@ bool ICurve::Match( SCurve* crv_A, SCurve* crv_B )
     bool fmatch = xyzcrvA.MatchFwd( xyzcrvB, tol );
     bool bmatch = xyzcrvA.MatchBkwd( xyzcrvB, tol );
 
-    bool match = false;
     if ( (fmatch == true) || (bmatch == true) )
-    {
-        match = true;
-    }
-
-    if( (fmatch == true) && (bmatch == true) )
-    {
-    }
-
-    if ( match )
     {
         if ( bmatch )
         {
@@ -57,9 +46,10 @@ bool ICurve::Match( SCurve* crv_A, SCurve* crv_B )
         m_SCurve_A->SetICurve( this );
         m_SCurve_B = crv_B;
         m_SCurve_B->SetICurve( this );
+        return true;
     }
 
-    return match;
+    return false;
 }
 
 void ICurve::BorderTesselate( )
