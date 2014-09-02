@@ -158,6 +158,53 @@ void Surf::LoadControlPnts( vector< vector< vec3d > > & control_pnts )
     }
 }
 
+void Surf::ExtractBorderControlPnts( const vec3d &uw0, const vec3d &uw1, vector< vec3d > & control_pnts )
+{
+    vector< vector< vec3d > > cpnts = m_SurfCore.GetControlPnts();
+    int nu = cpnts.size();
+    if ( nu < 4 )
+    {
+        return;
+    }
+    int nw = cpnts[0].size();
+    if ( nw < 4 )
+    {
+        return;
+    }
+
+    double tol = 1.0e-12;
+
+    if ( fabs( uw0.x() - uw1.x() ) < tol )
+    {
+        int ind = ( int )( uw0.x() + 0.5 ) * 3;
+
+        if ( ind > nu - 1 )
+        {
+            ind = nu - 1;
+        }
+
+        for ( int w = 0 ; w < nw ; w++ )
+        {
+            control_pnts.push_back( cpnts[ind][w] );
+        }
+    }
+    else if ( fabs( uw0.y() - uw1.y() ) < tol )
+    {
+        int ind = ( int )( uw0.y() + 0.5 ) * 3;
+
+        if ( ind > nw - 1 )
+        {
+            ind = nw - 1;
+        }
+
+        for ( int u = 0 ; u < nu ; u++ )
+        {
+            control_pnts.push_back( cpnts[u][ind] );
+        }
+    }
+}
+
+
 double Surf::TargetLen( double u, double w, double gap, double radfrac )
 {
     double k1, k2, ka, kg;
