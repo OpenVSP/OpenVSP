@@ -44,6 +44,7 @@ protected:
 public:
 
     Bezier_curve();
+    Bezier_curve( const piecewise_curve_type &crv );
     ~Bezier_curve();
 
     int  GetNumSections() const

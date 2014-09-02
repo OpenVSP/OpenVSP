@@ -36,6 +36,12 @@ Bezier_curve::Bezier_curve()
 {
 }
 
+
+Bezier_curve::Bezier_curve( const piecewise_curve_type &crv )
+{
+    m_Curve = crv;
+}
+
 //===== Destructor  =====//
 Bezier_curve::~Bezier_curve()
 {
