@@ -230,6 +230,17 @@ void Bezier_curve::XYZCurveToUWCurve( const Surf *srf )
     m_Curve = newcurve;
 }
 
+bool Bezier_curve::Match( const Bezier_curve &ocrv, double tol ) const
+{
+    if ( MatchFwd( ocrv, tol ) )
+        return true;
+
+    if ( MatchBkwd( ocrv, tol ) )
+        return true;
+
+    return false;
+}
+
 bool Bezier_curve::MatchFwd( const Bezier_curve &ocrv, double tol ) const
 {
     int nsect = m_Curve.number_segments();
