@@ -25,6 +25,8 @@ typedef eli::geom::surface::connection_data<double, 3, surface_tolerance_type> r
 #include <vector>
 using std::vector;
 
+class Bezier_curve;
+
 //////////////////////////////////////////////////////////////////////
 class SurfCore
 {
@@ -76,7 +78,9 @@ public:
     bool OnYZeroPlane() const;
     bool PlaneAtYZero() const;
 
+    Bezier_curve GetBorderCurve( int iborder ) const;
     void LoadBorderCurves( vector< vector <vec3d> > & borderCurves ) const;
+    void LoadBorderCurves( vector < Bezier_curve > & borderCurves ) const;
     void LoadBorderCurves( int iborder, vector <vec3d> & borderPnts ) const;
 
     bool SurfMatch( SurfCore* otherSurf ) const;

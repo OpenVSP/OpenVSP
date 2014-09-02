@@ -4,6 +4,7 @@
 //
 
 #include "SurfCore.h"
+#include "BezierCurve.h"
 
 #include "eli/geom/curve/piecewise_creator.hpp"
 #include "eli/geom/surface/piecewise_body_of_revolution_creator.hpp"
@@ -465,6 +466,85 @@ bool SurfCore::PlaneAtYZero() const
     return true;
 }
 
+Bezier_curve SurfCore::GetBorderCurve( int iborder ) const
+{
+    piecewise_curve_type pwc;
+
+    curve_segment_type s;
+    s.resize( 3 );
+
+    piecewise_surface_type::index_type ip, jp, nupatch, nvpatch;
+    surface_patch_type::index_type icp, jcp;
+
+    nupatch = m_Surface.number_u_patches();
+    nvpatch = m_Surface.number_v_patches();
+
+    if ( iborder == UMIN || iborder == UMAX )
+    {
+        if ( iborder == UMIN )
+            ip = 0;
+        else
+            ip = nupatch - 1;
+
+
+        pwc.set_t0( m_Surface.get_v0() );
+
+        for( jp = 0; jp < nvpatch; ++jp )
+        {
+            const surface_patch_type *patch = m_Surface.get_patch( ip, jp );
+            double dv = patch->get_vmax() - patch->get_vmin();
+
+            s.resize( patch->degree_v() );
+
+            if ( iborder == UMIN )
+                icp = 0;
+            else
+                icp = patch->degree_u();
+
+            for( jcp = 0; jcp <= patch->degree_v(); ++jcp )
+            {
+                surface_point_type cp;
+                cp = patch->get_control_point( icp, jcp );
+                s.set_control_point( cp, jcp );
+            }
+            pwc.push_back( s, dv );
+        }
+    }
+    else if ( iborder == WMIN || iborder == WMAX )
+    {
+        if ( iborder == WMIN )
+            jp = 0;
+        else
+            jp = nvpatch - 1;
+
+        pwc.set_t0( m_Surface.get_u0() );
+
+        for( ip = 0; ip < nupatch; ++ip )
+        {
+            const surface_patch_type *patch = m_Surface.get_patch( ip, jp );
+            double du = patch->get_umax() - patch->get_umin();
+
+            s.resize( patch->degree_u() );
+
+            if ( iborder == WMIN )
+                jcp = 0;
+            else
+                jcp = patch->degree_v();
+
+            for( icp = 0; icp <= patch->degree_u(); ++icp )
+            {
+                surface_point_type cp;
+                cp = patch->get_control_point( icp, jcp );
+                s.set_control_point( cp, icp );
+            }
+            pwc.push_back( s, du );
+        }
+    }
+
+    Bezier_curve crv( pwc );
+    return crv;
+}
+
 void SurfCore::LoadBorderCurves( int iborder, vector <vec3d> & borderPnts ) const
 {
     vector< vector< vec3d > > pnts = GetControlPnts();
@@ -502,6 +582,14 @@ void SurfCore::LoadBorderCurves( int iborder, vector <vec3d> & borderPnts ) cons
         }
     }
 
+}
+
+void SurfCore::LoadBorderCurves( vector < Bezier_curve > & borderCurves ) const
+{
+	borderCurves.push_back( GetBorderCurve( WMIN ) );
+	borderCurves.push_back( GetBorderCurve( WMAX ) );
+	borderCurves.push_back( GetBorderCurve( UMIN ) );
+	borderCurves.push_back( GetBorderCurve( UMAX ) );
 }
 
 void SurfCore::LoadBorderCurves( vector< vector <vec3d> > & borderCurves ) const
