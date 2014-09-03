@@ -230,6 +230,42 @@ void Bezier_curve::XYZCurveToUWCurve( const Surf *srf )
     m_Curve = newcurve;
 }
 
+int Bezier_curve::CountMatch( const Bezier_curve &ocrv, double tol ) const
+{
+    int num_match = 0;
+
+    int nsect = m_Curve.number_segments();
+
+    if ( nsect != ocrv.m_Curve.number_segments() )
+    {
+        return -1;
+    }
+
+    for ( int i = 0; i < nsect; i++ )
+    {
+        curve_segment_type cA, cB;
+        m_Curve.get( cA, i );
+        ocrv.m_Curve.get( cB, i );
+
+        if ( cA.degree() != cB.degree() )
+        {
+            return -1;
+        }
+
+        for ( int j = 0; j <= cA.degree(); j++ )
+        {
+            curve_point_type cpA = cA.get_control_point( j );
+            curve_point_type cpB = cB.get_control_point( j );
+
+            if ( eli::geom::point::distance( cpA, cpB ) < tol )
+            {
+                num_match++;
+            }
+        }
+    }
+    return num_match;
+}
+
 bool Bezier_curve::Match( const Bezier_curve &ocrv, double tol ) const
 {
     if ( MatchFwd( ocrv, tol ) )
