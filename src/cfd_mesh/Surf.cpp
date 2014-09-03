@@ -163,12 +163,6 @@ void Surf::ExtractBorderControlPnts( const vec3d &uw0, const vec3d &uw1, Bezier_
     m_SurfCore.ExtractBorderControlPnts( uw0, uw1, crv );
 }
 
-void Surf::ExtractBorderControlPnts( const vec3d &uw0, const vec3d &uw1, vector< vec3d > & control_pnts )
-{
-    m_SurfCore.ExtractBorderControlPnts( uw0, uw1, control_pnts );
-}
-
-
 double Surf::TargetLen( double u, double w, double gap, double radfrac )
 {
     double k1, k2, ka, kg;

@@ -73,7 +73,6 @@ public:
     double Length( int num_segs );
 
     void ExtractBorderControlPnts( Bezier_curve & crv );
-    void ExtractBorderControlPnts( vector< vec3d > & control_pnts );
 
     vector< double > GetUTessPnts()
     {
