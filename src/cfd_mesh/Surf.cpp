@@ -975,24 +975,20 @@ bool Surf::BorderCurveOnSurface( Surf* surfPtr )
 
     for ( int i = 0 ; i < ( int )border_curves.size() ; i++ )
     {
-        vector< vec3d > control_pnts;
-        border_curves[i]->ExtractBorderControlPnts( control_pnts );
+        Bezier_curve crv;
+        border_curves[i]->ExtractBorderControlPnts( crv );
 
-        int num_pnts_on_surf = 0;
-        for ( int c = 0 ; c < ( int )control_pnts.size() ; c++ )
+        Bezier_curve projcrv = crv;
+        projcrv.XYZCurveToUWCurve( this );
+        projcrv.UWCurveToXYZCurve( this );
+
+        int num_pnts_on_surf = crv.CountMatch( projcrv, tol );
+
+        if ( num_pnts_on_surf > 0 )
         {
-            vec2d uw = ClosestUW( control_pnts[c], m_SurfCore.GetMaxU() / 2.0, m_SurfCore.GetMaxW() / 2.0 );
-
-            vec3d p = m_SurfCore.CompPnt( uw[0], uw[1] );
-
-            double d = dist( control_pnts[c], p );
-
-            if ( d < tol )
-            {
-                num_pnts_on_surf++;
-                retFlag = true;
-            }
+            retFlag = true;
         }
+
         if ( num_pnts_on_surf > 2 )
         {
             //==== If Surface Add To List ====//
