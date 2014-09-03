@@ -1515,13 +1515,13 @@ bool Surf::BorderMatch( Surf* otherSurf )
 {
     double tol = 1e-4;
 
-	vector < Bezier_curve > borderCurvesA;
-	m_SurfCore.LoadBorderCurves( borderCurvesA );
+    vector < Bezier_curve > borderCurvesA;
+    m_SurfCore.LoadBorderCurves( borderCurvesA );
 
-	vector < Bezier_curve > borderCurvesB;
-	otherSurf->GetSurfCore()->LoadBorderCurves( borderCurvesB );
+    vector < Bezier_curve > borderCurvesB;
+    otherSurf->GetSurfCore()->LoadBorderCurves( borderCurvesB );
 
-	for ( int i = 0 ; i < ( int )borderCurvesA.size() ; i++ )
+    for ( int i = 0 ; i < ( int )borderCurvesA.size() ; i++ )
     {
         for ( int j = 0 ; j < ( int )borderCurvesB.size() ; j++ )
         {
