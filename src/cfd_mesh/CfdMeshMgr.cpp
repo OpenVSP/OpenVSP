@@ -103,47 +103,12 @@ void Wake::BuildSurfs(  )
         int wakeParentSurfID = m_LeadingCurves[c]->m_SCurve_A->GetSurf()->GetSurfID();
         string geom_id = m_LeadingCurves[c]->m_SCurve_A->GetSurf()->GetGeomID();
 
-        vector< vec3d > le_pnts;
-        m_LeadingCurves[c]->m_SCurve_A->ExtractBorderControlPnts( le_pnts );
+        Bezier_curve le_crv;
 
-        if ( le_pnts.size() )
+        m_LeadingCurves[c]->m_SCurve_A->ExtractBorderControlPnts( le_crv );
+
+        if ( le_crv.GetNumSections() > 0 )
         {
-            vector< vector< vec3d > > cpnts;
-            cpnts.resize( le_pnts.size() );
-            for ( int i = 0 ; i < ( int )cpnts.size() ; i++ )
-            {
-                cpnts[i].resize( 4 );
-            }
-
-            for ( int i = 0 ; i < ( int )cpnts.size() ; i++ )
-            {
-                vec3d te_pnt = m_WakeMgrPtr->ComputeTrailEdgePnt( le_pnts[i] );
-                for ( int j = 0 ; j < ( int )cpnts[i].size() ; j++ )
-                {
-                    double fract = ( double )j / ( double )( cpnts[i].size() - 1 );
-                    cpnts[i][j] = le_pnts[i] + ( te_pnt - le_pnts[i] ) * fract;
-                }
-            }
-
-            //==== Check Surf Orientation ====//
-            int nu = cpnts.size();
-            int nw = cpnts[0].size();
-            vec3d vu = cpnts[nu - 1][0] - cpnts[0][0];
-            vec3d vw = cpnts[0][nw - 1] - cpnts[0][0];
-            vec3d cp = cross( vu, vw );
-            if ( cp.z() < 0.0 )
-            {
-                //==== Flip Surface ====//
-                vector< vector< vec3d > > temppnts = cpnts;
-                for ( int i = 0 ; i < ( int )temppnts.size() ; i++ )
-                {
-                    for ( int j = 0 ; j < ( int )temppnts[i].size() ; j++ )
-                    {
-                        cpnts[nu - 1 - i][j] = temppnts[i][j];
-                    }
-                }
-            }
-
             Surf* s = new Surf();
             s->SetWakeFlag( true );
             s->SetTransFlag( true );
@@ -152,14 +117,12 @@ void Wake::BuildSurfs(  )
             s->SetRefGeomID( geom_id );
             s->SetSurfID( m_SurfVec.size() );
             s->SetWakeParentSurfID( wakeParentSurfID );
-            s->LoadControlPnts( cpnts );
+            s->GetSurfCore()->MakeWakeSurf( le_crv, m_WakeMgrPtr->GetEndX(), m_WakeMgrPtr->GetAngle() );
             s->SetDefaultParmMap();
 
             m_SurfVec.push_back( s );
         }
     }
-
-
 }
 
 //=============================================================//
