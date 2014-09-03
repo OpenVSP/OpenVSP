@@ -73,7 +73,7 @@ public:
 
     void SetControlPnts( vector< vector < vec3d > > pnts );
     vector< vector< vec3d > > GetControlPnts() const;
-    void ExtractBorderControlPnts( const vec3d &uw0, const vec3d &uw1, Bezier_curve &crv );
+    void GetBorderCurve( const vec3d &uw0, const vec3d &uw1, Bezier_curve &crv ) const;
 
     bool LessThanY( double val ) const;
     bool OnYZeroPlane() const;

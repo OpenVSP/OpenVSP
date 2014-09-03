@@ -106,7 +106,7 @@ vector< vector< vec3d > > SurfCore::GetControlPnts() const
     return ret;
 }
 
-void SurfCore::ExtractBorderControlPnts( const vec3d &uw0, const vec3d &uw1, Bezier_curve &crv )
+void SurfCore::GetBorderCurve( const vec3d &uw0, const vec3d &uw1, Bezier_curve &crv ) const
 {
     int iborder = -1;
     double tol = 1.0e-12;

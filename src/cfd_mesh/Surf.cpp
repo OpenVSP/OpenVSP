@@ -158,9 +158,9 @@ void Surf::LoadControlPnts( vector< vector< vec3d > > & control_pnts )
     }
 }
 
-void Surf::ExtractBorderControlPnts( const vec3d &uw0, const vec3d &uw1, Bezier_curve & crv )
+void Surf::GetBorderCurve( const vec3d &uw0, const vec3d &uw1, Bezier_curve & crv ) const
 {
-    m_SurfCore.ExtractBorderControlPnts( uw0, uw1, crv );
+    m_SurfCore.GetBorderCurve( uw0, uw1, crv );
 }
 
 double Surf::TargetLen( double u, double w, double gap, double radfrac )
@@ -970,7 +970,7 @@ bool Surf::BorderCurveOnSurface( Surf* surfPtr )
     for ( int i = 0 ; i < ( int )border_curves.size() ; i++ )
     {
         Bezier_curve crv;
-        border_curves[i]->ExtractBorderControlPnts( crv );
+        border_curves[i]->GetBorderCurve( crv );
 
         Bezier_curve projcrv = crv;
         projcrv.XYZCurveToUWCurve( this );

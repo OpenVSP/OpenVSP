@@ -105,7 +105,7 @@ void Wake::BuildSurfs(  )
 
         Bezier_curve le_crv;
 
-        m_LeadingCurves[c]->m_SCurve_A->ExtractBorderControlPnts( le_crv );
+        m_LeadingCurves[c]->m_SCurve_A->GetBorderCurve( le_crv );
 
         if ( le_crv.GetNumSections() > 0 )
         {

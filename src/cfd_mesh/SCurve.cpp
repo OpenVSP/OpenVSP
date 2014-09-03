@@ -49,11 +49,11 @@ double SCurve::Length( int num_segs )
 }
 
 
-void SCurve::ExtractBorderControlPnts( Bezier_curve & crv )
+void SCurve::GetBorderCurve( Bezier_curve & crv ) const
 {
     vec3d uw0 = m_UWCrv.FirstPnt();
     vec3d uw1 = m_UWCrv.LastPnt();
-    m_Surf->ExtractBorderControlPnts( uw0, uw1, crv );
+    m_Surf->GetBorderCurve( uw0, uw1, crv );
 }
 
 double SCurve::GetTargetLen( GridDensity* grid_den, SCurve* BCurve, vec3d p, vec3d uw, double u )
