@@ -131,6 +131,14 @@ public:
     {
         m_Angle = a;
     }
+    double GetEndX()
+    {
+        return m_EndX;
+    }
+    double GetAngle()
+    {
+        return m_Angle;
+    }
     void SetStartStretchX( double x )
     {
         m_StartStretchX = x;
