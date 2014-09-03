@@ -12,7 +12,6 @@
 #include "eli/geom/intersect/minimum_distance_surface.hpp"
 
 typedef piecewise_surface_type::index_type surface_index_type;
-typedef piecewise_surface_type::point_type surface_point_type;
 typedef piecewise_surface_type::rotation_matrix_type surface_rotation_matrix_type;
 typedef piecewise_surface_type::bounding_box_type surface_bounding_box_type;
 
@@ -800,4 +799,44 @@ void SurfCore::WriteSurf( FILE* fp ) const
                      pntVec[i][j].x(), pntVec[i][j].y(), pntVec[i][j].z() );
         }
     }
+}
+
+void SurfCore::MakeWakeSurf( const Bezier_curve &lecrv, double endx, double angle )
+{
+    Bezier_curve tecrv;
+    tecrv.BuildWakeTECurve( lecrv, endx, angle );
+
+    piecewise_curve_type le = lecrv.GetCurve();
+    piecewise_curve_type te = tecrv.GetCurve();
+
+    int nuseg = le.number_segments();
+
+    m_Surface.init_uv( nuseg, 1 );
+
+    for ( int i = 0; i < nuseg; i++ )
+    {
+        curve_segment_type cle, cte;
+        le.get( cle, i );
+        te.get( cte, i );
+
+        surface_patch_type patch;
+        patch.resize( cle.degree(), 1 );
+
+        for ( int j = 0; j <= cle.degree(); j++ )
+        {
+            patch.set_control_point( cle.get_control_point( j ), j, 0 );
+            patch.set_control_point( cte.get_control_point( j ), j, 1 );
+        }
+        m_Surface.set( patch, i, 0 );
+    }
+
+    surface_point_type p = m_Surface.normal( 0.0, 0.0 );
+    if ( p.z() < 0.0 )
+    {
+        m_Surface.reverse_u();
+    }
+
+    // Everything is assumed/forced Cubic for now.  Remove this when
+    // higher/lower order surfaces are fully supported.
+    m_Surface.to_cubic( 1e-3 );
 }

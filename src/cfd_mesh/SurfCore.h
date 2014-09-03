@@ -17,6 +17,7 @@
 
 typedef eli::geom::surface::bezier<double, 3> surface_patch_type;
 typedef eli::geom::surface::piecewise<eli::geom::surface::bezier, double, 3> piecewise_surface_type;
+typedef piecewise_surface_type::point_type surface_point_type;
 
 typedef piecewise_surface_type::tolerance_type surface_tolerance_type;
 typedef eli::geom::curve::piecewise_cubic_spline_creator<double, 3, surface_tolerance_type> piecewise_cubic_spline_creator_type;
@@ -85,6 +86,8 @@ public:
     bool SurfMatch( SurfCore* otherSurf ) const;
 
     void WriteSurf( FILE* fp ) const;
+
+    void MakeWakeSurf( const Bezier_curve &lecrv, double endx, double angle );
 
 protected:
     piecewise_surface_type m_Surface;
