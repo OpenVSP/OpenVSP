@@ -547,10 +547,10 @@ Bezier_curve SurfCore::GetBorderCurve( int iborder ) const
 
 void SurfCore::LoadBorderCurves( vector < Bezier_curve > & borderCurves ) const
 {
-	borderCurves.push_back( GetBorderCurve( WMIN ) );
-	borderCurves.push_back( GetBorderCurve( WMAX ) );
-	borderCurves.push_back( GetBorderCurve( UMIN ) );
-	borderCurves.push_back( GetBorderCurve( UMAX ) );
+    borderCurves.push_back( GetBorderCurve( WMIN ) );
+    borderCurves.push_back( GetBorderCurve( WMAX ) );
+    borderCurves.push_back( GetBorderCurve( UMIN ) );
+    borderCurves.push_back( GetBorderCurve( UMAX ) );
 }
 
 bool SurfCore::SurfMatch( SurfCore* otherSurf ) const
