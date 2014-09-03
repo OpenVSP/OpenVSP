@@ -48,6 +48,14 @@ double SCurve::Length( int num_segs )
     return total_dist;
 }
 
+
+void SCurve::ExtractBorderControlPnts( Bezier_curve & crv )
+{
+    vec3d uw0 = m_UWCrv.FirstPnt();
+    vec3d uw1 = m_UWCrv.LastPnt();
+    m_Surf->ExtractBorderControlPnts( uw0, uw1, crv );
+}
+
 void SCurve::ExtractBorderControlPnts( vector< vec3d > & control_pnts )
 {
     vec3d uw0 = m_UWCrv.FirstPnt();

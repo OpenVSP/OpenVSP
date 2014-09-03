@@ -107,6 +107,34 @@ vector< vector< vec3d > > SurfCore::GetControlPnts() const
     return ret;
 }
 
+void SurfCore::ExtractBorderControlPnts( const vec3d &uw0, const vec3d &uw1, Bezier_curve &crv )
+{
+    int iborder = -1;
+    double tol = 1.0e-12;
+
+    if ( fabs( uw0.x() - uw1.x() ) < tol ) // U const, UMIN or UMAX
+    {
+        double umid = ( m_Surface.get_umax() + m_Surface.get_u0() ) / 2.0;
+
+        if ( uw0.x() < umid )
+            iborder = UMIN;
+        else
+            iborder = UMAX;
+    }
+    else if ( fabs( uw0.y() - uw1.y() ) < tol )
+    {
+        double vmid = ( m_Surface.get_vmax() + m_Surface.get_v0() ) / 2.0;
+
+        if ( uw0.y() < vmid )
+            iborder = WMIN;
+        else
+            iborder = WMAX;
+    }
+
+    if ( iborder >= UMIN )
+    crv = GetBorderCurve( iborder );
+}
+
 void SurfCore::ExtractBorderControlPnts( const vec3d &uw0, const vec3d &uw1, vector< vec3d > & control_pnts )
 {
     vector< vector< vec3d > > cpnts = GetControlPnts();

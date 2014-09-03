@@ -158,6 +158,11 @@ void Surf::LoadControlPnts( vector< vector< vec3d > > & control_pnts )
     }
 }
 
+void Surf::ExtractBorderControlPnts( const vec3d &uw0, const vec3d &uw1, Bezier_curve & crv )
+{
+    m_SurfCore.ExtractBorderControlPnts( uw0, uw1, crv );
+}
+
 void Surf::ExtractBorderControlPnts( const vec3d &uw0, const vec3d &uw1, vector< vec3d > & control_pnts )
 {
     m_SurfCore.ExtractBorderControlPnts( uw0, uw1, control_pnts );

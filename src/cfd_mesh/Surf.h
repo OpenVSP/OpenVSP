@@ -45,6 +45,7 @@ public:
 
     void ReadSurf( FILE* file_id );
     void LoadControlPnts( vector< vector< vec3d > > & pnts );
+    void ExtractBorderControlPnts( const vec3d &uw0, const vec3d &uw1, Bezier_curve & crv );
     void ExtractBorderControlPnts( const vec3d &uw0, const vec3d &uw1, vector< vec3d > & control_pnts );
 
     vec3d CompPnt( double u, double w ) const;
