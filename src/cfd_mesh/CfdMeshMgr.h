@@ -286,8 +286,6 @@ public:
 
     virtual vector< Surf* > CreateDomainSurfs();
 
-    virtual void IntersectWakes();
-
     virtual void MergeInteriorChainIPnts();
 
     virtual void LoadBorderCurves();

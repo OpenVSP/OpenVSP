@@ -2426,25 +2426,6 @@ vector< Surf* > CfdMeshMgrSingleton::CreateDomainSurfs()
     return domainSurfs;
 }
 
-
-void CfdMeshMgrSingleton::IntersectWakes()
-{
-    vector < Surf* > wake_surfs = m_WakeMgr.GetWakeSurfs();
-
-    if ( wake_surfs.size() == 0 )
-    {
-        return;
-    }
-
-    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
-    {
-        for ( int j = 0 ; j < ( int )wake_surfs.size() ; j++ )
-        {
-            m_SurfVec[i]->Intersect( wake_surfs[j] );
-        }
-    }
-}
-
 void CfdMeshMgrSingleton::InitMesh( )
 {
     bool PrintProgress = false;
