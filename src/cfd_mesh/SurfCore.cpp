@@ -790,10 +790,6 @@ void SurfCore::MakeWakeSurf( const Bezier_curve &lecrv, double endx, double angl
     {
         m_Surface.reverse_u();
     }
-
-    // Everything is assumed/forced Cubic for now.  Remove this when
-    // higher/lower order surfaces are fully supported.
-    m_Surface.to_cubic( 1e-3 );
 }
 
 void SurfCore::BuildPatches( Surf* srf ) const
