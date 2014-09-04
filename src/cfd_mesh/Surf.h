@@ -159,6 +159,10 @@ public:
     {
         return m_PatchVec;
     }
+    void SetPatchVec( const vector< SurfPatch* > &pvec )
+    {
+        m_PatchVec = pvec;
+    }
 
     void InitMesh( vector< ISegChain* > chains );
 
