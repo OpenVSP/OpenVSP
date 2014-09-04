@@ -16,6 +16,9 @@
 #include "Defines.h"
 #include "Vec2d.h"
 
+#include "eli/code_eli.hpp"
+typedef Eigen::Matrix< double, 1, 3 > threed_point_type;
+
 #include <iostream>
 #include <vector>
 
@@ -44,8 +47,11 @@ public:
 
     vec3d( const vec3d& a ); // vec3d x = y
 
+    vec3d( const threed_point_type &a );
+
     vec3d& operator=( const vec3d& a ); // x = y
     vec3d& operator=( double a );      // x = 35.
+    vec3d& operator=( const threed_point_type &a );
 
     double& operator [] ( int i )
     {
@@ -76,6 +82,13 @@ public:
         pnt[1] = ( float )v[1];
         pnt[2] = ( float )v[2];
     }
+    void get_pnt( threed_point_type &pnt ) const
+    {
+        pnt[0] = v[0];
+        pnt[1] = v[1];
+        pnt[2] = v[2];
+    }
+
     double x() const
     {
         return( v[0] );
