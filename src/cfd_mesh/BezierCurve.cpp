@@ -14,6 +14,7 @@
 //******************************************************************************
 
 #include "BezierCurve.h"
+#include "Util.h"
 #include <algorithm>
 
 #include "eli/geom/curve/length.hpp"
@@ -22,7 +23,6 @@
 #include "eli/geom/point/distance.hpp"
 
 typedef piecewise_curve_type::index_type curve_index_type;
-typedef piecewise_curve_type::point_type curve_point_type;
 typedef piecewise_curve_type::rotation_matrix_type curve_rotation_matrix_type;
 typedef piecewise_curve_type::bounding_box_type curve_bounding_box_type;
 typedef piecewise_curve_type::tolerance_type curve_tolerance_type;
@@ -136,6 +136,35 @@ void Bezier_curve::BuildCurve( const vector< vec3d > & pVec, double tanStr )
 void Bezier_curve::FlipCurve()
 {
     m_Curve.reverse();
+}
+
+void Bezier_curve::BuildWakeTECurve( const Bezier_curve &lecrv, double endx, double angle )
+{
+    m_Curve = lecrv.m_Curve;
+
+    int nsect = m_Curve.number_segments();
+
+    for ( int i = 0; i < nsect; i++ )
+    {
+        curve_segment_type c;
+        m_Curve.get( c, i );
+
+        for ( int j = 0; j <= c.degree(); j++ )
+        {
+            curve_point_type cp = c.get_control_point( j );
+            curve_point_type newpt = ComputeWakeTrailEdgePnt( cp, endx, angle );
+            c.set_control_point( newpt, j );
+        }
+        m_Curve.replace( c, i );
+    }
+}
+
+curve_point_type Bezier_curve::ComputeWakeTrailEdgePnt( const curve_point_type &pnt, double endx, double angle )
+{
+    curve_point_type wkpnt;
+    double z = pnt.z() + ( endx - pnt.x() ) * tan( DEG2RAD( angle ) );
+    wkpnt << endx, pnt.y(), z;
+    return wkpnt;
 }
 
 void Bezier_curve::PutControlPoints( const vector< vec3d > &pnts_in )

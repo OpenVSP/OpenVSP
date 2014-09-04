@@ -31,6 +31,7 @@
 
 typedef eli::geom::curve::bezier<double, 3> curve_segment_type;
 typedef eli::geom::curve::piecewise<eli::geom::curve::bezier, double, 3> piecewise_curve_type;
+typedef piecewise_curve_type::point_type curve_point_type;
 
 using namespace std;            //jrg windows??
 
@@ -59,6 +60,8 @@ public:
 
     void BuildCurve( const vector< vec3d > & pVec, double tanStr );
     void FlipCurve();
+    void BuildWakeTECurve( const Bezier_curve &lecrv, double endx, double angle );
+    curve_point_type ComputeWakeTrailEdgePnt( const curve_point_type &pnt, double endx, double angle );
 
     void UWCurveToXYZCurve( const Surf *srf );
     void XYZCurveToUWCurve( const Surf *srf );
