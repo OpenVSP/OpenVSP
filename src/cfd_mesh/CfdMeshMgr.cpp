@@ -2358,13 +2358,6 @@ vector< Surf* > CfdMeshMgrSingleton::CreateDomainSurfs()
     p3[4] = m_Domain.GetCornerPnt( 3 );
     p3[5] = m_Domain.GetCornerPnt( 6 );
 
-    vector < vector < vec3d > > cpVec;
-    cpVec.resize( 4 );
-    for ( int j = 0 ; j < (int)cpVec.size() ; j++ )
-    {
-        cpVec[j].resize( 4 );
-    }
-
     // Default, no additional surfaces.
     int ndomain = 0;
 
@@ -2402,26 +2395,16 @@ vector< Surf* > CfdMeshMgrSingleton::CreateDomainSurfs()
             domainSurfs[i]->SetFarFlag( true );
         }
 
-        cpVec[0][0] = p0[i];
-        cpVec[1][0] = p0[i] + ( p1[i] - p0[i] ) * 0.333;
-        cpVec[2][0] = p0[i] + ( p1[i] - p0[i] ) * 0.667;
-        cpVec[3][0] = p1[i];
-        cpVec[0][3] = p2[i];
-        cpVec[1][3] = p2[i] + ( p3[i] - p2[i] ) * 0.333;
-        cpVec[2][3] = p2[i] + ( p3[i] - p2[i] ) * 0.667;
-        cpVec[3][3] = p3[i];
-        cpVec[0][1] = cpVec[0][0] + ( cpVec[0][3] - cpVec[0][0] ) * .333;
-        cpVec[1][1] = cpVec[1][0] + ( cpVec[1][3] - cpVec[1][0] ) * .333;
-        cpVec[2][1] = cpVec[2][0] + ( cpVec[2][3] - cpVec[2][0] ) * .333;
-        cpVec[3][1] = cpVec[3][0] + ( cpVec[3][3] - cpVec[3][0] ) * .333;
-        cpVec[0][2] = cpVec[0][0] + ( cpVec[0][3] - cpVec[0][0] ) * .667;
-        cpVec[1][2] = cpVec[1][0] + ( cpVec[1][3] - cpVec[1][0] ) * .667;
-        cpVec[2][2] = cpVec[2][0] + ( cpVec[2][3] - cpVec[2][0] ) * .667;
-        cpVec[3][2] = cpVec[3][0] + ( cpVec[3][3] - cpVec[3][0] ) * .667;
+        threed_point_type pt0, pt1, pt2, pt3;
 
-        domainSurfs[i]->LoadControlPnts( cpVec );
+        p0[i].get_pnt( pt0 );
+        p1[i].get_pnt( pt1 );
+        p2[i].get_pnt( pt2 );
+        p3[i].get_pnt( pt3 );
+
+        domainSurfs[i]->GetSurfCore()->MakePlaneSurf( pt0, pt1, pt2, pt3 );
+        domainSurfs[i]->GetSurfCore()->BuildPatches( domainSurfs[i] );
         domainSurfs[i]->SetDefaultParmMap();
-
     }
     return domainSurfs;
 }
