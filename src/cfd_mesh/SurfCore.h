@@ -27,6 +27,7 @@ typedef eli::geom::surface::connection_data<double, 3, surface_tolerance_type> r
 using std::vector;
 
 class Bezier_curve;
+class Surf;
 
 //////////////////////////////////////////////////////////////////////
 class SurfCore
@@ -87,6 +88,8 @@ public:
     void WriteSurf( FILE* fp ) const;
 
     void MakeWakeSurf( const Bezier_curve &lecrv, double endx, double angle );
+
+    void BuildPatches( Surf* srf ) const;
 
 protected:
     piecewise_surface_type m_Surface;

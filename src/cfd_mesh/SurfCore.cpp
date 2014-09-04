@@ -5,6 +5,7 @@
 
 #include "SurfCore.h"
 #include "BezierCurve.h"
+#include "Surf.h"
 
 #include "eli/geom/curve/piecewise_creator.hpp"
 #include "eli/geom/surface/piecewise_body_of_revolution_creator.hpp"
@@ -793,4 +794,52 @@ void SurfCore::MakeWakeSurf( const Bezier_curve &lecrv, double endx, double angl
     // Everything is assumed/forced Cubic for now.  Remove this when
     // higher/lower order surfaces are fully supported.
     m_Surface.to_cubic( 1e-3 );
+}
+
+void SurfCore::BuildPatches( Surf* srf ) const
+{
+    vector< SurfPatch* > patchVec = srf->GetPatchVec();
+
+    for ( int i = 0 ; i < ( int )patchVec.size() ; i++ )
+    {
+        delete patchVec[i];
+    }
+    patchVec.clear();
+
+    piecewise_surface_type s( m_Surface );
+
+    piecewise_surface_type::data_type ttol = 1e-6;
+    s.to_cubic( ttol );
+
+    for ( int ip = 0; ip < s.number_u_patches(); ip++ )
+    {
+        for ( int jp = 0; jp < s.number_v_patches(); jp++ )
+        {
+            double umin, du, vmin, dv;
+            const surface_patch_type *epatch = s.get_patch( ip, jp, umin, du, vmin, dv );
+
+            SurfPatch* patch = new SurfPatch();
+
+            for ( int pi = 0 ; pi < 4 ; pi++ )
+            {
+                for ( int pj = 0 ; pj < 4 ; pj++ )
+                {
+                    patch->put_pnt( pi, pj, epatch->get_control_point( pi, pj ) );
+                }
+            }
+
+            patch->set_u_min_max( umin, umin + du );
+            patch->set_w_min_max( vmin, vmin + dv );
+
+            patch->set_surf_ptr( srf );
+            patch->compute_bnd_box();
+
+            patchVec.push_back( patch );
+        }
+    }
+
+    surface_bounding_box_type bbox;
+    m_Surface.get_bounding_box( bbox );
+    srf->SetBBox( bbox.get_max(), bbox.get_min() );
+    srf->SetPatchVec( patchVec );
 }
