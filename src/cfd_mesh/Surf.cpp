@@ -124,38 +124,7 @@ void Surf::LoadControlPnts( vector< vector< vec3d > > & control_pnts )
     assert( control_pnts.size() >= 4 );
     assert( control_pnts[0].size() >= 4 );
     m_SurfCore.SetControlPnts( control_pnts );
-
-    //==== Load Patch Vec ====//
-    m_BBox.Reset();
-    for ( i = 0 ; i < ( int )m_PatchVec.size() ; i++ )
-    {
-        delete m_PatchVec[i];
-    }
-    m_PatchVec.clear();
-
-
-    int numU = control_pnts.size();
-    int numW = control_pnts[0].size();
-
-    for ( i = 0 ; i < numU - 1 ; i += 3 )
-    {
-        for ( j = 0 ; j < numW - 1 ; j += 3 )
-        {
-            SurfPatch* patch = new SurfPatch();
-            for ( int pi = 0 ; pi < 4 ; pi++ )
-                for ( int pj = 0 ; pj < 4 ; pj++ )
-                {
-                    m_BBox.Update( control_pnts[pi + i][pj + j] );
-                    patch->put_pnt( pi, pj, control_pnts[pi + i][pj + j] );
-
-                    patch->set_u_min_max( i / 3, i / 3 + 1.0 );
-                    patch->set_w_min_max( j / 3, j / 3 + 1.0 );
-                }
-            patch->set_surf_ptr( this );
-            patch->compute_bnd_box();
-            m_PatchVec.push_back( patch );
-        }
-    }
+    m_SurfCore.BuildPatches( this );
 }
 
 void Surf::GetBorderCurve( const vec3d &uw0, const vec3d &uw1, Bezier_curve & crv ) const

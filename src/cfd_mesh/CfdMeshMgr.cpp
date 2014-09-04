@@ -118,6 +118,7 @@ void Wake::BuildSurfs(  )
             s->SetSurfID( m_SurfVec.size() );
             s->SetWakeParentSurfID( wakeParentSurfID );
             s->GetSurfCore()->MakeWakeSurf( le_crv, m_WakeMgrPtr->GetEndX(), m_WakeMgrPtr->GetAngle() );
+            s->GetSurfCore()->BuildPatches( s );
             s->SetDefaultParmMap();
 
             m_SurfVec.push_back( s );
