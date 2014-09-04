@@ -73,7 +73,6 @@ public:
     }
 
     void SetControlPnts( vector< vector < vec3d > > pnts );
-    vector< vector< vec3d > > GetControlPnts() const;
     void GetBorderCurve( const vec3d &uw0, const vec3d &uw1, Bezier_curve &crv ) const;
 
     bool LessThanY( double val ) const;
@@ -93,6 +92,8 @@ public:
 
 protected:
     piecewise_surface_type m_Surface;
+
+    vector< vector< vec3d > > GetControlPnts() const;
 
     vec3d CompTanUU( double u, double w ) const;
     vec3d CompTanWW( double u, double w ) const;
