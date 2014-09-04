@@ -824,31 +824,15 @@ void FeaSlice::SetEndPoints( vec2d & uwA, vec2d uwB )
     m_UpperEndChainPnt = FeaMeshMgr.ComputePoint( uwA, true );
     m_LowerEndChainPnt = FeaMeshMgr.ComputePoint( uwA, false );
 
-    vector< vector< vec3d > > cpVec;
-    cpVec.resize( 4 );
-    for ( int i = 0 ; i < 4 ; i++ )
-    {
-        cpVec[i].resize( 4 );
-    }
+    threed_point_type pt0, pt1, pt2, pt3;
 
-    cpVec[0][0] = upA;
-    cpVec[1][0] = upA + ( upB - upA ) * 0.333;
-    cpVec[2][0] = upA + ( upB - upA ) * 0.667;
-    cpVec[3][0] = upB;
-    cpVec[0][3] = lpA;
-    cpVec[1][3] = lpA + ( lpB - lpA ) * 0.333;
-    cpVec[2][3] = lpA + ( lpB - lpA ) * 0.667;
-    cpVec[3][3] = lpB;
-    cpVec[0][1] = upA + ( lpA - upA ) * 0.333;
-    cpVec[1][1] = cpVec[1][0] + ( cpVec[1][3] - cpVec[1][0] ) * .333;
-    cpVec[2][1] = cpVec[2][0] + ( cpVec[2][3] - cpVec[2][0] ) * .333;
-    cpVec[3][1] = upB + ( lpB - upB ) * 0.333;
-    cpVec[0][2] = upA + ( lpA - upA ) * 0.667;
-    cpVec[1][2] = cpVec[1][0] + ( cpVec[1][3] - cpVec[1][0] ) * .667;
-    cpVec[2][2] = cpVec[2][0] + ( cpVec[2][3] - cpVec[2][0] ) * .667;
-    cpVec[3][2] = upB + ( lpB - upB ) * 0.667;
+    upA.get_pnt( pt0 );
+    upB.get_pnt( pt1 );
+    lpA.get_pnt( pt2 );
+    lpB.get_pnt( pt3 );
 
-    m_Surf->LoadControlPnts( cpVec );
+    m_Surf->GetSurfCore()->MakePlaneSurf( pt0, pt1, pt2, pt3 );
+    m_Surf->GetSurfCore()->BuildPatches( m_Surf );
 }
 void FeaSlice::SetUpperCapSurfs( Surf* s0, Surf* s1 )
 {
