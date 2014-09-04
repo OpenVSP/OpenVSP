@@ -153,6 +153,8 @@ public:
     {
         return m_BBox;
     }
+    void SetBBox( const vec3d &pmin, const vec3d &pmax );
+
     vector< SurfPatch* >& GetPatchVec()
     {
         return m_PatchVec;

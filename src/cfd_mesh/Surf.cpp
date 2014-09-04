@@ -1068,6 +1068,13 @@ void Surf::PlaneBorderCurveIntersect( Surf* surfPtr, SCurve* brdPtr )
     }
 }
 
+void Surf::SetBBox( const vec3d &pmin, const vec3d &pmax )
+{
+    m_BBox.Reset();
+    m_BBox.Update( pmin );
+    m_BBox.Update( pmax );
+}
+
 
 void Surf::InitMesh( vector< ISegChain* > chains )
 {
