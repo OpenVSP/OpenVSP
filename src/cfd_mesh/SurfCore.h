@@ -87,6 +87,7 @@ public:
     void WriteSurf( FILE* fp ) const;
 
     void MakeWakeSurf( const Bezier_curve &lecrv, double endx, double angle );
+    void MakePlaneSurf( const threed_point_type &p0, const threed_point_type &p1, const threed_point_type &p2, const threed_point_type &p3 );
 
     void BuildPatches( Surf* srf ) const;
 

@@ -792,6 +792,20 @@ void SurfCore::MakeWakeSurf( const Bezier_curve &lecrv, double endx, double angl
     }
 }
 
+void SurfCore::MakePlaneSurf( const threed_point_type &p0, const threed_point_type &p1, const threed_point_type &p2, const threed_point_type &p3 )
+{
+    surface_patch_type patch;
+    patch.resize( 1, 1 );
+
+    patch.set_control_point( p0, 0, 0 );
+    patch.set_control_point( p1, 1, 0 );
+    patch.set_control_point( p2, 0, 1 );
+    patch.set_control_point( p3, 1, 1 );
+
+    m_Surface.init_uv( 1, 1 );
+    m_Surface.set( patch, 0, 0 );
+}
+
 void SurfCore::BuildPatches( Surf* srf ) const
 {
     vector< SurfPatch* > patchVec = srf->GetPatchVec();
