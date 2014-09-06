@@ -716,6 +716,7 @@ xmlNodePtr CustomGeom::EncodeXml( xmlNodePtr & node )
     if ( custom_node )
     {
         string file_contents = ScriptMgr.FindModuleContent( GetScriptModuleName() );
+        string safe_file_contents = XmlUtil::ConvertToXMLSafeChars( file_contents );
 
         for ( int i = 0 ; i < (int)m_ParmVec.size() ; i++ )
         {
@@ -723,7 +724,7 @@ xmlNodePtr CustomGeom::EncodeXml( xmlNodePtr & node )
         }
 
         XmlUtil::AddStringNode( custom_node, "ScriptFileModule", GetScriptModuleName()  );
-        XmlUtil::AddStringNode( custom_node, "ScriptFileContents", file_contents );
+        XmlUtil::AddStringNode( custom_node, "ScriptFileContents", safe_file_contents );
     }
     Geom::EncodeXml( node );
 
@@ -738,10 +739,11 @@ xmlNodePtr CustomGeom::DecodeXml( xmlNodePtr & node )
     if ( custom_node )
     {
         string module_name = XmlUtil::FindString( custom_node, "ScriptFileModule", GetScriptModuleName() );
-        string file_contents = XmlUtil::FindString( custom_node, "ScriptFileContents", string() );
+        string safe_file_contents = XmlUtil::FindString( custom_node, "ScriptFileContents", string() );
+        string file_contents = XmlUtil::ConvertFromXMLSafeChars( safe_file_contents );
 
         string new_module_name = ScriptMgr.ReadScriptFromMemory( module_name, file_contents );
-         CustomGeomMgr.InitGeom( GetID(), new_module_name );
+        CustomGeomMgr.InitGeom( GetID(), new_module_name );
 
         for ( int i = 0 ; i < (int)m_ParmVec.size() ; i++ )
         {
