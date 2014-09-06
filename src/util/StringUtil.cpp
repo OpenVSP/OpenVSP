@@ -18,6 +18,32 @@ void StringUtil::change_from_to( string & str, const char from, const char to )
     }
 }
 
+
+//==== Replace First Instance of From String with To String ====//
+bool StringUtil::replace_once( string & str, const string & from, const string & to )
+{
+    size_t start_pos = str.find(from);
+    if(start_pos == std::string::npos)
+        return false;
+    str.replace(start_pos, from.length(), to);
+    return true;
+}
+
+//==== Replace All Instances of From String with To String ====//
+void StringUtil::replace_all( string & str, const string & from, const string & to  )
+{
+    if(from.empty())
+        return;
+
+    size_t start_pos = 0;
+    while((start_pos = str.find(from, start_pos)) != std::string::npos)
+    {
+        str.replace(start_pos, from.length(), to);
+        start_pos += to.length(); // In case 'to' contains 'from', like replacing 'x' with 'yx'
+    }
+}
+
+
 //==== Change All "_" Characters -> " " Characters ====//
 void StringUtil::chance_underscore_to_space( string & str )
 {
