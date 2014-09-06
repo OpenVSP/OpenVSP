@@ -490,6 +490,8 @@ void LineSimpleSource::Update( Geom* geomPtr )
 {
     vec3d p1 = geomPtr->GetUWPt( m_SurfIndx, m_ULoc1, m_WLoc1 );
     vec3d p2 = geomPtr->GetUWPt( m_SurfIndx, m_ULoc2, m_WLoc2 );
+    m_RadSquared1 = m_Rad * m_Rad;
+    m_RadSquared2 = m_Rad2 * m_Rad2;
     SetEndPnts( p1, p2 );
 }
 
