@@ -894,32 +894,32 @@ string GetXSecSurf( const string & geom_id, int index )
     return xsec_surf->GetID();
 }
 
-/// Set the XSec type for the XSecSurf
-void SetXSecType( const string & xsec_surf_id, int type )
-{
-    XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
-    if ( !xsec_surf )
-    {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecType::Can't Find XSecSurf " + xsec_surf_id  );
-    }
-
-    ErrorMgr.NoError();
-    return xsec_surf->SetXSecType( type );
-}
-
-/// Get the XSec type for the XSecSurf
-int GetXSecType( const string & xsec_surf_id )
-{
-    XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
-    if ( !xsec_surf )
-    {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecType::Can't Find XSecSurf " + xsec_surf_id  );
-        return 0;
-    }
-
-    ErrorMgr.NoError();
-    return xsec_surf->GetXSecType();
-}
+///// Set the XSec type for the XSecSurf
+//void SetXSecType( const string & xsec_surf_id, int type )
+//{
+//    XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
+//    if ( !xsec_surf )
+//    {
+//        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecType::Can't Find XSecSurf " + xsec_surf_id  );
+//    }
+//
+//    ErrorMgr.NoError();
+//    return xsec_surf->SetXSecType( type );
+//}
+//
+///// Get the XSec type for the XSecSurf
+//int GetXSecType( const string & xsec_surf_id )
+//{
+//    XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
+//    if ( !xsec_surf )
+//    {
+//        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecType::Can't Find XSecSurf " + xsec_surf_id  );
+//        return 0;
+//    }
+//
+//    ErrorMgr.NoError();
+//    return xsec_surf->GetXSecType();
+//}
 
 /// Get the number of XSecs in the XSecSurf
 int GetNumXSec( const string & xsec_surf_id )

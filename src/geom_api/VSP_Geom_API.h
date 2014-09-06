@@ -97,8 +97,8 @@ extern int GetNumMainSurfs( const string & geom_id );
 
 //======================== XSecSurf ================================//
 extern string GetXSecSurf( const string & geom_id, int index );
-extern void SetXSecType( const string & xsec_surf_id, int type );
-extern int GetXSecType( const string & xsec_surf_id );
+//extern void SetXSecType( const string & xsec_surf_id, int type );
+//extern int GetXSecType( const string & xsec_surf_id );
 extern int GetNumXSec( const string & xsec_surf_id );
 extern string GetXSec( const string & xsec_surf_id, int xsec_index );
 extern string AppendXSec( const string & xsec_surf_id, int type );

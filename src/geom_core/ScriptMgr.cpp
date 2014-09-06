@@ -895,10 +895,6 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     //==== XSecSurf Functions ====//
     r = se->RegisterGlobalFunction( "string GetXSecSurf( const string & in geom_id, int index )", asFUNCTION( vsp::GetXSecSurf ), asCALL_CDECL );
     assert( r >= 0 );
-    //r = se->RegisterGlobalFunction( "void SetXSecType( const string & in xsec_surf_id, int type )", asFUNCTION( vsp::SetXSecType ), asCALL_CDECL );
-    //assert( r >= 0 );
-    //r = se->RegisterGlobalFunction( "int GetXSecType( const string & in xsec_surf_id )", asFUNCTION( vsp::GetXSecType ), asCALL_CDECL );
-    //assert( r >= 0 );
     r = se->RegisterGlobalFunction( "int GetNumXSec( const string & in xsec_surf_id )", asFUNCTION( vsp::GetNumXSec ), asCALL_CDECL );
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "string GetXSec( const string & in xsec_surf_id, int xsec_index )", asFUNCTION( vsp::GetXSec ), asCALL_CDECL );
