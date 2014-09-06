@@ -33,14 +33,6 @@ using namespace vsp;
 #include <algorithm>
 #include <utility>
 
-//==== VehicleGuiDraw ====//
-VehicleGuiDraw::VehicleGuiDraw()
-{
-}
-VehicleGuiDraw::~VehicleGuiDraw()
-{
-}
-
 //==== Constructor ====//
 Vehicle::Vehicle()
 {
@@ -246,7 +238,7 @@ void Vehicle::RunScript( const string & file_name, const string & function_name 
 
 
 //==== Find Geom Based on GeomID ====//
-Geom* Vehicle::FindGeom( string geom_id )
+Geom* Vehicle::FindGeom( const string & geom_id )
 {
     if ( geom_id == string( "NONE" ) )
     {
@@ -449,7 +441,7 @@ vector< string > Vehicle::GetGeomVec( bool check_display_flag )
 }
 
 //==== Add ID to Active Geom Vec ====//
-void Vehicle::AddActiveGeom( string id )
+void Vehicle::AddActiveGeom( const string & id )
 {
     if ( FindGeom( id ) )
     {
@@ -458,7 +450,7 @@ void Vehicle::AddActiveGeom( string id )
 }
 
 //==== Add ID to Cleard Active Geom Vec ====//
-void Vehicle::SetActiveGeom( string id )
+void Vehicle::SetActiveGeom( const string & id )
 {
     if ( FindGeom( id ) )
     {
@@ -468,12 +460,12 @@ void Vehicle::SetActiveGeom( string id )
 }
 
 //==== Is This Geom Active? ====//
-bool Vehicle::IsGeomActive( string geom_id )
+bool Vehicle::IsGeomActive( const string & geom_id )
 {
     return vector_contains_val( m_ActiveGeom, geom_id );
 }
 
-void Vehicle::CutGeomVec( vector< string > cut_vec )
+void Vehicle::CutGeomVec( const vector< string > & cut_vec )
 {
     //=== Build Ancestor ID vector before changing hierarchy ===//
     vector< string > ancest_vec;
@@ -682,7 +674,7 @@ void Vehicle::DeleteClipBoard()
     m_ClipBoard.clear();
 }
 
-void Vehicle::DeleteGeom( string geom_id )
+void Vehicle::DeleteGeom( const string & geom_id )
 {
     Geom* gPtr = FindGeom( geom_id );
     if ( gPtr )
@@ -749,7 +741,7 @@ void Vehicle::PasteClipboard()
 }
 
 //==== Copy Geoms In Vec - Create New IDs But Keep Parent/Child ====//
-vector< string > Vehicle::CopyGeomVec( vector< string > geom_vec )
+vector< string > Vehicle::CopyGeomVec( const vector< string > & geom_vec )
 {
     ParmMgr.ResetRemapID();
 
@@ -912,7 +904,7 @@ void Vehicle::SetGeomType( int index, GeomType & type )
 }
 
 //==== Add Type From Geometry ====//
-void Vehicle::AddType( string geom_id )
+void Vehicle::AddType( const string & geom_id )
 {
     Geom* gptr = FindGeom( geom_id );
     if ( gptr && gptr->GetType().m_Type != CUSTOM_GEOM_TYPE )
