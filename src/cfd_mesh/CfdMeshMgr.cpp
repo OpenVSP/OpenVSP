@@ -840,6 +840,7 @@ void CfdMeshMgrSingleton::DeleteAllSources()
         if ( geom )
         {
             geom->DelAllSources();
+            geom->UpdateSources();
         }
     }
 }
