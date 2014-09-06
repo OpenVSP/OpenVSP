@@ -457,14 +457,14 @@ void VspSurf::ResetUWSkip()
     nupatch = m_Surface.number_u_patches();
     nwpatch = m_Surface.number_v_patches();
 
-	m_USkip.resize( nupatch );
-	m_WSkip.resize( nwpatch );
+    m_USkip.resize( nupatch );
+    m_WSkip.resize( nwpatch );
 
-	for ( ip = 0; ip < nupatch; ip++ )
-	    m_USkip[ip] = false;
+    for ( ip = 0; ip < nupatch; ip++ )
+        m_USkip[ip] = false;
 
-	for ( jp = 0; jp < nwpatch; jp++ )
-	    m_WSkip[jp] = false;
+    for ( jp = 0; jp < nwpatch; jp++ )
+        m_WSkip[jp] = false;
 }
 
 void VspSurf::FlagDuplicate( VspSurf *othersurf )
