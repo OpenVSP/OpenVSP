@@ -211,7 +211,7 @@ public:
         m_CurrMainSurfIndx = indx;
     }
     virtual BaseSource* GetCurrSource();
-    virtual void AddSource( int type );
+    virtual BaseSource* AddSource( int type );
     virtual BaseSource* CreateSource( int type );
     virtual void DeleteCurrSource();
 

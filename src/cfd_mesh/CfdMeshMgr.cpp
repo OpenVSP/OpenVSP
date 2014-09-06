@@ -762,15 +762,14 @@ BaseSource* CfdMeshMgrSingleton::CreateSource( int type )
     return NULL;
 }
 
-void CfdMeshMgrSingleton::AddSource( int type )
+BaseSource* CfdMeshMgrSingleton::AddSource( int type )
 {
+    BaseSource* ret_source = NULL;
     Geom* curr_geom = NULL;
-
     curr_geom = m_Vehicle->FindGeom( m_CurrGeomID );
-
     if ( !curr_geom )
     {
-        return;
+        return ret_source;
     }
 
     char str[256];
@@ -789,6 +788,7 @@ void CfdMeshMgrSingleton::AddSource( int type )
         source->m_SurfIndx = m_CurrMainSurfIndx;
 
         curr_geom->AddCfdMeshSource( source );
+        ret_source = source;
     }
     else if ( type == vsp::LINE_SOURCE )
     {
@@ -807,6 +807,7 @@ void CfdMeshMgrSingleton::AddSource( int type )
         source->m_SurfIndx = m_CurrMainSurfIndx;
 
         curr_geom->AddCfdMeshSource( source );
+        ret_source = source;
     }
     else if ( type == vsp::BOX_SOURCE )
     {
@@ -823,11 +824,15 @@ void CfdMeshMgrSingleton::AddSource( int type )
         source->m_SurfIndx = m_CurrMainSurfIndx;
 
         curr_geom->AddCfdMeshSource( source );
+        ret_source = source;
     }
 
     //==== Highlight/Edit The New Source ====//
     vector< BaseSource* > sVec = curr_geom->GetCfdMeshMainSourceVec();
     curr_geom->SetCurrSourceID( ( int )sVec.size() - 1 );
+
+    return  ret_source;
+
 
 }
 
