@@ -3,6 +3,9 @@
 #if !defined(STEPUTIL__INCLUDED_)
 #define STEPUTIL__INCLUDED_
 
+#pragma warning( disable : 4018 )
+#pragma warning( disable : 4800 )
+
 #include <STEPfile.h>
 #include <sdai.h>
 #include <STEPattribute.h>
