@@ -34,13 +34,14 @@ bool PickablePnts::processPickingResult(unsigned int pickedId)
 	return _highlighted;
 }
 
-unsigned int PickablePnts::getIndex()
+int PickablePnts::getIndex()
 {
-	if(_highlighted < 0)
-	{
-		return 0xffffffff;
-	}
-	return _highlightedId - _colorIndexRange.start;
+   if(_highlightedId < 0)
+       return -1;
+
+   int index = _highlightedId - _colorIndexRange.start;
+
+   return index;
 }
 
 std::vector<glm::vec3> PickablePnts::getAllPnts()
@@ -78,16 +79,20 @@ void PickablePnts::_draw()
 
 	if(_highlighted)
 	{
-		glm::vec3 hlPoint = _rSource->getVertexVec(getIndex());
+        int index = getIndex();
+        if ( index >= 0 )
+        {
+		    glm::vec3 hlPoint = _rSource->getVertexVec(getIndex());
 			
-		if(hlPoint != glm::vec3(0xFFFFFFFF))
-		{
-			glColor3f(1.f, 0.f, 0.f);
-			glPointSize(_pointSize * 1.2f);
-			glBegin(GL_POINTS);
-			glVertex3f(hlPoint[0], hlPoint[1], hlPoint[2]);
-			glEnd();
-		}
+		    if(hlPoint != glm::vec3(0xFFFFFFFF))
+		    {
+			    glColor3f(1.f, 0.f, 0.f);
+			    glPointSize(_pointSize * 1.2f);
+			    glBegin(GL_POINTS);
+			    glVertex3f(hlPoint[0], hlPoint[1], hlPoint[2]);
+			    glEnd();
+		    }
+        }
 
 		// reset highlights so highlighted point turns off
 		// after mouse moved away.

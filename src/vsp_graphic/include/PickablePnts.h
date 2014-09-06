@@ -37,7 +37,7 @@ public:
 	/*!
 	* Get highlighted buffer index.  If nothing is highlighted, return 0xffffffff.
 	*/
-	unsigned int getIndex();
+	int getIndex();
 
 public:
     /*!
@@ -74,7 +74,7 @@ protected:
 private:
     float _pickRange;
     float _pointSize;
-    unsigned int _highlightedId;
+    int _highlightedId;
 };
 }
 #endif

@@ -1948,7 +1948,7 @@ void VspGlWindow::_sendFeedback( Selectable * selected )
         SelectedPnt * pnt = dynamic_cast<SelectedPnt*>( selected );
         if( pnt )
         {
-            VSPGraphic::Entity * entity = dynamic_cast<VSPGraphic::Entity*>(pnt->getSource());
+            VSPGraphic::Renderable * entity = dynamic_cast<VSPGraphic::Renderable*>(pnt->getSource());
             if(entity)
             {
                 glm::vec3 placement = entity->getVertexVec(pnt->getIndex());
