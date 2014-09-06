@@ -437,8 +437,8 @@ vec3d SSLineSeg::CompPnt( VspSurf* surf, vec3d uw_pnt ) const
         return vec3d();
     }
 
-    int num_u = surf->GetUMax();
-    int num_w = surf->GetWMax();
+    int num_u = (int)surf->GetUMax();
+    int num_w = (int)surf->GetWMax();
 
     if ( uw_pnt.x() < 0 )
     {

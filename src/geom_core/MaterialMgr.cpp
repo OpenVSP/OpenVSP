@@ -69,7 +69,7 @@ xmlNodePtr Material::DecodeXml( xmlNodePtr & material_node )
         vector < double > s = XmlUtil::ExtractVectorDoubleNode( material_node, "Specular" );
         vector < double > e = XmlUtil::ExtractVectorDoubleNode( material_node, "Emissive" );
 
-        m_Shininess = XmlUtil::FindDouble( material_node, "Shininess", m_Shininess );
+        m_Shininess = (float)XmlUtil::FindDouble( material_node, "Shininess", m_Shininess );
 
         std::copy( a.begin(), a.end(), m_Ambi );
         std::copy( d.begin(), d.end(), m_Diff );
@@ -129,7 +129,7 @@ void Material::SetMaterial( std::string name, double ambi[], double diff[], doub
         m_Emis[j] = emis[j];
 
     m_Name = name;
-    m_Shininess = shin;
+    m_Shininess = (float)shin;
 }
 
 void Material::SetAmbient( vec3d color )
@@ -163,7 +163,7 @@ void Material::SetAlpha( double alpha )
 
 void Material::SetShininess( double shiny )
 {
-    m_Shininess = shiny;
+    m_Shininess = (float)shiny;
 }
 
 void Material::GetAmbient( vec3d &color )

@@ -40,7 +40,7 @@ ImageData JPGLoader::load( std::string fileName )
     iData.data = new unsigned char[ iData.width * iData.height * jpgData.d];
     int scanLen = jpgData.d * iData.width;
 
-    for ( int i = 0 ; i < iData.height; i++ )
+    for ( int i = 0 ; i < (int)iData.height; i++ )
     {
         unsigned char* srcLine = &jpgData.data[ i * scanLen ];
         unsigned char* dstLine = &iData.data[ (iData.height - i - 1) * scanLen ];

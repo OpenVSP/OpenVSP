@@ -76,7 +76,7 @@ Clipping::Clipping()
 {
 	_cplanes.resize( 6 );
 
-	for( int i = 0; i < _cplanes.size(); i++ )
+	for( int i = 0; i < (int)_cplanes.size(); i++ )
     {
         _cplanes[i].seticlip( i );
     }
@@ -88,7 +88,7 @@ Clipping::~Clipping()
 
 void Clipping::predraw()
 {
-    for( int i = 0; i < _cplanes.size(); i++ )
+    for( int i = 0; i < (int)_cplanes.size(); i++ )
     {
         _cplanes[i].predraw();
     }
@@ -96,7 +96,7 @@ void Clipping::predraw()
 
 void Clipping::postdraw()
 {
-    for( int i = 0; i < _cplanes.size(); i++ )
+    for( int i = 0; i < (int)_cplanes.size(); i++ )
     {
         _cplanes[i].postdraw();
     }

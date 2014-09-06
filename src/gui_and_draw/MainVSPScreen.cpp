@@ -39,11 +39,11 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     // Figure out which is smaller, half the screen width or the height
     if ( 0.5 * width < 0.9 * h )
     {
-        side = 0.9 * h;
+        side = (int)(0.9 * h);
     }
     else
     {
-        side = 0.5 * width;
+        side = (int)(0.5 * width);
     }
     m_FLTK_Window->resize( x + 10, y + 30, side, side );
 
@@ -392,7 +392,7 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
 
             BndBox bbox = VehicleMgr.GetVehicle()->GetBndBox();
             vec3d p = bbox.GetCenter();
-            m_GlWin->getGraphicEngine()->getDisplay()->setCOR( -p.x(), -p.y(), -p.z() );
+            m_GlWin->getGraphicEngine()->getDisplay()->setCOR( (float)-p.x(), (float)-p.y(), (float)-p.z() );
 
             m_ScreenMgr->SetUpdateFlag( true );
         }
