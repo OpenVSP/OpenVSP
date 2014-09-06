@@ -13,7 +13,6 @@
 #define VSPAPI__INCLUDED_
 
 
-
 #include "APIErrorMgr.h"
 #include "Vec3d.h"
 #include "Matrix.h"
@@ -57,7 +56,14 @@ extern string ComputeAwaveSlice( int set, int num_slices, int num_rots, double a
                                  const vec3d & norm, bool auto_bnd, double start_bnd = 0, double end_bnd = 0 );
 
 extern void ComputeDegenGeom( int set, int file_export_types );
-
+extern void ComputeCFDMesh( int set, int file_export_types );
+extern void SetCFDMeshVal( int type, double val );
+extern void SetCFDWakeFlag( const string & geom_id, bool flag );
+extern void DeleteAllCFDSources();
+extern void AddDefaultSources();
+extern void AddCFDSource( int type, const string & geom_id, int surf_index,
+                          double l1, double r1, double u1, double w1,
+						  double l2 = 0, double r2 = 0, double u2 = 0, double w2 = 0 );
 
 //======================== Results ================================//
 extern vector<string> GetAllResultsNames();

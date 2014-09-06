@@ -16,6 +16,8 @@
 #include "LinkMgr.h"
 #include "ResultsMgr.h"
 #include "XSecSurf.h"
+#include "CfdMeshMgr.h"
+#include "Util.h"
 
 #ifdef VSP_USE_FLTK
 #include "GuiInterface.h"
@@ -235,6 +237,26 @@ void ExportFile( const string & file_name, int write_set_index, int file_type )
 void SetComputationFileName( int file_type, const string & file_name )
 {
     GetVehicle()->setExportFileName( file_type, file_name );
+
+    if ( file_type == CFD_STL_TYPE )
+        CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_STL_FILE_NAME );
+    if ( file_type == CFD_POLY_TYPE )
+        CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_POLY_FILE_NAME );
+    if ( file_type == CFD_TRI_TYPE )
+        CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_TRI_FILE_NAME );
+    if ( file_type == CFD_OBJ_TYPE )
+        CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_OBJ_FILE_NAME );
+    if ( file_type == CFD_DAT_TYPE )
+        CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_DAT_FILE_NAME );
+    if ( file_type == CFD_KEY_TYPE )
+        CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_KEY_FILE_NAME );
+    if ( file_type == CFD_GMSH_TYPE )
+        CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_GMSH_FILE_NAME );
+    if ( file_type == CFD_SRF_TYPE )
+        CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_SRF_FILE_NAME );
+    if ( file_type == CFD_TKEY_TYPE )
+        CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_TKEY_FILE_NAME );
+
     ErrorMgr.NoError();
 }
 
@@ -352,8 +374,180 @@ extern string ComputeAwaveSlice( int set, int num_slices, int num_rots, double a
     return id;
 }
 
+//==== Set a CFD Mesh Control Val =====//
+void SetCFDMeshVal( int type, double val )
+{
+    if ( type == CFD_MIN_EDGE_LEN )
+        CfdMeshMgr.GetGridDensityPtr()->m_MinLen = val;
+    else if ( type == CFD_MAX_EDGE_LEN )
+        CfdMeshMgr.GetGridDensityPtr()->m_BaseLen = val;
+    else if ( type == CFD_MAX_GAP )
+        CfdMeshMgr.GetGridDensityPtr()->m_MaxGap  = val;
+    else if ( type == CFD_NUM_CIRCLE_SEGS )
+        CfdMeshMgr.GetGridDensityPtr()->m_NCircSeg = val;
+    else if ( type == CFD_GROWTH_RATIO )
+        CfdMeshMgr.GetGridDensityPtr()->m_GrowRatio = val;
+    else if ( type == CFD_LIMIT_GROWTH_FLAG )
+        CfdMeshMgr.GetGridDensityPtr()->SetRigorLimit( ToBool(val) );
+    else if ( type == CFD_INTERSECT_SUBSURFACE_FLAG )
+        CfdMeshMgr.GetCfdSettingsPtr()->m_IntersectSubSurfs = ToBool(val);
+    else if ( type == CFD_HALF_MESH_FLAG )
+        CfdMeshMgr.GetCfdSettingsPtr()->SetHalfMeshFlag( ToBool(val) );
+    else if ( type == CFD_FAR_FIELD_FLAG )
+        CfdMeshMgr.GetCfdSettingsPtr()->SetFarMeshFlag( ToBool(val) );
+    else if ( type == CFD_FAR_MAX_EDGE_LEN )
+        CfdMeshMgr.GetGridDensityPtr()->m_FarMaxLen = val;
+    else if ( type == CFD_FAR_MAX_GAP )
+        CfdMeshMgr.GetGridDensityPtr()->m_FarMaxGap = val;
+    else if ( type == CFD_FAR_NUM_CIRCLE_SEGS )
+        CfdMeshMgr.GetGridDensityPtr()->m_FarNCircSeg = val;
+    else if ( type == CFD_FAR_SIZE_ABS_FLAG )
+        CfdMeshMgr.GetCfdSettingsPtr()->SetFarAbsSizeFlag( ToBool(val) );
+    else if ( type == CFD_FAR_LENGTH )
+        CfdMeshMgr.GetCfdSettingsPtr()->m_FarLength = val;
+    else if ( type == CFD_FAR_WIDTH )
+        CfdMeshMgr.GetCfdSettingsPtr()->m_FarWidth = val;
+    else if ( type == CFD_FAR_HEIGHT )
+        CfdMeshMgr.GetCfdSettingsPtr()->m_FarHeight = val;
+    else if ( type == CFD_FAR_X_SCALE )
+        CfdMeshMgr.GetCfdSettingsPtr()->m_FarXScale = val;
+    else if ( type == CFD_FAR_Y_SCALE )
+        CfdMeshMgr.GetCfdSettingsPtr()->m_FarYScale = val;
+    else if ( type == CFD_FAR_Z_SCALE )
+        CfdMeshMgr.GetCfdSettingsPtr()->m_FarZScale = val;
+    else if ( type == CFD_FAR_LOC_MAN_FLAG )
+        CfdMeshMgr.GetCfdSettingsPtr()->SetFarManLocFlag( ToBool(val) );
+    else if ( type == CFD_FAR_LOC_X )
+        CfdMeshMgr.GetCfdSettingsPtr()->m_FarXLocation = val;
+    else if ( type == CFD_FAR_LOC_Y )
+        CfdMeshMgr.GetCfdSettingsPtr()->m_FarYLocation = val;
+    else if ( type == CFD_FAR_LOC_Z )
+        CfdMeshMgr.GetCfdSettingsPtr()->m_FarZLocation = val;
+    else if ( type == CFD_WAKE_SCALE )
+        CfdMeshMgr.GetCfdSettingsPtr()->m_WakeScale = val;
+    else if ( type == CFD_WAKE_ANGLE )
+        CfdMeshMgr.GetCfdSettingsPtr()->m_WakeAngle = val;
+    else
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_TYPE, "SetCFDMeshVal::Can't Find Type " + type  );
+        return;
+    }
 
+    ErrorMgr.NoError();
+}
+/// Turn On/Off Wakg For Component
+void SetCFDWakeFlag( const string & geom_id, bool flag )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetCFDWakeFlag::Can't Find Geom"  );
+        return;
+    }
 
+    geom_ptr->SetWakeActiveFlag( flag );
+    ErrorMgr.NoError();
+}
+
+/// Add A CFD Source
+void AddCFDSource( int type, const string & geom_id, int surf_index,
+                   double l1, double r1, double u1, double w1,
+                   double l2, double r2, double u2, double w2 )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "AddCFDSource::Can't Find Geom"  );
+        return;
+    }
+
+    CfdMeshMgr.SetCurrGeomID( geom_id );
+    CfdMeshMgr.SetCurrMainSurfIndx( surf_index );
+    BaseSource* source =  CfdMeshMgr.AddSource( type );
+
+    if ( !source )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "AddCFDSource::Can't Find Type"  );
+        return;
+    }
+
+    source->m_Len = l1;
+    source->m_Rad = r1;
+    if ( source->GetType() == POINT_SOURCE )
+    {
+        PointSource* ps = dynamic_cast< PointSource* > (source);
+        ps->m_ULoc = u1;
+        ps->m_WLoc = w1;
+    }
+    else if ( source->GetType() == LINE_SOURCE )
+    {
+        LineSource* ls = dynamic_cast< LineSource* > (source);
+        ls->m_Len2 = l2;
+        ls->m_Rad2 = r2;
+        ls->m_ULoc1 = u1;
+        ls->m_WLoc1 = w1;
+        ls->m_ULoc2 = u2;
+        ls->m_WLoc2 = w2;
+    }
+    else if ( source->GetType() == BOX_SOURCE )
+    {
+        BoxSource* bs = dynamic_cast< BoxSource* > (source);
+        bs->m_ULoc1 = u1;
+        bs->m_WLoc1 = w1;
+        bs->m_ULoc2 = u2;
+        bs->m_WLoc2 = w2;
+    }
+    ErrorMgr.NoError();
+
+}
+
+/// Delete All CFD Sources
+void DeleteAllCFDSources()
+{
+    CfdMeshMgr.DeleteAllSources();
+    ErrorMgr.NoError();
+}
+
+/// Add Default Source To All Geometry
+void AddDefaultSources()
+{
+    CfdMeshMgr.AddDefaultSources();
+    ErrorMgr.NoError();
+}
+
+/// Compute the CFD Mesh
+void ComputeCFDMesh( int set, int file_export_types )
+{
+    Update();
+    Vehicle* veh = GetVehicle();
+
+    CfdMeshMgr.GetCfdSettingsPtr()->SetAllFileExportFlags( false );
+
+    if ( file_export_types & CFD_STL_TYPE )
+        CfdMeshMgr.GetCfdSettingsPtr()->SetFileExportFlag( CFD_STL_FILE_NAME, true );
+    if ( file_export_types & CFD_POLY_TYPE )
+        CfdMeshMgr.GetCfdSettingsPtr()->SetFileExportFlag( CFD_POLY_FILE_NAME, true );
+    if ( file_export_types & CFD_TRI_TYPE )
+        CfdMeshMgr.GetCfdSettingsPtr()->SetFileExportFlag( CFD_TRI_FILE_NAME, true );
+    if ( file_export_types & CFD_OBJ_TYPE )
+        CfdMeshMgr.GetCfdSettingsPtr()->SetFileExportFlag( CFD_OBJ_FILE_NAME, true );
+    if ( file_export_types & CFD_DAT_TYPE )
+        CfdMeshMgr.GetCfdSettingsPtr()->SetFileExportFlag( CFD_DAT_FILE_NAME, true );
+    if ( file_export_types & CFD_KEY_TYPE )
+        CfdMeshMgr.GetCfdSettingsPtr()->SetFileExportFlag( CFD_KEY_FILE_NAME, true );
+    if ( file_export_types & CFD_GMSH_TYPE )
+        CfdMeshMgr.GetCfdSettingsPtr()->SetFileExportFlag( CFD_GMSH_FILE_NAME, true );
+    if ( file_export_types & CFD_SRF_TYPE )
+        CfdMeshMgr.GetCfdSettingsPtr()->SetFileExportFlag( CFD_SRF_FILE_NAME, true );
+    if ( file_export_types & CFD_TKEY_TYPE )
+        CfdMeshMgr.GetCfdSettingsPtr()->SetFileExportFlag( CFD_TKEY_FILE_NAME, true );
+
+    CfdMeshMgr.GetCfdSettingsPtr()->m_SelectedSetIndex = set;
+    CfdMeshMgr.GenerateMesh();
+    ErrorMgr.NoError();
+}
 
 
 //===================================================================//

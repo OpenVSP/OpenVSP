@@ -124,6 +124,7 @@ WingScreen.h
 )
 
 ADD_DEPENDENCIES(gui_and_draw
+geom_core
 vsp_graphic
 screens
 util
