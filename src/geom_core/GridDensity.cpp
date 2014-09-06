@@ -385,9 +385,7 @@ void LineSimpleSource::CopyFrom( BaseSource* s )
 
     m_OrigSourceID = s->GetID();
 
-    m_Len = ( ( LineSource* )s )->m_Len();
     m_Len2 = ( ( LineSource* )s )->m_Len2();
-    m_Rad = ( ( LineSource* )s )->m_Rad();
     m_Rad2 = ( ( LineSource* )s )->m_Rad2();
 
     m_ULoc1 = ( ( LineSource* )s )->m_ULoc1();
