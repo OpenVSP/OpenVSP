@@ -78,15 +78,15 @@ CfdMeshSettings::CfdMeshSettings() : ParmContainer()
     m_SelectedSetIndex.Init( "Set", "Global", this, 0, 0, 12 );
     m_SelectedSetIndex.SetDescript( "Selected set for operation" );
 
-    m_ExportFileFlags[ DAT_FILE_NAME ].Init( "DAT_Export", "ExportCFD", this, true, 0, 1 );
-    m_ExportFileFlags[ KEY_FILE_NAME ].Init( "KEY_Export", "ExportCFD", this, true, 0, 1 );
-    m_ExportFileFlags[ OBJ_FILE_NAME ].Init( "OBJ_Export", "ExportCFD", this, true, 0, 1 );
-    m_ExportFileFlags[ POLY_FILE_NAME ].Init( "POLY_Export", "ExportCFD", this, true, 0, 1 );
-    m_ExportFileFlags[ STL_FILE_NAME ].Init( "STL_Export", "ExportCFD", this, true, 0, 1 );
-    m_ExportFileFlags[ TRI_FILE_NAME ].Init( "TRI_Export", "ExportCFD", this, true, 0, 1 );
-    m_ExportFileFlags[ GMSH_FILE_NAME ].Init( "GMSH_Export", "ExportCFD", this, true, 0, 1 );
-    m_ExportFileFlags[ SRF_FILE_NAME ].Init( "SRF_Export", "ExportCFD", this, true, 0, 1 );
-    m_ExportFileFlags[ TKEY_FILE_NAME ].Init( "TKEY_Export", "ExportCFD", this, true, 0, 1 );
+    m_ExportFileFlags[ vsp::CFD_DAT_FILE_NAME ].Init( "DAT_Export", "ExportCFD", this, true, 0, 1 );
+    m_ExportFileFlags[ vsp::CFD_KEY_FILE_NAME ].Init( "KEY_Export", "ExportCFD", this, true, 0, 1 );
+    m_ExportFileFlags[ vsp::CFD_OBJ_FILE_NAME ].Init( "OBJ_Export", "ExportCFD", this, true, 0, 1 );
+    m_ExportFileFlags[ vsp::CFD_POLY_FILE_NAME ].Init( "POLY_Export", "ExportCFD", this, true, 0, 1 );
+    m_ExportFileFlags[ vsp::CFD_STL_FILE_NAME ].Init( "STL_Export", "ExportCFD", this, true, 0, 1 );
+    m_ExportFileFlags[ vsp::CFD_TRI_FILE_NAME ].Init( "TRI_Export", "ExportCFD", this, true, 0, 1 );
+    m_ExportFileFlags[ vsp::CFD_GMSH_FILE_NAME ].Init( "GMSH_Export", "ExportCFD", this, true, 0, 1 );
+    m_ExportFileFlags[ vsp::CFD_SRF_FILE_NAME ].Init( "SRF_Export", "ExportCFD", this, true, 0, 1 );
+    m_ExportFileFlags[ vsp::CFD_TKEY_FILE_NAME ].Init( "TKEY_Export", "ExportCFD", this, true, 0, 1 );
 }
 
 CfdMeshSettings::~CfdMeshSettings()
@@ -126,7 +126,7 @@ void CfdMeshSettings::ParmChanged( Parm* parm_ptr, int type )
 
 string CfdMeshSettings::GetExportFileName( int type )
 {
-    if ( type >= 0 && type < NUM_FILE_NAMES )
+    if ( type >= 0 && type < vsp::CFD_NUM_FILE_NAMES )
     {
         return m_ExportFileNames[type];
     }
@@ -136,7 +136,7 @@ string CfdMeshSettings::GetExportFileName( int type )
 
 void CfdMeshSettings::SetExportFileName( const string &fn, int type )
 {
-    if ( type >= 0 && type < NUM_FILE_NAMES )
+    if ( type >= 0 && type < vsp::CFD_NUM_FILE_NAMES )
     {
         m_ExportFileNames[type] = fn;
     }
@@ -156,7 +156,7 @@ void CfdMeshSettings::ResetExportFileNames( string basename )
     int pos;
     const char *suffix[] = {".stl", ".poly", ".tri", ".obj", "_NASCART.dat", "_NASCART.key", ".msh", ".srf", ".tkey" };
 
-    for ( int i = 0 ; i < NUM_FILE_NAMES ; i++ )
+    for ( int i = 0 ; i < vsp::CFD_NUM_FILE_NAMES ; i++ )
     {
         m_ExportFileNames[i] = basename;
         pos = m_ExportFileNames[i].find( ".vsp3" );
@@ -170,7 +170,21 @@ void CfdMeshSettings::ResetExportFileNames( string basename )
 
 BoolParm* CfdMeshSettings::GetExportFileFlag( int type )
 {
-    assert( type >= 0 && type < NUM_FILE_NAMES );
+    assert( type >= 0 && type < vsp::CFD_NUM_FILE_NAMES );
 
     return &m_ExportFileFlags[type];
+}
+
+void CfdMeshSettings::SetAllFileExportFlags( bool flag )
+{
+    for ( int i = 0 ; i < vsp::CFD_NUM_FILE_NAMES ; i++ )
+    {
+		m_ExportFileFlags[i] = flag;
+	}
+}
+
+void CfdMeshSettings::SetFileExportFlag( int type, bool flag )
+{
+	if ( type >= 0 && type < vsp::CFD_NUM_FILE_NAMES )
+		m_ExportFileFlags[type] = flag;
 }

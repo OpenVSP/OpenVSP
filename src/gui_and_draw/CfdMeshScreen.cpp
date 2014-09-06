@@ -12,6 +12,7 @@
 #include "CfdMeshMgr.h"
 #include <FL/Fl_File_Chooser.H>
 #include "StreamUtil.h"
+#include "APIDefines.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -397,36 +398,36 @@ bool CfdMeshScreen::Update()
         m_CfdMeshUI->rigorLimitButton->value( 0 );
     }
 
-    string datname = CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileName( CfdMeshSettings::DAT_FILE_NAME );
+    string datname = CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_DAT_FILE_NAME );
     m_CfdMeshUI->datName->value( truncateFileName( datname, 40 ).c_str() );
-    string keyname = CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileName( CfdMeshSettings::KEY_FILE_NAME );
+    string keyname = CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_KEY_FILE_NAME );
     m_CfdMeshUI->keyName->value( truncateFileName( keyname, 40 ).c_str() );
-    string objname = CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileName( CfdMeshSettings::OBJ_FILE_NAME );
+    string objname = CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_OBJ_FILE_NAME );
     m_CfdMeshUI->objName->value( truncateFileName( objname, 40 ).c_str() );
-    string polyname = CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileName( CfdMeshSettings::POLY_FILE_NAME );
+    string polyname = CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_POLY_FILE_NAME );
     m_CfdMeshUI->polyName->value( truncateFileName( polyname, 40 ).c_str() );
-    string stlname = CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileName( CfdMeshSettings::STL_FILE_NAME );
+    string stlname = CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_STL_FILE_NAME );
     m_CfdMeshUI->stlName->value( truncateFileName( stlname, 40 ).c_str() );
-    string triname = CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileName( CfdMeshSettings::TRI_FILE_NAME );
+    string triname = CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_TRI_FILE_NAME );
     m_CfdMeshUI->triName->value( truncateFileName( triname, 40 ).c_str() );
-    string gmshname = CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileName( CfdMeshSettings::GMSH_FILE_NAME );
+    string gmshname = CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_GMSH_FILE_NAME );
     m_CfdMeshUI->gmshName->value( truncateFileName( gmshname, 40 ).c_str() );
-    string srfname = CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileName( CfdMeshSettings::SRF_FILE_NAME );
+    string srfname = CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_SRF_FILE_NAME );
     m_CfdMeshUI->srfName->value( truncateFileName( srfname, 40 ).c_str() );
-    string tkeyname = CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileName( CfdMeshSettings::TKEY_FILE_NAME );
+    string tkeyname = CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_TKEY_FILE_NAME );
     m_CfdMeshUI->tkeyName->value( truncateFileName( tkeyname, 40).c_str() );
 
     //==== Export Flags ====//
 
-    m_DatToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::DAT_FILE_NAME )->GetID() );
-    m_KeyToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::KEY_FILE_NAME )->GetID() );
-    m_ObjToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::OBJ_FILE_NAME )->GetID() );
-    m_PolyToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::POLY_FILE_NAME )->GetID() );
-    m_StlToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::STL_FILE_NAME )->GetID() );
-    m_TriToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::TRI_FILE_NAME )->GetID() );
-    m_GmshToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::GMSH_FILE_NAME )->GetID() );
-    m_SrfToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::SRF_FILE_NAME )->GetID() );
-    m_TkeyToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::TKEY_FILE_NAME)->GetID() );
+    m_DatToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_DAT_FILE_NAME )->GetID() );
+    m_KeyToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_KEY_FILE_NAME )->GetID() );
+    m_ObjToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_OBJ_FILE_NAME )->GetID() );
+    m_PolyToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_POLY_FILE_NAME )->GetID() );
+    m_StlToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_STL_FILE_NAME )->GetID() );
+    m_TriToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_TRI_FILE_NAME )->GetID() );
+    m_GmshToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_GMSH_FILE_NAME )->GetID() );
+    m_SrfToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_SRF_FILE_NAME )->GetID() );
+    m_TkeyToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_TKEY_FILE_NAME)->GetID() );
 
     //==== Wake Flag ====//
     if( currGeom )
@@ -765,7 +766,7 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
         string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select NASCART .dat file.", "*.dat" );
         if ( newfile.compare( "" ) != 0 )
         {
-            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::DAT_FILE_NAME );
+            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, vsp::CFD_DAT_FILE_NAME );
         }
     }
     else if ( w == m_CfdMeshUI->keyButton )
@@ -773,7 +774,7 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
         string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select NASCART .key file.", "*.key" );
         if ( newfile.compare( "" ) != 0 )
         {
-            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::KEY_FILE_NAME );
+            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, vsp::CFD_KEY_FILE_NAME );
         }
     }
     else if ( w == m_CfdMeshUI->objButton  )
@@ -781,7 +782,7 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
         string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .obj file.", "*.obj" );
         if ( newfile.compare( "" ) != 0 )
         {
-            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::OBJ_FILE_NAME );
+            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, vsp::CFD_OBJ_FILE_NAME );
         }
     }
     else if ( w == m_CfdMeshUI->polyButton )
@@ -789,7 +790,7 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
         string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .poly file.", "*.poly" );
         if ( newfile.compare( "" ) != 0 )
         {
-            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::POLY_FILE_NAME );
+            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, vsp::CFD_POLY_FILE_NAME );
         }
     }
     else if ( w == m_CfdMeshUI->stlButton )
@@ -797,7 +798,7 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
         string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .stl file.", "*.stl" );
         if ( newfile.compare( "" ) != 0 )
         {
-            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::STL_FILE_NAME );
+            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, vsp::CFD_STL_FILE_NAME );
         }
     }
     else if ( w == m_CfdMeshUI->triButton )
@@ -805,7 +806,7 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
         string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .tri file.", "*.tri" );
         if ( newfile.compare( "" ) != 0 )
         {
-            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::TRI_FILE_NAME );
+            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, vsp::CFD_TRI_FILE_NAME );
         }
     }
     else if ( w == m_CfdMeshUI->gmshButton )
@@ -813,7 +814,7 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
         string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .msh file.", "*.msh" );
         if ( newfile.compare( "" ) != 0 )
         {
-            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::GMSH_FILE_NAME );
+            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, vsp::CFD_GMSH_FILE_NAME );
         }
     }
     else if ( w == m_CfdMeshUI->srfButton )
@@ -821,7 +822,7 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
         string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .srf file.", "*.srf" );
         if ( newfile.compare( "" ) != 0 )
         {
-            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::SRF_FILE_NAME );
+            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, vsp::CFD_SRF_FILE_NAME );
         }
     }
     else if ( w == m_CfdMeshUI->tkeyButton )
@@ -829,7 +830,7 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
         string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .tkey file.", "*.tkey" );
         if ( newfile.compare( "" ) != 0 )
 	    {
-            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::TKEY_FILE_NAME );
+            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, vsp::CFD_TKEY_FILE_NAME );
 	    }
     }
 

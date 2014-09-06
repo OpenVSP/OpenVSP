@@ -17,6 +17,7 @@
 #include "Vec2d.h"
 #include "Vec3d.h"
 #include "DrawObj.h"
+#include "APIDefines.h"
 
 #include <assert.h>
 
@@ -112,11 +113,8 @@ public:
     void ResetExportFileNames( string basename );
 
     BoolParm* GetExportFileFlag( int type );
-
-    enum { STL_FILE_NAME, POLY_FILE_NAME, TRI_FILE_NAME,
-           OBJ_FILE_NAME, DAT_FILE_NAME, KEY_FILE_NAME, GMSH_FILE_NAME, SRF_FILE_NAME,
-           TKEY_FILE_NAME, NUM_FILE_NAMES
-         };
+    void SetAllFileExportFlags( bool flag );
+    void SetFileExportFlag( int type, bool flag );
 
     BoolParm m_FarMeshFlag;
     BoolParm m_FarCompFlag;
@@ -152,7 +150,7 @@ public:
 
     IntParm m_SelectedSetIndex;
 
-    BoolParm m_ExportFileFlags[NUM_FILE_NAMES];
+    BoolParm m_ExportFileFlags[vsp::CFD_NUM_FILE_NAMES];
 
 protected:
 
@@ -160,7 +158,7 @@ protected:
     // the file name is set (save/save as/open).  There is no way to have good
     // default behavior based on the main file name -- and to use the user-set
     // file names.
-    string m_ExportFileNames[NUM_FILE_NAMES];
+    string m_ExportFileNames[vsp::CFD_NUM_FILE_NAMES];
 
 };
 

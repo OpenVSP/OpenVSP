@@ -131,6 +131,17 @@ enum RES_GEOM_TYPE {    MESH_INDEXED_TRI,
                         GEOM_XSECS,
                    };
 
+enum CFD_MESH_EXPORT_TYPE { CFD_STL_FILE_NAME,
+                            CFD_POLY_FILE_NAME,
+                            CFD_TRI_FILE_NAME,
+                            CFD_OBJ_FILE_NAME,
+                            CFD_DAT_FILE_NAME,
+                            CFD_KEY_FILE_NAME,
+                            CFD_GMSH_FILE_NAME,
+                            CFD_SRF_FILE_NAME,
+                            CFD_TKEY_FILE_NAME,
+                            CFD_NUM_FILE_NAMES,
+                        };
 }   // Namespace
 
 #endif // !defined(VSPDEFINES__INCLUDED_)
