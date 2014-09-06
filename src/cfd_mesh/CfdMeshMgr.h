@@ -212,7 +212,6 @@ public:
     }
     virtual BaseSource* GetCurrSource();
     virtual BaseSource* AddSource( int type );
-    virtual BaseSource* CreateSource( int type );
     virtual void DeleteCurrSource();
     virtual void DeleteAllSources();
 

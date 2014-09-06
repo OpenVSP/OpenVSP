@@ -744,24 +744,6 @@ BaseSource* CfdMeshMgrSingleton::GetCurrSource()
     return s;
 }
 
-BaseSource* CfdMeshMgrSingleton::CreateSource( int type )
-{
-    if ( type == vsp::POINT_SOURCE )
-    {
-        return new PointSource();
-    }
-    else if ( type == vsp::LINE_SOURCE )
-    {
-        return new LineSource();
-    }
-    else if ( type == vsp::BOX_SOURCE )
-    {
-        return new BoxSource();
-    }
-
-    return NULL;
-}
-
 BaseSource* CfdMeshMgrSingleton::AddSource( int type )
 {
     BaseSource* ret_source = NULL;
