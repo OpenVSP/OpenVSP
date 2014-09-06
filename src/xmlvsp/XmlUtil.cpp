@@ -4,7 +4,9 @@
 //
 
 #include <stdarg.h>
+#include <algorithm>
 #include "XmlUtil.h"
+#include "StringUtil.h"
 
 //==== Get Number of Same Names ====//
 int XmlUtil::GetNumNames( xmlNodePtr node, const char * name )
@@ -589,4 +591,24 @@ xmlNodePtr XmlUtil::DecodeFileContents( xmlNodePtr root, const char* file_name )
     }
 
     return file_node;
+}
+
+//==== Convert Chars Such As & < and > to XML Versions ====//
+string XmlUtil::ConvertToXMLSafeChars( const string & input )
+{
+    string output = input;
+    StringUtil::replace_all( output, "&", "AmMmMmMmP" );
+    StringUtil::replace_all( output, ">", "GrRrRrRrT" );
+    StringUtil::replace_all( output, "<", "LeEeEeEeT" );
+    return output;
+}
+
+//==== Convert Chars Such As & < and > to XML Versions ====//
+string XmlUtil::ConvertFromXMLSafeChars( const string & input )
+{
+    string output = input;
+    StringUtil::replace_all( output, "AmMmMmMmP", "&" );
+    StringUtil::replace_all( output, "GrRrRrRrT", ">" );
+    StringUtil::replace_all( output, "LeEeEeEeT", "<" );
+    return output;
 }

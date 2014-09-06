@@ -60,6 +60,9 @@ vector< vec3d > GetVectorVec3dNode( xmlNodePtr node );
 xmlNodePtr EncodeFileContents( xmlNodePtr root, const char* file_name );
 xmlNodePtr DecodeFileContents( xmlNodePtr root, const char* file_name );
 
+string ConvertToXMLSafeChars( const string & input );
+string ConvertFromXMLSafeChars( const string & input );
+
 }
 
 
