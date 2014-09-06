@@ -547,28 +547,28 @@ bool indxcompare( const pair < double, pair < int, int > > &a, const pair < doub
 void Surf::WalkMap( pair< int, int > ijstart, int kstart, pair< int, int > ijcurrent )
 {
 
-    int iadd[] = { -1, 1,  0, 0 };
-    int jadd[] = {  0, 0, -1, 1 };
+    static int iadd[] = { -1, 1,  0, 0 };
+    static int jadd[] = {  0, 0, -1, 1 };
 
-    double grm1 = m_GridDensityPtr->m_GrowRatio() - 1.0;
+    static double grm1 = m_GridDensityPtr->m_GrowRatio() - 1.0;
 
-    int nmapu = m_SrcMap.size();
-    int nmapw = m_SrcMap[0].size();
+    static int nmapu = m_SrcMap.size();
+    static int nmapw = m_SrcMap[0].size();
 
-    int istart = ijstart.first;
-    int jstart = ijstart.second;
+    static int istart = ijstart.first;
+    static int jstart = ijstart.second;
 
     MapSource srcstart = m_SrcMap[istart][jstart];
-    vec3d p = srcstart.m_pt;
-    double str = srcstart.m_str;
+    static vec3d p = srcstart.m_pt;
+    static double str = srcstart.m_str;
 
-    int icur = ijcurrent.first;
-    int jcur = ijcurrent.second;
+    static int icur = ijcurrent.first;
+    static int jcur = ijcurrent.second;
 
     for( int i = 0; i < 4; i++ )
     {
-        int itarget = icur + iadd[i];
-        int jtarget = jcur + jadd[i];
+        static int itarget = icur + iadd[i];
+        static int jtarget = jcur + jadd[i];
 
         if( itarget < nmapu && itarget >= 0 && jtarget < nmapw && jtarget >= 0 )
         {
@@ -576,9 +576,9 @@ void Surf::WalkMap( pair< int, int > ijstart, int kstart, pair< int, int > ijcur
             if( m_SrcMap[ itarget ][ jtarget ].m_maxvisited < kstart )
             {
                 m_SrcMap[ itarget ][ jtarget ].m_maxvisited = kstart;
-                vec3d p2 = m_SrcMap[ itarget ][ jtarget ].m_pt;
-                double r = ( p2 - p ).mag();
-                double targetstr = str + r * grm1;
+                static vec3d p2 = m_SrcMap[ itarget ][ jtarget ].m_pt;
+                static double r = ( p2 - p ).mag();
+                static double targetstr = str + r * grm1;
                 if( m_SrcMap[ itarget ][ jtarget ].m_str > targetstr )
                 {
                     // Mark dominated as progress is made
