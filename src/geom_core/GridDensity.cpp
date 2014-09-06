@@ -956,6 +956,7 @@ double GridDensity::GetFarRadFrac()
 double GridDensity::GetTargetLen( vec3d& pos, bool farFlag )
 {
     double target_len;
+    double base_len;
 
     if( !farFlag )
     {
@@ -965,10 +966,11 @@ double GridDensity::GetTargetLen( vec3d& pos, bool farFlag )
     {
         target_len = m_FarMaxLen();
     }
+    base_len = target_len;
 
     for ( int i = 0 ; i < ( int )m_Sources.size() ; i++ )
     {
-        double len = m_Sources[i]->GetTargetLen( target_len, pos );
+        double len = m_Sources[i]->GetTargetLen( base_len, pos );
         if ( len < target_len )
         {
             target_len = len;
