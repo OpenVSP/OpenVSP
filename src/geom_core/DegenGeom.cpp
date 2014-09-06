@@ -793,13 +793,15 @@ void DegenGeom::write_degenGeomStickCsv_file( FILE* file_id, int nxsecs, DegenSt
         for( int j = 0; j < 16; j ++ )
         {
             fprintf( file_id, makeCsvFmt( 1, false ).c_str(), degenStick.transmat[i][j] );
+            fprintf( file_id, ", " );
         }
 
-        fprintf( file_id, ", " );
 
         for( int j = 0; j < 16; j ++ )
         {
             fprintf( file_id, makeCsvFmt( 1, false ).c_str(), degenStick.invtransmat[i][j] );
+            if ( j < 16 - 1 )
+                fprintf( file_id, ", " );
         }
 
         fprintf( file_id, "\n" );
