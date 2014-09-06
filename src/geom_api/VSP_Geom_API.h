@@ -56,6 +56,7 @@ extern string ComputePlaneSlice( int set, int num_slices, const vec3d & norm, bo
 extern string ComputeAwaveSlice( int set, int num_slices, int num_rots, double ang_control, bool comp_ang,
                                  const vec3d & norm, bool auto_bnd, double start_bnd = 0, double end_bnd = 0 );
 
+extern void ComputeDegenGeom( int set, int file_export_types );
 
 
 //======================== Results ================================//

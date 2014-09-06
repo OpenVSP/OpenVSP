@@ -289,6 +289,28 @@ string ComputeCompGeom( int set, bool half_mesh, int file_export_types )
     return id;
 }
 
+/// Compute the Degenerate Geometry
+void ComputeDegenGeom( int set, int file_export_types )
+{
+    Update();
+    Vehicle* veh = GetVehicle();
+
+    veh->setExportDegenGeomMFile( false );
+    if ( file_export_types & DEGEN_GEOM_M_TYPE )
+    {
+        veh->setExportDegenGeomMFile( true );
+    }
+
+    veh->setExportDegenGeomCsvFile( false );
+    if ( file_export_types & DEGEN_GEOM_CSV_TYPE )
+    {
+        veh->setExportDegenGeomCsvFile( true );
+    }
+
+    veh->CreateDegenGeom( set );
+    ErrorMgr.NoError();
+}
+
 //==== Compute Plane Slice =====//
 string ComputePlaneSlice( int set, int num_slices, const vec3d & norm, bool auto_bnd, double start_bnd, double end_bnd )
 {
