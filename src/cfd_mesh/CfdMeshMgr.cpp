@@ -18,6 +18,7 @@
 #include "Util.h"
 #include "SubSurfaceMgr.h"
 #include "SubSurface.h"
+#include "APIDefines.h"
 
 #ifdef DEBUG_CFD_MESH
 #include <direct.h>
@@ -745,15 +746,15 @@ BaseSource* CfdMeshMgrSingleton::GetCurrSource()
 
 BaseSource* CfdMeshMgrSingleton::CreateSource( int type )
 {
-    if ( type == MESH_SOURCE_TYPE::POINT_SOURCE )
+    if ( type == vsp::POINT_SOURCE )
     {
         return new PointSource();
     }
-    else if ( type == MESH_SOURCE_TYPE::LINE_SOURCE )
+    else if ( type == vsp::LINE_SOURCE )
     {
         return new LineSource();
     }
-    else if ( type == MESH_SOURCE_TYPE::BOX_SOURCE )
+    else if ( type == vsp::BOX_SOURCE )
     {
         return new BoxSource();
     }
@@ -775,7 +776,7 @@ void CfdMeshMgrSingleton::AddSource( int type )
     char str[256];
     int num_sources = curr_geom->GetCfdMeshMainSourceVec().size();
 
-    if ( type == MESH_SOURCE_TYPE::POINT_SOURCE )
+    if ( type == vsp::POINT_SOURCE )
     {
         PointSource* source = new PointSource();
         sprintf( str, "PointSource_srf_%d_%d", m_CurrMainSurfIndx, num_sources );
@@ -789,7 +790,7 @@ void CfdMeshMgrSingleton::AddSource( int type )
 
         curr_geom->AddCfdMeshSource( source );
     }
-    else if ( type == MESH_SOURCE_TYPE::LINE_SOURCE )
+    else if ( type == vsp::LINE_SOURCE )
     {
         LineSource* source = new LineSource();
         sprintf( str, "LineSource_srf_%d_%d", m_CurrMainSurfIndx, num_sources );
@@ -807,7 +808,7 @@ void CfdMeshMgrSingleton::AddSource( int type )
 
         curr_geom->AddCfdMeshSource( source );
     }
-    else if ( type == MESH_SOURCE_TYPE::BOX_SOURCE )
+    else if ( type == vsp::BOX_SOURCE )
     {
         BoxSource* source = new BoxSource();
         sprintf( str, "BoxSource_srf_%d_%d", m_CurrMainSurfIndx, num_sources );

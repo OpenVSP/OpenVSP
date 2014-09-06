@@ -76,7 +76,7 @@ PointSource::PointSource()
     m_WLoc.Init( "W_Loc", m_GroupName, this, 0.0, 0.0, 1.0 );
     m_WLoc.SetDescript( "Source W location" );
 
-    m_Type = POINT_SOURCE;
+    m_Type = vsp::POINT_SOURCE;
     m_Name = "Point_Name";
 
     m_PointDO.m_GeomID = GetID();
@@ -129,7 +129,7 @@ LineSource::LineSource()
     m_WLoc2.Init( "W_Loc2", m_GroupName, this, 0.0, 0.0, 1.0 );
     m_WLoc2.SetDescript( "Source W2 location" );
 
-    m_Type = LINE_SOURCE;
+    m_Type = vsp::LINE_SOURCE;
     m_Name = "Line_Name";
 
     m_LineDO1.m_GeomID = GetID() + "1";
@@ -213,7 +213,7 @@ void LineSource::AdjustRad( double val )
 
 BoxSource::BoxSource()
 {
-    m_Type = BOX_SOURCE;
+    m_Type = vsp::BOX_SOURCE;
     m_Rad = 0;
     m_Name = "Box_Name";
 
@@ -311,7 +311,7 @@ BaseSimpleSource::BaseSimpleSource()
 
 vector< vec3d > BaseSimpleSource::CreateSphere( double rad, const vec3d& loc )
 {
-    int i, j;
+    int i;
     int num_ptsperloop = 8;
     int num_loops = 8;
 
@@ -349,7 +349,7 @@ PointSimpleSource::PointSimpleSource()
 
     m_WLoc = 0.0;
 
-    m_Type = POINT_SOURCE;
+    m_Type = vsp::POINT_SOURCE;
     m_Name = "Point_Name";
 
     m_PointDO.m_GeomID = m_DrawObjID;
@@ -440,7 +440,7 @@ LineSimpleSource::LineSimpleSource()
 
     m_WLoc2 = 0.0;
 
-    m_Type = LINE_SOURCE;
+    m_Type = vsp::LINE_SOURCE;
     m_Name = "Line_Name";
 
     m_LineDO1.m_GeomID = m_DrawObjID + "1";
@@ -637,7 +637,7 @@ void LineSimpleSource::Highlight( bool flag )
 
 BoxSimpleSource::BoxSimpleSource()
 {
-    m_Type = BOX_SOURCE;
+    m_Type = vsp::BOX_SOURCE;
     m_Rad = 0;
     m_Name = "Box_Name";
 

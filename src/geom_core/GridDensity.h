@@ -34,11 +34,6 @@ using namespace std;
 
 class Geom;
 
-enum MESH_SOURCE_TYPE {    POINT_SOURCE,
-                           LINE_SOURCE,
-                           BOX_SOURCE,
-                           NUM_SOURCE_TYPES,
-                      };
 
 //////////////////////////////////////////////////////////////////////
 class BaseSource : public ParmContainer

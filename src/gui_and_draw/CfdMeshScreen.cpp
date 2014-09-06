@@ -262,7 +262,7 @@ bool CfdMeshScreen::Update()
 
         m_CfdMeshUI->SourceNameInput->value( source->GetName().c_str() );
 
-        if ( source->GetType() == MESH_SOURCE_TYPE::POINT_SOURCE )
+        if ( source->GetType() == vsp::POINT_SOURCE )
         {
             m_U1Slider.Activate();
             m_W1Slider.Activate();
@@ -279,7 +279,8 @@ bool CfdMeshScreen::Update()
             m_U2Slider.Deactivate();
             m_W2Slider.Deactivate();
         }
-        else if ( source->GetType() == MESH_SOURCE_TYPE::LINE_SOURCE )
+
+        else if ( source->GetType() == vsp::LINE_SOURCE )
         {
             m_Length2Slider.Activate();
             m_Radius2Slider.Activate();
@@ -301,7 +302,8 @@ bool CfdMeshScreen::Update()
 
             m_CfdMeshUI->EditSourceTitle->label( "Edit Line Source" );
         }
-        else if ( source->GetType() == MESH_SOURCE_TYPE::BOX_SOURCE )
+
+        else if ( source->GetType() == vsp::BOX_SOURCE )
         {
             m_U1Slider.Activate();
             m_W1Slider.Activate();
@@ -719,7 +721,8 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
     else if ( w == m_CfdMeshUI->addSourceButton )
     {
         int type = m_CfdMeshUI->sourceTypeChoice->value();
-        if ( type >= 0 && type < MESH_SOURCE_TYPE::NUM_SOURCE_TYPES )
+
+        if ( type >= 0 && type < vsp::NUM_SOURCE_TYPES )
         {
             CfdMeshMgr.AddSource( type );
         }

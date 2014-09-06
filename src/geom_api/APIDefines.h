@@ -142,6 +142,16 @@ enum CFD_MESH_EXPORT_TYPE { CFD_STL_FILE_NAME,
                             CFD_TKEY_FILE_NAME,
                             CFD_NUM_FILE_NAMES,
                         };
+enum CFD_MESH_SOURCE_TYPE { POINT_SOURCE,
+                            LINE_SOURCE,
+                            BOX_SOURCE,
+                            NUM_SOURCE_TYPES,
+                          };
+
+
+
+
+
 }   // Namespace
 
 #endif // !defined(VSPDEFINES__INCLUDED_)
