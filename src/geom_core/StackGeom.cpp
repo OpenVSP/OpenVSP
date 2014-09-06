@@ -27,6 +27,9 @@ StackGeom::StackGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
 
     m_XSecSurf.SetBasicOrientation( X_DIR, Y_DIR, XS_SHIFT_MID, false );
 
+    m_OrderPolicy.Init( "OrderPolicy", "Design", this, STACK_FREE, STACK_FREE, NUM_STACK_POLICY - 1 );
+    m_OrderPolicy.SetDescript( "XSec ordering policy for stack" );
+
     //==== Init Parms ====//
     m_TessU = 16;
     m_TessW = 17;
@@ -94,6 +97,26 @@ void StackGeom::UpdateSurf()
 
     int nxsec = m_XSecSurf.NumXSec();
 
+    if ( m_OrderPolicy() == STACK_LOOP )
+    {
+        StackXSec* first_xs = (StackXSec*) m_XSecSurf.FindXSec( 0 );
+        StackXSec* last_xs = (StackXSec*) m_XSecSurf.FindXSec( nxsec - 1 );
+
+        if ( first_xs && last_xs )
+        {
+            if ( last_xs->GetXSecCurve()->GetType() != first_xs->GetXSecCurve()->GetType() )
+            {
+                m_XSecSurf.ChangeXSecShape( nxsec - 1, first_xs->GetXSecCurve()->GetType() );
+                last_xs = (StackXSec*) m_XSecSurf.FindXSec( nxsec - 1 );
+            }
+
+            if( last_xs )
+            {
+                last_xs->GetXSecCurve()->CopyFrom( first_xs->GetXSecCurve() );
+            }
+        }
+    }
+
     //==== Cross Section Curves & joint info ====//
     vector< rib_data_type > rib_vec;
     rib_vec.resize( nxsec );
@@ -105,32 +128,13 @@ void StackGeom::UpdateSurf()
 
         if ( xs )
         {
+            EnforceOrder( xs, i, m_OrderPolicy() );
+
             bool first = false;
             bool last = false;
 
             if( i == 0 ) first = true;
             else if( i == (nxsec-1) ) last = true;
-
-            if ( first )
-            {
-                xs->m_XDelta.SetLowerUpperLimits( 0.0, 0.0 );
-                xs->m_YDelta.SetLowerUpperLimits( 0.0, 0.0 );
-                xs->m_ZDelta.SetLowerUpperLimits( 0.0, 0.0 );
-
-                xs->m_XRotate.SetLowerUpperLimits( 0.0, 0.0 );
-                xs->m_YRotate.SetLowerUpperLimits( 0.0, 0.0 );
-                xs->m_ZRotate.SetLowerUpperLimits( 0.0, 0.0 );
-            }
-            else
-            {
-                xs->m_XDelta.SetLowerUpperLimits( 0.0, 1.0e12 );
-                xs->m_YDelta.SetLowerUpperLimits( -1.0e12, 1.0e12 );
-                xs->m_ZDelta.SetLowerUpperLimits( -1.0e12, 1.0e12 );
-
-                xs->m_XRotate.SetLowerUpperLimits( -180.0, 180.0 );
-                xs->m_YRotate.SetLowerUpperLimits( -180.0, 180.0 );
-                xs->m_ZRotate.SetLowerUpperLimits( -180.0, 180.0 );
-            }
 
             //==== Reset Group Names ====//
             xs->SetGroupDisplaySuffix( i );
@@ -331,4 +335,75 @@ void StackGeom::LoadDragFactors( DragFactors& drag_factors )
 bool StackGeom::IsClosed() const
 {
     return m_Closed;
+}
+
+
+void StackGeom::EnforceOrder( StackXSec* xs, int indx, int policy )
+{
+    int nxsec = m_XSecSurf.NumXSec();
+
+    bool first = false;
+    bool last = false;
+    bool nextlast = false;
+
+    if( indx == 0 ) first = true;
+    else if( indx == (nxsec-1) ) last = true;
+    else if( indx == (nxsec-2) ) nextlast = true;
+
+    // STACK_FREE implicit.
+    if ( first )
+    {
+        xs->m_XDelta.SetLowerUpperLimits( 0.0, 0.0 );
+        xs->m_YDelta.SetLowerUpperLimits( 0.0, 0.0 );
+        xs->m_ZDelta.SetLowerUpperLimits( 0.0, 0.0 );
+
+        xs->m_XRotate.SetLowerUpperLimits( 0.0, 0.0 );
+        xs->m_YRotate.SetLowerUpperLimits( 0.0, 0.0 );
+        xs->m_ZRotate.SetLowerUpperLimits( 0.0, 0.0 );
+    }
+    else
+    {
+        xs->m_XDelta.SetLowerUpperLimits( -1.0e12, 1.0e12 );
+        xs->m_YDelta.SetLowerUpperLimits( -1.0e12, 1.0e12 );
+        xs->m_ZDelta.SetLowerUpperLimits( -1.0e12, 1.0e12 );
+
+        xs->m_XRotate.SetLowerUpperLimits( -180.0, 180.0 );
+        xs->m_YRotate.SetLowerUpperLimits( -180.0, 180.0 );
+        xs->m_ZRotate.SetLowerUpperLimits( -180.0, 180.0 );
+    }
+
+    if( policy == STACK_LOOP )
+    {
+        if ( last )
+        {
+            StackXSec* prevxs = (StackXSec*) m_XSecSurf.FindXSec( indx - 1);
+            if( prevxs )
+            {
+                Matrix4d prevxform;
+                prevxform.loadIdentity();
+
+                prevxform.matMult( prevxs->GetTransform()->data() );
+
+                prevxform.affineInverse();
+                vec3d offset = prevxform.xform( vec3d( 0.0, 0.0, 0.0 ) );
+
+                xs->m_XDelta.SetLowerUpperLimits( offset.x(), offset.x() );
+                xs->m_YDelta.SetLowerUpperLimits( offset.y(), offset.y() );
+                xs->m_ZDelta.SetLowerUpperLimits( offset.z(), offset.z() );
+
+                xs->m_XDelta.Set( offset.x() );
+                xs->m_YDelta.Set( offset.y() );
+                xs->m_ZDelta.Set( offset.z() );
+
+                vec3d angle = prevxform.getAngles();
+                xs->m_XRotate.SetLowerUpperLimits( angle.x(), angle.x() );
+                xs->m_YRotate.SetLowerUpperLimits( angle.y(), angle.y() );
+                xs->m_ZRotate.SetLowerUpperLimits( angle.z(), angle.z() );
+
+                xs->m_XRotate.Set( angle.x() );
+                xs->m_YRotate.Set( angle.y() );
+                xs->m_ZRotate.Set( angle.z() );
+            }
+        }
+    }
 }
