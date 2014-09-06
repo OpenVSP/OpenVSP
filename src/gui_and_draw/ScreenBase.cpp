@@ -1253,7 +1253,7 @@ XSecViewScreen::XSecViewScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 300, 300, "
 
     m_GlWin->getGraphicEngine()->getDisplay()->changeView( VSPGraphic::Common::VSP_CAM_TOP );
     m_GlWin->getGraphicEngine()->getDisplay()->getViewport()->showGridOverlay( false );
-    m_GlWin->getGraphicEngine()->getDisplay()->getCamera()->setZoomValue(.005);
+    m_GlWin->getGraphicEngine()->getDisplay()->getCamera()->setZoomValue(.005f);
 }
 
 bool XSecViewScreen::Update()
