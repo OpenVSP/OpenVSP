@@ -788,3 +788,21 @@ xmlNodePtr CustomGeom::DecodeXml( xmlNodePtr & node )
 
     return custom_node;
 }
+
+ void CustomGeom::ComputeCenter()
+ {
+     if ( m_XSecSurfVec.size() < 1 )
+         return;
+
+    int index = m_XSecSurfVec[0]->NumXSec() - 1;
+    CustomXSec* xs = dynamic_cast<CustomXSec*>( m_XSecSurfVec[0]->FindXSec( index - 1 ) );
+
+    if ( xs )
+    {
+        m_Center = vec3d(0,0,0);
+
+        m_Center.set_x( m_Origin()*xs->GetLoc().x() );
+
+    }
+
+ }

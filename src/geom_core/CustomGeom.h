@@ -195,6 +195,8 @@ public:
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
+    virtual void ComputeCenter();
+
 protected:
 
     bool m_InitGeomFlag;
