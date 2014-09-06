@@ -72,6 +72,10 @@ public:
         return m_Surface.get_vmax();
     }
 
+    void SetSurf( piecewise_surface_type surf )
+    {
+        m_Surface = surf;
+    }
     void SetControlPnts( vector< vector < vec3d > > pnts );
     void GetBorderCurve( const vec3d &uw0, const vec3d &uw1, Bezier_curve &crv ) const;
 
