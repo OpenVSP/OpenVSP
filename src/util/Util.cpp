@@ -25,3 +25,11 @@ string GenerateRandomID( int length )
     }
     return string( str, length );
 }
+
+//==== Convert A Double To Bool ====//
+bool ToBool( double val )
+{
+    if ( val > 1.0e-12 )
+        return true;
+    return false;
+}

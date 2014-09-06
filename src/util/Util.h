@@ -39,5 +39,7 @@ template <class T> bool ContainsVal( vector< T > & vec, T const & val )
 
 extern string GenerateRandomID( int length );
 
+extern bool ToBool( double val );
+
 #endif
 
