@@ -8,7 +8,7 @@
 using std::map;
 
 //==== Find Interval for Single Valued Increasing or Decreasing Array ===//
-int find_interval( vector< double > & vals, double value )
+int find_interval( const vector< double > & vals, double value )
 {
     int dim = vals.size();
     if ( dim == 0 )
@@ -41,7 +41,7 @@ int find_interval( vector< double > & vals, double value )
 }
 
 //==== Interpolate ===//
-double interpolate( vector< double > & arr, double value, int interval )
+double interpolate( const vector< double > & arr, double value, int interval )
 {
     int dim = arr.size();
     if ( dim <= 0 )
@@ -68,7 +68,7 @@ double interpolate( vector< double > & arr, double value, int interval )
     return( ( double )( value - arr[interval] ) / denom );
 }
 
-double interpolate( map< double, int > & val_map, double key, bool * in_range )
+double interpolate( const map< double, int > & val_map, double key, bool * in_range )
 {
     map< double, int >::const_iterator low, high, it;
     vector<double> val_vector;
@@ -153,6 +153,4 @@ int ClosestElement( const vector< double > & vec, double const & val )
             return ( low + 1 - vec.begin() );
         }
     }
-
 }
-
