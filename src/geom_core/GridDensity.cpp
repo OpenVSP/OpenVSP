@@ -68,8 +68,6 @@ void BaseSource::AdjustRad( double val )
 
 PointSource::PointSource()
 {
-    SetLoc( vec3d() );
-
     m_ULoc.Init( "U_Loc", m_GroupName, this, 0.0, 0.0, 1.0 );
     m_ULoc.SetDescript( "Source U location " );
 
@@ -78,12 +76,6 @@ PointSource::PointSource()
 
     m_Type = vsp::POINT_SOURCE;
     m_Name = "Point_Name";
-
-    m_PointDO.m_GeomID = GetID();
-    m_PointDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-    m_PointDO.m_Type = DrawObj::VSP_LINE_LOOP;
-    m_PointDO.m_LineWidth = 1.0;
-    m_PointDO.m_LineColor = vec3d( 100.0 / 255, 100.0 / 255, 100.0 / 255 );
 }
 
 void PointSource::SetNamedVal( string name, double val )
@@ -109,8 +101,6 @@ void PointSource::SetNamedVal( string name, double val )
 
 LineSource::LineSource()
 {
-    SetEndPnts( vec3d(), vec3d() );
-
     m_Len2.Init( "SrcLen2", m_GroupName, this, 0.1, 1.0e-8, 1.0e12 );
     m_Len2.SetDescript( "Source edge length" );
 
@@ -131,24 +121,6 @@ LineSource::LineSource()
 
     m_Type = vsp::LINE_SOURCE;
     m_Name = "Line_Name";
-
-    m_LineDO1.m_GeomID = GetID() + "1";
-    m_LineDO1.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-    m_LineDO1.m_Type = DrawObj::VSP_LINE_LOOP;
-    m_LineDO1.m_LineWidth = 1.0;
-    m_LineDO1.m_LineColor = vec3d( 100.0 / 255, 100.0 / 255, 100.0 / 255 );
-
-    m_LineDO2.m_GeomID = GetID() + "2";
-    m_LineDO2.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-    m_LineDO2.m_Type = DrawObj::VSP_LINE_LOOP;
-    m_LineDO2.m_LineWidth = 1.0;
-    m_LineDO2.m_LineColor = vec3d( 100.0 / 255, 100.0 / 255, 100.0 / 255 );
-
-    m_LineDO3.m_GeomID = GetID() + "3";
-    m_LineDO3.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-    m_LineDO3.m_Type = DrawObj::VSP_LINES;
-    m_LineDO3.m_LineWidth = 1.0;
-    m_LineDO3.m_LineColor = vec3d( 100.0 / 255, 100.0 / 255, 100.0 / 255 );
 }
 
 void LineSource::SetNamedVal( string name, double val )
@@ -177,23 +149,6 @@ void LineSource::SetNamedVal( string name, double val )
     {
         m_Rad2 = val;
     }
-}
-
-void LineSource::UpdateBBox()
-{
-    m_Box.Update( vec3d( m_Pnt1[0] + m_Rad(), m_Pnt1[1] + m_Rad(),  m_Pnt1[2] + m_Rad() ) );
-    m_Box.Update( vec3d( m_Pnt1[0] - m_Rad(), m_Pnt1[1] - m_Rad(),  m_Pnt1[2] - m_Rad() ) );
-    m_Box.Update( vec3d( m_Pnt2[0] + m_Rad2(), m_Pnt2[1] + m_Rad2(),  m_Pnt2[2] + m_Rad2() ) );
-    m_Box.Update( vec3d( m_Pnt2[0] - m_Rad2(), m_Pnt2[1] - m_Rad2(),  m_Pnt2[2] - m_Rad2() ) );
-}
-
-void LineSource::SetEndPnts( const vec3d & pnt1, const vec3d & pnt2 )
-{
-    m_Pnt1 = pnt1;
-    m_Pnt2 = pnt2;
-    m_Line = pnt2 - pnt1;
-    m_DotLine = max( 0.0000001, dot( m_Line, m_Line ) );
-    UpdateBBox();
 }
 
 void LineSource::AdjustLen( double val )
@@ -228,47 +183,6 @@ BoxSource::BoxSource()
 
     m_WLoc2.Init( "W_Loc2", m_GroupName, this, 0.0, 0.0, 1.0 );
     m_WLoc2.SetDescript( "Source W2 location" );
-
-    m_BoxDO1.m_GeomID = GetID() + "1";
-    m_BoxDO1.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-    m_BoxDO1.m_Type = DrawObj::VSP_LINE_LOOP;
-    m_BoxDO1.m_LineWidth = 1.0;
-    m_BoxDO1.m_LineColor = vec3d( 100.0 / 255, 100.0 / 255, 100.0 / 255 );
-
-    m_BoxDO2.m_GeomID = GetID() + "2";
-    m_BoxDO2.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-    m_BoxDO2.m_Type = DrawObj::VSP_LINE_LOOP;
-    m_BoxDO2.m_LineWidth = 1.0;
-    m_BoxDO2.m_LineColor = vec3d( 100.0 / 255, 100.0 / 255, 100.0 / 255 );
-
-    m_BoxDO3.m_GeomID = GetID() + "3";
-    m_BoxDO3.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-    m_BoxDO3.m_Type = DrawObj::VSP_LINES;
-    m_BoxDO3.m_LineWidth = 1.0;
-    m_BoxDO3.m_LineColor = vec3d( 100.0 / 255, 100.0 / 255, 100.0 / 255 );
-}
-
-void BoxSource::ComputeCullPnts()
-{
-    m_CullMinPnt = m_MinPnt - vec3d( m_Rad(), m_Rad(), m_Rad() );
-    m_CullMaxPnt = m_MaxPnt + vec3d( m_Rad(), m_Rad(), m_Rad() );
-}
-
-void BoxSource::SetMinMaxPnts( const vec3d & min_pnt, const vec3d & max_pnt )
-{
-    m_MinPnt = min_pnt;
-    m_MaxPnt = max_pnt;
-    ComputeCullPnts();
-    m_Box.Update( m_CullMinPnt );
-    m_Box.Update( m_CullMaxPnt );
-}
-
-void BoxSource::SetRad( double rad )
-{
-    m_Rad = rad;
-    ComputeCullPnts();
-    m_Box.Update( m_CullMinPnt );
-    m_Box.Update( m_CullMaxPnt );
 }
 
 void BoxSource::SetNamedVal( string name, double val )

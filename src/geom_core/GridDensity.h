@@ -78,8 +78,6 @@ protected:
 
     int m_Type;
 
-    BndBox m_Box;
-
     string m_GroupName;
 };
 
@@ -90,21 +88,10 @@ public:
     PointSource();
     virtual ~PointSource()      {}
 
-    void SetLoc( const vec3d & loc )
-    {
-        m_Loc = loc;
-    }
-
     virtual void SetNamedVal( string name, double val );
 
     Parm m_ULoc;
     Parm m_WLoc;
-
-protected:
-
-    vec3d m_Loc;
-
-    DrawObj m_PointDO;
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -117,9 +104,6 @@ public:
     virtual void   AdjustRad( double val  );
     virtual void   AdjustLen( double val  );
 
-    void SetEndPnts( const vec3d & pnt1, const vec3d & pnt2 );
-    void UpdateBBox();
-
     void SetNamedVal( string name, double val );
 
     Parm m_ULoc1;
@@ -130,21 +114,6 @@ public:
 
     Parm m_Len2;
     Parm m_Rad2;
-
-protected:
-
-    vec3d m_Pnt1;
-    vec3d m_Pnt2;
-
-    double m_RadSquared1;
-    double m_RadSquared2;
-
-    vec3d m_Line;                       // m_Pnt2 - m_Pnt1
-    double m_DotLine;                   // dot( m_Line, m_Line )
-
-    DrawObj m_LineDO1;
-    DrawObj m_LineDO2;
-    DrawObj m_LineDO3;
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -154,12 +123,6 @@ public:
     BoxSource();
     virtual ~BoxSource()        {};
 
-    void SetMinMaxPnts( const vec3d & min_pnt, const vec3d & max_pnt );
-
-    void ComputeCullPnts();
-
-    void SetRad( double rad );
-
     void SetNamedVal( string name, double val );
 
     Parm m_ULoc1;
@@ -167,18 +130,6 @@ public:
 
     Parm m_ULoc2;
     Parm m_WLoc2;
-
-protected:
-
-    vec3d m_MinPnt;
-    vec3d m_MaxPnt;
-
-    vec3d m_CullMinPnt;
-    vec3d m_CullMaxPnt;
-
-    DrawObj m_BoxDO1;
-    DrawObj m_BoxDO2;
-    DrawObj m_BoxDO3;
 };
 
 //////////////////////////////////////////////////////////////////////
