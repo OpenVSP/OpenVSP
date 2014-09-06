@@ -488,6 +488,7 @@ void LineSimpleSource::CopyFrom( BaseSource* s )
 
 void LineSimpleSource::UpdateBBox()
 {
+    m_Box.Reset();
     m_Box.Update( vec3d( m_Pnt1[0] + m_Rad, m_Pnt1[1] + m_Rad,  m_Pnt1[2] + m_Rad ) );
     m_Box.Update( vec3d( m_Pnt1[0] - m_Rad, m_Pnt1[1] - m_Rad,  m_Pnt1[2] - m_Rad ) );
     m_Box.Update( vec3d( m_Pnt2[0] + m_Rad2, m_Pnt2[1] + m_Rad2,  m_Pnt2[2] + m_Rad2 ) );
@@ -578,9 +579,9 @@ double LineSimpleSource::GetTargetLen( double base_len, vec3d &  pos )
 
 void LineSimpleSource::Update( Geom* geomPtr )
 {
-    m_Pnt1 = geomPtr->GetUWPt( m_SurfIndx, m_ULoc1, m_WLoc1 );
-    m_Pnt2 = geomPtr->GetUWPt( m_SurfIndx, m_ULoc2, m_WLoc2 );
-    SetEndPnts( m_Pnt1, m_Pnt2 );
+    vec3d p1 = geomPtr->GetUWPt( m_SurfIndx, m_ULoc1, m_WLoc1 );
+    vec3d p2 = geomPtr->GetUWPt( m_SurfIndx, m_ULoc2, m_WLoc2 );
+    SetEndPnts( p1, p2 );
 }
 
 void LineSimpleSource::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
@@ -698,6 +699,7 @@ void BoxSimpleSource::SetMinMaxPnts( const vec3d & min_pnt, const vec3d & max_pn
     m_MinPnt = min_pnt;
     m_MaxPnt = max_pnt;
     ComputeCullPnts();
+    m_Box.Reset();
     m_Box.Update( m_CullMinPnt );
     m_Box.Update( m_CullMaxPnt );
 }
@@ -706,6 +708,7 @@ void BoxSimpleSource::SetRad( double rad )
 {
     m_Rad = rad;
     ComputeCullPnts();
+    m_Box.Reset();
     m_Box.Update( m_CullMinPnt );
     m_Box.Update( m_CullMaxPnt );
 }
@@ -781,9 +784,8 @@ void BoxSimpleSource::Update( Geom* geomPtr )
             box.Update( p );
         }
     }
-    m_Box = box;
-    vec3d p0 = box.GetCornerPnt( 0 );
-    vec3d p1 = box.GetCornerPnt( 7 );
+    vec3d p0 = box.GetMin();
+    vec3d p1 = box.GetMax();
     SetMinMaxPnts( p0, p1 );
 
 }
