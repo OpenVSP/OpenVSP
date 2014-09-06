@@ -63,7 +63,7 @@ public:
     void CompCurvature( double u, double w, double& k1, double& k2, double& ka, double& kg );
     double TargetLen( double u, double w, double gap, double radfrac );
     void BuildTargetMap( vector< MapSource* > &sources, int sid );
-    void WalkMap( pair< int, int > ijstart, int kstart, pair< int, int > ijcurrent );
+    void WalkMap( int istart, int jstart, int kstart, int icurrent, int jcurrent);
     void WalkMap( int istart, int jstart, int icurrent, int jcurrent );
     void LimitTargetMap();
     void LimitTargetMap( MSCloud &es_cloud, MSTree &es_tree, double minmap );

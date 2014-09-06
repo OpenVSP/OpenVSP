@@ -544,7 +544,7 @@ bool indxcompare( const pair < double, pair < int, int > > &a, const pair < doub
     return ( a.first < b.first );
 }
 
-void Surf::WalkMap( pair< int, int > ijstart, int kstart, pair< int, int > ijcurrent )
+void Surf::WalkMap( int istart, int jstart, int kstart, int icurrent, int jcurrent )
 {
     static int iadd[] = { -1, 1,  0, 0 };
     static int jadd[] = {  0, 0, -1, 1 };
@@ -552,9 +552,9 @@ void Surf::WalkMap( pair< int, int > ijstart, int kstart, pair< int, int > ijcur
     for( int i = 0; i < 4; i++ )
     {
         static int itarget;
-        itarget = ijcurrent.first + iadd[i];
+        itarget = icurrent + iadd[i];
         static int jtarget;
-        jtarget = ijcurrent.second + jadd[i];
+        jtarget = jcurrent + jadd[i];
 
         if( itarget < m_SrcMap.size() && itarget >= 0 && jtarget < m_SrcMap[0].size() && jtarget >= 0 )
         {
@@ -563,16 +563,15 @@ void Surf::WalkMap( pair< int, int > ijstart, int kstart, pair< int, int > ijcur
             {
                 m_SrcMap[ itarget ][ jtarget ].m_maxvisited = kstart;
                 static double targetstr;
-                targetstr = m_SrcMap[ijstart.first][ijstart.second].m_str +
-                          ( m_SrcMap[ itarget ][ jtarget ].m_pt - m_SrcMap[ijstart.first][ijstart.second].m_pt ).mag() *
+                targetstr = m_SrcMap[ istart ][ jstart ].m_str +
+                          ( m_SrcMap[ itarget ][ jtarget ].m_pt - m_SrcMap[ istart ][ jstart ].m_pt ).mag() *
                           ( m_GridDensityPtr->m_GrowRatio() - 1.0 );
                 if( m_SrcMap[ itarget ][ jtarget ].m_str > targetstr )
                 {
                     // Mark dominated as progress is made
                     m_SrcMap[ itarget ][ jtarget ].m_dominated = true;
                     m_SrcMap[ itarget ][ jtarget ].m_str = targetstr;
-                    pair< int, int > ijtarget( itarget, jtarget );
-                    WalkMap( ijstart, kstart, ijtarget );
+                    WalkMap( istart, jstart, kstart, itarget, jtarget );
                 }
             }
         }
@@ -645,7 +644,7 @@ void Surf::LimitTargetMap()
         // Recursively limit from small to large (skip if dominated)
         if( !src.m_dominated )
         {
-            WalkMap( ij, k, ij );
+            WalkMap( i, j, k, i, j );
         }
     }
 }
