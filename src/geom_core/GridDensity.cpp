@@ -257,7 +257,7 @@ void BaseSimpleSource::AdjustLen( double val )
 
 PointSimpleSource::PointSimpleSource()
 {
-    SetLoc( vec3d() );
+    m_Loc = vec3d();
 
     m_ULoc = 0.0;
 
@@ -307,10 +307,7 @@ double PointSimpleSource::GetTargetLen( double base_len, vec3d &  pos )
 
 void PointSimpleSource::Update( Geom* geomPtr )
 {
-    vec3d p = geomPtr->GetUWPt( m_SurfIndx, m_ULoc, m_WLoc );
-
-    SetLoc( p );
-
+    m_Loc = geomPtr->GetUWPt( m_SurfIndx, m_ULoc, m_WLoc );
 }
 
 void PointSimpleSource::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
@@ -617,16 +614,6 @@ void BoxSimpleSource::SetMinMaxPnts( const vec3d & min_pnt, const vec3d & max_pn
     m_Box.Update( m_CullMinPnt );
     m_Box.Update( m_CullMaxPnt );
 }
-
-void BoxSimpleSource::SetRad( double rad )
-{
-    m_Rad = rad;
-    ComputeCullPnts();
-    m_Box.Reset();
-    m_Box.Update( m_CullMinPnt );
-    m_Box.Update( m_CullMaxPnt );
-}
-
 
 double BoxSimpleSource::GetTargetLen( double base_len, vec3d &  pos )
 {

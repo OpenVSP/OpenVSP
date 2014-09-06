@@ -195,11 +195,6 @@ public:
 	PointSimpleSource();
     virtual ~PointSimpleSource()      {}
 
-    void SetLoc( const vec3d & loc )
-    {
-        m_Loc = loc;
-    }
-
     double GetTargetLen( double base_len, vec3d &  pos );
 
     virtual void Update( Geom* geomPtr );
@@ -229,8 +224,6 @@ public:
 
     void SetEndPnts( const vec3d & pnt1, const vec3d & pnt2 );
     void UpdateBBox();
-
-    void SetNamedVal( string name, double val );
 
     virtual void AdjustLen( double val  );
 
@@ -283,10 +276,6 @@ public:
     double GetTargetLen( double base_len, vec3d &  pos );
 
     void Update( Geom* geomPtr );
-
-    void SetRad( double rad );
-
-    void SetNamedVal( string name, double val );
 
     double m_ULoc1;
     double m_WLoc1;
