@@ -870,9 +870,14 @@ xmlNodePtr WingGeom::DecodeXml( xmlNodePtr & node )
 //==== Compute Rotation Center ====//
 void WingGeom::ComputeCenter()
 {
-    m_Center.set_x( 0.0 );
-    m_Center.set_y( 0.0 );
-    m_Center.set_z( 0.0 );
+    m_Center = vec3d(0,0,0);
+
+    WingSect* ws = ( WingSect* ) m_XSecSurf.FindXSec( 0 );
+    if ( ws )
+    {
+        double len = ws->m_RootChord();
+        m_Center.set_x( len*m_Origin() );
+    }
 }
 
 //==== Set Index For Active Airfoil ====//
