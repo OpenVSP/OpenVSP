@@ -140,11 +140,12 @@ extern void SetSetFlag( const string & geom_id, int set_index, bool flag );
 //======================== Parm Functions ================================//
 extern bool ValidParm( const string & id );
 extern double SetParmVal( const string & parm_id, double val );
+extern double SetParmVal( const string & geom_id, const string & name, const string & group, double val );
 extern double SetParmValLimits( const string & parm_id, double val, double lower_limit, double upper_limit );
 extern double SetParmValUpdate( const string & parm_id, double val );
-extern double SetParmVal( const string & geom_id, const string & name, const string & group, double val );
 extern double SetParmValUpdate( const string & geom_id, const string & name, const string & group, double val );
 extern double GetParmVal( const string & parm_id );
+extern double GetParmVal( const string & geom_id, const string & name, const string & group );
 extern int GetIntParmVal( const string & parm_id );
 extern bool GetBoolParmVal( const string & parm_id );
 extern void SetParmUpperLimit( const string & parm_id, double val );

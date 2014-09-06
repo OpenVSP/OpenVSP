@@ -1543,6 +1543,21 @@ double SetParmVal( const string & parm_id, double val )
     return p->Set( val );
 }
 
+/// Set the parm value.  If update is true, the parm container is updated.
+/// The final value of parm is returned.
+double SetParmVal( const string & geom_id, const string & name, const string & group, double val )
+{
+    string parm_id = GetParm( geom_id, name, group );
+    Parm* p = ParmMgr.FindParm( parm_id );
+    if ( !p )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "SetParmVal::Can't Find Parm " + parm_id  );
+        return val;
+    }
+    ErrorMgr.NoError();
+    return p->Set( val );
+}
+
 double SetParmValLimits( const string & parm_id, double val, double lower_limit, double upper_limit )
 {
     Parm* p = ParmMgr.FindParm( parm_id );
@@ -1572,20 +1587,6 @@ double SetParmValUpdate( const string & parm_id, double val )
     return p->SetFromDevice( val );         // Force Update
 }
 
-/// Set the parm value.  If update is true, the parm container is updated.
-/// The final value of parm is returned.
-double SetParmVal( const string & geom_id, const string & name, const string & group, double val )
-{
-    string parm_id = GetParm( geom_id, name, group );
-    Parm* p = ParmMgr.FindParm( parm_id );
-    if ( !p )
-    {
-        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "SetParmVal::Can't Find Parm " + parm_id  );
-        return val;
-    }
-    ErrorMgr.NoError();
-    return p->Set( val );
-}
 
 /// Set the parm value.  If update is true, the parm container is updated.
 /// The final value of parm is returned.
@@ -1609,6 +1610,20 @@ double GetParmVal( const string & parm_id )
     if ( !p )
     {
         ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetParmVal::Can't Find Parm " + parm_id  );
+        return 0.0;
+    }
+    ErrorMgr.NoError();
+    return p->Get();
+}
+
+/// Get the value of parm
+double GetParmVal( const string & geom_id, const string & name, const string & group )
+{
+    string parm_id = GetParm( geom_id, name, group );
+    Parm* p = ParmMgr.FindParm( parm_id );
+    if ( !p )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetParmVal::Can't Find Parm " + name  );
         return 0.0;
     }
     ErrorMgr.NoError();
