@@ -214,6 +214,7 @@ public:
     virtual BaseSource* AddSource( int type );
     virtual BaseSource* CreateSource( int type );
     virtual void DeleteCurrSource();
+    virtual void DeleteAllSources();
 
     virtual void AdjustAllSourceLen( double mult );
     virtual void AdjustAllSourceRad( double mult );

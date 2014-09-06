@@ -848,6 +848,20 @@ void CfdMeshMgrSingleton::DeleteCurrSource()
     }
 }
 
+void CfdMeshMgrSingleton::DeleteAllSources()
+{
+    GetGridDensityPtr()->ClearSources();
+    vector<string> geomVec = m_Vehicle->GetGeomVec();
+    for ( int g = 0 ; g < ( int )geomVec.size() ; g++ )
+    {
+        Geom* geom = m_Vehicle->FindGeom( geomVec[g] );
+        if ( geom )
+        {
+            geom->DelAllSources();
+        }
+    }
+}
+
 void CfdMeshMgrSingleton::UpdateSourcesAndWakes()
 {
     GetGridDensityPtr()->ClearSources();
