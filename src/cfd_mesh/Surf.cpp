@@ -194,6 +194,11 @@ void Surf::BuildTargetMap( vector< MapSource* > &sources, int sid )
     int nmapu = npatchu * ( m_NumMap - 1 ) + 1;
     int nmapw = npatchw * ( m_NumMap - 1 ) + 1;
 
+    double umin = m_SurfCore.GetMinU();
+    double du = m_SurfCore.GetMaxU() - umin;
+    double wmin = m_SurfCore.GetMinW();
+    double dw = m_SurfCore.GetMaxW() - wmin;
+
     // Initialize map matrix dimensions
     m_SrcMap.resize( nmapu );
     for( int i = 0; i < nmapu ; i++ )
@@ -214,10 +219,10 @@ void Surf::BuildTargetMap( vector< MapSource* > &sources, int sid )
     // Loop over surface evaluating source strength and curvature
     for( int i = 0; i < nmapu ; i++ )
     {
-        double u = ( 1.0 * i ) / ( m_NumMap - 1 );
+        double u = umin + du * ( 1.0 * i ) / ( nmapu - 1 );
         for( int j = 0; j < nmapw ; j++ )
         {
-            double w = ( 1.0 * j ) / ( m_NumMap - 1 );
+            double w = wmin + dw * ( 1.0 * j ) / ( nmapw - 1 );
 
             double len = numeric_limits<double>::max( );
 
