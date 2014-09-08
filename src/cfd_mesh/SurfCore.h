@@ -63,6 +63,14 @@ public:
     {
         return m_Surface.number_v_patches();
     }
+    double GetMinU() const
+    {
+        return m_Surface.get_u0();
+    }
+    double GetMinW() const
+    {
+        return m_Surface.get_v0();
+    }
     double GetMaxU() const
     {
         return m_Surface.get_umax();
@@ -70,6 +78,22 @@ public:
     double GetMaxW() const
     {
         return m_Surface.get_vmax();
+    }
+    double GetDU() const
+    {
+        return m_Surface.get_umax() - m_Surface.get_u0();
+    }
+    double GetDW() const
+    {
+        return m_Surface.get_vmax() - m_Surface.get_v0();
+    }
+    double GetMidU() const
+    {
+        return ( m_Surface.get_u0() + m_Surface.get_umax() ) / 2.0;
+    }
+    double GetMidW() const
+    {
+        return ( m_Surface.get_v0() + m_Surface.get_vmax() ) / 2.0;
     }
 
     void SetSurf( piecewise_surface_type surf )
