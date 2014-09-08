@@ -139,7 +139,7 @@ void Node::LaplacianSmooth( Surf* surfPtr )
     moveUW = moveUW * ( 1.0 / ( double )connectNodes.size() );
     movePnt = movePnt * ( 1.0 / ( double )connectNodes.size() );
 
-    vec2d close_uw = surfPtr->ClosestUW( movePnt, moveUW.x(),  moveUW.y(), 0.001, 0.001, 0.0001 );
+    vec2d close_uw = surfPtr->ClosestUW( movePnt, moveUW.x(),  moveUW.y() );
 
     vec2d old_uw = uw;
     vec3d old_pnt = pnt;
