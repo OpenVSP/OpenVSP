@@ -853,3 +853,14 @@ void SurfCore::BuildPatches( Surf* srf ) const
     srf->SetBBox( bbox.get_max(), bbox.get_min() );
     srf->SetPatchVec( patchVec );
 }
+
+double SurfCore::FindNearest( double &u, double &w, const vec3d &pt, const double &u0, const double &w0 ) const
+{
+    double dist;
+    surface_point_type p;
+    pt.get_pnt( p );
+
+    dist = eli::geom::intersect::minimum_distance( u, w, m_Surface, p, u0, w0 );
+
+    return dist;
+}

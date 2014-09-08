@@ -14,6 +14,7 @@
 #include "eli/geom/surface/piecewise.hpp"
 #include "eli/geom/curve/piecewise_creator.hpp"
 #include "eli/geom/surface/piecewise_general_skinning_surface_creator.hpp"
+#include "eli/geom/intersect/minimum_distance_surface.hpp"
 
 typedef eli::geom::surface::bezier<double, 3> surface_patch_type;
 typedef eli::geom::surface::piecewise<eli::geom::surface::bezier, double, 3> piecewise_surface_type;
@@ -118,6 +119,8 @@ public:
     void MakePlaneSurf( const threed_point_type &p0, const threed_point_type &p1, const threed_point_type &p2, const threed_point_type &p3 );
 
     void BuildPatches( Surf* srf ) const;
+
+    double FindNearest( double &u, double &w, const vec3d &pt, const double &u0, const double &w0 ) const;
 
 protected:
     piecewise_surface_type m_Surface;

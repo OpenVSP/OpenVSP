@@ -71,10 +71,7 @@ public:
 
     void ApplyES( vec3d uw, double t );
 
-    vec2d ClosestUW( vec3d & pnt, double guess_u, double guess_w, double guess_del_u, double guess_del_w, double tol );
-
     vec2d ClosestUW( vec3d & pnt_in, double guess_u, double guess_w ) const;
-    void CompDeltaUW( vec3d& pnt_in, vec3d& guess_pnt, double norm_uw[2], double delta_uw[2] ) const;
 
 
     void FindBorderCurves();
