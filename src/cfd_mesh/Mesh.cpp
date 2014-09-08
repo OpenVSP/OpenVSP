@@ -1417,7 +1417,7 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
         return;
     }
 
-    vec2d VspMinUW = m_Surf->Convert2VspSurf( 0.0, 0.0 );
+    vec2d VspMinUW = m_Surf->Convert2VspSurf( m_Surf->GetSurfCore()->GetMinU(), m_Surf->GetSurfCore()->GetMinW() );
     double VspMinU = VspMinUW.v[0];
     double VspMinW = VspMinUW.v[1];
 
