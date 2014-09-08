@@ -138,19 +138,19 @@ void SurfCore::GetBorderCurve( const vec3d &uw0, const vec3d &uw1, Bezier_curve 
 //===== Compute Point On Surf Given  U W (Between 0 1 ) =====//
 vec3d SurfCore::CompPnt01( double u, double w ) const
 {
-    return CompPnt( u * GetMaxU(), w * GetMaxW() );
+    return CompPnt( GetMinU() + u * GetDU(), GetMinW() + w * GetDW() );
 }
 
 //===== Compute Tangent In U Direction   =====//
 vec3d SurfCore::CompTanU01( double u01, double w01 ) const
 {
-    return CompTanU( u01 * GetMaxU(), w01 * GetMaxW() );
+    return CompTanU( GetMinU() + u01 * GetDU(), GetMinW() + w01 * GetDW() );
 }
 
 //===== Compute Tangent In W Direction   =====//
 vec3d SurfCore::CompTanW01( double u01, double w01 ) const
 {
-    return CompTanW( u01 * GetMaxU(), w01 * GetMaxW() );
+    return CompTanW( GetMinU() + u01 * GetDU(), GetMinW() + w01 * GetDW() );
 }
 
 //===== Compute Second Derivative U,U   =====//
