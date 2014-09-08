@@ -250,7 +250,7 @@ void Bezier_curve::XYZCurveToUWCurve( const Surf *srf )
         {
             curve_point_type cp = c.get_control_point( j );
             vec3d p = vec3d( cp.x(), cp.y(), cp.z() );
-            vec2d uw = srf->ClosestUW( p, srf->GetSurfCore()->GetMaxU() / 2.0, srf->GetSurfCore()->GetMaxW() / 2.0 );
+            vec2d uw = srf->ClosestUW( p, srf->GetSurfCore()->GetMidU(), srf->GetSurfCore()->GetMidW() );
             cp << uw.x(), uw.y(), 0.0;
             c.set_control_point( cp, j );
         }
