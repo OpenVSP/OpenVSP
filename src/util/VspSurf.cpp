@@ -796,8 +796,14 @@ bool VspSurf::CapWMax(int CapType)
 
 void VspSurf::SplitSurfs( vector< piecewise_surface_type > &surfvec )
 {
+	piecewise_surface_type s(m_Surface);
+	SplitSurfs( surfvec, s );
+}
+
+void VspSurf::SplitSurfs( vector< piecewise_surface_type > &surfvec, piecewise_surface_type initsurf )
+{
     surfvec.clear();
-    surfvec.push_back( m_Surface );
+    surfvec.push_back( initsurf );
 
     for ( int i = 0; i < m_UFeature.size(); ++i )
     {
