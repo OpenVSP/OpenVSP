@@ -53,7 +53,7 @@ public:
 
     double GetUWArea() const
     {
-        return GetMaxU() * GetMaxW();
+        return GetDU() * GetDW();
     }
 
     int GetNumUPatches() const
