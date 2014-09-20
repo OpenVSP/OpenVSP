@@ -529,14 +529,16 @@ void Surf::FindBorderCurves()
 
     //==== Load 4 Border Curves if Not Degenerate ====//
     SCurve* scrv;
+    double min_u = m_SurfCore.GetMinU();
+    double min_w = m_SurfCore.GetMinW();
     double max_u = m_SurfCore.GetMaxU();
     double max_w = m_SurfCore.GetMaxW();
 
     vector< vec3d > pnts;
     pnts.resize( 2 );
 
-    pnts[0].set_xyz( 0,         0, 0 );         // Inc U
-    pnts[1].set_xyz( max_u,     0, 0 );
+    pnts[0].set_xyz( min_u, min_w, 0 );         // Inc U
+    pnts[1].set_xyz( max_u, min_w, 0 );
 
     scrv = new SCurve( this );
     scrv->BuildBezierCurve( pnts, 0.25 );
@@ -550,8 +552,8 @@ void Surf::FindBorderCurves()
         delete scrv;
     }
 
-    pnts[0].set_xyz( max_u,       0, 0 );       // Inc W
-    pnts[1].set_xyz( max_u,     max_w, 0 );
+    pnts[0].set_xyz( max_u, min_w, 0 );       // Inc W
+    pnts[1].set_xyz( max_u, max_w, 0 );
 
     scrv = new SCurve( this );
     scrv->BuildBezierCurve( pnts, 0.25 );
@@ -565,8 +567,8 @@ void Surf::FindBorderCurves()
         delete scrv;
     }
 
-    pnts[0].set_xyz( max_u,     max_w, 0 );         // Dec U
-    pnts[1].set_xyz( 0,         max_w, 0 );
+    pnts[0].set_xyz( max_u, max_w, 0 );         // Dec U
+    pnts[1].set_xyz( min_u, max_w, 0 );
 
     scrv = new SCurve( this );
     scrv->BuildBezierCurve( pnts, 0.25 );
@@ -580,8 +582,8 @@ void Surf::FindBorderCurves()
         delete scrv;
     }
 
-    pnts[0].set_xyz( 0, max_w,   0 );           // Dec W
-    pnts[1].set_xyz( 0, 0,       0 );
+    pnts[0].set_xyz( min_u, max_w,   0 );           // Dec W
+    pnts[1].set_xyz( min_u, min_w,       0 );
 
     scrv = new SCurve( this );
     scrv->BuildBezierCurve( pnts, 0.25 );
