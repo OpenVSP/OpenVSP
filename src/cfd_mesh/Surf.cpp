@@ -443,8 +443,19 @@ double Surf::InterpTargetMap( double u, double w )
 
 void Surf::UWtoTargetMapij( double u, double w, int &i, int &j, double &fraci, double &fracj )
 {
+    int npatchu = m_SurfCore.GetNumUPatches();
+    int npatchw = m_SurfCore.GetNumWPatches();
+
+    int nmapu = npatchu * ( m_NumMap - 1 ) + 1;
+    int nmapw = npatchw * ( m_NumMap - 1 ) + 1;
+
+    double umin = m_SurfCore.GetMinU();
+    double du = m_SurfCore.GetMaxU() - umin;
+    double wmin = m_SurfCore.GetMinW();
+    double dw = m_SurfCore.GetMaxW() - wmin;
+
     int imax = m_SrcMap.size() - 1;
-    double di = u * ( m_NumMap - 1 );
+    double di = ( u - umin ) * ( m_NumMap - 1 ) * npatchu / du;
     i = ( int ) di;
     fraci = di - i;
     if( i >= imax )
@@ -454,7 +465,7 @@ void Surf::UWtoTargetMapij( double u, double w, int &i, int &j, double &fraci, d
     }
 
     int jmax = m_SrcMap[0].size() - 1;
-    double dj = w * ( m_NumMap - 1 );
+    double dj = ( w - wmin ) * ( m_NumMap - 1 ) * npatchw / dw;
     j = ( int ) dj;
     fracj = dj - j;
     if( j >= jmax )
