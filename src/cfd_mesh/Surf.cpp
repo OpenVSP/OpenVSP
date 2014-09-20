@@ -143,17 +143,20 @@ double Surf::TargetLen( double u, double w, double gap, double radfrac )
     double glen = numeric_limits<double>::max( );
     double nlen = numeric_limits<double>::max( );
 
+    double umin = m_SurfCore.GetMinU();
+    double wmin = m_SurfCore.GetMinW();
+
     m_SurfCore.CompCurvature( u, w, k1, k2, ka, kg );
 
     if( fabs( k1 ) < tol ) // If zero curvature
     {
         double du = -tol;
-        if( u < tol )
+        if( u <= umin + tol )
         {
             du = tol;
         }
         double dw = -tol;
-        if( w < tol )
+        if( w <= wmin + tol )
         {
             dw = tol;
         }
