@@ -249,8 +249,8 @@ void SurfCore::CompCurvature( double u, double w, double& k1, double& k2, double
 
     if( E < tol && G < tol )
     {
-        double umid = GetMaxU() / 2.0;
-        double wmid = GetMaxW() / 2.0;
+        double umid = GetMidU();
+        double wmid = GetMidW();
 
         u = u + ( umid - u ) * bump;
         w = w + ( wmid - w ) * bump;
@@ -263,7 +263,7 @@ void SurfCore::CompCurvature( double u, double w, double& k1, double& k2, double
     }
     else if( E < tol ) // U direction degenerate
     {
-        double wmid = GetMaxW() / 2.0;
+        double wmid = GetMidW();
         w = w + ( wmid - w ) * bump;
 
         S_u = CompTanU( u, w );
@@ -274,7 +274,7 @@ void SurfCore::CompCurvature( double u, double w, double& k1, double& k2, double
     }
     else if( G < tol ) // W direction degenerate
     {
-        double umid = GetMaxU() / 2.0;
+        double umid = GetMidU();
         u = u + ( umid - u ) * bump;
 
         S_u = CompTanU( u, w );
