@@ -1072,12 +1072,20 @@ void MeshGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
     int num_uniq_tags = SubSurfaceMgr.GetNumTags();
 
+    // Calculate constants for color sequence.
+    const int ncgrp = 6; // Number of basic colors
+    const int ncstep = ceil((double)num_uniq_tags/(double)ncgrp);
+    const double nctodeg = 360.0/(ncgrp*ncstep);
+
     Geom::LoadDrawObjs( draw_obj_vec );
     for ( int i = 0 ; i < ( int )m_WireShadeDrawObj_vec.size() ; i++ )
     {
         if ( m_DrawType() == MeshGeom::DRAW_TAGS && m_GuiDraw.GetDispSubSurfFlag() )
         {
-            double deg = 360.0 * ( double )i / num_uniq_tags;
+            // Color sequence -- go around color wheel ncstep times with slight
+            // offset from ncgrp basic colors.
+            // Note, (cnt/ncgrp) uses integer division resulting in floor.
+            double deg = ((i % ncgrp) * ncstep + (i / ncgrp)) * nctodeg;
             vec3d rgb = m_WireShadeDrawObj_vec[i].ColorWheel( deg );
             rgb.normalize();
             m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[0] = (float)rgb.x()/5.0f;

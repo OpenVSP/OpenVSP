@@ -4101,7 +4101,11 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     map< int, DrawObj* >::const_iterator dmit;
     map< std::vector<int>, int > tagMap = SubSurfaceMgr.GetSingleTagMap();
     int cnt = 0;
-    double deg;
+
+    // Calculate constants for color sequence.
+    const int ncgrp = 6; // Number of basic colors
+    const int ncstep = ceil((double)num_tags/(double)ncgrp);
+    const double nctodeg = 360.0/(ncgrp*ncstep);
 
     char str[256];
     for ( mit = tagMap.begin(); mit != tagMap.end() ; mit++ )
@@ -4112,7 +4116,11 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
         m_TagDO[cnt].m_GeomID = string( str );
         m_TagDO[cnt].m_Type = DrawObj::VSP_SHADED_TRIS;
         m_TagDO[cnt].m_Visible = GetCfdSettingsPtr()->m_ColorTagsFlag.Get();
-        deg = ( double )cnt / num_tags * 360.0;
+
+        // Color sequence -- go around color wheel ncstep times with slight
+        // offset from ncgrp basic colors.
+        // Note, (cnt/ncgrp) uses integer division resulting in floor.
+        double deg = ((cnt % ncgrp) * ncstep + (cnt / ncgrp)) * nctodeg;
         vec3d rgb = m_TagDO[cnt].ColorWheel( deg );
         rgb.normalize();
 
