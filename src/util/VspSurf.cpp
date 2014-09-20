@@ -794,6 +794,58 @@ bool VspSurf::CapWMax(int CapType)
     return false;
 }
 
+void VspSurf::SplitSurfs( vector< piecewise_surface_type > &surfvec )
+{
+    surfvec.clear();
+    surfvec.push_back( m_Surface );
+
+    for ( int i = 0; i < m_UFeature.size(); ++i )
+    {
+        vector < piecewise_surface_type > splitsurfvec;
+        for ( int j = 0; j < surfvec.size(); j++ )
+        {
+            piecewise_surface_type s, s1, s2;
+
+            s = surfvec[j];
+
+            if ( s.get_u0() < m_UFeature[i] && s.get_umax() > m_UFeature[i] )
+            {
+                s.split_u( s1, s2, m_UFeature[i] );
+                splitsurfvec.push_back( s1 );
+                splitsurfvec.push_back( s2 );
+            }
+            else
+            {
+                splitsurfvec.push_back( s );
+            }
+        }
+        surfvec = splitsurfvec;
+    }
+
+
+    for ( int i = 0; i < m_WFeature.size(); ++i )
+    {
+        vector < piecewise_surface_type > splitsurfvec;
+        for ( int j = 0; j < surfvec.size(); j++ )
+        {
+            piecewise_surface_type s, s1, s2;
+
+            s = surfvec[j];
+
+            if ( s.get_v0() < m_WFeature[i] && s.get_vmax() > m_WFeature[i] )
+            {
+                s.split_v( s1, s2, m_WFeature[i] );
+                splitsurfvec.push_back( s1 );
+                splitsurfvec.push_back( s2 );
+            }
+            else
+            {
+                splitsurfvec.push_back( s );
+            }
+        }
+        surfvec = splitsurfvec;
+    }
+}
 
 void VspSurf::WriteBezFile( FILE* file_id, const std::string &geom_id, int surf_ind )
 {
