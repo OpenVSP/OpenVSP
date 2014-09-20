@@ -164,8 +164,8 @@ void SCurve::ProjectTessToSurf( SCurve* othercurve )
     Surf* SurfA = GetSurf();
     Surf* SurfB = othercurve->GetSurf();
 
-    double uguess = SurfA->GetSurfCore()->GetMaxU() / 2.0;
-    double wguess = SurfA->GetSurfCore()->GetMaxW() / 2.0;
+    double uguess = SurfA->GetSurfCore()->GetMidU();
+    double wguess = SurfA->GetSurfCore()->GetMidW();
 
     int npts = UWTessB.size();
     m_UWTess.clear();
