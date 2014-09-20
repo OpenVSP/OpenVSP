@@ -856,94 +856,87 @@ void VspSurf::SplitSurfs( vector< piecewise_surface_type > &surfvec, piecewise_s
 void VspSurf::WriteBezFile( FILE* file_id, const std::string &geom_id, int surf_ind )
 {
     // Make copy for local changes.
-    piecewise_surface_type s( m_Surface );
 
+    piecewise_surface_type scubic( m_Surface );
     piecewise_surface_type::data_type ttol = 1e-6;
-    s.to_cubic( ttol );
+    scubic.to_cubic( ttol );
 
-    vector<double> u_pmap;
-    vector<double> w_pmap;
-    s.get_pmap_uv( u_pmap, w_pmap );
+    vector < piecewise_surface_type > surfvec;
+    SplitSurfs( surfvec, scubic );
 
-    piecewise_surface_type::index_type ip, jp, nupatch, nvpatch;
-
-    nupatch = s.number_u_patches();
-    nvpatch = s.number_v_patches();
-
-    int nupts = nupatch * 3 + 1;
-    int nvpts = nvpatch * 3 + 1;
-
-    vector< vector< surface_patch_type::point_type> > pts;
-    pts.resize( nupts );
-    for( int i = 0; i < nupts; ++i )
-    {
-        pts[i].resize( nvpts );
-    }
-
-    for( ip = 0; ip < nupatch; ++ip )
-    {
-        for( jp = 0; jp < nvpatch; ++jp )
-        {
-            surface_patch_type::index_type icp, jcp;
-
-            surface_patch_type *patch = s.get_patch( ip, jp );
-
-            for( icp = 0; icp <= 3; ++icp )
-                for( jcp = 0; jcp <= 3; ++jcp )
-                {
-                    pts[ ip * 3 + icp ][ jp * 3 + jcp ] = patch->get_control_point( icp, jcp );
-                }
-        }
-    }
-
-    vector<int> split_u, split_w;
-
-    // add all of the C0 edges
-    for ( int i = 0; i < m_UFeature.size(); ++i )
-    {
-      split_u.push_back( ClosestPatchEnd( u_pmap, m_UFeature[i] ) );
-    }
-    for ( int j = 0; j < m_WFeature.size(); ++j )
-    {
-      split_w.push_back( ClosestPatchEnd( w_pmap, m_WFeature[j] ) );
-    }
-
-    int num_sections = ( split_u.size() - 1 ) * ( split_w.size() - 1 );
+    int num_sections = surfvec.size();
 
     fprintf( file_id, "%s Component\n", geom_id.c_str() );
     fprintf( file_id, "%d  Num_Sections\n", num_sections );
     fprintf( file_id, "%d Flip_Normal\n", m_FlipNormal );
 
-    for ( int iu = 0 ; iu < ( int )split_u.size() - 1 ; iu++ )
+
+    for ( int isect = 0; isect < num_sections; isect++ )
     {
-        for ( int iw = 0 ; iw < ( int )split_w.size() - 1 ; iw++ )
+        piecewise_surface_type s = surfvec[isect];
+
+        vector<double> u_pmap;
+        vector<double> w_pmap;
+        s.get_pmap_uv( u_pmap, w_pmap );
+
+        piecewise_surface_type::index_type ip, jp, nupatch, nvpatch;
+
+        nupatch = s.number_u_patches();
+        nvpatch = s.number_v_patches();
+
+        int nupts = nupatch * 3 + 1;
+        int nvpts = nvpatch * 3 + 1;
+
+        vector< vector< surface_patch_type::point_type> > pts;
+        pts.resize( nupts );
+        for( int i = 0; i < nupts; ++i )
         {
-            //==== Write Section ====//
-            int num_u = split_u[iu + 1] - split_u[iu] + 1;
-            int num_w = split_w[iw + 1] - split_w[iw] + 1;
-            int num_u_map = split_u[iu + 1] / 3 - split_u[iu] / 3 + 1;
-            int num_w_map = split_w[iw + 1] / 3 - split_w[iw] / 3 + 1;
-            fprintf ( file_id, "%d %d  NumU, NumW\n", num_u, num_w );
-            fprintf( file_id, "%d %d NumU_Map, NumW_Map\n", num_u_map, num_w_map );
-            fprintf( file_id, "%d VspSurf_Index\n", surf_ind );
-            //==== Write U,W Mapping ====//
-            for ( int umi = split_u[iu] / 3; umi <= split_u[iu + 1] / 3; umi++ )
-            {
-                fprintf( file_id, "%20.20lf\n", u_pmap[umi] );
-            }
+            pts[i].resize( nvpts );
+        }
 
-            for ( int wmi = split_w[iw] / 3; wmi <= split_w[iw + 1] / 3; wmi++ )
+        for( ip = 0; ip < nupatch; ++ip )
+        {
+            for( jp = 0; jp < nvpatch; ++jp )
             {
-                fprintf( file_id, "%20.20lf\n", w_pmap[wmi] );
-            }
+                surface_patch_type::index_type icp, jcp;
 
-            for ( int i = split_u[iu] ; i <= split_u[iu + 1] ; i++ )
-                for ( int j = split_w[iw] ; j <= split_w[iw + 1] ; j++ )
+                surface_patch_type *patch = s.get_patch( ip, jp );
+
+                for( icp = 0; icp <= 3; ++icp )
                 {
-                    surface_patch_type::point_type p = pts[i][j];
-
-                    fprintf( file_id, "%20.20lf %20.20lf %20.20lf\n", p.x(), p.y(), p.z() );
+                    for( jcp = 0; jcp <= 3; ++jcp )
+                    {
+                        pts[ ip * 3 + icp ][ jp * 3 + jcp ] = patch->get_control_point( icp, jcp );
+                    }
                 }
+            }
+        }
+
+
+        //==== Write Section ====//
+        int num_u_map = u_pmap.size();
+        int num_w_map = w_pmap.size();
+        fprintf ( file_id, "%d %d  NumU, NumW\n", nupts, nvpts );
+        fprintf( file_id, "%d %d NumU_Map, NumW_Map\n", num_u_map, num_w_map );
+        fprintf( file_id, "%d VspSurf_Index\n", surf_ind );
+        //==== Write U,W Mapping ====//
+        for ( int umi = 0; umi <num_u_map; umi++ )
+        {
+            fprintf( file_id, "%20.20lf\n", u_pmap[umi] );
+        }
+
+        for ( int wmi = 0; wmi < num_w_map; wmi++ )
+        {
+            fprintf( file_id, "%20.20lf\n", w_pmap[wmi] );
+        }
+
+        for ( int i = 0 ; i < nupts ; i++ )
+        {
+            for ( int j = 0 ; j < nvpts ; j++ )
+            {
+                surface_patch_type::point_type p = pts[i][j];
+                fprintf( file_id, "%20.20lf %20.20lf %20.20lf\n", p.x(), p.y(), p.z() );
+            }
         }
     }
 }
