@@ -46,8 +46,6 @@ public:
     vec3d CompTanW( double u, double w ) const;
 
     vec3d CompPnt01( double u, double w ) const;
-    vec3d CompTanU01( double u, double w ) const;
-    vec3d CompTanW01( double u, double w ) const;
 
     void CompCurvature( double u, double w, double& k1, double& k2, double& ka, double& kg ) const;
 

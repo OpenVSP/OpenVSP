@@ -141,18 +141,6 @@ vec3d SurfCore::CompPnt01( double u, double w ) const
     return CompPnt( GetMinU() + u * GetDU(), GetMinW() + w * GetDW() );
 }
 
-//===== Compute Tangent In U Direction   =====//
-vec3d SurfCore::CompTanU01( double u01, double w01 ) const
-{
-    return CompTanU( GetMinU() + u01 * GetDU(), GetMinW() + w01 * GetDW() );
-}
-
-//===== Compute Tangent In W Direction   =====//
-vec3d SurfCore::CompTanW01( double u01, double w01 ) const
-{
-    return CompTanW( GetMinU() + u01 * GetDU(), GetMinW() + w01 * GetDW() );
-}
-
 //===== Compute Second Derivative U,U   =====//
 vec3d SurfCore::CompTanUU( double u, double w ) const
 {
