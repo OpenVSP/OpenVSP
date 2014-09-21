@@ -2997,19 +2997,27 @@ void CfdMeshMgrSingleton::BuildSubSurfIntChains()
                 uw_pnt0 = surf->Convert2Surf( lp0.x(), lp0.y() );
                 uw_pnt1 = surf->Convert2Surf( lp1.x(), lp1.y() );
                 double max_u, max_w, tol;
+                double min_u, min_w;
                 tol = 1e-6;
+                min_u = surf->GetSurfCore()->GetMinU();
+                min_w = surf->GetSurfCore()->GetMinW();
                 max_u = surf->GetSurfCore()->GetMaxU();
                 max_w = surf->GetSurfCore()->GetMaxW();
 
-                if ( uw_pnt0[0] < 0 || uw_pnt0[1] < 0 || uw_pnt1[0] < 0 || uw_pnt1[1] < 0 )
+                if ( uw_pnt0[0] < min_u || uw_pnt0[1] < min_w || uw_pnt1[0] < min_u || uw_pnt1[1] < min_w )
+                {
+                    new_chain = true;
+                    continue; // Skip if either point has a value not on this surface
+                }
+                if ( uw_pnt0[0] > max_u || uw_pnt0[1] > max_w || uw_pnt1[0] > max_u || uw_pnt1[1] > max_w )
                 {
                     new_chain = true;
                     continue; // Skip if either point has a value not on this surface
                 }
                 if ( ((fabs( uw_pnt0[0]-max_u ) < tol && fabs( uw_pnt1[0]-max_u ) < tol) ||
                      (fabs( uw_pnt0[1]-max_w ) < tol && fabs( uw_pnt1[1]-max_w ) < tol) ||
-                     (fabs( uw_pnt0[0] ) < tol && fabs( uw_pnt1[0] ) < tol) ||
-                     (fabs( uw_pnt0[1] ) < tol && fabs( uw_pnt1[1] ) < tol))
+                     (fabs( uw_pnt0[0]-min_u ) < tol && fabs( uw_pnt1[0]-min_u ) < tol) ||
+                     (fabs( uw_pnt0[1]-min_w ) < tol && fabs( uw_pnt1[1]-min_w ) < tol))
                      && is_poly  )
                 {
                     new_chain = true;
