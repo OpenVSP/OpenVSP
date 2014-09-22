@@ -956,51 +956,19 @@ void CfdMeshMgrSingleton::WriteSurfs( const string &filename, vector< XferSurf >
 
 void CfdMeshMgrSingleton::ReadSurfs( const string &filename, vector< XferSurf > &xfersurfs )
 {
-    m_GeomIDs.clear();
-    FILE* file_id = fopen( filename.c_str(), "r" );
-    if ( file_id )
+    for ( int i = 0; i < xfersurfs.size(); i++ )
     {
-        char buff[256];
-        int num_surfs;
-        char geom_id[20];
+        Surf* surfPtr = new Surf();
+        surfPtr->GetSurfCore()->SetSurf( xfersurfs[i].m_Surface );
 
-        fgets( buff, 256, file_id );
-        sscanf( buff, "%d", &m_NumComps );
-
-        int total_surfs = 0;
-        for ( int c = 0 ; c < m_NumComps ; c++ )
-        {
-            fgets( buff, 256, file_id );
-            sscanf( buff, "%19s", geom_id );
-            fgets( buff, 256, file_id );
-            sscanf( buff, "%d", &num_surfs );
-            int tmp;
-            fgets( buff, 256, file_id );
-            sscanf( buff, "%d", &tmp );
-            bool f_norm = !!tmp;
-
-            m_GeomIDs.push_back( string( geom_id ) );
-
-            for ( int s = 0 ; s < num_surfs ; s++ )
-            {
-                Surf* surfPtr = new Surf();
-
-                surfPtr->SetGeomID( string( geom_id ) );
-                surfPtr->SetCompID( c );
-                surfPtr->SetUnmergedCompID( c );
-                surfPtr->SetSurfID( s + total_surfs );
-                surfPtr->SetFlipFlag( f_norm );
-
-                surfPtr->ReadSurf( file_id );
-
-                m_SurfVec.push_back( surfPtr );
-
-            }
-            total_surfs += num_surfs;
-        }
-        fclose( file_id );
+        surfPtr->SetGeomID( xfersurfs[i].m_GeomID );
+        surfPtr->SetFlipFlag( xfersurfs[i].m_FlipNormal );
+        surfPtr->SetCompID( i );
+        surfPtr->SetUnmergedCompID( i );
+        surfPtr->SetSurfID( i );
+        surfPtr->SetDefaultParmMap2();
+        m_SurfVec.push_back( surfPtr );
     }
-
 }
 
 void CfdMeshMgrSingleton::CleanMergeSurfs()
