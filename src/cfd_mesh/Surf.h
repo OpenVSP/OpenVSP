@@ -234,13 +234,7 @@ public:
         return m_BaseTag;
     }
 
-    void SetDefaultParmMap();
     void Subtag( bool tag_subs );
-    // Mapping Functions
-    // Converts surf uw to VspSurf uw
-    vec2d Convert2VspSurf( double u, double w );
-    // Converts VspSurf uw to surf uw
-    vec2d Convert2Surf( double u, double w );
 
 protected:
 
@@ -282,12 +276,6 @@ protected:
     vector< double > m_WScaleMap;
 
     int m_VspSurfInd;
-    vector< double > u_to_vspsurf;
-    vector< double > w_to_vspsurf;
-    map< double, int > u_to_surf;
-    map< double, int > w_to_surf;
-
-    double InterpolateToVspSurf( const vector< double> & vec, const double & surf_val ) const;
 
 };
 

@@ -1417,11 +1417,11 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
         return;
     }
 
-    vec2d VspMinUW = m_Surf->Convert2VspSurf( m_Surf->GetSurfCore()->GetMinU(), m_Surf->GetSurfCore()->GetMinW() );
+    vec2d VspMinUW = vec2d( m_Surf->GetSurfCore()->GetMinU(), m_Surf->GetSurfCore()->GetMinW() );
     double VspMinU = VspMinUW.v[0];
     double VspMinW = VspMinUW.v[1];
 
-    vec2d VspMaxUW = m_Surf->Convert2VspSurf( m_Surf->GetSurfCore()->GetMaxU(), m_Surf->GetSurfCore()->GetMaxW() );
+    vec2d VspMaxUW = vec2d( m_Surf->GetSurfCore()->GetMaxU(), m_Surf->GetSurfCore()->GetMaxW() );
     double VspMaxU = VspMaxUW.v[0];
     double VspMaxW = VspMaxUW.v[1];
 
@@ -1430,7 +1430,6 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
 
     for ( i = 0 ; i < num_pnts ; i++ )
     {
-        uw_points[i] = m_Surf->Convert2VspSurf( uw_points[i].v[0], uw_points[i].v[1] );
         uw_points[i] = uw_points[i] - VspMinUW;
     }
 
@@ -1629,7 +1628,7 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
         double w = out.pointlist[i * 2 + 1];
         double su = 1.0 / m_Surf->GetUScale( w / VspdW );
         double sw = 1.0 / m_Surf->GetWScale( u / VspdU );
-        vec2d uw = m_Surf->Convert2Surf( su * u + VspMinU, sw * w + VspMinW);
+        vec2d uw = vec2d( su * u + VspMinU, sw * w + VspMinW);
         vec3d pnt = m_Surf->CompPnt( uw.v[0], uw.v[1] );
         nodeVec.push_back( AddNode( pnt, uw ) );
     }

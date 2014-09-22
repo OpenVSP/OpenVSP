@@ -119,7 +119,6 @@ void Wake::BuildSurfs(  )
             s->SetWakeParentSurfID( wakeParentSurfID );
             s->GetSurfCore()->MakeWakeSurf( le_crv, m_WakeMgrPtr->GetEndX(), m_WakeMgrPtr->GetAngle() );
             s->GetSurfCore()->BuildPatches( s );
-            s->SetDefaultParmMap();
 
             m_SurfVec.push_back( s );
         }
@@ -976,7 +975,6 @@ void CfdMeshMgrSingleton::ReadSurfs( const string &filename, vector< XferSurf > 
         surfPtr->SetUnmergedCompID( cid );
         surfPtr->SetSurfID( i );
         surfPtr->GetSurfCore()->BuildPatches( surfPtr );
-        surfPtr->SetDefaultParmMap2();
         m_SurfVec.push_back( surfPtr );
     }
     m_NumComps = maxcompid + 1;
@@ -2384,7 +2382,6 @@ vector< Surf* > CfdMeshMgrSingleton::CreateDomainSurfs()
 
         domainSurfs[i]->GetSurfCore()->MakePlaneSurf( pt0, pt1, pt2, pt3 );
         domainSurfs[i]->GetSurfCore()->BuildPatches( domainSurfs[i] );
-        domainSurfs[i]->SetDefaultParmMap();
     }
     return domainSurfs;
 }
@@ -2928,13 +2925,10 @@ void CfdMeshMgrSingleton::BuildSubSurfIntChains()
         // Split SubSurfs
         for ( int ss = 0 ; ss < ( int ) ss_vec.size(); ss++ )
         {
-            vec2d split_0, split_1;
-            split_0 = surf->Convert2VspSurf( 0, 0 );
-            split_1 = surf->Convert2VspSurf( surf->GetSurfCore()->GetMaxU(), surf->GetSurfCore()->GetMaxW() );
-            ss_vec[ss]->SplitSegsU( split_0[0] );
-            ss_vec[ss]->SplitSegsU( split_1[0] );
-            ss_vec[ss]->SplitSegsW( split_0[1] );
-            ss_vec[ss]->SplitSegsW( split_1[1] );
+            ss_vec[ss]->SplitSegsU( surf->GetSurfCore()->GetMinU() );
+            ss_vec[ss]->SplitSegsU( surf->GetSurfCore()->GetMaxU() );
+            ss_vec[ss]->SplitSegsW( surf->GetSurfCore()->GetMinW() );
+            ss_vec[ss]->SplitSegsW( surf->GetSurfCore()->GetMaxW() );
 
             vector< SSLineSeg >& segs = ss_vec[ss]->GetSplitSegs();
             ISegChain* chain = NULL;
@@ -2974,8 +2968,8 @@ void CfdMeshMgrSingleton::BuildSubSurfIntChains()
 
                 lp0 = l_seg.GetP0();
                 lp1 = l_seg.GetP1();
-                uw_pnt0 = surf->Convert2Surf( lp0.x(), lp0.y() );
-                uw_pnt1 = surf->Convert2Surf( lp1.x(), lp1.y() );
+                uw_pnt0 = vec2d( lp0.x(), lp0.y() );
+                uw_pnt1 = vec2d( lp1.x(), lp1.y() );
                 double max_u, max_w, tol;
                 double min_u, min_w;
                 tol = 1e-6;

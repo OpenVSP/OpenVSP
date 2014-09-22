@@ -965,13 +965,11 @@ void Surf::BuildDistMap()
     int i, j;
     int nump = 101;
 
-    vec2d VspMinUW = Convert2VspSurf( 0.0, 0.0 );
-    double VspMinU = VspMinUW.v[0];
-    double VspMinW = VspMinUW.v[1];
+    double VspMinU = m_SurfCore.GetMinU();
+    double VspMinW = m_SurfCore.GetMinW();
 
-    vec2d VspMaxUW = Convert2VspSurf( m_SurfCore.GetMaxU(), m_SurfCore.GetMaxW() );
-    double VspMaxU = VspMaxUW.v[0];
-    double VspMaxW = VspMaxUW.v[1];
+    double VspMaxU = m_SurfCore.GetMaxU();
+    double VspMaxW = m_SurfCore.GetMaxW();
 
     double VspdU = VspMaxU - VspMinU;
     double VspdW = VspMaxW - VspMinW;
@@ -986,8 +984,7 @@ void Surf::BuildDistMap()
         for ( j = 0 ; j < nump ; j++ )
         {
             double w = VspMinW + VspdW * ( double )j / ( double )( nump - 1 );
-            vec2d uw = Convert2Surf( u, w );
-            pvec[i][j] = m_SurfCore.CompPnt( uw.v[0], uw.v[1] );
+            pvec[i][j] = m_SurfCore.CompPnt( u, w );
         }
     }
 
@@ -1257,75 +1254,6 @@ bool Surf::BorderMatch( Surf* otherSurf )
     return false;
 }
 
-//==== Functions to Map Between Surf and VspSurf Parameterizations ====//
-vec2d Surf::Convert2VspSurf( double u, double w )
-{
-    double u_vsp = InterpolateToVspSurf( u_to_vspsurf, u );
-    double w_vsp = InterpolateToVspSurf( w_to_vspsurf, w );
-
-    return vec2d( u_vsp, w_vsp );
-}
-
-vec2d Surf::Convert2Surf( double u, double w )
-{
-    bool in_range;
-    double u_surf, w_surf;
-    vec2d ret_vec;
-
-    u_surf = interpolate( u_to_surf, u, &in_range );
-    if ( in_range )
-    {
-        ret_vec.set_x( u_surf );
-    }
-    else
-    {
-        ret_vec.set_x( -1 );
-    }
-
-    w_surf = interpolate( w_to_surf, w, &in_range );
-    if ( in_range )
-    {
-        ret_vec.set_y( w_surf );
-    }
-    else
-    {
-        ret_vec.set_y( -1 );
-    }
-
-    return ret_vec;
-}
-
-double Surf::InterpolateToVspSurf( const vector< double> & vec, const double & surf_val ) const
-{
-    int x0 = (int)floor( surf_val );
-    int x1 = x0 + 1;
-
-    if ( vec.size() == 0 )
-    {
-        return 0.0;
-    }
-
-    if ( x0 < 0 )
-    {
-        return vec.front();
-    }
-    if ( x1 > ( ( int )vec.size() - 1 ) )
-    {
-        return vec.back();
-    }
-    double y0 = vec[x0];
-    double y1 = vec[x1];
-
-    double denom = ( double )( x1 - x0 );
-
-    if ( denom == 0.0 )
-    {
-        return 0.0;
-    }
-
-    return ( y1 - y0 ) / denom * ( surf_val - ( double )x0 ) + y0;
-}
-
 void Surf::Subtag( bool tag_subs )
 {
     vector< SimpTri >& tri_vec = m_Mesh.GetSimpTriVec();
@@ -1339,7 +1267,7 @@ void Surf::Subtag( bool tag_subs )
         SimpTri& tri = tri_vec[t];
         tri.m_Tags.push_back( m_BaseTag );
         vec2d center = ( pnts[tri.ind0] + pnts[tri.ind1] + pnts[tri.ind2] ) * 1 / 3.0;
-        vec2d cent2d = Convert2VspSurf( center.x(), center.y() );
+        vec2d cent2d = center;
 
         for ( int s = 0 ; s < ( int ) s_surfs.size() ; s++ )
         {
@@ -1451,27 +1379,6 @@ void Surf::Draw()
 
 }
 */
-
-void Surf::SetDefaultParmMap()
-{
-    int num_u_map = 1 + m_SurfCore.GetNumUPatches();
-    int num_w_map = 1 + m_SurfCore.GetNumWPatches();
-
-    u_to_vspsurf.resize( num_u_map );
-    w_to_vspsurf.resize( num_w_map );
-
-    for ( int i = 0 ; i < num_u_map; i++ )
-    {
-        u_to_vspsurf[ i ] = 1.0 * i;
-        u_to_surf[ 1.0 * i ] = i;
-    }
-
-    for ( int i = 0 ; i < num_w_map ; i++ )
-    {
-        w_to_vspsurf[ i ] = 1.0 * i;
-        w_to_surf[ 1.0 * i ] = i;
-    }
-}
 
 vec3d Surf::CompPnt( double u, double w ) const
 {
