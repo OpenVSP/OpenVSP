@@ -1569,6 +1569,55 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
     namecnt++;
 #endif
 
+//    static int namecnt = 0;
+//
+//    sprintf( str, "UWTriMeshOut%d.m", namecnt );
+//    FILE *fp = fopen( str, "w" );
+//    fprintf( fp, "clear all\nformat compact\n" );
+//    fprintf( fp, "t=[" );
+//    for ( i = 0 ; i < out.numberoftriangles ; i++ )
+//    {
+//        int ind0 = out.trianglelist[i * 3] + 1;
+//        int ind1 = out.trianglelist[i * 3 + 1] + 1;
+//        int ind2 = out.trianglelist[i * 3 + 2] + 1;
+//
+//        fprintf( fp, "%d, %d, %d", ind0, ind1, ind2 );
+//
+//        if ( i < out.numberoftriangles - 1 )
+//            fprintf( fp, ";\n" );
+//        else
+//            fprintf( fp, "];\n" );
+//    }
+//
+//    fprintf( fp, "x=[" );
+//    for ( i = 0; i < out.numberofpoints; i++ )
+//    {
+//        fprintf( fp, "%f", out.pointlist[i * 2] );
+//
+//        if ( i < out.numberofpoints - 1 )
+//            fprintf( fp, ";\n" );
+//        else
+//            fprintf( fp, "];\n" );
+//
+//    }
+//
+//    fprintf( fp, "y=[" );
+//    for ( i = 0; i < out.numberofpoints; i++ )
+//    {
+//        fprintf( fp, "%f", out.pointlist[i * 2 + 1] );
+//
+//        if ( i < out.numberofpoints - 1 )
+//            fprintf( fp, ";\n" );
+//        else
+//            fprintf( fp, "];\n" );
+//
+//    }
+//
+//    fprintf( fp, "triplot(t,x,y)\n" );
+//
+//    fclose( fp );
+//    namecnt++;
+
     //==== Clear All Node, Edge, Tri Data ====//
     Clear();
 
