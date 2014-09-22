@@ -32,6 +32,7 @@ public:
     bool m_FlipNormal;
 
     string m_GeomID;
+    int m_CompIndx;
     int m_SurfIndx;
 
     piecewise_surface_type m_Surface;

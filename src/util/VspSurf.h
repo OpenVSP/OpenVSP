@@ -132,7 +132,7 @@ public:
     bool CapUMax(int capType);
     bool CapWMin(int capType);
     bool CapWMax(int capType);
-    void WriteBezFile( FILE* id, const std::string &geom_id, int surf_ind, vector< XferSurf > &xfersurfs );
+    void WriteBezFile( FILE* id, const std::string &geom_id, int surf_ind, int comp_ind, vector< XferSurf > &xfersurfs );
 
     void ResetUWSkip();
     void FlagDuplicate( VspSurf *othersurf );

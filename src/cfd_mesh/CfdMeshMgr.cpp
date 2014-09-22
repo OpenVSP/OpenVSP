@@ -963,8 +963,8 @@ void CfdMeshMgrSingleton::ReadSurfs( const string &filename, vector< XferSurf > 
 
         surfPtr->SetGeomID( xfersurfs[i].m_GeomID );
         surfPtr->SetFlipFlag( xfersurfs[i].m_FlipNormal );
-        surfPtr->SetCompID( i );
-        surfPtr->SetUnmergedCompID( i );
+        surfPtr->SetCompID( xfersurfs[i].m_CompIndx );
+        surfPtr->SetUnmergedCompID( xfersurfs[i].m_CompIndx );
         surfPtr->SetSurfID( i );
         surfPtr->SetDefaultParmMap2();
         m_SurfVec.push_back( surfPtr );

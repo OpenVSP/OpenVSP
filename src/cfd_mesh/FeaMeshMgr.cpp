@@ -943,7 +943,7 @@ bool FeaMeshMgrSingleton::WriteWingBezierFile( const char* file_name )
 
     for ( int j = 0; j < ( int )surf_vec.size(); j++ )
     {
-        surf_vec[j].WriteBezFile( file_id, wing_geom->GetID(), j, xfersurfs );
+        surf_vec[j].WriteBezFile( file_id, wing_geom->GetID(), j, 0, xfersurfs );
     }
 
     // Need to restore symmetry.
