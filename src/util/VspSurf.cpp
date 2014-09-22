@@ -866,78 +866,14 @@ void VspSurf::WriteBezFile( FILE* file_id, const std::string &geom_id, int surf_
 
     int num_sections = surfvec.size();
 
-    fprintf( file_id, "%s Component\n", geom_id.c_str() );
-    fprintf( file_id, "%d  Num_Sections\n", num_sections );
-    fprintf( file_id, "%d Flip_Normal\n", m_FlipNormal );
-
-
     for ( int isect = 0; isect < num_sections; isect++ )
     {
-        piecewise_surface_type s = surfvec[isect];
-
-        vector<double> u_pmap;
-        vector<double> w_pmap;
-        s.get_pmap_uv( u_pmap, w_pmap );
-
-        piecewise_surface_type::index_type ip, jp, nupatch, nvpatch;
-
-        nupatch = s.number_u_patches();
-        nvpatch = s.number_v_patches();
-
-        int nupts = nupatch * 3 + 1;
-        int nvpts = nvpatch * 3 + 1;
-
-        vector< vector< surface_patch_type::point_type> > pts;
-        pts.resize( nupts );
-        for( int i = 0; i < nupts; ++i )
-        {
-            pts[i].resize( nvpts );
-        }
-
-        for( ip = 0; ip < nupatch; ++ip )
-        {
-            for( jp = 0; jp < nvpatch; ++jp )
-            {
-                surface_patch_type::index_type icp, jcp;
-
-                surface_patch_type *patch = s.get_patch( ip, jp );
-
-                for( icp = 0; icp <= 3; ++icp )
-                {
-                    for( jcp = 0; jcp <= 3; ++jcp )
-                    {
-                        pts[ ip * 3 + icp ][ jp * 3 + jcp ] = patch->get_control_point( icp, jcp );
-                    }
-                }
-            }
-        }
-
-
-        //==== Write Section ====//
-        int num_u_map = u_pmap.size();
-        int num_w_map = w_pmap.size();
-        fprintf ( file_id, "%d %d  NumU, NumW\n", nupts, nvpts );
-        fprintf( file_id, "%d %d NumU_Map, NumW_Map\n", num_u_map, num_w_map );
-        fprintf( file_id, "%d VspSurf_Index\n", surf_ind );
-        //==== Write U,W Mapping ====//
-        for ( int umi = 0; umi <num_u_map; umi++ )
-        {
-            fprintf( file_id, "%20.20lf\n", u_pmap[umi] );
-        }
-
-        for ( int wmi = 0; wmi < num_w_map; wmi++ )
-        {
-            fprintf( file_id, "%20.20lf\n", w_pmap[wmi] );
-        }
-
-        for ( int i = 0 ; i < nupts ; i++ )
-        {
-            for ( int j = 0 ; j < nvpts ; j++ )
-            {
-                surface_patch_type::point_type p = pts[i][j];
-                fprintf( file_id, "%20.20lf %20.20lf %20.20lf\n", p.x(), p.y(), p.z() );
-            }
-        }
+        XferSurf xsurf;
+        xsurf.m_FlipNormal = m_FlipNormal;
+        xsurf.m_Surface = surfvec[isect];;
+        xsurf.m_GeomID = geom_id;
+        xsurf.m_SurfIndx = surf_ind;
+        xfersurfs.push_back( xsurf );
     }
 }
 
