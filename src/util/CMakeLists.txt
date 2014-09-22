@@ -53,6 +53,7 @@ Vec3d.h
 VspCurve.h
 VspSurf.h
 WriteMatlab.h
+XferSurf.h
 )
 
 ADD_DEPENDENCIES( util
