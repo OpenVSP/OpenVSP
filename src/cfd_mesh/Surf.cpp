@@ -1192,7 +1192,7 @@ void Surf::BuildDistMap()
 
 }
 
-double Surf::GetUScale( double w )      // w 0->1
+double Surf::GetUScale( double w01 )      // w 0->1
 {
     if ( !m_ScaleUFlag )
     {
@@ -1200,7 +1200,8 @@ double Surf::GetUScale( double w )      // w 0->1
     }
 
     int num = m_UScaleMap.size();
-    int ind = ( int )( w * ( double )( num - 1 ) );
+    double indd = w01 * (double) ( num - 1 );
+    int ind = ( int ) indd;
     if ( ind < 0 )
     {
         ind = 0;
@@ -1210,7 +1211,7 @@ double Surf::GetUScale( double w )      // w 0->1
         ind = num - 2;
     }
 
-    double fract = w * ( double )( num - 1 ) - ( double )ind;
+    double fract = indd - ( double )ind;
     if ( fract < 0.0 )
     {
         fract = 0.0;
@@ -1224,7 +1225,7 @@ double Surf::GetUScale( double w )      // w 0->1
     return uscale;
 }
 
-double Surf::GetWScale( double u )      // u 0->1
+double Surf::GetWScale( double u01 )      // u 0->1
 {
     if ( m_ScaleUFlag )
     {
@@ -1232,7 +1233,8 @@ double Surf::GetWScale( double u )      // u 0->1
     }
 
     int num = m_WScaleMap.size();
-    int ind = ( int )( u * ( double )( num - 1 ) );
+    double indd = u01 * (double) ( num - 1 );
+    int ind = ( int ) indd;
     if ( ind < 0 )
     {
         ind = 0;
@@ -1242,7 +1244,7 @@ double Surf::GetWScale( double u )      // u 0->1
         ind = num - 2;
     }
 
-    double fract = u * ( double )( num - 1 ) - ( double )ind;
+    double fract = indd - ( double )ind;
     if ( fract < 0.0 )
     {
         fract = 0.0;
