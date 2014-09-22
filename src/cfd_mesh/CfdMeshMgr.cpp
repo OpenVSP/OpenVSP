@@ -410,11 +410,12 @@ void CfdMeshMgrSingleton::GenerateMesh()
     string bezTempFile;
     bezTempFile.append( string( "cfdmesh.bez" ) );
 
-    CfdMeshMgr.WriteSurfs( bezTempFile );
+    vector< XferSurf > xfersurfs;
+    CfdMeshMgr.WriteSurfs( bezTempFile, xfersurfs );
 
     CfdMeshMgr.CleanUp();
     CfdMeshMgr.addOutputText( "Reading Surfaces\n" );
-    CfdMeshMgr.ReadSurfs( bezTempFile );
+    CfdMeshMgr.ReadSurfs( bezTempFile, xfersurfs );
 
     CfdMeshMgr.CleanMergeSurfs();
 
@@ -948,12 +949,12 @@ void CfdMeshMgrSingleton::ScaleTriSize( double scale )
     GetGridDensityPtr()->ScaleAllSources( scale );
 }
 
-void CfdMeshMgrSingleton::WriteSurfs( const string &filename )
+void CfdMeshMgrSingleton::WriteSurfs( const string &filename, vector< XferSurf > &xfersurfs )
 {
-    m_Vehicle->WriteBezFile( filename, GetCfdSettingsPtr()->m_SelectedSetIndex() );
+    m_Vehicle->WriteBezFile( filename, GetCfdSettingsPtr()->m_SelectedSetIndex(), xfersurfs );
 }
 
-void CfdMeshMgrSingleton::ReadSurfs( const string &filename )
+void CfdMeshMgrSingleton::ReadSurfs( const string &filename, vector< XferSurf > &xfersurfs )
 {
     m_GeomIDs.clear();
     FILE* file_id = fopen( filename.c_str(), "r" );

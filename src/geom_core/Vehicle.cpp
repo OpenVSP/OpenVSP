@@ -1742,7 +1742,7 @@ void Vehicle::WritePovRayFile( const string & file_name, int write_set )
     fclose( pov_file );
 }
 
-void Vehicle::WriteBezFile( const string & file_name, int write_set )
+void Vehicle::WriteBezFile( const string & file_name, int write_set, vector< XferSurf > &xfersurfs )
 {
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
 
@@ -1768,7 +1768,7 @@ void Vehicle::WriteBezFile( const string & file_name, int write_set )
 
             for ( int j = 0; j < ( int )surf_vec.size(); j++ )
             {
-                surf_vec[j].WriteBezFile( id, geom_vec[i]->GetID(), j );
+                surf_vec[j].WriteBezFile( id, geom_vec[i]->GetID(), j, xfersurfs );
             }
         }
     }
@@ -2219,7 +2219,8 @@ void Vehicle::ExportFile( const string & file_name, int write_set, int file_type
     }
     else if ( file_type == EXPORT_BEZ )
     {
-        WriteBezFile( file_name, write_set );
+        vector< XferSurf > xfersurfs;
+        WriteBezFile( file_name, write_set, xfersurfs );
     }
 }
 

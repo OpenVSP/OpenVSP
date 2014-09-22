@@ -15,6 +15,7 @@
 #include "Matrix.h"
 #include "VspCurve.h"
 #include "BndBox.h"
+#include "XferSurf.h"
 
 #include "STEPutil.h"
 
@@ -131,7 +132,7 @@ public:
     bool CapUMax(int capType);
     bool CapWMin(int capType);
     bool CapWMax(int capType);
-    void WriteBezFile( FILE* id, const std::string &geom_id, int surf_ind );
+    void WriteBezFile( FILE* id, const std::string &geom_id, int surf_ind, vector< XferSurf > &xfersurfs );
 
     void ResetUWSkip();
     void FlagDuplicate( VspSurf *othersurf );

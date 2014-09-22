@@ -853,7 +853,7 @@ void VspSurf::SplitSurfs( vector< piecewise_surface_type > &surfvec, piecewise_s
     }
 }
 
-void VspSurf::WriteBezFile( FILE* file_id, const std::string &geom_id, int surf_ind )
+void VspSurf::WriteBezFile( FILE* file_id, const std::string &geom_id, int surf_ind, vector< XferSurf > &xfersurfs )
 {
     // Make copy for local changes.
 

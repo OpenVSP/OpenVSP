@@ -23,6 +23,7 @@
 #include "CfdMeshSettings.h"
 #include "ClippingMgr.h"
 #include "STEPutil.h"
+#include "XferSurf.h"
 
 #include <assert.h>
 
@@ -166,7 +167,7 @@ public:
     void WritePovRayFile( const string & file_name, int write_set );
     void WriteSTEPFile( const string & file_name, int write_set );
 
-    void WriteBezFile( const string & file_name, int write_set );
+    void WriteBezFile( const string & file_name, int write_set, vector< XferSurf > &xfersurfs );
     //==== Computation File Names ====//
     string getExportFileName( int type );
     void setExportFileName( int type, string f_name );

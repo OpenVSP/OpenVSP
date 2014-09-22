@@ -673,7 +673,9 @@ bool FeaMeshMgrSingleton::LoadSurfaces()
         return false;
     }
 
-    ReadSurfs( bezTempFile );
+    vector< XferSurf > xfersurfs;
+
+    ReadSurfs( bezTempFile, xfersurfs );
     IdentifyUpperLowerSurfaces();
 
     ReadFeaStructData();
@@ -937,9 +939,11 @@ bool FeaMeshMgrSingleton::WriteWingBezierFile( const char* file_name )
     vector<VspSurf> surf_vec;
     wing_geom->GetSurfVec( surf_vec );
 
+    vector< XferSurf > xfersurfs;
+
     for ( int j = 0; j < ( int )surf_vec.size(); j++ )
     {
-        surf_vec[j].WriteBezFile( file_id, wing_geom->GetID(), j );
+        surf_vec[j].WriteBezFile( file_id, wing_geom->GetID(), j, xfersurfs );
     }
 
     // Need to restore symmetry.
