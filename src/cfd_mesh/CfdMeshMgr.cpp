@@ -975,6 +975,7 @@ void CfdMeshMgrSingleton::ReadSurfs( const string &filename, vector< XferSurf > 
         surfPtr->SetCompID( cid );
         surfPtr->SetUnmergedCompID( cid );
         surfPtr->SetSurfID( i );
+        surfPtr->GetSurfCore()->BuildPatches( surfPtr );
         surfPtr->SetDefaultParmMap2();
         m_SurfVec.push_back( surfPtr );
     }
