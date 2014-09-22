@@ -196,17 +196,24 @@ vec3d SurfCore::CompPnt( double u, double w ) const
 {
     vec3d rtn;
 
-    double u0 = m_Surface.get_u0();
-    double w0 = m_Surface.get_v0();
+    double umn = m_Surface.get_u0();
+    double wmn = m_Surface.get_v0();
 
     double umx = m_Surface.get_umax();
     double wmx = m_Surface.get_vmax();
 
-    if ( u < u0 )
-        u = u0;
+    double slop = 1e-3;
+    if( u < (umn - slop) || w < (wmn - slop) || u > (umx + slop) || w > (wmx + slop) )
+    {
+        printf("BAD parameter in SurfCore::CompPnt! %f %f\n", u, w );
+        assert(false);
+    }
 
-    if ( w < w0 )
-        w = w0;
+    if ( u < umn )
+        u = umn;
+
+    if ( w < wmn )
+        w = wmn;
 
     if ( u > umx )
         u = umx;
@@ -223,6 +230,30 @@ vec3d SurfCore::CompPnt( double u, double w ) const
 //===== Compute Surface Curvature Metrics Given  U W =====//
 void SurfCore::CompCurvature( double u, double w, double& k1, double& k2, double& ka, double& kg ) const
 {
+    double umn = m_Surface.get_u0();
+    double wmn = m_Surface.get_v0();
+
+    double umx = m_Surface.get_umax();
+    double wmx = m_Surface.get_vmax();
+
+    double slop = 1e-3;
+    if( u < (umn - slop) || w < (wmn - slop) || u > (umx + slop) || w > (wmx + slop) )
+    {
+        printf("BAD parameter in SurfCore::CompCurvature! %f %f\n", u, w );
+        assert(false);
+    }
+
+    if ( u < umn )
+        u = umn;
+
+    if ( w < wmn )
+        w = wmn;
+
+    if ( u > umx )
+        u = umx;
+
+    if ( w > wmx )
+        w = wmx;
 
     double tol = 1e-10;
 
@@ -847,6 +878,31 @@ double SurfCore::FindNearest( double &u, double &w, const vec3d &pt, double u0, 
     double dist;
     surface_point_type p;
     pt.get_pnt( p );
+
+    double umn = m_Surface.get_u0();
+    double wmn = m_Surface.get_v0();
+
+    double umx = m_Surface.get_umax();
+    double wmx = m_Surface.get_vmax();
+
+    double slop = 1e-3;
+    if( u0 < (umn - slop) || w0 < (wmn - slop) || u0 > (umx + slop) || w0 > (wmx + slop) )
+    {
+        printf("BAD parameter in SurfCore::FindNearest! %f %f\n", u0, w0 );
+        assert(false);
+    }
+
+    if ( u0 < umn )
+        u0 = umn;
+
+    if ( w0 < wmn )
+        w0 = wmn;
+
+    if ( u0 > umx )
+        u0 = umx;
+
+    if ( w0 > wmx )
+        w0 = wmx;
 
     dist = eli::geom::intersect::minimum_distance( u, w, m_Surface, p, u0, w0 );
 
