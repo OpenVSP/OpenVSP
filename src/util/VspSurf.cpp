@@ -796,14 +796,8 @@ bool VspSurf::CapWMax(int CapType)
 
 void VspSurf::SplitSurfs( vector< piecewise_surface_type > &surfvec )
 {
-	piecewise_surface_type s(m_Surface);
-	SplitSurfs( surfvec, s );
-}
-
-void VspSurf::SplitSurfs( vector< piecewise_surface_type > &surfvec, piecewise_surface_type initsurf )
-{
     surfvec.clear();
-    surfvec.push_back( initsurf );
+    surfvec.push_back( m_Surface );
 
     for ( int i = 0; i < m_UFeature.size(); ++i )
     {
@@ -855,14 +849,8 @@ void VspSurf::SplitSurfs( vector< piecewise_surface_type > &surfvec, piecewise_s
 
 void VspSurf::WriteBezFile( FILE* file_id, const std::string &geom_id, int surf_ind, int comp_ind, vector< XferSurf > &xfersurfs )
 {
-    // Make copy for local changes.
-
-    piecewise_surface_type scubic( m_Surface );
-    piecewise_surface_type::data_type ttol = 1e-6;
-    scubic.to_cubic( ttol );
-
     vector < piecewise_surface_type > surfvec;
-    SplitSurfs( surfvec, scubic );
+    SplitSurfs( surfvec );
 
     int num_sections = surfvec.size();
 
