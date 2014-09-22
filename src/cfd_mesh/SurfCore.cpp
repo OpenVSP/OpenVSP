@@ -842,7 +842,7 @@ void SurfCore::BuildPatches( Surf* srf ) const
     srf->SetPatchVec( patchVec );
 }
 
-double SurfCore::FindNearest( double &u, double &w, const vec3d &pt, const double &u0, const double &w0 ) const
+double SurfCore::FindNearest( double &u, double &w, const vec3d &pt, double u0, double w0 ) const
 {
     double dist;
     surface_point_type p;
