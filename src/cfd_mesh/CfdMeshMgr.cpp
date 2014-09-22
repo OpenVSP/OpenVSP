@@ -370,7 +370,9 @@ CfdMeshMgrSingleton::CfdMeshMgrSingleton() : ParmContainer()
 
     m_BatchFlag = false;
 
-
+    // Array allocated to (m_NumComps + 6) later, so if this isn't reset by then, the
+    // allocation will fail with a negative argument.
+    m_NumComps = -10;
 
 #ifdef DEBUG_CFD_MESH
     m_DebugDir  = Stringc( "MeshDebug/" );
@@ -956,6 +958,7 @@ void CfdMeshMgrSingleton::WriteSurfs( const string &filename, vector< XferSurf >
 
 void CfdMeshMgrSingleton::ReadSurfs( const string &filename, vector< XferSurf > &xfersurfs )
 {
+    int maxcompid = -1;
     for ( int i = 0; i < xfersurfs.size(); i++ )
     {
         Surf* surfPtr = new Surf();
@@ -963,12 +966,19 @@ void CfdMeshMgrSingleton::ReadSurfs( const string &filename, vector< XferSurf > 
 
         surfPtr->SetGeomID( xfersurfs[i].m_GeomID );
         surfPtr->SetFlipFlag( xfersurfs[i].m_FlipNormal );
-        surfPtr->SetCompID( xfersurfs[i].m_CompIndx );
-        surfPtr->SetUnmergedCompID( xfersurfs[i].m_CompIndx );
+
+        int cid = xfersurfs[i].m_CompIndx;
+
+        if ( cid > maxcompid )
+            maxcompid = cid;
+
+        surfPtr->SetCompID( cid );
+        surfPtr->SetUnmergedCompID( cid );
         surfPtr->SetSurfID( i );
         surfPtr->SetDefaultParmMap2();
         m_SurfVec.push_back( surfPtr );
     }
+    m_NumComps = maxcompid + 1;
 }
 
 void CfdMeshMgrSingleton::CleanMergeSurfs()
