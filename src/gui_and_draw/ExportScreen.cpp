@@ -33,7 +33,6 @@ ExportScreen::ExportScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     ui->gmshButton->callback( staticScreenCB, this );
     ui->x3dButton->callback( staticScreenCB, this );
     ui->stepButton->callback( staticScreenCB, this );
-    ui->bezButton->callback( staticScreenCB, this );
 
 }
 
@@ -116,10 +115,6 @@ void ExportScreen::ExportFile( string &newfile, int write_set, int type )
     {
         newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write STEP File?", "*.stp" );
     }
-    else if ( type == EXPORT_BEZ )
-    {
-        newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write Bezier File?", "*.bez" );
-    }
     else if ( type == -1 )
     {
         m_ExportFileUI->UIWindow->show();
@@ -173,10 +168,6 @@ void ExportScreen::CallBack( Fl_Widget *w )
     else if ( w == m_ExportFileUI->stepButton )
     {
         ExportFile( newfile, m_SelectedSetIndex, EXPORT_STEP );
-    }
-    else if ( w == m_ExportFileUI->bezButton )
-    {
-        ExportFile( newfile, m_SelectedSetIndex, EXPORT_BEZ );
     }
     else if ( w == m_ExportFileUI->setChoice )
     {

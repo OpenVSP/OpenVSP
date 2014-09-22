@@ -2218,11 +2218,6 @@ void Vehicle::ExportFile( const string & file_name, int write_set, int file_type
     {
         WriteSTEPFile( file_name, write_set );
     }
-    else if ( file_type == EXPORT_BEZ )
-    {
-        vector< XferSurf > xfersurfs;
-        WriteBezFile( file_name, write_set, xfersurfs );
-    }
 }
 
 void Vehicle::CreateDegenGeom( int set )

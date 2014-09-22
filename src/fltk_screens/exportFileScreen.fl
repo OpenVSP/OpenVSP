@@ -8,7 +8,7 @@ class ExportFileUI {open
   } {
     Fl_Window UIWindow {
       label {Export File} open
-      xywh {630 89 148 365} type Double color 29 resizable visible
+      xywh {630 89 148 335} type Double color 29 resizable visible
     } {
       Fl_Box {} {
         label Export
@@ -52,10 +52,6 @@ class ExportFileUI {open
       Fl_Box {} {
         label Sets
         xywh {5 25 136 15} box BORDER_BOX labelfont 1 labelcolor 15
-      }
-      Fl_Button bezButton {
-        label {Bezier (.bez)}
-        xywh {5 335 136 25} labelfont 1 labelsize 12 align 64
       }
       Fl_Button stepButton {
         label {STEP (.stp)}
