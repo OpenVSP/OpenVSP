@@ -43,7 +43,6 @@ public:
 
     void BuildClean();
 
-    void ReadSurf( FILE* file_id );
     void LoadControlPnts( vector< vector< vec3d > > & pnts );
     void GetBorderCurve( const vec3d &uw0, const vec3d &uw1, Bezier_curve & crv ) const;
 

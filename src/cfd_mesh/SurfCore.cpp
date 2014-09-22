@@ -30,41 +30,6 @@ SurfCore::~SurfCore()
 {
 }
 
-void SurfCore::SetControlPnts( vector< vector < vec3d > > pnts )
-{
-    int numU = pnts.size();
-    int numW = pnts[0].size();
-
-    // Assume Cubic patches.
-    int nupatch = ( numU - 1 ) / 3;
-    int nvpatch = ( numW - 1 ) / 3;
-
-    m_Surface.init_uv( nupatch, nvpatch ); // du = 1, dv = 1, u0 = 0, & v0 = 0 implied
-
-    surface_patch_type::index_type ip, jp;
-    for( ip = 0; ip < nupatch; ++ip )
-    {
-        for( jp = 0; jp < nvpatch; ++jp )
-        {
-            surface_patch_type::index_type icp, jcp;
-
-            surface_patch_type patch;
-            patch.resize( 3, 3 );
-
-            for( icp = 0; icp <= 3; ++icp )
-            {
-                for( jcp = 0; jcp <= 3; ++jcp )
-                {
-                    vec3d p = pnts[ ip * 3 + icp ][ jp * 3 + jcp ];
-                    surface_point_type cp( p.x(), p.y(), p.z() );
-                    patch.set_control_point( cp, icp, jcp );
-                }
-            }
-            m_Surface.set( patch, ip, jp );
-        }
-    }
-}
-
 vector< vector< vec3d > > SurfCore::GetControlPnts() const
 {
     vector< vector < vec3d > > ret;
