@@ -407,16 +407,13 @@ void CfdMeshMgrSingleton::ParmChanged( Parm* parm_ptr, int type )
 void CfdMeshMgrSingleton::GenerateMesh()
 {
     CfdMeshMgr.addOutputText( "Fetching Bezier Surfaces\n" );
-//  string bezTempFile = m_Vehicle->getTempDir();
-    string bezTempFile;
-    bezTempFile.append( string( "cfdmesh.bez" ) );
 
     vector< XferSurf > xfersurfs;
     CfdMeshMgr.FetchSurfs( xfersurfs );
 
     CfdMeshMgr.CleanUp();
-    CfdMeshMgr.addOutputText( "Reading Surfaces\n" );
-    CfdMeshMgr.ReadSurfs( bezTempFile, xfersurfs );
+    CfdMeshMgr.addOutputText( "Loading Bezier Surfaces\n" );
+    CfdMeshMgr.LoadSurfs( xfersurfs );
 
     CfdMeshMgr.CleanMergeSurfs();
 
@@ -955,7 +952,7 @@ void CfdMeshMgrSingleton::FetchSurfs( vector< XferSurf > &xfersurfs )
     m_Vehicle->FetchXFerSurfs( GetCfdSettingsPtr()->m_SelectedSetIndex(), xfersurfs );
 }
 
-void CfdMeshMgrSingleton::ReadSurfs( const string &filename, vector< XferSurf > &xfersurfs )
+void CfdMeshMgrSingleton::LoadSurfs( vector< XferSurf > &xfersurfs )
 {
     int maxcompid = -1;
     for ( int i = 0; i < xfersurfs.size(); i++ )

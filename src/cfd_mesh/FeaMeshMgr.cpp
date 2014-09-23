@@ -664,18 +664,9 @@ bool FeaMeshMgrSingleton::LoadSurfaces()
 {
     CleanUp();
 
-//  string bezTempFile = m_Vehicle->getTempDir();
-    string bezTempFile;
-    bezTempFile.append( string( "feawing.bez" ) );
-
-    if ( !WriteWingBezierFile( bezTempFile.c_str() ) )
-    {
-        return false;
-    }
-
     vector< XferSurf > xfersurfs;
 
-    ReadSurfs( bezTempFile, xfersurfs );
+    LoadSurfs( xfersurfs );
     IdentifyUpperLowerSurfaces();
 
     ReadFeaStructData();
