@@ -338,68 +338,6 @@ bool SurfCore::LessThanY( double val ) const
     return true;
 }
 
-bool SurfCore::OnYZeroPlane() const
-{
-    vector< vector< vec3d > > pnts = GetControlPnts();
-    int numU = pnts.size();
-    int numW = pnts[0].size();
-
-    double tol = 0.0000001;
-    bool onPlaneFlag = true;
-    for ( int i = 0 ; i < numU ; i++ )                // Border Curve 1 w = 0
-    {
-        if ( fabs( pnts[i][0][1] ) > tol )
-        {
-            onPlaneFlag = false;
-        }
-    }
-    if ( onPlaneFlag )
-    {
-        return onPlaneFlag;
-    }
-
-    onPlaneFlag = true;
-    for ( int i = 0 ; i < numU ; i++ )                // Border Curve 2 w = max
-    {
-        if ( fabs( pnts[i][numW - 1][1] ) > tol )
-        {
-            onPlaneFlag = false;
-        }
-    }
-    if ( onPlaneFlag )
-    {
-        return onPlaneFlag;
-    }
-
-    onPlaneFlag = true;
-    for ( int i = 0 ; i < numW ; i++ )                // Border Curve 3 u = 0
-    {
-        if ( fabs( pnts[0][i][1] ) > tol )
-        {
-            onPlaneFlag = false;
-        }
-    }
-    if ( onPlaneFlag )
-    {
-        return onPlaneFlag;
-    }
-
-    onPlaneFlag = true;
-    for ( int i = 0 ; i < numW ; i++ )                // Border Curve 4 u = max
-    {
-        if ( fabs( pnts[numU - 1][i][1] ) > tol )
-        {
-            onPlaneFlag = false;
-        }
-    }
-    if ( onPlaneFlag )
-    {
-        return onPlaneFlag;
-    }
-
-    return false;
-}
-
 bool SurfCore::PlaneAtYZero() const
 {
     double tol = 0.000001;

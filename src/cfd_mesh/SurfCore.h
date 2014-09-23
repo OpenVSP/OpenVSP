@@ -103,7 +103,6 @@ public:
     void GetBorderCurve( const vec3d &uw0, const vec3d &uw1, Bezier_curve &crv ) const;
 
     bool LessThanY( double val ) const;
-    bool OnYZeroPlane() const;
     bool PlaneAtYZero() const;
 
     Bezier_curve GetBorderCurve( int iborder ) const;
