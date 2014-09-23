@@ -921,17 +921,6 @@ bool FeaMeshMgrSingleton::WriteWingBezierFile( const char* file_name )
 
     m_WingGeom = wing_geom;
 
-    //==== Open file ====//
-    FILE* file_id = fopen( file_name, "w" );
-
-    if ( !file_id )
-    {
-        return false;
-    }
-
-    fprintf( file_id, "%d  Num_Components\n", 1 );
-
-
     // Need to turn off symmetry first.
 //  int saveSymCode = wing_geom->getSymCode();
 //  wing_geom->setSymCode( NO_SYM );
@@ -943,13 +932,12 @@ bool FeaMeshMgrSingleton::WriteWingBezierFile( const char* file_name )
 
     for ( int j = 0; j < ( int )surf_vec.size(); j++ )
     {
-        surf_vec[j].WriteBezFile( file_id, wing_geom->GetID(), j, 0, xfersurfs );
+        surf_vec[j].FetchXFerSurf( wing_geom->GetID(), j, 0, xfersurfs );
     }
 
     // Need to restore symmetry.
 //  wing_geom->setSymCode( saveSymCode );
 
-    fclose( file_id );
     return true;
 }
 

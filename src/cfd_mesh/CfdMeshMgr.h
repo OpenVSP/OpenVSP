@@ -236,7 +236,7 @@ public:
 //  virtual void Draw_BBox( BndBox box );
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
-    virtual void FetchSurfs( const string &filename, vector< XferSurf > &xfersurfs );
+    virtual void FetchSurfs( vector< XferSurf > &xfersurfs );
     virtual void ReadSurfs( const string &filename, vector< XferSurf > &xfersurfs );
 
     virtual void CleanMergeSurfs();

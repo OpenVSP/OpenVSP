@@ -1742,7 +1742,7 @@ void Vehicle::WritePovRayFile( const string & file_name, int write_set )
     fclose( pov_file );
 }
 
-void Vehicle::WriteBezFile( const string & file_name, int write_set, vector< XferSurf > &xfersurfs )
+void Vehicle::FetchXFerSurfs( int write_set, vector< XferSurf > &xfersurfs )
 {
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
 
@@ -1755,9 +1755,6 @@ void Vehicle::WriteBezFile( const string & file_name, int write_set, vector< Xfe
         }
     }
 
-    FILE* id = fopen( file_name.c_str(), "w" );
-
-    fprintf( id, "%d  Num_Components\n", num_comps );
     int icomp = 0;
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
@@ -1768,13 +1765,11 @@ void Vehicle::WriteBezFile( const string & file_name, int write_set, vector< Xfe
 
             for ( int j = 0; j < ( int )surf_vec.size(); j++ )
             {
-                surf_vec[j].WriteBezFile( id, geom_vec[i]->GetID(), j, icomp, xfersurfs );
+                surf_vec[j].FetchXFerSurf( geom_vec[i]->GetID(), j, icomp, xfersurfs );
                 icomp++;
             }
         }
     }
-
-    fclose( id );
 }
 
 void Vehicle::WriteSTEPFile( const string & file_name, int write_set )

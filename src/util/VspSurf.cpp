@@ -847,7 +847,7 @@ void VspSurf::SplitSurfs( vector< piecewise_surface_type > &surfvec )
     }
 }
 
-void VspSurf::WriteBezFile( FILE* file_id, const std::string &geom_id, int surf_ind, int comp_ind, vector< XferSurf > &xfersurfs )
+void VspSurf::FetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_ind, vector< XferSurf > &xfersurfs )
 {
     vector < piecewise_surface_type > surfvec;
     SplitSurfs( surfvec );
