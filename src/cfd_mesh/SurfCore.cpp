@@ -459,203 +459,138 @@ void SurfCore::LoadBorderCurves( vector < Bezier_curve > & borderCurves ) const
 
 bool SurfCore::SurfMatch( SurfCore* otherSurf ) const
 {
-    vector< vector< vec3d > > pnts = GetControlPnts();
-    int numU = pnts.size();
-    int numW = pnts[0].size();
+    piecewise_surface_type osurf, swaposurf;
+
+    osurf = otherSurf->m_Surface;
+    if( MatchThisOrientation( osurf ) )
+    {
+        return true;
+    }
+
+    osurf = otherSurf->m_Surface;
+    osurf.reverse_u();
+    if( MatchThisOrientation( osurf ) )
+    {
+        return true;
+    }
+
+    osurf = otherSurf->m_Surface;
+    osurf.reverse_v();
+    if( MatchThisOrientation( osurf ) )
+    {
+        return true;
+    }
+
+    osurf = otherSurf->m_Surface;
+    osurf.reverse_u();
+    osurf.reverse_v();
+    if( MatchThisOrientation( osurf ) )
+    {
+        return true;
+    }
+
+    swaposurf = otherSurf->m_Surface;
+    swaposurf.swap_uv();
+
+    osurf = swaposurf;
+    if( MatchThisOrientation( osurf ) )
+    {
+        return true;
+    }
+
+    osurf = swaposurf;
+    osurf.reverse_u();
+    if( MatchThisOrientation( osurf ) )
+    {
+        return true;
+    }
+
+    osurf = swaposurf;
+    osurf.reverse_v();
+    if( MatchThisOrientation( osurf ) )
+    {
+        return true;
+    }
+
+    osurf = swaposurf;
+    osurf.reverse_u();
+    osurf.reverse_v();
+    if( MatchThisOrientation( osurf ) )
+    {
+        return true;
+    }
+
+    return false;
+}
+
+bool SurfCore::MatchThisOrientation( const piecewise_surface_type &osurf ) const
+{
+    int ip, jp, nupatch, nvpatch, onupatch, onvpatch;
 
     double tol = 0.00000001;
 
-    if ( otherSurf )
+    nupatch = m_Surface.number_u_patches();
+    onupatch = osurf.number_u_patches();
+    if ( nupatch != onupatch )
     {
-        vector< vector< vec3d > > oPnts = otherSurf->GetControlPnts();
-        int oNumU = oPnts.size();
-        int oNumW = oPnts[0].size();
+        return false;
+    }
 
-        if ( oNumU == numU && oNumW == numW ) // Possible match
+    nvpatch = m_Surface.number_v_patches();
+    onvpatch = osurf.number_v_patches();
+    if ( nvpatch != onvpatch )
+    {
+        return false;
+    }
+
+    for ( ip = 0; ip < nupatch; ip++ )
+    {
+        const surface_patch_type *patch = m_Surface.get_patch( ip, 0 );
+        const surface_patch_type *opatch = osurf.get_patch( ip, 0 );
+
+        if ( patch->degree_u() != opatch->degree_u() )
         {
-            bool match = true;
-            for ( int i = 0; i < numU; i++ )
-            {
-                for ( int j = 0; j < numW; j++ )
-                {
-                    if ( dist_squared( pnts[ i ][ j ], oPnts[ i ][ j ] ) > tol )
-                    {
-                        match = false;
-                        break;
-                    }
-                }
-                if ( !match )
-                {
-                    break;
-                }
-            }
-
-            if ( match )
-            {
-                return true;
-            }
-
-            match = true;
-            for ( int i = 0; i < numU; i++ )
-            {
-                for ( int j = 0; j < numW; j++ )
-                {
-                    if ( dist_squared( pnts[ i ][ j ], oPnts[ numU - 1 - i ][ j ] ) > tol )
-                    {
-                        match = false;
-                        break;
-                    }
-                }
-                if ( !match )
-                {
-                    break;
-                }
-            }
-
-
-            if ( match )
-            {
-                return true;
-            }
-
-            match = true;
-            for ( int i = 0; i < numU; i++ )
-            {
-                for ( int j = 0; j < numW; j++ )
-                {
-                    if ( dist_squared( pnts[ i ][ j ], oPnts[ i ][ numW - 1 - j ] ) > tol )
-                    {
-                        match = false;
-                        break;
-                    }
-                }
-                if ( !match )
-                {
-                    break;
-                }
-            }
-
-
-            if ( match )
-            {
-                return true;
-            }
-
-            match = true;
-            for ( int i = 0; i < numU; i++ )
-            {
-                for ( int j = 0; j < numW; j++ )
-                {
-                    if ( dist_squared( pnts[ i ][ j ], oPnts[ numU - 1 - i ][ numW - 1 - j ] ) > tol )
-                    {
-                        match = false;
-                        break;
-                    }
-                }
-                if ( !match )
-                {
-                    break;
-                }
-            }
-
-            if ( match )
-            {
-                return true;
-            }
+            return false;
         }
+    }
 
-        if ( oNumU == numW && oNumW == numU ) // Possible flipped match
+    for ( jp = 0; jp < nvpatch; jp++ )
+    {
+        const surface_patch_type *patch = m_Surface.get_patch( 0, jp );
+        const surface_patch_type *opatch = osurf.get_patch( 0, jp );
+
+        if ( patch->degree_v() != opatch->degree_v() )
         {
-            bool match = true;
-            for ( int i = 0; i < numU; i++ )
+            return false;
+        }
+    }
+
+    for( ip = 0; ip < nupatch; ++ip )
+    {
+        for( jp = 0; jp < nvpatch; ++jp )
+        {
+            surface_patch_type::index_type icp, jcp;
+            const surface_patch_type *patch = m_Surface.get_patch( ip, jp );
+            const surface_patch_type *opatch = osurf.get_patch( 0, jp );
+
+            for( icp = 0; icp <= patch->degree_u(); ++icp )
             {
-                for ( int j = 0; j < numW; j++ )
+                for( jcp = 0; jcp <= patch->degree_v(); ++jcp )
                 {
-                    if ( dist_squared( pnts[ i ][ j ], oPnts[ j ][ i ] ) > tol )
+                    vec3d cp, ocp;
+                    cp = patch->get_control_point( icp, jcp );
+                    ocp = opatch->get_control_point( icp, jcp );
+
+                    if ( dist_squared( cp, ocp ) > tol )
                     {
-                        match = false;
-                        break;
+                        return false;
                     }
                 }
-                if ( !match )
-                {
-                    break;
-                }
-            }
-
-            if ( match )
-            {
-                return true;
-            }
-
-            match = true;
-            for ( int i = 0; i < numU; i++ )
-            {
-                for ( int j = 0; j < numW; j++ )
-                {
-                    if ( dist_squared( pnts[ i ][ j ], oPnts[ numW - 1 - j ][ i ] ) > tol )
-                    {
-                        match = false;
-                        break;
-                    }
-                }
-                if ( !match )
-                {
-                    break;
-                }
-            }
-
-            if ( match )
-            {
-                return true;
-            }
-
-            match = true;
-            for ( int i = 0; i < numU; i++ )
-            {
-                for ( int j = 0; j < numW; j++ )
-                {
-                    if ( dist_squared( pnts[ i ][ j ], oPnts[ j ][ numU - 1 - i ] ) > tol )
-                    {
-                        match = false;
-                        break;
-                    }
-                }
-                if ( !match )
-                {
-                    break;
-                }
-            }
-
-            if ( match )
-            {
-                return true;
-            }
-
-            match = true;
-            for ( int i = 0; i < numU; i++ )
-            {
-                for ( int j = 0; j < numW; j++ )
-                {
-                    if ( dist_squared( pnts[ i ][ j ], oPnts[ numW - 1 - j ][ numU - 1 - i ] ) > tol )
-                    {
-                        match = false;
-                        break;
-                    }
-                }
-                if ( !match )
-                {
-                    break;
-                }
-            }
-
-            if ( match )
-            {
-                return true;
             }
         }
     }
-    return false;
+
+    return true;
 }
 
 void SurfCore::WriteSurf( FILE* fp ) const

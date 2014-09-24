@@ -124,6 +124,8 @@ protected:
 
     vector< vector< vec3d > > GetControlPnts() const;
 
+    bool MatchThisOrientation( const piecewise_surface_type &osurf ) const;
+
     vec3d CompTanUU( double u, double w ) const;
     vec3d CompTanWW( double u, double w ) const;
     vec3d CompTanUW( double u, double w ) const;
