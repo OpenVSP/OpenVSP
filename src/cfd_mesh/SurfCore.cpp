@@ -660,13 +660,80 @@ bool SurfCore::SurfMatch( SurfCore* otherSurf ) const
 
 void SurfCore::WriteSurf( FILE* fp ) const
 {
-    vector< vector< vec3d > > pntVec = GetControlPnts();
-    int numU = pntVec.size();
-    int numW = pntVec[0].size();
+    vector< vector< vec3d > > pntVec;
+    int numU, numW;
 
-    fprintf( fp, "%d		// Num Pnts U \n",    numU );
-    fprintf( fp, "%d		// Num Pnts W \n",    numW );
-    fprintf( fp, "%d		// Total Pnts (0,0),(0,1),(0,2)..(0,numW-1),(1,0)..(1,numW-1)..(numU-1,0)..(numU-1,numW-1)\n",    numU * numW );
+    int ip, jp, nupatch, nwpatch, ioffset, joffset;
+    int icp, jcp, udeg, wdeg;
+
+    nupatch = m_Surface.number_u_patches();
+    nwpatch = m_Surface.number_v_patches();
+
+    fprintf( fp, "%d        // Num U Patches, patch order:\n", nupatch );
+    numU = 1;
+    for ( ip = 0; ip < nupatch; ip++ )
+    {
+        const surface_patch_type *patch = m_Surface.get_patch( ip, 0 );
+        udeg = patch->degree_u();
+
+        numU += udeg;
+
+        fprintf( fp, "%d ", udeg );
+        if ( ip == nupatch - 1 )
+            fprintf(fp, "\n" );
+        else
+            fprintf(fp, ", " );
+    }
+
+    fprintf( fp, "%d        // Num W Patches, patch order:\n", nwpatch );
+    numW = 1;
+    for ( jp = 0; jp < nwpatch; jp++ )
+    {
+        const surface_patch_type *patch = m_Surface.get_patch( 0, jp );
+        wdeg = patch->degree_v();
+
+        numW += wdeg;
+
+        fprintf( fp, "%d ", wdeg );
+        if ( jp == nwpatch - 1 )
+            fprintf(fp, "\n" );
+        else
+            fprintf(fp, ", " );
+    }
+
+    pntVec.resize( numU );
+    for ( icp = 0; icp < numU; icp++ )
+    {
+        pntVec[icp].resize( numW );
+    }
+
+    ioffset = 0;
+    for( ip = 0; ip < nupatch; ++ip )
+    {
+        joffset = 0;
+        for( jp = 0; jp < nwpatch; ++jp )
+        {
+            const surface_patch_type *patch = m_Surface.get_patch( ip, jp );
+            udeg = patch->degree_u();
+            wdeg = patch->degree_v();
+
+            for( icp = 0; icp <= udeg; ++icp )
+            {
+                for( jcp = 0; jcp <= wdeg; ++jcp )
+                {
+                    surface_point_type cp;
+                    cp = patch->get_control_point( icp, jcp );
+                    pntVec[ ioffset + icp ][ joffset + jcp ]  = vec3d( cp.x(), cp.y(), cp.z() );
+                }
+            }
+            joffset += wdeg;
+        }
+        ioffset += udeg;
+    }
+
+    fprintf( fp, "%d        // Num Pnts U \n",    numU );
+    fprintf( fp, "%d        // Num Pnts W \n",    numW );
+    fprintf( fp, "%d        // Total Pnts (0,0),(0,1),(0,2)..(0,numW-1),(1,0)..(1,numW-1)..(numU-1,0)..(numU-1,numW-1)\n",    numU * numW );
 
     for ( int i = 0 ; i < numU ; i++ )
     {
