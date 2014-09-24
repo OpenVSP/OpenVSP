@@ -30,48 +30,6 @@ SurfCore::~SurfCore()
 {
 }
 
-vector< vector< vec3d > > SurfCore::GetControlPnts() const
-{
-    vector< vector < vec3d > > ret;
-
-    piecewise_surface_type::index_type ip, jp, nupatch, nvpatch;
-
-
-    nupatch = m_Surface.number_u_patches();
-    nvpatch = m_Surface.number_v_patches();
-
-    int nupts = nupatch * 3 + 1;
-    int nvpts = nvpatch * 3 + 1;
-
-    ret.resize( nupts );
-    for( int i = 0; i < nupts; ++i )
-    {
-        ret[i].resize( nvpts );
-    }
-
-    for( ip = 0; ip < nupatch; ++ip )
-    {
-        for( jp = 0; jp < nvpatch; ++jp )
-        {
-            surface_patch_type::index_type icp, jcp;
-
-            const surface_patch_type *patch = m_Surface.get_patch( ip, jp );
-
-            for( icp = 0; icp <= 3; ++icp )
-            {
-                for( jcp = 0; jcp <= 3; ++jcp )
-                {
-                    surface_point_type cp;
-                    cp = patch->get_control_point( icp, jcp );
-                    ret[ ip * 3 + icp ][ jp * 3 + jcp ]  = vec3d( cp.x(), cp.y(), cp.z() );
-                }
-            }
-        }
-    }
-
-    return ret;
-}
-
 void SurfCore::GetBorderCurve( const vec3d &uw0, const vec3d &uw1, Bezier_curve &crv ) const
 {
     int iborder = -1;
