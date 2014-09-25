@@ -29,19 +29,37 @@ public:
     }
 
     void Init();
+    void Wype();
+    void Renew();
+
+    AdvLink* AddLink( const string & name );
+    void DelLink( AdvLink* link_ptr );
+    void DelAllLinks();
+
     void ReadAdvLinkScripts();
     void AddAdvLink( const string & script_module_name );
 
-    void AddInput( const string & geom_name, int geom_index, const string & parm_name, 
-                   const string & parm_group, const string & var_name );
-    void AddOutput( const string & geom_name, int geom_index, const string & parm_name, 
-                   const string & parm_group, const string & var_name );
+    void AddInput( const string & parm_id, const string & var_name );
+    void AddOutput( const string & parm_id, const string & var_name );
+
+    vector< AdvLink* > GetLinks()                                       { return m_LinkVec; }
 
     void SetVar( const string & var_name, double val );
     double GetVar( const string & var_name );
 
     void ParmChanged( const string& pid, bool start_flag );
-    void SetCurrLink( AdvLink* adv_link )                              { m_CurrLink = adv_link; }
+    void SetActiveLink( AdvLink* adv_link )                             { m_ActiveLink = adv_link; }
+    AdvLink* GetActiveLink()                                            { return m_ActiveLink; }
+
+    AdvLink* GetLink( int index );
+    void SetEditLinkIndex( int index )                                  { m_EditLinkIndex = index; }
+    int GetEditLinkIndex()                                              { return m_EditLinkIndex; }
+
+    bool DuplicateLinkName( const string & name );
+
+    xmlNodePtr EncodeXml( xmlNodePtr & node );
+    xmlNodePtr DecodeXml( xmlNodePtr & node );
+
 
 private:
 
@@ -49,10 +67,9 @@ private:
     AdvLinkMgrSingleton( AdvLinkMgrSingleton const& copy );             // Not Implemented
     AdvLinkMgrSingleton& operator=( AdvLinkMgrSingleton const& copy );  // Not Implemented
 
-    void AddInputOutput( const string & geom_name, int geom_index, const string & parm_name, 
-                   const string & parm_group, const string & var_name, bool input_flag );
-
-    AdvLink* m_CurrLink;
+    void AddInputOutput( const string & parm_id, const string & var_name, bool input_flag );
+    int m_EditLinkIndex;
+    AdvLink* m_ActiveLink;
     vector< AdvLink* > m_LinkVec;
 
 };

@@ -54,6 +54,8 @@ public:
     //==== Read Script From Memory - Return Module Name ====//
     string ReadScriptFromMemory( const string &  module_name, const string & script_content );
 
+    //==== Find Script And Remove ====//
+    bool RemoveScript( const string &  module_name );
 
     void ExecuteScript(  const char* module_name,  const char* function_name );
 
