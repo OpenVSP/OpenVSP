@@ -187,6 +187,7 @@ void Vehicle::Wype()
 
     // Clear out various managers...
     LinkMgr.Renew();
+    AdvLinkMgr.Renew();
     DesignVarMgr.Renew();
 }
 
@@ -1004,7 +1005,7 @@ xmlNodePtr Vehicle::EncodeXml( xmlNodePtr & node, int set )
     }
 
     LinkMgr.EncodeXml( node );
-
+    AdvLinkMgr.EncodeXml( node );
     m_CfdSettings.EncodeXml( node );
     m_CfdGridDensity.EncodeXml( node );
     m_FeaGridDensity.EncodeXml( node );
@@ -1057,7 +1058,7 @@ xmlNodePtr Vehicle::DecodeXml( xmlNodePtr & node )
     }
 
     LinkMgr.DecodeXml( node );
-
+    AdvLinkMgr.DecodeXml( node );
     m_CfdSettings.DecodeXml( node );
     m_CfdGridDensity.DecodeXml( node );
     m_FeaGridDensity.DecodeXml( node );

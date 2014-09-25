@@ -479,10 +479,14 @@ xmlNodePtr UserParmContainer::EncodeXml( xmlNodePtr & node )
     xmlNodePtr userparmcontain_node = xmlNewChild( node, NULL, BAD_CAST "UserParmContainer", NULL );
     if ( userparmcontain_node )
     {
-
-        for ( int i = 0; i < static_cast<int>( m_UserParmVec.size() ); i++ )
+       XmlUtil::AddIntNode( userparmcontain_node, "NumUserParms", (int)m_UserParmVec.size() );
+       for ( int i = 0; i < static_cast<int>( m_UserParmVec.size() ); i++ )
         {
-            m_UserParmVec[i]->EncodeXml( userparmcontain_node );
+            Parm* p = m_UserParmVec[i];
+            if ( p )
+            {
+                p->EncodeXml( userparmcontain_node, true );
+            }
         }
     }
 
@@ -495,9 +499,16 @@ xmlNodePtr UserParmContainer::DecodeXml( xmlNodePtr & node )
     xmlNodePtr child_node = XmlUtil::GetNode( node, "UserParmContainer", 0 );
     if ( child_node )
     {
+        int num_user = XmlUtil::FindInt( child_node, "NumUserParms", 0 );
+        Renew( num_user );
         for ( int i = 0; i < static_cast<int>( m_UserParmVec.size() ); i++ )
         {
-            m_UserParmVec[i]->DecodeXml( child_node );
+            xmlNodePtr pnode = XmlUtil::GetNode( child_node, "UserParm", i );
+            Parm* p = m_UserParmVec[i];
+            if ( pnode && p )
+            {
+                p->DecodeXml( pnode, true );
+            }
         }
     }
     return child_node;

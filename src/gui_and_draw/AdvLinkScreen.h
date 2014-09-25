@@ -15,6 +15,7 @@
 #include "GuiDevice.h"
 
 #include <FL/Fl.H>
+#include <FL/Fl_Text_Buffer.H>
 #include "advLinkFlScreen.h"
 
 using std::string;
@@ -35,6 +36,13 @@ public:
         ( ( AdvLinkScreen* )data )->CallBack( w );
     }
 
+    void TextCallBack( int pos, int nInserted, int nDeleted, int nRestyled, const char* deletedText );
+    static void staticTextCB( int pos, int nInserted, int nDeleted, int nRestyled, const char* deletedText, void* data )
+    {
+        ( ( AdvLinkScreen* )data )->TextCallBack( pos, nInserted, nDeleted, nRestyled, deletedText );
+    }
+
+
     void GuiDeviceCallBack( GuiDevice* gui_device );
 
 protected:
@@ -43,16 +51,19 @@ protected:
     Fl_Browser* m_LinkBrowser;
     Fl_Browser* m_InputBrowser;
     Fl_Browser* m_OutputBrowser;
+    Fl_Text_Editor* m_CodeEditor;
+    Fl_Text_Buffer* m_CodeBuffer;
 
     GroupLayout m_BigGroup;
+
+    GroupLayout m_LinkBrowserGroup;
+    GroupLayout m_LinkAddDelGroup;
 
     StringInput m_NameInput;
 
     TriggerButton m_AddLink;
     TriggerButton m_DelLink;
     TriggerButton m_DelAllLink;
-    TriggerButton m_SaveLink;
-    TriggerButton m_LoadLink;
 
     ParmPicker m_ParmPicker;
     StringInput m_VarNameInput;
@@ -69,6 +80,11 @@ protected:
     TriggerButton m_DelOutput;
     TriggerButton m_DelAllOutput;
 
+    TriggerButton m_SaveCode;
+    TriggerButton m_ReadCode;
+
+    int m_InputBrowserSelect;
+    int m_OutputBrowserSelect;
 
 
 };
