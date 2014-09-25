@@ -1174,3 +1174,18 @@ Fl_Browser* GroupLayout::AddFlBrowser( int height )
 
     return browser;
 }
+
+//==== Add Fl Text Editor ====//
+Fl_Text_Editor* GroupLayout::AddFlTextEditor( int height )
+{
+    assert( m_Group && m_Screen );
+
+    Fl_Text_Editor* text_editor = new Fl_Text_Editor (m_X, m_Y, m_W, height, "");
+
+    m_Group->add( text_editor );
+
+    AddY( height );
+    NewLineX();
+
+    return text_editor;
+}

@@ -13,6 +13,7 @@
 #include <FL/Fl_Check_Browser.H>
 #include <FL/Fl_Round_Button.H>
 #include <FL/fl_draw.H>
+#include <FL/Fl_Text_Editor.H>
 
 #include "GuiDevice.h"
 
@@ -141,6 +142,7 @@ public:
     void AddGeomPicker( GeomPicker & geom_picker );
 
     Fl_Browser* AddFlBrowser( int height );
+    Fl_Text_Editor* AddFlTextEditor( int height );
 
 
     //==== Add Another GroupLayout as a SubSet of This GroupLayout ====//
