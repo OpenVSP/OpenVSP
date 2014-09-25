@@ -202,6 +202,23 @@ string XmlUtil::FindStringProp( xmlNodePtr node, const char * name, const string
     return ret;
 }
 
+int XmlUtil::FindIntProp( xmlNodePtr node, const char * name, int def )
+{
+    char* str;
+    if ( node == NULL )
+    {
+        return def;
+    }
+
+    str = ( char * )xmlGetProp( node, ( const xmlChar * )name );
+    if ( str )
+    {
+        def = atoi( str );
+        xmlFree( str );
+    }
+    return def;
+}
+
 //==== Add Int Val With Name To Node ====//
 xmlNodePtr XmlUtil::AddIntNode( xmlNodePtr root, const char * name, int val )
 {
@@ -235,6 +252,13 @@ xmlNodePtr XmlUtil::AddStringNode( xmlNodePtr root, const char * name, const str
     xmlNodeSetContent( node, ( const xmlChar * )val.c_str() );
 
     return node;
+}
+
+void XmlUtil::SetIntProp( xmlNodePtr root, const char * name, int val )
+{
+    char str[255];
+    sprintf( str, "%d", val );
+    xmlSetProp( root, ( const xmlChar * )name, ( const xmlChar * )str );
 }
 
 void XmlUtil::SetDoubleProp( xmlNodePtr root, const char * name, double val )
