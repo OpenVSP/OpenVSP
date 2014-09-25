@@ -1160,15 +1160,17 @@ void GroupLayout::AddGeomPicker( GeomPicker & geom_picker )
 }
 
 //==== Add Fl Browser ====//
-void GroupLayout::AddFlBrowser( Fl_Browser* browser, int height )
+Fl_Browser* GroupLayout::AddFlBrowser( int height )
 {
     assert( m_Group && m_Screen );
 
-    browser = new Fl_Browser( m_X, m_Y, m_W, height);
+    Fl_Browser* browser = new Fl_Browser( m_X, m_Y, m_W, height);
     browser->type(2);
     browser->textsize(12);
     m_Group->add( browser );
 
     AddY( height );
     NewLineX();
+
+    return browser;
 }

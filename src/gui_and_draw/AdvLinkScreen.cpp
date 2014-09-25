@@ -23,10 +23,10 @@ AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     m_BigGroup.AddDividerBox( "Adv Links" );
     m_BigGroup.AddInput( m_NameInput, "Link Name:" );
 
-    m_BigGroup.AddFlBrowser( m_LinkBrowser, 100 );
 
     m_BigGroup.SetFitWidthFlag( false );
     m_BigGroup.SetSameLineFlag( true );
+    m_LinkBrowser = m_LinkBrowserGroup.AddFlBrowser( 70 );
 
     m_BigGroup.AddButton( m_AddLink, "Add" );
     int gap = 12;
@@ -70,7 +70,7 @@ AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     m_BigGroup.AddSubGroupLayout( m_OutputGroup, m_BigGroup.GetW() / 2 - 2, 150 );
 
     m_InputGroup.AddDividerBox("Input Parms");
-    m_InputGroup.AddFlBrowser( m_InputBrowser, 100 );
+    m_InputBrowser = m_InputGroup.AddFlBrowser( 100 );
     m_InputGroup.SetFitWidthFlag( false );
     m_InputGroup.SetSameLineFlag( true );
     m_InputGroup.AddX( 20 );
@@ -79,7 +79,7 @@ AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     m_InputGroup.AddButton( m_DelAllInput, "Del All" );
 
     m_OutputGroup.AddDividerBox("Output Parms");
-    m_OutputGroup.AddFlBrowser( m_OutputBrowser, 100 );
+    m_OutputBrowser = m_OutputGroup.AddFlBrowser( 100 );
     m_OutputGroup.SetFitWidthFlag( false );
     m_OutputGroup.SetSameLineFlag( true );
     m_OutputGroup.AddX( 20 );
