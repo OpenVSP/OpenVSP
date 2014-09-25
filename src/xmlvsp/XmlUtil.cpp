@@ -264,7 +264,6 @@ void XmlUtil::SetIntProp( xmlNodePtr root, const char * name, int val )
 void XmlUtil::SetDoubleProp( xmlNodePtr root, const char * name, double val )
 {
     char str[255];
-
     sprintf( str, "%lf", val );
     xmlSetProp( root, ( const xmlChar * )name, ( const xmlChar * )str );
 }
