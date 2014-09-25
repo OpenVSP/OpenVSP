@@ -216,6 +216,26 @@ string ScriptMgrSingleton::ExtractContent( const string & file_name )
     return file_content;
 }
 
+//==== Find Script And Remove ====//
+bool ScriptMgrSingleton::RemoveScript( const string &  module_name )
+{
+    //==== Find Module ====//
+    map< string, string >::iterator iter;
+    iter = m_ModuleContentMap.find(module_name);
+    if ( iter == m_ModuleContentMap.end() )
+    {
+        return false;                           // Could not find module name;
+    }
+
+    m_ModuleContentMap.erase( iter );
+
+    int ret = m_ScriptEngine->DiscardModule( module_name.c_str() );
+
+    if ( ret < 0 )
+        return false;
+    return true;
+}
+
 
 //==== Execute Function in Module ====//
 void ScriptMgrSingleton::ExecuteScript(  const char* module_name,  const char* function_name )
