@@ -175,8 +175,8 @@ public:
     }
     virtual ParmContainer* GetLinkContainer();
 
-    virtual void EncodeXml( xmlNodePtr & node );
-    virtual void DecodeXml( xmlNodePtr & node );
+    virtual void EncodeXml( xmlNodePtr & node, bool detailed = false );
+    virtual void DecodeXml( xmlNodePtr & node, bool detailed = false );
 
 protected:
 

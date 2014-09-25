@@ -257,25 +257,46 @@ string Parm::GetContainerID()
 
 
 //==== Encode Data To XML Data Structure ====//
-void Parm::EncodeXml( xmlNodePtr & node )
+void Parm::EncodeXml( xmlNodePtr & node, bool detailed )
 {
-    xmlNodePtr dnode = xmlNewChild( node, NULL, ( const xmlChar * )m_Name.c_str(), NULL );
-
-    XmlUtil::SetDoubleProp( dnode, "Value", m_Val );
-    XmlUtil::SetStringProp( dnode, "ID", m_ID );
-
-//jrg think about adding more data - limits???
+    if ( !detailed )
+    {
+        xmlNodePtr dnode = xmlNewChild( node, NULL, ( const xmlChar * )m_Name.c_str(), NULL );
+        XmlUtil::SetDoubleProp( dnode, "Value", m_Val );
+        XmlUtil::SetStringProp( dnode, "ID", m_ID );
+    }
+    else
+    {
+        xmlNodePtr dnode = xmlNewChild( node, NULL, BAD_CAST "UserParm", NULL );
+        XmlUtil::SetDoubleProp( dnode, "Value", m_Val );
+        XmlUtil::SetStringProp( dnode, "ID", m_ID );
+        XmlUtil::SetStringProp( dnode, "Name", m_Name );
+        XmlUtil::SetStringProp( dnode, "GroupName", m_GroupName );
+        XmlUtil::SetIntProp( dnode, "GroupDisplaySuffix", m_GroupDisplaySuffix );
+        XmlUtil::SetStringProp( dnode, "Descript", m_Descript );
+        XmlUtil::SetIntProp( dnode, "Type", m_Type );
+        XmlUtil::SetDoubleProp( dnode, "UpperLimit", m_UpperLimit );
+        XmlUtil::SetDoubleProp( dnode, "LowerLimit", m_LowerLimit );
+    }
 }
 
 //==== Decode Data To XML Data Structure ====//
-void Parm::DecodeXml( xmlNodePtr & node )
+void Parm::DecodeXml( xmlNodePtr & node, bool detailed )
 {
     xmlNodePtr n;
 
     double val = m_Val;
     string id = m_ID;
 
-    n = XmlUtil::GetNode( node, m_Name.c_str(), 0 );
+    if ( detailed )
+    {
+         n = node;
+    }
+    else
+    {
+         n = XmlUtil::GetNode( node, m_Name.c_str(), 0 );
+    }
+
     if ( n )
     {
         val = XmlUtil::FindDoubleProp( n, "Value", m_Val );
@@ -287,11 +308,20 @@ void Parm::DecodeXml( xmlNodePtr & node )
         {
             ChangeID( newID );
         }
+
+        if ( detailed )
+        {
+            m_Name = XmlUtil::FindStringProp( n, "Name", m_Name );
+            m_GroupName = XmlUtil::FindStringProp( n, "GroupName", m_GroupName );
+            m_GroupDisplaySuffix = XmlUtil::FindIntProp( n, "Name", m_GroupDisplaySuffix );
+            m_Descript = XmlUtil::FindStringProp( n, "Descript", m_Descript );
+            m_Type = XmlUtil::FindIntProp( n, "Type", m_Type );
+            m_UpperLimit = XmlUtil::FindDoubleProp( n, "UpperLimit", m_UpperLimit );
+            m_LowerLimit = XmlUtil::FindDoubleProp( n, "LowerLimit", m_LowerLimit );
+        }
     }
 
     Set( val );
-
-//jrg think about adding more data - limits???
 }
 
 ParmContainer* Parm::GetLinkContainer()
