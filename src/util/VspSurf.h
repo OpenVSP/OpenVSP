@@ -153,9 +153,6 @@ public:
     void ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface_with_knots *> &surfs );
 
 protected:
-    int ClosestPatchEnd( const vector<double> & patch_endings, double end_val ) const;
-
-protected:
 
     bool m_FlipNormal;
     int m_SurfType;

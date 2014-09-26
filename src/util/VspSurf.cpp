@@ -866,14 +866,6 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_
     }
 }
 
-int VspSurf::ClosestPatchEnd( const vector<double> & patch_endings, double end_val ) const
-{
-    // patch_endings should be a sorted vector
-    int ind = ClosestElement( patch_endings, end_val );
-
-    return ind * 3;
-}
-
 void VspSurf::ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface_with_knots *> &surfs )
 {
     // Make copy for local changes.
