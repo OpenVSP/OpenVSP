@@ -871,6 +871,12 @@ void VspSurf::ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface
     // Make copy for local changes.
     piecewise_surface_type s( m_Surface );
 
+    if ( tocubic )
+    {
+        s.to_cubic_u( tol );
+        s.to_cubic_v( tol );
+    }
+
     vector < piecewise_surface_type > surfvec;
     if ( splitsurf )
     {
