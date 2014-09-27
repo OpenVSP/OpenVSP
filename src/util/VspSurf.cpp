@@ -872,165 +872,173 @@ void VspSurf::ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface
     // Make copy for local changes.
     piecewise_surface_type s( m_Surface );
 
-    if( m_FlipNormal )
+    vector < piecewise_surface_type > surfvec;
+    surfvec.push_back( s );
+
+    for ( int isurf = 0; isurf < surfvec.size(); isurf++ )
     {
-        s.reverse_v();
-    }
+        s = surfvec[isurf];
 
-    piecewise_surface_type::index_type ip, jp, nupatch, nvpatch;
-    piecewise_surface_type::index_type minu, maxu, minv, maxv;
-
-    nupatch = s.number_u_patches();
-    nvpatch = s.number_v_patches();
-
-    s.degree_u( minu, maxu );
-    s.degree_v( minv, maxv );
-
-    SdaiB_spline_surface_with_knots *surf = ( SdaiB_spline_surface_with_knots* ) step->registry->ObjCreate( "B_SPLINE_SURFACE_WITH_KNOTS" );
-    step->instance_list->Append( ( SDAI_Application_instance * ) surf, completeSE );
-    surf->u_degree_( maxu );
-    surf->v_degree_( maxv );
-    surf->name_( "''" );
-
-    if( s.closed_u() )
-    {
-        surf->u_closed_( SDAI_LOGICAL( LTrue ) );
-    }
-    else
-    {
-        surf->u_closed_( SDAI_LOGICAL( LFalse ) );
-    }
-
-    if( s.closed_v() )
-    {
-        surf->v_closed_( SDAI_LOGICAL( LTrue ) );
-    }
-    else
-    {
-        surf->v_closed_( SDAI_LOGICAL( LFalse ) );
-    }
-
-    surf->self_intersect_( SDAI_LOGICAL( LFalse ) );
-    surf->surface_form_( B_spline_surface_form__unspecified );
-
-    int nupts = nupatch * maxu + 1;
-    int nvpts = nvpatch * maxv + 1;
-
-    vector< vector< int > > ptindxs;
-    ptindxs.resize( nupts );
-    for( int i = 0; i < nupts; ++i )
-    {
-        ptindxs[i].resize( nvpts );
-    }
-
-    vector< vec3d > allPntVec;
-
-    for( ip = 0; ip < nupatch; ++ip )
-    {
-        for( jp = 0; jp < nvpatch; ++jp )
+        if( m_FlipNormal )
         {
-            surface_patch_type::index_type icp, jcp;
-
-            surface_patch_type *patch = s.get_patch( ip, jp );
-
-            patch->promote_u_to( maxu );
-            patch->promote_v_to( maxv );
-
-            for( icp = 0; icp <= maxu; ++icp )
-                for( jcp = 0; jcp <= maxv; ++jcp )
-                {
-                    surface_patch_type::point_type p = patch->get_control_point( icp, jcp );
-                    ptindxs[ ip * maxu + icp ][ jp * maxv + jcp ] = allPntVec.size();
-                    allPntVec.push_back( vec3d( p[0], p[1], p[2] ) );
-                }
+            s.reverse_v();
         }
-    }
 
-    PntNodeCloud pnCloud;
-    vector < SdaiCartesian_point* > usedPts;
+        piecewise_surface_type::index_type ip, jp, nupatch, nvpatch;
+        piecewise_surface_type::index_type minu, maxu, minv, maxv;
 
-    if ( mergepts )
-    {
-        //==== Build Map ====//
-        pnCloud.AddPntNodes( allPntVec );
+        nupatch = s.number_u_patches();
+        nvpatch = s.number_v_patches();
 
-        //==== Use NanoFlann to Find Close Points and Group ====//
-        IndexPntNodes( pnCloud, 1e-6 );
+        s.degree_u( minu, maxu );
+        s.degree_v( minv, maxv );
 
-        //==== Load Used Points ====//
-        for ( int i = 0 ; i < ( int )allPntVec.size() ; i++ )
+        SdaiB_spline_surface_with_knots *surf = ( SdaiB_spline_surface_with_knots* ) step->registry->ObjCreate( "B_SPLINE_SURFACE_WITH_KNOTS" );
+        step->instance_list->Append( ( SDAI_Application_instance * ) surf, completeSE );
+        surf->u_degree_( maxu );
+        surf->v_degree_( maxv );
+        surf->name_( "''" );
+
+        if( s.closed_u() )
         {
-            if ( pnCloud.UsedNode( i ) )
+            surf->u_closed_( SDAI_LOGICAL( LTrue ) );
+        }
+        else
+        {
+            surf->u_closed_( SDAI_LOGICAL( LFalse ) );
+        }
+
+        if( s.closed_v() )
+        {
+            surf->v_closed_( SDAI_LOGICAL( LTrue ) );
+        }
+        else
+        {
+            surf->v_closed_( SDAI_LOGICAL( LFalse ) );
+        }
+
+        surf->self_intersect_( SDAI_LOGICAL( LFalse ) );
+        surf->surface_form_( B_spline_surface_form__unspecified );
+
+        int nupts = nupatch * maxu + 1;
+        int nvpts = nvpatch * maxv + 1;
+
+        vector< vector< int > > ptindxs;
+        ptindxs.resize( nupts );
+        for( int i = 0; i < nupts; ++i )
+        {
+            ptindxs[i].resize( nvpts );
+        }
+
+        vector< vec3d > allPntVec;
+
+        for( ip = 0; ip < nupatch; ++ip )
+        {
+            for( jp = 0; jp < nvpatch; ++jp )
+            {
+                surface_patch_type::index_type icp, jcp;
+
+                surface_patch_type *patch = s.get_patch( ip, jp );
+
+                patch->promote_u_to( maxu );
+                patch->promote_v_to( maxv );
+
+                for( icp = 0; icp <= maxu; ++icp )
+                    for( jcp = 0; jcp <= maxv; ++jcp )
+                    {
+                        surface_patch_type::point_type p = patch->get_control_point( icp, jcp );
+                        ptindxs[ ip * maxu + icp ][ jp * maxv + jcp ] = allPntVec.size();
+                        allPntVec.push_back( vec3d( p[0], p[1], p[2] ) );
+                    }
+            }
+        }
+
+        PntNodeCloud pnCloud;
+        vector < SdaiCartesian_point* > usedPts;
+
+        if ( mergepts )
+        {
+            //==== Build Map ====//
+            pnCloud.AddPntNodes( allPntVec );
+
+            //==== Use NanoFlann to Find Close Points and Group ====//
+            IndexPntNodes( pnCloud, 1e-6 );
+
+            //==== Load Used Points ====//
+            for ( int i = 0 ; i < ( int )allPntVec.size() ; i++ )
+            {
+                if ( pnCloud.UsedNode( i ) )
+                {
+                    vec3d p = allPntVec[i];
+                    SdaiCartesian_point *pt = step->MakePoint( p.x(), p.y(), p.z() );
+                    usedPts.push_back( pt );
+                }
+            }
+        }
+        else
+        {
+            for ( int i = 0 ; i < ( int )allPntVec.size() ; i++ )
             {
                 vec3d p = allPntVec[i];
                 SdaiCartesian_point *pt = step->MakePoint( p.x(), p.y(), p.z() );
                 usedPts.push_back( pt );
             }
         }
-    }
-    else
-    {
-        for ( int i = 0 ; i < ( int )allPntVec.size() ; i++ )
+
+        for( int i = 0; i < nupts; ++i )
         {
-            vec3d p = allPntVec[i];
-            SdaiCartesian_point *pt = step->MakePoint( p.x(), p.y(), p.z() );
-            usedPts.push_back( pt );
-        }
-    }
+            std::ostringstream ss;
+            ss << "(";
+            for( int j = nvpts - 1; j >= 0; --j )
+            {
+                int pindx = ptindxs[i][j];
 
-    for( int i = 0; i < nupts; ++i )
-    {
-        std::ostringstream ss;
-        ss << "(";
-        for( int j = nvpts - 1; j >= 0; --j )
+                SdaiCartesian_point *pt;
+
+                if ( mergepts )
+                {
+                    pt = usedPts[ pnCloud.GetNodeUsedIndex( pindx ) ];
+                }
+                else
+                {
+                    pt = usedPts[ pindx ];
+                }
+                ss << "#" << pt->GetFileId();
+
+                if( j > 0 )
+                {
+                    ss << ", ";
+                }
+            }
+            ss << ")";
+            surf->control_points_list_()->AddNode( new GenericAggrNode( ss.str().c_str() ) );
+        }
+
+        surf->u_multiplicities_()->AddNode( new IntNode( maxu + 1 ) );
+        surf->u_knots_()->AddNode( new RealNode( 0.0 ) );
+        for( ip = 1; ip < nupatch; ++ip )
         {
-            int pindx = ptindxs[i][j];
-
-            SdaiCartesian_point *pt;
-
-            if ( mergepts )
-            {
-                pt = usedPts[ pnCloud.GetNodeUsedIndex( pindx ) ];
-            }
-            else
-            {
-                pt = usedPts[ pindx ];
-            }
-            ss << "#" << pt->GetFileId();
-
-            if( j > 0 )
-            {
-                ss << ", ";
-            }
+            surf->u_multiplicities_()->AddNode( new IntNode( maxu ) );
+            surf->u_knots_()->AddNode( new RealNode( ip ) );
         }
-        ss << ")";
-        surf->control_points_list_()->AddNode( new GenericAggrNode( ss.str().c_str() ) );
+        surf->u_multiplicities_()->AddNode( new IntNode( maxu + 1 ) );
+        surf->u_knots_()->AddNode( new RealNode( nupatch ) );
+
+
+        surf->v_multiplicities_()->AddNode( new IntNode( maxv + 1 ) );
+        surf->v_knots_()->AddNode( new RealNode( 0.0 ) );
+        for( jp = 1; jp < nvpatch; ++jp )
+        {
+            surf->v_multiplicities_()->AddNode( new IntNode( maxv ) );
+            surf->v_knots_()->AddNode( new RealNode( jp ) );
+        }
+        surf->v_multiplicities_()->AddNode( new IntNode( maxv + 1 ) );
+        surf->v_knots_()->AddNode( new RealNode( nvpatch ) );
+
+        surf->knot_spec_( Knot_type__piecewise_bezier_knots );
+
+        surfs.push_back( surf );
     }
-
-    surf->u_multiplicities_()->AddNode( new IntNode( maxu + 1 ) );
-    surf->u_knots_()->AddNode( new RealNode( 0.0 ) );
-    for( ip = 1; ip < nupatch; ++ip )
-    {
-        surf->u_multiplicities_()->AddNode( new IntNode( maxu ) );
-        surf->u_knots_()->AddNode( new RealNode( ip ) );
-    }
-    surf->u_multiplicities_()->AddNode( new IntNode( maxu + 1 ) );
-    surf->u_knots_()->AddNode( new RealNode( nupatch ) );
-
-
-    surf->v_multiplicities_()->AddNode( new IntNode( maxv + 1 ) );
-    surf->v_knots_()->AddNode( new RealNode( 0.0 ) );
-    for( jp = 1; jp < nvpatch; ++jp )
-    {
-        surf->v_multiplicities_()->AddNode( new IntNode( maxv ) );
-        surf->v_knots_()->AddNode( new RealNode( jp ) );
-    }
-    surf->v_multiplicities_()->AddNode( new IntNode( maxv + 1 ) );
-    surf->v_knots_()->AddNode( new RealNode( nvpatch ) );
-
-    surf->knot_spec_( Knot_type__piecewise_bezier_knots );
-
-    surfs.push_back( surf );
 }
 
 void VspSurf::ToSTEP_Bez_Patches( STEPutil * step, vector<SdaiBezier_surface *> &surfs )
