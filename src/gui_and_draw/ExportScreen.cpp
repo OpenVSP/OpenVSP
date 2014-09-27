@@ -11,6 +11,7 @@
 #include "Vehicle.h"
 #include "StlHelper.h"
 #include "APIDefines.h"
+#include "STEPOptionsScreen.h"
 using namespace vsp;
 
 #include <assert.h>
@@ -113,7 +114,10 @@ void ExportScreen::ExportFile( string &newfile, int write_set, int type )
     }
     else if ( type == EXPORT_STEP )
     {
-        newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write STEP File?", "*.stp" );
+        if ( (( STEPOptionsScreen* ) m_ScreenMgr->GetScreen( ScreenMgr::VSP_STEP_OPTIONS_SCREEN ))->ShowSTEPOptionsScreen() )
+        {
+            newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write STEP File?", "*.stp" );
+        }
     }
     else if ( type == -1 )
     {
