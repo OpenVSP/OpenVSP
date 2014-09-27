@@ -16,6 +16,7 @@
 
 #include "VspSurf.h"
 #include "StlHelper.h"
+#include "PntNodeMerge.h"
 
 #include "eli/geom/curve/piecewise_creator.hpp"
 #include "eli/geom/surface/piecewise_body_of_revolution_creator.hpp"
@@ -915,12 +916,14 @@ void VspSurf::ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface
     int nupts = nupatch * maxu + 1;
     int nvpts = nvpatch * maxv + 1;
 
-    vector< vector< surface_patch_type::point_type> > pts;
-    pts.resize( nupts );
+    vector< vector< int > > ptindxs;
+    ptindxs.resize( nupts );
     for( int i = 0; i < nupts; ++i )
     {
-        pts[i].resize( nvpts );
+        ptindxs[i].resize( nvpts );
     }
+
+    vector< vec3d > allPntVec;
 
     for( ip = 0; ip < nupatch; ++ip )
     {
@@ -936,11 +939,44 @@ void VspSurf::ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface
             for( icp = 0; icp <= maxu; ++icp )
                 for( jcp = 0; jcp <= maxv; ++jcp )
                 {
-                    pts[ ip * maxu + icp ][ jp * maxv + jcp ] = patch->get_control_point( icp, jcp );
+                    surface_patch_type::point_type p = patch->get_control_point( icp, jcp );
+                    ptindxs[ ip * maxu + icp ][ jp * maxv + jcp ] = allPntVec.size();
+                    allPntVec.push_back( vec3d( p[0], p[1], p[2] ) );
                 }
         }
     }
 
+    PntNodeCloud pnCloud;
+    vector < SdaiCartesian_point* > usedPts;
+
+    if ( mergepts )
+    {
+        //==== Build Map ====//
+        pnCloud.AddPntNodes( allPntVec );
+
+        //==== Use NanoFlann to Find Close Points and Group ====//
+        IndexPntNodes( pnCloud, 1e-6 );
+
+        //==== Load Used Points ====//
+        for ( int i = 0 ; i < ( int )allPntVec.size() ; i++ )
+        {
+            if ( pnCloud.UsedNode( i ) )
+            {
+                vec3d p = allPntVec[i];
+                SdaiCartesian_point *pt = step->MakePoint( p.x(), p.y(), p.z() );
+                usedPts.push_back( pt );
+            }
+        }
+    }
+    else
+    {
+        for ( int i = 0 ; i < ( int )allPntVec.size() ; i++ )
+        {
+            vec3d p = allPntVec[i];
+            SdaiCartesian_point *pt = step->MakePoint( p.x(), p.y(), p.z() );
+            usedPts.push_back( pt );
+        }
+    }
 
     for( int i = 0; i < nupts; ++i )
     {
@@ -948,9 +984,18 @@ void VspSurf::ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface
         ss << "(";
         for( int j = nvpts - 1; j >= 0; --j )
         {
-            surface_patch_type::point_type p = pts[i][j];
+            int pindx = ptindxs[i][j];
 
-            SdaiCartesian_point *pt = step->MakePoint( p.x(), p.y(), p.z() );
+            SdaiCartesian_point *pt;
+
+            if ( mergepts )
+            {
+                pt = usedPts[ pnCloud.GetNodeUsedIndex( pindx ) ];
+            }
+            else
+            {
+                pt = usedPts[ pindx ];
+            }
             ss << "#" << pt->GetFileId();
 
             if( j > 0 )
