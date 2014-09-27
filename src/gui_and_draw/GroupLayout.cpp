@@ -371,7 +371,7 @@ void GroupLayout::AddSlider( FractParmSlider& slid_adj_input,
 
 
 //==== Create & Init Gui Slider Input  ====//
-void GroupLayout::AddSlider( SliderInput& slider_input, const char* label, double range, const char* format )
+void GroupLayout::AddSlider( SliderInput& slider_input, const char* label, double range, const char* format, bool log_slider )
 {
     assert( m_Group && m_Screen );
 
@@ -402,7 +402,7 @@ void GroupLayout::AddSlider( SliderInput& slider_input, const char* label, doubl
     AddY( m_StdHeight );
     NewLineX();
 
-    slider_input.Init( m_Screen, slider, input, range, format, button );
+    slider_input.Init( m_Screen, slider, input, range, format, button, log_slider );
 
     if( strcmp( label, "AUTO_UPDATE" ) == 0 || strcmp( label, "" ) == 0 )
     {
