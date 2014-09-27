@@ -28,7 +28,7 @@ public:
 
     void  WriteFile( string fname );
     SdaiCartesian_point * MakePoint( const double & x, const double & y, const double & z );
-    void AddSurf( VspSurf *s );
+    void AddSurf( VspSurf *s, bool splitsurf, bool mergepts, bool tocubic, double tol );
 
     enum LenEnum { u_MM, u_CM, u_M, u_IN, u_FT, u_YD };
     enum AngEnum { u_RAD, u_DEG };

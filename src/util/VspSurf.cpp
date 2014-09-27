@@ -866,7 +866,7 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_
     }
 }
 
-void VspSurf::ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface_with_knots *> &surfs )
+void VspSurf::ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface_with_knots *> &surfs, bool splitsurf, bool mergepts, bool tocubic, double tol )
 {
     // Make copy for local changes.
     piecewise_surface_type s( m_Surface );

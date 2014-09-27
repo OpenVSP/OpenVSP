@@ -1791,7 +1791,7 @@ void Vehicle::WriteSTEPFile( const string & file_name, int write_set )
 
             for ( int j = 0; j < surf_vec.size(); j++ )
             {
-                step.AddSurf( &surf_vec[j] );
+                step.AddSurf( &surf_vec[j], m_STEPSplitSurfs(), m_STEPMergePoints(), m_STEPToCubic(), m_STEPTolerance() );
             }
         }
     }
