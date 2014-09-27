@@ -66,6 +66,7 @@ ScreenMgr.cpp
 SelectFileScreen.cpp
 SetEditorScreen.cpp
 StackScreen.cpp
+STEPOptionsScreen.cpp
 SubGLWindow.cpp
 SubGLWindow.cpp
 TypeEditorScreen.cpp
@@ -115,6 +116,7 @@ ScreenMgr.h
 SelectFileScreen.h
 SetEditorScreen.h
 StackScreen.h
+STEPOptionsScreen.h
 SubGLWindow.h
 SubGLWindow.h
 TypeEditorScreen.h

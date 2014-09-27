@@ -1,0 +1,57 @@
+//
+// This file is released under the terms of the NASA Open Source Agreement (NOSA)
+// version 1.3 as detailed in the LICENSE file which accompanies this software.
+//
+
+// STEPOptionsScreen.h: interface for controlling STEP export options.
+//
+//////////////////////////////////////////////////////////////////////
+
+#ifndef STEPOPTIONSSCREEN_H
+#define STEPOPTIONSSCREEN_H
+
+#include "ScreenMgr.h"
+#include "ScreenBase.h"
+#include "Vehicle.h"
+#include "GuiDevice.h"
+
+class STEPOptionsScreen : public BasicScreen
+{
+public:
+    STEPOptionsScreen( ScreenMgr* mgr );
+    virtual ~STEPOptionsScreen();
+
+    void Show();
+    bool Update();
+
+    void CallBack( Fl_Widget *w );
+    static void staticScreenCB( Fl_Widget *w, void* data )
+    {
+        ( ( STEPOptionsScreen* )data )->CallBack( w );
+    }
+    virtual void CloseCallBack( Fl_Widget *w );
+    virtual void GuiDeviceCallBack( GuiDevice* device );
+
+    bool ShowSTEPOptionsScreen();
+
+protected:
+
+    GroupLayout m_GenLayout;
+
+    ToggleButton m_SplitSurfsToggle;
+    ToggleButton m_MergePointsToggle;
+    ToggleButton m_ToCubicToggle;
+    SliderInput m_TolSlider;
+
+    bool m_PrevSplit;
+    bool m_PrevMerge;
+    bool m_PrevCubic;
+    double m_PrevTol;
+
+    TriggerButton m_OkButton;
+    TriggerButton m_CancelButton;
+
+    bool m_OkFlag;
+};
+
+#endif  // STEPOPTIONSSCREEN_H
