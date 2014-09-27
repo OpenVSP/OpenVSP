@@ -147,7 +147,7 @@ public:
     void TessWFeatureLine( int iw, int num_u, std::vector< vec3d > & pnts );
     void TessLine( double umin, double umax, double wmin, double wmax, int numpts, std::vector< vec3d > & pnts );
 
-    void SplitSurfs( vector< piecewise_surface_type > &surfvec );
+    void SplitSurfs( const piecewise_surface_type &basesurf, vector< piecewise_surface_type > &surfvec );
 
     void ToSTEP_Bez_Patches( STEPutil * step, vector<SdaiBezier_surface *> &surfs );
     void ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface_with_knots *> &surfs, bool splitsurf, bool mergepts, bool tocubic, double tol );

@@ -795,10 +795,9 @@ bool VspSurf::CapWMax(int CapType)
     return false;
 }
 
-void VspSurf::SplitSurfs( vector< piecewise_surface_type > &surfvec )
+void VspSurf::SplitSurfs( const piecewise_surface_type &basesurf, vector< piecewise_surface_type > &surfvec )
 {
-    surfvec.clear();
-    surfvec.push_back( m_Surface );
+    surfvec.push_back( basesurf );
 
     for ( int i = 0; i < m_UFeature.size(); ++i )
     {
@@ -851,7 +850,7 @@ void VspSurf::SplitSurfs( vector< piecewise_surface_type > &surfvec )
 void VspSurf::FetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_ind, vector< XferSurf > &xfersurfs )
 {
     vector < piecewise_surface_type > surfvec;
-    SplitSurfs( surfvec );
+    SplitSurfs( m_Surface, surfvec );
 
     int num_sections = surfvec.size();
 
