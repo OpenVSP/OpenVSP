@@ -37,7 +37,7 @@ using namespace vsp;
 Vehicle::Vehicle()
 {
     m_STEPSplitSurfs.Init( "SplitSurfs", "STEPSettings", this, false, 0, 1 );
-    m_STEPMergePoints.Init( "MergePoints", "STEPSettings", this, false, 0, 1 );
+    m_STEPMergePoints.Init( "MergePoints", "STEPSettings", this, true, 0, 1 );
     m_STEPToCubic.Init( "ToCubic", "STEPSettings", this, false, 0, 1 );
     m_STEPTolerance.Init( "Tolerance", "STEPSettings", this, 1e-6, 1e-12, 1e12 );
 

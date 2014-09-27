@@ -19,7 +19,7 @@ STEPOptionsScreen::STEPOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 
 
     m_OkFlag = false;
     m_PrevSplit = false;
-    m_PrevMerge = false;
+    m_PrevMerge = true;
     m_PrevCubic = false;;
     m_PrevTol = 1e-6;
 
