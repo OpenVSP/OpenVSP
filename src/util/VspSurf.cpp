@@ -872,7 +872,14 @@ void VspSurf::ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface
     piecewise_surface_type s( m_Surface );
 
     vector < piecewise_surface_type > surfvec;
-    surfvec.push_back( s );
+    if ( splitsurf )
+    {
+        SplitSurfs( s, surfvec );
+    }
+    else
+    {
+        surfvec.push_back( s );
+    }
 
     for ( int isurf = 0; isurf < surfvec.size(); isurf++ )
     {
