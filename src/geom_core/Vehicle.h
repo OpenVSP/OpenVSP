@@ -247,6 +247,11 @@ public:
     Parm m_BbYMin;
     Parm m_BbZMin;
 
+    BoolParm m_STEPSplitSurfs;
+    BoolParm m_STEPMergePoints;
+    BoolParm m_STEPToCubic;
+    Parm m_STEPTolerance;
+
 protected:
 
     vector< Geom* > m_GeomStoreVec;                 // All Geom Ptrs
