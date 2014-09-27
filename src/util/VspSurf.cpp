@@ -871,6 +871,11 @@ void VspSurf::ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface
     // Make copy for local changes.
     piecewise_surface_type s( m_Surface );
 
+    if( !m_FlipNormal )
+    {
+        s.reverse_v();
+    }
+
     if ( tocubic )
     {
         s.to_cubic_u( tol );
@@ -890,11 +895,6 @@ void VspSurf::ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface
     for ( int isurf = 0; isurf < surfvec.size(); isurf++ )
     {
         s = surfvec[isurf];
-
-        if( m_FlipNormal )
-        {
-            s.reverse_v();
-        }
 
         piecewise_surface_type::index_type ip, jp, nupatch, nvpatch;
         piecewise_surface_type::index_type minu, maxu, minv, maxv;
@@ -1001,7 +1001,7 @@ void VspSurf::ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface
         {
             std::ostringstream ss;
             ss << "(";
-            for( int j = nvpts - 1; j >= 0; --j )
+            for( int j = 0; j < nvpts; j++ )
             {
                 int pindx = ptindxs[i][j];
 
@@ -1017,7 +1017,7 @@ void VspSurf::ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface
                 }
                 ss << "#" << pt->GetFileId();
 
-                if( j > 0 )
+                if( j < nvpts - 1 )
                 {
                     ss << ", ";
                 }
