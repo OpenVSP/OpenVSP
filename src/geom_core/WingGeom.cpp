@@ -1383,11 +1383,11 @@ void WingGeom::UpdateTotalProjSpan()
 //==== Update Total Chord ====//
 void WingGeom::UpdateTotalChord()
 {
-    double tc = ComputeTotalChord();
+    double totc = ComputeTotalChord();
 
     double fract = 1.0;
-    if ( tc > 1.0e-08 )
-        fract = m_TotalChord()/tc;
+    if ( totc > 1.0e-08 )
+        fract = m_TotalChord()/totc;
 
     //==== Adjust Sections Chord ====//
     if ( fract > 1.0e-08 )
