@@ -27,7 +27,6 @@ ExportScreen::ExportScreen( ScreenMgr* mgr ) : VspScreen( mgr )
 
     ui->sterolithButton->callback( staticScreenCB, this );
     ui->xsecButton->callback( staticScreenCB, this );
-    ui->rhinoButton->callback( staticScreenCB, this );
     ui->nascartButton->callback( staticScreenCB, this );
     ui->cart3dButton->callback( staticScreenCB, this );
     ui->povrayButton->callback( staticScreenCB, this );
@@ -87,10 +86,6 @@ void ExportScreen::ExportFile( string &newfile, int write_set, int type )
     else if ( type == EXPORT_STL )
     {
         newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write STL File?", "*.stl" );
-    }
-    else if ( type == EXPORT_RHINO3D )
-    {
-        newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write Rhino3D File?", "*.3dm" );
     }
     else if ( type == EXPORT_NASCART )
     {

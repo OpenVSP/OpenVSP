@@ -483,8 +483,6 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "EXPORT_TYPE", "EXPORT_STL", EXPORT_STL );
     assert( r >= 0 );
-    r = se->RegisterEnumValue( "EXPORT_TYPE", "EXPORT_RHINO3D", EXPORT_RHINO3D );
-    assert( r >= 0 );
     r = se->RegisterEnumValue( "EXPORT_TYPE", "EXPORT_AWAVE", EXPORT_AWAVE );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "EXPORT_TYPE", "EXPORT_NASCART", EXPORT_NASCART );
