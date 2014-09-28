@@ -728,22 +728,24 @@ void VspSurf::BuildFeatureLines()
 bool VspSurf::CapUMin(int CapType)
 {
     if (CapType == NO_END_CAP)
+    {
       return false;
-
+      ResetUWSkip();
+    }
     capped_creator_type cc;
     bool rtn_flag;
 
     rtn_flag = cc.set_conditions(m_Surface, 1.0, capped_creator_type::CAP_UMIN);
     if (!rtn_flag)
     {
-      assert(false);
+      ResetUWSkip();
       return false;
     }
 
     rtn_flag = cc.create(m_Surface);
     if (!rtn_flag)
     {
-      assert(false);
+      ResetUWSkip();
       return false;
     }
 
@@ -755,22 +757,24 @@ bool VspSurf::CapUMin(int CapType)
 bool VspSurf::CapUMax(int CapType)
 {
     if (CapType == NO_END_CAP)
+    {
+      ResetUWSkip();
       return false;
-
+    }
     capped_creator_type cc;
     bool rtn_flag;
 
     rtn_flag = cc.set_conditions(m_Surface, 1.0, capped_creator_type::CAP_UMAX);
     if (!rtn_flag)
     {
-      assert(false);
+      ResetUWSkip();
       return false;
     }
 
     rtn_flag = cc.create(m_Surface);
     if (!rtn_flag)
     {
-      assert(false);
+      ResetUWSkip();
       return false;
     }
     ResetUWSkip();
