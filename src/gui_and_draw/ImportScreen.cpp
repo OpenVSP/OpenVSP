@@ -23,7 +23,6 @@ ImportScreen::ImportScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     ui->nascartButton->callback( staticScreenCB, this );
     ui->sterolithButton->callback( staticScreenCB, this );
     ui->xsecButton->callback( staticScreenCB, this );
-    ui->xsecSurfButton->callback( staticScreenCB, this );
     ui->Cart3DTriButton->callback( staticScreenCB, this );
 }
 

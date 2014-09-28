@@ -8,7 +8,7 @@ class ImportFileUI {open
   } {
     Fl_Window UIWindow {
       label {Import File} open
-      xywh {636 79 147 201} type Double color 29 hide resizable
+      xywh {636 79 147 145} type Double color 29 resizable visible
     } {
       Fl_Box {} {
         label Import
@@ -16,19 +16,15 @@ class ImportFileUI {open
       }
       Fl_Button sterolithButton {
         label {STL (.stl)}
-        xywh {5 61 136 25} labelfont 1 labelsize 12 align 64
+        xywh {5 55 136 25} labelfont 1 labelsize 12 align 64
       }
       Fl_Button nascartButton {
         label {NASCART (bodyin.dat)}
-        xywh {5 96 136 25} labelfont 1 labelsize 12 align 64
+        xywh {5 85 136 25} labelfont 1 labelsize 12 align 64
       }
       Fl_Button xsecButton {
         label {XSec to Mesh (.hrm)}
-        xywh {5 131 136 25} labelfont 1 labelsize 12 align 64
-      }
-      Fl_Button xsecSurfButton {
-        label {XSec to Surf (.hrm)}
-        xywh {5 166 136 25} labelfont 1 labelsize 12 align 64
+        xywh {5 115 136 25} labelfont 1 labelsize 12 align 64
       }
       Fl_Button Cart3DTriButton {
         label {Cart3D (.tri)} selected

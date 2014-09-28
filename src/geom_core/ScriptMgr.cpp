@@ -470,8 +470,6 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "IMPORT_TYPE", "IMPORT_CART3D_TRI", IMPORT_CART3D_TRI );
     assert( r >= 0 );
-    r = se->RegisterEnumValue( "IMPORT_TYPE", "IMPORT_XSEC_SURF", IMPORT_XSEC_SURF );
-    assert( r >= 0 );
     r = se->RegisterEnumValue( "IMPORT_TYPE", "IMPORT_XSEC_MESH", IMPORT_XSEC_MESH );
     assert( r >= 0 );
 

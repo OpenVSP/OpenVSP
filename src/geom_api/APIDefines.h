@@ -79,7 +79,6 @@ enum XSEC_SIDES_TYPE {  XSEC_BOTH_SIDES,
 enum IMPORT_TYPE {  IMPORT_STL,
                     IMPORT_NASCART,
                     IMPORT_CART3D_TRI,
-                    IMPORT_XSEC_SURF,
                     IMPORT_XSEC_MESH
                  };
 
