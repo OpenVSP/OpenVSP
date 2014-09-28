@@ -604,6 +604,11 @@ protected:
     bool m_CapUMax;
     bool m_CapWMin;
     bool m_CapWMax;
+
+    vector< bool > m_CapUMinSuccess;
+    vector< bool > m_CapUMaxSuccess;
+    vector< bool > m_CapWMinSuccess;
+    vector< bool > m_CapWMaxSuccess;
 };
 
 //==== GeomXSec  ====//

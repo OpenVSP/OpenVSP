@@ -1159,7 +1159,7 @@ void WingGeom::UpdateSurf()
 void WingGeom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts  )
 {
     vector < int > tessvec;
-    if (m_CapUMinOption()!=VspSurf::NO_END_CAP)
+    if (m_CapUMinOption()!=VspSurf::NO_END_CAP && m_CapUMinSuccess[ m_SurfIndxVec[indx] ] )
     {
         tessvec.push_back( m_CapUMinTess() );
     }
@@ -1169,7 +1169,7 @@ void WingGeom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vecto
         tessvec.push_back( m_TessUVec[i] );
     }
 
-    if (m_CapUMaxOption()!=VspSurf::NO_END_CAP)
+    if (m_CapUMaxOption()!=VspSurf::NO_END_CAP && m_CapUMaxSuccess[ m_SurfIndxVec[indx] ] )
     {
         tessvec.push_back( m_CapUMaxTess() );
     }

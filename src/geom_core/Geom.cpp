@@ -798,14 +798,25 @@ void Geom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< v
 
 void Geom::UpdateEndCaps()
 {
-    // cycle through all vspsurfs, check if wing type then cap using new Code-Eli cap surface creator
-    for ( int i = 0; i < m_MainSurfVec.size(); i++ )
+    int nmain = m_MainSurfVec.size();
+    m_CapUMinSuccess.resize( nmain );
+    m_CapUMaxSuccess.resize( nmain );
+    m_CapWMinSuccess.resize( nmain );
+    m_CapWMaxSuccess.resize( nmain );
+
+	// cycle through all vspsurfs, check if wing type then cap using new Code-Eli cap surface creator
+    for ( int i = 0; i < nmain; i++ )
     {
+        m_CapUMinSuccess[i] = false;
+        m_CapUMaxSuccess[i] = false;
+        m_CapWMinSuccess[i] = false;
+        m_CapWMaxSuccess[i] = false;
+
         // NOTE: These return a bool that is true if it modified the surface to create a cap
-        m_MainSurfVec[i].CapUMin(m_CapUMinOption());
-        m_MainSurfVec[i].CapUMax(m_CapUMaxOption());
-        m_MainSurfVec[i].CapWMin(m_CapWMinOption());
-        m_MainSurfVec[i].CapWMax(m_CapWMaxOption());
+        m_CapUMinSuccess[i] = m_MainSurfVec[i].CapUMin(m_CapUMinOption());
+        m_CapUMaxSuccess[i] = m_MainSurfVec[i].CapUMax(m_CapUMaxOption());
+        m_CapWMinSuccess[i] = m_MainSurfVec[i].CapWMin(m_CapWMinOption());
+        m_CapWMaxSuccess[i] = m_MainSurfVec[i].CapWMax(m_CapWMaxOption());
     }
 }
 
