@@ -591,6 +591,8 @@ void GeomXForm::AcceptScale()
 //==== Constructor ====//
 Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
 {
+    m_UpdateBlock = false;
+
     m_Name = "Geom";
     m_Type.m_Type = GEOM_GEOM_TYPE;
     m_Type.m_Name = m_Name;
@@ -762,6 +764,11 @@ void Geom::CopyFrom( Geom* geom )
 //==== Update ====//
 void Geom::Update()
 {
+    if ( m_UpdateBlock )
+        return;
+
+    m_UpdateBlock = true;
+
     m_LateUpdateFlag = false;
 
     Scale();
@@ -782,6 +789,7 @@ void Geom::Update()
     UpdateDrawObj();
 
     m_UpdatedParmVec.clear();
+    m_UpdateBlock = false;
 }
 
 void Geom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms,

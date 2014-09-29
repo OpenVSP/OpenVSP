@@ -562,6 +562,8 @@ public:
 
 protected:
 
+    bool m_UpdateBlock;
+
     virtual void UpdateSurf() = 0;
     void UpdateEndCaps();
     virtual void UpdateFeatureLines();
