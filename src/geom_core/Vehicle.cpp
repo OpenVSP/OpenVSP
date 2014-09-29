@@ -1015,6 +1015,15 @@ xmlNodePtr Vehicle::EncodeXml( xmlNodePtr & node, int set )
     m_FeaGridDensity.EncodeXml( node );
     m_ClippingMgr.EncodeXml( node );
 
+    xmlNodePtr setnamenode = xmlNewChild( node, NULL, BAD_CAST"SetNames", NULL );
+    if ( setnamenode )
+    {
+        for ( int i = 0; i < m_SetNameVec.size(); i++ )
+        {
+            XmlUtil::AddStringNode( setnamenode, "Set", m_SetNameVec[i] );
+        }
+    }
+
     return vehicle_node;
 }
 
@@ -1067,6 +1076,22 @@ xmlNodePtr Vehicle::DecodeXml( xmlNodePtr & node )
     m_CfdGridDensity.DecodeXml( node );
     m_FeaGridDensity.DecodeXml( node );
     m_ClippingMgr.DecodeXml( node );
+
+    xmlNodePtr setnamenode = XmlUtil::GetNode( node, "SetNames", 0 );
+    if ( setnamenode )
+    {
+        int num = XmlUtil::GetNumNames( setnamenode, "Set" );
+
+        for ( int i = 0; i < num; i++ )
+        {
+            xmlNodePtr namenode = XmlUtil::GetNode( setnamenode, "Set", i );
+            if ( namenode )
+            {
+                string name = XmlUtil::ExtractString( namenode );
+                SetSetName( i, name );
+            }
+        }
+    }
 
     return vehicle_node;
 }
