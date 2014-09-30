@@ -419,10 +419,6 @@ string Vehicle::AddMeshGeom( int set )
                     mesh_geom->m_TMeshVec.push_back( tMeshVec[j] );
                 }
             }
-
-            // No Show All Other Components
-            geom_ptr->SetSetFlag( 1, false ); //remove from shown
-            geom_ptr->SetSetFlag( 2, true ); //add to no show
         }
     }
 
@@ -875,6 +871,26 @@ vector< string > Vehicle::GetGeomSet( int index )
     return geom_id_vec;
 }
 
+void Vehicle::HideAllExcept( string id )
+{
+    vector< string > geom_id_vec;
+
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        Geom* geom_ptr = geom_vec[i];
+
+        if ( geom_ptr )
+        {
+            if ( geom_ptr->GetID() != id )
+            {
+                // No Show All Other Components
+                geom_ptr->SetSetFlag( 1, false ); //remove from shown
+                geom_ptr->SetSetFlag( 2, true ); //add to no show
+            }
+        }
+    }
+}
 
 //==== Get Number of Fixed Geometry Types ====//
 int Vehicle::GetNumFixedGeomTypes()
@@ -1241,7 +1257,9 @@ void Vehicle::WriteSTLFile( const string & file_name, int write_set )
             if ( gPtr )
             {
                 geom_vec.push_back( gPtr );
+                gPtr->Update();
             }
+            HideAllExcept( mesh_id );
         }
     }
 
@@ -1281,7 +1299,9 @@ void Vehicle::WriteTRIFile( const string & file_name, int write_set )
                 MeshGeom* mg = dynamic_cast<MeshGeom*>( geom_ptr );
                 mg->SubTagTris( true );
                 geom_vec.push_back( geom_ptr );
+                geom_ptr->Update();
             }
+            HideAllExcept( mesh_id );
         }
     }
 
@@ -1376,7 +1396,9 @@ void Vehicle::WriteNascartFiles( const string & file_name, int write_set )
                 MeshGeom* mg = dynamic_cast<MeshGeom*>( geom_ptr );
                 mg->SubTagTris( true );
                 geom_vec.push_back( geom_ptr );
+                geom_ptr->Update();
             }
+            HideAllExcept( mesh_id );
         }
     }
 
@@ -1465,7 +1487,9 @@ void Vehicle::WriteGmshFile( const string & file_name, int write_set )
                 MeshGeom* mg = dynamic_cast<MeshGeom*>( geom_ptr );
                 mg->SubTagTris( true );
                 geom_vec.push_back( geom_ptr );
+                geom_ptr->Update();
             }
+            HideAllExcept( mesh_id );
         }
     }
 
@@ -1944,6 +1968,8 @@ string Vehicle::CompGeom( int set, int sliceFlag, int meshFlag, int halfFlag, in
         return id;
     }
 
+    HideAllExcept( id );
+
     MeshGeom* mesh_ptr = dynamic_cast<MeshGeom*> ( FindGeom( id ) );
     if ( mesh_ptr == NULL )
     {
@@ -1998,6 +2024,8 @@ string Vehicle::MassProps( int set, int numSlices )
     {
         return id;
     }
+
+    HideAllExcept( id );
 
     MeshGeom* mesh_ptr = ( MeshGeom* )FindGeom( id );
     if ( mesh_ptr == NULL )
@@ -2073,6 +2101,8 @@ string Vehicle::AwaveSlice( int set, int numSlices, int numRots, double AngleCon
         return id;
     }
 
+    HideAllExcept( id );
+
     MeshGeom* mesh_ptr = ( MeshGeom* )FindGeom( id );
     if ( mesh_ptr == NULL )
     {
@@ -2122,6 +2152,8 @@ string Vehicle::PSlice( int set, int numSlices, vec3d axis, bool autoBoundsFlag,
     {
         return id;
     }
+
+    HideAllExcept( id );
 
     MeshGeom* mesh_ptr = ( MeshGeom* )FindGeom( id );
     if ( mesh_ptr == NULL )

@@ -121,6 +121,8 @@ public:
     void SetShowSet( int index );
     vector< string > GetGeomSet( int index );
 
+    void HideAllExcept( string id );
+
     //==== Geom Type Data =====//
     vector< string > GetValidTypeGeoms();
     vector< GeomType > GetEditableGeomTypes();
