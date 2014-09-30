@@ -18,6 +18,7 @@
 #include "XSecSurf.h"
 #include "CfdMeshMgr.h"
 #include "Util.h"
+#include "DesignVarMgr.h"
 
 #ifdef VSP_USE_FLTK
 #include "GuiInterface.h"
@@ -228,6 +229,89 @@ void ExportFile( const string & file_name, int write_set_index, int file_type )
     GetVehicle()->ExportFile( file_name, write_set_index, file_type );
 
     ErrorMgr.NoError();
+}
+
+//===================================================================//
+//======================== Design Files =============================//
+//===================================================================//
+void ReadApplyDESFile( const string & file_name )
+{
+    DesignVarMgr.ReadDesVarsDES( file_name );
+    ErrorMgr.NoError();
+}
+
+void WriteDESFile( const string & file_name )
+{
+    DesignVarMgr.WriteDesVarsDES( file_name );
+    ErrorMgr.NoError();
+}
+
+void ReadApplyXDDMFile( const string & file_name )
+{
+    DesignVarMgr.ReadDesVarsXDDM( file_name );
+    ErrorMgr.NoError();
+}
+
+void WriteXDDMFile( const string & file_name )
+{
+    DesignVarMgr.WriteDesVarsXDDM( file_name );
+    ErrorMgr.NoError();
+}
+
+int GetNumDesignVars()
+{
+    int num = DesignVarMgr.GetNumVars();
+
+    ErrorMgr.NoError();
+    return num;
+}
+
+void AddDesignVar( const string & parm_id, int type )
+{
+    DesignVarMgr.AddVar( parm_id, type );
+    ErrorMgr.NoError();
+}
+
+void DeleteAllDesignVars()
+{
+    DesignVarMgr.DelAllVars();
+    ErrorMgr.NoError();
+}
+
+string GetDesignVar( int index )
+{
+    string parm_id;
+
+    DesignVar* dv = DesignVarMgr.GetVar( index );
+
+    if ( !dv )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetDesignVar::Design variable out of range." );
+        return parm_id;
+    }
+
+    parm_id = dv->m_ParmID;
+
+    ErrorMgr.NoError();
+    return parm_id;
+}
+
+int GetDesignVarType( int index )
+{
+    int dvtype = -1;
+
+    DesignVar* dv = DesignVarMgr.GetVar( index );
+
+    if ( !dv )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetDesignVarType::Design variable out of range." );
+        return dvtype;
+    }
+
+    dvtype = dv->m_XDDM_Type;
+
+    ErrorMgr.NoError();
+    return dvtype;
 }
 
 //===================================================================//
