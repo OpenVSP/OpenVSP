@@ -110,9 +110,9 @@ void AdvLink::SetVar( const string & var_name, double val )
         if ( m_OutputVars[i].m_VarName == var_name )
         {
             Parm* parm_ptr = ParmMgr.FindParm(  m_OutputVars[i].m_ParmID );
-            if ( parm_ptr && val > -1.0e15 )
+            if ( parm_ptr && val > -1.0e15 && parm_ptr->GetLinkUpdateFlag() == false )
             {
-                parm_ptr->Set( val );
+                parm_ptr->SetFromLink( val );
                 break;
             }
         }
@@ -213,12 +213,9 @@ bool AdvLink::BuildScript()
 
 bool AdvLink::UpdateLink( const string & pid )
 {
-    //==== Check Parm And Update Flag ====//
+    //==== Check Parm  ====//
     Parm* parm_ptr = ParmMgr.FindParm( pid );
     if ( !parm_ptr )
-        return false;
-
-    if ( parm_ptr->GetLinkUpdateFlag() == true )
         return false;
  
     //==== Look For Var ====//
@@ -231,6 +228,17 @@ bool AdvLink::UpdateLink( const string & pid )
 
     if ( !run_link )
         return false;
+
+    ////==== Check If Output Parms Are Flagged ====//
+    //for ( int i = 0 ; i < (int)m_OutputVars.size() ; i++ )
+    //{
+    //    string opid =  m_OutputVars[i].m_ParmID;
+    //    Parm* op = ParmMgr.FindParm( opid );
+    //    if ( !op )
+    //        return false;
+    //    if ( op->GetLinkUpdateFlag() )
+    //        return false;
+    //}
 
     AdvLinkMgr.SetActiveLink( this );
 

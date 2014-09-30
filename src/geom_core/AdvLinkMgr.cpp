@@ -195,9 +195,25 @@ double AdvLinkMgrSingleton::GetVar( const string & var_name )
     return m_ActiveLink->GetVar( var_name );
 }
 
+bool AdvLinkMgrSingleton::IsInputParm( const string& pid )
+{
+    for ( int i = 0 ; i < (int)m_LinkVec.size() ; i++ )
+    {
+        vector< VarDef > def_vec = m_LinkVec[i]->GetInputVars();
+        for ( int j = 0 ; j < (int)def_vec.size() ; j++ )
+        {
+            Parm* parm_ptr = ParmMgr.FindParm( def_vec[j].m_ParmID );
+            if ( parm_ptr )
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
 
 //==== Parm Changed ====//
-void AdvLinkMgrSingleton::ParmChanged( const string& pid, bool start_flag  )
+void AdvLinkMgrSingleton::UpdateLinks( const string& pid  )
 {
     //==== Find Parm Ptr ===//
     Parm* parm_ptr = ParmMgr.FindParm( pid );
@@ -207,38 +223,11 @@ void AdvLinkMgrSingleton::ParmChanged( const string& pid, bool start_flag  )
     }
 
     //==== Check All Links And Update If Needed ====//
-    bool updated_flag = false;
     for ( int i = 0 ; i < (int)m_LinkVec.size() ; i++ )
     {
-        if ( m_LinkVec[i]->UpdateLink( pid ) )
-            updated_flag = true;
+        m_LinkVec[i]->UpdateLink( pid );
     }
-
-    if ( !updated_flag )
-        return;
-
-    //==== Reset Updated Flags ====//
-    if ( start_flag )
-    {
-        //for ( int i = 0 ; i < ( int )m_UpdatedParmVec.size() ; i++ )
-        //{
-        //    Parm* parm_ptr = ParmMgr.FindParm( m_UpdatedParmVec[i] );
-        //    if ( parm_ptr )
-        //    {
-        //        parm_ptr->SetLinkUpdateFlag( false );
-        //    }
-        //}
-        //m_UpdatedParmVec.clear();
-
-        Vehicle* veh = VehicleMgr.GetVehicle();
-        if ( veh )
-        {
-            veh->ParmChanged( parm_ptr, Parm::SET );
-        }
-    }
-
 }
-
 
 xmlNodePtr AdvLinkMgrSingleton::EncodeXml( xmlNodePtr & node )
 {

@@ -369,14 +369,12 @@ void LinkMgrSingleton::ParmChanged( const string& pid, bool start_flag  )
     //==== Find Parm Ptr ===//
     Parm* parm_ptr = ParmMgr.FindParm( pid );
     if ( !parm_ptr )
-    {
         return;
-    }
 
     //==== Check For Advanced Links ====//
-    AdvLinkMgr.ParmChanged( pid, start_flag );
+    bool adv_link_flag = AdvLinkMgr.IsInputParm( pid );
 
-    //==== Look for Links and Modify Linked Parms ====//
+    //==== Look for Reg Links  ====//
     vector < Link* > parm_link_vec;
     for ( int i = 0 ; i < ( int )m_LinkVec.size() ; i++ )
     {
@@ -386,12 +384,18 @@ void LinkMgrSingleton::ParmChanged( const string& pid, bool start_flag  )
         }
     }
 
-    //==== No Links ====//
-    if ( parm_link_vec.size() == 0 )
+    //==== Check Links ====//
+    bool reg_link_flag = false;
+    if ( parm_link_vec.size() )
     {
-        return;
+        reg_link_flag = true;
     }
 
+    //==== Abort if No Links ====//
+    if ( !adv_link_flag && !reg_link_flag )
+        return;
+
+    //==== Set Link Update Flag ====//
     parm_ptr->SetLinkUpdateFlag( true );
     m_UpdatedParmVec.push_back( parm_ptr->GetID() );
 
@@ -430,7 +434,14 @@ void LinkMgrSingleton::ParmChanged( const string& pid, bool start_flag  )
         }
     }
 
-    if ( start_flag )                                       // Clean Up
+    //==== Update Adv Link ===//
+    if ( adv_link_flag )
+    {
+        AdvLinkMgr.UpdateLinks( pid );
+    }
+
+    //==== Clean Up ====/
+    if ( start_flag )      
     {
         for ( int i = 0 ; i < ( int )m_UpdatedParmVec.size() ; i++ )
         {
@@ -447,10 +458,9 @@ void LinkMgrSingleton::ParmChanged( const string& pid, bool start_flag  )
         {
             veh->ParmChanged( parm_ptr, Parm::SET );
         }
-
     }
-
 }
+
 
 
 void LinkMgrSingleton::SetParm( bool flagA, string parm_id )

@@ -47,7 +47,8 @@ public:
     void SetVar( const string & var_name, double val );
     double GetVar( const string & var_name );
 
-    void ParmChanged( const string& pid, bool start_flag );
+    bool IsInputParm( const string& pid );
+    void UpdateLinks( const string& pid );
     void SetActiveLink( AdvLink* adv_link )                             { m_ActiveLink = adv_link; }
     AdvLink* GetActiveLink()                                            { return m_ActiveLink; }
 

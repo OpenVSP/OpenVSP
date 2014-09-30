@@ -1074,7 +1074,7 @@ void MeshGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
     // Calculate constants for color sequence.
     const int ncgrp = 6; // Number of basic colors
-    const int ncstep = ceil((double)num_uniq_tags/(double)ncgrp);
+    const int ncstep = (int)ceil((double)num_uniq_tags/(double)ncgrp);
     const double nctodeg = 360.0/(ncgrp*ncstep);
 
     Geom::LoadDrawObjs( draw_obj_vec );
