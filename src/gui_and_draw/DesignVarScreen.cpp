@@ -45,8 +45,8 @@ DesignVarScreen::DesignVarScreen( ScreenMgr* mgr ) : TabScreen( mgr, 300, 463, "
     m_XDDMGroup.AddButton( m_XDDMConstButton.GetFlButton() );
 
     vector< int > dv_val_map;
-    dv_val_map.push_back( DesignVar::XDDM_VAR );
-    dv_val_map.push_back( DesignVar::XDDM_CONST );
+    dv_val_map.push_back( vsp::XDDM_VAR );
+    dv_val_map.push_back( vsp::XDDM_CONST );
     m_XDDMGroup.SetValMapVec( dv_val_map );
 
     m_PickLayout.AddYGap();
@@ -237,7 +237,7 @@ void DesignVarScreen::CallBack( Fl_Widget* w )
         else
         {
             m_ParmPicker.SetParmChoice( string() );
-            DesignVarMgr.m_WorkingXDDMType = DesignVar::XDDM_VAR;
+            DesignVarMgr.m_WorkingXDDMType = vsp::XDDM_VAR;
         }
     }
 

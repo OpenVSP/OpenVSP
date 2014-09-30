@@ -19,7 +19,7 @@
 DesignVar:: DesignVar()
 {
     m_ParmID = "";
-    m_XDDM_Type = DesignVar::XDDM_VAR;
+    m_XDDM_Type = vsp::XDDM_VAR;
 }
 
 //==== Name Compare ====//
@@ -71,14 +71,14 @@ bool DesignVarNameCompare( const DesignVar *dvA, const DesignVar *dvB )
 //==== Constructor ====//
 DesignVarMgrSingleton::DesignVarMgrSingleton()
 {
-    m_WorkingXDDMType.Init( "Working_XDDM_Type", "Design", VehicleMgr.GetVehicle(), DesignVar::XDDM_VAR, DesignVar::XDDM_VAR, DesignVar::XDDM_CONST, false );
+    m_WorkingXDDMType.Init( "Working_XDDM_Type", "Design", VehicleMgr.GetVehicle(), vsp::XDDM_VAR, vsp::XDDM_VAR, vsp::XDDM_CONST, false );
     Init();
 }
 
 void DesignVarMgrSingleton::Init()
 {
     m_WorkingParmID = "";
-    m_WorkingXDDMType = DesignVar::XDDM_VAR;
+    m_WorkingXDDMType = vsp::XDDM_VAR;
 }
 
 void DesignVarMgrSingleton::Wype()
@@ -261,7 +261,7 @@ void DesignVarMgrSingleton::ResetWorkingVar()
     m_CurrVarIndex = -1;
 
     m_WorkingParmID = string();
-    m_WorkingXDDMType = DesignVar::XDDM_VAR;
+    m_WorkingXDDMType = vsp::XDDM_VAR;
 }
 
 void DesignVarMgrSingleton::SetWorkingParmID( string parm_id )
@@ -330,7 +330,7 @@ void DesignVarMgrSingleton::ReadDesVarsDES( const string &newfile )
             {
                 // Set with delayed updates.
                 p->Set( val );
-                AddVar( id, DesignVar::XDDM_VAR );
+                AddVar( id, vsp::XDDM_VAR );
             }
         }
         // Trigger update.
@@ -356,7 +356,7 @@ void DesignVarMgrSingleton::WriteDesVarsXDDM( const string &newfile )
 
         xmlNodePtr var_node;
 
-        if( m_VarVec[i]->m_XDDM_Type == DesignVar::XDDM_VAR )
+        if( m_VarVec[i]->m_XDDM_Type == vsp::XDDM_VAR )
         {
             var_node = xmlNewChild( model_node, NULL, ( const xmlChar * )"Variable", NULL );
         }
@@ -446,11 +446,11 @@ void DesignVarMgrSingleton::ReadDesVarsXDDM( const string &newfile )
 
                 if( !xmlStrcmp( var_node->name, varstr ) )
                 {
-                    AddVar( varid, DesignVar::XDDM_VAR );
+                    AddVar( varid, vsp::XDDM_VAR );
                 }
                 else
                 {
-                    AddVar( varid, DesignVar::XDDM_CONST );
+                    AddVar( varid, vsp::XDDM_CONST );
                 }
             }
         }

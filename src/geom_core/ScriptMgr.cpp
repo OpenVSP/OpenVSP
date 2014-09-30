@@ -588,13 +588,20 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "CFD_CONTROL_TYPE", "CFD_WAKE_ANGLE", CFD_WAKE_ANGLE );
     assert( r >= 0 );
 
-     r = se->RegisterEnum( "CFD_MESH_SOURCE_TYPE" );
+    r = se->RegisterEnum( "CFD_MESH_SOURCE_TYPE" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "CFD_MESH_SOURCE_TYPE", "POINT_SOURCE", POINT_SOURCE );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "CFD_MESH_SOURCE_TYPE", "LINE_SOURCE", LINE_SOURCE );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "CFD_MESH_SOURCE_TYPE", "BOX_SOURCE", BOX_SOURCE );
+    assert( r >= 0 );
+
+    r = se->RegisterEnum( "XDDM_QUANTITY_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "XDDM_QUANTITY_TYPE", "XDDM_VAR", XDDM_VAR );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "XDDM_QUANTITY_TYPE", "XDDM_CONST", XDDM_CONST );
     assert( r >= 0 );
 
     r = se->RegisterEnum( "ERROR_CODE" );

@@ -11,7 +11,7 @@
 #define DESIGNVAR__INCLUDED_
 
 #include "Parm.h"
-
+#include "APIDefines.h"
 #include <vector>
 #include <string>
 using std::string;
@@ -20,9 +20,6 @@ using std::vector;
 class DesignVar
 {
 public:
-
-    enum { XDDM_VAR, XDDM_CONST };
-
     DesignVar();
 
     string m_ParmID;
