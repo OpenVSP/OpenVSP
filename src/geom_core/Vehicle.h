@@ -122,6 +122,7 @@ public:
     vector< string > GetGeomSet( int index );
 
     void HideAllExcept( string id );
+    void HideAll();
 
     //==== Geom Type Data =====//
     vector< string > GetValidTypeGeoms();

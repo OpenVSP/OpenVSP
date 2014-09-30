@@ -892,6 +892,24 @@ void Vehicle::HideAllExcept( string id )
     }
 }
 
+void Vehicle::HideAll()
+{
+    vector< string > geom_id_vec;
+
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        Geom* geom_ptr = geom_vec[i];
+
+        if ( geom_ptr )
+        {
+            // No Show All Other Components
+            geom_ptr->SetSetFlag( 1, false ); //remove from shown
+            geom_ptr->SetSetFlag( 2, true ); //add to no show
+        }
+    }
+}
+
 //==== Get Number of Fixed Geometry Types ====//
 int Vehicle::GetNumFixedGeomTypes()
 {
