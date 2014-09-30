@@ -602,15 +602,7 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
 
         // Hide all geoms.
         Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-        vector<string> geomIds = veh->GetGeomVec();
-        for( int i = 0; i < (int)geomIds.size(); i++ )
-        {
-            GeomBase* gPtr = veh->FindGeom( geomIds[i] );
-            if ( gPtr )
-            {
-                gPtr->m_GuiDraw.SetNoShowFlag( true );
-            }
-        }
+        veh->HideAll();
     }
 //  else if ( m_FarXScaleSlider->GuiChanged( w ) )
 //  {
