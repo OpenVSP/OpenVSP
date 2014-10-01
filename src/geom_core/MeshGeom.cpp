@@ -3237,7 +3237,8 @@ void MeshGeom::degenGeomMassSliceX( vector< DegenGeom > &degenGeom )
         for ( j = 0; j < m_TMeshVec.size(); j++ )
         {
             // If its pointer id matches the current degenGeom
-            if ( degenGeom[i].getParentGeom()->GetID().compare( m_TMeshVec[j]->m_PtrID ) )
+            string geomid = degenGeom[i].getParentGeom()->GetID();
+            if ( geomid.compare( 0, geomid.size(), m_TMeshVec[j]->m_PtrID, 0, geomid.size() ) == 0 )
             {
                 degenPoint.Isolid.push_back( compSolidI[j] );
                 degenPoint.Ishell.push_back( compShellI[j] );
