@@ -3208,7 +3208,7 @@ void MeshGeom::degenGeomMassSliceX( vector< DegenGeom > &degenGeom )
 
     bool matchFlag;
     // For each degenGeom
-    for ( i = 0, j = 0; i < ( int )degenGeom.size(); i++, j++ )
+    for ( i = 0; i < ( int )degenGeom.size(); i++ )
     {
         matchFlag = false;
         DegenPoint degenPoint = degenGeom[i].getDegenPoint();
@@ -3217,13 +3217,7 @@ void MeshGeom::degenGeomMassSliceX( vector< DegenGeom > &degenGeom )
         for ( j = 0; j < m_TMeshVec.size(); j++ )
         {
             // If its pointer id matches the current degenGeom
-            bool thismatch = false;
             if ( degenGeom[i].getParentGeom()->GetID().compare( m_TMeshVec[j]->m_PtrID ) )
-            {
-                thismatch = true;
-            }
-
-            if( thismatch )
             {
                 degenPoint.Isolid.push_back( compSolidI[j] );
                 degenPoint.Ishell.push_back( compShellI[j] );
