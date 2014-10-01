@@ -1823,7 +1823,7 @@ void MeshGeom::degenGeomIntersectTrim( vector< DegenGeom > &degenGeom )
         for ( j = 0; j < m_TMeshVec.size(); j++ )
         {
             // If its pointer id matches the current degenGeom
-            if ( degenGeom[i].getParentGeom()->GetID().compare( m_TMeshVec[j]->m_PtrID ) )
+            if ( degenGeom[i].getParentGeom()->GetID() == m_TMeshVec[j]->m_PtrID )
             {
                 degenPoint.area.push_back( m_TMeshVec[j]->m_TheoArea );
                 degenPoint.areaWet.push_back( m_TMeshVec[j]->m_WetArea );
