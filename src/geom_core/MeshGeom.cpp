@@ -1813,6 +1813,7 @@ void MeshGeom::degenGeomIntersectTrim( vector< DegenGeom > &degenGeom )
     }
 
     bool matchFlag;
+    vector< bool > matchVec( m_TMeshVec.size(), false );
     // For each degenGeom
     for ( i = 0; i < ( int )degenGeom.size(); i++ )
     {
@@ -1822,15 +1823,18 @@ void MeshGeom::degenGeomIntersectTrim( vector< DegenGeom > &degenGeom )
         // Loop through tmesh vector
         for ( j = 0; j < m_TMeshVec.size(); j++ )
         {
-            // If its pointer id matches the current degenGeom
-            if ( degenGeom[i].getParentGeom()->GetID() == m_TMeshVec[j]->m_PtrID )
+            if ( matchVec[j] == false )
             {
-                degenPoint.area.push_back( m_TMeshVec[j]->m_TheoArea );
-                degenPoint.areaWet.push_back( m_TMeshVec[j]->m_WetArea );
-                degenPoint.vol.push_back( m_TMeshVec[j]->m_TheoVol );
-                degenPoint.volWet.push_back( m_TMeshVec[j]->m_WetVol );
-
-                matchFlag = true;
+                // If its pointer id matches the current degenGeom
+                if ( degenGeom[i].getParentGeom()->GetID() == m_TMeshVec[j]->m_PtrID )
+                {
+                    degenPoint.area.push_back( m_TMeshVec[j]->m_TheoArea );
+                    degenPoint.areaWet.push_back( m_TMeshVec[j]->m_WetArea );
+                    degenPoint.vol.push_back( m_TMeshVec[j]->m_TheoVol );
+                    degenPoint.volWet.push_back( m_TMeshVec[j]->m_WetVol );
+                    matchVec[j] = true;
+                    matchFlag = true;
+                }
             }
         }
         if ( !matchFlag )
@@ -3227,6 +3231,7 @@ void MeshGeom::degenGeomMassSliceX( vector< DegenGeom > &degenGeom )
     }
 
     bool matchFlag;
+    vector< bool > matchVec( m_TMeshVec.size(), false );
     // For each degenGeom
     for ( i = 0; i < ( int )degenGeom.size(); i++ )
     {
@@ -3236,15 +3241,20 @@ void MeshGeom::degenGeomMassSliceX( vector< DegenGeom > &degenGeom )
         // Loop through tmesh vector
         for ( j = 0; j < m_TMeshVec.size(); j++ )
         {
-            // If its pointer id matches the current degenGeom
-            string geomid = degenGeom[i].getParentGeom()->GetID();
-            if ( geomid.compare( 0, geomid.size(), m_TMeshVec[j]->m_PtrID, 0, geomid.size() ) == 0 )
+            if ( matchVec[j] == false )
             {
-                degenPoint.Isolid.push_back( compSolidI[j] );
-                degenPoint.Ishell.push_back( compShellI[j] );
-                degenPoint.xcgSolid.push_back( compSolidCg[j] );
-                degenPoint.xcgShell.push_back( compShellCg[j] );
-                matchFlag = true;
+                // If its pointer id matches the current degenGeom
+                string geomid = degenGeom[i].getParentGeom()->GetID();
+                if ( geomid.compare( 0, geomid.size(), m_TMeshVec[j]->m_PtrID, 0, geomid.size() ) == 0 )
+                {
+                    degenPoint.Isolid.push_back( compSolidI[j] );
+                    degenPoint.Ishell.push_back( compShellI[j] );
+                    degenPoint.xcgSolid.push_back( compSolidCg[j] );
+                    degenPoint.xcgShell.push_back( compShellCg[j] );
+                    matchVec[j] = true;
+
+                    matchFlag = true;
+                }
             }
         }
         if ( !matchFlag )
