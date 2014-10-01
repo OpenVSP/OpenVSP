@@ -1812,14 +1812,34 @@ void MeshGeom::degenGeomIntersectTrim( vector< DegenGeom > &degenGeom )
         }
     }
 
+    bool matchFlag;
+    // For each degenGeom
     for ( i = 0; i < ( int )degenGeom.size(); i++ )
     {
+        matchFlag = false;
         DegenPoint degenPoint = degenGeom[i].getDegenPoint();
 
-        degenPoint.area.push_back( m_TMeshVec[i]->m_TheoArea );
-        degenPoint.areaWet.push_back( m_TMeshVec[i]->m_WetArea );
-        degenPoint.vol.push_back( m_TMeshVec[i]->m_TheoVol );
-        degenPoint.volWet.push_back( m_TMeshVec[i]->m_WetVol );
+        // Loop through tmesh vector
+        for ( j = 0; j < m_TMeshVec.size(); j++ )
+        {
+            // If its pointer id matches the current degenGeom
+            if ( degenGeom[i].getParentGeom()->GetID().compare( m_TMeshVec[j]->m_PtrID ) )
+            {
+                degenPoint.area.push_back( m_TMeshVec[j]->m_TheoArea );
+                degenPoint.areaWet.push_back( m_TMeshVec[j]->m_WetArea );
+                degenPoint.vol.push_back( m_TMeshVec[j]->m_TheoVol );
+                degenPoint.volWet.push_back( m_TMeshVec[j]->m_WetVol );
+
+                matchFlag = true;
+            }
+        }
+        if ( !matchFlag )
+        {
+            degenPoint.area.push_back( NAN );
+            degenPoint.areaWet.push_back( NAN );
+            degenPoint.vol.push_back( NAN );
+            degenPoint.volWet.push_back( NAN );
+        }
 
         degenGeom[i].setDegenPoint( degenPoint );
     }
