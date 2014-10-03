@@ -61,6 +61,7 @@ public:
     void BuildCompNameMap();
     void BuildSingleTagMap();
     int GetTag( const std::vector<int> & tags );
+    std::vector< int > GetAllTags();
     int GetNumTags() { return m_SingleTagMap.size(); }
     std::map< std::vector<int>, int > GetSingleTagMap() { return m_SingleTagMap; }
 
@@ -72,6 +73,7 @@ public:
 
     // Get Comma Delimited list of names for a set of tags
     std::string GetTagNames( const std::vector<int> & tags );
+    std::string GetTagNames( int indx );
 
     std::set< std::vector<int> > m_TagCombos;
     std::map< int, std::string > m_TagNames;

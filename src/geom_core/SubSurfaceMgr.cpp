@@ -303,6 +303,11 @@ string SubSurfaceMgrSingleton::GetTagNames( const vector<int> & tags )
     return comp_list;
 }
 
+string SubSurfaceMgrSingleton::GetTagNames( int indx )
+{
+    return GetTagNames( m_TagKeys[indx] );
+}
+
 int SubSurfaceMgrSingleton::GetTag( const vector<int> & tags )
 {
     map< vector<int>, int >::iterator mi;
@@ -316,4 +321,16 @@ int SubSurfaceMgrSingleton::GetTag( const vector<int> & tags )
     {
         return -1;
     }
+}
+
+std::vector< int > SubSurfaceMgrSingleton::GetAllTags()
+{
+    std::vector< int > ret;
+
+    for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
+    {
+        int tag = GetTag( m_TagKeys[i] );
+        ret.push_back(tag);
+    }
+    return ret;
 }
