@@ -1398,7 +1398,14 @@ void CfdMeshMgrSingleton::ExportFiles()
 {
     if ( GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_STL_FILE_NAME )->Get() )
     {
-        WriteSTL( GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_STL_FILE_NAME ) );
+        if ( !m_Vehicle->m_STLMultiSolid() )
+        {
+            WriteSTL( GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_STL_FILE_NAME ) );
+        }
+        else
+        {
+            WriteTaggedSTL( GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_STL_FILE_NAME ) );
+        }
     }
     if ( GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_POLY_FILE_NAME )->Get() )
     {
