@@ -2334,7 +2334,14 @@ void Vehicle::ExportFile( const string & file_name, int write_set, int file_type
     }
     else if ( file_type == EXPORT_STL )
     {
-        WriteSTLFile( file_name, write_set );
+        if ( !m_STLMultiSolid() )
+        {
+            WriteSTLFile( file_name, write_set );
+        }
+        else
+        {
+            WriteTaggedMSSTLFile( file_name, write_set );
+        }
     }
     else if ( file_type == EXPORT_CART3D )
     {
