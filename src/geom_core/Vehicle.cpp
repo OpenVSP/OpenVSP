@@ -1298,6 +1298,71 @@ void Vehicle::WriteSTLFile( const string & file_name, int write_set )
     fclose( fid );
 }
 
+//==== Write STL File ====//
+void Vehicle::WriteTaggedMSSTLFile( const string & file_name, int write_set )
+{
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    if ( !geom_vec[0] )
+    {
+        return;
+    }
+
+    if ( !ExistMesh( write_set ) )
+    {
+        string mesh_id = AddMeshGeom( write_set );
+        if ( mesh_id.compare( "NONE" ) != 0 )
+        {
+            Geom* gPtr = FindGeom( mesh_id );
+            if ( gPtr )
+            {
+                geom_vec.push_back( gPtr );
+                gPtr->Update();
+            }
+            HideAllExcept( mesh_id );
+        }
+    }
+
+    //==== Count Number of Points & Tris ====//
+    int num_pnts = 0;
+    int num_tris = 0;
+    int num_parts = 0;
+    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        if ( geom_vec[i]->GetSetFlag( write_set ) && geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
+        {
+            MeshGeom* mg = ( MeshGeom* )geom_vec[i];            // Cast
+            mg->BuildIndexedMesh( num_parts );
+            num_parts += mg->GetNumIndexedParts();
+            num_pnts += mg->GetNumIndexedPnts();
+            num_tris += mg->GetNumIndexedTris();
+        }
+    }
+
+    FILE* file_id = fopen( file_name.c_str(), "w" );
+    if ( file_id )
+    {
+        std::vector< int > tags = SubSurfaceMgr.GetAllTags();
+        for ( int i = 0; i < ( int ) tags.size(); i++ )
+        {
+            std::string tagname = SubSurfaceMgr.GetTagNames( i );
+            fprintf( file_id, "solid %s\n", tagname.c_str() );
+
+            for ( int j = 0 ; j < ( int )geom_vec.size() ; j++ )
+            {
+                if ( geom_vec[j]->GetSetFlag( write_set ) && geom_vec[j]->GetType().m_Type == MESH_GEOM_TYPE )
+                {
+                    MeshGeom* mg = ( MeshGeom* )geom_vec[j];            // Cast
+
+                    mg->WriteStl( file_id, tags[i] );
+                }
+            }
+            fprintf( file_id, "endsolid %s\n", tagname.c_str() );
+        }
+
+        fclose( file_id );
+    }
+}
+
 //==== Write Tri File ====//
 void Vehicle::WriteTRIFile( const string & file_name, int write_set )
 {

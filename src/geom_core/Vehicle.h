@@ -160,6 +160,7 @@ public:
     bool WriteXMLFile( const string & file_name, int set );
     void WriteXSecFile( const string & file_name, int write_set );
     void WriteSTLFile( const string & file_name, int write_set );
+    void WriteTaggedMSSTLFile( const string & file_name, int write_set );
     void WriteTRIFile( const string & file_name, int write_set );
     void WriteNascartFiles( const string & file_name, int write_set );
     void WriteGmshFile( const string & file_name, int write_set );

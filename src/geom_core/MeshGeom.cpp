@@ -485,6 +485,38 @@ void MeshGeom::WriteStl( FILE* file_id )
     }
 }
 
+void MeshGeom::WriteStl( FILE* file_id, int tag )
+{
+    //==== Write Out Tris ====//
+    for ( int i = 0 ; i < ( int )m_IndexedTriVec.size() ; i++ )
+    {
+        TTri* ttri = m_IndexedTriVec[i];
+
+        int t = SubSurfaceMgr.GetTag( ttri->m_Tags );
+
+        if ( t == tag )
+        {
+            vec3d p0 = ttri->m_N0->m_Pnt;
+            vec3d p1 = ttri->m_N1->m_Pnt;
+            vec3d p2 = ttri->m_N2->m_Pnt;
+            vec3d v10 = p1 - p0;
+            vec3d v20 = p2 - p1;
+            vec3d norm = cross( v10, v20 );
+            norm.normalize();
+
+            fprintf( file_id, " facet normal  %2.10le %2.10le %2.10le\n",  norm.x(), norm.y(), norm.z() );
+            fprintf( file_id, "   outer loop\n" );
+
+            fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p0.x(), p0.y(), p0.z() );
+            fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p1.x(), p1.y(), p1.z() );
+            fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p2.x(), p2.y(), p2.z() );
+
+            fprintf( file_id, "   endloop\n" );
+            fprintf( file_id, " endfacet\n" );
+        }
+    }
+}
+
 int MeshGeom::ReadNascart( const char* file_name )
 {
     int i;
