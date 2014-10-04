@@ -110,6 +110,7 @@ CfdMeshScreen::CfdMeshScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     m_ObjToggleButton.Init( this, ui->objToggle );
     m_PolyToggleButton.Init( this, ui->polyToggle );
     m_StlToggleButton.Init( this, ui->stlToggle );
+    m_StlMultiSolidToggleButton.Init( this, ui->stlMultiSolidToggle );
     m_TriToggleButton.Init( this, ui->triToggle );
     m_GmshToggleButton.Init( this, ui->gmshToggle );
     m_SrfToggleButton.Init( this, ui->srfToggle );
@@ -424,6 +425,7 @@ bool CfdMeshScreen::Update()
     m_ObjToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_OBJ_FILE_NAME )->GetID() );
     m_PolyToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_POLY_FILE_NAME )->GetID() );
     m_StlToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_STL_FILE_NAME )->GetID() );
+    m_StlMultiSolidToggleButton.Update( m_Vehicle->m_STLMultiSolid.GetID() );
     m_TriToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_TRI_FILE_NAME )->GetID() );
     m_GmshToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_GMSH_FILE_NAME )->GetID() );
     m_SrfToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_SRF_FILE_NAME )->GetID() );

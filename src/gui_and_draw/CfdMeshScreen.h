@@ -67,6 +67,7 @@ private:
     ToggleButton m_ObjToggleButton;
     ToggleButton m_PolyToggleButton;
     ToggleButton m_StlToggleButton;
+    ToggleButton m_StlMultiSolidToggleButton;
     ToggleButton m_TriToggleButton;
     ToggleButton m_GmshToggleButton;
     ToggleButton m_SrfToggleButton;
