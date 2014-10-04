@@ -242,6 +242,7 @@ public:
     virtual void CleanMergeSurfs();
 
     virtual void WriteSTL( const string &filename );
+    virtual void WriteTaggedSTL( const string &filename );
     virtual void WriteTetGen( const string &filename );
     virtual void WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const string &key_fn, const string &obj_fn, const string &tri_fn, const string &gmsh_fn );
     virtual void WriteSurfsIntCurves( const string &filename  );

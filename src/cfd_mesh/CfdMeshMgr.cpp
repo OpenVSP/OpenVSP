@@ -1444,6 +1444,95 @@ void CfdMeshMgrSingleton::ExportFiles()
     }
 }
 
+void CfdMeshMgrSingleton::WriteTaggedSTL( const string &filename )
+{
+    //==== Find All Points and Tri Counts ====//
+    vector< vec3d* > allPntVec;
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    {
+        vector< vec3d >& sPntVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
+        for ( int v = 0 ; v < ( int )sPntVec.size() ; v++ )
+        {
+            allPntVec.push_back( &sPntVec[v] );
+        }
+    }
+
+    //==== Build Map ====//
+    map< int, vector< int > > indMap;
+    vector< int > pntShift;
+    BuildIndMap( allPntVec, indMap, pntShift );
+
+    //==== Assemble Normal Tris ====//
+    vector< SimpTri > allTriVec;
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    {
+        vector < SimpTri >& sTriVec = m_SurfVec[i]->GetMesh()->GetSimpTriVec();
+        vector< vec3d >& sPntVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
+        for ( int t = 0 ; t <  ( int )sTriVec.size() ; t++ )
+        {
+            int i0 = FindPntIndex( sPntVec[sTriVec[t].ind0], allPntVec, indMap );
+            int i1 = FindPntIndex( sPntVec[sTriVec[t].ind1], allPntVec, indMap );
+            int i2 = FindPntIndex( sPntVec[sTriVec[t].ind2], allPntVec, indMap );
+            SimpTri stri;
+            stri.ind0 = pntShift[i0];
+            stri.ind1 = pntShift[i1];
+            stri.ind2 = pntShift[i2];
+            stri.m_Tags = sTriVec[t].m_Tags;
+            allTriVec.push_back( stri );
+        }
+    }
+    //==== Assemble All Used Points ====//
+    vector< vec3d* > allUsedPntVec;
+    for ( int i = 0 ; i < ( int )allPntVec.size() ; i++ )
+    {
+        if ( pntShift[i] >= 0 )
+        {
+            allUsedPntVec.push_back( allPntVec[i] );
+        }
+    }
+
+    FILE* file_id = fopen( filename.c_str(), "w" );
+    if ( file_id )
+    {
+        std::vector< int > tags = SubSurfaceMgr.GetAllTags();
+        for ( int i = 0; i < ( int ) tags.size(); i++ )
+        {
+            std::string tagname = SubSurfaceMgr.GetTagNames( i );
+            fprintf( file_id, "solid %s\n", tagname.c_str() );
+
+            for ( int j = 0; j < ( int ) allTriVec.size(); j++ )
+            {
+                SimpTri* stri = &allTriVec[j];
+                int t = SubSurfaceMgr.GetTag( stri->m_Tags );
+
+                if ( t == tags[i] )
+                {
+                    vec3d* p0 = allUsedPntVec[stri->ind0];
+                    vec3d* p1 = allUsedPntVec[stri->ind1];
+                    vec3d* p2 = allUsedPntVec[stri->ind2];
+                    vec3d v10 = *p1 - *p0;
+                    vec3d v20 = *p2 - *p1;
+                    vec3d norm = cross( v10, v20 );
+                    norm.normalize();
+
+                    fprintf( file_id, " facet normal  %2.10le %2.10le %2.10le\n",  norm.x(), norm.y(), norm.z() );
+                    fprintf( file_id, "   outer loop\n" );
+
+                    fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p0->x(), p0->y(), p0->z() );
+                    fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p1->x(), p1->y(), p1->z() );
+                    fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p2->x(), p2->y(), p2->z() );
+
+                    fprintf( file_id, "   endloop\n" );
+                    fprintf( file_id, " endfacet\n" );
+                }
+            }
+            fprintf( file_id, "endsolid %s\n", tagname.c_str() );
+        }
+
+        fclose( file_id );
+    }
+}
+
 void CfdMeshMgrSingleton::WriteSTL( const string &filename )
 {
     FILE* file_id = fopen( filename.c_str(), "w" );
