@@ -346,6 +346,26 @@ int MeshGeom::ReadSTL( const char* file_name )
                 tMesh->m_NVec.push_back( tPtr->m_N1 );
                 tMesh->m_NVec.push_back( tPtr->m_N2 );
 
+                fpos_t pos;
+                fgetpos( file_id, &pos );
+
+                if ( EOF == fscanf( file_id, "%s %*s\n", str ) )
+                {
+                    break;
+                }
+
+                if ( strcmp( str, "endsolid" ) == 0 )
+                {
+                    fgets( str, 255, file_id );
+                    if ( feof( file_id ) )
+                    {
+                        break;
+                    }
+                }
+                else
+                {
+                    fsetpos( file_id, &pos );
+                }
             }
         }
         else
