@@ -255,6 +255,8 @@ public:
     BoolParm m_STEPToCubic;
     Parm m_STEPTolerance;
 
+    BoolParm m_STLMultiSolid;
+
 protected:
 
     vector< Geom* > m_GeomStoreVec;                 // All Geom Ptrs

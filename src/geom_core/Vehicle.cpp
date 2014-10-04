@@ -41,6 +41,8 @@ Vehicle::Vehicle()
     m_STEPToCubic.Init( "ToCubic", "STEPSettings", this, false, 0, 1 );
     m_STEPTolerance.Init( "Tolerance", "STEPSettings", this, 1e-6, 1e-12, 1e12 );
 
+    m_STLMultiSolid.Init( "MultiSolid", "STLSettings", this, false, 0, 1 );
+
     m_BbXLen.Init( "X_Len", "BBox", this, 0, 0, 1e12 );
     m_BbXLen.SetDescript( "X length of vehicle bounding box" );
     m_BbYLen.Init( "Y_Len", "BBox", this, 0, 0, 1e12 );
