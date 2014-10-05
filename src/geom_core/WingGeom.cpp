@@ -761,7 +761,7 @@ WingGeom::WingGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_TotalProjSpan.Init( "TotalProjectedSpan", m_Name, this, 1.0, 0.0001, 1000000.0 );
     m_TotalProjSpan.SetDescript( "Total Projected Planform Span" );
 
-    m_TotalChord.Init( "m_TotalChord", m_Name, this, 1.0, 0.0001, 1000000.0 );
+    m_TotalChord.Init( "TotalChord", m_Name, this, 1.0, 0.0001, 1000000.0 );
     m_TotalChord.SetDescript( "Total Planform Chord" );
 
     m_TotalArea.Init( "TotalArea", m_Name, this, 1.0, 0.0001, 1000000.0 );
