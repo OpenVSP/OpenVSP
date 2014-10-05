@@ -1071,7 +1071,7 @@ void CfdMeshMgrSingleton::BuildDomain()
         {
             for ( int i = 0 ; i < (int)m_SurfVec.size() ; i++ )
             {
-                if ( m_SurfVec[i]->GetGeomID() == m_FarGeomID )
+                if ( m_SurfVec[i]->GetGeomID() == GetCfdSettingsPtr()->GetFarGeomID() )
                 {
                     m_SurfVec[i]->SetFarFlag( true );
                     m_SurfVec[i]->SetTransFlag( true );
@@ -1646,7 +1646,7 @@ void CfdMeshMgrSingleton::WriteTetGen( const string &filename )
             {
                 if ( GetCfdSettingsPtr()->GetFarMeshFlag() && GetCfdSettingsPtr()->GetFarCompFlag() )
                 {
-                    if ( geom->GetID() != GetFarGeomID() )
+                    if ( geom->GetID() != GetCfdSettingsPtr()->GetFarGeomID() )
                     {
                         geom->GetInteriorPnts( interiorPntVec );
                     }

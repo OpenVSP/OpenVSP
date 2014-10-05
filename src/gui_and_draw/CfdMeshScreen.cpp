@@ -257,7 +257,7 @@ bool CfdMeshScreen::Update()
 
     Geom* wakeGeom = m_Vehicle->FindGeom( wakeGeomID );
 
-    string farGeomID = CfdMeshMgr.GetFarGeomID();
+    string farGeomID = CfdMeshMgr.GetCfdSettingsPtr()->GetFarGeomID();
     m_CfdMeshUI->farCompChoice->value( m_CompIDMap[ farGeomID ] );
 
     BaseSource* source = CfdMeshMgr.GetCurrSource();
@@ -710,7 +710,7 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
     {
         //==== Load List of Parts for Comp ====//
         int id = m_CfdMeshUI->farCompChoice->value();
-        CfdMeshMgr.SetFarGeomID( m_GeomVec[ id ] );
+        CfdMeshMgr.GetCfdSettingsPtr()->SetFarGeomID( m_GeomVec[ id ] );
     }
     else if ( w == m_CfdMeshUI->sourceBrowser )
     {
