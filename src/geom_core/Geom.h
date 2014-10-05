@@ -504,11 +504,11 @@ public:
     //==== Wake for CFD Mesh ====//
     virtual void SetWakeActiveFlag( bool flag )
     {
-        m_WakeActiveFlag = flag;
+        m_WakeActiveFlag.Set( flag );
     }
     virtual bool GetWakeActiveFlag()
     {
-        return m_WakeActiveFlag;
+        return m_WakeActiveFlag();
     }
     virtual void AppendWakeEdges( vector< vector< vec3d > > & edges );
     virtual bool HasWingTypeSurfs();
@@ -560,6 +560,9 @@ public:
     IntParm m_CapWMaxOption;
     LimIntParm m_CapWMaxTess;
 
+    //==== Wake for CFD Mesh ====//
+    BoolParm m_WakeActiveFlag;
+
 protected:
 
     bool m_UpdateBlock;
@@ -597,9 +600,6 @@ protected:
     int currSourceID;
     vector< BaseSource* > m_MainSourceVec;
     vector< BaseSimpleSource* > m_SimpSourceVec;
-
-    //==== Wake for CFD Mesh ====//
-    bool m_WakeActiveFlag;
 
     //==== Manual override of caps ====//
     bool m_CapUMin;

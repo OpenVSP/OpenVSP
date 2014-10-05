@@ -608,6 +608,8 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_TessW.SetDescript( "Number of tessellated curves in the W direction" );
     m_TessW.SetMultShift( 4, 1 );
 
+    m_WakeActiveFlag.Init( "Wake", "Shape", this, false, 0, 1 );
+
     m_BbXLen.Init( "X_Len", "BBox", this, 0, 0, 1e12 );
     m_BbXLen.SetDescript( "X length of geom bounding box" );
     m_BbYLen.Init( "Y_Len", "BBox", this, 0, 0, 1e12 );
@@ -672,8 +674,6 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_MainSurfVec.push_back( VspSurf() );
 
     currSourceID = 0;
-
-    m_WakeActiveFlag = false;
 
 }
 //==== Destructor ====//
@@ -1957,7 +1957,7 @@ bool Geom::HasWingTypeSurfs()
 
 void Geom::AppendWakeEdges( vector< vector< vec3d > > & edges )
 {
-    if( m_WakeActiveFlag )
+    if( m_WakeActiveFlag() )
     {
         for( int i = 0; i < m_SurfVec.size(); i++ )
         {
