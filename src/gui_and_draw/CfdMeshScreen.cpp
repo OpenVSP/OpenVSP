@@ -233,19 +233,19 @@ bool CfdMeshScreen::Update()
         }
     }
 
-    string currGeomID = CfdMeshMgr.GetCurrSourceGeomID();
+    string currSourceGeomID = CfdMeshMgr.GetCurrSourceGeomID();
 
-    if( currGeomID.length() == 0 && m_GeomVec.size() > 0 )
+    if( currSourceGeomID.length() == 0 && m_GeomVec.size() > 0 )
     {
         // Handle case default case.
-        currGeomID = m_GeomVec[0];
-        CfdMeshMgr.SetCurrSourceGeomID( currGeomID );
+        currSourceGeomID = m_GeomVec[0];
+        CfdMeshMgr.SetCurrSourceGeomID( currSourceGeomID );
     }
 
-    Geom* currGeom = m_Vehicle->FindGeom( currGeomID );
+    Geom* currGeom = m_Vehicle->FindGeom( currSourceGeomID );
 
-    m_CfdMeshUI->compChoice->value( m_CompIDMap[ currGeomID ] );
-    m_CfdMeshUI->wakeCompChoice->value( m_CompIDMap[ currGeomID ] );
+    m_CfdMeshUI->compChoice->value( m_CompIDMap[ currSourceGeomID ] );
+    m_CfdMeshUI->wakeCompChoice->value( m_CompIDMap[ currSourceGeomID ] );
 
     string farGeomID = CfdMeshMgr.GetFarGeomID();
     m_CfdMeshUI->farCompChoice->value( m_CompIDMap[ farGeomID ] );
