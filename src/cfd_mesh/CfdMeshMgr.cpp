@@ -366,9 +366,6 @@ CfdMeshMgrSingleton::CfdMeshMgrSingleton() : ParmContainer()
 
     m_CurrMainSurfIndx = 0;
 
-
-    m_BatchFlag = false;
-
     // Array allocated to (m_NumComps + 6) later, so if this isn't reset by then, the
     // allocation will fail with a negative argument.
     m_NumComps = -10;

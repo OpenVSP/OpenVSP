@@ -314,15 +314,6 @@ public:
 
     virtual void HighlightNextChain();
 
-    virtual void SetBatchFlag( bool f )
-    {
-        m_BatchFlag = f;
-    }
-    virtual bool GetBatchFlag()
-    {
-        return m_BatchFlag;
-    }
-
     virtual void AddDelPuw( Puw* puw )
     {
         m_DelPuwVec.push_back( puw );
@@ -378,7 +369,6 @@ protected:
     string m_CurrGeomID;
     int m_CurrMainSurfIndx;
     string m_FarGeomID;
-    bool m_BatchFlag;
 
     vector< Surf* > m_SurfVec;
 
