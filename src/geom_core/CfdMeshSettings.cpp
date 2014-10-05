@@ -99,6 +99,8 @@ xmlNodePtr CfdMeshSettings::EncodeXml( xmlNodePtr & node )
 
     ParmContainer::EncodeXml( cfdsetnode );
 
+    XmlUtil::AddStringNode( cfdsetnode, "FarFieldGeomID", m_FarGeomID );
+
     return cfdsetnode;
 }
 
@@ -108,6 +110,7 @@ xmlNodePtr CfdMeshSettings::DecodeXml( xmlNodePtr & node )
     if ( cfdsetnode )
     {
         ParmContainer::DecodeXml( cfdsetnode );
+        m_FarGeomID   = XmlUtil::FindString( cfdsetnode, "FarFieldGeomID", m_FarGeomID );
     }
 
     return cfdsetnode;
