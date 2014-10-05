@@ -215,7 +215,10 @@ bool CfdMeshScreen::Update()
     m_CfdMeshUI->wakeCompChoice->clear();
     m_CfdMeshUI->farCompChoice->clear();
     m_CompIDMap.clear();
+    m_WingCompIDMap.clear();
+    m_WingGeomVec.clear();
 
+    int iwing = 0;
     for ( i = 0 ; i < ( int )m_GeomVec.size() ; i++ )
     {
         char str[256];
@@ -227,6 +230,9 @@ bool CfdMeshScreen::Update()
             if( g->HasWingTypeSurfs() )
             {
                 m_CfdMeshUI->wakeCompChoice->add( str );
+                m_WingCompIDMap[ m_GeomVec[i] ] = iwing;
+                m_WingGeomVec.push_back( m_GeomVec[i] );
+                iwing ++;
             }
             m_CfdMeshUI->farCompChoice->add( str );
             m_CompIDMap[ m_GeomVec[i] ] = i;
@@ -245,7 +251,11 @@ bool CfdMeshScreen::Update()
     Geom* currGeom = m_Vehicle->FindGeom( currSourceGeomID );
 
     m_CfdMeshUI->compChoice->value( m_CompIDMap[ currSourceGeomID ] );
-    m_CfdMeshUI->wakeCompChoice->value( m_CompIDMap[ currSourceGeomID ] );
+
+    string wakeGeomID = CfdMeshMgr.GetWakeGeomID();
+    m_CfdMeshUI->wakeCompChoice->value( m_WingCompIDMap[ wakeGeomID ] );
+
+    Geom* wakeGeom = m_Vehicle->FindGeom( wakeGeomID );
 
     string farGeomID = CfdMeshMgr.GetFarGeomID();
     m_CfdMeshUI->farCompChoice->value( m_CompIDMap[ farGeomID ] );
@@ -432,9 +442,9 @@ bool CfdMeshScreen::Update()
     m_TkeyToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_TKEY_FILE_NAME)->GetID() );
 
     //==== Wake Flag ====//
-    if( currGeom )
+    if( wakeGeom )
     {
-        if ( currGeom->GetWakeActiveFlag() )
+        if ( wakeGeom->GetWakeActiveFlag() )
         {
             m_CfdMeshUI->addWakeButton->value( 1 );
         }
@@ -694,7 +704,7 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
     {
         //==== Load List of Parts for Comp ====//
         int id = m_CfdMeshUI->wakeCompChoice->value();
-        CfdMeshMgr.SetCurrSourceGeomID( m_GeomVec[ id ] );
+        CfdMeshMgr.SetWakeGeomID( m_WingGeomVec[ id ] );
     }
     else if ( w == m_CfdMeshUI->farCompChoice )
     {
@@ -833,8 +843,8 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
         bool flag = !!( m_CfdMeshUI->addWakeButton->value() );
 
         vector<string> geomVec = m_Vehicle->GetGeomVec();
-        string currGeomID = CfdMeshMgr.GetCurrSourceGeomID();
-        Geom* g = m_Vehicle->FindGeom( currGeomID );
+        string wakeGeomID = CfdMeshMgr.GetWakeGeomID();
+        Geom* g = m_Vehicle->FindGeom( wakeGeomID );
         if ( g )
         {
             g->SetWakeActiveFlag( flag );

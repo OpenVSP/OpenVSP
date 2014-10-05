@@ -211,6 +211,14 @@ public:
     {
         m_FarGeomID = gid;
     }
+    virtual string GetWakeGeomID()
+    {
+        return m_WakeGeomID;
+    }
+    virtual void SetWakeGeomID( string gid )
+    {
+        m_WakeGeomID = gid;
+    }
     virtual int GetCurrMainSurfIndx()
     {
         return m_CurrMainSurfIndx;
@@ -369,6 +377,7 @@ protected:
     string m_CurrSourceGeomID;
     int m_CurrMainSurfIndx;
     string m_FarGeomID;
+    string m_WakeGeomID;
 
     vector< Surf* > m_SurfVec;
 
