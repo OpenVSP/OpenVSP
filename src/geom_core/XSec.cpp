@@ -931,8 +931,7 @@ rib_data_type SkinXSec::GetRib( bool first, bool last )
     vector< double > strengths( 5, 0.0 );
     vector< double > curves( 5, 0.0 );
 
-    double scaleL =  GetLScale();
-    double scaleR =  GetRScale();
+    double scale =  GetScale();
 
     // Use 'wrong' side of first cross section to set right side.
     if ( first && ( m_TopLAngleSet() || m_TopLCurveSet() ) )
@@ -943,16 +942,16 @@ rib_data_type SkinXSec::GetRib( bool first, bool last )
         angles[3] = m_TopLAngle()*PI/180.0;
         angles[4] = angles[0];
 
-        strengths[0] = m_RightLStrength() * scaleR;
-        strengths[1] = m_BottomLStrength() * scaleR;
-        strengths[2] = m_LeftLStrength() * scaleR;
-        strengths[3] = m_TopLStrength() * scaleR;
+        strengths[0] = m_RightLStrength() * scale;
+        strengths[1] = m_BottomLStrength() * scale;
+        strengths[2] = m_LeftLStrength() * scale;
+        strengths[3] = m_TopLStrength() * scale;
         strengths[4] = strengths[0];
 
-        curves[0] = m_RightLCurve() * scaleR;
-        curves[1] = m_BottomLCurve() * scaleR;
-        curves[2] = m_LeftLCurve() * scaleR;
-        curves[3] = m_TopLCurve() * scaleR;
+        curves[0] = m_RightLCurve() * scale;
+        curves[1] = m_BottomLCurve() * scale;
+        curves[2] = m_LeftLCurve() * scale;
+        curves[3] = m_TopLCurve() * scale;
         curves[4] = curves[0];
 
         GetTanNormCrv( angles, strengths, curves, tangentcrv, normcrv );
@@ -971,16 +970,16 @@ rib_data_type SkinXSec::GetRib( bool first, bool last )
         angles[3] = m_TopLAngle()*PI/180.0;
         angles[4] = angles[0];
 
-        strengths[0] = m_RightLStrength() * scaleL;
-        strengths[1] = m_BottomLStrength() * scaleL;
-        strengths[2] = m_LeftLStrength() * scaleL;
-        strengths[3] = m_TopLStrength() * scaleL;
+        strengths[0] = m_RightLStrength() * scale;
+        strengths[1] = m_BottomLStrength() * scale;
+        strengths[2] = m_LeftLStrength() * scale;
+        strengths[3] = m_TopLStrength() * scale;
         strengths[4] = strengths[0];
 
-        curves[0] = m_RightLCurve() * scaleL;
-        curves[1] = m_BottomLCurve() * scaleL;
-        curves[2] = m_LeftLCurve() * scaleL;
-        curves[3] = m_TopLCurve() * scaleL;
+        curves[0] = m_RightLCurve() * scale;
+        curves[1] = m_BottomLCurve() * scale;
+        curves[2] = m_LeftLCurve() * scale;
+        curves[3] = m_TopLCurve() * scale;
         curves[4] = curves[0];
 
         GetTanNormCrv( angles, strengths, curves, tangentcrv, normcrv );
@@ -999,16 +998,16 @@ rib_data_type SkinXSec::GetRib( bool first, bool last )
         angles[3] = m_TopRAngle()*PI/180.0;
         angles[4] = angles[0];
 
-        strengths[0] = m_RightRStrength() * scaleR;
-        strengths[1] = m_BottomRStrength() * scaleR;
-        strengths[2] = m_LeftRStrength() * scaleR;
-        strengths[3] = m_TopRStrength() * scaleR;
+        strengths[0] = m_RightRStrength() * scale;
+        strengths[1] = m_BottomRStrength() * scale;
+        strengths[2] = m_LeftRStrength() * scale;
+        strengths[3] = m_TopRStrength() * scale;
         strengths[4] = strengths[0];
 
-        curves[0] = m_RightRCurve() * scaleR;
-        curves[1] = m_BottomRCurve() * scaleR;
-        curves[2] = m_LeftRCurve() * scaleR;
-        curves[3] = m_TopRCurve() * scaleR;
+        curves[0] = m_RightRCurve() * scale;
+        curves[1] = m_BottomRCurve() * scale;
+        curves[2] = m_LeftRCurve() * scale;
+        curves[3] = m_TopRCurve() * scale;
         curves[4] = curves[0];
 
         GetTanNormCrv( angles, strengths, curves, tangentcrv, normcrv );
@@ -1102,16 +1101,15 @@ void SkinXSec::SetUnsetParms( double t, int irib, const VspSurf &surf,
         thetaR, strengthR, curvatureR,
         surf );
 
-    double scaleL =  GetLScale();
-    double scaleR =  GetRScale();
+    double scale =  GetScale();
 
     if( !LAngleSet() ) LAngle = thetaL*180.0/PI;
-    if( !LStrengthSet() ) LStrength = strengthL/scaleL;
-    if( !LCurveSet() ) LCurve = curvatureL/scaleL;
+    if( !LStrengthSet() ) LStrength = strengthL/scale;
+    if( !LCurveSet() ) LCurve = curvatureL/scale;
 
     if( !RAngleSet() ) RAngle = thetaR*180.0/PI;
-    if( !RStrengthSet() ) RStrength = strengthR/scaleR;
-    if( !RCurveSet() ) RCurve = curvatureR/scaleR;
+    if( !RStrengthSet() ) RStrength = strengthR/scale;
+    if( !RCurveSet() ) RCurve = curvatureR/scale;
 }
 
 void SkinXSec::Reset()
@@ -1441,18 +1439,18 @@ void FuseXSec::CopyFuseXSParms( XSec* xs )
     }
 }
 
-double FuseXSec::GetLScale()
+double FuseXSec::GetScale()
 {
     XSecSurf* xsecsurf = (XSecSurf*) GetParentContainerPtr();
     int indx = xsecsurf->FindXSecIndex( m_ID );
 
     double dx(0), dy(0), dz(0);
 
-    if( indx == 0 )
-    {
-        return GetRScale();
-    }
-    else
+    double scaleL = 1e12;
+    double scaleR = 1e12;
+    double scale = 1.0;
+
+    if( indx > 0 )
     {
         FuseXSec* prevxs = (FuseXSec*) xsecsurf->FindXSec( indx - 1);
         if( prevxs )
@@ -1460,18 +1458,9 @@ double FuseXSec::GetLScale()
             dx = ( m_XLocPercent() - prevxs->m_XLocPercent() ) * m_RefLength();
             dy = ( m_YLocPercent() - prevxs->m_YLocPercent() ) * m_RefLength();
             dz = ( m_ZLocPercent() - prevxs->m_ZLocPercent() ) * m_RefLength();
+            scaleL = sqrt( dx*dx + dy*dy + dz*dz );
         }
     }
-
-    return sqrt( dx*dx + dy*dy + dz*dz );
-}
-
-double FuseXSec::GetRScale()
-{
-    XSecSurf* xsecsurf = (XSecSurf*) GetParentContainerPtr();
-    int indx = xsecsurf->FindXSecIndex( m_ID );
-
-    double dx(0), dy(0), dz(0);
 
     if( indx < ( xsecsurf->NumXSec() - 1 ) )
     {
@@ -1481,14 +1470,25 @@ double FuseXSec::GetRScale()
             dx = ( nxtxs->m_XLocPercent() - m_XLocPercent() ) * m_RefLength();
             dy = ( nxtxs->m_YLocPercent() - m_YLocPercent() ) * m_RefLength();
             dz = ( nxtxs->m_ZLocPercent() - m_ZLocPercent() ) * m_RefLength();
+            scaleR = sqrt( dx*dx + dy*dy + dz*dz );
         }
+    }
+
+    if ( scaleL < scaleR )
+    {
+        scale = scaleL;
     }
     else
     {
-        return GetLScale();
+        scale = scaleR;
     }
 
-    return sqrt( dx*dx + dy*dy + dz*dz );
+    if ( scale < 1e-4 )
+    {
+        scale = 1e-4;
+    }
+
+    return scale;
 }
 
 //==========================================================================//
@@ -1611,39 +1611,24 @@ void StackXSec::CopyBasePos( XSec* xs )
     }
 }
 
-double StackXSec::GetLScale()
+double StackXSec::GetScale()
 {
     XSecSurf* xsecsurf = (XSecSurf*) GetParentContainerPtr();
     int indx = xsecsurf->FindXSecIndex( m_ID );
 
     double dx(0), dy(0), dz(0);
 
-    if( indx == 0 )
-    {
-        StackXSec* prevxs = (StackXSec*) xsecsurf->FindXSec( indx + 1);
-        if( prevxs )
-        {
-            dx = prevxs->m_XDelta();
-            dy = prevxs->m_YDelta();
-            dz = prevxs->m_ZDelta();
-        }
-    }
-    else
+    double scaleL = 1e12;
+    double scaleR = 1e12;
+    double scale = 1.0;
+
+    if( indx > 0 )
     {
         dx = m_XDelta();
         dy = m_YDelta();
         dz = m_ZDelta();
+        scaleL = sqrt( dx*dx + dy*dy + dz*dz );
     }
-
-    return sqrt( dx*dx + dy*dy + dz*dz );
-}
-
-double StackXSec::GetRScale()
-{
-    XSecSurf* xsecsurf = (XSecSurf*) GetParentContainerPtr();
-    int indx = xsecsurf->FindXSecIndex( m_ID );
-
-    double dx(0), dy(0), dz(0);
 
     if( indx < (xsecsurf->NumXSec() - 1) )
     {
@@ -1653,14 +1638,23 @@ double StackXSec::GetRScale()
             dx = prevxs->m_XDelta();
             dy = prevxs->m_YDelta();
             dz = prevxs->m_ZDelta();
+            scaleR = sqrt( dx*dx + dy*dy + dz*dz );
         }
+    }
+
+    if ( scaleL < scaleR )
+    {
+        scale = scaleL;
     }
     else
     {
-        dx = m_XDelta();
-        dy = m_YDelta();
-        dz = m_ZDelta();
+        scale = scaleR;
     }
 
-    return sqrt( dx*dx + dy*dy + dz*dz );
+    if ( scale < 1e-4 )
+    {
+        scale = 1e-4;
+    }
+
+    return scale;
 }

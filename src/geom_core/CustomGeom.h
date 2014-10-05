@@ -136,8 +136,7 @@ public:
     virtual void SetCenterRot( const vec3d & cent );
     virtual vec3d GetCenterRot()                            { return m_CenterRot; }
 
-    virtual double GetLScale();
-    virtual double GetRScale();
+    virtual double GetScale();
 
 protected:
 

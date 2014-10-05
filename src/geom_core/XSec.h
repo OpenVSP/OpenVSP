@@ -171,8 +171,7 @@ public:
             Parm &RStrength,
             Parm &RCurve );
 
-    virtual double GetLScale() = 0;
-    virtual double GetRScale() = 0;
+    virtual double GetScale() = 0;
 
     BoolParm m_AllSymFlag;
     BoolParm m_TBSymFlag;
@@ -268,8 +267,7 @@ public:
     virtual void CopyBasePos( XSec* xs );
     virtual void CopyFuseXSParms( XSec* xs );
 
-    virtual double GetLScale();
-    virtual double GetRScale();
+    virtual double GetScale();
 
     FractionParm m_XLocPercent;
     FractionParm m_YLocPercent;
@@ -297,8 +295,7 @@ public:
 
     virtual void CopyBasePos( XSec* xs );
 
-    virtual double GetLScale();
-    virtual double GetRScale();
+    virtual double GetScale();
 
     Parm m_XDelta;
     Parm m_YDelta;
