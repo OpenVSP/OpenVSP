@@ -547,7 +547,7 @@ void AddCFDSource( int type, const string & geom_id, int surf_index,
         return;
     }
 
-    CfdMeshMgr.SetCurrGeomID( geom_id );
+    CfdMeshMgr.SetCurrSourceGeomID( geom_id );
     CfdMeshMgr.SetCurrMainSurfIndx( surf_index );
     BaseSource* source =  CfdMeshMgr.AddSource( type );
 

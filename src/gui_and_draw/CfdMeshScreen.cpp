@@ -233,13 +233,13 @@ bool CfdMeshScreen::Update()
         }
     }
 
-    string currGeomID = CfdMeshMgr.GetCurrGeomID();
+    string currGeomID = CfdMeshMgr.GetCurrSourceGeomID();
 
     if( currGeomID.length() == 0 && m_GeomVec.size() > 0 )
     {
         // Handle case default case.
         currGeomID = m_GeomVec[0];
-        CfdMeshMgr.SetCurrGeomID( currGeomID );
+        CfdMeshMgr.SetCurrSourceGeomID( currGeomID );
     }
 
     Geom* currGeom = m_Vehicle->FindGeom( currGeomID );
@@ -682,7 +682,7 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
     {
         //==== Load List of Parts for Comp ====//
         int id = m_CfdMeshUI->compChoice->value();
-        CfdMeshMgr.SetCurrGeomID( m_GeomVec[ id ] );
+        CfdMeshMgr.SetCurrSourceGeomID( m_GeomVec[ id ] );
         CfdMeshMgr.SetCurrMainSurfIndx( 0 );
     }
     else if ( w == m_CfdMeshUI->surfChoice )
@@ -694,7 +694,7 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
     {
         //==== Load List of Parts for Comp ====//
         int id = m_CfdMeshUI->wakeCompChoice->value();
-        CfdMeshMgr.SetCurrGeomID( m_GeomVec[ id ] );
+        CfdMeshMgr.SetCurrSourceGeomID( m_GeomVec[ id ] );
     }
     else if ( w == m_CfdMeshUI->farCompChoice )
     {
@@ -833,7 +833,7 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
         bool flag = !!( m_CfdMeshUI->addWakeButton->value() );
 
         vector<string> geomVec = m_Vehicle->GetGeomVec();
-        string currGeomID = CfdMeshMgr.GetCurrGeomID();
+        string currGeomID = CfdMeshMgr.GetCurrSourceGeomID();
         Geom* g = m_Vehicle->FindGeom( currGeomID );
         if ( g )
         {

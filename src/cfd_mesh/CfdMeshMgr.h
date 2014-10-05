@@ -195,13 +195,13 @@ public:
         return m_Vehicle->GetCfdGridDensityPtr();
     }
 
-    virtual string GetCurrGeomID()
+    virtual string GetCurrSourceGeomID()
     {
-        return m_CurrGeomID;
+        return m_CurrSourceGeomID;
     }
-    virtual void SetCurrGeomID( const string &gid )
+    virtual void SetCurrSourceGeomID( const string &gid )
     {
-        m_CurrGeomID = gid;
+        m_CurrSourceGeomID = gid;
     }
     virtual string GetFarGeomID()
     {
@@ -366,7 +366,7 @@ protected:
 
     Vehicle* m_Vehicle;
 
-    string m_CurrGeomID;
+    string m_CurrSourceGeomID;
     int m_CurrMainSurfIndx;
     string m_FarGeomID;
 

@@ -664,7 +664,7 @@ void CfdMeshMgrSingleton::GUI_Val( string name, int val )
 {
     if ( name == "SourceID" )
     {
-        Geom* geom = m_Vehicle->FindGeom( m_CurrGeomID );
+        Geom* geom = m_Vehicle->FindGeom( m_CurrSourceGeomID );
         if( geom )
         {
             vector< BaseSource* > sVec = geom->GetCfdMeshMainSourceVec();
@@ -693,7 +693,7 @@ void CfdMeshMgrSingleton::GUI_Val( string name, string val )
 BaseSource* CfdMeshMgrSingleton::GetCurrSource()
 {
     BaseSource* s = NULL;
-    Geom* g = m_Vehicle->FindGeom( m_CurrGeomID );
+    Geom* g = m_Vehicle->FindGeom( m_CurrSourceGeomID );
     if( g )
     {
         int sourceID = g->GetCurrSourceID();
@@ -711,7 +711,7 @@ BaseSource* CfdMeshMgrSingleton::AddSource( int type )
 {
     BaseSource* ret_source = NULL;
     Geom* curr_geom = NULL;
-    curr_geom = m_Vehicle->FindGeom( m_CurrGeomID );
+    curr_geom = m_Vehicle->FindGeom( m_CurrSourceGeomID );
     if ( !curr_geom )
     {
         return ret_source;
@@ -785,7 +785,7 @@ void CfdMeshMgrSingleton::DeleteCurrSource()
 {
     Geom* curr_geom = NULL;
 
-    curr_geom = m_Vehicle->FindGeom( m_CurrGeomID );
+    curr_geom = m_Vehicle->FindGeom( m_CurrSourceGeomID );
 
     if ( curr_geom )
     {
