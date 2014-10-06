@@ -136,7 +136,7 @@ void UpdateSurf()
 	string xsec4 = GetXSec( xsec_surf, 4 );
     SetCustomXSecLoc( xsec4, vec3d( nose_len+body_len+aft_len, 0.0, aft_center_val*diameter_val ) );
 	SetXSecTanAngles( xsec4, XSEC_BOTH_SIDES, -90 );
-    double aft_str = 0.33*(aft_width_val + aft_height_val);
+    double aft_str = 0.33*(aft_width_val + aft_height_val)*diameter_val;
     SetXSecTanStrengths( xsec4, XSEC_BOTH_SIDES, aft_str );
 
 	SkinXSecSurf();
