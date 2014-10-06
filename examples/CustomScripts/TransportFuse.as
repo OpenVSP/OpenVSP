@@ -35,7 +35,7 @@ void Init()
 
 	string aft_height = AddParm( PARM_DOUBLE_TYPE, "AftHeight", "Design" );
 	SetParmValLimits( aft_height, 0.3, 0.01, 1.0 );
-   SetParmDescript( aft_width, "Aft XSec Height" );
+    SetParmDescript( aft_height, "Aft XSec Height" );
 
 
     //==== Add Cross Sections  =====//
