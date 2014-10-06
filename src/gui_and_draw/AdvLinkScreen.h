@@ -54,6 +54,9 @@ protected:
     Fl_Text_Editor* m_CodeEditor;
     Fl_Text_Buffer* m_CodeBuffer;
 
+    
+    Fl_Color m_Lt_Red;
+
     GroupLayout m_BigGroup;
 
     GroupLayout m_LinkBrowserGroup;
@@ -79,6 +82,8 @@ protected:
     TriggerButton m_DelAllInput;
     TriggerButton m_DelOutput;
     TriggerButton m_DelAllOutput;
+
+    TriggerButton m_CompileCode;
 
     TriggerButton m_SaveCode;
     TriggerButton m_ReadCode;

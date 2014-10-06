@@ -1164,6 +1164,16 @@ void TriggerButton::Init( VspScreen* screen, Fl_Button* button )
     m_Button->callback( StaticDeviceCB, this );
 }
 
+//==== Color ====//
+void TriggerButton::SetColor( Fl_Color c )
+{
+    if ( m_Button )
+    {
+        m_Button->color( c );
+        m_Button->damage( 1 );
+    }
+}
+
 //==== Callback ====//
 void TriggerButton::DeviceCB( Fl_Widget* w )
 {

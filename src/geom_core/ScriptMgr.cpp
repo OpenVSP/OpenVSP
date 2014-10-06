@@ -28,6 +28,7 @@ using namespace vsp;
 //==== Implement a simple message callback function ====//
 void MessageCallback( const asSMessageInfo *msg, void *param )
 {
+    char str[1024];
     const char *type = "ERR ";
     if( msg->type == asMSGTYPE_WARNING )
     {
@@ -37,7 +38,9 @@ void MessageCallback( const asSMessageInfo *msg, void *param )
     {
         type = "INFO";
     }
-    printf( "%s (%d, %d) : %s : %s\n", msg->section, msg->row, msg->col, type, msg->message );
+    sprintf( str, "%s (%d, %d) : %s : %s\n", msg->section, msg->row, msg->col, type, msg->message );
+    ScriptMgr.AddToMessages( str );
+    printf( str );
 }
 
 //==================================================================================================//

@@ -350,6 +350,7 @@ public:
     virtual ~TriggerButton() {}
     virtual void Init( VspScreen* screen, Fl_Button* button );
     virtual void DeviceCB( Fl_Widget* w );
+    virtual void SetColor( Fl_Color c );
 
 protected:
 

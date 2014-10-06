@@ -59,13 +59,17 @@ public:
 
     void ExecuteScript(  const char* module_name,  const char* function_name );
 
+    void AddToMessages( const string & msg )                { m_ScriptMessages += msg; }
+    void ClearMessages()                                    { m_ScriptMessages.clear(); }
+    string GetMessages()                                    { return m_ScriptMessages; }   
+
     string FindModuleContent( const string & module_name );
     int SaveScriptContentToFile( const string & module_name, const string & file_name );
 
     void RunTestScripts();
 
     //==== Test Proxy Stuff ====//
-    void SetSaveInt( int i )    { m_SaveInt = i; }
+    void SetSaveInt( int i )      { m_SaveInt = i; }
     int  GetSaveInt( )            { return m_SaveInt; }
 
     CScriptArray* GetProxyVec3dArray();
@@ -110,6 +114,7 @@ private:
 //    map< string, CScriptBuilder > m_BuilderMap;
     CScriptBuilder m_ScriptBuilder;
     map< string, string > m_ModuleContentMap;
+    string m_ScriptMessages;
 
     //==== Test Proxy Stuff ====//
     int m_SaveInt;

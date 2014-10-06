@@ -56,6 +56,7 @@ public:
     void RemoveParmContainer( ParmContainer* parm_container_ptr );
 
     Parm* FindParm( const string & id );
+    string FindParmID( const string & name, const string & group, const string & container );
     ParmContainer* FindParmContainer( const string & id );
 
     void AddToUndoStack( Parm* parm_ptr );

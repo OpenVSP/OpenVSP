@@ -53,7 +53,10 @@ public:
     void SetScriptCode( const string & code )                       { m_ScriptCode = code; }
     string GetScriptCode()                                          { return m_ScriptCode; }
     bool BuildScript();
+    void SetValidScriptFlag( bool flag )                            { m_ValidScript = flag; }
     bool ValidScript()                                              { return m_ValidScript; }
+    string GetScriptErrors()                                        { return m_ScriptErrors; }
+    bool ValidParms();
 
     void AddVar( const VarDef & pd, bool input_flag );
     void DeleteVar( int index, bool input_flag );
@@ -86,6 +89,7 @@ protected:
     vector< VarDef > m_OutputVars;
 
     bool m_ValidScript;
+    string m_ScriptErrors;
      
 private:
 

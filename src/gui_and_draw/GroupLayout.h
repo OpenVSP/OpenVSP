@@ -13,6 +13,7 @@
 #include <FL/Fl_Check_Browser.H>
 #include <FL/Fl_Round_Button.H>
 #include <FL/fl_draw.H>
+#include <FL/Fl_Scroll.H>
 #include <FL/Fl_Text_Editor.H>
 
 #include "GuiDevice.h"
@@ -51,6 +52,7 @@ public:
 
     //==== Provide Group and Screen Pointers ====//
     void SetGroup( Fl_Group* group );
+    Fl_Group* GetGroup()                            { return m_Group; }
     void SetScreen( VspScreen* screen )
     {
         m_Screen = screen;
@@ -143,7 +145,6 @@ public:
 
     Fl_Browser* AddFlBrowser( int height );
     Fl_Text_Editor* AddFlTextEditor( int height );
-
 
     //==== Add Another GroupLayout as a SubSet of This GroupLayout ====//
     //==== Subgroups can be Used To Create Multiple Column Layouts ====//

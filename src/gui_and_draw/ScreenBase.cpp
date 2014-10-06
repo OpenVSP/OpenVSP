@@ -106,6 +106,7 @@ void BasicScreen::SetTitle( const string& title )
     }
 }
 
+
 //=====================================================================//
 //=====================================================================//
 //=====================================================================//
@@ -214,7 +215,7 @@ Fl_Group* TabScreen::AddSubGroup( Fl_Group* group, int border )
     return sub_group;
 }
 
-//==== Add A Sub Scroll To Tab ====//
+//==== Add A Sub Scroll To Group ====//
 Fl_Scroll* TabScreen::AddSubScroll( Fl_Group* group, int border, int lessh )
 {
     if ( !group )
@@ -237,6 +238,7 @@ Fl_Scroll* TabScreen::AddSubScroll( Fl_Group* group, int border, int lessh )
 
     return sub_group;
 }
+
 
 //=====================================================================//
 //=====================================================================//

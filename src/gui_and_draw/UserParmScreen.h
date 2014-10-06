@@ -20,7 +20,7 @@
 using std::string;
 using std::vector;
 
-class UserParmScreen : public VspScreen
+class UserParmScreen : public TabScreen
 {
 public:
     UserParmScreen( ScreenMgr* mgr );
@@ -41,7 +41,8 @@ protected:
 
     UserParmUI* m_UserParmUI;
 
-    GroupLayout m_BigGroup;
+    GroupLayout m_PredefGroup;
+    GroupLayout m_CreateGroup;
     Choice m_ParmTypeChoice;
     StringInput m_ParmNameInput;
     StringInput m_ParmGroupInput;
@@ -50,14 +51,21 @@ protected:
     Input m_ParmMinInput;
     Input m_ParmMaxInput;
     TriggerButton m_CreateParm;
+    TriggerButton m_DeleteParm;
+    TriggerButton m_DeleteAllParm;
+
+    Fl_Browser* m_UserDefinedBrowser;
 
     GroupLayout m_EditLayout;
+
+    GroupLayout m_AdjustLayout;
+    Fl_Scroll* m_AdjustScroll;
 
     int m_NumEditSliders;
 
     vector< SliderAdjRangeInput > m_PredefSliderVec;
-    vector< SliderAdjRangeInput > m_EditSliderVec;
-
+    vector < SliderAdjRangeInput > m_ParmSliderVec;
+ 
     vector< string > m_UserParmBrowserVec;
     deque< string > m_EditParmVec;
 
@@ -67,6 +75,9 @@ protected:
     Parm m_Val;
     Parm m_Min;
     Parm m_Max;
+
+    int m_NumParmsLast;
+    void RebuildAdjustGroup();
 
 };
 

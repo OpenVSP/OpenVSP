@@ -125,19 +125,40 @@ void AdvLinkMgrSingleton::DelAllLinks( )
     m_LinkVec.clear();
 }
 
-void AdvLinkMgrSingleton::AddAdvLink( const string & script_module_name )
+void AdvLinkMgrSingleton::CheckLinks()
 {
-    //AdvLink* alink = new AdvLink();
-    //alink->SetModuleName( script_module_name );
-    //m_LinkVec.push_back( alink );
-    //m_ActiveLink = alink;
+    //==== Check If Any Parms Have Added/Removed From Last Check ====//
+    static int check_links_stamp = 0;
+    if ( ParmMgr.GetNumParmChanges() == check_links_stamp )
+    {
+        return;
+    }
 
-    ////==== Call Script ====//
-    //ScriptMgr.ExecuteScript( script_module_name.c_str(), "void AddVars()" );
+    check_links_stamp = ParmMgr.GetNumParmChanges();
 
+    deque< int > del_indices;
+    for ( int i = 0 ; i < ( int )m_LinkVec.size() ; i++ )
+    {
+        if ( !m_LinkVec[i]->ValidParms() )
+        {
+            del_indices.push_front( i );
+        }
+    }
 
+    if ( del_indices.size() )
+    {
+        m_EditLinkIndex = -1;
+        m_ActiveLink = NULL;
+    }
 
+    for ( int i = 0 ; i < ( int )del_indices.size() ; i++ )
+    {
+        AdvLink* del_link = m_LinkVec[i];
+        DelLink( del_link );
+    }
 }
+
+
 
 AdvLink* AdvLinkMgrSingleton::GetLink( int index )
 {

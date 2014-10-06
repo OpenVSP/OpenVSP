@@ -514,8 +514,9 @@ xmlNodePtr UserParmContainer::DecodeXml( xmlNodePtr & node )
     return child_node;
 }
 
- string UserParmContainer::AddParm(int type, const string & name, const string & group )
- {
+//==== Add User Defined Parm ====//
+string UserParmContainer::AddParm(int type, const string & name, const string & group )
+{
     Parm* p = ParmMgr.CreateParm( type );
     if ( p )
     {
@@ -525,4 +526,16 @@ xmlNodePtr UserParmContainer::DecodeXml( xmlNodePtr & node )
         return p->GetID();
     }
     return string();
- }
+}
+
+//==== Delete User Defined Parm ====//
+void UserParmContainer::DeleteParm(int index )
+{
+    if ( index >= 0 && index < m_UserParmVec.size() )
+    {
+        delete m_UserParmVec[index];
+        m_UserParmVec.erase( m_UserParmVec.begin() + index );
+    }
+}
+
+

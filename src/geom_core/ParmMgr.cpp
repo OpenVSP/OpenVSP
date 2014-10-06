@@ -120,6 +120,28 @@ Parm* ParmMgrSingleton::FindParm( const string & id )
     return NULL;
 }
 
+//==== Find Parm Name Group Container ====//
+string ParmMgrSingleton::FindParmID( const string & name, const string & group, const string & container )
+{
+    unordered_map< string, Parm* >::iterator iter;
+
+    for ( iter = m_ParmMap.begin() ; iter != m_ParmMap.end() ; iter++ )
+    {
+        Parm* parm_ptr = iter->second;
+        if ( parm_ptr )
+        {
+            if ( name == parm_ptr->GetName() && 
+                 group == parm_ptr->GetGroupName() &&
+                 container == parm_ptr->GetContainer()->GetName() )
+            {
+                return parm_ptr->GetID();
+            }
+        }
+    }
+
+    return string();
+}
+
 
 //==== Find Parm Container GivenID ====//
 ParmContainer* ParmMgrSingleton::FindParmContainer( const string & id )

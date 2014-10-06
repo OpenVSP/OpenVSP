@@ -12,6 +12,8 @@
 #include "LinkMgr.h"
 #include "ParmMgr.h"
 
+#include <FL/fl_ask.H>
+
 #include <assert.h>
 
 //==== Constructor ====//
@@ -20,11 +22,12 @@ AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     m_InputBrowserSelect = -1;
     m_OutputBrowserSelect = -1;
 
+    m_Lt_Red = fl_rgb_color( 250, 150, 150 );
+
     AdvLinkUI* ui = m_AdvLinkUI = new AdvLinkUI();
     VspScreen::SetFlWindow( ui->UIWindow );
 
     m_BigGroup.SetGroupAndScreen( ui->windowGroup, this );
-    m_BigGroup.AddDividerBox( "Adv Links" );
 
     m_BigGroup.AddSubGroupLayout( m_LinkAddDelGroup, 100 - 2, 80 );
     m_BigGroup.AddX( 100 + 2 );
@@ -34,7 +37,7 @@ AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     m_LinkAddDelGroup.AddYGap();
     m_LinkAddDelGroup.AddButton( m_DelLink, "Del" );
     m_LinkAddDelGroup.AddYGap();
-    m_LinkAddDelGroup.AddButton( m_DelAllLink, "Del_All" );
+    m_LinkAddDelGroup.AddButton( m_DelAllLink, "Del All" );
     m_LinkAddDelGroup.AddYGap();
 
     m_LinkBrowser = m_LinkBrowserGroup.AddFlBrowser( 70 );
@@ -44,36 +47,6 @@ AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : VspScreen( mgr )
 
     m_BigGroup.ForceNewLine();
     m_BigGroup.AddY( 70 );
-
-
-    //m_BigGroup.SetFitWidthFlag( false );
-    //m_BigGroup.SetSameLineFlag( true );
-    //m_BigGroup.SetButtonWidth(90);
-    //m_BigGroup.AddButton( m_AddLink, "Add" );
-    //m_BigGroup.AddX( 20 );
-    //m_BigGroup.SetFitWidthFlag( true );
-    //m_BigGroup.AddInput( m_NameInput, "Link Name:" );
-    //m_BigGroup.ForceNewLine();
-    //m_BigGroup.SetSameLineFlag( false );
-
-    //m_LinkBrowser = m_BigGroup.AddFlBrowser( 80 );
-    //m_LinkBrowser->callback( staticScreenCB, this );
-
-    //m_BigGroup.SetFitWidthFlag( false );
-    //m_BigGroup.SetSameLineFlag( true );
-
-    //int gap = 20;
-    //m_BigGroup.AddButton( m_DelLink, "Del" );
-    //m_BigGroup.AddX( gap );
-    //m_BigGroup.AddButton( m_DelAllLink, "Del_All" );
-    //m_BigGroup.AddX( gap );
-    //m_BigGroup.AddButton( m_SaveLink, "Save File..." );
-    //m_BigGroup.AddX( gap );
-    //m_BigGroup.AddButton( m_LoadLink, "Read File..." );
-    //m_BigGroup.ForceNewLine();
-
-    //m_BigGroup.SetFitWidthFlag( true );
-    //m_BigGroup.SetSameLineFlag( false );
 
     m_BigGroup.AddYGap();
     m_BigGroup.AddDividerBox( "Parm Picker" );
@@ -89,9 +62,9 @@ AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     m_BigGroup.SetFitWidthFlag( false );
     m_BigGroup.SetSameLineFlag( true );
     m_BigGroup.SetButtonWidth( m_BigGroup.GetRemainX()/2 - gap/2 );
-    m_BigGroup.AddButton( m_PickInput, "Add_Input" );
+    m_BigGroup.AddButton( m_PickInput, "Add Input Var" );
     m_BigGroup.AddX( gap );
-    m_BigGroup.AddButton( m_PickOutput, "Add_Output" );
+    m_BigGroup.AddButton( m_PickOutput, "Add Output Var" );
     m_BigGroup.SetFitWidthFlag( true );
     m_BigGroup.SetSameLineFlag( false );
     m_BigGroup.ForceNewLine();
@@ -125,11 +98,24 @@ AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : VspScreen( mgr )
 
     m_BigGroup.ForceNewLine();
     m_BigGroup.AddY( 120 );
+
     m_BigGroup.AddDividerBox("Code");
 
+    m_BigGroup.SetFitWidthFlag( false );
+    m_BigGroup.SetSameLineFlag( true );
+
+    m_BigGroup.AddButton( m_CompileCode, "Compile" );
+    m_BigGroup.AddX( 12 );
+    m_BigGroup.SetButtonWidth(m_BigGroup.GetRemainX()/2 - 3 );
+    m_BigGroup.AddButton( m_SaveCode, "File Write..." );
+    m_BigGroup.AddX( 6 );
+    m_BigGroup.AddButton( m_ReadCode, "File Read..." );
+    m_BigGroup.ForceNewLine();
+    m_BigGroup.SetFitWidthFlag( true );
+    m_BigGroup.SetSameLineFlag( false );
+
     //==== Code Editor ====//
-    m_CodeEditor = m_BigGroup.AddFlTextEditor( 190 );
-    m_CodeEditor->textcolor( FL_DARK_RED );
+    m_CodeEditor = m_BigGroup.AddFlTextEditor( 210 );
 
     m_CodeBuffer = new Fl_Text_Buffer;
     m_CodeEditor->buffer( m_CodeBuffer );
@@ -137,15 +123,8 @@ AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : VspScreen( mgr )
 
     m_CodeBuffer->add_modify_callback(staticTextCB, this);
     m_CodeBuffer->call_modify_callbacks();
+
     m_CodeBuffer->text( "" );
-
-    m_BigGroup.SetFitWidthFlag( false );
-    m_BigGroup.SetSameLineFlag( true );
-    m_BigGroup.AddButton( m_SaveCode, "Save Code..." );
-    m_BigGroup.AddX( 2 );
-    m_BigGroup.AddButton( m_ReadCode, "Read Code..." );
-
-
 }
 
 //==== Update Screen ====//
@@ -153,16 +132,48 @@ bool AdvLinkScreen::Update()
 {
     char str[512];
 
+    AdvLinkMgr.CheckLinks();
+
     int edit_link_index = AdvLinkMgr.GetEditLinkIndex();
     AdvLink* edit_link = AdvLinkMgr.GetLink(edit_link_index);
 
     if ( edit_link )
     {
         m_NameInput.Update( edit_link->GetName() );
+        m_NameInput.Activate();
+        m_ParmPicker.Activate();
+        m_NameInput.Activate();
+        m_DelLink.Activate();
+        m_DelAllLink.Activate();
+        m_VarNameInput.Activate();
+        m_PickInput.Activate();
+        m_PickOutput.Activate();
+        m_DelInput.Activate();
+        m_DelAllInput.Activate();
+        m_DelOutput.Activate();
+        m_DelAllOutput.Activate();
+        m_CompileCode.Activate();
+        m_SaveCode.Activate();
+        m_ReadCode.Activate();
     }
     else
     {
         m_NameInput.Update( "" );
+        m_NameInput.Deactivate();
+        m_ParmPicker.Deactivate();
+        m_NameInput.Deactivate();
+        m_DelLink.Deactivate();
+        m_DelAllLink.Deactivate();
+        m_VarNameInput.Deactivate();
+        m_PickInput.Deactivate();
+        m_PickOutput.Deactivate();
+        m_DelInput.Deactivate();
+        m_DelAllInput.Deactivate();
+        m_DelOutput.Deactivate();
+        m_DelAllOutput.Deactivate();
+        m_CompileCode.Deactivate();
+        m_SaveCode.Deactivate();
+        m_ReadCode.Deactivate();
     }
 
     //==== Update Parm Picker ====//
@@ -233,16 +244,16 @@ bool AdvLinkScreen::Update()
         if ( edit_link->GetScriptCode() != m_CodeBuffer->text() )
         {
             m_CodeBuffer->text( edit_link->GetScriptCode().c_str() );
-
-            if ( edit_link->ValidScript() )
-                m_CodeEditor->textcolor( FL_BLACK );
-            else
-                m_CodeEditor->textcolor( FL_DARK_RED );
         }
+
+        if ( edit_link->ValidScript() )
+            m_CompileCode.SetColor( FL_GRAY );
+        else
+            m_CompileCode.SetColor( m_Lt_Red );
     }
     else
     {
-        m_CodeEditor->textcolor( FL_DARK_RED );
+        m_CompileCode.SetColor( FL_GRAY );
         if ( m_CodeBuffer->text() != "" )
             m_CodeBuffer->text( "" );
     }
@@ -392,6 +403,20 @@ void AdvLinkScreen::GuiDeviceCallBack( GuiDevice* gui_device )
             }
         }
     }
+
+    else if ( gui_device == &m_CompileCode )
+    {
+        if ( edit_link )
+        {
+            edit_link->SetScriptCode( m_CodeBuffer->text() );
+            bool valid_script = edit_link->BuildScript();
+            if ( !valid_script )
+            {
+                fl_message_title( "Compile Errors" );
+                fl_message( "%s", edit_link->GetScriptErrors().c_str() );
+            }
+        }
+    }
     else
     {
         return;
@@ -404,21 +429,17 @@ void AdvLinkScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 void AdvLinkScreen::TextCallBack( int pos, int nInserted, int nDeleted, int nRestyled, const char* deletedText )
 {
     AdvLink* edit_link = AdvLinkMgr.GetLink( AdvLinkMgr.GetEditLinkIndex() );
-    m_CodeEditor->textcolor( FL_DARK_RED );
-    if ( nInserted > 0 )
+
+    if ( !edit_link )
+        return;
+
+    if ( nInserted || nDeleted || nRestyled )
     {
-        char c = m_CodeBuffer->char_at( pos );
-        if ( c == 10 )                              // Return
+        if ( edit_link->GetScriptCode() != m_CodeBuffer->text() )
         {
-            if ( edit_link )
-            {
-                edit_link->SetScriptCode( m_CodeBuffer->text() );
-                bool valid_script = edit_link->BuildScript();
-                if ( valid_script )
-                    m_CodeEditor->textcolor( FL_BLACK );
-            }
-            m_ScreenMgr->SetUpdateFlag( true );
+            edit_link->SetScriptCode( m_CodeBuffer->text() );
+            edit_link->SetValidScriptFlag( false );
+            m_CompileCode.SetColor( m_Lt_Red );
         }
     }
-
 }

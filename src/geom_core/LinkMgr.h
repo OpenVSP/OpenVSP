@@ -71,6 +71,8 @@ public:
     int GetNumPredefinedUserParms()                         { return m_NumPredefinedUserParms; }
     string GetUserParmId( int index )                       { return m_UserParms.GetUserParmId( index ); }
     string AddUserParm(int type, const string & name, const string & group );
+    void DeleteUserParm( int index );
+    void DeleteAllUserParm( );
 
     //==== Build Container, Group And Parm Vecs Given Parm ID ====//
     int GetCurrContainerVec( const string& parm_id, vector< string > & idVec );

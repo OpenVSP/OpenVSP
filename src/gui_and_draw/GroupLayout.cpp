@@ -1189,3 +1189,4 @@ Fl_Text_Editor* GroupLayout::AddFlTextEditor( int height )
 
     return text_editor;
 }
+

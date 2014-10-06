@@ -35,6 +35,7 @@ public:
     AdvLink* AddLink( const string & name );
     void DelLink( AdvLink* link_ptr );
     void DelAllLinks();
+    void CheckLinks();                  // Check If All Links Are Still Valid
 
     void ReadAdvLinkScripts();
     void AddAdvLink( const string & script_module_name );

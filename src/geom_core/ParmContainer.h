@@ -110,6 +110,7 @@ public:
     int GetNumUserParms()                                   { return m_UserParmVec.size(); }
     string GetUserParmId( int index );
     virtual string AddParm(int type, const string & name, const string & group );
+    virtual void DeleteParm( int index );
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );

@@ -20,7 +20,7 @@ bool LinkMgrSingleton::m_firsttime = true;
 LinkMgrSingleton::LinkMgrSingleton()
 {
     m_WorkingLink = NULL;
-    m_NumPredefinedUserParms = 8;
+    m_NumPredefinedUserParms = 16;
     m_UserParms.Renew(m_NumPredefinedUserParms);
 
 }
@@ -683,5 +683,32 @@ xmlNodePtr LinkMgrSingleton::DecodeXml( xmlNodePtr & node )
 
 string LinkMgrSingleton::AddUserParm(int type, const string & name, const string & group )
 {
+    //==== Check For Duplicate ====//
+    int num_parms =  GetNumUserParms() - GetNumPredefinedUserParms();
+    for ( int i = 0 ; i < num_parms ; i++ )
+    {
+        string pid = LinkMgr.GetUserParmId( i +  GetNumPredefinedUserParms() );
+        Parm* pptr = ParmMgr.FindParm( pid );
+        if ( pptr && pptr->GetName() == name && pptr->GetGroupName() == group )
+        {
+            return string();
+        }
+    }
     return m_UserParms.AddParm( type, name, group );
+ }
+
+void LinkMgrSingleton::DeleteUserParm( int index )
+{
+    if ( index >= m_NumPredefinedUserParms && index < m_UserParms.GetNumUserParms() )
+    {
+        m_UserParms.DeleteParm( index );
+    }
+}
+
+void LinkMgrSingleton::DeleteAllUserParm( )
+{
+    while ( m_UserParms.GetNumUserParms() > m_NumPredefinedUserParms )
+    {
+        m_UserParms.DeleteParm( m_UserParms.GetNumUserParms() - 1 );
+    }
 }

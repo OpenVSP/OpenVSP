@@ -54,6 +54,21 @@ AdvLink::~AdvLink()
 
 }
 
+bool AdvLink::ValidParms()
+{
+    for ( int i = 0 ; i < (int)m_InputVars.size() ; i++ )
+    {
+        if ( !ParmMgr.FindParm( m_InputVars[i].m_ParmID ) )
+            return false;
+    }
+    for ( int i = 0 ; i < (int)m_OutputVars.size() ; i++ )
+    {
+        if ( !ParmMgr.FindParm( m_OutputVars[i].m_ParmID ) )
+            return false;
+    }
+    return true;
+}
+
 bool AdvLink::DuplicateVarName( const string & name )
 {
     for ( int i = 0 ; i < (int)m_InputVars.size() ; i++ )
@@ -200,15 +215,17 @@ bool AdvLink::BuildScript()
 
     ScriptMgr.RemoveScript( module_name );
 
+    ScriptMgr.ClearMessages();
     m_ScriptModule = ScriptMgr.ReadScriptFromMemory( module_name, m_CompleteScript );
 
     if ( m_ScriptModule.size() == 0 )
+    {
+        m_ScriptErrors = ScriptMgr.GetMessages();
         return false;
+    }
 
     m_ValidScript = true;
-
     return true;
-
 }
 
 bool AdvLink::UpdateLink( const string & pid )
@@ -228,17 +245,6 @@ bool AdvLink::UpdateLink( const string & pid )
 
     if ( !run_link )
         return false;
-
-    ////==== Check If Output Parms Are Flagged ====//
-    //for ( int i = 0 ; i < (int)m_OutputVars.size() ; i++ )
-    //{
-    //    string opid =  m_OutputVars[i].m_ParmID;
-    //    Parm* op = ParmMgr.FindParm( opid );
-    //    if ( !op )
-    //        return false;
-    //    if ( op->GetLinkUpdateFlag() )
-    //        return false;
-    //}
 
     AdvLinkMgr.SetActiveLink( this );
 
@@ -273,7 +279,6 @@ xmlNodePtr AdvLink::EncodeXml( xmlNodePtr & node )
 //==== Decode Contents of Adv Link From XML Tree ====//
 xmlNodePtr AdvLink::DecodeXml( xmlNodePtr & adv_link_node )
 {
-//    xmlNodePtr adv_link_node = XmlUtil::GetNode( node, "AdvLink", 0 );
     if ( adv_link_node )
     {
         m_Name = XmlUtil::FindStringProp( adv_link_node, "Name", m_Name );
@@ -300,7 +305,6 @@ xmlNodePtr AdvLink::DecodeXml( xmlNodePtr & adv_link_node )
             m_OutputVars[i].DecodeXml( var_def_node );
         }
     }
-
 
     return adv_link_node;
 }
