@@ -195,21 +195,21 @@ public:
         return m_Vehicle->GetCfdGridDensityPtr();
     }
 
-    virtual string GetCurrGeomID()
+    virtual string GetCurrSourceGeomID()
     {
-        return m_CurrGeomID;
+        return m_CurrSourceGeomID;
     }
-    virtual void SetCurrGeomID( const string &gid )
+    virtual void SetCurrSourceGeomID( const string &gid )
     {
-        m_CurrGeomID = gid;
+        m_CurrSourceGeomID = gid;
     }
-    virtual string GetFarGeomID()
+    virtual string GetWakeGeomID()
     {
-        return m_FarGeomID;
+        return m_WakeGeomID;
     }
-    virtual void SetFarGeomID( string gid )
+    virtual void SetWakeGeomID( string gid )
     {
-        m_FarGeomID = gid;
+        m_WakeGeomID = gid;
     }
     virtual int GetCurrMainSurfIndx()
     {
@@ -242,6 +242,7 @@ public:
     virtual void CleanMergeSurfs();
 
     virtual void WriteSTL( const string &filename );
+    virtual void WriteTaggedSTL( const string &filename );
     virtual void WriteTetGen( const string &filename );
     virtual void WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const string &key_fn, const string &obj_fn, const string &tri_fn, const string &gmsh_fn );
     virtual void WriteSurfsIntCurves( const string &filename  );
@@ -313,15 +314,6 @@ public:
 
     virtual void HighlightNextChain();
 
-    virtual void SetBatchFlag( bool f )
-    {
-        m_BatchFlag = f;
-    }
-    virtual bool GetBatchFlag()
-    {
-        return m_BatchFlag;
-    }
-
     virtual void AddDelPuw( Puw* puw )
     {
         m_DelPuwVec.push_back( puw );
@@ -374,10 +366,9 @@ protected:
 
     Vehicle* m_Vehicle;
 
-    string m_CurrGeomID;
+    string m_CurrSourceGeomID;
     int m_CurrMainSurfIndx;
-    string m_FarGeomID;
-    bool m_BatchFlag;
+    string m_WakeGeomID;
 
     vector< Surf* > m_SurfVec;
 

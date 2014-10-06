@@ -182,7 +182,9 @@ enum CFD_MESH_SOURCE_TYPE { POINT_SOURCE,
                             NUM_SOURCE_TYPES,
                           };
 
-
+enum XDDM_QUANTITY_TYPE { XDDM_VAR,
+                          XDDM_CONST,
+};
 
 
 

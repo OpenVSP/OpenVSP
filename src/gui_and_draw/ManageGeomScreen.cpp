@@ -415,7 +415,6 @@ void ManageGeomScreen::NoShowActiveGeoms( bool flag )
         if ( gPtr )
         {
             gPtr->LoadIDAndChildren( geom_id_vec );
-            gPtr->m_GuiDraw.SetNoShowFlag( flag );
         }
     }
 
@@ -425,7 +424,8 @@ void ManageGeomScreen::NoShowActiveGeoms( bool flag )
     {
         if ( geom_vec[i] )
         {
-            geom_vec[i]->m_GuiDraw.SetNoShowFlag( flag );
+            geom_vec[i]->SetSetFlag( SET_SHOWN , !flag );
+            geom_vec[i]->SetSetFlag( SET_NOT_SHOWN , flag );
         }
     }
 

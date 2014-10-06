@@ -41,6 +41,8 @@ Vehicle::Vehicle()
     m_STEPToCubic.Init( "ToCubic", "STEPSettings", this, false, 0, 1 );
     m_STEPTolerance.Init( "Tolerance", "STEPSettings", this, 1e-6, 1e-12, 1e12 );
 
+    m_STLMultiSolid.Init( "MultiSolid", "STLSettings", this, false, 0, 1 );
+
     m_BbXLen.Init( "X_Len", "BBox", this, 0, 0, 1e12 );
     m_BbXLen.SetDescript( "X length of vehicle bounding box" );
     m_BbYLen.Init( "Y_Len", "BBox", this, 0, 0, 1e12 );
@@ -419,10 +421,6 @@ string Vehicle::AddMeshGeom( int set )
                     mesh_geom->m_TMeshVec.push_back( tMeshVec[j] );
                 }
             }
-
-            // No Show All Other Components
-            geom_ptr->SetSetFlag( 1, false ); //remove from shown
-            geom_ptr->SetSetFlag( 2, true ); //add to no show
         }
     }
 
@@ -875,6 +873,44 @@ vector< string > Vehicle::GetGeomSet( int index )
     return geom_id_vec;
 }
 
+void Vehicle::HideAllExcept( string id )
+{
+    vector< string > geom_id_vec;
+
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        Geom* geom_ptr = geom_vec[i];
+
+        if ( geom_ptr )
+        {
+            if ( geom_ptr->GetID() != id )
+            {
+                // No Show All Other Components
+                geom_ptr->SetSetFlag( 1, false ); //remove from shown
+                geom_ptr->SetSetFlag( 2, true ); //add to no show
+            }
+        }
+    }
+}
+
+void Vehicle::HideAll()
+{
+    vector< string > geom_id_vec;
+
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        Geom* geom_ptr = geom_vec[i];
+
+        if ( geom_ptr )
+        {
+            // No Show All Other Components
+            geom_ptr->SetSetFlag( 1, false ); //remove from shown
+            geom_ptr->SetSetFlag( 2, true ); //add to no show
+        }
+    }
+}
 
 //==== Get Number of Fixed Geometry Types ====//
 int Vehicle::GetNumFixedGeomTypes()
@@ -1015,6 +1051,15 @@ xmlNodePtr Vehicle::EncodeXml( xmlNodePtr & node, int set )
     m_FeaGridDensity.EncodeXml( node );
     m_ClippingMgr.EncodeXml( node );
 
+    xmlNodePtr setnamenode = xmlNewChild( node, NULL, BAD_CAST"SetNames", NULL );
+    if ( setnamenode )
+    {
+        for ( int i = 0; i < m_SetNameVec.size(); i++ )
+        {
+            XmlUtil::AddStringNode( setnamenode, "Set", m_SetNameVec[i] );
+        }
+    }
+
     return vehicle_node;
 }
 
@@ -1067,6 +1112,22 @@ xmlNodePtr Vehicle::DecodeXml( xmlNodePtr & node )
     m_CfdGridDensity.DecodeXml( node );
     m_FeaGridDensity.DecodeXml( node );
     m_ClippingMgr.DecodeXml( node );
+
+    xmlNodePtr setnamenode = XmlUtil::GetNode( node, "SetNames", 0 );
+    if ( setnamenode )
+    {
+        int num = XmlUtil::GetNumNames( setnamenode, "Set" );
+
+        for ( int i = 0; i < num; i++ )
+        {
+            xmlNodePtr namenode = XmlUtil::GetNode( setnamenode, "Set", i );
+            if ( namenode )
+            {
+                string name = XmlUtil::ExtractString( namenode );
+                SetSetName( i, name );
+            }
+        }
+    }
 
     return vehicle_node;
 }
@@ -1216,7 +1277,9 @@ void Vehicle::WriteSTLFile( const string & file_name, int write_set )
             if ( gPtr )
             {
                 geom_vec.push_back( gPtr );
+                gPtr->Update();
             }
+            HideAllExcept( mesh_id );
         }
     }
 
@@ -1233,6 +1296,71 @@ void Vehicle::WriteSTLFile( const string & file_name, int write_set )
 
     fprintf( fid, "endsolid\n" );
     fclose( fid );
+}
+
+//==== Write STL File ====//
+void Vehicle::WriteTaggedMSSTLFile( const string & file_name, int write_set )
+{
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    if ( !geom_vec[0] )
+    {
+        return;
+    }
+
+    if ( !ExistMesh( write_set ) )
+    {
+        string mesh_id = AddMeshGeom( write_set );
+        if ( mesh_id.compare( "NONE" ) != 0 )
+        {
+            Geom* gPtr = FindGeom( mesh_id );
+            if ( gPtr )
+            {
+                geom_vec.push_back( gPtr );
+                gPtr->Update();
+            }
+            HideAllExcept( mesh_id );
+        }
+    }
+
+    //==== Count Number of Points & Tris ====//
+    int num_pnts = 0;
+    int num_tris = 0;
+    int num_parts = 0;
+    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        if ( geom_vec[i]->GetSetFlag( write_set ) && geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
+        {
+            MeshGeom* mg = ( MeshGeom* )geom_vec[i];            // Cast
+            mg->BuildIndexedMesh( num_parts );
+            num_parts += mg->GetNumIndexedParts();
+            num_pnts += mg->GetNumIndexedPnts();
+            num_tris += mg->GetNumIndexedTris();
+        }
+    }
+
+    FILE* file_id = fopen( file_name.c_str(), "w" );
+    if ( file_id )
+    {
+        std::vector< int > tags = SubSurfaceMgr.GetAllTags();
+        for ( int i = 0; i < ( int ) tags.size(); i++ )
+        {
+            std::string tagname = SubSurfaceMgr.GetTagNames( i );
+            fprintf( file_id, "solid %s\n", tagname.c_str() );
+
+            for ( int j = 0 ; j < ( int )geom_vec.size() ; j++ )
+            {
+                if ( geom_vec[j]->GetSetFlag( write_set ) && geom_vec[j]->GetType().m_Type == MESH_GEOM_TYPE )
+                {
+                    MeshGeom* mg = ( MeshGeom* )geom_vec[j];            // Cast
+
+                    mg->WriteStl( file_id, tags[i] );
+                }
+            }
+            fprintf( file_id, "endsolid %s\n", tagname.c_str() );
+        }
+
+        fclose( file_id );
+    }
 }
 
 //==== Write Tri File ====//
@@ -1256,7 +1384,9 @@ void Vehicle::WriteTRIFile( const string & file_name, int write_set )
                 MeshGeom* mg = dynamic_cast<MeshGeom*>( geom_ptr );
                 mg->SubTagTris( true );
                 geom_vec.push_back( geom_ptr );
+                geom_ptr->Update();
             }
+            HideAllExcept( mesh_id );
         }
     }
 
@@ -1351,7 +1481,9 @@ void Vehicle::WriteNascartFiles( const string & file_name, int write_set )
                 MeshGeom* mg = dynamic_cast<MeshGeom*>( geom_ptr );
                 mg->SubTagTris( true );
                 geom_vec.push_back( geom_ptr );
+                geom_ptr->Update();
             }
+            HideAllExcept( mesh_id );
         }
     }
 
@@ -1440,7 +1572,9 @@ void Vehicle::WriteGmshFile( const string & file_name, int write_set )
                 MeshGeom* mg = dynamic_cast<MeshGeom*>( geom_ptr );
                 mg->SubTagTris( true );
                 geom_vec.push_back( geom_ptr );
+                geom_ptr->Update();
             }
+            HideAllExcept( mesh_id );
         }
     }
 
@@ -1919,6 +2053,8 @@ string Vehicle::CompGeom( int set, int sliceFlag, int meshFlag, int halfFlag, in
         return id;
     }
 
+    HideAllExcept( id );
+
     MeshGeom* mesh_ptr = dynamic_cast<MeshGeom*> ( FindGeom( id ) );
     if ( mesh_ptr == NULL )
     {
@@ -1973,6 +2109,8 @@ string Vehicle::MassProps( int set, int numSlices )
     {
         return id;
     }
+
+    HideAllExcept( id );
 
     MeshGeom* mesh_ptr = ( MeshGeom* )FindGeom( id );
     if ( mesh_ptr == NULL )
@@ -2048,6 +2186,8 @@ string Vehicle::AwaveSlice( int set, int numSlices, int numRots, double AngleCon
         return id;
     }
 
+    HideAllExcept( id );
+
     MeshGeom* mesh_ptr = ( MeshGeom* )FindGeom( id );
     if ( mesh_ptr == NULL )
     {
@@ -2097,6 +2237,8 @@ string Vehicle::PSlice( int set, int numSlices, vec3d axis, bool autoBoundsFlag,
     {
         return id;
     }
+
+    HideAllExcept( id );
 
     MeshGeom* mesh_ptr = ( MeshGeom* )FindGeom( id );
     if ( mesh_ptr == NULL )
@@ -2192,7 +2334,14 @@ void Vehicle::ExportFile( const string & file_name, int write_set, int file_type
     }
     else if ( file_type == EXPORT_STL )
     {
-        WriteSTLFile( file_name, write_set );
+        if ( !m_STLMultiSolid() )
+        {
+            WriteSTLFile( file_name, write_set );
+        }
+        else
+        {
+            WriteTaggedMSSTLFile( file_name, write_set );
+        }
     }
     else if ( file_type == EXPORT_CART3D )
     {

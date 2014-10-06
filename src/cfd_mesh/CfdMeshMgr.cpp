@@ -366,9 +366,6 @@ CfdMeshMgrSingleton::CfdMeshMgrSingleton() : ParmContainer()
 
     m_CurrMainSurfIndx = 0;
 
-
-    m_BatchFlag = false;
-
     // Array allocated to (m_NumComps + 6) later, so if this isn't reset by then, the
     // allocation will fail with a negative argument.
     m_NumComps = -10;
@@ -667,7 +664,7 @@ void CfdMeshMgrSingleton::GUI_Val( string name, int val )
 {
     if ( name == "SourceID" )
     {
-        Geom* geom = m_Vehicle->FindGeom( m_CurrGeomID );
+        Geom* geom = m_Vehicle->FindGeom( m_CurrSourceGeomID );
         if( geom )
         {
             vector< BaseSource* > sVec = geom->GetCfdMeshMainSourceVec();
@@ -696,7 +693,7 @@ void CfdMeshMgrSingleton::GUI_Val( string name, string val )
 BaseSource* CfdMeshMgrSingleton::GetCurrSource()
 {
     BaseSource* s = NULL;
-    Geom* g = m_Vehicle->FindGeom( m_CurrGeomID );
+    Geom* g = m_Vehicle->FindGeom( m_CurrSourceGeomID );
     if( g )
     {
         int sourceID = g->GetCurrSourceID();
@@ -714,7 +711,7 @@ BaseSource* CfdMeshMgrSingleton::AddSource( int type )
 {
     BaseSource* ret_source = NULL;
     Geom* curr_geom = NULL;
-    curr_geom = m_Vehicle->FindGeom( m_CurrGeomID );
+    curr_geom = m_Vehicle->FindGeom( m_CurrSourceGeomID );
     if ( !curr_geom )
     {
         return ret_source;
@@ -788,7 +785,7 @@ void CfdMeshMgrSingleton::DeleteCurrSource()
 {
     Geom* curr_geom = NULL;
 
-    curr_geom = m_Vehicle->FindGeom( m_CurrGeomID );
+    curr_geom = m_Vehicle->FindGeom( m_CurrSourceGeomID );
 
     if ( curr_geom )
     {
@@ -1074,7 +1071,7 @@ void CfdMeshMgrSingleton::BuildDomain()
         {
             for ( int i = 0 ; i < (int)m_SurfVec.size() ; i++ )
             {
-                if ( m_SurfVec[i]->GetGeomID() == m_FarGeomID )
+                if ( m_SurfVec[i]->GetGeomID() == GetCfdSettingsPtr()->GetFarGeomID() )
                 {
                     m_SurfVec[i]->SetFarFlag( true );
                     m_SurfVec[i]->SetTransFlag( true );
@@ -1398,7 +1395,14 @@ void CfdMeshMgrSingleton::ExportFiles()
 {
     if ( GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_STL_FILE_NAME )->Get() )
     {
-        WriteSTL( GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_STL_FILE_NAME ) );
+        if ( !m_Vehicle->m_STLMultiSolid() )
+        {
+            WriteSTL( GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_STL_FILE_NAME ) );
+        }
+        else
+        {
+            WriteTaggedSTL( GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_STL_FILE_NAME ) );
+        }
     }
     if ( GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_POLY_FILE_NAME )->Get() )
     {
@@ -1441,6 +1445,95 @@ void CfdMeshMgrSingleton::ExportFiles()
     if ( GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_TKEY_FILE_NAME )->Get() )
     {
         SubSurfaceMgr.WriteKeyFile( GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_TKEY_FILE_NAME ) );
+    }
+}
+
+void CfdMeshMgrSingleton::WriteTaggedSTL( const string &filename )
+{
+    //==== Find All Points and Tri Counts ====//
+    vector< vec3d* > allPntVec;
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    {
+        vector< vec3d >& sPntVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
+        for ( int v = 0 ; v < ( int )sPntVec.size() ; v++ )
+        {
+            allPntVec.push_back( &sPntVec[v] );
+        }
+    }
+
+    //==== Build Map ====//
+    map< int, vector< int > > indMap;
+    vector< int > pntShift;
+    BuildIndMap( allPntVec, indMap, pntShift );
+
+    //==== Assemble Normal Tris ====//
+    vector< SimpTri > allTriVec;
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    {
+        vector < SimpTri >& sTriVec = m_SurfVec[i]->GetMesh()->GetSimpTriVec();
+        vector< vec3d >& sPntVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
+        for ( int t = 0 ; t <  ( int )sTriVec.size() ; t++ )
+        {
+            int i0 = FindPntIndex( sPntVec[sTriVec[t].ind0], allPntVec, indMap );
+            int i1 = FindPntIndex( sPntVec[sTriVec[t].ind1], allPntVec, indMap );
+            int i2 = FindPntIndex( sPntVec[sTriVec[t].ind2], allPntVec, indMap );
+            SimpTri stri;
+            stri.ind0 = pntShift[i0];
+            stri.ind1 = pntShift[i1];
+            stri.ind2 = pntShift[i2];
+            stri.m_Tags = sTriVec[t].m_Tags;
+            allTriVec.push_back( stri );
+        }
+    }
+    //==== Assemble All Used Points ====//
+    vector< vec3d* > allUsedPntVec;
+    for ( int i = 0 ; i < ( int )allPntVec.size() ; i++ )
+    {
+        if ( pntShift[i] >= 0 )
+        {
+            allUsedPntVec.push_back( allPntVec[i] );
+        }
+    }
+
+    FILE* file_id = fopen( filename.c_str(), "w" );
+    if ( file_id )
+    {
+        std::vector< int > tags = SubSurfaceMgr.GetAllTags();
+        for ( int i = 0; i < ( int ) tags.size(); i++ )
+        {
+            std::string tagname = SubSurfaceMgr.GetTagNames( i );
+            fprintf( file_id, "solid %s\n", tagname.c_str() );
+
+            for ( int j = 0; j < ( int ) allTriVec.size(); j++ )
+            {
+                SimpTri* stri = &allTriVec[j];
+                int t = SubSurfaceMgr.GetTag( stri->m_Tags );
+
+                if ( t == tags[i] )
+                {
+                    vec3d* p0 = allUsedPntVec[stri->ind0];
+                    vec3d* p1 = allUsedPntVec[stri->ind1];
+                    vec3d* p2 = allUsedPntVec[stri->ind2];
+                    vec3d v10 = *p1 - *p0;
+                    vec3d v20 = *p2 - *p1;
+                    vec3d norm = cross( v10, v20 );
+                    norm.normalize();
+
+                    fprintf( file_id, " facet normal  %2.10le %2.10le %2.10le\n",  norm.x(), norm.y(), norm.z() );
+                    fprintf( file_id, "   outer loop\n" );
+
+                    fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p0->x(), p0->y(), p0->z() );
+                    fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p1->x(), p1->y(), p1->z() );
+                    fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p2->x(), p2->y(), p2->z() );
+
+                    fprintf( file_id, "   endloop\n" );
+                    fprintf( file_id, " endfacet\n" );
+                }
+            }
+            fprintf( file_id, "endsolid %s\n", tagname.c_str() );
+        }
+
+        fclose( file_id );
     }
 }
 
@@ -1553,7 +1646,7 @@ void CfdMeshMgrSingleton::WriteTetGen( const string &filename )
             {
                 if ( GetCfdSettingsPtr()->GetFarMeshFlag() && GetCfdSettingsPtr()->GetFarCompFlag() )
                 {
-                    if ( geom->GetID() != GetFarGeomID() )
+                    if ( geom->GetID() != GetCfdSettingsPtr()->GetFarGeomID() )
                     {
                         geom->GetInteriorPnts( interiorPntVec );
                     }

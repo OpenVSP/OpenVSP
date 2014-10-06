@@ -293,7 +293,21 @@ void WingDriverGroup::UpdateGroup( vector< string > parmIDs )
         {
             if( uptodate[TIPC_WSECT_DRIVER] && uptodate[ROOTC_WSECT_DRIVER] )
             {
-                taper->Set( tipC->Get() / rootC->Get() );
+                if ( rootC->Get() == 0.0 )
+                {
+                    if ( tipC->Get() == 0.0 )
+                    {
+                        taper->Set( 1.0 );
+                    }
+                    else
+                    {
+                        taper->Set( taper->GetUpperLimit() );
+                    }
+                }
+                else
+                {
+                    taper->Set( tipC->Get() / rootC->Get() );
+                }
                 uptodate[TAPER_WSECT_DRIVER] = true;
             }
             else if( uptodate[SECSWEEP_WSECT_DRIVER] && uptodate[AR_WSECT_DRIVER] )
@@ -747,7 +761,7 @@ WingGeom::WingGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_TotalProjSpan.Init( "TotalProjectedSpan", m_Name, this, 1.0, 0.0001, 1000000.0 );
     m_TotalProjSpan.SetDescript( "Total Projected Planform Span" );
 
-    m_TotalChord.Init( "m_TotalChord", m_Name, this, 1.0, 0.0001, 1000000.0 );
+    m_TotalChord.Init( "TotalChord", m_Name, this, 1.0, 0.0001, 1000000.0 );
     m_TotalChord.SetDescript( "Total Planform Chord" );
 
     m_TotalArea.Init( "TotalArea", m_Name, this, 1.0, 0.0001, 1000000.0 );

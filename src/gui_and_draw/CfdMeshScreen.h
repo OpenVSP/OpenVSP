@@ -67,6 +67,7 @@ private:
     ToggleButton m_ObjToggleButton;
     ToggleButton m_PolyToggleButton;
     ToggleButton m_StlToggleButton;
+    ToggleButton m_StlMultiSolidToggleButton;
     ToggleButton m_TriToggleButton;
     ToggleButton m_GmshToggleButton;
     ToggleButton m_SrfToggleButton;
@@ -112,7 +113,9 @@ private:
     SliderInput m_WakeAngleSlider;
 
     map< string, int > m_CompIDMap;
+    map< string, int > m_WingCompIDMap;
     vector< string > m_GeomVec;
+    vector< string > m_WingGeomVec;
 
     Vehicle* m_Vehicle;
     CFDMeshUI* m_CfdMeshUI;

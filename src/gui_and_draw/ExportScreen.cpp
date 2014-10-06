@@ -12,6 +12,7 @@
 #include "StlHelper.h"
 #include "APIDefines.h"
 #include "STEPOptionsScreen.h"
+#include "STLOptionsScreen.h"
 using namespace vsp;
 
 #include <assert.h>
@@ -85,7 +86,10 @@ void ExportScreen::ExportFile( string &newfile, int write_set, int type )
     }
     else if ( type == EXPORT_STL )
     {
-        newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write STL File?", "*.stl" );
+        if ( (( STLOptionsScreen* ) m_ScreenMgr->GetScreen( ScreenMgr::VSP_STL_OPTIONS_SCREEN ))->ShowSTLOptionsScreen() )
+        {
+            newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write STL File?", "*.stl" );
+        }
     }
     else if ( type == EXPORT_NASCART )
     {

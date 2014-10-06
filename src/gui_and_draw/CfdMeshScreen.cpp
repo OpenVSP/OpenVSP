@@ -110,6 +110,7 @@ CfdMeshScreen::CfdMeshScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     m_ObjToggleButton.Init( this, ui->objToggle );
     m_PolyToggleButton.Init( this, ui->polyToggle );
     m_StlToggleButton.Init( this, ui->stlToggle );
+    m_StlMultiSolidToggleButton.Init( this, ui->stlMultiSolidToggle );
     m_TriToggleButton.Init( this, ui->triToggle );
     m_GmshToggleButton.Init( this, ui->gmshToggle );
     m_SrfToggleButton.Init( this, ui->srfToggle );
@@ -214,7 +215,10 @@ bool CfdMeshScreen::Update()
     m_CfdMeshUI->wakeCompChoice->clear();
     m_CfdMeshUI->farCompChoice->clear();
     m_CompIDMap.clear();
+    m_WingCompIDMap.clear();
+    m_WingGeomVec.clear();
 
+    int iwing = 0;
     for ( i = 0 ; i < ( int )m_GeomVec.size() ; i++ )
     {
         char str[256];
@@ -226,27 +230,34 @@ bool CfdMeshScreen::Update()
             if( g->HasWingTypeSurfs() )
             {
                 m_CfdMeshUI->wakeCompChoice->add( str );
+                m_WingCompIDMap[ m_GeomVec[i] ] = iwing;
+                m_WingGeomVec.push_back( m_GeomVec[i] );
+                iwing ++;
             }
             m_CfdMeshUI->farCompChoice->add( str );
             m_CompIDMap[ m_GeomVec[i] ] = i;
         }
     }
 
-    string currGeomID = CfdMeshMgr.GetCurrGeomID();
+    string currSourceGeomID = CfdMeshMgr.GetCurrSourceGeomID();
 
-    if( currGeomID.length() == 0 && m_GeomVec.size() > 0 )
+    if( currSourceGeomID.length() == 0 && m_GeomVec.size() > 0 )
     {
         // Handle case default case.
-        currGeomID = m_GeomVec[0];
-        CfdMeshMgr.SetCurrGeomID( currGeomID );
+        currSourceGeomID = m_GeomVec[0];
+        CfdMeshMgr.SetCurrSourceGeomID( currSourceGeomID );
     }
 
-    Geom* currGeom = m_Vehicle->FindGeom( currGeomID );
+    Geom* currGeom = m_Vehicle->FindGeom( currSourceGeomID );
 
-    m_CfdMeshUI->compChoice->value( m_CompIDMap[ currGeomID ] );
-    m_CfdMeshUI->wakeCompChoice->value( m_CompIDMap[ currGeomID ] );
+    m_CfdMeshUI->compChoice->value( m_CompIDMap[ currSourceGeomID ] );
 
-    string farGeomID = CfdMeshMgr.GetFarGeomID();
+    string wakeGeomID = CfdMeshMgr.GetWakeGeomID();
+    m_CfdMeshUI->wakeCompChoice->value( m_WingCompIDMap[ wakeGeomID ] );
+
+    Geom* wakeGeom = m_Vehicle->FindGeom( wakeGeomID );
+
+    string farGeomID = CfdMeshMgr.GetCfdSettingsPtr()->GetFarGeomID();
     m_CfdMeshUI->farCompChoice->value( m_CompIDMap[ farGeomID ] );
 
     BaseSource* source = CfdMeshMgr.GetCurrSource();
@@ -424,15 +435,16 @@ bool CfdMeshScreen::Update()
     m_ObjToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_OBJ_FILE_NAME )->GetID() );
     m_PolyToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_POLY_FILE_NAME )->GetID() );
     m_StlToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_STL_FILE_NAME )->GetID() );
+    m_StlMultiSolidToggleButton.Update( m_Vehicle->m_STLMultiSolid.GetID() );
     m_TriToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_TRI_FILE_NAME )->GetID() );
     m_GmshToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_GMSH_FILE_NAME )->GetID() );
     m_SrfToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_SRF_FILE_NAME )->GetID() );
     m_TkeyToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_TKEY_FILE_NAME)->GetID() );
 
     //==== Wake Flag ====//
-    if( currGeom )
+    if( wakeGeom )
     {
-        if ( currGeom->GetWakeActiveFlag() )
+        if ( wakeGeom->GetWakeActiveFlag() )
         {
             m_CfdMeshUI->addWakeButton->value( 1 );
         }
@@ -602,15 +614,7 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
 
         // Hide all geoms.
         Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-        vector<string> geomIds = veh->GetGeomVec();
-        for( int i = 0; i < (int)geomIds.size(); i++ )
-        {
-            GeomBase* gPtr = veh->FindGeom( geomIds[i] );
-            if ( gPtr )
-            {
-                gPtr->m_GuiDraw.SetNoShowFlag( true );
-            }
-        }
+        veh->HideAll();
     }
 //  else if ( m_FarXScaleSlider->GuiChanged( w ) )
 //  {
@@ -688,7 +692,7 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
     {
         //==== Load List of Parts for Comp ====//
         int id = m_CfdMeshUI->compChoice->value();
-        CfdMeshMgr.SetCurrGeomID( m_GeomVec[ id ] );
+        CfdMeshMgr.SetCurrSourceGeomID( m_GeomVec[ id ] );
         CfdMeshMgr.SetCurrMainSurfIndx( 0 );
     }
     else if ( w == m_CfdMeshUI->surfChoice )
@@ -700,13 +704,13 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
     {
         //==== Load List of Parts for Comp ====//
         int id = m_CfdMeshUI->wakeCompChoice->value();
-        CfdMeshMgr.SetCurrGeomID( m_GeomVec[ id ] );
+        CfdMeshMgr.SetWakeGeomID( m_WingGeomVec[ id ] );
     }
     else if ( w == m_CfdMeshUI->farCompChoice )
     {
         //==== Load List of Parts for Comp ====//
         int id = m_CfdMeshUI->farCompChoice->value();
-        CfdMeshMgr.SetFarGeomID( m_GeomVec[ id ] );
+        CfdMeshMgr.GetCfdSettingsPtr()->SetFarGeomID( m_GeomVec[ id ] );
     }
     else if ( w == m_CfdMeshUI->sourceBrowser )
     {
@@ -839,8 +843,8 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
         bool flag = !!( m_CfdMeshUI->addWakeButton->value() );
 
         vector<string> geomVec = m_Vehicle->GetGeomVec();
-        string currGeomID = CfdMeshMgr.GetCurrGeomID();
-        Geom* g = m_Vehicle->FindGeom( currGeomID );
+        string wakeGeomID = CfdMeshMgr.GetWakeGeomID();
+        Geom* g = m_Vehicle->FindGeom( wakeGeomID );
         if ( g )
         {
             g->SetWakeActiveFlag( flag );

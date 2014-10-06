@@ -42,6 +42,14 @@ public:
 
     virtual void ParmChanged( Parm* parm_ptr, int type );
 
+    virtual string GetFarGeomID()
+    {
+        return m_FarGeomID;
+    }
+    virtual void SetFarGeomID( string gid )
+    {
+        m_FarGeomID = gid;
+    }
     virtual bool GetFarMeshFlag()
     {
         return m_FarMeshFlag.Get();
@@ -121,6 +129,8 @@ public:
     BoolParm m_FarManLocFlag;
     BoolParm m_FarAbsSizeFlag;
     BoolParm m_HalfMeshFlag;
+
+    string m_FarGeomID;
 
     FractionParm m_FarXScale;
     FractionParm m_FarYScale;

@@ -404,12 +404,7 @@ void CustomXSec::SetCenterRot( const vec3d & cent )
     m_LateUpdateFlag = true;
 }
 
-double CustomXSec::GetLScale()
-{
-    return 1.0;
-}
-
-double CustomXSec::GetRScale()
+double CustomXSec::GetScale()
 {
     return 1.0;
 }

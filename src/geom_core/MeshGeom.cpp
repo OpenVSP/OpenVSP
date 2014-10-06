@@ -346,6 +346,26 @@ int MeshGeom::ReadSTL( const char* file_name )
                 tMesh->m_NVec.push_back( tPtr->m_N1 );
                 tMesh->m_NVec.push_back( tPtr->m_N2 );
 
+                fpos_t pos;
+                fgetpos( file_id, &pos );
+
+                if ( EOF == fscanf( file_id, "%s %*s\n", str ) )
+                {
+                    break;
+                }
+
+                if ( strcmp( str, "endsolid" ) == 0 )
+                {
+                    fgets( str, 255, file_id );
+                    if ( feof( file_id ) )
+                    {
+                        break;
+                    }
+                }
+                else
+                {
+                    fsetpos( file_id, &pos );
+                }
             }
         }
         else
@@ -462,6 +482,38 @@ void MeshGeom::WriteStl( FILE* file_id )
     for ( m = 0 ; m < ( int )m_TMeshVec.size() ; m++ )
     {
         m_TMeshVec[m]->WriteSTLTris( file_id, GetTotalTransMat() );
+    }
+}
+
+void MeshGeom::WriteStl( FILE* file_id, int tag )
+{
+    //==== Write Out Tris ====//
+    for ( int i = 0 ; i < ( int )m_IndexedTriVec.size() ; i++ )
+    {
+        TTri* ttri = m_IndexedTriVec[i];
+
+        int t = SubSurfaceMgr.GetTag( ttri->m_Tags );
+
+        if ( t == tag )
+        {
+            vec3d p0 = ttri->m_N0->m_Pnt;
+            vec3d p1 = ttri->m_N1->m_Pnt;
+            vec3d p2 = ttri->m_N2->m_Pnt;
+            vec3d v10 = p1 - p0;
+            vec3d v20 = p2 - p1;
+            vec3d norm = cross( v10, v20 );
+            norm.normalize();
+
+            fprintf( file_id, " facet normal  %2.10le %2.10le %2.10le\n",  norm.x(), norm.y(), norm.z() );
+            fprintf( file_id, "   outer loop\n" );
+
+            fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p0.x(), p0.y(), p0.z() );
+            fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p1.x(), p1.y(), p1.z() );
+            fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p2.x(), p2.y(), p2.z() );
+
+            fprintf( file_id, "   endloop\n" );
+            fprintf( file_id, " endfacet\n" );
+        }
     }
 }
 
@@ -1812,14 +1864,38 @@ void MeshGeom::degenGeomIntersectTrim( vector< DegenGeom > &degenGeom )
         }
     }
 
+    bool matchFlag;
+    vector< bool > matchVec( m_TMeshVec.size(), false );
+    // For each degenGeom
     for ( i = 0; i < ( int )degenGeom.size(); i++ )
     {
+        matchFlag = false;
         DegenPoint degenPoint = degenGeom[i].getDegenPoint();
 
-        degenPoint.area.push_back( m_TMeshVec[i]->m_TheoArea );
-        degenPoint.areaWet.push_back( m_TMeshVec[i]->m_WetArea );
-        degenPoint.vol.push_back( m_TMeshVec[i]->m_TheoVol );
-        degenPoint.volWet.push_back( m_TMeshVec[i]->m_WetVol );
+        // Loop through tmesh vector
+        for ( j = 0; j < m_TMeshVec.size(); j++ )
+        {
+            if ( matchVec[j] == false )
+            {
+                // If its pointer id matches the current degenGeom
+                if ( degenGeom[i].getParentGeom()->GetID() == m_TMeshVec[j]->m_PtrID )
+                {
+                    degenPoint.area.push_back( m_TMeshVec[j]->m_TheoArea );
+                    degenPoint.areaWet.push_back( m_TMeshVec[j]->m_WetArea );
+                    degenPoint.vol.push_back( m_TMeshVec[j]->m_TheoVol );
+                    degenPoint.volWet.push_back( m_TMeshVec[j]->m_WetVol );
+                    matchVec[j] = true;
+                    matchFlag = true;
+                }
+            }
+        }
+        if ( !matchFlag )
+        {
+            degenPoint.area.push_back( NAN );
+            degenPoint.areaWet.push_back( NAN );
+            degenPoint.vol.push_back( NAN );
+            degenPoint.volWet.push_back( NAN );
+        }
 
         degenGeom[i].setDegenPoint( degenPoint );
     }
@@ -3207,8 +3283,9 @@ void MeshGeom::degenGeomMassSliceX( vector< DegenGeom > &degenGeom )
     }
 
     bool matchFlag;
+    vector< bool > matchVec( m_TMeshVec.size(), false );
     // For each degenGeom
-    for ( i = 0, j = 0; i < ( int )degenGeom.size(); i++, j++ )
+    for ( i = 0; i < ( int )degenGeom.size(); i++ )
     {
         matchFlag = false;
         DegenPoint degenPoint = degenGeom[i].getDegenPoint();
@@ -3216,20 +3293,20 @@ void MeshGeom::degenGeomMassSliceX( vector< DegenGeom > &degenGeom )
         // Loop through tmesh vector
         for ( j = 0; j < m_TMeshVec.size(); j++ )
         {
-            // If its pointer id matches the current degenGeom
-            bool thismatch = false;
-            if ( degenGeom[i].getParentGeom()->GetID().compare( m_TMeshVec[j]->m_PtrID ) )
+            if ( matchVec[j] == false )
             {
-                thismatch = true;
-            }
+                // If its pointer id matches the current degenGeom
+                string geomid = degenGeom[i].getParentGeom()->GetID();
+                if ( geomid.compare( 0, geomid.size(), m_TMeshVec[j]->m_PtrID, 0, geomid.size() ) == 0 )
+                {
+                    degenPoint.Isolid.push_back( compSolidI[j] );
+                    degenPoint.Ishell.push_back( compShellI[j] );
+                    degenPoint.xcgSolid.push_back( compSolidCg[j] );
+                    degenPoint.xcgShell.push_back( compShellCg[j] );
+                    matchVec[j] = true;
 
-            if( thismatch )
-            {
-                degenPoint.Isolid.push_back( compSolidI[j] );
-                degenPoint.Ishell.push_back( compShellI[j] );
-                degenPoint.xcgSolid.push_back( compSolidCg[j] );
-                degenPoint.xcgShell.push_back( compShellCg[j] );
-                matchFlag = true;
+                    matchFlag = true;
+                }
             }
         }
         if ( !matchFlag )

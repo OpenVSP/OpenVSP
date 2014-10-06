@@ -111,6 +111,7 @@ public:
     virtual float ReadBinFloat( FILE* fptr );
     virtual int   ReadBinInt  ( FILE* fptr );
     virtual void WriteStl( FILE* pov_file );
+    virtual void WriteStl( FILE* stl_file, int tag );
 
     virtual void BuildIndexedMesh( int partOffset );
     virtual int  GetNumIndexedPnts()

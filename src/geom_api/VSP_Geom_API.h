@@ -44,6 +44,18 @@ extern void InsertVSPFile( const string & file_name, const string & parent_geom_
 extern void ExportFile( const string & file_name, int write_set_index, int file_type );
 extern string ImportFile( const string & file_name, int file_type, const string & parent );
 
+//======================== Design Files ================================//
+
+extern void ReadApplyDESFile( const string & file_name );
+extern void WriteDESFile( const string & file_name );
+extern void ReadApplyXDDMFile( const string & file_name );
+extern void WriteXDDMFile( const string & file_name );
+extern int GetNumDesignVars();
+extern void AddDesignVar( const string & parm_id, int type );
+extern void DeleteAllDesignVars();
+extern string GetDesignVar( int index );
+extern int GetDesignVarType( int index );
+
 //======================== Computations ================================//
 // jrg finish this stuff
 //extern void SetWorkingDir( const string & dir_name );
