@@ -41,6 +41,7 @@
 #include <string>
 #include <time.h>
 #include "APIDefines.h"
+#include "DesignVarMgr.h"
 
 using namespace vsp;
 using namespace std;
@@ -82,26 +83,21 @@ bool RunUnitTests()
 int batchMode( int argc, char *argv[], Vehicle* vPtr )
 {
     int i;
-    int batchModeFlag = 0;
     int validFile = 1;
     int scriptModeFlag = 0;
+    int desModeFlag = 0;
+    int xddmModeFlag = 0;
+    int vspFileFlag = 0;
 
     string vsp_filename;
     string script_filename;
+    string des_filename;
+    string xddm_filename;
 
     i = 1;
 
     while ( i <= argc - 1 )
     {
-        if ( strcmp( argv[i], "-batch" ) == 0 )
-        {
-            if ( i + 1 < argc )
-            {
-                vsp_filename = string( argv[++i] );
-                batchModeFlag = 1;
-            }
-        }
-
         if ( strcmp( argv[i], "-script" ) == 0 )
         {
             if ( i + 1 < argc )
@@ -110,51 +106,64 @@ int batchMode( int argc, char *argv[], Vehicle* vPtr )
                 scriptModeFlag = 1;
             }
         }
-
+        else if ( strcmp( argv[i], "-des" ) == 0 )
+        {
+            if ( i + 1 < argc )
+            {
+                des_filename = string( argv[++i] );
+                desModeFlag = 1;
+            }
+        }
+        else if ( strcmp( argv[i], "-xddm" ) == 0 )
+        {
+            if ( i + 1 < argc )
+            {
+                xddm_filename = string( argv[++i] );
+                xddmModeFlag = 1;
+            }
+        }
+        else
+        {
+            vsp_filename = string( argv[i] );
+            vspFileFlag = 1;
+        }
 
         if ( strcmp( argv[i], "-help" ) == 0 || strcmp( argv[i], "-h" ) == 0 || strcmp( argv[i], "--help" ) == 0 )
         {
             printf( "\n" );
             printf( "          %s\n", VSPVERSION1 );
-            printf( "--------------------------------------------\n" );
-            printf( "Usage: vsp [inputfile.vsp] (run interactive version)\n" );
-            printf( "     : vsp -batch  <filename>  (batch mode)\n" );
-            printf( "     : vsp -script  <filename>  (run script)\n" );
-            printf( "--------------------------------------------\n" );
+            printf( "-----------------------------------------------------------\n" );
+            printf( "Usage: vsp [inputfile.vsp3]               Run interactively\n" );
+            printf( "     : vsp -script <vspscriptfile>        Run script\n" );
+            printf( "-----------------------------------------------------------\n" );
             printf( "\n" );
-            printf( "VSP batch options listed below:\n" );
+            printf( "VSP command line options listed below:\n" );
             printf( "  -help              This message\n" );
+            printf( "  -des <desfile>     Set variables according to *.des file\n" );
+            printf( "  -xddm <xddmfile>   Set variables according to *.xddm file\n" );
             printf( "\n" );
-            printf( "--------------------------------------------\n" );
+            printf( "-----------------------------------------------------------\n" );
             return 1;
         }
 
         i++;
     }
 
-    if ( batchModeFlag == 0 && scriptModeFlag == 0 )
+    if ( vspFileFlag )
     {
-        return 0;
-    }
-
-    if ( batchModeFlag )
-    {
-        // Read in File
         validFile = vPtr->ReadXMLFile( vsp_filename );
-        string base_name;
-        int ind = vsp_filename.find( ".vsp3" );
-
-        if ( ind == vsp_filename.npos )
-        {
-            base_name = vsp_filename;
-        }
-        else
-        {
-            base_name = vsp_filename.substr( 0, ind );
-        }
-
-        return batchModeFlag;
     }
+
+    if ( desModeFlag && vspFileFlag )
+    {
+        DesignVarMgr.ReadDesVarsDES( des_filename );
+    }
+
+    if ( xddmModeFlag && vspFileFlag )
+    {
+        DesignVarMgr.ReadDesVarsXDDM( xddm_filename );
+    }
+
     if ( scriptModeFlag )
     {
         // Read Script File
