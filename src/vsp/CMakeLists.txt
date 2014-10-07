@@ -43,7 +43,9 @@ INCLUDE_DIRECTORIES( ${VSP_SOURCE_DIR}
 IF( NOT VSP_NO_GRAPHICS )
 
 	ADD_EXECUTABLE(vsp
+	common.cpp
 	main.cpp
+	common.h
 	main.h
 	)
 
