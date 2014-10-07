@@ -511,12 +511,12 @@ SkinXSec::SkinXSec( XSecCurve *xsc, bool use_left ) : XSec( xsc, use_left)
     m_TopLRCurveEq.Init( "TopLRCurveEq", m_GroupName, this, 0, 0, 1 );
 
     m_TopLAngle.Init( "TopLAngle", m_GroupName, this,  0.0, -180.0, 180.0 );
-    m_TopLStrength.Init( "TopLStrength", m_GroupName, this,  1.0, 0.0, 10.0 );
-    m_TopLCurve.Init( "TopLCurve", m_GroupName, this,  0.0, -10.0, 10.0 );
+    m_TopLStrength.Init( "TopLStrength", m_GroupName, this,  1.0, 0.0, 1e12 );
+    m_TopLCurve.Init( "TopLCurve", m_GroupName, this,  0.0, -1e12, 1e12 );
 
     m_TopRAngle.Init( "TopRAngle", m_GroupName, this,  0.0, -180.0, 180.0 );
-    m_TopRStrength.Init( "TopRStrength", m_GroupName, this,  1.0, 0.0, 10.0 );
-    m_TopRCurve.Init( "TopRCurve", m_GroupName, this,  0.0, -10.0, 10.0 );
+    m_TopRStrength.Init( "TopRStrength", m_GroupName, this,  1.0, 0.0, 1e12 );
+    m_TopRCurve.Init( "TopRCurve", m_GroupName, this,  0.0, -1e12, 1e12 );
 
     // Right spline parameters
     m_RightCont.Init( "ContinuityRight", m_GroupName, this, 0, 0, 2 );
@@ -535,12 +535,12 @@ SkinXSec::SkinXSec( XSecCurve *xsc, bool use_left ) : XSec( xsc, use_left)
     m_RightLRCurveEq.Init( "RightLRCurveEq", m_GroupName, this, 0, 0, 1 );
 
     m_RightLAngle.Init( "RightLAngle", m_GroupName, this,  0.0, -180.0, 180.0 );
-    m_RightLStrength.Init( "RightLStrength", m_GroupName, this,  1.0, 0.0, 10.0 );
-    m_RightLCurve.Init( "RightLCurve", m_GroupName, this,  0.0, -10.0, 10.0 );
+    m_RightLStrength.Init( "RightLStrength", m_GroupName, this,  1.0, 0.0, 1e12 );
+    m_RightLCurve.Init( "RightLCurve", m_GroupName, this,  0.0, -1e12, 1e12 );
 
     m_RightRAngle.Init( "RightRAngle", m_GroupName, this,  0.0, -180.0, 180.0 );
-    m_RightRStrength.Init( "RightRStrength", m_GroupName, this,  1.0, 0.0, 10.0 );
-    m_RightRCurve.Init( "RightRCurve", m_GroupName, this,  0.0, -10.0, 10.0 );
+    m_RightRStrength.Init( "RightRStrength", m_GroupName, this,  1.0, 0.0, 1e12 );
+    m_RightRCurve.Init( "RightRCurve", m_GroupName, this,  0.0, -1e12, 1e12 );
 
     // Bottom spline parameters
     m_BottomCont.Init( "ContinuityBottom", m_GroupName, this, 0, 0, 2 );
@@ -559,12 +559,12 @@ SkinXSec::SkinXSec( XSecCurve *xsc, bool use_left ) : XSec( xsc, use_left)
     m_BottomLRCurveEq.Init( "BottomLRCurveEq", m_GroupName, this, 0, 0, 1 );
 
     m_BottomLAngle.Init( "BottomLAngle", m_GroupName, this,  0.0, -180.0, 180.0 );
-    m_BottomLStrength.Init( "BottomLStrength", m_GroupName, this,  1.0, 0.0, 10.0 );
-    m_BottomLCurve.Init( "BottomLCurve", m_GroupName, this,  0.0, -10.0, 10.0 );
+    m_BottomLStrength.Init( "BottomLStrength", m_GroupName, this,  1.0, 0.0, 1e12 );
+    m_BottomLCurve.Init( "BottomLCurve", m_GroupName, this,  0.0, -1e12, 1e12 );
 
     m_BottomRAngle.Init( "BottomRAngle", m_GroupName, this,  0.0, -180.0, 180.0 );
-    m_BottomRStrength.Init( "BottomRStrength", m_GroupName, this,  1.0, 0.0, 10.0 );
-    m_BottomRCurve.Init( "BottomRCurve", m_GroupName, this,  0.0, -10.0, 10.0 );
+    m_BottomRStrength.Init( "BottomRStrength", m_GroupName, this,  1.0, 0.0, 1e12 );
+    m_BottomRCurve.Init( "BottomRCurve", m_GroupName, this,  0.0, -1e12, 1e12 );
 
     // Left spline parameters
     m_LeftCont.Init( "ContinuityLeft", m_GroupName, this, 0, 0, 2 );
@@ -583,12 +583,12 @@ SkinXSec::SkinXSec( XSecCurve *xsc, bool use_left ) : XSec( xsc, use_left)
     m_LeftLRCurveEq.Init( "LeftLRCurveEq", m_GroupName, this, 0, 0, 1 );
 
     m_LeftLAngle.Init( "LeftLAngle", m_GroupName, this,  0.0, -180.0, 180.0 );
-    m_LeftLStrength.Init( "LeftLStrength", m_GroupName, this,  1.0, 0.0, 10.0 );
-    m_LeftLCurve.Init( "LeftLCurve", m_GroupName, this,  0.0, -10.0, 10.0 );
+    m_LeftLStrength.Init( "LeftLStrength", m_GroupName, this,  1.0, 0.0, 1e12 );
+    m_LeftLCurve.Init( "LeftLCurve", m_GroupName, this,  0.0, -1e12, 1e12 );
 
     m_LeftRAngle.Init( "LeftRAngle", m_GroupName, this,  0.0, -180.0, 180.0 );
-    m_LeftRStrength.Init( "LeftRStrength", m_GroupName, this,  1.0, 0.0, 10.0 );
-    m_LeftRCurve.Init( "LeftRCurve", m_GroupName, this,  0.0, -10.0, 10.0 );
+    m_LeftRStrength.Init( "LeftRStrength", m_GroupName, this,  1.0, 0.0, 1e12 );
+    m_LeftRCurve.Init( "LeftRCurve", m_GroupName, this,  0.0, -1e12, 1e12 );
 }
 
 
