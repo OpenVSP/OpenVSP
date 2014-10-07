@@ -156,7 +156,7 @@ void TypeEditorScreen::CallBack( Fl_Widget *w )
             string module_name = mod_name_vec[m_ScriptIndex];
 
             string dir = CustomGeomMgr.GetScriptDir();
-            string savefile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Save Custom Geom Script", "*.as",  dir.c_str() );
+            string savefile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Save Custom Geom Script", "*.vsppart",  dir.c_str() );
 
             CustomGeomMgr.SaveScriptContentToFile( module_name, savefile );
         }

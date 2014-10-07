@@ -76,8 +76,7 @@ void Vehicle::Init()
     ScriptMgr.Init();
     AdvLinkMgr.Init();
     CustomGeomMgr.ReadCustomScripts();
-    AdvLinkMgr.ReadAdvLinkScripts();
-
+ 
     m_Name = "Vehicle";
 
     m_VSP3FileName = "Unnamed.vsp3";

@@ -458,7 +458,7 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
     }
     else if ( m == m_MainUI->RunScriptMenu )
     {
-        string scriptfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Script File To Run", "*.as" );
+        string scriptfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Script File To Run", "*.vspscript" );
         if ( scriptfile.compare( "" ) != 0 )
         {
             VehicleMgr.GetVehicle()->RunScript( scriptfile );

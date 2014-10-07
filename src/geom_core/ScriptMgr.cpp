@@ -106,8 +106,8 @@ void ScriptMgrSingleton::Init( )
 
 void ScriptMgrSingleton::RunTestScripts()
 {
-    //===== Run Test Scripts ====//
- //   ScriptMgr.ReadScript( "TestScript", "../../TestScript.as"  );
+    ////===== Run Test Scripts ====//
+    //ScriptMgr.ReadScript( "TestScript", "../../TestScript.as"  );
     //ScriptMgr.ReadScriptFromFile( "TestScript", "../../../TestScript.as"  );
     //ScriptMgr.ExecuteScript( "TestScript", "void main()" );
     //ScriptMgr.ExecuteScript( "TestScript", "void TestAPIScript()" );
@@ -121,7 +121,7 @@ void ScriptMgrSingleton::ReadExecuteScriptFile( const string &  file_name, const
     ExecuteScript( module_name.c_str(), function_name.c_str() );
 }
 
-vector< string > ScriptMgrSingleton::ReadScriptsFromDir( const string & dir_name )
+vector< string > ScriptMgrSingleton::ReadScriptsFromDir( const string & dir_name, const string & suffix )
 {
     vector< string > mod_name_vec;
 
@@ -129,15 +129,19 @@ vector< string > ScriptMgrSingleton::ReadScriptsFromDir( const string & dir_name
 
     for ( int i = 0 ; i < ( int )file_vec.size() ; i++ )
     {
-        if ( file_vec[i].compare( file_vec[i].size() - 3, 3, ".as" ) == 0 )
+        int s_num = suffix.size();
+        if ( file_vec[i].size() > s_num )
         {
-            string sub = file_vec[i].substr( 0, file_vec[i].size() - 3 );
-            string file_name = dir_name;
-            file_name.append( file_vec[i] );
-            string module_name = ScriptMgr.ReadScriptFromFile( sub, file_name );
+            if ( file_vec[i].compare( file_vec[i].size() - s_num, s_num, suffix.c_str() ) == 0 )
+            {
+                string sub = file_vec[i].substr( 0, file_vec[i].size() - s_num );
+                string file_name = dir_name;
+                file_name.append( file_vec[i] );
+                string module_name = ScriptMgr.ReadScriptFromFile( sub, file_name );
 
-            if ( module_name.size() )
-                mod_name_vec.push_back( module_name );
+                if ( module_name.size() )
+                    mod_name_vec.push_back( module_name );
+            }
         }
     }
 

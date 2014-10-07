@@ -39,7 +39,7 @@ void CustomGeomMgrSingleton::ReadCustomScripts()
 
     m_CustomTypeVec.clear();
 
-    vector< string > mod_vec = ScriptMgr.ReadScriptsFromDir( m_ScriptDir );
+    vector< string > mod_vec = ScriptMgr.ReadScriptsFromDir( m_ScriptDir, ".vsppart" );
 
     for ( int i = 0 ; i < (int)mod_vec.size() ; i++ )
     {

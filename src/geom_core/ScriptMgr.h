@@ -49,7 +49,7 @@ public:
     string ReadScriptFromFile( const string & module_name, const string &  file_name );
 
     //==== Read All Scripts In Dir and Return Module Names ====//
-    vector< string > ReadScriptsFromDir( const string & dir_name );
+    vector< string > ReadScriptsFromDir( const string & dir_name, const string & suffix );
 
     //==== Read Script From Memory - Return Module Name ====//
     string ReadScriptFromMemory( const string &  module_name, const string & script_content );

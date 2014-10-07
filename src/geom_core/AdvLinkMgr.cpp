@@ -51,19 +51,6 @@ void AdvLinkMgrSingleton::Renew()
     Init();
 }
 
-//==== Scan Custom Directory And Return All Possible Types ====//
-void AdvLinkMgrSingleton::ReadAdvLinkScripts()
-{
-    //==== Only Read Once ====//
-    static bool init_flag = false;
-    if ( init_flag )
-        return;
-    init_flag = true;
-
-    vector< string > mod_vec = ScriptMgr.ReadScriptsFromDir( "../../../LinkScripts/" );
-
-}
-
 //==== Check For Duplicate Link Name =====//
 bool AdvLinkMgrSingleton::DuplicateLinkName( const string & name )
 {

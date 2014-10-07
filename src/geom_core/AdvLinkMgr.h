@@ -37,7 +37,6 @@ public:
     void DelAllLinks();
     void CheckLinks();                  // Check If All Links Are Still Valid
 
-    void ReadAdvLinkScripts();
     void AddAdvLink( const string & script_module_name );
 
     void AddInput( const string & parm_id, const string & var_name );
