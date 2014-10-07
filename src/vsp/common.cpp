@@ -3,48 +3,14 @@
 // version 1.3 as detailed in the LICENSE file which accompanies this software.
 //
 
-// Leak Detection http://www.codeproject.com/KB/applications/visualleakdetector.aspx
-//#include "vld.h"
-
-#include <stdio.h>
-
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-
-#ifdef WIN32
-#include <windows.h>
-#else
-#include <pthread.h>
-#endif
-
-#include <libxml/tree.h>
-#include <libxml/nanohttp.h>
-
-
-#ifdef WIN32
-#include <direct.h>
-#define GetCurrentDir _getcwd
-#else
-#include <unistd.h>
-#define GetCurrentDir getcwd
-#endif
-
-
+#include "common.h"
 #include "main.h"
 #include "VSP_Geom_API.h"
 #include "VehicleMgr.h"
-#include "GuiInterface.h"
-#include "EventMgr.h"
-#include "GeomCoreTestSuite.h"
-#include "UtilTestSuite.h"
+#include "Vehicle.h"
 #include <string>
-#include <time.h>
 #include "APIDefines.h"
 #include "DesignVarMgr.h"
-
-using namespace vsp;
-using namespace std;
 
 // Bitwise adds ecode to the current exit status code and returns to current exit status code
 int vsp_add_and_get_estatus( int ecode )

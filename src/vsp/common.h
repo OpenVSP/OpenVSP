@@ -7,10 +7,7 @@
 #if !defined(VSPCOMMON__INCLUDED_)
 #define VSPCOMMON__INCLUDED_
 
-#include "main.h"
-#include "VSP_Geom_API.h"
-#include "VehicleMgr.h"
-#include "APIDefines.h"
+#include "Vehicle.h"
 
 int vsp_add_and_get_estatus( int ecode );
 void vsp_exit();
