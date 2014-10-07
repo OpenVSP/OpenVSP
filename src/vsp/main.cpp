@@ -83,7 +83,6 @@ int batchMode( int argc, char *argv[], Vehicle* vPtr )
 {
     int i;
     int batchModeFlag = 0;
-    int validateFileFlag = 0;
     int validFile = 1;
     int x3dFlag = 0;
     int scriptModeFlag = 0;
@@ -102,11 +101,6 @@ int batchMode( int argc, char *argv[], Vehicle* vPtr )
                 vsp_filename = string( argv[++i] );
                 batchModeFlag = 1;
             }
-        }
-
-        if ( strcmp( argv[i], "-validate" ) == 0 )
-        {
-            validateFileFlag = 1;
         }
 
         if ( strcmp( argv[i], "-x3d" ) == 0 )
@@ -135,7 +129,6 @@ int batchMode( int argc, char *argv[], Vehicle* vPtr )
             printf( "--------------------------------------------\n" );
             printf( "\n" );
             printf( "VSP batch options listed below:\n" );
-            printf( "  -validate          Check if file is valid ( Returns 0 for valid,  %d for invalid)\n", ESTATUS_INVALID_FILE_ERROR );
             printf( "  -help              This message\n" );
             printf( "\n" );
             printf( "--------------------------------------------\n" );
@@ -164,14 +157,6 @@ int batchMode( int argc, char *argv[], Vehicle* vPtr )
         else
         {
             base_name = vsp_filename.substr( 0, ind );
-        }
-
-        if ( validateFileFlag )
-        {
-            if ( validFile != 0 || vPtr->GetFileOpenVersion() < MIN_FILE_VER )
-            {
-                vsp_add_and_get_estatus( ESTATUS_INVALID_FILE_ERROR );
-            }
         }
 
         if ( x3dFlag )
