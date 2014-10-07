@@ -135,5 +135,28 @@ TARGET_LINK_LIBRARIES(apitest
 	${STEPCODE_LIBRARIES}
 )
 
+ADD_EXECUTABLE(vspscript
+common.cpp
+scriptonly_main.cpp
+common.h
+../vsp/main.h.in
+)
 
-#INSTALL( TARGETS apitest RUNTIME DESTINATION . )
+TARGET_LINK_LIBRARIES(vspscript
+	geom_api
+	geom_core
+	cfd_mesh
+	triangle
+	xmlvsp
+	sixseries
+	util
+	tritri
+	Angelscript
+	${CPPTEST_LIBRARIES}
+	${LIBXML2_LIBRARIES}
+	${WINSOCK_LIBRARIES}
+	${CMINPACK_LIBRARIES}
+	${STEPCODE_LIBRARIES}
+)
+
+INSTALL( TARGETS vspscript RUNTIME DESTINATION . )
