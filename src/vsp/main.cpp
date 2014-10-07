@@ -84,7 +84,6 @@ int batchMode( int argc, char *argv[], Vehicle* vPtr )
     int i;
     int batchModeFlag = 0;
     int validFile = 1;
-    int x3dFlag = 0;
     int scriptModeFlag = 0;
 
     string vsp_filename;
@@ -101,11 +100,6 @@ int batchMode( int argc, char *argv[], Vehicle* vPtr )
                 vsp_filename = string( argv[++i] );
                 batchModeFlag = 1;
             }
-        }
-
-        if ( strcmp( argv[i], "-x3d" ) == 0 )
-        {
-            x3dFlag = 1;
         }
 
         if ( strcmp( argv[i], "-script" ) == 0 )
@@ -159,13 +153,6 @@ int batchMode( int argc, char *argv[], Vehicle* vPtr )
             base_name = vsp_filename.substr( 0, ind );
         }
 
-        if ( x3dFlag )
-        {
-            string fname = base_name;
-            fname.append( ".x3d" );
-            vPtr->WriteX3DFile( fname, SET_ALL );
-            printf( "X3D file name: %s \n", fname.c_str() );
-        }
         return batchModeFlag;
     }
     if ( scriptModeFlag )
