@@ -665,24 +665,22 @@ double VspCurve::FindNearest( double &u, const vec3d &pt, const double &u0 ) con
 
 double VspCurve::FindNearest01( double &u, const vec3d &pt ) const
 {
-    int num_sects = GetNumSections();
     double dist;
 
     dist = FindNearest( u, pt );
 
-    u = u / num_sects;
+    u = u / m_Curve.get_tmax();
 
     return dist;
 }
 
 double VspCurve::FindNearest01( double &u, const vec3d &pt, const double &u0 ) const
 {
-    int num_sects = GetNumSections();
     double dist;
 
-    dist = FindNearest( u, pt, u0 * num_sects );
+    dist = FindNearest( u, pt, u0 * m_Curve.get_tmax() );
 
-    u = u / num_sects;
+    u = u / m_Curve.get_tmax();
 
     return dist;
 }
@@ -710,16 +708,14 @@ vec3d VspCurve::CompTan( double u )
 //===== Compute Point U 0.0 -> 1.0 =====//
 vec3d VspCurve::CompPnt01( double u )
 {
-    double num_sects = GetNumSections();
-    return CompPnt( u * num_sects );
+    return CompPnt( u * m_Curve.get_tmax() );
 }
 
 
 //===== Compute Tan U 0.0 -> 1.0 =====//
 vec3d VspCurve::CompTan01( double u )
 {
-    double num_sects = GetNumSections();
-    return CompTan( u * num_sects );
+    return CompTan( u * m_Curve.get_tmax() );
 }
 
 //===== Compute Length =====//
