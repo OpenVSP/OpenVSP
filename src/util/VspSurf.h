@@ -68,9 +68,6 @@ public:
     void SkinC1( const vector< VspCurve > &input_crv_vec, bool closed_flag );
     void SkinC2( const vector< VspCurve > &input_crv_vec, bool closed_flag );
 
-    int GetNumSectU() const;
-    int GetNumSectW() const;
-
     double GetUMax() const;
     double GetWMax() const;
 
@@ -163,5 +160,9 @@ protected:
 
     vector < bool > m_USkip;
     vector < bool > m_WSkip;
+
+    int GetNumSectU() const;
+    int GetNumSectW() const;
+
 };
 #endif
