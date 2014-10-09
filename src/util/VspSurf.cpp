@@ -147,13 +147,10 @@ double VspSurf::FindNearest01( double &u, double &w, const vec3d &pt ) const
     double dist;
     int num_sectU, num_sectW;
 
-    num_sectU = GetNumSectU();
-    num_sectW = GetNumSectW();
-
     dist = FindNearest( u, w, pt );
 
-    u = u / num_sectU;
-    w = w / num_sectW;
+    u = u / GetUMax();
+    w = w / GetWMax();
 
     return dist;
 }
@@ -163,13 +160,10 @@ double VspSurf::FindNearest01( double &u, double &w, const vec3d &pt, const doub
     double dist;
     int num_sectU, num_sectW;
 
-    num_sectU = GetNumSectU();
-    num_sectW = GetNumSectW();
+    dist = FindNearest( u, w, pt, u0 * GetUMax(), w0 * GetWMax() );
 
-    dist = FindNearest( u, w, pt, u0 * num_sectU, w0 * num_sectW );
-
-    u = u / num_sectU;
-    w = w / num_sectW;
+    u = u / GetUMax();
+    w = w / GetWMax();
 
     return dist;
 }
@@ -337,37 +331,37 @@ void VspSurf::SkinC2( const vector< VspCurve > &input_crv_vec, bool closed_flag 
 //===== Compute Point On Surf Given  U V (Between 0 1 ) =====//
 vec3d VspSurf::CompPnt01( double u, double v ) const
 {
-    return CompPnt( u * ( double )GetNumSectU(), v * ( double )GetNumSectW() );
+    return CompPnt( u * GetUMax(), v * GetWMax() );
 }
 
 //===== Compute Tangent In U Direction   =====//
 vec3d VspSurf::CompTanU01( double u01, double v01 ) const
 {
-    return CompTanU( u01 * ( double )GetNumSectU(), v01 * ( double )GetNumSectW() );
+    return CompTanU( u01 * GetUMax(), v01 * GetWMax() );
 }
 
 //===== Compute Tangent In W Direction   =====//
 vec3d VspSurf::CompTanW01( double u01, double v01 ) const
 {
-    return CompTanW( u01 * ( double )GetNumSectU(), v01 * ( double )GetNumSectW() );
+    return CompTanW( u01 * GetUMax(), v01 * GetWMax() );
 }
 
 //===== Compute Second Derivative U,U   =====//
 vec3d VspSurf::CompTanUU01( double u01, double v01 ) const
 {
-    return CompTanUU( u01 * ( double )GetNumSectU(), v01 * ( double )GetNumSectW() );
+    return CompTanUU( u01 * GetUMax(), v01 * GetWMax() );
 }
 
 //===== Compute Second Derivative W,W   =====//
 vec3d VspSurf::CompTanWW01( double u01, double v01 ) const
 {
-    return CompTanWW( u01 * ( double )GetNumSectU(), v01 * ( double )GetNumSectW() );
+    return CompTanWW( u01 * GetUMax(), v01 * GetWMax() );
 }
 
 //===== Compute Second Derivative U,W   =====//
 vec3d VspSurf::CompTanUW01( double u01, double v01 ) const
 {
-    return CompTanUW( u01 * ( double )GetNumSectU(), v01 * ( double )GetNumSectW() );
+    return CompTanUW( u01 * GetUMax(), v01 * GetWMax() );
 }
 
 //===== Compute Second Derivative U,U   =====//
@@ -448,7 +442,7 @@ vec3d VspSurf::CompNorm( double u, double v ) const
 //===== Compute Normal  0->1.0  =====//
 vec3d VspSurf::CompNorm01( double u01, double v01 ) const
 {
-    return CompNorm( u01 * ( double )GetNumSectU(), v01 * ( double )GetNumSectW() );
+    return CompNorm( u01 * GetUMax(), v01 * GetWMax() );
 }
 
 void VspSurf::ResetUWSkip()
