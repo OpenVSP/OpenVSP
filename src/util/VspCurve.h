@@ -56,12 +56,8 @@ public:
 
     void SetCubicControlPoints( const vector< vec3d > & cntrl_pts, bool closed_flag );
 
-    int GetNumSections() const;
-
     const piecewise_curve_type & GetCurve() const;
     void SetCurve( const piecewise_curve_type &c );
-    void GetCurveSegment( curve_segment_type &c, int i ) const;
-    double GetCurveDt( int i ) const;
     void AppendCurveSegment( curve_segment_type &c );
 
     double FindNearest( double &u, const vec3d &pt ) const;
@@ -107,6 +103,10 @@ public:
 
 protected:
     piecewise_curve_type m_Curve;
+
+    int GetNumSections() const;
+    void GetCurveSegment( curve_segment_type &c, int i ) const;
+    double GetCurveDt( int i ) const;
 };
 
 
