@@ -685,7 +685,7 @@ void ManageGeomScreen::CallBack( Fl_Widget *w )
     }
     else if ( w == m_GeomUI->showOnlySetButton  )
     {
-        m_VehiclePtr->SetShowSet( m_SetIndex + SET_FIRST_USER );
+        m_VehiclePtr->ShowOnlySet( m_SetIndex + SET_FIRST_USER );
     }
     else if ( w == m_GeomUI->showSubToggle )
     {

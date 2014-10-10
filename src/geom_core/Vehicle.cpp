@@ -844,7 +844,7 @@ void Vehicle::SetSetName( int index, const string& name )
 }
 
 //=== Set 'Show' set to specified index set ===//
-void Vehicle::SetShowSet( int index )
+void Vehicle::ShowOnlySet( int index )
 {
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
