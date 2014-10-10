@@ -44,7 +44,7 @@ ManageGeomScreen::ManageGeomScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     ui->selectAllGeomButton->callback( staticScreenCB, this );
     ui->activeGeomInput->callback( staticScreenCB, this );
     ui->setChoice->callback( staticScreenCB, this );
-    ui->showSetButton->callback( staticScreenCB, this );
+    ui->showOnlySetButton->callback( staticScreenCB, this );
 
     ui->wireGeomButton->callback( staticScreenCB, this );
     ui->shadeGeomButton->callback( staticScreenCB, this );
@@ -678,7 +678,7 @@ void ManageGeomScreen::CallBack( Fl_Widget *w )
     {
         m_SetIndex = m_GeomUI->setChoice->value();
     }
-    else if ( w == m_GeomUI->showSetButton  )
+    else if ( w == m_GeomUI->showOnlySetButton  )
     {
         m_VehiclePtr->SetShowSet( m_SetIndex + SET_FIRST_USER );
     }
