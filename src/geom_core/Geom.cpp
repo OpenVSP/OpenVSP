@@ -1260,6 +1260,12 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
             draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
             break;
 
+        case GeomGuiDraw::GEOM_DRAW_NONE:
+            m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_MESH;
+            m_WireShadeDrawObj_vec[i].m_Visible = false;
+            draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
+            break;
+
         case GeomGuiDraw::GEOM_DRAW_TEXTURE:
             m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_TEXTURED_MESH;
 

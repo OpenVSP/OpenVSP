@@ -74,7 +74,7 @@ public:
     GeomGuiDraw();
     virtual ~GeomGuiDraw();
 
-    enum { GEOM_DRAW_WIRE, GEOM_DRAW_HIDDEN, GEOM_DRAW_SHADE, GEOM_DRAW_TEXTURE };
+    enum { GEOM_DRAW_WIRE, GEOM_DRAW_HIDDEN, GEOM_DRAW_SHADE, GEOM_DRAW_TEXTURE, GEOM_DRAW_NONE };
 
     void SetDrawType( int t )
     {

@@ -50,6 +50,7 @@ ManageGeomScreen::ManageGeomScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     ui->shadeGeomButton->callback( staticScreenCB, this );
     ui->hiddenGeomButton->callback( staticScreenCB, this );
     ui->textureGeomButton->callback( staticScreenCB, this );
+    ui->noneGeomButton->callback( staticScreenCB, this );
     ui->showFeatureToggle->callback( staticScreenCB, this );
     ui->showSubToggle->callback( staticScreenCB, this );
 
@@ -657,6 +658,10 @@ void ManageGeomScreen::CallBack( Fl_Widget *w )
     else if ( w == m_GeomUI->textureGeomButton )
     {
         SetGeomDisplayType( GeomGuiDraw::GEOM_DRAW_TEXTURE );
+    }
+    else if ( w == m_GeomUI->noneGeomButton )
+    {
+        SetGeomDisplayType( GeomGuiDraw::GEOM_DRAW_NONE );
     }
     else if ( w == m_GeomUI->moveUpButton )
     {
