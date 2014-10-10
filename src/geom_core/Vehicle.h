@@ -119,6 +119,8 @@ public:
     void SetSetName( int index, const string& name );
     vector< string > GetSetNameVec()                        { return m_SetNameVec; }
     void ShowOnlySet( int index );
+    void NoShowSet( int index );
+    void ShowSet( int index );
     vector< string > GetGeomSet( int index );
 
     void HideAllExcept( string id );

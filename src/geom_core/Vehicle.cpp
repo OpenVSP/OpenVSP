@@ -856,6 +856,36 @@ void Vehicle::ShowOnlySet( int index )
     }
 }
 
+void Vehicle::NoShowSet( int index )
+{
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        bool f = geom_vec[i]->GetSetFlag( index );
+
+        if ( f )
+        {
+            geom_vec[i]->SetSetFlag( SET_SHOWN, false );
+            geom_vec[i]->SetSetFlag( SET_NOT_SHOWN, true );
+        }
+    }
+}
+
+void Vehicle::ShowSet( int index )
+{
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        bool f = geom_vec[i]->GetSetFlag( index );
+
+        if ( f )
+        {
+            geom_vec[i]->SetSetFlag( SET_SHOWN, true );
+            geom_vec[i]->SetSetFlag( SET_NOT_SHOWN, false );
+        }
+    }
+}
+
 //=== Get Vector of Geom IDs That Are In Set Index ===//
 vector< string > Vehicle::GetGeomSet( int index )
 {
