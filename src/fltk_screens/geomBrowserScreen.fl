@@ -8,141 +8,145 @@ class GeomUI {open
   } {
     Fl_Window UIWindow {
       label {Geom Browser} open
-      xywh {598 93 160 650} type Double box THIN_DOWN_BOX color 29 resizable
+      xywh {494 44 235 595} type Double box THIN_DOWN_BOX color 29 resizable
       code0 {\#include "VSPWindow.h"}
       class VSP_Window visible
     } {
       Fl_Box {} {
         label Geom
-        xywh {5 5 150 15} box ROUNDED_BOX labelfont 1 labelsize 16 labelcolor 15
+        xywh {5 5 225 15} box ROUNDED_BOX labelfont 1 labelsize 16 labelcolor 15
       }
       Fl_Choice geomTypeChoice {open
         xywh {5 25 150 20} down_box BORDER_BOX color 17 labelsize 12 align 20 textfont 1 textsize 12
       } {}
       Fl_Button addGeomButton {
         label Add
-        xywh {5 45 150 20} labelfont 1 labelsize 12 align 64
-      }
-      Fl_Button copyGeomButton {
-        label Copy
-        xywh {5 70 70 20} labelfont 1 labelsize 12
-      }
-      Fl_Button cutGeomButton {
-        label Cut
-        xywh {5 90 70 20} labelfont 1 labelsize 12
-      }
-      Fl_Button pasteGeomButton {
-        label Paste
-        xywh {85 70 70 20} labelfont 1 labelsize 12
+        xywh {160 25 70 20} labelfont 1 labelsize 12 align 64
       }
       Fl_Button deleteGeomButton {
         label Delete
-        xywh {85 90 70 20} labelfont 1 labelsize 12
+        xywh {160 90 70 20} labelfont 1 labelsize 12
       }
       Fl_Box {} {
         label {Active:}
-        xywh {5 115 150 15} box BORDER_BOX labelfont 1 labelcolor 15
+        xywh {5 50 225 15} box BORDER_BOX labelfont 1 labelcolor 15
       }
       Fl_Input activeGeomInput {
-        xywh {5 128 150 21} textfont 1
+        xywh {5 65 225 20} textfont 1
       }
       Fl_Browser geomBrowser {
-        xywh {15 150 140 235} type Multi textsize 12 resizable
+        xywh {15 90 140 500} type Multi textsize 12 resizable
       }
       Fl_Button moveTopButton {
         label {@2<<}
-        xywh {1 150 14 50} labelfont 1 labelsize 12
+        xywh {1 90 14 50} labelfont 1 labelsize 12
       }
       Fl_Button moveBotButton {
         label {@2>>}
-        xywh {1 335 14 50} labelfont 1
+        xywh {1 540 14 50} labelfont 1
       }
       Fl_Button moveUpButton {
         label {@2<}
-        xywh {1 210 14 50} labelfont 1
+        xywh {1 150 14 50} labelfont 1
       }
       Fl_Button moveDownButton {
         label {@2>}
-        xywh {1 275 14 50} labelfont 1
+        xywh {1 480 14 50} labelfont 1
+      }
+      Fl_Box {} {
+        label Clipboard
+        xywh {160 115 70 15} box BORDER_BOX labelfont 1 labelcolor 15
+      }
+      Fl_Button copyGeomButton {
+        label Copy
+        xywh {160 130 70 20} labelfont 1 labelsize 12
+      }
+      Fl_Button pasteGeomButton {
+        label Paste
+        xywh {160 150 70 20} labelfont 1 labelsize 12
+      }
+      Fl_Button cutGeomButton {
+        label Cut
+        xywh {160 170 70 20} labelfont 1 labelsize 12
       }
       Fl_Box {} {
         label Selection
-        xywh {5 390 150 15} box BORDER_BOX labelfont 1 labelcolor 15
+        xywh {160 195 70 15} box BORDER_BOX labelfont 1 labelcolor 15
       }
       Fl_Button selectAllGeomButton {
         label {Sel All}
-        xywh {5 405 70 20} labelfont 1 labelsize 12 align 64
+        xywh {160 210 70 20} labelfont 1 labelsize 12 align 64
       }
       Fl_Light_Button pickGeomButton {
         label Pick
-        xywh {85 405 70 20} labelfont 1 labelsize 12 align 16
+        xywh {160 230 70 20} labelfont 1 labelsize 12 align 16
       }
       Fl_Button showGeomButton {
         label Show
-        xywh {5 425 70 20} labelfont 1 labelsize 12 align 64
+        xywh {160 250 70 20} labelfont 1 labelsize 12 align 64
       }
       Fl_Button noshowGeomButton {
         label NoShow
-        xywh {85 425 70 20} labelfont 1 labelsize 12 align 64
+        xywh {160 270 70 20} labelfont 1 labelsize 12 align 64
       }
       Fl_Box {} {
-        label {Surface View Mode}
-        xywh {5 450 150 15} box BORDER_BOX labelfont 1 labelcolor 15
+        label Surface
+        xywh {160 295 70 15} box BORDER_BOX labelfont 1 labelcolor 15
       }
       Fl_Button wireGeomButton {
         label Wire
-        xywh {5 465 70 20} labelfont 1 labelsize 12
+        xywh {160 310 70 20} labelfont 1 labelsize 12
       }
       Fl_Button hiddenGeomButton {
         label Hidden
-        xywh {85 465 70 20} labelfont 1 labelsize 12
+        xywh {160 330 70 20} labelfont 1 labelsize 12
       }
       Fl_Button shadeGeomButton {
         label Shade
-        xywh {5 485 70 20} labelfont 1 labelsize 12
+        xywh {160 350 70 20} labelfont 1 labelsize 12
       }
       Fl_Button textureGeomButton {
         label Texture
-        xywh {85 485 70 20} labelfont 1 labelsize 12
+        xywh {160 370 70 20} labelfont 1 labelsize 12
       }
       Fl_Button noneGeomButton {
         label None
-        xywh {5 505 70 20} labelfont 1 labelsize 12
+        xywh {160 390 70 20} labelfont 1 labelsize 12
       }
       Fl_Box {} {
-        label {Show Lines}
-        xywh {5 530 150 15} box BORDER_BOX labelfont 1 labelcolor 15
+        label Lines
+        xywh {160 415 70 15} box BORDER_BOX labelfont 1 labelcolor 15
       }
       Fl_Light_Button showSubToggle {
         label Sub
-        xywh {5 545 70 20} labelfont 1 labelsize 12 align 16
+        xywh {160 430 70 20} labelfont 1 labelsize 12 align 16
       }
       Fl_Light_Button showFeatureToggle {
         label Feature
-        xywh {85 545 70 20} labelfont 1 labelsize 12 align 16
+        xywh {160 450 70 20} labelfont 1 labelsize 12 align 16
       }
       Fl_Box {} {
         label Sets
-        xywh {5 570 150 15} box BORDER_BOX labelfont 1 labelcolor 15
+        xywh {160 475 70 15} box BORDER_BOX labelfont 1 labelcolor 15
       }
       Fl_Choice setChoice {
-        xywh {5 585 150 20} down_box FLAT_BOX color 17 textfont 1
+        xywh {160 490 70 20} down_box FLAT_BOX color 17 textfont 1
       } {}
       Fl_Button showOnlySetButton {
         label {Show Only}
-        xywh {5 605 70 20} labelfont 1 labelsize 12 align 64
-      }
-      Fl_Button selectSetButton {
-        label Select
-        xywh {5 625 70 20} labelfont 1 labelsize 12 align 64
+        xywh {160 510 70 20} labelfont 1 labelsize 12 align 64
       }
       Fl_Button showSetButton {
         label Show
-        xywh {85 605 70 20} labelfont 1 labelsize 12 align 64
+        xywh {160 530 70 20} labelfont 1 labelsize 12 align 64
       }
       Fl_Button noshowSetButton {
         label NoShow
-        xywh {85 625 70 20} labelfont 1 labelsize 12 align 64
+        xywh {160 550 70 20} labelfont 1 labelsize 12 align 64
+      }
+      Fl_Button selectSetButton {
+        label Select
+        xywh {160 570 70 20} labelfont 1 labelsize 12 align 64
       }
     }
   }
