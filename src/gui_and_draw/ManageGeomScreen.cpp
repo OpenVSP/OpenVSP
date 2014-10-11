@@ -47,6 +47,7 @@ ManageGeomScreen::ManageGeomScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     ui->showOnlySetButton->callback( staticScreenCB, this );
     ui->showSetButton->callback( staticScreenCB, this );
     ui->noshowSetButton->callback( staticScreenCB, this );
+    ui->selectSetButton->callback( staticScreenCB, this );
 
     ui->wireGeomButton->callback( staticScreenCB, this );
     ui->shadeGeomButton->callback( staticScreenCB, this );
@@ -456,6 +457,21 @@ void ManageGeomScreen::SelectAll()
 
 }
 
+//===== Select Geom Set ====//
+void ManageGeomScreen::SelectSet( int set )
+{
+    vector< string > set_geom_vec = m_VehiclePtr->GetGeomSet( set );
+    m_VehiclePtr->SetActiveGeomVec( set_geom_vec );
+
+    //==== Restore List of Selected Geoms ====//
+    for ( int i = 0 ; i < ( int )set_geom_vec.size() ; i++ )
+    {
+        SelectGeomBrowser( set_geom_vec[i] );
+    }
+
+    LoadActiveGeomOutput();
+}
+
 //==== Load Active Geom IDs and Children ===//
 vector< string > ManageGeomScreen::GetActiveGeoms()
 {
@@ -696,6 +712,10 @@ void ManageGeomScreen::CallBack( Fl_Widget *w )
     else if ( w == m_GeomUI->noshowSetButton )
     {
         m_VehiclePtr->NoShowSet( m_SetIndex + SET_FIRST_USER );
+    }
+    else if ( w == m_GeomUI->selectSetButton )
+    {
+        SelectSet( m_SetIndex + SET_FIRST_USER );
     }
     else if ( w == m_GeomUI->showSubToggle )
     {

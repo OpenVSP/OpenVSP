@@ -96,6 +96,7 @@ protected:
     bool IsParentSelected( string geom_id, vector< string > & selVec );
     void NoShowActiveGeoms( bool flag );
     void SelectAll();
+    void SelectSet( int set );
     void SetGeomDisplayType( int type );
     void EditName( string name );
     void SetSubDrawFlag( bool f );
