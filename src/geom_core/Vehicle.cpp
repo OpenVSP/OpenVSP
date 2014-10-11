@@ -467,6 +467,17 @@ bool Vehicle::IsGeomActive( const string & geom_id )
     return vector_contains_val( m_ActiveGeom, geom_id );
 }
 
+void Vehicle::DeleteGeomVec( const vector< string > & del_vec )
+{
+    RemoveGeomVecFromHierarchy( del_vec );
+
+    for ( int c = 0 ; c < ( int )del_vec.size() ; c++ )
+    {
+        string id = del_vec[c];
+        DeleteGeom( id );
+    }
+}
+
 void Vehicle::CutGeomVec( const vector< string > & cut_vec )
 {
     RemoveGeomVecFromHierarchy( cut_vec );
@@ -647,6 +658,19 @@ void Vehicle::ReorderActiveGeom( int action )
 
 }
 
+//==== Delete Active Geom ====//
+void Vehicle::DeleteActiveGeomVec()
+{
+    vector< string > sel_vec = GetActiveGeomVec();
+    if ( sel_vec.size() == 0 )
+    {
+        return;
+    }
+
+    DeleteGeomVec( sel_vec );
+
+    ClearActiveGeom();
+}
 
 //==== Cut Active Geom and Place in Clipboard ====//
 void Vehicle::CutActiveGeomVec()

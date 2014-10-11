@@ -103,7 +103,9 @@ public:
     void ReorderActiveGeom( int direction );
 
     void CutActiveGeomVec();
+    void DeleteActiveGeomVec();
     void CopyActiveGeomVec();
+    void DeleteGeomVec( const vector<string> & del_vec );
     void CutGeomVec( const vector<string> & cut_vec );
     void RemoveGeomVecFromHierarchy( const vector<string> & cut_vec );
     void DeleteClipBoard();
