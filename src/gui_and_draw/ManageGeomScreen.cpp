@@ -39,6 +39,7 @@ ManageGeomScreen::ManageGeomScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     ui->cutGeomButton->callback( staticScreenCB, this );
     ui->copyGeomButton->callback( staticScreenCB, this );
     ui->pasteGeomButton->callback( staticScreenCB, this );
+    ui->deleteGeomButton->callback( staticScreenCB, this );
     ui->noshowGeomButton->callback( staticScreenCB, this );
     ui->showGeomButton->callback( staticScreenCB, this );
     ui->selectAllGeomButton->callback( staticScreenCB, this );
@@ -652,6 +653,10 @@ void ManageGeomScreen::CallBack( Fl_Widget *w )
     else if ( w == m_GeomUI->cutGeomButton )
     {
         m_VehiclePtr->CutActiveGeomVec();
+    }
+    else if ( w == m_GeomUI->deleteGeomButton )
+    {
+        m_VehiclePtr->DeleteActiveGeomVec();
     }
     else if ( w == m_GeomUI->copyGeomButton )
     {
