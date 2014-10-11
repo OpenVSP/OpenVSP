@@ -469,6 +469,27 @@ bool Vehicle::IsGeomActive( const string & geom_id )
 
 void Vehicle::CutGeomVec( const vector< string > & cut_vec )
 {
+    RemoveGeomVecFromHierarchy( cut_vec );
+
+    //=== All Geoms To Be Cut ====//
+    for ( int c = 0 ; c < ( int )cut_vec.size() ; c++ )
+    {
+        string id = cut_vec[c];
+        Geom* gPtr = FindGeom( id );
+        if ( gPtr )
+        {
+            m_ClipBoard.push_back( id );
+        }
+    }
+
+    //==== Make Sure Destructor is Called On Cut Geoms ===//
+    vector< string > stored = CopyGeomVec( m_ClipBoard );
+    DeleteClipBoard();
+    m_ClipBoard = stored;
+}
+
+void Vehicle::RemoveGeomVecFromHierarchy( const vector< string > & cut_vec )
+{
     //=== Build Ancestor ID vector before changing hierarchy ===//
     vector< string > ancest_vec;
     ancest_vec.resize( cut_vec.size() );
@@ -541,17 +562,11 @@ void Vehicle::CutGeomVec( const vector< string > & cut_vec )
                     gPtr->RemoveChildID( child_id );
                 }
             }
-            m_ClipBoard.push_back( id );
         }
 
         //==== Remove From Top Geom Deque ====//
         vector_remove_val( m_TopGeom, id );
     }
-
-    //==== Make Sure Destructor is Called On Cut Geoms ===//
-    vector< string > stored = CopyGeomVec( m_ClipBoard );
-    DeleteClipBoard();
-    m_ClipBoard = stored;
 }
 
 //==== Reorder Active Geom  ====//

@@ -105,6 +105,7 @@ public:
     void CutActiveGeomVec();
     void CopyActiveGeomVec();
     void CutGeomVec( const vector<string> & cut_vec );
+    void RemoveGeomVecFromHierarchy( const vector<string> & cut_vec );
     void DeleteClipBoard();
     void PasteClipboard();
 
