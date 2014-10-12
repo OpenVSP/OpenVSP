@@ -143,8 +143,8 @@ common.h
 )
 
 TARGET_LINK_LIBRARIES(vspscript
-	geom_api
 	geom_core
+	geom_api
 	cfd_mesh
 	triangle
 	xmlvsp
