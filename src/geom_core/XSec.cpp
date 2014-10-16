@@ -443,7 +443,7 @@ void XSec::GetAngStrCrv( double t, int irib,
     if( irib > 0 ) uribL = irib - tol;
     else uribL = irib;
 
-    if( irib < surf.GetNumSectU() ) uribR = irib + tol;
+    if( irib < surf.GetUMax() ) uribR = irib + tol;
     else uribR = irib;
 
     vec3d tanL = surf.CompTanU( uribL, t );

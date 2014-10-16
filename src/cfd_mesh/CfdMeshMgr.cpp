@@ -1848,7 +1848,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
             for ( int i = 0 ; i < ( int )allTriVec.size() ; i++ )
             {
                 fprintf( fp, "%d %d %d %d.0\n",
-                         allTriVec[i].ind0, allTriVec[i].ind1, allTriVec[i].ind2,
+                         allTriVec[i].ind0, allTriVec[i].ind2, allTriVec[i].ind1,
                          SubSurfaceMgr.GetTag( allTriVec[i].m_Tags ) );
             }
             fclose( fp );

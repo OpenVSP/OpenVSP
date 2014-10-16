@@ -1891,10 +1891,10 @@ void MeshGeom::degenGeomIntersectTrim( vector< DegenGeom > &degenGeom )
         }
         if ( !matchFlag )
         {
-            degenPoint.area.push_back( NAN );
-            degenPoint.areaWet.push_back( NAN );
-            degenPoint.vol.push_back( NAN );
-            degenPoint.volWet.push_back( NAN );
+            degenPoint.area.push_back( 0.0 );
+            degenPoint.areaWet.push_back( 0.0 );
+            degenPoint.vol.push_back( 0.0 );
+            degenPoint.volWet.push_back( 0.0 );
         }
 
         degenGeom[i].setDegenPoint( degenPoint );
@@ -3311,10 +3311,10 @@ void MeshGeom::degenGeomMassSliceX( vector< DegenGeom > &degenGeom )
         }
         if ( !matchFlag )
         {
-            degenPoint.Isolid.push_back( vector<double>( 6, NAN ) );
-            degenPoint.Ishell.push_back( vector<double>( 6, NAN ) );
-            degenPoint.xcgSolid.push_back( vec3d( NAN, NAN, NAN ) );
-            degenPoint.xcgShell.push_back( vec3d( NAN, NAN, NAN ) );
+            degenPoint.Isolid.push_back( vector<double>( 6, 0.0 ) );
+            degenPoint.Ishell.push_back( vector<double>( 6, 0.0 ) );
+            degenPoint.xcgSolid.push_back( vec3d( 0.0, 0.0, 0.0 ) );
+            degenPoint.xcgShell.push_back( vec3d( 0.0, 0.0, 0.0 ) );
         }
 
         degenGeom[i].setDegenPoint( degenPoint );

@@ -31,170 +31,6 @@ typedef eli::geom::curve::piecewise_cubic_spline_creator<double, 3, curve_tolera
 typedef eli::geom::curve::piecewise_linear_creator<double, 3, curve_tolerance_type> piecewise_linear_creator_type;
 
 //=============================================================================//
-//============================= VspCurveInfo  =================================//
-//=============================================================================//
-
-VspCurveInfo::VspCurveInfo()
-    : m_U( 0 ), m_EndType( VspCurveInfo::SET_POINT ), m_StartType( VspCurveInfo::SET_POINT ), m_Point( 0, 0, 0 ),
-      m_End1stDerivative( 0, 0, 0 ), m_End2ndDerivative( 0, 0, 0 ),
-      m_Start1stDerivative( 0, 0, 0 ), m_Start2ndDerivative( 0, 0, 0 )
-{
-}
-
-VspCurveInfo::VspCurveInfo( const VspCurveInfo &ci )
-    : m_U( ci.m_U ), m_EndType( ci.m_EndType ), m_StartType( ci.m_StartType ), m_Point( ci.m_Point ),
-      m_End1stDerivative( ci.m_End1stDerivative ), m_End2ndDerivative( ci.m_End2ndDerivative ),
-      m_Start1stDerivative( ci.m_Start1stDerivative ), m_Start2ndDerivative( ci.m_Start2ndDerivative )
-{
-}
-
-VspCurveInfo::~VspCurveInfo()
-{
-}
-
-void VspCurveInfo::SetEndType( int t )
-{
-    if ( ( t < SET_POINT ) || ( t >= NUM_SETS ) )
-    {
-        assert( false );
-        return;
-    }
-
-    m_EndType = t;
-}
-
-int VspCurveInfo::GetEndType() const
-{
-    return m_EndType;
-}
-
-bool VspCurveInfo::UseEnd1stDerivative() const
-{
-    return ( m_EndType > SET_POINT );
-}
-
-bool VspCurveInfo::UseEnd2ndDerivative() const
-{
-    return ( m_EndType > SET_1ST_DERIVATIVE );
-}
-
-void VspCurveInfo::SetStartType( int t )
-{
-    if ( ( t < SET_POINT ) || ( t >= NUM_SETS ) )
-    {
-        assert( false );
-        return;
-    }
-
-    m_StartType = t;
-}
-
-int VspCurveInfo::GetStartType() const
-{
-    return m_StartType;
-}
-
-bool VspCurveInfo::UseStart1stDerivative() const
-{
-    return ( m_StartType > SET_POINT );
-}
-
-bool VspCurveInfo::UseStart2ndDerivative() const
-{
-    return ( m_StartType > SET_1ST_DERIVATIVE );
-}
-
-void VspCurveInfo::SetPoint( const vec3d &p )
-{
-    m_Point = p;
-}
-vec3d VspCurveInfo::GetPoint() const
-{
-    return m_Point;
-}
-
-void VspCurveInfo::SetEndData( const vec3d &ep, const vec3d &epp )
-{
-    SetEnd1stDerivative( ep );
-    SetEnd2ndDerivative( epp );
-}
-
-void VspCurveInfo::SetEnd1stDerivative( const vec3d &ep )
-{
-    m_End1stDerivative = ep;
-}
-
-vec3d VspCurveInfo::GetEnd1stDerivative() const
-{
-    return m_End1stDerivative;
-}
-
-void VspCurveInfo::SetEnd2ndDerivative( const vec3d &epp )
-{
-    m_End2ndDerivative = epp;
-}
-
-vec3d VspCurveInfo::GetEnd2ndDerivative() const
-{
-    return m_End2ndDerivative;
-}
-
-void VspCurveInfo::SetStartData( const vec3d &sp, const vec3d &spp )
-{
-    SetStart1stDerivative( sp );
-    SetStart2ndDerivative( spp );
-}
-
-void VspCurveInfo::SetStart1stDerivative( const vec3d &sp )
-{
-    m_Start1stDerivative = sp;
-}
-
-vec3d VspCurveInfo::GetStart1stDerivative() const
-{
-    return m_Start1stDerivative;
-}
-
-void VspCurveInfo::SetStart2ndDerivative( const vec3d &spp )
-{
-    m_Start2ndDerivative = spp;
-}
-
-vec3d VspCurveInfo::GetStart2ndDerivative() const
-{
-    return m_Start2ndDerivative;
-}
-
-void VspCurveInfo::SetParameter( double u )
-{
-    m_U = u;
-}
-
-double VspCurveInfo::GetParameter() const
-{
-    return m_U;
-}
-
-//=============================================================================//
-//============================= VspPntData    =================================//
-//=============================================================================//
-
-
-//===== Constructor  =====//
-VspPntData::VspPntData()
-{
-    m_Type = NORMAL;
-    m_UseTan1 = m_UseTan2 = m_UseTanStr1 = m_UseTanStr2 = false;
-}
-
-//===== Constructor  =====//
-VspPntData::VspPntData( int type )
-{
-    m_Type = type;
-    m_UseTan1 = m_UseTan2 = m_UseTanStr1 = m_UseTanStr2 = false;
-}
-
-//=============================================================================//
 //============================= VspCurve      =================================//
 //=============================================================================//
 
@@ -377,34 +213,6 @@ void VspCurve::RoundJoint( double rad, int i )
 void VspCurve::RoundAllJoints( double rad )
 {
     m_Curve.round( rad );
-}
-
-void VspCurve::InterpolateManual( const vector< VspCurveInfo > & curve_info, bool closed_flag )
-{
-    curve_index_type i, nc( curve_info.size() - 1 );
-
-    if ( nc < 1 )
-    {
-        std::cerr << "Too few points given to create curve." << std::endl;
-        assert( false );
-    }
-
-    // clear the current curves
-    m_Curve.clear();
-    m_Curve.set_t0( 0.0 );
-
-    // not implemented
-    assert( false );
-    for ( i = 0; i < nc; ++i )
-    {
-        curve_segment_type c;
-    }
-
-    // if closed add one more curve segment connecting the last point to the first point
-    if ( closed_flag )
-    {
-
-    }
 }
 
 //===== Interpolate Creates piecewise linear curves ===//
@@ -857,24 +665,22 @@ double VspCurve::FindNearest( double &u, const vec3d &pt, const double &u0 ) con
 
 double VspCurve::FindNearest01( double &u, const vec3d &pt ) const
 {
-    int num_sects = GetNumSections();
     double dist;
 
     dist = FindNearest( u, pt );
 
-    u = u / num_sects;
+    u = u / m_Curve.get_tmax();
 
     return dist;
 }
 
 double VspCurve::FindNearest01( double &u, const vec3d &pt, const double &u0 ) const
 {
-    int num_sects = GetNumSections();
     double dist;
 
-    dist = FindNearest( u, pt, u0 * num_sects );
+    dist = FindNearest( u, pt, u0 * m_Curve.get_tmax() );
 
-    u = u / num_sects;
+    u = u / m_Curve.get_tmax();
 
     return dist;
 }
@@ -902,16 +708,14 @@ vec3d VspCurve::CompTan( double u )
 //===== Compute Point U 0.0 -> 1.0 =====//
 vec3d VspCurve::CompPnt01( double u )
 {
-    double num_sects = GetNumSections();
-    return CompPnt( u * num_sects );
+    return CompPnt( u * m_Curve.get_tmax() );
 }
 
 
 //===== Compute Tan U 0.0 -> 1.0 =====//
 vec3d VspCurve::CompTan01( double u )
 {
-    double num_sects = GetNumSections();
-    return CompTan( u * num_sects );
+    return CompTan( u * m_Curve.get_tmax() );
 }
 
 //===== Compute Length =====//
