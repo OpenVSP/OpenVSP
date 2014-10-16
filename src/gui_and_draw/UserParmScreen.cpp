@@ -77,7 +77,7 @@ UserParmScreen::UserParmScreen( ScreenMgr* mgr ) : TabScreen( mgr, 400, 500, "Us
 
     //==== Adjust ====//
     m_AdjustScroll = AddSubScroll( adj_tab, 5 );
-    m_AdjustScroll->type( Fl_Scroll::VERTICAL_ALWAYS );
+    
     m_AdjustLayout.SetGroupAndScreen( m_AdjustScroll, this );
 
     predef_tab->show();

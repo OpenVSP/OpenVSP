@@ -40,6 +40,7 @@
 enum GDEV
 {
     GDEV_TAB,
+    GDEV_SCROLL_TAB,
     GDEV_GROUP,
     GDEV_PARM_BUTTON,
     GDEV_INPUT,

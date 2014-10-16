@@ -37,6 +37,10 @@ void CustomGeomMgrSingleton::ReadCustomScripts()
         return;
     init_flag = true;
 
+//jrg Test Include
+//string inc_content = ScriptMgr.ExtractContent( "CustomScripts/TestIncludes.as" );
+//string repl_content = ScriptMgr.ReplaceIncludes( inc_content, "CustomScripts/" );
+
     m_CustomTypeVec.clear();
 
     vector< string > mod_vec = ScriptMgr.ReadScriptsFromDir( m_ScriptDir, ".vsppart" );
@@ -277,6 +281,21 @@ void CustomGeomMgrSingleton::SetCustomXSecLoc( const string & xsec_id, const vec
 }
 
 //==== Custom XSecs Functions =====//
+vec3d CustomGeomMgrSingleton::GetCustomXSecLoc( const string & xsec_id )
+{
+    ParmContainer* pc = ParmMgr.FindParmContainer( xsec_id );
+
+    if ( !pc )
+        return vec3d();
+
+    CustomXSec* cxs = dynamic_cast<CustomXSec*>( pc );
+    if ( !cxs )
+        return vec3d();
+
+    return cxs->GetLoc();
+}
+
+//==== Custom XSecs Functions =====//
 void CustomGeomMgrSingleton::SetCustomXSecRot( const string & xsec_id, const vec3d & rot )
 {
     ParmContainer* pc = ParmMgr.FindParmContainer( xsec_id );
@@ -288,6 +307,20 @@ void CustomGeomMgrSingleton::SetCustomXSecRot( const string & xsec_id, const vec
         return;
 
     cxs->SetRot( rot );
+}
+
+//==== Custom XSecs Functions =====//
+vec3d CustomGeomMgrSingleton::GetCustomXSecRot( const string & xsec_id )
+{
+    ParmContainer* pc = ParmMgr.FindParmContainer( xsec_id );
+    if ( !pc )
+        return vec3d();
+
+    CustomXSec* cxs = dynamic_cast<CustomXSec*>( pc );
+    if ( !cxs )
+        return vec3d();
+
+    return cxs->GetRot();
 }
 
 
@@ -711,7 +744,9 @@ xmlNodePtr CustomGeom::EncodeXml( xmlNodePtr & node )
     if ( custom_node )
     {
         string file_contents = ScriptMgr.FindModuleContent( GetScriptModuleName() );
-        string safe_file_contents = XmlUtil::ConvertToXMLSafeChars( file_contents );
+        string incl_contents =  ScriptMgr.ReplaceIncludes( file_contents, "" );
+
+        string safe_file_contents = XmlUtil::ConvertToXMLSafeChars( incl_contents );
 
         for ( int i = 0 ; i < (int)m_ParmVec.size() ; i++ )
         {

@@ -444,6 +444,13 @@ public:
     {
         m_ParmButton.SetButtonNameUpdate( flag );
     }
+    virtual void SetIndex( int index )
+    {
+        m_Slider.SetIndex( index );
+        m_Input.SetIndex( index );
+        m_LogSlider.SetIndex( index );
+        m_ParmButton.SetIndex( index );
+    }
     virtual void DeviceCB( Fl_Widget* w )           {}
 
 protected:
@@ -482,6 +489,12 @@ public:
     {
         m_ParmButton.SetButtonNameUpdate( flag );
     }
+    virtual void SetIndex( int index )
+    {
+        m_Slider.SetIndex( index );
+        m_Input.SetIndex( index );
+        m_ParmButton.SetIndex( index );
+    }
     virtual void DeviceCB( Fl_Widget* w )           {}
 
 protected:
@@ -518,6 +531,14 @@ public:
     {
         m_ParmButton.SetButtonNameUpdate( flag );
     }
+    virtual void SetIndex( int index )
+    {
+        m_Slider.SetIndex( index );
+        m_Input1.SetIndex( index );
+        m_Input2.SetIndex( index );
+        m_ParmButton.SetIndex( index );
+    }
+
 
     virtual void Activate();
     virtual void Deactivate();
@@ -559,6 +580,12 @@ public:
     {
         m_ParmButton.SetButtonNameUpdate( flag );
     }
+    virtual void SetIndex( int index )
+    {
+        m_Slider.SetIndex( index );
+        m_FractInput.SetIndex( index );
+    }
+
 
 protected:
 

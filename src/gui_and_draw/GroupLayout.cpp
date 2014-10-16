@@ -804,7 +804,7 @@ void GroupLayout::AddCounter( Counter & count, const char* label )
     Fl_Counter* fl_counter = new Fl_Counter( m_X, m_Y, counter_w, m_StdHeight );
     fl_counter->type( FL_SIMPLE_COUNTER );
     fl_counter->minimum( 0 );
-    fl_counter->maximum( 10 );
+    fl_counter->maximum( 10000 );
     fl_counter->step( 1 );
     m_Group->add( fl_counter );
 

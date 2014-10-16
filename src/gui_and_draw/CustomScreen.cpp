@@ -16,7 +16,7 @@
 
 
 //==== Constructor ====//
-CustomScreen::CustomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 500, "Custom" )
+CustomScreen::CustomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 640, "Custom" )
 {
     m_FLTK_Window->copy_label( "Custom Geom" );
     m_SameLineFlag = false;
@@ -25,6 +25,7 @@ CustomScreen::CustomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 500, "Custo
     m_ForceWidth = 10;
     m_Format = "%7.3f";
 
+ 
 }
 
 void CustomScreen::InitGui( Geom* geom_ptr )
@@ -80,6 +81,17 @@ GuiDevice* CustomScreen::AddGuiItem( GuiDef & def, int id )
         Fl_Group* tab_group = AddTab( def.m_Label );
         Fl_Group* design_group = AddSubGroup( tab_group, 5 );
         m_Layout.SetGroupAndScreen( design_group, this );
+
+        Tab* t = new Tab();
+        t->Init( tab_group );
+        gui_dev = t;
+    }
+    else if ( def.m_Type == GDEV_SCROLL_TAB )
+    {
+        Fl_Group* tab_group = AddTab( def.m_Label );
+        Fl_Scroll* design_scroll = AddSubScroll( tab_group, 5 );
+        design_scroll->type( Fl_Scroll::VERTICAL_ALWAYS );
+        m_Layout.SetGroupAndScreen( design_scroll, this );
 
         Tab* t = new Tab();
         t->Init( tab_group );

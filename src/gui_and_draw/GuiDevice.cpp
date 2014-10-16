@@ -24,6 +24,7 @@ using std::min;
 GuiDevice::GuiDevice()
 {
     m_Type = -1;
+    m_Index = -1;
     m_Screen = NULL;
     m_ParmID = string( "NOT_DEFINED" );
     m_NewParmFlag = true;

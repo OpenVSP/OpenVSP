@@ -87,10 +87,11 @@ public:
     void TransformSurf( int index, Matrix4d & mat );
     void CloneSurf( int index, Matrix4d & mat );
 
-
     //==== Custom XSecs Functions ====//
     void SetCustomXSecLoc( const string & xsec_id, const vec3d & loc );
+    vec3d GetCustomXSecLoc( const string & xsec_id );
     void SetCustomXSecRot( const string & xsec_id, const vec3d & rot );
+    vec3d GetCustomXSecRot( const string & xsec_id );
 
     //==== Get All Custom Script Module Name ====//
     vector< string > GetCustomScriptModuleNames();

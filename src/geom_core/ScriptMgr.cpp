@@ -316,6 +316,87 @@ int ScriptMgrSingleton::SaveScriptContentToFile( const string & module_name, con
     return 0;
 }
 
+//==== Find Includes And Replace With Included Code ====//
+string ScriptMgrSingleton::ReplaceIncludes( const string & script_contents, const string & inc_file_path )
+{
+    vector< int > start_pos_vec;
+    vector< int > end_pos_vec;
+    vector< string > file_content_vec;
+
+    unsigned int find_pos = 0;
+
+    string ret_content;
+
+    while ( 1 )
+    {
+        //==== Find Include ====//
+        find_pos = script_contents.find( "#include", find_pos );
+        if ( find_pos ==  std::string::npos )
+            break;
+
+        int first_quote = script_contents.find( '"', find_pos + 8 );
+        if ( first_quote == std::string::npos )
+            break;
+
+        int second_quote = script_contents.find( '"', first_quote+1 );
+        if ( second_quote == std::string::npos )
+            break;
+
+        start_pos_vec.push_back( find_pos );
+        end_pos_vec.push_back( second_quote );
+
+        string inc_file_name = script_contents.substr( first_quote+1, second_quote - first_quote - 1 );
+
+        string full_path = inc_file_path + inc_file_name;
+        string content = ExtractContent( full_path );
+        file_content_vec.push_back( content );
+
+        find_pos = second_quote+1;
+    }
+
+    //==== No Includes ====//
+    if ( file_content_vec.size() == 0 )
+        return script_contents;
+
+    int curr_pos = 0;
+    for ( int i = 0 ; i < (int)file_content_vec.size() ; i++ )
+    {
+        int s = start_pos_vec[i];
+        int e = end_pos_vec[i];
+        ret_content.append( script_contents.substr( curr_pos, s - curr_pos ) );
+
+        ret_content.append( "// Begin Include Replacement\n" );
+        ret_content.append( "//" );
+        ret_content.append( script_contents, s, e-s+1 );
+        ret_content.append( "\n" );
+        if ( file_content_vec[i].size() > 0 )
+        {
+            ret_content.append( file_content_vec[i] );
+        }
+        ret_content.append( "// End Include Replacement\n" );
+
+        curr_pos = end_pos_vec[i] + 1;
+    }
+
+    ret_content.append( script_contents.substr( curr_pos, script_contents.size() - curr_pos ) );
+
+    //FILE * fp = fopen( "TestWrite.txt", "w" );
+    //if ( fp )
+    //{
+    //    fprintf( fp, "%s", ret_content.c_str() );
+    //    fclose( fp );
+    //};
+
+    return ret_content;
+}
+
+
+
+
+
+
+
+
 
 //==== Register Enums ====//
 void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
@@ -336,6 +417,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnum( "GDEV" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GDEV", "GDEV_TAB", GDEV_TAB );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GDEV", "GDEV_SCROLL_TAB", GDEV_SCROLL_TAB );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GDEV", "GDEV_GROUP", GDEV_GROUP );
     assert( r >= 0 );
@@ -844,8 +927,14 @@ void ScriptMgrSingleton::RegisterCustomGeomMgr( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "void SetCustomXSecLoc( const string & in xsec_id, const vec3d & in loc )",
                                     asMETHOD( CustomGeomMgrSingleton, SetCustomXSecLoc ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r );
+    r = se->RegisterGlobalFunction( "vec3d GetCustomXSecLoc( const string & in xsec_id )",
+                                    asMETHOD( CustomGeomMgrSingleton, GetCustomXSecLoc ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
+    assert( r );
     r = se->RegisterGlobalFunction( "void SetCustomXSecRot( const string & in xsec_id, const vec3d & in rot )",
                                     asMETHOD( CustomGeomMgrSingleton, SetCustomXSecRot ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
+    assert( r );
+    r = se->RegisterGlobalFunction( "vec3d GetCustomXSecRot( const string & in xsec_id )",
+                                    asMETHOD( CustomGeomMgrSingleton, GetCustomXSecRot ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r );
     r = se->RegisterGlobalFunction( "bool CheckClearTriggerEvent( int gui_id )",
                                     asMETHOD( CustomGeomMgrSingleton, CheckClearTriggerEvent ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );

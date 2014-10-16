@@ -64,7 +64,9 @@ public:
     string GetMessages()                                    { return m_ScriptMessages; }   
 
     string FindModuleContent( const string & module_name );
+    string ExtractContent( const string & file_name );
     int SaveScriptContentToFile( const string & module_name, const string & file_name );
+    string ReplaceIncludes( const string & script_contents, const string & inc_file_path );
 
     void RunTestScripts();
 
@@ -141,7 +143,6 @@ private:
     void SetXSecPnts( const string& xsec_id, CScriptArray* pnt_arr );
     void SetVec3dArray( CScriptArray* arr );
 
-    string ExtractContent( const string & file_name );
 
 
 };
