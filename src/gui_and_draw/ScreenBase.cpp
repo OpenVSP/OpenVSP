@@ -929,6 +929,13 @@ void GeomScreen::CallBack( Fl_Widget *w )
 SkinScreen::SkinScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     GeomScreen( mgr, w, h, title )
 {
+    const char* angleFmt = "%5.2f";
+    const char* strengthFmt = "%5.2f";
+    const char* curveFmt = "%5.2f";
+
+    const double angleRng = 90;
+    const double strengthRng = 5;
+    const double curveRng = 5;
 
     Fl_Group* skin_tab = AddTab( "Skinning" );
     Fl_Group* skin_group = AddSubGroup( skin_tab, 5 );
@@ -961,17 +968,17 @@ SkinScreen::SkinScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SkinLayout.SetSliderWidth( 50 );
     m_SkinLayout.AddSkinHeader( m_TopHeader );
 
-    m_SkinLayout.AddSkinControl( m_TopAngleSkinControl, "Angle", 30, "%6.5f");
-    m_SkinLayout.AddSkinControl( m_TopStrengthSkinControl, "Strength", 30, "%6.5f");
-    m_SkinLayout.AddSkinControl( m_TopCurvatureSkinControl, "Curvature", 30, "%6.5f");
+    m_SkinLayout.AddSkinControl( m_TopAngleSkinControl, "Angle", angleRng, angleFmt);
+    m_SkinLayout.AddSkinControl( m_TopStrengthSkinControl, "Strength", strengthRng, strengthFmt);
+    m_SkinLayout.AddSkinControl( m_TopCurvatureSkinControl, "Curvature", curveRng, curveFmt);
 
     m_SkinLayout.AddYGap();
     m_SkinLayout.AddDividerBox( "Right Side" );
 
     m_SkinLayout.AddSkinHeader( m_RightHeader );
-    m_SkinLayout.AddSkinControl( m_RightAngleSkinControl, "Angle", 30, "%6.5f");
-    m_SkinLayout.AddSkinControl( m_RightStrengthSkinControl, "Strength", 30, "%6.5f");
-    m_SkinLayout.AddSkinControl( m_RightCurvatureSkinControl, "Curvature", 30, "%6.5f");
+    m_SkinLayout.AddSkinControl( m_RightAngleSkinControl, "Angle", angleRng, angleFmt);
+    m_SkinLayout.AddSkinControl( m_RightStrengthSkinControl, "Strength", strengthRng, strengthFmt);
+    m_SkinLayout.AddSkinControl( m_RightCurvatureSkinControl, "Curvature", curveRng, curveFmt);
 
     m_SkinLayout.AddYGap();
     m_SkinLayout.SetSameLineFlag( true );
@@ -983,9 +990,9 @@ SkinScreen::SkinScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SkinLayout.SetSameLineFlag( false );
 
     m_SkinLayout.AddSkinHeader( m_BottomHeader );
-    m_SkinLayout.AddSkinControl( m_BottomAngleSkinControl, "Angle", 30, "%6.5f");
-    m_SkinLayout.AddSkinControl( m_BottomStrengthSkinControl, "Strength", 30, "%6.5f");
-    m_SkinLayout.AddSkinControl( m_BottomCurvatureSkinControl, "Curvature", 30, "%6.5f");
+    m_SkinLayout.AddSkinControl( m_BottomAngleSkinControl, "Angle", angleRng, angleFmt);
+    m_SkinLayout.AddSkinControl( m_BottomStrengthSkinControl, "Strength", strengthRng, strengthFmt);
+    m_SkinLayout.AddSkinControl( m_BottomCurvatureSkinControl, "Curvature", curveRng, curveFmt);
 
     m_SkinLayout.AddYGap();
     m_SkinLayout.SetSameLineFlag( true );
@@ -997,12 +1004,9 @@ SkinScreen::SkinScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SkinLayout.SetSameLineFlag( false );
 
     m_SkinLayout.AddSkinHeader( m_LeftHeader );
-    m_SkinLayout.AddSkinControl( m_LeftAngleSkinControl, "Angle", 30, "%6.5f");
-    m_SkinLayout.AddSkinControl( m_LeftStrengthSkinControl, "Strength", 30, "%6.5f");
-    m_SkinLayout.AddSkinControl( m_LeftCurvatureSkinControl, "Curvature", 30, "%6.5f");
-
-
-
+    m_SkinLayout.AddSkinControl( m_LeftAngleSkinControl, "Angle", angleRng, angleFmt);
+    m_SkinLayout.AddSkinControl( m_LeftStrengthSkinControl, "Strength", strengthRng, strengthFmt);
+    m_SkinLayout.AddSkinControl( m_LeftCurvatureSkinControl, "Curvature", curveRng, curveFmt);
 
     m_SkinLayout.SetDividerHeight( oldDH );
 }
