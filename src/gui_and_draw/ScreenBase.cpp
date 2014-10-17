@@ -965,6 +965,7 @@ SkinScreen::SkinScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SkinLayout.SetSameLineFlag( false );
 
     m_SkinLayout.SetChoiceButtonWidth( 55 );
+    m_SkinLayout.SetInputWidth( 45 );
     m_SkinLayout.SetSliderWidth( 50 );
     m_SkinLayout.AddSkinHeader( m_TopHeader );
 
