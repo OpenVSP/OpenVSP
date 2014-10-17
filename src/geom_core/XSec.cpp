@@ -805,9 +805,9 @@ void SkinXSec::ValidateParms( )
     if ( m_BottomLRStrengthEq() ) m_BottomRStrength = m_BottomLStrength();
     if ( m_BottomLRCurveEq() ) m_BottomRCurve = m_BottomLCurve();
 
-    if ( m_RightLRAngleEq() ) m_RightRAngle = m_RightLAngle();
-    if ( m_RightLRStrengthEq() ) m_RightRStrength = m_RightLStrength();
-    if ( m_RightLRCurveEq() ) m_RightRCurve = m_RightLCurve();
+    if ( m_LeftLRAngleEq() ) m_LeftRAngle = m_LeftLAngle();
+    if ( m_LeftLRStrengthEq() ) m_LeftRStrength = m_LeftLStrength();
+    if ( m_LeftLRCurveEq() ) m_LeftRCurve = m_LeftLCurve();
 
     if ( m_AllSymFlag() )
     {
