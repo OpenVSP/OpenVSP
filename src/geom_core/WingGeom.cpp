@@ -839,7 +839,7 @@ void WingGeom::Scale()
             WingSect* ws = ws_vec[i];
             if ( ws )
             {
-                double area = ws->m_Area()*currentScale;
+                double area = ws->m_Area()*currentScale*currentScale;
                 ws->ForceAspectTaperArea( ws->m_Aspect(), ws->m_Taper(), area );
             }
         }
