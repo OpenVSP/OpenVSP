@@ -240,24 +240,32 @@ bool CfdMeshScreen::Update()
     }
 
     string currSourceGeomID = CfdMeshMgr.GetCurrSourceGeomID();
-
     if( currSourceGeomID.length() == 0 && m_GeomVec.size() > 0 )
     {
         // Handle case default case.
         currSourceGeomID = m_GeomVec[0];
         CfdMeshMgr.SetCurrSourceGeomID( currSourceGeomID );
     }
-
     Geom* currGeom = m_Vehicle->FindGeom( currSourceGeomID );
-
     m_CfdMeshUI->compChoice->value( m_CompIDMap[ currSourceGeomID ] );
 
     string wakeGeomID = CfdMeshMgr.GetWakeGeomID();
+    if( wakeGeomID.length() == 0 && m_WingGeomVec.size() > 0 )
+    {
+        // Handle case default case.
+        wakeGeomID = m_WingGeomVec[0];
+        CfdMeshMgr.SetWakeGeomID( wakeGeomID );
+    }
+    Geom* wakeGeom = m_Vehicle->FindGeom( wakeGeomID );
     m_CfdMeshUI->wakeCompChoice->value( m_WingCompIDMap[ wakeGeomID ] );
 
-    Geom* wakeGeom = m_Vehicle->FindGeom( wakeGeomID );
-
     string farGeomID = CfdMeshMgr.GetCfdSettingsPtr()->GetFarGeomID();
+    if( farGeomID.length() == 0 && m_GeomVec.size() > 0 )
+    {
+        // Handle case default case.
+        farGeomID = m_GeomVec[0];
+        CfdMeshMgr.GetCfdSettingsPtr()->SetFarGeomID( farGeomID );
+    }
     m_CfdMeshUI->farCompChoice->value( m_CompIDMap[ farGeomID ] );
 
     BaseSource* source = CfdMeshMgr.GetCurrSource();
