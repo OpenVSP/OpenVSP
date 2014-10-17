@@ -995,7 +995,14 @@ void GroupLayout::AddSkinControl( SkinControl & skin_control, const char* label,
 {
     assert( m_Group && m_Screen );
 
-    int sw = FitWidth( 3 * m_StdHeight + m_ButtonWidth + 2 * m_InputWidth, 2 * m_SliderWidth )/2;
+    int sw = FitWidth( 3 * m_StdHeight + m_ButtonWidth + 2 * m_InputWidth + 4 * m_RangeButtonWidth, 2 * m_SliderWidth )/2;
+
+    //==== Left Min Range Button ====//
+    Fl_Repeat_Button* minbuttonL = new Fl_Repeat_Button( m_X, m_Y, m_RangeButtonWidth, m_StdHeight, "<" );
+    minbuttonL->box( FL_THIN_UP_BOX );
+    minbuttonL->labelcolor( ( Fl_Color )4 );
+    m_Group->add( minbuttonL );
+    AddX( m_RangeButtonWidth );
 
     //==== Left Slider ====//
     Fl_Slider* sliderL = new Fl_Slider( m_X, m_Y, sw, m_StdHeight );
@@ -1005,6 +1012,13 @@ void GroupLayout::AddSkinControl( SkinControl & skin_control, const char* label,
     sliderL->selection_color( FL_SELECTION_COLOR );
     m_Group->add( sliderL );
     AddX( sw );
+
+    //==== Left Max Range Button ====//
+    Fl_Repeat_Button* maxbuttonL = new Fl_Repeat_Button( m_X, m_Y, m_RangeButtonWidth, m_StdHeight, ">" );
+    maxbuttonL->box( FL_THIN_UP_BOX );
+    maxbuttonL->labelcolor( ( Fl_Color )4 );
+    m_Group->add( maxbuttonL );
+    AddX( m_RangeButtonWidth );
 
     //==== Left Input ====//
     Fl_Float_Input* inputL = new Fl_Float_Input( m_X, m_Y,  m_InputWidth, m_StdHeight );
@@ -1033,6 +1047,13 @@ void GroupLayout::AddSkinControl( SkinControl & skin_control, const char* label,
     m_Group->add( setButtonR );
     AddX( m_StdHeight );
 
+    //==== Right Min Range Button ====//
+    Fl_Repeat_Button* minbuttonR = new Fl_Repeat_Button( m_X, m_Y, m_RangeButtonWidth, m_StdHeight, "<" );
+    minbuttonR->box( FL_THIN_UP_BOX );
+    minbuttonR->labelcolor( ( Fl_Color )4 );
+    m_Group->add( minbuttonR );
+    AddX( m_RangeButtonWidth );
+
     //==== Right Slider ====//
     Fl_Slider* sliderR = new Fl_Slider( m_X, m_Y, sw, m_StdHeight );
     sliderR->type( 5 );
@@ -1041,6 +1062,13 @@ void GroupLayout::AddSkinControl( SkinControl & skin_control, const char* label,
     sliderR->selection_color( FL_SELECTION_COLOR );
     m_Group->add( sliderR );
     AddX( sw );
+
+    //==== Right Max Range Button ====//
+    Fl_Repeat_Button* maxbuttonR = new Fl_Repeat_Button( m_X, m_Y, m_RangeButtonWidth, m_StdHeight, ">" );
+    maxbuttonR->box( FL_THIN_UP_BOX );
+    maxbuttonR->labelcolor( ( Fl_Color )4 );
+    m_Group->add( maxbuttonR );
+    AddX( m_RangeButtonWidth );
 
     //==== Right Input ====//
     Fl_Float_Input* inputR = new Fl_Float_Input( m_X, m_Y,  m_InputWidth, m_StdHeight );
@@ -1059,7 +1087,11 @@ void GroupLayout::AddSkinControl( SkinControl & skin_control, const char* label,
         setButtonEqual,
         setButtonR,
         sliderL,
+        minbuttonL,
+        maxbuttonL,
         sliderR,
+        minbuttonR,
+        maxbuttonR,
         inputL,
         inputR,
         parm_button,

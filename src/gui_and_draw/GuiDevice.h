@@ -861,7 +861,11 @@ public:
     Fl_Check_Button* setButtonEqual,
     Fl_Check_Button* setButtonR,
     Fl_Slider* sliderL,
+    Fl_Button* minButtonL,
+    Fl_Button* maxButtonL,
     Fl_Slider* sliderR,
+    Fl_Button* minButtonR,
+    Fl_Button* maxButtonR,
     Fl_Input* inputL,
     Fl_Input* inputR,
     Fl_Button* parm_button,
@@ -885,8 +889,8 @@ protected:
     CheckButton m_SetButtonEqual;
     CheckButton m_SetButtonR;
 
-    Slider m_SliderL;
-    Slider m_SliderR;
+    SliderAdjRange m_SliderL;
+    SliderAdjRange m_SliderR;
     Input  m_InputL;
     Input  m_InputR;
 

@@ -2109,7 +2109,11 @@ void SkinControl::Init( VspScreen* screen,
         Fl_Check_Button* setButtonEqual,
         Fl_Check_Button* setButtonR,
         Fl_Slider* sliderL,
+        Fl_Button* minButtonL,
+        Fl_Button* maxButtonL,
         Fl_Slider* sliderR,
+        Fl_Button* minButtonR,
+        Fl_Button* maxButtonR,
         Fl_Input* inputL,
         Fl_Input* inputR,
         Fl_Button* parm_button,
@@ -2121,8 +2125,8 @@ void SkinControl::Init( VspScreen* screen,
     m_SetButtonEqual.Init( screen, setButtonEqual );
     m_SetButtonR.Init( screen, setButtonR );
 
-    m_SliderL.Init( screen, sliderL, range );
-    m_SliderR.Init( screen, sliderR, range );
+    m_SliderL.Init( screen, sliderL, minButtonL, maxButtonL, range );
+    m_SliderR.Init( screen, sliderR, minButtonR, maxButtonR, range );
 
     m_InputL.Init( screen, inputL, format );
     m_InputR.Init( screen, inputR, format );
