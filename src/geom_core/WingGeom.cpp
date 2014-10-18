@@ -959,7 +959,7 @@ void WingGeom::ComputeCenter()
 {
     m_Center = vec3d(0,0,0);
 
-    WingSect* ws = ( WingSect* ) m_XSecSurf.FindXSec( 0 );
+    WingSect* ws = ( WingSect* ) m_XSecSurf.FindXSec( 1 );
     if ( ws )
     {
         double len = ws->m_RootChord();
