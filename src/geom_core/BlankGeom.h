@@ -24,6 +24,8 @@ public:
     };
 
     virtual void UpdateSurf();
+    virtual void UpdateDrawObj();
+    virtual void LoadDrawObjs(vector< DrawObj* > & draw_obj_vec);
 
     BoolParm m_PointMassFlag;
     Parm     m_PointMass;

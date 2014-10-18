@@ -50,3 +50,27 @@ void BlankGeom::UpdateSurf()
 
     m_Origin = m_ModelMatrix.xform( vec3d( 0.0, 0.0, 0.0 ) );
 }
+
+void BlankGeom::UpdateDrawObj()
+{
+    m_HighlightDrawObj.m_PntVec.resize(1);
+    m_HighlightDrawObj.m_PntVec[0] = vec3d(m_XLoc(), m_YLoc(), m_ZLoc());
+    m_HighlightDrawObj.m_PointSize = 10.0;
+}
+
+void BlankGeom::LoadDrawObjs(vector< DrawObj* > & draw_obj_vec)
+{
+    char str[256];
+
+    if ( !m_Vehicle->IsGeomActive( m_ID ) ) return;
+    sprintf(str,"%d",1);
+    m_HighlightDrawObj.m_GeomID = m_ID+string(str);
+    m_HighlightDrawObj.m_Visible = !m_GuiDraw.GetNoShowFlag();
+
+    // Set Render Destination to Main VSP Window.
+    m_HighlightDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_HighlightDrawObj.m_Type = DrawObj::VSP_POINTS;
+
+
+    draw_obj_vec.push_back( &m_HighlightDrawObj) ;
+}
