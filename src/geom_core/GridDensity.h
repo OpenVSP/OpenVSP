@@ -70,7 +70,6 @@ public:
     Parm m_Rad;
 
     IntParm m_MainSurfIndx;
-    int m_SurfIndx;
 
 protected:
 

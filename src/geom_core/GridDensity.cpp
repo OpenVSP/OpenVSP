@@ -31,8 +31,6 @@ BaseSource::BaseSource() : ParmContainer()
 
     m_MainSurfIndx.Init( "MainSurfIndx", m_GroupName, this, -1, -1, 1e12 );
     m_MainSurfIndx.SetDescript( "Surface index for source" );
-
-    m_SurfIndx = -1;
 }
 
 void BaseSource::ParmChanged( Parm* parm_ptr, int type )
@@ -281,7 +279,6 @@ void PointSimpleSource::CopyFrom( BaseSource* s )
     m_Rad = s->m_Rad();
 
     m_MainSurfIndx = s->m_MainSurfIndx();
-    m_SurfIndx = s->m_SurfIndx;
 
     m_OrigSourceID = s->GetID();
 
@@ -381,7 +378,6 @@ void LineSimpleSource::CopyFrom( BaseSource* s )
     m_Rad = s->m_Rad();
 
     m_MainSurfIndx = s->m_MainSurfIndx();
-    m_SurfIndx = s->m_SurfIndx;
 
     m_OrigSourceID = s->GetID();
 
@@ -595,7 +591,6 @@ void BoxSimpleSource::CopyFrom( BaseSource* s )
     m_Rad = s->m_Rad();
 
     m_MainSurfIndx = s->m_MainSurfIndx();
-    m_SurfIndx = s->m_SurfIndx;
 
     m_OrigSourceID = s->GetID();
 
