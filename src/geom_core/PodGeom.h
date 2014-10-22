@@ -24,6 +24,7 @@ public:
 
     virtual void ComputeCenter();
     virtual void Scale();
+    virtual void AddDefaultSources( double base_len = 1.0 );
 
     Parm m_Length;                  // Length of Pod
     Parm m_FineRatio;               // Fineness Ratio of Pod

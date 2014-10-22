@@ -83,3 +83,42 @@ void PodGeom::Scale()
     m_Length *= currentScale;
     m_LastScale = m_Scale();
 }
+
+void PodGeom::AddDefaultSources( double base_len )
+{
+    double len = m_Length();
+    double rad = len / m_FineRatio();
+
+    PointSource* psource;
+    LineSource* lsource;
+
+    psource = new PointSource();
+    psource->SetName( "Def_Fwd_PS" );
+    psource->m_Len = 0.05 * rad;
+    psource->m_Rad = 1.0 * rad;
+    psource->m_ULoc = 0.0;
+    psource->m_WLoc = 0.0;
+    psource->m_MainSurfIndx = 0;
+    AddCfdMeshSource( psource );
+
+    psource = new PointSource();
+    psource->SetName( "Def_Aft_PS" );
+    psource->m_Len = 0.05 * rad;
+    psource->m_Rad = 1.0 * rad;
+    psource->m_ULoc = 1.0;
+    psource->m_WLoc = 0.0;
+    psource->m_MainSurfIndx = 0;
+    AddCfdMeshSource( psource );
+
+    lsource = new LineSource();
+    lsource->SetName( "Def_Fwd_Aft_LS" );
+    lsource->m_Len = 0.25 * rad;
+    lsource->m_Len2 = 0.25 * rad;
+    lsource->m_Rad = 2.0 * rad;
+    lsource->m_Rad2 = 2.0 * rad;
+    lsource->m_ULoc1 = 0.0;
+    lsource->m_WLoc1 = 0.0;
+    lsource->m_ULoc2 = 1.0;
+    lsource->m_WLoc2 = 0.0;
+    AddCfdMeshSource( lsource );
+}
