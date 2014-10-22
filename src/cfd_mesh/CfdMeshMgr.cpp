@@ -929,6 +929,19 @@ void CfdMeshMgrSingleton::AddDefaultSources()
     }
 }
 
+void CfdMeshMgrSingleton::AddDefaultSourcesCurrGeom()
+{
+    Geom* curr_geom = NULL;
+    curr_geom = m_Vehicle->FindGeom( m_CurrSourceGeomID );
+    if ( !curr_geom )
+    {
+        return;
+    }
+
+    double base_len = GetGridDensityPtr()->GetBaseLen();
+    curr_geom->AddDefaultSources( base_len );
+}
+
 void CfdMeshMgrSingleton::ScaleTriSize( double scale )
 {
     GetGridDensityPtr()->m_BaseLen = scale * GetGridDensityPtr()->m_BaseLen();

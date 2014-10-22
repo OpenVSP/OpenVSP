@@ -228,6 +228,7 @@ public:
     virtual void AdjustAllSourceRad( double mult );
 
     virtual void AddDefaultSources();
+    virtual void AddDefaultSourcesCurrGeom();
     virtual void UpdateSourcesAndWakes();
     virtual void UpdateDomain();
     virtual void ScaleTriSize( double scale );

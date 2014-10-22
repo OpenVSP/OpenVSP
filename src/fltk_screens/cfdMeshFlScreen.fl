@@ -347,11 +347,11 @@ class CFDMeshUI {} {
             xywh {15 196 175 24} labelfont 1 labelsize 12
           }
           Fl_Choice compChoice {
-            xywh {140 60 245 25} down_box BORDER_BOX textfont 1
+            xywh {125 60 135 25} down_box BORDER_BOX textfont 1
           } {}
           Fl_Box {} {
             label {Select Comp}
-            xywh {15 60 125 25} box BORDER_BOX color 12 labelfont 1 labelcolor 7
+            xywh {15 60 110 25} box BORDER_BOX color 12 labelfont 1 labelcolor 7
           }
           Fl_Box {} {
             label {Name:}
@@ -418,6 +418,10 @@ class CFDMeshUI {} {
           Fl_Input u1Input {
             xywh {145 289 45 20} type Float box THIN_DOWN_BOX labelsize 12 textsize 12
           }
+          Fl_Button addDefaultsButton {
+            label {Add Default Sources}
+            xywh {260 60 125 25} labelfont 1 labelsize 12
+          }
           Fl_Slider lengthSlider {
             xywh {55 357 80 21} type {Horz Knob} box THIN_DOWN_BOX color 7 selection_color 4
           }
@@ -457,11 +461,11 @@ class CFDMeshUI {} {
             xywh {210 333 40 20} box THIN_UP_BOX labelfont 1 labelsize 12 align 64
           }
           Fl_Choice surfChoice {
-            xywh {140 90 245 25} down_box BORDER_BOX textfont 1
+            xywh {125 90 260 25} down_box BORDER_BOX textfont 1
           } {}
           Fl_Box {} {
             label {Select Surface}
-            xywh {15 90 125 25} box BORDER_BOX color 12 labelfont 1 labelcolor 7
+            xywh {15 90 110 25} box BORDER_BOX color 12 labelfont 1 labelcolor 7
           }
         }
         Fl_Group {} {

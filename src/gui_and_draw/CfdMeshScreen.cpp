@@ -94,6 +94,8 @@ CfdMeshScreen::CfdMeshScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     ui->addSourceButton->callback( staticCB, this );
     ui->deleteSourceButton->callback( staticCB, this );
 
+    ui->addDefaultsButton->callback( staticCB, this );
+
     ui->adjLenDownButton->callback( staticCB, this );
     ui->adjLenDownDownButton->callback( staticCB, this );
     ui->adjLenUpButton->callback( staticCB, this );
@@ -624,6 +626,11 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
         Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
         veh->HideAll();
     }
+    else if ( w == m_CfdMeshUI->addDefaultsButton )
+    {
+        CfdMeshMgr.AddDefaultSourcesCurrGeom();
+    }
+
 //  else if ( m_FarXScaleSlider->GuiChanged( w ) )
 //  {
 //      double val = m_FarXScaleSlider->GetVal();
