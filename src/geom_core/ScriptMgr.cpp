@@ -319,8 +319,8 @@ int ScriptMgrSingleton::SaveScriptContentToFile( const string & module_name, con
 //==== Find Includes And Replace With Included Code ====//
 string ScriptMgrSingleton::ReplaceIncludes( const string & script_contents, const string & inc_file_path )
 {
-    vector< int > start_pos_vec;
-    vector< int > end_pos_vec;
+    vector< string::size_type > start_pos_vec;
+    vector< string::size_type > end_pos_vec;
     vector< string > file_content_vec;
 
     string::size_type find_pos = 0;
@@ -334,11 +334,11 @@ string ScriptMgrSingleton::ReplaceIncludes( const string & script_contents, cons
         if ( find_pos ==  std::string::npos )
             break;
 
-        int first_quote = script_contents.find( '"', find_pos + 8 );
+        string::size_type first_quote = script_contents.find( '"', find_pos + 8 );
         if ( first_quote == std::string::npos )
             break;
 
-        int second_quote = script_contents.find( '"', first_quote+1 );
+        string::size_type second_quote = script_contents.find( '"', first_quote+1 );
         if ( second_quote == std::string::npos )
             break;
 
@@ -358,11 +358,11 @@ string ScriptMgrSingleton::ReplaceIncludes( const string & script_contents, cons
     if ( file_content_vec.size() == 0 )
         return script_contents;
 
-    int curr_pos = 0;
+    string::size_type curr_pos = 0;
     for ( int i = 0 ; i < (int)file_content_vec.size() ; i++ )
     {
-        int s = start_pos_vec[i];
-        int e = end_pos_vec[i];
+        string::size_type s = start_pos_vec[i];
+        string::size_type e = end_pos_vec[i];
         ret_content.append( script_contents.substr( curr_pos, s - curr_pos ) );
 
         ret_content.append( "// Begin Include Replacement\n" );
