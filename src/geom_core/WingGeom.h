@@ -127,6 +127,7 @@ public:
 
     virtual void AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id = string() );
     virtual void Scale();
+    virtual void AddDefaultSources( double base_len = 1.0 );
 
     //==== Set Drag Factors ====//
     virtual void LoadDragFactors( DragFactors& drag_factors );

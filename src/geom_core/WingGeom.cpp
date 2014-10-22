@@ -848,6 +848,79 @@ void WingGeom::Scale()
     }
 }
 
+void WingGeom::AddDefaultSources( double base_len )
+{
+    vector< WingSect* > ws_vec = GetWingSectVec();
+    double nseg = ( ( int ) ws_vec.size() ) - 1;
+    double ustart = 0.0;
+
+    if ( m_CapUMinOption() != VspSurf::NO_END_CAP )
+    {
+        nseg = nseg + 1.0;
+        ustart = ustart  + 1.0;
+    }
+
+    if ( m_CapUMaxOption() != VspSurf::NO_END_CAP )
+    {
+        nseg = nseg + 1.0;;
+    }
+
+    char str[256];
+
+    LineSource* lsource;
+
+    for ( int i = 1 ; i < (int)ws_vec.size() ; i++ )
+    {
+        WingSect* ws = ws_vec[i];
+        if ( ws )
+        {
+            double cr = ws->m_RootChord();
+            double ct = ws->m_TipChord();
+
+            lsource = new LineSource();
+            sprintf( str, "Def_TE_LS_%d", i );
+            lsource->SetName( str );
+            lsource->m_Len = 0.01 * cr;
+            lsource->m_Len2 = 0.01 * ct;
+            lsource->m_Rad = 0.2 * cr;
+            lsource->m_Rad2 = 0.2 * ct;
+            lsource->m_ULoc1 = (i+ustart-1)/nseg;
+            lsource->m_WLoc1 = 0.0;
+            lsource->m_ULoc2 = (i+ustart)/nseg;
+            lsource->m_WLoc2 = 0.0;
+            AddCfdMeshSource( lsource );
+
+            lsource = new LineSource();
+            sprintf( str, "Def_LE_LS_%d", i );
+            lsource->SetName( str );
+            lsource->m_Len = 0.01 * cr;
+            lsource->m_Len2 = 0.01 * ct;
+            lsource->m_Rad = 0.2 * cr;
+            lsource->m_Rad2 = 0.2 * ct;
+            lsource->m_ULoc1 = (i+ustart-1)/nseg;
+            lsource->m_WLoc1 = 0.5;
+            lsource->m_ULoc2 = (i+ustart)/nseg;
+            lsource->m_WLoc2 = 0.5;
+            AddCfdMeshSource( lsource );
+
+            if ( i == ( ( int ) ws_vec.size() - 1 ) )
+            {
+                lsource = new LineSource();
+                lsource->SetName( "Def_Tip_LS" );
+                lsource->m_Len = 0.01 * ct;
+                lsource->m_Len2 = 0.01 * ct;
+                lsource->m_Rad = 0.2 * ct;
+                lsource->m_Rad2 = 0.2 * ct;
+                lsource->m_ULoc1 = (i+ustart)/nseg;
+                lsource->m_WLoc1 = 0.0;
+                lsource->m_ULoc2 = (i+ustart)/nseg;
+                lsource->m_WLoc2 = 0.5;
+                AddCfdMeshSource( lsource );
+            }
+        }
+    }
+}
+
 //==== Drag Parameters ====//
 void WingGeom::LoadDragFactors( DragFactors& drag_factors )
 {
