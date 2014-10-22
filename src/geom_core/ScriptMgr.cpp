@@ -323,7 +323,7 @@ string ScriptMgrSingleton::ReplaceIncludes( const string & script_contents, cons
     vector< int > end_pos_vec;
     vector< string > file_content_vec;
 
-    unsigned int find_pos = 0;
+    string::size_type find_pos = 0;
 
     string ret_content;
 
