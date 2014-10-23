@@ -2130,3 +2130,61 @@ XSec* GeomXSec::GetXSec( int index )
 {
     return m_XSecSurf.FindXSec( index );
 }
+
+void GeomXSec::AddDefaultSourcesXSec( double base_len, double len_ref, int ixsec )
+{
+    PointSource* psource;
+    LineSource* lsource;
+    char str[256];
+
+    FuseXSec* xs = ( FuseXSec* ) m_XSecSurf.FindXSec( ixsec );
+    if ( xs )
+    {
+        XSecCurve* xsc = xs->GetXSecCurve();
+        if ( xsc )
+        {
+            if ( xsc->GetType() == XS_POINT )
+            {
+                psource = new PointSource();
+                sprintf( str, "Def_PS_%d", ixsec );
+                psource->SetName( str );
+                psource->m_Len = 0.1 * base_len;
+                psource->m_Rad = 0.2 * len_ref;
+                psource->m_ULoc = ixsec / ( m_XSecSurf.NumXSec() - 1 );
+                psource->m_WLoc = 0.0;
+                psource->m_MainSurfIndx = 0;
+                AddCfdMeshSource( psource );
+            }
+            else
+            {
+                double w = xsc->GetWidth();
+                double h = xsc->GetHeight();
+
+                double r = sqrt( w * w + h * h );
+
+                int nls = 8;
+
+                double u = ( double ) ixsec / ( ( double ) m_XSecSurf.NumXSec() - 1 );
+
+                for ( int i = 0; i < nls; i++ )
+                {
+                    double w0 = ( double ) i / ( ( double ) nls );
+                    double w1 = ( ( double ) (i+1) ) / ( ( double ) nls );
+
+                    lsource = new LineSource();
+                    sprintf( str, "Def_LS_%d_%d", ixsec, i );
+                    lsource->SetName( str );
+                    lsource->m_Len = 0.1 * base_len;
+                    lsource->m_Len2 = 0.1 * base_len;
+                    lsource->m_Rad = 0.2 * r;
+                    lsource->m_Rad2 = 0.2 * r;
+                    lsource->m_ULoc1 = u;
+                    lsource->m_WLoc1 = w0;
+                    lsource->m_ULoc2 = u;
+                    lsource->m_WLoc2 = w1;
+                    AddCfdMeshSource( lsource );
+                }
+            }
+        }
+    }
+}

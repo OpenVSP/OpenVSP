@@ -634,6 +634,7 @@ public:
     virtual void SetActiveXSecIndex( int index );
 
     virtual XSec* GetXSec( int index );
+    virtual void AddDefaultSourcesXSec( double base_len, double len_ref, int ixsec );
 
 protected:
     virtual void UpdateDrawObj();
