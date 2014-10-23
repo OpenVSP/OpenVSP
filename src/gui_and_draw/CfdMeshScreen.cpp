@@ -79,17 +79,17 @@ CfdMeshScreen::CfdMeshScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     ui->sourceBrowser->callback( staticCB, this );
     ui->SourceNameInput->callback( staticCB, this );
 
-    m_LengthSlider.Init( this, ui->lengthSlider, ui->lengthInput, 1.0, " %7.5f" );
-    m_RadiusSlider.Init( this, ui->radiusSlider, ui->radiusInput, 1.0, " %7.5f" );
+    m_LengthSlider.Init( this, ui->lengthSlider, ui->lengthInput, 1.0, " %7.2g" );
+    m_RadiusSlider.Init( this, ui->radiusSlider, ui->radiusInput, 1.0, " %7.2g" );
 
-    m_Length2Slider.Init( this, ui->length2Slider, ui->length2Input, 1.0, " %7.5f" );
-    m_Radius2Slider.Init( this, ui->radius2Slider, ui->radius2Input, 1.0, " %7.5f" );
+    m_Length2Slider.Init( this, ui->length2Slider, ui->length2Input, 1.0, " %7.2g" );
+    m_Radius2Slider.Init( this, ui->radius2Slider, ui->radius2Input, 1.0, " %7.2g" );
 
-    m_U1Slider.Init( this, ui->u1Slider, ui->u1Input, 1.0, " %7.5f" );
-    m_W1Slider.Init( this, ui->w1Slider, ui->w1Input, 1.0, " %7.5f" );
+    m_U1Slider.Init( this, ui->u1Slider, ui->u1Input, 1.0, " %7.3f" );
+    m_W1Slider.Init( this, ui->w1Slider, ui->w1Input, 1.0, " %7.3f" );
 
-    m_U2Slider.Init( this, ui->u2Slider, ui->u2Input, 1.0, " %7.5f" );
-    m_W2Slider.Init( this, ui->w2Slider, ui->w2Input, 1.0, " %7.5f" );
+    m_U2Slider.Init( this, ui->u2Slider, ui->u2Input, 1.0, " %7.3f" );
+    m_W2Slider.Init( this, ui->w2Slider, ui->w2Input, 1.0, " %7.3f" );
 
     ui->addSourceButton->callback( staticCB, this );
     ui->deleteSourceButton->callback( staticCB, this );
