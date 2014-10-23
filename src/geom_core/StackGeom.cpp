@@ -313,6 +313,73 @@ void StackGeom::Scale()
     m_LastScale = m_Scale();
 }
 
+void StackGeom::AddDefaultSources( double base_len )
+{
+    switch ( m_OrderPolicy() )
+    {
+    case STACK_FREE:
+    {
+
+        StackXSec* lastxs = (StackXSec*) m_XSecSurf.FindXSec( m_XSecSurf.NumXSec() - 1);
+        if( lastxs )
+        {
+            Matrix4d prevxform;
+            prevxform.loadIdentity();
+
+            prevxform.matMult( lastxs->GetTransform()->data() );
+
+            prevxform.affineInverse();
+            vec3d offset = prevxform.xform( vec3d( 0.0, 0.0, 0.0 ) );
+
+            double len = offset.mag();
+
+            AddDefaultSourcesXSec( base_len, len, 0 );
+            AddDefaultSourcesXSec( base_len, len, m_XSecSurf.NumXSec() - 1 );
+        }
+
+
+        break;
+    }
+    case STACK_LOOP:
+    {
+        int iback = -1;
+        double dfront = -1.0;
+
+        for ( int i = 0 ; i < m_XSecSurf.NumXSec() ; i++ )
+        {
+            StackXSec* xs = ( StackXSec* ) m_XSecSurf.FindXSec( i );
+            if ( xs )
+            {
+                Matrix4d prevxform;
+                prevxform.loadIdentity();
+
+                prevxform.matMult( xs->GetTransform()->data() );
+
+                prevxform.affineInverse();
+                vec3d offset = prevxform.xform( vec3d( 0.0, 0.0, 0.0 ) );
+
+                double len = offset.mag();
+
+                if ( len > dfront )
+                {
+                    dfront = len;
+                    iback = i;
+                }
+
+            }
+        }
+
+        AddDefaultSourcesXSec( base_len, dfront, 0 );
+        if ( iback >= 0 )
+        {
+            AddDefaultSourcesXSec( base_len, dfront, iback );
+        }
+
+        break;
+    }
+    }
+}
+
 //==== Drag Parameters ====//
 void StackGeom::LoadDragFactors( DragFactors& drag_factors )
 {
