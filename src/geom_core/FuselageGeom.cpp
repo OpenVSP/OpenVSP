@@ -318,6 +318,54 @@ void FuselageGeom::Scale()
     m_LastScale = m_Scale();
 }
 
+void FuselageGeom::AddDefaultSources( double base_len )
+{
+
+    switch ( m_OrderPolicy() )
+    {
+    case FUSE_MONOTONIC:
+    {
+        AddDefaultSourcesXSec( base_len, m_Length(), 0 );
+        AddDefaultSourcesXSec( base_len, m_Length(), m_XSecSurf.NumXSec() - 1 );
+
+        break;
+    }
+    case FUSE_LOOP:
+    {
+        int ifront = -1;
+        double xfront = 1.0;
+
+        for ( int i = 0 ; i < m_XSecSurf.NumXSec() ; i++ )
+        {
+            FuseXSec* xs = ( FuseXSec* ) m_XSecSurf.FindXSec( i );
+            if ( xs )
+            {
+                if ( xs->m_XLocPercent() < xfront )
+                {
+                    ifront = i;
+                    xfront = xs->m_XLocPercent();
+                }
+            }
+        }
+
+        AddDefaultSourcesXSec( base_len, m_Length(), 0 );
+        if ( ifront >= 0 )
+        {
+            AddDefaultSourcesXSec( base_len, m_Length(), ifront );
+        }
+
+        break;
+    }
+    case FUSE_FREE:
+    {
+        AddDefaultSourcesXSec( base_len, m_Length(), 0 );
+        AddDefaultSourcesXSec( base_len, m_Length(), m_XSecSurf.NumXSec() - 1 );
+
+        break;
+    }
+    }
+}
+
 //==== Drag Parameters ====//
 void FuselageGeom::LoadDragFactors( DragFactors& drag_factors )
 {
