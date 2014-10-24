@@ -176,6 +176,38 @@ int GeomBase::CountParents( int count )
     return count;
 }
 
+string GeomBase::GetAncestorID( int gen )
+{
+    if ( gen == 0 )
+    {
+        return m_ID;
+    }
+
+    if ( gen == 1 )
+    {
+        return m_ParentID;
+    }
+
+    GeomBase* parentPtr = m_Vehicle->FindGeom( m_ParentID );
+    if ( parentPtr )
+    {
+        return parentPtr->GetAncestorID( gen - 1 );
+    }
+
+    return string( "NONE" );
+}
+
+void GeomBase::BuildAncestorList( vector< string > &ancestors )
+{
+    ancestors.push_back( GetName() );
+
+    GeomBase* parentPtr = m_Vehicle->FindGeom( m_ParentID );
+    if ( parentPtr )
+    {
+        parentPtr->BuildAncestorList( ancestors );
+    }
+}
+
 //==== Does ID_String Match Geom's ID? ====//
 bool GeomBase::IsMatch( const string& id_string )
 {
@@ -505,6 +537,60 @@ void GeomXForm::DeactivateXForms()
         m_YRot.Activate();
         m_ZRot.Activate();
     }
+}
+
+Matrix4d GeomXForm::GetAncestorAttachMatrix( int gen )
+{
+    Matrix4d atmat;
+
+    if ( gen == -1 )
+    {
+        atmat.loadIdentity();
+        return atmat;
+    }
+
+    if ( gen == 0 )
+    {
+        return ComposeAttachMatrix();
+    }
+
+    string id = GetAncestorID( gen );
+
+    GeomXForm* ancestPtr = m_Vehicle->FindGeom( id );
+    if ( ancestPtr )
+    {
+        return ancestPtr->ComposeAttachMatrix();
+    }
+
+    atmat.loadIdentity();
+    return atmat;
+}
+
+Matrix4d GeomXForm::GetAncestorModelMatrix( int gen )
+{
+    Matrix4d atmat;
+
+    if ( gen == -1 )
+    {
+        atmat.loadIdentity();
+        return atmat;
+    }
+
+    if ( gen == 0 )
+    {
+        return getModelMatrix();
+    }
+
+    string id = GetAncestorID( gen );
+
+    GeomXForm* ancestPtr = m_Vehicle->FindGeom( id );
+    if ( ancestPtr )
+    {
+        return ancestPtr->getModelMatrix();
+    }
+
+    atmat.loadIdentity();
+    return atmat;
 }
 
 //==== Reset Scale ====//

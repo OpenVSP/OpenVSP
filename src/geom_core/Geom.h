@@ -204,6 +204,8 @@ public:
     {
         return m_ParentID;
     }
+    virtual string GetAncestorID( int gen );
+    virtual void BuildAncestorList( vector< string > &ancestors );
     virtual void AddChildID( string id )
     {
         m_ChildIDVec.push_back( id );
@@ -280,6 +282,9 @@ public:
     {
         return m_ModelMatrix;
     }
+
+    virtual Matrix4d GetAncestorAttachMatrix( int gen );
+    virtual Matrix4d GetAncestorModelMatrix( int gen );
 
     Parm m_XLoc;                // XForm Translation
     Parm m_YLoc;
