@@ -857,10 +857,10 @@ void Geom::UpdateSymmAttach()
     vector<Matrix4d> transMats;
     transMats.resize( num_surf, Matrix4d() );
     // Compute Relative Translation Matrix
-    Matrix4d attachMat;
+    Matrix4d symmOriginMat;
     Matrix4d relTrans;
-    attachMat = ComposeAttachMatrix();
-    relTrans = attachMat;
+    symmOriginMat = ComposeAttachMatrix();
+    relTrans = symmOriginMat;
     relTrans.affineInverse();
     relTrans.matMult( m_ModelMatrix.data() );
 
@@ -972,7 +972,7 @@ void Geom::UpdateSymmAttach()
     //==== Apply Transformations ====//
     for ( int i = 0 ; i < num_surf ; i++ )
     {
-        transMats[i].postMult( attachMat.data() );
+        transMats[i].postMult( symmOriginMat.data() );
         m_SurfVec[i].Transform( transMats[i] ); // Apply total transformation to main surfaces
     }
 }
