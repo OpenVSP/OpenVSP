@@ -717,6 +717,8 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     }
     UpdateSets();
 
+    m_SymAncestor.Init( "Sym_Ancestor", "Sym", this, 1, 0, 1e6, true );
+    m_SymAncestOriginFlag.Init( "Sym_Ancestor_Origin_Flag", "Sym", this, true, 0, 1, true );
     m_SymPlanFlag.Init( "Sym_Planar_Flag", "Sym", this, 0, 0, SYM_XY | SYM_XZ | SYM_YZ, true );
     m_SymAxFlag.Init( "Sym_Axial_Flag", "Sym", this, 0, 0, SYM_ROT_Z, true );
     m_SymRotN.Init( "Sym_Rot_N", "Sym", this, 2, 2, 1000 );
@@ -945,7 +947,14 @@ void Geom::UpdateSymmAttach()
     // Compute Relative Translation Matrix
     Matrix4d symmOriginMat;
     Matrix4d relTrans;
-    symmOriginMat = ComposeAttachMatrix();
+    if ( m_SymAncestOriginFlag() )
+    {
+        symmOriginMat = GetAncestorAttachMatrix( m_SymAncestor() - 1 );
+    }
+    else
+    {
+        symmOriginMat = GetAncestorModelMatrix( m_SymAncestor() - 1 );
+    }
     relTrans = symmOriginMat;
     relTrans.affineInverse();
     relTrans.matMult( m_ModelMatrix.data() );

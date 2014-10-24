@@ -446,6 +446,8 @@ public:
     IntParm m_TessU;
     LimIntParm m_TessW;
 
+    IntParm m_SymAncestor;
+    BoolParm m_SymAncestOriginFlag;
     IntParm m_SymPlanFlag;
     IntParm m_SymAxFlag;
     IntParm m_SymRotN; // Number Axial Symmetric Objects
