@@ -216,6 +216,10 @@ public:
 
     SliderAdjRangeInput m_RotOriginSlider;
 
+    Choice m_SymAncestorChoice;
+    ToggleButton m_SymAncestorOriginToggle;
+    ToggleButton m_SymAncestorObjectToggle;
+    ToggleRadioGroup m_SymAncestorOriginObjectToggle;
     CheckButtonBit m_XYSymToggle;
     CheckButtonBit m_XZSymToggle;
     CheckButtonBit m_YZSymToggle;

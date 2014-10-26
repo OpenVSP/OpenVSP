@@ -356,8 +356,22 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_XFormLayout.AddYGap();
 
     m_XFormLayout.AddDividerBox( "Symmetry" );
-    m_XFormLayout.SetFitWidthFlag( false );
+    m_XFormLayout.SetFitWidthFlag( true );
     m_XFormLayout.SetSameLineFlag( true );
+
+    m_XFormLayout.SetChoiceButtonWidth( 50 );
+    m_XFormLayout.SetButtonWidth( 60 );
+
+    m_XFormLayout.AddChoice( m_SymAncestorChoice, "About:", m_XFormLayout.GetButtonWidth() * 2 );
+    m_XFormLayout.SetFitWidthFlag( false );
+    m_XFormLayout.AddButton( m_SymAncestorOriginToggle, "Origin" );
+    m_XFormLayout.AddButton( m_SymAncestorObjectToggle, "Object" );
+    m_XFormLayout.ForceNewLine();
+    m_XFormLayout.AddYGap();
+
+    m_SymAncestorOriginObjectToggle.Init( this );
+    m_SymAncestorOriginObjectToggle.AddButton( m_SymAncestorObjectToggle.GetFlButton() );
+    m_SymAncestorOriginObjectToggle.AddButton( m_SymAncestorOriginToggle.GetFlButton() );
 
     m_XFormLayout.AddLabel( "Planar:", 74 );
     m_XFormLayout.SetButtonWidth( m_XFormLayout.GetRemainX() / 3 );
@@ -647,6 +661,20 @@ bool GeomScreen::Update()
     m_RotOriginSlider.Update( geom_ptr->m_Origin.GetID() );
 
     //==== Symmetry ====//
+    std::vector<std::string> ancestorNames;
+    ancestorNames.push_back( "GLOBAL ORIGIN" );
+    geom_ptr->BuildAncestorList( ancestorNames );
+
+    m_SymAncestorChoice.ClearItems();
+    for( int i = 0; i < (int) ancestorNames.size(); i++ )
+    {
+        sprintf( str, "%3d %s", i, ancestorNames[i].c_str() );
+        m_SymAncestorChoice.AddItem( str );
+    }
+    m_SymAncestorChoice.UpdateItems();
+    m_SymAncestorChoice.SetVal( geom_ptr->m_SymAncestor() );
+
+    m_SymAncestorOriginObjectToggle.Update( geom_ptr->m_SymAncestOriginFlag.GetID() );
     m_XYSymToggle.Update( geom_ptr->m_SymPlanFlag.GetID() );
     m_XZSymToggle.Update( geom_ptr->m_SymPlanFlag.GetID() );
     m_YZSymToggle.Update( geom_ptr->m_SymPlanFlag.GetID() );
@@ -814,6 +842,10 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             geom_ptr->SetMaterialToDefault();
         }
+    }
+    else if ( device == &m_SymAncestorChoice )
+    {
+        geom_ptr->m_SymAncestor.SetFromDevice( m_SymAncestorChoice.GetVal() );
     }
     else if ( device == &m_CustomMaterialButton )
     {
