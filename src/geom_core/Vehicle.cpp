@@ -578,6 +578,8 @@ void Vehicle::RemoveGeomVecFromHierarchy( const vector< string > & cut_vec )
         //==== Remove From Top Geom Deque ====//
         vector_remove_val( m_TopGeom, id );
     }
+
+    Update();
 }
 
 //==== Reorder Active Geom  ====//
