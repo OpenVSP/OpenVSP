@@ -1694,50 +1694,28 @@ void TTri::SplitTri( int meshFlag )
     }
 
     //==== Determine Which Axis to Flatten ====//
-    vec3d zn0, zn1, zn2;
-    zn0 = m_N0->m_Pnt;
-    zn0.set_x( 0 );
-    zn1 = m_N1->m_Pnt;
-    zn1.set_x( 0 );
-    zn2 = m_N2->m_Pnt;
-    zn2.set_x( 0 );
-//  double dx = MIN( dist( zn0, zn1 ), MIN( dist( zn1, zn2 ), dist( zn2, zn0 ) ) );
-    double dx = MAX( dist( zn0, zn1 ), MAX( dist( zn1, zn2 ), dist( zn2, zn0 ) ) );
-
-    zn0 = m_N0->m_Pnt;
-    zn0.set_y( 0 );
-    zn1 = m_N1->m_Pnt;
-    zn1.set_y( 0 );
-    zn2 = m_N2->m_Pnt;
-    zn2.set_y( 0 );
-//  double dy = MIN( dist( zn0, zn1 ), MIN( dist( zn1, zn2 ), dist( zn2, zn0 ) ) );
-    double dy = MAX( dist( zn0, zn1 ), MAX( dist( zn1, zn2 ), dist( zn2, zn0 ) ) );
-
-    zn0 = m_N0->m_Pnt;
-    zn0.set_z( 0 );
-    zn1 = m_N1->m_Pnt;
-    zn1.set_z( 0 );
-    zn2 = m_N2->m_Pnt;
-    zn2.set_z( 0 );
-//  double dz = MIN( dist( zn0, zn1 ), MIN( dist( zn1, zn2 ), dist( zn2, zn0 ) ) );
-    double dz = MAX( dist( zn0, zn1 ), MAX( dist( zn1, zn2 ), dist( zn2, zn0 ) ) );
-
+    Matrix4d rot_mat;
     int flattenAxis = 0;
     if ( uwflag )
     {
         flattenAxis = 2;
     }
-    else if ( dy >= dx && dy > dz )
+    else
     {
-        flattenAxis = 1;
-    }
-    else if ( dz >= dx && dz > dy )
-    {
-        flattenAxis = 2;
-    }
-    else if ( dy > dx && dz > dx ) // if y and z are equally good, but both better than x, then choose y
-    {
-        flattenAxis = 1;
+        // Rotate All Nodes into YZ Plane
+        // Find angle between triangle normal and the YZ Plane
+        double costheta = dot(m_Norm,vec3d(1,0,0));
+
+        // Find axis orthogonal to both the triangles normal and YZ Plane normal
+        vec3d axis = cross(m_Norm,vec3d(1,0,0));
+
+        // Rotate Points
+        rot_mat.rotate(std::acos(costheta), axis);
+
+        for ( unsigned int n=0; n < m_NVec.size(); n++ )
+        {
+            m_NVec[n]->m_Pnt = rot_mat.xform(m_NVec[n]->m_Pnt);
+        }
     }
 
     //==== Use Triangle to Split Tri ====//
@@ -1749,6 +1727,17 @@ void TTri::SplitTri( int meshFlag )
     {
         TriangulateSplit( flattenAxis );
     }
+
+    if ( !uwflag )
+    {
+        // Rotate Points Back
+        rot_mat.affineInverse();
+        for ( unsigned int n=0; n < m_NVec.size(); n++ )
+        {
+            m_NVec[n]->m_Pnt = rot_mat.xform(m_NVec[n]->m_Pnt);
+        }
+    }
+
 
 }
 

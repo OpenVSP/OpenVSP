@@ -2299,6 +2299,7 @@ void MeshGeom::AreaSlice( int style, int numSlices, double sliceAngle, double co
                 vec3d br = vec3d( 0, 0, 0 ) - tl;
                 vec3d bl = vec3d( 0, 0, 0 ) - tr;
                 vec3d norm = cross( br - bl, tl - bl );
+                norm.normalize();
 
                 if ( tesselate )
                 {
