@@ -96,6 +96,7 @@ STEPcomplex * STEPutil::Geometric_Context( const LenEnum & len, const AngEnum & 
         STEPcomplex * len_mm = ua_length;
 
         char lenname[10];
+        lenname[0] = '\0';
         double lenconv;
 
         switch( len )

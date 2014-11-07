@@ -857,6 +857,7 @@ void DegenGeom::write_degenGeomPointCsv_file( FILE* file_id, int nxsecs )
 void DegenGeom::write_degenGeomPropCsv_file( FILE* file_id )
 {
     char fmtstr[255];
+    fmtstr[0] = '\0';
     strcat( fmtstr, "%d, " );
     strcat( fmtstr, makeCsvFmt( 7 ).c_str() );
     if ( parentGeom->GetType().m_Name == "prop" )
