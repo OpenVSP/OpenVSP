@@ -146,6 +146,7 @@ void ReadVSPFile( const string & file_name )
         ErrorMgr.AddError( VSP_WRONG_FILE_TYPE, "ReadVSPFile::Error"  );
         return;
     }
+    veh->SetVSP3FileName( file_name );
     ErrorMgr.NoError();
 }
 

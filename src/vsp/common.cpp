@@ -101,6 +101,7 @@ int batchMode( int argc, char *argv[], Vehicle* vPtr )
 
     if ( vspFileFlag )
     {
+        vPtr->SetVSP3FileName( vsp_filename );
         validFile = vPtr->ReadXMLFile( vsp_filename );
     }
 
