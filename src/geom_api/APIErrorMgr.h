@@ -12,6 +12,7 @@
 #define APIERRORMGR__INCLUDED_
 
 #include "APIDefines.h"
+#include "MessageMgr.h"
 
 #include <string>
 #include <stack>
@@ -55,7 +56,7 @@ public:
 
 
 //======================== Error Mgr ================================//
-class ErrorMgrSingleton
+class ErrorMgrSingleton : MessageBase
 {
 public:
 
@@ -67,6 +68,8 @@ public:
 
     void AddError( ERROR_CODE code, const string & desc );
     void NoError();
+
+    virtual void MessageCallback( const MessageBase* from, const MessageData& data );
 
     static ErrorMgrSingleton& getInstance()
     {

@@ -34,10 +34,12 @@ ErrorObj::ErrorObj( ERROR_CODE err_code, const string & err_str )
 ErrorMgrSingleton::ErrorMgrSingleton()
 {
     m_ErrorLastCallFlag = false;
+    MessageBase::Register( string( "ErrorMgr" ) );
 }
 
 ErrorMgrSingleton::~ErrorMgrSingleton()
 {
+    MessageMgr::getInstance().UnRegister( this );
 }
 
 //==== No Error For Last Call ====//
@@ -119,4 +121,13 @@ bool ErrorMgrSingleton::PopErrorAndPrint( FILE* stream )
     fprintf( stream, "Error Code: %d, Desc: %s\n", err.m_ErrorCode, err.m_ErrorString.c_str() );
     return true;
 
+}
+
+//==== Message Callbacks ====//
+void ErrorMgrSingleton::MessageCallback( const MessageBase* from, const MessageData& data )
+{
+    if ( data.m_String == string( "Error" ) )
+    {
+        AddError( (ERROR_CODE) data.m_IntVec[0], data.m_StringVec[0] );
+    }
 }
