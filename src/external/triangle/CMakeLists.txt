@@ -8,3 +8,8 @@ ADD_LIBRARY(triangle
 triangle.c
 triangle.h
 )
+
+# set MS Visual Compiler flags
+IF(WIN32)
+  SET_TARGET_PROPERTIES( triangle PROPERTIES COMPILE_FLAGS "-fp:strict")
+ENDIF(WIN32)
