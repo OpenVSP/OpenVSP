@@ -121,6 +121,11 @@ void ScreenMgr::MessageCallback( const MessageBase* from, const MessageData& dat
             }
         }
     }
+    else if ( data.m_String == string( "Error" ) )
+    {
+        const char* msg = data.m_StringVec[0].c_str();
+        fl_message( "%s", ( char* )msg );
+    }
 }
 
 //==== Init All Screens ====//
