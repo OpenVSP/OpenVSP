@@ -26,7 +26,8 @@ enum ERROR_CODE {   VSP_OK,
                     VSP_WRONG_FILE_TYPE,
                     VSP_INDEX_OUT_RANGE,
                     VSP_INVALID_XSEC_ID,
-                    VSP_INVALID_ID
+                    VSP_INVALID_ID,
+                    VSP_CANT_SET_NOT_EQ_PARM
                 };
 
 enum {  SYM_XY = ( 1 << 0 ),

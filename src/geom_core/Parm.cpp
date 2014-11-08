@@ -18,6 +18,8 @@
 #include "XmlUtil.h"
 #include "StringUtil.h"
 #include "Combination.h"
+#include "MessageMgr.h"
+#include "APIDefines.h"
 
 using std::string;
 
@@ -455,6 +457,16 @@ bool NotEqParm::SetValCheckLimits( double val )
             {
                 m_Val = tmp;
                 m_LastVal = tmp2;
+
+                MessageData errMsgData;
+                errMsgData.m_String = "Error";
+                errMsgData.m_IntVec.push_back( vsp::VSP_CANT_SET_NOT_EQ_PARM );
+                char buf[255];
+                sprintf( buf, "Error:  Attempt to set %s equal to %s.", m_Name.c_str(), oparm->GetName().c_str() );
+                errMsgData.m_StringVec.push_back( string( buf ) );
+
+                MessageMgr::getInstance().SendAll( errMsgData );
+
                 return false;
             }
         }
