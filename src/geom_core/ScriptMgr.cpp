@@ -949,6 +949,11 @@ void ScriptMgrSingleton::RegisterCustomGeomMgr( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "void ClearAllCustomDefaultSources()",
                                     asMETHOD( CustomGeomMgrSingleton, ClearAllCustomDefaultSources ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r );
+    r = se->RegisterGlobalFunction( "void SetCustomCenter( double x, double y, double z )",
+                                    asMETHOD( CustomGeomMgrSingleton, SetCustomCenter ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
+    assert( r );
+
+
 }
 
 

@@ -304,6 +304,20 @@ void CustomGeomMgrSingleton::ClearAllCustomDefaultSources()
     }
 }
 
+void CustomGeomMgrSingleton::SetCustomCenter( double x, double y, double z )
+{
+   Geom* gptr = VehicleMgr.GetVehicle()->FindGeom( m_CurrGeom );
+
+    //==== Check If Geom is Valid and Correct Type ====//
+    if ( gptr && gptr->GetType().m_Type == CUSTOM_GEOM_TYPE )
+    {
+        CustomGeom* custom_geom = dynamic_cast<CustomGeom*>( gptr );
+        custom_geom->SetCenter( x, y, z );
+    }
+}
+
+
+
 //==== Custom XSecs Functions =====//
 void CustomGeomMgrSingleton::SetCustomXSecLoc( const string & xsec_id, const vec3d & loc )
 {
@@ -837,9 +851,25 @@ void CustomGeom::AddDefaultSources( double base_len )
     }
 }
 
- void CustomGeom::ComputeCenter()
- {
-     if ( m_XSecSurfVec.size() < 1 )
+//==== Compute Center of Rotation =====//
+void CustomGeom::ComputeCenter()
+{
+    //==== Try Calling Script Function First ====//
+    if ( !m_InitGeomFlag )
+    {
+        return;
+    }
+
+    CustomGeomMgr.SetCurrCustomGeom( GetID() );
+
+    //==== Call Script ====//
+    bool success = ScriptMgr.ExecuteScript( GetScriptModuleName().c_str(), "void ComputeCenter()" );
+
+    if ( success )
+        return;
+
+    //==== No Custom Script - Use Default ====//
+    if ( m_XSecSurfVec.size() < 1 )
          return;
 
     int index = m_XSecSurfVec[0]->NumXSec() - 1;
@@ -848,9 +878,9 @@ void CustomGeom::AddDefaultSources( double base_len )
     if ( xs )
     {
         m_Center = vec3d(0,0,0);
-
         m_Center.set_x( m_Origin()*xs->GetLoc().x() );
+    }
+}
 
     }
 
- }

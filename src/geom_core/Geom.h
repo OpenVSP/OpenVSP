@@ -256,6 +256,7 @@ public:
     virtual void UpdateXForm();
     virtual void ComposeModelMatrix();
     virtual Matrix4d ComposeAttachMatrix();
+    virtual void SetCenter( double x, double y, double z )      { m_Center.set_xyz( x, y, z ); }
     virtual void ComputeCenter()
     {
         m_Center.set_xyz( 0.0, 0.0, 0.0 );

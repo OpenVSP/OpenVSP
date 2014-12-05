@@ -71,3 +71,15 @@ void UpdateSurf()
 
 }
 
+
+//==== Optional Compute Center ====//
+void ComputeCenter()
+{
+	string geom_id = GetCurrCustomGeom();
+
+	double ht= GetParmVal( GetParm( geom_id, "Height", "Design" ) );
+	double origin = GetParmVal( GetParm( geom_id, "Origin", "XForm" ) );
+	SetCustomCenter( ht*origin, 0, 0 );
+
+}
+

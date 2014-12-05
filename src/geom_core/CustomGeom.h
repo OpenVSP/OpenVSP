@@ -92,6 +92,8 @@ public:
                                    double l2 = 0, double r2 = 0, double u2 = 0, double w2 = 0 );
     void ClearAllCustomDefaultSources();
 
+    void SetCustomCenter( double x, double y, double z );
+
     //==== Custom XSecs Functions ====//
     void SetCustomXSecLoc( const string & xsec_id, const vec3d & loc );
     vec3d GetCustomXSecLoc( const string & xsec_id );
