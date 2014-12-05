@@ -882,5 +882,16 @@ void CustomGeom::ComputeCenter()
     }
 }
 
+//==== Optional Scale - If Script Does Not Exist Nothing Happens =====//
+void CustomGeom::Scale()
+{
+    if ( !m_InitGeomFlag )
+    {
+        return;
     }
 
+    CustomGeomMgr.SetCurrCustomGeom( GetID() );
+
+    //==== Call Script ====//
+    ScriptMgr.ExecuteScript( GetScriptModuleName().c_str(), "void Scale()" );
+}

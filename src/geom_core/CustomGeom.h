@@ -208,6 +208,7 @@ public:
     virtual void ClearAllDefaultSources()                   { m_DefaultSourceVec.clear(); }
 
     virtual void ComputeCenter();
+    virtual void Scale();
 
 protected:
 
