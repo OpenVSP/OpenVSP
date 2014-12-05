@@ -245,7 +245,7 @@ bool ScriptMgrSingleton::RemoveScript( const string &  module_name )
 
 
 //==== Execute Function in Module ====//
-void ScriptMgrSingleton::ExecuteScript(  const char* module_name,  const char* function_name )
+bool ScriptMgrSingleton::ExecuteScript(  const char* module_name,  const char* function_name )
 {
     int r;
 
@@ -255,13 +255,13 @@ void ScriptMgrSingleton::ExecuteScript(  const char* module_name,  const char* f
     if ( !mod )
     {
         printf( "Error ExecuteScript GetModule %s\n", module_name );
-        return;
+        return false;
     }
 
     asIScriptFunction *func = mod->GetFunctionByDecl( function_name );
     if( func == 0 )
     {
-        return;
+        return false;
     }
 
     // Create our context, prepare it, and then execute
@@ -276,7 +276,9 @@ void ScriptMgrSingleton::ExecuteScript(  const char* module_name,  const char* f
             // An exception occurred, let the script writer know what happened so it can be corrected.
             printf( "An exception '%s' occurred \n", ctx->GetExceptionString() );
         }
+        return false;
     }
+    return true;
 }
 
 //==== Return Script Content Given Module Name ====//
