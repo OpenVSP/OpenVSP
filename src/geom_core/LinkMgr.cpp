@@ -661,6 +661,11 @@ xmlNodePtr LinkMgrSingleton::DecodeXml( xmlNodePtr & node )
 {
     m_UserParms.DecodeXml( node );
 
+    if ( m_UserParms.GetNumUserParms() < m_NumPredefinedUserParms )
+    {
+        m_UserParms.Renew(m_NumPredefinedUserParms);
+    }
+
     xmlNodePtr linkmgr_node = XmlUtil::GetNode( node, "LinkMgr", 0 );
     if ( linkmgr_node )
     {
