@@ -851,8 +851,6 @@ xmlNodePtr CustomGeom::DecodeXml( xmlNodePtr & node )
         {
             m_ParmVec[i]->DecodeXml( custom_node );
         }
-
-
     }
     Geom::DecodeXml( node );
 
