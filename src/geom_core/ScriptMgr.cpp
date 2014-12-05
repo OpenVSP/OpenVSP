@@ -689,6 +689,13 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "CFD_MESH_SOURCE_TYPE", "BOX_SOURCE", BOX_SOURCE );
     assert( r >= 0 );
 
+    r = se->RegisterEnum( "VSP_SURF_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VSP_SURF_TYPE", "NORMAL_SURF", NORMAL_SURF );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VSP_SURF_TYPE", "WING_SURF", WING_SURF );
+    assert( r >= 0 );
+
     r = se->RegisterEnum( "XDDM_QUANTITY_TYPE" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "XDDM_QUANTITY_TYPE", "XDDM_VAR", XDDM_VAR );
@@ -924,6 +931,9 @@ void ScriptMgrSingleton::RegisterCustomGeomMgr( asIScriptEngine* se )
     assert( r );
     r = se->RegisterGlobalFunction( "void TransformSurf(int index, Matrix4d & in mat)",
                                     asMETHOD( CustomGeomMgrSingleton, TransformSurf ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
+    assert( r );
+    r = se->RegisterGlobalFunction( "void SetVspSurfType( int type )",
+                                    asMETHOD( CustomGeomMgrSingleton, SetVspSurfType ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r );
 
     r = se->RegisterGlobalFunction( "void SetCustomXSecLoc( const string & in xsec_id, const vec3d & in loc )",

@@ -265,6 +265,19 @@ void CustomGeomMgrSingleton::TransformSurf( int index, Matrix4d & mat )
     }
 }
 
+//==== Set VSP Surf Type For Current Custom Geom =====//
+void CustomGeomMgrSingleton::SetVspSurfType( int type )
+{
+    Geom* gptr = VehicleMgr.GetVehicle()->FindGeom( m_CurrGeom );
+
+    //==== Check If Geom is Valid and Correct Type ====//
+    if ( gptr && gptr->GetType().m_Type == CUSTOM_GEOM_TYPE )
+    {
+        CustomGeom* custom_geom = dynamic_cast<CustomGeom*>( gptr );
+        custom_geom->SetVspSurfType( type );
+    }
+}
+
 void CustomGeomMgrSingleton::SetupCustomDefaultSource(  int type, int surf_index,
                                                         double l1, double r1, double u1, double w1,
                                                         double l2, double r2, double u2, double w2 )
@@ -508,6 +521,7 @@ CustomGeom::CustomGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_Name = "CustomGeom";
     m_Type.m_Name = "Custom";
     m_Type.m_Type = CUSTOM_GEOM_TYPE;
+    m_VspSurfType = vsp::NORMAL_SURF;
 }
 
 //==== Destructor ====//
@@ -623,6 +637,11 @@ void CustomGeom::UpdateSurf()
     //==== Call Script ====//
     ScriptMgr.ExecuteScript( GetScriptModuleName().c_str(), "void UpdateSurf()" );
 
+    //==== Set Surf Type ====//
+    for ( int i = 0 ; i < (int)m_MainSurfVec.size() ; i++ )
+    {
+        m_MainSurfVec[i].SetSurfType( m_VspSurfType );
+    }
 }
 
 //==== Create Parm and Add To Vector Of Parms ====//
