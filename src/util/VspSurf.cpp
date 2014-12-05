@@ -145,7 +145,6 @@ double VspSurf::FindNearest( double &u, double &w, const vec3d &pt, const double
 double VspSurf::FindNearest01( double &u, double &w, const vec3d &pt ) const
 {
     double dist;
-    int num_sectU, num_sectW;
 
     dist = FindNearest( u, w, pt );
 
@@ -158,7 +157,6 @@ double VspSurf::FindNearest01( double &u, double &w, const vec3d &pt ) const
 double VspSurf::FindNearest01( double &u, double &w, const vec3d &pt, const double &u0, const double &w0 ) const
 {
     double dist;
-    int num_sectU, num_sectW;
 
     dist = FindNearest( u, w, pt, u0 * GetUMax(), w0 * GetWMax() );
 
