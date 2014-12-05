@@ -34,6 +34,8 @@ class ErrorObj
 public:
     ErrorObj();
     ErrorObj( ERROR_CODE err_code, const string & err_str );
+    ErrorObj(const ErrorObj& from);
+    ~ErrorObj()         {}
 
     ERROR_CODE GetErrorCode()
     {

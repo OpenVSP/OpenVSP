@@ -27,6 +27,12 @@ ErrorObj::ErrorObj( ERROR_CODE err_code, const string & err_str )
     m_ErrorString = err_str;
 }
 
+ErrorObj::ErrorObj(const ErrorObj& from)
+{
+    m_ErrorCode = from.m_ErrorCode;
+    m_ErrorString = from.m_ErrorString;
+}
+
 //===================================================================//
 //======================== Error Mgr ================================//
 //===================================================================//
