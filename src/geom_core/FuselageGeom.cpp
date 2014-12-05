@@ -304,7 +304,7 @@ void FuselageGeom::AddLinkableParms( vector< string > & linkable_parm_vec, const
 //==== Scale ====//
 void FuselageGeom::Scale()
 {
-    double currentScale = m_Scale() / m_LastScale;
+    double currentScale = m_Scale() / m_LastScale();
     m_Length *= currentScale;
     for ( int i = 0 ; i < m_XSecSurf.NumXSec() ; i++ )
     {

@@ -1271,7 +1271,7 @@ void MeshGeom::load_hidden_surf()
 
 void MeshGeom::Scale()
 {
-    double currentScale = m_Scale() / m_LastScale;
+    double currentScale = m_Scale() / m_LastScale();
     m_ScaleFromOrig *= currentScale;
     m_ScaleMatrix.loadIdentity();
     m_ScaleMatrix.scale( m_ScaleFromOrig() );
@@ -1280,7 +1280,7 @@ void MeshGeom::Scale()
 
 void MeshGeom::ApplyScale()
 {
-    if ( fabs( m_LastScale - m_Scale() ) < 0.0000001 )
+    if ( fabs( m_LastScale() - m_Scale() ) < 0.0000001 )
     {
         return;
     }
@@ -1310,7 +1310,7 @@ void MeshGeom::ApplyScale()
         {
             for ( int k = 0 ; k < (int)m_TMeshVec[i]->m_XYZPnts[j].size() ; k++ )
             {
-                m_TMeshVec[i]->m_XYZPnts[j][k] = m_TMeshVec[i]->m_XYZPnts[j][k] * ( m_Scale() / m_LastScale );
+                m_TMeshVec[i]->m_XYZPnts[j][k] = m_TMeshVec[i]->m_XYZPnts[j][k] * ( m_Scale() / m_LastScale() );
             }
         }
     }
@@ -1318,7 +1318,7 @@ void MeshGeom::ApplyScale()
     for ( iter = nodeMap.begin() ; iter != nodeMap.end() ; iter++ )
     {
         TNode* n = iter->first;
-        n->m_Pnt = n->m_Pnt * ( m_Scale() / m_LastScale );
+        n->m_Pnt = n->m_Pnt * ( m_Scale() / m_LastScale() );
     }
 
     m_LastScale = m_Scale();

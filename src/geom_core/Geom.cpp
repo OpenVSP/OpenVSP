@@ -346,9 +346,11 @@ GeomXForm::GeomXForm( Vehicle* vehicle_ptr ) : GeomBase( vehicle_ptr )
     m_Scale.Init( "Scale", "XForm", this, 1, 1.0e-5, 1.0e12 );
     m_Scale.SetDescript( "Scale Geometry Size" );
 
-    m_ignoreAbsFlag = false;
-
+    m_LastScale.Init( "Last_Scale", "XForm", this, 1, 1.0e-5, 1.0e12 );
+    m_LastScale.SetDescript( "Last Scale Value" );
     m_LastScale = m_Scale();
+
+    m_ignoreAbsFlag = false;
 
     m_ModelMatrix.loadIdentity();
 }

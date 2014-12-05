@@ -828,7 +828,7 @@ void WingGeom::AddLinkableParms( vector< string > & linkable_parm_vec, const str
 //==== Scale ====//
 void WingGeom::Scale()
 {
-    double currentScale = m_Scale() / m_LastScale;
+    double currentScale = m_Scale() / m_LastScale();
 
     if( abs( 1.0 - currentScale ) > 1e-6 )
     {

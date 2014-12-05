@@ -300,7 +300,7 @@ void StackGeom::AddLinkableParms( vector< string > & linkable_parm_vec, const st
 //==== Scale ====//
 void StackGeom::Scale()
 {
-    double currentScale = m_Scale() / m_LastScale;
+    double currentScale = m_Scale() / m_LastScale();
     for ( int i = 0 ; i < m_XSecSurf.NumXSec() ; i++ )
     {
         XSec* xs = m_XSecSurf.FindXSec( i );

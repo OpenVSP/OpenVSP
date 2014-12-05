@@ -314,12 +314,12 @@ public:
     BoolParm m_relFlag;                 // Bool Parm to determine relative or absolute transformations
 
     Parm m_Scale;                       // Scaling Parameter
+    Parm m_LastScale;
 
 protected:
 
     bool m_ignoreAbsFlag;
     Matrix4d m_ModelMatrix;
-    double m_LastScale;
 
 };
 
