@@ -34,6 +34,22 @@ using namespace std;
 
 class Geom;
 
+class SourceData
+{
+public:
+
+    int m_Type;
+    int m_SurfIndex;
+    double m_Len1;
+    double m_Rad1;
+    double m_Len2;
+    double m_Rad2;
+    double m_U1;
+    double m_W1;
+    double m_U2;
+    double m_W2;
+};
+
 
 //////////////////////////////////////////////////////////////////////
 class BaseSource : public ParmContainer

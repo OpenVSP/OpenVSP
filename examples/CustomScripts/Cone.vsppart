@@ -18,6 +18,10 @@ void Init()
 	AppendXSec( xsec_surf, XS_POINT);
 	AppendXSec( xsec_surf, XS_CIRCLE);
 	AppendXSec( xsec_surf, XS_POINT);
+
+	//==== Add A Default Point Source At Nose ====//
+	SetupCustomDefaultSource( POINT_SOURCE, 0, 0.1, 1.0, 1.0, 1.0 );
+
 }
 
 //==== Global Gui IDs - These Are Consistent For All Created Boxes And Used In UpdateGUI====// 

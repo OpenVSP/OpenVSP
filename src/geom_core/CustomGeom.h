@@ -87,6 +87,11 @@ public:
     void TransformSurf( int index, Matrix4d & mat );
     void CloneSurf( int index, Matrix4d & mat );
 
+    //==== Set Up Default Sources =====//
+    void SetupCustomDefaultSource( int type, int surf_index, double l1, double r1, double u1, double w1,
+                                   double l2 = 0, double r2 = 0, double u2 = 0, double w2 = 0 );
+    void ClearAllCustomDefaultSources();
+
     //==== Custom XSecs Functions ====//
     void SetCustomXSecLoc( const string & xsec_id, const vec3d & loc );
     vec3d GetCustomXSecLoc( const string & xsec_id );
@@ -195,6 +200,11 @@ public:
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
+    //==== CFD Sources =====//
+    virtual void AddDefaultSources( double base_len = 1.0);
+    virtual void SetUpDefaultSource( SourceData & sd )      { m_DefaultSourceVec.push_back( sd ); }
+    virtual void ClearAllDefaultSources()                   { m_DefaultSourceVec.clear(); }
+
     virtual void ComputeCenter();
 
 protected:
@@ -207,6 +217,8 @@ protected:
     vector< GuiUpdate > m_UpdateGuiVec;     // Match Gui with Parms
     vector< XSecSurf* > m_XSecSurfVec;
     vector< int > m_TriggerVec;
+    vector< SourceData > m_DefaultSourceVec;
+
 
 
     virtual void UpdateSurf();

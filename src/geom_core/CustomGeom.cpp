@@ -265,6 +265,45 @@ void CustomGeomMgrSingleton::TransformSurf( int index, Matrix4d & mat )
     }
 }
 
+void CustomGeomMgrSingleton::SetupCustomDefaultSource(  int type, int surf_index,
+                                                        double l1, double r1, double u1, double w1,
+                                                        double l2, double r2, double u2, double w2 )
+{
+    Geom* gptr = VehicleMgr.GetVehicle()->FindGeom( m_CurrGeom );
+
+    //==== Check If Geom is Valid and Correct Type ====//
+    if ( gptr && gptr->GetType().m_Type == CUSTOM_GEOM_TYPE )
+    {
+        CustomGeom* custom_geom = dynamic_cast<CustomGeom*>( gptr );
+
+        SourceData sd;
+        sd.m_Type = type;
+        sd.m_SurfIndex = surf_index;
+        sd.m_Len1 = l1;
+        sd.m_Rad1 = r1;
+        sd.m_U1 = u1;
+        sd.m_W1 = w1;
+        sd.m_Len2 = l2;
+        sd.m_Rad2 = r2;
+        sd.m_U2 = u2;
+        sd.m_W2 = w2;
+
+        custom_geom->SetUpDefaultSource( sd );
+    }
+}
+
+void CustomGeomMgrSingleton::ClearAllCustomDefaultSources()
+{
+   Geom* gptr = VehicleMgr.GetVehicle()->FindGeom( m_CurrGeom );
+
+    //==== Check If Geom is Valid and Correct Type ====//
+    if ( gptr && gptr->GetType().m_Type == CUSTOM_GEOM_TYPE )
+    {
+        CustomGeom* custom_geom = dynamic_cast<CustomGeom*>( gptr );
+        custom_geom->ClearAllDefaultSources();
+    }
+}
+
 //==== Custom XSecs Functions =====//
 void CustomGeomMgrSingleton::SetCustomXSecLoc( const string & xsec_id, const vec3d & loc )
 {
@@ -785,6 +824,17 @@ xmlNodePtr CustomGeom::DecodeXml( xmlNodePtr & node )
     Geom::DecodeXml( node );
 
     return custom_node;
+}
+
+//==== Add All Default Sources Currently in Vec =====//
+void CustomGeom::AddDefaultSources( double base_len )
+{
+    for ( int i = 0 ; i < (int)m_DefaultSourceVec.size() ; i++ )
+    {
+        SourceData sd = m_DefaultSourceVec[i];
+        vsp::AddCFDSource( sd.m_Type, GetID(), sd.m_SurfIndex, sd.m_Len1, sd.m_Rad1, sd.m_U1, sd.m_W1,
+                           sd.m_Len2, sd.m_Rad2, sd.m_U2, sd.m_W2 );
+    }
 }
 
  void CustomGeom::ComputeCenter()

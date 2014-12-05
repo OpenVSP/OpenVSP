@@ -942,6 +942,13 @@ void ScriptMgrSingleton::RegisterCustomGeomMgr( asIScriptEngine* se )
                                     asMETHOD( CustomGeomMgrSingleton, CheckClearTriggerEvent ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r );
 
+    r = se->RegisterGlobalFunction(
+        "void SetupCustomDefaultSource( int type, int surf_index, double l1, double r1, double u1, double w1, double l2 = 0, double r2 = 0, double u2 = 0, double w2 = 0 )", 
+        asMETHOD( CustomGeomMgrSingleton, SetupCustomDefaultSource ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void ClearAllCustomDefaultSources()",
+                                    asMETHOD( CustomGeomMgrSingleton, ClearAllCustomDefaultSources ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
+    assert( r );
 }
 
 
