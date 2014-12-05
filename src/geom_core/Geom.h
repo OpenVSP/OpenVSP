@@ -321,15 +321,6 @@ protected:
     Matrix4d m_ModelMatrix;
     double m_LastScale;
 
-    //virtual void LoadParmMap();
-
-//  Location
-//  Rotation
-//  Origin
-//  Scale
-//  Matrices
-//  Attach Data
-
 };
 
 //==== Geom  ====//
