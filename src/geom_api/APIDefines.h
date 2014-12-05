@@ -188,6 +188,11 @@ enum XDDM_QUANTITY_TYPE { XDDM_VAR,
 };
 
 
+enum VSP_SURF_TYPE { NORMAL_SURF,
+                     WING_SURF,
+                     NUM_SURF_TYPES,
+               };
+
 
 }   // Namespace
 

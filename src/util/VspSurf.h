@@ -41,10 +41,6 @@ class VspSurf
 {
 public:
 
-    enum SURF_TYPE {    NORMAL_SURF,
-                        WING_SURF,
-                        NUM_SURF_TYPES,
-                   };
 
     enum { NO_END_CAP,
            FLAT_END_CAP,

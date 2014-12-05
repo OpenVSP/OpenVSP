@@ -1233,7 +1233,7 @@ void WingGeom::UpdateSurf()
     {
         m_MainSurfVec[0].FlipNormal();
     }
-    m_MainSurfVec[0].SetSurfType( VspSurf::WING_SURF );
+    m_MainSurfVec[0].SetSurfType( vsp::WING_SURF );
 
     //==== Load Totals ====//
     m_TotalSpan = ComputeTotalSpan();

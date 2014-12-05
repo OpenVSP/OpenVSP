@@ -1468,7 +1468,7 @@ void Geom::CreateDegenGeom( vector<DegenGeom> &dgs)
 
         degenGeom.createDegenSurface( pnts, uwpnts, m_SurfVec[i].GetFlipNormal() );
 
-        if( m_SurfVec[i].GetSurfType() == VspSurf::WING_SURF )
+        if( m_SurfVec[i].GetSurfType() == vsp::WING_SURF )
         {
             degenGeom.setType(DegenGeom::SURFACE_TYPE);
 
@@ -2048,7 +2048,7 @@ bool Geom::HasWingTypeSurfs()
 {
     for( int i = 0; i < m_MainSurfVec.size(); i++ )
     {
-        if( m_MainSurfVec[i].GetSurfType() == VspSurf::WING_SURF )
+        if( m_MainSurfVec[i].GetSurfType() == vsp::WING_SURF )
         {
             return true;
         }
@@ -2062,7 +2062,7 @@ void Geom::AppendWakeEdges( vector< vector< vec3d > > & edges )
     {
         for( int i = 0; i < m_SurfVec.size(); i++ )
         {
-            if( m_SurfVec[i].GetSurfType() == VspSurf::WING_SURF )
+            if( m_SurfVec[i].GetSurfType() == vsp::WING_SURF )
             {
                 vector< vector< vec3d > > pnts;
                 vector< vector< vec3d > > norms;

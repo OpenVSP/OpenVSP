@@ -17,6 +17,7 @@
 #include "VspSurf.h"
 #include "StlHelper.h"
 #include "PntNodeMerge.h"
+#include "APIDefines.h"
 
 #include "eli/geom/curve/piecewise_creator.hpp"
 #include "eli/geom/surface/piecewise_body_of_revolution_creator.hpp"
@@ -37,7 +38,7 @@ typedef eli::geom::surface::piecewise_capped_surface_creator<double, 3, surface_
 VspSurf::VspSurf()
 {
     m_FlipNormal = false;
-    m_SurfType = NORMAL_SURF;
+    m_SurfType = vsp::NORMAL_SURF;
 }
 
 //===== Destructor  =====//
@@ -681,7 +682,7 @@ void VspSurf::BuildFeatureLines()
         m_WFeature.push_back( vmax );
 
         // If fuse-type, add .25 and .75 curves.
-        if ( GetSurfType() != VspSurf::WING_SURF )
+        if ( GetSurfType() != vsp::WING_SURF )
         {
             m_WFeature.push_back( vmin + 0.25 * vrng );
             m_WFeature.push_back( vmin + 0.75 * vrng );
