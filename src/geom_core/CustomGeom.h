@@ -88,7 +88,7 @@ public:
     void CloneSurf( int index, Matrix4d & mat );
 
     //==== Surface Attribute (Wing, Fuse...) =====//
-    void SetVspSurfType( int type );
+    void SetVspSurfType( int type, int surf_id = -1 );
 
     //==== Set Up Default Sources =====//
     void SetupCustomDefaultSource( int type, int surf_index, double l1, double r1, double u1, double w1,
@@ -206,7 +206,7 @@ public:
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
     //==== Set VSP Surf Type ====//
-    virtual void SetVspSurfType( int type )                 { m_VspSurfType = type; }
+    virtual void SetVspSurfType( int type, int surf_id = -1 );
 
     //==== CFD Sources =====//
     virtual void AddDefaultSources( double base_len = 1.0);
@@ -229,6 +229,7 @@ protected:
     vector< SourceData > m_DefaultSourceVec;
 
     int m_VspSurfType;
+    map< int, int > m_VspSurfTypeMap;
 
 
     virtual void UpdateSurf();
