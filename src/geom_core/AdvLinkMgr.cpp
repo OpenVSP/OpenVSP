@@ -237,6 +237,15 @@ void AdvLinkMgrSingleton::UpdateLinks( const string& pid  )
     }
 }
 
+//==== Force Update of All Links ====//
+void AdvLinkMgrSingleton::ForceUpdate()
+{
+    for ( int i = 0 ; i < ( int )m_LinkVec.size() ; i++ )
+    {
+        m_LinkVec[i]->ForceUpdate();
+    }
+}
+
 xmlNodePtr AdvLinkMgrSingleton::EncodeXml( xmlNodePtr & node )
 {
     xmlNodePtr linkmgr_node = xmlNewChild( node, NULL, BAD_CAST"AdvLinkMgr", NULL );

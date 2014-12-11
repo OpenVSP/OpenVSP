@@ -66,6 +66,7 @@ public:
     double GetVar( const string & var_name );
 
     bool UpdateLink( const string & pid );
+    void ForceUpdate();
 
     vector< VarDef > GetInputVars()                               { return m_InputVars; }
     vector< VarDef > GetOutputVars()                              { return m_OutputVars; }

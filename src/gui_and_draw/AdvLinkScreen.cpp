@@ -415,6 +415,10 @@ void AdvLinkScreen::GuiDeviceCallBack( GuiDevice* gui_device )
                 fl_message_title( "Compile Errors" );
                 fl_message( "%s", edit_link->GetScriptErrors().c_str() );
             }
+            else
+            {
+                edit_link->ForceUpdate();
+            }
         }
     }
     else

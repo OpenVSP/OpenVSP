@@ -254,6 +254,14 @@ bool AdvLink::UpdateLink( const string & pid )
     return true;
 }
 
+void AdvLink::ForceUpdate()
+{
+    AdvLinkMgr.SetActiveLink( this );
+
+    //==== Call Script ====//
+    ScriptMgr.ExecuteScript( m_ScriptModule.c_str(), "void UpdateLink()" );
+}
+
 //==== Encode Contents of Adv Link Into XML Tree ====//
 xmlNodePtr AdvLink::EncodeXml( xmlNodePtr & node )
 {

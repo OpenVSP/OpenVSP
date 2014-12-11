@@ -49,6 +49,7 @@ public:
 
     bool IsInputParm( const string& pid );
     void UpdateLinks( const string& pid );
+    void ForceUpdate( );
     void SetActiveLink( AdvLink* adv_link )                             { m_ActiveLink = adv_link; }
     AdvLink* GetActiveLink()                                            { return m_ActiveLink; }
 
