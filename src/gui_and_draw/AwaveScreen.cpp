@@ -71,7 +71,7 @@ AwaveScreen::AwaveScreen( ScreenMgr *mgr ) : VspScreen( mgr )
     m_MNumber = sqrt( ( double )2 );
     m_ComputeAngle = false;
     m_NumRotSecs = 5;
-    m_AngleRange[0] = 1e-6;
+    m_AngleRange[0] = 1e-1;
     m_AngleRange[1] = 90;
     m_MNumberRange[0] = 1;
     m_MNumberRange[1] = 10;
