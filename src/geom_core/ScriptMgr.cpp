@@ -988,7 +988,7 @@ void ScriptMgrSingleton::RegisterAdvLinkMgr( asIScriptEngine* se )
 void ScriptMgrSingleton::RegisterAPIErrorObj( asIScriptEngine* se )
 {
     //==== Register vec3d Object =====//
-    int r = se->RegisterObjectType( "ErrorObj", sizeof( vsp::ErrorObj ), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA );
+    int r = se->RegisterObjectType( "ErrorObj", sizeof( vsp::ErrorObj ), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CDA );
     assert( r >= 0 );
     r = se->RegisterObjectMethod( "ErrorObj", "ERROR_CODE GetErrorCode()", asMETHOD( vsp::ErrorObj, GetErrorCode ), asCALL_THISCALL );
     assert( r >= 0 );
