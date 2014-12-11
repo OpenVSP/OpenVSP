@@ -29,8 +29,6 @@ PodScreen::PodScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 525, "Pod" )
     m_DesignLayout.AddSlider( m_FineSlider, "Fine Ratio", 5, "%7.3f" );
     m_DesignLayout.AddYGap();
 
-    m_DesignLayout.SetButtonWidth( 100 );
-    m_DesignLayout.AddSlider( m_NumBaseSlider, "Num XSec Pnts", 33, "%5.0f" );
 }
 
 
