@@ -53,6 +53,11 @@ protected:
     TriggerButton m_CreateParm;
     TriggerButton m_DeleteParm;
     TriggerButton m_DeleteAllParm;
+    TriggerButton m_EditParm;
+
+    StringInput m_EditParmNameInput;
+    StringInput m_EditParmGroupInput;
+    StringInput m_EditParmDescInput;
 
     Fl_Browser* m_UserDefinedBrowser;
 
@@ -75,6 +80,8 @@ protected:
     Parm m_Val;
     Parm m_Min;
     Parm m_Max;
+
+    int m_UserBrowserSelection;
 
     int m_NumParmsLast;
     void RebuildAdjustGroup();

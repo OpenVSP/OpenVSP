@@ -14,11 +14,12 @@
 #include <assert.h>
 
 //==== Constructor ====//
-UserParmScreen::UserParmScreen( ScreenMgr* mgr ) : TabScreen( mgr, 400, 500, "User Parms" )
+UserParmScreen::UserParmScreen( ScreenMgr* mgr ) : TabScreen( mgr, 400, 550, "User Parms" )
 {
     //==== Variables =====//
     m_NumParmsLast = 0;
     m_NumEditSliders = 10;
+    m_UserBrowserSelection = 0;
     m_NameText = "Default_Name";
     m_GroupText = "Default_Group";
     m_DescText = "Default_Desc";
@@ -63,17 +64,31 @@ UserParmScreen::UserParmScreen( ScreenMgr* mgr ) : TabScreen( mgr, 400, 500, "Us
     m_CreateGroup.AddButton( m_CreateParm, "Create" );
     m_CreateGroup.AddYGap();
     m_CreateGroup.AddDividerBox( "User Defined Parms" );
-    m_UserDefinedBrowser = m_CreateGroup.AddFlBrowser( 210 );
+    m_UserDefinedBrowser = m_CreateGroup.AddFlBrowser( 150 );
     m_CreateGroup.AddYGap();
 
     m_CreateGroup.SetFitWidthFlag( false );
     m_CreateGroup.SetSameLineFlag( true );
 
-    m_CreateGroup.SetButtonWidth( 160 );
+    m_CreateGroup.SetButtonWidth( 170 );
     m_CreateGroup.AddX( 20 );
     m_CreateGroup.AddButton( m_DeleteParm, "Delete" );
     m_CreateGroup.AddX( 20 );
     m_CreateGroup.AddButton( m_DeleteAllParm, "DeleteAll" );
+
+    m_CreateGroup.SetFitWidthFlag( true );
+    m_CreateGroup.SetSameLineFlag( false );
+    m_CreateGroup.ForceNewLine();
+    m_CreateGroup.AddYGap();
+
+    m_CreateGroup.SetButtonWidth( 70 );
+
+    m_CreateGroup.AddDividerBox( "Edit User Defined Parms" );
+    m_CreateGroup.AddInput( m_EditParmNameInput, "Name:" );
+    m_CreateGroup.AddInput( m_EditParmGroupInput, "Group:" );
+    m_CreateGroup.AddInput( m_EditParmDescInput, "Desc:" );
+
+    m_UserDefinedBrowser->callback( staticScreenCB, this );
 
     //==== Adjust ====//
     m_AdjustScroll = AddSubScroll( adj_tab, 5 );
@@ -116,8 +131,32 @@ bool UserParmScreen::Update()
     for ( int i = 0 ; i < (int)m_UserParmBrowserVec.size() ; i++ )
     {
         Parm* p = ParmMgr.FindParm( m_UserParmBrowserVec[i] );
-        string pname = p->GetName();
-        m_UserDefinedBrowser->add( pname.c_str() );
+        if ( p )
+        {
+            string pname = p->GetName();
+            m_UserDefinedBrowser->add( pname.c_str() );
+        }
+    }
+    m_UserDefinedBrowser->select( m_UserBrowserSelection );
+
+    //==== Set Inputs ====//
+    Parm* user_parm_ptr = NULL;
+    int index = m_UserBrowserSelection - 1;
+    if ( index >= 0 && index < (int)m_UserParmBrowserVec.size() )
+    {
+        user_parm_ptr = ParmMgr.FindParm(  m_UserParmBrowserVec[index] );
+    }
+    if ( user_parm_ptr )
+    {
+        m_EditParmNameInput.Update( user_parm_ptr->GetName() );
+        m_EditParmGroupInput.Update( user_parm_ptr->GetGroupName() );
+        m_EditParmDescInput.Update( user_parm_ptr->GetDescript() );
+    }
+    else
+    {
+        m_EditParmNameInput.Update( "" );
+        m_EditParmGroupInput.Update( "" );
+        m_EditParmDescInput.Update( "" );
     }
 
     // Parameter GUI got out of sync.  Probably from File->New or similar.
@@ -189,7 +228,13 @@ void UserParmScreen::Hide()
 //==== Callbacks ====//
 void UserParmScreen::CallBack( Fl_Widget *w )
 {
+    if ( w == m_UserDefinedBrowser )
+    {
+        //==== Load User Parm Edit Names/Desc ====//
+        m_UserBrowserSelection = m_UserDefinedBrowser->value();
+    }
 
+    m_ScreenMgr->SetUpdateFlag( true );
 }
 
 void UserParmScreen::GuiDeviceCallBack( GuiDevice* gui_device )
@@ -220,6 +265,7 @@ void UserParmScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         {
             m_ScreenMgr->Alert( "Duplicate Name and Group" );
         }
+        m_UserBrowserSelection = -1;
      }
     else if ( gui_device == &m_DeleteParm )
     {
@@ -227,11 +273,44 @@ void UserParmScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         int num_predef = LinkMgr.GetNumPredefinedUserParms();
         LinkMgr.DeleteUserParm( index +  num_predef );
         RebuildAdjustGroup();
+        m_UserBrowserSelection = -1;
     }
     else if ( gui_device == &m_DeleteAllParm )
     {
         LinkMgr.DeleteAllUserParm( );
         RebuildAdjustGroup();
+        m_UserBrowserSelection = -1;
+    }
+    else if ( gui_device == &m_EditParmNameInput ||
+              gui_device == &m_EditParmGroupInput ||
+              gui_device == &m_EditParmDescInput )
+    {
+        int index = m_UserDefinedBrowser->value() - 1;
+        if ( index >= 0 && index < (int)m_UserParmBrowserVec.size() )
+        {
+            Parm* p = ParmMgr.FindParm(  m_UserParmBrowserVec[index] );
+            if ( p )
+            {
+                if ( gui_device == &m_EditParmNameInput )
+                    p->SetName( m_EditParmNameInput.GetString() );
+                else if ( gui_device == &m_EditParmGroupInput )
+                    p->SetGroupName( m_EditParmGroupInput.GetString() );
+                else if ( gui_device == &m_EditParmDescInput )
+                    p->SetDescript( m_EditParmDescInput.GetString() );
+
+                //==== Load User Parms Into Browser ====//
+                m_UserDefinedBrowser->clear();
+                for ( int i = 0 ; i < (int)m_UserParmBrowserVec.size() ; i++ )
+                {
+                    Parm* p = ParmMgr.FindParm( m_UserParmBrowserVec[i] );
+                    if ( p )
+                    {
+                        string pname = p->GetName();
+                        m_UserDefinedBrowser->add( pname.c_str() );
+                    }
+                }
+            }
+        }
     }
     else
     {

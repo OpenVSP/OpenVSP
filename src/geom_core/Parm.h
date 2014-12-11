@@ -42,12 +42,12 @@ public:
                        double val, double lower, double upper, bool linkable = true );
 
     virtual string GetName()                             { return m_Name; }
+    virtual void SetName( const string & name )          { m_Name = name; }
+
+    virtual string GetGroupName()                        { return m_GroupName; }
+    virtual void SetGroupName( const string & name )     { m_GroupName = name; }
     virtual void SetGroupDisplaySuffix( int num )        { m_GroupDisplaySuffix = num; }
 
-    virtual string GetGroupName()
-    {
-        return m_GroupName;
-    }
     virtual string GetDisplayGroupName();
 
     virtual void SetDescript( const string& d )
