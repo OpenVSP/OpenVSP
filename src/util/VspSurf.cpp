@@ -336,31 +336,31 @@ vec3d VspSurf::CompPnt01( double u, double v ) const
 //===== Compute Tangent In U Direction   =====//
 vec3d VspSurf::CompTanU01( double u01, double v01 ) const
 {
-    return CompTanU( u01 * GetUMax(), v01 * GetWMax() );
+    return CompTanU( u01 * GetUMax(), v01 * GetWMax() ) * GetUMax();
 }
 
 //===== Compute Tangent In W Direction   =====//
 vec3d VspSurf::CompTanW01( double u01, double v01 ) const
 {
-    return CompTanW( u01 * GetUMax(), v01 * GetWMax() );
+    return CompTanW( u01 * GetUMax(), v01 * GetWMax() ) * GetWMax();
 }
 
 //===== Compute Second Derivative U,U   =====//
 vec3d VspSurf::CompTanUU01( double u01, double v01 ) const
 {
-    return CompTanUU( u01 * GetUMax(), v01 * GetWMax() );
+    return CompTanUU( u01 * GetUMax(), v01 * GetWMax() ) * ( GetUMax() * GetUMax() );
 }
 
 //===== Compute Second Derivative W,W   =====//
 vec3d VspSurf::CompTanWW01( double u01, double v01 ) const
 {
-    return CompTanWW( u01 * GetUMax(), v01 * GetWMax() );
+    return CompTanWW( u01 * GetUMax(), v01 * GetWMax() ) * ( GetWMax() * GetWMax() );
 }
 
 //===== Compute Second Derivative U,W   =====//
 vec3d VspSurf::CompTanUW01( double u01, double v01 ) const
 {
-    return CompTanUW( u01 * GetUMax(), v01 * GetWMax() );
+    return CompTanUW( u01 * GetUMax(), v01 * GetWMax() ) * ( GetUMax() * GetWMax() );
 }
 
 //===== Compute Second Derivative U,U   =====//
