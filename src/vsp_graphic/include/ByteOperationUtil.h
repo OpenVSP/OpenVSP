@@ -11,7 +11,7 @@ static int isLittleEndian()
     union IntBytes
     {
         unsigned int uInt;
-        unsigned char bytes[sizeof( int )];
+        unsigned char bytes[sizeof( unsigned int )];
     }
     EndianTest = {1};
 
