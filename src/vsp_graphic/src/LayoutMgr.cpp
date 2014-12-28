@@ -95,6 +95,8 @@ void LayoutMgr::predraw( Scene * scene, int x, int y )
 
         glDisable( GL_POINT_SMOOTH );
         glDisable( GL_LINE_SMOOTH );
+        glDisable( GL_BLEND );
+        glDisable( GL_MULTISAMPLE );
 
         scene->predraw();
 
