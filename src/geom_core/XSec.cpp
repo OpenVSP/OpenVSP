@@ -1444,7 +1444,7 @@ double FuseXSec::GetScale()
     XSecSurf* xsecsurf = (XSecSurf*) GetParentContainerPtr();
     int indx = xsecsurf->FindXSecIndex( m_ID );
 
-    double dx(0), dy(0), dz(0);
+    double dx(0), dy(0), dz(0), dr(0), dw(0);
 
     double scaleL = 1e12;
     double scaleR = 1e12;
@@ -1458,7 +1458,15 @@ double FuseXSec::GetScale()
             dx = ( m_XLocPercent() - prevxs->m_XLocPercent() ) * m_RefLength();
             dy = ( m_YLocPercent() - prevxs->m_YLocPercent() ) * m_RefLength();
             dz = ( m_ZLocPercent() - prevxs->m_ZLocPercent() ) * m_RefLength();
-            scaleL = sqrt( dx*dx + dy*dy + dz*dz );
+            dr = ( GetXSecCurve()->GetHeight() - prevxs->GetXSecCurve()->GetHeight() ) * 0.5;
+            dr = dr * dr;
+            dw = ( GetXSecCurve()->GetWidth() - prevxs->GetXSecCurve()->GetWidth() ) * 0.5;
+            dw = dw * dw;
+            if ( dw > dr )
+            {
+                dr = dw;
+            }
+            scaleL = sqrt( dx*dx + dy*dy + dz*dz + dr );
         }
     }
 
@@ -1470,7 +1478,15 @@ double FuseXSec::GetScale()
             dx = ( nxtxs->m_XLocPercent() - m_XLocPercent() ) * m_RefLength();
             dy = ( nxtxs->m_YLocPercent() - m_YLocPercent() ) * m_RefLength();
             dz = ( nxtxs->m_ZLocPercent() - m_ZLocPercent() ) * m_RefLength();
-            scaleR = sqrt( dx*dx + dy*dy + dz*dz );
+            dr = ( nxtxs->GetXSecCurve()->GetHeight() - GetXSecCurve()->GetHeight() ) * 0.5;
+            dr = dr * dr;
+            dw = ( nxtxs->GetXSecCurve()->GetWidth() - GetXSecCurve()->GetWidth() ) * 0.5;
+            dw = dw * dw;
+            if ( dw > dr)
+            {
+                dr = dw;
+            }
+            scaleR = sqrt( dx*dx + dy*dy + dz*dz + dr );
         }
     }
 
@@ -1616,7 +1632,7 @@ double StackXSec::GetScale()
     XSecSurf* xsecsurf = (XSecSurf*) GetParentContainerPtr();
     int indx = xsecsurf->FindXSecIndex( m_ID );
 
-    double dx(0), dy(0), dz(0);
+    double dx(0), dy(0), dz(0), dw(0), dr(0);
 
     double scaleL = 1e12;
     double scaleR = 1e12;
@@ -1627,18 +1643,38 @@ double StackXSec::GetScale()
         dx = m_XDelta();
         dy = m_YDelta();
         dz = m_ZDelta();
-        scaleL = sqrt( dx*dx + dy*dy + dz*dz );
+        FuseXSec* prevxs = (FuseXSec*) xsecsurf->FindXSec( indx - 1 );
+        if( prevxs )
+        {
+            dr = ( GetXSecCurve()->GetHeight() - prevxs->GetXSecCurve()->GetHeight() ) * 0.5;
+            dr = dr * dr;
+            dw = (  GetXSecCurve()->GetWidth() - prevxs->GetXSecCurve()->GetWidth() ) * 0.5;
+            dw = dw * dw;
+            if ( dw > dr )
+            {
+                dr = dw;
+            }
+        }
+        scaleL = sqrt( dx*dx + dy*dy + dz*dz + dr );
     }
 
     if( indx < (xsecsurf->NumXSec() - 1) )
     {
-        StackXSec* prevxs = (StackXSec*) xsecsurf->FindXSec( indx + 1);
-        if( prevxs )
+        StackXSec* nxtxs = (StackXSec*) xsecsurf->FindXSec( indx + 1 );
+        if( nxtxs )
         {
-            dx = prevxs->m_XDelta();
-            dy = prevxs->m_YDelta();
-            dz = prevxs->m_ZDelta();
-            scaleR = sqrt( dx*dx + dy*dy + dz*dz );
+            dx = nxtxs->m_XDelta();
+            dy = nxtxs->m_YDelta();
+            dz = nxtxs->m_ZDelta();
+            dr = ( nxtxs->GetXSecCurve()->GetHeight() - GetXSecCurve()->GetHeight() ) * 0.5;
+            dr = dr * dr;
+            dw = ( nxtxs->GetXSecCurve()->GetWidth() - GetXSecCurve()->GetWidth() ) * 0.5;
+            dw = dw * dw;
+            if ( dw > dr)
+            {
+                dr = dw;
+            }
+            scaleR = sqrt( dx*dx + dy*dy + dz*dz + dr );
         }
     }
 
