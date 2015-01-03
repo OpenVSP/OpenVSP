@@ -49,8 +49,9 @@ bool ManageCORScreen::Update()
         {
             if(geom_drawObj_vec[j]->m_Visible)
             {
-                // Ignore bounding boxes.
-                if(geom_drawObj_vec[j]->m_GeomID.compare(0, string(BBOXHEADER).size(), BBOXHEADER) != 0)
+                // Ignore bounding boxes & pick verts.
+                if( geom_drawObj_vec[j]->m_GeomID.compare(0, string(BBOXHEADER).size(), BBOXHEADER) != 0 &&
+                    geom_drawObj_vec[j]->m_Type != DrawObj::VSP_PICK_VERTEX )
                 {
                     DrawObj pickDO;
                     pickDO.m_Type = DrawObj::VSP_PICK_VERTEX;
