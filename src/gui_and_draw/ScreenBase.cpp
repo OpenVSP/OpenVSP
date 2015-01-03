@@ -485,9 +485,9 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SubSurfLayout.SetFitWidthFlag( false );
     m_SubSurfLayout.SetSameLineFlag( true );
 
-    m_SubSurfChoice.AddItem( SubSurface::GetTypeName( SubSurface::SS_LINE ) );
-    m_SubSurfChoice.AddItem( SubSurface::GetTypeName( SubSurface::SS_RECTANGLE ) );
-    m_SubSurfChoice.AddItem( SubSurface::GetTypeName( SubSurface::SS_ELLIPSE ) );
+    m_SubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_LINE ) );
+    m_SubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_RECTANGLE ) );
+    m_SubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_ELLIPSE ) );
 
     int b_width = m_SubSurfLayout.GetRemainX();
     m_SubSurfLayout.SetButtonWidth( (int)(b_width * 0.4) );
@@ -726,7 +726,7 @@ bool GeomScreen::Update()
     if ( subsurf )
     {
         m_SubNameInput.Update( subsurf->GetName() );
-        if ( subsurf->GetType() == SubSurface::SS_LINE )
+        if ( subsurf->GetType() == vsp::SS_LINE )
         {
             SSLine* ssline = dynamic_cast< SSLine* >( subsurf );
             assert( ssline );
@@ -737,7 +737,7 @@ bool GeomScreen::Update()
             SubSurfDispGroup( &m_SSLineGroup );
 
         }
-        else if ( subsurf->GetType() == SubSurface::SS_RECTANGLE )
+        else if ( subsurf->GetType() == vsp::SS_RECTANGLE )
         {
             SSRectangle* ssrec = dynamic_cast< SSRectangle* >( subsurf );
             assert( subsurf );
@@ -750,7 +750,7 @@ bool GeomScreen::Update()
             m_SSRecThetaSlider.Update( ssrec->m_Theta.GetID() );
             SubSurfDispGroup( &m_SSRecGroup );
         }
-        else if ( subsurf->GetType() == SubSurface::SS_ELLIPSE )
+        else if ( subsurf->GetType() == vsp::SS_ELLIPSE )
         {
             SSEllipse* ssell = dynamic_cast< SSEllipse* >( subsurf );
             assert( ssell );
@@ -868,17 +868,17 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
     else if ( device == &m_AddSubSurfButton )
     {
         SubSurface* ssurf = NULL;
-        if ( m_SubSurfChoice.GetVal() == SubSurface::SS_LINE )
+        if ( m_SubSurfChoice.GetVal() == vsp::SS_LINE )
         {
-            ssurf = geom_ptr->AddSubSurf( SubSurface::SS_LINE );
+            ssurf = geom_ptr->AddSubSurf( vsp::SS_LINE );
         }
-        else if ( m_SubSurfChoice.GetVal() == SubSurface::SS_RECTANGLE )
+        else if ( m_SubSurfChoice.GetVal() == vsp::SS_RECTANGLE )
         {
-            ssurf = geom_ptr->AddSubSurf( SubSurface::SS_RECTANGLE );
+            ssurf = geom_ptr->AddSubSurf( vsp::SS_RECTANGLE );
         }
-        else if ( m_SubSurfChoice.GetVal() == SubSurface::SS_ELLIPSE )
+        else if ( m_SubSurfChoice.GetVal() == vsp::SS_ELLIPSE )
         {
-            ssurf = geom_ptr->AddSubSurf( SubSurface::SS_ELLIPSE );
+            ssurf = geom_ptr->AddSubSurf( vsp::SS_ELLIPSE );
         }
 
         if ( ssurf )

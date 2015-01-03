@@ -1257,7 +1257,7 @@ xmlNodePtr Geom::DecodeXml( xmlNodePtr & node )
                     xmlNodePtr ss_info_node = XmlUtil::GetNode( ss_node, "SubSurfaceInfo", 0 );
                     if ( ss_info_node )
                     {
-                        int type = XmlUtil::FindInt( ss_info_node, "Type", SubSurface::SS_LINE );
+                        int type = XmlUtil::FindInt( ss_info_node, "Type", vsp::SS_LINE );
                         SubSurface* ssurf = AddSubSurf( type );
                         if ( ssurf )
                         {
@@ -1893,17 +1893,17 @@ SubSurface* Geom::AddSubSurf( int type )
 {
     SubSurface* ssurf = NULL;
 
-    if ( type == SubSurface::SS_LINE )
+    if ( type == vsp::SS_LINE )
     {
         ssurf = new SSLine( m_ID );
         ssurf->SetName( string( "SS_LINE_" + to_string( ( long long )m_SubSurfVec.size() ) ) );
     }
-    else if ( type == SubSurface::SS_RECTANGLE )
+    else if ( type == vsp::SS_RECTANGLE )
     {
         ssurf = new SSRectangle( m_ID );
         ssurf->SetName( string( "SS_RECT_" + to_string( ( long long )m_SubSurfVec.size() ) ) );
     }
-    else if ( type == SubSurface::SS_ELLIPSE )
+    else if ( type == vsp::SS_ELLIPSE )
     {
         ssurf = new SSEllipse( m_ID );
         ssurf->SetName( string( "SS_ELLIP_" + to_string( ( long long )m_SubSurfVec.size() ) ) );
@@ -1923,9 +1923,20 @@ SubSurface* Geom::GetSubSurf( int ind )
     {
         return m_SubSurfVec[ind];
     }
-
     return NULL;
+}
 
+SubSurface* Geom::GetSubSurf( const string & id )
+{
+    for ( int i = 0 ; i < (int)m_SubSurfVec.size() ; i++ )
+    {
+        if ( m_SubSurfVec[i]->GetID() == id )
+        {
+            if ( ValidSubSurfInd( i ) )
+                return m_SubSurfVec[i];
+        }
+    }
+    return NULL;
 }
 
 //==== Highlight Active Subsurface ====//

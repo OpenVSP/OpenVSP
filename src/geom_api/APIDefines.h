@@ -193,6 +193,11 @@ enum VSP_SURF_TYPE { NORMAL_SURF,
                      NUM_SURF_TYPES,
                };
 
+enum SUBSURF_TYPE { SS_LINE,
+                    SS_RECTANGLE,
+                    SS_ELLIPSE,
+                    SS_NUM_TYPES };
+
 
 }   // Namespace
 

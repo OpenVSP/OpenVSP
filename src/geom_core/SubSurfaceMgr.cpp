@@ -99,7 +99,7 @@ void SubSurfaceMgrSingleton::ReSuffixGroupNames( string comp_id )
 
     map< int, int > t_map;
 
-    for ( int i = 0 ; i < SubSurface::SS_NUM_TYPES; i++ )
+    for ( int i = 0 ; i < vsp::SS_NUM_TYPES; i++ )
     {
         t_map[i] = 0;
     }

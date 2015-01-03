@@ -418,6 +418,7 @@ public:
     virtual bool ValidSubSurfInd( int ind );
     virtual void DelSubSurf( int ind );
     virtual SubSurface* GetSubSurf( int ind );
+    virtual SubSurface* GetSubSurf( const string & id );
     virtual vector< SubSurface* > GetSubSurfVec()
     {
         return m_SubSurfVec;

@@ -19,6 +19,7 @@
 #include "CfdMeshMgr.h"
 #include "Util.h"
 #include "DesignVarMgr.h"
+#include "SubSurfaceMgr.h"
 
 #ifdef VSP_USE_FLTK
 #include "GuiInterface.h"
@@ -1147,6 +1148,75 @@ int GetNumMainSurfs( const string & geom_id )
     return geom_ptr->GetNumMainSurfs();
 }
 
+/// Add a sub surface, return subsurface id
+string AddSubSurf( const string & geom_id, int type )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "AddSubSurf::Can't Find Geom " + geom_id  );
+        return string();
+    }
+
+    SubSurface* ssurf = NULL;
+    ssurf = geom_ptr->AddSubSurf( type );
+    if ( !ssurf )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "AddSubSurface::Invalid Sub Surface Ptr "  );
+        return string();
+    }
+    ssurf->Update();
+    ErrorMgr.NoError();
+    return ssurf->GetID();
+}
+
+/// Get ID for sub surface at index
+string GetSubSurf( const string & geom_id, int index )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurf::Can't Find Geom " + geom_id  );
+        return string();
+    }
+    SubSurface* ssurf = NULL;
+    ssurf = geom_ptr->GetSubSurf( index );
+     if ( !ssurf )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurf::Invalid Sub Surface Ptr "  );
+        return string();
+    }
+    ErrorMgr.NoError();
+    return ssurf->GetID();
+}
+
+void DeleteSubSurf( const string & geom_id, const string & sub_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteSubSurf::Can't Find Geom " + geom_id  );
+        return;
+    }
+
+    int index = -1;
+    vector< SubSurface* > svec = geom_ptr->GetSubSurfVec();
+    for ( int i = 0 ; i < (int)svec.size() ; i++ )
+    {
+        if ( svec[i]->GetID() == sub_id )
+            index = i;
+    }
+    if ( index == -1 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteSubSurf::Can't Find SubSurf " + geom_id  );
+        return;
+    }
+    geom_ptr->DelSubSurf( index );
+    ErrorMgr.NoError();
+}
 
 //===================================================================//
 //===============       XSecSurf Functions         ==================//

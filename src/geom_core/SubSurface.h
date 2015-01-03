@@ -18,6 +18,7 @@
 #include "Parm.h"
 #include "ParmContainer.h"
 #include "DrawObj.h"
+#include "APIDefines.h"
 
 // SubSurface Line Segment
 class SSLineSeg
@@ -107,7 +108,6 @@ public:
         m_LineColor = color;
     }
 
-    enum { SS_LINE, SS_RECTANGLE, SS_ELLIPSE, SS_NUM_TYPES };
     enum { INSIDE, OUTSIDE };
 
     static std::string GetTypeName( int type );
@@ -157,7 +157,7 @@ class SSLine : public SubSurface
     // but with more user friendly parameters
 public:
 
-    SSLine( string compID, int type = SS_LINE );
+    SSLine( string compID, int type = vsp::SS_LINE );
     virtual ~SSLine();
 
     enum { CONST_U, CONST_W };
@@ -177,7 +177,7 @@ protected:
 class SSRectangle : public SubSurface
 {
 public:
-    SSRectangle( string compID, int type = SS_RECTANGLE );
+    SSRectangle( string compID, int type = vsp::SS_RECTANGLE );
     virtual ~SSRectangle();
 
     Parm m_CenterU; // U location of square center
@@ -192,7 +192,7 @@ public:
 class SSEllipse : public SubSurface
 {
 public:
-    SSEllipse( string compID, int type = SS_ELLIPSE );
+    SSEllipse( string compID, int type = vsp::SS_ELLIPSE );
     virtual ~SSEllipse();
 
     Parm m_CenterU; // U location of ellipse center

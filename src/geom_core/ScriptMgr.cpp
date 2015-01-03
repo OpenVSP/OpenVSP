@@ -703,6 +703,15 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "XDDM_QUANTITY_TYPE", "XDDM_CONST", XDDM_CONST );
     assert( r >= 0 );
 
+    r = se->RegisterEnum( "SUBSURF_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SUBSURF_TYPE", "SS_LINE", SS_LINE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SUBSURF_TYPE", "SS_RECTANGLE", SS_RECTANGLE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SUBSURF_TYPE", "SS_ELLIPSE", SS_ELLIPSE );
+    assert( r >= 0 );
+
     r = se->RegisterEnum( "ERROR_CODE" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "ERROR_CODE", "VSP_OK", vsp::VSP_OK );
@@ -1143,6 +1152,10 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "int GetNumXSecSurfs( const string & in geom_id )", asFUNCTION( vsp::GetNumXSecSurfs ), asCALL_CDECL );
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "int GetNumMainSurfs( const string & in geom_id )", asFUNCTION( vsp::GetNumMainSurfs ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "string AddSubSurf( const string & in geom_id, int type )", asFUNCTION( vsp::AddSubSurf ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void DeleteSubSurf( const string & in geom_id, const string & in sub_id )", asFUNCTION( vsp::DeleteSubSurf ), asCALL_CDECL );
     assert( r >= 0 );
 
 

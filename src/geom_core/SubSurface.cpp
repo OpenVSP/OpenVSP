@@ -126,15 +126,15 @@ void SubSurface::Update()
 
 std::string SubSurface::GetTypeName( int type )
 {
-    if ( type == SubSurface::SS_LINE )
+    if ( type == vsp::SS_LINE )
     {
         return string( "Line" );
     }
-    if ( type == SubSurface::SS_RECTANGLE )
+    if ( type == vsp::SS_RECTANGLE )
     {
         return string( "Rectangle" );
     }
-    if ( type == SubSurface::SS_ELLIPSE )
+    if ( type == vsp::SS_ELLIPSE )
     {
         return string( "Ellipse" );
     }

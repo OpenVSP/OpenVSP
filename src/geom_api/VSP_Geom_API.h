@@ -111,6 +111,9 @@ extern std::vector< std::string > GetGeomParmIDs( const string & geom_id );
 extern string GetParm( const string & geom_id, const string & name, const string & group );
 extern int GetNumXSecSurfs( const string & geom_id );
 extern int GetNumMainSurfs( const string & geom_id );
+extern string AddSubSurf( const string & geom_id, int type );
+extern string GetSubSurf( const string & geom_id, int index );
+extern void DeleteSubSurf( const string & geom_id, const string & sub_id );
 
 
 //======================== XSecSurf ================================//
