@@ -24,6 +24,9 @@
 #include <FL/Fl_Counter.H>
 #include <FL/Fl_Tabs.H>
 #include <FL/Fl_Browser.H>
+#include <FL/Fl_Tree.H>
+#include <FL/Fl_Tree_Item.H>
+#include <FL/Fl_Tree_Prefs.H>
 
 #include "Vec3d.h"
 #include "Parm.h"
@@ -828,6 +831,89 @@ protected:
 
     string m_ParmIDChoice;
 
+};
+
+class ParmTreePicker : public GuiDevice
+{
+protected:
+    struct ParmTreeData
+    {
+        bool m_Flag;
+        Fl_Tree_Item *m_TreeItemPtr;
+        Fl_Check_Button *m_Button;
+    };
+    typedef map< string, ParmTreeData > ParmTreeMap;
+    typedef ParmTreeMap::iterator ParmTreeIt;
+
+    struct GroupTreeData
+    {
+        string m_GroupName;
+        bool m_Flag;
+        Fl_Tree_Item *m_TreeItemPtr;
+    };
+    typedef vector< GroupTreeData > GroupTreeVec;
+
+    struct ContainerTreeData
+    {
+        bool m_Flag;
+        Fl_Tree_Item *m_TreeItemPtr;
+
+        GroupTreeVec m_GroupVec;
+        ParmTreeMap m_ParmMap;
+    };
+    typedef map< string, ContainerTreeData > ContainerTreeMap;
+    typedef ContainerTreeMap::iterator ContainerTreeIt;
+
+    ContainerTreeMap m_TreeData;
+
+public:
+
+    enum { NONE, SELECT, UNSELECT };
+
+    ParmTreePicker();
+
+
+    virtual void DeviceCB( Fl_Widget *w );
+
+    virtual void Init( VspScreen* screen, Fl_Tree* parm_tree );
+
+    virtual void Update( const vector< string > &selected_ids );
+
+    void Activate();
+    void Deactivate();
+
+    int GetEventType()
+    {
+        return m_EventType;
+    }
+    string GetEventParm()
+    {
+        return m_EventParm;
+    }
+
+protected:
+
+    int m_EventType;
+    string m_EventParm;
+
+
+    virtual void SetValAndLimits( Parm* parm_ptr )      {}
+
+    Fl_Tree* m_ParmTree;
+    Fl_Tree_Prefs m_ParmTreePrefs;
+
+    virtual void RemoveParm( const string &ParmID, ContainerTreeData &td );
+    virtual int FindGroup( Fl_Tree_Item* groupitem, const GroupTreeVec &m_GroupVec);
+    virtual vector< int > FindGroup( const string &GroupName, const GroupTreeVec &m_GroupVec);
+    virtual void CleanGroupVec(  GroupTreeVec &m_GroupVec );
+    virtual void RemoveContainer( const string &ContID );
+    virtual void AddParmEntry( const string &ParmID, ContainerTreeData &conttree, Fl_Tree_Item* groupitem );
+    virtual void AddGroupEntry( const string &GroupName, ContainerTreeData &conttree );
+    virtual void AddContEntry( const string &ContID );
+    virtual void ResetFlag( bool flg );
+    virtual void CleanGarbage();
+    virtual void UpdateParmTree();
+    virtual void UnselectAll();
 };
 
 class DriverGroupBank : public GuiDevice

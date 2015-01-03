@@ -137,6 +137,7 @@ public:
     void AddCounter( Counter & count, const char* label );
     void AddLabel( const char* label, int width );
     void AddParmPicker( ParmPicker & parm_picker );
+    void AddParmTreePicker( ParmTreePicker & parm_tree_picker, int w, int h );
     void AddDriverGroupBank( DriverGroupBank & driver_group, const vector < string > &labels,
                              double range, const char* format );
     void AddSkinControl( SkinControl & skin_control, const char* label, double range, const char* format );

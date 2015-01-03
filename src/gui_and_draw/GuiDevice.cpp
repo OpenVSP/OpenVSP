@@ -2044,6 +2044,484 @@ vector< string > ParmPicker::FindParmNames( vector< string > & parm_id_vec )
 }
 
 //=====================================================================//
+//===========       Parmater Tree Picker                    ===========//
+//=====================================================================//
+ParmTreePicker::ParmTreePicker()
+{
+    m_Screen = NULL;
+    m_EventType = NONE;
+    m_EventParm = "";
+}
+
+void ParmTreePicker::Init( VspScreen* screen, Fl_Tree* parm_tree )
+{
+    GuiDevice::Init( screen );
+
+    m_ParmTree = parm_tree;
+    m_ParmTree->showroot( 0 );
+    m_ParmTree->sortorder( FL_TREE_SORT_ASCENDING );
+    m_ParmTree->callback( StaticDeviceCB, this );
+    m_ParmTree->selectmode( FL_TREE_SELECT_NONE );
+
+    m_ParmTreePrefs.sortorder( FL_TREE_SORT_ASCENDING );
+    m_ParmTreePrefs.selectmode( FL_TREE_SELECT_NONE );
+}
+
+void ParmTreePicker::Activate()
+{
+    m_ParmTree->activate();
+}
+
+void ParmTreePicker::Deactivate()
+{
+    m_ParmTree->deactivate();
+}
+
+void ParmTreePicker::Update( const vector< string > &selected_ids )
+{
+    UpdateParmTree();
+    UnselectAll();
+
+    ContainerTreeIt cit;
+    ParmTreeIt pit;
+
+    for ( int i = 0; i < selected_ids.size(); i++ )
+    {
+        string pID = selected_ids[i];
+        Parm *p = ParmMgr.FindParm( pID );
+        if ( p )
+        {
+            string cID = p->GetContainerID();
+
+            ParmContainer* pc = ParmMgr.FindParmContainer( cID );
+            while ( pc )
+            {
+                pc = pc->GetParentContainerPtr();
+                if ( pc )
+                {
+                    cID = pc->GetID();
+                }
+            }
+
+            cit = m_TreeData.find( cID );
+
+            if ( cit != m_TreeData.end() )
+            {
+                pit = (*cit).second.m_ParmMap.find( pID );
+                if ( pit != (*cit).second.m_ParmMap.end() )
+                {
+                    (*pit).second.m_Button->value( 1 );
+                }
+            }
+        }
+    }
+}
+
+void ParmTreePicker::UnselectAll()
+{
+    ContainerTreeIt cit;
+    ParmTreeIt pit;
+    for ( cit = m_TreeData.begin(); cit != m_TreeData.end(); ++cit )
+    {
+        for ( pit = (*cit).second.m_ParmMap.begin(); pit != (*cit).second.m_ParmMap.end(); ++pit )
+        {
+            (*pit).second.m_Button->value( 0 );
+        }
+    }
+}
+
+void ParmTreePicker::DeviceCB( Fl_Widget* w )
+{
+    assert( m_Screen );
+
+    m_EventType = NONE;
+    m_EventParm = "";
+
+    ContainerTreeIt cit;
+    ParmTreeIt pit;
+    bool done = false;
+    for ( cit = m_TreeData.begin(); cit != m_TreeData.end(); ++cit )
+    {
+        for ( pit = (*cit).second.m_ParmMap.begin(); pit != (*cit).second.m_ParmMap.end(); ++pit )
+        {
+            if ( w == (*pit).second.m_Button )
+            {
+                int new_val = (*pit).second.m_Button->value();
+
+                if ( new_val == 0 )
+                {
+                    m_EventType = UNSELECT;
+                }
+                else
+                {
+                    m_EventType = SELECT;
+                }
+
+                m_EventParm = (*pit).first;
+
+                done = true;
+                break;
+            }
+        }
+        if ( done )
+        {
+            break;
+        }
+    }
+
+    m_Screen->GuiDeviceCallBack( this );
+}
+
+void ParmTreePicker::RemoveParm( const string &ParmID, ContainerTreeData &ctd)
+{
+    ParmTreeIt it;
+    it =  ctd.m_ParmMap.find( ParmID );
+    if ( it != ctd.m_ParmMap.end() )
+    {
+        Parm *p = ParmMgr.FindParm( ParmID );
+        if ( p )
+        {
+            string groupname = p->GetDisplayGroupName();
+
+            vector < int > groupids = FindGroup( groupname, ctd.m_GroupVec );
+            if ( groupids.size() != 0 )
+            {
+                int groupid = groupids[0];
+
+                if ( (*it).second.m_TreeItemPtr )
+                {
+                    ctd.m_GroupVec[groupid].m_TreeItemPtr->remove_child( (*it).second.m_TreeItemPtr );
+                }
+            }
+        }
+        ctd.m_ParmMap.erase( it );
+    }
+}
+
+int ParmTreePicker::FindGroup( Fl_Tree_Item* groupitem, const GroupTreeVec &m_GroupVec )
+{
+    for ( int i = 0; i < m_GroupVec.size(); i++ )
+    {
+        if ( m_GroupVec[i].m_TreeItemPtr == groupitem )
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
+vector < int > ParmTreePicker::FindGroup( const string &GroupName, const GroupTreeVec &m_GroupVec )
+{
+    vector < int > retvec;
+
+    for ( int i = 0; i < m_GroupVec.size(); i++ )
+    {
+          if ( m_GroupVec[i].m_GroupName == GroupName )
+           {
+               retvec.push_back( i );
+        }
+    }
+    return retvec;
+}
+
+void ParmTreePicker::CleanGroupVec( GroupTreeVec &m_GroupVec )
+{
+    GroupTreeVec copyvec;
+    for ( int i = 0; i < m_GroupVec.size(); i++ )
+    {
+        if ( m_GroupVec[i].m_Flag )
+        {
+            if ( m_GroupVec[i].m_TreeItemPtr )
+            {
+                m_ParmTree->remove( m_GroupVec[i].m_TreeItemPtr );
+            }
+        }
+        else
+        {
+            copyvec.push_back( m_GroupVec[i] );
+        }
+    }
+    m_GroupVec = copyvec;
+}
+
+void ParmTreePicker::RemoveContainer( const string &ContID )
+{
+    ContainerTreeIt it;
+
+    it =  m_TreeData.find( ContID );
+    if ( it != m_TreeData.end() )
+    {
+        if ( (*it).second.m_TreeItemPtr )
+        {
+            m_ParmTree->remove( (*it).second.m_TreeItemPtr );
+        }
+        m_TreeData.erase( it );
+    }
+}
+
+void ParmTreePicker::AddParmEntry( const string &ParmID, ContainerTreeData &conttree, Fl_Tree_Item* groupitem )
+{
+    ParmTreeData td;
+    Parm* p = ParmMgr.FindParm( ParmID );
+
+    td.m_TreeItemPtr = groupitem->add( m_ParmTreePrefs, "" );
+    td.m_Flag = false;
+
+    td.m_Button = new Fl_Check_Button( 1, 1, 100, 20 );
+    td.m_Button->copy_label( p->GetName().c_str() );
+    td.m_Button->callback( StaticDeviceCB, this );
+    td.m_TreeItemPtr->widget( td.m_Button );
+
+    ( (Fl_Group * ) m_ParmTree)->add( td.m_Button );
+
+    conttree.m_ParmMap.insert( std::make_pair( ParmID, td ) );
+}
+
+void ParmTreePicker::AddGroupEntry( const string &GroupName, ContainerTreeData &conttree )
+{
+    GroupTreeData td;
+
+    td.m_GroupName = GroupName;
+    td.m_Flag = false;
+    td.m_TreeItemPtr = conttree.m_TreeItemPtr->add( m_ParmTreePrefs, GroupName.c_str() );
+    td.m_TreeItemPtr->close();
+    conttree.m_GroupVec.push_back( td );
+}
+
+void ParmTreePicker::AddContEntry( const string &ContID )
+{
+    ContainerTreeData td;
+
+    ParmContainer* pc = ParmMgr.FindParmContainer( ContID );
+
+    Fl_Tree_Item* root = m_ParmTree->root();
+
+    Fl_Tree_Item* ci = root->add( m_ParmTreePrefs, pc->GetName().c_str() );
+
+    ci->close();
+    for ( int i = 0; i < ci->children(); i++ )
+    {
+        ci->child( i )->close();
+    }
+
+    td.m_TreeItemPtr = ci;
+    td.m_Flag = false;
+
+    m_TreeData.insert( std::make_pair( ContID, td ) );
+}
+
+void ParmTreePicker::ResetFlag( bool flg )
+{
+    ContainerTreeIt cit;
+    ParmTreeIt pit;
+
+    for ( cit = m_TreeData.begin(); cit != m_TreeData.end(); ++cit )
+    {
+        (*cit).second.m_Flag = flg;
+
+        for ( int i = 0; i < (*cit).second.m_GroupVec.size(); i++ )
+        {
+            (*cit).second.m_GroupVec[i].m_Flag = flg;
+        }
+
+        for ( pit = (*cit).second.m_ParmMap.begin(); pit != (*cit).second.m_ParmMap.end(); ++pit )
+        {
+            (*pit).second.m_Flag = flg;
+        }
+    }
+}
+
+void ParmTreePicker::CleanGarbage()
+{
+    vector< string > parmlist;
+    vector< string > contlist;
+
+    ContainerTreeIt cit;
+    ParmTreeIt pit;
+
+    for ( cit = m_TreeData.begin(); cit != m_TreeData.end(); ++cit )
+    {
+        parmlist.clear();
+        if( (*cit).second.m_Flag )
+        {
+            contlist.push_back( (*cit).first );
+        }
+
+        for ( pit = (*cit).second.m_ParmMap.begin(); pit != (*cit).second.m_ParmMap.end(); ++pit )
+        {
+            if( (*pit).second.m_Flag )
+            {
+                parmlist.push_back( (*pit).first );
+            }
+        }
+
+        // Remove parameters first.
+        for ( int i = 0; i < (int) parmlist.size(); i++ )
+        {
+            RemoveParm( parmlist[i], (*cit).second );
+        }
+
+        // Remove groups next.
+        CleanGroupVec( (*cit).second.m_GroupVec );
+    }
+
+    // Remove containers last.
+    for ( int i = 0; i < (int) contlist.size(); i++ )
+    {
+        RemoveContainer( contlist[i] );
+    }
+}
+
+void ParmTreePicker::UpdateParmTree()
+{
+    int i, j;
+    ContainerTreeIt cit;
+    ParmTreeIt pit;
+
+    ResetFlag( true );
+
+    LinkMgr.BuildLinkableParmData();
+
+    vector< string > containerVec;
+    LinkMgr.GetAllContainerVec( containerVec );
+
+    for ( i = 0 ; i < ( int )containerVec.size() ; i++ )
+    {
+        string cID = containerVec[i];
+
+        ParmContainer* pc = ParmMgr.FindParmContainer( cID );
+        if ( pc )
+        {
+            ContainerTreeIt cit = m_TreeData.find( cID );
+
+            if ( cit == m_TreeData.end() )
+            {
+                AddContEntry( cID );
+                cit = m_TreeData.find( cID );
+            }
+
+            // Verify container (Geom) name is correct.
+            if ( (*cit).second.m_TreeItemPtr )
+            {
+                if ( strcmp( (*cit).second.m_TreeItemPtr->label(), pc->GetName().c_str() ) != 0 )
+                {
+                    (*cit).second.m_TreeItemPtr->label( pc->GetName().c_str() );
+                }
+                (*cit).second.m_Flag = false;
+            }
+
+            vector< string > parms;
+            pc->AddLinkableParms( parms );
+            // Verify tree group names for active parms are correct.
+            ParmTreeIt pit;
+            for ( j = 0; j < ( int ) parms.size() ; j++ )
+            {
+                string pID = parms[j];
+
+                pit =  (*cit).second.m_ParmMap.find( pID );
+                if ( pit != (*cit).second.m_ParmMap.end() )
+                {
+                    Parm *p = ParmMgr.FindParm( pID );
+                    if ( p )
+                    {
+                        (*pit).second.m_Flag = false;
+
+                        Fl_Tree_Item* pi = (*pit).second.m_TreeItemPtr;
+                        if ( pi )
+                        {
+                            Fl_Tree_Item* gi = pi->parent();
+                            if ( gi )
+                            {
+                                string groupname = p->GetDisplayGroupName();
+
+                                if ( strcmp( gi->label(), groupname.c_str() ) != 0 )
+                                {
+                                    gi->label( groupname.c_str() );
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Verify vector of group names match those in tree
+            for ( j = 0; j < (*cit).second.m_GroupVec.size(); j++ )
+            {
+                if ( (*cit).second.m_GroupVec[j].m_TreeItemPtr )
+                {
+                    if ( strcmp( (*cit).second.m_GroupVec[j].m_GroupName.c_str(), (*cit).second.m_GroupVec[j].m_TreeItemPtr->label() ) != 0 )
+                    {
+                        (*cit).second.m_GroupVec[j].m_GroupName = string( (*cit).second.m_GroupVec[j].m_TreeItemPtr->label() );
+                    }
+                }
+            }
+
+            // Loop over all parms, verifying group usage.
+            for ( j = 0; j < ( int ) parms.size() ; j++ )
+            {
+                string pID = parms[j];
+                Parm *p = ParmMgr.FindParm( parms[j] );
+                if ( p )
+                {
+                    pit =  (*cit).second.m_ParmMap.find( pID );
+                    if ( pit != (*cit).second.m_ParmMap.end() )
+                    {
+                        if ( (*pit).second.m_TreeItemPtr )
+                        {
+                            int imatch = FindGroup( (*pit).second.m_TreeItemPtr->parent(), (*cit).second.m_GroupVec );
+
+                            if ( imatch >= 0 )
+                            {
+                                (*cit).second.m_GroupVec[imatch].m_Flag = false;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Clean up un-used groups.
+            CleanGroupVec( (*cit).second.m_GroupVec );
+
+            // Loop over parms, creating entries as needed.
+            for ( j = 0; j < ( int ) parms.size() ; j++ )
+            {
+                string pID = parms[j];
+                Parm *p = ParmMgr.FindParm( parms[j] );
+                if ( p )
+                {
+                    pit =  (*cit).second.m_ParmMap.find( pID );
+                    if ( pit == (*cit).second.m_ParmMap.end() )
+                    {
+                        string groupname = p->GetDisplayGroupName();
+
+                        vector < int > groupids = FindGroup( groupname, (*cit).second.m_GroupVec );
+                        if ( groupids.size() == 0 )
+                        {
+                            AddGroupEntry( groupname, (*cit).second );
+                            groupids = FindGroup( groupname, (*cit).second.m_GroupVec );
+                        }
+                        int groupid = groupids[0];
+
+                        if ( groupids.size() > 1 )
+                        {
+                            printf("Error: multiple same-name groups where there shouldn't be any.\n");
+                        }
+
+                        AddParmEntry( pID, (*cit).second, (*cit).second.m_GroupVec[groupid].m_TreeItemPtr );
+                    }
+                    else
+                    {
+                        (*pit).second.m_Flag = false;
+                    }
+                }
+            }
+        }
+    }
+
+    CleanGarbage();
+}
+
+//=====================================================================//
 //===========       Driver Group Bank                       ===========//
 //=====================================================================//
 DriverGroupBank::DriverGroupBank()

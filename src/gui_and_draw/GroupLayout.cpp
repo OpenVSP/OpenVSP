@@ -933,6 +933,19 @@ void GroupLayout::AddParmPicker( ParmPicker & parm_picker )
 
 }
 
+//==== Add Parameter Tree Picker ====//
+void GroupLayout::AddParmTreePicker( ParmTreePicker & parm_tree_picker, int w, int h )
+{
+    assert( m_Group && m_Screen );
+
+    Fl_Tree* parm_tree = new Fl_Tree( m_X, m_Y, w, h );
+    m_Group->add( parm_tree );
+    AddY( h );
+    NewLineX();
+
+    parm_tree_picker.Init( m_Screen, parm_tree );
+}
+
 //==== Add Parameter Driver Group ====//
 void GroupLayout::AddDriverGroupBank( DriverGroupBank & dgBank, const vector < string > &labels, double range, const char* format )
 {
