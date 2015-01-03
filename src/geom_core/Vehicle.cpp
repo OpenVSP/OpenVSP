@@ -13,6 +13,7 @@
 #include "MeshGeom.h"
 #include "StackGeom.h"
 #include "CustomGeom.h"
+#include "PtCloudGeom.h"
 #include "ScriptMgr.h"
 #include "MessageMgr.h"
 #include "StlHelper.h"
@@ -320,6 +321,10 @@ string Vehicle::CreateGeom( const GeomType & type )
     else if ( type.m_Type == CUSTOM_GEOM_TYPE )
     {
         new_geom = new CustomGeom( this );
+    }
+    else if ( type.m_Type == PT_CLOUD_GEOM_TYPE )
+    {
+        new_geom = new PtCloudGeom( this );
     }
 
     if ( !new_geom )

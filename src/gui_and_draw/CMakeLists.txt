@@ -61,6 +61,7 @@ ParmScreen.cpp
 PickSetScreen.cpp
 PodScreen.cpp
 PSliceScreen.cpp
+PtCloudScreen.cpp
 ScreenBase.cpp
 ScreenMgr.cpp
 SelectFileScreen.cpp
@@ -112,6 +113,7 @@ ParmScreen.h
 PickSetScreen.h
 PodScreen.h
 PSliceScreen.h
+PtCloudScreen.h
 ScreenBase.h
 ScreenMgr.h
 SelectFileScreen.h
