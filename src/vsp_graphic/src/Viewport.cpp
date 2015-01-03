@@ -346,4 +346,36 @@ glm::vec2 Viewport::screenToNDC(glm::vec2 screenCoord)
 
     return NDC;
 }
+
+void Viewport::drawRectangle( int startx, int starty, int x, int y )
+{
+
+    glMatrixMode( GL_PROJECTION );
+    glPushMatrix();
+
+    glLoadIdentity();
+
+    glMatrixMode( GL_MODELVIEW );
+    glLoadIdentity();
+
+    glColor4f( 1.0f, 0.0f, 0.0f, 1.0f );
+    glLineWidth( 1.0f );
+
+    float sstartx = 2.0f*(float)startx/(float)_vWidth - 1.0f;
+    float sstarty = 2.0f*(float)starty/(float)_vHeight - 1.0f;
+    float sx = 2.0f*(float)x/(float)_vWidth - 1.0f;
+    float sy = 2.0f*(float)y/(float)_vHeight - 1.0f;
+
+    glLineWidth( BORDER_LINEWIDTH );
+    glBegin( GL_LINE_LOOP );
+    glVertex2f( sstartx , sstarty );
+    glVertex2f( sx , sstarty );
+    glVertex2f( sx , sy );
+    glVertex2f( sstartx , sy );
+    glEnd();
+
+    glPopMatrix();
+    glMatrixMode( GL_MODELVIEW );
+
+}
 }

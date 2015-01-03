@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <set>
 
 #include "Common.h"
 
@@ -70,6 +71,9 @@ public:
     */
     virtual void activatePicking(int x, int y);
 
+    virtual void preSelectBox(int x1, int y1, int x2, int y2);
+    virtual bool selectBox();
+
     /*!
     * Select current picked point.  Return true if action is successful, else
     * return false.
@@ -118,6 +122,9 @@ public:
     * Get all Selectable Objects with a specific group name.
     */
     virtual std::vector<Selectable*> getSelected(std::string group);
+
+    virtual std::vector<Selectable*> getSelected();
+
     /*!
     * Remove target Selectable from selection.
     */
@@ -167,6 +174,7 @@ private:
     bool _showSelection;
 
     Pickable * _highlighted;
+    std::set< PickablePnts* > _preselected;
 };
 }
 #endif

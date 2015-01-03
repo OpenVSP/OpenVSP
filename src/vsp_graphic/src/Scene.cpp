@@ -217,6 +217,12 @@ void Scene::activatePicking(int x, int y)
             Pickable * pickable = dynamic_cast<Pickable*>(_sceneList[i]);
             if(pickable)
             {
+                PickablePnts * pkpts = dynamic_cast<PickablePnts*>(pickable);
+                if(pkpts)
+                {
+                    pkpts->reset();
+                }
+
                 if(pickable->processPickingResult(id))
                 {
                     _highlighted = pickable;
@@ -224,6 +230,111 @@ void Scene::activatePicking(int x, int y)
             }
         }
     }
+}
+
+void Scene::preSelectBox(int x1, int y1, int x2, int y2)
+{
+    _preselected.clear();
+
+    int w = abs( x2 - x1 );
+    int h = abs( y2 - y1 );
+
+    int x, y;
+
+    if ( x1 < x2 )
+        x = x1;
+    else
+        x = x2;
+
+    if ( y1 < y2 )
+        y = y1;
+    else
+        y = y2;
+
+    int bpp = 4;
+    int scanLen = bpp * ( w + 1 );
+
+    unsigned char * index = new unsigned char[( h + 1 ) * scanLen];
+    for ( int i = 0; i < ( h + 1 ) * scanLen; i++ )
+    {
+        index[i] = 0x00;
+    }
+
+    glReadPixels( x, y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, index );
+
+
+    std::set< unsigned int > ids;
+    std::set< unsigned int >::iterator it;
+
+    for ( int i = 0; i < h + 1; i++ )
+    {
+        for ( int j = 0; j < w + 1; j++ )
+        {
+            unsigned char * idx = index + (i * scanLen + j * bpp);
+            unsigned int id = 0;
+            bytesToUInt(idx, &id);
+
+            if(id)
+            {
+                ids.insert(id);
+            }
+        }
+    }
+
+    for(int k = 0; k < (int)_sceneList.size(); k++)
+    {
+        PickablePnts * pickable = dynamic_cast<PickablePnts*>(_sceneList[k]);
+        if(pickable)
+        {
+            pickable->reset();
+        }
+    }
+
+
+    for ( it = ids.begin(); it != ids.end(); ++it )
+    {
+        unsigned int id = (*it);
+
+        for(int k = 0; k < (int)_sceneList.size(); k++)
+        {
+            PickablePnts * pickable = dynamic_cast<PickablePnts*>(_sceneList[k]);
+            if(pickable)
+            {
+                if( pickable->processPickingResult(id) )
+                {
+                    _preselected.insert( pickable );
+                }
+            }
+        }
+    }
+    delete index;
+}
+
+bool Scene::selectBox()
+{
+    if ( _preselected.size() == 0 )
+    {
+        return false;
+    }
+
+    std::set< PickablePnts* >::iterator it;
+
+    for(it = _preselected.begin(); it != _preselected.end(); ++it)
+    {
+        PickablePnts * pickable = dynamic_cast<PickablePnts*>( (*it) );
+        if(pickable)
+        {
+            std::vector< int > index = pickable->getIndex();
+            for ( int i = 0; i < index.size(); ++i )
+            {
+                SelectedPnt * selected = new SelectedPnt(pickable->getSource(), index[i]);
+                selected->setGroup(pickable->getGroup());
+
+                _selections.push_back(selected);
+            }
+        }
+    }
+    return true;
 }
 
 bool Scene::selectHighlight()
@@ -239,10 +350,10 @@ bool Scene::selectHighlight()
 
     if(pickPnts)
     {
-        unsigned int index = pickPnts->getIndex();
-        if(index != 0xFFFFFFFF)
+        std::vector< int > index = pickPnts->getIndex();
+        for ( int i = 0; i < index.size(); ++i )
         {
-            SelectedPnt * selected = new SelectedPnt(pickPnts->getSource(), index);
+            SelectedPnt * selected = new SelectedPnt(pickPnts->getSource(), index[i]);
             selected->setGroup(pickPnts->getGroup());
 
             _selections.push_back(selected);
@@ -358,6 +469,12 @@ std::vector<Selectable*> Scene::getSelected(std::string group)
         }
     }
     return groupSelect;
+}
+
+
+std::vector<Selectable*> Scene::getSelected()
+{
+    return _selections;
 }
 
 bool Scene::isPickingEnabled()

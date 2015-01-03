@@ -20,6 +20,8 @@ LayoutMgr::LayoutMgr( int row, int column )
 
     _sWidth = _sHeight = 1;
 
+    _startx = _starty = -1;
+
     // Set View order for viewports.
     _vOrder.push_back( Common::VSP_CAM_TOP );
     _vOrder.push_back( Common::VSP_CAM_LEFT_ISO );
@@ -108,6 +110,11 @@ void LayoutMgr::predraw( Scene * scene, int x, int y )
 
     // Color Picking.
     scene->activatePicking( x, y );
+
+    if ( _startx != -1  )
+    {
+        scene->preSelectBox( _startx, _starty, x, y );
+    }
 }
 
 void LayoutMgr::draw( Scene * scene, int x, int y )
@@ -168,6 +175,11 @@ void LayoutMgr::draw( Scene * scene, int x, int y )
 
         // Draw arrows.
         _viewportList[i]->drawXYZArrows();
+
+        if ( _startx != -1 )
+        {
+            _viewportList[i]->drawRectangle( _startx, _starty, x, y );
+        }
 
         // Draw border.
         if( i == _selected )

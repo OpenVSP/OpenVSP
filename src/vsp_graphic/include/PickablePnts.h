@@ -5,6 +5,7 @@
 #include "glm/glm.hpp"
 
 #include <vector>
+#include <set>
 
 namespace VSPGraphic
 {
@@ -37,7 +38,9 @@ public:
 	/*!
 	* Get highlighted buffer index.  If nothing is highlighted, return 0xffffffff.
 	*/
-	int getIndex();
+	std::vector< int > getIndex();
+
+	virtual void reset();
 
 public:
     /*!
@@ -74,7 +77,7 @@ protected:
 private:
     float _pickRange;
     float _pointSize;
-    int _highlightedId;
+    std::set< int > _highlightedId;
 };
 }
 #endif

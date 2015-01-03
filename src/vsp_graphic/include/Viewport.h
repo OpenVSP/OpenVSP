@@ -114,6 +114,8 @@ public:
     */
     glm::vec2 screenToNDC(glm::vec2 screenCoord);
 
+    void drawRectangle( int sx, int sy, int x, int y );
+
 public:
     /*
     * Show / hide Borders.

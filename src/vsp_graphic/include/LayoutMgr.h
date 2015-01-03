@@ -107,6 +107,12 @@ public:
         return _sHeight;
     }
 
+    void setStartXY( int x, int y )
+    {
+        _startx = x;
+        _starty = y;
+    }
+
 protected:
     std::vector<Viewport *> _viewportList;
 
@@ -118,6 +124,8 @@ private:
 
     int _sWidth;
     int _sHeight;
+
+    int _startx, _starty;
 
     std::vector<Common::VSPenum> _vOrder;
 };
