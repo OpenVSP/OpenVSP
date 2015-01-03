@@ -27,6 +27,7 @@
 #include "XmlUtil.h"
 #include "APIDefines.h"
 #include "ResultsMgr.h"
+#include "FitModelMgr.h"
 using namespace vsp;
 
 #include <set>
@@ -195,6 +196,7 @@ void Vehicle::Wype()
     LinkMgr.Renew();
     AdvLinkMgr.Renew();
     DesignVarMgr.Renew();
+    FitModelMgr.Renew();
 }
 
 //=== NewFile ===//

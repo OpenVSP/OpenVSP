@@ -30,6 +30,7 @@ ClippingMgr.cpp
 CustomGeom.cpp
 DegenGeom.cpp
 DesignVarMgr.cpp
+FitModelMgr.cpp
 FuselageGeom.cpp
 Geom.cpp
 GeomCoreTestSuite.cpp
@@ -77,6 +78,7 @@ CustomGeom.h
 DegenGeom.h
 DesignVarMgr.h
 DragFactors.h
+FitModelMgr.h
 FuselageGeom.h
 Geom.h
 GeomCoreTestSuite.h
