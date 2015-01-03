@@ -14,6 +14,7 @@
 //******************************************************************************
 
 #include "MeshGeom.h"
+#include "PtCloudGeom.h"
 #include "ParmMgr.h"
 #include "LinkMgr.h"
 #include "VspSurf.h"
@@ -1256,6 +1257,41 @@ void MeshGeom::CreateGeomResults( Results* res )
     }
 
 
+}
+
+void MeshGeom::CreatePtCloudGeom()
+{
+    GeomType type = GeomType( PT_CLOUD_GEOM_TYPE, "PTS", true );
+    string id = m_Vehicle->AddGeom( type );
+    if ( !id.compare( "NONE" ) )
+    {
+        return;
+    }
+
+    PtCloudGeom* new_geom = ( PtCloudGeom* ) m_Vehicle->FindGeom( id );
+    if ( new_geom )
+    {
+        new_geom->SetName( GetName() + "_Pts" );
+
+        BuildIndexedMesh( 0 );
+        vector < TNode* > nvec = m_IndexedNodeVec;
+        int npts = nvec.size();
+
+        new_geom->m_Pts.resize( npts );
+
+        Matrix4d XFormMat = GetTotalTransMat();
+
+        for ( int j = 0; j < npts; j++ )
+        {
+            new_geom->m_Pts[j] = XFormMat.xform( nvec[j]->m_Pnt );
+        }
+
+        new_geom->InitPts();
+
+        new_geom->Update();
+        m_Vehicle->UpdateGui();
+
+    }
 }
 
 //==== Compute And Load Normals ====//

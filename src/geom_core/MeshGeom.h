@@ -147,6 +147,7 @@ public:
     virtual void WriteX3D( xmlNodePtr node );
     virtual void CreateGeomResults( Results* res );
 
+    virtual void CreatePtCloudGeom();
 
     virtual void dump_xsec_file( int, FILE* ) {}
     virtual void Scale();
