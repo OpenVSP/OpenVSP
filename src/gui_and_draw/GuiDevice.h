@@ -77,7 +77,7 @@ class VspScreen;
 class VspSlider : public Fl_Slider
 {
 public:
-    VspSlider::VspSlider(int x, int y, int w, int h, const char *label = 0 );
+    VspSlider(int x, int y, int w, int h, const char *label = 0 );
     int handle( int event );
 
     bool GetButtonPush()                    { return m_ButtonPush; }
