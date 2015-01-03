@@ -236,6 +236,19 @@ void Vehicle::Update( bool fullupdate )
     }
 }
 
+void Vehicle::ForceUpdate()
+{
+    for ( int i = 0 ; i < ( int )m_GeomStoreVec.size() ; i++ )
+    {
+        Geom* g_ptr = m_GeomStoreVec[i];
+        if ( g_ptr )
+        {
+            g_ptr->SetLateUpdateFlag( true );
+        }
+    }
+    Update();
+}
+
 //===== Run Script ====//
 void Vehicle::RunScript( const string & file_name, const string & function_name )
 {

@@ -76,6 +76,7 @@ public:
     void UnDo();
 
     void Update( bool fullupdate = true );
+    void ForceUpdate();
     void UpdateGui();
     void RunScript( const string & file_name, const string & function_name = "void main()" );
 
