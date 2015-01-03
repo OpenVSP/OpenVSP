@@ -170,6 +170,7 @@ private:
     glm::vec2 m_prevAltLB;
     glm::vec2 m_prevCtrlLB;
     glm::vec2 m_prevMetaLB;
+    glm::vec2 m_startShiftLB;
     glm::vec2 m_prevLBRB;
 };
 }

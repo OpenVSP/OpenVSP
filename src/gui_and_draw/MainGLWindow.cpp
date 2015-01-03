@@ -26,6 +26,7 @@
 #include "ManageLightingScreen.h"
 #include "ManageGeomScreen.h"
 #include "ManageCORScreen.h"
+#include "FitModelScreen.h"
 #include "Common.h"
 #include "GraphicSingletons.h"
 #include "Selectable.h"
@@ -227,6 +228,14 @@ void VspGlWindow::update()
 
         // Get Render Objects from Vehicle.
         vector<DrawObj *> drawObjs = vPtr->GetDrawObjs();
+
+        // Load Render Objects from fitModelScreen.
+        FitModelScreen * fitModelScreen = dynamic_cast< FitModelScreen* >
+            ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_FIT_MODEL_SCREEN ) );
+        if ( fitModelScreen )
+        {
+            fitModelScreen->LoadDrawObjs( drawObjs );
+        }
 
         // Load Render Objects from CfdMeshScreen.
         CfdMeshScreen * cfdScreen = dynamic_cast< CfdMeshScreen* >
@@ -1508,7 +1517,27 @@ void VspGlWindow::OnPush( int x, int y )
     }
     else if( Fl::event_button1() )
     {
-        if( Fl::event_alt() )
+        bool alltrue = false;
+
+        if( Fl::event_shift() || FitModelMgr.m_SelectBoxFlag() )
+        {
+            FitModelScreen * fitModelScreen = dynamic_cast< FitModelScreen* >
+                ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_FIT_MODEL_SCREEN ) );
+            if ( fitModelScreen )
+            {
+                if (fitModelScreen->IsShown() )
+                {
+                    m_startShiftLB = glm::vec2( x, y );
+                    display->getLayoutMgr()->setStartXY( x, y );
+                    alltrue = true;
+                }
+            }
+        }
+
+        if( alltrue )
+        {
+        }
+        else if( Fl::event_alt() )
         {
             // Alt + LB
             m_prevAltLB = glm::vec2( x, y );
@@ -1583,7 +1612,29 @@ void VspGlWindow::OnDrag( int x, int y )
     }
     else if( Fl::event_button1() )
     {
-        if( Fl::event_alt() )
+        bool alltrue = false;
+        if( Fl::event_shift() || FitModelMgr.m_SelectBoxFlag() )
+        {
+            FitModelScreen * fitModelScreen = dynamic_cast< FitModelScreen* >
+                ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_FIT_MODEL_SCREEN ) );
+            if ( fitModelScreen )
+            {
+                if (fitModelScreen->IsShown() )
+                {
+                    if( m_startShiftLB == glm::vec2( 0xFFFFFFFF ) )
+                    {
+                        m_startShiftLB = glm::vec2( x, y );
+                        display->getLayoutMgr()->setStartXY( x, y );
+                    }
+                    alltrue = true;
+                }
+            }
+        }
+
+        if( alltrue )
+        {
+        }
+        else if( Fl::event_alt() )
         {
             // Alt + LB
             if( m_prevAltLB != glm::vec2( 0xFFFFFFFF ) )
@@ -1642,12 +1693,33 @@ void VspGlWindow::OnDrag( int x, int y )
 
 void VspGlWindow::OnRelease( int x, int y )
 {
+    VSPGraphic::Display * display = m_GEngine->getDisplay();
+
     // Reset buttons positions.
     switch( Fl::event_button() )
     {
     case FL_LEFT_MOUSE:
         m_prevLB = m_prevAltLB = m_prevCtrlLB = glm::vec2( 0xFFFFFFFF );
         m_prevMetaLB = glm::vec2( 0xFFFFFFFF );
+        if( Fl::event_shift() || FitModelMgr.m_SelectBoxFlag() )
+        {
+            FitModelScreen * fitModelScreen = dynamic_cast< FitModelScreen* >
+                ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_FIT_MODEL_SCREEN ) );
+            if ( fitModelScreen )
+            {
+                if (fitModelScreen->IsShown() )
+                {
+
+                    if( m_GEngine->getScene()->selectBox() )
+                    {
+                        _sendFeedback( m_GEngine->getScene()->getSelected() );
+                    }
+                }
+            }
+        }
+        m_startShiftLB = glm::vec2( 0xFFFFFFFF );
+        display->getLayoutMgr()->setStartXY( -1, -1 );
+
         break;
 
     case FL_RIGHT_MOUSE:
@@ -1960,6 +2032,24 @@ void VspGlWindow::_sendFeedback( Selectable * selected )
                 corScreen->Set( vec3d( placement.x, placement.y, placement.z ) );
 
                 // Only one selection is needed for Center of Rotation, remove this 'selected' from selection list.
+                m_GEngine->getScene()->removeSelected( selected );
+                selected = NULL;
+            }
+        }
+    }
+
+    // FitModel Feedback
+    if ( FitModelMgr.getFeedbackGroupName() == selectedFeedbackName )
+    {
+        SelectedPnt * pnt = dynamic_cast<SelectedPnt*>( selected );
+        if( pnt )
+        {
+            VSPGraphic::Marker * marker = dynamic_cast<VSPGraphic::Marker*>(pnt->getSource());
+            if(marker)
+            {
+                ID *mid = _findID( marker->getID() );
+                FitModelMgr.SelectPoint( mid->geomID, pnt->getIndex() );
+
                 m_GEngine->getScene()->removeSelected( selected );
                 selected = NULL;
             }
