@@ -707,7 +707,6 @@ bool GeomScreen::Update()
     m_NumWSlider.Update( geom_ptr->m_TessW.GetID() );
 
     //==== Set Browser ====//
-    geom_ptr->UpdateSets();
     vector< string > set_name_vec = m_ScreenMgr->GetVehiclePtr()->GetSetNameVec();
     vector< bool > set_flag_vec = geom_ptr->GetSetFlags();
 

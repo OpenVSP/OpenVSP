@@ -816,7 +816,7 @@ void Geom::UpdateSets()
 {
     vector< string > set_name_vec = m_Vehicle->GetSetNameVec();
 
-    while ( set_name_vec.size() < m_SetFlags.size() )
+    while ( m_SetFlags.size() < set_name_vec.size() )
     {
         m_SetFlags.push_back( false );
     }
@@ -863,6 +863,8 @@ void Geom::Update( bool fullupdate )
 
     Scale();
     GeomXForm::Update();
+
+    UpdateSets();
 
     UpdateSurf();       // Must be implemented by subclass.
     UpdateEndCaps();
