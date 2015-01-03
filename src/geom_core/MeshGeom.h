@@ -126,6 +126,15 @@ public:
     {
         return m_TMeshVec.size();
     }
+    virtual vector< TTri* > & GetIndexedTriVec()
+    {
+        return m_IndexedTriVec;
+    }
+    virtual vector< TNode* > & GetIndexedNodeVec()
+    {
+        return m_IndexedNodeVec;
+    }
+
     virtual void WriteNascartPnts( FILE* file_id );
     virtual void WriteCart3DPnts( FILE* file_id );
     virtual int  WriteGMshNodes( FILE* file_id, int node_offset );
