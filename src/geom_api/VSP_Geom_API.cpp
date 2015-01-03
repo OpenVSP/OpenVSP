@@ -2119,5 +2119,30 @@ void SetParmDescript( const string & parm_id, const string & desc )
     return p->SetDescript( desc );
 }
 
+///  Find a parm id given parm container, name and group
+string FindParm( const string & parm_container_id, const string & name, const string & group )
+{
+    ParmContainer* pc = ParmMgr.FindParmContainer( parm_container_id );
+
+    if ( !pc )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "FindParm::Can't Find Parm Container " + parm_container_id  );
+        return string();
+    }
+
+   string parm_id = pc->FindParm( name, group );
+   Parm* p = ParmMgr.FindParm( parm_id );
+   if ( !p )
+   {
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "FindParm::Can't Find Parm " + parm_id  );
+        return string();
+   }
+   ErrorMgr.NoError();
+
+   return parm_id;
+}
+
+
+
 //============================================================================//
 }   // vsp namespace

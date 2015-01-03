@@ -57,8 +57,6 @@ extern string GetDesignVar( int index );
 extern int GetDesignVarType( int index );
 
 //======================== Computations ================================//
-// jrg finish this stuff
-//extern void SetWorkingDir( const string & dir_name );
 extern void SetComputationFileName( int file_type, const string & file_name );
 extern string ComputeMassProps( int set, int num_slices );
 extern string ComputeCompGeom( int set, bool half_mesh, int file_export_types );
@@ -177,6 +175,7 @@ extern int GetParmType( const string & parm_id );
 extern string GetParmName( const string & parm_id );
 extern string GetParmContainer( const string & parm_id );
 extern void SetParmDescript( const string & parm_id, const string & desc );
+extern string FindParm( const string & parm_container_id, const string & name, const string & group );
 
 
 

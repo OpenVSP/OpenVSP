@@ -1278,7 +1278,12 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "void SetParmDescript( const string & in parm_id, const string & in desc )", asFUNCTION( vsp::SetParmDescript ), asCALL_CDECL );
     assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "string FindParm( const string & in parm_container_id, const string & in name, const string & in group )", asFUNCTION( vsp::FindParm ), asCALL_CDECL );
+    assert( r >= 0 );
 
+
+
+    extern string FindParm( const string & parm_container_id, const string & name, const string & group );
 }
 
 void ScriptMgrSingleton::RegisterUtility( asIScriptEngine* se )
