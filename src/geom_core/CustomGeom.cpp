@@ -931,6 +931,10 @@ void CustomGeom::Scale()
 
     CustomGeomMgr.SetCurrCustomGeom( GetID() );
 
+    double curr_scale = m_Scale()/m_LastScale();
+
     //==== Call Script ====//
-    ScriptMgr.ExecuteScript( GetScriptModuleName().c_str(), "void Scale()" );
+    ScriptMgr.ExecuteScript( GetScriptModuleName().c_str(), "void Scale(double s)", true, curr_scale );
+
+    m_LastScale = m_Scale();
 }

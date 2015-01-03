@@ -57,7 +57,7 @@ public:
     //==== Find Script And Remove ====//
     bool RemoveScript( const string &  module_name );
 
-    bool ExecuteScript(  const char* module_name,  const char* function_name );
+    bool ExecuteScript(  const char* module_name,  const char* function_name, bool arg_flag = false, double arg = 0.0 );
 
     void AddToMessages( const string & msg )                { m_ScriptMessages += msg; }
     void ClearMessages()                                    { m_ScriptMessages.clear(); }

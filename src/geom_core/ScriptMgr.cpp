@@ -245,7 +245,7 @@ bool ScriptMgrSingleton::RemoveScript( const string &  module_name )
 
 
 //==== Execute Function in Module ====//
-bool ScriptMgrSingleton::ExecuteScript(  const char* module_name,  const char* function_name )
+bool ScriptMgrSingleton::ExecuteScript(  const char* module_name,  const char* function_name, bool arg_flag, double arg )
 {
     int r;
 
@@ -267,6 +267,10 @@ bool ScriptMgrSingleton::ExecuteScript(  const char* module_name,  const char* f
     // Create our context, prepare it, and then execute
     asIScriptContext *ctx = m_ScriptEngine->CreateContext();
     ctx->Prepare( func );
+    if ( arg_flag )
+    {
+        ctx->SetArgDouble( 0, arg );
+    }
     r = ctx->Execute();
     if( r != asEXECUTION_FINISHED )
     {

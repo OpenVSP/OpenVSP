@@ -72,23 +72,18 @@ void UpdateSurf()
 }
 
 //==== Optional Scale =====//
-void Scale()
+void Scale(double curr_scale )
 {
 	string geom_id = GetCurrCustomGeom();
 
 	string dia_id   = GetParm( geom_id, "Diameter", "Design" );
 	string ht_id    = GetParm( geom_id, "Height", "Design" );
-	string last_scale_id = ( GetParm( geom_id, "Last_Scale", "XForm" ) );
-	double scale = GetParmVal( GetParm( geom_id, "Scale", "XForm" ) );
-
-	double curr_scale = scale  / GetParmVal( last_scale_id );
 
 	double ht  = curr_scale*GetParmVal( ht_id );
 	double dia = curr_scale*GetParmVal( dia_id );
 
 	SetParmVal( ht_id, ht );
 	SetParmVal( dia_id, dia );
-	SetParmVal( last_scale_id, scale );
 }
 
 //==== Optional Compute Center ====//
