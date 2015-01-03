@@ -82,6 +82,8 @@ public:
         return &m_PickSetScreen;
     }
 
+    int GetFlEventState()                            { return m_EventState; }
+
     /*!
     * Get Screen from id.  If id does not exist, return NULL.
     */
@@ -129,6 +131,7 @@ protected:
     }
 
     bool m_RunGUI;
+    int m_EventState;
 };
 
 

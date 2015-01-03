@@ -13,18 +13,18 @@
 #include "ScreenBase.h"
 #include "GuiDevice.h"
 
-#include "parmFlScreen.h"
 #include "ScreenMgr.h"
 
 using std::string;
 
-class ParmScreen : public VspScreen
+class ParmScreen : public TabScreen
 {
 public:
     ParmScreen( ScreenMgr* mgr );
     virtual ~ParmScreen()           {}
 
     void Show();
+    void Hide();
     bool Update();
 
     void CallBack( Fl_Widget *w );
@@ -33,18 +33,27 @@ public:
         ( ( ParmScreen* )data )->CallBack( w );
     }
 
-    void SelectToLink( int sel );
-    void SelectFromLink( int sel );
+    void GuiDeviceCallBack( GuiDevice* gui_device );
 
 protected:
 
-    string m_ParmID;
-    ParmUI* m_ParmUI;
 
-    string m_NameString;
-    string m_DescriptString;
+    GroupLayout m_InfoLayout;
+    StringOutput m_NameString;
+    StringOutput m_GroupString;
+    StringOutput m_DescString;
 
-    Fl_Text_Buffer m_TextBuffer;
+    StringOutput m_MinValString;
+    StringOutput m_CurrValString;
+    StringOutput m_MaxValString;
+
+    GroupLayout m_LinkLayout;
+    Fl_Browser* m_LinkToBrowser;
+    Fl_Browser* m_LinkFromBrowser;
+
+    GroupLayout m_AdvLinkLayout;
+    Fl_Browser* m_AdvLinkInputBrowser;
+    Fl_Browser* m_AdvLinkOutputBrowser;
 
 };
 

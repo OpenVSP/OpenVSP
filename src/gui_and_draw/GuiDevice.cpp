@@ -11,6 +11,7 @@
 #include "ScreenBase.h"
 #include "ScreenMgr.h"
 #include "LinkMgr.h"
+#include "AdvLinkMgr.h"
 #include "StlHelper.h"
 
 #include <float.h>
@@ -19,6 +20,23 @@
 
 using std::max;
 using std::min;
+
+VspSlider::VspSlider(int x, int y, int w, int h, const char *label ):Fl_Slider(x, y, w, h, label)
+{
+    m_ButtonPush = false;
+}
+
+int VspSlider::handle(int event)
+{
+    if ( event == FL_PUSH )
+        m_ButtonPush = true;
+
+    return Fl_Slider::handle( event );
+}
+
+//=====================================================================//
+//======================           Input         ======================//
+//=====================================================================//
 
 //==== Constructor ====//
 GuiDevice::GuiDevice()
@@ -280,15 +298,36 @@ Slider::Slider( ) : GuiDevice()
     m_MaxBound = 0.0;
 }
 
+Slider::~Slider()
+{
+    if ( m_Slider )
+        delete m_Slider;
+}
+
 //==== Init ====//
-void Slider::Init( VspScreen* screen,   Fl_Slider* slider_widget, double range )
+void Slider::Init( VspScreen* screen,   Fl_Slider* sw, double range )
 {
     GuiDevice::Init( screen );
-    AddWidget(slider_widget);
+
+    //==== Create Vsp Slider and Hide Old One ====//
+    m_Slider = new VspSlider( sw->x(), sw->y(), sw->w(), sw->h() );
+    Fl_Group* parent = sw->parent();
+    if ( parent )
+        parent->add( m_Slider );
+    m_Slider->parent( sw->parent() );
+    m_Slider->type( sw->type() );
+    m_Slider->box( sw->box() );
+    m_Slider->slider( sw->slider() );
+    m_Slider->slider_size( sw->slider_size() );
+    m_Slider->color( sw->color() );
+    m_Slider->color2( sw->color2() );
+
+    sw->hide();
+
+    AddWidget(m_Slider);
     SetRange( range );
-    m_Slider = slider_widget;
-    assert( m_Slider );
     m_Slider->callback( StaticDeviceCB, this );
+
 }
 
 //==== Set Slider Value and Limits =====//
@@ -324,8 +363,17 @@ void Slider::DeviceCB( Fl_Widget* w )
 
     if ( w == m_Slider )
     {
+        bool drag_flag = false;
+        if ( m_Slider->GetButtonPush() )
+        {
+            m_Slider->SetButtonPush( false );
+        }
+        else
+        {
+            drag_flag = true;
+        }
         double new_val = m_Slider->value();
-        parm_ptr->SetFromDevice( new_val );
+        parm_ptr->SetFromDevice( new_val, drag_flag );
     }
 
     m_Screen->GuiDeviceCallBack( this );
@@ -414,11 +462,19 @@ void SliderAdjRange::DeviceCB( Fl_Widget* w )
     {
         return;
     }
-
     if ( w == m_Slider )
     {
+        bool drag_flag = false;
+        if ( m_Slider->GetButtonPush() )
+        {
+            m_Slider->SetButtonPush( false );
+        }
+        else
+        {
+            drag_flag = true;
+        }
         double new_val = m_Slider->value();
-        parm_ptr->SetFromDevice( new_val );
+        parm_ptr->SetFromDevice( new_val, drag_flag );
         FindStopState( parm_ptr );
     }
     else if ( w == m_MinButton )
@@ -561,11 +617,19 @@ void LogSlider::DeviceCB( Fl_Widget* w )
     {
         return;
     }
-
     if ( w == m_Slider )
     {
+        bool drag_flag = false;
+        if ( m_Slider->GetButtonPush() )
+        {
+            m_Slider->SetButtonPush( false );
+        }
+        else
+        {
+            drag_flag = true;
+        }
         double new_val = pow( 10, m_Slider->value() );
-        parm_ptr->SetFromDevice( new_val );
+        parm_ptr->SetFromDevice( new_val, drag_flag );
     }
 
     m_Screen->GuiDeviceCallBack( this );
@@ -756,6 +820,15 @@ void ParmButton::Init( VspScreen* screen, Fl_Button* button )
 void ParmButton::Update( const string& parm_id )
 {
     GuiDevice::Update( parm_id );
+
+    if ( LinkMgr.UsedInLink( parm_id ) )
+        m_Button->color( fl_rgb_color( 180, 140, 140 ) );
+    else if ( AdvLinkMgr.IsInputParm( parm_id ) )
+        m_Button->color( fl_rgb_color( 180, 140, 140 ));
+    else if ( AdvLinkMgr.IsOutputParm( parm_id ) )
+        m_Button->color( fl_rgb_color( 180, 140, 140 ));
+    else
+        m_Button->color( FL_BACKGROUND_COLOR );
 
     if( m_ButtonNameUpdate )
     {
@@ -1539,7 +1612,9 @@ void StringInput::Init( VspScreen* screen, Fl_Input* input )
 
     assert( input );
     m_Input = input;
-    m_Input->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE );
+    //jrg - I changed this because of a crash when input does not callback until a Fl_Choice is pressed
+//    m_Input->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE );
+    m_Input->when(  FL_WHEN_CHANGED );
     m_Input->callback( StaticDeviceCB, this );
 }
 

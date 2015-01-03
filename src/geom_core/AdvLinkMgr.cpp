@@ -207,15 +207,36 @@ bool AdvLinkMgrSingleton::IsInputParm( const string& pid )
 {
     for ( int i = 0 ; i < (int)m_LinkVec.size() ; i++ )
     {
-        vector< VarDef > def_vec = m_LinkVec[i]->GetInputVars();
-        for ( int j = 0 ; j < (int)def_vec.size() ; j++ )
-        {
-            Parm* parm_ptr = ParmMgr.FindParm( def_vec[j].m_ParmID );
-            if ( parm_ptr )
-            {
-                return true;
-            }
-        }
+         vector< VarDef > def_vec = m_LinkVec[i]->GetInputVars();
+         for ( int j = 0 ; j < (int)def_vec.size() ; j++ )
+         {
+             if ( pid == def_vec[j].m_ParmID )
+             {
+                 if ( ParmMgr.FindParm( pid ) )
+                 {
+                     return true;
+                 }
+             }
+         }
+    }
+    return false;
+}
+
+bool AdvLinkMgrSingleton::IsOutputParm( const string& pid )
+{
+    for ( int i = 0 ; i < (int)m_LinkVec.size() ; i++ )
+    {
+         vector< VarDef > def_vec = m_LinkVec[i]->GetOutputVars();
+         for ( int j = 0 ; j < (int)def_vec.size() ; j++ )
+         {
+             if ( pid == def_vec[j].m_ParmID )
+             {
+                 if ( ParmMgr.FindParm( pid ) )
+                 {
+                     return true;
+                 }
+             }
+         }
     }
     return false;
 }

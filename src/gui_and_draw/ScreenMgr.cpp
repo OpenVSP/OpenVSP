@@ -42,6 +42,7 @@
 #include <assert.h>
 #include <FL/Fl.H>
 #include <FL/fl_ask.H>
+#include <FL/names.h>
 
 #define UPDATE_TIME (1.0/30.0)
 
@@ -86,12 +87,11 @@ void ScreenMgr::ForceUpdate()
 //==== Timer Callback ====//
 void ScreenMgr::TimerCB()
 {
-
     if ( m_UpdateFlag )
     {
         m_UpdateFlag = false;
         UpdateAllScreens();
-   }
+    }
 
     Fl::repeat_timeout( UPDATE_TIME, StaticTimerCB, this );
 }

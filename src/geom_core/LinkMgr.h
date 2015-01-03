@@ -41,6 +41,7 @@ public:
     virtual bool LinkAllGroup();                // Link All Parms in Selected Group
     virtual void CheckLinks();                  // Check If All Links Are Still Valid
     virtual bool CheckForDuplicateLink( const string & pA, const string &  pB );
+    virtual bool UsedInLink( const string & pid );
 
     virtual bool AddLink( const string& pA, const string& pB );         // Link Two Parms
     virtual void AddLink( Link* link )                      {  m_LinkVec.push_back( link ); }

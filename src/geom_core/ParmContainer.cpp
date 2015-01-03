@@ -269,28 +269,18 @@ string ParmContainer::FindParm( const string& parm_name, const string& group_nam
 {
     string id;
 
-    map< string, vector< string > >::iterator iter = m_GroupParmMap.find( group_name );
-    if ( iter == m_GroupParmMap.end() )
+    //==== Look Thru All Parms And Return First Name Match ====//
+    for ( int i = 0 ; i < ( int )m_ParmVec.size() ; i++ )
     {
-        return id;
-    }
-
-    int num_parms = ( int )iter->second.size();
-    if ( num_parms == 0 )
-    {
-        return id;
-    }
-
-    for ( int i = 0 ; i < num_parms ; i++ )
-    {
-        string pid = iter->second[i];
-        Parm* p = ParmMgr.FindParm( pid );
-        if ( p && p->GetName() == parm_name )
+        Parm* p = ParmMgr.FindParm( m_ParmVec[i] );
+        if ( p )
         {
-            return pid;
+            if ( p->GetName() == parm_name && p->GetGroupName() == group_name )
+            {
+                return p->GetID();
+            }
         }
     }
-
     return id;
 }
 
@@ -410,6 +400,7 @@ void ParmContainer::AddLinkableParms( vector< string > & linkable_parm_vec, cons
 //==== Constructor ====//
 UserParmContainer::UserParmContainer() : ParmContainer()
 {
+    m_NumPredefined = 0;
     m_Name = "UserParms";
     Init(0);
 }
@@ -496,18 +487,47 @@ xmlNodePtr UserParmContainer::EncodeXml( xmlNodePtr & node )
 //==== Decode Data From XML Data Struct ====//
 xmlNodePtr UserParmContainer::DecodeXml( xmlNodePtr & node )
 {
+    int num_curr_custom = m_UserParmVec.size() - m_NumPredefined;
+
     xmlNodePtr child_node = XmlUtil::GetNode( node, "UserParmContainer", 0 );
     if ( child_node )
     {
         int num_user = XmlUtil::FindInt( child_node, "NumUserParms", 0 );
-        Renew( num_user );
-        for ( int i = 0; i < static_cast<int>( m_UserParmVec.size() ); i++ )
+
+        //==== Decode All User Parms ====//
+        if ( num_curr_custom == 0 )
         {
-            xmlNodePtr pnode = XmlUtil::GetNode( child_node, "UserParm", i );
-            Parm* p = m_UserParmVec[i];
-            if ( pnode && p )
+            Renew( num_user );
+            for ( int i = 0; i < static_cast<int>( m_UserParmVec.size() ); i++ )
             {
+                xmlNodePtr pnode = XmlUtil::GetNode( child_node, "UserParm", i );
+                if ( pnode && m_UserParmVec[i] )
+                {
+                    m_UserParmVec[i]->DecodeXml( pnode, true );
+                }
+            }
+        }
+        else
+        {
+            //==== Decode Predefined ====//
+            for ( int i = 0; i < m_NumPredefined ; i++ )
+            {
+                xmlNodePtr pnode = XmlUtil::GetNode( child_node, "UserParm", i );
+                if ( pnode && m_UserParmVec[i] )
+                {
+                    m_UserParmVec[i]->DecodeXml( pnode, true );
+                }
+            }
+            //==== Append New Custom ====//
+            int num_new_custom = num_user - m_NumPredefined;
+
+            for ( int i = 0 ; i < num_new_custom ; i++ )
+            {
+                xmlNodePtr pnode = XmlUtil::GetNode( child_node, "UserParm", i + m_NumPredefined );
+                Parm* p = new Parm();
+                p->Init( "Temp", "User_Group", this, 0.0, -1.0e12, 1.0e12 );
                 p->DecodeXml( pnode, true );
+                m_UserParmVec.push_back( p );
             }
         }
     }

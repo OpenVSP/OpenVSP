@@ -21,6 +21,7 @@ LinkMgrSingleton::LinkMgrSingleton()
 {
     m_WorkingLink = NULL;
     m_NumPredefinedUserParms = 16;
+    m_UserParms.SetNumPredefined( m_NumPredefinedUserParms );
     m_UserParms.Renew(m_NumPredefinedUserParms);
 
 }
@@ -185,6 +186,19 @@ bool LinkMgrSingleton::CheckForDuplicateLink( const string & pA, const string & 
         {
             return true;
         }
+    }
+    return false;
+}
+
+//==== Check If Parm is Used in Any Link ====//
+bool LinkMgrSingleton::UsedInLink( const string & pid )
+{
+    for ( int i = 0 ; i < ( int )m_LinkVec.size() ; i++ )
+    {
+        if ( m_LinkVec[i]->GetParmA() == pid )
+            return true;
+        if ( m_LinkVec[i]->GetParmB() == pid )
+            return true;
     }
     return false;
 }

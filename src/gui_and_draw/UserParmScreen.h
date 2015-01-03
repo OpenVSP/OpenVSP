@@ -15,7 +15,6 @@
 #include "GuiDevice.h"
 
 #include <FL/Fl.H>
-#include "userParmFlScreen.h"
 
 using std::string;
 using std::vector;
@@ -38,8 +37,6 @@ public:
     void GuiDeviceCallBack( GuiDevice* gui_device );
 
 protected:
-
-    UserParmUI* m_UserParmUI;
 
     GroupLayout m_PredefGroup;
     GroupLayout m_CreateGroup;

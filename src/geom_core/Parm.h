@@ -76,7 +76,7 @@ public:
     enum { SET, SET_FROM_LINK, SET_FROM_DEVICE, };
     virtual double Set( double val );
     virtual double SetFromLink( double val );
-    virtual double SetFromDevice( double val );
+    virtual double SetFromDevice( double val, bool drag_flag = false );
 
     virtual void SetLowerLimit( double limit );
     virtual void SetUpperLimit( double limit );
@@ -222,7 +222,7 @@ public:
 
     virtual double Set( double val );
     virtual double SetFromLink( double val );
-    virtual double SetFromDevice( double val );
+    virtual double SetFromDevice( double val, bool drag_flag = false );
 
     virtual double SetResult( double val );
     virtual double SetResultFromLink( double val );

@@ -190,14 +190,14 @@ double Parm::SetFromLink( double val )
 }
 
 //==== Set Val And Notify Container, UnDo and Parm Link Mgr ====//
-double Parm::SetFromDevice( double val )
+double Parm::SetFromDevice( double val, bool drag_flag )
 {
     if ( !SetValCheckLimits( val ) )
     {
         return m_Val;
     }
 
-    ParmMgr.AddToUndoStack( this );
+    ParmMgr.AddToUndoStack( this, drag_flag );
 
     if ( m_Container )
     {
@@ -573,14 +573,14 @@ double FractionParm::SetFromLink( double val )
 }
 
 //==== Set Val And Notify Container, UnDo and Parm Link Mgr ====//
-double FractionParm::SetFromDevice( double val )
+double FractionParm::SetFromDevice( double val, bool drag_flag )
 {
     if ( !SetValCheckLimits( val ) )
     {
         return m_Val;
     }
 
-    ParmMgr.AddToUndoStack( this );
+    ParmMgr.AddToUndoStack( this, drag_flag );
 
     UpdateResultVal();
 

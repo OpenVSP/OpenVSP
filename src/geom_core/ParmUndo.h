@@ -24,14 +24,9 @@ public:
     ParmUndo();
     ParmUndo( Parm* parm_ptr );
 
-    string GetID()
-    {
-        return m_ParmID;
-    }
-    double GetLastVal()
-    {
-        return m_LastVal;
-    }
+    string GetID()              { return m_ParmID; }
+    double GetLastVal()         { return m_LastVal; }
+    void SetLastVal( double v ) { m_LastVal = v; }
 
 protected:
 

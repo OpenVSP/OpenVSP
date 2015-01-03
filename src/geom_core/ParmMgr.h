@@ -15,6 +15,7 @@
 
 #include "Parm.h"
 #include "ParmUndo.h"
+#include "MessageMgr.h"
 
 #include <map>
 #include <unordered_map>
@@ -32,6 +33,8 @@ private:
     ParmMgrSingleton( ParmMgrSingleton const& copy );          // Not Implemented
     ParmMgrSingleton& operator=( ParmMgrSingleton const& copy ); // Not Implemented
 
+    bool m_LastUndoFlag;
+    ParmUndo m_LastUndo;
     std::stack< ParmUndo > m_ParmUndoStack;
 
     string m_ActiveParmID;
@@ -59,7 +62,7 @@ public:
     string FindParmID( const string & name, const string & group, const string & container );
     ParmContainer* FindParmContainer( const string & id );
 
-    void AddToUndoStack( Parm* parm_ptr );
+    void AddToUndoStack( Parm* parm_ptr, bool drag_flag );
     void UnDo();
 
     string GenerateID( int length );
@@ -76,6 +79,8 @@ public:
 
     //=== Get Container, Group and Parm Name Given Parm ID ====//
     void GetNames( const string& parm_id, string& container_name, string& group_name, string& parm_name );
+
+    void MessageCallback( const MessageBase* from, const MessageData& data );
 };
 
 #define ParmMgr ParmMgrSingleton::getInstance()

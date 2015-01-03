@@ -104,6 +104,7 @@ public:
     UserParmContainer();
     virtual ~UserParmContainer();
 
+    virtual void SetNumPredefined( int n )                  { m_NumPredefined = n; }
     virtual void Renew( int num_initial_parms );
     virtual void ParmChanged( Parm* parm_ptr, int type );
 
@@ -117,6 +118,7 @@ public:
 
 protected:
 
+    int m_NumPredefined;
     vector< Parm* > m_UserParmVec;
 
     virtual void Init( int num_initial_parms );

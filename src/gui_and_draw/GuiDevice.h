@@ -74,6 +74,19 @@ class VspScreen;
 //  SkinControl     (2 Parms)       Compound control for fuselage skinning
 //  SkinOutput      (None)          Fuselage skinning compound output
 
+class VspSlider : public Fl_Slider
+{
+public:
+    VspSlider::VspSlider(int x, int y, int w, int h, const char *label = 0 );
+    int handle( int event );
+
+    bool GetButtonPush()                    { return m_ButtonPush; }
+    void SetButtonPush( bool f )            { m_ButtonPush = false; }
+protected:
+
+    bool m_ButtonPush;
+
+};
 
 class GuiDevice
 {
@@ -176,6 +189,7 @@ class Slider : public GuiDevice
 {
 public:
     Slider();
+    virtual ~Slider();
     virtual void Init( VspScreen* screen, Fl_Slider* slider_widget, double range );
     virtual void DeviceCB( Fl_Widget* w );
     virtual void SetRange( double range )
@@ -187,7 +201,8 @@ protected:
 
     virtual void SetValAndLimits( Parm* parm_ptr );
 
-    Fl_Slider* m_Slider;
+    VspSlider* m_Slider;
+//    Fl_Slider* m_OldSlider;
     double m_Range;
     double m_MinBound;
     double m_MaxBound;

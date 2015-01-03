@@ -10,6 +10,7 @@
 #include "ParmMgr.h"
 #include "VehicleMgr.h"
 #include "UsingCpp11.h"
+#include "APIDefines.h"
 #include <assert.h>
 #include <time.h>
 #include <algorithm>
@@ -23,8 +24,7 @@ using std::unordered_map;
 ParmMgrSingleton::ParmMgrSingleton()
 {
     m_NumParmChanges = 0;
-//  m_UpdateParmVecFlag = false;
-
+    m_LastUndoFlag = false;
 }
 
 //==== Add Parm To Map ====//
@@ -49,7 +49,6 @@ bool ParmMgrSingleton::AddParm( Parm* p  )
     }
 
     m_NumParmChanges++;
-//  m_UpdateParmVecFlag = true;
     m_ParmMap[id] = p;
 
     return true;
@@ -64,7 +63,6 @@ void ParmMgrSingleton::RemoveParm( Parm* p  )
     if ( iter !=  m_ParmMap.end() && iter->second == p )
     {
         m_NumParmChanges++;
-//      m_UpdateParmVecFlag = true;
         m_ParmMap.erase( iter );
     }
 }
@@ -88,7 +86,6 @@ void ParmMgrSingleton::RemoveParmContainer( ParmContainer* pc  )
     if ( iter !=  m_ParmContainerMap.end() )
     {
         m_NumParmChanges++;
-//      m_UpdateParmVecFlag = true;
         m_ParmContainerMap.erase( iter );
     }
 }
@@ -158,15 +155,28 @@ ParmContainer* ParmMgrSingleton::FindParmContainer( const string & id )
 
 
 //==== Add Parm To Undo Stack ====//
-void ParmMgrSingleton::AddToUndoStack( Parm* parm_ptr )
+void ParmMgrSingleton::AddToUndoStack( Parm* parm_ptr, bool drag_flag )
 {
     ParmUndo undo( parm_ptr );
-    m_ParmUndoStack.push( undo );
+
+    if ( !drag_flag )
+    {
+        if ( m_LastUndoFlag )
+            m_ParmUndoStack.push( m_LastUndo );
+        m_LastUndo = undo;
+        m_LastUndoFlag = true;
+    }
 }
 
 //==== Add Parm To Undo Stack ====//
 void ParmMgrSingleton::UnDo()
 {
+    if ( m_LastUndoFlag )
+    {
+        m_ParmUndoStack.push( m_LastUndo );
+        m_LastUndoFlag = false;
+    }
+
     if ( m_ParmUndoStack.size() == 0 )          // Nothing To Undo
     {
         return;
@@ -178,8 +188,7 @@ void ParmMgrSingleton::UnDo()
     Parm* parm_ptr = FindParm( top.GetID() );
     if ( parm_ptr )
     {
-        parm_ptr->SetFromDevice( top.GetLastVal() );    // Set Last Val (Gets Added To Undo Stack)
-        m_ParmUndoStack.pop();                          // Remove Last Val
+        parm_ptr->SetFromDevice( top.GetLastVal(), true );    // Set Last Val - Don't Add To Stack
     }
 }
 

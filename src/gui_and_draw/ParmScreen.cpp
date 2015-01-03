@@ -9,6 +9,8 @@
 
 #include "ParmScreen.h"
 #include "ParmMgr.h"
+#include "LinkMgr.h"
+#include "AdvLinkMgr.h"
 #include "StringUtil.h"
 
 #include <FL/Fl_File_Chooser.H>
@@ -17,20 +19,49 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-ParmScreen::ParmScreen( ScreenMgr* mgr )  : VspScreen( mgr )
+ParmScreen::ParmScreen( ScreenMgr* mgr )  : TabScreen( mgr, 380, 250, "Parm" )
 {
+    //==== Tabs And Groups ====//
+    Fl_Group* info_tab = AddTab( "Info" );
+    Fl_Group* info_group = AddSubGroup( info_tab, 5 );
+    Fl_Group* link_tab = AddTab( "Links" );
+    Fl_Group* link_group = AddSubGroup( link_tab, 5 );
+    Fl_Group* adv_link_tab = AddTab( "Adv Links" );
+    Fl_Group* adv_link_group = AddSubGroup( adv_link_tab, 5 );
 
-    ParmUI* ui = m_ParmUI = new ParmUI();
-    m_FLTK_Window = ui->UIWindow;
+    //===== Info ====//
+    m_InfoLayout.SetGroupAndScreen( info_group, this );
+    m_InfoLayout.AddDividerBox( "Parm Info" );
 
-    ui->UIWindow->position( 780, 30 );
-    ui->linkToBrowser->callback( staticScreenCB, this );
-    ui->linkFromBrowser->callback( staticScreenCB, this );
-    ui->setParmAButton->callback( staticScreenCB, this );
-    ui->setParmBButton->callback( staticScreenCB, this );
-    ui->parmDescription->buffer( &m_TextBuffer );
-    ui->parmDescription->wrap_mode( Fl_Text_Display::WRAP_AT_BOUNDS, 0 );
+    m_InfoLayout.AddOutput( m_NameString, "Name:" );
+    m_InfoLayout.AddOutput( m_GroupString, "Group:" );
+    m_InfoLayout.AddOutput( m_DescString, "Desc:" );
 
+    m_InfoLayout.AddYGap();
+
+    m_InfoLayout.AddOutput( m_MinValString, "Min Val:" );
+    m_InfoLayout.AddOutput( m_CurrValString, "Curr Val:" );
+    m_InfoLayout.AddOutput( m_MaxValString, "Max Val:" );
+
+    //===== Link ====//
+    m_LinkLayout.SetGroupAndScreen( link_group, this );
+    m_LinkLayout.AddDividerBox( "Link To" );
+    m_LinkToBrowser = m_LinkLayout.AddFlBrowser( 75 );
+    m_LinkLayout.AddYGap();
+    m_LinkLayout.AddDividerBox( "Link From" );
+    m_LinkFromBrowser = m_LinkLayout.AddFlBrowser( 75 );
+
+    //===== Adv Link ====//
+    m_AdvLinkLayout.SetGroupAndScreen( adv_link_group, this );
+    m_AdvLinkLayout.AddDividerBox( "Adv Link Input" );
+    m_AdvLinkInputBrowser = m_AdvLinkLayout.AddFlBrowser( 75 );
+    m_AdvLinkLayout.AddYGap();
+    m_AdvLinkLayout.AddDividerBox( "Adv Link Output" );
+    m_AdvLinkOutputBrowser = m_AdvLinkLayout.AddFlBrowser( 75 );
+
+
+
+    info_tab->show();
 }
 
 //==== Update Screen ====//
@@ -43,33 +74,92 @@ bool ParmScreen::Update()
         Hide();
         return false;
     }
+    string pid = parm_ptr->GetID();
 
-    m_NameString = parm_ptr->GetName();
-    m_ParmUI->nameBox->label( m_NameString.c_str() );
+    m_NameString.Update( parm_ptr->GetName() );
+    m_GroupString.Update( parm_ptr->GetGroupName() );
+    m_DescString.Update( parm_ptr->GetDescript() );
 
-    m_DescriptString = parm_ptr->GetDescript();
-    m_TextBuffer.text( m_DescriptString.c_str() );
+    m_MinValString.Update( StringUtil::double_to_string(parm_ptr->GetLowerLimit(), "%6.5f") );
+    m_CurrValString.Update( StringUtil::double_to_string(parm_ptr->Get(), "%6.5f") );
+    m_MaxValString.Update( StringUtil::double_to_string(parm_ptr->GetUpperLimit(), "%6.5f") );
 
+    vector< string > a_link_vec;
+    vector< string > b_link_vec;
+    int num_links = LinkMgr.GetNumLinks();
+    for ( int i = 0 ; i < num_links ; i++ )
+    {
+        Link* lptr = LinkMgr.GetLink( i );
+        string pa = lptr->GetParmA();
+        string pb = lptr->GetParmB();
 
-    //char str[256];
-    //sprintf( nameStr, "%s", parm_ptr->GetName().c_str() );
-    //m_ParmUI->nameBox->label( nameStr );
+       if ( pa == pid )
+       {
+           b_link_vec.push_back( pb );
+       }
+       else if ( pb == pid )
+       {
+           a_link_vec.push_back( pa );
+       }
+    }
 
+    //==== Display Link Parms ====//
+    m_LinkToBrowser->clear();
+    for ( int i = 0 ; i < (int)b_link_vec.size() ; i++ )
+    {
+        Parm* p = ParmMgr.FindParm( b_link_vec[i] );
+        if ( p )
+            m_LinkToBrowser->add( p->GetName().c_str() );
+    }
+    m_LinkFromBrowser->clear();
+    for ( int i = 0 ; i < (int)a_link_vec.size() ; i++ )
+    {
+        Parm* p = ParmMgr.FindParm( a_link_vec[i] );
+        if ( p )
+            m_LinkFromBrowser->add( p->GetName().c_str() );
+    }
 
+    //==== Show Names of Adv Links ====//
+    vector< string > input_links;
+    vector< string > output_links;
+    vector< AdvLink* > adv_link_vec = AdvLinkMgr.GetLinks();
+    for ( int i = 0 ; i < (int)adv_link_vec.size() ; i++ )
+    {
+        vector< VarDef > inp_vec = adv_link_vec[i]->GetInputVars();
+        for ( int j = 0 ; j < (int)inp_vec.size() ; j++ )
+        {
+            if ( inp_vec[j].m_ParmID == pid )
+            {
+                input_links.push_back( adv_link_vec[i]->GetName() );
+                break;
+            }
+        }
+        vector< VarDef > out_vec = adv_link_vec[i]->GetOutputVars();
+        for ( int j = 0 ; j < (int)out_vec.size() ; j++ )
+        {
+            if ( out_vec[j].m_ParmID == pid )
+            {
+                output_links.push_back( adv_link_vec[i]->GetName() );
+                break;
+            }
+        }
+    }
 
+    //==== Display Adv Link Input Names ====//
+    m_AdvLinkInputBrowser->clear();
+    for ( int i = 0 ; i < (int)input_links.size() ; i++ )
+    {
+        m_AdvLinkInputBrowser->add( input_links[i].c_str() );
 
-    //parmUI->linkToBrowser->clear();
-    //parmUI->linkFromBrowser->clear();
+    }
 
-    //vector< ParmLink* > plVec = parmLinkMgrPtr->GetParmLinkVec();
-    //for ( int i = 0 ; i < (int)plVec.size() ; i++ )
-    //{
-    //  if ( plVec[i]->GetParmA() == p )
-    //      parmUI->linkToBrowser->add( plVec[i]->GetParmB()->get_name().get_char_star() );
-    //  if ( plVec[i]->GetParmB() == p )
-    //      parmUI->linkFromBrowser->add( plVec[i]->GetParmA()->get_name().get_char_star() );
-    //}
+    //==== Display Adv Link Output Names ====//
+    m_AdvLinkOutputBrowser->clear();
+    for ( int i = 0 ; i < (int)output_links.size() ; i++ )
+    {
+        m_AdvLinkOutputBrowser->add( output_links[i].c_str() );
 
+    }
 
     return true;
 }
@@ -83,6 +173,12 @@ void ParmScreen::Show()
     }
 }
 
+//==== Hide Screen ====//
+void ParmScreen::Hide()
+{
+    m_FLTK_Window->hide();
+}
+
 
 //==== Callbacks ====//
 void ParmScreen::CallBack( Fl_Widget *w )
@@ -91,7 +187,10 @@ void ParmScreen::CallBack( Fl_Widget *w )
 
 }
 
+void ParmScreen::GuiDeviceCallBack( GuiDevice* gui_device )
+{
 
+}
 
 //void ParmScreen::update( Parm* p )
 //{
