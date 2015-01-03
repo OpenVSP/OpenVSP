@@ -24,6 +24,7 @@ ImportScreen::ImportScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     ui->sterolithButton->callback( staticScreenCB, this );
     ui->xsecButton->callback( staticScreenCB, this );
     ui->Cart3DTriButton->callback( staticScreenCB, this );
+    ui->ptsButton->callback( staticScreenCB, this );
 }
 
 //==== Destructor ====//
@@ -52,6 +53,10 @@ void ImportScreen::ImportFile( string & in_file, int type )
     else if ( type == IMPORT_XSEC_MESH )
     {
         in_file = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Import XSec File?", "*.hrm" );
+    }
+    else if ( type == IMPORT_PTS )
+    {
+        in_file = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Import Points File?", "*.pts" );
     }
     else
     {
@@ -87,6 +92,10 @@ void ImportScreen::CallBack( Fl_Widget *w )
     else if ( w == m_ImportUI->xsecButton )
     {
         ImportFile( in_file, IMPORT_XSEC_MESH );
+    }
+    else if ( w == m_ImportUI->ptsButton )
+    {
+        ImportFile( in_file, IMPORT_PTS );
     }
 
     m_ScreenMgr->SetUpdateFlag( true );

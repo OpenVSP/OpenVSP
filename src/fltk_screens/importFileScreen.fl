@@ -8,7 +8,7 @@ class ImportFileUI {open
   } {
     Fl_Window UIWindow {
       label {Import File} open
-      xywh {636 79 147 145} type Double color 29 resizable visible
+      xywh {636 79 147 175} type Double color 29 resizable visible
     } {
       Fl_Box {} {
         label Import
@@ -29,6 +29,10 @@ class ImportFileUI {open
       Fl_Button Cart3DTriButton {
         label {Cart3D (.tri)} selected
         xywh {5 25 136 25} labelfont 1 labelsize 12 align 64
+      }
+      Fl_Button ptsButton {
+        label {Point Cloud (.pts)}
+        xywh {5 145 136 25} labelfont 1 labelsize 12 align 64
       }
     }
   }

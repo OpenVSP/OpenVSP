@@ -2387,47 +2387,86 @@ string Vehicle::PSliceAndFlatten( int set, int numSlices, vec3d axis, bool autoB
 //==== Import File Methods ====//
 string Vehicle::ImportFile( const string & file_name, int file_type )
 {
-    GeomType type = GeomType( MESH_GEOM_TYPE, "MESH", true );
-    string id = AddGeom( type );
-    if ( !id.compare( "NONE" ) )
+    string id;
+
+    if ( file_type == IMPORT_PTS )
     {
-        return id;
+        GeomType type = GeomType( PT_CLOUD_GEOM_TYPE, "PTS", true );
+        id = AddGeom( type );
+        if ( !id.compare( "NONE" ) )
+        {
+            return id;
+        }
+
+        PtCloudGeom* new_geom = ( PtCloudGeom* )FindGeom( id );
+        if ( new_geom )
+        {
+            int validFlag;
+            if ( file_type == IMPORT_PTS )
+            {
+                validFlag = new_geom->ReadPTS( file_name.c_str() );
+            }
+            else
+            {
+                validFlag = 0;
+            }
+
+            if ( !validFlag )
+            {
+                DeleteGeom( id );
+                id = "NONE";
+            }
+            else
+            {
+                SetActiveGeom( id );
+                new_geom->Update();
+            }
+        }
     }
-
-    MeshGeom* new_geom = ( MeshGeom* )FindGeom( id );
-    if ( new_geom )
+    else
     {
-        int validFlag;
-        if ( file_type == IMPORT_STL )
+        GeomType type = GeomType( MESH_GEOM_TYPE, "MESH", true );
+        id = AddGeom( type );
+        if ( !id.compare( "NONE" ) )
         {
-            validFlag = new_geom->ReadSTL( file_name.c_str() );
-        }
-        else if ( file_type == IMPORT_NASCART )
-        {
-            validFlag = new_geom->ReadNascart( file_name.c_str() );
-        }
-        else if ( file_type == IMPORT_CART3D_TRI )
-        {
-            validFlag = new_geom->ReadTriFile( file_name.c_str() );
-        }
-        else if ( file_type == IMPORT_XSEC_MESH )
-        {
-            validFlag = new_geom->ReadXSec( file_name.c_str() );
-        }
-        else
-        {
-            validFlag = 0;
+            return id;
         }
 
-        if ( !validFlag )
+        MeshGeom* new_geom = ( MeshGeom* )FindGeom( id );
+        if ( new_geom )
         {
-            DeleteGeom( id );
-            id = "NONE";
-        }
-        else
-        {
-            SetActiveGeom( id );
-            new_geom->Update();
+            int validFlag;
+            if ( file_type == IMPORT_STL )
+            {
+                validFlag = new_geom->ReadSTL( file_name.c_str() );
+            }
+            else if ( file_type == IMPORT_NASCART )
+            {
+                validFlag = new_geom->ReadNascart( file_name.c_str() );
+            }
+            else if ( file_type == IMPORT_CART3D_TRI )
+            {
+                validFlag = new_geom->ReadTriFile( file_name.c_str() );
+            }
+            else if ( file_type == IMPORT_XSEC_MESH )
+            {
+                validFlag = new_geom->ReadXSec( file_name.c_str() );
+            }
+            else
+            {
+                validFlag = 0;
+            }
+
+            if ( !validFlag )
+            {
+                DeleteGeom( id );
+                id = "NONE";
+            }
+            else
+            {
+                SetActiveGeom( id );
+                new_geom->Update();
+            }
         }
     }
     return id;
