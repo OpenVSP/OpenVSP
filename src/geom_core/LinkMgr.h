@@ -80,6 +80,11 @@ public:
     int GetCurrGroupNameVec( const string& parm_id, vector< string > & nameVec );
     int GetCurrParmIDVec( const string& parm_id, vector< string > & idVec );
 
+    void GetAllContainerVec( vector< string > & idVec )
+    {
+        idVec = m_LinkableContainers;
+    }
+
     xmlNodePtr EncodeXml( xmlNodePtr & node );
     xmlNodePtr DecodeXml( xmlNodePtr & node );
 
