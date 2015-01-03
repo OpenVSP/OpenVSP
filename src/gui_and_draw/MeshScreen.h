@@ -23,9 +23,13 @@ public:
     virtual bool Update();
 
     virtual void CallBack( Fl_Widget *w );
+    virtual void GuiDeviceCallBack( GuiDevice* d );
 
 protected:
 //  MeshUI* m_MeshUI;
+
+    GroupLayout m_OtherLayout;
+    TriggerButton m_ConvertButton;
 
 };
 

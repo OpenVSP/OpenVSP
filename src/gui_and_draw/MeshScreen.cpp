@@ -20,6 +20,14 @@ MeshScreen::MeshScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 525, "Mesh" )
 {
     RemoveTab( GetTab( m_SubSurfTab_ind ) );
 
+    Fl_Group* other_tab = AddTab( "Other" );
+    Fl_Group* other_group = AddSubGroup( other_tab, 5 );
+
+    m_OtherLayout.SetGroupAndScreen( other_group, this );
+    m_OtherLayout.AddDividerBox( "Convert to Point Cloud" );
+    m_OtherLayout.AddYGap();
+
+    m_OtherLayout.AddButton( m_ConvertButton, "Convert" );
 }
 
 
@@ -54,4 +62,20 @@ bool MeshScreen::Update()
 void MeshScreen::CallBack( Fl_Widget *w )
 {
     GeomScreen::CallBack( w );
+}
+
+void MeshScreen::GuiDeviceCallBack( GuiDevice* gui_device )
+{
+    Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
+    if ( !geom_ptr || geom_ptr->GetType().m_Type != MESH_GEOM_TYPE )
+    {
+        return;
+    }
+    MeshGeom* mesh_ptr = dynamic_cast< MeshGeom* >( geom_ptr );
+    assert( mesh_ptr );
+
+    if ( gui_device == &m_ConvertButton )
+    {
+        mesh_ptr->CreatePtCloudGeom();
+    }
 }
