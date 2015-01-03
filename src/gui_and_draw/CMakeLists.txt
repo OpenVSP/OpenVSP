@@ -34,6 +34,7 @@ DegenGeomScreen.cpp
 DesignVarScreen.cpp
 ExportScreen.cpp
 FeaStructScreen.cpp
+FitModelScreen.cpp
 FuselageScreen.cpp
 GroupLayout.cpp
 GuiDevice.cpp
@@ -86,6 +87,7 @@ DegenGeomScreen.h
 DesignVarScreen.h
 ExportScreen.h
 FeaStructScreen.h
+FitModelScreen.h
 FuselageScreen.h
 GroupLayout.h
 GuiDevice.h

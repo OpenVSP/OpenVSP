@@ -71,6 +71,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     AddMenuCallBack( m_MainUI->ParmLinkMenu );
     AddMenuCallBack( m_MainUI->ParmDebugMenu );
     AddMenuCallBack( m_MainUI->DesignVarMenu );
+    AddMenuCallBack( m_MainUI->FitModelMenu );
     AddMenuCallBack( m_MainUI->MassPropMenu );
     AddMenuCallBack( m_MainUI->AwaveMenu );
     AddMenuCallBack( m_MainUI->PSliceMenu );
@@ -336,6 +337,10 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
     else if ( m == m_MainUI->DesignVarMenu )
     {
         m_ScreenMgr->ShowScreen( ScreenMgr::VSP_DESIGN_VAR_SCREEN );
+    }
+    else if ( m == m_MainUI->FitModelMenu )
+    {
+        m_ScreenMgr->ShowScreen( ScreenMgr::VSP_FIT_MODEL_SCREEN );
     }
     else if ( m == m_MainUI->CompGeomMenu )
     {

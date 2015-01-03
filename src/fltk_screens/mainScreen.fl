@@ -197,6 +197,10 @@ class MainWinUI {open
               label {User Parms...} selected
               xywh {32 32 100 20}
             }
+            MenuItem FitModelMenu {
+              label {Fit Model...}
+              xywh {52 52 100 20}
+            }
           }
           Submenu AnalysisSubMenu {
             label Analysis open

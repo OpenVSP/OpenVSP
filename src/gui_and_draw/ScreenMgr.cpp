@@ -16,6 +16,7 @@
 #include "DesignVarScreen.h"
 #include "ExportScreen.h"
 #include "FeaStructScreen.h"
+#include "FitModelScreen.h"
 #include "ImportScreen.h"
 #include "MainVSPScreen.h"
 #include "ManageBackgroundScreen.h"
@@ -144,6 +145,7 @@ void ScreenMgr::Init()
     m_ScreenVec[VSP_DESIGN_VAR_SCREEN] = new DesignVarScreen( this );
     m_ScreenVec[VSP_EXPORT_SCREEN] = new ExportScreen( this );
     m_ScreenVec[VSP_FEA_MESH_SCREEN] = new FeaStructScreen( this );
+    m_ScreenVec[VSP_FIT_MODEL_SCREEN] = new FitModelScreen( this );
     m_ScreenVec[VSP_IMPORT_SCREEN] = new ImportScreen( this );
     m_ScreenVec[VSP_LABEL_SCREEN] = new ManageLabelScreen( this );
     m_ScreenVec[VSP_LIGHTING_SCREEN] = new ManageLightingScreen( this );
