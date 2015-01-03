@@ -2440,10 +2440,36 @@ void GeomPicker::Deactivate()
 
 void GeomPicker::Update( )
 {
-    int i;
-
     //==== Load Geom Choice ====//
-    m_GeomVec = m_Vehicle->GetGeomVec();
+    vector< string > allGeomVec = m_Vehicle->GetGeomVec();
+    m_GeomVec.clear();
+    m_GeomChoice->clear();
+    for ( int i = 0 ; i < ( int )allGeomVec.size() ; i++ )
+    {
+        Geom* g = m_Vehicle->FindGeom( allGeomVec[i] );
+        if ( g )
+        {
+            bool match = false;
+
+            for ( int j = 0; j < m_ExcludeTypes.size(); j++ )
+            {
+                if ( g->GetType().m_Type == m_ExcludeTypes[j] )
+                {
+                    match = true;
+                }
+            }
+
+            if ( !match )
+            {
+                m_GeomVec.push_back( allGeomVec[i] );
+
+                char str[256];
+                sprintf( str, "%d_%s", i, g->GetName().c_str() );
+                m_GeomChoice->add( str );
+            }
+        }
+    }
+
 
     if ( m_GeomVec.size() == 0 )
     {
@@ -2457,22 +2483,15 @@ void GeomPicker::Update( )
         }
     }
 
-    m_GeomChoice->clear();
     int ind = 0;
-    for ( i = 0 ; i < ( int )m_GeomVec.size() ; i++ )
+    for ( int i = 0 ; i < ( int )m_GeomVec.size() ; i++ )
     {
-        Geom* g = m_Vehicle->FindGeom( m_GeomVec[i] );
-        if ( g )
+        if ( m_GeomIDChoice == m_GeomVec[i] )
         {
-            char str[256];
-            sprintf( str, "%d_%s", i, g->GetName().c_str() );
-            m_GeomChoice->add( str );
-            if ( m_GeomIDChoice == m_GeomVec[i] )
-            {
-                ind = i;
-            }
+            ind = i;
         }
     }
+
     m_GeomChoice->value( ind );
 }
 
@@ -2487,4 +2506,14 @@ void GeomPicker::DeviceCB( Fl_Widget* w )
     }
 
     m_Screen->GuiDeviceCallBack( this );
+}
+
+void GeomPicker::AddExcludeType( int type )
+{
+    m_ExcludeTypes.push_back( type );
+}
+
+void GeomPicker::ClearExcludeType()
+{
+    m_ExcludeTypes.clear();
 }

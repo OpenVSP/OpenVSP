@@ -950,6 +950,9 @@ public:
     virtual void Activate();
     virtual void Deactivate();
 
+    virtual void AddExcludeType( int type );
+    virtual void ClearExcludeType();
+
     string GetGeomChoice()
     {
         return m_GeomIDChoice;
@@ -970,6 +973,8 @@ protected:
     vector< string > m_GeomVec;
 
     Vehicle * m_Vehicle;
+
+    vector < int > m_ExcludeTypes;
 
 };
 
