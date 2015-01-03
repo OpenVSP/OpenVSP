@@ -151,6 +151,8 @@ public:
 
     bool ExistMesh( int set );
 
+    vector < string > GetPtCloudGeoms();
+
     int ReadXMLFile( const string & file_name );
 
     void SetVSP3FileName( const string & f_name )           { m_VSP3FileName = f_name; }

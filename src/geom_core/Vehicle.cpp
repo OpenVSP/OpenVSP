@@ -1347,6 +1347,27 @@ bool Vehicle::ExistMesh( int set )
     return existMesh;
 }
 
+vector < string > Vehicle::GetPtCloudGeoms()
+{
+    vector < string > ptclouds;
+
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    if ( !geom_vec[0] )
+    {
+        return ptclouds;
+    }
+
+    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        if ( geom_vec[i]->GetType().m_Type == PT_CLOUD_GEOM_TYPE )
+        {
+            ptclouds.push_back( geom_vec[i]->GetID() );
+        }
+    }
+
+    return ptclouds;
+}
+
 //==== Write STL File ====//
 void Vehicle::WriteSTLFile( const string & file_name, int write_set )
 {
