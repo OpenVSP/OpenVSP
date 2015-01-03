@@ -224,14 +224,14 @@ void Vehicle::UnDo()
 }
 
 //===== Update All Geometry ====//
-void Vehicle::Update()
+void Vehicle::Update( bool fullupdate )
 {
     for ( int i = 0 ; i < ( int )m_TopGeom.size() ; i++ )
     {
         Geom* g_ptr = FindGeom( m_TopGeom[i] );
         if ( g_ptr )
         {
-            g_ptr->Update();
+            g_ptr->Update( fullupdate );
         }
     }
 }

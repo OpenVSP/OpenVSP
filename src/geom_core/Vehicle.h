@@ -75,7 +75,7 @@ public:
     void ParmChanged( Parm* parm_ptr, int type );
     void UnDo();
 
-    void Update();
+    void Update( bool fullupdate = true );
     void UpdateGui();
     void RunScript( const string & file_name, const string & function_name = "void main()" );
 

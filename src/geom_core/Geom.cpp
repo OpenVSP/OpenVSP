@@ -361,7 +361,7 @@ GeomXForm::~GeomXForm()
 }
 
 //==== Update ====//
-void GeomXForm::Update()
+void GeomXForm::Update( bool fullupdate )
 {
     ComposeModelMatrix();
 }
@@ -852,7 +852,7 @@ void Geom::CopyFrom( Geom* geom )
 }
 
 //==== Update ====//
-void Geom::Update()
+void Geom::Update( bool fullupdate )
 {
     if ( m_UpdateBlock )
         return;
@@ -866,17 +866,29 @@ void Geom::Update()
 
     UpdateSurf();       // Must be implemented by subclass.
     UpdateEndCaps();
-    UpdateFeatureLines();
-    UpdateSymmAttach();
 
-    for ( int i = 0 ; i < ( int )m_SubSurfVec.size() ; i++ )
+    if ( fullupdate )
     {
-        m_SubSurfVec[i]->Update();
+        UpdateFeatureLines();
     }
 
-    UpdateChildren();
+    UpdateSymmAttach();
+
+    if ( fullupdate )
+    {
+        for ( int i = 0 ; i < ( int )m_SubSurfVec.size() ; i++ )
+        {
+            m_SubSurfVec[i]->Update();
+        }
+    }
+
+    UpdateChildren( fullupdate );
     UpdateBBox();
-    UpdateDrawObj();
+
+    if ( fullupdate )
+    {
+        UpdateDrawObj();
+    }
 
     m_UpdatedParmVec.clear();
     m_UpdateBlock = false;
@@ -1075,7 +1087,7 @@ void Geom::UpdateSymmAttach()
 }
 
 //==== Check If Children Exist and Update ====//
-void Geom::UpdateChildren()
+void Geom::UpdateChildren( bool fullupdate )
 {
     vector< string > updated_child_vec;
     for ( int i = 0 ; i < (int)m_ChildIDVec.size() ; i++ )
@@ -1086,7 +1098,7 @@ void Geom::UpdateChildren()
             // Ignore the abs location values and only use rel values for children so a child
             // with abs button selected stays attached to parent if the parent moves
             child->m_ignoreAbsFlag = true;
-            child->Update();
+            child->Update( fullupdate );
             child->m_ignoreAbsFlag = false;
 
             updated_child_vec.push_back( m_ChildIDVec[i] );

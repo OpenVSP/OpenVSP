@@ -188,7 +188,7 @@ public:
         m_Type = type;
     }
 
-    virtual void Update()                                   {}
+    virtual void Update( bool fullupdate = true )           {}
     virtual void UpdateXForm()                              {}
 
     virtual void ParmChanged( Parm* parm_ptr, int type );
@@ -252,7 +252,7 @@ public:
     GeomXForm( Vehicle* vehicle_ptr );
     virtual ~GeomXForm();
 
-    virtual void Update();
+    virtual void Update( bool fullupdate = true );
     virtual void UpdateXForm();
     virtual void ComposeModelMatrix();
     virtual Matrix4d ComposeAttachMatrix();
@@ -332,7 +332,7 @@ public:
     Geom( Vehicle* vehicle_ptr );
     virtual ~Geom();
 
-    virtual void Update();
+    virtual void Update( bool fullupdate = true );
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
     virtual void SetColor( int r, int g, int b );
@@ -571,7 +571,7 @@ protected:
     void UpdateEndCaps();
     virtual void UpdateFeatureLines();
     virtual void UpdateSymmAttach();
-    virtual void UpdateChildren();
+    virtual void UpdateChildren( bool fullupdate );
     virtual void UpdateBBox();
     virtual void UpdateDrawObj();
 
