@@ -181,6 +181,16 @@ void VspSurf::GetWConstCurve( VspCurve &c, const double &w ) const
     c.SetCurve(pwc);
 }
 
+void VspSurf::GetU01ConstCurve( VspCurve &c, const double &u01 ) const
+{
+    GetUConstCurve( c, u01 * GetUMax() );
+}
+
+void VspSurf::GetW01ConstCurve( VspCurve &c, const double &w01 ) const
+{
+    GetWConstCurve( c, w01 * GetWMax() );
+}
+
 //===== Compute a Relative Rotation Transformation Matrix from Component's
 //      Coordinate System to a Surface Coordinate System ====//
 Matrix4d VspSurf::CompRotCoordSys( const double &u, const double &w )
