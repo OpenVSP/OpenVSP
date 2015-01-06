@@ -192,7 +192,6 @@ class Slider : public GuiDevice
 {
 public:
     Slider();
-    virtual ~Slider();
     virtual void Init( VspScreen* screen, Fl_Slider* slider_widget, double range );
     virtual void DeviceCB( Fl_Widget* w );
     virtual void SetRange( double range )

@@ -298,12 +298,6 @@ Slider::Slider( ) : GuiDevice()
     m_MaxBound = 0.0;
 }
 
-Slider::~Slider()
-{
-    if ( m_Slider )
-        delete m_Slider;
-}
-
 //==== Init ====//
 void Slider::Init( VspScreen* screen,   Fl_Slider* sw, double range )
 {
