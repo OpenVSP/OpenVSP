@@ -85,14 +85,23 @@ FourSeries::FourSeries( ) : Airfoil( )
 //==== Update ====//
 void FourSeries::Update()
 {
-    piecewise_curve_type c;
+    piecewise_curve_type c, d;
 
     m_Creator.set_thickness( m_ThickChord() * 100.0f );
     m_Creator.set_camber( m_Camber() * 100.0f, m_CamberLoc() * 10.0f );
 
     m_Creator.create( c );
 
-    m_Curve.SetCurve( c );
+    d.set_t0( c.get_t0() );
+    for ( int i = 0; i < c.number_segments(); i++ )
+    {
+        piecewise_curve_type::curve_type crv;
+        piecewise_curve_type::data_type dt;
+        c.get( crv, dt, i );
+        d.push_back( crv, dt*2.0 );
+    }
+
+    m_Curve.SetCurve( d );
 
     Matrix4d mat;
     mat.scale( m_Chord() );
