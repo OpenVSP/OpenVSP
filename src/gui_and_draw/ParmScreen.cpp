@@ -77,7 +77,7 @@ bool ParmScreen::Update()
     string pid = parm_ptr->GetID();
 
     m_NameString.Update( parm_ptr->GetName() );
-    m_GroupString.Update( parm_ptr->GetGroupName() );
+    m_GroupString.Update( parm_ptr->GetDisplayGroupName() );
     m_DescString.Update( parm_ptr->GetDescript() );
 
     m_MinValString.Update( StringUtil::double_to_string(parm_ptr->GetLowerLimit(), "%6.5f") );

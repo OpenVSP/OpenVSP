@@ -268,6 +268,20 @@ string ParmContainer::FindParm( int group_ind, int parm_ind  )
 string ParmContainer::FindParm( const string& parm_name, const string& group_name  )
 {
     string id;
+    map< string, vector< string > >::iterator iter;
+    iter = m_GroupParmMap.find( group_name );
+
+    if ( iter != m_GroupParmMap.end() )
+    {
+        //==== Look For Parm Name ====//
+        vector< string > pid_vec = iter->second;
+        for ( int i = 0 ; i < (int)pid_vec.size() ; i++ )
+        {
+            Parm* p = ParmMgr.FindParm( pid_vec[i] );
+            if ( p->GetName() == parm_name )
+                return pid_vec[i];
+        }
+    }
 
     //==== Look Thru All Parms And Return First Name Match ====//
     for ( int i = 0 ; i < ( int )m_ParmVec.size() ; i++ )
