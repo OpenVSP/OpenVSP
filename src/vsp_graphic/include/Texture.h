@@ -34,8 +34,21 @@ public:
     */
     virtual void unbind() = 0;
 
+    int getImWidth()
+    {
+        return _imWidth;
+    }
+
+    int getImHeight()
+    {
+        return _imHeight;
+    }
+
 protected:
     unsigned int _textureID;
+
+    int _imWidth;
+    int _imHeight;
 };
 }
 #endif

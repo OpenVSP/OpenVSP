@@ -86,6 +86,8 @@ public:
     */
     virtual void setBlue( float blue );
 
+    virtual void setWidthHeight( int w, int h);
+
     /*!
     * Set Background render mode to Color or Image.
     * mode - VSP_BACKGROUND_COLOR, VSP_BACKGROUND_IMAGE.
@@ -131,6 +133,12 @@ private:
 
     float _offsetX;
     float _offsetY;
+
+    int _vWidth;
+    int _vHeight;
+
+    int _imWidth;
+    int _imHeight;
 
     TextureMgr * _textureMgr;
     unsigned int _texId;

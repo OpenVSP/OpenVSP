@@ -110,6 +110,9 @@ void Background::attachImage( Texture * texture )
     removeImage();
 
     _texId = _textureMgr->add( texture );
+
+    _imWidth = texture->getImWidth();
+    _imHeight = texture->getImHeight();
 }
 
 void Background::removeImage()
@@ -198,6 +201,18 @@ float Background::getOffsetY()
     return _offsetY;
 }
 
+void Background::setWidthHeight( int w, int h)
+{
+    if ( w == _vWidth && h == _vHeight )
+    {
+        return;
+    }
+
+    _vWidth = w;
+    _vHeight = h;
+    _hasChanged = true;
+}
+
 void Background::_predraw()
 {
 }
@@ -235,13 +250,31 @@ void Background::_build()
 
     if( _hasChanged )
     {
+        float sw = 1.0;
+        float sh = 1.0;
+
+        if( _mode == Common::VSP_BACKGROUND_IMAGE )
+        {
+            float vAR = (float) _vHeight / (float) _vWidth;
+            float iAR =  (float) _imHeight / (float) _imWidth;
+
+            if ( vAR > iAR ) // Match image width
+            {
+                sh = iAR / vAR;
+            }
+            else   // Match image height
+            {
+                sw = vAR / iAR;
+            }
+        }
+
         _background.clear();
         for( int i = 0; i < (int)_coord.size(); i++ )
         {
             if( _mode == Common::VSP_BACKGROUND_IMAGE )
             {
-                _background.push_back( _coord[i].x * _scaleX + _offsetX );
-                _background.push_back( _coord[i].y * _scaleY + _offsetY );
+                _background.push_back( _coord[i].x * _scaleX * sw + _offsetX );
+                _background.push_back( _coord[i].y * _scaleY * sh + _offsetY );
                 _background.push_back( _coord[i].z );
             }
             else

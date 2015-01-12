@@ -295,6 +295,7 @@ void Viewport::drawBackground()
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
 
+    _background->setWidthHeight( _vWidth, _vHeight );
     _background->draw();
 
     glPopMatrix();

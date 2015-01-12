@@ -71,6 +71,9 @@ void Texture2D::_initialize( Image * image )
     GLfloat rgba[] = {1.f, 1.f, 1.f, 0.0};
     glTexParameterfv( GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, rgba );
 
+    _imWidth = image->getWidth();
+    _imHeight = image->getHeight();
+
     // Load Texture.
     if( image->getType() == GL_RGBA )
     {
