@@ -42,7 +42,7 @@ Background::Background() : Renderable()
     _textureMgr = new TextureMgr();
     _texId = 0xFFFFFFFF;
 
-    _keepAR = false;
+    _keepAR = true;
     _hasChanged = true;
 
     _mode = Common::VSP_BACKGROUND_COLOR;
