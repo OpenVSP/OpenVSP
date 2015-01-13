@@ -89,12 +89,7 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 640, "Wing" )
 
     m_SectionLayout.AddYGap();
 
-    m_SectionLayout.SetFitWidthFlag( false );
-    m_SectionLayout.SetSameLineFlag( true );
-    m_SectionLayout.AddButton( m_TestDriverGroupButton, "TestDrivers" );
-    m_SectionLayout.SetFitWidthFlag( true );
     m_SectionLayout.AddDividerBox( "Section Planform" );
-    m_SectionLayout.ForceNewLine();
 
     m_SectionLayout.SetFitWidthFlag( true );
     m_SectionLayout.SetSameLineFlag( false );
