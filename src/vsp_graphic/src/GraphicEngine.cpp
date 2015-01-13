@@ -40,25 +40,28 @@ void GraphicEngine::dumpScreenJPEG( std::string fileName )
     int h = _display->getLayoutMgr()->screenHeight();
 
     // width * height * RGB
-    unsigned char * data = new unsigned char[( w + 1 ) * ( h + 1 ) * 3];
+    unsigned char * data = new unsigned char[ w * h * 3];
 
     _display->draw( _scene, 0xFFFFFFFF, 0xFFFFFFFF );
 
     glReadBuffer( GL_BACK );
+
+    glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
+    glPixelStorei( GL_PACK_ALIGNMENT, 1 );
     glReadPixels( 0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, data );
 
     // Flip data top to bottom.
-    unsigned char * flipdat = new unsigned char[( w + 1 ) * ( h + 1 ) * 3];
-    int scanLen = 3 * ( w + 1 );
-    for ( int i = 0 ; i < h + 1 ; i++ )
+    unsigned char * flipdat = new unsigned char[ w * h * 3];
+    int scanLen = 3 * w;
+    for ( int i = 0 ; i < h; i++ )
     {
         unsigned char* srcLine = &data[ i * scanLen ];
-        unsigned char* dstLine = &flipdat[ (h - i) * scanLen ];
+        unsigned char* dstLine = &flipdat[ (h - i - 1) * scanLen ];
         memcpy(  dstLine, srcLine, scanLen );
     }
     delete data;
 
-    writeJPEG( fileName.c_str(), w + 1, h + 1, flipdat );
+    writeJPEG( fileName.c_str(), w, h, flipdat );
 
     delete flipdat;
 }
