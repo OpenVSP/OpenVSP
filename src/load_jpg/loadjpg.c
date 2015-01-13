@@ -34,8 +34,6 @@ JpgData loadJPEG( const char* fileName )
 
     cinfo.quantize_colors      = ( boolean )FALSE;
     cinfo.out_color_space      = JCS_RGB;
-    cinfo.out_color_components = 3;
-    cinfo.output_components    = 3;
 
     jpeg_calc_output_dimensions( &cinfo );
 
