@@ -71,6 +71,8 @@ void Texture2D::_initialize( Image * image )
     GLfloat rgba[] = {1.f, 1.f, 1.f, 0.0};
     glTexParameterfv( GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, rgba );
 
+    glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
+
     _imWidth = image->getWidth();
     _imHeight = image->getHeight();
 
