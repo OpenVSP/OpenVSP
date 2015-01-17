@@ -3,15 +3,6 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 # include the CTest framework
 include(CTest)
 
-IF(WIN32)
-	SET( WINSOCK_LIBRARIES
-		wsock32
-		ws2_32
-	)
-ELSE()
-	SET( WINSOCK_LIBRARIES )
-ENDIF()
-
 IF("${CMAKE_SYSTEM}" MATCHES "Linux")
 	SET( LINUX_LIBS
 		pthread
