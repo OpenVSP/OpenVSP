@@ -303,6 +303,7 @@ void FuselageGeom::InsertXSec( int type )
 
     if ( inserted_xs )
     {
+        inserted_xs->SetRefLength( m_Length() );
         inserted_xs->CopyFrom( xs );
         inserted_xs->m_XLocPercent = ( x_loc_0 + x_loc_1 ) * 0.5;
     }
