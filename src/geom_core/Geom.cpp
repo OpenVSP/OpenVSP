@@ -1141,6 +1141,7 @@ void Geom::UpdateBBox()
 
 void Geom::UpdateDrawObj()
 {
+    m_WireShadeDrawObj_vec.clear();
     m_WireShadeDrawObj_vec.resize( m_SurfVec.size(), DrawObj() );
     m_FeatureDrawObj_vec.clear();
 
