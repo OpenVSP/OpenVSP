@@ -173,6 +173,8 @@ protected:
     virtual void UpdateTotalChord();
     virtual void UpdateTotalArea();
 
+    virtual void SetTempActiveXSec();
+
     virtual vector< WingSect* > GetWingSectVec();
 
     virtual double GetSumDihedral( int sect_id );

@@ -24,6 +24,7 @@ using std::unordered_map;
 ParmMgrSingleton::ParmMgrSingleton()
 {
     m_NumParmChanges = 0;
+    m_ChangeCnt = 0;
     m_LastUndoFlag = false;
 }
 

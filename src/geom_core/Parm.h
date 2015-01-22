@@ -72,6 +72,7 @@ public:
     {
         return m_Type;
     }
+    virtual int GetChangeCnt()                  { return m_ChangeCnt; }
 
     enum { SET, SET_FROM_LINK, SET_FROM_DEVICE, };
     virtual double Set( double val );
@@ -186,6 +187,7 @@ protected:
     string m_GroupName;
     int m_GroupDisplaySuffix;
     ParmContainer* m_Container;
+    int m_ChangeCnt;
 
     std::string m_Descript;
 

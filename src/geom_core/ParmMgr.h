@@ -45,6 +45,7 @@ private:
     unordered_map< string, string > m_IDRemap;                      // oldID->newID Map
 
     int m_NumParmChanges;
+    int m_ChangeCnt;
 
 public:
     static ParmMgrSingleton& getInstance()
@@ -74,6 +75,7 @@ public:
     string GetActiveParmID()                { return m_ActiveParmID; }
     Parm* GetActiveParm()                   { return FindParm( m_ActiveParmID ); }
     int GetNumParmChanges()                 { return m_NumParmChanges; }
+    int GetChangeCnt()                      { m_ChangeCnt++; return m_ChangeCnt; }
 
     Parm* CreateParm( int type );
 

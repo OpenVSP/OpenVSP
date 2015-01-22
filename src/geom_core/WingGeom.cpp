@@ -1132,8 +1132,16 @@ void WingGeom::UpdateSurf()
     if ( UpdatedParm( m_TotalArea.GetID() ) )
         UpdateTotalArea();
 
+    int active_sect = GetActiveXSecIndex();     // Save Active Section
+
+    //==== Set Temp Active XSec Based On Updated Parms ====//
+    SetTempActiveXSec();
+
     //==== Make Sure Chord Match For Adjacent Wing Sections ====//
     MatchWingSections();
+
+    SetActiveXSecIndex(active_sect);            // Restore Active Section
+
 
     // clear the u tessellation vector
     m_TessUVec.clear();
@@ -1540,6 +1548,27 @@ void WingGeom::MatchWingSections()
             outboard_ws->ForceChordVal( active_tc, true );
         }
     }
+}
+
+//==== Set Temp Active XSec ====//
+void WingGeom::SetTempActiveXSec()
+{
+    int active_sect_index = -1;
+    int largest_change_cnt = 0;
+
+    vector< WingSect* > wsvec = GetWingSectVec();
+    for ( int i = 0 ; i < (int)wsvec.size() ; i++ )
+    {
+        int c = wsvec[i]->GetLatestChangeCnt();
+        if ( c > largest_change_cnt )
+        {
+            active_sect_index = i;
+            largest_change_cnt = c;
+        }
+    }
+
+    if ( active_sect_index >= 0 )
+        SetActiveXSecIndex( active_sect_index );
 }
 
 //==== Get Sum Dihedral ====//

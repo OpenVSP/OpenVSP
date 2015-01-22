@@ -44,6 +44,7 @@ public:
 
     virtual bool GetLateUpdateFlag()                { return m_LateUpdateFlag; }
     virtual void SetLateUpdateFlag( bool flag )     { m_LateUpdateFlag = flag; }
+    virtual int GetLatestChangeCnt();
 
     virtual string GetID()                          { return m_ID; }
 

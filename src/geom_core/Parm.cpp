@@ -40,6 +40,7 @@ Parm::Parm()
     m_LinkableFlag = true;
     m_LinkedFlag = false;
     m_LinkUpdateFlag = false;
+    m_ChangeCnt = 0;
 }
 
 //==== Destructor ====//
@@ -149,6 +150,8 @@ bool Parm::SetValCheckLimits( double val )
     {
         m_Val = val;
     }
+
+    m_ChangeCnt = ParmMgr.GetChangeCnt();
 
     return true;
 }

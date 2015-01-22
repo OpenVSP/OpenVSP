@@ -92,6 +92,22 @@ void ParmContainer::ChangeID( string id )
     ParmMgr.AddParmContainer( this );
 }
 
+//==== Get Latest Change Cnt ====//
+int ParmContainer::GetLatestChangeCnt()
+{
+    int cnt = 0;
+    for ( int i = 0 ; i < ( int )m_ParmVec.size() ; i++ )
+    {
+        string pid = m_ParmVec[i];
+        Parm* p = ParmMgr.FindParm( pid );
+        if ( p && p->GetChangeCnt() > cnt )
+        {
+            cnt = p->GetChangeCnt();
+        }
+    }
+    return cnt;
+}
+
 //==== Encode Data Into XML Data Struct ====//
 xmlNodePtr ParmContainer::EncodeXml( xmlNodePtr & node )
 {
