@@ -1326,6 +1326,7 @@ FuseXSec::FuseXSec( XSecCurve *xsc, bool use_left ) : SkinXSec( xsc, use_left)
     m_Type = XSEC_FUSE;
 
     m_RefLength = 1.0;
+    m_RefLenVal = 1.0;
 
     m_XLocPercent.Init( "XLocPercent", m_GroupName, this,  0.0, 0.0, 1.0 );
     m_XLocPercent.SetDescript( "X distance of cross section as a percent of fuselage length" );
@@ -1382,7 +1383,7 @@ void FuseXSec::Update()
 //==== Set Ref Length ====//
 void FuseXSec::SetRefLength( double len )
 {
-    if ( fabs( len - m_RefLength() ) < DBL_EPSILON )
+    if ( fabs( len - m_RefLenVal ) < DBL_EPSILON )
     {
         return;
     }
@@ -1393,6 +1394,8 @@ void FuseXSec::SetRefLength( double len )
     m_XLocPercent.SetRefVal( m_RefLength() );
     m_YLocPercent.SetRefVal( m_RefLength() );
     m_ZLocPercent.SetRefVal( m_RefLength() );
+
+    m_RefLenVal = m_RefLength();
 }
 
 //==== Copy position from base class ====//

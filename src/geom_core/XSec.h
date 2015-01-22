@@ -282,6 +282,8 @@ public:
     Parm m_RefLength;
 
 protected:
+
+    double m_RefLenVal;
 };
 
 class StackXSec : public SkinXSec
