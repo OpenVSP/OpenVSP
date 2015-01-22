@@ -746,13 +746,13 @@ WingGeom::WingGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_XSecSurf.SetParentContainer( GetID() );
     m_XSecSurf.SetBasicOrientation( vsp::Y_DIR, X_DIR, XS_SHIFT_LE, true );
 
-    m_RelativeDihedralFlag.Init("RelativeDihedralFlag", m_Name, this, 0, 0, 1, false );
+    m_RelativeDihedralFlag.Init("RelativeDihedralFlag", m_Name, this, 0, 0, 1, true );
     m_RelativeDihedralFlag.SetDescript( "Relative or Absolute Dihedral" );
 
-    m_RelativeTwistFlag.Init("RelativeTwistFlag", m_Name, this, 0, 0, 1, false );
+    m_RelativeTwistFlag.Init("RelativeTwistFlag", m_Name, this, 0, 0, 1, true );
     m_RelativeTwistFlag.SetDescript( "Relative or Absolute Twist" );
 
-    m_RotateAirfoilMatchDiedralFlag.Init("RotateAirfoilMatchDideralFlag", m_Name, this, 0, 0, 1, false );
+    m_RotateAirfoilMatchDiedralFlag.Init("RotateAirfoilMatchDideralFlag", m_Name, this, 0, 0, 1, true );
     m_RotateAirfoilMatchDiedralFlag.SetDescript( "Rotate Airfoil To Stay Tangent To Dihedral (or Not)" );
 
     m_TotalSpan.Init( "TotalSpan", m_Name, this, 1.0, 0.0001, 1000000.0 );
