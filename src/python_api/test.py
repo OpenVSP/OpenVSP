@@ -61,7 +61,7 @@ vsp.SetParmVal( second_pod_id, "Sym_Planar_Flag", "Sym", 0 )
 vsp.SetParmVal( second_pod_id, "Y_Location", "XForm", 0.0 )
 vsp.SetParmVal( second_pod_id, "Z_Location", "XForm", 1.0 )
 
-fname = "apitest.vsp3"
+fname = "apitest1.vsp3"
 
 vsp.WriteVSPFile( fname )
 
@@ -89,7 +89,7 @@ fuse_id = vsp.AddGeom( "FUSELAGE" )
 xsurf_id = vsp.GetXSecSurf( fuse_id, 0 )
 
 # Change Type of First XSec
-vsp.ChangeXSecShape( xsurf_id, 0, vsp.SUPER_ELLIPSE )
+vsp.ChangeXSecShape( xsurf_id, 0, vsp.XS_SUPER_ELLIPSE )
 errorMgr.PopErrorAndPrint( stdout )
 
 # Change Type First XSec Properties
@@ -109,17 +109,17 @@ vsp.PasteXSec( xsurf_id, 3 )
 
 # Change Type to File XSec
 
-vsp.ChangeXSecShape( xsurf_id, 0, vsp.FILE_FUSE )
+vsp.ChangeXSecShape( xsurf_id, 0, vsp.XS_FILE_FUSE )
 file_xsec_id = vsp.GetXSec( xsurf_id, 0 )
 
 # Build Point Vec
 
 pnt_vec = vsp.Vec3dVec();
-pnt_vec.push_back( vsp.vec3d( 0.0, 0.0, 2.0 ) )
-pnt_vec.push_back( vsp.vec3d( 0.0, 1.0, 0.0 ) )
-pnt_vec.push_back( vsp.vec3d( 0.0, 0.0,-2.0 ) )
-pnt_vec.push_back( vsp.vec3d( 0.0,-1.0, 0.0 ) )
-pnt_vec.push_back( vsp.vec3d( 0.0, 0.0, 2.0 ) )
+pnt_vec.push_back( vsp.vec3d( 0.0, 2.0, 0.0 ) )
+pnt_vec.push_back( vsp.vec3d( 1.0, 0.0, 0.0 ) )
+pnt_vec.push_back( vsp.vec3d( 0.0,-2.0, 0.0 ) )
+pnt_vec.push_back( vsp.vec3d(-1.0, 0.0, 0.0 ) )
+pnt_vec.push_back( vsp.vec3d( 0.0, 2.0, 0.0 ) )
 
 # Load Points Into XSec
 vsp.SetXSecPnts( file_xsec_id, pnt_vec )
@@ -128,6 +128,8 @@ geoms = vsp.FindGeoms()
 
 print "End of second use case, all geoms in Vehicle."
 print geoms
+
+vsp.WriteVSPFile("apitest2.vsp3")
 
 #==== Use Case 3 ====#
 
@@ -150,6 +152,4 @@ num_err = errorMgr.GetNumTotalErrors()
 for i in range(0,num_err):
 	err = errorMgr.PopLastError()
 	print "error = ", err.m_ErrorString
-
-vsp.StartGui()
 
