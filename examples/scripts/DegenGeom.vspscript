@@ -1,0 +1,18 @@
+
+void main()
+{
+    string fid = AddGeom( "TransportFuse", "" );        // Add Custom Transport Fuselage
+    string wid = AddGeom( "WING", "" );                 // Add Wing
+
+    SetParmVal( wid, "X_Rel_Location", "XForm", 2.5 );
+    SetParmVal( wid, "TotalArea", "WingGeom", 25 );
+
+    Update();
+
+    //==== Set File Name ====//
+    SetComputationFileName( DEGEN_GEOM_CSV_TYPE, "TestDegenScript.csv" );
+
+    //==== Run Degen Geom ====//
+    ComputeDegenGeom( SET_ALL, DEGEN_GEOM_CSV_TYPE );
+
+}

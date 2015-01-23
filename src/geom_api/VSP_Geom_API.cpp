@@ -422,6 +422,7 @@ void ComputeDegenGeom( int set, int file_export_types )
     }
 
     veh->CreateDegenGeom( set );
+    veh->WriteDegenGeomFile();
     ErrorMgr.NoError();
 }
 

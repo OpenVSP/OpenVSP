@@ -1101,6 +1101,8 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "string ComputeAwaveSlice( int set, int num_slices, int num_rots, double ang_control, bool comp_ang, const vec3d & in norm, bool auto_bnd, double start_bnd = 0, double end_bnd = 0)",
                                     asFUNCTION( vsp::ComputeAwaveSlice ), asCALL_CDECL );
     assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void ComputeDegenGeom( int set, int file_type )", asFUNCTION( vsp::ComputeDegenGeom ), asCALL_CDECL );
+    assert( r >= 0 );
     r = se->RegisterGlobalFunction( "void ComputeCFDMesh( int set, int file_type )", asFUNCTION( vsp::ComputeCFDMesh ), asCALL_CDECL );
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "void SetCFDMeshVal( int type, double val )", asFUNCTION( vsp::SetCFDMeshVal ), asCALL_CDECL );
