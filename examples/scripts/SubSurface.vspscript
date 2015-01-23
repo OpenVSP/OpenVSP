@@ -1,0 +1,25 @@
+
+void main()
+{
+    string wid = AddGeom( "WING", "" );                             // Add Wing
+
+    string subid = AddSubSurf( wid, SS_LINE );                      // Add Sub Suface Line
+    SetParmVal( wid, "Const_Line_Value", "SubSurface_1", 0.4 );     // CHange Loc
+
+    subid = AddSubSurf( wid, SS_RECTANGLE );                        // Add Sub Surface Rectangle
+    SetParmVal( wid, "Center_W", "SS_Rectangle_1", 0.0 );           // Change Loc/Size
+    SetParmVal( wid, "U_Length", "SS_Rectangle_1", 0.1 );
+    SetParmVal( wid, "W_Length", "SS_Rectangle_1", 0.1 );
+
+
+    Update();
+
+	//==== Check For API Errors ====//
+	while ( GetNumTotalErrors() > 0 )
+	{
+		ErrorObj err = PopLastError();
+		Print( err.GetErrorString() );
+	}
+
+
+}

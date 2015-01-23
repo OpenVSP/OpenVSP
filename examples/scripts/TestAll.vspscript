@@ -29,7 +29,8 @@ void main()
 	TestVec3d();
 	TestMatrix();
 	TestProxy();
-
+    TestAPIScript();
+	Print(string("End Scripting Test"));
 
 }
 
@@ -240,26 +241,16 @@ void TestAPIScript()
 	string xsec_surf = GetXSecSurf( fuseid, 0 );
 	int num_xsecs = GetNumXSec( xsec_surf );
 
-	Print(string("---> Test Get XSec Type"));
-    int xsec_type = GetXSecType( xsec_surf );
-    if ( xsec_type != XSEC_FUSE )           Print( "---> Error: API GetXSecType  " );
-
 	if ( num_xsecs < 1 )					Print( "---> Error: API GetXSecSurf/GetNumXSec  " );
 
 	Print(string("---> Test Get XSec"));
 	string xsec = GetXSec( xsec_surf, 0 );
 	if ( xsec.size() == 0 )					Print( "---> Error: API GetXSec " );
-
-	string add_xsec = AppendXSec( xsec_surf, XS_CIRCLE );
-	CutXSec( xsec_surf, GetNumXSec( xsec_surf )-2 );
-	CopyXSec( xsec_surf, GetNumXSec( xsec_surf )-1 );
-	PasteXSec( xsec_surf, GetNumXSec( xsec_surf )-2 );
-	InsertXSec( xsec_surf, XS_ROUNDED_RECTANGLE, 0 );
     	
     Print(string("---> Test Change XSec Shape"));
-	ChangeXSecShape( xsec_surf, GetNumXSec( xsec_surf )-1, XS_POINT );
+	ChangeXSecShape( xsec_surf, GetNumXSec( xsec_surf )-1, XS_ROUNDED_RECTANGLE );
 
-	xsec = GetXSec( xsec_surf, 1 );
+	xsec = GetXSec( xsec_surf, GetNumXSec( xsec_surf )-1 );
 	if ( GetXSecShape( xsec ) != XS_ROUNDED_RECTANGLE )
 		Print( "---> Error: API ChangeXSec/GetShape " );
 

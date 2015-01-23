@@ -2,6 +2,18 @@
 void main()
 {
     string fid = AddGeom( "FUSELAGE", "" );             // Add Fuselage
+
+	SetParmVal( fid, "Tess_W", "Shape", 49 );
+
+	//==== Insert, Cut, Paste Example ====//
+	InsertXSec( fid, 1, XS_ROUNDED_RECTANGLE );         // Insert A Cross-Section
+	SetParmVal( fid, "RoundedRect_Width", "XSecCurve_2", 4.0 ); // Change Width
+	CopyXSec( fid, 2 );                                 // Copy Just Created XSec To Clipboard
+	PasteXSec( fid, 1 );                                // Paste Clipboard
+	PasteXSec( fid, 3 );
+	PasteXSec( fid, 4 );
+	CutXSec( fid, 2 );                                  // Cut Created XSec
+
 	string xsec_surf = GetXSecSurf( fid, 0 );           // Get First (and Only) XSec Surf
 
 	int num_xsecs = GetNumXSec( xsec_surf );    

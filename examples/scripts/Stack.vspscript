@@ -1,0 +1,36 @@
+
+void main()
+{
+    string sid = AddGeom( "STACK", "" );             // Add Stack
+
+    SetParmVal( sid, "Tess_W", "Shape", 29 );
+    SetParmVal( sid, "Y_Rel_Rotation", "XForm", 90 );
+
+    string xsec_surf = GetXSecSurf( sid, 0 );           // Get First (and Only) XSec Surf
+    ChangeXSecShape( xsec_surf, 1, XS_GENERAL_FUSE );
+    Update();                                           // Force Surface Update  
+        
+    SetParmVal( sid, "Height", "XSecCurve_1", 2.0 );    // Set XSec Shape Parameters
+    SetParmVal( sid, "Width", "XSecCurve_1", 5.0 );
+    SetParmVal( sid, "MaxWidthLoc", "XSecCurve_1", 1.0 );
+    Update();    
+
+    CopyXSec( sid, 1 );                                 // Copy XSec To Clipboard
+    PasteXSec( sid, 2 );                                // Paste To 2 and 3
+    PasteXSec( sid, 3 );
+
+    SetParmVal( sid, "XDelta", "XSec_1", 0.0 );         // Change Positions of XSecs
+    SetParmVal( sid, "XDelta", "XSec_2", 5.0 );
+    SetParmVal( sid, "XDelta", "XSec_3", 5.0 );
+    SetParmVal( sid, "XDelta", "XSec_4", 0.0 );
+    SetParmVal( sid, "ZDelta", "XSec_2", 1.0 );
+    SetParmVal( sid, "ZDelta", "XSec_3", -1.0 );
+    Update();  
+  
+    string xsec = GetXSec( xsec_surf, 2 );              // Skin Parameters
+    SetXSecContinuity( xsec, 1 ); 
+    SetXSecTanAngles( xsec, XSEC_BOTH_SIDES, 0 ); 
+    SetXSecTanStrengths( xsec, XSEC_BOTH_SIDES, 0.5 );
+    Update(); 
+
+}
