@@ -34,6 +34,7 @@ extern void VSPCheckSetup();
 extern void VSPRenew();
 
 extern void Update();
+extern void VSPExit( int error_code );
 
 //======================== File I/O ================================//
 extern void ReadVSPFile( const string & file_name );

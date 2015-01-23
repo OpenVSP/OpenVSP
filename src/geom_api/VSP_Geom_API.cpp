@@ -133,6 +133,11 @@ void Update()
 }
 
 
+void VSPExit( int error_code )
+{
+    exit( error_code );
+}
+
 
 
 //===================================================================//
