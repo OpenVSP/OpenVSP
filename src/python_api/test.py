@@ -100,12 +100,12 @@ vsp.SetParmVal( width_id, 4.0 )
 vsp.SetParmVal( height_id, 2.0 )
 
 # Copy Cross-Section to Clipboard
-vsp.CopyXSec( xsurf_id, 0)
+vsp.CopyXSec( fuse_id, 0)
 
 # Paste Cross-Section
-vsp.PasteXSec( xsurf_id, 1 )
-vsp.PasteXSec( xsurf_id, 2 )
-vsp.PasteXSec( xsurf_id, 3 )
+vsp.PasteXSec( fuse_id, 1 )
+vsp.PasteXSec( fuse_id, 2 )
+vsp.PasteXSec( fuse_id, 3 )
 
 # Change Type to File XSec
 
