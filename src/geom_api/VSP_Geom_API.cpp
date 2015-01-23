@@ -1225,6 +1225,65 @@ void DeleteSubSurf( const string & geom_id, const string & sub_id )
     ErrorMgr.NoError();
 }
 
+
+void CutXSec( const string & geom_id, int index )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "CutXSec::Can't Find Geom " + geom_id  );
+        return;
+    }
+
+    geom_ptr->CutXSec( index );
+    Update();
+
+    ErrorMgr.NoError();
+}
+void CopyXSec( const string & geom_id, int index )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "CutXSec::Can't Find Geom " + geom_id  );
+        return;
+    }
+
+    geom_ptr->CopyXSec( index );
+    ErrorMgr.NoError();
+
+}
+void PasteXSec( const string & geom_id, int index )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "CutXSec::Can't Find Geom " + geom_id  );
+        return;
+    }
+
+    geom_ptr->PasteXSec( index );
+    ErrorMgr.NoError();
+
+}
+void InsertXSec( const string & geom_id, int index, int type )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "CutXSec::Can't Find Geom " + geom_id  );
+        return;
+    }
+
+    geom_ptr->InsertXSec( index, type );
+    ErrorMgr.NoError();
+}
+
+
 //===================================================================//
 //===============       Wing Section Functions     ==================//
 //===================================================================//
@@ -1283,33 +1342,6 @@ string GetXSecSurf( const string & geom_id, int index )
     return xsec_surf->GetID();
 }
 
-///// Set the XSec type for the XSecSurf
-//void SetXSecType( const string & xsec_surf_id, int type )
-//{
-//    XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
-//    if ( !xsec_surf )
-//    {
-//        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecType::Can't Find XSecSurf " + xsec_surf_id  );
-//    }
-//
-//    ErrorMgr.NoError();
-//    return xsec_surf->SetXSecType( type );
-//}
-//
-///// Get the XSec type for the XSecSurf
-//int GetXSecType( const string & xsec_surf_id )
-//{
-//    XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
-//    if ( !xsec_surf )
-//    {
-//        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecType::Can't Find XSecSurf " + xsec_surf_id  );
-//        return 0;
-//    }
-//
-//    ErrorMgr.NoError();
-//    return xsec_surf->GetXSecType();
-//}
-
 /// Get the number of XSecs in the XSecSurf
 int GetNumXSec( const string & xsec_surf_id )
 {
@@ -1344,109 +1376,109 @@ string GetXSec( const string & xsec_surf_id, int xsec_index )
     return xsec->GetID();
 }
 
-/// Cut xsec from xsec_surf.  The xsec is stored in a clipboard and can be pasted.
-void CutXSec( const string & xsec_surf_id, int xsec_index )
-{
-    XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
-    if ( !xsec_surf )
-    {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "CutXSec::Can't Find XSecSurf " + xsec_surf_id  );
-        return;
-    }
-    if ( xsec_index < 0 || xsec_index >= xsec_surf->NumXSec() )
-    {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "CutXSec::XSec Index Out of Range " + xsec_surf_id + ":" + to_string( ( long long )xsec_index )  );
-        return;
-    }
+///// Cut xsec from xsec_surf.  The xsec is stored in a clipboard and can be pasted.
+//void CutXSec( const string & xsec_surf_id, int xsec_index )
+//{
+//    XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
+//    if ( !xsec_surf )
+//    {
+//        ErrorMgr.AddError( VSP_INVALID_PTR, "CutXSec::Can't Find XSecSurf " + xsec_surf_id  );
+//        return;
+//    }
+//    if ( xsec_index < 0 || xsec_index >= xsec_surf->NumXSec() )
+//    {
+//        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "CutXSec::XSec Index Out of Range " + xsec_surf_id + ":" + to_string( ( long long )xsec_index )  );
+//        return;
+//    }
+//
+//    ErrorMgr.NoError();
+//    xsec_surf->CutXSec( xsec_index );
+//}
 
-    ErrorMgr.NoError();
-    xsec_surf->CutXSec( xsec_index );
-}
+///// Copy xsec from xsec_surf.  The xsec is stored in a clipboard and can be pasted.
+//void CopyXSec( const string & xsec_surf_id, int xsec_index )
+//{
+//    XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
+//    if ( !xsec_surf )
+//    {
+//        ErrorMgr.AddError( VSP_INVALID_PTR, "CopyXSec::Can't Find XSecSurf " + xsec_surf_id  );
+//        return;
+//    }
+//    if ( xsec_index < 0 || xsec_index >= xsec_surf->NumXSec() )
+//    {
+//        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "CopyXSec::XSec Index Out of Range " + xsec_surf_id + ":" + to_string( ( long long )xsec_index )  );
+//        return;
+//    }
+//
+//    ErrorMgr.NoError();
+//    xsec_surf->CopyXSec( xsec_index );
+//}
 
-/// Copy xsec from xsec_surf.  The xsec is stored in a clipboard and can be pasted.
-void CopyXSec( const string & xsec_surf_id, int xsec_index )
-{
-    XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
-    if ( !xsec_surf )
-    {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "CopyXSec::Can't Find XSecSurf " + xsec_surf_id  );
-        return;
-    }
-    if ( xsec_index < 0 || xsec_index >= xsec_surf->NumXSec() )
-    {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "CopyXSec::XSec Index Out of Range " + xsec_surf_id + ":" + to_string( ( long long )xsec_index )  );
-        return;
-    }
+///// Paste xsec from clipboard to xsec_surf.  The pasted xsec replaces the xsec at xsec index.
+//void PasteXSec( const string & xsec_surf_id, int xsec_index )
+//{
+//    XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
+//    if ( !xsec_surf )
+//    {
+//        ErrorMgr.AddError( VSP_INVALID_PTR, "PasteXSec::Can't Find XSecSurf " + xsec_surf_id );
+//        return;
+//    }
+//    if ( xsec_index < 0 || xsec_index >= xsec_surf->NumXSec() )
+//    {
+//        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "PasteXSec::XSec Index Out of Range " + xsec_surf_id + ":" + to_string( ( long long )xsec_index )  );
+//        return;
+//    }
+//
+//    ErrorMgr.NoError();
+//    xsec_surf->PasteXSec( xsec_index );
+//}
 
-    ErrorMgr.NoError();
-    xsec_surf->CopyXSec( xsec_index );
-}
+///// Create an xsec of type type and add it to the end of xsecsurf
+//string AppendXSec( const string & xsec_surf_id, int type  )
+//{
+//    XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
+//    if ( !xsec_surf )
+//    {
+//        ErrorMgr.AddError( VSP_INVALID_PTR, "AddXSec::Can't Find XSecSurf " + xsec_surf_id  );
+//        return string();
+//    }
+//
+//    string id  = xsec_surf->AddXSec( type );
+//    if ( id.size() == 0 )
+//    {
+//        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "AddXSec::Invalid XSec Type " + to_string( ( long long ) type ) );
+//        return id;
+//    }
+//
+//    ErrorMgr.NoError();
+//    return id;
+//}
 
-/// Paste xsec from clipboard to xsec_surf.  The pasted xsec replaces the xsec at xsec index.
-void PasteXSec( const string & xsec_surf_id, int xsec_index )
-{
-    XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
-    if ( !xsec_surf )
-    {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "PasteXSec::Can't Find XSecSurf " + xsec_surf_id );
-        return;
-    }
-    if ( xsec_index < 0 || xsec_index >= xsec_surf->NumXSec() )
-    {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "PasteXSec::XSec Index Out of Range " + xsec_surf_id + ":" + to_string( ( long long )xsec_index )  );
-        return;
-    }
-
-    ErrorMgr.NoError();
-    xsec_surf->PasteXSec( xsec_index );
-}
-
-/// Create an xsec of type type and add it to the end of xsecsurf
-string AppendXSec( const string & xsec_surf_id, int type  )
-{
-    XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
-    if ( !xsec_surf )
-    {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "AddXSec::Can't Find XSecSurf " + xsec_surf_id  );
-        return string();
-    }
-
-    string id  = xsec_surf->AddXSec( type );
-    if ( id.size() == 0 )
-    {
-        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "AddXSec::Invalid XSec Type " + to_string( ( long long ) type ) );
-        return id;
-    }
-
-    ErrorMgr.NoError();
-    return id;
-}
-
-/// Create an xsec of type type and insert it after xsec_index
-string InsertXSec( const string & xsec_surf_id, int type, int xsec_index  )
-{
-    XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
-    if ( !xsec_surf )
-    {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "InsertXSec::Can't Find XSecSurf " + xsec_surf_id  );
-        return string();
-    }
-    if ( xsec_index < 0 || xsec_index >= xsec_surf->NumXSec() )
-    {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "InsertXSec::XSec Index Out of Range " + xsec_surf_id + ":" + to_string( ( long long )xsec_index )  );
-        return string();
-    }
-
-    string id  = xsec_surf->InsertXSec( type, xsec_index );
-    if ( id.size() == 0 )
-    {
-        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "InsertXSec::Invalid XSec Type " + to_string( ( long long ) type ) );
-        return id;
-    }
-
-    ErrorMgr.NoError();
-    return id;
-}
+///// Create an xsec of type type and insert it after xsec_index
+//string InsertXSec( const string & xsec_surf_id, int type, int xsec_index  )
+//{
+//    XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
+//    if ( !xsec_surf )
+//    {
+//        ErrorMgr.AddError( VSP_INVALID_PTR, "InsertXSec::Can't Find XSecSurf " + xsec_surf_id  );
+//        return string();
+//    }
+//    if ( xsec_index < 0 || xsec_index >= xsec_surf->NumXSec() )
+//    {
+//        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "InsertXSec::XSec Index Out of Range " + xsec_surf_id + ":" + to_string( ( long long )xsec_index )  );
+//        return string();
+//    }
+//
+//    string id  = xsec_surf->InsertXSec( type, xsec_index );
+//    if ( id.size() == 0 )
+//    {
+//        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "InsertXSec::Invalid XSec Type " + to_string( ( long long ) type ) );
+//        return id;
+//    }
+//
+//    ErrorMgr.NoError();
+//    return id;
+//}
 
 /// Create an xsec of type and insert it after xsec_index
 void ChangeXSecShape( const string & xsec_surf_id, int xsec_index, int type )

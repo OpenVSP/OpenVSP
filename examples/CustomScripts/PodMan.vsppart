@@ -212,9 +212,9 @@ void UpdateSurf()
 void BuildPod( string surf_id, double length, double width, double thickness, double tan_str = 1.0 )
 {
     //==== Add Cross-Sectopms ====//
-	string xsec0 = AppendXSec( surf_id, XS_POINT);
-	string xsec2 = AppendXSec( surf_id, XS_ELLIPSE );
-	string xsec4 = AppendXSec( surf_id, XS_POINT);
+	string xsec0 = AppendCustomXSec( surf_id, XS_POINT);
+	string xsec2 = AppendCustomXSec( surf_id, XS_ELLIPSE );
+	string xsec4 = AppendCustomXSec( surf_id, XS_POINT);
 
 	SetXSecTanAngles( xsec0, XSEC_BOTH_SIDES, 90 );
     SetXSecTanStrengths( xsec0, XSEC_BOTH_SIDES, width*tan_str );

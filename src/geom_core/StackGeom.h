@@ -35,6 +35,12 @@ public:
         return m_XSecSurf.NumXSec();
     }
 
+    //==== Override Geom Cut/Copy/Paste/Insert ====//
+    virtual void CutXSec( int index );
+    virtual void CopyXSec( int index );
+    virtual void PasteXSec( int index );
+    virtual void InsertXSec( int index, int type );
+
     virtual void SetActiveXSecType( int type );
     virtual void CutActiveXSec();
     virtual void CopyActiveXSec();

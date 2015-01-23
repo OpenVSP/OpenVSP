@@ -114,21 +114,19 @@ extern string AddSubSurf( const string & geom_id, int type );
 extern string GetSubSurf( const string & geom_id, int index );
 extern void DeleteSubSurf( const string & geom_id, const string & sub_id );
 
+extern void CutXSec( const string & geom_id, int index );
+extern void CopyXSec( const string & geom_id, int index );
+extern void PasteXSec( const string & geom_id, int index );
+extern void InsertXSec( const string & geom_id, int index, int type );
+
 //======================== Wing Section Functions ===================//
 extern void SetDriverGroup( const string & geom_id, int section_index, int driver_0, int driver_1, int driver_2 );
 
 
 //======================== XSecSurf ================================//
 extern string GetXSecSurf( const string & geom_id, int index );
-//extern void SetXSecType( const string & xsec_surf_id, int type );
-//extern int GetXSecType( const string & xsec_surf_id );
 extern int GetNumXSec( const string & xsec_surf_id );
 extern string GetXSec( const string & xsec_surf_id, int xsec_index );
-extern string AppendXSec( const string & xsec_surf_id, int type );
-extern void CutXSec( const string & xsec_surf_id, int xsec_index );
-extern void CopyXSec( const string & xsec_surf_id, int xsec_index );
-extern void PasteXSec( const string & xsec_surf_id, int xsec_index );
-extern string InsertXSec( const string & xsec_surf_id, int type, int xsec_index );
 extern void ChangeXSecShape( const string & xsec_surf_id, int xsec_index, int type );
 extern void SetXSecSurfGlobalXForm( const string & xsec_surf_id, const Matrix4d & mat );
 extern Matrix4d GetXSecSurfGlobalXForm( const string & xsec_surf_id );

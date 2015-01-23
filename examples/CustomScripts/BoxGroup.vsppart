@@ -168,10 +168,10 @@ void UpdateSurf()
 void BuildBox( string surf_id, double length, double width, double height )
 {
     //==== Add Cross-Sectopms ====//
-	string xsec0 = AppendXSec( surf_id, XS_POINT);
-	string xsec1 = AppendXSec( surf_id, XS_ROUNDED_RECTANGLE);
-	string xsec2 = AppendXSec( surf_id, XS_ROUNDED_RECTANGLE);
-	string xsec3 = AppendXSec( surf_id, XS_POINT);
+	string xsec0 = AppendCustomXSec( surf_id, XS_POINT);
+	string xsec1 = AppendCustomXSec( surf_id, XS_ROUNDED_RECTANGLE);
+	string xsec2 = AppendCustomXSec( surf_id, XS_ROUNDED_RECTANGLE);
+	string xsec3 = AppendCustomXSec( surf_id, XS_POINT);
 
 	//==== Define The First/Last XSec Placement ====//
 	SetCustomXSecLoc( xsec3, vec3d( length, 0, 0 ) );

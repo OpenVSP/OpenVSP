@@ -1011,6 +1011,32 @@ WingSect* WingGeom::GetWingSect( int index )
     return NULL;
 }
 
+//==== Override Geom Cut/Copy/Insert/Paste ====//
+void WingGeom::CutXSec( int index )
+{
+    SetActiveXSecIndex( index );
+    CutWingSect( index );
+}
+void WingGeom::CopyXSec( int index )
+{
+    CopyWingSect( index );
+}
+void WingGeom::PasteXSec( int index )
+{
+    PasteWingSect( index );
+}
+void WingGeom::InsertXSec( int index, int type )
+{
+    if ( index > 0 && index < m_XSecSurf.NumXSec() )
+    {
+        string ins_id = m_XSecSurf.InsertXSec(type, index);
+        SetActiveXSecIndex( index + 1 );
+        PasteWingSect( GetActiveXSecIndex() );
+    }
+}
+
+
+
 //==== Insert Wing Sect ====//
 void WingGeom::SplitWingSect( int index  )
 {

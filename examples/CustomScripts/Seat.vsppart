@@ -22,16 +22,16 @@ void Init()
 
 	//==== Add Cross Sections  =====//
 	string seat_surf = AddXSecSurf();
-	AppendXSec( seat_surf, XS_POINT);
-	AppendXSec( seat_surf, XS_ROUNDED_RECTANGLE);
-	AppendXSec( seat_surf, XS_ROUNDED_RECTANGLE);
-	AppendXSec( seat_surf, XS_POINT);
+	AppendCustomXSec( seat_surf, XS_POINT);
+	AppendCustomXSec( seat_surf, XS_ROUNDED_RECTANGLE);
+	AppendCustomXSec( seat_surf, XS_ROUNDED_RECTANGLE);
+	AppendCustomXSec( seat_surf, XS_POINT);
 
 	string back_surf = AddXSecSurf();
-	AppendXSec( back_surf, XS_POINT);
-	AppendXSec( back_surf, XS_ROUNDED_RECTANGLE);
-	AppendXSec( back_surf, XS_ROUNDED_RECTANGLE);
-	AppendXSec( back_surf, XS_POINT);
+	AppendCustomXSec( back_surf, XS_POINT);
+	AppendCustomXSec( back_surf, XS_ROUNDED_RECTANGLE);
+	AppendCustomXSec( back_surf, XS_ROUNDED_RECTANGLE);
+	AppendCustomXSec( back_surf, XS_POINT);
 
 	//==== Set Some Decent Tess Vals ====//
 	string geom_id = GetCurrCustomGeom();

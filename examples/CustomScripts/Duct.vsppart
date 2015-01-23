@@ -35,7 +35,7 @@ void Init()
     string xsec_surf = AddXSecSurf();
     for ( int i = 0 ; i < NUM_XSECS ; i++ )
     {
-	    AppendXSec( xsec_surf, XS_FOUR_SERIES);
+	    AppendCustomXSec( xsec_surf, XS_FOUR_SERIES);
     }
 
 	//==== Set Some Decent Tess Vals ====//

@@ -563,6 +563,13 @@ public:
     //==== Wake for CFD Mesh ====//
     BoolParm m_WakeActiveFlag;
 
+    //==== Basic Geom XSec Functions - Override ====//
+    virtual void CutXSec( int index )               {}
+    virtual void CopyXSec( int index )              {}
+    virtual void PasteXSec( int index )             {}
+    virtual void InsertXSec( int index, int type )  {}
+
+
 protected:
 
     bool m_UpdateBlock;

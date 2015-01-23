@@ -226,27 +226,55 @@ void StackGeom::SetActiveXSecType( int type )
     Update();
 }
 
-//==== Cut Active XSec ====//
-void StackGeom::CutActiveXSec()
+//==== Override Geom Cut/Copy/Paste/Insert ====//
+void StackGeom::CutXSec( int index )
 {
-    m_XSecSurf.CutXSec( m_ActiveXSec );
+    m_XSecSurf.CutXSec( index );
     SetActiveXSecIndex( GetActiveXSecIndex() );
     m_XSecSurf.FindXSec( m_ActiveXSec )->SetLateUpdateFlag( true );
     Update();
+}
+void StackGeom::CopyXSec( int index )
+{
+    m_XSecSurf.CopyXSec( index );
+}
+void StackGeom::PasteXSec( int index )
+{
+    m_XSecSurf.PasteXSec( index );
+    m_XSecSurf.FindXSec( index )->SetLateUpdateFlag( true );
+    Update();
+}
+void StackGeom::InsertXSec( int index, int type )
+{
+    SetActiveXSecIndex( index );
+    InsertXSec( type );
+}
+
+
+//==== Cut Active XSec ====//
+void StackGeom::CutActiveXSec()
+{
+    CutXSec( m_ActiveXSec );
+    //m_XSecSurf.CutXSec( m_ActiveXSec );
+    //SetActiveXSecIndex( GetActiveXSecIndex() );
+    //m_XSecSurf.FindXSec( m_ActiveXSec )->SetLateUpdateFlag( true );
+    //Update();
 }
 
 //==== Copy Active XSec ====//
 void StackGeom::CopyActiveXSec()
 {
-    m_XSecSurf.CopyXSec( m_ActiveXSec );
+    CopyXSec( m_ActiveXSec );
+//    m_XSecSurf.CopyXSec( m_ActiveXSec );
 }
 
 //==== Paste Cut/Copied XSec To Active XSec ====//
 void StackGeom::PasteActiveXSec()
 {
-    m_XSecSurf.PasteXSec( m_ActiveXSec );
-    m_XSecSurf.FindXSec( m_ActiveXSec )->SetLateUpdateFlag( true );
-    Update();
+    PasteXSec( m_ActiveXSec );
+    //m_XSecSurf.PasteXSec( m_ActiveXSec );
+    //m_XSecSurf.FindXSec( m_ActiveXSec )->SetLateUpdateFlag( true );
+    //Update();
 }
 
 //==== Insert XSec ====//
@@ -283,6 +311,8 @@ void StackGeom::InsertXSec( int type )
     {
         inserted_xs->CopyFrom( xs );
     }
+    if ( fabs(inserted_xs->m_XDelta()) < 0.0000001 )
+        inserted_xs->m_XDelta = 1.0;
 
     inserted_xs->SetLateUpdateFlag( true );
     Update();

@@ -61,9 +61,9 @@ void UpdateSurf()
 void BuildObj( string surf_id, double length, double dia )
 {
     //==== Add Cross-Sectopms ====//
-	string xsec0 = AppendXSec( surf_id, XS_POINT);
-	string xsec1 = AppendXSec( surf_id, XS_CIRCLE );
-	string xsec2 = AppendXSec( surf_id, XS_POINT);
+	string xsec0 = AppendCustomXSec( surf_id, XS_POINT);
+	string xsec1 = AppendCustomXSec( surf_id, XS_CIRCLE );
+	string xsec2 = AppendCustomXSec( surf_id, XS_POINT);
 
 	//==== Define The Middle XSecs ====//
 	SetCustomXSecLoc( xsec1, vec3d( length/2, 0, 0 ) );

@@ -389,6 +389,112 @@ vec3d CustomGeomMgrSingleton::GetCustomXSecRot( const string & xsec_id )
     return cxs->GetRot();
 }
 
+//=== Append Custom XSec ====//
+string CustomGeomMgrSingleton::AppendCustomXSec( const string & xsec_surf_id, int type )
+{
+    Geom* gptr = VehicleMgr.GetVehicle()->FindGeom( m_CurrGeom );
+
+    //==== Check If Geom is Valid and Correct Type ====//
+    if ( gptr && gptr->GetType().m_Type == CUSTOM_GEOM_TYPE )
+    {
+        CustomGeom* custom_geom = dynamic_cast<CustomGeom*>( gptr );
+
+        for ( int i = 0 ; i < custom_geom->GetNumXSecSurfs() ; i++ )
+        {
+            XSecSurf* xs_surf = custom_geom->GetXSecSurf( i );
+            if ( xs_surf && xs_surf->GetID() == xsec_surf_id )
+            {
+                return xs_surf->AddXSec( type );
+            }
+        }
+    }
+
+    return string();
+
+}
+
+//=== Cut Custom XSec ====//
+void CustomGeomMgrSingleton::CutCustomXSec( const string & xsec_surf_id, int index )
+{
+    Geom* gptr = VehicleMgr.GetVehicle()->FindGeom( m_CurrGeom );
+
+    //==== Check If Geom is Valid and Correct Type ====//
+    if ( gptr && gptr->GetType().m_Type == CUSTOM_GEOM_TYPE )
+    {
+        CustomGeom* custom_geom = dynamic_cast<CustomGeom*>( gptr );
+        int num = custom_geom->GetNumXSecSurfs();
+        for ( int i = 0 ; i < num ; i++ )
+        {
+            XSecSurf* xs_surf = custom_geom->GetXSecSurf( i );
+            if ( xs_surf && xs_surf->GetID() == xsec_surf_id )
+            {
+                xs_surf->CutXSec( index );
+            }
+        }
+    }
+}
+
+//=== Copy Custom XSec ====//
+void CustomGeomMgrSingleton::CopyCustomXSec( const string & xsec_surf_id, int index )
+{
+    Geom* gptr = VehicleMgr.GetVehicle()->FindGeom( m_CurrGeom );
+
+    //==== Check If Geom is Valid and Correct Type ====//
+    if ( gptr && gptr->GetType().m_Type == CUSTOM_GEOM_TYPE )
+    {
+        CustomGeom* custom_geom = dynamic_cast<CustomGeom*>( gptr );
+        int num = custom_geom->GetNumXSecSurfs();
+        for ( int i = 0 ; i < num ; i++ )
+        {
+            XSecSurf* xs_surf = custom_geom->GetXSecSurf( i );
+            if ( xs_surf && xs_surf->GetID() == xsec_surf_id )
+            {
+                xs_surf->CopyXSec( index );
+            }
+        }
+    }
+}
+
+//=== Paste Custom XSec ====//
+void CustomGeomMgrSingleton::PasteCustomXSec( const string & xsec_surf_id, int index )
+{
+    Geom* gptr = VehicleMgr.GetVehicle()->FindGeom( m_CurrGeom );
+
+    //==== Check If Geom is Valid and Correct Type ====//
+    if ( gptr && gptr->GetType().m_Type == CUSTOM_GEOM_TYPE )
+    {
+        CustomGeom* custom_geom = dynamic_cast<CustomGeom*>( gptr );
+        for ( int i = 0 ; i < custom_geom->GetNumXSecSurfs() ; i++ )
+        {
+            XSecSurf* xs_surf = custom_geom->GetXSecSurf( i );
+            if ( xs_surf && xs_surf->GetID() == xsec_surf_id )
+            {
+                xs_surf->PasteXSec( index );
+            }
+        }
+    }
+}
+
+//=== Insert Custom XSec ====//
+string CustomGeomMgrSingleton::InsertCustomXSec( const string & xsec_surf_id, int type, int index )
+{
+    Geom* gptr = VehicleMgr.GetVehicle()->FindGeom( m_CurrGeom );
+
+    //==== Check If Geom is Valid and Correct Type ====//
+    if ( gptr && gptr->GetType().m_Type == CUSTOM_GEOM_TYPE )
+    {
+        CustomGeom* custom_geom = dynamic_cast<CustomGeom*>( gptr );
+        for ( int i = 0 ; i < custom_geom->GetNumXSecSurfs() ; i++ )
+        {
+            XSecSurf* xs_surf = custom_geom->GetXSecSurf( i );
+            if ( xs_surf && xs_surf->GetID() == xsec_surf_id )
+            {
+                return xs_surf->InsertXSec( type, index );
+            }
+        }
+    }
+    return string();
+}
 
 //==== Get All Custom Script Module Name ====//
 vector< string > CustomGeomMgrSingleton::GetCustomScriptModuleNames()

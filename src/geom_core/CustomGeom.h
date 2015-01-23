@@ -103,6 +103,13 @@ public:
     void SetCustomXSecRot( const string & xsec_id, const vec3d & rot );
     vec3d GetCustomXSecRot( const string & xsec_id );
 
+    //==== Append Cut Copy Paste Insert ====//
+    string AppendCustomXSec( const string & xsec_surf_id, int type );
+    void CutCustomXSec( const string & xsec_surf_id, int index );
+    void CopyCustomXSec( const string & xsec_surf_id, int index );
+    void PasteCustomXSec( const string & xsec_surf_id, int index );
+    string InsertCustomXSec( const string & xsec_surf_id, int type, int index );
+
     //==== Get All Custom Script Module Name ====//
     vector< string > GetCustomScriptModuleNames();
 

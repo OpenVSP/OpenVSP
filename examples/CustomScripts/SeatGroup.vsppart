@@ -201,10 +201,10 @@ void UpdateSurf()
 //==== Create The Seat Bottom ====//
 void BuildSeatBottom( string surf_id, double width, double length, double height  )
 {
-	string xsec0 = AppendXSec( surf_id, XS_POINT);
-	string xsec1 = AppendXSec( surf_id, XS_ROUNDED_RECTANGLE);
-	string xsec2 = AppendXSec( surf_id, XS_ROUNDED_RECTANGLE);
-	string xsec3 = AppendXSec( surf_id, XS_POINT);
+	string xsec0 = AppendCustomXSec( surf_id, XS_POINT);
+	string xsec1 = AppendCustomXSec( surf_id, XS_ROUNDED_RECTANGLE);
+	string xsec2 = AppendCustomXSec( surf_id, XS_ROUNDED_RECTANGLE);
+	string xsec3 = AppendCustomXSec( surf_id, XS_POINT);
 	
     double rad = width*0.1;
 	SetParmVal( GetXSecParm( xsec1, "RoundRectXSec_Radius" ), rad );

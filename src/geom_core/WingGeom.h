@@ -125,6 +125,11 @@ public:
     //==== Set Drag Factors ====//
     virtual void LoadDragFactors( DragFactors& drag_factors );
 
+    //==== Override Geom Cut/Copy/Paste/Insert ====//
+    virtual void CutXSec( int index );
+    virtual void CopyXSec( int index );
+    virtual void PasteXSec( int index );
+    virtual void InsertXSec( int index, int type );
 
     virtual WingSect* GetWingSect( int index );
     virtual void SplitWingSect( int index );

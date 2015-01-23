@@ -227,26 +227,44 @@ void FuselageGeom::SetActiveXSecType( int type )
     Update();
 }
 
+//==== Override Geom Cut/Copy/Insert/Paste ====//
+void FuselageGeom::CutXSec( int index )
+{
+    m_XSecSurf.CutXSec( index );
+    SetActiveXSecIndex( GetActiveXSecIndex() );
+    Update();
+}
+void FuselageGeom::CopyXSec( int index )
+{
+    m_XSecSurf.CopyXSec( index );
+}
+void FuselageGeom::PasteXSec( int index )
+{
+    m_XSecSurf.PasteXSec( index );
+    Update();
+}
+void FuselageGeom::InsertXSec( int index, int type )
+{
+    SetActiveXSecIndex( index );
+    InsertXSec( type );
+}
+
 //==== Cut Active XSec ====//
 void FuselageGeom::CutActiveXSec()
 {
-    m_XSecSurf.CutXSec( m_ActiveXSec );
-    SetActiveXSecIndex( GetActiveXSecIndex() );
-    Update();
+    CutXSec( m_ActiveXSec );
 }
 
 //==== Copy Active XSec ====//
 void FuselageGeom::CopyActiveXSec()
 {
-    m_XSecSurf.CopyXSec( m_ActiveXSec );
+    CopyXSec( m_ActiveXSec );
 }
 
 //==== Paste Cut/Copied XSec To Active XSec ====//
 void FuselageGeom::PasteActiveXSec()
 {
-    m_XSecSurf.PasteXSec( m_ActiveXSec );
-
-    Update();
+    PasteXSec( m_ActiveXSec );
 }
 
 //==== Insert XSec ====//

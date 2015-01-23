@@ -19,10 +19,10 @@ void Init()
 
 	//==== Add Cross Sections  =====//
 	string xsec_surf = AddXSecSurf();
-	AppendXSec( xsec_surf, XS_POINT);
-	AppendXSec( xsec_surf, XS_ROUNDED_RECTANGLE);
-	AppendXSec( xsec_surf, XS_ROUNDED_RECTANGLE);
-	AppendXSec( xsec_surf, XS_POINT);
+	AppendCustomXSec( xsec_surf, XS_POINT);
+	AppendCustomXSec( xsec_surf, XS_ROUNDED_RECTANGLE);
+	AppendCustomXSec( xsec_surf, XS_ROUNDED_RECTANGLE);
+	AppendCustomXSec( xsec_surf, XS_POINT);
 
 	//==== Set Some Decent Tess Vals ====//
 	string geom_id = GetCurrCustomGeom();
