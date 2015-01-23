@@ -590,18 +590,18 @@ void WingSect::CopyBasePos( XSec* xs )
 vector< string > WingSect::GetDriverParms()
 {
     vector< string > parm_ids;
-    parm_ids.resize( WingDriverGroup::NUM_WSECT_DRIVER + 3 );
-    parm_ids[ WingDriverGroup::AR_WSECT_DRIVER ] = m_Aspect.GetID();
-    parm_ids[ WingDriverGroup::SPAN_WSECT_DRIVER ] = m_Span.GetID();
-    parm_ids[ WingDriverGroup::AREA_WSECT_DRIVER ] = m_Area.GetID();
-    parm_ids[ WingDriverGroup::TAPER_WSECT_DRIVER ] = m_Taper.GetID();
-    parm_ids[ WingDriverGroup::AVEC_WSECT_DRIVER ] = m_AvgChord.GetID();
-    parm_ids[ WingDriverGroup::ROOTC_WSECT_DRIVER ] = m_RootChord.GetID();
-    parm_ids[ WingDriverGroup::TIPC_WSECT_DRIVER ] = m_TipChord.GetID();
-    parm_ids[ WingDriverGroup::SECSWEEP_WSECT_DRIVER ] = m_SecSweep.GetID();
-    parm_ids[ WingDriverGroup::SWEEP_WSECT_DRIVER ] = m_Sweep.GetID();
-    parm_ids[ WingDriverGroup::SWEEPLOC_WSECT_DRIVER ] = m_SweepLoc.GetID();
-    parm_ids[ WingDriverGroup::SECSWEEPLOC_WSECT_DRIVER ] = m_SecSweepLoc.GetID();
+    parm_ids.resize( vsp::NUM_WSECT_DRIVER + 3 );
+    parm_ids[ vsp::AR_WSECT_DRIVER ] = m_Aspect.GetID();
+    parm_ids[ vsp::SPAN_WSECT_DRIVER ] = m_Span.GetID();
+    parm_ids[ vsp::AREA_WSECT_DRIVER ] = m_Area.GetID();
+    parm_ids[ vsp::TAPER_WSECT_DRIVER ] = m_Taper.GetID();
+    parm_ids[ vsp::AVEC_WSECT_DRIVER ] = m_AvgChord.GetID();
+    parm_ids[ vsp::ROOTC_WSECT_DRIVER ] = m_RootChord.GetID();
+    parm_ids[ vsp::TIPC_WSECT_DRIVER ] = m_TipChord.GetID();
+    parm_ids[ vsp::SECSWEEP_WSECT_DRIVER ] = m_SecSweep.GetID();
+    parm_ids[ vsp::SWEEP_WSECT_DRIVER ] = m_Sweep.GetID();
+    parm_ids[ vsp::SWEEPLOC_WSECT_DRIVER ] = m_SweepLoc.GetID();
+    parm_ids[ vsp::SECSWEEPLOC_WSECT_DRIVER ] = m_SecSweepLoc.GetID();
 
     return parm_ids;
 }
@@ -609,9 +609,9 @@ vector< string > WingSect::GetDriverParms()
 void WingSect::ForceChordVal( double val, bool root_chord_flag )
 {
     vector<int> span_rc_tc;
-    span_rc_tc.push_back( WingDriverGroup::SPAN_WSECT_DRIVER );
-    span_rc_tc.push_back( WingDriverGroup::ROOTC_WSECT_DRIVER );
-    span_rc_tc.push_back( WingDriverGroup::TIPC_WSECT_DRIVER );
+    span_rc_tc.push_back( vsp::SPAN_WSECT_DRIVER );
+    span_rc_tc.push_back( vsp::ROOTC_WSECT_DRIVER );
+    span_rc_tc.push_back( vsp::TIPC_WSECT_DRIVER );
 
     vector< int > save_choice_vec = m_DriverGroup.GetChoices();
     m_DriverGroup.SetChoices( span_rc_tc );
@@ -631,9 +631,9 @@ void WingSect::ForceChordVal( double val, bool root_chord_flag )
 void WingSect::ForceSpanRcTc(  double span, double rc, double tc )
 {
     vector<int> span_rc_tc;
-    span_rc_tc.push_back( WingDriverGroup::SPAN_WSECT_DRIVER );
-    span_rc_tc.push_back( WingDriverGroup::ROOTC_WSECT_DRIVER );
-    span_rc_tc.push_back( WingDriverGroup::TIPC_WSECT_DRIVER );
+    span_rc_tc.push_back( vsp::SPAN_WSECT_DRIVER );
+    span_rc_tc.push_back( vsp::ROOTC_WSECT_DRIVER );
+    span_rc_tc.push_back( vsp::TIPC_WSECT_DRIVER );
 
     vector< int > save_choice_vec = m_DriverGroup.GetChoices();
     m_DriverGroup.SetChoices( span_rc_tc );
@@ -652,9 +652,9 @@ void WingSect::ForceSpanRcTc(  double span, double rc, double tc )
 void WingSect::ForceAspectTaperArea( double aspect, double taper, double area )
 {
     vector<int> aspect_taper_area;
-    aspect_taper_area.push_back( WingDriverGroup::AR_WSECT_DRIVER );
-    aspect_taper_area.push_back( WingDriverGroup::TAPER_WSECT_DRIVER );
-    aspect_taper_area.push_back( WingDriverGroup::AREA_WSECT_DRIVER );
+    aspect_taper_area.push_back( vsp::AR_WSECT_DRIVER );
+    aspect_taper_area.push_back( vsp::TAPER_WSECT_DRIVER );
+    aspect_taper_area.push_back( vsp::AREA_WSECT_DRIVER );
 
     vector< int > save_choice_vec = m_DriverGroup.GetChoices();
     m_DriverGroup.SetChoices( aspect_taper_area );

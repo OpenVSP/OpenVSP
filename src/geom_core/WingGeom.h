@@ -22,13 +22,6 @@ double CalcTanSweepAt( double loc, double sweep, double baseloc, double aspect, 
 class WingDriverGroup : public DriverGroup
 {
 public:
-    enum { AR_WSECT_DRIVER, SPAN_WSECT_DRIVER, AREA_WSECT_DRIVER, TAPER_WSECT_DRIVER,
-           AVEC_WSECT_DRIVER, ROOTC_WSECT_DRIVER, TIPC_WSECT_DRIVER, SECSWEEP_WSECT_DRIVER,
-           NUM_WSECT_DRIVER,
-           SWEEP_WSECT_DRIVER = SECSWEEP_WSECT_DRIVER + 1,
-           SWEEPLOC_WSECT_DRIVER = SECSWEEP_WSECT_DRIVER + 2,
-           SECSWEEPLOC_WSECT_DRIVER = SECSWEEP_WSECT_DRIVER + 3
-         };
 
     WingDriverGroup();
 

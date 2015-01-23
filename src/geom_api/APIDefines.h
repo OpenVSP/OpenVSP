@@ -199,6 +199,19 @@ enum SUBSURF_TYPE { SS_LINE,
                     SS_ELLIPSE,
                     SS_NUM_TYPES };
 
+enum WING_DRIVERS { AR_WSECT_DRIVER,
+                    SPAN_WSECT_DRIVER,
+                    AREA_WSECT_DRIVER,
+                    TAPER_WSECT_DRIVER,
+                    AVEC_WSECT_DRIVER,
+                    ROOTC_WSECT_DRIVER,
+                    TIPC_WSECT_DRIVER,
+                    SECSWEEP_WSECT_DRIVER,
+                    NUM_WSECT_DRIVER,
+                    SWEEP_WSECT_DRIVER = SECSWEEP_WSECT_DRIVER + 1,
+                    SWEEPLOC_WSECT_DRIVER = SECSWEEP_WSECT_DRIVER + 2,
+                    SECSWEEPLOC_WSECT_DRIVER = SECSWEEP_WSECT_DRIVER + 3,
+                  };
 
 }   // Namespace
 

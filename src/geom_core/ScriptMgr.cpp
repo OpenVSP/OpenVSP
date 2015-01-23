@@ -718,6 +718,24 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "SUBSURF_TYPE", "SS_ELLIPSE", SS_ELLIPSE );
     assert( r >= 0 );
 
+    r = se->RegisterEnum( "WING_DRIVERS" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "WING_DRIVERS", "AR_WSECT_DRIVER", vsp::AR_WSECT_DRIVER );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "WING_DRIVERS", "SPAN_WSECT_DRIVER", vsp::SPAN_WSECT_DRIVER );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "WING_DRIVERS", "AREA_WSECT_DRIVER", vsp::AREA_WSECT_DRIVER );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "WING_DRIVERS", "TAPER_WSECT_DRIVER", vsp::TAPER_WSECT_DRIVER );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "WING_DRIVERS", "AVEC_WSECT_DRIVER", vsp::AVEC_WSECT_DRIVER );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "WING_DRIVERS", "ROOTC_WSECT_DRIVER", vsp::ROOTC_WSECT_DRIVER );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "WING_DRIVERS", "TIPC_WSECT_DRIVER", vsp::TIPC_WSECT_DRIVER );
+    assert( r >= 0 );
+
+
     r = se->RegisterEnum( "ERROR_CODE" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "ERROR_CODE", "VSP_OK", vsp::VSP_OK );
@@ -1164,6 +1182,9 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "void DeleteSubSurf( const string & in geom_id, const string & in sub_id )", asFUNCTION( vsp::DeleteSubSurf ), asCALL_CDECL );
     assert( r >= 0 );
 
+    //==== Wing Sect Functions ====//
+    r = se->RegisterGlobalFunction( "void SetDriverGroup( const string & in geom_id, int section_index, int driver_0, int driver_1, int driver_2)", asFUNCTION( vsp::SetDriverGroup ), asCALL_CDECL );
+    assert( r >= 0 );
 
     //==== XSecSurf Functions ====//
     r = se->RegisterGlobalFunction( "string GetXSecSurf( const string & in geom_id, int index )", asFUNCTION( vsp::GetXSecSurf ), asCALL_CDECL );

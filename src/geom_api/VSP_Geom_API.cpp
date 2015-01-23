@@ -20,6 +20,7 @@
 #include "Util.h"
 #include "DesignVarMgr.h"
 #include "SubSurfaceMgr.h"
+#include "WingGeom.h"
 
 #ifdef VSP_USE_FLTK
 #include "GuiInterface.h"
@@ -1215,6 +1216,39 @@ void DeleteSubSurf( const string & geom_id, const string & sub_id )
         return;
     }
     geom_ptr->DelSubSurf( index );
+    ErrorMgr.NoError();
+}
+
+//===================================================================//
+//===============       Wing Section Functions     ==================//
+//===================================================================//
+void SetDriverGroup( const string & geom_id, int section_index, int driver_0, int driver_1, int driver_2 )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetDriverGroup::Can't Find Geom " + geom_id  );
+        return;
+    }
+
+    WingGeom* wg = dynamic_cast< WingGeom* >(geom_ptr);
+    if ( !wg )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetDriverGroup::Invalid Geom Type " + geom_id  );
+        return;
+    }
+
+    WingSect* ws = wg->GetWingSect( section_index );
+    if ( !ws )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetDriverGroup::Invalid Wing Section Index " + section_index  );
+        return;
+    }
+
+    ws->m_DriverGroup.SetChoice( 0, driver_0 );
+    ws->m_DriverGroup.SetChoice( 1, driver_1 );
+    ws->m_DriverGroup.SetChoice( 2, driver_2 );
     ErrorMgr.NoError();
 }
 

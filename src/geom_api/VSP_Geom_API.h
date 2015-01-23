@@ -113,6 +113,9 @@ extern string AddSubSurf( const string & geom_id, int type );
 extern string GetSubSurf( const string & geom_id, int index );
 extern void DeleteSubSurf( const string & geom_id, const string & sub_id );
 
+//======================== Wing Section Functions ===================//
+extern void SetDriverGroup( const string & geom_id, int section_index, int driver_0, int driver_1, int driver_2 );
+
 
 //======================== XSecSurf ================================//
 extern string GetXSecSurf( const string & geom_id, int index );

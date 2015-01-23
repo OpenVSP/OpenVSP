@@ -100,16 +100,16 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 640, "Wing" )
     m_SectionLayout.SetSameLineFlag( false );
 
     vector < string > wsect_driver_labels;
-    wsect_driver_labels.resize( WingDriverGroup::NUM_WSECT_DRIVER );
+    wsect_driver_labels.resize( vsp::NUM_WSECT_DRIVER );
 
-    wsect_driver_labels[WingDriverGroup::AR_WSECT_DRIVER] = string( "AR" );
-    wsect_driver_labels[WingDriverGroup::SPAN_WSECT_DRIVER] = "Span";
-    wsect_driver_labels[WingDriverGroup::AREA_WSECT_DRIVER] = "Area";
-    wsect_driver_labels[WingDriverGroup::TAPER_WSECT_DRIVER] = "Taper";
-    wsect_driver_labels[WingDriverGroup::AVEC_WSECT_DRIVER] = "Ave C";
-    wsect_driver_labels[WingDriverGroup::ROOTC_WSECT_DRIVER] = "Root C";
-    wsect_driver_labels[WingDriverGroup::TIPC_WSECT_DRIVER] = "Tip C";
-    wsect_driver_labels[WingDriverGroup::SECSWEEP_WSECT_DRIVER] = "Sec SW";
+    wsect_driver_labels[vsp::AR_WSECT_DRIVER] = string( "AR" );
+    wsect_driver_labels[vsp::SPAN_WSECT_DRIVER] = "Span";
+    wsect_driver_labels[vsp::AREA_WSECT_DRIVER] = "Area";
+    wsect_driver_labels[vsp::TAPER_WSECT_DRIVER] = "Taper";
+    wsect_driver_labels[vsp::AVEC_WSECT_DRIVER] = "Ave C";
+    wsect_driver_labels[vsp::ROOTC_WSECT_DRIVER] = "Root C";
+    wsect_driver_labels[vsp::TIPC_WSECT_DRIVER] = "Tip C";
+    wsect_driver_labels[vsp::SECSWEEP_WSECT_DRIVER] = "Sec SW";
 
     m_SectionLayout.SetButtonWidth( 50 );
 
