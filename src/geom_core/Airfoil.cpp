@@ -176,13 +176,17 @@ void SixSeries::Update()
 
     //==== Load Points ====//
     vector< vec3d > pnts;
+    pnts.resize( num_pnts_lower + num_pnts_upper - 2 );
+    int k = 0;
     for ( int i = num_pnts_lower - 1 ; i >= 0 ; i-- )
     {
-        pnts.push_back( vec3d( sixpnts_.xxl[i], sixpnts_.yyl[i], 0.0 ) );
+        pnts[k] = vec3d( sixpnts_.xxl[i], sixpnts_.yyl[i], 0.0 );
+        k++;
     }
     for ( int i = 1 ; i < num_pnts_upper - 1 ; i++ )
     {
-        pnts.push_back( vec3d( sixpnts_.xxu[i], sixpnts_.yyu[i], 0.0 ) );
+        pnts[k] = vec3d( sixpnts_.xxu[i], sixpnts_.yyu[i], 0.0 );
+        k++;
     }
 
     //==== Close Trailing Edge - Set Last Points ====//
@@ -192,35 +196,27 @@ void SixSeries::Update()
 
     vector< double > arclen;
     int npts = pnts.size();
+    arclen.resize( npts + 1 );
+    arclen[0] = 0.0;
 
-    int i;
-    for ( i = 0 ; i < npts ; i++ )
+    for ( int i = 1 ; i < npts ; i++ )
     {
-        if ( i > 0 )
+        double ds = dist( pnts[i], pnts[i-1] );
+        if ( ds < 1e-8 )
         {
-            double ds = dist( pnts[i], pnts[i-1] );
-            if ( ds < 1e-8 )
-            {
-                ds = 1.0/npts;
-            }
-            arclen.push_back( arclen[i-1] + ds );
+            ds = 1.0/npts;
         }
-        else
-        {
-            arclen.push_back( 0 );
-        }
-
-        // Calculate arclen to repeated final point.
-        if ( i == npts - 1 )
-        {
-            double ds = dist( pnts[i], pnts[0] );
-            if ( ds < 1e-8 )
-            {
-                ds = 1.0/npts;
-            }
-            arclen.push_back( arclen[i] + ds );
-        }
+        arclen[i] = arclen[i-1] + ds;
     }
+
+    // Calculate arclen to repeated final point.
+    double ds = dist( pnts[npts - 1], pnts[0] );
+    if ( ds < 1e-8 )
+    {
+        ds = 1.0/npts;
+    }
+    arclen[npts] = arclen[npts-1] + ds;
+
 
     double lenscale = 4.0/arclen.back();
 
