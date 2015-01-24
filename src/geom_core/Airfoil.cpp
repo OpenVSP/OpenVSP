@@ -217,12 +217,21 @@ void SixSeries::Update()
     }
     arclen[npts] = arclen[npts-1] + ds;
 
+    int ile = num_pnts_lower - 1;
+    double lenlower = arclen[ile];
+    double lenupper = arclen[npts] - lenlower;
 
-    double lenscale = 4.0/arclen.back();
-
-    for ( int i = 0; i < (int)arclen.size(); i++ )
+    double lowerscale = 2.0/lenlower;
+    int i;
+    for ( i = 0; i < ile; i++ )
     {
-        arclen[i] = arclen[i] * lenscale;
+        arclen[i] = arclen[i] * lowerscale;
+    }
+
+    double upperscale = 2.0/lenupper;
+    for ( ; i < npts + 1; i++ )
+    {
+        arclen[i] = 2.0 + ( arclen[i] - lenlower) * upperscale;
     }
 
     m_Curve.InterpolatePCHIP( pnts, arclen, true );
