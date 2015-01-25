@@ -390,6 +390,9 @@ bool WingScreen::Update()
     m_PlanChordSlider.Update( wing_ptr->m_TotalChord.GetID() );
     m_PlanAreaSlider.Update( wing_ptr->m_TotalArea.GetID() );
 
+    sprintf( str, "%6.4f", wing_ptr->m_TotalProjSpan() * wing_ptr->m_TotalProjSpan() / wing_ptr->m_TotalArea() );
+    m_PlanAROutput.Update( str );
+
     m_RootCapTypeChoice.Update( wing_ptr->m_CapUMinOption.GetID() );
     if ( wing_ptr->m_CapUMinOption() == VspSurf::NO_END_CAP )
     {
