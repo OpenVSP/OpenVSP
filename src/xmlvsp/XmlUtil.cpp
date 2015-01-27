@@ -7,6 +7,7 @@
 #include <algorithm>
 #include "XmlUtil.h"
 #include "StringUtil.h"
+#include <cfloat>
 
 //==== Get Number of Same Names ====//
 int XmlUtil::GetNumNames( xmlNodePtr node, const char * name )
@@ -237,7 +238,7 @@ xmlNodePtr XmlUtil::AddDoubleNode( xmlNodePtr root, const char * name, double va
     char str[255];
     xmlNodePtr node = xmlNewChild( root, NULL, ( const xmlChar * )name, NULL );
 
-    sprintf( str, "%lf", val );
+    sprintf( str, "%.*e", DBL_DIG + 3, val );
 
     xmlNodeSetContent( node, ( const xmlChar * )str );
 
@@ -264,7 +265,7 @@ void XmlUtil::SetIntProp( xmlNodePtr root, const char * name, int val )
 void XmlUtil::SetDoubleProp( xmlNodePtr root, const char * name, double val )
 {
     char str[255];
-    sprintf( str, "%lf", val );
+    sprintf( str, "%.*e", DBL_DIG + 3, val );
     xmlSetProp( root, ( const xmlChar * )name, ( const xmlChar * )str );
 }
 
@@ -440,7 +441,7 @@ xmlNodePtr XmlUtil::AddVectorDoubleNode( xmlNodePtr root, const char * name, vec
     char buff[256];
     for ( int i = 0 ; i < ( int )vec.size() ; i++ )
     {
-        sprintf( buff, "%lf, ", vec[i] );
+        sprintf( buff, "%.*e, ", DBL_DIG + 3, vec[i] );
         str.append( buff );
     }
     str.append( "\0" );
