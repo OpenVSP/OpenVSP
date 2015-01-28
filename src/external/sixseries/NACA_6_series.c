@@ -397,13 +397,13 @@ L400:
 	r__2 = xt[10] - an;
 /* Computing 2nd power */
 	r__3 = an;
-	bn = (float)(sqrt(fabs((r__1 * r__1) / (1.f - (r__2 * r__2) / (r__3 * r__3)))));
+	bn = (float)(sqrt(dabs((r__1 * r__1) / (1.f - (r__2 * r__2) / (r__3 * r__3)))));
 	for (j = 1; j <= 10; ++j) {
 /* Computing 2nd power */
 	    r__1 = xt[j - 1] - an;
 /* Computing 2nd power */
 	    r__2 = an;
-	    yt[j - 1] = (float)(bn * sqrt(fabs(1.f - (r__1 * r__1) / (r__2 * r__2))) + cn *
+	    yt[j - 1] = (float)(bn * sqrt(dabs(1.f - (r__1 * r__1) / (r__2 * r__2))) + cn *
 		    xt[j - 1]);
 	    if (xt[j - 1] <= e) {
 		goto L510;
