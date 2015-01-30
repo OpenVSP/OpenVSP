@@ -2549,6 +2549,7 @@ void Vehicle::CreateDegenGeom( int set )
         }
     }
 
+    vector< string > active_vec_store = GetActiveGeomVec();
 
     string id = AddMeshGeom( set );
     if ( id.compare( "NONE" ) != 0 )
@@ -2573,6 +2574,7 @@ void Vehicle::CreateDegenGeom( int set )
         }
     }
 
+    SetActiveGeomVec( active_vec_store );
 }
 
 //==== Write Degen Geom File ====//
