@@ -410,7 +410,16 @@ void DegenGeom::createDegenPlate( DegenPlate &degenPlate, const vector< vector< 
             }
 
             xVec[j]  = chordPnt;
-            zVec[j]  = dist( camberPnt, chordPnt );
+
+            vec3d zv = camberPnt - chordPnt;
+            if ( dot( zv, nCVec[j] ) >= 0.0 )
+            {
+                zVec[j] = zv.mag();
+            }
+            else
+            {
+                zVec[j] = -zv.mag();
+            }
         }
 
         xMat.push_back( xVec );
