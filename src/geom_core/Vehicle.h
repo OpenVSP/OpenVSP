@@ -185,27 +185,15 @@ public:
     void setExportFileName( int type, string f_name );
     void resetExportFileNames();
 
-    bool getExportCompGeomCsvFile()                    { return m_exportCompGeomCsvFile; }
-    bool getExportDragBuildTsvFile()                { return m_exportDragBuildTsvFile; }
-    void setExportCompGeomCsvFile( bool b )            { m_exportCompGeomCsvFile = b; }
-    void setExportDragBuildTsvFile( bool b )        { m_exportDragBuildTsvFile = b; }
+    bool getExportCompGeomCsvFile()                    { return m_exportCompGeomCsvFile(); }
+    bool getExportDragBuildTsvFile()                   { return m_exportDragBuildTsvFile(); }
+    void setExportCompGeomCsvFile( bool b )            { m_exportCompGeomCsvFile.Set( b ); }
+    void setExportDragBuildTsvFile( bool b )           { m_exportDragBuildTsvFile.Set( b ); }
 
-    bool getExportDegenGeomCsvFile( )
-    {
-        return m_exportDegenGeomCsvFile;
-    }
-    bool getExportDegenGeomMFile( )
-    {
-        return m_exportDegenGeomMFile;
-    }
-    void setExportDegenGeomCsvFile( bool b )
-    {
-        m_exportDegenGeomCsvFile = b;
-    }
-    void setExportDegenGeomMFile( bool b )
-    {
-        m_exportDegenGeomMFile = b;
-    }
+    bool getExportDegenGeomCsvFile( )                  { return m_exportDegenGeomCsvFile(); }
+    bool getExportDegenGeomMFile( )                    { return m_exportDegenGeomMFile(); }
+    void setExportDegenGeomCsvFile( bool b )           { m_exportDegenGeomCsvFile.Set( b ); }
+    void setExportDegenGeomMFile( bool b )             { m_exportDegenGeomMFile.Set( b ); }
 
     //==== Import Files ====//
     string ImportFile( const string & file_name, int file_type );
@@ -268,6 +256,11 @@ public:
 
     BoolParm m_STLMultiSolid;
 
+    BoolParm m_exportCompGeomCsvFile;
+    BoolParm m_exportDragBuildTsvFile;
+    BoolParm m_exportDegenGeomCsvFile;
+    BoolParm m_exportDegenGeomMFile;
+
 protected:
 
     vector< Geom* > m_GeomStoreVec;                 // All Geom Ptrs
@@ -296,11 +289,6 @@ protected:
 
     //==== Export Files ====//
     map< int, string > m_ExportFileNames;
-
-    bool m_exportCompGeomCsvFile;
-    bool m_exportDragBuildTsvFile;
-    bool m_exportDegenGeomCsvFile;
-    bool m_exportDegenGeomMFile;
 
     void DeleteGeom( const string & geom_id );
 

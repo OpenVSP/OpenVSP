@@ -57,6 +57,11 @@ Vehicle::Vehicle()
     m_BbYMin.SetDescript( "Minimum Y coordinate of vehicle bounding box" );
     m_BbZMin.Init( "Z_Min", "BBox", this, 0, -1e12, 1e12 );
     m_BbZMin.SetDescript( "Minimum Z coordinate of vehicle bounding box" );
+
+    m_exportCompGeomCsvFile.Init( "CompGeom_CSV_Export", "ExportFlag", this, true, 0, 1 );
+    m_exportDragBuildTsvFile.Init( "DragBuild_TSV_Export", "ExportFlag", this, true, 0, 1 );
+    m_exportDegenGeomCsvFile.Init( "DegenGeom_CSV_Export", "ExportFlag", this, true, 0, 1 );
+    m_exportDegenGeomMFile.Init( "DegenGeom_M_Export", "ExportFlag", this, true, 0, 1 );
 }
 
 //==== Destructor ====//
@@ -114,18 +119,30 @@ void Vehicle::Init()
     LinkMgr.RegisterContainer( m_CfdGridDensity.GetID() );
     LinkMgr.RegisterContainer( m_FeaGridDensity.GetID() );
 
-    //==== Export Files ====//
-    m_exportDegenGeomCsvFile = false;
-    m_exportDegenGeomMFile = false;
-    m_exportCompGeomCsvFile = false;
-    m_exportDragBuildTsvFile = false;
-
-
     m_IxxIyyIzz = vec3d( 0, 0, 0 );
     m_IxyIxzIyz = vec3d( 0, 0, 0 );
     m_CG = vec3d( 0, 0, 0 );
     m_NumMassSlices = 20;
     m_TotalMass = 0;
+
+    m_STEPSplitSurfs.Set( false );
+    m_STEPMergePoints.Set( true );
+    m_STEPToCubic.Set( false );
+    m_STEPTolerance.Set( 1e-6 );
+
+    m_STLMultiSolid.Set( false );
+
+    m_BbXLen.Set( 0 );
+    m_BbYLen.Set( 0 );
+    m_BbZLen.Set( 0 );
+    m_BbXMin.Set( 0 );
+    m_BbYMin.Set( 0 );
+    m_BbZMin.Set( 0 );
+
+    m_exportCompGeomCsvFile.Set( true );
+    m_exportDragBuildTsvFile.Set( true );
+    m_exportDegenGeomCsvFile.Set( true );
+    m_exportDegenGeomMFile.Set( true );
 }
 
 void Vehicle::RunTestScripts()
@@ -177,9 +194,6 @@ void Vehicle::Wype()
     m_BBox = BndBox();
 
     m_ExportFileNames.clear();
-
-    m_exportCompGeomCsvFile = bool();
-    m_exportDragBuildTsvFile = bool();
 
     // Clear out various managers...
     LinkMgr.Renew();
