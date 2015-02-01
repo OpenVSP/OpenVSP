@@ -1115,6 +1115,8 @@ xmlNodePtr Vehicle::EncodeXml( xmlNodePtr & node, int set )
 {
     xmlNodePtr vehicle_node = xmlNewChild( node, NULL, BAD_CAST"Vehicle", NULL );
 
+    ParmContainer::EncodeXml( vehicle_node );
+
     // Encode lighting information.
     getVGuiDraw()->getLightMgr()->EncodeXml( vehicle_node );
 
@@ -1156,6 +1158,8 @@ xmlNodePtr Vehicle::DecodeXml( xmlNodePtr & node )
     xmlNodePtr vehicle_node = XmlUtil::GetNode( node, "Vehicle", 0 );
     if ( vehicle_node )
     {
+        ParmContainer::DecodeXml( vehicle_node );
+
         // Decode lighting information.
         getVGuiDraw()->getLightMgr()->DecodeXml( vehicle_node );
 
