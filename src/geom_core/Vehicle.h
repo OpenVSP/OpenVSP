@@ -155,7 +155,7 @@ public:
 
     int ReadXMLFile( const string & file_name );
 
-    void SetVSP3FileName( const string & f_name )           { m_VSP3FileName = f_name; }
+    void SetVSP3FileName( const string & f_name );
     string GetVSP3FileName()                                { return m_VSP3FileName; }
 
     const VehicleGuiDraw * getVGuiDraw() const
@@ -183,6 +183,8 @@ public:
     //==== Computation File Names ====//
     string getExportFileName( int type );
     void setExportFileName( int type, string f_name );
+    void resetExportFileNames();
+
     bool getExportCompGeomCsvFile()                    { return m_exportCompGeomCsvFile; }
     bool getExportDragBuildTsvFile()                { return m_exportDragBuildTsvFile; }
     void setExportCompGeomCsvFile( bool b )            { m_exportCompGeomCsvFile = b; }
@@ -293,13 +295,8 @@ protected:
     string m_VSP3FileName;
 
     //==== Export Files ====//
-    string m_compGeomTxtFileName;
-    string m_compGeomCsvFileName;
-    string m_compGeomTsvFileName;
-    string m_MassPropFileName;
-    string m_AwaveFileName;
-    string m_degenGeomCsvFileName;
-    string m_degenGeomMFileName;
+    map< int, string > m_ExportFileNames;
+
     bool m_exportCompGeomCsvFile;
     bool m_exportDragBuildTsvFile;
     bool m_exportDegenGeomCsvFile;

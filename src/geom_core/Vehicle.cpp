@@ -81,10 +81,8 @@ void Vehicle::Init()
  
     m_Name = "Vehicle";
 
-    m_VSP3FileName = "Unnamed.vsp3";
+    SetVSP3FileName( "Unnamed.vsp3" );
     m_FileOpenVersion = -1;
-
-    m_CfdSettings.ResetExportFileNames( m_VSP3FileName );
 
     //==== Load Default Set Names =====//
     m_SetNameVec.push_back( "All" );        // SET_ALL
@@ -121,13 +119,7 @@ void Vehicle::Init()
     m_exportDegenGeomMFile = false;
     m_exportCompGeomCsvFile = false;
     m_exportDragBuildTsvFile = false;
-    m_compGeomTxtFileName = "VspAircraft_CompGeom.txt";
-    m_compGeomCsvFileName = "VspAircraft_CompGeom.csv";
-    m_compGeomTsvFileName = "VspAircraft_DragBuild.tsv";
-    m_MassPropFileName = "VspAircraft_MassProps.txt";
-    m_AwaveFileName = "VspAircraft_AwaveSlice.txt";
-    m_degenGeomCsvFileName = "VspAircraft_DegenGeom.csv";
-    m_degenGeomMFileName = "VspAircraft_DegenGeom.m";
+
 
     m_IxxIyyIzz = vec3d( 0, 0, 0 );
     m_IxyIxzIyz = vec3d( 0, 0, 0 );
@@ -184,11 +176,8 @@ void Vehicle::Wype()
 
     m_BBox = BndBox();
 
-    m_compGeomTxtFileName = string();
-    m_compGeomCsvFileName = string();
-    m_compGeomTsvFileName = string();
-    m_MassPropFileName = string();
-    m_AwaveFileName = string();
+    m_ExportFileNames.clear();
+
     m_exportCompGeomCsvFile = bool();
     m_exportDragBuildTsvFile = bool();
 
@@ -198,6 +187,15 @@ void Vehicle::Wype()
     DesignVarMgr.Renew();
     FitModelMgr.Renew();
 }
+
+void Vehicle::SetVSP3FileName( const string & f_name )
+{
+    m_VSP3FileName = f_name;
+
+    m_CfdSettings.ResetExportFileNames( m_VSP3FileName );
+    resetExportFileNames();
+}
+
 
 //=== NewFile ===//
 // Reset VSP state to nearly that of startup.  Leave clipboard contents intact.
@@ -2084,33 +2082,39 @@ void Vehicle::UpdateBBox()
 
 string Vehicle::getExportFileName( int type )
 {
+    bool doreturn = false;
     if ( type == COMP_GEOM_TXT_TYPE )
     {
-        return m_compGeomTxtFileName;
+        doreturn = true;
     }
     else if ( type == COMP_GEOM_CSV_TYPE )
     {
-        return m_compGeomCsvFileName;
+        doreturn = true;
     }
     else if ( type == DRAG_BUILD_TSV_TYPE )
     {
-        return m_compGeomTsvFileName;
+        doreturn = true;
     }
     else if ( type == MASS_PROP_TXT_TYPE )
     {
-        return m_MassPropFileName;
+        doreturn = true;
     }
     else if ( type == SLICE_TXT_TYPE )
     {
-        return m_AwaveFileName;
+        doreturn = true;
     }
     else if ( type == DEGEN_GEOM_CSV_TYPE )
     {
-        return m_degenGeomCsvFileName;
+        doreturn = true;
     }
     else if ( type == DEGEN_GEOM_M_TYPE )
     {
-        return m_degenGeomMFileName;
+        doreturn = true;
+    }
+
+    if( doreturn )
+    {
+        return m_ExportFileNames[ type ];
     }
     else
     {
@@ -2125,33 +2129,60 @@ void Vehicle::setExportFileName( int type, string f_name )
         return;
     }
 
+    bool doset = false;
+
     if ( type == COMP_GEOM_TXT_TYPE )
     {
-        m_compGeomTxtFileName = f_name;
+        doset = true;
     }
     else if ( type == COMP_GEOM_CSV_TYPE )
     {
-        m_compGeomCsvFileName = f_name;
+        doset = true;
     }
     else if ( type == DRAG_BUILD_TSV_TYPE )
     {
-        m_compGeomTsvFileName = f_name;
+        doset = true;
     }
     else if ( type == MASS_PROP_TXT_TYPE )
     {
-        m_MassPropFileName = f_name;
+        doset = true;
     }
     else if ( type == SLICE_TXT_TYPE )
     {
-        m_AwaveFileName = f_name;
+        doset = true;
     }
     else if ( type == DEGEN_GEOM_CSV_TYPE )
     {
-        m_degenGeomCsvFileName = f_name;
+        doset = true;
     }
     else if ( type == DEGEN_GEOM_M_TYPE )
     {
-        m_degenGeomMFileName = f_name;
+        doset = true;
+    }
+
+    if( doset )
+    {
+        m_ExportFileNames[ type ] = f_name;
+    }
+}
+
+void Vehicle::resetExportFileNames()
+{
+    const char *suffix[] = {"_CompGeom.txt", "_CompGeom.csv", "_DragBuild.tsv", "_AwaveSlice.txt", "_MassProps.txt", "_DegenGeom.csv", "_DegenGeom.m" };
+    const int types[] = { COMP_GEOM_TXT_TYPE, COMP_GEOM_CSV_TYPE, DRAG_BUILD_TSV_TYPE, SLICE_TXT_TYPE, MASS_PROP_TXT_TYPE, DEGEN_GEOM_CSV_TYPE, DEGEN_GEOM_M_TYPE };
+    const int ntype = 7;
+    int pos;
+
+    for( int i = 0; i < ntype; i++ )
+    {
+        string fname = m_VSP3FileName;
+        pos = fname.find( ".vsp3" );
+        if ( pos >= 0 )
+        {
+            fname.erase( pos, fname.length() - 1 );
+        }
+        fname.append( suffix[i] );
+        m_ExportFileNames[types[i]] = fname;
     }
 }
 
