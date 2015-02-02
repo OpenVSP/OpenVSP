@@ -1146,22 +1146,38 @@ void WingGeom::InsertWingSect( int index  )
 void WingGeom::UpdateSurf()
 {
     //==== Check If Total Span/Chord/Area Has Changed ====//
+    bool total_change_flag = false;
     if ( UpdatedParm( m_TotalSpan.GetID() ) )
+    {
         UpdateTotalSpan();
+        total_change_flag = true;
+    }
 
     if ( UpdatedParm( m_TotalProjSpan.GetID() ) )
+    {
         UpdateTotalProjSpan();
+        total_change_flag = true;
+    }
 
     if ( UpdatedParm( m_TotalChord.GetID() ) )
+    {
         UpdateTotalChord();
+        total_change_flag = true;
+    }
 
     if ( UpdatedParm( m_TotalArea.GetID() ) )
+    {
         UpdateTotalArea();
+        total_change_flag = true;
+    }
 
     int active_sect = GetActiveXSecIndex();     // Save Active Section
 
     //==== Set Temp Active XSec Based On Updated Parms ====//
-    SetTempActiveXSec();
+    if ( total_change_flag )
+        SetActiveXSecIndex(1);
+    else
+        SetTempActiveXSec();
 
     //==== Make Sure Chord Match For Adjacent Wing Sections ====//
     MatchWingSections();
