@@ -78,16 +78,16 @@ extern void AddCFDSource( int type, const string & geom_id, int surf_index,
 						  double l2 = 0, double r2 = 0, double u2 = 0, double w2 = 0 );
 
 //======================== Results ================================//
-extern vector<string> GetAllResultsNames();
-extern vector<string> GetAllDataNames( const string & results_id );
+extern std::vector< std::string > GetAllResultsNames();
+extern std::vector< std::string > GetAllDataNames( const string & results_id );
 extern int GetNumResults( const string & name );
 extern string FindResultsID( const string & name, int index = 0 );
 extern string FindLatestResultsID( const string & name );
 extern int GetNumData( const string & results_id, const string & data_name );
-extern const vector<int> & GetIntResults( const string & id, const string & name, int index = 0 );
-extern const vector<double> & GetDoubleResults( const string & id, const string & name, int index = 0 );
-extern const vector<string> & GetStringResults( const string & id, const string & name, int index = 0 );
-extern const vector<vec3d> & GetVec3dResults( const string & id, const string & name, int index = 0 );
+extern const std::vector< int > & GetIntResults( const string & id, const string & name, int index = 0 );
+extern const std::vector< double > & GetDoubleResults( const string & id, const string & name, int index = 0 );
+extern const std::vector< std::string > & GetStringResults( const string & id, const string & name, int index = 0 );
+extern const std::vector< vec3d > & GetVec3dResults( const string & id, const string & name, int index = 0 );
 extern string CreateGeomResults( const string & geom_id, const string & name );
 extern void DeleteAllResults();
 extern void DeleteResult( const string & id );
@@ -137,7 +137,7 @@ extern int GetXSecShape( const string& xsec_id );
 extern double GetXSecWidth( const string& xsec_id );
 extern double GetXSecHeight( const string& xsec_id );
 extern void SetXSecWidthHeight( const string& xsec_id, double w, double h );
-extern vector< string > GetXSecParmIDs( const string& xsec_id );
+extern std::vector< std::string > GetXSecParmIDs( const string& xsec_id );
 extern string GetXSecParm( const string& xsec_id, const string& name );
 extern std::vector<vec3d> ReadFileXSec( const string& xsec_id, const string& file_name );
 extern void SetXSecPnts( const string& xsec_id, std::vector< vec3d > & pnt_vec );
