@@ -1299,6 +1299,13 @@ int Vehicle::ReadXMLFile( const string & file_name )
     //==== Find Version Number ====//
     m_FileOpenVersion = XmlUtil::FindInt( root, "Version", 0 );
 
+    if ( m_FileOpenVersion < MIN_FILE_VER )
+    {
+        fprintf( stderr, "document version not supported \n");
+        xmlFreeDoc( doc );
+        return 4;
+    }
+
     //==== Decode Vehicle from document ====//
     DecodeXml( root );
 
