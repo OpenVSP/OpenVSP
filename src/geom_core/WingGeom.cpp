@@ -475,7 +475,7 @@ WingSect::WingSect( XSecCurve *xsc, bool use_left ) : XSec( xsc, use_left)
     m_Aspect.SetDescript( "Aspect Ratio of Wing Section" );
     m_Taper.Init( "Taper", m_GroupName, this, 1.0, 0.0, 1000.0 );
     m_Taper.SetDescript( "Taper Ratio of Wing Section" );
-    m_Area.Init( "Area", m_GroupName, this, 1.0, 0.0001, 1000000.0 );
+    m_Area.Init( "Area", m_GroupName, this, 1.0, 0.0001, 1.0e12 );
     m_Area.SetDescript( "Area of Wing Section" );
     m_Span.Init( "Span", m_GroupName, this, 1.0, 0.0001, 1000000.0 );
     m_Span.SetDescript( "Span of Wing Section" );
@@ -764,7 +764,7 @@ WingGeom::WingGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_TotalChord.Init( "TotalChord", m_Name, this, 1.0, 0.0001, 1000000.0 );
     m_TotalChord.SetDescript( "Total Planform Chord" );
 
-    m_TotalArea.Init( "TotalArea", m_Name, this, 1.0, 0.0001, 1000000.0 );
+    m_TotalArea.Init( "TotalArea", m_Name, this, 1.0, 0.0001, 1.0e12 );
     m_TotalArea.SetDescript( "Total Planform Area" );
 
     //==== rename capping controls for wing specific terminology ====//
