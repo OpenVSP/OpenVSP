@@ -648,8 +648,10 @@ void MeshGeom::BuildIndexedMesh( int partOffset )
     m_IndexedTriVec.clear();
     m_IndexedNodeVec.clear();
 
+    int mTMesh = (int) m_TMeshVec.size();
+
     //==== Find All Exterior and Split Tris =====//
-    for ( m = 0 ; m < ( int )m_TMeshVec.size() ; m++ )
+    for ( m = 0 ; m < mTMesh ; m++ )
     {
         for ( t = 0 ; t < ( int )m_TMeshVec[m]->m_TVec.size() ; t++ )
         {
@@ -671,6 +673,34 @@ void MeshGeom::BuildIndexedMesh( int partOffset )
             {
                 char str[80];
                 sprintf( str, "%d", partOffset + m + 1 );
+                tri->m_ID = str;
+                m_IndexedTriVec.push_back( tri );
+            }
+        }
+    }
+
+    for ( m = 0; m < m_SliceVec.size(); m++ )
+    {
+        for ( t = 0 ; t < ( int )m_SliceVec[m]->m_TVec.size() ; t++ )
+        {
+            TTri* tri = m_SliceVec[m]->m_TVec[t];
+            if ( tri->m_SplitVec.size() )
+            {
+                for ( s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
+                {
+                    if ( !tri->m_SplitVec[s]->m_InteriorFlag )
+                    {
+                        char str[80];
+                        sprintf( str, "%d", partOffset + m + 1 + mTMesh );
+                        tri->m_SplitVec[s]->m_ID = str;
+                        m_IndexedTriVec.push_back( tri->m_SplitVec[s] );
+                    }
+                }
+            }
+            else if ( !tri->m_InteriorFlag )
+            {
+                char str[80];
+                sprintf( str, "%d", partOffset + m + 1 + mTMesh );
                 tri->m_ID = str;
                 m_IndexedTriVec.push_back( tri );
             }
