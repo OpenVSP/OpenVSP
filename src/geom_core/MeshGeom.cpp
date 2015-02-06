@@ -484,6 +484,11 @@ void MeshGeom::WriteStl( FILE* file_id )
     {
         m_TMeshVec[m]->WriteSTLTris( file_id, GetTotalTransMat() );
     }
+
+    for ( m = 0 ; m < ( int )m_SliceVec.size() ; m++ )
+    {
+        m_SliceVec[m]->WriteSTLTris( file_id, GetTotalTransMat() );
+    }
 }
 
 void MeshGeom::WriteStl( FILE* file_id, int tag )
