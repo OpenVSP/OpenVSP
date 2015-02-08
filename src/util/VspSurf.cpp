@@ -638,7 +638,10 @@ void VspSurf::Tesselate( const vector<int> &num_u, int num_v, std::vector< vecto
                 iu++;
             }
         }
-        uumin += du;
+        if ( !( iusect == nusect - 1 && m_USkip[ iusect ] ) )
+        {
+            uumin += du;
+        }
     }
     u.back() = uumin;
 
