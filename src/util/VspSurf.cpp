@@ -471,6 +471,38 @@ void VspSurf::ResetUWSkip()
         m_WSkip[jp] = false;
 }
 
+void VspSurf::SetUSkipFirst( bool f )
+{
+    if( !m_USkip.empty() )
+    {
+        m_USkip.front() = f;
+    }
+}
+
+void VspSurf::SetUSkipLast( bool f )
+{
+    if( !m_USkip.empty() )
+    {
+        m_USkip.back() = f;
+    }
+}
+
+void VspSurf::SetWSkipFirst( bool f )
+{
+    if( !m_WSkip.empty() )
+    {
+        m_WSkip.front() = f;
+    }
+}
+
+void VspSurf::SetWSkipLast( bool f )
+{
+    if( !m_WSkip.empty() )
+    {
+        m_WSkip.back() = f;
+    }
+}
+
 void VspSurf::FlagDuplicate( VspSurf *othersurf )
 {
     piecewise_surface_type::index_type ip, jp, nupatch, nvpatch;

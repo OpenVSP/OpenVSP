@@ -148,6 +148,11 @@ public:
     void ToSTEP_Bez_Patches( STEPutil * step, vector<SdaiBezier_surface *> &surfs );
     void ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface_with_knots *> &surfs, bool splitsurf, bool mergepts, bool tocubic, double tol );
 
+    void SetUSkipFirst( bool f );
+    void SetUSkipLast( bool f );
+    void SetWSkipFirst( bool f );
+    void SetWSkipLast( bool f );
+
 protected:
 
     bool m_FlipNormal;
