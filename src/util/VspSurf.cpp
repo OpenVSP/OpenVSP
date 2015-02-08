@@ -732,8 +732,8 @@ bool VspSurf::CapUMin(int CapType)
 {
     if (CapType == NO_END_CAP)
     {
-      return false;
-      ResetUWSkip();
+        ResetUWSkip();
+        return false;
     }
     capped_creator_type cc;
     bool rtn_flag;
