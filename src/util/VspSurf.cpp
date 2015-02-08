@@ -586,12 +586,14 @@ void VspSurf::Tesselate( const vector<int> &num_u, int num_v, std::vector< vecto
     std::vector<double> u, v( nv );
     surface_point_type ptmp, ntmp;
 
-    assert( num_u.size() == GetNumSectU() );
-    assert( m_USkip.size() == GetNumSectU() );
+    const int nusect = GetNumSectU();
+
+    assert( num_u.size() == nusect );
+    assert( m_USkip.size() == nusect );
 
     // calculate nu
     nu = 1;
-    for ( int ii = 0; ii < GetNumSectU(); ++ii )
+    for ( int ii = 0; ii < nusect; ++ii )
     {
         if ( !m_USkip[ii] )
         {
@@ -622,7 +624,7 @@ void VspSurf::Tesselate( const vector<int> &num_u, int num_v, std::vector< vecto
     double uumin( umin );
     size_t iusect;
     size_t iu = 0;
-    for ( iusect = 0; iusect < (size_t)GetNumSectU(); ++iusect )
+    for ( iusect = 0; iusect < (size_t)nusect; ++iusect )
     {
         double du, dv;
         surface_patch_type surf;
