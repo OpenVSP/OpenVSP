@@ -1473,8 +1473,27 @@ void Geom::CreateDegenGeom( vector<DegenGeom> &dgs)
 
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
+        m_SurfVec[i].ResetUWSkip();
+        if ( m_CapUMinOption() == VspSurf::FLAT_END_CAP && m_CapUMinSuccess[ m_SurfIndxVec[i] ] )
+        {
+            m_SurfVec[i].SetUSkipFirst( true );
+        }
+        if ( m_CapUMaxOption() == VspSurf::FLAT_END_CAP && m_CapUMaxSuccess[ m_SurfIndxVec[i] ] )
+        {
+            m_SurfVec[i].SetUSkipLast( true );
+        }
+        if ( m_CapWMinOption() == VspSurf::FLAT_END_CAP && m_CapWMinSuccess[ m_SurfIndxVec[i] ] )
+        {
+            m_SurfVec[i].SetWSkipFirst( true );
+        }
+        if ( m_CapWMaxOption() == VspSurf::FLAT_END_CAP && m_CapWMaxSuccess[ m_SurfIndxVec[i] ] )
+        {
+            m_SurfVec[i].SetWSkipLast( true );
+        }
+
         //==== Tesselate Surface ====//
         UpdateTesselate( i, pnts, nrms, uwpnts );
+        m_SurfVec[i].ResetUWSkip();
 
         DegenGeom degenGeom;
         degenGeom.setParentGeom( this );
