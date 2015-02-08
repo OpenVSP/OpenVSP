@@ -1957,7 +1957,8 @@ void MeshGeom::degenGeomIntersectTrim( vector< DegenGeom > &degenGeom )
             if ( matchVec[j] == false )
             {
                 // If its pointer id matches the current degenGeom
-                if ( degenGeom[i].getParentGeom()->GetID() == m_TMeshVec[j]->m_PtrID )
+                if ( degenGeom[i].getParentGeom()->GetID() == m_TMeshVec[j]->m_PtrID &&
+                     degenGeom[i].getSurfNum() == m_TMeshVec[j]->m_SurfNum )
                 {
                     degenPoint.area.push_back( m_TMeshVec[j]->m_TheoArea );
                     degenPoint.areaWet.push_back( m_TMeshVec[j]->m_WetArea );
@@ -3377,7 +3378,8 @@ void MeshGeom::degenGeomMassSliceX( vector< DegenGeom > &degenGeom )
             {
                 // If its pointer id matches the current degenGeom
                 string geomid = degenGeom[i].getParentGeom()->GetID();
-                if ( geomid.compare( 0, geomid.size(), m_TMeshVec[j]->m_PtrID, 0, geomid.size() ) == 0 )
+                if ( geomid.compare( 0, geomid.size(), m_TMeshVec[j]->m_PtrID, 0, geomid.size() ) == 0 &&
+                     degenGeom[i].getSurfNum() == m_TMeshVec[j]->m_SurfNum )
                 {
                     degenPoint.Isolid.push_back( compSolidI[j] );
                     degenPoint.Ishell.push_back( compShellI[j] );
