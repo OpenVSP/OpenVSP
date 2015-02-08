@@ -1497,6 +1497,7 @@ void Geom::CreateDegenGeom( vector<DegenGeom> &dgs)
 
         DegenGeom degenGeom;
         degenGeom.setParentGeom( this );
+        degenGeom.setSurfNum( i );
 
         degenGeom.setNumXSecs( pnts.size() );
         degenGeom.setNumPnts( pnts[0].size() );

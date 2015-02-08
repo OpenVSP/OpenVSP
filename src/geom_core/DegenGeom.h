@@ -109,6 +109,7 @@ public:
         num_pnts = 0;
         num_xsecs = 0;
         parentGeom = NULL;
+        surfNum = -1;
     };
     virtual ~DegenGeom() {};
 
@@ -175,6 +176,15 @@ public:
         type = geomType;
     }
 
+    int getSurfNum()
+    {
+        return surfNum;
+    }
+    void setSurfNum( int n )
+    {
+        surfNum = n;
+    }
+
     void build_trans_mat( vec3d x, vec3d y, vec3d z, const vec3d &p, Matrix4d &mat, Matrix4d &invmat );
     void build_basis( const int &startPnt, const vector < vec3d > &sect, vec3d &v1, vec3d &v2, vec3d &v3 );
     void transform_section( const int &startPnt, vector < vec3d > &sect, Matrix4d &trans, Matrix4d &invtrans );
@@ -218,6 +228,7 @@ protected:
 
     Geom* parentGeom;
     int   type;
+    int   surfNum;
 };
 
 
