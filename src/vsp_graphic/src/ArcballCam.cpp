@@ -1,4 +1,5 @@
 #include "ArcballCam.h"
+#define GLM_FORCE_RADIANS
 #include "glm/ext.hpp"
 
 #include <iostream>
@@ -81,7 +82,7 @@ void ArcballCam::load( int index )
     // Apply saved values.
     _calculateProjection();
     _rMat = _toMatrix( _globalQuat );
-    _tMat = glm::translate( _pan.x, _pan.y, 0.0f );
+    _tMat = glm::translate( glm::vec3(_pan.x, _pan.y, 0.0f) );
     _cMat = _saves[index].cor;
     _modelviewMatrix = _tMat * _viewMatrix * _rMat * _cMat;
 }
@@ -163,7 +164,7 @@ void ArcballCam::pan( int px, int py, int cx, int cy )
     _pan.x += P_SENSITIVITY * _oZoom * ( float )( cx - px );
     _pan.y += P_SENSITIVITY * _oZoom * ( float )( cy - py );
 
-    _tMat = glm::translate( _pan.x, _pan.y, 0.0f );
+    _tMat = glm::translate( glm::vec3(_pan.x, _pan.y, 0.0f) );
 
     _modelviewMatrix = _tMat * _viewMatrix * _rMat * _cMat;
 }
@@ -173,7 +174,7 @@ void ArcballCam::pan( float x, float y )
     _pan.x += x;
     _pan.y += y;
 
-    _tMat = glm::translate( _pan.x, _pan.y, 0.0f );
+    _tMat = glm::translate( glm::vec3(_pan.x, _pan.y, 0.0f) );
 
     _modelviewMatrix = _tMat * _viewMatrix * _rMat * _cMat;
 }

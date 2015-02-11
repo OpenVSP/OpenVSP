@@ -1,5 +1,6 @@
 #include "OpenGLHeaders.h"
 
+#define GLM_FORCE_RADIANS
 #include "glm/ext.hpp"
 
 #include "Viewport.h"
@@ -143,7 +144,7 @@ void Viewport::drawXYZArrows()
     float aspectRatioW = _vWidth > _vHeight ? _vWidth / ( float )_vHeight : 1.0f;
 
     // Matrix for moving arrows to lower left corner of the screen.
-    glm::mat4 arrowTMat = glm::translate( ARROW_XPOS * aspectRatioW, ARROW_YPOS * aspectRatioH, 0.f );
+    glm::mat4 arrowTMat = glm::translate( glm::vec3( ARROW_XPOS * aspectRatioW, ARROW_YPOS * aspectRatioH, 0.f ) );
 
     float borderH = 1.0f * aspectRatioH;
     float borderW = 1.0f * aspectRatioW;
