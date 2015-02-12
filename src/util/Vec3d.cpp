@@ -802,12 +802,10 @@ double area_squared( vec3d& A, vec3d& B, vec3d& C )
 
 }
 
-
-//******* Signed Area Of Tri Defined By           ******//
-//*******       Three Vecs From Common Pnt        ******//
+//******* Area of tri defined by            ******//
+//******* three vectors from common point   ******//
 double area( vec3d& A, vec3d& B, vec3d& C )
 {
-
     double mBA = ( B - A ).mag();
     double mCA = ( C - A ).mag();
     double mCB = ( C - B ).mag();
@@ -821,11 +819,7 @@ double area( vec3d& A, vec3d& B, vec3d& C )
         return( 0.0 );
     }
 
-//  else if ( area <= 0.0 )
-//    return( -sqrt(-area) );
-
     return( sqrt( area ) );
-
 }
 
 // dist3D_Segment_to_Segment based on code by Dan Sunday
