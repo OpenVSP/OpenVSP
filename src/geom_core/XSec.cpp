@@ -269,16 +269,6 @@ xmlNodePtr XSec::DecodeXSec(  xmlNodePtr & node   )
     return node;
 }
 
-//==== Compute Area ====//
-double XSec::ComputeArea( int num_pnts )
-{
-    VspCurve curve = GetCurve();
-    vector<vec3d> pnts;
-    curve.Tesselate( num_pnts, pnts );
-    vec3d zero;
-    return poly_area( pnts, zero );
-}
-
 void XSec::GetBasis( double t, Matrix4d &basis )
 {
     // Get primary orientation of this XSecSurf
