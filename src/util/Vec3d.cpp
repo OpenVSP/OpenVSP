@@ -1272,8 +1272,8 @@ vec3d RotateArbAxis( const vec3d & p, double theta, const vec3d & axis )    // R
     return( q );
 }
 
-//==== Find The Area of a Concave Polygon ===//
-double poly_area( vector< vec3d > & pnt_vec, vec3d& center )
+//==== Find the area of a 2D (XY) polygon ===//
+double poly_area( const vector< vec3d > & pnt_vec )
 {
     if ( pnt_vec.size() < 3 )
     {
@@ -1283,15 +1283,15 @@ double poly_area( vector< vec3d > & pnt_vec, vec3d& center )
     double total_area = 0.0;
     for ( int i = 0 ; i < ( int )( pnt_vec.size() - 1 ) ; i++ )
     {
-        total_area += area( center, pnt_vec[i], pnt_vec[i + 1] );
+        total_area += pnt_vec[i].x() * pnt_vec[i+1].y() - pnt_vec[i+1].x() * pnt_vec[i].y();
     }
 
     if ( dist( pnt_vec[0], pnt_vec.back() ) > 0.0000001 )
     {
-        total_area += area( center, pnt_vec.back(), pnt_vec[0] );
+        total_area += pnt_vec.back().x() * pnt_vec[0].y() - pnt_vec[0].x() * pnt_vec.back().y();
     }
 
-    return total_area;
+    return fabs( total_area );
 }
 
 vec3d BarycentricWeights( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & p )

@@ -152,8 +152,7 @@ double XSecCurve::ComputeArea( int num_pnts )
     VspCurve curve = GetCurve();
     vector<vec3d> pnts;
     curve.Tesselate( num_pnts, pnts );
-    vec3d zero;
-    return poly_area( pnts, zero );
+    return poly_area( pnts );
 }
 
 //==========================================================================//
