@@ -417,7 +417,8 @@ void StackGeom::LoadDragFactors( DragFactors& drag_factors )
     for ( int i = 0 ; i < ( int )m_XSecSurf.NumXSec() ; i++ )
     {
         XSec* xs = m_XSecSurf.FindXSec( i );
-        double a = xs->ComputeArea( 100 );
+        XSecCurve* xsc = xs->GetXSecCurve();
+        double a = xsc->ComputeArea( 100 );
         if ( a > max_xsec_area )
         {
             max_xsec_area = a;
