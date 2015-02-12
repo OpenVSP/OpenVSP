@@ -223,7 +223,6 @@ public:
     friend int plane_ray_intersect( vec3d& orig, vec3d& norm, vec3d& D, vec3d& E, double& t );
     friend int ray_ray_intersect( vec3d& A, vec3d& B, vec3d& C, vec3d& D, vec3d& int_pnt1, vec3d& int_pnt2 );
     friend double tetra_volume( vec3d& A, vec3d& B, vec3d& C );
-    friend double area_squared( vec3d& A, vec3d& B, vec3d& C );
     friend double area( vec3d& A, vec3d& B, vec3d& C );
     friend double poly_area( std::vector< vec3d > & pnt_vec, vec3d& center );
     friend double dist3D_Segment_to_Segment( vec3d& S1P0, vec3d& S1P1, vec3d& S2P0, vec3d& S2P1 );

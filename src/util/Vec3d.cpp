@@ -784,24 +784,6 @@ double tetra_volume( vec3d& A, vec3d& B, vec3d& C )
     return( determ / 6.0 );
 }
 
-
-//******* Signed Area Of Tri Defined By           ******//
-//*******       Three Vecs From Common Pnt        ******//
-double area_squared( vec3d& A, vec3d& B, vec3d& C )
-{
-
-    double mBA = ( B - A ).mag();
-    double mCA = ( C - A ).mag();
-    double mCB = ( C - B ).mag();
-
-    double s = 0.5 * ( mBA + mCA + mCB );
-
-    double area = s * ( s - mBA ) * ( s - mCA ) * ( s - mCB );
-
-    return( area );
-
-}
-
 //******* Area of tri defined by            ******//
 //******* three vectors from common point   ******//
 double area( vec3d& A, vec3d& B, vec3d& C )
