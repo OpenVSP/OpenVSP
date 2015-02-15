@@ -76,7 +76,7 @@ void Airfoil::SetWidthHeight( double w, double h )
 FourSeries::FourSeries( ) : Airfoil( )
 {
     m_Type = XS_FOUR_SERIES;
-    m_Camber.Init( "Camber", m_GroupName, this, 0.0, 0.0, 0.5 );
+    m_Camber.Init( "Camber", m_GroupName, this, 0.0, 0.0, 0.09 );
     m_CamberLoc.Init( "CamberLoc", m_GroupName, this, 0.2, 0.0, 1.0 );
 
     m_Creator.set_sharp_trailing_edge(true);
