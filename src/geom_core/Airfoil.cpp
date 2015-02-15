@@ -25,7 +25,7 @@ Airfoil::Airfoil( ) : XSecCurve( )
 {
     m_Invert.Init( "Invert", m_GroupName, this, 0.0, 0.0, 1.0 );
     m_Chord.Init( "Chord", m_GroupName, this, 1.0, 0.0, 1.0e12 );
-    m_ThickChord.Init( "ThickChord", m_GroupName, this, 0.1, 0.0, 0.5 );
+    m_ThickChord.Init( "ThickChord", m_GroupName, this, 0.1, 0.0, 1.0 );
 }
 
 //==== Update ====//
@@ -148,7 +148,7 @@ SixSeries::SixSeries( ) : Airfoil( )
     m_Series.Init( "Series", m_GroupName, this, SERIES_63, SERIES_63, NUM_SERIES );
     m_IdealCl.Init( "IdealCl", m_GroupName, this, 0.0, 0.0, 1.0 );
     m_A.Init( "A", m_GroupName, this, 0.0, 0.0, 1.0 );
-
+    m_ThickChord.SetUpperLimit( 0.5 );
 }
 
 //==== Update ====//
