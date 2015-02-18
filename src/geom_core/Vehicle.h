@@ -24,6 +24,7 @@
 #include "ClippingMgr.h"
 #include "STEPutil.h"
 #include "XferSurf.h"
+#include "MaterialMgr.h"
 
 #include <assert.h>
 
@@ -173,7 +174,7 @@ public:
     void WriteNascartFiles( const string & file_name, int write_set );
     void WriteGmshFile( const string & file_name, int write_set );
     void WriteX3DFile( const string & file_name, int write_set );
-    void WriteX3DMaterial( xmlNodePtr node, int matid );
+    void WriteX3DMaterial( xmlNodePtr node, Material * material );
     void WriteX3DViewpoints( xmlNodePtr node );
     void WriteX3DViewpointProps( xmlNodePtr node, string orients, string cents, string posits, string sfov, string name );
     void WritePovRayFile( const string & file_name, int write_set );

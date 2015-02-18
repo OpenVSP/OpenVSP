@@ -8,6 +8,7 @@
 
 
 #include <string>
+#include "Vec3d.h"
 using std::string;
 
 //==== String Functions =====//
@@ -25,6 +26,7 @@ void remove_trailing( string & str, char c );
 
 string int_to_string( int i, const char* format );
 string double_to_string( double v, const char* format );
+string vec3d_to_string( const vec3d & vec, const char* format );
 
 int count_char_matches( string & str, char c );
 

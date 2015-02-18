@@ -1800,8 +1800,7 @@ void Vehicle::WriteX3DFile( const string & file_name, int write_set )
 
             xmlNodePtr app_node = xmlNewChild( shape_node, NULL, BAD_CAST "Appearance", NULL );
 
-            //int matid = geomVec[i]->getMaterialID();
-            WriteX3DMaterial( app_node, 0 ); // Default until materials are implemented in Geom
+            WriteX3DMaterial( app_node, geom_vec[i]->GetMaterial() ); // Default until materials are implemented in Geom
 
             geom_vec[i]->WriteX3D( shape_node );
         }
@@ -1890,37 +1889,53 @@ void Vehicle::WriteX3DViewpointProps( xmlNodePtr node, string orients, string ce
     xmlSetProp( node, BAD_CAST "fieldOfView", BAD_CAST sfov.c_str() );
 }
 
-void Vehicle::WriteX3DMaterial( xmlNodePtr node, int matid )
+void Vehicle::WriteX3DMaterial( xmlNodePtr node, Material * material )
 {
-    // Diffs, emisss, specs are all set to default values and need to be redone when materials are implemented.
+    if ( !material ) return;
 
     string diffs, emisss, specs;
     char numstr[255];
+    vec3d dif,emi,spec,amb;
     xmlNodePtr mat_node = xmlNewChild( node, NULL, BAD_CAST "Material", BAD_CAST " " );
 
-    diffs = "0.5 0.5 0.5";
-    xmlSetProp( mat_node, BAD_CAST "diffusecolor", BAD_CAST diffs.c_str() );
+    material->GetDiffuse(dif);
+    dif = dif/255.0;
 
-    emisss = "0 0 0";
-    xmlSetProp( mat_node, BAD_CAST "specularcolor", BAD_CAST emisss.c_str() );
+    diffs = StringUtil::vec3d_to_string(dif,"%lf %lf %lf");
+    xmlSetProp( mat_node, BAD_CAST "diffuseColor", BAD_CAST diffs.c_str() );
 
-    specs = "0.5 0.5 0.5";
-    xmlSetProp( mat_node, BAD_CAST "specularcolor", BAD_CAST specs.c_str() );
+    material->GetEmissive(emi);
+    emi = emi/255.0;
+    emisss = StringUtil::vec3d_to_string(emi,"%lf %lf %lf");
+    xmlSetProp( mat_node, BAD_CAST "emissiveColor", BAD_CAST emisss.c_str() );
 
-    sprintf( numstr, "%lf", 0.0f );
+    material->GetSpecular(spec);
+    spec = spec/255.0;
+    specs = StringUtil::vec3d_to_string(spec,"%lf %lf %lf");
+    xmlSetProp( mat_node, BAD_CAST "specularColor", BAD_CAST specs.c_str() );
+
+    double alpha;
+    material->GetAlpha(alpha);
+    sprintf( numstr, "%lf", 1.0-alpha );
     xmlSetProp( mat_node, BAD_CAST "transparency", BAD_CAST numstr );
 
-    sprintf( numstr, "%lf", 10.0f );
+    double shine;
+    material->GetShininess(shine);
+    sprintf( numstr, "%lf", shine );
     xmlSetProp( mat_node, BAD_CAST "shininess", BAD_CAST numstr );
 
-    //float ambf = 0.0f;
-    //for( int i = 0; i < 3; i++ )
-    //{
-    //  ambf += mat->amb[i] / mat->diff[i];
-    //}
-    //ambf = ambf / 3.0f;
+    material->GetAmbient(amb);
+    double ambd;
 
-    sprintf( numstr, "%lf", 0.5f );
+    for( int i = 0; i < 3; i++ )
+    {
+        ambd += amb[i] / dif[i];
+    }
+    ambd = ambd / 3.0;
+
+
+
+    sprintf( numstr, "%lf", ambd );
     xmlSetProp( mat_node, BAD_CAST "ambientIntensity", BAD_CAST numstr );
 }
 

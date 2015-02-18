@@ -107,6 +107,14 @@ string StringUtil::double_to_string( double v, const char* format  )
     return string( str );
 }
 
+//==== Convert Vec3d to a string with values separated by spaces ====//
+string StringUtil::vec3d_to_string(const vec3d & vec, const char* format)
+{
+    char buff[256];
+    sprintf(buff,format,vec[0],vec[1],vec[2]);
+    return string(buff);
+}
+
 //==== Cound Number of Chars that match c =====//
 int StringUtil::count_char_matches( string & str, char c )
 {
