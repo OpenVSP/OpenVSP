@@ -16,6 +16,18 @@ VBO::VBO( GLenum type )
     if ( !GL_ARB_vertex_buffer_object )
     {
         _support = false;
+        const GLubyte* str = glGetString( GL_VERSION );
+        printf("Current driver does not support Vertex Buffer Object.\n");
+        printf("OpenGL version reports: %s\n", str );
+        assert( false ); // Current driver does not support Vertex Buffer Object.
+        return;
+    }
+
+    if ( !glGenBuffers )
+    {
+        const GLubyte* str = glGetString( GL_VERSION );
+        printf("Current driver does not support Vertex Buffer Object.\n");
+        printf("OpenGL version reports: %s\n", str );
         assert( false ); // Current driver does not support Vertex Buffer Object.
         return;
     }
