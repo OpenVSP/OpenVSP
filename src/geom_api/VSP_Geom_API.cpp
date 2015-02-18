@@ -168,6 +168,15 @@ void WriteVSPFile( const string & file_name, int set )
     ErrorMgr.NoError();
 }
 
+string GetVSPFileName()
+{
+    Vehicle* veh = GetVehicle();
+    if ( !veh ) return string("NULL");
+
+    ErrorMgr.NoError();
+    return veh->GetVSP3FileName();
+}
+
 void ClearVSPModel()
 {
     GetVehicle()->Renew();
