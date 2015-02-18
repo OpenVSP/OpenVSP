@@ -1683,6 +1683,7 @@ void Geom::WriteX3D( xmlNodePtr node )
         UpdateTesselate( i, pnts, norms );
         int num_xsecs = pnts.size();
         int num_pnts = pnts[0].size();
+        bool f_norm = m_SurfVec[i].GetFlipNormal();
         vector< vector<int> > pntIndex;
         // Resize vector
         pntIndex.resize( num_xsecs );
@@ -1714,7 +1715,14 @@ void Geom::WriteX3D( xmlNodePtr node )
                 i2 = pntIndex[xs + 1][p + 1];
                 i3 = pntIndex[xs][p + 1];
 
-                sprintf( numstr, "%d %d %d %d -1 ", i0, i1, i2, i3 );
+                if ( f_norm )
+                {
+                    sprintf( numstr, "%d %d %d %d -1 ", i3, i2, i1, i0 );
+                }
+                else
+                {
+                    sprintf( numstr, "%d %d %d %d -1 ", i0, i1, i2, i3 );
+                }
                 indstr += numstr;
             }
         }
