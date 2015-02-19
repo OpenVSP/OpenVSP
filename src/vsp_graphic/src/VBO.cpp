@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <vector>
 #include <stdlib.h>
+#include <string>
 
 #include "VBO.h"
 
@@ -17,8 +18,8 @@ VBO::VBO( GLenum type )
     {
         _support = false;
         const GLubyte* str = glGetString( GL_VERSION );
-        printf("Current driver does not support Vertex Buffer Object.\n");
-        printf("OpenGL version reports: %s\n", str );
+        std::printf("Current driver does not support Vertex Buffer Object.\n");
+        std::printf("OpenGL version reports: %s\n", str );
         assert( false ); // Current driver does not support Vertex Buffer Object.
         return;
     }
@@ -26,8 +27,8 @@ VBO::VBO( GLenum type )
     if ( !glGenBuffers )
     {
         const GLubyte* str = glGetString( GL_VERSION );
-        printf("Current driver does not support Vertex Buffer Object.\n");
-        printf("OpenGL version reports: %s\n", str );
+        std::printf("Current driver does not support Vertex Buffer Object.\n");
+        std::printf("OpenGL version reports: %s\n", str );
         assert( false ); // Current driver does not support Vertex Buffer Object.
         return;
     }
