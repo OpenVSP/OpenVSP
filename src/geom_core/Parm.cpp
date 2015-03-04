@@ -433,6 +433,7 @@ NotEqParm::NotEqParm() : Parm()
 {
     m_Type = PARM_NOTEQ_TYPE;
     m_Tol = 1e-4;
+    m_CheckFlag = true;
 }
 
 void NotEqParm::ChangeID( const string& newID )
@@ -451,7 +452,7 @@ bool NotEqParm::SetValCheckLimits( double val )
 {
     double tmp = m_Val;
     double tmp2 = m_LastVal;
-    if( Parm::SetValCheckLimits( val ) ) // Passed in value different.
+    if( Parm::SetValCheckLimits( val ) && m_CheckFlag ) // Passed in value different.
     {
         Parm* oparm = ParmMgr.FindParm( m_OtherParmID );
         if( oparm )
@@ -479,6 +480,14 @@ bool NotEqParm::SetValCheckLimits( double val )
         return false;
     }
     return true;
+}
+
+//==== Decode Data To XML Data Structure ====//
+void NotEqParm::DecodeXml( xmlNodePtr & node, bool detailed )
+{
+    m_CheckFlag = false;
+    Parm::DecodeXml( node, detailed );
+    m_CheckFlag = true;
 }
 
 //=========================================================================//

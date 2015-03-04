@@ -312,9 +312,13 @@ public:
         m_Tol = tol;
     }
 
+    virtual void DecodeXml( xmlNodePtr & node, bool detailed = false );
+
 protected:
     string m_OtherParmID;
     double m_Tol;
+
+    bool m_CheckFlag;
 
     virtual bool SetValCheckLimits( double val );
 };
