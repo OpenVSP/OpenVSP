@@ -7,3 +7,4 @@ before_install:
 script:
  - mkdir build; cd build
  - cmake -DCMAKE_BUILD_TYPE=Release -DVSP_USE_SYSTEM_FLTK=true -DVSP_USE_SYSTEM_CPPTEST=true -DVSP_USE_SYSTEM_LIBXML2=true -DVSP_USE_SYSTEM_EIGEN=true -DVSP_USE_SYSTEM_FLTK=true -DVSP_USE_SYSTEM_GLM=true -DVSP_USE_SYSTEM_GLEW=true -DVSP_USE_SYSTEM_CMINPACK=true ../SuperProject
+ - make
