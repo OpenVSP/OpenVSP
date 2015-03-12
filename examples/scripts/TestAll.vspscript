@@ -184,6 +184,7 @@ void TestProxy()
 
 void TestAPIScript()
 {
+	int errcount = 0;
 	Print(string("--> Testing API Code"));
 
     string pod1 = AddGeom( "POD", "");
@@ -316,6 +317,8 @@ void TestAPIScript()
 	SetParmVal( "BogusParmID", 23.0 );
 
 	if ( !GetErrorLastCallFlag() )						Print( "---> Error: API GetErrorLastCallFlag " );
+
+	errcount += GetNumTotalErrors();
 
 	//==== Check For API Errors ====//
 	while ( GetNumTotalErrors() > 0 )
@@ -476,6 +479,8 @@ void TestAPIScript()
 
 	ClearVSPModel();
 
+	errcount += GetNumTotalErrors();
+
 	//==== Check For API Errors ====//
 	while ( GetNumTotalErrors() > 0 )
 	{
@@ -483,5 +488,8 @@ void TestAPIScript()
 		Print( err.GetErrorString() );
 	}
 
+	// Return error count.  Test framework includes one error 'on purpose' to test
+	// the error system itself.
+	VSPExit( errcount - 1 );
 }
 
