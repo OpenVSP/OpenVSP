@@ -262,6 +262,7 @@ DEBIAN PACKAGES
     libglm-dev
     libglew-dev
     libjpeg-dev
+    libcminpack-dev
 
    Optional packages:
 
