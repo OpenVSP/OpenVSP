@@ -1,0 +1,50 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0100 
+header_name {.H} 
+code_name {.C} 
+gridx 5 
+gridy 5 
+snap 3
+class ContourLevelUserInterface {open
+} {
+  Function {ContourLevelUserInterface()} {open
+  } {
+    Fl_Window MainWindow {
+      label {Set Contour Levels} open
+      xywh {603 165 297 144} align 129
+      code0 {\#include "ContourLevel.h"}
+      code1 {\#include "glviewer.H"} visible
+    } {
+      Fl_Button Reset {
+        label Reset
+        callback {glviewer_->FindSolutionMinMax();
+SetMinimumSetting->value(glviewer_->GetSolutionMin());
+SetMinimumSetting->redraw();
+SetMaximumSetting->value(glviewer_->GetSolutionMax());
+SetMaximumSetting->redraw();
+glviewer_->redraw();}
+        xywh {19 104 95 30}
+      }
+      Fl_Value_Input SetMaximumSetting {
+        label {Set Contour Maximum To:}
+        callback {glviewer_->SetSolutionMax( ((Fl_Value_Input *)o)->value() );
+glviewer_->redraw();} selected
+        xywh {184 15 100 35}
+      }
+      Fl_Value_Input SetMinimumSetting {
+        label {Set Contour Minimum To:}
+        callback {glviewer_->SetSolutionMin( ((Fl_Value_Input *)o)->value() );
+glviewer_->redraw();}
+        xywh {184 61 100 35}
+      }
+    }
+  }
+  decl {GL_VIEWER *glviewer_;} {}
+  Function {show(GL_VIEWER *glviewer)} {open
+  } {
+    code {glviewer_ = glviewer;
+SetMinimumSetting->value(glviewer_->GetSolutionMin());
+SetMaximumSetting->value(glviewer_->GetSolutionMax());
+MainWindow->show();} {}
+  }
+} 

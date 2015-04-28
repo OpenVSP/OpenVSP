@@ -1,0 +1,340 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0300 
+header_name {.H} 
+code_name {.C}
+class viewerUI {open
+} {
+  Function {viewerUI()} {open
+  } {
+    Fl_Window mainWindow {
+      label {VSPAERO Viewer 2.1 } open
+      private xywh {508 203 1160 710} type Double labelsize 12 align 0 resizable visible
+    } {
+      Fl_Group {} {open
+        xywh {0 2 1162 710} box FLAT_BOX labeltype ENGRAVED_LABEL
+      } {
+        Fl_Group MainView {open
+          xywh {2 2 1153 708} box FLAT_BOX resizable
+        } {
+          Fl_Box cframe {
+            xywh {2 30 861 677} box PLASTIC_UP_BOX color 4 selection_color 69
+          }
+          Fl_Box glviewer {
+            label {This is the glviewer}
+            xywh {7 35 850 665} box FLAT_BOX color 23
+            code0 {\#include "glviewer.H"}
+            code1 {\#include "GL_VIEWER.forward.declaration.H"}
+            class GL_VIEWER
+          }
+        }
+        Fl_Group OutputPanel {open
+          xywh {865 7 297 705}
+        } {
+          Fl_Output MachOutput {
+            label {Mach:}
+            xywh {923 7 85 24} box FLAT_BOX color 49 labelfont 1 textfont 1
+          }
+          Fl_Output AlphaOutput {
+            label {Alpha:}
+            xywh {924 36 85 24} box FLAT_BOX color 49 labelfont 1 textfont 1
+          }
+          Fl_Output BetaOutput {
+            label {Beta:}
+            xywh {924 64 85 24} box FLAT_BOX color 49 labelfont 1 textfont 1
+          }
+          Fl_Group PanelComGeomTags {open
+            tooltip {Comgeom II panel tag list} xywh {865 96 290 609} box PLASTIC_UP_BOX
+          } {
+            Fl_Browser PanelComGeomTagsBrowser {
+              label {Degen Geom Components}
+              callback {glviewer->redraw();}
+              xywh {868 122 286 478} type Multi box PLASTIC_UP_BOX color 49 selection_color 4 labelfont 3 align 1 textfont 5
+            }
+            Fl_Button PanelComGeomTagsBrowserUnSelectAll {
+              label {UnSelect All}
+              callback {glviewer->PanelComGeomTagsBrowser_UnSelectAll();
+glviewer->redraw();}
+              tooltip {Unselect all} xywh {1060 604 85 25} box PLASTIC_UP_BOX color 4 labelsize 12
+            }
+            Fl_Button PanelComGeomTagsBrowserSelectAll {
+              label {Select All}
+              callback {glviewer->PanelComGeomTagsBrowser_SelectAll();
+glviewer->redraw();}
+              tooltip {Select all} xywh {1060 634 85 25} box PLASTIC_UP_BOX color 4 labelsize 12
+            }
+            Fl_Button PanelComGeomTagsBrowserDraw {
+              label Draw
+              callback {glviewer->DrawComGeomTagsWasPicked();
+glviewer->redraw();}
+              tooltip {Draw selected GOMGEOM II tags} xywh {874 604 85 25} type Toggle box PLASTIC_UP_BOX color 5 selection_color 2 labelsize 12
+              code0 {\#include <FL/fl_ask.H>}
+            }
+            Fl_Choice PanelComGeomTagsBrowserDrawMethod {
+              callback {glviewer->DrawComGeomTagsShadedWasPicked(1);
+glviewer->DrawComGeomTagsBordersWasPicked(0);
+glviewer->redraw();}
+              tooltip {Draw selected region as shade, bordered, or both} xywh {967 604 87 25} box PLASTIC_UP_BOX down_box PLASTIC_UP_BOX selection_color 6 labelsize 12 align 0
+            } {
+              MenuItem PanelComGeomTagsBrowserDrawShaded {
+                label Shaded
+                callback {glviewer->DrawComGeomTagsShadedWasPicked(1);
+glviewer->DrawComGeomTagsBordersWasPicked(0);
+glviewer->redraw();}
+                xywh {40 40 100 20} labelsize 12
+              }
+              MenuItem PanelComGeomTagsBrowserDrawBorders {
+                label Borders
+                callback {glviewer->DrawComGeomTagsShadedWasPicked(0);
+glviewer->DrawComGeomTagsBordersWasPicked(1);
+glviewer->redraw();}
+                xywh {50 50 100 20} labelsize 12
+              }
+              MenuItem PanelComGeomTagsBrowserDrawShadedAndBorders {
+                label Both
+                callback {glviewer->DrawComGeomTagsShadedWasPicked(1);
+glviewer->DrawComGeomTagsBordersWasPicked(1);
+glviewer->redraw();}
+                xywh {60 60 100 20} labelsize 12
+              }
+            }
+            Fl_Button PanelComGeomTagsBrowserDrawOnlySelected {
+              label {Draw Only Selected Comps}
+              callback {glviewer->DrawOnlySelectedWasPicked();
+glviewer->redraw();}
+              tooltip {Draw only selected COMGEOM II tags} xywh {873 635 180 25} type Toggle box PLASTIC_UP_BOX color 4 selection_color 2 labelsize 12
+            }
+            Fl_Button PanelComGeomTagsBrowserSwapSurfaceNormals {
+              label {Swap Surface Normals}
+              callback {glviewer->SwapSurfaceNormals();
+glviewer->redraw();}
+              tooltip {Draw only selected COMGEOM II tags} xywh {872 665 180 25} box PLASTIC_UP_BOX color 4 selection_color 4 labelsize 12
+            }
+          }
+        }
+      }
+      Fl_Menu_Button FileMenu {
+        label File open
+        tooltip {File menu} xywh {3 3 90 25} box PLASTIC_UP_BOX down_box PLASTIC_UP_BOX selection_color 231 labelfont 1
+      } {
+        MenuItem FileMenuPickQuit {
+          label Quit
+          callback {int val;
+val = fl_ask("Quit Application?");
+if ( val == 1 ) {
+   glviewer->Exit(1);
+}}
+          xywh {0 0 100 20} shortcut 0x40071
+        }
+      }
+      Fl_Menu_Button ViewMenu {
+        label View
+        tooltip {View menu} xywh {97 3 90 25} box PLASTIC_UP_BOX down_box PLASTIC_UP_BOX selection_color 231 labelfont 1
+      } {
+        MenuItem ViewMenuResetView {
+          label {Reset View}
+          callback {glviewer->ResetView();
+glviewer->redraw();}
+          xywh {10 10 100 20} shortcut 0x40072 divider
+        }
+        MenuItem ViewMenuTopView {
+          label {Top View}
+          callback {glviewer->TopView();
+glviewer->redraw();}
+          xywh {30 30 100 20} shortcut 0x4ffbe
+        }
+        MenuItem ViewMenuBottomView {
+          label {Bottom View}
+          callback {glviewer->BottomView();
+glviewer->redraw();}
+          xywh {40 40 100 20} shortcut 0x4ffbf
+        }
+        MenuItem ViewMenuLeftView {
+          label {Left View}
+          callback {glviewer->LeftView();
+glviewer->redraw();}
+          xywh {60 60 100 20} shortcut 0x4ffc0
+        }
+        MenuItem ViewMenuRightView {
+          label {Right View}
+          callback {glviewer->RightView();
+glviewer->redraw();}
+          xywh {50 50 100 20} shortcut 0x4ffc1
+        }
+        MenuItem ViewMenuFrontView {
+          label {Front View}
+          callback {glviewer->FrontView();
+glviewer->redraw();}
+          xywh {70 70 100 20} shortcut 0x4ffc2
+        }
+        MenuItem ViewMenuRearView {
+          label {Rear View}
+          callback {glviewer->RearView();
+glviewer->redraw();}
+          xywh {80 80 100 20} shortcut 0x4ffc3
+        }
+        MenuItem ViewMenuIsoViewUp {
+          label {Iso View Up}
+          callback {glviewer->IsoViewUp();
+glviewer->redraw();}
+          xywh {90 90 100 20} shortcut 0x4ffc4
+        }
+        MenuItem ViewMenuIsoViewDown {
+          label {Iso View Down}
+          callback {glviewer->IsoViewDown();
+glviewer->redraw();}
+          xywh {100 100 100 20} shortcut 0x4ffc5 divider
+        }
+        MenuItem ViewMenuPickBlueBackground {
+          label {Use Blue Background}
+          callback {glviewer->DrawWhiteBackgroundWasPicked();
+glviewer->redraw();}
+          xywh {0 0 100 20} type Toggle
+        }
+      }
+      Fl_Menu_Button ADBMenu {
+        label Aero open
+        tooltip {ADB menu} xywh {285 3 90 25} box PLASTIC_UP_BOX down_box PLASTIC_UP_BOX selection_color 231 labelfont 1
+      } {
+        MenuItem ADBMenuPickShaded {
+          label Shaded
+          callback {glviewer->DrawShadedWasPicked();
+glviewer->redraw();}
+          xywh {30 30 100 20} type Radio value 1
+        }
+        MenuItem ADBMenuPickWallCpShaded {
+          label {Delta-Cp}
+          callback {glviewer->DrawCpWasPicked();
+glviewer->redraw();}
+          xywh {15 15 100 20} type Radio divider
+        }
+        MenuItem ADBMenuPickCoarseMesh {
+          label Mesh
+          callback {glviewer->DrawCoarseMeshWasPicked();
+glviewer->redraw();}
+          xywh {45 45 100 20} type Toggle
+        }
+        MenuItem ADBMenuPickWakes {
+          label Wakes
+          callback {glviewer->DrawWakesWasPicked();
+glviewer->redraw();}
+          xywh {25 25 100 20} type Toggle
+        }
+        MenuItem ADBMenuPickRotors {
+          label Rotors
+          callback {glviewer->DrawRotorsWasPicked();
+glviewer->redraw();}
+          xywh {35 35 100 20} type Toggle
+        }
+      }
+      Fl_Menu_Button LegendMenu {
+        label Legend open
+        tooltip {Legend menu} xywh {191 3 90 25} box PLASTIC_UP_BOX down_box PLASTIC_UP_BOX selection_color 231 labelfont 1
+      } {
+        MenuItem LegendMenuPickLabel {
+          label {Run Label}
+          callback {glviewer->DrawLabelWasPicked();
+glviewer->redraw();}
+          xywh {20 20 100 20} type Toggle
+        }
+        MenuItem LegendMenuPickLegend {
+          label {Contours Legend}
+          callback {glviewer->DrawLegendWasPicked();
+glviewer->redraw();}
+          xywh {20 20 100 20} type Toggle
+        }
+        MenuItem LegendMenuPickDrawCG {
+          label {Draw CG}
+          callback {glviewer->DrawCGWasPicked();
+glviewer->redraw();}
+          xywh {20 20 100 20} type Toggle
+        }
+        MenuItem LegendMenuPickDrawCGLabel {
+          label {Draw CG Label Info}
+          callback {glviewer->DrawCGLabelWasPicked();
+glviewer->redraw();}
+          xywh {30 30 100 20} type Toggle
+        }
+        MenuItem LegendMenuPickDrawAxes {
+          label {Draw Axes}
+          callback {glviewer->DrawAxesWasPicked();
+glviewer->redraw();}
+          xywh {40 40 100 20} type Toggle
+        }
+      }
+      Fl_Menu_Button OptionsMenu {
+        label Options open selected
+        tooltip {Options menu} xywh {381 3 90 25} box PLASTIC_UP_BOX down_box PLASTIC_UP_BOX selection_color 231 labelfont 1
+      } {
+        MenuItem OptionsMenuSetContourLevels {
+          label {Set Contour Levels}
+          callback {ContourLevelUserInterface *CL;
+CL = new ContourLevelUserInterface;
+CL->show(glviewer);}
+          xywh {10 10 100 20} divider
+          code0 {\#include "ContourLevel.h"}
+        }
+        MenuItem OptionsMenuUseSmoothFunctionShading {
+          label {Use Smooth Function Shading}
+          callback {glviewer->DrawSmoothFunctionsWasPicked();
+glviewer->redraw();}
+          xywh {40 40 100 20} type Toggle divider
+          code0 {\#include "ContourLevel.h"}
+        }
+        MenuItem OptionsMenuUseFlatShading {
+          label {Use Flat Shading}
+          callback {glviewer->DrawFlatShadedWasPicked();
+glviewer->redraw();}
+          xywh {40 40 100 20} type Toggle divider
+          code0 {\#include "ContourLevel.h"}
+        }
+        MenuItem OptionsMenuDrawWakesToInfinity {
+          label {Draw Wakes To Infinity}
+          callback {glviewer->DrawWakesToInfinityWasPicked();
+glviewer->redraw();}
+          xywh {50 50 100 20} type Toggle divider
+          code0 {\#include "ContourLevel.h"}
+        }
+      }
+      Fl_Button KeyboardControlInfoButton {
+        label {Keyboard Controls}
+        callback {fl_message("Use the arrow keys to translate. \\nUse Cntrl+arrows keys to rotate. \\nUse Alt+arrow keys to zoom. \\nUse +/- keys to move through agglomerated meshes.");
+glviewer->redraw();}
+        tooltip {Keyboard control information} xywh {696 3 160 25} box PLASTIC_UP_BOX down_box PLASTIC_UP_BOX labelfont 1
+      }
+    }
+  }
+  Function {show(int argc, char **argv)} {
+    callback {exit(1);} open
+  } {
+    code {mainWindow->show(argc, argv);
+glviewer->StartScript();} {
+      callback {glviewer->DrawHrWasPicked();
+glviewer->redraw();}
+    }
+  }
+  Function {RunScript(int argc, char **argv, char* ScriptName)} {open
+  } {
+    code {mainWindow->show(argc, argv);
+printf("Ok... now run the script... \\n");
+
+glviewer->RunScript(ScriptName, this);} {
+      callback {glviewer->DrawHrWasPicked();
+glviewer->redraw();}
+    }
+  }
+  Function {LoadInitialData(char *name)} {open return_type void
+  } {
+    code {char dum[200];
+
+glviewer->LoadInitialData(name);
+
+glviewer->GetCurrentMachText(dum);
+MachOutput->value(dum);
+
+glviewer->GetCurrentAlphaText(dum);
+AlphaOutput->value(dum);
+
+glviewer->GetCurrentBetaText(dum);
+BetaOutput->value(dum);} {}
+  }
+} 

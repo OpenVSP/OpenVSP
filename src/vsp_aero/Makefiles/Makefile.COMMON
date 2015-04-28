@@ -1,0 +1,25 @@
+################################################################################      
+#                                                                              #
+#                         VSPAERO Common Definitions                           #
+#                                                                              #
+# Makefile created by David Kinney                                             #
+# NASA Ames Research Center                                                    #
+# January 2014                                                                 #
+#                                                                              #
+################################################################################
+
+SHELL = /bin/sh
+
+# LOCATIONS OF SOURCE CODE
+
+VSPAERO_DIR      	= ../solver
+VIEWER_DIR      	= ../viewer
+
+# WHERE THIS MAKEFILE IS LOCATED
+
+EXEDIR = ./
+
+# EXECUTABLE NAMES
+
+VSPAERO_EXE      	= vspaero
+VIEWER_EXE      	= vspviewer

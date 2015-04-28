@@ -1,0 +1,57 @@
+################################################################################      
+#                                                                              #
+# Compiles the VSPAERO code.                                                   #
+#                                                                              #
+# January 2014                                                                 #
+# Makefile created by Dave Kinney                                              #
+#                                                                              #
+################################################################################
+.SUFFIXES:	.h .C .cc
+
+C_SRCS	=	matrix.C	        	\
+                utils.C			    \
+                quat.C			    \
+                Vortex.C	    	\
+	        Vortex_Trail.C		\
+                VSP_DegenGeom.C		\
+                VSP_Edge.C		    \
+                VSP_Grid.C	    	\
+                VSP_Node.C		    \
+                VSP_Loop.C          \
+                VSP_Solver.C		\
+                VSP_Surface.C		\
+		        RotorDisk.C		    \
+                VSP_Agglom.C		\
+                vspaero.C
+          
+        
+################################################################################      
+#                                                                              #
+#                               COMPILE SCRIPT                                 #
+#                                                                              #
+################################################################################
+
+C_OBJS		= $(C_SRCS:.C=.o)
+
+all:	msg1 $(C_OBJS) 
+	@echo " "
+	@echo " "
+	@rm -rf ../bin/$(PROGRAM)
+	@rm -rf ../bin/$(PROGRAM).exe
+	$(LDC) $(CCFLAGS) $(INCDIRS) $(LIBDIRS) $(C_OBJS) $(F_OBJS) $(OBJS) $(LIBS) -o ../bin/$(PROGRAM)
+
+msg1:
+	@echo " "
+	@echo " "
+	@echo  "Compiling VSPAERO code"
+
+msg2:
+	@echo " "
+	@echo " "
+	@echo  "Final link to create VSPAERO executable..."
+
+
+.C.o:
+		$(LDC) $(CCFLAGS) $(DEFINES) $(INCDIRS) -c $*.C
+
+
