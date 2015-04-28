@@ -108,6 +108,7 @@ public:
     void DeleteActiveGeomVec();
     void CopyActiveGeomVec();
     void DeleteGeomVec( const vector<string> & del_vec );
+    void DeleteGeom( const string & geom_id );
     void CutGeomVec( const vector<string> & cut_vec );
     void RemoveGeomVecFromHierarchy( const vector<string> & cut_vec );
     void DeleteClipBoard();
@@ -290,8 +291,6 @@ protected:
 
     //==== Export Files ====//
     map< int, string > m_ExportFileNames;
-
-    void DeleteGeom( const string & geom_id );
 
     // File Version Number
     int m_FileOpenVersion;
