@@ -67,7 +67,7 @@ void SelectFileScreen::LoadFavsMenu()
     selectFileUI->favsMenuButton->add( "Delete All Favorites", 0, NULL, ( void* )0, FL_MENU_DIVIDER );
 
     //==== Preferences ====//
-    Fl_Preferences prefs( Fl_Preferences::USER, "NASA", "VSP" );
+    Fl_Preferences prefs( Fl_Preferences::USER, "openvsp.org", "VSP" );
 
     //==== Load All Favorites From Preferences ====//
     char tag[256], str[256];
@@ -219,7 +219,7 @@ void SelectFileScreen::screenCB( Fl_Widget* w )
 
         if ( val == 0 )             // Add To Favorites
         {
-            Fl_Preferences prefs( Fl_Preferences::USER, "NASA", "VSP" );
+            Fl_Preferences prefs( Fl_Preferences::USER, "openvsp.org", "VSP" );
             char favstr[256];
             sprintf( favstr, "fav%d", static_cast<int>( m_FavDirVec.size() ) );
             prefs.set( favstr, m_DirString.c_str() );
@@ -229,7 +229,7 @@ void SelectFileScreen::screenCB( Fl_Widget* w )
         else if ( val == 1 )
         {
             m_FavDirVec.clear();
-            Fl_Preferences prefs( Fl_Preferences::USER, "NASA", "VSP" );
+            Fl_Preferences prefs( Fl_Preferences::USER, "openvsp.org", "VSP" );
             for ( int i = 0 ; i < ( int )prefs.entries() ; i++ )
             {
                 prefs.deleteEntry( prefs.entry( i ) );
