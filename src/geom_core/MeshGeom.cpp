@@ -2626,7 +2626,7 @@ vec3d MeshGeom::GetVertex3d( int surf, double x, double p, int r )
 //}
 
 //==== Call After BndBoxes Have Been Create But Before Intersect ====//
-void MeshGeom::MassSliceX( int numSlices )
+void MeshGeom::MassSliceX( int numSlices, bool writefile )
 {
     int i, j, s;
 
@@ -3067,8 +3067,11 @@ void MeshGeom::MassSliceX( int numSlices )
 
 //  res->WriteCSVFile("junk.txt");
 
-    string f_name = m_Vehicle->getExportFileName( vsp::MASS_PROP_TXT_TYPE );
-    res->WriteMassProp( f_name );
+    if( writefile )
+    {
+        string f_name = m_Vehicle->getExportFileName( vsp::MASS_PROP_TXT_TYPE );
+        res->WriteMassProp( f_name );
+    }
 }
 
 void MeshGeom::degenGeomMassSliceX( vector< DegenGeom > &degenGeom )

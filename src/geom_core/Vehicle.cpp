@@ -2284,7 +2284,7 @@ string Vehicle::CompGeomAndFlatten( int set, int sliceFlag, int meshFlag, int ha
     return id;
 }
 
-string Vehicle::MassProps( int set, int numSlices )
+string Vehicle::MassProps( int set, int numSlices, bool hidegeom, bool writefile )
 {
     string id = AddMeshGeom( set );
     if ( id.compare( "NONE" ) == 0 )
@@ -2292,7 +2292,10 @@ string Vehicle::MassProps( int set, int numSlices )
         return id;
     }
 
-    HideAllExcept( id );
+    if( hidegeom )
+    {
+        HideAllExcept( id );
+    }
 
     MeshGeom* mesh_ptr = ( MeshGeom* )FindGeom( id );
     if ( mesh_ptr == NULL )
@@ -2327,7 +2330,7 @@ string Vehicle::MassProps( int set, int numSlices )
 
     if ( mesh_ptr->m_TMeshVec.size() || mesh_ptr->m_PointMassVec.size() )
     {
-        mesh_ptr->MassSliceX( numSlices );
+        mesh_ptr->MassSliceX( numSlices, writefile );
         m_TotalMass = mesh_ptr->m_TotalMass;
         m_IxxIyyIzz = vec3d( mesh_ptr->m_TotalIxx, mesh_ptr->m_TotalIyy, mesh_ptr->m_TotalIzz );
         m_IxyIxzIyz = vec3d( mesh_ptr->m_TotalIxy, mesh_ptr->m_TotalIxz, mesh_ptr->m_TotalIyz );
@@ -2344,9 +2347,9 @@ string Vehicle::MassProps( int set, int numSlices )
     return id;
 }
 
-string Vehicle::MassPropsAndFlatten( int set, int numSlices )
+string Vehicle::MassPropsAndFlatten( int set, int numSlices, bool hidegeom, bool writefile )
 {
-    string id = MassProps( set, numSlices );
+    string id = MassProps( set, numSlices, hidegeom, writefile );
     Geom* geom = FindGeom( id );
     if ( !geom )
     {

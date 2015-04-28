@@ -203,8 +203,8 @@ public:
     //Comp Geom
     string CompGeom( int set, int sliceFlag, int meshFlag, int halfFlag, int intSubsFlag = 1 );
     string CompGeomAndFlatten( int set, int sliceFlag, int meshFlag, int halfFlag, int intSubsFlag = 1 );
-    string MassProps( int set, int numSlices );
-    string MassPropsAndFlatten( int set, int numSlices );
+    string MassProps( int set, int numSlices, bool hidegeom = true, bool writefile = true );
+    string MassPropsAndFlatten( int set, int numSlices, bool hidegeom = true, bool writefile = true );
     string AwaveSlice( int set, int numSlices, int numRots, double AngleControlVal, bool computeAngle,
                        vec3d norm, bool autoBoundsFlag, double start = 0, double end = 0 );
     string AwaveSliceAndFlatten( int set, int numSlices, int numRots, double AngleControlVal, bool computeAngle,
