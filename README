@@ -202,6 +202,15 @@ BUILD INSTRUCTIONS
      headless batch-mode VSP, API, and bindings.  This is ideal
      for building VSP on a HPC machine with limited access.
 
+    XXX_OMP_COMPILER -- Set these variables to point at secondary
+     compilers to use when the primary compiler does not support
+     OpenMP.  This will allow the VSPAERO solver to be built as
+     a multithreaded program.  Expected versions of this variable
+     are:
+
+      C_OMP_COMPILER
+      CXX_OMP_COMPILER
+
    OpenVSP project variables:
 
     VSP_LIBRARY_PATH -- Set this variable to point at the
