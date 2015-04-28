@@ -8,31 +8,12 @@
 
 #include <stdio.h>
 
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-
 #ifdef WIN32
 #include <windows.h>
 #endif
 
-#include <libxml/tree.h>
-#include <libxml/nanohttp.h>
-
-
-#ifdef WIN32
-#include <direct.h>
-#define GetCurrentDir _getcwd
-#else
-#include <unistd.h>
-#define GetCurrentDir getcwd
-#endif
-
-
 #include "main.h"
 #include "VSP_Geom_API.h"
-
-#include "EventMgr.h"
 
 
 void vsp_exit()
