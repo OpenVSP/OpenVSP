@@ -21,6 +21,7 @@ FileUtil.cpp
 Matrix.cpp
 MessageMgr.cpp
 PntNodeMerge.cpp
+ProcessUtil.cpp
 Quat.cpp
 STEPutil.cpp
 StlHelper.cpp
@@ -41,6 +42,7 @@ GuiDeviceEnums.h
 Matrix.h
 MessageMgr.h
 PntNodeMerge.h
+ProcessUtil.h
 Quat.h
 StlHelper.h
 STEPutil.h
