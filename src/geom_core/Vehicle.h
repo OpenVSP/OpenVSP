@@ -163,6 +163,7 @@ public:
     void SetupPaths();
 
     string GetExePath()                                     { return m_ExePath; }
+    string GetHomePath()                                    { return m_HomePath; }
     string GetVSPAEROCmd()                                  { return m_VSPAEROCmd; }
     string GetVIEWERCmd()                                   { return m_VIEWERCmd; }
 

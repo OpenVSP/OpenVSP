@@ -32,6 +32,9 @@ SelectFileScreen::SelectFileScreen()
 
     m_DirString = string( cCurrentPath );
 
+    m_HomePath = VehicleMgr.GetVehicle()->GetHomePath();
+    m_ExePath = VehicleMgr.GetVehicle()->GetExePath();
+
     char forwardSlash = '\\';
     StringUtil::change_from_to( m_DirString, forwardSlash, '/' );
 
@@ -65,6 +68,8 @@ void SelectFileScreen::LoadFavsMenu()
     selectFileUI->favsMenuButton->clear();
     selectFileUI->favsMenuButton->add( "Add to Favorites" );
     selectFileUI->favsMenuButton->add( "Delete All Favorites", 0, NULL, ( void* )0, FL_MENU_DIVIDER );
+    selectFileUI->favsMenuButton->add( "Home" );
+    selectFileUI->favsMenuButton->add( "VSP Path", 0, NULL, ( void* )0, FL_MENU_DIVIDER );
 
     //==== Preferences ====//
     Fl_Preferences prefs( Fl_Preferences::USER, "openvsp.org", "VSP" );
@@ -237,10 +242,22 @@ void SelectFileScreen::screenCB( Fl_Widget* w )
             prefs.flush();
             LoadFavsMenu();
         }
+        else if ( val == 2 )
+        {
+            m_DirString = m_HomePath;
+            selectFileUI->fileBrowser->load( m_DirString.c_str() );
+            selectFileUI->dirInput->value( m_DirString.c_str() );
+        }
+        else if ( val == 3 )
+        {
+            m_DirString = m_ExePath;
+            selectFileUI->fileBrowser->load( m_DirString.c_str() );
+            selectFileUI->dirInput->value( m_DirString.c_str() );
+        }
         else
         {
             //==== Select Favorite Dir ====//
-            int ind = val - 2;
+            int ind = val - 4;
             if ( ind >= 0 && ind < ( int )m_FavDirVec.size() )
             {
                 m_DirString = m_FavDirVec[ind];

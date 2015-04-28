@@ -55,6 +55,8 @@ protected:
 
     vector< string > m_FavDirVec;
 
+    string m_HomePath;
+    string m_ExePath;
 
 };
 
