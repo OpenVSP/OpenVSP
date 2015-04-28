@@ -23,13 +23,10 @@ using namespace vsp;
 //==== Constructor ====//
 CustomGeomMgrSingleton::CustomGeomMgrSingleton()
 {
-    m_ScriptDir = "./CustomScripts/";
-
-
 }
 
 //==== Scan Custom Directory And Return All Possible Types ====//
-void CustomGeomMgrSingleton::ReadCustomScripts()
+void CustomGeomMgrSingleton::ReadCustomScripts( Vehicle* veh )
 {
     //==== Only Read Once ====//
     static bool init_flag = false;
@@ -43,12 +40,19 @@ void CustomGeomMgrSingleton::ReadCustomScripts()
 
     m_CustomTypeVec.clear();
 
-    vector< string > mod_vec = ScriptMgr.ReadScriptsFromDir( m_ScriptDir, ".vsppart" );
+    vector < string > scriptDirs = veh->GetCustomScriptDirs();
 
-    for ( int i = 0 ; i < (int)mod_vec.size() ; i++ )
+    for ( int k = 0 ; k < scriptDirs.size(); k++ )
     {
-        m_CustomTypeVec.push_back( GeomType( CUSTOM_GEOM_TYPE, mod_vec[i], false, mod_vec[i] ) );
-        m_ModuleGeomIDMap[ mod_vec[i] ] = string();
+        // ReadScriptsFromDir is clever enough to not allow duplicate scripts.  It checks
+        // for duplicate content -- not just the file name or another identifier.
+        vector< string > mod_vec = ScriptMgr.ReadScriptsFromDir( scriptDirs[k], ".vsppart" );
+
+        for ( int i = 0 ; i < (int)mod_vec.size() ; i++ )
+        {
+            m_CustomTypeVec.push_back( GeomType( CUSTOM_GEOM_TYPE, mod_vec[i], false, mod_vec[i] ) );
+            m_ModuleGeomIDMap[ mod_vec[i] ] = string();
+        }
     }
 }
 

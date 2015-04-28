@@ -54,16 +54,12 @@ public:
     }
     void Init()                                         {}
 
-    //==== Set/Get Script Dir ====//
-    void SetScriptDir( const string & dir )                 { m_ScriptDir = dir; }
-    string GetScriptDir()                                   { return m_ScriptDir; }
-
     //==== Init Geom ====//
     void InitGeom( const string& id, const string& module_name );
     void SetCurrCustomGeom( const string& id )            { m_CurrGeom = id; }
     string GetCurrCustomGeom()                            { return m_CurrGeom; }
 
-    void ReadCustomScripts();
+    void ReadCustomScripts( Vehicle* veh );
     vector< GeomType > GetCustomTypes()                    { return m_CustomTypeVec; }
 
     //==== Adds A Parm To The Current Custom Geom - Return Index of The Added Parm ====//
@@ -124,7 +120,6 @@ private:
     CustomGeomMgrSingleton& operator=( CustomGeomMgrSingleton const& copy ); // Not Implemented
 
     string m_CurrGeom;
-    string m_ScriptDir;
     vector< GeomType > m_CustomTypeVec;
     map< string, string > m_ModuleGeomIDMap;
 

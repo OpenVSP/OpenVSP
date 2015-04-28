@@ -86,7 +86,7 @@ void Vehicle::Init()
     CustomGeomMgr.Init();
     ScriptMgr.Init();
     AdvLinkMgr.Init();
-    CustomGeomMgr.ReadCustomScripts();
+    CustomGeomMgr.ReadCustomScripts( this );
  
     m_Name = "Vehicle";
 
@@ -217,6 +217,7 @@ void Vehicle::SetVSP3FileName( const string & f_name )
 void Vehicle::SetupPaths()
 {
     m_ExePath = PathToExe();
+    m_HomePath = PathToHome();
 
 #ifdef WIN32
     m_VSPAEROCmd = string( "vspaero.exe" );
@@ -235,6 +236,9 @@ void Vehicle::SetupPaths()
         printf("VSPAERO viewer not found.\n");
     }
 
+    m_CustomScriptDirs.push_back( string( "./CustomScripts/" ) );
+    m_CustomScriptDirs.push_back( m_HomePath + string( "/CustomScripts/" ) );
+    m_CustomScriptDirs.push_back( m_ExePath + string( "/CustomScripts/" ) );
 }
 
 bool Vehicle::CheckForFile( const string &path, string &file )

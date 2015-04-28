@@ -166,6 +166,10 @@ public:
     string GetVSPAEROCmd()                                  { return m_VSPAEROCmd; }
     string GetVIEWERCmd()                                   { return m_VIEWERCmd; }
 
+    //==== Get Script Dir to Write Scripts ====//
+    string GetWriteScriptDir()                              { return m_CustomScriptDirs[0]; }
+    vector < string > GetCustomScriptDirs()                 { return m_CustomScriptDirs; }
+
     const VehicleGuiDraw * getVGuiDraw() const
     {
         return &m_VGuiDraw;
@@ -302,8 +306,12 @@ protected:
     int m_FileOpenVersion;
 
     string m_ExePath;
+    string m_HomePath;
     string m_VSPAEROCmd;
     string m_VIEWERCmd;
+    vector< string > m_CustomScriptDirs;
+
+
     CfdMeshSettings m_CfdSettings;
     CfdGridDensity m_CfdGridDensity;
     FeaGridDensity m_FeaGridDensity;
