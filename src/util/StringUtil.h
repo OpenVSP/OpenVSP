@@ -14,6 +14,7 @@ using std::string;
 //==== String Functions =====//
 namespace StringUtil
 {
+void change_from_to( char* str, const char from, const char to );
 void change_from_to( string & str, const char from, const char to );
 void chance_underscore_to_space( string & str );
 void chance_space_to_underscore( string & str );
