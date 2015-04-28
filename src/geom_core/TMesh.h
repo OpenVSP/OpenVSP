@@ -280,9 +280,8 @@ public:
     TEdge* m_PEArr[3];                          // Perimeter Edge Array
 
     virtual void CopyFrom( const TTri* tri );
-    virtual void SplitTri( int meshFlag = 0 );              // Split Tri to Fit ISect Edges
+    virtual void SplitTri();              // Split Tri to Fit ISect Edges
     virtual void TriangulateSplit( int flattenAxis );
-    virtual void NiceTriSplit( int flattenAxis );
     virtual vec3d ComputeCenter()
     {
         return ( m_N0->m_Pnt + m_N1->m_Pnt + m_N2->m_Pnt ) / 3.0;
@@ -430,7 +429,7 @@ public:
     void LoadGeomAttributes( Geom* geomPtr );
     int  RemoveDegenerate();
     void Intersect( TMesh* tm, bool UWFlag = false );
-    void Split( int meshFlag = 0 );
+    void Split();
     void DeterIntExt( vector< TMesh* >& meshVec );
     void DeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec );
     void MassDeterIntExt( vector< TMesh* >& meshVec );

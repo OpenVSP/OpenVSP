@@ -74,8 +74,6 @@ MeshGeom::MeshGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_MinTriDen = 0.0;
     m_MaxTriDen = 1.0;
 
-    m_MeshFlag = 0;
-
     m_ScaleMatrix.loadIdentity();
     m_ScaleFromOrig.Init( "Scale_From_Original", "XForm", this, 1, 1.0e-5, 1.0e12, false );
 
@@ -1457,11 +1455,9 @@ void MeshGeom::TransformMeshVec( vector<TMesh*> & meshVec, Matrix4d & TransMat )
     }
 }
 
-void MeshGeom::IntersectTrim( int meshf, int halfFlag, int intSubsFlag )
+void MeshGeom::IntersectTrim( int halfFlag, int intSubsFlag )
 {
     int i, j;
-
-    m_MeshFlag = meshf;
 
     //FILE* fid = fopen(txtfn.c_str(), "w");
 
@@ -1599,7 +1595,7 @@ void MeshGeom::IntersectTrim( int meshf, int halfFlag, int intSubsFlag )
     //==== Split Intersected Tri in Mesh ====//
     for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
-        m_TMeshVec[i]->Split( m_MeshFlag );
+        m_TMeshVec[i]->Split();
     }
 
     //==== Determine Which Triangle Are Interior/Exterior ====//
@@ -1771,24 +1767,18 @@ void MeshGeom::IntersectTrim( int meshf, int halfFlag, int intSubsFlag )
     res->Add( ResData( "Num_Open_Meshes_Removed", info.m_NumOpenMeshedDeleted ) );
     res->Add( ResData( "Num_Open_Meshes_Merged", info.m_NumOpenMeshesMerged ) );
 
-
-    if ( m_MeshFlag && !halfFlag )
-    {
-//      WaterTightCheck(fid);
-    }
-
     string txtfn = m_Vehicle->getExportFileName( vsp::COMP_GEOM_TXT_TYPE );
     res->WriteCompGeomTxtFile( txtfn );
 
     //==== Write CSV File ====//
-    if ( !m_MeshFlag && m_Vehicle->getExportCompGeomCsvFile() )
+    if ( m_Vehicle->getExportCompGeomCsvFile() )
     {
         string csvfn = m_Vehicle->getExportFileName( vsp::COMP_GEOM_CSV_TYPE );
         res->WriteCompGeomCsvFile( csvfn );
     }
 
     //==== Write Drag BuildUp File ====//
-    if ( !m_MeshFlag && m_Vehicle->getExportDragBuildTsvFile() )
+    if ( m_Vehicle->getExportDragBuildTsvFile() )
     {
         string tsvfn = m_Vehicle->getExportFileName( vsp::DRAG_BUILD_TSV_TYPE );
         res->WriteDragBuildFile( tsvfn );
@@ -1798,8 +1788,6 @@ void MeshGeom::IntersectTrim( int meshf, int halfFlag, int intSubsFlag )
 void MeshGeom::degenGeomIntersectTrim( vector< DegenGeom > &degenGeom )
 {
     int i, j;
-
-    m_MeshFlag = 0;
 
     //==== Check For Open Meshes and Merge or Delete Them ====//
     MeshInfo info;
@@ -1856,7 +1844,7 @@ void MeshGeom::degenGeomIntersectTrim( vector< DegenGeom > &degenGeom )
     //==== Split Intersected Tri in Mesh ====//
     for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
-        m_TMeshVec[i]->Split( m_MeshFlag );
+        m_TMeshVec[i]->Split();
     }
 
     //==== Determine Which Triangle Are Interior/Exterior ====//

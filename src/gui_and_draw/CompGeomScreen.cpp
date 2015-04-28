@@ -136,7 +136,7 @@ void CompGeomScreen::CallBack( Fl_Widget *w )
     }
     else if ( w == m_CompGeomUI->executeButton )
     {
-        string geom = vehiclePtr->CompGeomAndFlatten( m_SelectedSetIndex, 0, 0 , m_HalfMesh,
+        string geom = vehiclePtr->CompGeomAndFlatten( m_SelectedSetIndex, 0 , m_HalfMesh,
                       m_CompGeomUI->sub_surf_button->value() );
         if ( geom.compare( "NONE" ) != 0 )
         {

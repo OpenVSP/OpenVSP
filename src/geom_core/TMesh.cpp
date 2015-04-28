@@ -729,12 +729,12 @@ void TMesh::Intersect( TMesh* tm, bool UWFlag )
     m_TBox.Intersect( &tm->m_TBox, UWFlag );
 }
 
-void TMesh::Split( int meshFlag )
+void TMesh::Split()
 {
     int t;
     for ( t = 0 ; t < ( int )m_TVec.size() ; t++ )
     {
-        m_TVec[t]->SplitTri( meshFlag );
+        m_TVec[t]->SplitTri();
     }
 }
 
@@ -1361,7 +1361,7 @@ bool TTri::MatchEdge( TNode* n0, TNode* n1, TNode* nA, TNode* nB, double tol )
 }
 
 //==== Split A Triangle Along Edges in ISectEdges Vec =====//
-void TTri::SplitTri( int meshFlag )
+void TTri::SplitTri()
 {
     int i, j;
     double onEdgeTol = 0.00001;
@@ -1719,14 +1719,7 @@ void TTri::SplitTri( int meshFlag )
     }
 
     //==== Use Triangle to Split Tri ====//
-    if ( meshFlag )
-    {
-        NiceTriSplit( flattenAxis );
-    }
-    else
-    {
-        TriangulateSplit( flattenAxis );
-    }
+    TriangulateSplit( flattenAxis );
 
     if ( !uwflag )
     {
@@ -1986,289 +1979,6 @@ void TTri::TriangulateSplit( int flattenAxis )
         }
     }
 }
-
-void TTri::NiceTriSplit( int flattenAxis )
-{
-    int i, j;
-
-    //==== Dump Into Triangle ====//
-    struct triangulateio in;
-    struct triangulateio out;
-
-    memset( &in, 0, sizeof( in ) ); // Load Zeros
-    memset( &out, 0, sizeof( out ) );
-
-    //==== PreAllocate Data For In/Out ====//
-    in.pointlist    = ( REAL * ) malloc( m_NVec.size() * 2 * sizeof( REAL ) );
-    out.pointlist   = NULL;
-
-    in.segmentlist  = ( int * ) malloc( m_EVec.size() * 2 * sizeof( int ) );
-    out.segmentlist  = NULL;
-    out.trianglelist  = NULL;
-
-    in.numberofpointattributes = 0;
-    in.pointattributelist = NULL;
-    in.pointmarkerlist = NULL;
-    in.numberofholes = 0;
-    in.numberoftriangles = 0;
-    in.numberofpointattributes = 0;
-    in.numberofedges = 0;
-    in.trianglelist = NULL;
-    in.trianglearealist = NULL;
-    in.edgelist = NULL;
-    in.edgemarkerlist = NULL;
-    in.segmentmarkerlist = NULL;
-
-    //==== Load Points into Traingle Struct ====//
-    in.numberofpoints = m_NVec.size();
-
-    //==== Find Bounds of NVec ====//
-    BndBox box;
-    for ( j = 0 ; j < ( int )m_NVec.size() ; j++ )
-    {
-        box.Update( m_NVec[j]->m_Pnt );
-    }
-
-    vec3d center = box.GetCenter();
-
-    double min_s = 0.0001;
-    double sx = max( box.GetMax( 0 ) - box.GetMin( 0 ), min_s );
-    double sy = max( box.GetMax( 1 ) - box.GetMin( 1 ), min_s );
-    double sz = max( box.GetMax( 2 ) - box.GetMin( 2 ), min_s );
-
-    int cnt = 0;
-    for ( j = 0 ; j < ( int )m_NVec.size() ; j++ )
-    {
-        //==== Center and Rescale Triangle For Better Mapping ====//
-        vec3d pnt = m_NVec[j]->m_Pnt - center;
-        pnt.scale_x( 1.0 / sx );
-        pnt.scale_y( 1.0 / sy );
-        pnt.scale_z( 1.0 / sz );
-
-        if ( flattenAxis == 0 )
-        {
-            in.pointlist[cnt] = m_NVec[j]->m_Pnt.y();
-            cnt++;
-            in.pointlist[cnt] = m_NVec[j]->m_Pnt.z();
-            cnt++;
-        }
-        else if ( flattenAxis == 1 )
-        {
-            in.pointlist[cnt] = m_NVec[j]->m_Pnt.x();
-            cnt++;
-            in.pointlist[cnt] = m_NVec[j]->m_Pnt.z();
-            cnt++;
-        }
-        else if ( flattenAxis == 2 )
-        {
-            in.pointlist[cnt] = m_NVec[j]->m_Pnt.x();
-            cnt++;
-            in.pointlist[cnt] = m_NVec[j]->m_Pnt.y();
-            cnt++;
-        }
-    }
-
-    //==== Match Edge Nodes to Indices in NVec ====//
-    vector< int > segIndList;
-    for ( i = 0 ; i < ( int )m_EVec.size() ; i++ )
-    {
-        for ( j = 0 ; j < ( int )m_NVec.size() ; j++ )
-        {
-            if ( m_EVec[i]->m_N0 == m_NVec[j] )
-            {
-                segIndList.push_back( j );
-                break;
-            }
-        }
-        for ( j = 0 ; j < ( int )m_NVec.size() ; j++ )
-        {
-            if ( m_EVec[i]->m_N1 == m_NVec[j] )
-            {
-                segIndList.push_back( j );
-                break;
-            }
-        }
-    }
-    cnt = 0;
-    for ( j = 0 ; j < ( int )segIndList.size() ; j += 2 )
-    {
-        in.segmentlist[cnt] = segIndList[j];
-        cnt++;
-        in.segmentlist[cnt] = segIndList[j + 1];
-        cnt++;
-    }
-
-    in.numberofsegments = segIndList.size() / 2;
-
-    if ( in.numberofpoints > 3 && in.numberofsegments > 3 )
-    {
-        //==== Check For Duplicate Points =====//
-        int dupFlag = 0;
-        for ( i = 0 ; i < in.numberofpoints ; i++ )
-            for ( j = i + 1 ; j < in.numberofpoints ; j++ )
-            {
-                double del = fabs( in.pointlist[i * 2] - in.pointlist[j * 2] ) +
-                             fabs( in.pointlist[i * 2 + 1] - in.pointlist[j * 2 + 1] );
-
-                if ( del < 0.0000001 )
-                {
-                    dupFlag = 1;
-                }
-            }
-
-        if ( !dupFlag )
-        {
-            //==== Constrained Delaunay Trianglulation ====//
-//          triangulate ("zpq20QjS5Y", &in, &out, (struct triangulateio *) NULL);
-            triangulate ( "zpQ", &in, &out, ( struct triangulateio * ) NULL );
-        }
-    }
-
-//printf("Triangulate in = %d out = %d \n", in.numberofpoints, out.numberofpoints );
-
-    //==== Map Points to Tri ====//
-//printf("  n0 = %f %f %f \n", n0->pnt.x(), n0->pnt.y(), n0->pnt.z() );
-//printf("  n1 = %f %f %f \n", n1->pnt.x(), n1->pnt.y(), n1->pnt.z() );
-//printf("  n2 = %f %f %f \n", n2->pnt.x(), n2->pnt.y(), n2->pnt.z() );
-
-    m_NVec.clear();         // jrg del mem...
-    m_NVec.push_back( m_N0 );
-    m_NVec.push_back( m_N1 );
-    m_NVec.push_back( m_N2 );
-
-    vec3d ray;
-    if ( flattenAxis == 0 )
-    {
-        ray.set_xyz( 1.0, 0.0, 0.0 );
-    }
-    else if ( flattenAxis == 1 )
-    {
-        ray.set_xyz( 0.0, 1.0, 0.0 );
-    }
-    else if ( flattenAxis == 2 )
-    {
-        ray.set_xyz( 0.0, 0.0, 1.0 );
-    }
-
-    for ( i = 3 ; i < out.numberofpoints ; i++ )
-    {
-        vec3d pnt;
-        if ( flattenAxis == 0 )
-        {
-            pnt.set_xyz( 0.0, out.pointlist[i * 2], out.pointlist[i * 2 + 1] );
-        }
-        else if ( flattenAxis == 1 )
-        {
-            pnt.set_xyz( out.pointlist[i * 2], 0.0, out.pointlist[i * 2 + 1] );
-        }
-        else if ( flattenAxis == 2 )
-        {
-            pnt.set_xyz( out.pointlist[i * 2], out.pointlist[i * 2 + 1], 0.0 );
-        }
-
-        double t;
-        vec3d n0pnt  = m_N0->m_Pnt;
-        vec3d n10pnt = m_N1->m_Pnt - m_N0->m_Pnt;
-        vec3d n20pnt = m_N2->m_Pnt - m_N0->m_Pnt;
-        plane_ray_intersect( n0pnt, n10pnt, n20pnt, pnt, ray, t );
-
-        vec3d mapPnt = pnt + ray * t;
-
-        TNode* sn = new TNode();        // New node
-        sn->m_Pnt = mapPnt;
-        sn->m_IsectFlag = 1;
-        m_NVec.push_back( sn );
-    }
-
-    //==== Load Triangles if No New Point Created ====//
-    cnt = 0;
-    for ( i = 0 ; i < out.numberoftriangles ; i++ )
-    {
-        if ( out.trianglelist[cnt]   < ( int )m_NVec.size() &&
-                out.trianglelist[cnt + 1] < ( int )m_NVec.size() &&
-                out.trianglelist[cnt + 2] < ( int )m_NVec.size() )
-        {
-            TTri* t = new TTri();
-            t->m_N0 = m_NVec[out.trianglelist[cnt]];
-            t->m_N1 = m_NVec[out.trianglelist[cnt + 1]];
-            t->m_N2 = m_NVec[out.trianglelist[cnt + 2]];
-            t->m_Tags = m_Tags; // Set split tri to have same tags as original triangle
-            m_SplitVec.push_back( t );
-        }
-        else
-        {
-            /* jrg problem - look into...
-                        printf("\n");
-                        printf("m\n");
-                        printf("c red\n");
-                        printf("%12.8f, %12.8f, %12.8f \n", n0->pnt.x(), n0->pnt.y(), n0->pnt.z());
-                        printf("%12.8f, %12.8f, %12.8f \n", n1->pnt.x(), n1->pnt.y(), n1->pnt.z());
-                        printf("%12.8f, %12.8f, %12.8f \n", n2->pnt.x(), n2->pnt.y(), n2->pnt.z());
-                        printf("c blue\n");
-                        for ( j = 0 ; j < iSectEdgeVec.size() ; j++ )
-                        {
-                            printf("m\n");
-                            printf("%12.8f, %12.8f, %12.8f \n", iSectEdgeVec[j]->n0->pnt.x(), iSectEdgeVec[j]->n0->pnt.y(), iSectEdgeVec[j]->n0->pnt.z());
-                            printf("%12.8f, %12.8f, %12.8f \n", iSectEdgeVec[j]->n0->pnt.x(), iSectEdgeVec[j]->n1->pnt.y(), iSectEdgeVec[j]->n1->pnt.z());
-                        }
-            */
-
-        }
-        cnt += 3;
-    }
-
-    //==== Free Local Memory ====//
-    if ( in.pointlist )
-    {
-        free( in.pointlist );
-    }
-    if ( in.segmentlist )
-    {
-        free( in.segmentlist );
-    }
-
-    if ( out.pointlist )
-    {
-        free( out.pointlist );
-    }
-    if ( out.pointmarkerlist )
-    {
-        free( out.pointmarkerlist );
-    }
-    if ( out.trianglelist )
-    {
-        free( out.trianglelist );
-    }
-    if ( out.segmentlist )
-    {
-        free( out.segmentlist );
-    }
-    if ( out.segmentmarkerlist )
-    {
-        free( out.segmentmarkerlist );
-    }
-
-    //=== Orient Tris to Match Normal ====//
-    for ( i = 0 ; i < ( int )m_SplitVec.size() ; i++ )
-    {
-        TTri* t = m_SplitVec[i];
-        vec3d d01 = t->m_N0->m_Pnt - t->m_N1->m_Pnt;
-        vec3d d21 = t->m_N2->m_Pnt - t->m_N1->m_Pnt;
-
-        vec3d cx = cross( d21, d01 );
-        cx.normalize();
-        m_Norm.normalize();
-
-        double del = dist_squared( cx, m_Norm );
-        if ( del > 1.0 )
-        {
-            TNode* tmp = t->m_N1;
-            t->m_N1 = t->m_N2;
-            t->m_N2 = tmp;
-        }
-    }
-}
-
 
 int TTri::OnEdge( vec3d & p, TEdge* e, double onEdgeTol, double * t )
 {

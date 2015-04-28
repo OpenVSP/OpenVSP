@@ -71,7 +71,6 @@ public:
     double m_TotalTheoVol;
     double m_TotalWetVol;
 
-    int m_MeshFlag;              // Do WaterTight Check and Quality Mesh
     int m_MassPropFlag;
     vec3d m_CenterOfGrav;
 
@@ -153,7 +152,7 @@ public:
     virtual void Scale();
 
     //==== Intersection, Splitting and Trimming ====//
-    virtual void IntersectTrim( int meshFlag, int halfFlag = 0, int intSubsFlag = 1 );
+    virtual void IntersectTrim( int halfFlag = 0, int intSubsFlag = 1 );
     virtual void degenGeomIntersectTrim( vector< DegenGeom > &degenGeom );
     virtual void SliceX( int numSlice );
     virtual void MassSliceX( int numSlice, bool writefile = true );

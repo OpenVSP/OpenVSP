@@ -211,8 +211,8 @@ public:
     string ImportFile( const string & file_name, int file_type );
 
     //Comp Geom
-    string CompGeom( int set, int sliceFlag, int meshFlag, int halfFlag, int intSubsFlag = 1 );
-    string CompGeomAndFlatten( int set, int sliceFlag, int meshFlag, int halfFlag, int intSubsFlag = 1 );
+    string CompGeom( int set, int sliceFlag, int halfFlag, int intSubsFlag = 1 );
+    string CompGeomAndFlatten( int set, int sliceFlag, int halfFlag, int intSubsFlag = 1 );
     string MassProps( int set, int numSlices, bool hidegeom = true, bool writefile = true );
     string MassPropsAndFlatten( int set, int numSlices, bool hidegeom = true, bool writefile = true );
     string AwaveSlice( int set, int numSlices, int numRots, double AngleControlVal, bool computeAngle,
