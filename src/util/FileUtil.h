@@ -14,6 +14,8 @@ using std::string;
 vector< string > ScanFolder( const char* dir_path );
 int ScanFolder();
 
+string PathToExe();
+string PathToHome();
 
 #endif
 

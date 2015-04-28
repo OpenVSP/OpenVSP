@@ -6,6 +6,21 @@
 #include "FileUtil.h"
 #include "tinydir.h"
 #include <stdio.h>
+#include <stdlib.h>
+
+#ifdef __APPLE__
+#include <mach-o/dyld.h>    /* _NSGetExecutablePath */
+#endif
+
+#ifdef WIN32
+#include <windows.h>
+#include <Shlwapi.h>
+#else
+#include <unistd.h>
+#include <libgen.h>
+#include <sys/types.h>
+#include <pwd.h>
+#endif
 
 
 vector< string > ScanFolder( const char* dir_path )
@@ -93,4 +108,132 @@ bail:
 //}
 //return 0;
 
+string PathToExe()
+{
+    int bufsize = 255;
+    char *path = NULL;
+    bool done = false;
 
+// Pre-loop initialization.
+#ifdef WIN32
+    // Will contain exe path
+    HMODULE hModule = GetModuleHandle(NULL);
+    if (hModule != NULL)
+    {
+#endif
+
+    while( !done )
+    {
+        path = (char*) realloc( path, bufsize * sizeof(char));
+
+#ifdef WIN32
+        DWORD size = GetModuleFileName(hModule, path, bufsize);
+        if( size < bufsize )
+        {
+            char *cpath = (char*) malloc( 2 * bufsize * sizeof(char) );
+            PathCanonicalize( cpath, path );
+            if ( cpath )
+            {
+                free( path );
+                path = cpath;
+            }
+            PathRemoveFileSpec( path );
+            done = true;
+        }
+#else
+
+#ifdef __APPLE__
+        uint32_t size = bufsize;
+        if (_NSGetExecutablePath(path, &size) == 0)
+        {
+            done = true;
+        }
+#else
+        ssize_t size = readlink("/proc/self/exe", path, bufsize);
+        if ( size < bufsize - 1 )
+        {
+            path[size] = '\0';
+            done = true;
+        }
+#endif
+        if ( done )
+        {
+            char* cpath = NULL;
+            cpath = realpath( path, NULL );
+            if ( cpath )
+            {
+                free( path );
+                path = cpath;
+            }
+
+            char *ppath = (char*) malloc( 2 * bufsize * sizeof(char) );
+            strcpy( ppath, path );
+            ppath = dirname( ppath );
+            if ( ppath )
+            {
+                free( path );
+                path = ppath;
+            }
+        }
+#endif
+
+        bufsize *= 2;
+    }  // while( !done )
+
+// Handle pre-loop initialization failure.
+#ifdef WIN32
+    }
+    else
+    {
+        path = (char*) realloc( path, bufsize * sizeof(char));
+        path[0] = '\0';
+    }
+#endif
+
+    string spath( path );
+
+    free( path );
+
+    return spath;
+}
+
+string PathToHome()
+{
+#ifdef WIN32
+    char * homedir;
+    homedir = getenv( "USERPROFILE" );
+
+    if ( !homedir )
+    {
+        char * drive = getenv( "HOMEDRIVE" );
+        char * path = getenv( "HOMEPATH" );
+        if ( drive && path )
+        {
+            return string( drive ) + string( path );
+        }
+        return string();
+    }
+    else
+    {
+        return string( homedir );
+    }
+#else
+    char * homedir;
+    homedir = getenv( "HOME" );
+
+    if ( !homedir )
+    {
+        struct passwd* pwd = getpwuid(getuid());
+        if (pwd)
+        {
+            homedir = pwd->pw_dir;
+        }
+    }
+
+    if( homedir )
+    {
+        return string( homedir );
+    }
+    return string();
+#endif
+}
