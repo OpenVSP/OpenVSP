@@ -146,6 +146,7 @@ public:
 
     Fl_Browser* AddFlBrowser( int height );
     Fl_Text_Editor* AddFlTextEditor( int height );
+    Fl_Text_Display* AddFlTextDisplay( int height );
 
     //==== Add Another GroupLayout as a SubSet of This GroupLayout ====//
     //==== Subgroups can be Used To Create Multiple Column Layouts ====//

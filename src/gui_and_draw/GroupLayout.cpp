@@ -1235,3 +1235,17 @@ Fl_Text_Editor* GroupLayout::AddFlTextEditor( int height )
     return text_editor;
 }
 
+//==== Add Fl Text Display ====//
+Fl_Text_Display* GroupLayout::AddFlTextDisplay( int height )
+{
+    assert( m_Group && m_Screen );
+
+    Fl_Text_Display* text_display = new Fl_Text_Display (m_X, m_Y, m_W, height, "");
+
+    m_Group->add( text_display );
+
+    AddY( height );
+    NewLineX();
+
+    return text_display;
+}
