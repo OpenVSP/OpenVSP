@@ -66,7 +66,6 @@ LightMgr.cpp
 Color.cpp
 ColorMgr.cpp
 VSPAEROMgr.cpp
-VspPreferences.cpp
 AdvLink.h
 AdvLinkMgr.h
 Airfoil.h
@@ -110,7 +109,6 @@ TMesh.h
 Vehicle.h
 VehicleMgr.h
 VSPAEROMgr.h
-VspPreferences.h
 WingGeom.h
 XSec.h
 XSecCurve.h
