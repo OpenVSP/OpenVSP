@@ -28,6 +28,7 @@
 #include "APIDefines.h"
 #include "ResultsMgr.h"
 #include "FitModelMgr.h"
+#include "FileUtil.h"
 using namespace vsp;
 
 #include <set>
@@ -62,6 +63,8 @@ Vehicle::Vehicle()
     m_exportDragBuildTsvFile.Init( "DragBuild_TSV_Export", "ExportFlag", this, true, 0, 1 );
     m_exportDegenGeomCsvFile.Init( "DegenGeom_CSV_Export", "ExportFlag", this, true, 0, 1 );
     m_exportDegenGeomMFile.Init( "DegenGeom_M_Export", "ExportFlag", this, true, 0, 1 );
+
+    SetupPaths();
 }
 
 //==== Destructor ====//
@@ -210,6 +213,52 @@ void Vehicle::SetVSP3FileName( const string & f_name )
     resetExportFileNames();
 }
 
+void Vehicle::SetupPaths()
+{
+    m_ExePath = PathToExe();
+
+#ifdef WIN32
+    m_VSPAEROCmd = string( "vspaero.exe" );
+    m_VIEWERCmd = string( "vspviewer.exe" );
+#else
+    m_VSPAEROCmd = string( "vspaero" );
+    m_VIEWERCmd = string( "vspviewer" );
+#endif
+
+    if( !CheckForFile( m_ExePath, m_VSPAEROCmd ) )
+    {
+        printf("VSPAERO solver not found.\n");
+    }
+    if( !CheckForFile( m_ExePath, m_VIEWERCmd ) )
+    {
+        printf("VSPAERO viewer not found.\n");
+    }
+
+}
+
+bool Vehicle::CheckForFile( const string &path, string &file )
+{
+    FILE *fp = NULL;
+
+#ifdef WIN32
+    string pathfile = path + string( "\\" ) + file;
+#else
+    string pathfile = path + string( "/" ) + file;
+#endif
+
+    fp = fopen( pathfile.c_str(), "r" );
+
+    if( fp )
+    {
+        fclose( fp );
+        return true;
+    }
+    else
+    {
+        file = string();
+        return false;
+    }
+}
 
 //=== NewFile ===//
 // Reset VSP state to nearly that of startup.  Leave clipboard contents intact.

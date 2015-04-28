@@ -160,6 +160,12 @@ public:
     void SetVSP3FileName( const string & f_name );
     string GetVSP3FileName()                                { return m_VSP3FileName; }
 
+    void SetupPaths();
+
+    string GetExePath()                                     { return m_ExePath; }
+    string GetVSPAEROCmd()                                  { return m_VSPAEROCmd; }
+    string GetVIEWERCmd()                                   { return m_VIEWERCmd; }
+
     const VehicleGuiDraw * getVGuiDraw() const
     {
         return &m_VGuiDraw;
@@ -295,6 +301,9 @@ protected:
     // File Version Number
     int m_FileOpenVersion;
 
+    string m_ExePath;
+    string m_VSPAEROCmd;
+    string m_VIEWERCmd;
     CfdMeshSettings m_CfdSettings;
     CfdGridDensity m_CfdGridDensity;
     FeaGridDensity m_FeaGridDensity;
@@ -306,6 +315,8 @@ protected:
 private:
 
     void Wype();
+
+    bool CheckForFile( const string & path, string &file );
 };
 
 
