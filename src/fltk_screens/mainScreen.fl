@@ -234,6 +234,10 @@ class MainWinUI {open
               label {DegenGeom...} selected
               xywh {5 5 100 20}
             }
+            MenuItem VSPAEROMenu {
+              label {VSPAERO...}
+              xywh {15 15 100 20}
+            }
           }
           MenuItem RevertMenu {
             label UnDo

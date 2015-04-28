@@ -74,6 +74,7 @@ SubGLWindow.cpp
 SubGLWindow.cpp
 TypeEditorScreen.cpp
 UserParmScreen.cpp
+VSPAEROScreen.cpp
 VSPWindow.cpp
 WingScreen.cpp
 AdvLinkScreen.h
@@ -127,6 +128,7 @@ SubGLWindow.h
 SubGLWindow.h
 TypeEditorScreen.h
 UserParmScreen.h
+VSPAEROScreen.h
 VSPWindow.h
 WingScreen.h
 )
