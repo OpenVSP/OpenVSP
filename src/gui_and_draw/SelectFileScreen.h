@@ -46,6 +46,8 @@ public:
 
 protected:
 
+    string MassageDirString( string in ) const;
+
     bool m_AcceptFlag;
     string m_FilterString;
     string m_DirString;

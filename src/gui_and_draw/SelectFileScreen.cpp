@@ -32,17 +32,12 @@ SelectFileScreen::SelectFileScreen()
 
     m_DirString = string( cCurrentPath );
 
-    m_HomePath = VehicleMgr.GetVehicle()->GetHomePath();
-    m_ExePath = VehicleMgr.GetVehicle()->GetExePath();
+    m_HomePath = VehicleMgr.GetVehicle()->GetHomePath() + string( "/" );
+    m_ExePath = VehicleMgr.GetVehicle()->GetExePath() + string( "/" );
 
-    char forwardSlash = '\\';
-    StringUtil::change_from_to( m_DirString, forwardSlash, '/' );
-
-    int dirSize = ( int )m_DirString.size();
-    if ( m_DirString[dirSize - 1] != '/' )
-    {
-        m_DirString.append( "/" );
-    }
+    MassageDirString( m_DirString );
+    MassageDirString( m_HomePath );
+    MassageDirString( m_ExePath );
 
     m_FilterString = string( "*.*" );
 
@@ -60,6 +55,19 @@ SelectFileScreen::SelectFileScreen()
     selectFileUI->favsMenuButton->callback( staticScreenCB, this );
 
     LoadFavsMenu();
+}
+
+string SelectFileScreen::MassageDirString( string in ) const
+{
+    char forwardSlash = '\\';
+    StringUtil::change_from_to( in, forwardSlash, '/' );
+
+    int dirSize = ( int )in.size();
+    if ( in[dirSize - 1] != '/' )
+    {
+        in.append( "/" );
+    }
+    return in;
 }
 
 void SelectFileScreen::LoadFavsMenu()
