@@ -44,14 +44,19 @@ void CustomGeomMgrSingleton::ReadCustomScripts( Vehicle* veh )
 
     for ( int k = 0 ; k < scriptDirs.size(); k++ )
     {
-        // ReadScriptsFromDir is clever enough to not allow duplicate scripts.  It checks
-        // for duplicate content -- not just the file name or another identifier.
+        // ReadScriptsFromDir is clever enough to not allow duplicate content.  Duplicate
+        // content returns a repeated module name.  Repeated file names with different content
+        // are made unique and returned.  This filters duplicate module names to prevent displaying
+        // duplicates.
         vector< string > mod_vec = ScriptMgr.ReadScriptsFromDir( scriptDirs[k], ".vsppart" );
 
         for ( int i = 0 ; i < (int)mod_vec.size() ; i++ )
         {
-            m_CustomTypeVec.push_back( GeomType( CUSTOM_GEOM_TYPE, mod_vec[i], false, mod_vec[i] ) );
-            m_ModuleGeomIDMap[ mod_vec[i] ] = string();
+            if( m_ModuleGeomIDMap.find( mod_vec[i] ) == m_ModuleGeomIDMap.end() )
+            {
+                m_CustomTypeVec.push_back( GeomType( CUSTOM_GEOM_TYPE, mod_vec[i], false, mod_vec[i] ) );
+                m_ModuleGeomIDMap[ mod_vec[i] ] = string();
+            }
         }
     }
 }
