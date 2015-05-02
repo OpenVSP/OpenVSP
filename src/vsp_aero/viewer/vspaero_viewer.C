@@ -65,13 +65,13 @@ int main(int argc, char **argv) {
 
 	   else {
 
-          printf("CBVIEWER v5.0.0 --- 3/2013 \n");
+          printf("VSPVIEWER v1.0.0 --- 5/2015 \n");
           printf("Please direct questions to David Kinney, David.J.Kinney@nasa.gov \n");
 	      printf("Unrecognized option! \n");
 	      printf("Usage: \n");
-	      printf("cbviewer filename \n");
+	      printf("vspviewer filename \n");
 	      printf("or \n");
-	      printf("cbviewer -script scriptname filename \n");fflush(NULL);
+	      printf("vspviewer -script scriptname filename \n");fflush(NULL);
 
 	   }
 
@@ -81,13 +81,13 @@ int main(int argc, char **argv) {
 
     if ( argc <= 1 ) {
 
-       printf("CBVIEWER v5.0.0 --- 3/2013 \n");
+       printf("VSPVIEWER v1.0.0 --- 5/2015 \n");
        printf("Please direct questions to David Kinney, David.J.Kinney@nasa.gov \n");
        printf("Unrecognized option! \n");
        printf("Usage: \n");
-       printf("cbviewer filename \n");
+       printf("vspviewer filename \n");
        printf("or \n");
-       printf("cbviewer -script scriptname filename \n");fflush(NULL);
+       printf("vspviewer -script scriptname filename \n");fflush(NULL);
        exit(1);
 
     }
