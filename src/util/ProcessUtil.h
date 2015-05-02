@@ -38,6 +38,7 @@ public:
     bool IsRunning();
 
 #ifdef WIN32
+    string QuoteString( const string &str );
     void StartThread( LPTHREAD_START_ROUTINE threadfun, LPVOID data );
 
     HANDLE m_StdoutPipe[2];

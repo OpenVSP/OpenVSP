@@ -82,6 +82,52 @@ int ProcessUtil::SystemCmd( const string &path, const string &cmd, const vector<
 #endif
 }
 
+#ifdef WIN32
+string ProcessUtil::QuoteString( const string &str )
+{
+    string qstr;
+    if( str.empty() == false &&
+        str.find_first_of( " \t\n\v\"" ) == str.npos )
+    {
+        return str;
+    }
+    else
+    {
+
+        qstr.push_back( '"' );
+
+        for (auto It = str.begin () ; ; ++It)
+        {
+            unsigned NumberBackslashes = 0;
+
+            while( It != str.end () && *It == '\\' )
+            {
+                ++It;
+                ++NumberBackslashes;
+            }
+
+            if( It == str.end () )
+            {
+                qstr.append( NumberBackslashes * 2, '\\' );
+                break;
+            }
+            else if( *It == '"' )
+            {
+                qstr.append( NumberBackslashes * 2 + 1, '\\' );
+                qstr.push_back( *It );
+            }
+            else
+            {
+                qstr.append( NumberBackslashes, '\\' );
+                qstr.push_back( *It );
+            }
+        }
+
+        qstr.push_back( '"' );
+    }
+    return qstr;
+}
+#endif
 
 int ProcessUtil::ForkCmd( const string &path, const string &cmd, const vector<string> &opts )
 {
@@ -107,10 +153,10 @@ int ProcessUtil::ForkCmd( const string &path, const string &cmd, const vector<st
         exit( 0 );
     }
 
-    string command = path + string("\\") + cmd;
+    string command = QuoteString( path + string("\\") + cmd );
     for( int i = 0; i < opts.size(); i++ )
     {
-        command += string(" ") + opts[i];
+        command += string(" ") + QuoteString( opts[i] );
     }
 
     char *cmdstr = (char*) malloc( (command.size()+1) * sizeof(char) );
