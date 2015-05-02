@@ -123,6 +123,8 @@ protected:
     Fl_Text_Buffer *m_ViewerBuffer;
 
     string m_DegenFile;
+    bool m_SetupFlag;
+    bool m_ADBFlag;
 
     void SetupDegenFile();
 

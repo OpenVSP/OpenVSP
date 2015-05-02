@@ -10,6 +10,7 @@
 #include "VSPAEROScreen.h"
 #include "APIDefines.h"
 #include "StringUtil.h"
+#include "FileUtil.h"
 
 #include <utility>
 #include <string>
@@ -22,6 +23,8 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, 650, 340, "VSPA
 {
     m_SolverPair = make_pair( this, VSPAERO_SOLVER );
     m_ViewerPair = make_pair( this, VSPAERO_VIEWER );
+    m_SetupFlag = false;
+    m_ADBFlag = false;
 
     Fl_Group* overview_tab = AddTab( "Overview" );
     Fl_Group* setup_tab = AddTab( "Setup" );
@@ -203,6 +206,11 @@ bool VSPAEROScreen::Update()
 
     SetupDegenFile();
 
+    string setupfile = m_DegenFile + string(".vspaero");
+    m_SetupFlag = FileExist( setupfile );
+    string adbfile = m_DegenFile + string(".adb");
+    m_ADBFlag = FileExist( adbfile );
+
     VSPAEROMgr.Update();
 
     if( veh )
@@ -288,15 +296,22 @@ bool VSPAEROScreen::Update()
         if( veh->GetVSPAEROCmd().empty() || m_DegenFile.empty() || m_SolverProcess.IsRunning() )
         {
             m_SetupButton.Deactivate();
-            m_SolverButton.Deactivate();
         }
         else
         {
             m_SetupButton.Activate();
+        }
+
+        if( veh->GetVSPAEROCmd().empty() || m_DegenFile.empty() || m_SolverProcess.IsRunning() || !m_SetupFlag )
+        {
+            m_SolverButton.Deactivate();
+        }
+        else
+        {
             m_SolverButton.Activate();
         }
 
-        if( veh->GetVIEWERCmd().empty() || m_DegenFile.empty() || m_ViewerProcess.IsRunning() )
+        if( veh->GetVIEWERCmd().empty() || m_DegenFile.empty() || m_ViewerProcess.IsRunning() || !m_SetupFlag || !m_ADBFlag )
         {
             m_ViewerButton.Deactivate();
         }
