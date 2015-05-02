@@ -241,30 +241,6 @@ void Vehicle::SetupPaths()
     m_CustomScriptDirs.push_back( m_ExePath + string( "/CustomScripts/" ) );
 }
 
-bool Vehicle::CheckForFile( const string &path, string &file )
-{
-    FILE *fp = NULL;
-
-#ifdef WIN32
-    string pathfile = path + string( "\\" ) + file;
-#else
-    string pathfile = path + string( "/" ) + file;
-#endif
-
-    fp = fopen( pathfile.c_str(), "r" );
-
-    if( fp )
-    {
-        fclose( fp );
-        return true;
-    }
-    else
-    {
-        file = string();
-        return false;
-    }
-}
-
 //=== NewFile ===//
 // Reset VSP state to nearly that of startup.  Leave clipboard contents intact.
 void Vehicle::Renew()

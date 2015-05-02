@@ -17,5 +17,6 @@ int ScanFolder();
 string PathToExe();
 string PathToHome();
 
+bool CheckForFile( const string & path, string &file );
 #endif
 

@@ -324,8 +324,6 @@ protected:
 private:
 
     void Wype();
-
-    bool CheckForFile( const string & path, string &file );
 };
 
 
