@@ -257,3 +257,20 @@ bool CheckForFile( const string &path, string &file )
         return false;
     }
 }
+
+bool FileExist( const string & file )
+{
+    FILE *fp = NULL;
+
+    fp = fopen( file.c_str(), "r" );
+
+    if( fp )
+    {
+        fclose( fp );
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}

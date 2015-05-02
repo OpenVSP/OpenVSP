@@ -18,5 +18,7 @@ string PathToExe();
 string PathToHome();
 
 bool CheckForFile( const string & path, string &file );
+bool FileExist( const string & file );
+
 #endif
 
