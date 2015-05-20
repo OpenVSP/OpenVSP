@@ -52,6 +52,11 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 640, "Wing" )
     m_PlanLayout.AddChoice(m_TipCapTypeChoice, "Tip Cap Type");
     m_PlanLayout.AddSlider( m_TipTessSlider, "Tip Cap Tess", 10, "%3.0f" );
 
+    m_PlanLayout.AddYGap();
+    m_PlanLayout.AddDividerBox( "Root Incidence" );
+    m_PlanLayout.AddSlider( m_IncidenceSlider, "Incidence", 10, "%6.5f" );
+    m_PlanLayout.AddSlider( m_IncidenceLocSlider, "Incidence Loc", 10, "%6.5f" );
+
     Fl_Group* sect_tab = AddTab( "Sect" );
     Fl_Group* sect_group = AddSubGroup( sect_tab, 5 );
 
@@ -412,6 +417,13 @@ bool WingScreen::Update()
       m_TipTessSlider.Update( wing_ptr->m_CapUMaxTess.GetID() );
     }
 
+    WingSect* root_sect = dynamic_cast<WingSect*>(wing_ptr->GetXSec( 0 ));
+
+    if ( root_sect )
+    {
+        m_IncidenceSlider.Update( root_sect->m_Twist.GetID() );
+        m_IncidenceLocSlider.Update( root_sect->m_TwistLoc.GetID() );
+    }
 
     sprintf( str, "       %d", wing_ptr->NumXSec()-1 );
     m_NumSectOutput.Update(  str );

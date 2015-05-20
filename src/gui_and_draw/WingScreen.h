@@ -46,6 +46,9 @@ protected:
     Choice m_TipCapTypeChoice;
     SliderAdjRangeInput m_TipTessSlider;
 
+    SliderAdjRangeInput m_IncidenceSlider;
+    SliderAdjRangeInput m_IncidenceLocSlider;
+
     // Wing section tab
     GroupLayout m_SectionLayout;
 
