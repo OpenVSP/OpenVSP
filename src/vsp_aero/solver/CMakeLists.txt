@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
 
 FIND_PACKAGE( OpenMP )
 
@@ -87,6 +87,15 @@ if(BUILD_VSPAERO)
   )
 
   if ( NOT EP_BUILD )
+
+    if(MSVC)
+      if(OPENMP_FOUND)
+        SET( CMAKE_INSTALL_OPENMP_LIBRARIES "true" )
+      endif()
+      SET( CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION "." )
+      INCLUDE( InstallRequiredSystemLibraries )
+    endif()
+
     INSTALL( TARGETS vspaero RUNTIME DESTINATION . )
   endif()
 
