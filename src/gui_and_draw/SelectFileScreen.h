@@ -46,7 +46,7 @@ public:
 
 protected:
 
-    string MassageDirString( string in ) const;
+    void MassageDirString( string &in ) const;
 
     bool m_AcceptFlag;
     string m_FilterString;

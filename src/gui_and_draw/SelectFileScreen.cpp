@@ -57,7 +57,7 @@ SelectFileScreen::SelectFileScreen()
     LoadFavsMenu();
 }
 
-string SelectFileScreen::MassageDirString( string in ) const
+void SelectFileScreen::MassageDirString( string &in ) const
 {
     char forwardSlash = '\\';
     StringUtil::change_from_to( in, forwardSlash, '/' );
@@ -67,7 +67,6 @@ string SelectFileScreen::MassageDirString( string in ) const
     {
         in.append( "/" );
     }
-    return in;
 }
 
 void SelectFileScreen::LoadFavsMenu()
