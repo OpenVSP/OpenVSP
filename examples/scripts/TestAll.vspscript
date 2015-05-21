@@ -479,6 +479,30 @@ void TestAPIScript()
 
 	ClearVSPModel();
 
+	array<string> @ctr_arr = FindContainers();
+	if ( ctr_arr.size() != 5 )			Print( "---> Error: API FindContainers " );
+
+	ctr_arr = FindContainersWithName( "UserParms" );
+	if ( ctr_arr.size() != 1 )			Print( "---> Error: API FindContainersWithName " );
+
+	string user_ctr = FindContainer( "UserParms", 0 );
+	if ( user_ctr.size() == 0 )								Print( "---> Error: API FindContainer" );
+	if ( res_id.size() == 0 )								Print( "---> Error: API FindContainer" );
+
+	if ( GetContainerName( user_ctr ) != "UserParms" ) 		Print( "---> Error: API GetContainerName" );
+
+	array<string> @grp_arr = FindContainerGroupNames( user_ctr );
+	if ( grp_arr.size() != 1 )								Print( "---> Error: API FindContainerGroupNames " );
+	if ( grp_arr[0] != "User_Group" ) 						Print( "---> Error: API FindContainerGroupNames" );
+
+	string uparm = FindParm( user_ctr, "User_0", "User_Group" );
+	if ( uparm.size() == 0 )								Print( "---> Error: API FindParm" );
+
+	array<string> @uparm_arr  = FindContainerParmIDs( user_ctr );
+	if ( uparm_arr.size() == 0 )							Print( "---> Error: API FindContainerParmIDs" );
+
+	ClearVSPModel();
+
 	errcount += GetNumTotalErrors();
 
 	//==== Check For API Errors ====//
@@ -490,6 +514,6 @@ void TestAPIScript()
 
 	// Return error count.  Test framework includes one error 'on purpose' to test
 	// the error system itself.
-	VSPExit( errcount - 1 );
+//	VSPExit( errcount - 1 );
 }
 

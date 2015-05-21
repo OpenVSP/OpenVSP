@@ -1321,6 +1321,10 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "string GetParmName( const string & in parm_id )", asFUNCTION( vsp::GetParmName ), asCALL_CDECL );
     assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "string GetParmGroupName( const string & in parm_id )", asFUNCTION( vsp::GetParmGroupName ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "string GetParmDisplayGroupName( const string & in parm_id )", asFUNCTION( vsp::GetParmDisplayGroupName ), asCALL_CDECL );
+    assert( r >= 0 );
     r = se->RegisterGlobalFunction( "string GetParmContainer( const string & in parm_id )", asFUNCTION( vsp::GetParmContainer ), asCALL_CDECL );
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "void SetParmDescript( const string & in parm_id, const string & in desc )", asFUNCTION( vsp::SetParmDescript ), asCALL_CDECL );
@@ -1328,6 +1332,19 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "string FindParm( const string & in parm_container_id, const string & in name, const string & in group )", asFUNCTION( vsp::FindParm ), asCALL_CDECL );
     assert( r >= 0 );
 
+    //=== Parm Container Functions ===//
+    r = se->RegisterGlobalFunction( "array<string>@  FindContainers()", asMETHOD( ScriptMgrSingleton, FindContainers ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "array<string>@  FindContainersWithName( const string & in name )", asMETHOD( ScriptMgrSingleton, FindContainersWithName ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "string FindContainer( const string & in name, int index )", asFUNCTION( vsp::FindContainer ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "string GetContainerName( const string & in parm_container_id )", asFUNCTION( vsp::GetContainerName ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "array<string>@  FindContainerGroupNames( const string & in parm_container_id )", asMETHOD( ScriptMgrSingleton, FindContainerGroupNames ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "array<string>@  FindContainerParmIDs( const string & in parm_container_id )", asMETHOD( ScriptMgrSingleton, FindContainerParmIDs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
 
 }
 
@@ -1505,6 +1522,30 @@ CScriptArray* ScriptMgrSingleton::GetVec3dResults( const string & id, const stri
 {
     m_ProxyVec3dArray = vsp::GetVec3dResults( id, name, index );
     return GetProxyVec3dArray();
+}
+
+CScriptArray* ScriptMgrSingleton::FindContainers()
+{
+    m_ProxyStringArray = vsp::FindContainers();
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::FindContainersWithName( const string & name )
+{
+    m_ProxyStringArray = vsp::FindContainersWithName( name );
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::FindContainerGroupNames( const string & parm_container_id )
+{
+    m_ProxyStringArray = vsp::FindContainerGroupNames( parm_container_id );
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::FindContainerParmIDs( const string & parm_container_id )
+{
+    m_ProxyStringArray = vsp::FindContainerParmIDs( parm_container_id );
+    return GetProxyStringArray();
 }
 
 void ScriptMgrSingleton::SetXSecPnts( const string& xsec_id, CScriptArray* pnt_arr )

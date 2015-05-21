@@ -139,6 +139,10 @@ private:
     CScriptArray* GetDoubleResults( const string & id, const string & name, int index );
     CScriptArray* GetStringResults( const string & id, const string & name, int index );
     CScriptArray* GetVec3dResults( const string & id, const string & name, int index );
+    CScriptArray* FindContainers();
+    CScriptArray* FindContainersWithName( const string & name );
+    CScriptArray* FindContainerGroupNames( const string & parm_container_id );
+    CScriptArray* FindContainerParmIDs( const string & parm_container_id );
 
     void SetXSecPnts( const string& xsec_id, CScriptArray* pnt_arr );
     void SetVec3dArray( CScriptArray* arr );

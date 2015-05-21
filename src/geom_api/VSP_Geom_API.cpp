@@ -2174,6 +2174,32 @@ string GetParmName( const string & parm_id )
     return p->GetName();
 }
 
+/// Get the parm group name
+string GetParmGroupName( const string & parm_id )
+{
+    Parm* p = ParmMgr.FindParm( parm_id );
+    if ( !p )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetParmGroup::Can't Find Parm " + parm_id  );
+        return string();
+    }
+    ErrorMgr.NoError();
+    return p->GetGroupName();
+}
+
+/// Get the parm display group name
+string GetParmDisplayGroupName( const string & parm_id )
+{
+    Parm* p = ParmMgr.FindParm( parm_id );
+    if ( !p )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetParmDisplayGroup::Can't Find Parm " + parm_id  );
+        return string();
+    }
+    ErrorMgr.NoError();
+    return p->GetDisplayGroupName();
+}
+
 /// The the parm container id
 string GetParmContainer( const string & parm_id )
 {
@@ -2224,6 +2250,118 @@ string FindParm( const string & parm_container_id, const string & name, const st
 }
 
 
+//===================================================================//
+//===============       Parm Container Functions       ==============//
+//===================================================================//
+
+vector< std::string > FindContainers()
+{
+    vector< string > containerVec;
+    LinkMgr.BuildLinkableParmData();
+    LinkMgr.GetAllContainerVec( containerVec );
+
+    ErrorMgr.NoError();
+    return containerVec;
+}
+
+vector< std::string > FindContainersWithName( const string & name )
+{
+    vector< string > containerVec;
+    vector< string > ret_vec;
+    LinkMgr.BuildLinkableParmData();
+    LinkMgr.GetAllContainerVec( containerVec );
+
+    for ( int i = 0 ; i < ( int )containerVec.size() ; i++ )
+    {
+        ParmContainer* pc = ParmMgr.FindParmContainer( containerVec[i]  );
+
+        if ( pc && pc->GetName() == name )
+        {
+            ret_vec.push_back( containerVec[i] );
+        }
+    }
+    ErrorMgr.NoError();
+    return ret_vec;
+}
+
+string FindContainer( const string & name, int index )
+{
+    vector< string > containerVec;
+    vector< string > id_vec;
+    LinkMgr.BuildLinkableParmData();
+    LinkMgr.GetAllContainerVec( containerVec );
+
+    for ( int i = 0 ; i < ( int )containerVec.size() ; i++ )
+    {
+        ParmContainer* pc = ParmMgr.FindParmContainer( containerVec[i]  );
+
+        if ( pc && pc->GetName() == name )
+        {
+            id_vec.push_back( containerVec[i] );
+        }
+    }
+
+    if ( index < 0 || index >= ( int )id_vec.size() )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "FindContainer::Can't Find Name " + name + " or Index" + to_string( ( long long )index ) );
+        return string();
+    }
+    ErrorMgr.NoError();
+    return id_vec[index];
+}
+
+string GetContainerName( const string & parm_container_id )
+{
+    string ret_name;
+
+    ParmContainer* pc = ParmMgr.FindParmContainer( parm_container_id );
+
+    if ( !pc )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetContainerName::Can't Find Parm Container " + parm_container_id  );
+        return string();
+    }
+
+    ret_name = pc->GetName();
+    ErrorMgr.NoError();
+    return ret_name;
+}
+
+vector< string > FindContainerGroupNames( const string & parm_container_id )
+{
+    vector< string > ret_names;
+
+    ParmContainer* pc = ParmMgr.FindParmContainer( parm_container_id );
+
+    if ( !pc )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "FindContainerGroupNames::Can't Find Parm Container " + parm_container_id  );
+        return ret_names;
+    }
+
+    pc->GetGroupNames( ret_names );
+
+    ErrorMgr.NoError();
+    return ret_names;
+}
+
+vector< string > FindContainerParmIDs( const string & parm_container_id )
+{
+    vector< string > parm_vec;
+
+    ParmContainer* pc = ParmMgr.FindParmContainer( parm_container_id );
+
+    if ( !pc )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "FindContainerParmIDs::Can't Find Parm Container " + parm_container_id  );
+        return parm_vec;
+    }
+
+    pc->AddLinkableParms( parm_vec );
+
+    ErrorMgr.NoError();
+    return parm_vec;
+}
 
 //============================================================================//
 }   // vsp namespace

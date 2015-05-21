@@ -176,10 +176,20 @@ extern void SetParmLowerLimit( const string & parm_id, double val );
 extern double GetParmLowerLimit( const string & parm_id );
 extern int GetParmType( const string & parm_id );
 extern string GetParmName( const string & parm_id );
+extern string GetParmGroupName( const string & parm_id );
+extern string GetParmDisplayGroupName( const string & parm_id );
 extern string GetParmContainer( const string & parm_id );
 extern void SetParmDescript( const string & parm_id, const string & desc );
 extern string FindParm( const string & parm_container_id, const string & name, const string & group );
 
+//======================== Parm Container Functions ======================//
+
+extern std::vector< std::string > FindContainers();
+extern std::vector< std::string > FindContainersWithName( const string & name );
+extern string FindContainer( const string & name, int index );
+extern string GetContainerName( const string & parm_container_id );
+extern std::vector< std::string > FindContainerGroupNames( const string & parm_container_id );
+extern std::vector< std::string > FindContainerParmIDs( const string & parm_container_id );
 
 
 }           // End vsp namespace
