@@ -148,6 +148,10 @@ extern void SetXSecContinuity( const string& xsec_id, int cx );
 extern void SetXSecTanAngles( const string& xsec_id, int side, double top, double right, double bottom, double left );
 extern void SetXSecTanStrengths( const string& xsec_id, int side, double top, double right, double bottom, double left );
 extern void SetXSecCurvatures( const string& xsec_id, int side, double top, double right, double bottom, double left );
+extern void ReadFileAirfoil( const string& xsec_id, const string& file_name );
+extern void SetAirfoilPnts( const string& xsec_id, std::vector< vec3d > & up_pnt_vec, std::vector< vec3d > & low_pnt_vec );
+extern std::vector<vec3d> GetAirfoilUpperPnts( const string& xsec_id );
+extern std::vector<vec3d> GetAirfoilLowerPnts( const string& xsec_id );
 
 //======================== Sets ================================//
 extern int GetNumSets();

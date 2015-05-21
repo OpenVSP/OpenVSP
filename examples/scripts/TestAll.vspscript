@@ -278,6 +278,22 @@ void TestAPIScript()
 	double wh_ratio = GetXSecWidth( xsec )/GetXSecHeight( xsec );
 	if ( ( abs( wh_ratio ) - 2.0 ) > tol )				Print( "---> Error: API Read/Set XSecPnts " );
 
+	Print(string("---> Test Read Airfoil File"));
+	ChangeXSecShape( xsec_surf, 1, XS_FILE_AIRFOIL );
+	xsec = GetXSec( xsec_surf, 1 );
+	ReadFileAirfoil( xsec, "../../N0012_VSP.af" );
+
+	array< vec3d > @up_array = GetAirfoilUpperPnts( xsec );
+	array< vec3d > @low_array = GetAirfoilLowerPnts( xsec );
+
+	for ( int i = 0 ; i < int(up_array.size()) ; i++ )
+	{
+		up_array[i].scale_y( 2.0 );
+		low_array[i].scale_y( 0.5 );
+	}
+
+	SetAirfoilPnts( xsec, up_array, low_array );
+
 	//==== Sets ====//
     Print(string("---> Test Sets"));
 	if ( GetNumSets() <= 0 )							Print( "---> Error: API GetNumSets " );

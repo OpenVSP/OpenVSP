@@ -1265,6 +1265,14 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "void SetXSecCurvatures( const string& in xsec_id, int side, double top, double right = -1.0e12, double bottom = -1.0e12, double left = -1.0e12 )", asFUNCTION( vsp::SetXSecCurvatures ), asCALL_CDECL );
     assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void ReadFileAirfoil( const string& in xsec_id, const string& in file_name )", asFUNCTION( vsp::ReadFileAirfoil ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void SetAirfoilPnts( const string& in xsec_id, array<vec3d>@ up_pnt_vec, array<vec3d>@ low_pnt_vec )", asMETHOD( ScriptMgrSingleton, SetAirfoilPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "array<vec3d>@  GetAirfoilUpperPnts(const string& in xsec_id )", asMETHOD( ScriptMgrSingleton, GetAirfoilUpperPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "array<vec3d>@  GetAirfoilLowerPnts(const string& in xsec_id )", asMETHOD( ScriptMgrSingleton, GetAirfoilLowerPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
 
     //==== Sets Functions ====//
     r = se->RegisterGlobalFunction( "int GetNumSets()", asFUNCTION( vsp::GetNumSets ), asCALL_CDECL );
@@ -1476,6 +1484,18 @@ CScriptArray* ScriptMgrSingleton::ReadFileXSec( const string& xsec_id, const str
     return GetProxyVec3dArray();
 }
 
+CScriptArray* ScriptMgrSingleton::GetAirfoilUpperPnts( const string& xsec_id )
+{
+    m_ProxyVec3dArray = vsp::GetAirfoilUpperPnts( xsec_id );
+    return GetProxyVec3dArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetAirfoilLowerPnts( const string& xsec_id )
+{
+    m_ProxyVec3dArray = vsp::GetAirfoilLowerPnts( xsec_id );
+    return GetProxyVec3dArray();
+}
+
 CScriptArray* ScriptMgrSingleton::GetGeomSetAtIndex( int index )
 {
     m_ProxyStringArray = vsp::GetGeomSetAtIndex( index );
@@ -1557,6 +1577,25 @@ void ScriptMgrSingleton::SetXSecPnts( const string& xsec_id, CScriptArray* pnt_a
         pnt_vec[i] = * ( vec3d* )( pnt_arr->At( i ) );
     }
     vsp::SetXSecPnts( xsec_id, pnt_vec );
+}
+
+void ScriptMgrSingleton::SetAirfoilPnts( const string& xsec_id, CScriptArray* up_pnt_arr, CScriptArray* low_pnt_arr )
+{
+    vector< vec3d > up_pnt_vec;
+    up_pnt_vec.resize( up_pnt_arr->GetSize() );
+    for ( int i = 0 ; i < ( int )up_pnt_arr->GetSize() ; i++ )
+    {
+        up_pnt_vec[i] = * ( vec3d* )( up_pnt_arr->At( i ) );
+    }
+
+    vector< vec3d > low_pnt_vec;
+    low_pnt_vec.resize( low_pnt_arr->GetSize() );
+    for ( int i = 0 ; i < ( int )low_pnt_arr->GetSize() ; i++ )
+    {
+        low_pnt_vec[i] = * ( vec3d* )( low_pnt_arr->At( i ) );
+    }
+
+    vsp::SetAirfoilPnts( xsec_id, up_pnt_vec, low_pnt_vec );
 }
 
 //==== Console Print String Data ====//

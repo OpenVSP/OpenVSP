@@ -131,6 +131,8 @@ private:
     CScriptArray* GetGeomParmIDs( const string & geom_id );
     CScriptArray* GetXSecParmIDs( const string & xsec_id );
     CScriptArray* ReadFileXSec( const string& xsec_id, const string& file_name );
+    CScriptArray* GetAirfoilUpperPnts( const string& xsec_id );
+    CScriptArray* GetAirfoilLowerPnts( const string& xsec_id );
     CScriptArray* GetGeomSetAtIndex( int index );
     CScriptArray* GetGeomSet( const string & name );
     CScriptArray* GetAllResultsNames();
@@ -145,6 +147,7 @@ private:
     CScriptArray* FindContainerParmIDs( const string & parm_container_id );
 
     void SetXSecPnts( const string& xsec_id, CScriptArray* pnt_arr );
+    void SetAirfoilPnts( const string& xsec_id, CScriptArray* up_pnt_arr, CScriptArray* low_pnt_arr );
     void SetVec3dArray( CScriptArray* arr );
 
 

@@ -1820,6 +1820,104 @@ void SetXSecCurvatures( const string& xsec_id, int side, double top, double righ
     ErrorMgr.NoError();
 }
 
+void ReadFileAirfoil( const string& xsec_id, const string& file_name )
+{
+    vector< vec3d > pnt_vec;
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "ReadFileAirfoil::Can't Find XSec " + xsec_id  );
+        return;
+    }
+
+    if ( xs->GetXSecCurve()->GetType() == XS_FILE_AIRFOIL )
+    {
+        FileAirfoil* file_xs = dynamic_cast<FileAirfoil*>( xs->GetXSecCurve() );
+        assert( file_xs );
+        if( file_xs->ReadFile( file_name ) )
+        {
+            ErrorMgr.NoError();
+            return;
+        }
+        else
+        {
+            ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "ReadFileAirfoil::Error reading airfoil file" );
+            return;
+        }
+    }
+
+    ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "ReadFileAirfoil::XSec Not XS_FILE_AIRFOIL Type " + xsec_id  );
+    return;
+}
+
+void SetAirfoilPnts( const string& xsec_id, std::vector< vec3d > & up_pnt_vec, std::vector< vec3d > & low_pnt_vec )
+{
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetAirfoilPnts::Can't Find XSec " + xsec_id  );
+        return;
+    }
+
+    if ( xs->GetXSecCurve()->GetType() != XS_FILE_AIRFOIL )
+    {
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetAirfoilPnts::XSec Not XS_FILE_AIRFOIL Type"  );
+        return;
+    }
+
+    FileAirfoil* file_xs = dynamic_cast<FileAirfoil*>( xs->GetXSecCurve() );
+    assert( file_xs );
+    file_xs->SetAirfoilPnts( up_pnt_vec, low_pnt_vec );
+    ErrorMgr.NoError();
+}
+
+std::vector<vec3d> GetAirfoilUpperPnts( const string& xsec_id )
+{
+    vector< vec3d > pnt_vec;
+
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetAirfoilUpperPnts::Can't Find XSec " + xsec_id  );
+        return pnt_vec;
+    }
+
+    if ( xs->GetXSecCurve()->GetType() != XS_FILE_AIRFOIL )
+    {
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetAirfoilUpperPnts::XSec Not XS_FILE_AIRFOIL Type"  );
+        return pnt_vec;
+    }
+
+    FileAirfoil* file_xs = dynamic_cast<FileAirfoil*>( xs->GetXSecCurve() );
+    assert( file_xs );
+    pnt_vec = file_xs->GetUpperPnts();
+    ErrorMgr.NoError();
+    return pnt_vec;
+}
+
+std::vector<vec3d> GetAirfoilLowerPnts( const string& xsec_id )
+{
+    vector< vec3d > pnt_vec;
+
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetAirfoilLowerPnts::Can't Find XSec " + xsec_id  );
+        return pnt_vec;
+    }
+
+    if ( xs->GetXSecCurve()->GetType() != XS_FILE_AIRFOIL )
+    {
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetAirfoilLowerPnts::XSec Not XS_FILE_AIRFOIL Type"  );
+        return pnt_vec;
+    }
+
+    FileAirfoil* file_xs = dynamic_cast<FileAirfoil*>( xs->GetXSecCurve() );
+    assert( file_xs );
+    pnt_vec = file_xs->GetLowerPnts();
+    ErrorMgr.NoError();
+    return pnt_vec;
+}
 
 //===================================================================//
 //===============       Set Functions            ===================//
