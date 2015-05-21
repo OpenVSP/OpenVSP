@@ -179,6 +179,22 @@ public:
         return m_AirfoilName;
     }
 
+    virtual vector< vec3d > GetUpperPnts()
+    {
+        return m_UpperPnts;
+    }
+
+    virtual vector< vec3d > GetLowerPnts()
+    {
+        return m_LowerPnts;
+    }
+
+    virtual void SetAirfoilPnts( const vector< vec3d > & up_pnt_vec, const vector< vec3d > & low_pnt_vec )
+    {
+        m_UpperPnts = up_pnt_vec;
+        m_LowerPnts = low_pnt_vec;
+    }
+
 protected:
 
     virtual bool ReadSeligAirfoil( FILE* file_id );
