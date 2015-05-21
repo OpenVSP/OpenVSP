@@ -58,6 +58,7 @@ public:
     virtual string FindParm( const string& parm_name, const string& group_name );
     virtual string FindParm( int group_ind, int parm_ind );
     virtual string FindParm( const string& name );
+    virtual void GetGroupNames( vector< string > & group_names );
     virtual int GetGroupNames( string parm_id, vector< string > & group_names );
     virtual int GetParmIDs( string parm_id, vector< string > & parm_ids );
 

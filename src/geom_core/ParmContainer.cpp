@@ -333,6 +333,17 @@ string ParmContainer::FindParm( const string& parm_name  )
     return string();
 }
 
+//==== Get Vector of Group Names ====//
+void ParmContainer::GetGroupNames( vector< string > & group_names )
+{
+    map< string, vector< string > >::iterator iter;
+    for ( iter = m_GroupParmMap.begin() ; iter != m_GroupParmMap.end() ; iter++ )
+    {
+        string name = iter->first;
+        group_names.push_back( name );
+    }
+}
+
 //==== Get Vector of Group Names And Index For Given Parm ID  ====//
 int ParmContainer::GetGroupNames( string parm_id, vector< string > & group_names )
 {
