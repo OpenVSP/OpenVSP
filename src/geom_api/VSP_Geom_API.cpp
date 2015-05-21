@@ -531,7 +531,7 @@ void SetCFDMeshVal( int type, double val )
         CfdMeshMgr.GetCfdSettingsPtr()->m_WakeAngle = val;
     else
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_TYPE, "SetCFDMeshVal::Can't Find Type " + type  );
+        ErrorMgr.AddError( VSP_CANT_FIND_TYPE, "SetCFDMeshVal::Can't Find Type " + to_string( ( long long )type ) );
         return;
     }
 
@@ -1316,7 +1316,7 @@ void SetDriverGroup( const string & geom_id, int section_index, int driver_0, in
     WingSect* ws = wg->GetWingSect( section_index );
     if ( !ws )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetDriverGroup::Invalid Wing Section Index " + section_index  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetDriverGroup::Invalid Wing Section Index " + to_string( ( long long )section_index ) );
         return;
     }
 
