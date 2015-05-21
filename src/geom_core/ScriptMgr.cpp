@@ -1329,8 +1329,6 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-
-    extern string FindParm( const string & parm_container_id, const string & name, const string & group );
 }
 
 void ScriptMgrSingleton::RegisterUtility( asIScriptEngine* se )
