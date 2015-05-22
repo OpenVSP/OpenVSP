@@ -246,6 +246,8 @@ bool VSPAEROScreen::Update()
             // Handle case default case.
             refGeomID = m_WingGeomVec[0];
             VSPAEROMgr.m_RefGeomID = refGeomID;
+            // Re-trigger reference quantity update with default component.
+            VSPAEROMgr.Update();
         }
         m_RefWingChoice.SetVal( m_WingCompIDMap[ refGeomID ] );
 

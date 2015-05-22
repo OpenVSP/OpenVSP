@@ -123,6 +123,10 @@ void VSPAEROMgrSingleton::Update()
                 m_cref.Deactivate();
             }
         }
+        else
+        {
+            m_RefGeomID = string();
+        }
     }
 
 
