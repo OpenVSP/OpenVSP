@@ -408,7 +408,7 @@ void CreateInputFile(char *argv[], int argc, int &i)
 {
 
     FILE *case_file;
-    char file_name_w_ext[80];
+    char file_name_w_ext[2000];
 
     // Open the case file
 
@@ -530,7 +530,7 @@ void LoadCaseFile(void)
 
     int i;
     FILE *case_file;
-    char file_name_w_ext[80], DumChar[200];
+    char file_name_w_ext[2000], DumChar[200];
     char SymmetryFlag[80];
 
     // Open the case file
