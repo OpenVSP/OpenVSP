@@ -112,8 +112,6 @@ private:
     SliderInput m_WakeScaleSlider;
     SliderInput m_WakeAngleSlider;
 
-    map< string, int > m_CompIDMap;
-    map< string, int > m_WingCompIDMap;
     vector< string > m_GeomVec;
     vector< string > m_WingGeomVec;
 

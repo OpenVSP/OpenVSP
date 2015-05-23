@@ -216,8 +216,8 @@ bool CfdMeshScreen::Update()
     m_CfdMeshUI->surfChoice->clear();
     m_CfdMeshUI->wakeCompChoice->clear();
     m_CfdMeshUI->farCompChoice->clear();
-    m_CompIDMap.clear();
-    m_WingCompIDMap.clear();
+    map< string, int > compIDMap;
+    map< string, int > wingCompIDMap;
     m_WingGeomVec.clear();
 
     int iwing = 0;
@@ -232,12 +232,12 @@ bool CfdMeshScreen::Update()
             if( g->HasWingTypeSurfs() )
             {
                 m_CfdMeshUI->wakeCompChoice->add( str );
-                m_WingCompIDMap[ m_GeomVec[i] ] = iwing;
+                wingCompIDMap[ m_GeomVec[i] ] = iwing;
                 m_WingGeomVec.push_back( m_GeomVec[i] );
                 iwing ++;
             }
             m_CfdMeshUI->farCompChoice->add( str );
-            m_CompIDMap[ m_GeomVec[i] ] = i;
+            compIDMap[ m_GeomVec[i] ] = i;
         }
     }
 
@@ -249,7 +249,7 @@ bool CfdMeshScreen::Update()
         CfdMeshMgr.SetCurrSourceGeomID( currSourceGeomID );
     }
     Geom* currGeom = m_Vehicle->FindGeom( currSourceGeomID );
-    m_CfdMeshUI->compChoice->value( m_CompIDMap[ currSourceGeomID ] );
+    m_CfdMeshUI->compChoice->value( compIDMap[ currSourceGeomID ] );
 
     string wakeGeomID = CfdMeshMgr.GetWakeGeomID();
     if( wakeGeomID.length() == 0 && m_WingGeomVec.size() > 0 )
@@ -259,7 +259,7 @@ bool CfdMeshScreen::Update()
         CfdMeshMgr.SetWakeGeomID( wakeGeomID );
     }
     Geom* wakeGeom = m_Vehicle->FindGeom( wakeGeomID );
-    m_CfdMeshUI->wakeCompChoice->value( m_WingCompIDMap[ wakeGeomID ] );
+    m_CfdMeshUI->wakeCompChoice->value( wingCompIDMap[ wakeGeomID ] );
 
     string farGeomID = CfdMeshMgr.GetCfdSettingsPtr()->GetFarGeomID();
     if( farGeomID.length() == 0 && m_GeomVec.size() > 0 )
@@ -268,7 +268,7 @@ bool CfdMeshScreen::Update()
         farGeomID = m_GeomVec[0];
         CfdMeshMgr.GetCfdSettingsPtr()->SetFarGeomID( farGeomID );
     }
-    m_CfdMeshUI->farCompChoice->value( m_CompIDMap[ farGeomID ] );
+    m_CfdMeshUI->farCompChoice->value( compIDMap[ farGeomID ] );
 
     BaseSource* source = CfdMeshMgr.GetCurrSource();
 
