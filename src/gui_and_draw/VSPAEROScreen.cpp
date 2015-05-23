@@ -219,7 +219,7 @@ bool VSPAEROScreen::Update()
         vector <string> geomVec = veh->GetGeomVec();
 
         m_RefWingChoice.ClearItems();
-
+        map <string, int> WingCompIDMap;
         int iwing = 0;
         for ( int i = 0 ; i < ( int )geomVec.size() ; i++ )
         {
@@ -232,7 +232,7 @@ bool VSPAEROScreen::Update()
                 if( g->GetType().m_Type == MS_WING_GEOM_TYPE )
                 {
                     m_RefWingChoice.AddItem( str );
-                    m_WingCompIDMap[ geomVec[i] ] = iwing;
+                    WingCompIDMap[ geomVec[i] ] = iwing;
                     m_WingGeomVec.push_back( geomVec[i] );
                     iwing ++;
                 }
@@ -249,7 +249,7 @@ bool VSPAEROScreen::Update()
             // Re-trigger reference quantity update with default component.
             VSPAEROMgr.Update();
         }
-        m_RefWingChoice.SetVal( m_WingCompIDMap[ refGeomID ] );
+        m_RefWingChoice.SetVal( WingCompIDMap[ refGeomID ] );
 
 
         m_GeomSetChoice.ClearItems();

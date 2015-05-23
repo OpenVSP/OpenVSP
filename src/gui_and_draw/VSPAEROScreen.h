@@ -75,7 +75,6 @@ protected:
 
 
     Choice m_RefWingChoice;
-    map <string, int> m_WingCompIDMap;
     vector <string> m_WingGeomVec;
 
     ToggleButton m_RefManualToggle;
