@@ -132,7 +132,7 @@ void SCurve::BorderTesselate( )
 
     int ptsperseg = 5;
 
-    int npt = ( ( int ) span ) * ( ptsperseg - 1 ) + 1;
+    int npt = ( ceil( span ) ) * ( ptsperseg - 1 ) + 1;
 
     for( int i = 0; i < npt ; i++ )
     {
