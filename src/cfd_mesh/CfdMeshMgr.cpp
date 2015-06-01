@@ -2685,6 +2685,11 @@ void CfdMeshMgrSingleton::BuildChains()
                 {
                     m_ISegChainList.push_back( chain );
                 }
+                else
+                {
+                    delete chain;
+                    chain = NULL;
+                }
             }
         }
     }
@@ -2896,7 +2901,6 @@ void CfdMeshMgrSingleton::LoadBorderCurves()
 
         //==== Create New Chain ====//
         ISegChain* chain = new ISegChain;
-        m_ISegChainList.push_front( chain );
         chain->m_BorderFlag = true;
 
         Surf* surfA = m_ICurveVec[i]->m_SCurve_A->GetSurf();
@@ -2932,6 +2936,16 @@ void CfdMeshMgrSingleton::LoadBorderCurves()
             ISeg* seg = new ISeg( surfA, surfB, p0, p1 );
             chain->m_ISegDeque.push_back( seg );
 
+        }
+
+        if( chain->Valid() )
+        {
+            m_ISegChainList.push_front( chain );
+        }
+        else
+        {
+            delete chain;
+            chain = NULL;
         }
     }
 
@@ -2970,7 +2984,6 @@ void CfdMeshMgrSingleton::BuildTestIntChains()
             }
 
             ISegChain* chain = new ISegChain;
-            m_ISegChainList.push_back( chain );
             chain->m_SurfA = surf;
             chain->m_SurfB = surf;
 
@@ -2998,6 +3011,16 @@ void CfdMeshMgrSingleton::BuildTestIntChains()
 
                 ISeg* seg = new ISeg( surf, surf, p0, p1 );
                 chain->m_ISegDeque.push_back( seg );
+            }
+
+            if( chain->Valid() )
+            {
+                m_ISegChainList.push_back( chain );
+            }
+            else
+            {
+                delete chain;
+                chain = NULL;
             }
         }
     }
@@ -3041,7 +3064,7 @@ void CfdMeshMgrSingleton::BuildSubSurfIntChains()
             {
                 if ( new_chain && chain )
                 {
-                    if ( chain->m_ISegDeque.size() > 0 )
+                    if ( chain->Valid() )
                     {
                         m_ISegChainList.push_back( chain );
                     }
@@ -3139,7 +3162,7 @@ void CfdMeshMgrSingleton::BuildSubSurfIntChains()
             }
             if ( chain )
             {
-                if ( chain->m_ISegDeque.size() > 0 )
+                if ( chain->Valid() )
                 {
                     m_ISegChainList.push_back( chain );
                 }
@@ -3204,7 +3227,10 @@ void CfdMeshMgrSingleton::SplitBorderCurves()
         for ( int j = 0 ; j < ( int )new_chains.size() ; j++ )
         {
             new_chains[j]->m_BorderFlag = true;
-            m_ISegChainList.push_back( new_chains[j] );
+            if ( new_chains[j]->Valid() )
+            {
+                m_ISegChainList.push_back( new_chains[j] );
+            }
         }
     }
 
@@ -3318,7 +3344,10 @@ void CfdMeshMgrSingleton::IntersectSplitChains()
         vector< ISegChain* > new_chains = chains[i]->SortAndSplit();
         for ( int j = 0 ; j < ( int )new_chains.size() ; j++ )
         {
-            m_ISegChainList.push_back( new_chains[j] );
+            if ( new_chains[j]->Valid() )
+            {
+                m_ISegChainList.push_back( new_chains[j] );
+            }
 
         }
     }
@@ -3495,7 +3524,10 @@ void CfdMeshMgrSingleton::AddSurfaceChain( Surf* sPtr, ISegChain* chainIn )
         new_chains[i]->m_SurfA = sPtr;
         new_chains[i]->m_SurfB = sPtr;
 
-        m_ISegChainList.push_back( new_chains[i] );
+        if( new_chains[i]->Valid() )
+        {
+            m_ISegChainList.push_back( new_chains[i] );
+        }
     }
 }
 
