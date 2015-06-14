@@ -82,7 +82,6 @@ public:
     //=== Get Container, Group and Parm Name Given Parm ID ====//
     void GetNames( const string& parm_id, string& container_name, string& group_name, string& parm_name );
 
-    void MessageCallback( const MessageBase* from, const MessageData& data );
 };
 
 #define ParmMgr ParmMgrSingleton::getInstance()
