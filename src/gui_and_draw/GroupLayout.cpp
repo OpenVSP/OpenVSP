@@ -173,9 +173,9 @@ void GroupLayout::SetGroupAndScreen( Fl_Group* group, VspScreen* screen )
 }
 
 //==== Add Standard Parm Button With Label ====//
-Fl_Button* GroupLayout::AddParmButton( const char* label )
+VspButton* GroupLayout::AddParmButton( const char* label )
 {
-    Fl_Button* button = new Fl_Button( m_X, m_Y, m_ButtonWidth, m_StdHeight );
+    VspButton* button = new VspButton( m_X, m_Y, m_ButtonWidth, m_StdHeight );
     button->copy_label( label );
     button->box( FL_THIN_UP_BOX );
     button->labelfont( 1 );
@@ -197,7 +197,7 @@ void GroupLayout::AddSlider( SliderAdjRangeInput& slid_adj_input,
     int init_used_w = m_X - m_Group->x();
 
     //==== Parm Button ====//
-    Fl_Button* button = AddParmButton( label );
+    VspButton* button = AddParmButton( label );
 
     //==== Range Button ====//
     Fl_Repeat_Button* lbutton = new Fl_Repeat_Button( m_X, m_Y, m_RangeButtonWidth, m_StdHeight, "<" );
@@ -252,7 +252,7 @@ void GroupLayout::AddSlider( SliderAdjRange2Input& slid_adj_input,
     int init_used_w = m_X - m_Group->x();
 
     //==== Parm Button ====//
-    Fl_Button* button = AddParmButton( label );
+    VspButton* button = AddParmButton( label );
 
     //==== Range Button ====//
     Fl_Repeat_Button* lbutton = new Fl_Repeat_Button( m_X, m_Y, m_RangeButtonWidth, m_StdHeight, "<" );
@@ -315,7 +315,7 @@ void GroupLayout::AddSlider( FractParmSlider& slid_adj_input,
     int init_used_w = m_X - m_Group->x();
 
     //==== Parm Button ====//
-    Fl_Button* button = AddParmButton( label );
+    VspButton* button = AddParmButton( label );
 
     //==== Range Button ====//
     Fl_Repeat_Button* lbutton = new Fl_Repeat_Button( m_X, m_Y, m_RangeButtonWidth, m_StdHeight, "<" );
@@ -378,7 +378,7 @@ void GroupLayout::AddSlider( SliderInput& slider_input, const char* label, doubl
     int init_used_w = m_X - m_Group->x();
 
     //==== Parm Button ====//
-    Fl_Button* button = AddParmButton( label );
+    VspButton* button = AddParmButton( label );
 
     //==== Slider ====//
     int sw = FitWidth( m_ButtonWidth + m_InputWidth + init_used_w, m_SliderWidth );
@@ -507,7 +507,7 @@ void GroupLayout::AddButton( ParmButton& pbutton, const char* label )
 
     //==== Add Parm Button ====//
     int bw = FitWidth( 0, m_ButtonWidth );
-    Fl_Button* flbutton = new Fl_Button( m_X, m_Y, bw, m_StdHeight, label );
+    VspButton* flbutton = new VspButton( m_X, m_Y, bw, m_StdHeight, label );
     flbutton->copy_label( label );
     flbutton->labelfont( 1 );
     flbutton->labelsize( 12 );
@@ -596,7 +596,7 @@ void GroupLayout::AddInput( Input& input, const char* label, const char* format 
     assert( m_Group && m_Screen );
 
     //==== Parm Button ====//
-    Fl_Button* button = AddParmButton( label );
+    VspButton* button = AddParmButton( label );
 
     //==== Add Text Input ====//
     int iw = FitWidth( m_ButtonWidth, m_InputWidth );
@@ -747,7 +747,7 @@ void GroupLayout::AddChoice( Choice & choice, const char* label, int used_w )
     assert( m_Group && m_Screen );
 
     //==== Choice Button ====//
-    Fl_Button* button = new Fl_Button( m_X, m_Y, m_ChoiceButtonWidth, m_StdHeight, label );
+    VspButton* button = new VspButton( m_X, m_Y, m_ChoiceButtonWidth, m_StdHeight, label );
     button->box( FL_THIN_UP_BOX );
     button->labelfont( 1 );
     button->labelsize( 12 );
@@ -792,10 +792,10 @@ void GroupLayout::AddCounter( Counter & count, const char* label )
     assert( m_Group && m_Screen );
 
     //==== Counter Button ====//
-    Fl_Button* button = NULL;
+    VspButton* button = NULL;
     if ( strcmp( label, "" ) != 0 )
     {
-        Fl_Button* button = AddParmButton( label );
+        VspButton* button = AddParmButton( label );
         button->align( Fl_Align( FL_ALIGN_CLIP ) );
     }
 
@@ -1048,7 +1048,7 @@ void GroupLayout::AddSkinControl( SkinControl & skin_control, const char* label,
     AddX( m_StdHeight );
 
     //==== Parm Button ====//
-    Fl_Button* parm_button = AddParmButton( label );
+    VspButton* parm_button = AddParmButton( label );
 
     //==== Set Equality Check Button ====//
     Fl_Check_Button* setButtonEqual = new Fl_Check_Button( m_X, m_Y, m_StdHeight, m_StdHeight );
@@ -1121,7 +1121,7 @@ void GroupLayout::AddSkinHeader( SkinHeader & skin_header )
     bool saveSameLine = m_SameLineFlag;
 
 
-    vector< Fl_Button* > buttons;
+    vector< VspButton* > buttons;
 
     // Size of Set label buttons
     int setW = 25;

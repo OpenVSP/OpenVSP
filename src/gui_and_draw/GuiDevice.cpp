@@ -34,6 +34,11 @@ int VspSlider::handle(int event)
     return Fl_Slider::handle( event );
 }
 
+VspButton::VspButton(int x, int y, int w, int h, const char *label):Fl_Button( x, y, w, h, label )
+{
+
+}
+
 //=====================================================================//
 //======================           Input         ======================//
 //=====================================================================//
@@ -225,7 +230,7 @@ Input::Input() : GuiDevice()
 }
 
 //==== Init ====//
-void Input::Init( VspScreen* screen, Fl_Input* input, const char* format, Fl_Button* parm_button )
+void Input::Init( VspScreen* screen, Fl_Input* input, const char* format, VspButton* parm_button )
 {
     assert( input );
     GuiDevice::Init( screen );
@@ -636,7 +641,7 @@ void LogSlider::DeviceCB( Fl_Widget* w )
 
 //==== Init ====//
 void SliderInput::Init( VspScreen* screen, Fl_Slider* slider, Fl_Input* input,
-                        double range, const char* format, Fl_Button* parm_button,
+                        double range, const char* format, VspButton* parm_button,
                         bool log_slider )
 {
     m_ParmButtonFlag = false;
@@ -691,7 +696,7 @@ void SliderInput::Update( const string& parm_id )
 
 //==== Init ====//
 void SliderAdjRangeInput::Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
-                                Fl_Button* rbutton, Fl_Input* input, double range, const char* format, Fl_Button* parm_button )
+                                Fl_Button* rbutton, Fl_Input* input, double range, const char* format, VspButton* parm_button )
 {
     m_Type = GDEV_SLIDER_ADJ_RANGE_INPUT;
     m_ParmButtonFlag = false;
@@ -729,7 +734,7 @@ void SliderAdjRangeInput::Update( const string& parm_id )
 
 void SliderAdjRange2Input::Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
                                  Fl_Button* rbutton, Fl_Input* input1, Fl_Input* input2,
-                                 double range, const char* format, Fl_Button* parm_button )
+                                 double range, const char* format, VspButton* parm_button )
 {
     m_ParmButtonFlag = false;
     if ( parm_button )
@@ -801,7 +806,7 @@ ParmButton::ParmButton( ) : GuiDevice()
 }
 
 //==== Init ====//
-void ParmButton::Init( VspScreen* screen, Fl_Button* button )
+void ParmButton::Init( VspScreen* screen, VspButton* button )
 {
     GuiDevice::Init( screen );
     AddWidget(button);
@@ -1268,7 +1273,7 @@ Counter::Counter() : GuiDevice()
 }
 
 //==== Init ====//
-void Counter::Init( VspScreen* screen, Fl_Counter* counter, Fl_Button* parm_button )
+void Counter::Init( VspScreen* screen, Fl_Counter* counter, VspButton* parm_button )
 {
     assert( counter );
 
@@ -1329,7 +1334,7 @@ Choice::Choice( ) : GuiDevice()
 }
 
 //==== Init ====//
-void Choice::Init( VspScreen* screen, Fl_Choice* fl_choice, Fl_Button* parm_button  )
+void Choice::Init( VspScreen* screen, Fl_Choice* fl_choice, VspButton* parm_button  )
 {
     GuiDevice::Init( screen );
     m_Choice = fl_choice;
@@ -1445,7 +1450,7 @@ FractParmSlider::FractParmSlider() : GuiDevice()
 //==== Init ====//
 void FractParmSlider::Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
                             Fl_Button* rbutton, Fl_Input* fract_input, Fl_Input* result_input,
-                            double range, const char* format, Fl_Button* parm_button  )
+                            double range, const char* format, VspButton* parm_button  )
 {
     GuiDevice::Init( screen );
     m_ParmButtonFlag = false;
@@ -2663,7 +2668,7 @@ void SkinControl::Init( VspScreen* screen,
         Fl_Button* maxButtonR,
         Fl_Input* inputL,
         Fl_Input* inputR,
-        Fl_Button* parm_button,
+        VspButton* parm_button,
         double range, const char* format)
 {
     GuiDevice::Init( screen );
@@ -2799,7 +2804,7 @@ SkinHeader::SkinHeader()
 }
 
 void SkinHeader::Init( VspScreen* screen,
-        Choice* cont_choice , const vector< Fl_Button* > &buttons )
+        Choice* cont_choice , const vector< VspButton* > &buttons )
 {
     GuiDevice::Init( screen );
 

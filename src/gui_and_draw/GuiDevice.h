@@ -91,6 +91,15 @@ protected:
 
 };
 
+class VspButton : public Fl_Button
+{
+public:
+    VspButton(int X, int Y, int W, int H, const char *L = 0);
+
+protected:
+
+};
+
 class GuiDevice
 {
 public:
@@ -145,7 +154,7 @@ class ParmButton : public GuiDevice
 public:
 
     ParmButton();
-    virtual void Init( VspScreen* screen, Fl_Button* button );
+    virtual void Init( VspScreen* screen, VspButton* button );
     virtual void Update( const string& parm_id );
     virtual void DeviceCB( Fl_Widget* w );
     virtual void SetButtonNameUpdate( bool flag )   { m_ButtonNameUpdate = flag; }
@@ -153,7 +162,7 @@ public:
 protected:
 
     virtual void SetValAndLimits( Parm* parm_ptr );
-    Fl_Button* m_Button;
+    VspButton* m_Button;
     bool m_ButtonNameUpdate;
 };
 
@@ -162,7 +171,7 @@ class Input : public GuiDevice
 {
 public:
     Input();
-    virtual void Init( VspScreen* screen, Fl_Input* input, const char* format, Fl_Button* parm_button = NULL );
+    virtual void Init( VspScreen* screen, Fl_Input* input, const char* format, VspButton* parm_button = NULL );
 
     virtual void SetFormat( const char* format )
     {
@@ -381,7 +390,7 @@ class Counter : public GuiDevice
 public:
     Counter();
     virtual ~Counter() {}
-    virtual void Init( VspScreen* screen, Fl_Counter* counter, Fl_Button* parm_button = NULL );
+    virtual void Init( VspScreen* screen, Fl_Counter* counter, VspButton* parm_button = NULL );
     virtual void DeviceCB( Fl_Widget* w );
 
 protected:
@@ -400,7 +409,7 @@ class Choice : public GuiDevice
 public:
 
     Choice();
-    virtual void Init( VspScreen* screen, Fl_Choice* fl_choice, Fl_Button* parm_button = NULL );
+    virtual void Init( VspScreen* screen, Fl_Choice* fl_choice, VspButton* parm_button = NULL );
     virtual void DeviceCB( Fl_Widget* w );
 
     virtual void SetVal( int val );
@@ -446,7 +455,7 @@ class SliderInput : public GuiDevice
 {
 public:
     virtual void Init( VspScreen* screen, Fl_Slider* slider_widget, Fl_Input* input,
-                       double range, const char* format, Fl_Button* parm_button = NULL,
+                       double range, const char* format, VspButton* parm_button = NULL,
                        bool log_slider = false );
     virtual void Update( const string& parm_id );
     virtual void SetRange( double range )
@@ -491,7 +500,7 @@ class SliderAdjRangeInput : public GuiDevice
 public:
     virtual void Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
                        Fl_Button* rbutton, Fl_Input* input, double range, const char* format,
-                       Fl_Button* parm_button = NULL );
+                       VspButton* parm_button = NULL );
 
     virtual void Update( const string& parm_id );
     virtual void SetRange( double range )
@@ -533,7 +542,7 @@ class SliderAdjRange2Input
 public:
     virtual void Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
                        Fl_Button* rbutton, Fl_Input* input1, Fl_Input* input2,
-                       double range, const char* format, Fl_Button* parm_button = NULL );
+                       double range, const char* format, VspButton* parm_button = NULL );
     virtual void Update( int slider_id, const string& parm_id_in1, const string& parm_id_in2 );
     virtual void SetRange( double range )
     {
@@ -579,7 +588,7 @@ public:
 
     virtual void Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
                        Fl_Button* rbutton, Fl_Input* fract_input, Fl_Input* result_input,
-                       double range, const char* format, Fl_Button* parm_button = NULL );
+                       double range, const char* format, VspButton* parm_button = NULL );
 
     virtual void Update( const string& parm_id );
     virtual void SetRange( double range )
@@ -968,7 +977,7 @@ public:
     Fl_Button* maxButtonR,
     Fl_Input* inputL,
     Fl_Input* inputR,
-    Fl_Button* parm_button,
+    VspButton* parm_button,
     double range, const char* format);
 
     virtual void Update( const string& parmL_id, const string& setL_id, const string& eq_id, const string& setR_id, const string& parmR_id );
@@ -1005,7 +1014,7 @@ public:
 
     virtual void DeviceCB( Fl_Widget *w );
 
-    virtual void Init( VspScreen* screen, Choice* cont_choice , const vector< Fl_Button* > &buttons );
+    virtual void Init( VspScreen* screen, Choice* cont_choice , const vector< VspButton* > &buttons );
 
     virtual void Activate();
     virtual void Deactivate();
@@ -1017,7 +1026,7 @@ protected:
 
     virtual void SetValAndLimits( Parm* parm_ptr )      {}
 
-    vector< Fl_Button* > m_Buttons;
+    vector< VspButton* > m_Buttons;
 };
 
 class GeomPicker : public GuiDevice

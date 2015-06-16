@@ -24,13 +24,13 @@ ManageTextureScreen::ManageTextureScreen( ScreenMgr * mgr ) : VspScreen( mgr )
 
     m_TextureMgrUI->UIWindow->position( 775, 50 );
 
-    m_UPosSlider.Init( this, m_TextureMgrUI->uPosSlider, m_TextureMgrUI->uPosInput, 1, "%6.5f", m_TextureMgrUI->uPosButton );
-    m_WPosSlider.Init( this, m_TextureMgrUI->wPosSlider, m_TextureMgrUI->wPosInput, 1, "%6.5f", m_TextureMgrUI->wPosButton );
+    m_UPosSlider.Init( this, m_TextureMgrUI->uPosSlider, m_TextureMgrUI->uPosInput, 1, "%6.5f", (VspButton*) m_TextureMgrUI->uPosButton );
+    m_WPosSlider.Init( this, m_TextureMgrUI->wPosSlider, m_TextureMgrUI->wPosInput, 1, "%6.5f", (VspButton*) m_TextureMgrUI->wPosButton );
 
-    m_UScaleSlider.Init( this, m_TextureMgrUI->uScaleSlider, m_TextureMgrUI->uScaleInput, 1, "%6.5f", m_TextureMgrUI->uScaleButton );
-    m_WScaleSlider.Init( this, m_TextureMgrUI->wScaleSlider, m_TextureMgrUI->wScaleInput, 1, "%6.5f", m_TextureMgrUI->wScaleButton );
+    m_UScaleSlider.Init( this, m_TextureMgrUI->uScaleSlider, m_TextureMgrUI->uScaleInput, 1, "%6.5f", (VspButton*) m_TextureMgrUI->uScaleButton );
+    m_WScaleSlider.Init( this, m_TextureMgrUI->wScaleSlider, m_TextureMgrUI->wScaleInput, 1, "%6.5f", (VspButton*) m_TextureMgrUI->wScaleButton );
 
-    m_TransparencySlider.Init( this, m_TextureMgrUI->alphaSlider, m_TextureMgrUI->alphaInput, 1, "%6.5f", m_TextureMgrUI->alphaButton );
+    m_TransparencySlider.Init( this, m_TextureMgrUI->alphaSlider, m_TextureMgrUI->alphaInput, 1, "%6.5f", (VspButton*) m_TextureMgrUI->alphaButton );
 
     m_FlipUButton.Init( this, m_TextureMgrUI->flipUButton );
     m_FlipWButton.Init( this, m_TextureMgrUI->flipWButton );

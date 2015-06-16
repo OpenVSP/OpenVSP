@@ -161,7 +161,7 @@ private:
     void NewLineX( );
     int  FitWidth( int used_w, int default_w );
 
-    Fl_Button* AddParmButton( const char* label );
+    VspButton* AddParmButton( const char* label );
 
     VspScreen* m_Screen;
     Fl_Group* m_Group;
