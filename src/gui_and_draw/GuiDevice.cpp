@@ -36,7 +36,26 @@ int VspSlider::handle(int event)
 
 VspButton::VspButton(int x, int y, int w, int h, const char *label):Fl_Button( x, y, w, h, label )
 {
+}
 
+int VspButton::handle(int event)
+{
+    int ret = Fl_Button::handle(event);
+
+    switch ( event ) {
+    case FL_DRAG:
+        if( callback() )
+        {
+            do_callback();
+        }
+        ret = 1;
+        break;
+
+    default:
+        break;
+    }
+
+    return ret;
 }
 
 //=====================================================================//
@@ -850,11 +869,25 @@ void ParmButton::DeviceCB( Fl_Widget* w )
 {
     if ( w == m_Button )
     {
-        ParmMgr.SetActiveParm( m_ParmID );
+        switch ( Fl::event() ) {
+        case FL_DRAG:
+            Fl::copy( m_ParmID.c_str(), m_ParmID.size(), 0 );
+            Fl::dnd();
 
-        m_Screen->GetScreenMgr()->ShowScreen( ScreenMgr::VSP_PARM_SCREEN );
-//      m_Screen->GetScreenMgr()->ShowParmScreen(parm_ptr, Fl::event_x_root(), Fl::event_y_root());
+            break;
 
+        case FL_RELEASE:
+            if( Fl::event_inside( w ) )
+            {
+                ParmMgr.SetActiveParm( m_ParmID );
+                m_Screen->GetScreenMgr()->ShowScreen( ScreenMgr::VSP_PARM_SCREEN );
+            }
+
+            break;
+
+        default:
+            break;
+        }
     }
 
     m_Screen->GuiDeviceCallBack( this );

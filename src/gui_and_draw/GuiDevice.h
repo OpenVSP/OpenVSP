@@ -95,9 +95,7 @@ class VspButton : public Fl_Button
 {
 public:
     VspButton(int X, int Y, int W, int H, const char *L = 0);
-
-protected:
-
+    int handle( int event );
 };
 
 class GuiDevice
