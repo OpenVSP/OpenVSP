@@ -65,6 +65,22 @@ Vsp_Browser::Vsp_Browser(int x,int y,int w,int h) : Fl_Browser(x,y,w,h)
 int Vsp_Browser::handle(int event)
 {
     int ret = Fl_Browser::handle(event);
+
+    switch ( event )
+    {
+    case FL_DND_ENTER:
+    case FL_DND_DRAG:
+    case FL_DND_RELEASE:
+        ret = 1;
+        break;
+    case FL_PASTE:
+        if( callback() )
+        {
+            do_callback();
+        }
+        ret = 1;
+        break;
+    }
     return ret;
 }
 
