@@ -58,6 +58,16 @@ int VspButton::handle(int event)
     return ret;
 }
 
+Vsp_Browser::Vsp_Browser(int x,int y,int w,int h) : Fl_Browser(x,y,w,h)
+{
+}
+
+int Vsp_Browser::handle(int event)
+{
+    int ret = Fl_Browser::handle(event);
+    return ret;
+}
+
 //=====================================================================//
 //======================           Input         ======================//
 //=====================================================================//
