@@ -471,10 +471,18 @@ void FitModelScreen::CallBack( Fl_Widget* w )
     }
     else if (  w == varBrowser )
     {
-        int sel = varBrowser->value();
-        FitModelMgr.SetCurrVarIndex( sel - 2 );
+        if( Fl::event() == FL_PASTE )
+        {
+            string ParmID( Fl::event_text() );
+            FitModelMgr.AddVar( ParmID );
+        }
+        else
+        {
+            int sel = varBrowser->value();
+            FitModelMgr.SetCurrVarIndex( sel - 2 );
 
-        m_ParmPicker.SetParmChoice( FitModelMgr.GetCurrVar() );
+            m_ParmPicker.SetParmChoice( FitModelMgr.GetCurrVar() );
+        }
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
