@@ -105,6 +105,17 @@ public:
     int handle( int event );
 };
 
+class Vsp_Group : public Fl_Group
+{
+public:
+    Vsp_Group( int x, int y, int w, int h );
+    int handle( int event );
+
+    void SetAllowDrop( bool d )     { m_AllowDrop = d; }
+protected:
+    bool m_AllowDrop;
+};
+
 class GuiDevice
 {
 public:

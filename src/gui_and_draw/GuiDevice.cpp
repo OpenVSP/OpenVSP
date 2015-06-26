@@ -84,6 +84,36 @@ int Vsp_Browser::handle(int event)
     return ret;
 }
 
+Vsp_Group::Vsp_Group( int x, int y, int w, int h ) : Fl_Group( x, y, w, h )
+{
+    m_AllowDrop = false;
+}
+
+int Vsp_Group::handle(int event)
+{
+    int ret = Fl_Group::handle(event);
+
+    if( m_AllowDrop )
+    {
+        switch ( event )
+        {
+        case FL_DND_ENTER:
+        case FL_DND_DRAG:
+        case FL_DND_RELEASE:
+            ret = 1;
+            break;
+        case FL_PASTE:
+            if( callback() )
+            {
+                do_callback();
+            }
+            ret = 1;
+            break;
+        }
+    }
+    return ret;
+}
+
 //=====================================================================//
 //======================           Input         ======================//
 //=====================================================================//
