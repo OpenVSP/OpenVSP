@@ -171,7 +171,7 @@ FitModelScreen::FitModelScreen( ScreenMgr* mgr ) : TabScreen( mgr, 350, 469 + 10
     m_PickVarLayout.AddDividerBox( "Variable List" );
 
     browser_h = 265;
-    varBrowser = new Vsp_Browser( m_PickVarLayout.GetX(), m_PickVarLayout.GetY(), m_PickVarLayout.GetW(), browser_h );
+    varBrowser = new Fl_Browser( m_PickVarLayout.GetX(), m_PickVarLayout.GetY(), m_PickVarLayout.GetW(), browser_h );
     varBrowser->type( 1 );
     varBrowser->labelfont( 13 );
     varBrowser->labelsize( 12 );

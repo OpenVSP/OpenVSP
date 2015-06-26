@@ -95,7 +95,7 @@ protected:
 
     StringOutput m_NVarOutput;
 
-    Vsp_Browser* varBrowser;
+    Fl_Browser* varBrowser;
 
     // Var tree tab variables
     GroupLayout m_PickTreeLayout;
