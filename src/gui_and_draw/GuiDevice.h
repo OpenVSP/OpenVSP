@@ -98,13 +98,6 @@ public:
     int handle( int event );
 };
 
-class Vsp_Browser : public Fl_Browser
-{
-public:
-    Vsp_Browser( int x, int y, int w, int h );
-    int handle( int event );
-};
-
 class Vsp_Group : public Fl_Group
 {
 public:
