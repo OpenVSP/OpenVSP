@@ -820,7 +820,7 @@ void GroupLayout::AddCounter( Counter & count, const char* label )
 //==== Add Sub Group Layout At Current Position  ====//
 void GroupLayout::AddSubGroupLayout( GroupLayout& layout, int w, int h )
 {
-    Fl_Group* grp = new Fl_Group( m_X, m_Y, w, h );
+    Fl_Group* grp = ( Fl_Group* ) new Vsp_Group( m_X, m_Y, w, h );
     m_Group->add( grp );
     layout.SetGroupAndScreen( grp,  m_Screen );
 }
