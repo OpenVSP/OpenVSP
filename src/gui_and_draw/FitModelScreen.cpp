@@ -23,7 +23,13 @@ FitModelScreen::FitModelScreen( ScreenMgr* mgr ) : TabScreen( mgr, 350, 469 + 10
 
     Fl_Group* pts_tab = AddTab( "Pick Points" );
     Fl_Group* var_tab = AddTab( "Pick Vars" );
+    ( (Vsp_Group*) var_tab )->SetAllowDrop( true );
+    var_tab->callback( staticCB, this );
+
     Fl_Group* tree_tab = AddTab( "Var Tree" );
+    ( (Vsp_Group*) tree_tab )->SetAllowDrop( true );
+    tree_tab->callback( staticCB, this );
+
     Fl_Group* fit_tab = AddTab( "Fit Model" );
 
     pts_tab->show();
@@ -448,7 +454,12 @@ void FitModelScreen::CallBack( Fl_Widget* w )
 {
     assert( m_ScreenMgr );
 
-    if (  w == m_TargetPtBrowser )
+    if( Fl::event() == FL_PASTE )
+    {
+        string ParmID( Fl::event_text() );
+        FitModelMgr.AddVar( ParmID );
+    }
+    else if (  w == m_TargetPtBrowser )
     {
         int sel = m_TargetPtBrowser->value();
         FitModelMgr.SetCurrTargetPtIndex( sel - 2 );
@@ -471,18 +482,10 @@ void FitModelScreen::CallBack( Fl_Widget* w )
     }
     else if (  w == varBrowser )
     {
-        if( Fl::event() == FL_PASTE )
-        {
-            string ParmID( Fl::event_text() );
-            FitModelMgr.AddVar( ParmID );
-        }
-        else
-        {
-            int sel = varBrowser->value();
-            FitModelMgr.SetCurrVarIndex( sel - 2 );
+        int sel = varBrowser->value();
+        FitModelMgr.SetCurrVarIndex( sel - 2 );
 
-            m_ParmPicker.SetParmChoice( FitModelMgr.GetCurrVar() );
-        }
+        m_ParmPicker.SetParmChoice( FitModelMgr.GetCurrVar() );
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
