@@ -74,6 +74,12 @@ AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     m_BigGroup.AddX( m_BigGroup.GetW() / 2 + 2 );
     m_BigGroup.AddSubGroupLayout( m_OutputGroup, m_BigGroup.GetW() / 2 - 2, 150 );
 
+    ( ( Vsp_Group* ) m_InputGroup.GetGroup() )->SetAllowDrop( true );
+    m_InputGroup.GetGroup()->callback( staticScreenCB, this );
+
+    ( ( Vsp_Group* ) m_OutputGroup.GetGroup() )->SetAllowDrop( true );
+    m_OutputGroup.GetGroup()->callback( staticScreenCB, this );
+
     m_InputGroup.AddDividerBox("Input Parms");
     m_InputBrowser = m_InputGroup.AddFlBrowser( 100 );
     m_InputBrowser->callback( staticScreenCB, this );
@@ -291,6 +297,22 @@ void AdvLinkScreen::CallBack( Fl_Widget *w )
     else if ( w == m_OutputBrowser )
     {
         m_OutputBrowserSelect = m_OutputBrowser->value() - 2;
+    }
+    else if ( w == m_InputGroup.GetGroup() )
+    {
+        if ( Fl::event() == FL_PASTE )
+        {
+            string ParmID( Fl::event_text() );
+            AdvLinkMgr.AddInput( ParmID, m_VarNameInput.GetString() );
+        }
+    }
+    else if ( w == m_OutputGroup.GetGroup() )
+    {
+        if ( Fl::event() == FL_PASTE )
+        {
+            string ParmID( Fl::event_text() );
+            AdvLinkMgr.AddOutput( ParmID, m_VarNameInput.GetString() );
+        }
     }
     else
     {
