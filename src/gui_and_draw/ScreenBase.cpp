@@ -130,7 +130,7 @@ Fl_Group* TabScreen::MakeTab( const string& title )
     int rx, ry, rw, rh;
     m_MenuTabs->client_area( rx, ry, rw, rh, TAB_H );
 
-    Fl_Group* grp = new Fl_Group( rx, ry, rw, rh );
+    Fl_Group* grp = new Vsp_Group( rx, ry, rw, rh );
     grp->copy_label( title.c_str() );
     grp->selection_color( FL_GRAY );
     grp->labelfont( 1 );
