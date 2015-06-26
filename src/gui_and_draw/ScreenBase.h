@@ -167,10 +167,6 @@ public:
     virtual void CallBack( Fl_Widget *w );
     virtual void GuiDeviceCallBack( GuiDevice* device );
     virtual void SubSurfDispGroup( GroupLayout * group );
-    static void staticScreenCB( Fl_Widget *w, void* data )
-    {
-        ( ( GeomScreen* )data )->CallBack( w );
-    }
 
     virtual void UpdateMaterialNames();
 

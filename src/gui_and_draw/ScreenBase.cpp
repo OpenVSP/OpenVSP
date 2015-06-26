@@ -474,7 +474,7 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SubSurfBrowser->labelfont( 13 );
     m_SubSurfBrowser->labelsize( 12 );
     m_SubSurfBrowser->textsize( 12 );
-    m_SubSurfBrowser->callback( staticScreenCB, this );
+    m_SubSurfBrowser->callback( staticCB, this );
     subsurf_group->add( m_SubSurfBrowser );
     m_SubSurfLayout.AddY( browser_h );
     m_SubSurfLayout.AddYGap();
