@@ -30,11 +30,8 @@ public:
 protected:
 
     GroupLayout m_DesignLayout;
-    SliderInput m_NumPntsXSecSlider;
     SliderAdjRangeInput m_LengthSlider;
     SliderAdjRangeInput m_FineSlider;
-
-    SliderInput m_NumBaseSlider;
 };
 
 
