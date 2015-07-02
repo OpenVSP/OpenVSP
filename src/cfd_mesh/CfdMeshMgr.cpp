@@ -1303,11 +1303,11 @@ void CfdMeshMgrSingleton::Remesh( int output_type )
     char str[256];
     int total_num_tris = 0;
     int nsurf = ( int )m_SurfVec.size();
-    for ( int i = 0 ; i < nsurf ; i++ )
+    for ( int i = 0 ; i < nsurf ; ++i )
     {
         int num_tris = 0;
 
-        for ( int iter = 0 ; iter < 10 ; iter++ )
+        for ( int iter = 0 ; iter < 10 ; ++iter )
         {
             m_SurfVec[i]->GetMesh()->m_Iteration = iter;
             num_tris = 0;
@@ -2464,7 +2464,7 @@ vector< Surf* > CfdMeshMgrSingleton::CreateDomainSurfs()
 
     vector< Surf* > domainSurfs;
 
-    for ( int i = 0 ; i < ndomain ; i++ )
+    for ( int i = 0 ; i < ndomain ; ++i )
     {
         Surf* ptr = new Surf;
         domainSurfs.push_back( ptr );
