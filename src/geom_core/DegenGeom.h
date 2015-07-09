@@ -83,11 +83,10 @@ typedef struct
 
 typedef struct
 {
-    int                         nblade;
     double                      d;
     vec3d                       x;
     vec3d                       nvec;
-} DegenProp;
+} DegenDisk;
 
 typedef struct
 {
@@ -117,18 +116,18 @@ public:
     {
         return degenPoint;
     }
-    DegenProp   getDegenProp()
+    DegenDisk   getDegenDisk()
     {
-        return degenProp;
+        return degenDisk;
     }
 
     void setDegenPoint( DegenPoint degenPoint )
     {
         this->degenPoint = degenPoint;
     }
-    void setDegenProp( DegenProp degenProp )
+    void setDegenDisk( DegenDisk degenDisk )
     {
-        this->degenProp = degenProp;
+        this->degenDisk = degenDisk;
     }
 
     int getNumXSecs()
@@ -204,14 +203,14 @@ public:
     void write_degenGeomPlateCsv_file( FILE* file_id, int nxsecs, DegenPlate &degenPlate );
     void write_degenGeomStickCsv_file( FILE* file_id, int nxsecs, DegenStick &degenStick );
     void write_degenGeomPointCsv_file( FILE* file_id, int nxsecs );
-    void write_degenGeomPropCsv_file( FILE* file_id );
+    void write_degenGeomDiskCsv_file( FILE* file_id );
 
     void write_degenGeomM_file( FILE* file_id );
     void write_degenGeomSurfM_file( FILE* file_id, int nxsecs );
     void write_degenGeomPlateM_file( FILE* file_id, int nxsecs, DegenPlate &degenPlate, int iplate );
     void write_degenGeomStickM_file( FILE* file_id, int nxsecs, DegenStick &degenStick, int istick );
     void write_degenGeomPointM_file( FILE* file_id, int nxsecs );
-    void write_degenGeomPropM_file( FILE* file_id );
+    void write_degenGeomDiskM_file( FILE* file_id );
 
 protected:
 
@@ -219,7 +218,7 @@ protected:
     vector< DegenPlate >   degenPlates;
     vector< DegenStick >   degenSticks;
     DegenPoint   degenPoint;
-    DegenProp    degenProp;
+    DegenDisk    degenDisk;
 
     int num_xsecs;
     int num_pnts;

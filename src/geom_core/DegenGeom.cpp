@@ -840,27 +840,22 @@ void DegenGeom::write_degenGeomPointCsv_file( FILE* file_id, int nxsecs )
              degenPoint.xcgSolid[0].z()  );
 }
 
-void DegenGeom::write_degenGeomPropCsv_file( FILE* file_id )
+void DegenGeom::write_degenGeomDiskCsv_file( FILE* file_id )
 {
     char fmtstr[255];
     fmtstr[0] = '\0';
-    strcat( fmtstr, "%d, " );
     strcat( fmtstr, makeCsvFmt( 7 ).c_str() );
-    if ( parentGeom->GetType().m_Name == "prop" )
-    {
-        fprintf( file_id, "# DegenGeom Type\n" );
-        fprintf( file_id, "PROP\n" );
-        fprintf( file_id, "# numBlades,diameter,x,y,z,nx,ny,nz\n" );
-        fprintf( file_id, fmtstr, \
-                 degenProp.nblade,   \
-                 degenProp.d,        \
-                 degenProp.x.x(),    \
-                 degenProp.x.y(),    \
-                 degenProp.x.z(),    \
-                 degenProp.nvec.x(), \
-                 degenProp.nvec.y(), \
-                 degenProp.nvec.z()  );
-    }
+    fprintf( file_id, "# DegenGeom Type\n" );
+    fprintf( file_id, "PROP\n" );
+    fprintf( file_id, "# diameter,x,y,z,nx,ny,nz\n" );
+    fprintf( file_id, fmtstr, \
+             degenDisk.d,        \
+             degenDisk.x.x(),    \
+             degenDisk.x.y(),    \
+             degenDisk.x.z(),    \
+             degenDisk.nvec.x(), \
+             degenDisk.nvec.y(), \
+             degenDisk.nvec.z()  );
 }
 
 void DegenGeom::write_degenGeomCsv_file( FILE* file_id )
@@ -871,14 +866,22 @@ void DegenGeom::write_degenGeomCsv_file( FILE* file_id )
     {
         fprintf( file_id, "\nLIFTING_SURFACE,%s\n", name.c_str() );
     }
+    else if( type == DISK_TYPE )
+    {
+        fprintf( file_id, "\nDISK,%s\n", name.c_str() );
+        write_degenGeomDiskCsv_file( file_id );
+    }
     else
     {
         fprintf( file_id, "\nBODY,%s\n", name.c_str() );
     }
 
-    write_degenGeomPropCsv_file( file_id );
-
     write_degenGeomSurfCsv_file( file_id, nxsecs );
+
+    if( type == DISK_TYPE )
+    {
+        return;
+    }
 
     write_degenGeomPlateCsv_file( file_id, nxsecs, degenPlates[0] );
 
@@ -993,21 +996,16 @@ void DegenGeom::write_degenGeomPointM_file( FILE* file_id, int nxsecs )
     writeVec3d.write(     file_id, degenPoint.xcgSolid[0], basename + "cgSolid" );
 }
 
-void DegenGeom::write_degenGeomPropM_file( FILE* file_id )
+void DegenGeom::write_degenGeomDiskM_file( FILE* file_id )
 {
-    if ( parentGeom->GetType().m_Name == "prop" )
-    {
-        string basename = string( "propGeom(end)." );
+    string basename = string( "degenGeom(end).disk." );
 
-        fprintf( file_id, "propGeom(end).numBlades = %d;\n", degenProp.nblade );
+    WriteDoubleM writeDouble;
+    WriteVec3dM writeVec3d;
 
-        WriteDoubleM writeDouble;
-        WriteVec3dM writeVec3d;
-
-        writeDouble.write( file_id, degenProp.d,    basename + "diameter" );
-        writeVec3d.write(  file_id, degenProp.x,    basename );
-        writeVec3d.write(  file_id, degenProp.nvec, basename + "n" );
-    }
+    writeDouble.write( file_id, degenDisk.d,    basename + "diameter" );
+    writeVec3d.write(  file_id, degenDisk.x,    basename );
+    writeVec3d.write(  file_id, degenDisk.nvec, basename + "n" );
 }
 
 void DegenGeom::write_degenGeomM_file( FILE* file_id )
@@ -1017,17 +1015,26 @@ void DegenGeom::write_degenGeomM_file( FILE* file_id )
     if( type == SURFACE_TYPE )
     {
         fprintf( file_id, "\ndegenGeom(end+1).type = 'LIFTING_SURFACE';" );
-        fprintf( file_id, "\ndegenGeom(end).name = '%s';", name.c_str() );
+        fprintf( file_id, "\ndegenGeom(end).name = '%s';\n", name.c_str() );
+    }
+    else if( type == DISK_TYPE )
+    {
+        fprintf( file_id, "\ndegenGeom(end+1).type = 'DISK';" );
+        fprintf( file_id, "\ndegenGeom(end).name = '%s';\n", name.c_str() );
+        write_degenGeomDiskM_file( file_id );
     }
     else
     {
         fprintf( file_id, "\ndegenGeom(end+1).type = 'BODY';" );
-        fprintf( file_id, "\ndegenGeom(end).name = '%s';", name.c_str() );
+        fprintf( file_id, "\ndegenGeom(end).name = '%s';\n", name.c_str() );
     }
 
-    write_degenGeomPropM_file( file_id );
-
     write_degenGeomSurfM_file( file_id, nxsecs );
+
+    if( type == DISK_TYPE )
+    {
+        return;
+    }
 
     write_degenGeomPlateM_file( file_id, nxsecs, degenPlates[0], 1 );
 
