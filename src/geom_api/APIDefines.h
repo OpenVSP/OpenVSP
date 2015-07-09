@@ -195,6 +195,12 @@ enum VSP_SURF_TYPE { NORMAL_SURF,
                      NUM_SURF_TYPES,
                };
 
+enum VSP_SURF_CFD_TYPE { CFD_NORMAL,
+                         CFD_NEGATIVE,
+                         CFD_TRANSPARENT,
+                         CFD_NUM_TYPES,
+                };
+
 enum SUBSURF_TYPE { SS_LINE,
                     SS_RECTANGLE,
                     SS_ELLIPSE,

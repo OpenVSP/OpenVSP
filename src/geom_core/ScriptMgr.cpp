@@ -704,6 +704,15 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "VSP_SURF_TYPE", "DISK_SURF", DISK_SURF );
     assert( r >= 0 );
 
+    r = se->RegisterEnum( "VSP_SURF_CFD_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VSP_SURF_CFD_TYPE", "CFD_NORMAL", CFD_NORMAL );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VSP_SURF_CFD_TYPE", "CFD_NEGATIVE", CFD_NEGATIVE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VSP_SURF_CFD_TYPE", "CFD_TRANSPARENT", CFD_TRANSPARENT );
+    assert( r >= 0 );
+
     r = se->RegisterEnum( "XDDM_QUANTITY_TYPE" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "XDDM_QUANTITY_TYPE", "XDDM_VAR", XDDM_VAR );
