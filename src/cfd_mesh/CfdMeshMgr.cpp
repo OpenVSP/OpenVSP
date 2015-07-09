@@ -3748,9 +3748,39 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
                 }
                 else
                 {
-                    if ( ( int )t_vec_vec[c].size() % 2 == 1 )
+                    Geom* geomIndexS = m_Vehicle->FindGeom(m_SurfVec[s]->GetGeomID());
+                    Geom* geomIndexI = m_Vehicle->FindGeom(m_SurfVec[i]->GetGeomID());
+
+                    if ( ( int )t_vec_vec[c].size() % 2 == 1)
                     {
                         interiorFlag = true;
+                    }
+
+                    //Check Transparency & Negative
+                    if (geomIndexI != NULL && ((int) t_vec_vec[c].size()) % 2 == 1
+                            && (geomIndexI->m_NegativeVolumeFlag.Get() || m_SurfVec[i]->GetSurfaceCfdType() == vsp::CFD_NEGATIVE)
+                            && (m_SurfVec[s]->GetSurfaceCfdType() == vsp::CFD_TRANSPARENT))
+                    {
+                        interiorFlag = false;
+                        break;
+                    }
+                    else if(geomIndexS != NULL && ((int) t_vec_vec[c].size()) % 2 == 1
+                            && (geomIndexS->m_NegativeVolumeFlag.Get() || m_SurfVec[s]->GetSurfaceCfdType() == vsp::CFD_NEGATIVE)
+                            && (m_SurfVec[i]->GetSurfaceCfdType() == vsp::CFD_TRANSPARENT))
+                    {
+                        interiorFlag = false;
+                        break;
+                    }
+                    else if (geomIndexS != NULL && geomIndexI != NULL)
+                    {
+                        //If intersecting negatives, remove all of intersection
+                        if (((int) t_vec_vec[c].size()) % 2 == 1
+                            && (geomIndexS->m_NegativeVolumeFlag.Get() || m_SurfVec[s]->GetSurfaceCfdType() == vsp::CFD_NEGATIVE)
+                            && (geomIndexI->m_NegativeVolumeFlag.Get() || m_SurfVec[i]->GetSurfaceCfdType() == vsp::CFD_NEGATIVE))
+                        {
+                            interiorFlag = false;
+                            break;
+                        }
                     }
                 }
             }
@@ -3783,7 +3813,27 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
         list <Tri*> triList = m_SurfVec[s]->GetMesh()->GetTriList();
         for ( t = triList.begin() ; t != triList.end(); t++ )
         {
-            if ( ( *t )->intExtCount > 0 )
+            Geom* geomIndexS = m_Vehicle->FindGeom(m_SurfVec[s]->GetGeomID());
+
+            //If negative, flip logic of interior flags
+            if (geomIndexS != NULL
+                && (geomIndexS->m_NegativeVolumeFlag.Get()
+                    || m_SurfVec[s]->GetSurfaceCfdType() == vsp::CFD_NEGATIVE))
+            {
+                if ( ( *t )->intExtCount > 0 )
+                {
+                    ( *t )->interiorFlag = false;
+                }
+                else if ( ( *t )->intExtCount < 0 )
+                {
+                    ( *t )->interiorFlag = true;
+                }
+                else
+                {
+                    printf( "IntExtCount ZERO!\n" );
+                }
+            }
+            else if ( ( *t )->intExtCount > 0 )
             {
                 ( *t )->interiorFlag = true;
             }
