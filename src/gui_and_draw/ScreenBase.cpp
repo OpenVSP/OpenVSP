@@ -314,6 +314,17 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_GenLayout.AddY( m_GenLayout.GetStdHeight() );
     m_GenLayout.AddYGap();
 
+    //=== Negative Volumes ===//
+    m_GenLayout.AddDividerBox( "Negative Volume Properties" );
+
+    //==== Two Columns ====//
+    m_GenLayout.AddSubGroupLayout( m_NegativeVolume,   gen_group->w() / 2 - 2, 2 * m_GenLayout.GetStdHeight() );
+
+    m_NegativeVolume.AddButton( m_NegativeVolumeBtn, "Negative Volume" );
+
+    m_GenLayout.ForceNewLine();
+    m_GenLayout.AddYGap();
+
     m_GenLayout.AddDividerBox( "Set Export/Analysis" );
     int remain_y = ( m_GenLayout.GetH() + m_GenLayout.GetStartY() ) - m_GenLayout.GetY();
     m_SetBrowser = m_GenLayout.AddCheckBrowser( remain_y );
@@ -686,6 +697,9 @@ bool GeomScreen::Update()
     m_ShellMassAreaInput.Update( geom_ptr->m_MassArea.GetID() );
     m_ThinShellButton.Update( geom_ptr->m_ShellFlag.GetID() );
     m_PriorCounter.Update( geom_ptr->m_MassPrior.GetID() );
+
+    //==== Negative Volume Props ====/
+    m_NegativeVolumeBtn.Update(geom_ptr->m_NegativeVolumeFlag.GetID());
 
     //==== Attachments ====//
     m_TransToggleGroup.Update( geom_ptr->m_TransAttachFlag.GetID() );

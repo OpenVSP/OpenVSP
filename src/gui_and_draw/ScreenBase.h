@@ -174,6 +174,7 @@ public:
     GroupLayout m_GenLayout;
     GroupLayout m_Density;
     GroupLayout m_Shell;
+    GroupLayout m_NegativeVolume;
 
     GroupLayout m_XFormLayout;
     GroupLayout m_SubSurfLayout;
@@ -194,6 +195,9 @@ public:
     Input m_ShellMassAreaInput;
     ToggleButton m_ThinShellButton;
     Counter m_PriorCounter;
+
+    //==== Negative Volume Props ====//
+    ToggleButton m_NegativeVolumeBtn;
 
     Fl_Check_Browser* m_SetBrowser;
 
