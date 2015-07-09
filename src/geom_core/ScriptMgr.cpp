@@ -701,6 +701,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "VSP_SURF_TYPE", "WING_SURF", WING_SURF );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "VSP_SURF_TYPE", "DISK_SURF", DISK_SURF );
+    assert( r >= 0 );
 
     r = se->RegisterEnum( "XDDM_QUANTITY_TYPE" );
     assert( r >= 0 );

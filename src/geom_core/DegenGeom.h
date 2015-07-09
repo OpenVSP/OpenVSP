@@ -101,7 +101,7 @@ class DegenGeom
 public:
     enum { XY_PLANE, XZ_PLANE, YZ_PLANE };
 
-    enum { SURFACE_TYPE, BODY_TYPE };
+    enum { SURFACE_TYPE, BODY_TYPE, DISK_TYPE };
 
     DegenGeom()
     {
