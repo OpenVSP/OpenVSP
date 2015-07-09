@@ -111,7 +111,7 @@ void Wake::BuildSurfs(  )
         {
             Surf* s = new Surf();
             s->SetWakeFlag( true );
-            s->SetTransFlag( true );
+            s->SetSurfaceCfdType(vsp::CFD_TRANSPARENT);
             s->SetCompID( m_CompID );
             s->SetUnmergedCompID( unmerged_comp_id );
             s->SetRefGeomID( geom_id );
@@ -1084,7 +1084,7 @@ void CfdMeshMgrSingleton::BuildDomain()
                 if ( m_SurfVec[i]->GetGeomID() == GetCfdSettingsPtr()->GetFarGeomID() )
                 {
                     m_SurfVec[i]->SetFarFlag( true );
-                    m_SurfVec[i]->SetTransFlag( true );
+                    m_SurfVec[i]->SetSurfaceCfdType(vsp::CFD_TRANSPARENT);
                     m_SurfVec[i]->FlipFlipFlag();
                 }
             }
@@ -2123,7 +2123,7 @@ string CfdMeshMgrSingleton::CheckWaterTight()
     vector< vec3d* > allPntVec;
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
-        if ( m_SurfVec[i]->GetWakeFlag() == false )
+        if(m_SurfVec[i]->GetSurfaceCfdType() != vsp::CFD_TRANSPARENT)
         {
             vector< vec3d >& sPntVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
             for ( int v = 0 ; v < ( int )sPntVec.size() ; v++ )
@@ -2155,7 +2155,7 @@ string CfdMeshMgrSingleton::CheckWaterTight()
     map< int, vector<Edge*> > edgeMap;
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
-        if ( m_SurfVec[i]->GetWakeFlag() == false )
+        if(m_SurfVec[i]->GetSurfaceCfdType() != vsp::CFD_TRANSPARENT)
         {
             vector < SimpTri >& sTriVec = m_SurfVec[i]->GetMesh()->GetSimpTriVec();
             vector< vec3d >& sPntVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
@@ -2462,7 +2462,7 @@ vector< Surf* > CfdMeshMgrSingleton::CreateDomainSurfs()
         domainSurfs[i]->SetCompID( i );
         domainSurfs[i]->SetUnmergedCompID( i );
 
-        domainSurfs[i]->SetTransFlag( true );
+        domainSurfs[i]->SetSurfaceCfdType(vsp::CFD_TRANSPARENT);
 
         if( i == 0 && GetCfdSettingsPtr()->GetHalfMeshFlag() )
         {
@@ -3709,7 +3709,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
                 int comp_id = m_SurfVec[i]->GetCompID();
                 if ( comp_id != tri_comp_id ) // Don't check self intersection.
                 {
-                    if ( m_SurfVec[i]->GetTransFlag() == false ) // Don't check against transparent surf.
+                    if ( m_SurfVec[i]->GetSurfaceCfdType() != vsp::CFD_TRANSPARENT) // Don't check against transparent surf.
                     {
                         m_SurfVec[i]->IntersectLineSeg( cp, ep, t_vec_vec[comp_id] );
                     }

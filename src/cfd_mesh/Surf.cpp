@@ -25,7 +25,8 @@ Surf::Surf()
     m_SurfID = -1;
     m_FlipFlag = false;
     m_WakeFlag = false;
-    m_TransFlag = false;
+    m_SurfType = vsp::NORMAL_SURF;
+    m_SurfCfdType = vsp::CFD_NORMAL;
     m_SymPlaneFlag = false;
     m_FarFlag = false;
     m_WakeParentSurfID = -1;

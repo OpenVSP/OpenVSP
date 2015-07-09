@@ -189,13 +189,24 @@ public:
         return m_WakeParentSurfID;
     }
 
-    void SetTransFlag( bool flag )
+    //Getter/Setter Surface Type
+    void SetSurfaceType( int surfType )
     {
-        m_TransFlag = flag;
+        m_SurfType = surfType;
     }
-    bool GetTransFlag()
+    int GetSurfaceType()
     {
-        return m_TransFlag;
+        return m_SurfType;
+    }
+
+    //Getter/Setter Surface CFD TYPE (NEG, TRANS, NORM)
+    void SetSurfaceCfdType( int surfCfdType )
+    {
+        m_SurfCfdType = surfCfdType;
+    }
+    int GetSurfaceCfdType()
+    {
+        return m_SurfCfdType;
     }
 
     virtual void SetSymPlaneFlag( bool flag );
@@ -252,9 +263,11 @@ protected:
     bool m_WakeFlag;
     int m_WakeParentSurfID;
 
-    bool m_TransFlag;
     bool m_SymPlaneFlag;
     bool m_FarFlag;
+
+    int m_SurfType;
+    int m_SurfCfdType;
 
     SurfCore m_SurfCore;
 
