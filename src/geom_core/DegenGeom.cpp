@@ -215,15 +215,6 @@ void DegenGeom::createDegenSurface( const vector< vector< vec3d > > &pntsarr, co
 
     vec3d nVec;
 
-    if ( getType() == DegenGeom::SURFACE_TYPE )
-    {
-        if ( getParentGeom()->GetType().m_Name == "wing" || getParentGeom()->GetType().m_Name == "prop" )
-        {
-            nLow  = 1;
-            nHigh = num_xsecs - 1;
-        }
-    }
-
     int nxs = nHigh - nLow;
     degenSurface.x.resize( nxs );
 
@@ -304,13 +295,6 @@ void DegenGeom::createSurfDegenPlate( const vector< vector< vec3d > > &pntsarr, 
 {
     int nLow = 0, nHigh = num_xsecs;
     int startPnt = 0;
-
-    if ( getParentGeom()->GetType().m_Name == "wing" || getParentGeom()->GetType().m_Name == "prop" )
-    {
-        // Keep only airfoil sections, discard endcap close-out lines
-        nLow  = 1;
-        nHigh = num_xsecs - 1;
-    }
 
     degenPlates.resize( 1 );
     createDegenPlate( degenPlates[0], pntsarr, uw_pnts, nLow, nHigh, startPnt );
@@ -463,13 +447,6 @@ void DegenGeom::createSurfDegenStick( const vector< vector< vec3d > > &pntsarr, 
 {
     int nLow = 0, nHigh = num_xsecs;
     vec3d chordVec, camberPnt, prevCamberPnt;
-
-    if ( getParentGeom()->GetType().m_Name == "wing" || getParentGeom()->GetType().m_Name == "prop" )
-    {
-        // Keep only airfoil sections, discard endcap close-out lines
-        nLow  = 1;
-        nHigh = num_xsecs - 1;
-    }
 
     degenSticks.resize( 1 );
 
@@ -901,11 +878,6 @@ void DegenGeom::write_degenGeomCsv_file( FILE* file_id )
 
     write_degenGeomPropCsv_file( file_id );
 
-    if ( parentGeom->GetType().m_Name == "wing" || parentGeom->GetType().m_Name == "prop" )
-    {
-        nxsecs -= 2;
-    }
-
     write_degenGeomSurfCsv_file( file_id, nxsecs );
 
     write_degenGeomPlateCsv_file( file_id, nxsecs, degenPlates[0] );
@@ -1054,11 +1026,6 @@ void DegenGeom::write_degenGeomM_file( FILE* file_id )
     }
 
     write_degenGeomPropM_file( file_id );
-
-    if ( parentGeom->GetType().m_Name == "wing" || parentGeom->GetType().m_Name == "prop" )
-    {
-        nxsecs -= 2;
-    }
 
     write_degenGeomSurfM_file( file_id, nxsecs );
 

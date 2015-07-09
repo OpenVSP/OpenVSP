@@ -2727,18 +2727,7 @@ string Vehicle::WriteDegenGeomFile()
 
         for ( int i = 0; i < (int)m_DegenGeomVec.size(); i++ )
         {
-//            bool roundEndCapFlag;
-//            if ( m_DegenGeomVec[i].getParentGeom()->getType() == MS_WING_GEOM_TYPE )
-//            {
-//                roundEndCapFlag = ((Ms_wing_geom*)m_DegenGeomVec[i].getParentGeom())->get_round_end_cap_flag();
-//                ((Ms_wing_geom*)m_DegenGeomVec[i].getParentGeom())->set_round_end_cap_flag(false);
-//            }
-
             m_DegenGeomVec[i].write_degenGeomCsv_file( file_id );
-
-//            if ( m_DegenGeomVec[i].getParentGeom()->getType() == MS_WING_GEOM_TYPE )
-//                ((Ms_wing_geom*)m_DegenGeomVec[i].getParentGeom())->set_round_end_cap_flag(roundEndCapFlag);
-
         }
 
         fclose(file_id);
@@ -2778,27 +2767,7 @@ string Vehicle::WriteDegenGeomFile()
 
         for ( int i = 0, propIdx = 1; i < (int)m_DegenGeomVec.size(); i++, propIdx++ )
         {
-//            bool roundEndCapFlag;
-
-//            if ( m_DegenGeomVec[i].getParentGeom()->getType() == MS_WING_GEOM_TYPE )
-//            {
-//                roundEndCapFlag = ((Ms_wing_geom*)m_DegenGeomVec[i].getParentGeom())->get_round_end_cap_flag();
-//                ((Ms_wing_geom*)m_DegenGeomVec[i].getParentGeom())->set_round_end_cap_flag(false);
-//            }
-//            else if(m_DegenGeomVec[i].getParentGeom()->getType() == PROP_GEOM_TYPE)
-//            {
-//                fprintf(file_id,"\nif ~exist('propGeom','var'); propGeom = []; end;");
-//                fprintf(file_id,"\npropGeom(end+1).idx = %d;",propIdx);
-//            }
-
             m_DegenGeomVec[i].write_degenGeomM_file(file_id);
-
-//            if ( m_DegenGeomVec[i].getParentGeom()->getType() == MS_WING_GEOM_TYPE )
-//                ((Ms_wing_geom*)m_DegenGeomVec[i].getParentGeom())->set_round_end_cap_flag(roundEndCapFlag);
-//
-//            // Keep a counter to index into degenGeom for propeller components.
-//            // Increment if reflected symmetry.
-//            if ( m_DegenGeomVec[i].getParentGeom()->getSymCode() != NO_SYM ) propIdx++;
         }
 
         fclose(file_id);
