@@ -968,7 +968,18 @@ void CfdMeshMgrSingleton::LoadSurfs( vector< XferSurf > &xfersurfs )
         surfPtr->GetSurfCore()->SetSurf( xfersurfs[i].m_Surface );
 
         surfPtr->SetGeomID( xfersurfs[i].m_GeomID );
+
+        //Xfersurfs created each time and flips normal if geom is a negative volume
+        if (m_Vehicle->FindGeom(surfPtr->GetGeomID())->m_NegativeVolumeFlag.Get())
+        {
+            xfersurfs[i].m_FlipNormal = !xfersurfs[i].m_FlipNormal;
+        }
+
         surfPtr->SetFlipFlag( xfersurfs[i].m_FlipNormal );
+        //Sets whether WING, DISK, NORMAL
+        surfPtr->SetSurfaceType(xfersurfs[i].m_SurfType);
+        //Sets whether NORMAL, NEGATIVE, TRANSPARENT
+        surfPtr->SetSurfaceCfdType(xfersurfs[i].m_SurfCfdType);
 
         int cid = xfersurfs[i].m_CompIndx;
 
