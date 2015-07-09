@@ -638,6 +638,38 @@ void DegenGeom::createDegenStick( DegenStick &degenStick, const vector< vector< 
     }
 }
 
+void DegenGeom::createDegenDisk(  const vector< vector< vec3d > > &pntsarr )
+{
+    vec3d origin = pntsarr[0][0];
+    double r = 0;
+    int imax = 0;
+    for( int i = 1; i < num_xsecs; i++ )
+    {
+        vec3d p = pntsarr[i][0];
+        double d = dist( origin, p );
+        if( d > r )
+        {
+            r = d;
+            imax = i;
+        }
+    }
+
+    int j = ( num_pnts - 1 ) / 4;
+
+    vec3d p = pntsarr[imax][0];
+    vec3d q = pntsarr[imax][j];
+
+    vec3d u = p - origin;
+    vec3d v = q - origin;
+
+    vec3d n = cross( u, v );
+    n.normalize();
+
+    degenDisk.nvec = n;
+    degenDisk.x = origin;
+    degenDisk.d = 2.0 * r;
+}
+
 string DegenGeom::makeCsvFmt( int n, bool newline )
 {
     char fmt[10];

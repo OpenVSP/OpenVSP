@@ -1512,6 +1512,12 @@ void Geom::CreateDegenGeom( vector<DegenGeom> &dgs)
             degenGeom.createSurfDegenPlate( pnts, uwpnts );
             degenGeom.createSurfDegenStick( pnts, uwpnts );
         }
+        else if( m_SurfVec[i].GetSurfType() == vsp::DISK_SURF )
+        {
+            degenGeom.setType(DegenGeom::DISK_TYPE);
+
+            degenGeom.createDegenDisk( pnts );
+        }
         else
         {
             degenGeom.setType(DegenGeom::BODY_TYPE);
