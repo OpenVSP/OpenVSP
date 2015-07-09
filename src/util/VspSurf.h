@@ -82,6 +82,9 @@ public:
     int GetSurfType() { return m_SurfType; }
     void SetSurfType( int type ) { m_SurfType = type; }
 
+    int GetSurfCfdType() { return m_SurfCfdType; }
+    void SetSurfCfdType( int type ) { m_SurfCfdType = type; }
+
     double FindNearest( double &u, double &w, const vec3d &pt ) const;
     double FindNearest( double &u, double &w, const vec3d &pt, const double &u0, const double &w0 ) const;
 
@@ -157,6 +160,7 @@ protected:
 
     bool m_FlipNormal;
     int m_SurfType;
+    int m_SurfCfdType;
     piecewise_surface_type m_Surface;
 
     vector < double > m_UFeature;

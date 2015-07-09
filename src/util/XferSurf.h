@@ -34,6 +34,8 @@ public:
     string m_GeomID;
     int m_CompIndx;
     int m_SurfIndx;
+    int m_SurfType;
+    int m_SurfCfdType;
 
     piecewise_surface_type m_Surface;
 };

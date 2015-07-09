@@ -39,6 +39,7 @@ VspSurf::VspSurf()
 {
     m_FlipNormal = false;
     m_SurfType = vsp::NORMAL_SURF;
+    m_SurfCfdType = vsp::CFD_NORMAL;
 }
 
 //===== Destructor  =====//
@@ -902,9 +903,11 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_
     {
         XferSurf xsurf;
         xsurf.m_FlipNormal = m_FlipNormal;
-        xsurf.m_Surface = surfvec[isect];;
+        xsurf.m_Surface = surfvec[isect];
         xsurf.m_GeomID = geom_id;
         xsurf.m_SurfIndx = surf_ind;
+        xsurf.m_SurfType = m_SurfType;
+        xsurf.m_SurfCfdType = m_SurfCfdType;
         xsurf.m_CompIndx = comp_ind;
         xfersurfs.push_back( xsurf );
     }
