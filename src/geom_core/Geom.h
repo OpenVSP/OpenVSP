@@ -451,6 +451,9 @@ public:
     Parm     m_MassArea;
     BoolParm m_ShellFlag;
 
+    //==== Negative Volume Properties (GUI Purposes) ====//
+    BoolParm m_NegativeVolumeFlag;
+
     Parm m_BbXLen;
     Parm m_BbYLen;
     Parm m_BbZLen;

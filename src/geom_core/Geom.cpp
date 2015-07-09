@@ -731,6 +731,9 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_MassPrior.Init( "Mass_Prior", "Mass_Props", this, 0, 0, 1e12 );
     m_ShellFlag.Init( "Shell_Flag", "Mass_Props", this, false, 0, 1 );
 
+    // Negative Volume Properties
+    m_NegativeVolumeFlag.Init( "Negative_Volume_Flag", "Negative_Volume_Props", this, false, 0, 1);
+
     // End Cap Options
     m_CapUMinOption.Init("CapUMinOption", "EndCap", this, VspSurf::NO_END_CAP, VspSurf::NO_END_CAP, VspSurf::NUM_END_CAP_OPTIONS-1);
     m_CapUMinOption.SetDescript("Type of End Cap on UMin end");
