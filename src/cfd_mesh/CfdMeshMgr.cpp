@@ -3695,7 +3695,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
     //==== Find Max Bound Box of All Components ====//
     int s;
     BndBox big_box;
-    for (  s = 0 ; s < ( int )m_SurfVec.size() ; s++ )
+    for (  s = 0 ; s < ( int )m_SurfVec.size() ; ++s )
     {
         big_box.Update( m_SurfVec[s]->GetBBox() );
     }
@@ -3703,11 +3703,11 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
 
     //==== Count Number of Component Crossings for Each Component =====//
     list< Tri* >::iterator t;
-    for ( s = 0 ; s < ( int )m_SurfVec.size() ; s++ )
+    for ( s = 0 ; s < ( int )m_SurfVec.size() ; ++s )
     {
         int tri_comp_id = m_SurfVec[s]->GetCompID();
         list <Tri*> triList = m_SurfVec[s]->GetMesh()->GetTriList();
-        for ( t = triList.begin() ; t != triList.end(); t++ )
+        for ( t = triList.begin() ; t != triList.end(); ++t )
         {
             vector< vector< double > > t_vec_vec;
             t_vec_vec.resize( m_NumComps + 6 );  // + 6 to handle possibility of outer domain and symmetry plane.
@@ -3715,7 +3715,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
             vec3d cp = ( *t )->ComputeCenterPnt( m_SurfVec[s] );
             vec3d ep = cp + vec3d( x_dist, 0.0001, 0.0001 );
 
-            for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+            for ( int i = 0 ; i < ( int )m_SurfVec.size() ; ++i )
             {
                 int comp_id = m_SurfVec[i]->GetCompID();
                 if ( comp_id != tri_comp_id ) // Don't check self intersection.
@@ -3735,7 +3735,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
 
             // Loop over m_SurfVec instead of component id's.  Components will be addressed multiple times,
             // but it allows access to m_SurfVec[i]->GetFarFlag() without a reverse lookup on component id.
-            for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+            for ( int i = 0 ; i < ( int )m_SurfVec.size() ; ++i )
             {
                 int c =  m_SurfVec[i]->GetCompID();
 
@@ -3792,7 +3792,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
             ( *t )->LoadAdjTris( 3, triSet );
 
             set<Tri*>::iterator st;
-            for ( st = triSet.begin() ; st != triSet.end() ; st++ )
+            for ( st = triSet.begin() ; st != triSet.end() ; ++st )
             {
                 if ( interiorFlag )
                 {
@@ -3808,7 +3808,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
     }
 
     //==== Check Vote and Mark Interior Tris =====//
-    for ( s = 0 ; s < ( int )m_SurfVec.size() ; s++ )
+    for ( s = 0 ; s < ( int )m_SurfVec.size() ; ++s )
     {
         list <Tri*> triList = m_SurfVec[s]->GetMesh()->GetTriList();
         for ( t = triList.begin() ; t != triList.end(); t++ )
