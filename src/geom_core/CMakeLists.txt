@@ -45,6 +45,7 @@ Background3DMgr.cpp
 BlankGeom.cpp
 BORGeom.cpp
 ClippingMgr.cpp
+CobraGeom.cpp
 ConformalGeom.cpp
 CustomGeom.cpp
 DegenGeom.cpp
@@ -125,6 +126,7 @@ Background3DMgr.h
 BlankGeom.h
 BORGeom.h
 ClippingMgr.h
+CobraGeom.h
 Color.h
 ColorMgr.h
 ConformalGeom.h

@@ -49,6 +49,7 @@
 #include "PropGeom.h"
 #include "PtCloudGeom.h"
 #include "Quat.h"
+#include "CobraGeom.h"
 #include "RoutingGeom.h"
 #include "ScriptMgr.h"
 #include "StlHelper.h"
@@ -433,6 +434,7 @@ void Vehicle::Init()
     m_GeomTypeVec.push_back( GeomType( CONFORMAL_GEOM_TYPE, "CONFORMAL", true ) );
     m_GeomTypeVec.push_back( GeomType( ROUTING_GEOM_TYPE, "ROUTING", true ) );
     m_GeomTypeVec.push_back( GeomType( AUXILIARY_GEOM_TYPE, "AUXILIARY", true ) );
+    m_GeomTypeVec.push_back( GeomType( COBRA_GEOM_TYPE, "COBRA", true ) );
 
     //==== Get Custom Geom Types =====//
     vector< GeomType > custom_types = CustomGeomMgr.GetCustomTypes();
@@ -1157,6 +1159,10 @@ string Vehicle::CreateGeom( const GeomType & type )
     else if ( type.m_Name == "Gear" || type.m_Name == "GEAR" )
     {
         new_geom = new GearGeom( this );
+    }
+    else if ( type.m_Name == "Cobra" || type.m_Name == "COBRA" )
+    {
+        new_geom = new CobraGeom( this );
     }
 
     if ( !new_geom )

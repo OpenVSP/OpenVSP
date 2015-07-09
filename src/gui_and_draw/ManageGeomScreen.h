@@ -32,6 +32,7 @@
 #include "PodScreen.h"
 #include "PropScreen.h"
 #include "PtCloudScreen.h"
+#include "CobraScreen.h"
 #include "RoutingScreen.h"
 #include "StackScreen.h"
 #include "TreeIconWidget.h"
