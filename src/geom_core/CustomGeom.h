@@ -86,6 +86,9 @@ public:
     //==== Surface Attribute (Wing, Fuse...) =====//
     void SetVspSurfType( int type, int surf_id = -1 );
 
+    //==== Surface Cfd type (NORM, NEGATIVE, TRANSPARENT) ====//
+    void SetVspSurfCfdType ( int type, int surf_id = -1);
+
     //==== Set Up Default Sources =====//
     void SetupCustomDefaultSource( int type, int surf_index, double l1, double r1, double u1, double w1,
                                    double l2 = 0, double r2 = 0, double u2 = 0, double w2 = 0 );
@@ -209,6 +212,7 @@ public:
 
     //==== Set VSP Surf Type ====//
     virtual void SetVspSurfType( int type, int surf_id = -1 );
+    virtual void SetVspSurfCfdType( int type, int surf_id = -1);
 
     //==== CFD Sources =====//
     virtual void AddDefaultSources( double base_len = 1.0);
@@ -232,6 +236,8 @@ protected:
 
     int m_VspSurfType;
     map< int, int > m_VspSurfTypeMap;
+    int m_VspSurfCfdType;
+    map< int, int > m_VspSurfCfdTypeMap;
 
 
     virtual void UpdateSurf();

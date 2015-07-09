@@ -287,6 +287,19 @@ void CustomGeomMgrSingleton::SetVspSurfType( int type, int surf_id )
     }
 }
 
+//==== Set VSP Surf Type For Current Custom Geom =====//
+void CustomGeomMgrSingleton::SetVspSurfCfdType( int type, int surf_id )
+{
+    Geom* gptr = VehicleMgr.GetVehicle()->FindGeom( m_CurrGeom );
+
+    //==== Check If Geom is Valid and Correct Type ====//
+    if ( gptr && gptr->GetType().m_Type == CUSTOM_GEOM_TYPE )
+    {
+        CustomGeom* custom_geom = dynamic_cast<CustomGeom*>( gptr );
+        custom_geom->SetVspSurfCfdType( type, surf_id );
+    }
+}
+
 void CustomGeomMgrSingleton::SetupCustomDefaultSource(  int type, int surf_index,
                                                         double l1, double r1, double u1, double w1,
                                                         double l2, double r2, double u2, double w2 )
@@ -756,6 +769,7 @@ void CustomGeom::UpdateSurf()
     for ( int i = 0 ; i < (int)m_MainSurfVec.size() ; i++ )
     {
         m_MainSurfVec[i].SetSurfType( m_VspSurfType );
+        m_MainSurfVec[i].SetSurfCfdType( m_VspSurfCfdType );
     }
 
     map< int, int >::const_iterator iter;
@@ -768,6 +782,14 @@ void CustomGeom::UpdateSurf()
         }
     }
 
+    for ( iter = m_VspSurfCfdTypeMap.begin() ; iter != m_VspSurfCfdTypeMap.end() ; ++iter )
+    {
+        int index = iter->first;
+        if ( index >= 0 && index < (int)m_MainSurfVec.size() )
+        {
+            m_MainSurfVec[index].SetSurfCfdType( iter->second );
+        }
+    }
 }
 
 //==== Create Parm and Add To Vector Of Parms ====//
@@ -943,6 +965,17 @@ void CustomGeom::SetVspSurfType( int type, int surf_id )
     else
     {
         m_VspSurfTypeMap[surf_id] = type;
+    }
+}
+
+//==== Set VSP Surf CFD Type ====//
+void CustomGeom::SetVspSurfCfdType( int type, int surf_id )
+{
+    if ( surf_id == -1 )
+        m_VspSurfCfdType = type;
+    else
+    {
+        m_VspSurfCfdTypeMap[surf_id] = type;
     }
 }
 
