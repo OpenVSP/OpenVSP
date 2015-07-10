@@ -54,11 +54,11 @@ CfdMeshSettings::CfdMeshSettings() : ParmContainer()
     m_FarZScale.Init( "FarZScale", "FarField", this, 4.0, 1.0, 1.0e12 );
     m_FarZScale.SetDescript( "Far field Z scale" );
 
-    m_FarLength.Init( "FarLength", "FarField", this, 4.0, 1.0, 1.0e12 );
+    m_FarLength.Init( "FarLength", "FarField", this, 4.0, 1.1, 1.0e12 );
     m_FarLength.SetDescript( "Far field length" );
     m_FarWidth.Init( "FarWidth", "FarField", this, 4.0, 1.0, 1.0e12 );
     m_FarWidth.SetDescript( "Far field width" );
-    m_FarHeight.Init( "FarHeight", "FarField", this, 4.0, 1.0, 1.0e12 );
+    m_FarHeight.Init( "FarHeight", "FarField", this, 4.0, 1.1, 1.0e12 );
     m_FarHeight.SetDescript( "Far field height" );
 
     m_FarXLocation.Init( "FarXLocation", "FarField", this, 0.0, -1.0e12, 1.0e12 );
