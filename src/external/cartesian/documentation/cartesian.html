@@ -1,0 +1,896 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>cartesian.html</title>
+</head>
+<body>
+<h1 style="text-align: center;">Cartesian graphics library </h1>
+<div style="text-align: center;">v.1.0, written by Roman Kantor<br>
+</div>
+<br>
+The purpose Cartesian library, based on FLTK graphical toolkit, is to
+display various plots within real X and Y coordinates.&nbsp; The main
+usage is visualization of scientific data but the library is extensible
+and user can easily define his/her objects and define their look. The
+attention was paid to plotting of coordinate axes and generation of
+tics. Automatic modes can generate tics with proper "density" so that
+when the drawing is rescaled,&nbsp; the number of tics can
+automatically
+change to keep drawings without overlapping&nbsp; labels. Each drawing
+can have any number of vertical and/or horizontal axes with custom
+position relative to the plotting area (left, right, top or
+bottom)&nbsp; so that various objects (graphs) can be plotted&nbsp;
+relative to different coordinates within the same area. The "test"
+program (see example.cpp and its screenshot below) is such an example,
+it has three vertical (Y) axes representing three different quantities.
+If objects are added to the canvas dynamically, the canvas tries to
+perform
+incremental plotting (if possible) to speed-up the drawing and limit
+CPU usage.&nbsp; The&nbsp; Use of
+Fl_Double_Window (or Fl_Overlay_Window) as a parent window is
+recommended to take full
+advantage of the incremental plotting. It also avoids
+"flickering"&nbsp; for very complex graphics with thousands of objects.<br>
+<br>
+<div style="text-align: center;"><img title="Example program output"
+ alt="example program" src="example.png"
+ style="width: 588px; height: 409px;"><br>
+<br>
+<div style="text-align: left;">The library contains three class types:<br>
+</div>
+<ul style="text-align: left;">
+  <li><span style="font-weight: bold;">Ca_Canvas</span>
+- defines the area containing the drawings</li>
+  <li><span style="font-weight: bold;">Ca_X_Axis,
+Ca_Y_Axis</span> - plot coordinate axes, these widgets are placed
+around Ca_Canvas<br>
+  </li>
+  <li><span style="font-weight: bold;">Ca_Object_</span>&nbsp; - all
+drawing objects (like curves, points etc) are subclasses of that class.
+The objects are placed on the canvas by constructing particular object.
+The core library contains basic shapes: (poly)lines, points , bars etc.
+Other objects can be easily defined by the user.</li>
+</ul>
+<br>
+</div>
+<h2>1. Class description</h2>
+<h3>Ca_Canvas</h3>
+All drawing objects (like curves) are plotted within this widget.
+Because Ca_Canvas is public sub-class of Fl_Box, user can define the
+look of plotting area using standard methods of that widget: color(..)
+to describe the background, box(...) to define surrounding frame,
+label(...) to define the caption of the drawing etc. It can also
+show&nbsp; the coordinate grid or internal tics (ala gnuplot). Apart
+from standard widget&nbsp; methods it has following public functions:<br>
+<br>
+<div style="margin-left: 40px;"><span style="font-weight: bold;">static
+void Ca_Canvas::current(Ca_Canvas * c)</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">static Ca_Canvas* Ca_Canvas::current()<br>
+<br>
+</span></div>
+Sets or gets the current active canvas.&nbsp; Because the application
+can contain a number of different figures, user can control to which
+canvas newly constructed objects will be added. Also all new
+constructed axes are also added to currently active canvas (see below
+for&nbsp; axis classless).<br>
+<br>
+<div style="margin-left: 40px;"><span style="font-weight: bold;">void
+Ca_Canvas::current_x(Ca_Axis_ * axis)</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">void Ca_Canvas::current_y(Ca_Axis_ *
+axis)</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">Ca_Axis_* Ca_Canvas::current_x()</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">Ca_Axis_* Ca_Canvas::current_y()<br>
+<br style="font-weight: bold;">
+</span></div>
+These function define the active co-ordination system for newly
+constructed objects. Because each canvas can&nbsp; have more vertical
+or
+horizontal axes, the user should specify which one should be used as a
+coordinate for new
+objects. If you have only single horizontal or vertical axis, you do
+not
+need to use these as they become active after their construction. If
+you construct more axes of the same type (X or Y), the first one is
+active if not explicitly set by current_*() functions. Note that these
+function do not set the canvas active itself so use <span
+ style="font-weight: bold;">Ca_Canvas::current(...) </span>function to
+do that.<br>
+<br>
+<div style="margin-left: 40px;"><span style="font-weight: bold;">void
+Ca_Canvas::clear()<br>
+<br>
+</span></div>
+The method destroys all plotting objects and redraws the
+canvas.&nbsp;&nbsp;&nbsp; <br>
+<br>
+<div style="margin-left: 40px;"><span style="font-weight: bold;">int
+Ca_Canvas::border()</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">void Ca_Canvas::border(int border)<br>
+<br>
+</span></div>
+Get and set the border size around the graphics in addition to natural
+border of particular&nbsp; box type of the canvas. The min_pos() and
+max_pos() values of axes (see below Ca_Axis_ class description) are set
+with respect to that border.<br>
+<br>
+<span style="font-weight: bold;">void Ca_Canvas::clip_border(int dx =
+0, int dy = 0, int dw = 0, int dh = 0)</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">void Ca_Canvas::clip_border(int * dx,
+int * dy, int * dw, int * dh)<br>
+<br>
+</span>clip_border() functions limit ate actual drawing area within the
+canvas. The actual drawing area is reduced by clipping with dx, dy, dw
+and dh values (the meaning is similar to dx, dy, dw, dh of widget
+frame). This method is useful ie if you plot internal tics (like in
+gnuplot graphs) and you do not overlap these with the plotted objects.<br>
+<br>
+<div style="margin-left: 40px;"><span style="font-weight: bold;">Ca_Canvas::Ca_Canvas(int
+x, int y, int w, int h, const char *label=0)<br>
+<br>
+</span></div>
+A Fl_Widget compatible constructor. Canvas (and also axis classes
+below) can be used in fluid. Include Cartesian.H in your fluid file,
+add
+a "box" to your gui and explicitly specify Ca_Canvas as the class in
+the appropriate field in the form.<br>
+<br>
+<div style="margin-left: 40px;"><span style="font-weight: bold;">Ca_Canvas::~Ca_Canvas()<br>
+<br>
+</span></div>
+The destructor also removes (destroys) all objects and detaches the
+axes from the
+canvas (without destruction).<br>
+<h3>Ca_X_Axis, Ca_Y_Axis</h3>
+<span style="font-weight: bold;">Ca_X_Axis</span> and <span
+ style="font-weight: bold;">Ca_Y_Axis</span> classes are used to
+construct widgets&nbsp; for horizontal and vertical coordinates. As
+said above, there can be a number of axes of the same type. If there
+ate two Y (X) axes you usually place them just next to the canvas on
+right and left (bottom and top) side. If there are more (three in the
+example), you can place them little bit further from the canvas (but
+still parallel to the rest ones). Both classes are derived from <span
+ style="font-weight: bold;">Ca_Axis_</span> base class and have the
+same methods so below we describe the <span style="font-weight: bold;">Ca_Axis_class</span>:
+the methods have the same meaning, only the apereance differs with
+respect to their function. Because <span style="font-weight: bold;">Ca_Axis_</span>
+is derived from <span style="font-weight: bold;">Fl_Box</span>, you
+can use all its methods to define the axis apereance in a similar way
+as in <span style="font-weight: bold;">Ca_Canvas</span> case.<br>
+<br>
+<div style="margin-left: 40px;"><span style="font-weight: bold;">void
+Ca_Axis_::scale(int s)<br>
+<br>
+</span></div>
+Sets the character of the axis. Use enumerations CA_LOG (for
+logarithmic) or&nbsp; CA_LIN (for standard linear) character. If you
+"OR" (add)&nbsp; the value with CA_REV enumeration, the direction will
+be reversed. You can change the type "on the fly" <br>
+<br>
+<div style="margin-left: 40px;"><span style="font-weight: bold;">virtual
+void Ca_Axis_::current()<br>
+<br>
+</span></div>
+This function sets the axis as current, it is equivalent to
+Ca_Canvas::current_x(this) or Ca_Canvas::current_y(this) depending what
+type is the axis. All new objects will be placed relative to that
+co-ordinate.&nbsp;&nbsp;&nbsp; <br>
+<br>
+<div style="margin-left: 40px;"><span style="font-weight: bold;">virtual
+double Ca_Axis_::position(double value)<br>
+<br>
+</span></div>
+This method returns the real x or y position corresponding to the given
+value. It is should be used inside draw() method of Ca_Object_ derived
+class (see below) for its drawing.<br>
+<br>
+<div style="margin-left: 40px;"><span style="font-weight: bold;">virtual
+double Ca_Axis_::value(double position)<br>
+<br>
+</span></div>
+Gives the value for given position, it
+can be used i.e. for cursor implementation (see below in section
+"Miscellaneous")<br>
+<br style="font-weight: bold;">
+<div style="margin-left: 40px;"><span style="font-weight: bold;">Ca_Canvas
+* Ca_Axis_::canvas()<br>
+<br>
+</span></div>
+Gives information about the canvas to which the axis belongs
+to.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
+<br>
+<div style="margin-left: 40px;"><span style="font-weight: bold;">int
+Ca_Axis_::border()</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">void Ca_Axis_::border(int border)<br>
+<br>
+</span></div>
+&nbsp;Gets or sets the gap between the tics and the widget edge - only
+aesthetical purpose.&nbsp; <br>
+<br>
+<div style="margin-left: 40px;"><span style="font-weight: bold;">double
+Ca_Axis_::minimum() </span><br style="font-weight: bold;">
+<span style="font-weight: bold;">double Ca_Axis_::maximum()</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">void Ca_Axis_::minimum(double x)</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">void Ca_Axis_::maximum(double x);<br>
+<br>
+</span></div>
+Sets or gets the range for the axis.<br>
+&nbsp;&nbsp; &nbsp;<br>
+<div style="margin-left: 40px;"><span style="font-weight: bold;">void
+Ca_Axis_::rescale(int when, double value);</span><br>
+</div>
+<br>
+The method rescales the axis&nbsp; if supplied value exceeds min() or
+max(). The
+idea is that you call this function each time you add an object (with
+given coordinates) to the canvas. The condition when (enumerations<span
+ style="font-weight: bold;"> CA_WHEN_MIN, CA_WHEN_MAX</span>)&nbsp; can
+be combined: rescale(CA_WHEN_MIN|CA_WHEN_MAX,&nbsp; value) rescales the
+axis if the value exceeds either smaller or bigger than the recent
+range to include the object.<br>
+<br>
+<div style="margin-left: 40px;"><span style="font-weight: bold;">void </span><span
+ style="font-weight: bold;">Ca_Axis_::</span><span
+ style="font-weight: bold;">rescale_move(int when, double&nbsp; x)<br>
+<br>
+</span></div>
+This method allows to implement something like "moving" or "scrolling"
+window without changing axis scale so that max()-min() (for logarithmic
+axes
+min()/max()) remains constant.&nbsp; So if the value is outside recent
+axis interval and you perform rescale(CA_WHEN_MIN|CA_WHEN_MAX,&nbsp;
+value), the new range will shift the range to include new value but
+some older one could be shifted outside the displayed range.&nbsp;
+<h3>Control of the apereance of axis ticks</h3>
+There ate three types of tics with different apereance: <br>
+<ul>
+  <li>minor tics</li>
+  <li>major tics</li>
+  <li>label tics</li>
+</ul>
+Minor tics are the ordinary short tics close to each other. Major tics
+are somewhat longer and appear with certain periodicity and represent
+some round values among minor tics. Label tics are those of major ones
+which have printed a value next to them. Following methods define the
+tick values, separation and values printed next to label tics:<br>
+&nbsp;&nbsp; &nbsp;<br>
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; void
+Ca_Axis_::tick_interval(double interval)</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; double
+Ca_Axis::tick_interval()</span><br>
+<br>
+&nbsp;
+These functions define the "step value"&nbsp; for the ticks. The actual
+behavior depends on
+particular value of "interval"<br>
+<ul>
+  <li><span style="font-weight: bold;">1 &lt;= interval &lt;10</span> :
+if the "interval" is within this range it defines the difference
+between the tics except the order. The order is automatically
+calculated from the axis size and its range (minimum() and maximum()
+values) so that the separation between them is reasonable (see
+separation() method). This means that say if you define&nbsp;&nbsp;
+tick_interval(2),&nbsp; your minimum() is 0.875 and maximum
+1.176,&nbsp; you will get tics positioned on values&nbsp;&nbsp; 0.88,
+0.90, 0.92, 0.94, ... 1.16 .</li>
+  <li>&nbsp;<span style="font-weight: bold;">interval &lt;0 </span>(negative)
+:&nbsp; (this applies only for linear axes) the&nbsp; interval is set
+including the order, so -0.002 will give you tics of values of 0.876,
+0.878, 0.880 ....1.176). Note that in this case the interval should be
+carefully chosen by the user otherwise there may be too many or too few
+tics displayed on the axis.</li>
+  <li><span style="font-weight: bold;">interval == 0 </span>(default
+value):&nbsp; This is the most convenient case for which engine tries
+to find the best interval&nbsp; values among 1,2,5.&nbsp; The density
+of ticks kept more-less constant even if user rescales the axis.<br>
+  </li>
+</ul>
+<div style="margin-left: 40px;"><span style="font-weight: bold;">void
+Ca_Axis_::tick_separation(int separation)</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">int Ca_Axis_::tick_separation()</span><br>
+</div>
+<br>
+This methods sets (gets) the "optimal" screen distance between ticks in
+pixels. If the interval in above methods is set bigger or equal zero
+(automatic generation), the actual difference between ticks values is
+then calculated to "round ones" with the actual separation as close as
+possible to this optimal value (default value is 18).<br>
+<br>
+<div style="margin-left: 40px;"><span style="font-weight: bold;"> void
+major_step(int step)</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">int major_step()</span><br>
+</div>
+<br>
+The number of minor tick between two successive major ones. If
+zero then for default tick_interval (0) the numbers are automatically
+calculated as:<br>
+<ul>
+  <li>5 if "tick interval" was "calculated" as 1 (for linear axes the
+major tics are at values&nbsp; "0",&nbsp; "5", "10", "15"..., &nbsp;
+minor at values "1", "2", "3", "4", "6", "7", "8", "9", "11", ...)<br>
+  </li>
+  <li>5 if "tick interval" was calculated as 2 (for linear axes the
+major ticks are at values "0", "10", "20", ..., minor at values "2",
+"4", "6", "8", "12"...)<br>
+  </li>
+  <li>2 if "tick interval" was calculated as 5 (major tics at values
+"0",
+"10", "20", ..., minor at values "5", "15", "25"...)</li>
+</ul>
+For logarithmic axes the step for major ticks is similar but slightly
+more sophisticated as the number of the minor ticks between major ones
+might vary (ie there are only three minor ticks (step four) between
+major values 1 and 5 but four between 5 and 10 (step 5).<br>
+<ul>
+</ul>
+&nbsp;&nbsp; &nbsp;<br>
+<div style="margin-left: 40px;"><span style="font-weight: bold;">void
+Ca_Axis_::label_step(int step)</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">int Ca_Axis_::label_step()<br>
+<br>
+</span></div>
+These methods work similar as above ones with exception that it
+describe the number&nbsp; of minor tics between the ones with the
+labels.&nbsp; The value should be a multiplication of major_step()
+value.<br>
+<br>
+<div style="margin-left: 40px;"><span style="font-weight: bold;">void
+Ca_Axis_::tick_length(int length)</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">int Ca_Axis_::tick_length()<br>
+<br>
+</span></div>
+Describes length of the minor tics. If 0 (default), the&nbsp;
+label font size for the ticks is used. Major ticks and ticks with
+labels are twice as long
+as the minor ones.<br>
+<br style="font-weight: bold;">
+<div style="margin-left: 40px;"><span style="font-weight: bold;">void
+Ca_Axis_::label_format(const char *format)</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">const Ca_Axis_::char* label_format()<br>
+<br>
+</span></div>
+Specifies and gets prinf()-like format for labels next to ticks.&nbsp;
+If the format
+is equal to 0 (default value), the format is automatically calculated
+to
+match output to something like "%.nf" where n corresponds to calculated
+order of tick step.<br>
+<br>
+<div style="margin-left: 40px;"><span style="font-weight: bold;">void
+Ca_Axis_::label_font(Fl_Font face)</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">Fl_Font Ca_Axis_::label_font()</span><br>
+</div>
+<br>
+Specifies the font used for labels of the ticks.<br>
+<br style="font-weight: bold;">
+<div style="margin-left: 40px;"><span style="font-weight: bold;">void
+Ca_Axis_::label_size(int size)</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">int Ca_Axis_::label_size()</span><br>
+</div>
+<br>
+Specifies the size of the tick labels.<br>
+<br>
+<div style="margin-left: 40px;"><span style="font-weight: bold;">void
+Ca_Axis_::axis_color(Fl_Color _axis_color)</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">Fl_Color Ca_Axis_::axis_color()</span><br>
+</div>
+<br>
+Specifies color for tics and labels.<br>
+<br>
+<div style="margin-left: 40px;"><span style="font-weight: bold;">void
+Ca_Axis_::minor_grid_color(Fl_Color color)</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">void
+Ca_Axis_::major_grid_color(Fl_Color color)</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">void
+Ca_Axis_::label_grid_color(Fl_Color color)</span><span
+ style="font-weight: bold;"><br>
+void Ca_Axis_::minor_grid_style(int style, int width=0, char * dashes=0)</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">void Ca_Axis_::major_grid_style(int
+style, int width=0, char * dashes=0)</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">void Ca_Axis_::label_grid_style(int
+style, int width=0, char * dashes=0)<br>
+<br style="font-weight: bold;">
+</span><span style="font-weight: bold;">Fl_Color
+Ca_Axis_::minor_grid_color()</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">Fl_Color Ca_Axis_::major_grid_color()</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">Fl_Color Ca_Axis_::label_grid_color()</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;"></span><span style="font-weight: bold;">void
+Ca_Axis_::minor_grid_style(int
+*style, int *width=0, char ** dashes=0)</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">void Ca_Axis_::major_grid_style(int
+*style, int *width=0, char ** dashes=0)</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">void Ca_Axis_::label_grid_style(int
+*style, int *width=0, char ** dashes=0)</span><br>
+<span style="font-weight: bold;"><br>
+</span></div>
+All above&nbsp; functions define or obtain information about the
+apereance of the grid within the the canvas.&nbsp; For last three
+functions you
+can pass null pointer (0) if you do not require particular information
+about the style value.<br>
+<br>
+<div style="margin-left: 40px;"><span style="font-weight: bold;">void
+Ca_Axis_::grid_visible(int visible)</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">int Ca_Axis_::grid_visible()</span><br>
+</div>
+<br>
+These functions define which grid lines (corresponding to minor, major
+or label ticks for the axis) have to be plotted in the
+canvas area. They can have a form of full lines or internal tics "a la
+Gnuplot" on left (bottom) , right ( top) side or on both sides. You
+should use
+combination (use operator "|"&nbsp; or "+") of&nbsp; following
+enumerations:<br>
+<br>
+<span style="font-weight: bold;">&nbsp;&nbsp; &nbsp;CA_MINOR_GRID&nbsp;
+</span>// grid lines at positions of all ticks are plotted<br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp;
+&nbsp;CA_LEFT_MINOR_TICK&nbsp; </span>//&nbsp; internal minor left
+-side&nbsp; ticks (within the canvas) are plotted&nbsp; (for y-type
+axes)<br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp; &nbsp;CA_BOTTOM_MINOR_TICK</span>&nbsp;
+//&nbsp; internal bottom minor ticks are plotted&nbsp; (for x-type axes)<br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp; &nbsp;CA_RIGHT_MINOR_TICK</span>&nbsp;
+//&nbsp; internal minor right-side&nbsp; ticks are plotted&nbsp; (for
+y-type axes)<br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp;
+&nbsp;CA_TOP_MINOR_TICK&nbsp; </span> //&nbsp; internal top minor
+ticks are plotted&nbsp; (for x-type axes)<br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp; &nbsp;CA_MINOR_TICK
+(==CA_LEFT_MINOR_TICK | CA_RIGHT_MINOR_TICK)</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp; &nbsp;CA_MAJOR_GRID </span><span
+ style="font-weight: bold;"> </span>// grid lines at positions of
+major ticks are plotted<br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp; &nbsp;CA_LEFT_MAJOR_TICK </span><span
+ style="font-weight: bold;"></span>//&nbsp; internal major left
+-side&nbsp; ticks are plotted&nbsp; (for y-type axes)<br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp;
+&nbsp;CA_BOTTOM_MAJOR_TICK </span>//&nbsp; internal bottom major ticks
+are plotted&nbsp; (for x-type axes)<br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp; &nbsp;CA_RIGHT_MAJOR_TICK
+</span>&nbsp; //&nbsp; internal major right-side&nbsp; ticks are
+plotted&nbsp; (for y-type axes)<br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp; &nbsp;CA_TOP_MAJOR_TICK </span><span
+ style="font-weight: bold;"> </span> //&nbsp; internal top major ticks
+are plotted&nbsp; (for x-type axes)<br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp; &nbsp;CA_MAJOR_TICK
+(==CA_LEFT_MAJOR_TICK | CA_RIGHT_MAJOR_TICK)</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp; &nbsp;CA_LABEL_GRID </span>//
+grid lines at positions of label ticks are plotted<br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp; &nbsp;CA_LEFT_LABEL_TICK </span>//&nbsp;
+internal label left -side&nbsp; ticks are plotted&nbsp; (for y-type
+axes)<br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp;
+&nbsp;CA_BOTTOM_LABEL_TICK </span> //&nbsp; internal bottom label
+ticks are plotted&nbsp; (for x-type axes)<br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp; &nbsp;CA_RIGHT_LABEL_TICK
+</span>//&nbsp; internal&nbsp; right-side&nbsp; label ticks are
+plotted&nbsp; (for y-type axes)<br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp; &nbsp;CA_TOP_LABEL_TICK </span>
+//&nbsp; internal top label ticks are plotted&nbsp; (for x-type axes)<br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp; &nbsp;CA_LABEL_TICK
+(==CA_LEFT_LABEL_TICK | CA_RIGHT_LABEL_TICK)<br>
+</span><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; CA_FRONT </span>
+//&nbsp; plots the grid over the objects<br>
+<span style="font-weight: bold;"><br>
+</span>As the labeled ticks are also major ones, setting i.e.
+grid_visible(CA_MAJOR_GRID) will plot no minor-ticks grid, but major
+and labeled ones.&nbsp;&nbsp;&nbsp; When the value is
+combined with CA_ALWAYS_VISIBLE, the grid is plotted even if the axis
+is not visible itself.&nbsp; Normally the grid is plotted at the
+background with objects in front of them.&nbsp; If you want the grid to
+"cover" the plotting, combine&nbsp; the supplied value with
+enumeration CA_FRONT.<br>
+&nbsp;&nbsp; &nbsp;<br>
+<div style="margin-left: 40px;"><span style="font-weight: bold;">void
+Ca_Axis_::axis_align(unsigned char align)</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">unsigned Ca_Axis_::char axis_align()<br>
+<br>
+</span></div>
+This parameter&nbsp; defines the axis apereance to define the
+"orientation of ticks" for the axis surrounding canvas.&nbsp; Use
+enumerations <span style="font-weight: bold;">CA_LEFT</span> (default)
+or&nbsp;<span style="font-weight: bold;"> CA_RIGHT</span> for Ca_Y_Axis
+(y-type, vertical);&nbsp; <span style="font-weight: bold;">CA_TOP</span>
+or <span style="font-weight: bold;">CA_BOTTOM</span> (default) for
+CA_X_Axis (x-type, horizontal) .
+If you want&nbsp; the base axis line to be drawn as well (similar as
+x-axis in the example), combine the
+parameter with <span style="font-weight: bold;">CA_LINE</span>
+enumeration<br>
+<br>
+<div style="margin-left: 40px;"><span style="font-weight: bold;">Ca_X_Axis::</span><span
+ style="font-weight: bold;">Ca_X_Axis(int x, int y, int w, int h, const
+char * label=0);</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">Ca_Y_Axis::</span><span
+ style="font-weight: bold;">Ca_Y_Axis(int x, int y, int w, int h, const
+char * label=0);</span><br>
+</div>
+<br>
+These are standard constructors for both axis types. If you
+want to arrange the axes within fluid, use Fl_Box for the widget and
+explicitly specify the class (Ca_X_Axis, Ca_Y_Axis) in appropriate
+field.<br>
+<br>
+<div style="margin-left: 40px;"><span style="font-weight: bold;">Ca_X_Axis::~Ca_X_Axis()</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">Ca_Y_Axis:: ~Ca_Y_Axis()<br>
+<br>
+</span></div>
+The destructors destroy not only the widget but also all objects
+related to the axis.&nbsp; The destructors of axes is also called when
+canvas is destroyed.<br>
+<br>
+<br>
+<br>
+<h3>Class Ca_Object_ </h3>
+This is a base class of all drawings. Every object drawn within the
+canvas should be a subclass of this class with own draw() method.
+Within this drawing method all drawing should be performed,&nbsp;
+x_axis_-&gt;position(x) and y_axis_-&gt;position(y) functions should be
+used to retrieve the x and y screen coordinates for x and y real
+coordinates. Although only points, lines and bars are included in the
+library,&nbsp; any 2D drawing can be placed within the canvas as long
+as you define its drawing function.<br>
+Note: If you add an object to the canvas, the object is the last object
+and is atop of the rest.&nbsp; Only incremental redraw is done (which
+adds the drawing) if the canvas does not need a foll redraw (like when
+rescaling is performed etc.)<br>
+<br>
+&nbsp;
+&nbsp;&nbsp; &nbsp;<br>
+Protected members:<br>
+<br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; Ca_Canvas *canvas_</span><br>
+&nbsp;&nbsp;&nbsp; - the canvas to which it belongs to (the active
+canvas when the object was created)<br>
+<br>
+<span style="font-weight: bold;">&nbsp;&nbsp; Ca_Object_(Ca_Canvas *
+canvas=0)</span><br>
+&nbsp;&nbsp;&nbsp; If Ca_Canvas is 0, the object is assigned to
+current canvas<br>
+<br>
+Public members:<br>
+&nbsp;&nbsp; &nbsp;<br>
+<span style="font-weight: bold;">&nbsp;&nbsp; &nbsp;Ca_Axis_ *x_axis_</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; Ca_Axis_ *y_axis;</span><br>
+&nbsp;&nbsp;&nbsp; - co-ordination axes for the object (active axes
+when the object was created<br>
+<br>
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; virtual void draw()</span><br>
+&nbsp;&nbsp;&nbsp; - here is your drawing code for your objects<br>
+&nbsp;&nbsp;&nbsp; &nbsp;<br>
+<span style="font-weight: bold;"></span>&nbsp;&nbsp;&nbsp;<span
+ style="font-weight: bold;"> virtual ~Ca_Object_();</span><br>
+&nbsp;&nbsp;&nbsp; Override the destructor when your object is
+somplicated and you
+have need to make a sophisticated destruction.<br>
+<br>
+<br>
+<br>
+The library contains some real objects:<br>
+<br>
+<span style="font-weight: bold;">Class Ca_Point</span><br>
+<br>
+Simple points with different shapes. For the simplicity of the access
+all members are public.<br>
+If you make some changes tor these,&nbsp; redraw() the canvas after
+making the changes..<br>
+<br>
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; double x</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; double y</span><br>
+&nbsp;&nbsp;&nbsp; Real coordinates<br>
+<br>
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; Fl_Color color</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; Fl_Color
+border_color</span><br>
+<span style="font-weight: bold;">&nbsp;&nbsp; &nbsp;int border_width</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; unsigned char style</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; int size<br>
+<br>
+</span>&nbsp;&nbsp;&nbsp; The pinternal color, the color and width of
+the border (if border is plotted), the shape and size of the plotted
+pont. The shape can
+have one of the values: <br>
+<br>
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; CA_SIMPLE, CA_ROUND</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; CA_SQUARE</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; CA_UP_TRIANGLE</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; CA_DOWN_TRIANGLE</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; CA_DIAMOND</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; CA_NO_POINT<br>
+<br>
+</span>&nbsp;&nbsp;&nbsp;&nbsp; When <span style="font-weight: bold;">CA_BORDER</span>
+is added (like uding | operator) to the the border shape, a surriunding
+line
+of border_color and boder_width is also plotted.<br>
+&nbsp;&nbsp;&nbsp;&nbsp; fl_point(..) id used to draw CA_SIMPLE point
+(a single pixel), other have size of "size" and the shapes correspond
+to the name<br>
+<br>
+&nbsp;&nbsp; &nbsp;<br>
+&nbsp;<span style="font-weight: bold;">&nbsp; &nbsp;Ca_Point(double _x,
+double _y, Fl_Color
+color=FL_BLACK, int style=CA_SIMPLE, int size=DEFAULT_POINT_SIZE,
+Fl_Color border_color=FL_BLACK, int border_width=0);</span><br>
+&nbsp;&nbsp;&nbsp; The constructor also sets all parameters influencing
+the appereance.<br>
+<br>
+<br style="font-weight: bold;">
+<span style="font-weight: bold;">class Ca_LinePoint:Ca_Point</span><br>
+<br>
+This object can be used for plotting of "Ca_Point" points connected
+with lines.&nbsp; The color of the line is the same as the interior of
+the point.<br>
+<br>
+Public members:<br>
+<br>
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; Ca_LinePoint
+*previous<br>
+<br>
+</span>Each lCa_Line poinr represents a point and a line between this
+point and a previous one within a curve. If previous is zero, it is a
+first point and no line is connecting plotted.<br>
+<br>
+<span style="font-weight: bold;">&nbsp;&nbsp; &nbsp;int line_width<br>
+<br>
+Width of the connecting line<br>
+</span><br>
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;
+Ca_LinePoint(Ca_LinePoint *_previous, double _x,
+double _y, int line_width, Fl_Color color=FL_BLACK,&nbsp; int
+style=CA_SIMPLE, int size=DEFAULT_POINT_SIZE, Fl_Color
+border_color=FL_BLACK, int border_width=0);<br>
+<br>
+</span>The constructor defines all parameters&nbsp; influencing the
+appereance.<br>
+<br>
+<span style="font-weight: bold;"></span>&nbsp;<span
+ style="font-weight: bold;">&nbsp;&nbsp; Ca_LinePoint(Ca_LinePoint *
+previous, double _x,
+double _y)<br>
+<br>
+</span>This form of the constructor defines only position and previous
+object within the curve, all other parameters are inherited from
+"previous".<br>
+<br>
+<br>
+<br>
+class Ca_PolyLine<br>
+<br>
+This&nbsp; object is similar to the previous but also the styles (like
+dashes) for connecting lines can be defined.<br>
+<br>
+Members:<br>
+<span style="font-weight: bold;">&nbsp;&nbsp; &nbsp;int line_style;<br>
+<br>
+</span>Defines the stule of the connecing line<br>
+<br>
+<span style="font-weight: bold;">&nbsp;&nbsp; &nbsp;Ca_PolyLine * next;<br>
+<br style="font-weight: bold;">
+</span><span style="font-weight: bold;">&nbsp;&nbsp;
+&nbsp;Ca_PolyLine(Ca_PolyLine *_previous, double _x,
+double _y,int line_style, int line_width=0, Fl_Color color=FL_BLACK,
+int style=CA_SIMPLE, int size=DEFAULT_POINT_SIZE,&nbsp; Fl_Color
+border_color=FL_BLACK, int border_width=0);<br>
+<br>
+</span>Constructor defining fuly the appereance<br>
+<br>
+<span style="font-weight: bold;">&nbsp;&nbsp;
+&nbsp;Ca_PolyLine(Ca_PolyLine *_previous, double _x,
+double _y);<br>
+<br>
+</span>Constructor defining only previous point and the coordinates,
+the appereance is ingerited from previous.<span
+ style="font-weight: bold;"><br>
+</span><br>
+<br>
+<h3>Class Ca_Line:Ca_Point</h3>
+<br>
+Although the appereance is similar to Ca_PolyLine, there are a few
+differences:<br>
+&nbsp;&nbsp; &nbsp;<br>
+&nbsp;&nbsp; &nbsp;1. It is a single object<br>
+&nbsp;&nbsp; &nbsp;2. The coordination values are not stored in the
+object - only ponters to the x (data) and y (data_2) data arrays.<br>
+&nbsp;&nbsp; &nbsp;If dada_2==0, both sets should be stored in *data in
+order x1, y1, x2, y2.....xn, yn.<br>
+<br>
+Public members:<br>
+<br>
+&nbsp;<span style="font-weight: bold;">&nbsp; &nbsp;int line_style; </span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp; &nbsp;int line_width;</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp; &nbsp;int n;&nbsp;</span>
+// number of points - dize of data array<br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp; &nbsp;double * data;</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp; &nbsp;double * data_2;</span><br
+ style="font-weight: bold;">
+<br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp; &nbsp;Ca_Line(int _n,
+double *_data, double *_data_2, int
+_line_style, int _line_width=0, Fl_Color color=FL_BLACK, int
+style=CA_SIMPLE, int size=DEFAULT_POINT_SIZE, Fl_Color
+border_color=FL_BLACK, int border_width=0);</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp; &nbsp;Ca_Line(int _n,
+double *_data, int _line_style, int
+_line_width=0, Fl_Color _color=FL_BLACK, int style=CA_SIMPLE, int
+size=DEFAULT_POINT_SIZE, Fl_Color border_color=FL_BLACK, int
+border_width=0);</span><br>
+<br>
+<span style="font-weight: bold;"><br>
+</span>
+<h3><span style="font-weight: bold;">Class Ca_Text: public Ca_Object</span></h3>
+<br>
+This object plots formated text inside real coordinates x1, x2, y1, y2.<br>
+<br>
+Public members:<br>
+&nbsp; <br>
+<span style="font-weight: bold;">&nbsp; &nbsp; double x1,x2,y1,y2;</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp; &nbsp;char * label;</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp; &nbsp;uchar align;</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp; &nbsp;Fl_Color
+label_color;</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp; &nbsp;Fl_Font label_font;</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp; &nbsp;int label_size;</span><br
+ style="font-weight: bold;">
+<br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; Ca_Text(double _x1,
+double _x2, double _y1, double
+_y2, char *_label, uchar _align=FL_ALIGN_CENTER, Fl_Font
+_label_font=FL_HELVETICA, int _label_size=CA_DEFAULT_LABEL_SIZE,
+Fl_Color _label_color=FL_BLACK);</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp; Ca_Text(double x, double y, char *_label=0, uchar
+_align=FL_ALIGN_CENTER, Fl_Font _label_font=FL_HELVETICA, int
+_label_size=CA_DEFAULT_LABEL_SIZE, Fl_Color _label_color=FL_BLACK);</span><br>
+<br>
+<br>
+<h3><span style="font-weight: bold;">Class Ca_Bar: public Ca_Text</span></h3>
+<br>
+A bar with optional border (if border_width &gt;=0) and label which can
+be formatted and aligned similar to the widget labels.<br>
+<br>
+Public members:<br>
+<br>
+<span style="font-weight: bold;">&nbsp;&nbsp; &nbsp;Fl_Color color;</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp; &nbsp;Fl_Color
+border_color;</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp; &nbsp;int border_width;</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp; &nbsp;Ca_Bar(double _x1,
+double _x2, double _y1, double
+_y2, Fl_Color _color=FL_RED,&nbsp; Fl_Color _border_color=FL_BLACK, int
+_border_width=0,&nbsp; char *_label=0, uchar _align=FL_ALIGN_CENTER,
+Fl_Font _label_font=FL_HELVETICA, int
+_label_size=CA_DEFAULT_LABEL_SIZE, Fl_Color _label_color=FL_BLACK);</span><br
+ style="font-weight: bold;">
+<br style="font-weight: bold;">
+<br>
+<br>
+<br>
+<h2>2. Example program</h2>
+<br>
+<br>
+The example program generates gemerates and plots the points in 0.1 s
+intervals. You can see how axis are rescaled during the generation.<br>
+The You can change the mode&nbsp; "power" axis&nbsp; to see&nbsp; how
+possible
+axis types look like.<br>
+The easies way to compile the example program is to use fltk-config:<br>
+<br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;
+path/to/fltk-config --compile path/to/cartestan/test/example.cpp</span><br>
+<br>
+and execute resulting binary.<br>
+<br>
+You can also use the <span style="font-weight: bold;">Makefike</span>
+within&nbsp; /gnu subdirectory but you need to redefine FL and libDirs
+(if required) so that the compliler can find fltk include files
+and&nbsp; fltk library.<br>
+<br>
+Under windows you can also use a VC project&nbsp; as included in
+/visualc subdirectory.<br>
+<br>
+<br style="font-weight: bold;">
+<h2><span style="font-weight: bold;">3. FAQ</span></h2>
+<br style="font-weight: bold;">
+<span style="font-weight: bold;">Q1: What is the difference
+between Ca_LinePoint and Ca_PolyLine (or
+Ca_Line)?</span><br>
+A: Ca_LinePoint Ca_PolyLine are multi-oblect creatures and can
+be incrementaly construcred&nbsp; (i.e. during data acquisition).
+Ca_LinePoint is faster because
+it can perform incremental drawing&nbsp; (so it will use much less CPU
+if you have many thousands points and you
+are appending new ones to the structure because it does need not to
+perform full canvas redraw, it only draws the new point).<br>
+Ca_PolyLine have additional features (like line_style) but when
+a point is added to it,&nbsp; all the canvas is redrawn. It is not so
+important for static
+data but if you want to visualise&nbsp; real-time data asquisition it
+might be better to use Ca_PolyLine or Ca_LinePoint which would consume
+less CPU cycles. Ca_Line also have a traditional array-like data which
+are not
+copied, only the pointer to the data is stored.<br>
+<br>
+<span style="font-weight: bold;">Q2: What about cursors (like
+Fl_Positioner)? </span><br>
+A: It can be easily implemented using an overlay window and plot
+wire cursors over canvas.&nbsp; You have to overrire canvas handle()
+method in which you can get
+the position of the cursor for use in&nbsp; draw_overlay() (call
+redraw_overlay() to update drawing) You
+can also show the cursor coordinates (in say Fl_Value_Output) using
+Ca_Axis_::value(position) where position is the screen-position of your
+pointing cursor. With different user needs for the cursor control, it
+will not be probably included in the lib and so the particular
+implementation is left for the user.<br>
+<br>
+&nbsp; <br>
+<br>
+<span style="font-weight: bold;">Q3: Can I print the graphics?</span><br>
+A: Please use FL_Device patched FLTK (see baazaar) of use
+fltk-1.2. Before printing you may want to rescale the graphiccs, change
+the background or make other changes if you want to tune the output for
+the print. After printing roll-back your changes to adjust the
+appereance for the screen version.<br>
+<br>
+<span style="font-weight: bold;">Q3: Will you add other objects like
+error bars etc?</span><br>
+A: No. The library is a framework and points with error bars can be
+easily added by subclassing Ca_Object and overriding draw() method. <br>
+<br>
+<br>
+<h2>4. Enjoy!</h2>
+<span style="font-weight: bold;">Roman</span><br>
+<br>
+<br>
+<br>
+</body>
+</html>
