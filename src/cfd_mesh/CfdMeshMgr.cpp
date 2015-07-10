@@ -2414,52 +2414,174 @@ void CfdMeshMgrSingleton::Intersect()
 
 vector< Surf* > CfdMeshMgrSingleton::CreateDomainSurfs()
 {
+    //Create many planes
+    vec3d outerBottomRight, outerBottomLeft, outerTopRight, outerTopLeft;
+    vec3d innerBottomRight, innerBottomLeft, innerTopRight, innerTopLeft;
+    vector<vec3d> corners;
+    BndBox vehicleBBox = m_Vehicle->GetBndBox();
+    CfdMeshSettings* settings = GetCfdSettingsPtr();
+    double farXScale = settings->m_FarXScale.Get();
+    double farZScale = settings->m_FarZScale.Get();
+    double min = farXScale;
+    double scale = 2.0;
+    bool isInside = true;
+
+    //Grab the minimum of the two scales
+    if (farZScale < min)
+    {
+        min = farZScale;
+    }
+
+    //Makes center plane smaller if outer plane smaller than inner
+    //Currently min can be set to 1.0 (the size of the BBox)
+    if (min < scale)
+    {
+        scale = (min + 1.0)/2.0;
+    }
+
+    vehicleBBox.Scale(vec3d(scale, scale, scale));
+    corners = vehicleBBox.GetCornerPnts();
+    vehicleBBox.Reset();
+
+    //Symmetry Plane Vertices
+    outerBottomRight = m_Domain.GetCornerPnt(1);
+    outerBottomLeft = m_Domain.GetCornerPnt(0);
+    outerTopRight = m_Domain.GetCornerPnt(5);
+    outerTopLeft = m_Domain.GetCornerPnt(4);
+    innerBottomRight = vec3d(corners[2][0], outerBottomRight[1], corners[2][2]);
+    innerBottomLeft = vec3d(corners[1][0], outerBottomLeft[1], corners[1][2]);
+    innerTopRight = vec3d(corners[6][0], outerTopRight[1], corners[6][2]);
+    innerTopLeft = vec3d(corners[5][0], outerTopLeft[1], corners[5][2]);
+
+    //Checks to see if inner plane is outside of outer plane
+    if (GetCfdSettingsPtr()->GetFarManLocFlag() &&
+        innerBottomLeft.x() < outerBottomLeft.x() || innerBottomRight.x() > outerBottomRight.x()
+        || innerTopLeft.z() > outerTopLeft.z() ||  innerBottomLeft.z() < outerBottomLeft.z())
+    {
+        isInside = false;
+    }
+
+    //Begin making the symmetry planes and rest of the box
+    int index = 0;
     vector < vec3d > p0;
-    p0.resize( 6 );
-    p0[0] = m_Domain.GetCornerPnt( 1 ); // Symmetry or pilot's left
-    p0[1] = m_Domain.GetCornerPnt( 2 ); // Pilot's right
-    p0[2] = m_Domain.GetCornerPnt( 0 ); // Upstream of aircraft
-    p0[3] = m_Domain.GetCornerPnt( 3 ); // Downstream of aircraft
-    p0[4] = m_Domain.GetCornerPnt( 0 ); // Below aircraft
-    p0[5] = m_Domain.GetCornerPnt( 5 ); // Above aircraft
+    if (GetCfdSettingsPtr()->GetHalfMeshFlag() &&
+            GetCfdSettingsPtr()->GetSymSplittingOnFlag() && isInside)
+    {
+        p0.resize( 10 );
+        p0[index++] = innerBottomRight;
+        p0[index++] = innerBottomLeft;
+        p0[index++] = outerBottomRight;
+        p0[index++] = outerBottomRight;
+        p0[index++] = innerTopRight;
+    }
+    else
+    {
+        p0.resize( 6 );
+        p0[index++] = outerBottomRight;
+    }
+    p0[index++] = m_Domain.GetCornerPnt( 2 ); // Pilot's right
+    p0[index++] = m_Domain.GetCornerPnt( 0 ); // Upstream of aircraft
+    p0[index++] = m_Domain.GetCornerPnt( 3 ); // Downstream of aircraft
+    p0[index++] = m_Domain.GetCornerPnt( 0 ); // Below aircraft
+    p0[index++] = m_Domain.GetCornerPnt( 5 ); // Above aircraft
+
     vector < vec3d > p1;
-    p1.resize( 6 );
-    p1[0] = m_Domain.GetCornerPnt( 0 );
-    p1[1] = m_Domain.GetCornerPnt( 3 );
-    p1[2] = m_Domain.GetCornerPnt( 2 );
-    p1[3] = m_Domain.GetCornerPnt( 1 );
-    p1[4] = m_Domain.GetCornerPnt( 1 );
-    p1[5] = m_Domain.GetCornerPnt( 4 );
+    index = 0;
+    if (GetCfdSettingsPtr()->GetHalfMeshFlag() &&
+        GetCfdSettingsPtr()->GetSymSplittingOnFlag() && isInside)
+    {
+        p1.resize( 10 );
+        p1[index++] = innerBottomLeft;
+        p1[index++] = outerBottomLeft;
+        p1[index++] = outerBottomLeft;
+        p1[index++] = innerBottomRight;
+        p1[index++] = innerTopLeft;
+    }
+    else
+    {
+        p1.resize( 6 );
+        p1[index++] = outerBottomLeft;
+    }
+    p1[index++] = m_Domain.GetCornerPnt( 3 );
+    p1[index++] = m_Domain.GetCornerPnt( 2 );
+    p1[index++] = m_Domain.GetCornerPnt( 1 );
+    p1[index++] = m_Domain.GetCornerPnt( 1 );
+    p1[index++] = m_Domain.GetCornerPnt( 4 );
+
     vector < vec3d > p2;
-    p2.resize( 6 );
-    p2[0] = m_Domain.GetCornerPnt( 5 );
-    p2[1] = m_Domain.GetCornerPnt( 6 );
-    p2[2] = m_Domain.GetCornerPnt( 4 );
-    p2[3] = m_Domain.GetCornerPnt( 7 );
-    p2[4] = m_Domain.GetCornerPnt( 2 );
-    p2[5] = m_Domain.GetCornerPnt( 7 );
+    index = 0;
+    if (GetCfdSettingsPtr()->GetHalfMeshFlag() &&
+        GetCfdSettingsPtr()->GetSymSplittingOnFlag() && isInside)
+    {
+        p2.resize( 10 );
+        p2[index++] = innerTopRight;
+        p2[index++] = innerTopLeft;
+        p2[index++] = innerBottomRight;
+        p2[index++] = outerTopRight;
+        p2[index++] = outerTopRight;
+    }
+    else
+    {
+        p2.resize( 6 );
+        p2[index++] = outerTopRight;
+    }
+    p2[index++] = m_Domain.GetCornerPnt( 6 );
+    p2[index++] = m_Domain.GetCornerPnt( 4 );
+    p2[index++] = m_Domain.GetCornerPnt( 7 );
+    p2[index++] = m_Domain.GetCornerPnt( 2 );
+    p2[index++] = m_Domain.GetCornerPnt( 7 );
+
     vector < vec3d > p3;
-    p3.resize( 6 );
-    p3[0] = m_Domain.GetCornerPnt( 4 );
-    p3[1] = m_Domain.GetCornerPnt( 7 );
-    p3[2] = m_Domain.GetCornerPnt( 6 );
-    p3[3] = m_Domain.GetCornerPnt( 5 );
-    p3[4] = m_Domain.GetCornerPnt( 3 );
-    p3[5] = m_Domain.GetCornerPnt( 6 );
+    index = 0;
+    if (GetCfdSettingsPtr()->GetHalfMeshFlag() &&
+        GetCfdSettingsPtr()->GetSymSplittingOnFlag() && isInside)
+    {
+        p3.resize( 10 );
+        p3[index++] = innerTopLeft;
+        p3[index++] = outerTopLeft;
+        p3[index++] = innerBottomLeft;
+        p3[index++] = innerTopRight;
+        p3[index++] = outerTopLeft;
+    }
+    else
+    {
+        p3.resize( 6 );
+        p3[index++] = outerTopLeft;
+    }
+
+    p3[index++] = m_Domain.GetCornerPnt( 7 );
+    p3[index++] = m_Domain.GetCornerPnt( 6 );
+    p3[index++] = m_Domain.GetCornerPnt( 5 );
+    p3[index++] = m_Domain.GetCornerPnt( 3 );
+    p3[index++] = m_Domain.GetCornerPnt( 6 );
 
     // Default, no additional surfaces.
     int ndomain = 0;
 
     // Half mesh with no outer domain or component outer domain
-    if ( GetCfdSettingsPtr()->GetHalfMeshFlag() )
+    if ( GetCfdSettingsPtr()->GetHalfMeshFlag())
     {
-        ndomain = 1;
+        if (GetCfdSettingsPtr()->GetSymSplittingOnFlag() && isInside)
+        {
+            ndomain = 5;
+        }
+        else
+        {
+            ndomain = 1;
+        }
     }
 
     // Box outer domain, half or full mesh.
-    if ( GetCfdSettingsPtr()->GetFarMeshFlag() && !GetCfdSettingsPtr()->GetFarCompFlag() )
+    if ( GetCfdSettingsPtr()->GetFarMeshFlag() && !GetCfdSettingsPtr()->GetFarCompFlag())
     {
-        ndomain = 6;
+        if (GetCfdSettingsPtr()->GetSymSplittingOnFlag() && isInside)
+        {
+            ndomain = 10;
+        }
+        else
+        {
+            ndomain = 6;
+        }
     }
 
     vector< Surf* > domainSurfs;
@@ -2475,7 +2597,21 @@ vector< Surf* > CfdMeshMgrSingleton::CreateDomainSurfs()
 
         domainSurfs[i]->SetSurfaceCfdType(vsp::CFD_TRANSPARENT);
 
-        if( i == 0 && GetCfdSettingsPtr()->GetHalfMeshFlag() )
+        //If symmetry and plane is inside outer plane
+        if( GetCfdSettingsPtr()->GetSymSplittingOnFlag() &&
+                i < 5 && GetCfdSettingsPtr()->GetHalfMeshFlag() && isInside)
+        {
+            domainSurfs[i]->SetSymPlaneFlag( true );
+        }
+        //If symmetry plane and inside plane is not within outer plane
+        else if (GetCfdSettingsPtr()->GetSymSplittingOnFlag() &&
+                 i < 1 && GetCfdSettingsPtr()->GetHalfMeshFlag() && !isInside)
+        {
+            domainSurfs[i]->SetSymPlaneFlag( true );
+        }
+        //If symmetry splitting is off
+        else if (!GetCfdSettingsPtr()->GetSymSplittingOnFlag() &&
+                 i < 1 && GetCfdSettingsPtr()->GetHalfMeshFlag())
         {
             domainSurfs[i]->SetSymPlaneFlag( true );
         }
@@ -2486,10 +2622,10 @@ vector< Surf* > CfdMeshMgrSingleton::CreateDomainSurfs()
 
         threed_point_type pt0, pt1, pt2, pt3;
 
-        p0[i].get_pnt( pt0 );
-        p1[i].get_pnt( pt1 );
-        p2[i].get_pnt( pt2 );
-        p3[i].get_pnt( pt3 );
+        p0[i].get_pnt(pt0);
+        p1[i].get_pnt(pt1);
+        p2[i].get_pnt(pt2);
+        p3[i].get_pnt(pt3);
 
         domainSurfs[i]->GetSurfCore()->MakePlaneSurf( pt0, pt1, pt2, pt3 );
         domainSurfs[i]->GetSurfCore()->BuildPatches( domainSurfs[i] );
@@ -3710,7 +3846,15 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
         for ( t = triList.begin() ; t != triList.end(); ++t )
         {
             vector< vector< double > > t_vec_vec;
-            t_vec_vec.resize( m_NumComps + 6 );  // + 6 to handle possibility of outer domain and symmetry plane.
+
+            if (GetCfdSettingsPtr()->GetSymSplittingOnFlag())
+            {
+                t_vec_vec.resize( m_NumComps + 10 );  // + 10 to handle possibility of outer domain and symmetry plane.
+            }
+            else
+            {
+                t_vec_vec.resize( m_NumComps + 6 );
+            }
 
             vec3d cp = ( *t )->ComputeCenterPnt( m_SurfVec[s] );
             vec3d ep = cp + vec3d( x_dist, 0.0001, 0.0001 );
