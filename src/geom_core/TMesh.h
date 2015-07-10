@@ -478,6 +478,7 @@ public:
     bool m_DeleteMeFlag;
     vector< TTri* > m_NonClosedTriVec;
     virtual void MergeNonClosed( TMesh* tm );
+    virtual void MergeTMeshes( TMesh* tm );
     virtual void CheckIfClosed();
     virtual void BuildMergeMaps();
     virtual void BuildNodeMaps();

@@ -712,22 +712,28 @@ void TMesh::MergeNonClosed( TMesh* tm )
 
     if ( match_flag )
     {
-        for ( int t = 0 ; t < ( int )tm->m_TVec.size() ; t++ )
-        {
-            TTri* tri = tm->m_TVec[t];
-            AddTri( tri );
-            m_TVec.back()->m_InvalidFlag = 0;
-        }
-        for ( int i = 0 ; i < ( int )m_NonClosedTriVec.size() ; i++ )
-        {
-            m_NonClosedTriVec[i]->m_InvalidFlag = 0;
-        }
-        m_NonClosedTriVec.clear();
+        MergeTMeshes( tm );
 
         CheckIfClosed();                // Recheck For NonClosed Tris
 
         tm->m_DeleteMeFlag = true;
     }
+}
+
+void TMesh::MergeTMeshes( TMesh* tm )
+{
+    for ( int t = 0 ; t < ( int )tm->m_TVec.size() ; t++ )
+    {
+        TTri* tri = tm->m_TVec[t];
+        AddTri( tri );
+        m_TVec.back()->m_InvalidFlag = 0;
+    }
+
+    for ( int i = 0 ; i < ( int )m_NonClosedTriVec.size() ; i++ )
+    {
+        m_NonClosedTriVec[i]->m_InvalidFlag = 0;
+    }
+    m_NonClosedTriVec.clear();
 }
 
 void TMesh::Intersect( TMesh* tm, bool UWFlag )
