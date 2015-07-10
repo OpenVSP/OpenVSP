@@ -28,6 +28,14 @@ MeshScreen::MeshScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 525, "Mesh" )
     m_OtherLayout.AddYGap();
 
     m_OtherLayout.AddButton( m_ConvertButton, "Convert" );
+
+    m_OtherLayout.AddYGap();
+    m_OtherLayout.AddDividerBox( "Visualize Meshes" );
+    m_OtherLayout.AddYGap();
+
+    m_OtherLayout.AddButton( m_ViewMeshToggle, "Mesh" );
+    m_OtherLayout.AddButton( m_ViewSliceToggle, "Slices" );
+
 }
 
 
@@ -53,6 +61,11 @@ bool MeshScreen::Update()
     }
 
     GeomScreen::Update();
+
+    MeshGeom* mesh_ptr = dynamic_cast< MeshGeom* >( geom_ptr );
+
+    m_ViewMeshToggle.Update( mesh_ptr->m_ViewMeshFlag.GetID() );
+    m_ViewSliceToggle.Update( mesh_ptr->m_ViewSliceFlag.GetID() );
 
     return true;
 }

@@ -31,6 +31,9 @@ protected:
     GroupLayout m_OtherLayout;
     TriggerButton m_ConvertButton;
 
+    ToggleButton m_ViewMeshToggle;
+    ToggleButton m_ViewSliceToggle;
+
 };
 
 #endif /* MESHSCREEN_H_ */

@@ -77,6 +77,9 @@ MeshGeom::MeshGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_ScaleMatrix.loadIdentity();
     m_ScaleFromOrig.Init( "Scale_From_Original", "XForm", this, 1, 1.0e-5, 1.0e12 );
 
+    m_ViewMeshFlag.Init( "MeshFlag", "Draw", this, true, 0, 1 );
+    m_ViewSliceFlag.Init( "SliceFlag", "Draw", this, true, 0, 1 );
+
     // Debug
     m_DrawType.Init( "Draw_Type", "Draw", this, DRAW_XYZ, DRAW_XYZ, DRAW_TAGS );
     m_DrawSubSurfs.Init( "Draw_Sub_UV", "Debug", this, 0, 0, 1 );
@@ -1035,82 +1038,85 @@ void MeshGeom::UpdateDrawObj()
     Matrix4d trans = GetTotalTransMat();
     vec3d zeroV = m_ModelMatrix.xform( vec3d( 0.0, 0.0, 0.0 ) );
 
-    if ( m_DrawType() & MeshGeom::DRAW_XYZ )
+    if ( m_ViewMeshFlag.Get() )
     {
-        for ( int m = 0 ; m < ( int )m_TMeshVec.size() ; m++ )
+        if ( m_DrawType() & MeshGeom::DRAW_XYZ )
         {
-            int num_tris = m_TMeshVec[m]->m_TVec.size();
-            int pi = 0;
-            vector<TTri*>& tris = m_TMeshVec[m]->m_TVec;
-            m_WireShadeDrawObj_vec[m].m_PntVec.resize( num_tris * 3 );
-            m_WireShadeDrawObj_vec[m].m_NormVec.resize( num_tris * 3 );
-            for ( int t = 0 ; t < ( int ) num_tris ; t++ )
+            for ( int m = 0 ; m < ( int )m_TMeshVec.size() ; m++ )
             {
-                m_WireShadeDrawObj_vec[m].m_PntVec[pi] = trans.xform( tris[t]->m_N0->m_Pnt );
-                m_WireShadeDrawObj_vec[m].m_PntVec[pi + 1] = trans.xform( tris[t]->m_N1->m_Pnt );
-                m_WireShadeDrawObj_vec[m].m_PntVec[pi + 2] = trans.xform( tris[t]->m_N2->m_Pnt );
-                vec3d norm =  m_ModelMatrix.xform( tris[t]->m_Norm ) - zeroV;
-                m_WireShadeDrawObj_vec[m].m_NormVec[pi] = norm;
-                m_WireShadeDrawObj_vec[m].m_NormVec[pi + 1] = norm;
-                m_WireShadeDrawObj_vec[m].m_NormVec[pi + 2] = norm;
-                pi += 3;
+                int num_tris = m_TMeshVec[m]->m_TVec.size();
+                int pi = 0;
+                vector<TTri*>& tris = m_TMeshVec[m]->m_TVec;
+                m_WireShadeDrawObj_vec[m].m_PntVec.resize( num_tris * 3 );
+                m_WireShadeDrawObj_vec[m].m_NormVec.resize( num_tris * 3 );
+                for ( int t = 0 ; t < ( int ) num_tris ; t++ )
+                {
+                    m_WireShadeDrawObj_vec[m].m_PntVec[pi] = trans.xform( tris[t]->m_N0->m_Pnt );
+                    m_WireShadeDrawObj_vec[m].m_PntVec[pi + 1] = trans.xform( tris[t]->m_N1->m_Pnt );
+                    m_WireShadeDrawObj_vec[m].m_PntVec[pi + 2] = trans.xform( tris[t]->m_N2->m_Pnt );
+                    vec3d norm =  m_ModelMatrix.xform( tris[t]->m_Norm ) - zeroV;
+                    m_WireShadeDrawObj_vec[m].m_NormVec[pi] = norm;
+                    m_WireShadeDrawObj_vec[m].m_NormVec[pi + 1] = norm;
+                    m_WireShadeDrawObj_vec[m].m_NormVec[pi + 2] = norm;
+                    pi += 3;
+                }
             }
         }
-    }
 
-    if ( m_DrawType() & MeshGeom::DRAW_UV )
-    {
-        for ( int m = 0 ; m < ( int )m_TMeshVec.size() ; m++ )
+        if ( m_DrawType() & MeshGeom::DRAW_UV )
         {
-            m_TMeshVec[m]->MakeNodePntUW();
-            int num_tris = m_TMeshVec[m]->m_TVec.size();
-            int pi = 0;
-            vector<TTri*>& tris = m_TMeshVec[m]->m_TVec;
-            m_WireShadeDrawObj_vec[m + add_ind].m_PntVec.resize( num_tris * 3 );
-            m_WireShadeDrawObj_vec[m + add_ind].m_NormVec.resize( num_tris * 3 );
-            for ( int t = 0 ; t < ( int ) num_tris ; t++ )
+            for ( int m = 0 ; m < ( int )m_TMeshVec.size() ; m++ )
             {
-                m_WireShadeDrawObj_vec[m + add_ind].m_PntVec[pi] = trans.xform( tris[t]->m_N0->m_Pnt );
-                m_WireShadeDrawObj_vec[m + add_ind].m_PntVec[pi + 1] = trans.xform( tris[t]->m_N1->m_Pnt );
-                m_WireShadeDrawObj_vec[m + add_ind].m_PntVec[pi + 2] = trans.xform( tris[t]->m_N2->m_Pnt );
-                vec3d norm =  m_ModelMatrix.xform( tris[t]->m_Norm ) - zeroV;
-                m_WireShadeDrawObj_vec[m + add_ind].m_NormVec[pi] = norm;
-                m_WireShadeDrawObj_vec[m + add_ind].m_NormVec[pi + 1] = norm;
-                m_WireShadeDrawObj_vec[m + add_ind].m_NormVec[pi + 2] = norm;
-                pi += 3;
+                m_TMeshVec[m]->MakeNodePntUW();
+                int num_tris = m_TMeshVec[m]->m_TVec.size();
+                int pi = 0;
+                vector<TTri*>& tris = m_TMeshVec[m]->m_TVec;
+                m_WireShadeDrawObj_vec[m + add_ind].m_PntVec.resize( num_tris * 3 );
+                m_WireShadeDrawObj_vec[m + add_ind].m_NormVec.resize( num_tris * 3 );
+                for ( int t = 0 ; t < ( int ) num_tris ; t++ )
+                {
+                    m_WireShadeDrawObj_vec[m + add_ind].m_PntVec[pi] = trans.xform( tris[t]->m_N0->m_Pnt );
+                    m_WireShadeDrawObj_vec[m + add_ind].m_PntVec[pi + 1] = trans.xform( tris[t]->m_N1->m_Pnt );
+                    m_WireShadeDrawObj_vec[m + add_ind].m_PntVec[pi + 2] = trans.xform( tris[t]->m_N2->m_Pnt );
+                    vec3d norm =  m_ModelMatrix.xform( tris[t]->m_Norm ) - zeroV;
+                    m_WireShadeDrawObj_vec[m + add_ind].m_NormVec[pi] = norm;
+                    m_WireShadeDrawObj_vec[m + add_ind].m_NormVec[pi + 1] = norm;
+                    m_WireShadeDrawObj_vec[m + add_ind].m_NormVec[pi + 2] = norm;
+                    pi += 3;
+                }
+                m_TMeshVec[m]->MakeNodePntXYZ();
             }
-            m_TMeshVec[m]->MakeNodePntXYZ();
-        }
-    }
-
-    if ( m_DrawType() == MeshGeom::DRAW_TAGS && m_DrawSubSurfs() == false )
-    {
-        // make map from tag to wire draw obj
-
-        map<int, DrawObj*> tag_dobj_map;
-        map< std::vector<int>, int >::const_iterator mit;
-        map< std::vector<int>, int > tagMap = SubSurfaceMgr.GetSingleTagMap();
-        int cnt = 0;
-        for ( mit = tagMap.begin(); mit != tagMap.end() ; mit++ )
-        {
-            tag_dobj_map[ mit->second ] = &m_WireShadeDrawObj_vec[cnt];
-            cnt++;
         }
 
-        for ( int m = 0 ; m < ( int )m_TMeshVec.size() ; m++ )
+        if ( m_DrawType() == MeshGeom::DRAW_TAGS && m_DrawSubSurfs() == false )
         {
-            int num_tris = m_TMeshVec[m]->m_TVec.size();
-            vector<TTri*>& tris = m_TMeshVec[m]->m_TVec;
-            for ( int t = 0 ; t < ( int ) num_tris ; t++ )
+            // make map from tag to wire draw obj
+
+            map<int, DrawObj*> tag_dobj_map;
+            map< std::vector<int>, int >::const_iterator mit;
+            map< std::vector<int>, int > tagMap = SubSurfaceMgr.GetSingleTagMap();
+            int cnt = 0;
+            for ( mit = tagMap.begin(); mit != tagMap.end() ; mit++ )
             {
-                DrawObj* d_obj = tag_dobj_map[ SubSurfaceMgr.GetTag( tris[t]->m_Tags ) ];
-                d_obj->m_PntVec.push_back( trans.xform( tris[t]->m_N0->m_Pnt ) );
-                d_obj->m_PntVec.push_back( trans.xform( tris[t]->m_N1->m_Pnt ) );
-                d_obj->m_PntVec.push_back( trans.xform( tris[t]->m_N2->m_Pnt ) );
-                vec3d norm =  m_ModelMatrix.xform( tris[t]->m_Norm ) - zeroV;
-                d_obj->m_NormVec.push_back( norm );
-                d_obj->m_NormVec.push_back( norm );
-                d_obj->m_NormVec.push_back( norm );
+                tag_dobj_map[ mit->second ] = &m_WireShadeDrawObj_vec[cnt];
+                cnt++;
+            }
+
+            for ( int m = 0 ; m < ( int )m_TMeshVec.size() ; m++ )
+            {
+                int num_tris = m_TMeshVec[m]->m_TVec.size();
+                vector<TTri*>& tris = m_TMeshVec[m]->m_TVec;
+                for ( int t = 0 ; t < ( int ) num_tris ; t++ )
+                {
+                    DrawObj* d_obj = tag_dobj_map[ SubSurfaceMgr.GetTag( tris[t]->m_Tags ) ];
+                    d_obj->m_PntVec.push_back( trans.xform( tris[t]->m_N0->m_Pnt ) );
+                    d_obj->m_PntVec.push_back( trans.xform( tris[t]->m_N1->m_Pnt ) );
+                    d_obj->m_PntVec.push_back( trans.xform( tris[t]->m_N2->m_Pnt ) );
+                    vec3d norm =  m_ModelMatrix.xform( tris[t]->m_Norm ) - zeroV;
+                    d_obj->m_NormVec.push_back( norm );
+                    d_obj->m_NormVec.push_back( norm );
+                    d_obj->m_NormVec.push_back( norm );
+                }
             }
         }
     }
@@ -1124,26 +1130,29 @@ void MeshGeom::UpdateDrawObj()
     //==== Bounding Box ====//
     m_HighlightDrawObj.m_PntVec = m_BBox.GetBBoxDrawLines();
 
-    //==== Draw Slices ====//
-    for ( int i = 0 ; i < ( int )m_SliceVec.size(); i++ )
+    if ( m_ViewSliceFlag.Get() )
     {
-        int draw_ind = m_WireShadeDrawObj_vec.size();
-        m_WireShadeDrawObj_vec.push_back( DrawObj() );
-        int num_tris = m_SliceVec[i]->m_TVec.size();
-        int pi = 0;
-        vector<TTri*>& tris = m_SliceVec[i]->m_TVec;
-        m_WireShadeDrawObj_vec[draw_ind].m_PntVec.resize( num_tris * 3 );
-        m_WireShadeDrawObj_vec[draw_ind].m_NormVec.resize( num_tris * 3 );
-        for ( int t = 0 ; t < ( int ) num_tris ; t++ )
+        //==== Draw Slices ====//
+        for ( int i = 0 ; i < ( int )m_SliceVec.size(); i++ )
         {
-            m_WireShadeDrawObj_vec[draw_ind].m_PntVec[pi] = trans.xform( tris[t]->m_N0->m_Pnt );
-            m_WireShadeDrawObj_vec[draw_ind].m_PntVec[pi + 1] = trans.xform( tris[t]->m_N1->m_Pnt );
-            m_WireShadeDrawObj_vec[draw_ind].m_PntVec[pi + 2] = trans.xform( tris[t]->m_N2->m_Pnt );
-            vec3d norm =  m_ModelMatrix.xform( tris[t]->m_Norm ) - zeroV;
-            m_WireShadeDrawObj_vec[draw_ind].m_NormVec[pi] = norm;
-            m_WireShadeDrawObj_vec[draw_ind].m_NormVec[pi + 1] = norm;
-            m_WireShadeDrawObj_vec[draw_ind].m_NormVec[pi + 2] = norm;
-            pi += 3;
+            int draw_ind = m_WireShadeDrawObj_vec.size();
+            m_WireShadeDrawObj_vec.push_back( DrawObj() );
+            int num_tris = m_SliceVec[i]->m_TVec.size();
+            int pi = 0;
+            vector<TTri*>& tris = m_SliceVec[i]->m_TVec;
+            m_WireShadeDrawObj_vec[draw_ind].m_PntVec.resize( num_tris * 3 );
+            m_WireShadeDrawObj_vec[draw_ind].m_NormVec.resize( num_tris * 3 );
+            for ( int t = 0 ; t < ( int ) num_tris ; t++ )
+            {
+                m_WireShadeDrawObj_vec[draw_ind].m_PntVec[pi] = trans.xform( tris[t]->m_N0->m_Pnt );
+                m_WireShadeDrawObj_vec[draw_ind].m_PntVec[pi + 1] = trans.xform( tris[t]->m_N1->m_Pnt );
+                m_WireShadeDrawObj_vec[draw_ind].m_PntVec[pi + 2] = trans.xform( tris[t]->m_N2->m_Pnt );
+                vec3d norm =  m_ModelMatrix.xform( tris[t]->m_Norm ) - zeroV;
+                m_WireShadeDrawObj_vec[draw_ind].m_NormVec[pi] = norm;
+                m_WireShadeDrawObj_vec[draw_ind].m_NormVec[pi + 1] = norm;
+                m_WireShadeDrawObj_vec[draw_ind].m_NormVec[pi + 2] = norm;
+                pi += 3;
+            }
         }
     }
 

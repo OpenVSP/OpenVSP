@@ -196,6 +196,9 @@ public:
 
     virtual void PreMerge();
 
+    BoolParm m_ViewMeshFlag;
+    BoolParm m_ViewSliceFlag;
+
     // Debug Attributes
 
     enum { DRAW_XYZ = 1, DRAW_UV = 2, DRAW_TAGS = 4, DRAW_BOTH = 3 };
