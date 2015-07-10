@@ -38,6 +38,10 @@ CfdMeshSettings::CfdMeshSettings() : ParmContainer()
     m_HalfMeshFlag.Init( "HalfMesh", "FarField", this, false, 0, 1 );
     m_FarCompFlag.Init( "FarComp", "FarField", this, false, 0, 1 );
     m_FarMeshFlag.Init( "FarMesh", "FarField", this, false, 0, 1 );
+
+    //Symmetry Plane Splitting Default Value: OFF
+    m_SymSplittingOnFlag.Init( "SymmetrySplitting", "FarField", this, false, 0, 1);
+
     m_FarManLocFlag.Init( "FarManualLoc", "FarField", this, false, 0, 1 );
     m_FarAbsSizeFlag.Init( "FarAbsSize", "FarField", this, false, 0, 1 );
 

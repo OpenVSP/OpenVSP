@@ -74,6 +74,17 @@ public:
     {
         m_FarManLocFlag = f;
     }
+
+    //Symmetry Plane Item Quad BoolParm
+    virtual bool GetSymSplittingOnFlag()
+    {
+        return m_SymSplittingOnFlag.Get();
+    }
+    virtual void SetSymSplittingOnFlag(bool isOn)
+    {
+        m_SymSplittingOnFlag.Set(isOn);
+    }
+
     virtual bool GetFarAbsSizeFlag()
     {
         return m_FarAbsSizeFlag.Get();
@@ -123,6 +134,9 @@ public:
     BoolParm* GetExportFileFlag( int type );
     void SetAllFileExportFlags( bool flag );
     void SetFileExportFlag( int type, bool flag );
+
+    //Symmetry Plane Boolean Items
+    BoolParm m_SymSplittingOnFlag;
 
     BoolParm m_FarMeshFlag;
     BoolParm m_FarCompFlag;
