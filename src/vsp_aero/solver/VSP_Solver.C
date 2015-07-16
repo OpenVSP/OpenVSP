@@ -58,6 +58,12 @@ void VSP_SOLVER::init(void)
     
     NoWakeIteration_ = 0;
 
+    MaxTurningAngle_ = -1.;
+
+    Clmax_2d_ = -1.;
+
+    CDo_ = 0.;
+
 }
 
 /*##############################################################################
@@ -840,6 +846,10 @@ void VSP_SOLVER::Solve(int Case)
     // Interpolate solution from grid 1 to 0
     
     InterpolateSolutionFromGrid(1);
+
+    // Output and survey point results
+
+    if ( NumberofSurveyPoints_ > 0 ) CalculateVelocitySurvey();
            
 }
 
@@ -2032,6 +2042,10 @@ void VSP_SOLVER::CalculateForces(void)
        
     }
     
+    // Calculate Delta-Cps across panels
+
+    CalculateDeltaCPs();
+
     // Calculate 2D clmax limited forces and moments, as well as span wide
     // loading information
     
@@ -2134,20 +2148,6 @@ void VSP_SOLVER::CalculatePressureForces(void)
           SurfaceVortexEdge(j).Fy() = Fy;
           SurfaceVortexEdge(j).Fz() = Fz;
 
-          // Loop level forces
-          
-          if ( ( Loop1 != 0 && Loop2 != 0 ) || SurfaceVortexEdge(j).IsLeadingEdge() ) {
-           
-             VortexLoop(Loop1).Fx() += 0.5*Fx;
-             VortexLoop(Loop1).Fy() += 0.5*Fy;
-             VortexLoop(Loop1).Fz() += 0.5*Fz;
-
-             VortexLoop(Loop2).Fx() += 0.5*Fx;
-             VortexLoop(Loop2).Fy() += 0.5*Fy;
-             VortexLoop(Loop2).Fz() += 0.5*Fz;
-          
-          }
-          
           // Forces
           
           Cx += Fx;
@@ -2165,18 +2165,6 @@ void VSP_SOLVER::CalculatePressureForces(void)
        }
           
     }
-    
-    // Calculate normal force on each vortex loop
- 
-    for ( i = 1 ; i <= NumberOfVortexLoops_ ; i++ ) {
-   
-       VortexLoop(i).NormalForce() = -VortexLoop(i).Fx() * VortexLoop(i).Nx()
-                                   + -VortexLoop(i).Fy() * VortexLoop(i).Ny()
-                                   + -VortexLoop(i).Fz() * VortexLoop(i).Nz();
-                                   
-       VortexLoop(i).dCp() = VortexLoop(i).NormalForce() / VortexLoop(i).Area();                                    
-
-    }  
         
     CFx_[0] = Cx;
     CFy_[0] = Cy;
@@ -2210,8 +2198,8 @@ void VSP_SOLVER::CalculateInducedDrag(void)
 {
 
     int i, j, k, Loop, Hits;
-    double xyz[3], q[3], qtot[3];
-    double CA, SA, CB, SB, u, v, w;
+    double xyz[3], q[3], qtot[3], Factor, Radius;
+    double CA, SA, CB, SB, u, v, w, mag1, mag2, dot, angle;
 
     CA = cos(AngleOfAttack_);
     SA = sin(AngleOfAttack_);
@@ -2235,33 +2223,44 @@ void VSP_SOLVER::CalculateInducedDrag(void)
 
           // Calculate an averaged local velocity using the left/right loops
   
-          u = 0.;
-          v = 0.;
-          w = 0.;
- 
-          Hits = 0;
+          u = v = w = Hits = 0;
           
-          if ( SurfaceVortexEdge(j).VortexLoop1() != 0 ) {
-           
-             Loop = SurfaceVortexEdge(j).VortexLoop1();
+          for ( k = 1 ; k <= 2 ; k++ ) {
              
-             u += LocalFreeStreamVelocity_[Loop][0];
-             v += LocalFreeStreamVelocity_[Loop][1];
-             w += LocalFreeStreamVelocity_[Loop][2];
+             if ( k == 1 ) Loop = SurfaceVortexEdge(j).VortexLoop1();
+             if ( k == 2 ) Loop = SurfaceVortexEdge(j).VortexLoop2();
+          
+             if ( Loop != 0 ) {
 
-             Hits++;
-          
-          }
-          
-          if ( SurfaceVortexEdge(j).VortexLoop2() != 0 ) {
+             //   mag1 = sqrt(vector_dot(LocalFreeStreamVelocity_[Loop],LocalFreeStreamVelocity_[Loop]));
+
+                mag1 = sqrt(vector_dot(FreeStreamVelocity_,FreeStreamVelocity_));
+
+                mag2 = sqrt(vector_dot(VortexLoop(Loop).Normal(),VortexLoop(Loop).Normal()));
+
+             //   dot = vector_dot(LocalFreeStreamVelocity_[Loop], VortexLoop(Loop).Normal());
+
+                dot = vector_dot(FreeStreamVelocity_, VortexLoop(Loop).Normal());
+
+                dot /= (mag1*mag2);
+
+                dot = MIN(MAX(-1.,dot),1.);
+
+                angle = ABS(acos(dot) - 0.5*PI)/TORAD;
+
+                Factor = 1.;
            
-             Loop = SurfaceVortexEdge(j).VortexLoop2();
-             
-             u += LocalFreeStreamVelocity_[Loop][0];
-             v += LocalFreeStreamVelocity_[Loop][1];
-             w += LocalFreeStreamVelocity_[Loop][2];   
+                // Limit maximum turning angle
 
-             Hits++;
+                if ( MaxTurningAngle_ > 0. && angle > MaxTurningAngle_ ) Factor = MaxTurningAngle_/angle;
+
+                u += LocalFreeStreamVelocity_[Loop][0] * Factor;
+                v += LocalFreeStreamVelocity_[Loop][1] * Factor;
+                w += LocalFreeStreamVelocity_[Loop][2] * Factor;
+
+                Hits++;
+
+             }
              
           }
 
@@ -2272,38 +2271,45 @@ void VSP_SOLVER::CalculateInducedDrag(void)
           // Trailing vortices induced velocities... shift the current bound vortex to the 
           // 'trailing edge' of the trailing vortex.
  
-#pragma omp parallel for reduction(+:u,v,w) private(xyz,q)        
+#pragma omp parallel for reduction(+:u,v,w) private(xyz,q,Radius)
           for ( k = 1 ; k <= NumberOfTrailingVortexEdges_ ; k++ ) {
 
              xyz[0] = TrailingVortexEdge(k).TE_Node().x();
              xyz[1] = SurfaceVortexEdge(j).Yc();
              xyz[2] = SurfaceVortexEdge(j).Zc();
 
-             TrailingVortexEdge(k).InducedVelocity(xyz, q);
+             Radius = sqrt( pow(xyz[1]-TrailingVortexEdge(k).TE_Node().y(),2.)
+                          + pow(xyz[2]-TrailingVortexEdge(k).TE_Node().z(),2.) );
 
-             u += q[0];
-             v += q[1];
-             w += q[2];
-             
-             // If there is a symmetry plane, calculate influence of the reflection
-             
-             if ( DoSymmetryPlaneSolve_ ) {
+             if ( Radius > TrailingVortexEdge(k).Sigma() ) {
 
-               if ( DoSymmetryPlaneSolve_ == SYM_X ) xyz[0] *= -1.;
-               if ( DoSymmetryPlaneSolve_ == SYM_Y ) xyz[1] *= -1.;
-               if ( DoSymmetryPlaneSolve_ == SYM_Z ) xyz[2] *= -1.;
-               
-               TrailingVortexEdge(k).InducedVelocity(xyz, q);
-         
-               if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
-               if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;
-               if ( DoSymmetryPlaneSolve_ == SYM_Z ) q[2] *= -1.;
-     
-               u += q[0];
-               v += q[1];
-               w += q[2];
-               
-             }               
+                TrailingVortexEdge(k).InducedVelocity(xyz, q);
+
+                u += q[0];
+                v += q[1];
+                w += q[2];
+
+                // If there is a symmetry plane, calculate influence of the reflection
+
+                if ( DoSymmetryPlaneSolve_ ) {
+
+                  if ( DoSymmetryPlaneSolve_ == SYM_X ) xyz[0] *= -1.;
+                  if ( DoSymmetryPlaneSolve_ == SYM_Y ) xyz[1] *= -1.;
+                  if ( DoSymmetryPlaneSolve_ == SYM_Z ) xyz[2] *= -1.;
+
+                  TrailingVortexEdge(k).InducedVelocity(xyz, q);
+
+                  if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
+                  if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;
+                  if ( DoSymmetryPlaneSolve_ == SYM_Z ) q[2] *= -1.;
+
+                  u += q[0];
+                  v += q[1];
+                  w += q[2];
+
+                }
+
+             }
 
           }
           
@@ -2317,6 +2323,78 @@ void VSP_SOLVER::CalculateInducedDrag(void)
        
     }
    
+}
+
+/*##############################################################################
+#                                                                              #
+#                       VSP_SOLVER CalculateDeltaCPs                           #
+#                                                                              #
+##############################################################################*/
+
+void VSP_SOLVER::CalculateDeltaCPs(void)
+{
+
+    int i, j, Loop1, Loop2;
+    double Forces1[3], Forces2[3], Fx, Fy, Fz;
+
+    // Loop over vortex edges and calculate forces via K-J theorem
+
+    for ( j = 1 ; j <= NumberOfSurfaceVortexEdges_ ; j++ ) {
+
+       if ( !SurfaceVortexEdge(j).IsTrailingEdge() ) {
+
+          Loop1 = SurfaceVortexEdge(j).VortexLoop1();
+
+          Loop2 = SurfaceVortexEdge(j).VortexLoop2();
+
+          // Edge forces
+
+          if ( Mach_ < 1. ) {
+
+             Fx = -SurfaceVortexEdge(j).Trefftz_Fx();
+             Fy = -SurfaceVortexEdge(j).Trefftz_Fy();
+             Fz = -SurfaceVortexEdge(j).Trefftz_Fz();
+
+          }
+
+          else {
+
+             Fx = SurfaceVortexEdge(j).Fx();
+             Fy = SurfaceVortexEdge(j).Fy();
+             Fz = SurfaceVortexEdge(j).Fz();
+
+          }
+
+          // Loop level forces
+
+          if ( ( Loop1 != 0 && Loop2 != 0 ) || SurfaceVortexEdge(j).IsLeadingEdge() ) {
+
+             VortexLoop(Loop1).Fx() += 0.5*Fx;
+             VortexLoop(Loop1).Fy() += 0.5*Fy;
+             VortexLoop(Loop1).Fz() += 0.5*Fz;
+
+             VortexLoop(Loop2).Fx() += 0.5*Fx;
+             VortexLoop(Loop2).Fy() += 0.5*Fy;
+             VortexLoop(Loop2).Fz() += 0.5*Fz;
+
+          }
+
+       }
+
+    }
+
+    // Calculate normal force on each vortex loop
+
+    for ( i = 1 ; i <= NumberOfVortexLoops_ ; i++ ) {
+
+       VortexLoop(i).NormalForce() = -VortexLoop(i).Fx() * VortexLoop(i).Nx()
+                                   + -VortexLoop(i).Fy() * VortexLoop(i).Ny()
+                                   + -VortexLoop(i).Fz() * VortexLoop(i).Nz();
+
+       VortexLoop(i).dCp() = VortexLoop(i).NormalForce() / VortexLoop(i).Area();
+
+    }
+
 }
 
 /*##############################################################################
@@ -2395,7 +2473,7 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(void)
           }
 
           // Sum up span wise loading
- 
+
           for ( k = 1 ; k <= 2 ; k++ ) {
            
              if ( k == 1 ) Loop = SurfaceVortexEdge(j).Loop1();
@@ -2412,24 +2490,24 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(void)
 
                 // Chordwise integrated forces
                     
-                    Span_Cx_[SurfaceID][SpanStation] -= 0.5*Fx;
+                Span_Cx_[SurfaceID][SpanStation] -= 0.5*Fx;
 
-                    Span_Cy_[SurfaceID][SpanStation] -= 0.5*Fy;
+                Span_Cy_[SurfaceID][SpanStation] -= 0.5*Fy;
 
-                    Span_Cz_[SurfaceID][SpanStation] -= 0.5*Fz;
-                                  
-                    Span_Cn_[SurfaceID][SpanStation] -= 0.5 * Fx * VortexLoop(Loop).Nx()
-                                                      - 0.5 * Fy * VortexLoop(Loop).Ny()
-                                                      - 0.5 * Fz * VortexLoop(Loop).Nz();
+                Span_Cz_[SurfaceID][SpanStation] -= 0.5*Fz;
+
+                Span_Cn_[SurfaceID][SpanStation] -= 0.5 * Fx * VortexLoop(Loop).Nx()
+                                                  - 0.5 * Fy * VortexLoop(Loop).Ny()
+                                                  - 0.5 * Fz * VortexLoop(Loop).Nz();
 
                 // Chordwise integrated moments
    
-                   Span_Cmx_[SurfaceID][SpanStation] -= 0.5 * Fz * ( SurfaceVortexEdge(j).Yc() - XYZcg_[1] ) - 0.5 * Fy * ( SurfaceVortexEdge(j).Zc() - XYZcg_[2] );   // Roll
-               
-                   Span_Cmy_[SurfaceID][SpanStation] -= 0.5 * Fx * ( SurfaceVortexEdge(j).Zc() - XYZcg_[2] ) - 0.5 * Fz * ( SurfaceVortexEdge(j).Xc() - XYZcg_[0] );   // Pitch
-                         
-                   Span_Cmz_[SurfaceID][SpanStation] -= 0.5 * Fy * ( SurfaceVortexEdge(j).Xc() - XYZcg_[0] ) - 0.5 * Fx * ( SurfaceVortexEdge(j).Yc() - XYZcg_[1] );   // Yaw      
-                
+                Span_Cmx_[SurfaceID][SpanStation] -= 0.5 * Fz * ( SurfaceVortexEdge(j).Yc() - XYZcg_[1] ) - 0.5 * Fy * ( SurfaceVortexEdge(j).Zc() - XYZcg_[2] );   // Roll
+
+                Span_Cmy_[SurfaceID][SpanStation] -= 0.5 * Fx * ( SurfaceVortexEdge(j).Zc() - XYZcg_[2] ) - 0.5 * Fz * ( SurfaceVortexEdge(j).Xc() - XYZcg_[0] );   // Pitch
+
+                Span_Cmz_[SurfaceID][SpanStation] -= 0.5 * Fy * ( SurfaceVortexEdge(j).Xc() - XYZcg_[0] ) - 0.5 * Fx * ( SurfaceVortexEdge(j).Yc() - XYZcg_[1] );   // Yaw      
+
              }
              
              // Body Surface
@@ -2583,13 +2661,13 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(void)
              
           }
           
-           Span_Cl_[i][k] = StallFact * Cl;
-           Span_Cd_[i][k] = StallFact * Cd;
-           Span_Cs_[i][k] = StallFact * Cs;
+          Span_Cl_[i][k] = StallFact * Cl;
+          Span_Cd_[i][k] = StallFact * Cd;
+          Span_Cs_[i][k] = StallFact * Cs;
           
-           Span_Cx_[i][k] = StallFact * Cx;
-           Span_Cy_[i][k] = StallFact * Cy;
-           Span_Cz_[i][k] = StallFact * Cz;
+          Span_Cx_[i][k] = StallFact * Cx;
+          Span_Cy_[i][k] = StallFact * Cy;
+          Span_Cz_[i][k] = StallFact * Cz;
            
           Span_Cmx_[i][k] = StallFact * Cmx;
           Span_Cmy_[i][k] = StallFact * Cmy;
@@ -2645,9 +2723,9 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(void)
          
     }    
     
-     CL_[0] /= 0.5*Sref_;
-     CD_[0] /= 0.5*Sref_;
-     CS_[0] /= 0.5*Sref_;
+    CL_[0] /= 0.5*Sref_;
+    CD_[0] /= 0.5*Sref_;
+    CS_[0] /= 0.5*Sref_;
     
     CFx_[0] /= 0.5*Sref_;
     CFy_[0] /= 0.5*Sref_;
@@ -2707,59 +2785,58 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(void)
        ForceType_ = 0;
        
     }       
-    
-    // If we are supersonic... then replace 
-    
+
     // Running sum of forces and moments
     
     if ( ForceType_ == FORCE_AVERAGE && CurrentWakeIteration_ >= AveragingIteration_ ) {
 
-           CL_[1] +=     CL_[0];
-           CD_[1] +=     CD_[0];
-           CS_[1] +=     CS_[0];
-                     
-          CFx_[1] +=    CFx_[0];
-          CFy_[1] +=    CFy_[0];
-          CFz_[1] +=    CFz_[0];
-                     
-          CMx_[1] +=    CMx_[0];
-          CMy_[1] +=    CMy_[0];
-          CMz_[1] +=    CMz_[0];
-          
-          NumberOfAveragingSteps_++;
+        CL_[1] +=     CL_[0];
+        CD_[1] +=     CD_[0];
+        CS_[1] +=     CS_[0];
+
+       CFx_[1] +=    CFx_[0];
+       CFy_[1] +=    CFy_[0];
+       CFz_[1] +=    CFz_[0];
+
+       CMx_[1] +=    CMx_[0];
+       CMy_[1] +=    CMy_[0];
+       CMz_[1] +=    CMz_[0];
+
+       NumberOfAveragingSteps_++;
 
     }       
     
     else {
        
-        NumberOfAveragingSteps_ = 0;
+       NumberOfAveragingSteps_ = 0;
  
-           CL_[1] = 0.;
-           CD_[1] = 0.;
-           CS_[1] = 0.;
-                     
-          CFx_[1] = 0.;
-          CFy_[1] = 0.;
-          CFz_[1] = 0.;
-                     
-          CMx_[1] = 0.;
-          CMy_[1] = 0.;     
+        CL_[1] = 0.;
+        CD_[1] = 0.;
+        CS_[1] = 0.;
+
+       CFx_[1] = 0.;
+       CFy_[1] = 0.;
+       CFz_[1] = 0.;
+
+       CMx_[1] = 0.;
+       CMy_[1] = 0.;
+
     }
     
     // Calculate averages of forces and moments
     
     if ( ForceType_ == FORCE_AVERAGE && CurrentWakeIteration_ == WakeIterations_ ) {
 
-           CL_[1] /= NumberOfAveragingSteps_;
-           CD_[1] /= NumberOfAveragingSteps_;
-           CS_[1] /= NumberOfAveragingSteps_;
-                     
-          CFx_[1] /= NumberOfAveragingSteps_;
-          CFy_[1] /= NumberOfAveragingSteps_;
-          CFz_[1] /= NumberOfAveragingSteps_;
-                     
-          CMx_[1] /= NumberOfAveragingSteps_;
-          CMy_[1] /= NumberOfAveragingSteps_;     
+        CL_[1] /= NumberOfAveragingSteps_;
+        CD_[1] /= NumberOfAveragingSteps_;
+        CS_[1] /= NumberOfAveragingSteps_;
+
+       CFx_[1] /= NumberOfAveragingSteps_;
+       CFy_[1] /= NumberOfAveragingSteps_;
+       CFz_[1] /= NumberOfAveragingSteps_;
+
+       CMx_[1] /= NumberOfAveragingSteps_;
+       CMy_[1] /= NumberOfAveragingSteps_;
           
     }       
     
@@ -2909,6 +2986,203 @@ void VSP_SOLVER::CalculateSpanWiseLoading(void)
     fclose(LoadFile);
 
 }
+
+/*##############################################################################
+#                                                                              #
+#                       VSP_SOLVER CalculateVelocitySurvey                     #
+#                                                                              #
+##############################################################################*/
+
+void VSP_SOLVER::CalculateVelocitySurvey(void)
+{
+
+    int i, j, k, Iter, IterMax;
+    double xyz[3], q[5], U, V, W;
+    double *Utmp, *Vtmp, *Wtmp, NodeDist;
+    char SurveyFileName[2000];
+    FILE *SurveyFile;
+
+    Utmp = new double[NumberofSurveyPoints_ + 1];
+    Vtmp = new double[NumberofSurveyPoints_ + 1];
+    Wtmp = new double[NumberofSurveyPoints_ + 1];
+
+    zero_double_array(Utmp, NumberofSurveyPoints_);
+    zero_double_array(Vtmp, NumberofSurveyPoints_);
+    zero_double_array(Wtmp, NumberofSurveyPoints_);
+
+    // Initialize to free stream values
+
+#pragma omp parallel for
+    for ( i = 1 ; i <= NumberofSurveyPoints_ ; i++ ) {
+
+       Utmp[i] = FreeStreamVelocity_[0];
+       Vtmp[i] = FreeStreamVelocity_[1];
+       Wtmp[i] = FreeStreamVelocity_[2];
+
+    }
+
+    // Add in the rotor induced velocities
+
+    for ( k = 1 ; k <= NumberOfRotors_ ; k++ ) {
+
+//#pragma omp parallel for private(xyz,q)
+       for ( i = 1 ; i <= NumberofSurveyPoints_ ; i++ ) {
+
+          xyz[0] = SurveyPointList(i).x();
+          xyz[1] = SurveyPointList(i).y();
+          xyz[2] = SurveyPointList(i).z();
+
+          RotorDisk(k).Velocity(xyz, q);
+
+          Utmp[i] += q[0] / Vinf_;
+          Vtmp[i] += q[1] / Vinf_;
+          Wtmp[i] += q[2] / Vinf_;
+
+          // If there is a symmetry plane, calculate influence of the reflection
+
+          if ( DoSymmetryPlaneSolve_ ) {
+
+            if ( DoSymmetryPlaneSolve_ == SYM_X ) xyz[0] *= -1.;
+            if ( DoSymmetryPlaneSolve_ == SYM_Y ) xyz[1] *= -1.;
+            if ( DoSymmetryPlaneSolve_ == SYM_Z ) xyz[2] *= -1.;
+
+            RotorDisk(k).Velocity(xyz, q);
+
+            if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
+            if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;
+            if ( DoSymmetryPlaneSolve_ == SYM_Z ) q[2] *= -1.;
+
+            Utmp[i] += q[0] / Vinf_;
+            Vtmp[i] += q[1] / Vinf_;
+            Wtmp[i] += q[2] / Vinf_;
+
+          }
+
+       }
+
+    }
+
+    // Wing surface vortex induced velocities
+
+    for ( i = 1 ; i <= NumberofSurveyPoints_ ; i++ ) {
+
+       xyz[0] = SurveyPointList(i).x();
+       xyz[1] = SurveyPointList(i).y();
+       xyz[2] = SurveyPointList(i).z();
+
+       CalculateSurfaceInducedVelocityAtPoint(xyz, q);
+
+       Utmp[i] += q[0];
+       Vtmp[i] += q[1];
+       Wtmp[i] += q[2];
+
+       // If there is a symmetry plane, calculate influence of the reflection
+
+       if ( DoSymmetryPlaneSolve_ ) {
+
+         if ( DoSymmetryPlaneSolve_ == SYM_X ) xyz[0] *= -1.;
+         if ( DoSymmetryPlaneSolve_ == SYM_Y ) xyz[1] *= -1.;
+         if ( DoSymmetryPlaneSolve_ == SYM_Z ) xyz[2] *= -1.;
+
+         CalculateSurfaceInducedVelocityAtPoint(xyz, q);
+
+         if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
+         if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;
+         if ( DoSymmetryPlaneSolve_ == SYM_Z ) q[2] *= -1.;
+
+         Utmp[i] += q[0];
+         Vtmp[i] += q[1];
+         Wtmp[i] += q[2];
+
+       }
+
+    }
+
+    // Wake induced velocities
+
+#pragma omp parallel for private(k,xyz,q,U,V,W)
+    for ( i = 1 ; i <= NumberofSurveyPoints_ ; i++ ) {
+
+       xyz[0] = SurveyPointList(i).x();
+       xyz[1] = SurveyPointList(i).y();
+       xyz[2] = SurveyPointList(i).z();
+
+       for ( k = 1 ; k <= NumberOfTrailingVortexEdges_ ; k++ ) {
+
+          TrailingVortexEdge(k).InducedVelocity(xyz, q);
+
+          Utmp[i] += q[0];
+          Vtmp[i] += q[1];
+          Wtmp[i] += q[2];
+
+          // If there is a symmetry plane, calculate influence of the reflection
+
+          if ( DoSymmetryPlaneSolve_ ) {
+
+             xyz[0] = TrailingVortexEdge(i).xyz_c(j)[0];
+             xyz[1] = TrailingVortexEdge(i).xyz_c(j)[1];
+             xyz[2] = TrailingVortexEdge(i).xyz_c(j)[2];
+
+             if ( DoSymmetryPlaneSolve_ == SYM_X ) xyz[0] *= -1.;
+             if ( DoSymmetryPlaneSolve_ == SYM_Y ) xyz[1] *= -1.;
+             if ( DoSymmetryPlaneSolve_ == SYM_Z ) xyz[2] *= -1.;
+
+             TrailingVortexEdge(k).InducedVelocity(xyz, q);
+
+             if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
+             if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;
+             if ( DoSymmetryPlaneSolve_ == SYM_Z ) q[2] *= -1.;
+
+             Utmp[i] += q[0];
+             Vtmp[i] += q[1];
+             Wtmp[i] += q[2];
+
+          }
+
+       }
+
+    }
+
+    // Write out the velocity survey
+
+    sprintf(SurveyFileName,"%s.svy",FileName_);
+
+    if ( (SurveyFile = fopen(SurveyFileName, "w")) == NULL ) {
+
+       printf("Could not open the survey file for output! \n");
+
+       exit(1);
+
+    }
+                       //0123456789x0123456789x0123456789x   0123456789x0123456789x0123456789x
+    fprintf(SurveyFile, "     X          Y          Z             U          V          W \n");
+
+    for ( i = 1 ; i <= NumberofSurveyPoints_ ; i++ ) {
+
+       xyz[0] = SurveyPointList(i).x();
+       xyz[1] = SurveyPointList(i).y();
+       xyz[2] = SurveyPointList(i).z();
+
+       fprintf(SurveyFile, "%10.5f %10.5f%10.5f    %10.5f %10.5f %10.5f \n",
+               SurveyPointList(i).x(),
+               SurveyPointList(i).y(),
+               SurveyPointList(i).z(),
+               Utmp[i],
+               Vtmp[i],
+               Wtmp[i]);
+
+    }
+
+    fclose(SurveyFile);
+
+    // Free up space
+
+    delete [] Utmp;
+    delete [] Vtmp;
+    delete [] Wtmp;
+
+}
+
 
 /*##############################################################################
 #                                                                              #

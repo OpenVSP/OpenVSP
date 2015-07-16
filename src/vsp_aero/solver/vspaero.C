@@ -38,6 +38,7 @@ double Rho_;
 double Vinf_;
 double ReCref_;
 double ClMax_;
+double MaxTurningAngle_;
 double FarDist_;
 
 double Set_AoA_;
@@ -117,6 +118,7 @@ int NumberOfWakeNodes_ = 0;
 int DumpGeom_ = 0;
 int ForceAveragingIter_ = 0;
 int NoWakeIteration_= 0;
+int NumberofSurveyPoints_ = 0;
 
 // Prototypes
 
@@ -297,7 +299,13 @@ void ParseInput(int argc, char *argv[])
 
        // Start up the graphics viewer after were all done
 
-       if ( strcmp(argv[i],"-omp") == 0 ) {
+       if ( strcmp(argv[i],"-wtf") == 0 ) {
+
+         printf("wtf back at you!  \n");
+
+       }
+
+       else if ( strcmp(argv[i],"-omp") == 0 ) {
         
           NumberOfThreads_ = atoi(argv[++i]);
           
@@ -400,7 +408,7 @@ void ParseInput(int argc, char *argv[])
 
 /*##############################################################################
 #                                                                              #
-#                                      LoadCaseFile                            #
+#                                   CreateInputFile                            #
 #                                                                              #
 ##############################################################################*/
 
@@ -410,17 +418,7 @@ void CreateInputFile(char *argv[], int argc, int &i)
     FILE *case_file;
     char file_name_w_ext[2000];
 
-    // Open the case file
-
-    sprintf(file_name_w_ext,"%s.vspaero",FileName);
-
-    if ( (case_file = fopen(file_name_w_ext,"w")) == NULL ) {
-
-       printf("Could not open the file: %s for input! \n",file_name_w_ext);
-
-       exit(1);
-
-    }
+    // Defaults
 
     Sref_              = 1.0;
     Cref_              = 1.0;  
@@ -435,9 +433,27 @@ void CreateInputFile(char *argv[], int argc, int &i)
     Rho_               = 0.002377;
     ReCref_            = 10000000.;
     ClMax_             = -1.;
+    MaxTurningAngle_   = -1.;
     FarDist_           = -1.;
-    NumberOfWakeNodes_ = 0;
+    NumberOfWakeNodes_ = -1;
     WakeIterations_    = 5;
+    NumberOfRotors_    = 0.;
+
+    // Read in the degen geometry file
+
+    VSP_VLM().ReadFile(FileName);
+
+    // Open the case file
+
+    sprintf(file_name_w_ext,"%s.vspaero",FileName);
+
+    if ( (case_file = fopen(file_name_w_ext,"w")) == NULL ) {
+
+       printf("Could not open the file: %s for input! \n",file_name_w_ext);
+
+       exit(1);
+
+    }
     
     // Check for any user supplied values on the command line
     
@@ -512,10 +528,28 @@ void CreateInputFile(char *argv[], int argc, int &i)
     fprintf(case_file,"Rho = %lf \n",Rho_);
     fprintf(case_file,"ReCref = %lf \n",ReCref_);
     fprintf(case_file,"ClMax = %lf \n",ClMax_);
+    fprintf(case_file,"MaxTurningAngle = %lf \n",MaxTurningAngle_);
     fprintf(case_file,"Symmetry = No \n");
     fprintf(case_file,"FarDist = %lf \n",FarDist_);
     fprintf(case_file,"NumWakeNodes = %d \n",NumberOfWakeNodes_);
     fprintf(case_file,"WakeIters = %d \n",WakeIterations_);
+
+    printf("VSP_VLM().VSPGeom().NumberOfRotors(): %d \n",VSP_VLM().VSPGeom().NumberOfRotors());
+
+    if ( VSP_VLM().VSPGeom().NumberOfRotors() != 0 ) NumberOfRotors_ = VSP_VLM().VSPGeom().NumberOfRotors();
+
+    fprintf(case_file,"NumberOfRotors = %d \n",NumberOfRotors_);
+
+    for ( i = 1 ;  i <= NumberOfRotors_ ; i++ ) {
+
+       fprintf(case_file,"PropElement_%-d\n",i);
+       fprintf(case_file,"%d\n",i);
+
+       VSP_VLM().VSPGeom().RotorDisk(i).Write_STP_Data(case_file);
+
+    }
+
+    fclose(case_file);
  
 }
 
@@ -528,7 +562,8 @@ void CreateInputFile(char *argv[], int argc, int &i)
 void LoadCaseFile(void)
 {
 
-    int i;
+    int i, j;
+    float x,y,z;
     FILE *case_file;
     char file_name_w_ext[2000], DumChar[200];
     char SymmetryFlag[80];
@@ -545,7 +580,23 @@ void LoadCaseFile(void)
 
     }
 
-    FarDist_ = -1.;
+    Sref_              = 1.0;
+    Cref_              = 1.0;
+    Bref_              = 1.0;
+    Xcg_               = 0.0;
+    Ycg_               = 0.0;
+    Zcg_               = 0.0;
+    Mach_              = 0.3;
+    AoA_               = 5.0;
+    Beta_              = 0.0;
+    Vinf_              = 100.;
+    Rho_               = 0.002377;
+    ReCref_            = 10000000.;
+    ClMax_             = -1.;
+    MaxTurningAngle_   = -1.;
+    FarDist_           = -1.;
+    NumberOfWakeNodes_ = -1;
+    WakeIterations_    = 5;
 
     fscanf(case_file,"Sref = %lf \n",&Sref_);
     fscanf(case_file,"Cref = %lf \n",&Cref_);
@@ -560,6 +611,7 @@ void LoadCaseFile(void)
     fscanf(case_file,"Rho = %lf \n",&Rho_);
     fscanf(case_file,"ReCref = %lf \n",&ReCref_);
     fscanf(case_file,"ClMax = %lf \n",&ClMax_);
+    fscanf(case_file,"MaxTurningAngle = %lf \n",&MaxTurningAngle_);
     fscanf(case_file,"Symmetry = %s \n",SymmetryFlag);
     fscanf(case_file,"FarDist = %lf \n",&FarDist_);
     fscanf(case_file,"NumWakeNodes = %d \n",&NumberOfWakeNodes_);
@@ -569,23 +621,28 @@ void LoadCaseFile(void)
     
     if ( WakeIterations_ <= 0 ) WakeIterations_ = 1;
 
-    printf("Sref         = %lf \n",Sref_);
-    printf("Cref         = %lf \n",Cref_);
-    printf("Bref         = %lf \n",Bref_);
-    printf("X_cg         = %lf \n",Xcg_);
-    printf("Y_cg         = %lf \n",Ycg_);
-    printf("Z_cg         = %lf \n",Zcg_);
-    printf("Mach         = %lf \n",Mach_);
-    printf("AoA          = %lf \n",AoA_);
-    printf("Beta         = %lf \n",Beta_);
-    printf("Vinf         = %lf \n",Vinf_);
-    printf("Rho          = %lf \n",Rho_);
-    printf("ReCref       = %lf \n",ReCref_);
-    printf("ClMax        = %lf \n",ClMax_);
-    printf("Symmetry     = %s  \n",SymmetryFlag);
-    printf("FarDist      = %lf \n",FarDist_);
-    printf("NumWakeNodes = %d  \n",NumberOfWakeNodes_);
-    printf("WakeIters    = %d  \n",WakeIterations_);
+    if ( ClMax_ <= 0. ) ClMax_ = -1.;
+
+    if ( MaxTurningAngle_ <= 0. ) MaxTurningAngle_ = -1.;
+
+    printf("Sref            = %lf \n",Sref_);
+    printf("Cref            = %lf \n",Cref_);
+    printf("Bref            = %lf \n",Bref_);
+    printf("X_cg            = %lf \n",Xcg_);
+    printf("Y_cg            = %lf \n",Ycg_);
+    printf("Z_cg            = %lf \n",Zcg_);
+    printf("Mach            = %lf \n",Mach_);
+    printf("AoA             = %lf \n",AoA_);
+    printf("Beta            = %lf \n",Beta_);
+    printf("Vinf            = %lf \n",Vinf_);
+    printf("Rho             = %lf \n",Rho_);
+    printf("ReCref          = %lf \n",ReCref_);
+    printf("ClMax           = %lf \n",ClMax_);
+    printf("MaxTurningAngle = %lf \n",MaxTurningAngle_);
+    printf("Symmetry        = %s  \n",SymmetryFlag);
+    printf("FarDist         = %lf \n",FarDist_);
+    printf("NumWakeNodes    = %d  \n",NumberOfWakeNodes_);
+    printf("WakeIters       = %d  \n",WakeIterations_);
 
     VSP_VLM().Sref() = Sref_;
     VSP_VLM().Cref() = Cref_;
@@ -607,6 +664,8 @@ void LoadCaseFile(void)
     
     VSP_VLM().ClMax() = ClMax_;
     
+    VSP_VLM().MaxTurningAngle() = MaxTurningAngle_;
+
     VSP_VLM().WakeIterations() = WakeIterations_;
     
     VSP_VLM().RotationalRate_p() = 0.0;
@@ -638,8 +697,28 @@ void LoadCaseFile(void)
        
     }
     
+    // Load in the velocity survey data
+
+    fscanf(case_file,"NumberofSurveyPoints = %d \n",&NumberofSurveyPoints_);
+
+    printf("NumberofSurveyPoints: %d \n",NumberofSurveyPoints_);
+
+    VSP_VLM().SetNumberOfSurveyPoints(NumberofSurveyPoints_);
+
+    for ( i = 1 ; i <= NumberofSurveyPoints_ ; i++ ) {
+
+       fscanf(case_file,"%d %f %f %f \n",&j,&x,&y,&z);
+
+       printf("Survey Point: %10d: %10.5f %10.5f %10.5f \n",i,x,y,z);
+
+       VSP_VLM().SurveyPointList(i).x() = x;
+       VSP_VLM().SurveyPointList(i).y() = y;
+       VSP_VLM().SurveyPointList(i).z() = z;
+
+    }
+
     fclose(case_file);
-    
+
 }
 
 /*##############################################################################

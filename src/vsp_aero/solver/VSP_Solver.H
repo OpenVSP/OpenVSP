@@ -70,8 +70,6 @@ private:
     
     VSP_DEGEN_GEOM VSPGeom_;
     
-    VSP_DEGEN_GEOM &VSPGeom(void) { return VSPGeom_; };
-    
     // VSP Solver
     
     int NumberOfMGLevels_;
@@ -82,6 +80,11 @@ private:
     
     ROTOR_DISK *RotorDisk_;
     
+    // Velocity survey points
+
+    int NumberofSurveyPoints_;
+    VSP_NODE *SurveyPointList_;
+
     // Solver routines and data
 
     double FreeStreamVelocity_[3];
@@ -142,6 +145,7 @@ private:
     double CMy_[2];
     double CMz_[2];
 
+    double MaxTurningAngle_;
     double Clmax_2d_;
     double CDo_;
         
@@ -320,6 +324,9 @@ public:
     
     void SetNumberOfWakeTrailingNodes(int NumberOfNodes) { NumberOfWakeTrailingNodes_ = NumberOfNodes; };
 
+    void SetNumberOfSurveyPoints(int NumberOfSurveyPoints) { NumberofSurveyPoints_ = NumberOfSurveyPoints; SurveyPointList_ = new VSP_NODE[NumberofSurveyPoints_ + 1]; };
+    VSP_NODE &SurveyPointList(int i) { return SurveyPointList_[i]; };
+
     // Reference areas and lengths 
     
     double &Sref(void) { return Sref_; };
@@ -356,10 +363,16 @@ public:
     
     double &ClMax(void) { return Clmax_2d_; };
     
+    double &MaxTurningAngle(void) { return MaxTurningAngle_; };
+
     // Read in the VSP degenerate geometry file
     
     void ReadFile(char *FileName) { sprintf(FileName_,"%s",FileName); VSPGeom_.ReadFile(FileName); };    
     
+    // Access to DegenGeom geometry
+
+    VSP_DEGEN_GEOM &VSPGeom(void) { return VSPGeom_; };
+
     // Solver setup and solve
     
     void Setup(void);
@@ -381,13 +394,20 @@ public:
     
     double L2Residual(void) { return L2Residual_; };
 
+    // Force and moment calculations
+
     void CalculateForces(void);
     void CalculatePressureForces(void);
     void CalculateInducedDrag(void);
+    void CalculateDeltaCPs(void);
     void CalculateCLmaxLimitedForces(void);
 
     void CalculateSpanWiseLoading(void);
     void WriteOutAerothermalDatabaseFiles(void);
+
+    // Field surveys
+
+    void CalculateVelocitySurvey(void);
 
     // Set solver method
     

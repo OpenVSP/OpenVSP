@@ -15,6 +15,7 @@
 #include "utils.H"
 #include "VSP_Surface.H"
 #include "VSP_Agglom.H"
+#include "RotorDisk.H"
 
 #define WING_SURFACE 1
 #define BODY_SURFACE 2  
@@ -44,6 +45,11 @@ private:
     // Body Data
     
     int NumberOfBodies_;
+
+    // Rotor Disk Data
+
+    int NumberOfRotors_;
+    ROTOR_DISK *RotorDisk_;
 
     // Surface Data
     
@@ -95,6 +101,10 @@ public:
     int NumberOfGridLevels(void) { return NumberOfGridLevels_; };
     VSP_GRID &Grid(void) { return *(Grid_[0]); };
     VSP_GRID &Grid(int i) { return *(Grid_[i]); };
+
+    int NumberOfRotors(void) { return NumberOfRotors_; };
+    ROTOR_DISK &RotorDisk(int i) { return RotorDisk_[i]; };
+
  
 };
 

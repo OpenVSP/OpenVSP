@@ -217,7 +217,7 @@ void VORTEX_TRAIL::Setup(int NumSubVortices, double FarDist, VSP_NODE &Node1, VS
     
        printf("Number of trailing wake nodes must be a power of 2! \n"); fflush(NULL);
        printf("NumberOfLevels_: %d \n",NumberOfLevels_);
-       printf("2^NumberOfLevels_: %f \n",pow(2.0,NumberOfLevels_));
+       printf("2^NumberOfLevels_: %f \n",pow(2,NumberOfLevels_));
         
        exit(1);
        

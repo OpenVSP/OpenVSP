@@ -87,6 +87,7 @@ void VSP_DEGEN_GEOM::ReadFile(char *FileName)
  
     int Wing, Done, NumberOfBodySets, BodySet;
     int Surface;
+    double Diam, x, y, z, nx, ny, nz;
     char VSP_File_Name[2000], DumChar[2000], Type[2000], Name[2000];
     FILE *VSP_Degen_File;
     
@@ -144,7 +145,81 @@ void VSP_DEGEN_GEOM::ReadFile(char *FileName)
        if ( strncmp(DumChar,"BODY",4) == 0 ) NumberOfBodies_++;
        
     }    
-    
+
+    rewind(VSP_Degen_File);
+
+    // Now scan the file and determine how actuator disks
+
+    NumberOfRotors_ = 0;
+
+    Done = 0;
+
+    while ( !Done ) {
+
+       if ( fgets(DumChar,1000,VSP_Degen_File) == NULL ) Done = 1;
+
+       if ( strncmp(DumChar,"DISK",4) == 0 ) NumberOfRotors_++;
+
+    }
+
+    if ( NumberOfRotors_ > 0 ) {
+
+       rewind(VSP_Degen_File);
+
+       RotorDisk_ = new ROTOR_DISK[NumberOfRotors_ + 1];
+
+       NumberOfRotors_ = 0;
+
+       Done = 0;
+
+       while ( !Done ) {
+
+          if ( fgets(DumChar,1000,VSP_Degen_File) == NULL ) Done = 1;
+
+          if ( strncmp(DumChar,"DISK",4) == 0 ) {
+
+             NumberOfRotors_++;
+
+             fgets(DumChar,1000,VSP_Degen_File);
+             fgets(DumChar,1000,VSP_Degen_File);
+             fgets(DumChar,1000,VSP_Degen_File);
+             fgets(DumChar,1000,VSP_Degen_File);
+
+             sscanf(DumChar,"%lf, %lf, %lf, %lf, %lf, %lf, %lf",
+                    &Diam,
+                    &x,
+                    &y,
+                    &z,
+                    &nx,
+                    &ny,
+                    &nz);
+
+             // VSP supplied information
+
+             RotorDisk(NumberOfRotors_).Radius() = 0.5*Diam;
+
+             RotorDisk(NumberOfRotors_).XYZ(0) = x;
+             RotorDisk(NumberOfRotors_).XYZ(1) = y;
+             RotorDisk(NumberOfRotors_).XYZ(2) = z;
+
+             RotorDisk(NumberOfRotors_).Normal(0) = -nx;
+             RotorDisk(NumberOfRotors_).Normal(1) = -ny;
+             RotorDisk(NumberOfRotors_).Normal(2) = -nz;
+
+             // Some defaults
+
+             RotorDisk(NumberOfRotors_).CT() = 0.400;
+             RotorDisk(NumberOfRotors_).CP() = 0.600;
+             RotorDisk(NumberOfRotors_).RPM() = 2000.;
+
+          }
+
+       }
+
+    }
+
+    printf("Found: %d Rotors \n",NumberOfRotors_);
+
     // Split body data into 4 sets... top/bottom vertical, and left/right horizontal slices
     
     NumberOfBodySets = NumberOfBodies_;
