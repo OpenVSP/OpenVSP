@@ -328,6 +328,10 @@ public:
     {
         return m_value;
     }
+    virtual Fl_Button* GetFlButton()
+    {
+        return m_Button;
+    }
     Fl_Button *m_Button;
 
 protected:

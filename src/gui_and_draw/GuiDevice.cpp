@@ -1087,7 +1087,7 @@ void RadioButton::SetValAndLimits( Parm* p )
         return;
     }
 
-    IntParm* iparm = dynamic_cast< IntParm* >( p );
+    BoolParm* iparm = dynamic_cast< BoolParm* >( p );
     if ( iparm->Get() == m_value )
     {
         m_Button->setonly();
@@ -1098,12 +1098,12 @@ void RadioButton::SetValAndLimits( Parm* p )
 void RadioButton::DeviceCB( Fl_Widget* w )
 {
     Parm* parm_ptr = SetParmID( m_ParmID );
-    if ( !parm_ptr )
-    {
-        return;
-    }
+//    if ( !parm_ptr )
+//    {
+//        return;
+//    }
 
-    if ( w == m_Button )
+    if ( w == m_Button && parm_ptr)
     {
         int new_val = m_value;
         parm_ptr->SetFromDevice( new_val );

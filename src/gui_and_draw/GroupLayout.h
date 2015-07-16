@@ -15,6 +15,7 @@
 #include <FL/fl_draw.H>
 #include <FL/Fl_Scroll.H>
 #include <FL/Fl_Text_Editor.H>
+#include <FL/Fl_Radio_Button.H>
 
 #include "GuiDevice.h"
 
@@ -128,6 +129,7 @@ public:
     void AddButton(  CheckButtonBit& check_bit_button, const char* label, int val );
     void AddButton(  TriggerButton& trigger_button, const char* label );
     void AddButton(  ParmButton& parm_button, const char* label );
+    void AddButton( RadioButton& radio_button, const char* label, int val = 0);
     void AddInput(  StringInput& string_input, const char* label );
     void AddInput(  Input& input, const char* label, const char* format  );
     void AddOutput( StringOutput& string_output, const char* label );

@@ -520,6 +520,29 @@ void GroupLayout::AddButton( ParmButton& pbutton, const char* label )
 
     pbutton.Init( m_Screen, flbutton );
 }
+
+//==== Create & Init Gui RadioButton ====//
+void GroupLayout::AddButton( RadioButton& rbutton, const char* label, int val )
+{
+    assert( m_Group && m_Screen );
+
+    //==== Add Radio Button ====//
+    int bw = FitWidth( 0, m_ButtonWidth );
+    Fl_Round_Button* flbutton = new Fl_Round_Button( m_X, m_Y, bw, m_StdHeight, label );
+    flbutton->labelfont( 1 );
+    flbutton->labelsize( 12 );
+    flbutton->labelcolor( FL_DARK_BLUE );
+    flbutton->copy_label( label );
+    m_Group->add( flbutton );
+    AddX( bw );
+
+    AddY( m_StdHeight );
+    NewLineX();
+
+    //Default RadioButton set to false
+    rbutton.Init( m_Screen, flbutton, val);
+}
+
 //==== Create & Init Box Divider  ====//
 void GroupLayout::AddDividerBox( const string& text, int used_w )
 {
