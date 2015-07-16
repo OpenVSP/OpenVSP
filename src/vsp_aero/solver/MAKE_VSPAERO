@@ -8,20 +8,20 @@
 ################################################################################
 .SUFFIXES:	.h .C .cc
 
-C_SRCS	=	matrix.C	        	\
-                utils.C			    \
-                quat.C			    \
-                Vortex.C	    	\
-	        Vortex_Trail.C		\
+C_SRCS	=	    matrix.C	        \
+                utils.C			     \
+                quat.C			     \
+                Vortex.C	    	   \
+	             Vortex_Trail.C		\
                 VSP_DegenGeom.C		\
-                VSP_Edge.C		    \
-                VSP_Grid.C	    	\
-                VSP_Node.C		    \
+                VSP_Edge.C		      \
+                VSP_Grid.C	    	   \
+                VSP_Node.C		       \
                 VSP_Loop.C          \
-                VSP_Solver.C		\
-                VSP_Surface.C		\
-		        RotorDisk.C		    \
-                VSP_Agglom.C		\
+                VSP_Solver.C		   \
+                VSP_Surface.C		   \
+		          RotorDisk.C		    \
+                VSP_Agglom.C		   \
                 vspaero.C
           
         
