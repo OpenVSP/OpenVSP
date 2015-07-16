@@ -2384,7 +2384,7 @@ int GL_VIEWER::handle(int event)
 
           if ( Fl::event_key() == FL_Down ) {
     
-           if ( Fl::event_state(FL_CTRL) ) {
+             if ( Fl::event_state(FL_CTRL) ) {
               
                 trackball(OldQuat,
                           0.00, 0.00, 
