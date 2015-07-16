@@ -222,7 +222,7 @@ static int ReadFont(char *font_name, struct glf_font *glff)
 	if (strcmp(buffer, "GLF"))
 	{
 		/* If header is not "GLF" */
-		if (console_msg) printf("Error reading font file: incorrect file format\n");fflush(NULL);
+		if (console_msg) printf("Error reading font file: incorrect file format\n");
 		return GLF_ERROR;
 	}
 
@@ -249,7 +249,7 @@ static int ReadFont(char *font_name, struct glf_font *glff)
 
 		if (glff->symbols[code] != NULL)
 		{
-			if (console_msg) printf("Error reading font file: encountered symbols in font\n");fflush(NULL);
+			if (console_msg) printf("Error reading font file: encountered symbols in font\n");
 			return GLF_ERROR;
 		}
 
