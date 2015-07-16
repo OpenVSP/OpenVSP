@@ -7,8 +7,8 @@ class viewerUI {open
   Function {viewerUI()} {open
   } {
     Fl_Window mainWindow {
-      label {VSPAERO Viewer 2.1 } open
-      private xywh {508 203 1160 710} type Double labelsize 12 align 0 resizable visible
+      label {VSPAERO Viewer 2.2} open selected
+      private xywh {496 302 1160 710} type Double labelsize 12 align 0 resizable visible
     } {
       Fl_Group {} {open
         xywh {0 2 1162 710} box FLAT_BOX labeltype ENGRAVED_LABEL
