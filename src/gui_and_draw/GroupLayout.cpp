@@ -587,6 +587,28 @@ void GroupLayout::AddInput( StringInput& text_input, const char* label )
     text_input.Init( m_Screen, input );
 }
 
+//==== Create & Init Text Output without label ====//
+void GroupLayout::AddOutput( StringOutput& string_output)
+{
+    assert( m_Group && m_Screen );
+
+    //==== Add Text Input ====//
+    int iw = FitWidth( m_ButtonWidth, m_InputWidth );
+    Fl_Output* output = new Fl_Output( m_X, m_Y, iw, m_StdHeight );
+    output->color( ( Fl_Color )23 );
+    output->labelfont( 1 );
+    output->labelsize( 12 );
+    output->textfont( 1 );
+    output->textsize( 12 );
+    m_Group->add( output );
+    AddX( iw );
+
+    AddY( m_StdHeight );
+    NewLineX();
+
+    string_output.Init( m_Screen, output );
+}
+
 //==== Create & Init Text Output  ====//
 void GroupLayout::AddOutput( StringOutput& string_output, const char* label )
 {
