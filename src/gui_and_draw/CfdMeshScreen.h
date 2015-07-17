@@ -3,120 +3,231 @@
 // version 1.3 as detailed in the LICENSE file which accompanies this software.
 //
 
-// cfdMeshScreen.h: interface for the geomScreen class.
-// J.R Gloudemans
+// CfdMeshScreen.h: interface for the CfdMeshScreen class.
+//
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(VSPCFDMESHSCREEN__INCLUDED_)
-#define VSPCFDMESHSCREEN__INCLUDED_
+#ifndef CFDMESHSCREEN_H
+#define CFDMESHSCREEN_H
 
+#include "ScreenMgr.h"
 #include "ScreenBase.h"
+#include "Vehicle.h"
 #include "GuiDevice.h"
 
-#include "cfdMeshFlScreen.h"
-#include "Vehicle.h"
-#include "ScreenMgr.h"
-
-#include <string>
-#include <deque>
 using namespace std;
 
-class CfdMeshScreen : public VspScreen
+class CfdMeshScreen : public TabScreen
 {
 public:
     CfdMeshScreen( ScreenMgr* mgr );
     virtual ~CfdMeshScreen();
 
-    virtual bool Update();
-    virtual void Show();
-    virtual void Hide();
-
-    void position( int x, int y )
-    {
-        m_CfdMeshUI->UIWindow->position( x, y );
-    }
+    bool Update();
+    void Show();
+    void Hide();
 
     void LoadSetChoice();
 
-    void AddOutputText( const string &text );
-
     void CallBack( Fl_Widget *w );
     virtual void CloseCallBack( Fl_Widget *w );
+    static void staticScreenCB( Fl_Widget *w, void* data )
+    {
+        ( ( CfdMeshScreen* )data )->CallBack( w );
+    }
 
-    void parm_changed( Parm* parm )             {}
+    virtual void GuiDeviceCallBack( GuiDevice* device );
 
+    void parm_changed( Parm* parm ) {}
+    void AddOutputText( const string &text );
     string truncateFileName( const string &fn, int len );
-
     void LoadDrawObjs( vector< DrawObj* > &draw_obj_vec );
+
+protected:
+
+    GroupLayout m_GlobalTabLayout;
+    GroupLayout m_DisplayTabLayout;
+    GroupLayout m_OutputTabLayout;
+    GroupLayout m_SourcesTabLayout;
+    GroupLayout m_DomainTabLayout;
+    GroupLayout m_WakesTabLayout;
+    GroupLayout m_ConsoleLayout;
+    GroupLayout m_BorderConsoleLayout;
+
+    //===== Global Tab Items =====//
+
+    SliderAdjRangeInput m_MaxEdgeLen;
+    SliderAdjRangeInput m_MinEdgeLen;
+    SliderAdjRangeInput m_MaxGap;
+    SliderAdjRangeInput m_NumCircleSegments;
+    SliderAdjRangeInput m_GrowthRatio;
+
+    ToggleButton m_Rig3dGrowthLimit;
+    ToggleButton m_IntersectSubsurfaces;
+
+    TriggerButton m_GlobSrcAdjustLenLftLft;
+    TriggerButton m_GlobSrcAdjustLenLft;
+    TriggerButton m_GlobSrcAdjustLenRht;
+    TriggerButton m_GlobSrcAdjustLenRhtRht;
+    TriggerButton m_GlobSrcAdjustRadLftLft;
+    TriggerButton m_GlobSrcAdjustRadLft;
+    TriggerButton m_GlobSrcAdjustRadRht;
+    TriggerButton m_GlobSrcAdjustRadRhtRht;
+
+    Choice m_UseSet;
+
+    //===== Display Tab Items =====//
+
+    ToggleButton m_ShowSourcesAndWakePreview;
+    ToggleButton m_ShowFarFieldPreview;
+    ToggleButton m_ShowMesh;
+    ToggleButton m_ShowWake;
+    ToggleButton m_ShowSymmetryPlane;
+    ToggleButton m_ShowFarField;
+    ToggleButton m_ShowBadEdgesAndTriangles;
+    ToggleButton m_ColorTags;
+
+    //===== Output Tab Items =====//
+
+    ToggleButton m_StlFile;
+    ToggleButton m_TaggedMultiSolid;
+    ToggleButton m_PolyFile;
+    ToggleButton m_TriFile;
+    ToggleButton m_ObjFile;
+    ToggleButton m_MshFile;
+    ToggleButton m_DatFile;
+    ToggleButton m_KeyFile;
+    ToggleButton m_SrfFile;
+    ToggleButton m_TkeyFile;
+
+    TriggerButton m_SelectStlFile;
+    TriggerButton m_SelectPolyFile;
+    TriggerButton m_SelectTriFile;
+    TriggerButton m_SelectObjFile;
+    TriggerButton m_SelectMshFile;
+    TriggerButton m_SelectDatFile;
+    TriggerButton m_SelectKeyFile;
+    TriggerButton m_SelectSrfFile;
+    TriggerButton m_SelectTkeyFile;
+
+    StringOutput m_StlOutput;
+    StringOutput m_PolyOutput;
+    StringOutput m_TriOutput;
+    StringOutput m_ObjOutput;
+    StringOutput m_MshOutput;
+    StringOutput m_DatOutput;
+    StringOutput m_KeyOutput;
+    StringOutput m_SrfOutput;
+    StringOutput m_TkeyOutput;
+
+    //===== Sources Tab Items =====//
+
+    GroupLayout m_SourcesLeft;
+    GroupLayout m_SourcesRight;
+    GroupLayout m_UWPosition1;
+    GroupLayout m_UWPosition2;
+
+    Choice m_SourcesSelectComp;
+    Choice m_SourcesSelectSurface;
+    Choice m_SourcesType;
+
+    TriggerButton m_AddDefaultSources;
+    TriggerButton m_AddSource;
+    TriggerButton m_DeleteSource;
+
+    Fl_Browser* m_SourceBrowser;
+
+    StringInput m_SourceName;
+
+    SliderInput m_SourceU1;
+    SliderInput m_SourceW1;
+    SliderAdjRangeInput m_SourceRad1;
+    SliderAdjRangeInput m_SourceLen1;
+
+    SliderInput m_SourceU2;
+    SliderInput m_SourceW2;
+    SliderAdjRangeInput m_SourceRad2;
+    SliderAdjRangeInput m_SourceLen2;
+
+    //===== Domain Tab Items =====//
+
+    GroupLayout m_FarParametersLayout;
+    GroupLayout m_FarBoxLayout;
+    GroupLayout m_FarXYZLocationLayout;
+
+    ToggleButton m_GenerateHalfMesh;
+    ToggleButton m_GenerateFarFieldMesh;
+
+    SliderAdjRangeInput m_DomainMaxEdgeLen;
+    SliderAdjRangeInput m_DomainMaxGap;
+    SliderAdjRangeInput m_DomainNumCircleSegments;
+
+    //Far Field Type Items
+    RadioButton m_FarFieldTypeComponent;
+    RadioButton m_FarFieldTypeBox;
+
+    Choice m_ComponentChoice;
+
+    //Size
+    ToggleButton m_DomainRel;
+    ToggleButton m_DomainAbs;
+
+    SliderAdjRange2Input m_DomainLength;
+    SliderAdjRange2Input m_DomainWidth;
+    SliderAdjRange2Input m_DomainHeight;
+
+    //Location
+    ToggleButton m_DomainCen;
+    ToggleButton m_DomainMan;
+
+    SliderAdjRangeInput m_DomainXLoc;
+    SliderAdjRangeInput m_DomainYLoc;
+    SliderAdjRangeInput m_DomainZLoc;
+
+    //===== Wake Tab Items =====//
+
+    SliderAdjRangeInput m_ScaleWake;
+    SliderAdjRangeInput m_WakeAngle;
+
+    Choice m_Comp;
+
+    ToggleButton m_AddWake;
+
+    //===== Console Items =====//
+
+    Fl_Text_Display *m_ConsoleDisplay;
+    Fl_Text_Buffer *m_ConsoleBuffer;
+
+    TriggerButton m_MeshAndExport;
 
 private:
 
-    Fl_Text_Buffer m_TextBuffer;
+    void CreateGlobalTab();
+    void CreateDisplayTab();
+    void CreateOutputTab();
+    void CreateSourcesTab();
+    void CreateDomainTab();
+    void CreateWakesTab();
 
-    ToggleButton m_DrawMeshButton;
-    ToggleButton m_DrawSourceButton;
-    ToggleButton m_DrawFarButton;
-    ToggleButton m_DrawFarPreButton;
-    ToggleButton m_DrawBadButton;
-    ToggleButton m_DrawSymmButton;
-    ToggleButton m_DrawWakeButton;
-    ToggleButton m_DrawTagsButton;
+    void UpdateGlobalTab();
+    void UpdateDisplayTab();
+    void UpdateOutputTab();
+    void UpdateSourcesTab(BaseSource* source);
+    void UpdateDomainTab();
+    void UpdateWakesTab();
 
-    ToggleButton m_DatToggleButton;
-    ToggleButton m_KeyToggleButton;
-    ToggleButton m_ObjToggleButton;
-    ToggleButton m_PolyToggleButton;
-    ToggleButton m_StlToggleButton;
-    ToggleButton m_StlMultiSolidToggleButton;
-    ToggleButton m_TriToggleButton;
-    ToggleButton m_GmshToggleButton;
-    ToggleButton m_SrfToggleButton;
-    ToggleButton m_TkeyToggleButton;
+    void GuiDeviceGlobalTabCallback( GuiDevice* device );
+    void GuiDeviceDisplayTabCallback( GuiDevice* device );
+    void GuiDeviceOutputTabCallback( GuiDevice* device );
+    void GuiDeviceSourcesTabCallback( GuiDevice* device );
+    void GuiDeviceDomainTabCallback( GuiDevice* device );
+    void GuiDeviceWakesTabCallback( GuiDevice* device );
 
-    ToggleButton m_IntersectSubSurfsButton;
-
-    SliderInput m_LengthSlider;
-    SliderInput m_RadiusSlider;
-
-    SliderInput m_Length2Slider;
-    SliderInput m_Radius2Slider;
-
-    SliderInput m_U1Slider;
-    SliderInput m_W1Slider;
-
-    SliderInput m_U2Slider;
-    SliderInput m_W2Slider;
-
-    SliderInput m_BodyEdgeSizeSlider;
-    SliderInput m_MinEdgeSizeSlider;
-    SliderInput m_MaxGapSizeSlider;
-    SliderInput m_NumCircSegmentSlider;
-    SliderInput m_GrowRatioSlider;
-
-    SliderInput m_FarXScaleSlider;
-    SliderInput m_FarYScaleSlider;
-    SliderInput m_FarZScaleSlider;
-
-//  FractParmSlider m_FarXScaleSlider;
-//  FractParmSlider m_FarYScaleSlider;
-//  FractParmSlider m_FarZScaleSlider;
-
-    SliderInput m_FarXLocationSlider;
-    SliderInput m_FarYLocationSlider;
-    SliderInput m_FarZLocationSlider;
-
-    SliderInput m_FarEdgeLengthSlider;
-    SliderInput m_FarGapSizeSlider;
-    SliderInput m_FarCircSegmentSlider;
-
-    SliderInput m_WakeScaleSlider;
-    SliderInput m_WakeAngleSlider;
+    Vehicle* m_Vehicle;
 
     vector< string > m_GeomVec;
     vector< string > m_WingGeomVec;
 
-    Vehicle* m_Vehicle;
-    CFDMeshUI* m_CfdMeshUI;
 };
 
-#endif
+#endif //CFDMESHSCREEN_H
