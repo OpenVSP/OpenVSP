@@ -2454,9 +2454,9 @@ vector< Surf* > CfdMeshMgrSingleton::CreateDomainSurfs()
     innerTopLeft = vec3d(corners[5][0], outerTopLeft[1], corners[5][2]);
 
     //Checks to see if inner plane is outside of outer plane
-    if (GetCfdSettingsPtr()->GetFarManLocFlag() &&
-        innerBottomLeft.x() < outerBottomLeft.x() || innerBottomRight.x() > outerBottomRight.x()
-        || innerTopLeft.z() > outerTopLeft.z() ||  innerBottomLeft.z() < outerBottomLeft.z())
+    if ((innerBottomLeft.x() < outerBottomLeft.x() || innerBottomRight.x() > outerBottomRight.x()
+            || innerTopLeft.z() > outerTopLeft.z() ||  innerBottomLeft.z() < outerBottomLeft.z())
+        && GetCfdSettingsPtr()->GetFarManLocFlag())
     {
         isInside = false;
     }
@@ -4412,6 +4412,15 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     m_BBoxLinesDO.m_Visible = GetCfdSettingsPtr()->m_DrawFarPreFlag.Get() && GetCfdSettingsPtr()->GetFarMeshFlag();
     draw_obj_vec.push_back( &m_BBoxLinesDO );
 
+    //Symmetry Splitting
+    m_BBoxLineStripSymSplit.m_Visible = GetCfdSettingsPtr()->m_DrawFarPreFlag.Get()
+                                        && GetCfdSettingsPtr()->GetFarMeshFlag()
+                                        && GetCfdSettingsPtr()->GetSymSplittingOnFlag()
+                                        && !GetCfdSettingsPtr()->GetFarCompFlag();
+    draw_obj_vec.push_back( &m_BBoxLineStripSymSplit );
+    m_BBoxLineSymSplit.m_Visible = m_BBoxLineStripSymSplit.m_Visible;
+    draw_obj_vec.push_back( &m_BBoxLineSymSplit );
+
     // Render Tag Colors
     int num_tags = SubSurfaceMgr.GetNumTags();
     m_TagDO.resize( num_tags );
@@ -4930,6 +4939,102 @@ void CfdMeshMgrSingleton::UpdateBBoxDO( BndBox box )
     m_BBoxLinesDO.m_LineWidth = 1.0;
     m_BBoxLinesDO.m_LineColor = vec3d( 0, 200.0 / 255, 0 );
     m_BBoxLinesDO.m_PntVec = lines;
+
+    //===== Symmetry Plane Splitting Lines =====//
+    if ( GetCfdSettingsPtr()->GetSymSplittingOnFlag() )
+    {
+        UpdateBBoxDOSymSplit( box );
+    }
+}
+
+void CfdMeshMgrSingleton::UpdateBBoxDOSymSplit( BndBox box )
+{
+    vec3d temp = vec3d( box.GetMin( 0 ), box.GetMin( 1 ), box.GetMin( 2 ) );
+    vector< vec3d > symLinestrip, symLine;
+    vec3d outerBottomRight, outerBottomLeft, outerTopRight, outerTopLeft;
+    vec3d innerBottomRight, innerBottomLeft, innerTopRight, innerTopLeft;
+    vector<vec3d> corners;
+    BndBox vehicleBBox = m_Vehicle->GetBndBox();
+    double min = GetCfdSettingsPtr()->m_FarXScale.Get();
+    double scale = 2.0;
+
+    //Grab the minimum of the two scales
+    if (GetCfdSettingsPtr()->m_FarZScale.Get() < min)
+    {
+        min = GetCfdSettingsPtr()->m_FarZScale.Get();
+    }
+
+    //Makes center plane smaller if outer plane smaller than inner
+    //Currently min can be set to 1.0 (the size of the BBox)
+    if (min < scale)
+    {
+        scale = (min + 1.0)/2.0;
+    }
+
+    vehicleBBox.Scale(vec3d(scale, scale, scale));
+    corners = vehicleBBox.GetCornerPnts();
+    vehicleBBox.Reset();
+
+    //Symmetry Plane Vertices
+    outerBottomRight = m_Domain.GetCornerPnt(1);
+    outerBottomLeft = m_Domain.GetCornerPnt(0);
+    outerTopRight = m_Domain.GetCornerPnt(5);
+    outerTopLeft = m_Domain.GetCornerPnt(4);
+    innerBottomRight = vec3d(corners[2][0], outerBottomRight[1], corners[2][2]);
+    innerBottomLeft = vec3d(corners[1][0], outerBottomLeft[1], corners[1][2]);
+    innerTopRight = vec3d(corners[6][0], outerTopRight[1], corners[6][2]);
+    innerTopLeft = vec3d(corners[5][0], outerTopLeft[1], corners[5][2]);
+
+    //Checks to see if inner plane is outside of outer plane
+    if (!((innerBottomLeft.x() < outerBottomLeft.x() || innerBottomRight.x() > outerBottomRight.x()
+         || innerTopLeft.z() > outerTopLeft.z() ||  innerBottomLeft.z() < outerBottomLeft.z())
+        && GetCfdSettingsPtr()->GetFarManLocFlag()))
+    {
+        //=== Symmetry Plane InnerBox as 'line strips' ===//
+        temp = innerBottomLeft;
+        symLinestrip.push_back( temp );
+        temp = innerTopLeft;
+        symLinestrip.push_back( temp );
+        temp = innerTopRight;
+        symLinestrip.push_back( temp );
+        temp = innerBottomRight;
+        symLinestrip.push_back( temp );
+        temp = innerBottomLeft;
+        symLinestrip.push_back( temp );
+
+        //=== Symmetry Plane Lines from outer to inner as 'lines' ===//
+        temp = outerTopLeft;
+        symLine.push_back( temp );
+        temp = innerTopLeft;
+        symLine.push_back( temp );
+
+        temp = outerBottomLeft;
+        symLine.push_back( temp );
+        temp = innerBottomLeft;
+        symLine.push_back( temp );
+
+        temp = outerTopRight;
+        symLine.push_back( temp );
+        temp = innerTopRight;
+        symLine.push_back( temp );
+
+        temp = outerBottomRight;
+        symLine.push_back( temp );
+        temp = innerBottomRight;
+        symLine.push_back( temp );
+    }
+
+    m_BBoxLineStripSymSplit.m_GeomID = GetID() + "BBOXLS1";
+    m_BBoxLineStripSymSplit.m_Type = DrawObj::VSP_LINE_STRIP;
+    m_BBoxLineStripSymSplit.m_LineWidth = 1.0;
+    m_BBoxLineStripSymSplit.m_LineColor = vec3d(0, 200.0 / 255, 0);
+    m_BBoxLineStripSymSplit.m_PntVec = symLinestrip;
+
+    m_BBoxLineSymSplit.m_GeomID = GetID() + "BBOXL1";
+    m_BBoxLineSymSplit.m_Type = DrawObj::VSP_LINES;
+    m_BBoxLineSymSplit.m_LineWidth = 1.0;
+    m_BBoxLineSymSplit.m_LineColor = vec3d(0, 200.0 / 255, 0);
+    m_BBoxLineSymSplit.m_PntVec = symLine;
 }
 
 /*

@@ -364,6 +364,7 @@ protected:
     * Update Bounding Box DrawObjs.
     */
     virtual void UpdateBBoxDO( BndBox box );
+    virtual void UpdateBBoxDOSymSplit( BndBox box );
 
     Vehicle* m_Vehicle;
 
@@ -415,6 +416,8 @@ private:
     DrawObj m_MeshBadTriDO;
     DrawObj m_BBoxLineStripDO;
     DrawObj m_BBoxLinesDO;
+    DrawObj m_BBoxLineStripSymSplit;
+    DrawObj m_BBoxLineSymSplit;
     vector< DrawObj > m_TagDO;
 };
 
