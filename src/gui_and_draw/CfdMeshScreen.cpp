@@ -15,7 +15,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CfdMeshScreen::CfdMeshScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 603, "CFD Mesh", 150 )
+CfdMeshScreen::CfdMeshScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 622, "CFD Mesh", 150 )
 {
     m_Vehicle = m_ScreenMgr->GetVehiclePtr();
 
@@ -356,6 +356,10 @@ void CfdMeshScreen::CreateDomainTab()
 
     m_FarParametersLayout.AddSubGroupLayout(m_FarBoxLayout, m_FarParametersLayout.GetRemainX(),
                                             m_FarParametersLayout.GetRemainY());
+
+    //=== Symmetry Plane Splitting Toggle Button ===//
+    m_FarBoxLayout.AddButton(m_SymPlaneSplit, "Symmetry Plane Splitting");
+    m_FarBoxLayout.AddYGap();
 
     //=== Size Area ===//
     m_FarBoxLayout.SetFitWidthFlag( true );
@@ -723,6 +727,9 @@ void CfdMeshScreen::UpdateDomainTab()
     m_DomainMaxEdgeLen.Update( CfdMeshMgr.GetGridDensityPtr()->m_FarMaxLen.GetID() );
     m_DomainMaxGap.Update( CfdMeshMgr.GetGridDensityPtr()->m_FarMaxGap.GetID() );
     m_DomainNumCircleSegments.Update( CfdMeshMgr.GetGridDensityPtr()->m_FarNCircSeg.GetID() );
+
+    //===== Symmetry Plane Toggle Update =====//
+    m_SymPlaneSplit.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_SymSplittingOnFlag.GetID() );
 
     //Last parameter set to null because Abs functionality currently not available
     m_DomainLength.Update( 1, CfdMeshMgr.GetCfdSettingsPtr()->m_FarXScale.GetID(), "" );

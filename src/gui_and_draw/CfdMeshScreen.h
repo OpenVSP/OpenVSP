@@ -168,6 +168,9 @@ protected:
 
     Choice m_ComponentChoice;
 
+    //Symmetry Plane Splitting
+    ToggleButton m_SymPlaneSplit;
+
     //Size
     ToggleButton m_DomainRel;
     ToggleButton m_DomainAbs;
