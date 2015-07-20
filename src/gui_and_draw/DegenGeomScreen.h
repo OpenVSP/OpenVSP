@@ -5,43 +5,59 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(VSPDEGENGEOMSCREEN__INCLUDED_)
-#define VSPDEGENGEOMSCREEN__INCLUDED_
+#ifndef DEGENGEOMSCREEN_H
+#define DEGENGEOMSCREEN_H
 
 #include "ScreenBase.h"
+#include "ScreenMgr.h"
 #include "GuiDevice.h"
 
-#include <FL/Fl.H>
-#include "degenGeomFlScreen.h"
+using namespace std;
 
-using std::string;
-using std::vector;
-
-class DegenGeomScreen : public VspScreen
+class DegenGeomScreen : public BasicScreen
 {
 public:
-
-    DegenGeomScreen( ScreenMgr* mgr );
+    DegenGeomScreen( ScreenMgr * mgr );
     virtual ~DegenGeomScreen();
+
     void Show();
     void Hide();
     bool Update();
-    void LoadSetChoice();
 
-    void CallBack( Fl_Widget *w );
+    virtual void GuiDeviceCallBack( GuiDevice* device );
+
+    virtual void CallBack( Fl_Widget* w );
+    virtual void CloseCallBack( Fl_Widget *w );
     static void staticScreenCB( Fl_Widget *w, void* data )
     {
         ( ( DegenGeomScreen* )data )->CallBack( w );
     }
 
+    void LoadDrawObjs(vector< DrawObj* > & draw_obj_vec);
+    void LoadSetChoice();
+
 protected:
 
-    DegenGeomUI* m_DegenGeomUI;
-    Fl_Text_Buffer* m_textBuffer;
-
     int m_SelectedSetIndex;
+
+    GroupLayout m_MainLayout;
+    GroupLayout m_BorderLayout;
+
+    ToggleButton m_CsvToggle;
+    ToggleButton m_MToggle;
+
+    StringOutput m_CsvOutput;
+    StringOutput m_MOutput;
+
+    TriggerButton m_CsvSelect;
+    TriggerButton m_MSelect;
+
+    Fl_Text_Display* m_TextDisplay;
+    Fl_Text_Buffer* m_TextBuffer;
+
+    Choice m_UseSet;
+
+    TriggerButton m_Execute;
+
 };
-
-
-#endif
-
+#endif //DEGENGEOMSCREEN_H

@@ -6,135 +6,171 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "DegenGeomScreen.h"
-#include "ScreenMgr.h"
-#include "EventMgr.h"
+#include "CfdMeshMgr.h"
 #include "Vehicle.h"
-#include "StlHelper.h"
-#include "APIDefines.h"
-#include <assert.h>
 
-DegenGeomScreen::DegenGeomScreen( ScreenMgr* mgr ) : VspScreen( mgr )
+DegenGeomScreen::DegenGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 375, 365, "Degen Geom - Compute Models, File IO" )
 {
-    DegenGeomUI* ui = m_DegenGeomUI = new DegenGeomUI();
+    m_FLTK_Window->callback( staticCloseCB, this );
+    m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
 
-    m_FLTK_Window = ui->UIWindow;
-    m_textBuffer = new Fl_Text_Buffer();
+    m_MainLayout.ForceNewLine();
+    m_MainLayout.AddY(7);
+    m_MainLayout.AddX(5);
 
-    ui->setChoice->callback( staticScreenCB, this );
-    ui->csvFileButton->callback( staticScreenCB, this );
-    ui->csvFileChooseButton->callback( staticScreenCB, this );
-    ui->computeButton->callback( staticScreenCB, this );
-    ui->outputTextDisplay->callback( staticScreenCB, this );
-    ui->mFileButton->callback( staticScreenCB, this );
-    ui->mFileChooseButton->callback( staticScreenCB, this );
-    ui->outputTextDisplay->buffer( m_textBuffer );
+    m_MainLayout.AddSubGroupLayout( m_BorderLayout, m_MainLayout.GetRemainX() - 5.0,
+                                    m_MainLayout.GetRemainY() - 5.0);
+
+    m_BorderLayout.AddDividerBox("File Export");
+    m_BorderLayout.AddYGap();
+
+    m_BorderLayout.SetFitWidthFlag( false );
+    m_BorderLayout.SetSameLineFlag( true );
+
+    m_BorderLayout.SetButtonWidth(50);
+    m_BorderLayout.SetInputWidth(265);
+
+    m_BorderLayout.AddButton(m_CsvToggle, ".csv");
+    m_BorderLayout.AddOutput(m_CsvOutput);
+    m_BorderLayout.AddButton(m_CsvSelect, "...");
+    m_BorderLayout.ForceNewLine();
+    m_BorderLayout.AddYGap();
+
+    m_BorderLayout.AddButton(m_MToggle, ".m");
+    m_BorderLayout.AddOutput(m_MOutput);
+    m_BorderLayout.AddButton(m_MSelect, "...");
+    m_BorderLayout.ForceNewLine();
+    m_BorderLayout.AddYGap();
+
+    m_BorderLayout.SetFitWidthFlag( true );
+    m_BorderLayout.SetSameLineFlag( false );
+
+    m_TextDisplay = m_BorderLayout.AddFlTextDisplay( 235 );
+    m_TextDisplay->color( 23 );
+    m_TextDisplay->textcolor( 32 );
+    m_TextDisplay->textfont( 4 );
+    m_TextDisplay->textsize( 12 );
+    m_TextBuffer = new Fl_Text_Buffer;
+    m_TextDisplay->buffer( m_TextBuffer );
+    m_BorderLayout.AddYGap();
+
+    m_BorderLayout.SetFitWidthFlag( true );
+    m_BorderLayout.SetSameLineFlag( true );
+
+    m_BorderLayout.SetButtonWidth(m_BorderLayout.GetRemainX() / 2.0 - 5.0);
+    m_BorderLayout.SetChoiceButtonWidth(50);
+    m_BorderLayout.AddChoice(m_UseSet, "Set:", m_BorderLayout.GetRemainX() / 2.0);
+    m_BorderLayout.AddX(5);
+    m_BorderLayout.SetFitWidthFlag( false );
+    m_BorderLayout.AddButton(m_Execute, "Execute");
 
     m_SelectedSetIndex = 0;
 }
 
-bool DegenGeomScreen::Update()
+DegenGeomScreen::~DegenGeomScreen()
 {
-    Vehicle* vehiclePtr = m_ScreenMgr->GetVehiclePtr();
-    LoadSetChoice();
-
-    if ( vehiclePtr->getExportDegenGeomCsvFile() )
-    {
-    	m_DegenGeomUI->csvFileButton->value( 1 );
-    }
-    else
-    {
-    	m_DegenGeomUI->csvFileButton->value( 0 );
-    }
-
-    if ( vehiclePtr->getExportDegenGeomMFile() )
-    {
-    	m_DegenGeomUI->mFileButton->value( 1 );
-    }
-    else
-    {
-    	m_DegenGeomUI->mFileButton->value( 0 );
-    }
-
-    m_DegenGeomUI->csvFileOutput->value( vehiclePtr->getExportFileName( vsp::DEGEN_GEOM_CSV_TYPE ).c_str() );
-    m_DegenGeomUI->mFileOutput->value( vehiclePtr->getExportFileName( vsp::DEGEN_GEOM_M_TYPE ).c_str() );
-
-    return true;
 }
 
 void DegenGeomScreen::LoadSetChoice()
 {
-	m_DegenGeomUI->setChoice->clear();
+    m_UseSet.ClearItems();
 
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
     vector< string > set_name_vec = veh->GetSetNameVec();
 
-    for ( int i = 0 ; i < ( int )set_name_vec.size() ; i++ )
+    for ( int i = 0 ; i < ( int )set_name_vec.size() ; ++i )
     {
-    	m_DegenGeomUI->setChoice->add( set_name_vec[i].c_str() );
+        m_UseSet.AddItem( set_name_vec[i].c_str() );
     }
 
-    m_DegenGeomUI->setChoice->value( m_SelectedSetIndex );
-}
-
-DegenGeomScreen::~DegenGeomScreen()
-{
-    delete m_textBuffer;
+    m_UseSet.UpdateItems();
+    m_UseSet.SetVal( m_SelectedSetIndex );
 }
 
 void DegenGeomScreen::Show()
 {
-    Update();
+    m_ScreenMgr->SetUpdateFlag( true );
     m_FLTK_Window->show();
 }
 
 void DegenGeomScreen::Hide()
 {
     m_FLTK_Window->hide();
+    m_ScreenMgr->SetUpdateFlag( true );
 }
 
-void DegenGeomScreen::CallBack( Fl_Widget *w )
+bool DegenGeomScreen::Update()
 {
     Vehicle* vehiclePtr = m_ScreenMgr->GetVehiclePtr();
 
-	if ( w == m_DegenGeomUI->csvFileButton )
-	{
-		vehiclePtr->setExportDegenGeomCsvFile( !!m_DegenGeomUI->csvFileButton->value() );
-	}
-	else if ( w == m_DegenGeomUI->csvFileChooseButton )
-	{
-        vehiclePtr->setExportFileName( vsp::DEGEN_GEOM_CSV_TYPE,
-                                       m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select degen geom CSV output file.", "*.csv" ) );
-	}
-	else if ( w == m_DegenGeomUI->mFileButton )
-	{
-		vehiclePtr->setExportDegenGeomMFile( !!m_DegenGeomUI->mFileButton->value() );
-	}
-	else if ( w == m_DegenGeomUI->mFileChooseButton )
-	{
-        vehiclePtr->setExportFileName( vsp::DEGEN_GEOM_M_TYPE,
-                                       m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select degen geom Matlab output file.", "*.m" ) );
-	}
-    else if ( w == m_DegenGeomUI->setChoice )
-    {
-        m_SelectedSetIndex = m_DegenGeomUI->setChoice->value();
-    }
-	else if (w == m_DegenGeomUI->computeButton)
-	{
-		m_DegenGeomUI->outputTextDisplay->buffer()->text("");
-		m_DegenGeomUI->outputTextDisplay->buffer()->append("Computing degenerate geometry...\n");
-		Fl::flush();
-		vehiclePtr->CreateDegenGeom( m_SelectedSetIndex );
-		m_DegenGeomUI->outputTextDisplay->buffer()->append("Done!\n");
-		if ( vehiclePtr->getExportDegenGeomCsvFile() || vehiclePtr->getExportDegenGeomMFile() )
-		{
-			m_DegenGeomUI->outputTextDisplay->buffer()->append("--------------------------------\n");
-			m_DegenGeomUI->outputTextDisplay->buffer()->append("\nWriting output...\n");
-			Fl::flush();
-			m_DegenGeomUI->outputTextDisplay->buffer()->append( vehiclePtr->WriteDegenGeomFile().c_str() );
-		}
-	}
+    LoadSetChoice();
+
+    //===== Update File Toggle Buttons =====//
+    m_CsvToggle.Update( vehiclePtr->m_exportDegenGeomCsvFile.GetID() );
+    m_MToggle.Update( vehiclePtr->m_exportDegenGeomMFile.GetID() );
+
+    //===== Update File Output Text =====//
+    m_CsvOutput.Update( vehiclePtr->getExportFileName( vsp::COMP_GEOM_CSV_TYPE ).c_str() );
+    m_MOutput.Update( vehiclePtr->getExportFileName( vsp::DEGEN_GEOM_M_TYPE ).c_str() );
+
+    m_FLTK_Window->redraw();
+    return false;
+}
+
+// Callback for Link Browser
+void DegenGeomScreen::CallBack( Fl_Widget* w )
+{
+    assert( m_ScreenMgr );
 
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
+void DegenGeomScreen::CloseCallBack( Fl_Widget *w )
+{
+    Hide();
+}
 
+// Callback for all other GUI Devices
+void DegenGeomScreen::GuiDeviceCallBack( GuiDevice* device )
+{
+    Vehicle* vehiclePtr = m_ScreenMgr->GetVehiclePtr();
+
+    assert( m_ScreenMgr );
+
+    if ( device == &m_CsvSelect )
+    {
+        vehiclePtr->setExportFileName( vsp::DEGEN_GEOM_CSV_TYPE,
+                                       m_ScreenMgr->GetSelectFileScreen()->FileChooser(
+                                               "Select degen geom CSV output file.", "*.csv" ) );
+    }
+    else if ( device == &m_MSelect )
+    {
+        vehiclePtr->setExportFileName( vsp::DEGEN_GEOM_M_TYPE,
+                                       m_ScreenMgr->GetSelectFileScreen()->FileChooser(
+                                               "Select degen geom Matlab output file.", "*.m" ) );
+    }
+    else if ( device == &m_UseSet )
+    {
+        m_SelectedSetIndex = m_UseSet.GetVal();
+    }
+    else if ( device == &m_Execute )
+    {
+        m_TextDisplay->buffer()->text("");
+        m_TextDisplay->buffer()->append("Computing degenerate geometry...\n");
+        Fl::flush();
+
+        vehiclePtr->CreateDegenGeom( m_SelectedSetIndex );
+        m_TextDisplay->buffer()->append("Done!\n");
+
+        if ( vehiclePtr->getExportDegenGeomCsvFile() || vehiclePtr->getExportDegenGeomMFile() )
+        {
+            m_TextDisplay->buffer()->append("--------------------------------\n");
+			m_TextDisplay->buffer()->append("\nWriting output...\n");
+			Fl::flush();
+
+			m_TextDisplay->buffer()->append( vehiclePtr->WriteDegenGeomFile().c_str() );
+        }
+    }
+
+    m_ScreenMgr->SetUpdateFlag( true );
+}

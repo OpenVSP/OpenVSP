@@ -11,7 +11,6 @@ aboutScreen.fl
 awaveFlScreen.fl
 backgroundScreen.fl
 curveEditFlScreen.fl
-degenGeomFlScreen.fl
 exportFileScreen.fl
 feaStructFlScreen.fl
 geomBrowserScreen.fl
