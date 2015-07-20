@@ -19,7 +19,7 @@
 //#define DEFAULT_PLANE_TOL (0.0002)
 //jrg 8/25/2010
 //#define DEFAULT_PLANE_TOL (0.0002)
-#define DEFAULT_PLANE_TOL (0.00001)
+#define DEFAULT_PLANE_TOL (1.0e-5)
 
 #include <assert.h>
 #include <math.h>

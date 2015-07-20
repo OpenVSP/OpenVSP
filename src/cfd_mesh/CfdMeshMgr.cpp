@@ -1685,9 +1685,9 @@ void CfdMeshMgrSingleton::WriteTetGen( const string &filename )
         vector< vec3d > tmpPntVec;
         for ( int i = 0 ; i < ( int )interiorPntVec.size() ; i++ )
         {
-            if ( fabs( interiorPntVec[i].y() ) < 0.0001 )
+            if ( fabs( interiorPntVec[i].y() ) < 1.0e-4 )
             {
-                interiorPntVec[i].set_y( 0.00001 );
+                interiorPntVec[i].set_y( 1.0e-5 );
             }
 
             if ( interiorPntVec[i].y() > 0.0 )
@@ -3710,7 +3710,7 @@ void CfdMeshMgrSingleton::MergeBorderEndPoints()
         }
     }
 
-    double tol_fract = 0.01;
+    double tol_fract = 1.0e-2;
     MergeIPntGroups( iPntGroupList, tol_fract );
 
     //==== Merge Ipnts In Groups ====//
@@ -3857,7 +3857,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
             }
 
             vec3d cp = ( *t )->ComputeCenterPnt( m_SurfVec[s] );
-            vec3d ep = cp + vec3d( x_dist, 0.0001, 0.0001 );
+            vec3d ep = cp + vec3d( x_dist, 1.0e-4, 1.0e-4 );
 
             for ( int i = 0 ; i < ( int )m_SurfVec.size() ; ++i )
             {
@@ -4003,7 +4003,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
                 for ( t = triList.begin() ; t != triList.end(); t++ )
                 {
                     vec3d cp = ( *t )->ComputeCenterPnt( m_SurfVec[s] );
-                    if ( cp[1] < -0.0000000001 )
+                    if ( cp[1] < -1.0e-10 )
                     {
                         ( *t )->interiorFlag = true;
                     }
@@ -4082,7 +4082,7 @@ void CfdMeshMgrSingleton::ConnectBorderEdges( bool wakeOnly )
         box.Update( ( *e )->n1->pnt );
     }
 
-    double slop = 0.00001;
+    double slop = 1.0e-5;
     double min_x = box.GetMin( 0 ) - slop;
     double min_y = box.GetMin( 1 ) - slop;
     double min_z = box.GetMin( 2 ) - slop;

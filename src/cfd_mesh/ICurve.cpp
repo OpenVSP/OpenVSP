@@ -23,7 +23,7 @@ ICurve::~ICurve()
 
 bool ICurve::Match( SCurve* crv_A, SCurve* crv_B )
 {
-    double tol = 0.00001;
+    double tol = 1.0e-5;
 
     Bezier_curve xyzcrvA = crv_A->GetUWCrv();
     xyzcrvA.UWCurveToXYZCurve( crv_A->GetSurf() );

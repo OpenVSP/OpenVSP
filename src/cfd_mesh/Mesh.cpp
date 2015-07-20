@@ -312,7 +312,7 @@ void Mesh::StretchSimpPnts( double start_x, double end_x, double scale, double a
 
 int Mesh::CheckDupOrAdd( int ind, map< int, vector< int > > & indMap, vector< vec3d > & pntVec )
 {
-    double tol = 0.00000001;
+    double tol = 1.0e-8;
     int combind = ( int )( ( pntVec[ind].x() + pntVec[ind].y() + pntVec[ind].z() ) * 10000.0 );
     map<int, vector<int> >::const_iterator iter;
     iter = indMap.find( combind );
@@ -488,7 +488,7 @@ Node* Mesh::FindNode( const vec3d& p )
     list< Node* >::iterator n;
     for ( n = nodeList.begin() ; n != nodeList.end(); n++ )
     {
-        if ( !( *n )->m_DeleteMeFlag && dist_squared( ( *n )->pnt, p ) < 0.0000001 )
+        if ( !( *n )->m_DeleteMeFlag && dist_squared( ( *n )->pnt, p ) < 1.0e-7 )
         {
             return ( *n );
         }
@@ -1539,9 +1539,9 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
     double fudgefactor = 4.0;
     double uw_tri_area = fudgefactor * uw_area / est_num_tris;
 
-    if ( uw_tri_area < 0.0001 )
+    if ( uw_tri_area < 1.0e-4 )
     {
-        uw_tri_area = 0.0001;
+        uw_tri_area = 1.0e-4;
     }
 
     sprintf( str, "zpYYQa%8.6fq20", uw_tri_area );

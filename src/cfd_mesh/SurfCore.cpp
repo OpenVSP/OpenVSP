@@ -298,7 +298,7 @@ bool SurfCore::LessThanY( double val ) const
 
 bool SurfCore::PlaneAtYZero() const
 {
-    double tol = 0.000001;
+    double tol = 1.0e-6;
 
     piecewise_surface_type::index_type ip, jp, nupatch, nvpatch;
     nupatch = m_Surface.number_u_patches();
@@ -485,7 +485,7 @@ bool SurfCore::MatchThisOrientation( const piecewise_surface_type &osurf ) const
 {
     int ip, jp, nupatch, nvpatch, onupatch, onvpatch;
 
-    double tol = 0.00000001;
+    double tol = 1.0e-8;
 
     nupatch = m_Surface.number_u_patches();
     onupatch = osurf.number_u_patches();

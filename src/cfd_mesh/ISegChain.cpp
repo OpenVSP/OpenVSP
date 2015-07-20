@@ -59,7 +59,7 @@ IPnt* IPntBin::Match( IPnt* ip, map< int, IPntBin > & binMap )
     }
 
     //==== Find Closest IPnt ====//
-    double tol = 0.000001 * 0.000001;
+    double tol = 1.0e-6 * 1.0e-6;
     double close_d = 1.0e12;
 
     for ( int i = 0 ; i < ( int )compareIPntVec.size() ; i++ )
@@ -854,7 +854,7 @@ void ISegChain::AddBorderSplit( IPnt* ip, Puw* uw )
 {
 
 //  double tol = 0.000001;
-    double tol = 0.001;
+    double tol = 1.0e-3;
     Surf* surfPtr = uw->m_Surf;
 
     int closest_index;
@@ -888,7 +888,7 @@ void ISegChain::AddBorderSplit( IPnt* ip, Puw* uw )
                 vec3d p0 = surfPtr->CompPnt( iuw0[0], iuw0[1] );
                 vec3d p1 = surfPtr->CompPnt( iuw1[0], iuw1[1] );
                 double denom = dist( p0, p1 );
-                if ( denom > 0.0000001 )
+                if ( denom > 1.0e-7 )
                 {
                     closest_fract = dist( p0, proj3d ) / denom;
                 }
@@ -981,7 +981,7 @@ void ISegChain::MergeSplits()
     }
 
 //  double tol = 0.01;
-    double tol = 0.000001;
+    double tol = 1.0e-6;
     vector < vector< ISegSplit* > > mergedVec;
     for (  i = 0 ; i < ( int )m_SplitVec.size() ; i++ )
     {
@@ -1017,7 +1017,7 @@ void ISegChain::MergeSplits()
 
 void ISegChain::RemoveChainEndSplits()
 {
-    double tol = 0.0000001;
+    double tol = 1.0e-7;
 
     Puw* frontPuwA = m_ISegDeque.front()->m_IPnt[0]->GetPuw( m_SurfA );
     Puw* frontPuwB = m_ISegDeque.front()->m_IPnt[0]->GetPuw( m_SurfB );

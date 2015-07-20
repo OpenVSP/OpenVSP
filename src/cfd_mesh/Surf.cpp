@@ -464,7 +464,7 @@ vec2d Surf::ClosestUW( vec3d & pnt_in, double guess_u, double guess_w ) const
 
 void Surf::FindBorderCurves()
 {
-    double degen_tol = 0.000001;
+    double degen_tol = 1.0e-6;
 
     //==== Load 4 Border Curves if Not Degenerate ====//
     SCurve* scrv;
@@ -559,7 +559,7 @@ void Surf::BuildGrid()
             if ( uw_border.size() )         // Check For Duplicate Points
             {
                 double d = dist( uw_border.back(), suw_vec[j] );
-                if ( d > 0.0000001 )
+                if ( d > 1.0e-7 )
                 {
                     uw_border.push_back( suw_vec[j] );
                 }
@@ -669,7 +669,7 @@ void Surf::IntersectLineSegMesh( vec3d & p0, vec3d & p1, vector< double > & t_va
             int dupFlag = 0;
             for ( int j = 0 ; j < ( int )t_vals.size() ; j++ )
             {
-                if ( fabs( tparm - t_vals[j] ) < 0.0000001 )
+                if ( fabs( tparm - t_vals[j] ) < 1.0e-7 )
                 {
                     dupFlag = 1;
                     break;
@@ -856,7 +856,7 @@ void Surf::InitMesh( vector< ISegChain* > chains )
             }
         }
 
-        if ( min_dist < 0.0001 )
+        if ( min_dist < 1.0e-4 )
         {
             ( *ip )->m_Index = min_id;
         }
@@ -1008,7 +1008,7 @@ void Surf::BuildDistMap()
     }
     if ( maxUDist < DBL_EPSILON )
     {
-        maxUDist = 0.000000001;
+        maxUDist = 1.0e-9;
     }
 
     //==== Find W Dists ====//
@@ -1031,7 +1031,7 @@ void Surf::BuildDistMap()
 
     if ( maxWDist < DBL_EPSILON )
     {
-        maxWDist = 0.000000001;
+        maxWDist = 1.0e-9;
     }
 
 
@@ -1042,9 +1042,9 @@ void Surf::BuildDistMap()
     {
         m_UScaleMap[i] = wu_ratio * ( uDistVec[i] / maxWDist );
 
-        if ( m_UScaleMap[i] < 0.00001 )
+        if ( m_UScaleMap[i] < 1.0e-5 )
         {
-            m_UScaleMap[i] = 0.00001;
+            m_UScaleMap[i] = 1.0e-5;
         }
     }
 
@@ -1055,9 +1055,9 @@ void Surf::BuildDistMap()
     {
         m_WScaleMap[i] = uw_ratio * ( wDistVec[i] / maxUDist );
 
-        if ( m_WScaleMap[i] < 0.00001 )
+        if ( m_WScaleMap[i] < 1.0e-5 )
         {
-            m_WScaleMap[i] = 0.00001;
+            m_WScaleMap[i] = 1.0e-5;
         }
     }
 
@@ -1194,7 +1194,7 @@ double Surf::GetWScale( double u01 )      // u 0->1
 bool Surf::ValidUW( vec2d & uw )
 {
     //return true;
-    double slop = 0.0001;
+    double slop = 1.0e-4;
     if ( uw[0] < -slop )
     {
         return false;

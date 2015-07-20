@@ -21,7 +21,7 @@ int is_dup_int_pnt( int ni, vec3d int_pnt[2], vec3d& temp_pnt )
         return( 0 );
     }
 
-    double Dist_Tol = 0.00000001;
+    double Dist_Tol = 1.0e-8;
 //jrg 8/25/2010
 //  double Dist_Tol = 0.0000000001;
 
