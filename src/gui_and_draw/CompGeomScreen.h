@@ -5,45 +5,64 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(VSPCOMPGEOMSCREEN__INCLUDED_)
-#define VSPCOMPGEOMSCREEN__INCLUDED_
+#ifndef COMPGEOMSCREEN_H
+#define COMPGEOMSCREEN_H
 
 #include "ScreenBase.h"
+#include "ScreenMgr.h"
 #include "GuiDevice.h"
 
-#include <FL/Fl.H>
-#include "compGeomFlScreen.h"
+using namespace std;
 
-using std::string;
-using std::vector;
-
-class CompGeomScreen : public VspScreen
+class CompGeomScreen : public BasicScreen
 {
 public:
-
-    CompGeomScreen( ScreenMgr* mgr );
+    CompGeomScreen( ScreenMgr * mgr );
     virtual ~CompGeomScreen();
+
     void Show();
     void Hide();
     bool Update();
-    void LoadSetChoice();
 
-    void CallBack( Fl_Widget *w );
+    virtual void GuiDeviceCallBack( GuiDevice* device );
+
+    virtual void CallBack( Fl_Widget* w );
+    virtual void CloseCallBack( Fl_Widget *w );
     static void staticScreenCB( Fl_Widget *w, void* data )
     {
         ( ( CompGeomScreen* )data )->CallBack( w );
     }
 
+    void LoadDrawObjs(vector< DrawObj* > & draw_obj_vec);
+    void LoadSetChoice();
+
 protected:
 
-    CompGeomUI* m_CompGeomUI;
-    Fl_Text_Buffer* m_textBuffer;
-
     int m_SelectedSetIndex;
-    bool m_HalfMesh;
+
+    GroupLayout m_MainLayout;
+    GroupLayout m_BorderLayout;
+
+    ToggleButton m_CsvToggle;
+    ToggleButton m_TsvToggle;
+
+    StringOutput m_TxtOutput;
+    StringOutput m_CsvOutput;
+    StringOutput m_TsvOutput;
+
+    TriggerButton m_TxtSelect;
+    TriggerButton m_CsvSelect;
+    TriggerButton m_TsvSelect;
+
+    Choice m_UseSet;
+
+    ToggleButton m_HalfMesh;
+    ToggleButton m_Subsurfs;
+
+    TriggerButton m_Execute;
+
+    Fl_Text_Display* m_TextDisplay;
+    Fl_Text_Buffer* m_TextBuffer;
 
 };
-
-
-#endif
-
+#endif //COMPGEOMSCREEN_H
