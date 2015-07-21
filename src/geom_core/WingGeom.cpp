@@ -770,10 +770,9 @@ WingGeom::WingGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     //==== rename capping controls for wing specific terminology ====//
     m_CapUMinOption.SetDescript("Type of End Cap on Wing Root");
     m_CapUMinOption.Parm::Set(VspSurf::FLAT_END_CAP);
-    m_CapUMinTess.SetDescript("Number of tessellated curves on Wing Root");
+    m_CapUMinTess.SetDescript("Number of tessellated curves on Wing Root and Tip");
     m_CapUMaxOption.SetDescript("Type of End Cap on Wing Tip");
     m_CapUMaxOption.Parm::Set(VspSurf::FLAT_END_CAP);
-    m_CapUMaxTess.SetDescript("Number of tessellated curves on Wing Tip");
 
     //==== Init Parms ====//
     m_TessU = 16;
@@ -1308,7 +1307,7 @@ void WingGeom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vecto
 
     if (m_CapUMaxOption()!=VspSurf::NO_END_CAP && m_CapUMaxSuccess[ m_SurfIndxVec[indx] ] )
     {
-        tessvec.push_back( m_CapUMaxTess() );
+        tessvec.push_back( m_CapUMinTess() );
     }
 
     m_SurfVec[indx].Tesselate( tessvec, m_TessW(), pnts, norms, uw_pnts );

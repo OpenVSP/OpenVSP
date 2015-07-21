@@ -557,11 +557,8 @@ public:
     IntParm m_CapUMinOption;
     LimIntParm m_CapUMinTess;
     IntParm m_CapUMaxOption;
-    LimIntParm m_CapUMaxTess;
     IntParm m_CapWMinOption;
-    LimIntParm m_CapWMinTess;
     IntParm m_CapWMaxOption;
-    LimIntParm m_CapWMaxTess;
 
     //==== Wake for CFD Mesh ====//
     BoolParm m_WakeActiveFlag;

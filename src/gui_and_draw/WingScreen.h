@@ -42,9 +42,8 @@ protected:
     StringOutput m_PlanAROutput;
 
     Choice m_RootCapTypeChoice;
-    SliderAdjRangeInput m_RootTessSlider;
     Choice m_TipCapTypeChoice;
-    SliderAdjRangeInput m_TipTessSlider;
+    SliderAdjRangeInput m_CapTessSlider;
 
     SliderAdjRangeInput m_IncidenceSlider;
     SliderAdjRangeInput m_IncidenceLocSlider;

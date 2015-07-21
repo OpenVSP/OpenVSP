@@ -45,12 +45,11 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 640, "Wing" )
     m_RootCapTypeChoice.AddItem("None");
     m_RootCapTypeChoice.AddItem("Flat");
     m_PlanLayout.AddChoice(m_RootCapTypeChoice, "Root Cap Type");
-    m_PlanLayout.AddSlider( m_RootTessSlider, "Root Cap Tess", 10, "%3.0f" );
-    m_PlanLayout.AddYGap();
     m_TipCapTypeChoice.AddItem("None");
     m_TipCapTypeChoice.AddItem("Flat");
     m_PlanLayout.AddChoice(m_TipCapTypeChoice, "Tip Cap Type");
-    m_PlanLayout.AddSlider( m_TipTessSlider, "Tip Cap Tess", 10, "%3.0f" );
+    m_PlanLayout.AddYGap();
+    m_PlanLayout.AddSlider( m_CapTessSlider, "Cap Tess", 10, "%3.0f" );
 
     m_PlanLayout.AddYGap();
     m_PlanLayout.AddDividerBox( "Root Incidence" );
@@ -399,22 +398,15 @@ bool WingScreen::Update()
     m_PlanAROutput.Update( str );
 
     m_RootCapTypeChoice.Update( wing_ptr->m_CapUMinOption.GetID() );
-    if ( wing_ptr->m_CapUMinOption() == VspSurf::NO_END_CAP )
-    {
-      m_RootTessSlider.Deactivate();
-    }
-    else
-    {
-      m_RootTessSlider.Update( wing_ptr->m_CapUMinTess.GetID() );
-    }
     m_TipCapTypeChoice.Update( wing_ptr->m_CapUMaxOption.GetID() );
-    if ( wing_ptr->m_CapUMaxOption() == VspSurf::NO_END_CAP )
+    if ( wing_ptr->m_CapUMinOption() == VspSurf::NO_END_CAP &&
+         wing_ptr->m_CapUMaxOption() == VspSurf::NO_END_CAP )
     {
-      m_TipTessSlider.Deactivate();
+        m_CapTessSlider.Deactivate();
     }
     else
     {
-      m_TipTessSlider.Update( wing_ptr->m_CapUMaxTess.GetID() );
+        m_CapTessSlider.Update( wing_ptr->m_CapUMinTess.GetID() );
     }
 
     WingSect* root_sect = dynamic_cast<WingSect*>(wing_ptr->GetXSec( 0 ));
