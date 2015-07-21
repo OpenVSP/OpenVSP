@@ -80,6 +80,9 @@ public:
 
     //===== Tesselate ====//
     void Tesselate( int num_pnts_u, vector< vec3d > & output );
+    void Tesselate( int num_pnts_u, vector< vec3d > & output, vector< double > &uout );
+    void Tesselate( int num_pnts_u, double umin, double umax, vector< vec3d > & output, vector< double > &uout );
+    void Tesselate( const vector< double > &u, vector< vec3d > & output );
 
     void Offset( vec3d offvec );
     void OffsetX( double x );

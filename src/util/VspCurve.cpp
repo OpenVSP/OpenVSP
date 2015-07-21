@@ -754,16 +754,46 @@ double VspCurve::CompLength( double tol )
 //===== Tesselate =====//
 void VspCurve::Tesselate( int num_pnts_u, vector< vec3d > & output )
 {
+    vector< double > uout;
+    Tesselate( num_pnts_u, output, uout );
+}
+
+//===== Tesselate =====//
+void VspCurve::Tesselate( int num_pnts_u, vector< vec3d > & output, vector< double > &uout )
+{
+    Tesselate( num_pnts_u, m_Curve.get_parameter_min(), m_Curve.get_parameter_max(), output, uout );
+}
+
+//===== Tesselate =====//
+void VspCurve::Tesselate( int num_pnts_u, double umin, double umax, vector< vec3d > & output, vector< double > &uout )
+{
     curve_index_type i;
     curve_point_type p;
-    double umin(m_Curve.get_parameter_min()), umax(m_Curve.get_parameter_max()), delta;
+    double delta;
 
     delta = ( umax - umin ) / ( num_pnts_u - 1 );
 
-    output.resize( num_pnts_u );
+    uout.resize( num_pnts_u );
     for ( i = 0; i < num_pnts_u; ++i )
     {
-        p = m_Curve.f( umin + delta * i );
+        double u = umin + delta * i;
+        uout[i] = u;
+    }
+
+    Tesselate( uout, output );
+}
+
+void VspCurve::Tesselate( const vector< double > &u, vector< vec3d > & output )
+{
+    int num_pnts_u = u.size();
+    curve_index_type i;
+    curve_point_type p;
+
+    output.resize( num_pnts_u );
+
+    for ( i = 0; i < num_pnts_u; ++i )
+    {
+        p = m_Curve.f( u[i] );
         output[i].set_xyz( p.x(), p.y(), p.z() );
     }
 }
