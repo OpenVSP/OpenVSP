@@ -422,7 +422,7 @@ void FileAirfoil::Update()
     {
         pnts.push_back( m_LowerPnts[i] );
     }
-    for ( int i = 1 ; i < ( int )m_UpperPnts.size() - 1 ; i++ )
+    for ( int i = 1 ; i < ( int )m_UpperPnts.size(); i++ )
     {
         pnts.push_back( m_UpperPnts[i] );
     }
@@ -461,7 +461,7 @@ void FileAirfoil::Update()
         arclen[i] = 2.0 + ( arclen[i] - lenlower) * upperscale;
     }
 
-    m_Curve.InterpolatePCHIP( pnts, arclen, true );
+    m_Curve.InterpolatePCHIP( pnts, arclen, false );
 
     Matrix4d mat;
     mat.scale( m_Chord() );
@@ -638,10 +638,6 @@ bool FileAirfoil::ReadSeligAirfoil( FILE* file_id )
     {
         m_LowerPnts.push_back( vec3d( xvec[i], yvec[i], 0.0 ) );
     }
-    //==== Close Trailing Edge - Set Last Points ====//
-    vec3d last_pnt = m_UpperPnts.back() + m_LowerPnts.back();
-    m_UpperPnts.back() = last_pnt * 0.5;
-    m_LowerPnts.back() = last_pnt * 0.5;
 
     return true;
 }
@@ -682,11 +678,6 @@ bool FileAirfoil::ReadLednicerAirfoil( FILE* file_id )
         sscanf( buff, "%f %f", &x, &y );
         m_LowerPnts.push_back( vec3d( x, y, 0.0 ) );
     }
-
-    //==== Close Trailing Edge - Set Last Points ====//
-    vec3d last_pnt = m_UpperPnts.back() + m_LowerPnts.back();
-    m_UpperPnts.back() = last_pnt * 0.5;
-    m_LowerPnts.back() = last_pnt * 0.5;
 
     return true;
 }
@@ -742,11 +733,6 @@ bool FileAirfoil::ReadVspAirfoil( FILE* file_id )
             m_LowerPnts.push_back( vec3d( x, y, 0.0 ) );
         }
     }
-
-    //==== Close Trailing Edge - Set Last Points ====//
-    vec3d last_pnt = m_UpperPnts.back() + m_LowerPnts.back();
-    m_UpperPnts.back() = last_pnt * 0.5;
-    m_LowerPnts.back() = last_pnt * 0.5;
 
     return true;
 }
