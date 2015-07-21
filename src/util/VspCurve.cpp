@@ -19,6 +19,7 @@
 #include "eli/geom/curve/length.hpp"
 #include "eli/geom/curve/piecewise_creator.hpp"
 #include "eli/geom/intersect/minimum_distance_curve.hpp"
+#include "eli/geom/intersect/specified_distance_curve.hpp"
 
 typedef piecewise_curve_type::index_type curve_index_type;
 typedef piecewise_curve_type::point_type curve_point_type;
@@ -639,6 +640,17 @@ double VspCurve::GetCurveDt( int i ) const
 void VspCurve::AppendCurveSegment( curve_segment_type &c )
 {
     m_Curve.push_back( c, 1 );
+}
+
+double VspCurve::FindDistant( double &u, const vec3d &pt, const double &d, const double &u0 ) const
+{
+    double dist;
+    curve_point_type p;
+    p << pt.x(), pt.y(), pt.z();
+
+    dist = eli::geom::intersect::specified_distance( u, m_Curve, p, d, u0 );
+
+    return dist;
 }
 
 double VspCurve::FindNearest( double &u, const vec3d &pt ) const

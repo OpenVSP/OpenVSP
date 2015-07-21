@@ -60,6 +60,8 @@ public:
     void SetCurve( const piecewise_curve_type &c );
     void AppendCurveSegment( curve_segment_type &c );
 
+    double FindDistant( double &u, const vec3d &pt, const double &d, const double &u0 ) const;
+
     double FindNearest( double &u, const vec3d &pt ) const;
     double FindNearest( double &u, const vec3d &pt, const double &u0 ) const;
 
