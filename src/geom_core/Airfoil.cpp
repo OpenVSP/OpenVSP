@@ -427,43 +427,38 @@ void FileAirfoil::Update()
         pnts.push_back( m_UpperPnts[i] );
     }
 
+    int num_pnts_lower = m_LowerPnts.size();
+
     vector< double > arclen;
     int npts = pnts.size();
+    arclen.resize( npts );
+    arclen[0] = 0.0;
 
-    int i;
-    for ( i = 0 ; i < npts ; i++ )
+    for ( int i = 1 ; i < npts ; i++ )
     {
-        if ( i > 0 )
+        double ds = dist( pnts[i], pnts[i-1] );
+        if ( ds < 1e-8 )
         {
-            double ds = dist( pnts[i], pnts[i-1] );
-            if ( ds < 1e-8 )
-            {
-                ds = 1.0/npts;
-            }
-            arclen.push_back( arclen[i-1] + ds );
+            ds = 1.0/npts;
         }
-        else
-        {
-            arclen.push_back( 0 );
-        }
-
-        // Calculate arclen to repeated final point.
-        if ( i == npts - 1 )
-        {
-            double ds = dist( pnts[i], pnts[0] );
-            if ( ds < 1e-8 )
-            {
-                ds = 1.0/npts;
-            }
-            arclen.push_back( arclen[i] + ds );
-        }
+        arclen[i] = arclen[i-1] + ds;
     }
 
-    double lenscale = 4.0/arclen.back();
+    int ile = num_pnts_lower - 1;
+    double lenlower = arclen[ile];
+    double lenupper = arclen[npts - 1] - lenlower;
 
-    for ( int i = 0; i < (int)arclen.size(); i++ )
+    double lowerscale = 2.0/lenlower;
+    int i;
+    for ( i = 0; i < ile; i++ )
     {
-        arclen[i] = arclen[i] * lenscale;
+        arclen[i] = arclen[i] * lowerscale;
+    }
+
+    double upperscale = 2.0/lenupper;
+    for ( ; i < npts; i++ )
+    {
+        arclen[i] = 2.0 + ( arclen[i] - lenlower) * upperscale;
     }
 
     m_Curve.InterpolatePCHIP( pnts, arclen, true );
