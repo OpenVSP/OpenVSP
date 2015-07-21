@@ -3710,7 +3710,10 @@ void CfdMeshMgrSingleton::MergeBorderEndPoints()
         }
     }
 
-    double tol_fract = 1.0e-2;
+    // tol_fract previously was compared to the distance between groups as a fraction of the local edge length.
+    // However, it currently is simply compared to the distance between groups.
+    // Consequently, while a reasonable value was previously 1e-2, a much smaller value is now appropriate.
+    double tol_fract = GetGridDensityPtr()->m_MinLen() / 100.0;
     MergeIPntGroups( iPntGroupList, tol_fract );
 
     //==== Merge Ipnts In Groups ====//
