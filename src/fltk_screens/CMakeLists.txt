@@ -10,7 +10,6 @@ testFlScreen.fl
 aboutScreen.fl
 awaveFlScreen.fl
 backgroundScreen.fl
-compGeomFlScreen.fl
 curveEditFlScreen.fl
 degenGeomFlScreen.fl
 exportFileScreen.fl
