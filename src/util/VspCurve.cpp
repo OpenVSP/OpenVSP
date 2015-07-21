@@ -20,6 +20,7 @@
 #include "eli/geom/curve/piecewise_creator.hpp"
 #include "eli/geom/intersect/minimum_distance_curve.hpp"
 #include "eli/geom/intersect/specified_distance_curve.hpp"
+#include "eli/geom/intersect/specified_thickness_curve.hpp"
 
 typedef piecewise_curve_type::index_type curve_index_type;
 typedef piecewise_curve_type::point_type curve_point_type;
@@ -649,6 +650,17 @@ double VspCurve::FindDistant( double &u, const vec3d &pt, const double &d, const
     p << pt.x(), pt.y(), pt.z();
 
     dist = eli::geom::intersect::specified_distance( u, m_Curve, p, d, u0 );
+
+    return dist;
+}
+
+double VspCurve::FindThickness( double &u1, double &u2, const vec3d &pt, const double &thick, const double &u10, const double &u20 ) const
+{
+    double dist;
+    curve_point_type p;
+    p << pt.x(), pt.y(), pt.z();
+
+    dist = eli::geom::intersect::specified_thickness( u1, u2, m_Curve, p, thick, u10, u20 );
 
     return dist;
 }

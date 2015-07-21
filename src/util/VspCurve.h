@@ -61,6 +61,7 @@ public:
     void AppendCurveSegment( curve_segment_type &c );
 
     double FindDistant( double &u, const vec3d &pt, const double &d, const double &u0 ) const;
+    double FindThickness( double &u1, double &u2, const vec3d &pt, const double &thick, const double &u10, const double &u20 ) const;
 
     double FindNearest( double &u, const vec3d &pt ) const;
     double FindNearest( double &u, const vec3d &pt, const double &u0 ) const;
