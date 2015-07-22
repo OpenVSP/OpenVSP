@@ -38,6 +38,7 @@ typedef eli::geom::surface::piecewise_capped_surface_creator<double, 3, surface_
 VspSurf::VspSurf()
 {
     m_FlipNormal = false;
+    m_MagicVParm = false;
     m_SurfType = vsp::NORMAL_SURF;
     m_SurfCfdType = vsp::CFD_NORMAL;
 }
@@ -556,36 +557,10 @@ void VspSurf::FlagDuplicate( VspSurf *othersurf )
     }
 }
 
-//==== Tesselate Surface ====//
-void VspSurf::Tesselate( int num_u, int num_v, vector< vector< vec3d > > & pnts, vector< vector< vec3d > > & norms ) const
+void VspSurf::MakeUTess( const vector<int> &num_u, vector<double> &u ) const
 {
-    std::vector< vector< vec3d > > uw_pnts;
-    Tesselate( num_u, num_v, pnts, norms, uw_pnts );
-}
-
-void VspSurf::Tesselate( int num_u, int num_v, vector< vector< vec3d > > & pnts, vector< vector< vec3d > > & norms, vector< vector< vec3d > > & uw_pnts ) const
-{
-    vector<int> num_u_vec( GetNumSectU(), num_u );
-    Tesselate( num_u_vec, num_v, pnts, norms, uw_pnts );
-}
-
-void VspSurf::Tesselate( const vector<int> &num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms ) const
-{
-    std::vector< vector< vec3d > > uw_pnts;
-    Tesselate( num_u, num_v, pnts, norms, uw_pnts );
-}
-
-void VspSurf::Tesselate( const vector<int> &num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts ) const
-{
-    if( m_Surface.number_u_patches() == 0 || m_Surface.number_v_patches() == 0 )
-    {
-        return;
-    }
-
-    surface_index_type i, j, nu, nv( num_v );
-    double umin, umax, vmin, vmax;
-    std::vector<double> u, v( nv );
-    surface_point_type ptmp, ntmp;
+    surface_index_type i, j, nu;
+    double umin, umax;
 
     const int nusect = GetNumSectU();
 
@@ -602,24 +577,9 @@ void VspSurf::Tesselate( const vector<int> &num_u, int num_v, std::vector< vecto
         }
     }
 
-    // resize pnts and norms
-    pnts.resize( nu );
-    norms.resize( nu );
-    uw_pnts.resize( nu );
-    for ( i = 0; i < nu; ++i )
-    {
-        pnts[i].resize( nv );
-        norms[i].resize( nv );
-        uw_pnts[i].resize( nv );
-    }
-
     // calculate the u and v parameterizations
-    m_Surface.get_parameter_min( umin, vmin );
-    m_Surface.get_parameter_max( umax, vmax );
-    for ( j = 0; j < nv; ++j )
-    {
-        v[j] = vmin + ( vmax - vmin ) * static_cast<double>( j ) / ( nv - 1 );
-    }
+    umin = m_Surface.get_u0();
+    umax = m_Surface.get_umax();
 
     u.resize( nu );
     double uumin( umin );
@@ -645,6 +605,131 @@ void VspSurf::Tesselate( const vector<int> &num_u, int num_v, std::vector< vecto
         }
     }
     u.back() = uumin;
+}
+
+void VspSurf::MakeVTess( int num_v, std::vector<double> &vtess, const int &n_cap, bool degen ) const
+{
+    double vmin, vmax, vabsmin, vabsmax;
+    surface_index_type nv( num_v );
+
+    vmin = m_Surface.get_v0();
+    vmax = m_Surface.get_vmax();
+
+    vabsmin = vmin;
+    vabsmax = vmax;
+
+    double tol = 1e-6;
+
+    if ( IsMagicVParm() ) // V uses 'Magic' values for things like blunted TE.
+    {
+        vmin += TMAGIC;
+        vmax -= TMAGIC;
+
+        vtess.resize(nv);
+        for ( int j = 0; j < nv; ++j )
+        {
+            vtess[j] = vmin + ( vmax - vmin ) * static_cast<double>( j ) / ( nv - 1 );
+        }
+
+        if ( degen ) // DegenGeom, don't tessellate blunt TE.
+        {
+            return;
+        }
+
+        piecewise_curve_type c1, c2;
+        m_Surface.get_vconst_curve( c1, vmin );
+        m_Surface.get_vconst_curve( c2, vmin + TMAGIC );
+
+        if ( !c1.abouteq( c2, tol ) ) // V Min edge is not repeated.
+        {
+            for ( int j = 0; j < n_cap; j++ )
+            {
+                vtess.push_back( vabsmin + TMAGIC * j / (n_cap -1) );
+            }
+        }
+
+        m_Surface.get_vconst_curve( c1, vmax );
+        m_Surface.get_vconst_curve( c2, vmax - TMAGIC );
+
+        if ( !c1.abouteq( c2, tol ) ) // V Max edge is not repeated.
+        {
+            for ( int j = 0; j < n_cap; j++ )
+            {
+                vtess.push_back( vmax + TMAGIC * j / (n_cap -1) );
+            }
+        }
+
+        // Sort parameters
+        std::sort( vtess.begin(), vtess.end() );
+
+        // Remove duplicate parameters
+        vector < double >::iterator sit;
+        sit=std::unique( vtess.begin(), vtess.end() );
+        vtess.resize( distance( vtess.begin(), sit ) );
+    }
+    else // Magic values not employed on this surface.
+    {
+        vtess.resize(nv);
+        for ( int j = 0; j < nv; ++j )
+        {
+            vtess[j] = vmin + ( vmax - vmin ) * static_cast<double>( j ) / ( nv - 1 );
+        }
+    }
+}
+
+//==== Tesselate Surface ====//
+void VspSurf::TesselateTEforWake( vector< vector< vec3d > > & pnts ) const
+{
+    std::vector< vector< vec3d > > norms;
+    std::vector< vector< vec3d > > uw_pnts;
+
+    vector<double> u;
+    m_Surface.get_pmap_u( u );
+
+    vector<double> v(1);
+    v[0] = 0.0;
+
+    Tesselate( u, v, pnts, norms, uw_pnts );
+}
+
+void VspSurf::Tesselate( int num_u, int num_v, vector< vector< vec3d > > & pnts, vector< vector< vec3d > > & norms, vector< vector< vec3d > > & uw_pnts, const int &n_cap, bool degen ) const
+{
+    vector<int> num_u_vec( GetNumSectU(), num_u );
+    Tesselate( num_u_vec, num_v, pnts, norms, uw_pnts, n_cap, degen );
+}
+
+void VspSurf::Tesselate( const vector<int> &num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts, const int &n_cap, bool degen ) const
+{
+    if( m_Surface.number_u_patches() == 0 || m_Surface.number_v_patches() == 0 )
+    {
+        return;
+    }
+
+    std::vector<double> u, v;
+
+    MakeVTess( num_v, v, n_cap, degen );
+    MakeUTess( num_u, u );
+
+    Tesselate( u, v, pnts, norms, uw_pnts );
+}
+
+void VspSurf::Tesselate( const vector<double> &u, const vector<double> &v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts ) const
+{
+    int nu = u.size();
+    int nv = v.size();
+
+    // resize pnts and norms
+    pnts.resize( nu );
+    norms.resize( nu );
+    uw_pnts.resize( nu );
+    for ( surface_index_type i = 0; i < nu; ++i )
+    {
+        pnts[i].resize( nv );
+        norms[i].resize( nv );
+        uw_pnts[i].resize( nv );
+    }
+
+    surface_point_type ptmp, ntmp;
 
     // calculate the coordinate and normal at each point
     for ( surface_index_type i = 0; i < nu; ++i )

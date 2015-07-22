@@ -888,15 +888,15 @@ void Geom::Update( bool fullupdate )
 }
 
 void Geom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms,
-                            vector< vector< vec3d > > &uw_pnts )
+                            vector< vector< vec3d > > &uw_pnts, bool degen )
 {
-    m_SurfVec[indx].Tesselate( m_TessU(), m_TessW(), pnts, norms, uw_pnts );
+    m_SurfVec[indx].Tesselate( m_TessU(), m_TessW(), pnts, norms, uw_pnts, m_CapUMinTess(), degen );
 }
 
-void Geom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms )
+void Geom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, bool degen )
 {
     vector< vector< vec3d > > uw_pnts;
-    UpdateTesselate( indx, pnts, norms, uw_pnts );
+    UpdateTesselate( indx, pnts, norms, uw_pnts, degen );
 }
 
 void Geom::UpdateEndCaps()
@@ -1139,7 +1139,7 @@ void Geom::UpdateDrawObj()
     //==== Tesselate Surface ====//
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
-        UpdateTesselate( i, m_WireShadeDrawObj_vec[i].m_PntMesh, m_WireShadeDrawObj_vec[i].m_NormMesh );
+        UpdateTesselate( i, m_WireShadeDrawObj_vec[i].m_PntMesh, m_WireShadeDrawObj_vec[i].m_NormMesh, false );
         m_WireShadeDrawObj_vec[i].m_GeomChanged = true;
         m_WireShadeDrawObj_vec[i].m_FlipNormals = m_SurfVec[i].GetFlipNormal();
 
@@ -1483,7 +1483,7 @@ void Geom::CreateDegenGeom( vector<DegenGeom> &dgs)
         }
 
         //==== Tesselate Surface ====//
-        UpdateTesselate( i, pnts, nrms, uwpnts );
+        UpdateTesselate( i, pnts, nrms, uwpnts, true );
         m_SurfVec[i].ResetUWSkip();
 
         DegenGeom degenGeom;
@@ -1609,7 +1609,7 @@ void Geom::WriteXSecFile( int geom_no, FILE* dump_file )
         vector< vector< vec3d > > pnts;
         vector< vector< vec3d > > norms;
 
-        UpdateTesselate( i, pnts, norms );
+        UpdateTesselate( i, pnts, norms, false );
 
         //==== Write XSec Header ====//
         fprintf( dump_file, "\n" );
@@ -1640,7 +1640,7 @@ void Geom::CreateGeomResults( Results* res )
         //==== Tessellate Surface ====//
         vector< vector< vec3d > > pnts;
         vector< vector< vec3d > > norms;
-        UpdateTesselate( i, pnts, norms );
+        UpdateTesselate( i, pnts, norms, false );
 
         res->Add( ResData( "Num_XSecs", static_cast<int>( pnts.size() ) ) );
 
@@ -1677,7 +1677,7 @@ void Geom::WriteX3D( xmlNodePtr node )
     {
         vector< vector< vec3d > > pnts;
         vector< vector< vec3d > > norms;
-        UpdateTesselate( i, pnts, norms );
+        UpdateTesselate( i, pnts, norms, false );
         int num_xsecs = pnts.size();
         int num_pnts = pnts[0].size();
         bool f_norm = m_SurfVec[i].GetFlipNormal();
@@ -1746,7 +1746,7 @@ void Geom::WritePovRay( FILE* fid, int comp_num )
         vector< vector< vec3d > > norms;
         vec3d n0, n1, n2, n3, v0, v1, v2, v3;
 
-        UpdateTesselate( i, pnts, norms );
+        UpdateTesselate( i, pnts, norms, false );
 
         for ( int xs = 0 ; xs < ( int )pnts.size() - 1 ; xs++ )
         {
@@ -1816,7 +1816,7 @@ vector< TMesh* > Geom::CreateTMeshVec()
 
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
-        UpdateTesselate( i, pnts, norms, uw_pnts );
+        UpdateTesselate( i, pnts, norms, uw_pnts, false );
         m_SurfVec[i].ResetUWSkip(); // Done with skip flags.
 
         TMeshVec.push_back( new TMesh() );
@@ -2120,7 +2120,7 @@ void Geom::AppendWakeEdges( vector< vector< vec3d > > & edges )
                 vector< vector< vec3d > > pnts;
                 vector< vector< vec3d > > norms;
 
-                m_SurfVec[i].Tesselate( 2, 2, pnts, norms );
+                m_SurfVec[i].TesselateTEforWake( pnts );
 
                 vector< vec3d > edge( pnts.size() );
 

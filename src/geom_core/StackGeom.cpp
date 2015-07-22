@@ -150,6 +150,7 @@ void StackGeom::UpdateSurf()
 
 
     m_MainSurfVec[0].SkinRibs( rib_vec, false );
+    m_MainSurfVec[0].SetMagicVParm( false );
 
     for ( int i = 0 ; i < nxsec ; i++ )
     {
@@ -167,9 +168,9 @@ void StackGeom::UpdateSurf()
 }
 
 
-void StackGeom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts  )
+void StackGeom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, bool degen  )
 {
-    m_SurfVec[indx].Tesselate( m_TessUVec, m_TessW(), pnts, norms, uw_pnts );
+    m_SurfVec[indx].Tesselate( m_TessUVec, m_TessW(), pnts, norms, uw_pnts, m_CapUMinTess(), degen );
 }
 
 //==== Compute Rotation Center ====//

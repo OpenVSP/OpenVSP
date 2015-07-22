@@ -1283,6 +1283,7 @@ void WingGeom::UpdateSurf()
         m_MainSurfVec[0].FlipNormal();
     }
     m_MainSurfVec[0].SetSurfType( vsp::WING_SURF );
+    m_MainSurfVec[0].SetMagicVParm( true );
 
     //==== Load Totals ====//
     m_TotalSpan = ComputeTotalSpan();
@@ -1292,7 +1293,7 @@ void WingGeom::UpdateSurf()
 
 }
 
-void WingGeom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts  )
+void WingGeom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, bool degen )
 {
     vector < int > tessvec;
     if (m_CapUMinOption()!=VspSurf::NO_END_CAP && m_CapUMinSuccess[ m_SurfIndxVec[indx] ] )
@@ -1310,7 +1311,7 @@ void WingGeom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vecto
         tessvec.push_back( m_CapUMinTess() );
     }
 
-    m_SurfVec[indx].Tesselate( tessvec, m_TessW(), pnts, norms, uw_pnts );
+    m_SurfVec[indx].Tesselate( tessvec, m_TessW(), pnts, norms, uw_pnts, m_CapUMinTess(), degen );
 }
 
 void WingGeom::UpdateDrawObj()

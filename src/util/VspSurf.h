@@ -81,6 +81,9 @@ public:
     void FlipNormal() { m_FlipNormal = !m_FlipNormal; }
     void ResetFlipNormal( ) { m_FlipNormal = false; }
 
+    bool IsMagicVParm() const { return m_MagicVParm; }
+    void SetMagicVParm( bool t ) { m_MagicVParm = t; }
+
     int GetSurfType() { return m_SurfType; }
     void SetSurfType( int type ) { m_SurfType = type; }
 
@@ -138,11 +141,14 @@ public:
     void ResetUWSkip();
     void FlagDuplicate( VspSurf *othersurf );
 
+    void MakeUTess( const vector<int> &num_u, std::vector<double> &utess ) const;
+    void MakeVTess( int num_v, std::vector<double> &vtess, const int &n_cap, bool degen ) const;
+
     //===== Tesselate ====//
-    void Tesselate( int num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms ) const;
-    void Tesselate( int num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts ) const;
-    void Tesselate( const vector<int> &num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms ) const;
-    void Tesselate( const vector<int> &num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts ) const;
+    void TesselateTEforWake( std::vector< vector< vec3d > > & pnts ) const;
+    void Tesselate( int num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts, const int &n_cap, bool degen ) const;
+    void Tesselate( const vector<int> &num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts, const int &n_cap, bool degen ) const;
+    void Tesselate( const vector<double> &utess, const vector<double> &vtess, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts ) const;
 
     void TessUFeatureLine( int iu, int num_v, std::vector< vec3d > & pnts );
     void TessWFeatureLine( int iw, int num_u, std::vector< vec3d > & pnts );
@@ -161,6 +167,7 @@ public:
 protected:
 
     bool m_FlipNormal;
+    bool m_MagicVParm;
     int m_SurfType;
     int m_SurfCfdType;
     piecewise_surface_type m_Surface;
