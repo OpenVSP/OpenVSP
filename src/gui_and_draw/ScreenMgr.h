@@ -48,6 +48,7 @@ public:
            VSP_MATERIAL_EDIT_SCREEN,
            VSP_PARM_DEBUG_SCREEN,
            VSP_PARM_LINK_SCREEN,
+           VSP_PARM_LINK_PROG_SCREEN,
            VSP_PARM_SCREEN,
            VSP_PSLICE_SCREEN,
            VSP_SET_EDITOR_SCREEN,

@@ -58,6 +58,7 @@ MaterialEditScreen.cpp
 MeshScreen.cpp
 ParmDebugScreen.cpp
 ParmLinkScreen.cpp
+ParmLinkScreenProg.cpp
 ParmScreen.cpp
 PickSetScreen.cpp
 PodScreen.cpp
@@ -112,6 +113,7 @@ MaterialEditScreen.h
 MeshScreen.h
 ParmDebugScreen.h
 ParmLinkScreen.h
+ParmLinkScreenProg.h
 ParmScreen.h
 PickSetScreen.h
 PodScreen.h
