@@ -300,7 +300,7 @@ void AdvLinkScreen::CallBack( Fl_Widget *w )
     }
     else if ( w == m_InputGroup.GetGroup() )
     {
-        if ( Fl::event() == FL_PASTE )
+        if ( Fl::event() == FL_PASTE || Fl::event() == FL_DND_RELEASE )
         {
             string ParmID( Fl::event_text() );
             AdvLinkMgr.AddInput( ParmID, m_VarNameInput.GetString() );
@@ -308,7 +308,7 @@ void AdvLinkScreen::CallBack( Fl_Widget *w )
     }
     else if ( w == m_OutputGroup.GetGroup() )
     {
-        if ( Fl::event() == FL_PASTE )
+        if ( Fl::event() == FL_PASTE || Fl::event() == FL_DND_RELEASE )
         {
             string ParmID( Fl::event_text() );
             AdvLinkMgr.AddOutput( ParmID, m_VarNameInput.GetString() );

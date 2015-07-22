@@ -225,7 +225,7 @@ void DesignVarScreen::CallBack( Fl_Widget* w )
 {
     assert( m_ScreenMgr );
 
-    if( Fl::event() == FL_PASTE )
+    if( Fl::event() == FL_PASTE || Fl::event() == FL_DND_RELEASE )
     {
         string ParmID( Fl::event_text() );
         DesignVarMgr.AddVar( ParmID, DesignVarMgr.m_WorkingXDDMType.Get() );
