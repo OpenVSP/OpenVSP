@@ -458,7 +458,6 @@ bool CfdMeshScreen::Update()
     m_GeomVec = m_Vehicle->GetGeomVec();
 
     m_SourcesSelectComp.ClearItems();
-    m_SourcesSelectSurface.ClearItems();
     m_ComponentChoice.ClearItems();
     m_Comp.ClearItems();
 
@@ -486,6 +485,9 @@ bool CfdMeshScreen::Update()
             compIDMap[ m_GeomVec[i] ] = i;
         }
     }
+    m_SourcesSelectComp.UpdateItems();
+    m_Comp.UpdateItems();
+    m_ComponentChoice.UpdateItems();
 
     //===== Set Current Source and component for Sources =====//
     string currSourceGeomID = CfdMeshMgr.GetCurrSourceGeomID();
@@ -551,13 +553,14 @@ bool CfdMeshScreen::Update()
             sprintf( str, "Surf_%d", i );
             m_SourcesSelectSurface.AddItem( str );
         }
+        m_SourcesSelectSurface.UpdateItems();
+
         int currMainSurfID = CfdMeshMgr.GetCurrMainSurfIndx();
         if( currMainSurfID >= 0 && currMainSurfID < nmain )
         {
             m_SourcesSelectSurface.SetVal( currMainSurfID );
         }
     }
-    m_SourcesSelectSurface.UpdateItems();
 
     UpdateGlobalTab();
     UpdateDisplayTab();
@@ -712,9 +715,6 @@ void CfdMeshScreen::UpdateSourcesTab( BaseSource* source )
         m_SourceW2.Deactivate();
         m_SourceName.Deactivate();
     }
-
-    //===== Update Sources Component Selection =====//
-    m_SourcesSelectComp.UpdateItems();
 }
 
 void CfdMeshScreen::UpdateDomainTab()
@@ -769,9 +769,6 @@ void CfdMeshScreen::UpdateDomainTab()
     {
         m_FarParametersLayout.GetGroup()->deactivate();
     }
-
-    //===== Update Domain Component Selection =====//
-    m_ComponentChoice.UpdateItems();
 }
 
 void CfdMeshScreen::UpdateWakesTab()
@@ -779,9 +776,6 @@ void CfdMeshScreen::UpdateWakesTab()
     //===== Update Wake Sliders =====//
     m_ScaleWake.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_WakeScale.GetID() );
     m_WakeAngle.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_WakeAngle.GetID() );
-
-    //===== Update Wake Component Selection =====//
-    m_Comp.UpdateItems();
 
     //===== Update Add Wake =====//
     string wakeGeomID = CfdMeshMgr.GetWakeGeomID();
@@ -1127,6 +1121,11 @@ void CfdMeshScreen::GuiDeviceDomainTabCallback( GuiDevice* device )
         {
             m_DomainMan.GetFlButton()->value( 1 );
         }
+    }
+    else if ( device == &m_ComponentChoice )
+    {
+        int id = m_ComponentChoice.GetVal();
+        CfdMeshMgr.GetCfdSettingsPtr()->SetFarGeomID( m_GeomVec[ id ] );
     }
 }
 
