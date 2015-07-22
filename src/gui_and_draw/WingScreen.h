@@ -166,6 +166,24 @@ protected:
     CheckButton m_AfFileInvertButton;
     SliderAdjRangeInput m_AfFileChordSlider;
 
+    Choice m_TECloseChoice;
+    ToggleButton m_TECloseABSButton;
+    ToggleButton m_TECloseRELButton;
+    ToggleRadioGroup m_TECloseGroup;
+
+    SliderAdjRangeInput m_CloseThickSlider;
+    SliderAdjRangeInput m_CloseThickChordSlider;
+
+    Choice m_TETrimChoice;
+    ToggleButton m_TETrimABSButton;
+    ToggleButton m_TETrimRELButton;
+    ToggleRadioGroup m_TETrimGroup;
+
+    SliderAdjRangeInput m_TrimXSlider;
+    SliderAdjRangeInput m_TrimXChordSlider;
+    SliderAdjRangeInput m_TrimThickSlider;
+    SliderAdjRangeInput m_TrimThickChordSlider;
+
     GroupLayout* m_CurrDisplayGroup;
     void DisplayGroup( GroupLayout* group );
 

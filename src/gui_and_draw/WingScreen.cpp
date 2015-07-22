@@ -353,6 +353,78 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 640, "Wing" )
 
     DisplayGroup( &m_PointGroup );
 
+    //==== TE Trim ====//
+
+    m_AfLayout.SetY( start_y + 250 );
+
+    m_AfLayout.AddDividerBox( "TE Closure" );
+
+    m_TECloseChoice.AddItem( "NONE" );
+    m_TECloseChoice.AddItem( "SKEW LOWER" );
+    m_TECloseChoice.AddItem( "SKEW UPPER" );
+    m_TECloseChoice.AddItem( "SKEW BOTH" );
+    m_TECloseChoice.AddItem( "EXTRAPOLATE" );
+
+    m_AfLayout.SetFitWidthFlag( true );
+    m_AfLayout.SetSameLineFlag( true );
+
+    m_AfLayout.AddChoice( m_TECloseChoice, "Type:", m_AfLayout.GetButtonWidth() * 2 );
+
+    m_AfLayout.SetFitWidthFlag( false );
+    m_AfLayout.AddButton( m_TECloseABSButton, "Abs" );
+    m_AfLayout.AddButton( m_TECloseRELButton, "Rel" );
+
+    m_TECloseGroup.Init( this );
+    m_TECloseGroup.AddButton( m_TECloseABSButton.GetFlButton() );
+    m_TECloseGroup.AddButton( m_TECloseRELButton.GetFlButton() );
+
+    vector< int > close_val_map;
+    close_val_map.push_back( vsp::ABS );
+    close_val_map.push_back( vsp::REL );
+    m_TECloseGroup.SetValMapVec( close_val_map );
+
+    m_AfLayout.ForceNewLine();
+
+    m_AfLayout.SetFitWidthFlag( true );
+    m_AfLayout.SetSameLineFlag( false );
+
+    m_AfLayout.AddSlider( m_CloseThickSlider, "T", 10.0, "%6.5f" );
+    m_AfLayout.AddSlider( m_CloseThickChordSlider, "T/C", 1.0, "%6.5f" );
+
+    m_AfLayout.AddDividerBox( "TE Trim" );
+
+    m_TETrimChoice.AddItem( "NONE" );
+    m_TETrimChoice.AddItem( "X" );
+    m_TETrimChoice.AddItem( "THICK" );
+
+    m_AfLayout.SetFitWidthFlag( true );
+    m_AfLayout.SetSameLineFlag( true );
+
+    m_AfLayout.AddChoice( m_TETrimChoice, "Type:", m_AfLayout.GetButtonWidth() * 2 );
+
+    m_AfLayout.SetFitWidthFlag( false );
+    m_AfLayout.AddButton( m_TETrimABSButton, "Abs" );
+    m_AfLayout.AddButton( m_TETrimRELButton, "Rel" );
+
+    m_TETrimGroup.Init( this );
+    m_TETrimGroup.AddButton( m_TETrimABSButton.GetFlButton() );
+    m_TETrimGroup.AddButton( m_TETrimRELButton.GetFlButton() );
+
+    vector< int > trim_val_map;
+    trim_val_map.push_back( vsp::ABS );
+    trim_val_map.push_back( vsp::REL );
+    m_TETrimGroup.SetValMapVec( trim_val_map );
+
+    m_AfLayout.ForceNewLine();
+
+    m_AfLayout.SetFitWidthFlag( true );
+    m_AfLayout.SetSameLineFlag( false );
+
+    m_AfLayout.AddSlider( m_TrimXSlider, "X", 10.0, "%6.5f" );
+    m_AfLayout.AddSlider( m_TrimXChordSlider, "X/C", 10.0, "%6.5f" );
+    m_AfLayout.AddSlider( m_TrimThickSlider, "T", 10.0, "%6.5f" );
+    m_AfLayout.AddSlider( m_TrimThickChordSlider, "T/C", 1.0, "%6.5f" );
+
 }
 
 //==== Show Wing Screen ====//
@@ -588,6 +660,83 @@ bool WingScreen::Update()
                 m_AfFileChordSlider.Update( affile_xs->m_Chord.GetID() );
                 m_AfFileInvertButton.Update( affile_xs->m_Invert.GetID() );
                 m_AfFileNameOutput.Update( affile_xs->GetAirfoilName() );
+            }
+
+
+            m_TECloseChoice.Update( xsc->m_TECloseType.GetID() );
+            m_TECloseGroup.Update( xsc->m_TECloseAbsRel.GetID() );
+
+            m_CloseThickSlider.Update( xsc->m_TECloseThick.GetID() );
+            m_CloseThickChordSlider.Update( xsc->m_TECloseThickChord.GetID() );
+
+            if ( xsc->m_TECloseType() != CLOSE_NONE )
+            {
+                m_TECloseABSButton.Activate();
+                m_TECloseRELButton.Activate();
+
+                if ( xsc->m_TECloseAbsRel() == ABS )
+                {
+                    m_CloseThickSlider.Activate();
+                    m_CloseThickChordSlider.Deactivate();
+                }
+                else
+                {
+                    m_CloseThickSlider.Deactivate();
+                    m_CloseThickChordSlider.Activate();
+                }
+            }
+            else
+            {
+                m_CloseThickSlider.Deactivate();
+                m_CloseThickChordSlider.Deactivate();
+
+                m_TECloseABSButton.Deactivate();
+                m_TECloseRELButton.Deactivate();
+            }
+
+            m_TETrimChoice.Update( xsc->m_TETrimType.GetID() );
+            m_TETrimGroup.Update( xsc->m_TETrimAbsRel.GetID() );
+
+
+            m_TrimXSlider.Update( xsc->m_TETrimX.GetID() );
+            m_TrimXChordSlider.Update( xsc->m_TETrimXChord.GetID() );
+            m_TrimThickSlider.Update( xsc->m_TETrimThick.GetID() );
+            m_TrimThickChordSlider.Update( xsc->m_TETrimThickChord.GetID() );
+
+            m_TrimXSlider.Deactivate();
+            m_TrimXChordSlider.Deactivate();
+            m_TrimThickSlider.Deactivate();
+            m_TrimThickChordSlider.Deactivate();
+            m_TETrimABSButton.Deactivate();
+            m_TETrimRELButton.Deactivate();
+
+            if ( xsc->m_TETrimType() != TRIM_NONE )
+            {
+                m_TETrimABSButton.Activate();
+                m_TETrimRELButton.Activate();
+            }
+
+            if ( xsc->m_TETrimType() == TRIM_X )
+            {
+                if ( xsc->m_TETrimAbsRel() == ABS )
+                {
+                    m_TrimXSlider.Activate();
+                }
+                else
+                {
+                    m_TrimXChordSlider.Activate();
+                }
+            }
+            else if ( xsc->m_TETrimType() == TRIM_THICK )
+            {
+                if ( xsc->m_TETrimAbsRel() == ABS )
+                {
+                    m_TrimThickSlider.Activate();
+                }
+                else
+                {
+                    m_TrimThickChordSlider.Activate();
+                }
             }
         }
     }

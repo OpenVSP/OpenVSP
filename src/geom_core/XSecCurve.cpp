@@ -23,6 +23,7 @@
 
 #include "eli/geom/curve/piecewise.hpp"
 #include "eli/geom/curve/piecewise_creator.hpp"
+#include "eli/geom/curve/length.hpp"
 
 typedef piecewise_curve_type::index_type curve_index_type;
 typedef piecewise_curve_type::point_type curve_point_type;
@@ -33,6 +34,7 @@ typedef eli::geom::curve::piecewise_point_creator<double, 3, curve_tolerance_typ
 typedef eli::geom::curve::piecewise_circle_creator<double, 3, curve_tolerance_type> piecewise_circle_creator;
 typedef eli::geom::curve::piecewise_ellipse_creator<double, 3, curve_tolerance_type> piecewise_ellipse_creator;
 typedef eli::geom::curve::piecewise_superellipse_creator<double, 3, curve_tolerance_type> piecewise_superellipse_creator;
+typedef eli::geom::curve::piecewise_linear_creator<double, 3, curve_tolerance_type> piecewise_linear_creator_type;
 
 using std::string;
 using namespace vsp;
@@ -42,6 +44,33 @@ XSecCurve::XSecCurve()
 {
     m_GroupName = "XSecCurve";
     m_GroupSuffix = -1;
+
+    m_TECloseType.Init( "TE_Close_Type", "Close", this, CLOSE_NONE, CLOSE_NONE, CLOSE_NUM_TYPES - 1 );
+
+    m_TECloseAbsRel.Init( "TE_Close_AbsRel", "Close", this, ABS, ABS, REL );
+
+    m_TECloseThick.Init( "TE_Close_Thick", "Close", this, 0, 0, 1e12 );
+    m_TECloseThick.SetDescript( "Thickness for trailing edge closure" );
+
+    m_TECloseThickChord.Init( "TE_Close_Thick_Chord", "Close", this, 0, 0, 1e12 );
+    m_TECloseThickChord.SetDescript( "T/C for trailing edge closure" );
+
+
+    m_TETrimType.Init( "TE_Trim_Type", "Trim", this, TRIM_NONE, TRIM_NONE, TRIM_NUM_TYPES - 1 );
+
+    m_TETrimAbsRel.Init( "TE_Trim_AbsRel", "Trim", this, ABS, ABS, REL );
+
+    m_TETrimX.Init( "TE_Trim_X", "Trim", this, 0, 0, 1e12 );
+    m_TETrimX.SetDescript( "X length to trim trailing edge" );
+
+    m_TETrimXChord.Init( "TE_Trim_X_Chord", "Trim", this, 0, 0, 0.999 );
+    m_TETrimXChord.SetDescript( "X/C length to trim trailing edge" );
+
+    m_TETrimThick.Init( "TE_Trim_Thick", "Trim", this, 0, 0, 1e12 );
+    m_TETrimThick.SetDescript( "Thickness to trim trailing edge" );
+
+    m_TETrimThickChord.Init( "TE_Trim_Thick_Chord", "Trim", this, 0, 0, 1e12 );
+    m_TETrimThickChord.SetDescript( "T/C to trim trailing edge" );
 }
 
 void XSecCurve::SetGroupDisplaySuffix( int num )
@@ -107,6 +136,26 @@ void XSecCurve::ParmChanged( Parm* parm_ptr, int type )
 //==== Update ====//
 void XSecCurve::Update()
 {
+    m_TETrimX.SetUpperLimit( 0.999 * GetWidth() );
+
+    bool wingtype = false;
+
+    ParmContainer* pc = GetParentContainerPtr();
+
+    XSec* xs = dynamic_cast< XSec* > (pc);
+
+    if ( xs )
+    {
+        if ( xs->GetType() == XSEC_WING )
+        {
+            wingtype = true;
+        }
+    }
+
+    Close( wingtype );
+
+    Trim( wingtype );
+
     m_LateUpdateFlag = false;
 }
 
@@ -153,6 +202,504 @@ double XSecCurve::ComputeArea( int num_pnts )
     vector<vec3d> pnts;
     curve.Tesselate( num_pnts, pnts );
     return poly_area( pnts );
+}
+
+void XSecCurve::Close( bool wingtype )
+{
+    if ( m_Type ==  XS_POINT )
+    {
+        return;
+    }
+
+    piecewise_curve_type crv = m_Curve.GetCurve();
+
+    double tmin, tmax;
+    tmin = crv.get_parameter_min();
+    tmax = crv.get_parameter_max();
+
+    double thick;
+
+    if ( m_TECloseAbsRel() == ABS )
+    {
+        thick = m_TECloseThick();
+    }
+    else
+    {
+        thick = m_TECloseThickChord() * GetWidth();
+    }
+
+    double tle = 2.0;
+
+    if ( wingtype && m_TECloseType() != CLOSE_NONE )
+    {
+        threed_point_type plow = crv.f( tmin );
+        threed_point_type pup = crv.f( tmax );
+        threed_point_type ple = crv.f( tle );
+
+        piecewise_curve_type c_up, c_low;
+        crv.split( c_low, c_up, tle );
+
+
+        if ( m_TECloseType() == CLOSE_SKEWLOW ||
+             m_TECloseType() == CLOSE_SKEWUP  ||
+             m_TECloseType() == CLOSE_SKEWBOTH )
+        {
+            double dx = plow[0] - ple[0];
+            double dy = pup[1] - plow[1] - thick;
+
+            piecewise_curve_type::rotation_matrix_type mat;
+            mat.setIdentity();
+
+            double slope = dy / dx;
+
+            if ( m_TECloseType() == CLOSE_SKEWBOTH )
+            {
+                slope *= 0.5;
+            }
+
+            if ( m_TECloseType() == CLOSE_SKEWLOW ||
+                 m_TECloseType() == CLOSE_SKEWBOTH )
+            {
+                mat(1,0) = slope;
+                c_low.rotate( mat, ple );
+            }
+
+            slope = -slope;
+
+            if ( m_TECloseType() == CLOSE_SKEWUP  ||
+                 m_TECloseType() == CLOSE_SKEWBOTH )
+            {
+                mat(1,0) = slope;
+                c_up.rotate( mat, ple );
+            }
+
+            crv = c_low;
+            crv.push_back( c_up );
+        }
+        else if ( m_TECloseType() == CLOSE_EXTRAP )
+        {
+            threed_point_type fplow = crv.fp( tmin );
+            threed_point_type fpup = crv.fp( tmax );
+
+            threed_point_type dp = plow - pup;
+            dp[1] += thick;
+
+            double m = ( fplow[0] * fpup[1] - fpup[0] * fplow[1] );
+            if ( m != 0.0 ) // Make sure lines aren't parallel.
+            {
+                // Solve for intersection point.
+                double tlow = ( fpup[0] * dp[1] - dp[0] * fpup[1] ) / m;
+
+                if ( tlow < 0.0 ) // Make sure intersection is aft of trailing edge.
+                {
+                    threed_point_type pnewlow, pnewup;
+
+                    pnewlow = plow + tlow * fplow;
+                    pnewup = pnewlow;
+                    pnewup[1] += thick;
+
+                    // Calculate arclen to scale parameters.
+                    double lup, llow;
+
+                    length( llow, c_low, 1.0e-4 );
+                    length( lup, c_up, 1.0e-4 );
+
+                    double dup, dlow;
+
+                    dlow = dist( plow, pnewlow );
+                    dup = dist( pup, pnewup );
+
+                    double sup, slow;
+                    sup = lup + dup;
+                    slow = llow + dlow;
+
+                    double dtup, dtlow;
+                    dtup = ( tmax - tle ) * dup / sup;
+                    dtlow = ( tle - tmin ) * dlow / slow;
+
+                    c_low.scale_t( tmin + dtlow, tle );
+                    c_up.scale_t( tle, tmax - dtup );
+
+                    // Create curve extensions.
+                    piecewise_linear_creator_type plc( 1 );
+
+                    plc.set_t0( tmin );
+                    plc.set_segment_dt( dtlow, 0 );
+                    plc.set_corner( pnewlow, 0 );
+                    plc.set_corner( plow, 1 );
+
+                    plc.create( crv );
+
+                    crv.push_back( c_low );
+                    crv.push_back( c_up );
+
+                    plc.set_t0( tmax - dtup );
+                    plc.set_segment_dt( dtup, 0 );
+                    plc.set_corner( pup, 0 );
+                    plc.set_corner( pnewup, 1 );
+
+                    piecewise_curve_type c_last;
+                    plc.create( c_last );
+
+                    crv.push_back( c_last );
+                }
+            }
+        }
+    }
+
+    threed_point_type p1 = crv.f( tmin );
+    threed_point_type p2 = crv.f( tmax );
+    double d = dist( p1, p2 );
+
+    if ( wingtype || d > 1e-4 )
+    {
+        // Connect TE points with straight blunt face.  Place corners at appropriate parameter.
+        piecewise_curve_type c_last, c_main;
+
+        threed_point_type p3 = ( p1 + p2 ) / 2.0;
+
+        c_main = crv;
+
+        c_main.scale_t( TMAGIC, tmax - TMAGIC );
+
+        piecewise_linear_creator_type plc( 1 );
+
+        plc.set_t0( 0.0 );
+        plc.set_segment_dt( TMAGIC, 0 );
+        plc.set_corner( p3, 0 );
+        plc.set_corner( p1, 1 );
+
+        plc.create( crv );
+        crv.push_back( c_main );
+
+        plc.set_t0( tmax - TMAGIC );
+        plc.set_segment_dt( TMAGIC, 0 );
+        plc.set_corner( p2, 0 );
+        plc.set_corner( p3, 1 );
+
+        plc.create( c_last );
+
+        crv.push_back( c_last );
+
+        // Should be redundant, but just to be sure floating point error didn't accumulate.
+        crv.set_tmax( tmax );
+    }
+    m_Curve.SetCurve( crv );
+
+    if ( m_TECloseType() != CLOSE_NONE )
+    {
+
+        if ( m_TECloseAbsRel() == ABS )
+        {
+            m_TECloseThickChord.Set( d / GetWidth() );
+        }
+        else
+        {
+            m_TECloseThick.Set( d );
+        }
+    }
+    else
+    {
+        m_TECloseThickChord.Set( d / GetWidth() );
+        m_TECloseThick.Set( d );
+    }
+}
+
+//==== Modify Curve ====//
+void XSecCurve::Trim( bool wingtype )
+{
+    if ( m_Type == XS_POINT || !wingtype )
+    {
+        return;
+    }
+
+    double ttrim = 0.0;
+    double xtrim = 0.0;
+
+    piecewise_curve_type crv = m_Curve.GetCurve();
+
+    double tmin, tmax;
+    tmin = crv.get_parameter_min();
+    tmax = crv.get_parameter_max();
+
+    double ts1 = tmin;
+    double ts2 = tmax;
+
+    double umin, umax, umid, delta;
+    umin = tmin + TMAGIC;
+    umax = tmax - TMAGIC;
+    umid = ( umin + umax ) * 0.5;
+
+    vec3d telow = m_Curve.CompPnt( umin );
+    vec3d teup = m_Curve.CompPnt( umax );
+    vec3d te = ( telow + teup ) * 0.5;
+
+    if ( m_TETrimType() != TRIM_NONE )
+    {
+        int ncache = 20;
+        vector< vec3d > ptcache( ncache );
+        vector< double > ucache( ncache );
+        vector< double > dcache( ncache );
+        vector< double > dupcache( ncache );
+        vector< double > dlowcache( ncache );
+
+        // Rough tessellation to find approximate trim locations.
+        m_Curve.Tesselate( ncache, umin, umax, ptcache, ucache );
+
+        // Find most distant point.
+        int imax = -1;
+        double mindu = 2.0 * umax;
+        for ( int i = 0; i < ncache; i++ )
+        {
+            dcache[i] = dist( ptcache[i], te );
+            dupcache[i] = dist( ptcache[i], teup );
+            dlowcache[i] = dist( ptcache[i], telow );
+
+            if ( std::abs( ucache[i] - umid ) < mindu )
+            {
+                imax = i;
+                mindu = std::abs( ucache[i] - umid );
+            }
+        }
+
+        delta = ( umax - umin ) / ( ncache - 1 );
+
+        if ( m_TETrimType() == TRIM_X )
+        {
+            xtrim = m_TETrimX();
+
+            if ( m_TETrimAbsRel() == REL )
+            {
+                xtrim = m_TETrimXChord() * GetWidth();
+            }
+
+            // Find lower surface bounding segment.  Nearest point first, traverse vector forward.
+            int j;
+            for ( j = 0; j < imax; j++ )
+            {
+                if ( dlowcache[j] > xtrim )
+                {
+                    break;
+                }
+            }
+            // Linearly interpolate to find  matching point.
+            double jmatch;
+            if ( j == 0 )
+            {
+                jmatch = 0.0;
+            }
+            else
+            {
+                j--;
+                double frac = ( xtrim - dlowcache[j] ) / ( dlowcache[j+1] - dlowcache[j] );
+                jmatch = j + frac;
+            }
+            double ulower = umin + delta * jmatch;
+
+            // Find upper surface bounding segment.  Nearest point last, traverse vector in reverse.
+            for ( j = ncache - 1; j > imax; j-- )
+            {
+                if ( dupcache[j] > xtrim )
+                {
+                    break;
+                }
+            }
+
+            // Linearly interpolate to find  matching point.
+            if ( j == ncache - 1 )
+            {
+                jmatch = 1.0 * j;
+            }
+            else
+            {
+                double frac = ( xtrim - dupcache[j] ) / ( dupcache[j+1] - dupcache[j] );
+                jmatch = j + frac;
+            }
+            double uupper = umin + delta * jmatch;
+
+            // Use Newton's method solver with linear interpolated initial guess.
+            m_Curve.FindDistant( ts1, telow, xtrim, ulower );
+            m_Curve.FindDistant( ts2, teup, xtrim, uupper );
+        }
+        else if ( m_TETrimType() == TRIM_THICK )
+        {
+            ttrim = m_TETrimThick();
+
+            if ( m_TETrimAbsRel() == REL )
+            {
+                ttrim = m_TETrimThickChord() * GetWidth();
+            }
+
+            // Calculate approximate upper surface u parameter corresponding to lower points.
+            vector< double > uuppermatch( imax );
+            vector< double > iupper( imax );
+            vector< vec3d > xupper( imax );
+            vector< double > thick( imax );
+
+            for ( int i = 0; i < imax; i++ )
+            {
+                double dlow = dcache[i];
+
+                // Find bounding segment.  Nearest point last, traverse vector in reverse.
+                int j;
+                for ( j = ncache - 1; j > imax; j-- )
+                {
+                    if ( dcache[j] > dlow )
+                    {
+                        break;
+                    }
+                }
+
+                // Linearly interpolate to find  matching point.
+                double jmatch;
+                vec3d x;
+                if ( j == ncache - 1 )
+                {
+                    jmatch = 1.0 * j;
+                    x = ptcache[j];
+                }
+                else
+                {
+                    double frac = ( dlow - dcache[j] ) / ( dcache[j+1] - dcache[j] );
+                    jmatch = j + frac;
+                    x = ptcache[j] + ( ptcache[j+1] - ptcache[j] ) * frac;
+                }
+
+                // Calculate properties at matching point.
+                iupper[i] = jmatch;
+                uuppermatch[i] = umin + delta * jmatch;
+                xupper[i] = x;
+                thick[i] = dist( xupper[i], ptcache[i] );
+            }
+
+            // Quick pass to find bounding thickness points.
+            bool bounded = false;
+            int i;
+            for ( i = 0; i < imax - 1; i++ )
+            {
+                if ( ( thick[ i ] < ttrim && thick[ i + 1 ] > ttrim ) || ( thick[ i ] > ttrim && thick[ i + 1 ] < ttrim ) )
+                {
+                    bounded = true;
+                    break;
+                }
+            }
+
+            if ( bounded )
+            {
+                double frac = ( ttrim - thick[ i ] ) / ( thick[ i + 1 ] - thick[ i ] );
+
+                double itarget = i + frac;
+
+                double ulower = umin + delta * itarget;
+                double uupper = uuppermatch[ i ] + frac * ( uuppermatch[ i + 1 ] - uuppermatch[ i ] );
+
+                m_Curve.FindThickness( ts1, ts2, te, ttrim, ulower, uupper );
+            }
+            else
+            {
+                ts1 = umin;
+                ts2 = umax;
+            }
+        }
+
+        // Protect against NAN parameters.
+        if ( std::isnan( ts1 ) )
+        {
+            ts1 = umin;
+        }
+        if ( std::isnan( ts2 ) )
+        {
+            ts2 = umax;
+        }
+
+        // Limit trimming to make sure something happens.
+        ts1 = max( ts1, umin );
+        ts2 = min( ts2, umax );
+
+        // Limit parameters to upper/lower surfaces.
+        ts1 = min( umid, ts1 );
+        ts2 = max( umid, ts2 );
+
+        // Actually trim the airfoil curve.
+        piecewise_curve_type c1, c2, c3, c4;
+
+        threed_point_type p1 = crv.f( ts1 );
+        threed_point_type p2 = crv.f( ts2 );
+
+        threed_point_type p3 = ( p1 + p2 ) / 2.0;
+
+        crv.split( c1, c2, ts1 );
+
+        c2.split(c3, c4, ts2 );
+
+        c3.scale_t( umin, umax );
+
+        piecewise_linear_creator_type plc( 1 );
+
+        plc.set_t0( tmin );
+        plc.set_segment_dt( TMAGIC, 0 );
+        plc.set_corner( p3, 0 );
+        plc.set_corner( p1, 1 );
+
+        plc.create( crv );
+
+        plc.set_t0( umax );
+        plc.set_segment_dt( TMAGIC, 0 );
+        plc.set_corner( p2, 0 );
+        plc.set_corner( p3, 1 );
+
+        plc.create( c2 );
+
+        crv.push_back( c3 );
+        crv.push_back( c2 );
+
+        // Should be redundant, but just to be sure floating point error didn't accumulate.
+        crv.set_tmax( tmax );
+
+        m_Curve.SetCurve( crv );
+    }
+
+    vec3d cornerlow = m_Curve.CompPnt( umin );
+    vec3d cornerup = m_Curve.CompPnt( umax );
+
+    ttrim = dist( cornerlow, cornerup );
+    xtrim = dist( cornerlow, telow );
+
+    // Set non-driving parameters to match current state.
+    if ( m_TETrimType() == TRIM_NONE )
+    {
+        m_TETrimX.Set( xtrim );
+        m_TETrimXChord.Set( xtrim / GetWidth() );
+        m_TETrimThick.Set( ttrim );
+        m_TETrimThickChord.Set( ttrim / GetWidth() );
+    }
+    else if ( m_TETrimType() == TRIM_THICK )
+    {
+        m_TETrimX.Set( xtrim );
+        m_TETrimXChord.Set( xtrim / GetWidth() );
+
+        if ( m_TETrimAbsRel() == ABS )
+        {
+            m_TETrimThickChord.Set( ttrim / GetWidth() );
+        }
+        else
+        {
+            m_TETrimThick.Set( ttrim );
+        }
+    }
+    else if ( m_TETrimType() == TRIM_X )
+    {
+        if ( m_TETrimAbsRel() == ABS )
+        {
+            m_TETrimXChord.Set( xtrim / GetWidth() );
+        }
+        else
+        {
+            m_TETrimX.Set( xtrim );
+        }
+        m_TETrimThick.Set( ttrim );
+        m_TETrimThickChord.Set( ttrim / GetWidth() );
+    }
 }
 
 //==========================================================================//

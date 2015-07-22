@@ -73,6 +73,25 @@ enum XSEC_CRV_TYPE {XS_POINT,
                     XS_NUM_TYPES
                };
 
+
+enum XSEC_CLOSE_TYPE { CLOSE_NONE,
+                       CLOSE_SKEWLOW,
+                       CLOSE_SKEWUP,
+                       CLOSE_SKEWBOTH,
+                       CLOSE_EXTRAP,
+                       CLOSE_NUM_TYPES
+};
+
+enum XSEC_TRIM_TYPE { TRIM_NONE,
+                      TRIM_X,
+                      TRIM_THICK,
+                      TRIM_NUM_TYPES
+};
+
+enum ABS_REL_FLAG { ABS,
+                    REL
+};
+
 enum XSEC_SIDES_TYPE {  XSEC_BOTH_SIDES,
                         XSEC_LEFT_SIDE,
                         XSEC_RIGHT_SIDE };

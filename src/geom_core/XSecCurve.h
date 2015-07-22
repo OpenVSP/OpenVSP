@@ -67,6 +67,25 @@ public:
 
     virtual double ComputeArea( int num_pnts );
 
+    virtual void Close( bool wingtype );
+    virtual void Trim( bool wingtype );
+
+
+    IntParm m_TECloseType;
+    IntParm m_TECloseAbsRel;
+
+    Parm m_TECloseThick;
+    Parm m_TECloseThickChord;
+
+
+    IntParm m_TETrimType;
+    IntParm m_TETrimAbsRel;
+
+    Parm m_TETrimX;
+    Parm m_TETrimXChord;
+    Parm m_TETrimThick;
+    Parm m_TETrimThickChord;
+
 protected:
 
     int m_Type;

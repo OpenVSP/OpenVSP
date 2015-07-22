@@ -537,6 +537,39 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "XSEC_CRV_TYPE", "XS_FILE_AIRFOIL", XS_FILE_AIRFOIL );
     assert( r >= 0 );
 
+    r = se->RegisterEnum( "XSEC_CLOSE_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "XSEC_CLOSE_TYPE", "CLOSE_NONE", CLOSE_NONE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "XSEC_CLOSE_TYPE", "CLOSE_SKEWLOW", CLOSE_SKEWLOW );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "XSEC_CLOSE_TYPE", "CLOSE_SKEWUP", CLOSE_SKEWUP );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "XSEC_CLOSE_TYPE", "CLOSE_SKEWBOTH", CLOSE_SKEWBOTH );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "XSEC_CLOSE_TYPE", "CLOSE_EXTRAP", CLOSE_EXTRAP );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "XSEC_CLOSE_TYPE", "CLOSE_NUM_TYPES", CLOSE_NUM_TYPES );
+    assert( r >= 0 );
+
+    r = se->RegisterEnum( "XSEC_TRIM_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "XSEC_TRIM_TYPE", "TRIM_NONE", TRIM_NONE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "XSEC_TRIM_TYPE", "TRIM_X", TRIM_X );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "XSEC_TRIM_TYPE", "TRIM_THICK", TRIM_THICK );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "XSEC_TRIM_TYPE", "TRIM_NUM_TYPES", TRIM_NUM_TYPES );
+    assert( r >= 0 );
+
+    r = se->RegisterEnum( "ABS_REL_FLAG" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ABS_REL_FLAG", "ABS", ABS );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ABS_REL_FLAG", "REL", REL );
+    assert( r >= 0 );
+
     r = se->RegisterEnum( "XSEC_SIDES_TYPE" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "XSEC_SIDES_TYPE", "XSEC_BOTH_SIDES", XSEC_BOTH_SIDES );
