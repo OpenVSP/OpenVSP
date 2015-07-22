@@ -301,7 +301,7 @@ void SubSurface::SplitSegsW( const double & w )
 
 void SubSurface::ReorderSplitSegs( int ind )
 {
-    if ( ind < 0 || ind > (int)m_SplitLVec.size() - 1 )
+    if ( ind < 0 || ind > ( int )m_SplitLVec.size() - 1 )
     {
         return;
     }
@@ -310,7 +310,7 @@ void SubSurface::ReorderSplitSegs( int ind )
     ret_vec.resize( m_SplitLVec.size() );
 
     int cnt = 0;
-    for ( int i = ind ; i < (int)m_SplitLVec.size() ; i++ )
+    for ( int i = ind ; i < ( int )m_SplitLVec.size() ; i++ )
     {
         ret_vec[cnt] = m_SplitLVec[i];
         cnt++;
@@ -401,7 +401,7 @@ int SSLineSeg::CompNumDrawPnts( VspSurf* surf, Geom* geom )
     double avg_num_secs = ( double )( surf->GetUMax() + surf->GetWMax() ) / 2.0;
     double avg_tess = ( double )( geom->m_TessU() + geom->m_TessW() ) / 2.0;
 
-    return ( int )((avg_num_secs) * ( avg_tess - 1 ));
+    return ( int )( ( avg_num_secs ) * ( avg_tess - 1 ) );
 }
 
 void SSLineSeg::UpdateDrawObj( VspSurf* surf, Geom* geom, DrawObj& draw_obj, const int *num_pnts_ptr )
@@ -437,8 +437,8 @@ vec3d SSLineSeg::CompPnt( VspSurf* surf, vec3d uw_pnt ) const
         return vec3d();
     }
 
-    int num_u = (int)surf->GetUMax();
-    int num_w = (int)surf->GetWMax();
+    int num_u = ( int )surf->GetUMax();
+    int num_w = ( int )surf->GetWMax();
 
     if ( uw_pnt.x() < 0 )
     {
@@ -725,14 +725,14 @@ void SSEllipse::UpdateLVecSize()
     }
 
     // If too few more line segments
-    if ( (int)m_LVec.size() < m_Tess() )
+    if ( ( int )m_LVec.size() < m_Tess() )
     {
         for ( int i = m_LVec.size() ; i < m_Tess() ; i++ )
         {
             m_LVec.push_back( SSLineSeg() );
         }
     }
-    else if ( (int)m_LVec.size() > m_Tess() )
+    else if ( ( int )m_LVec.size() > m_Tess() )
     {
         // if too many line segments delete extra ones
 

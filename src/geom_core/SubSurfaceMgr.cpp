@@ -123,7 +123,7 @@ void SubSurfaceMgrSingleton::ClearTagMaps()
     // Add Dummy tag combo for meshes with no tags
     // so there will a draw object for them
     vector<int> dummy_tags;
-    dummy_tags.resize(10,9999);
+    dummy_tags.resize( 10, 9999 );
     m_SingleTagMap[dummy_tags] = -1;
 }
 
@@ -191,7 +191,7 @@ void SubSurfaceMgrSingleton::BuildSingleTagMap()
         // it should be assigned a tag number greater than 100 for
         // CBAero
 
-        if ( m_TagKeys[i].size() == 1 && string::npos != m_TagNames[ m_TagKeys[i][0] ].find("Wake") )
+        if ( m_TagKeys[i].size() == 1 && string::npos != m_TagNames[ m_TagKeys[i][0] ].find( "Wake" ) )
         {
             m_SingleTagMap[m_TagKeys[i]] = i + 1 + 1000;
         }
@@ -223,7 +223,7 @@ void SubSurfaceMgrSingleton::WriteKeyFile( const string & file_name )
     // Write Out Header Information
     fprintf( fid, "# VSP Tag Key File\n" );
     fprintf( fid, "%s\n", file_name.c_str() ); // Write out the file that this key information is for
-    fprintf( fid, "%lu\n", m_SingleTagMap.size()-1 ); // Total number of tags ( the minus 1 is from the dummy tags )
+    fprintf( fid, "%lu\n", m_SingleTagMap.size() - 1 ); // Total number of tags ( the minus 1 is from the dummy tags )
     fprintf( fid, "\n" );
 
     map< vector<int>, int >::iterator ii;
@@ -247,7 +247,7 @@ void SubSurfaceMgrSingleton::WriteNascartKeyFile( const string & filename )
 {
     // Writes a Nascart Key File that is consistent between both CompGeom and CFDMesh
 
-    if ( filename.size() == 0 ) return;
+    if ( filename.size() == 0 ) { return; }
 
     FILE* fp = fopen( filename.c_str(), "w" );
 
@@ -296,7 +296,7 @@ string SubSurfaceMgrSingleton::GetTagNames( const vector<int> & tags )
 
             // Remove leading comma on first loop
             if ( i == 0 )
-                comp_list.erase( comp_list.begin(),comp_list.begin()+1 );
+            { comp_list.erase( comp_list.begin(), comp_list.begin() + 1 ); }
         }
     }
 
