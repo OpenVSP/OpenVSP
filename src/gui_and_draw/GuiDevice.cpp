@@ -1159,12 +1159,8 @@ void ToggleButton::SetValAndLimits( Parm* p )
 void ToggleButton::DeviceCB( Fl_Widget* w )
 {
     Parm* parm_ptr = SetParmID( m_ParmID );
-//    if ( !parm_ptr )
-//    {
-//        return;
-//    }
 
-    if ( w == m_Button && parm_ptr)
+    if ( w == m_Button && parm_ptr )
     {
         bool new_val;
         if ( m_Button->value() )
