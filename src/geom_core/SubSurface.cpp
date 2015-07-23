@@ -161,32 +161,57 @@ xmlNodePtr SubSurface::EncodeXml( xmlNodePtr & node )
 
 bool SubSurface::Subtag( const vec3d & center )
 {
-    if ( !m_PolyPntsReadyFlag ) // Update polygon vector
+    if ( !m_PolyPntsReadyFlag )
     {
-        m_PolyPnts.clear();
-
-        int last_ind = m_LVec.size() - 1;
-        vec3d pnt;
-        for ( int ls = 0 ; ls < last_ind + 1 ; ls++ )
-        {
-            pnt = m_LVec[ls].GetP0();
-            m_PolyPnts.push_back( vec2d( pnt.x(), pnt.y() ) );
-        }
-        pnt = m_LVec[last_ind].GetP1();
-        m_PolyPnts.push_back( vec2d( pnt.x(), pnt.y() ) );
-
-        m_PolyPntsReadyFlag = true;
+        UpdatePolygonPnts(); // Update polygon vector
     }
 
-    bool inPoly = PointInPolygon( vec2d( center.x(), center.y() ) , m_PolyPnts );
+    for ( int p = 0; p < ( int )m_PolyPntsVec.size(); p++ )
+    {
+        bool inPoly = PointInPolygon( vec2d( center.x(), center.y() ), m_PolyPntsVec[p] );
 
-    if ( ( inPoly && m_TestType() == INSIDE ) || ( !inPoly && m_TestType() == OUTSIDE ) )
+        if ( inPoly && m_TestType() == vsp::INSIDE )
+        {
+            return true;
+        }
+        else if ( inPoly && m_TestType() == vsp::OUTSIDE )
+        {
+            return false;
+        }
+    }
+
+    if ( m_TestType() == vsp::OUTSIDE )
     {
         return true;
     }
 
     return false;
 }
+
+//==================================//
+// This method updates the polygon points that define the polygon(s) used for the
+// point in polygon test used to determine which triangles are inside or outside
+// of the subsurface region
+//==================================//
+void SubSurface::UpdatePolygonPnts()
+{
+    m_PolyPntsVec.resize( 1 );
+
+    m_PolyPntsVec[0].clear();
+
+    int last_ind = m_LVec.size() - 1;
+    vec3d pnt;
+    for ( int ls = 0; ls < last_ind + 1; ls++ )
+    {
+        pnt = m_LVec[ls].GetP0();
+        m_PolyPntsVec[0].push_back( vec2d( pnt.x(), pnt.y() ) );
+    }
+    pnt = m_LVec[last_ind].GetP1();
+    m_PolyPntsVec[0].push_back( vec2d( pnt.x(), pnt.y() ) );
+
+    m_PolyPntsReadyFlag = true;
+}
+
 bool SubSurface::Subtag( TTri* tri )
 {
     vec3d center = tri->ComputeCenterUW();

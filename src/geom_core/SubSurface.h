@@ -136,7 +136,8 @@ protected:
     vector<SSLineSeg> m_SplitLVec; // Split Line Vector
     vec3d m_LineColor; // Line Color Displayed when drawn on screen
 
-    std::vector< vec2d > m_PolyPnts;
+    //std::vector< vec2d > m_PolyPnts;
+    std::vector< std::vector< vec2d > > m_PolyPntsVec;
     bool m_PolyPntsReadyFlag;
     bool m_FirstSplit;
     bool m_PolyFlag; // Flag to indicate if the SubSurface is a Polygon ( this affects how it is treated in CFDMesh )
@@ -146,6 +147,8 @@ protected:
         return -1;
     }
     virtual void ReorderSplitSegs( int ind );
+
+    virtual void UpdatePolygonPnts();
 
 };
 
