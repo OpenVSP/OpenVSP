@@ -1,79 +1,70 @@
-//
-// This file is released under the terms of the NASA Open Source Agreement (NOSA)
-// version 1.3 as detailed in the LICENSE file which accompanies this software.
-//
+#ifndef PARMLINKSCREEN_H
+#define PARMLINKSCREEN_H
 
-// parmLinkScreen.h: interface for the geomScreen class.
-//
-//////////////////////////////////////////////////////////////////////
-
-#if !defined(AFX_PARMLINKCREEN_H__015D1220_857A_11D7_AC31_0003473A025A__INCLUDED_)
-#define AFX_PARMLINKCREEN_H__015D1220_857A_11D7_AC31_0003473A025A__INCLUDED_
-
-
-#include "GuiDevice.h"
-#include "GroupLayout.h"
 #include "ScreenBase.h"
+#include "GuiDevice.h"
+#include "ScreenMgr.h"
+#include "Vehicle.h"
+#include "DesignVarMgr.h"
+#include <vector>
 
 #include <FL/Fl.H>
-#include "parmLinkFlScreen.h"
+#include <FL/Fl_File_Chooser.H>
 
-#include <vector>
-using std::vector;
-
-class ParmLinkScreen  : public VspScreen
+class ParmLinkScreen : public BasicScreen
 {
 public:
-    ParmLinkScreen( ScreenMgr* mgr );
+	ParmLinkScreen( ScreenMgr * mgr );
     virtual ~ParmLinkScreen();
 
-    void Show();
-    void Hide();
-    bool Update();
+    virtual void Show();
+    virtual bool Update();
 
-
-    //virtual void Hide();
-    //virtual void CloseCB( Fl_Widget* w );
-    //virtual void SetTitle( const char* name );
-    //virtual void Parm_changed( Parm* parm )               {}
-    //virtual void ClearButtonParms();
-
-    //virtual void Show();
-    //virtual void Show(Geom* geomPtr);
-
-    //bool IsShown()                                { return !!parmLinkUI->UIWindow->shown(); }
-
-    //void Position( int x, int y )             { parmLinkUI->UIWindow->position( x, y ); }
-
-    void CallBack( Fl_Widget *w );
+    virtual void GuiDeviceCallBack( GuiDevice* device );
+    virtual void CallBack( Fl_Widget* w );
     static void staticScreenCB( Fl_Widget *w, void* data )
     {
         ( ( ParmLinkScreen* )data )->CallBack( w );
     }
 
-
-    virtual void CompGroupLinkChange();
-    //virtual void Ipdate();
-
-    //virtual void RegisterParmButton( ParmButton* b )  { m_ParmButtonVec.push_back( b ); }
-    //virtual void RemoveAllRefs( GeomBase* g );
+    void LoadDrawObjs(vector< DrawObj* > & draw_obj_vec);
 
 protected:
 
-    ParmLinkUI* parmLinkUI;
+    // Main group
+    GroupLayout m_GenLayout;
+
+    // Subgroups
+    GroupLayout m_ParmAGroup;
+    GroupLayout m_ParmBGroup;
+    GroupLayout m_LinkGroup;
+    GroupLayout m_ConstraintsButtons;
+
+    ParmPicker m_ParmAPicker;
+    ParmPicker m_ParmBPicker;
+
+    TriggerButton m_LinkConts;
+    TriggerButton m_LinkGroups;
+    TriggerButton m_AddLink;
+    TriggerButton m_DeleteLink;
+    TriggerButton m_DeleteAllLinks;
+
+    // Used to activate and deactivate sliders
+    ToggleButton m_OffsetTog;
+    ToggleButton m_ScaleTog;
+    ToggleButton m_LowerTog;
+    ToggleButton m_UpperTog;
 
     SliderInput m_OffsetSlider;
     SliderInput m_ScaleSlider;
     SliderInput m_LowerLimitSlider;
     SliderInput m_UpperLimitSlider;
 
-    vector< string > FindParmNames( bool A_flag, vector< string > & parm_id_vec );
+    Fl_Browser* m_LinkBrowser;
 
-    //GroupLayout* m_User1Group;
-    //GroupLayout* m_User2Group;
-    //enum { NUM_USER_SLIDERS = 10, };
-    //SliderAdjRangeInput m_UserSlider[NUM_USER_SLIDERS];
+private:
+    int m_CurrentSelected;
 
+    DrawObj m_LightingDO;
 };
-
 #endif

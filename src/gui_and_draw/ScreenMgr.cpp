@@ -30,7 +30,6 @@
 #include "MaterialEditScreen.h"
 #include "ParmDebugScreen.h"
 #include "ParmLinkScreen.h"
-#include "ParmLinkScreenProg.h"
 #include "ParmScreen.h"
 #include "PSliceScreen.h"
 #include "ScreenMgr.h"
@@ -158,7 +157,6 @@ void ScreenMgr::Init()
     m_ScreenVec[VSP_MATERIAL_EDIT_SCREEN] = new MaterialEditScreen( this );
     m_ScreenVec[VSP_PARM_DEBUG_SCREEN] = new ParmDebugScreen( this );
     m_ScreenVec[VSP_PARM_LINK_SCREEN] = new ParmLinkScreen( this );
-    m_ScreenVec[VSP_PARM_LINK_PROG_SCREEN] = new ParmLinkScreenProg( this );
     m_ScreenVec[VSP_PARM_SCREEN] = new ParmScreen( this );
     m_ScreenVec[VSP_PSLICE_SCREEN] = new PSliceScreen( this );
     m_ScreenVec[VSP_SET_EDITOR_SCREEN] = new SetEditorScreen( this );

@@ -69,7 +69,6 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     AddMenuCallBack( m_MainUI->DegenGeomMenu );
     AddMenuCallBack( m_MainUI->CFDMeshGeomMenu );
     AddMenuCallBack( m_MainUI->ParmLinkMenu );
-    AddMenuCallBack( m_MainUI->ParmLinkProgMenu );
     AddMenuCallBack( m_MainUI->ParmDebugMenu );
     AddMenuCallBack( m_MainUI->DesignVarMenu );
     AddMenuCallBack( m_MainUI->FitModelMenu );
@@ -315,10 +314,6 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
     else if ( m == m_MainUI->ParmLinkMenu )
     {
         m_ScreenMgr->ShowScreen( ScreenMgr::VSP_PARM_LINK_SCREEN );
-    }
-    else if ( m == m_MainUI->ParmLinkProgMenu )
-    {
-        m_ScreenMgr->ShowScreen( ScreenMgr::VSP_PARM_LINK_PROG_SCREEN );
     }
     else if ( m == m_MainUI->AdvParmLinkMenu )
     {

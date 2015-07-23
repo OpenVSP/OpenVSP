@@ -165,10 +165,6 @@ class MainWinUI {open
               label {Link...}
               xywh {12 12 100 20}
             }
-            MenuItem ParmLinkProgMenu {
-              label {ProgLink...}
-              xywh {12 12 100 20}
-            }
             MenuItem DesignVarMenu {
               label {Design Variables...}
               xywh {32 32 100 20}
