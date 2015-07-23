@@ -425,6 +425,8 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 640, "Wing" )
     m_AfLayout.AddSlider( m_TrimThickSlider, "T", 10.0, "%6.5f" );
     m_AfLayout.AddSlider( m_TrimThickChordSlider, "T/C", 1.0, "%6.5f" );
 
+    m_SubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_CONTROL) );
+    m_SubSurfChoice.UpdateItems();
 }
 
 //==== Show Wing Screen ====//

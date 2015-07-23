@@ -499,7 +499,8 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_LINE ) );
     m_SubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_RECTANGLE ) );
     m_SubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_ELLIPSE ) );
-    m_SubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_CONTROL) );
+// Only add control surface in WingScreen.
+//    m_SubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_CONTROL) );
 
     int b_width = m_SubSurfLayout.GetRemainX();
     m_SubSurfLayout.SetButtonWidth( (int)(b_width * 0.4) );
