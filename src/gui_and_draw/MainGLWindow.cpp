@@ -226,6 +226,31 @@ void VspGlWindow::update()
     {
         make_current();
 
+        VSPGraphic::Display * display = m_GEngine->getDisplay();
+        if ( display )
+        {
+            VSPGraphic::Camera * camera = display->getCamera();
+            if ( camera )
+            {
+                float zn, zf;
+
+                vPtr->UpdateBBox();
+                BndBox bb = vPtr->GetBndBox();
+
+                float d = std::max( 10.0, bb.GetLargestDist() );
+
+                vec3d cen = bb.GetCenter();
+
+                zf = 2.0f * ( std::abs( cen[ cen.major_comp() ] ) + d );
+
+                zf = std::max( zf, 2500.0f );
+
+                zn = -zf;
+
+                camera->setZNearFar( zn, zf );
+            }
+        }
+
         // Get Render Objects from Vehicle.
         vector<DrawObj *> drawObjs = vPtr->GetDrawObjs();
 

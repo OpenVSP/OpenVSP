@@ -38,6 +38,10 @@ public:
     */
     virtual void resize( int x, int y, int width, int height );
     /*!
+    * Set model extents.
+    */
+    virtual void setZNearFar( float zn, float zf );
+    /*!
     * Set Projection type. Possible type are VSP_CAM_ORTHO and VSP_CAM_PERSPECTIVE.
     * Default: VSP_CAM_ORTHO
     */
@@ -164,6 +168,10 @@ protected:
     int _vy;
     int _vWidth;
     int _vHeight;
+
+    // Representative length for z-clipping.
+    float _znear;
+    float _zfar;
 
     // Zoom Value
     float _oZoom;

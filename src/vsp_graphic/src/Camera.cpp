@@ -16,6 +16,9 @@ Camera::Camera()
     _vx = _vy = 0;
     _vWidth = _vHeight = 1;
 
+    _znear = -2500.0f;
+    _zfar = 2500.0f;
+
     _oZoom = ORTHOGRAPHIC_ZOOM_INIT;
     _pZoom = PERSPECTIVE_ZOOM_INIT;
 
@@ -53,6 +56,12 @@ void Camera::resize( int x, int y, int width, int height )
     _vHeight = height;
 
     _calculateProjection();
+}
+
+void Camera::setZNearFar( float zn, float zf )
+{
+    _znear = zn;
+    _zfar = zf;
 }
 
 void Camera::setProjection( Common::VSPenum type )
@@ -202,7 +211,7 @@ void Camera::_calculateProjection()
         _rightB = w * _oZoom;
         _upB = -h * _oZoom;
         _downB = h * _oZoom;
-        _projectionMatrix = glm::ortho( _leftB, _rightB, _upB, _downB, ORTHOGRAPHIC_Z_NEAR, ORTHOGRAPHIC_Z_FAR );
+        _projectionMatrix = glm::ortho( _leftB, _rightB, _upB, _downB, _znear, _zfar );
         break;
 
     case Common::VSP_CAM_PERSPECTIVE:
@@ -222,7 +231,7 @@ void Camera::_calculateProjection()
         _rightB = w * _oZoom;
         _upB = -h * _oZoom;
         _downB = h * _oZoom;
-        _projectionMatrix = glm::ortho( _leftB, _rightB, _upB, _downB, ORTHOGRAPHIC_Z_NEAR, ORTHOGRAPHIC_Z_FAR );
+        _projectionMatrix = glm::ortho( _leftB, _rightB, _upB, _downB, _znear, _zfar );
         break;
     }
 }
