@@ -1948,6 +1948,11 @@ SubSurface* Geom::AddSubSurf( int type )
         ssurf = new SSEllipse( m_ID );
         ssurf->SetName( string( "SS_ELLIP_" + to_string( ( long long )m_SubSurfVec.size() ) ) );
     }
+    else if (type == vsp::SS_CONTROL)
+    {
+        ssurf = new SSControlSurf(m_ID);
+        ssurf->SetName(string("SS_CONT_" + to_string((long long)m_SubSurfVec.size())));
+    }
 
     ssurf->SetParentContainer( GetID() );
     AddSubSurf( ssurf );

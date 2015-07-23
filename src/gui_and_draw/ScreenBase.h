@@ -293,6 +293,26 @@ public:
     ToggleButton m_SSEllInsideButton;
     ToggleButton m_SSEllOutsideButton;
     ToggleRadioGroup m_SSEllTestToggleGroup;
+
+    // SS_Control
+    GroupLayout m_SSConGroup;
+    SliderInput m_SSConUSSlider;
+    SliderInput m_SSConUESlider;
+    SliderInput m_SSConSPerSlider;
+    SliderAdjRangeInput m_SSConSLenSlider;
+    SliderInput m_SSConEPerSlider;
+    SliderAdjRangeInput m_SSConELenSlider;
+
+    ToggleButton m_SSConSAbsButton;
+    ToggleButton m_SSConSRelButton;
+    ToggleRadioGroup m_SSConSAbsRelToggleGroup;
+
+    ToggleButton m_SSConSEEqualButton;
+
+    ToggleButton m_SSConInsideButton;
+    ToggleButton m_SSConOutsideButton;
+    ToggleRadioGroup m_SSConTestToggleGroup;
+    Choice m_SSConSurfTypeChoice;
 };
 
 //==== Skin Screen ====//

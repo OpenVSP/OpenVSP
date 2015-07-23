@@ -18,6 +18,8 @@
 #include "Matrix.h"
 #include "Defines.h"
 
+#include "eli/geom/intersect/specified_distance_curve.hpp"
+
 SubSurface::SubSurface( string compID, int type )
 {
     m_Type = type;
@@ -143,6 +145,10 @@ std::string SubSurface::GetTypeName( int type )
     if ( type == vsp::SS_ELLIPSE )
     {
         return string( "Ellipse" );
+    }
+    if ( type == vsp::SS_CONTROL )
+    {
+        return string( "Control_Surf" );
     }
     return string( "NONE" );
 }
@@ -815,4 +821,278 @@ void SSEllipse::Update()
 
     SubSurface::Update();
 
+}
+
+//////////////////////////////////////////////////////
+//=================== SSControlSurface =====================//
+//////////////////////////////////////////////////////
+
+SSControlSurf::SSControlSurf( string compID, int type ) : SubSurface( compID, type )
+{
+    m_StartPercentChord.Init( "Percent_Chord_Start", "SS_Control", this, 0.25, 0, 1, true );
+    m_StartPercentChord.SetDescript( "Specifies control surface width in terms of percent chord" );
+
+    m_EndPercentChord.Init( "Percent_Chord_End", "SS_Control", this, 0.25, 0, 1, true );
+    m_EndPercentChord.SetDescript( "Specifies control surface width in terms of percent chord" );
+
+    m_StartLength.Init( "Length_Start", "SS_Control", this, 1.0, 0, 1e12, true );
+    m_StartLength.SetDescript( "Control surface width." );
+
+    m_EndLength.Init( "Length_End", "SS_Control", this, 1.0, 0, 1e12, true );
+    m_EndLength.SetDescript( "Control surface width." );
+
+    m_AbsRelFlag.Init( "Abs_Rel_Flag", "SS_Control", this, vsp::REL, vsp::ABS, vsp::REL );
+    m_AbsRelFlag.SetDescript( "Specify control surface with absolute or relative parameter." );
+
+    m_UStart.Init( "UStart", "SS_Control", this, 0.4, 0, 1, true );
+    m_UStart.SetDescript( "The U starting location of the control surface" );
+
+    m_UEnd.Init( "UEnd", "SS_Control", this, 0.6, 0, 1, true );
+    m_UEnd.SetDescript( "The U ending location of the control surface" );
+
+    m_TestType.Init( "Test_Type", "SS_Control", this, vsp::INSIDE, vsp::INSIDE, vsp::OUTSIDE );
+    m_TestType.SetDescript( "Determines whether or not the inside or outside of the region is tagged" );
+
+    m_SurfType.Init( "Surf_Type", "SS_Control", this, BOTH_SURF, UPPER_SURF, BOTH_SURF, false );
+    m_SurfType.SetDescript( "Flag to determine whether the control surface is on the upper,lower, or both surface(s) of the wing" );
+
+    m_EqualFlag.Init( "SE_Equal_Flag", "SS_Control", this, true, 0, 1 );
+    m_EqualFlag.SetDescript( "Control surface start/end parameters equal." );
+
+    for ( int i = 0; i < 3; i++ )
+    {
+        m_LVec.push_back( SSLineSeg() );
+    }
+}
+
+//==== Destructor ====//
+SSControlSurf::~SSControlSurf()
+{
+
+}
+
+//==== Update Method ===//
+void SSControlSurf::Update()
+{
+    // Build Control Surface as a rectangle with the points counter clockwise
+
+    vec3d c_uws_upper, c_uws_lower, c_uwe_upper, c_uwe_lower;
+    vector< vec3d > pnt_vec;
+    double u, w;
+
+    Geom* geom = VehicleMgr.GetVehicle()->FindGeom( m_CompID );
+    if ( !geom ) { return; }
+
+    VspSurf* surf = geom->GetSurfPtr();
+    if ( !surf ) { return; }
+
+
+    VspCurve startcrv;
+    surf->GetU01ConstCurve( startcrv, m_UStart() );
+
+    piecewise_curve_type c = startcrv.GetCurve();
+
+    double vmin = c.get_parameter_min(); // Really must be 0.0
+    double vmax = c.get_parameter_max(); // Really should be 4.0
+
+    double vle = ( vmin + vmax ) * 0.5;
+
+    double vtelow = vmin + TMAGIC;
+    double vteup = vmax - TMAGIC;
+
+    // Mid-curve points on upper and lower surface.  To serve as initial guess.
+    double vlowmid, vupmid;
+
+    vlowmid = vtelow + m_StartPercentChord() * ( vle - vtelow );
+    vupmid = vle + ( 1.0 - m_StartPercentChord() ) * ( vteup - vle );
+
+    curve_point_type te, le;
+    te = c.f( vmin );
+    le = c.f( vle );
+
+    double chord, d;
+    chord = dist( le, te );
+
+    if ( m_AbsRelFlag() == vsp::REL )
+    {
+        d = chord * m_StartPercentChord();
+        m_StartLength.Set( d );
+    }
+    else
+    {
+        d = m_StartLength();
+        m_StartPercentChord.Set( d / chord );
+    }
+
+    if ( m_EqualFlag.Get() )
+    {
+        if ( m_AbsRelFlag() == vsp::REL )
+        {
+            m_EndPercentChord.Set( d / chord );
+        }
+        else
+        {
+            m_EndLength.Set( d );
+        }
+    }
+
+
+    curve_point_type telow, teup;
+    telow = c.f( vtelow );
+    teup = c.f( vteup );
+
+    piecewise_curve_type clow, cup;
+    c.split( clow, cup, vle );
+
+
+    double vlow, vup;
+
+    if ( m_SurfType() != LOWER_SURF )
+    {
+        eli::geom::intersect::specified_distance( vup, cup, teup, d, vupmid );
+        c_uws_upper = vec3d( m_UStart(), vup / vmax, 0 );
+    }
+
+    if ( m_SurfType() != UPPER_SURF )
+    {
+        eli::geom::intersect::specified_distance( vlow, clow, telow, d, vlowmid );
+        c_uws_lower = vec3d( m_UStart(), vlow / vmax, 0 );
+    }
+
+
+    VspCurve endcrv;
+    surf->GetU01ConstCurve( endcrv, m_UEnd() );
+    c = endcrv.GetCurve();
+
+    te = c.f( vmin );
+    le = c.f( vle );
+
+    chord = dist( le, te );
+
+
+    if ( m_AbsRelFlag() == vsp::REL )
+    {
+        d = chord * m_EndPercentChord();
+        m_EndLength.Set( d );
+    }
+    else
+    {
+        d = m_EndLength();
+        m_EndPercentChord.Set( d / chord );
+    }
+
+    vlowmid = vtelow + m_EndPercentChord() * ( vle - vtelow );
+    vupmid = vle + ( 1.0 - m_EndPercentChord() ) * ( vteup - vle );
+
+    telow = c.f( vtelow );
+    teup = c.f( vteup );
+
+    c.split( clow, cup, vle );
+
+    if ( m_SurfType() != LOWER_SURF )
+    {
+        eli::geom::intersect::specified_distance( vup, cup, teup, d, vupmid );
+        c_uwe_upper = vec3d( m_UEnd(), vup / vmax, 0 );
+    }
+
+    if ( m_SurfType() != UPPER_SURF )
+    {
+        eli::geom::intersect::specified_distance( vlow, clow, telow, d, vlowmid );
+        c_uwe_lower = vec3d( m_UEnd(), vlow / vmax, 0 );
+    }
+
+    // Build Control Surface
+
+    if ( m_SurfType() == UPPER_SURF )
+    {
+        pnt_vec.resize( 4 );
+        pnt_vec[0] = vec3d( m_UStart(), 1, 0 );
+        pnt_vec[1] = c_uws_upper;
+        pnt_vec[2] = c_uwe_upper;
+        pnt_vec[3] = vec3d( m_UEnd(), 1, 0 );
+    }
+    else if ( m_SurfType() == LOWER_SURF )
+    {
+        pnt_vec.resize( 4 );
+        pnt_vec[0] = vec3d( m_UStart(), 0, 0 );
+        pnt_vec[1] = c_uws_lower;
+        pnt_vec[2] = c_uwe_lower;
+        pnt_vec[3] = vec3d( m_UEnd(), 0, 0 );
+    }
+    else
+    {
+        pnt_vec.resize( 8 );
+        pnt_vec[0] = vec3d( m_UStart(), 1, 0 );
+        pnt_vec[1] = c_uws_upper;
+        pnt_vec[2] = c_uwe_upper;
+        pnt_vec[3] = pnt_vec[3] = vec3d( m_UEnd(), 1, 0 );
+        pnt_vec[4] = vec3d( m_UEnd(), 0, 0 );
+        pnt_vec[5] = c_uwe_lower;
+        pnt_vec[6] = c_uws_lower;
+        pnt_vec[7] = vec3d( m_UStart(), 0, 0 );
+    }
+    //  pnt_vec[3] = pnt_vec[0];
+
+    int pind = 0;
+    int num_segs = pnt_vec.size() - 1;
+
+    if ( m_SurfType() == BOTH_SURF )
+    {
+        num_segs--;
+    }
+
+
+    m_LVec.resize( num_segs );
+
+    for ( int i = 0; i < num_segs; i++ )
+    {
+        if ( m_SurfType() == BOTH_SURF && i == 3 )
+        {
+            pind++;
+        }
+        m_LVec[i].SetSP0( pnt_vec[pind] );
+        pind++;
+        m_LVec[i].SetSP1( pnt_vec[pind] );
+        m_LVec[i].Update( geom );
+    }
+
+    SubSurface::Update();
+}
+
+void SSControlSurf::UpdatePolygonPnts()
+{
+    if ( m_SurfType() == UPPER_SURF || m_SurfType() == LOWER_SURF )
+    {
+        SubSurface::UpdatePolygonPnts();
+        vec3d pnt = m_LVec[0].GetP0();
+        m_PolyPntsVec[0].push_back( vec2d( pnt.x(), pnt.y() ) );
+        return;
+    }
+
+    m_PolyPntsVec.resize( 2 );
+
+    int last_ind = 0;
+    int start_ind = 0;
+    for ( int i = 0; i < ( int )m_PolyPntsVec.size(); i++ )
+    {
+        m_PolyPntsVec[i].clear();
+
+        if ( i == 0 ) { last_ind = 3; }
+        if ( i == 1 ) { last_ind = 6; }
+
+        vec3d pnt;
+        for ( int ls = start_ind; ls < last_ind; ls++ )
+        {
+            pnt = m_LVec[ls].GetP0();
+            m_PolyPntsVec[i].push_back( vec2d( pnt.x(), pnt.y() ) );
+        }
+        pnt = m_LVec[last_ind - 1].GetP1();
+        m_PolyPntsVec[i].push_back( vec2d( pnt.x(), pnt.y() ) );
+        pnt = m_LVec[start_ind].GetP0();
+        m_PolyPntsVec[i].push_back( vec2d( pnt.x(), pnt.y() ) );
+
+        start_ind = last_ind;
+    }
+
+    m_PolyPntsReadyFlag = true;
 }

@@ -208,4 +208,25 @@ public:
 
 };
 
+class SSControlSurf : public SubSurface
+{
+public:
+    SSControlSurf(string compID, int type = vsp::SS_CONTROL );
+    virtual ~SSControlSurf();
+    virtual void Update();
+
+    enum { UPPER_SURF, LOWER_SURF, BOTH_SURF };
+
+    Parm m_UStart; // U Starting location for control surface
+    Parm m_UEnd;   // U End location for control surface
+    Parm m_StartPercentChord; // Percent chord that the control surface should occupy
+    Parm m_EndPercentChord; // Percent chord that the control surface should occupy
+    Parm m_StartLength; // Dimensional distance for control surface
+    Parm m_EndLength; // Dimensional distance for control surface
+    IntParm m_AbsRelFlag; // Flag to identify whether fractional or absolute should be used.
+    BoolParm m_EqualFlag; // Flag to identify if start/end parameters are equal.
+    IntParm m_SurfType; // Defines if the control surface is on the upper/lower or both surfaces of the wing
+    virtual void UpdatePolygonPnts();
+};
+
 #endif
