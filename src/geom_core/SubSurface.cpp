@@ -36,6 +36,12 @@ SubSurface::~SubSurface()
 
 void SubSurface::ParmChanged( Parm* parm_ptr, int type )
 {
+    if ( type == Parm::SET )
+    {
+        m_LateUpdateFlag = true;
+        return;
+    }
+
     Update();
 
     Vehicle* veh = VehicleMgr.GetVehicle();
