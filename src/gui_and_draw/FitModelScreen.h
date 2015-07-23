@@ -44,6 +44,8 @@ public:
 
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
+    string truncateFileName( const string &fn, int len );
+
 protected:
 
     int m_NVarLast;
@@ -121,6 +123,16 @@ protected:
     TriggerButton m_UpdateDistButton;
     TriggerButton m_OptimizeButton;
     StringOutput m_DistOutput;
+
+    //===== Save/Load Tab Items =====//
+    StringOutput m_SaveOutput;
+    StringOutput m_LoadOutput;
+
+    TriggerButton m_SaveSelect;
+    TriggerButton m_LoadSelect;
+
+    TriggerButton m_Save;
+    TriggerButton m_Load;
 
     vector< DrawObj > m_PickList;
 

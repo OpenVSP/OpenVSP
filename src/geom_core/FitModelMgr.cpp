@@ -15,6 +15,7 @@
 #include "MeshGeom.h"
 #include "PtCloudGeom.h"
 #include "APIDefines.h"
+#include "XmlUtil.h"
 
 #define CMINPACK_NO_DLL
 #include <cminpack.h>
@@ -303,6 +304,41 @@ bool TargetPt::IsValid()
         return true;
     }
     return false;
+}
+
+xmlNodePtr TargetPt::WrapXml( xmlNodePtr & node )
+{
+    xmlNodePtr targetpt_node = xmlNewChild( node, NULL, BAD_CAST "TargetPt", NULL );
+    if ( targetpt_node )
+    {
+        XmlUtil::AddIntNode( targetpt_node, "UType", m_UType );
+        XmlUtil::AddIntNode( targetpt_node, "WType", m_WType );
+
+        XmlUtil::AddIntNode( targetpt_node, "UClosed", m_UClosed );
+        XmlUtil::AddIntNode( targetpt_node, "WClosed", m_WClosed );
+
+        XmlUtil::AddStringNode( targetpt_node, "MatchGeom", m_MatchGeom );
+
+        XmlUtil::AddVec2dNode( targetpt_node, "UW", m_UW );
+        XmlUtil::AddVec3dNode( targetpt_node, "Pt", m_Pt );
+    }
+    return targetpt_node;
+}
+
+xmlNodePtr TargetPt::UnwrapXml( xmlNodePtr & node )
+{
+    m_UType = XmlUtil::FindInt( node, "UType", m_UType );
+    m_WType = XmlUtil::FindInt( node, "WType", m_WType );
+
+    m_UClosed = (bool) XmlUtil::FindInt( node, "UClosed", m_UClosed );
+    m_WClosed = (bool) XmlUtil::FindInt( node, "WClosed", m_WClosed );
+
+    m_MatchGeom = XmlUtil::FindString( node, "MatchGeom", m_MatchGeom );
+
+    m_UW = XmlUtil::ExtractVec2dNode( node, "UW");
+    m_Pt = XmlUtil::ExtractVec3dNode( node, "Pt");
+
+    return node;
 }
 
 //==== Constructor ====//
@@ -1383,4 +1419,112 @@ void FitModelMgrSingleton::AddSelectedPts( string tgtGeomID )
     }
 
     SelectNone();
+}
+
+bool FitModelMgrSingleton::Save()
+{
+    xmlDocPtr doc = xmlNewDoc( ( const xmlChar * )"1.0" );
+
+    xmlNodePtr root = xmlNewNode( NULL, ( const xmlChar * )"Vsp_FitModel" );
+    xmlDocSetRootElement( doc, root );
+    XmlUtil::AddIntNode( root, "Version", CURRENT_FIT_FILE_VER);
+
+    //Wrap Target Points into a xml file
+    for (int index = 0; index < m_TargetPts.size(); ++index)
+    {
+        m_TargetPts[index]->WrapXml( root );
+    }
+
+    //Wrap Variables into a xml file
+    for (int index = 0; index < m_VarVec.size(); ++index)
+    {
+        xmlNodePtr variable_node = xmlNewChild( root, NULL, BAD_CAST "Variable", NULL );
+        if ( variable_node )
+        {
+            XmlUtil::AddStringNode(variable_node, "ParmID", m_VarVec[index]);
+        }
+    }
+
+    //===== Save XML Tree and Free Doc =====//
+    int err = xmlSaveFormatFile( m_SaveFitFileName.c_str(), doc, 1 );
+    xmlFreeDoc( doc );
+
+    if( err == -1 )  // Failure occurred
+    {
+        return false;
+    }
+
+    return true;
+}
+
+int FitModelMgrSingleton::Load()
+{
+    //==== Read Xml File ====//
+    xmlDocPtr doc;
+
+    LIBXML_TEST_VERSION
+            xmlKeepBlanksDefault( 0 );
+
+    //==== Build an XML tree from a the file ====//
+    doc = xmlParseFile( m_LoadFitFileName.c_str() );
+    if ( doc == NULL )
+    {
+        fprintf( stderr, "could not parse XML document\n" );
+        return 1;
+    }
+
+    xmlNodePtr root = xmlDocGetRootElement( doc );
+    if ( root == NULL )
+    {
+        fprintf( stderr, "empty document\n" );
+        xmlFreeDoc( doc );
+        return 2;
+    }
+
+    if ( xmlStrcmp( root->name, ( const xmlChar * )"Vsp_FitModel" ) )
+    {
+        fprintf( stderr, "document of the wrong type, Vsp Fit Model not found\n" );
+        xmlFreeDoc( doc );
+        return 3;
+    }
+
+    //==== Find Version Number ====//
+    int fileOpenVersion = XmlUtil::FindInt( root, "Version", 0 );
+
+    if ( fileOpenVersion < MIN_FIT_FILE_VER )
+    {
+        fprintf( stderr, "document version not supported \n");
+        xmlFreeDoc( doc );
+        return 4;
+    }
+
+    //==== Decode Vehicle from document ====//
+    int num = XmlUtil::GetNumNames( root, "TargetPt" );
+    for ( int index = 0 ; index < num ; ++index )
+    {
+        xmlNodePtr targetpt_node = XmlUtil::GetNode( root, "TargetPt", index );
+        if ( targetpt_node )
+        {
+            TargetPt* point = new TargetPt();
+
+            point->UnwrapXml(targetpt_node);
+            AddTargetPt( point );
+        }
+    }
+
+    num = XmlUtil::GetNumNames( root, "Variable" );
+    for ( int index = 0 ; index < num ; ++index )
+    {
+        xmlNodePtr variable_node = XmlUtil::GetNode( root, "Variable", index );
+        if ( variable_node )
+        {
+            string str = XmlUtil::FindString( variable_node, "ParmID", string() );
+            AddVar( str );
+        }
+    }
+
+    //===== Free Doc =====//
+    xmlFreeDoc( doc );
+
+    return 0;
 }

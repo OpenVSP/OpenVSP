@@ -17,6 +17,10 @@
 
 #include <vector>
 #include <string>
+
+#define MIN_FIT_FILE_VER 1
+#define CURRENT_FIT_FILE_VER 1
+
 using std::string;
 using std::vector;
 
@@ -96,6 +100,9 @@ public:
     {
         m_WClosed = wClosed;
     }
+
+    xmlNodePtr WrapXml( xmlNodePtr & node );
+    xmlNodePtr UnwrapXml( xmlNodePtr & node );
 
     vec3d GetMatchPt();
     vec3d GetMatchPt(Geom* matchgeom);
@@ -251,6 +258,27 @@ public:
         return m_GUIShown;
     }
 
+    void SetSaveFitFileName( string fileName )
+    {
+        m_SaveFitFileName = fileName;
+    }
+    string GetSaveFitFileName()
+    {
+        return m_SaveFitFileName;
+    }
+
+    void SetLoadFitFileName( string fileName )
+    {
+        m_LoadFitFileName = fileName;
+    }
+    string GetLoadFitFileName()
+    {
+        return m_LoadFitFileName;
+    }
+
+    bool Save();
+    int Load();
+
     BoolParm m_SelectOneFlag;
     BoolParm m_SelectBoxFlag;
 
@@ -297,6 +325,9 @@ private:
 
     DrawObj m_TargetPntDrawObj;
     DrawObj m_TargetLineDrawObj;
+
+    string m_SaveFitFileName = "DefaultFitModel.fit";
+    string m_LoadFitFileName;
 };
 
 #define FitModelMgr FitModelMgrSingleton::getInstance()

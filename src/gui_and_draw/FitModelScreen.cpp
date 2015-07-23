@@ -15,7 +15,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-FitModelScreen::FitModelScreen( ScreenMgr* mgr ) : TabScreen( mgr, 350, 469 + 107, "Fit Model", 107 )
+FitModelScreen::FitModelScreen( ScreenMgr* mgr ) : TabScreen( mgr, 400, 469 + 107, "Fit Model", 107 )
 {
     m_NVarLast = 0;
 
@@ -31,6 +31,8 @@ FitModelScreen::FitModelScreen( ScreenMgr* mgr ) : TabScreen( mgr, 350, 469 + 10
     tree_tab->callback( staticCB, this );
 
     Fl_Group* fit_tab = AddTab( "Fit Model" );
+
+    Fl_Group* saveLoad_tab = AddTab( "Save/Import" );
 
     pts_tab->show();
 
@@ -245,6 +247,48 @@ FitModelScreen::FitModelScreen( ScreenMgr* mgr ) : TabScreen( mgr, 350, 469 + 10
 
     m_OptimLayout.SetButtonWidth( 100 );
     m_OptimLayout.AddOutput( m_DistOutput, "Distance Metric" );
+
+    //===== Save/Load Tab =====//
+    Fl_Group* saveLoad_group = AddSubGroup( saveLoad_tab, 5 );
+    m_FitModelLayout.SetGroupAndScreen( saveLoad_group, this );
+
+    m_FitModelLayout.AddDividerBox("Save Targets & Variables");
+    m_FitModelLayout.AddYGap();
+
+    m_FitModelLayout.SetFitWidthFlag( false );
+    m_FitModelLayout.SetSameLineFlag( true );
+
+    m_FitModelLayout.SetButtonWidth( 75 );
+    m_FitModelLayout.SetInputWidth( m_FitModelLayout.GetRemainX() - m_FitModelLayout.GetButtonWidth() - 50 );
+    m_FitModelLayout.AddOutput(m_SaveOutput, "File Name:");
+    m_FitModelLayout.SetButtonWidth( 50 );
+    m_FitModelLayout.AddButton(m_SaveSelect, "...");
+    m_FitModelLayout.ForceNewLine();
+    m_FitModelLayout.AddYGap();
+
+    m_FitModelLayout.SetFitWidthFlag( true );
+    m_FitModelLayout.SetSameLineFlag( false );
+
+    m_FitModelLayout.AddButton(m_Save, "Save");
+    m_FitModelLayout.AddYGap();
+
+    m_FitModelLayout.AddDividerBox("Import Targets & Variables");
+    m_FitModelLayout.AddYGap();
+
+    m_FitModelLayout.SetFitWidthFlag( false );
+    m_FitModelLayout.SetSameLineFlag( true );
+
+    m_FitModelLayout.SetButtonWidth( 75 );
+    m_FitModelLayout.AddOutput(m_LoadOutput, "File Name:");
+    m_FitModelLayout.SetButtonWidth( 50 );
+    m_FitModelLayout.AddButton(m_LoadSelect, "...");
+    m_FitModelLayout.ForceNewLine();
+    m_FitModelLayout.AddYGap();
+
+    m_FitModelLayout.SetFitWidthFlag( true );
+    m_FitModelLayout.SetSameLineFlag( false );
+
+    m_FitModelLayout.AddButton(m_Load, "Import");
 }
 
 FitModelScreen::~FitModelScreen()
@@ -395,6 +439,27 @@ bool FitModelScreen::Update()
     m_CondOutput.Update( str );
 
     m_DistOutput.Update( std::to_string( static_cast<long double> (FitModelMgr.m_DistMetric) ) );
+
+    //===== Save/Load =====//
+    m_SaveOutput.Update( truncateFileName( FitModelMgr.GetSaveFitFileName(), 40 ) );
+    m_LoadOutput.Update( truncateFileName( FitModelMgr.GetLoadFitFileName(), 40 ) );
+
+    if ( m_SaveOutput.GetString() == "" )
+    {
+        m_Save.Deactivate();
+    }
+    else
+    {
+        m_Save.Activate();
+    }
+    if ( m_LoadOutput.GetString() == "" )
+    {
+        m_Load.Deactivate();
+    }
+    else
+    {
+        m_Load.Activate();
+    }
 
     m_FLTK_Window->redraw();
 
@@ -620,6 +685,30 @@ void FitModelScreen::GuiDeviceCallBack( GuiDevice* device )
             FitModelMgr.DelVar( ParmID );
         }
     }
+    else if ( device == &m_SaveSelect )
+    {
+        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Create or Select .fit file.", "*.fit" );
+        if ( newfile.compare( "" ) != 0 )
+        {
+            FitModelMgr.SetSaveFitFileName( newfile );
+        }
+    }
+    else if ( device == &m_LoadSelect )
+    {
+        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .fit file.", "*.fit" );
+        if ( newfile.compare( "" ) != 0 )
+        {
+            FitModelMgr.SetLoadFitFileName( newfile );
+        }
+    }
+    else if ( device == &m_Save )
+    {
+        FitModelMgr.Save();
+    }
+    else if ( device == &m_Load )
+    {
+        FitModelMgr.Load();
+    }
 
     m_ScreenMgr->SetUpdateFlag( true );
 }
@@ -627,6 +716,17 @@ void FitModelScreen::GuiDeviceCallBack( GuiDevice* device )
 bool FitModelScreen::IsVisible()
 {
     return m_FLTK_Window->visible();
+}
+
+string FitModelScreen::truncateFileName( const string &fn, int len )
+{
+    string trunc( fn );
+    if ( (int)trunc.length() > len )
+    {
+        trunc.erase( 0, trunc.length() - len );
+        trunc.replace( 0, 3, "..." );
+    }
+    return trunc;
 }
 
 void FitModelScreen::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
