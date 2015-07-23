@@ -449,6 +449,40 @@ xmlNodePtr XmlUtil::AddVectorDoubleNode( xmlNodePtr root, const char * name, vec
     return AddStringNode( root, name, str );
 }
 
+//==== Create Node and Add Vec2d (Double Values) ====//
+xmlNodePtr XmlUtil::AddVec2dNode( xmlNodePtr root, const char * name, vec2d vec )
+{
+    string str;
+    char buff[256];
+
+    sprintf( buff, "%.*e, ", DBL_DIG + 3, vec[0] );
+    str.append( buff );
+    sprintf( buff, "%.*e, ", DBL_DIG + 3, vec[1] );
+    str.append( buff );
+
+    str.append( "\0" );
+
+    return AddStringNode( root, name, str );
+}
+
+//==== Create Node and Add Vec3d (Double Values) ====//
+xmlNodePtr XmlUtil::AddVec3dNode( xmlNodePtr root, const char * name, vec3d vec )
+{
+    string str;
+    char buff[256];
+
+    sprintf( buff, "%.*e, ", DBL_DIG + 3, vec[0] );
+    str.append( buff );
+    sprintf( buff, "%.*e, ", DBL_DIG + 3, vec[1] );
+    str.append( buff );
+    sprintf( buff, "%.*e, ", DBL_DIG + 3, vec[2] );
+    str.append( buff );
+
+    str.append( "\0" );
+
+    return AddStringNode( root, name, str );
+}
+
 //==== Create Node and Add Vector Of Vec3d ====//
 xmlNodePtr XmlUtil::AddVectorVec3dNode( xmlNodePtr root, const char * name, vector< vec3d > & vec )
 {
@@ -525,6 +559,24 @@ vector< double > XmlUtil::ExtractVectorDoubleNode( xmlNodePtr root, const char *
     return ret_vec;
 }
 
+//==== Extract Vec2d ====//
+vec2d XmlUtil::ExtractVec2dNode( xmlNodePtr root, const char * name )
+{
+    vector< double > temp_vec = ExtractVectorDoubleNode( root, name );
+    vec2d ret_vec2d(temp_vec[0], temp_vec[1]);
+
+    return ret_vec2d;
+}
+
+//==== Extract Vec3d ====//
+vec3d XmlUtil::ExtractVec3dNode( xmlNodePtr root, const char * name )
+{
+    vector< double > temp_vec = ExtractVectorDoubleNode( root, name );
+    vec3d ret_vec3d(temp_vec[0], temp_vec[1], temp_vec[2]);
+
+    return ret_vec3d;
+}
+
 //==== Extract Vector Of Vec3d ====//
 vector< vec3d > XmlUtil::ExtractVectorVec3dNode( xmlNodePtr root, const char * name )
 {
@@ -558,6 +610,31 @@ vector< double > XmlUtil::GetVectorDoubleNode( xmlNodePtr node )
         }
     }
     return ret_vec;
+}
+
+//==== Get Vec2d ====//
+vec2d XmlUtil::GetVec2dNode( xmlNodePtr node )
+{
+    vector< double > temp_vec = GetVectorDoubleNode( node );
+    vec2d ret_vec2d;
+
+    ret_vec2d[0] = temp_vec[0];
+    ret_vec2d[1] = temp_vec[1];
+
+    return ret_vec2d;
+}
+
+//==== Get Vec3d ====//
+vec3d XmlUtil::GetVec3dNode( xmlNodePtr node )
+{
+    vector< double > temp_vec = GetVectorDoubleNode( node );
+    vec3d ret_vec3d;
+
+    ret_vec3d[0] = temp_vec[0];
+    ret_vec3d[1] = temp_vec[1];
+    ret_vec3d[2] = temp_vec[2];
+
+    return ret_vec3d;
 }
 
 //==== Get Vector of Vec3ds ====//

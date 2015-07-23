@@ -6,6 +6,7 @@
 #if !defined(VSPXMLUTIL__INCLUDED_)
 #define VSPXMLUTIL__INCLUDED_
 
+#include "Vec2d.h"
 #include "Vec3d.h"
 
 #include <libxml/tree.h>
@@ -50,13 +51,19 @@ void SetStringProp( xmlNodePtr root, const char * name, string & val );
 xmlNodePtr AddVectorBoolNode( xmlNodePtr root, const char * name, vector< bool > & vec );
 xmlNodePtr AddVectorIntNode( xmlNodePtr root, const char * name, vector< int > & vec );
 xmlNodePtr AddVectorDoubleNode( xmlNodePtr root, const char * name, vector< double > & vec );
+xmlNodePtr AddVec2dNode( xmlNodePtr root, const char * name, vec2d vec );
+xmlNodePtr AddVec3dNode( xmlNodePtr root, const char * name, vec3d vec );
 xmlNodePtr AddVectorVec3dNode( xmlNodePtr root, const char * name, vector< vec3d > & vec );
 
 vector< bool >   ExtractVectorBoolNode( xmlNodePtr root, const char * name );
 vector< int >    ExtractVectorIntNode( xmlNodePtr root, const char * name );
 vector< double > ExtractVectorDoubleNode( xmlNodePtr root, const char * name );
+vec2d ExtractVec2dNode( xmlNodePtr root, const char * name );
+vec3d ExtractVec3dNode( xmlNodePtr root, const char * name );
 vector< vec3d > ExtractVectorVec3dNode( xmlNodePtr root, const char * name );
 vector< double > GetVectorDoubleNode( xmlNodePtr node );
+vec2d GetVec2dNode( xmlNodePtr node );
+vec3d GetVec3dNode( xmlNodePtr node );
 vector< vec3d > GetVectorVec3dNode( xmlNodePtr node );
 
 xmlNodePtr EncodeFileContents( xmlNodePtr root, const char* file_name );
