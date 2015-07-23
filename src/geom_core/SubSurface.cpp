@@ -900,12 +900,6 @@ void SSControlSurf::Update()
     double vtelow = vmin + TMAGIC;
     double vteup = vmax - TMAGIC;
 
-    // Mid-curve points on upper and lower surface.  To serve as initial guess.
-    double vlowmid, vupmid;
-
-    vlowmid = vtelow + m_StartPercentChord() * ( vle - vtelow );
-    vupmid = vle + ( 1.0 - m_StartPercentChord() ) * ( vteup - vle );
-
     curve_point_type te, le;
     te = c.f( vmin );
     le = c.f( vle );
@@ -935,6 +929,12 @@ void SSControlSurf::Update()
             m_EndLength.Set( d );
         }
     }
+
+    // Mid-curve points on upper and lower surface.  To serve as initial guess.
+    double vlowmid, vupmid;
+
+    vlowmid = vtelow + m_StartPercentChord() * ( vle - vtelow );
+    vupmid = vle + ( 1.0 - m_StartPercentChord() ) * ( vteup - vle );
 
 
     curve_point_type telow, teup;
