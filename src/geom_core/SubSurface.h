@@ -108,8 +108,6 @@ public:
         m_LineColor = color;
     }
 
-    enum { INSIDE, OUTSIDE };
-
     static std::string GetTypeName( int type );
 
     virtual bool Subtag( TTri* tri ); // Method to subtag triangles from TMesh.

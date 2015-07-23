@@ -625,7 +625,7 @@ SSRectangle::SSRectangle( string comp_id, int type ) : SubSurface( comp_id, type
     m_WLength.SetDescript( "Defines length of rectangle in W direction before rotation" );
     m_Theta.Init( "Theta", "SS_Rectangle", this, 0, -90, 90 );
     m_Theta.SetDescript( "Defines angle in degrees from U axis to rotate the rectangle" );
-    m_TestType.Init( "Test_Type", "SS_Rectangle", this, INSIDE, INSIDE, OUTSIDE );
+    m_TestType.Init( "Test_Type", "SS_Rectangle", this, vsp::INSIDE, vsp::INSIDE, vsp::OUTSIDE );
     m_TestType.SetDescript( "Determines whether or not the inside or outside of the region is tagged" );
 
     // Each Rectangle will always have 4 line segments
@@ -709,7 +709,7 @@ SSEllipse::SSEllipse( string comp_id, int type ) : SubSurface( comp_id, type )
     m_Theta.SetDescript( "Defines angle in degrees from U axis to rotate the rectangle" );
     m_Tess.Init( "Tess_Num", "SS_Ellipse", this, 15, 3, 1000 );
     m_Tess.SetDescript( " Number of points to discretize curve" );
-    m_TestType.Init( "Test_Type", "SS_Ellipse", this, INSIDE, INSIDE, OUTSIDE );
+    m_TestType.Init( "Test_Type", "SS_Ellipse", this, vsp::INSIDE, vsp::INSIDE, vsp::OUTSIDE );
     m_TestType.SetDescript( "Determines whether or not the inside or outside of the region is tagged" );
 
     m_PolyFlag = false;

@@ -225,6 +225,10 @@ enum SUBSURF_TYPE { SS_LINE,
                     SS_ELLIPSE,
                     SS_NUM_TYPES };
 
+enum SUBSURF_INOUT { INSIDE,
+                     OUTSIDE
+};
+
 enum WING_DRIVERS { AR_WSECT_DRIVER,
                     SPAN_WSECT_DRIVER,
                     AREA_WSECT_DRIVER,
