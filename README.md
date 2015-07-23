@@ -43,7 +43,7 @@
 
 ##### Assumed provided by the operating system.
   
-   - [OpenGL](www.opengl.org) - 3D graphics library. OpenGL should be
+   - [OpenGL](http://www.opengl.org) - 3D graphics library. OpenGL should be
    available on any platform capable of displaying 3D graphics. GRAPHICS_ONLY
 
 ##### Installed by the developer.
@@ -53,41 +53,41 @@
    main platforms.  For Windows, we require Visual Studio 2010 Express
    or newer.  For Mac OSX or Linux/BSD, we support LLVM and GCC.
 
-   - [CMake 2.8](www.cmake.org) - Cross-platform build system.  CMake
+   - [CMake 2.8](http://www.cmake.org) - Cross-platform build system.  CMake
    generates platform-native build files which control compilation of
    OpenVSP.  CMake is available as a standard package on most Linux
    systems and binary installers are available for many other platforms
    including Windows and Mac OS X.
 
-   - [SWIG](www.swig.org) - Simplified Wrapper and Interface Generator.
+   - [SWIG](http://www.swig.org) - Simplified Wrapper and Interface Generator.
    Optional dependency used to build interface to API for Python
    and other scripting languages.
 
-   - [Python](www.python.org) - Scripting language.  Optional dependency
+   - [Python](http://www.python.org) - Scripting language.  Optional dependency
    required if building Python API module.
 
-   - [Doxygen](www.doxygen.org) - Documentation generator.  Optional
+   - [Doxygen](http://www.doxygen.org) - Documentation generator.  Optional
    dependency used for generating documentation from the source.  Can
    also utilize graphviz dot to generate improved figures in the
-   documentation. (www.graphviz.org)
+   documentation. (http://www.graphviz.org)
 
 ##### Bundled with OpenVSP, but system libraries may substitute.
 
-   - [Code-Eli](github.com/ddmarshall/Code-Eli) - Curve & surface library.
+   - [Code-Eli](http://github.com/ddmarshall/Code-Eli) - Curve & surface library.
    Code-Eli was developed by David Marshall to meet OpenVSP's needs.
    It is a header-only library that must be available to build.  It is
    not likely to be packaged on any system.
 
-   - [Eigen3](eigen.tuxfamily.org) - Template library for linear algebra.
+   - [Eigen3](http://eigen.tuxfamily.org) - Template library for linear algebra.
    This header-only library is required by Code-Eli.  Eigen3 is likely
    to be available as a standard package on Linux.
 
-   - [AngelScript](www.angelcode.com/angelscript) - Embedded scripting
+   - [AngelScript](http://www.angelcode.com/angelscript) - Embedded scripting
    language for C++.  Used for user-defined components.
 
-   - [CppTest](cpptest.sourceforge.net) - C++ Unit testing framework.
+   - [CppTest](http://cpptest.sourceforge.net) - C++ Unit testing framework.
 
-   - [Libxml2](www.xmlsoft.org) - XML parser and toolkit.  Libxml2 most
+   - [Libxml2](http://www.xmlsoft.org) - XML parser and toolkit.  Libxml2 most
    likely comes pre-installed with most Linux distributions and 
    Mac OS X systems.  Windows users must download the source and
    build this library following the Libxml2 instructions.
@@ -95,36 +95,36 @@
    - [CMinpack](http://devernay.free.fr/hacks/cminpack/) - C/C++ port of
    standard Fortran Levenberg-Marquardt implementation.
 
-   - [FLTK](www.fltk.org) - Cross-platform windowing library.  FLTK should
+   - [FLTK](http://www.fltk.org) - Cross-platform windowing library.  FLTK should
    be available as a standard package on most Linux systems and can
    be installed from source on Windows and Mac OS X according to the
    FLTK instructions.  GRAPHICS_ONLY
 
-   - [libjpeg](www.ijg.org) - JPEG compression library.  We typically
+   - [libjpeg](http://www.ijg.org) - JPEG compression library.  We typically
    piggy-back on the libjpeg accompanying FLTK.  If you prefer to use
    your own, it is typically pre-installed on Linux.  You will need
    to build it yourself for MacOS or Windows.  GRAPHICS_ONLY
 
-   - [GLM](glm.g-truc.net) - OpenGL math library.  GRAPHICS_ONLY
+   - [GLM](http://glm.g-truc.net) - OpenGL math library.  GRAPHICS_ONLY
 
-   - [GLEW](glew.sourceforge.net) - OpenGL Extension Wrangler Library.  This
+   - [GLEW](http://glew.sourceforge.net) - OpenGL Extension Wrangler Library.  This
    library is used to access any modern OpenGL features.  GRAPHICS_ONLY
 
 ##### Bundled with OpenVSP.
 
-   - [STEPcode](stepcode.org) - Library for working with STEP standard
+   - [STEPcode](http://stepcode.org) - Library for working with STEP standard
    files.  Based on an old library developed by NIST.  This is a
    relatively new library, in constant development.  Not likely
    to be packaged on any system.
 
-   - [nanoflann](code.google.com/p/nanoflann) - Fast nearest neighbors
+   - [nanoflann](http://code.google.com/p/nanoflann) - Fast nearest neighbors
    library.
 
    - sixseries - NASA 6-Series airfoil generation Fortran code released
    to the public domain from NASA TM X 3069 September, 1974.
    Converted to C using F2C.
    
-   - [Triangle by Jonathan Shewchuk](www.cs.cmu.edu/~quake/triangle.html)
+   - [Triangle by Jonathan Shewchuk](http://www.cs.cmu.edu/~quake/triangle.html)
    2D Delaunay triangulator.  This routine has been included in
    this distribution.
    
@@ -143,7 +143,7 @@
       - Tomas Mšller, "A Fast Triangle-Triangle Intersection Test", Journal
       of Graphics Tools, Vol. 2, Iss. 2, 1997.
   
-   - [glFont2 by Brad Fish](students.cs.byu.edu/~bfish/glfont2.php) -
+   - [glFont2 by Brad Fish](http://students.cs.byu.edu/~bfish/glfont2.php) -
    2D OpenGL font tool.  glFont2 has been included in this source
    distribution.  GRAPHICS_ONLY
 
@@ -151,7 +151,7 @@
 
    If you want to build OpenVSP on a Debian based Linux computer
    (Debian, Ubuntu, Mint, etc.), step-by-step instructions are
-   included on the OpenVSP Wiki.  [Debian Based Build](www.openvsp.org/wiki/doku.php?id=ubuntu_instructions)
+   included on the OpenVSP Wiki here: [Debian Based Build](http://www.openvsp.org/wiki/doku.php?id=ubuntu_instructions).
 
    All of the supporting libraries and code described above in
    DEPENDENCIES categories 1 and 2 must be properly installed.
@@ -250,7 +250,3 @@
       - `VSP_USE_SYSTEM_GLM`
       - `VSP_USE_SYSTEM_GLEW`
       - `VSP_USE_SYSTEM_CMINPACK`
-
-
-
-
