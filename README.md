@@ -43,7 +43,8 @@
 
 ##### Assumed provided by the operating system.
   
-   - [OpenGL](www.opengl.org) - 3D graphics library. OpenGL should be available on any platform capable of displaying 3D graphics. GRAPHICS_ONLY
+   - [OpenGL](www.opengl.org) - 3D graphics library. OpenGL should be
+   available on any platform capable of displaying 3D graphics. GRAPHICS_ONLY
 
 ##### Installed by the developer.
 
