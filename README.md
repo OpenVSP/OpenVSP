@@ -148,6 +148,10 @@
 
 ### BUILD INSTRUCTIONS
 
+   If you want to build OpenVSP on a Debian based Linux computer
+   (Debian, Ubuntu, Mint, etc.), step-by-step instructions are
+   included on the OpenVSP Wiki.  [Debian Based Build](www.openvsp.org/wiki/doku.php?id=ubuntu_instructions)
+
    All of the supporting libraries and code described above in
    DEPENDENCIES categories 1 and 2 must be properly installed.
    Those in categories 3 and 4 can be satisfied by OpenVSP itself.
@@ -246,39 +250,6 @@
       - `VSP_USE_SYSTEM_GLEW`
       - `VSP_USE_SYSTEM_CMINPACK`
 
-### DEBIAN PACKAGES
-
-   If you wish to use system libraries to satisfy the category 3
-   libraries on a Debian system, you will need to install the
-   following packages.
-
-##### Development environment:
-
-   - `git`
-   - `git-gui`
-   - `cmake`
-   - `g++`
-
-##### Libraries:
-
-   - `libcpptest-dev`
-   - `libxml2-dev`
-   - `libfltk1.3-dev`
-   - `libeigen3-dev`
-   - `libglm-dev`
-   - `libglew-dev`
-   - `libjpeg-dev`
-   - `libcminpack-dev`
-
-##### Optional packages:
-
-   - `python-dev`
-   - `swig`
-   - `doxygen`
-   - `graphviz`
 
 
-On Mint, users have also found that they must install the following package:
-
-   - `fluid`
 
