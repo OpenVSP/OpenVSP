@@ -13,18 +13,22 @@
 
 ParmLinkScreen::ParmLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 595, "Parm Link  ( B = A*scale + offset)" )
 {
-    m_GenLayout.SetGroupAndScreen( m_FLTK_Window, this );
-    m_GenLayout.AddY( 25 );
+    m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
+    m_MainLayout.AddY( 25 );
+    m_MainLayout.AddX( 5 );
+
+    m_MainLayout.AddSubGroupLayout( m_GenLayout, m_MainLayout.GetRemainX() - 5.0,
+                                    m_MainLayout.GetRemainY() - 5.0);
 
     m_GenLayout.SetFitWidthFlag( true );
     m_GenLayout.SetSameLineFlag( false );
 
     // Add Parameter Picker subgroups
-    m_GenLayout.AddSubGroupLayout( m_ParmAGroup, m_GenLayout.GetW() / 2 - 50, 80 );
-    m_GenLayout.AddX( m_GenLayout.GetW() / 2 - 48 );
+    m_GenLayout.AddSubGroupLayout( m_ParmAGroup, m_GenLayout.GetW() / 2 - 52, 80 );
+    m_GenLayout.AddX( m_GenLayout.GetW() / 2 - 49 );
     m_GenLayout.AddSubGroupLayout( m_LinkGroup, 100, 80 );
-    m_GenLayout.AddX( 104 );
-    m_GenLayout.AddSubGroupLayout( m_ParmBGroup, m_GenLayout.GetW() / 2 - 50, 80 );
+    m_GenLayout.AddX( 102 );
+    m_GenLayout.AddSubGroupLayout( m_ParmBGroup, m_GenLayout.GetW() / 2 - 52, 75 );
 
     // Add content to Parameter Picker subgroups
     m_ParmAGroup.AddDividerBox( "Parm A" );
@@ -48,8 +52,8 @@ ParmLinkScreen::ParmLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 595, "
     // Add 'Offfset' On/Off toggle button and slider
     m_GenLayout.SetFitWidthFlag( false );
     m_GenLayout.SetSameLineFlag( true );
-    m_GenLayout.SetButtonWidth( 67 );
-    m_GenLayout.SetSliderWidth( 407 );
+    m_GenLayout.SetButtonWidth( 62 );
+    m_GenLayout.SetSliderWidth( 404.3 );
     m_GenLayout.AddButton( m_OffsetTog, "Offset" );
     m_GenLayout.AddSlider( m_OffsetSlider, "Offset", 100, " %7.3f" );
     m_GenLayout.ForceNewLine();
@@ -96,7 +100,7 @@ ParmLinkScreen::ParmLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 595, "
     // Set the Add and Delete buttons under 'Constraints'
     m_ConstraintsButtons.SetFitWidthFlag( false );
     m_ConstraintsButtons.SetSameLineFlag( true );
-    m_ConstraintsButtons.SetButtonWidth( 190 );
+    m_ConstraintsButtons.SetButtonWidth( 186 );
     m_ConstraintsButtons.AddButton( m_AddLink, "Add Link" );
     m_ConstraintsButtons.AddX( 15 );
     m_ConstraintsButtons.AddButton( m_DeleteLink, "Delete Link" );
@@ -109,8 +113,9 @@ ParmLinkScreen::ParmLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 595, "
 
     // Add Link Browser
     m_GenLayout.AddDividerBox( "Parm Link List" );
-    m_LinkBrowser = m_GenLayout.AddFlBrowser( 345 );
+    m_LinkBrowser = m_GenLayout.AddFlBrowser( 340 );
     m_LinkBrowser->callback( staticScreenCB, this );
+    m_GenLayout.ForceNewLine();
 }
 
 ParmLinkScreen::~ParmLinkScreen()

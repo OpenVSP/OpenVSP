@@ -32,9 +32,10 @@ public:
 protected:
 
     // Main group
-    GroupLayout m_GenLayout;
+    GroupLayout m_MainLayout;
 
     // Subgroups
+    GroupLayout m_GenLayout;
     GroupLayout m_ParmAGroup;
     GroupLayout m_ParmBGroup;
     GroupLayout m_LinkGroup;
