@@ -315,14 +315,9 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_GenLayout.AddYGap();
 
     //=== Negative Volumes ===//
-    m_GenLayout.AddDividerBox( "Negative Volume Properties" );
+    m_GenLayout.AddDividerBox( "CFDMesh Negative Volume" );
 
-    //==== Two Columns ====//
-    m_GenLayout.AddSubGroupLayout( m_NegativeVolume,   gen_group->w() / 2 - 2, 2 * m_GenLayout.GetStdHeight() );
-
-    m_NegativeVolume.AddButton( m_NegativeVolumeBtn, "Negative Volume" );
-
-    m_GenLayout.ForceNewLine();
+    m_GenLayout.AddButton( m_NegativeVolumeBtn, "Negative Volume" );
     m_GenLayout.AddYGap();
 
     m_GenLayout.AddDividerBox( "Set Export/Analysis" );
@@ -630,11 +625,16 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SSConSurfTypeChoice.AddItem("Upper");
     m_SSConSurfTypeChoice.AddItem("Lower");
     m_SSConSurfTypeChoice.AddItem("Both");
-    m_SSConGroup.AddChoice(m_SSConSurfTypeChoice, "Surf Type");
+    m_SSConGroup.AddChoice(m_SSConSurfTypeChoice, "Upper/Lower:");
 
+    m_SSConGroup.AddYGap();
+    m_SSConGroup.AddDividerBox( "Spanwise" );
 
-    m_SSConGroup.AddSlider(m_SSConUSSlider, "U Start", 1, "%5.4f");
-    m_SSConGroup.AddSlider(m_SSConUESlider, "U End", 1, "%5.4f");
+    m_SSConGroup.AddSlider(m_SSConUSSlider, "Start U", 1, "%5.4f");
+    m_SSConGroup.AddSlider(m_SSConUESlider, "End U", 1, "%5.4f");
+
+    m_SSConGroup.AddYGap();
+    m_SSConGroup.AddDividerBox( "Chordwise" );
 
 
     m_SSConGroup.SetFitWidthFlag(false);
@@ -642,9 +642,9 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
 
     m_SSConGroup.SetButtonWidth( m_SSConGroup.GetW() / 3 );
 
-    m_SSConGroup.AddButton( m_SSConSAbsButton, "Abs" );
-    m_SSConGroup.AddButton( m_SSConSRelButton, "Rel" );
-    m_SSConGroup.AddButton( m_SSConSEEqualButton, "S/E Equal" );
+    m_SSConGroup.AddButton( m_SSConSAbsButton, "Length" );
+    m_SSConGroup.AddButton( m_SSConSRelButton, "Length/C" );
+    m_SSConGroup.AddButton( m_SSConSEConstButton, "Constant" );
 
     m_SSConGroup.SetFitWidthFlag(true);
     m_SSConGroup.SetSameLineFlag(false);
@@ -654,11 +654,11 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SSConSAbsRelToggleGroup.AddButton( m_SSConSAbsButton.GetFlButton() );
     m_SSConSAbsRelToggleGroup.AddButton( m_SSConSRelButton.GetFlButton() );
 
-    m_SSConGroup.AddSlider( m_SSConSPerSlider, "Per C Start", 1.0, "%5.4f");
-    m_SSConGroup.AddSlider( m_SSConSLenSlider, "Length Start", 10.0, "%5.4f" );
+    m_SSConGroup.AddSlider( m_SSConSLenSlider, "Start Length", 10.0, "%5.4f" );
+    m_SSConGroup.AddSlider( m_SSConSFracSlider, "Start Length/C", 1.0, "%5.4f");
 
-    m_SSConGroup.AddSlider(m_SSConEPerSlider, "Per C End", 1.0, "%5.4f");
-    m_SSConGroup.AddSlider( m_SSConELenSlider, "Length End", 10.0, "%5.4f" );
+    m_SSConGroup.AddSlider( m_SSConELenSlider, "End Length", 10.0, "%5.4f" );
+    m_SSConGroup.AddSlider( m_SSConEFracSlider, "End Length/C", 1.0, "%5.4f" );
 }
 
 bool GeomScreen::Update()
@@ -840,37 +840,37 @@ bool GeomScreen::Update()
             m_SSConUESlider.Update(sscon->m_UEnd.GetID());
             m_SSConUSSlider.Update(sscon->m_UStart.GetID());
 
-            m_SSConSPerSlider.Update(sscon->m_StartPercentChord.GetID());
+            m_SSConSFracSlider.Update(sscon->m_StartLenFrac.GetID());
             m_SSConSLenSlider.Update(sscon->m_StartLength.GetID());
 
-            m_SSConEPerSlider.Update(sscon->m_EndPercentChord.GetID());
+            m_SSConEFracSlider.Update(sscon->m_EndLenFrac.GetID());
             m_SSConELenSlider.Update(sscon->m_EndLength.GetID());
 
             m_SSConSAbsRelToggleGroup.Update(sscon->m_AbsRelFlag.GetID());
-            m_SSConSEEqualButton.Update(sscon->m_EqualFlag.GetID());
+            m_SSConSEConstButton.Update(sscon->m_ConstFlag.GetID());
 
-            m_SSConSPerSlider.Deactivate();
+            m_SSConSFracSlider.Deactivate();
             m_SSConSLenSlider.Deactivate();
 
-            m_SSConEPerSlider.Deactivate();
+            m_SSConEFracSlider.Deactivate();
             m_SSConELenSlider.Deactivate();
 
             if ( sscon->m_AbsRelFlag() == ABS )
             {
                 m_SSConSLenSlider.Activate();
 
-                if ( !sscon->m_EqualFlag() )
+                if ( !sscon->m_ConstFlag() )
                 {
                     m_SSConELenSlider.Activate();
                 }
             }
             else
             {
-                m_SSConSPerSlider.Activate();
+                m_SSConSFracSlider.Activate();
 
-                if ( !sscon->m_EqualFlag() )
+                if ( !sscon->m_ConstFlag() )
                 {
-                    m_SSConEPerSlider.Activate();
+                    m_SSConEFracSlider.Activate();
                 }
             }
 

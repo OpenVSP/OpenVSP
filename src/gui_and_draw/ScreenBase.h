@@ -174,7 +174,6 @@ public:
     GroupLayout m_GenLayout;
     GroupLayout m_Density;
     GroupLayout m_Shell;
-    GroupLayout m_NegativeVolume;
 
     GroupLayout m_XFormLayout;
     GroupLayout m_SubSurfLayout;
@@ -298,16 +297,16 @@ public:
     GroupLayout m_SSConGroup;
     SliderInput m_SSConUSSlider;
     SliderInput m_SSConUESlider;
-    SliderInput m_SSConSPerSlider;
+    SliderInput m_SSConSFracSlider;
     SliderAdjRangeInput m_SSConSLenSlider;
-    SliderInput m_SSConEPerSlider;
+    SliderInput m_SSConEFracSlider;
     SliderAdjRangeInput m_SSConELenSlider;
 
     ToggleButton m_SSConSAbsButton;
     ToggleButton m_SSConSRelButton;
     ToggleRadioGroup m_SSConSAbsRelToggleGroup;
 
-    ToggleButton m_SSConSEEqualButton;
+    ToggleButton m_SSConSEConstButton;
 
     ToggleButton m_SSConInsideButton;
     ToggleButton m_SSConOutsideButton;

@@ -829,11 +829,11 @@ void SSEllipse::Update()
 
 SSControlSurf::SSControlSurf( string compID, int type ) : SubSurface( compID, type )
 {
-    m_StartPercentChord.Init( "Percent_Chord_Start", "SS_Control", this, 0.25, 0, 1, true );
-    m_StartPercentChord.SetDescript( "Specifies control surface width in terms of percent chord" );
+    m_StartLenFrac.Init( "Length_C_Start", "SS_Control", this, 0.25, 0, 1, true );
+    m_StartLenFrac.SetDescript( "Specifies control surface width as fraction of chord" );
 
-    m_EndPercentChord.Init( "Percent_Chord_End", "SS_Control", this, 0.25, 0, 1, true );
-    m_EndPercentChord.SetDescript( "Specifies control surface width in terms of percent chord" );
+    m_EndLenFrac.Init( "Length_C_End", "SS_Control", this, 0.25, 0, 1, true );
+    m_EndLenFrac.SetDescript( "Specifies control surface width as fraction of chord" );
 
     m_StartLength.Init( "Length_Start", "SS_Control", this, 1.0, 0, 1e12, true );
     m_StartLength.SetDescript( "Control surface width." );
@@ -856,8 +856,8 @@ SSControlSurf::SSControlSurf( string compID, int type ) : SubSurface( compID, ty
     m_SurfType.Init( "Surf_Type", "SS_Control", this, BOTH_SURF, UPPER_SURF, BOTH_SURF, false );
     m_SurfType.SetDescript( "Flag to determine whether the control surface is on the upper,lower, or both surface(s) of the wing" );
 
-    m_EqualFlag.Init( "SE_Equal_Flag", "SS_Control", this, true, 0, 1 );
-    m_EqualFlag.SetDescript( "Control surface start/end parameters equal." );
+    m_ConstFlag.Init( "SE_Const_Flag", "SS_Control", this, true, 0, 1 );
+    m_ConstFlag.SetDescript( "Control surface start/end parameters equal." );
 
     for ( int i = 0; i < 3; i++ )
     {
@@ -909,20 +909,20 @@ void SSControlSurf::Update()
 
     if ( m_AbsRelFlag() == vsp::REL )
     {
-        d = chord * m_StartPercentChord();
+        d = chord * m_StartLenFrac();
         m_StartLength.Set( d );
     }
     else
     {
         d = m_StartLength();
-        m_StartPercentChord.Set( d / chord );
+        m_StartLenFrac.Set( d / chord );
     }
 
-    if ( m_EqualFlag.Get() )
+    if ( m_ConstFlag.Get() )
     {
         if ( m_AbsRelFlag() == vsp::REL )
         {
-            m_EndPercentChord.Set( d / chord );
+            m_EndLenFrac.Set( d / chord );
         }
         else
         {
@@ -933,8 +933,8 @@ void SSControlSurf::Update()
     // Mid-curve points on upper and lower surface.  To serve as initial guess.
     double vlowmid, vupmid;
 
-    vlowmid = vtelow + m_StartPercentChord() * ( vle - vtelow );
-    vupmid = vle + ( 1.0 - m_StartPercentChord() ) * ( vteup - vle );
+    vlowmid = vtelow + m_StartLenFrac() * ( vle - vtelow );
+    vupmid = vle + ( 1.0 - m_StartLenFrac() ) * ( vteup - vle );
 
 
     curve_point_type telow, teup;
@@ -972,17 +972,17 @@ void SSControlSurf::Update()
 
     if ( m_AbsRelFlag() == vsp::REL )
     {
-        d = chord * m_EndPercentChord();
+        d = chord * m_EndLenFrac();
         m_EndLength.Set( d );
     }
     else
     {
         d = m_EndLength();
-        m_EndPercentChord.Set( d / chord );
+        m_EndLenFrac.Set( d / chord );
     }
 
-    vlowmid = vtelow + m_EndPercentChord() * ( vle - vtelow );
-    vupmid = vle + ( 1.0 - m_EndPercentChord() ) * ( vteup - vle );
+    vlowmid = vtelow + m_EndLenFrac() * ( vle - vtelow );
+    vupmid = vle + ( 1.0 - m_EndLenFrac() ) * ( vteup - vle );
 
     telow = c.f( vtelow );
     teup = c.f( vteup );
