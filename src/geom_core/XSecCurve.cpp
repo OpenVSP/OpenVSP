@@ -602,16 +602,6 @@ void XSecCurve::Trim( bool wingtype )
             }
         }
 
-        // Protect against NAN parameters.
-        if ( std::isnan( ts1 ) )
-        {
-            ts1 = umin;
-        }
-        if ( std::isnan( ts2 ) )
-        {
-            ts2 = umax;
-        }
-
         // Limit trimming to make sure something happens.
         ts1 = max( ts1, umin );
         ts2 = min( ts2, umax );
