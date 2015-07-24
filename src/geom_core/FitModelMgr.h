@@ -326,7 +326,7 @@ private:
     DrawObj m_TargetPntDrawObj;
     DrawObj m_TargetLineDrawObj;
 
-    string m_SaveFitFileName = "DefaultFitModel.fit";
+    string m_SaveFitFileName;
     string m_LoadFitFileName;
 };
 

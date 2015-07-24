@@ -366,6 +366,8 @@ FitModelMgrSingleton::FitModelMgrSingleton()
 
     m_GUIShown = false;
 
+    m_SaveFitFileName = string( "DefaultFitModel.fit" );
+
     Init();
 }
 
