@@ -43,8 +43,8 @@ ParmLinkScreen::ParmLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 595, "
 
 
     m_LinkGroup.AddY( 17 );
-    m_LinkGroup.AddButton( m_LinkConts, "Link Conts" );
-    m_LinkGroup.AddButton( m_LinkGroups, "Link Groups" );
+    m_LinkGroup.AddButton( m_LinkConts, "Link All" );
+    m_LinkGroup.AddButton( m_LinkGroups, "Link All" );
 
     m_GenLayout.ForceNewLine();
     m_GenLayout.AddY( 65 );
@@ -53,7 +53,7 @@ ParmLinkScreen::ParmLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 595, "
     m_GenLayout.SetFitWidthFlag( false );
     m_GenLayout.SetSameLineFlag( true );
     m_GenLayout.SetButtonWidth( 62 );
-    m_GenLayout.SetSliderWidth( 404.3 );
+    m_GenLayout.SetSliderWidth( 404 );
     m_GenLayout.AddButton( m_OffsetTog, "Offset" );
     m_GenLayout.AddSlider( m_OffsetSlider, "Offset", 100, " %7.3f" );
     m_GenLayout.ForceNewLine();
@@ -113,9 +113,8 @@ ParmLinkScreen::ParmLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 595, "
 
     // Add Link Browser
     m_GenLayout.AddDividerBox( "Parm Link List" );
-    m_LinkBrowser = m_GenLayout.AddFlBrowser( 340 );
+    m_LinkBrowser = m_GenLayout.AddFlBrowser( 310 );
     m_LinkBrowser->callback( staticScreenCB, this );
-    m_GenLayout.ForceNewLine();
 }
 
 ParmLinkScreen::~ParmLinkScreen()
