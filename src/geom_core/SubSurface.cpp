@@ -474,25 +474,25 @@ vec3d SSLineSeg::CompPnt( VspSurf* surf, vec3d uw_pnt ) const
         return vec3d();
     }
 
-    int num_u = ( int )surf->GetUMax();
-    int num_w = ( int )surf->GetWMax();
+    double maxu = surf->GetUMax();
+    double maxw = surf->GetWMax();
 
-    if ( uw_pnt.x() < 0 )
+    if ( uw_pnt.x() < 0.0 )
     {
-        uw_pnt.set_x( 0 );
+        uw_pnt.set_x( 0.0 );
     }
-    else if ( uw_pnt.x() > num_u )
+    else if ( uw_pnt.x() > maxu )
     {
-        uw_pnt.set_x( num_u );
+        uw_pnt.set_x( maxu );
     }
 
-    if ( uw_pnt.y() < 0 )
+    if ( uw_pnt.y() < 0.0 )
     {
-        uw_pnt.set_y( 0 );
+        uw_pnt.set_y( 0.0 );
     }
-    else if ( uw_pnt.y() > num_w )
+    else if ( uw_pnt.y() > maxw )
     {
-        uw_pnt.set_y( num_w );
+        uw_pnt.set_y( maxw );
     }
 
     return surf->CompPnt( uw_pnt.x(), uw_pnt.y() );
