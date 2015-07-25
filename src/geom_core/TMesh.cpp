@@ -1731,7 +1731,22 @@ void TTri::SplitTri()
         }
     }
 
+    //=== Orient Tris to Match Normal ====//
+    for ( i = 0 ; i < ( int )m_SplitVec.size() ; i++ )
+    {
+        TTri* t = m_SplitVec[i];
+        vec3d d01 = t->m_N0->GetXYZPnt() - t->m_N1->GetXYZPnt();
+        vec3d d21 = t->m_N2->GetXYZPnt() - t->m_N1->GetXYZPnt();
 
+        vec3d cx = cross( d21, d01 );
+
+        if ( dot( cx, m_Norm) < 0.0 )
+        {
+            TNode* tmp = t->m_N1;
+            t->m_N1 = t->m_N2;
+            t->m_N2 = tmp;
+        }
+    }
 }
 
 void TTri::TriangulateSplit( int flattenAxis )
@@ -1956,27 +1971,6 @@ void TTri::TriangulateSplit( int flattenAxis )
     if ( out.segmentmarkerlist )
     {
         free( out.segmentmarkerlist );
-    }
-
-    //=== Orient Tris to Match Normal ====//
-    for ( i = 0 ; i < ( int )m_SplitVec.size() ; i++ )
-    {
-        TTri* t = m_SplitVec[i];
-        vec3d d01 = t->m_N0->GetXYZPnt() - t->m_N1->GetXYZPnt();
-        vec3d d21 = t->m_N2->GetXYZPnt() - t->m_N1->GetXYZPnt();
-
-        vec3d cx = cross( d21, d01 );
-        cx.normalize();
-        m_Norm.normalize();
-
-        double del = dist_squared( cx, m_Norm );
-        if ( del > 1.0 )
-        {
-            TNode* tmp = t->m_N1;
-            t->m_N1 = t->m_N2;
-            t->m_N2 = tmp;
-            t->m_Norm = m_Norm;
-        }
     }
 }
 
