@@ -638,7 +638,7 @@ void DegenGeom::createDegenStick( DegenStick &degenStick, const vector< vector< 
     }
 }
 
-void DegenGeom::createDegenDisk(  const vector< vector< vec3d > > &pntsarr )
+void DegenGeom::createDegenDisk(  const vector< vector< vec3d > > &pntsarr, bool flipnormal )
 {
     vec3d origin = pntsarr[0][0];
     double r = 0;
@@ -664,6 +664,11 @@ void DegenGeom::createDegenDisk(  const vector< vector< vec3d > > &pntsarr )
 
     vec3d n = cross( u, v );
     n.normalize();
+
+    if( flipnormal )
+    {
+        n = n * -1.0;
+    }
 
     degenDisk.nvec = n;
     degenDisk.x = origin;

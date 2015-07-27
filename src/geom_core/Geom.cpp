@@ -1507,7 +1507,7 @@ void Geom::CreateDegenGeom( vector<DegenGeom> &dgs)
         {
             degenGeom.setType(DegenGeom::DISK_TYPE);
 
-            degenGeom.createDegenDisk( pnts );
+            degenGeom.createDegenDisk( pnts, m_SurfVec[i].GetFlipNormal() );
         }
         else
         {

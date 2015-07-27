@@ -196,7 +196,7 @@ public:
     void createSurfDegenStick( const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts );
     void createBodyDegenStick( const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts );
     void createDegenStick( DegenStick &degenStick, const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts, int nLow, int nHigh, int startPnt );
-    void createDegenDisk(  const vector< vector< vec3d > > &pntsarr );
+    void createDegenDisk(  const vector< vector< vec3d > > &pntsarr, bool flipnormal );
 
     string makeCsvFmt( int n, bool newline = true );
     void write_degenGeomCsv_file( FILE* file_id );
