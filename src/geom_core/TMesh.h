@@ -439,8 +439,6 @@ public:
     void MassDeterIntExt( vector< TMesh* >& meshVec );
     void MassDeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec );
 
-    int DeterIntExtPnt( const vec3d& pnt, vector< TMesh* >& meshVec, TMesh* ignoreMesh = 0 );   // 1 Interior 0 Exterior
-
     void LoadBndBox();
 
     virtual double ComputeTheoArea();

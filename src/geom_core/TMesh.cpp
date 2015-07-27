@@ -800,11 +800,6 @@ void TMesh::DeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec )
     }
 }
 
-int TMesh::DeterIntExtPnt( const vec3d& pnt, vector< TMesh* >& meshVec, TMesh* ignoreMesh ) // 1 Interior 0 Exterior
-{
-    return 0;
-}
-
 void TMesh::MassDeterIntExt( vector< TMesh* >& meshVec )
 {
     for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
