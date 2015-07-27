@@ -535,6 +535,7 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
 
             bool exptMfile = veh->getExportDegenGeomMFile();
             bool exptCSVfile = veh->getExportDegenGeomCsvFile();
+            veh->setExportDegenGeomMFile( false );
             veh->setExportDegenGeomCsvFile( true );
 
             veh->WriteDegenGeomFile();
