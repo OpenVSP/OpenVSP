@@ -153,6 +153,9 @@ void Background::reset()
     _offsetX = 0;
     _offsetY = 0;
 
+    removeImage();
+    setMeshColor( 242.0/255.0, 242.0/255.0, 242/255.0 );
+
     _hasChanged = true;
 }
 
