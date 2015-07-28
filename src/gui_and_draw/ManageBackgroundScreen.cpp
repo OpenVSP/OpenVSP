@@ -1,3 +1,10 @@
+//
+// This file is released under the terms of the NASA Open Source Agreement (NOSA)
+// version 1.3 as detailed in the LICENSE file which accompanies this software.
+//
+//
+//////////////////////////////////////////////////////////////////////
+
 #include "ManageBackgroundScreen.h"
 #include "ScreenMgr.h"
 
@@ -14,60 +21,96 @@
 
 #include "FL/Fl_File_Chooser.H"
 
-ManageBackgroundScreen::ManageBackgroundScreen( ScreenMgr * mgr ) : VspScreen( mgr )
+ManageBackgroundScreen::ManageBackgroundScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 210, 347, "Background" )
 {
-    m_BackgroundUI = new BackgroundUI();
-    m_FLTK_Window = m_BackgroundUI->UIWindow;
+    m_FLTK_Window->callback( staticCloseCB, this );
+    m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
 
-    m_BackgroundUI->colorBackButton->callback( staticCB, this );
-    m_BackgroundUI->jpegBackButton->callback( staticCB, this );
+    m_MainLayout.ForceNewLine();
+    m_MainLayout.AddY(7);
+    m_MainLayout.AddX(5);
 
-    m_BackgroundUI->preserveAspectButton->callback( staticCB, this );
+    m_MainLayout.AddSubGroupLayout( m_BorderLayout, m_MainLayout.GetRemainX() - 5.0,
+                                    m_MainLayout.GetRemainY() - 5.0);
 
-    m_BackgroundUI->redSlider->callback( staticCB, this );
-    m_BackgroundUI->greenSlider->callback( staticCB, this );
-    m_BackgroundUI->blueSlider->callback( staticCB, this );
+    m_BorderLayout.AddButton(m_Color, "Color");
+    m_BorderLayout.AddYGap();
 
-    m_BackgroundUI->wScaleSlider->range( 0.5, 1.5 );
-    m_BackgroundUI->wScaleSlider->callback( staticCB, this );
-    m_BackgroundUI->wScaleInput->callback( staticCB, this );
+    m_BorderLayout.AddSubGroupLayout(m_ColorLayout, m_BorderLayout.GetRemainX(), 100);
+    m_BorderLayout.AddY(100);
 
-    m_BackgroundUI->hScaleSlider->range( 0.5, 1.5 );
-    m_BackgroundUI->hScaleSlider->callback( staticCB, this );
-    m_BackgroundUI->hScaleInput->callback( staticCB, this );
+    colorChooser = m_ColorLayout.AddFlColorChooser( 95 );
+    colorChooser->callback( staticScreenCB, this );
 
-    m_BackgroundUI->xOffsetSlider->range( -0.5, 0.5 );
-    m_BackgroundUI->xOffsetSlider->callback( staticCB, this );
-    m_BackgroundUI->xOffsetInput->callback( staticCB, this );
+    m_BorderLayout.AddButton(m_Image, "JPEG Image");
+    m_BorderLayout.AddYGap();
 
-    m_BackgroundUI->yOffsetSlider->range( -0.5, 0.5 );
-    m_BackgroundUI->yOffsetSlider->callback( staticCB, this );
-    m_BackgroundUI->yOffsetInput->callback( staticCB, this );
+    m_BorderLayout.AddSubGroupLayout(m_ImageLayout, m_BorderLayout.GetRemainX(), m_BorderLayout.GetRemainY() - 20);
 
-    m_BackgroundUI->resetDefaultsButton->callback( staticCB, this );
+    m_ImageLayout.SetFitWidthFlag( false );
+    m_ImageLayout.SetSameLineFlag( true );
+
+    m_ImageLayout.SetInputWidth( m_ImageLayout.GetRemainX() - 70 );
+    m_ImageLayout.SetButtonWidth( 40 );
+    m_ImageLayout.AddOutput( m_FileOutput, "File:");
+    m_ImageLayout.SetButtonWidth( 30 );
+    m_ImageLayout.AddButton( m_FileSelect, "..." );
+    m_ImageLayout.ForceNewLine();
+    m_ImageLayout.AddYGap();
+
+    m_ImageLayout.SetFitWidthFlag( true );
+    m_ImageLayout.SetSameLineFlag( false );
+
+    m_ImageLayout.AddButton(m_PreserveAspect, "Preserve Aspect");
+    m_ImageLayout.AddYGap();
+    m_ImageLayout.SetButtonWidth( 60 );
+    m_ImageLayout.SetInputWidth( 50 );
+    m_ImageLayout.AddSlider(m_WScale, "W Scale", 1.0, "%7.3f");
+    m_ImageLayout.AddSubGroupLayout(m_PreserveAspectLayout, m_ImageLayout.GetRemainX(), 25);
+    m_ImageLayout.AddY(25);
+    m_PreserveAspectLayout.SetButtonWidth( 60 );
+    m_PreserveAspectLayout.SetInputWidth( 50 );
+    m_PreserveAspectLayout.AddSlider(m_HScale, "H Scale", 1.0, "%7.3f");
+
+    m_ImageLayout.AddSlider(m_XOffset, "X Offset", 0.500, "%7.3f");
+    m_ImageLayout.AddSlider(m_YOffset, "Y Offset", 0.500, "%7.3f");
+    m_ImageLayout.AddYGap();
+
+    m_BorderLayout.AddY( 143 );
+    m_BorderLayout.AddButton(m_ResetDefaults, "Reset Defaults");
+
+    //Initialize Variables
+    colorChooser->rgb(242.0/255.0, 242.0/255.0, 242.0/255.0);
+    m_Color.GetFlButton()->value( 1 );
+    m_Image.GetFlButton()->value( 0 );
+    m_PreserveAspect.GetFlButton()->value( 1 );
+
+    m_WidthScaleValue.Init("WidthScale", "Background", NULL, 1.0, -1.0e12, 1.0e12);
+    m_HeightScaleValue.Init("HeightScale", "Background", NULL, 1.0, -1.0e12, 1.0e12);
+
+    m_XOffsetValue.Init("XOffset", "Background", NULL, 0.0, -1.0e12, 1.0e12);
+    m_YOffsetValue.Init("YOffset", "Background", NULL, 0.0, -1.0e12, 1.0e12);
 }
+
 ManageBackgroundScreen::~ManageBackgroundScreen()
 {
-    delete m_BackgroundUI;
 }
 
 void ManageBackgroundScreen::Show()
 {
-    if( Update() )
-    {
-        m_FLTK_Window->show();
-    }
+    m_ScreenMgr->SetUpdateFlag( true );
+    m_FLTK_Window->show();
 }
 
 void ManageBackgroundScreen::Hide()
 {
     m_FLTK_Window->hide();
+    m_ScreenMgr->SetUpdateFlag( true );
 }
 
 bool ManageBackgroundScreen::Update()
 {
-    MainVSPScreen * main =
-        dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
+    MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
     if( !main )
     {
         return false;
@@ -82,55 +125,56 @@ bool ManageBackgroundScreen::Update()
     }
 
     VSPGraphic::Common::VSPenum mode = viewport->getBackground()->getBackgroundMode();
-    switch( mode )
+    if ( mode == VSPGraphic::Common::VSP_BACKGROUND_COLOR )
     {
-    case VSPGraphic::Common::VSP_BACKGROUND_COLOR:
-        m_BackgroundUI->colorBackButton->value( 1 );
-        m_BackgroundUI->jpegBackButton->value( 0 );
-        break;
-
-    case VSPGraphic::Common::VSP_BACKGROUND_IMAGE:
-        m_BackgroundUI->colorBackButton->value( 0 );
-        m_BackgroundUI->jpegBackButton->value( 1 );
-        break;
-
-    default:
-        break;
+        m_ColorLayout.GetGroup()->activate();
+        m_ImageLayout.GetGroup()->deactivate();
+    }
+    else
+    {
+        m_ColorLayout.GetGroup()->deactivate();
+        m_ImageLayout.GetGroup()->activate();
     }
 
-    char str[256];
+    if ( m_PreserveAspect.GetFlButton()->value() )
+    {
+        m_PreserveAspectLayout.GetGroup()->deactivate();
+    }
+    else
+    {
+        m_PreserveAspectLayout.GetGroup()->activate();
+    }
 
-    VSPGraphic::Background * background = viewport->getBackground();
+    //Update Scale and Offset in Background
+    m_WScale.Update( m_WidthScaleValue.GetID() );
+    m_HScale.Update( m_HeightScaleValue.GetID() );
 
-    m_BackgroundUI->preserveAspectButton->value( background->getARFlag() ? 1 : 0 );
+    viewport->getBackground()->scaleW( (float) m_WidthScaleValue.Get() );
+    if (m_PreserveAspect.GetFlButton()->value())
+    {
+        m_HeightScaleValue.Set( viewport->getBackground()->getScaleH() );
+    }
+    else
+    {
+        viewport->getBackground()->scaleH( (float) m_HeightScaleValue.Get() );
+    }
 
-    m_BackgroundUI->redSlider->value( background->getRed() * 255 );
-    m_BackgroundUI->greenSlider->value( background->getGreen() * 255 );
-    m_BackgroundUI->blueSlider->value( background->getBlue() * 255 );
+    m_XOffset.Update( m_XOffsetValue.GetID() );
+    m_YOffset.Update( m_YOffsetValue.GetID() );
 
-    sprintf( str, "%6.3f", background->getScaleW() );
-    m_BackgroundUI->wScaleInput->value( str );
-    m_BackgroundUI->wScaleSlider->value( background->getScaleW() );
+    viewport->getBackground()->offsetX( (float) m_XOffsetValue.Get() );
+    viewport->getBackground()->offsetY( (float) m_YOffsetValue.Get() );
 
-    sprintf( str, "%6.3f", background->getScaleH() );
-    m_BackgroundUI->hScaleInput->value( str );
-    m_BackgroundUI->hScaleSlider->value( background->getScaleH() );
-
-    sprintf( str, "%6.3f", background->getOffsetX() );
-    m_BackgroundUI->xOffsetInput->value( str );
-    m_BackgroundUI->xOffsetSlider->value( background->getOffsetX() );
-
-    sprintf( str, "%6.3f", background->getOffsetY() );
-    m_BackgroundUI->yOffsetInput->value( str );
-    m_BackgroundUI->yOffsetSlider->value( background->getOffsetY() );
-
-    return true;
+    m_FLTK_Window->redraw();
+    return false;
 }
 
-void ManageBackgroundScreen::CallBack( Fl_Widget * w )
+// Callback for Link Browser
+void ManageBackgroundScreen::CallBack( Fl_Widget* w )
 {
-    MainVSPScreen * main =
-        dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
+    assert( m_ScreenMgr );
+
+    MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
     if( !main )
     {
         return;
@@ -144,48 +188,59 @@ void ManageBackgroundScreen::CallBack( Fl_Widget * w )
         return;
     }
 
-    if( w == m_BackgroundUI->redSlider )
+    if ( w == colorChooser )
     {
-        viewport->getBackground()->setRed( ( float )( m_BackgroundUI->redSlider->value() / 255 ) );
+        viewport->getBackground()->setRed( ( float )( colorChooser->r() ) );
+        viewport->getBackground()->setGreen( ( float )( colorChooser->g() ) );
+        viewport->getBackground()->setBlue( ( float )( colorChooser->b() ) );
     }
-    else if( w == m_BackgroundUI->greenSlider )
-    {
-        viewport->getBackground()->setGreen( ( float )( m_BackgroundUI->greenSlider->value() / 255 ) );
-    }
-    else if( w == m_BackgroundUI->blueSlider )
-    {
-        viewport->getBackground()->setBlue( ( float )( m_BackgroundUI->blueSlider->value() / 255 ) );
-    }
-    else if( w == m_BackgroundUI->wScaleSlider )
-    {
-        viewport->getBackground()->scaleW( ( float )( m_BackgroundUI->wScaleSlider->value() ) );
-    }
-    else if( w == m_BackgroundUI->wScaleInput )
-    {
-        double inputValue = atof( m_BackgroundUI->wScaleInput->value() );
 
-        viewport->getBackground()->scaleW( ( float )inputValue );
+    m_ScreenMgr->SetUpdateFlag( true );
+}
 
-        m_BackgroundUI->wScaleSlider->range( inputValue - 0.5, inputValue + 0.5 );
-    }
-    else if( w == m_BackgroundUI->hScaleSlider )
-    {
-        viewport->getBackground()->scaleH( ( float )( m_BackgroundUI->hScaleSlider->value() ) );
-    }
-    else if( w == m_BackgroundUI->hScaleInput )
-    {
-        double inputValue = atof( m_BackgroundUI->hScaleInput->value() );
+void ManageBackgroundScreen::CloseCallBack( Fl_Widget *w )
+{
+    Hide();
+}
 
-        viewport->getBackground()->scaleH( ( float )inputValue );
+// Callback for all other GUI Devices
+void ManageBackgroundScreen::GuiDeviceCallBack( GuiDevice* device )
+{
+    assert( m_ScreenMgr );
 
-        m_BackgroundUI->hScaleSlider->range( inputValue - 0.5, inputValue + 0.5 );
-    }
-    else if( w == m_BackgroundUI->colorBackButton )
+    MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
+    if( !main )
     {
+        return;
+    }
+
+    VSPGUI::VspGlWindow * glwin = main->GetGLWindow();
+
+    VSPGraphic::Viewport * viewport = glwin->getGraphicEngine()->getDisplay()->getViewport();
+    if( !viewport )
+    {
+        return;
+    }
+
+    if ( device == &m_Color )
+    {
+        m_Color.GetFlButton()->value( 1 );
+        m_Image.GetFlButton()->value( 0 );
         viewport->getBackground()->removeImage();
         viewport->getBackground()->setBackgroundMode( VSPGraphic::Common::VSP_BACKGROUND_COLOR );
     }
-    else if( w == m_BackgroundUI->jpegBackButton )
+    else if ( device == &m_Image )
+    {
+        m_Color.GetFlButton()->value( 0 );
+        m_Image.GetFlButton()->value( 1 );
+        viewport->getBackground()->setBackgroundMode( VSPGraphic::Common::VSP_BACKGROUND_IMAGE );
+
+        if ( m_ImageFile.compare( "" ) != 0 )
+        {
+            viewport->getBackground()->attachImage( VSPGraphic::GlobalTextureRepo()->get2DTexture( m_ImageFile.c_str() ) );
+        }
+    }
+    else if ( device == &m_FileSelect )
     {
         Fl_File_Chooser fc( ".", "TGA, JPG Files (*.{tga,jpg})", Fl_File_Chooser::SINGLE, "Read Texture?" );
         fc.show();
@@ -194,22 +249,17 @@ void ManageBackgroundScreen::CallBack( Fl_Widget * w )
         {
             Fl::wait();
         }
-
-        viewport->getBackground()->removeImage();
-
-        if( fc.value() == NULL )
+        if ( fc.value() != NULL )
         {
-            viewport->getBackground()->setBackgroundMode( VSPGraphic::Common::VSP_BACKGROUND_COLOR );
-        }
-        else
-        {
+            viewport->getBackground()->removeImage();
             viewport->getBackground()->attachImage( VSPGraphic::GlobalTextureRepo()->get2DTexture( fc.value() ) );
-            viewport->getBackground()->setBackgroundMode( VSPGraphic::Common::VSP_BACKGROUND_IMAGE );
+            m_ImageFile = fc.value();
+            m_FileOutput.Update( truncateFileName( fc.value(), 40 ).c_str() );
         }
     }
-    else if( w == m_BackgroundUI->preserveAspectButton )
+    else if ( device == &m_PreserveAspect )
     {
-        if( m_BackgroundUI->preserveAspectButton->value() == 1 )
+        if ( m_PreserveAspect.GetFlButton()->value() == 1 )
         {
             viewport->getBackground()->preserveAR( true );
         }
@@ -218,33 +268,32 @@ void ManageBackgroundScreen::CallBack( Fl_Widget * w )
             viewport->getBackground()->preserveAR( false );
         }
     }
-    else if( w == m_BackgroundUI->xOffsetSlider )
-    {
-        viewport->getBackground()->offsetX( ( float )( m_BackgroundUI->xOffsetSlider->value() ) );
-    }
-    else if( w == m_BackgroundUI->xOffsetInput )
-    {
-        double inputValue = atof( m_BackgroundUI->xOffsetInput->value() );
-
-        viewport->getBackground()->offsetX( ( float )inputValue );
-
-        m_BackgroundUI->xOffsetSlider->range( inputValue - 0.5, inputValue + 0.5 );
-    }
-    else if( w == m_BackgroundUI->yOffsetSlider )
-    {
-        viewport->getBackground()->offsetY( ( float )( m_BackgroundUI->yOffsetSlider->value() ) );
-    }
-    else if( w == m_BackgroundUI->yOffsetInput )
-    {
-        double inputValue = atof( m_BackgroundUI->yOffsetInput->value() );
-
-        viewport->getBackground()->offsetY( ( float )inputValue );
-
-        m_BackgroundUI->yOffsetSlider->range( inputValue - 0.5, inputValue + 0.5 );
-    }
-    else if( w == m_BackgroundUI->resetDefaultsButton )
+    else if ( device == &m_ResetDefaults )
     {
         viewport->getBackground()->reset();
+        colorChooser->rgb( viewport->getBackground()->getRed(), viewport->getBackground()->getGreen(),
+                           viewport->getBackground()->getBlue() );
+        m_FileOutput.Update("");
+        m_ImageFile = "";
+
+        //Reset Scale & Offset
+        m_WidthScaleValue.Set( viewport->getBackground()->getScaleW() );
+        m_HeightScaleValue.Set( viewport->getBackground()->getScaleH() );
+
+        m_XOffsetValue.Set( viewport->getBackground()->getOffsetX() );
+        m_YOffsetValue.Set( viewport->getBackground()->getOffsetY() );
     }
+
     m_ScreenMgr->SetUpdateFlag( true );
+}
+
+string ManageBackgroundScreen::truncateFileName( const string &fn, int len )
+{
+    string trunc( fn );
+    if ( (int)trunc.length() > len )
+    {
+        trunc.erase( 0, trunc.length() - len );
+        trunc.replace( 0, 3, "..." );
+    }
+    return trunc;
 }

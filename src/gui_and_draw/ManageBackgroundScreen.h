@@ -1,28 +1,72 @@
-#ifndef _VSP_GUI_BACKGROUND_MANAGER_SCREEN_H
-#define _VSP_GUI_BACKGROUND_MANAGER_SCREEN_H
+//
+// This file is released under the terms of the NASA Open Source Agreement (NOSA)
+// version 1.3 as detailed in the LICENSE file which accompanies this software.
+//
+//
+//////////////////////////////////////////////////////////////////////
+
+#ifndef MANAGE_BACKGROUND_SCREEN_H
+#define MANAGE_BACKGROUND_SCREEN_H
 
 #include "backgroundScreen.h"
 #include "ScreenBase.h"
+#include "Parm.h"
 
-class ScreenMgr;
-class ManageBackgroundScreen : public VspScreen
+using namespace std;
+
+//class ScreenMgr;
+class ManageBackgroundScreen : public BasicScreen
 {
 public:
     ManageBackgroundScreen( ScreenMgr * mgr );
     virtual ~ManageBackgroundScreen();
 
-public:
-    virtual void Show();
-    virtual void Hide();
-    virtual bool Update();
+    void Show();
+    void Hide();
+    bool Update();
 
-    void CallBack( Fl_Widget * w );
-    static void staticCB( Fl_Widget * w, void * data )
+    virtual void GuiDeviceCallBack( GuiDevice* device );
+
+    virtual void CallBack( Fl_Widget* w );
+    virtual void CloseCallBack( Fl_Widget *w );
+    static void staticScreenCB( Fl_Widget *w, void* data )
     {
-        static_cast<ManageBackgroundScreen *>( data )->CallBack( w );
+        ( ( ManageBackgroundScreen* )data )->CallBack( w );
     }
 
+    void LoadDrawObjs(vector< DrawObj* > & draw_obj_vec);
+    string truncateFileName( const string &fn, int len );
+
 protected:
-    BackgroundUI * m_BackgroundUI;
+
+    GroupLayout m_MainLayout;
+    GroupLayout m_BorderLayout;
+    GroupLayout m_ColorLayout;
+    GroupLayout m_ImageLayout;
+    GroupLayout m_PreserveAspectLayout;
+
+    Fl_Color_Chooser* colorChooser;
+
+    ToggleButton m_Color;
+    ToggleButton m_Image;
+
+    StringOutput m_FileOutput;
+    TriggerButton m_FileSelect;
+
+    SliderAdjRangeInput m_WScale;
+    SliderAdjRangeInput m_HScale;
+    ToggleButton m_PreserveAspect;
+
+    SliderAdjRangeInput m_XOffset;
+    SliderAdjRangeInput m_YOffset;
+
+    TriggerButton m_ResetDefaults;
+
+    string m_ImageFile;
+    FractionParm m_WidthScaleValue;
+    FractionParm m_HeightScaleValue;
+    FractionParm m_XOffsetValue;
+    FractionParm m_YOffsetValue;
+
 };
-#endif
+#endif //MANAGE_BACKGROUND_SCREEN_H

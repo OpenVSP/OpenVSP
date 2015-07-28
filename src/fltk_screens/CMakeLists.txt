@@ -9,7 +9,6 @@ advLinkFlScreen.fl
 testFlScreen.fl
 aboutScreen.fl
 awaveFlScreen.fl
-backgroundScreen.fl
 curveEditFlScreen.fl
 exportFileScreen.fl
 feaStructFlScreen.fl
