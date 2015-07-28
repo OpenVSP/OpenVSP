@@ -752,9 +752,17 @@ void VspSurf::Tesselate( const vector<double> &u, const vector<double> &v, std::
 void VspSurf::TessUFeatureLine( int iu, int num_v, std::vector< vec3d > & pnts )
 {
     double u = m_UFeature[ iu ];
-    double vmin = m_Surface.get_v0();
-    double vmax = m_Surface.get_vmax();
-    TessLine( u, u, vmin, vmax, num_v, pnts);
+
+    vector < double > vtess;
+    MakeVTess( num_v, vtess, 2, false );
+
+    int numpts = vtess.size();
+    pnts.resize( numpts );
+
+    for ( int i = 0; i < numpts; i++ )
+    {
+        pnts[i] = CompPnt( u, vtess[i] );
+    }
 }
 
 void VspSurf::TessWFeatureLine( int iw, int num_u, std::vector< vec3d > & pnts )
