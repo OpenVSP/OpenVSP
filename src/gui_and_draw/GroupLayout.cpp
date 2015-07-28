@@ -1294,3 +1294,18 @@ Fl_Text_Display* GroupLayout::AddFlTextDisplay( int height )
 
     return text_display;
 }
+
+//==== Add Fl Color Chooser ====//
+Fl_Color_Chooser* GroupLayout::AddFlColorChooser(int height)
+{
+    assert( m_Group && m_Screen );
+
+    Fl_Color_Chooser* color_chooser = new Fl_Color_Chooser (m_X, m_Y, m_W, height, "");
+
+    m_Group->add( color_chooser );
+
+    AddY( height );
+    NewLineX();
+
+    return color_chooser;
+}

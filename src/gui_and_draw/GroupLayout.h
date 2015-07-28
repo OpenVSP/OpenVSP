@@ -16,6 +16,7 @@
 #include <FL/Fl_Scroll.H>
 #include <FL/Fl_Text_Editor.H>
 #include <FL/Fl_Radio_Button.H>
+#include <FL/Fl_Color_Chooser.H>
 
 #include "GuiDevice.h"
 
@@ -150,6 +151,8 @@ public:
     Fl_Browser* AddFlBrowser( int height );
     Fl_Text_Editor* AddFlTextEditor( int height );
     Fl_Text_Display* AddFlTextDisplay( int height );
+
+    Fl_Color_Chooser* AddFlColorChooser( int height );
 
     //==== Add Another GroupLayout as a SubSet of This GroupLayout ====//
     //==== Subgroups can be Used To Create Multiple Column Layouts ====//
