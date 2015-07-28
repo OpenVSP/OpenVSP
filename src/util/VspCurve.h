@@ -26,6 +26,8 @@ using std::vector;
 typedef eli::geom::curve::bezier<double, 3> curve_segment_type;
 typedef eli::geom::curve::piecewise<eli::geom::curve::bezier, double, 3> piecewise_curve_type;
 
+#define TMAGIC 0.004
+
 class VspCurve
 {
 public:

@@ -37,8 +37,6 @@ typedef eli::geom::surface::connection_data<double, 3, surface_tolerance_type> r
 #include <string>
 using std::vector;
 
-#define TMAGIC 0.004
-
 class VspSurf
 {
 public:
