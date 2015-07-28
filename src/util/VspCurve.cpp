@@ -773,12 +773,16 @@ void VspCurve::Tesselate( int num_pnts_u, double umin, double umax, vector< vec3
 
     delta = ( umax - umin ) / ( num_pnts_u - 1 );
 
-    uout.resize( num_pnts_u );
-    for ( i = 0; i < num_pnts_u; ++i )
+    uout.resize( num_pnts_u + 2 );
+    uout[0] = umin;
+    uout[1] = umin + TMAGIC;
+    for ( i = 2; i < num_pnts_u + 1; ++i )
     {
-        double u = umin + delta * i;
+        double u = umin + delta * ( i - 1 );
         uout[i] = u;
     }
+    uout[ num_pnts_u ] = umax - TMAGIC;
+    uout[ num_pnts_u + 1 ] = umax;
 
     Tesselate( uout, output );
 }
