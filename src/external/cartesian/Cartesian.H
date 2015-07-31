@@ -347,11 +347,11 @@ protected:
     void draw();
 
 public:
-    Ca_Point::style; //just making public usefull data
-    Ca_Point::size;
-    Ca_Point::color;
-    Ca_Point::border_color;
-    Ca_Point::border_width;
+    using Ca_Point::style; //just making public usefull data
+    using Ca_Point::size;
+    using Ca_Point::color;
+    using Ca_Point::border_color;
+    using Ca_Point::border_width;
 
     int line_style;
     int line_width;
