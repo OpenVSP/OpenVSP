@@ -765,6 +765,25 @@ void VspCurve::Tesselate( int num_pnts_u, vector< vec3d > & output, vector< doub
 }
 
 //===== Tesselate =====//
+void VspCurve::TesselateNoCorner( int num_pnts_u, double umin, double umax, vector< vec3d > & output, vector< double > &uout )
+{
+    curve_index_type i;
+    curve_point_type p;
+    double delta;
+
+    delta = ( umax - umin ) / ( num_pnts_u - 1 );
+
+    uout.resize( num_pnts_u );
+    for ( i = 0; i < num_pnts_u; ++i )
+    {
+        double u = umin + delta * i;
+        uout[i] = u;
+    }
+
+    Tesselate( uout, output );
+}
+
+//===== Tesselate =====//
 void VspCurve::Tesselate( int num_pnts_u, double umin, double umax, vector< vec3d > & output, vector< double > &uout )
 {
     curve_index_type i;

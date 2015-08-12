@@ -444,7 +444,7 @@ void XSecCurve::Trim( bool wingtype )
         vector< double > dlowcache( ncache );
 
         // Rough tessellation to find approximate trim locations.
-        m_Curve.Tesselate( ncache, umin, umax, ptcache, ucache );
+        m_Curve.TesselateNoCorner( ncache, umin, umax, ptcache, ucache );
 
         // Find most distant point.
         int imax = -1;
