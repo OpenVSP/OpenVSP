@@ -650,6 +650,7 @@ CustomGeom::CustomGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_Type.m_Name = "Custom";
     m_Type.m_Type = CUSTOM_GEOM_TYPE;
     m_VspSurfType = vsp::NORMAL_SURF;
+    m_VspSurfCfdType = vsp::CFD_NORMAL;
 }
 
 //==== Destructor ====//
@@ -827,6 +828,12 @@ void CustomGeom::ClearXSecSurfs()
         delete m_XSecSurfVec[i];
     }
     m_XSecSurfVec.clear();
+
+
+    m_VspSurfType = vsp::NORMAL_SURF;
+    m_VspSurfTypeMap.clear();
+    m_VspSurfCfdType = vsp::CFD_NORMAL;
+    m_VspSurfCfdTypeMap.clear();
 }
 
 //==== Add XSec Surface Return ID =====//
