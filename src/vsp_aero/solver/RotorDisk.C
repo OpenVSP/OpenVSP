@@ -334,7 +334,7 @@ void ROTOR_DISK::Velocity(double xyz[3], double q[5])
     
     Sigma_Cd = 8.*( CP_h - 1.17 * pow(CT_h,1.5)/sqrt(2.));
     
-    if ( r <= RotorRadius_) {
+    if ( r <= RotorRadius_ && z >= 0. ) {
      
        Velocity_T = 2. * ( VinfMag_ + Vo ) * Vo * Omega * r / ( pow(Omega*r,2.) + pow(VinfMag_+Vo,2.) );
        
