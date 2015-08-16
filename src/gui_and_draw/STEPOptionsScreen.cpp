@@ -21,7 +21,7 @@ STEPOptionsScreen::STEPOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 
     m_PrevSplit = false;
     m_PrevMerge = true;
     m_PrevCubic = false;;
-    m_PrevTol = 1e-6;
+    m_PrevToCubicTol = 1e-6;
 
     m_GenLayout.SetGroupAndScreen( m_FLTK_Window, this );
     m_GenLayout.AddY( 25 );
@@ -33,7 +33,7 @@ STEPOptionsScreen::STEPOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 
     m_GenLayout.AddButton( m_MergePointsToggle, "Merge Points" );
     m_GenLayout.AddYGap();
     m_GenLayout.AddButton( m_ToCubicToggle, "Convert to Cubic" );
-    m_GenLayout.AddSlider( m_TolSlider, "Tolerance", 10, "%5.4g", true );
+    m_GenLayout.AddSlider( m_ToCubicTolSlider, "Tolerance", 10, "%5.4g", true );
 
     m_GenLayout.AddY( 25 );
     m_GenLayout.SetFitWidthFlag( false );
@@ -60,11 +60,11 @@ bool STEPOptionsScreen::Update()
         m_SplitSurfsToggle.Update( veh->m_STEPSplitSurfs.GetID() );
         m_MergePointsToggle.Update( veh->m_STEPMergePoints.GetID() );
         m_ToCubicToggle.Update( veh->m_STEPToCubic.GetID() );
-        m_TolSlider.Update( veh->m_STEPTolerance.GetID() );
+        m_ToCubicTolSlider.Update( veh->m_STEPToCubicTol.GetID() );
 
         if ( !veh->m_STEPToCubic() )
         {
-            m_TolSlider.Deactivate();
+            m_ToCubicTolSlider.Deactivate();
         }
     }
 
@@ -103,7 +103,7 @@ void STEPOptionsScreen::GuiDeviceCallBack( GuiDevice* device )
             veh->m_STEPSplitSurfs.Set( m_PrevSplit );
             veh->m_STEPMergePoints.Set( m_PrevMerge );
             veh->m_STEPToCubic.Set( m_PrevCubic );
-            veh->m_STEPTolerance.Set( m_PrevTol );
+            veh->m_STEPToCubicTol.Set( m_PrevToCubicTol );
         }
         Hide();
     }
@@ -124,7 +124,7 @@ bool STEPOptionsScreen::ShowSTEPOptionsScreen()
         m_PrevSplit = veh->m_STEPSplitSurfs();
         m_PrevMerge = veh->m_STEPMergePoints();
         m_PrevCubic = veh->m_STEPToCubic();
-        m_PrevTol = veh->m_STEPTolerance();
+        m_PrevToCubicTol = veh->m_STEPToCubicTol();
     }
 
     while( m_FLTK_Window->shown() )
@@ -146,7 +146,7 @@ void STEPOptionsScreen::CloseCallBack( Fl_Widget *w )
         veh->m_STEPSplitSurfs.Set( m_PrevSplit );
         veh->m_STEPMergePoints.Set( m_PrevMerge );
         veh->m_STEPToCubic.Set( m_PrevCubic );
-        veh->m_STEPTolerance.Set( m_PrevTol );
+        veh->m_STEPToCubicTol.Set( m_PrevToCubicTol );
     }
 
     Hide();

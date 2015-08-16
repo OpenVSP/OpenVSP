@@ -41,12 +41,12 @@ protected:
     ToggleButton m_SplitSurfsToggle;
     ToggleButton m_MergePointsToggle;
     ToggleButton m_ToCubicToggle;
-    SliderInput m_TolSlider;
+    SliderInput m_ToCubicTolSlider;
 
     bool m_PrevSplit;
     bool m_PrevMerge;
     bool m_PrevCubic;
-    double m_PrevTol;
+    double m_PrevToCubicTol;
 
     TriggerButton m_OkButton;
     TriggerButton m_CancelButton;

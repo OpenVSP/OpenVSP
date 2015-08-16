@@ -265,7 +265,7 @@ public:
     BoolParm m_STEPSplitSurfs;
     BoolParm m_STEPMergePoints;
     BoolParm m_STEPToCubic;
-    Parm m_STEPTolerance;
+    Parm m_STEPToCubicTol;
 
     BoolParm m_STLMultiSolid;
 

@@ -43,7 +43,7 @@ Vehicle::Vehicle()
     m_STEPSplitSurfs.Init( "SplitSurfs", "STEPSettings", this, false, 0, 1 );
     m_STEPMergePoints.Init( "MergePoints", "STEPSettings", this, true, 0, 1 );
     m_STEPToCubic.Init( "ToCubic", "STEPSettings", this, false, 0, 1 );
-    m_STEPTolerance.Init( "Tolerance", "STEPSettings", this, 1e-6, 1e-12, 1e12 );
+    m_STEPToCubicTol.Init( "ToCubicTol", "STEPSettings", this, 1e-6, 1e-12, 1e12 );
 
     m_STLMultiSolid.Init( "MultiSolid", "STLSettings", this, false, 0, 1 );
 
@@ -132,7 +132,7 @@ void Vehicle::Init()
     m_STEPSplitSurfs.Set( false );
     m_STEPMergePoints.Set( true );
     m_STEPToCubic.Set( false );
-    m_STEPTolerance.Set( 1e-6 );
+    m_STEPToCubicTol.Set( 1e-6 );
 
     m_STLMultiSolid.Set( false );
 
@@ -2106,7 +2106,7 @@ void Vehicle::WriteSTEPFile( const string & file_name, int write_set )
 
             for ( int j = 0; j < surf_vec.size(); j++ )
             {
-                step.AddSurf( &surf_vec[j], m_STEPSplitSurfs(), m_STEPMergePoints(), m_STEPToCubic(), m_STEPTolerance() );
+                step.AddSurf( &surf_vec[j], m_STEPSplitSurfs(), m_STEPMergePoints(), m_STEPToCubic(), m_STEPToCubicTol() );
             }
         }
     }
