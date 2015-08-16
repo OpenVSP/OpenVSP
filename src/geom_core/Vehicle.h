@@ -262,6 +262,8 @@ public:
     Parm m_BbYMin;
     Parm m_BbZMin;
 
+    IntParm m_STEPLenUnit;
+    Parm m_STEPTol;
     BoolParm m_STEPSplitSurfs;
     BoolParm m_STEPMergePoints;
     BoolParm m_STEPToCubic;

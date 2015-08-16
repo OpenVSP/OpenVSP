@@ -2,7 +2,7 @@
 #include "STEPutil.h"
 #include "VspSurf.h"
 
-STEPutil::STEPutil()
+STEPutil::STEPutil( const int & len, const double & tol )
 {
     // The registry contains information about types present in the current schema; SchemaInit is a function in the schema-specific SDAI library
     registry = new Registry( SchemaInit );
@@ -16,7 +16,9 @@ STEPutil::STEPutil()
     // Build file header
     header_instances = sfile->HeaderInstances();
 
-    STEPBoilerplate( );
+    string tolstr = std::to_string( tol );
+
+    STEPBoilerplate( (LenEnum) len, tolstr.c_str() );
 }
 
 STEPutil::~STEPutil()
@@ -516,7 +518,7 @@ SdaiSecurity_classification * STEPutil::Classification( SdaiPerson_and_organizat
 }
 
 
-void  STEPutil::STEPBoilerplate( )
+void  STEPutil::STEPBoilerplate( const LenEnum & len, const char * tolstr  )
 {
 
     // Increment FileId so entities start at #1 instead of #0.
@@ -553,7 +555,7 @@ void  STEPutil::STEPBoilerplate( )
     SdaiDate_and_time * date_time = DateTime( );
 
     // Global units and tolerance.
-    context = Geometric_Context( u_MM, u_DEG, "0.0001" );
+    context = Geometric_Context( len, u_DEG, tolstr );
 
     // Primary coordinate system.
     SdaiAxis2_placement_3d * orig_transform = DefaultAxis( );

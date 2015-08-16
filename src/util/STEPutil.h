@@ -16,6 +16,7 @@
 #include <SdaiHeaderSchema.h>
 #include <schema.h>
 #include "SdaiCONFIG_CONTROL_DESIGN.h"
+#include <string>
 
 class VspSurf;
 
@@ -23,7 +24,7 @@ class STEPutil
 {
 
 public:
-    STEPutil();
+    STEPutil( const int & len, const double & tol );
     virtual ~STEPutil();
 
     void  WriteFile( string fname );
@@ -55,7 +56,7 @@ protected:
 
     SdaiSecurity_classification * Classification( SdaiPerson_and_organization * per_org, SdaiDate_and_time * date_time, SdaiProduct_definition_formation_with_specified_source * prod_def_form );
 
-    void  STEPBoilerplate( );
+    void  STEPBoilerplate( const LenEnum & len, const char * tolstr );
 
 
 };
