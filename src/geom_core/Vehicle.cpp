@@ -49,6 +49,7 @@ Vehicle::Vehicle()
 
     m_STLMultiSolid.Init( "MultiSolid", "STLSettings", this, false, 0, 1 );
 
+    m_UpdatingBBox = false;
     m_BbXLen.Init( "X_Len", "BBox", this, 0, 0, 1e12 );
     m_BbXLen.SetDescript( "X length of vehicle bounding box" );
     m_BbYLen.Init( "Y_Len", "BBox", this, 0, 0, 1e12 );
@@ -140,6 +141,7 @@ void Vehicle::Init()
 
     m_STLMultiSolid.Set( false );
 
+    m_UpdatingBBox = false;
     m_BbXLen.Set( 0 );
     m_BbYLen.Set( 0 );
     m_BbZLen.Set( 0 );
@@ -256,7 +258,15 @@ void Vehicle::Renew()
 //==== Parm Changed ====//
 void Vehicle::ParmChanged( Parm* parm_ptr, int type )
 {
+    if ( m_UpdatingBBox )
+    {
+        return;
+    }
+
+    m_UpdatingBBox = true;
     UpdateBBox();
+    m_UpdatingBBox = false;
+
     UpdateGui();
 }
 

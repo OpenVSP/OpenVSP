@@ -294,6 +294,7 @@ protected:
 
     vector< GeomType > m_GeomTypeVec;
 
+    bool m_UpdatingBBox;
     BndBox m_BBox;                              // Bounding Box Around All Geometries
 
     vector< string > CopyGeomVec( const vector<string> & geom_vec );
