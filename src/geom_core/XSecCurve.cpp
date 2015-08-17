@@ -386,12 +386,18 @@ void XSecCurve::Close( bool wingtype )
     }
     m_Curve.SetCurve( crv );
 
+    double div = GetWidth();
+    if ( div == 0.0 )
+    {
+        div = 1.0;
+    }
+
     if ( m_TECloseType() != CLOSE_NONE )
     {
 
         if ( m_TECloseAbsRel() == ABS )
         {
-            m_TECloseThickChord.Set( d / GetWidth() );
+            m_TECloseThickChord.Set( d / div );
         }
         else
         {
@@ -400,7 +406,7 @@ void XSecCurve::Close( bool wingtype )
     }
     else
     {
-        m_TECloseThickChord.Set( d / GetWidth() );
+        m_TECloseThickChord.Set( d / div );
         m_TECloseThick.Set( d );
     }
 }
@@ -655,22 +661,28 @@ void XSecCurve::Trim( bool wingtype )
     ttrim = dist( cornerlow, cornerup );
     xtrim = dist( cornerlow, telow );
 
+    double div = GetWidth();
+    if ( div == 0.0 )
+    {
+        div = 1.0;
+    }
+
     // Set non-driving parameters to match current state.
     if ( m_TETrimType() == TRIM_NONE )
     {
         m_TETrimX.Set( xtrim );
-        m_TETrimXChord.Set( xtrim / GetWidth() );
+        m_TETrimXChord.Set( xtrim / div );
         m_TETrimThick.Set( ttrim );
-        m_TETrimThickChord.Set( ttrim / GetWidth() );
+        m_TETrimThickChord.Set( ttrim / div );
     }
     else if ( m_TETrimType() == TRIM_THICK )
     {
         m_TETrimX.Set( xtrim );
-        m_TETrimXChord.Set( xtrim / GetWidth() );
+        m_TETrimXChord.Set( xtrim / div );
 
         if ( m_TETrimAbsRel() == ABS )
         {
-            m_TETrimThickChord.Set( ttrim / GetWidth() );
+            m_TETrimThickChord.Set( ttrim / div );
         }
         else
         {
@@ -681,14 +693,14 @@ void XSecCurve::Trim( bool wingtype )
     {
         if ( m_TETrimAbsRel() == ABS )
         {
-            m_TETrimXChord.Set( xtrim / GetWidth() );
+            m_TETrimXChord.Set( xtrim / div );
         }
         else
         {
             m_TETrimX.Set( xtrim );
         }
         m_TETrimThick.Set( ttrim );
-        m_TETrimThickChord.Set( ttrim / GetWidth() );
+        m_TETrimThickChord.Set( ttrim / div );
     }
 }
 
