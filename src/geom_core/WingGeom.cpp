@@ -51,6 +51,13 @@ void WingDriverGroup::UpdateGroup( vector< string > parmIDs )
         uptodate[m_CurrChoices[i]] = true;
     }
 
+    taper->SetLowerLimit( 0.0 );
+    if( vector_contains_val( m_CurrChoices, ( int ) TAPER_WSECT_DRIVER ) &&
+        vector_contains_val( m_CurrChoices, ( int ) TIPC_WSECT_DRIVER ) )
+    {
+        taper->SetLowerLimit( 1.0e-4 );
+    }
+
     bool parallel = false;
     if( vector_contains_val( m_CurrChoices, ( int ) SECSWEEP_WSECT_DRIVER ) )
     {
@@ -130,17 +137,27 @@ void WingDriverGroup::UpdateGroup( vector< string > parmIDs )
     {
         if( !uptodate[AR_WSECT_DRIVER] )
         {
-            if( uptodate[SPAN_WSECT_DRIVER] && uptodate[AREA_WSECT_DRIVER] )
+            if( uptodate[AREA_WSECT_DRIVER] && area->Get() == 0.0 )
+            {
+                AR->Set( 1.0 );
+                uptodate[AR_WSECT_DRIVER] = true;
+            }
+            else if( uptodate[AVEC_WSECT_DRIVER] && aveC->Get() == 0.0 )
+            {
+                AR->Set( 1.0 );
+                uptodate[AR_WSECT_DRIVER] = true;
+            }
+            else if( uptodate[SPAN_WSECT_DRIVER] && uptodate[AREA_WSECT_DRIVER] && area->Get() != 0.0 )
             {
                 AR->Set( span->Get() * span->Get() / area->Get() );
                 uptodate[AR_WSECT_DRIVER] = true;
             }
-            else if( uptodate[SPAN_WSECT_DRIVER] && uptodate[AVEC_WSECT_DRIVER] )
+            else if( uptodate[SPAN_WSECT_DRIVER] && uptodate[AVEC_WSECT_DRIVER] && aveC->Get() != 0.0 )
             {
                 AR->Set( span->Get() / aveC->Get() );
                 uptodate[AR_WSECT_DRIVER] = true;
             }
-            else if( uptodate[AREA_WSECT_DRIVER] && uptodate[AVEC_WSECT_DRIVER] )
+            else if( uptodate[AREA_WSECT_DRIVER] && uptodate[AVEC_WSECT_DRIVER] && aveC->Get() != 0.0 )
             {
                 AR->Set( area->Get() / ( aveC->Get() * aveC->Get() ) );
                 uptodate[AR_WSECT_DRIVER] = true;
@@ -156,7 +173,12 @@ void WingDriverGroup::UpdateGroup( vector< string > parmIDs )
 
         if( !uptodate[SPAN_WSECT_DRIVER] )
         {
-            if( uptodate[AVEC_WSECT_DRIVER] && uptodate[AREA_WSECT_DRIVER] )
+            if( uptodate[AREA_WSECT_DRIVER] && area->Get() == 0.0 )
+            {
+                span->Set( 0.0 );
+                uptodate[SPAN_WSECT_DRIVER] = true;
+            }
+            else if( uptodate[AVEC_WSECT_DRIVER] && uptodate[AREA_WSECT_DRIVER] && aveC->Get() != 0.0 )
             {
                 span->Set( area->Get() / aveC->Get() );
                 uptodate[SPAN_WSECT_DRIVER] = true;
@@ -188,7 +210,7 @@ void WingDriverGroup::UpdateGroup( vector< string > parmIDs )
                 area->Set( span->Get() * aveC->Get() );
                 uptodate[AREA_WSECT_DRIVER] = true;
             }
-            else if( uptodate[SPAN_WSECT_DRIVER] && uptodate[AR_WSECT_DRIVER] )
+            else if( uptodate[SPAN_WSECT_DRIVER] && uptodate[AR_WSECT_DRIVER] && AR->Get() != 0.0 )
             {
                 area->Set( span->Get() * span->Get() / AR->Get() );
                 uptodate[AREA_WSECT_DRIVER] = true;
@@ -207,7 +229,7 @@ void WingDriverGroup::UpdateGroup( vector< string > parmIDs )
                 aveC->Set( ( tipC->Get() + rootC->Get() ) / 2.0 );
                 uptodate[AVEC_WSECT_DRIVER] = true;
             }
-            else if( uptodate[SPAN_WSECT_DRIVER] && uptodate[AREA_WSECT_DRIVER] )
+            else if( uptodate[SPAN_WSECT_DRIVER] && uptodate[AREA_WSECT_DRIVER] && span->Get() != 0.0 )
             {
                 aveC->Set( area->Get() / span->Get() );
                 uptodate[AVEC_WSECT_DRIVER] = true;
@@ -223,7 +245,12 @@ void WingDriverGroup::UpdateGroup( vector< string > parmIDs )
 
         if( !uptodate[TIPC_WSECT_DRIVER] )
         {
-            if( uptodate[TAPER_WSECT_DRIVER] && uptodate[ROOTC_WSECT_DRIVER] )
+            if( uptodate[TAPER_WSECT_DRIVER] && taper->Get() == 0.0 )
+            {
+                tipC->Set( 0.0 );
+                uptodate[TIPC_WSECT_DRIVER] = true;
+            }
+            else if( uptodate[TAPER_WSECT_DRIVER] && uptodate[ROOTC_WSECT_DRIVER] )
             {
                 tipC->Set( taper->Get() * rootC->Get() );
                 uptodate[TIPC_WSECT_DRIVER] = true;
@@ -257,7 +284,7 @@ void WingDriverGroup::UpdateGroup( vector< string > parmIDs )
 
         if( !uptodate[ROOTC_WSECT_DRIVER] )
         {
-            if( uptodate[TAPER_WSECT_DRIVER] && uptodate[TIPC_WSECT_DRIVER] )
+            if( uptodate[TAPER_WSECT_DRIVER] && uptodate[TIPC_WSECT_DRIVER] && taper->Get() != 0.0)
             {
                 rootC->Set( tipC->Get() / taper->Get() );
                 uptodate[ROOTC_WSECT_DRIVER] = true;
