@@ -8,7 +8,7 @@ namespace VSPGraphic
 {
 class TextMgr;
 class FontMgr;
-class CameraMgr;
+class Camera;
 class Background;
 
 /*!
@@ -63,7 +63,7 @@ public:
     /*!
     * Get Camera Manager Object of this Viewport.
     */
-    CameraMgr* getCameraMgr();
+    Camera* getCamera();
     /*!
     * Get Background object of this Viewport.
     */
@@ -145,7 +145,7 @@ private:
     bool _showArrows;
     bool _showGrid;
 
-    CameraMgr * _cameraMgr;
+    Camera* _camera;
     Background * _background;
 
     TextMgr * _textMgr;

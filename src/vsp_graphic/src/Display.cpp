@@ -3,7 +3,6 @@
 #include "LayoutMgr.h"
 #include "Viewport.h"
 #include "Camera.h"
-#include "CameraMgr.h"
 #include "Scene.h"
 
 #include <assert.h>
@@ -63,7 +62,7 @@ void Display::changeView( Common::VSPenum type )
     Viewport * selectedVP = _currLayout->getViewport();
     if( selectedVP )
     {
-        selectedVP->getCameraMgr()->getCamera()->changeView( type );
+        selectedVP->getCamera()->changeView( type );
     }
 }
 
@@ -74,25 +73,15 @@ Viewport * Display::getViewport()
 
 Camera * Display::getCamera()
 {
-    CameraMgr * cameraMgr = getCameraMgr();
-
-    if( cameraMgr )
-    {
-        return cameraMgr->getCamera();
-    }
-    return NULL;
-}
-
-CameraMgr * Display::getCameraMgr()
-{
     // Get current selected viewport, ptr is NULL if
     // no viewport is selected.
     Viewport * selectedVP = _currLayout->getViewport();
 
     if( selectedVP )
     {
-        return selectedVP->getCameraMgr();
+        return selectedVP->getCamera();
     }
+
     return NULL;
 }
 

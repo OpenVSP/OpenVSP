@@ -2,7 +2,6 @@
 #include "LayoutMgr.h"
 #include "Viewport.h"
 #include "Camera.h"
-#include "CameraMgr.h"
 #include "Background.h"
 #include "Scene.h"
 #include "Ruler.h"
@@ -36,7 +35,7 @@ LayoutMgr::LayoutMgr( int row, int column )
     {
         // Placeholder viewports.
         Viewport * viewport = new Viewport( 0, 0, 1, 1 );
-        viewport->getCameraMgr()->getCamera()->changeView( _vOrder[i % ( int )_vOrder.size()] );
+        viewport->getCamera()->changeView( _vOrder[i % ( int )_vOrder.size()] );
 
         _viewportList.push_back( viewport );
     }

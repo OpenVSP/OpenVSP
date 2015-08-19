@@ -8,7 +8,7 @@
 #include "FontMgr.h"
 
 #include "Camera.h"
-#include "CameraMgr.h"
+#include "ArcballCam.h"
 
 #include "Background.h"
 
@@ -33,8 +33,8 @@ Viewport::Viewport( int x, int y, int width, int height )
     _vWidth = width;
     _vHeight = height;
 
-    _cameraMgr = new CameraMgr();
-    _cameraMgr->getCamera()->resize( _x, _y, _vWidth, _vHeight );
+    _camera = new ArcballCam();
+    _camera->resize( _x, _y, _vWidth, _vHeight );
 
     _textMgr = new TextMgr();
     _font = new FontMgr();
@@ -47,7 +47,7 @@ Viewport::Viewport( int x, int y, int width, int height )
 }
 Viewport::~Viewport()
 {
-    delete _cameraMgr;
+    delete _camera;
     delete _textMgr;
     delete _font;
     delete _background;
@@ -61,7 +61,7 @@ void Viewport::resize( int x, int y, int width, int height )
     _vHeight = height;
 
     // Update Camera
-    _cameraMgr->getCamera()->resize( _x, _y, _vWidth, _vHeight );
+    _camera->resize( _x, _y, _vWidth, _vHeight );
 }
 
 void Viewport::bind()
@@ -75,12 +75,12 @@ void Viewport::bind()
     // Apply Projection.
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
-    glMultMatrixf( &_cameraMgr->getCamera()->getProjectionMatrix()[0][0] );
+    glMultMatrixf( &_camera->getProjectionMatrix()[0][0] );
 
     // Apply Model View.
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
-    glMultMatrixf( &_cameraMgr->getCamera()->getModelViewMatrix()[0][0] );
+    glMultMatrixf( &_camera->getModelViewMatrix()[0][0] );
 }
 
 void Viewport::unbind()
@@ -146,7 +146,7 @@ void Viewport::drawXYZArrows()
     float borderW = 1.0f * aspectRatioW;
 
     glm::mat4 projectionMatrix = glm::ortho( -borderW, borderW, -borderH, borderH, -2500.0f, 2500.0f );
-    glm::mat4 modelviewMatrix = _cameraMgr->getCamera()->getModelViewMatrix();
+    glm::mat4 modelviewMatrix = _camera->getModelViewMatrix();
 
     // Set Translation to 0. We only care about rotation.
     modelviewMatrix[3][0] = 0.0f;
@@ -245,7 +245,7 @@ void Viewport::drawGridOverlay()
 
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
-    glMultMatrixf( &_cameraMgr->getCamera()->getProjectionMatrix()[0][0] );
+    glMultMatrixf( &_camera->getProjectionMatrix()[0][0] );
 
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
@@ -298,9 +298,9 @@ void Viewport::drawBackground()
     glPopMatrix();
 }
 
-CameraMgr * Viewport::getCameraMgr()
+Camera* Viewport::getCamera()
 {
-    return _cameraMgr;
+    return _camera;
 }
 
 Background * Viewport::getBackground()
@@ -330,8 +330,8 @@ void Viewport::showGridOverlay( bool showFlag )
 glm::vec3 Viewport::screenToWorld(glm::vec2 screenCoord)
 {
     return glm::unProject(glm::vec3(screenCoord, 0.5), 
-        _cameraMgr->getCamera()->getModelViewMatrix(), 
-        _cameraMgr->getCamera()->getProjectionMatrix(), 
+        _camera->getModelViewMatrix(),
+        _camera->getProjectionMatrix(),
         glm::vec4(_x, _y, _vWidth, _vHeight));
 }
 

@@ -7,7 +7,6 @@
 #include "Scene.h"
 #include "Viewport.h"
 #include "LayoutMgr.h"
-#include "CameraMgr.h"
 #include "Camera.h"
 #include "SceneObject.h"
 #include "Renderable.h"

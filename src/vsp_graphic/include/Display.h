@@ -97,12 +97,6 @@ public:
     Camera * getCamera();
 
     /*!
-    * Get camera manager of selected viewport.
-    * Return NULL if no viewport is selected.
-    */
-    CameraMgr * getCameraMgr();
-
-    /*!
     * Get current active ViewLayoutMgr.
     */
     LayoutMgr * getLayoutMgr();
