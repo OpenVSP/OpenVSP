@@ -575,6 +575,7 @@ protected:
     virtual void UpdateSurf() = 0;
     void UpdateEndCaps();
     virtual void UpdateFeatureLines();
+    virtual void UpdateFlags();
     virtual void UpdateSymmAttach();
     virtual void UpdateChildren( bool fullupdate );
     virtual void UpdateBBox();

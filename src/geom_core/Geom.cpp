@@ -865,6 +865,8 @@ void Geom::Update( bool fullupdate )
         UpdateFeatureLines();
     }
 
+    UpdateFlags();
+
     UpdateSymmAttach();
 
     if ( fullupdate )
@@ -1128,6 +1130,15 @@ void Geom::UpdateBBox()
     m_BbXMin = m_BBox.GetMin( 0 );
     m_BbYMin = m_BBox.GetMin( 1 );
     m_BbZMin = m_BBox.GetMin( 2 );
+}
+
+//Sets cfd surf types to negative if or normal depending on the state of the GUI negative button
+void Geom::UpdateFlags( )
+{
+    for( int i = 0; i < (int)m_MainSurfVec.size(); i++ )
+    {
+        m_MainSurfVec[i].SetSurfCfdType( m_NegativeVolumeFlag.Get() );
+    }
 }
 
 void Geom::UpdateDrawObj()

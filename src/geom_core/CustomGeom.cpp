@@ -763,7 +763,10 @@ void CustomGeom::UpdateSurf()
 
     //==== Call Script ====//
     ScriptMgr.ExecuteScript( GetScriptModuleName().c_str(), "void UpdateSurf()" );
+}
 
+void CustomGeom::UpdateFlags()
+{
     //==== Set Surf Type ====//
     for ( int i = 0 ; i < (int)m_MainSurfVec.size() ; i++ )
     {
