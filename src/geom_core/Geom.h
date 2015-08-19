@@ -31,8 +31,6 @@
 #include "XSecCurve.h"
 #include "XSecSurf.h"
 
-//#include "xmlvsp.h"
-
 #include <string>
 #include <vector>
 #include <map>
