@@ -28,7 +28,6 @@ public:
     */
     virtual ~TextureMgr();
 
-public:
     /*!
     * Add a texture to manager.
     *
@@ -54,7 +53,6 @@ public:
     */
     virtual void unbind();
 
-public:
     /*!
     * Set Lighting.
     */
@@ -67,7 +65,6 @@ public:
     */
     void setTextureMode( Common::VSPenum textureMode );
 
-public:
     /*!
     * Translate Texture.
     *
@@ -106,7 +103,6 @@ public:
     */
     virtual std::vector<unsigned int> getIds();
 
-public:
     /*!
     * Get hardware limitation of max texture size.
     */
@@ -116,7 +112,6 @@ public:
     */
     int getMaxCombineTextures();
 
-public:
     /*!
     * Get translate value of s.
     *
@@ -160,7 +155,6 @@ protected:
     */
     virtual unsigned int _generateId();
 
-protected:
     /*
     * Texture Properties.
     *
@@ -195,9 +189,9 @@ protected:
     std::vector<TexInfo> _coordList;
 
 private:
+    glm::vec2 _flipToVector( bool flipU, bool flipW );
     std::vector<glm::vec4> _getLightSwitches();
 
-private:
     Lighting * _lights;
     Common::VSPenum _textureMode;
 };

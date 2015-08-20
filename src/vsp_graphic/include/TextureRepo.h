@@ -23,12 +23,11 @@ public:
     */
     virtual ~TextureRepo();
 
-public:
     /*!
     * Get 2D texture to repository.  If the texture does
     * not exist, add it to repository.
     *
-    * fileName - flie path + name of the texture file.
+    * fileName - file path + name of the texture file.
     */
     Texture * get2DTexture( const char * fileName );
 

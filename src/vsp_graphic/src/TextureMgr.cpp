@@ -113,8 +113,6 @@ void TextureMgr::transparentize( unsigned int id, float alpha )
     }
 }
 
-glm::vec2 _flipToVector( bool flipU, bool flipW );
-
 void TextureMgr::bind()
 {
     std::vector<int> samplerIds;
@@ -491,7 +489,7 @@ unsigned int TextureMgr::_generateId()
 * This is a helper function to convert bool bool to float float.
 * true = 1.f, false = 0.f.
 */
-glm::vec2 _flipToVector( bool flipU, bool flipW )
+glm::vec2 TextureMgr::_flipToVector( bool flipU, bool flipW )
 {
     float uFlag, wFlag;
     uFlag = wFlag = 0.f;

@@ -12,11 +12,6 @@
 
 #include "Background.h"
 
-#include "GraphicSingletons.h"
-#include "TextureRepo.h"
-
-#include "glm/glm.hpp"
-
 #define BORDER_LINEWIDTH 1.0f
 #define BORDER_OFFSET 0.009f
 #define ARROW_LENGTH 0.15f
