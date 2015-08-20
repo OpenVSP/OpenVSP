@@ -3,7 +3,6 @@
 
 #include "TextureMgr.h"
 #include "Texture.h"
-#include "TCoordMatrix.h"
 
 #include "Shader.h"
 #include "Lighting.h"
@@ -24,8 +23,6 @@ TextureMgr::~TextureMgr()
     {
         // recycle ids.
         _recycleBin.push_back( _coordList[i].id );
-
-        delete _coordList[i].texCoordMat;
     }
     _coordList.clear();
 }
@@ -38,7 +35,7 @@ unsigned int TextureMgr::add( Texture * texture )
 
         info.id = _generateId();
         info.texture = texture;
-        info.texCoordMat = new TCoordMatrix();
+        info.texCoordMat = glm::mat4( 1.0 );
         info.flipU = false;
         info.flipW = false;
         info.texAlpha = 1.0f;
@@ -70,7 +67,9 @@ void TextureMgr::translate( unsigned int id, float s, float t, float r )
     {
         if( _coordList[i].id == id )
         {
-            _coordList[i].texCoordMat->translate( s, t, r );
+            _coordList[i].texCoordMat[3][0] = s;
+            _coordList[i].texCoordMat[3][1] = t;
+            _coordList[i].texCoordMat[3][2] = r;
             break;
         }
     }
@@ -82,7 +81,9 @@ void TextureMgr::scale( unsigned int id, float sRatio, float tRatio, float rRati
     {
         if( _coordList[i].id == id )
         {
-            _coordList[i].texCoordMat->scale( sRatio, tRatio, rRatio );
+            _coordList[i].texCoordMat[0][0] = sRatio;
+            _coordList[i].texCoordMat[1][1] = tRatio;
+            _coordList[i].texCoordMat[2][2] = rRatio;
             break;
         }
     }
@@ -130,11 +131,11 @@ void TextureMgr::bind()
         // Apply Texture Transformation Matrix.
         glMatrixMode( GL_TEXTURE );
         glLoadIdentity();
-        glMultMatrixf( &_coordList[i].texCoordMat->getTextureTransformationMatrix()[0][0] );
+        glMultMatrixf( &_coordList[i].texCoordMat[0][0] );
 
         samplerIds.push_back( i );
-        scales.push_back( glm::vec2( _coordList[i].texCoordMat->getScaleS(), _coordList[i].texCoordMat->getScaleT() ) );
-        translates.push_back( glm::vec2( _coordList[i].texCoordMat->getTranslateS(), _coordList[i].texCoordMat->getTranslateT() ) );
+        scales.push_back( glm::vec2( _coordList[i].texCoordMat[0][0], _coordList[i].texCoordMat[1][1] ) );
+        translates.push_back( glm::vec2( _coordList[i].texCoordMat[3][0], _coordList[i].texCoordMat[3][1] ) );
         flipFlags.push_back( _flipToVector( _coordList[i].flipU, _coordList[i].flipW ) );
         alphas.push_back( _coordList[i].texAlpha );
     }
@@ -352,7 +353,7 @@ float TextureMgr::getTranslateS( unsigned int id )
     {
         if( _coordList[i].id == id )
         {
-            return _coordList[i].texCoordMat->getTranslateS();
+            return _coordList[i].texCoordMat[3][0];
         }
     }
     // id does not match.
@@ -367,7 +368,7 @@ float TextureMgr::getTranslateT( unsigned int id )
     {
         if( _coordList[i].id == id )
         {
-            return _coordList[i].texCoordMat->getTranslateT();
+            return _coordList[i].texCoordMat[3][1];
         }
     }
     // id does not match.
@@ -382,7 +383,7 @@ float TextureMgr::getTranslateR( unsigned int id )
     {
         if( _coordList[i].id == id )
         {
-            return _coordList[i].texCoordMat->getTranslateR();
+            return _coordList[i].texCoordMat[3][2];
         }
     }
     // id does not match.
@@ -397,7 +398,7 @@ float TextureMgr::getScaleS( unsigned int id )
     {
         if( _coordList[i].id == id )
         {
-            return _coordList[i].texCoordMat->getScaleS();
+            return _coordList[i].texCoordMat[0][0];
         }
     }
     // id does not match.
@@ -412,7 +413,7 @@ float TextureMgr::getScaleT( unsigned int id )
     {
         if( _coordList[i].id == id )
         {
-            return _coordList[i].texCoordMat->getScaleT();
+            return _coordList[i].texCoordMat[1][1];
         }
     }
     // id does not match.
@@ -427,7 +428,7 @@ float TextureMgr::getScaleR( unsigned int id )
     {
         if( _coordList[i].id == id )
         {
-            return _coordList[i].texCoordMat->getScaleR();
+            return _coordList[i].texCoordMat[2][2];
         }
     }
     // id does not match.

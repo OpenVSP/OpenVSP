@@ -11,7 +11,6 @@ namespace VSPGraphic
 {
 class Lighting;
 class Texture;
-class TCoordMatrix;
 
 /*!
 * Texture Manager.
@@ -176,7 +175,7 @@ protected:
 
         Texture * texture;
 
-        TCoordMatrix * texCoordMat;
+        glm::mat4 texCoordMat;
 
         bool flipU;
         bool flipW;
