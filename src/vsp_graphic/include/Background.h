@@ -9,7 +9,7 @@
 
 namespace VSPGraphic
 {
-class Texture;
+class Texture2D;
 class TextureMgr;
 
 /*!
@@ -67,7 +67,7 @@ public:
     *
     * texture - Texture image.
     */
-    virtual void attachImage( Texture * texture );
+    virtual void attachImage( Texture2D * texture );
     /*!
     * Remove Image from Background.
     */

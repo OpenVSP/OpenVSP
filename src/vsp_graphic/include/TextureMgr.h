@@ -10,7 +10,7 @@
 namespace VSPGraphic
 {
 class Lighting;
-class Texture;
+class Texture2D;
 
 /*!
 * Texture Manager.
@@ -33,7 +33,7 @@ public:
     * texture - texture to add.
     * return id for this texture.
     */
-    virtual unsigned int add( Texture * texture );
+    virtual unsigned int add( Texture2D * texture );
 
     /*!
     * Remove texture from manager.
@@ -173,7 +173,7 @@ protected:
     {
         unsigned int id;
 
-        Texture * texture;
+        Texture2D * texture;
 
         glm::mat4 texCoordMat;
 

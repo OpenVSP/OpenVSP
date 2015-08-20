@@ -2,7 +2,7 @@
 #include "GraphicSingletons.h"
 
 #include "TextureMgr.h"
-#include "Texture.h"
+#include "Texture2D.h"
 
 #include "Shader.h"
 #include "Lighting.h"
@@ -27,7 +27,7 @@ TextureMgr::~TextureMgr()
     _coordList.clear();
 }
 
-unsigned int TextureMgr::add( Texture * texture )
+unsigned int TextureMgr::add( Texture2D * texture )
 {
     if( ( int )_coordList.size() <= getMaxCombineTextures() )
     {

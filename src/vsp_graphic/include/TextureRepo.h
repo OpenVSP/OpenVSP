@@ -6,7 +6,7 @@
 
 namespace VSPGraphic
 {
-class Texture;
+class Texture2D;
 
 /*!
 * Texture repositiory.
@@ -29,13 +29,13 @@ public:
     *
     * fileName - file path + name of the texture file.
     */
-    Texture * get2DTexture( const char * fileName );
+    Texture2D * get2DTexture( const char * fileName );
 
 private:
     struct TextureInfo
     {
         std::string fileName;
-        Texture * texture;
+        Texture2D * texture;
     };
     std::vector<TextureInfo> _textureRepo;
 };

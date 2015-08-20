@@ -4,7 +4,7 @@
 
 #include "Background.h"
 
-#include "Texture.h"
+#include "Texture2D.h"
 #include "TextureMgr.h"
 #include "Renderable.h"
 #include "VertexBuffer.h"
@@ -105,7 +105,7 @@ void Background::offsetY( float offset )
     _hasChanged = true;
 }
 
-void Background::attachImage( Texture * texture )
+void Background::attachImage( Texture2D * texture )
 {
     removeImage();
 

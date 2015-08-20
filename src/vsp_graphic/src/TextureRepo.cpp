@@ -1,6 +1,5 @@
 #include "TextureRepo.h"
 
-#include "Texture.h"
 #include "Texture2D.h"
 
 #include "Image.h"
@@ -18,7 +17,7 @@ TextureRepo::~TextureRepo()
     }
 }
 
-Texture * TextureRepo::get2DTexture( const char * fileName )
+Texture2D * TextureRepo::get2DTexture( const char * fileName )
 {
     // First check if this file has been loaded before.
     std::string fn = fileName;
