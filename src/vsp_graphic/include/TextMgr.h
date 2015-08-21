@@ -1,7 +1,9 @@
 #ifndef _VSP_GRAPHIC_TEXT_RENDER_H
 #define _VSP_GRAPHIC_TEXT_RENDER_H
 
+#include <vector>
 #include <string>
+#include <map>
 
 namespace glfont
 {
@@ -25,7 +27,11 @@ public:
     */
     virtual ~TextMgr();
 
-public:
+    /*!
+    * Load font from file and return the font object.
+    */
+    glfont::GLFont * loadFont();
+
     /*!
     * Draw Text.
     * font - type of font.
@@ -35,6 +41,9 @@ public:
     * xoffset, yoffset - offset from the center.
     */
     void drawText( glfont::GLFont * font, float scale, std::string str, float x0, float y0, float xoffset, float yoffset );
+
+private:
+    glfont::GLFont * _font;
 };
 }
 #endif

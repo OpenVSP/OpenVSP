@@ -9,7 +9,6 @@
 namespace VSPGraphic
 {
 class TextMgr;
-class Fontmgr;
 
 /*!
 * Customized marker to render rulers.

@@ -1,6 +1,5 @@
 #include "Ruler.h"
 #include "TextMgr.h"
-#include "FontMgr.h"
 #include "Common.h"
 #include "OpenGLHeaders.h"
 #include "glm/ext.hpp"
@@ -11,7 +10,6 @@ namespace VSPGraphic
 {
 static glm::vec3 _mouseLocInWorld = glm::vec3(0xFFFFFFFF);
 static TextMgr _textMgr = TextMgr();
-static FontMgr _fontMgr = FontMgr();
 
 Ruler::Ruler() : Marker()
 {
@@ -190,7 +188,7 @@ void Ruler::_draw()
 
         glColor4f(textColor.red, textColor.green, textColor.blue, textColor.alpha);
         glDepthFunc(GL_ALWAYS);
-        _textMgr.drawText(_fontMgr.loadFont(), _getTextSize(), text, 0.0f, 0.0f, 0.0f, 0.75f);
+        _textMgr.drawText(_textMgr.loadFont(), _getTextSize(), text, 0.0f, 0.0f, 0.0f, 0.75f);
         glDepthFunc(GL_LEQUAL);
 
         glMatrixMode(GL_PROJECTION);

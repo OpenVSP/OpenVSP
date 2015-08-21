@@ -5,7 +5,6 @@
 
 #include "Viewport.h"
 #include "TextMgr.h"
-#include "FontMgr.h"
 
 #include "Camera.h"
 #include "ArcballCam.h"
@@ -32,7 +31,6 @@ Viewport::Viewport( int x, int y, int width, int height )
     _camera->resize( _x, _y, _vWidth, _vHeight );
 
     _textMgr = new TextMgr();
-    _font = new FontMgr();
 
     // can't initialize here because no context is created.
     _background = NULL;
@@ -44,8 +42,11 @@ Viewport::~Viewport()
 {
     delete _camera;
     delete _textMgr;
-    delete _font;
-    delete _background;
+
+    if( _background )
+    {
+        delete _background;
+    }
 }
 
 void Viewport::resize( int x, int y, int width, int height )
@@ -207,21 +208,21 @@ void Viewport::drawXYZArrows()
     // X
     glPushMatrix();
     glMultMatrixf( &xt[0][0] );
-    _textMgr->drawText( _font->loadFont(),
+    _textMgr->drawText( _textMgr->loadFont(),
                         2.0f, "X", 0.f, 0.f, 0.f, 0.f );
     glPopMatrix();
 
     // Y
     glPushMatrix();
     glMultMatrixf( &yt[0][0] );
-    _textMgr->drawText( _font->loadFont(),
+    _textMgr->drawText( _textMgr->loadFont(),
                         2.0f, "Y", 0.f, 0.f, 0.f, 0.f );
     glPopMatrix();
 
     // Z
     glPushMatrix();
     glMultMatrixf( &zt[0][0] );
-    _textMgr->drawText( _font->loadFont(),
+    _textMgr->drawText( _textMgr->loadFont(),
                         2.0f, "Z", 0.f, 0.f, 0.f, 0.f );
     glPopMatrix();
 

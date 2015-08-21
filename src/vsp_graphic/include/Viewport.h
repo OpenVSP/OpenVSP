@@ -7,7 +7,6 @@
 namespace VSPGraphic
 {
 class TextMgr;
-class FontMgr;
 class Camera;
 class Background;
 
@@ -149,7 +148,6 @@ private:
     Background * _background;
 
     TextMgr * _textMgr;
-    FontMgr * _font;
 };
 }
 #endif
