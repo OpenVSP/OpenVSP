@@ -90,7 +90,7 @@ void Vehicle::Init()
     ScriptMgr.Init();
     AdvLinkMgr.Init();
     CustomGeomMgr.ReadCustomScripts( this );
- 
+
     m_Name = "Vehicle";
 
     SetVSP3FileName( "Unnamed.vsp3" );
@@ -1396,6 +1396,47 @@ void Vehicle::WriteXSecFile( const string & file_name, int write_set )
     fclose( dump_file );
 }
 
+//==== Write Formatted PLOT3D File ====//
+void Vehicle::WritePLOT3DFile( const string & file_name, int write_set )
+{
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+
+    int geom_cnt = 0;
+    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        if( geom_vec[i]->GetSetFlag( write_set ) )
+        {
+            geom_cnt += geom_vec[i]->GetNumTotalSurfs();
+        }
+    }
+
+    //==== Open file ====//
+    FILE* dump_file = fopen( file_name.c_str(), "w" );
+
+    //==== Write total number of surfaces ===//
+    fprintf( dump_file, " %d\n", geom_cnt );
+
+    //==== Write surface boundary extents ====//
+    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        if ( geom_vec[i]->GetSetFlag( write_set ) )
+        {
+	    geom_vec[i]->WritePLOT3DFileExtents( dump_file );
+        }
+    }
+
+    //==== Write surface boundary points ====//
+    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        if ( geom_vec[i]->GetSetFlag( write_set ) )
+        {
+            geom_vec[i]->WritePLOT3DFileXYZ( dump_file );
+        }
+    }
+
+    fclose( dump_file );
+}
+
 //==== Check for an existing mesh in set ====//
 bool Vehicle::ExistMesh( int set )
 {
@@ -2601,6 +2642,10 @@ void Vehicle::ExportFile( const string & file_name, int write_set, int file_type
     if ( file_type == EXPORT_XSEC )
     {
         WriteXSecFile( file_name, write_set );
+    }
+    else if ( file_type == EXPORT_PLOT3D )
+    {
+        WritePLOT3DFile( file_name, write_set  );
     }
     else if ( file_type == EXPORT_STL )
     {

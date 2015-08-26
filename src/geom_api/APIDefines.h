@@ -105,6 +105,7 @@ enum IMPORT_TYPE {  IMPORT_STL,
 
 enum EXPORT_TYPE {  EXPORT_FELISA,
                     EXPORT_XSEC,
+                    EXPORT_PLOT3D,
                     EXPORT_STL,
                     EXPORT_AWAVE,
                     EXPORT_NASCART,
