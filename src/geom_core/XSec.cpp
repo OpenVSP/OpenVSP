@@ -409,22 +409,6 @@ void XSec::GetTanNormCrv( const vector< double > &thetas,
     GetTanNormCrv( ts, thetas, phis, angstr, crvstr, tangentcrv, normcrv );
 }
 
-void XSec::GetTanNormCrv( double theta, double phi, double angstr, double crvstr,
-        piecewise_curve_type &tangentcrv, piecewise_curve_type &normcrv )
-{
-    double tmin(m_TransformedCurve.GetCurve().get_parameter_min()), tmax(m_TransformedCurve.GetCurve().get_parameter_max());
-
-    vector< double > ts;
-    ts.push_back( tmin );
-    ts.push_back( tmax );
-    vector< double > thetas( 2, theta );
-    vector< double > phis( 2, phi );
-    vector< double > angstrs( 2, angstr );
-    vector< double > crvstrs( 2, crvstr );
-
-    GetTanNormCrv( ts, thetas, phis, angstrs, crvstrs, tangentcrv, normcrv );
-}
-
 void XSec::GetAngStrCrv( double t, int irib,
         double &thetaL, double &phiL, double &strengthL, double &curvatureL,
         double &thetaR, double &phiR, double &strengthR, double &curvatureR,

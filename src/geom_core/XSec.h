@@ -88,8 +88,6 @@ public:
             const vector< double > &phis,
             const vector< double > &angstr, const vector< double > &crvstr,
             piecewise_curve_type &tangentcrv, piecewise_curve_type &normcrv );
-    virtual void GetTanNormCrv( double theta, double phi, double angstr, double crvstr,
-            piecewise_curve_type &tangentcrv, piecewise_curve_type &normcrv );
 
     virtual void GetAngStrCrv( double t, int irib,
             double &thetaL, double &phiL, double &strengthL, double &curvatureL,
