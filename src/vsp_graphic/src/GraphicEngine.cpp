@@ -40,7 +40,7 @@ void GraphicEngine::dumpScreenJPEG( std::string fileName )
     int h = _display->getLayoutMgr()->screenHeight();
 
     // width * height * RGB
-    unsigned char * data = new unsigned char[ w * h * 3];
+    std::vector<unsigned char> data(w * h * 3, 0);
 
     _display->draw( _scene, 0xFFFFFFFF, 0xFFFFFFFF );
 
@@ -48,10 +48,10 @@ void GraphicEngine::dumpScreenJPEG( std::string fileName )
 
     glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
     glPixelStorei( GL_PACK_ALIGNMENT, 1 );
-    glReadPixels( 0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, data );
+    glReadPixels( 0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, &data[0] );
 
     // Flip data top to bottom.
-    unsigned char * flipdat = new unsigned char[ w * h * 3];
+    std::vector<unsigned char> flipdat(w * h * 3, 0);
     int scanLen = 3 * w;
     for ( int i = 0 ; i < h; i++ )
     {
@@ -59,11 +59,9 @@ void GraphicEngine::dumpScreenJPEG( std::string fileName )
         unsigned char* dstLine = &flipdat[ (h - i - 1) * scanLen ];
         memcpy(  dstLine, srcLine, scanLen );
     }
-    delete [] data;
 
-    writeJPEG( fileName.c_str(), w, h, flipdat );
+    writeJPEG( fileName.c_str(), w, h, &flipdat[0] );
 
-    delete [] flipdat;
 }
 
 void GraphicEngine::initGlew()
