@@ -294,7 +294,7 @@ void XSec::GetBasis( double t, Matrix4d &basis )
 // Given a position along a curve t, and a desired surfce angle theta, calculate
 // the tangent and normal unit vectors that will be required by the surface
 // skinning algorithm.
-void XSec::GetTanNormVec( double t, double theta, vec3d &tangent, vec3d &normal )
+void XSec::GetTanNormVec( double t, double theta, double phi, vec3d &tangent, vec3d &normal )
 {
     Matrix4d basis;
     vec3d wdir, updir, pdir;
@@ -308,6 +308,8 @@ void XSec::GetTanNormVec( double t, double theta, vec3d &tangent, vec3d &normal 
     // Rotate basis to specified slope.
     rmat.rotate( theta, updir );
     basis.postMult( rmat.data() );
+    rmat.rotate( phi, wdir );
+    basis.postMult( rmat.data() );
 
     // Pull out desired normal and tangent directions.
     basis.getBasis( normal, updir, tangent);
@@ -317,6 +319,7 @@ void XSec::GetTanNormVec( double t, double theta, vec3d &tangent, vec3d &normal 
 // angle strengths angstr, and curvature strengths crvstr, calculate the tangent
 // and normal vector curves that will be required by the skinning algorithm.
 void XSec::GetTanNormCrv( const vector< double > &ts, const vector< double > &thetas,
+        const vector< double > &phis,
         const vector< double > &angstr, const vector< double > &crvstr,
         piecewise_curve_type &tangentcrv, piecewise_curve_type &normcrv )
 {
@@ -330,16 +333,21 @@ void XSec::GetTanNormCrv( const vector< double > &ts, const vector< double > &th
         pcc.set_segment_dt( ts[i+1] - ts[i], i );
     }
 
-    vector< curve_point_type > pts(nts);
+    vector< curve_point_type > pts(nts), phipts(nts);
     for( int i = 0; i < nts; i++ )
     {
         pts[i] << thetas[i], angstr[i], crvstr[i];
+        phipts[i] << phis[i], 0.0, 0.0;
     }
     pcc.set_closed_cubic_spline( pts.begin() );
 
     // Build control curve.
-    piecewise_curve_type crvcntrl;
+    piecewise_curve_type crvcntrl, crvphi;
     pcc.create( crvcntrl );
+
+    pcc.set_closed_cubic_spline( phipts.begin() );
+    pcc.create( crvphi );
+
 
     // Evaluate control curve at all the piecewise endpoints
     // used to define the XSecCurve.
@@ -357,10 +365,11 @@ void XSec::GetTanNormCrv( const vector< double > &ts, const vector< double > &th
     for( int i = 0; i < ntcrv; i++ )
     {
         curve_point_type crvparm = crvcntrl.f( crvts[i] );
+        curve_point_type crvphiparm = crvphi.f( crvts[i] );
 
         vec3d tangent, normal;
 
-        GetTanNormVec( crvts[i], -crvparm.x(), tangent, normal );
+        GetTanNormVec( crvts[i], -crvparm.x(), -crvphiparm.x(), tangent, normal );
 
         tangent = tangent * crvparm.y();
         normal = normal * crvparm.z();
@@ -384,6 +393,7 @@ void XSec::GetTanNormCrv( const vector< double > &ts, const vector< double > &th
 }
 
 void XSec::GetTanNormCrv( const vector< double > &thetas,
+        const vector< double > &phis,
         const vector< double > &angstr, const vector< double > &crvstr,
         piecewise_curve_type &tangentcrv, piecewise_curve_type &normcrv )
 {
@@ -392,13 +402,14 @@ void XSec::GetTanNormCrv( const vector< double > &thetas,
         ts.push_back( (double)i );
 
     assert( thetas.size() == 5 );
+    assert( phiss.size() == 5 );
     assert( angstr.size() == 5 );
     assert( crvstr.size() == 5 );
 
-    GetTanNormCrv( ts, thetas, angstr, crvstr, tangentcrv, normcrv );
+    GetTanNormCrv( ts, thetas, phis, angstr, crvstr, tangentcrv, normcrv );
 }
 
-void XSec::GetTanNormCrv( double theta, double angstr, double crvstr,
+void XSec::GetTanNormCrv( double theta, double phi, double angstr, double crvstr,
         piecewise_curve_type &tangentcrv, piecewise_curve_type &normcrv )
 {
     double tmin(m_TransformedCurve.GetCurve().get_parameter_min()), tmax(m_TransformedCurve.GetCurve().get_parameter_max());
@@ -407,15 +418,16 @@ void XSec::GetTanNormCrv( double theta, double angstr, double crvstr,
     ts.push_back( tmin );
     ts.push_back( tmax );
     vector< double > thetas( 2, theta );
+    vector< double > phis( 2, phi );
     vector< double > angstrs( 2, angstr );
     vector< double > crvstrs( 2, crvstr );
 
-    GetTanNormCrv( ts, thetas, angstrs, crvstrs, tangentcrv, normcrv );
+    GetTanNormCrv( ts, thetas, phis, angstrs, crvstrs, tangentcrv, normcrv );
 }
 
 void XSec::GetAngStrCrv( double t, int irib,
-        double &thetaL, double &strengthL, double &curvatureL,
-        double &thetaR, double &strengthR, double &curvatureR,
+        double &thetaL, double &phiL, double &strengthL, double &curvatureL,
+        double &thetaR, double &phiR, double &strengthR, double &curvatureR,
         const VspSurf &surf )
 {
     Matrix4d basis;
@@ -439,10 +451,12 @@ void XSec::GetAngStrCrv( double t, int irib,
     vec3d tanL = surf.CompTanU( uribL, t );
     vec3d tanR = surf.CompTanU( uribR, t );
 
-    thetaL = signed_angle( pdir, tanL, updir );
+    thetaL =  (PI/2.0) - signed_angle( tanL, wdir, updir );
+    phiL = signed_angle( updir, tanL, wdir ) - (PI/2.0);
     strengthL = tanL.mag();
 
-    thetaR = signed_angle( pdir, tanR, updir );
+    thetaR = (PI/2.0) - signed_angle( tanR, wdir, updir );
+    phiR = signed_angle( updir, tanR, wdir ) - (PI/2.0);
     strengthR = tanR.mag();
 
     vec3d uuL = surf.CompTanUU( uribL, t );
@@ -455,8 +469,12 @@ void XSec::GetAngStrCrv( double t, int irib,
     // Rotate basis to specified slope.
     rmat.rotate( thetaL, updir );
     basisL.postMult( rmat.data() );
+    rmat.rotate( phiL, wdir );
+    basisL.postMult( rmat.data() );
 
     rmat.rotate( thetaR, updir );
+    basisR.postMult( rmat.data() );
+    rmat.rotate( phiR, wdir );
     basisR.postMult( rmat.data() );
 
     // Pull out desired normal and tangent directions.
@@ -489,22 +507,27 @@ SkinXSec::SkinXSec( XSecCurve *xsc, bool use_left ) : XSec( xsc, use_left)
     m_TopCont.SetDescript( "Skinning continuity enforced on top of curve" );
 
     m_TopLAngleSet.Init( "TopLAngleSet", m_GroupName, this, 0, 0, 1 );
+    m_TopLSlewSet.Init( "TopLSlewSet", m_GroupName, this, 0, 0, 1 );
     m_TopLStrengthSet.Init( "TopLStrengthSet", m_GroupName, this, 0, 0, 1 );
     m_TopLCurveSet.Init( "TopLCurveSet", m_GroupName, this, 0, 0, 1 );
 
     m_TopRAngleSet.Init( "TopRAngleSet", m_GroupName, this, 0, 0, 1 );
+    m_TopRSlewSet.Init( "TopRSlewSet", m_GroupName, this, 0, 0, 1 );
     m_TopRStrengthSet.Init( "TopRStrengthSet", m_GroupName, this, 0, 0, 1 );
     m_TopRCurveSet.Init( "TopRCurveSet", m_GroupName, this, 0, 0, 1 );
 
     m_TopLRAngleEq.Init( "TopLRAngleEq", m_GroupName, this, 0, 0, 1 );
+    m_TopLRSlewEq.Init( "TopLRSlewEq", m_GroupName, this, 0, 0, 1 );
     m_TopLRStrengthEq.Init( "TopLRStrengthEq", m_GroupName, this, 0, 0, 1 );
     m_TopLRCurveEq.Init( "TopLRCurveEq", m_GroupName, this, 0, 0, 1 );
 
     m_TopLAngle.Init( "TopLAngle", m_GroupName, this,  0.0, -180.0, 180.0 );
+    m_TopLSlew.Init( "TopLSlew", m_GroupName, this,  0.0, -180.0, 180.0 );
     m_TopLStrength.Init( "TopLStrength", m_GroupName, this,  1.0, 0.0, 1e12 );
     m_TopLCurve.Init( "TopLCurve", m_GroupName, this,  0.0, -1e12, 1e12 );
 
     m_TopRAngle.Init( "TopRAngle", m_GroupName, this,  0.0, -180.0, 180.0 );
+    m_TopRSlew.Init( "TopRSlew", m_GroupName, this,  0.0, -180.0, 180.0 );
     m_TopRStrength.Init( "TopRStrength", m_GroupName, this,  1.0, 0.0, 1e12 );
     m_TopRCurve.Init( "TopRCurve", m_GroupName, this,  0.0, -1e12, 1e12 );
 
@@ -513,22 +536,27 @@ SkinXSec::SkinXSec( XSecCurve *xsc, bool use_left ) : XSec( xsc, use_left)
     m_RightCont.SetDescript( "Skinning continuity enforced on right of curve" );
 
     m_RightLAngleSet.Init( "RightLAngleSet", m_GroupName, this, 0, 0, 1 );
+    m_RightLSlewSet.Init( "RightLSlewSet", m_GroupName, this, 0, 0, 1 );
     m_RightLStrengthSet.Init( "RightLStrengthSet", m_GroupName, this, 0, 0, 1 );
     m_RightLCurveSet.Init( "RightLCurveSet", m_GroupName, this, 0, 0, 1 );
 
     m_RightRAngleSet.Init( "RightRAngleSet", m_GroupName, this, 0, 0, 1 );
+    m_RightRSlewSet.Init( "RightRSlewSet", m_GroupName, this, 0, 0, 1 );
     m_RightRStrengthSet.Init( "RightRStrengthSet", m_GroupName, this, 0, 0, 1 );
     m_RightRCurveSet.Init( "RightRCurveSet", m_GroupName, this, 0, 0, 1 );
 
     m_RightLRAngleEq.Init( "RightLRAngleEq", m_GroupName, this, 0, 0, 1 );
+    m_RightLRSlewEq.Init( "RightLRSlewEq", m_GroupName, this, 0, 0, 1 );
     m_RightLRStrengthEq.Init( "RightLRStrengthEq", m_GroupName, this, 0, 0, 1 );
     m_RightLRCurveEq.Init( "RightLRCurveEq", m_GroupName, this, 0, 0, 1 );
 
     m_RightLAngle.Init( "RightLAngle", m_GroupName, this,  0.0, -180.0, 180.0 );
+    m_RightLSlew.Init( "RightLSlew", m_GroupName, this,  0.0, -180.0, 180.0 );
     m_RightLStrength.Init( "RightLStrength", m_GroupName, this,  1.0, 0.0, 1e12 );
     m_RightLCurve.Init( "RightLCurve", m_GroupName, this,  0.0, -1e12, 1e12 );
 
     m_RightRAngle.Init( "RightRAngle", m_GroupName, this,  0.0, -180.0, 180.0 );
+    m_RightRSlew.Init( "RightRSlew", m_GroupName, this,  0.0, -180.0, 180.0 );
     m_RightRStrength.Init( "RightRStrength", m_GroupName, this,  1.0, 0.0, 1e12 );
     m_RightRCurve.Init( "RightRCurve", m_GroupName, this,  0.0, -1e12, 1e12 );
 
@@ -537,22 +565,27 @@ SkinXSec::SkinXSec( XSecCurve *xsc, bool use_left ) : XSec( xsc, use_left)
     m_BottomCont.SetDescript( "Skinning continuity enforced on bottom of curve" );
 
     m_BottomLAngleSet.Init( "BottomLAngleSet", m_GroupName, this, 0, 0, 1 );
+    m_BottomLSlewSet.Init( "BottomLSlewSet", m_GroupName, this, 0, 0, 1 );
     m_BottomLStrengthSet.Init( "BottomLStrengthSet", m_GroupName, this, 0, 0, 1 );
     m_BottomLCurveSet.Init( "BottomLCurveSet", m_GroupName, this, 0, 0, 1 );
 
     m_BottomRAngleSet.Init( "BottomRAngleSet", m_GroupName, this, 0, 0, 1 );
+    m_BottomRSlewSet.Init( "BottomRSlewSet", m_GroupName, this, 0, 0, 1 );
     m_BottomRStrengthSet.Init( "BottomRStrengthSet", m_GroupName, this, 0, 0, 1 );
     m_BottomRCurveSet.Init( "BottomRCurveSet", m_GroupName, this, 0, 0, 1 );
 
     m_BottomLRAngleEq.Init( "BottomLRAngleEq", m_GroupName, this, 0, 0, 1 );
+    m_BottomLRSlewEq.Init( "BottomLRSlewEq", m_GroupName, this, 0, 0, 1 );
     m_BottomLRStrengthEq.Init( "BottomLRStrengthEq", m_GroupName, this, 0, 0, 1 );
     m_BottomLRCurveEq.Init( "BottomLRCurveEq", m_GroupName, this, 0, 0, 1 );
 
     m_BottomLAngle.Init( "BottomLAngle", m_GroupName, this,  0.0, -180.0, 180.0 );
+    m_BottomLSlew.Init( "BottomLSlew", m_GroupName, this,  0.0, -180.0, 180.0 );
     m_BottomLStrength.Init( "BottomLStrength", m_GroupName, this,  1.0, 0.0, 1e12 );
     m_BottomLCurve.Init( "BottomLCurve", m_GroupName, this,  0.0, -1e12, 1e12 );
 
     m_BottomRAngle.Init( "BottomRAngle", m_GroupName, this,  0.0, -180.0, 180.0 );
+    m_BottomRSlew.Init( "BottomRSlew", m_GroupName, this,  0.0, -180.0, 180.0 );
     m_BottomRStrength.Init( "BottomRStrength", m_GroupName, this,  1.0, 0.0, 1e12 );
     m_BottomRCurve.Init( "BottomRCurve", m_GroupName, this,  0.0, -1e12, 1e12 );
 
@@ -561,22 +594,27 @@ SkinXSec::SkinXSec( XSecCurve *xsc, bool use_left ) : XSec( xsc, use_left)
     m_LeftCont.SetDescript( "Skinning continuity enforced on left of curve" );
 
     m_LeftLAngleSet.Init( "LeftLAngleSet", m_GroupName, this, 0, 0, 1 );
+    m_LeftLSlewSet.Init( "LeftLSlewSet", m_GroupName, this, 0, 0, 1 );
     m_LeftLStrengthSet.Init( "LeftLStrengthSet", m_GroupName, this, 0, 0, 1 );
     m_LeftLCurveSet.Init( "LeftLCurveSet", m_GroupName, this, 0, 0, 1 );
 
     m_LeftRAngleSet.Init( "LeftRAngleSet", m_GroupName, this, 0, 0, 1 );
+    m_LeftRSlewSet.Init( "LeftRSlewSet", m_GroupName, this, 0, 0, 1 );
     m_LeftRStrengthSet.Init( "LeftRStrengthSet", m_GroupName, this, 0, 0, 1 );
     m_LeftRCurveSet.Init( "LeftRCurveSet", m_GroupName, this, 0, 0, 1 );
 
     m_LeftLRAngleEq.Init( "LeftLRAngleEq", m_GroupName, this, 0, 0, 1 );
+    m_LeftLRSlewEq.Init( "LeftLRSlewEq", m_GroupName, this, 0, 0, 1 );
     m_LeftLRStrengthEq.Init( "LeftLRStrengthEq", m_GroupName, this, 0, 0, 1 );
     m_LeftLRCurveEq.Init( "LeftLRCurveEq", m_GroupName, this, 0, 0, 1 );
 
     m_LeftLAngle.Init( "LeftLAngle", m_GroupName, this,  0.0, -180.0, 180.0 );
+    m_LeftLSlew.Init( "LeftLSlew", m_GroupName, this,  0.0, -180.0, 180.0 );
     m_LeftLStrength.Init( "LeftLStrength", m_GroupName, this,  1.0, 0.0, 1e12 );
     m_LeftLCurve.Init( "LeftLCurve", m_GroupName, this,  0.0, -1e12, 1e12 );
 
     m_LeftRAngle.Init( "LeftRAngle", m_GroupName, this,  0.0, -180.0, 180.0 );
+    m_LeftRSlew.Init( "LeftRSlew", m_GroupName, this,  0.0, -180.0, 180.0 );
     m_LeftRStrength.Init( "LeftRStrength", m_GroupName, this,  1.0, 0.0, 1e12 );
     m_LeftRCurve.Init( "LeftRCurve", m_GroupName, this,  0.0, -1e12, 1e12 );
 }
@@ -585,48 +623,61 @@ SkinXSec::SkinXSec( XSecCurve *xsc, bool use_left ) : XSec( xsc, use_left)
 
 void SkinXSec::CopySetValidate( IntParm &Cont,
     BoolParm &LAngleSet,
+    BoolParm &LSlewSet,
     BoolParm &LStrengthSet,
     BoolParm &LCurveSet,
     BoolParm &RAngleSet,
+    BoolParm &RSlewSet,
     BoolParm &RStrengthSet,
     BoolParm &RCurveSet,
     BoolParm &LRAngleEq,
+    BoolParm &LRSlewEq,
     BoolParm &LRStrengthEq,
     BoolParm &LRCurveEq )
 {
     Cont = m_TopCont();
     LAngleSet = m_TopLAngleSet();
+    LSlewSet = m_TopLSlewSet();
     LStrengthSet = m_TopLStrengthSet();
     LCurveSet = m_TopLCurveSet();
     RAngleSet = m_TopRAngleSet();
+    RSlewSet = m_TopRSlewSet();
     RStrengthSet = m_TopRStrengthSet();
     RCurveSet = m_TopRCurveSet();
 
     ValidateParms( Cont,
         LAngleSet,
+        LSlewSet,
         LStrengthSet,
         LCurveSet,
         RAngleSet,
+        RSlewSet,
         RStrengthSet,
         RCurveSet,
         LRAngleEq,
+        LRSlewEq,
         LRStrengthEq,
         LRCurveEq );
 }
 
 void SkinXSec::ValidateParms( IntParm &Cont,
     BoolParm &LAngleSet,
+    BoolParm &LSlewSet,
     BoolParm &LStrengthSet,
     BoolParm &LCurveSet,
     BoolParm &RAngleSet,
+    BoolParm &RSlewSet,
     BoolParm &RStrengthSet,
     BoolParm &RCurveSet,
     BoolParm &LRAngleEq,
+    BoolParm &LRSlewEq,
     BoolParm &LRStrengthEq,
     BoolParm &LRCurveEq )
 {
     LStrengthSet = LAngleSet();
     RStrengthSet = RAngleSet();
+    LSlewSet = LAngleSet();
+    RSlewSet = RAngleSet();
 
     if ( Cont() == 2 )
     {
@@ -666,13 +717,29 @@ void SkinXSec::ValidateParms( IntParm &Cont,
             RStrengthSet = false;
         }
 
+        if ( LSlewSet() )
+        {
+            LRSlewEq = true;
+            RSlewSet = true;
+        }
+        else
+        {
+            LRSlewEq = false;
+            RSlewSet = false;
+        }
     }
 
     if ( LRAngleEq() )
     {
         RAngleSet = true;
+        RSlewSet = true;
         RStrengthSet = true;
         LAngleSet = true;
+    }
+    if ( LRSlewEq() )
+    {
+        RSlewSet = true;
+        LSlewSet = true;
     }
     if ( LRStrengthEq() )
     {
@@ -723,6 +790,14 @@ void SkinXSec::ValidateParms( )
             m_TopLAngleSet,
             m_TopCont() >= 1 );
 
+    CrossValidateParms( m_TopLRSlewEq,
+            m_RightLRSlewEq,
+            m_BottomLRSlewEq,
+            m_LeftLRSlewEq,
+            m_TopRSlewSet,
+            m_TopLSlewSet,
+            m_TopCont() >= 1 );
+
     CrossValidateParms( m_TopLRStrengthEq,
             m_RightLRStrengthEq,
             m_BottomLRStrengthEq,
@@ -741,61 +816,77 @@ void SkinXSec::ValidateParms( )
 
     ValidateParms( m_TopCont,
                m_TopLAngleSet,
+               m_TopLSlewSet,
                m_TopLStrengthSet,
                m_TopLCurveSet,
                m_TopRAngleSet,
+               m_TopRSlewSet,
                m_TopRStrengthSet,
                m_TopRCurveSet,
                m_TopLRAngleEq,
+               m_TopLRSlewEq,
                m_TopLRStrengthEq,
                m_TopLRCurveEq );
 
     CopySetValidate( m_RightCont,
                m_RightLAngleSet,
+               m_RightLSlewSet,
                m_RightLStrengthSet,
                m_RightLCurveSet,
                m_RightRAngleSet,
+               m_RightRSlewSet,
                m_RightRStrengthSet,
                m_RightRCurveSet,
                m_RightLRAngleEq,
+               m_RightLRSlewEq,
                m_RightLRStrengthEq,
                m_RightLRCurveEq );
 
     CopySetValidate( m_BottomCont,
                m_BottomLAngleSet,
+               m_BottomLSlewSet,
                m_BottomLStrengthSet,
                m_BottomLCurveSet,
                m_BottomRAngleSet,
+               m_BottomRSlewSet,
                m_BottomRStrengthSet,
                m_BottomRCurveSet,
                m_BottomLRAngleEq,
+               m_BottomLRSlewEq,
                m_BottomLRStrengthEq,
                m_BottomLRCurveEq );
 
     CopySetValidate( m_LeftCont,
                m_LeftLAngleSet,
+               m_LeftLSlewSet,
                m_LeftLStrengthSet,
                m_LeftLCurveSet,
                m_LeftRAngleSet,
+               m_LeftRSlewSet,
                m_LeftRStrengthSet,
                m_LeftRCurveSet,
                m_LeftLRAngleEq,
+               m_LeftLRSlewEq,
                m_LeftLRStrengthEq,
                m_LeftLRCurveEq );
 
     if ( m_TopLRAngleEq() ) m_TopRAngle = m_TopLAngle();
+    if ( m_TopLRSlewEq() ) m_TopRSlew = m_TopLSlew();
     if ( m_TopLRStrengthEq() ) m_TopRStrength = m_TopLStrength();
     if ( m_TopLRCurveEq() ) m_TopRCurve = m_TopLCurve();
 
     if ( m_RightLRAngleEq() ) m_RightRAngle = m_RightLAngle();
+    if ( m_RightLRSlewEq() ) m_RightRSlew = m_RightLSlew();
     if ( m_RightLRStrengthEq() ) m_RightRStrength = m_RightLStrength();
     if ( m_RightLRCurveEq() ) m_RightRCurve = m_RightLCurve();
 
     if ( m_BottomLRAngleEq() ) m_BottomRAngle = m_BottomLAngle();
+    if ( m_BottomLRSlewEq() ) m_BottomRSlew = m_BottomLSlew();
     if ( m_BottomLRStrengthEq() ) m_BottomRStrength = m_BottomLStrength();
     if ( m_BottomLRCurveEq() ) m_BottomRCurve = m_BottomLCurve();
 
     if ( m_LeftLRAngleEq() ) m_LeftRAngle = m_LeftLAngle();
+    if ( m_LeftLRSlewEq() ) m_LeftRSlew = m_LeftLSlew();
     if ( m_LeftLRStrengthEq() ) m_LeftRStrength = m_LeftLStrength();
     if ( m_LeftLRCurveEq() ) m_LeftRCurve = m_LeftLCurve();
 
@@ -803,52 +894,67 @@ void SkinXSec::ValidateParms( )
     {
         m_RightCont = m_TopCont();
         m_RightLAngleSet = m_TopLAngleSet();
+        m_RightLSlewSet = m_TopLSlewSet();
         m_RightLStrengthSet = m_TopLStrengthSet();
         m_RightLCurveSet = m_TopLCurveSet();
         m_RightRAngleSet = m_TopRAngleSet();
+        m_RightRSlewSet = m_TopRSlewSet();
         m_RightRStrengthSet = m_TopRStrengthSet();
         m_RightRCurveSet = m_TopRCurveSet();
         m_RightLRAngleEq = m_TopLRAngleEq();
+        m_RightLRSlewEq = m_TopLRSlewEq();
         m_RightLRStrengthEq = m_TopLRStrengthEq();
         m_RightLRCurveEq = m_TopLRCurveEq();
         m_RightLAngle = m_TopLAngle();
+        m_RightLSlew = m_TopLSlew();
         m_RightLStrength = m_TopLStrength();
         m_RightLCurve = m_TopLCurve();
         m_RightRAngle = m_TopRAngle();
+        m_RightRSlew = m_TopRSlew();
         m_RightRStrength = m_TopRStrength();
         m_RightRCurve = m_TopRCurve();
 
         m_BottomCont = m_TopCont();
         m_BottomLAngleSet = m_TopLAngleSet();
+        m_BottomLSlewSet = m_TopLSlewSet();
         m_BottomLStrengthSet = m_TopLStrengthSet();
         m_BottomLCurveSet = m_TopLCurveSet();
         m_BottomRAngleSet = m_TopRAngleSet();
+        m_BottomRSlewSet = m_TopRSlewSet();
         m_BottomRStrengthSet = m_TopRStrengthSet();
         m_BottomRCurveSet = m_TopRCurveSet();
         m_BottomLRAngleEq = m_TopLRAngleEq();
+        m_BottomLRSlewEq = m_TopLRSlewEq();
         m_BottomLRStrengthEq = m_TopLRStrengthEq();
         m_BottomLRCurveEq = m_TopLRCurveEq();
         m_BottomLAngle = m_TopLAngle();
+        m_BottomLSlew = m_TopLSlew();
         m_BottomLStrength = m_TopLStrength();
         m_BottomLCurve = m_TopLCurve();
         m_BottomRAngle = m_TopRAngle();
+        m_BottomRSlew = m_TopRSlew();
         m_BottomRStrength = m_TopRStrength();
         m_BottomRCurve = m_TopRCurve();
 
         m_LeftCont = m_TopCont();
         m_LeftLAngleSet = m_TopLAngleSet();
+        m_LeftLSlewSet = m_TopLSlewSet();
         m_LeftLStrengthSet = m_TopLStrengthSet();
         m_LeftLCurveSet = m_TopLCurveSet();
         m_LeftRAngleSet = m_TopRAngleSet();
+        m_LeftRSlewSet = m_TopRSlewSet();
         m_LeftRStrengthSet = m_TopRStrengthSet();
         m_LeftRCurveSet = m_TopRCurveSet();
         m_LeftLRAngleEq = m_TopLRAngleEq();
+        m_LeftLRSlewEq = m_TopLRSlewEq();
         m_LeftLRStrengthEq = m_TopLRStrengthEq();
         m_LeftLRCurveEq = m_TopLRCurveEq();
         m_LeftLAngle = m_TopLAngle();
+        m_LeftLSlew = m_TopLSlew();
         m_LeftLStrength = m_TopLStrength();
         m_LeftLCurve = m_TopLCurve();
         m_LeftRAngle = m_TopRAngle();
+        m_LeftRSlew = m_TopRSlew();
         m_LeftRStrength = m_TopRStrength();
         m_LeftRCurve = m_TopRCurve();
     }
@@ -857,18 +963,23 @@ void SkinXSec::ValidateParms( )
     {
         m_BottomCont = m_TopCont();
         m_BottomLAngleSet = m_TopLAngleSet();
+        m_BottomLSlewSet = m_TopLSlewSet();
         m_BottomLStrengthSet = m_TopLStrengthSet();
         m_BottomLCurveSet = m_TopLCurveSet();
         m_BottomRAngleSet = m_TopRAngleSet();
+        m_BottomRSlewSet = m_TopRSlewSet();
         m_BottomRStrengthSet = m_TopRStrengthSet();
         m_BottomRCurveSet = m_TopRCurveSet();
         m_BottomLRAngleEq = m_TopLRAngleEq();
+        m_BottomLRSlewEq = m_TopLRSlewEq();
         m_BottomLRStrengthEq = m_TopLRStrengthEq();
         m_BottomLRCurveEq = m_TopLRCurveEq();
         m_BottomLAngle = m_TopLAngle();
+        m_BottomLSlew = m_TopLSlew();
         m_BottomLStrength = m_TopLStrength();
         m_BottomLCurve = m_TopLCurve();
         m_BottomRAngle = m_TopRAngle();
+        m_BottomRSlew = m_TopRSlew();
         m_BottomRStrength = m_TopRStrength();
         m_BottomRCurve = m_TopRCurve();
     }
@@ -877,18 +988,23 @@ void SkinXSec::ValidateParms( )
     {
         m_LeftCont = m_RightCont();
         m_LeftLAngleSet = m_RightLAngleSet();
+        m_LeftLSlewSet = m_RightLSlewSet();
         m_LeftLStrengthSet = m_RightLStrengthSet();
         m_LeftLCurveSet = m_RightLCurveSet();
         m_LeftRAngleSet = m_RightRAngleSet();
+        m_LeftRSlewSet = m_RightRSlewSet();
         m_LeftRStrengthSet = m_RightRStrengthSet();
         m_LeftRCurveSet = m_RightRCurveSet();
         m_LeftLRAngleEq = m_RightLRAngleEq();
+        m_LeftLRSlewEq = m_RightLRSlewEq();
         m_LeftLRStrengthEq = m_RightLRStrengthEq();
         m_LeftLRCurveEq = m_RightLRCurveEq();
         m_LeftLAngle = m_RightLAngle();
+        m_LeftLSlew = m_RightLSlew();
         m_LeftLStrength = m_RightLStrength();
         m_LeftLCurve = m_RightLCurve();
         m_LeftRAngle = m_RightRAngle();
+        m_LeftRSlew = m_RightRSlew();
         m_LeftRStrength = m_RightRStrength();
         m_LeftRCurve = m_RightRCurve();
     }
@@ -918,6 +1034,7 @@ rib_data_type SkinXSec::GetRib( bool first, bool last )
     piecewise_curve_type normcrv;
 
     vector< double > angles( 5, 0.0 );
+    vector< double > slews( 5, 0.0 );
     vector< double > strengths( 5, 0.0 );
     vector< double > curves( 5, 0.0 );
 
@@ -932,6 +1049,12 @@ rib_data_type SkinXSec::GetRib( bool first, bool last )
         angles[3] = m_TopLAngle()*PI/180.0;
         angles[4] = angles[0];
 
+        slews[0] = m_RightLSlew()*PI/180.0;
+        slews[1] = -m_BottomLSlew()*PI/180.0;
+        slews[2] = -m_LeftLSlew()*PI/180.0;
+        slews[3] = m_TopLSlew()*PI/180.0;
+        slews[4] = angles[0];
+
         strengths[0] = m_RightLStrength() * scale;
         strengths[1] = m_BottomLStrength() * scale;
         strengths[2] = m_LeftLStrength() * scale;
@@ -944,7 +1067,7 @@ rib_data_type SkinXSec::GetRib( bool first, bool last )
         curves[3] = m_TopLCurve() * scale;
         curves[4] = curves[0];
 
-        GetTanNormCrv( angles, strengths, curves, tangentcrv, normcrv );
+        GetTanNormCrv( angles, slews, strengths, curves, tangentcrv, normcrv );
 
         if( m_TopLAngleSet() ) rib.set_right_fp( tangentcrv );
         if( m_TopLCurveSet() ) rib.set_right_fpp( normcrv );
@@ -960,6 +1083,12 @@ rib_data_type SkinXSec::GetRib( bool first, bool last )
         angles[3] = m_TopLAngle()*PI/180.0;
         angles[4] = angles[0];
 
+        slews[0] = m_RightLSlew()*PI/180.0;
+        slews[1] = -m_BottomLSlew()*PI/180.0;
+        slews[2] = -m_LeftLSlew()*PI/180.0;
+        slews[3] = m_TopLSlew()*PI/180.0;
+        slews[4] = angles[0];
+
         strengths[0] = m_RightLStrength() * scale;
         strengths[1] = m_BottomLStrength() * scale;
         strengths[2] = m_LeftLStrength() * scale;
@@ -972,7 +1101,7 @@ rib_data_type SkinXSec::GetRib( bool first, bool last )
         curves[3] = m_TopLCurve() * scale;
         curves[4] = curves[0];
 
-        GetTanNormCrv( angles, strengths, curves, tangentcrv, normcrv );
+        GetTanNormCrv( angles, slews, strengths, curves, tangentcrv, normcrv );
 
         if( m_TopLAngleSet() ) rib.set_left_fp( tangentcrv );
         if( m_TopLCurveSet() ) rib.set_left_fpp( normcrv );
@@ -988,6 +1117,12 @@ rib_data_type SkinXSec::GetRib( bool first, bool last )
         angles[3] = m_TopRAngle()*PI/180.0;
         angles[4] = angles[0];
 
+        slews[0] = m_RightRSlew()*PI/180.0;
+        slews[1] = -m_BottomRSlew()*PI/180.0;
+        slews[2] = -m_LeftRSlew()*PI/180.0;
+        slews[3] = m_TopRSlew()*PI/180.0;
+        slews[4] = angles[0];
+
         strengths[0] = m_RightRStrength() * scale;
         strengths[1] = m_BottomRStrength() * scale;
         strengths[2] = m_LeftRStrength() * scale;
@@ -1000,7 +1135,7 @@ rib_data_type SkinXSec::GetRib( bool first, bool last )
         curves[3] = m_TopRCurve() * scale;
         curves[4] = curves[0];
 
-        GetTanNormCrv( angles, strengths, curves, tangentcrv, normcrv );
+        GetTanNormCrv( angles, slews, strengths, curves, tangentcrv, normcrv );
 
         if( m_TopRAngleSet() ) rib.set_right_fp( tangentcrv );
         if( m_TopRCurveSet() ) rib.set_right_fpp( normcrv );
@@ -1011,93 +1146,121 @@ rib_data_type SkinXSec::GetRib( bool first, bool last )
 
 void SkinXSec::SetUnsetParms( int irib, const VspSurf &surf )
 {
-    SetUnsetParms( 0.0, irib, surf,
+    SetUnsetParms( 0.0, false, irib, surf,
              m_RightLAngleSet,
+             m_RightLSlewSet,
              m_RightLStrengthSet,
              m_RightLCurveSet,
              m_RightRAngleSet,
+             m_RightRSlewSet,
              m_RightRStrengthSet,
              m_RightRCurveSet,
              m_RightLAngle,
+             m_RightLSlew,
              m_RightLStrength,
              m_RightLCurve,
              m_RightRAngle,
+             m_RightRSlew,
              m_RightRStrength,
              m_RightRCurve );
 
-    SetUnsetParms( 1.0, irib, surf,
+    SetUnsetParms( 1.0, true, irib, surf,
              m_BottomLAngleSet,
+             m_BottomLSlewSet,
              m_BottomLStrengthSet,
              m_BottomLCurveSet,
              m_BottomRAngleSet,
+             m_BottomRSlewSet,
              m_BottomRStrengthSet,
              m_BottomRCurveSet,
              m_BottomLAngle,
+             m_BottomLSlew,
              m_BottomLStrength,
              m_BottomLCurve,
              m_BottomRAngle,
+             m_BottomRSlew,
              m_BottomRStrength,
              m_BottomRCurve );
 
-    SetUnsetParms( 2.0, irib, surf,
+    SetUnsetParms( 2.0, true, irib, surf,
              m_LeftLAngleSet,
+             m_LeftLSlewSet,
              m_LeftLStrengthSet,
              m_LeftLCurveSet,
              m_LeftRAngleSet,
+             m_LeftRSlewSet,
              m_LeftRStrengthSet,
              m_LeftRCurveSet,
              m_LeftLAngle,
+             m_LeftLSlew,
              m_LeftLStrength,
              m_LeftLCurve,
              m_LeftRAngle,
+             m_LeftRSlew,
              m_LeftRStrength,
              m_LeftRCurve );
 
-    SetUnsetParms( 3.0, irib, surf,
+    SetUnsetParms( 3.0, false, irib, surf,
              m_TopLAngleSet,
+             m_TopLSlewSet,
              m_TopLStrengthSet,
              m_TopLCurveSet,
              m_TopRAngleSet,
+             m_TopRSlewSet,
              m_TopRStrengthSet,
              m_TopRCurveSet,
              m_TopLAngle,
+             m_TopLSlew,
              m_TopLStrength,
              m_TopLCurve,
              m_TopRAngle,
+             m_TopRSlew,
              m_TopRStrength,
              m_TopRCurve );
 
 }
 
-void SkinXSec::SetUnsetParms( double t, int irib, const VspSurf &surf,
+void SkinXSec::SetUnsetParms( double t, bool flipslew, int irib, const VspSurf &surf,
         BoolParm &LAngleSet,
+        BoolParm &LSlewSet,
         BoolParm &LStrengthSet,
         BoolParm &LCurveSet,
         BoolParm &RAngleSet,
+        BoolParm &RSlewSet,
         BoolParm &RStrengthSet,
         BoolParm &RCurveSet,
         Parm &LAngle,
+        Parm &LSlew,
         Parm &LStrength,
         Parm &LCurve,
         Parm &RAngle,
+        Parm &RSlew,
         Parm &RStrength,
         Parm &RCurve )
 {
-    double thetaL, strengthL, curvatureL;
-    double thetaR, strengthR, curvatureR;
+    double thetaL, phiL, strengthL, curvatureL;
+    double thetaR, phiR, strengthR, curvatureR;
 
     GetAngStrCrv(  t,  irib,
-        thetaL, strengthL, curvatureL,
-        thetaR, strengthR, curvatureR,
+        thetaL, phiL, strengthL, curvatureL,
+        thetaR, phiR, strengthR, curvatureR,
         surf );
 
     double scale =  GetScale();
 
+    if ( flipslew )
+    {
+        phiL = -phiL;
+        phiR = -phiR;
+    }
+
     if( !LAngleSet() ) LAngle = thetaL*180.0/PI;
+    if( !LSlewSet() ) LSlew = phiL*180.0/PI;
     if( !LStrengthSet() ) LStrength = strengthL/scale;
     if( !LCurveSet() ) LCurve = curvatureL/scale;
 
     if( !RAngleSet() ) RAngle = thetaR*180.0/PI;
+    if( !RSlewSet() ) RSlew = phiR*180.0/PI;
     if( !RStrengthSet() ) RStrength = strengthR/scale;
     if( !RCurveSet() ) RCurve = curvatureR/scale;
 }
@@ -1109,66 +1272,86 @@ void SkinXSec::Reset()
     m_RLSymFlag = 1;
 
     m_TopLAngleSet = false;
+    m_TopLSlewSet = false;
     m_TopLStrengthSet = false;
     m_TopLCurveSet = false;
     m_TopRAngleSet = false;
+    m_TopRSlewSet = false;
     m_TopRStrengthSet = false;
     m_TopRCurveSet = false;
     m_TopLRAngleEq = false;
+    m_TopLRSlewEq = false;
     m_TopLRStrengthEq = false;
     m_TopLRCurveEq = false;
     m_TopLAngle = 0.0;
+    m_TopLSlew = 0.0;
     m_TopLStrength = 0.0;
     m_TopLCurve = 0.0;
     m_TopRAngle = 0.0;
+    m_TopRSlew = 0.0;
     m_TopRStrength = 0.0;
     m_TopRCurve = 0.0;
 
     m_RightLAngleSet = false;
+    m_RightLSlewSet = false;
     m_RightLStrengthSet = false;
     m_RightLCurveSet = false;
     m_RightRAngleSet = false;
+    m_RightRSlewSet = false;
     m_RightRStrengthSet = false;
     m_RightRCurveSet = false;
     m_RightLRAngleEq = false;
+    m_RightLRSlewEq = false;
     m_RightLRStrengthEq = false;
     m_RightLRCurveEq = false;
     m_RightLAngle = 0.0;
+    m_RightLSlew = 0.0;
     m_RightLStrength = 0.0;
     m_RightLCurve = 0.0;
     m_RightRAngle = 0.0;
+    m_RightRSlew = 0.0;
     m_RightRStrength = 0.0;
     m_RightRCurve = 0.0;
 
     m_BottomLAngleSet = false;
+    m_BottomLSlewSet = false;
     m_BottomLStrengthSet = false;
     m_BottomLCurveSet = false;
     m_BottomRAngleSet = false;
+    m_BottomRSlewSet = false;
     m_BottomRStrengthSet = false;
     m_BottomRCurveSet = false;
     m_BottomLRAngleEq = false;
+    m_BottomLRSlewEq = false;
     m_BottomLRStrengthEq = false;
     m_BottomLRCurveEq = false;
     m_BottomLAngle = 0.0;
+    m_BottomLSlew = 0.0;
     m_BottomLStrength = 0.0;
     m_BottomLCurve = 0.0;
     m_BottomRAngle = 0.0;
+    m_BottomRSlew = 0.0;
     m_BottomRStrength = 0.0;
     m_BottomRCurve = 0.0;
 
     m_LeftLAngleSet = false;
+    m_LeftLSlewSet = false;
     m_LeftLStrengthSet = false;
     m_LeftLCurveSet = false;
     m_LeftRAngleSet = false;
+    m_LeftRSlewSet = false;
     m_LeftRStrengthSet = false;
     m_LeftRCurveSet = false;
     m_LeftLRAngleEq = false;
+    m_LeftLRSlewEq = false;
     m_LeftLRStrengthEq = false;
     m_LeftLRCurveEq = false;
     m_LeftLAngle = 0.0;
+    m_LeftLSlew = 0.0;
     m_LeftLStrength = 0.0;
     m_LeftLCurve = 0.0;
     m_LeftRAngle = 0.0;
+    m_LeftRSlew = 0.0;
     m_LeftRStrength = 0.0;
     m_LeftRCurve = 0.0;
 
@@ -1218,6 +1401,48 @@ void SkinXSec::SetTanAngles( int side, double top, double right, double bottom, 
 
         if ( left > XSEC_NO_VAL )       { m_LeftRAngle = left; }
         else                            { m_LeftRAngle = m_RightRAngle; }
+    }
+}
+
+void SkinXSec::SetTanSlews( int side, double top, double right, double bottom, double left )
+{
+    m_AllSymFlag = false;
+    m_TBSymFlag = false;
+    m_RLSymFlag = false;
+    if ( side == XSEC_BOTH_SIDES || side == XSEC_LEFT_SIDE )
+    {
+        m_TopLSlewSet = true;
+        m_RightLSlewSet = true;
+        m_BottomLSlewSet = true;
+        m_LeftLSlewSet = true;
+
+        m_TopLSlew = top;
+        if ( right > XSEC_NO_VAL )      { m_RightLSlew = right; }
+        else                            { m_RightLSlew = m_TopLSlew; }
+
+        if ( bottom > XSEC_NO_VAL )     { m_BottomLSlew = bottom; }
+        else                            { m_BottomLSlew = m_TopLSlew; }
+
+        if ( left > XSEC_NO_VAL )       { m_LeftLSlew = left; }
+        else                            { m_LeftLSlew = m_RightLSlew; }
+    }
+
+    if ( side == XSEC_BOTH_SIDES || side == XSEC_RIGHT_SIDE )
+    {
+        m_TopRSlewSet = true;
+        m_RightRSlewSet = true;
+        m_BottomRSlewSet = true;
+        m_LeftRSlewSet = true;
+
+        m_TopRSlew = top;
+        if ( right > XSEC_NO_VAL )      { m_RightRSlew = right; }
+        else                            { m_RightRSlew = m_TopRSlew; }
+
+        if ( bottom > XSEC_NO_VAL )     { m_BottomRSlew = bottom; }
+        else                            { m_BottomRSlew = m_TopRSlew; }
+
+        if ( left > XSEC_NO_VAL )       { m_LeftRSlew = left; }
+        else                            { m_LeftRSlew = m_RightRSlew; }
     }
 }
 

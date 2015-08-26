@@ -1120,6 +1120,7 @@ SkinScreen::SkinScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SkinLayout.AddSkinHeader( m_TopHeader );
 
     m_SkinLayout.AddSkinControl( m_TopAngleSkinControl, "Angle", angleRng, angleFmt);
+    m_SkinLayout.AddSkinControl( m_TopSlewSkinControl, "Slew", angleRng, angleFmt);
     m_SkinLayout.AddSkinControl( m_TopStrengthSkinControl, "Strength", strengthRng, strengthFmt);
     m_SkinLayout.AddSkinControl( m_TopCurvatureSkinControl, "Curvature", curveRng, curveFmt);
 
@@ -1128,6 +1129,7 @@ SkinScreen::SkinScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
 
     m_SkinLayout.AddSkinHeader( m_RightHeader );
     m_SkinLayout.AddSkinControl( m_RightAngleSkinControl, "Angle", angleRng, angleFmt);
+    m_SkinLayout.AddSkinControl( m_RightSlewSkinControl, "Slew", angleRng, angleFmt);
     m_SkinLayout.AddSkinControl( m_RightStrengthSkinControl, "Strength", strengthRng, strengthFmt);
     m_SkinLayout.AddSkinControl( m_RightCurvatureSkinControl, "Curvature", curveRng, curveFmt);
 
@@ -1142,6 +1144,7 @@ SkinScreen::SkinScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
 
     m_SkinLayout.AddSkinHeader( m_BottomHeader );
     m_SkinLayout.AddSkinControl( m_BottomAngleSkinControl, "Angle", angleRng, angleFmt);
+    m_SkinLayout.AddSkinControl( m_BottomSlewSkinControl, "Slew", angleRng, angleFmt);
     m_SkinLayout.AddSkinControl( m_BottomStrengthSkinControl, "Strength", strengthRng, strengthFmt);
     m_SkinLayout.AddSkinControl( m_BottomCurvatureSkinControl, "Curvature", curveRng, curveFmt);
 
@@ -1156,6 +1159,7 @@ SkinScreen::SkinScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
 
     m_SkinLayout.AddSkinHeader( m_LeftHeader );
     m_SkinLayout.AddSkinControl( m_LeftAngleSkinControl, "Angle", angleRng, angleFmt);
+    m_SkinLayout.AddSkinControl( m_LeftSlewSkinControl, "Slew", angleRng, angleFmt);
     m_SkinLayout.AddSkinControl( m_LeftStrengthSkinControl, "Strength", strengthRng, strengthFmt);
     m_SkinLayout.AddSkinControl( m_LeftCurvatureSkinControl, "Curvature", curveRng, curveFmt);
 
@@ -1197,21 +1201,25 @@ bool SkinScreen::Update()
         // Update Controls to Parms.
         m_TopHeader.m_ContChoice->SetVal( xs->m_TopCont() );
         m_TopAngleSkinControl.Update( xs->m_TopLAngle.GetID(), xs->m_TopLAngleSet.GetID(), xs->m_TopLRAngleEq.GetID(), xs->m_TopRAngleSet.GetID(), xs->m_TopRAngle.GetID() );
+        m_TopSlewSkinControl.Update( xs->m_TopLSlew.GetID(), xs->m_TopLSlewSet.GetID(), xs->m_TopLRSlewEq.GetID(), xs->m_TopRSlewSet.GetID(), xs->m_TopRSlew.GetID() );
         m_TopStrengthSkinControl.Update( xs->m_TopLStrength.GetID(), xs->m_TopLStrengthSet.GetID(), xs->m_TopLRStrengthEq.GetID(), xs->m_TopRStrengthSet.GetID(), xs->m_TopRStrength.GetID() );
         m_TopCurvatureSkinControl.Update( xs->m_TopLCurve.GetID(), xs->m_TopLCurveSet.GetID(), xs->m_TopLRCurveEq.GetID(), xs->m_TopRCurveSet.GetID(), xs->m_TopRCurve.GetID() );
 
         m_RightHeader.m_ContChoice->SetVal( xs->m_RightCont() );
         m_RightAngleSkinControl.Update( xs->m_RightLAngle.GetID(), xs->m_RightLAngleSet.GetID(), xs->m_RightLRAngleEq.GetID(), xs->m_RightRAngleSet.GetID(), xs->m_RightRAngle.GetID() );
+        m_RightSlewSkinControl.Update( xs->m_RightLSlew.GetID(), xs->m_RightLSlewSet.GetID(), xs->m_RightLRSlewEq.GetID(), xs->m_RightRSlewSet.GetID(), xs->m_RightRSlew.GetID() );
         m_RightStrengthSkinControl.Update( xs->m_RightLStrength.GetID(), xs->m_RightLStrengthSet.GetID(), xs->m_RightLRStrengthEq.GetID(), xs->m_RightRStrengthSet.GetID(), xs->m_RightRStrength.GetID() );
         m_RightCurvatureSkinControl.Update( xs->m_RightLCurve.GetID(), xs->m_RightLCurveSet.GetID(), xs->m_RightLRCurveEq.GetID(), xs->m_RightRCurveSet.GetID(), xs->m_RightRCurve.GetID() );
 
         m_BottomHeader.m_ContChoice->SetVal( xs->m_BottomCont() );
         m_BottomAngleSkinControl.Update( xs->m_BottomLAngle.GetID(), xs->m_BottomLAngleSet.GetID(), xs->m_BottomLRAngleEq.GetID(), xs->m_BottomRAngleSet.GetID(), xs->m_BottomRAngle.GetID() );
+        m_BottomSlewSkinControl.Update( xs->m_BottomLSlew.GetID(), xs->m_BottomLSlewSet.GetID(), xs->m_BottomLRSlewEq.GetID(), xs->m_BottomRSlewSet.GetID(), xs->m_BottomRSlew.GetID() );
         m_BottomStrengthSkinControl.Update( xs->m_BottomLStrength.GetID(), xs->m_BottomLStrengthSet.GetID(), xs->m_BottomLRStrengthEq.GetID(), xs->m_BottomRStrengthSet.GetID(), xs->m_BottomRStrength.GetID() );
         m_BottomCurvatureSkinControl.Update( xs->m_BottomLCurve.GetID(), xs->m_BottomLCurveSet.GetID(), xs->m_BottomLRCurveEq.GetID(), xs->m_BottomRCurveSet.GetID(), xs->m_BottomRCurve.GetID() );
 
         m_LeftHeader.m_ContChoice->SetVal( xs->m_LeftCont() );
         m_LeftAngleSkinControl.Update( xs->m_LeftLAngle.GetID(), xs->m_LeftLAngleSet.GetID(), xs->m_LeftLRAngleEq.GetID(), xs->m_LeftRAngleSet.GetID(), xs->m_LeftRAngle.GetID() );
+        m_LeftSlewSkinControl.Update( xs->m_LeftLSlew.GetID(), xs->m_LeftLSlewSet.GetID(), xs->m_LeftLRSlewEq.GetID(), xs->m_LeftRSlewSet.GetID(), xs->m_LeftRSlew.GetID() );
         m_LeftStrengthSkinControl.Update( xs->m_LeftLStrength.GetID(), xs->m_LeftLStrengthSet.GetID(), xs->m_LeftLRStrengthEq.GetID(), xs->m_LeftRStrengthSet.GetID(), xs->m_LeftRStrength.GetID() );
         m_LeftCurvatureSkinControl.Update( xs->m_LeftLCurve.GetID(), xs->m_LeftLCurveSet.GetID(), xs->m_LeftLRCurveEq.GetID(), xs->m_LeftRCurveSet.GetID(), xs->m_LeftRCurve.GetID() );
 
@@ -1226,16 +1234,19 @@ bool SkinScreen::Update()
 
             m_RightHeader.Deactivate();
             m_RightAngleSkinControl.Deactivate();
+            m_RightSlewSkinControl.Deactivate();
             m_RightStrengthSkinControl.Deactivate();
             m_RightCurvatureSkinControl.Deactivate();
 
             m_BottomHeader.Deactivate();
             m_BottomAngleSkinControl.Deactivate();
+            m_BottomSlewSkinControl.Deactivate();
             m_BottomStrengthSkinControl.Deactivate();
             m_BottomCurvatureSkinControl.Deactivate();
 
             m_LeftHeader.Deactivate();
             m_LeftAngleSkinControl.Deactivate();
+            m_LeftSlewSkinControl.Deactivate();
             m_LeftStrengthSkinControl.Deactivate();
             m_LeftCurvatureSkinControl.Deactivate();
         }
@@ -1244,6 +1255,7 @@ bool SkinScreen::Update()
         {
             m_BottomHeader.Deactivate();
             m_BottomAngleSkinControl.Deactivate();
+            m_BottomSlewSkinControl.Deactivate();
             m_BottomStrengthSkinControl.Deactivate();
             m_BottomCurvatureSkinControl.Deactivate();
         }
@@ -1252,6 +1264,7 @@ bool SkinScreen::Update()
         {
             m_LeftHeader.Deactivate();
             m_LeftAngleSkinControl.Deactivate();
+            m_LeftSlewSkinControl.Deactivate();
             m_LeftStrengthSkinControl.Deactivate();
             m_LeftCurvatureSkinControl.Deactivate();
         }
@@ -1262,6 +1275,11 @@ bool SkinScreen::Update()
         m_RightStrengthSkinControl.DeactivateSet();
         m_BottomStrengthSkinControl.DeactivateSet();
         m_LeftStrengthSkinControl.DeactivateSet();
+
+        m_TopSlewSkinControl.DeactivateSet();
+        m_RightSlewSkinControl.DeactivateSet();
+        m_BottomSlewSkinControl.DeactivateSet();
+        m_LeftSlewSkinControl.DeactivateSet();
 
         // Deactivate continuity control for first/last section.
         m_TopHeader.Activate();
@@ -1277,6 +1295,8 @@ bool SkinScreen::Update()
         {
             m_TopAngleSkinControl.DeactivateRSet();
             m_TopAngleSkinControl.DeactivateEqual();
+            m_TopSlewSkinControl.DeactivateRSet();
+            m_TopSlewSkinControl.DeactivateEqual();
             m_TopStrengthSkinControl.DeactivateRSet();
             m_TopStrengthSkinControl.DeactivateEqual();
         }
@@ -1290,6 +1310,8 @@ bool SkinScreen::Update()
         {
             m_RightAngleSkinControl.DeactivateRSet();
             m_RightAngleSkinControl.DeactivateEqual();
+            m_RightSlewSkinControl.DeactivateRSet();
+            m_RightSlewSkinControl.DeactivateEqual();
             m_RightStrengthSkinControl.DeactivateRSet();
             m_RightStrengthSkinControl.DeactivateEqual();
         }
@@ -1303,6 +1325,8 @@ bool SkinScreen::Update()
         {
             m_BottomAngleSkinControl.DeactivateRSet();
             m_BottomAngleSkinControl.DeactivateEqual();
+            m_BottomSlewSkinControl.DeactivateRSet();
+            m_BottomSlewSkinControl.DeactivateEqual();
             m_BottomStrengthSkinControl.DeactivateRSet();
             m_BottomStrengthSkinControl.DeactivateEqual();
         }
@@ -1316,6 +1340,8 @@ bool SkinScreen::Update()
         {
             m_LeftAngleSkinControl.DeactivateRSet();
             m_LeftAngleSkinControl.DeactivateEqual();
+            m_LeftSlewSkinControl.DeactivateRSet();
+            m_LeftSlewSkinControl.DeactivateEqual();
             m_LeftStrengthSkinControl.DeactivateRSet();
             m_LeftStrengthSkinControl.DeactivateEqual();
         }
@@ -1330,14 +1356,17 @@ bool SkinScreen::Update()
         // things to be set per cross section.  This restriction may someday
         // be lifted -- while the above Strength restriction will not.
         m_RightAngleSkinControl.DeactivateSet();
+        m_RightSlewSkinControl.DeactivateSet();
         m_RightStrengthSkinControl.DeactivateSet();
         m_RightCurvatureSkinControl.DeactivateSet();
 
         m_BottomAngleSkinControl.DeactivateSet();
+        m_BottomSlewSkinControl.DeactivateSet();
         m_BottomStrengthSkinControl.DeactivateSet();
         m_BottomCurvatureSkinControl.DeactivateSet();
 
         m_LeftAngleSkinControl.DeactivateSet();
+        m_LeftSlewSkinControl.DeactivateSet();
         m_LeftStrengthSkinControl.DeactivateSet();
         m_LeftCurvatureSkinControl.DeactivateSet();
 

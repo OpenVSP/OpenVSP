@@ -79,19 +79,21 @@ public:
     virtual void SetScale( double scale );
 
     virtual void GetBasis( double t, Matrix4d &basis );
-    virtual void GetTanNormVec( double t, double theta, vec3d &tangent, vec3d &normal );
+    virtual void GetTanNormVec( double t, double theta, double phi, vec3d &tangent, vec3d &normal );
     virtual void GetTanNormCrv( const vector< double > &ts, const vector< double > &thetas,
+            const vector< double > &phis,
             const vector< double > &angstr, const vector< double > &crvstr,
             piecewise_curve_type &tangentcrv, piecewise_curve_type &normcrv );
     virtual void GetTanNormCrv( const vector< double > &thetas,
+            const vector< double > &phis,
             const vector< double > &angstr, const vector< double > &crvstr,
             piecewise_curve_type &tangentcrv, piecewise_curve_type &normcrv );
-    virtual void GetTanNormCrv( double theta, double angstr, double crvstr,
+    virtual void GetTanNormCrv( double theta, double phi, double angstr, double crvstr,
             piecewise_curve_type &tangentcrv, piecewise_curve_type &normcrv );
 
     virtual void GetAngStrCrv( double t, int irib,
-            double &thetaL, double &strengthL, double &curvatureL,
-            double &thetaR, double &strengthR, double &curvatureR,
+            double &thetaL, double &phiL, double &strengthL, double &curvatureL,
+            double &thetaR, double &phiR, double &strengthR, double &curvatureR,
             const VspSurf &surf );
 
     IntParm m_SectTessU;
@@ -121,23 +123,29 @@ public:
 
     virtual void CopySetValidate( IntParm &m_TopCont,
             BoolParm &m_TopLAngleSet,
+            BoolParm &m_TopLSlewSet,
             BoolParm &m_TopLStrengthSet,
             BoolParm &m_TopLCurveSet,
             BoolParm &m_TopRAngleSet,
+            BoolParm &m_TopRSlewSet,
             BoolParm &m_TopRStrengthSet,
             BoolParm &m_TopRCurveSet,
             BoolParm &m_TopLRAngleEq,
+            BoolParm &m_TopLRSlewEq,
             BoolParm &m_TopLRStrengthEq,
             BoolParm &m_TopLRCurveEq );
 
     virtual void ValidateParms( IntParm &m_TopCont,
             BoolParm &m_TopLAngleSet,
+            BoolParm &m_TopLSlewSet,
             BoolParm &m_TopLStrengthSet,
             BoolParm &m_TopLCurveSet,
             BoolParm &m_TopRAngleSet,
+            BoolParm &m_TopRSlewSet,
             BoolParm &m_TopRStrengthSet,
             BoolParm &m_TopRCurveSet,
             BoolParm &m_TopLRAngleEq,
+            BoolParm &m_TopLRSlewEq,
             BoolParm &m_TopLRStrengthEq,
             BoolParm &m_TopLRCurveEq );
 
@@ -155,17 +163,21 @@ public:
 
     virtual void SetUnsetParms( int irib, const VspSurf &surf );
 
-    virtual void SetUnsetParms( double t, int irib, const VspSurf &surf,
+    virtual void SetUnsetParms( double t, bool flipslew, int irib, const VspSurf &surf,
             BoolParm &LAngleSet,
+            BoolParm &LSlewSet,
             BoolParm &LStrengthSet,
             BoolParm &LCurveSet,
             BoolParm &RAngleSet,
+            BoolParm &RSlewSet,
             BoolParm &RStrengthSet,
             BoolParm &RCurveSet,
             Parm &LAngle,
+            Parm &LSlew,
             Parm &LStrength,
             Parm &LCurve,
             Parm &RAngle,
+            Parm &RSlew,
             Parm &RStrength,
             Parm &RCurve );
 
@@ -177,75 +189,96 @@ public:
 
     IntParm m_TopCont;
     BoolParm m_TopLAngleSet;
+    BoolParm m_TopLSlewSet;
     BoolParm m_TopLStrengthSet;
     BoolParm m_TopLCurveSet;
     BoolParm m_TopRAngleSet;
+    BoolParm m_TopRSlewSet;
     BoolParm m_TopRStrengthSet;
     BoolParm m_TopRCurveSet;
     BoolParm m_TopLRAngleEq;
+    BoolParm m_TopLRSlewEq;
     BoolParm m_TopLRStrengthEq;
     BoolParm m_TopLRCurveEq;
     Parm m_TopLAngle;
+    Parm m_TopLSlew;
     Parm m_TopLStrength;
     Parm m_TopLCurve;
     Parm m_TopRAngle;
+    Parm m_TopRSlew;
     Parm m_TopRStrength;
     Parm m_TopRCurve;
 
     IntParm m_RightCont;
     BoolParm m_RightLAngleSet;
+    BoolParm m_RightLSlewSet;
     BoolParm m_RightLStrengthSet;
     BoolParm m_RightLCurveSet;
     BoolParm m_RightRAngleSet;
+    BoolParm m_RightRSlewSet;
     BoolParm m_RightRStrengthSet;
     BoolParm m_RightRCurveSet;
     BoolParm m_RightLRAngleEq;
+    BoolParm m_RightLRSlewEq;
     BoolParm m_RightLRStrengthEq;
     BoolParm m_RightLRCurveEq;
     Parm m_RightLAngle;
+    Parm m_RightLSlew;
     Parm m_RightLStrength;
     Parm m_RightLCurve;
     Parm m_RightRAngle;
+    Parm m_RightRSlew;
     Parm m_RightRStrength;
     Parm m_RightRCurve;
 
     IntParm m_BottomCont;
     BoolParm m_BottomLAngleSet;
+    BoolParm m_BottomLSlewSet;
     BoolParm m_BottomLStrengthSet;
     BoolParm m_BottomLCurveSet;
     BoolParm m_BottomRAngleSet;
+    BoolParm m_BottomRSlewSet;
     BoolParm m_BottomRStrengthSet;
     BoolParm m_BottomRCurveSet;
     BoolParm m_BottomLRAngleEq;
+    BoolParm m_BottomLRSlewEq;
     BoolParm m_BottomLRStrengthEq;
     BoolParm m_BottomLRCurveEq;
     Parm m_BottomLAngle;
+    Parm m_BottomLSlew;
     Parm m_BottomLStrength;
     Parm m_BottomLCurve;
     Parm m_BottomRAngle;
+    Parm m_BottomRSlew;
     Parm m_BottomRStrength;
     Parm m_BottomRCurve;
 
     IntParm m_LeftCont;
     BoolParm m_LeftLAngleSet;
+    BoolParm m_LeftLSlewSet;
     BoolParm m_LeftLStrengthSet;
     BoolParm m_LeftLCurveSet;
     BoolParm m_LeftRAngleSet;
+    BoolParm m_LeftRSlewSet;
     BoolParm m_LeftRStrengthSet;
     BoolParm m_LeftRCurveSet;
     BoolParm m_LeftLRAngleEq;
+    BoolParm m_LeftLRSlewEq;
     BoolParm m_LeftLRStrengthEq;
     BoolParm m_LeftLRCurveEq;
     Parm m_LeftLAngle;
+    Parm m_LeftLSlew;
     Parm m_LeftLStrength;
     Parm m_LeftLCurve;
     Parm m_LeftRAngle;
+    Parm m_LeftRSlew;
     Parm m_LeftRStrength;
     Parm m_LeftRCurve;
 
     virtual void Reset();
     virtual void SetContinuity( int cx );
     virtual void SetTanAngles( int side, double top, double right, double bottom, double left );
+    virtual void SetTanSlews( int side, double top, double right, double bottom, double left );
     virtual void SetTanStrengths( int side, double top, double right, double bottom, double left );
     virtual void SetCurvatures( int side, double top, double right, double bottom, double left );
 

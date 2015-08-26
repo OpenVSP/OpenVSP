@@ -18,7 +18,7 @@ using namespace vsp;
 
 
 //==== Constructor ====//
-FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 550, "Fuselage" )
+FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "Fuselage" )
 {
     m_CurrDisplayGroup = NULL;
 

@@ -18,7 +18,7 @@
 using namespace vsp;
 
 //==== Constructor ====//
-StackScreen::StackScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 550, "Stack" )
+StackScreen::StackScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "Stack" )
 {
     m_CurrDisplayGroup = NULL;
 
