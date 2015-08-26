@@ -80,7 +80,7 @@ bool Node::AllInteriorConnectedTris()
     GetConnectTris( tvec );
     for ( int i = 0 ; i < ( int )tvec.size() ; i++ )
     {
-        if ( !tvec[i]->interiorFlag )
+        if ( !tvec[i]->deleteFlag )
         {
             return false;
         }
@@ -426,8 +426,8 @@ void Edge::ReplaceTri( Tri* t, Tri* replace_t )
 
 bool Edge::BothAdjoiningTrisInterior()
 {
-    if ( ( t0 && t0->interiorFlag ) || ( t0 == NULL ) )
-        if ( ( t1 && t1->interiorFlag ) || ( t1 == NULL ) )
+    if ( ( t0 && t0->deleteFlag ) || ( t0 == NULL ) )
+        if ( ( t1 && t1->deleteFlag ) || ( t1 == NULL ) )
         {
             return true;
         }
@@ -444,7 +444,7 @@ Tri::Tri()
     debugFlag = false;
     n0 = n1 = n2 = NULL;
     e0 = e1 = e2 = NULL;
-    interiorFlag = false;
+    deleteFlag = false;
     intExtCount = 0;
 }
 
@@ -453,7 +453,7 @@ Tri::Tri( Node* nn0, Node* nn1, Node* nn2, Edge* ee0, Edge* ee1, Edge* ee2 )
     m_DeleteMeFlag = false;
     debugFlag = false;
     SetNodesEdges( nn0, nn1, nn2, ee0, ee1, ee2 );
-    interiorFlag = false;
+    deleteFlag = false;
     intExtCount = 0;
 }
 

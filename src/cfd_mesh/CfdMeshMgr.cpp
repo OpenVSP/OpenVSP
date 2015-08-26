@@ -3827,6 +3827,68 @@ void CfdMeshMgrSingleton::BuildMesh()
     }
 }
 
+// Determines if a triangle should be deleted based on its type and whether or not it is inside every other surface
+bool CfdMeshMgrSingleton::SetDeleteTriFlag( int aType, vector < bool > aInB )
+{
+    bool deleteTri = false;
+
+    for ( int b = 0 ; b < ( int )m_SurfVec.size() ; b++ )
+    {
+        int c = m_SurfVec[b]->GetCompID();
+        bool aInThisB = aInB[c];
+        int bType = m_SurfVec[b]->GetSurfaceCfdType();
+
+        // Can make absolute decisions about deleting a triangle or not in the cases below
+        if ( aInThisB )
+        {
+            // Normal(Positive) inside another Normal, or Negative inside another Negative
+            if ( aType == bType && aType != vsp::CFD_TRANSPARENT && aInThisB )
+            {
+                return true;
+            }
+            // Always delete Normal tris inside Negative surfaces
+            else if ( aType == vsp::CFD_NORMAL && bType == vsp::CFD_NEGATIVE )
+            {
+                return true;
+            }
+            // Never delete Transparent tris inside Negative surfaces
+            else if ( aType == vsp::CFD_TRANSPARENT && bType == vsp::CFD_NEGATIVE )
+            {
+                return false;
+            }
+        }
+    }
+
+    // Check non-absolute cases
+    for ( int b = 0 ; b < ( int )m_SurfVec.size() ; b++ )
+    {
+        int c = m_SurfVec[b]->GetCompID();
+        bool aInThisB = aInB[c];
+        int bType = m_SurfVec[b]->GetSurfaceCfdType();
+
+        if ( aInThisB )
+        {
+            if ( aType == vsp::CFD_NEGATIVE && bType == vsp::CFD_NORMAL )
+            {
+                return false;
+            }
+            else if ( aType == vsp::CFD_TRANSPARENT && bType == vsp::CFD_NORMAL )
+            {
+                return true;
+            }
+        }
+        else
+        {
+            if ( aType == vsp::CFD_NEGATIVE )
+            {
+                deleteTri = true;
+            }
+        }
+    }
+
+    return deleteTri;
+}
+
 void CfdMeshMgrSingleton::RemoveInteriorTris()
 {
     debugRayIsect.clear();
@@ -3842,21 +3904,25 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
 
     //==== Count Number of Component Crossings for Each Component =====//
     list< Tri* >::iterator t;
-    for ( s = 0 ; s < ( int )m_SurfVec.size() ; ++s )
+    for ( s = 0 ; s < ( int )m_SurfVec.size() ; ++s ) // every surface
     {
         int tri_comp_id = m_SurfVec[s]->GetCompID();
         list <Tri*> triList = m_SurfVec[s]->GetMesh()->GetTriList();
-        for ( t = triList.begin() ; t != triList.end(); ++t )
+        for ( t = triList.begin() ; t != triList.end(); ++t ) // every triangle
         {
             vector< vector< double > > t_vec_vec;
 
             if (GetCfdSettingsPtr()->GetSymSplittingOnFlag())
             {
                 t_vec_vec.resize( m_NumComps + 10 );  // + 10 to handle possibility of outer domain and symmetry plane.
+                ( *t )->insideSurf.resize(m_NumComps + 10);
+                ( *t )->insideCount.resize(m_NumComps + 10);
             }
             else
             {
                 t_vec_vec.resize( m_NumComps + 6 );
+                ( *t )->insideSurf.resize(m_NumComps + 6);
+                ( *t )->insideCount.resize(m_NumComps + 6);
             }
 
             vec3d cp = ( *t )->ComputeCenterPnt( m_SurfVec[s] );
@@ -3877,79 +3943,54 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
                     }
                 }
             }
-            bool interiorFlag = false;
-
 
             // Loop over m_SurfVec instead of component id's.  Components will be addressed multiple times,
             // but it allows access to m_SurfVec[i]->GetFarFlag() without a reverse lookup on component id.
             for ( int i = 0 ; i < ( int )m_SurfVec.size() ; ++i )
             {
-                int c =  m_SurfVec[i]->GetCompID();
+                int c = m_SurfVec[i]->GetCompID();
 
                 if ( m_SurfVec[s]->GetSymPlaneFlag() == true && m_SurfVec[i]->GetFarFlag() == true  && GetCfdSettingsPtr()->GetFarCompFlag() == true )
                 {
                     if ( ( int )( t_vec_vec[c].size() + 1 ) % 2 == 1  ) // +1 Reverse action on sym plane wrt outer boundary.
                     {
-                        interiorFlag = true;
+                        ( *t )->insideSurf[c] = true;
                     }
                 }
                 else
                 {
-                    Geom* geomIndexS = m_Vehicle->FindGeom(m_SurfVec[s]->GetGeomID());
-                    Geom* geomIndexI = m_Vehicle->FindGeom(m_SurfVec[i]->GetGeomID());
 
                     if ( ( int )t_vec_vec[c].size() % 2 == 1)
                     {
-                        interiorFlag = true;
-                    }
-
-                    //Check Transparency & Negative
-                    if (geomIndexI != NULL && ((int) t_vec_vec[c].size()) % 2 == 1
-                            && (geomIndexI->m_NegativeVolumeFlag.Get() || m_SurfVec[i]->GetSurfaceCfdType() == vsp::CFD_NEGATIVE)
-                            && (m_SurfVec[s]->GetSurfaceCfdType() == vsp::CFD_TRANSPARENT))
-                    {
-                        interiorFlag = false;
-                        break;
-                    }
-                    else if(geomIndexS != NULL && ((int) t_vec_vec[c].size()) % 2 == 1
-                            && (geomIndexS->m_NegativeVolumeFlag.Get() || m_SurfVec[s]->GetSurfaceCfdType() == vsp::CFD_NEGATIVE)
-                            && (m_SurfVec[i]->GetSurfaceCfdType() == vsp::CFD_TRANSPARENT))
-                    {
-                        interiorFlag = false;
-                        break;
-                    }
-                    else if (geomIndexS != NULL && geomIndexI != NULL)
-                    {
-                        //If intersecting negatives, remove all of intersection
-                        if (((int) t_vec_vec[c].size()) % 2 == 1
-                            && (geomIndexS->m_NegativeVolumeFlag.Get() || m_SurfVec[s]->GetSurfaceCfdType() == vsp::CFD_NEGATIVE)
-                            && (geomIndexI->m_NegativeVolumeFlag.Get() || m_SurfVec[i]->GetSurfaceCfdType() == vsp::CFD_NEGATIVE))
-                        {
-                            interiorFlag = false;
-                            break;
-                        }
+                        ( *t )->insideSurf[c] = true;
                     }
                 }
             }
+        }
 
-
-            ( *t )->interiorFlag = interiorFlag;
+        for ( t = triList.begin() ; t != triList.end(); ++t ) // every triangle
+        {
             //==== Load Adjoining Tris - NOT Crossing Borders ====//
             set< Tri* > triSet;
             ( *t )->LoadAdjTris( 3, triSet );
 
             set<Tri*>::iterator st;
-            for ( st = triSet.begin() ; st != triSet.end() ; ++st )
-            {
-                if ( interiorFlag )
-                {
-                    ( *st )->intExtCount++;
-                }
-                else
-                {
-                    ( *st )->intExtCount--;
-                }
 
+            for ( int i = 0 ; i < ( int )m_SurfVec.size() ; ++i )
+            {
+                int c = m_SurfVec[i]->GetCompID();
+
+                for ( st = triSet.begin() ; st != triSet.end() ; ++st )
+                {
+                    if ( ( *t )->insideSurf[c] )
+                    {
+                        ( *st )->insideCount[c]++;
+                    }
+                    else
+                    {
+                        ( *st )->insideCount[c]--;
+                    }
+                }
             }
         }
     }
@@ -3960,38 +4001,36 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
         list <Tri*> triList = m_SurfVec[s]->GetMesh()->GetTriList();
         for ( t = triList.begin() ; t != triList.end(); t++ )
         {
-            Geom* geomIndexS = m_Vehicle->FindGeom(m_SurfVec[s]->GetGeomID());
-
-            //If negative, flip logic of interior flags
-            if (geomIndexS != NULL
-                && (geomIndexS->m_NegativeVolumeFlag.Get()
-                    || m_SurfVec[s]->GetSurfaceCfdType() == vsp::CFD_NEGATIVE))
+            for ( int i = 0 ; i < ( int )m_SurfVec.size() ; ++i )
             {
-                if ( ( *t )->intExtCount > 0 )
+                int aType = m_SurfVec[s]->GetSurfaceCfdType();
+                int bType = m_SurfVec[i]->GetSurfaceCfdType();
+                int c = m_SurfVec[i]->GetCompID();
+
+                if ( ( *t )->insideCount[c] > 0 )
                 {
-                    ( *t )->interiorFlag = false;
+                    ( *t )->insideSurf[c] = true;
                 }
-                else if ( ( *t )->intExtCount < 0 )
+                else if ( ( *t )->insideCount[c] < 0 )
                 {
-                    ( *t )->interiorFlag = true;
+                    ( *t )->insideSurf[c] = false;
                 }
-                else
+                else // Can't determine if Tri is inside or outside based on neighbor votes
                 {
                     printf( "IntExtCount ZERO!\n" );
                 }
             }
-            else if ( ( *t )->intExtCount > 0 )
-            {
-                ( *t )->interiorFlag = true;
-            }
-            else if ( ( *t )->intExtCount < 0 )
-            {
-                ( *t )->interiorFlag = false;
-            }
-            else
-            {
-                printf( "IntExtCount ZERO!\n" );
-            }
+        }
+    }
+
+    for ( int a = 0 ; a < ( int )m_SurfVec.size() ; a++ )
+    {
+        int tri_comp_id = m_SurfVec[a]->GetCompID();
+        list< Tri * > triList = m_SurfVec[a]->GetMesh()->GetTriList();
+        for ( t = triList.begin(); t != triList.end(); ++t )
+        {
+            // Determine if the triangle should be deleted
+            ( *t )->deleteFlag = SetDeleteTriFlag( m_SurfVec[a]->GetSurfaceCfdType(), ( *t )->insideSurf );
         }
     }
 
@@ -4008,7 +4047,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
                     vec3d cp = ( *t )->ComputeCenterPnt( m_SurfVec[s] );
                     if ( cp[1] < -1.0e-10 )
                     {
-                        ( *t )->interiorFlag = true;
+                        ( *t )->deleteFlag = true;
                     }
                 }
             }
@@ -4020,7 +4059,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
                     list <Tri*> triList = m_SurfVec[s]->GetMesh()->GetTriList();
                     for ( t = triList.begin() ; t != triList.end(); t++ )
                     {
-                        ( *t )->interiorFlag = true;
+                        ( *t )->deleteFlag = true;
                     }
                 }
             }

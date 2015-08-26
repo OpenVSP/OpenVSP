@@ -1789,7 +1789,7 @@ void Mesh::RemoveInteriorTrisEdgesNodes()
     for ( t = triList.begin() ; t != triList.end(); t++ )
     {
         //==== Check Surrounding Tris =====//
-        if ( ( *t )->interiorFlag )
+        if ( ( *t )->deleteFlag )
         {
             //==== Check Edges ====//
             if ( ( *t )->e0->BothAdjoiningTrisInterior() )
