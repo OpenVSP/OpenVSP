@@ -84,6 +84,10 @@ void ExportScreen::ExportFile( string &newfile, int write_set, int type )
     {
         newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write XSec File?", "*.hrm" );
     }
+    else if ( type == EXPORT_PLOT3D )
+    {
+        newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write PLOT3D File?", "*.p3d" );
+    }
     else if ( type == EXPORT_STL )
     {
         if ( (( STLOptionsScreen* ) m_ScreenMgr->GetScreen( ScreenMgr::VSP_STL_OPTIONS_SCREEN ))->ShowSTLOptionsScreen() )
@@ -143,6 +147,10 @@ void ExportScreen::CallBack( Fl_Widget *w )
     if ( w ==   m_ExportFileUI->xsecButton )        // Export CrossSection File
     {
         ExportFile( newfile, m_SelectedSetIndex, EXPORT_XSEC );
+    }
+    else if ( w == m_ExportFileUI->plot3dButton )
+    {
+        ExportFile( newfile, m_SelectedSetIndex, EXPORT_PLOT3D );
     }
     else if ( w == m_ExportFileUI->sterolithButton )
     {

@@ -1630,6 +1630,58 @@ void Geom::WriteXSecFile( int geom_no, FILE* dump_file )
     }
 }
 
+void Geom::WritePLOT3DFileExtents( FILE* dump_file )
+{
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    {
+        //==== Tessellate Surface ====//
+        vector< vector< vec3d > > pnts;
+        vector< vector< vec3d > > norms;
+
+        UpdateTesselate( i, pnts, norms, false );
+	//==== Write surface boundary extents ====//
+	fprintf( dump_file, " %d %d %d\n", static_cast<int>( pnts[0].size() ), static_cast<int>( pnts.size() ), 1 );
+    }
+}
+
+void Geom::WritePLOT3DFileXYZ( FILE* dump_file )
+{
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    {
+        //==== Tessellate Surface ====//
+        vector< vector< vec3d > > pnts;
+        vector< vector< vec3d > > norms;
+
+        UpdateTesselate( i, pnts, norms, false );
+
+        //==== Write XSec Data ====//
+        for ( int j = 0 ; j < ( int )pnts.size() ; j++ )
+        {
+            for ( int k = 0 ; k < ( int )pnts[j].size() ; k++ )
+            {
+                fprintf( dump_file, "%25.17e ", pnts[j][k].x() );
+            }
+        }
+	fprintf( dump_file, "\n" );
+        for ( int j = 0 ; j < ( int )pnts.size() ; j++ )
+        {
+            for ( int k = 0 ; k < ( int )pnts[j].size() ; k++ )
+            {
+                fprintf( dump_file, "%25.17e ", pnts[j][k].y() );
+            }
+        }
+	fprintf( dump_file, "\n" );
+        for ( int j = 0 ; j < ( int )pnts.size() ; j++ )
+        {
+            for ( int k = 0 ; k < ( int )pnts[j].size() ; k++ )
+            {
+                fprintf( dump_file, "%25.17e ", pnts[j][k].z() );
+            }
+        }
+	fprintf( dump_file, "\n" );
+    }
+}
+
 void Geom::CreateGeomResults( Results* res )
 {
     res->Add( ResData( "Type", vsp::GEOM_XSECS ) );
