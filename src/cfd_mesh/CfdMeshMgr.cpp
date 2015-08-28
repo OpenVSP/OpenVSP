@@ -3828,7 +3828,7 @@ void CfdMeshMgrSingleton::BuildMesh()
 }
 
 // Determines if a triangle should be deleted based on its type and whether or not it is inside every other surface
-bool CfdMeshMgrSingleton::SetDeleteTriFlag( int aType, vector < bool > aInB )
+bool CfdMeshMgrSingleton::SetDeleteTriFlag( int aType, bool symPlane, vector < bool > aInB )
 {
     bool deleteTri = false;
 
@@ -3841,6 +3841,12 @@ bool CfdMeshMgrSingleton::SetDeleteTriFlag( int aType, vector < bool > aInB )
         // Can make absolute decisions about deleting a triangle or not in the cases below
         if ( aInThisB )
         {
+            // Trim Symmetry plane
+            if ( symPlane && m_SurfVec[b]->GetFarFlag() == true &&
+                 GetCfdSettingsPtr()->GetFarCompFlag() == true )
+            {
+                return true;
+            }
             // Normal(Positive) inside another Normal, or Negative inside another Negative
             if ( aType == bType && aType != vsp::CFD_TRANSPARENT && aInThisB )
             {
@@ -4032,7 +4038,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
         for ( t = triList.begin(); t != triList.end(); ++t )
         {
             // Determine if the triangle should be deleted
-            ( *t )->deleteFlag = SetDeleteTriFlag( m_SurfVec[a]->GetSurfaceCfdType(), ( *t )->insideSurf );
+            ( *t )->deleteFlag = SetDeleteTriFlag( m_SurfVec[a]->GetSurfaceCfdType(), m_SurfVec[a]->GetSymPlaneFlag(), ( *t )->insideSurf );
         }
     }
 
