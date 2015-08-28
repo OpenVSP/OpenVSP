@@ -15,28 +15,34 @@ using namespace vsp;
 #include <assert.h>
 
 //==== Constructor ====//
-ImportScreen::ImportScreen( ScreenMgr* mgr ) : VspScreen( mgr )
+ImportScreen::ImportScreen( ScreenMgr* mgr ) : BasicScreen( mgr , 150, 25 + 5*20 + 1*15 + 2*6, "Import" )
 {
-    ImportFileUI* ui = m_ImportUI = new ImportFileUI();
-    m_FLTK_Window = ui->UIWindow;
+    m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
+    m_MainLayout.AddX( 5 );
+    m_MainLayout.AddY( 25 );
+    m_MainLayout.AddSubGroupLayout( m_GenLayout, m_MainLayout.GetRemainX() - 5, m_MainLayout.GetRemainY() );
 
-    ui->nascartButton->callback( staticScreenCB, this );
-    ui->sterolithButton->callback( staticScreenCB, this );
-    ui->xsecButton->callback( staticScreenCB, this );
-    ui->Cart3DTriButton->callback( staticScreenCB, this );
-    ui->ptsButton->callback( staticScreenCB, this );
+    m_GenLayout.SetChoiceButtonWidth( 50 );
+
+    m_GenLayout.AddDividerBox( "File Format" );
+    m_GenLayout.AddYGap();
+
+    m_GenLayout.AddButton( m_TRIButton, "Cart3D (.tri)" );
+    m_GenLayout.AddButton( m_STLButton, "Stereolith (.stl)" );
+    m_GenLayout.AddButton( m_NASCARTButton, "NASCART (.dat)" );
+    m_GenLayout.AddButton( m_XSecButton, "XSec (*.hrm)" );
+    m_GenLayout.AddButton( m_PTSButton, "Point Cloud (.pts)" );
 }
 
 //==== Destructor ====//
 ImportScreen::~ImportScreen()
 {
-    delete m_ImportUI;
 }
 
 //==== Import File ====//
 void ImportScreen::ImportFile( string & in_file, int type )
 {
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
+    Vehicle *veh = VehicleMgr.GetVehicle();
 
     if ( type == IMPORT_STL )
     {
@@ -60,7 +66,6 @@ void ImportScreen::ImportFile( string & in_file, int type )
     }
     else
     {
-        m_ImportUI->UIWindow->show();
         return;
     }
 
@@ -69,31 +74,36 @@ void ImportScreen::ImportFile( string & in_file, int type )
         veh->ImportFile( in_file, type );
     }
 
-    m_ImportUI->UIWindow->hide();
+    m_ScreenMgr->SetUpdateFlag( true );
 }
 
 //==== Callbacks ===//
 void ImportScreen::CallBack( Fl_Widget *w )
 {
+    m_ScreenMgr->SetUpdateFlag( true );
+}
+
+void ImportScreen::GuiDeviceCallBack( GuiDevice* device )
+{
     string in_file;
 
-    if ( w == m_ImportUI->sterolithButton )
+    if ( device == &m_STLButton )
     {
         ImportFile( in_file, IMPORT_STL );
     }
-    else if ( w == m_ImportUI->nascartButton )
+    else if ( device == &m_NASCARTButton )
     {
         ImportFile( in_file, IMPORT_NASCART );
     }
-    else if ( w == m_ImportUI->Cart3DTriButton )
+    else if ( device == &m_TRIButton )
     {
         ImportFile( in_file, IMPORT_CART3D_TRI );
     }
-    else if ( w == m_ImportUI->xsecButton )
+    else if ( device ==  &m_XSecButton )
     {
         ImportFile( in_file, IMPORT_XSEC_MESH );
     }
-    else if ( w == m_ImportUI->ptsButton )
+    else if ( device == &m_PTSButton )
     {
         ImportFile( in_file, IMPORT_PTS );
     }

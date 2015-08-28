@@ -12,7 +12,6 @@ awaveFlScreen.fl
 curveEditFlScreen.fl
 feaStructFlScreen.fl
 geomBrowserScreen.fl
-importFileScreen.fl
 labelFlScreen.fl
 mainScreen.fl
 massPropFlScreen.fl

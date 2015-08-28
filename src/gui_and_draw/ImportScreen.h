@@ -11,16 +11,13 @@
 #include "GuiDevice.h"
 
 #include <FL/Fl.H>
-#include "importFileScreen.h"
 
 using std::string;
 using std::vector;
 
-class ImportScreen : public VspScreen
+class ImportScreen : public BasicScreen
 {
 public:
-
-//  enum {  STEREOLITH, NASCART, CART3D_TRI, XSEC_SURF, XSEC_MESH };
 
     ImportScreen( ScreenMgr* mgr );
     virtual ~ImportScreen();
@@ -33,8 +30,18 @@ public:
         ( ( ImportScreen* )data )->CallBack( w );
     }
 
+    virtual void GuiDeviceCallBack( GuiDevice* device );
+
 protected:
-    ImportFileUI* m_ImportUI;
+
+    GroupLayout m_MainLayout;
+    GroupLayout m_GenLayout;
+
+    TriggerButton m_TRIButton;
+    TriggerButton m_STLButton;
+    TriggerButton m_NASCARTButton;
+    TriggerButton m_XSecButton;
+    TriggerButton m_PTSButton;
 
 };
 
