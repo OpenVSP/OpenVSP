@@ -23,10 +23,7 @@ FontMgr::FontMgr()
 }
 FontMgr::~FontMgr()
 {
-    if( _font )
-    {
-        delete _font;
-    }
+    delete _font;
 }
 
 GLFont * FontMgr::loadFont()

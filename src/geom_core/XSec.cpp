@@ -156,8 +156,7 @@ vector< vec3d > XSec::GetDrawLines( int num_pnts, Matrix4d &transMat  )
 
 void XSec::SetXSecCurve( XSecCurve* xs_crv )
 {
-    if ( m_XSCurve )
-        delete m_XSCurve;
+    delete m_XSCurve;
 
     m_XSCurve = xs_crv;
     m_XSCurve->SetParentContainer( m_ID );

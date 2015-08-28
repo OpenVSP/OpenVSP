@@ -390,14 +390,8 @@ void ISeg::Draw()
 ////////////////////////////////////////////////////////////////////////
 ISegBox::~ISegBox()
 {
-    if ( m_SubBox[0] )
-    {
-        delete m_SubBox[0];
-    }
-    if ( m_SubBox[1] )
-    {
-        delete m_SubBox[1];
-    }
+    delete m_SubBox[0];
+    delete m_SubBox[1];
 }
 
 void ISegBox::BuildSubDivide()

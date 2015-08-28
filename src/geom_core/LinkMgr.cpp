@@ -255,10 +255,7 @@ void LinkMgrSingleton::DelCurrLink()
 
     m_LinkVec.erase( m_LinkVec.begin() +  m_CurrLinkIndex );
 
-    if ( pl )
-    {
-        delete pl;
-    }
+    delete pl;
 
     m_CurrLinkIndex = -1;
 }
@@ -268,10 +265,7 @@ void LinkMgrSingleton::DelAllLinks()
 {
     for ( int i = 0 ; i < ( int )m_LinkVec.size() ; i++ )
     {
-        if ( m_LinkVec[i] )
-        {
-            delete m_LinkVec[i];
-        }
+        delete m_LinkVec[i];
     }
 
     m_LinkVec.clear();
