@@ -18,23 +18,35 @@ using namespace vsp;
 #include <assert.h>
 
 //==== Constructor ====//
-ExportScreen::ExportScreen( ScreenMgr* mgr ) : VspScreen( mgr )
+ExportScreen::ExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 150, 25 + (1+9)*20 + 2*15 + 4*6, "Export" )
 {
-    ExportFileUI* ui = m_ExportFileUI = new ExportFileUI();
-    m_FLTK_Window = ui->UIWindow;
     m_SelectedSetIndex = 0;
 
-    ui->setChoice->callback( staticScreenCB, this );
+    m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
+    m_MainLayout.AddX( 5 );
+    m_MainLayout.AddY( 25 );
+    m_MainLayout.AddSubGroupLayout( m_GenLayout, m_MainLayout.GetRemainX() - 5, m_MainLayout.GetRemainY() );
 
-    ui->sterolithButton->callback( staticScreenCB, this );
-    ui->xsecButton->callback( staticScreenCB, this );
-    ui->nascartButton->callback( staticScreenCB, this );
-    ui->cart3dButton->callback( staticScreenCB, this );
-    ui->povrayButton->callback( staticScreenCB, this );
-    ui->gmshButton->callback( staticScreenCB, this );
-    ui->x3dButton->callback( staticScreenCB, this );
-    ui->stepButton->callback( staticScreenCB, this );
+    m_GenLayout.SetChoiceButtonWidth( 50 );
 
+    m_GenLayout.AddDividerBox( "Export Set" );
+    m_GenLayout.AddYGap();
+
+    m_GenLayout.AddChoice( m_ExportSetChoice, "Set:" );
+    m_GenLayout.AddYGap();
+
+    m_GenLayout.AddDividerBox( "File Format" );
+    m_GenLayout.AddYGap();
+
+    m_GenLayout.AddButton( m_XSecButton, "XSec (*.hrm)" );
+    m_GenLayout.AddButton( m_Plot3DButton, "PLOT3D (.p3d)" );
+    m_GenLayout.AddButton( m_STLButton, "Stereolith (.stl)" );
+    m_GenLayout.AddButton( m_NASCARTButton, "NASCART (.dat)" );
+    m_GenLayout.AddButton( m_TRIButton, "Cart3D (.tri)" );
+    m_GenLayout.AddButton( m_GMSHButton, "Gmsh (.msh)" );
+    m_GenLayout.AddButton( m_POVButton, "POVRAY (.pov)" );
+    m_GenLayout.AddButton( m_X3DButton, "X3D (.x3d)" );
+    m_GenLayout.AddButton( m_STEPButton, "STEP (.stp)" );
 }
 
 //==== Update Screen ====//
@@ -52,7 +64,6 @@ void ExportScreen::Show()
     m_FLTK_Window->show();
 }
 
-
 //==== Hide Screen ====//
 void ExportScreen::Hide()
 {
@@ -62,18 +73,16 @@ void ExportScreen::Hide()
 //==== Load Type Choice ====//
 void ExportScreen::LoadSetChoice()
 {
-    m_ExportFileUI->setChoice->clear();
+    Vehicle *veh = VehicleMgr.GetVehicle();
 
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-    vector< string > set_name_vec = veh->GetSetNameVec();
-
-    for ( int i = 0 ; i < ( int )set_name_vec.size() ; i++ )
+    vector <string> setVec = veh->GetSetNameVec();
+    for ( int i = 0; i < setVec.size(); i++ )
     {
-        m_ExportFileUI->setChoice->add( set_name_vec[i].c_str() );
+        m_ExportSetChoice.AddItem( setVec[i] );
     }
+    m_ExportSetChoice.UpdateItems();
 
-    m_ExportFileUI->setChoice->value( m_SelectedSetIndex );
-
+    m_ExportSetChoice.SetVal( m_SelectedSetIndex );
 }
 
 void ExportScreen::ExportFile( string &newfile, int write_set, int type )
@@ -124,69 +133,66 @@ void ExportScreen::ExportFile( string &newfile, int write_set, int type )
     }
     else if ( type == -1 )
     {
-        m_ExportFileUI->UIWindow->show();
         return;
     }
 
     if ( newfile.size() != 0 && newfile[ newfile.size() - 1] != '/' )
-//jrg back() only in c++11 and remove strcmp
-//  if ( newfile.compare("") != 0 && strcmp( &newfile.back(), "/") != 0 )
     {
         veh->ExportFile( newfile, write_set, type );
     }
-    m_ExportFileUI->UIWindow->hide();
 
 }
-
 
 //==== Callbacks ====//
 void ExportScreen::CallBack( Fl_Widget *w )
 {
+    m_ScreenMgr->SetUpdateFlag( true );
+}
+
+void ExportScreen::GuiDeviceCallBack( GuiDevice* device )
+{
     string newfile;
 
-    if ( w ==   m_ExportFileUI->xsecButton )        // Export CrossSection File
+    if ( device == &m_XSecButton )
     {
         ExportFile( newfile, m_SelectedSetIndex, EXPORT_XSEC );
     }
-    else if ( w == m_ExportFileUI->plot3dButton )
+    else if ( device == &m_Plot3DButton )
     {
         ExportFile( newfile, m_SelectedSetIndex, EXPORT_PLOT3D );
     }
-    else if ( w == m_ExportFileUI->sterolithButton )
+    else if (  device == &m_STLButton )
     {
         ExportFile( newfile, m_SelectedSetIndex, EXPORT_STL );
     }
-    else if ( w == m_ExportFileUI->nascartButton )
+    else if (  device == &m_NASCARTButton )
     {
         ExportFile( newfile, m_SelectedSetIndex, EXPORT_NASCART );
     }
-    else if ( w == m_ExportFileUI->cart3dButton )   // Export Tri File
+    else if (  device == &m_TRIButton )
     {
         ExportFile( newfile, m_SelectedSetIndex, EXPORT_CART3D );
     }
-    else if ( w == m_ExportFileUI->gmshButton )
+    else if (  device == &m_GMSHButton )
     {
         ExportFile( newfile, m_SelectedSetIndex, EXPORT_GMSH );
     }
-    else if ( w == m_ExportFileUI->povrayButton )
+    else if (  device == &m_POVButton )
     {
         ExportFile( newfile, m_SelectedSetIndex, EXPORT_POVRAY );
     }
-    else if ( w == m_ExportFileUI->x3dButton )
+    else if (  device == &m_X3DButton )
     {
         ExportFile( newfile, m_SelectedSetIndex, EXPORT_X3D );
     }
-    else if ( w == m_ExportFileUI->stepButton )
+    else if (  device == &m_STEPButton )
     {
         ExportFile( newfile, m_SelectedSetIndex, EXPORT_STEP );
     }
-    else if ( w == m_ExportFileUI->setChoice )
+    else if (  device == &m_ExportSetChoice )
     {
-        m_SelectedSetIndex = m_ExportFileUI->setChoice->value();
+        m_SelectedSetIndex = m_ExportSetChoice.GetVal();
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
-//  m_ScreenMgr->UpdateAllScreens();
 }
-
-

@@ -10,7 +10,6 @@ testFlScreen.fl
 aboutScreen.fl
 awaveFlScreen.fl
 curveEditFlScreen.fl
-exportFileScreen.fl
 feaStructFlScreen.fl
 geomBrowserScreen.fl
 importFileScreen.fl

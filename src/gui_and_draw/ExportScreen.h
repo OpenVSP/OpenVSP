@@ -15,12 +15,11 @@
 #include "GuiDevice.h"
 
 #include <FL/Fl.H>
-#include "exportFileScreen.h"
 
 using std::string;
 using std::vector;
 
-class ExportScreen : public VspScreen
+class ExportScreen : public BasicScreen
 {
 public:
 
@@ -40,11 +39,26 @@ public:
         ( ( ExportScreen* )data )->CallBack( w );
     }
 
+    virtual void GuiDeviceCallBack( GuiDevice* device );
+
 protected:
 
-    int m_SelectedSetIndex;
-    ExportFileUI* m_ExportFileUI;
+    GroupLayout m_MainLayout;
+    GroupLayout m_GenLayout;
 
+    Choice m_ExportSetChoice;
+
+    TriggerButton m_XSecButton;
+    TriggerButton m_Plot3DButton;
+    TriggerButton m_STLButton;
+    TriggerButton m_NASCARTButton;
+    TriggerButton m_TRIButton;
+    TriggerButton m_GMSHButton;
+    TriggerButton m_POVButton;
+    TriggerButton m_X3DButton;
+    TriggerButton m_STEPButton;
+
+    int m_SelectedSetIndex;
 };
 
 
