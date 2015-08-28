@@ -53,29 +53,37 @@ FuselageGeom::FuselageGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     xs = ( FuseXSec* ) m_XSecSurf.FindXSec( j );
     xs->SetGroupDisplaySuffix( j );
     xs->m_XLocPercent = 0.0;
+    xs->m_TopLAngle = 45.0;
+    xs->m_TopLStrength = 0.75;
+    xs->m_RightLAngle = 45.0;
+    xs->m_RightLStrength = 0.75;
 
     ++j;
     xs = ( FuseXSec* ) m_XSecSurf.FindXSec( j );
     xs->SetGroupDisplaySuffix( j );
     xs->m_XLocPercent = 0.25;
-    dynamic_cast<EllipseXSec *>( xs->GetXSecCurve() )->SetWidthHeight( 3.0, 2.5 );
+    dynamic_cast<EllipseXSec *>( xs->GetXSecCurve() )->SetWidthHeight( 2.5, 3.0 );
 
     ++j;
     xs = ( FuseXSec* ) m_XSecSurf.FindXSec( j );
     xs->SetGroupDisplaySuffix( j );
     xs->m_XLocPercent = 0.5;
-    dynamic_cast<EllipseXSec *>( xs->GetXSecCurve() )->SetWidthHeight( 3.0, 2.5 );
+    dynamic_cast<EllipseXSec *>( xs->GetXSecCurve() )->SetWidthHeight( 2.5, 3.0 );
 
     ++j;
     xs = ( FuseXSec* ) m_XSecSurf.FindXSec( j );
     xs->SetGroupDisplaySuffix( j );
     xs->m_XLocPercent = 0.75;
-    dynamic_cast<EllipseXSec *>( xs->GetXSecCurve() )->SetWidthHeight( 3.0, 2.5 );
+    dynamic_cast<EllipseXSec *>( xs->GetXSecCurve() )->SetWidthHeight( 2.5, 3.0 );
 
     ++j;
     xs = ( FuseXSec* ) m_XSecSurf.FindXSec( j );
     xs->SetGroupDisplaySuffix( j );
     xs->m_XLocPercent = 1.0;
+    xs->m_TopLAngle = -45.0;
+    xs->m_TopLStrength = 0.75;
+    xs->m_RightLAngle = -45.0;
+    xs->m_RightLStrength = 0.75;
 
 }
 
