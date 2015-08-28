@@ -601,10 +601,7 @@ void FitModelMgrSingleton::DelCurrTargetPt()
 
     m_TargetPts.erase( m_TargetPts.begin() +  m_CurrTargetPtIndex );
 
-    if ( tpt )
-    {
-        delete tpt;
-    }
+    delete tpt;
 
     m_CurrTargetPtIndex = -1;
 }
@@ -613,10 +610,7 @@ void FitModelMgrSingleton::DelAllTargetPts()
 {
     for ( int i = 0 ; i < ( int )m_TargetPts.size() ; i++ )
     {
-        if ( m_TargetPts[i] )
-        {
-            delete m_TargetPts[i];
-        }
+        delete m_TargetPts[i];
     }
 
     m_TargetPts.clear();
@@ -651,10 +645,7 @@ void FitModelMgrSingleton::ValidateTargetPts()
 
     for ( int i = 0 ; i < ( int )todelete.size() ; i++ )
     {
-        if ( todelete[i] )
-        {
-            delete todelete[i];
-        }
+        delete todelete[i];
     }
 
     m_TargetPts = tokeep;

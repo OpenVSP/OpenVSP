@@ -232,10 +232,7 @@ void DesignVarMgrSingleton::DelCurrVar()
 
     m_VarVec.erase( m_VarVec.begin() +  m_CurrVarIndex );
 
-    if ( pl )
-    {
-        delete pl;
-    }
+    delete pl;
 
     m_CurrVarIndex = -1;
 }
@@ -245,10 +242,7 @@ void DesignVarMgrSingleton::DelAllVars()
 {
     for ( int i = 0 ; i < ( int )m_VarVec.size() ; i++ )
     {
-        if ( m_VarVec[i] )
-        {
-            delete m_VarVec[i];
-        }
+        delete m_VarVec[i];
     }
 
     m_VarVec.clear();

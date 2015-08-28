@@ -241,6 +241,9 @@ protected:
 
 
     virtual void UpdateSurf();
+    // Updates the cfd surface types
+    // Needed for transparent custom geoms
+    virtual void UpdateFlags();
 
 };
 

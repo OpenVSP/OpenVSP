@@ -2105,10 +2105,7 @@ TBndBox::~TBndBox()
 {
     for ( int i = 0 ; i < 8 ; i++ )
     {
-        if ( m_SBoxVec[i] )
-        {
-            delete m_SBoxVec[i];
-        }
+        delete m_SBoxVec[i];
     }
 }
 
@@ -2116,11 +2113,8 @@ void TBndBox::Reset()
 {
     for ( int i = 0 ; i < 8 ; i++ )
     {
-        if ( m_SBoxVec[i] )
-        {
-            delete m_SBoxVec[i];
-            m_SBoxVec[i] = 0;
-        }
+        delete m_SBoxVec[i];
+        m_SBoxVec[i] = 0;
     }
 
     m_Box.Reset();
@@ -2516,10 +2510,7 @@ NBndBox::~NBndBox()
 {
     for ( int i = 0 ; i < 8 ; i++ )
     {
-        if ( m_SBoxVec[i] )
-        {
-            delete m_SBoxVec[i];
-        }
+        delete m_SBoxVec[i];
     }
 }
 

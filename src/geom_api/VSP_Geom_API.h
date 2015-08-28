@@ -146,6 +146,7 @@ extern vec3d ComputeXSecTan( const string& xsec_id, double fract );
 extern void ResetXSecSkinParms( const string& xsec_id );
 extern void SetXSecContinuity( const string& xsec_id, int cx );
 extern void SetXSecTanAngles( const string& xsec_id, int side, double top, double right, double bottom, double left );
+extern void SetXSecTanSlews( const string& xsec_id, int side, double top, double right, double bottom, double left );
 extern void SetXSecTanStrengths( const string& xsec_id, int side, double top, double right, double bottom, double left );
 extern void SetXSecCurvatures( const string& xsec_id, int side, double top, double right, double bottom, double left );
 extern void ReadFileAirfoil( const string& xsec_id, const string& file_name );

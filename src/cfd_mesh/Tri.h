@@ -202,7 +202,13 @@ public:
 
     bool debugFlag;
 
-    bool interiorFlag;
+    // true if inside surface with a cid corresponding to an index.
+    vector< bool > insideSurf;
+
+    vector< int > insideCount;
+
+    // Set to true if tri should be removed
+    bool deleteFlag;
 
     void LoadAdjTris( int num_levels, set< Tri* > & triSet );
     int intExtCount;

@@ -1780,6 +1780,26 @@ void SetXSecTanAngles( const string& xsec_id, int side, double top, double right
     ErrorMgr.NoError();
 }
 
+//==== Set Tan Slews At XSec ====//
+void SetXSecTanSlews( const string& xsec_id, int side, double top, double right, double bottom, double left )
+{
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecTanSlews::Can't Find XSec " + xsec_id  );
+        return;
+    }
+    SkinXSec* skinxs = dynamic_cast<SkinXSec*>(xs);
+    if ( !skinxs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecTanSlews::Can't Convert To Skin XSec " + xsec_id  );
+        return;
+    }
+
+    skinxs->SetTanSlews( side, top, right, bottom, left );
+    ErrorMgr.NoError();
+}
+
 //==== Set Tan Strengths At XSec ====//
 void SetXSecTanStrengths( const string& xsec_id, int side, double top, double right, double bottom, double left )
 {

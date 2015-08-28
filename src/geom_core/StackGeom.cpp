@@ -52,6 +52,10 @@ StackGeom::StackGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     xs = ( StackXSec* ) m_XSecSurf.FindXSec( j );
     xs->SetGroupDisplaySuffix( j );
     xs->m_XDelta = 0.0;
+    xs->m_TopLAngle = 45.0;
+    xs->m_TopLStrength = 0.75;
+    xs->m_RightLAngle = 45.0;
+    xs->m_RightLStrength = 0.75;
 
     ++j;
     xs = ( StackXSec* ) m_XSecSurf.FindXSec( j );
@@ -75,6 +79,10 @@ StackGeom::StackGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     xs = ( StackXSec* ) m_XSecSurf.FindXSec( j );
     xs->SetGroupDisplaySuffix( j );
     xs->m_XDelta = 0.5;
+    xs->m_TopLAngle = -45.0;
+    xs->m_TopLStrength = 0.75;
+    xs->m_RightLAngle = -45.0;
+    xs->m_RightLStrength = 0.75;
 
 }
 

@@ -37,8 +37,7 @@ void AdvLinkMgrSingleton::Wype()
     //==== Delete All Links ====//
     for ( int i = 0 ; i < (int)m_LinkVec.size() ; i++ )
     {
-        if ( m_LinkVec[i] )
-            delete m_LinkVec[i];
+        delete m_LinkVec[i];
     }
     m_LinkVec.clear();
     m_ActiveLink = NULL;

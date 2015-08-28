@@ -31,8 +31,6 @@
 #include "XSecCurve.h"
 #include "XSecSurf.h"
 
-//#include "xmlvsp.h"
-
 #include <string>
 #include <vector>
 #include <map>
@@ -579,6 +577,7 @@ protected:
     virtual void UpdateSurf() = 0;
     void UpdateEndCaps();
     virtual void UpdateFeatureLines();
+    virtual void UpdateFlags();
     virtual void UpdateSymmAttach();
     virtual void UpdateChildren( bool fullupdate );
     virtual void UpdateBBox();

@@ -340,6 +340,8 @@ public:
     }
     virtual void SetICurveVec( ICurve* newcurve, int loc );
 
+    virtual bool SetDeleteTriFlag( int aType, bool symPlane, vector < bool > aInB );
+
 #ifdef DEBUG_CFD_MESH
     FILE* m_DebugFile;
     Stringc m_DebugDir;

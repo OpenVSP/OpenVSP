@@ -50,11 +50,7 @@ Viewport::~Viewport()
     delete _cameraMgr;
     delete _textMgr;
     delete _font;
-
-    if( _background )
-    {
-        delete _background;
-    }
+    delete _background;
 }
 
 void Viewport::resize( int x, int y, int width, int height )

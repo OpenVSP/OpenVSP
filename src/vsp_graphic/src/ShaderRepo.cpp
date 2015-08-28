@@ -130,11 +130,8 @@ ShaderRepo::~ShaderRepo()
 {
     for( int i = 0; i < ( int )_shaderRepo.size(); i++ )
     {
-        if( _shaderRepo[i].shaderPtr != NULL )
-        {
-            delete _shaderRepo[i].shaderPtr;
-            _shaderRepo[i].shaderPtr = NULL;
-        }
+        delete _shaderRepo[i].shaderPtr;
+        _shaderRepo[i].shaderPtr = NULL;
     }
 }
 

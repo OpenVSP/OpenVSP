@@ -30,10 +30,7 @@ GuiInterface::GuiInterface()
 GuiInterface::~GuiInterface()
 {
 #ifdef VSP_USE_FLTK
-    if( m_ScreenMgr )
-    {
-        delete m_ScreenMgr;
-    }
+    delete m_ScreenMgr;
 #endif
 }
 
