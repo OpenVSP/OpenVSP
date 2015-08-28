@@ -1514,6 +1514,44 @@ void SkinXSec::SetCurvatures( int side, double top, double right, double bottom,
     }
 }
 
+// Set skinning behavior to be similar to VSP v2's Fuse2.
+void SkinXSec::SetV2DefaultBehavior()
+{
+    m_AllSymFlag = 0;
+
+    m_TopLAngleSet = 1;
+    m_TopLSlewSet = 1;
+    m_TopLStrengthSet = 1;
+    m_TopRAngleSet = 1;
+    m_TopRSlewSet = 1;
+    m_TopRStrengthSet = 1;
+    m_TopLRAngleEq = 1;
+
+    m_RightLAngleSet = 1;
+    m_RightLSlewSet = 1;
+    m_RightLStrengthSet = 1;
+    m_RightRAngleSet = 1;
+    m_RightRSlewSet = 1;
+    m_RightRStrengthSet = 1;
+    m_RightLRAngleEq = 1;
+
+    m_BottomLAngleSet = 1;
+    m_BottomLSlewSet = 1;
+    m_BottomLStrengthSet = 1;
+    m_BottomRAngleSet = 1;
+    m_BottomRSlewSet = 1;
+    m_BottomRStrengthSet = 1;
+    m_BottomLRAngleEq = 1;
+
+    m_LeftLAngleSet = 1;
+    m_LeftLSlewSet = 1;
+    m_LeftLStrengthSet = 1;
+    m_LeftRAngleSet = 1;
+    m_LeftRSlewSet = 1;
+    m_LeftRStrengthSet = 1;
+    m_LeftLRAngleEq = 1;
+}
+
 
 //==========================================================================//
 //==========================================================================//
@@ -1545,6 +1583,7 @@ FuseXSec::FuseXSec( XSecCurve *xsc, bool use_left ) : SkinXSec( xsc, use_left)
 
     m_RefLength.Init( "RefLength", m_GroupName, this, 1.0, 1e-8, 1e12, false );
 
+    SetV2DefaultBehavior();
 }
 
 //==== Update ====//
@@ -1739,6 +1778,7 @@ StackXSec::StackXSec( XSecCurve *xsc, bool use_left ) : SkinXSec( xsc, use_left)
     m_ZCenterRot.Init( "m_ZCenterRot", m_GroupName, this,  0.0, -1.0e12, 1.0e12 );
     m_ZCenterRot.SetDescript( "Z Center Of Rotation" );
 
+    SetV2DefaultBehavior();
 
 }
 

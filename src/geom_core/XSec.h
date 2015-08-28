@@ -280,6 +280,8 @@ public:
     virtual void SetTanStrengths( int side, double top, double right, double bottom, double left );
     virtual void SetCurvatures( int side, double top, double right, double bottom, double left );
 
+    virtual void SetV2DefaultBehavior();
+
 protected:
 };
 
