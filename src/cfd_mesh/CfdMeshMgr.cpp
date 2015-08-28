@@ -2134,7 +2134,7 @@ string CfdMeshMgrSingleton::CheckWaterTight()
     vector< vec3d* > allPntVec;
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
-        if(m_SurfVec[i]->GetSurfaceCfdType() != vsp::CFD_TRANSPARENT)
+        if( m_SurfVec[i]->GetSurfaceCfdType() != vsp::CFD_TRANSPARENT || m_SurfVec[i]->GetFarFlag() || m_SurfVec[i]->GetSymPlaneFlag() )
         {
             vector< vec3d >& sPntVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
             for ( int v = 0 ; v < ( int )sPntVec.size() ; v++ )
@@ -2166,7 +2166,7 @@ string CfdMeshMgrSingleton::CheckWaterTight()
     map< int, vector<Edge*> > edgeMap;
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
-        if(m_SurfVec[i]->GetSurfaceCfdType() != vsp::CFD_TRANSPARENT)
+        if( m_SurfVec[i]->GetSurfaceCfdType() != vsp::CFD_TRANSPARENT || m_SurfVec[i]->GetFarFlag() || m_SurfVec[i]->GetSymPlaneFlag() )
         {
             vector < SimpTri >& sTriVec = m_SurfVec[i]->GetMesh()->GetSimpTriVec();
             vector< vec3d >& sPntVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
