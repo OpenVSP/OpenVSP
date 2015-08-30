@@ -61,8 +61,8 @@ public:
 
     virtual void ParmChanged( Parm* parm_ptr, int type );
 
-    virtual void   AdjustLen( double val  );
-    virtual void   AdjustRad( double val  );
+    virtual void AdjustLen( double val );
+    virtual void AdjustRad( double val );
 
     virtual void SetNamedVal( string name, double val )         {}
 
@@ -71,7 +71,7 @@ public:
         return m_Type;
     }
 
-    xmlNodePtr EncodeXml(  xmlNodePtr & node  );
+    xmlNodePtr EncodeXml( xmlNodePtr & node );
 
     Parm m_Len;
     Parm m_Rad;
@@ -105,8 +105,8 @@ public:
     LineSource();
     virtual ~LineSource()       {}
 
-    virtual void   AdjustRad( double val  );
-    virtual void   AdjustLen( double val  );
+    virtual void AdjustRad( double val );
+    virtual void AdjustLen( double val );
 
     void SetNamedVal( string name, double val );
 
@@ -153,7 +153,7 @@ public:
     {
         return m_Name;
     }
-    virtual void AdjustLen( double val  );
+    virtual void AdjustLen( double val );
 
     virtual double GetTargetLen( double base_len, vec3d &  pos ) = 0;
 
@@ -229,7 +229,7 @@ public:
     void SetEndPnts( const vec3d & pnt1, const vec3d & pnt2 );
     void UpdateBBox();
 
-    virtual void AdjustLen( double val  );
+    virtual void AdjustLen( double val );
 
     double GetTargetLen( double base_len, vec3d &  pos );
 
