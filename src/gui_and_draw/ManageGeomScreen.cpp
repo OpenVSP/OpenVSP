@@ -618,6 +618,8 @@ void ManageGeomScreen::SetFeatureDrawFlag( bool f )
             geom_vec[i]->m_GuiDraw.SetDispFeatureFlag( f );
         }
     }
+
+    m_VehiclePtr->Update();
 }
 
 //==== Callbacks ====//
