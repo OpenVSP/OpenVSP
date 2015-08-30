@@ -61,15 +61,6 @@ public:
 
     virtual void ParmChanged( Parm* parm_ptr, int type );
 
-    virtual void SetName( const string &str )
-    {
-        m_Name = str;
-    }
-    virtual string GetName()
-    {
-        return m_Name;
-    }
-
     virtual void   AdjustLen( double val  );
     virtual void   AdjustRad( double val  );
 
@@ -88,8 +79,6 @@ public:
     IntParm m_MainSurfIndx;
 
 protected:
-
-    string m_Name;
 
     int m_Type;
 
