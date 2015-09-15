@@ -735,7 +735,7 @@ void SurfCore::BuildPatches( Surf* srf ) const
 
     piecewise_surface_type s( m_Surface );
 
-    piecewise_surface_type::data_type ttol = 1e-6;
+    piecewise_surface_type::data_type ttol = 1e-5;
     s.to_cubic( ttol );
 
     for ( int ip = 0; ip < s.number_u_patches(); ip++ )
