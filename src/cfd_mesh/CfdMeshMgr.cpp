@@ -1307,11 +1307,16 @@ void CfdMeshMgrSingleton::Remesh( int output_type )
     {
         int num_tris = 0;
 
+        int num_rev_removed;
+
         for ( int iter = 0 ; iter < 10 ; ++iter )
         {
             m_SurfVec[i]->GetMesh()->m_Iteration = iter;
             num_tris = 0;
             m_SurfVec[i]->GetMesh()->Remesh();
+
+            num_rev_removed = m_SurfVec[i]->GetMesh()->RemoveRevTris();
+
 
             num_tris += m_SurfVec[i]->GetMesh()->GetTriList().size();
 
@@ -1322,6 +1327,15 @@ void CfdMeshMgrSingleton::Remesh( int output_type )
             }
         }
         total_num_tris += num_tris;
+
+        if ( num_rev_removed > 0 )
+        {
+            sprintf( str, "%d Reversed tris collapsed in final iteration.\n", num_rev_removed );
+            if ( output_type != CfdMeshMgrSingleton::NO_OUTPUT )
+            {
+                addOutputText( str, output_type );
+            }
+        }
 
         m_SurfVec[i]->GetMesh()->LoadSimpTris();
         m_SurfVec[i]->GetMesh()->Clear();
