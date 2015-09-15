@@ -440,6 +440,52 @@ int Mesh::Collapse( int num_iter )
 
 }
 
+int Mesh::RemoveRevTris()
+{
+    int badcount = 0;
+
+    vector < Edge* > remEdges;
+
+    list< Tri* >::iterator t;
+    for ( t = triList.begin() ; t != triList.end(); t++ )
+    {
+        vec3d ntri = (*t)->Normal();
+        vec2d avg_uw = ( (*t)->n0->uw + (*t)->n1->uw + (*t)->n2->uw ) * ( 1.0 / 3.0 );
+        vec3d nsurf = m_Surf->GetSurfCore()->CompNorm( avg_uw[0], avg_uw[1] );
+
+        double dprod = dot ( ntri, nsurf );
+
+        if ( m_Surf->GetFlipFlag() )
+        {
+            dprod = -dprod;
+        }
+
+        if ( dprod < 0.0 )
+        {
+            Edge* e = (*t)->FindLongEdge();
+
+            remEdges.push_back( e );
+
+            badcount++;
+        }
+    }
+
+    for ( int i = 0; i < remEdges.size(); i++ )
+    {
+        Edge* e = remEdges[i];
+
+        if ( e )
+        {
+            if ( ValidCollapse( e ) )
+            {
+                CollapseEdge( e );
+            }
+        }
+
+    }
+
+    return badcount;
+}
 
 void Mesh::ColorTris()
 {

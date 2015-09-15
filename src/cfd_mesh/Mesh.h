@@ -70,6 +70,8 @@ public:
     bool ValidCollapse( Edge* edge );
     void CollapseEdge( Edge* edge );
 
+    int RemoveRevTris();
+
     void LimitTargetEdgeLength();
     void LimitTargetEdgeLength( Edge* e );
     void LimitTargetEdgeLength( Node* n );
