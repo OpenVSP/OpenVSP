@@ -114,6 +114,41 @@ vec3d SurfCore::CompTanW( double u, double w ) const
     return rtn;
 }
 
+vec3d SurfCore::CompNorm( double u, double w ) const
+{
+    vec3d rtn;
+
+    double umn = m_Surface.get_u0();
+    double wmn = m_Surface.get_v0();
+
+    double umx = m_Surface.get_umax();
+    double wmx = m_Surface.get_vmax();
+
+    double slop = 1e-3;
+    if( u < (umn - slop) || w < (wmn - slop) || u > (umx + slop) || w > (wmx + slop) )
+    {
+        printf("BAD parameter in SurfCore::CompNorm! %f %f\n", u, w );
+        assert(false);
+    }
+
+    if ( u < umn )
+        u = umn;
+
+    if ( w < wmn )
+        w = wmn;
+
+    if ( u > umx )
+        u = umx;
+
+    if ( w > wmx )
+        w = wmx;
+
+    surface_point_type p( m_Surface.normal( u, w ) );
+
+    rtn.set_xyz( p.x(), p.y(), p.z() );
+    return rtn;
+}
+
 //===== Compute Point On Surf Given  U W =====//
 vec3d SurfCore::CompPnt( double u, double w ) const
 {
