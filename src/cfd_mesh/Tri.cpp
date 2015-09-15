@@ -519,6 +519,32 @@ Edge* Tri::FindEdgeWithout( Node* node_ptr )
     return NULL;
 }
 
+Edge* Tri::FindLongEdge()
+{
+    if ( !e0 || !e1 || !e2 )
+    {
+        return NULL;
+    }
+
+    double dsqr0 = dist_squared( e0->n0->pnt, e0->n1->pnt );
+    double dsqr1 = dist_squared( e1->n0->pnt, e1->n1->pnt );
+    double dsqr2 = dist_squared( e2->n0->pnt, e2->n1->pnt );
+
+    Edge * e = e0;
+
+    if ( dsqr1 < dsqr0 )
+    {
+        e = e1;
+        dsqr0 = dsqr1;
+    }
+
+    if ( dsqr2 < dsqr0 )
+    {
+        e = e2;
+    }
+    return e;
+}
+
 void Tri::ReplaceNode( Node* curr_node, Node* replace_node )
 {
     if ( n0 == curr_node )

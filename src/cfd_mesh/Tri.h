@@ -179,6 +179,8 @@ public:
 
     Edge* FindEdge( Node* nn0, Node* nn1 );
     Edge* FindEdgeWithout( Node* node_ptr );
+    Edge* FindLongEdge();
+
     void ReplaceNode( Node* curr_node, Node* replace_node );
     void ReplaceEdge( Edge* curr_edge, Edge* replace_edge );
 
