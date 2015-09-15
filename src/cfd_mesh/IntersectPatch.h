@@ -24,11 +24,8 @@
 #include <list>
 using namespace std;
 
-//===== Check If New Intersection Point Is A Duplicate  =====//
-int is_dup_int_pnt( int ni, vec3d int_pnt[2], vec3d& temp_pnt );
 
 //===== Intersect Two Bezier Patches  =====//
-void intersect( SurfPatch& bp1, SurfPatch& bp2 );
 void intersect( SurfPatch& bp1, SurfPatch& bp2, int depth );
 void intersect_quads( SurfPatch& pa, SurfPatch& pb );
 
