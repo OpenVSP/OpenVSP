@@ -16,7 +16,6 @@
 
 SurfPatch::SurfPatch()
 {
-    plane_tol = DEFAULT_PLANE_TOL;
     u_min = w_min = 0.0;
     u_max = w_max = 1.0;
     m_SurfPtr = NULL;

@@ -49,11 +49,6 @@ public:
         return m_SurfPtr;
     }
 
-    void set_plane_tol( double t )
-    {
-        plane_tol = t;
-    }
-
     void set_u_min_max( double min, double max )
     {
         u_min = min;
@@ -114,7 +109,6 @@ protected:
 
     Surf* m_SurfPtr;
 
-    double plane_tol;
     double u_min, u_max;
     double w_min, w_max;
     vec3d pnts[4][4];
