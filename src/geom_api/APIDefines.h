@@ -105,7 +105,6 @@ enum IMPORT_TYPE {  IMPORT_STL,
 
 enum EXPORT_TYPE {  EXPORT_FELISA,
                     EXPORT_XSEC,
-                    EXPORT_PLOT3D,
                     EXPORT_STL,
                     EXPORT_AWAVE,
                     EXPORT_NASCART,
@@ -115,7 +114,8 @@ enum EXPORT_TYPE {  EXPORT_FELISA,
                     EXPORT_XSECGEOM,
                     EXPORT_GMSH,
                     EXPORT_X3D,
-                    EXPORT_STEP
+                    EXPORT_STEP,
+                    EXPORT_PLOT3D
                  };
 
 enum COMPUTATION_FILE_TYPE  {   NO_FILE_TYPE        = 0,
