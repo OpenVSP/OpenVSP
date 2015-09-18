@@ -63,6 +63,7 @@ Vehicle::Vehicle()
     m_STLMultiSolid.Init( "MultiSolid", "STLSettings", this, false, 0, 1 );
 
     m_UpdatingBBox = false;
+    m_UpdatingGroup  = false;
     m_BbXLen.Init( "X_Len", "BBox", this, 0, 0, 1e12 );
     m_BbXLen.SetDescript( "X length of vehicle bounding box" );
     m_BbYLen.Init( "Y_Len", "BBox", this, 0, 0, 1e12 );
@@ -75,6 +76,14 @@ Vehicle::Vehicle()
     m_BbYMin.SetDescript( "Minimum Y coordinate of vehicle bounding box" );
     m_BbZMin.Init( "Z_Min", "BBox", this, 0, -1e12, 1e12 );
     m_BbZMin.SetDescript( "Minimum Z coordinate of vehicle bounding box" );
+
+    m_GroupXLoc.Init( "Group_XLoc", "Group", this, 0, -1e12, 1e12 );
+    m_GroupYLoc.Init( "Group_YLoc", "Group", this, 0, -1e12, 1e12 );
+    m_GroupZLoc.Init( "Group_ZLoc", "Group", this, 0, -1e12, 1e12 );
+    m_GroupXRot.Init( "Group_XRot", "Group", this, 0, -1e12, 1e12 );
+    m_GroupYRot.Init( "Group_YRot", "Group", this, 0, -1e12, 1e12 );
+    m_GroupZRot.Init( "Group_ZRot", "Group", this, 0, -1e12, 1e12 );
+    m_GroupScale.Init( "Group_Scale", "Group", this, 1, 1.0e-3, 1.0e3 );
 
     m_exportCompGeomCsvFile.Init( "CompGeom_CSV_Export", "ExportFlag", this, true, 0, 1 );
     m_exportDragBuildTsvFile.Init( "DragBuild_TSV_Export", "ExportFlag", this, true, 0, 1 );
@@ -173,6 +182,7 @@ void Vehicle::Init()
     m_BEMPropID = string();
 
     m_UpdatingBBox = false;
+    m_UpdatingGroup = false;
     m_BbXLen.Set( 0 );
     m_BbYLen.Set( 0 );
     m_BbZLen.Set( 0 );
@@ -186,6 +196,7 @@ void Vehicle::Init()
     m_exportDegenGeomMFile.Set( true );
 
     AnalysisMgr.Init();
+    oldX, oldY, oldZ = 0;
 }
 
 void Vehicle::RunTestScripts()
@@ -295,7 +306,7 @@ void Vehicle::Renew()
 //==== Parm Changed ====//
 void Vehicle::ParmChanged( Parm* parm_ptr, int type )
 {
-    if ( m_UpdatingBBox )
+    if ( m_UpdatingBBox || m_UpdatingGroup )
     {
         return;
     }
@@ -307,6 +318,14 @@ void Vehicle::ParmChanged( Parm* parm_ptr, int type )
     if ( parm_ptr == &m_AxisLength )
     {
         ForceUpdate();
+    }
+
+    // Group Activated
+    if ( (int)GetActiveGeomVec().size() > 1 )
+    {
+        m_UpdatingGroup = true;
+        UpdateGroup();
+
     }
 
     UpdateGui();
@@ -592,6 +611,26 @@ void Vehicle::SetActiveGeom( const string & id )
     {
         m_ActiveGeom.clear();
         m_ActiveGeom.push_back( id );
+    }
+}
+
+void Vehicle::SetActiveGeomVarVals()
+{
+    vector< string > activeGroup = GetActiveGeomVec();
+    oldVarVals.resize(activeGroup.size());
+
+    for( int i = 0; i < activeGroup.size(); i++ )
+    {
+        Geom* geom = FindGeom( activeGroup[i] );
+        oldVarVals[i].resize(7); // 3 * translate + 3 * rotate + 1 * scale
+
+        oldVarVals[i][0] = geom->m_XRelLoc.Get();
+        oldVarVals[i][1] = geom->m_YRelLoc.Get();
+        oldVarVals[i][2] = geom->m_ZRelLoc.Get();
+        oldVarVals[i][3] = geom->m_XRelRot.Get();
+        oldVarVals[i][4] = geom->m_YRelRot.Get();
+        oldVarVals[i][5] = geom->m_ZRelRot.Get();
+        oldVarVals[i][6] = geom->m_Scale.Get();
     }
 }
 
@@ -975,6 +1014,44 @@ vector< string > Vehicle::CopyGeomVec( const vector< string > & geom_vec )
     }
 
     return created_id_vec;
+}
+
+void Vehicle::ResetGroupVars()
+{
+    m_GroupXLoc.Set( 0 );
+    m_GroupYLoc.Set( 0 );
+    m_GroupZLoc.Set( 0 );
+    m_GroupScale.Set( 1 );
+//    oldX,oldY,oldZ = 0;
+}
+
+void Vehicle::GroupTransX( string geom, int index )
+{
+    Geom* gptr = FindGeom( geom );
+    gptr->m_XRelLoc.Set( oldVarVals[index][0] + m_GroupXLoc.Get() );
+}
+
+void Vehicle::GroupTransY( string geom, int index )
+{
+    Geom* gptr = FindGeom( geom );
+    gptr->m_YRelLoc.Set( oldVarVals[index][1] + m_GroupYLoc.Get() );
+}
+
+void Vehicle::GroupTransZ( string geom, int index )
+{
+    Geom* gptr = FindGeom( geom );
+    gptr->m_ZRelLoc.Set( oldVarVals[index][2] + m_GroupZLoc.Get() );
+}
+
+void Vehicle::GroupScale( string geom, int index )
+{
+    Geom* gptr = FindGeom( geom );
+    double scale = m_GroupScale.Get();
+
+    gptr->m_Scale.Set( oldVarVals[index][6] * scale );
+    gptr->m_XRelLoc.Set( oldVarVals[index][0] * scale );
+    gptr->m_YRelLoc.Set( oldVarVals[index][1] * scale );
+    gptr->m_ZRelLoc.Set( oldVarVals[index][2] * scale );
 }
 
 //==== Get Draw Objects ====//
@@ -2340,6 +2417,33 @@ bool Vehicle::GetVisibleBndBox( BndBox &b )
     }
 
     return anyvisible;
+}
+
+// Apply transformations to group
+void Vehicle::UpdateGroup()
+{
+    vector< string > activeGroup = GetActiveGeomVec();
+
+    for( int i = 0; i < activeGroup.size(); i++ )
+    {
+        Geom* thisGeom = FindGeom( activeGroup[ i ] );
+        string parent_id = thisGeom->GetParentID();
+
+        GroupScale( activeGroup[ i ], i );
+
+        // Only apply transform (except scale) if either the geom has no active parent or its coordinate system
+        // is not relative to another geometry's coordinate system
+        if( std::find( activeGroup.begin(), activeGroup.end(), parent_id ) == activeGroup.end() ||
+                ( thisGeom->m_TransAttachFlag.Get() == GeomXForm::ATTACH_TRANS_NONE ||
+                 thisGeom->m_RotAttachFlag.Get() == GeomXForm::ATTACH_ROT_NONE ) )
+        {
+            GroupTransX( activeGroup[ i ], i );
+            GroupTransY( activeGroup[ i ], i );
+            GroupTransZ( activeGroup[ i ], i );
+        }
+    }
+
+    Update();
 }
 
 string Vehicle::getExportFileName( int type )

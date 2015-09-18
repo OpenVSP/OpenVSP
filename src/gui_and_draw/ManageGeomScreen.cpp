@@ -505,6 +505,9 @@ void ManageGeomScreen::SelectAll()
 
     LoadActiveGeomOutput();
 
+    m_VehiclePtr->SetActiveGeomVarVals();
+    m_GeomScreenVec[8]->Show();
+
 //jrg FIX!!!
 //  aircraftPtr->triggerDraw();
 
@@ -624,6 +627,7 @@ void ManageGeomScreen::CreateScreens()
     m_GeomScreenVec[PT_CLOUD_GEOM_SCREEN] = new PtCloudScreen( m_ScreenMgr );
     m_GeomScreenVec[PROP_GEOM_SCREEN] = new PropScreen( m_ScreenMgr );
     m_GeomScreenVec[HINGE_GEOM_SCREEN] = new HingeScreen( m_ScreenMgr );
+    m_GeomScreenVec[MULT_GEOM_SCREEN] = new MultTransScreen( m_ScreenMgr );
 
     for ( int i = 0 ; i < ( int )m_GeomScreenVec.size() ; i++ )
     {
@@ -635,14 +639,25 @@ void ManageGeomScreen::CreateScreens()
 void ManageGeomScreen::ShowHideGeomScreens()
 {
     //==== Hide All Geom Screens =====//
-    for ( int i = 0 ; i < ( int )m_GeomScreenVec.size() ; i++ )
+    for ( int i = 0 ; i < ( int )m_GeomScreenVec.size() - 1 ; i++ )
     {
         m_GeomScreenVec[i]->Hide();
     }
     //==== Show Screen - Each Screen Will Test Check Valid Active Geom Type ====//
-    for ( int i = 0 ; i < ( int )m_GeomScreenVec.size() ; i++ )
+    for ( int i = 0 ; i < ( int )m_GeomScreenVec.size() - 1 ; i++ )
     {
         m_GeomScreenVec[i]->Show();
+    }
+
+    if ( ( int )GetActiveGeoms().size() > 1 && !m_CollapseFlag )
+    {
+        m_VehiclePtr->SetActiveGeomVarVals();
+        m_GeomScreenVec[8]->Show();
+    }
+    else
+    {
+        m_GeomScreenVec[8]->Hide();
+        m_VehiclePtr->ResetGroupVars();
     }
 }
 
@@ -822,6 +837,7 @@ std::string ManageGeomScreen::getFeedbackGroupName()
 
 void ManageGeomScreen::Set( std::string geomId )
 {
+    printf("%s\n", geomId.c_str());
     m_VehiclePtr->SetActiveGeom(geomId);
 
     ShowHideGeomScreens();

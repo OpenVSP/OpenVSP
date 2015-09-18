@@ -58,6 +58,7 @@ MassPropScreen.cpp
 MaterialEditScreen.cpp
 MenuItem.cpp
 MeshScreen.cpp
+MultTransScreen.cpp
 ParmDebugScreen.cpp
 ParmLinkScreen.cpp
 ParmScreen.cpp
@@ -117,6 +118,7 @@ MassPropScreen.h
 MaterialEditScreen.h
 MenuItem.h
 MeshScreen.h
+MultTransScreen.h
 ParmDebugScreen.h
 ParmLinkScreen.h
 ParmScreen.h

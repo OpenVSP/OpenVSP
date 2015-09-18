@@ -102,6 +102,8 @@ public:
     void ClearActiveGeom()                                           { m_ActiveGeom.clear(); }
     vector< string > GetActiveGeomVec()                              { return m_ActiveGeom; }
     vector< Geom* > GetActiveGeomPtrVec()                            { return FindGeomVec( m_ActiveGeom ); }
+    void SetActiveGeomVarVals();
+    void ResetGroupVars();
 
     bool IsGeomActive( const string & geom_id );
     void ReorderActiveGeom( int direction );
@@ -115,6 +117,11 @@ public:
     void RemoveGeomVecFromHierarchy( const vector<string> & cut_vec );
     void DeleteClipBoard();
     void PasteClipboard();
+
+    void GroupTransX( string geom, int oldVarsIndex );
+    void GroupTransY( string geom, int oldVarsIndex );
+    void GroupTransZ( string geom, int oldVarsIndex );
+    void GroupScale( string geom, int oldVarsIndex );
 
     vector< DrawObj* > GetDrawObjs();
 
@@ -148,6 +155,7 @@ public:
     BndBox GetBndBox()                                        { return m_BBox; }
     void UpdateBBox();
     bool GetVisibleBndBox( BndBox &b );
+    void UpdateGroup();
 
     xmlNodePtr EncodeXml( xmlNodePtr & node, int set );
     xmlNodePtr DecodeXml( xmlNodePtr & node );
@@ -271,6 +279,16 @@ public:
     Parm m_BbYMin;
     Parm m_BbZMin;
 
+    Parm m_GroupXLoc;
+    Parm m_GroupYLoc;
+    Parm m_GroupZLoc;
+
+    Parm m_GroupXRot;
+    Parm m_GroupYRot;
+    Parm m_GroupZRot;
+
+    Parm m_GroupScale;
+
     IntParm m_STEPLenUnit;
     Parm m_STEPTol;
     BoolParm m_STEPSplitSurfs;
@@ -293,6 +311,13 @@ public:
     BoolParm m_exportDegenGeomMFile;
 
     Parm m_AxisLength;
+
+    bool m_UpdatingGroup;
+    double oldX;
+    double oldY;
+    double oldZ;
+
+    vector< vector< double > > oldVarVals;      //Keeps old values of a geom group
 
 protected:
 
