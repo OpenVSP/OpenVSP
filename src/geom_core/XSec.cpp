@@ -401,7 +401,7 @@ void XSec::GetTanNormCrv( const vector< double > &thetas,
         ts.push_back( (double)i );
 
     assert( thetas.size() == 5 );
-    assert( phiss.size() == 5 );
+    assert( phis.size() == 5 );
     assert( angstr.size() == 5 );
     assert( crvstr.size() == 5 );
 
