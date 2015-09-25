@@ -624,7 +624,10 @@ void GroupLayout::AddInput( StringInput& text_input, const char* label )
     assert( m_Group && m_Screen );
 
     //==== Button ====//
-    AddParmButton( label );
+    if ( m_ButtonWidth > 0 )
+    {
+        AddParmButton( label );
+    }
 
     //==== Add Text Input ====//
     int iw = FitWidth( m_ButtonWidth, m_InputWidth );
@@ -845,15 +848,20 @@ void GroupLayout::AddChoice( Choice & choice, const char* label, int used_w )
 {
     assert( m_Group && m_Screen );
 
+    VspButton* button = NULL;
+
+    if ( m_ChoiceButtonWidth > 0 )
+    {
     //==== Choice Button ====//
-    VspButton* button = new VspButton( m_X, m_Y, m_ChoiceButtonWidth, m_StdHeight, label );
-    button->box( FL_THIN_UP_BOX );
-    button->labelfont( 1 );
-    button->labelsize( 12 );
-    button->labelcolor( FL_BLACK );
-    button->copy_label( label );
-    m_Group->add( button );
-    AddX( m_ChoiceButtonWidth );
+        button = new VspButton( m_X, m_Y, m_ChoiceButtonWidth, m_StdHeight, label );
+        button->box( FL_THIN_UP_BOX );
+        button->labelfont( 1 );
+        button->labelsize( 12 );
+        button->labelcolor( FL_BLACK );
+        button->copy_label( label );
+        m_Group->add( button );
+        AddX( m_ChoiceButtonWidth );
+    }
 
     //==== Choice Picker ====//
     int choice_w = FitWidth( m_ChoiceButtonWidth + used_w, m_SliderWidth );
