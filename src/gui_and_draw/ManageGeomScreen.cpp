@@ -17,9 +17,8 @@ using namespace vsp;
 
 #include <assert.h>
 
-
 //==== Constructor ====//
-ManageGeomScreen::ManageGeomScreen( ScreenMgr* mgr ) : VspScreen( mgr )
+ManageGeomScreen::ManageGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 235, 605, "Geom Browser" )
 {
     m_VehiclePtr = m_ScreenMgr->GetVehiclePtr();
 
@@ -29,53 +28,89 @@ ManageGeomScreen::ManageGeomScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     m_CollapseFlag = false;
     m_LastSelectedGeomID = "NONE";
 
-    GeomUI* ui = m_GeomUI = new GeomUI();
+    m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
+    m_MainLayout.AddX( 5 );
+    m_MainLayout.AddY( 25 );
+    m_MainLayout.AddSubGroupLayout( m_HeadLayout, m_MainLayout.GetRemainX() - 5, 50 );
+    m_MainLayout.AddY( 70 );
+    m_MainLayout.SetX( 0 );
+    m_MainLayout.AddSubGroupLayout( m_BodyLayout, m_MainLayout.GetRemainX() - 5, m_MainLayout.GetRemainY() );
 
-    m_FLTK_Window = ui->UIWindow;
+    m_HeadLayout.SetSameLineFlag( true );
+    m_HeadLayout.SetChoiceButtonWidth( 0 );
+    m_HeadLayout.AddChoice( m_GeomTypeChoice, "", m_HeadLayout.GetButtonWidth() );
+    m_HeadLayout.SetFitWidthFlag( false );
+    m_HeadLayout.AddButton( m_AddGeomButton, "Add" );
+    m_HeadLayout.SetSameLineFlag( false );
+    m_HeadLayout.ForceNewLine();
+    m_HeadLayout.SetFitWidthFlag( true );
 
-    ui->geomTypeChoice->callback( staticScreenCB, this );
-    ui->addGeomButton->callback( staticScreenCB, this );
-    ui->geomBrowser->callback( staticScreenCB, this );
-    ui->cutGeomButton->callback( staticScreenCB, this );
-    ui->copyGeomButton->callback( staticScreenCB, this );
-    ui->pasteGeomButton->callback( staticScreenCB, this );
-    ui->deleteGeomButton->callback( staticScreenCB, this );
-    ui->noshowGeomButton->callback( staticScreenCB, this );
-    ui->showGeomButton->callback( staticScreenCB, this );
-    ui->selectAllGeomButton->callback( staticScreenCB, this );
-    ui->activeGeomInput->callback( staticScreenCB, this );
-    ui->setChoice->callback( staticScreenCB, this );
-    ui->showOnlySetButton->callback( staticScreenCB, this );
-    ui->showSetButton->callback( staticScreenCB, this );
-    ui->noshowSetButton->callback( staticScreenCB, this );
-    ui->selectSetButton->callback( staticScreenCB, this );
+    m_HeadLayout.SetButtonWidth( 0 );
+    m_HeadLayout.AddYGap();
+    m_HeadLayout.AddDividerBox( "Active:" );
+    m_HeadLayout.AddInput( m_ActiveGeomInput, "" );
 
-    ui->wireGeomButton->callback( staticScreenCB, this );
-    ui->shadeGeomButton->callback( staticScreenCB, this );
-    ui->hiddenGeomButton->callback( staticScreenCB, this );
-    ui->textureGeomButton->callback( staticScreenCB, this );
-    ui->noneGeomButton->callback( staticScreenCB, this );
-    ui->showFeatureToggle->callback( staticScreenCB, this );
-    ui->showSubToggle->callback( staticScreenCB, this );
+    m_BodyLayout.SetSameLineFlag( true );
+    m_BodyLayout.SetFitWidthFlag( false );
+    m_BodyLayout.AddSubGroupLayout( m_LeftLayout, 15, m_BodyLayout.GetRemainY() );
+    m_BodyLayout.AddX( 15 );
+    m_BodyLayout.AddSubGroupLayout( m_MidLayout, 140, m_BodyLayout.GetRemainY() );
+    m_BodyLayout.AddX( 145 );
+    m_BodyLayout.AddSubGroupLayout( m_RightLayout, m_BodyLayout.GetRemainX(), m_BodyLayout.GetRemainY());
 
-    ui->moveUpButton->callback( staticScreenCB, this );
-    ui->moveDownButton->callback( staticScreenCB, this );
-    ui->moveTopButton->callback( staticScreenCB, this );
-    ui->moveBotButton->callback( staticScreenCB, this );
+    m_LeftLayout.SetStdHeight( 50 );
+    m_LeftLayout.AddButton( m_MoveTopButton, "@2<<" );
+    m_LeftLayout.AddYGap();
+    m_LeftLayout.AddButton( m_MoveUpButton, "@2<" );
+    m_LeftLayout.AddY( m_LeftLayout.GetRemainY() - 100 - 6 - 5 );
+    m_LeftLayout.AddButton( m_MoveDownButton, "@2>" );
+    m_LeftLayout.AddYGap();
+    m_LeftLayout.AddButton( m_MoveBotButton, "@2>>" );
 
-    ui->pickGeomButton->callback( staticScreenCB, this );
+    m_GeomBrowser = m_MidLayout.AddFlBrowser( m_MidLayout.GetH() - 5 );
+    m_GeomBrowser->callback( staticScreenCB, this );
 
-    ui->cutGeomButton->shortcut( FL_CTRL + 'x' );
-    ui->copyGeomButton->shortcut( FL_CTRL + 'c' );
-    ui->pasteGeomButton->shortcut( FL_CTRL + 'v' );
-    
-    CreateScreens();
+    m_RightLayout.AddButton( m_DeleteButton, "Delete" );
+
+    m_RightLayout.AddYGap();
+    m_RightLayout.AddDividerBox( "Clipboard" );
+    m_RightLayout.AddButton( m_CopyButton, "Copy" );
+    m_RightLayout.AddButton( m_PasteButton, "Paste" );
+    m_RightLayout.AddButton( m_CutButton, "Cut" );
+
+    m_RightLayout.AddYGap();
+    m_RightLayout.AddDividerBox( "Selection" );
+    m_RightLayout.AddButton( m_SelectAllButton, "Sel All" );
+    m_RightLayout.AddButton( m_PickButton, "Pick" );
+    m_RightLayout.AddButton( m_ShowButton, "Show" );
+    m_RightLayout.AddButton( m_NoShowButton, "NoShow" );
+
+    m_RightLayout.AddYGap();
+    m_RightLayout.AddDividerBox( "Surface" );
+    m_RightLayout.AddButton( m_WireGeomButton, "Wire" );
+    m_RightLayout.AddButton( m_HiddenGeomButton, "Hidden" );
+    m_RightLayout.AddButton( m_ShadeGeomButton, "Shade" );
+    m_RightLayout.AddButton( m_TextureGeomButton, "Texture" );
+    m_RightLayout.AddButton( m_NoneGeomButton, "None" );
+
+    m_RightLayout.AddYGap();
+    m_RightLayout.AddDividerBox( "Lines" );
+    m_RightLayout.AddButton( m_ShowSubToggle, "Sub" );
+    m_RightLayout.AddButton( m_ShowFeatureToggle, "Feature" );
+
+    m_RightLayout.AddYGap();
+    m_RightLayout.AddDividerBox( "Sets" );
+    m_RightLayout.SetChoiceButtonWidth( 0 );
+    m_RightLayout.AddChoice( m_SetChoice, "" );
+    m_RightLayout.AddButton( m_ShowOnlySetButton, "Show Only" );
+    m_RightLayout.AddButton( m_ShowSetButton, "Show" );
+    m_RightLayout.AddButton( m_NoShowSetButton, "NoShow" );
+    m_RightLayout.AddButton( m_SelectSetButton, "Select" );
 }
 
 //==== Destructor ====//
 ManageGeomScreen::~ManageGeomScreen()
 {
-    delete m_GeomUI;
     for ( int i = 0 ; i < ( int )m_GeomScreenVec.size() ; i++ )
     {
         delete m_GeomScreenVec[i];
@@ -128,69 +163,69 @@ void ManageGeomScreen::Hide()
 //==== Load Geom Browser ====//
 void ManageGeomScreen::LoadBrowser()
 {
-
-    //==== Save List of Selected Geoms ====//
-    vector< string > activeVec = m_VehiclePtr->GetActiveGeomVec();
-
-    m_LastTopLine = m_GeomUI->geomBrowser->topline();
-
-    //==== Display Vehicle Name ====//
-    m_GeomUI->geomBrowser->clear();
-    m_GeomUI->geomBrowser->add( m_VehiclePtr->GetName().c_str() );
-
-    //==== Get Geoms To Display ====//
-    m_DisplayedGeomVec = m_VehiclePtr->GetGeomVec( true );
-
-    //==== Step Thru Comps ====//
-    for ( int i = 0 ; i < ( int )m_DisplayedGeomVec.size() ; i++ )
-    {
-        Geom* gPtr = m_VehiclePtr->FindGeom( m_DisplayedGeomVec[i] );
-        if ( gPtr )
-        {
-            string str;
-            //==== Check if Parent is Selected ====//
-            if ( IsParentSelected( m_DisplayedGeomVec[i], activeVec ) )
-            {
-                str.append( "@b@." );
-            }
-
-            int numindents = gPtr->CountParents( 0 );
-            for ( int j = 0 ; j < numindents ; j++ )
-            {
-                str.append( "--" );
-            }
-
-            if ( gPtr->m_TransAttachFlag() == GeomXForm::ATTACH_TRANS_NONE &&
-                    gPtr->m_RotAttachFlag() == GeomXForm::ATTACH_ROT_NONE )
-            {
-                str.append( "> " );
-            }
-            else
-            {
-                str.append( "^ " );
-            }
-
-            if ( !gPtr->m_GuiDraw.GetDisplayChildrenFlag() )
-            {
-                str.append( "(+) " );
-            }
-
-            str.append( gPtr->GetName() );
-
-            if ( gPtr->m_GuiDraw.GetNoShowFlag() )
-            {
-                str.append( "(no show)" );
-            }
-
-            m_GeomUI->geomBrowser->add( str.c_str() );
-        }
-    }
-
-    //==== Restore List of Selected Geoms ====//
-    for ( int i = 0 ; i < ( int )activeVec.size() ; i++ )
-    {
-        SelectGeomBrowser( activeVec[i] );
-    }
+//
+//    //==== Save List of Selected Geoms ====//
+//    vector< string > activeVec = m_VehiclePtr->GetActiveGeomVec();
+//
+//    m_LastTopLine = m_GeomUI->geomBrowser->topline();
+//
+//    //==== Display Vehicle Name ====//
+//    m_GeomUI->geomBrowser->clear();
+//    m_GeomUI->geomBrowser->add( m_VehiclePtr->GetName().c_str() );
+//
+//    //==== Get Geoms To Display ====//
+//    m_DisplayedGeomVec = m_VehiclePtr->GetGeomVec( true );
+//
+//    //==== Step Thru Comps ====//
+//    for ( int i = 0 ; i < ( int )m_DisplayedGeomVec.size() ; i++ )
+//    {
+//        Geom* gPtr = m_VehiclePtr->FindGeom( m_DisplayedGeomVec[i] );
+//        if ( gPtr )
+//        {
+//            string str;
+//            //==== Check if Parent is Selected ====//
+//            if ( IsParentSelected( m_DisplayedGeomVec[i], activeVec ) )
+//            {
+//                str.append( "@b@." );
+//            }
+//
+//            int numindents = gPtr->CountParents( 0 );
+//            for ( int j = 0 ; j < numindents ; j++ )
+//            {
+//                str.append( "--" );
+//            }
+//
+//            if ( gPtr->m_TransAttachFlag() == GeomXForm::ATTACH_TRANS_NONE &&
+//                    gPtr->m_RotAttachFlag() == GeomXForm::ATTACH_ROT_NONE )
+//            {
+//                str.append( "> " );
+//            }
+//            else
+//            {
+//                str.append( "^ " );
+//            }
+//
+//            if ( !gPtr->m_GuiDraw.GetDisplayChildrenFlag() )
+//            {
+//                str.append( "(+) " );
+//            }
+//
+//            str.append( gPtr->GetName() );
+//
+//            if ( gPtr->m_GuiDraw.GetNoShowFlag() )
+//            {
+//                str.append( "(no show)" );
+//            }
+//
+//            m_GeomUI->geomBrowser->add( str.c_str() );
+//        }
+//    }
+//
+//    //==== Restore List of Selected Geoms ====//
+//    for ( int i = 0 ; i < ( int )activeVec.size() ; i++ )
+//    {
+//        SelectGeomBrowser( activeVec[i] );
+//    }
 }
 
 void ManageGeomScreen::SelectGeomBrowser( string geom_id )
@@ -200,7 +235,7 @@ void ManageGeomScreen::SelectGeomBrowser( string geom_id )
     {
         if ( m_DisplayedGeomVec[i] == geom_id )
         {
-            m_GeomUI->geomBrowser->select( i + 2 );
+            m_GeomBrowser->select( i + 2 );
         }
     }
 
@@ -209,14 +244,14 @@ void ManageGeomScreen::SelectGeomBrowser( string geom_id )
     {
         if ( m_DisplayedGeomVec[i] == geom_id )
         {
-            m_GeomUI->geomBrowser->topline( i + 2 );
+            m_GeomBrowser->topline( i + 2 );
             break;
         }
     }
 
     if ( !m_CollapseFlag && m_LastTopLine < ( ( int )m_DisplayedGeomVec.size() - 2 ) )
     {
-        m_GeomUI->geomBrowser->topline( m_LastTopLine );
+        m_GeomBrowser->topline( m_LastTopLine );
     }
 
 }
@@ -249,9 +284,9 @@ vector< string > ManageGeomScreen::GetSelectedBrowserItems()
     }
 
     //==== Account For Browser Lines Starting at 1 and Aircraft Name ====//
-    for ( int i = 2 ; i <= m_GeomUI->geomBrowser->size() ; i++ )
+    for ( int i = 2 ; i <= m_GeomBrowser->size() ; i++ )
     {
-        if ( m_GeomUI->geomBrowser->selected( i ) && ( int )m_DisplayedGeomVec.size() > ( i - 2 ) )
+        if ( m_GeomBrowser->selected( i ) && ( int )m_DisplayedGeomVec.size() > ( i - 2 ) )
         {
             selVec.push_back( m_DisplayedGeomVec[i - 2] );
         }
@@ -262,39 +297,39 @@ vector< string > ManageGeomScreen::GetSelectedBrowserItems()
 //==== Load Active Geom Output ====//
 void ManageGeomScreen::LoadActiveGeomOutput()
 {
-    vector< string > activeVec = m_VehiclePtr->GetActiveGeomVec();
-    if ( activeVec.size() == 0 )
-    {
-        m_GeomUI->activeGeomInput->value( m_VehiclePtr->GetName().c_str() );
-    }
-    else if ( activeVec.size() == 1 )
-    {
-        Geom* gptr = m_VehiclePtr->FindGeom( activeVec[0] );
-        if ( gptr )
-        {
-            m_GeomUI->activeGeomInput->value( gptr->GetName().c_str() );
-        }
-    }
-    else
-    {
-        m_GeomUI->activeGeomInput->value( "<multiple>" );
-    }
+//    vector< string > activeVec = m_VehiclePtr->GetActiveGeomVec();
+//    if ( activeVec.size() == 0 )
+//    {
+//        m_GeomUI->activeGeomInput->value( m_VehiclePtr->GetName().c_str() );
+//    }
+//    else if ( activeVec.size() == 1 )
+//    {
+//        Geom* gptr = m_VehiclePtr->FindGeom( activeVec[0] );
+//        if ( gptr )
+//        {
+//            m_GeomUI->activeGeomInput->value( gptr->GetName().c_str() );
+//        }
+//    }
+//    else
+//    {
+//        m_GeomUI->activeGeomInput->value( "<multiple>" );
+//    }
 }
 
 //==== Load Type Choice ====//
 void ManageGeomScreen::LoadSetChoice()
 {
-    m_GeomUI->setChoice->clear();
-
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-    vector< string > set_name_vec = veh->GetSetNameVec();
-
-    for ( int i = SET_FIRST_USER ; i < ( int )set_name_vec.size() ; i++ )
-    {
-        m_GeomUI->setChoice->add( set_name_vec[i].c_str() );
-    }
-
-    m_GeomUI->setChoice->value( m_SetIndex );
+//    m_GeomUI->setChoice->clear();
+//
+//    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
+//    vector< string > set_name_vec = veh->GetSetNameVec();
+//
+//    for ( int i = SET_FIRST_USER ; i < ( int )set_name_vec.size() ; i++ )
+//    {
+//        m_GeomUI->setChoice->add( set_name_vec[i].c_str() );
+//    }
+//
+//    m_GeomUI->setChoice->value( m_SetIndex );
 
 }
 
@@ -302,34 +337,34 @@ void ManageGeomScreen::LoadSetChoice()
 //==== Load Type Choice ====//
 void ManageGeomScreen::LoadTypeChoice()
 {
-    m_GeomUI->geomTypeChoice->clear();
-
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-
-    int num_type  = veh->GetNumGeomTypes();
-    int num_fixed = veh->GetNumFixedGeomTypes();
-    int cnt = 1;
-
-    for ( int i = 0 ; i < num_type ; i++ )
-    {
-        GeomType type = veh->GetGeomType( i );
-
-        string item = type.m_Name.c_str();
-        if ( i == ( num_fixed - 1 ) )
-        {
-            item = "_" + item;
-        }
-
-        if ( !type.m_FixedFlag )
-        {
-            item = StringUtil::int_to_string( cnt, "%d.  " ) + item;
-            cnt++;
-        }
-        m_GeomUI->geomTypeChoice->add( item.c_str() );
-
-    }
-
-    m_GeomUI->geomTypeChoice->value( m_TypeIndex );
+//    m_GeomUI->geomTypeChoice->clear();
+//
+//    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
+//
+//    int num_type  = veh->GetNumGeomTypes();
+//    int num_fixed = veh->GetNumFixedGeomTypes();
+//    int cnt = 1;
+//
+//    for ( int i = 0 ; i < num_type ; i++ )
+//    {
+//        GeomType type = veh->GetGeomType( i );
+//
+//        string item = type.m_Name.c_str();
+//        if ( i == ( num_fixed - 1 ) )
+//        {
+//            item = "_" + item;
+//        }
+//
+//        if ( !type.m_FixedFlag )
+//        {
+//            item = StringUtil::int_to_string( cnt, "%d.  " ) + item;
+//            cnt++;
+//        }
+//        m_GeomUI->geomTypeChoice->add( item.c_str() );
+//
+//    }
+//
+//    m_GeomUI->geomTypeChoice->value( m_TypeIndex );
 }
 
 //==== Add Geom - Type From Type Choice ====//
@@ -351,56 +386,56 @@ void ManageGeomScreen::AddGeom()
 //==== Item in Geom Browser Was Selected ====//
 void ManageGeomScreen::GeomBrowserCallback()
 {
-    //==== Find Vector of All Selections ====//
-    vector< string > selVec = GetSelectedBrowserItems();
-
-    //==== Find Last Selected Geom ====//
-    int last = m_GeomUI->geomBrowser->value();
-    if ( ( last >= 2 ) && Fl::event_state( FL_ALT ) )   // Select Children
-    {
-        Geom* lastSelGeom = m_VehiclePtr->FindGeom( m_DisplayedGeomVec[last - 2] );
-        if ( lastSelGeom )
-        {
-            vector<string> cVec;
-            lastSelGeom->LoadIDAndChildren( cVec );
-            for ( int i = 1 ; i < ( int )cVec.size(); i++ )
-            {
-                SelectGeomBrowser( cVec[i] );
-                selVec.push_back( cVec[i] );
-            }
-        }
-    }
-
-    //==== Check if Geom Already Selected ====//
-    m_CollapseFlag = false;
-    if ( m_LastSelectedGeomID != "NONE" && selVec.size() == 1 )
-    {
-        string lastSel = selVec[0];
-        if ( lastSel == m_LastSelectedGeomID  )
-        {
-            m_CollapseFlag = true;
-            Geom* lastSelGeom = m_VehiclePtr->FindGeom( m_LastSelectedGeomID );
-            if ( lastSelGeom )
-            {
-                lastSelGeom->m_GuiDraw.ToggleDisplayChildrenFlag();
-                if ( lastSelGeom->GetChildIDVec().size() == 0 )     // No Children Dont Collapse
-                {
-                    lastSelGeom->m_GuiDraw.SetDisplayChildrenFlag( true );
-                }
-            }
-        }
-    }
-    m_LastSelectedGeomID = "NONE";
-    if ( selVec.size() == 1 )
-    {
-        m_LastSelectedGeomID = selVec[0];
-    }
-
-    m_VehiclePtr->SetActiveGeomVec( selVec );
-    LoadActiveGeomOutput();
-
-//  m_ScreenMgr->UpdateAllScreens();
-    ShowHideGeomScreens();
+//    //==== Find Vector of All Selections ====//
+//    vector< string > selVec = GetSelectedBrowserItems();
+//
+//    //==== Find Last Selected Geom ====//
+//    int last = m_GeomUI->geomBrowser->value();
+//    if ( ( last >= 2 ) && Fl::event_state( FL_ALT ) )   // Select Children
+//    {
+//        Geom* lastSelGeom = m_VehiclePtr->FindGeom( m_DisplayedGeomVec[last - 2] );
+//        if ( lastSelGeom )
+//        {
+//            vector<string> cVec;
+//            lastSelGeom->LoadIDAndChildren( cVec );
+//            for ( int i = 1 ; i < ( int )cVec.size(); i++ )
+//            {
+//                SelectGeomBrowser( cVec[i] );
+//                selVec.push_back( cVec[i] );
+//            }
+//        }
+//    }
+//
+//    //==== Check if Geom Already Selected ====//
+//    m_CollapseFlag = false;
+//    if ( m_LastSelectedGeomID != "NONE" && selVec.size() == 1 )
+//    {
+//        string lastSel = selVec[0];
+//        if ( lastSel == m_LastSelectedGeomID  )
+//        {
+//            m_CollapseFlag = true;
+//            Geom* lastSelGeom = m_VehiclePtr->FindGeom( m_LastSelectedGeomID );
+//            if ( lastSelGeom )
+//            {
+//                lastSelGeom->m_GuiDraw.ToggleDisplayChildrenFlag();
+//                if ( lastSelGeom->GetChildIDVec().size() == 0 )     // No Children Dont Collapse
+//                {
+//                    lastSelGeom->m_GuiDraw.SetDisplayChildrenFlag( true );
+//                }
+//            }
+//        }
+//    }
+//    m_LastSelectedGeomID = "NONE";
+//    if ( selVec.size() == 1 )
+//    {
+//        m_LastSelectedGeomID = selVec[0];
+//    }
+//
+//    m_VehiclePtr->SetActiveGeomVec( selVec );
+//    LoadActiveGeomOutput();
+//
+////  m_ScreenMgr->UpdateAllScreens();
+//    ShowHideGeomScreens();
 
 //jrg FIX!!!
 //  aircraftPtr->triggerDraw();
@@ -625,125 +660,125 @@ void ManageGeomScreen::SetFeatureDrawFlag( bool f )
 //==== Callbacks ====//
 void ManageGeomScreen::CallBack( Fl_Widget *w )
 {
-    if ( w == m_GeomUI->geomTypeChoice )
-    {
-        m_TypeIndex = m_GeomUI->geomTypeChoice->value();
-    }
-    else if ( w == m_GeomUI->addGeomButton )
-    {
-        AddGeom();
-    }
-    else if ( w == m_GeomUI->geomBrowser )
-    {
-        GeomBrowserCallback();
-    }
-    else if ( w == m_GeomUI->noshowGeomButton )
-    {
-        NoShowActiveGeoms( true );
-    }
-    else if ( w == m_GeomUI->showGeomButton )
-    {
-        NoShowActiveGeoms( false );
-    }
-    else if ( w == m_GeomUI->selectAllGeomButton )
-    {
-        SelectAll();
-    }
-    else if ( w == m_GeomUI->activeGeomInput )      // Geom or Aircraft Name
-    {
-        EditName( m_GeomUI->activeGeomInput->value() );
-    }
-    else if ( w == m_GeomUI->cutGeomButton )
-    {
-        m_VehiclePtr->CutActiveGeomVec();
-    }
-    else if ( w == m_GeomUI->deleteGeomButton )
-    {
-        m_VehiclePtr->DeleteActiveGeomVec();
-    }
-    else if ( w == m_GeomUI->copyGeomButton )
-    {
-        m_VehiclePtr->CopyActiveGeomVec();
-    }
-    else if ( w == m_GeomUI->pasteGeomButton )
-    {
-        m_VehiclePtr->PasteClipboard();
-    }
-    else if ( w == m_GeomUI->wireGeomButton )
-    {
-        SetGeomDisplayType( GeomGuiDraw::GEOM_DRAW_WIRE );
-    }
-    else if ( w == m_GeomUI->hiddenGeomButton )
-    {
-        SetGeomDisplayType( GeomGuiDraw::GEOM_DRAW_HIDDEN );
-    }
-    else if ( w == m_GeomUI->shadeGeomButton )
-    {
-        SetGeomDisplayType( GeomGuiDraw::GEOM_DRAW_SHADE );
-    }
-    else if ( w == m_GeomUI->textureGeomButton )
-    {
-        SetGeomDisplayType( GeomGuiDraw::GEOM_DRAW_TEXTURE );
-    }
-    else if ( w == m_GeomUI->noneGeomButton )
-    {
-        SetGeomDisplayType( GeomGuiDraw::GEOM_DRAW_NONE );
-    }
-    else if ( w == m_GeomUI->moveUpButton )
-    {
-        m_VehiclePtr->ReorderActiveGeom( Vehicle::REORDER_MOVE_UP );
-    }
-    else if ( w == m_GeomUI->moveDownButton )
-    {
-        m_VehiclePtr->ReorderActiveGeom( Vehicle::REORDER_MOVE_DOWN );
-    }
-    else if ( w == m_GeomUI->moveTopButton )
-    {
-        m_VehiclePtr->ReorderActiveGeom( Vehicle::REORDER_MOVE_TOP );
-    }
-    else if ( w == m_GeomUI->moveBotButton )
-    {
-        m_VehiclePtr->ReorderActiveGeom( Vehicle::REORDER_MOVE_BOTTOM );
-    }
-    else if ( w == m_GeomUI->setChoice )
-    {
-        m_SetIndex = m_GeomUI->setChoice->value();
-    }
-    else if ( w == m_GeomUI->showOnlySetButton  )
-    {
-        m_VehiclePtr->ShowOnlySet( m_SetIndex + SET_FIRST_USER );
-    }
-    else if ( w == m_GeomUI->showSetButton )
-    {
-        m_VehiclePtr->ShowSet( m_SetIndex + SET_FIRST_USER );
-    }
-    else if ( w == m_GeomUI->noshowSetButton )
-    {
-        m_VehiclePtr->NoShowSet( m_SetIndex + SET_FIRST_USER );
-    }
-    else if ( w == m_GeomUI->selectSetButton )
-    {
-        SelectSet( m_SetIndex + SET_FIRST_USER );
-    }
-    else if ( w == m_GeomUI->showSubToggle )
-    {
-        if ( m_GeomUI->showSubToggle->value() )
-            SetSubDrawFlag( true );
-        else
-            SetSubDrawFlag( false );
-    }
-    else if ( w == m_GeomUI->showFeatureToggle )
-    {
-        if ( m_GeomUI->showFeatureToggle->value() )
-            SetFeatureDrawFlag( true );
-        else
-            SetFeatureDrawFlag( false );
-    }
-    else if ( w == m_GeomUI->pickGeomButton )
-    {
-    }
-
-    m_ScreenMgr->SetUpdateFlag( true );
+//    if ( w == m_GeomUI->geomTypeChoice )
+//    {
+//        m_TypeIndex = m_GeomUI->geomTypeChoice->value();
+//    }
+//    else if ( w == m_GeomUI->addGeomButton )
+//    {
+//        AddGeom();
+//    }
+//    else if ( w == m_GeomUI->geomBrowser )
+//    {
+//        GeomBrowserCallback();
+//    }
+//    else if ( w == m_GeomUI->noshowGeomButton )
+//    {
+//        NoShowActiveGeoms( true );
+//    }
+//    else if ( w == m_GeomUI->showGeomButton )
+//    {
+//        NoShowActiveGeoms( false );
+//    }
+//    else if ( w == m_GeomUI->selectAllGeomButton )
+//    {
+//        SelectAll();
+//    }
+//    else if ( w == m_GeomUI->activeGeomInput )      // Geom or Aircraft Name
+//    {
+//        EditName( m_GeomUI->activeGeomInput->value() );
+//    }
+//    else if ( w == m_GeomUI->cutGeomButton )
+//    {
+//        m_VehiclePtr->CutActiveGeomVec();
+//    }
+//    else if ( w == m_GeomUI->deleteGeomButton )
+//    {
+//        m_VehiclePtr->DeleteActiveGeomVec();
+//    }
+//    else if ( w == m_GeomUI->copyGeomButton )
+//    {
+//        m_VehiclePtr->CopyActiveGeomVec();
+//    }
+//    else if ( w == m_GeomUI->pasteGeomButton )
+//    {
+//        m_VehiclePtr->PasteClipboard();
+//    }
+//    else if ( w == m_GeomUI->wireGeomButton )
+//    {
+//        SetGeomDisplayType( GeomGuiDraw::GEOM_DRAW_WIRE );
+//    }
+//    else if ( w == m_GeomUI->hiddenGeomButton )
+//    {
+//        SetGeomDisplayType( GeomGuiDraw::GEOM_DRAW_HIDDEN );
+//    }
+//    else if ( w == m_GeomUI->shadeGeomButton )
+//    {
+//        SetGeomDisplayType( GeomGuiDraw::GEOM_DRAW_SHADE );
+//    }
+//    else if ( w == m_GeomUI->textureGeomButton )
+//    {
+//        SetGeomDisplayType( GeomGuiDraw::GEOM_DRAW_TEXTURE );
+//    }
+//    else if ( w == m_GeomUI->noneGeomButton )
+//    {
+//        SetGeomDisplayType( GeomGuiDraw::GEOM_DRAW_NONE );
+//    }
+//    else if ( w == m_GeomUI->moveUpButton )
+//    {
+//        m_VehiclePtr->ReorderActiveGeom( Vehicle::REORDER_MOVE_UP );
+//    }
+//    else if ( w == m_GeomUI->moveDownButton )
+//    {
+//        m_VehiclePtr->ReorderActiveGeom( Vehicle::REORDER_MOVE_DOWN );
+//    }
+//    else if ( w == m_GeomUI->moveTopButton )
+//    {
+//        m_VehiclePtr->ReorderActiveGeom( Vehicle::REORDER_MOVE_TOP );
+//    }
+//    else if ( w == m_GeomUI->moveBotButton )
+//    {
+//        m_VehiclePtr->ReorderActiveGeom( Vehicle::REORDER_MOVE_BOTTOM );
+//    }
+//    else if ( w == m_GeomUI->setChoice )
+//    {
+//        m_SetIndex = m_GeomUI->setChoice->value();
+//    }
+//    else if ( w == m_GeomUI->showOnlySetButton  )
+//    {
+//        m_VehiclePtr->ShowOnlySet( m_SetIndex + SET_FIRST_USER );
+//    }
+//    else if ( w == m_GeomUI->showSetButton )
+//    {
+//        m_VehiclePtr->ShowSet( m_SetIndex + SET_FIRST_USER );
+//    }
+//    else if ( w == m_GeomUI->noshowSetButton )
+//    {
+//        m_VehiclePtr->NoShowSet( m_SetIndex + SET_FIRST_USER );
+//    }
+//    else if ( w == m_GeomUI->selectSetButton )
+//    {
+//        SelectSet( m_SetIndex + SET_FIRST_USER );
+//    }
+//    else if ( w == m_GeomUI->showSubToggle )
+//    {
+//        if ( m_GeomUI->showSubToggle->value() )
+//            SetSubDrawFlag( true );
+//        else
+//            SetSubDrawFlag( false );
+//    }
+//    else if ( w == m_GeomUI->showFeatureToggle )
+//    {
+//        if ( m_GeomUI->showFeatureToggle->value() )
+//            SetFeatureDrawFlag( true );
+//        else
+//            SetFeatureDrawFlag( false );
+//    }
+//    else if ( w == m_GeomUI->pickGeomButton )
+//    {
+//    }
+//
+//    m_ScreenMgr->SetUpdateFlag( true );
 
 }
 
@@ -762,7 +797,7 @@ void ManageGeomScreen::Set( std::string geomId )
 
 void ManageGeomScreen::TriggerPickSwitch()
 {
-    m_GeomUI->pickGeomButton->value(!m_GeomUI->pickGeomButton->value());
+//    m_PickButton.value( !m_PickButton.value() );
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
@@ -780,7 +815,8 @@ void ManageGeomScreen::UpdateDrawObjs()
 {
     m_PickList.clear();
 
-    if( m_GeomUI->pickGeomButton->value() == 1 )
+//    if( m_PickButton.value() == 1 )
+    if( false )
     {
         vector< Geom* > geom_vec = m_VehiclePtr->FindGeomVec( m_VehiclePtr->GetGeomVec( false ) );
         for( int i = 0; i < ( int )geom_vec.size(); i++ )
@@ -811,35 +847,35 @@ void ManageGeomScreen::UpdateDrawObjs()
 
 void ManageGeomScreen::UpdateDrawType()
 {
-    vector<string> geom_id_vec = GetActiveGeoms();
-    vector< Geom* > geom_vec = m_VehiclePtr->FindGeomVec( geom_id_vec );
-    int num_geoms = (int)geom_vec.size();
-
-    // Handle case where there are not any geoms selected.
-    if ( num_geoms == 0 ) m_GeomUI->showSubToggle->value(0);
-
-    int num_sub_on = 0;
-    int num_feature_on = 0;
-
-    for ( int i = 0; i < (int)geom_vec.size(); i++ )
-    {
-        if ( geom_vec[i] && geom_vec[i]->m_GuiDraw.GetDispSubSurfFlag() )
-            num_sub_on++;
-
-        if ( geom_vec[i] && geom_vec[i]->m_GuiDraw.GetDispFeatureFlag() )
-            num_feature_on++;
-
-    }
-
-    double flag_average = num_sub_on/(double)num_geoms;
-    if ( flag_average > 0.5 )
-        m_GeomUI->showSubToggle->value(1);
-    else
-        m_GeomUI->showSubToggle->value(0);
-
-    flag_average = num_feature_on/(double)num_geoms;
-    if ( flag_average > 0.5 )
-        m_GeomUI->showFeatureToggle->value(1);
-    else
-        m_GeomUI->showFeatureToggle->value(0);
+//    vector<string> geom_id_vec = GetActiveGeoms();
+//    vector< Geom* > geom_vec = m_VehiclePtr->FindGeomVec( geom_id_vec );
+//    int num_geoms = (int)geom_vec.size();
+//
+//    // Handle case where there are not any geoms selected.
+//    if ( num_geoms == 0 ) m_GeomUI->showSubToggle->value(0);
+//
+//    int num_sub_on = 0;
+//    int num_feature_on = 0;
+//
+//    for ( int i = 0; i < (int)geom_vec.size(); i++ )
+//    {
+//        if ( geom_vec[i] && geom_vec[i]->m_GuiDraw.GetDispSubSurfFlag() )
+//            num_sub_on++;
+//
+//        if ( geom_vec[i] && geom_vec[i]->m_GuiDraw.GetDispFeatureFlag() )
+//            num_feature_on++;
+//
+//    }
+//
+//    double flag_average = num_sub_on/(double)num_geoms;
+//    if ( flag_average > 0.5 )
+//        m_GeomUI->showSubToggle->value(1);
+//    else
+//        m_GeomUI->showSubToggle->value(0);
+//
+//    flag_average = num_feature_on/(double)num_geoms;
+//    if ( flag_average > 0.5 )
+//        m_GeomUI->showFeatureToggle->value(1);
+//    else
+//        m_GeomUI->showFeatureToggle->value(0);
 }

@@ -15,7 +15,6 @@
 #include "GuiDevice.h"
 
 #include <FL/Fl.H>
-#include "geomBrowserScreen.h"
 #include "PodScreen.h"
 #include "FuselageScreen.h"
 #include "WingScreen.h"
@@ -29,7 +28,7 @@
 using std::string;
 using std::vector;
 
-class ManageGeomScreen : public VspScreen
+class ManageGeomScreen : public BasicScreen
 {
 public:
     ManageGeomScreen( ScreenMgr* mgr );
@@ -74,7 +73,53 @@ public:
 
 protected:
 
-    GeomUI* m_GeomUI;
+    GroupLayout m_MainLayout;
+
+    GroupLayout m_HeadLayout;
+
+    Choice m_GeomTypeChoice;
+    TriggerButton m_AddGeomButton;
+    StringInput m_ActiveGeomInput;
+
+    GroupLayout m_BodyLayout;
+
+    GroupLayout m_LeftLayout;
+    GroupLayout m_MidLayout;
+    GroupLayout m_RightLayout;
+
+    TriggerButton m_MoveTopButton;
+    TriggerButton m_MoveUpButton;
+    TriggerButton m_MoveDownButton;
+    TriggerButton m_MoveBotButton;
+
+    Fl_Browser * m_GeomBrowser;
+
+    TriggerButton m_DeleteButton;
+    TriggerButton m_CopyButton;
+    TriggerButton m_PasteButton;
+    TriggerButton m_CutButton;
+
+    TriggerButton m_SelectAllButton;
+    ToggleButton m_PickButton;
+    TriggerButton m_ShowButton;
+    TriggerButton m_NoShowButton;
+
+    TriggerButton m_WireGeomButton;
+    TriggerButton m_HiddenGeomButton;
+    TriggerButton m_ShadeGeomButton;
+    TriggerButton m_TextureGeomButton;
+    TriggerButton m_NoneGeomButton;
+
+    ToggleButton m_ShowSubToggle;
+    ToggleButton m_ShowFeatureToggle;
+
+    Choice m_SetChoice;
+    TriggerButton m_ShowOnlySetButton;
+    TriggerButton m_ShowSetButton;
+    TriggerButton m_NoShowSetButton;
+    TriggerButton m_SelectSetButton;
+
+
     int m_LastTopLine;
     int m_SetIndex;
     int m_TypeIndex;
