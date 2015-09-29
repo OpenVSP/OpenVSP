@@ -209,7 +209,7 @@ public:
     friend double radius_of_circle( vec3d& p1, vec3d& p2, vec3d& p3 );
     friend void center_of_circle( vec3d& p1, vec3d& p2, vec3d& p3, vec3d& center );
     friend double dist_pnt_2_plane( vec3d& org, vec3d& norm, vec3d& pnt );
-    friend double dist_pnt_2_line( vec3d& line_pt1, vec3d& line_pt2, vec3d& pnt );
+    friend double dist_pnt_2_line( const vec3d& line_pt1, const vec3d& line_pt2, const vec3d& pnt );
 //   friend double dist_pnt_2_line_seg( vec3d& line_pt1,  vec3d& line_pt2,  vec3d& pnt);
     friend vec3d proj_pnt_on_line_seg( const vec3d& line_pt1, const vec3d& line_pt2, const vec3d& pnt );
     friend vec3d proj_pnt_on_ray( const vec3d& line_pt1, const vec3d& line_pt2, const vec3d& pnt );

@@ -405,7 +405,7 @@ double dist_pnt_2_plane( vec3d& org, vec3d& norm, vec3d& pnt )
 }
 
 //******* Dist Between Point And Line ******//
-double dist_pnt_2_line( vec3d& line_pt1, vec3d& line_pt2, vec3d& pnt )
+double dist_pnt_2_line( const vec3d& line_pt1, const vec3d& line_pt2, const vec3d& pnt )
 {
     vec3d A_B = pnt - line_pt1;
     vec3d C_B = line_pt2 - line_pt1;
