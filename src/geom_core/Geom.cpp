@@ -1894,7 +1894,7 @@ vector< TMesh* > Geom::CreateTMeshVec()
         vec3d norm;
         vec3d v0, v1, v2, v3;
         vec3d uw0, uw1, uw2, uw3;
-        vec3d d21, d01, d03, d23, d20;
+        vec3d d21, d01, d03, d23, d20, d31;
 
         for ( int j = 0 ; j < ( int )pnts.size() - 1 ; j++ )
         {
@@ -1910,37 +1910,73 @@ vector< TMesh* > Geom::CreateTMeshVec()
                 uw2 = uw_pnts[j + 1][k + 1];
                 uw3 = uw_pnts[j][k + 1];
 
+                double quadrant = ( uw0.y() + uw1.y() + uw2.y() + uw3.y() ) / m_SurfVec[i].GetWMax(); // * 4 * 0.25 canceled.
+
                 d21 = v2 - v1;
                 d01 = v0 - v1;
-                d20 = v2 - v0;
-
-                if ( d21.mag() > 0.000001 && d01.mag() > 0.000001 && d20.mag() > 0.000001 )
-                {
-                    norm = cross( d21, d01 );
-                    norm.normalize();
-                    if ( f_norm )
-                    {
-                        TMeshVec[i]->AddTri( v0, v2, v1, norm * -1, uw0, uw2, uw1 );
-                    }
-                    else
-                    {
-                        TMeshVec[i]->AddTri( v0, v1, v2, norm, uw0, uw1, uw2 );
-                    }
-                }
-
                 d03 = v0 - v3;
                 d23 = v2 - v3;
-                if ( d03.mag() > 0.000001 && d23.mag() > 0.000001 && d20.mag() > 0.000001 )
+
+                if ( ( quadrant > 0 && quadrant < 1 ) || ( quadrant > 2 && quadrant < 3 ) )
                 {
-                    norm = cross( d03, d23 );
-                    norm.normalize();
-                    if ( f_norm )
+                    d20 = v2 - v0;
+                    if ( d21.mag() > 0.000001 && d01.mag() > 0.000001 && d20.mag() > 0.000001 )
                     {
-                        TMeshVec[i]->AddTri( v0, v3, v2, norm * -1, uw0, uw3, uw2 );
+                        norm = cross( d21, d01 );
+                        norm.normalize();
+                        if ( f_norm )
+                        {
+                            TMeshVec[i]->AddTri( v0, v2, v1, norm * -1, uw0, uw2, uw1 );
+                        }
+                        else
+                        {
+                            TMeshVec[i]->AddTri( v0, v1, v2, norm, uw0, uw1, uw2 );
+                        }
                     }
-                    else
+
+                    if ( d03.mag() > 0.000001 && d23.mag() > 0.000001 && d20.mag() > 0.000001 )
                     {
-                        TMeshVec[i]->AddTri( v0, v2, v3, norm, uw0, uw2, uw3 );
+                        norm = cross( d03, d23 );
+                        norm.normalize();
+                        if ( f_norm )
+                        {
+                            TMeshVec[i]->AddTri( v0, v3, v2, norm * -1, uw0, uw3, uw2 );
+                        }
+                        else
+                        {
+                            TMeshVec[i]->AddTri( v0, v2, v3, norm, uw0, uw2, uw3 );
+                        }
+                    }
+                }
+                else
+                {
+                    d31 = v3 - v1;
+                    if ( d01.mag() > 0.000001 && d31.mag() > 0.000001 && d03.mag() > 0.000001 )
+                    {
+                        norm = cross( d01, d03 );
+                        norm.normalize();
+                        if ( f_norm )
+                        {
+                            TMeshVec[i]->AddTri( v0, v3, v1, norm * -1, uw0, uw3, uw1 );
+                        }
+                        else
+                        {
+                            TMeshVec[i]->AddTri( v0, v1, v3, norm, uw0, uw1, uw3 );
+                        }
+                    }
+
+                    if ( d21.mag() > 0.000001 && d23.mag() > 0.000001 && d31.mag() > 0.000001 )
+                    {
+                        norm = cross( d23, d21 );
+                        norm.normalize();
+                        if ( f_norm )
+                        {
+                            TMeshVec[i]->AddTri( v1, v3, v2, norm * -1, uw1, uw3, uw2 );
+                        }
+                        else
+                        {
+                            TMeshVec[i]->AddTri( v1, v2, v3, norm, uw1, uw2, uw3 );
+                        }
                     }
                 }
             }
