@@ -57,6 +57,7 @@ protected:
     TriggerButton m_POVButton;
     TriggerButton m_X3DButton;
     TriggerButton m_STEPButton;
+    TriggerButton m_IGESButton;
 
     int m_SelectedSetIndex;
 };

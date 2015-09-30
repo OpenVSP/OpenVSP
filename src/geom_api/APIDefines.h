@@ -127,7 +127,8 @@ enum EXPORT_TYPE {  EXPORT_FELISA,
                     EXPORT_GMSH,
                     EXPORT_X3D,
                     EXPORT_STEP,
-                    EXPORT_PLOT3D
+                    EXPORT_PLOT3D,
+                    EXPORT_IGES
                  };
 
 enum COMPUTATION_FILE_TYPE  {   NO_FILE_TYPE        = 0,

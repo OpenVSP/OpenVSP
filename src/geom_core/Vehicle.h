@@ -192,6 +192,7 @@ public:
     void WriteX3DViewpointProps( xmlNodePtr node, string orients, string cents, string posits, string sfov, string name );
     void WritePovRayFile( const string & file_name, int write_set );
     void WriteSTEPFile( const string & file_name, int write_set );
+    void WriteIGESFile( const string & file_name, int write_set );
 
     void FetchXFerSurfs( int write_set, vector< XferSurf > &xfersurfs );
     //==== Computation File Names ====//

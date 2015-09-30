@@ -2169,6 +2169,11 @@ void Vehicle::WriteSTEPFile( const string & file_name, int write_set )
     step.WriteFile( file_name );
 }
 
+void Vehicle::WriteIGESFile( const string & file_name, int write_set )
+{
+
+}
+
 void Vehicle::AddLinkableContainers( vector< string > & linkable_container_vec )
 {
     ParmContainer::AddLinkableContainers( linkable_container_vec );
@@ -2681,6 +2686,10 @@ void Vehicle::ExportFile( const string & file_name, int write_set, int file_type
     else if ( file_type == EXPORT_STEP )
     {
         WriteSTEPFile( file_name, write_set );
+    }
+    else if ( file_type == EXPORT_IGES )
+    {
+        WriteIGESFile( file_name, write_set );
     }
 }
 
