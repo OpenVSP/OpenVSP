@@ -29,7 +29,10 @@ public:
 
     BoolParm m_PointMassFlag;
     Parm     m_PointMass;
+    Parm m_AxisLength;
+
     vec3d m_Origin;
+    vector < vec3d > m_Axis;
 
 protected:
 
