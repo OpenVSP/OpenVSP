@@ -1345,3 +1345,102 @@ void VspSurf::ToSTEP_Bez_Patches( STEPutil * step, vector<SdaiBezier_surface *> 
         }
     }
 }
+
+void VspSurf::ToIGES( DLL_IGES &model, bool splitsurf, bool tocubic, double tol )
+{
+    // Make copy for local changes.
+    piecewise_surface_type s( m_Surface );
+
+    if( !m_FlipNormal )
+    {
+        s.reverse_v();
+    }
+
+    if ( tocubic )
+    {
+        s.to_cubic_u( tol );
+        s.to_cubic_v( tol );
+    }
+
+    vector < piecewise_surface_type > surfvec;
+    if ( splitsurf )
+    {
+        SplitSurfs( s, surfvec );
+    }
+    else
+    {
+        surfvec.push_back( s );
+    }
+
+    for ( int is = 0; is < surfvec.size(); is++ )
+    {
+        s = surfvec[is];
+
+        piecewise_surface_type::index_type ip, jp;
+        piecewise_surface_type::index_type nupatch, nvpatch;
+        piecewise_surface_type::index_type maxu, maxv;
+        piecewise_surface_type::index_type nupts, nvpts;
+
+        vector< vector< int > > ptindxs;
+        vector< vec3d > allPntVec;
+
+        ExtractCPts( s, ptindxs, allPntVec, maxu, maxv, nupatch, nvpatch, nupts, nvpts );
+
+        vector < double > coeff( nupts * nvpts * 3 );
+
+        int icoeff = 0;
+        for( int j = 0; j < nvpts; j++ )
+        {
+            for( int i = 0; i < nupts; ++i )
+            {
+                int pindx = ptindxs[i][j];
+                vec3d pt = allPntVec[ pindx ];
+
+                for( int k = 0; k < 3; k++ )
+                {
+                    coeff[icoeff] = pt.v[k];
+                    icoeff++;
+                }
+            }
+        }
+
+        vector < double > knotu;
+        IGESKnots( maxu, nupatch, knotu );
+
+        vector < double > knotv;
+        IGESKnots( maxv, nvpatch, knotv );
+
+        DLL_IGES_ENTITY_128 isurf( model, true );
+
+        if( !isurf.SetNURBSData( nupts, nvpts, maxu + 1, maxv + 1,
+             knotu.data(), knotv.data(), coeff.data(),
+             false, false, false,
+             0.0, 1.0*nupatch, 0.0, 1.0*nvpatch ) )
+        {
+            model.DelEntity( &isurf );
+        }
+    }
+}
+
+void VspSurf::IGESKnots( int deg, int npatch, vector< double > &knot )
+{
+    int i, j;
+
+    knot.clear();
+
+    for( i = 0; i <= deg; i++ )
+    {
+        knot.push_back( 0.0 );
+    }
+    for( i = 1; i <= npatch; ++i )
+    {
+        for( j = 0; j < deg; j++ )
+        {
+            knot.push_back( 1.0 * i );
+        }
+    }
+    for( i = 0; i <= deg; i++ )
+    {
+        knot.push_back( 1.0 * npatch );
+    }
+}

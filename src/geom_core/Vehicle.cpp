@@ -37,6 +37,8 @@ using namespace vsp;
 #include <algorithm>
 #include <utility>
 
+#include <dll_iges.h>
+
 //==== Constructor ====//
 Vehicle::Vehicle()
 {
@@ -47,7 +49,7 @@ Vehicle::Vehicle()
     m_STEPToCubic.Init( "ToCubic", "STEPSettings", this, false, 0, 1 );
     m_STEPToCubicTol.Init( "ToCubicTol", "STEPSettings", this, 1e-6, 1e-12, 1e12 );
 
-    m_IGESLenUnit.Init( "LenUnit", "IGESSettings", this, vsp::FT, vsp::MM, vsp::YD );
+    m_IGESLenUnit.Init( "LenUnit", "IGESSettings", this, vsp::LEN_FT, vsp::LEN_MM, vsp::LEN_FT );
     m_IGESSplitSurfs.Init( "SplitSurfs", "IGESSettings", this, true, 0, 1 );
     m_IGESToCubic.Init( "ToCubic", "IGESSettings", this, false, 0, 1 );
     m_IGESToCubicTol.Init( "ToCubicTol", "IGESSettings", this, 1e-6, 1e-12, 1e12 );
@@ -144,7 +146,7 @@ void Vehicle::Init()
     m_STEPToCubic.Set( false );
     m_STEPToCubicTol.Set( 1e-6 );
 
-    m_IGESLenUnit.Set( vsp::FT );
+    m_IGESLenUnit.Set( vsp::LEN_FT );
     m_IGESSplitSurfs.Set( true );
     m_IGESToCubic.Set( false );
     m_IGESToCubicTol.Set( 1e-6 );
@@ -2181,7 +2183,44 @@ void Vehicle::WriteSTEPFile( const string & file_name, int write_set )
 
 void Vehicle::WriteIGESFile( const string & file_name, int write_set )
 {
+    DLL_IGES model;
 
+    // Note, YD not handled by libIGES.
+    switch( m_IGESLenUnit() )
+    {
+    case vsp::LEN_CM:
+        model.SetUnitsFlag( UNIT_CENTIMETER );
+        break;
+    case vsp::LEN_M:
+        model.SetUnitsFlag( UNIT_METER );
+        break;
+    case vsp::LEN_MM:
+        model.SetUnitsFlag( UNIT_MM );
+        break;
+    case vsp::LEN_IN:
+        model.SetUnitsFlag( UNIT_IN );
+        break;
+    case vsp::LEN_FT:
+        model.SetUnitsFlag( UNIT_FOOT );
+        break;
+    }
+
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        if( geom_vec[i]->GetSetFlag( write_set ) )
+        {
+            vector<VspSurf> surf_vec;
+            geom_vec[i]->GetSurfVec( surf_vec );
+
+            for ( int j = 0; j < surf_vec.size(); j++ )
+            {
+                surf_vec[j].ToIGES( model, m_IGESSplitSurfs(), m_IGESToCubic(), m_IGESToCubicTol() );
+            }
+        }
+    }
+
+    model.Write( file_name.c_str(), true );
 }
 
 void Vehicle::AddLinkableContainers( vector< string > & linkable_container_vec )

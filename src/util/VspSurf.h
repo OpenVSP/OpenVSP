@@ -19,6 +19,9 @@
 
 #include "STEPutil.h"
 
+#include <dll_iges.h>
+#include <dll_entity128.h>
+
 #include "eli/code_eli.hpp"
 
 #include "eli/geom/surface/bezier.hpp"
@@ -164,12 +167,16 @@ public:
     void ToSTEP_Bez_Patches( STEPutil * step, vector<SdaiBezier_surface *> &surfs );
     void ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface_with_knots *> &surfs, bool splitsurf, bool mergepts, bool tocubic, double tol );
 
+    void ToIGES( DLL_IGES &model, bool splitsurf, bool tocubic, double tol );
+
     void SetUSkipFirst( bool f );
     void SetUSkipLast( bool f );
     void SetWSkipFirst( bool f );
     void SetWSkipLast( bool f );
 
 protected:
+
+    static void IGESKnots( int deg, int npatch, vector< double > &knot );
 
     bool m_FlipNormal;
     bool m_MagicVParm;
