@@ -47,6 +47,11 @@ Vehicle::Vehicle()
     m_STEPToCubic.Init( "ToCubic", "STEPSettings", this, false, 0, 1 );
     m_STEPToCubicTol.Init( "ToCubicTol", "STEPSettings", this, 1e-6, 1e-12, 1e12 );
 
+    m_IGESLenUnit.Init( "LenUnit", "IGESSettings", this, vsp::FT, vsp::MM, vsp::YD );
+    m_IGESSplitSurfs.Init( "SplitSurfs", "IGESSettings", this, true, 0, 1 );
+    m_IGESToCubic.Init( "ToCubic", "IGESSettings", this, false, 0, 1 );
+    m_IGESToCubicTol.Init( "ToCubicTol", "IGESSettings", this, 1e-6, 1e-12, 1e12 );
+
     m_STLMultiSolid.Init( "MultiSolid", "STLSettings", this, false, 0, 1 );
 
     m_UpdatingBBox = false;
@@ -138,6 +143,11 @@ void Vehicle::Init()
     m_STEPMergePoints.Set( true );
     m_STEPToCubic.Set( false );
     m_STEPToCubicTol.Set( 1e-6 );
+
+    m_IGESLenUnit.Set( vsp::FT );
+    m_IGESSplitSurfs.Set( true );
+    m_IGESToCubic.Set( false );
+    m_IGESToCubicTol.Set( 1e-6 );
 
     m_STLMultiSolid.Set( false );
 

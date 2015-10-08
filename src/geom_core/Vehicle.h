@@ -271,6 +271,11 @@ public:
     BoolParm m_STEPToCubic;
     Parm m_STEPToCubicTol;
 
+    IntParm m_IGESLenUnit;
+    BoolParm m_IGESSplitSurfs;
+    BoolParm m_IGESToCubic;
+    Parm m_IGESToCubicTol;
+
     BoolParm m_STLMultiSolid;
 
     BoolParm m_exportCompGeomCsvFile;

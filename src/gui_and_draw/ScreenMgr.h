@@ -38,6 +38,7 @@ public:
            VSP_EXPORT_SCREEN,
            VSP_FEA_MESH_SCREEN,
            VSP_FIT_MODEL_SCREEN,
+           VSP_IGES_OPTIONS_SCREEN,
            VSP_IMPORT_SCREEN,
            VSP_LABEL_SCREEN,
            VSP_LIGHTING_SCREEN,

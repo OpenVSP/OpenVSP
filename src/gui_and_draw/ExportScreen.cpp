@@ -12,6 +12,7 @@
 #include "StlHelper.h"
 #include "APIDefines.h"
 #include "STEPOptionsScreen.h"
+#include "IGESOptionsScreen.h"
 #include "STLOptionsScreen.h"
 using namespace vsp;
 
@@ -134,7 +135,10 @@ void ExportScreen::ExportFile( string &newfile, int write_set, int type )
     }
     else if ( type == EXPORT_IGES )
     {
-        newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write IGES File?", "*.igs" );
+        if ( (( IGESOptionsScreen* ) m_ScreenMgr->GetScreen( ScreenMgr::VSP_IGES_OPTIONS_SCREEN ))->ShowIGESOptionsScreen() )
+        {
+            newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write IGES File?", "*.igs" );
+        }
     }
     else if ( type == -1 )
     {

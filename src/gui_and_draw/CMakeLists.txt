@@ -38,6 +38,7 @@ FitModelScreen.cpp
 FuselageScreen.cpp
 GroupLayout.cpp
 GuiDevice.cpp
+IGESOptionsScreen.cpp
 ImportScreen.cpp
 MainGLWindow.cpp
 MainGLWindow.cpp
@@ -87,6 +88,7 @@ FitModelScreen.h
 FuselageScreen.h
 GroupLayout.h
 GuiDevice.h
+IGESOptionsScreen.h
 ImportScreen.h
 MainGLWindow.h
 MainGLWindow.h
