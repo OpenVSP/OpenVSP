@@ -1090,6 +1090,54 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_
     }
 }
 
+void VspSurf::ExtractCPts( piecewise_surface_type &s, vector< vector< int > > &ptindxs, vector< vec3d > &allPntVec,
+                  piecewise_surface_type::index_type &maxu, piecewise_surface_type::index_type &maxv,
+                  piecewise_surface_type::index_type &nupatch, piecewise_surface_type::index_type &nvpatch,
+                  piecewise_surface_type::index_type &nupts, piecewise_surface_type::index_type &nvpts )
+{
+    piecewise_surface_type::index_type minu, minv;
+    piecewise_surface_type::index_type ip, jp;
+
+    nupatch = s.number_u_patches();
+    nvpatch = s.number_v_patches();
+
+    s.degree_u( minu, maxu );
+    s.degree_v( minv, maxv );
+
+    nupts = nupatch * maxu + 1;
+    nvpts = nvpatch * maxv + 1;
+
+    ptindxs.resize( nupts );
+    for( int i = 0; i < nupts; ++i )
+    {
+        ptindxs[i].resize( nvpts );
+    }
+
+    allPntVec.clear();
+
+    for( ip = 0; ip < nupatch; ++ip )
+    {
+        for( jp = 0; jp < nvpatch; ++jp )
+        {
+            surface_patch_type::index_type icp, jcp;
+
+            surface_patch_type *patch = s.get_patch( ip, jp );
+
+            patch->promote_u_to( maxu );
+            patch->promote_v_to( maxv );
+
+            for( icp = 0; icp <= maxu; ++icp )
+                for( jcp = 0; jcp <= maxv; ++jcp )
+                {
+                    surface_patch_type::point_type p = patch->get_control_point( icp, jcp );
+                    ptindxs[ ip * maxu + icp ][ jp * maxv + jcp ] = allPntVec.size();
+                    allPntVec.push_back( vec3d( p[0], p[1], p[2] ) );
+                }
+        }
+    }
+}
+
+
 void VspSurf::ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface_with_knots *> &surfs, bool splitsurf, bool mergepts, bool tocubic, double tol )
 {
     // Make copy for local changes.
@@ -1120,14 +1168,15 @@ void VspSurf::ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface
     {
         s = surfvec[isurf];
 
-        piecewise_surface_type::index_type ip, jp, nupatch, nvpatch;
-        piecewise_surface_type::index_type minu, maxu, minv, maxv;
+        piecewise_surface_type::index_type ip, jp;
+        piecewise_surface_type::index_type nupatch, nvpatch;
+        piecewise_surface_type::index_type maxu, maxv;
+        piecewise_surface_type::index_type nupts, nvpts;
 
-        nupatch = s.number_u_patches();
-        nvpatch = s.number_v_patches();
+        vector< vector< int > > ptindxs;
+        vector< vec3d > allPntVec;
 
-        s.degree_u( minu, maxu );
-        s.degree_v( minv, maxv );
+        ExtractCPts( s, ptindxs, allPntVec, maxu, maxv, nupatch, nvpatch, nupts, nvpts );
 
         SdaiB_spline_surface_with_knots *surf = ( SdaiB_spline_surface_with_knots* ) step->registry->ObjCreate( "B_SPLINE_SURFACE_WITH_KNOTS" );
         step->instance_list->Append( ( SDAI_Application_instance * ) surf, completeSE );
@@ -1155,39 +1204,6 @@ void VspSurf::ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface
 
         surf->self_intersect_( SDAI_LOGICAL( LFalse ) );
         surf->surface_form_( B_spline_surface_form__unspecified );
-
-        int nupts = nupatch * maxu + 1;
-        int nvpts = nvpatch * maxv + 1;
-
-        vector< vector< int > > ptindxs;
-        ptindxs.resize( nupts );
-        for( int i = 0; i < nupts; ++i )
-        {
-            ptindxs[i].resize( nvpts );
-        }
-
-        vector< vec3d > allPntVec;
-
-        for( ip = 0; ip < nupatch; ++ip )
-        {
-            for( jp = 0; jp < nvpatch; ++jp )
-            {
-                surface_patch_type::index_type icp, jcp;
-
-                surface_patch_type *patch = s.get_patch( ip, jp );
-
-                patch->promote_u_to( maxu );
-                patch->promote_v_to( maxv );
-
-                for( icp = 0; icp <= maxu; ++icp )
-                    for( jcp = 0; jcp <= maxv; ++jcp )
-                    {
-                        surface_patch_type::point_type p = patch->get_control_point( icp, jcp );
-                        ptindxs[ ip * maxu + icp ][ jp * maxv + jcp ] = allPntVec.size();
-                        allPntVec.push_back( vec3d( p[0], p[1], p[2] ) );
-                    }
-            }
-        }
 
         PntNodeCloud pnCloud;
         vector < SdaiCartesian_point* > usedPts;
