@@ -40,7 +40,7 @@ using namespace vsp;
 //==== Constructor ====//
 Vehicle::Vehicle()
 {
-    m_STEPLenUnit.Init( "LenUnit", "STEPSettings", this, STEPutil::LenEnum::u_FT, STEPutil::LenEnum::u_MM, STEPutil::LenEnum::u_YD );
+    m_STEPLenUnit.Init( "LenUnit", "STEPSettings", this, vsp::LEN_FT, vsp::LEN_MM, vsp::LEN_YD );
     m_STEPTol.Init( "Tolerance", "STEPSettings", this, 1e-6, 1e-12, 1e12 );
     m_STEPSplitSurfs.Init( "SplitSurfs", "STEPSettings", this, true, 0, 1 );
     m_STEPMergePoints.Init( "MergePoints", "STEPSettings", this, true, 0, 1 );
@@ -132,7 +132,7 @@ void Vehicle::Init()
     m_NumMassSlices = 20;
     m_TotalMass = 0;
 
-    m_STEPLenUnit.Set( STEPutil::LenEnum::u_FT );
+    m_STEPLenUnit.Set( vsp::LEN_FT );
     m_STEPTol.Set( 1e-6 );
     m_STEPSplitSurfs.Set( true );
     m_STEPMergePoints.Set( true );

@@ -18,7 +18,7 @@ STEPutil::STEPutil( const int & len, const double & tol )
 
     string tolstr = std::to_string( tol );
 
-    STEPBoilerplate( (LenEnum) len, tolstr.c_str() );
+    STEPBoilerplate( (vsp::LEN_UNITS) len, tolstr.c_str() );
 }
 
 STEPutil::~STEPutil()
@@ -31,7 +31,7 @@ STEPutil::~STEPutil()
 }
 
 
-STEPcomplex * STEPutil::Geometric_Context( const LenEnum & len, const AngEnum & angle, const char * tolstr )
+STEPcomplex * STEPutil::Geometric_Context( const vsp::LEN_UNITS & len, const vsp::ANG_UNITS & angle, const char * tolstr )
 {
     int instance_cnt = 0;
     STEPattribute * attr;
@@ -54,16 +54,16 @@ STEPcomplex * STEPutil::Geometric_Context( const LenEnum & len, const AngEnum & 
     Si_prefix pfx = Si_prefix__milli;
     switch( len )
     {
-    case u_CM:
+    case vsp::LEN_CM:
         pfx = Si_prefix__centi;
         break;
-    case u_M:
+    case vsp::LEN_M:
         pfx = Si_prefix_unset;
         break;
-    case u_MM:
-    case u_IN:
-    case u_FT:
-    case u_YD:
+    case vsp::LEN_MM:
+    case vsp::LEN_IN:
+    case vsp::LEN_FT:
+    case vsp::LEN_YD:
         break;
     }
 
@@ -93,7 +93,7 @@ STEPcomplex * STEPutil::Geometric_Context( const LenEnum & len, const AngEnum & 
     instance_cnt++;
 
     // If imperial, create conversion based unit.
-    if( len >= u_IN )
+    if( len >= vsp::LEN_IN )
     {
         STEPcomplex * len_mm = ua_length;
 
@@ -103,21 +103,21 @@ STEPcomplex * STEPutil::Geometric_Context( const LenEnum & len, const AngEnum & 
 
         switch( len )
         {
-        case u_IN:
+        case vsp::LEN_IN:
             strcat( lenname, "'INCH'\0" );
             lenconv = 25.4;
             break;
-        case u_FT:
+        case vsp::LEN_FT:
             strcat( lenname, "'FOOT'\0" );
             lenconv = 25.4 * 12.0;
             break;
-        case u_YD:
+        case vsp::LEN_YD:
             strcat( lenname, "'YARD'\0" );
             lenconv = 25.4 * 36.0;
             break;
-        case u_MM:
-        case u_CM:
-        case u_M:
+        case vsp::LEN_MM:
+        case vsp::LEN_CM:
+        case vsp::LEN_M:
             break;
         }
 
@@ -231,7 +231,7 @@ STEPcomplex * STEPutil::Geometric_Context( const LenEnum & len, const AngEnum & 
     instance_cnt++;
 
     // If degrees, create conversion based unit.
-    if( angle == u_DEG )
+    if( angle == vsp::ANG_DEG )
     {
         STEPcomplex * ang_rad = ua_plane_angle;
 
@@ -518,7 +518,7 @@ SdaiSecurity_classification * STEPutil::Classification( SdaiPerson_and_organizat
 }
 
 
-void  STEPutil::STEPBoilerplate( const LenEnum & len, const char * tolstr  )
+void  STEPutil::STEPBoilerplate( const vsp::LEN_UNITS & len, const char * tolstr  )
 {
 
     // Increment FileId so entities start at #1 instead of #0.
@@ -555,7 +555,7 @@ void  STEPutil::STEPBoilerplate( const LenEnum & len, const char * tolstr  )
     SdaiDate_and_time * date_time = DateTime( );
 
     // Global units and tolerance.
-    context = Geometric_Context( len, u_DEG, tolstr );
+    context = Geometric_Context( len, vsp::ANG_DEG, tolstr );
 
     // Primary coordinate system.
     SdaiAxis2_placement_3d * orig_transform = DefaultAxis( );

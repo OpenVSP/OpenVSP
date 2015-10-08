@@ -499,6 +499,28 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "DIR_INDEX", "Z_DIR", Z_DIR );
     assert( r >= 0 );
 
+    r = se->RegisterEnum( "LEN_UNITS" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "LEN_UNITS", "LEN_MM", LEN_MM );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "LEN_UNITS", "LEN_CM", LEN_CM );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "LEN_UNITS", "LEN_M", LEN_M );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "LEN_UNITS", "LEN_IN", LEN_IN );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "LEN_UNITS", "LEN_FT", LEN_FT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "LEN_UNITS", "LEN_YD", LEN_YD );
+    assert( r >= 0 );
+
+    r = se->RegisterEnum( "ANG_UNITS" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ANG_UNITS", "ANG_RAD", ANG_RAD );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ANG_UNITS", "ANG_DEG", ANG_DEG );
+    assert( r >= 0 );
+
     r = se->RegisterEnum( "XSEC_WIDTH_SHIFT" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "XSEC_WIDTH_SHIFT", "XS_SHIFT_LE", XS_SHIFT_LE );

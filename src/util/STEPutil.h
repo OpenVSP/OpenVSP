@@ -18,6 +18,8 @@
 #include "SdaiCONFIG_CONTROL_DESIGN.h"
 #include <string>
 
+#include "APIDefines.h"
+
 class VspSurf;
 
 class STEPutil
@@ -31,9 +33,6 @@ public:
     SdaiCartesian_point * MakePoint( const double & x, const double & y, const double & z );
     void AddSurf( VspSurf *s, bool splitsurf, bool mergepts, bool tocubic, double tol );
 
-    enum LenEnum { u_MM, u_CM, u_M, u_IN, u_FT, u_YD };
-    enum AngEnum { u_RAD, u_DEG };
-
     Registry * registry;
     InstMgr * instance_list;
 
@@ -45,7 +44,7 @@ protected:
     STEPcomplex * context;
     SdaiShape_representation * shape_rep;
 
-    STEPcomplex * Geometric_Context( const LenEnum & len, const AngEnum & angle, const char * tolstr );
+    STEPcomplex * Geometric_Context( const vsp::LEN_UNITS & len, const vsp::ANG_UNITS & angle, const char * tolstr );
 
 
     SdaiDirection * MakeDirection( const double & x, const double & y, const double & z );
@@ -56,7 +55,7 @@ protected:
 
     SdaiSecurity_classification * Classification( SdaiPerson_and_organization * per_org, SdaiDate_and_time * date_time, SdaiProduct_definition_formation_with_specified_source * prod_def_form );
 
-    void  STEPBoilerplate( const LenEnum & len, const char * tolstr );
+    void  STEPBoilerplate( const vsp::LEN_UNITS & len, const char * tolstr );
 
 
 };

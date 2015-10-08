@@ -52,6 +52,18 @@ enum DIR_INDEX { X_DIR = 0,
                  Z_DIR = 2
                };
 
+enum LEN_UNITS { LEN_MM,
+                 LEN_CM,
+                 LEN_M,
+                 LEN_IN,
+                 LEN_FT,
+                 LEN_YD
+};
+
+enum ANG_UNITS { ANG_RAD,
+                 ANG_DEG
+};
+
 enum XSEC_WIDTH_SHIFT { XS_SHIFT_LE = 0,
                         XS_SHIFT_MID = 1,
                         XS_SHIFT_TE = 2
