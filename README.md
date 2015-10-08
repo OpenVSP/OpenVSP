@@ -110,6 +110,10 @@
    - [GLEW](http://glew.sourceforge.net) - OpenGL Extension Wrangler Library.  This
    library is used to access any modern OpenGL features.  GRAPHICS_ONLY
 
+   - [libIGES](http://github.com/cbernardo/libIGES) - Library for working with
+   IGES files.  This is a very new library and is not likely to be packaged on
+   any system.
+
 ##### Bundled with OpenVSP.
 
    - [STEPcode](http://stepcode.org) - Library for working with STEP standard
@@ -235,6 +239,7 @@
       - `EIGEN_INSTALL_DIR`
       - `CODEELI_INSTALL_DIR`
       - `CMINPACK_INSTALL_DIR`
+      - `LIBIGES_INSTALL_DIR`
 
 ##### Libraries & SuperProject project variables:
 
@@ -250,3 +255,4 @@
       - `VSP_USE_SYSTEM_GLM`
       - `VSP_USE_SYSTEM_GLEW`
       - `VSP_USE_SYSTEM_CMINPACK`
+      - `VSP_USE_SYSTEM_LIBIGES`
