@@ -523,7 +523,7 @@ WingSect::WingSect( XSecCurve *xsc, bool use_left ) : XSec( xsc, use_left)
     m_SecSweepLoc.SetDescript( "Location Along Chord That Secondary Sweep is Measured For Wing Section" );
     m_SweepLoc.SetOtherParmID( m_SecSweepLoc.GetID(), .001 );
     m_SecSweepLoc.SetOtherParmID( m_SweepLoc.GetID(), .001 );
-    m_Twist.Init( "Twist", m_GroupName, this, 0.0, -45.0, 45.0 );
+    m_Twist.Init( "Twist", m_GroupName, this, 0.0, -180.0, 180.0 );
     m_Twist.SetDescript( "Twist of Wing Section" );
     m_TwistLoc.Init( "Twist_Location", m_GroupName, this, 0.25, 0.0, 1.0 );
     m_TwistLoc.SetDescript( "Location Along Chord That Airfoil is Rotated" );
