@@ -38,6 +38,7 @@ public:
 
     virtual void SetScale( double scale );
     virtual void Update();
+    virtual void UpdateFromWing();
     virtual void CopyBasePos( XSec* xs );
     virtual vector< string > GetDriverParms();
     virtual void ForceChordVal( double val, bool root_chord_flag );

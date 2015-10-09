@@ -539,7 +539,7 @@ void WingSect::SetScale( double scale )
 }
 
 //==== Update ====//
-void WingSect::Update()
+void WingSect::UpdateFromWing()
 {
     m_LateUpdateFlag = false;
 
@@ -581,20 +581,13 @@ void WingSect::Update()
 
     m_TransformedCurve.Transform( m_Transform );
 
-
-    //==== Inform Outboard Section of Change ====//
-    int indx = xsecsurf->FindXSecIndex( m_ID );
-    if( indx < xsecsurf->NumXSec() - 1 )
-    {
-        WingSect* nextxs = (WingSect*) xsecsurf->FindXSec( indx + 1);
-        if( nextxs )
-        {
-            nextxs->SetLateUpdateFlag( true );
-        }
-    }
-
 }
 
+void WingSect::Update()
+{
+    // Update() is empty because it only needs to be called from WingGeom::UpdateSurf().
+    // This empty method is left in place to keep all ohter callers happy.
+}
 
 //==== Copy position from base class ====//
 void WingSect::CopyBasePos( XSec* xs )
@@ -1294,6 +1287,9 @@ void WingGeom::UpdateSurf()
             ws->m_XCenterRot = ws->m_XDelta + ws->m_TwistLoc()*ws->m_TipChord();
             ws->m_YCenterRot = ws->m_YDelta;
             ws->m_ZCenterRot = ws->m_ZDelta;
+
+            // Force update to wing section.
+            ws->UpdateFromWing();
 
             crv_vec[i] =  ws->GetCurve();
 
