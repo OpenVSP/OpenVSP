@@ -749,52 +749,82 @@ void VspSurf::Tesselate( const vector<double> &u, const vector<double> &v, std::
     }
 }
 
-void VspSurf::TessUFeatureLine( int iu, int num_v, std::vector< vec3d > & pnts )
+void VspSurf::TessUFeatureLine( int iu, std::vector< vec3d > & pnts, double tol )
 {
     double u = m_UFeature[ iu ];
 
-    vector < double > vtess;
-    MakeVTess( num_v, vtess, 2, false );
+    double vmin, vmax;
+    vec3d pmin, pmax;
 
-    int numpts = vtess.size();
-    pnts.resize( numpts );
+    vmin = m_WFeature[0];
+    pmin = CompPnt( u, vmin );
 
-    for ( int i = 0; i < numpts; i++ )
+    pnts.clear();
+    for ( int i = 0; i < m_WFeature.size() - 1; i++ )
     {
-        pnts[i] = CompPnt( u, vtess[i] );
+        vmax = m_WFeature[i+1];
+        pmax = CompPnt( u, vmax );
+
+        TessAdaptLine( u, u, vmin, vmax, pmin, pmax, pnts, tol, 10 );
+
+        vmin = vmax;
+        pmin = pmax;
     }
+    pnts.push_back( pmax );
 }
 
-void VspSurf::TessWFeatureLine( int iw, int num_u, std::vector< vec3d > & pnts )
+void VspSurf::TessWFeatureLine( int iw, std::vector< vec3d > & pnts, double tol )
 {
     double v = m_WFeature[ iw ];
-    double umin = m_Surface.get_u0();
-    double umax = m_Surface.get_umax();
-    TessLine( umin, umax, v, v, num_u, pnts);
+
+    double umin, umax;
+    vec3d pmin, pmax;
+
+    umin = m_UFeature[0];
+    pmin = CompPnt( umin, v );
+
+    pnts.clear();
+    for ( int i = 0; i < m_UFeature.size() - 1; i++ )
+    {
+        umax = m_UFeature[i+1];
+        pmax = CompPnt( umax, v );
+
+        TessAdaptLine( umin, umax, v, v, pmin, pmax, pnts, tol, 10 );
+
+        umin = umax;
+        pmin = pmax;
+    }
+    pnts.push_back( pmax );
 }
 
-void VspSurf::TessLine( double umin, double umax, double wmin, double wmax, int numpts, std::vector< vec3d > & pnts )
+void VspSurf::TessAdaptLine( double umin, double umax, double wmin, double wmax, std::vector< vec3d > & pnts, double tol, int Nlimit )
 {
-    pnts.resize( numpts );
+    vec3d pmin = CompPnt( umin, wmin );
+    vec3d pmax = CompPnt( umax, wmax );
 
-    double du = (umax - umin)/(numpts - 1);
-    double dw = (wmax - wmin)/(numpts - 1);
+    TessAdaptLine( umin, umax, wmin, wmax, pmin, pmax, pnts, tol, Nlimit );
 
-    double u = umin;
-    double w = wmin;
+    pnts.push_back( pmax );
+}
 
-    for ( int i = 0; i < numpts; i++ )
+void VspSurf::TessAdaptLine( double umin, double umax, double wmin, double wmax, const vec3d & pmin, const vec3d & pmax, std::vector< vec3d > & pnts, double tol, int Nlimit )
+{
+    double umid = ( umin + umax ) * 0.5;
+    double wmid = ( wmin + wmax ) * 0.5;
+
+    vec3d pmid = CompPnt( umid, wmid );
+
+    double d = dist_pnt_2_line( pmin, pmax, pmid ) / dist( pmin, pmax );
+
+    if ( d > tol && Nlimit > 0 )
     {
-        if ( i == numpts - 1 )
-        {
-            u = umax;
-            w = wmax;
-        }
-
-        pnts[i] = CompPnt( u, w );
-
-        u += du;
-        w += dw;
+        TessAdaptLine( umin, umid, wmin, wmid, pmin, pmid, pnts, tol, Nlimit - 1 );
+        TessAdaptLine( umid, umax, wmid, wmax, pmid, pmax, pnts, tol, Nlimit - 1 );
+    }
+    else
+    {
+        pnts.push_back( pmin );
+        pnts.push_back( pmid );
     }
 }
 

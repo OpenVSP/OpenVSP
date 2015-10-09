@@ -1147,6 +1147,8 @@ void Geom::UpdateDrawObj()
     m_WireShadeDrawObj_vec.resize( m_SurfVec.size(), DrawObj() );
     m_FeatureDrawObj_vec.clear();
 
+    double tol = 1e-2;
+
     //==== Tesselate Surface ====//
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
@@ -1161,7 +1163,7 @@ void Geom::UpdateDrawObj()
             {
                 m_FeatureDrawObj_vec.push_back( DrawObj() );
                 int indx = m_FeatureDrawObj_vec.size() - 1;
-                m_SurfVec[i].TessUFeatureLine( j, 101, m_FeatureDrawObj_vec[indx].m_PntVec );
+                m_SurfVec[i].TessUFeatureLine( j, m_FeatureDrawObj_vec[indx].m_PntVec, tol );
                 m_FeatureDrawObj_vec[indx].m_GeomChanged = true;
             }
 
@@ -1170,7 +1172,7 @@ void Geom::UpdateDrawObj()
             {
                 m_FeatureDrawObj_vec.push_back( DrawObj() );
                 int indx = m_FeatureDrawObj_vec.size() - 1;
-                m_SurfVec[i].TessWFeatureLine( j, 101, m_FeatureDrawObj_vec[indx].m_PntVec );
+                m_SurfVec[i].TessWFeatureLine( j, m_FeatureDrawObj_vec[indx].m_PntVec, tol );
                 m_FeatureDrawObj_vec[indx].m_GeomChanged = true;
             }
         }

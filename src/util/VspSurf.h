@@ -148,9 +148,11 @@ public:
     void Tesselate( const vector<int> &num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts, const int &n_cap, bool degen ) const;
     void Tesselate( const vector<double> &utess, const vector<double> &vtess, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts ) const;
 
-    void TessUFeatureLine( int iu, int num_v, std::vector< vec3d > & pnts );
-    void TessWFeatureLine( int iw, int num_u, std::vector< vec3d > & pnts );
-    void TessLine( double umin, double umax, double wmin, double wmax, int numpts, std::vector< vec3d > & pnts );
+    void TessUFeatureLine( int iu, std::vector< vec3d > & pnts, double tol );
+    void TessWFeatureLine( int iw, std::vector< vec3d > & pnts, double tol );
+
+    void TessAdaptLine( double umin, double umax, double wmin, double wmax, std::vector< vec3d > & pts, double tol, int Nlimit );
+    void TessAdaptLine( double umin, double umax, double wmin, double wmax, const vec3d & pmin, const vec3d & pmax, std::vector< vec3d > & pts, double tol, int Nlimit );
 
     void SplitSurfs( const piecewise_surface_type &basesurf, vector< piecewise_surface_type > &surfvec );
 
