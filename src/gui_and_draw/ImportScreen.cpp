@@ -15,7 +15,7 @@ using namespace vsp;
 #include <assert.h>
 
 //==== Constructor ====//
-ImportScreen::ImportScreen( ScreenMgr* mgr ) : BasicScreen( mgr , 150, 25 + 5*20 + 1*15 + 2*6, "Import" )
+ImportScreen::ImportScreen( ScreenMgr* mgr ) : BasicScreen( mgr , 150, 25 + 6*20 + 1*15 + 2*6, "Import" )
 {
     m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
     m_MainLayout.AddX( 5 );
@@ -32,6 +32,7 @@ ImportScreen::ImportScreen( ScreenMgr* mgr ) : BasicScreen( mgr , 150, 25 + 5*20
     m_GenLayout.AddButton( m_NASCARTButton, "NASCART (.dat)" );
     m_GenLayout.AddButton( m_XSecButton, "XSec (*.hrm)" );
     m_GenLayout.AddButton( m_PTSButton, "Point Cloud (.pts)" );
+    m_GenLayout.AddButton( m_V2Button, "OpenVSP v2 (*.vsp)" );
 }
 
 //==== Destructor ====//
@@ -63,6 +64,10 @@ void ImportScreen::ImportFile( string & in_file, int type )
     else if ( type == IMPORT_PTS )
     {
         in_file = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Import Points File?", "*.pts" );
+    }
+    else if ( type == IMPORT_V2 )
+    {
+        in_file = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Import OpenVSP v2 File?", "*.vsp" );
     }
     else
     {
@@ -106,6 +111,10 @@ void ImportScreen::GuiDeviceCallBack( GuiDevice* device )
     else if ( device == &m_PTSButton )
     {
         ImportFile( in_file, IMPORT_PTS );
+    }
+    else if ( device == &m_V2Button )
+    {
+        ImportFile( in_file, IMPORT_V2 );
     }
 
     m_ScreenMgr->SetUpdateFlag( true );

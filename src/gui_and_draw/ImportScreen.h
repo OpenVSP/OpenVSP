@@ -42,6 +42,7 @@ protected:
     TriggerButton m_NASCARTButton;
     TriggerButton m_XSecButton;
     TriggerButton m_PTSButton;
+    TriggerButton m_V2Button;
 
 };
 

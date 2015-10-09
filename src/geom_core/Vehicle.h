@@ -213,6 +213,8 @@ public:
     //==== Import Files ====//
     string ImportFile( const string & file_name, int file_type );
 
+    string ImportV2File( const string & file_name );
+
     //Comp Geom
     string CompGeom( int set, int sliceFlag, int halfFlag, int intSubsFlag = 1 );
     string CompGeomAndFlatten( int set, int sliceFlag, int halfFlag, int intSubsFlag = 1 );

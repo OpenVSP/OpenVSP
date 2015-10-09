@@ -113,7 +113,8 @@ enum IMPORT_TYPE {  IMPORT_STL,
                     IMPORT_NASCART,
                     IMPORT_CART3D_TRI,
                     IMPORT_XSEC_MESH,
-                    IMPORT_PTS
+                    IMPORT_PTS,
+                    IMPORT_V2
                  };
 
 enum EXPORT_TYPE {  EXPORT_FELISA,

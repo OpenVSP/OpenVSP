@@ -2642,6 +2642,10 @@ string Vehicle::ImportFile( const string & file_name, int file_type )
             }
         }
     }
+    else if ( file_type == IMPORT_V2 )
+    {
+        return ImportV2File( file_name );
+    }
     else
     {
         GeomType type = GeomType( MESH_GEOM_TYPE, "MESH", true );
@@ -2691,6 +2695,10 @@ string Vehicle::ImportFile( const string & file_name, int file_type )
     return id;
 }
 
+string Vehicle::ImportV2File( const string & file_name )
+{
+    return string();
+}
 
 //==== Import File Methods ====//
 void Vehicle::ExportFile( const string & file_name, int write_set, int file_type )
