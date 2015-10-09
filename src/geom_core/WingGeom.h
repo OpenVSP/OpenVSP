@@ -34,7 +34,7 @@ class WingSect : public XSec
 {
 public:
 
-    WingSect( XSecCurve *xsc, bool use_left );
+    WingSect( XSecCurve *xsc );
 
     virtual void SetScale( double scale );
     virtual void Update();

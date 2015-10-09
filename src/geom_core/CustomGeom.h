@@ -140,7 +140,7 @@ class CustomXSec : public SkinXSec
 {
 public:
 
-    CustomXSec( XSecCurve *xsc, bool use_left );
+    CustomXSec( XSecCurve *xsc );
 
     virtual void Update();
     virtual void CopyBasePos( XSec* xs );

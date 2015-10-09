@@ -177,19 +177,19 @@ XSec* XSecSurf::CreateXSec( int type, int index )
     {
         if ( m_XSecType == XSEC_FUSE )
         {
-            xsec_ptr = ( XSec* ) new FuseXSec( xscrv_ptr, index != 0 );
+            xsec_ptr = ( XSec* ) new FuseXSec( xscrv_ptr );
         }
         else if ( m_XSecType == XSEC_STACK )
         {
-            xsec_ptr = ( XSec* ) new StackXSec( xscrv_ptr, index != 0 );
+            xsec_ptr = ( XSec* ) new StackXSec( xscrv_ptr );
         }
         else if ( m_XSecType == XSEC_WING )
         {
-             xsec_ptr = ( XSec* ) new WingSect( xscrv_ptr, index != 0 );
+             xsec_ptr = ( XSec* ) new WingSect( xscrv_ptr );
         }
         else if ( m_XSecType == XSEC_CUSTOM )
         {
-             xsec_ptr = ( XSec* ) new CustomXSec( xscrv_ptr, index != 0 );
+             xsec_ptr = ( XSec* ) new CustomXSec( xscrv_ptr );
         }
         else
         {

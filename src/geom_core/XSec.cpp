@@ -24,7 +24,7 @@ using std::string;
 using namespace vsp;
 
 //==== Default Constructor ====//
-XSec::XSec( XSecCurve *xsc, bool use_left )
+XSec::XSec( XSecCurve *xsc )
 {
     if ( xsc == NULL )
     {
@@ -475,7 +475,7 @@ void XSec::GetAngStrCrv( double t, int irib,
 //==========================================================================//
 
 //==== Default Constructor ====//
-SkinXSec::SkinXSec( XSecCurve *xsc, bool use_left ) : XSec( xsc, use_left)
+SkinXSec::SkinXSec( XSecCurve *xsc ) : XSec( xsc)
 {
 
     m_AllSymFlag.Init( "AllSym", m_GroupName, this, 1, 0, 1 );
@@ -1557,7 +1557,7 @@ void SkinXSec::SetV2DefaultBehavior()
 //==========================================================================//
 
 //==== Default Constructor ====//
-FuseXSec::FuseXSec( XSecCurve *xsc, bool use_left ) : SkinXSec( xsc, use_left)
+FuseXSec::FuseXSec( XSecCurve *xsc ) : SkinXSec( xsc)
 {
     m_Type = XSEC_FUSE;
 
@@ -1752,7 +1752,7 @@ double FuseXSec::GetScale()
 //==========================================================================//
 
 //==== Default Constructor ====//
-StackXSec::StackXSec( XSecCurve *xsc, bool use_left ) : SkinXSec( xsc, use_left)
+StackXSec::StackXSec( XSecCurve *xsc ) : SkinXSec( xsc)
 {
     m_Type = XSEC_STACK;
 

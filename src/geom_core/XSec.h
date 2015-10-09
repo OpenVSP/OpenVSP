@@ -31,7 +31,7 @@ class Geom;
 class XSec : public ParmContainer
 {
 public:
-    XSec( XSecCurve *xsc, bool use_left );                                                      // Default Constructor
+    XSec( XSecCurve *xsc );                                                      // Default Constructor
     virtual ~XSec();
 
     virtual void ParmChanged( Parm* parm_ptr, int type );
@@ -117,7 +117,7 @@ class SkinXSec : public XSec
 {
 public:
 
-    SkinXSec( XSecCurve *xsc, bool use_left );
+    SkinXSec( XSecCurve *xsc );
 
     virtual void CopySetValidate( IntParm &m_TopCont,
             BoolParm &m_TopLAngleSet,
@@ -289,7 +289,7 @@ protected:
 class FuseXSec : public SkinXSec
 {
 public:
-    FuseXSec( XSecCurve *xsc, bool use_left );
+    FuseXSec( XSecCurve *xsc );
 
     virtual void Update();
 
@@ -320,7 +320,7 @@ protected:
 class StackXSec : public SkinXSec
 {
 public:
-    StackXSec( XSecCurve *xsc, bool use_left );
+    StackXSec( XSecCurve *xsc );
 
     virtual void SetScale( double scale );
 

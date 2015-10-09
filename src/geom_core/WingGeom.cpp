@@ -488,7 +488,7 @@ bool WingDriverGroup::ValidDrivers( vector< int > choices )
 //=========================================================================================================//
 
 //==== Constructor ====//
-WingSect::WingSect( XSecCurve *xsc, bool use_left ) : XSec( xsc, use_left)
+WingSect::WingSect( XSecCurve *xsc ) : XSec( xsc)
 {
     m_Type = vsp::XSEC_WING;
 
