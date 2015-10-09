@@ -168,7 +168,7 @@ XSecCurve* XSecSurf::CreateXSecCurve( int type )
 }
 
 //==== Create XSecCurve ====//
-XSec* XSecSurf::CreateXSec( int type, int index )
+XSec* XSecSurf::CreateXSec( int type )
 {
     XSecCurve* xscrv_ptr = CreateXSecCurve( type );
 
@@ -222,7 +222,7 @@ string XSecSurf::InsertXSec( int type, int index )
 {
     string id;
 
-    XSec* xs = CreateXSec( type, index );
+    XSec* xs = CreateXSec( type );
 
     if ( xs )               // Valid XSec?
     {
@@ -244,7 +244,7 @@ string XSecSurf::AddXSec( int type )
 {
     string id;
 
-    XSec* xs = CreateXSec( type, NumXSec() );
+    XSec* xs = CreateXSec( type );
     if ( xs )
     {
         id = xs->GetID();
@@ -302,7 +302,7 @@ void XSecSurf::CopyXSec( int index )
     //==== Saved XSec ====//
     if ( !saved_xs )
     {
-        saved_xs = CreateXSec( xs->GetXSecCurve()->GetType(), index );
+        saved_xs = CreateXSec( xs->GetXSecCurve()->GetType() );
     }
 
     //==== Copy Data ====//
@@ -406,7 +406,7 @@ void XSecSurf::ChangeXSecShape( int index, int type )
     }
 
     //==== Create New XSec ====//
-    XSec* nxs = CreateXSec( type, index );
+    XSec* nxs = CreateXSec( type );
 
     if ( nxs )
     {

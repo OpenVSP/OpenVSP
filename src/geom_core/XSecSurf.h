@@ -95,7 +95,7 @@ protected:
 
     virtual void ChangeID( string id );
 
-    XSec* CreateXSec( int type, int index );
+    XSec* CreateXSec( int type );
     XSecCurve* CreateXSecCurve( int type );
 
     vector< XSec* > m_XSecPtrVec;
