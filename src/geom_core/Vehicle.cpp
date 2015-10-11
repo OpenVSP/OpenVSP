@@ -30,6 +30,7 @@
 #include "FitModelMgr.h"
 #include "FileUtil.h"
 #include "VSPAEROMgr.h"
+#include "main.h"
 using namespace vsp;
 
 #include <set>
@@ -2204,6 +2205,8 @@ void Vehicle::WriteIGESFile( const string & file_name, int write_set )
         model.SetUnitsFlag( UNIT_FOOT );
         break;
     }
+
+    model.SetNativeSystemID( VSPVERSION4 );
 
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
