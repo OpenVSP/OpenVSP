@@ -47,6 +47,8 @@ private:
     int m_NumParmChanges;
     int m_ChangeCnt;
 
+    string RemapID( const string & oldID, const string & suggestID, int size );
+
 public:
     static ParmMgrSingleton& getInstance()
     {
@@ -68,6 +70,7 @@ public:
 
     string GenerateID( int length );
 
+    string ForceRemapID( const string & oldID, int size );
     string RemapID( const string & oldID, const string & suggestID = "" );
     void ResetRemapID();
 

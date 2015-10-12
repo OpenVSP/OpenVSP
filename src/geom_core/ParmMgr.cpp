@@ -227,7 +227,20 @@ string ParmMgrSingleton::GenerateID( int length )
 // If oldID is already used by VSP (i.e. there are collisions), then newID will either
 // be set an optional suggestedID or randomly selected.
 //
+
 string ParmMgrSingleton::RemapID( const string & oldID, const string & suggestID )
+{
+    return RemapID( oldID, suggestID, -1 );
+}
+
+// ForceRemapID works as above, but makes no attempt to
+string ParmMgrSingleton::ForceRemapID( const string & oldID, int size )
+{
+    string dummy;
+    return RemapID( oldID, dummy, size );
+}
+
+string ParmMgrSingleton::RemapID( const string & oldID, const string & suggestID, int size )
 {
     string newID;
 
@@ -245,13 +258,17 @@ string ParmMgrSingleton::RemapID( const string & oldID, const string & suggestID
         Parm* p = FindParm( oldID );
         ParmContainer* pc = FindParmContainer( oldID );
 
-        if( ( p == NULL ) && ( pc == NULL ) )               // No collision
+        if( ( p == NULL ) && ( pc == NULL ) && size == -1 ) // No collision, size set to default
         {
             newID = oldID;                                  //  reuse oldID.
         }
         else                                                // ID already used
         {
-            if( suggestID.compare( "" ) != 0 )              //  suggestion provided
+            if ( size != -1 )
+            {
+                newID = GenerateID( size );                 //  generate new.
+            }
+            else if ( suggestID.compare( "" ) != 0 )        //  suggestion provided
             {
                 newID = suggestID;
             }
