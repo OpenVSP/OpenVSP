@@ -1152,11 +1152,32 @@ void FileXSec::Update()
     // Point set is closed with last point repeating first.
     int npts = m_UnityFilePnts.size() - 1;
 
+    int itop = 0, ileft = 0, ibot = 0;
+
     for ( int i = 0 ; i < npts ; i++ )
     {
         double x = m_UnityFilePnts[i].x() * m_Width();
         double y = m_UnityFilePnts[i].y() * m_Height();
         scaled_file_pnts.push_back( vec3d( x + m_Width() / 2.0, y, 0.0 ) );
+
+        if ( m_UnityFilePnts[i].y() < 0 && fabs( m_UnityFilePnts[i].x() ) < fabs(m_UnityFilePnts[ibot].x() ) )
+        {
+            ibot = i;
+        }
+
+        if ( m_UnityFilePnts[ileft].x() > 0 && m_UnityFilePnts[i].x() < 0 )
+        {
+            ileft = i;
+        }
+
+        if ( m_UnityFilePnts[i].x() < 0 && fabs( m_UnityFilePnts[i].y() ) < fabs(m_UnityFilePnts[ileft].y() ) )
+        {
+            ileft = i;
+        }
+        if ( m_UnityFilePnts[i].y() > 0 && fabs( m_UnityFilePnts[i].x() ) < fabs(m_UnityFilePnts[itop].x() ) )
+        {
+            itop = i;
+        }
 
         if ( i > 0 )
         {
@@ -1186,11 +1207,31 @@ void FileXSec::Update()
         }
     }
 
-    double lenscale = 4.0/arclen.back();
+    double arcend1 = arclen[ibot];
+    double arcend2 = arclen[ileft];
+    double arcend3 = arclen[itop];
 
-    for ( int i = 0; i < (int)arclen.size(); i++ )
+    double len1 = 1.0 / arcend1;
+    double len2 = 1.0 / ( arcend2 - arcend1 );
+    double len3 = 1.0 / ( arcend3 - arcend2 );
+    double len4 = 1.0 / ( arclen.back() - arcend3 );
+
+    int i = 0;
+    for ( ; i <= ibot; i++ )
     {
-        arclen[i] = arclen[i] * lenscale;
+        arclen[i] = arclen[i] * len1;
+    }
+    for ( ; i <= ileft; i++ )
+    {
+        arclen[i] = 1.0 + (arclen[i] - arcend1) * len2;
+    }
+    for ( ; i <= itop; i++ )
+    {
+        arclen[i] = 2.0 + (arclen[i] - arcend2) * len3;
+    }
+    for ( ; i < (int) arclen.size(); i++ )
+    {
+        arclen[i] = 3.0 + (arclen[i] - arcend3) * len4;
     }
 
     m_Curve.InterpolatePCHIP( scaled_file_pnts, arclen, true );
