@@ -308,6 +308,7 @@ protected:
 
     vector< string > CopyGeomVec( const vector<string> & geom_vec );
     void InsertIntoActiveDeque( const string & add_id, const string & parent_id );  // Insert Geom After Parent
+    void SetApplyAbsIgnoreFlag( const vector< string > &g_vec, bool val );
 
     //==== Primary file name ====//
     string m_VSP3FileName;

@@ -275,6 +275,10 @@ public:
     {
         m_ignoreAbsFlag = val;
     }
+    virtual void SetApplyAbsIgnoreFlag(bool val)
+    {
+        m_applyIgnoreAbsFlag = val;
+    }
 
 
     Matrix4d getModelMatrix()
@@ -318,6 +322,7 @@ public:
 protected:
 
     bool m_ignoreAbsFlag;
+    bool m_applyIgnoreAbsFlag;          // Controls whether the ignoreAbsFlag is obeyed
     Matrix4d m_ModelMatrix;
 
 };

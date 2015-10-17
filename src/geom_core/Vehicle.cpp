@@ -2700,6 +2700,18 @@ string Vehicle::ImportV2File( const string & file_name )
     return string();
 }
 
+void Vehicle::SetApplyAbsIgnoreFlag( const vector< string > &g_vec, bool val )
+{
+    for ( unsigned int i = 0; i < g_vec.size() ; i++ )
+    {
+        Geom* g = FindGeom( g_vec[i] );
+        if ( g )
+        {
+            g->SetApplyAbsIgnoreFlag( val );
+        }
+    }
+}
+
 //==== Import File Methods ====//
 void Vehicle::ExportFile( const string & file_name, int write_set, int file_type )
 {

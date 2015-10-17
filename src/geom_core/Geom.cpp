@@ -351,6 +351,7 @@ GeomXForm::GeomXForm( Vehicle* vehicle_ptr ) : GeomBase( vehicle_ptr )
     m_LastScale = m_Scale();
 
     m_ignoreAbsFlag = false;
+    m_applyIgnoreAbsFlag = true;
 
     m_ModelMatrix.loadIdentity();
 }
@@ -381,7 +382,7 @@ void GeomXForm::ComposeModelMatrix()
     // Get Attament Matrix
     Matrix4d attachedMat = ComposeAttachMatrix();
 
-    if (  m_AbsRelFlag() ==  RELATIVE_XFORM || m_ignoreAbsFlag )
+    if (  m_AbsRelFlag() ==  RELATIVE_XFORM || ( m_ignoreAbsFlag && m_applyIgnoreAbsFlag ) )
     {
         // Apply normal translations
         m_ModelMatrix.translatef( m_XRelLoc(), m_YRelLoc(), m_ZRelLoc() );
