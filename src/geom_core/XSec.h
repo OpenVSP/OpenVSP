@@ -94,6 +94,9 @@ public:
             double &thetaR, double &phiR, double &strengthR, double &curvatureR,
             const VspSurf &surf );
 
+    virtual void ReadV2FileFuse2( xmlNodePtr &root );
+    virtual void ReadV2FileFuse1( xmlNodePtr &root );
+
     IntParm m_SectTessU;
 
 protected:
@@ -282,6 +285,9 @@ public:
 
     virtual void SetV2DefaultBehavior();
 
+    virtual void ReadV2FileFuse2( xmlNodePtr &root );
+    virtual void ReadV2FileFuse1( xmlNodePtr &root );
+
 protected:
 };
 
@@ -299,6 +305,9 @@ public:
     virtual void CopyFuseXSParms( XSec* xs );
 
     virtual double GetScale();
+
+    virtual void ReadV2FileFuse2( xmlNodePtr &root );
+    virtual void ReadV2FileFuse1( xmlNodePtr &root );
 
     FractionParm m_XLocPercent;
     FractionParm m_YLocPercent;

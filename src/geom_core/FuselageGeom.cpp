@@ -467,3 +467,245 @@ void FuselageGeom::EnforceOrder( FuseXSec* xs, int indx, int policy )
         xs->m_XLocPercent.SetLowerUpperLimits( 0.0, 1.0 );
     }
 }
+
+void FuselageGeom::ReadV2File( xmlNodePtr &root )
+{
+    xmlNodePtr node = XmlUtil::GetNode( root, "Type", 0 );
+
+    if ( node )
+    {
+        string typeStr = XmlUtil::ExtractString( node );
+
+        if ( typeStr == "Fuselage" )
+        {
+            ReadV2FileFuse1( root );
+        }
+        else if ( typeStr == "Fuselage2" )
+        {
+            ReadV2FileFuse2( root );
+        }
+    }
+
+}
+
+void FuselageGeom::ReadV2FileFuse2( xmlNodePtr &root )
+{
+    int i;
+    xmlNodePtr node;
+
+    m_XSecSurf.DeleteAllXSecs();
+
+    //===== Read General Parameters =====//
+    node = XmlUtil::GetNode( root, "General_Parms", 0 );
+    if ( node )
+    {
+        Geom::ReadV2File( node );
+    }
+
+    int num_xsecs;
+//    int space_type = PNT_SPACE_FIXED;
+
+    //===== Read Fuse Parameters =====//
+    node = XmlUtil::GetNode( root, "Fuse_Parms", 0 );
+    if ( node )
+    {
+        m_Length = XmlUtil::FindDouble( node, "Fuse_Length", m_Length() );
+
+//        space_type = XmlUtil::FindInt( node, "Space_Type", space_type );
+    }
+
+    node = XmlUtil::GetNode( root, "Cross_Section_List", 0 );
+    if ( node  )
+    {
+        xmlNodePtr xsec_list_node = node;
+        num_xsecs = XmlUtil::GetNumNames( xsec_list_node, "Cross_Section" );
+
+        for ( i = 0 ; i < num_xsecs ; i++ )
+        {
+            xmlNodePtr xsec_node = XmlUtil::GetNode( xsec_list_node, "Cross_Section", i );
+
+            int xstype = XmlUtil::FindInt( xsec_node, "Type", xstype );
+
+            XSec* xsec_ptr = NULL;
+
+            switch ( xstype )
+            {
+            case V2_FXS_POINT:
+                xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_POINT ) );
+                break;
+            case V2_FXS_CIRCLE:
+                xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_CIRCLE ) );
+                break;
+            case V2_FXS_ELLIPSE:
+                xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_ELLIPSE ) );
+                break;
+            case V2_FXS_BOX:
+                xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_ROUNDED_RECTANGLE ) );
+                break;
+            case V2_FXS_RND_BOX:
+                xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_ROUNDED_RECTANGLE ) );
+                break;
+            case V2_FXS_GENERAL:
+                xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_GENERAL_FUSE ) );
+                break;
+            case V2_FXS_FROM_FILE:
+                xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_FILE_FUSE ) );
+                break;
+            case V2_FXS_EDIT_CRV:
+                xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_ELLIPSE ) );
+
+                break;
+            default:
+
+                break;
+            }
+
+            if ( xsec_ptr )
+            {
+                FuseXSec* fuse_xsec_ptr = dynamic_cast < FuseXSec* > (xsec_ptr);
+                if ( fuse_xsec_ptr )
+                {
+                    fuse_xsec_ptr->SetRefLength( m_Length() );
+                }
+                xsec_ptr->ReadV2FileFuse2( xsec_node );
+            }
+        }
+    }
+}
+
+void FuselageGeom::ReadV2FileFuse1( xmlNodePtr &root )
+{
+    xmlNodePtr node;
+
+    m_XSecSurf.DeleteAllXSecs();
+
+    //===== Read General Parameters =====//
+    node = XmlUtil::GetNode( root, "General_Parms", 0 );
+    if ( node )
+    {
+        Geom::ReadV2File( node );
+    }
+
+    double nose_rho = 1.0;
+    double aft_rho = 1.0;
+
+    int nose_super_flag = 0;
+    int aft_super_flag = 0;
+
+    //===== Read Fuse Parameters =====//
+    node = XmlUtil::GetNode( root, "Fuse_Parms", 0 );
+    if ( node )
+    {
+        m_Length = XmlUtil::FindDouble( node, "Fuse_Length", m_Length() );
+        nose_rho = XmlUtil::FindDouble( node, "Nose_Rho", nose_rho );
+        aft_rho = XmlUtil::FindDouble( node, "Aft_Rho", aft_rho );
+        nose_super_flag = XmlUtil::FindInt( node, "Nose_Super_Flag", nose_super_flag );
+        aft_super_flag = XmlUtil::FindInt( node, "Aft_Super_Flag", aft_super_flag );
+
+//        camber = XmlUtil::FindDouble( node, "Camber", camber() );
+//        camber_loc = XmlUtil::FindDouble( node, "Camber_Location", camber_loc() );
+//        aft_offset = XmlUtil::FindDouble( node, "Aft_Offset", aft_offset() );
+//        nose_angle = XmlUtil::FindDouble( node, "Nose_Angle", nose_angle());
+//        nose_str = XmlUtil::FindDouble( node, "Nose_Strength", nose_str() );
+//
+//        imlFlag = XmlUtil::FindInt( node, "IML_Flag", imlFlag );
+//        space_type = XmlUtil::FindInt( node, "Space_Type", space_type );
+//
+    }
+
+    node = XmlUtil::GetNode( root, "Cross_Section_List", 0 );
+    if ( node  )
+    {
+        xmlNodePtr xsec_list_node = node;
+        int num_xsecs = XmlUtil::GetNumNames( xsec_list_node, "Cross_Section" );
+
+        //==== Load & Read Fuse Xsec Parms ====//
+        for ( int i = 0 ; i < num_xsecs ; i++ )
+        {
+            xmlNodePtr xsec_node = XmlUtil::GetNode( xsec_list_node, "Cross_Section", i );
+
+            xmlNodePtr omlNode = XmlUtil::GetNode( xsec_node, "OML_Parms", 0 );
+            int xstype = XmlUtil::FindInt( omlNode, "Type", -1 );
+
+            XSec* xsec_ptr = NULL;
+
+            switch ( xstype )
+            {
+            case V2_XSEC_POINT:
+                xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_POINT ) );
+                break;
+            case V2_CIRCLE:
+                xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_CIRCLE ) );
+                break;
+            case V2_ELLIPSE:
+                xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_ELLIPSE ) );
+                break;
+            case V2_RND_BOX:
+                xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_ROUNDED_RECTANGLE ) );
+                break;
+            case V2_GENERAL:
+                xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_GENERAL_FUSE ) );
+                break;
+            case V2_FROM_FILE:
+                xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_FILE_FUSE ) );
+                break;
+            case V2_EDIT_CRV:
+                xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_ELLIPSE ) );
+                break;
+            default:
+
+                break;
+            }
+
+            if ( xsec_ptr )
+            {
+                FuseXSec* fuse_xsec_ptr = dynamic_cast < FuseXSec* > (xsec_ptr);
+                if ( fuse_xsec_ptr )
+                {
+                    fuse_xsec_ptr->SetRefLength( m_Length() );
+                }
+                xsec_ptr->ReadV2FileFuse1( xsec_node );
+            }
+        }
+    }
+
+    // Nose and aft rho control the exponent of a superellipse for v2 Fuse1.
+    // Duplicating that shape exactly is not practical, so this heuristic will
+    // get something somewht close.
+    if ( nose_super_flag )
+    {
+        FuseXSec* fuse_xs = dynamic_cast < FuseXSec* > ( GetXSec( 0 ) );
+        if ( fuse_xs )
+        {
+            double ang;
+            if ( nose_rho < 2.0 )
+            {
+                ang = nose_rho * 45.0;
+            }
+            else
+            {
+                ang = 90.0;
+            }
+            fuse_xs->m_TopLAngle = ang;
+        }
+    }
+
+    if ( aft_super_flag )
+    {
+        FuseXSec* fuse_xs = dynamic_cast < FuseXSec* > ( GetXSec( GetXSecSurf( 0 )->NumXSec() - 1 ) );
+        if ( fuse_xs )
+        {
+            double ang;
+            if ( aft_rho < 2.0 )
+            {
+                ang = -aft_rho * 45.0;
+            }
+            else
+            {
+                ang = -90.0;
+            }
+            fuse_xs->m_TopLAngle = ang;
+        }
+    }
+
+}

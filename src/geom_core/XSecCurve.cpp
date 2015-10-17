@@ -18,6 +18,9 @@
 #include <float.h>
 #include <stdio.h>
 #include "APIDefines.h"
+#include "FuselageGeom.h"
+
+#include <algorithm>
 
 #include "Vehicle.h"
 
@@ -747,6 +750,18 @@ void XSecCurve::RotTransScale()
     m_Curve.SetCurve( before );
 }
 
+void XSecCurve::ReadV2FileFuse2( xmlNodePtr &root )
+{
+    double height = GetHeight();
+    double width = GetWidth();
+
+    height = XmlUtil::FindDouble( root, "Height", height );
+    width = XmlUtil::FindDouble( root, "Width",  width );
+
+    SetWidthHeight( width, height );
+}
+
+
 //==========================================================================//
 //==========================================================================//
 //==========================================================================//
@@ -1052,6 +1067,23 @@ void RoundedRectXSec::SetWidthHeight( double w, double h )
     m_Height = h;
 }
 
+
+void RoundedRectXSec::ReadV2FileFuse2( xmlNodePtr &root )
+{
+    XSecCurve::ReadV2FileFuse2( root );
+
+    int v2type = XmlUtil::FindInt( root, "Type", FuselageGeom::V2_FXS_RND_BOX );
+
+    if ( v2type == FuselageGeom::V2_FXS_RND_BOX )
+    {
+        m_Radius = XmlUtil::FindDouble( root, "Corner_Radius", m_Radius() );
+    }
+    else
+    {
+        m_Radius = 0.0;
+    }
+}
+
 //==========================================================================//
 //==========================================================================//
 //==========================================================================//
@@ -1154,6 +1186,22 @@ void GeneralFuseXSec::Update()
     }
 
     XSecCurve::Update();
+}
+
+void GeneralFuseXSec::ReadV2FileFuse2( xmlNodePtr &root )
+{
+    XSecCurve::ReadV2FileFuse2( root );
+
+    m_MaxWidthLoc = XmlUtil::FindDouble( root, "Max_Width_Location", m_MaxWidthLoc() );
+    m_CornerRad = XmlUtil::FindDouble( root, "Corner_Radius", m_CornerRad() );
+
+    m_TopTanAngle = XmlUtil::FindDouble( root, "Top_Tan_Angle", m_TopTanAngle());
+    m_BotTanAngle = XmlUtil::FindDouble( root, "Bot_Tan_Angle", m_BotTanAngle());
+
+    m_TopStr = XmlUtil::FindDouble( root, "Top_Tan_Strength", m_TopStr() );
+    m_UpStr = XmlUtil::FindDouble( root, "Upper_Tan_Strength", m_UpStr() );
+    m_LowStr = XmlUtil::FindDouble( root, "Lower_Tan_Strength", m_LowStr() );
+    m_BotStr = XmlUtil::FindDouble( root, "Bottom_Tan_Strength", m_BotStr() );
 }
 
 //==========================================================================//
@@ -1519,5 +1567,57 @@ void FileXSec::SetPnts( vector< vec3d > & pnt_vec )
         double x = pnt_vec[i].x() / m_Width();
         double y = pnt_vec[i].y() / m_Height();
         m_UnityFilePnts.push_back( vec3d( x, y, 0.0 ) );
+    }
+}
+
+void FileXSec::ReadV2FileFuse2( xmlNodePtr &root )
+{
+    XSecCurve::ReadV2FileFuse2( root );
+
+    m_FileName = XmlUtil::FindString( root, "File_Name", m_FileName );
+
+    xmlNodePtr yn = XmlUtil::GetNode( root, "File_Y_Pnts", 0 );
+    xmlNodePtr zn = XmlUtil::GetNode( root, "File_Z_Pnts", 0 );
+
+    if ( yn && zn )
+    {
+        int numy = XmlUtil::GetNumArray( yn, ',' );
+        int numz = XmlUtil::GetNumArray( zn, ',' );
+        if ( numy == numz )
+        {
+            int num_pnts = numy;
+            double* arry = (double*)malloc( num_pnts*sizeof(double) );
+            double* arrz = (double*)malloc( num_pnts*sizeof(double) );
+            XmlUtil::ExtractDoubleArray( yn, ',', arry, num_pnts );
+            XmlUtil::ExtractDoubleArray( zn, ',', arrz, num_pnts );
+
+            int izzero = 0;
+
+            vector < vec3d > pnt_vec;
+            for ( int i = 0; i < num_pnts; i++ )
+            {
+                pnt_vec.push_back( vec3d( arry[i], arrz[i], 0.0 ) );
+                if ( abs( arrz[i] ) < abs( arrz[izzero] ) )
+                {
+                    izzero = i;
+                }
+            }
+            // Mirror points, do not repeat any points.
+            for ( int i = num_pnts - 2; i > 0; i-- )
+            {
+                pnt_vec.push_back( vec3d( -arry[i], arrz[i], 0.0 ) );
+            }
+
+            free( arry );
+            free( arrz );
+
+            // Rotate to v3 start/end point.
+            rotate( pnt_vec.begin(), pnt_vec.begin() + izzero, pnt_vec.end() );
+
+            // Add duplicate start/end point.
+            pnt_vec.push_back( pnt_vec[0] );
+
+            SetPnts( pnt_vec );
+        }
     }
 }

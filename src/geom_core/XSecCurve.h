@@ -71,6 +71,7 @@ public:
     virtual void Trim( bool wingtype );
     virtual void RotTransScale();
 
+    virtual void ReadV2FileFuse2( xmlNodePtr &root );
 
     IntParm m_TECloseType;
     IntParm m_TECloseAbsRel;
@@ -227,6 +228,8 @@ public:
     virtual void SetWidthHeight( double w, double h );
     virtual string GetWidthParmID()                                    { return m_Width.GetID(); }
 
+    virtual void ReadV2FileFuse2( xmlNodePtr &root );
+
     Parm m_Width;
     Parm m_Height;
     Parm m_Radius;
@@ -255,6 +258,8 @@ public:
     }
     virtual void SetWidthHeight( double w, double h );
     virtual string GetWidthParmID()                                    { return m_Width.GetID(); }
+
+    virtual void ReadV2FileFuse2( xmlNodePtr &root );
 
     Parm m_Width;
     Parm m_Height;
@@ -302,6 +307,8 @@ public:
     //===== Read File ====//
     bool ReadXsecFile( string file_name );
     void SetPnts( vector< vec3d > & pnt_vec );
+
+    virtual void ReadV2FileFuse2( xmlNodePtr &root );
 
     Parm m_Width;
     Parm m_Height;

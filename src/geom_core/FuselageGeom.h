@@ -64,8 +64,32 @@ public:
     //==== Set Drag Factors ====//
     virtual void LoadDragFactors( DragFactors& drag_factors );
 
+    virtual void ReadV2File( xmlNodePtr &root );
+    virtual void ReadV2FileFuse2( xmlNodePtr &root );
+    virtual void ReadV2FileFuse1( xmlNodePtr &root );
+
     Parm m_Length;                  // Length of Fuselage
     IntParm m_OrderPolicy;
+
+    enum { V2_FXS_POINT = 0,
+           V2_FXS_CIRCLE = 1,
+           V2_FXS_ELLIPSE = 2,
+           V2_FXS_BOX = 3,
+           V2_FXS_RND_BOX = 4,
+           V2_FXS_GENERAL = 5,
+           V2_FXS_FROM_FILE = 6,
+           V2_FXS_EDIT_CRV = 7
+    };
+
+    enum { V2_XSEC_POINT = 0,
+           V2_CIRCLE = 1,
+           V2_ELLIPSE = 2,
+           V2_RND_BOX = 3,
+           V2_GENERAL = 4,
+           V2_FROM_FILE = 5,
+           V2_EDIT_CRV = 6
+    };
+
 
 protected:
     virtual void ChangeID( string id );

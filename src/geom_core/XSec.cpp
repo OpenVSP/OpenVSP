@@ -478,6 +478,28 @@ void XSec::GetAngStrCrv( double t, int irib,
     curvatureR = uuR.mag() * sgn( dot( uuR, nR ));
 }
 
+void XSec::ReadV2FileFuse2( xmlNodePtr &root )
+{
+    m_SectTessU  = XmlUtil::FindInt( root, "Num_Sect_Interp_1", m_SectTessU() );
+
+    double numSectInterp2 = 0;
+    numSectInterp2  = XmlUtil::FindInt( root, "Num_Sect_Interp_2", numSectInterp2 );
+
+    m_XSCurve->ReadV2FileFuse2( root );
+}
+
+void XSec::ReadV2FileFuse1( xmlNodePtr &root )
+{
+    m_SectTessU  = XmlUtil::FindInt( root, "Num_Sect_Interp_1", m_SectTessU() );
+
+    double numSectInterp2 = 0;
+    numSectInterp2  = XmlUtil::FindInt( root, "Num_Sect_Interp_2", numSectInterp2 );
+
+    xmlNodePtr omlNode = XmlUtil::GetNode( root, "OML_Parms", 0 );
+
+    m_XSCurve->ReadV2FileFuse2( omlNode );
+}
+
 //==========================================================================//
 //==========================================================================//
 //==========================================================================//
@@ -1559,6 +1581,46 @@ void SkinXSec::SetV2DefaultBehavior()
     m_LeftLRAngleEq = 1;
 }
 
+void SkinXSec::ReadV2FileFuse2( xmlNodePtr &root )
+{
+    XSec::ReadV2FileFuse2( root );
+
+    SetV2DefaultBehavior();
+
+    m_TBSymFlag = XmlUtil::FindInt( root, "Top_Sym_Flag", m_TBSymFlag() );
+    m_RLSymFlag = XmlUtil::FindInt( root, "Side_Sym_Flag", m_RLSymFlag() );
+
+    m_TopLAngle = -XmlUtil::FindDouble( root, "Top_Tan_Ang", -m_TopLAngle() );
+    m_TopLStrength = 3.0 * XmlUtil::FindDouble( root, "Top_Tan_Str_1", m_TopLStrength() / 3.0 );
+    m_TopRStrength = 3.0 * XmlUtil::FindDouble( root, "Top_Tan_Str_2", m_TopRStrength() / 3.0 );
+
+    m_BottomLAngle = -XmlUtil::FindDouble( root, "Bot_Tan_Ang", -m_BottomLAngle() );
+    m_BottomLStrength = 3.0 * XmlUtil::FindDouble( root, "Bot_Tan_Str_1", m_BottomLStrength() / 3.0 );
+    m_BottomRStrength = 3.0 * XmlUtil::FindDouble( root, "Bot_Tan_Str_2", m_BottomRStrength() / 3.0 );
+
+    m_LeftLAngle = -XmlUtil::FindDouble( root, "Left_Tan_Ang", -m_LeftLAngle() );
+    m_LeftLStrength = 3.0 * XmlUtil::FindDouble( root, "Left_Tan_Str_1", m_LeftLStrength() / 3.0 );
+    m_LeftRStrength = 3.0 * XmlUtil::FindDouble( root, "Left_Tan_Str_2", m_LeftRStrength() / 3.0 );
+
+    m_RightLAngle = -XmlUtil::FindDouble( root, "Right_Tan_Ang", -m_RightLAngle() );
+    m_RightLStrength = 3.0 * XmlUtil::FindDouble( root, "Right_Tan_Str_1", m_RightLStrength() / 3.0 );
+    m_RightRStrength = 3.0 * XmlUtil::FindDouble( root, "Right_Tan_Str_2", m_RightRStrength() / 3.0 );
+}
+
+void SkinXSec::ReadV2FileFuse1( xmlNodePtr &root )
+{
+    XSec::ReadV2FileFuse1( root );
+
+    SetV2DefaultBehavior();
+
+    m_AllSymFlag = 1;
+
+    //==== Profile Stuff ====//
+    m_TopLAngle = atan( XmlUtil::FindDouble( root, "Profile_Tan_Ang", 0.0 ) ) * 180.0 / PI;
+    m_TopLStrength = 3.0 * XmlUtil::FindDouble( root, "Profile_Tan_Str_1", m_TopLStrength() / 3.0 );
+    m_TopRStrength = 3.0 * XmlUtil::FindDouble( root, "Profile_Tan_Str_2", m_TopRStrength() / 3.0 );
+
+}
 
 //==========================================================================//
 //==========================================================================//
@@ -1753,6 +1815,41 @@ double FuseXSec::GetScale()
     }
 
     return scale;
+}
+
+void FuseXSec::ReadV2FileFuse2( xmlNodePtr &root )
+{
+    SkinXSec::ReadV2FileFuse2( root );
+
+    m_XLocPercent = XmlUtil::FindDouble( root, "Spine_Location", m_XLocPercent() );
+    m_YLocPercent.SetResult( XmlUtil::FindDouble( root, "Y_Offset", m_YLocPercent.GetResult() ) );
+    m_ZLocPercent.SetResult( XmlUtil::FindDouble( root, "Z_Offset", m_ZLocPercent.GetResult() ) );
+}
+
+void FuseXSec::ReadV2FileFuse1( xmlNodePtr &root )
+{
+    SkinXSec::ReadV2FileFuse1( root );
+
+//    num_pnts = xmlFindInt( root, "Num_Pnts", num_pnts );
+
+    m_XLocPercent = XmlUtil::FindDouble( root, "Spine_Location", m_XLocPercent() );
+    m_ZLocPercent.SetResult( XmlUtil::FindDouble( root, "Z_Offset", m_ZLocPercent.GetResult() ) );
+
+//    topThick = XmlUtil::FindDouble( root, "Top_Thick", topThick() );
+//    botThick = XmlUtil::FindDouble( root, "Bot_Thick", botThick() );
+//    sideThick = XmlUtil::FindDouble( root, "Side_Thick", sideThick() );
+//
+//    actTopThick = XmlUtil::FindDouble( root, "Act_Top_Thick", actTopThick );
+//    actBotThick = XmlUtil::FindDouble( root, "Act_Bot_Thick", actBotThick );
+//    actSideThick = XmlUtil::FindDouble( root, "Act_Side_Thick", actSideThick );
+//
+//    imlXOff = XmlUtil::FindDouble( root, "IML_X_Offset", imlXOff );
+//    imlZOff = XmlUtil::FindDouble( root, "IML_Z_Offset", imlZOff );
+//
+//    imlFlag = XmlUtil::FindInt( root, "IML_Flag", imlFlag );
+//    mlType = XmlUtil::FindInt( root, "ML_Type", mlType );
+
+
 }
 
 //==========================================================================//
