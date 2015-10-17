@@ -1652,8 +1652,8 @@ void Geom::WritePLOT3DFileExtents( FILE* dump_file )
         vector< vector< vec3d > > norms;
 
         UpdateTesselate( i, pnts, norms, false );
-	//==== Write surface boundary extents ====//
-	fprintf( dump_file, " %d %d %d\n", static_cast<int>( pnts[0].size() ), static_cast<int>( pnts.size() ), 1 );
+        //==== Write surface boundary extents ====//
+        fprintf( dump_file, " %d %d %d\n", static_cast<int>( pnts[0].size() ), static_cast<int>( pnts.size() ), 1 );
     }
 }
 
@@ -1675,7 +1675,7 @@ void Geom::WritePLOT3DFileXYZ( FILE* dump_file )
                 fprintf( dump_file, "%25.17e ", pnts[j][k].x() );
             }
         }
-	fprintf( dump_file, "\n" );
+        fprintf( dump_file, "\n" );
         for ( int j = 0 ; j < ( int )pnts.size() ; j++ )
         {
             for ( int k = 0 ; k < ( int )pnts[j].size() ; k++ )
@@ -1683,7 +1683,7 @@ void Geom::WritePLOT3DFileXYZ( FILE* dump_file )
                 fprintf( dump_file, "%25.17e ", pnts[j][k].y() );
             }
         }
-	fprintf( dump_file, "\n" );
+        fprintf( dump_file, "\n" );
         for ( int j = 0 ; j < ( int )pnts.size() ; j++ )
         {
             for ( int k = 0 ; k < ( int )pnts[j].size() ; k++ )
@@ -1691,7 +1691,7 @@ void Geom::WritePLOT3DFileXYZ( FILE* dump_file )
                 fprintf( dump_file, "%25.17e ", pnts[j][k].z() );
             }
         }
-	fprintf( dump_file, "\n" );
+        fprintf( dump_file, "\n" );
     }
 }
 

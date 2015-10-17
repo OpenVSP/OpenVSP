@@ -1433,7 +1433,7 @@ void Vehicle::WritePLOT3DFile( const string & file_name, int write_set )
     {
         if ( geom_vec[i]->GetSetFlag( write_set ) )
         {
-	    geom_vec[i]->WritePLOT3DFileExtents( dump_file );
+            geom_vec[i]->WritePLOT3DFileExtents( dump_file );
         }
     }
 
