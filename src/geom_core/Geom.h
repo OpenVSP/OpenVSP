@@ -631,6 +631,18 @@ protected:
     vector< bool > m_CapUMaxSuccess;
     vector< bool > m_CapWMinSuccess;
     vector< bool > m_CapWMaxSuccess;
+
+    enum { V2_NO_SYM = 0,
+           V2_XY_SYM = 1,
+           V2_XZ_SYM = 2,
+           V2_YZ_SYM = 3
+    };
+
+    enum { V2_POS_ATTACH_NONE = 0,
+           V2_POS_ATTACH_FIXED = 1,
+           V2_POS_ATTACH_UV = 2,
+           V2_POS_ATTACH_MATRIX = 3,
+    };
 };
 
 //==== GeomXSec  ====//

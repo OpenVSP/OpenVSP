@@ -1477,6 +1477,266 @@ xmlNodePtr Geom::DecodeGeom( xmlNodePtr & node )
 
 void Geom::ReadV2File( xmlNodePtr &root )
 {
+    int i;
+
+    SetName( XmlUtil::FindString( root, "Name", m_Name ) );
+
+    double r = XmlUtil::FindDouble( root, "ColorR", 0 );
+    double g = XmlUtil::FindDouble( root, "ColorG", 0 );
+    double b = XmlUtil::FindDouble( root, "ColorB", 0 );
+
+    m_GuiDraw.SetWireColor( r, g, b );
+
+    int sym_code = XmlUtil::FindInt( root, "Symmetry", 0 );
+
+    if ( sym_code == V2_XY_SYM )
+    {
+        m_SymPlanFlag = SYM_XY;
+    }
+    else if ( sym_code == V2_XZ_SYM )
+    {
+        m_SymPlanFlag = SYM_XZ;
+    }
+    else if ( sym_code == V2_YZ_SYM )
+    {
+        m_SymPlanFlag = SYM_YZ;
+    }
+    else
+    {
+        m_SymPlanFlag = 0;
+    }
+
+    m_AbsRelFlag = XmlUtil::FindInt( root, "RelXFormFlag", m_AbsRelFlag() );
+
+    int materialID = XmlUtil::FindInt( root, "MaterialID", materialID );
+
+    vector < string > v2materials;
+    v2materials.push_back( "Default" );
+    v2materials.push_back( "Red Default" );
+    v2materials.push_back( "Green Default" );
+    v2materials.push_back( "Blue Default" );
+    v2materials.push_back( "Emerald" );
+    v2materials.push_back( "Jade" );
+    v2materials.push_back( "Obsidian" );
+    v2materials.push_back( "Brass" );
+    v2materials.push_back( "Chrome" );
+    v2materials.push_back( "Gold" );
+    v2materials.push_back( "Silver" );
+    v2materials.push_back( "Black Plastic" );
+    v2materials.push_back( "Cyan Plastic" );
+    v2materials.push_back( "Green Plastic" );
+    v2materials.push_back( "Red Plastic" );
+    v2materials.push_back( "Blue Plastic" );
+    v2materials.push_back( "Yellow Plastic" );
+    v2materials.push_back( "White" );
+    v2materials.push_back( "Aluminum" );
+    v2materials.push_back( "Shiny Gold" );
+    v2materials.push_back( "Glass Light" );
+    v2materials.push_back( "Glass Med" );
+    v2materials.push_back( "Glass Dark" );
+    v2materials.push_back( "Glass Golden" );
+    v2materials.push_back( "Blank" );
+    m_GuiDraw.SetMaterial( v2materials[materialID] );
+
+    m_TessW = XmlUtil::FindInt( root, "NumPnts", m_TessW() );
+    m_TessU = XmlUtil::FindInt( root, "NumXsecs", m_TessU() );
+
+    int outputFlag   = XmlUtil::FindInt( root, "OutputFlag", outputFlag );
+    int outputNameID = XmlUtil::FindInt( root, "OutputNameID", outputNameID );
+    int displayChildrenFlag = XmlUtil::FindInt( root, "DisplayChildrenFlag", displayChildrenFlag );
+
+    m_MassPrior = XmlUtil::FindInt( root, "MassPrior", m_MassPrior() );
+    m_ShellFlag = XmlUtil::FindInt( root, "ShellFlag", m_ShellFlag() );
+
+    m_XLoc = XmlUtil::FindDouble( root, "Tran_X", m_XLoc() );
+    m_YLoc = XmlUtil::FindDouble( root, "Tran_Y", m_YLoc() );
+    m_ZLoc = XmlUtil::FindDouble( root, "Tran_Z", m_ZLoc() );
+    m_XRelLoc = XmlUtil::FindDouble( root, "TranRel_X", m_XRelLoc() );
+    m_YRelLoc = XmlUtil::FindDouble( root, "TranRel_Y", m_YRelLoc() );
+    m_ZRelLoc = XmlUtil::FindDouble( root, "TranRel_Z", m_ZRelLoc() );
+
+    m_XRot = XmlUtil::FindDouble( root, "Rot_X", m_XRot() );
+    m_YRot = XmlUtil::FindDouble( root, "Rot_Y", m_YRot() );
+    m_ZRot = XmlUtil::FindDouble( root, "Rot_Z", m_ZRot() );
+    // m_XRelRot = XmlUtil::FindDouble( root, "RotRel_X", m_XRelRot() );
+    // m_YRelRot = XmlUtil::FindDouble( root, "RotRel_Y", m_YRelRot() );
+    // m_ZRelRot = XmlUtil::FindDouble( root, "RotRel_Z", m_ZRelRot() );
+    // Relative rotation doesn't actually have meaning in v2.  Apply
+    // overall values for later use as needed.
+    m_XRelRot = m_XRot();
+    m_YRelRot = m_YRot();
+    m_ZRelRot = m_ZRot();
+
+
+    m_Origin = XmlUtil::FindDouble( root, "Origin", m_Origin() );
+
+    m_Density = XmlUtil::FindDouble( root, "Density", m_Density() );
+    m_MassArea = XmlUtil::FindDouble( root, "ShellMassArea", m_MassArea() );
+
+    int refFlag = XmlUtil::FindInt( root, "RefFlag", refFlag );
+    double refArea = XmlUtil::FindDouble( root, "RefArea", refArea );
+    double refSpan = XmlUtil::FindDouble( root, "RefSpan", refSpan );
+    double refCbar = XmlUtil::FindDouble( root, "RefCbar", refCbar );
+    int autoRefAreaFlag = XmlUtil::FindInt( root, "AutoRefAreaFlag", autoRefAreaFlag );
+    int autoRefSpanFlag = XmlUtil::FindInt( root, "AutoRefSpanFlag", autoRefSpanFlag );
+    int autoRefCbarFlag = XmlUtil::FindInt( root, "AutoRefCbarFlag", autoRefCbarFlag );
+    vec3d aeroCenter;
+    aeroCenter.set_x( XmlUtil::FindDouble( root, "AeroCenter_X", aeroCenter.x() ) );
+    aeroCenter.set_y( XmlUtil::FindDouble( root, "AeroCenter_Y", aeroCenter.y() ) );
+    aeroCenter.set_z( XmlUtil::FindDouble( root, "AeroCenter_Z", aeroCenter.z() ) );
+    int autoAeroCenterFlag = XmlUtil::FindInt( root, "AutoAeroCenterFlag", autoAeroCenterFlag );
+
+    m_WakeActiveFlag = !!(XmlUtil::FindInt( root, "WakeActiveFlag", m_WakeActiveFlag() ));
+
+    //==== Read Attach Flags ====//
+    int posAttachFlag = XmlUtil::FindInt( root, "PosAttachFlag", posAttachFlag );
+
+    // A series of flags to override specific coordinates
+    bool overrideRelTrans = false;
+
+    if ( posAttachFlag == V2_POS_ATTACH_NONE )
+    {
+        m_TransAttachFlag = ATTACH_TRANS_NONE;
+        m_RotAttachFlag = ATTACH_ROT_NONE;
+
+        // override relative translation since the relative coordinates are arbitrary
+        // when not attached to anything in V2
+        overrideRelTrans = true;
+    }
+    else if ( posAttachFlag == V2_POS_ATTACH_FIXED )
+    {
+        m_TransAttachFlag = ATTACH_TRANS_COMP;
+        m_RotAttachFlag = ATTACH_ROT_NONE;
+    }
+    else if ( posAttachFlag == V2_POS_ATTACH_UV )
+    {
+        m_TransAttachFlag = ATTACH_TRANS_UV;
+        m_RotAttachFlag = ATTACH_ROT_NONE;
+    }
+    else if ( posAttachFlag == V2_POS_ATTACH_MATRIX )
+    {
+        m_TransAttachFlag = ATTACH_TRANS_COMP;
+        m_RotAttachFlag = ATTACH_ROT_COMP;
+
+        // override relative translation since the relative coordinates are arbitrary
+        // when attached in matrix mode
+        overrideRelTrans = true;
+
+        // override the AbsRelFlag, the only valid value for this attachment mode is relative
+        m_AbsRelFlag = RELATIVE_XFORM;
+    }
+
+    if ( overrideRelTrans )
+    {
+        m_XRelLoc = m_XLoc();
+        m_YRelLoc = m_YLoc();
+        m_ZRelLoc = m_ZLoc();
+    }
+
+    m_ULoc = XmlUtil::FindDouble( root, "U_Attach", m_ULoc() );
+    m_WLoc = XmlUtil::FindDouble( root, "V_Attach", m_WLoc() );
+
+    //==== Read Pointer ID and Parent/Children Info ====//
+    string newID = ParmMgr.ForceRemapID( XmlUtil::FindString( root, "PtrID", m_ID ), 10 );
+
+    if( newID.compare( m_ID ) != 0 )
+    {
+        ChangeID( newID );
+    }
+
+    string parent = XmlUtil::FindString( root, "Parent_PtrID", m_ParentID );
+    if ( parent != "0" )
+    {
+        m_ParentID = ParmMgr.ForceRemapID( parent , 10 );
+    }
+
+    m_ChildIDVec.clear();
+    int numChildren =  XmlUtil::GetNumNames( root, "Children_PtrID" );
+    for (  i = 0 ; i < numChildren ; i++ )
+    {
+        xmlNodePtr child_node = XmlUtil::GetNode( root, "Children_PtrID", i );
+        m_ChildIDVec.push_back( ParmMgr.ForceRemapID( XmlUtil::ExtractString( child_node ) , 10 ) );
+    }
+
+    /*
+    appTexVec.clear();
+    int numAppliedTextures = XmlUtil::GetNumNames( root, "Applied_Texture" );
+
+    AppliedTex apptex;
+    for ( i = 0 ; i < numAppliedTextures ; i++ )
+    {
+        xmlNodePtr tex_node = XmlUtil::GetNode( root, "Applied_Texture", i );
+
+        apptex.nameStr = Stringc( XmlUtil::FindString( tex_node, "Name", "Default_Name" ) );
+        apptex.texStr  = Stringc( XmlUtil::FindString( tex_node, "Texture_Name", "Default_Name" ) );
+        apptex.allSurfFlag  = !!XmlUtil::FindInt( tex_node, "All_Surf_Flag", 0 );
+        apptex.surfID  = XmlUtil::FindInt( tex_node, "Surf_ID", 0 );
+        apptex.u  = XmlUtil::FindDouble( tex_node, "U", 0.5 );
+        apptex.w  = XmlUtil::FindDouble( tex_node, "W", 0.5 );
+        apptex.scaleu  = XmlUtil::FindDouble( tex_node, "Scale_U", 1.0 );
+        apptex.scalew  = XmlUtil::FindDouble( tex_node, "Scale_W", 1.0 );
+        apptex.wrapUFlag  = !!XmlUtil::FindInt( tex_node, "Wrap_U_Flag", 0 );
+        apptex.wrapWFlag  = !!XmlUtil::FindInt( tex_node, "Wrap_W_Flag", 0 );
+        apptex.repeatFlag  = !!XmlUtil::FindInt( tex_node, "Repeat_Flag", 0 );
+        apptex.bright  = XmlUtil::FindDouble( tex_node, "Bright", 1.0 );
+        apptex.alpha  = XmlUtil::FindDouble( tex_node, "Alpha", 1.0 );
+        apptex.flipUFlag  = !!XmlUtil::FindInt( tex_node, "Flip_U_Flag", 0 );
+        apptex.flipWFlag  = !!XmlUtil::FindInt( tex_node, "Flip_W_Flag", 0 );
+        apptex.reflFlipUFlag  = !!XmlUtil::FindInt( tex_node, "Refl_Flip_U_Flag", 0 );
+        apptex.reflFlipWFlag  = !!XmlUtil::FindInt( tex_node, "Refl_Flip_W_Flag", 0 );
+
+        apptex.texID = texMgrPtr->loadTex( apptex.texStr.get_char_star() );
+
+        if ( apptex.texID > 0 )
+            appTexVec.push_back( apptex );
+
+    }
+
+    //==== Clean Part Vec ====//
+    for (  i = 0 ; i < (int)partVec.size() ; i++ )
+        delete partVec[i];
+
+    partVec.clear();
+
+    int numParts = XmlUtil::GetNumNames( root, "Structure_Part" );
+    for ( i = 0 ; i < numParts ; i++ )
+    {
+        xmlNodePtr part_node = XmlUtil::GetNode( root, "Structure_Part", i );
+
+        int type = XmlUtil::FindInt( part_node, "Type", -1 );
+
+        Part* partPtr = structureMgrPtr->CreatePart( type );
+
+        if ( partPtr )
+        {
+            partPtr->ReadParms( part_node );
+
+            AddStructurePart( partPtr );
+            partPtr->SetGeomPtr( this );
+
+        }
+
+    }
+
+    //==== Read CFD Mesh Sources ====//
+    for ( i = 0 ; i < (int)sourceVec.size() ; i++ )
+        delete sourceVec[i];
+    sourceVec.clear();
+
+    int numSources = XmlUtil::GetNumNames( root, "CFD_Mesh_Source" );
+    for ( i = 0 ; i < numSources ; i++ )
+    {
+        xmlNodePtr source_node = XmlUtil::GetNode( root, "CFD_Mesh_Source", i );
+        int type = XmlUtil::FindInt( source_node, "Type", -1 );
+        BaseSource* sourcePtr = cfdMeshMgrPtr->CreateSource( type );
+
+        if ( sourcePtr )
+        {
+            sourcePtr->ReadParms( source_node );
+            AddCfdMeshSource( sourcePtr );
+        }
+    }
+*/
 }
 
 void Geom::ResetGeomChangedFlag()
