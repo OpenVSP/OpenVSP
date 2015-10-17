@@ -2697,6 +2697,165 @@ string Vehicle::ImportFile( const string & file_name, int file_type )
 
 string Vehicle::ImportV2File( const string & file_name )
 {
+    ParmMgr.ResetRemapID();
+
+    //==== Read Xml File ====//
+    xmlDocPtr doc;
+    xmlNodePtr node;
+
+    LIBXML_TEST_VERSION
+    xmlKeepBlanksDefault( 0 );
+
+    //==== Build an XML tree from a the file ====//
+    doc = xmlParseFile( file_name.c_str() );
+    if ( doc == NULL ) return 0;
+
+    xmlNodePtr root = xmlDocGetRootElement( doc );
+    if ( root == NULL )
+    {
+        fprintf( stderr, "Empty document\n" );
+        xmlFreeDoc( doc );
+
+        return string();
+    }
+
+    if ( xmlStrcmp( root->name, (const xmlChar *)"Vsp_Geometry" ) &&
+         xmlStrcmp( root->name, (const xmlChar *)"Ram_Geometry" ) )
+    {
+        fprintf( stderr, "Document of the wrong type, OpenVSP v2 Geometry not found\n" );
+        xmlFreeDoc( doc );
+
+        return string();
+    }
+
+    //==== Find Version Number ====//
+    int version = XmlUtil::FindInt( root, "Version", 0 );
+
+    //==== Find Name ====//
+    string nameStr = XmlUtil::FindString( root, "Name", string() );
+
+    vector< string > add_geoms;
+
+    //==== Read Components ====//
+    node = XmlUtil::GetNode( root, "Component_List", 0 );
+    if ( node  )
+    {
+
+        xmlNodePtr comp_list_node = node;
+        int num_comps = XmlUtil::GetNumNames( comp_list_node, "Component" );
+
+        for ( int i = 0 ; i < num_comps ; i++ )
+        {
+            xmlNodePtr comp_node = XmlUtil::GetNode( comp_list_node, "Component", i );
+
+            node = XmlUtil::GetNode( comp_node, "Type", 0 );
+
+            if ( node )
+            {
+                string typeStr = XmlUtil::ExtractString( node );
+
+                string id;
+
+                if ( typeStr == "Pod" )
+                {
+                    id = CreateGeom( GeomType( POD_GEOM_TYPE, "Pod", true ) );
+                }
+                else if ( typeStr == "External" )
+                {
+                    printf("Found External component.  Not yet supported.\n");
+                }
+                else if ( typeStr == "Havoc")
+                {
+                    printf("Found Havoc component.  Not yet supported.\n");
+                }
+                else if ( typeStr == "Fuselage" )
+                {
+                    id = CreateGeom( GeomType( FUSELAGE_GEOM_TYPE, "Fuselage", true ) );
+                }
+                else if ( typeStr == "Fuselage2" )
+                {
+                    id = CreateGeom( GeomType( FUSELAGE_GEOM_TYPE, "Fuselage", true ) );
+                }
+                else if ( typeStr == "Mwing" )
+                {
+                    printf("Found Mwing component.  Open file in OpenVSP v2 and save to convert to MS_Wing.\n");
+                }
+                else if ( typeStr == "Mswing" )
+                {
+                    id = CreateGeom( GeomType( MS_WING_GEOM_TYPE, "Wing", true ) );
+                }
+                else if ( typeStr == "Hwb" )
+                {
+                    printf("Found Hwb component.  Not yet supported.\n");
+                }
+                else if ( typeStr == "Blank" )
+                {
+                    id = CreateGeom( GeomType( BLANK_GEOM_TYPE, "Blank", true ) );
+                }
+                else if ( typeStr == "Duct" )
+                {
+                    printf("Found Duct component.  Not yet supported.\n");
+                }
+                else if ( typeStr == "Prop" )
+                {
+                    printf("Found Prop component.  Not yet supported.\n");
+                }
+                else if ( typeStr == "Engine" )
+                {
+                    printf("Found Engine component.  Not yet supported.\n");
+                }
+                else if ( typeStr == "Mesh" )
+                {
+                    printf("Found Mesh component.  Not yet supported.\n");
+                }
+                else if ( typeStr == "Cabin_Layout" )
+                {
+                    printf("Found Cabin_Layout component.  Not yet supported.\n");
+                }
+                else if ( typeStr == "User" )
+                {
+                    // Since v2 parameter links can't be transferred to v3, no point in
+                    // importing user parameter values.
+                }
+                else if ( typeStr == "XSecGeom" )
+                {
+                    printf("Found XSecGeom component.  Not yet supported.\n");
+                }
+
+                // Common code to import and insert into tree.
+                Geom* geom = FindGeom( id );
+                if ( geom )
+                {
+                    add_geoms.push_back( id );
+                    geom->ReadV2File( comp_node );
+
+                    if ( geom->GetParentID().compare( "NONE" ) == 0 )
+                    {
+                        AddGeom( geom );
+                    }
+                }
+
+            }
+        }
+    }
+
+    //===== Free Doc =====//
+    xmlFreeDoc( doc );
+
+    ParmMgr.ResetRemapID();
+
+    // The import routine has set the appropriate coordinate system values and
+    // rel/abs flags. Therefore, the ignore absolute coordinate flag should
+    // not be applied
+    SetApplyAbsIgnoreFlag( add_geoms, false );
+
+    // Update all of the geoms
+    Update();
+
+    // Turn the apply abs ignore flag back on, so attachments work properly
+    // when parent geoms are moved
+    SetApplyAbsIgnoreFlag( add_geoms, true );
+
     return string();
 }
 
