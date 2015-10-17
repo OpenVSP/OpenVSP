@@ -123,3 +123,23 @@ void PodGeom::AddDefaultSources( double base_len )
     lsource->m_WLoc2 = 0.0;
     AddCfdMeshSource( lsource );
 }
+
+void PodGeom::ReadV2File( xmlNodePtr &root )
+{
+    xmlNodePtr node;
+
+    //===== Read General Parameters =====//
+    node = XmlUtil::GetNode( root, "General_Parms", 0 );
+    if ( node )
+    {
+        Geom::ReadV2File( node );
+    }
+
+    //===== Read Fuse Parameters =====//
+    node = XmlUtil::GetNode( root, "Pod_Parms", 0 );
+    if ( node )
+    {
+        m_Length = XmlUtil::FindDouble( node, "Length", m_Length() );
+        m_FineRatio = XmlUtil::FindDouble( node, "Fine_Ratio", m_FineRatio() );
+    }
+}
