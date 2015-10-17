@@ -107,3 +107,23 @@ void BlankGeom::LoadDrawObjs(vector< DrawObj* > & draw_obj_vec)
         }
     }
 }
+
+void BlankGeom::ReadV2File( xmlNodePtr &root )
+{
+    xmlNodePtr node;
+
+    //===== Read General Parameters =====//
+    node = XmlUtil::GetNode( root, "General_Parms", 0 );
+    if ( node )
+    {
+        Geom::ReadV2File( node );
+    }
+
+    //===== Read Blank Parameters =====//
+    xmlNodePtr blank_node = XmlUtil::GetNode( root, "Blank_Parms", 0 );
+    if ( blank_node )
+    {
+        m_PointMassFlag = XmlUtil::FindInt( blank_node, "PointMassFlag", m_PointMassFlag() );
+        m_PointMass = XmlUtil::FindDouble( blank_node, "PointMass", m_PointMass() );
+    }
+}
