@@ -747,6 +747,92 @@ xmlNodePtr WingSect::DecodeXml(  xmlNodePtr & node  )
     return child_node;
 }
 
+void WingSect::ReadV2File( xmlNodePtr &sec_node )
+{
+    vector<int> drivers;
+
+    int v2driver = XmlUtil::FindInt( sec_node, "Driver", -1 );
+    switch ( v2driver )
+    {
+    case V2_AR_TR_A:
+        drivers.push_back( AR_WSECT_DRIVER );
+        drivers.push_back( TAPER_WSECT_DRIVER );
+        drivers.push_back( AREA_WSECT_DRIVER );
+        break;
+    case V2_AR_TR_S:
+        drivers.push_back( AR_WSECT_DRIVER );
+        drivers.push_back( TAPER_WSECT_DRIVER );
+        drivers.push_back( SPAN_WSECT_DRIVER );
+        break;
+    case V2_AR_TR_TC:
+        drivers.push_back( AR_WSECT_DRIVER );
+        drivers.push_back( TAPER_WSECT_DRIVER );
+        drivers.push_back( TIPC_WSECT_DRIVER );
+        break;
+    case V2_AR_TR_RC:
+        drivers.push_back( AR_WSECT_DRIVER );
+        drivers.push_back( TAPER_WSECT_DRIVER );
+        drivers.push_back( ROOTC_WSECT_DRIVER );
+        break;
+    case V2_S_TC_RC:
+        drivers.push_back( SPAN_WSECT_DRIVER );
+        drivers.push_back( TIPC_WSECT_DRIVER );
+        drivers.push_back( ROOTC_WSECT_DRIVER );
+        break;
+    case V2_A_TC_RC:
+        drivers.push_back( AREA_WSECT_DRIVER );
+        drivers.push_back( TIPC_WSECT_DRIVER );
+        drivers.push_back( ROOTC_WSECT_DRIVER );
+        break;
+    case V2_TR_S_A:
+        drivers.push_back( TAPER_WSECT_DRIVER );
+        drivers.push_back( SPAN_WSECT_DRIVER );
+        drivers.push_back( AREA_WSECT_DRIVER );
+        break;
+    }
+    m_DriverGroup.SetChoices( drivers );
+
+// Let these parameters fall out of Span, TC, RC to ensure consistency.
+//    m_Aspect = XmlUtil::FindDouble( sec_node, "AR", m_Aspect() );
+//    m_Taper = XmlUtil::FindDouble( sec_node, "TR", m_Taper() );
+//    m_Area = XmlUtil::FindDouble( sec_node, "Area", m_Area() );
+
+    double span = XmlUtil::FindDouble( sec_node, "Span", m_Span() );
+    double tc = XmlUtil::FindDouble( sec_node, "TC", m_TipChord() );
+    double rc = XmlUtil::FindDouble( sec_node, "RC", m_RootChord() );
+
+    ForceSpanRcTc( span, rc, tc );
+
+    m_Sweep = XmlUtil::FindDouble( sec_node, "Sweep", m_Sweep() );
+    double swloc = XmlUtil::FindDouble( sec_node, "SweepLoc", m_SweepLoc() );
+
+    // Do a jig to avoid conflicting NotEqParm.
+    if ( swloc != 1.0 )
+    {
+        m_SweepLoc.Set( swloc );
+    }
+    else
+    {
+        m_SweepLoc.Set( 0.5 );
+        m_SecSweepLoc.Set( 0.0 ); // Set secondary to LE.
+        m_SweepLoc.Set( 1.0 );
+    }
+
+    m_Twist = XmlUtil::FindDouble( sec_node, "Twist", m_Twist() );
+    m_TwistLoc = XmlUtil::FindDouble( sec_node, "TwistLoc", m_TwistLoc() );
+    m_Dihedral = XmlUtil::FindDouble( sec_node, "Dihedral", m_Dihedral() );
+
+//    ws.dihed_crv1_set( XmlUtil::FindDouble( sec_node, "Dihed_Crv1", ws.dihed_crv1_val() ) );
+//    ws.dihed_crv2_set( XmlUtil::FindDouble( sec_node, "Dihed_Crv2", ws.dihed_crv2_val() ) );
+//    ws.dihed_crv1_str_set( XmlUtil::FindDouble( sec_node, "Dihed_Crv1_Str", ws.dihed_crv1_str_val() ) );
+//    ws.dihed_crv2_str_set( XmlUtil::FindDouble( sec_node, "Dihed_Crv2_Str", ws.dihed_crv2_str_val() ) );
+
+//    ws.dihedRotFlag = XmlUtil::FindInt( sec_node, "DihedRotFlag", ws.dihedRotFlag );
+//    ws.smoothBlendFlag = XmlUtil::FindInt( sec_node, "SmoothBlendFlag", ws.smoothBlendFlag );
+
+    m_SectTessU = XmlUtil::FindInt( sec_node, "NumInterpXsecs", m_SectTessU() );
+}
+
 //=========================================================================================================//
 //=========================================================================================================//
 //=========================================================================================================//
@@ -1679,3 +1765,120 @@ double WingGeom::GetSumDihedral( int sect_id )
     return sum_dihedral;
 }
 
+void WingGeom::ReadV2File( xmlNodePtr &root )
+{
+    int i;
+    xmlNodePtr node;
+
+    m_XSecSurf.DeleteAllXSecs();
+
+    //===== Read General Parameters =====//
+    node = XmlUtil::GetNode( root, "General_Parms", 0 );
+    if ( node )
+    {
+        Geom::ReadV2File( node );
+    }
+
+    double sweep_off = 0.0;
+
+    //===== Read Wing Parameters =====//
+    node = XmlUtil::GetNode( root, "Mswing_Parms", 0 );
+    if ( node )
+    {
+// Don't set these.  Let them fall out of the wing buildup.
+//        m_TotalArea = XmlUtil::FindDouble( node, "Total_Area", m_TotalArea() );
+//        m_TotalSpan = XmlUtil::FindDouble( node, "Total_Span", m_TotalSpan() );
+//        m_TotalProjSpan = XmlUtil::FindDouble( node, "Total_Proj_Span", m_TotalProjSpan() );
+//        m_TotalChord  = XmlUtil::FindDouble( node, "Avg_Chord", m_TotalChord() );
+
+        sweep_off  = XmlUtil::FindDouble( node, "Sweep_Off", sweep_off );
+
+//        deg_per_seg = XmlUtil::FindInt( node, "Deg_Per_Seg", (int)(deg_per_seg()+0.5) );
+//        max_num_segs = XmlUtil::FindInt( node, "Max_Num_Seg", (int)(max_num_segs()+0.5) );
+
+        m_RelativeDihedralFlag = XmlUtil::FindInt( node, "Rel_Dihedral_Flag", m_RelativeDihedralFlag() )!= 0;
+        m_RelativeTwistFlag = XmlUtil::FindInt( node, "Rel_Twist_Flag", m_RelativeTwistFlag() )!= 0;
+
+//        int round_end_cap_flag = XmlUtil::FindInt( node, "Round_End_Cap_Flag", round_end_cap_flag )!= 0;
+    }
+
+    //==== Read Airfoils ====//
+    xmlNodePtr af_list_node = XmlUtil::GetNode( root, "Airfoil_List", 0 );
+    xmlNodePtr sec_list_node = XmlUtil::GetNode( root, "Section_List", 0 );
+
+    if ( af_list_node && sec_list_node )
+    {
+        int num_af = XmlUtil::GetNumNames( af_list_node, "Airfoil" );
+        int num_sec =  XmlUtil::GetNumNames( sec_list_node, "Section" );
+
+        assert( num_sec + 1 == num_af );
+
+
+        for ( i = 0 ; i < num_af ; i++ )
+        {
+            xmlNodePtr af_node = NULL;
+            af_node = XmlUtil::GetNode( af_list_node, "Airfoil", i );
+
+            xmlNodePtr sec_node = NULL;
+            if ( i > 0 )
+            {
+                sec_node = XmlUtil::GetNode( sec_list_node, "Section", i - 1 );
+            }
+            else
+            {
+                sec_node = XmlUtil::GetNode( sec_list_node, "Section", i );
+            }
+
+            if ( af_node )
+            {
+                int af_type = XmlUtil::FindInt( af_node, "Type", 0 );
+
+                XSec* xsec_ptr = NULL;
+
+                switch ( af_type )
+                {
+                case V2_NACA_4_SERIES:
+                    xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_FOUR_SERIES ) );
+                    break;
+                case V2_BICONVEX:
+                    xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_BICONVEX ) );
+                    break;
+                case V2_WEDGE:
+                    xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_WEDGE ) );
+                    break;
+                case V2_AIRFOIL_FILE:
+                    xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_FILE_AIRFOIL ) );
+                    break;
+                case V2_NACA_6_SERIES:
+                    xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_SIX_SERIES ) );
+                    break;
+                }
+
+                if ( xsec_ptr )
+                {
+                    WingSect* wing_xsec_ptr = dynamic_cast < WingSect* > (xsec_ptr);
+
+                    if ( wing_xsec_ptr )
+                    {
+                        Airfoil *af_ptr = dynamic_cast< Airfoil* > ( wing_xsec_ptr->GetXSecCurve() );
+                        if ( af_ptr )
+                        {
+                            af_ptr->ReadV2File( af_node );
+                        }
+
+                        if ( i > 0 )
+                        {
+                            wing_xsec_ptr->ReadV2File( sec_node );
+                            wing_xsec_ptr->m_Sweep = wing_xsec_ptr->m_Sweep() + sweep_off;
+                        }
+                        else // Special handling of 'zeroth' wing section.
+                        {
+                            double rc = XmlUtil::FindDouble( sec_node, "RC", 1.0 );
+                            wing_xsec_ptr->m_TipChord = rc;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

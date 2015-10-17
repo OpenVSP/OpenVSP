@@ -61,6 +61,8 @@ public:
 
     virtual VspCurve& GetOrigCurve();
 
+    virtual void ReadV2File( xmlNodePtr &root );
+
     BoolParm m_Invert;
     Parm m_Chord;
     Parm m_ThickChord;                  // Thick/Chord
@@ -84,6 +86,8 @@ public:
     virtual void Update();
 
     virtual string GetAirfoilName();
+
+    virtual void ReadV2File( xmlNodePtr &root );
 
     Parm m_Camber;
     Parm m_CamberLoc;
@@ -125,6 +129,8 @@ public:
 
     virtual string GetAirfoilName();
 
+    virtual void ReadV2File( xmlNodePtr &root );
+
     IntParm m_Series;
     Parm m_IdealCl;
     Parm m_A;                   // % Chord Uniform Pressure Dist
@@ -165,6 +171,8 @@ public:
     Wedge( );
 
     virtual void Update();
+
+    virtual void ReadV2File( xmlNodePtr &root );
 
     Parm m_ThickLoc;
 
@@ -210,6 +218,8 @@ public:
         m_UpperPnts = up_pnt_vec;
         m_LowerPnts = low_pnt_vec;
     }
+
+    virtual void ReadV2File( xmlNodePtr &root );
 
 protected:
 

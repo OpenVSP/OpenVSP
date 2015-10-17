@@ -87,6 +87,24 @@ VspCurve& Airfoil::GetOrigCurve()
     return m_OrigCurve;
 }
 
+void Airfoil::ReadV2File( xmlNodePtr &root )
+{
+    m_Invert = XmlUtil::FindInt( root, "Inverted_Flag", m_Invert() );
+
+    m_ThickChord = XmlUtil::FindDouble( root, "Thickness", m_ThickChord() );
+
+//    slat_flag = XmlUtil::FindInt( node, "Slat_Flag", slat_flag );
+//    slat_shear_flag = XmlUtil::FindInt( node, "Slat_Shear_Flag", slat_shear_flag );
+//    slat_chord = XmlUtil::FindDouble( node, "Slat_Chord", slat_chord() );
+//    slat_angle = XmlUtil::FindDouble( node, "Slat_Angle", slat_angle() );
+//
+//    flap_flag = XmlUtil::FindInt( node, "Flap_Flag", flap_flag );
+//    flap_shear_flag = XmlUtil::FindInt( node, "Flap_Shear_Flag", flap_shear_flag );
+//    flap_chord = XmlUtil::FindDouble( node, "Flap_Chord", flap_chord() );
+//    flap_angle = XmlUtil::FindDouble( node, "Flap_Angle", flap_angle() );
+
+}
+
 //==========================================================================//
 //==========================================================================//
 //==========================================================================//
@@ -148,6 +166,14 @@ string FourSeries::GetAirfoilName()
     }
 
     return string( str );
+}
+
+void FourSeries::ReadV2File( xmlNodePtr &root )
+{
+    Airfoil::ReadV2File( root );
+
+    m_Camber = XmlUtil::FindDouble( root, "Camber", m_Camber() );
+    m_CamberLoc = XmlUtil::FindDouble( root, "Camber_Loc", m_CamberLoc() );
 }
 
 //==========================================================================//
@@ -293,6 +319,25 @@ string SixSeries::GetAirfoilName()
     return string( str );
 }
 
+void SixSeries::ReadV2File( xmlNodePtr &root )
+{
+    Airfoil::ReadV2File( root );
+
+    int sixser = XmlUtil::FindInt( root, "Six_Series", 63 );
+
+    if ( sixser > 0 )
+    {
+        m_Series = sixser - 63;
+    }
+    else
+    {
+        m_Series = 58 - sixser;
+    }
+
+    m_IdealCl = XmlUtil::FindDouble( root, "Ideal_Cl", m_IdealCl() );
+    m_A = XmlUtil::FindDouble( root, "A", m_A() );
+}
+
 //==========================================================================//
 //==========================================================================//
 //==========================================================================//
@@ -391,6 +436,13 @@ void Wedge::Update()
     m_Curve.InterpolateLinear( pt, u, true );
 
     Airfoil::Update();
+}
+
+void Wedge::ReadV2File( xmlNodePtr &root )
+{
+    Airfoil::ReadV2File( root );
+
+    m_ThickLoc = XmlUtil::FindDouble( root, "Thickness_Loc", m_ThickLoc() );
 }
 
 //==========================================================================//
@@ -733,6 +785,51 @@ bool FileAirfoil::ReadVspAirfoil( FILE* file_id )
     }
 
     return true;
+}
+
+void FileAirfoil::ReadV2File( xmlNodePtr &root )
+{
+    Airfoil::ReadV2File( root );
+
+    m_AirfoilName = XmlUtil::FindString( root, "Name", m_AirfoilName );
+
+//    orig_af_thickness = (float)XmlUtil::FindDouble( root, "Original_AF_Thickness", orig_af_thickness );
+//    radius_le_correction_factor = (float)XmlUtil::FindDouble( root, "Radius_LE_Correction_Factor", radius_le_correction_factor );
+//    radius_te_correction_factor = (float)XmlUtil::FindDouble( root, "Radius_TE_Correction_Factor", radius_te_correction_factor );
+
+    xmlNodePtr upp_node = XmlUtil::GetNode( root, "Upper_Pnts", 0 );
+    if ( upp_node )
+    {
+        int num_arr = XmlUtil::GetNumArray( upp_node, ',' );
+        double* arr = (double*)malloc( num_arr*sizeof(double) );
+        XmlUtil::ExtractDoubleArray( upp_node, ',', arr, num_arr );
+
+        int num_upper = num_arr/2;
+
+        m_UpperPnts.clear();
+        for ( int i = 0 ; i < num_arr ; i+=2)
+        {
+            m_UpperPnts.push_back( vec3d( arr[i], arr[i+1], 0.0 ) );
+        }
+        free(arr);
+    }
+
+    xmlNodePtr low_node = XmlUtil::GetNode( root, "Lower_Pnts", 0 );
+    if ( low_node )
+    {
+        int num_arr = XmlUtil::GetNumArray( low_node, ',' );
+        double* arr = (double*)malloc( num_arr*sizeof(double) );
+        XmlUtil::ExtractDoubleArray( low_node, ',', arr, num_arr );
+
+        int num_lower = num_arr/2;
+
+        m_LowerPnts.clear();
+        for ( int i = 0 ; i < num_arr ; i+=2)
+        {
+            m_LowerPnts.push_back( vec3d( arr[i], arr[i+1], 0.0 ) );
+        }
+        free(arr);
+    }
 }
 
 //==========================================================================//

@@ -51,6 +51,8 @@ public:
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
+    virtual void ReadV2File( xmlNodePtr &root );
+
     WingDriverGroup m_DriverGroup;
 
     Parm m_Aspect;
@@ -89,7 +91,14 @@ protected:
 
     double m_ProjectedSpan;
 
-
+    enum { V2_AR_TR_A = 0,
+           V2_AR_TR_S = 1,
+           V2_AR_TR_TC = 2,
+           V2_AR_TR_RC = 3,
+           V2_S_TC_RC = 4,
+           V2_A_TC_RC = 5,
+           V2_TR_S_A = 6
+    };
 
 };
 
@@ -144,6 +153,8 @@ public:
 
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
+    virtual void ReadV2File( xmlNodePtr &root );
+
     //==== Planform Parms ====//
     Parm m_TotalSpan;
     Parm m_TotalProjSpan;
@@ -154,6 +165,15 @@ public:
     BoolParm m_RelativeDihedralFlag;
     BoolParm m_RelativeTwistFlag;
     BoolParm m_RotateAirfoilMatchDiedralFlag;
+
+
+    enum { V2_NACA_4_SERIES = 1,
+           V2_BICONVEX = 2,
+           V2_WEDGE = 3,
+           V2_AIRFOIL_FILE = 4,
+           V2_NACA_6_SERIES = 5
+    };
+
 
 protected:
 
