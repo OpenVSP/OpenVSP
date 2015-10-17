@@ -1475,6 +1475,10 @@ xmlNodePtr Geom::DecodeGeom( xmlNodePtr & node )
     return geom_node;
 }
 
+void Geom::ReadV2File( xmlNodePtr &root )
+{
+}
+
 void Geom::ResetGeomChangedFlag()
 {
     for ( int i = 0 ; i < ( int )m_WireShadeDrawObj_vec.size() ; i++ )

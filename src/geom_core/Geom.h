@@ -394,6 +394,8 @@ public:
     virtual xmlNodePtr EncodeGeom( xmlNodePtr & node );
     virtual xmlNodePtr DecodeGeom( xmlNodePtr & node );
 
+    virtual void ReadV2File( xmlNodePtr &root );
+
     virtual int GetSymFlag();
 
     virtual vector< TMesh* > CreateTMeshVec();
