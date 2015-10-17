@@ -83,6 +83,11 @@ void GeomGuiDraw::SetMaterial( std::string name, double ambi[], double diff[], d
     m_Material.SetMaterial( name, ambi, diff, spec, emis, shin );
 }
 
+void GeomGuiDraw::SetMaterial( const std::string &name )
+{
+    m_Material.SetMaterial( name );
+}
+
 //===============================================================================//
 //===============================================================================//
 //===============================================================================//

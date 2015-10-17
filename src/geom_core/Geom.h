@@ -105,6 +105,7 @@ public:
 
     void SetMaterialToDefault();
     void SetMaterial( std::string name, double ambi[], double diff[], double spec[], double emis[], double shin );
+    void SetMaterial( const std::string &name );
     void SetMaterialID( int m )
     {
         m_MaterialID = m;
