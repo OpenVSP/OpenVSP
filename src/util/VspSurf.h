@@ -155,7 +155,7 @@ public:
     void TessWFeatureLine( int iw, std::vector< vec3d > & pnts, double tol );
 
     void TessAdaptLine( double umin, double umax, double wmin, double wmax, std::vector< vec3d > & pts, double tol, int Nlimit );
-    void TessAdaptLine( double umin, double umax, double wmin, double wmax, const vec3d & pmin, const vec3d & pmax, std::vector< vec3d > & pts, double tol, int Nlimit );
+    void TessAdaptLine( double umin, double umax, double wmin, double wmax, const vec3d & pmin, const vec3d & pmax, std::vector< vec3d > & pts, double tol, int Nlimit, int Nadapt = 0 );
 
     void SplitSurfs( const piecewise_surface_type &basesurf, vector< piecewise_surface_type > &surfvec );
 

@@ -814,7 +814,7 @@ void VspSurf::TessAdaptLine( double umin, double umax, double wmin, double wmax,
     pnts.push_back( pmax );
 }
 
-void VspSurf::TessAdaptLine( double umin, double umax, double wmin, double wmax, const vec3d & pmin, const vec3d & pmax, std::vector< vec3d > & pnts, double tol, int Nlimit )
+void VspSurf::TessAdaptLine( double umin, double umax, double wmin, double wmax, const vec3d & pmin, const vec3d & pmax, std::vector< vec3d > & pnts, double tol, int Nlimit, int Nadapt )
 {
     double umid = ( umin + umax ) * 0.5;
     double wmid = ( wmin + wmax ) * 0.5;
@@ -823,10 +823,10 @@ void VspSurf::TessAdaptLine( double umin, double umax, double wmin, double wmax,
 
     double d = dist_pnt_2_line( pmin, pmax, pmid ) / dist( pmin, pmax );
 
-    if ( d > tol && Nlimit > 0 )
+    if ( ( d > tol && Nlimit > 0 ) || Nadapt < 1 )
     {
-        TessAdaptLine( umin, umid, wmin, wmid, pmin, pmid, pnts, tol, Nlimit - 1 );
-        TessAdaptLine( umid, umax, wmid, wmax, pmid, pmax, pnts, tol, Nlimit - 1 );
+        TessAdaptLine( umin, umid, wmin, wmid, pmin, pmid, pnts, tol, Nlimit - 1, Nadapt + 1 );
+        TessAdaptLine( umid, umax, wmid, wmax, pmid, pmax, pnts, tol, Nlimit - 1, Nadapt + 1 );
     }
     else
     {
