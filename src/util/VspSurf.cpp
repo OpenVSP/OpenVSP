@@ -777,16 +777,19 @@ void VspSurf::TessWFeatureLine( int iw, std::vector< vec3d > & pnts, double tol 
 {
     double v = m_WFeature[ iw ];
 
+    vector < double > upts;
+    m_Surface.get_pmap_u( upts );
+
     double umin, umax;
     vec3d pmin, pmax;
 
-    umin = m_UFeature[0];
+    umin = upts[0];
     pmin = CompPnt( umin, v );
 
     pnts.clear();
-    for ( int i = 0; i < m_UFeature.size() - 1; i++ )
+    for ( int i = 0; i < upts.size() - 1; i++ )
     {
-        umax = m_UFeature[i+1];
+        umax = upts[i+1];
         pmax = CompPnt( umax, v );
 
         TessAdaptLine( umin, umax, v, v, pmin, pmax, pnts, tol, 10 );
