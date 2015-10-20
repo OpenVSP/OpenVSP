@@ -522,6 +522,34 @@ MaterialMgrSingleton::MaterialMgrSingleton()
     mat.m_Shininess = 0.0;
     mat.m_UserMaterial = false;
     m_Materials.push_back(mat);
+
+    mat.m_Name = "Red Default";
+    mat.m_Ambi[0] = 0.6; mat.m_Ambi[1] = 0.0; mat.m_Ambi[2] = 0.0; mat.m_Ambi[3] = 1.0;
+    mat.m_Diff[0] = 0.5; mat.m_Diff[1] = 0.5; mat.m_Diff[2] = 0.5; mat.m_Diff[3] = 1.0;
+    mat.m_Spec[0] = 0.5; mat.m_Spec[1] = 0.5; mat.m_Spec[2] = 0.5; mat.m_Spec[3] = 1.0;
+    mat.m_Emis[0] = 0.0; mat.m_Emis[1] = 0.0; mat.m_Emis[2] = 0.0; mat.m_Emis[3] = 1.0;
+    mat.m_Shininess = 10.0;
+    mat.m_UserMaterial = false;
+    m_Materials.push_back(mat);
+
+    mat.m_Name = "Green Default";
+    mat.m_Ambi[0] = 0.0; mat.m_Ambi[1] = 0.6; mat.m_Ambi[2] = 0.0; mat.m_Ambi[3] = 1.0;
+    mat.m_Diff[0] = 0.5; mat.m_Diff[1] = 0.5; mat.m_Diff[2] = 0.5; mat.m_Diff[3] = 1.0;
+    mat.m_Spec[0] = 0.5; mat.m_Spec[1] = 0.5; mat.m_Spec[2] = 0.5; mat.m_Spec[3] = 1.0;
+    mat.m_Emis[0] = 0.0; mat.m_Emis[1] = 0.0; mat.m_Emis[2] = 0.0; mat.m_Emis[3] = 1.0;
+    mat.m_Shininess = 10.0;
+    mat.m_UserMaterial = false;
+    m_Materials.push_back(mat);
+
+    mat.m_Name = "Blue Default";
+    mat.m_Ambi[0] = 0.0; mat.m_Ambi[1] = 0.0; mat.m_Ambi[2] = 0.6; mat.m_Ambi[3] = 1.0;
+    mat.m_Diff[0] = 0.5; mat.m_Diff[1] = 0.5; mat.m_Diff[2] = 0.5; mat.m_Diff[3] = 1.0;
+    mat.m_Spec[0] = 0.5; mat.m_Spec[1] = 0.5; mat.m_Spec[2] = 0.5; mat.m_Spec[3] = 1.0;
+    mat.m_Emis[0] = 0.0; mat.m_Emis[1] = 0.0; mat.m_Emis[2] = 0.0; mat.m_Emis[3] = 1.0;
+    mat.m_Shininess = 10.0;
+    mat.m_UserMaterial = false;
+    m_Materials.push_back(mat);
+
 }
 
 MaterialMgrSingleton::~MaterialMgrSingleton()
