@@ -756,6 +756,8 @@ void VspSurf::TessUFeatureLine( int iu, std::vector< vec3d > & pnts, double tol 
     double vmin, vmax;
     vec3d pmin, pmax;
 
+    // Use WFeature points as starting point for adaptation for U lines because file-type
+    // XSecs can be made of a large number of segments and using them would be inefficient.
     vmin = m_WFeature[0];
     pmin = CompPnt( u, vmin );
 
@@ -783,6 +785,8 @@ void VspSurf::TessWFeatureLine( int iw, std::vector< vec3d > & pnts, double tol 
     double umin, umax;
     vec3d pmin, pmax;
 
+    // Use segment boundary points as starting point for adaptation for W lines because
+    // not all segment boundaries are features and this helps resolve behavior along a body.
     umin = upts[0];
     pmin = CompPnt( umin, v );
 
