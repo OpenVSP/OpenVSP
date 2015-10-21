@@ -149,7 +149,6 @@ public:
     void TesselateTEforWake( std::vector< vector< vec3d > > & pnts ) const;
     void Tesselate( int num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts, const int &n_cap, bool degen ) const;
     void Tesselate( const vector<int> &num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts, const int &n_cap, bool degen ) const;
-    void Tesselate( const vector<double> &utess, const vector<double> &vtess, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts ) const;
 
     void TessUFeatureLine( int iu, std::vector< vec3d > & pnts, double tol );
     void TessWFeatureLine( int iw, std::vector< vec3d > & pnts, double tol );
@@ -175,6 +174,8 @@ public:
     void SetWSkipLast( bool f );
 
 protected:
+
+    void Tesselate( const vector<double> &utess, const vector<double> &vtess, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts ) const;
 
     static void IGESKnots( int deg, int npatch, vector< double > &knot );
 
