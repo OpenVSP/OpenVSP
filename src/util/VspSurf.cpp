@@ -736,8 +736,8 @@ void VspSurf::Tesselate( const vector<double> &u, const vector<double> &v, std::
     {
         for ( surface_index_type j = 0; j < nv; ++j )
         {
-            ptmp = m_Surface.f( u[i], v[j] );
-            ntmp = m_Surface.normal( u[i], v[j] );
+            m_Surface.f_pt_normal( u[i], v[j], ptmp, ntmp );
+
             pnts[i][j].set_xyz( ptmp.x(), ptmp.y(), ptmp.z() );
             if ( m_FlipNormal )
             {
