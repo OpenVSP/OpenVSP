@@ -731,12 +731,40 @@ void VspSurf::Tesselate( const vector<double> &u, const vector<double> &v, std::
 
     surface_point_type ptmp, ntmp;
 
+    int utie, vtie;
+
     // calculate the coordinate and normal at each point
     for ( surface_index_type i = 0; i < nu; ++i )
     {
+        if ( i == 0 )
+        {
+            utie = -1;
+        }
+        else if ( i == nu - 1 )
+        {
+            utie = 1;
+        }
+        else
+        {
+            utie = 0;
+        }
+
         for ( surface_index_type j = 0; j < nv; ++j )
         {
-            m_Surface.f_pt_normal( u[i], v[j], ptmp, ntmp );
+            if ( j == 0 )
+            {
+                vtie = -1;
+            }
+            else if ( j == nv - 1 )
+            {
+                vtie = 1;
+            }
+            else
+            {
+                vtie = 0;
+            }
+
+            m_Surface.f_pt_normal( u[i], v[j], ptmp, ntmp, utie, vtie );
 
             pnts[i][j].set_xyz( ptmp.x(), ptmp.y(), ptmp.z() );
             if ( m_FlipNormal )
