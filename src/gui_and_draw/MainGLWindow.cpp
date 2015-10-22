@@ -1301,21 +1301,12 @@ void VspGlWindow::_loadXSecData( Renderable * destObj, DrawObj * drawObj )
     // Element Buffer.
     for( int i = 0; i < num_pnts - 1; i++ )
     {
-        for( int j = 0; j < num_xsecs; j++ )
+        for( int j = 0; j < num_xsecs - 1; j++ )
         {
             edata.push_back( i * num_xsecs + j );
             edata.push_back( ( i + 1 ) * num_xsecs + j );
-
-            if( j == num_xsecs - 1 )
-            {	
-                edata.push_back( ( i + 1 ) * num_xsecs );
-                edata.push_back( i * num_xsecs );
-            }
-            else
-            {
-                edata.push_back( ( i + 1 ) * num_xsecs + j + 1 );
-                edata.push_back( i * num_xsecs + j + 1 );
-            }
+            edata.push_back( ( i + 1 ) * num_xsecs + j + 1 );
+            edata.push_back( i * num_xsecs + j + 1 );
         }
     }
     destObj->emptyEBuffer();
