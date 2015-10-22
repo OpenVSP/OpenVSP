@@ -778,7 +778,12 @@ void VspSurf::SplitTesselate( const vector<double> &usplit, const vector<double>
     {
         double d = std::numeric_limits < double > ::max();
 
-        for ( int j = 0; j < u.size(); j++ )
+        int j = 0;
+        if ( i > 0 )
+        {
+            j = iusplit[ i - 1 ];
+        }
+        for ( ; j < u.size(); j++ )
         {
             double dnew = fabs( u[j] - usplit[i] );
             if ( dnew < d )
@@ -796,7 +801,12 @@ void VspSurf::SplitTesselate( const vector<double> &usplit, const vector<double>
     {
         double d = std::numeric_limits < double > ::max();
 
-        for ( int j = 0; j < v.size(); j++ )
+        int j = 0;
+        if ( i > 0 )
+        {
+            j = ivsplit[ i - 1 ];
+        }
+        for ( ; j < v.size(); j++ )
         {
             double dnew = fabs( v[j] - vsplit[i] );
             if ( dnew < d )
