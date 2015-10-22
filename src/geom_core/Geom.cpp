@@ -1149,17 +1149,30 @@ void Geom::UpdateFlags( )
 void Geom::UpdateDrawObj()
 {
     m_WireShadeDrawObj_vec.clear();
-    m_WireShadeDrawObj_vec.resize( m_SurfVec.size(), DrawObj() );
     m_FeatureDrawObj_vec.clear();
 
     double tol = 1e-2;
 
+    int k = 0;
     //==== Tesselate Surface ====//
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
-        UpdateTesselate( i, m_WireShadeDrawObj_vec[i].m_PntMesh, m_WireShadeDrawObj_vec[i].m_NormMesh, false );
-        m_WireShadeDrawObj_vec[i].m_GeomChanged = true;
-        m_WireShadeDrawObj_vec[i].m_FlipNormals = m_SurfVec[i].GetFlipNormal();
+        vector< vector < vector < vec3d > > > pnts;
+        vector< vector < vector < vec3d > > > norms;
+
+        UpdateSplitTesselate( i, pnts, norms );
+
+        for ( int j = 0; j < pnts.size(); j++ )
+        {
+            m_WireShadeDrawObj_vec.push_back( DrawObj() );
+
+            m_WireShadeDrawObj_vec[k].m_PntMesh = pnts[j];
+            m_WireShadeDrawObj_vec[k].m_NormMesh = norms[j];
+            m_WireShadeDrawObj_vec[k].m_GeomChanged = true;
+            m_WireShadeDrawObj_vec[k].m_FlipNormals = m_SurfVec[i].GetFlipNormal();
+            k++;
+        }
+
 
         if( m_GuiDraw.GetDispFeatureFlag() )
         {
