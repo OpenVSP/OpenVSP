@@ -73,6 +73,7 @@ protected:
 
     virtual void UpdateSurf();
     virtual void UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, bool degen );
+    virtual void UpdateSplitTesselate( int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms );
 
     virtual void EnforceOrder( StackXSec* xs, int indx, int policy );
 

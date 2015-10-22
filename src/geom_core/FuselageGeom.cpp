@@ -184,6 +184,11 @@ void FuselageGeom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, v
     m_SurfVec[indx].Tesselate( m_TessUVec, m_TessW(), pnts, norms, uw_pnts, m_CapUMinTess(), degen );
 }
 
+void FuselageGeom::UpdateSplitTesselate( int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms )
+{
+    m_SurfVec[indx].SplitTesselate( m_TessUVec, m_TessW(), pnts, norms, m_CapUMinTess() );
+}
+
 //==== Compute Rotation Center ====//
 void FuselageGeom::ComputeCenter()
 {

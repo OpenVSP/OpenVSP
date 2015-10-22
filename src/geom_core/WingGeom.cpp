@@ -1337,6 +1337,27 @@ void WingGeom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vecto
     m_SurfVec[indx].Tesselate( tessvec, m_TessW(), pnts, norms, uw_pnts, m_CapUMinTess(), degen );
 }
 
+void WingGeom::UpdateSplitTesselate( int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms )
+{
+    vector < int > tessvec;
+    if (m_CapUMinOption()!=VspSurf::NO_END_CAP && m_CapUMinSuccess[ m_SurfIndxVec[indx] ] )
+    {
+        tessvec.push_back( m_CapUMinTess() );
+    }
+
+    for ( int i = 0; i < m_TessUVec.size(); i++ )
+    {
+        tessvec.push_back( m_TessUVec[i] );
+    }
+
+    if (m_CapUMaxOption()!=VspSurf::NO_END_CAP && m_CapUMaxSuccess[ m_SurfIndxVec[indx] ] )
+    {
+        tessvec.push_back( m_CapUMinTess() );
+    }
+
+    m_SurfVec[indx].SplitTesselate( tessvec, m_TessW(), pnts, norms, m_CapUMinTess() );
+}
+
 void WingGeom::UpdateDrawObj()
 {
     Geom::UpdateDrawObj();

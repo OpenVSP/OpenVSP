@@ -901,6 +901,11 @@ void Geom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< v
     UpdateTesselate( indx, pnts, norms, uw_pnts, degen );
 }
 
+void Geom::UpdateSplitTesselate( int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms )
+{
+    m_SurfVec[indx].SplitTesselate( m_TessU(), m_TessW(), pnts, norms, m_CapUMinTess() );
+}
+
 void Geom::UpdateEndCaps()
 {
     int nmain = m_MainSurfVec.size();

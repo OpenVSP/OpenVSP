@@ -181,6 +181,11 @@ void StackGeom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vect
     m_SurfVec[indx].Tesselate( m_TessUVec, m_TessW(), pnts, norms, uw_pnts, m_CapUMinTess(), degen );
 }
 
+void StackGeom::UpdateSplitTesselate( int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms )
+{
+    m_SurfVec[indx].SplitTesselate( m_TessUVec, m_TessW(), pnts, norms, m_CapUMinTess() );
+}
+
 //==== Compute Rotation Center ====//
 void StackGeom::ComputeCenter()
 {
