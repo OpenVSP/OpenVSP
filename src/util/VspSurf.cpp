@@ -718,6 +718,10 @@ void VspSurf::Tesselate( const vector<double> &u, const vector<double> &v, std::
     int nu = u.size();
     int nv = v.size();
 
+    vector < vector < surface_point_type > > ptmat, nmat;
+
+    m_Surface.f_pt_normal_grid( u, v, ptmat, nmat);
+
     // resize pnts and norms
     pnts.resize( nu );
     norms.resize( nu );
@@ -727,51 +731,18 @@ void VspSurf::Tesselate( const vector<double> &u, const vector<double> &v, std::
         pnts[i].resize( nv );
         norms[i].resize( nv );
         uw_pnts[i].resize( nv );
-    }
 
-    surface_point_type ptmp, ntmp;
-
-    int utie, vtie;
-
-    // calculate the coordinate and normal at each point
-    for ( surface_index_type i = 0; i < nu; ++i )
-    {
-        if ( i == 0 )
+        for ( surface_index_type j = 0; j < nv; j++ )
         {
-            utie = -1;
-        }
-        else if ( i == nu - 1 )
-        {
-            utie = 1;
-        }
-        else
-        {
-            utie = 0;
-        }
-
-        for ( surface_index_type j = 0; j < nv; ++j )
-        {
-            if ( j == 0 )
+            pnts[i][j] = ptmat[i][j];
+            if ( m_FlipNormal )
             {
-                vtie = -1;
-            }
-            else if ( j == nv - 1 )
-            {
-                vtie = 1;
+                norms[i][j] = -nmat[i][j];
             }
             else
             {
-                vtie = 0;
+                norms[i][j] = nmat[i][j];
             }
-
-            m_Surface.f_pt_normal( u[i], v[j], ptmp, ntmp, utie, vtie );
-
-            pnts[i][j].set_xyz( ptmp.x(), ptmp.y(), ptmp.z() );
-            if ( m_FlipNormal )
-            {
-                ntmp = -ntmp;
-            }
-            norms[i][j].set_xyz( ntmp.x(), ntmp.y(), ntmp.z() );
             uw_pnts[i][j].set_xyz( u[i], v[j], 0.0 );
         }
     }
