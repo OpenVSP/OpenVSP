@@ -147,8 +147,12 @@ public:
 
     //===== Tesselate ====//
     void TesselateTEforWake( std::vector< vector< vec3d > > & pnts ) const;
+
     void Tesselate( int num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts, const int &n_cap, bool degen ) const;
     void Tesselate( const vector<int> &num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts, const int &n_cap, bool degen ) const;
+
+    void SplitTesselate( int num_u, int num_v, std::vector< vector< vector< vec3d > > > & pnts,  std::vector< vector< vector< vec3d > > > & norms, const int &n_cap ) const;
+    void SplitTesselate( const vector<int> &num_u, int num_v, std::vector< vector< vector< vec3d > > > & pnts,  std::vector< vector< vector< vec3d > > > & norms, const int &n_cap ) const;
 
     void TessUFeatureLine( int iu, std::vector< vec3d > & pnts, double tol );
     void TessWFeatureLine( int iw, std::vector< vec3d > & pnts, double tol );
@@ -176,6 +180,7 @@ public:
 protected:
 
     void Tesselate( const vector<double> &utess, const vector<double> &vtess, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts ) const;
+    void SplitTesselate( const vector<double> &usplit, const vector<double> &vsplit, const vector<double> &u, const vector<double> &v, std::vector< vector< vector< vec3d > > > & pnts,  std::vector< vector< vector< vec3d > > > & norms ) const;
 
     static void IGESKnots( int deg, int npatch, vector< double > &knot );
 

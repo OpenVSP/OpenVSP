@@ -698,6 +698,12 @@ void VspSurf::Tesselate( int num_u, int num_v, vector< vector< vec3d > > & pnts,
     Tesselate( num_u_vec, num_v, pnts, norms, uw_pnts, n_cap, degen );
 }
 
+void VspSurf::SplitTesselate( int num_u, int num_v, vector< vector< vector< vec3d > > > & pnts, vector< vector< vector< vec3d > > > & norms, const int &n_cap ) const
+{
+    vector<int> num_u_vec( GetNumSectU(), num_u );
+    SplitTesselate( num_u_vec, num_v, pnts, norms, n_cap );
+}
+
 void VspSurf::Tesselate( const vector<int> &num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts, const int &n_cap, bool degen ) const
 {
     if( m_Surface.number_u_patches() == 0 || m_Surface.number_v_patches() == 0 )
@@ -711,6 +717,21 @@ void VspSurf::Tesselate( const vector<int> &num_u, int num_v, std::vector< vecto
     MakeUTess( num_u, u );
 
     Tesselate( u, v, pnts, norms, uw_pnts );
+}
+
+void VspSurf::SplitTesselate( const vector<int> &num_u, int num_v, std::vector< vector< vector< vec3d > > > & pnts,  std::vector< vector< vector< vec3d > > > & norms, const int &n_cap ) const
+{
+    if( m_Surface.number_u_patches() == 0 || m_Surface.number_v_patches() == 0 )
+    {
+        return;
+    }
+
+    std::vector<double> u, v;
+
+    MakeVTess( num_v, v, n_cap, false );
+    MakeUTess( num_u, u );
+
+    SplitTesselate( m_UFeature, m_WFeature, u, v, pnts, norms );
 }
 
 void VspSurf::Tesselate( const vector<double> &u, const vector<double> &v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts ) const
@@ -744,6 +765,69 @@ void VspSurf::Tesselate( const vector<double> &u, const vector<double> &v, std::
                 norms[i][j] = nmat[i][j];
             }
             uw_pnts[i][j].set_xyz( u[i], v[j], 0.0 );
+        }
+    }
+}
+
+void VspSurf::SplitTesselate( const vector<double> &usplit, const vector<double> &vsplit, const vector<double> &u, const vector<double> &v, std::vector< vector< vector< vec3d > > > & pnts,  std::vector< vector< vector< vec3d > > > & norms ) const
+{
+    vector < int > iusplit;
+    iusplit.resize( usplit.size() );
+
+    for ( int i = 0; i < usplit.size(); i++ )
+    {
+        double d = std::numeric_limits < double > ::max();
+
+        for ( int j = 0; j < u.size(); j++ )
+        {
+            double dnew = fabs( u[j] - usplit[i] );
+            if ( dnew < d )
+            {
+                d = dnew;
+                iusplit[i] = j;
+            }
+        }
+    }
+
+    vector < int > ivsplit;
+    ivsplit.resize( vsplit.size() );
+
+    for ( int i = 0; i < vsplit.size(); i++ )
+    {
+        double d = std::numeric_limits < double > ::max();
+
+        for ( int j = 0; j < v.size(); j++ )
+        {
+            double dnew = fabs( v[j] - vsplit[i] );
+            if ( dnew < d )
+            {
+                d = dnew;
+                ivsplit[i] = j;
+            }
+        }
+    }
+
+    int nu = usplit.size() - 1;
+    int nv = vsplit.size() - 1;
+
+    int n = nu * nv;
+
+    pnts.resize( n );
+    norms.resize( n );
+
+    vector< vector< vec3d > > uw_pnts;
+
+    int k = 0;
+    for ( int i = 0; i < nu; i++ )
+    {
+        vector < double > usubs( u.begin() + iusplit[i], u.begin() + iusplit[i+1] + 1 );
+
+        for ( int j = 0; j < nv; j++ )
+        {
+            vector < double > vsubs( v.begin() + ivsplit[j], v.begin() + ivsplit[j+1] + 1 );
+
+            Tesselate( usubs, vsubs, pnts[k], norms[k], uw_pnts );
+            k++;
         }
     }
 }
