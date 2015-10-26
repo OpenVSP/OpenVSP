@@ -851,10 +851,9 @@ void ISegChain::AddBorderSplit( IPnt* ip, Puw* uw )
     double tol = 1.0e-3;
     Surf* surfPtr = uw->m_Surf;
 
-    int closest_index;
+    int closest_index = -1;
     double closest_fract = 0.0;
     double closest_dist = 1.0e12;
-    double closest_uw_dist = 1.0e12;
     vec2d closest_proj;
 
     for ( int i = 0 ; i < ( int )m_ISegDeque.size() ; i++ )
@@ -878,7 +877,6 @@ void ISegChain::AddBorderSplit( IPnt* ip, Puw* uw )
                 closest_dist = d;
                 closest_index = i;
                 closest_fract = 0.0;
-                closest_uw_dist = dist( proj, uw->m_UW );
                 vec3d p0 = surfPtr->CompPnt( iuw0[0], iuw0[1] );
                 vec3d p1 = surfPtr->CompPnt( iuw1[0], iuw1[1] );
                 double denom = dist( p0, p1 );

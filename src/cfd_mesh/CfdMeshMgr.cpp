@@ -3784,8 +3784,8 @@ void CfdMeshMgrSingleton::MergeIPntGroups( list< IPntGroup* > & iPntGroupList, d
     list< IPntGroup* >::iterator g;
 
     //===== Merge Two Closest Groups While Under Tol ====//
-    IPntGroup* nearG1;
-    IPntGroup* nearG2;
+    IPntGroup* nearG1 = NULL;
+    IPntGroup* nearG2 = NULL;
     double nearDistFract;
     bool stopFlag = false;
     while( !stopFlag )
@@ -3815,7 +3815,10 @@ void CfdMeshMgrSingleton::MergeIPntGroups( list< IPntGroup* > & iPntGroupList, d
 
         if ( nearDistFract < tol_fract )
         {
-            nearG1->AddGroup( nearG2 );
+            if ( nearG1 && nearG2 )
+            {
+                nearG1->AddGroup( nearG2 );
+            }
 //          delete nearG2;
             iPntGroupList.remove( nearG2 );
             stopFlag = false;

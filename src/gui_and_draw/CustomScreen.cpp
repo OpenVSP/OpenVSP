@@ -165,8 +165,8 @@ GuiDevice* CustomScreen::AddGuiItem( GuiDef & def, int id )
         if ( m_LastChoiceGui )
         {
             m_LastChoiceGui->AddItem( def.m_Label );
+            m_LastChoiceGui->UpdateItems();
         }
-        m_LastChoiceGui->UpdateItems();
     }
     else if ( def.m_Type == GDEV_BEGIN_SAME_LINE )
     {

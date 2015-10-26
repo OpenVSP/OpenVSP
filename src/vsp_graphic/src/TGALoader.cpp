@@ -187,7 +187,7 @@ ImageData TGALoader::_loadCompressedUnmapped( FILE * stream, TGAHeader header )
             {
                 if( fread( rgb, sizeof( unsigned char ), bytePerPixel, stream ) != bytePerPixel )
                 {
-                    delete rgb;
+                    delete [] rgb;
                     free( image.data );
                     image.data = NULL;
                     return image;
@@ -204,7 +204,7 @@ ImageData TGALoader::_loadCompressedUnmapped( FILE * stream, TGAHeader header )
             runCount -= 127;
             if( fread( rgb, sizeof( unsigned char ), bytePerPixel, stream ) != bytePerPixel )
             {
-                delete rgb;
+                delete [] rgb;
                 free( image.data );
                 image.data = NULL;
                 return image;
@@ -226,7 +226,7 @@ ImageData TGALoader::_loadCompressedUnmapped( FILE * stream, TGAHeader header )
     }
     while( byteCounter < imageSizeInBytes );
 
-    delete rgb;
+    delete [] rgb;
 
     // Swap BGRA to RGBA.
     for( int i = 0; i < ( int )imageSizeInBytes; i += bytePerPixel )

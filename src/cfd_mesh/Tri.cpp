@@ -260,36 +260,38 @@ void Node::OptSmooth()
     //if ( worst_qual < 0.707 )
     //  return;
 
-    vec3d orig_pos = pnt;
-    Edge* far_edge = worst_tri->FindEdgeWithout( this );
-
-    //==== Find Target Pos ====//
-    vec3d proj = proj_pnt_on_ray( far_edge->n0->pnt, far_edge->n1->pnt, orig_pos );
-    vec3d dir = orig_pos - proj;
-    dir.normalize();
-
-    double len = 0.866 * dist( far_edge->n0->pnt, far_edge->n1->pnt );
-    vec3d target_pos = ( far_edge->n0->pnt + far_edge->n1->pnt ) * 0.5 + dir * len;
-
-    pnt = pnt + ( target_pos - pnt ) * 0.02;            // Move 1% Towards Target
-
-    bool move_back = false;
-    for ( int i = 0 ; i < ( int )connectTris.size() ; i++ )
+    if ( worst_tri )
     {
-        double q = connectTris[i]->ComputeCosSmallAng();
-        if ( q > worst_qual )
+        vec3d orig_pos = pnt;
+        Edge* far_edge = worst_tri->FindEdgeWithout( this );
+
+        //==== Find Target Pos ====//
+        vec3d proj = proj_pnt_on_ray( far_edge->n0->pnt, far_edge->n1->pnt, orig_pos );
+        vec3d dir = orig_pos - proj;
+        dir.normalize();
+
+        double len = 0.866 * dist( far_edge->n0->pnt, far_edge->n1->pnt );
+        vec3d target_pos = ( far_edge->n0->pnt + far_edge->n1->pnt ) * 0.5 + dir * len;
+
+        pnt = pnt + ( target_pos - pnt ) * 0.02;            // Move 1% Towards Target
+
+        bool move_back = false;
+        for ( int i = 0 ; i < ( int )connectTris.size() ; i++ )
         {
-            move_back = true;
-            break;
+            double q = connectTris[i]->ComputeCosSmallAng();
+            if ( q > worst_qual )
+            {
+                move_back = true;
+                break;
+            }
+        }
+
+        //==== Restore Pos ====//
+        if ( move_back )
+        {
+            pnt = orig_pos;
         }
     }
-
-    //==== Restore Pos ====//
-    if ( move_back )
-    {
-        pnt = orig_pos;
-    }
-
 }
 
 //////////////////////////////////////////////////////////////////////

@@ -981,8 +981,8 @@ void FeaSlice::MergeChains( list < ISegChain* > & chain_list, vec3d & start_pnt,
     while ( keepGoing )
     {
         keepGoing = false;
-        bool close_flip;
-        ISegChain* close_chain;
+        bool close_flip = false;
+        ISegChain* close_chain = NULL;
         double close_dist = 1.0e12;
 
         list< ISegChain* >::iterator c;
@@ -1150,7 +1150,7 @@ void FeaSlice::MatchUpperLowerPnts( vector< vec3d > & upper_pnts, vector< vec3d 
 
 int FeaSlice::FindClosestPnt( vec3d & pnt, vec3d & dir, vector< vec3d > & target_vec )
 {
-    int close_ind;
+    int close_ind = -1;
     double close_dist = 1.0e12;
     for ( int i = 0 ; i < ( int )target_vec.size() ; i++ )
     {
@@ -1167,7 +1167,7 @@ int FeaSlice::FindClosestPnt( vec3d & pnt, vec3d & dir, vector< vec3d > & target
 
 int FeaSlice::FindClosestPnt( vec3d & pnt, vector< vec3d > & target_vec )
 {
-    int close_ind;
+    int close_ind = -1;
     double close_dist = 1.0e12;
     for ( int i = 0 ; i < ( int )target_vec.size() ; i++ )
     {

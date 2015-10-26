@@ -844,7 +844,7 @@ void Surf::InitMesh( vector< ISegChain* > chains )
     {
         vec2d uw = ( *ip )->GetPuw( this )->m_UW;
 
-        int min_id;
+        int min_id = -1;
         double min_dist = 1.0;
         for ( int i = 0 ; i < ( int )uwPntVec.size() ; i++ )
         {

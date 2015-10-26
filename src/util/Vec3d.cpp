@@ -237,7 +237,6 @@ int vec3d::major_comp() const
 	if( abs(v[2]) > c )
 	{
 		i = 2;
-		c = abs( v[i] );
 	}
 	return i;
 }

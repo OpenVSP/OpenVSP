@@ -59,11 +59,11 @@ void GraphicEngine::dumpScreenJPEG( std::string fileName )
         unsigned char* dstLine = &flipdat[ (h - i - 1) * scanLen ];
         memcpy(  dstLine, srcLine, scanLen );
     }
-    delete data;
+    delete [] data;
 
     writeJPEG( fileName.c_str(), w, h, flipdat );
 
-    delete flipdat;
+    delete [] flipdat;
 }
 
 void GraphicEngine::initGlew()

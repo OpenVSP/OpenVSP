@@ -2212,8 +2212,11 @@ SubSurface* Geom::AddSubSurf( int type )
         ssurf->SetName(string("SS_CONT_" + to_string((long long)m_SubSurfVec.size())));
     }
 
-    ssurf->SetParentContainer( GetID() );
-    AddSubSurf( ssurf );
+    if ( ssurf )
+    {
+        ssurf->SetParentContainer( GetID() );
+        AddSubSurf( ssurf );
+    }
 
     SubSurfaceMgr.ReSuffixGroupNames( GetID() );
 

@@ -684,7 +684,7 @@ void TMesh::MergeNonClosed( TMesh* tm )
     //if ( nonClosedTriVec.size() != tm->nonClosedTriVec.size() )   // Num of Open Tris does not match
     //  return;
 
-    bool match_flag;
+    bool match_flag = false;
     for ( int i = 0 ; i < ( int )m_NonClosedTriVec.size() ; i++ )
     {
         TTri* t0 = m_NonClosedTriVec[i];
@@ -2662,26 +2662,6 @@ void TMesh::TagNeedles( double minTriAng, double minAspectRatio, int delFlag )
             a1 = acos( a1 ) * 180.0 / PI;
             a2 = acos( a2 ) * 180.0 / PI;
 
-            double minAng = a0;
-            if ( a1 < minAng )
-            {
-                minAng = a1;
-            }
-            if ( a2 < minAng )
-            {
-                minAng = a2;
-            }
-
-            double maxAng = a0;
-            if ( a1 > maxAng )
-            {
-                maxAng = a1;
-            }
-            if ( a2 > maxAng )
-            {
-                maxAng = a2;
-            }
-
             double d01, d12, d20;
             d01 = dist_squared( m_TVec[t]->m_N0->m_Pnt, m_TVec[t]->m_N1->m_Pnt );
             d12 = dist_squared( m_TVec[t]->m_N1->m_Pnt, m_TVec[t]->m_N2->m_Pnt );
@@ -2849,8 +2829,14 @@ void TMesh::AddEdge( TTri* tri0, TTri* tri1, TNode* node0, TNode* node1 )
         tri1->m_E2 = edge;
     }
 
-    node0->m_EdgeVec.push_back( edge );
-    node1->m_EdgeVec.push_back( edge );
+    if ( node0 )
+    {
+        node0->m_EdgeVec.push_back( edge );
+    }
+    if ( node1 )
+    {
+        node1->m_EdgeVec.push_back( edge );
+    }
 
     m_EVec.push_back( edge );
 

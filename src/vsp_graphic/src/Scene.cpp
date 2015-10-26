@@ -307,7 +307,7 @@ void Scene::preSelectBox(int x1, int y1, int x2, int y2)
             }
         }
     }
-    delete index;
+    delete [] index;
 }
 
 bool Scene::selectBox()

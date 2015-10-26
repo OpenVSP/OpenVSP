@@ -156,7 +156,7 @@ void UtilTestSuite::StringUtilTest()
 
     char* cstr = new char [E.size() + 1];
     strcpy( cstr, E.c_str() );          // Get Pointer to Internal Array
-    delete cstr;
+    delete [] cstr;
 
 //  char buffer[255];
 //  int len = E.copy(buffer,6,5);                   // Copy 6 - num char to copy, 5 - pos

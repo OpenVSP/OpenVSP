@@ -609,14 +609,13 @@ void VspSurf::MakeUTess( const vector<int> &num_u, vector<double> &u ) const
 
 void VspSurf::MakeVTess( int num_v, std::vector<double> &vtess, const int &n_cap, bool degen ) const
 {
-    double vmin, vmax, vabsmin, vabsmax;
+    double vmin, vmax, vabsmin;
     surface_index_type nv( num_v );
 
     vmin = m_Surface.get_v0();
     vmax = m_Surface.get_vmax();
 
     vabsmin = vmin;
-    vabsmax = vmax;
 
     double tol = 1e-6;
 

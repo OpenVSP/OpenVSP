@@ -974,8 +974,8 @@ void FitModelMgrSingleton::CalcMetricDeriv( const double *x, double *y, double *
         }
     }
 
-    delete fprm;
-    delete xp;
+    delete [] fprm;
+    delete [] xp;
 }
 
 int FitModelMgrSingleton::Optimize()
@@ -1029,11 +1029,11 @@ int FitModelMgrSingleton::Optimize()
     m_ParmPtrVec.clear();
     m_TargetGeomPtrVec.clear();
 
-    delete x;
-    delete y;
-    delete fjac;
-    delete ipvt;
-    delete wa;
+    delete [] x;
+    delete [] y;
+    delete [] fjac;
+    delete [] ipvt;
+    delete [] wa;
 
     return info;
 }

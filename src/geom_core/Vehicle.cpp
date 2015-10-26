@@ -1675,14 +1675,13 @@ void Vehicle::WriteTRIFile( const string & file_name, int write_set )
         }
     }
 
-    int part_count = 1;
     for ( i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
         if ( geom_vec[i]->GetSetFlag( write_set ) &&
                 geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
         {
             MeshGeom* mg = ( MeshGeom* )geom_vec[i];            // Cast
-            part_count = mg->WriteCart3DParts( file_id  );
+            mg->WriteCart3DParts( file_id  );
         }
     }
 
@@ -2025,7 +2024,7 @@ void Vehicle::WriteX3DMaterial( xmlNodePtr node, Material * material )
     xmlSetProp( mat_node, BAD_CAST "shininess", BAD_CAST numstr );
 
     material->GetAmbient(amb);
-    double ambd;
+    double ambd = 0.0;
 
     for( int i = 0; i < 3; i++ )
     {

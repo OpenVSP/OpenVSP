@@ -290,7 +290,7 @@ int XmlUtil::GetNumArray( xmlNodePtr node, const char sep )
     str = ( char* )xmlNodeListGetString( node->doc, node->xmlChildrenNode, 1 );
     len = strlen( str );
 
-    i = num = elemcnt = 0;
+    i = 0;
     while ( i < len  )
     {
         if ( sep == str[i] && elemcnt > 0 )
@@ -329,7 +329,7 @@ int XmlUtil::ExtractDoubleArray( xmlNodePtr node, const char sep, double * array
     str = ( char* )xmlNodeListGetString( node->doc, node->xmlChildrenNode, 1 );
     len = strlen( str );
 
-    i = num = elemcnt = 0;
+    i = 0;
     while ( i < len && num < size )
     {
         if ( sep == str[i] && elemcnt > 0 )
@@ -375,7 +375,7 @@ int XmlUtil::ExtractIntArray( xmlNodePtr node, const char sep, int * array, int 
     str = ( char* )xmlNodeListGetString( node->doc, node->xmlChildrenNode, 1 );
     len = strlen( str );
 
-    i = num = elemcnt = 0;
+    i = 0;
     while ( i < len && num < size )
     {
         if ( sep == str[i] && elemcnt > 0 )
