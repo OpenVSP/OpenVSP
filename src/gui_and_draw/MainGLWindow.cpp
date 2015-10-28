@@ -378,112 +378,6 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
             _setClipping( objects[i] );
             break;
 
-        case DrawObj::VSP_POINTS:
-            // Create new scene object if needed.
-            if( id == 0xFFFFFFFF )
-            {
-                m_GEngine->getScene()->createObject( Common::VSP_OBJECT_MARKER, &id );
-
-                ID idInfo;
-                idInfo.bufferID = id;
-                idInfo.geomID = objects[i]->m_GeomID;
-                m_ids.push_back( idInfo );
-            }
-
-            // Update scene object.
-            rObj = dynamic_cast<Renderable*> ( m_GEngine->getScene()->getObject( id ) );
-            if( rObj )
-            {
-                rObj->setVisibility( objects[i]->m_Visible );
-                rObj->setPrimType( VSPGraphic::Common::VSP_POINTS );
-                rObj->setPointColor( objects[i]->m_PointColor.x(),
-                    objects[i]->m_PointColor.y(), objects[i]->m_PointColor.z() );
-                rObj->setPointSize( objects[i]->m_PointSize );
-
-                // Update buffer data if needed.
-                if( objects[i]->m_GeomChanged )
-                {
-                    _loadMarkData( rObj, objects[i] );
-                }
-            }
-            break;
-
-        case DrawObj::VSP_LINES:
-            if( id == 0xFFFFFFFF )
-            {
-                m_GEngine->getScene()->createObject( Common::VSP_OBJECT_MARKER, &id );
-
-                ID idInfo;
-                idInfo.bufferID = id;
-                idInfo.geomID = objects[i]->m_GeomID;
-                m_ids.push_back( idInfo );
-            }
-
-            rObj = dynamic_cast<Renderable*> ( m_GEngine->getScene()->getObject( id ) );
-            if( rObj )
-            {
-                rObj->setVisibility( objects[i]->m_Visible );
-                rObj->setPrimType( VSPGraphic::Common::VSP_LINES );
-                rObj->setLineColor( red, green, blue );
-                rObj->setLineWidth( lineWidth );
-
-                if( objects[i]->m_GeomChanged )
-                {
-                    _loadMarkData( rObj, objects[i] );
-                }
-            }
-            break;
-
-        case DrawObj::VSP_LINE_LOOP:
-            if( id == 0xFFFFFFFF )
-            {
-                m_GEngine->getScene()->createObject( Common::VSP_OBJECT_MARKER, &id );
-
-                ID idInfo;
-                idInfo.bufferID = id;
-                idInfo.geomID = objects[i]->m_GeomID;
-                m_ids.push_back( idInfo );
-            }
-            rObj = dynamic_cast<Renderable*> ( m_GEngine->getScene()->getObject( id ) );
-            if( rObj )
-            {
-                rObj->setVisibility( objects[i]->m_Visible );
-                rObj->setPrimType( VSPGraphic::Common::VSP_LINE_LOOP );
-                rObj->setLineColor( red, green, blue );
-                rObj->setLineWidth( lineWidth );
-
-                if( objects[i]->m_GeomChanged )
-                {
-                    _loadMarkData( rObj, objects[i] );
-                }
-            }
-            break;
-
-        case DrawObj::VSP_LINE_STRIP:
-            if( id == 0xFFFFFFFF )
-            {
-                m_GEngine->getScene()->createObject( Common::VSP_OBJECT_MARKER, &id );
-
-                ID idInfo;
-                idInfo.bufferID = id;
-                idInfo.geomID = objects[i]->m_GeomID;
-                m_ids.push_back( idInfo );
-            }
-            rObj = dynamic_cast<Renderable*> ( m_GEngine->getScene()->getObject( id ) );
-            if( rObj )
-            {
-                rObj->setVisibility( objects[i]->m_Visible );
-                rObj->setPrimType( VSPGraphic::Common::VSP_LINE_STRIP );
-                rObj->setLineColor( red, green, blue );
-                rObj->setLineWidth( lineWidth );
-
-                if( objects[i]->m_GeomChanged )
-                {
-                    _loadMarkData( rObj, objects[i] );
-                }
-            }
-            break;
-
         case DrawObj::VSP_WIRE_MESH:
             // Create new scene object if needed.
             if( id == 0xFFFFFFFF )
@@ -1060,6 +954,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
             if( rObj )
             {
                 rObj->setVisibility( objects[i]->m_Visible );
+                rObj->setPrimType( VSPGraphic::Common::VSP_LINE_LOOP );
                 rObj->setLineColor( red, green, blue );
                 rObj->setLineWidth( lineWidth );
 
