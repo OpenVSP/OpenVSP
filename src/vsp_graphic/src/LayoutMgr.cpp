@@ -147,8 +147,6 @@ void LayoutMgr::draw( Scene * scene, int x, int y )
         glAlphaFunc( GL_GREATER, 0 );
         glEnable( GL_ALPHA_TEST );
 
-        glCullFace( GL_BACK );
-
         glDepthFunc( GL_LEQUAL );
         glEnable( GL_DEPTH_TEST );
 

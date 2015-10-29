@@ -604,6 +604,12 @@ void Scene::draw()
     // Draw transparent entities.
     glDepthMask( GL_FALSE );
     glEnable( GL_CULL_FACE );
+    glCullFace( GL_FRONT );
+    for(int i = 0; i < (int)alphaList.size(); i++)
+    {
+        alphaList[i]->draw();
+    }
+    glCullFace( GL_BACK );
     for(int i = 0; i < (int)alphaList.size(); i++)
     {
         alphaList[i]->draw();
