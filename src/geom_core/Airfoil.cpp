@@ -223,6 +223,8 @@ void SixSeries::Update()
 
     m_Curve.InterpolatePCHIP( pnts, arclen, false );
 
+    m_Curve.ToBinaryCubic();
+
     Matrix4d mat;
     mat.scale( m_Chord() );
 
@@ -449,6 +451,8 @@ void FileAirfoil::Update()
     }
 
     m_Curve.InterpolatePCHIP( pnts, arclen, false );
+
+    m_Curve.ToBinaryCubic();
 
     Matrix4d mat;
     mat.scale( m_Chord() );
