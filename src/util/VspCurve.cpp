@@ -31,6 +31,7 @@ typedef piecewise_curve_type::tolerance_type curve_tolerance_type;
 
 typedef eli::geom::curve::piecewise_cubic_spline_creator<double, 3, curve_tolerance_type> piecewise_cubic_spline_creator_type;
 typedef eli::geom::curve::piecewise_linear_creator<double, 3, curve_tolerance_type> piecewise_linear_creator_type;
+typedef eli::geom::curve::piecewise_binary_cubic_creator<double, 3, curve_tolerance_type> piecewise_binary_cubic_creator;
 
 //=============================================================================//
 //============================= VspCurve      =================================//
@@ -434,6 +435,17 @@ void VspCurve::InterpolateCSpline( vector< vec3d > & input_pnt_vec, const vec3d 
     }
 }
 
+void VspCurve::ToBinaryCubic()
+{
+    piecewise_binary_cubic_creator pbcc;
+
+    // Setup copies base curve into creator.
+    // tolerance, min adapt levels, max adapt levels
+    pbcc.setup( m_Curve, 1e-6, 2, 15 );
+
+    // Create makes new curve in m_Curve
+    pbcc.create( m_Curve );
+}
 
 void VspCurve::SetCubicControlPoints( const vector< vec3d > & cntrl_pts, bool closed_flag )
 {
