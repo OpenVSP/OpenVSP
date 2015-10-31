@@ -340,6 +340,9 @@ public:
     vector< vector< vector< vec3d > > > m_NormMesh;
     vector< vec3d > m_NormVec; // For triangles
 
+    vector< vector< vector< double > > > m_uTexMesh;
+    vector< vector< vector< double > > > m_vTexMesh;
+
     /*
     * List of attached textures to this drawobj.  Default is empty.
     */

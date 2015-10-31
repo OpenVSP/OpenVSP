@@ -1171,10 +1171,8 @@ void VspGlWindow::_loadXSecData( Renderable * destObj, DrawObj * drawObj )
                 vdata.push_back( (float)drawObj->m_NormMesh[k][i][j].y() );
                 vdata.push_back( (float)drawObj->m_NormMesh[k][i][j].z() );
 
-//                vdata.push_back( (float)textureCoords[i][j].x() );
-//                vdata.push_back( (float)textureCoords[i][j].y() );
-                vdata.push_back( (float)0 );
-                vdata.push_back( (float)0 );
+                vdata.push_back( (float)drawObj->m_uTexMesh[k][i][j] );
+                vdata.push_back( (float)drawObj->m_vTexMesh[k][i][j] );
                 increment++;
             }
         }
@@ -1256,78 +1254,6 @@ void VspGlWindow::_loadMarkData( Renderable * destObj, DrawObj * drawObj )
     destObj->appendVBuffer(data.data(), sizeof( float ) * data.size());
 }
 
-std::vector<std::vector<vec3d>> VspGlWindow::_generateTexCoordFromXSec( DrawObj * drawObj )
-{
-    int i, j;
-    std::vector<std::vector<vec3d>> coordinates;
-
-    return coordinates;
-
-//    int num_pnts = drawObj->m_PntMesh.size();
-//    int num_xsecs = 0;
-//    if ( num_pnts )
-//        num_xsecs = drawObj->m_PntMesh[0].size();
-//
-//    // Initialize coordinates vector.
-//    coordinates.resize( num_pnts );
-//    for ( i = 0; i < num_pnts; i++ )
-//    {
-//        coordinates[i].resize( num_xsecs );
-//    }
-//
-//    // Calculate Texture Coordinate.
-//    for ( i = 0 ; i < num_pnts ; i++ )
-//    {
-//        double totalDistance = 0.0;
-//        double currPos = 0.0;
-//
-//        // Calculate the distance between each vertex and total distance.
-//        coordinates[i][0].set_y( 0.0 );
-//        for ( j = 1 ; j < num_xsecs ; j++ )
-//        {
-//            double distance = _distance( drawObj->m_PntMesh[i][j - 1], drawObj->m_PntMesh[i][j] );
-//            totalDistance += distance;
-//            coordinates[i][j].set_y( distance );
-//        }
-//
-//        // Normalize y.
-//        for ( j = 0; j < num_xsecs; j++ )
-//        {
-//            currPos += coordinates[i][j].y();
-//
-//            // In case totalDistance equals 0 (pointy ends of pods),
-//            // set normalized x to 0.0.
-//            coordinates[i][j].set_y( totalDistance <= 0.0 ? (j + 1) * (1.0 / num_xsecs) : currPos / totalDistance );
-//        }
-//    }
-//
-//    for ( i = 0 ; i < num_xsecs ; i++ )
-//    {
-//        double totalDistance = 0.0;
-//        double currPos = 0.0;
-//
-//        // Calculate the distance between each vertex and total distance.
-//        coordinates[0][i].set_x( 0.0 );
-//        for( j = 1; j < num_pnts ; j++ )
-//        {
-//            double distance = _distance( drawObj->m_PntMesh[j - 1][i], drawObj->m_PntMesh[j][i] );
-//            totalDistance += distance;
-//            coordinates[j][i].set_x( distance );
-//        }
-//
-//        // Normalize x.
-//        for ( j = 0; j < num_pnts; j++ )
-//        {
-//            currPos += coordinates[j][i].x();
-//
-//            // In case totalDistance equals 0 (pointy ends of pods),
-//            // set normalized y to 0.0.
-//            coordinates[j][i].set_x( totalDistance <= 0.0 ? ( j + 1 ) * ( 1.0 / num_pnts ) : currPos / totalDistance );
-//        }
-//    }
-    return coordinates;
-}
-
 void VspGlWindow::_setLighting( DrawObj * drawObj )
 {
     if( drawObj->m_Type != DrawObj::VSP_SETTING )
@@ -1402,15 +1328,6 @@ void VspGlWindow::_setClipping( DrawObj * drawObj )
 
         cplane->setEqn( e );
     }
-}
-
-double VspGlWindow::_distance( vec3d pointA, vec3d pointB )
-{
-    double x = pointB.x() - pointA.x();
-    double y = pointB.y() - pointA.y();
-    double z = pointB.z() - pointA.z();
-
-    return std::sqrt( x * x + y * y + z * z );
 }
 
 void VspGlWindow::OnPush( int x, int y )

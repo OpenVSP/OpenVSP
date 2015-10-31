@@ -114,9 +114,6 @@ private:
     void _sendFeedback( VSPGraphic::Selectable * selected );
     void _sendFeedback( std::vector<VSPGraphic::Selectable *> listOfSelected );
 
-    std::vector<std::vector<vec3d>> _generateTexCoordFromXSec( DrawObj * drawObj );
-    double _distance( vec3d pointA, vec3d pointB );
-
     void OnPush( int x, int y );
     void OnDrag( int x, int y );
     void OnRelease( int x, int y );

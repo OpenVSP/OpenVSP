@@ -906,6 +906,113 @@ void Geom::UpdateSplitTesselate( int indx, vector< vector< vector< vec3d > > > &
     m_SurfVec[indx].SplitTesselate( m_TessU(), m_TessW(), pnts, norms, m_CapUMinTess() );
 }
 
+void Geom::CalcTexCoords( int indx, vector< vector< vector< double > > > &utex, vector< vector< vector< double > > > &vtex, const vector< vector< vector< vec3d > > > & pnts )
+{
+    int nu = m_SurfVec[indx].GetNumUFeature() - 1;
+    int nv = m_SurfVec[indx].GetNumWFeature() - 1;
+
+    int n = nu * nv;
+
+    utex.resize(n);
+    vtex.resize(n);
+
+    int k = 0;
+    for ( int i = 0; i < nu; i++ )
+    {
+
+        for ( int j = 0; j < nv; j++ )
+        {
+            int nui = pnts[k].size();
+
+            utex[k].resize(nui);
+            vtex[k].resize(nui);
+            for ( int ii = 0; ii < nui; ii++ )
+            {
+                int nvj = pnts[k][0].size();
+
+                utex[k][ii].resize(nvj);
+                vtex[k][ii].resize(nvj);
+
+
+                for ( int jj = 0; jj < nvj; jj++ )
+                {
+                    if ( ii == 0 )
+                    {
+                        if ( i == 0 )
+                        {
+                            utex[k][ii][jj] = 0.0;
+                        }
+                        else
+                        {
+                            int ilast = utex[(i-1)*nv+j].size() - 1;
+                            utex[k][ii][jj] = utex[(i-1)*nv+j][ilast][jj]; // previous kpatch iend;
+                        }
+                    }
+                    else
+                    {
+                        double du = dist( pnts[k][ii][jj], pnts[k][ii-1][jj] );
+                        if ( du < 1e-6 )
+                        {
+                            du = 1.0;
+                        }
+                        utex[k][ii][jj] = utex[k][ii-1][jj] + du;
+                    }
+
+                    if ( jj == 0 )
+                    {
+                        if ( j == 0 )
+                        {
+                            vtex[k][ii][jj] = 0.0;
+                        }
+                        else
+                        {
+                            int jlast = vtex[i*nv+j-1][ii].size() - 1;
+                            vtex[k][ii][jj] = vtex[i*nv+j-1][ii][jlast]; // previous kpatch jend;
+                        }
+                    }
+                    else
+                    {
+                        double dv = dist( pnts[k][ii][jj], pnts[k][ii][jj-1] );
+                        if ( dv < 1e-6 )
+                        {
+                            dv = 1.0;
+                        }
+                        vtex[k][ii][jj] = vtex[k][ii][jj-1] + dv;
+                    }
+                }
+            }
+            k++;
+        }
+    }
+
+    k = 0;
+    for ( int i = 0; i < nu; i++ )
+    {
+        for ( int j = 0; j < nv; j++ )
+        {
+            int nui = pnts[k].size();
+
+            for ( int ii = 0; ii < nui; ii++ )
+            {
+                int nvj = pnts[k][0].size();
+
+                for ( int jj = 0; jj < nvj; jj++ )
+                {
+                    int kjlast = i*nv+nv-1;
+                    int kilast = (nu-1)*nv+j;
+
+                    int imax = utex[kilast].size()-1;
+                    int jmax = vtex[kjlast][0].size()-1;
+
+                    utex[k][ii][jj] /= utex[kilast][imax][jj];
+                    vtex[k][ii][jj] /= vtex[kjlast][ii][jmax];
+                }
+            }
+            k++;
+        }
+    }
+}
+
 void Geom::UpdateEndCaps()
 {
     int nmain = m_MainSurfVec.size();
@@ -1169,6 +1276,11 @@ void Geom::UpdateDrawObj()
 
         UpdateSplitTesselate( i, pnts, norms );
 
+        vector< vector < vector < double > > > utex;
+        vector< vector < vector < double > > > vtex;
+
+        CalcTexCoords( i, utex, vtex, pnts );
+
         int iflip = 0;
         if ( m_SurfVec[i].GetFlipNormal() )
         {
@@ -1179,6 +1291,11 @@ void Geom::UpdateDrawObj()
                 pnts.begin(), pnts.end() );
         m_WireShadeDrawObj_vec[iflip].m_NormMesh.insert( m_WireShadeDrawObj_vec[iflip].m_NormMesh.end(),
                 norms.begin(), norms.end() );
+
+        m_WireShadeDrawObj_vec[iflip].m_uTexMesh.insert( m_WireShadeDrawObj_vec[iflip].m_uTexMesh.end(),
+                utex.begin(), utex.end() );
+        m_WireShadeDrawObj_vec[iflip].m_vTexMesh.insert( m_WireShadeDrawObj_vec[iflip].m_vTexMesh.end(),
+                vtex.begin(), vtex.end() );
 
         if( m_GuiDraw.GetDispFeatureFlag() )
         {

@@ -588,6 +588,8 @@ protected:
 
     virtual void UpdateSplitTesselate( int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms );
 
+    virtual void CalcTexCoords( int indx, vector< vector< vector< double > > > &utex, vector< vector< vector< double > > > &vtex, const vector< vector< vector< vec3d > > > & pnts );
+
     vector<VspSurf> m_MainSurfVec;
     vector<VspSurf> m_SurfVec;
     vector<int> m_SurfIndxVec;
