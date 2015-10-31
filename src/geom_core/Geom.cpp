@@ -1162,11 +1162,21 @@ void Geom::UpdateDrawObj()
     //==== Tesselate Surface ====//
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
-        UpdateSplitTesselate( i, m_WireShadeDrawObj_vec[i].m_PntMesh, m_WireShadeDrawObj_vec[i].m_NormMesh );
+        vector< vector < vector < vec3d > > > pnts;
+        vector< vector < vector < vec3d > > > norms;
 
-        m_WireShadeDrawObj_vec[i].m_GeomChanged = true;
-        m_WireShadeDrawObj_vec[i].m_FlipNormals = m_SurfVec[i].GetFlipNormal();
+        UpdateSplitTesselate( i, pnts, norms );
 
+        int iflip = 0;
+        if ( m_SurfVec[i].GetFlipNormal() )
+        {
+            iflip = 1;
+        }
+
+        m_WireShadeDrawObj_vec[iflip].m_PntMesh.insert( m_WireShadeDrawObj_vec[iflip].m_PntMesh.end(),
+                pnts.begin(), pnts.end() );
+        m_WireShadeDrawObj_vec[iflip].m_NormMesh.insert( m_WireShadeDrawObj_vec[iflip].m_NormMesh.end(),
+                norms.begin(), norms.end() );
 
         if( m_GuiDraw.GetDispFeatureFlag() )
         {
