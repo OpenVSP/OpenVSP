@@ -1125,60 +1125,93 @@ void VspGlWindow::_loadXSecData( Renderable * destObj, DrawObj * drawObj )
     std::vector<unsigned int> edata;
 
     // Generate Texture Coordinate.
-    std::vector<std::vector<vec3d>> textureCoords = _generateTexCoordFromXSec( drawObj );
+//    std::vector<std::vector<vec3d>> textureCoords = _generateTexCoordFromXSec( drawObj );
 
-    int num_pnts = drawObj->m_PntMesh.size();
-    int num_xsecs = 0;
-    if ( num_pnts )
-        num_xsecs = drawObj->m_PntMesh[0].size();
+    int num_mesh = drawObj->m_PntMesh.size();
 
-    vdata.reserve( num_xsecs * num_pnts * 8 );
+    int vtotal = 0;
+    int etotal = 0;
 
-    // Vertex Buffer.
-    for ( int i = 0 ; i < num_pnts ; i++ )
+    for ( int k = 0; k < num_mesh; k++ )
     {
-        for ( int j = 0 ; j < num_xsecs ; j++ )
-        {
-            vdata.push_back( (float)drawObj->m_PntMesh[i][j].x() );
-            vdata.push_back( (float)drawObj->m_PntMesh[i][j].y() );
-            vdata.push_back( (float)drawObj->m_PntMesh[i][j].z() );
+        int num_pnts = drawObj->m_PntMesh[k].size();
+        int num_xsecs = 0;
+        if ( num_pnts )
+            num_xsecs = drawObj->m_PntMesh[k][0].size();
 
-            vdata.push_back( (float)drawObj->m_NormMesh[i][j].x() );
-            vdata.push_back( (float)drawObj->m_NormMesh[i][j].y() );
-            vdata.push_back( (float)drawObj->m_NormMesh[i][j].z() );
+        vtotal += num_xsecs * num_pnts;
 
-            vdata.push_back( (float)textureCoords[i][j].x() );
-            vdata.push_back( (float)textureCoords[i][j].y() );
-        }
+        etotal += (num_pnts - 1) * (num_xsecs - 1);
     }
+
+    vdata.reserve( vtotal * 8 );
+    edata.reserve( etotal * 4 );
+
+    int offset = 0;
+
+    for ( int k = 0; k < num_mesh; k++ )
+    {
+        int increment = 0;
+
+        int num_pnts = drawObj->m_PntMesh[k].size();
+        int num_xsecs = 0;
+        if ( num_pnts )
+            num_xsecs = drawObj->m_PntMesh[k][0].size();
+
+        // Vertex Buffer.
+        for ( int i = 0 ; i < num_pnts ; i++ )
+        {
+            for ( int j = 0 ; j < num_xsecs ; j++ )
+            {
+                vdata.push_back( (float)drawObj->m_PntMesh[k][i][j].x() );
+                vdata.push_back( (float)drawObj->m_PntMesh[k][i][j].y() );
+                vdata.push_back( (float)drawObj->m_PntMesh[k][i][j].z() );
+
+                vdata.push_back( (float)drawObj->m_NormMesh[k][i][j].x() );
+                vdata.push_back( (float)drawObj->m_NormMesh[k][i][j].y() );
+                vdata.push_back( (float)drawObj->m_NormMesh[k][i][j].z() );
+
+//                vdata.push_back( (float)textureCoords[i][j].x() );
+//                vdata.push_back( (float)textureCoords[i][j].y() );
+                vdata.push_back( (float)0 );
+                vdata.push_back( (float)0 );
+                increment++;
+            }
+        }
+
+
+        // Element Buffer.
+        for( int i = 0; i < num_pnts - 1; i++ )
+        {
+            for( int j = 0; j < num_xsecs - 1; j++ )
+            {
+                edata.push_back( offset + i * num_xsecs + j );
+                edata.push_back( offset + ( i + 1 ) * num_xsecs + j );
+                edata.push_back( offset + ( i + 1 ) * num_xsecs + j + 1 );
+                edata.push_back( offset + i * num_xsecs + j + 1 );
+            }
+        }
+
+        offset += increment;
+
+    }
+
     destObj->setFacingCW( drawObj->m_FlipNormals );
 
     destObj->emptyVBuffer();
     destObj->appendVBuffer( vdata.data(), sizeof(float) * vdata.size() );
 
-    edata.reserve( (num_pnts - 1) * (num_xsecs - 1) * 4 );
-
-    // Element Buffer.
-    for( int i = 0; i < num_pnts - 1; i++ )
-    {
-        for( int j = 0; j < num_xsecs - 1; j++ )
-        {
-            edata.push_back( i * num_xsecs + j );
-            edata.push_back( ( i + 1 ) * num_xsecs + j );
-            edata.push_back( ( i + 1 ) * num_xsecs + j + 1 );
-            edata.push_back( i * num_xsecs + j + 1 );
-        }
-    }
     destObj->emptyEBuffer();
     destObj->appendEBuffer( edata.data(), sizeof( unsigned int ) * edata.size() );
     destObj->enableEBuffer( true );
+
 
     // Update number of xsec and pnts.
     XSecEntity * xEntity = dynamic_cast<XSecEntity*>(destObj);
     if(xEntity)
     {
-        xEntity->setNumXSec(num_xsecs);
-        xEntity->setNumPnts(num_pnts);
+        xEntity->setNumXSec(0);
+        xEntity->setNumPnts(0);
     }
 }
 
@@ -1228,68 +1261,70 @@ std::vector<std::vector<vec3d>> VspGlWindow::_generateTexCoordFromXSec( DrawObj 
     int i, j;
     std::vector<std::vector<vec3d>> coordinates;
 
-    int num_pnts = drawObj->m_PntMesh.size();
-    int num_xsecs = 0;
-    if ( num_pnts )
-        num_xsecs = drawObj->m_PntMesh[0].size();
+    return coordinates;
 
-    // Initialize coordinates vector.
-    coordinates.resize( num_pnts );
-    for ( i = 0; i < num_pnts; i++ )
-    {
-        coordinates[i].resize( num_xsecs );
-    }
-
-    // Calculate Texture Coordinate.
-    for ( i = 0 ; i < num_pnts ; i++ )
-    {
-        double totalDistance = 0.0;
-        double currPos = 0.0;
-
-        // Calculate the distance between each vertex and total distance.
-        coordinates[i][0].set_y( 0.0 );
-        for ( j = 1 ; j < num_xsecs ; j++ )
-        {
-            double distance = _distance( drawObj->m_PntMesh[i][j - 1], drawObj->m_PntMesh[i][j] );
-            totalDistance += distance;
-            coordinates[i][j].set_y( distance );
-        }
-
-        // Normalize y.
-        for ( j = 0; j < num_xsecs; j++ )
-        {
-            currPos += coordinates[i][j].y();
-
-            // In case totalDistance equals 0 (pointy ends of pods), 
-            // set normalized x to 0.0.
-            coordinates[i][j].set_y( totalDistance <= 0.0 ? (j + 1) * (1.0 / num_xsecs) : currPos / totalDistance );
-        }
-    }
-
-    for ( i = 0 ; i < num_xsecs ; i++ )
-    {
-        double totalDistance = 0.0;
-        double currPos = 0.0;
-
-        // Calculate the distance between each vertex and total distance.
-        coordinates[0][i].set_x( 0.0 );
-        for( j = 1; j < num_pnts ; j++ )
-        {
-            double distance = _distance( drawObj->m_PntMesh[j - 1][i], drawObj->m_PntMesh[j][i] );
-            totalDistance += distance;
-            coordinates[j][i].set_x( distance );
-        }
-
-        // Normalize x.
-        for ( j = 0; j < num_pnts; j++ )
-        {
-            currPos += coordinates[j][i].x();
-
-            // In case totalDistance equals 0 (pointy ends of pods), 
-            // set normalized y to 0.0.
-            coordinates[j][i].set_x( totalDistance <= 0.0 ? ( j + 1 ) * ( 1.0 / num_pnts ) : currPos / totalDistance );
-        }
-    }
+//    int num_pnts = drawObj->m_PntMesh.size();
+//    int num_xsecs = 0;
+//    if ( num_pnts )
+//        num_xsecs = drawObj->m_PntMesh[0].size();
+//
+//    // Initialize coordinates vector.
+//    coordinates.resize( num_pnts );
+//    for ( i = 0; i < num_pnts; i++ )
+//    {
+//        coordinates[i].resize( num_xsecs );
+//    }
+//
+//    // Calculate Texture Coordinate.
+//    for ( i = 0 ; i < num_pnts ; i++ )
+//    {
+//        double totalDistance = 0.0;
+//        double currPos = 0.0;
+//
+//        // Calculate the distance between each vertex and total distance.
+//        coordinates[i][0].set_y( 0.0 );
+//        for ( j = 1 ; j < num_xsecs ; j++ )
+//        {
+//            double distance = _distance( drawObj->m_PntMesh[i][j - 1], drawObj->m_PntMesh[i][j] );
+//            totalDistance += distance;
+//            coordinates[i][j].set_y( distance );
+//        }
+//
+//        // Normalize y.
+//        for ( j = 0; j < num_xsecs; j++ )
+//        {
+//            currPos += coordinates[i][j].y();
+//
+//            // In case totalDistance equals 0 (pointy ends of pods),
+//            // set normalized x to 0.0.
+//            coordinates[i][j].set_y( totalDistance <= 0.0 ? (j + 1) * (1.0 / num_xsecs) : currPos / totalDistance );
+//        }
+//    }
+//
+//    for ( i = 0 ; i < num_xsecs ; i++ )
+//    {
+//        double totalDistance = 0.0;
+//        double currPos = 0.0;
+//
+//        // Calculate the distance between each vertex and total distance.
+//        coordinates[0][i].set_x( 0.0 );
+//        for( j = 1; j < num_pnts ; j++ )
+//        {
+//            double distance = _distance( drawObj->m_PntMesh[j - 1][i], drawObj->m_PntMesh[j][i] );
+//            totalDistance += distance;
+//            coordinates[j][i].set_x( distance );
+//        }
+//
+//        // Normalize x.
+//        for ( j = 0; j < num_pnts; j++ )
+//        {
+//            currPos += coordinates[j][i].x();
+//
+//            // In case totalDistance equals 0 (pointy ends of pods),
+//            // set normalized y to 0.0.
+//            coordinates[j][i].set_x( totalDistance <= 0.0 ? ( j + 1 ) * ( 1.0 / num_pnts ) : currPos / totalDistance );
+//        }
+//    }
     return coordinates;
 }
 

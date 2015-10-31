@@ -328,7 +328,7 @@ public:
     * Data format:
     * m_PntMesh[pnts on xsec][xsec index]
     */
-    vector< vector< vec3d > > m_PntMesh;
+    vector< vector< vector< vec3d > > > m_PntMesh;
     /*
     * XSec normals.
     * m_NormMesh is available if m_Type is one of the following:
@@ -337,7 +337,7 @@ public:
     * Data format:
     * m_NormMesh[pnts on xsec][xsec index]
     */ 
-    vector< vector< vec3d > > m_NormMesh;
+    vector< vector< vector< vec3d > > > m_NormMesh;
     vector< vec3d > m_NormVec; // For triangles
 
     /*
