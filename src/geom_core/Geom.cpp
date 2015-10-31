@@ -1149,6 +1149,8 @@ void Geom::UpdateFlags( )
 void Geom::UpdateDrawObj()
 {
     m_FeatureDrawObj_vec.clear();
+    m_FeatureDrawObj_vec.resize(1);
+    m_FeatureDrawObj_vec[0].m_GeomChanged = true;
 
     double tol = 1e-2;
 
@@ -1183,19 +1185,35 @@ void Geom::UpdateDrawObj()
             int nu = m_SurfVec[i].GetNumUFeature();
             for( int j = 0; j < nu; j++ )
             {
-                m_FeatureDrawObj_vec.push_back( DrawObj() );
-                int indx = m_FeatureDrawObj_vec.size() - 1;
-                m_SurfVec[i].TessUFeatureLine( j, m_FeatureDrawObj_vec[indx].m_PntVec, tol );
-                m_FeatureDrawObj_vec[indx].m_GeomChanged = true;
+                vector < vec3d > ptline;
+                m_SurfVec[i].TessUFeatureLine( j, ptline, tol );
+
+                int n = ptline.size() - 1;
+
+                m_FeatureDrawObj_vec[0].m_PntVec.reserve( m_FeatureDrawObj_vec[0].m_PntVec.size() + 2 * n );
+
+                for ( int k = 0; k < n; k++ )
+                {
+                    m_FeatureDrawObj_vec[0].m_PntVec.push_back( ptline[ k ] );
+                    m_FeatureDrawObj_vec[0].m_PntVec.push_back( ptline[ k + 1 ] );
+                }
             }
 
             int nw = m_SurfVec[i].GetNumWFeature();
             for( int j = 0; j < nw; j++ )
             {
-                m_FeatureDrawObj_vec.push_back( DrawObj() );
-                int indx = m_FeatureDrawObj_vec.size() - 1;
-                m_SurfVec[i].TessWFeatureLine( j, m_FeatureDrawObj_vec[indx].m_PntVec, tol );
-                m_FeatureDrawObj_vec[indx].m_GeomChanged = true;
+                vector < vec3d > ptline;
+                m_SurfVec[i].TessWFeatureLine( j, ptline, tol );
+
+                int n = ptline.size() - 1;
+
+                m_FeatureDrawObj_vec[0].m_PntVec.reserve( m_FeatureDrawObj_vec[0].m_PntVec.size() + 2 * n );
+
+                for ( int k = 0; k < n; k++ )
+                {
+                    m_FeatureDrawObj_vec[0].m_PntVec.push_back( ptline[ k ] );
+                    m_FeatureDrawObj_vec[0].m_PntVec.push_back( ptline[ k + 1 ] );
+                }
             }
         }
     }
@@ -1449,7 +1467,7 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
             m_FeatureDrawObj_vec[i].m_GeomID = m_ID + "Feature_" + str;
             m_FeatureDrawObj_vec[i].m_LineWidth = 2.0;
             m_FeatureDrawObj_vec[i].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
-            m_FeatureDrawObj_vec[i].m_Type = DrawObj::VSP_LINE_STRIP;
+            m_FeatureDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
             draw_obj_vec.push_back( &m_FeatureDrawObj_vec[i] );
         }
     }
