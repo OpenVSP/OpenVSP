@@ -742,10 +742,6 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
 
         switch( objects[i]->m_Type )
         {
-        case DrawObj::VSP_PICK_VERTEX_HIDE_SELECTION:
-            m_GEngine->getScene()->hideSelection();
-            break;
-
         case DrawObj::VSP_PICK_GEOM:
             if( id == 0xFFFFFFFF )
             {
@@ -791,41 +787,6 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
                 ppntObj->setPointSize( objects[i]->m_PointSize );
                 ppntObj->update();
             }
-            break;
-
-        case DrawObj::VSP_PICK_VERTEX_SELECT_ALL:
-            if( id == 0xFFFFFFFF )
-            {
-                ID * sourceId = _findID( objects[i]->m_PickSourceID );
-                if(sourceId)
-                {
-                    m_GEngine->getScene()->createObject( Common::VSP_OBJECT_PICK_VERTEX, &id, sourceId->bufferID );
-
-                    ID idInfo;
-                    idInfo.bufferID = id;
-                    idInfo.geomID = objects[i]->m_GeomID;
-                    m_ids.push_back( idInfo );
-                }
-            }
-            ppntObj = dynamic_cast<PickablePnts*> ( m_GEngine->getScene()->getObject( id ) );
-            if( ppntObj )
-            {
-                ppntObj->setVisibility( objects[i]->m_Visible );
-                ppntObj->setGroup( objects[i]->m_FeedbackGroup );
-                ppntObj->setPointSize( objects[i]->m_PointSize );
-                ppntObj->update();
-
-                // Select all points from Pickable.
-                m_GEngine->getScene()->selectAll( ppntObj );
-
-                // Send feedback back to GUI.
-                std::string feedbackGroupName = m_GEngine->getScene()->getLastSelected()->getGroup();
-                _sendFeedback( m_GEngine->getScene()->getSelected( feedbackGroupName ) );
-            }
-            break;
-
-        case DrawObj::VSP_PICK_VERTEX_UNSELECT_ALL:
-            m_GEngine->getScene()->unselectAll();
             break;
 
         case DrawObj::VSP_PICK_LOCATION:

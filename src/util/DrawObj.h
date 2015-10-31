@@ -53,9 +53,6 @@ public:
     * VSP_SETTING - This drawObj provides Global Setting Info(lighting, etc...).  Does not render anything.
     * VSP_RULER - Render Ruler.
     * VSP_PICK_VERTEX - This type drawObj enables vertex picking for a specific geometry.
-    * VSP_PICK_VERTEX_SELECT_ALL - Same as VSP_PICK_VERTEX, but also select all vertices.
-    * VSP_PICK_VERTEX_UNSELECT_ALL - Send signal to clear all existing selections. Does not contain render information.
-    * VSP_PICK_VERTEX_HIDE_SELECTION - Send signal to hide all selections for this one update.  Does not contain render information.
     * VSP_PICK_GEOM - This type drawObj enables geometry picking.
     * VSP_PICK_LOCATION - This type drawObj enables location picking.
     * VSP_CLIP - Add clipping plane.
@@ -79,9 +76,6 @@ public:
         VSP_SETTING,
         VSP_RULER,
         VSP_PICK_VERTEX,
-        VSP_PICK_VERTEX_SELECT_ALL,
-        VSP_PICK_VERTEX_UNSELECT_ALL,
-        VSP_PICK_VERTEX_HIDE_SELECTION,
         VSP_PICK_GEOM,
         VSP_PICK_LOCATION,
         VSP_CLIP,
