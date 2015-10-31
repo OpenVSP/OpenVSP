@@ -1132,6 +1132,8 @@ void VspGlWindow::_loadXSecData( Renderable * destObj, DrawObj * drawObj )
     if ( num_pnts )
         num_xsecs = drawObj->m_PntMesh[0].size();
 
+    vdata.reserve( num_xsecs * num_pnts * 8 );
+
     // Vertex Buffer.
     for ( int i = 0 ; i < num_pnts ; i++ )
     {
@@ -1153,6 +1155,8 @@ void VspGlWindow::_loadXSecData( Renderable * destObj, DrawObj * drawObj )
 
     destObj->emptyVBuffer();
     destObj->appendVBuffer( vdata.data(), sizeof(float) * vdata.size() );
+
+    edata.reserve( (num_pnts - 1) * (num_xsecs - 1) * 4 );
 
     // Element Buffer.
     for( int i = 0; i < num_pnts - 1; i++ )
@@ -1182,20 +1186,20 @@ void VspGlWindow::_loadTrisData( Renderable * destObj, DrawObj * drawObj )
 {
     assert( drawObj->m_PntVec.size() == drawObj->m_NormVec.size() );
 
-    std::vector<float> data;
+    int n = drawObj->m_PntVec.size();
+
+    std::vector<float> data( n * 8, 0.0f );
 
     for ( int i = 0; i < ( int )drawObj->m_PntVec.size(); i++ )
     {
-        data.push_back( ( float )drawObj->m_PntVec[i].x() );
-        data.push_back( ( float )drawObj->m_PntVec[i].y() );
-        data.push_back( ( float )drawObj->m_PntVec[i].z() );
+        const int j = i * 8;
+        data[ j + 0 ] = ( float )drawObj->m_PntVec[i].x();
+        data[ j + 1 ] = ( float )drawObj->m_PntVec[i].y();
+        data[ j + 2 ] = ( float )drawObj->m_PntVec[i].z();
 
-        data.push_back( ( float )drawObj->m_NormVec[i].x() );
-        data.push_back( ( float )drawObj->m_NormVec[i].y() );
-        data.push_back( ( float )drawObj->m_NormVec[i].z() );
-
-        data.push_back( 0.0f );
-        data.push_back( 0.0f );
+        data[ j + 3 ] = ( float )drawObj->m_NormVec[i].x();
+        data[ j + 4 ] = ( float )drawObj->m_NormVec[i].y();
+        data[ j + 5 ] = ( float )drawObj->m_NormVec[i].z();
     }
     destObj->setFacingCW( drawObj->m_FlipNormals );
 
@@ -1205,18 +1209,15 @@ void VspGlWindow::_loadTrisData( Renderable * destObj, DrawObj * drawObj )
 
 void VspGlWindow::_loadMarkData( Renderable * destObj, DrawObj * drawObj )
 {
-    std::vector<float> data;
+    int n = drawObj->m_PntVec.size();
+    std::vector<float> data( n * 8, 0.0f );
 
-    for ( int i = 0; i < (int)drawObj->m_PntVec.size(); i++ )
+    for ( int i = 0; i < n; i++ )
     {
-        data.push_back( ( float )drawObj->m_PntVec[i].x() );
-        data.push_back( ( float )drawObj->m_PntVec[i].y() );
-        data.push_back( ( float )drawObj->m_PntVec[i].z() );
-        data.push_back( 0.0f );
-        data.push_back( 0.0f );
-        data.push_back( 0.0f );
-        data.push_back( 0.0f );
-        data.push_back( 0.0f );
+        const int j = i * 8;
+        data[ j + 0 ] = ( float )drawObj->m_PntVec[i].x();
+        data[ j + 1 ] = ( float )drawObj->m_PntVec[i].y();
+        data[ j + 2 ] = ( float )drawObj->m_PntVec[i].z();
     }
     destObj->emptyVBuffer();
     destObj->appendVBuffer(data.data(), sizeof( float ) * data.size());
