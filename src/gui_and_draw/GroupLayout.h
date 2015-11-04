@@ -151,6 +151,7 @@ public:
     Fl_Browser* AddFlBrowser( int height );
     Fl_Text_Editor* AddFlTextEditor( int height );
     Fl_Text_Display* AddFlTextDisplay( int height );
+    Fl_Scroll* AddFlScroll( int height );
 
     Fl_Color_Chooser* AddFlColorChooser( int height );
 

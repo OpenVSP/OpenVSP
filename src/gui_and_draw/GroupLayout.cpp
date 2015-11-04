@@ -1295,6 +1295,21 @@ Fl_Text_Display* GroupLayout::AddFlTextDisplay( int height )
     return text_display;
 }
 
+//==== Add Fl Scroll panel ====//
+Fl_Scroll* GroupLayout::AddFlScroll( int height )
+{
+    assert( m_Group && m_Screen );
+
+    Fl_Scroll* scroll = new Fl_Scroll (m_X, m_Y, m_W, height, "");
+
+    m_Group->add( scroll );
+
+    AddY( height );
+    NewLineX();
+
+    return scroll;
+}
+
 //==== Add Fl Color Chooser ====//
 Fl_Color_Chooser* GroupLayout::AddFlColorChooser(int height)
 {
