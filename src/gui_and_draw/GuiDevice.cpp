@@ -128,7 +128,10 @@ void GuiDevice::Activate()
 {
     for ( int i = 0 ; i < (int)m_WidgetVec.size() ; i++ )
     {
-        m_WidgetVec[i]->activate();
+        if ( m_WidgetVec[i] )
+        {
+            m_WidgetVec[i]->activate();
+        }
     }
 }
 
@@ -137,7 +140,10 @@ void GuiDevice::Deactivate()
 {
     for ( int i = 0 ; i < (int)m_WidgetVec.size() ; i++ )
     {
-        m_WidgetVec[i]->deactivate();
+        if ( m_WidgetVec[i] )
+        {
+            m_WidgetVec[i]->deactivate();
+        }
     }
 }
 
