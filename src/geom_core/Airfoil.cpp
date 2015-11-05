@@ -216,7 +216,7 @@ void SixSeries::Update()
     }
 
     double upperscale = 2.0/lenupper;
-    for ( ; i < npts + 1; i++ )
+    for ( ; i < npts; i++ )
     {
         arclen[i] = 2.0 + ( arclen[i] - lenlower) * upperscale;
     }
