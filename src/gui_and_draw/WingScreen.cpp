@@ -209,7 +209,7 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 640, "Wing" )
     m_AfTypeChoice.AddItem( "BEZIER" );
     m_AfTypeChoice.AddItem( "AF_FILE" );
 
-    m_AfLayout.SetChoiceButtonWidth( 80 );
+    m_AfLayout.SetChoiceButtonWidth( 85 );
     m_AfLayout.SetButtonWidth( 40 );
     m_AfLayout.SetSameLineFlag( true );
     m_AfLayout.AddChoice( m_AfTypeChoice, "Choose Type:", m_AfLayout.GetButtonWidth() );
