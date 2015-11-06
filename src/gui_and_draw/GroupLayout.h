@@ -134,7 +134,7 @@ public:
     void AddInput(  StringInput& string_input, const char* label );
     void AddInput(  Input& input, const char* label, const char* format  );
     void AddOutput( StringOutput& string_output );
-    void AddOutput( StringOutput& string_output, const char* label );
+    void AddOutput( StringOutput& string_output, const char* label, int used_w = 0 );
     void AddIndexSelector( IndexSelector& selector );
     void AddColorPicker( ColorPicker& picker );
     void AddChoice( Choice & choice, const char* label, int used_w = 0 );

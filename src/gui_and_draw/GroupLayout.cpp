@@ -610,7 +610,7 @@ void GroupLayout::AddOutput( StringOutput& string_output)
 }
 
 //==== Create & Init Text Output  ====//
-void GroupLayout::AddOutput( StringOutput& string_output, const char* label )
+void GroupLayout::AddOutput( StringOutput& string_output, const char* label, int used_w )
 {
     assert( m_Group && m_Screen );
 
@@ -618,7 +618,7 @@ void GroupLayout::AddOutput( StringOutput& string_output, const char* label )
     AddParmButton( label );
 
     //==== Add Text Input ====//
-    int iw = FitWidth( m_ButtonWidth, m_InputWidth );
+    int iw = FitWidth( m_ButtonWidth + used_w, m_InputWidth );
     Fl_Output* output = new Fl_Output( m_X, m_Y, iw, m_StdHeight );
     output->color( ( Fl_Color )23 );
     output->labelfont( 1 );
