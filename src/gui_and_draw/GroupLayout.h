@@ -135,10 +135,10 @@ public:
     void AddInput(  Input& input, const char* label, const char* format  );
     void AddOutput( StringOutput& string_output );
     void AddOutput( StringOutput& string_output, const char* label, int used_w = 0 );
-    void AddIndexSelector( IndexSelector& selector );
+    void AddIndexSelector( IndexSelector& selector, int used_w = 0 );
     void AddColorPicker( ColorPicker& picker );
     void AddChoice( Choice & choice, const char* label, int used_w = 0 );
-    void AddCounter( Counter & count, const char* label );
+    void AddCounter( Counter & count, const char* label, int used_w = 0 );
     void AddLabel( const char* label, int width );
     void AddParmPicker( ParmPicker & parm_picker );
     void AddParmTreePicker( ParmTreePicker & parm_tree_picker, int w, int h );

@@ -660,7 +660,7 @@ void GroupLayout::AddInput( Input& input, const char* label, const char* format 
 }
 
 //==== Create & Init Index Selector  ====//
-void GroupLayout::AddIndexSelector( IndexSelector& selector )
+void GroupLayout::AddIndexSelector( IndexSelector& selector, int used_w )
 {
     assert( m_Group && m_Screen );
 
@@ -684,7 +684,7 @@ void GroupLayout::AddIndexSelector( IndexSelector& selector )
 
     AddX( butw );
 
-    int iw = FitWidth( 4 * butw, m_InputWidth );
+    int iw = FitWidth( 4 * butw + used_w, m_InputWidth );
 
     Fl_Int_Input* int_inp = new Fl_Int_Input( m_X + 4, m_Y, iw - 8, m_StdHeight );
     int_inp->type( 2 );
@@ -832,7 +832,7 @@ void GroupLayout::AddChoice( Choice & choice, const char* label, int used_w )
 }
 
 //==== Add Sub Group Layout At Current Position  ====//
-void GroupLayout::AddCounter( Counter & count, const char* label )
+void GroupLayout::AddCounter( Counter & count, const char* label, int used_w )
 {
     assert( m_Group && m_Screen );
 
@@ -845,7 +845,7 @@ void GroupLayout::AddCounter( Counter & count, const char* label )
     }
 
     //==== Counter ====//
-    int counter_w = FitWidth( m_ButtonWidth, m_SliderWidth );
+    int counter_w = FitWidth( m_ButtonWidth + used_w, m_SliderWidth );
     Fl_Counter* fl_counter = new Fl_Counter( m_X, m_Y, counter_w, m_StdHeight );
     fl_counter->type( FL_SIMPLE_COUNTER );
     fl_counter->minimum( 0 );
