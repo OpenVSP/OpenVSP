@@ -31,6 +31,8 @@ Airfoil::Airfoil( ) : XSecCurve( )
 //==== Update ====//
 void Airfoil::Update()
 {
+    m_OrigCurve = m_Curve;
+
     Matrix4d mat;
     mat.scale( m_Chord() );
 
@@ -71,6 +73,17 @@ void Airfoil::SetWidthHeight( double w, double h )
     {
         m_ThickChord = h / w;
     }
+}
+
+//==== Get Curve ====//
+VspCurve& Airfoil::GetOrigCurve()
+{
+    if ( m_LateUpdateFlag )
+    {
+        Update();
+    }
+
+    return m_OrigCurve;
 }
 
 //==========================================================================//

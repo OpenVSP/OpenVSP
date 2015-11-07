@@ -50,9 +50,14 @@ public:
     virtual void SetWidthHeight( double w, double h );
     virtual string GetWidthParmID()                                { return m_Chord.GetID(); }
 
+    virtual VspCurve& GetOrigCurve();
+
     BoolParm m_Invert;
     Parm m_Chord;
     Parm m_ThickChord;                  // Thick/Chord
+
+protected:
+    VspCurve m_OrigCurve;
 };
 
 //==========================================================================//
