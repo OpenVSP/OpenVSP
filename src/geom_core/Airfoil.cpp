@@ -31,6 +31,11 @@ Airfoil::Airfoil( ) : XSecCurve( )
 //==== Update ====//
 void Airfoil::Update()
 {
+    Matrix4d mat;
+    mat.scale( m_Chord() );
+
+    m_Curve.Transform( mat );
+
     // invert airfoil if needed
     if ( m_Invert() )
     {
@@ -102,11 +107,6 @@ void FourSeries::Update()
     }
 
     m_Curve.SetCurve( d );
-
-    Matrix4d mat;
-    mat.scale( m_Chord() );
-
-    m_Curve.Transform( mat );
 
     Airfoil::Update();
 }
@@ -225,11 +225,6 @@ void SixSeries::Update()
 
     m_Curve.ToBinaryCubic();
 
-    Matrix4d mat;
-    mat.scale( m_Chord() );
-
-    m_Curve.Transform( mat );
-
     Airfoil::Update();
 }
 
@@ -337,11 +332,6 @@ void Biconvex::Update()
 
     m_Curve.Append( upcrv );
 
-    Matrix4d mat;
-    mat.scale( m_Chord() );
-
-    m_Curve.Transform( mat );
-
     Airfoil::Update();
 }
 
@@ -362,9 +352,9 @@ void Wedge::Update()
 {
     vector<vec3d> pt( 4 );
     vector<double> u( 5 );
-    double x_apex( m_ThickLoc()*m_Chord() ), y_apex( m_ThickChord()*m_Chord() / 2 );
+    double x_apex( m_ThickLoc() ), y_apex( m_ThickChord() / 2 );
 
-    pt[0].set_xyz( m_Chord(), 0, 0 );
+    pt[0].set_xyz( 1, 0, 0 );
     pt[1].set_xyz( x_apex, -y_apex, 0 );
     pt[2].set_xyz( 0, 0, 0 );
     pt[3].set_xyz( x_apex, y_apex, 0 );
@@ -453,11 +443,6 @@ void FileAirfoil::Update()
     m_Curve.InterpolatePCHIP( pnts, arclen, false );
 
     m_Curve.ToBinaryCubic();
-
-    Matrix4d mat;
-    mat.scale( m_Chord() );
-
-    m_Curve.Transform( mat );
 
     Airfoil::Update();
 }
