@@ -153,6 +153,17 @@ extern void ReadFileAirfoil( const string& xsec_id, const string& file_name );
 extern void SetAirfoilPnts( const string& xsec_id, std::vector< vec3d > & up_pnt_vec, std::vector< vec3d > & low_pnt_vec );
 extern std::vector<vec3d> GetAirfoilUpperPnts( const string& xsec_id );
 extern std::vector<vec3d> GetAirfoilLowerPnts( const string& xsec_id );
+extern std::vector<double> GetUpperCSTCoefs( const string& xsec_id );
+extern std::vector<double> GetLowerCSTCoefs( const string& xsec_id );
+extern int GetUpperCSTDegree( const string& xsec_id );
+extern int GetLowerCSTDegree( const string& xsec_id );
+extern void SetUpperCST( const string& xsec_id, int deg, const std::vector<double> &coefs );
+extern void SetLowerCST( const string& xsec_id, int deg, const std::vector<double> &coefs );
+extern void PromoteCSTUpper( const string& xsec_id );
+extern void PromoteCSTLower( const string& xsec_id );
+extern void DemoteCSTUpper( const string& xsec_id );
+extern void DemoteCSTLower( const string& xsec_id );
+extern void FitAfCST( const string & xsec_surf_id, int xsec_index, int deg );
 
 //======================== Sets ================================//
 extern int GetNumSets();

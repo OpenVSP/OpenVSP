@@ -1939,6 +1939,307 @@ std::vector<vec3d> GetAirfoilLowerPnts( const string& xsec_id )
     return pnt_vec;
 }
 
+std::vector<double> GetUpperCSTCoefs( const string& xsec_id )
+{
+    vector < double > ret_vec;
+
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetUpperCSTCoefs::Can't Find XSec " + xsec_id  );
+        return ret_vec;
+    }
+
+    if ( xs->GetXSecCurve()->GetType() != XS_CST_AIRFOIL )
+    {
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetUpperCSTCoefs::XSec Not XS_CST_AIRFOIL Type"  );
+        return ret_vec;
+    }
+
+    CSTAirfoil* cst_xs = dynamic_cast<CSTAirfoil*>( xs->GetXSecCurve() );
+    assert( cst_xs );
+
+    ret_vec = cst_xs->GetUpperCST();
+    ErrorMgr.NoError();
+    return ret_vec;
+}
+
+std::vector<double> GetLowerCSTCoefs( const string& xsec_id )
+{
+    vector < double > ret_vec;
+
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetLowerCSTCoefs::Can't Find XSec " + xsec_id  );
+        return ret_vec;
+    }
+
+    if ( xs->GetXSecCurve()->GetType() != XS_CST_AIRFOIL )
+    {
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetLowerCSTCoefs::XSec Not XS_CST_AIRFOIL Type"  );
+        return ret_vec;
+    }
+
+    CSTAirfoil* cst_xs = dynamic_cast<CSTAirfoil*>( xs->GetXSecCurve() );
+    assert( cst_xs );
+
+    ret_vec = cst_xs->GetLowerCST();
+    ErrorMgr.NoError();
+    return ret_vec;
+}
+
+int GetUpperCSTDegree( const string& xsec_id )
+{
+    int deg = -1;
+
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetUpperCSTDegree::Can't Find XSec " + xsec_id  );
+        return deg;
+    }
+
+    if ( xs->GetXSecCurve()->GetType() != XS_CST_AIRFOIL )
+    {
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetUpperCSTDegree::XSec Not XS_CST_AIRFOIL Type"  );
+        return deg;
+    }
+
+    CSTAirfoil* cst_xs = dynamic_cast<CSTAirfoil*>( xs->GetXSecCurve() );
+    assert( cst_xs );
+
+    deg = cst_xs->GetUpperDegree();
+    ErrorMgr.NoError();
+    return deg;
+}
+
+int GetLowerCSTDegree( const string& xsec_id )
+{
+    int deg = -1;
+
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetLowerCSTDegree::Can't Find XSec " + xsec_id  );
+        return deg;
+    }
+
+    if ( xs->GetXSecCurve()->GetType() != XS_CST_AIRFOIL )
+    {
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetLowerCSTDegree::XSec Not XS_CST_AIRFOIL Type"  );
+        return deg;
+    }
+
+    CSTAirfoil* cst_xs = dynamic_cast<CSTAirfoil*>( xs->GetXSecCurve() );
+    assert( cst_xs );
+
+    deg = cst_xs->GetLowerDegree();
+    ErrorMgr.NoError();
+    return deg;
+}
+
+void SetUpperCST( const string& xsec_id, int deg, const std::vector<double> &coefs )
+{
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetUpperCST::Can't Find XSec " + xsec_id  );
+        return;
+    }
+
+    if ( xs->GetXSecCurve()->GetType() != XS_CST_AIRFOIL )
+    {
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetUpperCST::XSec Not XS_CST_AIRFOIL Type"  );
+        return;
+    }
+
+    CSTAirfoil* cst_xs = dynamic_cast<CSTAirfoil*>( xs->GetXSecCurve() );
+    assert( cst_xs );
+
+    ErrorMgr.NoError();
+    cst_xs->SetUpperCST( deg, coefs );
+}
+
+void SetLowerCST( const string& xsec_id, int deg, const std::vector<double> &coefs )
+{
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetLowerCST::Can't Find XSec " + xsec_id  );
+        return;
+    }
+
+    if ( xs->GetXSecCurve()->GetType() != XS_CST_AIRFOIL )
+    {
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetLowerCST::XSec Not XS_CST_AIRFOIL Type"  );
+        return;
+    }
+
+    CSTAirfoil* cst_xs = dynamic_cast<CSTAirfoil*>( xs->GetXSecCurve() );
+    assert( cst_xs );
+
+    ErrorMgr.NoError();
+    cst_xs->SetLowerCST( deg, coefs );
+}
+
+void PromoteCSTUpper( const string& xsec_id )
+{
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "PromoteCSTUpper::Can't Find XSec " + xsec_id  );
+        return;
+    }
+
+    if ( xs->GetXSecCurve()->GetType() != XS_CST_AIRFOIL )
+    {
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "PromoteCSTUpper::XSec Not XS_CST_AIRFOIL Type"  );
+        return;
+    }
+
+    CSTAirfoil* cst_xs = dynamic_cast<CSTAirfoil*>( xs->GetXSecCurve() );
+    assert( cst_xs );
+
+    ErrorMgr.NoError();
+    cst_xs->PromoteUpper();
+}
+
+void PromoteCSTLower( const string& xsec_id )
+{
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "PromoteCSTLower::Can't Find XSec " + xsec_id  );
+        return;
+    }
+
+    if ( xs->GetXSecCurve()->GetType() != XS_CST_AIRFOIL )
+    {
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "PromoteCSTLower::XSec Not XS_CST_AIRFOIL Type"  );
+        return;
+    }
+
+    CSTAirfoil* cst_xs = dynamic_cast<CSTAirfoil*>( xs->GetXSecCurve() );
+    assert( cst_xs );
+
+    ErrorMgr.NoError();
+    cst_xs->PromoteLower();
+}
+
+void DemoteCSTUpper( const string& xsec_id )
+{
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DemoteCSTUpper::Can't Find XSec " + xsec_id  );
+        return;
+    }
+
+    if ( xs->GetXSecCurve()->GetType() != XS_CST_AIRFOIL )
+    {
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "DemoteCSTUpper::XSec Not XS_CST_AIRFOIL Type"  );
+        return;
+    }
+
+    CSTAirfoil* cst_xs = dynamic_cast<CSTAirfoil*>( xs->GetXSecCurve() );
+    assert( cst_xs );
+
+    ErrorMgr.NoError();
+    cst_xs->DemoteUpper();
+}
+
+void DemoteCSTLower( const string& xsec_id )
+{
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DemoteCSTLower::Can't Find XSec " + xsec_id  );
+        return;
+    }
+
+    if ( xs->GetXSecCurve()->GetType() != XS_CST_AIRFOIL )
+    {
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "DemoteCSTLower::XSec Not XS_CST_AIRFOIL Type"  );
+        return;
+    }
+
+    CSTAirfoil* cst_xs = dynamic_cast<CSTAirfoil*>( xs->GetXSecCurve() );
+    assert( cst_xs );
+
+    ErrorMgr.NoError();
+    cst_xs->DemoteLower();
+}
+
+void FitAfCST( const string & xsec_surf_id, int xsec_index, int deg )
+{
+    XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
+    if ( !xsec_surf )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "FitAfCST::Can't Find XSecSurf " + xsec_surf_id  );
+        return;
+    }
+    XSec* xsec = xsec_surf->FindXSec( xsec_index );
+    if ( !xsec )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "FitAfCST::Can't Find XSec " + xsec_surf_id + ":" + to_string( ( long long )xsec_index )  );
+        return;
+    }
+
+    if ( ( xsec->GetXSecCurve()->GetType() != XS_FOUR_SERIES ) ||
+         ( xsec->GetXSecCurve()->GetType() != XS_SIX_SERIES ) ||
+         ( xsec->GetXSecCurve()->GetType() != XS_FILE_AIRFOIL ) )
+    {
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "FitAfCST::XSec Not Fittable Airfoil Type"  );
+        return;
+    }
+
+    XSecCurve* xsc = xsec->GetXSecCurve();
+    if ( !xsc )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "FitAfCST::Can't Get XSecCurve" );
+        return;
+    }
+
+    Airfoil* af_xs = dynamic_cast< Airfoil* >( xsc );
+    if ( !af_xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "FitAfCST::Can't Get Airfoil" );
+        return;
+    }
+
+    VspCurve c = af_xs->GetOrigCurve();
+
+    xsec_surf->ChangeXSecShape( xsec_index, XS_CST_AIRFOIL );
+
+    XSec* newxsec = xsec_surf->FindXSec( xsec_index );
+    if ( !newxsec )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "FitAfCST::Can't Find New XSec " + xsec_surf_id + ":" + to_string( ( long long )xsec_index )  );
+        return;
+    }
+
+    XSecCurve* newxsc = newxsec->GetXSecCurve();
+    if ( !newxsc )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "FitAfCST::Can't Get New XSecCurve" );
+        return;
+    }
+
+    if ( newxsc->GetType() != XS_CST_AIRFOIL )
+    {
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "FitAfCST::XSec Not XS_CST_AIRFOIL Type"  );
+        return;
+    }
+
+    CSTAirfoil* cst_xs = dynamic_cast< CSTAirfoil* >( newxsc );
+
+    assert( cst_xs );
+    cst_xs->FitCurve( c, deg );
+
+    ErrorMgr.NoError();
+}
+
 //===================================================================//
 //===============       Set Functions            ===================//
 //===================================================================//
