@@ -38,7 +38,7 @@ using namespace vsp;
 #include <algorithm>
 #include <utility>
 
-#include <dll_iges.h>
+#include <api/dll_iges.h>
 
 //==== Constructor ====//
 Vehicle::Vehicle()

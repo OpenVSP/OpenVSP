@@ -19,8 +19,8 @@
 
 #include "STEPutil.h"
 
-#include <dll_iges.h>
-#include <dll_entity128.h>
+#include <api/dll_iges.h>
+#include <api/dll_entity128.h>
 
 #include "eli/code_eli.hpp"
 
