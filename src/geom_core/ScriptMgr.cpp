@@ -1348,6 +1348,28 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "array<vec3d>@  GetAirfoilLowerPnts(const string& in xsec_id )", asMETHOD( ScriptMgrSingleton, GetAirfoilLowerPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "array<double>@  GetUpperCSTCoefs( const string & in xsec_id )", asMETHOD( ScriptMgrSingleton, GetUpperCSTCoefs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "array<double>@  GetLowerCSTCoefs( const string & in xsec_id )", asMETHOD( ScriptMgrSingleton, GetLowerCSTCoefs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "int GetUpperCSTDegree( const string& in xsec_id )", asFUNCTION( vsp::GetUpperCSTDegree ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "int GetLowerCSTDegree( const string& in xsec_id )", asFUNCTION( vsp::GetLowerCSTDegree ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void SetUpperCST( const string& in xsec_id, int deg, array<double>@ coeff_arr )", asMETHOD( ScriptMgrSingleton, SetUpperCST ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void SetLowerCST( const string& in xsec_id, int deg, array<double>@ coeff_arr )", asMETHOD( ScriptMgrSingleton, SetLowerCST ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void PromoteCSTUpper( const string& in xsec_id )", asFUNCTION( vsp::PromoteCSTUpper ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void PromoteCSTLower( const string& in xsec_id )", asFUNCTION( vsp::PromoteCSTLower ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void DemoteCSTUpper( const string& in xsec_id )", asFUNCTION( vsp::DemoteCSTUpper ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void DemoteCSTLower( const string& in xsec_id )", asFUNCTION( vsp::DemoteCSTLower ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void FitAfCST( const string& in xsec_id, int xsec_index, int deg )", asFUNCTION( vsp::FitAfCST ), asCALL_CDECL );
+    assert( r >= 0 );
 
     //==== Sets Functions ====//
     r = se->RegisterGlobalFunction( "int GetNumSets()", asFUNCTION( vsp::GetNumSets ), asCALL_CDECL );
@@ -1643,6 +1665,18 @@ CScriptArray* ScriptMgrSingleton::FindContainerParmIDs( const string & parm_cont
     return GetProxyStringArray();
 }
 
+CScriptArray* ScriptMgrSingleton::GetUpperCSTCoefs( const string & xsec_id )
+{
+    m_ProxyDoubleArray = vsp::GetUpperCSTCoefs( xsec_id );
+    return GetProxyDoubleArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetLowerCSTCoefs( const string & xsec_id )
+{
+    m_ProxyDoubleArray = vsp::GetLowerCSTCoefs( xsec_id );
+    return GetProxyDoubleArray();
+}
+
 void ScriptMgrSingleton::SetXSecPnts( const string& xsec_id, CScriptArray* pnt_arr )
 {
     vector< vec3d > pnt_vec;
@@ -1671,6 +1705,32 @@ void ScriptMgrSingleton::SetAirfoilPnts( const string& xsec_id, CScriptArray* up
     }
 
     vsp::SetAirfoilPnts( xsec_id, up_pnt_vec, low_pnt_vec );
+}
+
+void ScriptMgrSingleton::SetUpperCST( const string& xsec_id, int deg, CScriptArray* coefs_arr )
+{
+    vector < double > coefs_vec;
+
+    coefs_vec.resize( coefs_arr->GetSize() );
+    for ( int i = 0 ; i < ( int )coefs_arr->GetSize() ; i++ )
+    {
+        coefs_vec[i] = * ( double* )( coefs_arr->At( i ) );
+    }
+
+    vsp::SetUpperCST( xsec_id, deg, coefs_vec );
+}
+
+void ScriptMgrSingleton::SetLowerCST( const string& xsec_id, int deg, CScriptArray* coefs_arr )
+{
+    vector < double > coefs_vec;
+
+    coefs_vec.resize( coefs_arr->GetSize() );
+    for ( int i = 0 ; i < ( int )coefs_arr->GetSize() ; i++ )
+    {
+        coefs_vec[i] = * ( double* )( coefs_arr->At( i ) );
+    }
+
+    vsp::SetLowerCST( xsec_id, deg, coefs_vec );
 }
 
 //==== Console Print String Data ====//

@@ -145,11 +145,15 @@ private:
     CScriptArray* FindContainersWithName( const string & name );
     CScriptArray* FindContainerGroupNames( const string & parm_container_id );
     CScriptArray* FindContainerParmIDs( const string & parm_container_id );
+    CScriptArray* GetUpperCSTCoefs( const string & xsec_id );
+    CScriptArray* GetLowerCSTCoefs( const string & xsec_id );
 
     void SetXSecPnts( const string& xsec_id, CScriptArray* pnt_arr );
     void SetAirfoilPnts( const string& xsec_id, CScriptArray* up_pnt_arr, CScriptArray* low_pnt_arr );
     void SetVec3dArray( CScriptArray* arr );
 
+    void SetUpperCST( const string& xsec_id, int deg, CScriptArray* coefs );
+    void SetLowerCST( const string& xsec_id, int deg, CScriptArray* coefs );
 
 
 };
