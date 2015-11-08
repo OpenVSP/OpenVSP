@@ -915,7 +915,7 @@ void VspSurf::TessAdaptLine( double umin, double umax, double wmin, double wmax,
 
     double d = dist_pnt_2_line( pmin, pmax, pmid ) / dist( pmin, pmax );
 
-    if ( ( d > tol && Nlimit > 0 ) || Nadapt < 1 )
+    if ( ( d > tol && Nlimit > 0 ) || Nadapt < 2 )
     {
         TessAdaptLine( umin, umid, wmin, wmid, pmin, pmid, pnts, tol, Nlimit - 1, Nadapt + 1 );
         TessAdaptLine( umid, umax, wmid, wmax, pmid, pmax, pnts, tol, Nlimit - 1, Nadapt + 1 );
