@@ -25,7 +25,6 @@ structureBrowserScreen.fl
 textureMgrFlScreen.fl
 typeEditorFlScreen.fl
 userParmFlScreen.fl
-viewScreen.fl
 )
 
 ADD_LIBRARY(screens ${screens_FLTK_UI_SRCS} )
