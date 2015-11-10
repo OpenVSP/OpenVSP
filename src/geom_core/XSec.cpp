@@ -1044,7 +1044,7 @@ rib_data_type SkinXSec::GetRib( bool first, bool last )
         slews[1] = -m_BottomLSlew()*PI/180.0;
         slews[2] = -m_LeftLSlew()*PI/180.0;
         slews[3] = m_TopLSlew()*PI/180.0;
-        slews[4] = angles[0];
+        slews[4] = slews[0];
 
         strengths[0] = m_RightLStrength() * scale;
         strengths[1] = m_BottomLStrength() * scale;
@@ -1078,7 +1078,7 @@ rib_data_type SkinXSec::GetRib( bool first, bool last )
         slews[1] = -m_BottomLSlew()*PI/180.0;
         slews[2] = -m_LeftLSlew()*PI/180.0;
         slews[3] = m_TopLSlew()*PI/180.0;
-        slews[4] = angles[0];
+        slews[4] = slews[0];
 
         strengths[0] = m_RightLStrength() * scale;
         strengths[1] = m_BottomLStrength() * scale;
@@ -1112,7 +1112,7 @@ rib_data_type SkinXSec::GetRib( bool first, bool last )
         slews[1] = -m_BottomRSlew()*PI/180.0;
         slews[2] = -m_LeftRSlew()*PI/180.0;
         slews[3] = m_TopRSlew()*PI/180.0;
-        slews[4] = angles[0];
+        slews[4] = slews[0];
 
         strengths[0] = m_RightRStrength() * scale;
         strengths[1] = m_BottomRStrength() * scale;
