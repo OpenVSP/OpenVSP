@@ -1785,7 +1785,16 @@ void Geom::WriteXSecFile( int geom_no, FILE* dump_file )
         fprintf( dump_file, "\n" );
         fprintf( dump_file, "%s \n", ( char* ) m_Name.c_str() );
         fprintf( dump_file, " GROUP NUMBER      = %d \n", geom_no );
-        fprintf( dump_file, " TYPE              = 1  \n" );         // 1 -- Non Lifting, 0 -- Lifting
+
+        if( m_SurfVec[i].GetSurfType() == vsp::WING_SURF )
+        {
+            fprintf( dump_file, " TYPE              = 0  \n" );         // 1 -- Non Lifting, 0 -- Lifting
+        }
+        else
+        {
+            fprintf( dump_file, " TYPE              = 1  \n" );         // 1 -- Non Lifting, 0 -- Lifting
+        }
+
         fprintf( dump_file, " CROSS SECTIONS    = %d \n", static_cast<int>( pnts.size() ) );
         fprintf( dump_file, " PTS/CROSS SECTION = %d \n", static_cast<int>( pnts[0].size() ) );
 
