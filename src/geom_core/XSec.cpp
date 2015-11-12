@@ -365,7 +365,8 @@ void XSec::GetTanNormCrv( const vector< double > &ts, const vector< double > &th
 
     // Parameters that define the XSecCurve
     vector< double > crvts;
-    m_TransformedCurve.GetCurve().get_pmap( crvts );
+
+    GetCurve().GetCurve().get_pmap( crvts );
 
     int ntcrv = crvts.size();
 
