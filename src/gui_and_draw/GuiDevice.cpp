@@ -2855,6 +2855,11 @@ void SkinHeader::Init( VspScreen* screen,
 
 void SkinHeader::Activate()
 {
+    if ( !m_ContChoice )
+    {
+        return;
+    }
+
     assert( m_ContChoice );
     m_ContChoice->Activate();
 
@@ -2867,6 +2872,11 @@ void SkinHeader::Activate()
 
 void SkinHeader::Deactivate()
 {
+    if ( !m_ContChoice )
+    {
+        return;
+    }
+
     assert( m_ContChoice );
     m_ContChoice->Deactivate();
 
@@ -2879,6 +2889,11 @@ void SkinHeader::Deactivate()
 
 void SkinHeader::DeactiveContChoice()
 {
+    if ( !m_ContChoice )
+    {
+        return;
+    }
+
     assert( m_ContChoice );
     m_ContChoice->Deactivate();
 }

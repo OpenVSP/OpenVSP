@@ -1347,7 +1347,7 @@ void GroupLayout::AddSkinControl( SkinControl & skin_control, const char* label,
         range, format);
 }
 
-void GroupLayout::AddSkinHeader( SkinHeader & skin_header )
+void GroupLayout::AddSkinHeader( SkinHeader & skin_header, bool addcontchoice )
 {
     assert( m_Group && m_Screen );
     int oldBW = GetButtonWidth();
@@ -1375,11 +1375,20 @@ void GroupLayout::AddSkinHeader( SkinHeader & skin_header )
     m_FitWidthFlag = false;
     m_SameLineFlag = true;
 
-    Choice* cont_choice = new Choice();
-    cont_choice->AddItem( "C0" );
-    cont_choice->AddItem( "C1" );
-    cont_choice->AddItem( "C2" );
-    AddChoice( *cont_choice, "Enforce" );
+    Choice* cont_choice = NULL;
+
+    if( addcontchoice )
+    {
+        cont_choice = new Choice();
+        cont_choice->AddItem( "C0" );
+        cont_choice->AddItem( "C1" );
+        cont_choice->AddItem( "C2" );
+        AddChoice( *cont_choice, "Enforce" );
+    }
+    else
+    {
+        gw += cw;
+    }
 
     AddX( gw );
 
