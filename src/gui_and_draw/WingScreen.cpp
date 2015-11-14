@@ -191,8 +191,6 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 335, 640, "Wing" )
     m_AfLayout.SetFitWidthFlag( true );
     m_AfLayout.SetSameLineFlag( false );
 
-    m_AfLayout.AddYGap();
-
     m_AfLayout.AddDividerBox( "Type" );
 
     m_AfTypeChoice.AddItem( "POINT" );
@@ -365,9 +363,19 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 335, 640, "Wing" )
 
     m_ModifyLayout.AddYGap();
 
+    m_ModifyLayout.InitWidthHeightVals();
+    m_ModifyLayout.AddDividerBox( "Shift, Rotate, & Scale" );
+
+    m_ModifyLayout.AddSlider( m_AFDeltaXSlider, "Delta X/C", 1, "%7.3f" );
+    m_ModifyLayout.AddSlider( m_AFDeltaYSlider, "Delta Y/C", 1, "%7.3f" );
+    m_ModifyLayout.AddSlider( m_AFThetaSlider, "Theta", 20, "%7.3f" );
+    m_ModifyLayout.AddSlider( m_AFScaleSlider, "Scale", 1, "%7.3f" );
+    m_ModifyLayout.AddSlider( m_AFShiftLESlider, "Shift LE", 1, "%7.3f" );
+
     m_ModifyLayout.SetChoiceButtonWidth( 80 );
     m_ModifyLayout.SetButtonWidth( 40 );
 
+    m_ModifyLayout.AddYGap();
     m_ModifyLayout.AddDividerBox( "TE Closure" );
 
     m_TECloseChoice.AddItem( "NONE" );
@@ -402,6 +410,7 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 335, 640, "Wing" )
     m_ModifyLayout.AddSlider( m_CloseThickSlider, "T", 10.0, "%6.5f" );
     m_ModifyLayout.AddSlider( m_CloseThickChordSlider, "T/C", 1.0, "%6.5f" );
 
+    m_ModifyLayout.AddYGap();
     m_ModifyLayout.AddDividerBox( "TE Trim" );
 
     m_TETrimChoice.AddItem( "NONE" );
@@ -435,7 +444,6 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 335, 640, "Wing" )
     m_ModifyLayout.AddSlider( m_TrimXChordSlider, "X/C", 10.0, "%6.5f" );
     m_ModifyLayout.AddSlider( m_TrimThickSlider, "T", 10.0, "%6.5f" );
     m_ModifyLayout.AddSlider( m_TrimThickChordSlider, "T/C", 1.0, "%6.5f" );
-
 
     m_SubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_CONTROL) );
     m_SubSurfChoice.UpdateItems();
@@ -753,6 +761,12 @@ bool WingScreen::Update()
                     m_TrimThickChordSlider.Activate();
                 }
             }
+
+            m_AFThetaSlider.Update( xsc->m_Theta.GetID() );
+            m_AFScaleSlider.Update( xsc->m_Scale.GetID() );
+            m_AFDeltaXSlider.Update( xsc->m_DeltaX.GetID() );
+            m_AFDeltaYSlider.Update( xsc->m_DeltaY.GetID() );
+            m_AFShiftLESlider.Update( xsc->m_ShiftLE.GetID() );
         }
     }
     return true;

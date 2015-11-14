@@ -189,6 +189,12 @@ protected:
     SliderAdjRangeInput m_TrimThickSlider;
     SliderAdjRangeInput m_TrimThickChordSlider;
 
+    SliderAdjRangeInput m_AFThetaSlider;
+    SliderAdjRangeInput m_AFScaleSlider;
+    SliderAdjRangeInput m_AFDeltaXSlider;
+    SliderAdjRangeInput m_AFDeltaYSlider;
+    SliderAdjRangeInput m_AFShiftLESlider;
+
     GroupLayout* m_CurrDisplayGroup;
     void DisplayGroup( GroupLayout* group );
 
