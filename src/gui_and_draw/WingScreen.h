@@ -166,6 +166,11 @@ protected:
     CheckButton m_AfFileInvertButton;
     SliderAdjRangeInput m_AfFileChordSlider;
 
+    // Overall planform tab
+    GroupLayout m_ModifyLayout;
+
+    IndexSelector m_AfModIndexSelector;
+
     Choice m_TECloseChoice;
     ToggleButton m_TECloseABSButton;
     ToggleButton m_TECloseRELButton;

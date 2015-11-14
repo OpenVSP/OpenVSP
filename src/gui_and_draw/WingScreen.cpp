@@ -19,7 +19,7 @@
 using namespace vsp;
 
 //==== Constructor ====//
-WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 640, "Wing" )
+WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 335, 640, "Wing" )
 {
     m_CurrDisplayGroup = NULL;
 
@@ -355,9 +355,20 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 640, "Wing" )
 
     //==== TE Trim ====//
 
-    m_AfLayout.SetY( start_y + 250 );
+    Fl_Group* modify_tab = AddTab( "Modify" );
+    Fl_Group* modify_group = AddSubGroup( modify_tab, 5 );
 
-    m_AfLayout.AddDividerBox( "TE Closure" );
+    m_ModifyLayout.SetGroupAndScreen( modify_group, this );
+    m_ModifyLayout.AddDividerBox( "Airfoil Section" );
+
+    m_ModifyLayout.AddIndexSelector( m_AfModIndexSelector );
+
+    m_ModifyLayout.AddYGap();
+
+    m_ModifyLayout.SetChoiceButtonWidth( 80 );
+    m_ModifyLayout.SetButtonWidth( 40 );
+
+    m_ModifyLayout.AddDividerBox( "TE Closure" );
 
     m_TECloseChoice.AddItem( "NONE" );
     m_TECloseChoice.AddItem( "SKEW LOWER" );
@@ -365,14 +376,14 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 640, "Wing" )
     m_TECloseChoice.AddItem( "SKEW BOTH" );
     m_TECloseChoice.AddItem( "EXTRAPOLATE" );
 
-    m_AfLayout.SetFitWidthFlag( true );
-    m_AfLayout.SetSameLineFlag( true );
+    m_ModifyLayout.SetFitWidthFlag( true );
+    m_ModifyLayout.SetSameLineFlag( true );
 
-    m_AfLayout.AddChoice( m_TECloseChoice, "Type:", m_AfLayout.GetButtonWidth() * 2 );
+    m_ModifyLayout.AddChoice( m_TECloseChoice, "Type:", m_ModifyLayout.GetButtonWidth() * 2 );
 
-    m_AfLayout.SetFitWidthFlag( false );
-    m_AfLayout.AddButton( m_TECloseABSButton, "Abs" );
-    m_AfLayout.AddButton( m_TECloseRELButton, "Rel" );
+    m_ModifyLayout.SetFitWidthFlag( false );
+    m_ModifyLayout.AddButton( m_TECloseABSButton, "Abs" );
+    m_ModifyLayout.AddButton( m_TECloseRELButton, "Rel" );
 
     m_TECloseGroup.Init( this );
     m_TECloseGroup.AddButton( m_TECloseABSButton.GetFlButton() );
@@ -383,28 +394,28 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 640, "Wing" )
     close_val_map.push_back( vsp::REL );
     m_TECloseGroup.SetValMapVec( close_val_map );
 
-    m_AfLayout.ForceNewLine();
+    m_ModifyLayout.ForceNewLine();
 
-    m_AfLayout.SetFitWidthFlag( true );
-    m_AfLayout.SetSameLineFlag( false );
+    m_ModifyLayout.SetFitWidthFlag( true );
+    m_ModifyLayout.SetSameLineFlag( false );
 
-    m_AfLayout.AddSlider( m_CloseThickSlider, "T", 10.0, "%6.5f" );
-    m_AfLayout.AddSlider( m_CloseThickChordSlider, "T/C", 1.0, "%6.5f" );
+    m_ModifyLayout.AddSlider( m_CloseThickSlider, "T", 10.0, "%6.5f" );
+    m_ModifyLayout.AddSlider( m_CloseThickChordSlider, "T/C", 1.0, "%6.5f" );
 
-    m_AfLayout.AddDividerBox( "TE Trim" );
+    m_ModifyLayout.AddDividerBox( "TE Trim" );
 
     m_TETrimChoice.AddItem( "NONE" );
     m_TETrimChoice.AddItem( "X" );
     m_TETrimChoice.AddItem( "THICK" );
 
-    m_AfLayout.SetFitWidthFlag( true );
-    m_AfLayout.SetSameLineFlag( true );
+    m_ModifyLayout.SetFitWidthFlag( true );
+    m_ModifyLayout.SetSameLineFlag( true );
 
-    m_AfLayout.AddChoice( m_TETrimChoice, "Type:", m_AfLayout.GetButtonWidth() * 2 );
+    m_ModifyLayout.AddChoice( m_TETrimChoice, "Type:", m_ModifyLayout.GetButtonWidth() * 2 );
 
-    m_AfLayout.SetFitWidthFlag( false );
-    m_AfLayout.AddButton( m_TETrimABSButton, "Abs" );
-    m_AfLayout.AddButton( m_TETrimRELButton, "Rel" );
+    m_ModifyLayout.SetFitWidthFlag( false );
+    m_ModifyLayout.AddButton( m_TETrimABSButton, "Abs" );
+    m_ModifyLayout.AddButton( m_TETrimRELButton, "Rel" );
 
     m_TETrimGroup.Init( this );
     m_TETrimGroup.AddButton( m_TETrimABSButton.GetFlButton() );
@@ -415,15 +426,16 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 640, "Wing" )
     trim_val_map.push_back( vsp::REL );
     m_TETrimGroup.SetValMapVec( trim_val_map );
 
-    m_AfLayout.ForceNewLine();
+    m_ModifyLayout.ForceNewLine();
 
-    m_AfLayout.SetFitWidthFlag( true );
-    m_AfLayout.SetSameLineFlag( false );
+    m_ModifyLayout.SetFitWidthFlag( true );
+    m_ModifyLayout.SetSameLineFlag( false );
 
-    m_AfLayout.AddSlider( m_TrimXSlider, "X", 10.0, "%6.5f" );
-    m_AfLayout.AddSlider( m_TrimXChordSlider, "X/C", 10.0, "%6.5f" );
-    m_AfLayout.AddSlider( m_TrimThickSlider, "T", 10.0, "%6.5f" );
-    m_AfLayout.AddSlider( m_TrimThickChordSlider, "T/C", 1.0, "%6.5f" );
+    m_ModifyLayout.AddSlider( m_TrimXSlider, "X", 10.0, "%6.5f" );
+    m_ModifyLayout.AddSlider( m_TrimXChordSlider, "X/C", 10.0, "%6.5f" );
+    m_ModifyLayout.AddSlider( m_TrimThickSlider, "T", 10.0, "%6.5f" );
+    m_ModifyLayout.AddSlider( m_TrimThickChordSlider, "T/C", 1.0, "%6.5f" );
+
 
     m_SubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_CONTROL) );
     m_SubSurfChoice.UpdateItems();
@@ -529,6 +541,7 @@ bool WingScreen::Update()
     //==== XSec Index Display ===//
     int xsid = wing_ptr->GetActiveAirfoilIndex();
     m_AfIndexSelector.SetIndex( xsid );
+    m_AfModIndexSelector.SetIndex( xsid );
 
     WingSect* ws = ( WingSect* ) wing_ptr->GetXSec( xsid );
     if ( ws )
@@ -786,6 +799,11 @@ void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     if ( gui_device == &m_AfIndexSelector )
     {
         wing_ptr->SetActiveAirfoilIndex( m_AfIndexSelector.GetIndex() );
+        wing_ptr->Update();
+    }
+    else if ( gui_device == &m_AfModIndexSelector )
+    {
+        wing_ptr->SetActiveAirfoilIndex( m_AfModIndexSelector.GetIndex() );
         wing_ptr->Update();
     }
     else if ( gui_device == &m_SectIndexSelector )
