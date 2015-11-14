@@ -71,6 +71,12 @@ XSecCurve::XSecCurve()
 
     m_TETrimThickChord.Init( "TE_Trim_Thick_Chord", "Trim", this, 0, 0, 1e12 );
     m_TETrimThickChord.SetDescript( "T/C to trim trailing edge" );
+
+    m_Theta.Init( "Theta", m_GroupName, this, 0, -180.0, 180.0 );
+    m_Scale.Init( "Scale", m_GroupName, this, 1.0, 1e-12, 1e12 );
+    m_DeltaX.Init( "DeltaX", m_GroupName, this, 0, -1e3, 1e3 );
+    m_DeltaY.Init( "DeltaY", m_GroupName, this, 0, -1e3, 1e3 );
+    m_ShiftLE.Init( "ShiftLE", m_GroupName, this, 0, -1.9, 1.9 );
 }
 
 void XSecCurve::SetGroupDisplaySuffix( int num )
@@ -155,6 +161,8 @@ void XSecCurve::Update()
     Close( wingtype );
 
     Trim( wingtype );
+
+    RotTransScale();
 
     m_LateUpdateFlag = false;
 }
@@ -702,6 +710,41 @@ void XSecCurve::Trim( bool wingtype )
         m_TETrimThick.Set( ttrim );
         m_TETrimThickChord.Set( ttrim / div );
     }
+}
+
+void XSecCurve::RotTransScale()
+{
+
+    double ttheta = m_Theta() * PI / 180.0;
+    double ct(std::cos(ttheta)), st(std::sin(ttheta));
+    double tscale = m_Scale();
+
+    Eigen::Matrix<double, 3, 3> rot_mat;
+    rot_mat << ct*tscale, -st*tscale, 0,
+               st*tscale,  ct*tscale, 0,
+               0,                0,   tscale;
+
+    curve_point_type pttrans;
+    pttrans << m_DeltaX() * GetWidth(), m_DeltaY() * GetWidth(), 0.0;
+
+
+    piecewise_curve_type pwc;
+
+    pwc = m_Curve.GetCurve();
+
+    pwc.rotate( rot_mat );
+    pwc.translate( pttrans );
+
+    piecewise_curve_type before, after;
+
+    pwc.split( before, after, 2.0 + m_ShiftLE() );
+
+    before.scale_t( 0, 2 );
+    after.scale_t( 2, 4 );
+
+    before.push_back( after );
+
+    m_Curve.SetCurve( before );
 }
 
 //==========================================================================//

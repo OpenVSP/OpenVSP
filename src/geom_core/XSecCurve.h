@@ -69,6 +69,7 @@ public:
 
     virtual void Close( bool wingtype );
     virtual void Trim( bool wingtype );
+    virtual void RotTransScale();
 
 
     IntParm m_TECloseType;
@@ -85,6 +86,12 @@ public:
     Parm m_TETrimXChord;
     Parm m_TETrimThick;
     Parm m_TETrimThickChord;
+
+    Parm m_Theta;
+    Parm m_Scale;
+    Parm m_DeltaX;
+    Parm m_DeltaY;
+    Parm m_ShiftLE;
 
 protected:
 
