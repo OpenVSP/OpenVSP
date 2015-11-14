@@ -26,6 +26,7 @@ Airfoil::Airfoil( ) : XSecCurve( )
     m_Invert.Init( "Invert", m_GroupName, this, 0.0, 0.0, 1.0 );
     m_Chord.Init( "Chord", m_GroupName, this, 1.0, 0.0, 1.0e12 );
     m_ThickChord.Init( "ThickChord", m_GroupName, this, 0.1, 0.0, 1.0 );
+    m_FitDegree.Init( "FitDegree", m_GroupName, this, 7, 1, MAX_CST_DEG );
 }
 
 //==== Update ====//
@@ -726,3 +727,472 @@ bool FileAirfoil::ReadVspAirfoil( FILE* file_id )
     return true;
 }
 
+//==========================================================================//
+//==========================================================================//
+//==========================================================================//
+
+
+//==== Constructor ====//
+CSTAirfoil::CSTAirfoil( ) : Airfoil( )
+{
+    m_Type = XS_CST_AIRFOIL;
+
+    int initorder = 10;
+    for ( int i = 0; i < initorder; i++ )
+    {
+        AddUpParm();
+        AddLowParm();
+    }
+
+    double coeff[] = { 0.170987592880629, 0.157286894410384, 0.162311658384540,
+        0.143623187913493, 0.149218456400780, 0.137218405082418, 0.140720628655908,
+        0.141104769355436
+    };
+
+    m_UpDeg.Init( "UpDegree", m_GroupName, this, 7, 2, MAX_CST_DEG );
+    m_LowDeg.Init( "LowDegree", m_GroupName, this, 7, 2, MAX_CST_DEG );
+
+    m_ContLERad.Init( "ContLERad", m_GroupName, this, 1, 0, 1 );
+
+    for ( int i = 0; i <= m_UpDeg(); i++ )
+    {
+        Parm* p = m_UpCoeffParmVec[i];
+        if ( p )
+        {
+            p->Set( coeff[i] );
+        }
+
+        p = m_LowCoeffParmVec[i];
+        if ( p )
+        {
+            p->Set( -coeff[i] );
+        }
+    }
+}
+
+//==== Update ====//
+void CSTAirfoil::Update()
+{
+    cst_airfoil_type cst;
+
+    MakeCSTAirfoil( cst );
+
+    piecewise_cst_creator pcst;
+
+    // create curve
+    pcst.set_conditions( cst );
+    pcst.set_t0( 0 );
+    pcst.set_segment_dt( 2, 0 );
+    pcst.set_segment_dt( 2, 1 );
+
+    piecewise_curve_type pc;
+    pcst.create( pc );
+
+    m_Curve.SetCurve( pc );
+
+    Airfoil::Update();
+}
+
+void CSTAirfoil::PromoteUpper()
+{
+    if ( m_UpDeg() >= MAX_CST_DEG )
+    {
+        return;
+    }
+
+    cst_airfoil_type cst;
+
+    MakeCSTAirfoil( cst );
+
+    cst.upper_degree_promote();
+
+    CSTtoParms( cst );
+}
+
+void CSTAirfoil::PromoteLower()
+{
+    if ( m_LowDeg() >= MAX_CST_DEG )
+    {
+        return;
+    }
+
+    cst_airfoil_type cst;
+
+    MakeCSTAirfoil( cst );
+
+    cst.lower_degree_promote();
+
+    CSTtoParms( cst );
+}
+
+void CSTAirfoil::DemoteUpper()
+{
+    cst_airfoil_type cst;
+
+    MakeCSTAirfoil( cst );
+
+    cst.upper_degree_demote();
+
+    CSTtoParms( cst );
+}
+
+void CSTAirfoil::DemoteLower()
+{
+    cst_airfoil_type cst;
+
+    MakeCSTAirfoil( cst );
+
+    cst.lower_degree_demote();
+
+    CSTtoParms( cst );
+}
+
+void CSTAirfoil::FitCurve( VspCurve c, int deg )
+{
+    piecewise_curve_type pwc;
+    pwc = c.GetCurve();
+
+    int n = 101;
+
+    vector < curve_point_type > lpt( n );
+    vector < curve_point_type > upt( n );
+
+    double t0 = pwc.get_t0();
+    double tmax = pwc.get_tmax();
+    double tmid = ( t0 + tmax ) / 2.0;
+
+    for ( int i = 0; i < n; i++ )
+    {
+        double tlow = tmid - (tmid - t0) * double(i)/double(n-1);
+        double tup = tmid + (tmax - tmid) * double(i)/double(n-1);
+        lpt[i] = pwc.f( tlow );
+        upt[i] = pwc.f( tup );
+    }
+
+    cst_fitter_type cst_fitter;
+
+    cst_fitter.set_conditions(upt.begin(), upt.size(), deg,
+                              lpt.begin(), lpt.size(), deg, true);
+
+    cst_fitter.set_t0( t0 );
+    cst_fitter.set_segment_dt( tmid - t0, 0 );
+    cst_fitter.set_segment_dt( tmax - tmid, 1 );
+
+    Eigen::Matrix<double, 3, 3> transform_out;
+    curve_point_type translate_out;
+    double actual_leading_edge_t;
+
+    cst_airfoil_type cst;
+
+    cst_fitter.create( cst, transform_out, translate_out, actual_leading_edge_t );
+
+    m_Scale = 1.0 / transform_out(2,2);
+    m_Theta = std::asin( -transform_out(1,0) * m_Scale() ) * 180.0 / PI;
+
+    translate_out = (translate_out*m_Scale())*transform_out*m_Scale();
+    m_DeltaX = -translate_out.x();
+    m_DeltaY = -translate_out.y();
+
+    if ( actual_leading_edge_t < 0 )
+    {
+        m_ShiftLE = -2.0 * sqrt( -actual_leading_edge_t );
+    }
+    else
+    {
+        m_ShiftLE = 2.0 * sqrt( actual_leading_edge_t );
+    }
+
+    double dte = cst.get_trailing_edge_thickness() * m_Scale();
+
+    if ( abs( dte ) > 1e-6 )
+    {
+        m_TECloseType = CLOSE_SKEWBOTH;
+        m_TECloseAbsRel = REL;
+        m_TECloseThickChord = dte;
+    }
+
+    CSTtoParms( cst );
+}
+
+vector < double > CSTAirfoil::GetUpperCST()
+{
+    vector < double > retvec( m_UpDeg() + 1 );
+
+    for ( int i = 0; i <= m_UpDeg(); ++i )
+    {
+        Parm* p = m_UpCoeffParmVec[i];
+        if ( p )
+        {
+            retvec[i] = p->Get();
+        }
+    }
+
+    return retvec;
+}
+
+vector < double > CSTAirfoil::GetLowerCST()
+{
+    vector < double > retvec( m_LowDeg() + 1 );
+
+    for ( int i = 0; i <= m_LowDeg(); ++i )
+    {
+        Parm* p = m_LowCoeffParmVec[i];
+        if ( p )
+        {
+            retvec[i] = p->Get();
+        }
+    }
+
+    return retvec;
+}
+
+int CSTAirfoil::GetUpperDegree()
+{
+    return m_UpDeg();
+}
+
+int CSTAirfoil::GetLowerDegree()
+{
+    return m_LowDeg();
+}
+
+void CSTAirfoil::SetUpperCST( int deg, const vector < double > &coefs )
+{
+    ZeroUpParms();
+
+    m_UpDeg = deg;
+
+    ReserveUpDeg( m_UpDeg() );
+    for ( int i = 0; i <= m_UpDeg(); ++i )
+    {
+        Parm* p = m_UpCoeffParmVec[i];
+        if ( p )
+        {
+            p->Set( coefs[i] );
+        }
+    }
+}
+
+void CSTAirfoil::SetLowerCST( int deg, const vector < double > &coefs )
+{
+    ZeroLowParms();
+
+    m_LowDeg = deg;
+
+    ReserveLowDeg( m_LowDeg() );
+    for ( int i = 0; i <= m_LowDeg(); ++i )
+    {
+        Parm* p = m_LowCoeffParmVec[i];
+        if ( p )
+        {
+            p->Set( coefs[i] );
+        }
+    }
+
+}
+
+void CSTAirfoil::MakeCSTAirfoil( cst_airfoil_type &cst )
+{
+    CheckLERad();
+
+    typedef cst_airfoil_type::control_point_type cst_airfoil_control_point_type;
+
+    cst.resize_upper( m_UpDeg() );
+    cst.resize_lower( m_LowDeg() );
+
+    cst.set_trailing_edge_thickness( 0.0 );
+
+    for ( int i = 0; i <= m_UpDeg(); ++i )
+    {
+        Parm* p = m_UpCoeffParmVec[i];
+        if ( p )
+        {
+            cst_airfoil_control_point_type x;
+            x << p->Get();
+            cst.set_upper_control_point( x, i );
+        }
+        else
+        {
+            cst_airfoil_control_point_type x;
+            x << 0.0;
+            cst.set_upper_control_point( x, i );
+        }
+    }
+
+    for ( int i = 0; i <= m_LowDeg(); ++i )
+    {
+        Parm* p = m_LowCoeffParmVec[i];
+        if ( p )
+        {
+            cst_airfoil_control_point_type x;
+            x << p->Get();
+            cst.set_lower_control_point( x, i );
+        }
+        else
+        {
+            cst_airfoil_control_point_type x;
+            x << 0.0;
+            cst.set_lower_control_point( x, i );
+        }
+    }
+}
+
+void CSTAirfoil::CSTtoParms( cst_airfoil_type &cst )
+{
+    typedef cst_airfoil_type::control_point_type cst_airfoil_control_point_type;
+
+    ZeroParms();
+
+    m_UpDeg = cst.upper_degree();
+
+    ReserveUpDeg( m_UpDeg() );
+    for ( int i = 0; i <= m_UpDeg(); ++i )
+    {
+        Parm* p = m_UpCoeffParmVec[i];
+        if ( p )
+        {
+            cst_airfoil_control_point_type x;
+            x = cst.get_upper_control_point( i );
+
+            p->Set( x.value() );
+        }
+    }
+
+    m_LowDeg = cst.lower_degree();
+
+    ReserveLowDeg( m_LowDeg() );
+    for ( int i = 0; i <= m_LowDeg(); ++i )
+    {
+        Parm* p = m_LowCoeffParmVec[i];
+        if ( p )
+        {
+            cst_airfoil_control_point_type x;
+            x = cst.get_lower_control_point( i );
+            p->Set( x.value() );
+        }
+    }
+
+    CheckLERad();
+}
+
+void CSTAirfoil::ZeroParms()
+{
+    ZeroUpParms();
+    ZeroLowParms();
+}
+
+void CSTAirfoil::ZeroUpParms()
+{
+    for ( int i = 0; i < m_UpCoeffParmVec.size(); ++i )
+    {
+        Parm* p = m_UpCoeffParmVec[i];
+        if ( p )
+        {
+            p->Set( 0.0 );
+        }
+    }
+}
+
+void CSTAirfoil::ZeroLowParms()
+{
+    for ( int i = 0; i < m_LowCoeffParmVec.size(); ++i )
+    {
+        Parm* p = m_LowCoeffParmVec[i];
+        if ( p )
+        {
+            p->Set( 0.0 );
+        }
+    }
+}
+
+void CSTAirfoil::ReserveUpDeg( int d )
+{
+    while ( m_UpCoeffParmVec.size() < d + 1 )
+    {
+        AddUpParm();
+    }
+}
+
+void CSTAirfoil::ReserveLowDeg( int d )
+{
+    while ( m_LowCoeffParmVec.size() < d + 1 )
+    {
+        AddLowParm();
+    }
+}
+
+//==== Encode Data Into XML Data Struct ====//
+xmlNodePtr CSTAirfoil::EncodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr child_node = xmlNewChild( node, NULL, BAD_CAST "CSTAirfoil", NULL );
+    if ( child_node )
+    {
+        XmlUtil::AddIntNode( child_node, "NumUpCoeff", m_UpCoeffParmVec.size() );
+        XmlUtil::AddIntNode( child_node, "NumLowCoeff", m_LowCoeffParmVec.size() );
+    }
+    Airfoil::EncodeXml( node );
+
+    return child_node;
+}
+
+//==== Encode Data Into XML Data Struct ====//
+xmlNodePtr CSTAirfoil::DecodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr child_node = XmlUtil::GetNode( node, "CSTAirfoil", 0 );
+    if ( child_node )
+    {
+        int nup = XmlUtil::FindInt( child_node, "NumUpCoeff", m_UpCoeffParmVec.size() );
+        int nlow = XmlUtil::FindInt( child_node, "NumLowCoeff", m_LowCoeffParmVec.size() );
+
+        ReserveUpDeg( nup - 1 );
+        ReserveLowDeg( nlow - 1 );
+    }
+    Airfoil::DecodeXml( node );
+
+    return child_node;
+}
+
+string CSTAirfoil::AddUpParm()
+{
+    Parm* p = ParmMgr.CreateParm( PARM_DOUBLE_TYPE );
+
+    if ( p )
+    {
+        int i = m_UpCoeffParmVec.size();
+        char str[255];
+        sprintf( str, "Au_%d", i );
+        p->Init( string( str ), "UpperCoeff", this, 0.0, -1.0e12, 1.0e12, true );
+        p->SetDescript( "Upper surface CST coefficient" );
+        m_UpCoeffParmVec.push_back( p );
+        return p->GetID();
+    }
+    return string();
+}
+
+string CSTAirfoil::AddLowParm()
+{
+    Parm* p = ParmMgr.CreateParm( PARM_DOUBLE_TYPE );
+
+    if ( p )
+    {
+        int i = m_LowCoeffParmVec.size();
+        char str[255];
+        sprintf( str, "Al_%d", i );
+        p->Init( string( str ), "LowerCoeff", this, 0.0, -1.0e12, 1.0e12, true );
+        p->SetDescript( "Lower surface CST coefficient" );
+        m_LowCoeffParmVec.push_back( p );
+        return p->GetID();
+    }
+    return string();
+}
+
+void CSTAirfoil::CheckLERad()
+{
+    if ( m_ContLERad() )
+    {
+        if ( m_UpCoeffParmVec.size() >= 1 && m_LowCoeffParmVec.size() >= 1 )
+        {
+            m_LowCoeffParmVec[0]->Set( -m_UpCoeffParmVec[0]->Get() );
+        }
+    }
+}

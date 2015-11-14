@@ -163,6 +163,10 @@ XSecCurve* XSecSurf::CreateXSecCurve( int type )
     {
         xscrv_ptr = new FileAirfoil( );
     }
+    else if ( type == XS_CST_AIRFOIL )
+    {
+        xscrv_ptr = new CSTAirfoil( );
+    }
 
     return xscrv_ptr;
 }

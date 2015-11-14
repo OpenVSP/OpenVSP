@@ -22,6 +22,10 @@
 
 #include "eli/geom/curve/piecewise.hpp"
 #include "eli/geom/curve/piecewise_creator.hpp"
+#include "eli/geom/curve/piecewise_cst_airfoil_creator.hpp"
+#include "eli/geom/curve/piecewise_cst_airfoil_fitter.hpp"
+#include "eli/geom/curve/pseudo/cst_airfoil.hpp"
+
 
 typedef piecewise_curve_type::index_type curve_index_type;
 typedef piecewise_curve_type::point_type curve_point_type;
@@ -29,6 +33,11 @@ typedef piecewise_curve_type::rotation_matrix_type curve_rotation_matrix_type;
 typedef piecewise_curve_type::tolerance_type curve_tolerance_type;
 
 typedef eli::geom::curve::piecewise_four_digit_creator<double, 3, curve_tolerance_type> piecewise_four_digit_creator;
+typedef eli::geom::curve::piecewise_cst_airfoil_creator<double, 3, curve_tolerance_type> piecewise_cst_creator;
+typedef eli::geom::curve::pseudo::cst_airfoil<double> cst_airfoil_type;
+typedef eli::geom::curve::piecewise_cst_airfoil_fitter<double, 3, curve_tolerance_type> cst_fitter_type;
+
+#define MAX_CST_DEG 30
 
 using std::string;
 
@@ -55,6 +64,8 @@ public:
     BoolParm m_Invert;
     Parm m_Chord;
     Parm m_ThickChord;                  // Thick/Chord
+
+    IntParm m_FitDegree;
 
 protected:
     VspCurve m_OrigCurve;
@@ -215,6 +226,64 @@ protected:
 };
 
 
+//==========================================================================//
+//=============================== CST Airfoil ==============================//
+//==========================================================================//
+
+class CSTAirfoil : public Airfoil
+{
+public:
+
+    CSTAirfoil( );
+
+    virtual void Update();
+
+    //==== Encode/Decode XML ====//
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+
+    virtual void PromoteUpper();
+    virtual void PromoteLower();
+    virtual void DemoteUpper();
+    virtual void DemoteLower();
+
+    virtual void FitCurve( VspCurve c, int deg );
+
+    virtual vector < double > GetUpperCST();
+    virtual vector < double > GetLowerCST();
+
+    virtual int GetUpperDegree();
+    virtual int GetLowerDegree();
+
+    virtual void SetUpperCST( int deg, const vector < double > &coefs );
+    virtual void SetLowerCST( int deg, const vector < double > &coefs );
+
+    IntParm m_UpDeg;
+    IntParm m_LowDeg;
+
+    vector< Parm* > m_UpCoeffParmVec;
+    vector< Parm* > m_LowCoeffParmVec;
+
+    BoolParm m_ContLERad;
+
+protected:
+
+    virtual void MakeCSTAirfoil( cst_airfoil_type &cst );
+    virtual void CSTtoParms( cst_airfoil_type &cst );
+
+    virtual void ZeroParms();
+    virtual void ZeroUpParms();
+    virtual void ZeroLowParms();
+
+    virtual void ReserveUpDeg( int d );
+    virtual void ReserveLowDeg( int d );
+
+    virtual string AddUpParm();
+    virtual string AddLowParm();
+
+    virtual void CheckLERad();
+
+};
 
 
 #endif // !defined(AIRFOIL__INCLUDED_)
