@@ -772,6 +772,11 @@ void CustomGeom::UpdateFlags()
     {
         m_MainSurfVec[i].SetSurfType( m_VspSurfType );
         m_MainSurfVec[i].SetSurfCfdType( m_VspSurfCfdType );
+
+        if ( m_NegativeVolumeFlag.Get() )
+        {
+            m_MainSurfVec[i].SetSurfCfdType( vsp::CFD_NEGATIVE );
+        }
     }
 
     map< int, int >::const_iterator iter;

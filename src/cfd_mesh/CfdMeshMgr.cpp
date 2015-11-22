@@ -970,7 +970,7 @@ void CfdMeshMgrSingleton::LoadSurfs( vector< XferSurf > &xfersurfs )
         surfPtr->SetGeomID( xfersurfs[i].m_GeomID );
 
         //Xfersurfs created each time and flips normal if geom is a negative volume
-        if (m_Vehicle->FindGeom(surfPtr->GetGeomID())->m_NegativeVolumeFlag.Get())
+        if ( xfersurfs[i].m_SurfCfdType == vsp::CFD_NEGATIVE )
         {
             xfersurfs[i].m_FlipNormal = !xfersurfs[i].m_FlipNormal;
         }
