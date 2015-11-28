@@ -70,7 +70,7 @@ double SCurve::GetTargetLen( GridDensity* grid_den, SCurve* BCurve, vec3d p, vec
 
     double len = grid_den->GetBaseLen( limitFlag );
 
-    len = m_Surf->InterpTargetMap( uw.x(), uw.y() );
+    len = min( len, m_Surf->InterpTargetMap( uw.x(), uw.y() ) );
 
     if( BCurve )
     {
@@ -88,7 +88,7 @@ double SCurve::GetTargetLen( GridDensity* grid_den, SCurve* BCurve, vec3d p, vec
 
         double lenB = grid_den->GetBaseLen( limitFlag );
 
-        lenB = BCurve->m_Surf->InterpTargetMap( uwB.x(), uwB.y() );
+        lenB = min( lenB, BCurve->m_Surf->InterpTargetMap( uwB.x(), uwB.y() ) );
 
         len = min( len, lenB );
     }

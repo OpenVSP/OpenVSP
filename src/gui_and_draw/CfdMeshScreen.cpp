@@ -873,7 +873,6 @@ void CfdMeshScreen::GuiDeviceCallBack( GuiDevice* device )
         CfdMeshMgr.GenerateMesh();
 
         // Hide all geoms.
-        Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
         m_Vehicle->HideAll();
     }
 

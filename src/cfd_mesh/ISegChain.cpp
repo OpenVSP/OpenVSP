@@ -1172,9 +1172,9 @@ void ISegChain::MergeInteriorIPnts()
     for ( int i = 1 ; i < ( int )m_ISegDeque.size() ; i++ )
     {
         IPnt* ipe = m_ISegDeque[i - 1]->m_IPnt[1];
-        IPnt* ipb = m_ISegDeque[i]->m_IPnt[0];
 
 #ifdef DEBUG_CFD_MESH
+        IPnt* ipb = m_ISegDeque[i]->m_IPnt[0];
         static double max_dist = 0.0;
         double d = dist( ipe->m_Pnt, ipb->m_Pnt );
 

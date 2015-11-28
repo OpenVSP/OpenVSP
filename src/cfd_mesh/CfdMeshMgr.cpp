@@ -2732,7 +2732,7 @@ void CfdMeshMgrSingleton::AddIntersectionSeg( SurfPatch& pA, SurfPatch& pB, vec3
     ipnt1->m_Pnt = ip1;
     m_DelIPntVec.push_back( ipnt1 );
 
-    ISeg* iseg01 = new ISeg( pA.get_surf_ptr(), pB.get_surf_ptr(), ipnt0, ipnt1 );
+    new ISeg( pA.get_surf_ptr(), pB.get_surf_ptr(), ipnt0, ipnt1 );
 
     int id0 = IPntBin::ComputeID( ipnt0->m_Pnt );
     m_BinMap[id0].m_ID = id0;
@@ -4224,40 +4224,44 @@ void CfdMeshMgrSingleton::MatchBorderEdges( list< Edge* > edgeList )
                 break;
             }
         }
-        if ( close_dist < dist_tol )
+
+        if ( close_e && close_f )
         {
-//printf("Match Edge %f %d \n",close_dist, edgeList.size()  );
-            //==== Merge the 2 Edges ====//
-            double d0011 = dist_squared( close_e->n0->pnt, close_f->n0->pnt ) +
-                           dist_squared( close_e->n1->pnt, close_f->n1->pnt );
-
-            double d0110 = dist_squared( close_e->n0->pnt, close_f->n1->pnt ) +
-                           dist_squared( close_e->n1->pnt, close_f->n0->pnt );
-
-            if ( d0011 < d0110 )
+            if ( close_dist < dist_tol )
             {
-                //close_e->n0->pnt = (close_e->n0->pnt + close_f->n0->pnt)*0.5;
-                //close_e->n1->pnt = (close_e->n1->pnt + close_f->n1->pnt)*0.5;
-                close_f->n0->pnt = close_e->n0->pnt;
-                close_f->n1->pnt = close_e->n1->pnt;
+//printf("Match Edge %f %d \n",close_dist, edgeList.size()  );
+                //==== Merge the 2 Edges ====//
+                double d0011 = dist_squared( close_e->n0->pnt, close_f->n0->pnt ) +
+                               dist_squared( close_e->n1->pnt, close_f->n1->pnt );
+
+                double d0110 = dist_squared( close_e->n0->pnt, close_f->n1->pnt ) +
+                               dist_squared( close_e->n1->pnt, close_f->n0->pnt );
+
+                if ( d0011 < d0110 )
+                {
+                    //close_e->n0->pnt = (close_e->n0->pnt + close_f->n0->pnt)*0.5;
+                    //close_e->n1->pnt = (close_e->n1->pnt + close_f->n1->pnt)*0.5;
+                    close_f->n0->pnt = close_e->n0->pnt;
+                    close_f->n1->pnt = close_e->n1->pnt;
+                }
+                else
+                {
+                    //close_e->n0->pnt = (close_e->n0->pnt + close_f->n1->pnt)*0.5;
+                    //close_e->n1->pnt = (close_e->n1->pnt + close_f->n0->pnt)*0.5;
+                    close_f->n1->pnt = close_e->n0->pnt;
+                    close_f->n0->pnt = close_e->n1->pnt;
+                }
+                edgeList.remove( close_e );
+                edgeList.remove( close_f );
             }
             else
             {
-                //close_e->n0->pnt = (close_e->n0->pnt + close_f->n1->pnt)*0.5;
-                //close_e->n1->pnt = (close_e->n1->pnt + close_f->n0->pnt)*0.5;
-                close_f->n1->pnt = close_e->n0->pnt;
-                close_f->n0->pnt = close_e->n1->pnt;
-            }
-            edgeList.remove( close_e );
-            edgeList.remove( close_f );
-        }
-        else
-        {
-            close_e->debugFlag = true;
-//          printf("Close Dist = %f\n", close_dist );
-            edgeList.remove( close_e );
-            edgeList.remove( close_f );
+                close_e->debugFlag = true;
+//              printf("Close Dist = %f\n", close_dist );
+                edgeList.remove( close_e );
+                edgeList.remove( close_f );
 
+            }
         }
 
         if ( edgeList.size() <= 1  )

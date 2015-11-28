@@ -1004,7 +1004,7 @@ void FeaSlice::MergeChains( list < ISegChain* > & chain_list, vec3d & start_pnt,
             }
         }
 
-        if ( close_dist < tol || ( pnt_vec.size() == 1 && close_dist < 1.0e6 ) )
+        if ( ( close_dist < tol || ( pnt_vec.size() == 1 && close_dist < 1.0e6 ) ) && close_chain )
         {
             keepGoing = true;
             if ( close_flip )

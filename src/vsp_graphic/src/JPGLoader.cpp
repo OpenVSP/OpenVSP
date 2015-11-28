@@ -23,6 +23,7 @@ ImageData JPGLoader::load( std::string fileName )
     if( jpgData.data == 0 )
     {
         iData.valid = false;
+        return iData;
     }
 
     iData.width = jpgData.w;
