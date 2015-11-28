@@ -7,15 +7,18 @@ IF( WIN32 )
 		"<SOURCE_DIR>/jpeg/CMakeLists.txt" )
 
 ELSE()
-	SET( FLTK_PATCH PATCH_COMMAND patch -p1 < ${CMAKE_SOURCE_DIR}/0001-Changes-to-CMakeLists.txt-to-build-on-llvm-on-MacOS.patch
-COMMAND patch -p1 < ${CMAKE_SOURCE_DIR}/0002-Fix-LLVM-libc-errors-with-static_cast-CGFloat.patch
-COMMAND patch -p1 < ${CMAKE_SOURCE_DIR}/0003-Update-built-in-JPEG-CMake-to-install-headers.patch
-COMMAND patch -p1 < ${CMAKE_SOURCE_DIR}/0004-Fix-friend-declaration-error.patch )
+	SET( FLTK_PATCH PATCH_COMMAND patch -p1 < ${CMAKE_SOURCE_DIR}/0002-Fix-LLVM-libc-errors-with-static_cast-CGFloat.patch )
 ENDIF()
 
+# COMMAND patch -p1 < ${CMAKE_SOURCE_DIR}/0001-Changes-to-CMakeLists.txt-to-build-on-llvm-on-MacOS.patch
+# COMMAND patch -p1 < ${CMAKE_SOURCE_DIR}/0003-Update-built-in-JPEG-CMake-to-install-headers.patch
+# COMMAND patch -p1 < ${CMAKE_SOURCE_DIR}/0004-Fix-friend-declaration-error.patch )
+
+#    ${FLTK_PATCH}
+
 ExternalProject_Add( FLTK
-	${FLTK_PATCH}
-	URL ${CMAKE_SOURCE_DIR}/fltk-1.3.2-source.tar.gz
+
+	URL ${CMAKE_SOURCE_DIR}/fltk-1.3.x-r10934.tar.gz
 	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
 		-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
 		-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
