@@ -80,7 +80,6 @@ public:
 
 // Override Fl_Gl_Window Functions.
 public:
-    virtual void show();
     virtual void draw();
     virtual int  handle( int fl_event );
 

@@ -37,10 +37,6 @@ public:
 
 public:
     /*
-    * Initialize window on first call.
-    */
-    virtual void show();
-    /*
     * Draw 2D Scene.
     */
     virtual void draw();

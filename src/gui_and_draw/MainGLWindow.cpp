@@ -141,17 +141,11 @@ void VspGlWindow::zoom( int delta, bool precisionOn )
     m_GEngine->getDisplay()->zoom( zoomvalue );
 }
 
-void VspGlWindow::show()
-{
-    Fl_Gl_Window::show();
-
-    // Initialize Glew when context is created.
-    _initGLEW();
-}
-
 void VspGlWindow::draw()
 {
-    make_current();
+    // Initialize Glew when context is created.
+    _initGLEW();
+
     if ( !valid() )
     {
         m_GEngine->getDisplay()->resize( w(), h() );
@@ -323,7 +317,6 @@ void VspGlWindow::_initGLEW()
 {
     if( !m_initialized )
     {
-        make_current();
         VSPGraphic::GraphicEngine::initGlew();
 
         m_initialized = true;

@@ -50,17 +50,11 @@ VspSubGlWindow::~VspSubGlWindow()
     delete m_GEngine;
 }
 
-void VspSubGlWindow::show()
-{
-    Fl_Gl_Window::show();
-
-    // Initialize Glew when context is created.
-    _initGLEW();
-}
-
 void VspSubGlWindow::draw()
 {
-    make_current();
+    // Initialize Glew when context is created.
+    _initGLEW();
+
     if ( !valid() )
     {
         m_GEngine->getDisplay()->resize( w(), h() );
@@ -170,7 +164,6 @@ void VspSubGlWindow::_initGLEW()
 {
     if( !m_Initialized )
     {
-        make_current();
         VSPGraphic::GraphicEngine::initGlew();
 
         m_Initialized = true;
