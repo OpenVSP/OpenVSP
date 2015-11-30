@@ -44,6 +44,8 @@ VspSubGlWindow::VspSubGlWindow( int x, int y, int w , int h, DrawObj::ScreenEnum
     m_id = 0xFFFFFFFF;
 
     m_Initialized = false;
+
+    Fl::use_high_res_GL( true );
 }
 VspSubGlWindow::~VspSubGlWindow()
 {
@@ -57,7 +59,7 @@ void VspSubGlWindow::draw()
 
     if ( !valid() )
     {
-        m_GEngine->getDisplay()->resize( w(), h() );
+        m_GEngine->getDisplay()->resize( pixel_w(), pixel_h() );
     }
     m_GEngine->draw();
 }

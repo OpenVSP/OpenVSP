@@ -75,6 +75,8 @@ VspGlWindow::VspGlWindow( int x, int y, int w, int h, ScreenMgr * mgr, DrawObj::
     m_ScreenMgr = mgr;
 
     m_hasSetSize = false;
+
+    Fl::use_high_res_GL( true );
 }
 VspGlWindow::~VspGlWindow()
 {
@@ -84,7 +86,7 @@ VspGlWindow::~VspGlWindow()
 void VspGlWindow::setWindowLayout( int row, int column )
 {
     m_GEngine->getDisplay()->setDisplayLayout( row, column );
-    m_GEngine->getDisplay()->resize( w(), h() );
+    m_GEngine->getDisplay()->resize( pixel_w(), pixel_h() );
     m_GEngine->getDisplay()->selectViewport( 0 );
 }
 
@@ -204,11 +206,11 @@ void VspGlWindow::draw()
         //===== Quick hack to set default opengl screen size (only run once) =====//
         if ( !m_hasSetSize )
         {
-            m_GEngine->getDisplay()->setDefaultScreenSize( w(), h() );
+            m_GEngine->getDisplay()->setDefaultScreenSize( pixel_w(), pixel_h() );
             m_hasSetSize = true;
         }
 
-        m_GEngine->getDisplay()->resize( w(), h() );
+        m_GEngine->getDisplay()->resize( pixel_w(), pixel_h() );
 
         ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
         ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
