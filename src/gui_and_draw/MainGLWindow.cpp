@@ -233,6 +233,15 @@ int VspGlWindow::handle( int fl_event )
     int x = Fl::event_x();
     int y = h() - Fl::event_y();
 
+#ifdef __APPLE__
+    if ( shown() )
+    {
+        double factor = pixel_w()/w();
+        x *= factor;
+        y *= factor;
+    }
+#endif
+
     m_mouse_x = x;
     m_mouse_y = y;
 
