@@ -1905,7 +1905,7 @@ void TTri::TriangulateSplit( int flattenAxis )
                 double del = fabs( in.pointlist[i * 2] - in.pointlist[j * 2] ) +
                              fabs( in.pointlist[i * 2 + 1] - in.pointlist[j * 2 + 1] );
 
-                if ( del < 0.0000001 )
+                if ( del < 1e-8 )
                 {
                     dupFlag = 1;
                 }
