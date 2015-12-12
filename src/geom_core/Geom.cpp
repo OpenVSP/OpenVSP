@@ -2028,6 +2028,7 @@ vector< TMesh* > Geom::CreateTMeshVec()
     vector< vector<vec3d> > pnts;
     vector< vector<vec3d> > norms;
     vector< vector<vec3d> > uw_pnts;
+    double tol=1.0e-12;
 
     for ( int i = 0 ; i < ( int )m_SurfVec.size(); i++ )
     {
@@ -2086,7 +2087,7 @@ vector< TMesh* > Geom::CreateTMeshVec()
                 if ( ( quadrant > 0 && quadrant < 1 ) || ( quadrant > 2 && quadrant < 3 ) )
                 {
                     d20 = v2 - v0;
-                    if ( d21.mag() > 0.000001 && d01.mag() > 0.000001 && d20.mag() > 0.000001 )
+                    if ( d21.mag() > tol && d01.mag() > tol && d20.mag() > tol )
                     {
                         norm = cross( d21, d01 );
                         norm.normalize();
@@ -2100,7 +2101,7 @@ vector< TMesh* > Geom::CreateTMeshVec()
                         }
                     }
 
-                    if ( d03.mag() > 0.000001 && d23.mag() > 0.000001 && d20.mag() > 0.000001 )
+                    if ( d03.mag() > tol && d23.mag() > tol && d20.mag() > tol )
                     {
                         norm = cross( d03, d23 );
                         norm.normalize();
@@ -2117,7 +2118,7 @@ vector< TMesh* > Geom::CreateTMeshVec()
                 else
                 {
                     d31 = v3 - v1;
-                    if ( d01.mag() > 0.000001 && d31.mag() > 0.000001 && d03.mag() > 0.000001 )
+                    if ( d01.mag() > tol && d31.mag() > tol && d03.mag() > tol )
                     {
                         norm = cross( d01, d03 );
                         norm.normalize();
@@ -2131,7 +2132,7 @@ vector< TMesh* > Geom::CreateTMeshVec()
                         }
                     }
 
-                    if ( d21.mag() > 0.000001 && d23.mag() > 0.000001 && d31.mag() > 0.000001 )
+                    if ( d21.mag() > tol && d23.mag() > tol && d31.mag() > tol )
                     {
                         norm = cross( d23, d21 );
                         norm.normalize();

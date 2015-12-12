@@ -1296,7 +1296,7 @@ vec3d TTri::CompPnt( const vec3d & uw_pnt )
 
 bool TTri::ShareEdge( TTri* t )
 {
-    double tol = 0.0000001;
+    double tol = 1.0e-12;
 
     if ( MatchEdge( m_N0, m_N1, t->m_N0, t->m_N1, tol ) )
     {
