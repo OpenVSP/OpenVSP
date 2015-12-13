@@ -188,6 +188,14 @@ void SixSeries::Update()
     int num_pnts_upper = sixpnts_.nmu;
     int num_pnts_lower = sixpnts_.nml;
 
+    // Force trailing edge point closed and x = 1.0.
+    double yte = ( sixpnts_.yyl[ num_pnts_lower - 1 ] + sixpnts_.yyu[ num_pnts_upper - 1 ] ) * 0.5;
+    sixpnts_.yyl[ num_pnts_lower - 1 ] = yte;
+    sixpnts_.yyu[ num_pnts_upper - 1 ] = yte;
+
+    sixpnts_.xxl[ num_pnts_lower - 1 ] = 1.0;
+    sixpnts_.xxu[ num_pnts_upper - 1 ] = 1.0;
+
     //==== Load Points ====//
     vector< vec3d > pnts;
     pnts.resize( num_pnts_lower + num_pnts_upper - 1 );
