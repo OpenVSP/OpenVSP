@@ -32,7 +32,7 @@ ScreenshotScreen::ScreenshotScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 270, 23
     m_MainLayout.AddSubGroupLayout( m_BorderLayout, m_MainLayout.GetRemainX() - 5.0,
                                     m_MainLayout.GetRemainY() - 5.0);
 
-    m_BorderLayout.AddDividerBox("Current Size");
+    m_BorderLayout.AddDividerBox("Viewport Size");
     m_BorderLayout.AddYGap();
     m_BorderLayout.SetButtonWidth( 60 );
     m_BorderLayout.AddOutput( m_CurrentWidth, "Width" );
@@ -40,7 +40,7 @@ ScreenshotScreen::ScreenshotScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 270, 23
 
     m_BorderLayout.AddYGap();
 
-    m_BorderLayout.AddDividerBox("New Size");
+    m_BorderLayout.AddDividerBox("Output Size");
     m_BorderLayout.AddYGap();
 
     m_BorderLayout.SetFitWidthFlag( false );
