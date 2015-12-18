@@ -12,7 +12,10 @@
 
 #include "ManageCORScreen.h"
 
-ManageViewScreen::ManageViewScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 418, "Adjust View" )
+#include "GraphicEngine.h"
+#include "Display.h"
+
+ManageViewScreen::ManageViewScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 445, "Adjust View" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
     m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
@@ -31,6 +34,8 @@ ManageViewScreen::ManageViewScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 41
     m_BorderLayout.SetButtonWidth( 50 );
     m_BorderLayout.AddSlider( m_ViewportSizeX, "Width:", 20.0, "%7.0f" );
     m_BorderLayout.AddSlider( m_ViewportSizeY, "Height:", 20.0, "%7.0f" );
+    m_BorderLayout.AddYGap();
+    m_BorderLayout.AddButton(m_SetDefaultViewportSize, "Reset Viewport Size");
     m_BorderLayout.AddYGap();
 
     //===== Look At Point Section =====//
@@ -88,6 +93,8 @@ ManageViewScreen::ManageViewScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 41
     m_XRotationValue.Init( "RotationX", "AdjustView", NULL, 0.0, -1.0e12, 1.0e12 );
     m_YRotationValue.Init( "RotationY", "AdjustView", NULL, 0.0, -1.0e12, 1.0e12 );
     m_ZRotationValue.Init( "RotationZ", "AdjustView", NULL, 0.0, -1.0e12, 1.0e12 );
+
+    m_FirstRun = true;
 }
 
 ManageViewScreen::~ManageViewScreen()
@@ -102,6 +109,14 @@ void ManageViewScreen::Show()
     if( main )
     {
         VSPGUI::VspGlWindow * glwin = main->GetGLWindow();
+
+        //Boolean hack to save the default opengl size
+        if ( m_FirstRun )
+        {
+            m_OrigWidth = glwin->w();
+            m_OrigHeight = glwin->h();
+            m_FirstRun = false;
+        }
 
         m_ViewportSizeXValue.Set( glwin->w() );
         m_ViewportSizeYValue.Set( glwin->h() );
@@ -280,7 +295,12 @@ void ManageViewScreen::GuiDeviceCallBack( GuiDevice* device )
     assert( m_ScreenMgr );
 
     //===== Trigger Buttons =====//
-    if ( device == &m_PickLookAtBtn )
+    if ( device == &m_SetDefaultViewportSize )
+    {
+        m_ViewportSizeXValue.Set( m_OrigWidth );
+        m_ViewportSizeYValue.Set( m_OrigHeight );
+    }
+    else if ( device == &m_PickLookAtBtn )
     {
         ManageCORScreen* corScreen = dynamic_cast<ManageCORScreen *>
         ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_COR_SCREEN ) );

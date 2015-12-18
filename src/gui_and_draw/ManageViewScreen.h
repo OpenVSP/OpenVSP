@@ -79,6 +79,8 @@ protected:
     SliderAdjRangeInput m_ViewportSizeX;
     SliderAdjRangeInput m_ViewportSizeY;
 
+    TriggerButton m_SetDefaultViewportSize;
+
     SliderAdjRangeInput m_CORX;
     SliderAdjRangeInput m_CORY;
     SliderAdjRangeInput m_CORZ;
@@ -99,6 +101,10 @@ protected:
 
     int windowDX;
     int windowDY;
+
+    int m_OrigWidth;
+    int m_OrigHeight;
+    bool m_FirstRun;
 
     IntParm m_ViewportSizeXValue;
     IntParm m_ViewportSizeYValue;
