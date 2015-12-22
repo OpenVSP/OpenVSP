@@ -19,6 +19,7 @@
 #include "Common.h"
 
 #include "FL/Fl_File_Chooser.H"
+#include "OpenGLHeaders.h"
 
 ScreenshotScreen::ScreenshotScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 270, 233, "Screenshot" )
 {
@@ -32,45 +33,50 @@ ScreenshotScreen::ScreenshotScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 270, 23
     m_MainLayout.AddSubGroupLayout( m_BorderLayout, m_MainLayout.GetRemainX() - 5.0,
                                     m_MainLayout.GetRemainY() - 5.0);
 
-    m_BorderLayout.AddDividerBox("Viewport Size");
-    m_BorderLayout.AddYGap();
-    m_BorderLayout.SetButtonWidth( 60 );
-    m_BorderLayout.AddOutput( m_CurrentWidth, "Width" );
-    m_BorderLayout.AddOutput( m_CurrentHeight, "Height" );
+    m_BorderLayout.AddSubGroupLayout( m_CurrentViewportSizeLayout, m_BorderLayout.GetRemainX(), 67 );
 
-    m_BorderLayout.AddYGap();
+    m_CurrentViewportSizeLayout.AddDividerBox("Viewport Size");
+    m_CurrentViewportSizeLayout.AddYGap();
+    m_CurrentViewportSizeLayout.SetButtonWidth( 60 );
+    m_CurrentViewportSizeLayout.AddOutput( m_CurrentWidth, "Width" );
+    m_CurrentViewportSizeLayout.AddOutput( m_CurrentHeight, "Height" );
 
-    m_BorderLayout.AddDividerBox("Output Size");
-    m_BorderLayout.AddYGap();
+    m_BorderLayout.AddSubGroupLayout( m_ViewportSizeLayout, m_BorderLayout.GetRemainX(), 190 );
 
-    m_BorderLayout.SetFitWidthFlag( false );
-    m_BorderLayout.SetSameLineFlag( true );
+    m_ViewportSizeLayout.AddY( m_CurrentViewportSizeLayout.GetH() );
 
-    m_BorderLayout.SetSliderWidth( 100 );
-    m_BorderLayout.SetButtonWidth( 20 );
-    m_BorderLayout.AddButton(m_SelectRatio, "", 1);
-    m_BorderLayout.SetButtonWidth( 60 );
-    m_BorderLayout.AddSlider(m_NewRatio, "Ratio", 1.0, "%7.3f");
-    m_BorderLayout.ForceNewLine();
+    m_ViewportSizeLayout.AddDividerBox("Output Size");
+    m_ViewportSizeLayout.AddYGap();
 
-    m_BorderLayout.SetButtonWidth( 20 );
-    m_BorderLayout.AddButton(m_SelectWidth, "", -1);
-    m_BorderLayout.SetButtonWidth( 60 );
-    m_BorderLayout.AddSlider(m_NewWidth, "Width", 1.0, "%7.0f");
-    m_BorderLayout.ForceNewLine();
+    m_ViewportSizeLayout.SetFitWidthFlag( false );
+    m_ViewportSizeLayout.SetSameLineFlag( true );
 
-    m_BorderLayout.SetButtonWidth( 20 );
-    m_BorderLayout.AddButton(m_SelectHeight, "", -1);
-    m_BorderLayout.SetButtonWidth( 60 );
-    m_BorderLayout.AddSlider(m_NewHeight, "Height", 1.0, "%7.0f");
-    m_BorderLayout.ForceNewLine();
-    m_BorderLayout.AddYGap();
+    m_ViewportSizeLayout.SetSliderWidth( 100 );
+    m_ViewportSizeLayout.SetButtonWidth( 20 );
+    m_ViewportSizeLayout.AddButton(m_SelectRatio, "", 1);
+    m_ViewportSizeLayout.SetButtonWidth( 60 );
+    m_ViewportSizeLayout.AddSlider(m_NewRatio, "Ratio", 1.0, "%7.3f");
+    m_ViewportSizeLayout.ForceNewLine();
 
-    m_BorderLayout.SetFitWidthFlag( true );
-    m_BorderLayout.SetSameLineFlag( false );
+    m_ViewportSizeLayout.SetButtonWidth( 20 );
+    m_ViewportSizeLayout.AddButton(m_SelectWidth, "", -1);
+    m_ViewportSizeLayout.SetButtonWidth( 60 );
+    m_ViewportSizeLayout.AddSlider(m_NewWidth, "Width", 1.0, "%7.0f");
+    m_ViewportSizeLayout.ForceNewLine();
 
-    m_BorderLayout.AddButton(m_SetToCurrentSize, "Set to Current Size");
-    m_BorderLayout.AddYGap();
+    m_ViewportSizeLayout.SetButtonWidth( 20 );
+    m_ViewportSizeLayout.AddButton(m_SelectHeight, "", -1);
+    m_ViewportSizeLayout.SetButtonWidth( 60 );
+    m_ViewportSizeLayout.AddSlider(m_NewHeight, "Height", 1.0, "%7.0f");
+    m_ViewportSizeLayout.ForceNewLine();
+    m_ViewportSizeLayout.AddYGap();
+
+    m_ViewportSizeLayout.SetFitWidthFlag( true );
+    m_ViewportSizeLayout.SetSameLineFlag( false );
+
+    m_ViewportSizeLayout.AddButton(m_SetToCurrentSize, "Reset to Viewport Size");
+
+    m_BorderLayout.AddY( m_BorderLayout.GetH() - 21 );
     m_BorderLayout.AddButton(m_CaptureScreenshot, "Capture Screenshot");
 
     //Initialize Width and Height Values
@@ -92,6 +98,9 @@ ScreenshotScreen::ScreenshotScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 270, 23
     }
     m_NewWidth.SetRange( 10.0 );
     m_NewHeight.SetRange( 10.0 );
+
+    m_framebufferSupported = true;
+    m_showedOpenGLErrorMessage = false;
 }
 
 ScreenshotScreen::~ScreenshotScreen()
@@ -100,8 +109,22 @@ ScreenshotScreen::~ScreenshotScreen()
 
 void ScreenshotScreen::Show()
 {
+    if ( !glewIsSupported( "GL_ARB_framebuffer_object" ) )
+    {
+        m_ViewportSizeLayout.GetGroup()->deactivate();
+        m_framebufferSupported = false;
+    }
+
     m_ScreenMgr->SetUpdateFlag( true );
     m_FLTK_Window->show();
+
+    //===== We only need OpenGL version 2.1. Framebuffer objects offered as an extension. =====//
+    //===== GLEW associates the framebuffer calls to their appropriate extension calls. =====//
+    if ( !glewIsSupported( "GL_ARB_framebuffer_object" ) && !m_showedOpenGLErrorMessage )
+    {
+        fl_message( "Some features may be disabled due to a lower version of OpenGL.\nUpgrade to OpenGL 2.1 or higher." );
+        m_showedOpenGLErrorMessage = true;
+    }
 }
 
 void ScreenshotScreen::Hide()
@@ -244,7 +267,8 @@ void ScreenshotScreen::GuiDeviceCallBack( GuiDevice* device )
                     fileName += ".jpg";
                 }
             }
-            glwin->getGraphicEngine()->dumpScreenJPEG( fileName, m_NewWidthValue.Get(), m_NewHeightValue.Get() );
+
+            glwin->getGraphicEngine()->dumpScreenJPEG( fileName, m_NewWidthValue.Get(), m_NewHeightValue.Get(), m_framebufferSupported );
         }
     }
 

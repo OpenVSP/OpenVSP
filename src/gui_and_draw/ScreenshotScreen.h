@@ -40,6 +40,8 @@ protected:
 
     GroupLayout m_MainLayout;
     GroupLayout m_BorderLayout;
+    GroupLayout m_CurrentViewportSizeLayout;
+    GroupLayout m_ViewportSizeLayout;
 
     StringOutput m_CurrentWidth;
     StringOutput m_CurrentHeight;
@@ -58,6 +60,9 @@ protected:
     FractionParm m_NewRatioValue;
     IntParm m_NewWidthValue;
     IntParm m_NewHeightValue;
+
+    bool m_framebufferSupported;
+    bool m_showedOpenGLErrorMessage;
 
 };
 
