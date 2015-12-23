@@ -117,6 +117,10 @@ void ManageViewScreen::Show()
         m_CORYValue.Set( currentCOR.y );
         m_CORZValue.Set( currentCOR.z );
 
+        glm::vec2 currentPan = glwin->getPanValues();
+        m_PanXPosValue.Set( currentPan.x );
+        m_PanYPosValue.Set( currentPan.y );
+
         m_ZoomValue.Set( glwin->getRelativeZoomValue() );
         m_Zoom.Update( m_ZoomValue.GetID() );
 
@@ -222,10 +226,9 @@ void ManageViewScreen::UpdatePan()
     {
         VSPGUI::VspGlWindow * glwin = main->GetGLWindow();
 
-        glm::vec2 panValues = glwin->getPanValues();
-
-        m_PanXPosValue.Set( panValues[0] );
-        m_PanYPosValue.Set( panValues[1] );
+        glm::vec2 currentPan = glwin->getPanValues();
+        m_PanXPosValue.Set( currentPan.x );
+        m_PanYPosValue.Set( currentPan.y );
 
         m_PanXPos.Update( m_PanXPosValue.GetID() );
         m_PanYPos.Update( m_PanYPosValue.GetID() );
