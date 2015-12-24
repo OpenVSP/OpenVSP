@@ -34,7 +34,7 @@ void GraphicEngine::draw( int mouseX, int mouseY )
     _display->draw( _scene, mouseX, mouseY );
 }
 
-void GraphicEngine::dumpScreenJPEG( std::string fileName, int width, int height, bool framebufferSupported )
+void GraphicEngine::dumpScreenImage( std::string fileName, int width, int height, bool framebufferSupported, int filetype )
 {
     GLuint color;
     GLuint depth;
@@ -96,8 +96,10 @@ void GraphicEngine::dumpScreenJPEG( std::string fileName, int width, int height,
         memcpy(  dstLine, srcLine, scanLen );
     }
 
-    writeJPEG( fileName.c_str(), width, height, &flipdat[0] );
-
+    if ( filetype == JPEG )
+    {
+        writeJPEG( fileName.c_str(), width, height, &flipdat[0] );
+    }
 }
 
 void GraphicEngine::initGlew()

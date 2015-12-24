@@ -36,10 +36,14 @@ public:
     */
     void draw( int x, int y );
 
+    enum filetype { JPEG,
+                    PNG
+    };
+
     /*!
     * Dump screen data to JPEG image.
     */
-    void dumpScreenJPEG( std::string fileName, int width, int height, bool framebufferSupported );
+    void dumpScreenImage( std::string fileName, int width, int height, bool framebufferSupported, int filetype );
 
 public:
     /*!

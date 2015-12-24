@@ -268,7 +268,7 @@ void ScreenshotScreen::GuiDeviceCallBack( GuiDevice* device )
                 }
             }
 
-            glwin->getGraphicEngine()->dumpScreenJPEG( fileName, m_NewWidthValue.Get(), m_NewHeightValue.Get(), m_framebufferSupported );
+            glwin->getGraphicEngine()->dumpScreenImage( fileName, m_NewWidthValue.Get(), m_NewHeightValue.Get(), m_framebufferSupported, VSPGraphic::GraphicEngine::JPEG );
         }
     }
 
