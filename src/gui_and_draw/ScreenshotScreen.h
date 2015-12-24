@@ -55,7 +55,7 @@ protected:
 
     TriggerButton m_SetToCurrentSize;
 
-    TriggerButton m_CaptureScreenshot;
+    TriggerButton m_CaptureJPEG;
 
     FractionParm m_NewRatioValue;
     IntParm m_NewWidthValue;
