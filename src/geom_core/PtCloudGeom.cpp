@@ -276,16 +276,18 @@ xmlNodePtr PtCloudGeom::DecodeXml( xmlNodePtr & node )
         if ( pt_list_node )
         {
             int num_pts = XmlUtil::GetNumNames( pt_list_node, "Pt" );
-
             m_Pts.reserve( m_Pts.size() + num_pts );
-            for ( int i = 0 ; i < num_pts ; i++ )
+
+            xmlNodePtr iter_node = pt_list_node->xmlChildrenNode;
+
+            while( iter_node != NULL )
             {
-                xmlNodePtr pt_node = XmlUtil::GetNode( pt_list_node, "Pt", i );
-                if ( pt_node )
+                if ( !xmlStrcmp( iter_node->name, ( const xmlChar * )"Pt" ) )
                 {
-                    vec3d pt = XmlUtil::GetVec3dNode( pt_node );
+                    vec3d pt = XmlUtil::GetVec3dNode( iter_node );
                     m_Pts.push_back( pt );
                 }
+                iter_node = iter_node->next;
             }
         }
     }
