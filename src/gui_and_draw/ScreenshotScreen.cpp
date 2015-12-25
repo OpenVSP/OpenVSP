@@ -21,7 +21,7 @@
 #include "FL/Fl_File_Chooser.H"
 #include "OpenGLHeaders.h"
 
-ScreenshotScreen::ScreenshotScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 270, 233, "Screenshot" )
+ScreenshotScreen::ScreenshotScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 270, 253, "Screenshot" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
     m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
@@ -76,8 +76,9 @@ ScreenshotScreen::ScreenshotScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 270, 23
 
     m_ViewportSizeLayout.AddButton(m_SetToCurrentSize, "Reset to Viewport Size");
 
-    m_BorderLayout.AddY( m_BorderLayout.GetH() - 21 );
+    m_BorderLayout.AddY( m_BorderLayout.GetH() - 41 );
     m_BorderLayout.AddButton(m_CaptureJPEG, "Capture JPEG");
+    m_BorderLayout.AddButton(m_CapturePNG, "Capture PNG");
 
     //Initialize Width and Height Values
     m_SelectRatio.GetFlButton()->value( 1 );
@@ -271,7 +272,32 @@ void ScreenshotScreen::GuiDeviceCallBack( GuiDevice* device )
             glwin->getGraphicEngine()->dumpScreenImage( fileName, m_NewWidthValue.Get(), m_NewHeightValue.Get(), m_framebufferSupported, VSPGraphic::GraphicEngine::JPEG );
         }
     }
+    else if ( device == &m_CapturePNG )
+    {
+        std::string fileName = m_ScreenMgr->GetSelectFileScreen()->FileChooser(
+                "Create or Select a PNG File", "*.png" );
 
+        if( !fileName.empty() )
+        {
+            std::string::size_type extIndex = fileName.find_last_of( '.' );
+
+            if( extIndex == std::string::npos )
+            {
+                fileName += ".png";
+            }
+            else
+            {
+                std::string ext = fileName.substr( extIndex, fileName.size() - extIndex );
+                std::transform( ext.begin(), ext.end(), ext.begin(), ::tolower );
+                if( ext != ".png" )
+                {
+                    fileName += ".png";
+                }
+            }
+
+            glwin->getGraphicEngine()->dumpScreenImage( fileName, m_NewWidthValue.Get(), m_NewHeightValue.Get(), m_framebufferSupported, VSPGraphic::GraphicEngine::PNG );
+        }
+    }
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
