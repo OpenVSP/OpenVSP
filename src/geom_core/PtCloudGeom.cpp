@@ -247,7 +247,15 @@ xmlNodePtr PtCloudGeom::EncodeXml( xmlNodePtr & node )
     Geom::EncodeXml( node );
     xmlNodePtr ptcloud_node = xmlNewChild( node, NULL, BAD_CAST "PtCloudGeom", NULL );
 
-    XmlUtil::AddVectorVec3dNode( ptcloud_node, "Points" , m_Pts );
+    // Previous encoding -- all points as a large vector.
+    // required too much memory to read in.
+    // XmlUtil::AddVectorVec3dNode( ptcloud_node, "Points" , m_Pts );
+
+    xmlNodePtr pt_list_node = xmlNewChild( ptcloud_node, NULL, BAD_CAST "Pt_List", NULL );
+    for ( int i = 0 ; i < ( int ) m_Pts.size() ; i++ )
+    {
+        XmlUtil::AddVec3dNode( pt_list_node, "Pt", m_Pts[i] );
+    }
 
     return ptcloud_node;
 }
@@ -260,9 +268,27 @@ xmlNodePtr PtCloudGeom::DecodeXml( xmlNodePtr & node )
     xmlNodePtr ptcloud_node = XmlUtil::GetNode( node, "PtCloudGeom", 0 );
     if ( ptcloud_node )
     {
+        // Read in old encoding if it exists.
         m_Pts = XmlUtil::ExtractVectorVec3dNode( ptcloud_node, "Points" );
-    }
 
+        // Read in new encoding if they exist.
+        xmlNodePtr pt_list_node = XmlUtil::GetNode( ptcloud_node, "Pt_List", 0 );
+        if ( pt_list_node )
+        {
+            int num_pts = XmlUtil::GetNumNames( pt_list_node, "Pt" );
+
+            m_Pts.reserve( m_Pts.size() + num_pts );
+            for ( int i = 0 ; i < num_pts ; i++ )
+            {
+                xmlNodePtr pt_node = XmlUtil::GetNode( pt_list_node, "Pt", i );
+                if ( pt_node )
+                {
+                    vec3d pt = XmlUtil::GetVec3dNode( pt_node );
+                    m_Pts.push_back( pt );
+                }
+            }
+        }
+    }
     InitPts();
 
     return ptcloud_node;
