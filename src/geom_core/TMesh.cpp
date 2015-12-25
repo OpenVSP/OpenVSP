@@ -533,14 +533,17 @@ void TMesh::DecodeTriList( xmlNodePtr & node, int num_tris )
     m_TVec.resize( num_tris );
     vector<vec3d> tri;
     tri.resize( 4 );
-    xmlNodePtr tri_node;
 
-    for ( int i = 0 ; i < num_tris ; i++ )
+    xmlNodePtr iter_node;
+
+    iter_node = node->xmlChildrenNode;
+
+    int i = 0;
+    while( iter_node != NULL )
     {
-        tri_node = XmlUtil::GetNode( node, "Tri", i );
-        if ( tri_node )
+        if ( !xmlStrcmp( iter_node->name, ( const xmlChar * )"Tri" ) )
         {
-            tri = XmlUtil::GetVectorVec3dNode( tri_node );
+            tri = XmlUtil::GetVectorVec3dNode( iter_node );
             m_TVec[i] = new TTri();
             // Create Nodes
             m_TVec[i]->m_N0 = new TNode();
@@ -558,7 +561,10 @@ void TMesh::DecodeTriList( xmlNodePtr & node, int num_tris )
             m_TVec[i]->m_N2->m_Pnt = tri[2];
             m_TVec[i]->m_Norm = tri[3];
             tri.clear();
+
+            i++;
         }
+        iter_node = iter_node->next;
     }
 }
 
