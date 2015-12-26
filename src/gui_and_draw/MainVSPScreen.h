@@ -50,8 +50,6 @@ public:
 
     virtual void ExitVSP();
 
-    string CheckAddVSP3Ext( string fname );
-
     void SetFileLabel( string fname );
     /*!
     * Return reference to OpenGL Window.

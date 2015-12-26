@@ -399,7 +399,6 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
 
         if ( savefile.compare( "" ) != 0 )
         {
-            savefile = CheckAddVSP3Ext( savefile );
             VehicleMgr.GetVehicle()->SetVSP3FileName( savefile );
             VehicleMgr.GetVehicle()->WriteXMLFile( savefile, SET_ALL );
 
@@ -413,7 +412,6 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
         string savefile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Save VSP File As", "*.vsp3" );
         if ( savefile.compare( "" ) != 0 )
         {
-            savefile = CheckAddVSP3Ext( savefile );
             VehicleMgr.GetVehicle()->SetVSP3FileName( savefile );
             VehicleMgr.GetVehicle()->WriteXMLFile( savefile, SET_ALL );
 
@@ -431,7 +429,6 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
             string savefile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Save VSP Set File As", "*.vsp3" );
             if ( savefile.compare( "" ) != 0 )
             {
-                savefile = CheckAddVSP3Ext( savefile );
                 VehicleMgr.GetVehicle()->WriteXMLFile( savefile, set );
             }
         }
@@ -462,22 +459,6 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
     {
         m_ScreenMgr->SetRunGui( false );
     }
-}
-
-string MainVSPScreen::CheckAddVSP3Ext( string fname )
-{
-    string ext = ".vsp3";
-    string fext = fname.substr( fname.length() - ext.length(), ext.length() );
-
-    // STL string tolower
-    transform( fext.begin(), fext.end(), fext.begin(), ::tolower );
-
-    if ( fext.compare( ext ) != 0 )
-    {
-        fname.append( ".vsp3" );
-    }
-
-    return fname;
 }
 
 void MainVSPScreen::SetFileLabel( string fname )
@@ -512,7 +493,6 @@ void MainVSPScreen::ExitVSP()
 
 			if ( savefile.compare( "" ) != 0 )
 			{
-				savefile = CheckAddVSP3Ext( savefile );
 				VehicleMgr.GetVehicle()->SetVSP3FileName( savefile );
 				VehicleMgr.GetVehicle()->WriteXMLFile( savefile, SET_ALL );
 				exit( 0 );

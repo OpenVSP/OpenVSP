@@ -253,22 +253,6 @@ void ScreenshotScreen::GuiDeviceCallBack( GuiDevice* device )
 
         if( !fileName.empty() )
         {
-            std::string::size_type extIndex = fileName.find_last_of( '.' );
-
-            if( extIndex == std::string::npos )
-            {
-                fileName += ".jpg";
-            }
-            else
-            {
-                std::string ext = fileName.substr( extIndex, fileName.size() - extIndex );
-                std::transform( ext.begin(), ext.end(), ext.begin(), ::tolower );
-                if( ext != ".jpg" )
-                {
-                    fileName += ".jpg";
-                }
-            }
-
             glwin->getGraphicEngine()->dumpScreenImage( fileName, m_NewWidthValue.Get(), m_NewHeightValue.Get(), m_framebufferSupported, VSPGraphic::GraphicEngine::JPEG );
         }
     }
@@ -279,22 +263,6 @@ void ScreenshotScreen::GuiDeviceCallBack( GuiDevice* device )
 
         if( !fileName.empty() )
         {
-            std::string::size_type extIndex = fileName.find_last_of( '.' );
-
-            if( extIndex == std::string::npos )
-            {
-                fileName += ".png";
-            }
-            else
-            {
-                std::string ext = fileName.substr( extIndex, fileName.size() - extIndex );
-                std::transform( ext.begin(), ext.end(), ext.begin(), ::tolower );
-                if( ext != ".png" )
-                {
-                    fileName += ".png";
-                }
-            }
-
             glwin->getGraphicEngine()->dumpScreenImage( fileName, m_NewWidthValue.Get(), m_NewHeightValue.Get(), m_framebufferSupported, VSPGraphic::GraphicEngine::PNG );
         }
     }
