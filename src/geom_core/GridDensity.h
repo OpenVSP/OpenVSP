@@ -73,6 +73,8 @@ public:
 
     xmlNodePtr EncodeXml( xmlNodePtr & node );
 
+    virtual void ReadV2File( xmlNodePtr &root ) = 0;
+
     Parm m_Len;
     Parm m_Rad;
 
@@ -94,6 +96,8 @@ public:
 
     virtual void SetNamedVal( string name, double val );
 
+    virtual void ReadV2File( xmlNodePtr &root );
+
     Parm m_ULoc;
     Parm m_WLoc;
 };
@@ -109,6 +113,8 @@ public:
     virtual void AdjustLen( double val );
 
     void SetNamedVal( string name, double val );
+
+    virtual void ReadV2File( xmlNodePtr &root );
 
     Parm m_ULoc1;
     Parm m_WLoc1;
@@ -128,6 +134,8 @@ public:
     virtual ~BoxSource()        {};
 
     void SetNamedVal( string name, double val );
+
+    virtual void ReadV2File( xmlNodePtr &root );
 
     Parm m_ULoc1;
     Parm m_WLoc1;
@@ -318,6 +326,8 @@ public:
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+
+    virtual void ReadV2File( xmlNodePtr &root );
 
     virtual void ParmChanged( Parm* parm_ptr, int type );
 

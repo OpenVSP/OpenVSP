@@ -2839,6 +2839,9 @@ string Vehicle::ImportV2File( const string & file_name )
         }
     }
 
+    m_CfdSettings.ReadV2File( root );
+    m_CfdGridDensity.ReadV2File( root );
+
     //===== Free Doc =====//
     xmlFreeDoc( doc );
 

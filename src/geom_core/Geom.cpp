@@ -1658,6 +1658,25 @@ void Geom::ReadV2File( xmlNodePtr &root )
         m_ChildIDVec.push_back( ParmMgr.ForceRemapID( XmlUtil::ExtractString( child_node ) , 10 ) );
     }
 
+    //==== Read CFD Mesh Sources ====//
+    DelAllSources();
+
+    int numSources = XmlUtil::GetNumNames( root, "CFD_Mesh_Source" );
+    for ( i = 0 ; i < numSources ; i++ )
+    {
+        xmlNodePtr source_node = XmlUtil::GetNode( root, "CFD_Mesh_Source", i );
+        int type = XmlUtil::FindInt( source_node, "Type", -1 );
+
+        BaseSource* src_ptr = CreateSource( type );
+
+        if ( src_ptr )
+        {
+            src_ptr->ReadV2File( source_node );
+            AddCfdMeshSource( src_ptr );
+        }
+    }
+
+
     /*
     appTexVec.clear();
     int numAppliedTextures = XmlUtil::GetNumNames( root, "Applied_Texture" );
@@ -1716,25 +1735,6 @@ void Geom::ReadV2File( xmlNodePtr &root )
 
         }
 
-    }
-
-    //==== Read CFD Mesh Sources ====//
-    for ( i = 0 ; i < (int)sourceVec.size() ; i++ )
-        delete sourceVec[i];
-    sourceVec.clear();
-
-    int numSources = XmlUtil::GetNumNames( root, "CFD_Mesh_Source" );
-    for ( i = 0 ; i < numSources ; i++ )
-    {
-        xmlNodePtr source_node = XmlUtil::GetNode( root, "CFD_Mesh_Source", i );
-        int type = XmlUtil::FindInt( source_node, "Type", -1 );
-        BaseSource* sourcePtr = cfdMeshMgrPtr->CreateSource( type );
-
-        if ( sourcePtr )
-        {
-            sourcePtr->ReadParms( source_node );
-            AddCfdMeshSource( sourcePtr );
-        }
     }
 */
 }

@@ -88,6 +88,17 @@ void PointSource::SetNamedVal( string name, double val )
     }
 }
 
+void PointSource::ReadV2File( xmlNodePtr &root )
+{
+    SetName( XmlUtil::FindString( root, "Name", GetName() ) );
+
+    m_Len = XmlUtil::FindDouble( root, "Len", m_Len() );
+    m_Rad = XmlUtil::FindDouble( root, "Rad", m_Rad() );
+
+    m_ULoc = XmlUtil::FindDouble( root, "U", m_ULoc() );
+    m_WLoc = XmlUtil::FindDouble( root, "W", m_WLoc() );
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -161,6 +172,23 @@ void LineSource::AdjustRad( double val )
     m_Rad2 = m_Rad2() * val;
 }
 
+void LineSource::ReadV2File( xmlNodePtr &root )
+{
+    SetName( XmlUtil::FindString( root, "Name", GetName() ) );
+
+    m_Len = XmlUtil::FindDouble( root, "Len1", m_Len() );
+    m_Len2 = XmlUtil::FindDouble( root, "Len2", m_Len2() );
+
+    m_Rad = XmlUtil::FindDouble( root, "Rad1", m_Rad() );
+    m_Rad2 = XmlUtil::FindDouble( root, "Rad2", m_Rad2() );
+
+    m_ULoc1 = XmlUtil::FindDouble( root, "U1", m_ULoc1() );
+    m_WLoc1 = XmlUtil::FindDouble( root, "W1", m_WLoc1() );
+
+    m_ULoc2 = XmlUtil::FindDouble( root, "U2", m_ULoc2() );
+    m_WLoc2 = XmlUtil::FindDouble( root, "W2", m_WLoc2() );
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -201,6 +229,20 @@ void BoxSource::SetNamedVal( string name, double val )
     {
         m_WLoc2 = val;
     }
+}
+
+void BoxSource::ReadV2File( xmlNodePtr &root )
+{
+    SetName( XmlUtil::FindString( root, "Name", GetName() ) );
+
+    m_Len = XmlUtil::FindDouble( root, "Len", m_Len() );
+    m_Rad = XmlUtil::FindDouble( root, "Rad", m_Rad() );
+
+    m_ULoc1 = XmlUtil::FindDouble( root, "U1", m_ULoc1() );
+    m_WLoc1 = XmlUtil::FindDouble( root, "W1", m_WLoc1() );
+
+    m_ULoc2 = XmlUtil::FindDouble( root, "U2", m_ULoc2() );
+    m_WLoc2 = XmlUtil::FindDouble( root, "W2", m_WLoc2() );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -802,6 +844,19 @@ xmlNodePtr GridDensity::DecodeXml( xmlNodePtr & node )
     }
 
     return gridnode;
+}
+
+void GridDensity::ReadV2File( xmlNodePtr &root )
+{
+    m_BaseLen = XmlUtil::FindDouble( root, "CFD_Mesh_Base_Length", m_BaseLen() );
+    m_MinLen = XmlUtil::FindDouble( root, "CFD_Mesh_Min_Length", m_MinLen() );
+    m_MaxGap = XmlUtil::FindDouble( root, "CFD_Mesh_Max_Gap", m_MaxGap() );
+    m_NCircSeg = XmlUtil::FindDouble( root, "CFD_Mesh_Num_Circle_Segments", m_NCircSeg() );
+    m_GrowRatio = XmlUtil::FindDouble( root, "CFD_Mesh_Growth_Ratio", m_GrowRatio() );
+    m_FarMaxLen = XmlUtil::FindDouble( root, "CFD_Mesh_Far_Max_Length", m_FarMaxLen() );
+    m_FarMaxGap = XmlUtil::FindDouble( root, "CFD_Mesh_Far_Max_Gap", m_FarMaxGap() );
+    m_FarNCircSeg = XmlUtil::FindDouble( root, "CFD_Mesh_Far_Num_Circle_Segments", m_FarNCircSeg() );
+    m_RigorLimit = !! ( XmlUtil::FindInt( root, "CFD_Mesh_Rigorous_Limiting", m_RigorLimit() ) );
 }
 
 void GridDensity::ParmChanged( Parm* parm_ptr, int type )

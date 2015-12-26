@@ -40,6 +40,8 @@ public:
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
+    virtual void ReadV2File( xmlNodePtr &root );
+
     virtual void ParmChanged( Parm* parm_ptr, int type );
 
     virtual string GetFarGeomID()

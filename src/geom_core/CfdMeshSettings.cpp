@@ -14,6 +14,7 @@
 #include "SubSurfaceMgr.h"
 #include "SubSurface.h"
 #include "CfdMeshSettings.h"
+#include "ParmMgr.h"
 
 #ifdef DEBUG_CFD_MESH
 #include <direct.h>
@@ -118,6 +119,37 @@ xmlNodePtr CfdMeshSettings::DecodeXml( xmlNodePtr & node )
     }
 
     return cfdsetnode;
+}
+
+void CfdMeshSettings::ReadV2File( xmlNodePtr &root )
+{
+    m_FarXScale = XmlUtil::FindDouble( root, "CFD_Far_Field_Scale_X", m_FarXScale() );
+    m_FarYScale = XmlUtil::FindDouble( root, "CFD_Far_Field_Scale_Y", m_FarYScale() );
+    m_FarZScale = XmlUtil::FindDouble( root, "CFD_Far_Field_Scale_Z", m_FarZScale() );
+
+    m_HalfMeshFlag = !! ( XmlUtil::FindInt( root, "CFD_Half_Mesh_Flag", m_HalfMeshFlag() ) );
+    m_FarMeshFlag = !! ( XmlUtil::FindInt( root, "CFD_Far_Mesh_Flag", m_FarMeshFlag() ) );
+    m_FarAbsSizeFlag = !! ( XmlUtil::FindInt( root, "CFD_Far_Abs_Size_Flag", m_FarAbsSizeFlag() ) );
+    m_FarManLocFlag = !! ( XmlUtil::FindInt( root, "CFD_Far_Man_Loc_Flag", m_FarManLocFlag() ) );
+    m_FarCompFlag = !! ( XmlUtil::FindInt( root, "CFD_Far_Comp_Flag", m_FarCompFlag() ) );
+
+    string fargeom = XmlUtil::FindString( root, "CFD_Far_Geom_PtrID", m_FarGeomID );
+    if ( fargeom != "0" )
+    {
+        m_FarGeomID = ParmMgr.ForceRemapID( fargeom , 10 );
+    }
+
+    m_WakeAngle = XmlUtil::FindDouble( root, "CFD_Wake_Angle", m_WakeAngle() );
+    m_WakeScale = XmlUtil::FindDouble( root, "CFD_Wake_Scale", m_WakeScale() );
+
+    SetFileExportFlag( vsp::CFD_STL_FILE_NAME, !!XmlUtil::FindInt( root, "CFD_Stl_File_Flag", GetExportFileFlag( vsp::CFD_STL_FILE_NAME )->Get() ) );
+    SetFileExportFlag( vsp::CFD_POLY_FILE_NAME, !!XmlUtil::FindInt( root, "CFD_Poly_File_Flag", GetExportFileFlag( vsp::CFD_POLY_FILE_NAME )->Get() ) );
+    SetFileExportFlag( vsp::CFD_TRI_FILE_NAME, !!XmlUtil::FindInt( root, "CFD_Tri_File_Flag", GetExportFileFlag( vsp::CFD_TRI_FILE_NAME )->Get() ) );
+    SetFileExportFlag( vsp::CFD_OBJ_FILE_NAME, !!XmlUtil::FindInt( root, "CFD_Obj_File_Flag", GetExportFileFlag( vsp::CFD_OBJ_FILE_NAME )->Get() ) );
+    SetFileExportFlag( vsp::CFD_DAT_FILE_NAME, !!XmlUtil::FindInt( root, "CFD_Dat_File_Flag", GetExportFileFlag( vsp::CFD_DAT_FILE_NAME )->Get() ) );
+    SetFileExportFlag( vsp::CFD_KEY_FILE_NAME, !!XmlUtil::FindInt( root, "CFD_Key_File_Flag", GetExportFileFlag( vsp::CFD_KEY_FILE_NAME )->Get() ) );
+    SetFileExportFlag( vsp::CFD_GMSH_FILE_NAME, !!XmlUtil::FindInt( root, "CFD_Gmsh_File_Flag", GetExportFileFlag( vsp::CFD_GMSH_FILE_NAME )->Get() ) );
+    SetFileExportFlag( vsp::CFD_SRF_FILE_NAME, !!XmlUtil::FindInt( root, "CFD_Srf_File_Flag", GetExportFileFlag( vsp::CFD_SRF_FILE_NAME )->Get() ) );
 }
 
 //==== Parm Changed ====//
