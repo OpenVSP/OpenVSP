@@ -32,7 +32,7 @@ int XmlUtil::GetNumNames( xmlNodePtr node, const char * name )
 }
 
 //==== Get Node w/ Name and ID (Seq Num 0 - n ) ====//
-xmlNodePtr XmlUtil::GetNode( xmlNodePtr node, const char * name, int id )
+xmlNodePtr XmlUtil::GetNodeDbg( xmlNodePtr node, const char * name, int id, const char* file, int lineno )
 {
     int num;
     xmlNodePtr iter_node;
@@ -40,6 +40,13 @@ xmlNodePtr XmlUtil::GetNode( xmlNodePtr node, const char * name, int id )
     if ( node == NULL )
     {
         return NULL;
+    }
+
+    static bool once = false;
+    if ( !once && id > 100 )
+    {
+        printf( "Possible O(n^2) behavior detected with large n in call to XmlUtil::GetNode from %s line %d\n.", file, lineno );
+        once = true;
     }
 
     num = 0;

@@ -23,7 +23,9 @@ using std::vector;
 namespace XmlUtil
 {
 int GetNumNames( xmlNodePtr node, const char * name );
-xmlNodePtr GetNode( xmlNodePtr node, const char * name, int num );
+
+#define GetNode( node, name, num ) GetNodeDbg( node, name, num, __FILE__, __LINE__ )
+xmlNodePtr GetNodeDbg( xmlNodePtr node, const char * name, int num, const char* file, int lineno );
 
 double ExtractDouble( xmlNodePtr node );
 int    ExtractInt( xmlNodePtr node );
