@@ -2786,7 +2786,8 @@ string Vehicle::ImportV2File( const string & file_name )
                 }
                 else if ( typeStr == "Hwb" )
                 {
-                    printf("Found Hwb component.  Not yet supported.\n");
+                    id = CreateGeom( GeomType( MS_WING_GEOM_TYPE, "Wing", true ) );
+                    printf("Found Hwb component.  Not yet supported, importing as Wing.\n");
                 }
                 else if ( typeStr == "Blank" )
                 {
