@@ -1491,29 +1491,34 @@ int FitModelMgrSingleton::Load()
         return 4;
     }
 
-    //==== Decode Vehicle from document ====//
     int num = XmlUtil::GetNumNames( root, "TargetPt" );
-    for ( int index = 0 ; index < num ; ++index )
+
+    xmlNodePtr iter_node = root->xmlChildrenNode;
+
+    while( iter_node != NULL )
     {
-        xmlNodePtr targetpt_node = XmlUtil::GetNode( root, "TargetPt", index );
-        if ( targetpt_node )
+        if ( !xmlStrcmp( iter_node->name, ( const xmlChar * )"TargetPt" ) )
         {
             TargetPt* point = new TargetPt();
 
-            point->UnwrapXml(targetpt_node);
+            point->UnwrapXml(iter_node);
             AddTargetPt( point );
         }
+        iter_node = iter_node->next;
     }
 
     num = XmlUtil::GetNumNames( root, "Variable" );
-    for ( int index = 0 ; index < num ; ++index )
+
+    iter_node = root->xmlChildrenNode;
+
+    while( iter_node != NULL )
     {
-        xmlNodePtr variable_node = XmlUtil::GetNode( root, "Variable", index );
-        if ( variable_node )
+        if ( !xmlStrcmp( iter_node->name, ( const xmlChar * )"Variable" ) )
         {
-            string str = XmlUtil::FindString( variable_node, "ParmID", string() );
+            string str = XmlUtil::FindString( iter_node, "ParmID", string() );
             AddVar( str );
         }
+        iter_node = iter_node->next;
     }
 
     //===== Free Doc =====//
