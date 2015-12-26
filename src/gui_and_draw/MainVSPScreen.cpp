@@ -124,15 +124,12 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : VspScreen( mgr )
 
     m_MainUI->winShell->callback(staticCloseCB, this);
 
-    m_selectFileScreen = new SelectFileScreen();
-
     m_MainUI->ParmDebugMenu->hide();
 }
 
 MainVSPScreen::~MainVSPScreen()
 {
     delete m_GlWin;
-    delete m_selectFileScreen;
 }
 
 //==== Show Main VSP Screen ====//

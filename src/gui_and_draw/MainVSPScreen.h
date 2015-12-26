@@ -76,7 +76,6 @@ protected:
     MainWinUI* m_MainUI;
     //VspGlWindow* m_GlWin;
     VSPGUI::VspGlWindow * m_GlWin;
-    SelectFileScreen * m_selectFileScreen;
 };
 
 
