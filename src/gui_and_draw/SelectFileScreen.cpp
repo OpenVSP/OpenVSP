@@ -69,6 +69,29 @@ void SelectFileScreen::MassageDirString( string &in ) const
     }
 }
 
+void SelectFileScreen::EnforceFilter( string &in ) const
+{
+    string desiredext = m_FilterString.substr( 1, string::npos ); // Skip leading character probably '*'.
+    string desiredlower = desiredext;
+    std::transform( desiredlower.begin(), desiredlower.end(), desiredlower.begin(), ::tolower );
+
+    std::string::size_type extIndex = in.find_last_of( '.' );
+
+    if( extIndex == std::string::npos )
+    {
+        in += desiredext;
+    }
+    else
+    {
+        std::string ext = in.substr( extIndex, in.size() - extIndex );
+        std::transform( ext.begin(), ext.end(), ext.begin(), ::tolower );
+        if( ext != desiredlower ) // compare in lower case
+        {
+            in += desiredext;
+        }
+    }
+}
+
 void SelectFileScreen::LoadFavsMenu()
 {
     m_FavDirVec.clear();
@@ -108,7 +131,7 @@ void SelectFileScreen::show()
     }
 }
 
-string SelectFileScreen::FileChooser( const char* title, const char* filter )
+string SelectFileScreen::FileChooser( const char* title, const char* filter, bool forceext )
 {
     string file_name;
     m_AcceptFlag = false;
@@ -139,16 +162,22 @@ string SelectFileScreen::FileChooser( const char* title, const char* filter )
     {
         m_FullPathName = m_DirString;
         m_FullPathName.append( m_FileName );
+
+        if ( forceext )
+        {
+            EnforceFilter( m_FullPathName );
+        }
+
         file_name = m_FullPathName;
     }
 
     return file_name;
 }
 
-string SelectFileScreen::FileChooser( const char* title, const char* filter, const char* dir )
+string SelectFileScreen::FileChooser( const char* title, const char* filter, const char* dir, bool forceext )
 {
     m_DirString = dir;
-    return FileChooser( title, filter );
+    return FileChooser( title, filter, forceext );
 }
 
 void SelectFileScreen::screenCB( Fl_Widget* w )

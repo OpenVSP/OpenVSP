@@ -557,7 +557,7 @@ void StackScreen::GuiDeviceCallBack( GuiDevice* gui_device )
                 {
                     FileAirfoil* affile_xs = dynamic_cast< FileAirfoil* >( xsc );
                     assert( affile_xs );
-                    string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Airfoil File", "*.{af,dat}" );
+                    string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Airfoil File", "*.{af,dat}", false );
 
                     affile_xs->ReadFile( newfile );
                     affile_xs->Update();

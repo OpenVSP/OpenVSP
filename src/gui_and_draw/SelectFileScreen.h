@@ -35,8 +35,8 @@ public:
 
     SelectFileUI* selectFileUI;
 
-    string FileChooser( const char* title, const char* filter );
-    string FileChooser( const char* title, const char* filter, const char* dir );
+    string FileChooser( const char* title, const char* filter, bool forceext = true );
+    string FileChooser( const char* title, const char* filter, const char* dir, bool forceext = true );
 
     static void staticScreenCB( Fl_Widget *w, void* data )
     {
@@ -47,6 +47,8 @@ public:
 protected:
 
     void MassageDirString( string &in ) const;
+
+    void EnforceFilter( string &in ) const;
 
     bool m_AcceptFlag;
     string m_FilterString;
