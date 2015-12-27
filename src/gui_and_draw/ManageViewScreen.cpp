@@ -14,6 +14,7 @@
 
 #include "GraphicEngine.h"
 #include "Display.h"
+#include "FL/Fl.H"
 
 ManageViewScreen::ManageViewScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 445, "Adjust View" )
 {
@@ -148,6 +149,16 @@ bool ManageViewScreen::Update()
     }
 
     VSPGUI::VspGlWindow * glwin = main->GetGLWindow();
+
+    // Added padding to screen
+    if (m_ViewportSizeXValue.Get() > Fl::w() - 10)
+    {
+        m_ViewportSizeXValue.Set( Fl::w() - 10 );
+    }
+    if (m_ViewportSizeYValue.Get() > Fl::h() - 10)
+    {
+        m_ViewportSizeYValue.Set( Fl::h() - 10 );
+    }
 
     m_ViewportSizeX.Update( m_ViewportSizeXValue.GetID() );
     m_ViewportSizeY.Update( m_ViewportSizeYValue.GetID() );
