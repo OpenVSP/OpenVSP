@@ -1534,6 +1534,14 @@ void VspGlWindow::OnDrag( int x, int y )
             if( m_prevAltLB != glm::vec2( 0xFFFFFFFF ) )
             {
                 display->pan( ( int )m_prevAltLB.x, ( int )m_prevAltLB.y, x, y );
+
+                ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
+                ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+
+                if ( viewScreen->IsShown() )
+                {
+                    viewScreen->UpdatePan();
+                }
             }
             m_prevAltLB = glm::vec2( x, y );
         }
@@ -1603,7 +1611,10 @@ void VspGlWindow::OnDrag( int x, int y )
             ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
             ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
 
-            viewScreen->UpdatePan();
+            if ( viewScreen->IsShown() )
+            {
+                viewScreen->UpdatePan();
+            }
         }
         m_prevRB = glm::vec2( x, y );
     }
