@@ -32,8 +32,8 @@ ManageViewScreen::ManageViewScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 44
     m_BorderLayout.AddDividerBox( "Viewport Size" );
     m_BorderLayout.AddYGap();
     m_BorderLayout.SetButtonWidth( 50 );
-    m_BorderLayout.AddSlider( m_ViewportSizeX, "Width:", 20.0, "%7.0f" );
-    m_BorderLayout.AddSlider( m_ViewportSizeY, "Height:", 20.0, "%7.0f" );
+    m_BorderLayout.AddSlider( m_ViewportSizeX, "Width:", 250.0, "%7.0f" );
+    m_BorderLayout.AddSlider( m_ViewportSizeY, "Height:", 250.0, "%7.0f" );
     m_BorderLayout.AddYGap();
     m_BorderLayout.AddButton(m_SetDefaultViewportSize, "Reset Viewport Size");
     m_BorderLayout.AddYGap();
