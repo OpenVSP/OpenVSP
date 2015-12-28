@@ -126,11 +126,11 @@ void BasicScreen::SetTitle( const string& title )
 //=====================================================================//
 
 //==== Constructor ====//
-TabScreen::TabScreen( ScreenMgr* mgr, int w, int h, const string & title, int baseymargin ) :
+TabScreen::TabScreen( ScreenMgr* mgr, int w, int h, const string & title, int baseymargin, int basexmargin ) :
     BasicScreen( mgr, w, h, title )
 {
     //==== Menu Tabs ====//
-    m_MenuTabs = new Fl_Tabs( 0, 25, w, h - 25 - baseymargin );
+    m_MenuTabs = new Fl_Tabs( 0, 25, w - basexmargin, h - 25 - baseymargin );
     m_MenuTabs->labelcolor( FL_BLUE );
 }
 
