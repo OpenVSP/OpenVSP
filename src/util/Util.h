@@ -41,5 +41,7 @@ extern string GenerateRandomID( int length );
 
 extern bool ToBool( double val );
 
+double mag( double x );
+
 #endif
 
