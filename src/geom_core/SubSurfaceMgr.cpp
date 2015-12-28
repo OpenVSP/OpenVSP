@@ -109,6 +109,32 @@ vector< SubSurface* > SubSurfaceMgrSingleton::GetSubSurfs()
     return ret_vec;
 }
 
+//==== Get subsurface pointer from subsurface id ====//
+SubSurface* SubSurfaceMgrSingleton::GetSubSurf( string subsurf_id )
+{
+    SubSurface* ret_ptr = NULL;
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if( !veh )
+    {
+        return ret_ptr;
+    }
+
+    vector<Geom*> geoms = veh->FindGeomVec( veh->GetGeomVec() );
+    for ( int i = 0 ; i < ( int )geoms.size() ; i++ )
+    {
+        const vector< SubSurface* > SubSurfVec = geoms[i]->GetSubSurfVec();
+        for ( int j = 0 ; j < ( int )SubSurfVec.size() ; j++ )
+        {
+            if( SubSurfVec[j]->GetID() == subsurf_id )
+            {
+                ret_ptr = SubSurfVec[j];
+            }
+        }
+    }
+
+    return ret_ptr;
+}
+
 void SubSurfaceMgrSingleton::PrepareToSplit()
 {
     vector< SubSurface* > sub_surfs = GetSubSurfs();
