@@ -219,6 +219,7 @@ bool VSPAEROScreen::Update()
         vector <string> geomVec = veh->GetGeomVec();
 
         m_RefWingChoice.ClearItems();
+        m_WingGeomVec.clear();
         map <string, int> WingCompIDMap;
         int iwing = 0;
         for ( int i = 0 ; i < ( int )geomVec.size() ; i++ )
