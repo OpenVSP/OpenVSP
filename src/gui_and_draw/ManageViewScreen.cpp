@@ -65,7 +65,7 @@ ManageViewScreen::ManageViewScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 44
     m_BorderLayout.AddSlider( m_PanYPos, "Pan Y:", 10.0, "%7.3f" );
     m_BorderLayout.AddYGap();
 
-    m_BorderLayout.AddSlider( m_Zoom, "Zoom:", 1.0, "%7.3f" );
+    m_BorderLayout.AddSlider( m_Zoom, "Zoom:", 0.018, "%7.3g" );
     m_BorderLayout.AddYGap();
 
     //===== Attempt at Euler Angle Rotation =====//
@@ -88,7 +88,7 @@ ManageViewScreen::ManageViewScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 44
     m_PanXPosValue.Init( "PanX", "AdjustView", NULL, 0.0, -1.0e12, 1.0e12 );
     m_PanYPosValue.Init( "PanY", "AdjustView", NULL, 0.0, -1.0e12, 1.0e12 );
 
-    m_ZoomValue.Init( "Zoom", "AdjustView", NULL, 0.0, 0, 1.0e12 );
+    m_ZoomValue.Init( "Zoom", "AdjustView", NULL, 0.0, 0.0, 1.0e12 );
 
     //===== Attempt at Euler Angle Rotation =====//
     m_XRotationValue.Init( "RotationX", "AdjustView", NULL, 0.0, -1.0e12, 1.0e12 );
@@ -186,6 +186,18 @@ bool ManageViewScreen::Update()
     glwin->setCOR( glm::vec3( m_CORXValue.Get(), m_CORYValue.Get(), m_CORZValue.Get() ) );
 
     glwin->relativePan( m_PanXPosValue.Get(), m_PanYPosValue.Get() );
+
+    //TODO: Fix this such that zoom works properly.
+    /*if ( ( exp( m_ZoomValue.Get() / 100.0 ) - 0.9821800162 ) < 0.0 )
+    {
+        glwin->relativeZoom( exp( m_ZoomValue.Get() / 100.0 ) - 1.0 );
+    }
+    else
+    {
+        glwin->relativeZoom( exp( m_ZoomValue.Get() / 100.0 ) - 0.9821800162 ); //log( 0.1f * m_ZoomValue.Get() + 1.0 ) );
+    }*/
+
+    //glwin->relativeZoom( pow( 10.0, m_ZoomValue.Get() ) - 1.024317429 );
 
     glwin->relativeZoom( m_ZoomValue.Get() );
 
