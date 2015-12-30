@@ -54,6 +54,7 @@ class VspScreen;
 //  Slider          (Parm/IntParm)  Normal slider
 //  Log Slider      (Parm/IntParm)  Log10 slider
 //  SliderAdjRange  (Parm/IntParm)  Slider with additional buttons to adjust range
+//  LogSliderAdjRange (Parm/IntParm) Log Slider with additional buttons to adjust range
 //  Check Button    (BoolParm)      Toggle type button with check mark
 //  CheckButtonBit  (IntParm)       Check button with val (0 or val)
 //  RadioButton     (IntParm)       Round radio button
@@ -64,6 +65,7 @@ class VspScreen;
 //  Choice          (IntParm)       Fltk choice widget
 //  SliderInput     (Parm)          Combo of Slider (or LogSlider) and Input and optional Parm Button
 //  SliderAdjRangeInput (Parm)      Combo of SliderAdjRange and Input and optional Parm Button
+//  LogSliderAdjRangeInput (Parm)   Combo of LogSliderAdjRange and Input and optional Parm Button TODO
 //  SliderAdjRange2Input (2 Parms)  Combo of SliderAdjRange and two Inputs and optional Parm Button.
 //                                  Display two different parms in each window (only one active at a time)
 //  FractParmSlider (FractParm)     Combo of SliderAdjRange and two Inputs and optional Parm Button.
@@ -238,7 +240,7 @@ public:
 
 protected:
 
-    virtual void SetValAndLimits( Parm* parm_ptr );
+//    virtual void SetValAndLimits( Parm* parm_ptr );
 
 };
 
@@ -275,6 +277,36 @@ protected:
     double m_Tol;
 
 
+};
+
+//==== Log Slider Adjustable Range ====// TODO
+class LogSliderAdjRange : public LogSlider
+{
+public:
+    LogSliderAdjRange();
+
+    virtual void Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
+                       Fl_Button* rbutton, double range );
+
+    virtual void DeviceCB( Fl_Widget* w );
+
+
+protected:
+
+    virtual void MinButtonCB( Parm* parm_ptr );
+    virtual void MaxButtonCB( Parm* parm_ptr );
+    virtual void FindStopState( Parm* parm_ptr );
+
+    Fl_Button* m_MinButton;
+    Fl_Button* m_MaxButton;
+
+    enum { SAR_NO_STOP, SAR_STOP, SAR_ABS_STOP };
+
+
+    int m_MinStopState;
+    int m_MaxStopState;
+    double m_ButtonChangeFract;
+    double m_Tol;
 };
 
 
@@ -547,6 +579,46 @@ protected:
     bool m_ParmButtonFlag;
     ParmButton m_ParmButton;
 
+};
+
+//==== Log Slider Input Combo ====//
+class LogSliderAdjRangeInput : public GuiDevice
+{
+public:
+    virtual void Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
+                       Fl_Button* rbutton, Fl_Input* input, double range, const char* format,
+                       VspButton* parm_button = NULL );
+
+    virtual void Update( const string& parm_id );
+    virtual void SetRange( double range )
+    {
+        m_Slider.SetRange( range );
+    }
+    virtual void SetFormat( const char* format )
+    {
+        m_Input.SetFormat( format );
+    }
+    virtual void SetButtonNameUpdate( bool flag )
+    {
+        m_ParmButton.SetButtonNameUpdate( flag );
+    }
+    virtual void SetIndex( int index )
+    {
+        m_Slider.SetIndex( index );
+        m_Input.SetIndex( index );
+        m_ParmButton.SetIndex( index );
+    }
+    virtual void DeviceCB( Fl_Widget* w )           {}
+
+protected:
+
+    virtual void SetValAndLimits( Parm* )           {}
+
+    LogSliderAdjRange m_Slider;
+    Input  m_Input;
+
+    bool m_ParmButtonFlag;
+    ParmButton m_ParmButton;
 };
 
 //==== Slider 2 Input Combo ====//
