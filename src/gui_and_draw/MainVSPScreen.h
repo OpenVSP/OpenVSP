@@ -74,6 +74,9 @@ protected:
     MainWinUI* m_MainUI;
     //VspGlWindow* m_GlWin;
     VSPGUI::VspGlWindow * m_GlWin;
+
+private:
+    bool m_ShowXYZArrow;
 };
 
 

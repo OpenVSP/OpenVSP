@@ -95,6 +95,10 @@ class MainWinUI {open
               label {Screenshot...}
               xywh {10 10 100 20}
             }
+            MenuItem OnOffAxisToggle {
+              label {Axis Toggle}
+              xywh {10 10 100 20}
+            }
           }
           Submenu ViewSubMenu {
             label View open

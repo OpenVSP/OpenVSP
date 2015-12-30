@@ -21,6 +21,8 @@
 #include "main.h"
 #include <FL/fl_ask.H>
 #include "Display.h"
+#include "LayoutMgr.h"
+#include "Viewport.h"
 
 using namespace vsp;
 using VSPGUI::VspGlWindow;
@@ -89,6 +91,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     AddMenuCallBack( m_MainUI->ClippingMenu );
     AddMenuCallBack( m_MainUI->LabelsMenu );
     AddMenuCallBack( m_MainUI->ScreenShotMenu );
+    AddMenuCallBack( m_MainUI->OnOffAxisToggle );
 
     AddMenuCallBack( m_MainUI->TopViewMenu );
     AddMenuCallBack( m_MainUI->FrontViewMenu );
@@ -125,6 +128,8 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : VspScreen( mgr )
     m_MainUI->winShell->callback(staticCloseCB, this);
 
     m_MainUI->ParmDebugMenu->hide();
+
+    m_ShowXYZArrow = true;
 }
 
 MainVSPScreen::~MainVSPScreen()
@@ -210,6 +215,12 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
     else if ( m == m_MainUI->ScreenShotMenu )
     {
         m_ScreenMgr->ShowScreen( ScreenMgr::VSP_SCREENSHOT_SCREEN );
+    }
+    else if ( m == m_MainUI->OnOffAxisToggle )
+    {
+        m_ShowXYZArrow = !m_ShowXYZArrow;
+        m_GlWin->getGraphicEngine()->getDisplay()->getLayoutMgr()->getViewport()->showXYZArrows( m_ShowXYZArrow );
+        m_GlWin->redraw();
     }
     else if ( m == m_MainUI->TopViewMenu )
     {
