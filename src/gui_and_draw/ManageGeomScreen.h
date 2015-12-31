@@ -49,6 +49,8 @@ public:
         ( ( ManageGeomScreen* )data )->CallBack( w );
     }
 
+    virtual void GuiDeviceCallBack( GuiDevice* device );
+
     void CreateScreens();
     void ShowHideGeomScreens();
 
