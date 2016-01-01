@@ -190,11 +190,12 @@ VspButton* GroupLayout::AddParmButton( const char* label )
 
 //==== Create & Init Gui Slider Adjustable Range  ====//
 void GroupLayout::AddSlider( SliderAdjRangeInput& slid_adj_input,
-                             const char* label, double range, const char* format, bool log_slider )
+                             const char* label, double range, const char* format, int used_w, bool log_slider )
+
 {
     assert( m_Group && m_Screen );
 
-    int init_used_w = m_X - m_Group->x();
+    int init_used_w = used_w + m_X - m_Group->x();
 
     //==== Parm Button ====//
     VspButton* button = AddParmButton( label );
