@@ -65,7 +65,7 @@ class VspScreen;
 //  Choice          (IntParm)       Fltk choice widget
 //  SliderInput     (Parm)          Combo of Slider (or LogSlider) and Input and optional Parm Button
 //  SliderAdjRangeInput (Parm)      Combo of SliderAdjRange and Input and optional Parm Button
-//  LogSliderAdjRangeInput (Parm)   Combo of LogSliderAdjRange and Input and optional Parm Button TODO
+//  LogSliderAdjRangeInput (Parm)   Combo of LogSliderAdjRange and Input and optional Parm Button
 //  SliderAdjRange2Input (2 Parms)  Combo of SliderAdjRange and two Inputs and optional Parm Button.
 //                                  Display two different parms in each window (only one active at a time)
 //  FractParmSlider (FractParm)     Combo of SliderAdjRange and two Inputs and optional Parm Button.
@@ -279,7 +279,7 @@ protected:
 
 };
 
-//==== Log Slider Adjustable Range ====// TODO
+//==== Log Slider Adjustable Range ====//
 class LogSliderAdjRange : public LogSlider
 {
 public:

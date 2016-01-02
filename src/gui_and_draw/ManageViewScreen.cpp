@@ -187,18 +187,6 @@ bool ManageViewScreen::Update()
 
     glwin->relativePan( m_PanXPosValue.Get(), m_PanYPosValue.Get() );
 
-    //TODO: Fix this such that zoom works properly.
-    /*if ( ( exp( m_ZoomValue.Get() / 100.0 ) - 0.9821800162 ) < 0.0 )
-    {
-        glwin->relativeZoom( exp( m_ZoomValue.Get() / 100.0 ) - 1.0 );
-    }
-    else
-    {
-        glwin->relativeZoom( exp( m_ZoomValue.Get() / 100.0 ) - 0.9821800162 ); //log( 0.1f * m_ZoomValue.Get() + 1.0 ) );
-    }*/
-
-    //glwin->relativeZoom( pow( 10.0, m_ZoomValue.Get() ) - 1.024317429 );
-
     glwin->relativeZoom( m_ZoomValue.Get() );
 
     //===== LookAt Point Method =====//
