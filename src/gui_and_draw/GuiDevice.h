@@ -422,6 +422,7 @@ public:
     virtual void Init( VspScreen* screen, Fl_Button* button );
     virtual void DeviceCB( Fl_Widget* w );
     virtual void SetColor( Fl_Color c );
+    virtual Fl_Button* GetFlButton();
 
 protected:
 

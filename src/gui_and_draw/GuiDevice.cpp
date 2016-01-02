@@ -1511,6 +1511,12 @@ void TriggerButton::SetColor( Fl_Color c )
     }
 }
 
+//==== Gets the underlying fl button ====//
+Fl_Button* TriggerButton::GetFlButton()
+{
+    return m_Button;
+}
+
 //==== Callback ====//
 void TriggerButton::DeviceCB( Fl_Widget* w )
 {
