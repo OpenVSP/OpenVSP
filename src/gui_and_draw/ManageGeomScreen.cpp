@@ -29,12 +29,16 @@ ManageGeomScreen::ManageGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 235, 60
     m_LastSelectedGeomID = "NONE";
 
     m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
+    m_FLTK_Window->resizable( m_MainLayout.GetGroup() );
+    m_FLTK_Window->size_range( m_FLTK_Window->w(), m_FLTK_Window->h() );
+
     m_MainLayout.AddX( 5 );
     m_MainLayout.AddY( 25 );
     m_MainLayout.AddSubGroupLayout( m_HeadLayout, m_MainLayout.GetRemainX() - 5, 50 );
     m_MainLayout.AddY( 70 );
     m_MainLayout.SetX( 0 );
     m_MainLayout.AddSubGroupLayout( m_BodyLayout, m_MainLayout.GetRemainX() - 5, m_MainLayout.GetRemainY() );
+    m_MainLayout.GetGroup()->resizable( m_BodyLayout.GetGroup() );
 
     m_HeadLayout.SetSameLineFlag( true );
     m_HeadLayout.SetChoiceButtonWidth( 0 );
@@ -55,6 +59,7 @@ ManageGeomScreen::ManageGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 235, 60
     m_BodyLayout.AddSubGroupLayout( m_LeftLayout, 15, m_BodyLayout.GetRemainY() );
     m_BodyLayout.AddX( 15 );
     m_BodyLayout.AddSubGroupLayout( m_MidLayout, 140, m_BodyLayout.GetRemainY() );
+    m_BodyLayout.GetGroup()->resizable( m_MidLayout.GetGroup() );
     m_BodyLayout.AddX( 145 );
     m_BodyLayout.AddSubGroupLayout( m_RightLayout, m_BodyLayout.GetRemainX(), m_BodyLayout.GetRemainY());
 
@@ -62,7 +67,8 @@ ManageGeomScreen::ManageGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 235, 60
     m_LeftLayout.AddButton( m_MoveTopButton, "@2<<" );
     m_LeftLayout.AddYGap();
     m_LeftLayout.AddButton( m_MoveUpButton, "@2<" );
-    m_LeftLayout.AddY( m_LeftLayout.GetRemainY() - 100 - 6 - 5 );
+    m_LeftLayout.AddY( m_LeftLayout.GetRemainY() - 100 - 6 - 5 - m_LeftLayout.GetStdHeight() );
+    m_LeftLayout.AddResizeBox();
     m_LeftLayout.AddButton( m_MoveDownButton, "@2>" );
     m_LeftLayout.AddYGap();
     m_LeftLayout.AddButton( m_MoveBotButton, "@2>>" );
@@ -106,6 +112,8 @@ ManageGeomScreen::ManageGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 235, 60
     m_RightLayout.AddButton( m_ShowSetButton, "Show" );
     m_RightLayout.AddButton( m_NoShowSetButton, "NoShow" );
     m_RightLayout.AddButton( m_SelectSetButton, "Select" );
+
+    m_RightLayout.AddResizeBox();
 
     CreateScreens();
 }
