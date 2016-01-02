@@ -75,6 +75,8 @@ ManageGeomScreen::ManageGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 235, 60
 
     m_GeomBrowser = m_MidLayout.AddFlBrowser( m_MidLayout.GetH() - 5 );
     m_GeomBrowser->callback( staticScreenCB, this );
+    m_GeomBrowser->type( FL_MULTI_BROWSER );
+
 
     m_RightLayout.AddButton( m_DeleteButton, "Delete" );
 
@@ -83,6 +85,8 @@ ManageGeomScreen::ManageGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 235, 60
     m_RightLayout.AddButton( m_CopyButton, "Copy" );
     m_RightLayout.AddButton( m_PasteButton, "Paste" );
     m_RightLayout.AddButton( m_CutButton, "Cut" );
+
+    //TODO: Set shortcuts for copy, paste, and cut
 
     m_RightLayout.AddYGap();
     m_RightLayout.AddDividerBox( "Selection" );
