@@ -618,6 +618,25 @@ void GroupLayout::AddDividerBox( const string& text, int used_w )
     NewLineX();
 }
 
+//==== Create & Init Resize Box  ====//
+void GroupLayout::AddResizeBox( )
+{
+    assert( m_Group && m_Screen );
+
+    //==== Add Divider Box ====//
+    int dw = FitWidth( 0, m_ButtonWidth );
+
+    Fl_Box* flbox = new Fl_Box( m_X, m_Y, dw, m_StdHeight );
+    flbox->box( FL_NO_BOX );
+    m_Group->add( flbox );
+    m_Group->resizable( flbox );
+
+    AddX( dw );
+
+    AddY( m_StdHeight );
+    NewLineX();
+}
+
 //==== Create & Init Text Input  ====//
 void GroupLayout::AddInput( StringInput& text_input, const char* label )
 {
