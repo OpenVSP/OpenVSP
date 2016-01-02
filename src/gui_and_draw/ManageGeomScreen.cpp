@@ -324,7 +324,7 @@ void ManageGeomScreen::LoadActiveGeomOutput()
     }
     else
     {
-        m_GeomTypeChoice.Update( "<multiple>" );
+        m_ActiveGeomInput.Update( "<multiple>" );
     }
 }
 
