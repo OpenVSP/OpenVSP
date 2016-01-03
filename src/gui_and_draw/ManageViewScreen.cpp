@@ -93,8 +93,6 @@ ManageViewScreen::ManageViewScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 44
     m_XRotationValue.Init( "RotationX", "AdjustView", NULL, 0.0, -1.0e12, 1.0e12 );
     m_YRotationValue.Init( "RotationY", "AdjustView", NULL, 0.0, -1.0e12, 1.0e12 );
     m_ZRotationValue.Init( "RotationZ", "AdjustView", NULL, 0.0, -1.0e12, 1.0e12 );
-
-    m_FirstRun = true;
 }
 
 ManageViewScreen::~ManageViewScreen()
@@ -110,16 +108,14 @@ void ManageViewScreen::Show()
     {
         VSPGUI::VspGlWindow * glwin = main->GetGLWindow();
 
-        //Boolean hack to save the default opengl size
-        if ( m_FirstRun )
-        {
-            m_OrigWidth = glwin->w();
-            m_OrigHeight = glwin->h();
-            m_FirstRun = false;
-        }
-
         m_ViewportSizeXValue.Set( glwin->w() );
         m_ViewportSizeYValue.Set( glwin->h() );
+
+        //===== Set current COR =====//
+        glm::vec3 currentCOR = glwin->getCOR();
+        m_CORXValue.Set( currentCOR.x );
+        m_CORYValue.Set( currentCOR.y );
+        m_CORZValue.Set( currentCOR.z );
 
         m_ZoomValue.Set( glwin->getRelativeZoomValue() );
         m_Zoom.Update( m_ZoomValue.GetID() );
@@ -297,8 +293,14 @@ void ManageViewScreen::GuiDeviceCallBack( GuiDevice* device )
     //===== Trigger Buttons =====//
     if ( device == &m_SetDefaultViewportSize )
     {
-        m_ViewportSizeXValue.Set( m_OrigWidth );
-        m_ViewportSizeYValue.Set( m_OrigHeight );
+        MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
+        if( main )
+        {
+            VSPGUI::VspGlWindow * glwin = main->GetGLWindow();
+
+            m_ViewportSizeXValue.Set( glwin->getGraphicEngine()->getDisplay()->getDefaultGlWindowWidth( ) );
+            m_ViewportSizeYValue.Set( glwin->getGraphicEngine()->getDisplay()->getDefaultGlWindowHeight( ) );
+        }
     }
     else if ( device == &m_PickLookAtBtn )
     {

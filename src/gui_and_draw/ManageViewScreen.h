@@ -102,10 +102,6 @@ protected:
     int windowDX;
     int windowDY;
 
-    int m_OrigWidth;
-    int m_OrigHeight;
-    bool m_FirstRun;
-
     IntParm m_ViewportSizeXValue;
     IntParm m_ViewportSizeYValue;
 

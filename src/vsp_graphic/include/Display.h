@@ -59,6 +59,22 @@ public:
     void setDefaultScreenSize( int width, int height );
 
     /*!
+     * Retrieve default OpenGL screen width.
+     */
+    int getDefaultGlWindowWidth( )
+    {
+        return _origWidth;
+    }
+
+    /*!
+     * Retrieve default OpenGL screen height.
+     */
+    int getDefaultGlWindowHeight( )
+    {
+        return _origHeight;
+    }
+
+    /*!
      * Retrieve Screen Size Ratio
      */
     static float getScreenSizeDiffRatio();
