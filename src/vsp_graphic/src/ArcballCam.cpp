@@ -1,8 +1,8 @@
 #include "ArcballCam.h"
 #define GLM_FORCE_RADIANS
-#include "glm/ext.hpp"
 
 #include <iostream>
+#include <cmath>
 
 #define TOLERANCE 0.00001
 #define R_SENSITIVITY 1.0f  // Rotation Sensitivity
@@ -22,6 +22,9 @@ ArcballCam::ArcballCam() : Camera()
     _radius = _vHeight < _vWidth ? _vHeight / 2.0f : _vWidth / 2.0f;
 
     _prevLB = _prevMB = _prevRB = _prevAltLB = glm::vec2( 0xffffffff );
+
+    _oldRadian = 0.0;
+    _oldZoomValue = 0.0;
 
     camInfo initSave;
     initSave.empty = true;
@@ -150,8 +153,60 @@ void ArcballCam::rotate( int px, int py, int cx, int cy )
         _globalQuat = _multiplyQuats( _toQuat( rotAxis, angle ), _globalQuat );
     }
 
+    //===== Set modelview matrix =====//
     _rMat = _toMatrix( _globalQuat );
     _modelviewMatrix = _tMat * _viewMatrix * _rMat * _cMat;
+}
+
+void ArcballCam::rotateSphere( float angleX, float angleY, float angleZ )
+{
+//    resetView();
+
+    //===== NOTE: This rotates about the camera axis, not the global axis. =====//
+    //===== Order Y * X * Z =====//
+    _rMat = glm::transpose( glm::yawPitchRoll( angleY, angleX, angleZ ) );
+
+    //===== _rMat will change modelviewMatrix =====//
+    _globalQuat = _matrixToQuat( _rMat );
+
+    _modelviewMatrix = _tMat * _viewMatrix * _rMat * _cMat;
+}
+
+glm::vec3 ArcballCam::getRotationEulerAngles()
+{
+    //===== Getting Euler Values in YXZ Order =====//
+    float x, y, z;
+
+    if ( _rMat[1][2] > 0.998 || _rMat[1][2] < -0.998 )
+    {
+        x = atan2( -_rMat[2][0], _rMat[0][0] );
+        z = 0;
+    }
+    else
+    {
+        x = atan2( _rMat[0][2], _rMat[2][2] );
+        z = atan2( _rMat[1][0], _rMat[1][1] );
+    }
+
+    y = - asin( _rMat[1][2] );
+
+    return glm::vec3( y, x, z );
+}
+
+glm::vec4 ArcballCam::_matrixToQuat ( glm::mat4 mat )
+{
+    glm::vec4 q;
+
+    q.w = sqrt( fmax( 0, 1 + mat[0][0] + mat[1][1] + mat[2][2] ) ) / 2.0;
+    q.x = sqrt( fmax( 0, 1 + mat[0][0] - mat[1][1] - mat[2][2] ) ) / 2.0;
+    q.y = sqrt( fmax( 0, 1 - mat[0][0] + mat[1][1] - mat[2][2] ) ) / 2.0;
+    q.z = sqrt( fmax( 0, 1 - mat[0][0] - mat[1][1] + mat[2][2] ) ) / 2.0;
+
+    q.x *= signbit( q.x * ( mat[2][1] - mat[1][2] ) ) ? -1.0 : 1.0;
+    q.y *= signbit( q.y * ( mat[0][2] - mat[2][0] ) ) ? -1.0 : 1.0;
+    q.z *= signbit( q.z * ( mat[1][0] - mat[0][1] ) ) ? -1.0 : 1.0;
+
+    return q;
 }
 
 void ArcballCam::pan( int px, int py, int cx, int cy )
@@ -173,6 +228,22 @@ void ArcballCam::pan( float x, float y )
 {
     _pan.x += x;
     _pan.y += y;
+
+    _tMat = glm::translate( glm::vec3(_pan.x, _pan.y, 0.0f) );
+
+    _modelviewMatrix = _tMat * _viewMatrix * _rMat * _cMat;
+}
+
+glm::vec2 ArcballCam::getPanValues()
+{
+    glm::vec2 panValues( _pan.x, _pan.y );
+    return panValues;
+}
+
+void ArcballCam::relativePan( float x, float y )
+{
+    _pan.x = x;
+    _pan.y = y;
 
     _tMat = glm::translate( glm::vec3(_pan.x, _pan.y, 0.0f) );
 
@@ -241,10 +312,43 @@ void ArcballCam::zoom( float zoomvalue )
     _calculateProjection();
 }
 
+void ArcballCam::relativeZoom( float zoomvalue )
+{
+    _oZoom = zoomvalue;
+    _pZoom = zoomvalue;
+
+    if( _oZoom < 0.000001f )
+    {
+        _oZoom = 0.000001f;
+    }
+
+    if( _pZoom < 10.f )
+    {
+        _pZoom = 10.f;
+    }
+
+    if( _pZoom > 360.f )
+    {
+        _pZoom = 360.f;
+    }
+
+    _calculateProjection();
+}
+
+float ArcballCam::getRelativeZoomValue()
+{
+    return _oZoom;
+}
+
 void ArcballCam::setCOR( float x, float y, float z )
 {
     _cMat = glm::translate( glm::vec3( x, y, z ) );
     _modelviewMatrix = _tMat * _viewMatrix * _rMat * _cMat;
+}
+
+glm::vec3 ArcballCam::getCOR()
+{
+    return glm::vec3( _cMat[3][0], _cMat[3][1], _cMat[3][2] );
 }
 
 glm::vec3 ArcballCam::_toSphere3D( int x, int y )
@@ -345,6 +449,18 @@ glm::vec4 ArcballCam::_multiplyQuats( glm::vec4 quat1, glm::vec4 quat2 )
     result = _normalizeQuat( result );
 
     return result;
+}
+
+glm::quat ArcballCam::_multiplyGLMQuats( glm::quat quat1, glm::quat quat2 )
+{
+    glm::quat retQuat;
+
+    retQuat.w = quat1.w * quat2.w - quat1.x * quat2.x - quat1.y * quat2.y - quat1.z * quat2.z;
+    retQuat.x = quat1.w * quat2.x + quat1.x * quat2.w + quat1.y * quat2.z - quat1.z * quat2.y;
+    retQuat.y = quat1.w * quat2.y - quat1.x * quat2.z + quat1.y * quat2.w + quat1.z * quat2.x;
+    retQuat.z = quat1.w * quat2.z + quat1.x * quat2.y - quat1.y * quat2.x + quat1.z * quat2.w;
+
+    return retQuat;
 }
 
 glm::vec2 ArcballCam::_toNDC2f( float x, float y )

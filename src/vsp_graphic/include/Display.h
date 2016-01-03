@@ -4,6 +4,7 @@
 #include "Common.h"
 
 #include <vector>
+#include "glm/glm.hpp"
 
 namespace VSPGraphic
 {
@@ -128,6 +129,19 @@ public:
     virtual void rotate( int px, int py, int cx, int cy );
 
     /*!
+    * Rotate the scene about a sphere angle and rotation axis.
+    *
+    * angle - Angle to rotate about an axis.
+    * rotAxis - Axis of rotation
+    */
+    virtual void rotateSphere( float angleX, float angleY, float angleZ );
+
+    /*!
+     * Retrieves euler angles, yitch as x, yaw as y, roll as z.
+     */
+    virtual glm::vec3 getRotationEulerAngles();
+
+    /*!
     * Pan the scene.
     *
     * px, py - Previous xy mouse location.
@@ -142,6 +156,21 @@ public:
     * y - number of units to pan on y-axis.
     */
     virtual void pan( float x, float y );
+
+    /*!
+     * Retrieves the pan values as a glm vec2
+     * x - Distance in x direction.
+     * y - Distance in y direction.
+     */
+    virtual glm::vec2 getPanValues();
+
+    /*!
+     * Pan the scene relative to a point.
+     *
+     * x - number of units to pan on the x-axis relative to a point.
+     * y - number of units to pan on the y-axis relative to a point.
+     */
+    virtual void relativePan( float x, float y );
 
     /*!
     * Zoom in or out scene.
@@ -160,10 +189,34 @@ public:
     virtual void zoom( float zoomvalue );
 
     /*!
+    * Get Zoom Value.
+    */
+    virtual float getZoomValue();
+
+    /*!
+     * Get Relative Zoom Value
+     */
+    virtual float getRelativeZoomValue();
+
+    /*!
+    * Zoom in or out scene relative to a point in world space.
+    *
+    * zoomvalue - amount to zoom in or out.  Positive zooms out,
+    * negative zooms in.
+    */
+    virtual void relativeZoom( float zoomvalue );
+
+    /*!
     * Set Center of Rotation.
     * x, y, z - location in world space.
     */
     virtual void setCOR( float x, float y, float z );
+
+    /*!
+      * Retrieves the center of rotation values.
+      * @return point of rotation.
+      */
+    virtual glm::vec3 getCOR();
 
 protected:
     std::vector<LayoutMgr *> _layoutList;

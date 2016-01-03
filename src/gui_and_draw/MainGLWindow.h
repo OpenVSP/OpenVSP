@@ -61,6 +61,28 @@ public:
     }
 
 public:
+
+    /*!
+     * Sets the Center of Rotation for the Camera.
+     *
+     * @param center center of rotation.
+     */
+    virtual void setCOR( glm::vec3 center );
+
+    /*!
+      * Retrieves the center of rotation values.
+      * @return point of rotation.
+      */
+    virtual glm::vec3 getCOR();
+
+    /*!
+     * Pan current selected camera.
+     *
+     * x - Direction on x-axis. Positive moves right, negative moves left.
+     * y - Direction on y-axis. Positive moves up, negative moves left.
+     */
+    virtual void relativePan( float x, float y );
+
     /*!
     * Pan current selected camera.
     *
@@ -71,12 +93,51 @@ public:
     virtual void pan( int dx, int dy, bool precisionOn = false );
 
     /*!
+     * Retrieves the pan values as a glm vec2
+     * x - Distance in x direction.
+     * y - Distance in y direction.
+     */
+    virtual glm::vec2 getPanValues();
+
+    /*!
     * Zoom current selected camera.
     *
     * delta - Zoom in or out.  Positive zooms out, negtive zooms in.
     * precisionOn - If true, zoom slowly.
     */
     virtual void zoom( int delta, bool precisionOn = false );
+
+    /*!
+    * Zoom current selected camera relative to a point in world space.
+    *
+    * delta - Zoom in or out.  Positive zooms out, negtive zooms in.
+    */
+    virtual void relativeZoom( float zoomValue );
+
+    /*!
+    * Get Zoom Value.
+    */
+    virtual float getZoomValue();
+
+    /*!
+     * Get Relative Zoom Value
+     */
+    virtual float getRelativeZoomValue();
+
+    /*!
+    * Rotate about an axis
+    *
+    * angle - Angle about rotation.
+    * rotAxis - Axis of rotation.
+    */
+    virtual void rotateSphere( float angleX, float angleY, float angleZ );
+
+    /*!
+     * Retrieves euler angles, yitch as x, yaw as y, roll as z.
+     */
+    virtual glm::vec3 getRotationEulerAngles();
+
+    virtual void resetView();
 
 // Override Fl_Gl_Window Functions.
 public:

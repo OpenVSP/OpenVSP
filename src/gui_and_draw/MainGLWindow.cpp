@@ -35,6 +35,7 @@
 #include "ClippingScreen.h"
 #include "Clipping.h"
 #include "BndBox.h"
+#include "ManageViewScreen.h"
 
 #define PRECISION_PAN_SPEED 0.005f
 #define PAN_SPEED 0.025f
@@ -90,6 +91,11 @@ void VspGlWindow::setView( VSPGraphic::Common::VSPenum type )
     m_GEngine->getDisplay()->changeView( type );
 }
 
+void VspGlWindow::relativePan( float x, float y )
+{
+    m_GEngine->getDisplay()->relativePan( x, y );
+}
+
 void VspGlWindow::pan( int dx, int dy, bool precisionOn )
 {
     float x = 0;
@@ -122,6 +128,22 @@ void VspGlWindow::pan( int dx, int dy, bool precisionOn )
     m_GEngine->getDisplay()->pan( x, y );
 }
 
+void VspGlWindow::setCOR( glm::vec3 center )
+{
+    m_GEngine->getDisplay()->setCOR( -center.x, -center.y, -center.z );
+    m_GEngine->getDisplay()->center();
+}
+
+glm::vec3 VspGlWindow::getCOR()
+{
+    return m_GEngine->getDisplay()->getCOR() * -1.0f;
+}
+
+glm::vec2 VspGlWindow::getPanValues()
+{
+    return m_GEngine->getDisplay()->getPanValues();
+}
+
 void VspGlWindow::zoom( int delta, bool precisionOn )
 {
     float zoomvalue = 0;
@@ -140,6 +162,36 @@ void VspGlWindow::zoom( int delta, bool precisionOn )
     m_GEngine->getDisplay()->zoom( zoomvalue );
 }
 
+void VspGlWindow::relativeZoom( float zoomValue )
+{
+    m_GEngine->getDisplay()->relativeZoom( zoomValue );
+}
+
+float VspGlWindow::getZoomValue()
+{
+    return m_GEngine->getDisplay()->getZoomValue();
+}
+
+float VspGlWindow::getRelativeZoomValue()
+{
+    return m_GEngine->getDisplay()->getRelativeZoomValue();
+}
+
+void VspGlWindow::rotateSphere( float angleX, float angleY, float angleZ )
+{
+    m_GEngine->getDisplay()->rotateSphere( angleX, angleY, angleZ );
+}
+
+glm::vec3 VspGlWindow::getRotationEulerAngles()
+{
+    return m_GEngine->getDisplay()->getRotationEulerAngles();
+}
+
+void VspGlWindow::resetView()
+{
+    m_GEngine->getDisplay()->resetView();
+}
+
 void VspGlWindow::draw()
 {
     // Initialize Glew when context is created.
@@ -148,6 +200,14 @@ void VspGlWindow::draw()
     if ( !valid() )
     {
         m_GEngine->getDisplay()->resize( w(), h() );
+
+        ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
+        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+
+        if ( viewScreen->IsShown() )
+        {
+            viewScreen->UpdateViewport();
+        }
     }
 
     m_GEngine->draw( m_mouse_x, m_mouse_y );
@@ -1424,6 +1484,11 @@ void VspGlWindow::OnDrag( int x, int y )
         if( m_prevLBRB != glm::vec2( 0xFFFFFFFF ) )
         {
             display->zoom( ( int )m_prevLBRB.x, ( int )m_prevLBRB.y, x, y );
+
+            ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
+            ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+
+            viewScreen->UpdateZoom();
         }
         m_prevLBRB = glm::vec2( x, y );
     }
@@ -1466,6 +1531,11 @@ void VspGlWindow::OnDrag( int x, int y )
             if( m_prevCtrlLB != glm::vec2( 0xFFFFFFFF ) )
             {
                 display->zoom( ( int )m_prevCtrlLB.x, ( int )m_prevCtrlLB.y, x, y );
+
+                ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
+                ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+
+                viewScreen->UpdateZoom();
             }
             m_prevCtrlLB = glm::vec2( x, y );
         }
@@ -1474,6 +1544,11 @@ void VspGlWindow::OnDrag( int x, int y )
             if( m_prevMetaLB != glm::vec2( 0xFFFFFFFF ) )
             {
                 display->zoom( ( int )m_prevMetaLB.x, ( int )m_prevMetaLB.y, x, y );
+
+                ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
+                ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+
+                viewScreen->UpdateZoom();
             }
             m_prevMetaLB = glm::vec2( x, y );
         }
@@ -1483,6 +1558,11 @@ void VspGlWindow::OnDrag( int x, int y )
             if( m_prevLB != glm::vec2( 0xFFFFFFFF ) )
             {
                 display->rotate( ( int )m_prevLB.x, ( int )m_prevLB.y, x, y );
+
+                ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
+                ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+
+                viewScreen->UpdateRotations();
             }
             m_prevLB = glm::vec2( x, y );
         }
@@ -1493,6 +1573,11 @@ void VspGlWindow::OnDrag( int x, int y )
         if( m_prevMB != glm::vec2( 0xFFFFFFFF ) )
         {
             display->zoom( ( int )m_prevMB.x, ( int )m_prevMB.y, x, y );
+
+            ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
+            ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+
+            viewScreen->UpdateZoom();
         }
         m_prevMB = glm::vec2( x, y );
     }
@@ -1502,6 +1587,11 @@ void VspGlWindow::OnDrag( int x, int y )
         if( m_prevRB != glm::vec2( 0xFFFFFFFF ) )
         {
             display->pan( ( int )m_prevRB.x, ( int )m_prevRB.y, x, y );
+
+            ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
+            ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+
+            viewScreen->UpdatePan();
         }
         m_prevRB = glm::vec2( x, y );
     }
@@ -1554,6 +1644,9 @@ void VspGlWindow::OnKeyup( int x, int y )
 {
     VSPGraphic::Display * display = m_GEngine->getDisplay();
 
+    ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
+    ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+
     switch( Fl::event_key() )
     {
     case 0x43:
@@ -1566,6 +1659,11 @@ void VspGlWindow::OnKeyup( int x, int y )
             BndBox bbox = vPtr->GetBndBox();
             vec3d p = bbox.GetCenter();
             m_GEngine->getDisplay()->setCOR( -p.x(), -p.y(), -p.z() );
+
+            if ( viewScreen->IsShown() )
+            {
+                viewScreen->UpdateCOR();
+            }
         }
         display->center();
         break;
@@ -1579,6 +1677,12 @@ void VspGlWindow::OnKeyup( int x, int y )
         else
         {
             display->load( 0 );
+
+            //===== Update Adjust View Screen with new values =====//
+            if ( viewScreen->IsShown() )
+            {
+                viewScreen->UpdateAll();
+            }
         }
         break;
 
@@ -1590,6 +1694,12 @@ void VspGlWindow::OnKeyup( int x, int y )
         else
         {
             display->load( 1 );
+
+            //===== Update Adjust View Screen with new values =====//
+            if ( viewScreen->IsShown() )
+            {
+                viewScreen->UpdateAll();
+            }
         }
         break;
 
@@ -1601,6 +1711,12 @@ void VspGlWindow::OnKeyup( int x, int y )
         else
         {
             display->load( 2 );
+
+            //===== Update Adjust View Screen with new values =====//
+            if ( viewScreen->IsShown() )
+            {
+                viewScreen->UpdateAll();
+            }
         }
         break;
 
@@ -1612,6 +1728,12 @@ void VspGlWindow::OnKeyup( int x, int y )
         else
         {
             display->load( 3 );
+
+            //===== Update Adjust View Screen with new values =====//
+            if ( viewScreen->IsShown() )
+            {
+                viewScreen->UpdateAll();
+            }
         }
         break;
 
@@ -1843,6 +1965,15 @@ void VspGlWindow::_sendFeedback( Selectable * selected )
                 glm::vec3 placement = entity->getVertexVec(pnt->getIndex());
 
                 m_GEngine->getDisplay()->setCOR( -placement.x, -placement.y, -placement.z );
+
+                ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
+                ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+
+                if ( viewScreen->IsShown() )
+                {
+                    viewScreen->UpdateCOR();
+                }
+
                 m_GEngine->getDisplay()->center();
 
                 // This is a dummy call to let corScreen know the job is done.

@@ -70,6 +70,8 @@ public:
         m_MainUI->ReturnToAPI->hide();
     }
 
+    void ResizeWindow( int width, int height );
+
 protected:
     MainWinUI* m_MainUI;
     //VspGlWindow* m_GlWin;

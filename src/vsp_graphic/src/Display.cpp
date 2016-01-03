@@ -145,6 +145,25 @@ void Display::rotate( int px, int py, int cx, int cy )
     }
 }
 
+void Display::rotateSphere( float angleX, float angleY, float angleZ )
+{
+    Camera * camera = getCamera();
+    if( camera )
+    {
+        camera->rotateSphere( angleX, angleY, angleZ );
+    }
+}
+
+glm::vec3 Display::getRotationEulerAngles()
+{
+    Camera * camera = getCamera();
+    if( camera )
+    {
+        return camera->getRotationEulerAngles();
+    }
+    return glm::vec3();
+}
+
 void Display::pan( int px, int py, int cx, int cy )
 {
     Camera * camera = getCamera();
@@ -160,6 +179,25 @@ void Display::pan( float x, float y )
     if( camera )
     {
         camera->pan( x, y );
+    }
+}
+
+glm::vec2 Display::getPanValues()
+{
+    Camera * camera = getCamera();
+    if( camera )
+    {
+        return camera->getPanValues();
+    }
+    return glm::vec2();
+}
+
+void Display::relativePan( float x, float y )
+{
+    Camera * camera = getCamera();
+    if ( camera )
+    {
+        camera->relativePan( x, y );
     }
 }
 
@@ -181,6 +219,36 @@ void Display::zoom( float zoomvalue )
     }
 }
 
+float Display::getZoomValue()
+{
+    Camera * camera = getCamera();
+    if( camera )
+    {
+        return camera->getZoomValue();
+    }
+    return 0.0;
+}
+
+float Display::getRelativeZoomValue()
+{
+    Camera * camera = getCamera();
+    if( camera )
+    {
+        return camera->getRelativeZoomValue();
+    }
+    return 0.0;
+}
+
+
+void Display::relativeZoom( float zoomvalue )
+{
+    Camera * camera = getCamera();
+    if( camera )
+    {
+        camera->relativeZoom( zoomvalue );
+    }
+}
+
 void Display::setCOR( float x, float y, float z )
 {
     Camera * camera = getCamera();
@@ -188,6 +256,16 @@ void Display::setCOR( float x, float y, float z )
     {
         camera->setCOR( x, y, z );
     }
+}
+
+glm::vec3 Display::getCOR()
+{
+    Camera * camera = getCamera();
+    if( camera )
+    {
+        return camera->getCOR();
+    }
+    return glm::vec3();
 }
 
 void Display::selectViewport( int x, int y )

@@ -8,6 +8,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "MainVSPScreen.h"
+#include "ManageViewScreen.h"
 
 #include "ScreenMgr.h"
 #include "VehicleMgr.h"
@@ -152,6 +153,13 @@ void MainVSPScreen::Show()
 void MainVSPScreen::Hide()
 {
 }
+
+//==== Resize the main window ====//
+void MainVSPScreen::ResizeWindow( int width, int height )
+{
+    m_FLTK_Window->resize( m_FLTK_Window->x_root(), m_FLTK_Window->y_root(), width, height );
+}
+
 //==== Update Main VSP Screen ====//
 bool MainVSPScreen::Update()
 {

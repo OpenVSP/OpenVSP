@@ -57,6 +57,12 @@ public:
     * Get Zoom Value.
     */
     virtual float getZoomValue();
+
+    /*!
+     * Get Relative Zoom Value
+     */
+    virtual float getRelativeZoomValue() = 0;
+
     /*!
     * Change view type.
     * Acceptable values are VSP_CAM_TOP, VSP_CAM_FRONT, VSP_CAM_LEFT, VSP_CAM_LEFT_ISO,
@@ -96,6 +102,16 @@ public:
     virtual void rotate( int px, int py, int cx, int cy ) = 0;
 
     /*!
+    * Rotate the scene given 3d sphere coordinates.
+    *
+    * px, py - previous xy mouse location.
+    * cx, cy - current xy mouse location.
+    */
+    virtual void rotateSphere( float angleX, float angleY, float angleZ ) = 0;
+
+    virtual glm::vec3 getRotationEulerAngles() = 0;
+
+    /*!
     * Panning the scene.
     *
     * px, py - previous xy mouse location.
@@ -109,6 +125,20 @@ public:
     * x, y - how much distance to pan.
     */
     virtual void pan( float x, float y ) = 0;
+
+    /*!
+     * Retrieves the pan values as a glm vec2
+     * x - Distance in x direction.
+     * y - Distance in y direction.
+     */
+    virtual glm::vec2 getPanValues() = 0;
+
+    /*!
+    * Panning the scene relative to a point in world space.
+    *
+    * x, y - how much distance to pan.
+    */
+    virtual void relativePan( float x, float y ) = 0;
 
     /*!
     * Zoom in or out.
@@ -127,6 +157,14 @@ public:
     virtual void zoom( float zoomvalue ) = 0;
 
     /*!
+    * Zoom in or out relative to a point in world space.
+    *
+    * zoomvalue - amount to zoom in or out.  Positive zooms out,
+    * negative zooms in.
+    */
+    virtual void relativeZoom( float zoomvalue ) = 0;
+
+    /*!
     * Move Geometry to center.
     */
     virtual void center() = 0;
@@ -135,6 +173,12 @@ public:
     * Set Center of Rotation.  XYZ are in world space.
     */
     virtual void setCOR( float x, float y, float z ) = 0;
+
+    /*!
+     * Retrieves the center of rotation values.
+     * @return point of rotation.
+     */
+    virtual glm::vec3 getCOR() = 0;
 
 protected:
     /*
