@@ -37,6 +37,12 @@ public:
     */
     virtual ~VspGlWindow();
 
+// Compatibility for FLTK before 1.3.4
+#if FL_API_VERSION < 10304
+    int pixel_w() { return w(); }
+    int pixel_h() { return h(); }
+#endif
+
 public:
     /*!
     * Set Window Layout.

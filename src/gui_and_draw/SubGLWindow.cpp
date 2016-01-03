@@ -45,7 +45,11 @@ VspSubGlWindow::VspSubGlWindow( int x, int y, int w , int h, DrawObj::ScreenEnum
 
     m_Initialized = false;
 
+#ifdef __APPLE__
+#if FL_API_VERSION >= 10304
     Fl::use_high_res_GL( true );
+#endif
+#endif
 }
 VspSubGlWindow::~VspSubGlWindow()
 {
