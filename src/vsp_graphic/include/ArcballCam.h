@@ -7,6 +7,13 @@
 #include "glm/glm.hpp"
 #include "glm/ext.hpp"
 
+// Return int with sign of passed val.
+template < typename T >
+int sgn( T val )
+{
+    return ( T( 0 ) < val ) - ( val < T( 0 ) );
+}
+
 namespace VSPGraphic
 {
 /*!

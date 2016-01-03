@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <cmath>
+#include <algorithm>
 
 #define TOLERANCE 0.00001
 #define R_SENSITIVITY 1.0f  // Rotation Sensitivity
@@ -197,14 +198,14 @@ glm::vec4 ArcballCam::_matrixToQuat ( glm::mat4 mat )
 {
     glm::vec4 q;
 
-    q.w = sqrt( fmax( 0, 1 + mat[0][0] + mat[1][1] + mat[2][2] ) ) / 2.0;
-    q.x = sqrt( fmax( 0, 1 + mat[0][0] - mat[1][1] - mat[2][2] ) ) / 2.0;
-    q.y = sqrt( fmax( 0, 1 - mat[0][0] + mat[1][1] - mat[2][2] ) ) / 2.0;
-    q.z = sqrt( fmax( 0, 1 - mat[0][0] - mat[1][1] + mat[2][2] ) ) / 2.0;
+    q.w = sqrt( std::max( 0.0, 1.0 + mat[0][0] + mat[1][1] + mat[2][2] ) ) / 2.0;
+    q.x = sqrt( std::max( 0.0, 1.0 + mat[0][0] - mat[1][1] - mat[2][2] ) ) / 2.0;
+    q.y = sqrt( std::max( 0.0, 1.0 - mat[0][0] + mat[1][1] - mat[2][2] ) ) / 2.0;
+    q.z = sqrt( std::max( 0.0, 1.0 - mat[0][0] - mat[1][1] + mat[2][2] ) ) / 2.0;
 
-    q.x *= std::signbit( q.x * ( mat[2][1] - mat[1][2] ) ) ? -1.0 : 1.0;
-    q.y *= std::signbit( q.y * ( mat[0][2] - mat[2][0] ) ) ? -1.0 : 1.0;
-    q.z *= std::signbit( q.z * ( mat[1][0] - mat[0][1] ) ) ? -1.0 : 1.0;
+    q.x *= sgn( q.x * ( mat[2][1] - mat[1][2] ) );
+    q.y *= sgn( q.y * ( mat[0][2] - mat[2][0] ) );
+    q.z *= sgn( q.z * ( mat[1][0] - mat[0][1] ) );
 
     return q;
 }
