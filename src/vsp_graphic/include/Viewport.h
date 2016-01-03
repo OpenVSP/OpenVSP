@@ -1,6 +1,7 @@
 #ifndef _VSP_GRAPHIC_VIEWPORT_H
 #define _VSP_GRAPHIC_VIEWPORT_H
 
+#include "OpenGLHeaders.h"
 #include "Common.h"
 #include "glm/glm.hpp"
 
@@ -37,9 +38,15 @@ public:
     */
     virtual void unbind();
     /*!
-    * Resize viewport.
+    * Resize viewport with camera
     */
     virtual void resize( int x, int y, int width, int height );
+
+    /*!
+     * Resize viewport only (not camera)
+     */
+    virtual void resizeViewport( int x, int y, int width, int height, float screenSizeDiffRatio );
+
     /*!
     * Draw border.
     * If selected, draw border in red.
@@ -143,6 +150,8 @@ private:
     bool _showBorders;
     bool _showArrows;
     bool _showGrid;
+
+    float _screenSizeDiffRatio;
 
     Camera* _camera;
     Background * _background;

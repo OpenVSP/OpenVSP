@@ -212,27 +212,7 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
     }
     else if ( m == m_MainUI->ScreenShotMenu )
     {
-        std::string fileName = m_selectFileScreen->FileChooser( "Save Screen?", "*.jpg" );
-
-        if( !fileName.empty() )
-        {
-            std::string::size_type extIndex = fileName.find_last_of( '.' );
-
-            if( extIndex == std::string::npos )
-            {
-                fileName += ".jpg";
-            }
-            else
-            {
-                std::string ext = fileName.substr( extIndex, fileName.size() - extIndex );
-                std::transform( ext.begin(), ext.end(), ext.begin(), ::tolower );
-                if( ext != ".jpg" )
-                {
-                    fileName += ".jpg";
-                }
-            }
-            m_GlWin->getGraphicEngine()->dumpScreenJPEG( fileName );
-        }
+        m_ScreenMgr->ShowScreen( ScreenMgr::VSP_SCREENSHOT_SCREEN );
     }
     else if ( m == m_MainUI->TopViewMenu )
     {

@@ -73,6 +73,8 @@ VspGlWindow::VspGlWindow( int x, int y, int w, int h, ScreenMgr * mgr, DrawObj::
     m_prevLBRB = glm::vec2( 0xFFFFFFFF );
 
     m_ScreenMgr = mgr;
+
+    m_GEngine->getDisplay()->setDefaultScreenSize( w, h );
 }
 VspGlWindow::~VspGlWindow()
 {
@@ -208,6 +210,9 @@ void VspGlWindow::draw()
         {
             viewScreen->UpdateViewport();
         }
+
+        //Make sure the current width and height update
+        m_ScreenMgr->GetScreen( ScreenMgr::VSP_SCREENSHOT_SCREEN )->Update();
     }
 
     m_GEngine->draw( m_mouse_x, m_mouse_y );

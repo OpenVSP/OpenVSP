@@ -4,6 +4,8 @@
 #include "ColorBuffer.h"
 #include "ElementBuffer.h"
 
+#include "Display.h"
+
 namespace VSPGraphic
 {
 Marker::Marker() : Renderable()
@@ -71,7 +73,7 @@ void Marker::_draw_Points( float r, float g, float b, float a, float size )
     }
     else
     {
-        glLineWidth( size );
+        glLineWidth( size * Display::getScreenSizeDiffRatio() );
     }
 
     if( eBufferEnabled )
@@ -109,11 +111,11 @@ void Marker::_draw_Lines( float r, float g, float b, float a, float width )
     glColor4f( r, g, b, a );
     if( width == 0.f )
     {
-        glLineWidth( _getLineWidth() );
+        glLineWidth( _getLineWidth() * Display::getScreenSizeDiffRatio() );
     }
     else
     {
-        glLineWidth( width );
+        glLineWidth( width * Display::getScreenSizeDiffRatio() );
     }
 
     if( eBufferEnabled )

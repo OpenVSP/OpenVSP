@@ -54,6 +54,21 @@ public:
     void resize( int width, int height );
 
     /*!
+     * Saves the Default Screen size of OpenGL. Called once from MainGLWindow.cpp
+     */
+    void setDefaultScreenSize( int width, int height );
+
+    /*!
+     * Retrieve Screen Size Ratio
+     */
+    static float getScreenSizeDiffRatio();
+
+    /*!
+     * Resizing for screenshot
+     */
+    void resizeScreenshot( int width, int height );
+
+    /*!
     * Select a Viewport base on the index of its order and current selected
     * viewportMgr.
     *
@@ -223,6 +238,8 @@ protected:
 
 private:
     LayoutMgr * _currLayout;
+    int _origWidth;
+    int _origHeight;
 };
 }
 #endif

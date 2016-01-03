@@ -9,10 +9,14 @@
 
 namespace VSPGraphic
 {
+static float _screenSizeDiffRatio;
+
 Display::Display()
 {
     _layoutList.push_back( new LayoutMgr( 1, 1 ) );
     _currLayout = _layoutList[0];
+
+    _screenSizeDiffRatio = 1.0;
 }
 Display::~Display()
 {
@@ -47,6 +51,24 @@ void Display::resize( int width, int height )
     for( int i = 0; i < ( int )_layoutList.size(); i++ )
     {
         _layoutList[i]->resize( width, height );
+    }
+}
+
+void Display::setDefaultScreenSize( int width, int height )
+{
+    _origWidth = width;
+    _origHeight = height;
+}
+
+void Display::resizeScreenshot( int width, int height )
+{
+    assert( width > 0 && height > 0 );
+
+    _screenSizeDiffRatio = ((float) width ) / ((float) _origWidth );
+
+    for( int i = 0; i < ( int )_layoutList.size(); i++ )
+    {
+        _layoutList[i]->resizeScreenshot( width, height, _screenSizeDiffRatio );
     }
 }
 
@@ -271,5 +293,11 @@ glm::vec3 Display::getCOR()
 void Display::selectViewport( int x, int y )
 {
     _currLayout->selectViewport( x, y );
+}
+
+
+float Display::getScreenSizeDiffRatio()
+{
+    return _screenSizeDiffRatio;
 }
 }

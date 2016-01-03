@@ -10,6 +10,8 @@
 #include "ColorBuffer.h"
 #include "ElementBuffer.h"
 
+#include "Display.h"
+
 namespace VSPGraphic
 {
 Entity::Entity() : Renderable()
@@ -216,11 +218,11 @@ void Entity::_draw_Wire( float r, float g, float b, float a, float lineWidth )
     // If linewidth is not set, set it to default width.
     if( lineWidth == 0.f )
     {
-        glLineWidth( _getLineWidth() );
+        glLineWidth( _getLineWidth() * Display::getScreenSizeDiffRatio() );
     }
     else
     {
-        glLineWidth( lineWidth );
+        glLineWidth( lineWidth * Display::getScreenSizeDiffRatio() );
     }
 
     if( eBufferEnabled )

@@ -30,6 +30,8 @@ Viewport::Viewport( int x, int y, int width, int height )
     _camera = new ArcballCam();
     _camera->resize( _x, _y, _vWidth, _vHeight );
 
+    _screenSizeDiffRatio = 1.0;
+
     _textMgr = new TextMgr();
 
     // can't initialize here because no context is created.
@@ -47,6 +49,17 @@ Viewport::~Viewport()
     {
         delete _background;
     }
+}
+
+void Viewport::resizeViewport( int x, int y, int width, int height, float screenSizeDiffRatio )
+{
+    _x = x;
+    _y = y;
+    _vWidth = width;
+    _vHeight = height;
+    _screenSizeDiffRatio = screenSizeDiffRatio;
+
+    //Don't update camera....
 }
 
 void Viewport::resize( int x, int y, int width, int height )
@@ -113,7 +126,7 @@ void Viewport::drawBorder( bool selected )
     float offsetH = BORDER_OFFSET * ( float )( _vHeight > _vWidth ? ( float )_vWidth / _vHeight : 1.0f );
     float offsetW = BORDER_OFFSET * ( float )( _vWidth > _vHeight ? ( float )_vHeight / _vWidth : 1.0f );
 
-    glLineWidth( BORDER_LINEWIDTH );
+    glLineWidth( BORDER_LINEWIDTH * _screenSizeDiffRatio );
     glBegin( GL_LINE_LOOP );
     glVertex2f( -1 + offsetW, 1 - offsetH );
     glVertex2f( 1 - offsetW, 1 - offsetH );
@@ -162,7 +175,7 @@ void Viewport::drawXYZArrows()
     glMultMatrixf( &modelviewMatrix[0][0] );
 
     // Draw Axis.
-    glLineWidth( 1.5f );
+    glLineWidth( 1.5f * _screenSizeDiffRatio );
     glClear( GL_DEPTH_BUFFER_BIT );
 
     glBegin( GL_LINES );
@@ -247,7 +260,7 @@ void Viewport::drawGridOverlay()
     glLoadIdentity();
 
     glColor4f( 0.8f, 0.8f, 0.8f, 1.0f );
-    glLineWidth( 0.3f );
+    glLineWidth( 0.3f * _screenSizeDiffRatio);
 
     glBegin( GL_LINES );
     for ( float i = -5.0f; i <= 5.0f; i += 0.5f )
@@ -353,14 +366,14 @@ void Viewport::drawRectangle( int startx, int starty, int x, int y )
     glLoadIdentity();
 
     glColor4f( 1.0f, 0.0f, 0.0f, 1.0f );
-    glLineWidth( 1.0f );
+    glLineWidth( 1.0f * _screenSizeDiffRatio );
 
     float sstartx = 2.0f*(float)startx/(float)_vWidth - 1.0f;
     float sstarty = 2.0f*(float)starty/(float)_vHeight - 1.0f;
     float sx = 2.0f*(float)x/(float)_vWidth - 1.0f;
     float sy = 2.0f*(float)y/(float)_vHeight - 1.0f;
 
-    glLineWidth( BORDER_LINEWIDTH );
+    glLineWidth( BORDER_LINEWIDTH * _screenSizeDiffRatio );
     glBegin( GL_LINE_LOOP );
     glVertex2f( sstartx , sstarty );
     glVertex2f( sx , sstarty );

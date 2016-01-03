@@ -51,6 +51,7 @@ public:
            VSP_PARM_LINK_SCREEN,
            VSP_PARM_SCREEN,
            VSP_PSLICE_SCREEN,
+           VSP_SCREENSHOT_SCREEN,
            VSP_SET_EDITOR_SCREEN,
            VSP_STEP_OPTIONS_SCREEN,
            VSP_STL_OPTIONS_SCREEN,

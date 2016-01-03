@@ -63,6 +63,7 @@ PSliceScreen.cpp
 PtCloudScreen.cpp
 ScreenBase.cpp
 ScreenMgr.cpp
+ScreenshotScreen.cpp
 SelectFileScreen.cpp
 SetEditorScreen.cpp
 StackScreen.cpp
@@ -113,6 +114,7 @@ PSliceScreen.h
 PtCloudScreen.h
 ScreenBase.h
 ScreenMgr.h
+ScreenshotScreen.h
 SelectFileScreen.h
 SetEditorScreen.h
 StackScreen.h

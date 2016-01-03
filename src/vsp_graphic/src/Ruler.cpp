@@ -3,6 +3,7 @@
 #include "Common.h"
 #include "OpenGLHeaders.h"
 #include "glm/ext.hpp"
+#include "Display.h"
 
 #include <vector>
 
@@ -90,7 +91,7 @@ void Ruler::_draw()
     char str[256];
 
     glColor3f(1.0, 0.5, 0.0);
-    glLineWidth(3.0f);
+    glLineWidth(3.0f * Display::getScreenSizeDiffRatio() );
     glPointSize(12);
 
     // Last Stage.

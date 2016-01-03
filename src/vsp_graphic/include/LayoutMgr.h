@@ -44,6 +44,11 @@ public:
     */
     virtual void resize( int width, int height );
 
+    /*!
+     * Resizing for screenshots only
+     */
+    virtual void resizeScreenshot( int width, int height, float screenSizeDiffRatio );
+
     /*
     * Select a Viewport base on the index of its order.
     *
@@ -128,6 +133,8 @@ private:
     int _startx, _starty;
 
     std::vector<Common::VSPenum> _vOrder;
+
+    float _screenSizeDiffRatio;
 };
 }
 #endif

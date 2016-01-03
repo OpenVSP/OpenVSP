@@ -18,6 +18,7 @@ LayoutMgr::LayoutMgr( int row, int column )
     _column = column;
 
     _sWidth = _sHeight = 1;
+    _screenSizeDiffRatio = 1.0;
 
     _startx = _starty = -1;
 
@@ -68,6 +69,32 @@ void LayoutMgr::resize( int width, int height )
         for( int j = 0; j < _column; j++ )
         {
             _viewportList[i * _column + j]->resize( x, y, ( int )( width * ratioW ), ( int )( height * ratioH ) );
+            x += ( int )( width * ratioW );
+        }
+        y = ( int )( y - height * ratioH );
+        x = 0;
+    }
+}
+
+void LayoutMgr::resizeScreenshot( int width, int height, float screenSizeDiffRatio )
+{
+    assert( width > 0 && height > 0 );
+
+    _sWidth = width;
+    _sHeight = height;
+    _screenSizeDiffRatio = screenSizeDiffRatio;
+
+    float ratioW = 1.0f / _column;
+    float ratioH = 1.0f / _row;
+
+    int x = 0;
+    int y = ( int )( height - height * ratioH );
+
+    for( int i = 0; i < _row; i++ )
+    {
+        for( int j = 0; j < _column; j++ )
+        {
+            _viewportList[i * _column + j]->resizeViewport( x, y, ( int )( width * ratioW ), ( int )( height * ratioH ), screenSizeDiffRatio );
             x += ( int )( width * ratioW );
         }
         y = ( int )( y - height * ratioH );
