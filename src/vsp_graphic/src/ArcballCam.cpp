@@ -202,9 +202,9 @@ glm::vec4 ArcballCam::_matrixToQuat ( glm::mat4 mat )
     q.y = sqrt( fmax( 0, 1 - mat[0][0] + mat[1][1] - mat[2][2] ) ) / 2.0;
     q.z = sqrt( fmax( 0, 1 - mat[0][0] - mat[1][1] + mat[2][2] ) ) / 2.0;
 
-    q.x *= signbit( q.x * ( mat[2][1] - mat[1][2] ) ) ? -1.0 : 1.0;
-    q.y *= signbit( q.y * ( mat[0][2] - mat[2][0] ) ) ? -1.0 : 1.0;
-    q.z *= signbit( q.z * ( mat[1][0] - mat[0][1] ) ) ? -1.0 : 1.0;
+    q.x *= std::signbit( q.x * ( mat[2][1] - mat[1][2] ) ) ? -1.0 : 1.0;
+    q.y *= std::signbit( q.y * ( mat[0][2] - mat[2][0] ) ) ? -1.0 : 1.0;
+    q.z *= std::signbit( q.z * ( mat[1][0] - mat[0][1] ) ) ? -1.0 : 1.0;
 
     return q;
 }
