@@ -84,19 +84,11 @@ ScreenshotScreen::ScreenshotScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 270, 25
     m_SelectRatio.GetFlButton()->value( 1 );
 
     MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
-    if( main )
-    {
-        VSPGUI::VspGlWindow * glwin = main->GetGLWindow();
-        m_NewRatioValue.Init("Ratio", "Screenshot", NULL, 1.0, 0.0, 1.0e12);
-        m_NewWidthValue.Init("Width", "Screenshot", NULL, glwin->w(), 0.0, 1.0e12);
-        m_NewHeightValue.Init("Height", "Screenshot", NULL, glwin->h(), 0.0, 1.0e12);
-    }
-    else
-    {
-        m_NewRatioValue.Init("Ratio", "Screenshot", NULL, 1.0, 0.0, 1.0e12);
-        m_NewWidthValue.Init("Width", "Screenshot", NULL, 1.0, 0.0, 1.0e12);
-        m_NewHeightValue.Init("Height", "Screenshot", NULL, 1.0, 0.0, 1.0e12);
-    }
+
+    m_NewRatioValue.Init("Ratio", "Screenshot", NULL, 1.0, 0.0, 1.0e12);
+    m_NewWidthValue.Init("Width", "Screenshot", NULL, 1.0, 0.0, 1.0e12);
+    m_NewHeightValue.Init("Height", "Screenshot", NULL, 1.0, 0.0, 1.0e12);
+
     m_NewWidth.SetRange( 10.0 );
     m_NewHeight.SetRange( 10.0 );
 
@@ -145,8 +137,8 @@ bool ScreenshotScreen::Update()
     VSPGUI::VspGlWindow * glwin = main->GetGLWindow();
 
     //==== Update Current Width and Height ====//
-    m_CurrentWidth.Update( std::to_string( glwin->w() ) );
-    m_CurrentHeight.Update( std::to_string( glwin->h() ) );
+    m_CurrentWidth.Update( std::to_string( glwin->pixel_w() ) );
+    m_CurrentHeight.Update( std::to_string( glwin->pixel_h() ) );
 
     //==== First Update Width/Height/Ratio ====//
     m_NewRatio.Update( m_NewRatioValue.GetID() );
@@ -155,18 +147,18 @@ bool ScreenshotScreen::Update()
 
     if ( m_SelectRatio.GetFlButton()->value() )
     {
-        m_NewWidthValue.Set( glwin->w() * m_NewRatioValue.Get() );
-        m_NewHeightValue.Set( glwin->h() * m_NewRatioValue.Get() );
+        m_NewWidthValue.Set( glwin->pixel_w() * m_NewRatioValue.Get() );
+        m_NewHeightValue.Set( glwin->pixel_h() * m_NewRatioValue.Get() );
     }
     else if ( m_SelectWidth.GetFlButton()->value() )
     {
-        m_NewRatioValue.Set( ( (float) m_NewWidthValue.Get() ) / ( (float) glwin->w() ) );
-        m_NewHeightValue.Set( glwin->h() * m_NewRatioValue.Get() );
+        m_NewRatioValue.Set( ( (float) m_NewWidthValue.Get() ) / ( (float) glwin->pixel_w() ) );
+        m_NewHeightValue.Set( glwin->pixel_h() * m_NewRatioValue.Get() );
     }
     else
     {
-        m_NewRatioValue.Set( ( (float) m_NewHeightValue.Get() ) / ( (float) glwin->h() ) );
-        m_NewWidthValue.Set( glwin->w() * m_NewRatioValue.Get() );
+        m_NewRatioValue.Set( ( (float) m_NewHeightValue.Get() ) / ( (float) glwin->pixel_h() ) );
+        m_NewWidthValue.Set( glwin->pixel_w() * m_NewRatioValue.Get() );
     }
 
     //==== Second Update Width/Height/Ratio ====//
@@ -243,8 +235,8 @@ void ScreenshotScreen::GuiDeviceCallBack( GuiDevice* device )
     else if ( device == &m_SetToCurrentSize )
     {
         m_NewRatioValue.Set( 1.0 );
-        m_NewWidthValue.Set( glwin->w() );
-        m_NewHeightValue.Set( glwin->h() );
+        m_NewWidthValue.Set( glwin->pixel_w() );
+        m_NewHeightValue.Set( glwin->pixel_h() );
     }
     else if ( device == &m_CaptureJPEG )
     {
