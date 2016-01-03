@@ -303,6 +303,17 @@ public:
         return area( t1, t2, t3 );
     }
 
+    virtual TNode* GetTriNode( int i )
+    {
+        if ( i == 0 )
+            return m_N0;
+        if ( i == 1 )
+            return m_N1;
+        if ( i == 2 )
+            return m_N2;
+        return NULL;
+    }
+
     virtual void ComputeCosAngles( double* ang0, double* ang1, double* ang2 );
 
     virtual void SplitEdges( TNode* n01, TNode* n12, TNode* n20 );
