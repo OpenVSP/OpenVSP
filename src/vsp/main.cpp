@@ -46,22 +46,6 @@
 using namespace vsp;
 using namespace std;
 
-bool RunUnitTests()
-{
-    Test::TextOutput output( Test::TextOutput::Verbose );
-
-    //==== Util Test Suite ====//
-    UtilTestSuite uts;
-    uts.run( output );
-
-    //==== Geom Core Test Suite ====//
-    GeomCoreTestSuite gcts;
-    gcts.run( output );
-
-
-    return true;
-}
-
 bool ExtractVersionNumber( string & str, int* major, int* minor, int* change )
 {
     *major = *minor = *change = -1;
@@ -241,11 +225,6 @@ void ThreadCheckVersionNumber()
 
 int main( int argc, char** argv )
 {
-
-//#ifndef NDEBUG
-//  RunUnitTests();
-//#endif
-
     //==== Get Vehicle Ptr ====//
     Vehicle* vPtr = VehicleMgr.GetVehicle();
 
