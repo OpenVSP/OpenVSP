@@ -99,8 +99,8 @@ protected:
 
     TriggerButton m_ResetCamera;
 
-    int windowDX;
-    int windowDY;
+    int m_windowDX;
+    int m_windowDY;
 
     IntParm m_ViewportSizeXValue;
     IntParm m_ViewportSizeYValue;

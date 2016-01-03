@@ -109,8 +109,10 @@ void ManageViewScreen::Show()
     {
         VSPGUI::VspGlWindow * glwin = main->GetGLWindow();
 
-        m_ViewportSizeXValue.Set( glwin->w() );
-        m_ViewportSizeYValue.Set( glwin->h() );
+        m_ViewportSizeXValue.Set( glwin->pixel_w() );
+        m_ViewportSizeYValue.Set( glwin->pixel_h() );
+
+        double factor = glwin->pixel_w()/glwin->w();
 
         //===== Set current COR =====//
         glm::vec3 currentCOR = glwin->getCOR();
@@ -127,8 +129,8 @@ void ManageViewScreen::Show()
 
         UpdateRotations();
 
-        windowDX = main->GetFlWindow()->w() - m_ViewportSizeXValue.Get();
-        windowDY = main->GetFlWindow()->h() - m_ViewportSizeYValue.Get();
+        m_windowDX = main->GetFlWindow()->w() - m_ViewportSizeXValue.Get()/factor;
+        m_windowDY = main->GetFlWindow()->h() - m_ViewportSizeYValue.Get()/factor;
     }
 
     m_FLTK_Window->show();
@@ -150,14 +152,16 @@ bool ManageViewScreen::Update()
 
     VSPGUI::VspGlWindow * glwin = main->GetGLWindow();
 
+    double factor = glwin->pixel_w()/glwin->w();
+
     // Added padding to screen
-    if (m_ViewportSizeXValue.Get() > Fl::w() - 10)
+    if (m_ViewportSizeXValue.Get()/factor > Fl::w() - 10)
     {
-        m_ViewportSizeXValue.Set( Fl::w() - 10 );
+        m_ViewportSizeXValue.Set( (Fl::w() - 10) * factor );
     }
-    if (m_ViewportSizeYValue.Get() > Fl::h() - 10)
+    if (m_ViewportSizeYValue.Get()/factor > Fl::h() - 10)
     {
-        m_ViewportSizeYValue.Set( Fl::h() - 10 );
+        m_ViewportSizeYValue.Set( (Fl::h() - 10) * factor );
     }
 
     m_ViewportSizeX.Update( m_ViewportSizeXValue.GetID() );
@@ -180,7 +184,7 @@ bool ManageViewScreen::Update()
     //===== Do glwin functions here after the updates of the sliders =====//
 
     // Resize Viewport and window to your maximum screen size. Achieves any ratio.
-    main->ResizeWindow( m_ViewportSizeXValue.Get() + windowDX, m_ViewportSizeYValue.Get() + windowDY );
+    main->ResizeWindow( m_ViewportSizeXValue.Get()/factor + m_windowDX, m_ViewportSizeYValue.Get()/factor + m_windowDY );
 
     //===== Update Center of Rotation =====//
     glwin->setCOR( glm::vec3( m_CORXValue.Get(), m_CORYValue.Get(), m_CORZValue.Get() ) );
@@ -203,8 +207,8 @@ void ManageViewScreen::UpdateViewport()
     MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
     if( main )
     {
-        m_ViewportSizeXValue.Set( main->GetGLWindow()->w() );
-        m_ViewportSizeYValue.Set( main->GetGLWindow()->h() );
+        m_ViewportSizeXValue.Set( main->GetGLWindow()->pixel_w() );
+        m_ViewportSizeYValue.Set( main->GetGLWindow()->pixel_h() );
 
         m_ViewportSizeX.Update( m_ViewportSizeXValue.GetID() );
         m_ViewportSizeY.Update( m_ViewportSizeYValue.GetID() );
