@@ -859,11 +859,13 @@ void Geom::Update( bool fullupdate )
     m_LateUpdateFlag = false;
 
     Scale();
-    GeomXForm::Update();
 
     UpdateSets();
 
     UpdateSurf();       // Must be implemented by subclass.
+
+    GeomXForm::Update();
+
     UpdateEndCaps();
 
     if ( fullupdate )
