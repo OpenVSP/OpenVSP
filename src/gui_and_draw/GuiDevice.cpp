@@ -479,9 +479,9 @@ SliderAdjRange::SliderAdjRange( ) : Slider()
 
 //==== Init ====//
 void SliderAdjRange::Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
-                           Fl_Button* rbutton, double range )
+                           Fl_Button* rbutton, double range, bool log_slider )
 {
-    Slider::Init( screen, slider, range );
+    Slider::Init( screen, slider, range, log_slider );
 
     ClearAllWidgets();
     AddWidget( lbutton );
@@ -702,7 +702,8 @@ void SliderInput::Update( const string& parm_id )
 
 //==== Init ====//
 void SliderAdjRangeInput::Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
-                                Fl_Button* rbutton, Fl_Input* input, double range, const char* format, VspButton* parm_button )
+                                Fl_Button* rbutton, Fl_Input* input, double range, const char* format,
+                                VspButton* parm_button, bool log_slider )
 {
     m_Type = GDEV_SLIDER_ADJ_RANGE_INPUT;
     m_ParmButtonFlag = false;
@@ -712,7 +713,7 @@ void SliderAdjRangeInput::Init( VspScreen* screen, Fl_Slider* slider, Fl_Button*
         m_ParmButton.Init( screen, parm_button );
     }
 
-    m_Slider.Init( screen, slider, lbutton, rbutton, range );
+    m_Slider.Init( screen, slider, lbutton, rbutton, range, log_slider );
     m_Input.Init( screen, input, format );
 
     ClearAllWidgets();

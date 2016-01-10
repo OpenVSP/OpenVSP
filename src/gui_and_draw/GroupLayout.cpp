@@ -190,7 +190,7 @@ VspButton* GroupLayout::AddParmButton( const char* label )
 
 //==== Create & Init Gui Slider Adjustable Range  ====//
 void GroupLayout::AddSlider( SliderAdjRangeInput& slid_adj_input,
-                             const char* label, double range, const char* format )
+                             const char* label, double range, const char* format, bool log_slider )
 {
     assert( m_Group && m_Screen );
 
@@ -235,7 +235,7 @@ void GroupLayout::AddSlider( SliderAdjRangeInput& slid_adj_input,
     AddY( m_StdHeight );
     NewLineX();
 
-    slid_adj_input.Init( m_Screen, slider, lbutton, rbutton, input, range, format, button );
+    slid_adj_input.Init( m_Screen, slider, lbutton, rbutton, input, range, format, button, log_slider );
 
     if( strcmp( label, "AUTO_UPDATE" ) == 0 || strcmp( label, "" ) == 0 )
     {

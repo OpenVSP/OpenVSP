@@ -120,7 +120,7 @@ public:
     void AddDividerBox( const string& text, int used_w = 0 );
     void AddResizeBox( );
     void AddSlider(  SliderAdjRangeInput& slid_adj_input, const char* label,
-                     double range, const char* format );
+                     double range, const char* format, bool log_slider = false );
     void AddSlider(  SliderAdjRange2Input& slid_adj_input, const char* label,
                      double range, const char* format );
     void AddSlider(  FractParmSlider& slid_adj_input, const char* label,

@@ -238,7 +238,7 @@ public:
     SliderAdjRange();
 
     virtual void Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
-                       Fl_Button* rbutton, double range );
+                       Fl_Button* rbutton, double range, bool log_slider = false );
 
     virtual void DeviceCB( Fl_Widget* w );
 
@@ -498,7 +498,7 @@ class SliderAdjRangeInput : public GuiDevice
 public:
     virtual void Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
                        Fl_Button* rbutton, Fl_Input* input, double range, const char* format,
-                       VspButton* parm_button = NULL );
+                       VspButton* parm_button = NULL, bool log_slider = false );
 
     virtual void Update( const string& parm_id );
     virtual void SetRange( double range )
