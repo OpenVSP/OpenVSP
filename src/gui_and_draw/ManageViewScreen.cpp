@@ -18,6 +18,26 @@
 
 ManageViewScreen::ManageViewScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 445, "Adjust View" )
 {
+    //===== Initialize Values for Sliders =====//
+
+    m_ViewportSizeXValue.Init( "ViewportX", "AdjustView", NULL, 0.0, 0, 1.0e12 );
+    m_ViewportSizeYValue.Init( "ViewportY", "AdjustView", NULL, 0.0, 0, 1.0e12 );
+
+    m_CORXValue.Init( "CORX", "AdjustView", NULL, 0.0, -1.0e12, 1.0e12 );
+    m_CORYValue.Init( "CORY", "AdjustView", NULL, 0.0, -1.0e12, 1.0e12 );
+    m_CORZValue.Init( "CORZ", "AdjustView", NULL, 0.0, -1.0e12, 1.0e12 );
+
+    m_PanXPosValue.Init( "PanX", "AdjustView", NULL, 0.0, -1.0e12, 1.0e12 );
+    m_PanYPosValue.Init( "PanY", "AdjustView", NULL, 0.0, -1.0e12, 1.0e12 );
+
+    m_ZoomValue.Init( "Zoom", "AdjustView", NULL, 1e-3, 1e-6, 10 );
+
+    //===== Attempt at Euler Angle Rotation =====//
+    m_XRotationValue.Init( "RotationX", "AdjustView", NULL, 0.0, -1.0e12, 1.0e12 );
+    m_YRotationValue.Init( "RotationY", "AdjustView", NULL, 0.0, -1.0e12, 1.0e12 );
+    m_ZRotationValue.Init( "RotationZ", "AdjustView", NULL, 0.0, -1.0e12, 1.0e12 );
+
+
     m_FLTK_Window->callback( staticCloseCB, this );
     m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
 
@@ -75,25 +95,6 @@ ManageViewScreen::ManageViewScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 44
     m_BorderLayout.AddYGap();
 
     m_BorderLayout.AddButton( m_ResetCamera, "Reset Camera" );
-
-    //===== Initialize Values for Sliders =====//
-
-    m_ViewportSizeXValue.Init( "ViewportX", "AdjustView", NULL, 0.0, 0, 1.0e12 );
-    m_ViewportSizeYValue.Init( "ViewportY", "AdjustView", NULL, 0.0, 0, 1.0e12 );
-
-    m_CORXValue.Init( "CORX", "AdjustView", NULL, 0.0, -1.0e12, 1.0e12 );
-    m_CORYValue.Init( "CORY", "AdjustView", NULL, 0.0, -1.0e12, 1.0e12 );
-    m_CORZValue.Init( "CORZ", "AdjustView", NULL, 0.0, -1.0e12, 1.0e12 );
-
-    m_PanXPosValue.Init( "PanX", "AdjustView", NULL, 0.0, -1.0e12, 1.0e12 );
-    m_PanYPosValue.Init( "PanY", "AdjustView", NULL, 0.0, -1.0e12, 1.0e12 );
-
-    m_ZoomValue.Init( "Zoom", "AdjustView", NULL, 1e-2, 1e-6, 1e12 );
-
-    //===== Attempt at Euler Angle Rotation =====//
-    m_XRotationValue.Init( "RotationX", "AdjustView", NULL, 0.0, -1.0e12, 1.0e12 );
-    m_YRotationValue.Init( "RotationY", "AdjustView", NULL, 0.0, -1.0e12, 1.0e12 );
-    m_ZRotationValue.Init( "RotationZ", "AdjustView", NULL, 0.0, -1.0e12, 1.0e12 );
 }
 
 ManageViewScreen::~ManageViewScreen()
