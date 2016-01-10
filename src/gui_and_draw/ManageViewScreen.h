@@ -90,7 +90,7 @@ protected:
 
     SliderAdjRangeInput m_PanXPos;
     SliderAdjRangeInput m_PanYPos;
-    LogSliderAdjRangeInput m_Zoom;
+    SliderAdjRangeInput m_Zoom;
 
     //===== Attempt at Euler Angle Rotation =====//
     SliderAdjRangeInput m_XRotation;

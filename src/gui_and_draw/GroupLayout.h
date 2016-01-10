@@ -119,8 +119,6 @@ public:
     //==== Add FLTK Widgets and Initalize GUI Devices ====//
     void AddDividerBox( const string& text, int used_w = 0 );
     void AddResizeBox( );
-    void AddSlider(  LogSliderAdjRangeInput& slid_adj_input, const char* label,
-                     double range, const char* format );
     void AddSlider(  SliderAdjRangeInput& slid_adj_input, const char* label,
                      double range, const char* format );
     void AddSlider(  SliderAdjRange2Input& slid_adj_input, const char* label,

@@ -187,60 +187,6 @@ VspButton* GroupLayout::AddParmButton( const char* label )
     return button;
 }
 
-//==== Create & Init Gui Log Slider Adjustable Range  ====//
-void GroupLayout::AddSlider( LogSliderAdjRangeInput& slid_adj_input,
-                             const char* label, double range, const char* format )
-{
-    assert( m_Group && m_Screen );
-
-    int init_used_w = m_X - m_Group->x();
-
-    //==== Parm Button ====//
-    VspButton* button = AddParmButton( label );
-
-    //==== Range Button ====//
-    Fl_Repeat_Button* lbutton = new Fl_Repeat_Button( m_X, m_Y, m_RangeButtonWidth, m_StdHeight, "<" );
-    lbutton->box( FL_THIN_UP_BOX );
-    lbutton->labelcolor( ( Fl_Color )4 );
-    m_Group->add( lbutton );
-    AddX( m_RangeButtonWidth );
-
-    //==== Slider ====//
-    int sw = FitWidth( m_ButtonWidth + 2 * m_RangeButtonWidth + m_InputWidth + init_used_w, m_SliderWidth );
-    Fl_Slider* slider = new Fl_Slider( m_X, m_Y, sw, m_StdHeight );
-    slider->type( 5 );
-    slider->box( FL_THIN_DOWN_BOX );
-    slider->color( FL_BACKGROUND2_COLOR );
-    slider->selection_color( FL_SELECTION_COLOR );
-    m_Group->add( slider );
-    AddX( sw );
-
-    //==== Range Button ====//
-    Fl_Repeat_Button* rbutton = new Fl_Repeat_Button( m_X, m_Y,  m_RangeButtonWidth, m_StdHeight, "<" );
-    rbutton->box( FL_THIN_UP_BOX );
-    rbutton->labelcolor( ( Fl_Color )4 );
-    m_Group->add( rbutton );
-    AddX( m_RangeButtonWidth );
-
-    //==== Input ====//
-    Fl_Float_Input* input = new Fl_Float_Input( m_X, m_Y, m_InputWidth, m_StdHeight );
-    input->type( 1 );
-    input->box( FL_THIN_DOWN_BOX );
-    input->textsize( 12 );
-    input->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE );
-    m_Group->add( input );
-    AddX( m_InputWidth );
-
-    AddY( m_StdHeight );
-    NewLineX();
-
-    slid_adj_input.Init( m_Screen, slider, lbutton, rbutton, input, range, format, button );
-
-    if( strcmp( label, "AUTO_UPDATE" ) == 0 || strcmp( label, "" ) == 0 )
-    {
-        slid_adj_input.SetButtonNameUpdate( true );
-    }
-}
 
 //==== Create & Init Gui Slider Adjustable Range  ====//
 void GroupLayout::AddSlider( SliderAdjRangeInput& slid_adj_input,

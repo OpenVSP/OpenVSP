@@ -433,67 +433,6 @@ void Slider::DeviceCB( Fl_Widget* w )
     m_Screen->GuiDeviceCallBack( this );
 }
 
-
-//=====================================================================//
-//======================        Log Slider        =====================//
-//=====================================================================//
-
-//==== Constructor ====//
-LogSlider::LogSlider() : Slider()
-{
-    m_Type = GDEV_LOG_SLIDER;
-}
-
-////==== Set Slider Value and Limits =====//
-//void LogSlider::SetValAndLimits( Parm* parm_ptr )
-//{
-//    double m_Tol = 0.000001;
-//    assert( m_Slider );
-//    double new_val = parm_ptr->Get();
-//
-//    printf("m_MinBound: %lf, m_MaxBound: %lf\n", m_MinBound, m_MaxBound );
-//    if ( m_NewParmFlag || new_val < ( m_MinBound - m_Tol ) || new_val > ( m_MaxBound + m_Tol ) )
-//    {
-//        m_MinBound = max( new_val - m_Range, parm_ptr->GetLowerLimit() );
-//        m_MaxBound = min( new_val + m_Range, parm_ptr->GetUpperLimit() );
-//        m_Slider->bounds( log10( m_MinBound ), log10( m_MaxBound ) );
-//    }
-//
-//    if ( CheckValUpdate( new_val ) )
-//    {
-//        m_Slider->value( log10( new_val ) );
-//    }
-//
-//    m_LastVal = new_val;
-//}
-
-//==== CallBack ====//
-void LogSlider::DeviceCB( Fl_Widget* w )
-{
-    //==== Set ParmID And Check For Valid ParmPtr ====//
-    Parm* parm_ptr = SetParmID( m_ParmID );
-    if ( !parm_ptr )
-    {
-        return;
-    }
-    if ( w == m_Slider )
-    {
-        bool drag_flag = false;
-        if ( m_Slider->GetButtonPush() )
-        {
-            m_Slider->SetButtonPush( false );
-        }
-        else
-        {
-            drag_flag = true;
-        }
-        double new_val = pow( 10, m_Slider->value() );
-        parm_ptr->SetFromDevice( new_val, drag_flag );
-    }
-
-    m_Screen->GuiDeviceCallBack( this );
-}
-
 //=====================================================================//
 //================     Slider Adjustable Range       ==================//
 //=====================================================================//
@@ -689,48 +628,42 @@ void SliderAdjRange::MaxButtonCB( Parm* parm_ptr )
     m_Slider->bounds( m_MinBound, m_MaxBound );
 }
 
+
 //=====================================================================//
-//================     Log Slider Adjustable Range       ==============//
+//======================        Log Slider        =====================//
 //=====================================================================//
 
 //==== Constructor ====//
-LogSliderAdjRange::LogSliderAdjRange( ) : LogSlider()
+LogSlider::LogSlider() : Slider()
 {
-    m_Type = GDEV_SLIDER_ADJ_RANGE;
-    m_MinButton = NULL;
-    m_MaxButton = NULL;
-    m_MinStopState = SAR_NO_STOP;
-    m_MaxStopState = SAR_NO_STOP;
-    m_ButtonChangeFract = 0.1;
-    m_Tol = 0.000001;
+    m_Type = GDEV_LOG_SLIDER;
 }
 
-//==== Init ====//
-void LogSliderAdjRange::Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
-                           Fl_Button* rbutton, double range )
+//==== Set Slider Value and Limits =====//
+void LogSlider::SetValAndLimits( Parm* parm_ptr )
 {
-    LogSlider::Init( screen, slider, range );
+    double m_Tol = 0.000001;
+    assert( m_Slider );
+    double new_val = parm_ptr->Get();
 
-    ClearAllWidgets();
-    AddWidget( lbutton );
-    AddWidget( slider, true );
-    AddWidget( rbutton );
+    if ( m_NewParmFlag || new_val < ( m_MinBound - m_Tol ) || new_val > ( m_MaxBound + m_Tol ) )
+    {
+        m_MinBound = max( new_val - m_Range, parm_ptr->GetLowerLimit() );
+        m_MaxBound = min( new_val + m_Range, parm_ptr->GetUpperLimit() );
+        m_Slider->bounds( log10( m_MinBound ), log10( m_MaxBound ) );
+    }
 
-    m_MinStopState = SAR_NO_STOP;
-    m_MaxStopState = SAR_NO_STOP;
+    if ( CheckValUpdate( new_val ) )
+    {
+        m_Slider->value( log10( new_val ) );
+    }
 
-    m_MinButton = lbutton;
-    m_MaxButton = rbutton;
-
-    assert( m_MinButton );
-    assert( m_MaxButton );
-
-    m_MinButton->callback( StaticDeviceCB, this );
-    m_MaxButton->callback( StaticDeviceCB, this );
+    m_LastVal = new_val;
 }
+
 
 //==== CallBack ====//
-void LogSliderAdjRange::DeviceCB( Fl_Widget* w )
+void LogSlider::DeviceCB( Fl_Widget* w )
 {
     //==== Set ParmID And Check For Valid ParmPtr ====//
     Parm* parm_ptr = SetParmID( m_ParmID );
@@ -749,105 +682,11 @@ void LogSliderAdjRange::DeviceCB( Fl_Widget* w )
         {
             drag_flag = true;
         }
-        double new_val = m_Slider->value();
+        double new_val = pow( 10, m_Slider->value() );
         parm_ptr->SetFromDevice( new_val, drag_flag );
-        FindStopState( parm_ptr );
-    }
-    else if ( w == m_MinButton )
-    {
-        MinButtonCB( parm_ptr );
-    }
-    else if ( w == m_MaxButton )
-    {
-        MaxButtonCB( parm_ptr );
     }
 
     m_Screen->GuiDeviceCallBack( this );
-}
-
-//==== Figure Out Stop States =====//
-void LogSliderAdjRange::FindStopState( Parm* parm_ptr )
-{
-    double val = parm_ptr->Get();
-
-    if ( fabs( val - parm_ptr->GetLowerLimit() ) < m_Tol )
-    {
-        m_MinStopState = SAR_ABS_STOP;
-        m_MinButton->label( "|" );
-    }
-    else if ( fabs( val - m_MinBound ) < m_Tol )
-    {
-        m_MinStopState = SAR_STOP;
-        m_MinButton->label( "<" );
-    }
-    else
-    {
-        m_MinStopState = SAR_NO_STOP;
-        m_MinButton->label( ">" );
-    }
-    if ( fabs( val - parm_ptr->GetUpperLimit() ) < m_Tol )
-    {
-        m_MaxStopState = SAR_ABS_STOP;
-        m_MaxButton->label( "|" );
-    }
-    else if ( fabs( val - m_MaxBound ) < m_Tol )
-    {
-        m_MaxStopState = SAR_STOP;
-        m_MaxButton->label( ">" );
-    }
-    else
-    {
-        m_MaxStopState = SAR_NO_STOP;
-        m_MaxButton->label( "<" );
-    }
-}
-
-//==== Min Button - Triggered By User =====//
-void LogSliderAdjRange::MinButtonCB( Parm* parm_ptr )
-{
-    if ( m_MinStopState == SAR_ABS_STOP )
-    {
-        return;
-    }
-
-    if ( m_MinStopState == SAR_STOP )
-    {
-        m_MinBound =  m_MinBound - 0.5 * ( m_MaxBound - m_MinBound );
-        m_Range = m_MaxBound - m_MinBound;
-        parm_ptr->SetFromDevice( m_MinBound );
-    }
-    else
-    {
-        double val = parm_ptr->Get();
-        m_Range *= 0.5;
-        m_MinBound = max( val - m_Range, parm_ptr->GetLowerLimit() );
-        m_MaxBound = min( val + m_Range, parm_ptr->GetUpperLimit() );
-    }
-    m_Slider->bounds( m_MinBound, m_MaxBound );
-}
-
-//==== Max Button - Triggered By User =====//
-void LogSliderAdjRange::MaxButtonCB( Parm* parm_ptr )
-{
-    if ( m_MaxStopState == SAR_ABS_STOP )
-    {
-        return;
-    }
-
-    if ( m_MaxStopState == SAR_STOP )
-    {
-        m_MaxBound =  m_MaxBound + 0.5 * ( m_MaxBound - m_MinBound );
-        m_Range = m_MaxBound - m_MinBound;
-        parm_ptr->SetFromDevice( m_MaxBound );
-    }
-    else
-    {
-        double val = parm_ptr->Get();
-        m_Range *= 0.5;
-        m_MinBound = max( val - m_Range, parm_ptr->GetLowerLimit() );
-        m_MaxBound = min( val + m_Range, parm_ptr->GetUpperLimit() );
-    }
-    m_Slider->bounds( m_MinBound, m_MaxBound );
 }
 
 
@@ -935,44 +774,6 @@ void SliderAdjRangeInput::Init( VspScreen* screen, Fl_Slider* slider, Fl_Button*
 }
 
 void SliderAdjRangeInput::Update( const string& parm_id )
-{
-    m_Slider.Update( parm_id );
-    m_Input.Update( parm_id );
-    if ( m_ParmButtonFlag )
-    {
-        m_ParmButton.Update( parm_id );
-    }
-}
-
-//=====================================================================//
-//===========       Log Slider Adjustable Range Input Combo     =======//
-//=====================================================================//
-
-//==== Init ====//
-void LogSliderAdjRangeInput::Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
-                                Fl_Button* rbutton, Fl_Input* input, double range, const char* format, VspButton* parm_button )
-{
-    m_Type = GDEV_SLIDER_ADJ_RANGE_INPUT;
-    m_ParmButtonFlag = false;
-    if ( parm_button )
-    {
-        m_ParmButtonFlag = true;
-        m_ParmButton.Init( screen, parm_button );
-    }
-
-    m_Slider.Init( screen, slider, lbutton, rbutton, range );
-    m_Input.Init( screen, input, format );
-
-    ClearAllWidgets();
-    AddWidget( parm_button );
-    AddWidget( lbutton );
-    AddWidget( slider, true );
-    AddWidget( rbutton );
-    AddWidget( input );
-
-}
-
-void LogSliderAdjRangeInput::Update( const string& parm_id )
 {
     m_Slider.Update( parm_id );
     m_Input.Update( parm_id );
