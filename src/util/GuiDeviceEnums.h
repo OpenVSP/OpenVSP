@@ -15,7 +15,6 @@
 //  ParmButton      (Parm)          Button with label.
 //  Input           (Parm/IntParm)  Number input.
 //  Slider          (Parm/IntParm)  Normal slider
-//  Log Slider      (Parm/IntParm)  Log10 slider
 //  SliderAdjRange  (Parm/IntParm)  Slider with additional buttons to adjust range
 //  Check Button    (BoolParm)      Toggle type button with check mark
 //  CheckButtonBit  (IntParm)       Check button with val (0 or val)
@@ -45,7 +44,6 @@ enum GDEV
     GDEV_PARM_BUTTON,
     GDEV_INPUT,
     GDEV_SLIDER,
-    GDEV_LOG_SLIDER,
     GDEV_SLIDER_ADJ_RANGE,
     GDEV_CHECK_BUTTON,
     GDEV_CHECK_BUTTON_BIT,

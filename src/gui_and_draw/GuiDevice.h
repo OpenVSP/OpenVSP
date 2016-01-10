@@ -210,7 +210,7 @@ class Slider : public GuiDevice
 {
 public:
     Slider();
-    virtual void Init( VspScreen* screen, Fl_Slider* slider_widget, double range );
+    virtual void Init( VspScreen* screen, Fl_Slider* slider_widget, double range, bool log_slider = false );
     virtual void DeviceCB( Fl_Widget* w );
     virtual void SetRange( double range )
     {
@@ -227,21 +227,9 @@ protected:
     double m_MinBound;
     double m_MaxBound;
 
-};
-
-//==== Log Slider ====//
-class LogSlider : public Slider
-{
-public:
-    LogSlider();
-    virtual void DeviceCB( Fl_Widget* w );
-
-protected:
-
-    virtual void SetValAndLimits( Parm* parm_ptr );
+    bool m_LogSliderFlag;
 
 };
-
 
 //==== Slider Adjustable Range ====//
 class SliderAdjRange : public Slider
@@ -488,7 +476,6 @@ public:
     {
         m_Slider.SetIndex( index );
         m_Input.SetIndex( index );
-        m_LogSlider.SetIndex( index );
         m_ParmButton.SetIndex( index );
     }
     virtual void DeviceCB( Fl_Widget* w )           {}
@@ -499,9 +486,6 @@ protected:
 
     Slider m_Slider;
     Input  m_Input;
-
-    bool m_LogSliderFlag;
-    LogSlider m_LogSlider;
 
     bool m_ParmButtonFlag;
     ParmButton m_ParmButton;

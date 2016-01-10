@@ -434,8 +434,6 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GDEV", "GDEV_SLIDER", GDEV_SLIDER );
     assert( r >= 0 );
-    r = se->RegisterEnumValue( "GDEV", "GDEV_LOG_SLIDER", GDEV_LOG_SLIDER );
-    assert( r >= 0 );
     r = se->RegisterEnumValue( "GDEV", "GDEV_SLIDER_ADJ_RANGE", GDEV_SLIDER_ADJ_RANGE );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GDEV", "GDEV_CHECK_BUTTON", GDEV_CHECK_BUTTON );

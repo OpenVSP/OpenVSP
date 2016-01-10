@@ -359,9 +359,11 @@ Slider::Slider( ) : GuiDevice()
 }
 
 //==== Init ====//
-void Slider::Init( VspScreen* screen,   Fl_Slider* sw, double range )
+void Slider::Init( VspScreen* screen, Fl_Slider* sw, double range, bool log_slider )
 {
     GuiDevice::Init( screen );
+
+    m_LogSliderFlag = log_slider;
 
     //==== Create Vsp Slider and Hide Old One ====//
     m_Slider = new VspSlider( sw->x(), sw->y(), sw->w(), sw->h() );
@@ -387,19 +389,36 @@ void Slider::Init( VspScreen* screen,   Fl_Slider* sw, double range )
 //==== Set Slider Value and Limits =====//
 void Slider::SetValAndLimits( Parm* parm_ptr )
 {
+    double m_Tol = 0.000001;
+
     assert( m_Slider );
     double new_val = parm_ptr->Get();
 
-    if ( m_NewParmFlag || new_val < m_MinBound || new_val > m_MaxBound )
+    if ( m_NewParmFlag || new_val < ( m_MinBound - m_Tol ) || new_val > ( m_MaxBound + m_Tol ) )
     {
         m_MinBound = max( new_val - m_Range, parm_ptr->GetLowerLimit() );
         m_MaxBound = min( new_val + m_Range, parm_ptr->GetUpperLimit() );
-        m_Slider->bounds( m_MinBound, m_MaxBound );
+
+        if ( m_LogSliderFlag )
+        {
+            m_Slider->bounds( log10( m_MinBound ), log10( m_MaxBound ) );
+        }
+        else
+        {
+            m_Slider->bounds( m_MinBound, m_MaxBound );
+        }
     }
 
     if ( CheckValUpdate( new_val ) )
     {
-        m_Slider->value( new_val );
+        if ( m_LogSliderFlag )
+        {
+            m_Slider->value( log10( new_val ) );
+        }
+        else
+        {
+            m_Slider->value( new_val );
+        }
     }
 
     m_LastVal = new_val;
@@ -426,7 +445,16 @@ void Slider::DeviceCB( Fl_Widget* w )
         {
             drag_flag = true;
         }
-        double new_val = m_Slider->value();
+
+        double new_val;
+        if ( m_LogSliderFlag )
+        {
+            new_val = pow( 10, m_Slider->value() );
+           }
+        else
+        {
+            new_val = m_Slider->value();
+        }
         parm_ptr->SetFromDevice( new_val, drag_flag );
     }
 
@@ -628,68 +656,6 @@ void SliderAdjRange::MaxButtonCB( Parm* parm_ptr )
     m_Slider->bounds( m_MinBound, m_MaxBound );
 }
 
-
-//=====================================================================//
-//======================        Log Slider        =====================//
-//=====================================================================//
-
-//==== Constructor ====//
-LogSlider::LogSlider() : Slider()
-{
-    m_Type = GDEV_LOG_SLIDER;
-}
-
-//==== Set Slider Value and Limits =====//
-void LogSlider::SetValAndLimits( Parm* parm_ptr )
-{
-    double m_Tol = 0.000001;
-    assert( m_Slider );
-    double new_val = parm_ptr->Get();
-
-    if ( m_NewParmFlag || new_val < ( m_MinBound - m_Tol ) || new_val > ( m_MaxBound + m_Tol ) )
-    {
-        m_MinBound = max( new_val - m_Range, parm_ptr->GetLowerLimit() );
-        m_MaxBound = min( new_val + m_Range, parm_ptr->GetUpperLimit() );
-        m_Slider->bounds( log10( m_MinBound ), log10( m_MaxBound ) );
-    }
-
-    if ( CheckValUpdate( new_val ) )
-    {
-        m_Slider->value( log10( new_val ) );
-    }
-
-    m_LastVal = new_val;
-}
-
-
-//==== CallBack ====//
-void LogSlider::DeviceCB( Fl_Widget* w )
-{
-    //==== Set ParmID And Check For Valid ParmPtr ====//
-    Parm* parm_ptr = SetParmID( m_ParmID );
-    if ( !parm_ptr )
-    {
-        return;
-    }
-    if ( w == m_Slider )
-    {
-        bool drag_flag = false;
-        if ( m_Slider->GetButtonPush() )
-        {
-            m_Slider->SetButtonPush( false );
-        }
-        else
-        {
-            drag_flag = true;
-        }
-        double new_val = pow( 10, m_Slider->value() );
-        parm_ptr->SetFromDevice( new_val, drag_flag );
-    }
-
-    m_Screen->GuiDeviceCallBack( this );
-}
-
-
 //=====================================================================//
 //=================       Slider Input Combo     ======================//
 //=====================================================================//
@@ -706,15 +672,7 @@ void SliderInput::Init( VspScreen* screen, Fl_Slider* slider, Fl_Input* input,
         m_ParmButton.Init( screen, parm_button );
     }
 
-    m_LogSliderFlag = log_slider;
-    if ( m_LogSliderFlag )
-    {
-        m_LogSlider.Init( screen, slider, range );
-    }
-    else
-    {
-        m_Slider.Init( screen, slider, range );
-    }
+    m_Slider.Init( screen, slider, range, log_slider );
 
     m_Input.Init( screen, input, format );
 
@@ -727,14 +685,7 @@ void SliderInput::Init( VspScreen* screen, Fl_Slider* slider, Fl_Input* input,
 
 void SliderInput::Update( const string& parm_id )
 {
-    if ( m_LogSliderFlag )
-    {
-        m_LogSlider.Update( parm_id );
-    }
-    else
-    {
-        m_Slider.Update( parm_id );
-    }
+    m_Slider.Update( parm_id );
 
     m_Input.Update( parm_id );
 
