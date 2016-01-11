@@ -104,6 +104,7 @@ protected:
     TriggerButton m_SelectAllButton;
     ToggleButton m_PickButton;
     TriggerButton m_ShowButton;
+    TriggerButton m_ShowOnlyButton;
     TriggerButton m_NoShowButton;
 
     TriggerButton m_WireGeomButton;

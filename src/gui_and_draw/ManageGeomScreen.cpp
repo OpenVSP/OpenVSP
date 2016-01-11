@@ -18,7 +18,7 @@ using namespace vsp;
 #include <assert.h>
 
 //==== Constructor ====//
-ManageGeomScreen::ManageGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 235, 605, "Geom Browser" )
+ManageGeomScreen::ManageGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 235, 625, "Geom Browser" )
 {
     m_VehiclePtr = m_ScreenMgr->GetVehiclePtr();
 
@@ -94,6 +94,7 @@ ManageGeomScreen::ManageGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 235, 60
     m_RightLayout.AddDividerBox( "Selection" );
     m_RightLayout.AddButton( m_SelectAllButton, "Sel All" );
     m_RightLayout.AddButton( m_PickButton, "Pick" );
+    m_RightLayout.AddButton( m_ShowOnlyButton, "Show Only" );
     m_RightLayout.AddButton( m_ShowButton, "Show" );
     m_RightLayout.AddButton( m_NoShowButton, "NoShow" );
 
@@ -700,6 +701,11 @@ void ManageGeomScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_ShowButton )
     {
+        NoShowActiveGeoms( false );
+    }
+    else if ( device == &m_ShowOnlyButton )
+    {
+        m_VehiclePtr->NoShowSet( SET_ALL );
         NoShowActiveGeoms( false );
     }
     else if ( device == &m_SelectAllButton )
