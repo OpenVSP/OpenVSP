@@ -584,6 +584,33 @@ void GroupLayout::AddResizeBox( )
     NewLineX();
 }
 
+void GroupLayout::AddLegendEntry( const string& text, Fl_Color c )
+{
+    assert( m_Group && m_Screen );
+
+    Fl_Button* button = new Fl_Button( m_X, m_Y, m_ButtonWidth, m_StdHeight );
+    button->copy_label( text.c_str() );
+    button->box( FL_THIN_UP_BOX );
+    button->labelfont( 1 );
+    button->labelsize( 12 );
+    button->labelcolor( FL_BLACK );
+    m_Group->add( button );
+    AddX( m_ButtonWidth );
+
+    int dw = FitWidth( m_ButtonWidth, m_ButtonWidth );
+
+    Fl_Box* flbox = new Fl_Box( m_X, m_Y, dw, m_StdHeight );
+    flbox->box( FL_FLAT_BOX );
+    flbox->color( c );
+    m_Group->add( flbox );
+    m_Group->resizable( flbox );
+
+    AddX( dw );
+
+    AddY( m_StdHeight );
+    NewLineX();
+}
+
 //==== Create Cartesian Canvas ====//
 Vsp_Canvas* GroupLayout::AddCanvas( int w, int h, double xmin, double xmax, double ymin, double ymax, const char *label, const char *xlabel, const char *ylabel )
 {

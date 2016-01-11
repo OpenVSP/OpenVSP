@@ -124,6 +124,7 @@ public:
     void AddResizeBox( );
 
     Vsp_Canvas* AddCanvas( int w, int h, double xmin, double xmax, double ymin, double ymax, const char *label, const char *xlabel, const char *ylabel );
+    void AddLegendEntry( const string& text, Fl_Color c );
 
     void AddSlider(  SliderAdjRangeInput& slid_adj_input, const char* label,
                      double range, const char* format, int used_w = 0, bool log_slider = false );
