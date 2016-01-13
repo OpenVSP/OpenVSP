@@ -159,7 +159,7 @@ void CfdMeshSettings::ParmChanged( Parm* parm_ptr, int type )
 
     if ( veh )
     {
-        veh->ParmChanged( parm_ptr, Parm::SET );
+        veh->ParmChanged( parm_ptr, type );
     }
 }
 

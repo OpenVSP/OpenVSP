@@ -573,7 +573,7 @@ void MaterialMgrSingleton::ParmChanged( Parm* parm_ptr, int type )
 
     if ( VehicleMgr.GetVehicle() )
     {
-        VehicleMgr.GetVehicle()->ParmChanged( parm_ptr, Parm::SET );
+        VehicleMgr.GetVehicle()->ParmChanged( parm_ptr, type );
     }
 }
 
