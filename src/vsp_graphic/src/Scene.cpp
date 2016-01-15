@@ -14,7 +14,6 @@
 #include "Lighting.h"
 #include "Clipping.h"
 #include "ByteOperationUtil.h"
-#include "XSecEntity.h"
 #include "CfdEntity.h"
 
 #include <assert.h>
@@ -64,10 +63,6 @@ void Scene::createObject(Common::VSPenum objectType, unsigned int * id_out)
 
     case Common::VSP_OBJECT_ENTITY:
         object = new Entity(_lights);
-        break;
-
-    case Common::VSP_OBJECT_XSEC_ENTITY:
-        object = new XSecEntity(_lights);
         break;
 
     case Common::VSP_OBJECT_CFD_ENTITY:

@@ -3,7 +3,7 @@
 #include "VertexBuffer.h"
 #include "ElementBuffer.h"
 #include "ColorBuffer.h"
-#include "XSecEntity.h"
+#include "Entity.h"
 
 namespace VSPGraphic
 {
@@ -23,7 +23,7 @@ void PickableGeom::update()
 void PickableGeom::_predraw()
 {
     // FIXME: Only Cross Section Geometries are selectable for now.
-    if(dynamic_cast<XSecEntity*>(_rSource))
+    if(dynamic_cast<Entity*>(_rSource))
     {
         ElementBuffer * eBuffer = _rSource->getEBuffer();
         VertexBuffer * vBuffer = _rSource->getVBuffer();

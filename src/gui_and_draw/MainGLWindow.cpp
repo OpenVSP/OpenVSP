@@ -17,7 +17,6 @@
 #include "Texture2D.h"
 #include "TextureMgr.h"
 #include "Entity.h"
-#include "XSecEntity.h"
 #include "Ruler.h"
 #include "GraphicEngine.h"
 #include "ScreenMgr.h"
@@ -461,7 +460,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
             // Create new scene object if needed.
             if( id == 0xFFFFFFFF )
             {
-                m_GEngine->getScene()->createObject( Common::VSP_OBJECT_XSEC_ENTITY, &id );
+                m_GEngine->getScene()->createObject( Common::VSP_OBJECT_ENTITY, &id );
 
                 ID idInfo;
                 idInfo.bufferID = id;
@@ -522,7 +521,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
         case DrawObj::VSP_HIDDEN_MESH:
             if( id == 0xFFFFFFFF )
             {
-                m_GEngine->getScene()->createObject( Common::VSP_OBJECT_XSEC_ENTITY, &id );
+                m_GEngine->getScene()->createObject( Common::VSP_OBJECT_ENTITY, &id );
 
                 ID idInfo;
                 idInfo.bufferID = id;
@@ -612,7 +611,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
         case DrawObj::VSP_SHADED_MESH:
             if( id == 0xFFFFFFFF )
             {
-                m_GEngine->getScene()->createObject( Common::VSP_OBJECT_XSEC_ENTITY, &id );
+                m_GEngine->getScene()->createObject( Common::VSP_OBJECT_ENTITY, &id );
 
                 ID idInfo;
                 idInfo.bufferID = id;
@@ -668,7 +667,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
         case DrawObj::VSP_TEXTURED_MESH:
             if( id == 0xFFFFFFFF )
             {
-                m_GEngine->getScene()->createObject( Common::VSP_OBJECT_XSEC_ENTITY, &id );
+                m_GEngine->getScene()->createObject( Common::VSP_OBJECT_ENTITY, &id );
 
                 ID idInfo;
                 idInfo.bufferID = id;
@@ -1282,14 +1281,6 @@ void VspGlWindow::_loadXSecData( Renderable * destObj, DrawObj * drawObj )
     destObj->appendEBuffer( edata.data(), sizeof( unsigned int ) * edata.size() );
     destObj->enableEBuffer( true );
 
-
-    // Update number of xsec and pnts.
-    XSecEntity * xEntity = dynamic_cast<XSecEntity*>(destObj);
-    if(xEntity)
-    {
-        xEntity->setNumXSec(0);
-        xEntity->setNumPnts(0);
-    }
 }
 
 void VspGlWindow::_loadTrisData( Renderable * destObj, DrawObj * drawObj )
@@ -1967,15 +1958,15 @@ void VspGlWindow::_sendFeedback( Selectable * selected )
         SelectedPnt * pnt = dynamic_cast<SelectedPnt*>( selected );
         if( pnt )
         {
-            XSecEntity * xEntity = dynamic_cast<XSecEntity*>(pnt->getSource());
-            if(xEntity)
+            VSPGraphic::Entity * e = dynamic_cast<VSPGraphic::Entity*>(pnt->getSource());
+            if(e)
             {
-                ID * id = _findID( xEntity->getID() );
+                ID * id = _findID( e->getID() );
                 if( id )
                 {
                     int index = id->geomID.find_last_of( '_' );
                     std::string baseId = id->geomID.substr( 0, index );
-                    glm::vec3 placement = xEntity->getVertexVec(pnt->getIndex());
+                    glm::vec3 placement = e->getVertexVec(pnt->getIndex());
                     labelScreen->Set( vec3d( placement.x, placement.y, placement.z ), baseId );
 
                     // Only one selection is needed for label, remove this 'selected' from selection list.
