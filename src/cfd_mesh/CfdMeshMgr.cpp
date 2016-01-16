@@ -4523,24 +4523,16 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
         vec3d rgb = m_TagDO[cnt].ColorWheel( deg );
         rgb.normalize();
 
-        m_TagDO[cnt].m_MaterialInfo.Ambient[0] = (float)rgb.x()/5.0f;
-        m_TagDO[cnt].m_MaterialInfo.Ambient[1] = (float)rgb.y()/5.0f;
-        m_TagDO[cnt].m_MaterialInfo.Ambient[2] = (float)rgb.z()/5.0f;
-        m_TagDO[cnt].m_MaterialInfo.Ambient[3] = (float)1.0f;
-
-        m_TagDO[cnt].m_MaterialInfo.Diffuse[0] = 0.4f + (float)rgb.x()/10.0f;
-        m_TagDO[cnt].m_MaterialInfo.Diffuse[1] = 0.4f + (float)rgb.y()/10.0f;
-        m_TagDO[cnt].m_MaterialInfo.Diffuse[2] = 0.4f + (float)rgb.z()/10.0f;
+        for ( int i = 0; i < 3; i++ )
+        {
+            m_TagDO[cnt].m_MaterialInfo.Ambient[i] = (float)rgb.v[i]/5.0f;
+            m_TagDO[cnt].m_MaterialInfo.Diffuse[i] = 0.4f + (float)rgb.v[i]/10.0f;
+            m_TagDO[cnt].m_MaterialInfo.Specular[i] = 0.04f + 0.7f * (float)rgb.v[i];
+            m_TagDO[cnt].m_MaterialInfo.Emission[i] = (float)rgb.v[i]/20.0f;
+        }
+        m_TagDO[cnt].m_MaterialInfo.Ambient[3] = 1.0f;
         m_TagDO[cnt].m_MaterialInfo.Diffuse[3] = 1.0f;
-
-        m_TagDO[cnt].m_MaterialInfo.Specular[0] = 0.04f + 0.7f * (float)rgb.x();
-        m_TagDO[cnt].m_MaterialInfo.Specular[1] = 0.04f + 0.7f * (float)rgb.y();
-        m_TagDO[cnt].m_MaterialInfo.Specular[2] = 0.04f + 0.7f * (float)rgb.z();
         m_TagDO[cnt].m_MaterialInfo.Specular[3] = 1.0f;
-
-        m_TagDO[cnt].m_MaterialInfo.Emission[0] = (float)rgb.x()/20.0f;
-        m_TagDO[cnt].m_MaterialInfo.Emission[1] = (float)rgb.y()/20.0f;
-        m_TagDO[cnt].m_MaterialInfo.Emission[2] = (float)rgb.z()/20.0f;
         m_TagDO[cnt].m_MaterialInfo.Emission[3] = 1.0f;
 
         m_TagDO[cnt].m_MaterialInfo.Shininess = 32.0f;
