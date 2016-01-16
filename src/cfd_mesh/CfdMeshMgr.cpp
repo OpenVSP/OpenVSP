@@ -4513,29 +4513,58 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
         tag_dobj_map[ mit->second ] = &m_TagDO[cnt];
         sprintf( str, "%s_TAG_%d", GetID().c_str(), cnt );
         m_TagDO[cnt].m_GeomID = string( str );
+
         m_TagDO[cnt].m_Type = DrawObj::VSP_SHADED_TRIS;
-        m_TagDO[cnt].m_Visible = GetCfdSettingsPtr()->m_ColorTagsFlag.Get();
-
-        // Color sequence -- go around color wheel ncstep times with slight
-        // offset from ncgrp basic colors.
-        // Note, (cnt/ncgrp) uses integer division resulting in floor.
-        double deg = ((cnt % ncgrp) * ncstep + (cnt / ncgrp)) * nctodeg;
-        vec3d rgb = m_TagDO[cnt].ColorWheel( deg );
-        rgb.normalize();
-
-        for ( int i = 0; i < 3; i++ )
+        m_TagDO[cnt].m_Visible = false;
+        if ( GetCfdSettingsPtr()->m_DrawMeshFlag.Get() ||
+             GetCfdSettingsPtr()->m_ColorTagsFlag.Get() )   // At least mesh or tags are visible.
         {
-            m_TagDO[cnt].m_MaterialInfo.Ambient[i] = (float)rgb.v[i]/5.0f;
-            m_TagDO[cnt].m_MaterialInfo.Diffuse[i] = 0.4f + (float)rgb.v[i]/10.0f;
-            m_TagDO[cnt].m_MaterialInfo.Specular[i] = 0.04f + 0.7f * (float)rgb.v[i];
-            m_TagDO[cnt].m_MaterialInfo.Emission[i] = (float)rgb.v[i]/20.0f;
-        }
-        m_TagDO[cnt].m_MaterialInfo.Ambient[3] = 1.0f;
-        m_TagDO[cnt].m_MaterialInfo.Diffuse[3] = 1.0f;
-        m_TagDO[cnt].m_MaterialInfo.Specular[3] = 1.0f;
-        m_TagDO[cnt].m_MaterialInfo.Emission[3] = 1.0f;
+            m_TagDO[cnt].m_Visible = true;
 
-        m_TagDO[cnt].m_MaterialInfo.Shininess = 32.0f;
+            if ( GetCfdSettingsPtr()->m_DrawMeshFlag.Get() &&
+                 GetCfdSettingsPtr()->m_ColorTagsFlag.Get() ) // Both are visible.
+            {
+                m_TagDO[cnt].m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
+                m_TagDO[cnt].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
+            }
+            else if ( GetCfdSettingsPtr()->m_DrawMeshFlag.Get() ) // Mesh only
+            {
+                m_TagDO[cnt].m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
+                m_TagDO[cnt].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
+            }
+            else // Tags only
+            {
+                m_TagDO[cnt].m_Type = DrawObj::VSP_SHADED_TRIS;
+            }
+        }
+
+        if ( GetCfdSettingsPtr()->m_ColorTagsFlag.Get() )
+        {
+            // Color sequence -- go around color wheel ncstep times with slight
+            // offset from ncgrp basic colors.
+            // Note, (cnt/ncgrp) uses integer division resulting in floor.
+            double deg = ((cnt % ncgrp) * ncstep + (cnt / ncgrp)) * nctodeg;
+            vec3d rgb = m_TagDO[cnt].ColorWheel( deg );
+            rgb.normalize();
+
+            for ( int i = 0; i < 3; i++ )
+            {
+                m_TagDO[cnt].m_MaterialInfo.Ambient[i] = (float)rgb.v[i]/5.0f;
+                m_TagDO[cnt].m_MaterialInfo.Diffuse[i] = 0.4f + (float)rgb.v[i]/10.0f;
+                m_TagDO[cnt].m_MaterialInfo.Specular[i] = 0.04f + 0.7f * (float)rgb.v[i];
+                m_TagDO[cnt].m_MaterialInfo.Emission[i] = (float)rgb.v[i]/20.0f;
+            }
+            m_TagDO[cnt].m_MaterialInfo.Ambient[3] = 1.0f;
+            m_TagDO[cnt].m_MaterialInfo.Diffuse[3] = 1.0f;
+            m_TagDO[cnt].m_MaterialInfo.Specular[3] = 1.0f;
+            m_TagDO[cnt].m_MaterialInfo.Emission[3] = 1.0f;
+
+            m_TagDO[cnt].m_MaterialInfo.Shininess = 32.0f;
+        }
+        else
+        {
+            // No color needed for mesh only.
+        }
 
         draw_obj_vec.push_back( &m_TagDO[cnt] );
         cnt++;
@@ -4569,89 +4598,6 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
             }
         }
     }
-
-    vector< vec3d > meshData;
-    vector< vec3d > normData;
-
-    m_MeshTriDO.resize( m_SurfVec.size() );
-    // Render Mesh
-    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
-    {
-        m_MeshTriDO[i] = DrawObj();
-        sprintf( str, "%s_TRI_%d", GetID().c_str(), i );
-        m_MeshTriDO[i].m_GeomID = string( str );
-        m_MeshTriDO[i].m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
-        m_MeshTriDO[i].m_Visible = GetCfdSettingsPtr()->m_DrawMeshFlag.Get();
-        m_MeshTriDO[i].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
-
-        meshData.clear();
-        normData.clear();
-
-        vector< vec3d > pVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
-        for ( int t = 0 ; t < ( int )m_SurfVec[i]->GetMesh()->GetSimpTriVec().size() ; t++ )
-        {
-            if ( !m_SurfVec[i]->GetWakeFlag() &&
-                    ( !m_SurfVec[i]->GetFarFlag() || GetCfdSettingsPtr()->m_DrawFarFlag.Get() ) &&
-                    ( !m_SurfVec[i]->GetSymPlaneFlag() || GetCfdSettingsPtr()->m_DrawSymmFlag.Get() ) )
-            {
-                SimpTri* stri = &m_SurfVec[i]->GetMesh()->GetSimpTriVec()[t];
-
-                meshData.push_back( pVec[stri->ind0] );
-                meshData.push_back( pVec[stri->ind1] );
-                meshData.push_back( pVec[stri->ind2] );
-                vec3d norm = cross( pVec[stri->ind1] - pVec[stri->ind0],  pVec[stri->ind2] - pVec[stri->ind0] );
-                norm.normalize();
-                normData.push_back( norm );
-                normData.push_back( norm );
-                normData.push_back( norm );
-
-            }
-        }
-        m_MeshTriDO[i].m_PntVec = meshData;
-        m_MeshTriDO[i].m_NormVec = normData;
-
-        draw_obj_vec.push_back( &m_MeshTriDO[i] );
-    }
-
-
-    // Render Wake Wireframe
-    m_MeshWakeTriDO.resize( m_SurfVec.size() );
-    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
-    {
-        m_MeshWakeTriDO[i] = DrawObj();
-        sprintf( str, "%s_WAKE_TRI_%d", GetID().c_str(), i );
-        m_MeshWakeTriDO[i].m_GeomID = string( str );
-        m_MeshWakeTriDO[i].m_Type = DrawObj::VSP_WIRE_TRIS;
-        m_MeshWakeTriDO[i].m_Visible = GetCfdSettingsPtr()->m_DrawMeshFlag.Get();
-        m_MeshWakeTriDO[i].m_LineColor = vec3d( 0.1, 0.1, 0.1 );
-
-        meshData.clear();
-        normData.clear();
-
-        vector< vec3d > pVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
-        for ( int t = 0 ; t < ( int )m_SurfVec[i]->GetMesh()->GetSimpTriVec().size() ; t++ )
-        {
-            if ( m_SurfVec[i]->GetWakeFlag() && GetCfdSettingsPtr()->m_DrawWakeFlag.Get() )
-            {
-                SimpTri* stri = &m_SurfVec[i]->GetMesh()->GetSimpTriVec()[t];
-
-                meshData.push_back( pVec[stri->ind0] );
-                meshData.push_back( pVec[stri->ind1] );
-                meshData.push_back( pVec[stri->ind2] );
-                vec3d norm = cross( pVec[stri->ind1] - pVec[stri->ind0],  pVec[stri->ind2] - pVec[stri->ind0] );
-                norm.normalize();
-                normData.push_back( norm );
-                normData.push_back( norm );
-                normData.push_back( norm );
-
-            }
-        }
-        m_MeshWakeTriDO[i].m_PntVec = meshData;
-        m_MeshWakeTriDO[i].m_NormVec = normData;
-
-        draw_obj_vec.push_back( &m_MeshWakeTriDO[i] );
-    }
-
 
     // Render bad edges
     m_MeshBadEdgeDO.m_GeomID = GetID() + "BADEDGE";
