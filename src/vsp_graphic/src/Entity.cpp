@@ -123,7 +123,12 @@ void Entity::_draw_Mesh_Shaded()
         _material.bind();
     }
 
+    glEnable( GL_POLYGON_OFFSET_FILL );
+    glPolygonOffset( 1.f, 1.f );
+
     _draw_Mesh();
+
+    glDisable( GL_POLYGON_OFFSET_FILL );
 
     glDisable( GL_LIGHTING );
 }
@@ -136,9 +141,14 @@ void Entity::_draw_Mesh_Textured()
         _material.bind();
     }
 
+    glEnable( GL_POLYGON_OFFSET_FILL );
+    glPolygonOffset( 1.f, 1.f );
+
     _textureMgr.bind();
     _draw_Mesh();
     _textureMgr.unbind();
+
+    glDisable( GL_POLYGON_OFFSET_FILL );
 
     glDisable( GL_LIGHTING );
 }
