@@ -91,6 +91,8 @@ protected:
     */
     virtual void _draw_Wire_Frame_Solid();
 
+    virtual void _draw_Wire_Frame_Transparent_Back();
+
 protected:
     /*!
     * Draw Mesh.

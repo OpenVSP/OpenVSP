@@ -593,7 +593,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
             {
                 eObj->setVisibility( objects[i]->m_Visible );
                 eObj->setPrimType( Common::VSP_TRIANGLES );
-                eObj->setRenderStyle( Common::VSP_DRAW_WIRE_FRAME_SOLID );
+                eObj->setRenderStyle( Common::VSP_DRAW_WIRE_FRAME_TRANSPARENT_BACK );
                 eObj->setLineColor( red, green, blue );
                 eObj->setLineWidth( lineWidth );
 
