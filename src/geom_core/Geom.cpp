@@ -1854,7 +1854,7 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
             m_FeatureDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
             sprintf( str, "_%d", i );
             m_FeatureDrawObj_vec[i].m_GeomID = m_ID + "Feature_" + str;
-            m_FeatureDrawObj_vec[i].m_LineWidth = 2.0;
+            m_FeatureDrawObj_vec[i].m_LineWidth = 1.0;
             m_FeatureDrawObj_vec[i].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
             m_FeatureDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
             draw_obj_vec.push_back( &m_FeatureDrawObj_vec[i] );
