@@ -26,6 +26,9 @@ PackingScreen::PackingScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 300, 330, "Pa
     m_GenLayout.AddSubGroupLayout( m_BorderLayout, m_GenLayout.GetRemainX() - 5,
                                    m_GenLayout.GetRemainY() - 5);
 
+    ( ( Vsp_Group* ) m_BorderLayout.GetGroup() )->SetAllowDrop( true );
+    m_BorderLayout.GetGroup()->callback( staticScreenCB, this );
+
     int gap = 4;
 
     m_BorderLayout.SetButtonWidth( 100 );
@@ -125,6 +128,12 @@ void PackingScreen::Show()
 
 void PackingScreen::CallBack( Fl_Widget* w )
 {
+    if ( Fl::event() == FL_PASTE || Fl::event() == FL_DND_RELEASE )
+    {
+        string ParmID( Fl::event_text() );
+        m_ParmPicker.SetParmChoice( ParmID );
+    }
+
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
