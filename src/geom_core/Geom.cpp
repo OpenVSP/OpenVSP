@@ -123,6 +123,12 @@ void GeomBase::ParmChanged( Parm* parm_ptr, int type )
         return;
     }
 
+    //==== Check For Interactive Collision Dectection When Alt Key Is Pressed ====//
+    if ( type == Parm::SET_FROM_DEVICE )
+    {
+        m_Vehicle->GetPackagingPtr()->PreventCollision( GetID(), parm_ptr->GetID() );
+    }
+
     Update();
     m_Vehicle->ParmChanged( parm_ptr, type );
     m_UpdatedParmVec.clear();

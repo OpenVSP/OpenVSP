@@ -76,6 +76,7 @@ Vehicle::Vehicle()
     m_exportDegenGeomCsvFile.Init( "DegenGeom_CSV_Export", "ExportFlag", this, true, 0, 1 );
     m_exportDegenGeomMFile.Init( "DegenGeom_M_Export", "ExportFlag", this, true, 0, 1 );
 
+
     SetupPaths();
 }
 
@@ -404,7 +405,12 @@ string Vehicle::CreateGeom( const GeomType & type )
         return "NONE";
     }
 
-    new_geom->Update();
+    //==== Custom Geom Will be Updated After Scripts Are Read ====//
+    if ( type.m_Type != CUSTOM_GEOM_TYPE )
+    {
+        new_geom->Update();
+    }
+
     m_GeomStoreVec.push_back( new_geom );
 
     Geom* type_geom_ptr = FindGeom( type.m_GeomID );
@@ -433,7 +439,7 @@ string Vehicle::AddGeom( const GeomType & type )
         {
             add_geom->SetType( type );
             CustomGeomMgr.InitGeom( geom_id, type.m_ModuleName );
-            add_geom->Update();
+//            add_geom->Update();
         }
     }
     return geom_id;

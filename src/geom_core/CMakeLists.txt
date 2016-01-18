@@ -40,6 +40,7 @@ Link.cpp
 LinkMgr.cpp
 MaterialMgr.cpp
 MeshGeom.cpp
+Packaging.cpp
 Parm.cpp
 ParmContainer.cpp
 ParmMgr.cpp
@@ -92,6 +93,7 @@ Link.h
 LinkMgr.h
 MaterialMgr.h
 MeshGeom.h
+Packaging.h
 Parm.h
 ParmContainer.h
 ParmMgr.h

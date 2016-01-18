@@ -22,6 +22,7 @@
 #include "DegenGeom.h"
 #include "CfdMeshSettings.h"
 #include "ClippingMgr.h"
+#include "Packaging.h"
 #include "STEPutil.h"
 #include "XferSurf.h"
 #include "MaterialMgr.h"
@@ -253,6 +254,11 @@ public:
         return &m_ClippingMgr;
     }
 
+    Packaging* GetPackagingPtr()
+    {
+        return &m_Packaging;
+    }
+
     //==== Mass Properties ====//
     vec3d m_IxxIyyIzz;
     vec3d m_IxyIxzIyz;
@@ -332,6 +338,7 @@ protected:
     FeaGridDensity m_FeaGridDensity;
 
     ClippingMgr m_ClippingMgr;
+    Packaging m_Packaging;
 
     VehicleGuiDraw m_VGuiDraw;
 

@@ -244,6 +244,8 @@ public:
 
     friend vec3d BarycentricWeights( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & p );
     friend void BilinearWeights( const vec3d & p0, const vec3d & p1, const vec3d & p, std::vector< double > & weights );
+    friend double tri_tri_min_dist( vec3d & v0, vec3d & v1, vec3d & v2, vec3d & v3, vec3d & v4, vec3d & v5 );
+    friend double pnt_tri_min_dist( vec3d & v0, vec3d & v1, vec3d & v2, vec3d & pnt );
 
 };
 

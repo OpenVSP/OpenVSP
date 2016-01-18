@@ -28,7 +28,9 @@ PodGeom::PodGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_FineRatio.Init( "FineRatio", "Design", this, 15.0, 1.0, 1000.0 );
     m_FineRatio.SetDescript( "The ratio of the length to diameter" );
 
-    Update();
+
+//jrg Create Geom Does Update
+//    Update();
 }
 
 //==== Destructor ====//

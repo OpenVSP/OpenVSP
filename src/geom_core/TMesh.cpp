@@ -735,6 +735,16 @@ void TMesh::Intersect( TMesh* tm, bool UWFlag )
     m_TBox.Intersect( &tm->m_TBox, UWFlag );
 }
 
+bool TMesh::CheckIntersect( TMesh* tm )
+{
+    return m_TBox.CheckIntersect( &tm->m_TBox );
+}
+
+double TMesh::MinDistance( TMesh* tm, double curr_min_dist )
+{
+    return m_TBox.MinDistance( &tm->m_TBox, curr_min_dist );
+}
+
 void TMesh::Split()
 {
     int t;
@@ -2205,6 +2215,108 @@ void  TBndBox::AddLeafNodes( vector< TBndBox* > & leafVec )
         leafVec.push_back( this );
     }
 }
+
+bool TBndBox::CheckIntersect( TBndBox* iBox  )
+{
+    int i, j;
+
+    //==== Compare Bounding Boxes ====//
+    if ( !Compare( m_Box, iBox->m_Box ) )
+    {
+        return false;
+    }
+
+    //==== Recursively Check Sub Boxes ====//
+    if ( m_SBoxVec[0] )
+    {
+        for ( i = 0 ; i < 8 ; i++ )
+        {
+           if ( iBox->CheckIntersect( m_SBoxVec[i] ) )
+           return true;
+        }
+    }
+    else if ( iBox->m_SBoxVec[0] )
+    {
+        for ( i = 0 ; i < 8 ; i++ )
+        {
+            if ( iBox->m_SBoxVec[i]->CheckIntersect( this ) )
+                return true;
+        }
+    }
+    else
+    {
+        int coplanarFlag;
+        vec3d e0;
+        vec3d e1;
+
+        //==== Check All Tris In One Box Against The Other ====//
+        for ( i = 0 ; i < ( int )m_TriVec.size() ; i++ )
+        {
+            TTri* t0 = m_TriVec[i];
+            for ( j = 0 ; j < ( int )iBox->m_TriVec.size() ; j++ )
+            {
+                TTri* t1 = iBox->m_TriVec[j];
+
+                int iflag = tri_tri_intersect_with_isectline(
+                                t0->m_N0->m_Pnt.v, t0->m_N1->m_Pnt.v, t0->m_N2->m_Pnt.v,
+                                t1->m_N0->m_Pnt.v, t1->m_N1->m_Pnt.v, t1->m_N2->m_Pnt.v,
+                                &coplanarFlag, e0.v, e1.v );
+
+                if ( iflag && !coplanarFlag )
+                    return true;
+            }
+        }
+    }
+    return false;
+}
+
+double TBndBox::MinDistance( TBndBox* iBox, double curr_min_dist )
+{
+    int i, j;
+
+    //==== Compare Bounding Boxes ====//
+    if ( !Compare( m_Box, iBox->m_Box, curr_min_dist ) )
+    {
+        return curr_min_dist;
+    }
+
+    //==== Recursively Check Sub Boxes ====//
+    if ( m_SBoxVec[0] )
+    {
+        for ( i = 0 ; i < 8 ; i++ )
+        {
+            curr_min_dist = iBox->MinDistance( m_SBoxVec[i], curr_min_dist );
+        }
+    }
+    else if ( iBox->m_SBoxVec[0] )
+    {
+        for ( i = 0 ; i < 8 ; i++ )
+        {
+            curr_min_dist = iBox->m_SBoxVec[i]->MinDistance( this, curr_min_dist );
+        }
+    }
+    //==== Check All Points Against Other Points ====//
+    else
+    {
+        for ( i = 0 ; i < ( int )m_TriVec.size() ; i++ )
+        {
+            TTri* t0 = m_TriVec[i];
+            for ( j = 0 ; j < ( int )iBox->m_TriVec.size() ; j++ )
+            {
+
+                TTri* t1 = iBox->m_TriVec[j];
+                double d = tri_tri_min_dist( t0->m_N0->m_Pnt, t0->m_N1->m_Pnt, t0->m_N2->m_Pnt,
+                                             t1->m_N0->m_Pnt, t1->m_N1->m_Pnt, t1->m_N2->m_Pnt);
+
+                if ( d < curr_min_dist )
+                    curr_min_dist = d;
+            }
+        }
+    }
+
+    return curr_min_dist;
+}
+
 
 void TBndBox::Intersect( TBndBox* iBox, bool UWFlag )
 {

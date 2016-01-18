@@ -365,6 +365,8 @@ public:
     virtual void AddLeafNodes( vector< TBndBox* > & leafVec );
 
     virtual void SegIntersect( vec3d & p0, vec3d & p1, vector< vec3d > & ipntVec );
+    virtual bool CheckIntersect( TBndBox* iBox );
+    virtual double MinDistance( TBndBox* iBox, double curr_min_dist );
 
 };
 
@@ -429,6 +431,8 @@ public:
     void LoadGeomAttributes( Geom* geomPtr );
     int  RemoveDegenerate();
     void Intersect( TMesh* tm, bool UWFlag = false );
+    bool CheckIntersect( TMesh* tm );
+    double MinDistance( TMesh* tm, double curr_min_dist );
     void Split();
     void DeterIntExt( vector< TMesh* >& meshVec );
     void DeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec );

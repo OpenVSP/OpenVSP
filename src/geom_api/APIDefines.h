@@ -260,6 +260,11 @@ enum WING_DRIVERS { AR_WSECT_DRIVER,
                     SECSWEEPLOC_WSECT_DRIVER = SECSWEEP_WSECT_DRIVER + 3,
                   };
 
+enum COLLISION_ERRORS { COLLISION_OK,
+                        COLLISION_INTERSECT_NO_SOLUTION,
+                        COLLISION_CLEAR_NO_SOLUTION,
+                      };
+
 }   // Namespace
 
 #endif // !defined(VSPDEFINES__INCLUDED_)

@@ -29,6 +29,7 @@
 #include "ManageViewScreen.h"
 #include "MassPropScreen.h"
 #include "MaterialEditScreen.h"
+#include "PackagingScreen.h"
 #include "ParmDebugScreen.h"
 #include "ParmLinkScreen.h"
 #include "ParmScreen.h"
@@ -130,6 +131,17 @@ void ScreenMgr::MessageCallback( const MessageBase* from, const MessageData& dat
         const char* msg = data.m_StringVec[0].c_str();
         fl_message( "%s", ( char* )msg );
     }
+    else if ( data.m_String == string( "CheckCollisionKey" ) )
+    {
+        Packaging *packaging = VehicleMgr.GetVehicle()->GetPackagingPtr();
+        if ( packaging )
+        {
+            if ( Fl::event_alt()  )
+                packaging->m_CollisionDetection = true;
+            else
+                packaging->m_CollisionDetection = false;
+        }
+    }
 }
 
 //==== Init All Screens ====//
@@ -158,6 +170,7 @@ void ScreenMgr::Init()
     m_ScreenVec[VSP_MANAGE_TEXTURE_SCREEN] = new ManageTextureScreen( this );
     m_ScreenVec[VSP_MASS_PROP_SCREEN] = new MassPropScreen( this );
     m_ScreenVec[VSP_MATERIAL_EDIT_SCREEN] = new MaterialEditScreen( this );
+    m_ScreenVec[VSP_PACKING_SCREEN] = new PackingScreen( this );
     m_ScreenVec[VSP_PARM_DEBUG_SCREEN] = new ParmDebugScreen( this );
     m_ScreenVec[VSP_PARM_LINK_SCREEN] = new ParmLinkScreen( this );
     m_ScreenVec[VSP_PARM_SCREEN] = new ParmScreen( this );
