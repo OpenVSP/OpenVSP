@@ -233,8 +233,8 @@ public:
     friend double pointSegDistSquared( vec3d& p, vec3d& sp0, vec3d& sp1, double* t );
     friend vec3d  point_on_line( const vec3d & lp0, const vec3d & lp1, const double & t );
 
-    friend  vec2d MapToPlane( vec3d & p, vec3d & planeOrig, vec3d & planeVec1, vec3d & planeVec2 );
-    friend  vec3d MapFromPlane( vec2d & uw, vec3d & planeOrig, vec3d & planeVec1, vec3d & planeVec2 );
+    friend vec2d MapToPlane( const vec3d & p, const vec3d & planeOrig, const vec3d & planeVec1, const vec3d & planeVec2 );
+    friend vec3d MapFromPlane( const vec2d & uw, const vec3d & planeOrig, const vec3d & planeVec1, const vec3d & planeVec2 );
 
     friend int plane_half_space( vec3d & planeOrig, vec3d & planeNorm, vec3d & pnt );
 

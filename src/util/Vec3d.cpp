@@ -1158,7 +1158,7 @@ double pointSegDistSquared( vec3d& p, vec3d& sp0, vec3d& sp1, double* t )
 
 }
 
-vec2d MapToPlane( vec3d & P, vec3d & B, vec3d & e0, vec3d & e1 )
+vec2d MapToPlane( const vec3d & P, const vec3d & B, const vec3d & e0, const vec3d & e1 )
 {
     vec2d result;
     vec3d BmP = B - P;
@@ -1184,7 +1184,7 @@ vec2d MapToPlane( vec3d & P, vec3d & B, vec3d & e0, vec3d & e1 )
     return result;
 }
 
-vec3d MapFromPlane( vec2d & uw, vec3d & B, vec3d & e0, vec3d & e1 )
+vec3d MapFromPlane( const vec2d & uw, const vec3d & B, const vec3d & e0, const vec3d & e1 )
 {
     vec3d result = B + e0 * uw.x() + e1 * uw.y();
     return result;
