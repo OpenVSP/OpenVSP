@@ -92,9 +92,6 @@ public:
     Parm m_Camber;
     Parm m_CamberLoc;
 
-protected:
-    piecewise_four_digit_creator m_Creator;
-
 };
 
 //==========================================================================//

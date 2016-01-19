@@ -115,8 +115,6 @@ FourSeries::FourSeries( ) : Airfoil( )
     m_Type = XS_FOUR_SERIES;
     m_Camber.Init( "Camber", m_GroupName, this, 0.0, 0.0, 0.09 );
     m_CamberLoc.Init( "CamberLoc", m_GroupName, this, 0.2, 0.0, 1.0 );
-
-    m_Creator.set_sharp_trailing_edge(true);
 }
 
 //==== Update ====//
@@ -124,10 +122,13 @@ void FourSeries::Update()
 {
     piecewise_curve_type c, d;
 
-    m_Creator.set_thickness( m_ThickChord() * 100.0f );
-    m_Creator.set_camber( m_Camber() * 100.0f, m_CamberLoc() * 10.0f );
+    piecewise_four_digit_creator pwc;
+    pwc.set_sharp_trailing_edge(true);
 
-    m_Creator.create( c );
+    pwc.set_thickness( m_ThickChord() * 100.0f );
+    pwc.set_camber( m_Camber() * 100.0f, m_CamberLoc() * 10.0f );
+
+    pwc.create( c );
 
     d.set_t0( c.get_t0() );
     for ( int i = 0; i < c.number_segments(); i++ )
