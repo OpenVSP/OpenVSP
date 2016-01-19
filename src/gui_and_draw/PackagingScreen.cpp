@@ -45,14 +45,14 @@ PackingScreen::PackingScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 300, 330, "Pa
     m_BorderLayout.AddYGap();
 
     m_BorderLayout.AddYGap();
-    m_BorderLayout.AddDividerBox( "Interactive Collision Dectection" );
+    m_BorderLayout.AddDividerBox( "Interactive Collision Detection" );
     m_BorderLayout.AddLabel("Press Alt (Option) Key and change parm", 290 );
     m_BorderLayout.ForceNewLine();
     m_BorderLayout.AddYGap();
     m_BorderLayout.AddYGap();
 
 
-    m_BorderLayout.AddDividerBox( "Manual Collision Dectection" );
+    m_BorderLayout.AddDividerBox( "Manual Collision Detection" );
     m_BorderLayout.AddParmPicker( m_ParmPicker );
 
     m_BorderLayout.AddYGap();
