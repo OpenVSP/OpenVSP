@@ -157,7 +157,7 @@ vector< vec3d > XSec::GetDrawLines( int num_pnts, Matrix4d &transMat  )
 
     VspCurve curve = GetCurve();
     curve.Transform( transMat );
-    curve.Tesselate( num_pnts, lines );
+    curve.TessAdapt( lines, 1e-2, 10 );
 
     return lines;
 }
