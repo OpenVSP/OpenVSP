@@ -873,6 +873,12 @@ WingGeom::WingGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_TotalArea.Init( "TotalArea", m_Name, this, 1.0, 1e-10, 1.0e12 );
     m_TotalArea.SetDescript( "Total Planform Area" );
 
+    m_LECluster.Init( "LECluster", m_Name, this, 1.0, 0.0, 2.0 );
+    m_LECluster.SetDescript( "LE Tess Cluster Control" );
+
+    m_TECluster.Init( "TECluster", m_Name, this, 1.0, 0.0, 2.0 );
+    m_TECluster.SetDescript( "TE Tess Cluster Control" );
+
     //==== rename capping controls for wing specific terminology ====//
     m_CapUMinOption.SetDescript("Type of End Cap on Wing Root");
     m_CapUMinOption.Parm::Set(VspSurf::FLAT_END_CAP);
@@ -1393,6 +1399,8 @@ void WingGeom::UpdateSurf()
     }
     m_MainSurfVec[0].SetSurfType( vsp::WING_SURF );
     m_MainSurfVec[0].SetMagicVParm( true );
+
+    m_MainSurfVec[0].SetClustering( m_LECluster(), m_TECluster() );
 
     //==== Load Totals ====//
     m_TotalSpan = ComputeTotalSpan();

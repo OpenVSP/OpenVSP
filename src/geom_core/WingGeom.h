@@ -162,6 +162,9 @@ public:
     Parm m_TotalArea;
     double m_TotalAspectRatio;
 
+    Parm m_LECluster;
+    Parm m_TECluster;
+
     BoolParm m_RelativeDihedralFlag;
     BoolParm m_RelativeTwistFlag;
     BoolParm m_RotateAirfoilMatchDiedralFlag;

@@ -56,6 +56,11 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 335, 640, "Wing" )
     m_PlanLayout.AddSlider( m_IncidenceSlider, "Incidence", 10, "%6.5f" );
     m_PlanLayout.AddSlider( m_IncidenceLocSlider, "Incidence Loc", 10, "%6.5f" );
 
+    m_PlanLayout.AddYGap();
+    m_PlanLayout.AddDividerBox( "Tessellation Control" );
+    m_PlanLayout.AddSlider( m_LEClusterSlider, "LE Clustering", 1, "%6.5f" );
+    m_PlanLayout.AddSlider( m_TEClusterSlider, "TE Clustering", 1, "%6.5f" );
+
     Fl_Group* sect_tab = AddTab( "Sect" );
     Fl_Group* sect_group = AddSubGroup( sect_tab, 5 );
 
@@ -572,6 +577,9 @@ bool WingScreen::Update()
     m_PlanProjSpanSlider.Update( wing_ptr->m_TotalProjSpan.GetID() );
     m_PlanChordSlider.Update( wing_ptr->m_TotalChord.GetID() );
     m_PlanAreaSlider.Update( wing_ptr->m_TotalArea.GetID() );
+
+    m_LEClusterSlider.Update( wing_ptr->m_LECluster.GetID() );
+    m_TEClusterSlider.Update( wing_ptr->m_TECluster.GetID() );
 
     sprintf( str, "%6.4f", wing_ptr->m_TotalProjSpan() * wing_ptr->m_TotalProjSpan() / wing_ptr->m_TotalArea() );
     m_PlanAROutput.Update( str );

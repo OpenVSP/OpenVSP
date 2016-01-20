@@ -50,6 +50,9 @@ protected:
     SliderAdjRangeInput m_IncidenceSlider;
     SliderAdjRangeInput m_IncidenceLocSlider;
 
+    SliderInput m_LEClusterSlider;
+    SliderInput m_TEClusterSlider;
+
     // Wing section tab
     GroupLayout m_SectionLayout;
 

@@ -41,11 +41,19 @@ VspSurf::VspSurf()
     m_MagicVParm = false;
     m_SurfType = vsp::NORMAL_SURF;
     m_SurfCfdType = vsp::CFD_NORMAL;
+
+    SetClustering( 1.0, 1.0 );
 }
 
 //===== Destructor  =====//
 VspSurf::~VspSurf()
 {
+}
+
+void VspSurf::SetClustering( const double &le, const double &te )
+{
+    m_LECluster = le;
+    m_TECluster = te;
 }
 
 int VspSurf::GetNumSectU() const
@@ -557,6 +565,11 @@ void VspSurf::FlagDuplicate( VspSurf *othersurf )
     }
 }
 
+double VspSurf::Cluster( const double &t, const double &a, const double &b ) const
+{
+    return t;
+}
+
 void VspSurf::MakeUTess( const vector<int> &num_u, vector<double> &u ) const
 {
     surface_index_type i, j, nu;
@@ -625,9 +638,15 @@ void VspSurf::MakeVTess( int num_v, std::vector<double> &vtess, const int &n_cap
         vmax -= TMAGIC;
 
         vtess.resize(nv);
-        for ( int j = 0; j < nv; ++j )
+        int jle = ( nv - 1 ) / 2;
+        int j = 0;
+        for ( ; j < jle; ++j )
         {
-            vtess[j] = vmin + ( vmax - vmin ) * static_cast<double>( j ) / ( nv - 1 );
+            vtess[j] = vmin + ( vmax - vmin ) * 0.5 * Cluster( 2.0 * static_cast<double>( j ) / ( nv - 1 ), m_TECluster, m_LECluster );
+        }
+        for ( ; j < nv; ++j )
+        {
+            vtess[j] = vmin + ( vmax - vmin ) * 0.5 * (1+Cluster( 2.0 * static_cast<double>( j - jle ) / ( nv - 1 ), m_LECluster, m_TECluster ));
         }
 
         if ( degen ) // DegenGeom, don't tessellate blunt TE.

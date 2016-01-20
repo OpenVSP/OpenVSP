@@ -142,6 +142,9 @@ public:
     void ResetUWSkip();
     void FlagDuplicate( VspSurf *othersurf );
 
+    void SetClustering( const double &le, const double &te );
+    double Cluster( const double &t, const double &a, const double &b ) const;
+
     void MakeUTess( const vector<int> &num_u, std::vector<double> &utess ) const;
     void MakeVTess( int num_v, std::vector<double> &vtess, const int &n_cap, bool degen ) const;
 
@@ -195,6 +198,9 @@ protected:
 
     vector < bool > m_USkip;
     vector < bool > m_WSkip;
+
+    double m_LECluster;
+    double m_TECluster;
 
     int GetNumSectU() const;
     int GetNumSectW() const;
