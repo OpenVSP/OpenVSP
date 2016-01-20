@@ -55,7 +55,6 @@ MassPropScreen.cpp
 MaterialEditScreen.cpp
 MenuItem.cpp
 MeshScreen.cpp
-PackagingScreen.cpp
 ParmDebugScreen.cpp
 ParmLinkScreen.cpp
 ParmScreen.cpp
@@ -68,6 +67,7 @@ ScreenMgr.cpp
 ScreenshotScreen.cpp
 SelectFileScreen.cpp
 SetEditorScreen.cpp
+SnapToScreen.cpp
 StackScreen.cpp
 STEPOptionsScreen.cpp
 STLOptionsScreen.cpp
@@ -108,7 +108,6 @@ MassPropScreen.h
 MaterialEditScreen.h
 MenuItem.h
 MeshScreen.h
-PackagingScreen.h
 ParmDebugScreen.h
 ParmLinkScreen.h
 ParmScreen.h
@@ -121,6 +120,7 @@ ScreenMgr.h
 ScreenshotScreen.h
 SelectFileScreen.h
 SetEditorScreen.h
+SnapToScreen.h
 StackScreen.h
 STEPOptionsScreen.h
 STLOptionsScreen.h
@@ -131,6 +131,7 @@ VSPAEROScreen.h
 VSPWindow.h
 WingScreen.h
 )
+
 
 ADD_DEPENDENCIES(gui_and_draw
 geom_core

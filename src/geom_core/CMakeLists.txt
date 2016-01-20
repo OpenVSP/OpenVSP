@@ -40,7 +40,6 @@ Link.cpp
 LinkMgr.cpp
 MaterialMgr.cpp
 MeshGeom.cpp
-Packaging.cpp
 Parm.cpp
 ParmContainer.cpp
 ParmMgr.cpp
@@ -49,6 +48,7 @@ PodGeom.cpp
 PtCloudGeom.cpp
 ResultsMgr.cpp
 ScriptMgr.cpp
+SnapTo.cpp
 StackGeom.cpp
 SubSurface.cpp
 SubSurfaceMgr.cpp
@@ -93,7 +93,6 @@ Link.h
 LinkMgr.h
 MaterialMgr.h
 MeshGeom.h
-Packaging.h
 Parm.h
 ParmContainer.h
 ParmMgr.h
@@ -102,6 +101,7 @@ PodGeom.h
 PtCloudGeom.h
 ResultsMgr.h
 ScriptMgr.h
+SnapTo.h
 StackGeom.h
 SubSurface.h
 SubSurfaceMgr.h

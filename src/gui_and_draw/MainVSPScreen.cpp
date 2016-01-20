@@ -120,7 +120,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_AdvLinkMenuItem.Init( mgr, m_MenuBar, "Model/Adv Link...", ScreenMgr::VSP_ADV_LINK_SCREEN );
     m_UserParmMenuItem.Init( mgr, m_MenuBar, "Model/User Parms...", ScreenMgr::VSP_USER_PARM_SCREEN );
     m_FitModelMenuItem.Init( mgr, m_MenuBar, "Model/Fit Model...", ScreenMgr::VSP_FIT_MODEL_SCREEN );
-    m_PackingMenuItem.Init( mgr, m_MenuBar, "Model/Packing...", ScreenMgr::VSP_PACKING_SCREEN );
+    m_SnapToMenuItem.Init( mgr, m_MenuBar, "Model/Snap To...", ScreenMgr::VSP_SNAP_TO_SCREEN );
 
     m_CompGeomMenuItem.Init( mgr, m_MenuBar, "Analysis/CompGeom...", ScreenMgr::VSP_COMP_GEOM_SCREEN );
     m_AWAVEMenuItem.Init( mgr, m_MenuBar, "Analysis/Awave Slice...", ScreenMgr::VSP_AWAVE_SCREEN );

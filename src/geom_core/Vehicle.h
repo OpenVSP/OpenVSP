@@ -22,7 +22,7 @@
 #include "DegenGeom.h"
 #include "CfdMeshSettings.h"
 #include "ClippingMgr.h"
-#include "Packaging.h"
+#include "SnapTo.h"
 #include "STEPutil.h"
 #include "XferSurf.h"
 #include "MaterialMgr.h"
@@ -254,9 +254,9 @@ public:
         return &m_ClippingMgr;
     }
 
-    Packaging* GetPackagingPtr()
+    SnapTo* GetSnapToPtr()
     {
-        return &m_Packaging;
+        return &m_SnapTo;
     }
 
     //==== Mass Properties ====//
@@ -338,7 +338,7 @@ protected:
     FeaGridDensity m_FeaGridDensity;
 
     ClippingMgr m_ClippingMgr;
-    Packaging m_Packaging;
+    SnapTo m_SnapTo;
 
     VehicleGuiDraw m_VGuiDraw;
 

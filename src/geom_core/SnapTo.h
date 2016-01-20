@@ -3,28 +3,24 @@
 // version 1.3 as detailed in the LICENSE file which accompanies this software.
 //
 
-// Packaging.h: interface for the Parm Mgr Singleton.
+// SnapTo.h: Collision and min distance code
 // J.R Gloudemans
 //
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(PACKAGING__INCLUDED_)
-#define PACKAGING__INCLUDED_
+#if !defined(SNAPTO__INCLUDED_)
+#define SNAPTO__INCLUDED_
 
 #include "Parm.h"
 #include "ParmContainer.h"
 #include "TMesh.h"
 
-//==== Packaging ====//
-class Packaging : public ParmContainer
+//==== SnapTo ====//
+class SnapTo : public ParmContainer
 {
 public:
-	Packaging();
-    virtual ~Packaging();
-
-    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
-    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
-
+	SnapTo();
+    virtual ~SnapTo();
     virtual void ParmChanged( Parm* parm_ptr, int type );
 
     void PreventCollision( const string & geom_id, const string & parm_id );
@@ -43,9 +39,16 @@ public:
 
 protected:
 
+    //===== Store Last Values ====//
+    string m_LastParmID;
+    double m_LastParmVal;
+    double m_LastMinDist;
+    double m_LastTargetDist;
+    bool m_LastIncFlag;
+
 };
 
 
 
 
-#endif // !defined(PACKAGING__INCLUDED_)
+#endif // !defined(SNAPTO__INCLUDED_)

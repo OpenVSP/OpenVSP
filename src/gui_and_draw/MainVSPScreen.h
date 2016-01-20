@@ -110,7 +110,7 @@ protected:
     ScreenMenuItem m_AdvLinkMenuItem;
     ScreenMenuItem m_UserParmMenuItem;
     ScreenMenuItem m_FitModelMenuItem;
-    ScreenMenuItem m_PackingMenuItem;
+    ScreenMenuItem m_SnapToMenuItem;
 
     ScreenMenuItem m_CompGeomMenuItem;
     ScreenMenuItem m_AWAVEMenuItem;

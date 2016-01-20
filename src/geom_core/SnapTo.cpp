@@ -5,14 +5,14 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "APIDefines.h"
-#include "Packaging.h"
+#include "SnapTo.h"
 #include "Vehicle.h"
 #include "VehicleMgr.h"
 #include "ParmMgr.h"
 
-Packaging::Packaging() : ParmContainer()
+SnapTo::SnapTo() : ParmContainer()
 {
-    m_Name = "Packaging";
+    m_Name = "SnapTo";
 
     m_CollisionSet = vsp::SET_SHOWN;
     m_CollisionDetection.Init( "ActiveCollision", "Collision", this, false, 0, 1 );
@@ -20,49 +20,18 @@ Packaging::Packaging() : ParmContainer()
     m_CollisionErrorFlag = vsp::COLLISION_OK;
     m_CollisionMinDist = 0.0;
 
-
 }
 
-Packaging::~Packaging()
+SnapTo::~SnapTo()
 {
-}
-
-xmlNodePtr Packaging::EncodeXml( xmlNodePtr & node )
-{
-    xmlNodePtr cfdsetnode = xmlNewChild( node, NULL, BAD_CAST"Packaging", NULL );
-
-    ParmContainer::EncodeXml( cfdsetnode );
-
-//    XmlUtil::AddStringNode( cfdsetnode, "FarFieldGeomID", m_FarGeomID );
-
-    return cfdsetnode;
-}
-
-xmlNodePtr Packaging::DecodeXml( xmlNodePtr & node )
-{
-    xmlNodePtr cfdsetnode = XmlUtil::GetNode( node, "Packaging", 0 );
-    if ( cfdsetnode )
-    {
-        ParmContainer::DecodeXml( cfdsetnode );
-//        m_FarGeomID   = XmlUtil::FindString( cfdsetnode, "FarFieldGeomID", m_FarGeomID );
-    }
-
-    return cfdsetnode;
 }
 
 //==== Parm Changed ====//
-void Packaging::ParmChanged( Parm* parm_ptr, int type )
+void SnapTo::ParmChanged( Parm* parm_ptr, int type )
 {
-    Vehicle* veh = VehicleMgr.GetVehicle();
-
-    if ( veh )
-    {
-        veh->ParmChanged( parm_ptr, Parm::SET );
-    }
 }
 
-
-void Packaging::PreventCollision( const string & geom_id, const string & parm_id )
+void SnapTo::PreventCollision( const string & geom_id, const string & parm_id )
 {
     MessageMgr::getInstance().Send( "ScreenMgr", "CheckCollisionKey" );
 
@@ -89,7 +58,7 @@ void Packaging::PreventCollision( const string & geom_id, const string & parm_id
 }
 
 //===== Vectors of TMeshs with Bounding Boxes Already Set Up ====//
-bool Packaging::CheckIntersect( Geom* geom_ptr, const vector<TMesh*> & other_tmesh_vec )
+bool SnapTo::CheckIntersect( Geom* geom_ptr, const vector<TMesh*> & other_tmesh_vec )
 {
     bool intsect_flag = false;
 
@@ -118,7 +87,7 @@ bool Packaging::CheckIntersect( Geom* geom_ptr, const vector<TMesh*> & other_tme
 }
 
 //==== Returns Large Neg Number If Error and 0.0 If Collision ====//
-double Packaging::FindMinDistance( const string & geom_id, const vector< TMesh* > & other_tmesh_vec, bool & intersect_flag )
+double SnapTo::FindMinDistance( const string & geom_id, const vector< TMesh* > & other_tmesh_vec, bool & intersect_flag )
 {
     intersect_flag = false;
     Geom* geom_ptr = VehicleMgr.GetVehicle()->FindGeom( geom_id );
@@ -153,7 +122,7 @@ double Packaging::FindMinDistance( const string & geom_id, const vector< TMesh* 
 }
 
 //===== Find The Min Distance For Each Point And Returns Max =====//
-double Packaging::FindMaxMinDistance( const vector< TMesh* > & mesh_vec_1, const vector< TMesh* > & mesh_vec_2 )
+double SnapTo::FindMaxMinDistance( const vector< TMesh* > & mesh_vec_1, const vector< TMesh* > & mesh_vec_2 )
 {
     double max_dist = 0.0;
 
@@ -177,7 +146,7 @@ double Packaging::FindMaxMinDistance( const vector< TMesh* > & mesh_vec_1, const
     return sqrt( max_dist );
 }
 
-void Packaging::AdjParmToMinDist( const string & parm_id, bool inc_flag )
+void SnapTo::AdjParmToMinDist( const string & parm_id, bool inc_flag )
 {
     Parm* parm_ptr = ParmMgr.FindParm( parm_id );
     if ( !parm_ptr )   return;
@@ -218,8 +187,7 @@ void Packaging::AdjParmToMinDist( const string & parm_id, bool inc_flag )
         direction = -1.0;
 
     double orig_val = parm_ptr->Get();
-    double v_in  = orig_val;
-    double v_out = orig_val;       
+    double revert_val = parm_ptr->Get();
 
     //==== Create Geom TMesh Vec. Adjust Parm And Create Again ====//
     double del_val = 0.01;
@@ -236,8 +204,31 @@ void Packaging::AdjParmToMinDist( const string & parm_id, bool inc_flag )
         delete tmesh_orig[i];
     for ( int i = 0 ; i < (int)tmesh_adj.size() ; i++ )
         delete tmesh_adj[i];
-    parm_ptr->Set( orig_val );                                      // Restore Value
+
+    //==== Restore Value ====//
+    parm_ptr->Set( orig_val );                                     
     veh->Update( false );
+
+   //==== Check If Current Input Matches Last Input ====//
+    if ( (parm_id == m_LastParmID) && (inc_flag == m_LastIncFlag)  )
+    {
+        if ( fabs( m_LastTargetDist - m_CollisionTargetDist() ) < 1.0e-12 )
+        {
+            if ( fabs( m_LastParmVal - orig_val ) < 1.0e-12 )
+            {
+                bool iflag;
+                double d = FindMinDistance( geom_id, other_tmesh_vec, iflag );
+                if ( !iflag && fabs( d - m_LastMinDist ) < 1.0e-12 )
+                {
+                    //==== Nudge Parm In Inc Direction To Make Sure Collision ====//
+                    double nudge = 2.0*m_LastMinDist*del_val/max_min;
+                    parm_ptr->Set( parm_ptr->Get() + direction*nudge );
+                    orig_val = parm_ptr->Get();
+                    veh->Update( false );
+                }
+            }
+        }
+    }
 
     //==== Find Reasonable Range For Val =====//
     double model_size = veh->GetBndBox().DiagDist();
@@ -256,6 +247,9 @@ void Packaging::AdjParmToMinDist( const string & parm_id, bool inc_flag )
 
     //==== Move Geom Close To Other Body In Correct Direction ====//
     int cnt = 0;
+    double v_in  = orig_val;
+    double v_out = orig_val;       
+
     bool init_col_flag = CheckIntersect( geom_ptr, other_tmesh_vec );
 
     //==== Step Forward To Find First Opposite of Collision Flag (col_flag)      ====//
@@ -296,7 +290,7 @@ void Packaging::AdjParmToMinDist( const string & parm_id, bool inc_flag )
             m_CollisionErrorFlag = vsp::COLLISION_INTERSECT_NO_SOLUTION;
         else
             m_CollisionErrorFlag = vsp::COLLISION_CLEAR_NO_SOLUTION;
-        parm_ptr->Set( orig_val );              // Restore Val
+        parm_ptr->Set( revert_val );              // Restore Val
         veh->Update( false );
         for ( int i = 0 ; i < (int)other_tmesh_vec.size() ; i++ )
             delete other_tmesh_vec[i];
@@ -382,4 +376,11 @@ void Packaging::AdjParmToMinDist( const string & parm_id, bool inc_flag )
     //==== Delete Created TMeshes ====//
     for ( int i = 0 ; i < (int)other_tmesh_vec.size() ; i++ )
         delete other_tmesh_vec[i];
+
+    //==== Store Last Results ====//
+    m_LastParmID = parm_id;
+    m_LastParmVal = parm_ptr->Get();
+    m_LastMinDist = m_CollisionMinDist;
+    m_LastTargetDist = m_CollisionTargetDist();
+    m_LastIncFlag = inc_flag;
 }
