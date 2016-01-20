@@ -49,6 +49,8 @@ void BlankGeom::UpdateSurf()
         m_PointMass.Deactivate();
     }
 
+    GeomXForm::Update();
+
     m_Origin = m_ModelMatrix.xform( vec3d( 0.0, 0.0, 0.0 ) );
 
     m_Axis.clear();
