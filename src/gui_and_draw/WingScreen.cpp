@@ -384,6 +384,8 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 335, 640, "Wing" )
 
     m_CSTAirfoilGroup.AddYGap();
     m_CSTAirfoilGroup.AddButton( m_CSTInvertButton, "Invert Airfoil" );
+    m_CSTAirfoilGroup.AddYGap();
+    m_CSTAirfoilGroup.AddButton( m_CSTEqArcLenButton, "Equal Arc Length Parameterization" );
 
     m_CSTAirfoilGroup.AddYGap();
     m_CSTAirfoilGroup.AddDividerBox( "Upper Surface" );
@@ -788,6 +790,7 @@ bool WingScreen::Update()
 
                 m_CSTInvertButton.Update( cst_xs->m_Invert.GetID() );
                 m_CSTContLERadButton.Update( cst_xs->m_ContLERad.GetID() );
+                m_CSTEqArcLenButton.Update( cst_xs->m_EqArcLen.GetID() );
 
                 if ( ( m_UpCoeffSliderVec.size() != num_up ) || ( m_LowCoeffSliderVec.size() != num_low ) )
                 {

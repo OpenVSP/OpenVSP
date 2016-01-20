@@ -201,6 +201,7 @@ protected:
 
     CheckButton m_CSTInvertButton;
     CheckButton m_CSTContLERadButton;
+    CheckButton m_CSTEqArcLenButton;
 
     // Overall planform tab
     GroupLayout m_ModifyLayout;

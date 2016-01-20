@@ -274,6 +274,7 @@ public:
     vector< Parm* > m_LowCoeffParmVec;
 
     BoolParm m_ContLERad;
+    BoolParm m_EqArcLen;
 
 protected:
 
