@@ -567,7 +567,8 @@ void VspSurf::FlagDuplicate( VspSurf *othersurf )
 
 double VspSurf::Cluster( const double &t, const double &a, const double &b ) const
 {
-    return t;
+    double mt = 1.0 - t;
+    return mt * mt * t * a + mt * t * t * ( 3.0 - b ) + t * t * t;
 }
 
 void VspSurf::MakeUTess( const vector<int> &num_u, vector<double> &u ) const
