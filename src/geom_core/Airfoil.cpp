@@ -115,13 +115,13 @@ FourSeries::FourSeries( ) : Airfoil( )
     m_Type = XS_FOUR_SERIES;
     m_Camber.Init( "Camber", m_GroupName, this, 0.0, 0.0, 0.09 );
     m_CamberLoc.Init( "CamberLoc", m_GroupName, this, 0.2, 0.0, 1.0 );
+    m_EqArcLen.Init( "EqArcLenFlag", m_GroupName, this, true, 0, 1 );
 }
 
 //==== Update ====//
 void FourSeries::Update()
 {
     piecewise_curve_type c, d;
-
     piecewise_four_digit_creator pwc;
     pwc.set_sharp_trailing_edge(true);
 
@@ -139,7 +139,71 @@ void FourSeries::Update()
         d.push_back( crv, dt*2.0 );
     }
 
-    m_Curve.SetCurve( d );
+    if ( !m_EqArcLen() ) // 'old' code with non-equal arc len parameterization.
+    {
+        m_Curve.SetCurve( d );
+    }
+    else // 'new' code that enforces equal arc len parameterization.
+    {
+        int npts = 101; // Must be odd to hit LE point.
+
+        double t = 0.0;
+        double dt = 4.0 / ( npts - 1 );
+        int ile = ( npts - 1 ) / 2;
+
+        vector< vec3d > pnts( npts );
+        vector< double > arclen( npts );
+
+        pnts[0] = d.f( t );
+        arclen[0] = 0.0;
+        for ( int i = 1 ; i < npts ; i++ )
+        {
+            if ( i == ile )
+            {
+                t = 2.0; // Ensure LE point precision.
+            }
+            else if ( i == ( npts - 1 ) )
+            {
+                t = 4.0;  // Ensure end point precision.
+            }
+            else
+            {
+                t = dt * i; // All other points.
+            }
+
+            pnts[i] = d.f( t );
+
+            double ds = dist( pnts[i], pnts[i-1] );
+            if ( ds < 1e-8 )
+            {
+                ds = 1.0/npts;
+            }
+            arclen[i] = arclen[i-1] + ds;
+        }
+
+        double lenlower = arclen[ile];
+        double lenupper = arclen[npts-1] - lenlower;
+
+        double lowerscale = 2.0/lenlower;
+        int i;
+        for ( i = 1; i < ile; i++ )
+        {
+            arclen[i] = arclen[i] * lowerscale;
+        }
+        arclen[ile] = 2.0;
+        i++;
+
+        double upperscale = 2.0/lenupper;
+        for ( ; i < npts - 1; i++ )
+        {
+            arclen[i] = 2.0 + ( arclen[i] - lenlower) * upperscale;
+        }
+        arclen[npts-1] = 4.0;
+
+        m_Curve.InterpolatePCHIP( pnts, arclen, false );
+
+        m_Curve.ToBinaryCubic();
+    }
 
     Airfoil::Update();
 }

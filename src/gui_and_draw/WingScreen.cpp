@@ -286,6 +286,8 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 335, 640, "Wing" )
     m_FourSeriesGroup.AddYGap();
     m_FourSeriesGroup.AddButton( m_FourInvertButton, "Invert Airfoil" );
     m_FourSeriesGroup.AddYGap();
+    m_FourSeriesGroup.AddButton( m_FourEqArcLenButton, "Equal Arc Length Parameterization" );
+    m_FourSeriesGroup.AddYGap();
     m_FourSeriesGroup.SetSameLineFlag( true );
     m_FourSeriesGroup.SetFitWidthFlag( false );
     m_FourSeriesGroup.SetButtonWidth( 125 );
@@ -712,6 +714,7 @@ bool WingScreen::Update()
                 m_FourInvertButton.Update( fs_xs->m_Invert.GetID() );
                 m_FourNameOutput.Update( fs_xs->GetAirfoilName() );
                 m_FourDegreeCounter.Update( fs_xs->m_FitDegree.GetID() );
+                m_FourEqArcLenButton.Update( fs_xs->m_EqArcLen.GetID() );
             }
             else if ( xsc->GetType() == XS_SIX_SERIES )
             {
