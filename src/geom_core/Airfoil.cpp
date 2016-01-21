@@ -399,6 +399,8 @@ void Biconvex::Update()
 
     m_Curve.Append( upcrv );
 
+    m_Curve.ToBinaryCubic();
+
     Airfoil::Update();
 }
 
