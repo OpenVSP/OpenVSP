@@ -524,33 +524,37 @@ xmlNodePtr XSecSurf::DecodeXml( xmlNodePtr & node )
     {
         int num = XmlUtil::GetNumNames( xsecsurf_node, "XSec" );
 
-        for ( int i = 0 ; i < num ; i++ )
+        xmlNodePtr xsec_node = xsecsurf_node->xmlChildrenNode;
+        while( xsec_node != NULL )
         {
-            xmlNodePtr xsec_node = XmlUtil::GetNode( xsecsurf_node, "XSec", i );
-            if ( xsec_node )
+            if ( !xmlStrcmp( xsec_node->name, ( const xmlChar * )"XSec" ) )
             {
-                xmlNodePtr temp_node = NULL;
-                temp_node = XmlUtil::GetNode( xsec_node, "XSec", 0 );
-
-                if ( temp_node )
+                if ( xsec_node )
                 {
-                    XmlUtil::FindInt( temp_node, "Type", XSEC_FUSE );
+                    xmlNodePtr temp_node = NULL;
+                    temp_node = XmlUtil::GetNode( xsec_node, "XSec", 0 );
 
-                    xmlNodePtr xscrv_node = XmlUtil::GetNode( temp_node, "XSecCurve", 0 );
-                    if ( xscrv_node )
+                    if ( temp_node )
                     {
-                        xmlNodePtr temp2_node = XmlUtil::GetNode( xscrv_node, "XSecCurve", 0 );
-                        int xsc_type = XmlUtil::FindInt( temp2_node, "Type", XS_POINT );
+                        XmlUtil::FindInt( temp_node, "Type", XSEC_FUSE );
 
-                        //==== Create New Cross Section ====//
-                        XSec* xsec_ptr = FindXSec( AddXSec( xsc_type ) );
-                        if ( xsec_ptr )
+                        xmlNodePtr xscrv_node = XmlUtil::GetNode( temp_node, "XSecCurve", 0 );
+                        if ( xscrv_node )
                         {
-                            xsec_ptr->DecodeXSec( xsec_node );
+                            xmlNodePtr temp2_node = XmlUtil::GetNode( xscrv_node, "XSecCurve", 0 );
+                            int xsc_type = XmlUtil::FindInt( temp2_node, "Type", XS_POINT );
+
+                            //==== Create New Cross Section ====//
+                            XSec* xsec_ptr = FindXSec( AddXSec( xsc_type ) );
+                            if ( xsec_ptr )
+                            {
+                                xsec_ptr->DecodeXSec( xsec_node );
+                            }
                         }
                     }
                 }
             }
+            xsec_node = xsec_node->next;
         }
     }
     return xsecsurf_node;

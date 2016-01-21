@@ -518,57 +518,60 @@ void FuselageGeom::ReadV2FileFuse2( xmlNodePtr &root )
     if ( node  )
     {
         xmlNodePtr xsec_list_node = node;
-        num_xsecs = XmlUtil::GetNumNames( xsec_list_node, "Cross_Section" );
+        int num_xsecs = XmlUtil::GetNumNames( xsec_list_node, "Cross_Section" );
 
-        for ( i = 0 ; i < num_xsecs ; i++ )
+        xmlNodePtr xsec_node = node->xmlChildrenNode;
+        while( xsec_node != NULL )
         {
-            xmlNodePtr xsec_node = XmlUtil::GetNode( xsec_list_node, "Cross_Section", i );
-
-            int xstype = XmlUtil::FindInt( xsec_node, "Type", xstype );
-
-            XSec* xsec_ptr = NULL;
-
-            switch ( xstype )
+            if ( !xmlStrcmp( xsec_node->name, ( const xmlChar * )"Cross_Section" ) )
             {
-            case V2_FXS_POINT:
-                xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_POINT ) );
-                break;
-            case V2_FXS_CIRCLE:
-                xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_CIRCLE ) );
-                break;
-            case V2_FXS_ELLIPSE:
-                xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_ELLIPSE ) );
-                break;
-            case V2_FXS_BOX:
-                xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_ROUNDED_RECTANGLE ) );
-                break;
-            case V2_FXS_RND_BOX:
-                xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_ROUNDED_RECTANGLE ) );
-                break;
-            case V2_FXS_GENERAL:
-                xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_GENERAL_FUSE ) );
-                break;
-            case V2_FXS_FROM_FILE:
-                xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_FILE_FUSE ) );
-                break;
-            case V2_FXS_EDIT_CRV:
-                xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_ELLIPSE ) );
+                int xstype = XmlUtil::FindInt( xsec_node, "Type", xstype );
 
-                break;
-            default:
+                XSec* xsec_ptr = NULL;
 
-                break;
-            }
-
-            if ( xsec_ptr )
-            {
-                FuseXSec* fuse_xsec_ptr = dynamic_cast < FuseXSec* > (xsec_ptr);
-                if ( fuse_xsec_ptr )
+                switch ( xstype )
                 {
-                    fuse_xsec_ptr->SetRefLength( m_Length() );
+                case V2_FXS_POINT:
+                    xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_POINT ) );
+                    break;
+                case V2_FXS_CIRCLE:
+                    xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_CIRCLE ) );
+                    break;
+                case V2_FXS_ELLIPSE:
+                    xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_ELLIPSE ) );
+                    break;
+                case V2_FXS_BOX:
+                    xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_ROUNDED_RECTANGLE ) );
+                    break;
+                case V2_FXS_RND_BOX:
+                    xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_ROUNDED_RECTANGLE ) );
+                    break;
+                case V2_FXS_GENERAL:
+                    xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_GENERAL_FUSE ) );
+                    break;
+                case V2_FXS_FROM_FILE:
+                    xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_FILE_FUSE ) );
+                    break;
+                case V2_FXS_EDIT_CRV:
+                    xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_ELLIPSE ) );
+
+                    break;
+                default:
+
+                    break;
                 }
-                xsec_ptr->ReadV2FileFuse2( xsec_node );
+
+                if ( xsec_ptr )
+                {
+                    FuseXSec* fuse_xsec_ptr = dynamic_cast < FuseXSec* > (xsec_ptr);
+                    if ( fuse_xsec_ptr )
+                    {
+                        fuse_xsec_ptr->SetRefLength( m_Length() );
+                    }
+                    xsec_ptr->ReadV2FileFuse2( xsec_node );
+                }
             }
+            xsec_node = xsec_node->next;
         }
     }
 }
@@ -619,53 +622,56 @@ void FuselageGeom::ReadV2FileFuse1( xmlNodePtr &root )
         xmlNodePtr xsec_list_node = node;
         int num_xsecs = XmlUtil::GetNumNames( xsec_list_node, "Cross_Section" );
 
-        //==== Load & Read Fuse Xsec Parms ====//
-        for ( int i = 0 ; i < num_xsecs ; i++ )
+        xmlNodePtr xsec_node = node->xmlChildrenNode;
+        while( xsec_node != NULL )
         {
-            xmlNodePtr xsec_node = XmlUtil::GetNode( xsec_list_node, "Cross_Section", i );
-
-            xmlNodePtr omlNode = XmlUtil::GetNode( xsec_node, "OML_Parms", 0 );
-            int xstype = XmlUtil::FindInt( omlNode, "Type", -1 );
-
-            XSec* xsec_ptr = NULL;
-
-            switch ( xstype )
+            if ( !xmlStrcmp( xsec_node->name, ( const xmlChar * )"Cross_Section" ) )
             {
-            case V2_XSEC_POINT:
-                xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_POINT ) );
-                break;
-            case V2_CIRCLE:
-                xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_CIRCLE ) );
-                break;
-            case V2_ELLIPSE:
-                xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_ELLIPSE ) );
-                break;
-            case V2_RND_BOX:
-                xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_ROUNDED_RECTANGLE ) );
-                break;
-            case V2_GENERAL:
-                xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_GENERAL_FUSE ) );
-                break;
-            case V2_FROM_FILE:
-                xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_FILE_FUSE ) );
-                break;
-            case V2_EDIT_CRV:
-                xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_ELLIPSE ) );
-                break;
-            default:
+                xmlNodePtr omlNode = XmlUtil::GetNode( xsec_node, "OML_Parms", 0 );
+                int xstype = XmlUtil::FindInt( omlNode, "Type", -1 );
 
-                break;
-            }
+                XSec* xsec_ptr = NULL;
 
-            if ( xsec_ptr )
-            {
-                FuseXSec* fuse_xsec_ptr = dynamic_cast < FuseXSec* > (xsec_ptr);
-                if ( fuse_xsec_ptr )
+                switch ( xstype )
                 {
-                    fuse_xsec_ptr->SetRefLength( m_Length() );
+                case V2_XSEC_POINT:
+                    xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_POINT ) );
+                    break;
+                case V2_CIRCLE:
+                    xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_CIRCLE ) );
+                    break;
+                case V2_ELLIPSE:
+                    xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_ELLIPSE ) );
+                    break;
+                case V2_RND_BOX:
+                    xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_ROUNDED_RECTANGLE ) );
+                    break;
+                case V2_GENERAL:
+                    xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_GENERAL_FUSE ) );
+                    break;
+                case V2_FROM_FILE:
+                    xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_FILE_FUSE ) );
+                    break;
+                case V2_EDIT_CRV:
+                    xsec_ptr = m_XSecSurf.FindXSec( m_XSecSurf.AddXSec( XS_ELLIPSE ) );
+                    break;
+                default:
+
+                    break;
                 }
-                xsec_ptr->ReadV2FileFuse1( xsec_node );
+
+                if ( xsec_ptr )
+                {
+                    FuseXSec* fuse_xsec_ptr = dynamic_cast < FuseXSec* > (xsec_ptr);
+                    if ( fuse_xsec_ptr )
+                    {
+                        fuse_xsec_ptr->SetRefLength( m_Length() );
+                    }
+                    xsec_ptr->ReadV2FileFuse1( xsec_node );
+                }
+
             }
+            xsec_node = xsec_node->next;
         }
     }
 
