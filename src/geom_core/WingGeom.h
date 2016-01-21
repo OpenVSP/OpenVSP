@@ -63,6 +63,9 @@ public:
     Parm m_TipChord;
     Parm m_RootChord;
 
+    Parm m_RootCluster;
+    Parm m_TipCluster;
+
     Parm m_Sweep;
     NotEqParm m_SweepLoc;
     Parm m_SecSweep;
@@ -206,6 +209,9 @@ protected:
     DrawObj m_HighlightWingSecDrawObj;
 
     vector<int> m_TessUVec;
+
+    vector < double > m_RootClusterVec;
+    vector < double > m_TipClusterVec;
 
     bool m_Closed;
 

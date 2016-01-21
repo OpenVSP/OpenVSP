@@ -67,6 +67,8 @@ protected:
     TriggerButton m_InsertSectButton;
 
     SliderInput m_SectUTessSlider;
+    SliderInput m_RootClusterSlider;
+    SliderInput m_TipClusterSlider;
 
     WingDriverGroup m_DefaultWingDriverGroup;
     DriverGroupBank m_WingDriverGroupBank;

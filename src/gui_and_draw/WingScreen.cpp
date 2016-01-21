@@ -19,7 +19,7 @@
 using namespace vsp;
 
 //==== Constructor ====//
-WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 335, 640, "Wing" )
+WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 335, 680, "Wing" )
 {
     m_CurrDisplayGroup = NULL;
 
@@ -93,8 +93,10 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 335, 640, "Wing" )
 
     m_SectionLayout.SetButtonWidth( 74 );
 
-    m_SectionLayout.AddDividerBox( "Num Interpolated XSecs" );
+    m_SectionLayout.AddDividerBox( "Interpolated XSecs" );
     m_SectionLayout.AddSlider( m_SectUTessSlider, "Num U", 20, " %5.0f" );
+    m_SectionLayout.AddSlider( m_RootClusterSlider, "Rt. Cluster", 1, "%6.5f" );
+    m_SectionLayout.AddSlider( m_TipClusterSlider, "Tip Cluster", 1, "%6.5f" );
 
     m_SectionLayout.AddYGap();
 
@@ -616,6 +618,9 @@ bool WingScreen::Update()
     if ( wing_sect )
     {
         m_SectUTessSlider.Update( wing_sect->m_SectTessU.GetID() );
+
+        m_RootClusterSlider.Update( wing_sect->m_RootCluster.GetID() );
+        m_TipClusterSlider.Update( wing_sect->m_TipCluster.GetID() );
 
         m_WingDriverGroupBank.SetDriverGroup( &wing_sect->m_DriverGroup );
         vector< string > parm_ids = wing_sect->GetDriverParms();

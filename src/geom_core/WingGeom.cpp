@@ -530,6 +530,10 @@ WingSect::WingSect( XSecCurve *xsc ) : XSec( xsc)
     m_Dihedral.Init( "Dihedral", m_GroupName, this, 0.0, -360.0, 360.0 );
     m_Dihedral.SetDescript( "Dihedral of Wing Section" );
 
+    m_RootCluster.Init( "InCluster", m_GroupName, this, 1.0, 0.0, 2.0 );
+    m_RootCluster.SetDescript( "Inboard Tess Cluster Control" );
+    m_TipCluster.Init( "OutCluster", m_GroupName, this, 1.0, 0.0, 2.0 );
+    m_TipCluster.SetDescript( "Outboard Tess Cluster Control" );
 }
 
 //==== Set Scale ====//
@@ -1298,6 +1302,8 @@ void WingGeom::UpdateSurf()
 
     // clear the u tessellation vector
     m_TessUVec.clear();
+    m_RootClusterVec.clear();
+    m_TipClusterVec.clear();
 
     vector< VspCurve > crv_vec( m_XSecSurf.NumXSec() );
 
@@ -1388,6 +1394,8 @@ void WingGeom::UpdateSurf()
             if ( i > 0 )
             {
                 m_TessUVec.push_back( ws->m_SectTessU() );
+                m_RootClusterVec.push_back( ws->m_RootCluster() );
+                m_TipClusterVec.push_back( ws->m_TipCluster() );
             }
         }
     }
@@ -1413,42 +1421,61 @@ void WingGeom::UpdateSurf()
 void WingGeom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, bool degen )
 {
     vector < int > tessvec;
+    vector < double > rootc;
+    vector < double > tipc;
     if (m_CapUMinOption()!=VspSurf::NO_END_CAP && m_CapUMinSuccess[ m_SurfIndxVec[indx] ] )
     {
         tessvec.push_back( m_CapUMinTess() );
+        rootc.push_back( 1.0 );
+        tipc.push_back( 1.0 );
     }
 
     for ( int i = 0; i < m_TessUVec.size(); i++ )
     {
         tessvec.push_back( m_TessUVec[i] );
+        rootc.push_back( m_RootClusterVec[i] );
+        tipc.push_back( m_TipClusterVec[i] );
     }
 
     if (m_CapUMaxOption()!=VspSurf::NO_END_CAP && m_CapUMaxSuccess[ m_SurfIndxVec[indx] ] )
     {
         tessvec.push_back( m_CapUMinTess() );
+        rootc.push_back( 1.0 );
+        tipc.push_back( 1.0 );
     }
 
+    m_SurfVec[indx].SetRootTipClustering( rootc, tipc );
     m_SurfVec[indx].Tesselate( tessvec, m_TessW(), pnts, norms, uw_pnts, m_CapUMinTess(), degen );
 }
 
 void WingGeom::UpdateSplitTesselate( int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms )
 {
     vector < int > tessvec;
+    vector < double > rootc;
+    vector < double > tipc;
+
     if (m_CapUMinOption()!=VspSurf::NO_END_CAP && m_CapUMinSuccess[ m_SurfIndxVec[indx] ] )
     {
         tessvec.push_back( m_CapUMinTess() );
+        rootc.push_back( 1.0 );
+        tipc.push_back( 1.0 );
     }
 
     for ( int i = 0; i < m_TessUVec.size(); i++ )
     {
         tessvec.push_back( m_TessUVec[i] );
+        rootc.push_back( m_RootClusterVec[i] );
+        tipc.push_back( m_TipClusterVec[i] );
     }
 
     if (m_CapUMaxOption()!=VspSurf::NO_END_CAP && m_CapUMaxSuccess[ m_SurfIndxVec[indx] ] )
     {
         tessvec.push_back( m_CapUMinTess() );
+        rootc.push_back( 1.0 );
+        tipc.push_back( 1.0 );
     }
 
+    m_SurfVec[indx].SetRootTipClustering( rootc, tipc );
     m_SurfVec[indx].SplitTesselate( tessvec, m_TessW(), pnts, norms, m_CapUMinTess() );
 }
 
