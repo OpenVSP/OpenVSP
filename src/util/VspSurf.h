@@ -143,6 +143,7 @@ public:
     void FlagDuplicate( VspSurf *othersurf );
 
     void SetClustering( const double &le, const double &te );
+    void SetRootTipClustering( const vector < double > &root, const vector < double > &tip );
     double Cluster( const double &t, const double &a, const double &b ) const;
 
     void MakeUTess( const vector<int> &num_u, std::vector<double> &utess ) const;
@@ -201,6 +202,9 @@ protected:
 
     double m_LECluster;
     double m_TECluster;
+
+    vector < double > m_RootCluster;
+    vector < double > m_TipCluster;
 
     int GetNumSectU() const;
     int GetNumSectW() const;

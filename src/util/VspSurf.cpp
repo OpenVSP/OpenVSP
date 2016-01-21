@@ -56,6 +56,12 @@ void VspSurf::SetClustering( const double &le, const double &te )
     m_TECluster = te;
 }
 
+void VspSurf::SetRootTipClustering( const vector < double > &root, const vector < double > &tip )
+{
+    m_RootCluster = root;
+    m_TipCluster = tip;
+}
+
 int VspSurf::GetNumSectU() const
 {
     return m_Surface.number_u_patches();
@@ -471,11 +477,18 @@ void VspSurf::ResetUWSkip()
     nupatch = m_Surface.number_u_patches();
     nwpatch = m_Surface.number_v_patches();
 
+    m_RootCluster.resize( nupatch );
+    m_TipCluster.resize( nupatch );
+
     m_USkip.resize( nupatch );
     m_WSkip.resize( nwpatch );
 
     for ( ip = 0; ip < nupatch; ip++ )
+    {
         m_USkip[ip] = false;
+        m_RootCluster[ip] = 1.0;
+        m_TipCluster[ip] = 1.0;
+    }
 
     for ( jp = 0; jp < nwpatch; jp++ )
         m_WSkip[jp] = false;
@@ -609,7 +622,7 @@ void VspSurf::MakeUTess( const vector<int> &num_u, vector<double> &u ) const
         {
             for ( int isecttess = 0; isecttess < num_u[iusect] - 1; ++isecttess )
             {
-                u[iu] = uumin + du * static_cast<double>( isecttess ) / ( num_u[iusect] - 1 );
+                u[iu] = uumin + du * Cluster( static_cast<double>( isecttess ) / ( num_u[iusect] - 1 ), m_RootCluster[iusect], m_TipCluster[iusect] );
                 iu++;
             }
         }
