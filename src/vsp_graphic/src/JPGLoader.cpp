@@ -57,6 +57,10 @@ ImageData JPGLoader::load( std::string fileName )
 
 bool JPGLoader::acceptExt( std::string e )
 {
-    return e == ".jpg";
+    return ( e == ".jpg" ) ||
+           ( e == ".png" ) ||
+           ( e == ".tga" ) ||
+           ( e == ".bmp" ) ||
+           ( e == ".gif" );
 }
 }
