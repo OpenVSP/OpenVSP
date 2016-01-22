@@ -19,8 +19,6 @@
 #include "GraphicSingletons.h"
 #include "Common.h"
 
-#include "FL/Fl_File_Chooser.H"
-
 ManageBackgroundScreen::ManageBackgroundScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 210, 347, "Background" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
@@ -242,19 +240,15 @@ void ManageBackgroundScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_FileSelect )
     {
-        Fl_File_Chooser fc( ".", "TGA, JPG Files (*.{tga,jpg})", Fl_File_Chooser::SINGLE, "Read Texture?" );
-        fc.show();
+        std::string fileName = m_ScreenMgr->GetSelectFileScreen()->FileChooser(
+                "Select Image File", "*.{tga,png,jpg}", false );
 
-        while( fc.shown() )
-        {
-            Fl::wait();
-        }
-        if ( fc.value() != NULL )
+        if( !fileName.empty() )
         {
             viewport->getBackground()->removeImage();
-            viewport->getBackground()->attachImage( VSPGraphic::GlobalTextureRepo()->get2DTexture( fc.value() ) );
-            m_ImageFile = fc.value();
-            m_FileOutput.Update( truncateFileName( fc.value(), 40 ).c_str() );
+            viewport->getBackground()->attachImage( VSPGraphic::GlobalTextureRepo()->get2DTexture( fileName.c_str() ) );
+            m_ImageFile = fileName;
+            m_FileOutput.Update( truncateFileName( fileName, 40 ).c_str() );
         }
     }
     else if ( device == &m_PreserveAspect )

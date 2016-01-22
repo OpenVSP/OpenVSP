@@ -15,8 +15,6 @@
 #include "Geom.h"
 #include "TextureMgr.h"
 
-#include "FL/Fl_File_Chooser.H"
-
 ManageTextureScreen::ManageTextureScreen( ScreenMgr * mgr ) : VspScreen( mgr )
 {
     m_TextureMgrUI = new TextureMgrUI();
@@ -228,19 +226,13 @@ void ManageTextureScreen::CallBack( Fl_Widget * w )
     {
         vector< Geom* > select_vec = veh->GetActiveGeomPtrVec();
 
-        Fl_File_Chooser fc( ".", "TGA, JPG Files (*.{tga,jpg})", Fl_File_Chooser::SINGLE, "Read Texture?" );
-        fc.show();
+        std::string fileName = m_ScreenMgr->GetSelectFileScreen()->FileChooser(
+                "Select Image File", "*.{tga,png,jpg}", false );
 
-        while( fc.shown() )
+        if( !fileName.empty() )
         {
-            Fl::wait();
+            select_vec[0]->m_GuiDraw.getTextureMgr()->AttachTexture( fileName.c_str() );
         }
-
-        if( fc.value() == NULL )
-        {
-            return;
-        }
-        select_vec[0]->m_GuiDraw.getTextureMgr()->AttachTexture( fc.value() );
 
         ResetCurrentSelected();
     }
