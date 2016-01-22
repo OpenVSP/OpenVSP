@@ -4,7 +4,6 @@
 #include "Display.h"
 
 #include "OpenGLHeaders.h"
-#include "loadjpg.h"
 #include "stb_image_write.h"
 #include "LayoutMgr.h"
 #include <string.h>
@@ -97,13 +96,13 @@ void GraphicEngine::dumpScreenImage( std::string fileName, int width, int height
         memcpy(  dstLine, srcLine, scanLen );
     }
 
-    if ( filetype == JPEG )
-    {
-        writeJPEG( fileName.c_str(), width, height, &flipdat[0] );
-    }
-    else if ( filetype == PNG )
+    if ( filetype == PNG )
     {
         stbi_write_png( fileName.c_str(), width, height, 3, &flipdat[0], width * 3 );
+    }
+    else
+    {
+        printf( "Image type not supported.\n" );
     }
 }
 

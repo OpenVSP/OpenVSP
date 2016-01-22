@@ -36,8 +36,7 @@ public:
     */
     void draw( int x, int y );
 
-    enum filetype { JPEG,
-                    PNG
+    enum filetype { PNG
     };
 
     /*!

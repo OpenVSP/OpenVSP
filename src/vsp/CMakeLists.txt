@@ -23,7 +23,6 @@ INCLUDE_DIRECTORIES( ${VSP_SOURCE_DIR}
 	${SCREENS_INCLUDE_DIR}
 	${XMLVSP_INCLUDE_DIR}
 	${CPPTEST_INCLUDE_DIR}
-	${JPEG_INCLUDE_DIR}
 	${FLTK_INCLUDE_DIR}
 	${LIBXML2_INCLUDE_DIR}
 	${EIGEN3_INCLUDE_DIR}
@@ -50,7 +49,6 @@ IF( NOT VSP_NO_GRAPHICS )
 		geom_api_g
 		cfd_mesh
 		triangle
-		load_jpg
 		screens
 		xmlvsp
 		sixseries
@@ -58,7 +56,6 @@ IF( NOT VSP_NO_GRAPHICS )
 		tritri
         Angelscript
 		${CPPTEST_LIBRARIES}
-		${JPEG_LIBRARIES}
 		${LIBXML2_LIBRARIES}
 		${FLTK_LIBRARIES}
 		${OPENGL_LIBRARIES}
@@ -91,9 +88,7 @@ IF( NOT VSP_NO_GRAPHICS )
 		screens
 		xmlvsp
 		sixseries
-		load_jpg
 		${CPPTEST_LIBRARIES}
-		${JPEG_LIBRARIES}
 		${LIBXML2_LIBRARIES}
 		${FLTK_LIBRARIES}
 		${OPENGL_LIBRARIES}

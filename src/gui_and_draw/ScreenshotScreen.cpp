@@ -77,7 +77,6 @@ ScreenshotScreen::ScreenshotScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 270, 25
     m_ViewportSizeLayout.AddButton(m_SetToCurrentSize, "Reset to Viewport Size");
 
     m_BorderLayout.AddY( m_BorderLayout.GetH() - 41 );
-    m_BorderLayout.AddButton(m_CaptureJPEG, "Capture JPEG");
     m_BorderLayout.AddButton(m_CapturePNG, "Capture PNG");
 
     //Initialize Width and Height Values
@@ -237,16 +236,6 @@ void ScreenshotScreen::GuiDeviceCallBack( GuiDevice* device )
         m_NewRatioValue.Set( 1.0 );
         m_NewWidthValue.Set( glwin->pixel_w() );
         m_NewHeightValue.Set( glwin->pixel_h() );
-    }
-    else if ( device == &m_CaptureJPEG )
-    {
-        std::string fileName = m_ScreenMgr->GetSelectFileScreen()->FileChooser(
-                "Create or Select a JPG File", "*.jpg" );
-
-        if( !fileName.empty() )
-        {
-            glwin->getGraphicEngine()->dumpScreenImage( fileName, m_NewWidthValue.Get(), m_NewHeightValue.Get(), m_framebufferSupported, VSPGraphic::GraphicEngine::JPEG );
-        }
     }
     else if ( device == &m_CapturePNG )
     {
