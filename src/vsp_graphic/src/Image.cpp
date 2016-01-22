@@ -3,7 +3,6 @@
 
 #include "Image.h"
 
-#include "TGALoader.h"
 #include "JPGLoader.h"
 
 namespace VSPGraphic
@@ -118,7 +117,6 @@ std::vector<ImageLoader *> Image::_loaders;
 std::vector<ImageLoader *> Image::_initLoaders()
 {
     std::vector<ImageLoader *> loaders;
-    loaders.push_back( new TGALoader() );
     loaders.push_back( new JPGLoader() );
     return loaders;
 }
