@@ -91,10 +91,7 @@ bool Image::_loadWithExt( std::string fileName, std::string ext )
 
     for( int i = 0; i < ( int )_loaders.size(); i++ )
     {
-        // Compare ext in lower case.
-        std::string loaderExt = _loaders[i]->getExt();
-        std::transform( loaderExt.begin(), loaderExt.end(), loaderExt.begin(), ::tolower );
-        if( ext == loaderExt )
+        if( _loaders[i]->acceptExt( ext ) )
         {
             _image = _loaders[i]->load( fileName );
             return true;

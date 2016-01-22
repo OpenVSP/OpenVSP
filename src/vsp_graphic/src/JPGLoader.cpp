@@ -55,8 +55,8 @@ ImageData JPGLoader::load( std::string fileName )
     return iData;
 }
 
-std::string JPGLoader::getExt()
+bool JPGLoader::acceptExt( std::string e )
 {
-    return ".JPG";
+    return e == ".jpg";
 }
 }

@@ -15,7 +15,7 @@ public:
 
 public:
     ImageData load( std::string fileName );
-    std::string getExt();
+    virtual bool acceptExt( std::string e );
 };
 }
 #endif

@@ -63,9 +63,9 @@ public:
     virtual ImageData load( std::string fileName ) = 0;
 
     /*!
-    * Get image's extension.  Must implement.
+    * Test if loader accepts image's extension (lower case).  Must implement.
     */
-    virtual std::string getExt() = 0;
+    virtual bool acceptExt( std::string e ) = 0;
 };
 }
 #endif

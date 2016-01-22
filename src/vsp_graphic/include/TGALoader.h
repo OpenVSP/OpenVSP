@@ -48,9 +48,9 @@ public:
     */
     ImageData load( std::string fileName );
     /*!
-    * Get TGA file extension.
+    * Test TGA file extension.
     */
-    std::string getExt();
+    virtual bool acceptExt( std::string e );
 
 private:
     ImageData _loadUncompressedUnmapped( FILE * stream, TGAHeader header );

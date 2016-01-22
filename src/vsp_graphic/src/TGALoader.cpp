@@ -53,9 +53,9 @@ ImageData TGALoader::load( std::string fileName )
     }
 }
 
-std::string TGALoader::getExt()
+bool TGALoader::acceptExt( std::string e )
 {
-    return ".TGA";
+    return e == ".tga";
 }
 
 ImageData TGALoader::_loadUncompressedUnmapped( FILE * stream, TGAHeader header )
