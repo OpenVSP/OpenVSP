@@ -1,9 +1,9 @@
 #include <assert.h>
+#include <MultiImageLoader.h>
 #include <algorithm>
 
 #include "Image.h"
 
-#include "JPGLoader.h"
 
 namespace VSPGraphic
 {
@@ -117,7 +117,7 @@ std::vector<ImageLoader *> Image::_loaders;
 std::vector<ImageLoader *> Image::_initLoaders()
 {
     std::vector<ImageLoader *> loaders;
-    loaders.push_back( new JPGLoader() );
+    loaders.push_back( new MultiImageLoader() );
     return loaders;
 }
 }

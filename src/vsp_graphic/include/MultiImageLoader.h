@@ -1,5 +1,5 @@
-#ifndef _VSP_GRAPHIC_JPG_IMAGE_LOADER_H
-#define _VSP_GRAPHIC_JPG_IMAGE_LOADER_H
+#ifndef _VSP_GRAPHIC_MULTI_IMAGE_LOADER_H
+#define _VSP_GRAPHIC_MULTI_IMAGE_LOADER_H
 
 #include <string>
 
@@ -7,11 +7,11 @@
 
 namespace VSPGraphic
 {
-class JPGLoader : public ImageLoader
+class MultiImageLoader : public ImageLoader
 {
 public:
-    JPGLoader();
-    virtual ~JPGLoader();
+    MultiImageLoader();
+    virtual ~MultiImageLoader();
 
 public:
     ImageData load( std::string fileName );

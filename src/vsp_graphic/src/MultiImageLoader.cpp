@@ -1,19 +1,19 @@
+#include <MultiImageLoader.h>
 #include "OpenGLHeaders.h"
 
-#include "JPGLoader.h"
 #include "stb_image.h"
 #include <string.h>
 
 namespace VSPGraphic
 {
-JPGLoader::JPGLoader() : ImageLoader()
+MultiImageLoader::MultiImageLoader() : ImageLoader()
 {
 }
-JPGLoader::~JPGLoader()
+MultiImageLoader::~MultiImageLoader()
 {
 }
 
-ImageData JPGLoader::load( std::string fileName )
+ImageData MultiImageLoader::load( std::string fileName )
 {
     ImageData iData;
 
@@ -55,7 +55,7 @@ ImageData JPGLoader::load( std::string fileName )
     return iData;
 }
 
-bool JPGLoader::acceptExt( std::string e )
+bool MultiImageLoader::acceptExt( std::string e )
 {
     return ( e == ".jpg" ) ||
            ( e == ".png" ) ||
