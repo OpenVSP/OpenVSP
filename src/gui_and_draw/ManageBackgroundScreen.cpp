@@ -40,7 +40,7 @@ ManageBackgroundScreen::ManageBackgroundScreen( ScreenMgr* mgr ) : BasicScreen( 
     colorChooser = m_ColorLayout.AddFlColorChooser( 95 );
     colorChooser->callback( staticScreenCB, this );
 
-    m_BorderLayout.AddButton(m_Image, "JPEG Image");
+    m_BorderLayout.AddButton(m_Image, "Image");
     m_BorderLayout.AddYGap();
 
     m_BorderLayout.AddSubGroupLayout(m_ImageLayout, m_BorderLayout.GetRemainX(), m_BorderLayout.GetRemainY() - 20);
@@ -241,7 +241,7 @@ void ManageBackgroundScreen::GuiDeviceCallBack( GuiDevice* device )
     else if ( device == &m_FileSelect )
     {
         std::string fileName = m_ScreenMgr->GetSelectFileScreen()->FileChooser(
-                "Select Image File", "*.{tga,png,jpg}", false );
+                "Select Image File", "*.{jpg,png,tga,bmp,gif}", false );
 
         if( !fileName.empty() )
         {
