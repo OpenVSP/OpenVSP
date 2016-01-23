@@ -21,7 +21,7 @@
 #include "FL/Fl_File_Chooser.H"
 #include "OpenGLHeaders.h"
 
-ScreenshotScreen::ScreenshotScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 270, 253, "Screenshot" )
+ScreenshotScreen::ScreenshotScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 270, 233, "Screenshot" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
     m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
@@ -33,7 +33,12 @@ ScreenshotScreen::ScreenshotScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 270, 25
     m_MainLayout.AddSubGroupLayout( m_BorderLayout, m_MainLayout.GetRemainX() - 5.0,
                                     m_MainLayout.GetRemainY() - 5.0);
 
-    m_BorderLayout.AddSubGroupLayout( m_CurrentViewportSizeLayout, m_BorderLayout.GetRemainX(), 67 );
+    int hcurrview = m_CurrentViewportSizeLayout.GetDividerHeight() +
+    2 * m_CurrentViewportSizeLayout.GetStdHeight() +
+    m_CurrentViewportSizeLayout.GetGapHeight();
+
+    m_BorderLayout.AddSubGroupLayout( m_CurrentViewportSizeLayout, m_BorderLayout.GetRemainX(), hcurrview );
+    m_BorderLayout.AddY( hcurrview );
 
     m_CurrentViewportSizeLayout.AddDividerBox("Viewport Size");
     m_CurrentViewportSizeLayout.AddYGap();
@@ -41,9 +46,13 @@ ScreenshotScreen::ScreenshotScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 270, 25
     m_CurrentViewportSizeLayout.AddOutput( m_CurrentWidth, "Width" );
     m_CurrentViewportSizeLayout.AddOutput( m_CurrentHeight, "Height" );
 
-    m_BorderLayout.AddSubGroupLayout( m_ViewportSizeLayout, m_BorderLayout.GetRemainX(), 190 );
+    int hviewport = m_ViewportSizeLayout.GetDividerHeight() +
+    4 * m_ViewportSizeLayout.GetStdHeight() +
+    2 * m_ViewportSizeLayout.GetGapHeight();
 
-    m_ViewportSizeLayout.AddY( m_CurrentViewportSizeLayout.GetH() );
+    m_BorderLayout.AddYGap();
+    m_BorderLayout.AddSubGroupLayout( m_ViewportSizeLayout, m_BorderLayout.GetRemainX(), hviewport );
+    m_BorderLayout.AddY( hviewport );
 
     m_ViewportSizeLayout.AddDividerBox("Output Size");
     m_ViewportSizeLayout.AddYGap();
@@ -76,7 +85,7 @@ ScreenshotScreen::ScreenshotScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 270, 25
 
     m_ViewportSizeLayout.AddButton(m_SetToCurrentSize, "Reset to Viewport Size");
 
-    m_BorderLayout.AddY( m_BorderLayout.GetH() - 41 );
+    m_BorderLayout.AddYGap();
     m_BorderLayout.AddButton(m_CapturePNG, "Capture PNG");
 
     //Initialize Width and Height Values
