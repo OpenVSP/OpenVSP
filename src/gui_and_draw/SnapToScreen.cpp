@@ -14,7 +14,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-SnapToScreen::SnapToScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 300, 330, "Snap To" )
+SnapToScreen::SnapToScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 300, 380, "Snap To" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
     m_GenLayout.SetGroupAndScreen( m_FLTK_Window, this );
@@ -37,6 +37,8 @@ SnapToScreen::SnapToScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 300, 330, "Snap
 
     m_BorderLayout.SetButtonWidth( 150 );
     m_BorderLayout.AddOutput( m_MinDistOutput, "Result Min Dist" );
+
+    m_BorderLayout.AddButton( m_CheckClearance, "Check Clearance" );
 
     m_BorderLayout.AddYGap();
     m_BorderLayout.AddDividerBox( "Collision Set And Method" );
@@ -159,6 +161,11 @@ void SnapToScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         string parm_id = m_ParmPicker.GetParmChoice();        
         snap->AdjParmToMinDist( parm_id, false );
+    }
+    else if ( device == &m_CheckClearance )
+    {
+        snap->CheckClearance( );
+
     }
 
 

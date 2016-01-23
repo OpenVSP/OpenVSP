@@ -384,3 +384,53 @@ void SnapTo::AdjParmToMinDist( const string & parm_id, bool inc_flag )
     m_LastTargetDist = m_CollisionTargetDist();
     m_LastIncFlag = inc_flag;
 }
+
+
+void SnapTo::CheckClearance( )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    vector< Geom* > select_vec = veh->GetActiveGeomPtrVec();
+
+    if ( select_vec.size() != 1 )
+    {
+        return;
+    }
+
+    Geom* geom_ptr = select_vec[0];
+    if ( !geom_ptr )    return;
+    string geom_id = geom_ptr->GetID();
+ 
+    //==== Find Other Geoms ====//
+    vector< string > geom_id_vec = veh->GetGeomSet( m_CollisionSet );
+    vector< string > other_geom_vec;
+    for ( int i = 0 ; i < (int)geom_id_vec.size() ; i++ )
+    {
+        if ( geom_id != geom_id_vec[i] )
+            other_geom_vec.push_back( geom_id_vec[i] );
+    }
+
+    //==== Create TMeshes =====//
+    vector< TMesh* > other_tmesh_vec;
+    for ( int i = 0 ; i < (int)other_geom_vec.size() ; i++ )
+    {
+        Geom* g_ptr = veh->FindGeom( other_geom_vec[i] );
+        if ( g_ptr )
+        {
+             vector< TMesh* > tvec = g_ptr->CreateTMeshVec();       /////////// MUST DELETE!!!
+             for ( int j = 0 ; j < (int)tvec.size() ; j++ )
+             {
+                tvec[j]->LoadBndBox();
+                other_tmesh_vec.push_back( tvec[j] );
+             }
+        }
+    }
+
+    bool iflag;
+    m_CollisionMinDist = FindMinDistance( geom_id, other_tmesh_vec, iflag );
+
+    //==== Delete Created TMeshes ====//
+    for ( int i = 0 ; i < (int)other_tmesh_vec.size() ; i++ )
+        delete other_tmesh_vec[i];
+
+
+}

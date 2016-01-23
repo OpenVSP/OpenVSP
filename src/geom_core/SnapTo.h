@@ -28,6 +28,7 @@ public:
     double FindMaxMinDistance( const vector< TMesh* > & mesh_1, const vector< TMesh* > & mesh_2 ); 
     bool CheckIntersect( Geom* geom_ptr, const vector<TMesh*> & other_tmesh_vec );
     void AdjParmToMinDist( const string & parm_id, bool inc_flag );
+    void CheckClearance(  );
 
 
     //==== Collision Stuff ====//
