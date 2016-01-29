@@ -17,17 +17,15 @@
 #include <assert.h>
 
 //==== Constructor ====//
-AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : VspScreen( mgr )
+AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 429, 645, "Advanced Parameter Links" )
 {
     m_InputBrowserSelect = -1;
     m_OutputBrowserSelect = -1;
 
     m_Lt_Red = fl_rgb_color( 250, 150, 150 );
 
-    AdvLinkUI* ui = m_AdvLinkUI = new AdvLinkUI();
-    VspScreen::SetFlWindow( ui->UIWindow );
-
-    m_BigGroup.SetGroupAndScreen( ui->windowGroup, this );
+    m_BigGroup.SetGroupAndScreen( m_FLTK_Window, this );
+    m_BigGroup.AddY( 25 );
 
     m_BigGroup.AddSubGroupLayout( m_LinkAddDelGroup, 100 - 2, 80 );
     m_BigGroup.AddX( 100 + 2 );

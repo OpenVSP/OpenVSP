@@ -16,12 +16,11 @@
 
 #include <FL/Fl.H>
 #include <FL/Fl_Text_Buffer.H>
-#include "advLinkFlScreen.h"
 
 using std::string;
 using std::vector;
 
-class AdvLinkScreen : public VspScreen
+class AdvLinkScreen : public BasicScreen
 {
 public:
     AdvLinkScreen( ScreenMgr* mgr );
@@ -47,7 +46,6 @@ public:
 
 protected:
 
-    AdvLinkUI* m_AdvLinkUI;
     Fl_Browser* m_LinkBrowser;
     Fl_Browser* m_InputBrowser;
     Fl_Browser* m_OutputBrowser;
