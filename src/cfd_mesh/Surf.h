@@ -121,6 +121,14 @@ public:
     {
         return m_SurfID;
     }
+    void SetMainSurfID( int id )
+    {
+        m_MainSurfID = id;
+    }
+    int GetMainSurfID()
+    {
+        return m_MainSurfID;
+    }
     string GetCompName()
     {
         return m_CompName;
@@ -255,6 +263,7 @@ protected:
     string m_RefGeomID;   // Geom ID of the surface a wake attaches to
     string m_CompName;
     int m_SurfID;
+    int m_MainSurfID;
 
     int m_BaseTag; // Tag number that will be applied to all triangles of this surface
 

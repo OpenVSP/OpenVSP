@@ -969,6 +969,8 @@ void CfdMeshMgrSingleton::LoadSurfs( vector< XferSurf > &xfersurfs )
 
         surfPtr->SetGeomID( xfersurfs[i].m_GeomID );
 
+        surfPtr->SetMainSurfID( xfersurfs[i].m_SurfIndx );
+
         //Xfersurfs created each time and flips normal if geom is a negative volume
         if ( xfersurfs[i].m_SurfCfdType == vsp::CFD_NEGATIVE )
         {
@@ -3204,7 +3206,7 @@ void CfdMeshMgrSingleton::BuildSubSurfIntChains()
     {
         // Get all SubSurfaces for the specified geom
         Surf* surf = m_SurfVec[s];
-        vector< SubSurface* > ss_vec = SubSurfaceMgr.GetSubSurfs( surf->GetGeomID() );
+        vector< SubSurface* > ss_vec = SubSurfaceMgr.GetSubSurfs( surf->GetGeomID(), surf->GetMainSurfID() );
 
         // Split SubSurfs
         for ( int ss = 0 ; ss < ( int ) ss_vec.size(); ss++ )

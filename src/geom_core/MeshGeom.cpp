@@ -1517,7 +1517,7 @@ void MeshGeom::IntersectTrim( int halfFlag, int intSubsFlag )
         for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
         {
             vector< TMesh* > sub_surf_meshes;
-            vector< SubSurface* > sub_surf_vec = SubSurfaceMgr.GetSubSurfs( m_TMeshVec[i]->m_PtrID );
+            vector< SubSurface* > sub_surf_vec = SubSurfaceMgr.GetSubSurfs( m_TMeshVec[i]->m_PtrID, m_TMeshVec[i]->m_SurfNum );
             int ss;
             for ( ss = 0 ; ss < ( int )sub_surf_vec.size() ; ss++ )
             {

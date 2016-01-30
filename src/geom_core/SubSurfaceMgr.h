@@ -38,6 +38,7 @@ public:
         return m_CurrSurfInd;
     }
 
+    std::vector< SubSurface* > GetSubSurfs( std::string comp_id, int surfnum );
     std::vector< SubSurface* > GetSubSurfs( std::string comp_id );
     std::vector< SubSurface* > GetSubSurfs();
 

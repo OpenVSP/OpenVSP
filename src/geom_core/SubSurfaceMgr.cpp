@@ -45,6 +45,33 @@ void SubSurfaceMgrSingleton::SetCurrSubSurfInd( int index )
     m_CurrSurfInd = index;
 }
 
+//==== Get copy of sub surfaces from geom by id and surf number ====//
+vector< SubSurface*> SubSurfaceMgrSingleton::GetSubSurfs( string comp_id, int surfnum )
+{
+    vector< SubSurface* > ret_vec;
+
+    Geom* geom = GetGeom( comp_id );
+    if ( !geom )
+    {
+        return ret_vec;
+    }
+
+    vector< SubSurface* > all_vec;
+    all_vec = geom->GetSubSurfVec();
+
+    int imain = geom->GetMainSurfID( surfnum );
+
+    for ( int i = 0; i < all_vec.size(); i++ )
+    {
+        if ( imain == all_vec[i]->m_MainSurfIndx() )
+        {
+            ret_vec.push_back( all_vec[i] );
+        }
+    }
+
+    return ret_vec;
+}
+
 //==== Get copy of sub surfaces from geom by id ====//
 vector< SubSurface*> SubSurfaceMgrSingleton::GetSubSurfs( string comp_id )
 {

@@ -33,6 +33,7 @@ Surf::Surf()
     m_Mesh.SetSurfPtr( this );
     m_NumMap = 10;
     m_BaseTag = 1;
+    m_MainSurfID = 0;
 }
 
 Surf::~Surf()
@@ -1261,7 +1262,7 @@ void Surf::Subtag( bool tag_subs )
     vector< vec2d >& pnts = m_Mesh.GetSimpUWPntVec();
     vector< SubSurface* > s_surfs;
 
-    if ( tag_subs ) s_surfs = SubSurfaceMgr.GetSubSurfs( m_GeomID );
+    if ( tag_subs ) s_surfs = SubSurfaceMgr.GetSubSurfs( m_GeomID, m_MainSurfID );
 
     for ( int t = 0 ; t < ( int ) tri_vec.size() ; t++ )
     {

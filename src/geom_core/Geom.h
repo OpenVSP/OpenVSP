@@ -368,6 +368,16 @@ public:
     virtual int GetNumTotalSurfs();
     virtual int GetNumSymmCopies();
 
+    virtual vector < int > & GetSymmIndexs( int imain )
+    {
+        return m_SurfSymmMap[ imain ];
+    }
+
+    virtual int GetMainSurfID( int surfnum )
+    {
+        return m_SurfIndxVec[ surfnum ];
+    }
+
     /*
     * Reset m_GeomChanged flag in DrawObj to false.
     */

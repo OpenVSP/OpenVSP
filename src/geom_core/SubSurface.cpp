@@ -109,7 +109,9 @@ void SubSurface::UpdateDrawObjs()
     {
         vector< VspSurf > surf_vec;
         geom->GetSurfVec( surf_vec );
-        m_DrawObjVec.resize( m_LVec.size()*surf_vec.size(), DrawObj() );
+        int ncopy = geom->GetNumSymmCopies();
+
+        m_DrawObjVec.resize( m_LVec.size()*ncopy, DrawObj() );
         int ind = 0;
         for ( int ls = 0 ; ls < ( int )m_LVec.size() ; ls++ )
         {
@@ -120,9 +122,14 @@ void SubSurface::UpdateDrawObjs()
                 num_pnts_ptr = &num_pnts;
             }
 
-            for ( int s = 0 ; s < ( int )surf_vec.size() ; s++ )
+            int isurf = m_MainSurfIndx();
+
+            vector < int > symms = geom->GetSymmIndexs( isurf );
+            assert( ncopy == symms.size() );
+
+            for ( int s = 0 ; s < ncopy ; s++ )
             {
-                m_LVec[ls].UpdateDrawObj( &surf_vec[s], geom, m_DrawObjVec[ind], num_pnts_ptr );
+                m_LVec[ls].UpdateDrawObj( &surf_vec[symms[s]], geom, m_DrawObjVec[ind], num_pnts_ptr );
                 ind++;
             }
         }
