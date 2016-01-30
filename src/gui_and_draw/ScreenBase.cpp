@@ -488,25 +488,19 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SubSurfLayout.AddButton( m_DelSubSurfButton, "Delete" );
     m_SubSurfLayout.AddYGap();
 
-    m_SubSurfLayout.SetFitWidthFlag( false );
-    m_SubSurfLayout.SetSameLineFlag( true );
-
     m_SubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_LINE ) );
     m_SubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_RECTANGLE ) );
     m_SubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_ELLIPSE ) );
 // Only add control surface in WingScreen.
 //    m_SubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_CONTROL) );
 
-    int b_width = m_SubSurfLayout.GetRemainX();
-    m_SubSurfLayout.SetButtonWidth( (int)(b_width * 0.4) );
-    m_SubSurfLayout.SetChoiceButtonWidth( b_width / 5 );
-    m_SubSurfLayout.SetSliderWidth( (int)(b_width * 0.4) );
+    m_SubSurfLayout.SetChoiceButtonWidth( m_SubSurfLayout.GetRemainX() / 3 );
+
     m_SubSurfLayout.AddChoice( m_SubSurfChoice, "Type" );
+    m_SubSurfLayout.AddChoice( m_SubSurfSelectSurface, "Surface" );
     m_SubSurfLayout.AddButton( m_AddSubSurfButton, "Add" );
 
-    m_SubSurfLayout.SetFitWidthFlag( true );
-    m_SubSurfLayout.SetSameLineFlag( false );
-    m_SubSurfLayout.ForceNewLine();
+    m_SSCurrMainSurfIndx = 0;
 
     m_SubSurfLayout.AddYGap();
 
@@ -788,6 +782,24 @@ bool GeomScreen::Update()
     }
 
     //================= SubSurfaces Tab ===================//
+
+    m_SubSurfSelectSurface.ClearItems();
+
+    int nmain = geom_ptr->GetNumMainSurfs();
+    for ( int i = 0; i < nmain; ++i )
+    {
+        char str[256];
+        sprintf( str, "Surf_%d", i );
+        m_SubSurfSelectSurface.AddItem( str );
+    }
+    m_SubSurfSelectSurface.UpdateItems();
+
+    if( m_SSCurrMainSurfIndx < 0 || m_SSCurrMainSurfIndx >= nmain )
+    {
+        m_SSCurrMainSurfIndx = 0;
+    }
+    m_SubSurfSelectSurface.SetVal( m_SSCurrMainSurfIndx );
+
     SubSurface* subsurf = geom_ptr->GetSubSurf( SubSurfaceMgr.GetCurrSurfInd() );
 
     if ( subsurf )
@@ -983,19 +995,19 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
         SubSurface* ssurf = NULL;
         if ( m_SubSurfChoice.GetVal() == vsp::SS_LINE )
         {
-            ssurf = geom_ptr->AddSubSurf( vsp::SS_LINE );
+            ssurf = geom_ptr->AddSubSurf( vsp::SS_LINE, m_SSCurrMainSurfIndx );
         }
         else if ( m_SubSurfChoice.GetVal() == vsp::SS_RECTANGLE )
         {
-            ssurf = geom_ptr->AddSubSurf( vsp::SS_RECTANGLE );
+            ssurf = geom_ptr->AddSubSurf( vsp::SS_RECTANGLE, m_SSCurrMainSurfIndx );
         }
         else if ( m_SubSurfChoice.GetVal() == vsp::SS_ELLIPSE )
         {
-            ssurf = geom_ptr->AddSubSurf( vsp::SS_ELLIPSE );
+            ssurf = geom_ptr->AddSubSurf( vsp::SS_ELLIPSE, m_SSCurrMainSurfIndx );
         }
         else if (m_SubSurfChoice.GetVal() == vsp::SS_CONTROL)
         {
-            ssurf = geom_ptr->AddSubSurf(vsp::SS_CONTROL);
+            ssurf = geom_ptr->AddSubSurf(vsp::SS_CONTROL, m_SSCurrMainSurfIndx);
         }
 
         if ( ssurf )
@@ -1016,6 +1028,10 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             sub_surf->SetName( m_SubNameInput.GetString() );
         }
+    }
+    else if ( device == &m_SubSurfSelectSurface )
+    {
+        m_SSCurrMainSurfIndx = m_SubSurfSelectSurface.GetVal();
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
@@ -1060,6 +1076,7 @@ void GeomScreen::CallBack( Fl_Widget *w )
         if ( sub_surf )
         {
             m_SubSurfChoice.SetVal( sub_surf->GetType() );
+            m_SSCurrMainSurfIndx = sub_surf->m_MainSurfIndx();
         }
     }
     else if ( w == m_SetBrowser )

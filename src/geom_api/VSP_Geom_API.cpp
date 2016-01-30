@@ -1165,7 +1165,7 @@ int GetNumMainSurfs( const string & geom_id )
 }
 
 /// Add a sub surface, return subsurface id
-string AddSubSurf( const string & geom_id, int type )
+string AddSubSurf( const string & geom_id, int type, int surfindex )
 {
     Vehicle* veh = GetVehicle();
     Geom* geom_ptr = veh->FindGeom( geom_id );
@@ -1176,7 +1176,7 @@ string AddSubSurf( const string & geom_id, int type )
     }
 
     SubSurface* ssurf = NULL;
-    ssurf = geom_ptr->AddSubSurf( type );
+    ssurf = geom_ptr->AddSubSurf( type, surfindex );
     if ( !ssurf )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "AddSubSurface::Invalid Sub Surface Ptr "  );

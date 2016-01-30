@@ -255,6 +255,8 @@ public:
     TriggerButton m_DelSubSurfButton;
     TriggerButton m_AddSubSurfButton;
     Choice m_SubSurfChoice;
+    Choice m_SubSurfSelectSurface;
+    int m_SSCurrMainSurfIndx;
 
     GroupLayout m_SSCommonGroup;
     StringInput m_SubNameInput;

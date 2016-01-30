@@ -1276,7 +1276,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "int GetNumMainSurfs( const string & in geom_id )", asFUNCTION( vsp::GetNumMainSurfs ), asCALL_CDECL );
     assert( r >= 0 );
-    r = se->RegisterGlobalFunction( "string AddSubSurf( const string & in geom_id, int type )", asFUNCTION( vsp::AddSubSurf ), asCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string AddSubSurf( const string & in geom_id, int type, int surfindex = 0 )", asFUNCTION( vsp::AddSubSurf ), asCALL_CDECL );
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "void DeleteSubSurf( const string & in geom_id, const string & in sub_id )", asFUNCTION( vsp::DeleteSubSurf ), asCALL_CDECL );
     assert( r >= 0 );

@@ -1442,7 +1442,7 @@ xmlNodePtr Geom::DecodeXml( xmlNodePtr & node )
                     if ( ss_info_node )
                     {
                         int type = XmlUtil::FindInt( ss_info_node, "Type", vsp::SS_LINE );
-                        SubSurface* ssurf = AddSubSurf( type );
+                        SubSurface* ssurf = AddSubSurf( type, -1 );
                         if ( ssurf )
                         {
                             ssurf->DecodeXml( ss_node );
@@ -2469,7 +2469,7 @@ void Geom::DelSubSurf( int ind )
     SubSurfaceMgr.ReSuffixGroupNames( GetID() );
 }
 
-SubSurface* Geom::AddSubSurf( int type )
+SubSurface* Geom::AddSubSurf( int type, int surfindex )
 {
     SubSurface* ssurf = NULL;
 
@@ -2497,6 +2497,7 @@ SubSurface* Geom::AddSubSurf( int type )
     if ( ssurf )
     {
         ssurf->SetParentContainer( GetID() );
+        ssurf->m_MainSurfIndx.Set( surfindex );
         AddSubSurf( ssurf );
     }
 

@@ -422,7 +422,7 @@ public:
     {
         m_SubSurfVec.push_back( sub_surf );
     }
-    virtual SubSurface* AddSubSurf( int type );
+    virtual SubSurface* AddSubSurf( int type, int surfindex );
     virtual bool ValidSubSurfInd( int ind );
     virtual void DelSubSurf( int ind );
     virtual SubSurface* GetSubSurf( int ind );
