@@ -126,6 +126,7 @@ public:
 
     int m_Tag;
     IntParm m_TestType;
+    IntParm m_MainSurfIndx;
 
 protected:
     string m_CompID; // Component ID used to match Subsurface to a specific geom

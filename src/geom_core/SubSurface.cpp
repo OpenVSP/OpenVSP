@@ -30,6 +30,9 @@ SubSurface::SubSurface( string compID, int type )
     m_PolyPntsReadyFlag = false;
     m_FirstSplit = true;
     m_PolyFlag = true;
+
+    m_MainSurfIndx.Init( "MainSurfIndx", "SubSurface", this, -1, -1, 1e12 );
+    m_MainSurfIndx.SetDescript( "Surface index for subsurface" );
 }
 
 SubSurface::~SubSurface()
