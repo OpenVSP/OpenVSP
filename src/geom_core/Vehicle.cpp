@@ -2133,15 +2133,6 @@ void Vehicle::FetchXFerSurfs( int write_set, vector< XferSurf > &xfersurfs )
 {
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
 
-    int num_comps = 0;
-    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
-    {
-        if( geom_vec[i]->GetSetFlag( write_set ) )
-        {
-            num_comps += geom_vec[i]->GetNumTotalSurfs();
-        }
-    }
-
     int icomp = 0;
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
