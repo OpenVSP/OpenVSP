@@ -1959,6 +1959,14 @@ void Geom::CreateDegenGeom( vector<DegenGeom> &dgs)
             degenGeom.createBodyDegenStick( pnts, uwpnts );
         }
 
+        for ( int j = 0; j < m_SubSurfVec.size(); j++ )
+        {
+            if ( m_SurfIndxVec[i] == m_SubSurfVec[j]->m_MainSurfIndx() )
+            {
+                degenGeom.addDegenSubSurf( m_SubSurfVec[j] );
+            }
+        }
+
         dgs.push_back(degenGeom);
     }
 }

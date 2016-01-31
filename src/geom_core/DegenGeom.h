@@ -12,6 +12,7 @@
 #include "Vec3d.h"
 #include "Vec2d.h"
 #include "Matrix.h"
+#include "SubSurface.h"
 
 using namespace std;
 
@@ -80,6 +81,13 @@ typedef struct
     vector< vec3d >             xcgShell;   //!
     vector< vec3d >             xcgSolid;   //!
 } DegenPoint;
+
+typedef struct
+{
+    int                         testType;   //!
+    vector< double >            u;          //!
+    vector< double >            w;          //!
+} DegenSubSurf;
 
 typedef struct
 {
@@ -197,6 +205,7 @@ public:
     void createBodyDegenStick( const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts );
     void createDegenStick( DegenStick &degenStick, const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts, int nLow, int nHigh, int startPnt );
     void createDegenDisk(  const vector< vector< vec3d > > &pntsarr, bool flipnormal );
+    void addDegenSubSurf( SubSurface *ssurf );
 
     string makeCsvFmt( int n, bool newline = true );
     void write_degenGeomCsv_file( FILE* file_id );
@@ -205,6 +214,7 @@ public:
     void write_degenGeomStickCsv_file( FILE* file_id, int nxsecs, DegenStick &degenStick );
     void write_degenGeomPointCsv_file( FILE* file_id, int nxsecs );
     void write_degenGeomDiskCsv_file( FILE* file_id );
+    void write_degenSubSurfCsv_file( FILE* file_id, int isubsurf );
 
     void write_degenGeomM_file( FILE* file_id );
     void write_degenGeomSurfM_file( FILE* file_id, int nxsecs );
@@ -212,6 +222,7 @@ public:
     void write_degenGeomStickM_file( FILE* file_id, int nxsecs, DegenStick &degenStick, int istick );
     void write_degenGeomPointM_file( FILE* file_id, int nxsecs );
     void write_degenGeomDiskM_file( FILE* file_id );
+    void write_degenSubSurfM_file( FILE* file_id, int isubsurf );
 
 protected:
 
@@ -220,6 +231,7 @@ protected:
     vector< DegenStick >   degenSticks;
     DegenPoint   degenPoint;
     DegenDisk    degenDisk;
+    vector< DegenSubSurf > degenSubSurfs;
 
     int num_xsecs;
     int num_pnts;

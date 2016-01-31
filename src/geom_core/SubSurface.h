@@ -97,6 +97,10 @@ public:
     {
         return m_PolyFlag;
     }
+    virtual std::vector< std::vector< vec2d > > & GetPolyPntsVec()
+    {
+        return m_PolyPntsVec;
+    }
     virtual void LoadDrawObjs( std::vector< DrawObj* >& draw_obj_vec );
     virtual void SetUpdateDraw( bool flag )
     {
@@ -113,6 +117,7 @@ public:
     virtual bool Subtag( TTri* tri ); // Method to subtag triangles from TMesh.
     virtual bool Subtag( const vec3d & center );
     virtual void Update();
+    virtual void UpdatePolygonPnts();
     virtual std::vector< TMesh* > CreateTMeshVec(); // Method to create a TMeshVector
     virtual void UpdateDrawObjs(); // Method to create lines to draw
     virtual void SplitSegs( const vector<int> & split_u, const vector<int> & split_w ); // Split line segments for CfdMesh surfaces
@@ -148,8 +153,6 @@ protected:
         return -1;
     }
     virtual void ReorderSplitSegs( int ind );
-
-    virtual void UpdatePolygonPnts();
 
 };
 

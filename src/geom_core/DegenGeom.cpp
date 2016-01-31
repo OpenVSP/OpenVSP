@@ -675,6 +675,32 @@ void DegenGeom::createDegenDisk(  const vector< vector< vec3d > > &pntsarr, bool
     degenDisk.d = 2.0 * r;
 }
 
+void DegenGeom::addDegenSubSurf( SubSurface *ssurf )
+{
+    ssurf->UpdatePolygonPnts();
+
+    std::vector< std::vector< vec2d > > ppvec = ssurf->GetPolyPntsVec();
+
+    for ( int i = 0; i < ppvec.size(); i++ )
+    {
+        DegenSubSurf dgss;
+        dgss.testType = ssurf->m_TestType();
+
+        int npt = ppvec[i].size();
+
+        dgss.u.resize( npt );
+        dgss.w.resize( npt );
+
+        for ( int j = 0; j < ppvec[i].size(); j++ )
+        {
+            dgss.u[j] = ppvec[i][j].x();
+            dgss.w[j] = ppvec[i][j].y();
+        }
+
+        degenSubSurfs.push_back( dgss );
+    }
+}
+
 string DegenGeom::makeCsvFmt( int n, bool newline )
 {
     char fmt[10];
@@ -895,6 +921,28 @@ void DegenGeom::write_degenGeomDiskCsv_file( FILE* file_id )
              degenDisk.nvec.z()  );
 }
 
+void DegenGeom::write_degenSubSurfCsv_file( FILE* file_id, int isubsurf )
+{
+    fprintf( file_id, "# DegenGeom Type\n" );
+    fprintf( file_id, "SUBSURF\n" );
+
+    fprintf( file_id, "# testType\n" );
+    fprintf( file_id, "%d\n", \
+            degenSubSurfs[isubsurf].testType );
+
+    int n = degenSubSurfs[isubsurf].u.size();
+
+    fprintf( file_id, "# DegenGeom Type, nPts\n" );
+    fprintf( file_id, "SUBSURF_BNDY, %d\n", n );
+    fprintf( file_id, "# u,w,\n" );
+    for ( int i = 0; i < n; i++ )
+    {
+        fprintf( file_id, makeCsvFmt( 2 ).c_str(), \
+                 degenSubSurfs[isubsurf].u[i],                  \
+                 degenSubSurfs[isubsurf].w[i] );
+    }
+}
+
 void DegenGeom::write_degenGeomCsv_file( FILE* file_id )
 {
     int nxsecs = num_xsecs;
@@ -935,6 +983,11 @@ void DegenGeom::write_degenGeomCsv_file( FILE* file_id )
     }
 
     write_degenGeomPointCsv_file( file_id, nxsecs );
+
+    for ( int i = 0; i < degenSubSurfs.size(); i++ )
+    {
+        write_degenSubSurfCsv_file( file_id, i );
+    }
 }
 
 void DegenGeom::write_degenGeomSurfM_file( FILE* file_id, int nxsecs )
@@ -1045,6 +1098,22 @@ void DegenGeom::write_degenGeomDiskM_file( FILE* file_id )
     writeVec3d.write(  file_id, degenDisk.nvec, basename + "n" );
 }
 
+void DegenGeom::write_degenSubSurfM_file( FILE* file_id, int isubsurf )
+{
+    char num[80];
+    sprintf( num, "degenGeom(end).subsurf(%d).", isubsurf );
+    string basename = string( num );
+
+    WriteVecDoubleM writeVecDouble;
+
+    fprintf( file_id, "\ndegenGeom(end).subsurf(%d).testType = %d;\n", isubsurf, degenSubSurfs[isubsurf].testType );
+
+    int n = degenSubSurfs[isubsurf].u.size();
+
+    writeVecDouble.write( file_id, degenSubSurfs[isubsurf].u,        basename + "u",        n );
+    writeVecDouble.write( file_id, degenSubSurfs[isubsurf].w,        basename + "w",        n );
+}
+
 void DegenGeom::write_degenGeomM_file( FILE* file_id )
 {
     int nxsecs = num_xsecs;
@@ -1088,4 +1157,9 @@ void DegenGeom::write_degenGeomM_file( FILE* file_id )
     }
 
     write_degenGeomPointM_file( file_id, nxsecs );
+
+    for ( int i = 0; i < degenSubSurfs.size(); i++ )
+    {
+        write_degenSubSurfM_file( file_id, i );
+    }
 }
