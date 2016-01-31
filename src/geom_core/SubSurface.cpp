@@ -177,10 +177,7 @@ xmlNodePtr SubSurface::EncodeXml( xmlNodePtr & node )
 
 bool SubSurface::Subtag( const vec3d & center )
 {
-    if ( !m_PolyPntsReadyFlag )
-    {
-        UpdatePolygonPnts(); // Update polygon vector
-    }
+    UpdatePolygonPnts(); // Update polygon vector
 
     for ( int p = 0; p < ( int )m_PolyPntsVec.size(); p++ )
     {
@@ -211,6 +208,11 @@ bool SubSurface::Subtag( const vec3d & center )
 //==================================//
 void SubSurface::UpdatePolygonPnts()
 {
+    if ( m_PolyPntsReadyFlag )
+    {
+        return;
+    }
+
     m_PolyPntsVec.resize( 1 );
 
     m_PolyPntsVec[0].clear();
@@ -1071,6 +1073,11 @@ void SSControlSurf::Update()
 
 void SSControlSurf::UpdatePolygonPnts()
 {
+    if ( m_PolyPntsReadyFlag )
+    {
+        return;
+    }
+
     if ( m_SurfType() == UPPER_SURF || m_SurfType() == LOWER_SURF )
     {
         SubSurface::UpdatePolygonPnts();
