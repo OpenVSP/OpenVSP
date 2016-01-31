@@ -897,14 +897,15 @@ bool GeomScreen::Update()
 
     //==== SubSurfBrowser ====//
     m_SubSurfBrowser->clear();
-    static int widths[] = { 75, 75 };
+    static int widths[] = { 75, 75, 75 };
     m_SubSurfBrowser->column_widths( widths );
     m_SubSurfBrowser->column_char( ':' );
 
-    sprintf( str, "@b@.NAME:@b@.TYPE" );
+    sprintf( str, "@b@.NAME:@b@.TYPE:@b@.SURF" );
     m_SubSurfBrowser->add( str );
 
     string ss_name, ss_type;
+    int ss_surf_ind;
 
     vector<SubSurface*> subsurf_vec = geom_ptr->GetSubSurfVec();
     for ( int i = 0; i < ( int )subsurf_vec.size() ; i++ )
@@ -912,7 +913,8 @@ bool GeomScreen::Update()
 
         ss_name = subsurf_vec[i]->GetName();
         ss_type = SubSurface::GetTypeName( subsurf_vec[i]->GetType() );
-        sprintf( str, "%s:%s", ss_name.c_str(), ss_type.c_str() );
+        ss_surf_ind = subsurf_vec[i]->m_MainSurfIndx.Get();
+        sprintf( str, "%s:%s:Surf_%d", ss_name.c_str(), ss_type.c_str(), ss_surf_ind );
         m_SubSurfBrowser->add( str );
     }
 
