@@ -84,6 +84,7 @@ typedef struct
 
 typedef struct
 {
+    string                      name;       //!
     int                         testType;   //!
     vector< double >            u;          //!
     vector< double >            w;          //!
