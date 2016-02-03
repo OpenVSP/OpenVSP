@@ -10,7 +10,6 @@ awaveFlScreen.fl
 curveEditFlScreen.fl
 feaStructFlScreen.fl
 labelFlScreen.fl
-mainScreen.fl
 massPropFlScreen.fl
 parmFlScreen.fl
 pickSetFlScreen.fl
