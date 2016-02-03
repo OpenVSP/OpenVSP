@@ -17,6 +17,7 @@
 #include <FL/Fl_Text_Editor.H>
 #include <FL/Fl_Radio_Button.H>
 #include <FL/Fl_Color_Chooser.H>
+#include <FL/Fl_Sys_Menu_Bar.h>
 
 #include "GuiDevice.h"
 
@@ -153,6 +154,7 @@ public:
     Fl_Text_Editor* AddFlTextEditor( int height );
     Fl_Text_Display* AddFlTextDisplay( int height );
     Fl_Scroll* AddFlScroll( int height );
+    Fl_Sys_Menu_Bar* AddFlMenuBar( int height );
 
     Fl_Color_Chooser* AddFlColorChooser( int height );
 

@@ -1337,6 +1337,23 @@ Fl_Scroll* GroupLayout::AddFlScroll( int height )
     return scroll;
 }
 
+Fl_Sys_Menu_Bar* GroupLayout::AddFlMenuBar( int height )
+{
+    assert( m_Group && m_Screen );
+
+    Fl_Sys_Menu_Bar *menubar = new Fl_Sys_Menu_Bar( m_X, m_Y, m_W, height );
+
+    m_Group->add( menubar );
+
+#ifndef __APPLE__
+    menubar->box( FL_EMBOSSED_BOX );
+    AddY( height );
+    NewLineX();
+#endif
+
+    return menubar;
+}
+
 //==== Add Fl Color Chooser ====//
 Fl_Color_Chooser* GroupLayout::AddFlColorChooser(int height)
 {
