@@ -106,11 +106,11 @@ public:
     };
     void ShowReturnToAPI()
     {
-        ( ( MainVSPScreen* ) m_ScreenVec[VSP_MAIN_SCREEN] )->ShowReturnToAPI();
+//        ( ( MainVSPScreen* ) m_ScreenVec[VSP_MAIN_SCREEN] )->ShowReturnToAPI();
     };
     void HideReturnToAPI()
     {
-        ( ( MainVSPScreen* ) m_ScreenVec[VSP_MAIN_SCREEN] )->HideReturnToAPI();
+//        ( ( MainVSPScreen* ) m_ScreenVec[VSP_MAIN_SCREEN] )->HideReturnToAPI();
     };
 
 protected:
