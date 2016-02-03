@@ -71,6 +71,20 @@ std::string VspScreen::getFeedbackGroupName()
 //=====================================================================//
 //=====================================================================//
 
+ActionScreen::ActionScreen( ScreenMgr* mgr ) : VspScreen( mgr )
+{
+}
+
+//==== Destructor ====//
+ActionScreen::~ActionScreen()
+{
+}
+
+//=====================================================================//
+//=====================================================================//
+//=====================================================================//
+
+
 //==== Constructor ====//
 BasicScreen::BasicScreen( ScreenMgr* mgr, int w, int h, const string & title  ) : VspScreen( mgr )
 {

@@ -95,6 +95,15 @@ protected:
 
 };
 
+class ActionScreen : public VspScreen
+{
+public:
+    ActionScreen( ScreenMgr* mgr );
+    virtual ~ActionScreen();
+
+    virtual void ActionCB( void * data )         {}
+};
+
 //==== Basic Screen ====//
 class BasicScreen : public VspScreen
 {
