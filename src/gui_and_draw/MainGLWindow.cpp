@@ -1700,6 +1700,7 @@ void VspGlWindow::OnKeyup( int x, int y )
         display->center();
         break;
     }
+    case 0x46:
     case 0x66: //Key 'F'; Fits bounding box within each viewport.
     {
         Vehicle* vPtr = VehicleMgr.GetVehicle();
