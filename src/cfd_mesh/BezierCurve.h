@@ -71,6 +71,8 @@ public:
     bool MatchFwd( const Bezier_curve &ocrv, double tol ) const;
     bool MatchBkwd( const Bezier_curve &ocrv, double tol ) const;
 
+    bool SingleLinear();
+
     piecewise_curve_type GetCurve() const
     {
         return m_Curve;

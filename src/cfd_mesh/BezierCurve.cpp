@@ -345,3 +345,25 @@ bool Bezier_curve::MatchBkwd( const Bezier_curve &ocrv, double tol ) const
     revcrv.FlipCurve();
     return MatchFwd( revcrv, tol );
 }
+
+bool Bezier_curve::SingleLinear()
+{
+    int nsect = m_Curve.number_segments();
+
+    if ( nsect != 1 )
+    {
+        return false;
+    }
+
+    for ( int i = 0; i < nsect; i++ )
+    {
+        curve_segment_type cA;
+        m_Curve.get( cA, i );
+
+        if ( cA.degree() != 1 )
+        {
+            return false;
+        }
+    }
+    return true;
+}

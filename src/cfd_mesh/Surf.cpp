@@ -709,7 +709,7 @@ bool Surf::BorderCurveOnSurface( Surf* surfPtr )
             retFlag = true;
         }
 
-        if ( num_pnts_on_surf > 2 )
+        if ( num_pnts_on_surf > 2 || ( num_pnts_on_surf == 2 && crv.SingleLinear() ) )
         {
             //==== If Surface Add To List ====//
             CfdMeshMgr.AddPossCoPlanarSurf( this, surfPtr );
