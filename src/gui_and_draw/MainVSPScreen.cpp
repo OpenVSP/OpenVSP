@@ -65,7 +65,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
 
     m_NewMenuItem.Init( this, m_MenuBar, "File/New" );
     m_OpenMenuItem.Init( this, m_MenuBar, "File/Open..." );
-    m_SaveMenuItem.Init( this, m_MenuBar, "File/Save..." );
+    m_SaveMenuItem.Init( this, m_MenuBar, "File/Save...", FL_COMMAND + 's' );
     m_SaveAsMenuItem.Init( this, m_MenuBar, "File/Save As..." );
     m_SaveSetMenuItem.Init( this, m_MenuBar, "File/Save Set..." );
     m_InsertMenuItem.Init( this, m_MenuBar, "File/Insert..." );
