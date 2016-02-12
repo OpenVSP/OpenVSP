@@ -1691,6 +1691,18 @@ int VspGlWindow::OnKeyup( int x, int y )
         display->center();
         break;
     }
+    case FL_Escape:
+    {
+        Vehicle* vPtr = VehicleMgr.GetVehicle();
+        if ( vPtr )
+        {
+            vector< string > none;
+            vPtr->SetActiveGeomVec( none );
+            m_ScreenMgr->SetUpdateFlag( true );
+        }
+        handled = 1;
+        break;
+    }
     case FL_F+1:
         if( Fl::event_state( FL_SHIFT ) )
         {
@@ -1846,15 +1858,6 @@ int VspGlWindow::OnKeydown()
         if( corScreen )
         {
             corScreen->EnableSelection();
-        }
-        break;
-    case FL_Escape:
-        Vehicle* vPtr = VehicleMgr.GetVehicle();
-        if ( vPtr )
-        {
-            vector< string > none;
-            vPtr->SetActiveGeomVec( none );
-            m_ScreenMgr->SetUpdateFlag( true );
         }
         break;
     }
