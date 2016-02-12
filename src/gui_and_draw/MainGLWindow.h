@@ -97,14 +97,6 @@ public:
     virtual glm::vec2 getPanValues();
 
     /*!
-    * Zoom current selected camera.
-    *
-    * delta - Zoom in or out.  Positive zooms out, negtive zooms in.
-    * precisionOn - If true, zoom slowly.
-    */
-    virtual void zoom( int delta, bool precisionOn = false );
-
-    /*!
     * Zoom current selected camera relative to a point in world space.
     *
     * delta - Zoom in or out.  Positive zooms out, negtive zooms in.

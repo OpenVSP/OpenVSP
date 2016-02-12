@@ -280,29 +280,6 @@ void ArcballCam::zoom( int px, int py, int cx, int cy )
     _calculateProjection();
 }
 
-void ArcballCam::zoom( float zoomvalue )
-{
-    _oZoom += zoomvalue;
-    _pZoom += zoomvalue;
-
-    if( _oZoom < 0.000001f )
-    {
-        _oZoom = 0.000001f;
-    }
-
-    if( _pZoom < 10.f )
-    {
-        _pZoom = 10.f;
-    }
-
-    if( _pZoom > 360.f )
-    {
-        _pZoom = 360.f;
-    }
-
-    _calculateProjection();
-}
-
 void ArcballCam::relativeZoom( float zoomvalue )
 {
     _oZoom = zoomvalue;

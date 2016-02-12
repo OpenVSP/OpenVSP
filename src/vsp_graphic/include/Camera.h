@@ -142,14 +142,6 @@ public:
     virtual void zoom( int px, int py, int cx, int cy ) = 0;
 
     /*!
-    * Zoom in or out.
-    *
-    * zoomvalue - amount to zoom in or out.  Positive zooms out,
-    * negative zooms in.
-    */
-    virtual void zoom( float zoomvalue ) = 0;
-
-    /*!
     * Zoom in or out relative to a point in world space.
     *
     * zoomvalue - amount to zoom in or out.  Positive zooms out,

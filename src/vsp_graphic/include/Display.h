@@ -204,14 +204,6 @@ public:
     virtual void zoom( int px, int py, int cx, int cy );
 
     /*!
-    * Zoom in or out scene.
-    *
-    * zoomvalue - amount to zoom in or out.  Positive zooms out,
-    * negative zooms in.
-    */
-    virtual void zoom( float zoomvalue );
-
-    /*!
     * Get Zoom Value.
     */
     virtual float getZoomValue();

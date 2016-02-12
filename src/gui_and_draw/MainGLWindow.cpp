@@ -119,24 +119,6 @@ glm::vec2 VspGlWindow::getPanValues()
     return m_GEngine->getDisplay()->getPanValues();
 }
 
-void VspGlWindow::zoom( int delta, bool precisionOn )
-{
-    float zoomvalue = 0;
-
-    if( delta != 0 )
-    {
-        if( precisionOn )
-        {
-            zoomvalue = PRECISION_ZOOM_SPEED * ( delta < 0 ? -1 : 1 );
-        }
-        else
-        {
-            zoomvalue = ZOOM_SPEED * ( delta < 0 ? -1 : 1 );
-        }
-    }
-    m_GEngine->getDisplay()->zoom( zoomvalue );
-}
-
 void VspGlWindow::relativeZoom( float zoomValue )
 {
     m_GEngine->getDisplay()->relativeZoom( zoomValue );
