@@ -20,6 +20,7 @@
 #include "Viewport.h"
 #include <FL/fl_ask.H>
 #include <FL/Fl_Group.H>
+#include "ManageCORScreen.h"
 #include "ManageGeomScreen.h"
 
 using namespace vsp;
@@ -100,6 +101,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_RightSideMenuItem.Init( this, m_MenuBar, "View/Right Side", FL_F + 11 );
     m_RightIsoMenuItem.Init( this, m_MenuBar, "View/Right Iso", FL_F + 12 );
     m_CenterMenuItem.Init( this, m_MenuBar, "View/Center", 'c' );
+    m_SetCORMenuItem.Init( this, m_MenuBar, "View/Set Rotation Center", 'r' );
     m_AdjustMenuItem.Init( mgr, m_MenuBar, "View/Adjust...", ScreenMgr::VSP_VIEW_SCREEN );
     // m_AntialiasMenuItem.Init( this, m_MenuBar, "View/New" );
 
@@ -452,6 +454,16 @@ void MainVSPScreen::ActionCB( void * data )
     {
         m_GlWin->setView( VSPGraphic::Common::VSP_CAM_CENTER );
         m_GlWin->redraw();
+    }
+    else if ( data == &m_SetCORMenuItem )
+    {
+        ManageCORScreen * corScreen = NULL;
+        corScreen = dynamic_cast<ManageCORScreen *>
+        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_COR_SCREEN ) );
+        if( corScreen )
+        {
+            corScreen->EnableSelection();
+        }
     }
     // else if ( m_AntialiasMenuItem )
     // {

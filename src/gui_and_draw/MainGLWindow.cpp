@@ -1845,21 +1845,10 @@ int VspGlWindow::OnKeyup( int x, int y )
 
 int VspGlWindow::OnKeydown()
 {
-    ManageCORScreen * corScreen = NULL;
     int handled = 0;
 
     switch( Fl::event_key() )
     {
-    // 'r'
-    case 0x52:
-    case 0x72:
-        corScreen = dynamic_cast<ManageCORScreen *> 
-            ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_COR_SCREEN ) );
-        if( corScreen )
-        {
-            corScreen->EnableSelection();
-        }
-        break;
     }
     redraw();
 
