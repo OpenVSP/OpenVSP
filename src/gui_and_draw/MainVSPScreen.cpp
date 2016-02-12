@@ -134,6 +134,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     // m_VersionMenuItem.Init( mgr, m_MenuBar, "Help/Check Latest Version...", ScreenMgr:: );
 
     BoldEntries( "File" );
+    BoldEntries( "Edit" );
     BoldEntries( "Window" );
     BoldEntries( "View" );
     BoldEntries( "Model" );
