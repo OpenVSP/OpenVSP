@@ -2254,6 +2254,28 @@ void Vehicle::UpdateBBox()
     m_BBox = new_box;
 }
 
+bool Vehicle::GetVisibleBndBox( BndBox &b )
+{
+    b.Reset();
+
+    int ngeom;
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
+    ngeom = (int) geom_vec.size();
+
+    bool anyvisible = false;
+
+    for ( int i = 0 ; i < ngeom ; i++ )
+    {
+        if ( !geom_vec[i]->m_GuiDraw.GetNoShowFlag() )
+        {
+            b.Update( geom_vec[i]->GetBndBox() );
+            anyvisible = true;
+        }
+    }
+
+    return anyvisible;
+}
+
 string Vehicle::getExportFileName( int type )
 {
     bool doreturn = false;
