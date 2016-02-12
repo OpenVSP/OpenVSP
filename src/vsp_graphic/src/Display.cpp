@@ -195,15 +195,6 @@ void Display::pan( int px, int py, int cx, int cy )
     }
 }
 
-void Display::pan( float x, float y )
-{
-    Camera * camera = getCamera();
-    if( camera )
-    {
-        camera->pan( x, y );
-    }
-}
-
 glm::vec2 Display::getPanValues()
 {
     Camera * camera = getCamera();

@@ -103,38 +103,6 @@ void VspGlWindow::relativePan( float x, float y )
     m_GEngine->getDisplay()->relativePan( x, y );
 }
 
-void VspGlWindow::pan( int dx, int dy, bool precisionOn )
-{
-    float x = 0;
-    float y = 0;
-
-    if( precisionOn )
-    {
-        if( dx != 0 )
-        {
-            x = PRECISION_PAN_SPEED * ( dx < 0 ? -1 : 1 );
-        }
-
-        if( dy != 0 )
-        {
-            y = PRECISION_PAN_SPEED * ( dy < 0 ? -1 : 1 );
-        }
-    }
-    else
-    {
-        if( dx != 0 )
-        {
-            x = PAN_SPEED * ( dx < 0 ? -1 : 1 );
-        }
-
-        if( dy != 0 )
-        {
-            y = PAN_SPEED * ( dy < 0 ? -1 : 1 );
-        }
-    }
-    m_GEngine->getDisplay()->pan( x, y );
-}
-
 void VspGlWindow::setCOR( glm::vec3 center )
 {
     m_GEngine->getDisplay()->setCOR( -center.x, -center.y, -center.z );
@@ -1688,7 +1656,6 @@ void VspGlWindow::OnKeyup( int x, int y )
 //            vec3d p = bbox.GetCenter();
 //            m_GEngine->getDisplay()->setCOR( -p.x(), -p.y(), -p.z() );
 
-            m_GEngine->getDisplay()->pan( 0.0f, 0.0f );
             m_GEngine->getDisplay()->relativePan( 0.0f, 0.0f );
 
             if ( viewScreen->IsShown() )
@@ -1710,7 +1677,6 @@ void VspGlWindow::OnKeyup( int x, int y )
             vec3d p = bbox.GetCenter();
             m_GEngine->getDisplay()->setCOR( -p.x(), -p.y(), -p.z() );
 
-            m_GEngine->getDisplay()->pan( 0.0f, 0.0f );
             m_GEngine->getDisplay()->relativePan( 0.0f, 0.0f );
 
             // TODO: Now we need to determine how much to zoom in order to fit the entire object on each viewport.

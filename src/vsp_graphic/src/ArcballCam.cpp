@@ -225,16 +225,6 @@ void ArcballCam::pan( int px, int py, int cx, int cy )
     _modelviewMatrix = _tMat * _viewMatrix * _rMat * _cMat;
 }
 
-void ArcballCam::pan( float x, float y )
-{
-    _pan.x += x;
-    _pan.y += y;
-
-    _tMat = glm::translate( glm::vec3(_pan.x, _pan.y, 0.0f) );
-
-    _modelviewMatrix = _tMat * _viewMatrix * _rMat * _cMat;
-}
-
 glm::vec2 ArcballCam::getPanValues()
 {
     glm::vec2 panValues( _pan.x, _pan.y );

@@ -93,14 +93,6 @@ public:
     void pan( int px, int py, int cx, int cy );
 
     /*!
-    * Panning the scene.
-    *
-    * x, y - how much distance to pan.  The distance unit is
-    * in world space.
-    */
-    void pan( float x, float y );
-
-    /*!
      * Retrieves the pan values as a glm vec2
      * x - Distance in x direction.
      * y - Distance in y direction.

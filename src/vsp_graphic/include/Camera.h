@@ -120,13 +120,6 @@ public:
     virtual void pan( int px, int py, int cx, int cy ) = 0;
 
     /*!
-    * Panning the scene.
-    *
-    * x, y - how much distance to pan.
-    */
-    virtual void pan( float x, float y ) = 0;
-
-    /*!
      * Retrieves the pan values as a glm vec2
      * x - Distance in x direction.
      * y - Distance in y direction.

@@ -90,15 +90,6 @@ public:
     virtual void relativePan( float x, float y );
 
     /*!
-    * Pan current selected camera.
-    *
-    * dx - Direction on x-axis.  Positive moves right, negtive moves left.
-    * dy - Direction on y-axis.  Positive moves up, negtive moves down.
-    * precisionOn - pan camera slowly.
-    */
-    virtual void pan( int dx, int dy, bool precisionOn = false );
-
-    /*!
      * Retrieves the pan values as a glm vec2
      * x - Distance in x direction.
      * y - Distance in y direction.

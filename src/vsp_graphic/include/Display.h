@@ -181,14 +181,6 @@ public:
     virtual void pan( int px, int py, int cx, int cy );
 
     /*!
-    * Pan the scene.
-    *
-    * x - number of units to pan on x-axis.
-    * y - number of units to pan on y-axis.
-    */
-    virtual void pan( float x, float y );
-
-    /*!
      * Retrieves the pan values as a glm vec2
      * x - Distance in x direction.
      * y - Distance in y direction.
