@@ -107,20 +107,20 @@ protected:
 
     //===== Center of Rotation Values =====//
 
-    FractionParm m_CORXValue;
-    FractionParm m_CORYValue;
-    FractionParm m_CORZValue;
+    Parm m_CORXValue;
+    Parm m_CORYValue;
+    Parm m_CORZValue;
 
-    FractionParm m_PanXPosValue;
-    FractionParm m_PanYPosValue;
+    Parm m_PanXPosValue;
+    Parm m_PanYPosValue;
 
-    FractionParm m_ZoomValue;
+    Parm m_ZoomValue;
 
     //===== Attempt at Euler Angle Rotation =====//
 
-    FractionParm m_XRotationValue;
-    FractionParm m_YRotationValue;
-    FractionParm m_ZRotationValue;
+    Parm m_XRotationValue;
+    Parm m_YRotationValue;
+    Parm m_ZRotationValue;
 
 };
 
