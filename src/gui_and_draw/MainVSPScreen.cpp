@@ -388,73 +388,59 @@ void MainVSPScreen::ActionCB( void * data )
     else if ( data == &m_OneMenuItem )
     {
         m_GlWin->setWindowLayout( 1, 1 );
-        m_GlWin->redraw();
     }
     else if ( data == &m_FourMenuItem )
     {
         m_GlWin->setWindowLayout( 2, 2 );
-        m_GlWin->redraw();
     }
     else if ( data == &m_TwoHMenuItem )
     {
         m_GlWin->setWindowLayout( 1, 2 );
-        m_GlWin->redraw();
     }
     else if ( data == &m_TwoVMenuItem )
     {
         m_GlWin->setWindowLayout( 2, 1 );
-        m_GlWin->redraw();
     }
     else if ( data == &m_AxisMenuItem )
     {
         m_ShowXYZArrow = !m_ShowXYZArrow;
         m_GlWin->getGraphicEngine()->getDisplay()->getLayoutMgr()->getViewport()->showXYZArrows( m_ShowXYZArrow );
-        m_GlWin->redraw();
     }
     else if ( data == &m_TopMenuItem )
     {
         m_GlWin->setView( VSPGraphic::Common::VSP_CAM_TOP );
-        m_GlWin->redraw();
     }
     else if ( data == &m_FrontMenuItem )
     {
         m_GlWin->setView( VSPGraphic::Common::VSP_CAM_FRONT );
-        m_GlWin->redraw();
     }
     else if ( data == &m_LeftSideMenuItem )
     {
         m_GlWin->setView( VSPGraphic::Common::VSP_CAM_LEFT );
-        m_GlWin->redraw();
     }
     else if ( data == &m_LeftIsoMenuItem )
     {
         m_GlWin->setView( VSPGraphic::Common::VSP_CAM_LEFT_ISO );
-        m_GlWin->redraw();
     }
     else if ( data == &m_BottomMenuItem )
     {
         m_GlWin->setView( VSPGraphic::Common::VSP_CAM_BOTTOM );
-        m_GlWin->redraw();
     }
     else if ( data == &m_RearMenuItem )
     {
         m_GlWin->setView( VSPGraphic::Common::VSP_CAM_REAR );
-        m_GlWin->redraw();
     }
     else if ( data == &m_RightSideMenuItem )
     {
         m_GlWin->setView( VSPGraphic::Common::VSP_CAM_RIGHT );
-        m_GlWin->redraw();
     }
     else if ( data == &m_RightIsoMenuItem )
     {
         m_GlWin->setView( VSPGraphic::Common::VSP_CAM_RIGHT_ISO );
-        m_GlWin->redraw();
     }
     else if ( data == &m_CenterMenuItem )
     {
         m_GlWin->setView( VSPGraphic::Common::VSP_CAM_CENTER );
-        m_GlWin->redraw();
 
         ManageViewScreen * viewScreen = NULL;
         viewScreen = dynamic_cast< ManageViewScreen* >
