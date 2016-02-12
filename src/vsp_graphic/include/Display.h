@@ -204,11 +204,6 @@ public:
     virtual void zoom( int px, int py, int cx, int cy );
 
     /*!
-    * Get Zoom Value.
-    */
-    virtual float getZoomValue();
-
-    /*!
      * Get Relative Zoom Value
      */
     virtual float getRelativeZoomValue();

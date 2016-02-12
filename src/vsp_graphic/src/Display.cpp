@@ -223,16 +223,6 @@ void Display::zoom( int px, int py, int cx, int cy )
     }
 }
 
-float Display::getZoomValue()
-{
-    Camera * camera = getCamera();
-    if( camera )
-    {
-        return camera->getZoomValue();
-    }
-    return 0.0;
-}
-
 float Display::getRelativeZoomValue()
 {
     Camera * camera = getCamera();

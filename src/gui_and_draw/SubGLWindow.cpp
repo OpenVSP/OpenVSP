@@ -157,15 +157,6 @@ void VspSubGlWindow::_update( std::vector<DrawObj *> objects )
     }
 }
 
-void VspSubGlWindow::setZoomValue( float value )
-{
-    Camera * camera = m_GEngine->getDisplay()->getCamera();
-    if( camera )
-    {
-        camera->setZoomValue( value );
-    }
-}
-
 void VspSubGlWindow::_initGLEW()
 {
     if( !m_Initialized )

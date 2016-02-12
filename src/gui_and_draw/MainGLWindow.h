@@ -104,11 +104,6 @@ public:
     virtual void relativeZoom( float zoomValue );
 
     /*!
-    * Get Zoom Value.
-    */
-    virtual float getZoomValue();
-
-    /*!
      * Get Relative Zoom Value
      */
     virtual float getRelativeZoomValue();

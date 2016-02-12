@@ -46,17 +46,6 @@ public:
     * Default: VSP_CAM_ORTHO
     */
     virtual void setProjection( Common::VSPenum type );
-    /*!
-    * Set Zoom Value.
-    * value is a float that describe how close an item is appear in scene.
-    * Example:
-    * By default, when value equals to 1.0, the screen is zoomed to one unit space.
-    */
-    virtual void setZoomValue( float value );
-    /*!
-    * Get Zoom Value.
-    */
-    virtual float getZoomValue();
 
     /*!
      * Get Relative Zoom Value

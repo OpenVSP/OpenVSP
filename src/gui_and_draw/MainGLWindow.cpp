@@ -124,11 +124,6 @@ void VspGlWindow::relativeZoom( float zoomValue )
     m_GEngine->getDisplay()->relativeZoom( zoomValue );
 }
 
-float VspGlWindow::getZoomValue()
-{
-    return m_GEngine->getDisplay()->getZoomValue();
-}
-
 float VspGlWindow::getRelativeZoomValue()
 {
     return m_GEngine->getDisplay()->getRelativeZoomValue();

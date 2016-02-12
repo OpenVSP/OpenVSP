@@ -53,11 +53,6 @@ public:
     */
     virtual void update();
 
-    /*
-    * Set Zoom value.
-    */
-    virtual void setZoomValue( float value );
-
 public:
     /*!
     * Get graphic engine of this window.

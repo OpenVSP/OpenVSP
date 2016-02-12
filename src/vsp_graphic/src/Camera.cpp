@@ -70,17 +70,6 @@ void Camera::setProjection( Common::VSPenum type )
     _calculateProjection();
 }
 
-void Camera::setZoomValue( float value )
-{
-    _oZoom = value * ( _vWidth < _vHeight ? 1.f / _vWidth : 1.f / _vHeight );
-    _calculateProjection();
-}
-
-float Camera::getZoomValue()
-{
-    return _oZoom / ( _vWidth < _vHeight ? 1.f / _vWidth : 1.f / _vHeight );
-}
-
 void Camera::changeView( Common::VSPenum type )
 {
     switch( type )
