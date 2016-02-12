@@ -249,12 +249,10 @@ int VspGlWindow::handle( int fl_event )
         return 1;
 
     case FL_KEYDOWN:
-        OnKeydown();
-        return 1;
+        return OnKeydown();
 
     case FL_KEYUP:
-        OnKeyup( x, y );
-        return 1;
+        return OnKeyup( x, y );
 
     case FL_FOCUS:
         return 1;
@@ -1637,12 +1635,14 @@ void VspGlWindow::OnRelease( int x, int y )
     redraw();
 }
 
-void VspGlWindow::OnKeyup( int x, int y )
+int VspGlWindow::OnKeyup( int x, int y )
 {
     VSPGraphic::Display * display = m_GEngine->getDisplay();
 
     ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
     ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+
+    int handled = 0;
 
     switch( Fl::event_key() )
     {
@@ -1706,6 +1706,7 @@ void VspGlWindow::OnKeyup( int x, int y )
                 viewScreen->UpdateAll();
             }
         }
+        handled = 1;
         break;
 
     case FL_F+2:
@@ -1723,6 +1724,7 @@ void VspGlWindow::OnKeyup( int x, int y )
                 viewScreen->UpdateAll();
             }
         }
+        handled = 1;
         break;
 
     case FL_F+3:
@@ -1740,6 +1742,7 @@ void VspGlWindow::OnKeyup( int x, int y )
                 viewScreen->UpdateAll();
             }
         }
+        handled = 1;
         break;
 
     case FL_F+4:
@@ -1757,6 +1760,7 @@ void VspGlWindow::OnKeyup( int x, int y )
                 viewScreen->UpdateAll();
             }
         }
+        handled = 1;
         break;
 
     case FL_F+5:
@@ -1855,12 +1859,15 @@ void VspGlWindow::OnKeyup( int x, int y )
         break;
     }
     redraw();
+
+    return handled;
 }
 
-void VspGlWindow::OnKeydown()
+int VspGlWindow::OnKeydown()
 {
     ManageGeomScreen * geomScreen = NULL;
     ManageCORScreen * corScreen = NULL;
+    int handled = 0;
 
     switch( Fl::event_key() )
     {
@@ -1895,6 +1902,8 @@ void VspGlWindow::OnKeydown()
         break;
     }
     redraw();
+
+    return handled;
 }
 
 void VspGlWindow::_sendFeedback( Selectable * selected )

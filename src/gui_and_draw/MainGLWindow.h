@@ -174,8 +174,8 @@ private:
     void OnPush( int x, int y );
     void OnDrag( int x, int y );
     void OnRelease( int x, int y );
-    void OnKeyup( int x, int y );
-    void OnKeydown();
+    int OnKeyup( int x, int y );
+    int OnKeydown();
 
 private:
     VSPGraphic::GraphicEngine * m_GEngine;
