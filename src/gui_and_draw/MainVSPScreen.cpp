@@ -267,8 +267,6 @@ void MainVSPScreen::ActionCB( void * data )
 
         SetFileLabel( VehicleMgr.GetVehicle()->GetVSP3FileName() );
         m_GlWin->getGraphicEngine()->getDisplay()->setCOR( 0.0, 0.0, 0.0 );
-
-        m_ScreenMgr->SetUpdateFlag( true );
     }
     else if ( data == &m_OpenMenuItem )
     {
@@ -284,8 +282,6 @@ void MainVSPScreen::ActionCB( void * data )
             BndBox bbox = VehicleMgr.GetVehicle()->GetBndBox();
             vec3d p = bbox.GetCenter();
             m_GlWin->getGraphicEngine()->getDisplay()->setCOR( (float)-p.x(), (float)-p.y(), (float)-p.z() );
-
-            m_ScreenMgr->SetUpdateFlag( true );
         }
     }
     else if ( data == &m_SaveMenuItem )
@@ -303,8 +299,6 @@ void MainVSPScreen::ActionCB( void * data )
             VehicleMgr.GetVehicle()->WriteXMLFile( savefile, vsp::SET_ALL );
 
             SetFileLabel( savefile );
-
-            m_ScreenMgr->SetUpdateFlag( true );
         }
     }
     else if ( data == &m_SaveAsMenuItem )
@@ -316,8 +310,6 @@ void MainVSPScreen::ActionCB( void * data )
             VehicleMgr.GetVehicle()->WriteXMLFile( savefile, vsp::SET_ALL );
 
             SetFileLabel( savefile );
-
-            m_ScreenMgr->SetUpdateFlag( true );
         }
     }
     else if ( data == &m_SaveSetMenuItem )
@@ -339,7 +331,6 @@ void MainVSPScreen::ActionCB( void * data )
         if ( openfile.compare( "" ) != 0 )
         {
             VehicleMgr.GetVehicle()->ReadXMLFile( openfile );
-            m_ScreenMgr->SetUpdateFlag( true );
         }
     }
     // else if ( data == &m_SetTempDirMenuItem )
@@ -351,7 +342,6 @@ void MainVSPScreen::ActionCB( void * data )
         if ( scriptfile.compare( "" ) != 0 )
         {
             VehicleMgr.GetVehicle()->RunScript( scriptfile );
-            m_ScreenMgr->SetUpdateFlag( true );
         }
     }
     else if ( data == &m_ExitMenuItem )
@@ -396,29 +386,21 @@ void MainVSPScreen::ActionCB( void * data )
     {
         m_GlWin->setWindowLayout( 1, 1 );
         m_GlWin->redraw();
-
-        m_ScreenMgr->SetUpdateFlag( true );
     }
     else if ( data == &m_FourMenuItem )
     {
         m_GlWin->setWindowLayout( 2, 2 );
         m_GlWin->redraw();
-
-        m_ScreenMgr->SetUpdateFlag( true );
     }
     else if ( data == &m_TwoHMenuItem )
     {
         m_GlWin->setWindowLayout( 1, 2 );
         m_GlWin->redraw();
-
-        m_ScreenMgr->SetUpdateFlag( true );
     }
     else if ( data == &m_TwoVMenuItem )
     {
         m_GlWin->setWindowLayout( 2, 1 );
         m_GlWin->redraw();
-
-        m_ScreenMgr->SetUpdateFlag( true );
     }
     else if ( data == &m_AxisMenuItem )
     {
@@ -474,4 +456,6 @@ void MainVSPScreen::ActionCB( void * data )
     // else if ( m_AntialiasMenuItem )
     // {
     // }
+
+    m_ScreenMgr->SetUpdateFlag( true );
 }
