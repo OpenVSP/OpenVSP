@@ -22,6 +22,7 @@
 #include <FL/Fl_Group.H>
 #include "ManageCORScreen.h"
 #include "ManageGeomScreen.h"
+#include "ManageViewScreen.h"
 
 using namespace vsp;
 
@@ -454,6 +455,19 @@ void MainVSPScreen::ActionCB( void * data )
     {
         m_GlWin->setView( VSPGraphic::Common::VSP_CAM_CENTER );
         m_GlWin->redraw();
+
+        ManageViewScreen * viewScreen = NULL;
+        viewScreen = dynamic_cast< ManageViewScreen* >
+        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+
+        if( viewScreen )
+        {
+            if ( viewScreen->IsShown() )
+            {
+                viewScreen->UpdateCOR();
+                viewScreen->UpdatePan();
+            }
+        }
     }
     else if ( data == &m_SetCORMenuItem )
     {
