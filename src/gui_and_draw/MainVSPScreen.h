@@ -68,6 +68,14 @@ protected:
     ActionMenuItem m_RunScriptMenuItem;
     ActionMenuItem m_ExitMenuItem;
 
+    ActionMenuItem m_UndoMenuItem;
+    ActionMenuItem m_CutMenuItem;
+    ActionMenuItem m_CopyMenuItem;
+    ActionMenuItem m_PasteMenuItem;
+    ActionMenuItem m_DeleteMenuItem;
+    ActionMenuItem m_SelAllMenuItem;
+    ActionMenuItem m_PickMenuItem;
+
     ActionMenuItem m_OneMenuItem;
     ActionMenuItem m_FourMenuItem;
     ActionMenuItem m_TwoHMenuItem;
@@ -109,8 +117,6 @@ protected:
     // ScreenMenuItem m_WingStructMenuItem;
     ScreenMenuItem m_DegenGeomMenuItem;
     ScreenMenuItem m_VSPAEROMenuItem;
-
-    ActionMenuItem m_UndoMenuItem;
 
     // ScreenMenuItem m_AboutMenuItem;
     // ScreenMenuItem m_OnlineHelpMenuItem;

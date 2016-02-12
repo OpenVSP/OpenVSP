@@ -20,6 +20,7 @@
 #include "Viewport.h"
 #include <FL/fl_ask.H>
 #include <FL/Fl_Group.H>
+#include "ManageGeomScreen.h"
 
 using namespace vsp;
 
@@ -74,6 +75,14 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_RunScriptMenuItem.Init( this, m_MenuBar, "File/Run Script..." );
     m_ExitMenuItem.Init( this, m_MenuBar, "File/Exit" );
 
+    m_UndoMenuItem.Init( this, m_MenuBar, "Edit/Undo Parameter Change", FL_COMMAND + 'z' );
+    m_CutMenuItem.Init( this, m_MenuBar, "Edit/Cut", FL_COMMAND + 'x' );
+    m_CopyMenuItem.Init( this, m_MenuBar, "Edit/Copy", FL_COMMAND + 'c' );
+    m_PasteMenuItem.Init( this, m_MenuBar, "Edit/Paste", FL_COMMAND + 'v' );
+    m_DeleteMenuItem.Init( this, m_MenuBar, "Edit/Delete" );
+    m_SelAllMenuItem.Init( this, m_MenuBar, "Edit/Select All", FL_COMMAND + 'a' );
+    m_PickMenuItem.Init( this, m_MenuBar, "Edit/Toggle Pick Mode", 'p' );
+
     m_OneMenuItem.Init( this, m_MenuBar, "Window/One" );
     m_FourMenuItem.Init( this, m_MenuBar, "Window/Four" );
     m_TwoHMenuItem.Init( this, m_MenuBar, "Window/Two Horizontal" );
@@ -116,7 +125,6 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_DegenGeomMenuItem.Init( mgr, m_MenuBar, "Analysis/DegenGeom...", ScreenMgr::VSP_DEGEN_GEOM_SCREEN );
     m_VSPAEROMenuItem.Init( mgr, m_MenuBar, "Analysis/VSPAERO...", ScreenMgr::VSP_VSPAERO_SCREEN );
 
-    m_UndoMenuItem.Init( this, m_MenuBar, "Undo" );
 
     // m_AboutMenuItem.Init( mgr, m_MenuBar, "Help/About...", ScreenMgr:: );
     // m_OnlineHelpMenuItem.Init( mgr, m_MenuBar, "Help/Online Help...", ScreenMgr:: );
@@ -350,6 +358,40 @@ void MainVSPScreen::ActionCB( void * data )
     {
         ExitVSP();
     }
+    else if ( data == &m_UndoMenuItem )
+    {
+        VehicleMgr.GetVehicle()->UnDo();
+    }
+    else if ( data == &m_CutMenuItem )
+    {
+        VehicleMgr.GetVehicle()->CutActiveGeomVec();
+    }
+    else if ( data == &m_CopyMenuItem )
+    {
+        VehicleMgr.GetVehicle()->CopyActiveGeomVec();
+    }
+    else if ( data == &m_PasteMenuItem )
+    {
+        VehicleMgr.GetVehicle()->PasteClipboard();
+    }
+    else if ( data == &m_DeleteMenuItem )
+    {
+        VehicleMgr.GetVehicle()->DeleteActiveGeomVec();
+    }
+    else if ( data == &m_SelAllMenuItem )
+    {
+        VehicleMgr.GetVehicle()->SetActiveGeomVec( VehicleMgr.GetVehicle()->GetGeomVec() );
+    }
+    else if ( data == &m_PickMenuItem )
+    {
+        ManageGeomScreen * geomScreen = NULL;
+        geomScreen = dynamic_cast<ManageGeomScreen *>
+        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_MANAGE_GEOM_SCREEN ) );
+        if( geomScreen )
+        {
+            geomScreen->TriggerPickSwitch();
+        }
+    }
     else if ( data == &m_OneMenuItem )
     {
         m_GlWin->setWindowLayout( 1, 1 );
@@ -432,8 +474,4 @@ void MainVSPScreen::ActionCB( void * data )
     // else if ( m_AntialiasMenuItem )
     // {
     // }
-    else if ( data == &m_UndoMenuItem )
-    {
-        VehicleMgr.GetVehicle()->UnDo();
-    }
 }

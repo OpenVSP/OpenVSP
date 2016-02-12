@@ -1865,22 +1865,11 @@ int VspGlWindow::OnKeyup( int x, int y )
 
 int VspGlWindow::OnKeydown()
 {
-    ManageGeomScreen * geomScreen = NULL;
     ManageCORScreen * corScreen = NULL;
     int handled = 0;
 
     switch( Fl::event_key() )
     {
-    // 'p'
-    case 0x50:
-    case 0x70:
-        geomScreen = dynamic_cast<ManageGeomScreen *>
-            ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_MANAGE_GEOM_SCREEN ) );
-        if( geomScreen )
-        {
-            geomScreen->TriggerPickSwitch();
-        }
-        break;
     // 'r'
     case 0x52:
     case 0x72:
