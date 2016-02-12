@@ -8,7 +8,6 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "AdvLinkScreen.h"
-#include "AwaveScreen.h"
 #include "CfdMeshScreen.h"
 #include "ClippingScreen.h"
 #include "CompGeomScreen.h"
@@ -151,7 +150,6 @@ void ScreenMgr::Init()
     //==== Build All Screens ====//
     m_ScreenVec.resize( VSP_NUM_SCREENS );
     m_ScreenVec[VSP_ADV_LINK_SCREEN] = new AdvLinkScreen( this );
-    m_ScreenVec[VSP_AWAVE_SCREEN] = new AwaveScreen( this );
     m_ScreenVec[VSP_BACKGROUND_SCREEN] = new ManageBackgroundScreen( this );
     m_ScreenVec[VSP_CFD_MESH_SCREEN] = new CfdMeshScreen( this );
     m_ScreenVec[VSP_CLIPPING_SCREEN] = new ClippingScreen( this );

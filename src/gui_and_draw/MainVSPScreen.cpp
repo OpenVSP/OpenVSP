@@ -123,7 +123,6 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_SnapToMenuItem.Init( mgr, m_MenuBar, "Model/Snap To...", ScreenMgr::VSP_SNAP_TO_SCREEN );
 
     m_CompGeomMenuItem.Init( mgr, m_MenuBar, "Analysis/CompGeom...", ScreenMgr::VSP_COMP_GEOM_SCREEN );
-    m_AWAVEMenuItem.Init( mgr, m_MenuBar, "Analysis/Awave Slice...", ScreenMgr::VSP_AWAVE_SCREEN );
     m_PSliceMenuItem.Init( mgr, m_MenuBar, "Analysis/Planar Slice...", ScreenMgr::VSP_PSLICE_SCREEN );
     m_MassPropMenuItem.Init( mgr, m_MenuBar, "Analysis/Mass Prop...", ScreenMgr::VSP_MASS_PROP_SCREEN );
     m_ProjectionMenuItem.Init( mgr, m_MenuBar, "Analysis/Projected Area...", ScreenMgr::VSP_PROJECTION_SCREEN );

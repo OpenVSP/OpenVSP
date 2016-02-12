@@ -27,7 +27,6 @@ INCLUDE_DIRECTORIES(
 
 ADD_LIBRARY(gui_and_draw
 AdvLinkScreen.cpp
-AwaveScreen.cpp
 BlankScreen.cpp
 CfdMeshScreen.cpp
 ClippingScreen.cpp
@@ -81,7 +80,6 @@ VSPAEROScreen.cpp
 VSPWindow.cpp
 WingScreen.cpp
 AdvLinkScreen.h
-AwaveScreen.h
 BlankScreen.h
 CfdMeshScreen.h
 ClippingScreen.h
