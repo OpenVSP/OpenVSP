@@ -113,6 +113,7 @@ protected:
     ScreenMenuItem m_SnapToMenuItem;
 
     ScreenMenuItem m_CompGeomMenuItem;
+    ScreenMenuItem m_WaveDragMenuItem;
     ScreenMenuItem m_PSliceMenuItem;
     ScreenMenuItem m_MassPropMenuItem;
     ScreenMenuItem m_ProjectionMenuItem;

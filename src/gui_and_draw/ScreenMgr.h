@@ -61,6 +61,7 @@ public:
            VSP_VIEW_SCREEN,
            VSP_VSPAERO_SCREEN,
            VSP_XSEC_SCREEN,
+           VSP_WAVEDRAG_SCREEN,
            VSP_NUM_SCREENS
          };
 
