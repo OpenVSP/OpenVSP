@@ -91,15 +91,15 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_ScreenshotMenuItem.Init( mgr, m_MenuBar, "Window/Screenshot...", ScreenMgr::VSP_SCREENSHOT_SCREEN );
     m_AxisMenuItem.Init( this, m_MenuBar, "Window/Axis Toggle" );
 
-    m_TopMenuItem.Init( this, m_MenuBar, "View/Top (F5)" );
-    m_FrontMenuItem.Init( this, m_MenuBar, "View/Front (F6)" );
-    m_LeftSideMenuItem.Init( this, m_MenuBar, "View/Left Side (F7)" );
-    m_LeftIsoMenuItem.Init( this, m_MenuBar, "View/Left Iso (F8)" );
-    m_BottomMenuItem.Init( this, m_MenuBar, "View/Bottom (F9)" );
-    m_RearMenuItem.Init( this, m_MenuBar, "View/Rear (F10)" );
-    m_RightSideMenuItem.Init( this, m_MenuBar, "View/Right Side (F11)" );
-    m_RightIsoMenuItem.Init( this, m_MenuBar, "View/Right Iso (F12)" );
-    m_CenterMenuItem.Init( this, m_MenuBar, "View/Center (c)" );
+    m_TopMenuItem.Init( this, m_MenuBar, "View/Top", FL_F + 5 );
+    m_FrontMenuItem.Init( this, m_MenuBar, "View/Front", FL_F + 6 );
+    m_LeftSideMenuItem.Init( this, m_MenuBar, "View/Left Side", FL_F + 7 );
+    m_LeftIsoMenuItem.Init( this, m_MenuBar, "View/Left Iso", FL_F + 8 );
+    m_BottomMenuItem.Init( this, m_MenuBar, "View/Bottom", FL_F + 9 );
+    m_RearMenuItem.Init( this, m_MenuBar, "View/Rear", FL_F + 10 );
+    m_RightSideMenuItem.Init( this, m_MenuBar, "View/Right Side", FL_F + 11 );
+    m_RightIsoMenuItem.Init( this, m_MenuBar, "View/Right Iso", FL_F + 12 );
+    m_CenterMenuItem.Init( this, m_MenuBar, "View/Center", 'c' );
     m_AdjustMenuItem.Init( mgr, m_MenuBar, "View/Adjust...", ScreenMgr::VSP_VIEW_SCREEN );
     // m_AntialiasMenuItem.Init( this, m_MenuBar, "View/New" );
 

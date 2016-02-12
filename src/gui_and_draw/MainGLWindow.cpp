@@ -1763,38 +1763,6 @@ int VspGlWindow::OnKeyup( int x, int y )
         handled = 1;
         break;
 
-    case FL_F+5:
-        display->changeView( Common::VSP_CAM_TOP );
-        break;
-
-    case FL_F+6:
-        display->changeView( Common::VSP_CAM_FRONT );
-        break;
-
-    case FL_F+7:
-        display->changeView( Common::VSP_CAM_LEFT );
-        break;
-
-    case FL_F+8:
-        display->changeView( Common::VSP_CAM_LEFT_ISO );
-        break;
-
-    case FL_F+9:
-        display->changeView( Common::VSP_CAM_BOTTOM );
-        break;
-
-    case FL_F+10:
-        display->changeView( Common::VSP_CAM_REAR );
-        break;
-
-    case FL_F+11:
-        display->changeView( Common::VSP_CAM_RIGHT );
-        break;
-
-    case FL_F+12:
-        display->changeView( Common::VSP_CAM_RIGHT_ISO );
-        break;
-
     case FL_Alt_L:
     case FL_Alt_R:
 
