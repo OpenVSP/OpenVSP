@@ -16,6 +16,7 @@
 #include "Vehicle.h"
 #include "GraphicEngine.h"
 #include "Display.h"
+#include "Camera.h"
 #include "LayoutMgr.h"
 #include "Viewport.h"
 #include <FL/fl_ask.H>
@@ -103,6 +104,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_RightIsoMenuItem.Init( this, m_MenuBar, "View/Right Iso", FL_F + 12 );
     m_CenterMenuItem.Init( this, m_MenuBar, "View/Center", 'c' );
     m_SetCORMenuItem.Init( this, m_MenuBar, "View/Set Rotation Center", 'r' );
+    m_FitViewMenuItem.Init( this, m_MenuBar, "View/Fit On Screen", 'f' );
     m_AdjustMenuItem.Init( mgr, m_MenuBar, "View/Adjust...", ScreenMgr::VSP_VIEW_SCREEN );
     // m_AntialiasMenuItem.Init( this, m_MenuBar, "View/New" );
 
@@ -464,6 +466,35 @@ void MainVSPScreen::ActionCB( void * data )
         if( corScreen )
         {
             corScreen->EnableSelection();
+        }
+    }
+    else if ( data == &m_FitViewMenuItem )
+    {
+        BndBox bbox;
+
+        if ( VehicleMgr.GetVehicle()->GetVisibleBndBox( bbox ) ) // Check for any visible objects
+        {
+            vec3d p = bbox.GetCenter();
+            double d = bbox.DiagDist();
+            int wid = m_GlWin->pixel_w();
+            int ht = m_GlWin->pixel_h();
+
+            float z = d * ( wid < ht ? 1.f / wid : 1.f / ht );
+
+            m_GlWin->getGraphicEngine()->getDisplay()->setCOR( -p.x(), -p.y(), -p.z() );
+            m_GlWin->getGraphicEngine()->getDisplay()->relativePan( 0.0f, 0.0f );
+            m_GlWin->getGraphicEngine()->getDisplay()->getCamera()->relativeZoom( z );
+
+            ManageViewScreen * viewScreen = NULL;
+            viewScreen = dynamic_cast< ManageViewScreen* >
+            ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+
+            if ( viewScreen->IsShown() )
+            {
+                viewScreen->UpdateCOR();
+                viewScreen->UpdatePan();
+                viewScreen->UpdateZoom();
+            }
         }
     }
     // else if ( m_AntialiasMenuItem )

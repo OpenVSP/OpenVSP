@@ -1623,30 +1623,6 @@ int VspGlWindow::OnKeyup( int x, int y )
 
     switch( Fl::event_key() )
     {
-    case 0x46:
-    case 0x66: //Key 'F'; Fits bounding box within each viewport.
-    {
-        Vehicle* vPtr = VehicleMgr.GetVehicle();
-        if ( vPtr )
-        {
-            BndBox bbox = vPtr->GetBndBox();
-            vec3d p = bbox.GetCenter();
-            m_GEngine->getDisplay()->setCOR( -p.x(), -p.y(), -p.z() );
-
-            m_GEngine->getDisplay()->relativePan( 0.0f, 0.0f );
-
-            // TODO: Now we need to determine how much to zoom in order to fit the entire object on each viewport.
-
-
-            if ( viewScreen->IsShown() )
-            {
-                viewScreen->UpdateCOR();
-                viewScreen->UpdatePan();
-            }
-        }
-        display->center();
-        break;
-    }
     case FL_Escape:
     {
         Vehicle* vPtr = VehicleMgr.GetVehicle();

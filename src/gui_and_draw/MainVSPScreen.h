@@ -95,6 +95,7 @@ protected:
     ActionMenuItem m_CenterMenuItem;
     ScreenMenuItem m_AdjustMenuItem;
     ActionMenuItem m_SetCORMenuItem;
+    ActionMenuItem m_FitViewMenuItem;
     // ActionMenuItem m_AntialiasMenuItem;
 
     ScreenMenuItem m_GeomMenuItem;
