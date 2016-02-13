@@ -381,6 +381,7 @@ public:
     XSecViewScreen( ScreenMgr* mgr );
     virtual ~XSecViewScreen() {}
     virtual bool Update();
+    virtual void Show();
 
 protected:
 

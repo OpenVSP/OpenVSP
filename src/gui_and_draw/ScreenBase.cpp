@@ -1472,8 +1472,6 @@ XSecViewScreen::XSecViewScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 300, 300, "
 
     m_GlWin->getGraphicEngine()->getDisplay()->changeView( VSPGraphic::Common::VSP_CAM_TOP );
     m_GlWin->getGraphicEngine()->getDisplay()->getViewport()->showGridOverlay( false );
-    float oz = 1.5f * ( w < h ? 1.f / w : 1.f / h );
-    m_GlWin->getGraphicEngine()->getDisplay()->getCamera()->relativeZoom( oz );
 }
 
 bool XSecViewScreen::Update()
@@ -1484,4 +1482,16 @@ bool XSecViewScreen::Update()
     m_GlWin->redraw();
 
     return true;
+}
+
+void XSecViewScreen::Show()
+{
+    VspScreen::Show();
+
+    int w, h;
+
+    w = m_GlWin->pixel_w();
+    h = m_GlWin->pixel_h();
+    float oz = 1.5f * ( w < h ? 1.f / w : 1.f / h );
+    m_GlWin->getGraphicEngine()->getDisplay()->getCamera()->relativeZoom( oz );
 }
