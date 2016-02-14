@@ -207,11 +207,11 @@ void XSecCurve::CopyFrom( XSecCurve* from_crv )
 }
 
 //==== Compute Area ====//
-double XSecCurve::ComputeArea( int num_pnts )
+double XSecCurve::ComputeArea()
 {
     VspCurve curve = GetCurve();
     vector<vec3d> pnts;
-    curve.Tesselate( num_pnts, pnts );
+    curve.TessAdapt( pnts, 1e-3, 10 );
     return poly_area( pnts );
 }
 

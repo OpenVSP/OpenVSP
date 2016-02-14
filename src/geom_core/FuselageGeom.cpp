@@ -407,7 +407,7 @@ void FuselageGeom::LoadDragFactors( DragFactors& drag_factors )
     {
         XSec* xs = m_XSecSurf.FindXSec( i );
         XSecCurve* xsc = xs->GetXSecCurve();
-        double a = xsc->ComputeArea( 100 );
+        double a = xsc->ComputeArea( );
         if ( a > max_xsec_area )
         {
             max_xsec_area = a;

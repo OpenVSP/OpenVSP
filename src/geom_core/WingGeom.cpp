@@ -1514,7 +1514,7 @@ void WingGeom::UpdateDrawObj()
     crv.Transform( mat );
 
     vector< vec3d > pts;
-    crv.Tesselate( m_TessW(), pts );
+    crv.TessAdapt( pts, 1e-2, 10 );
 
     m_CurrentXSecDrawObj.m_PntVec = pts;
     m_CurrentXSecDrawObj.m_LineWidth = 1.0;

@@ -65,7 +65,7 @@ public:
     virtual void SetScale( double scale );
     virtual string GetWidthParmID()                                    { return string(); }
 
-    virtual double ComputeArea( int num_pnts );
+    virtual double ComputeArea();
 
     virtual void Close( bool wingtype );
     virtual void Trim( bool wingtype );
