@@ -1517,7 +1517,7 @@ void WingGeom::UpdateDrawObj()
     crv.TessAdapt( pts, 1e-2, 10 );
 
     m_CurrentXSecDrawObj.m_PntVec = pts;
-    m_CurrentXSecDrawObj.m_LineWidth = 1.0;
+    m_CurrentXSecDrawObj.m_LineWidth = 1.5;
     m_CurrentXSecDrawObj.m_LineColor = vec3d( 0.0, 0.0, 0.0 );
     m_CurrentXSecDrawObj.m_Type = DrawObj::VSP_LINES;
     m_CurrentXSecDrawObj.m_GeomChanged = true;
