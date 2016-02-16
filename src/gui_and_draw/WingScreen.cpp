@@ -261,6 +261,8 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 335, 680, "Wing" )
     m_RoundedRectGroup.AddSlider( m_RRWidthSlider,  "Width", 10, "%6.5f" );
     m_RoundedRectGroup.AddYGap();
     m_RoundedRectGroup.AddSlider( m_RRRadiusSlider, "Radius", 10, "%6.5f" );
+    m_RoundedRectGroup.AddYGap();
+    m_RoundedRectGroup.AddButton( m_RRKeyCornerButton, "Key Corner" );
 
     //==== General Fuse XSec ====//
     m_GenGroup.SetGroupAndScreen( AddSubGroup( af_tab, 5 ), this );
@@ -698,6 +700,7 @@ bool WingScreen::Update()
                 m_RRHeightSlider.Update( rect_xs->m_Height.GetID() );
                 m_RRWidthSlider.Update( rect_xs->m_Width.GetID() );
                 m_RRRadiusSlider.Update( rect_xs->m_Radius.GetID() );
+                m_RRKeyCornerButton.Update( rect_xs->m_KeyCornerParm.GetID() );
             }
             else if ( xsc->GetType() == XS_GENERAL_FUSE )
             {

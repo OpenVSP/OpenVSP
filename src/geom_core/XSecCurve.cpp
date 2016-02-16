@@ -974,6 +974,7 @@ RoundedRectXSec::RoundedRectXSec( ) : XSecCurve( )
     m_Height.Init( "RoundedRect_Height", m_GroupName, this, 1.0, 0.0, 1.0e12 );
     m_Width.Init( "RoundedRect_Width", m_GroupName, this,  1.0, 0.0, 1.0e12 );
     m_Radius.Init( "RoundRectXSec_Radius", m_GroupName,  this,  0.2, 0.0, 1.0e12 );
+    m_KeyCornerParm.Init( "RoundRectXSec_KeyCorner", m_GroupName, this, false, 0, 1 );
 }
 
 //==== Update Geometry ====//
@@ -1036,14 +1037,25 @@ void RoundedRectXSec::Update()
 
         // set the corresponding parameters
         u[0] = 0;
-        u[1] = h2 / ( h2 + w2 );
         u[2] = 1;
-        u[3] = 1 + w2 / ( h2 + w2 );
         u[4] = 2;
-        u[5] = 2 + h2 / ( h2 + w2 );
         u[6] = 3;
-        u[7] = 3 + w2 / ( h2 + w2 );
         u[8] = 4;
+
+        if ( m_KeyCornerParm() )
+        {
+            u[1] = 0.5;
+            u[3] = 1.5;
+            u[5] = 2.5;
+            u[7] = 3.5;
+        }
+        else
+        {
+            u[1] = h2 / ( h2 + w2 );
+            u[3] = 1 + w2 / ( h2 + w2 );
+            u[5] = 2 + h2 / ( h2 + w2 );
+            u[7] = 3 + w2 / ( h2 + w2 );
+        }
     }
 
     // build the polygon

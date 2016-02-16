@@ -233,6 +233,7 @@ public:
     Parm m_Width;
     Parm m_Height;
     Parm m_Radius;
+    BoolParm m_KeyCornerParm;
 };
 
 //==========================================================================//
