@@ -37,7 +37,8 @@ public:
         ( ( FeaStructScreen* )data )->closeCB( w );
     }
 
-    void addOutputText( const char* text );
+    void AddOutputText( const string &text );
+
     string truncateFileName( const string &fn, int len );
 
     bool Update();

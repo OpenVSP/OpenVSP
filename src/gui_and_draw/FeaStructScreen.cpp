@@ -540,9 +540,9 @@ string FeaStructScreen::truncateFileName( const string &fn, int len )
     return trunc;
 }
 
-void FeaStructScreen::addOutputText( const char* text )
+void FeaStructScreen::AddOutputText( const string &text )
 {
-    m_TextBuffer.append( text );
+    m_TextBuffer.append( text.c_str() );
     m_FeaStructUI->outputText->move_down();
     m_FeaStructUI->outputText->show_insert_position();
     Fl::flush();
