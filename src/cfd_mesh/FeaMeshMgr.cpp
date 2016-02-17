@@ -664,6 +664,11 @@ bool FeaMeshMgrSingleton::LoadSurfaces()
 
     vector< XferSurf > xfersurfs;
 
+    if ( !FetchWingSurf( xfersurfs ) )
+    {
+        return false;
+    }
+
     LoadSurfs( xfersurfs );
     IdentifyUpperLowerSurfaces();
 
@@ -861,7 +866,7 @@ void FeaMeshMgrSingleton::Intersect()
 }
 
 
-bool FeaMeshMgrSingleton::WriteWingBezierFile( const char* file_name )
+bool FeaMeshMgrSingleton::FetchWingSurf( vector< XferSurf > &xfersurfs )
 {
     vector< string > geomVec = m_Vehicle->GetGeomVec();
     if ( geomVec.size() == 0 )
@@ -911,21 +916,24 @@ bool FeaMeshMgrSingleton::WriteWingBezierFile( const char* file_name )
     m_WingGeom = wing_geom;
 
     // Need to turn off symmetry first.
-//  int saveSymCode = wing_geom->getSymCode();
-//  wing_geom->setSymCode( NO_SYM );
+    int planSym = wing_geom->m_SymPlanFlag();
+    int rotSym = wing_geom->m_SymAxFlag();
+    wing_geom->m_SymPlanFlag.Set( 0 );
+    wing_geom->m_SymAxFlag.Set( 0 );
+    wing_geom->Update();
 
     vector<VspSurf> surf_vec;
     wing_geom->GetSurfVec( surf_vec );
 
-    vector< XferSurf > xfersurfs;
-
     for ( int j = 0; j < ( int )surf_vec.size(); j++ )
     {
-        surf_vec[j].FetchXFerSurf( wing_geom->GetID(), j, 0, xfersurfs );
+        surf_vec[j].FetchXFerSurf( wing_geom->GetID(), wing_geom->GetMainSurfID( j ), 0, xfersurfs );
     }
 
     // Need to restore symmetry.
-//  wing_geom->setSymCode( saveSymCode );
+    wing_geom->m_SymPlanFlag.Set( planSym );
+    wing_geom->m_SymAxFlag.Set( rotSym );
+    wing_geom->Update();
 
     return true;
 }

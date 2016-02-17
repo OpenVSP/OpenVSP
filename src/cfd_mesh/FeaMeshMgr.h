@@ -101,7 +101,7 @@ public:
     virtual void AddStructureParts();
     virtual void RemoveSliceSurfaces();
 
-    virtual bool WriteWingBezierFile( const char* file_name );
+    virtual bool FetchWingSurf( vector< XferSurf > &xfersurfs );
 
     virtual vec3d ComputePoint( vec2d & uw, bool upperFlag );
     virtual vec3d GetNormal( int sectID );
