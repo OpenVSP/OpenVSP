@@ -10,7 +10,7 @@
 #define MENUITEM__INCLUDED_
 
 #include <string>
-#include <FL/Fl_Sys_Menu_Bar.h>
+#include <FL/Fl_Sys_Menu_Bar.H>
 
 class ScreenMgr;
 class ActionScreen;
