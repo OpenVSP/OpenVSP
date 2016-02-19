@@ -279,6 +279,7 @@ protected:
 
 private:
     DrawObj m_SkinElemDO;
+    DrawObj m_SliceElemDO;
 
 
 };

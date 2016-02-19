@@ -2896,4 +2896,25 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     }
 
     draw_obj_vec.push_back( &m_SkinElemDO );
+
+    m_SliceElemDO.m_GeomID = string( "FEASlice" );
+    m_SliceElemDO.m_Type = DrawObj::VSP_HIDDEN_TRIS;
+    m_SliceElemDO.m_Visible = true;
+    m_SliceElemDO.m_LineColor = vec3d( 0.4, 0.4, 0.4 );
+
+
+    for ( int i = 0 ; i < (int)m_SliceVec.size() ; i++ )
+    {
+        for ( int e = 0 ; e < (int)m_SliceVec[i]->m_Elements.size() ; e++ )
+        {
+            FeaElement* fe = m_SliceVec[i]->m_Elements[e];
+            for ( int p = 0 ; p < (int)fe->m_Corners.size() ; p++ )
+            {
+                m_SliceElemDO.m_PntVec.push_back( fe->m_Corners[p]->m_Pnt );
+                m_SliceElemDO.m_NormVec.push_back( vec3d( 0, 0, 0) );
+            }
+        }
+    }
+
+    draw_obj_vec.push_back( &m_SliceElemDO );
 }
