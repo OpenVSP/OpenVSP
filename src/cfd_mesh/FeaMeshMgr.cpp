@@ -389,7 +389,6 @@ void WingSection::ComputePerSpanChord( vec3d & pnt, double* per_span, double* pe
 
 FeaMeshMgrSingleton::FeaMeshMgrSingleton() : CfdMeshMgrSingleton()
 {
-    m_BatchFlag = false;
     m_CurrSectID = 0;
     m_CurrRibID = 0;
     m_CurrSparID = 0;
@@ -716,109 +715,58 @@ void FeaMeshMgrSingleton::Build()
 
     BuildClean();
 
-    if ( !m_BatchFlag )
-    {
-        addOutputText( "Add Structure Parts\n", FEA_OUTPUT );
-    }
+    addOutputText( "Add Structure Parts\n", FEA_OUTPUT );
     AddStructureParts();
 
     GetGridDensityPtr()->ClearSources();
-    if ( !m_BatchFlag )
-    {
-        addOutputText( "Build Slice Planes\n", FEA_OUTPUT );
-    }
+
+    addOutputText( "Build Slice Planes\n", FEA_OUTPUT );
     BuildGrid();
 
-    if ( !m_BatchFlag )
-    {
-        addOutputText( "Intersect\n", FEA_OUTPUT );
-    }
+    addOutputText( "Intersect\n", FEA_OUTPUT );
     Intersect();
 
-    if ( !m_BatchFlag )
-    {
-        addOutputText( "Build Target Map\n", FEA_OUTPUT );
-    }
-    if ( !m_BatchFlag )
-    {
-        BuildTargetMap( CfdMeshMgrSingleton::FEA_OUTPUT );
-    }
-    else
-    {
-        BuildTargetMap( CfdMeshMgrSingleton::NO_OUTPUT );
-    }
+    addOutputText( "Build Target Map\n", FEA_OUTPUT );
+    BuildTargetMap( CfdMeshMgrSingleton::FEA_OUTPUT );
 
     RemoveSliceSurfaces();
 
-    if ( !m_BatchFlag )
-    {
-        addOutputText( "InitMesh\n", FEA_OUTPUT );
-    }
+    addOutputText( "InitMesh\n", FEA_OUTPUT );
     InitMesh( );
-    if ( !m_BatchFlag )
-    {
-        addOutputText( "Mesh Skins\n", FEA_OUTPUT );
-    }
 
-    if ( !m_BatchFlag )
-    {
-        Remesh( CfdMeshMgrSingleton::FEA_OUTPUT );
-    }
-    else
-    {
-        Remesh( CfdMeshMgrSingleton::NO_OUTPUT );
-    }
+    addOutputText( "Mesh Skins\n", FEA_OUTPUT );
+    Remesh( CfdMeshMgrSingleton::FEA_OUTPUT );
 
-    if ( !m_BatchFlag )
-    {
-        addOutputText( "Build Spar/Rib Mesh\n", FEA_OUTPUT );
-    }
+    addOutputText( "Build Spar/Rib Mesh\n", FEA_OUTPUT );
     BuildSliceMesh();
 
     LoadAttachPoints();
 
-    if ( !m_BatchFlag )
-    {
-        addOutputText( "Finished\n", FEA_OUTPUT );
-    }
+    addOutputText( "Finished\n", FEA_OUTPUT );
 
 }
 
 void FeaMeshMgrSingleton::Export()
 {
-    if ( !m_BatchFlag )
-    {
-        addOutputText( "Write Results\n", FEA_OUTPUT );
-    }
+    addOutputText( "Write Results\n", FEA_OUTPUT );
 
     WriteNASTRAN( m_ExportFeaFileNames[NASTRAN_FILE_NAME] );
     WriteCalculix();
     WriteSTL( m_ExportFeaFileNames[STL_FEA_NAME] );
 
-    if ( !m_BatchFlag )
-    {
-        addOutputText( "Wrote Calculix File: feageom.dat\n", FEA_OUTPUT );
-        addOutputText( "Wrote Calculix File: feanodethick.dat\n", FEA_OUTPUT );
-        addOutputText( "Wrote NASTRAN File: NASTRAN.dat\n", FEA_OUTPUT );
-        addOutputText( "Wrote Mesh: feamesh.stl\n", FEA_OUTPUT );
-    }
+    addOutputText( "Wrote Calculix File: feageom.dat\n", FEA_OUTPUT );
+    addOutputText( "Wrote Calculix File: feanodethick.dat\n", FEA_OUTPUT );
+    addOutputText( "Wrote NASTRAN File: NASTRAN.dat\n", FEA_OUTPUT );
+    addOutputText( "Wrote Mesh: feamesh.stl\n", FEA_OUTPUT );
 
     ComputeWriteMass();
-    if ( !m_BatchFlag )
-    {
-        addOutputText( "Wrote Mass: feamass.dat\n", FEA_OUTPUT );
-    }
+    addOutputText( "Wrote Mass: feamass.dat\n", FEA_OUTPUT );
+
     char str[256];
     sprintf( str, "Total Mass = %f\n", m_TotalMass );
-    if ( !m_BatchFlag )
-    {
-        addOutputText( str, FEA_OUTPUT );
-    }
-    if ( !m_BatchFlag )
-    {
-        addOutputText( "Finished\n", FEA_OUTPUT );
-    }
 
+    addOutputText( str, FEA_OUTPUT );
+    addOutputText( "Finished\n", FEA_OUTPUT );
 }
 
 void FeaMeshMgrSingleton::Intersect()
@@ -835,30 +783,19 @@ void FeaMeshMgrSingleton::Intersect()
     //  m_Vehicle->getScreenMgr()->getFeaStructScreen()->addOutputText( "Merge Chains\n" );
 //  MergeChains();
 //DebugWriteChains("MergeChains_UW", false );
-    if ( !m_BatchFlag )
-    {
-        addOutputText( "Load Border Curves\n", FEA_OUTPUT );
-    }
+
+    addOutputText( "Load Border Curves\n", FEA_OUTPUT );
     LoadBorderCurves();
 
-    if ( !m_BatchFlag )
-    {
-        addOutputText( "Merge Interior Chains IPnts\n", FEA_OUTPUT );
-    }
+    addOutputText( "Merge Interior Chains IPnts\n", FEA_OUTPUT );
     MergeInteriorChainIPnts();
 //DebugWriteChains("MergeInterior_UW", false );
 
-    if ( !m_BatchFlag )
-    {
-        addOutputText( "Split Border Curves\n", FEA_OUTPUT );
-    }
+    addOutputText( "Split Border Curves\n", FEA_OUTPUT );
     SplitBorderCurves();
 //DebugWriteChains("BorderSplit_UW", false );
 
-    if ( !m_BatchFlag )
-    {
-        addOutputText( "Intersect Split Chains\n", FEA_OUTPUT );
-    }
+    addOutputText( "Intersect Split Chains\n", FEA_OUTPUT );
     IntersectSplitChains();
 //DebugWriteChains("IntersectSplit_UW", false );
 

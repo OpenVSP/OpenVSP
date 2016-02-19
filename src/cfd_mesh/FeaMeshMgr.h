@@ -199,14 +199,6 @@ public:
     {
         m_DrawFlag = f;
     }
-    virtual void SetBatchFlag( bool f )
-    {
-        m_BatchFlag = f;
-    }
-    virtual bool GetBatchFlag()
-    {
-        return m_BatchFlag;
-    }
     virtual void SetDrawAttachPointsFlag( bool f )
     {
         m_DrawAttachPoints = f;
@@ -238,8 +230,6 @@ public:
 protected:
 
     Geom* m_WingGeom;
-
-    bool m_BatchFlag;
 
     bool m_DrawFlag;
     bool m_DrawMeshFlag;
