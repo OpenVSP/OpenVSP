@@ -400,48 +400,48 @@ void CfdMeshMgrSingleton::GenerateMesh()
 {
     m_MeshInProgress = true;
 
-    CfdMeshMgr.addOutputText( "Fetching Bezier Surfaces\n" );
+    addOutputText( "Fetching Bezier Surfaces\n" );
 
     vector< XferSurf > xfersurfs;
-    CfdMeshMgr.FetchSurfs( xfersurfs );
+    FetchSurfs( xfersurfs );
 
     // Hide all geoms after fetching their surfaces
     m_Vehicle->HideAll();
 
-    CfdMeshMgr.CleanUp();
-    CfdMeshMgr.addOutputText( "Loading Bezier Surfaces\n" );
-    CfdMeshMgr.LoadSurfs( xfersurfs );
+    CleanUp();
+    addOutputText( "Loading Bezier Surfaces\n" );
+    LoadSurfs( xfersurfs );
 
-    CfdMeshMgr.CleanMergeSurfs();
+    CleanMergeSurfs();
 
     if ( m_SurfVec.size() == 0 )
     {
-        CfdMeshMgr.addOutputText( "No Surfaces To Mesh\n" );
+        addOutputText( "No Surfaces To Mesh\n" );
         m_MeshInProgress = false;
         return;
     }
 
-    CfdMeshMgr.UpdateSourcesAndWakes();
-    CfdMeshMgr.UpdateDomain();
-    CfdMeshMgr.BuildDomain();
+    UpdateSourcesAndWakes();
+    UpdateDomain();
+    BuildDomain();
 
-    CfdMeshMgr.addOutputText( "Build Grid\n" );
-    CfdMeshMgr.BuildGrid();
+    addOutputText( "Build Grid\n" );
+    BuildGrid();
 
-    CfdMeshMgr.addOutputText( "Intersect\n" );
-    CfdMeshMgr.Intersect();
-    CfdMeshMgr.addOutputText( "Finished Intersect\n" );
+    addOutputText( "Intersect\n" );
+    Intersect();
+    addOutputText( "Finished Intersect\n" );
 
-    CfdMeshMgr.addOutputText( "Build Target Map\n" );
-    CfdMeshMgr.BuildTargetMap( CfdMeshMgrSingleton::CFD_OUTPUT );
+    addOutputText( "Build Target Map\n" );
+    BuildTargetMap( CfdMeshMgrSingleton::CFD_OUTPUT );
 
-    CfdMeshMgr.addOutputText( "InitMesh\n" );
-    CfdMeshMgr.InitMesh( );
+    addOutputText( "InitMesh\n" );
+    InitMesh( );
 
-    CfdMeshMgr.SubTagTris();
+    SubTagTris();
 
-    CfdMeshMgr.addOutputText( "Remesh\n" );
-    CfdMeshMgr.Remesh( CfdMeshMgrSingleton::CFD_OUTPUT );
+    addOutputText( "Remesh\n" );
+    Remesh( CfdMeshMgrSingleton::CFD_OUTPUT );
 
     //addOutputText( "Triangle Quality\n");
     //Stringc qual = CfdMeshMgr.GetQualString();
@@ -449,12 +449,12 @@ void CfdMeshMgrSingleton::GenerateMesh()
 
     SubSurfaceMgr.BuildSingleTagMap();
 
-    CfdMeshMgr.addOutputText( "Exporting Files\n" );
-    CfdMeshMgr.ExportFiles();
+    addOutputText( "Exporting Files\n" );
+    ExportFiles();
 
-    CfdMeshMgr.addOutputText( "Check Water Tight\n" );
-    string resultTxt = CfdMeshMgr.CheckWaterTight();
-    CfdMeshMgr.addOutputText( resultTxt.c_str() );
+    addOutputText( "Check Water Tight\n" );
+    string resultTxt = CheckWaterTight();
+    addOutputText( resultTxt.c_str() );
 
 //  addOutputText( "Mesh Complete\n");
 

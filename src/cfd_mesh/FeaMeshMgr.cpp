@@ -1572,13 +1572,13 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
     //==== Build Node Map ====//
     map< int, vector< int > > indMap;
     vector< int > pntShift;
-    int numPnts = CfdMeshMgr.BuildIndMap( allPntVec, indMap, pntShift );
+    int numPnts = BuildIndMap( allPntVec, indMap, pntShift );
 
     //==== Assign Index Numbers to Nodes ====//
     for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
     {
         nodeVec[i]->m_Tags.clear();
-        int ind = CfdMeshMgr.FindPntIndex( nodeVec[i]->m_Pnt, allPntVec, indMap );
+        int ind = FindPntIndex( nodeVec[i]->m_Pnt, allPntVec, indMap );
         nodeVec[i]->m_Index = pntShift[ind] + 1;
     }
 
@@ -1608,7 +1608,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
                 //==== Tag Rib Upper/Lower Nodes ====//
                 for ( int i = 0 ; i < ( int )rib->m_UpperPnts.size() ; i++ )
                 {
-                    int ind = CfdMeshMgr.FindPntIndex( rib->m_UpperPnts[i], allPntVec, indMap );
+                    int ind = FindPntIndex( rib->m_UpperPnts[i], allPntVec, indMap );
                     FeaNode* node = FindNode( nodeVec, pntShift[ind] + 1 );
                     if ( node )
                     {
@@ -1617,7 +1617,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
                 }
                 for ( int i = 0 ; i < ( int )rib->m_LowerPnts.size() ; i++ )
                 {
-                    int ind = CfdMeshMgr.FindPntIndex( rib->m_LowerPnts[i], allPntVec, indMap );
+                    int ind = FindPntIndex( rib->m_LowerPnts[i], allPntVec, indMap );
                     FeaNode* node = FindNode( nodeVec, pntShift[ind] + 1 );
                     if ( node )
                     {
@@ -1645,7 +1645,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
                 //==== Tag Spar Upper/Lower Nodes ====//
                 for ( int i = 0 ; i < ( int )spar->m_UpperPnts.size() ; i++ )
                 {
-                    int ind = CfdMeshMgr.FindPntIndex( spar->m_UpperPnts[i], allPntVec, indMap );
+                    int ind = FindPntIndex( spar->m_UpperPnts[i], allPntVec, indMap );
                     FeaNode* node = FindNode( nodeVec, pntShift[ind] + 1 );
                     if ( node )
                     {
@@ -1654,7 +1654,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
                 }
                 for ( int i = 0 ; i < ( int )spar->m_LowerPnts.size() ; i++ )
                 {
-                    int ind = CfdMeshMgr.FindPntIndex( spar->m_LowerPnts[i], allPntVec, indMap );
+                    int ind = FindPntIndex( spar->m_LowerPnts[i], allPntVec, indMap );
                     FeaNode* node = FindNode( nodeVec, pntShift[ind] + 1 );
                     if ( node )
                     {
@@ -1832,7 +1832,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
             node.WriteNASTRAN( fp );
 
             //==== Find Attach Point Index ====//
-            int ind = CfdMeshMgr.FindPntIndex( m_PointMassVec[p]->m_AttachPos, allPntVec, indMap );
+            int ind = FindPntIndex( m_PointMassVec[p]->m_AttachPos, allPntVec, indMap );
             fprintf( fp, "$Connects,%d\n", pntShift[ind] + 1 );
         }
 
@@ -1884,13 +1884,13 @@ void FeaMeshMgrSingleton::WriteCalculix( )
     //==== Build Node Map ====//
     map< int, vector< int > > indMap;
     vector< int > pntShift;
-    CfdMeshMgr.BuildIndMap( allPntVec, indMap, pntShift );
+    BuildIndMap( allPntVec, indMap, pntShift );
 
     //==== Assign Index Numbers to Nodes ====//
     for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
     {
         nodeVec[i]->m_Tags.clear();
-        int ind = CfdMeshMgr.FindPntIndex( nodeVec[i]->m_Pnt, allPntVec, indMap );
+        int ind = FindPntIndex( nodeVec[i]->m_Pnt, allPntVec, indMap );
         nodeVec[i]->m_Index = pntShift[ind] + 1;
     }
 
@@ -1907,7 +1907,7 @@ void FeaMeshMgrSingleton::WriteCalculix( )
             m_WingSections[s].m_UpperSkin.LoadNodes( nVec );
             for ( int i = 0 ; i < ( int )nVec.size() ; i++ )
             {
-                int ind = CfdMeshMgr.FindPntIndex( nVec[i]->m_Pnt, allPntVec, indMap );
+                int ind = FindPntIndex( nVec[i]->m_Pnt, allPntVec, indMap );
                 nodeVec[ind]->AddTag( SKIN_UPPER, s );
             }
             upperSkins.push_back( &m_WingSections[s].m_UpperSkin );
@@ -1918,7 +1918,7 @@ void FeaMeshMgrSingleton::WriteCalculix( )
             m_WingSections[s].m_LowerSkin.LoadNodes( nVec );
             for ( int i = 0 ; i < ( int )nVec.size() ; i++ )
             {
-                int ind = CfdMeshMgr.FindPntIndex( nVec[i]->m_Pnt, allPntVec, indMap );
+                int ind = FindPntIndex( nVec[i]->m_Pnt, allPntVec, indMap );
                 nodeVec[ind]->AddTag( SKIN_LOWER, s );
             }
             lowerSkins.push_back( &m_WingSections[s].m_LowerSkin );
@@ -1931,7 +1931,7 @@ void FeaMeshMgrSingleton::WriteCalculix( )
             m_WingSections[s].m_RibVec[r]->LoadNodes( nVec );
             for ( int i = 0 ; i < ( int )nVec.size() ; i++ )
             {
-                int ind = CfdMeshMgr.FindPntIndex( nVec[i]->m_Pnt, allPntVec, indMap );
+                int ind = FindPntIndex( nVec[i]->m_Pnt, allPntVec, indMap );
                 nodeVec[ind]->AddTag( RIB_ALL, r );
             }
             ribs.push_back( m_WingSections[s].m_RibVec[r] );
@@ -1943,7 +1943,7 @@ void FeaMeshMgrSingleton::WriteCalculix( )
             m_WingSections[s].m_SparVec[r]->LoadNodes( nVec );
             for ( int i = 0 ; i < ( int )nVec.size() ; i++ )
             {
-                int ind = CfdMeshMgr.FindPntIndex( nVec[i]->m_Pnt, allPntVec, indMap );
+                int ind = FindPntIndex( nVec[i]->m_Pnt, allPntVec, indMap );
                 nodeVec[ind]->AddTag( SPAR_ALL, r );
             }
             spars.push_back( m_WingSections[s].m_SparVec[r] );
