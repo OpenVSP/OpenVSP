@@ -24,9 +24,10 @@
 #include <list>
 using namespace std;
 
+class CfdMeshMgrSingleton;
 
 //===== Intersect Two Bezier Patches  =====//
-void intersect( SurfPatch& bp1, SurfPatch& bp2, int depth );
-void intersect_quads( SurfPatch& pa, SurfPatch& pb );
+void intersect( SurfPatch& bp1, SurfPatch& bp2, int depth, CfdMeshMgrSingleton *MeshMgr );
+void intersect_quads( SurfPatch& pa, SurfPatch& pb, CfdMeshMgrSingleton *MeshMgr );
 
 #endif

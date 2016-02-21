@@ -13,7 +13,7 @@
 // #include "FeaMeshMgr.h"
 #include "Tritri.h"
 
-void intersect( SurfPatch& bp1, SurfPatch& bp2, int depth )
+void intersect( SurfPatch& bp1, SurfPatch& bp2, int depth, CfdMeshMgrSingleton *MeshMgr )
 {
     int MAX_SUB = 3;
     if ( !Compare( *bp1.get_bbox(), *bp2.get_bbox() ) )
@@ -32,7 +32,7 @@ void intersect( SurfPatch& bp1, SurfPatch& bp2, int depth )
 
     if ( bp1.GetSubDepth() > MAX_SUB && bp2.GetSubDepth() > MAX_SUB )
     {
-        intersect_quads( bp1, bp2 );          // Plane - Plane Intersection
+        intersect_quads( bp1, bp2, MeshMgr );          // Plane - Plane Intersection
     }
     else
     {
@@ -44,10 +44,10 @@ void intersect( SurfPatch& bp1, SurfPatch& bp2, int depth )
                 bps1[i].SetSubDepth( bp1.GetSubDepth() + 1 );
             }
 
-            intersect( bps1[0], bp2, depth );
-            intersect( bps1[1], bp2, depth );
-            intersect( bps1[2], bp2, depth );
-            intersect( bps1[3], bp2, depth );
+            intersect( bps1[0], bp2, depth, MeshMgr );
+            intersect( bps1[1], bp2, depth, MeshMgr );
+            intersect( bps1[2], bp2, depth, MeshMgr );
+            intersect( bps1[3], bp2, depth, MeshMgr );
         }
         else
         {
@@ -57,15 +57,15 @@ void intersect( SurfPatch& bp1, SurfPatch& bp2, int depth )
                 bps2[i].SetSubDepth( bp2.GetSubDepth() + 1 );
             }
 
-            intersect( bp1, bps2[0], depth );
-            intersect( bp1, bps2[1], depth );
-            intersect( bp1, bps2[2], depth );
-            intersect( bp1, bps2[3], depth );
+            intersect( bp1, bps2[0], depth, MeshMgr );
+            intersect( bp1, bps2[1], depth, MeshMgr );
+            intersect( bp1, bps2[2], depth, MeshMgr );
+            intersect( bp1, bps2[3], depth, MeshMgr );
         }
     }
 }
 
-void intersect_quads( SurfPatch& pa, SurfPatch& pb )
+void intersect_quads( SurfPatch& pa, SurfPatch& pb, CfdMeshMgrSingleton *MeshMgr )
 {
     int iflag;
     int coplanar;
@@ -84,28 +84,28 @@ void intersect_quads( SurfPatch& pa, SurfPatch& pb )
     iflag = tri_tri_intersect_with_isectline( a0.v, a2.v, a3.v, b0.v, b2.v, b3.v, &coplanar, ip0.v, ip1.v );
     if ( iflag && !coplanar )
     {
-        CfdMeshMgr.AddIntersectionSeg( pa, pb, ip0, ip1 );
+        MeshMgr->AddIntersectionSeg( pa, pb, ip0, ip1 );
     }
 
     //==== Tri A1 and B2 ====//
     iflag = tri_tri_intersect_with_isectline( a0.v, a2.v, a3.v, b0.v, b1.v, b2.v, &coplanar, ip0.v, ip1.v );
     if ( iflag && !coplanar )
     {
-        CfdMeshMgr.AddIntersectionSeg( pa, pb, ip0, ip1 );
+        MeshMgr->AddIntersectionSeg( pa, pb, ip0, ip1 );
     }
 
     //==== Tri A2 and B1 ====//
     iflag = tri_tri_intersect_with_isectline( a0.v, a1.v, a2.v, b0.v, b2.v, b3.v, &coplanar, ip0.v, ip1.v );
     if ( iflag && !coplanar )
     {
-        CfdMeshMgr.AddIntersectionSeg( pa, pb,  ip0, ip1 );
+        MeshMgr->AddIntersectionSeg( pa, pb,  ip0, ip1 );
     }
 
     //==== Tri A2 and B2 ====//
     iflag = tri_tri_intersect_with_isectline( a0.v, a1.v, a2.v, b0.v, b1.v, b2.v, &coplanar, ip0.v, ip1.v );
     if ( iflag && !coplanar )
     {
-        CfdMeshMgr.AddIntersectionSeg( pa, pb, ip0, ip1 );
+        MeshMgr->AddIntersectionSeg( pa, pb, ip0, ip1 );
     }
 }
 

@@ -2599,7 +2599,7 @@ void CfdMeshMgrSingleton::Intersect()
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
         for ( int j = i + 1 ; j < ( int )m_SurfVec.size() ; j++ )
         {
-            m_SurfVec[i]->Intersect( m_SurfVec[j] );
+            m_SurfVec[i]->Intersect( m_SurfVec[j], this );
         }
 
 
@@ -3580,7 +3580,7 @@ void CfdMeshMgrSingleton::SplitBorderCurves()
     for ( int i = 0 ; i < ( int )chains.size() ; i++ )
     {
         chains[i]->MergeSplits();
-        vector< ISegChain* > new_chains = chains[i]->SortAndSplit();
+        vector< ISegChain* > new_chains = chains[i]->SortAndSplit( this );
         for ( int j = 0 ; j < ( int )new_chains.size() ; j++ )
         {
             new_chains[j]->m_BorderFlag = true;
@@ -3698,7 +3698,7 @@ void CfdMeshMgrSingleton::IntersectSplitChains()
     //==== Split Chains ====//
     for ( int i = 0 ; i < ( int )chains.size() ; i++ )
     {
-        vector< ISegChain* > new_chains = chains[i]->SortAndSplit();
+        vector< ISegChain* > new_chains = chains[i]->SortAndSplit( this );
         for ( int j = 0 ; j < ( int )new_chains.size() ; j++ )
         {
             if ( new_chains[j]->Valid() )
@@ -3730,7 +3730,7 @@ void CfdMeshMgrSingleton::TessellateChains()
         {
             ( *c )->Tessellate();
             ( *c )->TransferTess();
-            ( *c )->ApplyTess();
+            ( *c )->ApplyTess( this );
         }
     }
 
@@ -3741,7 +3741,7 @@ void CfdMeshMgrSingleton::TessellateChains()
             vector< double > u = ( *c )->GetWakeAttachChain()->m_ACurve.GetUTessPnts();
             ( *c )->m_ACurve.Tesselate( u ); // Copy tessellation from matching chain.
             ( *c )->TransferTess();
-            ( *c )->ApplyTess();
+            ( *c )->ApplyTess( this );
         }
     }
 
@@ -3873,7 +3873,7 @@ void CfdMeshMgrSingleton::AddSurfaceChain( Surf* sPtr, ISegChain* chainIn )
     //==== Check if Border Chains Lie On Another Surfaces ====//
     Surf* surfA = chainIn->m_SurfA;
 
-    vector< ISegChain* > new_chains = chainIn->FindCoPlanarChains( sPtr, surfA );
+    vector< ISegChain* > new_chains = chainIn->FindCoPlanarChains( sPtr, surfA, this );
 
     for ( int i = 0 ; i < ( int )new_chains.size() ; i++ )
     {

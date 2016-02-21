@@ -774,7 +774,7 @@ void FeaMeshMgrSingleton::Intersect()
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
         for ( int j = i + 1 ; j < ( int )m_SurfVec.size() ; j++ )
         {
-            m_SurfVec[i]->Intersect( m_SurfVec[j] );
+            m_SurfVec[i]->Intersect( m_SurfVec[j], this );
         }
 
     BuildChains();

@@ -141,12 +141,12 @@ public:
         return &m_Mesh;
     }
 
-    void Intersect( Surf* surfPtr );
+    void Intersect( Surf* surfPtr, CfdMeshMgrSingleton *MeshMgr );
     void IntersectLineSeg( vec3d & p0, vec3d & p1, vector< double > & t_vals );
     void IntersectLineSegMesh( vec3d & p0, vec3d & p1, vector< double > & t_vals );
 
-    bool BorderCurveOnSurface( Surf* surfPtr );
-    void PlaneBorderCurveIntersect( Surf* surfPtr, SCurve* brdPtr );
+    bool BorderCurveOnSurface( Surf* surfPtr, CfdMeshMgrSingleton *MeshMgr );
+    void PlaneBorderCurveIntersect( Surf* surfPtr, SCurve* brdPtr, CfdMeshMgrSingleton *MeshMgr );
 
     BndBox& GetBBox()
     {

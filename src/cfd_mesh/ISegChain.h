@@ -34,6 +34,7 @@ class ISegChain;
 class SharedPnt;
 class ISeg;
 class IPntBin;
+class CfdMeshMgrSingleton;
 
 //==== UW Point on Surface ====//
 class Puw
@@ -105,7 +106,7 @@ public:
     double MinDist( IPnt* ip  );
     void JoinBack( ISeg* seg );
     void JoinFront( ISeg* seg );
-    ISeg* Split( Surf* sPtr, vec2d & uw );
+    ISeg* Split( Surf* sPtr, vec2d & uw, CfdMeshMgrSingleton *MeshMgr );
 
     bool Match( ISeg* seg );
 
@@ -182,13 +183,13 @@ public:
 
     void MergeSplits();
     void RemoveChainEndSplits();
-    vector< ISegChain* > SortAndSplit();
-    vector< ISegChain* > FindCoPlanarChains( Surf* surfPtr, Surf* adjSurf );
+    vector< ISegChain* > SortAndSplit( CfdMeshMgrSingleton *MeshMgr );
+    vector< ISegChain* > FindCoPlanarChains( Surf* surfPtr, Surf* adjSurf, CfdMeshMgrSingleton *MeshMgr );
     void MergeInteriorIPnts();
 
     void BuildCurves();
     void TransferTess();
-    void ApplyTess();
+    void ApplyTess( CfdMeshMgrSingleton *MeshMgr );
 
     void SpreadDensity( );
     void CalcDensity( GridDensity* grid_den, list< MapSource* > & splitSources );
@@ -245,7 +246,7 @@ public:
     vector< IPnt* > m_IPntVec;
 
     double GroupDist( IPntGroup* g );
-    double GroupDistFract( IPntGroup* g );
+    double GroupDistFract( IPntGroup* g, CfdMeshMgrSingleton *MeshMgr );
     void AddGroup( IPntGroup* g );
 };
 

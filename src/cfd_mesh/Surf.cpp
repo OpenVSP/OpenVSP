@@ -631,7 +631,7 @@ void Surf::WriteSTL( const char* filename )
     m_Mesh.WriteSTL( filename );
 }
 
-void Surf::Intersect( Surf* surfPtr )
+void Surf::Intersect( Surf* surfPtr, CfdMeshMgrSingleton *MeshMgr )
 {
     int i;
 
@@ -644,11 +644,11 @@ void Surf::Intersect( Surf* surfPtr )
     {
         return;
     }
-    if ( BorderCurveOnSurface( surfPtr ) )
+    if ( BorderCurveOnSurface( surfPtr, MeshMgr ) )
     {
         return;
     }
-    if ( surfPtr->BorderCurveOnSurface( this ) )
+    if ( surfPtr->BorderCurveOnSurface( this, MeshMgr ) )
     {
         return;
     }
@@ -661,7 +661,7 @@ void Surf::Intersect( Surf* surfPtr )
             {
                 if ( Compare( *m_PatchVec[i]->get_bbox(), *otherPatchVec[j]->get_bbox() ) )
                 {
-                    intersect( *m_PatchVec[i], *otherPatchVec[j], 0 );
+                    intersect( *m_PatchVec[i], *otherPatchVec[j], 0, MeshMgr );
                 }
             }
         }
@@ -727,7 +727,7 @@ void Surf::IntersectLineSegMesh( vec3d & p0, vec3d & p1, vector< double > & t_va
     }
 }
 
-bool Surf::BorderCurveOnSurface( Surf* surfPtr )
+bool Surf::BorderCurveOnSurface( Surf* surfPtr, CfdMeshMgrSingleton *MeshMgr )
 {
     bool retFlag = false;
     double tol = 1.0e-05;
@@ -759,8 +759,8 @@ bool Surf::BorderCurveOnSurface( Surf* surfPtr )
             if ( num_pnts_on_surf > 2 || ( num_pnts_on_surf == 2 && crv.SingleLinear() ) )
             {
                 //==== If Surface Add To List ====//
-                CfdMeshMgr.AddPossCoPlanarSurf( this, surfPtr );
-                PlaneBorderCurveIntersect( surfPtr, border_curves[i] );
+                MeshMgr->AddPossCoPlanarSurf( this, surfPtr );
+                PlaneBorderCurveIntersect( surfPtr, border_curves[i], MeshMgr );
             }
         }
     }
@@ -768,7 +768,7 @@ bool Surf::BorderCurveOnSurface( Surf* surfPtr )
     return retFlag;
 }
 
-void Surf::PlaneBorderCurveIntersect( Surf* surfPtr, SCurve* brdPtr )
+void Surf::PlaneBorderCurveIntersect( Surf* surfPtr, SCurve* brdPtr, CfdMeshMgrSingleton *MeshMgr )
 {
     bool repeat_curve = false;
     bool null_ICurve = false;
@@ -796,7 +796,7 @@ void Surf::PlaneBorderCurveIntersect( Surf* surfPtr, SCurve* brdPtr )
         ICurve* bICurve = pICurve;
         ICurve* obICurve = brdPtr->GetICurve();
 
-        vector< ICurve* > ICurves = CfdMeshMgr.GetICurveVec();
+        vector< ICurve* > ICurves = MeshMgr->GetICurveVec();
         int ICurveVecIndex;
 
         Bezier_curve crv = brdPtr->GetUWCrv();
@@ -823,7 +823,7 @@ void Surf::PlaneBorderCurveIntersect( Surf* surfPtr, SCurve* brdPtr )
             ICurveVecIndex = distance( ICurves.begin(), find( ICurves.begin(), ICurves.end(), obICurve ) );
             if ( ICurveVecIndex < (int)ICurves.size() )
             {
-                CfdMeshMgr.SetICurveVec( brdPtr->GetICurve(), ICurveVecIndex );
+                MeshMgr->SetICurveVec( brdPtr->GetICurve(), ICurveVecIndex );
             }
         }
         else
