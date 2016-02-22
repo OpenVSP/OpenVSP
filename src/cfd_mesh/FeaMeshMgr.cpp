@@ -2812,6 +2812,8 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     m_SkinElemDO.m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
     m_SkinElemDO.m_Visible = true;
     m_SkinElemDO.m_LineColor = vec3d( 0.4, 0.4, 0.4 );
+    m_SkinElemDO.m_PntVec.clear();
+    m_SkinElemDO.m_NormVec.clear();
 
     m_SkinElemDO.m_FlipNormals = true;  // Display skin tris backwards for internal visibility.
 
@@ -2838,7 +2840,8 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     m_SliceElemDO.m_Type = DrawObj::VSP_HIDDEN_TRIS;
     m_SliceElemDO.m_Visible = true;
     m_SliceElemDO.m_LineColor = vec3d( 0.4, 0.4, 0.4 );
-
+    m_SliceElemDO.m_PntVec.clear();
+    m_SliceElemDO.m_NormVec.clear();
 
     for ( int i = 0 ; i < (int)m_SliceVec.size() ; i++ )
     {
