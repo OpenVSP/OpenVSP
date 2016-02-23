@@ -139,6 +139,7 @@ private:
     void _updateTextures( DrawObj * drawObj );
 
     void _loadTrisData( VSPGraphic::Renderable * destObj, DrawObj * drawObj );
+    void _loadQuadsData( VSPGraphic::Renderable * destObj, DrawObj * drawObj );
     void _loadXSecData( VSPGraphic::Renderable * destObj, DrawObj * drawObj );
     void _loadMarkData( VSPGraphic::Renderable * destObj, DrawObj * drawObj );
 

@@ -1258,6 +1258,35 @@ void VspGlWindow::_loadTrisData( Renderable * destObj, DrawObj * drawObj )
     destObj->appendVBuffer( data.data(), sizeof( float ) * data.size() );
 }
 
+// Currently identical to _loadTrisData.  Should make more generic.  Possibly _loadVertNormData
+// Actual taxonomy is the way the data is stored in the drawObj (vector or mesh) and whether
+// it goes into a vertex buffer or a vertex and edge buffer.
+// In addition, the amount of data -- vert, vert & norm, or vert, norm & texture.
+void VspGlWindow::_loadQuadsData( Renderable * destObj, DrawObj * drawObj )
+{
+    assert( drawObj->m_PntVec.size() == drawObj->m_NormVec.size() );
+
+    int n = drawObj->m_PntVec.size();
+
+    std::vector<float> data( n * 8, 0.0f );
+
+    for ( int i = 0; i < ( int )drawObj->m_PntVec.size(); i++ )
+    {
+        const int j = i * 8;
+        data[ j + 0 ] = ( float )drawObj->m_PntVec[i].x();
+        data[ j + 1 ] = ( float )drawObj->m_PntVec[i].y();
+        data[ j + 2 ] = ( float )drawObj->m_PntVec[i].z();
+
+        data[ j + 3 ] = ( float )drawObj->m_NormVec[i].x();
+        data[ j + 4 ] = ( float )drawObj->m_NormVec[i].y();
+        data[ j + 5 ] = ( float )drawObj->m_NormVec[i].z();
+    }
+    destObj->setFacingCW( drawObj->m_FlipNormals );
+
+    destObj->emptyVBuffer();
+    destObj->appendVBuffer( data.data(), sizeof( float ) * data.size() );
+}
+
 void VspGlWindow::_loadMarkData( Renderable * destObj, DrawObj * drawObj )
 {
     int n = drawObj->m_PntVec.size();
