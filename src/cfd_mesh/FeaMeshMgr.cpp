@@ -2837,7 +2837,7 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     draw_obj_vec.push_back( &m_SkinElemDO );
 
     m_SliceElemDO.m_GeomID = string( "FEASlice" );
-    m_SliceElemDO.m_Type = DrawObj::VSP_HIDDEN_TRIS;
+    m_SliceElemDO.m_Type = DrawObj::VSP_HIDDEN_QUADS;
     m_SliceElemDO.m_Visible = true;
     m_SliceElemDO.m_LineColor = vec3d( 0.4, 0.4, 0.4 );
     m_SliceElemDO.m_PntVec.clear();
@@ -2848,11 +2848,21 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
         for ( int e = 0 ; e < (int)m_SliceVec[i]->m_Elements.size() ; e++ )
         {
             FeaElement* fe = m_SliceVec[i]->m_Elements[e];
-            for ( int p = 0 ; p < (int)fe->m_Corners.size() ; p++ )
+            int p;
+            for ( p = 0 ; p < (int)fe->m_Corners.size() ; p++ )
             {
                 m_SliceElemDO.m_PntVec.push_back( fe->m_Corners[p]->m_Pnt );
                 m_SliceElemDO.m_NormVec.push_back( vec3d( 0, 0, 0) );
             }
+            // Handle degenerate quads (triangles).
+            while ( p < 4 ) // Repeat first point until we have 4 points.
+            {
+                m_SliceElemDO.m_PntVec.push_back( fe->m_Corners[0]->m_Pnt );
+                m_SliceElemDO.m_NormVec.push_back( vec3d( 0, 0, 0) );
+                p++;
+            }
+
+
         }
     }
 
