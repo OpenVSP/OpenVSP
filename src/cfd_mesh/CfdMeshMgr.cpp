@@ -4494,7 +4494,87 @@ void CfdMeshMgrSingleton::HighlightNextChain()
 
 void CfdMeshMgrSingleton::DebugWriteChains( const char* name, bool tessFlag )
 {
+    if ( true )
+    {
+        for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+        {
+            char str[256];
+            sprintf( str, "%s%d.m", name, i );
+            FILE* fp = fopen( str, "w" );
 
+            fprintf( fp, "clear all; format compact; close all;\n" );
+            fprintf( fp, "figure(1)\n" );
+
+
+            int cnt = 0;
+            list< ISegChain* >::iterator c;
+            for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+            {
+                if ( m_SurfVec[i] == ( *c )->m_SurfA || m_SurfVec[i] == ( *c )->m_SurfB )
+                {
+
+                    if ( tessFlag == false )
+                    {
+                        fprintf( fp, "x=[" );
+                        int j;
+                        vec2d uw1, uw2;
+                        for ( j = 0 ; j < ( int )( *c )->m_ISegDeque.size() - 1 ; j++ )
+                        {
+                            uw1 = ( *c )->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_SurfVec[i] )->m_UW;
+                            fprintf( fp, "%f,", uw1[0] );
+                        }
+                        uw1 = ( *c )->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_SurfVec[i] )->m_UW;
+                        uw2 = ( *c )->m_ISegDeque[j]->m_IPnt[1]->GetPuw( m_SurfVec[i] )->m_UW;
+                        fprintf( fp, "%f, %f];\n", uw1[0], uw2[0] );
+
+                        fprintf( fp, "y=[" );
+                        for ( j = 0 ; j < ( int )( *c )->m_ISegDeque.size() - 1 ; j++ )
+                        {
+                            uw1 = ( *c )->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_SurfVec[i] )->m_UW;
+                            fprintf( fp, "%f,", uw1[1] );
+                        }
+                        uw1 = ( *c )->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_SurfVec[i] )->m_UW;
+                        uw2 = ( *c )->m_ISegDeque[j]->m_IPnt[1]->GetPuw( m_SurfVec[i] )->m_UW;
+                        fprintf( fp, "%f, %f];\n", uw1[1], uw2[1] );
+
+                        fprintf( fp, "plot( x, y, 'x-'); hold on;\n" );
+                    }
+                    else
+                    {
+                        fprintf( fp, "x=[" );
+                        int j;
+                        vec2d uw1;
+                        for ( j = 0 ; j < ( int )( *c )->m_TessVec.size() - 1 ; j++ )
+                        {
+                            uw1 = ( *c )->m_TessVec[j]->GetPuw( m_SurfVec[i] )->m_UW;
+                            fprintf( fp, "%f,", uw1[0] );
+                        }
+                        uw1 = ( *c )->m_TessVec[j]->GetPuw( m_SurfVec[i] )->m_UW;
+                        fprintf( fp, "%f];\n", uw1[0] );
+
+                        fprintf( fp, "y=[" );
+                        for ( j = 0 ; j < ( int )( *c )->m_TessVec.size() - 1 ; j++ )
+                        {
+                            uw1 = ( *c )->m_TessVec[j]->GetPuw( m_SurfVec[i] )->m_UW;
+                            fprintf( fp, "%f,", uw1[1] );
+                        }
+                        uw1 = ( *c )->m_TessVec[j]->GetPuw( m_SurfVec[i] )->m_UW;
+                        fprintf( fp, "%f];\n", uw1[1] );
+
+                        fprintf( fp, "plot( x, y); hold on;\n" );
+
+                    }
+                    cnt++;
+                }
+            }
+            fprintf(fp, "axis off\n" );
+            fclose( fp );
+        }
+
+
+    }
+    else
+    {
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
         char str[256];
@@ -4577,6 +4657,7 @@ void CfdMeshMgrSingleton::DebugWriteChains( const char* name, bool tessFlag )
             }
         }
         fclose( fp );
+    }
     }
 }
 
