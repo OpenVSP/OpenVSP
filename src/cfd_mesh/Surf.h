@@ -46,6 +46,7 @@ public:
     void GetBorderCurve( const vec3d &uw0, const vec3d &uw1, Bezier_curve & crv ) const;
 
     vec3d CompPnt( double u, double w ) const;
+    vec3d CompPnt01( double u, double w ) const;
 
     const SurfCore* GetSurfCore() const
     {

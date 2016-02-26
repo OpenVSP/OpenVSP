@@ -1434,3 +1434,8 @@ vec3d Surf::CompPnt( double u, double w ) const
 {
     return m_SurfCore.CompPnt( u, w );
 }
+
+vec3d Surf::CompPnt01( double u, double w ) const
+{
+    return m_SurfCore.CompPnt01( u, w );
+}
