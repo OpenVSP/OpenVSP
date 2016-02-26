@@ -279,6 +279,7 @@ public:
 
     void SetDefaultThick( double t );
 //  virtual void Draw( bool highlight );
+//    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, bool highlight );
 
     void AddSpliceLine();
     void DelCurrSpliceLine();
@@ -344,6 +345,7 @@ public:
 
 //  virtual void Draw();
 //  virtual void DrawSlicePlane();
+    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
     virtual void SnapUpperLowerToSkin( vector < FeaNode* > & skinNodes );
 
@@ -365,6 +367,8 @@ public:
     Surf* m_CapUpperSurf[2];
     Surf* m_CapLowerSurf[2];
 
+    DrawObj m_SliceDO;
+
 };
 
 
@@ -377,6 +381,8 @@ public:
     virtual void ComputeEndPoints();
 //  virtual void Draw( bool highlight );
 //  virtual void Draw() {FeaSlice::Draw();}
+    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, bool highlight );
+
 
     int m_SectID;               // Section
     Parm m_PerChord;            // Percent Chord
@@ -397,6 +403,7 @@ public:
 
 //  virtual void Draw( bool highlight );
 //  virtual void Draw() {FeaSlice::Draw();}
+    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, bool highlight );
 
     int m_SectID;
     Parm m_PerSpan;

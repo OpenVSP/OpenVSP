@@ -1201,6 +1201,45 @@ void FeaSlice::SnapUpperLowerToSkin(  vector < FeaNode* > & skinNodes )
     }
 }
 
+void FeaSlice::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
+{
+
+    m_SliceDO.m_PntVec.clear();
+
+    m_SliceDO.m_GeomID = "FEASlicePlane";
+    m_SliceDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_SliceDO.m_LineWidth = 1.0;
+    m_SliceDO.m_LineColor = vec3d( 0.0, 0.0, 0.0 );
+    m_SliceDO.m_Type = DrawObj::VSP_LINES;
+
+
+    vec3d p00 = m_Surf->CompPnt01( 0, 0 );
+    vec3d p10 = m_Surf->CompPnt01( 1, 0 );
+    vec3d p11 = m_Surf->CompPnt01( 1, 1 );
+    vec3d p01 = m_Surf->CompPnt01( 0, 1 );
+
+    for ( int i = 0 ; i < 4 ; i ++ )
+    {
+        double fu = (double)i/3.0;
+        vec3d p0 = p00 + (p10 - p00)*fu;
+        vec3d p1 = p01 + (p11 - p01)*fu;
+
+        m_SliceDO.m_PntVec.push_back( p0 );
+        m_SliceDO.m_PntVec.push_back( p1 );
+    }
+    for ( int i = 0 ; i < 4 ; i ++ )
+    {
+        double fw = (double)i/3.0;
+        vec3d p0 = p00 + (p01 - p00)*fw;
+        vec3d p1 = p10 + (p11 - p10)*fw;
+
+        m_SliceDO.m_PntVec.push_back( p0 );
+        m_SliceDO.m_PntVec.push_back( p1 );
+    }
+
+
+    draw_obj_vec.push_back( &m_SliceDO );
+}
 
 
 //void FeaSlice::DrawSlicePlane()
@@ -1354,6 +1393,32 @@ void FeaSpar::ComputeEndPoints()
     }
 }
 
+void FeaSpar::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, bool highlight )
+{
+    if ( highlight )
+    {
+        FeaSlice::LoadDrawObjs( draw_obj_vec );
+    }
+    else
+    {
+        m_SliceDO.m_PntVec.clear();
+
+        m_SliceDO.m_GeomID = "FEASliceLine";
+        m_SliceDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+        m_SliceDO.m_LineWidth = 2.0;
+        m_SliceDO.m_LineColor = vec3d( 100/255, 150/255, 100/255 );
+        m_SliceDO.m_Type = DrawObj::VSP_LINES;
+
+        vec3d p0 = (m_UpperStartChainPnt + m_LowerStartChainPnt)*0.5;
+        vec3d p1 = (m_UpperEndChainPnt   + m_LowerEndChainPnt)*0.5;
+
+        m_SliceDO.m_PntVec.push_back( p0 );
+        m_SliceDO.m_PntVec.push_back( p1 );
+
+        draw_obj_vec.push_back( &m_SliceDO );
+    }
+}
+
 //void FeaSpar::Draw( bool highlight )
 //{
 //  if ( highlight )
@@ -1475,7 +1540,31 @@ bool FeaRib::IsCap()
     return false;
 }
 
+void FeaRib::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, bool highlight )
+{
+    if ( highlight )
+    {
+        FeaSlice::LoadDrawObjs( draw_obj_vec );
+    }
+    else
+    {
+        m_SliceDO.m_PntVec.clear();
 
+        m_SliceDO.m_GeomID = "FEASliceLine";
+        m_SliceDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+        m_SliceDO.m_LineWidth = 2.0;
+        m_SliceDO.m_LineColor = vec3d( 150/255, 100/255, 150/255 );
+        m_SliceDO.m_Type = DrawObj::VSP_LINES;
+
+        vec3d p0 = (m_UpperStartChainPnt + m_LowerStartChainPnt)*0.5;
+        vec3d p1 = (m_UpperEndChainPnt   + m_LowerEndChainPnt)*0.5;
+
+        m_SliceDO.m_PntVec.push_back( m_UpperEndPnts[0] );
+        m_SliceDO.m_PntVec.push_back( m_UpperEndPnts[1] );
+
+        draw_obj_vec.push_back( &m_SliceDO );
+    }
+}
 
 //void FeaRib::Draw( bool highlight )
 //{

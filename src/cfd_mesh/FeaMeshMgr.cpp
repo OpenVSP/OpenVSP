@@ -2808,63 +2808,114 @@ void FeaMeshMgrSingleton::MouseClick( vec2d & cursor )
 
 void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 {
-    m_SkinElemDO.m_GeomID = string( "FEASkin" );
-    m_SkinElemDO.m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
-    m_SkinElemDO.m_Visible = true;
-    m_SkinElemDO.m_LineColor = vec3d( 0.4, 0.4, 0.4 );
-    m_SkinElemDO.m_PntVec.clear();
-    m_SkinElemDO.m_NormVec.clear();
 
-    m_SkinElemDO.m_FlipNormals = true;  // Display skin tris backwards for internal visibility.
-
-    //==== Draw Skin ====//
-    for ( int i = 0 ; i < (int)m_SkinVec.size() ; i++ )
+    if ( !m_DrawMeshFlag )
     {
-        if ( m_SkinVec[i]->GetExportFlag() )
+        FeaRib* curr_rib = GetCurrRib();
+        for ( int i = 0 ; i < (int)m_WingSections.size() ; i++ )
         {
-            for ( int e = 0 ; e < (int)m_SkinVec[i]->m_Elements.size() ; e++ )
+            for ( int j = 0 ; j < (int)m_WingSections[i].m_RibVec.size() ; j++ )
             {
-                FeaElement* fe = m_SkinVec[i]->m_Elements[e];
-                for ( int p = 0 ; p < (int)fe->m_Corners.size() ; p++ )
+                FeaRib* rib = m_WingSections[i].m_RibVec[j];
+                if ( m_CurrEditType == RIB_EDIT && rib == curr_rib )
+                    rib->LoadDrawObjs( draw_obj_vec, true );
+                else
+                    rib->LoadDrawObjs( draw_obj_vec, false );
+            }
+        }
+
+        FeaSpar* curr_spar = GetCurrSpar();
+        for ( int i = 0 ; i < (int)m_WingSections.size() ; i++ )
+        {
+            for ( int j = 0 ; j < (int)m_WingSections[i].m_SparVec.size() ; j++ )
+            {
+                FeaSpar* spar = m_WingSections[i].m_SparVec[j];
+                if ( m_CurrEditType == SPAR_EDIT && spar == curr_spar )
+                    spar->LoadDrawObjs( draw_obj_vec, true );
+                else
+                    spar->LoadDrawObjs( draw_obj_vec, false );
+            }
+        }
+
+        //==== Wing Sections ====//
+        for ( int i = 0 ; i < (int)m_WingSections.size() ; i++ )
+        {
+//            if ( i == m_CurrSectID )
+//            {
+//                if ( m_CurrEditType == UP_SKIN_EDIT )
+//                    m_WingSections[i].m_UpperSkin.LoadDrawObjs( draw_obj_vec, true );
+//                else if ( m_CurrEditType == LOW_SKIN_EDIT )
+//                    m_WingSections[i].m_LowerSkin.LoadDrawObjs( draw_obj_vec, true );
+//                m_WingSections[i].LoadDrawObjs( draw_obj_vec, true );
+//            }
+//            else
+//            {
+//                if ( m_CurrEditType == UP_SKIN_EDIT )
+//                    m_WingSections[i].m_UpperSkin.LoadDrawObjs( draw_obj_vec, false );
+//                else if ( m_CurrEditType == LOW_SKIN_EDIT )
+//                    m_WingSections[i].m_LowerSkin.LoadDrawObjs( draw_obj_vec, false );
+//                m_WingSections[i].LoadDrawObjs( draw_obj_vec, false );
+//            }
+        }
+    }
+    else
+    {
+        m_SkinElemDO.m_GeomID = string( "FEASkin" );
+        m_SkinElemDO.m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
+        m_SkinElemDO.m_Visible = true;
+        m_SkinElemDO.m_LineColor = vec3d( 0.4, 0.4, 0.4 );
+        m_SkinElemDO.m_PntVec.clear();
+        m_SkinElemDO.m_NormVec.clear();
+
+        m_SkinElemDO.m_FlipNormals = true;  // Display skin tris backwards for internal visibility.
+
+        //==== Draw Skin ====//
+        for ( int i = 0 ; i < (int)m_SkinVec.size() ; i++ )
+        {
+            if ( m_SkinVec[i]->GetExportFlag() )
+            {
+                for ( int e = 0 ; e < (int)m_SkinVec[i]->m_Elements.size() ; e++ )
                 {
-                    m_SkinElemDO.m_PntVec.push_back( fe->m_Corners[p]->m_Pnt );
-                    m_SkinElemDO.m_NormVec.push_back( vec3d( 0, 0, 0) );
+                    FeaElement* fe = m_SkinVec[i]->m_Elements[e];
+                    for ( int p = 0 ; p < (int)fe->m_Corners.size() ; p++ )
+                    {
+                        m_SkinElemDO.m_PntVec.push_back( fe->m_Corners[p]->m_Pnt );
+                        m_SkinElemDO.m_NormVec.push_back( vec3d( 0, 0, 0) );
+                    }
                 }
             }
         }
-    }
 
-    draw_obj_vec.push_back( &m_SkinElemDO );
+        draw_obj_vec.push_back( &m_SkinElemDO );
 
-    m_SliceElemDO.m_GeomID = string( "FEASlice" );
-    m_SliceElemDO.m_Type = DrawObj::VSP_HIDDEN_QUADS;
-    m_SliceElemDO.m_Visible = true;
-    m_SliceElemDO.m_LineColor = vec3d( 0.4, 0.4, 0.4 );
-    m_SliceElemDO.m_PntVec.clear();
-    m_SliceElemDO.m_NormVec.clear();
+        m_SliceElemDO.m_GeomID = string( "FEASlice" );
+        m_SliceElemDO.m_Type = DrawObj::VSP_HIDDEN_QUADS;
+        m_SliceElemDO.m_Visible = true;
+        m_SliceElemDO.m_LineColor = vec3d( 0.4, 0.4, 0.4 );
+        m_SliceElemDO.m_PntVec.clear();
+        m_SliceElemDO.m_NormVec.clear();
 
-    for ( int i = 0 ; i < (int)m_SliceVec.size() ; i++ )
-    {
-        for ( int e = 0 ; e < (int)m_SliceVec[i]->m_Elements.size() ; e++ )
+        for ( int i = 0 ; i < (int)m_SliceVec.size() ; i++ )
         {
-            FeaElement* fe = m_SliceVec[i]->m_Elements[e];
-            int p;
-            for ( p = 0 ; p < (int)fe->m_Corners.size() ; p++ )
+            for ( int e = 0 ; e < (int)m_SliceVec[i]->m_Elements.size() ; e++ )
             {
-                m_SliceElemDO.m_PntVec.push_back( fe->m_Corners[p]->m_Pnt );
-                m_SliceElemDO.m_NormVec.push_back( vec3d( 0, 0, 0) );
+                FeaElement* fe = m_SliceVec[i]->m_Elements[e];
+                int p;
+                for ( p = 0 ; p < (int)fe->m_Corners.size() ; p++ )
+                {
+                    m_SliceElemDO.m_PntVec.push_back( fe->m_Corners[p]->m_Pnt );
+                    m_SliceElemDO.m_NormVec.push_back( vec3d( 0, 0, 0) );
+                }
+                // Handle degenerate quads (triangles).
+                while ( p < 4 ) // Repeat first point until we have 4 points.
+                {
+                    m_SliceElemDO.m_PntVec.push_back( fe->m_Corners[0]->m_Pnt );
+                    m_SliceElemDO.m_NormVec.push_back( vec3d( 0, 0, 0) );
+                    p++;
+                }
             }
-            // Handle degenerate quads (triangles).
-            while ( p < 4 ) // Repeat first point until we have 4 points.
-            {
-                m_SliceElemDO.m_PntVec.push_back( fe->m_Corners[0]->m_Pnt );
-                m_SliceElemDO.m_NormVec.push_back( vec3d( 0, 0, 0) );
-                p++;
-            }
-
-
         }
-    }
 
-    draw_obj_vec.push_back( &m_SliceElemDO );
+        draw_obj_vec.push_back( &m_SliceElemDO );
+    }
 }
