@@ -375,7 +375,14 @@ public:
 
     virtual int GetMainSurfID( int surfnum )
     {
-        return m_SurfIndxVec[ surfnum ];
+        if ( surfnum >= 0 && surfnum < m_SurfIndxVec.size() )
+        {
+            return m_SurfIndxVec[ surfnum ];
+        }
+        else
+        {
+            return -1;
+        }
     }
 
     /*

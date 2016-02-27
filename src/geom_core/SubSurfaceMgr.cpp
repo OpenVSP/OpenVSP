@@ -56,10 +56,20 @@ vector< SubSurface*> SubSurfaceMgrSingleton::GetSubSurfs( string comp_id, int su
         return ret_vec;
     }
 
-    vector< SubSurface* > all_vec;
-    all_vec = geom->GetSubSurfVec();
+    if ( geom->GetType().m_Type == MESH_GEOM_TYPE )
+    {
+        return ret_vec;
+    }
 
     int imain = geom->GetMainSurfID( surfnum );
+
+    if ( imain < 0 )
+    {
+        return ret_vec;
+    }
+
+    vector< SubSurface* > all_vec;
+    all_vec = geom->GetSubSurfVec();
 
     for ( int i = 0; i < all_vec.size(); i++ )
     {
