@@ -1211,7 +1211,7 @@ void FeaSlice::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id )
     m_SliceDO.m_GeomID = "FEASlicePlane" + string( str );
     m_SliceDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
     m_SliceDO.m_LineWidth = 1.0;
-    m_SliceDO.m_LineColor = vec3d( 0.0, 0.0, 0.0 );
+    m_SliceDO.m_LineColor = vec3d( 1.0, 0.0, 0.0 );
     m_SliceDO.m_Type = DrawObj::VSP_LINES;
 
 
