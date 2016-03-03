@@ -1201,12 +1201,14 @@ void FeaSlice::SnapUpperLowerToSkin(  vector < FeaNode* > & skinNodes )
     }
 }
 
-void FeaSlice::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
+void FeaSlice::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id )
 {
 
     m_SliceDO.m_PntVec.clear();
 
-    m_SliceDO.m_GeomID = "FEASlicePlane";
+    char str[255];
+    sprintf( str, "%d", id );
+    m_SliceDO.m_GeomID = "FEASlicePlane" + string( str );
     m_SliceDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
     m_SliceDO.m_LineWidth = 1.0;
     m_SliceDO.m_LineColor = vec3d( 0.0, 0.0, 0.0 );
@@ -1393,17 +1395,19 @@ void FeaSpar::ComputeEndPoints()
     }
 }
 
-void FeaSpar::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, bool highlight )
+void FeaSpar::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight )
 {
     if ( highlight )
     {
-        FeaSlice::LoadDrawObjs( draw_obj_vec );
+        FeaSlice::LoadDrawObjs( draw_obj_vec, id );
     }
     else
     {
         m_SliceDO.m_PntVec.clear();
 
-        m_SliceDO.m_GeomID = "FEASliceLine";
+        char str[255];
+        sprintf( str, "%d", id );
+        m_SliceDO.m_GeomID = "FEASliceLine" + string( str );
         m_SliceDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
         m_SliceDO.m_LineWidth = 2.0;
         m_SliceDO.m_LineColor = vec3d( 100/255, 150/255, 100/255 );
@@ -1540,17 +1544,19 @@ bool FeaRib::IsCap()
     return false;
 }
 
-void FeaRib::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, bool highlight )
+void FeaRib::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight )
 {
     if ( highlight )
     {
-        FeaSlice::LoadDrawObjs( draw_obj_vec );
+        FeaSlice::LoadDrawObjs( draw_obj_vec, id );
     }
     else
     {
         m_SliceDO.m_PntVec.clear();
 
-        m_SliceDO.m_GeomID = "FEASliceLine";
+        char str[255];
+        sprintf( str, "%d", id );
+        m_SliceDO.m_GeomID = "FEASliceLine" + string( str );
         m_SliceDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
         m_SliceDO.m_LineWidth = 2.0;
         m_SliceDO.m_LineColor = vec3d( 150/255, 100/255, 150/255 );

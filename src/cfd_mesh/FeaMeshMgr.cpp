@@ -2811,6 +2811,7 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 
     if ( !m_DrawMeshFlag )
     {
+        int k = 0;
         FeaRib* curr_rib = GetCurrRib();
         for ( int i = 0 ; i < (int)m_WingSections.size() ; i++ )
         {
@@ -2818,9 +2819,10 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
             {
                 FeaRib* rib = m_WingSections[i].m_RibVec[j];
                 if ( m_CurrEditType == RIB_EDIT && rib == curr_rib )
-                    rib->LoadDrawObjs( draw_obj_vec, true );
+                    rib->LoadDrawObjs( draw_obj_vec, k, true );
                 else
-                    rib->LoadDrawObjs( draw_obj_vec, false );
+                    rib->LoadDrawObjs( draw_obj_vec, k, false );
+                k++;
             }
         }
 
@@ -2831,9 +2833,10 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
             {
                 FeaSpar* spar = m_WingSections[i].m_SparVec[j];
                 if ( m_CurrEditType == SPAR_EDIT && spar == curr_spar )
-                    spar->LoadDrawObjs( draw_obj_vec, true );
+                    spar->LoadDrawObjs( draw_obj_vec, k, true );
                 else
-                    spar->LoadDrawObjs( draw_obj_vec, false );
+                    spar->LoadDrawObjs( draw_obj_vec, k, false );
+                k++;
             }
         }
 
