@@ -18,19 +18,21 @@
 //==== Constructor ====//
 VSPAEROMgrSingleton::VSPAEROMgrSingleton()
 {
+    m_Name = "VSPAEROSettings";
+
     m_DegenGeomSet.Init( "GeomSet", "VSPAERO", this, 0, 0, 12 );
     m_DegenGeomSet.SetDescript( "Geometry set" );
 
-    m_Sref.Init( "Sref", "VSPAERO", this, 100.0, 0.0, 1e12, false );
+    m_Sref.Init( "Sref", "VSPAERO", this, 100.0, 0.0, 1e12 );
     m_Sref.SetDescript( "Reference area" );
 
-    m_bref.Init( "bref", "VSPAERO", this, 1.0, 0.0, 1e6, false );
+    m_bref.Init( "bref", "VSPAERO", this, 1.0, 0.0, 1e6 );
     m_bref.SetDescript( "Reference span" );
 
-    m_cref.Init( "cref", "VSPAERO", this, 1.0, 0.0, 1e6, false );
+    m_cref.Init( "cref", "VSPAERO", this, 1.0, 0.0, 1e6 );
     m_cref.SetDescript( "Reference chord" );
 
-    m_RefFlag.Init( "RefFlag", "VSPAERO", this, MANUAL_REF, MANUAL_REF, COMPONENT_REF, false );
+    m_RefFlag.Init( "RefFlag", "VSPAERO", this, MANUAL_REF, MANUAL_REF, COMPONENT_REF );
     m_RefFlag.SetDescript( "Reference quantity flag" );
 
     m_CGGeomSet.Init( "MassSet", "VSPAERO", this, 0, 0, 12 );

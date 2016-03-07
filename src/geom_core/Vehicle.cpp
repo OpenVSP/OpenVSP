@@ -133,6 +133,7 @@ void Vehicle::Init()
     LinkMgr.RegisterContainer( m_CfdSettings.GetID() );
     LinkMgr.RegisterContainer( m_CfdGridDensity.GetID() );
     LinkMgr.RegisterContainer( m_FeaGridDensity.GetID() );
+    LinkMgr.RegisterContainer( VSPAEROMgr.GetID() );
 
     m_IxxIyyIzz = vec3d( 0, 0, 0 );
     m_IxyIxzIyz = vec3d( 0, 0, 0 );
