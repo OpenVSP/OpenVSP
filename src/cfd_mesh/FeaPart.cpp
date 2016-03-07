@@ -706,13 +706,19 @@ int FeaSpliceLine::processReleaseEvent()
 //============================================================================//
 FeaPart::FeaPart()
 {
-    m_Density = 1.0;
+    m_Density.Init( "Density", "FEAPart", this, 1.0, 0.0, 1.0e12 );
 }
 
 FeaPart::~FeaPart()
 {
 
 }
+
+void FeaPart::ParmChanged( Parm* parm_ptr, int type )
+{
+    MessageMgr::getInstance().Send( "ScreenMgr", "UpdateAllScreens" );
+}
+
 void FeaPart::LoadNodes( vector< FeaNode* > & node_vec )
 {
     int i;
@@ -740,6 +746,8 @@ FeaSlice::FeaSlice()
     m_Surf = new Surf();
     m_Surf->SetCompID( COMP_ID );
     m_NumDivisions = 1;
+
+    m_Thick.Init( "Thickness", "FEAPart", this, 0.1, 0.0, 1.0e12 );
 }
 
 FeaSlice::~FeaSlice()
@@ -1239,6 +1247,7 @@ void FeaSlice::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id )
         m_SliceDO.m_PntVec.push_back( p1 );
     }
 
+    m_SliceDO.m_GeomChanged = true;
 
     draw_obj_vec.push_back( &m_SliceDO );
 }
@@ -1314,11 +1323,11 @@ void FeaSlice::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id )
 FeaSpar::FeaSpar()
 {
     m_SectID = 0;
-    m_PerChord = 0.5;
-    m_Thick = 0.1;
     m_AbsSweepFlag = true;
-    m_Sweep = 0.0;
     m_TrimFlag = true;
+
+    m_PerChord.Init( "PerChord", "FEAPart", this, 0.5, 0.0, 1.0 );
+    m_Sweep.Init( "Sweep", "FEAPart", this, 0.0, -90.0, 90.0 );
 }
 
 FeaSpar::~FeaSpar()
@@ -1419,6 +1428,8 @@ void FeaSpar::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool high
         m_SliceDO.m_PntVec.push_back( p0 );
         m_SliceDO.m_PntVec.push_back( p1 );
 
+        m_SliceDO.m_GeomChanged = true;
+
         draw_obj_vec.push_back( &m_SliceDO );
     }
 }
@@ -1450,11 +1461,12 @@ void FeaSpar::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool high
 FeaRib::FeaRib()
 {
     m_SectID = 0;
-    m_PerSpan = 0.5;
     m_Thick = 0.1;
     m_AbsSweepFlag = true;
-    m_Sweep = 0.0;
     m_TrimFlag = true;
+
+    m_PerSpan.Init( "PerSpan", "FEAPart", this, 0.5, 0.0, 1.0 );
+    m_Sweep.Init( "Sweep", "FEAPart", this, 0.0, -90.0, 90.0 );
 }
 
 FeaRib::~FeaRib()
@@ -1567,6 +1579,8 @@ void FeaRib::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highl
 
         m_SliceDO.m_PntVec.push_back( m_UpperEndPnts[0] );
         m_SliceDO.m_PntVec.push_back( m_UpperEndPnts[1] );
+
+        m_SliceDO.m_GeomChanged = true;
 
         draw_obj_vec.push_back( &m_SliceDO );
     }
@@ -1923,10 +1937,19 @@ void FeaSkin::ComputeSpliceLineEndPoints()
 //============================================================================//
 FeaPointMass::FeaPointMass()
 {
+	m_PosX.Init( "PosX", "FEAPart", this, 0.0, -1.0e12, 1.0e12 );
+	m_PosY.Init( "PosY", "FEAPart", this, 0.0, -1.0e12, 1.0e12 );
+	m_PosZ.Init( "PosZ", "FEAPart", this, 0.0, -1.0e12, 1.0e12 );
 }
 
 FeaPointMass::~FeaPointMass()
 {
+}
+
+
+void FeaPointMass::ParmChanged( Parm* parm_ptr, int type )
+{
+    MessageMgr::getInstance().Send( "ScreenMgr", "UpdateAllScreens" );
 }
 
 //void FeaPointMass::Draw( bool highlight )

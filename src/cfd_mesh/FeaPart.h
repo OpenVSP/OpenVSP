@@ -219,12 +219,14 @@ public:
 };
 
 
-class FeaPart
+class FeaPart : public ParmContainer
 {
 public:
 
     FeaPart();
     virtual ~FeaPart();
+
+    virtual void ParmChanged( Parm* parm_ptr, int type );
 
     Surf* GetSurf()
     {
@@ -413,11 +415,13 @@ public:
     bool m_TrimFlag;
 };
 
-class FeaPointMass
+class FeaPointMass : public ParmContainer
 {
 public:
     FeaPointMass();
     virtual ~FeaPointMass();
+
+    virtual void ParmChanged( Parm* parm_ptr, int type );
 
     Parm m_PosX;
     Parm m_PosY;
