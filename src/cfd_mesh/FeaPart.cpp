@@ -716,7 +716,12 @@ FeaPart::~FeaPart()
 
 void FeaPart::ParmChanged( Parm* parm_ptr, int type )
 {
+    Update();
     MessageMgr::getInstance().Send( "ScreenMgr", "UpdateAllScreens" );
+}
+
+void FeaPart::Update()
+{
 }
 
 void FeaPart::LoadNodes( vector< FeaNode* > & node_vec )
@@ -1434,6 +1439,11 @@ void FeaSpar::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool high
     }
 }
 
+void FeaSpar::Update()
+{
+    ComputeEndPoints();
+}
+
 //void FeaSpar::Draw( bool highlight )
 //{
 //  if ( highlight )
@@ -1584,6 +1594,11 @@ void FeaRib::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highl
 
         draw_obj_vec.push_back( &m_SliceDO );
     }
+}
+
+void FeaRib::Update()
+{
+    ComputeEndPoints();
 }
 
 //void FeaRib::Draw( bool highlight )

@@ -227,6 +227,7 @@ public:
     virtual ~FeaPart();
 
     virtual void ParmChanged( Parm* parm_ptr, int type );
+    virtual void Update();
 
     Surf* GetSurf()
     {
@@ -385,6 +386,7 @@ public:
 //  virtual void Draw() {FeaSlice::Draw();}
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight );
 
+    virtual void Update();
 
     int m_SectID;               // Section
     Parm m_PerChord;            // Percent Chord
@@ -406,6 +408,8 @@ public:
 //  virtual void Draw( bool highlight );
 //  virtual void Draw() {FeaSlice::Draw();}
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight );
+
+    virtual void Update();
 
     int m_SectID;
     Parm m_PerSpan;
