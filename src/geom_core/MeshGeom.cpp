@@ -1231,7 +1231,7 @@ void MeshGeom::CreateGeomResults( Results* res )
     //==== Add Index Tris =====//
     if ( m_TMeshVec.size() )
     {
-        res->Add( ResData( "Type", vsp::MESH_INDEXED_TRI ) );
+        res->Add( NameValData( "Type", vsp::MESH_INDEXED_TRI ) );
 
         BuildIndexedMesh( 0 );
 
@@ -1243,8 +1243,8 @@ void MeshGeom::CreateGeomResults( Results* res )
             TNode* tnode = m_IndexedNodeVec[i];
             pvec.push_back( XFormMat.xform( tnode->m_Pnt ) );
         }
-        res->Add( ResData( "Num_Pnts", ( int )m_IndexedNodeVec.size() ) );
-        res->Add( ResData( "Tri_Pnts", pvec ) );
+        res->Add( NameValData( "Num_Pnts", ( int )m_IndexedNodeVec.size() ) );
+        res->Add( NameValData( "Tri_Pnts", pvec ) );
 
         //==== Write Out Tris ====//
         vector< int > id0_vec;
@@ -1258,21 +1258,21 @@ void MeshGeom::CreateGeomResults( Results* res )
             id1_vec.push_back( ttri->m_N1->m_ID );
             id2_vec.push_back( ttri->m_N2->m_ID );
         }
-        res->Add( ResData( "Num_Tris", ( int )m_IndexedTriVec.size() ) );
-        res->Add( ResData( "Tri_Index0", id0_vec ) );
-        res->Add( ResData( "Tri_Index1", id1_vec ) );
-        res->Add( ResData( "Tri_Index2", id2_vec ) );
+        res->Add( NameValData( "Num_Tris", ( int )m_IndexedTriVec.size() ) );
+        res->Add( NameValData( "Tri_Index0", id0_vec ) );
+        res->Add( NameValData( "Tri_Index1", id1_vec ) );
+        res->Add( NameValData( "Tri_Index2", id2_vec ) );
     }
     //==== Add Slices =====//
     else if ( m_SliceVec.size() )
     {
-        res->Add( ResData( "Type", vsp::MESH_SLICE_TRI ) );
+        res->Add( NameValData( "Type", vsp::MESH_SLICE_TRI ) );
 
         //==== Load m_SliceVec ====//
-        res->Add( ResData( "Num_Slices", ( int )m_SliceVec.size() ) );
+        res->Add( NameValData( "Num_Slices", ( int )m_SliceVec.size() ) );
         for ( int i = 0; i < ( int )m_SliceVec.size(); i++ )
         {
-            res->Add( ResData( "Num_Slice_Tris", ( int )( int )m_SliceVec[i]->m_TVec.size() ) );
+            res->Add( NameValData( "Num_Slice_Tris", ( int )( int )m_SliceVec[i]->m_TVec.size() ) );
             vector< vec3d > slice_tri_n0_vec;
             vector< vec3d > slice_tri_n1_vec;
             vector< vec3d > slice_tri_n2_vec;
@@ -1283,9 +1283,9 @@ void MeshGeom::CreateGeomResults( Results* res )
                 slice_tri_n1_vec.push_back( tri->m_N1->m_Pnt );
                 slice_tri_n2_vec.push_back( tri->m_N2->m_Pnt );
             }
-            res->Add( ResData( "Slice_Tris_Pnt_0", slice_tri_n0_vec ) );
-            res->Add( ResData( "Slice_Tris_Pnt_1", slice_tri_n1_vec ) );
-            res->Add( ResData( "Slice_Tris_Pnt_2", slice_tri_n2_vec ) );
+            res->Add( NameValData( "Slice_Tris_Pnt_0", slice_tri_n0_vec ) );
+            res->Add( NameValData( "Slice_Tris_Pnt_1", slice_tri_n1_vec ) );
+            res->Add( NameValData( "Slice_Tris_Pnt_2", slice_tri_n2_vec ) );
         }
     }
 
@@ -1500,9 +1500,9 @@ void MeshGeom::IntersectTrim( int halfFlag, int intSubsFlag )
 
     //==== Create Results ====//
     Results* res = ResultsMgr.CreateResults( "Comp_Geom" );
-    res->Add( ResData( "Num_Comps", ( int )compIdVec.size() ) );
-    res->Add( ResData( "Total_Num_Meshes", ( int )m_TMeshVec.size() ) );
-    res->Add( ResData( "Total_Num_Tris", numTris ) );
+    res->Add( NameValData( "Num_Comps", ( int )compIdVec.size() ) );
+    res->Add( NameValData( "Total_Num_Meshes", ( int )m_TMeshVec.size() ) );
+    res->Add( NameValData( "Total_Num_Tris", numTris ) );
 
 
     //==== Scale To 10 Units ====//
@@ -1718,7 +1718,7 @@ void MeshGeom::IntersectTrim( int halfFlag, int intSubsFlag )
     vector< double > max_area;
     vector< double > length_dia;
 
-    res->Add( ResData( "Num_Meshes", ( int )m_TMeshVec.size() ) );
+    res->Add( NameValData( "Num_Meshes", ( int )m_TMeshVec.size() ) );
     for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
         TMesh* tmsh = m_TMeshVec[i];
@@ -1739,33 +1739,33 @@ void MeshGeom::IntersectTrim( int halfFlag, int intSubsFlag )
         length_dia.push_back( tmsh->m_DragFactors.m_LengthToDia );
     }
 
-    res->Add( ResData( "Comp_Name", name_vec ) );
-    res->Add( ResData( "Theo_Area", theo_area_vec ) );
-    res->Add( ResData( "Wet_Area", wet_area_vec ) );
-    res->Add( ResData( "Theo_Vol", theo_vol_vec ) );
-    res->Add( ResData( "Wet_Vol", wet_vol_vec ) );
+    res->Add( NameValData( "Comp_Name", name_vec ) );
+    res->Add( NameValData( "Theo_Area", theo_area_vec ) );
+    res->Add( NameValData( "Wet_Area", wet_area_vec ) );
+    res->Add( NameValData( "Theo_Vol", theo_vol_vec ) );
+    res->Add( NameValData( "Wet_Vol", wet_vol_vec ) );
 
-    res->Add( ResData( "Total_Theo_Area", m_TotalTheoArea ) );
-    res->Add( ResData( "Total_Wet_Area", m_TotalWetArea ) );
-    res->Add( ResData( "Total_Theo_Vol", m_TotalTheoVol ) );
-    res->Add( ResData( "Total_Wet_Vol", m_TotalWetVol ) );
+    res->Add( NameValData( "Total_Theo_Area", m_TotalTheoArea ) );
+    res->Add( NameValData( "Total_Wet_Area", m_TotalWetArea ) );
+    res->Add( NameValData( "Total_Theo_Vol", m_TotalTheoVol ) );
+    res->Add( NameValData( "Total_Wet_Vol", m_TotalWetVol ) );
 
-    res->Add( ResData( "Min_Chord", min_chord ) );
-    res->Add( ResData( "Avg_Chord", avg_chord ) );
-    res->Add( ResData( "Max_Chord", max_chord ) );
+    res->Add( NameValData( "Min_Chord", min_chord ) );
+    res->Add( NameValData( "Avg_Chord", avg_chord ) );
+    res->Add( NameValData( "Max_Chord", max_chord ) );
 
-    res->Add( ResData( "Min_TC", min_tc ) );
-    res->Add( ResData( "Avg_TC", avg_tc ) );
-    res->Add( ResData( "Max_TC", max_tc ) );
+    res->Add( NameValData( "Min_TC", min_tc ) );
+    res->Add( NameValData( "Avg_TC", avg_tc ) );
+    res->Add( NameValData( "Max_TC", max_tc ) );
 
-    res->Add( ResData( "Avg_Sweep", avg_sweep ) );
-    res->Add( ResData( "Length", length ) );
-    res->Add( ResData( "Max_Area", max_area ) );
-    res->Add( ResData( "Length_Dia", length_dia ) );
+    res->Add( NameValData( "Avg_Sweep", avg_sweep ) );
+    res->Add( NameValData( "Length", length ) );
+    res->Add( NameValData( "Max_Area", max_area ) );
+    res->Add( NameValData( "Length_Dia", length_dia ) );
 
-    res->Add( ResData( "Num_Degen_Tris_Removed", info.m_NumDegenerateTriDeleted ) );
-    res->Add( ResData( "Num_Open_Meshes_Removed", info.m_NumOpenMeshedDeleted ) );
-    res->Add( ResData( "Num_Open_Meshes_Merged", info.m_NumOpenMeshesMerged ) );
+    res->Add( NameValData( "Num_Degen_Tris_Removed", info.m_NumDegenerateTriDeleted ) );
+    res->Add( NameValData( "Num_Open_Meshes_Removed", info.m_NumOpenMeshedDeleted ) );
+    res->Add( NameValData( "Num_Open_Meshes_Merged", info.m_NumOpenMeshesMerged ) );
 
     string txtfn = m_Vehicle->getExportFileName( vsp::COMP_GEOM_TXT_TYPE );
     res->WriteCompGeomTxtFile( txtfn );
@@ -2218,9 +2218,9 @@ void MeshGeom::AreaSlice( int style, int numSlices, double sliceAngle, double co
 
     //==== Create Results ====//
     Results* res = ResultsMgr.CreateResults( "Slice" );
-    res->Add( ResData( "Num_Degen_Triangles_Removed", info.m_NumDegenerateTriDeleted ) );
-    res->Add( ResData( "Num_Open_Meshes_Removed", info.m_NumOpenMeshedDeleted ) );
-    res->Add( ResData( "Num_Open_Meshes_Merged", info.m_NumOpenMeshesMerged ) );
+    res->Add( NameValData( "Num_Degen_Triangles_Removed", info.m_NumDegenerateTriDeleted ) );
+    res->Add( NameValData( "Num_Open_Meshes_Removed", info.m_NumOpenMeshedDeleted ) );
+    res->Add( NameValData( "Num_Open_Meshes_Merged", info.m_NumOpenMeshesMerged ) );
 
 
     //==== Count Tris ====//
@@ -2245,11 +2245,11 @@ void MeshGeom::AreaSlice( int style, int numSlices, double sliceAngle, double co
         }
     }
 
-    res->Add( ResData( "Style", style ) );
-    res->Add( ResData( "Num_Comps", ( int )compIdVec.size() ) );
-    res->Add( ResData( "Num_Meshes", ( int )m_TMeshVec.size() ) );
-    res->Add( ResData( "Num_Tris", numTris ) );
-    res->Add( ResData( "Axis_Vector", norm_axis ) );
+    res->Add( NameValData( "Style", style ) );
+    res->Add( NameValData( "Num_Comps", ( int )compIdVec.size() ) );
+    res->Add( NameValData( "Num_Meshes", ( int )m_TMeshVec.size() ) );
+    res->Add( NameValData( "Num_Tris", numTris ) );
+    res->Add( NameValData( "Axis_Vector", norm_axis ) );
 
     //==== Create Bnd Box for  Mesh Geoms ====//
     for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
@@ -2476,10 +2476,10 @@ void MeshGeom::AreaSlice( int style, int numSlices, double sliceAngle, double co
             area_vec.push_back( m_SliceVec[s]->m_WetArea );
             AreaCenter.push_back( TransMat.xform( m_SliceVec[s]->m_AreaCenter ) );
         }
-        res->Add( ResData( "Slice_Area_Center", AreaCenter ) );
-        res->Add( ResData( "Num_Slices", ( int )m_SliceVec.size() ) );
-        res->Add( ResData( "Slice_Loc", loc_vec ) );
-        res->Add( ResData( "Slice_Area", area_vec ) );
+        res->Add( NameValData( "Slice_Area_Center", AreaCenter ) );
+        res->Add( NameValData( "Num_Slices", ( int )m_SliceVec.size() ) );
+        res->Add( NameValData( "Slice_Loc", loc_vec ) );
+        res->Add( NameValData( "Slice_Area", area_vec ) );
     }
     else if ( style == vsp::SLICE_AWAVE )
     {
@@ -2488,9 +2488,9 @@ void MeshGeom::AreaSlice( int style, int numSlices, double sliceAngle, double co
         {
             loc_vec.push_back( 360.0 * i / coneSections );
         }
-        res->Add( ResData( "Num_Slices", ( int )numSlices ) );
-        res->Add( ResData( "Slice_Loc", loc_vec ) );
-        res->Add( ResData( "Num_Cone_Sections", ( int )coneSections ) );
+        res->Add( NameValData( "Num_Slices", ( int )numSlices ) );
+        res->Add( NameValData( "Slice_Loc", loc_vec ) );
+        res->Add( NameValData( "Num_Cone_Sections", ( int )coneSections ) );
 
         vector< double > x_vec;
         for ( s = 0 ; s < numSlices ; s++ )
@@ -2509,12 +2509,12 @@ void MeshGeom::AreaSlice( int style, int numSlices, double sliceAngle, double co
                 wet_vec.push_back( m_SliceVec[sindex]->m_WetArea );
                 AreaCenter.push_back( TransMat.xform( m_SliceVec[sindex]->m_AreaCenter ) );
             }
-            res->Add( ResData( "Slice_Area_Center",  AreaCenter) );
-            res->Add( ResData( "Slice_Wet_Area", wet_vec ) );
-            res->Add( ResData( "Slice_Sum_Area", sum ) );
-            res->Add( ResData( "Slice_Avg_Area", sum / coneSections ) );
+            res->Add( NameValData( "Slice_Area_Center",  AreaCenter) );
+            res->Add( NameValData( "Slice_Wet_Area", wet_vec ) );
+            res->Add( NameValData( "Slice_Sum_Area", sum ) );
+            res->Add( NameValData( "Slice_Avg_Area", sum / coneSections ) );
         }
-        res->Add( ResData( "X_Loc", x_vec ) );
+        res->Add( NameValData( "X_Loc", x_vec ) );
     }
 
     string filename = m_Vehicle->getExportFileName( vsp::SLICE_TXT_TYPE );
@@ -2624,9 +2624,9 @@ void MeshGeom::MassSliceX( int numSlices, bool writefile )
 
     //==== Create Results ====//
     Results* res = ResultsMgr.CreateResults( "Mass_Properties" );
-    res->Add( ResData( "Num_Degen_Triangles_Removed", info.m_NumDegenerateTriDeleted ) );
-    res->Add( ResData( "Num_Open_Meshes_Removed", info.m_NumOpenMeshedDeleted ) );
-    res->Add( ResData( "Num_Open_Meshes_Merged", info.m_NumOpenMeshesMerged ) );
+    res->Add( NameValData( "Num_Degen_Triangles_Removed", info.m_NumDegenerateTriDeleted ) );
+    res->Add( NameValData( "Num_Open_Meshes_Removed", info.m_NumOpenMeshedDeleted ) );
+    res->Add( NameValData( "Num_Open_Meshes_Merged", info.m_NumOpenMeshesMerged ) );
 
     //==== Count Tris ====//
     int numTris = 0;
@@ -2641,8 +2641,8 @@ void MeshGeom::MassSliceX( int numSlices, bool writefile )
         m_TMeshVec[i]->m_PtrID.append( std::to_string( (long long) i ) );
     }
 
-    res->Add( ResData( "Num_Total_Meshes", ( int )m_TMeshVec.size() ) );
-    res->Add( ResData( "Num_Total_Tris", numTris ) );
+    res->Add( NameValData( "Num_Total_Meshes", ( int )m_TMeshVec.size() ) );
+    res->Add( NameValData( "Num_Total_Tris", numTris ) );
 
     //==== Create Bnd Box for  Mesh Geoms ====//
     for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
@@ -3003,29 +3003,29 @@ void MeshGeom::MassSliceX( int numSlices, bool writefile )
         vol_vec.push_back( compVol );
     }
 
-    res->Add( ResData( "Num_Comps", ( int )name_vec.size() ) );
-    res->Add( ResData( "Comp_Name", name_vec ) );
-    res->Add( ResData( "Comp_ID", id_vec ) );
-    res->Add( ResData( "Comp_Mass", mass_vec ) );
-    res->Add( ResData( "Comp_CG", cg_vec ) );
-    res->Add( ResData( "Comp_Ixx", ixx_vec ) );
-    res->Add( ResData( "Comp_Iyy", iyy_vec ) );
-    res->Add( ResData( "Comp_Izz", izz_vec ) );
-    res->Add( ResData( "Comp_Ixy", ixy_vec ) );
-    res->Add( ResData( "Comp_Ixz", ixz_vec ) );
-    res->Add( ResData( "Comp_Iyz", iyz_vec ) );
-    res->Add( ResData( "Comp_Vol", vol_vec ) );
+    res->Add( NameValData( "Num_Comps", ( int )name_vec.size() ) );
+    res->Add( NameValData( "Comp_Name", name_vec ) );
+    res->Add( NameValData( "Comp_ID", id_vec ) );
+    res->Add( NameValData( "Comp_Mass", mass_vec ) );
+    res->Add( NameValData( "Comp_CG", cg_vec ) );
+    res->Add( NameValData( "Comp_Ixx", ixx_vec ) );
+    res->Add( NameValData( "Comp_Iyy", iyy_vec ) );
+    res->Add( NameValData( "Comp_Izz", izz_vec ) );
+    res->Add( NameValData( "Comp_Ixy", ixy_vec ) );
+    res->Add( NameValData( "Comp_Ixz", ixz_vec ) );
+    res->Add( NameValData( "Comp_Iyz", iyz_vec ) );
+    res->Add( NameValData( "Comp_Vol", vol_vec ) );
 
     //==== Totals ====//
-    res->Add( ResData( "Total_Mass", m_TotalMass ) );
-    res->Add( ResData( "Total_CG", m_CenterOfGrav ) );
-    res->Add( ResData( "Total_Ixx", m_TotalIxx ) );
-    res->Add( ResData( "Total_Iyy", m_TotalIyy ) );
-    res->Add( ResData( "Total_Izz", m_TotalIzz ) );
-    res->Add( ResData( "Total_Ixy", m_TotalIxy ) );
-    res->Add( ResData( "Total_Ixz", m_TotalIxz ) );
-    res->Add( ResData( "Total_Iyz", m_TotalIyz ) );
-    res->Add( ResData( "Total_Volume", totalVol ) );
+    res->Add( NameValData( "Total_Mass", m_TotalMass ) );
+    res->Add( NameValData( "Total_CG", m_CenterOfGrav ) );
+    res->Add( NameValData( "Total_Ixx", m_TotalIxx ) );
+    res->Add( NameValData( "Total_Iyy", m_TotalIyy ) );
+    res->Add( NameValData( "Total_Izz", m_TotalIzz ) );
+    res->Add( NameValData( "Total_Ixy", m_TotalIxy ) );
+    res->Add( NameValData( "Total_Ixz", m_TotalIxz ) );
+    res->Add( NameValData( "Total_Iyz", m_TotalIyz ) );
+    res->Add( NameValData( "Total_Volume", totalVol ) );
 
     //==== Clean Up Mess ====//
     for ( i = 0 ; i < ( int )tetraVec.size() ; i++ )

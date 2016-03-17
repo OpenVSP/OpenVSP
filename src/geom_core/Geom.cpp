@@ -2182,8 +2182,8 @@ void Geom::WritePLOT3DFileXYZ( FILE* dump_file )
 
 void Geom::CreateGeomResults( Results* res )
 {
-    res->Add( ResData( "Type", vsp::GEOM_XSECS ) );
-    res->Add( ResData( "Num_Surfs", ( int )m_SurfVec.size() ) );
+    res->Add( NameValData( "Type", vsp::GEOM_XSECS ) );
+    res->Add( NameValData( "Num_Surfs", ( int )m_SurfVec.size() ) );
 
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
@@ -2192,11 +2192,11 @@ void Geom::CreateGeomResults( Results* res )
         vector< vector< vec3d > > norms;
         UpdateTesselate( i, pnts, norms, false );
 
-        res->Add( ResData( "Num_XSecs", static_cast<int>( pnts.size() ) ) );
+        res->Add( NameValData( "Num_XSecs", static_cast<int>( pnts.size() ) ) );
 
         if ( pnts.size() )
         {
-            res->Add( ResData( "Num_Pnts_Per_XSec", static_cast<int>( pnts[0].size() ) ) );
+            res->Add( NameValData( "Num_Pnts_Per_XSec", static_cast<int>( pnts[0].size() ) ) );
         }
 
         //==== Write XSec Data ====//
@@ -2207,7 +2207,7 @@ void Geom::CreateGeomResults( Results* res )
             {
                 xsec_vec.push_back(  pnts[j][k] );
             }
-            res->Add( ResData( "XSec_Pnts", xsec_vec ) );
+            res->Add( NameValData( "XSec_Pnts", xsec_vec ) );
         }
     }
 }
