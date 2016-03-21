@@ -11,8 +11,16 @@
 #if !defined(RESULTSMGR__INCLUDED_)
 #define RESULTSMGR__INCLUDED_
 
+#include "vec3d.h"
+
 #include <map>
 #include <list>
+#include <vector>
+#include <string>
+
+using std::map;
+using std::vector;
+using std::string;
 
 //==== Results Data - Named Vectors Of Ints/Double/Strings or Vec3d ====//
 class NameValData
