@@ -945,20 +945,6 @@ void SSControlSurf::Update()
         }
     }
 
-    // Mid-curve points on upper and lower surface.  To serve as initial guess.
-    double vlowmid, vupmid;
-
-    if ( !m_LEFlag() )
-    {
-        vlowmid = vtelow + m_StartLenFrac() * ( vle - vtelow );
-        vupmid = vle + ( 1.0 - m_StartLenFrac() ) * ( vteup - vle );
-    }
-    else
-    {
-        vlowmid = vle - m_StartLenFrac() * ( vle - vtelow );
-        vupmid = vle + m_StartLenFrac() * ( vteup - vle );
-    }
-
     curve_point_type telow, teup;
     telow = c.f( vtelow );
     teup = c.f( vteup );
@@ -973,11 +959,11 @@ void SSControlSurf::Update()
     {
         if ( !m_LEFlag() )
         {
-            eli::geom::intersect::specified_distance( vup, cup, teup, d, vupmid );
+            eli::geom::intersect::specified_distance( vup, cup, teup, d );
         }
         else
         {
-            eli::geom::intersect::specified_distance( vup, cup, le, d, vupmid );
+            eli::geom::intersect::specified_distance( vup, cup, le, d );
         }
         c_uws_upper = vec3d( m_UStart(), vup / vmax, 0 );
     }
@@ -986,15 +972,14 @@ void SSControlSurf::Update()
     {
         if ( !m_LEFlag() )
         {
-            eli::geom::intersect::specified_distance( vlow, clow, telow, d, vlowmid );
+            eli::geom::intersect::specified_distance( vlow, clow, telow, d );
         }
         else
         {
-            eli::geom::intersect::specified_distance( vlow, clow, le, d, vlowmid );
+            eli::geom::intersect::specified_distance( vlow, clow, le, d );
         }
         c_uws_lower = vec3d( m_UStart(), vlow / vmax, 0 );
     }
-
 
     VspCurve endcrv;
     surf->GetU01ConstCurve( endcrv, m_UEnd() );
@@ -1017,17 +1002,6 @@ void SSControlSurf::Update()
         m_EndLenFrac.Set( d / chord );
     }
 
-    if ( !m_LEFlag() )
-    {
-        vlowmid = vtelow + m_EndLenFrac() * ( vle - vtelow );
-        vupmid = vle + ( 1.0 - m_EndLenFrac() ) * ( vteup - vle );
-    }
-    else
-    {
-        vlowmid = vle - m_EndLenFrac() * ( vle - vtelow );
-        vupmid = vle + m_EndLenFrac() * ( vteup - vle );
-    }
-
     telow = c.f( vtelow );
     teup = c.f( vteup );
 
@@ -1037,11 +1011,11 @@ void SSControlSurf::Update()
     {
         if ( !m_LEFlag() )
         {
-            eli::geom::intersect::specified_distance( vup, cup, teup, d, vupmid );
+            eli::geom::intersect::specified_distance( vup, cup, teup, d );
         }
         else
         {
-            eli::geom::intersect::specified_distance( vup, cup, le, d, vupmid );
+            eli::geom::intersect::specified_distance( vup, cup, le, d );
         }
         c_uwe_upper = vec3d( m_UEnd(), vup / vmax, 0 );
     }
@@ -1050,11 +1024,11 @@ void SSControlSurf::Update()
     {
         if ( !m_LEFlag() )
         {
-            eli::geom::intersect::specified_distance( vlow, clow, telow, d, vlowmid );
+            eli::geom::intersect::specified_distance( vlow, clow, telow, d );
         }
         else
         {
-            eli::geom::intersect::specified_distance( vlow, clow, le, d, vlowmid );
+            eli::geom::intersect::specified_distance( vlow, clow, le, d );
         }
         c_uwe_lower = vec3d( m_UEnd(), vlow / vmax, 0 );
     }
