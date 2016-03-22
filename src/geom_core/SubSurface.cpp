@@ -871,6 +871,9 @@ SSControlSurf::SSControlSurf( string compID, int type ) : SubSurface( compID, ty
     m_ConstFlag.Init( "SE_Const_Flag", "SS_Control", this, true, 0, 1 );
     m_ConstFlag.SetDescript( "Control surface start/end parameters equal." );
 
+    m_LEFlag.Init( "LE_Flag", "SS_Control", this, false, 0, 1 );
+    m_LEFlag.SetDescript( "Flag to determine whether control surface is on the leading/trailing edge." );
+
     for ( int i = 0; i < 3; i++ )
     {
         m_LVec.push_back( SSLineSeg() );
@@ -945,9 +948,16 @@ void SSControlSurf::Update()
     // Mid-curve points on upper and lower surface.  To serve as initial guess.
     double vlowmid, vupmid;
 
-    vlowmid = vtelow + m_StartLenFrac() * ( vle - vtelow );
-    vupmid = vle + ( 1.0 - m_StartLenFrac() ) * ( vteup - vle );
-
+    if ( !m_LEFlag() )
+    {
+        vlowmid = vtelow + m_StartLenFrac() * ( vle - vtelow );
+        vupmid = vle + ( 1.0 - m_StartLenFrac() ) * ( vteup - vle );
+    }
+    else
+    {
+        vlowmid = vle - m_StartLenFrac() * ( vle - vtelow );
+        vupmid = vle + m_StartLenFrac() * ( vteup - vle );
+    }
 
     curve_point_type telow, teup;
     telow = c.f( vtelow );
@@ -961,13 +971,27 @@ void SSControlSurf::Update()
 
     if ( m_SurfType() != LOWER_SURF )
     {
-        eli::geom::intersect::specified_distance( vup, cup, teup, d, vupmid );
+        if ( !m_LEFlag() )
+        {
+            eli::geom::intersect::specified_distance( vup, cup, teup, d, vupmid );
+        }
+        else
+        {
+            eli::geom::intersect::specified_distance( vup, cup, le, d, vupmid );
+        }
         c_uws_upper = vec3d( m_UStart(), vup / vmax, 0 );
     }
 
     if ( m_SurfType() != UPPER_SURF )
     {
-        eli::geom::intersect::specified_distance( vlow, clow, telow, d, vlowmid );
+        if ( !m_LEFlag() )
+        {
+            eli::geom::intersect::specified_distance( vlow, clow, telow, d, vlowmid );
+        }
+        else
+        {
+            eli::geom::intersect::specified_distance( vlow, clow, le, d, vlowmid );
+        }
         c_uws_lower = vec3d( m_UStart(), vlow / vmax, 0 );
     }
 
@@ -993,8 +1017,16 @@ void SSControlSurf::Update()
         m_EndLenFrac.Set( d / chord );
     }
 
-    vlowmid = vtelow + m_EndLenFrac() * ( vle - vtelow );
-    vupmid = vle + ( 1.0 - m_EndLenFrac() ) * ( vteup - vle );
+    if ( !m_LEFlag() )
+    {
+        vlowmid = vtelow + m_EndLenFrac() * ( vle - vtelow );
+        vupmid = vle + ( 1.0 - m_EndLenFrac() ) * ( vteup - vle );
+    }
+    else
+    {
+        vlowmid = vle - m_EndLenFrac() * ( vle - vtelow );
+        vupmid = vle + m_EndLenFrac() * ( vteup - vle );
+    }
 
     telow = c.f( vtelow );
     teup = c.f( vteup );
@@ -1003,47 +1035,98 @@ void SSControlSurf::Update()
 
     if ( m_SurfType() != LOWER_SURF )
     {
-        eli::geom::intersect::specified_distance( vup, cup, teup, d, vupmid );
+        if ( !m_LEFlag() )
+        {
+            eli::geom::intersect::specified_distance( vup, cup, teup, d, vupmid );
+        }
+        else
+        {
+            eli::geom::intersect::specified_distance( vup, cup, le, d, vupmid );
+        }
         c_uwe_upper = vec3d( m_UEnd(), vup / vmax, 0 );
     }
 
     if ( m_SurfType() != UPPER_SURF )
     {
-        eli::geom::intersect::specified_distance( vlow, clow, telow, d, vlowmid );
+        if ( !m_LEFlag() )
+        {
+            eli::geom::intersect::specified_distance( vlow, clow, telow, d, vlowmid );
+        }
+        else
+        {
+            eli::geom::intersect::specified_distance( vlow, clow, le, d, vlowmid );
+        }
         c_uwe_lower = vec3d( m_UEnd(), vlow / vmax, 0 );
     }
 
     // Build Control Surface
 
-    if ( m_SurfType() == UPPER_SURF )
+    if ( !m_LEFlag() )
     {
-        pnt_vec.resize( 4 );
-        pnt_vec[0] = vec3d( m_UStart(), 1, 0 );
-        pnt_vec[1] = c_uws_upper;
-        pnt_vec[2] = c_uwe_upper;
-        pnt_vec[3] = vec3d( m_UEnd(), 1, 0 );
-    }
-    else if ( m_SurfType() == LOWER_SURF )
-    {
-        pnt_vec.resize( 4 );
-        pnt_vec[0] = vec3d( m_UStart(), 0, 0 );
-        pnt_vec[1] = c_uws_lower;
-        pnt_vec[2] = c_uwe_lower;
-        pnt_vec[3] = vec3d( m_UEnd(), 0, 0 );
+        if ( m_SurfType() == UPPER_SURF )
+        {
+            pnt_vec.resize( 4 );
+            pnt_vec[0] = vec3d( m_UStart(), 1, 0 );
+            pnt_vec[1] = c_uws_upper;
+            pnt_vec[2] = c_uwe_upper;
+            pnt_vec[3] = vec3d( m_UEnd(), 1, 0 );
+        }
+        else if ( m_SurfType() == LOWER_SURF )
+        {
+            pnt_vec.resize( 4 );
+            pnt_vec[0] = vec3d( m_UStart(), 0, 0 );
+            pnt_vec[1] = c_uws_lower;
+            pnt_vec[2] = c_uwe_lower;
+            pnt_vec[3] = vec3d( m_UEnd(), 0, 0 );
+        }
+        else
+        {
+            pnt_vec.resize( 8 );
+            pnt_vec[0] = vec3d( m_UStart(), 1, 0 );
+            pnt_vec[1] = c_uws_upper;
+            pnt_vec[2] = c_uwe_upper;
+            pnt_vec[3] = vec3d( m_UEnd(), 1, 0 );
+            pnt_vec[4] = vec3d( m_UEnd(), 0, 0 );
+            pnt_vec[5] = c_uwe_lower;
+            pnt_vec[6] = c_uws_lower;
+            pnt_vec[7] = vec3d( m_UStart(), 0, 0 );
+        }
+        //  pnt_vec[3] = pnt_vec[0];
     }
     else
     {
-        pnt_vec.resize( 8 );
-        pnt_vec[0] = vec3d( m_UStart(), 1, 0 );
-        pnt_vec[1] = c_uws_upper;
-        pnt_vec[2] = c_uwe_upper;
-        pnt_vec[3] = pnt_vec[3] = vec3d( m_UEnd(), 1, 0 );
-        pnt_vec[4] = vec3d( m_UEnd(), 0, 0 );
-        pnt_vec[5] = c_uwe_lower;
-        pnt_vec[6] = c_uws_lower;
-        pnt_vec[7] = vec3d( m_UStart(), 0, 0 );
+        if ( m_SurfType() == UPPER_SURF )
+        {
+            pnt_vec.resize( 5 );
+            pnt_vec[0] = vec3d( m_UEnd(), 0.5, 0 );
+            pnt_vec[1] = c_uwe_upper;
+            pnt_vec[2] = c_uws_upper;
+            pnt_vec[3] = vec3d( m_UStart(), 0.5, 0 );
+            pnt_vec[4] = pnt_vec[0];
+        }
+        else if ( m_SurfType() == LOWER_SURF )
+        {
+            pnt_vec.resize( 5 );
+            pnt_vec[3] = vec3d( m_UEnd(), 0.5, 0 );
+            pnt_vec[2] = c_uwe_lower;
+            pnt_vec[1] = c_uws_lower;
+            pnt_vec[0] = vec3d( m_UStart(), 0.5, 0 );
+            pnt_vec[4] = pnt_vec[0];
+        }
+        else
+        {
+            pnt_vec.resize( 8 );
+            pnt_vec[0] = vec3d( m_UEnd(), 0.5, 0 );
+            pnt_vec[1] = c_uwe_upper;
+            pnt_vec[2] = c_uws_upper;
+            pnt_vec[3] = vec3d( m_UStart(), 0.5, 0 );
+            pnt_vec[4] = vec3d( m_UStart(), 0.5, 0 );
+            pnt_vec[5] = c_uws_lower;
+            pnt_vec[6] = c_uwe_lower;
+            pnt_vec[7] = vec3d( m_UEnd(), 0.5, 0 );
+        }
+        //  pnt_vec[3] = pnt_vec[0];
     }
-    //  pnt_vec[3] = pnt_vec[0];
 
     int pind = 0;
     int num_segs = pnt_vec.size() - 1;

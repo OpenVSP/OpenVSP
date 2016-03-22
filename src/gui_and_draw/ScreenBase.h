@@ -319,6 +319,8 @@ public:
 
     ToggleButton m_SSConSEConstButton;
 
+    ToggleButton m_SSConLEFlagButton;
+
     ToggleButton m_SSConInsideButton;
     ToggleButton m_SSConOutsideButton;
     ToggleRadioGroup m_SSConTestToggleGroup;

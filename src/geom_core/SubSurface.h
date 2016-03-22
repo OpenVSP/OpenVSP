@@ -229,6 +229,7 @@ public:
     Parm m_EndLength; // Dimensional distance for control surface
     IntParm m_AbsRelFlag; // Flag to identify whether fractional or absolute should be used.
     BoolParm m_ConstFlag; // Flag to identify if start/end parameters are equal.
+    BoolParm m_LEFlag; // Flag to indicate leading/trailing edge control surface.
     IntParm m_SurfType; // Defines if the control surface is on the upper/lower or both surfaces of the wing
     virtual void UpdatePolygonPnts();
 };
