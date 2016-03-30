@@ -3,7 +3,7 @@ from enum import Enum
 from json import dumps, JSONEncoder
 from re import compile as re_compile
 from collections import OrderedDict
-from functools import lru_cache
+from functools import partial
 try:
     from IPython.display import display_javascript, display_html
 except ImportError:
@@ -13,23 +13,20 @@ import vsp
 
 regex_listname = re_compile(r"^(?P<name>[a-zA-Z]+)_*(?P<i>\d*)")
 EXCLUDE_GROUPS = ('BBox',)
-INCLUDE_GROUPS = ('Design',)
+INCLUDE_GROUPS = ('Design',)  # Not currently used for filtering groups
 PARAM_KEYS = ('upper', 'lower', 'value')
 
-# TODO: add the rest of the Enums
-ParamType = Enum('ParamType', 'PARM_DOUBLE_TYPE PARM_INT_TYPE PARM_BOOL_TYPE PARM_FRACTION_TYPE PARM_STRING_TYPE ',
-                 start=0)
-ErrorCode = Enum('ErrorCode', 'VSP_OK VSP_INVALID_PTR VSP_CANT_FIND_TYPE VSP_CANT_FIND_PARM VSP_CANT_FIND_NAME ' +
-                 'VSP_INVALID_GEOM_ID VSP_FILE_DOES_NOT_EXIST VSP_FILE_WRITE_FAILURE VSP_WRONG_XSEC_TYPE ' +
-                 'VSP_WRONG_FILE_TYPE VSP_INDEX_OUT_RANGE VSP_INVALID_XSEC_ID', start=0)
-SymCode = Enum('SymCode', 'SYM_XY SYM_XZ SYM_YZ SYM_ROT_X SYM_ROT_Y SYM_ROT_Z SYM_PLANAR_TYPES SYM_NUM_TYPES', start=0)
-ExportCode = Enum('ExportCode', 'EXPORT_FELISA EXPORT_XSEC EXPORT_STL EXPORT_AWAVE EXPORT_NASCART EXPORT_POVRAY ' +
-                  'EXPORT_CART3D EXPORT_VORXSEC EXPORT_XSECGEOM EXPORT_GMSH EXPORT_X3D', start=0)
+Enum0 = partial(Enum, start=0)
+ParamType = Enum0('ParamType', 'PARM_DOUBLE_TYPE PARM_INT_TYPE PARM_BOOL_TYPE PARM_FRACTION_TYPE PARM_STRING_TYPE ')
+ErrorCode = Enum0('ErrorCode', 'VSP_OK VSP_INVALID_PTR VSP_CANT_FIND_TYPE VSP_CANT_FIND_PARM VSP_CANT_FIND_NAME ' +
+                  'VSP_INVALID_GEOM_ID VSP_FILE_DOES_NOT_EXIST VSP_FILE_WRITE_FAILURE VSP_WRONG_XSEC_TYPE ' +
+                  'VSP_WRONG_FILE_TYPE VSP_INDEX_OUT_RANGE VSP_INVALID_XSEC_ID')
+SymCode = Enum0('SymCode', 'SYM_XY SYM_XZ SYM_YZ SYM_ROT_X SYM_ROT_Y SYM_ROT_Z SYM_PLANAR_TYPES SYM_NUM_TYPES')
+ExportCode = Enum0('ExportCode', 'EXPORT_FELISA EXPORT_XSEC EXPORT_STL EXPORT_AWAVE EXPORT_NASCART EXPORT_POVRAY ' +
+                   'EXPORT_CART3D EXPORT_VORXSEC EXPORT_XSECGEOM EXPORT_GMSH EXPORT_X3D')
 
 
 class VspEncoder(JSONEncoder):
-    """A JSON encoder for the VSP Elements."""
-
     # TODO: remove keys that start with '_'
     def default(self, obj):
         if isinstance(obj, VspElement):
@@ -47,9 +44,10 @@ class VspEncoder(JSONEncoder):
 class VspElement(OrderedDict):
     """An object that can represent an manipulate OpenVSP elements."""
 
-    def __init__(self, **kwargs):
+    def __init__(self, is_param=False, **kwargs):
         super().__init__()
         self.__uuid = uuid4()
+        self.__is_param = is_param
         for key, value in kwargs.items():
             if isinstance(value, dict):
                 value = VspElement(**value)
@@ -70,7 +68,7 @@ class VspElement(OrderedDict):
         except KeyError:
             return None
 
-        if self._is_item_param(item):
+        if isinstance(item, VspElement) and item.__is_param:
             return item.value
         else:
             return item
@@ -93,20 +91,12 @@ class VspElement(OrderedDict):
         else:
             return super().__eq__(other)
 
-    @staticmethod
-    def _is_item_param(item):
-        return hasattr(item, '__iter__') and all(k in item for k in PARAM_KEYS)
-
-    @lru_cache(8)
-    def __is_param(self):
-        return self._is_item_param(self)
-
     def __setitem__(self, key, value):
         try:
             item = super().__getitem__(key)
         except KeyError:
             item = []
-        if self._is_item_param(item):
+        if isinstance(item, VspElement) and item.__is_param:
             if value < item.lower or value > item.upper:
                 msg = "{lower}<={name}<={upper}, value={_new}"
                 raise ValueError(msg.format(_new=value, **item))
@@ -143,7 +133,7 @@ class VspElement(OrderedDict):
 
 
 class VspModel(VspElement):
-    """An object that can represent and manipulate OpenVSP models."""
+    """An object that can represent and manipulate OpenVSP aircraft."""
 
     def __init__(self, filename=None, threejs=False, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -214,7 +204,6 @@ class VspModel(VspElement):
             for param_id in vsp.GetGeomParmIDs(geom_id):
                 group_name_raw = vsp.GetParmDisplayGroupName(param_id)
                 group_name, group_idx = regex_listname.findall(group_name_raw)[0]
-                # TODO: figure a better way to include/exclude groups
                 if group_name not in EXCLUDE_GROUPS:
                     if group_name not in geom:
                         if group_idx:
@@ -243,7 +232,7 @@ class VspModel(VspElement):
         vsp.ExportFile(filename, vsp_set, file_format)
 
     @property
-    def threejs_model(self):
+    def threejs_data(self):
         if '__stl_filename' not in self:
             self.__stl_filename = '_tmp_threejs.stl'
         self.export(filename=self.__stl_filename, file_format=ExportCode.EXPORT_STL.value)
@@ -267,4 +256,4 @@ class VspModel(VspElement):
         results['total'] = sum(wetted_areas)
         return results
 
-    # TODO: add methods to handle the other calculations OpenVSP can perform
+    # TODO: add more methods to do the other calculations
