@@ -182,6 +182,8 @@ public:
     string FindLatestResultsID( const string & name );
     int GetNumData( const string & results_id, const string & data_name );
 
+    int GetResultsType( const string & results_id, const string & data_name );
+
     vector< string > GetAllResultsNames();
     vector< string > GetAllDataNames( const string & results_id );
 

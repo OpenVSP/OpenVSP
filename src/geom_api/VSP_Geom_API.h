@@ -84,6 +84,7 @@ extern int GetNumResults( const string & name );
 extern string FindResultsID( const string & name, int index = 0 );
 extern string FindLatestResultsID( const string & name );
 extern int GetNumData( const string & results_id, const string & data_name );
+extern int GetResultsType( const string & results_id, const string & data_name );
 extern const std::vector< int > & GetIntResults( const string & id, const string & name, int index = 0 );
 extern const std::vector< double > & GetDoubleResults( const string & id, const string & name, int index = 0 );
 extern const std::vector< std::string > & GetStringResults( const string & id, const string & name, int index = 0 );

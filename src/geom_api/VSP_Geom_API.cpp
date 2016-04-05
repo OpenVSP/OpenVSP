@@ -717,6 +717,17 @@ extern int GetNumData( const string & results_id, const string & data_name )
     return ResultsMgr.GetNumData( results_id, data_name );
 }
 
+extern int GetResultsType( const string & results_id, const string & data_name )
+{
+    if ( !ResultsMgr.ValidResultsID( results_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetResultsType::Invalid ID " + results_id  );
+        return vsp::INVALID_TYPE;
+    }
+    ErrorMgr.NoError();
+    return ResultsMgr.GetResultsType( results_id, data_name );
+}
+
 /// Return the int data given the results id, data name and data index
 const vector<int> & GetIntResults( const string & id, const string & name, int index )
 {

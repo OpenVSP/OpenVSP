@@ -163,10 +163,11 @@ enum SET_TYPE { SET_ALL = 0,
                 SET_FIRST_USER = 3
               };
 
-enum RES_DATA_TYPE {    INT_DATA,
-                        DOUBLE_DATA,
-                        STRING_DATA,
-                        VEC3D_DATA
+enum RES_DATA_TYPE {    INVALID_TYPE = -1,
+                        INT_DATA = 0,
+                        DOUBLE_DATA = 1,
+                        STRING_DATA = 2,
+                        VEC3D_DATA = 3
                    };
 
 enum RES_GEOM_TYPE {    MESH_INDEXED_TRI,

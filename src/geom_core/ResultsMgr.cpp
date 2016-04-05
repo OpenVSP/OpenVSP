@@ -729,6 +729,23 @@ int ResultsMgrSingleton::GetNumData( const string & results_id, const string & d
     return results_ptr->GetNumData( data_name );
 }
 
+int ResultsMgrSingleton::GetResultsType( const string & results_id, const string & data_name )
+{
+    Results* results_ptr = FindResultsPtr( results_id );
+    if ( !results_ptr )
+    {
+        return vsp::INVALID_TYPE;
+    }
+
+    NameValData* rd_ptr = results_ptr->FindPtr( data_name );
+    if ( !rd_ptr )
+    {
+        return vsp::INVALID_TYPE;
+    }
+
+    return rd_ptr->GetType();
+}
+
 //==== Get The Names of All Results ====//
 vector< string > ResultsMgrSingleton::GetAllResultsNames()
 {
