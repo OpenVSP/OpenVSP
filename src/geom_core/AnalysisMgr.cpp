@@ -245,3 +245,55 @@ void AnalysisMgrSingleton::RegisterBuiltins()
 
     RegisterAnalysis( "CompGeom", cga );
 }
+
+//======================================================================================//
+//======================================================================================//
+//======================================================================================//
+
+void CompGeomAnalysis::SetDefaults()
+{
+    m_Inputs.Clear();
+    m_Inputs.Add( NameValData( "Set", 0 ) );
+    m_Inputs.Add( NameValData( "HalfMeshFlag", 0 ) );
+    m_Inputs.Add( NameValData( "SubSurfFlag", 1 ) );
+}
+
+string CompGeomAnalysis::Execute()
+{
+    string res;
+
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        int geomSet;
+        int halfMeshFlag;
+        int subSurfFlag;
+
+        NameValData *nvd = NULL;
+
+        nvd = m_Inputs.FindPtr( "Set", 0 );
+        if ( nvd )
+        {
+            geomSet = nvd->GetInt( 0 );
+        }
+
+        nvd = m_Inputs.FindPtr( "HalfMeshFlag", 0 );
+        if ( nvd )
+        {
+            halfMeshFlag = nvd->GetInt( 0 );
+        }
+
+        nvd = m_Inputs.FindPtr( "SubSurfFlag", 0 );
+        if ( nvd )
+        {
+            subSurfFlag = nvd->GetInt( 0 );
+        }
+
+        string geom = veh->CompGeomAndFlatten( geomSet, 0, halfMeshFlag, subSurfFlag );
+
+        res = ResultsMgr.FindLatestResultsID( "Comp_Geom" );
+    }
+
+    return res;
+}
