@@ -135,6 +135,14 @@ private:
     CScriptArray* GetAirfoilLowerPnts( const string& xsec_id );
     CScriptArray* GetGeomSetAtIndex( int index );
     CScriptArray* GetGeomSet( const string & name );
+
+    CScriptArray* ListAnalysis();
+    CScriptArray* GetAnalysisInputNames( const string & analysis );
+    CScriptArray* GetIntAnalysisInput( const string & analysis, const string & name, int index );
+    CScriptArray* GetDoubleAnalysisInput( const string & analysis, const string & name, int index );
+    CScriptArray* GetStringAnalysisInput( const string & analysis, const string & name, int index );
+    CScriptArray* GetVec3dAnalysisInput( const string & analysis, const string & name, int index );
+
     CScriptArray* GetAllResultsNames();
     CScriptArray* GetAllDataNames( const string & results_id );
     CScriptArray* GetIntResults( const string & id, const string & name, int index );
