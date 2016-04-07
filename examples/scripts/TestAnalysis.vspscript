@@ -183,6 +183,10 @@ void main()
     PrintResults( rid );
     DeleteGeomVec( GetStringResults( rid, "Mesh_GeomID" ) );
 
+    // MassProp
+    string ridmp = ExecAnalysis( "MassProp" );
+    PrintResults( ridmp );
+    DeleteGeomVec( GetStringResults( ridmp, "Mesh_GeomID" ) );
 
     //==== Check For API Errors ====//
     while ( GetNumTotalErrors() > 0 )

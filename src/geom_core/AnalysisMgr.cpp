@@ -323,6 +323,11 @@ void AnalysisMgrSingleton::RegisterBuiltins()
     CompGeomAnalysis *cga = new CompGeomAnalysis();
 
     RegisterAnalysis( "CompGeom", cga );
+
+
+    MassPropAnalysis *mpa = new MassPropAnalysis();
+
+    RegisterAnalysis( "MassProp", mpa );
 }
 
 //======================================================================================//
@@ -386,6 +391,60 @@ string CompGeomAnalysis::Execute()
         string geom = veh->CompGeomAndFlatten( geomSet, 0, halfMeshFlag, subSurfFlag );
 
         res = ResultsMgr.FindLatestResultsID( "Comp_Geom" );
+    }
+
+    return res;
+}
+
+
+//======================================================================================//
+//======================================================================================//
+//======================================================================================//
+
+void MassPropAnalysis::SetDefaults()
+{
+    m_Inputs.Clear();
+    m_Inputs.Add( NameValData( "Set", 0 ) );
+
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        m_Inputs.Add( NameValData( "NumMassSlices", veh->m_NumMassSlices ) );
+    }
+    else
+    {
+        m_Inputs.Add( NameValData( "NumMassSlices", 20 ) );
+    }
+}
+
+string MassPropAnalysis::Execute()
+{
+    string res;
+
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        int geomSet;
+        int numMassSlice;
+
+        NameValData *nvd = NULL;
+
+        nvd = m_Inputs.FindPtr( "Set", 0 );
+        if ( nvd )
+        {
+            geomSet = nvd->GetInt( 0 );
+        }
+
+        nvd = m_Inputs.FindPtr( "NumMassSlices", 0 );
+        if ( nvd )
+        {
+            numMassSlice = nvd->GetInt( 0 );
+        }
+
+        string geom = veh->MassPropsAndFlatten( geomSet, numMassSlice );
+
+        res = ResultsMgr.FindLatestResultsID( "Mass_Properties" );
     }
 
     return res;

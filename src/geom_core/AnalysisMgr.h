@@ -114,4 +114,13 @@ public:
 
 };
 
+class MassPropAnalysis : public Analysis
+{
+public:
+
+    virtual void SetDefaults();
+    virtual string Execute();
+
+};
+
 #endif // !defined(ANALYSISMGR__INCLUDED_)
