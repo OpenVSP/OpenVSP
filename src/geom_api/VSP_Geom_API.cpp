@@ -15,6 +15,7 @@
 #include "ParmMgr.h"
 #include "LinkMgr.h"
 #include "ResultsMgr.h"
+#include "AnalysisMgr.h"
 #include "XSecSurf.h"
 #include "CfdMeshMgr.h"
 #include "Util.h"
@@ -649,6 +650,142 @@ void ComputeCFDMesh( int set, int file_export_types )
     CfdMeshMgr.GetCfdSettingsPtr()->m_SelectedSetIndex = set;
     CfdMeshMgr.GenerateMesh();
     ErrorMgr.NoError();
+}
+
+//===================================================================//
+//===============       Analysis Functions        ===================//
+//===================================================================//
+
+int GetNumAnalysis()
+{
+  return AnalysisMgr.GetNumAnalysis();
+}
+
+vector < string > ListAnalysis()
+{
+    return AnalysisMgr.ListAnalysis();
+}
+
+vector < string > GetAnalysisInputNames( const string & analysis )
+{
+    if ( !AnalysisMgr.ValidAnalysisName( analysis ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetAnalysisInputNames::Invalid Analysis ID " + analysis );
+        vector < string > ret;
+        return ret;
+    }
+
+    Analysis *a = AnalysisMgr.FindAnalysis( analysis );
+
+    return a->m_Inputs.GetAllDataNames();
+}
+
+string ExecAnalysis( const string & analysis )
+{
+    if ( !AnalysisMgr.ValidAnalysisName( analysis ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "ExecAnalysis::Invalid Analysis ID " + analysis );
+        string ret;
+        return ret;
+    }
+
+    return AnalysisMgr.ExecAnalysis( analysis );
+}
+
+int GetNumAnalysisInputData( const string & analysis, const string & name )
+{
+    if ( !AnalysisMgr.ValidAnalysisName( analysis ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetNumAnalysisInputData::Invalid Analysis ID " + analysis );
+        return 0;
+    }
+    ErrorMgr.NoError();
+
+    return AnalysisMgr.GetNumInputData( analysis, name );
+}
+
+int GetAnalysisInputType( const string & analysis, const string & name )
+{
+    if ( !AnalysisMgr.ValidAnalysisName( analysis ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetAnalysisInputType::Invalid Analysis ID " + analysis );
+        return vsp::INVALID_TYPE;
+    }
+    ErrorMgr.NoError();
+
+    return AnalysisMgr.GetAnalysisInputType( analysis, name );
+}
+
+const vector< int > & GetIntAnalysisInput( const string & analysis, const string & name, int index )
+{
+    if ( !AnalysisMgr.ValidAnalysisName( analysis ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetIntAnalysisInput::Invalid Analysis ID " + analysis );
+    }
+    else if ( !AnalysisMgr.ValidAnalysisInputDataIndex( analysis, name, index ) )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetIntAnalysisInput::Can't Find Name " + name );
+    }
+    else
+    {
+        ErrorMgr.NoError();
+    }
+
+    return AnalysisMgr.GetIntInputData( analysis, name, index );
+}
+
+const std::vector< double > & GetDoubleAnalysisInput( const string & analysis, const string & name, int index )
+{
+    if ( !AnalysisMgr.ValidAnalysisName( analysis ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetDoubleAnalysisInput::Invalid Analysis ID " + analysis );
+    }
+    else if ( !AnalysisMgr.ValidAnalysisInputDataIndex( analysis, name, index ) )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetDoubleAnalysisInput::Can't Find Name " + name );
+    }
+    else
+    {
+        ErrorMgr.NoError();
+    }
+
+    return AnalysisMgr.GetDoubleInputData( analysis, name, index );
+}
+
+const std::vector< std::string > & GetStringAnalysisInput( const string & analysis, const string & name, int index )
+{
+    if ( !AnalysisMgr.ValidAnalysisName( analysis ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetStringAnalysisInput::Invalid Analysis ID " + analysis );
+    }
+    else if ( !AnalysisMgr.ValidAnalysisInputDataIndex( analysis, name, index ) )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetStringAnalysisInput::Can't Find Name " + name );
+    }
+    else
+    {
+        ErrorMgr.NoError();
+    }
+
+    return AnalysisMgr.GetStringInputData( analysis, name, index );
+}
+
+const std::vector< vec3d > & GetVec3dAnalysisInput( const string & analysis, const string & name, int index )
+{
+    if ( !AnalysisMgr.ValidAnalysisName( analysis ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetVec3dAnalysisInput::Invalid Analysis ID " + analysis );
+    }
+    else if ( !AnalysisMgr.ValidAnalysisInputDataIndex( analysis, name, index ) )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetVec3dAnalysisInput::Can't Find Name " + name );
+    }
+    else
+    {
+        ErrorMgr.NoError();
+    }
+
+    return AnalysisMgr.GetVec3dInputData( analysis, name, index );
 }
 
 

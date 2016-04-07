@@ -77,6 +77,20 @@ extern void AddCFDSource( int type, const string & geom_id, int surf_index,
                           double l1, double r1, double u1, double w1,
 						  double l2 = 0, double r2 = 0, double u2 = 0, double w2 = 0 );
 
+//======================== Analysis ================================//
+
+extern int GetNumAnalysis();
+extern std::vector < std::string > ListAnalysis();
+extern std::vector < std::string > GetAnalysisInputNames( const string & analysis );
+extern string ExecAnalysis( const string & analysis );
+
+extern int GetNumAnalysisInputData( const string & analysis, const string & name );
+extern int GetAnalysisInputType( const string & analysis, const string & name );
+extern const std::vector< int > & GetIntAnalysisInput( const string & analysis, const string & name, int index = 0 );
+extern const std::vector< double > & GetDoubleAnalysisInput( const string & analysis, const string & name, int index = 0 );
+extern const std::vector< std::string > & GetStringAnalysisInput( const string & analysis, const string & name, int index = 0 );
+extern const std::vector< vec3d > & GetVec3dAnalysisInput( const string & analysis, const string & name, int index = 0 );
+
 //======================== Results ================================//
 extern std::vector< std::string > GetAllResultsNames();
 extern std::vector< std::string > GetAllDataNames( const string & results_id );
