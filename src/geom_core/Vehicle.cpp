@@ -20,6 +20,7 @@
 #include "ParmMgr.h"
 #include "LinkMgr.h"
 #include "AdvLinkMgr.h"
+#include "AnalysisMgr.h"
 #include "Quat.h"
 #include "StringUtil.h"
 #include "SubSurfaceMgr.h"
@@ -168,6 +169,8 @@ void Vehicle::Init()
     m_exportDragBuildTsvFile.Set( true );
     m_exportDegenGeomCsvFile.Set( true );
     m_exportDegenGeomMFile.Set( true );
+
+    AnalysisMgr.Init();
 }
 
 void Vehicle::RunTestScripts()
@@ -225,6 +228,7 @@ void Vehicle::Wype()
     AdvLinkMgr.Renew();
     DesignVarMgr.Renew();
     FitModelMgr.Renew();
+    AnalysisMgr.Renew();
 }
 
 void Vehicle::SetVSP3FileName( const string & f_name )

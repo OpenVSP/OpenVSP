@@ -92,7 +92,7 @@ protected:
 class NameValCollection
 {
 public:
-
+    NameValCollection() {};
     NameValCollection( const string & name, const string & id );
 
     string GetName()

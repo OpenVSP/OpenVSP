@@ -25,6 +25,7 @@ ADD_LIBRARY(geom_core
 AdvLink.cpp
 AdvLinkMgr.cpp
 Airfoil.cpp
+AnalysisMgr.cpp
 BlankGeom.cpp
 CfdMeshSettings.cpp
 ClippingMgr.cpp
@@ -71,6 +72,7 @@ VSPAEROMgr.cpp
 AdvLink.h
 AdvLinkMgr.h
 Airfoil.h
+AnalysisMgr.h
 BlankGeom.h
 CfdMeshSettings.h
 ClippingMgr.h
