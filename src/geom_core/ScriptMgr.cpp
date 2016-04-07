@@ -1267,6 +1267,10 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "string AddGeom( const string & in type, const string & in parent = string() )", asFUNCTION( vsp::AddGeom ), asCALL_CDECL );
     assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void DeleteGeom(const string & in geom_id)", asFUNCTION( vsp::DeleteGeom ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void DeleteGeomVec( array<string>@ del_arr )", asMETHOD( ScriptMgrSingleton, DeleteGeomVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
     r = se->RegisterGlobalFunction( "void CutGeomToClipboard(const string & in geom_id)", asFUNCTION( vsp::CutGeomToClipboard ), asCALL_CDECL );
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "void CopyGeomToClipboard(const string & in geom_id)", asFUNCTION( vsp::CopyGeomToClipboard ), asCALL_CDECL );
@@ -1696,6 +1700,19 @@ CScriptArray* ScriptMgrSingleton::GetLowerCSTCoefs( const string & xsec_id )
 {
     m_ProxyDoubleArray = vsp::GetLowerCSTCoefs( xsec_id );
     return GetProxyDoubleArray();
+}
+
+void ScriptMgrSingleton::DeleteGeomVec( CScriptArray* del_arr )
+{
+    vector < string > del_vec;
+
+    del_vec.resize( del_arr->GetSize() );
+    for ( int i = 0 ; i < ( int )del_arr->GetSize() ; i++ )
+    {
+        del_vec[i] = * ( string* )( del_arr->At( i ) );
+    }
+
+    vsp::DeleteGeomVec( del_vec );
 }
 
 void ScriptMgrSingleton::SetXSecPnts( const string& xsec_id, CScriptArray* pnt_arr )

@@ -148,6 +148,8 @@ private:
     CScriptArray* GetUpperCSTCoefs( const string & xsec_id );
     CScriptArray* GetLowerCSTCoefs( const string & xsec_id );
 
+    void DeleteGeomVec( CScriptArray* del_arr );
+
     void SetXSecPnts( const string& xsec_id, CScriptArray* pnt_arr );
     void SetAirfoilPnts( const string& xsec_id, CScriptArray* up_pnt_arr, CScriptArray* low_pnt_arr );
     void SetVec3dArray( CScriptArray* arr );

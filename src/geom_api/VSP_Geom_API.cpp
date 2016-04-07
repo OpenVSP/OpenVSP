@@ -950,6 +950,24 @@ string AddGeom( const string & type, const string & parent  )
     return ret_id;
 }
 
+void DeleteGeom( const string & geom_id )
+{
+    Vehicle* veh = GetVehicle();
+
+    veh->DeleteGeom( geom_id );
+
+    ErrorMgr.NoError();
+}
+
+void DeleteGeomVec( const vector< string > & del_vec )
+{
+    Vehicle* veh = GetVehicle();
+
+    veh->DeleteGeomVec( del_vec );
+
+    ErrorMgr.NoError();
+}
+
 /// Cut geometry and place it in the clipboard.  The clipboard is cleared before
 /// the cut geom is placed there.
 void CutGeomToClipboard( const string & geom_id )
