@@ -1503,6 +1503,7 @@ void MeshGeom::IntersectTrim( int halfFlag, int intSubsFlag )
     res->Add( NameValData( "Num_Comps", ( int )compIdVec.size() ) );
     res->Add( NameValData( "Total_Num_Meshes", ( int )m_TMeshVec.size() ) );
     res->Add( NameValData( "Total_Num_Tris", numTris ) );
+    res->Add( NameValData( "Mesh_GeomID", this->GetID() ) );
 
 
     //==== Scale To 10 Units ====//
@@ -2221,6 +2222,7 @@ void MeshGeom::AreaSlice( int style, int numSlices, double sliceAngle, double co
     res->Add( NameValData( "Num_Degen_Triangles_Removed", info.m_NumDegenerateTriDeleted ) );
     res->Add( NameValData( "Num_Open_Meshes_Removed", info.m_NumOpenMeshedDeleted ) );
     res->Add( NameValData( "Num_Open_Meshes_Merged", info.m_NumOpenMeshesMerged ) );
+    res->Add( NameValData( "Mesh_GeomID", this->GetID() ) );
 
 
     //==== Count Tris ====//
@@ -2627,6 +2629,7 @@ void MeshGeom::MassSliceX( int numSlices, bool writefile )
     res->Add( NameValData( "Num_Degen_Triangles_Removed", info.m_NumDegenerateTriDeleted ) );
     res->Add( NameValData( "Num_Open_Meshes_Removed", info.m_NumOpenMeshedDeleted ) );
     res->Add( NameValData( "Num_Open_Meshes_Merged", info.m_NumOpenMeshesMerged ) );
+    res->Add( NameValData( "Mesh_GeomID", this->GetID() ) );
 
     //==== Count Tris ====//
     int numTris = 0;
