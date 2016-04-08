@@ -175,6 +175,10 @@ void main()
     halfmeshinput[0] = 1;
     SetIntAnalysisInput( "CompGeom", "HalfMeshFlag", halfmeshinput );
 
+    array<int> writecsvflag = GetIntAnalysisInput( "CompGeom", "WriteCSVFlag" );
+    writecsvflag[0] = 0;
+    SetIntAnalysisInput( "CompGeom", "WriteCSVFlag", writecsvflag );
+
     string rid = ExecAnalysis( "CompGeom" );
     PrintResults( rid );
     DeleteGeomVec( GetStringResults( rid, "Mesh_GeomID" ) );

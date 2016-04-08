@@ -335,6 +335,14 @@ void CompGeomAnalysis::SetDefaults()
     m_Inputs.Add( NameValData( "Set", 0 ) );
     m_Inputs.Add( NameValData( "HalfMeshFlag", 0 ) );
     m_Inputs.Add( NameValData( "SubSurfFlag", 1 ) );
+
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        m_Inputs.Add( NameValData( "WriteCSVFlag", veh->getExportCompGeomCsvFile() ) );
+        m_Inputs.Add( NameValData( "WriteDragTSVFlag", veh->getExportDragBuildTsvFile() ) );
+    }
 }
 
 string CompGeomAnalysis::Execute()
@@ -368,6 +376,12 @@ string CompGeomAnalysis::Execute()
         {
             subSurfFlag = nvd->GetInt( 0 );
         }
+
+        nvd = m_Inputs.FindPtr( "WriteCSVFlag", 0 );
+        veh->setExportCompGeomCsvFile( !!nvd->GetInt( 0 ) );
+
+        nvd = m_Inputs.FindPtr( "WriteDragTSVFlag", 0 );
+        veh->setExportDragBuildTsvFile( !!nvd->GetInt( 0 ) );
 
         string geom = veh->CompGeomAndFlatten( geomSet, 0, halfMeshFlag, subSurfFlag );
 
