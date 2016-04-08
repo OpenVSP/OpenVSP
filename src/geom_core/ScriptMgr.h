@@ -165,6 +165,10 @@ private:
     void SetUpperCST( const string& xsec_id, int deg, CScriptArray* coefs );
     void SetLowerCST( const string& xsec_id, int deg, CScriptArray* coefs );
 
+    void SetIntAnalysisInput( const string& analysis, const string & name, CScriptArray* indata, int index );
+    void SetDoubleAnalysisInput( const string& analysis, const string & name, CScriptArray* indata, int index );
+    void SetStringAnalysisInput( const string& analysis, const string & name, CScriptArray* indata, int index );
+    void SetVec3dAnalysisInput( const string& analysis, const string & name, CScriptArray* indata, int index );
 
 };
 

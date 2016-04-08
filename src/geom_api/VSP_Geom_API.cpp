@@ -788,6 +788,91 @@ const std::vector< vec3d > & GetVec3dAnalysisInput( const string & analysis, con
     return AnalysisMgr.GetVec3dInputData( analysis, name, index );
 }
 
+void SetAnalysisInputDefaults( const string & analysis )
+{
+    if ( !AnalysisMgr.ValidAnalysisName( analysis ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetIntAnalysisInput::Invalid Analysis ID " + analysis );
+    }
+    else
+    {
+        ErrorMgr.NoError();
+    }
+
+    AnalysisMgr.SetAnalysisInputDefaults( analysis );
+}
+
+void SetIntAnalysisInput( const string & analysis, const string & name, const std::vector< int > & indata, int index )
+{
+    if ( !AnalysisMgr.ValidAnalysisName( analysis ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetIntAnalysisInput::Invalid Analysis ID " + analysis );
+    }
+    else if ( !AnalysisMgr.ValidAnalysisInputDataIndex( analysis, name, index ) )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "SetIntAnalysisInput::Can't Find Name " + name );
+    }
+    else
+    {
+        ErrorMgr.NoError();
+    }
+
+    AnalysisMgr.SetIntAnalysisInput( analysis, name, indata, index );
+}
+
+void SetDoubleAnalysisInput( const string & analysis, const string & name, const std::vector< double > & indata, int index )
+{
+    if ( !AnalysisMgr.ValidAnalysisName( analysis ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetDoubleAnalysisInput::Invalid Analysis ID " + analysis );
+    }
+    else if ( !AnalysisMgr.ValidAnalysisInputDataIndex( analysis, name, index ) )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "SetDoubleAnalysisInput::Can't Find Name " + name );
+    }
+    else
+    {
+        ErrorMgr.NoError();
+    }
+
+    AnalysisMgr.SetDoubleAnalysisInput( analysis, name, indata, index );
+}
+
+void SetStringAnalysisInput( const string & analysis, const string & name, const std::vector< std::string > & indata, int index )
+{
+    if ( !AnalysisMgr.ValidAnalysisName( analysis ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetStringAnalysisInput::Invalid Analysis ID " + analysis );
+    }
+    else if ( !AnalysisMgr.ValidAnalysisInputDataIndex( analysis, name, index ) )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "SetStringAnalysisInput::Can't Find Name " + name );
+    }
+    else
+    {
+        ErrorMgr.NoError();
+    }
+
+    AnalysisMgr.SetStringAnalysisInput( analysis, name, indata, index );
+}
+
+void SetVec3dAnalysisInput( const string & analysis, const string & name, const std::vector< vec3d > & indata, int index )
+{
+    if ( !AnalysisMgr.ValidAnalysisName( analysis ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetVec3dAnalysisInput::Invalid Analysis ID " + analysis );
+    }
+    else if ( !AnalysisMgr.ValidAnalysisInputDataIndex( analysis, name, index ) )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "SetVec3dAnalysisInput::Can't Find Name " + name );
+    }
+    else
+    {
+        ErrorMgr.NoError();
+    }
+
+    AnalysisMgr.SetVec3dAnalysisInput( analysis, name, indata, index );
+}
 
 //===================================================================//
 //===============       Results Functions         ===================//

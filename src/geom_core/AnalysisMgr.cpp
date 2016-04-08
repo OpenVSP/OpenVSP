@@ -239,6 +239,85 @@ const vector<vec3d> & AnalysisMgrSingleton::GetVec3dInputData( const string & an
     return inpt_ptr->GetVec3dData();
 }
 
+void AnalysisMgrSingleton::SetAnalysisInputDefaults( const string & analysis )
+{
+    Analysis* analysis_ptr = FindAnalysis( analysis );
+    if ( !analysis_ptr )
+    {
+        return;
+    }
+
+    analysis_ptr->SetDefaults();
+}
+
+void AnalysisMgrSingleton::SetIntAnalysisInput( const string & analysis, const string & name, const vector< int > & d, int index )
+{
+    Analysis* analysis_ptr = FindAnalysis( analysis );
+    if ( !analysis_ptr )
+    {
+        return;
+    }
+
+    NameValData* inpt_ptr = analysis_ptr->m_Inputs.FindPtr( name, index );
+    if ( !inpt_ptr )
+    {
+        return;
+    }
+
+    inpt_ptr->SetIntData( d );
+}
+
+void AnalysisMgrSingleton::SetDoubleAnalysisInput( const string & analysis, const string & name, const vector< double > & d, int index )
+{
+    Analysis* analysis_ptr = FindAnalysis( analysis );
+    if ( !analysis_ptr )
+    {
+        return;
+    }
+
+    NameValData* inpt_ptr = analysis_ptr->m_Inputs.FindPtr( name, index );
+    if ( !inpt_ptr )
+    {
+        return;
+    }
+
+    inpt_ptr->SetDoubleData( d );
+}
+
+void AnalysisMgrSingleton::SetStringAnalysisInput( const string & analysis, const string & name, const vector< string > & d, int index )
+{
+    Analysis* analysis_ptr = FindAnalysis( analysis );
+    if ( !analysis_ptr )
+    {
+        return;
+    }
+
+    NameValData* inpt_ptr = analysis_ptr->m_Inputs.FindPtr( name, index );
+    if ( !inpt_ptr )
+    {
+        return;
+    }
+
+    inpt_ptr->SetStringData( d );
+}
+
+void AnalysisMgrSingleton::SetVec3dAnalysisInput( const string & analysis, const string & name, const vector< vec3d > & d, int index )
+{
+    Analysis* analysis_ptr = FindAnalysis( analysis );
+    if ( !analysis_ptr )
+    {
+        return;
+    }
+
+    NameValData* inpt_ptr = analysis_ptr->m_Inputs.FindPtr( name, index );
+    if ( !inpt_ptr )
+    {
+        return;
+    }
+
+    inpt_ptr->SetVec3dData( d );
+}
+
 void AnalysisMgrSingleton::RegisterBuiltins()
 {
     CompGeomAnalysis *cga = new CompGeomAnalysis();

@@ -91,6 +91,12 @@ extern const std::vector< double > & GetDoubleAnalysisInput( const string & anal
 extern const std::vector< std::string > & GetStringAnalysisInput( const string & analysis, const string & name, int index = 0 );
 extern const std::vector< vec3d > & GetVec3dAnalysisInput( const string & analysis, const string & name, int index = 0 );
 
+extern void SetAnalysisInputDefaults( const string & analysis );
+extern void SetIntAnalysisInput( const string & analysis, const string & name, const std::vector< int > & indata, int index = 0 );
+extern void SetDoubleAnalysisInput( const string & analysis, const string & name, const std::vector< double > & indata, int index = 0 );
+extern void SetStringAnalysisInput( const string & analysis, const string & name, const std::vector< std::string > & indata, int index = 0 );
+extern void SetVec3dAnalysisInput( const string & analysis, const string & name, const std::vector< vec3d > & indata, int index = 0 );
+
 //======================== Results ================================//
 extern std::vector< std::string > GetAllResultsNames();
 extern std::vector< std::string > GetAllDataNames( const string & results_id );

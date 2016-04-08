@@ -70,6 +70,22 @@ public:
     string GetString( int index ) const;
     vec3d GetVec3d( int index ) const;
 
+    void SetIntData( const vector< int > & d )
+    {
+        m_IntData = d;
+    }
+    void SetDoubleData( const vector< double > & d )
+    {
+        m_DoubleData = d;
+    }
+    void SetStringData( const vector< string > & d )
+    {
+        m_StringData = d;
+    }
+    void SetVec3dData( const vector< vec3d > & d )
+    {
+        m_Vec3dData = d;
+    }
 
 protected:
 

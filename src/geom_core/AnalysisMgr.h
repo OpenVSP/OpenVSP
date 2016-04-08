@@ -79,6 +79,12 @@ public:
     const vector<string> & GetStringInputData( const string & analysis, const string & name, int index = 0 );
     const vector<vec3d> & GetVec3dInputData( const string & analysis, const string & name, int index = 0 );
 
+    void SetAnalysisInputDefaults( const string & analysis );
+    void SetIntAnalysisInput( const string & analysis, const string & name, const vector< int > & d, int index = 0 );
+    void SetDoubleAnalysisInput( const string & analysis, const string & name, const vector< double > & d, int index = 0 );
+    void SetStringAnalysisInput( const string & analysis, const string & name, const vector< string > & d, int index = 0 );
+    void SetVec3dAnalysisInput( const string & analysis, const string & name, const vector< vec3d > & d, int index = 0 );
+
     void RegisterBuiltins();
 
 private:

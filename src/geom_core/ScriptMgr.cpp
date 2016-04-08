@@ -1274,6 +1274,17 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "array<vec3d>@  GetVec3dAnalysisInput( const string & in analysis, const string & in name, int index = 0 )", asMETHOD( ScriptMgrSingleton, GetVec3dAnalysisInput ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "void SetAnalysisInputDefaults( const string & in analysis )", asFUNCTION( vsp::SetAnalysisInputDefaults ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void SetIntAnalysisInput( const string & in analysis, const string & in name, array<int>@ indata_arr, int index = 0 )", asMETHOD( ScriptMgrSingleton, SetIntAnalysisInput ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void SetDoubleAnalysisInput( const string & in analysis, const string & in name, array<double>@ indata_arr, int index = 0 )", asMETHOD( ScriptMgrSingleton, SetDoubleAnalysisInput ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void SetStringAnalysisInput( const string & in analysis, const string & in name, array<string>@ indata_arr, int index = 0 )", asMETHOD( ScriptMgrSingleton, SetStringAnalysisInput ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void SetVec3dAnalysisInput( const string & in analysis, const string & in name, array<vec3d>@ indata_arr, int index = 0 )", asMETHOD( ScriptMgrSingleton, SetVec3dAnalysisInput ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
 
     //==== Results Functions ====//
     r = se->RegisterGlobalFunction( "int GetNumResults( const string & in name )", asFUNCTION( vsp::GetNumResults ), asCALL_CDECL );
@@ -1855,6 +1866,59 @@ void ScriptMgrSingleton::SetLowerCST( const string& xsec_id, int deg, CScriptArr
 
     vsp::SetLowerCST( xsec_id, deg, coefs_vec );
 }
+
+void ScriptMgrSingleton::SetIntAnalysisInput( const string& analysis, const string & name, CScriptArray* indata, int index )
+{
+    vector < int > indata_vec;
+
+    indata_vec.resize( indata->GetSize() );
+    for ( int i = 0 ; i < ( int )indata->GetSize() ; i++ )
+    {
+        indata_vec[i] = * ( int* )( indata->At( i ) );
+    }
+
+    vsp::SetIntAnalysisInput( analysis, name, indata_vec, index );
+}
+
+void ScriptMgrSingleton::SetDoubleAnalysisInput( const string& analysis, const string & name, CScriptArray* indata, int index )
+{
+    vector < double > indata_vec;
+
+    indata_vec.resize( indata->GetSize() );
+    for ( int i = 0 ; i < ( int )indata->GetSize() ; i++ )
+    {
+        indata_vec[i] = * ( double* )( indata->At( i ) );
+    }
+
+    vsp::SetDoubleAnalysisInput( analysis, name, indata_vec, index );
+}
+
+void ScriptMgrSingleton::SetStringAnalysisInput( const string& analysis, const string & name, CScriptArray* indata, int index )
+{
+    vector < string > indata_vec;
+
+    indata_vec.resize( indata->GetSize() );
+    for ( int i = 0 ; i < ( int )indata->GetSize() ; i++ )
+    {
+        indata_vec[i] = * ( string* )( indata->At( i ) );
+    }
+
+    vsp::SetStringAnalysisInput( analysis, name, indata_vec, index );
+}
+
+void ScriptMgrSingleton::SetVec3dAnalysisInput( const string& analysis, const string & name, CScriptArray* indata, int index )
+{
+    vector < vec3d > indata_vec;
+
+    indata_vec.resize( indata->GetSize() );
+    for ( int i = 0 ; i < ( int )indata->GetSize() ; i++ )
+    {
+        indata_vec[i] = * ( vec3d* )( indata->At( i ) );
+    }
+
+    vsp::SetVec3dAnalysisInput( analysis, name, indata_vec, index );
+}
+
 
 //==== Console Print String Data ====//
 void ScriptMgrSingleton::Print( const string & data, bool new_line )
