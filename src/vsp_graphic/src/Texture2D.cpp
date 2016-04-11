@@ -74,6 +74,9 @@ namespace VSPGraphic
         _imWidth = image->getWidth();
         _imHeight = image->getHeight();
 
+        // Generate MipMap using OpenGL 1.4
+        glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+
         // Load Texture.
         if( image->getType() == GL_RGBA )
         {
@@ -83,8 +86,6 @@ namespace VSPGraphic
         {
             glTexImage2D( GL_TEXTURE_2D, 0, 3, image->getWidth(), image->getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, image->getImageData() );
         }
-
-        glGenerateMipmap( GL_TEXTURE_2D );
 
         // Unbind Texture.
         glDisable( GL_TEXTURE_2D );
