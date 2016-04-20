@@ -265,6 +265,11 @@ enum COLLISION_ERRORS { COLLISION_OK,
                         COLLISION_CLEAR_NO_SOLUTION,
                       };
 
+enum CAP_TYPE { NO_END_CAP,
+                FLAT_END_CAP,
+                NUM_END_CAP_OPTIONS
+              };
+
 }   // Namespace
 
 #endif // !defined(VSPDEFINES__INCLUDED_)

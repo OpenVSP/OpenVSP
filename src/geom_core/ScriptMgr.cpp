@@ -807,6 +807,14 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "WING_DRIVERS", "SECSWEEP_WSECT_DRIVER", vsp::SECSWEEP_WSECT_DRIVER );
     assert( r >= 0 );
 
+    r = se->RegisterEnum( "CAP_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CAP_TYPE", "NO_END_CAP", vsp::NO_END_CAP );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CAP_TYPE", "FLAT_END_CAP", vsp::FLAT_END_CAP );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CAP_TYPE", "NUM_END_CAP_OPTIONS", vsp::NUM_END_CAP_OPTIONS );
+    assert( r >= 0 );
 
     r = se->RegisterEnum( "ERROR_CODE" );
     assert( r >= 0 );

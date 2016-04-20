@@ -747,20 +747,20 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_NegativeVolumeFlag.Init( "Negative_Volume_Flag", "Negative_Volume_Props", this, false, 0, 1);
 
     // End Cap Options
-    m_CapUMinOption.Init("CapUMinOption", "EndCap", this, VspSurf::NO_END_CAP, VspSurf::NO_END_CAP, VspSurf::NUM_END_CAP_OPTIONS-1);
+    m_CapUMinOption.Init("CapUMinOption", "EndCap", this, NO_END_CAP, NO_END_CAP, NUM_END_CAP_OPTIONS-1);
     m_CapUMinOption.SetDescript("Type of End Cap on UMin end");
 
     m_CapUMinTess.Init("CapUMinTess", "EndCap", this, 3, 3, 51);
     m_CapUMinTess.SetDescript("Number of tessellated curves on capped ends");
     m_CapUMinTess.SetMultShift(2, 1);
 
-    m_CapUMaxOption.Init("CapUMaxOption", "EndCap", this, VspSurf::NO_END_CAP, VspSurf::NO_END_CAP, VspSurf::NUM_END_CAP_OPTIONS-1);
+    m_CapUMaxOption.Init("CapUMaxOption", "EndCap", this, NO_END_CAP, NO_END_CAP, NUM_END_CAP_OPTIONS-1);
     m_CapUMaxOption.SetDescript("Type of End Cap on UMax end");
 
-    m_CapWMinOption.Init("CapWMinOption", "EndCap", this, VspSurf::NO_END_CAP, VspSurf::NO_END_CAP, VspSurf::NUM_END_CAP_OPTIONS-1);
+    m_CapWMinOption.Init("CapWMinOption", "EndCap", this, NO_END_CAP, NO_END_CAP, NUM_END_CAP_OPTIONS-1);
     m_CapWMinOption.SetDescript("Type of End Cap on WMin end");
 
-    m_CapWMaxOption.Init("CapWMaxOption", "EndCap", this, VspSurf::NO_END_CAP, VspSurf::NO_END_CAP, VspSurf::NUM_END_CAP_OPTIONS-1);
+    m_CapWMaxOption.Init("CapWMaxOption", "EndCap", this, NO_END_CAP, NO_END_CAP, NUM_END_CAP_OPTIONS-1);
     m_CapWMaxOption.SetDescript("Type of End Cap on WMax end");
 
     // Geom needs at least one surf
@@ -1913,19 +1913,19 @@ void Geom::CreateDegenGeom( vector<DegenGeom> &dgs)
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
         m_SurfVec[i].ResetUWSkip();
-        if ( m_CapUMinOption() == VspSurf::FLAT_END_CAP && m_CapUMinSuccess[ m_SurfIndxVec[i] ] )
+        if ( m_CapUMinOption() == FLAT_END_CAP && m_CapUMinSuccess[ m_SurfIndxVec[i] ] )
         {
             m_SurfVec[i].SetUSkipFirst( true );
         }
-        if ( m_CapUMaxOption() == VspSurf::FLAT_END_CAP && m_CapUMaxSuccess[ m_SurfIndxVec[i] ] )
+        if ( m_CapUMaxOption() == FLAT_END_CAP && m_CapUMaxSuccess[ m_SurfIndxVec[i] ] )
         {
             m_SurfVec[i].SetUSkipLast( true );
         }
-        if ( m_CapWMinOption() == VspSurf::FLAT_END_CAP && m_CapWMinSuccess[ m_SurfIndxVec[i] ] )
+        if ( m_CapWMinOption() == FLAT_END_CAP && m_CapWMinSuccess[ m_SurfIndxVec[i] ] )
         {
             m_SurfVec[i].SetWSkipFirst( true );
         }
-        if ( m_CapWMaxOption() == VspSurf::FLAT_END_CAP && m_CapWMaxSuccess[ m_SurfIndxVec[i] ] )
+        if ( m_CapWMaxOption() == FLAT_END_CAP && m_CapWMaxSuccess[ m_SurfIndxVec[i] ] )
         {
             m_SurfVec[i].SetWSkipLast( true );
         }

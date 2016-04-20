@@ -590,8 +590,8 @@ bool WingScreen::Update()
 
     m_RootCapTypeChoice.Update( wing_ptr->m_CapUMinOption.GetID() );
     m_TipCapTypeChoice.Update( wing_ptr->m_CapUMaxOption.GetID() );
-    if ( wing_ptr->m_CapUMinOption() == VspSurf::NO_END_CAP &&
-         wing_ptr->m_CapUMaxOption() == VspSurf::NO_END_CAP )
+    if ( wing_ptr->m_CapUMinOption() == NO_END_CAP &&
+         wing_ptr->m_CapUMaxOption() == NO_END_CAP )
     {
         m_CapTessSlider.Deactivate();
     }

@@ -43,13 +43,6 @@ using std::vector;
 class VspSurf
 {
 public:
-
-
-    enum { NO_END_CAP,
-           FLAT_END_CAP,
-           NUM_END_CAP_OPTIONS
-         };
-
     VspSurf();
     virtual ~VspSurf();
 
