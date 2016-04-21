@@ -1931,19 +1931,19 @@ void Geom::CreateDegenGeom( vector<DegenGeom> &dgs)
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
         m_SurfVec[i].ResetUWSkip();
-        if ( m_CapUMinOption() == FLAT_END_CAP && m_CapUMinSuccess[ m_SurfIndxVec[i] ] )
+        if ( m_CapUMinSuccess[ m_SurfIndxVec[i] ] )
         {
             m_SurfVec[i].SetUSkipFirst( true );
         }
-        if ( m_CapUMaxOption() == FLAT_END_CAP && m_CapUMaxSuccess[ m_SurfIndxVec[i] ] )
+        if ( m_CapUMaxSuccess[ m_SurfIndxVec[i] ] )
         {
             m_SurfVec[i].SetUSkipLast( true );
         }
-        if ( m_CapWMinOption() == FLAT_END_CAP && m_CapWMinSuccess[ m_SurfIndxVec[i] ] )
+        if ( m_CapWMinSuccess[ m_SurfIndxVec[i] ] )
         {
             m_SurfVec[i].SetWSkipFirst( true );
         }
-        if ( m_CapWMaxOption() == FLAT_END_CAP && m_CapWMaxSuccess[ m_SurfIndxVec[i] ] )
+        if ( m_CapWMaxSuccess[ m_SurfIndxVec[i] ] )
         {
             m_SurfVec[i].SetWSkipLast( true );
         }
