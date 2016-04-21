@@ -161,9 +161,9 @@ void XSecCurve::Update()
         }
     }
 
-    Close( wingtype );
+    CloseTE( wingtype );
 
-    Trim( wingtype );
+    TrimTE( wingtype );
 
     RotTransScale();
 
@@ -215,7 +215,7 @@ double XSecCurve::ComputeArea()
     return poly_area( pnts );
 }
 
-void XSecCurve::Close( bool wingtype )
+void XSecCurve::CloseTE( bool wingtype )
 {
     if ( m_Type ==  XS_POINT )
     {
@@ -423,7 +423,7 @@ void XSecCurve::Close( bool wingtype )
 }
 
 //==== Modify Curve ====//
-void XSecCurve::Trim( bool wingtype )
+void XSecCurve::TrimTE( bool wingtype )
 {
     if ( m_Type == XS_POINT || !wingtype )
     {

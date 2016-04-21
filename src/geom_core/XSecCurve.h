@@ -67,8 +67,8 @@ public:
 
     virtual double ComputeArea();
 
-    virtual void Close( bool wingtype );
-    virtual void Trim( bool wingtype );
+    virtual void CloseTE( bool wingtype );
+    virtual void TrimTE( bool wingtype );
     virtual void RotTransScale();
 
     virtual void ReadV2FileFuse2( xmlNodePtr &root );
