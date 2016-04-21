@@ -126,8 +126,8 @@ public:
         return m_WFeature.size();
     }
     void BuildFeatureLines();
-    bool CapUMin(int capType);
-    bool CapUMax(int capType);
+    bool CapUMin(int capType, double len, double str, double offset, bool swflag);
+    bool CapUMax(int capType, double len, double str, double offset, bool swflag);
     bool CapWMin(int capType);
     bool CapWMax(int capType);
     void FetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_ind, vector< XferSurf > &xfersurfs );

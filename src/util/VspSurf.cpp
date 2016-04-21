@@ -21,7 +21,7 @@
 
 #include "eli/geom/curve/piecewise_creator.hpp"
 #include "eli/geom/surface/piecewise_body_of_revolution_creator.hpp"
-#include "eli/geom/surface/piecewise_capped_surface_creator.hpp"
+#include "eli/geom/surface/piecewise_multicap_surface_creator.hpp"
 #include "eli/geom/intersect/minimum_distance_surface.hpp"
 
 typedef piecewise_surface_type::index_type surface_index_type;
@@ -32,7 +32,7 @@ typedef piecewise_curve_type::point_type curve_point_type;
 
 typedef eli::geom::curve::piecewise_linear_creator<double, 3, surface_tolerance_type> piecewise_linear_creator_type;
 typedef eli::geom::surface::piecewise_general_skinning_surface_creator<double, 3, surface_tolerance_type> general_creator_type;
-typedef eli::geom::surface::piecewise_capped_surface_creator<double, 3, surface_tolerance_type> capped_creator_type;
+typedef eli::geom::surface::piecewise_multicap_surface_creator<double, 3, surface_tolerance_type> multicap_creator_type;
 
 //===== Constructor  =====//
 VspSurf::VspSurf()
@@ -1029,17 +1029,35 @@ void VspSurf::BuildFeatureLines()
     }
 }
 
-bool VspSurf::CapUMin(int CapType)
+bool VspSurf::CapUMin(int CapType, double len, double str, double offset, bool swflag)
 {
     if (CapType == vsp::NO_END_CAP)
     {
         ResetUWSkip();
         return false;
     }
-    capped_creator_type cc;
+    multicap_creator_type cc;
     bool rtn_flag;
 
-    rtn_flag = cc.set_conditions(m_Surface, 1.0, capped_creator_type::CAP_UMIN);
+    int captype = multicap_creator_type::FLAT;
+
+    switch( CapType ){
+      case vsp::FLAT_END_CAP:
+        captype = multicap_creator_type::FLAT;
+        break;
+      case vsp::ROUND_END_CAP:
+        captype = multicap_creator_type::ROUND;
+        break;
+      case vsp::EDGE_END_CAP:
+        captype = multicap_creator_type::EDGE;
+        break;
+      case vsp::SHARP_END_CAP:
+        captype = multicap_creator_type::SHARP;
+        break;
+    }
+
+    rtn_flag = cc.set_conditions(m_Surface, captype, 1.0, multicap_creator_type::CAP_UMIN, len, offset, str, swflag );
+
     if (!rtn_flag)
     {
       ResetUWSkip();
@@ -1047,6 +1065,7 @@ bool VspSurf::CapUMin(int CapType)
     }
 
     rtn_flag = cc.create(m_Surface);
+
     if (!rtn_flag)
     {
       ResetUWSkip();
@@ -1058,17 +1077,35 @@ bool VspSurf::CapUMin(int CapType)
     return true;
 }
 
-bool VspSurf::CapUMax(int CapType)
+bool VspSurf::CapUMax(int CapType, double len, double str, double offset, bool swflag)
 {
     if (CapType == vsp::NO_END_CAP)
     {
       ResetUWSkip();
       return false;
     }
-    capped_creator_type cc;
+    multicap_creator_type cc;
     bool rtn_flag;
 
-    rtn_flag = cc.set_conditions(m_Surface, 1.0, capped_creator_type::CAP_UMAX);
+    int captype = multicap_creator_type::FLAT;
+
+    switch( CapType ){
+      case vsp::FLAT_END_CAP:
+        captype = multicap_creator_type::FLAT;
+        break;
+      case vsp::ROUND_END_CAP:
+        captype = multicap_creator_type::ROUND;
+        break;
+      case vsp::EDGE_END_CAP:
+        captype = multicap_creator_type::EDGE;
+        break;
+      case vsp::SHARP_END_CAP:
+        captype = multicap_creator_type::SHARP;
+        break;
+    }
+
+    rtn_flag = cc.set_conditions(m_Surface, captype, 1.0, multicap_creator_type::CAP_UMAX, len, offset, str, swflag );
+
     if (!rtn_flag)
     {
       ResetUWSkip();
@@ -1076,6 +1113,7 @@ bool VspSurf::CapUMax(int CapType)
     }
 
     rtn_flag = cc.create(m_Surface);
+
     if (!rtn_flag)
     {
       ResetUWSkip();

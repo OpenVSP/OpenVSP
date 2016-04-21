@@ -750,12 +750,30 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_CapUMinOption.Init("CapUMinOption", "EndCap", this, NO_END_CAP, NO_END_CAP, NUM_END_CAP_OPTIONS-1);
     m_CapUMinOption.SetDescript("Type of End Cap on UMin end");
 
+    m_CapUMinLength.Init( "CapUMinLength", "EndCap", this, 1, 0, 20 );
+    m_CapUMinLength.SetDescript( "Scaled length of end cap" );
+    m_CapUMinOffset.Init( "CapUMinOffset", "EndCap", this, 0, -20, 20 );
+    m_CapUMinOffset.SetDescript( "Scaled offset of end cap" );
+    m_CapUMinStrength.Init( "CapUMinStrength", "EndCap", this, 0.5, 0, 1 );
+    m_CapUMinStrength.SetDescript( "Tangent strength of end cap" );
+    m_CapUMinSweepFlag.Init( "CapUMinSweepFlag", "EndCap", this, 0, 0, 1 );
+    m_CapUMinSweepFlag.SetDescript( "Flag to stretch end cap length for sweep" );
+
     m_CapUMinTess.Init("CapUMinTess", "EndCap", this, 3, 3, 51);
     m_CapUMinTess.SetDescript("Number of tessellated curves on capped ends");
     m_CapUMinTess.SetMultShift(2, 1);
 
     m_CapUMaxOption.Init("CapUMaxOption", "EndCap", this, NO_END_CAP, NO_END_CAP, NUM_END_CAP_OPTIONS-1);
     m_CapUMaxOption.SetDescript("Type of End Cap on UMax end");
+
+    m_CapUMaxLength.Init( "CapUMaxLength", "EndCap", this, 1, 0, 20 );
+    m_CapUMaxLength.SetDescript( "Scaled length of end cap" );
+    m_CapUMaxOffset.Init( "CapUMaxOffset", "EndCap", this, 0, -20, 20 );
+    m_CapUMaxOffset.SetDescript( "Scaled offset of end cap" );
+    m_CapUMaxStrength.Init( "CapUMaxStrength", "EndCap", this, 0.5, 0, 1 );
+    m_CapUMaxStrength.SetDescript( "Tangent strength of end cap" );
+    m_CapUMaxSweepFlag.Init( "CapUMaxSweepFlag", "EndCap", this, 0, 0, 1 );
+    m_CapUMaxSweepFlag.SetDescript( "Flag to stretch end cap length for sweep" );
 
     m_CapWMinOption.Init("CapWMinOption", "EndCap", this, NO_END_CAP, NO_END_CAP, NUM_END_CAP_OPTIONS-1);
     m_CapWMinOption.SetDescript("Type of End Cap on WMin end");
@@ -1044,8 +1062,8 @@ void Geom::UpdateEndCaps()
         m_CapWMaxSuccess[i] = false;
 
         // NOTE: These return a bool that is true if it modified the surface to create a cap
-        m_CapUMinSuccess[i] = m_MainSurfVec[i].CapUMin(m_CapUMinOption());
-        m_CapUMaxSuccess[i] = m_MainSurfVec[i].CapUMax(m_CapUMaxOption());
+        m_CapUMinSuccess[i] = m_MainSurfVec[i].CapUMin(m_CapUMinOption(), m_CapUMinLength(), m_CapUMinStrength(), m_CapUMinOffset(), m_CapUMinSweepFlag());
+        m_CapUMaxSuccess[i] = m_MainSurfVec[i].CapUMax(m_CapUMaxOption(), m_CapUMaxLength(), m_CapUMaxStrength(), m_CapUMaxOffset(), m_CapUMaxSweepFlag());
         m_CapWMinSuccess[i] = m_MainSurfVec[i].CapWMin(m_CapWMinOption());
         m_CapWMaxSuccess[i] = m_MainSurfVec[i].CapWMax(m_CapWMaxOption());
     }

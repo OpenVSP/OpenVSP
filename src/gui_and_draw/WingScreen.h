@@ -44,7 +44,17 @@ protected:
     StringOutput m_PlanAROutput;
 
     Choice m_RootCapTypeChoice;
+    SliderAdjRangeInput m_RootCapLenSlider;
+    SliderAdjRangeInput m_RootCapOffsetSlider;
+    SliderAdjRangeInput m_RootCapStrengthSlider;
+    ToggleButton m_RootCapSweepFlagButton;
+
     Choice m_TipCapTypeChoice;
+    SliderAdjRangeInput m_TipCapLenSlider;
+    SliderAdjRangeInput m_TipCapOffsetSlider;
+    SliderAdjRangeInput m_TipCapStrengthSlider;
+    ToggleButton m_TipCapSweepFlagButton;
+
     SliderAdjRangeInput m_CapTessSlider;
 
     SliderAdjRangeInput m_IncidenceSlider;
