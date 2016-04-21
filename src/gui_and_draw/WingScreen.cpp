@@ -519,8 +519,8 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 335, 680, "Wing" )
     m_ModifyLayout.SetFitWidthFlag( true );
     m_ModifyLayout.SetSameLineFlag( false );
 
-    m_ModifyLayout.AddSlider( m_CloseThickSlider, "T", 10.0, "%6.5f" );
-    m_ModifyLayout.AddSlider( m_CloseThickChordSlider, "T/C", 1.0, "%6.5f" );
+    m_ModifyLayout.AddSlider( m_CloseTEThickSlider, "T", 10.0, "%6.5f" );
+    m_ModifyLayout.AddSlider( m_CloseTEThickChordSlider, "T/C", 1.0, "%6.5f" );
 
     m_ModifyLayout.AddYGap();
     m_ModifyLayout.AddDividerBox( "TE Trim" );
@@ -552,10 +552,10 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 335, 680, "Wing" )
     m_ModifyLayout.SetFitWidthFlag( true );
     m_ModifyLayout.SetSameLineFlag( false );
 
-    m_ModifyLayout.AddSlider( m_TrimXSlider, "X", 10.0, "%6.5f" );
-    m_ModifyLayout.AddSlider( m_TrimXChordSlider, "X/C", 10.0, "%6.5f" );
-    m_ModifyLayout.AddSlider( m_TrimThickSlider, "T", 10.0, "%6.5f" );
-    m_ModifyLayout.AddSlider( m_TrimThickChordSlider, "T/C", 1.0, "%6.5f" );
+    m_ModifyLayout.AddSlider( m_TrimTEXSlider, "X", 10.0, "%6.5f" );
+    m_ModifyLayout.AddSlider( m_TrimTEXChordSlider, "X/C", 10.0, "%6.5f" );
+    m_ModifyLayout.AddSlider( m_TrimTEThickSlider, "T", 10.0, "%6.5f" );
+    m_ModifyLayout.AddSlider( m_TrimTEThickChordSlider, "T/C", 1.0, "%6.5f" );
 
     m_SubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_CONTROL) );
     m_SubSurfChoice.UpdateItems();
@@ -927,8 +927,8 @@ bool WingScreen::Update()
             m_TECloseChoice.Update( xsc->m_TECloseType.GetID() );
             m_TECloseGroup.Update( xsc->m_TECloseAbsRel.GetID() );
 
-            m_CloseThickSlider.Update( xsc->m_TECloseThick.GetID() );
-            m_CloseThickChordSlider.Update( xsc->m_TECloseThickChord.GetID() );
+            m_CloseTEThickSlider.Update( xsc->m_TECloseThick.GetID() );
+            m_CloseTEThickChordSlider.Update( xsc->m_TECloseThickChord.GetID() );
 
             if ( xsc->m_TECloseType() != CLOSE_NONE )
             {
@@ -937,19 +937,19 @@ bool WingScreen::Update()
 
                 if ( xsc->m_TECloseAbsRel() == ABS )
                 {
-                    m_CloseThickSlider.Activate();
-                    m_CloseThickChordSlider.Deactivate();
+                    m_CloseTEThickSlider.Activate();
+                    m_CloseTEThickChordSlider.Deactivate();
                 }
                 else
                 {
-                    m_CloseThickSlider.Deactivate();
-                    m_CloseThickChordSlider.Activate();
+                    m_CloseTEThickSlider.Deactivate();
+                    m_CloseTEThickChordSlider.Activate();
                 }
             }
             else
             {
-                m_CloseThickSlider.Deactivate();
-                m_CloseThickChordSlider.Deactivate();
+                m_CloseTEThickSlider.Deactivate();
+                m_CloseTEThickChordSlider.Deactivate();
 
                 m_TECloseABSButton.Deactivate();
                 m_TECloseRELButton.Deactivate();
@@ -959,15 +959,15 @@ bool WingScreen::Update()
             m_TETrimGroup.Update( xsc->m_TETrimAbsRel.GetID() );
 
 
-            m_TrimXSlider.Update( xsc->m_TETrimX.GetID() );
-            m_TrimXChordSlider.Update( xsc->m_TETrimXChord.GetID() );
-            m_TrimThickSlider.Update( xsc->m_TETrimThick.GetID() );
-            m_TrimThickChordSlider.Update( xsc->m_TETrimThickChord.GetID() );
+            m_TrimTEXSlider.Update( xsc->m_TETrimX.GetID() );
+            m_TrimTEXChordSlider.Update( xsc->m_TETrimXChord.GetID() );
+            m_TrimTEThickSlider.Update( xsc->m_TETrimThick.GetID() );
+            m_TrimTEThickChordSlider.Update( xsc->m_TETrimThickChord.GetID() );
 
-            m_TrimXSlider.Deactivate();
-            m_TrimXChordSlider.Deactivate();
-            m_TrimThickSlider.Deactivate();
-            m_TrimThickChordSlider.Deactivate();
+            m_TrimTEXSlider.Deactivate();
+            m_TrimTEXChordSlider.Deactivate();
+            m_TrimTEThickSlider.Deactivate();
+            m_TrimTEThickChordSlider.Deactivate();
             m_TETrimABSButton.Deactivate();
             m_TETrimRELButton.Deactivate();
 
@@ -981,22 +981,22 @@ bool WingScreen::Update()
             {
                 if ( xsc->m_TETrimAbsRel() == ABS )
                 {
-                    m_TrimXSlider.Activate();
+                    m_TrimTEXSlider.Activate();
                 }
                 else
                 {
-                    m_TrimXChordSlider.Activate();
+                    m_TrimTEXChordSlider.Activate();
                 }
             }
             else if ( xsc->m_TETrimType() == TRIM_THICK )
             {
                 if ( xsc->m_TETrimAbsRel() == ABS )
                 {
-                    m_TrimThickSlider.Activate();
+                    m_TrimTEThickSlider.Activate();
                 }
                 else
                 {
-                    m_TrimThickChordSlider.Activate();
+                    m_TrimTEThickChordSlider.Activate();
                 }
             }
 

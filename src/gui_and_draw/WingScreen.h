@@ -229,18 +229,18 @@ protected:
     ToggleButton m_TECloseRELButton;
     ToggleRadioGroup m_TECloseGroup;
 
-    SliderAdjRangeInput m_CloseThickSlider;
-    SliderAdjRangeInput m_CloseThickChordSlider;
+    SliderAdjRangeInput m_CloseTEThickSlider;
+    SliderAdjRangeInput m_CloseTEThickChordSlider;
 
     Choice m_TETrimChoice;
     ToggleButton m_TETrimABSButton;
     ToggleButton m_TETrimRELButton;
     ToggleRadioGroup m_TETrimGroup;
 
-    SliderAdjRangeInput m_TrimXSlider;
-    SliderAdjRangeInput m_TrimXChordSlider;
-    SliderAdjRangeInput m_TrimThickSlider;
-    SliderAdjRangeInput m_TrimThickChordSlider;
+    SliderAdjRangeInput m_TrimTEXSlider;
+    SliderAdjRangeInput m_TrimTEXChordSlider;
+    SliderAdjRangeInput m_TrimTEThickSlider;
+    SliderAdjRangeInput m_TrimTEThickChordSlider;
 
     SliderAdjRangeInput m_AFThetaSlider;
     SliderAdjRangeInput m_AFScaleSlider;
