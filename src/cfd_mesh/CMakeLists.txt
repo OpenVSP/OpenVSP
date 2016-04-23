@@ -48,6 +48,8 @@ SurfPatch.h
 Tri.h
 )
 
+set_target_properties( cfd_mesh PROPERTIES COMPILE_FLAGS "-fPIC")
+
 ADD_DEPENDENCIES( cfd_mesh
 util
 )

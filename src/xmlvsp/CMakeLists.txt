@@ -14,3 +14,6 @@ XmlUtil.h
 XmlUtil.cpp
 
 )
+
+set_target_properties( xmlvsp PROPERTIES COMPILE_FLAGS "-fPIC")
+

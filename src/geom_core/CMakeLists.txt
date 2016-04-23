@@ -116,6 +116,8 @@ XSecCurve.h
 XSecSurf.h
 )
 
+set_target_properties( geom_core PROPERTIES COMPILE_FLAGS "-fPIC")
+
 ADD_DEPENDENCIES( geom_core
 util
 )

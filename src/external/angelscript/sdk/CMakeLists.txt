@@ -127,6 +127,8 @@ set(LIBRARY_OUTPUT_PATH  ${PROJECT_BINARY_DIR}/./angelscript/lib)
 find_package(Threads)
 target_link_libraries(Angelscript ${CMAKE_THREAD_LIBS_INIT})
 
+set_target_properties( Angelscript PROPERTIES COMPILE_FLAGS "-fPIC")
+
 if(MSVC)
         set_target_properties(Angelscript PROPERTIES COMPILE_FLAGS "/MP")
 endif(MSVC)
