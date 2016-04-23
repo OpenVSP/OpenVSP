@@ -15,7 +15,7 @@
 #include "MenuItem.h"
 #include "ScreenBase.h"
 #include "GuiDevice.h"
-#include "FL/Fl_Box.h"
+#include "FL/Fl_Box.H"
 
 namespace VSPGUI
 {
