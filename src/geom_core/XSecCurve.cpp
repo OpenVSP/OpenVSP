@@ -490,53 +490,9 @@ void XSecCurve::Trim( bool wingtype )
                 xtrim = m_TETrimXChord() * GetWidth();
             }
 
-            // Find lower surface bounding segment.  Nearest point first, traverse vector forward.
-            int j;
-            for ( j = 0; j < imax; j++ )
-            {
-                if ( dlowcache[j] > xtrim )
-                {
-                    break;
-                }
-            }
-            // Linearly interpolate to find  matching point.
-            double jmatch;
-            if ( j == 0 )
-            {
-                jmatch = 0.0;
-            }
-            else
-            {
-                j--;
-                double frac = ( xtrim - dlowcache[j] ) / ( dlowcache[j+1] - dlowcache[j] );
-                jmatch = j + frac;
-            }
-            double ulower = umin + delta * jmatch;
-
-            // Find upper surface bounding segment.  Nearest point last, traverse vector in reverse.
-            for ( j = ncache - 1; j > imax; j-- )
-            {
-                if ( dupcache[j] > xtrim )
-                {
-                    break;
-                }
-            }
-
-            // Linearly interpolate to find  matching point.
-            if ( j == ncache - 1 )
-            {
-                jmatch = 1.0 * j;
-            }
-            else
-            {
-                double frac = ( xtrim - dupcache[j] ) / ( dupcache[j+1] - dupcache[j] );
-                jmatch = j + frac;
-            }
-            double uupper = umin + delta * jmatch;
-
-            // Use Newton's method solver with linear interpolated initial guess.
-            m_Curve.FindDistant( ts1, telow, xtrim, ulower );
-            m_Curve.FindDistant( ts2, teup, xtrim, uupper );
+            // Use bisection solver with specified min/max parameters.
+            m_Curve.FindDistant( ts1, telow, xtrim, umin, umid );
+            m_Curve.FindDistant( ts2, teup, xtrim, umid, umax );
         }
         else if ( m_TETrimType() == TRIM_THICK )
         {
