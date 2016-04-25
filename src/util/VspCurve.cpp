@@ -666,6 +666,28 @@ double VspCurve::FindDistant( double &u, const vec3d &pt, const double &d, const
     return dist;
 }
 
+double VspCurve::FindDistant( double &u, const vec3d &pt, const double &d ) const
+{
+    double dist;
+    curve_point_type p;
+    p << pt.x(), pt.y(), pt.z();
+
+    dist = eli::geom::intersect::specified_distance( u, m_Curve, p, d );
+
+    return dist;
+}
+
+double VspCurve::FindDistant( double &u, const vec3d &pt, const double &d, const double &umin, const double &umax ) const
+{
+    double dist;
+    curve_point_type p;
+    p << pt.x(), pt.y(), pt.z();
+
+    dist = eli::geom::intersect::specified_distance( u, m_Curve, p, d, umin, umax );
+
+    return dist;
+}
+
 double VspCurve::FindThickness( double &u1, double &u2, const vec3d &pt, const double &thick, const double &u10, const double &u20 ) const
 {
     double dist;
