@@ -66,7 +66,7 @@ namespace VSPGraphic
         glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
 
         // Set border.
-        GLfloat rgba[] = {1.f, 1.f, 1.f, 0.0};
+        GLfloat rgba[] = {1.0f, 1.0f, 1.0f, 0.0f};
         glTexParameterfv( GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, rgba );
 
         glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
