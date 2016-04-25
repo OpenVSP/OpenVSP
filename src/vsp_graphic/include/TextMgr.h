@@ -43,6 +43,8 @@ public:
     void drawText( glfont::GLFont * font, float scale, std::string str, float x0, float y0, float xoffset, float yoffset );
 
 private:
+
+    unsigned int texID;
     glfont::GLFont * _font;
 };
 }

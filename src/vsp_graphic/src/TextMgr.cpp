@@ -19,12 +19,14 @@ namespace VSPGraphic
     {
         if( _font )
         {
+            glDeleteTextures(1, &(this->texID) );
             delete _font;
         }
     }
 
     GLFont * TextMgr::loadFont()
     {
+        // We only want to generate a font (texture) once.
         if( _font )
         {
             return _font;
@@ -36,8 +38,7 @@ namespace VSPGraphic
         glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
         GLFont * texfont = new GLFont();
-        GLuint texID;
-        glGenTextures( 1, &texID );
+        glGenTextures( 1, &(this->texID) );
 
         if ( !texfont->Create( texID ) )
         {
