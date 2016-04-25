@@ -79,8 +79,6 @@ void Viewport::bind()
     glScissor( _x, _y, _vWidth, _vHeight );
     glEnable( GL_SCISSOR_TEST );
 
-    glPushMatrix();
-
     // Apply Projection.
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
@@ -94,7 +92,6 @@ void Viewport::bind()
 
 void Viewport::unbind()
 {
-    glPopMatrix();
     glDisable( GL_SCISSOR_TEST );
 }
 
@@ -116,7 +113,6 @@ void Viewport::drawBorder( bool selected )
 
     glMatrixMode( GL_PROJECTION );
     glPushMatrix();
-
     glLoadIdentity();
 
     glMatrixMode( GL_MODELVIEW );
@@ -134,7 +130,9 @@ void Viewport::drawBorder( bool selected )
     glVertex2f( -1 + offsetW, -1 + offsetH );
     glEnd();
 
+    glMatrixMode( GL_PROJECTION );
     glPopMatrix();
+
     glMatrixMode( GL_MODELVIEW );
 }
 
@@ -163,13 +161,13 @@ void Viewport::drawXYZArrows()
     modelviewMatrix[3][2] = 0.0f;
 
     // Apply Projection and Modelview matrix.
-    glPushMatrix();
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
     glMultMatrixf( &projectionMatrix[0][0] );
 
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
+
     // Move arrows to position after rotation.
     glMultMatrixf( &arrowTMat[0][0] );
     glMultMatrixf( &modelviewMatrix[0][0] );
@@ -238,8 +236,6 @@ void Viewport::drawXYZArrows()
     _textMgr->drawText( _textMgr->loadFont(),
                         2.0f, "Z", 0.f, 0.f, 0.f, 0.f );
     glPopMatrix();
-
-    glPopMatrix();
 }
 
 void Viewport::drawGridOverlay()
@@ -250,8 +246,6 @@ void Viewport::drawGridOverlay()
     }
 
     // Apply Projection and Modelview matrix.
-    glPushMatrix();
-
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
     glMultMatrixf( &_camera->getProjectionMatrix()[0][0] );
@@ -282,8 +276,6 @@ void Viewport::drawGridOverlay()
     glVertex2f( 0, -5 );
     glVertex2f( 0, 5 );
     glEnd();
-
-    glPopMatrix();
 }
 
 void Viewport::drawBackground()
@@ -293,8 +285,6 @@ void Viewport::drawBackground()
         _background = new Background();
     }
 
-    glPushMatrix();
-
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
 
@@ -303,8 +293,6 @@ void Viewport::drawBackground()
 
     _background->setWidthHeight( _vWidth, _vHeight );
     _background->draw();
-
-    glPopMatrix();
 }
 
 Camera* Viewport::getCamera()
@@ -356,10 +344,8 @@ glm::vec2 Viewport::screenToNDC(glm::vec2 screenCoord)
 
 void Viewport::drawRectangle( int startx, int starty, int x, int y )
 {
-
     glMatrixMode( GL_PROJECTION );
     glPushMatrix();
-
     glLoadIdentity();
 
     glMatrixMode( GL_MODELVIEW );
@@ -381,8 +367,9 @@ void Viewport::drawRectangle( int startx, int starty, int x, int y )
     glVertex2f( sstartx , sy );
     glEnd();
 
+    glMatrixMode( GL_PROJECTION );
     glPopMatrix();
-    glMatrixMode( GL_MODELVIEW );
 
+    glMatrixMode( GL_MODELVIEW );
 }
 }
