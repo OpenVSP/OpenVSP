@@ -453,34 +453,6 @@ void XSecCurve::Trim( bool wingtype )
 
     if ( m_TETrimType() != TRIM_NONE )
     {
-        int ncache = 20;
-        vector< vec3d > ptcache( ncache );
-        vector< double > ucache( ncache );
-        vector< double > dcache( ncache );
-        vector< double > dupcache( ncache );
-        vector< double > dlowcache( ncache );
-
-        // Rough tessellation to find approximate trim locations.
-        m_Curve.TesselateNoCorner( ncache, umin, umax, ptcache, ucache );
-
-        // Find most distant point.
-        int imax = -1;
-        double mindu = 2.0 * umax;
-        for ( int i = 0; i < ncache; i++ )
-        {
-            dcache[i] = dist( ptcache[i], te );
-            dupcache[i] = dist( ptcache[i], teup );
-            dlowcache[i] = dist( ptcache[i], telow );
-
-            if ( std::abs( ucache[i] - umid ) < mindu )
-            {
-                imax = i;
-                mindu = std::abs( ucache[i] - umid );
-            }
-        }
-
-        delta = ( umax - umin ) / ( ncache - 1 );
-
         if ( m_TETrimType() == TRIM_X )
         {
             xtrim = m_TETrimX();
@@ -502,6 +474,34 @@ void XSecCurve::Trim( bool wingtype )
             {
                 ttrim = m_TETrimThickChord() * GetWidth();
             }
+
+            int ncache = 20;
+            vector< vec3d > ptcache( ncache );
+            vector< double > ucache( ncache );
+            vector< double > dcache( ncache );
+            vector< double > dupcache( ncache );
+            vector< double > dlowcache( ncache );
+
+            // Rough tessellation to find approximate trim locations.
+            m_Curve.TesselateNoCorner( ncache, umin, umax, ptcache, ucache );
+
+            // Find most distant point.
+            int imax = -1;
+            double mindu = 2.0 * umax;
+            for ( int i = 0; i < ncache; i++ )
+            {
+                dcache[i] = dist( ptcache[i], te );
+                dupcache[i] = dist( ptcache[i], teup );
+                dlowcache[i] = dist( ptcache[i], telow );
+
+                if ( std::abs( ucache[i] - umid ) < mindu )
+                {
+                    imax = i;
+                    mindu = std::abs( ucache[i] - umid );
+                }
+            }
+
+            delta = ( umax - umin ) / ( ncache - 1 );
 
             // Calculate approximate upper surface u parameter corresponding to lower points.
             vector< double > uuppermatch( imax );
