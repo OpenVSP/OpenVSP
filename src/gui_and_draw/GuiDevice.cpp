@@ -1354,6 +1354,7 @@ Choice::Choice( ) : GuiDevice()
 {
     m_Type = GDEV_CHOICE;
     m_Choice = NULL;
+    m_Offset = 0;
 }
 
 //==== Init ====//
@@ -1390,7 +1391,7 @@ void Choice::SetValAndLimits( Parm* p )
     assert( iparm );
     int val = iparm->Get();
 
-    m_Choice->value( val );
+    m_Choice->value( val - m_Offset );
 
     if ( m_ParmButtonFlag )
     {
@@ -1403,14 +1404,14 @@ void Choice::SetValAndLimits( Parm* p )
 void Choice::SetVal( int val )
 {
     assert( m_Choice );
-    m_Choice->value( val );
+    m_Choice->value( val - m_Offset );
 }
 
 //==== Get Current Choice Val ====//
 int Choice::GetVal()
 {
     assert( m_Choice );
-    return m_Choice->value();
+    return m_Choice->value() + m_Offset;
 }
 
  void Choice::UpdateItems()
@@ -1433,7 +1434,7 @@ void Choice::DeviceCB( Fl_Widget* w )
 
     if ( w == m_Choice && parm_ptr )
     {
-        int new_val = m_Choice->value();
+        int new_val = m_Choice->value() + m_Offset;
         parm_ptr->SetFromDevice( new_val );
     }
 

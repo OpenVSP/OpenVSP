@@ -435,6 +435,10 @@ public:
         m_ParmButton.SetButtonNameUpdate( flag );
     }
     virtual void SetWidth( int w );
+    virtual void SetOffset( int o )
+    {
+        m_Offset = o;
+    }
 
 
 protected:
@@ -448,6 +452,7 @@ protected:
 
     vector< string > m_Items;
 
+    int m_Offset;
 
 };
 
