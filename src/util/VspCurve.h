@@ -44,6 +44,8 @@ public:
     void RoundJoint( double rad, int i );
     void RoundAllJoints( double rad );
 
+    void Modify( int type, bool le, double len, double off, double str );
+
     // creates C0 continuous piecewise line
     void InterpolateLinear( vector< vec3d > & input_pnt_vec, const vector<double> &param, bool closed_flag );
 

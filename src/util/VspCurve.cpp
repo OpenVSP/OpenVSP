@@ -15,6 +15,8 @@
 #include <float.h>
 
 #include "VspCurve.h"
+#include "APIDefines.h"
+
 
 #include "eli/geom/curve/length.hpp"
 #include "eli/geom/curve/piecewise_creator.hpp"
@@ -216,6 +218,38 @@ void VspCurve::RoundJoint( double rad, int i )
 void VspCurve::RoundAllJoints( double rad )
 {
     m_Curve.round( rad );
+}
+
+void VspCurve::Modify( int type, bool le, double len, double off, double str )
+{
+    int elitype = 0;
+
+    double tmid = m_Curve.get_t0();
+
+    if ( le )
+    {
+        tmid = ( m_Curve.get_t0() + m_Curve.get_tmax() ) * 0.5;
+    }
+
+    switch ( type )
+    {
+    case vsp::ROUND_END_CAP:
+        elitype = piecewise_curve_type::ROUND;
+        break;
+    case vsp::EDGE_END_CAP:
+        elitype = piecewise_curve_type::EDGE;
+        break;
+    case vsp::SHARP_END_CAP:
+        elitype = piecewise_curve_type::SHARP;
+        break;
+    case vsp::FLAT_END_CAP:
+    default:
+        // Do nothing, already flat.
+        return; //elitype = piecewise_curve_type::FLAT;
+        break;
+    }
+
+    m_Curve.modify( elitype, tmid, TMAGIC, len, off, str );
 }
 
 //===== Interpolate Creates piecewise linear curves ===//
