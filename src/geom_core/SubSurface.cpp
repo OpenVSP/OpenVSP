@@ -914,6 +914,8 @@ void SSControlSurf::Update()
 
     double vtelow = vmin + TMAGIC;
     double vteup = vmax - TMAGIC;
+    double vlelow = vle - TMAGIC;
+    double vleup = vle + TMAGIC;
 
     curve_point_type te, le;
     te = c.f( vmin );
@@ -949,6 +951,10 @@ void SSControlSurf::Update()
     telow = c.f( vtelow );
     teup = c.f( vteup );
 
+    curve_point_type lelow, leup;
+    lelow = c.f( vlelow );
+    leup = c.f( vleup );
+
     piecewise_curve_type clow, cup;
     c.split( clow, cup, vle );
 
@@ -963,7 +969,7 @@ void SSControlSurf::Update()
         }
         else
         {
-            eli::geom::intersect::specified_distance( vup, cup, le, d );
+            eli::geom::intersect::specified_distance( vup, cup, leup, d );
         }
         c_uws_upper = vec3d( m_UStart(), vup / vmax, 0 );
     }
@@ -976,7 +982,7 @@ void SSControlSurf::Update()
         }
         else
         {
-            eli::geom::intersect::specified_distance( vlow, clow, le, d );
+            eli::geom::intersect::specified_distance( vlow, clow, lelow, d );
         }
         c_uws_lower = vec3d( m_UStart(), vlow / vmax, 0 );
     }
@@ -1004,6 +1010,8 @@ void SSControlSurf::Update()
 
     telow = c.f( vtelow );
     teup = c.f( vteup );
+    lelow = c.f( vlelow );
+    leup = c.f( vleup );
 
     c.split( clow, cup, vle );
 
@@ -1015,7 +1023,7 @@ void SSControlSurf::Update()
         }
         else
         {
-            eli::geom::intersect::specified_distance( vup, cup, le, d );
+            eli::geom::intersect::specified_distance( vup, cup, leup, d );
         }
         c_uwe_upper = vec3d( m_UEnd(), vup / vmax, 0 );
     }
@@ -1028,7 +1036,7 @@ void SSControlSurf::Update()
         }
         else
         {
-            eli::geom::intersect::specified_distance( vlow, clow, le, d );
+            eli::geom::intersect::specified_distance( vlow, clow, lelow, d );
         }
         c_uwe_lower = vec3d( m_UEnd(), vlow / vmax, 0 );
     }
