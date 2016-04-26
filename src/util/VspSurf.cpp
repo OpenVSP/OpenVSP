@@ -636,7 +636,7 @@ void VspSurf::MakeUTess( const vector<int> &num_u, vector<double> &u ) const
 
 void VspSurf::MakeVTess( int num_v, std::vector<double> &vtess, const int &n_cap, bool degen ) const
 {
-    double vmin, vmax, vabsmin;
+    double vmin, vmax, vabsmin, vle, vlelow, vleup;
     surface_index_type nv( num_v );
 
     vmin = m_Surface.get_v0();
@@ -651,19 +651,23 @@ void VspSurf::MakeVTess( int num_v, std::vector<double> &vtess, const int &n_cap
         vmin += TMAGIC;
         vmax -= TMAGIC;
 
+        vle = ( vmin + vmax ) * 0.5;
+        vlelow = vle - TMAGIC;
+        vleup = vle + TMAGIC;
+
         vtess.resize(nv);
         int jle = ( nv - 1 ) / 2;
         int j = 0;
         for ( ; j < jle; ++j )
         {
-            vtess[j] = vmin + ( vmax - vmin ) * 0.5 * Cluster( 2.0 * static_cast<double>( j ) / ( nv - 1 ), m_TECluster, m_LECluster );
+            vtess[j] = vmin + ( vlelow - vmin ) * Cluster( 2.0 * static_cast<double>( j ) / ( nv - 1 ), m_TECluster, m_LECluster );
         }
         for ( ; j < nv; ++j )
         {
-            vtess[j] = vmin + ( vmax - vmin ) * 0.5 * (1+Cluster( 2.0 * static_cast<double>( j - jle ) / ( nv - 1 ), m_LECluster, m_TECluster ));
+            vtess[j] = vleup + ( vmax - vleup ) * (Cluster( 2.0 * static_cast<double>( j - jle ) / ( nv - 1 ), m_LECluster, m_TECluster ));
         }
 
-        if ( degen ) // DegenGeom, don't tessellate blunt TE.
+        if ( degen ) // DegenGeom, don't tessellate blunt TE or LE.
         {
             return;
         }
@@ -688,6 +692,17 @@ void VspSurf::MakeVTess( int num_v, std::vector<double> &vtess, const int &n_cap
             for ( int j = 0; j < n_cap; j++ )
             {
                 vtess.push_back( vmax + TMAGIC * j / (n_cap -1) );
+            }
+        }
+
+        m_Surface.get_vconst_curve( c1, vlelow );
+        m_Surface.get_vconst_curve( c2, vleup );
+
+        if ( !c1.abouteq( c2, tol ) ) // Leading edge is not repeated.
+        {
+            for ( int j = 0; j < n_cap * 2 - 1; j++ )
+            {
+                vtess.push_back( vlelow + TMAGIC * j / (n_cap -1) );
             }
         }
 
@@ -987,9 +1002,10 @@ void VspSurf::BuildFeatureLines()
         double vmin = m_Surface.get_v0();
         double vmax = m_Surface.get_vmax();
         double vrng = vmax - vmin;
+        double vmid = vmin + vrng * 0.5;
 
         m_WFeature.push_back( vmin );
-        m_WFeature.push_back( vmin + 0.5 * vrng );
+        m_WFeature.push_back( vmid );
         m_WFeature.push_back( vmax );
 
         // If fuse-type, add .25 and .75 curves.
@@ -997,6 +1013,13 @@ void VspSurf::BuildFeatureLines()
         {
             m_WFeature.push_back( vmin + 0.25 * vrng );
             m_WFeature.push_back( vmin + 0.75 * vrng );
+        }
+        else
+        {
+            m_WFeature.push_back( vmin + TMAGIC );
+            m_WFeature.push_back( vmid - TMAGIC );
+            m_WFeature.push_back( vmid + TMAGIC );
+            m_WFeature.push_back( vmax - TMAGIC );
         }
 
         // Sort feature parameters
