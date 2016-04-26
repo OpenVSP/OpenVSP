@@ -85,11 +85,6 @@ public:
     double CompLength( double tol = 1e-6 );
 
     //===== Tesselate ====//
-    // These three currently unused.
-    void Tesselate( int num_pnts_u, vector< vec3d > & output );
-    void Tesselate( int num_pnts_u, vector< vec3d > & output, vector< double > &uout );
-    void Tesselate( int num_pnts_u, double umin, double umax, vector< vec3d > & output, vector< double > &uout );
-
     void TesselateNoCorner( int num_pnts_u, double umin, double umax, vector< vec3d > & output, vector< double > &uout );
     void Tesselate( const vector< double > &u, vector< vec3d > & output );
 

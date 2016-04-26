@@ -786,19 +786,6 @@ double VspCurve::CompLength( double tol )
 }
 
 //===== Tesselate =====//
-void VspCurve::Tesselate( int num_pnts_u, vector< vec3d > & output )
-{
-    vector< double > uout;
-    Tesselate( num_pnts_u, output, uout );
-}
-
-//===== Tesselate =====//
-void VspCurve::Tesselate( int num_pnts_u, vector< vec3d > & output, vector< double > &uout )
-{
-    Tesselate( num_pnts_u, m_Curve.get_parameter_min(), m_Curve.get_parameter_max(), output, uout );
-}
-
-//===== Tesselate =====//
 void VspCurve::TesselateNoCorner( int num_pnts_u, double umin, double umax, vector< vec3d > & output, vector< double > &uout )
 {
     curve_index_type i;
@@ -813,29 +800,6 @@ void VspCurve::TesselateNoCorner( int num_pnts_u, double umin, double umax, vect
         double u = umin + delta * i;
         uout[i] = u;
     }
-
-    Tesselate( uout, output );
-}
-
-//===== Tesselate =====//
-void VspCurve::Tesselate( int num_pnts_u, double umin, double umax, vector< vec3d > & output, vector< double > &uout )
-{
-    curve_index_type i;
-    curve_point_type p;
-    double delta;
-
-    delta = ( umax - umin ) / ( num_pnts_u - 1 );
-
-    uout.resize( num_pnts_u + 2 );
-    uout[0] = umin;
-    uout[1] = umin + TMAGIC;
-    for ( i = 2; i < num_pnts_u + 1; ++i )
-    {
-        double u = umin + delta * ( i - 1 );
-        uout[i] = u;
-    }
-    uout[ num_pnts_u ] = umax - TMAGIC;
-    uout[ num_pnts_u + 1 ] = umax;
 
     Tesselate( uout, output );
 }
