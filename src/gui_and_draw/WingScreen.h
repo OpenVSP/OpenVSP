@@ -229,18 +229,40 @@ protected:
     ToggleButton m_TECloseRELButton;
     ToggleRadioGroup m_TECloseGroup;
 
-    SliderAdjRangeInput m_CloseTEThickSlider;
-    SliderAdjRangeInput m_CloseTEThickChordSlider;
+    SliderAdjRange2Input m_CloseTEThickSlider;
 
     Choice m_TETrimChoice;
     ToggleButton m_TETrimABSButton;
     ToggleButton m_TETrimRELButton;
     ToggleRadioGroup m_TETrimGroup;
 
-    SliderAdjRangeInput m_TrimTEXSlider;
-    SliderAdjRangeInput m_TrimTEXChordSlider;
-    SliderAdjRangeInput m_TrimTEThickSlider;
-    SliderAdjRangeInput m_TrimTEThickChordSlider;
+    SliderAdjRange2Input m_TrimTEXSlider;
+    SliderAdjRange2Input m_TrimTEThickSlider;
+
+    Choice m_TECapChoice;
+    SliderAdjRangeInput m_TECapLengthSlider;
+    SliderAdjRangeInput m_TECapOffsetSlider;
+    SliderAdjRangeInput m_TECapStrengthSlider;
+
+    Choice m_LECloseChoice;
+    ToggleButton m_LECloseABSButton;
+    ToggleButton m_LECloseRELButton;
+    ToggleRadioGroup m_LECloseGroup;
+
+    SliderAdjRange2Input m_CloseLEThickSlider;
+
+    Choice m_LETrimChoice;
+    ToggleButton m_LETrimABSButton;
+    ToggleButton m_LETrimRELButton;
+    ToggleRadioGroup m_LETrimGroup;
+
+    SliderAdjRange2Input m_TrimLEXSlider;
+    SliderAdjRange2Input m_TrimLEThickSlider;
+
+    Choice m_LECapChoice;
+    SliderAdjRangeInput m_LECapLengthSlider;
+    SliderAdjRangeInput m_LECapOffsetSlider;
+    SliderAdjRangeInput m_LECapStrengthSlider;
 
     SliderAdjRangeInput m_AFThetaSlider;
     SliderAdjRangeInput m_AFScaleSlider;
