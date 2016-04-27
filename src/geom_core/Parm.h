@@ -39,7 +39,7 @@ public:
     virtual ~Parm();
 
     virtual void Init( const string& name, const string& group, ParmContainer* container,
-                       double val, double lower, double upper, bool linkable = true );
+                       double val, double lower, double upper );
 
     virtual string GetName()                             { return m_Name; }
     virtual void SetName( const string & name )          { m_Name = name; }

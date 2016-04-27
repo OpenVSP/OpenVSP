@@ -55,7 +55,7 @@ Parm::~Parm()
 
 //==== Init ====//
 void Parm::Init( const string& name, const string& group_name, ParmContainer* con, double val,
-                 double lower, double upper, bool linkable )
+                 double lower, double upper )
 {
     m_ID = GenerateID();
     Set( val );
