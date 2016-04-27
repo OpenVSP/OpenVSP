@@ -2118,7 +2118,12 @@ void Geom::WritePLOT3DFileXYZ( FILE* dump_file )
         {
             for ( int k = 0 ; k < ( int )pnts[j].size() ; k++ )
             {
-                fprintf( dump_file, "%25.17e ", pnts[j][k].x() );
+                int kflip = k;
+                if ( !m_SurfVec[i].GetFlipNormal() )
+                {
+                    kflip = pnts[j].size() - 1 - k;
+                }
+                fprintf( dump_file, "%25.17e ", pnts[j][kflip].x() );
             }
         }
         fprintf( dump_file, "\n" );
@@ -2126,7 +2131,12 @@ void Geom::WritePLOT3DFileXYZ( FILE* dump_file )
         {
             for ( int k = 0 ; k < ( int )pnts[j].size() ; k++ )
             {
-                fprintf( dump_file, "%25.17e ", pnts[j][k].y() );
+                int kflip = k;
+                if ( !m_SurfVec[i].GetFlipNormal() )
+                {
+                    kflip = pnts[j].size() - 1 - k;
+                }
+                fprintf( dump_file, "%25.17e ", pnts[j][kflip].y() );
             }
         }
         fprintf( dump_file, "\n" );
@@ -2134,7 +2144,12 @@ void Geom::WritePLOT3DFileXYZ( FILE* dump_file )
         {
             for ( int k = 0 ; k < ( int )pnts[j].size() ; k++ )
             {
-                fprintf( dump_file, "%25.17e ", pnts[j][k].z() );
+                int kflip = k;
+                if ( !m_SurfVec[i].GetFlipNormal() )
+                {
+                    kflip = pnts[j].size() - 1 - k;
+                }
+                fprintf( dump_file, "%25.17e ", pnts[j][kflip].z() );
             }
         }
         fprintf( dump_file, "\n" );
