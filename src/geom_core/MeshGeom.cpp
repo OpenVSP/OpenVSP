@@ -75,11 +75,11 @@ MeshGeom::MeshGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_MaxTriDen = 1.0;
 
     m_ScaleMatrix.loadIdentity();
-    m_ScaleFromOrig.Init( "Scale_From_Original", "XForm", this, 1, 1.0e-5, 1.0e12, false );
+    m_ScaleFromOrig.Init( "Scale_From_Original", "XForm", this, 1, 1.0e-5, 1.0e12 );
 
     // Debug
-    m_DrawType.Init( "Draw_Type", "Draw", this, DRAW_XYZ, DRAW_XYZ, DRAW_TAGS, false );
-    m_DrawSubSurfs.Init( "Draw_Sub_UV", "Debug", this, 0, 0, 1, false );
+    m_DrawType.Init( "Draw_Type", "Draw", this, DRAW_XYZ, DRAW_XYZ, DRAW_TAGS );
+    m_DrawSubSurfs.Init( "Draw_Sub_UV", "Debug", this, 0, 0, 1 );
 }
 
 //==== Destructor =====//

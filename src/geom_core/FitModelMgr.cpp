@@ -344,16 +344,16 @@ xmlNodePtr TargetPt::UnwrapXml( xmlNodePtr & node )
 //==== Constructor ====//
 FitModelMgrSingleton::FitModelMgrSingleton()
 {
-    m_UType.Init( "U_Type", "FitModel", VehicleMgr.GetVehicle(), TargetPt::FREE, TargetPt::FIXED, TargetPt::FREE, false );
+    m_UType.Init( "U_Type", "FitModel", VehicleMgr.GetVehicle(), TargetPt::FREE, TargetPt::FIXED, TargetPt::FREE );
     m_UType.SetDescript( "Target U fixed or free" );
 
-    m_UTargetPt.Init( "U_TargetPt", "FitModel", VehicleMgr.GetVehicle(), 0, 0, 1, false );
+    m_UTargetPt.Init( "U_TargetPt", "FitModel", VehicleMgr.GetVehicle(), 0, 0, 1 );
     m_UTargetPt.SetDescript( "U Coordinate of Fixed Point" );
 
-    m_WType.Init( "W_Type", "FitModel", VehicleMgr.GetVehicle(), TargetPt::FREE, TargetPt::FIXED, TargetPt::FREE, false );
+    m_WType.Init( "W_Type", "FitModel", VehicleMgr.GetVehicle(), TargetPt::FREE, TargetPt::FIXED, TargetPt::FREE );
     m_WType.SetDescript( "Target W fixed or free" );
 
-    m_WTargetPt.Init( "W_TargetPt", "FitModel", VehicleMgr.GetVehicle(), 0, 0, 1, false );
+    m_WTargetPt.Init( "W_TargetPt", "FitModel", VehicleMgr.GetVehicle(), 0, 0, 1 );
     m_WTargetPt.SetDescript( "W Coordinate of Fixed Point" );
 
     m_DistMetric = 0;

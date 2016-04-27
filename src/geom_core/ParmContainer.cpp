@@ -581,7 +581,7 @@ string UserParmContainer::AddParm(int type, const string & name, const string & 
     Parm* p = ParmMgr.CreateParm( type );
     if ( p )
     {
-        p->Init( name, group, this, 0.0, -1.0e6, 1.0e6, true );
+        p->Init( name, group, this, 0.0, -1.0e6, 1.0e6 );
         p->SetDescript( "User Parm Descript" );
         m_UserParmVec.push_back( p );
         return p->GetID();

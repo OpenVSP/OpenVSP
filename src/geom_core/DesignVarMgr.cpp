@@ -71,7 +71,7 @@ bool DesignVarNameCompare( const DesignVar *dvA, const DesignVar *dvB )
 //==== Constructor ====//
 DesignVarMgrSingleton::DesignVarMgrSingleton()
 {
-    m_WorkingXDDMType.Init( "Working_XDDM_Type", "Design", VehicleMgr.GetVehicle(), vsp::XDDM_VAR, vsp::XDDM_VAR, vsp::XDDM_CONST, false );
+    m_WorkingXDDMType.Init( "Working_XDDM_Type", "Design", VehicleMgr.GetVehicle(), vsp::XDDM_VAR, vsp::XDDM_VAR, vsp::XDDM_CONST );
     Init();
 }
 

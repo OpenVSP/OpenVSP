@@ -582,10 +582,10 @@ TMesh* SSLineSeg::CreateTMesh()
 
 SSLine::SSLine( string comp_id, int type ) : SubSurface( comp_id, type )
 {
-    m_ConstType.Init( "Const_Line_Type", "SubSurface", this, CONST_U, 0, 1, false );
+    m_ConstType.Init( "Const_Line_Type", "SubSurface", this, CONST_U, 0, 1 );
     m_ConstVal.Init( "Const_Line_Value", "SubSurface", this, 0.5, 0, 1 );
     m_ConstVal.SetDescript( "Either the U or V value of the line depending on what constant line type is choosen." );
-    m_TestType.Init( "Test_Type", "SubSurface", this, SSLineSeg::GT, SSLineSeg::GT, SSLineSeg::LT, false );
+    m_TestType.Init( "Test_Type", "SubSurface", this, SSLineSeg::GT, SSLineSeg::GT, SSLineSeg::LT );
     m_TestType.SetDescript( "Tag surface as being either greater than or less than const value line" );
 
     m_LVec.push_back( SSLineSeg() );
@@ -841,31 +841,31 @@ void SSEllipse::Update()
 
 SSControlSurf::SSControlSurf( string compID, int type ) : SubSurface( compID, type )
 {
-    m_StartLenFrac.Init( "Length_C_Start", "SS_Control", this, 0.25, 0, 1, true );
+    m_StartLenFrac.Init( "Length_C_Start", "SS_Control", this, 0.25, 0, 1 );
     m_StartLenFrac.SetDescript( "Specifies control surface width as fraction of chord" );
 
-    m_EndLenFrac.Init( "Length_C_End", "SS_Control", this, 0.25, 0, 1, true );
+    m_EndLenFrac.Init( "Length_C_End", "SS_Control", this, 0.25, 0, 1 );
     m_EndLenFrac.SetDescript( "Specifies control surface width as fraction of chord" );
 
-    m_StartLength.Init( "Length_Start", "SS_Control", this, 1.0, 0, 1e12, true );
+    m_StartLength.Init( "Length_Start", "SS_Control", this, 1.0, 0, 1e12 );
     m_StartLength.SetDescript( "Control surface width." );
 
-    m_EndLength.Init( "Length_End", "SS_Control", this, 1.0, 0, 1e12, true );
+    m_EndLength.Init( "Length_End", "SS_Control", this, 1.0, 0, 1e12 );
     m_EndLength.SetDescript( "Control surface width." );
 
     m_AbsRelFlag.Init( "Abs_Rel_Flag", "SS_Control", this, vsp::REL, vsp::ABS, vsp::REL );
     m_AbsRelFlag.SetDescript( "Specify control surface with absolute or relative parameter." );
 
-    m_UStart.Init( "UStart", "SS_Control", this, 0.4, 0, 1, true );
+    m_UStart.Init( "UStart", "SS_Control", this, 0.4, 0, 1 );
     m_UStart.SetDescript( "The U starting location of the control surface" );
 
-    m_UEnd.Init( "UEnd", "SS_Control", this, 0.6, 0, 1, true );
+    m_UEnd.Init( "UEnd", "SS_Control", this, 0.6, 0, 1 );
     m_UEnd.SetDescript( "The U ending location of the control surface" );
 
     m_TestType.Init( "Test_Type", "SS_Control", this, vsp::INSIDE, vsp::INSIDE, vsp::OUTSIDE );
     m_TestType.SetDescript( "Determines whether or not the inside or outside of the region is tagged" );
 
-    m_SurfType.Init( "Surf_Type", "SS_Control", this, BOTH_SURF, UPPER_SURF, BOTH_SURF, false );
+    m_SurfType.Init( "Surf_Type", "SS_Control", this, BOTH_SURF, UPPER_SURF, BOTH_SURF );
     m_SurfType.SetDescript( "Flag to determine whether the control surface is on the upper,lower, or both surface(s) of the wing" );
 
     m_ConstFlag.Init( "SE_Const_Flag", "SS_Control", this, true, 0, 1 );

@@ -806,7 +806,7 @@ string CustomGeom::AddParm( int type, const string & name, const string & group 
 
     if ( p )
     {
-        p->Init( name, group, this, 0.0, -1.0e6, 1.0e6, true );
+        p->Init( name, group, this, 0.0, -1.0e6, 1.0e6 );
         p->SetDescript( "Custom Descript" );
         m_ParmVec.push_back( p );
         return p->GetID();

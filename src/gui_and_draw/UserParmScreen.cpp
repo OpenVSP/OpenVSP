@@ -23,9 +23,9 @@ UserParmScreen::UserParmScreen( ScreenMgr* mgr ) : TabScreen( mgr, 400, 550, "Us
     m_NameText = "Default_Name";
     m_GroupText = "Default_Group";
     m_DescText = "Default_Desc";
-    m_Val.Init( "Val", "", NULL, 0.0, -1.0e12, 1.0e12, false );
-    m_Min.Init( "Min", "", NULL, -1.0e5, -1.0e12, 1.0e12, false );
-    m_Max.Init( "Max", "", NULL,  1.0e5, -1.0e12, 1.0e12, false );
+    m_Val.Init( "Val", "", NULL, 0.0, -1.0e12, 1.0e12 );
+    m_Min.Init( "Min", "", NULL, -1.0e5, -1.0e12, 1.0e12 );
+    m_Max.Init( "Max", "", NULL,  1.0e5, -1.0e12, 1.0e12 );
  
     //==== Tabs And Groups ====//
     Fl_Group* predef_tab = AddTab( "Predef" );
