@@ -1250,8 +1250,8 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_
         }
 
         piecewise_curve_type c1, c2;
-        surf.get_uconst_curve( c1, umin );
-        surf.get_uconst_curve( c2, umax );
+        surf.get_umin_bndy_curve( c1 );
+        surf.get_umax_bndy_curve( c2 );
 
         if ( c1.abouteq( c2, tol ) )
         {
@@ -1260,8 +1260,8 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_
             continue;
         }
 
-        surf.get_vconst_curve( c1, vmin );
-        surf.get_vconst_curve( c2, vmax );
+        surf.get_vmin_bndy_curve( c1 );
+        surf.get_vmax_bndy_curve( c2 );
 
         if ( c1.abouteq( c2, tol ) )
         {
