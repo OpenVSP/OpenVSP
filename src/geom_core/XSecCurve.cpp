@@ -58,6 +58,16 @@ XSecCurve::XSecCurve()
     m_TECloseThickChord.Init( "TE_Close_Thick_Chord", "Close", this, 0, 0, 1e12 );
     m_TECloseThickChord.SetDescript( "T/C for trailing edge closure" );
 
+    m_LECloseType.Init( "LE_Close_Type", "Close", this, CLOSE_NONE, CLOSE_NONE, CLOSE_NUM_TYPES - 1 );
+
+    m_LECloseAbsRel.Init( "LE_Close_AbsRel", "Close", this, ABS, ABS, REL );
+
+    m_LECloseThick.Init( "LE_Close_Thick", "Close", this, 0, 0, 1e12 );
+    m_LECloseThick.SetDescript( "Thickness for leading edge closure" );
+
+    m_LECloseThickChord.Init( "LE_Close_Thick_Chord", "Close", this, 0, 0, 1e12 );
+    m_LECloseThickChord.SetDescript( "T/C for leading edge closure" );
+
 
     m_TETrimType.Init( "TE_Trim_Type", "Trim", this, TRIM_NONE, TRIM_NONE, TRIM_NUM_TYPES - 1 );
 
@@ -74,6 +84,32 @@ XSecCurve::XSecCurve()
 
     m_TETrimThickChord.Init( "TE_Trim_Thick_Chord", "Trim", this, 0, 0, 1e12 );
     m_TETrimThickChord.SetDescript( "T/C to trim trailing edge" );
+
+    m_LETrimType.Init( "LE_Trim_Type", "Trim", this, TRIM_NONE, TRIM_NONE, TRIM_NUM_TYPES - 1 );
+
+    m_LETrimAbsRel.Init( "LE_Trim_AbsRel", "Trim", this, ABS, ABS, REL );
+
+    m_LETrimX.Init( "LE_Trim_X", "Trim", this, 0, 0, 1e12 );
+    m_LETrimX.SetDescript( "X length to trim leading edge" );
+
+    m_LETrimXChord.Init( "LE_Trim_X_Chord", "Trim", this, 0, 0, 0.999 );
+    m_LETrimXChord.SetDescript( "X/C length to trim leading edge" );
+
+    m_LETrimThick.Init( "LE_Trim_Thick", "Trim", this, 0, 0, 1e12 );
+    m_LETrimThick.SetDescript( "Thickness to trim leading edge" );
+
+    m_LETrimThickChord.Init( "TE_Trim_Thick_Chord", "Trim", this, 0, 0, 1e12 );
+    m_LETrimThickChord.SetDescript( "T/C to trim trailing edge" );
+
+    m_TECapType.Init( "TE_Cap_Type", "Cap", this, FLAT_END_CAP, FLAT_END_CAP, NUM_END_CAP_OPTIONS - 1 );
+    m_TECapLength.Init( "TE_Cap_Length", "Cap", this, 1, 0, 20 );
+    m_TECapOffset.Init( "TE_Cap_Offset", "Cap", this, 0, -20, 20 );
+    m_TECapStrength.Init( "TE_Cap_Strength", "Cap", this, 0.5, 0, 1);
+
+    m_LECapType.Init( "LE_Cap_Type", "Cap", this, FLAT_END_CAP, FLAT_END_CAP, NUM_END_CAP_OPTIONS - 1 );
+    m_LECapLength.Init( "LE_Cap_Length", "Cap", this, 1, 0, 20 );
+    m_LECapOffset.Init( "LE_Cap_Offset", "Cap", this, 0, -20, 20 );
+    m_LECapStrength.Init( "LE_Cap_Strength", "Cap", this, 0.5, 0, 1);
 
     m_Theta.Init( "Theta", m_GroupName, this, 0, -180.0, 180.0 );
     m_Scale.Init( "Scale", m_GroupName, this, 1.0, 1e-12, 1e12 );
@@ -161,9 +197,15 @@ void XSecCurve::Update()
         }
     }
 
+    // Order of these curve modifiers matters.
     CloseTE( wingtype );
-
     TrimTE( wingtype );
+
+    CloseLE( wingtype );
+    TrimLE( wingtype );
+
+    CapTE( wingtype );
+    CapLE( wingtype );
 
     RotTransScale();
 
@@ -422,6 +464,142 @@ void XSecCurve::CloseTE( bool wingtype )
     }
 }
 
+void XSecCurve::CloseLE( bool wingtype )
+{
+    if ( m_Type ==  XS_POINT )
+    {
+        return;
+    }
+
+    if ( !wingtype )
+    {
+        return;
+    }
+
+    piecewise_curve_type crv = m_Curve.GetCurve();
+
+    double tmin, tmax, tmid;
+    tmin = crv.get_parameter_min();
+    tmax = crv.get_parameter_max();
+
+    double thick;
+
+    if ( m_LECloseAbsRel() == ABS )
+    {
+        thick = m_LECloseThick();
+    }
+    else
+    {
+        thick = m_LECloseThickChord() * GetWidth();
+    }
+
+    double tle = 2.0;
+
+    piecewise_curve_type c_up, c_low;
+    crv.split( c_low, c_up, tle );
+
+    if ( m_LECloseType() != CLOSE_NONE )
+    {
+        threed_point_type plow = crv.f( tmin );
+        threed_point_type pup = crv.f( tmax );
+        threed_point_type pte = ( plow + pup ) * 0.5;
+        threed_point_type ple = crv.f( tle );
+
+        double dx = pte[0] - ple[0];
+        double dy = thick;
+
+        piecewise_curve_type::rotation_matrix_type mat;
+        mat.setIdentity();
+
+        double slope = dy / dx;
+
+        if ( m_LECloseType() == CLOSE_SKEWBOTH )
+        {
+            slope *= 0.5;
+        }
+
+        if ( m_LECloseType() == CLOSE_SKEWLOW ||
+             m_LECloseType() == CLOSE_SKEWBOTH )
+        {
+            mat(1,0) = slope;
+            c_low.rotate( mat, pte );
+        }
+
+        slope = -slope;
+
+        if ( m_LECloseType() == CLOSE_SKEWUP  ||
+             m_LECloseType() == CLOSE_SKEWBOTH )
+        {
+            mat(1,0) = slope;
+            c_up.rotate( mat, pte );
+        }
+    }
+
+    piecewise_curve_type c_up_te, c_up_main, c_low_te, c_low_main;
+
+    c_low.split( c_low_te, c_low_main, TMAGIC );
+    c_up.split( c_up_main, c_up_te, tmax - TMAGIC );
+
+    c_low_main.scale_t( TMAGIC, tle - TMAGIC );
+    c_up_main.scale_t( tle + TMAGIC, tmax - TMAGIC );
+
+    threed_point_type p1 = c_low_main.f( tle - TMAGIC );
+    threed_point_type p3 = c_up_main.f( tle + TMAGIC );
+    threed_point_type p2 = ( p1 + p3 ) * 0.5;
+
+    double d = dist( p1, p3 );
+
+    // Connect LE points with straight blunt face.  Place corners at appropriate parameter.
+
+    piecewise_linear_creator_type plc( 2 );
+
+    plc.set_t0( tle - TMAGIC );
+    plc.set_segment_dt( TMAGIC, 0 );
+    plc.set_segment_dt( TMAGIC, 1 );
+    plc.set_corner( p1, 0 );
+    plc.set_corner( p2, 1 );
+    plc.set_corner( p3, 2 );
+
+    piecewise_curve_type cnew;
+
+    plc.create( cnew );
+
+    crv = c_low_te;
+    crv.push_back( c_low_main );
+    crv.push_back( cnew );
+    crv.push_back( c_up_main );
+    crv.push_back( c_up_te );
+
+    // Should be redundant, but just to be sure floating point error didn't accumulate.
+    crv.set_tmax( tmax );
+
+    m_Curve.SetCurve( crv );
+
+    double div = GetWidth();
+    if ( div == 0.0 )
+    {
+        div = 1.0;
+    }
+
+    if ( m_LECloseType() != CLOSE_NONE )
+    {
+
+        if ( m_LECloseAbsRel() == ABS )
+        {
+            m_LECloseThickChord.Set( d / div );
+        }
+        else
+        {
+            m_LECloseThick.Set( d );
+        }
+    }
+    else
+    {
+        m_LECloseThickChord.Set( d / div );
+        m_LECloseThick.Set( d );
+    }
+}
+
 //==== Modify Curve ====//
 void XSecCurve::TrimTE( bool wingtype )
 {
@@ -669,6 +847,286 @@ void XSecCurve::TrimTE( bool wingtype )
         m_TETrimThick.Set( ttrim );
         m_TETrimThickChord.Set( ttrim / div );
     }
+}
+
+//==== Modify Curve ====//
+void XSecCurve::TrimLE( bool wingtype )
+{
+    if ( m_Type == XS_POINT || !wingtype )
+    {
+        return;
+    }
+
+    double ttrim = 0.0;
+    double xtrim = 0.0;
+
+    piecewise_curve_type crv = m_Curve.GetCurve();
+
+    double tmin, tmax;
+    tmin = crv.get_parameter_min();
+    tmax = crv.get_parameter_max();
+
+
+    double umin, umax, umid, umidlow, umidup, delta;
+    umin = tmin + TMAGIC;
+    umax = tmax - TMAGIC;
+    umid = ( umin + umax ) * 0.5;
+
+    umidlow = umid - TMAGIC;
+    umidup = umid + TMAGIC;
+
+    double ts1 = umidlow;
+    double ts2 = umidup;
+
+    vec3d lelow = m_Curve.CompPnt( umidlow );
+    vec3d leup = m_Curve.CompPnt( umidup );
+    vec3d le = m_Curve.CompPnt( umid );
+
+    if ( m_LETrimType() != TRIM_NONE )
+    {
+        if ( m_LETrimType() == TRIM_X )
+        {
+            xtrim = m_LETrimX();
+
+            if ( m_LETrimAbsRel() == REL )
+            {
+                xtrim = m_LETrimXChord() * GetWidth();
+            }
+
+            // Use bisection solver with specified min/max parameters.
+            m_Curve.FindDistant( ts1, lelow, xtrim, umin, umidlow );
+            m_Curve.FindDistant( ts2, leup, xtrim, umidup, umax );
+        }
+        else if ( m_LETrimType() == TRIM_THICK )
+        {
+            ttrim = m_LETrimThick();
+
+            if ( m_LETrimAbsRel() == REL )
+            {
+                ttrim = m_LETrimThickChord() * GetWidth();
+            }
+
+            int ncache = 21;
+            vector< vec3d > ptcache( ncache );
+            vector< double > ucache( ncache );
+            vector< double > dcache( ncache );
+            vector< double > dupcache( ncache );
+            vector< double > dlowcache( ncache );
+
+            // Rough tessellation to find approximate trim locations.
+            m_Curve.TesselateNoCorner( ncache, umin, umax, ptcache, ucache );
+
+            // Find most distant point.
+            int isplit = -1;
+            double mindu = 2.0 * umax;
+            for ( int i = 0; i < ncache; i++ )
+            {
+                dcache[i] = dist( ptcache[i], le );
+                dupcache[i] = dist( ptcache[i], leup );
+                dlowcache[i] = dist( ptcache[i], lelow );
+
+                if ( std::abs( ucache[i] - umid ) < mindu )
+                {
+                    isplit = i;
+                    mindu = std::abs( ucache[i] - umid );
+                }
+            }
+
+            delta = ( umax - umin ) / ( ncache - 1 );
+
+            // Calculate approximate upper surface u parameter corresponding to lower points.
+            vector< double > uuppermatch( isplit + 1 );
+            vector< double > iupper( isplit + 1 );
+            vector< vec3d > xupper( isplit + 1 );
+            vector< double > thick( isplit + 1 );
+
+            for ( int i = 0; i <= isplit; i++ )
+            {
+                double dlow = dcache[i];
+
+                int j;
+                for ( j = isplit + 1; j < ncache; j++ )
+                {
+                    if ( dcache[j] >= dlow )
+                    {
+                        break;
+                    }
+                }
+
+                // Linearly interpolate to find  matching point.
+                double jmatch;
+                vec3d x;
+
+                double frac = ( dlow - dcache[j-1] ) / ( dcache[j] - dcache[j-1] );
+                jmatch = j - 1 + frac;
+                x = ptcache[j-1] + ( ptcache[j] - ptcache[j-1] ) * frac;
+
+                // Calculate properties at matching point.
+                iupper[i] = jmatch;
+                uuppermatch[i] = umin + delta * jmatch;
+                xupper[i] = x;
+                thick[i] = dist( xupper[i], ptcache[i] );
+            }
+
+            // Quick pass to find bounding thickness points.
+            bool bounded = false;
+            int i;
+            for ( i = isplit - 1; i >= 0; i-- )
+            {
+                if ( ( thick[ i ] < ttrim && thick[ i + 1 ] > ttrim ) || ( thick[ i ] > ttrim && thick[ i + 1 ] < ttrim ) )
+                {
+                    bounded = true;
+                    break;
+                }
+            }
+
+            if ( bounded )
+            {
+                double frac = ( ttrim - thick[ i ] ) / ( thick[ i + 1 ] - thick[ i ] );
+
+                double itarget = i + frac;
+
+                double ulower = umin + delta * itarget;
+                double uupper = uuppermatch[ i ] + frac * ( uuppermatch[ i + 1 ] - uuppermatch[ i ] );
+
+                m_Curve.FindThickness( ts1, ts2, le, ttrim, ulower, uupper );
+            }
+            else
+            {
+                ts1 = umidlow;
+                ts2 = umidup;
+            }
+        }
+
+        // Limit trimming to make sure something happens.
+        ts1 = max( ts1, umin );
+        ts2 = min( ts2, umax );
+
+        // Limit parameters to upper/lower surfaces.
+        ts1 = min( umidlow, ts1 );
+        ts2 = max( umidup, ts2 );
+
+        threed_point_type p1 = crv.f( ts1 );
+        threed_point_type p2 = crv.f( ts2 );
+
+        threed_point_type p3 = ( p1 + p2 ) / 2.0;
+
+        // Actually trim the airfoil curve.
+        piecewise_curve_type c1, c2, c3, c4;
+        piecewise_curve_type c_up, c_low, c_up_te, c_up_main, c_low_te, c_low_main, c_lecap;
+
+        crv.split( c_low, c_up, umid );
+
+        c_low.split( c_low_te, c_low_main, umin );
+        c_up.split( c_up_main, c_up_te, umax );
+
+        c_low_main.split( c1, c2, ts1 );
+        c_up_main.split( c3, c4, ts2 );
+
+        c1.scale_t( umin, umidlow );
+        c4.scale_t( umidup, umax );
+
+        piecewise_linear_creator_type plc( 2 );
+
+        plc.set_t0( umidlow );
+        plc.set_segment_dt( TMAGIC, 0 );
+        plc.set_segment_dt( TMAGIC, 1 );
+        plc.set_corner( p1, 0 );
+        plc.set_corner( p3, 1 );
+        plc.set_corner( p2, 2 );
+
+
+        plc.create( c_lecap );
+
+        crv = c_low_te;
+        crv.push_back( c1 );
+        crv.push_back( c_lecap );
+        crv.push_back( c4 );
+        crv.push_back( c_up_te );
+
+        // Should be redundant, but just to be sure floating point error didn't accumulate.
+        crv.set_tmax( tmax );
+
+        m_Curve.SetCurve( crv );
+    }
+
+    vec3d cornerlow = m_Curve.CompPnt( umidlow );
+    vec3d cornerup = m_Curve.CompPnt( umidup );
+
+    ttrim = dist( cornerlow, cornerup );
+    xtrim = dist( cornerlow, lelow );
+
+    double div = GetWidth();
+    if ( div == 0.0 )
+    {
+        div = 1.0;
+    }
+
+    // Set non-driving parameters to match current state.
+    if ( m_LETrimType() == TRIM_NONE )
+    {
+        m_LETrimX.Set( xtrim );
+        m_LETrimXChord.Set( xtrim / div );
+        m_LETrimThick.Set( ttrim );
+        m_LETrimThickChord.Set( ttrim / div );
+    }
+    else if ( m_LETrimType() == TRIM_THICK )
+    {
+        m_LETrimX.Set( xtrim );
+        m_LETrimXChord.Set( xtrim / div );
+
+        if ( m_LETrimAbsRel() == ABS )
+        {
+            m_LETrimThickChord.Set( ttrim / div );
+        }
+        else
+        {
+            m_LETrimThick.Set( ttrim );
+        }
+    }
+    else if ( m_LETrimType() == TRIM_X )
+    {
+        if ( m_LETrimAbsRel() == ABS )
+        {
+            m_LETrimXChord.Set( xtrim / div );
+        }
+        else
+        {
+            m_LETrimX.Set( xtrim );
+        }
+        m_LETrimThick.Set( ttrim );
+        m_LETrimThickChord.Set( ttrim / div );
+    }
+}
+
+void XSecCurve::CapTE( bool wingtype )
+{
+    if ( m_Type ==  XS_POINT )
+    {
+        return;
+    }
+
+    if ( !wingtype )
+    {
+        return;
+    }
+
+    m_Curve.Modify( m_TECapType(), false, m_TECapLength(), m_TECapOffset(), m_TECapStrength() );
+}
+
+void XSecCurve::CapLE( bool wingtype )
+{
+    if ( m_Type ==  XS_POINT )
+    {
+        return;
+    }
+
+    if ( !wingtype )
+    {
+        return;
+    }
+
+    m_Curve.Modify( m_LECapType(), true, m_LECapLength(), m_LECapOffset(), m_LECapStrength() );
 }
 
 void XSecCurve::RotTransScale()
