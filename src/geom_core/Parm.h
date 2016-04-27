@@ -147,15 +147,6 @@ public:
         return m_LinkedFlag;
     }
 
-    virtual void SetLinkableFlag( bool flag )
-    {
-        m_LinkableFlag = flag;
-    }
-    virtual bool IsLinkable()
-    {
-        return m_LinkableFlag;
-    }
-
     virtual void SetLinkUpdateFlag( bool flag )
     {
         m_LinkUpdateFlag = flag;

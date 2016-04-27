@@ -422,7 +422,7 @@ void ParmContainer::AddLinkableParms( vector< string > & linkable_parm_vec, cons
     {
         Parm* p = ParmMgr.FindParm( m_ParmVec[i] );
 
-        if ( p && p->IsLinkable() )
+        if ( p )
         {
             if ( link_container_id.size() )
             {

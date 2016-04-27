@@ -37,7 +37,6 @@ Parm::Parm()
     m_UpperLimit =  1.0e16;
     m_LowerLimit = -1.0e16;
     m_ActiveFlag = true;
-    m_LinkableFlag = true;
     m_LinkedFlag = false;
     m_LinkUpdateFlag = false;
     m_ChangeCnt = 0;
@@ -64,7 +63,6 @@ void Parm::Init( const string& name, const string& group_name, ParmContainer* co
     m_Name = name;
     m_GroupName = group_name;
     m_Container = con;
-    m_LinkableFlag = linkable;
 
     if ( m_Container )
     {
