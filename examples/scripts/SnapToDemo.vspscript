@@ -1,0 +1,17 @@
+void main()
+{
+    string fid = AddGeom( "FUSELAGE", "" );             // Add Fuselage
+    string pid = AddGeom( "POD", "" );                     // Add Pod
+    string x = GetParm( pid, "X_Rel_Location", "XForm" );
+    SetParmVal( x, 3.0 );
+    Update();
+
+    double min_dist = ComputeMinClearanceDistance( pid, SET_ALL );
+
+    Print( "Min Dist = ", false );
+    Print( min_dist );
+
+    min_dist = SnapParm( x, 0.1, true, SET_ALL );
+    Print( "Min Dist = ", false );
+    Print( min_dist );
+}

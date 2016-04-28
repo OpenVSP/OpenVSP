@@ -207,6 +207,9 @@ extern string GetContainerName( const string & parm_container_id );
 extern std::vector< std::string > FindContainerGroupNames( const string & parm_container_id );
 extern std::vector< std::string > FindContainerParmIDs( const string & parm_container_id );
 
+//======================== Snap To Functions ======================//
+extern double ComputeMinClearanceDistance( const string & geom_id, int set  = SET_ALL );
+extern double SnapParm( const string & parm_id, double target_min_dist, bool inc_flag, int set = SET_ALL );
 
 }           // End vsp namespace
 

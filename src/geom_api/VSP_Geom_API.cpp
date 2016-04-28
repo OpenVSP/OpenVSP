@@ -2782,5 +2782,50 @@ vector< string > FindContainerParmIDs( const string & parm_container_id )
     return parm_vec;
 }
 
+
+//===================================================================//
+//===============           Snap To Functions          ==============//
+//===================================================================//
+double ComputeMinClearanceDistance( const string & geom_id, int set )
+{
+    Vehicle* veh = GetVehicle();
+
+    int old_set = veh->GetSnapToPtr()->m_CollisionSet;
+    veh->GetSnapToPtr()->m_CollisionSet = set;
+
+    vector< string > old_active_geom = veh->GetActiveGeomVec();
+    veh->SetActiveGeom( geom_id );
+
+    veh->GetSnapToPtr()->CheckClearance();
+    double min_clearance_dist = veh->GetSnapToPtr()->m_CollisionMinDist;
+
+    //==== Restore State ====//
+    veh->GetSnapToPtr()->m_CollisionSet = old_set;
+    veh->SetActiveGeomVec( old_active_geom );
+
+    return min_clearance_dist;
+}
+
+double SnapParm( const string & parm_id, double target_min_dist, bool inc_flag, int set  )
+{
+    Vehicle* veh = GetVehicle();
+
+    int old_set = veh->GetSnapToPtr()->m_CollisionSet;
+    veh->GetSnapToPtr()->m_CollisionSet = set;
+
+    double old_min_dist = veh->GetSnapToPtr()->m_CollisionTargetDist();
+    veh->GetSnapToPtr()->m_CollisionTargetDist = target_min_dist;
+
+    veh->GetSnapToPtr()->AdjParmToMinDist( parm_id, inc_flag );
+    double min_clearance_dist = veh->GetSnapToPtr()->m_CollisionMinDist;
+
+    //==== Restore State ====//
+    veh->GetSnapToPtr()->m_CollisionSet = old_set;
+    veh->GetSnapToPtr()->m_CollisionTargetDist = old_min_dist;
+
+    return min_clearance_dist;
+}
+
+
 //============================================================================//
 }   // vsp namespace

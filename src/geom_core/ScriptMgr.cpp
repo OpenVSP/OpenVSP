@@ -1451,6 +1451,13 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "array<string>@  FindContainerParmIDs( const string & in parm_container_id )", asMETHOD( ScriptMgrSingleton, FindContainerParmIDs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
+    //=== Register Snap To Functions ====//
+    r = se->RegisterGlobalFunction( "double ComputeMinClearanceDistance( const string & in geom_id, int set )", asFUNCTION( vsp::ComputeMinClearanceDistance ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "double SnapParm( const string & in parm_id, double target_min_dist, bool inc_flag, int set  )", asFUNCTION( vsp::SnapParm ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
 }
 
 void ScriptMgrSingleton::RegisterUtility( asIScriptEngine* se )
