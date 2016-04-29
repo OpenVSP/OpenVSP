@@ -63,5 +63,3 @@ XferSurf.h
 ADD_DEPENDENCIES( util
 STEPCODE
 )
-
-set_target_properties( util PROPERTIES COMPILE_FLAGS "-fPIC")

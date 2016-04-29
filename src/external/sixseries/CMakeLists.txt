@@ -10,5 +10,3 @@ s_copy.c
 s_stop.c
 f2c.h
 )
-
-set_target_properties( sixseries PROPERTIES COMPILE_FLAGS "-fPIC")

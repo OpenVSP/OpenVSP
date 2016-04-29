@@ -9,8 +9,6 @@ triangle.c
 triangle.h
 )
 
-set_target_properties( triangle PROPERTIES COMPILE_FLAGS "-fPIC")
-
 # set MS Visual Compiler flags
 IF(WIN32)
   SET_TARGET_PROPERTIES( triangle PROPERTIES COMPILE_FLAGS "-fp:strict")

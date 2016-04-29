@@ -11,5 +11,3 @@ intersect_triangle.cpp
 Tritri.cpp
 Tritri.h
 )
-
-set_target_properties( tritri PROPERTIES COMPILE_FLAGS "-fPIC")

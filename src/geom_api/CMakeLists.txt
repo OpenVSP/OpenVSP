@@ -29,8 +29,6 @@ GuiInterface.h
 VSP_Geom_API.h
 )
 
-set_target_properties( geom_api PROPERTIES COMPILE_FLAGS "-fPIC")
-
 ADD_DEPENDENCIES( geom_api
 util
 )
@@ -51,7 +49,7 @@ IF( NOT VSP_NO_GRAPHICS )
 	util
 	)
 
-set_target_properties( geom_api_g PROPERTIES COMPILE_FLAGS "-DVSP_USE_FLTK=1 -fPIC")
+	set_target_properties( geom_api_g PROPERTIES COMPILE_FLAGS "-DVSP_USE_FLTK=1")
 
 	ADD_LIBRARY( gui_interface_g
 	GuiInterface.cpp
@@ -63,5 +61,5 @@ set_target_properties( geom_api_g PROPERTIES COMPILE_FLAGS "-DVSP_USE_FLTK=1 -fP
 	util
 	)
 
-set_target_properties( gui_interface_g PROPERTIES COMPILE_FLAGS "-DVSP_USE_FLTK=1 -fPIC")
+	set_target_properties( gui_interface_g PROPERTIES COMPILE_FLAGS "-DVSP_USE_FLTK=1")
 ENDIF()

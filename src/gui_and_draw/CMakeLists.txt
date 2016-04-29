@@ -130,9 +130,6 @@ VSPWindow.h
 WingScreen.h
 )
 
-SET(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
-
 ADD_DEPENDENCIES(gui_and_draw
 geom_core
 vsp_graphic
