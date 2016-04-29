@@ -21,7 +21,6 @@ INCLUDE_DIRECTORIES(
     ${STEPCODE_INCLUDE_DIR}
     ${LIBIGES_INCLUDE_DIR}
     ${GUI_AND_DRAW_INCLUDE_DIR}
-    /usr/local/include
 )
 
 ADD_LIBRARY(gui_and_draw
