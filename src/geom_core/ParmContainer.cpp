@@ -294,8 +294,13 @@ string ParmContainer::FindParm( const string& parm_name, const string& group_nam
         for ( int i = 0 ; i < (int)pid_vec.size() ; i++ )
         {
             Parm* p = ParmMgr.FindParm( pid_vec[i] );
-            if ( p->GetName() == parm_name )
-                return pid_vec[i];
+            if ( p )
+            {
+                if ( p->GetName() == parm_name )
+                {
+                    return pid_vec[i];
+                }
+            }
         }
     }
 
