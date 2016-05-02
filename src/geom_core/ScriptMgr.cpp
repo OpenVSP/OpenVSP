@@ -40,7 +40,7 @@ void MessageCallback( const asSMessageInfo *msg, void *param )
     }
     sprintf( str, "%s (%d, %d) : %s : %s\n", msg->section, msg->row, msg->col, type, msg->message );
     ScriptMgr.AddToMessages( str );
-    printf( str );
+    printf( "%s", str );
 }
 
 //==================================================================================================//
