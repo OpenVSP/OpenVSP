@@ -188,6 +188,23 @@ void main()
     PrintResults( ridmp );
     DeleteGeomVec( GetStringResults( ridmp, "Mesh_GeomID" ) );
 
+    // PlanarSlice
+    array<vec3d> norm = GetVec3dAnalysisInput( "PlanarSlice", "Norm" );
+    norm[0].set_xyz( 0.23, 0.6, 0.15 );
+    SetVec3dAnalysisInput( "PlanarSlice", "Norm", norm );
+
+    array<int> abnd = GetIntAnalysisInput( "PlanarSlice", "AutoBoundFlag" );
+    abnd[0] = 0;
+    SetIntAnalysisInput( "PlanarSlice", "AutoBoundFlag", abnd );
+
+    array<double> send = GetDoubleAnalysisInput( "PlanarSlice", "EndVal" );
+    send[0] = 5;
+    SetDoubleAnalysisInput( "PlanarSlice", "EndVal", send );
+
+    string ridslice = ExecAnalysis( "PlanarSlice" );
+    PrintResults( ridslice );
+
+
     //==== Check For API Errors ====//
     while ( GetNumTotalErrors() > 0 )
     {

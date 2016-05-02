@@ -328,6 +328,11 @@ void AnalysisMgrSingleton::RegisterBuiltins()
     MassPropAnalysis *mpa = new MassPropAnalysis();
 
     RegisterAnalysis( "MassProp", mpa );
+
+
+    PlanarSliceAnalysis *psa = new PlanarSliceAnalysis();
+
+    RegisterAnalysis( "PlanarSlice", psa );
 }
 
 //======================================================================================//
@@ -445,6 +450,89 @@ string MassPropAnalysis::Execute()
         string geom = veh->MassPropsAndFlatten( geomSet, numMassSlice );
 
         res = ResultsMgr.FindLatestResultsID( "Mass_Properties" );
+    }
+
+    return res;
+}
+
+//======================================================================================//
+//======================================================================================//
+//======================================================================================//
+
+void PlanarSliceAnalysis::SetDefaults()
+{
+    m_Inputs.Clear();
+    m_Inputs.Add( NameValData( "Set", 0 ) );
+    m_Inputs.Add( NameValData( "NumSlices", 10 ) );
+    m_Inputs.Add( NameValData( "Norm", vec3d( 1.0, 0.0, 0.0 ) ) );
+    m_Inputs.Add( NameValData( "AutoBoundFlag", 1 ) );
+    m_Inputs.Add( NameValData( "StartVal", 0.0 ) );
+    m_Inputs.Add( NameValData( "EndVal", 10.0 ) );
+}
+
+string PlanarSliceAnalysis::Execute()
+{
+    string res;
+
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        int geomSet;
+        int numSlice;
+        vec3d axis;
+        bool autobnd = true;
+        double start, end;
+
+        NameValData *nvd = NULL;
+
+        nvd = m_Inputs.FindPtr( "Set", 0 );
+        if ( nvd )
+        {
+            geomSet = nvd->GetInt( 0 );
+        }
+
+        nvd = m_Inputs.FindPtr( "NumSlices", 0 );
+        if ( nvd )
+        {
+            numSlice = nvd->GetInt( 0 );
+        }
+
+        nvd = m_Inputs.FindPtr( "Norm", 0 );
+        if ( nvd )
+        {
+            axis = nvd->GetVec3d( 0 );
+        }
+
+        nvd = m_Inputs.FindPtr( "AutoBoundFlag", 0 );
+        if ( nvd )
+        {
+            int ab = nvd->GetInt( 0 );
+            if ( ab == 1 )
+            {
+                autobnd = true;
+            }
+            else
+            {
+                autobnd = false;
+            }
+        }
+
+        nvd = m_Inputs.FindPtr( "StartVal", 0 );
+        if ( nvd )
+        {
+            start = nvd->GetDouble( 0 );
+        }
+
+        nvd = m_Inputs.FindPtr( "EndVal", 0 );
+        if ( nvd )
+        {
+            end = nvd->GetDouble( 0 );
+        }
+
+        string geom = veh->PSliceAndFlatten( geomSet, numSlice,  axis,  autobnd,  start,  end  );
+
+        res = ResultsMgr.FindLatestResultsID( "Slice" );
     }
 
     return res;
