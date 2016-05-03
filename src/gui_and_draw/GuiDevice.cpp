@@ -65,8 +65,6 @@ Vsp_Group::Vsp_Group( int x, int y, int w, int h ) : Fl_Group( x, y, w, h )
 
 int Vsp_Group::handle(int event)
 {
-    int ret = Fl_Group::handle(event);
-
     if( m_AllowDrop )
     {
         switch ( event )
@@ -74,18 +72,19 @@ int Vsp_Group::handle(int event)
         case FL_DND_ENTER:
         case FL_DND_DRAG:
         case FL_DND_RELEASE:
-            ret = 1;
+            return 1;
             break;
         case FL_PASTE:
             if( callback() )
             {
                 do_callback();
             }
-            ret = 1;
+            return 1;
             break;
         }
     }
-    return ret;
+
+    return Fl_Group::handle(event);
 }
 
 //=====================================================================//
