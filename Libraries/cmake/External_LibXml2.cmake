@@ -44,6 +44,7 @@ else()
 		--without-python
 		--without-iconv
 		--without-zlib
+		--without-lzma
 		--disable-shared
   )
   set(libxml2_build_command "")
