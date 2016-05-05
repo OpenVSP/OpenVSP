@@ -208,6 +208,11 @@ void CfdMeshScreen::CreateOutputTab()
     m_OutputTabLayout.AddOutput(m_SrfOutput);
     m_OutputTabLayout.AddButton(m_SelectSrfFile, "...");
     m_OutputTabLayout.ForceNewLine();
+
+    m_OutputTabLayout.SetFitWidthFlag( true );
+    m_OutputTabLayout.AddButton( m_XYZIntCurves, "Include X,Y,Z Intersection Curves");
+    m_OutputTabLayout.SetFitWidthFlag( false );
+    m_OutputTabLayout.ForceNewLine();
     m_OutputTabLayout.AddYGap();
 
     m_OutputTabLayout.SetFitWidthFlag( true );
@@ -633,6 +638,7 @@ void CfdMeshScreen::UpdateOutputTab()
     m_DatFile.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_DAT_FILE_NAME )->GetID() );
     m_KeyFile.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_KEY_FILE_NAME )->GetID() );
     m_SrfFile.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_SRF_FILE_NAME )->GetID() );
+    m_XYZIntCurves.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_XYZIntCurveFlag.GetID() );
     m_TkeyFile.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_TKEY_FILE_NAME)->GetID() );
 }
 

@@ -530,6 +530,8 @@ void SetCFDMeshVal( int type, double val )
         CfdMeshMgr.GetCfdSettingsPtr()->m_WakeScale = val;
     else if ( type == CFD_WAKE_ANGLE )
         CfdMeshMgr.GetCfdSettingsPtr()->m_WakeAngle = val;
+    else if ( type == CFD_SRF_XYZ_FLAG )
+        CfdMeshMgr.GetCfdSettingsPtr()->m_XYZIntCurveFlag = ToBool(val);
     else
     {
         ErrorMgr.AddError( VSP_CANT_FIND_TYPE, "SetCFDMeshVal::Can't Find Type " + to_string( ( long long )type ) );

@@ -2084,15 +2084,36 @@ void CfdMeshMgrSingleton::WriteSurfsIntCurves( const string &filename )
                 ipntVec.push_back( border_curves[i]->m_ISegDeque[j]->m_IPnt[0] );
             }
             ipntVec.push_back( border_curves[i]->m_ISegDeque.back()->m_IPnt[1] );
-            fprintf( fp, "%d		// Number of Border Points (Au, Aw, Bu, Bw) \n", ( int )ipntVec.size() );
+
+            if ( ! GetCfdSettingsPtr()->m_XYZIntCurveFlag() )
+            {
+                fprintf( fp, "%d		// Number of Border Points (Au, Aw, Bu, Bw) \n", ( int )ipntVec.size() );
+            }
+            else
+            {
+                fprintf( fp, "%d		// Number of Border Points (Au, Aw, Bu, Bw, X, Y, Z) \n", ( int )ipntVec.size() );
+            }
 
             for ( int j = 0 ; j < ( int )ipntVec.size() ; j++ )
             {
                 Puw* pwA = ipntVec[j]->GetPuw( surfA );
                 Puw* pwB = ipntVec[j]->GetPuw( surfB );
-                fprintf( fp, "%d	%16.16lf, %16.16lf, %16.16lf, %16.16lf \n", j,
-                         pwA->m_UW.x(), pwA->m_UW.y(), pwB->m_UW.x(), pwB->m_UW.y() );
 
+                if ( ! GetCfdSettingsPtr()->m_XYZIntCurveFlag() )
+                {
+                    fprintf( fp, "%d    %16.16lf, %16.16lf, %16.16lf, %16.16lf \n", j,
+                             pwA->m_UW.x(), pwA->m_UW.y(), pwB->m_UW.x(), pwB->m_UW.y() );
+                }
+                else
+                {
+                    vec3d pA = surfA->CompPnt( pwA->m_UW.x(), pwA->m_UW.y() );
+                    vec3d pB = surfB->CompPnt( pwB->m_UW.x(), pwB->m_UW.y() );
+                    vec3d p = ( pA + pB ) * 0.5;
+
+                    fprintf( fp, "%d    %16.16lf, %16.16lf, %16.16lf, %16.16lf, %16.16lf, %16.16lf, %16.16lf \n", j,
+                             pwA->m_UW.x(), pwA->m_UW.y(), pwB->m_UW.x(), pwB->m_UW.y(),
+                             p.x(), p.y(), p.z() );
+                }
             }
             fprintf( fp, "END Border_Curve\n" );
         }
@@ -2120,15 +2141,36 @@ void CfdMeshMgrSingleton::WriteSurfsIntCurves( const string &filename )
                 ipntVec.push_back( intersect_curves[i]->m_ISegDeque[j]->m_IPnt[0] );
             }
             ipntVec.push_back( intersect_curves[i]->m_ISegDeque.back()->m_IPnt[1] );
-            fprintf( fp, "%d		// Number of Intersect Points (Au, Aw, Bu, Bw) \n", ( int )ipntVec.size() );
+
+            if ( ! GetCfdSettingsPtr()->m_XYZIntCurveFlag() )
+            {
+                fprintf( fp, "%d		// Number of Intersect Points (Au, Aw, Bu, Bw) \n", ( int )ipntVec.size() );
+            }
+            else
+            {
+                fprintf( fp, "%d		// Number of Intersect Points (Au, Aw, Bu, Bw, X, Y, Z) \n", ( int )ipntVec.size() );
+            }
 
             for ( int j = 0 ; j < ( int )ipntVec.size() ; j++ )
             {
                 Puw* pwA = ipntVec[j]->GetPuw( surfA );
                 Puw* pwB = ipntVec[j]->GetPuw( surfB );
-                fprintf( fp, "%d	%16.16lf, %16.16lf, %16.16lf, %16.16lf \n", j,
-                         pwA->m_UW.x(), pwA->m_UW.y(), pwB->m_UW.x(), pwB->m_UW.y() );
 
+                if ( ! GetCfdSettingsPtr()->m_XYZIntCurveFlag() )
+                {
+                    fprintf( fp, "%d    %16.16lf, %16.16lf, %16.16lf, %16.16lf \n", j,
+                             pwA->m_UW.x(), pwA->m_UW.y(), pwB->m_UW.x(), pwB->m_UW.y() );
+                }
+                else
+                {
+                    vec3d pA = surfA->CompPnt( pwA->m_UW.x(), pwA->m_UW.y() );
+                    vec3d pB = surfB->CompPnt( pwB->m_UW.x(), pwB->m_UW.y() );
+                    vec3d p = ( pA + pB ) * 0.5;
+
+                    fprintf( fp, "%d    %16.16lf, %16.16lf, %16.16lf, %16.16lf, %16.16lf, %16.16lf, %16.16lf \n", j,
+                             pwA->m_UW.x(), pwA->m_UW.y(), pwB->m_UW.x(), pwB->m_UW.y(),
+                             p.x(), p.y(), p.z() );
+                }
             }
             fprintf( fp, "END Intersect_Curve\n" );
         }

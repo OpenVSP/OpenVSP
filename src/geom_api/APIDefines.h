@@ -212,6 +212,7 @@ enum CFD_CONTROL_TYPE {     CFD_MIN_EDGE_LEN,
                             CFD_FAR_LOC_Z,
                             CFD_WAKE_SCALE,
                             CFD_WAKE_ANGLE,
+                            CFD_SRF_XYZ_FLAG,
 };
 
 enum CFD_MESH_SOURCE_TYPE { POINT_SOURCE,
