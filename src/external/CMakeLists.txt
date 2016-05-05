@@ -57,23 +57,23 @@ INCLUDE( External_STEPCode )
 
 IF(NOT WIN32)
 	set( STEPCODE_LIBRARIES
-	${STEPCODE_INSTALL_DIR}/lib/libbase.a
-	${STEPCODE_INSTALL_DIR}/lib/libstepcore.a
+	${STEPCODE_INSTALL_DIR}/lib/libsdai_ap203.a
 	${STEPCODE_INSTALL_DIR}/lib/libstepeditor.a
+	${STEPCODE_INSTALL_DIR}/lib/libstepcore.a
 	${STEPCODE_INSTALL_DIR}/lib/libstepdai.a
 	${STEPCODE_INSTALL_DIR}/lib/libsteputils.a
-	${STEPCODE_INSTALL_DIR}/lib/libsdai_ap203.a
+	${STEPCODE_INSTALL_DIR}/lib/libbase.a
 	PARENT_SCOPE )
 ELSE()
 	set( STEPCODE_LIBRARIES
-	${STEPCODE_INSTALL_DIR}/lib/libbase.lib
-	${STEPCODE_INSTALL_DIR}/lib/libstepcore.lib
-	${STEPCODE_INSTALL_DIR}/lib/libstepeditor.lib
-	${STEPCODE_INSTALL_DIR}/lib/libstepdai.lib
-	${STEPCODE_INSTALL_DIR}/lib/libsteputils.lib
-	${STEPCODE_INSTALL_DIR}/lib/libsdai_ap203.lib
 	${STEPCODE_INSTALL_DIR}/lib/libexpress.lib
 	${STEPCODE_INSTALL_DIR}/lib/libexppp.lib
+	${STEPCODE_INSTALL_DIR}/lib/libsdai_ap203.lib
+	${STEPCODE_INSTALL_DIR}/lib/libstepeditor.lib
+	${STEPCODE_INSTALL_DIR}/lib/libstepcore.lib
+	${STEPCODE_INSTALL_DIR}/lib/libstepdai.lib
+	${STEPCODE_INSTALL_DIR}/lib/libsteputils.lib
+	${STEPCODE_INSTALL_DIR}/lib/libbase.lib
 	shlwapi.lib
 	PARENT_SCOPE )
 ENDIF()
