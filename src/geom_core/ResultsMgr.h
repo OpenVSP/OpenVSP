@@ -11,7 +11,7 @@
 #if !defined(RESULTSMGR__INCLUDED_)
 #define RESULTSMGR__INCLUDED_
 
-#include "vec3d.h"
+#include "Vec3d.h"
 
 #include <map>
 #include <list>
