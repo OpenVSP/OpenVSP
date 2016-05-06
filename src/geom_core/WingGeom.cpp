@@ -1834,7 +1834,11 @@ void WingGeom::ReadV2File( xmlNodePtr &root )
         m_RelativeDihedralFlag = XmlUtil::FindInt( node, "Rel_Dihedral_Flag", m_RelativeDihedralFlag() )!= 0;
         m_RelativeTwistFlag = XmlUtil::FindInt( node, "Rel_Twist_Flag", m_RelativeTwistFlag() )!= 0;
 
-//        int round_end_cap_flag = XmlUtil::FindInt( node, "Round_End_Cap_Flag", round_end_cap_flag )!= 0;
+        int round_end_cap_flag = XmlUtil::FindInt( node, "Round_End_Cap_Flag", round_end_cap_flag )!= 0;
+        if ( round_end_cap_flag )
+        {
+            m_CapUMaxOption = ROUND_END_CAP;
+        }
     }
 
     //==== Read Airfoils ====//
