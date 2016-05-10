@@ -485,6 +485,10 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "XSEC_TYPE", "XSEC_STACK", XSEC_STACK );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "XSEC_TYPE", "XSEC_WING", XSEC_WING );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "XSEC_TYPE", "XSEC_CUSTOM", XSEC_CUSTOM );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "XSEC_TYPE", "XSEC_NUM_TYPES", XSEC_NUM_TYPES );
     assert( r >= 0 );
 
