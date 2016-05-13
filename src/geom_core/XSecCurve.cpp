@@ -1753,8 +1753,6 @@ void FileXSec::Update()
 
     m_Curve.InterpolatePCHIP( scaled_file_pnts, arclen, true );
 
-    m_Curve.ToBinaryCubic();
-
     XSecCurve::Update();
 }
 

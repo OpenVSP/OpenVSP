@@ -201,8 +201,6 @@ void FourSeries::Update()
         arclen[npts-1] = 4.0;
 
         m_Curve.InterpolatePCHIP( pnts, arclen, false );
-
-        m_Curve.ToBinaryCubic();
     }
 
     Airfoil::Update();
@@ -336,8 +334,6 @@ void SixSeries::Update()
 
     m_Curve.InterpolatePCHIP( pnts, arclen, false );
 
-    m_Curve.ToBinaryCubic();
-
     Airfoil::Update();
 }
 
@@ -464,8 +460,6 @@ void Biconvex::Update()
 
     m_Curve.Append( upcrv );
 
-    m_Curve.ToBinaryCubic();
-
     Airfoil::Update();
 }
 
@@ -582,8 +576,6 @@ void FileAirfoil::Update()
     }
 
     m_Curve.InterpolatePCHIP( pnts, arclen, false );
-
-    m_Curve.ToBinaryCubic();
 
     Airfoil::Update();
 }
@@ -1024,8 +1016,6 @@ void CSTAirfoil::Update()
         arclen[npts-1] = 4.0;
 
         m_Curve.InterpolatePCHIP( pnts, arclen, false );
-
-        m_Curve.ToBinaryCubic();
     }
 
     Airfoil::Update();
