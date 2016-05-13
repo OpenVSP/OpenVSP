@@ -1646,7 +1646,7 @@ FuseXSec::FuseXSec( XSecCurve *xsc ) : SkinXSec( xsc)
     m_YRotate.Init( "YRotate", m_GroupName, this,  0.0, -180.0, 180.0 );
     m_YRotate.SetDescript( "Rotation about y-axis of cross section" );
     m_ZRotate.Init( "ZRotate", m_GroupName, this,  0.0, -180.0, 180.0 );
-    m_YRotate.SetDescript( "Rotation about z-axis of cross section" );
+    m_ZRotate.SetDescript( "Rotation about z-axis of cross section" );
 
     m_Spin.Init( "Spin", m_GroupName, this, 0.0, -180.0, 180.0 );
 
@@ -1873,7 +1873,7 @@ StackXSec::StackXSec( XSecCurve *xsc ) : SkinXSec( xsc)
     m_YRotate.Init( "YRotate", m_GroupName, this,  0.0, -180.0, 180.0 );
     m_YRotate.SetDescript( "Rotation about y-axis of cross section" );
     m_ZRotate.Init( "ZRotate", m_GroupName, this,  0.0, -180.0, 180.0 );
-    m_YRotate.SetDescript( "Rotation about z-axis of cross section" );
+    m_ZRotate.SetDescript( "Rotation about z-axis of cross section" );
 
     m_XCenterRot.Init( "m_XCenterRot", m_GroupName, this,  0.0, -1.0e12, 1.0e12 );
     m_XCenterRot.SetDescript( "X Center Of Rotation" );
