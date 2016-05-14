@@ -1192,51 +1192,57 @@ bool WingScreen::Update()
 
             m_TECapChoice.Update( xsc->m_TECapType.GetID() );
 
+            m_TECapLengthSlider.Update( xsc->m_TECapLength.GetID() );
+            m_TECapOffsetSlider.Update( xsc->m_TECapOffset.GetID() );
+            m_TECapStrengthSlider.Update( xsc->m_TECapStrength.GetID() );
+
+            m_TECapLengthSlider.Deactivate();
+            m_TECapOffsetSlider.Deactivate();
+            m_TECapStrengthSlider.Deactivate();
+
             switch( xsc->m_TECapType() ){
                 case FLAT_END_CAP:
-                    m_TECapLengthSlider.Deactivate();
-                    m_TECapOffsetSlider.Deactivate();
-                    m_TECapStrengthSlider.Deactivate();
                     break;
                 case ROUND_END_CAP:
-                    m_TECapLengthSlider.Update( xsc->m_TECapLength.GetID() );
-                    m_TECapOffsetSlider.Update( xsc->m_TECapOffset.GetID() );
-                    m_TECapStrengthSlider.Deactivate();
+                    m_TECapLengthSlider.Activate();
+                    m_TECapOffsetSlider.Activate();
                     break;
                 case EDGE_END_CAP:
-                    m_TECapLengthSlider.Update( xsc->m_TECapLength.GetID() );
-                    m_TECapOffsetSlider.Update( xsc->m_TECapOffset.GetID() );
-                    m_TECapStrengthSlider.Deactivate();
+                    m_TECapLengthSlider.Activate();
+                    m_TECapOffsetSlider.Activate();
                     break;
                 case SHARP_END_CAP:
-                    m_TECapLengthSlider.Update( xsc->m_TECapLength.GetID() );
-                    m_TECapOffsetSlider.Update( xsc->m_TECapOffset.GetID() );
-                    m_TECapStrengthSlider.Update( xsc->m_TECapStrength.GetID() );
+                    m_TECapLengthSlider.Activate();
+                    m_TECapOffsetSlider.Activate();
+                    m_TECapStrengthSlider.Activate();
                     break;
             }
 
             m_LECapChoice.Update( xsc->m_LECapType.GetID() );
 
+            m_LECapLengthSlider.Update( xsc->m_LECapLength.GetID() );
+            m_LECapOffsetSlider.Update( xsc->m_LECapOffset.GetID() );
+            m_LECapStrengthSlider.Update( xsc->m_LECapStrength.GetID() );
+
+            m_LECapLengthSlider.Deactivate();
+            m_LECapOffsetSlider.Deactivate();
+            m_LECapStrengthSlider.Deactivate();
+
             switch( xsc->m_LECapType() ){
                 case FLAT_END_CAP:
-                    m_LECapLengthSlider.Deactivate();
-                    m_LECapOffsetSlider.Deactivate();
-                    m_LECapStrengthSlider.Deactivate();
                     break;
                 case ROUND_END_CAP:
-                    m_LECapLengthSlider.Update( xsc->m_LECapLength.GetID() );
-                    m_LECapOffsetSlider.Update( xsc->m_LECapOffset.GetID() );
-                    m_LECapStrengthSlider.Deactivate();
+                    m_LECapLengthSlider.Activate();
+                    m_LECapOffsetSlider.Activate();
                     break;
                 case EDGE_END_CAP:
-                    m_LECapLengthSlider.Update( xsc->m_LECapLength.GetID() );
-                    m_LECapOffsetSlider.Update( xsc->m_LECapOffset.GetID() );
-                    m_LECapStrengthSlider.Deactivate();
+                    m_LECapLengthSlider.Activate();
+                    m_LECapOffsetSlider.Activate();
                     break;
                 case SHARP_END_CAP:
-                    m_LECapLengthSlider.Update( xsc->m_LECapLength.GetID() );
-                    m_LECapOffsetSlider.Update( xsc->m_LECapOffset.GetID() );
-                    m_LECapStrengthSlider.Update( xsc->m_LECapStrength.GetID() );
+                    m_LECapLengthSlider.Activate();
+                    m_LECapOffsetSlider.Activate();
+                    m_LECapStrengthSlider.Activate();
                     break;
             }
 
