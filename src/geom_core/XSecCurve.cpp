@@ -1117,6 +1117,22 @@ void XSecCurve::CapTE( bool wingtype )
     }
 
     m_Curve.Modify( m_TECapType(), false, m_TECapLength(), m_TECapOffset(), m_TECapStrength() );
+
+    switch( m_TECapType() ){
+        case FLAT_END_CAP:
+            m_TECapLength = 1.0;
+            m_TECapOffset = 0.0;
+            m_TECapStrength = 0.5;
+            break;
+        case ROUND_END_CAP:
+            m_TECapStrength = 1.0;
+            break;
+        case EDGE_END_CAP:
+            m_TECapStrength = 0.0;
+            break;
+        case SHARP_END_CAP:
+            break;
+    }
 }
 
 void XSecCurve::CapLE( bool wingtype )
@@ -1132,6 +1148,22 @@ void XSecCurve::CapLE( bool wingtype )
     }
 
     m_Curve.Modify( m_LECapType(), true, m_LECapLength(), m_LECapOffset(), m_LECapStrength() );
+
+    switch( m_LECapType() ){
+        case FLAT_END_CAP:
+            m_LECapLength = 1.0;
+            m_LECapOffset = 0.0;
+            m_LECapStrength = 0.5;
+            break;
+        case ROUND_END_CAP:
+            m_LECapStrength = 1.0;
+            break;
+        case EDGE_END_CAP:
+            m_LECapStrength = 0.0;
+            break;
+        case SHARP_END_CAP:
+            break;
+    }
 }
 
 void XSecCurve::RotTransScale()
