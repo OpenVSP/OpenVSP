@@ -207,6 +207,11 @@ void XSecCurve::Update()
     CapTE( wingtype );
     CapLE( wingtype );
 
+    if ( m_Type != XS_POINT )
+    {
+        m_Curve.ToBinaryCubic( wingtype );
+    }
+
     RotTransScale();
 
     m_LateUpdateFlag = false;
