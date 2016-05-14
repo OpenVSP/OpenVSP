@@ -469,16 +469,63 @@ void VspCurve::InterpolateCSpline( vector< vec3d > & input_pnt_vec, const vec3d 
     }
 }
 
-void VspCurve::ToBinaryCubic()
+void VspCurve::ToBinaryCubic( bool wingtype )
 {
     piecewise_binary_cubic_creator pbcc;
 
-    // Setup copies base curve into creator.
-    // tolerance, min adapt levels, max adapt levels
-    pbcc.setup( m_Curve, 1e-6, 2, 15 );
+    double tmin, tmax, tmid;
+    tmin = m_Curve.get_parameter_min();
+    tmax = m_Curve.get_parameter_max();
+    tmid = ( tmin + tmax ) / 2.0;
 
-    // Create makes new curve in m_Curve
-    pbcc.create( m_Curve );
+    if ( wingtype )
+    {
+        piecewise_curve_type crv, telow, teup, le, low, up, rest;
+
+        m_Curve.split( telow, crv, tmin + TMAGIC );
+        crv.split( low, rest, tmid - TMAGIC );
+        crv = rest;
+        crv.split( le, rest, tmid + TMAGIC );
+        crv = rest;
+        crv.split( up, teup, tmax - TMAGIC );
+
+        // Setup copies base curve into creator.
+        // tolerance, min adapt levels, max adapt levels
+        pbcc.setup( low, 1e-6, 0.01, 2, 15 );
+        // Create makes new curve
+        pbcc.corner_create( low );
+
+        pbcc.setup( up, 1e-6, 0.01, 2, 15 );
+        pbcc.corner_create( up );
+
+        m_Curve = telow;
+        m_Curve.push_back( low );
+        m_Curve.push_back( le );
+        m_Curve.push_back( up );
+        m_Curve.push_back( teup );
+
+        m_Curve.set_tmax( tmax );
+    }
+    else
+    {
+        piecewise_curve_type low, up;
+
+        m_Curve.split( low, up, tmid );
+
+        // Setup copies base curve into creator.
+        // tolerance, min adapt levels, max adapt levels
+        pbcc.setup( low, 1e-6, 0.01, 2, 15 );
+        // Create makes new curve
+        pbcc.corner_create( m_Curve );
+
+        pbcc.setup( up, 1e-6, 0.01, 2, 15 );
+        pbcc.corner_create( up );
+
+        m_Curve.push_back( up );
+
+        m_Curve.set_tmax( tmax );
+    }
+
 }
 
 void VspCurve::SetCubicControlPoints( const vector< vec3d > & cntrl_pts, bool closed_flag )

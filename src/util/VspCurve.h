@@ -58,7 +58,7 @@ public:
     // creates C2 continuous piecewise cubic spline polynomial with clamped end slopes
     void InterpolateCSpline( vector< vec3d > & input_pnt_vec, const vec3d &start_slope, const vec3d &end_slope, const vector<double> &param );
 
-    void ToBinaryCubic();
+    void ToBinaryCubic( bool wingtype );
 
     void SetCubicControlPoints( const vector< vec3d > & cntrl_pts, bool closed_flag );
 
