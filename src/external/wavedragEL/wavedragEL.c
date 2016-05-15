@@ -1,19 +1,20 @@
+//
+// Standalone version of the Eminton-Lord procedure for obtaining the
+// zero-lift wavedrag D/Q written by Sriram Rallabhandi
+//
+// Modifications for use in OpenVSP v3 by Michael Waddington
+//
+//////////////////////////////////////////////////////////////////////
+
+#include "wavedragEL.h"
+
 /*
-Standalone version of the Eminton-Lord procedure for obtaining the zero-lift wavedrag D/Q
-
-Sriram Rallabhandi
-*/
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-
-/*
-This is simple rewrite of the procedure from AWAVE - Basically inverts the matrix "a"
-and solves the linear system a*x = rhs
+This is simple rewrite of the procedure from AWAVE - Basically inverts
+the matrix "a" and solves the linear system a*x = rhs
 
 Better routines may be written to do this.
 */
+
 void matinv(double ***a, int prts,double *rhs,double **soln) {
     double swap,amax,tmax,**iwk,pivot,sum,t;
     int *ipivot,j,k,l,i,jrow,jcolum,icolum,irow;
@@ -105,32 +106,25 @@ void matinv(double ***a, int prts,double *rhs,double **soln) {
 
 }
 
-/* This routine uses a clever way of approximating the equivalent area distribution using
-a Fourier bases. The wave drag values using the prescribed expressions.
+/*
+This routine uses a clever way of approximating the equivalent area
+distribution using a Fourier bases. The wave drag values using the
+prescribed expressions.
 
-  Ref :  Eminton, Lord, " Numerical evaluation of the wave drag of smooth slender bodies using
-                          optimum area distributions for minimum wave drag", Journal of the Royal
-                          Aeronautical Society, Vol. 60, pp 61-63, January, 1956
+Ref :  Eminton, Lord, " Numerical evaluation of the wave drag of smooth
+slender bodies using optimum area distributions for minimum wave drag",
+Journal of the Royal Aeronautical Society, Vol. 60, pp 61-63, January
+1956
 
- */
+*/
 
-double emlord(char *str) {
-    int i,j=0,k=0,prts;
-    double *sarea,*naxs,*x,ny,*qq,**pqq,*c,e,e1,e2,*r,sum=0.0,drag,nx,jnk;
-    double pival=4.0*atan(1.0),totlength,tmp,tmp1;
-    FILE *fp;
 
-    fp = fopen(str,"r");
-    i=0;
-    while (!feof(fp)) {
-        fscanf(fp,"%lf %lf",&tmp,&tmp1);
-        i++;
-    }
-    prts = i-1;
-    rewind(fp);
+double emlord( int prts, double *naxs, double *sarea, double *r ){
+    int i,j=0,k=0;
+    double nx, ny, e, e1, e2, totlength, sum=0.0, drag;
+    double *x, *c, *qq, **pqq;
+    double pival=4.0*atan(1.0);
 
-    naxs = (double *) calloc(prts,sizeof(double));
-    sarea = (double *) calloc(prts,sizeof(double));
     x = (double *) calloc(prts,sizeof(double));
     qq = (double *) calloc(prts,sizeof(double));
     pqq = (double **) calloc(prts,sizeof(double*));
@@ -138,18 +132,6 @@ double emlord(char *str) {
         pqq[i] = (double *) calloc(prts,sizeof(double));
     }
     c = (double *) calloc(prts,sizeof(double));
-    r = (double *) calloc(prts,sizeof(double));
-
-    // Read Aev distribution and compute wave drag
-    i=0;
-    while (i<prts) {
-        //fscanf(fp,"%f %f %f %f %f",&naxs[i],&sarea[i],&jnk,&jnk,&jnk);
-        fscanf(fp,"%lf %lf",&tmp,&tmp1);
-        naxs[i] = tmp;
-        sarea[i] = tmp1;
-        i++;
-    }
-    fclose(fp);
 
     for (i=0;i<prts;i++) {
         x[k] = naxs[i];
@@ -206,24 +188,15 @@ double emlord(char *str) {
     drag = (4.0*(sarea[0]-sarea[prts-1])*(sarea[0]-sarea[prts-1])/pival+sum*pival)/(totlength*totlength);
 
     free(x);
-    free(r);
-    free(c);
     free(qq);
-    for (i=0;i<prts;i++) {
+    for (i=0;i<prts;i++)
+    {
         free(pqq[i]);
     }
     free(pqq);
-    free(naxs);
-    free(sarea);
+    free(c);
 
     return(drag);
+
 }
 
-int main(int argc, char* argv[]) {
-double doverq;
-
-doverq = emlord(argv[1]);
-printf("doverq = %lf\n",doverq);
-
-return 1;
-}
