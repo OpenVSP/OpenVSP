@@ -1999,7 +1999,7 @@ void MeshGeom::degenGeomIntersectTrim( vector< DegenGeom > &degenGeom )
 }
 
 //==== Call After BndBoxes Have Been Create But Before Intersect ====//
-void MeshGeom::AreaSlice( int style, int numSlices, double sliceAngle, double coneSections, vec3d norm_axis,
+void MeshGeom::AreaSlice( int numSlices , vec3d norm_axis,
                           bool autoBounds, double start, double end )
 {
     int tesselate = 0;
@@ -2100,7 +2100,6 @@ void MeshGeom::AreaSlice( int style, int numSlices, double sliceAngle, double co
         }
     }
 
-    res->Add( NameValData( "Style", style ) );
     res->Add( NameValData( "Num_Comps", ( int )compIdVec.size() ) );
     res->Add( NameValData( "Num_Meshes", ( int )m_TMeshVec.size() ) );
     res->Add( NameValData( "Num_Tris", numTris ) );
@@ -2133,134 +2132,51 @@ void MeshGeom::AreaSlice( int style, int numSlices, double sliceAngle, double co
         xMin = start - 0.0001;
         xMax = end + 0.0001;
     }
+
     //==== Build Slice Mesh Object =====//
-    if ( numSlices < 3 )
-    {
-        numSlices = 3;
-    }
+    // MJW: Mandating 3 slices is a preference. 2 is just fine, and sometimes necessary.
+    //if ( numSlices < 3 )
+    //{
+        //numSlices = 3;
+    //}
 
-    if ( style == vsp::SLICE_PLANAR )
-    {
-        vec3d norm( 1, 0, 0 );
+    vec3d norm( 1, 0, 0 );
 
-        for ( s = 0 ; s < numSlices ; s++ )
+    for ( s = 0 ; s < numSlices ; s++ )
+    {
+        TMesh* tm = new TMesh();
+        m_SliceVec.push_back( tm );
+
+        double x = xMin + ( ( double )s / ( double )( numSlices - 1 ) ) * ( xMax - xMin );
+
+        double ydel = 1.02 * ( m_BBox.GetMax( 1 ) - m_BBox.GetMin( 1 ) );
+        double ys   = m_BBox.GetMin( 1 ) - 0.01 * ydel;
+        double zdel = 1.02 * ( m_BBox.GetMax( 2 ) - m_BBox.GetMin( 2 ) );
+        double zs   = m_BBox.GetMin( 2 ) - 0.01 * zdel;
+
+        if ( tesselate )
         {
-            TMesh* tm = new TMesh();
-            m_SliceVec.push_back( tm );
-
-            double x = xMin + ( ( double )s / ( double )( numSlices - 1 ) ) * ( xMax - xMin );
-
-            double ydel = 1.02 * ( m_BBox.GetMax( 1 ) - m_BBox.GetMin( 1 ) );
-            double ys   = m_BBox.GetMin( 1 ) - 0.01 * ydel;
-            double zdel = 1.02 * ( m_BBox.GetMax( 2 ) - m_BBox.GetMin( 2 ) );
-            double zs   = m_BBox.GetMin( 2 ) - 0.01 * zdel;
-
-            if ( tesselate )
+            for ( i = 0 ; i < 10 ; i++ )
             {
-                for ( i = 0 ; i < 10 ; i++ )
+                double y0 = ys + ydel * 0.1 * ( double )i;
+                double y1 = ys + ydel * 0.1 * ( double )( i + 1 );
+
+                for ( j = 0 ; j < 10 ; j++ )
                 {
-                    double y0 = ys + ydel * 0.1 * ( double )i;
-                    double y1 = ys + ydel * 0.1 * ( double )( i + 1 );
+                    double z0 = zs + zdel * 0.1 * ( double )j;
+                    double z1 = zs + zdel * 0.1 * ( double )( j + 1 );
 
-                    for ( j = 0 ; j < 10 ; j++ )
-                    {
-                        double z0 = zs + zdel * 0.1 * ( double )j;
-                        double z1 = zs + zdel * 0.1 * ( double )( j + 1 );
-
-                        tm->AddTri( vec3d( x, y0, z0 ), vec3d( x, y1, z0 ), vec3d( x, y1, z1 ), norm );
-                        tm->AddTri( vec3d( x, y0, z0 ), vec3d( x, y1, z1 ), vec3d( x, y0, z1 ), norm );
-                    }
-                }
-            }
-            else
-            {
-                tm->AddTri( vec3d( x, ys, zs ), vec3d( x, ys + ydel, zs ), vec3d( x, ys + ydel, zs + zdel ), norm );
-                tm->AddTri( vec3d( x, ys, zs ), vec3d( x, ys + ydel, zs + zdel ), vec3d( x, ys, zs + zdel ), norm );
-            }
-        }
-
-    }
-    else if ( style == vsp::SLICE_AWAVE )
-    {
-        for ( s = 0 ; s < numSlices ; s++ )
-        {
-
-            double xcenter = xMin + ( ( double )s / ( double )( numSlices - 1 ) ) * ( xMax - xMin );
-
-            double ydel = m_BBox.GetMax( 1 ) - m_BBox.GetMin( 1 );
-            double zdel = m_BBox.GetMax( 2 ) - m_BBox.GetMin( 2 );
-            double ycenter = m_BBox.GetMin( 1 ) + ydel * 0.5;
-            double zcenter = m_BBox.GetMin( 2 ) + zdel * 0.5;
-
-            double size = max( ydel, zdel ) * 1.02;
-            if ( sliceAngle == 0 )
-            {
-                sliceAngle = 1;
-            }
-            double xdel = 2 * size / tan( DEG2RAD( sliceAngle ) );
-
-            double radius = size / 2.0;
-
-            // for num sections, rotate about x-axis
-            for ( double a = 0; a < coneSections; a++ )
-            {
-                TMesh* tm = new TMesh();
-                m_SliceVec.push_back( tm );
-
-                double theta = ( 2.0 * PI * a ) / ( ( double ) coneSections );
-                double rsintheta = radius * sin( theta );
-                double rcostheta = radius * cos( theta );
-
-                vec3d offset( xcenter, ycenter, zcenter );
-                vec3d tr( -xdel / 2, rcostheta + rsintheta, rcostheta - rsintheta );
-                vec3d tl( -xdel / 2, rsintheta - rcostheta, rcostheta + rsintheta );
-                vec3d br = vec3d( 0, 0, 0 ) - tl;
-                vec3d bl = vec3d( 0, 0, 0 ) - tr;
-                vec3d norm = cross( br - bl, tl - bl );
-                norm.normalize();
-
-                if ( tesselate )
-                {
-                    vec3d bl0, br0, tl0, tr0;
-                    vec3d bl1, br1, tl1, tr1;
-                    double u, v, u1, v1;
-                    double increment = 0.1;
-                    for ( u = 0; u < 1.0; u += increment )
-                    {
-                        // tesselate
-                        u1 = u + increment;
-                        bl0 = ( bl * u  + br * ( 1.0 - u ) );
-                        br0 = ( bl * u1 + br * ( 1.0 - u1 ) );
-                        tl0 = ( tl * u  + tr * ( 1.0 - u ) );
-                        tr0 = ( tl * u1 + tr * ( 1.0 - u1 ) );
-                        for ( v = 0; v < 1.0; v += increment )
-                        {
-                            // tesselate
-                            v1 = v + increment;
-                            bl1 = ( bl0 * v  + tl0 * ( 1.0 - v ) );
-                            tl1 = ( bl0 * v1 + tl0 * ( 1.0 - v1 ) );
-                            br1 = ( br0 * v  + tr0 * ( 1.0 - v ) );
-                            tr1 = ( br0 * v1 + tr0 * ( 1.0 - v1 ) );
-
-                            tm->AddTri( bl1 + offset, br1 + offset, tr1 + offset, norm );
-                            tm->AddTri( bl1 + offset, tr1 + offset, tl1 + offset, norm );
-                        }
-                    }
-                }
-                else
-                {
-                    tm->AddTri( bl + offset, br + offset, tr + offset, norm );
-                    tm->AddTri( bl + offset, tr + offset, tl + offset, norm );
+                    tm->AddTri( vec3d( x, y0, z0 ), vec3d( x, y1, z0 ), vec3d( x, y1, z1 ), norm );
+                    tm->AddTri( vec3d( x, y0, z0 ), vec3d( x, y1, z1 ), vec3d( x, y0, z1 ), norm );
                 }
             }
         }
-
+        else
+        {
+            tm->AddTri( vec3d( x, ys, zs ), vec3d( x, ys + ydel, zs ), vec3d( x, ys + ydel, zs + zdel ), norm );
+            tm->AddTri( vec3d( x, ys, zs ), vec3d( x, ys + ydel, zs + zdel ), vec3d( x, ys, zs + zdel ), norm );
+        }
     }
-    else
-    {
-        return;
-    }
-
 
     //==== Load Bnding Box ====//
     for ( s = 0 ; s < ( int )m_SliceVec.size() ; s++ )
@@ -2309,74 +2225,31 @@ void MeshGeom::AreaSlice( int style, int numSlices, double sliceAngle, double co
             }
         }
     }
-    //==== Delete Mesh Geometry ====//
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
-    {
-        delete m_TMeshVec[i];
-    }
-
-    m_TMeshVec.erase( m_TMeshVec.begin(), m_TMeshVec.end() );
 
     TransMat.affineInverse();
-    if ( style == vsp::SLICE_PLANAR )
-    {
-        vector< double > loc_vec;
-        vector< double > area_vec;
-        vector < vec3d > AreaCenter;
-        for ( s = 0 ; s < ( int )m_SliceVec.size() ; s++ )
-        {
-            double x = xMin + ( ( double )s / ( double )( numSlices - 1 ) ) * ( xMax - xMin );
-            m_SliceVec[s]->ComputeWetArea();
-            loc_vec.push_back( x );
-            area_vec.push_back( m_SliceVec[s]->m_WetArea );
-            AreaCenter.push_back( TransMat.xform( m_SliceVec[s]->m_AreaCenter ) );
-        }
-        res->Add( NameValData( "Slice_Area_Center", AreaCenter ) );
-        res->Add( NameValData( "Num_Slices", ( int )m_SliceVec.size() ) );
-        res->Add( NameValData( "Slice_Loc", loc_vec ) );
-        res->Add( NameValData( "Slice_Area", area_vec ) );
-    }
-    else if ( style == vsp::SLICE_AWAVE )
-    {
-        vector< double > loc_vec;
-        for ( i = 0; i < coneSections; i++ )
-        {
-            loc_vec.push_back( 360.0 * i / coneSections );
-        }
-        res->Add( NameValData( "Num_Slices", ( int )numSlices ) );
-        res->Add( NameValData( "Slice_Loc", loc_vec ) );
-        res->Add( NameValData( "Num_Cone_Sections", ( int )coneSections ) );
 
-        vector< double > x_vec;
-        for ( s = 0 ; s < numSlices ; s++ )
-        {
-            double sum = 0;
-            double x = xMin + ( ( double )s / ( double )( numSlices - 1 ) ) * ( xMax - xMin );
-            x_vec.push_back( x );
-
-            vector< double > wet_vec;
-            vector < vec3d > AreaCenter;
-            for ( int r = 0; r < coneSections; r++ )
-            {
-                int sindex = ( int )( s * coneSections + r );
-                m_SliceVec[sindex]->ComputeAwaveArea();
-                sum += m_SliceVec[sindex]->m_WetArea;
-                wet_vec.push_back( m_SliceVec[sindex]->m_WetArea );
-                AreaCenter.push_back( TransMat.xform( m_SliceVec[sindex]->m_AreaCenter ) );
-            }
-            res->Add( NameValData( "Slice_Area_Center",  AreaCenter) );
-            res->Add( NameValData( "Slice_Wet_Area", wet_vec ) );
-            res->Add( NameValData( "Slice_Sum_Area", sum ) );
-            res->Add( NameValData( "Slice_Avg_Area", sum / coneSections ) );
-        }
-        res->Add( NameValData( "X_Loc", x_vec ) );
+    vector< double > loc_vec;
+    vector< double > area_vec;
+    vector < vec3d > AreaCenter;
+    for ( s = 0 ; s < ( int )m_SliceVec.size() ; s++ )
+    {
+        double x = xMin + ( ( double )s / ( double )( numSlices - 1 ) ) * ( xMax - xMin );
+        m_SliceVec[s]->ComputeWetArea();
+        loc_vec.push_back( x );
+        area_vec.push_back( m_SliceVec[s]->m_WetArea );
+        AreaCenter.push_back( TransMat.xform( m_SliceVec[s]->m_AreaCenter ) );
     }
+    res->Add( NameValData( "Slice_Area_Center", AreaCenter ) );
+    res->Add( NameValData( "Num_Slices", ( int )m_SliceVec.size() ) );
+    res->Add( NameValData( "Slice_Loc", loc_vec ) );
+    res->Add( NameValData( "Slice_Area", area_vec ) );
 
     string filename = m_Vehicle->getExportFileName( vsp::SLICE_TXT_TYPE );
-    res->WriteSliceFile( filename, style );
+    res->WriteSliceFile( filename );
 
-    //==== TransForm Slices to Match Orignal Coord Sys ====//
+    //==== TransForm Slices and Mesh to Match Orignal Coord Sys ====//
     TransformMeshVec( m_SliceVec, TransMat );
+    TransformMeshVec( m_TMeshVec, TransMat );
 }
 
 void MeshGeom::WaveStartEnd( const double &sliceAngle, const vec3d &center )

@@ -157,8 +157,7 @@ public:
     virtual void degenGeomIntersectTrim( vector< DegenGeom > &degenGeom );
     virtual void MassSliceX( int numSlice, bool writefile = true );
     virtual void degenGeomMassSliceX( vector< DegenGeom > &degenGeom );
-    virtual void AreaSlice( int style, int numSlices, double sliceAngle, double coneSections, vec3d norm, bool autoBounds,
-                            double start = 0, double end = 0 );
+    virtual void AreaSlice( int numSlices, vec3d norm, bool autoBounds, double start = 0, double end = 0 );
 
     virtual void WaveStartEnd( const double &sliceAngle, const vec3d &center );
     virtual void WaveDragSlice( int numSlices, double sliceAngle, int coneSections,
