@@ -56,6 +56,8 @@ ADD_SUBDIRECTORY( sixseries )
 ADD_SUBDIRECTORY( tritri )
 ADD_SUBDIRECTORY( clipper )
 
+ADD_SUBDIRECTORY( wavedragEL )
+
 INCLUDE( ExternalProject )
 INCLUDE( External_STEPCode )
 

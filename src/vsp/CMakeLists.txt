@@ -58,6 +58,7 @@ IF( NOT VSP_NO_GRAPHICS )
 		clipper
         Angelscript
         cartesian
+        wavedragEL
 		${CPPTEST_LIBRARIES}
 		${LIBXML2_LIBRARIES}
 		${FLTK_LIBRARIES}
@@ -93,6 +94,7 @@ IF( NOT VSP_NO_GRAPHICS )
 		xmlvsp
 		sixseries
 		cartesian
+		wavedragEL
 		${CPPTEST_LIBRARIES}
 		${LIBXML2_LIBRARIES}
 		${FLTK_LIBRARIES}
@@ -123,6 +125,7 @@ TARGET_LINK_LIBRARIES(apitest
 	tritri
 	clipper
     Angelscript
+    wavedragEL
 	${CPPTEST_LIBRARIES}
 	${LIBXML2_LIBRARIES}
 	${WINSOCK_LIBRARIES}
@@ -149,6 +152,7 @@ TARGET_LINK_LIBRARIES(vspscript
 	tritri
 	clipper
 	Angelscript
+	wavedragEL
 	${CPPTEST_LIBRARIES}
 	${LIBXML2_LIBRARIES}
 	${WINSOCK_LIBRARIES}

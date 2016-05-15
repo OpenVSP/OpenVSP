@@ -60,6 +60,7 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 		tritri
 		clipper
 		Angelscript
+		wavedragEL
 		${CPPTEST_LIBRARIES}
 		${LIBXML2_LIBRARIES}
 		${WINSOCK_LIBRARIES}
@@ -97,6 +98,7 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 			xmlvsp
 			sixseries
 			cartesian
+			wavedragEL
 			${CPPTEST_LIBRARIES}
 			${LIBXML2_LIBRARIES}
 			${FLTK_LIBRARIES}
