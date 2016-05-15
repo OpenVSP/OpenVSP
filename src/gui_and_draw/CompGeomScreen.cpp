@@ -187,7 +187,7 @@ void CompGeomScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_Execute )
     {
-        string geom = vehiclePtr->CompGeomAndFlatten( m_SelectedSetIndex, 0, m_HalfMesh.GetFlButton()->value(),
+        string geom = vehiclePtr->CompGeomAndFlatten( m_SelectedSetIndex, m_HalfMesh.GetFlButton()->value(),
                       m_Subsurfs.GetFlButton()->value() );
         if ( geom.compare( "NONE" ) != 0 )
         {

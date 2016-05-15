@@ -393,7 +393,7 @@ string CompGeomAnalysis::Execute()
         nvd = m_Inputs.FindPtr( "WriteDragTSVFlag", 0 );
         veh->setExportDragBuildTsvFile( !!nvd->GetInt( 0 ) );
 
-        string geom = veh->CompGeomAndFlatten( geomSet, 0, halfMeshFlag, subSurfFlag );
+        string geom = veh->CompGeomAndFlatten( geomSet, halfMeshFlag, subSurfFlag );
 
         res = ResultsMgr.FindLatestResultsID( "Comp_Geom" );
     }
