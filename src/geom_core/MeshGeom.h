@@ -154,7 +154,6 @@ public:
     //==== Intersection, Splitting and Trimming ====//
     virtual void IntersectTrim( int halfFlag = 0, int intSubsFlag = 1 );
     virtual void degenGeomIntersectTrim( vector< DegenGeom > &degenGeom );
-    virtual void SliceX( int numSlice );
     virtual void MassSliceX( int numSlice, bool writefile = true );
     virtual void degenGeomMassSliceX( vector< DegenGeom > &degenGeom );
     virtual void AreaSlice( int style, int numSlices, double sliceAngle, double coneSections, vec3d norm, bool autoBounds,
