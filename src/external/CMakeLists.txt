@@ -51,6 +51,7 @@ ADD_SUBDIRECTORY( triangle )
 ADD_SUBDIRECTORY( nanoflann )
 ADD_SUBDIRECTORY( sixseries )
 ADD_SUBDIRECTORY( tritri )
+ADD_SUBDIRECTORY( clipper )
 
 INCLUDE( ExternalProject )
 INCLUDE( External_STEPCode )
