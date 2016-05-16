@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" viewBox="0 0 400 600">
+ <g stroke="#000" fill="none">
+  <path style="color:#000000" d="m513.5 810.4a185.3 203.1 0 1 1 -370.6 0 185.3 203.1 0 1 1 370.6 0z" transform="matrix(1.074 0 0 .98 -426.9 -543.2)" stroke-width="3.509"/>
+  <g>
+   <path transform="translate(-295.0,-530.9)" d="m280 972.4-222.13-74.3 1.96-234.1 223.27-70.5 136.1 190.6z"/>
+   <path style="color:#000000" d="m-30 230 120-90" stroke-dasharray="4, 4"/>
+   <path style="color:#000000" d="m-10 62.08-55.1 189.92l190.8 1" stroke-dasharray="4, 4"/>
+  </g>
+ </g>
+ <g font-size="14px" font-family="Tahoma" fill="#000000">
+  <text style="letter-spacing:0px;block-progression:tb;text-indent:0;word-spacing:0px;color:#000000;text-transform:none" xml:space="preserve" line-height="125%" y="264.27399" x="-75.70369"><tspan x="-75.70369" y="264.27399">c</tspan></text>
+  <text style="letter-spacing:0px;block-progression:tb;text-indent:0;word-spacing:0px;color:#000000;text-transform:none" xml:space="preserve" line-height="125%" y="54.873951" x="-9.90369"><tspan x="-9.90369" y="54.873951">a</tspan></text>
+  <text style="letter-spacing:0px;block-progression:tb;text-indent:0;word-spacing:0px;color:#000000;text-transform:none" xml:space="preserve" line-height="125%" y="254.97398" x="133.90369"><tspan x="133.90369" y="254.97398">b</tspan></text>
+  <text style="letter-spacing:0px;block-progression:tb;text-indent:0;word-spacing:0px;color:#000000;text-transform:none" xml:space="preserve" line-height="125%" y="131.47398" x="93.00369"><tspan x="93.00369" y="131.47398">d</tspan></text>
+  <text style="letter-spacing:0px;block-progression:tb;text-indent:0;word-spacing:0px;color:#000000;text-transform:none" xml:space="preserve" line-height="125%" y="173.41545" x="52.1037"><tspan x="52.1037" y="173.41545">q</tspan></text>
+ </g>
+ <g>
+  <path style="color:#000000" d="m-20 251.2v-0.7c0-20.4-14.3-37.6-33.6-42.5" stroke="#000" fill="none"/>
+  <text style="letter-spacing:0px;block-progression:tb;text-indent:0;word-spacing:0px;color:#000000;text-transform:none" font-family="Tahoma" xml:space="preserve" font-size="20px" line-height="125%" y="245.65685" x="-54.47578" fill="#000000"><tspan y="245.65685" x="-54.47578" font-weight="bold">ß</tspan></text>
+  <path style="color:#000000" d="m44.1 142.9-16.2 11.7 11.7 16.2" stroke="#000" stroke-dasharray="3.6, 3.6" stroke-width="1.8" fill="none"/>
+ </g>
+ <g font-size="14px" font-family="Tahoma" fill="#000000">
+  <text style="letter-spacing:0px;block-progression:tb;text-indent:0;word-spacing:0px;color:#000000;text-transform:none" xml:space="preserve" line-height="125%" y="91.773972" x="154.80371"><tspan x="154.80371" y="91.773972">Calculate the number of steps (S) needed to </tspan><tspan x="154.80371" y="109.27397">construct a flattened path approximating a</tspan><tspan x="154.80371" y="126.77397">circle with radius (R) where the maximum </tspan><tspan x="154.80371" y="144.27397">imprecision of the path is a predefined </tspan><tspan x="154.80371" y="161.77397">constant L.</tspan><tspan x="154.80371" y="179.27397"/><tspan x="154.80371" y="196.77397">ß = 2*pi / S</tspan><tspan x="154.80371" y="214.27397">q = midpoint(ab)</tspan><tspan x="154.80371" y="231.77397">length(cd) = R </tspan><tspan x="154.80371" y="249.27397">length(qd) = L and length(cq) = R-L</tspan><tspan x="154.80371" y="266.77399">cos(ß/2) = length(cq)/R = (R-L)/R</tspan><tspan x="154.80371" y="284.27396">ß = 2 * arccos(1 - L/R) = 2*pi / S</tspan><tspan y="301.77396" x="154.80371" font-weight="bold">S = pi / arccos(1 - L/R)</tspan><tspan x="154.80371" y="319.27396"/><tspan x="154.80371" y="336.77396">eg: Given a circle with radius = 100px </tspan><tspan x="154.80371" y="354.27396">and allowing a max. imprecision of 1/4px</tspan><tspan x="154.80371" y="371.77396">the number of steps (vertices) required to </tspan><tspan x="154.80371" y="389.27396">draw a path approximating the circle is ...</tspan><tspan x="154.80371" y="406.77396">Steps = pi / arccos(1 - 0.25/100) = 44</tspan></text>
+  <text style="letter-spacing:0px;block-progression:tb;text-indent:0;word-spacing:0px;color:#000000;text-transform:none" xml:space="preserve" line-height="125%" y="159.97398" x="73.6037"><tspan y="159.97398" x="73.6037" font-weight="bold">L</tspan></text>
+  <text style="letter-spacing:0px;block-progression:tb;text-indent:0;word-spacing:0px;color:#000000;text-transform:none" xml:space="preserve" line-height="125%" y="265.32526" x="28.05185"><tspan y="265.32526" x="28.05185" font-weight="bold">R</tspan></text>
+ </g>
+</svg>

@@ -1,0 +1,42 @@
+<svg xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" height="600" width="800" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/">
+ <g transform="translate(0,-452.4)">
+  <g stroke="#000" fill="none">
+   <path style="color:#000000" stroke-width="1.961" stroke-dasharray="3.9224, 3.9224" d="m193.9 735.7-26.4 46.4c7.4 4.6 16.2 7.3 25.6 7.3 10.4 0 20.2-3.3 28.1-8.9l-27.3-44.8z"/>
+   <path style="color:#000000" stroke-width="1.8" stroke-dasharray="3.6, 3.6" d="m194.5 733.4 57.2-98.9"/>
+   <path style="color:#000000" stroke-width="1.8" d="m10.81 854.2 183.3-314.5 190.3 308.5"/>
+  </g>
+  <g stroke="#000" fill="#0f0">
+   <g stroke-width="2.138">
+    <path style="color:#000000" d="m194.2 635.6 15 21.2h-10v56.4h10l-15 21.2-15-21.2h10v-56.4h-10z"/>
+    <path style="color:#000000" d="m77.71 740.9 25.79 2.7-6.59 7.5 42.49 37.2 6.6-7.5 6 25.3-25.8-2.7 6.6-7.5-42.49-37.3-6.6 7.5z"/>
+    <path style="color:#000000" d="m194.2 635.6 15 21.2h-10v56.4h10l-15 21.2-15-21.2h10v-56.4h-10z"/>
+    <path style="color:#000000" d="m194.2 635.6 15 21.2h-10v56.4h10l-15 21.2-15-21.2h10v-56.4h-10z"/>
+    <path style="color:#000000" d="m194.2 635.6 15 21.2h-10v56.4h10l-15 21.2-15-21.2h10v-56.4h-10z"/>
+   </g>
+   <path style="color:#000000" d="m138.4 633.3h110" fill-rule="evenodd" stroke-dasharray="7.2, 7.2" stroke-width="1.8"/>
+  </g>
+  <text style="letter-spacing:0px;block-progression:tb;text-indent:0;word-spacing:0px;color:#000000;text-transform:none" xml:space="preserve" font-size="20px" line-height="125%" y="543.2041" x="216.81096" font-family="Tahoma" fill="#000000"><tspan y="543.2041" x="216.81096" font-weight="bold">ß</tspan></text>
+  <path style="color:#000000" d="m195.2 737.7 88-52.5" stroke="#000" stroke-dasharray="7.2, 7.2" stroke-width="1.8" fill="none"/>
+  <path style="color:#000000" d="m272.9 633.2 20.5 2.7-8.1 5.9 22.2 30.7-8.2 5.8-22.2-30.7-8.1 5.9z" stroke="#000" stroke-width="1.752" fill="#ff0"/>
+  <g font-family="Tahoma">
+   <g font-size="10px">
+    <text style="letter-spacing:0px;block-progression:tb;text-indent:0;word-spacing:0px;color:#000000;text-transform:none" xml:space="preserve" line-height="125%" y="756.90411" x="110.61097"><tspan y="756.90411" x="110.61097" font-size="14px">delta</tspan></text>
+    <text style="letter-spacing:0px;block-progression:tb;text-indent:0;word-spacing:0px;color:#000000;text-transform:none" xml:space="preserve" line-height="125%" y="687.75928" x="153.25862"><tspan y="687.75928" x="153.25862" font-size="14px">delta</tspan></text>
+    <text style="letter-spacing:0px;block-progression:tb;text-indent:0;word-spacing:0px;color:#000000;text-transform:none" xml:space="preserve" line-height="125%" y="687.40411" x="288.61096"><tspan y="687.40411" x="288.61096" font-size="14px">c</tspan></text>
+    <text style="letter-spacing:0px;block-progression:tb;text-indent:0;word-spacing:0px;color:#000000;text-transform:none" xml:space="preserve" line-height="125%" y="633.0722" x="255.56584"><tspan y="633.0722" x="255.56584" font-size="14px">d</tspan></text>
+    <text style="letter-spacing:0px;block-progression:tb;text-indent:0;word-spacing:0px;color:#000000;text-transform:none" xml:space="preserve" line-height="125%" y="738.10455" x="180.68153"><tspan y="738.10455" x="180.68153" font-size="14px">a</tspan></text>
+    <text style="letter-spacing:0px;block-progression:tb;text-indent:0;word-spacing:0px;color:#000000;text-transform:none" xml:space="preserve" line-height="125%" y="628.76648" x="190.6815"><tspan y="628.76648" x="190.6815" font-size="14px">b</tspan></text>
+    <text style="letter-spacing:0px;block-progression:tb;text-indent:0;word-spacing:0px;color:#000000;text-transform:none" xml:space="preserve" line-height="125%" y="534.92474" x="186.17192"><tspan y="534.92474" x="186.17192" font-size="14px">e</tspan></text>
+   </g>
+   <text style="letter-spacing:0px;block-progression:tb;text-indent:0;word-spacing:0px;color:#000000;text-transform:none" xml:space="preserve" font-size="14px" line-height="125%" y="491.55411" x="434.41095"><tspan y="491.55411" x="434.41095">To square a join at exactly delta offset, such</tspan><tspan y="509.05411" x="434.41095">that (b) is delta distance from (a), and given</tspan><tspan y="526.55414" x="434.41095">that (c) is a perpendicular offset of (a) which</tspan><tspan y="544.05414" x="434.41095">is easily derived ... we need to calculate the</tspan><tspan y="561.55414" x="434.41095">distance (d) is from (c).</tspan><tspan y="579.05414" x="434.41095">Ø = pi - ß</tspan><tspan y="596.55408" x="434.41095">angle(bed) = Ø/2</tspan><tspan y="614.05408" x="434.41095">angle(bde) = pi/2 - Ø/2</tspan><tspan y="631.55408" x="434.41095">since trig. function ... cos = adjacent / hypot. </tspan><tspan y="649.05408" x="434.41095">cos(dac) = delta/length(ad), and ...</tspan><tspan y="666.55408" x="434.41095">cos(bad) = delta/length(ad)</tspan><tspan y="684.05408" x="434.41095">then angle(bda) = angle(cda)</tspan><tspan y="701.55408" x="434.41095">angle(bdc) = pi - (pi/2 - Ø/2) = pi/2 + Ø/2</tspan><tspan y="719.05408" x="434.41095">angle(adc) = pi/4 + Ø/4</tspan><tspan y="736.55408" x="434.41095">angle(dac) = pi/2 - (pi/4 + Ø/4) = pi/4 - Ø/4</tspan><tspan y="754.05408" x="434.41095">tan(dac) = tan(pi/4 - Ø/4) = length(cd)/delta</tspan><tspan y="771.55408" x="434.41095">length(cd) = delta * tan((pi - Ø)/4)</tspan><tspan y="789.05408" x="434.41095">since ... pi - Ø = ß ...</tspan><tspan y="797.00244" x="434.41095" font-size="4px" font-weight="bold"> </tspan><tspan y="811.55408" x="434.41095" font-weight="bold">length(cd) = delta * tan(ß/4)</tspan></text>
+  </g>
+  <path style="color:#000000" d="m272.4 667.3-17.1 10.3 10.3 17.1" stroke="#000" stroke-dasharray="3.6, 3.6" stroke-width="1.8" fill="none"/>
+  <g transform="translate(-9.589,458.9)" stroke="#000" stroke-dasharray="3.6, 3.6" stroke-width="1.8" fill="none">
+   <path style="color:#000000" d="m206 78.44 35.1-60.24"/>
+   <path style="color:#000000" d="m230.1 122.7c14.4-8.7 24.1-24.46 24.1-42.51 0-18.38-10.1-34.42-24.9-42.97"/>
+  </g>
+  <text style="letter-spacing:0px;block-progression:tb;text-indent:0;word-spacing:0px;color:#000000;text-transform:none" xml:space="preserve" font-size="14px" line-height="125%" y="577.60413" x="187.21097" font-family="Tahoma" fill="#000000"><tspan y="577.60413" x="187.21097" font-size="20px" font-weight="bold">Ø</tspan></text>
+  <text style="letter-spacing:0px;block-progression:tb;text-indent:0;word-spacing:0px;color:#000000;text-transform:none" xml:space="preserve" font-size="14px" line-height="125%" y="773.54077" x="186.64101" font-family="Tahoma" fill="#000000"><tspan y="773.54077" x="186.64101" font-size="20px" font-weight="bold">Ø</tspan></text>
+  <path style="color:#000000" d="m109 884.2 85.9-147.8 73.6 119.9" stroke="#000" stroke-width="3.6" fill="none"/>
+ </g>
+</svg>

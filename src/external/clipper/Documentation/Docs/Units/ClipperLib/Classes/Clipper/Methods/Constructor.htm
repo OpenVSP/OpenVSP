@@ -1,0 +1,95 @@
+<html>
+
+<head>
+    
+  <script type="text/javascript" src="../../../../../../Scripts/jquery.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../../../Scripts/SyntaxHighlighter/scripts/shCore.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../../../Scripts/SyntaxHighlighter/scripts/shBrushDelphi.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../../../Scripts/SyntaxHighlighter/scripts/shBrushCpp.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../../../Scripts/SyntaxHighlighter/scripts/shBrushCSharp.js">
+  </script>
+    
+  <link type="text/css" rel="stylesheet" href="../../../../../../Scripts/SyntaxHighlighter/styles/shCoreDefault.css">
+    
+  <link type="text/css" rel="stylesheet" href="../../../../../../Scripts/SyntaxHighlighter/styles/shThemeDefault.css">
+  
+
+  <title>Constructor</title>
+
+  <link rel="stylesheet" href="../../../../../../Styles/default.css" type="text/css">
+
+    
+  <script type="text/javascript" src="../../../../../../Scripts/bootstrap.js">
+  </script>
+  
+</head>
+
+<body bgcolor="#FFFFFF">
+    
+  <!-- THIS FILE HAS BEEN AUTOMATICALLY PROCESSED FROM A SOURCE COPY -->
+    
+  <!-- DO NOT EDIT MANUALLY !!! -->
+  
+  <table class="Banner" cellspacing="0" cellpadding="0" border="1" bordercolorlight="#303080" bordercolordark="#7070B0">
+    <tr>
+      <td class="Banner" nowrap=""><a href="../../../../../_Body.htm" class="Banner"><img src="../../../../../../Images/_Home.gif" align="absmiddle">Home</a>
+      </td>
+      <td class="Banner" nowrap=""><a href="../../../_Body.htm" class="Banner"><img src="../../../../../../Images/_Unit.gif" align="absmiddle">ClipperLib</a>
+      </td>
+      <td class="Banner" nowrap=""><a href="../_Body.htm" class="Banner"><img src="../../../../../../Images/_Class.gif" align="absmiddle">Clipper</a>
+      </td>
+      <td class="Banner" width="100%" align="right"><img src="../../../../../../Images/_Project_Logo.gif" align="absmiddle">
+      </td>
+    </tr>
+  </table>
+  <h1>Clipper.Constructor</h1>
+
+
+  <p class="Decl"><span class="Comment">Del.&raquo;</span> <b>constructor</b> TClipper.Create(InitOptions: <a href="../../../Types/InitOptions.htm">TInitOptions</a> = []);</p>
+
+  <p class="Decl2"><span class="Comment">C++&nbsp;&raquo;</span> Clipper::Clipper(<b>int</b> initOptions = 0) : ClipperBase();</p>
+
+  <p class="Decl3"><span class="Comment">C#&nbsp;&nbsp;&raquo;</span> <b>public</b> Clipper(initOptions = 0): base() {};</p>
+
+  <p class="Body"> The Clipper constructor creates an instance of the Clipper class. One or more <a href="../../../Types/InitOptions.htm">InitOptions</a> may be passed as a parameter to set the corresponding properties. (These properties can still be set or reset after construction.)<br><br> Examples:<br><br> 
+    <table cellspacing="0" cellpadding="0" border="0" align="left" style="margin: 0;" width="600px">
+  
+      <tr>
+        <td class="White">
+  
+          <pre class="brush: delphi;">
+  //C++ constructor setting StrictlySimple and PreserveCollinear properties ...
+  Clipper clipper(ioStrictlySimple | ioPreserveCollinear);
+
+  //C# constructor setting StrictlySimple and PreserveCollinear properties ...
+  Clipper clipper = new Clipper(Clipper.ioStrictlySimple | Clipper.ioPreserveCollinear);
+
+  //Delphi constructor setting StrictlySimple and PreserveCollinear properties ...
+  clipper := TClipper.Create([ioStrictlySimple, ioPreserveCollinear]);
+          </pre>
+  
+        </td>
+      </tr>
+  
+    </table> <div style="clear:both">&nbsp;</div> </p>
+
+
+
+  
+
+  <h2 id="Auto-SeeAlso">See Also</h2>
+  <p class="Body"><a href="../Properties/PreserveCollinear.htm">PreserveCollinear</a>, <a href="../Properties/ReverseSolution.htm">ReverseSolution</a>, <a href="../Properties/StrictlySimple.htm">StrictlySimple</a>, <a href="../../../Types/InitOptions.htm">InitOptions</a></p>
+    
+  <p class="Copyright" id="auto"> <br><br> Copyright &copy;2010-2014 Angus Johnson&nbsp; - &nbsp; Clipper 6.2.1 &nbsp; - &nbsp; Help file built on 1-November-2014 <br><br> </p>
+  
+</body>
+
+</html>

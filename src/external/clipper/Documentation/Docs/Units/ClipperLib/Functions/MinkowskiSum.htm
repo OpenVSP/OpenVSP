@@ -1,0 +1,101 @@
+<html>
+
+<head>
+    
+  <script type="text/javascript" src="../../../../Scripts/jquery.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../Scripts/SyntaxHighlighter/scripts/shCore.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../Scripts/SyntaxHighlighter/scripts/shBrushDelphi.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../Scripts/SyntaxHighlighter/scripts/shBrushCpp.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../Scripts/SyntaxHighlighter/scripts/shBrushCSharp.js">
+  </script>
+    
+  <link type="text/css" rel="stylesheet" href="../../../../Scripts/SyntaxHighlighter/styles/shCoreDefault.css">
+    
+  <link type="text/css" rel="stylesheet" href="../../../../Scripts/SyntaxHighlighter/styles/shThemeDefault.css">
+  
+
+  <title>MinkowskiSum</title>
+
+  <link rel="stylesheet" href="../../../../Styles/default.css" type="text/css">
+
+    
+  <script type="text/javascript" src="../../../../Scripts/bootstrap.js">
+  </script>
+  
+</head>
+
+<body bgcolor="#FFFFFF">
+    
+  <!-- THIS FILE HAS BEEN AUTOMATICALLY PROCESSED FROM A SOURCE COPY -->
+    
+  <!-- DO NOT EDIT MANUALLY !!! -->
+  
+  <table class="Banner" cellspacing="0" cellpadding="0" border="1" bordercolorlight="#303080" bordercolordark="#7070B0">
+    <tr>
+      <td class="Banner" nowrap=""><a href="../../../_Body.htm" class="Banner"><img src="../../../../Images/_Home.gif" align="absmiddle">Home</a>
+      </td>
+      <td class="Banner" nowrap=""><a href="../_Body.htm" class="Banner"><img src="../../../../Images/_Unit.gif" align="absmiddle">ClipperLib</a>
+      </td>
+      <td class="Banner" width="100%" align="right"><img src="../../../../Images/_Project_Logo.gif" align="absmiddle">
+      </td>
+    </tr>
+  </table>
+  <h1>MinkowskiSum</h1>
+
+
+  <p class="Decl"><span class="Comment">Del.&raquo;</span> <b>function</b> MinkowskiSum(<b>const</b> Pattern: TPath; <b>const</b> Path: TPath; PathIsClosed: Boolean): TPaths; <b>overload;</b></p>
+
+  <p class="Decl"><span class="Comment">Del.&raquo;</span> <b>function</b> MinkowskiSum(<b>const</b> Pattern: TPath; <b>const</b> Paths: TPaths; PathFillType: TPolyFillType; PathIsClosed: Boolean): TPaths; <b>overload;</b></p>
+
+  <p class="Decl2"><span class="Comment"> C++&nbsp;&raquo;</span> <b>void</b> MinkowskiSum(<b>const</b> Path& pattern, <b>const</b> Path& path, Paths& solution, <b>bool</b> pathIsClosed);</p>
+
+  <p class="Decl2"><span class="Comment"> C++&nbsp;&raquo;</span> <b>void</b> MinkowskiSum(<b>const</b> Path& pattern, <b>const</b> Paths& paths, Paths& solution, PolyFillType pathFillType, <b>bool</b> pathIsClosed);</p>
+
+  <p class="Decl3"><span class="Comment">C#&nbsp;&nbsp;&raquo;</span> <b>public static</b> Paths MinkowskiSum(Path pattern, Path path, <b>bool</b> pathIsClosed);</p>
+
+  <p class="Decl3"><span class="Comment">C#&nbsp;&nbsp;&raquo;</span> <b>public static</b> Paths MinkowskiSum(Path pattern, Paths paths, PolyFillType pathFillType, <b>bool</b> pathIsClosed);</p>
+<br>
+
+
+  <p class="Body"> <b>Minkowski Addition</b> is performed by <em>adding</em> each point in a polygon 'pattern' to the set of points in an open or closed path. The resulting polygon (or polygons) defines the region that the 'pattern' would pass over in moving from the beginning to the end of the 'path'. </p>
+
+
+  <p class="Body"> <img src="../../../../Images/minkowski.png" alt="" border="0" align="right"> 
+    <pre class="brush: csharp;">
+      Path path = new Path();
+      Path pattern = new Path();
+      Paths solution = new Paths();
+
+      //Greek capital sigma (sum sign) ... 
+      Int64[] ints1 = new Int64[] { 300, 400, 100, 400, 200, 300, 100, 200, 300, 200 };
+      path = IntsToPolygon(ints1);
+
+      //diagonal brush pattern ...
+      Int64[] ints2 = new Int64[] { 4, -6, 6, -6, -4, 6, -6, 6 };
+      pattern = IntsToPolygon(ints2);
+
+      solution = Clipper.MinkowskiSum(pattern, path, false);
+      //move 'pattern' to the end of 'path' ...
+      pattern = TranslatePath(pattern, 300, 200);
+
+      //Display solution &plusmn; pattern ...
+    </pre> </p>
+      
+
+
+  <h2 id="Auto-SeeAlso">See Also</h2>
+  <p class="Body"><a href="MinkowskiDiff.htm">MinkowskiDiff</a></p>
+    
+  <p class="Copyright" id="auto"> <br><br> Copyright &copy;2010-2014 Angus Johnson&nbsp; - &nbsp; Clipper 6.2.1 &nbsp; - &nbsp; Help file built on 1-November-2014 <br><br> </p>
+  
+</body>
+
+</html>

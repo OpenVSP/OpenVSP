@@ -1,0 +1,104 @@
+<html>
+
+<head>
+    
+  <script type="text/javascript" src="../../Scripts/jquery.js">
+  </script>
+    
+  <script type="text/javascript" src="../../Scripts/SyntaxHighlighter/scripts/shCore.js">
+  </script>
+    
+  <script type="text/javascript" src="../../Scripts/SyntaxHighlighter/scripts/shBrushDelphi.js">
+  </script>
+    
+  <script type="text/javascript" src="../../Scripts/SyntaxHighlighter/scripts/shBrushCpp.js">
+  </script>
+    
+  <script type="text/javascript" src="../../Scripts/SyntaxHighlighter/scripts/shBrushCSharp.js">
+  </script>
+    
+  <link type="text/css" rel="stylesheet" href="../../Scripts/SyntaxHighlighter/styles/shCoreDefault.css">
+    
+  <link type="text/css" rel="stylesheet" href="../../Scripts/SyntaxHighlighter/styles/shThemeDefault.css">
+  
+
+  <title>FAQ</title>  
+
+  <link rel="stylesheet" href="../../Styles/default.css" type="text/css">
+
+    
+  <script type="text/javascript" src="../../Scripts/bootstrap.js">
+  </script>
+  
+</head>
+
+<body bgcolor="#FFFFFF">
+    
+  <!-- THIS FILE HAS BEEN AUTOMATICALLY PROCESSED FROM A SOURCE COPY -->
+    
+  <!-- DO NOT EDIT MANUALLY !!! -->
+  
+  <table class="Banner" cellspacing="0" cellpadding="0" border="1" bordercolorlight="#303080" bordercolordark="#7070B0">
+    <tr>
+      <td class="Banner" nowrap=""><a href="../_Body.htm" class="Banner"><img src="../../Images/_Home.gif" align="absmiddle">Home</a>
+      </td>
+      <td class="Banner" nowrap=""><a href="_Body.htm" class="Banner">Overview</a>
+      </td>
+      <td class="Banner" width="100%" align="right"><img src="../../Images/_Project_Logo.gif" align="absmiddle">
+      </td>
+    </tr>
+  </table>
+  <h1>FAQ</h1>
+
+
+  <p class="Decl5">Why does Clipper use integer coordinates, not floats?</p>
+
+  <p class="Decl4">This has been done to preserve <a href="http://www.mpi-inf.mpg.de/~kettner/pub/nonrobust_cgta_06.pdf" target="_blank">numerical robustness</a>. Early versions of the library did use floating point coordinates, but it became apparent that floating point imprecision was always going to cause occasional errors.<br><br> </p>
+
+
+  <p class="Decl5">How do I use floating point coordinates with Clipper?</p>
+
+  <p class="Decl4">It's a simple task to multiply your floating point coordinates by a scaling factor (that's typically a power of 10 depending on the desired precision). Then with the solution paths, divide the returned coordinates by this same scaling factor. Clipper accepts integer coordinates as large as &plusmn;4.6e18, so it can accommodate very large scaling.<br><br> </p>
+
+
+  <p class="Decl5">Does Clipper handle polygons with holes?</p>
+
+  <p class="Decl4">'Holes' are defined by the specified <a href="../Units/ClipperLib/Types/PolyFillType.htm">polygon filling rule</a>. (See also <a href="../Units/ClipperLib/Classes/Clipper/Methods/Execute.htm">Clipper.Execute</a>)<br><br> </p>
+
+
+  <p class="Decl5">Some polygons in the solution share a common edge. Is this a bug?</p>
+
+  <p class="Decl4"> No, though this should happen rarely as of version 6. (See <a href="../Units/ClipperLib/Classes/Clipper/Methods/Execute.htm">Clipper.Execute</a> for more about this.)<br><br> </p>
+
+
+  <p class="Decl5">I have lots of polygons that I want to 'union'. Can I do this in one operation?</p>
+
+  <p class="Decl4"> Yes. Just add all the polygons as subject polygons to the Clipper object. (You don't have to assign both subject and clip polygons.)<br><br> </p>
+
+
+  <p class="Decl5"> <img src="../../Images/kangaroo_small.png" width="292" height="292" alt="" align="right"> The polygons produced by <a href="../Units/ClipperLib/Classes/ClipperOffset/_Body.htm">ClipperOffset</a> have tiny artefacts? Could this be a bug?</p>
+
+  <p class="Decl4"> Make sure the input polygons don't self-intersect. Tiny self-intersections can sometimes be produced by previous clipping operations. These can be cleaned up using the <a href="../Units/ClipperLib/Functions/CleanPolygon.htm">CleanPolygon</a> and <a href="../Units/ClipperLib/Functions/CleanPolygons.htm">CleanPolygons</a> functions. Also, make sure the supplied polygons don't overlap. If they do, offset these separately. Finally, the precision of the input coordinates may be a problem. Because the Clipper Library only operates on integer coordinates, you may need to scale your coordinates (eg by a factor of 10) to improve precision. <br><br> </p>
+
+
+  <p class="Decl5">Is there an easy way to reverse polygon orientations?</p>
+
+  <p class="Decl4"> Yes, see <a href="../Units/ClipperLib/Functions/ReversePaths.htm">ReversePaths</a>. <br><br> </p>
+
+<div style="clear:both">&nbsp;</div>
+
+
+  <p class="Decl5">My drawings contain lots of beziers, ellipses and arcs. How can I perform clipping operations on these?</p>
+
+  <p class="Decl4"> You'll have to convert them to 'flattened' paths. For an example of how this can be done (and even reconstructed back into beziers, arcs etc), see the CurvesDemo application included in this library. <br><br> </p>
+
+
+  <h2 id="Auto-SeeAlso">See Also</h2>
+  <p class="Body"><a href="../Units/ClipperLib/Classes/Clipper/Methods/Execute.htm">Clipper.Execute</a>, <a href="../Units/ClipperLib/Classes/ClipperOffset/_Body.htm">ClipperOffset</a>, <a href="../Units/ClipperLib/Functions/CleanPolygon.htm">CleanPolygon</a>, <a href="../Units/ClipperLib/Functions/CleanPolygons.htm">CleanPolygons</a>, <a href="../Units/ClipperLib/Functions/ReversePaths.htm">ReversePaths</a>, <a href="../Units/ClipperLib/Types/PolyFillType.htm">PolyFillType</a></p>
+    
+  <p class="Copyright" id="auto"> <br><br> Copyright &copy;2010-2014 Angus Johnson&nbsp; - &nbsp; Clipper 6.2.1 &nbsp; - &nbsp; Help file built on 1-November-2014 <br><br> </p>
+  
+</body>
+
+
+</html>

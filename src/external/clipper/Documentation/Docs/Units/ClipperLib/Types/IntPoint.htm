@@ -1,0 +1,73 @@
+<html>
+
+<head>
+    
+  <script type="text/javascript" src="../../../../Scripts/jquery.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../Scripts/SyntaxHighlighter/scripts/shCore.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../Scripts/SyntaxHighlighter/scripts/shBrushDelphi.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../Scripts/SyntaxHighlighter/scripts/shBrushCpp.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../Scripts/SyntaxHighlighter/scripts/shBrushCSharp.js">
+  </script>
+    
+  <link type="text/css" rel="stylesheet" href="../../../../Scripts/SyntaxHighlighter/styles/shCoreDefault.css">
+    
+  <link type="text/css" rel="stylesheet" href="../../../../Scripts/SyntaxHighlighter/styles/shThemeDefault.css">
+  
+
+  <title>IntPoint</title>
+
+  <link rel="stylesheet" href="../../../../Styles/default.css" type="text/css">
+
+    
+  <script type="text/javascript" src="../../../../Scripts/bootstrap.js">
+  </script>
+  
+</head>
+
+<body bgcolor="#FFFFFF">
+    
+  <!-- THIS FILE HAS BEEN AUTOMATICALLY PROCESSED FROM A SOURCE COPY -->
+    
+  <!-- DO NOT EDIT MANUALLY !!! -->
+  
+  <table class="Banner" cellspacing="0" cellpadding="0" border="1" bordercolorlight="#303080" bordercolordark="#7070B0">
+    <tr>
+      <td class="Banner" nowrap=""><a href="../../../_Body.htm" class="Banner"><img src="../../../../Images/_Home.gif" align="absmiddle">Home</a>
+      </td>
+      <td class="Banner" nowrap=""><a href="../_Body.htm" class="Banner"><img src="../../../../Images/_Unit.gif" align="absmiddle">ClipperLib</a>
+      </td>
+      <td class="Banner" width="100%" align="right"><img src="../../../../Images/_Project_Logo.gif" align="absmiddle">
+      </td>
+    </tr>
+  </table>
+  <h1>IntPoint</h1>
+
+  <p class="Decl"><span class="Comment">Del.&raquo;</span> TIntPoint = <b>record</b> X, Y: <a href="./CInt.htm">cInt</a>; <b>end;</b></p>
+
+  <p class="Decl2"><span class="Comment">C++&nbsp;&raquo;</span> <b>struct</b> IntPoint { <a href="./CInt.htm">cInt</a> X; <a href="./CInt.htm">cInt</a> Y; <b>...</b> };</p>
+
+  <p class="Decl3"><span class="Comment">C#&nbsp;&nbsp;&raquo;</span> <b>public class</b> IntPoint { <b>public</b> <a href="./CInt.htm">cInt</a> X; { get; set; } <b>public</b> <a href="./CInt.htm">cInt</a> Y; { get; set; } <b>...</b> };</p>
+<br>
+
+
+  <p class="Body"> The <b>IntPoint</b> structure is used to represent all vertices in the Clipper Library. An <em>integer</em> storage type has been deliberately chosen to preserve <a href="http://www.mpi-inf.mpg.de/~kettner/pub/nonrobust_cgta_06.pdf" target="_blank"><b>numerical robustness</b></a>. (Early versions of the library used floating point coordinates, but it became apparent that floating point imprecision would always cause occasional errors.)<br><br> A sequence of IntPoints are contained within a <a href="./Path.htm">Path</a> structure to represent a single contour.<br><br> As of version 6, IntPoint now has <span class="maroon">an optional third member 'Z'</span>. This can be enabled by exposing (ie uncommenting) the PreProcessor define '<a href="../PreProcessor/Defines.htm"><b>use_xyz</b></a>'. When the Z member is used, its values will be copied to corresponding verticies in solutions to clipping operations. However, at points of intersection where there's no corresponding Z value, the value will be assigned zero unless a new value is provided by a user supplied <a href="../Classes/Clipper/Properties/ZFillFunction.htm"><b>callback function</b></a>.<br><br> Users wishing to clip or offset polygons containing <em>floating point</em> coordinates need to use appropriate scaling when converting these values to and from <em>IntPoints</em>.<br><br> See also the notes on <a href="../../../Overview/Rounding.htm">rounding</a>. </p>
+
+
+
+
+  <h2 id="Auto-SeeAlso">See Also</h2>
+  <p class="Body"><a href="../../../Overview/Rounding.htm">Rounding</a>, <a href="../Classes/Clipper/Properties/ZFillFunction.htm">Clipper.ZFillFunction</a>, <a href="../PreProcessor/Defines.htm">Defines</a>, <a href="CInt.htm">CInt</a>, <a href="Path.htm">Path</a>, <a href="Paths.htm">Paths</a></p>
+    
+  <p class="Copyright" id="auto"> <br><br> Copyright &copy;2010-2014 Angus Johnson&nbsp; - &nbsp; Clipper 6.2.1 &nbsp; - &nbsp; Help file built on 1-November-2014 <br><br> </p>
+  
+</body>
+
+</html>

@@ -1,0 +1,87 @@
+<html>
+
+<head>
+    
+  <script type="text/javascript" src="../../../../Scripts/jquery.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../Scripts/SyntaxHighlighter/scripts/shCore.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../Scripts/SyntaxHighlighter/scripts/shBrushDelphi.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../Scripts/SyntaxHighlighter/scripts/shBrushCpp.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../Scripts/SyntaxHighlighter/scripts/shBrushCSharp.js">
+  </script>
+    
+  <link type="text/css" rel="stylesheet" href="../../../../Scripts/SyntaxHighlighter/styles/shCoreDefault.css">
+    
+  <link type="text/css" rel="stylesheet" href="../../../../Scripts/SyntaxHighlighter/styles/shThemeDefault.css">
+  
+
+  <title>CleanPolygons</title>
+
+  <link rel="stylesheet" href="../../../../Styles/default.css" type="text/css">
+
+    
+  <script type="text/javascript" src="../../../../Scripts/bootstrap.js">
+  </script>
+  
+</head>
+
+<body bgcolor="#FFFFFF">
+    
+  <!-- THIS FILE HAS BEEN AUTOMATICALLY PROCESSED FROM A SOURCE COPY -->
+    
+  <!-- DO NOT EDIT MANUALLY !!! -->
+  
+  <table class="Banner" cellspacing="0" cellpadding="0" border="1" bordercolorlight="#303080" bordercolordark="#7070B0">
+    <tr>
+      <td class="Banner" nowrap=""><a href="../../../_Body.htm" class="Banner"><img src="../../../../Images/_Home.gif" align="absmiddle">Home</a>
+      </td>
+      <td class="Banner" nowrap=""><a href="../_Body.htm" class="Banner"><img src="../../../../Images/_Unit.gif" align="absmiddle">ClipperLib</a>
+      </td>
+      <td class="Banner" width="100%" align="right"><img src="../../../../Images/_Project_Logo.gif" align="absmiddle">
+      </td>
+    </tr>
+  </table>
+  <h1>CleanPolygons</h1>
+
+
+  <p class="Decl"><span class="Comment">Del.&raquo;</span> <b>function</b> CleanPolygons(<b>const</b> Polys: TPaths; Distance: double = 1.415): TPaths;</p>
+
+  <p class="Decl2"><span class="Comment"> C++&nbsp;&raquo;</span> <b>void</b> CleanPolygons(<b>const</b> Paths &amp;in_polys, Paths &amp;out_polys, double distance = 1.415);</p>
+
+  <p class="Decl2"><span class="Comment"> C++&nbsp;&raquo;</span> <b>void</b> CleanPolygons(Paths &amp;polys, double distance = 1.415);</p>
+
+  <p class="Decl3"><span class="Comment">C#&nbsp;&nbsp;&raquo;</span> <b>public static</b> Paths CleanPolygons(Paths polys, double distance = 1.415);</p>
+<br>
+
+
+  <p class="Body"> Removes vertices: 
+    <ul>
+	
+      <li>that join co-linear edges, or join edges that are almost co-linear (such that if the vertex was moved no more than the specified distance the edges would be co-linear)</li>
+	
+      <li>that are within the specified distance of an adjacent vertex</li>
+	
+      <li>that are within the specified distance of a semi-adjacent vertex together with their out-lying vertices</li>
+
+    </ul> </p>
+
+  <p class="Body"> Vertices are <em>semi-adjacent</em> when they are separated by a single (out-lying) vertex.<br><br> The <em>distance</em> parameter's default value is approximately &radic;2 so that a vertex will be removed when adjacent or semi-adjacent vertices having their corresponding X and Y coordinates differing by no more than 1 unit. (If the egdes are semi-adjacent the out-lying vertex will be removed too.)<br><br> C++ only: This function is overloaded. In the first definition, the <em>in_polys</em> and <em>out_polys</em> parameters can reference the same <em>Paths</em> object though in that case the calling code might be clearer if the second definition (accepting a single <em>Paths</em> parameter) is used.<br><br> <img src="../../../../Images/clean1.png" alt="" border="0">&nbsp;&nbsp;&nbsp; <img src="../../../../Images/clean2.png" alt="" border="0"> </p>
+
+
+
+
+  <h2 id="Auto-SeeAlso">See Also</h2>
+  <p class="Body"><a href="CleanPolygon.htm">CleanPolygon</a>, <a href="SimplifyPolygons.htm">SimplifyPolygons</a></p>
+    
+  <p class="Copyright" id="auto"> <br><br> Copyright &copy;2010-2014 Angus Johnson&nbsp; - &nbsp; Clipper 6.2.1 &nbsp; - &nbsp; Help file built on 1-November-2014 <br><br> </p>
+  
+</body>
+
+</html>

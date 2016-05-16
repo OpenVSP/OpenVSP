@@ -1,0 +1,136 @@
+<html>
+
+<head>
+    
+  <script type="text/javascript" src="../../../../../Scripts/jquery.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../../Scripts/SyntaxHighlighter/scripts/shCore.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../../Scripts/SyntaxHighlighter/scripts/shBrushDelphi.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../../Scripts/SyntaxHighlighter/scripts/shBrushCpp.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../../Scripts/SyntaxHighlighter/scripts/shBrushCSharp.js">
+  </script>
+    
+  <link type="text/css" rel="stylesheet" href="../../../../../Scripts/SyntaxHighlighter/styles/shCoreDefault.css">
+    
+  <link type="text/css" rel="stylesheet" href="../../../../../Scripts/SyntaxHighlighter/styles/shThemeDefault.css">
+  
+
+  <title>ClipperOffset</title>
+
+  <link rel="stylesheet" href="../../../../../Styles/default.css" type="text/css">
+
+  <meta name="Ancestor" content="">
+
+    
+  <script type="text/javascript" src="../../../../../Scripts/bootstrap.js">
+  </script>
+  
+</head>
+
+<body bgcolor="#FFFFFF">
+    
+  <!-- THIS FILE HAS BEEN AUTOMATICALLY PROCESSED FROM A SOURCE COPY -->
+    
+  <!-- DO NOT EDIT MANUALLY !!! -->
+  
+  <table class="Banner" cellspacing="0" cellpadding="0" border="1" bordercolorlight="#303080" bordercolordark="#7070B0">
+    <tr>
+      <td class="Banner" nowrap=""><a href="../../../../_Body.htm" class="Banner"><img src="../../../../../Images/_Home.gif" align="absmiddle">Home</a>
+      </td>
+      <td class="Banner" nowrap=""><a href="../../_Body.htm" class="Banner"><img src="../../../../../Images/_Unit.gif" align="absmiddle">ClipperLib</a>
+      </td>
+      <td class="Banner" width="100%" align="right"><img src="../../../../../Images/_Project_Logo.gif" align="absmiddle">
+      </td>
+    </tr>
+  </table>
+  <h1>ClipperOffset</h1>
+<br>
+
+  <p class="Body">The ClipperOffset class encapsulates the process of offsetting (inflating/deflating) both open and closed paths using a number of different join types and end types.<br><br> <em>(This class replaces the now deprecated OffsetPaths function which was less flexible.)</em><br><br> <b>Preconditions for offsetting:</b><br> 1. The orientations of closed paths must be consistent such that outer polygons share the same orientation, and any holes have the opposite orientation (ie non-zero filling). Open paths must be oriented with closed outer polygons.<br> 2. Polygons must not self-intersect. <br><br> <b>Limitations:</b><br> When offsetting, small artefacts may appear where polygons overlap. To avoid these artefacts, offset overlapping polygons separately.<br><br><br> <img src="../../../../../Images/offset1.png" alt="" width="310" height="314" border="0" align="right"> 
+    <table cellspacing="0" cellpadding="0" border="0" align="left" style="margin: 0;" width="560px">
+
+      <tr>
+        <td class="White">
+
+          <pre class="brush: cpp;">
+#include "clipper.hpp"  
+...
+using namespace ClipperLib;
+
+int main()
+{
+  Path subj;
+  Paths solution;
+  subj &lt;&lt; 
+    IntPoint(348,257) &lt;&lt; IntPoint(364,148) &lt;&lt; IntPoint(362,148) &lt;&lt; 
+    IntPoint(326,241) &lt;&lt; IntPoint(295,219) &lt;&lt; IntPoint(258,88) &lt;&lt; 
+    IntPoint(440,129) &lt;&lt; IntPoint(370,196) &lt;&lt; IntPoint(372,275);
+  ClipperOffset co;
+  co.AddPath(subj, jtRound, etClosedPolygon);
+  co.Execute(solution, -7.0);
+  
+  //draw solution ...
+  DrawPolygons(solution, 0x4000FF00, 0xFF009900);
+}
+          </pre>
+
+
+        </td>
+      </tr>
+
+    </table> <div style="clear:both">&nbsp;</div> </p>
+
+  <h2 id="Auto-Reference">Reference</h2>
+  <table>
+    <tr><th>Methods
+      </th><th>Properties
+      </th>
+    </tr>
+    <tr>
+      <td colspan="2" class="White">In ClipperOffset:
+      </td>
+    </tr>
+    <tr>
+      <td><a href="Methods/AddPath.htm">AddPath</a>
+      </td>
+      <td><a href="Properties/ArcTolerance.htm">ArcTolerance</a>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="Methods/AddPaths.htm">AddPaths</a>
+      </td>
+      <td><a href="Properties/MiterLimit.htm">MiterLimit</a>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="Methods/Clear.htm">Clear</a>
+      </td>
+      <td>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="Methods/Constructor.htm">Constructor</a>
+      </td>
+      <td>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="Methods/Execute.htm">Execute</a>
+      </td>
+      <td>
+      </td>
+    </tr>
+  </table>
+    
+  <p class="Copyright" id="auto"> <br><br> Copyright &copy;2010-2014 Angus Johnson&nbsp; - &nbsp; Clipper 6.2.1 &nbsp; - &nbsp; Help file built on 1-November-2014 <br><br> </p>
+  
+</body>
+
+</html>
