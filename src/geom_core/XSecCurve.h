@@ -210,7 +210,7 @@ public:
     Parm m_M_bot;
     Parm m_N_bot;
     Parm m_MaxWidthLoc;
-    BoolParm m_YSym;
+    BoolParm m_TopBotSym;
 };
 
 //==========================================================================//

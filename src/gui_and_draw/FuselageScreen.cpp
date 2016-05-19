@@ -353,15 +353,15 @@ bool FuselageScreen::Update() {
                 m_SuperWidthSlider.Update(super_xs->m_Width.GetID());
                 m_SuperMSlider.Update(super_xs->m_M.GetID());
                 m_SuperNSlider.Update(super_xs->m_N.GetID());
-                m_SuperToggleSym.Update(super_xs->m_YSym.GetID());
+                m_SuperToggleSym.Update(super_xs->m_TopBotSym.GetID());
 
-                if (super_xs->m_YSym()) 
+                if (super_xs->m_TopBotSym()) 
                 {
                     m_SuperM_botSlider.Deactivate();
                     m_SuperN_botSlider.Deactivate();
                     m_SuperMaxWidthLocSlider.Deactivate();
                 } 
-                else if (!super_xs->m_YSym()) 
+                else if (!super_xs->m_TopBotSym()) 
                 {
                     m_SuperM_botSlider.Activate();
                     m_SuperN_botSlider.Activate();

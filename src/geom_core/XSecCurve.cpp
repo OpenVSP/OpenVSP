@@ -839,8 +839,8 @@ SuperXSec::SuperXSec() : XSecCurve() {
     m_MaxWidthLoc.Init("Super_MaxWidthLoc", m_GroupName, this, 0.0, -1.0e12, 1.0e12);
     m_MaxWidthLoc.SetDescript("Maximum Width Location for Super Ellipse");
 
-    m_YSym.Init("Super_MaxWidthLoc", m_GroupName, this, 1, 0, 1, true);
-    m_YSym.SetDescript("Toggle Symmetry for Top and Bottom Curve");
+    m_TopBotSym.Init("Super_MaxWidthLoc", m_GroupName, this, 1, 0, 1, true);
+    m_TopBotSym.SetDescript("Toggle Symmetry for Top and Bottom Curve");
 }
 
 //==== Update Geometry ====//
@@ -859,14 +859,15 @@ void SuperXSec::Update() {
     psc.set_exponents_bot(m_M_bot(), m_N_bot());
 
 
-    if (m_YSym()) {
+    if (m_TopBotSym()) {
         psc.set_max_width_loc(0);
         m_M_bot.Set(m_M());
         m_N_bot.Set(m_N());
-    } else if (!m_YSym()) {
+        m_MaxWidthLoc.Set(0);
+    } else if (!m_TopBotSym()) {
         psc.set_max_width_loc(m_MaxWidthLoc());
     }
-    psc.set_y_sym(m_YSym());
+    psc.set_top_bot_sym(m_TopBotSym());
 
     psc.set_origin(origin);
 
