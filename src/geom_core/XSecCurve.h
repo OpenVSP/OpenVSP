@@ -1,4 +1,4 @@
-//
+    //
 // This file is released under the terms of the NASA Open Source Agreement (NOSA)
 // version 1.3 as detailed in the LICENSE file which accompanies this software.
 //
@@ -195,6 +195,11 @@ public:
     {
         return m_Height();
     }
+    
+//    virtual bool GetSymmetryFlag()
+//    {
+//        return m_YSym;
+//    }
     virtual void SetWidthHeight( double w, double h );
     virtual string GetWidthParmID()                                    { return m_Width.GetID(); }
 
@@ -202,6 +207,10 @@ public:
     Parm m_Height;
     Parm m_M;
     Parm m_N;
+    Parm m_M_bot;
+    Parm m_N_bot;
+    Parm m_MaxWidthLoc;
+    BoolParm m_YSym;
 };
 
 //==========================================================================//
@@ -233,6 +242,13 @@ public:
     Parm m_Width;
     Parm m_Height;
     Parm m_Radius;
+    
+    Parm m_BotWidth;
+    Parm m_BotRadius;
+    Parm m_MaxHeightLoc;
+    
+    Parm m_Skew;
+    BoolParm m_TopBotSym;
 };
 
 //==========================================================================//

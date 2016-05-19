@@ -17,17 +17,16 @@
 
 #include <FL/Fl.H>
 
-class FuselageScreen : public SkinScreen
-{
+class FuselageScreen : public SkinScreen {
 public:
-    FuselageScreen( ScreenMgr* mgr );
+    FuselageScreen(ScreenMgr* mgr);
     virtual ~FuselageScreen();
 
     virtual void Show();
     virtual bool Update();
 
-    virtual void CallBack( Fl_Widget *w );
-    virtual void GuiDeviceCallBack( GuiDevice* d );
+    virtual void CallBack(Fl_Widget *w);
+    virtual void GuiDeviceCallBack(GuiDevice* d);
 
 protected:
 
@@ -67,6 +66,10 @@ protected:
     SliderAdjRangeInput m_SuperWidthSlider;
     SliderAdjRangeInput m_SuperMSlider;
     SliderAdjRangeInput m_SuperNSlider;
+    ToggleButton m_SuperToggleSym;
+    SliderAdjRangeInput m_SuperM_botSlider;
+    SliderAdjRangeInput m_SuperN_botSlider;
+    SliderAdjRangeInput m_SuperMaxWidthLocSlider;
 
     GroupLayout m_CircleGroup;
     SliderAdjRangeInput m_DiameterSlider;
@@ -78,7 +81,10 @@ protected:
     GroupLayout m_RoundedRectGroup;
     SliderAdjRangeInput m_RRHeightSlider;
     SliderAdjRangeInput m_RRWidthSlider;
+    ToggleButton m_RRToggleTopBotSym;
+    SliderAdjRangeInput m_RRBotWidthSlider;
     SliderAdjRangeInput m_RRRadiusSlider;
+    SliderAdjRangeInput m_RRSkewSlider;
 
     GroupLayout m_GenGroup;
     SliderAdjRangeInput m_GenHeightSlider;
@@ -130,7 +136,7 @@ protected:
     SliderAdjRangeInput m_AfFileChordSlider;
 
     GroupLayout* m_CurrDisplayGroup;
-    void DisplayGroup( GroupLayout* group );
+    void DisplayGroup(GroupLayout* group);
 
 };
 

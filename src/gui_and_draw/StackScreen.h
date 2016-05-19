@@ -63,6 +63,10 @@ protected:
     SliderAdjRangeInput m_SuperWidthSlider;
     SliderAdjRangeInput m_SuperMSlider;
     SliderAdjRangeInput m_SuperNSlider;
+    ToggleButton m_SuperToggleSym;
+    SliderAdjRangeInput m_SuperM_botSlider;
+    SliderAdjRangeInput m_SuperN_botSlider;
+    SliderAdjRangeInput m_SuperMaxWidthLocSlider;
 
     GroupLayout m_CircleGroup;
     SliderAdjRangeInput m_DiameterSlider;
@@ -74,7 +78,10 @@ protected:
     GroupLayout m_RoundedRectGroup;
     SliderAdjRangeInput m_RRHeightSlider;
     SliderAdjRangeInput m_RRWidthSlider;
+    ToggleButton m_RRToggleTopBotSym;
+    SliderAdjRangeInput m_RRBotWidthSlider;
     SliderAdjRangeInput m_RRRadiusSlider;
+    SliderAdjRangeInput m_RRSkewSlider;
 
     GroupLayout m_GenGroup;
     SliderAdjRangeInput m_GenHeightSlider;
