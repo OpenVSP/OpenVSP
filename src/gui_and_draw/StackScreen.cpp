@@ -112,6 +112,13 @@ StackScreen::StackScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "Stack" 
     m_SuperGroup.AddYGap();
     m_SuperGroup.AddSlider( m_SuperMSlider, "M", 10, "%6.5f" );
     m_SuperGroup.AddSlider( m_SuperNSlider, "N", 10, "%6.5f" );
+    m_SuperGroup.AddYGap();
+    m_SuperGroup.AddButton(m_SuperToggleSym, "T/B Sym");
+    m_SuperGroup.AddYGap();
+    m_SuperGroup.AddSlider(m_SuperM_botSlider, "M Bot", 10, "%6.5f");
+    m_SuperGroup.AddSlider(m_SuperN_botSlider, "N Bot", 10, "%6.5f");
+    m_SuperGroup.AddYGap();
+    m_SuperGroup.AddSlider(m_SuperMaxWidthLocSlider, "MaxWLoc", 10, "%6.5f");
 
     //==== Circle XSec ====//
     m_CircleGroup.SetGroupAndScreen( AddSubGroup( xsec_tab, 5 ), this );
@@ -136,6 +143,10 @@ StackScreen::StackScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "Stack" 
     m_RoundedRectGroup.AddSlider( m_RRRadiusSlider, "Radius", 10, "%6.5f" );
     m_RoundedRectGroup.AddYGap();
     m_RoundedRectGroup.AddButton( m_RRKeyCornerButton, "Key Corner" );
+    m_RoundedRectGroup.AddButton(m_RRToggleTopBotSym, "T/B Sym");
+    m_RoundedRectGroup.AddYGap();
+    m_RoundedRectGroup.AddSlider(m_RRBotWidthSlider, "Bot Width", 10, "%6.5f");
+    m_RoundedRectGroup.AddSlider(m_RRSkewSlider, "Skew", 10, "%6.5f");
 
     //==== General Fuse XSec ====//
     m_GenGroup.SetGroupAndScreen( AddSubGroup( xsec_tab, 5 ), this );
@@ -339,6 +350,23 @@ bool StackScreen::Update()
                 m_SuperWidthSlider.Update( super_xs->m_Width.GetID() );
                 m_SuperMSlider.Update( super_xs->m_M.GetID() );
                 m_SuperNSlider.Update( super_xs->m_N.GetID() );
+                m_SuperToggleSym.Update(super_xs->m_TopBotSym.GetID());
+
+                if (super_xs->m_TopBotSym()) 
+                {
+                    m_SuperM_botSlider.Deactivate();
+                    m_SuperN_botSlider.Deactivate();
+                    m_SuperMaxWidthLocSlider.Deactivate();
+                } 
+                else if (!super_xs->m_TopBotSym()) 
+                {
+                    m_SuperM_botSlider.Activate();
+                    m_SuperN_botSlider.Activate();
+                    m_SuperMaxWidthLocSlider.Activate();
+                    m_SuperM_botSlider.Update(super_xs->m_M_bot.GetID());
+                    m_SuperN_botSlider.Update(super_xs->m_N_bot.GetID());
+                    m_SuperMaxWidthLocSlider.Update(super_xs->m_MaxWidthLoc.GetID());
+                }
             }
             else if ( xsc->GetType() == XS_CIRCLE )
             {
@@ -367,6 +395,19 @@ bool StackScreen::Update()
                 m_RRWidthSlider.Update( rect_xs->m_Width.GetID() );
                 m_RRRadiusSlider.Update( rect_xs->m_Radius.GetID() );
                 m_RRKeyCornerButton.Update( rect_xs->m_KeyCornerParm.GetID() );
+                m_RRToggleTopBotSym.Update(rect_xs->m_TopBotSym.GetID());
+                m_RRSkewSlider.Update(rect_xs->m_Skew.GetID());
+                
+                //Set top-bottom symmetry
+                if (rect_xs->m_TopBotSym()) {
+                    //deactivate bot w sliders
+                    m_RRBotWidthSlider.Deactivate();
+                } 
+                else if (!rect_xs->m_TopBotSym()) 
+                {
+                    m_RRBotWidthSlider.Activate();
+                    m_RRBotWidthSlider.Update(rect_xs->m_BotWidth.GetID());
+                }
             }
             else if ( xsc->GetType() == XS_GENERAL_FUSE )
             {
