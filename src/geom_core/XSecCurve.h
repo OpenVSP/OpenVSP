@@ -231,6 +231,10 @@ public:
     Parm m_Height;
     Parm m_M;
     Parm m_N;
+    Parm m_M_bot;
+    Parm m_N_bot;
+    Parm m_MaxWidthLoc;
+    BoolParm m_TopBotSym;
 };
 
 //==========================================================================//
@@ -262,7 +266,12 @@ public:
     Parm m_Width;
     Parm m_Height;
     Parm m_Radius;
+    Parm m_BotWidth;
+    Parm m_BotRadius;
+    Parm m_MaxHeightLoc;
+    Parm m_Skew;
     BoolParm m_KeyCornerParm;
+    BoolParm m_TopBotSym;
 };
 
 //==========================================================================//

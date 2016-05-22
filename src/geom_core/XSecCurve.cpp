@@ -1370,6 +1370,14 @@ SuperXSec::SuperXSec( ) : XSecCurve( )
     m_M.Init( "Super_M", m_GroupName, this, 2.0, 0.2, 5.0 );
     m_M.SetDescript( "Width of the Super Ellipse Cross-Section" );
     m_N.Init( "Super_N", m_GroupName, this, 2.0, 0.2, 5.0 );
+    m_M_bot.Init("Super_M_bot", m_GroupName, this, 2.0, 0.25, 5.0);
+    m_M_bot.SetDescript("Generalized Super Ellipse M Exponent for Bottom Half");
+    m_N_bot.Init("Super_N_bot", m_GroupName, this, 2.0, 0.25, 5.0);
+    m_N_bot.SetDescript("Generalized Super Ellipse N Exponent for Bottom Half");
+    m_MaxWidthLoc.Init("Super_MaxWidthLoc", m_GroupName, this, 0.0, -1.0e12, 1.0e12);
+    m_MaxWidthLoc.SetDescript("Maximum Width Location for Super Ellipse");
+    m_TopBotSym.Init("Super_MaxWidthLoc", m_GroupName, this, true, 0, 1);
+    m_TopBotSym.SetDescript("Toggle Symmetry for Top and Bottom Curve");
 }
 
 //==== Update Geometry ====//
@@ -1385,7 +1393,22 @@ void SuperXSec::Update()
     psc.set_axis( m_Width() / 2, m_Height() / 2 );
     psc.set_max_degree( 3 );
     psc.set_exponents( m_M(), m_N() );
+    psc.set_exponents_bot( m_M_bot(), m_N_bot() );
     psc.set_origin( origin );
+
+    // check for top bottom symmetry toggle
+    if ( m_TopBotSym() )
+    {
+        psc.set_max_width_loc( 0 );
+        m_M_bot.Set( m_M() );
+        m_N_bot.Set( m_N() );
+        m_MaxWidthLoc.Set( 0 );
+    }
+    else if ( !m_TopBotSym() )
+    {
+        psc.set_max_width_loc( m_MaxWidthLoc() );
+    }
+    psc.set_top_bot_sym( m_TopBotSym() );
 
     psc.set_t0( 0 );
     for ( int i = 0; i < psc.get_number_segments(); ++i )
@@ -1424,8 +1447,11 @@ RoundedRectXSec::RoundedRectXSec( ) : XSecCurve( )
 
     m_Height.Init( "RoundedRect_Height", m_GroupName, this, 1.0, 0.0, 1.0e12 );
     m_Width.Init( "RoundedRect_Width", m_GroupName, this,  1.0, 0.0, 1.0e12 );
+    m_BotWidth.Init("RoundedRect_BotWidth", m_GroupName, this, 2.5, 0.0, 1.0e12);
     m_Radius.Init( "RoundRectXSec_Radius", m_GroupName,  this,  0.2, 0.0, 1.0e12 );
+    m_Skew.Init("RoundRect_Skew", m_GroupName, this, 0.0, -1.0e12, 1.0e12);
     m_KeyCornerParm.Init( "RoundRectXSec_KeyCorner", m_GroupName, this, false, 0, 1 );
+    m_TopBotSym.Init("RoundRect_TopBotSym", m_GroupName, this, true, 0, 1);
 }
 
 //==== Update Geometry ====//
@@ -1434,15 +1460,23 @@ void RoundedRectXSec::Update()
     VspCurve edge;
     vector<vec3d> pt;
     vector<double> u;
-    double w = m_Width(), h = m_Height();
-    double w2 = 0.5 * w, h2 = 0.5 * h, r;
+    double w = m_Width(), h = m_Height(), bw = m_BotWidth(), sk = m_Skew();;
     bool round_curve( true );
 
     // do some parameter checking
-    if ( m_Radius() > w2 )
+    if ( m_TopBotSym() )
     {
-        m_Radius.Set( w2 );
+        bw = m_Width();
+        m_BotWidth.Set( m_Width() );
     }
+
+    double w2 = 0.5 * w;
+    double h2 = 0.5 * h;
+    double r;
+    double bw2 = 0.5 * bw;
+    double bw4 = 0.25 * bw;
+    double w4 = 0.25 * w;
+
     if ( m_Radius() > h2 )
     {
         m_Radius.Set( h2 );
@@ -1450,7 +1484,7 @@ void RoundedRectXSec::Update()
     r = m_Radius();
 
     // catch special cases of degenerate cases
-    if ( ( w2 == 0 ) || ( h2 == 0 ) )
+    if ( h2 == 0 )
     {
         pt.resize( 4 );
         u.resize( 5 );
@@ -1477,14 +1511,14 @@ void RoundedRectXSec::Update()
         u.resize( 9 );
 
         // set the segment points
-        pt[0].set_xyz(  w,   0, 0 );
-        pt[1].set_xyz(  w, -h2, 0 );
-        pt[2].set_xyz( w2, -h2, 0 );
-        pt[3].set_xyz(  0, -h2, 0 );
-        pt[4].set_xyz(  0,   0, 0 );
-        pt[5].set_xyz(  0,  h2, 0 );
-        pt[6].set_xyz( w2,  h2, 0 );
-        pt[7].set_xyz(  w,  h2, 0 );
+        pt[0].set_xyz( bw4 + w4 + w2, 0, 0 );
+        pt[1].set_xyz( bw2 + sk + w2, -h2, 0 );
+        pt[2].set_xyz( sk + w2, -h2, 0 );
+        pt[3].set_xyz( -bw2 + sk + w2, -h2, 0 );
+        pt[4].set_xyz( -bw4 - w4 + w2, 0, 0 );
+        pt[5].set_xyz( -sk, h2, 0 );
+        pt[6].set_xyz( -sk + w2, h2, 0 );
+        pt[7].set_xyz( -sk + w, h2, 0 );
 
         // set the corresponding parameters
         u[0] = 0;
