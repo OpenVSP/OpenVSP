@@ -257,15 +257,14 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 335, 680, "Wing" )
     m_SuperGroup.AddSlider( m_SuperHeightSlider, "Height", 10, "%6.5f" );
     m_SuperGroup.AddSlider( m_SuperWidthSlider,  "Width", 10, "%6.5f" );
     m_SuperGroup.AddYGap();
+    m_SuperGroup.AddSlider( m_SuperMaxWidthLocSlider, "MaxWLoc", 2, "%6.5f" );
+    m_SuperGroup.AddYGap();
     m_SuperGroup.AddSlider( m_SuperMSlider, "M", 10, "%6.5f" );
     m_SuperGroup.AddSlider( m_SuperNSlider, "N", 10, "%6.5f" );
     m_SuperGroup.AddYGap();
-    m_SuperGroup.AddButton(m_SuperToggleSym, "T/B Sym");
-    m_SuperGroup.AddYGap();
-    m_SuperGroup.AddSlider(m_SuperM_botSlider, "M Bot", 10, "%6.5f");
-    m_SuperGroup.AddSlider(m_SuperN_botSlider, "N Bot", 10, "%6.5f");
-    m_SuperGroup.AddYGap();
-    m_SuperGroup.AddSlider(m_SuperMaxWidthLocSlider, "MaxWLoc", 10, "%6.5f");
+    m_SuperGroup.AddButton( m_SuperToggleSym, "T/B Symmetric Exponents" );
+    m_SuperGroup.AddSlider( m_SuperM_botSlider, "M Bottom", 10, "%6.5f" );
+    m_SuperGroup.AddSlider( m_SuperN_botSlider, "N Bottom", 10, "%6.5f" );
 
     //==== Circle XSec ====//
     m_CircleGroup.SetGroupAndScreen( AddSubGroup( af_tab, 5 ), this );
@@ -855,21 +854,19 @@ bool WingScreen::Update()
                 m_SuperMSlider.Update( super_xs->m_M.GetID() );
                 m_SuperNSlider.Update( super_xs->m_N.GetID() );
                 m_SuperToggleSym.Update( super_xs->m_TopBotSym.GetID() );
+                m_SuperM_botSlider.Update( super_xs->m_M_bot.GetID() );
+                m_SuperN_botSlider.Update( super_xs->m_N_bot.GetID() );
+                m_SuperMaxWidthLocSlider.Update( super_xs->m_MaxWidthLoc.GetID() );
 
                 if ( super_xs->m_TopBotSym() )
                 {
                     m_SuperM_botSlider.Deactivate();
                     m_SuperN_botSlider.Deactivate();
-                    m_SuperMaxWidthLocSlider.Deactivate();
                 }
                 else if ( !super_xs->m_TopBotSym() )
                 {
                     m_SuperM_botSlider.Activate();
                     m_SuperN_botSlider.Activate();
-                    m_SuperMaxWidthLocSlider.Activate();
-                    m_SuperM_botSlider.Update( super_xs->m_M_bot.GetID() );
-                    m_SuperN_botSlider.Update( super_xs->m_N_bot.GetID() );
-                    m_SuperMaxWidthLocSlider.Update( super_xs->m_MaxWidthLoc.GetID() );
                 }
             }
             else if ( xsc->GetType() == XS_CIRCLE )

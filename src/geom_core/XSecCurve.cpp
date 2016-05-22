@@ -1370,14 +1370,14 @@ SuperXSec::SuperXSec( ) : XSecCurve( )
     m_M.Init( "Super_M", m_GroupName, this, 2.0, 0.2, 5.0 );
     m_M.SetDescript( "Width of the Super Ellipse Cross-Section" );
     m_N.Init( "Super_N", m_GroupName, this, 2.0, 0.2, 5.0 );
-    m_M_bot.Init("Super_M_bot", m_GroupName, this, 2.0, 0.25, 5.0);
-    m_M_bot.SetDescript("Generalized Super Ellipse M Exponent for Bottom Half");
-    m_N_bot.Init("Super_N_bot", m_GroupName, this, 2.0, 0.25, 5.0);
-    m_N_bot.SetDescript("Generalized Super Ellipse N Exponent for Bottom Half");
-    m_MaxWidthLoc.Init("Super_MaxWidthLoc", m_GroupName, this, 0.0, -1.0e12, 1.0e12);
-    m_MaxWidthLoc.SetDescript("Maximum Width Location for Super Ellipse");
-    m_TopBotSym.Init("Super_MaxWidthLoc", m_GroupName, this, true, 0, 1);
-    m_TopBotSym.SetDescript("Toggle Symmetry for Top and Bottom Curve");
+    m_M_bot.Init( "Super_M_bot", m_GroupName, this, 2.0, 0.25, 5.0 );
+    m_M_bot.SetDescript( "Generalized Super Ellipse M Exponent for Bottom Half" );
+    m_N_bot.Init( "Super_N_bot", m_GroupName, this, 2.0, 0.25, 5.0 );
+    m_N_bot.SetDescript( "Generalized Super Ellipse N Exponent for Bottom Half" );
+    m_MaxWidthLoc.Init( "Super_MaxWidthLoc", m_GroupName, this, 0.0, -10, 10 );
+    m_MaxWidthLoc.SetDescript( "Maximum Width Location for Super Ellipse" );
+    m_TopBotSym.Init( "Super_MaxWidthLoc", m_GroupName, this, true, 0, 1 );
+    m_TopBotSym.SetDescript( "Toggle Symmetry for Top and Bottom Curve" );
 }
 
 //==== Update Geometry ====//
@@ -1395,20 +1395,14 @@ void SuperXSec::Update()
     psc.set_exponents( m_M(), m_N() );
     psc.set_exponents_bot( m_M_bot(), m_N_bot() );
     psc.set_origin( origin );
+    psc.set_max_width_loc( m_MaxWidthLoc() * m_Height() * 0.5 );
 
     // check for top bottom symmetry toggle
     if ( m_TopBotSym() )
     {
-        psc.set_max_width_loc( 0 );
         m_M_bot.Set( m_M() );
         m_N_bot.Set( m_N() );
-        m_MaxWidthLoc.Set( 0 );
     }
-    else if ( !m_TopBotSym() )
-    {
-        psc.set_max_width_loc( m_MaxWidthLoc() );
-    }
-    psc.set_top_bot_sym( m_TopBotSym() );
 
     psc.set_t0( 0 );
     for ( int i = 0; i < psc.get_number_segments(); ++i )
