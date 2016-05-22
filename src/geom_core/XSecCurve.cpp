@@ -1460,7 +1460,10 @@ void RoundedRectXSec::Update()
     VspCurve edge;
     vector<vec3d> pt;
     vector<double> u;
-    double w = m_Width(), h = m_Height(), bw = m_BotWidth(), sk = m_Skew();;
+    double w = m_Width();
+    double h = m_Height();
+    double bw = m_BotWidth();
+    double sk = m_Skew();
     bool round_curve( true );
 
     // do some parameter checking
