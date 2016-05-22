@@ -1541,10 +1541,33 @@ void RoundedRectXSec::Update()
         }
         else
         {
-            u[1] = h2 / ( h2 + w2 );
-            u[3] = 1 + w2 / ( h2 + w2 );
-            u[5] = 2 + h2 / ( h2 + w2 );
-            u[7] = 3 + w2 / ( h2 + w2 );
+            double d1 = dist( pt[0], pt[1] );
+            double d2 = dist( pt[1], pt[2] );
+            double du = d1 / ( d1 + d2 );
+            if ( du < 0.001 ) du = 0.001;
+            if ( du > 0.999 ) du = 0.999;
+            u[1] = du;
+
+            d1 = dist( pt[2], pt[3] );
+            d2 = dist( pt[3], pt[4] );
+            du = d1 / ( d1 + d2 );
+            if ( du < 0.001 ) du = 0.001;
+            if ( du > 0.999 ) du = 0.999;
+            u[3] = 1 + du;
+
+            d1 = dist( pt[4], pt[5] );
+            d2 = dist( pt[5], pt[6] );
+            du = d1 / ( d1 + d2 );
+            if ( du < 0.001 ) du = 0.001;
+            if ( du > 0.999 ) du = 0.999;
+            u[5] = 2 + du;
+
+            d1 = dist( pt[6], pt[7] );
+            d2 = dist( pt[7], pt[0] );
+            du = d1 / ( d1 + d2 );
+            if ( du < 0.001 ) du = 0.001;
+            if ( du > 0.999 ) du = 0.999;
+            u[7] = 3 + du;
         }
     }
 
