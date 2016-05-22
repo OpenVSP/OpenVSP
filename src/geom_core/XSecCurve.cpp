@@ -1447,11 +1447,10 @@ RoundedRectXSec::RoundedRectXSec( ) : XSecCurve( )
 
     m_Height.Init( "RoundedRect_Height", m_GroupName, this, 1.0, 0.0, 1.0e12 );
     m_Width.Init( "RoundedRect_Width", m_GroupName, this,  1.0, 0.0, 1.0e12 );
-    m_BotWidth.Init("RoundedRect_BotWidth", m_GroupName, this, 2.5, 0.0, 1.0e12);
     m_Radius.Init( "RoundRectXSec_Radius", m_GroupName,  this,  0.2, 0.0, 1.0e12 );
-    m_Skew.Init("RoundRect_Skew", m_GroupName, this, 0.0, -1.0e12, 1.0e12);
+    m_Skew.Init("RoundRect_Skew", m_GroupName, this, 0.0, -10, 10);
+    m_Keystone.Init("RoundRect_Keystone", m_GroupName, this, 0.5, 0.0, 1.0 );
     m_KeyCornerParm.Init( "RoundRectXSec_KeyCorner", m_GroupName, this, false, 0, 1 );
-    m_TopBotSym.Init("RoundRect_TopBotSym", m_GroupName, this, true, 0, 1);
 }
 
 //==== Update Geometry ====//
@@ -1462,24 +1461,27 @@ void RoundedRectXSec::Update()
     vector<double> u;
     double w = m_Width();
     double h = m_Height();
-    double bw = m_BotWidth();
+    double k = m_Keystone();
     double sk = m_Skew();
     bool round_curve( true );
 
-    // do some parameter checking
-    if ( m_TopBotSym() )
-    {
-        bw = m_Width();
-        m_BotWidth.Set( m_Width() );
-    }
-
+    double wt = 2.0 * k * w;
+    double wb = 2.0 * ( 1 - k ) * w;
+    double wt2 = 0.5 * wt;
+    double wb2 = 0.5 * wb;
     double w2 = 0.5 * w;
+    double off = sk * w2;
     double h2 = 0.5 * h;
     double r;
-    double bw2 = 0.5 * bw;
-    double bw4 = 0.25 * bw;
-    double w4 = 0.25 * w;
 
+    if ( m_Radius() > wt2 )
+    {
+        m_Radius.Set( wt2 );
+    }
+    if ( m_Radius() > wb2 )
+    {
+        m_Radius.Set( wb2 );
+    }
     if ( m_Radius() > h2 )
     {
         m_Radius.Set( h2 );
@@ -1487,7 +1489,7 @@ void RoundedRectXSec::Update()
     r = m_Radius();
 
     // catch special cases of degenerate cases
-    if ( h2 == 0 )
+    if ( ( w2 == 0 ) || ( h2 == 0 ) )
     {
         pt.resize( 4 );
         u.resize( 5 );
@@ -1514,14 +1516,14 @@ void RoundedRectXSec::Update()
         u.resize( 9 );
 
         // set the segment points
-        pt[0].set_xyz( bw4 + w4 + w2, 0, 0 );
-        pt[1].set_xyz( bw2 + sk + w2, -h2, 0 );
-        pt[2].set_xyz( sk + w2, -h2, 0 );
-        pt[3].set_xyz( -bw2 + sk + w2, -h2, 0 );
-        pt[4].set_xyz( -bw4 - w4 + w2, 0, 0 );
-        pt[5].set_xyz( -sk, h2, 0 );
-        pt[6].set_xyz( -sk + w2, h2, 0 );
-        pt[7].set_xyz( -sk + w, h2, 0 );
+        pt[0].set_xyz( w,                0, 0 );
+        pt[1].set_xyz( w2 + wb2 - off, -h2, 0 );
+        pt[2].set_xyz( w2 - off,       -h2, 0 );
+        pt[3].set_xyz( w2 - wb2 - off, -h2, 0 );
+        pt[4].set_xyz( 0,                0, 0 );
+        pt[5].set_xyz( w2 - wt2 + off,  h2, 0 );
+        pt[6].set_xyz( w2 + off,        h2, 0 );
+        pt[7].set_xyz( w2 + wt2 + off,  h2, 0 );
 
         // set the corresponding parameters
         u[0] = 0;

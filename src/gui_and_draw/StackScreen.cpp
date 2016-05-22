@@ -140,13 +140,12 @@ StackScreen::StackScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "Stack" 
     m_RoundedRectGroup.AddSlider( m_RRHeightSlider, "Height", 10, "%6.5f" );
     m_RoundedRectGroup.AddSlider( m_RRWidthSlider,  "Width", 10, "%6.5f" );
     m_RoundedRectGroup.AddYGap();
+    m_RoundedRectGroup.AddSlider( m_RRSkewSlider, "Skew", 10, "%6.5f" );
+    m_RoundedRectGroup.AddSlider( m_RRKeystoneSlider, "Keystone", 10, "%6.5f");
+    m_RoundedRectGroup.AddYGap();
     m_RoundedRectGroup.AddSlider( m_RRRadiusSlider, "Radius", 10, "%6.5f" );
     m_RoundedRectGroup.AddYGap();
     m_RoundedRectGroup.AddButton( m_RRKeyCornerButton, "Key Corner" );
-    m_RoundedRectGroup.AddButton(m_RRToggleTopBotSym, "T/B Sym");
-    m_RoundedRectGroup.AddYGap();
-    m_RoundedRectGroup.AddSlider(m_RRBotWidthSlider, "Bot Width", 10, "%6.5f");
-    m_RoundedRectGroup.AddSlider(m_RRSkewSlider, "Skew", 10, "%6.5f");
 
     //==== General Fuse XSec ====//
     m_GenGroup.SetGroupAndScreen( AddSubGroup( xsec_tab, 5 ), this );
@@ -395,20 +394,8 @@ bool StackScreen::Update()
                 m_RRWidthSlider.Update( rect_xs->m_Width.GetID() );
                 m_RRRadiusSlider.Update( rect_xs->m_Radius.GetID() );
                 m_RRKeyCornerButton.Update( rect_xs->m_KeyCornerParm.GetID() );
-                m_RRToggleTopBotSym.Update( rect_xs->m_TopBotSym.GetID() );
                 m_RRSkewSlider.Update( rect_xs->m_Skew.GetID() );
-
-                //Set top-bottom symmetry
-                if ( rect_xs->m_TopBotSym() )
-                {
-                    //deactivate bot w sliders
-                    m_RRBotWidthSlider.Deactivate();
-                }
-                else if ( !rect_xs->m_TopBotSym() )
-                {
-                    m_RRBotWidthSlider.Activate();
-                    m_RRBotWidthSlider.Update( rect_xs->m_BotWidth.GetID() );
-                }
+                m_RRKeystoneSlider.Update( rect_xs->m_Keystone.GetID() );
             }
             else if ( xsc->GetType() == XS_GENERAL_FUSE )
             {
