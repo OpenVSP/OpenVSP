@@ -149,7 +149,7 @@ public:
                              double range, const char* format );
     void AddSkinControl( SkinControl & skin_control, const char* label, double range, const char* format );
     void AddSkinHeader( SkinHeader & skin_header );
-    void AddGeomPicker( GeomPicker & geom_picker );
+    void AddGeomPicker( GeomPicker & geom_picker, int used_w = 0 );
 
     Fl_Browser* AddFlBrowser( int height );
     Fl_Text_Editor* AddFlTextEditor( int height );
