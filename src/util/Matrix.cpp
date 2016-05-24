@@ -165,6 +165,30 @@ void Matrix4d::rotate( const double &angle, const vec3d & axis )
     mat[10]      = z * z * ( m ) + c;
 }
 
+void Matrix4d::rotatealongX( const vec3d & dir )
+{
+    vec3d dir1, dir2, dir3;
+    dir1 = dir;
+    dir1.normalize();
+    dir2.v[ dir1.minor_comp() ] = 1.0;
+    dir3 = cross( dir1, dir2 );
+    dir3.normalize();
+
+    dir2 = cross( dir3, dir1 );
+    dir2.normalize();
+
+    double tmat[16];
+    setIdentity( tmat );
+    for( int i = 0; i < 3; i++ )
+    {
+        tmat[ i * 4 ] = dir1.v[i];
+        tmat[ i * 4 + 1 ] = dir2.v[i];
+        tmat[ i * 4 + 2 ] = dir3.v[i];
+    }
+
+    matMult( tmat );
+}
+
 void Matrix4d::affineInverse()
 {
     /*

@@ -26,6 +26,9 @@ public:
     void rotateY( const double &ang );
     void rotateZ( const double &ang );
     void rotate( const double &angle, const vec3d & axis );
+
+    void rotatealongX( const vec3d & dir1 );
+
     void affineInverse();
     void scale( const double &scale );
 
