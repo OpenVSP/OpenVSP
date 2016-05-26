@@ -33,6 +33,7 @@
 #include "ParmDebugScreen.h"
 #include "ParmLinkScreen.h"
 #include "ParmScreen.h"
+#include "ProjectionScreen.h"
 #include "PSliceScreen.h"
 #include "ScreenMgr.h"
 #include "ScreenshotScreen.h"
@@ -174,6 +175,7 @@ void ScreenMgr::Init()
     m_ScreenVec[VSP_PARM_DEBUG_SCREEN] = new ParmDebugScreen( this );
     m_ScreenVec[VSP_PARM_LINK_SCREEN] = new ParmLinkScreen( this );
     m_ScreenVec[VSP_PARM_SCREEN] = new ParmScreen( this );
+    m_ScreenVec[VSP_PROJECTION_SCREEN] = new ProjectionScreen( this );
     m_ScreenVec[VSP_PSLICE_SCREEN] = new PSliceScreen( this );
     m_ScreenVec[VSP_SCREENSHOT_SCREEN] = new ScreenshotScreen( this );
     m_ScreenVec[VSP_SET_EDITOR_SCREEN] = new SetEditorScreen( this );

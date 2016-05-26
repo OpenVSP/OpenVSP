@@ -126,6 +126,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_AWAVEMenuItem.Init( mgr, m_MenuBar, "Analysis/Awave Slice...", ScreenMgr::VSP_AWAVE_SCREEN );
     m_PSliceMenuItem.Init( mgr, m_MenuBar, "Analysis/Planar Slice...", ScreenMgr::VSP_PSLICE_SCREEN );
     m_MassPropMenuItem.Init( mgr, m_MenuBar, "Analysis/Mass Prop...", ScreenMgr::VSP_MASS_PROP_SCREEN );
+    m_ProjectionMenuItem.Init( mgr, m_MenuBar, "Analysis/Projected Area...", ScreenMgr::VSP_PROJECTION_SCREEN );
     m_CFDMeshMenuItem.Init( mgr, m_MenuBar, "Analysis/CFD Mesh...", ScreenMgr::VSP_CFD_MESH_SCREEN );
     // m_WingStructMenuItem.Init( mgr, m_MenuBar, "Analysis/Wing Structure...", ScreenMgr::VSP_FEA_MESH_SCREEN );
     m_DegenGeomMenuItem.Init( mgr, m_MenuBar, "Analysis/DegenGeom...", ScreenMgr::VSP_DEGEN_GEOM_SCREEN );

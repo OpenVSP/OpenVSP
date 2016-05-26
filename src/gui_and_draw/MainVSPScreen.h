@@ -116,6 +116,7 @@ protected:
     ScreenMenuItem m_AWAVEMenuItem;
     ScreenMenuItem m_PSliceMenuItem;
     ScreenMenuItem m_MassPropMenuItem;
+    ScreenMenuItem m_ProjectionMenuItem;
     ScreenMenuItem m_CFDMeshMenuItem;
     // ScreenMenuItem m_WingStructMenuItem;
     ScreenMenuItem m_DegenGeomMenuItem;

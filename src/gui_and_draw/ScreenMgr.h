@@ -51,6 +51,7 @@ public:
            VSP_PARM_DEBUG_SCREEN,
            VSP_PARM_LINK_SCREEN,
            VSP_PARM_SCREEN,
+           VSP_PROJECTION_SCREEN,
            VSP_PSLICE_SCREEN,
            VSP_SCREENSHOT_SCREEN,
            VSP_SET_EDITOR_SCREEN,
