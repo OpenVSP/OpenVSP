@@ -1152,6 +1152,16 @@ void MeshGeom::UpdateDrawObj()
     {
         m_WireShadeDrawObj_vec[i].m_GeomChanged = true;
     }
+
+    m_FeatureDrawObj_vec.resize( m_PolyVec.size() );
+    for ( int i = 0; i < m_PolyVec.size(); i++ )
+    {
+        m_FeatureDrawObj_vec[i].m_PntVec.resize( m_PolyVec[i].size() );
+        for ( int j = 0; j < m_PolyVec[i].size(); j++ )
+        {
+            m_FeatureDrawObj_vec[i].m_PntVec[j] = trans.xform( m_PolyVec[i][j] );
+        }
+    }
 }
 
 void MeshGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
@@ -1223,6 +1233,13 @@ void MeshGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
             break;
         }
     }
+
+
+    for ( int i = 0; i < m_FeatureDrawObj_vec.size(); i++ )
+    {
+        m_FeatureDrawObj_vec[i].m_Type = DrawObj::VSP_LINE_STRIP;
+    }
+
 }
 
 //==== Create And Load Tris into Results Data Structures ====//

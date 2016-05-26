@@ -86,6 +86,7 @@ public:
     double m_MaxTriDen;
 
     vector < TMesh* > m_TMeshVec;
+    vector < vector < vec3d > > m_PolyVec;
 
     // Scale Transformation Matrix
     Matrix4d m_ScaleMatrix;
