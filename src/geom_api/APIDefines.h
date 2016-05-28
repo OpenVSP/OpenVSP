@@ -150,6 +150,7 @@ enum COMPUTATION_FILE_TYPE  {   NO_FILE_TYPE        = 0,
                                 CFD_GMSH_TYPE       = 8192,
                                 CFD_SRF_TYPE        = 16384,
                                 CFD_TKEY_TYPE       = 32768,
+                                PROJ_AREA_CSV_TYPE  = 65536,
                             };
 
 enum SLICE_STYLE {  SLICE_PLANAR,
@@ -274,6 +275,25 @@ enum CAP_TYPE { NO_END_CAP,
                 SHARP_END_CAP,
                 NUM_END_CAP_OPTIONS
               };
+
+enum PROJ_TGT_TYPE { SET_TARGET,
+                     GEOM_TARGET,
+                     NUM_PROJ_TGT_OPTIONS
+                   };
+
+enum PROJ_BNDY_TYPE { NO_BOUNDARY,
+                      SET_BOUNDARY,
+                      GEOM_BOUNDARY,
+                      NUM_PROJ_BNDY_OPTIONS
+                    };
+
+enum PROJ_DIR_TYPE { X_PROJ,
+                     Y_PROJ,
+                     Z_PROJ,
+                     GEOM_PROJ,
+                     VEC_PROJ,
+                     NUM_PROJ_DIR_OPTIONS
+                   };
 
 }   // Namespace
 
