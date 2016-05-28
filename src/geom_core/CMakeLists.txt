@@ -47,6 +47,7 @@ ParmContainer.cpp
 ParmMgr.cpp
 ParmUndo.cpp
 PodGeom.cpp
+ProjectionMgr.cpp
 PtCloudGeom.cpp
 ResultsMgr.cpp
 ScriptMgr.cpp
@@ -101,6 +102,7 @@ ParmContainer.h
 ParmMgr.h
 ParmUndo.h
 PodGeom.h
+ProjectionMgr.h
 PtCloudGeom.h
 ResultsMgr.h
 ScriptMgr.h
