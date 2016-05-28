@@ -11,6 +11,7 @@
 #include "AnalysisMgr.h"
 #include "Vehicle.h"
 #include "VehicleMgr.h"
+#include "ProjectionMgr.h"
 
 void RWCollection::Clear()
 {
@@ -333,6 +334,11 @@ void AnalysisMgrSingleton::RegisterBuiltins()
     PlanarSliceAnalysis *psa = new PlanarSliceAnalysis();
 
     RegisterAnalysis( "PlanarSlice", psa );
+
+
+    ProjectionAnalysis *proj = new ProjectionAnalysis();
+
+    RegisterAnalysis( "Projection", proj );
 }
 
 //======================================================================================//
@@ -536,4 +542,138 @@ string PlanarSliceAnalysis::Execute()
     }
 
     return res;
+}
+
+//======================================================================================//
+//======================================================================================//
+//======================================================================================//
+
+void ProjectionAnalysis::SetDefaults()
+{
+    m_Inputs.Clear();
+
+    m_Inputs.Add( NameValData( "TargetType", vsp::SET_TARGET ) );
+    m_Inputs.Add( NameValData( "BoundaryType", vsp::NO_BOUNDARY ) );
+    m_Inputs.Add( NameValData( "DirectionType", vsp::X_PROJ ) );
+
+    m_Inputs.Add( NameValData( "TargetSet", 0 ) );
+    m_Inputs.Add( NameValData( "BoundarySet", 0 ) );
+
+    m_Inputs.Add( NameValData( "TargetGeomID", "" ) );
+    m_Inputs.Add( NameValData( "BoundaryGeomID", "" ) );
+    m_Inputs.Add( NameValData( "DirectionGeomID", "" ) );
+
+    m_Inputs.Add( NameValData( "Direction", vec3d( 1.0, 0.0, 0.0 ) ) );
+}
+
+
+string ProjectionAnalysis::Execute()
+{
+    NameValData *nvd = NULL;
+
+    int targetType = vsp::SET_TARGET;
+    nvd = m_Inputs.FindPtr( "TargetType", 0 );
+    if ( nvd )
+    {
+        targetType = nvd->GetInt( 0 );
+    }
+
+    int boundaryType = vsp::NO_BOUNDARY;
+    nvd = m_Inputs.FindPtr( "BoundaryType", 0 );
+    if ( nvd )
+    {
+        boundaryType = nvd->GetInt( 0 );
+    }
+
+    int directionType = vsp::X_PROJ;
+    nvd = m_Inputs.FindPtr( "DirectionType", 0 );
+    if ( nvd )
+    {
+        directionType = nvd->GetInt( 0 );
+    }
+
+    int targetSet = 0;
+    nvd = m_Inputs.FindPtr( "TargetSet", 0 );
+    if ( nvd )
+    {
+        targetSet = nvd->GetInt( 0 );
+    }
+
+    int boundarySet = 0;
+    nvd = m_Inputs.FindPtr( "BoundarySet", 0 );
+    if ( nvd )
+    {
+        boundarySet = nvd->GetInt( 0 );
+    }
+
+    string targetGeomID = "";
+    nvd = m_Inputs.FindPtr( "TargetGeomID", 0 );
+    if ( nvd )
+    {
+        targetGeomID = nvd->GetString( 0 );
+    }
+
+    string boundaryGeomID = "";
+    nvd = m_Inputs.FindPtr( "BoundaryGeomID", 0 );
+    if ( nvd )
+    {
+        boundaryGeomID = nvd->GetString( 0 );
+    }
+
+    string directionGeomID = "";
+    nvd = m_Inputs.FindPtr( "DirectionGeomID", 0 );
+    if ( nvd )
+    {
+        directionGeomID = nvd->GetString( 0 );
+    }
+
+    vec3d dir = vec3d( 1.0, 0.0, 0.0 );
+    nvd = m_Inputs.FindPtr( "Direction", 0 );
+    if ( nvd )
+    {
+        dir = nvd->GetVec3d( 0 );
+    }
+
+    if ( directionType != vsp::VEC_PROJ)
+    {
+        dir = ProjectionMgr.GetDirection( directionType, directionGeomID );
+    }
+
+    Results* res;
+
+    switch ( boundaryType )
+    {
+        case vsp::NO_BOUNDARY:
+            if ( targetType == vsp::SET_TARGET )
+            {
+                res = ProjectionMgr.Project( targetSet, dir );
+            }
+            else
+            {
+                res = ProjectionMgr.Project( targetGeomID, dir );
+            }
+            break;
+        case vsp::SET_BOUNDARY:
+            if ( targetType == vsp::SET_TARGET )
+            {
+                res = ProjectionMgr.Project( targetSet, boundarySet, dir );
+            }
+            else
+            {
+                res = ProjectionMgr.Project( targetGeomID, boundarySet, dir );
+            }
+            break;
+        case vsp::GEOM_BOUNDARY:
+            if ( targetType == vsp::SET_TARGET )
+            {
+                res = ProjectionMgr.Project( targetSet, boundaryGeomID, dir );
+            }
+            else
+            {
+                res = ProjectionMgr.Project( targetGeomID, boundaryGeomID, dir );
+            }
+            break;
+    }
+
+    return res->GetID();
 }
