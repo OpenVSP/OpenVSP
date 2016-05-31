@@ -28,6 +28,7 @@
 #include "eli/geom/surface/piecewise.hpp"
 #include "eli/geom/curve/piecewise_creator.hpp"
 #include "eli/geom/surface/piecewise_general_skinning_surface_creator.hpp"
+#include "eli/geom/surface/piecewise_cubic_spline_skinning_surface_creator.hpp"
 
 typedef eli::geom::surface::bezier<double, 3> surface_patch_type;
 typedef eli::geom::surface::piecewise<eli::geom::surface::bezier, double, 3> piecewise_surface_type;
@@ -51,6 +52,9 @@ public:
 
     void SkinRibs( const vector<rib_data_type> &ribs, const vector < int > &degree, bool closed_flag );
     void SkinRibs( const vector<rib_data_type> &ribs, bool closed_flag );
+
+    void SkinCubicSpline( const vector<rib_data_type> &ribs, const vector < int > &degree, bool closed_flag );
+    void SkinCubicSpline( const vector<rib_data_type> &ribs, bool closed_flag );
 
     void SkinCX( const vector< VspCurve > &input_crv_vec, const vector< int > &cx, const vector < int > &degree, bool closed_flag );
     void SkinCX( const vector< VspCurve > &input_crv_vec, const vector< int > &cx, bool closed_flag );

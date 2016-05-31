@@ -33,6 +33,7 @@ typedef piecewise_curve_type::point_type curve_point_type;
 typedef eli::geom::curve::piecewise_linear_creator<double, 3, surface_tolerance_type> piecewise_linear_creator_type;
 typedef eli::geom::surface::piecewise_general_skinning_surface_creator<double, 3, surface_tolerance_type> general_creator_type;
 typedef eli::geom::surface::piecewise_multicap_surface_creator<double, 3, surface_tolerance_type> multicap_creator_type;
+typedef eli::geom::surface::piecewise_cubic_spline_skinning_surface_creator<double, 3, surface_tolerance_type> spline_creator_type;
 
 //===== Constructor  =====//
 VspSurf::VspSurf()
@@ -287,6 +288,39 @@ void VspSurf::SkinRibs( const vector<rib_data_type> &ribs, bool closed_flag )
     nrib = ribs.size();
     vector< int > degree( nrib - 1, 0 );
     SkinRibs( ribs, degree, closed_flag );
+}
+
+void VspSurf::SkinCubicSpline( const vector<rib_data_type> &ribs, const vector < int > &degree, bool closed_flag )
+{
+    spline_creator_type sc;
+    surface_index_type nrib, i;
+
+    nrib = ribs.size();
+
+    std::vector<typename spline_creator_type::index_type> max_degree( nrib - 1, 0 );
+
+    assert( degree.size() == nrib - 1 );
+    for( i = 0; i < nrib - 1; i++ )
+    {
+        max_degree[i] = degree[i];
+    }
+
+    // create surface
+    bool setcond = sc.set_conditions(ribs, max_degree, closed_flag);
+    assert( setcond );
+
+    sc.create( m_Surface );
+    ResetFlipNormal();
+    ResetUWSkip();
+}
+
+//==== Interpolate A Set Of Points =====//
+void VspSurf::SkinCubicSpline( const vector<rib_data_type> &ribs, bool closed_flag )
+{
+    surface_index_type nrib;
+    nrib = ribs.size();
+    vector< int > degree( nrib - 1, 0 );
+    SkinCubicSpline( ribs, degree, closed_flag );
 }
 
 void VspSurf::SkinCX( const vector< VspCurve > &input_crv_vec, const vector< int > &cx, const vector< int > &degree, bool closed_flag )
