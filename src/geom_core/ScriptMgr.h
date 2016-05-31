@@ -135,6 +135,14 @@ private:
     CScriptArray* GetAirfoilLowerPnts( const string& xsec_id );
     CScriptArray* GetGeomSetAtIndex( int index );
     CScriptArray* GetGeomSet( const string & name );
+
+    CScriptArray* ListAnalysis();
+    CScriptArray* GetAnalysisInputNames( const string & analysis );
+    CScriptArray* GetIntAnalysisInput( const string & analysis, const string & name, int index );
+    CScriptArray* GetDoubleAnalysisInput( const string & analysis, const string & name, int index );
+    CScriptArray* GetStringAnalysisInput( const string & analysis, const string & name, int index );
+    CScriptArray* GetVec3dAnalysisInput( const string & analysis, const string & name, int index );
+
     CScriptArray* GetAllResultsNames();
     CScriptArray* GetAllDataNames( const string & results_id );
     CScriptArray* GetIntResults( const string & id, const string & name, int index );
@@ -148,6 +156,8 @@ private:
     CScriptArray* GetUpperCSTCoefs( const string & xsec_id );
     CScriptArray* GetLowerCSTCoefs( const string & xsec_id );
 
+    void DeleteGeomVec( CScriptArray* del_arr );
+
     void SetXSecPnts( const string& xsec_id, CScriptArray* pnt_arr );
     void SetAirfoilPnts( const string& xsec_id, CScriptArray* up_pnt_arr, CScriptArray* low_pnt_arr );
     void SetVec3dArray( CScriptArray* arr );
@@ -155,6 +165,10 @@ private:
     void SetUpperCST( const string& xsec_id, int deg, CScriptArray* coefs );
     void SetLowerCST( const string& xsec_id, int deg, CScriptArray* coefs );
 
+    void SetIntAnalysisInput( const string& analysis, const string & name, CScriptArray* indata, int index );
+    void SetDoubleAnalysisInput( const string& analysis, const string & name, CScriptArray* indata, int index );
+    void SetStringAnalysisInput( const string& analysis, const string & name, CScriptArray* indata, int index );
+    void SetVec3dAnalysisInput( const string& analysis, const string & name, CScriptArray* indata, int index );
 
 };
 

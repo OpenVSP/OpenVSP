@@ -20,6 +20,7 @@
 #include "ParmMgr.h"
 #include "LinkMgr.h"
 #include "AdvLinkMgr.h"
+#include "AnalysisMgr.h"
 #include "Quat.h"
 #include "StringUtil.h"
 #include "SubSurfaceMgr.h"
@@ -75,6 +76,7 @@ Vehicle::Vehicle()
     m_exportDragBuildTsvFile.Init( "DragBuild_TSV_Export", "ExportFlag", this, true, 0, 1 );
     m_exportDegenGeomCsvFile.Init( "DegenGeom_CSV_Export", "ExportFlag", this, true, 0, 1 );
     m_exportDegenGeomMFile.Init( "DegenGeom_M_Export", "ExportFlag", this, true, 0, 1 );
+
 
     SetupPaths();
 }
@@ -133,6 +135,7 @@ void Vehicle::Init()
     LinkMgr.RegisterContainer( m_CfdSettings.GetID() );
     LinkMgr.RegisterContainer( m_CfdGridDensity.GetID() );
     LinkMgr.RegisterContainer( m_FeaGridDensity.GetID() );
+    LinkMgr.RegisterContainer( VSPAEROMgr.GetID() );
 
     m_IxxIyyIzz = vec3d( 0, 0, 0 );
     m_IxyIxzIyz = vec3d( 0, 0, 0 );
@@ -166,6 +169,8 @@ void Vehicle::Init()
     m_exportDragBuildTsvFile.Set( true );
     m_exportDegenGeomCsvFile.Set( true );
     m_exportDegenGeomMFile.Set( true );
+
+    AnalysisMgr.Init();
 }
 
 void Vehicle::RunTestScripts()
@@ -223,6 +228,7 @@ void Vehicle::Wype()
     AdvLinkMgr.Renew();
     DesignVarMgr.Renew();
     FitModelMgr.Renew();
+    AnalysisMgr.Renew();
 }
 
 void Vehicle::SetVSP3FileName( const string & f_name )
@@ -403,7 +409,12 @@ string Vehicle::CreateGeom( const GeomType & type )
         return "NONE";
     }
 
-    new_geom->Update();
+    //==== Custom Geom Will be Updated After Scripts Are Read ====//
+    if ( type.m_Type != CUSTOM_GEOM_TYPE )
+    {
+        new_geom->Update();
+    }
+
     m_GeomStoreVec.push_back( new_geom );
 
     Geom* type_geom_ptr = FindGeom( type.m_GeomID );
@@ -432,7 +443,7 @@ string Vehicle::AddGeom( const GeomType & type )
         {
             add_geom->SetType( type );
             CustomGeomMgr.InitGeom( geom_id, type.m_ModuleName );
-            add_geom->Update();
+//            add_geom->Update();
         }
     }
     return geom_id;
@@ -2307,6 +2318,10 @@ string Vehicle::getExportFileName( int type )
     {
         doreturn = true;
     }
+    else if ( type == PROJ_AREA_CSV_TYPE )
+    {
+        doreturn = true;
+    }
 
     if( doreturn )
     {
@@ -2355,6 +2370,10 @@ void Vehicle::setExportFileName( int type, string f_name )
     {
         doset = true;
     }
+    else if ( type == PROJ_AREA_CSV_TYPE )
+    {
+        doset = true;
+    }
 
     if( doset )
     {
@@ -2364,9 +2383,9 @@ void Vehicle::setExportFileName( int type, string f_name )
 
 void Vehicle::resetExportFileNames()
 {
-    const char *suffix[] = {"_CompGeom.txt", "_CompGeom.csv", "_DragBuild.tsv", "_AwaveSlice.txt", "_MassProps.txt", "_DegenGeom.csv", "_DegenGeom.m" };
-    const int types[] = { COMP_GEOM_TXT_TYPE, COMP_GEOM_CSV_TYPE, DRAG_BUILD_TSV_TYPE, SLICE_TXT_TYPE, MASS_PROP_TXT_TYPE, DEGEN_GEOM_CSV_TYPE, DEGEN_GEOM_M_TYPE };
-    const int ntype = 7;
+    const char *suffix[] = {"_CompGeom.txt", "_CompGeom.csv", "_DragBuild.tsv", "_AwaveSlice.txt", "_MassProps.txt", "_DegenGeom.csv", "_DegenGeom.m", "_ProjArea.csv" };
+    const int types[] = { COMP_GEOM_TXT_TYPE, COMP_GEOM_CSV_TYPE, DRAG_BUILD_TSV_TYPE, SLICE_TXT_TYPE, MASS_PROP_TXT_TYPE, DEGEN_GEOM_CSV_TYPE, DEGEN_GEOM_M_TYPE, PROJ_AREA_CSV_TYPE };
+    const int ntype = 8;
     int pos;
 
     for( int i = 0; i < ntype; i++ )
@@ -2382,7 +2401,7 @@ void Vehicle::resetExportFileNames()
     }
 }
 
-string Vehicle::CompGeom( int set, int sliceFlag, int halfFlag, int intSubsFlag)
+string Vehicle::CompGeom( int set, int halfFlag, int intSubsFlag)
 {
 
     string id = AddMeshGeom( set );
@@ -2406,14 +2425,7 @@ string Vehicle::CompGeom( int set, int sliceFlag, int halfFlag, int intSubsFlag)
 
     if ( mesh_ptr->m_TMeshVec.size() )
     {
-        if ( sliceFlag )
-        {
-            mesh_ptr->SliceX( sliceFlag );
-        }
-        else
-        {
-            mesh_ptr->IntersectTrim( halfFlag, intSubsFlag );
-        }
+        mesh_ptr->IntersectTrim( halfFlag, intSubsFlag );
     }
     else
     {
@@ -2426,9 +2438,9 @@ string Vehicle::CompGeom( int set, int sliceFlag, int halfFlag, int intSubsFlag)
     return id;
 }
 
-string Vehicle::CompGeomAndFlatten( int set, int sliceFlag, int halfFlag, int intSubsFlag )
+string Vehicle::CompGeomAndFlatten( int set, int halfFlag, int intSubsFlag )
 {
-    string id = CompGeom( set, sliceFlag, halfFlag, intSubsFlag );
+    string id = CompGeom( set, halfFlag, intSubsFlag );
     Geom* geom = FindGeom( id );
     if ( !geom )
     {

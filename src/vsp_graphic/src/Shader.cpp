@@ -161,29 +161,29 @@ void Shader::_create( const char * vShaderSrc, const char * fShaderSrc )
     char * errorMsg;
 
     // Compile Vertex Shader.
-    GLint vShaderID = glCreateShader( GL_VERTEX_SHADER );
-    glShaderSource( vShaderID, 1, &vShaderSrc, 0 );
-    glCompileShader( vShaderID );
-    glGetShaderiv( vShaderID, GL_COMPILE_STATUS, &compileOK );
+    this->_vShaderId = glCreateShader( GL_VERTEX_SHADER );
+    glShaderSource( this->_vShaderId, 1, &vShaderSrc, 0 );
+    glCompileShader( this->_vShaderId );
+    glGetShaderiv( this->_vShaderId, GL_COMPILE_STATUS, &compileOK );
     if( !compileOK )
     {
-        glGetShaderiv( vShaderID, GL_INFO_LOG_LENGTH, &logLength );
+		glGetShaderiv( this->_vShaderId, GL_INFO_LOG_LENGTH, &logLength );
         errorMsg = ( char * )malloc( logLength );
-        glGetShaderInfoLog( vShaderID, logLength, &tempHolder, errorMsg );
+        glGetShaderInfoLog( this->_vShaderId, logLength, &tempHolder, errorMsg );
         std::printf( "\nVertex Shader Compile Error: \n %s", errorMsg );
         free( errorMsg );
     }
 
     // Compile Fragment Shader.
-    GLint fShaderID = glCreateShader( GL_FRAGMENT_SHADER );
-    glShaderSource( fShaderID, 1, &fShaderSrc, 0 );
-    glCompileShader( fShaderID );
-    glGetShaderiv( fShaderID, GL_COMPILE_STATUS, &compileOK );
+    this->_fShaderId = glCreateShader( GL_FRAGMENT_SHADER );
+    glShaderSource(  this->_fShaderId, 1, &fShaderSrc, 0 );
+    glCompileShader(  this->_fShaderId );
+    glGetShaderiv(  this->_fShaderId, GL_COMPILE_STATUS, &compileOK );
     if( !compileOK )
     {
-        glGetShaderiv( fShaderID, GL_INFO_LOG_LENGTH, &logLength );
+        glGetShaderiv(  this->_fShaderId, GL_INFO_LOG_LENGTH, &logLength );
         errorMsg = ( char * )malloc( logLength );
-        glGetShaderInfoLog( fShaderID, logLength, &tempHolder, errorMsg );
+        glGetShaderInfoLog(  this->_fShaderId, logLength, &tempHolder, errorMsg );
         std::printf( "\nFragment Shader Compile Error: \n %s", errorMsg );
         free( errorMsg );
     }
@@ -191,10 +191,10 @@ void Shader::_create( const char * vShaderSrc, const char * fShaderSrc )
     // Build Shader Program
     _id = glCreateProgram();
 
-    glAttachShader( _id, vShaderID );
-    glAttachShader( _id, fShaderID );
+    glAttachShader( _id, this->_vShaderId );
+    glAttachShader( _id,  this->_fShaderId );
     glLinkProgram( _id );
-    glGetProgramiv( _id, GL_COMPILE_STATUS, &compileOK );
+    glGetProgramiv( _id, GL_LINK_STATUS, &compileOK );
     if( !compileOK )
     {
         glGetProgramiv( _id, GL_INFO_LOG_LENGTH, &logLength );

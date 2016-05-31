@@ -44,6 +44,8 @@ public:
     void RoundJoint( double rad, int i );
     void RoundAllJoints( double rad );
 
+    void Modify( int type, bool le, double len, double off, double str );
+
     // creates C0 continuous piecewise line
     void InterpolateLinear( vector< vec3d > & input_pnt_vec, const vector<double> &param, bool closed_flag );
 
@@ -56,7 +58,7 @@ public:
     // creates C2 continuous piecewise cubic spline polynomial with clamped end slopes
     void InterpolateCSpline( vector< vec3d > & input_pnt_vec, const vec3d &start_slope, const vec3d &end_slope, const vector<double> &param );
 
-    void ToBinaryCubic();
+    void ToBinaryCubic( bool wingtype );
 
     void SetCubicControlPoints( const vector< vec3d > & cntrl_pts, bool closed_flag );
 
@@ -65,6 +67,8 @@ public:
     void AppendCurveSegment( curve_segment_type &c );
 
     double FindDistant( double &u, const vec3d &pt, const double &d, const double &u0 ) const;
+    double FindDistant( double &u, const vec3d &pt, const double &d ) const;
+    double FindDistant( double &u, const vec3d &pt, const double &d, const double &umin, const double &umax ) const;
     double FindThickness( double &u1, double &u2, const vec3d &pt, const double &thick, const double &u10, const double &u20 ) const;
 
     double FindNearest( double &u, const vec3d &pt ) const;
@@ -83,11 +87,6 @@ public:
     double CompLength( double tol = 1e-6 );
 
     //===== Tesselate ====//
-    // These three currently unused.
-    void Tesselate( int num_pnts_u, vector< vec3d > & output );
-    void Tesselate( int num_pnts_u, vector< vec3d > & output, vector< double > &uout );
-    void Tesselate( int num_pnts_u, double umin, double umax, vector< vec3d > & output, vector< double > &uout );
-
     void TesselateNoCorner( int num_pnts_u, double umin, double umax, vector< vec3d > & output, vector< double > &uout );
     void Tesselate( const vector< double > &u, vector< vec3d > & output );
 

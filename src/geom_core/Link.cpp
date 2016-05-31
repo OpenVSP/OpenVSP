@@ -25,10 +25,10 @@ Link::Link()
     m_UpperLimitFlag = false;
     m_UpperLimit =  1.0e12;
 
-    m_Offset.Init( "Offset", "Link", this, 0.0, -1.0e12,  1.0e12, false );
-    m_Scale.Init( "Scale", "Link", this,   0.0, 1.0e-12, 1.0e12, false );
-    m_LowerLimit.Init( "LowerLimit", "Link", this, -100, -1.0e12, 1.0e12, false );
-    m_UpperLimit.Init( "UpperLimit", "Link", this,  100,    -1.0e12, 1.0e12, false );
+    m_Offset.Init( "Offset", "Link", this, 0.0, -1.0e12,  1.0e12 );
+    m_Scale.Init( "Scale", "Link", this,   0.0, 1.0e-12, 1.0e12 );
+    m_LowerLimit.Init( "LowerLimit", "Link", this, -100, -1.0e12, 1.0e12 );
+    m_UpperLimit.Init( "UpperLimit", "Link", this,  100,    -1.0e12, 1.0e12 );
 
 }
 

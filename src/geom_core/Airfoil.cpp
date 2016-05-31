@@ -201,8 +201,6 @@ void FourSeries::Update()
         arclen[npts-1] = 4.0;
 
         m_Curve.InterpolatePCHIP( pnts, arclen, false );
-
-        m_Curve.ToBinaryCubic();
     }
 
     Airfoil::Update();
@@ -336,8 +334,6 @@ void SixSeries::Update()
 
     m_Curve.InterpolatePCHIP( pnts, arclen, false );
 
-    m_Curve.ToBinaryCubic();
-
     Airfoil::Update();
 }
 
@@ -464,8 +460,6 @@ void Biconvex::Update()
 
     m_Curve.Append( upcrv );
 
-    m_Curve.ToBinaryCubic();
-
     Airfoil::Update();
 }
 
@@ -582,8 +576,6 @@ void FileAirfoil::Update()
     }
 
     m_Curve.InterpolatePCHIP( pnts, arclen, false );
-
-    m_Curve.ToBinaryCubic();
 
     Airfoil::Update();
 }
@@ -1024,8 +1016,6 @@ void CSTAirfoil::Update()
         arclen[npts-1] = 4.0;
 
         m_Curve.InterpolatePCHIP( pnts, arclen, false );
-
-        m_Curve.ToBinaryCubic();
     }
 
     Airfoil::Update();
@@ -1399,7 +1389,7 @@ string CSTAirfoil::AddUpParm()
         int i = m_UpCoeffParmVec.size();
         char str[255];
         sprintf( str, "Au_%d", i );
-        p->Init( string( str ), "UpperCoeff", this, 0.0, -1.0e12, 1.0e12, true );
+        p->Init( string( str ), "UpperCoeff", this, 0.0, -1.0e12, 1.0e12 );
         p->SetDescript( "Upper surface CST coefficient" );
         m_UpCoeffParmVec.push_back( p );
         return p->GetID();
@@ -1416,7 +1406,7 @@ string CSTAirfoil::AddLowParm()
         int i = m_LowCoeffParmVec.size();
         char str[255];
         sprintf( str, "Al_%d", i );
-        p->Init( string( str ), "LowerCoeff", this, 0.0, -1.0e12, 1.0e12, true );
+        p->Init( string( str ), "LowerCoeff", this, 0.0, -1.0e12, 1.0e12 );
         p->SetDescript( "Lower surface CST coefficient" );
         m_LowCoeffParmVec.push_back( p );
         return p->GetID();

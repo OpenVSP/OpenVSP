@@ -110,11 +110,13 @@ protected:
     ScreenMenuItem m_AdvLinkMenuItem;
     ScreenMenuItem m_UserParmMenuItem;
     ScreenMenuItem m_FitModelMenuItem;
+    ScreenMenuItem m_SnapToMenuItem;
 
     ScreenMenuItem m_CompGeomMenuItem;
     ScreenMenuItem m_AWAVEMenuItem;
     ScreenMenuItem m_PSliceMenuItem;
     ScreenMenuItem m_MassPropMenuItem;
+    ScreenMenuItem m_ProjectionMenuItem;
     ScreenMenuItem m_CFDMeshMenuItem;
     // ScreenMenuItem m_WingStructMenuItem;
     ScreenMenuItem m_DegenGeomMenuItem;

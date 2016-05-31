@@ -33,3 +33,16 @@ bool ToBool( double val )
         return true;
     return false;
 }
+
+double mag( double x )
+{
+    double lx = log10( abs( x ) );
+    if (lx < 0)
+    {
+        return ceil( lx );
+    }
+    else
+    {
+        return floor( lx );
+    }
+}

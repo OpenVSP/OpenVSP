@@ -39,7 +39,7 @@ public:
     virtual ~Parm();
 
     virtual void Init( const string& name, const string& group, ParmContainer* container,
-                       double val, double lower, double upper, bool linkable = true );
+                       double val, double lower, double upper );
 
     virtual string GetName()                             { return m_Name; }
     virtual void SetName( const string & name )          { m_Name = name; }
@@ -145,15 +145,6 @@ public:
     virtual bool GetLinkedFlag()
     {
         return m_LinkedFlag;
-    }
-
-    virtual void SetLinkableFlag( bool flag )
-    {
-        m_LinkableFlag = flag;
-    }
-    virtual bool IsLinkable()
-    {
-        return m_LinkableFlag;
     }
 
     virtual void SetLinkUpdateFlag( bool flag )

@@ -98,6 +98,7 @@ protected:
     ToggleButton m_DatFile;
     ToggleButton m_KeyFile;
     ToggleButton m_SrfFile;
+    ToggleButton m_XYZIntCurves;
     ToggleButton m_TkeyFile;
 
     TriggerButton m_SelectStlFile;

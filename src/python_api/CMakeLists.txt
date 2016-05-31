@@ -21,6 +21,7 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 		${GUI_AND_DRAW_INCLUDE_DIR}
 		${TRIANGLE_INCLUDE_DIR}
 		${NANOFLANN_INCLUDE_DIR}
+		${CLIPPER_INCLUDE_DIR}
 		${CPPTEST_INCLUDE_DIR}
 		${SCREENS_INCLUDE_DIR}
 		${XMLVSP_INCLUDE_DIR}
@@ -57,6 +58,7 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 		sixseries
 		util
 		tritri
+		clipper
 		Angelscript
 		${CPPTEST_LIBRARIES}
 		${LIBXML2_LIBRARIES}
@@ -89,6 +91,7 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 			triangle
 			util
 			tritri
+			clipper
 			Angelscript
 			screens
 			xmlvsp

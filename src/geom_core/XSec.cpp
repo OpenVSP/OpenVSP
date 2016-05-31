@@ -1650,7 +1650,7 @@ FuseXSec::FuseXSec( XSecCurve *xsc ) : SkinXSec( xsc)
 
     m_Spin.Init( "Spin", m_GroupName, this, 0.0, -180.0, 180.0 );
 
-    m_RefLength.Init( "RefLength", m_GroupName, this, 1.0, 1e-8, 1e12, false );
+    m_RefLength.Init( "RefLength", m_GroupName, this, 1.0, 1e-8, 1e12 );
 
     SetV2DefaultBehavior();
 }

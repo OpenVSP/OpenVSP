@@ -126,11 +126,11 @@ void BasicScreen::SetTitle( const string& title )
 //=====================================================================//
 
 //==== Constructor ====//
-TabScreen::TabScreen( ScreenMgr* mgr, int w, int h, const string & title, int baseymargin ) :
+TabScreen::TabScreen( ScreenMgr* mgr, int w, int h, const string & title, int baseymargin, int basexmargin ) :
     BasicScreen( mgr, w, h, title )
 {
     //==== Menu Tabs ====//
-    m_MenuTabs = new Fl_Tabs( 0, 25, w, h - 25 - baseymargin );
+    m_MenuTabs = new Fl_Tabs( 0, 25, w - basexmargin, h - 25 - baseymargin );
     m_MenuTabs->labelcolor( FL_BLUE );
 }
 
@@ -627,13 +627,19 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SSConTestToggleGroup.AddButton(m_SSConOutsideButton.GetFlButton());
 
     m_SSConGroup.SetFitWidthFlag(true);
-    m_SSConGroup.SetSameLineFlag(false);
+    m_SSConGroup.SetSameLineFlag(true);
     m_SSConGroup.ForceNewLine();
+    m_SSConGroup.SetChoiceButtonWidth( m_SSConGroup.GetButtonWidth() );
 
     m_SSConSurfTypeChoice.AddItem("Upper");
     m_SSConSurfTypeChoice.AddItem("Lower");
     m_SSConSurfTypeChoice.AddItem("Both");
-    m_SSConGroup.AddChoice(m_SSConSurfTypeChoice, "Upper/Lower:");
+    m_SSConGroup.AddChoice(m_SSConSurfTypeChoice, "Upper/Lower", m_SSConGroup.GetButtonWidth() );
+
+    m_SSConGroup.AddButton( m_SSConLEFlagButton, "Leading Edge" );
+
+    m_SSConGroup.SetSameLineFlag(false);
+    m_SSConGroup.ForceNewLine();
 
     m_SSConGroup.AddYGap();
     m_SSConGroup.AddDividerBox( "Spanwise" );
@@ -874,6 +880,8 @@ bool GeomScreen::Update()
 
             m_SSConSAbsRelToggleGroup.Update(sscon->m_AbsRelFlag.GetID());
             m_SSConSEConstButton.Update(sscon->m_ConstFlag.GetID());
+
+            m_SSConLEFlagButton.Update(sscon->m_LEFlag.GetID());
 
             m_SSConSFracSlider.Deactivate();
             m_SSConSLenSlider.Deactivate();

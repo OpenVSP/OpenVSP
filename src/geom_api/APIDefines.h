@@ -150,6 +150,7 @@ enum COMPUTATION_FILE_TYPE  {   NO_FILE_TYPE        = 0,
                                 CFD_GMSH_TYPE       = 8192,
                                 CFD_SRF_TYPE        = 16384,
                                 CFD_TKEY_TYPE       = 32768,
+                                PROJ_AREA_CSV_TYPE  = 65536,
                             };
 
 enum SLICE_STYLE {  SLICE_PLANAR,
@@ -163,10 +164,11 @@ enum SET_TYPE { SET_ALL = 0,
                 SET_FIRST_USER = 3
               };
 
-enum RES_DATA_TYPE {    INT_DATA,
-                        DOUBLE_DATA,
-                        STRING_DATA,
-                        VEC3D_DATA
+enum RES_DATA_TYPE {    INVALID_TYPE = -1,
+                        INT_DATA = 0,
+                        DOUBLE_DATA = 1,
+                        STRING_DATA = 2,
+                        VEC3D_DATA = 3
                    };
 
 enum RES_GEOM_TYPE {    MESH_INDEXED_TRI,
@@ -211,6 +213,7 @@ enum CFD_CONTROL_TYPE {     CFD_MIN_EDGE_LEN,
                             CFD_FAR_LOC_Z,
                             CFD_WAKE_SCALE,
                             CFD_WAKE_ANGLE,
+                            CFD_SRF_XYZ_FLAG,
 };
 
 enum CFD_MESH_SOURCE_TYPE { POINT_SOURCE,
@@ -259,6 +262,38 @@ enum WING_DRIVERS { AR_WSECT_DRIVER,
                     SWEEPLOC_WSECT_DRIVER = SECSWEEP_WSECT_DRIVER + 2,
                     SECSWEEPLOC_WSECT_DRIVER = SECSWEEP_WSECT_DRIVER + 3,
                   };
+
+enum COLLISION_ERRORS { COLLISION_OK,
+                        COLLISION_INTERSECT_NO_SOLUTION,
+                        COLLISION_CLEAR_NO_SOLUTION,
+                      };
+
+enum CAP_TYPE { NO_END_CAP,
+                FLAT_END_CAP,
+                ROUND_END_CAP,
+                EDGE_END_CAP,
+                SHARP_END_CAP,
+                NUM_END_CAP_OPTIONS
+              };
+
+enum PROJ_TGT_TYPE { SET_TARGET,
+                     GEOM_TARGET,
+                     NUM_PROJ_TGT_OPTIONS
+                   };
+
+enum PROJ_BNDY_TYPE { NO_BOUNDARY,
+                      SET_BOUNDARY,
+                      GEOM_BOUNDARY,
+                      NUM_PROJ_BNDY_OPTIONS
+                    };
+
+enum PROJ_DIR_TYPE { X_PROJ,
+                     Y_PROJ,
+                     Z_PROJ,
+                     GEOM_PROJ,
+                     VEC_PROJ,
+                     NUM_PROJ_DIR_OPTIONS
+                   };
 
 }   // Namespace
 

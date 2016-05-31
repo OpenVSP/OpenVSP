@@ -23,12 +23,11 @@ private:
 
     Vehicle* m_Vehicle;
 
+    static bool m_firsttime;
+
 public:
-    static VehicleMgrSingleton& getInstance()
-    {
-        static VehicleMgrSingleton instance;
-        return instance;
-    }
+    static VehicleMgrSingleton& getInstance();
+
     Vehicle* GetVehicle();
 };
 

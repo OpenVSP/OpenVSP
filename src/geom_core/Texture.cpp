@@ -30,18 +30,18 @@ Texture::Texture( std::string fileName )
     ParmContainer::SetName( displayName );
 
     // Initialized Parms.
-    m_U.Init( "U", "Texture_Parm", this, 0.0, -1.0, 1.0, false );
-    m_W.Init( "W", "Texture_Parm", this, 0.5, 0.0, 1.0, false );
+    m_U.Init( "U", "Texture_Parm", this, 0.0, -1.0, 1.0 );
+    m_W.Init( "W", "Texture_Parm", this, 0.5, 0.0, 1.0 );
 
-    m_UScale.Init( "U_Scale", "Texture_Parm", this, 1.0, 0.01, 1.0, false );
-    m_WScale.Init( "W_Scale", "Texture_Parm", this, 1.0, 0.01, 1.0, false );
+    m_UScale.Init( "U_Scale", "Texture_Parm", this, 1.0, 0.01, 1.0 );
+    m_WScale.Init( "W_Scale", "Texture_Parm", this, 1.0, 0.01, 1.0 );
 
-    m_Transparency.Init( "Transparency", "Texture_Parm", this, 1.0, 0.0, 1.0, false );
+    m_Transparency.Init( "Transparency", "Texture_Parm", this, 1.0, 0.0, 1.0 );
 
-    m_FlipU.Init( "U_Flip", "Texture_Parm", this, 0, 0, 1, false );
+    m_FlipU.Init( "U_Flip", "Texture_Parm", this, 0, 0, 1 );
     m_FlipU.Set( false );
 
-    m_FlipW.Init( "W_Flip", "Texture_Parm", this, 0, 0, 1, false );
+    m_FlipW.Init( "W_Flip", "Texture_Parm", this, 0, 0, 1 );
     m_FlipW.Set( false );
 }
 Texture::~Texture()

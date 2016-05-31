@@ -258,8 +258,7 @@ bool AdvLinkScreen::Update()
     else
     {
         m_CompileCode.SetColor( FL_GRAY );
-        if ( m_CodeBuffer->text() != "" )
-            m_CodeBuffer->text( "" );
+        m_CodeBuffer->text( "" );
     }
 
 

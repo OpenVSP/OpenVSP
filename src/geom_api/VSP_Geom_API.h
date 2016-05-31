@@ -77,6 +77,26 @@ extern void AddCFDSource( int type, const string & geom_id, int surf_index,
                           double l1, double r1, double u1, double w1,
 						  double l2 = 0, double r2 = 0, double u2 = 0, double w2 = 0 );
 
+//======================== Analysis ================================//
+
+extern int GetNumAnalysis();
+extern std::vector < std::string > ListAnalysis();
+extern std::vector < std::string > GetAnalysisInputNames( const string & analysis );
+extern string ExecAnalysis( const string & analysis );
+
+extern int GetNumAnalysisInputData( const string & analysis, const string & name );
+extern int GetAnalysisInputType( const string & analysis, const string & name );
+extern const std::vector< int > & GetIntAnalysisInput( const string & analysis, const string & name, int index = 0 );
+extern const std::vector< double > & GetDoubleAnalysisInput( const string & analysis, const string & name, int index = 0 );
+extern const std::vector< std::string > & GetStringAnalysisInput( const string & analysis, const string & name, int index = 0 );
+extern const std::vector< vec3d > & GetVec3dAnalysisInput( const string & analysis, const string & name, int index = 0 );
+
+extern void SetAnalysisInputDefaults( const string & analysis );
+extern void SetIntAnalysisInput( const string & analysis, const string & name, const std::vector< int > & indata, int index = 0 );
+extern void SetDoubleAnalysisInput( const string & analysis, const string & name, const std::vector< double > & indata, int index = 0 );
+extern void SetStringAnalysisInput( const string & analysis, const string & name, const std::vector< std::string > & indata, int index = 0 );
+extern void SetVec3dAnalysisInput( const string & analysis, const string & name, const std::vector< vec3d > & indata, int index = 0 );
+
 //======================== Results ================================//
 extern std::vector< std::string > GetAllResultsNames();
 extern std::vector< std::string > GetAllDataNames( const string & results_id );
@@ -84,6 +104,7 @@ extern int GetNumResults( const string & name );
 extern string FindResultsID( const string & name, int index = 0 );
 extern string FindLatestResultsID( const string & name );
 extern int GetNumData( const string & results_id, const string & data_name );
+extern int GetResultsType( const string & results_id, const string & data_name );
 extern const std::vector< int > & GetIntResults( const string & id, const string & name, int index = 0 );
 extern const std::vector< double > & GetDoubleResults( const string & id, const string & name, int index = 0 );
 extern const std::vector< std::string > & GetStringResults( const string & id, const string & name, int index = 0 );
@@ -99,6 +120,8 @@ extern void StartGui( );
 //======================== Geom Functions ================================//
 extern std::vector< std::string > GetGeomTypes();
 extern string AddGeom( const string & type, const string & parent = string() );
+extern void DeleteGeom( const string & geom_id );
+extern void DeleteGeomVec( const vector< string > & del_vec );
 extern void CutGeomToClipboard( const string & geom_id );
 extern void CopyGeomToClipboard( const string & geom_id );
 extern void PasteGeomClipboard( const string & parent = string() );
@@ -207,6 +230,9 @@ extern string GetContainerName( const string & parm_container_id );
 extern std::vector< std::string > FindContainerGroupNames( const string & parm_container_id );
 extern std::vector< std::string > FindContainerParmIDs( const string & parm_container_id );
 
+//======================== Snap To Functions ======================//
+extern double ComputeMinClearanceDistance( const string & geom_id, int set  = SET_ALL );
+extern double SnapParm( const string & parm_id, double target_min_dist, bool inc_flag, int set = SET_ALL );
 
 }           // End vsp namespace
 

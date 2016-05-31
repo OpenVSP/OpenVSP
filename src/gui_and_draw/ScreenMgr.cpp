@@ -29,9 +29,11 @@
 #include "ManageViewScreen.h"
 #include "MassPropScreen.h"
 #include "MaterialEditScreen.h"
+#include "SnapToScreen.h"
 #include "ParmDebugScreen.h"
 #include "ParmLinkScreen.h"
 #include "ParmScreen.h"
+#include "ProjectionScreen.h"
 #include "PSliceScreen.h"
 #include "ScreenMgr.h"
 #include "ScreenshotScreen.h"
@@ -130,6 +132,17 @@ void ScreenMgr::MessageCallback( const MessageBase* from, const MessageData& dat
         const char* msg = data.m_StringVec[0].c_str();
         fl_message( "%s", ( char* )msg );
     }
+    else if ( data.m_String == string( "CheckCollisionKey" ) )
+    {
+        SnapTo* snap = VehicleMgr.GetVehicle()->GetSnapToPtr();
+        if ( snap )
+        {
+            if ( Fl::event_alt()  )
+                snap->m_CollisionDetection = true;
+            else
+                snap->m_CollisionDetection = false;
+        }
+    }
 }
 
 //==== Init All Screens ====//
@@ -158,9 +171,11 @@ void ScreenMgr::Init()
     m_ScreenVec[VSP_MANAGE_TEXTURE_SCREEN] = new ManageTextureScreen( this );
     m_ScreenVec[VSP_MASS_PROP_SCREEN] = new MassPropScreen( this );
     m_ScreenVec[VSP_MATERIAL_EDIT_SCREEN] = new MaterialEditScreen( this );
+    m_ScreenVec[VSP_SNAP_TO_SCREEN] = new SnapToScreen( this );
     m_ScreenVec[VSP_PARM_DEBUG_SCREEN] = new ParmDebugScreen( this );
     m_ScreenVec[VSP_PARM_LINK_SCREEN] = new ParmLinkScreen( this );
     m_ScreenVec[VSP_PARM_SCREEN] = new ParmScreen( this );
+    m_ScreenVec[VSP_PROJECTION_SCREEN] = new ProjectionScreen( this );
     m_ScreenVec[VSP_PSLICE_SCREEN] = new PSliceScreen( this );
     m_ScreenVec[VSP_SCREENSHOT_SCREEN] = new ScreenshotScreen( this );
     m_ScreenVec[VSP_SET_EDITOR_SCREEN] = new SetEditorScreen( this );

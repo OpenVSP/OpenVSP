@@ -294,8 +294,13 @@ string ParmContainer::FindParm( const string& parm_name, const string& group_nam
         for ( int i = 0 ; i < (int)pid_vec.size() ; i++ )
         {
             Parm* p = ParmMgr.FindParm( pid_vec[i] );
-            if ( p->GetName() == parm_name )
-                return pid_vec[i];
+            if ( p )
+            {
+                if ( p->GetName() == parm_name )
+                {
+                    return pid_vec[i];
+                }
+            }
         }
     }
 
@@ -422,7 +427,7 @@ void ParmContainer::AddLinkableParms( vector< string > & linkable_parm_vec, cons
     {
         Parm* p = ParmMgr.FindParm( m_ParmVec[i] );
 
-        if ( p && p->IsLinkable() )
+        if ( p )
         {
             if ( link_container_id.size() )
             {
@@ -581,7 +586,7 @@ string UserParmContainer::AddParm(int type, const string & name, const string & 
     Parm* p = ParmMgr.CreateParm( type );
     if ( p )
     {
-        p->Init( name, group, this, 0.0, -1.0e6, 1.0e6, true );
+        p->Init( name, group, this, 0.0, -1.0e6, 1.0e6 );
         p->SetDescript( "User Parm Descript" );
         m_UserParmVec.push_back( p );
         return p->GetID();

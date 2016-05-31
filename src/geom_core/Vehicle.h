@@ -22,6 +22,7 @@
 #include "DegenGeom.h"
 #include "CfdMeshSettings.h"
 #include "ClippingMgr.h"
+#include "SnapTo.h"
 #include "STEPutil.h"
 #include "XferSurf.h"
 #include "MaterialMgr.h"
@@ -217,8 +218,8 @@ public:
     string ImportV2File( const string & file_name );
 
     //Comp Geom
-    string CompGeom( int set, int sliceFlag, int halfFlag, int intSubsFlag = 1 );
-    string CompGeomAndFlatten( int set, int sliceFlag, int halfFlag, int intSubsFlag = 1 );
+    string CompGeom( int set, int halfFlag, int intSubsFlag = 1 );
+    string CompGeomAndFlatten( int set, int halfFlag, int intSubsFlag = 1 );
     string MassProps( int set, int numSlices, bool hidegeom = true, bool writefile = true );
     string MassPropsAndFlatten( int set, int numSlices, bool hidegeom = true, bool writefile = true );
     string AwaveSlice( int set, int numSlices, int numRots, double AngleControlVal, bool computeAngle,
@@ -251,6 +252,11 @@ public:
     ClippingMgr* GetClippinMgrPtr()
     {
         return &m_ClippingMgr;
+    }
+
+    SnapTo* GetSnapToPtr()
+    {
+        return &m_SnapTo;
     }
 
     //==== Mass Properties ====//
@@ -332,6 +338,7 @@ protected:
     FeaGridDensity m_FeaGridDensity;
 
     ClippingMgr m_ClippingMgr;
+    SnapTo m_SnapTo;
 
     VehicleGuiDraw m_VGuiDraw;
 

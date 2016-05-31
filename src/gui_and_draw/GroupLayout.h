@@ -115,13 +115,14 @@ public:
     void SetChoiceButtonWidth( int w )  { m_ChoiceButtonWidth = w; }
     void SetRangeButtonWidth( int w )   { m_RangeButtonWidth = w; }
     void SetInputWidth( int w )         { m_InputWidth = w; }
+    int GetInputWidth()                 { return m_InputWidth; }
     void SetSliderWidth( int w )        { m_SliderWidth = w; }
 
     //==== Add FLTK Widgets and Initalize GUI Devices ====//
     void AddDividerBox( const string& text, int used_w = 0 );
     void AddResizeBox( );
     void AddSlider(  SliderAdjRangeInput& slid_adj_input, const char* label,
-                     double range, const char* format, bool log_slider = false );
+                     double range, const char* format, int used_w = 0, bool log_slider = false );
     void AddSlider(  SliderAdjRange2Input& slid_adj_input, const char* label,
                      double range, const char* format );
     void AddSlider(  FractParmSlider& slid_adj_input, const char* label,
@@ -148,7 +149,7 @@ public:
                              double range, const char* format );
     void AddSkinControl( SkinControl & skin_control, const char* label, double range, const char* format );
     void AddSkinHeader( SkinHeader & skin_header );
-    void AddGeomPicker( GeomPicker & geom_picker );
+    void AddGeomPicker( GeomPicker & geom_picker, int used_w = 0 );
 
     Fl_Browser* AddFlBrowser( int height );
     Fl_Text_Editor* AddFlTextEditor( int height );

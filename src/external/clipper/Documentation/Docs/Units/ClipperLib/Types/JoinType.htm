@@ -1,0 +1,78 @@
+<html>
+
+<head>
+    
+  <script type="text/javascript" src="../../../../Scripts/jquery.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../Scripts/SyntaxHighlighter/scripts/shCore.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../Scripts/SyntaxHighlighter/scripts/shBrushDelphi.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../Scripts/SyntaxHighlighter/scripts/shBrushCpp.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../Scripts/SyntaxHighlighter/scripts/shBrushCSharp.js">
+  </script>
+    
+  <link type="text/css" rel="stylesheet" href="../../../../Scripts/SyntaxHighlighter/styles/shCoreDefault.css">
+    
+  <link type="text/css" rel="stylesheet" href="../../../../Scripts/SyntaxHighlighter/styles/shThemeDefault.css">
+  
+
+  <title>JoinType</title>
+
+  <link rel="stylesheet" href="../../../../Styles/default.css" type="text/css">
+
+    
+  <script type="text/javascript" src="../../../../Scripts/bootstrap.js">
+  </script>
+  
+</head>
+
+<body bgcolor="#FFFFFF">
+    
+  <!-- THIS FILE HAS BEEN AUTOMATICALLY PROCESSED FROM A SOURCE COPY -->
+    
+  <!-- DO NOT EDIT MANUALLY !!! -->
+  
+  <table class="Banner" cellspacing="0" cellpadding="0" border="1" bordercolorlight="#303080" bordercolordark="#7070B0">
+    <tr>
+      <td class="Banner" nowrap=""><a href="../../../_Body.htm" class="Banner"><img src="../../../../Images/_Home.gif" align="absmiddle">Home</a>
+      </td>
+      <td class="Banner" nowrap=""><a href="../_Body.htm" class="Banner"><img src="../../../../Images/_Unit.gif" align="absmiddle">ClipperLib</a>
+      </td>
+      <td class="Banner" width="100%" align="right"><img src="../../../../Images/_Project_Logo.gif" align="absmiddle">
+      </td>
+    </tr>
+  </table>
+  <h1>JoinType</h1>
+
+  <p class="Decl"><span class="Comment">Del.&raquo;</span> <b>type</b> TJoinType = (jtSquare, jtRound, jtMiter);</p>
+
+  <p class="Decl2"><span class="Comment"> C++&nbsp;&raquo;</span> <b>enum</b> JoinType {jtSquare, jtRound, jtMiter};</p>
+
+  <p class="Decl3"><span class="Comment">C#&nbsp;&nbsp;&raquo;</span> <b>public enum</b> JoinType {jtSquare, jtRound, jtMiter};</p>
+<br>
+
+  <p class="Body"> When adding paths to a <a href="../Classes/ClipperOffset/_Body.htm">ClipperOffset</a> object via the <a href="../Classes/ClipperOffset/Methods/AddPaths.htm">AddPaths</a> method, the joinType parameter may be one of three types - jtMiter, jtSquare or jtRound.<br><br> <img src="../../../../Images/jointypes.png" alt="" border="0"><br><br> 
+    <ul>
+	
+      <li>jtMiter: There's a necessary limit to mitered joins since offsetting edges that join at very acute angles will produce excessively long and narrow 'spikes'. To contain these potential spikes, the ClippOffset object's <a href="../Classes/ClipperOffset/Properties/MiterLimit.htm"><b>MiterLimit</b></a> property specifies a maximum distance that vertices will be offset <em>(in multiples of delta)</em>. For any given edge join, when miter offsetting would exceed that maximum distance, 'square' joining is applied.<br></li>
+	
+      <li>jtRound: While flattened paths can never perfectly trace an arc, they are approximated by a series of arc chords (see ClipperObject's <a href="../Classes/ClipperOffset/Properties/ArcTolerance.htm"><b>ArcTolerance</b></a> property).<br></li>
+	
+      <li>jtSquare: Squaring is applied uniformally at all convex edge joins at 1 &times; delta.</li>
+
+    </ul> </p>
+
+  <h2 id="Auto-SeeAlso">See Also</h2>
+  <p class="Body"><a href="../Classes/ClipperOffset/_Body.htm">ClipperOffset</a>, <a href="../Classes/ClipperOffset/Methods/AddPaths.htm">ClipperOffset.AddPaths</a>, <a href="../Classes/ClipperOffset/Properties/ArcTolerance.htm">ClipperOffset.ArcTolerance</a>, <a href="../Classes/ClipperOffset/Properties/MiterLimit.htm">ClipperOffset.MiterLimit</a></p>
+    
+  <p class="Copyright" id="auto"> <br><br> Copyright &copy;2010-2014 Angus Johnson&nbsp; - &nbsp; Clipper 6.2.1 &nbsp; - &nbsp; Help file built on 1-November-2014 <br><br> </p>
+  
+</body>
+
+</html>

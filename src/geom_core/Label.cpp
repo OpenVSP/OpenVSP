@@ -8,14 +8,14 @@ Label::Label() : ParmContainer()
 
     m_Type = TYPE_LABEL;
 
-    m_OriginU.Init("OriginU", "Label_Parm", this, 0.0, -1.0e12, 1.0e12, false);
-    m_OriginW.Init("OriginW", "Label_Parm", this, 0.0, -1.0e12, 1.0e12, false);
+    m_OriginU.Init("OriginU", "Label_Parm", this, 0.0, -1.0e12, 1.0e12);
+    m_OriginW.Init("OriginW", "Label_Parm", this, 0.0, -1.0e12, 1.0e12);
 
-    m_Red.Init("Red", "Label_Parm", this, 100, 0, 255, false);
-    m_Green.Init("Green", "Label_Parm", this, 100, 0, 255, false);
-    m_Blue.Init("Blue", "Label_Parm", this, 100, 0, 255, false);
+    m_Red.Init("Red", "Label_Parm", this, 100, 0, 255);
+    m_Green.Init("Green", "Label_Parm", this, 100, 0, 255);
+    m_Blue.Init("Blue", "Label_Parm", this, 100, 0, 255);
 
-    m_Size.Init("Size", "Label_Parm", this, 2.0, 1.0, 10.0, false);
+    m_Size.Init("Size", "Label_Parm", this, 2.0, 1.0, 10.0);
 
     m_Visible = true;
 }
@@ -108,14 +108,14 @@ Ruler::Ruler() : Label()
 {
     m_Type = TYPE_RULER;
 
-    m_RulerEndU.Init("RulerEndU", "Label_Parm", this, 0.0, -1.0e12, 1.0e12, false);
-    m_RulerEndW.Init("RulerEndW", "Label_Parm", this, 0.0, -1.0e12, 1.0e12, false);
+    m_RulerEndU.Init("RulerEndU", "Label_Parm", this, 0.0, -1.0e12, 1.0e12);
+    m_RulerEndW.Init("RulerEndW", "Label_Parm", this, 0.0, -1.0e12, 1.0e12);
 
-    m_XOffset.Init("X_Offset", "Label_Parm", this, 0.0, -1.0e12, 1.0e12, false);
-    m_YOffset.Init("Y_Offset", "Label_Parm", this, 0.0, -1.0e12, 1.0e12, false);
-    m_ZOffset.Init("Z_Offset", "Label_Parm", this, 0.0, -1.0e12, 1.0e12, false);
+    m_XOffset.Init("X_Offset", "Label_Parm", this, 0.0, -1.0e12, 1.0e12);
+    m_YOffset.Init("Y_Offset", "Label_Parm", this, 0.0, -1.0e12, 1.0e12);
+    m_ZOffset.Init("Z_Offset", "Label_Parm", this, 0.0, -1.0e12, 1.0e12);
 
-    m_Precision.Init("Precision", "Label_Parm", this, 0, 0, 10, false);
+    m_Precision.Init("Precision", "Label_Parm", this, 0, 0, 10);
 }
 Ruler::~Ruler()
 {

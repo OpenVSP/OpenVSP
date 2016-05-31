@@ -202,8 +202,8 @@ void Material::GetShininess( double &shiny )
 
 MaterialMgrSingleton::MaterialMgrSingleton()
 {
-    m_Alpha.Init( "Alpha", "Material", this, 1.0, 0.0, 1.0, false );
-    m_Shininess.Init( "Shininess", "Material", this, 0.0, 0.0, 128, false );
+    m_Alpha.Init( "Alpha", "Material", this, 1.0, 0.0, 1.0 );
+    m_Shininess.Init( "Shininess", "Material", this, 0.0, 0.0, 128 );
 
     Material mat;
 

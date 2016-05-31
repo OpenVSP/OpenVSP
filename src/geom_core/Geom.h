@@ -375,7 +375,14 @@ public:
 
     virtual int GetMainSurfID( int surfnum )
     {
-        return m_SurfIndxVec[ surfnum ];
+        if ( surfnum >= 0 && surfnum < m_SurfIndxVec.size() )
+        {
+            return m_SurfIndxVec[ surfnum ];
+        }
+        else
+        {
+            return -1;
+        }
     }
 
     /*
@@ -577,6 +584,16 @@ public:
     IntParm m_CapUMaxOption;
     IntParm m_CapWMinOption;
     IntParm m_CapWMaxOption;
+
+    Parm m_CapUMinLength;
+    Parm m_CapUMinOffset;
+    Parm m_CapUMinStrength;
+    BoolParm m_CapUMinSweepFlag;
+
+    Parm m_CapUMaxLength;
+    Parm m_CapUMaxOffset;
+    Parm m_CapUMaxStrength;
+    BoolParm m_CapUMaxSweepFlag;
 
     //==== Wake for CFD Mesh ====//
     BoolParm m_WakeActiveFlag;

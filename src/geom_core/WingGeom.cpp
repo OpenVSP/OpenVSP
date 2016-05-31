@@ -856,13 +856,13 @@ WingGeom::WingGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_XSecSurf.SetParentContainer( GetID() );
     m_XSecSurf.SetBasicOrientation( vsp::Y_DIR, X_DIR, XS_SHIFT_LE, true );
 
-    m_RelativeDihedralFlag.Init("RelativeDihedralFlag", m_Name, this, 0, 0, 1, true );
+    m_RelativeDihedralFlag.Init("RelativeDihedralFlag", m_Name, this, 0, 0, 1 );
     m_RelativeDihedralFlag.SetDescript( "Relative or Absolute Dihedral" );
 
-    m_RelativeTwistFlag.Init("RelativeTwistFlag", m_Name, this, 0, 0, 1, true );
+    m_RelativeTwistFlag.Init("RelativeTwistFlag", m_Name, this, 0, 0, 1 );
     m_RelativeTwistFlag.SetDescript( "Relative or Absolute Twist" );
 
-    m_RotateAirfoilMatchDiedralFlag.Init("RotateAirfoilMatchDideralFlag", m_Name, this, 0, 0, 1, true );
+    m_RotateAirfoilMatchDiedralFlag.Init("RotateAirfoilMatchDideralFlag", m_Name, this, 0, 0, 1 );
     m_RotateAirfoilMatchDiedralFlag.SetDescript( "Rotate Airfoil To Stay Tangent To Dihedral (or Not)" );
 
     m_TotalSpan.Init( "TotalSpan", m_Name, this, 1.0, 1e-6, 1000000.0 );
@@ -885,10 +885,10 @@ WingGeom::WingGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
 
     //==== rename capping controls for wing specific terminology ====//
     m_CapUMinOption.SetDescript("Type of End Cap on Wing Root");
-    m_CapUMinOption.Parm::Set(VspSurf::FLAT_END_CAP);
+    m_CapUMinOption.Parm::Set(FLAT_END_CAP);
     m_CapUMinTess.SetDescript("Number of tessellated curves on Wing Root and Tip");
     m_CapUMaxOption.SetDescript("Type of End Cap on Wing Tip");
-    m_CapUMaxOption.Parm::Set(VspSurf::FLAT_END_CAP);
+    m_CapUMaxOption.Parm::Set(FLAT_END_CAP);
 
     //==== Init Parms ====//
     m_TessU = 16;
@@ -969,13 +969,13 @@ void WingGeom::AddDefaultSources( double base_len )
     double nseg = ( ( int ) ws_vec.size() ) - 1;
     double ustart = 0.0;
 
-    if ( m_CapUMinOption() != VspSurf::NO_END_CAP )
+    if ( m_CapUMinOption() != NO_END_CAP )
     {
         nseg = nseg + 1.0;
         ustart = ustart  + 1.0;
     }
 
-    if ( m_CapUMaxOption() != VspSurf::NO_END_CAP )
+    if ( m_CapUMaxOption() != NO_END_CAP )
     {
         nseg = nseg + 1.0;;
     }
@@ -1423,7 +1423,7 @@ void WingGeom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vecto
     vector < int > tessvec;
     vector < double > rootc;
     vector < double > tipc;
-    if (m_CapUMinOption()!=VspSurf::NO_END_CAP && m_CapUMinSuccess[ m_SurfIndxVec[indx] ] )
+    if (m_CapUMinOption()!=NO_END_CAP && m_CapUMinSuccess[ m_SurfIndxVec[indx] ] )
     {
         tessvec.push_back( m_CapUMinTess() );
         rootc.push_back( 1.0 );
@@ -1437,7 +1437,7 @@ void WingGeom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vecto
         tipc.push_back( m_TipClusterVec[i] );
     }
 
-    if (m_CapUMaxOption()!=VspSurf::NO_END_CAP && m_CapUMaxSuccess[ m_SurfIndxVec[indx] ] )
+    if (m_CapUMaxOption()!=NO_END_CAP && m_CapUMaxSuccess[ m_SurfIndxVec[indx] ] )
     {
         tessvec.push_back( m_CapUMinTess() );
         rootc.push_back( 1.0 );
@@ -1454,7 +1454,7 @@ void WingGeom::UpdateSplitTesselate( int indx, vector< vector< vector< vec3d > >
     vector < double > rootc;
     vector < double > tipc;
 
-    if (m_CapUMinOption()!=VspSurf::NO_END_CAP && m_CapUMinSuccess[ m_SurfIndxVec[indx] ] )
+    if (m_CapUMinOption()!=NO_END_CAP && m_CapUMinSuccess[ m_SurfIndxVec[indx] ] )
     {
         tessvec.push_back( m_CapUMinTess() );
         rootc.push_back( 1.0 );
@@ -1468,7 +1468,7 @@ void WingGeom::UpdateSplitTesselate( int indx, vector< vector< vector< vec3d > >
         tipc.push_back( m_TipClusterVec[i] );
     }
 
-    if (m_CapUMaxOption()!=VspSurf::NO_END_CAP && m_CapUMaxSuccess[ m_SurfIndxVec[indx] ] )
+    if (m_CapUMaxOption()!=NO_END_CAP && m_CapUMaxSuccess[ m_SurfIndxVec[indx] ] )
     {
         tessvec.push_back( m_CapUMinTess() );
         rootc.push_back( 1.0 );
@@ -1834,7 +1834,11 @@ void WingGeom::ReadV2File( xmlNodePtr &root )
         m_RelativeDihedralFlag = XmlUtil::FindInt( node, "Rel_Dihedral_Flag", m_RelativeDihedralFlag() )!= 0;
         m_RelativeTwistFlag = XmlUtil::FindInt( node, "Rel_Twist_Flag", m_RelativeTwistFlag() )!= 0;
 
-//        int round_end_cap_flag = XmlUtil::FindInt( node, "Round_End_Cap_Flag", round_end_cap_flag )!= 0;
+        int round_end_cap_flag = XmlUtil::FindInt( node, "Round_End_Cap_Flag", round_end_cap_flag )!= 0;
+        if ( round_end_cap_flag )
+        {
+            m_CapUMaxOption = ROUND_END_CAP;
+        }
     }
 
     //==== Read Airfoils ====//

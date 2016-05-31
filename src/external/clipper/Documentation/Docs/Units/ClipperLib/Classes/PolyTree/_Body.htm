@@ -1,0 +1,189 @@
+<html>
+
+<head>
+    
+  <script type="text/javascript" src="../../../../../Scripts/jquery.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../../Scripts/SyntaxHighlighter/scripts/shCore.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../../Scripts/SyntaxHighlighter/scripts/shBrushDelphi.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../../Scripts/SyntaxHighlighter/scripts/shBrushCpp.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../../Scripts/SyntaxHighlighter/scripts/shBrushCSharp.js">
+  </script>
+    
+  <link type="text/css" rel="stylesheet" href="../../../../../Scripts/SyntaxHighlighter/styles/shCoreDefault.css">
+    
+  <link type="text/css" rel="stylesheet" href="../../../../../Scripts/SyntaxHighlighter/styles/shThemeDefault.css">
+  
+
+  <title>PolyTree</title>
+
+  <link rel="stylesheet" href="../../../../../Styles/default.css" type="text/css">
+
+  <meta name="Ancestor" content="PolyNode">
+
+    
+  <script type="text/javascript" src="../../../../../Scripts/bootstrap.js">
+  </script>
+  
+</head>
+
+<body bgcolor="#FFFFFF">
+    
+  <!-- THIS FILE HAS BEEN AUTOMATICALLY PROCESSED FROM A SOURCE COPY -->
+    
+  <!-- DO NOT EDIT MANUALLY !!! -->
+  
+  <table class="Banner" cellspacing="0" cellpadding="0" border="1" bordercolorlight="#303080" bordercolordark="#7070B0">
+    <tr>
+      <td class="Banner" nowrap=""><a href="../../../../_Body.htm" class="Banner"><img src="../../../../../Images/_Home.gif" align="absmiddle">Home</a>
+      </td>
+      <td class="Banner" nowrap=""><a href="../../_Body.htm" class="Banner"><img src="../../../../../Images/_Unit.gif" align="absmiddle">ClipperLib</a>
+      </td>
+      <td class="Banner" width="100%" align="right"><img src="../../../../../Images/_Project_Logo.gif" align="absmiddle">
+      </td>
+    </tr>
+  </table>
+  <h1>PolyTree</h1>
+  <h2>Hierarchy</h2>
+  <p class="Hierarchy"></p>
+  <p class="Hierarchy">&nbsp;&nbsp;&nbsp;|</p>
+  <p class="Hierarchy"><a href="../PolyNode/_Body.htm">PolyNode</a></p>
+<br>
+
+  <p class="Body"> <b>PolyTree</b> is intended as a <b>read-only</b> data structure that should only be used to receive <em>solutions</em> from clipping and offsetting operations. It's an alternative to the <a href="../../Types/Paths.htm">Paths</a> data structure which also receives these solutions. PolyTree's two major advantages over the <em>Paths</em> structure are: it properly represents the <b>parent-child relationships</b> of the returned polygons; it differentiates between <b>open</b> and <b>closed</b> paths. However, since PolyTree is a more complex structure than the <em>Paths</em> structure, and since it's more computationally expensive to process (the Execute method being roughly 5-10% slower), <span class="maroon">it should used only be when parent-child polygon relationships are needed, or when open paths are being 'clipped'.</span><br><br> An empty PolyTree object can be passed as the <em>solution</em> parameter in <a href="../Clipper/Methods/Execute.htm"><b>Clipper.Execute</b></a> and in <a href="../ClipperOffset/Methods/Execute.htm"><b>ClipperOffset.Execute</b></a>. Once the clipping or offseting operation is completed, the method returns with the PolyTree structure filled with data representing the solution.<br><br> A <b>PolyTree</b> object is a container for any number of <a href="../PolyNode/_Body.htm"><b>PolyNode</b></a> children, with each contained PolyNode representing a single polygon contour (either an <a href="../../../../Overview/_Body.htm#terminology">outer</a> or <a href="../../../../Overview/_Body.htm#terminology">hole</a> polygon). <span class="maroon">PolyTree itself is a specialized PolyNode whose immediate children represent the top-level <em>outer</em> polygons of the solution. (Its own <a href="../PolyNode/Properties/Contour.htm">Contour</a> property is always empty.)</span> The contained top-level PolyNodes may contain their own PolyNode children representing hole polygons that may also contain children representing nested outer polygons etc. Children of <em>outers</em> will always be <em>holes</em>, and children of <em>holes</em> will always be <em>outers</em>.<br><br> <b>PolyTrees</b> can also contain <b>open</b> paths. Open paths will always be represented by <em>top level</em> PolyNodes. Two functions are provided to quickly separate out <em>open</em> and <em>closed</em> paths from a polytree - <a href="../../Functions/OpenPathsFromPolyTree.htm"><b>OpenPathsFromPolyTree</b></a> and <a href="../../Functions/ClosedPathsFromPolyTree.htm"><b>ClosedPathsFromPolyTree</b></a>. <br><br> <div align="left"> 
+      <table cellspacing="2" cellpadding="0" border="0">
+
+        <tr>
+	
+          <td style="background-color: #FFFFFF;">
+<img src="../../../../../Images/polytree.png" alt="" border="0">
+	
+          </td>
+	
+          <td style="background-color: #FFFFFF;">
+
+            <pre style="font-family: Verdana, Arial, Helvetica, sans-serif;">
+
+    <b>polytree:</b> 
+    Contour = <b>()</b>
+    ChildCount = <b>1</b>
+    Childs[0]: 
+        Contour = ((10,10),(100,10),(100,100),(10,100))
+        IsHole = <b>False</b>
+        ChildCount = <b>1</b>
+        Childs[0]: 
+            Contour = ((20,20),(20,90),(90,90),(90,20))
+            IsHole = <b>True</b>
+            ChildCount = <b>2</b>
+            Childs[0]: 
+                Contour = ((30,30),(50,30),(50,50),(30,50))
+                IsHole = <b>False</b>
+                ChildCount = <b>0</b>
+            Childs[1]: 
+                Contour = ((60,60),(80,60),(80,80),(60,80))
+                IsHole = <b>False</b>
+                ChildCount = <b>0</b>
+
+            </pre>
+	
+          </td>
+
+        </tr>
+
+      </table> </div> </p>
+
+  <h2 id="Auto-Reference">Reference</h2>
+  <table>
+    <tr><th>Fields
+      </th><th>Methods
+      </th><th>Properties
+      </th>
+    </tr>
+    <tr>
+      <td colspan="2" class="White">In PolyTree:
+      </td>
+    </tr>
+    <tr>
+      <td>
+      </td>
+      <td><a href="Methods/Clear.htm">Clear</a>
+      </td>
+      <td><a href="Properties/Total.htm">Total</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+      </td>
+      <td><a href="Methods/GetFirst.htm">GetFirst</a>
+      </td>
+      <td>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2" class="White">In PolyNode:
+      </td>
+    </tr>
+    <tr>
+      <td>
+      </td>
+      <td><a href="../PolyNode/Methods/GetNext.htm">GetNext</a>
+      </td>
+      <td><a href="../PolyNode/Properties/ChildCount.htm">ChildCount</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+      </td>
+      <td>
+      </td>
+      <td><a href="../PolyNode/Properties/Childs.htm">Childs</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+      </td>
+      <td>
+      </td>
+      <td><a href="../PolyNode/Properties/Contour.htm">Contour</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+      </td>
+      <td>
+      </td>
+      <td><a href="../PolyNode/Properties/IsHole.htm">IsHole</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+      </td>
+      <td>
+      </td>
+      <td><a href="../PolyNode/Properties/IsOpen.htm">IsOpen</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+      </td>
+      <td>
+      </td>
+      <td><a href="../PolyNode/Properties/Parent.htm">Parent</a>
+      </td>
+    </tr>
+  </table>
+  <h2 id="Auto-SeeAlso">See Also</h2>
+  <p class="Body"><a href="../../../../Overview/_Body.htm">Overview</a>, <a href="../Clipper/Methods/Execute.htm">Clipper.Execute</a>, <a href="../ClipperOffset/Methods/Execute.htm">ClipperOffset.Execute</a>, <a href="../PolyNode/_Body.htm">PolyNode</a>, <a href="../../Functions/ClosedPathsFromPolyTree.htm">ClosedPathsFromPolyTree</a>, <a href="../../Functions/OpenPathsFromPolyTree.htm">OpenPathsFromPolyTree</a>, <a href="../../Types/Paths.htm">Paths</a></p>
+    
+  <p class="Copyright" id="auto"> <br><br> Copyright &copy;2010-2014 Angus Johnson&nbsp; - &nbsp; Clipper 6.2.1 &nbsp; - &nbsp; Help file built on 1-November-2014 <br><br> </p>
+  
+</body>
+
+</html>

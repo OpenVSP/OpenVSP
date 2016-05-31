@@ -15,6 +15,7 @@
 #include "ParmMgr.h"
 #include "LinkMgr.h"
 #include "ResultsMgr.h"
+#include "AnalysisMgr.h"
 #include "XSecSurf.h"
 #include "CfdMeshMgr.h"
 #include "Util.h"
@@ -398,7 +399,7 @@ string ComputeCompGeom( int set, bool half_mesh, int file_export_types )
         veh->setExportDragBuildTsvFile( true );
     }
 
-    string id = veh->CompGeomAndFlatten( set, 0, half_mesh );
+    string id = veh->CompGeomAndFlatten( set, half_mesh );
 
     if ( id.size() == 0 )
     {
@@ -529,6 +530,8 @@ void SetCFDMeshVal( int type, double val )
         CfdMeshMgr.GetCfdSettingsPtr()->m_WakeScale = val;
     else if ( type == CFD_WAKE_ANGLE )
         CfdMeshMgr.GetCfdSettingsPtr()->m_WakeAngle = val;
+    else if ( type == CFD_SRF_XYZ_FLAG )
+        CfdMeshMgr.GetCfdSettingsPtr()->m_XYZIntCurveFlag = ToBool(val);
     else
     {
         ErrorMgr.AddError( VSP_CANT_FIND_TYPE, "SetCFDMeshVal::Can't Find Type " + to_string( ( long long )type ) );
@@ -651,6 +654,227 @@ void ComputeCFDMesh( int set, int file_export_types )
     ErrorMgr.NoError();
 }
 
+//===================================================================//
+//===============       Analysis Functions        ===================//
+//===================================================================//
+
+int GetNumAnalysis()
+{
+  return AnalysisMgr.GetNumAnalysis();
+}
+
+vector < string > ListAnalysis()
+{
+    return AnalysisMgr.ListAnalysis();
+}
+
+vector < string > GetAnalysisInputNames( const string & analysis )
+{
+    if ( !AnalysisMgr.ValidAnalysisName( analysis ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetAnalysisInputNames::Invalid Analysis ID " + analysis );
+        vector < string > ret;
+        return ret;
+    }
+
+    Analysis *a = AnalysisMgr.FindAnalysis( analysis );
+
+    return a->m_Inputs.GetAllDataNames();
+}
+
+string ExecAnalysis( const string & analysis )
+{
+    if ( !AnalysisMgr.ValidAnalysisName( analysis ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "ExecAnalysis::Invalid Analysis ID " + analysis );
+        string ret;
+        return ret;
+    }
+
+    return AnalysisMgr.ExecAnalysis( analysis );
+}
+
+int GetNumAnalysisInputData( const string & analysis, const string & name )
+{
+    if ( !AnalysisMgr.ValidAnalysisName( analysis ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetNumAnalysisInputData::Invalid Analysis ID " + analysis );
+        return 0;
+    }
+    ErrorMgr.NoError();
+
+    return AnalysisMgr.GetNumInputData( analysis, name );
+}
+
+int GetAnalysisInputType( const string & analysis, const string & name )
+{
+    if ( !AnalysisMgr.ValidAnalysisName( analysis ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetAnalysisInputType::Invalid Analysis ID " + analysis );
+        return vsp::INVALID_TYPE;
+    }
+    ErrorMgr.NoError();
+
+    return AnalysisMgr.GetAnalysisInputType( analysis, name );
+}
+
+const vector< int > & GetIntAnalysisInput( const string & analysis, const string & name, int index )
+{
+    if ( !AnalysisMgr.ValidAnalysisName( analysis ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetIntAnalysisInput::Invalid Analysis ID " + analysis );
+    }
+    else if ( !AnalysisMgr.ValidAnalysisInputDataIndex( analysis, name, index ) )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetIntAnalysisInput::Can't Find Name " + name );
+    }
+    else
+    {
+        ErrorMgr.NoError();
+    }
+
+    return AnalysisMgr.GetIntInputData( analysis, name, index );
+}
+
+const std::vector< double > & GetDoubleAnalysisInput( const string & analysis, const string & name, int index )
+{
+    if ( !AnalysisMgr.ValidAnalysisName( analysis ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetDoubleAnalysisInput::Invalid Analysis ID " + analysis );
+    }
+    else if ( !AnalysisMgr.ValidAnalysisInputDataIndex( analysis, name, index ) )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetDoubleAnalysisInput::Can't Find Name " + name );
+    }
+    else
+    {
+        ErrorMgr.NoError();
+    }
+
+    return AnalysisMgr.GetDoubleInputData( analysis, name, index );
+}
+
+const std::vector< std::string > & GetStringAnalysisInput( const string & analysis, const string & name, int index )
+{
+    if ( !AnalysisMgr.ValidAnalysisName( analysis ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetStringAnalysisInput::Invalid Analysis ID " + analysis );
+    }
+    else if ( !AnalysisMgr.ValidAnalysisInputDataIndex( analysis, name, index ) )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetStringAnalysisInput::Can't Find Name " + name );
+    }
+    else
+    {
+        ErrorMgr.NoError();
+    }
+
+    return AnalysisMgr.GetStringInputData( analysis, name, index );
+}
+
+const std::vector< vec3d > & GetVec3dAnalysisInput( const string & analysis, const string & name, int index )
+{
+    if ( !AnalysisMgr.ValidAnalysisName( analysis ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetVec3dAnalysisInput::Invalid Analysis ID " + analysis );
+    }
+    else if ( !AnalysisMgr.ValidAnalysisInputDataIndex( analysis, name, index ) )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetVec3dAnalysisInput::Can't Find Name " + name );
+    }
+    else
+    {
+        ErrorMgr.NoError();
+    }
+
+    return AnalysisMgr.GetVec3dInputData( analysis, name, index );
+}
+
+void SetAnalysisInputDefaults( const string & analysis )
+{
+    if ( !AnalysisMgr.ValidAnalysisName( analysis ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetIntAnalysisInput::Invalid Analysis ID " + analysis );
+    }
+    else
+    {
+        ErrorMgr.NoError();
+    }
+
+    AnalysisMgr.SetAnalysisInputDefaults( analysis );
+}
+
+void SetIntAnalysisInput( const string & analysis, const string & name, const std::vector< int > & indata, int index )
+{
+    if ( !AnalysisMgr.ValidAnalysisName( analysis ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetIntAnalysisInput::Invalid Analysis ID " + analysis );
+    }
+    else if ( !AnalysisMgr.ValidAnalysisInputDataIndex( analysis, name, index ) )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "SetIntAnalysisInput::Can't Find Name " + name );
+    }
+    else
+    {
+        ErrorMgr.NoError();
+    }
+
+    AnalysisMgr.SetIntAnalysisInput( analysis, name, indata, index );
+}
+
+void SetDoubleAnalysisInput( const string & analysis, const string & name, const std::vector< double > & indata, int index )
+{
+    if ( !AnalysisMgr.ValidAnalysisName( analysis ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetDoubleAnalysisInput::Invalid Analysis ID " + analysis );
+    }
+    else if ( !AnalysisMgr.ValidAnalysisInputDataIndex( analysis, name, index ) )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "SetDoubleAnalysisInput::Can't Find Name " + name );
+    }
+    else
+    {
+        ErrorMgr.NoError();
+    }
+
+    AnalysisMgr.SetDoubleAnalysisInput( analysis, name, indata, index );
+}
+
+void SetStringAnalysisInput( const string & analysis, const string & name, const std::vector< std::string > & indata, int index )
+{
+    if ( !AnalysisMgr.ValidAnalysisName( analysis ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetStringAnalysisInput::Invalid Analysis ID " + analysis );
+    }
+    else if ( !AnalysisMgr.ValidAnalysisInputDataIndex( analysis, name, index ) )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "SetStringAnalysisInput::Can't Find Name " + name );
+    }
+    else
+    {
+        ErrorMgr.NoError();
+    }
+
+    AnalysisMgr.SetStringAnalysisInput( analysis, name, indata, index );
+}
+
+void SetVec3dAnalysisInput( const string & analysis, const string & name, const std::vector< vec3d > & indata, int index )
+{
+    if ( !AnalysisMgr.ValidAnalysisName( analysis ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetVec3dAnalysisInput::Invalid Analysis ID " + analysis );
+    }
+    else if ( !AnalysisMgr.ValidAnalysisInputDataIndex( analysis, name, index ) )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "SetVec3dAnalysisInput::Can't Find Name " + name );
+    }
+    else
+    {
+        ErrorMgr.NoError();
+    }
+
+    AnalysisMgr.SetVec3dAnalysisInput( analysis, name, indata, index );
+}
 
 //===================================================================//
 //===============       Results Functions         ===================//
@@ -715,6 +939,17 @@ extern int GetNumData( const string & results_id, const string & data_name )
     }
     ErrorMgr.NoError();
     return ResultsMgr.GetNumData( results_id, data_name );
+}
+
+extern int GetResultsType( const string & results_id, const string & data_name )
+{
+    if ( !ResultsMgr.ValidResultsID( results_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetResultsType::Invalid ID " + results_id  );
+        return vsp::INVALID_TYPE;
+    }
+    ErrorMgr.NoError();
+    return ResultsMgr.GetResultsType( results_id, data_name );
 }
 
 /// Return the int data given the results id, data name and data index
@@ -948,6 +1183,24 @@ string AddGeom( const string & type, const string & parent  )
 
     ErrorMgr.NoError();
     return ret_id;
+}
+
+void DeleteGeom( const string & geom_id )
+{
+    Vehicle* veh = GetVehicle();
+
+    veh->DeleteGeom( geom_id );
+
+    ErrorMgr.NoError();
+}
+
+void DeleteGeomVec( const vector< string > & del_vec )
+{
+    Vehicle* veh = GetVehicle();
+
+    veh->DeleteGeomVec( del_vec );
+
+    ErrorMgr.NoError();
 }
 
 /// Cut geometry and place it in the clipboard.  The clipboard is cleared before
@@ -2781,6 +3034,51 @@ vector< string > FindContainerParmIDs( const string & parm_container_id )
     ErrorMgr.NoError();
     return parm_vec;
 }
+
+
+//===================================================================//
+//===============           Snap To Functions          ==============//
+//===================================================================//
+double ComputeMinClearanceDistance( const string & geom_id, int set )
+{
+    Vehicle* veh = GetVehicle();
+
+    int old_set = veh->GetSnapToPtr()->m_CollisionSet;
+    veh->GetSnapToPtr()->m_CollisionSet = set;
+
+    vector< string > old_active_geom = veh->GetActiveGeomVec();
+    veh->SetActiveGeom( geom_id );
+
+    veh->GetSnapToPtr()->CheckClearance();
+    double min_clearance_dist = veh->GetSnapToPtr()->m_CollisionMinDist;
+
+    //==== Restore State ====//
+    veh->GetSnapToPtr()->m_CollisionSet = old_set;
+    veh->SetActiveGeomVec( old_active_geom );
+
+    return min_clearance_dist;
+}
+
+double SnapParm( const string & parm_id, double target_min_dist, bool inc_flag, int set  )
+{
+    Vehicle* veh = GetVehicle();
+
+    int old_set = veh->GetSnapToPtr()->m_CollisionSet;
+    veh->GetSnapToPtr()->m_CollisionSet = set;
+
+    double old_min_dist = veh->GetSnapToPtr()->m_CollisionTargetDist();
+    veh->GetSnapToPtr()->m_CollisionTargetDist = target_min_dist;
+
+    veh->GetSnapToPtr()->AdjParmToMinDist( parm_id, inc_flag );
+    double min_clearance_dist = veh->GetSnapToPtr()->m_CollisionMinDist;
+
+    //==== Restore State ====//
+    veh->GetSnapToPtr()->m_CollisionSet = old_set;
+    veh->GetSnapToPtr()->m_CollisionTargetDist = old_min_dist;
+
+    return min_clearance_dist;
+}
+
 
 //============================================================================//
 }   // vsp namespace

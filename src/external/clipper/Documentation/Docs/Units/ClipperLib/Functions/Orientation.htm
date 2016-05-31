@@ -1,0 +1,92 @@
+<html>
+
+<head>
+    
+  <script type="text/javascript" src="../../../../Scripts/jquery.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../Scripts/SyntaxHighlighter/scripts/shCore.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../Scripts/SyntaxHighlighter/scripts/shBrushDelphi.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../Scripts/SyntaxHighlighter/scripts/shBrushCpp.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../Scripts/SyntaxHighlighter/scripts/shBrushCSharp.js">
+  </script>
+    
+  <link type="text/css" rel="stylesheet" href="../../../../Scripts/SyntaxHighlighter/styles/shCoreDefault.css">
+    
+  <link type="text/css" rel="stylesheet" href="../../../../Scripts/SyntaxHighlighter/styles/shThemeDefault.css">
+  
+
+  <title>Orientation</title>
+
+  <link rel="stylesheet" href="../../../../Styles/default.css" type="text/css">
+
+    
+  <script type="text/javascript" src="../../../../Scripts/bootstrap.js">
+  </script>
+  
+</head>
+
+<body bgcolor="#FFFFFF">
+    
+  <!-- THIS FILE HAS BEEN AUTOMATICALLY PROCESSED FROM A SOURCE COPY -->
+    
+  <!-- DO NOT EDIT MANUALLY !!! -->
+  
+  <table class="Banner" cellspacing="0" cellpadding="0" border="1" bordercolorlight="#303080" bordercolordark="#7070B0">
+    <tr>
+      <td class="Banner" nowrap=""><a href="../../../_Body.htm" class="Banner"><img src="../../../../Images/_Home.gif" align="absmiddle">Home</a>
+      </td>
+      <td class="Banner" nowrap=""><a href="../_Body.htm" class="Banner"><img src="../../../../Images/_Unit.gif" align="absmiddle">ClipperLib</a>
+      </td>
+      <td class="Banner" width="100%" align="right"><img src="../../../../Images/_Project_Logo.gif" align="absmiddle">
+      </td>
+    </tr>
+  </table>
+  <h1>Orientation</h1>
+
+
+  <p class="Decl"><span class="Comment">Del.&raquo;</span> <b>function</b> Orientation(<b>const</b> poly: <a href="../Types/Path.htm">TPath</a>): boolean;</p>
+
+  <p class="Decl2"><span class="Comment">C++&nbsp;&raquo;</span> <b>bool</b> Orientation(<b>const</b> <a href="../Types/Path.htm">Path</a> &amp;poly); <span class="Comment">// Function in the ClipperLib namespace.</span></p>
+
+  <p class="Decl3"><span class="Comment">C#&nbsp;&nbsp;&raquo;</span> <b>public static bool</b> Orientation(<a href="../Types/Path.htm">Path</a> poly); <span class="Comment">// Static method of the Clipper class in the ClipperLib namespace.</span></p>
+
+
+  <p class="Body">Orientation is only important to <em>closed</em> paths. Given that vertices are declared in a specific order, orientation refers to the direction (clockwise or counter-clockwise) that these vertices progress around a closed path.<br><br> Orientation is also dependent on axis direction:<br> 
+    <ul>
+	
+      <li>On <b>Y-axis positive <em>upward</em> displays</b>, Orientation will return true if the polygon's orientation is counter-clockwise.</li>
+	
+      <li>On <b>Y-axis positive <em>downward</em> displays</b>, Orientation will return true if the polygon's orientation is clockwise.</li>
+
+    </ul> </p>
+
+
+  <p class="Body"> <img src="../../../../Images/orientation.png" alt="" border="0" align="left"><br style="clear:both"><br> <b>Notes:</b><br> 
+    <ul>
+  
+      <li>Self-intersecting polygons have indeterminate orientations in which case this function won't return a meaningful value.</li>
+	
+      <li>The majority of 2D graphic display libraries (eg GDI, GDI+, XLib, Cairo, AGG, Graphics32) and even the SVG file format have their coordinate origins at the top-left corner of their respective viewports <em>with their Y axes increasing downward</em>. However, some display libraries (eg Quartz, OpenGL) have their coordinate origins undefined or in the classic bottom-left position with their Y axes increasing upward.</li>
+	
+      <li>For Non-Zero filled polygons, the orientation of <a href="../../../Overview/_Body.htm#terminology">holes</a> <em>must be opposite</em> that of <a href="../../../Overview/_Body.htm#terminology">outer</a> polygons.</li> 
+	
+      <li>For closed paths (polygons) in the <em>solution</em> returned by Clipper's Execute method, their orientations will always be <em>true</em> for outer polygons and <em>false</em> for hole polygons (unless the <a href="../Classes/Clipper/Properties/ReverseSolution.htm"><b>ReverseSolution</b></a> property has been enabled).</li>
+
+    </ul> </p>
+<br>
+
+  <h2 id="Auto-SeeAlso">See Also</h2>
+  <p class="Body"><a href="../../../Overview/_Body.htm">Overview</a>, <a href="../Classes/Clipper/Properties/ReverseSolution.htm">Clipper.ReverseSolution</a>, <a href="../Types/Path.htm">Path</a></p>
+    
+  <p class="Copyright" id="auto"> <br><br> Copyright &copy;2010-2014 Angus Johnson&nbsp; - &nbsp; Clipper 6.2.1 &nbsp; - &nbsp; Help file built on 1-November-2014 <br><br> </p>
+  
+</body>
+
+</html>

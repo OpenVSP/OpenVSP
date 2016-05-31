@@ -11,6 +11,7 @@ INCLUDE_DIRECTORIES(
     ${XMLVSP_INCLUDE_DIR}
     ${TRIANGLE_INCLUDE_DIR}
     ${NANOFLANN_INCLUDE_DIR}
+    ${CLIPPER_INCLUDE_DIR}
     ${EIGEN3_INCLUDE_DIR}
     ${CodeEli_INCLUDE_DIRS}
     ${TRITRI_INCLUDE_DIR}
@@ -25,6 +26,7 @@ ADD_LIBRARY(geom_core
 AdvLink.cpp
 AdvLinkMgr.cpp
 Airfoil.cpp
+AnalysisMgr.cpp
 BlankGeom.cpp
 CfdMeshSettings.cpp
 ClippingMgr.cpp
@@ -45,9 +47,11 @@ ParmContainer.cpp
 ParmMgr.cpp
 ParmUndo.cpp
 PodGeom.cpp
+ProjectionMgr.cpp
 PtCloudGeom.cpp
 ResultsMgr.cpp
 ScriptMgr.cpp
+SnapTo.cpp
 StackGeom.cpp
 SubSurface.cpp
 SubSurfaceMgr.cpp
@@ -70,6 +74,7 @@ VSPAEROMgr.cpp
 AdvLink.h
 AdvLinkMgr.h
 Airfoil.h
+AnalysisMgr.h
 BlankGeom.h
 CfdMeshSettings.h
 ClippingMgr.h
@@ -97,9 +102,11 @@ ParmContainer.h
 ParmMgr.h
 ParmUndo.h
 PodGeom.h
+ProjectionMgr.h
 PtCloudGeom.h
 ResultsMgr.h
 ScriptMgr.h
+SnapTo.h
 StackGeom.h
 SubSurface.h
 SubSurfaceMgr.h

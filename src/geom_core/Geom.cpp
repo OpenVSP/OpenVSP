@@ -123,6 +123,15 @@ void GeomBase::ParmChanged( Parm* parm_ptr, int type )
         return;
     }
 
+    //==== Check For Interactive Collision Dectection When Alt Key Is Pressed ====//
+    if ( type == Parm::SET_FROM_DEVICE )
+    {
+        if ( parm_ptr )
+        {
+            m_Vehicle->GetSnapToPtr()->PreventCollision( GetID(), parm_ptr->GetID() );
+        }
+    }
+
     Update();
     m_Vehicle->ParmChanged( parm_ptr, type );
     m_UpdatedParmVec.clear();
@@ -337,10 +346,10 @@ GeomXForm::GeomXForm( Vehicle* vehicle_ptr ) : GeomBase( vehicle_ptr )
     m_ZRelRot.SetDescript( "Z Rotation Relative to Parent" );
 
     // Attachment Parms
-    m_AbsRelFlag.Init( "Abs_Or_Relitive_flag", "XForm", this, RELATIVE_XFORM, ABSOLUTE_XFORM, RELATIVE_XFORM, false );
-    m_TransAttachFlag.Init( "Trans_Attach_Flag", "Attach", this, ATTACH_TRANS_NONE, ATTACH_TRANS_NONE, ATTACH_TRANS_UV, false );
+    m_AbsRelFlag.Init( "Abs_Or_Relitive_flag", "XForm", this, RELATIVE_XFORM, ABSOLUTE_XFORM, RELATIVE_XFORM );
+    m_TransAttachFlag.Init( "Trans_Attach_Flag", "Attach", this, ATTACH_TRANS_NONE, ATTACH_TRANS_NONE, ATTACH_TRANS_UV );
     m_TransAttachFlag.SetDescript( "Determines relative translation coordinate system" );
-    m_RotAttachFlag.Init( "Rots_Attach_Flag", "Attach", this, ATTACH_ROT_NONE, ATTACH_ROT_NONE, ATTACH_ROT_UV, false );
+    m_RotAttachFlag.Init( "Rots_Attach_Flag", "Attach", this, ATTACH_ROT_NONE, ATTACH_ROT_NONE, ATTACH_ROT_UV );
     m_RotAttachFlag.SetDescript( "Determines relative rotation axes" );
     m_ULoc.Init( "U_Attach_Location", "Attach", this, 1e-6, 1e-6, 1 - 1e-6 );
     m_ULoc.SetDescript( "U Location of Parent's Surface" );
@@ -725,10 +734,10 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     }
     UpdateSets();
 
-    m_SymAncestor.Init( "Sym_Ancestor", "Sym", this, 1, 0, 1e6, true );
-    m_SymAncestOriginFlag.Init( "Sym_Ancestor_Origin_Flag", "Sym", this, true, 0, 1, true );
-    m_SymPlanFlag.Init( "Sym_Planar_Flag", "Sym", this, 0, 0, SYM_XY | SYM_XZ | SYM_YZ, true );
-    m_SymAxFlag.Init( "Sym_Axial_Flag", "Sym", this, 0, 0, SYM_ROT_Z, true );
+    m_SymAncestor.Init( "Sym_Ancestor", "Sym", this, 1, 0, 1e6 );
+    m_SymAncestOriginFlag.Init( "Sym_Ancestor_Origin_Flag", "Sym", this, true, 0, 1 );
+    m_SymPlanFlag.Init( "Sym_Planar_Flag", "Sym", this, 0, 0, SYM_XY | SYM_XZ | SYM_YZ );
+    m_SymAxFlag.Init( "Sym_Axial_Flag", "Sym", this, 0, 0, SYM_ROT_Z );
     m_SymRotN.Init( "Sym_Rot_N", "Sym", this, 2, 2, 1000 );
 
     // Mass Properties
@@ -741,20 +750,38 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_NegativeVolumeFlag.Init( "Negative_Volume_Flag", "Negative_Volume_Props", this, false, 0, 1);
 
     // End Cap Options
-    m_CapUMinOption.Init("CapUMinOption", "EndCap", this, VspSurf::NO_END_CAP, VspSurf::NO_END_CAP, VspSurf::NUM_END_CAP_OPTIONS-1);
+    m_CapUMinOption.Init("CapUMinOption", "EndCap", this, NO_END_CAP, NO_END_CAP, NUM_END_CAP_OPTIONS-1);
     m_CapUMinOption.SetDescript("Type of End Cap on UMin end");
+
+    m_CapUMinLength.Init( "CapUMinLength", "EndCap", this, 1, 0, 20 );
+    m_CapUMinLength.SetDescript( "Scaled length of end cap" );
+    m_CapUMinOffset.Init( "CapUMinOffset", "EndCap", this, 0, -20, 20 );
+    m_CapUMinOffset.SetDescript( "Scaled offset of end cap" );
+    m_CapUMinStrength.Init( "CapUMinStrength", "EndCap", this, 0.5, 0, 1 );
+    m_CapUMinStrength.SetDescript( "Tangent strength of end cap" );
+    m_CapUMinSweepFlag.Init( "CapUMinSweepFlag", "EndCap", this, 0, 0, 1 );
+    m_CapUMinSweepFlag.SetDescript( "Flag to stretch end cap length for sweep" );
 
     m_CapUMinTess.Init("CapUMinTess", "EndCap", this, 3, 3, 51);
     m_CapUMinTess.SetDescript("Number of tessellated curves on capped ends");
     m_CapUMinTess.SetMultShift(2, 1);
 
-    m_CapUMaxOption.Init("CapUMaxOption", "EndCap", this, VspSurf::NO_END_CAP, VspSurf::NO_END_CAP, VspSurf::NUM_END_CAP_OPTIONS-1);
+    m_CapUMaxOption.Init("CapUMaxOption", "EndCap", this, NO_END_CAP, NO_END_CAP, NUM_END_CAP_OPTIONS-1);
     m_CapUMaxOption.SetDescript("Type of End Cap on UMax end");
 
-    m_CapWMinOption.Init("CapWMinOption", "EndCap", this, VspSurf::NO_END_CAP, VspSurf::NO_END_CAP, VspSurf::NUM_END_CAP_OPTIONS-1);
+    m_CapUMaxLength.Init( "CapUMaxLength", "EndCap", this, 1, 0, 20 );
+    m_CapUMaxLength.SetDescript( "Scaled length of end cap" );
+    m_CapUMaxOffset.Init( "CapUMaxOffset", "EndCap", this, 0, -20, 20 );
+    m_CapUMaxOffset.SetDescript( "Scaled offset of end cap" );
+    m_CapUMaxStrength.Init( "CapUMaxStrength", "EndCap", this, 0.5, 0, 1 );
+    m_CapUMaxStrength.SetDescript( "Tangent strength of end cap" );
+    m_CapUMaxSweepFlag.Init( "CapUMaxSweepFlag", "EndCap", this, 0, 0, 1 );
+    m_CapUMaxSweepFlag.SetDescript( "Flag to stretch end cap length for sweep" );
+
+    m_CapWMinOption.Init("CapWMinOption", "EndCap", this, NO_END_CAP, NO_END_CAP, NUM_END_CAP_OPTIONS-1);
     m_CapWMinOption.SetDescript("Type of End Cap on WMin end");
 
-    m_CapWMaxOption.Init("CapWMaxOption", "EndCap", this, VspSurf::NO_END_CAP, VspSurf::NO_END_CAP, VspSurf::NUM_END_CAP_OPTIONS-1);
+    m_CapWMaxOption.Init("CapWMaxOption", "EndCap", this, NO_END_CAP, NO_END_CAP, NUM_END_CAP_OPTIONS-1);
     m_CapWMaxOption.SetDescript("Type of End Cap on WMax end");
 
     // Geom needs at least one surf
@@ -1038,10 +1065,44 @@ void Geom::UpdateEndCaps()
         m_CapWMaxSuccess[i] = false;
 
         // NOTE: These return a bool that is true if it modified the surface to create a cap
-        m_CapUMinSuccess[i] = m_MainSurfVec[i].CapUMin(m_CapUMinOption());
-        m_CapUMaxSuccess[i] = m_MainSurfVec[i].CapUMax(m_CapUMaxOption());
+        m_CapUMinSuccess[i] = m_MainSurfVec[i].CapUMin(m_CapUMinOption(), m_CapUMinLength(), m_CapUMinStrength(), m_CapUMinOffset(), m_CapUMinSweepFlag());
+        m_CapUMaxSuccess[i] = m_MainSurfVec[i].CapUMax(m_CapUMaxOption(), m_CapUMaxLength(), m_CapUMaxStrength(), m_CapUMaxOffset(), m_CapUMaxSweepFlag());
         m_CapWMinSuccess[i] = m_MainSurfVec[i].CapWMin(m_CapWMinOption());
         m_CapWMaxSuccess[i] = m_MainSurfVec[i].CapWMax(m_CapWMaxOption());
+    }
+
+    switch( m_CapUMinOption() ){
+        case NO_END_CAP:
+        case FLAT_END_CAP:
+            m_CapUMinLength = 1.0;
+            m_CapUMinOffset = 0.0;
+            m_CapUMinStrength = 0.5;
+            break;
+        case ROUND_END_CAP:
+            m_CapUMinStrength = 1.0;
+            break;
+        case EDGE_END_CAP:
+            m_CapUMinStrength = 0.0;
+            break;
+        case SHARP_END_CAP:
+            break;
+    }
+
+    switch( m_CapUMaxOption() ){
+        case NO_END_CAP:
+        case FLAT_END_CAP:
+            m_CapUMaxLength = 1.0;
+            m_CapUMaxOffset = 0.0;
+            m_CapUMaxStrength = 0.5;
+            break;
+        case ROUND_END_CAP:
+            m_CapUMaxStrength = 1.0;
+            break;
+        case EDGE_END_CAP:
+            m_CapUMaxStrength = 0.0;
+            break;
+        case SHARP_END_CAP:
+            break;
     }
 }
 
@@ -1907,19 +1968,19 @@ void Geom::CreateDegenGeom( vector<DegenGeom> &dgs)
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
         m_SurfVec[i].ResetUWSkip();
-        if ( m_CapUMinOption() == VspSurf::FLAT_END_CAP && m_CapUMinSuccess[ m_SurfIndxVec[i] ] )
+        if ( m_CapUMinSuccess[ m_SurfIndxVec[i] ] )
         {
             m_SurfVec[i].SetUSkipFirst( true );
         }
-        if ( m_CapUMaxOption() == VspSurf::FLAT_END_CAP && m_CapUMaxSuccess[ m_SurfIndxVec[i] ] )
+        if ( m_CapUMaxSuccess[ m_SurfIndxVec[i] ] )
         {
             m_SurfVec[i].SetUSkipLast( true );
         }
-        if ( m_CapWMinOption() == VspSurf::FLAT_END_CAP && m_CapWMinSuccess[ m_SurfIndxVec[i] ] )
+        if ( m_CapWMinSuccess[ m_SurfIndxVec[i] ] )
         {
             m_SurfVec[i].SetWSkipFirst( true );
         }
-        if ( m_CapWMaxOption() == VspSurf::FLAT_END_CAP && m_CapWMaxSuccess[ m_SurfIndxVec[i] ] )
+        if ( m_CapWMaxSuccess[ m_SurfIndxVec[i] ] )
         {
             m_SurfVec[i].SetWSkipLast( true );
         }
@@ -2118,7 +2179,12 @@ void Geom::WritePLOT3DFileXYZ( FILE* dump_file )
         {
             for ( int k = 0 ; k < ( int )pnts[j].size() ; k++ )
             {
-                fprintf( dump_file, "%25.17e ", pnts[j][k].x() );
+                int kflip = k;
+                if ( !m_SurfVec[i].GetFlipNormal() )
+                {
+                    kflip = pnts[j].size() - 1 - k;
+                }
+                fprintf( dump_file, "%25.17e ", pnts[j][kflip].x() );
             }
         }
         fprintf( dump_file, "\n" );
@@ -2126,7 +2192,12 @@ void Geom::WritePLOT3DFileXYZ( FILE* dump_file )
         {
             for ( int k = 0 ; k < ( int )pnts[j].size() ; k++ )
             {
-                fprintf( dump_file, "%25.17e ", pnts[j][k].y() );
+                int kflip = k;
+                if ( !m_SurfVec[i].GetFlipNormal() )
+                {
+                    kflip = pnts[j].size() - 1 - k;
+                }
+                fprintf( dump_file, "%25.17e ", pnts[j][kflip].y() );
             }
         }
         fprintf( dump_file, "\n" );
@@ -2134,7 +2205,12 @@ void Geom::WritePLOT3DFileXYZ( FILE* dump_file )
         {
             for ( int k = 0 ; k < ( int )pnts[j].size() ; k++ )
             {
-                fprintf( dump_file, "%25.17e ", pnts[j][k].z() );
+                int kflip = k;
+                if ( !m_SurfVec[i].GetFlipNormal() )
+                {
+                    kflip = pnts[j].size() - 1 - k;
+                }
+                fprintf( dump_file, "%25.17e ", pnts[j][kflip].z() );
             }
         }
         fprintf( dump_file, "\n" );
@@ -2143,8 +2219,8 @@ void Geom::WritePLOT3DFileXYZ( FILE* dump_file )
 
 void Geom::CreateGeomResults( Results* res )
 {
-    res->Add( ResData( "Type", vsp::GEOM_XSECS ) );
-    res->Add( ResData( "Num_Surfs", ( int )m_SurfVec.size() ) );
+    res->Add( NameValData( "Type", vsp::GEOM_XSECS ) );
+    res->Add( NameValData( "Num_Surfs", ( int )m_SurfVec.size() ) );
 
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
@@ -2153,11 +2229,11 @@ void Geom::CreateGeomResults( Results* res )
         vector< vector< vec3d > > norms;
         UpdateTesselate( i, pnts, norms, false );
 
-        res->Add( ResData( "Num_XSecs", static_cast<int>( pnts.size() ) ) );
+        res->Add( NameValData( "Num_XSecs", static_cast<int>( pnts.size() ) ) );
 
         if ( pnts.size() )
         {
-            res->Add( ResData( "Num_Pnts_Per_XSec", static_cast<int>( pnts[0].size() ) ) );
+            res->Add( NameValData( "Num_Pnts_Per_XSec", static_cast<int>( pnts[0].size() ) ) );
         }
 
         //==== Write XSec Data ====//
@@ -2168,7 +2244,7 @@ void Geom::CreateGeomResults( Results* res )
             {
                 xsec_vec.push_back(  pnts[j][k] );
             }
-            res->Add( ResData( "XSec_Pnts", xsec_vec ) );
+            res->Add( NameValData( "XSec_Pnts", xsec_vec ) );
         }
     }
 }

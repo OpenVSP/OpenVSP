@@ -1,0 +1,83 @@
+<html>
+
+<head>
+    
+  <script type="text/javascript" src="../../../../Scripts/jquery.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../Scripts/SyntaxHighlighter/scripts/shCore.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../Scripts/SyntaxHighlighter/scripts/shBrushDelphi.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../Scripts/SyntaxHighlighter/scripts/shBrushCpp.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../Scripts/SyntaxHighlighter/scripts/shBrushCSharp.js">
+  </script>
+    
+  <link type="text/css" rel="stylesheet" href="../../../../Scripts/SyntaxHighlighter/styles/shCoreDefault.css">
+    
+  <link type="text/css" rel="stylesheet" href="../../../../Scripts/SyntaxHighlighter/styles/shThemeDefault.css">
+  
+
+  <title>PolyFillType</title>
+
+  <link rel="stylesheet" href="../../../../Styles/default.css" type="text/css">
+
+    
+  <script type="text/javascript" src="../../../../Scripts/bootstrap.js">
+  </script>
+  
+</head>
+
+<body bgcolor="#FFFFFF">
+    
+  <!-- THIS FILE HAS BEEN AUTOMATICALLY PROCESSED FROM A SOURCE COPY -->
+    
+  <!-- DO NOT EDIT MANUALLY !!! -->
+  
+  <table class="Banner" cellspacing="0" cellpadding="0" border="1" bordercolorlight="#303080" bordercolordark="#7070B0">
+    <tr>
+      <td class="Banner" nowrap=""><a href="../../../_Body.htm" class="Banner"><img src="../../../../Images/_Home.gif" align="absmiddle">Home</a>
+      </td>
+      <td class="Banner" nowrap=""><a href="../_Body.htm" class="Banner"><img src="../../../../Images/_Unit.gif" align="absmiddle">ClipperLib</a>
+      </td>
+      <td class="Banner" width="100%" align="right"><img src="../../../../Images/_Project_Logo.gif" align="absmiddle">
+      </td>
+    </tr>
+  </table>
+  <h1>PolyFillType</h1>
+
+
+  <p class="Decl"><span class="Comment">Del.&raquo;</span> <b>type</b> TPolyFillType = (pftEvenOdd, pftNonZero, pftPositive, pftNegative);</p>
+
+  <p class="Decl2"><span class="Comment">C++&nbsp;&raquo;</span> <b>enum</b> PolyFillType {pftEvenOdd, pftNonZero, pftPositive, pftNegative};</p>
+
+  <p class="Decl3"><span class="Comment">C#&nbsp;&nbsp;&raquo;</span> <b>public enum</b> PolyFillType {pftEvenOdd, pftNonZero, pftPositive, pftNegative};</p>
+<br>
+
+
+  <p class="Body"> <em>Filling</em> indicates those regions that are <em>inside</em> a closed path (ie 'filled' with a brush color or pattern in a graphical display) and those regions that are <em>outside</em>. The Clipper Library supports 4 filling rules: Even-Odd, Non-Zero, Positive and Negative.<br><br> The simplest filling rule is <em>Even-Odd</em> filling (sometimes called <em>alternate</em> filling). Given a group of closed paths start from a point outside the paths and progress along an imaginary line through the paths. When the first path is crossed the encountered region is filled. When the next path is crossed the encountered region is <em>not</em> filled. Likewise, each time a path is crossed, filling starts if it had stopped and stops if it had started.<br><br> With the exception of <em>Even-Odd</em> filling, all other filling rules rely on <b>edge direction</b> and <b>winding numbers</b> to determine filling. Edge direction is determined by the order in which vertices are declared when constructing a path. Edge direction is used to determine the <b>winding number</b> of each polygon subregion.<br><br> <img src="../../../../Images/wn.png" alt="" width="16" height="16" border="0" align="absmiddle"> The winding number for each polygon sub-region can be derived by: <ol>
+	
+      <li>starting with a winding number of zero and</li>
+	
+      <li>from a point (P1) that's outside all polygons, draw an imaginary line to a point that's inside a given sub-region (P2)</li>
+	
+      <li>while traversing the line from P1 to P2, for each path that crosses the imaginary line from right to left increment the winding number, and for each path that crosses the line from left to right decrement the winding number.</li>
+
+      <li>Once you arrive at the given sub-region you have its winding number.</li>
+
+    </ol> </p>
+
+  <p class="Body"> <img src="../../../../Images/winding_number.png" alt="" width="720" height="250" border="0"><br> <b>Even-Odd (Alternate)</b>: Odd numbered sub-regions are filled, while even numbered sub-regions are not.<br> <b>Non-Zero (Winding)</b>: All non-zero sub-regions are filled.<br> <b>Positive</b>: All sub-regions with winding counts &gt; 0 are filled.<br> <b>Negative</b>: All sub-regions with winding counts &lt; 0 are filled.<br><br> Paths are added to a Clipper object using the <a href="../Classes/ClipperBase/Methods/AddPath.htm">AddPath</a> or <a href="../Classes/ClipperBase/Methods/AddPaths.htm">AddPaths</a> methods and the filling rules (for subject and clip polygons separately) are specified in the <a href="../Classes/Clipper/Methods/Execute.htm">Execute</a> method.<br><br> Polygon regions are defined by one or more closed paths which may or may not intersect. A single polygon region can be defined by a single non-intersecting path or by multiple non-intersecting paths where there's typically an 'outer' path and one or more inner 'hole' paths. Looking at the three shapes in the image above, the middle shape consists of two concentric rectangles sharing the same clockwise orientation. With even-odd filling, where orientation can be disregarded, the inner rectangle would create a hole in the outer rectangular polygon. There would be no hole with non-zero filling. In the concentric rectangles on the right, where the inner rectangle is orientated opposite to the outer, a hole will be rendered with either even-odd or non-zero filling. A single path can also define multiple subregions if it self-intersects as in the example of the 5 pointed star shape below.<br><br> <img src="../../../../Images/evenodd.png" alt="" width="175" height="200" border="0">&nbsp;&nbsp; <img src="../../../../Images/nonzero.png" alt="" width="175" height="200" border="0">&nbsp;&nbsp; <img src="../../../../Images/positive.png" alt="" width="175" height="200" border="0">&nbsp;&nbsp; <img src="../../../../Images/negative.png" alt="" width="175" height="200" border="0"><br><br> By far the most widely used fill rules are Even-Odd (aka Alternate) and Non-Zero (aka Winding). Most graphics rendering libraries (<a href="http://www.antigrain.com/__code/include/agg_basics.h.html#filling_rule_e">AGG</a>, <a href="http://developer.android.com/reference/android/graphics/Path.FillType.html">Android Graphics</a>, <a href="http://cairographics.org/manual/cairo-cairo-t.html#cairo-fill-rule-t">Cairo</a>, <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms534120(v=vs.85).aspx">GDI+</a>, <a href="http://www.glprogramming.com/red/chapter11.html">OpenGL</a>, <a href="http://developer.apple.com/library/ios/#documentation/GraphicsImaging/Conceptual/drawingwithquartz2d/dq_paths/dq_paths.html#//apple_ref/doc/uid/TP30001066-CH211-TPXREF101">Quartz 2D</a> etc) and vector graphics storage formats (<a href="http://www.w3.org/TR/SVG/painting.html#FillRuleProperty">SVG</a>, Postscript, <a href="http://www.adobe.com/devnet-apps/photoshop/fileformatashtml/PhotoshopFileFormats.htm#50577409_17587">Photoshop</a> etc) support both these rules. However some libraries (eg Java's <a href="http://docs.oracle.com/javase/6/docs/api/java/awt/Graphics.html#fillPolygon(int[], int[], int)">Graphics2D</a>) only support one fill rule. <em>Android Graphics</em> and <em>OpenGL</em> are the only libraries (that I'm aware of) that support multiple filling rules.<br><br> It's useful to note that <em>edge direction</em> has no affect on a winding number's odd-ness or even-ness. (This is why <span class="maroon"><a href="../Functions/Orientation.htm">orientation</a> is ignored when the <em>Even-Odd</em> rule is employed.)</span><br><br> The direction of the Y-axis does affect polygon orientation and <em>edge direction</em>. However, changing Y-axis orientation will only change the <em>sign</em> of winding numbers, not their magnitudes, and has no effect on either <em>Even-Odd</em> or <em>Non-Zero</em> filling.<br><br> </p>
+
+  <h2 id="Auto-SeeAlso">See Also</h2>
+  <p class="Body"><a href="../Classes/Clipper/Methods/Execute.htm">Clipper.Execute</a>, <a href="../Classes/ClipperBase/Methods/AddPath.htm">ClipperBase.AddPath</a>, <a href="../Classes/ClipperBase/Methods/AddPaths.htm">ClipperBase.AddPaths</a>, <a href="../Functions/Orientation.htm">Orientation</a></p>
+    
+  <p class="Copyright" id="auto"> <br><br> Copyright &copy;2010-2014 Angus Johnson&nbsp; - &nbsp; Clipper 6.2.1 &nbsp; - &nbsp; Help file built on 1-November-2014 <br><br> </p>
+  
+</body>
+
+</html>

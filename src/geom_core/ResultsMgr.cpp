@@ -21,66 +21,66 @@
 
 
 //==== Default Results Data ====//
-ResData::ResData()
+NameValData::NameValData()
 {
     Init( "Undefined" );
 }
 
 //==== Construtor With Name =====//
-ResData::ResData( const string & name )
+NameValData::NameValData( const string & name )
 {
     Init( name );
 }
 
 //==== Construtors With Name & Data =====//
-ResData::ResData( const string & name, int i_data )
+NameValData::NameValData( const string & name, int i_data )
 {
     Init( name, vsp::INT_DATA );
     m_IntData.push_back( i_data );
 }
-ResData::ResData( const string & name, double d_data )
+NameValData::NameValData( const string & name, double d_data )
 {
     Init( name, vsp::DOUBLE_DATA );
     m_DoubleData.push_back( d_data );
 }
-ResData::ResData( const string & name, const string & s_data )
+NameValData::NameValData( const string & name, const string & s_data )
 {
     Init( name, vsp::STRING_DATA );
     m_StringData.push_back( s_data );
 }
-ResData::ResData( const string & name, const vec3d & v_data )
+NameValData::NameValData( const string & name, const vec3d & v_data )
 {
     Init( name, vsp::VEC3D_DATA );
     m_Vec3dData.push_back( v_data );
 }
-ResData::ResData( const string & name, vector< int > & i_data )
+NameValData::NameValData( const string & name, vector< int > & i_data )
 {
     Init( name, vsp::INT_DATA );
     m_IntData = i_data;
 }
-ResData::ResData( const string & name, vector< double > & d_data )
+NameValData::NameValData( const string & name, vector< double > & d_data )
 {
     Init( name, vsp::DOUBLE_DATA );
     m_DoubleData = d_data;
 }
-ResData::ResData( const string & name, vector< string > & s_data )
+NameValData::NameValData( const string & name, vector< string > & s_data )
 {
     Init( name, vsp::STRING_DATA );
     m_StringData = s_data;
 }
-ResData::ResData( const string & name, vector< vec3d > & v_data )
+NameValData::NameValData( const string & name, vector< vec3d > & v_data )
 {
     Init( name, vsp::VEC3D_DATA );
     m_Vec3dData = v_data;
 }
 
-void ResData::Init( const string & name, int type, int index )
+void NameValData::Init( const string & name, int type, int index )
 {
     m_Name = name;
     m_Type = type;
 }
 
-int ResData::GetInt( int i ) const
+int NameValData::GetInt( int i ) const
 {
     if ( i < ( int )m_IntData.size() )
     {
@@ -88,7 +88,7 @@ int ResData::GetInt( int i ) const
     }
     return 0;
 }
-double ResData::GetDouble( int i ) const
+double NameValData::GetDouble( int i ) const
 {
     if ( i < ( int )m_DoubleData.size() )
     {
@@ -96,7 +96,7 @@ double ResData::GetDouble( int i ) const
     }
     return 0;
 }
-string ResData::GetString( int i ) const
+string NameValData::GetString( int i ) const
 {
     if ( i < ( int )m_StringData.size() )
     {
@@ -105,7 +105,7 @@ string ResData::GetString( int i ) const
     return string();
 }
 
-vec3d ResData::GetVec3d( int i ) const
+vec3d NameValData::GetVec3d( int i ) const
 {
     if ( i < ( int )m_Vec3dData.size() )
     {
@@ -120,10 +120,91 @@ vec3d ResData::GetVec3d( int i ) const
 //======================================================================================//
 
 
-Results::Results( const string & name, const string & id )
+NameValCollection::NameValCollection( const string & name, const string & id )
 {
     m_Name = name;
     m_ID = id;
+}
+
+//==== Add Data To Results - Can Have Data With The Same Name =====//
+void NameValCollection::Add( const NameValData & d )
+{
+    //==== Find Name ====//
+    string name = d.GetName();
+
+    map< string, vector< NameValData > >::iterator iter = m_DataMap.find( name );
+    if ( iter !=  m_DataMap.end() )     // Check For Duplicates
+    {
+        iter->second.push_back( d );
+    }
+    else
+    {
+        m_DataMap[name].push_back( d );
+    }
+}
+
+//==== Get Number of Data Entries For This Name ====//
+int NameValCollection::GetNumData( const string & name )
+{
+    map< string, vector< NameValData > >::iterator iter = m_DataMap.find( name );
+    if ( iter ==  m_DataMap.end() )
+    {
+        return 0;
+    }
+
+    return iter->second.size();
+}
+
+//==== Get Data Names ====//
+vector< string > NameValCollection::GetAllDataNames()
+{
+    vector< string > name_vec;
+    map< string, vector< NameValData > >::iterator iter;
+
+    for ( iter = m_DataMap.begin() ; iter != m_DataMap.end() ; iter++ )
+    {
+        name_vec.push_back( iter->first );
+    }
+    return name_vec;
+}
+
+//==== Find Res Data Given Name and Index ====//
+NameValData NameValCollection::Find( const string & name, int index )
+{
+    map< string, vector< NameValData > >::iterator iter = m_DataMap.find( name );
+
+    if ( iter !=  m_DataMap.end() )
+    {
+        if ( index >= 0 && index < ( int )( iter->second.size() ) )
+        {
+            return iter->second[index];
+        }
+    }
+    return NameValData();
+}
+
+//==== Find Res Data Given Name and Index ====//
+NameValData* NameValCollection::FindPtr( const string & name, int index )
+{
+    map< string, vector< NameValData > >::iterator iter = m_DataMap.find( name );
+
+    if ( iter !=  m_DataMap.end() )
+    {
+        if ( index >= 0 && index < ( int )( iter->second.size() ) )
+        {
+            return &( iter->second[index] );
+        }
+    }
+    return NULL;
+}
+
+
+//======================================================================================//
+//======================================================================================//
+//======================================================================================//
+
+Results::Results( const string & name, const string & id ) : NameValCollection( name, id )
+{
     SetDateTime();          // Set Time Stamp
 }
 
@@ -141,79 +222,6 @@ void Results::SetDateTime()
     m_Sec = now->tm_sec;
 }
 
-//==== Add Data To Results - Can Have Data With The Same Name =====//
-void Results::Add( const ResData & d )
-{
-    //==== Find Name ====//
-    string name = d.GetName();
-
-    map< string, vector< ResData > >::iterator iter = m_DataMap.find( name );
-    if ( iter !=  m_DataMap.end() )     // Check For Duplicates
-    {
-        iter->second.push_back( d );
-    }
-    else
-    {
-        m_DataMap[name].push_back( d );
-    }
-}
-
-//==== Get Number of Data Entries For This Name ====//
-int Results::GetNumData( const string & name )
-{
-    map< string, vector< ResData > >::iterator iter = m_DataMap.find( name );
-    if ( iter ==  m_DataMap.end() )
-    {
-        return 0;
-    }
-
-    return iter->second.size();
-}
-
-//==== Get Data Names ====//
-vector< string > Results::GetAllDataNames()
-{
-    vector< string > name_vec;
-    map< string, vector< ResData > >::iterator iter;
-
-    for ( iter = m_DataMap.begin() ; iter != m_DataMap.end() ; iter++ )
-    {
-        name_vec.push_back( iter->first );
-    }
-    return name_vec;
-}
-
-//==== Find Res Data Given Name and Index ====//
-ResData Results::Find( const string & name, int index )
-{
-    map< string, vector< ResData > >::iterator iter = m_DataMap.find( name );
-
-    if ( iter !=  m_DataMap.end() )
-    {
-        if ( index >= 0 && index < ( int )( iter->second.size() ) )
-        {
-            return iter->second[index];
-        }
-    }
-    return ResData();
-}
-
-//==== Find Res Data Given Name and Index ====//
-ResData* Results::FindPtr( const string & name, int index )
-{
-    map< string, vector< ResData > >::iterator iter = m_DataMap.find( name );
-
-    if ( iter !=  m_DataMap.end() )
-    {
-        if ( index >= 0 && index < ( int )( iter->second.size() ) )
-        {
-            return &( iter->second[index] );
-        }
-    }
-    return NULL;
-}
-
-
 //===== Write A CSV File With Everything =====//
 void Results::WriteCSVFile( const string & file_name )
 {
@@ -225,7 +233,7 @@ void Results::WriteCSVFile( const string & file_name )
         fprintf( fid, "Results_Date,%d,%d,%d\n", m_Month, m_Day, m_Year );
         fprintf( fid, "Results_Time,%d,%d,%d\n", m_Hour, m_Min, m_Sec );
 
-        map< string, vector< ResData > >::iterator iter;
+        map< string, vector< NameValData > >::iterator iter;
         for ( iter = m_DataMap.begin() ; iter != m_DataMap.end() ; iter++ )
         {
             for ( int i = 0 ; i < ( int )iter->second.size() ; i++ )
@@ -721,6 +729,23 @@ int ResultsMgrSingleton::GetNumData( const string & results_id, const string & d
     return results_ptr->GetNumData( data_name );
 }
 
+int ResultsMgrSingleton::GetResultsType( const string & results_id, const string & data_name )
+{
+    Results* results_ptr = FindResultsPtr( results_id );
+    if ( !results_ptr )
+    {
+        return vsp::INVALID_TYPE;
+    }
+
+    NameValData* rd_ptr = results_ptr->FindPtr( data_name );
+    if ( !rd_ptr )
+    {
+        return vsp::INVALID_TYPE;
+    }
+
+    return rd_ptr->GetType();
+}
+
 //==== Get The Names of All Results ====//
 vector< string > ResultsMgrSingleton::GetAllResultsNames()
 {
@@ -755,7 +780,7 @@ const vector<int> & ResultsMgrSingleton::GetIntResults( const string & results_i
         return m_DefaultIntVec;
     }
 
-    ResData* rd_ptr = results_ptr->FindPtr( name, index );
+    NameValData* rd_ptr = results_ptr->FindPtr( name, index );
     if ( !rd_ptr )
     {
         return m_DefaultIntVec;
@@ -773,7 +798,7 @@ const vector<double> & ResultsMgrSingleton::GetDoubleResults( const string & res
         return m_DefaultDoubleVec;
     }
 
-    ResData* rd_ptr = results_ptr->FindPtr( name, index );
+    NameValData* rd_ptr = results_ptr->FindPtr( name, index );
     if ( !rd_ptr )
     {
         return m_DefaultDoubleVec;
@@ -791,7 +816,7 @@ const vector<string> & ResultsMgrSingleton::GetStringResults( const string & res
         return m_DefaultStringVec;
     }
 
-    ResData* rd_ptr = results_ptr->FindPtr( name, index );
+    NameValData* rd_ptr = results_ptr->FindPtr( name, index );
     if ( !rd_ptr )
     {
         return m_DefaultStringVec;
@@ -809,7 +834,7 @@ const vector<vec3d> & ResultsMgrSingleton::GetVec3dResults( const string & resul
         return m_DefaultVec3dVec;
     }
 
-    ResData* rd_ptr = results_ptr->FindPtr( name, index );
+    NameValData* rd_ptr = results_ptr->FindPtr( name, index );
     if ( !rd_ptr )
     {
         return m_DefaultVec3dVec;
@@ -838,7 +863,7 @@ bool ResultsMgrSingleton::ValidDataNameIndex( const string & results_id, const s
         return false;
     }
 
-    ResData* rd_ptr = results_ptr->FindPtr( name, index );
+    NameValData* rd_ptr = results_ptr->FindPtr( name, index );
     if ( !rd_ptr )
     {
         return false;
@@ -860,18 +885,18 @@ void ResultsMgrSingleton::WriteTestResults()
 
 //      printf( "Timestamp = %d \n", res->GetTimestamp() );
 
-        res->Add( ResData( "Test_Int", s + 1 ) );
-        res->Add( ResData( "Test_Int", s + 2 ) );
-        res->Add( ResData( "Test_Double", ( s + 1 ) * 0.1 ) );
-        res->Add( ResData( "Test_String", "This Is A Test" ) );
-        res->Add( ResData( "Test_Vec3d", vec3d( s, s * 2, s * 4 ) ) );
+        res->Add( NameValData( "Test_Int", s + 1 ) );
+        res->Add( NameValData( "Test_Int", s + 2 ) );
+        res->Add( NameValData( "Test_Double", ( s + 1 ) * 0.1 ) );
+        res->Add( NameValData( "Test_String", "This Is A Test" ) );
+        res->Add( NameValData( "Test_Vec3d", vec3d( s, s * 2, s * 4 ) ) );
 
         vector< double > dvec;
         for ( int i = 0 ; i < 5 ; i++ )
         {
             dvec.push_back( i * ( s + 1 ) );
         }
-        res->Add( ResData( "Test_Double_Vec", dvec ) );
+        res->Add( NameValData( "Test_Double_Vec", dvec ) );
     }
 
 

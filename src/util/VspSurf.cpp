@@ -21,7 +21,7 @@
 
 #include "eli/geom/curve/piecewise_creator.hpp"
 #include "eli/geom/surface/piecewise_body_of_revolution_creator.hpp"
-#include "eli/geom/surface/piecewise_capped_surface_creator.hpp"
+#include "eli/geom/surface/piecewise_multicap_surface_creator.hpp"
 #include "eli/geom/intersect/minimum_distance_surface.hpp"
 
 typedef piecewise_surface_type::index_type surface_index_type;
@@ -32,7 +32,7 @@ typedef piecewise_curve_type::point_type curve_point_type;
 
 typedef eli::geom::curve::piecewise_linear_creator<double, 3, surface_tolerance_type> piecewise_linear_creator_type;
 typedef eli::geom::surface::piecewise_general_skinning_surface_creator<double, 3, surface_tolerance_type> general_creator_type;
-typedef eli::geom::surface::piecewise_capped_surface_creator<double, 3, surface_tolerance_type> capped_creator_type;
+typedef eli::geom::surface::piecewise_multicap_surface_creator<double, 3, surface_tolerance_type> multicap_creator_type;
 
 //===== Constructor  =====//
 VspSurf::VspSurf()
@@ -636,7 +636,7 @@ void VspSurf::MakeUTess( const vector<int> &num_u, vector<double> &u ) const
 
 void VspSurf::MakeVTess( int num_v, std::vector<double> &vtess, const int &n_cap, bool degen ) const
 {
-    double vmin, vmax, vabsmin;
+    double vmin, vmax, vabsmin, vle, vlelow, vleup;
     surface_index_type nv( num_v );
 
     vmin = m_Surface.get_v0();
@@ -651,19 +651,23 @@ void VspSurf::MakeVTess( int num_v, std::vector<double> &vtess, const int &n_cap
         vmin += TMAGIC;
         vmax -= TMAGIC;
 
+        vle = ( vmin + vmax ) * 0.5;
+        vlelow = vle - TMAGIC;
+        vleup = vle + TMAGIC;
+
         vtess.resize(nv);
         int jle = ( nv - 1 ) / 2;
         int j = 0;
         for ( ; j < jle; ++j )
         {
-            vtess[j] = vmin + ( vmax - vmin ) * 0.5 * Cluster( 2.0 * static_cast<double>( j ) / ( nv - 1 ), m_TECluster, m_LECluster );
+            vtess[j] = vmin + ( vlelow - vmin ) * Cluster( 2.0 * static_cast<double>( j ) / ( nv - 1 ), m_TECluster, m_LECluster );
         }
         for ( ; j < nv; ++j )
         {
-            vtess[j] = vmin + ( vmax - vmin ) * 0.5 * (1+Cluster( 2.0 * static_cast<double>( j - jle ) / ( nv - 1 ), m_LECluster, m_TECluster ));
+            vtess[j] = vleup + ( vmax - vleup ) * (Cluster( 2.0 * static_cast<double>( j - jle ) / ( nv - 1 ), m_LECluster, m_TECluster ));
         }
 
-        if ( degen ) // DegenGeom, don't tessellate blunt TE.
+        if ( degen ) // DegenGeom, don't tessellate blunt TE or LE.
         {
             return;
         }
@@ -688,6 +692,17 @@ void VspSurf::MakeVTess( int num_v, std::vector<double> &vtess, const int &n_cap
             for ( int j = 0; j < n_cap; j++ )
             {
                 vtess.push_back( vmax + TMAGIC * j / (n_cap -1) );
+            }
+        }
+
+        m_Surface.get_vconst_curve( c1, vlelow );
+        m_Surface.get_vconst_curve( c2, vleup );
+
+        if ( !c1.abouteq( c2, tol ) ) // Leading edge is not repeated.
+        {
+            for ( int j = 0; j < n_cap * 2 - 1; j++ )
+            {
+                vtess.push_back( vlelow + TMAGIC * j / (n_cap -1) );
             }
         }
 
@@ -987,9 +1002,10 @@ void VspSurf::BuildFeatureLines()
         double vmin = m_Surface.get_v0();
         double vmax = m_Surface.get_vmax();
         double vrng = vmax - vmin;
+        double vmid = vmin + vrng * 0.5;
 
         m_WFeature.push_back( vmin );
-        m_WFeature.push_back( vmin + 0.5 * vrng );
+        m_WFeature.push_back( vmid );
         m_WFeature.push_back( vmax );
 
         // If fuse-type, add .25 and .75 curves.
@@ -997,6 +1013,13 @@ void VspSurf::BuildFeatureLines()
         {
             m_WFeature.push_back( vmin + 0.25 * vrng );
             m_WFeature.push_back( vmin + 0.75 * vrng );
+        }
+        else
+        {
+            m_WFeature.push_back( vmin + TMAGIC );
+            m_WFeature.push_back( vmid - TMAGIC );
+            m_WFeature.push_back( vmid + TMAGIC );
+            m_WFeature.push_back( vmax - TMAGIC );
         }
 
         // Sort feature parameters
@@ -1029,17 +1052,35 @@ void VspSurf::BuildFeatureLines()
     }
 }
 
-bool VspSurf::CapUMin(int CapType)
+bool VspSurf::CapUMin(int CapType, double len, double str, double offset, bool swflag)
 {
-    if (CapType == NO_END_CAP)
+    if (CapType == vsp::NO_END_CAP)
     {
         ResetUWSkip();
         return false;
     }
-    capped_creator_type cc;
+    multicap_creator_type cc;
     bool rtn_flag;
 
-    rtn_flag = cc.set_conditions(m_Surface, 1.0, capped_creator_type::CAP_UMIN);
+    int captype = multicap_creator_type::FLAT;
+
+    switch( CapType ){
+      case vsp::FLAT_END_CAP:
+        captype = multicap_creator_type::FLAT;
+        break;
+      case vsp::ROUND_END_CAP:
+        captype = multicap_creator_type::ROUND;
+        break;
+      case vsp::EDGE_END_CAP:
+        captype = multicap_creator_type::EDGE;
+        break;
+      case vsp::SHARP_END_CAP:
+        captype = multicap_creator_type::SHARP;
+        break;
+    }
+
+    rtn_flag = cc.set_conditions(m_Surface, captype, 1.0, multicap_creator_type::CAP_UMIN, len, offset, str, swflag );
+
     if (!rtn_flag)
     {
       ResetUWSkip();
@@ -1047,6 +1088,7 @@ bool VspSurf::CapUMin(int CapType)
     }
 
     rtn_flag = cc.create(m_Surface);
+
     if (!rtn_flag)
     {
       ResetUWSkip();
@@ -1058,17 +1100,35 @@ bool VspSurf::CapUMin(int CapType)
     return true;
 }
 
-bool VspSurf::CapUMax(int CapType)
+bool VspSurf::CapUMax(int CapType, double len, double str, double offset, bool swflag)
 {
-    if (CapType == NO_END_CAP)
+    if (CapType == vsp::NO_END_CAP)
     {
       ResetUWSkip();
       return false;
     }
-    capped_creator_type cc;
+    multicap_creator_type cc;
     bool rtn_flag;
 
-    rtn_flag = cc.set_conditions(m_Surface, 1.0, capped_creator_type::CAP_UMAX);
+    int captype = multicap_creator_type::FLAT;
+
+    switch( CapType ){
+      case vsp::FLAT_END_CAP:
+        captype = multicap_creator_type::FLAT;
+        break;
+      case vsp::ROUND_END_CAP:
+        captype = multicap_creator_type::ROUND;
+        break;
+      case vsp::EDGE_END_CAP:
+        captype = multicap_creator_type::EDGE;
+        break;
+      case vsp::SHARP_END_CAP:
+        captype = multicap_creator_type::SHARP;
+        break;
+    }
+
+    rtn_flag = cc.set_conditions(m_Surface, captype, 1.0, multicap_creator_type::CAP_UMAX, len, offset, str, swflag );
+
     if (!rtn_flag)
     {
       ResetUWSkip();
@@ -1076,6 +1136,7 @@ bool VspSurf::CapUMax(int CapType)
     }
 
     rtn_flag = cc.create(m_Surface);
+
     if (!rtn_flag)
     {
       ResetUWSkip();
@@ -1087,7 +1148,7 @@ bool VspSurf::CapUMax(int CapType)
 
 bool VspSurf::CapWMin(int CapType)
 {
-    if (CapType == NO_END_CAP)
+    if (CapType == vsp::NO_END_CAP)
       return false;
 
     std::cout << "Am Capping WMin on this one!" << std::endl;
@@ -1096,7 +1157,7 @@ bool VspSurf::CapWMin(int CapType)
 
 bool VspSurf::CapWMax(int CapType)
 {
-    if (CapType == NO_END_CAP)
+    if (CapType == vsp::NO_END_CAP)
       return false;
 
     std::cout << "Am Capping WMax on this one!" << std::endl;
@@ -1189,8 +1250,8 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_
         }
 
         piecewise_curve_type c1, c2;
-        surf.get_uconst_curve( c1, umin );
-        surf.get_uconst_curve( c2, umax );
+        surf.get_umin_bndy_curve( c1 );
+        surf.get_umax_bndy_curve( c2 );
 
         if ( c1.abouteq( c2, tol ) )
         {
@@ -1199,8 +1260,8 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_
             continue;
         }
 
-        surf.get_vconst_curve( c1, vmin );
-        surf.get_vconst_curve( c2, vmax );
+        surf.get_vmin_bndy_curve( c1 );
+        surf.get_vmax_bndy_curve( c2 );
 
         if ( c1.abouteq( c2, tol ) )
         {

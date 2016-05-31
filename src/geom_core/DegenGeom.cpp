@@ -1162,6 +1162,6 @@ void DegenGeom::write_degenGeomM_file( FILE* file_id )
 
     for ( int i = 0; i < degenSubSurfs.size(); i++ )
     {
-        write_degenSubSurfM_file( file_id, i );
+        write_degenSubSurfM_file( file_id, i + 1 );
     }
 }

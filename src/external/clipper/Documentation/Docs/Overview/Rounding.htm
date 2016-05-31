@@ -1,0 +1,71 @@
+<html>
+
+<head>
+    
+  <script type="text/javascript" src="../../Scripts/jquery.js">
+  </script>
+    
+  <script type="text/javascript" src="../../Scripts/SyntaxHighlighter/scripts/shCore.js">
+  </script>
+    
+  <script type="text/javascript" src="../../Scripts/SyntaxHighlighter/scripts/shBrushDelphi.js">
+  </script>
+    
+  <script type="text/javascript" src="../../Scripts/SyntaxHighlighter/scripts/shBrushCpp.js">
+  </script>
+    
+  <script type="text/javascript" src="../../Scripts/SyntaxHighlighter/scripts/shBrushCSharp.js">
+  </script>
+    
+  <link type="text/css" rel="stylesheet" href="../../Scripts/SyntaxHighlighter/styles/shCoreDefault.css">
+    
+  <link type="text/css" rel="stylesheet" href="../../Scripts/SyntaxHighlighter/styles/shThemeDefault.css">
+  
+
+  <title>Rounding</title>  
+
+  <link rel="stylesheet" href="../../Styles/default.css" type="text/css">
+
+    
+  <script type="text/javascript" src="../../Scripts/bootstrap.js">
+  </script>
+  
+</head>
+
+<body bgcolor="#FFFFFF">
+    
+  <!-- THIS FILE HAS BEEN AUTOMATICALLY PROCESSED FROM A SOURCE COPY -->
+    
+  <!-- DO NOT EDIT MANUALLY !!! -->
+  
+  <table class="Banner" cellspacing="0" cellpadding="0" border="1" bordercolorlight="#303080" bordercolordark="#7070B0">
+    <tr>
+      <td class="Banner" nowrap=""><a href="../_Body.htm" class="Banner"><img src="../../Images/_Home.gif" align="absmiddle">Home</a>
+      </td>
+      <td class="Banner" nowrap=""><a href="_Body.htm" class="Banner">Overview</a>
+      </td>
+      <td class="Banner" width="100%" align="right"><img src="../../Images/_Project_Logo.gif" align="absmiddle">
+      </td>
+    </tr>
+  </table>
+  <h1>Rounding</h1>
+
+
+  <p class="Body"> By using an integer type for polygon coordinates, the Clipper Library has been able to avoid problems of <a href="http://www.mpi-inf.mpg.de/~kettner/pub/nonrobust_cgta_06.pdf"><b>numerical robustness</b></a> that can cause havoc with geometric computations. Problems associated with integer <b>rounding</b> and their possible solutions are discussed below.<br><br> <img src="../../Images/clipper_rounding.png" width="488" height="365" alt="" align="left"> <span class="maroon">It's important to stress at the outset that rounding causes vertices to move fractions of a unit away from their 'true' positions. Nevertheless, the resulting imprecision can be very effectively managed by appropriate scaling.</span><br><br> The Clipper Library supports scaling to <span class="maroon">very high degrees of precision</span> by accepting integer coordinate values in the range &plusmn;0x3FFFFFFFFFFFFFFF (± 4.6e+18).<br><br> Another complication of using a discrete numbers (as opposed to <a href="http://en.wikipedia.org/wiki/Real_number" target="_blank">real numbers</a>) is that very occasionally tiny <b>self-intersection</b> artefacts arise. In the unscaled image on the left (where one unit equals one pixel), the area of intersection of two polygons has been highlighted in bright green.<br><br> </p>
+
+
+  <p class="Body" style="clear='both'"> <img src="../../Images/clipper_rounding2.png" width="440" height="316" alt="" align="right"><br><br> A 30X 'close up' of the lower points of intersection of these same two polygons shows the presence of a tiny self-intersecting artefact. The three 'black dots' highlight the actual points of intersection (with their fractional coordinates displayed). The 'red dots' show where these points of intersection are located once rounding is applied. With a little care you can see that rounding reverses the orientation of these vertices and causes a tiny self-intersecting artefact.<br><br> Although these tiny self-intersections are uncommon, if it's deemed necessary, they are best removed with <a href="../Units/ClipperLib/Functions/CleanPolygons.htm">CleanPolygons</a>. (Setting Clipper's <a href="../Units/ClipperLib/Classes/Clipper/Properties/StrictlySimple.htm">StrictlySimple</a> property to true would also address this self-intersection but the tiny (sub-unit) polygon 'artefact' with incorrect orientation would still appear in the solution.) <br><br> </p>
+
+
+  <p class="Body" style="clear='both'"> <img src="../../Images/clipper_rounding4.png" width="292" height="224" alt="" align="left"><br><br> In this final example, the single polygon on the left also has a tiny self-intersection. However, the clipping algorithm sees this vertex (88,50) as simply 'touching' rather than intersecting the right edge of the polygon (though only by a fraction of a unit). Since this intersection won't normally be detected, the clipping solution (eg following a union operation) will still contain this tiny self-intersection. Setting Clipper's <a href="../Units/ClipperLib/Classes/Clipper/Properties/StrictlySimple.htm">StrictlySimple</a> property to true avoids this uncommon problem.<br><br> </p>
+<div style="clear='both'"></div>
+
+
+  <h2 id="Auto-SeeAlso">See Also</h2>
+  <p class="Body"><a href="../Units/ClipperLib/Classes/Clipper/Properties/StrictlySimple.htm">Clipper.StrictlySimple</a>, <a href="../Units/ClipperLib/Functions/CleanPolygons.htm">CleanPolygons</a></p>
+    
+  <p class="Copyright" id="auto"> <br><br> Copyright &copy;2010-2014 Angus Johnson&nbsp; - &nbsp; Clipper 6.2.1 &nbsp; - &nbsp; Help file built on 1-November-2014 <br><br> </p>
+  
+</body>
+
+</html>

@@ -11,23 +11,31 @@
 #if !defined(RESULTSMGR__INCLUDED_)
 #define RESULTSMGR__INCLUDED_
 
+#include "Vec3d.h"
+
 #include <map>
 #include <list>
+#include <vector>
+#include <string>
+
+using std::map;
+using std::vector;
+using std::string;
 
 //==== Results Data - Named Vectors Of Ints/Double/Strings or Vec3d ====//
-class ResData
+class NameValData
 {
 public:
-    ResData();
-    ResData( const string & name );
-    ResData( const string & name, int i_data );
-    ResData( const string & name, double d_data );
-    ResData( const string & name, const string & s_data );
-    ResData( const string & name, const vec3d & v_data );
-    ResData( const string & name, vector< int > & i_data );
-    ResData( const string & name, vector< double > & d_data );
-    ResData( const string & name, vector< string > & s_data );
-    ResData( const string & name, vector< vec3d > & v_data );
+    NameValData();
+    NameValData( const string & name );
+    NameValData( const string & name, int i_data );
+    NameValData( const string & name, double d_data );
+    NameValData( const string & name, const string & s_data );
+    NameValData( const string & name, const vec3d & v_data );
+    NameValData( const string & name, vector< int > & i_data );
+    NameValData( const string & name, vector< double > & d_data );
+    NameValData( const string & name, vector< string > & s_data );
+    NameValData( const string & name, vector< vec3d > & v_data );
 
     void Init( const string & name, int type = 0, int index = 0 );
 
@@ -62,6 +70,22 @@ public:
     string GetString( int index ) const;
     vec3d GetVec3d( int index ) const;
 
+    void SetIntData( const vector< int > & d )
+    {
+        m_IntData = d;
+    }
+    void SetDoubleData( const vector< double > & d )
+    {
+        m_DoubleData = d;
+    }
+    void SetStringData( const vector< string > & d )
+    {
+        m_StringData = d;
+    }
+    void SetVec3dData( const vector< vec3d > & d )
+    {
+        m_Vec3dData = d;
+    }
 
 protected:
 
@@ -81,11 +105,11 @@ protected:
 
 
 //==== A Collection of Results Data From One Computation ====//
-class Results
+class NameValCollection
 {
 public:
-
-    Results( const string & name, const string & id );
+    NameValCollection() {};
+    NameValCollection( const string & name, const string & id );
 
     string GetName()
     {
@@ -95,17 +119,30 @@ public:
     {
         return m_ID;
     }
-    time_t GetTimestamp()
-    {
-        return m_Timestamp;
-    }
 
-    void Add( const ResData & d );
+    void Add( const NameValData & d );
 
     int GetNumData( const string & name );
     vector< string > GetAllDataNames();
-    ResData Find( const string & name, int index = 0 );
-    ResData* FindPtr( const string & name, int index = 0 );
+    NameValData Find( const string & name, int index = 0 );
+    NameValData* FindPtr( const string & name, int index = 0 );
+
+protected:
+
+    string m_Name;
+    string m_ID;
+
+    //==== All The Data For This Computation Result =====//
+    map< string, vector< NameValData > > m_DataMap;
+
+};
+
+//==== A Collection of Results Data From One Computation ====//
+class Results : public NameValCollection
+{
+public:
+
+    Results( const string & name, const string & id );
 
     void SetDateTime();
 
@@ -116,19 +153,16 @@ public:
     void WriteDragBuildFile( const string & file_name );
     void WriteSliceFile( const string & file_name, int type );
 
-
+    time_t GetTimestamp()
+    {
+        return m_Timestamp;
+    }
 
 protected:
-
-    string m_Name;
-    string m_ID;
 
     time_t m_Timestamp;
     int m_Sec, m_Min, m_Hour;
     int m_Day, m_Month, m_Year;
-
-    //==== All The Data For This Computation Result =====//
-    map< string, vector< ResData > > m_DataMap;
 
 };
 
@@ -163,6 +197,8 @@ public:
     string FindResultsID( const string & name, int index = 0 );
     string FindLatestResultsID( const string & name );
     int GetNumData( const string & results_id, const string & data_name );
+
+    int GetResultsType( const string & results_id, const string & data_name );
 
     vector< string > GetAllResultsNames();
     vector< string > GetAllDataNames( const string & results_id );

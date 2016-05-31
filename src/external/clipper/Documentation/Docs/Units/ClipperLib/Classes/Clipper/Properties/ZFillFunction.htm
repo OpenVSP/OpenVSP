@@ -1,0 +1,75 @@
+<html>
+
+<head>
+    
+  <script type="text/javascript" src="../../../../../../Scripts/jquery.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../../../Scripts/SyntaxHighlighter/scripts/shCore.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../../../Scripts/SyntaxHighlighter/scripts/shBrushDelphi.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../../../Scripts/SyntaxHighlighter/scripts/shBrushCpp.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../../../Scripts/SyntaxHighlighter/scripts/shBrushCSharp.js">
+  </script>
+    
+  <link type="text/css" rel="stylesheet" href="../../../../../../Scripts/SyntaxHighlighter/styles/shCoreDefault.css">
+    
+  <link type="text/css" rel="stylesheet" href="../../../../../../Scripts/SyntaxHighlighter/styles/shThemeDefault.css">
+  
+
+  <title>ZFillFunction</title>
+
+  <link rel="stylesheet" href="../../../../../../Styles/default.css" type="text/css">
+
+    
+  <script type="text/javascript" src="../../../../../../Scripts/bootstrap.js">
+  </script>
+  
+</head>
+
+<body bgcolor="#FFFFFF">
+    
+  <!-- THIS FILE HAS BEEN AUTOMATICALLY PROCESSED FROM A SOURCE COPY -->
+    
+  <!-- DO NOT EDIT MANUALLY !!! -->
+  
+  <table class="Banner" cellspacing="0" cellpadding="0" border="1" bordercolorlight="#303080" bordercolordark="#7070B0">
+    <tr>
+      <td class="Banner" nowrap=""><a href="../../../../../_Body.htm" class="Banner"><img src="../../../../../../Images/_Home.gif" align="absmiddle">Home</a>
+      </td>
+      <td class="Banner" nowrap=""><a href="../../../_Body.htm" class="Banner"><img src="../../../../../../Images/_Unit.gif" align="absmiddle">ClipperLib</a>
+      </td>
+      <td class="Banner" nowrap=""><a href="../_Body.htm" class="Banner"><img src="../../../../../../Images/_Class.gif" align="absmiddle">Clipper</a>
+      </td>
+      <td class="Banner" width="100%" align="right"><img src="../../../../../../Images/_Project_Logo.gif" align="absmiddle">
+      </td>
+    </tr>
+  </table>
+  <h1>Clipper.ZFillFunction</h1>
+
+
+  <p class="Decl"><span class="Comment">Del.&raquo;</span> <b>property</b> ZFillFunction: <a href="../../../Types/ZFillCallback.htm">TZFillCallback</a> <b>read</b> FZFillCallback <b>write</b> FZFillCallback;</p>
+
+  <p class="Decl2"><span class="Comment">C++&nbsp;&raquo;</span> <b>void</b> ZFillFunction(<a href="../../../Types/ZFillCallback.htm">ZFillCallback</a> zFillFunc);</p>
+
+  <p class="Decl3"><span class="Comment">C#&nbsp;&nbsp;&raquo;</span> <b>public</b> <a href="../../../Types/ZFillCallback.htm">ZFillCallback</a> ZFillFunction { <b>get</b>; <b>set</b>; };</p>
+<br>
+
+  <p class="Body"> <span class="maroon">This property is only exposed when the pre-processor directive <a href="../../../PreProcessor/Defines.htm"><b>use_xyz</b></a> has been defined.</span> If this is the case, a 'Z' member will be included in the <a href="../../../Types/IntPoint.htm">IntPoint</a> structure where users can store custom data. While most vertices in a clipping solution will correspond to input (subject and clip) vertices, there will also be new vertices wherever edges intersect. This property assigns a custom callback function to the Clipper object so that custom 'Z' values can be assigned to these intersection vertices. (Note that 'Z' values in the solution at non-intersecting vertices will simply be copied from matching input vertices along with the X and Y values.) <br><br> It is up to the library user to assign 'Z' values for new intersection vertices (otherwise these values will remain 0). The four vertices that define the intersecting line segments will be passed to the callback function (together with the new intersection vertex) to aid the user in determining appropriate Z values.<br><br> 
+    <!-- The <b>CurvesDemo</b> application in the Curves directory in the distribution zip package shows how the Z member together with the callback function can be used to flatten curved paths (defined by control points) and after clipping, to 'de-flatten' or reconstruct curved paths in the clipping solution.<br><br>
+ --> </p>
+
+
+  <h2 id="Auto-SeeAlso">See Also</h2>
+  <p class="Body"><a href="../../../PreProcessor/Defines.htm">Defines</a>, <a href="../../../Types/IntPoint.htm">IntPoint</a>, <a href="../../../Types/ZFillCallback.htm">ZFillCallback</a></p>
+    
+  <p class="Copyright" id="auto"> <br><br> Copyright &copy;2010-2014 Angus Johnson&nbsp; - &nbsp; Clipper 6.2.1 &nbsp; - &nbsp; Help file built on 1-November-2014 <br><br> </p>
+  
+</body>
+
+</html>

@@ -235,7 +235,7 @@ void Background::_draw()
     }
     else
     {
-        glColor4f( 0.95f, 0.95f, 0.95f, 1.f );
+        glColor4f( 0.95f, 0.95f, 0.95f, 1.0f );
     }
 
     glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
