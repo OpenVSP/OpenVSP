@@ -96,6 +96,7 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 			screens
 			xmlvsp
 			sixseries
+			cartesian
 			${CPPTEST_LIBRARIES}
 			${LIBXML2_LIBRARIES}
 			${FLTK_LIBRARIES}

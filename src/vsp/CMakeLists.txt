@@ -57,6 +57,7 @@ IF( NOT VSP_NO_GRAPHICS )
 		tritri
 		clipper
         Angelscript
+        cartesian
 		${CPPTEST_LIBRARIES}
 		${LIBXML2_LIBRARIES}
 		${FLTK_LIBRARIES}
@@ -91,6 +92,7 @@ IF( NOT VSP_NO_GRAPHICS )
 		screens
 		xmlvsp
 		sixseries
+		cartesian
 		${CPPTEST_LIBRARIES}
 		${LIBXML2_LIBRARIES}
 		${FLTK_LIBRARIES}
