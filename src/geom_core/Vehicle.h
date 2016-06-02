@@ -228,7 +228,7 @@ public:
 
     //==== Degenerate Geometry ====//
     void CreateDegenGeom( int set );
-    vector< DegenGeom > GetDegenGeomVec()	{ return m_DegenGeomVec; }
+    vector< DegenGeom > GetDegenGeomVec()    { return m_DegenGeomVec; }
     string WriteDegenGeomFile();
 
     CfdMeshSettings* GetCfdSettingsPtr()

@@ -49,7 +49,7 @@ bool STLOptionsScreen::Update()
 
     if( veh )
     {
-    	m_MultiSolidToggle.Update( veh->m_STLMultiSolid.GetID() );
+        m_MultiSolidToggle.Update( veh->m_STLMultiSolid.GetID() );
     }
 
     m_FLTK_Window->redraw();

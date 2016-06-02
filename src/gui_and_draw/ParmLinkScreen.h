@@ -14,7 +14,7 @@
 class ParmLinkScreen : public BasicScreen
 {
 public:
-	ParmLinkScreen( ScreenMgr * mgr );
+    ParmLinkScreen( ScreenMgr * mgr );
     virtual ~ParmLinkScreen();
 
     virtual void Show();

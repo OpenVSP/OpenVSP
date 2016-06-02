@@ -34,7 +34,7 @@ using namespace std;
 class CfdMeshSettings : public ParmContainer
 {
 public:
-	CfdMeshSettings();
+    CfdMeshSettings();
     virtual ~CfdMeshSettings();
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );

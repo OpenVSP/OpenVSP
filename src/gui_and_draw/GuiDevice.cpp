@@ -2809,7 +2809,7 @@ void SkinControl::DeactivateRight()
 
 void SkinControl::DeactivateEqual()
 {
-	m_SetButtonEqual.Deactivate();
+    m_SetButtonEqual.Deactivate();
 }
 
 void SkinControl::DeactivateSet()

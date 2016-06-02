@@ -23,7 +23,7 @@ using namespace std;
 class ClippingMgr : public ParmContainer
 {
 public:
-	ClippingMgr();
+    ClippingMgr();
     virtual ~ClippingMgr();
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );

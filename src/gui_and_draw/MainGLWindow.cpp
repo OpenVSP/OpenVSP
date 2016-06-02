@@ -1734,7 +1734,7 @@ int VspGlWindow::OnKeyup( int x, int y )
         if( Fl::event_button3() )
         {
             m_prevRB = glm::vec2( x, y );
-        }		
+        }
         break;
 
     case FL_Control_L:
@@ -1755,7 +1755,7 @@ int VspGlWindow::OnKeyup( int x, int y )
         if( Fl::event_button3() )
         {
             m_prevRB = glm::vec2( x, y );
-        }		
+        }
         break;
 
     case FL_Meta_L:
@@ -1776,7 +1776,7 @@ int VspGlWindow::OnKeyup( int x, int y )
         if( Fl::event_button3() )
         {
             m_prevRB = glm::vec2( x, y );
-        }		
+        }
         break;
     }
     redraw();

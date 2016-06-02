@@ -1056,7 +1056,7 @@ void Geom::UpdateEndCaps()
     m_CapWMinSuccess.resize( nmain );
     m_CapWMaxSuccess.resize( nmain );
 
-	// cycle through all vspsurfs, check if wing type then cap using new Code-Eli cap surface creator
+    // cycle through all vspsurfs, check if wing type then cap using new Code-Eli cap surface creator
     for ( int i = 0; i < nmain; i++ )
     {
         m_CapUMinSuccess[i] = false;
