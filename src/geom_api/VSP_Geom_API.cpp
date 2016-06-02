@@ -2672,9 +2672,9 @@ double SetParmValUpdate( const string & parm_id, double val )
 
 /// Set the parm value.  If update is true, the parm container is updated.
 /// The final value of parm is returned.
-double SetParmValUpdate( const string & geom_id, const string & name, const string & group, double val )
+double SetParmValUpdate( const string & geom_id, const string & parm_name, const string & parm_group_name, double val )
 {
-    string parm_id = GetParm( geom_id, name, group );
+    string parm_id = GetParm( geom_id, parm_name, parm_group_name );
     Parm* p = ParmMgr.FindParm( parm_id );
     if ( !p )
     {
@@ -2879,7 +2879,7 @@ void SetParmDescript( const string & parm_id, const string & desc )
 }
 
 ///  Find a parm id given parm container, name and group
-string FindParm( const string & parm_container_id, const string & name, const string & group )
+string FindParm( const string & parm_container_id, const string& parm_name, const string& group_name )
 {
     ParmContainer* pc = ParmMgr.FindParmContainer( parm_container_id );
 
@@ -2889,7 +2889,7 @@ string FindParm( const string & parm_container_id, const string & name, const st
         return string();
     }
 
-   string parm_id = pc->FindParm( name, group );
+   string parm_id = pc->FindParm( parm_name, group_name );
    Parm* p = ParmMgr.FindParm( parm_id );
    if ( !p )
    {

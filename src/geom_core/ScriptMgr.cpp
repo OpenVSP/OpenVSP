@@ -1521,7 +1521,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "double SetParmVal(const string & in geom_id, const string & in name, const string & in group, double val )",
                                     asFUNCTIONPR( vsp::SetParmVal, ( const string &, const string &, const string &, double val ), double ), asCALL_CDECL );
     assert( r >= 0 );
-    r = se->RegisterGlobalFunction( "double SetParmValUpdate(const string & in geom_id, const string & in name, const string & in group, double val )",
+    r = se->RegisterGlobalFunction( "double SetParmValUpdate(const string & in geom_id, const string & in parm_name, const string & in parm_group_name, double val )",
                                     asFUNCTIONPR( vsp::SetParmValUpdate, ( const string &, const string &, const string &, double val ), double ), asCALL_CDECL );
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "double GetParmVal(const string & in parm_id )", asFUNCTIONPR( vsp::GetParmVal, ( const string & ), double ), asCALL_CDECL );
@@ -1553,7 +1553,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "void SetParmDescript( const string & in parm_id, const string & in desc )", asFUNCTION( vsp::SetParmDescript ), asCALL_CDECL );
     assert( r >= 0 );
-    r = se->RegisterGlobalFunction( "string FindParm( const string & in parm_container_id, const string & in name, const string & in group )", asFUNCTION( vsp::FindParm ), asCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string FindParm( const string & in parm_container_id, const string & in parm_name, const string & in group_name )", asFUNCTION( vsp::FindParm ), asCALL_CDECL );
     assert( r >= 0 );
 
     //=== Parm Container Functions ===//

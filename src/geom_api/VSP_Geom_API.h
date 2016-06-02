@@ -201,7 +201,7 @@ extern double SetParmVal( const string & parm_id, double val );
 extern double SetParmVal( const string & geom_id, const string & name, const string & group, double val );
 extern double SetParmValLimits( const string & parm_id, double val, double lower_limit, double upper_limit );
 extern double SetParmValUpdate( const string & parm_id, double val );
-extern double SetParmValUpdate( const string & geom_id, const string & name, const string & group, double val );
+extern double SetParmValUpdate( const string & geom_id, const string & parm_name, const string & parm_group_name, double val );
 extern double GetParmVal( const string & parm_id );
 extern double GetParmVal( const string & geom_id, const string & name, const string & group );
 extern int GetIntParmVal( const string & parm_id );
@@ -216,7 +216,7 @@ extern string GetParmGroupName( const string & parm_id );
 extern string GetParmDisplayGroupName( const string & parm_id );
 extern string GetParmContainer( const string & parm_id );
 extern void SetParmDescript( const string & parm_id, const string & desc );
-extern string FindParm( const string & parm_container_id, const string & name, const string & group );
+extern string FindParm( const string & parm_container_id, const string& parm_name, const string& group_name );
 
 //======================== Parm Container Functions ======================//
 
