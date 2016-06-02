@@ -800,6 +800,45 @@ void GroupLayout::AddInput( Input& input, const char* label, const char* format 
     input.Init( m_Screen, flinput, format, button );
 }
 
+void GroupLayout::AddInputEvenSpacedVector(Input& start_input, Input& end_input, Input& npts_input,const char * label,const char * format)
+{
+    assert( m_Group && m_Screen );
+
+    bool tSameLineFlagOrig, tFitWidthFlagOrig;
+    tSameLineFlagOrig = m_SameLineFlag;
+    tFitWidthFlagOrig = m_FitWidthFlag;
+    SetSameLineFlag( true );
+    SetFitWidthFlag( false );
+
+    // record the original settings for button and input width
+    int tButtonWidthOrig, tInputWidthOrig;
+    tButtonWidthOrig = m_ButtonWidth;
+    tInputWidthOrig = m_InputWidth;
+
+    // calculate the new input and button widths
+    int tInputWidth, tButtonWidth;
+    tButtonWidth = 40;
+    tInputWidth = (m_W - m_ButtonWidth - 2* tButtonWidth)/3;
+
+    // add the left button using the default button width
+    string left_button_label;
+    left_button_label = string(label) + " Start";
+    SetInputWidth(tInputWidth);
+    AddInput( start_input, left_button_label.c_str(), format );
+
+    SetButtonWidth( tButtonWidth );
+    AddInput( end_input, "End", format );
+    AddInput( npts_input, "Npts", "%3.0f" );    // this is an integer input
+
+    // reset object settings
+    SetButtonWidth( tButtonWidthOrig );
+    SetInputWidth( tInputWidthOrig );
+    SetSameLineFlag( tSameLineFlagOrig );
+    SetFitWidthFlag( tFitWidthFlagOrig );
+
+    ForceNewLine();
+}
+
 //==== Create & Init Index Selector  ====//
 void GroupLayout::AddIndexSelector( IndexSelector& selector, int used_w )
 {
