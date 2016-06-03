@@ -74,7 +74,6 @@ ParmContainer::ParmContainer()
     m_ID = GenerateID();
     m_Name = string( "Default" );
     m_LateUpdateFlag = true; // Force update first time through.
-    m_LinkableFlag = false;
     ParmMgr.AddParmContainer( this );
 }
 
