@@ -8,6 +8,7 @@
 
 #if !defined(GROUPLAYOUT__INCLUDED_)
 #define GROUPLAYOUT__INCLUDED_
+#include "Cartesian.H"
 
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Check_Browser.H>
@@ -121,6 +122,9 @@ public:
     //==== Add FLTK Widgets and Initalize GUI Devices ====//
     void AddDividerBox( const string& text, int used_w = 0 );
     void AddResizeBox( );
+
+    Ca_Canvas* AddCanvas( int w, int h, double xmin, double xmax, double ymin, double ymax, const char *label, const char *xlabel, const char *ylabel );
+
     void AddSlider(  SliderAdjRangeInput& slid_adj_input, const char* label,
                      double range, const char* format, int used_w = 0, bool log_slider = false );
     void AddSlider(  SliderAdjRange2Input& slid_adj_input, const char* label,
@@ -201,5 +205,8 @@ private:
 
 };
 
+void AddPointLine( const vector <double> & xdata, const vector <double> & ydata, int linewidth, Fl_Color color, int pointsize = 0, int pointstyle = 1 );
+void AddPoint( const double & x, const double & y, Fl_Color color, int pointsize = 2, int pointstyle = CA_ROUND );
+void AddPoint( const vector <double> & xdata,  const vector <double> & ydata, Fl_Color color, int pointsize = 2, int pointstyle = CA_ROUND );
 
 #endif // !defined(GUIDEVICE__INCLUDED_)

@@ -584,6 +584,97 @@ void GroupLayout::AddResizeBox( )
     NewLineX();
 }
 
+//==== Create Cartesian Canvas ====//
+Ca_Canvas* GroupLayout::AddCanvas( int w, int h, double xmin, double xmax, double ymin, double ymax, const char *label, const char *xlabel, const char *ylabel )
+{
+    assert( m_Group && m_Screen );
+
+    int hxaxis = 30;
+    int wyaxis = 60;
+    int margin = 10;
+
+    Ca_Canvas* canvas = new Ca_Canvas( m_X + wyaxis, m_Y, w - wyaxis, h - hxaxis, label );
+    Ca_Canvas::current(canvas);
+    canvas->box( FL_DOWN_BOX );
+    canvas->color( 7 );
+    canvas->border( 0 );
+    m_Group->add( canvas );
+
+    Ca_X_Axis* xaxis = new Ca_X_Axis( m_X, m_Y + h - hxaxis, w + margin, hxaxis, xlabel );
+    canvas->current_x(xaxis);    // this is needed to ensure that the axis gets associated with the right canvas
+    xaxis->labelsize(14);
+    xaxis->align( Fl_Align( FL_ALIGN_BOTTOM ) );
+    xaxis->minimum( xmin );
+    xaxis->maximum( xmax );
+    xaxis->label_format( "%g" );
+    xaxis->minor_grid_color( fl_gray_ramp( 20 ) );
+    xaxis->major_grid_color( fl_gray_ramp( 15 ) );
+    xaxis->label_grid_color( fl_gray_ramp( 10 ) );
+    xaxis->grid_visible( CA_MINOR_GRID|CA_MAJOR_GRID|CA_LABEL_GRID );
+    xaxis->major_step( 10 );
+    xaxis->label_step( 10 );
+    xaxis->axis_color( FL_BLACK );
+    xaxis->axis_align( CA_BOTTOM );
+    m_Group->add( xaxis );
+
+    Ca_Y_Axis* yaxis = new Ca_Y_Axis( m_X, m_Y - margin, wyaxis, h + margin, ylabel );
+    canvas->current_y(yaxis);    // this is needed to ensure that the axis gets associated with the right canvas
+    yaxis->labelsize( 14 );
+    yaxis->align( Fl_Align( FL_ALIGN_TOP ) );
+    yaxis->minimum( ymin );
+    yaxis->maximum( ymax );
+    yaxis->label_format( "%.2f" );
+    yaxis->minor_grid_color( fl_gray_ramp( 20 ) );
+    yaxis->major_grid_color( fl_gray_ramp( 15 ) );
+    yaxis->label_grid_color( fl_gray_ramp( 10 ) );
+    yaxis->grid_visible( CA_MINOR_GRID|CA_MAJOR_GRID|CA_LABEL_GRID );
+    yaxis->major_step( 10 );
+    yaxis->label_step( 10 );
+    yaxis->axis_color( FL_BLACK );
+    yaxis->axis_align( CA_LEFT );
+    m_Group->add( yaxis );      // this is needed for correct resize behavior
+
+    AddX( w );
+    AddY( h );
+    NewLineX();
+
+    return canvas;
+}
+
+//==== Create Cartesian Point Line ====//
+void AddPointLine( const vector <double> & xdata, const vector <double> & ydata, int linewidth, Fl_Color color, int pointsize, int pointstyle )
+{
+    int n = xdata.size();
+
+    Ca_LinePoint* LP = 0;
+    for( int i=0; i<n; i++ )
+    {
+        LP = new Ca_LinePoint( LP, xdata[i], ydata[i], linewidth, color, pointstyle|CA_BORDER, 0.0 );
+    }
+    // Second pass to plot symbols on top of line.
+    for( int i=0; i<n; i++ )
+    {
+        new Ca_Point( xdata[i], ydata[i], color, pointstyle|CA_BORDER, pointsize );
+    }
+}
+
+//==== Create Cartesian Point ====//
+void AddPoint( const double & x, const double & y, Fl_Color color, int pointsize, int pointstyle )
+{
+    new Ca_Point( x, y, color, pointstyle|CA_BORDER, pointsize );
+}
+
+//==== Create Cartesian Point ====//
+void AddPoint( const vector < double > & x, const vector < double > & y, Fl_Color color, int pointsize, int pointstyle )
+{
+    int n = x.size();
+
+    for( int i=0; i<n; i++ )
+    {
+        new Ca_Point( x[i], y[i], color, pointstyle|CA_BORDER, pointsize );
+    }
+}
+
 //==== Create & Init Text Input  ====//
 void GroupLayout::AddInput( StringInput& text_input, const char* label )
 {
