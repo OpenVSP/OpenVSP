@@ -330,7 +330,7 @@ bool VSPAEROScreen::Update()
 
 void VSPAEROScreen::Show()
 {
-    Update();
+    m_ScreenMgr->SetUpdateFlag( true );
     m_FLTK_Window->show();
 
 }
@@ -338,13 +338,19 @@ void VSPAEROScreen::Show()
 void VSPAEROScreen::Hide()
 {
     m_FLTK_Window->hide();
+    m_ScreenMgr->SetUpdateFlag( false );
 }
+
 
 void VSPAEROScreen::CallBack( Fl_Widget* w )
 {
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
+void VSPAEROScreen::CloseCallBack( Fl_Widget* w )
+{
+    Hide();
+}
 
 #ifdef WIN32
 DWORD WINAPI monitorfun( LPVOID data )
