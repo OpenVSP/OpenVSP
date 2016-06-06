@@ -1717,6 +1717,7 @@ void VSP_SURFACE::CreateUpwindEdgeData(int SurfaceID)
           if ( Grid().EdgeList(j).TriL() == Grid().EdgeList(j).TriR() ) Grid().EdgeList(j).TriR() = 0;
           
           VortexLoop1IsDownWind = VortexLoop2IsDownWind = 0;
+		  VortexLoop1DownWindWeight = VortexLoop2DownWindWeight = 0;
           
           // Check if loop 1 is Downwind of this edge
 
@@ -1750,6 +1751,7 @@ void VSP_SURFACE::CreateUpwindEdgeData(int SurfaceID)
           if ( Grid().EdgeList(j).TriL() == Grid().EdgeList(j).TriR() ) Grid().EdgeList(j).TriL() = 0;
  
           VortexLoop1IsDownWind = VortexLoop2IsDownWind = 0;
+		  VortexLoop1DownWindWeight = VortexLoop2DownWindWeight = 0;
           
           // Check if loop 1 is Down Wind of this edge
 

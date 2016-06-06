@@ -3735,7 +3735,7 @@ void GL_VIEWER::DrawShadedSolution(float *Function, float FMin, float FMax)
 	      }
 
 	      NodalMin = 1.e9;
-	      NodalMax = -NewMin;
+	      NodalMax = -NodalMin;
 
           for ( i = 1 ; i <= NumberOfNodes ; i++ ) {
 
