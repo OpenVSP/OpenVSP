@@ -25,7 +25,8 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, 650, 340, "VSPA
     m_ViewerPair = make_pair( this, VSPAERO_VIEWER );
     m_SetupFlag = false;
     m_ADBFlag = false;
-
+    
+    //==== Overview Tab ====//
     Fl_Group* overview_tab = AddTab( "Overview" );
     Fl_Group* setup_tab = AddTab( "Setup" );
     Fl_Group* solver_tab = AddTab( "Solver" );
@@ -78,11 +79,13 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, 650, 340, "VSPA
     m_GeomLayout.InitWidthHeightVals();
     m_GeomLayout.AddSlider( m_NCPUSlider, "Num CPU", 10.0, "%3.0f" );
 
+    // Flow Condition
     m_FlowLayout.AddDividerBox( "Flow Condition" );
     m_FlowLayout.AddSlider( m_AlphaSlider, "Alpha", 10.0, "%7.3f" );
     m_FlowLayout.AddSlider( m_BetaSlider, "Beta", 10.0, "%7.3f" );
     m_FlowLayout.AddSlider( m_MachSlider, "Mach", 3.0, "%7.3f" );
 
+    // Reference Quantities
     m_RefLayout.AddDividerBox( "Reference Quantities" );
 
     m_RefLayout.SetSameLineFlag( true );
@@ -149,9 +152,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, 650, 340, "VSPA
     m_OverviewLayout.AddButton( m_KillSolverButton, "Kill Solver" );
 
 
-
-    // Set up VSPAERO Setup tab
-
+    //==== Setup Tab ====//
     Fl_Group* setup_group = AddSubGroup( setup_tab, 5 );
     m_SetupLayout.SetGroupAndScreen( setup_group, this );
 
@@ -169,27 +170,23 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, 650, 340, "VSPA
     m_SetupLayout.AddButton( m_SaveSetup, "Save Setup" );
     m_SetupLayout.AddButton( m_ReadSetup, "Read Setup" );
 
-    // Set up VSPAERO Solver tab
-
+    //==== Solver Tab ====//
     Fl_Group* solver_group = AddSubGroup( solver_tab, 5 );
     m_SolverLayout.SetGroupAndScreen( solver_group, this );
 
     m_SolverLayout.AddDividerBox( "VSPAERO Solver Console" );
-
-
+    
     m_SolverDisplay = m_SolverLayout.AddFlTextDisplay( 260 );
     m_SolverBuffer = new Fl_Text_Buffer;
     m_SolverDisplay->buffer( m_SolverBuffer );
 
 
-    // Set up VSPAERO Viewer tab
-
+    //==== Viewer Tab ====//
     Fl_Group* viewer_group = AddSubGroup( viewer_tab, 5 );
     m_ViewerLayout.SetGroupAndScreen( viewer_group, this );
 
     m_ViewerLayout.AddDividerBox( "VSPAERO Viewer Console" );
-
-
+    
     m_ViewerDisplay = m_ViewerLayout.AddFlTextDisplay( 260 );
     m_ViewerBuffer = new Fl_Text_Buffer;
     m_ViewerDisplay->buffer( m_ViewerBuffer );

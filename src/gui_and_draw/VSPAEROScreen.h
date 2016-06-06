@@ -56,13 +56,13 @@ protected:
     void ReadSetup();
     void SaveSetup();
 
+    //==== Overview Tab ====//
     GroupLayout m_OverviewLayout;
 
     GroupLayout m_GeomLayout;
     GroupLayout m_FlowLayout;
     GroupLayout m_RefLayout;
     GroupLayout m_CGLayout;
-
 
     Choice m_GeomSetChoice;
     TriggerButton m_DegenGeomButton;
@@ -83,17 +83,14 @@ protected:
     SliderAdjRangeInput m_SrefSlider;
     SliderAdjRangeInput m_brefSlider;
     SliderAdjRangeInput m_crefSlider;
-
-
+    
     Choice m_CGSetChoice;
     TriggerButton m_MassPropButton;
     SliderInput m_NumSliceSlider;
     SliderAdjRangeInput m_XcgSlider;
     SliderAdjRangeInput m_YcgSlider;
     SliderAdjRangeInput m_ZcgSlider;
-
-
-
+    
     TriggerButton m_SetupButton;
     TriggerButton m_SolverButton;
     TriggerButton m_ViewerButton;
@@ -101,6 +98,7 @@ protected:
 
     SliderInput m_NCPUSlider;
 
+    //==== Setup Tab ====//
     GroupLayout m_SetupLayout;
 
     Fl_Text_Editor* m_SetupEditor;
@@ -110,12 +108,15 @@ protected:
     TriggerButton m_ReadSetup;
 
 
+    //==== Solver Tab ====//
     GroupLayout m_SolverLayout;
 
     TriggerButton m_KillSolverButton;
     Fl_Text_Display *m_SolverDisplay;
     Fl_Text_Buffer *m_SolverBuffer;
 
+
+    //==== Viewer Tab ====//
     GroupLayout m_ViewerLayout;
 
     Fl_Text_Display *m_ViewerDisplay;
@@ -127,6 +128,7 @@ protected:
 
     void SetupDegenFile();
 
+    // Additional thread handling stuff
     ProcessUtil m_SolverProcess;
     ProcessUtil m_ViewerProcess;
 
