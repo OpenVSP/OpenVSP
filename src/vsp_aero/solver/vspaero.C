@@ -733,12 +733,12 @@ void StabilityAndControlSolve(void)
 
     int Case, Case0, Deriv;
 
-    Delta_AoA_  = 0.100;
-    Delta_Beta_ = 0.100;
-    Delta_Mach_ = 0.100;
-    Delta_P_    = 0.001;
-    Delta_Q_    = 0.001;
-    Delta_R_    = 0.001;
+    Delta_AoA_  = 0.100;		//units: deg
+    Delta_Beta_ = 0.100;		//units: deg
+    Delta_Mach_ = 0.100;		//units: deg
+    Delta_P_    = 0.001;	    //units: rad/sec
+    Delta_Q_    = 0.001;	    //units: rad/sec
+    Delta_R_    = 0.001;	    //units: rad/sec
 
     Case = 1;
 
