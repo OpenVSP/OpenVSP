@@ -880,7 +880,7 @@ void CalculateStabilityDerivatives(void)
     fprintf(StabFile,"Xcg_:  %12.4lf \n",Xcg_);
     fprintf(StabFile,"Ycg_:  %12.4lf \n",Ycg_);
     fprintf(StabFile,"Zcg_:  %12.4lf \n",Zcg_);
-    fprintf(StabFile,"AoA:   %12.4lf \n",AoA_);
+    fprintf(StabFile,"AoA_:  %12.4lf \n",AoA_);
     fprintf(StabFile,"Beta_: %12.4lf \n",Beta_);
     fprintf(StabFile,"Mach_: %12.4lf \n",Mach_);
     fprintf(StabFile,"Rho_:  %12.4lf \n",Rho_);
@@ -970,10 +970,13 @@ void CalculateStabilityDerivatives(void)
        dCD_wrt[8]  = MachList_[Case0] * dCD_wrt[7];
        dCS_wrt[8]  = MachList_[Case0] * dCS_wrt[7];
       
+	   /*
+	   //DUPLICATE to information at the top of this file
        fprintf(StabFile,"Mach:    %12.8f \n",MachList_[Case0]);
        fprintf(StabFile,"Alpha:   %12.8f \n",AlphaList_[Case0]);
        fprintf(StabFile,"Density: %12.8f \n",Rho_);
        fprintf(StabFile,"Uo:      %12.8f \n",Vinf_);
+       */
 
        fprintf(StabFile,"#\n");
        
