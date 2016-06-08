@@ -13,6 +13,8 @@
 #include "VehicleMgr.h"
 #include "ProjectionMgr.h"
 
+#include "VSPAEROMgr.h"
+
 void RWCollection::Clear()
 {
     m_DataMap.clear();
@@ -349,6 +351,21 @@ void AnalysisMgrSingleton::RegisterBuiltins()
     WaveDragAnalysis *wave = new WaveDragAnalysis();
 
     RegisterAnalysis( "WaveDrag", wave );
+
+
+    VSPAERODegenGeomAnalysis *vsadga = new VSPAERODegenGeomAnalysis();
+
+    RegisterAnalysis( "VSPAERODegenGeom", vsadga );
+
+
+    VSPAEROSinglePointAnalysis *vsaspa = new VSPAEROSinglePointAnalysis();
+
+    RegisterAnalysis( "VSPAEROSinglePoint", vsaspa );
+
+
+    VSPAEROSweepAnalysis *vsasa = new VSPAEROSweepAnalysis();
+
+    RegisterAnalysis( "VSPAEROSweep", vsasa );
 }
 
 //======================================================================================//
@@ -418,7 +435,7 @@ string CompGeomAnalysis::Execute()
 }
 
 //======================================================================================//
-//======================================================================================//
+//=============================== Emington Lord Analysis ===============================//
 //======================================================================================//
 
 void EmintonLordAnalysis::SetDefaults()
@@ -741,7 +758,7 @@ string ProjectionAnalysis::Execute()
 }
 
 //======================================================================================//
-//======================================================================================//
+//================================= Wave Drag ==========================================//
 //======================================================================================//
 
 void WaveDragAnalysis::SetDefaults()
@@ -812,4 +829,419 @@ string WaveDragAnalysis::Execute()
     }
 
     return res;
+}
+
+
+//======================================================================================//
+//================================= VSPAERO ============================================//
+//======================================================================================//
+
+void VSPAERODegenGeomAnalysis::SetDefaults()
+{
+    // the default values use exactly what is setup in the VSPAEROMgr
+    m_Inputs.Clear();
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        m_Inputs.Add( NameValData( "GeomSet", VSPAEROMgr.m_GeomSet.Get() ) );
+    }
+    else
+    {
+        // TODO Throw an error here
+        printf("ERROR - trying to set defaults without a vehicle: void VSPAERODegenGeomAnalysis::SetDefaults()\n");
+    }
+}
+
+string VSPAERODegenGeomAnalysis::Execute()
+{
+    vector <string> res_id_vector;
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        NameValData *nvd = NULL;
+
+        // Apply current analysis input values
+        nvd = m_Inputs.FindPtr( "GeomSet", 0 );
+        int geomSetOrig;
+        if ( nvd )
+        {
+            geomSetOrig = VSPAEROMgr.m_GeomSet.Get();
+            VSPAEROMgr.m_GeomSet.Set( nvd->GetInt( 0 ) );
+        }
+
+        // Execute analysis
+        res_id_vector = VSPAEROMgr.ComputeGeometry();
+
+        //Restore original values that were overwritten by analysis inputs
+        VSPAEROMgr.m_GeomSet.Set( geomSetOrig );
+
+    }
+
+    Results *res = ResultsMgr.CreateResults( "VSPAERO_Wrapper" );
+
+    res->Add( NameValData( "ResultsVec", res_id_vector ) );
+
+    return res->GetID();
+}
+
+
+void VSPAEROSinglePointAnalysis::SetDefaults()
+{
+    // the default values use exactly what is setup in the VSPAEROMgr
+    m_Inputs.Clear();
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+
+        //Case Setup
+        m_Inputs.Add( NameValData( "GeomSet",           VSPAEROMgr.m_GeomSet.Get()              ) );
+        m_Inputs.Add( NameValData( "NCPU",              VSPAEROMgr.m_NCPU.Get()              ) );
+        m_Inputs.Add( NameValData( "WakeNumIter",       VSPAEROMgr.m_WakeNumIter.Get()       ) );
+        m_Inputs.Add( NameValData( "WakeAvgStartIter",  VSPAEROMgr.m_WakeAvgStartIter.Get()  ) );
+        m_Inputs.Add( NameValData( "WakeSkipUntilIter", VSPAEROMgr.m_WakeSkipUntilIter.Get() ) );
+        m_Inputs.Add( NameValData( "StabilityCalcFlag", VSPAEROMgr.m_StabilityCalcFlag.Get() ) );
+
+        //Reference area, lengths
+        m_Inputs.Add( NameValData( "RefFlag",           VSPAEROMgr.m_RefFlag.Get()           ) );
+        m_Inputs.Add( NameValData( "Sref",              VSPAEROMgr.m_Sref.Get()              ) );
+        m_Inputs.Add( NameValData( "bref",              VSPAEROMgr.m_bref.Get()              ) );
+        m_Inputs.Add( NameValData( "cref",              VSPAEROMgr.m_cref.Get()              ) );
+
+        //Moment center
+        //TODO add flag to indentify if this is manual or computed
+        m_Inputs.Add( NameValData( "CGGeomSet",           VSPAEROMgr.m_CGGeomSet.Get()         ) );
+        m_Inputs.Add( NameValData( "NumMassSlice",      VSPAEROMgr.m_NumMassSlice.Get()      ) );
+        m_Inputs.Add( NameValData( "Xcg",               VSPAEROMgr.m_Xcg.Get()               ) );
+        m_Inputs.Add( NameValData( "Ycg",               VSPAEROMgr.m_Ycg.Get()               ) );
+        m_Inputs.Add( NameValData( "Zcg",               VSPAEROMgr.m_Zcg.Get()               ) );
+
+        //Input parameters (only uses *Start value.  Execute() sets *Npts to 1 to run a single point calculation)
+        m_Inputs.Add( NameValData( "Alpha",             VSPAEROMgr.m_AlphaStart.Get()        ) );
+        m_Inputs.Add( NameValData( "Beta",              VSPAEROMgr.m_BetaStart.Get()         ) );
+        m_Inputs.Add( NameValData( "Mach",              VSPAEROMgr.m_MachStart.Get()         ) );
+
+    }
+    else
+    {
+        // TODO Throw an error here
+        printf("ERROR - trying to set defaults without a vehicle: void VSPAERODegenGeomAnalysis::SetDefaults()\n");
+    }
+}
+
+string VSPAEROSinglePointAnalysis::Execute()
+{
+    vector <string> res_id_vector;
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+
+        NameValData *nvd = NULL;
+
+        //==== Apply current analysis input values ====//
+        //    Geometry set
+        int geomSetOrig    = VSPAEROMgr.m_GeomSet.Get();
+        nvd = m_Inputs.FindPtr( "GeomSet", 0 );
+        VSPAEROMgr.m_GeomSet.Set( nvd->GetInt(0) );
+
+        //    Regerence area, length parameters
+        int refFlagOrig    = VSPAEROMgr.m_RefFlag.Get();
+        double srefOrig    = VSPAEROMgr.m_Sref.Get();
+        double brefOrig    = VSPAEROMgr.m_bref.Get();
+        double crefOrig    = VSPAEROMgr.m_cref.Get();
+        nvd = m_Inputs.FindPtr( "RefFlag", 0 );
+        VSPAEROMgr.m_RefFlag.Set( nvd->GetInt(0) );
+        nvd = m_Inputs.FindPtr( "Sref", 0 );
+        VSPAEROMgr.m_Sref.Set( nvd->GetDouble(0) );
+        nvd = m_Inputs.FindPtr( "bref", 0 );
+        VSPAEROMgr.m_bref.Set( nvd->GetDouble(0) );
+        nvd = m_Inputs.FindPtr( "cref", 0 );
+        VSPAEROMgr.m_cref.Set( nvd->GetDouble(0) );
+
+        //    Mass properties
+        int cgGeomSetOrig    = VSPAEROMgr.m_CGGeomSet.Get();
+        int numMassSliceOrig = VSPAEROMgr.m_NumMassSlice.Get();
+        double xcgOrig        = VSPAEROMgr.m_Xcg.Get();
+        double ycgOrig        = VSPAEROMgr.m_Ycg.Get();
+        double zcgOrig        = VSPAEROMgr.m_Zcg.Get();
+        nvd = m_Inputs.FindPtr( "CGGeomSet", 0 );
+        VSPAEROMgr.m_CGGeomSet.Set( nvd->GetInt(0) );
+        nvd = m_Inputs.FindPtr( "NumMassSlice", 0 );
+        VSPAEROMgr.m_NumMassSlice.Set( nvd->GetInt(0) );
+        nvd = m_Inputs.FindPtr( "Xcg", 0 );
+        VSPAEROMgr.m_Xcg.Set( nvd->GetDouble(0) );
+        nvd = m_Inputs.FindPtr( "Ycg", 0 );
+        VSPAEROMgr.m_Ycg.Set( nvd->GetDouble(0) );
+        nvd = m_Inputs.FindPtr( "Zcg", 0 );
+        VSPAEROMgr.m_Zcg.Set( nvd->GetDouble(0) );
+
+        //    Freestream parameters (Alpha, Beta, Mach)
+        double alphaOrig      = VSPAEROMgr.m_AlphaStart.Get();
+        int    alphaNptsOrig = VSPAEROMgr.m_AlphaNpts.Get();        // note this is NOT an input
+        double betaOrig       = VSPAEROMgr.m_BetaStart.Get();
+        int    betaNptsOrig  = VSPAEROMgr.m_BetaNpts.Get();        // note this is NOT an input
+        double machOrig       = VSPAEROMgr.m_MachStart.Get();
+        int    machNptsOrig  = VSPAEROMgr.m_MachNpts.Get();        // note this is NOT an input
+        nvd = m_Inputs.FindPtr( "Alpha", 0 );
+        VSPAEROMgr.m_AlphaStart.Set( nvd->GetDouble(0) );
+        VSPAEROMgr.m_AlphaNpts.Set( 1 );                    // note: this is NOT an input
+        nvd = m_Inputs.FindPtr( "Beta", 0 );
+        VSPAEROMgr.m_BetaStart.Set( nvd->GetDouble(0) );
+        VSPAEROMgr.m_BetaNpts.Set( 1 );                    // note: this is NOT an input
+        nvd = m_Inputs.FindPtr( "Mach", 0 );
+        VSPAEROMgr.m_MachStart.Set( nvd->GetDouble(0) );
+        VSPAEROMgr.m_MachNpts.Set( 1 );                    // note: this is NOT an input
+
+        //Case Setup
+        int ncpuOrig                 = VSPAEROMgr.m_NCPU.Get();
+        int wakeNumIterOrig          = VSPAEROMgr.m_WakeNumIter.Get();
+        int wakeAvgStartIterOrig     = VSPAEROMgr.m_WakeAvgStartIter.Get();
+        int wakeSkipUntilIterOrig    = VSPAEROMgr.m_WakeSkipUntilIter.Get();
+        bool stabilityCalcFlagOrig = VSPAEROMgr.m_StabilityCalcFlag.Get(); // note: this is NOT an input
+        nvd = m_Inputs.FindPtr( "NCPU", 0 );
+        VSPAEROMgr.m_NCPU.Set( nvd->GetInt(0) );
+        nvd = m_Inputs.FindPtr( "WakeNumIter" );
+        VSPAEROMgr.m_WakeNumIter.Set( nvd->GetInt(0) );
+        nvd = m_Inputs.FindPtr( "WakeAvgStartIter" );
+        VSPAEROMgr.m_WakeAvgStartIter.Set( nvd->GetInt(0) );
+        nvd = m_Inputs.FindPtr( "WakeSkipUntilIter" );
+        VSPAEROMgr.m_WakeSkipUntilIter.Set( nvd->GetInt(0) );
+        nvd = m_Inputs.FindPtr( "StabilityCalcFlag", 0 );
+        VSPAEROMgr.m_StabilityCalcFlag.Set( nvd->GetInt(0) );
+
+        //==== Execute Analysis ====//
+        res_id_vector = VSPAEROMgr.ComputeSolver();
+
+
+        //==== Restore Original Values ====//
+        //    Geometry set
+        VSPAEROMgr.m_GeomSet.Set( geomSetOrig );
+
+        //    Regerence area, length parameters
+        VSPAEROMgr.m_RefFlag.Set( refFlagOrig );
+        VSPAEROMgr.m_Sref.Set( srefOrig );
+        VSPAEROMgr.m_bref.Set( brefOrig );
+        VSPAEROMgr.m_cref.Set( crefOrig );
+
+        //    Mass properties
+        VSPAEROMgr.m_CGGeomSet.Set(cgGeomSetOrig);
+        VSPAEROMgr.m_NumMassSlice.Set(numMassSliceOrig);
+        VSPAEROMgr.m_Xcg.Set(xcgOrig);
+        VSPAEROMgr.m_Ycg.Set(ycgOrig);
+        VSPAEROMgr.m_Zcg.Set(zcgOrig);
+
+        //    Freestream parameters (Alpha, Beta, Mach)
+        VSPAEROMgr.m_AlphaStart.Set(alphaOrig);
+        VSPAEROMgr.m_AlphaNpts.Set(alphaNptsOrig);        // note this is NOT an input
+        VSPAEROMgr.m_BetaStart.Set(betaOrig);
+        VSPAEROMgr.m_BetaNpts.Set(betaNptsOrig);        // note this is NOT an input
+        VSPAEROMgr.m_MachStart.Set(machOrig);
+        VSPAEROMgr.m_MachNpts.Set(machNptsOrig);        // note this is NOT an input
+
+        //    Case Setup
+        VSPAEROMgr.m_NCPU.Set( ncpuOrig );
+        VSPAEROMgr.m_WakeNumIter.Set( wakeNumIterOrig );
+        VSPAEROMgr.m_WakeAvgStartIter.Set( wakeAvgStartIterOrig );
+        VSPAEROMgr.m_WakeSkipUntilIter.Set( wakeSkipUntilIterOrig );
+        VSPAEROMgr.m_StabilityCalcFlag.Set( stabilityCalcFlagOrig );
+
+    }
+
+    Results *res = ResultsMgr.CreateResults( "VSPAERO_Wrapper" );
+
+    res->Add( NameValData( "ResultsVec", res_id_vector ) );
+
+    return res->GetID();
+}
+
+void VSPAEROSweepAnalysis::SetDefaults()
+{
+    // the default values use exactly what is setup in the VSPAEROMgr
+    m_Inputs.Clear();
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+
+        //Case Setup
+        m_Inputs.Add( NameValData( "GeomSet",           VSPAEROMgr.m_GeomSet.Get()              ) );
+        m_Inputs.Add( NameValData( "NCPU",              VSPAEROMgr.m_NCPU.Get()              ) );
+        m_Inputs.Add( NameValData( "WakeNumIter",       VSPAEROMgr.m_WakeNumIter.Get()       ) );
+        m_Inputs.Add( NameValData( "WakeAvgStartIter",  VSPAEROMgr.m_WakeAvgStartIter.Get()  ) );
+        m_Inputs.Add( NameValData( "WakeSkipUntilIter", VSPAEROMgr.m_WakeSkipUntilIter.Get() ) );
+        m_Inputs.Add( NameValData( "StabilityCalcFlag", VSPAEROMgr.m_StabilityCalcFlag.Get() ) );
+
+        //Reference area, lengths
+        m_Inputs.Add( NameValData( "RefFlag",           VSPAEROMgr.m_RefFlag.Get()           ) );
+        m_Inputs.Add( NameValData( "Sref",              VSPAEROMgr.m_Sref.Get()              ) );
+        m_Inputs.Add( NameValData( "bref",              VSPAEROMgr.m_bref.Get()              ) );
+        m_Inputs.Add( NameValData( "cref",              VSPAEROMgr.m_cref.Get()              ) );
+
+        //Moment center
+        //TODO add flag to indentify if this is manual or computed
+        m_Inputs.Add( NameValData( "CGGeomSet",           VSPAEROMgr.m_CGGeomSet.Get()         ) );
+        m_Inputs.Add( NameValData( "NumMassSlice",      VSPAEROMgr.m_NumMassSlice.Get()      ) );
+        m_Inputs.Add( NameValData( "Xcg",               VSPAEROMgr.m_Xcg.Get()               ) );
+        m_Inputs.Add( NameValData( "Ycg",               VSPAEROMgr.m_Ycg.Get()               ) );
+        m_Inputs.Add( NameValData( "Zcg",               VSPAEROMgr.m_Zcg.Get()               ) );
+
+        //Flow Condition
+        m_Inputs.Add( NameValData( "AlphaStart",        VSPAEROMgr.m_AlphaStart.Get()        ) );
+        m_Inputs.Add( NameValData( "AlphaEnd",          VSPAEROMgr.m_AlphaEnd.Get()          ) );
+        m_Inputs.Add( NameValData( "AlphaNpts",         VSPAEROMgr.m_AlphaNpts.Get()         ) );
+        m_Inputs.Add( NameValData( "BetaStart",         VSPAEROMgr.m_BetaStart.Get()         ) );
+        m_Inputs.Add( NameValData( "BetaEnd",           VSPAEROMgr.m_BetaEnd.Get()           ) );
+        m_Inputs.Add( NameValData( "BetaNpts",          VSPAEROMgr.m_BetaNpts.Get()          ) );
+        m_Inputs.Add( NameValData( "MachStart",         VSPAEROMgr.m_MachStart.Get()         ) );
+        m_Inputs.Add( NameValData( "MachEnd",           VSPAEROMgr.m_MachEnd.Get()           ) );
+        m_Inputs.Add( NameValData( "MachNpts",          VSPAEROMgr.m_MachNpts.Get()          ) );
+
+    }
+    else
+    {
+        // TODO Throw an error here
+        printf("ERROR - trying to set defaults without a vehicle: void VSPAERODegenGeomAnalysis::SetDefaults()\n");
+    }
+}
+
+string VSPAEROSweepAnalysis::Execute()
+{
+    vector <string> res_id_vector;
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+
+        NameValData *nvd = NULL;
+
+        //==== Apply current analysis input values ====//
+        //    Geometry set
+        int geomSetOrig    = VSPAEROMgr.m_GeomSet.Get();
+        nvd = m_Inputs.FindPtr( "GeomSet", 0 );
+        VSPAEROMgr.m_GeomSet.Set( nvd->GetInt(0) );
+
+        //    Regerence area, length parameters
+        int refFlagOrig    = VSPAEROMgr.m_RefFlag.Get();
+        double srefOrig    = VSPAEROMgr.m_Sref.Get();
+        double brefOrig    = VSPAEROMgr.m_bref.Get();
+        double crefOrig    = VSPAEROMgr.m_cref.Get();
+        nvd = m_Inputs.FindPtr( "RefFlag", 0 );
+        VSPAEROMgr.m_RefFlag.Set( nvd->GetInt(0) );
+        nvd = m_Inputs.FindPtr( "Sref", 0 );
+        VSPAEROMgr.m_Sref.Set( nvd->GetDouble(0) );
+        nvd = m_Inputs.FindPtr( "bref", 0 );
+        VSPAEROMgr.m_bref.Set( nvd->GetDouble(0) );
+        nvd = m_Inputs.FindPtr( "cref", 0 );
+        VSPAEROMgr.m_cref.Set( nvd->GetDouble(0) );
+
+        //    Mass properties
+        int cgGeomSetOrig    = VSPAEROMgr.m_CGGeomSet.Get();
+        int numMassSliceOrig = VSPAEROMgr.m_NumMassSlice.Get();
+        double xcgOrig        = VSPAEROMgr.m_Xcg.Get();
+        double ycgOrig        = VSPAEROMgr.m_Ycg.Get();
+        double zcgOrig        = VSPAEROMgr.m_Zcg.Get();
+        nvd = m_Inputs.FindPtr( "CGGeomSet", 0 );
+        VSPAEROMgr.m_CGGeomSet.Set( nvd->GetInt(0) );
+        nvd = m_Inputs.FindPtr( "NumMassSlice", 0 );
+        VSPAEROMgr.m_NumMassSlice.Set( nvd->GetInt(0) );
+        nvd = m_Inputs.FindPtr( "Xcg", 0 );
+        VSPAEROMgr.m_Xcg.Set( nvd->GetDouble(0) );
+        nvd = m_Inputs.FindPtr( "Ycg", 0 );
+        VSPAEROMgr.m_Ycg.Set( nvd->GetDouble(0) );
+        nvd = m_Inputs.FindPtr( "Zcg", 0 );
+        VSPAEROMgr.m_Zcg.Set( nvd->GetDouble(0) );
+
+        //    Freestream parameters (Alpha, Beta, Mach)
+        double alphaStartOrig    = VSPAEROMgr.m_AlphaStart.Get();
+        double alphaEndOrig    = VSPAEROMgr.m_AlphaEnd.Get();
+        int alphaNptsOrig        = VSPAEROMgr.m_AlphaNpts.Get();
+        double betaStartOrig    = VSPAEROMgr.m_BetaStart.Get();
+        double betaEndOrig    = VSPAEROMgr.m_BetaEnd.Get();
+        int betaNptsOrig        = VSPAEROMgr.m_BetaNpts.Get();
+        double machStartOrig    = VSPAEROMgr.m_MachStart.Get();
+        double machEndOrig    = VSPAEROMgr.m_MachEnd.Get();
+        int machNptsOrig        = VSPAEROMgr.m_MachNpts.Get();
+        nvd = m_Inputs.FindPtr( "AlphaStart", 0 );
+        VSPAEROMgr.m_AlphaStart.Set( nvd->GetDouble(0) );
+        nvd = m_Inputs.FindPtr( "AlphaEnd", 0 );
+        VSPAEROMgr.m_AlphaEnd.Set( nvd->GetDouble(0) );
+        nvd = m_Inputs.FindPtr( "AlphaNpts", 0 );
+        VSPAEROMgr.m_AlphaNpts.Set( nvd->GetInt(0) );
+        nvd = m_Inputs.FindPtr( "BetaStart", 0 );
+        VSPAEROMgr.m_BetaStart.Set( nvd->GetDouble(0) );
+        nvd = m_Inputs.FindPtr( "BetaEnd", 0 );
+        VSPAEROMgr.m_BetaEnd.Set( nvd->GetDouble(0) );
+        nvd = m_Inputs.FindPtr( "BetaNpts", 0 );
+        VSPAEROMgr.m_BetaNpts.Set( nvd->GetInt(0) );
+        nvd = m_Inputs.FindPtr( "MachStart", 0 );
+        VSPAEROMgr.m_MachStart.Set( nvd->GetDouble(0) );
+        nvd = m_Inputs.FindPtr( "MachEnd", 0 );
+        VSPAEROMgr.m_MachEnd.Set( nvd->GetDouble(0) );
+        nvd = m_Inputs.FindPtr( "MachNpts", 0 );
+        VSPAEROMgr.m_MachNpts.Set( nvd->GetInt(0) );
+
+        //Case Setup
+        int ncpuOrig                 = VSPAEROMgr.m_NCPU.Get();
+        int wakeNumIterOrig          = VSPAEROMgr.m_WakeNumIter.Get();
+        int wakeAvgStartIterOrig     = VSPAEROMgr.m_WakeAvgStartIter.Get();
+        int wakeSkipUntilIterOrig    = VSPAEROMgr.m_WakeSkipUntilIter.Get();
+        bool stabilityCalcFlagOrig   = VSPAEROMgr.m_StabilityCalcFlag.Get(); // note: this is NOT an input
+        nvd = m_Inputs.FindPtr( "NCPU", 0 );
+        VSPAEROMgr.m_NCPU.Set( nvd->GetInt(0) );
+        nvd = m_Inputs.FindPtr( "WakeNumIter" );
+        VSPAEROMgr.m_WakeNumIter.Set( nvd->GetInt(0) );
+        nvd = m_Inputs.FindPtr( "WakeAvgStartIter" );
+        VSPAEROMgr.m_WakeAvgStartIter.Set( nvd->GetInt(0) );
+        nvd = m_Inputs.FindPtr( "WakeSkipUntilIter" );
+        VSPAEROMgr.m_WakeSkipUntilIter.Set( nvd->GetInt(0) );
+        nvd = m_Inputs.FindPtr( "StabilityCalcFlag", 0 );
+        VSPAEROMgr.m_StabilityCalcFlag.Set( nvd->GetInt(0) );
+
+
+        //==== Execute Analysis ====//
+        res_id_vector = VSPAEROMgr.ComputeSolver();
+
+
+        //==== Restore Original Values ====//
+        //    Geometry set
+        VSPAEROMgr.m_GeomSet.Set( geomSetOrig );
+
+        //    Regerence area, length parameters
+        VSPAEROMgr.m_RefFlag.Set( refFlagOrig );
+        VSPAEROMgr.m_Sref.Set( srefOrig );
+        VSPAEROMgr.m_bref.Set( brefOrig );
+        VSPAEROMgr.m_cref.Set( crefOrig );
+
+        //    Mass properties
+        VSPAEROMgr.m_CGGeomSet.Set(cgGeomSetOrig);
+        VSPAEROMgr.m_NumMassSlice.Set(numMassSliceOrig);
+        VSPAEROMgr.m_Xcg.Set(xcgOrig);
+        VSPAEROMgr.m_Ycg.Set(ycgOrig);
+        VSPAEROMgr.m_Zcg.Set(zcgOrig);
+
+        //    Freestream parameters (Alpha, Beta, Mach)
+        VSPAEROMgr.m_AlphaStart.Set(alphaStartOrig);
+        VSPAEROMgr.m_AlphaStart.Set(alphaEndOrig);
+        VSPAEROMgr.m_AlphaNpts.Set(alphaNptsOrig);
+        VSPAEROMgr.m_BetaStart.Set(betaStartOrig);
+        VSPAEROMgr.m_BetaStart.Set(betaEndOrig);
+        VSPAEROMgr.m_BetaNpts.Set(betaNptsOrig);
+        VSPAEROMgr.m_MachStart.Set(machStartOrig);
+        VSPAEROMgr.m_MachStart.Set(machEndOrig);
+        VSPAEROMgr.m_MachNpts.Set(machNptsOrig);
+
+        //    Case Setup
+        VSPAEROMgr.m_NCPU.Set( ncpuOrig );
+        VSPAEROMgr.m_WakeNumIter.Set( wakeNumIterOrig );
+        VSPAEROMgr.m_WakeAvgStartIter.Set( wakeAvgStartIterOrig );
+        VSPAEROMgr.m_WakeSkipUntilIter.Set( wakeSkipUntilIterOrig );
+        VSPAEROMgr.m_StabilityCalcFlag.Set( stabilityCalcFlagOrig );
+
+    }
+
+    Results *res = ResultsMgr.CreateResults( "VSPAERO_Wrapper" );
+
+    res->Add( NameValData( "ResultsVec", res_id_vector ) );
+
+    return res->GetID();
 }

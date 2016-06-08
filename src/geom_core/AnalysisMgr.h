@@ -159,4 +159,38 @@ public:
 
 };
 
+class VSPAERODegenGeomAnalysis : public Analysis
+{
+public:
+
+    virtual void SetDefaults();
+    virtual string Execute();
+
+};
+
+class VSPAEROSinglePointAnalysis : public Analysis
+{
+public:
+
+    virtual void SetDefaults();
+    virtual string Execute();
+
+};
+
+class VSPAEROSinglePointStabAnalysis : public Analysis
+{
+public:
+
+    virtual void SetDefaults();
+    virtual string Execute();
+
+};
+class VSPAEROSweepAnalysis : public Analysis
+{
+public:
+
+    virtual void SetDefaults();
+    virtual string Execute();
+
+};
 #endif // !defined(ANALYSISMGR__INCLUDED_)
