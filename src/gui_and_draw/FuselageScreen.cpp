@@ -90,6 +90,7 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "F
     m_XSecTypeChoice.AddItem( "WEDGE" );
     m_XSecTypeChoice.AddItem( "BEZIER" );
     m_XSecTypeChoice.AddItem( "AF_FILE" );
+    m_XSecTypeChoice.AddItem( "CST_AIRFOIL" );
 
     m_XSecLayout.SetSameLineFlag( true );
     m_XSecLayout.AddChoice( m_XSecTypeChoice, "Choose Type:", m_XSecLayout.GetButtonWidth() );
@@ -240,7 +241,62 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "F
     m_AfFileGroup.AddSlider( m_AfFileChordSlider, "Chord", 10, "%7.3f" );
     m_AfFileGroup.AddYGap();
     m_AfFileGroup.AddButton( m_AfFileInvertButton, "Invert Airfoil" );
+    
+    //==== CST Airfoil ====//
+    m_CSTAirfoilGroup.SetGroupAndScreen( AddSubGroup( xsec_tab, 5 ), this );
+    m_CSTAirfoilGroup.SetY( start_y );
+    m_CSTAirfoilGroup.AddYGap();
+    m_CSTAirfoilGroup.AddButton( m_CSTContLERadButton, "Enforce Continuous LE Radius" );
+    m_CSTAirfoilGroup.AddButton( m_CSTInvertButton, "Invert Airfoil" );
+    m_CSTAirfoilGroup.AddButton( m_CSTEqArcLenButton, "Equal Arc Length Parameterization" );
 
+    m_CSTAirfoilGroup.AddYGap();
+    m_CSTAirfoilGroup.AddSlider( m_CSTChordSlider, "Chord", 10, "%7.3f");
+    
+    m_CSTAirfoilGroup.AddYGap();
+    m_CSTAirfoilGroup.AddDividerBox( "Upper Surface" );
+
+    m_CSTAirfoilGroup.SetSameLineFlag( true );
+    m_CSTAirfoilGroup.SetFitWidthFlag( true );
+
+    m_CSTAirfoilGroup.AddOutput( m_UpDegreeOutput, "Degree", m_CSTAirfoilGroup.GetButtonWidth() * 2 );
+    m_CSTAirfoilGroup.SetFitWidthFlag( false );
+    m_CSTAirfoilGroup.AddButton( m_UpDemoteButton, "Demote" );
+    m_CSTAirfoilGroup.AddButton( m_UpPromoteButton, "Promote" );
+
+    m_CSTAirfoilGroup.ForceNewLine();
+
+    m_CSTAirfoilGroup.SetSameLineFlag( false );
+    m_CSTAirfoilGroup.SetFitWidthFlag( true );
+
+    m_CSTUpCoeffScroll = m_CSTAirfoilGroup.AddFlScroll( 60 );
+
+    m_CSTUpCoeffScroll->type( Fl_Scroll::VERTICAL_ALWAYS );
+    m_CSTUpCoeffScroll->box( FL_BORDER_BOX );
+    m_CSTUpCoeffLayout.SetGroupAndScreen( m_CSTUpCoeffScroll, this );
+
+    m_CSTAirfoilGroup.AddYGap();
+
+    m_CSTAirfoilGroup.AddDividerBox( "Lower Surface" );
+
+    m_CSTAirfoilGroup.SetSameLineFlag( true );
+    m_CSTAirfoilGroup.SetFitWidthFlag( true );
+
+    m_CSTAirfoilGroup.AddOutput( m_LowDegreeOutput, "Degree", m_CSTAirfoilGroup.GetButtonWidth() * 2 );
+    m_CSTAirfoilGroup.SetFitWidthFlag( false );
+    m_CSTAirfoilGroup.AddButton( m_LowDemoteButton, "Demote" );
+    m_CSTAirfoilGroup.AddButton( m_LowPromoteButton, "Promote" );
+
+    m_CSTAirfoilGroup.ForceNewLine();
+
+    m_CSTAirfoilGroup.SetSameLineFlag( false );
+    m_CSTAirfoilGroup.SetFitWidthFlag( true );
+
+    m_CSTLowCoeffScroll = m_CSTAirfoilGroup.AddFlScroll( 60 );
+    m_CSTLowCoeffScroll->type( Fl_Scroll::VERTICAL_ALWAYS );
+    m_CSTLowCoeffScroll->box( FL_BORDER_BOX );
+    m_CSTLowCoeffLayout.SetGroupAndScreen( m_CSTLowCoeffScroll, this );
+    
     DisplayGroup( &m_PointGroup );
 
 }
@@ -488,6 +544,54 @@ bool FuselageScreen::Update()
                 m_AfFileInvertButton.Update( affile_xs->m_Invert.GetID() );
                 m_AfFileNameOutput.Update( affile_xs->GetAirfoilName() );
             }
+            else if ( xsc->GetType() == XS_CST_AIRFOIL )
+            {
+                DisplayGroup( &m_CSTAirfoilGroup );
+                CSTAirfoil* cst_xs = dynamic_cast< CSTAirfoil* >( xsc );
+                assert( cst_xs );
+                
+                int num_up = cst_xs->m_UpDeg() + 1;
+                int num_low = cst_xs->m_LowDeg() + 1;
+
+                char str[255];
+                sprintf( str, "%d", cst_xs->m_UpDeg() );
+                m_UpDegreeOutput.Update( str );
+                sprintf( str, "%d", cst_xs->m_LowDeg() );
+                m_LowDegreeOutput.Update( str );
+
+                m_CSTChordSlider.Update(cst_xs->m_Chord.GetID());
+                m_CSTInvertButton.Update( cst_xs->m_Invert.GetID() );
+                m_CSTContLERadButton.Update( cst_xs->m_ContLERad.GetID() );
+                m_CSTEqArcLenButton.Update( cst_xs->m_EqArcLen.GetID() );
+
+                if ( ( m_UpCoeffSliderVec.size() != num_up ) || ( m_LowCoeffSliderVec.size() != num_low ) )
+                {
+                    RebuildCSTGroup( cst_xs );
+                }
+
+                for ( int i = 0; i < num_up; i++ )
+                {
+                    Parm *p = cst_xs->m_UpCoeffParmVec[i];
+                    if ( p )
+                    {
+                        m_UpCoeffSliderVec[i].Update( p->GetID() );
+                    }
+                }
+
+                for ( int i = 0; i < num_low; i++ )
+                {
+                    Parm *p = cst_xs->m_LowCoeffParmVec[i];
+                    if ( p )
+                    {
+                        m_LowCoeffSliderVec[i].Update( p->GetID() );
+                    }
+                }
+
+                if ( cst_xs->m_ContLERad() && num_low > 0 )
+                {
+                    m_LowCoeffSliderVec[0].Deactivate();
+                }
+            }
         }
     }
     return true;
@@ -511,7 +615,8 @@ void FuselageScreen::DisplayGroup( GroupLayout* group )
     m_WedgeGroup.Hide();
     m_FuseFileGroup.Hide();
     m_AfFileGroup.Hide();
-
+    m_CSTAirfoilGroup.Hide();
+    
     m_CurrDisplayGroup = group;
 
     if ( group )
@@ -620,6 +725,97 @@ void FuselageScreen::GuiDeviceCallBack( GuiDevice* gui_device )
             m_XSecXSlider.Update( xs->m_YLocPercent.GetID() );
         }
     }
+    else if ( gui_device == &m_UpPromoteButton )
+    {
+        int xsid = fuselage_ptr->GetActiveXSecIndex();
+        XSec* xs = fuselage_ptr->GetXSec( xsid );
+        if ( xs )
+        {
+            XSecCurve* xsc = xs->GetXSecCurve();
+            if ( xsc )
+            {
+                if ( xsc->GetType() == XS_CST_AIRFOIL  )
+                {
+                    CSTAirfoil* cst_xs = dynamic_cast< CSTAirfoil* >( xsc );
+                    assert( cst_xs );
+
+                    cst_xs->PromoteUpper();
+                    cst_xs->Update();
+                    xs->Update();
+                    fuselage_ptr->Update();
+                }
+            }
+        }
+    }
+    else if ( gui_device == &m_LowPromoteButton )
+    {
+        int xsid = fuselage_ptr->GetActiveXSecIndex();
+        XSec* xs = fuselage_ptr->GetXSec( xsid );
+        if ( xs )
+        {
+            XSecCurve* xsc = xs->GetXSecCurve();
+            if ( xsc )
+            {
+                if ( xsc->GetType() == XS_CST_AIRFOIL  )
+                {
+                    CSTAirfoil* cst_xs = dynamic_cast< CSTAirfoil* >( xsc );
+                    assert( cst_xs );
+
+                    cst_xs->PromoteLower();
+                    cst_xs->Update();
+                    xs->Update();
+                    fuselage_ptr->Update();
+                }
+            }
+        }
+
+    }
+    else if ( gui_device == &m_UpDemoteButton )
+    {
+        int xsid = fuselage_ptr->GetActiveXSecIndex();
+        XSec* xs = fuselage_ptr->GetXSec( xsid );
+        if ( xs )
+        {
+            XSecCurve* xsc = xs->GetXSecCurve();
+            if ( xsc )
+            {
+                if ( xsc->GetType() == XS_CST_AIRFOIL  )
+                {
+                    CSTAirfoil* cst_xs = dynamic_cast< CSTAirfoil* >( xsc );
+                    assert( cst_xs );
+
+                    cst_xs->DemoteUpper();
+                    cst_xs->Update();
+                    xs->Update();
+                    fuselage_ptr->Update();
+                }
+            }
+        }
+
+    }
+    else if ( gui_device == &m_LowDemoteButton )
+    {
+        int xsid = fuselage_ptr->GetActiveXSecIndex();
+        XSec* xs = fuselage_ptr->GetXSec( xsid );
+        if ( xs )
+        {
+            XSecCurve* xsc = xs->GetXSecCurve();
+            if ( xsc )
+            {
+                if ( xsc->GetType() == XS_CST_AIRFOIL  )
+                {
+                    CSTAirfoil* cst_xs = dynamic_cast< CSTAirfoil* >( xsc );
+                    assert( cst_xs );
+
+                    cst_xs->DemoteLower();
+                    cst_xs->Update();
+                    xs->Update();
+                    fuselage_ptr->Update();
+                }
+            }
+        }
+
+    }
 
     SkinScreen::GuiDeviceCallBack( gui_device );
 }
@@ -630,6 +826,49 @@ void FuselageScreen::CallBack( Fl_Widget *w )
     SkinScreen::CallBack( w );
 }
 
+void FuselageScreen::RebuildCSTGroup( CSTAirfoil* cst_xs)
+{
+    if ( !cst_xs )
+    {
+        return;
+    }
+
+    if ( !m_CSTUpCoeffScroll || !m_CSTLowCoeffScroll )
+    {
+         return;
+    }
+
+    m_CSTUpCoeffScroll->clear();
+    m_CSTUpCoeffLayout.SetGroup( m_CSTUpCoeffScroll );
+    m_CSTUpCoeffLayout.InitWidthHeightVals();
+
+    m_UpCoeffSliderVec.clear();
+
+    int num_up = cst_xs->m_UpDeg() + 1;
+
+    m_UpCoeffSliderVec.resize( num_up );
+
+    for ( int i = 0; i < num_up; i++ )
+    {
+        m_CSTUpCoeffLayout.AddSlider( m_UpCoeffSliderVec[i], "AUTO_UPDATE", 2, "%9.5f" );
+    }
 
 
 
+
+    m_CSTLowCoeffScroll->clear();
+    m_CSTLowCoeffLayout.SetGroup( m_CSTLowCoeffScroll );
+    m_CSTLowCoeffLayout.InitWidthHeightVals();
+
+    m_LowCoeffSliderVec.clear();
+
+    int num_low = cst_xs->m_LowDeg() + 1;
+
+    m_LowCoeffSliderVec.resize( num_low );
+
+
+    for ( int i = 0; i < num_low; i++ )
+    {
+        m_CSTLowCoeffLayout.AddSlider( m_LowCoeffSliderVec[i], "AUTO_UPDATE", 2, "%9.5f" );
+    }
+}
