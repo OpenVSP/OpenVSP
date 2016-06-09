@@ -1497,11 +1497,11 @@ void WingGeom::UpdateDrawObj()
     //==== Tesselate Surface ====//
     for ( int i = 0 ; i < nxsec ; i++ )
     {
-        m_XSecDrawObj_vec[i].m_PntVec = m_XSecSurf.FindXSec( i )->GetDrawLines( m_TessW(), relTrans );
+        m_XSecDrawObj_vec[i].m_PntVec = m_XSecSurf.FindXSec( i )->GetDrawLines( relTrans );
         m_XSecDrawObj_vec[i].m_GeomChanged = true;
     }
 
-    m_HighlightXSecDrawObj.m_PntVec = m_XSecSurf.FindXSec( m_ActiveAirfoil )->GetDrawLines( m_TessW(), relTrans );
+    m_HighlightXSecDrawObj.m_PntVec = m_XSecSurf.FindXSec( m_ActiveAirfoil )->GetDrawLines( relTrans );
     m_HighlightXSecDrawObj.m_GeomChanged = true;
 
     double w = m_XSecSurf.FindXSec( m_ActiveAirfoil )->GetXSecCurve()->GetWidth();

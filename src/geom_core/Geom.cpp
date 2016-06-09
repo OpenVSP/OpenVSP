@@ -2806,7 +2806,7 @@ void GeomXSec::UpdateDrawObj()
         XSec* xs = m_XSecSurf.FindXSec( i );
         if ( xs )
         {
-            m_XSecDrawObj_vec[i].m_PntVec = xs->GetDrawLines( m_TessW(), relTrans );
+            m_XSecDrawObj_vec[i].m_PntVec = xs->GetDrawLines( relTrans );
         }
         else
         {
@@ -2818,7 +2818,7 @@ void GeomXSec::UpdateDrawObj()
     XSec* axs = m_XSecSurf.FindXSec( m_ActiveXSec );
     if ( axs )
     {
-        m_HighlightXSecDrawObj.m_PntVec = axs->GetDrawLines( m_TessW(), relTrans );
+        m_HighlightXSecDrawObj.m_PntVec = axs->GetDrawLines( relTrans );
 
         double w = axs->GetXSecCurve()->GetWidth();
         double h = axs->GetXSecCurve()->GetHeight();

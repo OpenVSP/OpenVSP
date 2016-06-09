@@ -151,7 +151,7 @@ VspCurve& XSec::GetUntransformedCurve()
     return m_XSCurve->GetCurve();
 }
 
-vector< vec3d > XSec::GetDrawLines( int num_pnts, Matrix4d &transMat  )
+vector< vec3d > XSec::GetDrawLines( Matrix4d &transMat  )
 {
     vector< vec3d > lines;
 
