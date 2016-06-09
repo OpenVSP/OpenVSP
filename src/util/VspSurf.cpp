@@ -276,7 +276,19 @@ void VspSurf::SkinRibs( const vector<rib_data_type> &ribs, const vector < int > 
     bool setcond = gc.set_conditions(ribs, max_degree, closed_flag);
     assert( setcond );
 
-    gc.create( m_Surface );
+    if ( !setcond )
+    {
+        printf( "Failure in SkinRibs set_conditions\n" );
+    }
+
+    m_Surface.clear();
+    bool creat = gc.create( m_Surface );
+
+    if ( !creat )
+    {
+        printf( "Failure in SkinRibs create\n" );
+    }
+
     ResetFlipNormal();
     ResetUWSkip();
 }
