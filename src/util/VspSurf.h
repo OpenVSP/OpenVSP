@@ -143,17 +143,17 @@ public:
     void SetRootTipClustering( const vector < double > &root, const vector < double > &tip );
     double Cluster( const double &t, const double &a, const double &b ) const;
 
-    void MakeUTess( const vector<int> &num_u, std::vector<double> &utess ) const;
+    void MakeUTess( const vector<int> &num_u, std::vector<double> &utess, const std::vector<int> & umerge ) const;
     void MakeVTess( int num_v, std::vector<double> &vtess, const int &n_cap, bool degen ) const;
 
     //===== Tesselate ====//
     void TesselateTEforWake( std::vector< vector< vec3d > > & pnts ) const;
 
     void Tesselate( int num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts, const int &n_cap, bool degen ) const;
-    void Tesselate( const vector<int> &num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts, const int &n_cap, bool degen ) const;
+    void Tesselate( const vector<int> &num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts, const int &n_cap, bool degen, const std::vector<int> & umerge = std::vector<int>() ) const;
 
     void SplitTesselate( int num_u, int num_v, std::vector< vector< vector< vec3d > > > & pnts,  std::vector< vector< vector< vec3d > > > & norms, const int &n_cap ) const;
-    void SplitTesselate( const vector<int> &num_u, int num_v, std::vector< vector< vector< vec3d > > > & pnts,  std::vector< vector< vector< vec3d > > > & norms, const int &n_cap ) const;
+    void SplitTesselate( const vector<int> &num_u, int num_v, std::vector< vector< vector< vec3d > > > & pnts,  std::vector< vector< vector< vec3d > > > & norms, const int &n_cap, const std::vector<int> & umerge = std::vector<int>() ) const;
 
     void TessUFeatureLine( int iu, std::vector< vec3d > & pnts, double tol );
     void TessWFeatureLine( int iw, std::vector< vec3d > & pnts, double tol );
@@ -177,6 +177,9 @@ public:
     void SetUSkipLast( bool f );
     void SetWSkipFirst( bool f );
     void SetWSkipLast( bool f );
+
+    int GetNumSectU() const;
+    int GetNumSectW() const;
 
 protected:
 
@@ -204,9 +207,6 @@ protected:
 
     vector < double > m_RootCluster;
     vector < double > m_TipCluster;
-
-    int GetNumSectU() const;
-    int GetNumSectW() const;
 
 };
 #endif
