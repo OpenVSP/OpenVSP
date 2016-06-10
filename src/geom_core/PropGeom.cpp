@@ -21,7 +21,17 @@ using namespace vsp;
 
 // Curve gets display name, better parm names.
 
+// Audit Parms Linkable/Discoverable
+// Change curve type from API - other API additions?
+
+// Use unit circle surrogate for point XSec.  Or disable point type.
+
+// CST Airfoil type
+// Update to new XSec enhancements
+
 // Allow curve control of thickness.
+
+// v2 import
 
 // Nice default prop
 
