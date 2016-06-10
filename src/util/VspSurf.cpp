@@ -1180,8 +1180,15 @@ void VspSurf::SplitSurfs( const piecewise_surface_type &basesurf, vector< piecew
             if ( s.get_u0() < m_UFeature[i] && s.get_umax() > m_UFeature[i] )
             {
                 s.split_u( s1, s2, m_UFeature[i] );
-                splitsurfvec.push_back( s1 );
-                splitsurfvec.push_back( s2 );
+
+                if ( s1.number_u_patches() > 0 && s1.number_v_patches() > 0 )
+                {
+                    splitsurfvec.push_back( s1 );
+                }
+                if ( s2.number_u_patches() > 0 && s2.number_v_patches() > 0 )
+                {
+                    splitsurfvec.push_back( s2 );
+                }
             }
             else
             {
@@ -1204,8 +1211,15 @@ void VspSurf::SplitSurfs( const piecewise_surface_type &basesurf, vector< piecew
             if ( s.get_v0() < m_WFeature[i] && s.get_vmax() > m_WFeature[i] )
             {
                 s.split_v( s1, s2, m_WFeature[i] );
-                splitsurfvec.push_back( s1 );
-                splitsurfvec.push_back( s2 );
+
+                if ( s1.number_u_patches() > 0 && s1.number_v_patches() > 0 )
+                {
+                    splitsurfvec.push_back( s1 );
+                }
+                if ( s2.number_u_patches() > 0 && s2.number_v_patches() > 0 )
+                {
+                    splitsurfvec.push_back( s2 );
+                }
             }
             else
             {
