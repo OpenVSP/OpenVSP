@@ -50,6 +50,7 @@ ParmUndo.cpp
 PCurve.cpp
 PodGeom.cpp
 ProjectionMgr.cpp
+PropGeom.cpp
 PtCloudGeom.cpp
 ResultsMgr.cpp
 ScriptMgr.cpp
@@ -108,6 +109,7 @@ ParmUndo.h
 PCurve.h
 PodGeom.h
 ProjectionMgr.h
+PropGeom.h
 PtCloudGeom.h
 ResultsMgr.h
 ScriptMgr.h

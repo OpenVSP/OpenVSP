@@ -14,6 +14,7 @@
 #include "StackGeom.h"
 #include "CustomGeom.h"
 #include "PtCloudGeom.h"
+#include "PropGeom.h"
 #include "ScriptMgr.h"
 #include "MessageMgr.h"
 #include "StlHelper.h"
@@ -129,6 +130,7 @@ void Vehicle::Init()
     m_GeomTypeVec.push_back( GeomType( MS_WING_GEOM_TYPE, "WING", true ) );
     m_GeomTypeVec.push_back( GeomType( STACK_GEOM_TYPE, "STACK", true ) );
     m_GeomTypeVec.push_back( GeomType( BLANK_GEOM_TYPE, "BLANK", true ) );
+    m_GeomTypeVec.push_back( GeomType( PROP_GEOM_TYPE, "PROP", true ) );
 
     //==== Get Custom Geom Types =====//
     vector< GeomType > custom_types = CustomGeomMgr.GetCustomTypes();
@@ -410,6 +412,10 @@ string Vehicle::CreateGeom( const GeomType & type )
     else if ( type.m_Type == PT_CLOUD_GEOM_TYPE )
     {
         new_geom = new PtCloudGeom( this );
+    }
+    else if ( type.m_Type == PROP_GEOM_TYPE )
+    {
+        new_geom = new PropGeom( this );
     }
 
     if ( !new_geom )

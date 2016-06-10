@@ -489,6 +489,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "XSEC_TYPE", "XSEC_CUSTOM", XSEC_CUSTOM );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "XSEC_TYPE", "XSEC_PROP", XSEC_PROP );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "XSEC_TYPE", "XSEC_NUM_TYPES", XSEC_NUM_TYPES );
     assert( r >= 0 );
 
@@ -771,6 +773,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "VSP_SURF_TYPE", "WING_SURF", WING_SURF );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "VSP_SURF_TYPE", "DISK_SURF", DISK_SURF );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VSP_SURF_TYPE", "PROP_SURF", PROP_SURF );
     assert( r >= 0 );
 
     r = se->RegisterEnum( "VSP_SURF_CFD_TYPE" );

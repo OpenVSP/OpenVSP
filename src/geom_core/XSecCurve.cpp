@@ -191,7 +191,7 @@ void XSecCurve::Update()
 
     if ( xs )
     {
-        if ( xs->GetType() == XSEC_WING )
+        if ( xs->GetType() == XSEC_WING || xs->GetType() == XSEC_PROP )
         {
             wingtype = true;
         }

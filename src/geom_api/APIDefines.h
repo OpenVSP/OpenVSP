@@ -47,6 +47,7 @@ enum XSEC_TYPE { XSEC_FUSE,
                  XSEC_STACK,
                  XSEC_WING,
                  XSEC_CUSTOM,
+                 XSEC_PROP,
                  XSEC_NUM_TYPES
                };
 
@@ -229,6 +230,7 @@ enum XDDM_QUANTITY_TYPE { XDDM_VAR,
 enum VSP_SURF_TYPE { NORMAL_SURF,
                      WING_SURF,
                      DISK_SURF,
+                     PROP_SURF,
                      NUM_SURF_TYPES,
                };
 
