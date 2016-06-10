@@ -618,6 +618,7 @@ void ManageGeomScreen::CreateScreens()
     m_GeomScreenVec[STACK_GEOM_SCREEN] = new StackScreen( m_ScreenMgr );
     m_GeomScreenVec[CUSTOM_GEOM_SCREEN] = new CustomScreen( m_ScreenMgr );
     m_GeomScreenVec[PT_CLOUD_GEOM_SCREEN] = new PtCloudScreen( m_ScreenMgr );
+    m_GeomScreenVec[PROP_GEOM_SCREEN] = new PropScreen( m_ScreenMgr );
 
     for ( int i = 0 ; i < ( int )m_GeomScreenVec.size() ; i++ )
     {
