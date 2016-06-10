@@ -1390,6 +1390,12 @@ void VspSurf::ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface
     {
         s = surfvec[isurf];
 
+        // Don't export degenerate split patches
+        if ( splitsurf && !CheckValidPatch( s ) )
+        {
+            continue;
+        }
+
         piecewise_surface_type::index_type ip, jp;
         piecewise_surface_type::index_type nupatch, nvpatch;
         piecewise_surface_type::index_type maxu, maxv;
@@ -1597,6 +1603,12 @@ void VspSurf::ToIGES( DLL_IGES &model, bool splitsurf, bool tocubic, double tol 
     for ( int is = 0; is < surfvec.size(); is++ )
     {
         s = surfvec[is];
+
+        // Don't export degenerate split patches
+        if ( splitsurf && !CheckValidPatch( s ) )
+        {
+            continue;
+        }
 
         piecewise_surface_type::index_type ip, jp;
         piecewise_surface_type::index_type nupatch, nvpatch;
