@@ -27,6 +27,7 @@
 #include <FL/Fl_Tree.H>
 #include <FL/Fl_Tree_Item.H>
 #include <FL/Fl_Tree_Prefs.H>
+#include <FL/Fl_Scroll.H>
 
 #include "Cartesian.H"
 
@@ -34,6 +35,8 @@
 #include "Parm.h"
 #include "Vehicle.h"
 #include "VehicleMgr.h"
+#include "PCurve.h"
+
 #include <vector>
 #include <string>
 #include <map>
@@ -44,6 +47,7 @@ using std::map;
 
 class Parm;
 class VspScreen;
+class GroupLayout;
 
 //====GuiDevice - Handles Interaction Between Parms and FLTK Widgets ====//
 
@@ -1084,6 +1088,51 @@ protected:
     Vehicle * m_Vehicle;
 
     vector < int > m_ExcludeTypes;
+
+};
+
+class PCurveEditor : public GuiDevice
+{
+public:
+
+    PCurveEditor();
+
+    virtual void Init( VspScreen* screen, Vsp_Canvas* canvas, Fl_Scroll *ptscroll, Fl_Button *spbutton, Fl_Button *convbutton, GroupLayout *scLayout );
+
+    virtual void DeviceCB( Fl_Widget* w );
+
+    virtual void Update( PCurve *curve );
+
+    virtual bool hittest( int mx, int my, double datax, double datay, int r );
+
+    virtual int ihit( int mx, int my, int r );
+
+    SliderInput m_SplitPtSlider;
+    Fl_Button* m_SplitButton;
+
+    Choice m_ConvertChoice;
+    Fl_Button* m_ConvertButton;
+
+protected:
+
+    virtual void SetValAndLimits( Parm* parm_ptr )      {}
+
+    int m_LastHit;
+
+    PCurve *m_Curve;
+
+    Vsp_Canvas* m_canvas;
+
+    Fl_Scroll* m_PtScroll;
+
+    GroupLayout* m_PtLayout;
+
+    vector < SliderAdjRangeInput > m_XPtSliderVec;
+    vector < SliderAdjRangeInput > m_YPtSliderVec;
+
+    bool m_FreezeAxis;
+
+    virtual void Update();
 
 };
 

@@ -13,6 +13,8 @@
 #include "LinkMgr.h"
 #include "AdvLinkMgr.h"
 #include "StlHelper.h"
+#include "Util.h"
+#include "GroupLayout.h"
 
 #include <float.h>
 #include <assert.h>
@@ -3038,4 +3040,264 @@ void GeomPicker::AddExcludeType( int type )
 void GeomPicker::ClearExcludeType()
 {
     m_ExcludeTypes.clear();
+}
+
+//=====================================================================//
+//===========            PCurve Editor                      ===========//
+//=====================================================================//
+
+PCurveEditor::PCurveEditor()
+{
+    m_Curve = NULL;
+
+    m_canvas = NULL;
+    m_PtLayout = NULL;
+
+    m_LastHit = -1;
+
+    m_FreezeAxis = false;
+}
+
+void PCurveEditor::Init( VspScreen* screen, Vsp_Canvas* canvas, Fl_Scroll* ptscroll, Fl_Button *spbutton, Fl_Button *convbutton, GroupLayout *ptlayout )
+{
+    GuiDevice::Init( screen );
+
+    m_canvas = canvas;
+    m_PtScroll = ptscroll;
+    m_SplitButton = spbutton;
+    m_ConvertButton = convbutton;
+    m_PtLayout = ptlayout;
+
+    m_canvas->callback( StaticDeviceCB, this );
+    m_SplitButton->callback( StaticDeviceCB, this );
+    m_ConvertButton->callback( StaticDeviceCB, this );
+}
+
+
+void PCurveEditor::DeviceCB( Fl_Widget* w )
+{
+    if ( Fl::event_inside( m_canvas ) )
+    {
+    }
+
+    if ( w == m_canvas )
+    {
+        int x = Fl::event_x();
+        int y = Fl::event_y();
+
+        if ( Fl::event() == FL_PUSH )
+        {
+            m_LastHit = ihit( x, y, 5 );
+        }
+
+        if ( Fl::event() == FL_DRAG && m_LastHit != -1 )
+        {
+            m_Curve->SetPt( m_canvas->current_x()->value( x ), m_canvas->current_y()->value( y ), m_LastHit );
+            m_FreezeAxis = true;
+        }
+
+        if ( Fl::event() == FL_RELEASE )
+        {
+            m_FreezeAxis = false;
+        }
+    }
+    else if ( w == m_SplitButton )
+    {
+        m_Curve->Split();
+    }
+    else if ( w == m_ConvertButton )
+    {
+        m_Curve->ConvertTo( m_Curve->m_ConvType() );
+    }
+
+    m_Screen->GuiDeviceCallBack( this );
+}
+
+
+void PCurveEditor::Update( PCurve *curve )
+{
+    m_Curve = curve;
+    Update();
+}
+
+void PCurveEditor::Update()
+{
+    if ( m_Curve && m_canvas )
+    {
+        Vsp_Canvas::current( m_canvas );
+        m_canvas->clear();
+
+
+        vector < double > xt;
+        vector < double > yt;
+
+        m_Curve->Tessellate( xt, yt );
+
+
+
+        //add the data to the plot
+        AddPointLine( xt, yt, 2, FL_BLUE );
+
+        vector < double > xdata = m_Curve->GetTVec();
+        vector < double > ydata = m_Curve->GetValVec();
+
+        if ( xdata.size() > 0 )
+        {
+            AddPoint( xdata, ydata, FL_BLACK, 4, CA_DIAMOND );
+        }
+
+        if ( ! m_FreezeAxis )
+        {
+            double xmin, xmax, ymin, ymax;
+
+            xmin = xt[0];
+            xmax = xmin;
+            ymin = yt[0];
+            ymax = ymin;
+            for ( int i = 1; i < xt.size(); i++ )
+            {
+                if ( xt[i] < xmin )
+                {
+                    xmin = xt[i];
+                }
+                if ( xt[i] > xmax )
+                {
+                    xmax = xt[i];
+                }
+                if ( yt[i] < ymin )
+                {
+                    ymin = yt[i];
+                }
+                if ( yt[i] > ymax )
+                {
+                    ymax = yt[i];
+                }
+            }
+
+            for ( int i = 1; i < xdata.size(); i++ )
+            {
+                if ( xdata[i] < xmin )
+                {
+                    xmin = xdata[i];
+                }
+                if ( xdata[i] > xmax )
+                {
+                    xmax = xdata[i];
+                }
+                if ( ydata[i] < ymin )
+                {
+                    ymin = ydata[i];
+                }
+                if ( ydata[i] > ymax )
+                {
+                    ymax = ydata[i];
+                }
+            }
+
+            xmin = magrounddn( xmin );
+            xmax = magroundup( xmax );
+            if ( xmin == xmax )
+            {
+                xmin -= 1;
+                xmax += 1;
+            }
+            ymin = magrounddn( ymin );
+            ymax = magroundup( ymax );
+            if ( ymin == ymax )
+            {
+                ymin -= 1;
+                ymax += 1;
+            }
+
+            m_canvas->current_x()->minimum( xmin );
+            m_canvas->current_x()->maximum( xmax );
+            m_canvas->current_x()->copy_label( m_Curve->GetXDsipName().c_str() );
+
+            m_canvas->current_y()->minimum( ymin );
+            m_canvas->current_y()->maximum( ymax );
+            m_canvas->current_y()->copy_label( m_Curve->GetYDsipName().c_str() );
+        }
+
+        int n = m_Curve->GetNumPts();
+
+        m_SplitPtSlider.Update( m_Curve->m_SplitPt.GetID() );
+
+        m_ConvertChoice.Update( m_Curve->m_ConvType.GetID() );
+
+        if ( n != m_XPtSliderVec.size() )
+        {
+            m_PtScroll->clear();
+            m_PtLayout->SetGroup( m_PtScroll );
+            m_PtLayout->InitWidthHeightVals();
+            m_PtLayout->SetButtonWidth( 50 );
+
+            m_XPtSliderVec.clear();
+            m_YPtSliderVec.clear();
+
+            m_XPtSliderVec.resize( n );
+            m_YPtSliderVec.resize( n );
+
+            m_PtLayout->SetSameLineFlag( true );
+
+            for ( int i = 0; i < n; i++ )
+            {
+                m_PtLayout->AddSlider( m_XPtSliderVec[i], "AUTO_UPDATE", 2, "%9.5f", m_PtLayout->GetW() / 2.0 + 2 );
+                m_PtLayout->AddX( 4 );
+                m_PtLayout->AddSlider( m_YPtSliderVec[i], "AUTO_UPDATE", 2, "%9.5f" );
+                m_PtLayout->ForceNewLine();
+            }
+        }
+
+
+        for ( int i = 0; i < n; i++ )
+        {
+            Parm *p = m_Curve->m_TParmVec[i];
+            if ( p )
+            {
+                m_XPtSliderVec[i].Update( p->GetID() );
+            }
+        }
+
+        for ( int i = 0; i < n; i++ )
+        {
+            Parm *p = m_Curve->m_ValParmVec[i];
+            if ( p )
+            {
+                m_YPtSliderVec[i].Update( p->GetID() );
+            }
+        }
+
+
+    }
+}
+
+bool PCurveEditor::hittest( int mx, int my, double datax, double datay, int r )
+{
+    if ( m_canvas )
+    {
+        int dx = std::abs( m_canvas->current_x()->position( datax ) - mx );
+        int dy = std::abs( m_canvas->current_y()->position( datay ) - my );
+
+        if ( dx < r && dy < r )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+int PCurveEditor::ihit( int mx, int my, int r )
+{
+    vector < double > xdata = m_Curve->GetTVec();
+    vector < double > ydata = m_Curve->GetValVec();
+
+    for ( int i = 0; i < xdata.size(); i++ )
+    {
+        if ( hittest( mx, my, xdata[i], ydata[i], r ) )
+        {
+            return i;
+        }
+    }
+
+    return -1;
 }

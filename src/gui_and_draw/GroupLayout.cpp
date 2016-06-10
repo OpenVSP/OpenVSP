@@ -55,6 +55,8 @@ void GroupLayout::InitWidthHeightVals()
     m_RangeButtonWidth = 10;
     m_InputWidth = 60;
     m_SliderWidth = 110;
+    m_CanvasWidth = 250;
+    m_CanvasHeight = 250;
 
 }
 
@@ -1438,6 +1440,66 @@ void GroupLayout::AddGeomPicker( GeomPicker & geom_picker, int used_w )
     NewLineX();
 
     geom_picker.Init( m_Screen, geom_choice );
+}
+
+//==== Add Curve Editor ====//
+void GroupLayout::AddPCurveEditor( PCurveEditor & curve_editor )
+{
+    assert( m_Group && m_Screen );
+
+    int canvas_w = FitWidth( 0, m_CanvasWidth ) - 5;
+
+    AddY( 25 );
+    Vsp_Canvas *canvas = AddCanvas( canvas_w, m_CanvasHeight, 0, 1, 0, 1, "", "X", "Y" );
+    AddY( 25 );
+
+    SetFitWidthFlag( false );
+    SetSameLineFlag( true );
+
+    //==== Add Split Button ====//
+    int bw = FitWidth( 0, m_ButtonWidth );
+    Fl_Button* spbutton = new Fl_Button( m_X, m_Y, bw, m_StdHeight, "Split" );
+    spbutton->labelfont( 1 );
+    spbutton->labelsize( 12 );
+    spbutton->labelcolor( FL_DARK_BLUE );
+    spbutton->copy_label( "Split" );
+    m_Group->add( spbutton );
+    AddX( bw );
+    AddY( m_StdHeight );
+    NewLineX();
+
+    SetFitWidthFlag( true );
+    AddSlider( curve_editor.m_SplitPtSlider, "r/R Split", 1, "%3.2f" );
+    ForceNewLine();
+    SetSameLineFlag( false );
+
+    curve_editor.m_ConvertChoice.AddItem( "LINEAR" );
+    curve_editor.m_ConvertChoice.AddItem( "PCHIP" );
+    curve_editor.m_ConvertChoice.AddItem( "CEDIT" );
+
+    AddChoice( curve_editor.m_ConvertChoice, "Convert to:" );
+
+    bw = FitWidth( 0, m_ButtonWidth );
+    Fl_Button* convbutton = new Fl_Button( m_X, m_Y, bw, m_StdHeight, "Convert" );
+    convbutton->labelfont( 1 );
+    convbutton->labelsize( 12 );
+    convbutton->labelcolor( FL_DARK_BLUE );
+    convbutton->copy_label( "Convert" );
+    m_Group->add( spbutton );
+    AddX( bw );
+    AddY( m_StdHeight );
+    NewLineX();
+
+    AddYGap();
+    AddDividerBox( "Control Points" );
+
+    Fl_Scroll *ptscroll = AddFlScroll( 100 );
+    ptscroll->type( Fl_Scroll::VERTICAL_ALWAYS );
+    ptscroll->box( FL_BORDER_BOX );
+    GroupLayout *ptlayout = new GroupLayout();
+    ptlayout->SetGroupAndScreen( ptscroll, this->m_Screen );
+
+    curve_editor.Init( m_Screen, canvas, ptscroll, spbutton, convbutton, ptlayout );
 }
 
 //==== Add Fl Browser ====//

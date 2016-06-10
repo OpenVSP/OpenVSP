@@ -119,6 +119,10 @@ public:
     void SetInputWidth( int w )         { m_InputWidth = w; }
     int GetInputWidth()                 { return m_InputWidth; }
     void SetSliderWidth( int w )        { m_SliderWidth = w; }
+    int GetCanvasWidth()                { return m_CanvasWidth; }
+    void SetCanvasWdith( int w )        { m_CanvasWidth = w; }
+    int GetCanvasHeight()               { return m_CanvasHeight; }
+    void SetCanvasHeight( int h )       { m_CanvasHeight = h; }
 
     //==== Add FLTK Widgets and Initalize GUI Devices ====//
     Fl_Box* AddDividerBox( const string& text, int used_w = 0 );
@@ -157,6 +161,7 @@ public:
     void AddSkinControl( SkinControl & skin_control, const char* label, double range, const char* format );
     void AddSkinHeader( SkinHeader & skin_header );
     void AddGeomPicker( GeomPicker & geom_picker, int used_w = 0 );
+    void AddPCurveEditor( PCurveEditor & curve_editor );
 
     Fl_Browser* AddFlBrowser( int height );
     Fl_Text_Editor* AddFlTextEditor( int height );
@@ -202,6 +207,8 @@ private:
     int m_RangeButtonWidth;
     int m_InputWidth;
     int m_SliderWidth;
+    int m_CanvasWidth;
+    int m_CanvasHeight;
 
     GroupLayout( GroupLayout const& copy );          // Not Implemented
     GroupLayout& operator=( GroupLayout const& copy ); // Not Implemented
