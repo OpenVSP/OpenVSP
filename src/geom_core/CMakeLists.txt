@@ -47,6 +47,7 @@ Parm.cpp
 ParmContainer.cpp
 ParmMgr.cpp
 ParmUndo.cpp
+PCurve.cpp
 PodGeom.cpp
 ProjectionMgr.cpp
 PtCloudGeom.cpp
@@ -104,6 +105,7 @@ Parm.h
 ParmContainer.h
 ParmMgr.h
 ParmUndo.h
+PCurve.h
 PodGeom.h
 ProjectionMgr.h
 PtCloudGeom.h
