@@ -321,7 +321,19 @@ void VspSurf::SkinCubicSpline( const vector<rib_data_type> &ribs, const vector <
     bool setcond = sc.set_conditions(ribs, max_degree, closed_flag);
     assert( setcond );
 
-    sc.create( m_Surface );
+    if ( !setcond )
+    {
+        printf( "Failure in SkinCubicSpline set_conditions\n" );
+    }
+
+    m_Surface.clear();
+    bool creat = sc.create( m_Surface );
+
+    if ( !creat )
+    {
+        printf( "Failure in SkinCubicSpline create\n" );
+    }
+
     ResetFlipNormal();
     ResetUWSkip();
 }
