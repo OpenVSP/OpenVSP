@@ -181,6 +181,8 @@ protected:
 
     static void IGESKnots( int deg, int npatch, vector< double > &knot );
 
+    bool CheckValidPatch( const piecewise_surface_type &surf );
+
     bool m_FlipNormal;
     bool m_MagicVParm;
     int m_SurfType;

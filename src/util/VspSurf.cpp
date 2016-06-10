@@ -1230,6 +1230,59 @@ void VspSurf::SplitSurfs( const piecewise_surface_type &basesurf, vector< piecew
     }
 }
 
+// Check for degenerate patches by looking for coincident corners and edges.
+// This will return false for normal watertight surfaces, so it should only be
+// used to test patches from split surfaces.
+bool VspSurf::CheckValidPatch( const piecewise_surface_type &surf )
+{
+    double umin, vmin, umax, vmax;
+    surf.get_parameter_min( umin, vmin );
+    surf.get_parameter_max( umax, vmax );
+
+    surface_point_type p1( surf.f( umin, vmin ) );
+    surface_point_type p2( surf.f( umax, vmin ) );
+    surface_point_type p3( surf.f( umax, vmax ) );
+    surface_point_type p4( surf.f( umin, vmax ) );
+
+    double d1 = ( p2 - p1 ).norm();
+    double d2 = ( p3 - p2 ).norm();
+    double d3 = ( p4 - p3 ).norm();
+    double d4 = ( p1 - p4 ).norm();
+
+    double tol = 1.0e-8;
+
+    if ( ( d1 < tol && d2 < tol ) || ( d2 < tol && d3 < tol ) || ( d3 < tol && d4 < tol ) || ( d4 < tol && d1 < tol ) )
+    {
+        // Degenerate surface, skip it.
+        // Two consecutive edges have collapsed, i.e. three corners are coincident.
+        return false;
+    }
+
+    piecewise_curve_type c1, c2;
+    surf.get_umin_bndy_curve( c1 );
+    surf.get_umax_bndy_curve( c2 );
+
+    if ( c1.abouteq( c2, tol ) )
+    {
+        // Degenerate surface, skip it.
+        // Opposite edges are equal.
+        return false;
+    }
+
+    surf.get_vmin_bndy_curve( c1 );
+    surf.get_vmax_bndy_curve( c2 );
+
+    if ( c1.abouteq( c2, tol ) )
+    {
+        // Degenerate surface, skip it.
+        // Opposite edges are equal.
+        return false;
+    }
+
+    // Passed all tests, valid surface.
+    return true;
+}
+
 void VspSurf::FetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_ind, vector< XferSurf > &xfersurfs )
 {
     vector < piecewise_surface_type > surfvec;
@@ -1240,47 +1293,9 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_
     for ( int isect = 0; isect < num_sections; isect++ )
     {
         piecewise_surface_type surf = surfvec[isect];
-        double umin, vmin, umax, vmax;
-        surf.get_parameter_min( umin, vmin );
-        surf.get_parameter_max( umax, vmax );
 
-        surface_point_type p1( surf.f( umin, vmin ) );
-        surface_point_type p2( surf.f( umax, vmin ) );
-        surface_point_type p3( surf.f( umax, vmax ) );
-        surface_point_type p4( surf.f( umin, vmax ) );
-
-        double d1 = ( p2 - p1 ).norm();
-        double d2 = ( p3 - p2 ).norm();
-        double d3 = ( p4 - p3 ).norm();
-        double d4 = ( p1 - p4 ).norm();
-
-        double tol = 1.0e-8;
-
-        if ( ( d1 < tol && d2 < tol ) || ( d2 < tol && d3 < tol ) || ( d3 < tol && d4 < tol ) || ( d4 < tol && d1 < tol ) )
+        if ( !CheckValidPatch( surf ) )
         {
-            // Degenerate surface, skip it.
-            // Two consecutive edges have collapsed, i.e. three corners are coincident.
-            continue;
-        }
-
-        piecewise_curve_type c1, c2;
-        surf.get_umin_bndy_curve( c1 );
-        surf.get_umax_bndy_curve( c2 );
-
-        if ( c1.abouteq( c2, tol ) )
-        {
-            // Degenerate surface, skip it.
-            // Opposite edges are equal.
-            continue;
-        }
-
-        surf.get_vmin_bndy_curve( c1 );
-        surf.get_vmax_bndy_curve( c2 );
-
-        if ( c1.abouteq( c2, tol ) )
-        {
-            // Degenerate surface, skip it.
-            // Opposite edges are equal.
             continue;
         }
 
