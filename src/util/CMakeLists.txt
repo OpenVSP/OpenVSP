@@ -31,6 +31,7 @@ Util.cpp
 UtilTestSuite.cpp
 Vec2d.cpp
 Vec3d.cpp
+Vsp1DCurve.cpp
 VspCurve.cpp
 VspSurf.cpp
 BndBox.h
@@ -54,6 +55,7 @@ UtilTestSuite.h
 UsingCpp11.h
 Vec2d.h
 Vec3d.h
+Vsp1DCurve.h
 VspCurve.h
 VspSurf.h
 WriteMatlab.h
