@@ -28,6 +28,8 @@
 #include <FL/Fl_Tree_Item.H>
 #include <FL/Fl_Tree_Prefs.H>
 
+#include "Cartesian.H"
+
 #include "Vec3d.h"
 #include "Parm.h"
 #include "Vehicle.h"
@@ -108,6 +110,16 @@ public:
 protected:
     bool m_AllowDrop;
 };
+
+class Vsp_Canvas : public Ca_Canvas
+{
+public:
+    Vsp_Canvas(int x, int y, int w, int h, const char *label=0);
+
+    int handle( int event );
+};
+
+
 
 class GuiDevice
 {

@@ -585,7 +585,7 @@ void GroupLayout::AddResizeBox( )
 }
 
 //==== Create Cartesian Canvas ====//
-Ca_Canvas* GroupLayout::AddCanvas( int w, int h, double xmin, double xmax, double ymin, double ymax, const char *label, const char *xlabel, const char *ylabel )
+Vsp_Canvas* GroupLayout::AddCanvas( int w, int h, double xmin, double xmax, double ymin, double ymax, const char *label, const char *xlabel, const char *ylabel )
 {
     assert( m_Group && m_Screen );
 
@@ -593,8 +593,8 @@ Ca_Canvas* GroupLayout::AddCanvas( int w, int h, double xmin, double xmax, doubl
     int wyaxis = 60;
     int margin = 10;
 
-    Ca_Canvas* canvas = new Ca_Canvas( m_X + wyaxis, m_Y, w - wyaxis, h - hxaxis, label );
-    Ca_Canvas::current(canvas);
+    Vsp_Canvas* canvas = new Vsp_Canvas( m_X + wyaxis, m_Y, w - wyaxis, h - hxaxis, label );
+    Vsp_Canvas::current(canvas);
     canvas->box( FL_DOWN_BOX );
     canvas->color( 7 );
     canvas->border( 0 );

@@ -87,6 +87,28 @@ int Vsp_Group::handle(int event)
     return Fl_Group::handle(event);
 }
 
+Vsp_Canvas::Vsp_Canvas( int x, int y, int w, int h, const char *label ) : Ca_Canvas( x, y, w, h, label )
+{
+
+}
+
+int Vsp_Canvas::handle( int event )
+{
+    switch ( event )
+    {
+    case FL_PUSH:
+    case FL_RELEASE:
+    case FL_DRAG:
+        if( callback() )
+        {
+            do_callback();
+        }
+        return 1;
+        break;
+    }
+    return Ca_Canvas::handle( event );
+}
+
 //=====================================================================//
 //======================           Input         ======================//
 //=====================================================================//
