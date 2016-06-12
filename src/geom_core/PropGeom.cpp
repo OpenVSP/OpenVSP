@@ -15,11 +15,15 @@
 #include "APIDefines.h"
 using namespace vsp;
 
+// Fix thickness/height scaling for non-airfoil Xsec types.
 
 // Remove control points
 // Beautify control point editing GUI
+// Renumbering of parameters when delete points.
 
-// Change curve type from API - other API additions?
+// Change curve type from API
+// Curve splitting from API
+// Other API additions?
 
 // Use unit circle surrogate for point XSec.  Or disable point type.
 
