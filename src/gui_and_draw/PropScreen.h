@@ -107,6 +107,8 @@ protected:
     SliderAdjRangeInput m_RRWidthSlider;
     SliderAdjRangeInput m_RRRadiusSlider;
     ToggleButton m_RRKeyCornerButton;
+    SliderAdjRangeInput m_RRSkewSlider;
+    SliderAdjRangeInput m_RRKeystoneSlider;
 
     GroupLayout m_GenGroup;
     SliderAdjRangeInput m_GenHeightSlider;
