@@ -32,6 +32,7 @@ using namespace vsp;
 // v2 import
 
 // Nice default prop
+// Audit for proper default rotation sense and camber orientation.
 
 // Import / Export blade element format.
 // Support curved section shapes for Nick
