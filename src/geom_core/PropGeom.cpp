@@ -19,7 +19,6 @@ using namespace vsp;
 // Remove control points
 // Beautify control point editing GUI
 
-// Audit Parms Linkable/Discoverable
 // Change curve type from API - other API additions?
 
 // Use unit circle surrogate for point XSec.  Or disable point type.
@@ -766,6 +765,13 @@ void PropGeom::AddLinkableParms( vector< string > & linkable_parm_vec, const str
     Geom::AddLinkableParms( linkable_parm_vec );
 
     m_XSecSurf.AddLinkableParms( linkable_parm_vec, m_ID  );
+
+    m_ChordCurve.AddLinkableParms( linkable_parm_vec, m_ID  );
+    m_TwistCurve.AddLinkableParms( linkable_parm_vec, m_ID  );
+    m_XRotateCurve.AddLinkableParms( linkable_parm_vec, m_ID  );
+    m_ZRotateCurve.AddLinkableParms( linkable_parm_vec, m_ID  );
+    m_RakeCurve.AddLinkableParms( linkable_parm_vec, m_ID  );
+    m_SkewCurve.AddLinkableParms( linkable_parm_vec, m_ID  );
 }
 
 //==== Scale ====//
