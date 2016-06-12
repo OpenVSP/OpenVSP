@@ -29,6 +29,8 @@ public:
     virtual void CallBack( Fl_Widget *w );
     virtual void GuiDeviceCallBack( GuiDevice* d );
 
+    virtual void RebuildCSTGroup( CSTAirfoil* cst_xs );
+
 protected:
 
     enum { CHORD, TWIST, RAKE, SKEW };
@@ -130,6 +132,9 @@ protected:
     SliderAdjRangeInput m_FourCamberSlider;
     SliderAdjRangeInput m_FourCamberLocSlider;
 
+    TriggerButton m_FourFitCSTButton;
+    Counter m_FourDegreeCounter;
+
     GroupLayout m_SixSeriesGroup;
     StringOutput m_SixNameOutput;
     CheckButton m_SixInvertButton;
@@ -138,6 +143,9 @@ protected:
     SliderAdjRangeInput m_SixThickChordSlider;
     SliderAdjRangeInput m_SixIdealClSlider;
     SliderAdjRangeInput m_SixASlider;
+
+    TriggerButton m_SixFitCSTButton;
+    Counter m_SixDegreeCounter;
 
     GroupLayout m_BiconvexGroup;
     SliderAdjRangeInput m_BiconvexChordSlider;
@@ -159,6 +167,32 @@ protected:
     CheckButton m_AfFileInvertButton;
     SliderAdjRangeInput m_AfFileChordSlider;
 
+    TriggerButton m_AfFileFitCSTButton;
+    Counter m_AfFileDegreeCounter;
+
+    GroupLayout m_CSTAirfoilGroup;
+
+    TriggerButton m_UpDemoteButton;
+    StringOutput m_UpDegreeOutput;
+    TriggerButton m_UpPromoteButton;
+
+    Fl_Scroll* m_CSTUpCoeffScroll;
+    GroupLayout m_CSTUpCoeffLayout;
+
+    TriggerButton m_LowDemoteButton;
+    StringOutput m_LowDegreeOutput;
+    TriggerButton m_LowPromoteButton;
+
+    vector < SliderAdjRangeInput > m_UpCoeffSliderVec;
+
+    Fl_Scroll* m_CSTLowCoeffScroll;
+    GroupLayout m_CSTLowCoeffLayout;
+
+    vector < SliderAdjRangeInput > m_LowCoeffSliderVec;
+
+    CheckButton m_CSTInvertButton;
+    CheckButton m_CSTContLERadButton;
+    CheckButton m_CSTEqArcLenButton;
 
     // Overall planform tab
     GroupLayout m_ModifyLayout;

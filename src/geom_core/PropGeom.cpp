@@ -27,9 +27,6 @@ using namespace vsp;
 
 // Use unit circle surrogate for point XSec.  Or disable point type.
 
-// CST Airfoil type
-// Update to new XSec enhancements
-
 // Allow curve control of thickness.
 
 // v2 import
