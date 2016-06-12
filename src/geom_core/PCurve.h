@@ -33,6 +33,8 @@ public:
     vector< Parm* > m_TParmVec;
     vector< Parm* > m_ValParmVec;
 
+    virtual void InitParms();
+
     virtual void ReservePts( int n );
 
     virtual void SetCurveName( const string & name );
@@ -69,6 +71,8 @@ public:
     virtual string GetXDsipName()    { return m_XDispName; }
     virtual string GetYDsipName()    { return m_YDispName; }
 
+    virtual void SetParmNames( const string & xname, const string & yname );
+
     virtual double IntegrateAF( double r0 );
 
     virtual void EnforcePtOrder( double rfirst, double rlast );
@@ -87,6 +91,9 @@ protected:
 
     string m_XDispName;
     string m_YDispName;
+
+    string m_XParmName;
+    string m_YParmName;
 };
 
 #endif // !defined(VSP_PCURVE__INCLUDED_)

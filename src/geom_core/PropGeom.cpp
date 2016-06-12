@@ -19,8 +19,6 @@ using namespace vsp;
 // Remove control points
 // Beautify control point editing GUI
 
-// Curve gets display name, better parm names.
-
 // Audit Parms Linkable/Discoverable
 // Change curve type from API - other API additions?
 
@@ -312,8 +310,9 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
 
     m_ChordCurve.SetParentContainer( GetID() );
     m_ChordCurve.SetDispNames( "r/R", "Chord/R" );
+    m_ChordCurve.SetParmNames( "r", "crd" );
     m_ChordCurve.SetCurveName( "Chord" );
-    m_ChordCurve.m_CurveType = PCurve::PCHIP;
+    m_ChordCurve.InitParms();
     m_ChordCurve.m_CurveType = PCurve::CEDIT;
     m_ChordCurve.InitCurve( {0.2, 0.2 + 0.55 / 3.0, 0.75 - 0.55 / 3.0, 0.75,
                              0.75 + 0.25 / 3.0, 1.0 - 0.25 / 3.0, 1.0},
@@ -322,32 +321,42 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
 
     m_TwistCurve.SetParentContainer( GetID() );
     m_TwistCurve.SetDispNames( "r/R", "Twist" );
+    m_TwistCurve.SetParmNames( "r", "tw" );
     m_TwistCurve.SetCurveName( "Twist" );
+    m_TwistCurve.InitParms();
     m_TwistCurve.m_CurveType = PCurve::PCHIP;
     m_TwistCurve.InitCurve( {0.2, 0.75, 1.0},
                            {46.75, 20.0, 13.0} );
 
     m_XRotateCurve.SetParentContainer( GetID() );
     m_XRotateCurve.SetDispNames( "r/R", "X Rotate" );
+    m_XRotateCurve.SetParmNames( "r", "xr" );
     m_XRotateCurve.SetCurveName( "XRotate" );
+    m_XRotateCurve.InitParms();
     m_XRotateCurve.m_CurveType = PCurve::LINEAR;
     m_XRotateCurve.InitCurve( {0.2, 1}, {0, 0} );
 
     m_ZRotateCurve.SetParentContainer( GetID() );
     m_ZRotateCurve.SetDispNames( "r/R", "Z Rotate" );
+    m_ZRotateCurve.SetParmNames( "r", "zr" );
     m_ZRotateCurve.SetCurveName( "ZRotate" );
+    m_ZRotateCurve.InitParms();
     m_ZRotateCurve.m_CurveType = PCurve::LINEAR;
     m_ZRotateCurve.InitCurve( {0.2, 1}, {0, 0} );
 
     m_RakeCurve.SetParentContainer( GetID() );
     m_RakeCurve.SetDispNames( "r/R", "Rake/R" );
+    m_RakeCurve.SetParmNames( "r", "rak" );
     m_RakeCurve.SetCurveName( "Rake" );
+    m_RakeCurve.InitParms();
     m_RakeCurve.m_CurveType = PCurve::LINEAR;
     m_RakeCurve.InitCurve( {0.2, 1}, {0, 0} );
 
     m_SkewCurve.SetParentContainer( GetID() );
     m_SkewCurve.SetDispNames( "r/R", "Skew/R" );
+    m_SkewCurve.SetParmNames( "r", "skw" );
     m_SkewCurve.SetCurveName( "Skew" );
+    m_SkewCurve.InitParms();
     m_SkewCurve.m_CurveType = PCurve::LINEAR;
     m_SkewCurve.InitCurve( {0.2, 1}, {0, 0} );
 

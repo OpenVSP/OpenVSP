@@ -15,10 +15,10 @@
 PCurve::PCurve() : ParmContainer()
 {
     m_Name = "PCurve"; // ParmContainer name
+}
 
-    m_GroupName = "CurvePts";
-
-
+void PCurve::InitParms()
+{
     m_CurveType.Init( "CrvType", m_GroupName, this, PCHIP, LINEAR, CEDIT );
     m_CurveType.SetDescript( "Curve type" );
 
@@ -62,6 +62,7 @@ void PCurve::ReservePts( int n )
 void PCurve::SetCurveName( const string & name )
 {
     m_CurveName = name;
+    m_GroupName = name;
 }
 
 xmlNodePtr PCurve::EncodeXml( xmlNodePtr & node )
@@ -104,7 +105,7 @@ void PCurve::AddPt()
     {
         int i = m_TParmVec.size();
         char str[255];
-        sprintf( str, "T_%d", i );
+        sprintf( str, "%s_%d", m_XParmName.c_str(), i );
         p->Init( string( str ), m_GroupName, this, 0.0, -1.0e12, 1.0e12 );
         p->SetDescript( "Curve point parameter" );
         m_TParmVec.push_back( p );
@@ -116,7 +117,7 @@ void PCurve::AddPt()
     {
         int i = m_ValParmVec.size();
         char str[255];
-        sprintf( str, "V_%d", i );
+        sprintf( str, "%s_%d", m_YParmName.c_str(),  i );
         p->Init( string( str ), m_GroupName, this, 0.0, -1.0e12, 1.0e12 );
         p->SetDescript( "Curve point value" );
         m_ValParmVec.push_back( p );
@@ -631,6 +632,12 @@ void PCurve::SetDispNames( const string & xname, const string & yname )
 {
     m_XDispName = xname;
     m_YDispName = yname;
+}
+
+void PCurve::SetParmNames( const string & xname, const string & yname )
+{
+    m_XParmName = xname;
+    m_YParmName = yname;
 }
 
 double PCurve::IntegrateAF( double r0 )
