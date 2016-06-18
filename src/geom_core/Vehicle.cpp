@@ -196,7 +196,7 @@ void Vehicle::Init()
     m_exportDegenGeomMFile.Set( true );
 
     AnalysisMgr.Init();
-    oldX, oldY, oldZ = 0;
+    m_oldX, m_oldY, m_oldZ = 0;
 }
 
 void Vehicle::RunTestScripts()
@@ -617,20 +617,20 @@ void Vehicle::SetActiveGeom( const string & id )
 void Vehicle::SetActiveGeomVarVals()
 {
     vector< string > activeGroup = GetActiveGeomVec();
-    oldVarVals.resize(activeGroup.size());
+    m_oldVarVals.resize(activeGroup.size());
 
     for( int i = 0; i < activeGroup.size(); i++ )
     {
         Geom* geom = FindGeom( activeGroup[i] );
-        oldVarVals[i].resize(7); // 3 * translate + 3 * rotate + 1 * scale
+        m_oldVarVals[i].resize(7); // 3 * translate + 3 * rotate + 1 * scale
 
-        oldVarVals[i][0] = geom->m_XRelLoc.Get();
-        oldVarVals[i][1] = geom->m_YRelLoc.Get();
-        oldVarVals[i][2] = geom->m_ZRelLoc.Get();
-        oldVarVals[i][3] = geom->m_XRelRot.Get();
-        oldVarVals[i][4] = geom->m_YRelRot.Get();
-        oldVarVals[i][5] = geom->m_ZRelRot.Get();
-        oldVarVals[i][6] = geom->m_Scale.Get();
+        m_oldVarVals[i][0] = geom->m_XRelLoc.Get();
+        m_oldVarVals[i][1] = geom->m_YRelLoc.Get();
+        m_oldVarVals[i][2] = geom->m_ZRelLoc.Get();
+        m_oldVarVals[i][3] = geom->m_XRelRot.Get();
+        m_oldVarVals[i][4] = geom->m_YRelRot.Get();
+        m_oldVarVals[i][5] = geom->m_ZRelRot.Get();
+        m_oldVarVals[i][6] = geom->m_Scale.Get();
     }
 }
 
@@ -1028,19 +1028,19 @@ void Vehicle::ResetGroupVars()
 void Vehicle::GroupTransX( string geom, int index )
 {
     Geom* gptr = FindGeom( geom );
-    gptr->m_XRelLoc.Set( oldVarVals[index][0] + m_GroupXLoc.Get() );
+    gptr->m_XRelLoc.Set( m_oldVarVals[index][0] + m_GroupXLoc.Get() );
 }
 
 void Vehicle::GroupTransY( string geom, int index )
 {
     Geom* gptr = FindGeom( geom );
-    gptr->m_YRelLoc.Set( oldVarVals[index][1] + m_GroupYLoc.Get() );
+    gptr->m_YRelLoc.Set( m_oldVarVals[index][1] + m_GroupYLoc.Get() );
 }
 
 void Vehicle::GroupTransZ( string geom, int index )
 {
     Geom* gptr = FindGeom( geom );
-    gptr->m_ZRelLoc.Set( oldVarVals[index][2] + m_GroupZLoc.Get() );
+    gptr->m_ZRelLoc.Set( m_oldVarVals[index][2] + m_GroupZLoc.Get() );
 }
 
 void Vehicle::GroupScale( string geom, int index )
@@ -1048,10 +1048,10 @@ void Vehicle::GroupScale( string geom, int index )
     Geom* gptr = FindGeom( geom );
     double scale = m_GroupScale.Get();
 
-    gptr->m_Scale.Set( oldVarVals[index][6] * scale );
-    gptr->m_XRelLoc.Set( oldVarVals[index][0] * scale );
-    gptr->m_YRelLoc.Set( oldVarVals[index][1] * scale );
-    gptr->m_ZRelLoc.Set( oldVarVals[index][2] * scale );
+    gptr->m_Scale.Set( m_oldVarVals[index][6] * scale );
+    gptr->m_XRelLoc.Set( m_oldVarVals[index][0] * scale );
+    gptr->m_YRelLoc.Set( m_oldVarVals[index][1] * scale );
+    gptr->m_ZRelLoc.Set( m_oldVarVals[index][2] * scale );
 }
 
 //==== Get Draw Objects ====//

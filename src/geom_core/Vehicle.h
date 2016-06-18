@@ -313,11 +313,11 @@ public:
     Parm m_AxisLength;
 
     bool m_UpdatingGroup;
-    double oldX;
-    double oldY;
-    double oldZ;
+    double m_oldX;
+    double m_oldY;
+    double m_oldZ;
 
-    vector< vector< double > > oldVarVals;      //Keeps old values of a geom group
+    vector< vector< double > > m_oldVarVals;      //Keeps old values of a geom group
 
 protected:
 
