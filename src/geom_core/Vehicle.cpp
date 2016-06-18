@@ -2431,11 +2431,11 @@ void Vehicle::UpdateGroup()
 
         GroupScale( activeGroup[ i ], i );
 
+        bool parent_in_group = std::find(activeGroup.begin(), activeGroup.end(), parent_id) != activeGroup.end();
+
         // Only apply transform (except scale) if either the geom has no active parent or its coordinate system
         // is not relative to another geometry's coordinate system
-        if( std::find( activeGroup.begin(), activeGroup.end(), parent_id ) == activeGroup.end() ||
-                ( thisGeom->m_TransAttachFlag.Get() == GeomXForm::ATTACH_TRANS_NONE ||
-                 thisGeom->m_RotAttachFlag.Get() == GeomXForm::ATTACH_ROT_NONE ) )
+        if( parent_in_group == false || thisGeom->m_TransAttachFlag.Get() == GeomXForm::ATTACH_TRANS_NONE )
         {
             GroupTransX( activeGroup[ i ], i );
             GroupTransY( activeGroup[ i ], i );
