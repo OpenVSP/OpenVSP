@@ -2429,6 +2429,11 @@ void Vehicle::UpdateGroup()
         Geom* thisGeom = FindGeom( activeGroup[ i ] );
         string parent_id = thisGeom->GetParentID();
 
+        // Set the geom to ignore the abs/rel flag because
+        // all of these group translations are going to be applied
+        // to the relative property
+        thisGeom->SetIgnoreAbsFlag(true);
+
         GroupScale( activeGroup[ i ], i );
 
         bool parent_in_group = std::find(activeGroup.begin(), activeGroup.end(), parent_id) != activeGroup.end();
@@ -2444,6 +2449,14 @@ void Vehicle::UpdateGroup()
     }
 
     Update();
+
+    // Loop over all of the active geom's and set the ignore absolute transformation flag to false
+    // to restore normal transformation behavior
+    for (int i = 0; i < activeGroup.size(); i++)
+    {
+        Geom* thisGeom = FindGeom(activeGroup[i]);
+        thisGeom->SetIgnoreAbsFlag(false);
+    }
 }
 
 string Vehicle::getExportFileName( int type )
