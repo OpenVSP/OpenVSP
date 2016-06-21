@@ -545,7 +545,7 @@ void GroupLayout::AddButton( RadioButton& rbutton, const char* label, int val )
 }
 
 //==== Create & Init Box Divider  ====//
-void GroupLayout::AddDividerBox( const string& text, int used_w )
+Fl_Box* GroupLayout::AddDividerBox( const string& text, int used_w )
 {
     assert( m_Group && m_Screen );
 
@@ -563,6 +563,8 @@ void GroupLayout::AddDividerBox( const string& text, int used_w )
 
     AddY( m_DividerHeight );
     NewLineX();
+
+    return flbox;
 }
 
 //==== Create & Init Resize Box  ====//

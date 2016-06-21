@@ -120,7 +120,7 @@ public:
     void SetSliderWidth( int w )        { m_SliderWidth = w; }
 
     //==== Add FLTK Widgets and Initalize GUI Devices ====//
-    void AddDividerBox( const string& text, int used_w = 0 );
+    Fl_Box* AddDividerBox( const string& text, int used_w = 0 );
     void AddResizeBox( );
 
     Vsp_Canvas* AddCanvas( int w, int h, double xmin, double xmax, double ymin, double ymax, const char *label, const char *xlabel, const char *ylabel );
