@@ -449,7 +449,7 @@ void Results::WriteDragBuildFile( const string & file_name )
     }
 }
 
-void Results::WriteSliceFile( const string & file_name, int type )
+void Results::WriteSliceFile( const string & file_name )
 {
     FILE* fid = fopen( file_name.c_str(), "w" );
     if ( fid )
@@ -474,50 +474,54 @@ void Results::WriteSliceFile( const string & file_name, int type )
         vec3d norm_axis = Find( "Axis_Vector" ).GetVec3d( 0 );
         fprintf( fid, "%1.5f %1.5f %1.5f Axis Vector\n", norm_axis.x(), norm_axis.y(), norm_axis.z() );
 
-        if ( type == vsp::SLICE_PLANAR )
+        fprintf( fid, "\n" );
+        fprintf( fid, "    Loc    XCenter  YCenter  ZCenter         Area\n" );
+        for ( int s = 0 ; s <  Find( "Num_Slices" ).GetInt( 0 ) ; s++ )
         {
-            fprintf( fid, "\n" );
-            fprintf( fid, "    Loc    XCenter  YCenter  ZCenter         Area\n" );
-            for ( int s = 0 ; s <  Find( "Num_Slices" ).GetInt( 0 ) ; s++ )
-            {
-                vec3d area_center = Find( "Slice_Area_Center" ).GetVec3d( s );
-                fprintf( fid, "%9.3f %9.3f %9.3f %9.3f %9.3f\n", Find( "Slice_Loc" ).GetDouble( s ), area_center[0],
-                         area_center[1], area_center[2], Find( "Slice_Area" ).GetDouble( s ) );
-            }
+            vec3d area_center = Find( "Slice_Area_Center" ).GetVec3d( s );
+            fprintf( fid, "%9.3f %9.3f %9.3f %9.3f %9.3f\n", Find( "Slice_Loc" ).GetDouble( s ), area_center[0],
+                    area_center[1], area_center[2], Find( "Slice_Area" ).GetDouble( s ) );
         }
-        else if ( type == vsp::SLICE_AWAVE )
-        {
-            fprintf( fid, "\n" );
-            fprintf( fid, "           Loc        " );
-            int num_cone_sections = Find( "Num_Cone_Sections" ).GetInt( 0 );
-            for ( int i = 0; i < num_cone_sections ; i++ )
-            {
-                fprintf( fid, "        A%02d(%06.2f)", i, Find( "Slice_Loc" ).GetDouble( i ) );
-            }
-            fprintf( fid, "        TotalArea            Average\n" );
 
-            int num_slices = Find( "Num_Slices" ).GetInt( 0 );
-            for ( int s = 0 ; s < num_slices ; s++ )
-            {
-                fprintf( fid, "%19.8f", Find( "X_Loc", 0 ).GetDouble( s ) );
-
-                vector<double> slice_wet_area = Find( "Slice_Wet_Area", s ).GetDoubleData();
-                for ( int r = 0 ; r < ( int )slice_wet_area.size() ; r++ )
-                {
-                    fprintf( fid, " %19.8f", slice_wet_area[r] );
-                }
-
-                fprintf( fid, " %19.8f", Find( "Slice_Sum_Area", s ).GetDouble( 0 ) );
-                fprintf( fid, " %19.8f", Find( "Slice_Avg_Area", s ).GetDouble( 0 ) );
-                fprintf( fid, "\n" );
-            }
-        }
         fclose( fid );
     }
 
 }
 
+void Results::WriteWaveDragFile( const string & file_name )
+{
+    FILE* fid = fopen( file_name.c_str(), "w" );
+    if ( fid )
+    {
+        fprintf( fid, "...Wave Drag Slice...\n" );
 
+        fprintf( fid, "Inlet Area: %f\n", Find( "Inlet_Area" ).GetDouble( 0 ) );
+        fprintf( fid, "Exit Area: %f\n", Find( "Exit_Area" ).GetDouble( 0 ) );
+
+        int num_cone_sections = Find( "Num_Cone_Sections" ).GetInt( 0 );
+        int num_slices = Find( "Num_Slices" ).GetInt( 0 );
+
+        fprintf( fid, "\n" );
+        for ( int i = 0; i < num_cone_sections ; i++ )
+        {
+            fprintf( fid, "Theta: %6.2f, Start: %6.2f, End: %6.2f\n", Find( "Theta" ).GetDouble( i ), Find( "Start_X" ).GetDouble( i ), Find( "End_X" ).GetDouble( i ) );
+
+            for ( int s = 0 ; s < num_slices ; s++ )
+            {
+                fprintf( fid, "%19.8f, ", Find( "X_Norm" ).GetDouble( s ) );
+                fprintf( fid, "%19.8f", Find( "Slice_Area", i ).GetDouble( s ) );
+                fprintf( fid, "\n" );
+            }
+            fprintf( fid, "\n" );
+        }
+
+        double CD0w = Find( "CDWave" ).GetDouble( 0 );
+        fprintf( fid, "CDWave: %19.8f \n", CD0w );
+
+        fclose( fid );
+    }
+
+}
 
 //======================================================================================//
 //======================================================================================//

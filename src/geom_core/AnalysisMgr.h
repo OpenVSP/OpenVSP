@@ -114,6 +114,15 @@ public:
 
 };
 
+class EmintonLordAnalysis : public Analysis
+{
+public:
+
+    virtual void SetDefaults();
+    virtual string Execute();
+
+};
+
 class MassPropAnalysis : public Analysis
 {
 public:
@@ -133,6 +142,15 @@ public:
 };
 
 class ProjectionAnalysis : public Analysis
+{
+public:
+
+    virtual void SetDefaults();
+    virtual string Execute();
+
+};
+
+class WaveDragAnalysis : public Analysis
 {
 public:
 

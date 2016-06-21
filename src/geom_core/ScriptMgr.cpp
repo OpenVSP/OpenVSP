@@ -693,6 +693,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "COMPUTATION_FILE_TYPE", "PROJ_AREA_CSV_TYPE", PROJ_AREA_CSV_TYPE );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "COMPUTATION_FILE_TYPE", "WAVE_DRAG_TXT_TYPE", WAVE_DRAG_TXT_TYPE );
+    assert( r >= 0 );
 
     r = se->RegisterEnum( "CFD_CONTROL_TYPE" );
     assert( r >= 0 );
@@ -1272,9 +1274,6 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "string ComputeCompGeom( int set, bool half_mesh, int file_export_types )", asFUNCTION( vsp::ComputeCompGeom ), asCALL_CDECL );
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "string ComputePlaneSlice( int set, int num_slices, const vec3d & in norm, bool auto_bnd, double start_bnd = 0, double end_bnd = 0 )", asFUNCTION( vsp::ComputePlaneSlice ), asCALL_CDECL );
-    assert( r >= 0 );
-    r = se->RegisterGlobalFunction( "string ComputeAwaveSlice( int set, int num_slices, int num_rots, double ang_control, bool comp_ang, const vec3d & in norm, bool auto_bnd, double start_bnd = 0, double end_bnd = 0)",
-                                    asFUNCTION( vsp::ComputeAwaveSlice ), asCALL_CDECL );
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "void ComputeDegenGeom( int set, int file_type )", asFUNCTION( vsp::ComputeDegenGeom ), asCALL_CDECL );
     assert( r >= 0 );
@@ -1960,7 +1959,6 @@ void ScriptMgrSingleton::SetVec3dAnalysisInput( const string& analysis, const st
 
     vsp::SetVec3dAnalysisInput( analysis, name, indata_vec, index );
 }
-
 
 //==== Console Print String Data ====//
 void ScriptMgrSingleton::Print( const string & data, bool new_line )

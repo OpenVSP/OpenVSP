@@ -26,6 +26,7 @@
 #include "STEPutil.h"
 #include "XferSurf.h"
 #include "MaterialMgr.h"
+#include "WaveDragMgr.h"
 
 #include <assert.h>
 
@@ -222,10 +223,6 @@ public:
     string CompGeomAndFlatten( int set, int halfFlag, int intSubsFlag = 1 );
     string MassProps( int set, int numSlices, bool hidegeom = true, bool writefile = true );
     string MassPropsAndFlatten( int set, int numSlices, bool hidegeom = true, bool writefile = true );
-    string AwaveSlice( int set, int numSlices, int numRots, double AngleControlVal, bool computeAngle,
-                       vec3d norm, bool autoBoundsFlag, double start = 0, double end = 0 );
-    string AwaveSliceAndFlatten( int set, int numSlices, int numRots, double AngleControlVal, bool computeAngle,
-                                 vec3d norm, bool autoBoundsFlag, double start = 0, double end = 0 );
     string PSlice( int set, int numSlices, vec3d norm, bool autoBoundsFlag, double start = 0, double end = 0 );
     string PSliceAndFlatten( int set, int numSlices, vec3d norm, bool autoBoundsFlag, double start = 0, double end = 0 );
 

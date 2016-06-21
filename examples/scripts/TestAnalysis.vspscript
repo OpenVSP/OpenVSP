@@ -203,7 +203,35 @@ void main()
 
     string ridslice = ExecAnalysis( "PlanarSlice" );
     PrintResults( ridslice );
+    DeleteGeomVec( GetStringResults( ridslice, "Mesh_GeomID" ) );
 
+    // WaveDrag
+    string ridwd = ExecAnalysis( "WaveDrag" );
+    PrintResults( ridwd );
+    DeleteGeomVec( GetStringResults( ridwd, "Mesh_GeomID" ) );
+
+    // EmintonLord
+    int npt = 21;
+    array<double> x_vec = GetDoubleAnalysisInput( "EmintonLord", "X_vec" );
+    x_vec.resize(npt);
+
+    array<double> area_vec = GetDoubleAnalysisInput( "EmintonLord", "Area_vec" );
+    area_vec.resize(npt);
+
+    for ( int i = 0; i < npt; i++ )
+    {
+        double xi = i * 1.0 / ( npt - 1 );
+        x_vec[i] = xi * 5;
+        area_vec[i] = sin(xi*3.14159)*sin(xi*3.14159);
+    }
+    area_vec[0] = 0;
+    area_vec[npt-1] = 0;
+
+    SetDoubleAnalysisInput( "EmintonLord", "x_vec", x_vec );
+    SetDoubleAnalysisInput( "EmintonLord", "area_vec", area_vec );
+
+    string ridel = ExecAnalysis( "EmintonLord" );
+    PrintResults( ridel );
 
     //==== Check For API Errors ====//
     while ( GetNumTotalErrors() > 0 )

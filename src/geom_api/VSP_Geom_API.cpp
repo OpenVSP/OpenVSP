@@ -456,27 +456,6 @@ string ComputePlaneSlice( int set, int num_slices, const vec3d & norm, bool auto
     return id;
 }
 
-//==== Compute AWave Slice =====//
-extern string ComputeAwaveSlice( int set, int num_slices, int num_rots, double ang_control, bool comp_ang,
-                                 const vec3d & norm, bool auto_bnd, double start_bnd, double end_bnd )
-{
-    Update();
-    Vehicle* veh = GetVehicle();
-
-    string id = veh->AwaveSliceAndFlatten( set, num_slices, num_rots, ang_control, comp_ang, norm, auto_bnd, start_bnd, end_bnd );
-
-    if ( id.size() == 0 )
-    {
-        ErrorMgr.AddError( VSP_INVALID_ID, "ComputeAwaveSlice::Invalid ID " );
-    }
-    else
-    {
-        ErrorMgr.NoError();
-    }
-
-    return id;
-}
-
 //==== Set a CFD Mesh Control Val =====//
 void SetCFDMeshVal( int type, double val )
 {

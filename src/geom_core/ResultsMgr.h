@@ -151,7 +151,8 @@ public:
     void WriteCompGeomTxtFile( const string & file_name );
     void WriteCompGeomCsvFile( const string & file_name );
     void WriteDragBuildFile( const string & file_name );
-    void WriteSliceFile( const string & file_name, int type );
+    void WriteSliceFile( const string & file_name );
+    void WriteWaveDragFile( const string & file_name );
 
     time_t GetTimestamp()
     {

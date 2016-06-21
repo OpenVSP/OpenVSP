@@ -32,6 +32,7 @@
 #include "FileUtil.h"
 #include "VSPAEROMgr.h"
 #include "main.h"
+
 using namespace vsp;
 
 #include <set>
@@ -136,6 +137,7 @@ void Vehicle::Init()
     LinkMgr.RegisterContainer( m_CfdGridDensity.GetID() );
     LinkMgr.RegisterContainer( m_FeaGridDensity.GetID() );
     LinkMgr.RegisterContainer( VSPAEROMgr.GetID() );
+    LinkMgr.RegisterContainer( WaveDragMgr.GetID() );
 
     m_IxxIyyIzz = vec3d( 0, 0, 0 );
     m_IxyIxzIyz = vec3d( 0, 0, 0 );
@@ -1223,6 +1225,7 @@ xmlNodePtr Vehicle::EncodeXml( xmlNodePtr & node, int set )
     m_CfdGridDensity.EncodeXml( node );
     m_FeaGridDensity.EncodeXml( node );
     m_ClippingMgr.EncodeXml( node );
+    WaveDragMgr.EncodeXml( node );
 
     xmlNodePtr setnamenode = xmlNewChild( node, NULL, BAD_CAST"SetNames", NULL );
     if ( setnamenode )
@@ -1288,6 +1291,7 @@ xmlNodePtr Vehicle::DecodeXml( xmlNodePtr & node )
     m_CfdGridDensity.DecodeXml( node );
     m_FeaGridDensity.DecodeXml( node );
     m_ClippingMgr.DecodeXml( node );
+    WaveDragMgr.DecodeXml( node );
 
     xmlNodePtr setnamenode = XmlUtil::GetNode( node, "SetNames", 0 );
     if ( setnamenode )
@@ -2322,6 +2326,10 @@ string Vehicle::getExportFileName( int type )
     {
         doreturn = true;
     }
+    else if ( type == WAVE_DRAG_TXT_TYPE )
+    {
+        doreturn = true;
+    }
 
     if( doreturn )
     {
@@ -2374,6 +2382,10 @@ void Vehicle::setExportFileName( int type, string f_name )
     {
         doset = true;
     }
+    else if ( type == WAVE_DRAG_TXT_TYPE )
+    {
+        doset = true;
+    }
 
     if( doset )
     {
@@ -2383,9 +2395,9 @@ void Vehicle::setExportFileName( int type, string f_name )
 
 void Vehicle::resetExportFileNames()
 {
-    const char *suffix[] = {"_CompGeom.txt", "_CompGeom.csv", "_DragBuild.tsv", "_AwaveSlice.txt", "_MassProps.txt", "_DegenGeom.csv", "_DegenGeom.m", "_ProjArea.csv" };
-    const int types[] = { COMP_GEOM_TXT_TYPE, COMP_GEOM_CSV_TYPE, DRAG_BUILD_TSV_TYPE, SLICE_TXT_TYPE, MASS_PROP_TXT_TYPE, DEGEN_GEOM_CSV_TYPE, DEGEN_GEOM_M_TYPE, PROJ_AREA_CSV_TYPE };
-    const int ntype = 8;
+    const char *suffix[] = {"_CompGeom.txt", "_CompGeom.csv", "_DragBuild.tsv", "_AwaveSlice.txt", "_MassProps.txt", "_DegenGeom.csv", "_DegenGeom.m", "_ProjArea.csv", "_WaveDrag.txt" };
+    const int types[] = { COMP_GEOM_TXT_TYPE, COMP_GEOM_CSV_TYPE, DRAG_BUILD_TSV_TYPE, SLICE_TXT_TYPE, MASS_PROP_TXT_TYPE, DEGEN_GEOM_CSV_TYPE, DEGEN_GEOM_M_TYPE, PROJ_AREA_CSV_TYPE, WAVE_DRAG_TXT_TYPE };
+    const int ntype = 9;
     int pos;
 
     for( int i = 0; i < ntype; i++ )
@@ -2530,58 +2542,6 @@ string Vehicle::MassPropsAndFlatten( int set, int numSlices, bool hidegeom, bool
     return id;
 }
 
-string Vehicle::AwaveSlice( int set, int numSlices, int numRots, double AngleControlVal, bool computeAngle,
-                            vec3d norm, bool autoBoundsFlag, double start , double end )
-{
-    string id = AddMeshGeom( set );
-    if ( id.compare( "NONE" ) == 0 )
-    {
-        return id;
-    }
-
-    HideAllExcept( id );
-
-    MeshGeom* mesh_ptr = ( MeshGeom* )FindGeom( id );
-    if ( mesh_ptr == NULL )
-    {
-        return id;
-    }
-
-    if ( mesh_ptr->m_TMeshVec.size() )
-    {
-        // Compute Angle if necessary for awave slice
-        if ( computeAngle )
-        {
-            AngleControlVal = asin( 1 / AngleControlVal ) * RAD_2_DEG;
-        }
-        mesh_ptr->AreaSlice( vsp::SLICE_AWAVE, numSlices, AngleControlVal, numRots, norm, autoBoundsFlag, start, end );
-    }
-    else
-    {
-        CutActiveGeomVec();
-        DeleteClipBoard();
-        id = "NONE";
-    }
-
-    return id;
-}
-
-string Vehicle::AwaveSliceAndFlatten( int set, int numSlices, int numRots, double AngleControlVal, bool computeAngle,
-                                      vec3d norm, bool autoBoundsFlag, double start , double end )
-{
-    string id = AwaveSlice( set, numSlices, numRots, AngleControlVal, computeAngle, norm, autoBoundsFlag, start, end );
-    Geom* geom = FindGeom( id );
-    if ( !geom )
-    {
-        return string( "NONE" );
-    }
-    MeshGeom* mesh_ptr = ( MeshGeom* )geom;
-    mesh_ptr->FlattenTMeshVec();
-    mesh_ptr->FlattenSliceVec();
-    mesh_ptr->Update();
-    return id;
-}
-
 string Vehicle::PSlice( int set, int numSlices, vec3d axis, bool autoBoundsFlag, double start, double end )
 {
 
@@ -2601,7 +2561,7 @@ string Vehicle::PSlice( int set, int numSlices, vec3d axis, bool autoBoundsFlag,
 
     if ( mesh_ptr->m_TMeshVec.size() )
     {
-        mesh_ptr->AreaSlice( vsp::SLICE_PLANAR, numSlices, 90, 0, axis, autoBoundsFlag, start, end );
+        mesh_ptr->AreaSlice( numSlices, axis, autoBoundsFlag, start, end );
     }
     else
     {

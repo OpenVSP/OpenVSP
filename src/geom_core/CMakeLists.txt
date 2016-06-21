@@ -61,6 +61,7 @@ TextureMgr.cpp
 TMesh.cpp
 Vehicle.cpp
 VehicleMgr.cpp
+WaveDragMgr.cpp
 WingGeom.cpp
 XSec.cpp
 XSecCurve.cpp
@@ -118,6 +119,7 @@ TMesh.h
 Vehicle.h
 VehicleMgr.h
 VSPAEROMgr.h
+WaveDragMgr.h
 WingGeom.h
 XSec.h
 XSecCurve.h

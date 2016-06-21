@@ -326,6 +326,11 @@ void AnalysisMgrSingleton::RegisterBuiltins()
     RegisterAnalysis( "CompGeom", cga );
 
 
+    EmintonLordAnalysis *ema = new EmintonLordAnalysis();
+
+    RegisterAnalysis( "EmintonLord", ema );
+
+
     MassPropAnalysis *mpa = new MassPropAnalysis();
 
     RegisterAnalysis( "MassProp", mpa );
@@ -339,6 +344,11 @@ void AnalysisMgrSingleton::RegisterBuiltins()
     ProjectionAnalysis *proj = new ProjectionAnalysis();
 
     RegisterAnalysis( "Projection", proj );
+
+
+    WaveDragAnalysis *wave = new WaveDragAnalysis();
+
+    RegisterAnalysis( "WaveDrag", wave );
 }
 
 //======================================================================================//
@@ -407,6 +417,58 @@ string CompGeomAnalysis::Execute()
     return res;
 }
 
+//======================================================================================//
+//======================================================================================//
+//======================================================================================//
+
+void EmintonLordAnalysis::SetDefaults()
+{
+    m_Inputs.Clear();
+    vector < double > x_vec;
+    vector < double > area_vec;
+    m_Inputs.Add( NameValData( "X_vec", x_vec ) );
+    m_Inputs.Add( NameValData( "Area_vec", area_vec ) );
+}
+
+string EmintonLordAnalysis::Execute()
+{
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        vector < double > x_vec;
+        vector < double > area_vec;
+
+        NameValData *nvd = NULL;
+
+        nvd = m_Inputs.FindPtr( "X_vec", 0 );
+        if ( nvd )
+        {
+            x_vec = nvd->GetDoubleData();
+        }
+
+        nvd = m_Inputs.FindPtr( "Area_vec", 0 );
+        if ( nvd )
+        {
+            area_vec = nvd->GetDoubleData();
+        }
+
+        int n = x_vec.size();
+        vector < double > coeff(n-2);
+
+        double Donq = WaveDragMgr.WaveDrag( x_vec, area_vec, coeff );
+
+        Results* res = ResultsMgr.CreateResults( "EmintonLord" );
+        if ( res )
+        {
+            res->Add( NameValData( "Donq", Donq ) );
+            res->Add( NameValData( "Coeff", coeff ) );
+            return res->GetID();
+        }
+    }
+
+    return string();
+}
 
 //======================================================================================//
 //======================================================================================//
@@ -676,4 +738,78 @@ string ProjectionAnalysis::Execute()
     }
 
     return res->GetID();
+}
+
+//======================================================================================//
+//======================================================================================//
+//======================================================================================//
+
+void WaveDragAnalysis::SetDefaults()
+{
+    m_Inputs.Clear();
+    m_Inputs.Add( NameValData( "Set", WaveDragMgr.m_SelectedSetIndex.Get() ) );
+    m_Inputs.Add( NameValData( "NumSlices", WaveDragMgr.m_NumSlices.Get() ) );
+    m_Inputs.Add( NameValData( "NumRotSects", WaveDragMgr.m_NumRotSects.Get() ) );
+    m_Inputs.Add( NameValData( "Mach", WaveDragMgr.m_MachNumber.Get() ) );
+    m_Inputs.Add( NameValData( "SSFlow_vec", WaveDragMgr.m_SSFlow_vec ) );
+    m_Inputs.Add( NameValData( "SymmFlag", WaveDragMgr.m_SymmFlag.Get() ) );
+}
+
+string WaveDragAnalysis::Execute()
+{
+    string res;
+
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        int set;
+        int numSlices;
+        int numRots;
+        double Mach;
+        vector <string> Flow_vec;
+        bool Symm;
+
+        NameValData *nvd = NULL;
+
+        nvd = m_Inputs.FindPtr( "Set", 0 );
+        if ( nvd )
+        {
+            set = nvd->GetInt( 0 );
+        }
+
+        nvd = m_Inputs.FindPtr( "NumSlices", 0 );
+        if ( nvd )
+        {
+            numSlices = nvd->GetInt( 0 );
+        }
+
+        nvd = m_Inputs.FindPtr( "NumRotSects", 0 );
+        if ( nvd )
+        {
+            numRots = nvd->GetInt( 0 );
+        }
+
+        nvd = m_Inputs.FindPtr( "Mach", 0 );
+        if ( nvd )
+        {
+            Mach = nvd->GetDouble( 0 );
+        }
+
+        nvd = m_Inputs.FindPtr( "SSFlow_vec", 0 );
+        if ( nvd )
+        {
+            Flow_vec = nvd->GetStringData();
+        }
+
+        nvd = m_Inputs.FindPtr( "SymmFlag", 0 );
+        if ( nvd )
+        {
+            Symm = nvd->GetInt( 0 );
+        }
+
+        res = WaveDragMgr.SliceAndAnalyze( set, numSlices, numRots, Mach, Flow_vec, Symm );
+    }
+
+    return res;
 }

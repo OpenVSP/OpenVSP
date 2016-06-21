@@ -27,7 +27,8 @@ enum ERROR_CODE {   VSP_OK,
                     VSP_INDEX_OUT_RANGE,
                     VSP_INVALID_XSEC_ID,
                     VSP_INVALID_ID,
-                    VSP_CANT_SET_NOT_EQ_PARM
+                    VSP_CANT_SET_NOT_EQ_PARM,
+                    VSP_AMBIGUOUS_SUBSURF
                 };
 
 enum {  SYM_XY = ( 1 << 0 ),
@@ -151,12 +152,8 @@ enum COMPUTATION_FILE_TYPE  {   NO_FILE_TYPE        = 0,
                                 CFD_SRF_TYPE        = 16384,
                                 CFD_TKEY_TYPE       = 32768,
                                 PROJ_AREA_CSV_TYPE  = 65536,
+                                WAVE_DRAG_TXT_TYPE  = 131072,
                             };
-
-enum SLICE_STYLE {  SLICE_PLANAR,
-                    SLICE_AWAVE,
-                 };
-
 
 enum SET_TYPE { SET_ALL = 0,
                 SET_SHOWN = 1,
