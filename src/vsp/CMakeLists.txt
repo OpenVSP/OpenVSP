@@ -74,6 +74,7 @@ IF( NOT VSP_NO_GRAPHICS )
 
 	ADD_EXECUTABLE(apitest_g
 	apitest_main.cpp
+	../geom_api/APITestSuite.cpp
 	../vsp/main.h.in
 	)
 
@@ -111,6 +112,7 @@ ENDIF()
 
 ADD_EXECUTABLE(apitest
 apitest_main.cpp
+../geom_api/APITestSuite.cpp
 ../vsp/main.h.in
 )
 
@@ -133,6 +135,12 @@ TARGET_LINK_LIBRARIES(apitest
 	${STEPCODE_LIBRARIES}
 	${LIBIGES_LIBRARIES}
 )
+
+IF( VSP_INSTALL_API_TEST )
+
+    INSTALL( TARGETS apitest RUNTIME DESTINATION . )
+    
+ENDIF()
 
 ADD_EXECUTABLE(vspscript
 common.cpp

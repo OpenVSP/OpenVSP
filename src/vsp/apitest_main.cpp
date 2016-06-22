@@ -14,6 +14,8 @@
 
 #include "main.h"
 #include "VSP_Geom_API.h"
+#include "APITestSuite.h"
+#include "cpptest.h"
 
 
 void vsp_exit()
@@ -22,21 +24,38 @@ void vsp_exit()
     exit( 0 );
 }
 
+bool run_tests()
+{
+    // Add desired suites to parent suite
+    Test::Suite ts;
+    ts.add(std::auto_ptr<Test::Suite>(new APITestSuite));    //This line can be copied to add new test suites
+
+
+    // Test Suite run parameters
+    Test::TextOutput output(Test::TextOutput::Verbose);
+    bool cont_after_fail = true; //TRUE continues test execution after failure
+
+    // Run the test and return success or failure
+    return ts.run(output, cont_after_fail) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
 
 //========================================================//
 //========================================================//
 //========================= Main =========================//
-
 int main( int argc, char** argv )
 {
-//==== Use Case 1 =====//
+//==== Use CPPTest =====//
+    run_tests();
+    printf("\n\n");
+
+//==== Use Case 1 ====//
     printf( "\n//==== Use Case 1 ====//\n");
     printf( "Description: Create/Delete/Copy/Paste Geometry\n" );
 
     //==== Create/Delete/Copy/Paste Geometry ====//
     printf( "Checking Setup\n" );
     vsp::VSPCheckSetup();
-	vsp::VSPRenew();
+    vsp::VSPRenew();
     vsp::ErrorMgr.PopErrorAndPrint( stdout );
 
     //==== Print Out All Available Geom Types ====//

@@ -363,10 +363,10 @@ void APITestSuite::TestVSPAeroSinglePoint()
     PrintAnalysisInputs(analysis_name);
 
     // Execute
-    string results_id_vector = vsp::ExecAnalysis(analysis_name);
+    string results_id = vsp::ExecAnalysis(analysis_name);
 
     // Get & Display Results
-    PrintResults( vsp::GetStringResults( results_id_vector, "ResultsVec", 0 ) );
+    PrintResults( vsp::GetStringResults( results_id, "ResultsVec", 0 ) );
     
     // Final check for errors
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
@@ -430,10 +430,10 @@ void APITestSuite::TestVSPAeroSinglePointStab()
     PrintAnalysisInputs(analysis_name);
 
     // Execute
-    string results_id_vector = vsp::ExecAnalysis(analysis_name);
+    string results_id = vsp::ExecAnalysis(analysis_name);
 
     // Get & Display Results
-    PrintResults( vsp::GetStringResults( results_id_vector, "ResultsVec", 0 ) );
+    PrintResults( vsp::GetStringResults( results_id, "ResultsVec", 0 ) );
     
     // Final check for errors
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
@@ -586,7 +586,7 @@ void APITestSuite::PrintAnalysisInputs(const string analysis_name)
 
 void APITestSuite::PrintResults(const vector < string > &results_id_vec )
 {
-    for ( int i = 0; i < results_id_vec.size(); i++ )
+    for ( unsigned int i = 0; i < results_id_vec.size(); i++ )
     {
         PrintResults( results_id_vec[i] );
     }

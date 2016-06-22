@@ -23,11 +23,11 @@ addons:
 script:
  - mkdir build; cd build
  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-     cmake -DCMAKE_BUILD_TYPE=Release ../SuperProject; 
+     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="~/OpenVSP_Install" -DVSP_INSTALL_API_TEST=true ../SuperProject;
    fi
  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then 
-     cmake -DCMAKE_BUILD_TYPE=Release -DVSP_USE_SYSTEM_FLTK=true -DVSP_USE_SYSTEM_CPPTEST=true -DVSP_USE_SYSTEM_LIBXML2=true -DVSP_USE_SYSTEM_EIGEN=true -DVSP_USE_SYSTEM_FLTK=true -DVSP_USE_SYSTEM_GLM=true -DVSP_USE_SYSTEM_GLEW=true -DVSP_USE_SYSTEM_CMINPACK=true ../SuperProject; 
+     cmake -DCMAKE_BUILD_TYPE=Release -DVSP_USE_SYSTEM_FLTK=true -DVSP_USE_SYSTEM_CPPTEST=true -DVSP_USE_SYSTEM_LIBXML2=true -DVSP_USE_SYSTEM_EIGEN=true -DVSP_USE_SYSTEM_FLTK=true -DVSP_USE_SYSTEM_GLM=true -DVSP_USE_SYSTEM_GLEW=true -DVSP_USE_SYSTEM_CMINPACK=true -DCMAKE_INSTALL_PREFIX="~/OpenVSP_Install" -DVSP_INSTALL_API_TEST=true ../SuperProject; 
    fi
  - make
- - ./OpenVSP-prefix/src/OpenVSP-build/src/vsp/vspscript -script ../examples/scripts/TestAll.vspscript
- - ./OpenVSP-prefix/src/OpenVSP-build/src/vsp/apitest
+ - ~/OpenVSP_Install/vspscript -script ../examples/scripts/TestAll.vspscript
+ - ~/OpenVSP_Install/apitest
