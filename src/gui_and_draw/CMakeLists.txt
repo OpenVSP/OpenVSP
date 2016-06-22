@@ -78,6 +78,7 @@ TypeEditorScreen.cpp
 UserParmScreen.cpp
 VSPAEROScreen.cpp
 VSPWindow.cpp
+WaveDragScreen.cpp
 WingScreen.cpp
 AdvLinkScreen.h
 BlankScreen.h
@@ -131,6 +132,7 @@ TypeEditorScreen.h
 UserParmScreen.h
 VSPAEROScreen.h
 VSPWindow.h
+WaveDragScreen.h
 WingScreen.h
 )
 

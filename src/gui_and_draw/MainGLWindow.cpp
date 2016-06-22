@@ -35,6 +35,7 @@
 #include "Clipping.h"
 #include "BndBox.h"
 #include "ManageViewScreen.h"
+#include "WaveDragScreen.h"
 
 #define PRECISION_PAN_SPEED 0.005f
 #define PAN_SPEED 0.025f
@@ -330,6 +331,14 @@ void VspGlWindow::update()
         if( clipScreen )
         {
             clipScreen->LoadDrawObjs( drawObjs );
+        }
+
+        // Load Render Objects from WDSrceen ( Wave Drag Tool)
+        WaveDragScreen * WDScreen = dynamic_cast< WaveDragScreen* >
+            ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_WAVEDRAG_SCREEN ) );
+        if( WDScreen )
+        {
+            WDScreen->LoadDrawObjs( drawObjs );
         }
 
         // Load Objects to Renderer.
