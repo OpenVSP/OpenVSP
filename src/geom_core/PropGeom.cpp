@@ -315,10 +315,13 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_ChordCurve.SetCurveName( "Chord" );
     m_ChordCurve.InitParms();
     m_ChordCurve.m_CurveType = PCurve::CEDIT;
-    m_ChordCurve.InitCurve( {0.2, 0.2 + 0.55 / 3.0, 0.75 - 0.55 / 3.0, 0.75,
-                             0.75 + 0.25 / 3.0, 1.0 - 0.25 / 3.0, 1.0},
-                            {0.08, 0.15, 0.21, 0.21,
-                             0.21, 0.25, 0.01} );
+    static const double t1[] = {0.2, 0.2 + 0.55 / 3.0, 0.75 - 0.55 / 3.0, 0.75,
+                             0.75 + 0.25 / 3.0, 1.0 - 0.25 / 3.0, 1.0};
+    static const double v1[] = {0.08, 0.15, 0.21, 0.21,
+                             0.21, 0.25, 0.01};
+    vector < double > tv1( t1, t1 + sizeof( t1 ) / sizeof( t1[0] ) );
+    vector < double > vv1( v1, v1 + sizeof( v1 ) / sizeof( v1[0] ) );
+    m_ChordCurve.InitCurve( tv1, vv1 );
 
     m_TwistCurve.SetParentContainer( GetID() );
     m_TwistCurve.SetDispNames( "r/R", "Twist" );
@@ -326,8 +329,11 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_TwistCurve.SetCurveName( "Twist" );
     m_TwistCurve.InitParms();
     m_TwistCurve.m_CurveType = PCurve::PCHIP;
-    m_TwistCurve.InitCurve( {0.2, 0.75, 1.0},
-                           {46.75, 20.0, 13.0} );
+    static const double t2[] = {0.2, 0.75, 1.0};
+    static const double v2[] = {46.75, 20.0, 13.0};
+    vector < double > tv2( t2, t2 + sizeof( t2 ) / sizeof( t2[0] ) );
+    vector < double > vv2( v2, v2 + sizeof( v2 ) / sizeof( v2[0] ) );
+    m_TwistCurve.InitCurve( tv2, vv2 );
 
     m_XRotateCurve.SetParentContainer( GetID() );
     m_XRotateCurve.SetDispNames( "r/R", "X Rotate" );
@@ -335,7 +341,11 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_XRotateCurve.SetCurveName( "XRotate" );
     m_XRotateCurve.InitParms();
     m_XRotateCurve.m_CurveType = PCurve::LINEAR;
-    m_XRotateCurve.InitCurve( {0.2, 1}, {0, 0} );
+    static const double t3[] = {0.2, 1.0};
+    static const double v3[] = {0.0, 0.0};
+    vector < double > tv3( t3, t3 + sizeof( t3 ) / sizeof( t3[0] ) );
+    vector < double > vv3( v3, v3 + sizeof( v3 ) / sizeof( v3[0] ) );
+    m_XRotateCurve.InitCurve( tv3, vv3 );
 
     m_ZRotateCurve.SetParentContainer( GetID() );
     m_ZRotateCurve.SetDispNames( "r/R", "Z Rotate" );
@@ -343,7 +353,7 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_ZRotateCurve.SetCurveName( "ZRotate" );
     m_ZRotateCurve.InitParms();
     m_ZRotateCurve.m_CurveType = PCurve::LINEAR;
-    m_ZRotateCurve.InitCurve( {0.2, 1}, {0, 0} );
+    m_ZRotateCurve.InitCurve( tv3, vv3 );
 
     m_RakeCurve.SetParentContainer( GetID() );
     m_RakeCurve.SetDispNames( "r/R", "Rake/R" );
@@ -351,7 +361,7 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_RakeCurve.SetCurveName( "Rake" );
     m_RakeCurve.InitParms();
     m_RakeCurve.m_CurveType = PCurve::LINEAR;
-    m_RakeCurve.InitCurve( {0.2, 1}, {0, 0} );
+    m_RakeCurve.InitCurve( tv3, vv3 );
 
     m_SkewCurve.SetParentContainer( GetID() );
     m_SkewCurve.SetDispNames( "r/R", "Skew/R" );
@@ -359,7 +369,7 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_SkewCurve.SetCurveName( "Skew" );
     m_SkewCurve.InitParms();
     m_SkewCurve.m_CurveType = PCurve::LINEAR;
-    m_SkewCurve.InitCurve( {0.2, 1}, {0, 0} );
+    m_SkewCurve.InitCurve( tv3, vv3 );
 
     // Set up vector to allow treatment as a group.
     m_pcurve_vec.resize( 6 );
