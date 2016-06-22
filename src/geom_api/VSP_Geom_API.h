@@ -77,35 +77,35 @@ extern void AddCFDSource( int type, const string & geom_id, int surf_index,
 //======================== Analysis ================================//
 
 extern int GetNumAnalysis();
-extern std::vector < std::string > ListAnalysis();
-extern std::vector < std::string > GetAnalysisInputNames( const string & analysis );
+extern vector<string> ListAnalysis();
+extern vector<string> GetAnalysisInputNames( const string & analysis );
 extern string ExecAnalysis( const string & analysis );
 
 extern int GetNumAnalysisInputData( const string & analysis, const string & name );
 extern int GetAnalysisInputType( const string & analysis, const string & name );
-extern const std::vector< int > & GetIntAnalysisInput( const string & analysis, const string & name, int index = 0 );
-extern const std::vector< double > & GetDoubleAnalysisInput( const string & analysis, const string & name, int index = 0 );
-extern const std::vector< std::string > & GetStringAnalysisInput( const string & analysis, const string & name, int index = 0 );
-extern const std::vector< vec3d > & GetVec3dAnalysisInput( const string & analysis, const string & name, int index = 0 );
+extern const vector< int > & GetIntAnalysisInput( const string & analysis, const string & name, int index = 0 );
+extern const vector< double > & GetDoubleAnalysisInput( const string & analysis, const string & name, int index = 0 );
+extern const vector<string> & GetStringAnalysisInput( const string & analysis, const string & name, int index = 0 );
+extern const vector< vec3d > & GetVec3dAnalysisInput( const string & analysis, const string & name, int index = 0 );
 
 extern void SetAnalysisInputDefaults( const string & analysis );
-extern void SetIntAnalysisInput( const string & analysis, const string & name, const std::vector< int > & indata, int index = 0 );
-extern void SetDoubleAnalysisInput( const string & analysis, const string & name, const std::vector< double > & indata, int index = 0 );
-extern void SetStringAnalysisInput( const string & analysis, const string & name, const std::vector< std::string > & indata, int index = 0 );
-extern void SetVec3dAnalysisInput( const string & analysis, const string & name, const std::vector< vec3d > & indata, int index = 0 );
+extern void SetIntAnalysisInput( const string & analysis, const string & name, const vector< int > & indata, int index = 0 );
+extern void SetDoubleAnalysisInput( const string & analysis, const string & name, const vector< double > & indata, int index = 0 );
+extern void SetStringAnalysisInput( const string & analysis, const string & name, const vector<string> & indata, int index = 0 );
+extern void SetVec3dAnalysisInput( const string & analysis, const string & name, const vector< vec3d > & indata, int index = 0 );
 
 //======================== Results ================================//
-extern std::vector< std::string > GetAllResultsNames();
-extern std::vector< std::string > GetAllDataNames( const string & results_id );
+extern vector<string> GetAllResultsNames();
+extern vector<string> GetAllDataNames( const string & results_id );
 extern int GetNumResults( const string & name );
 extern string FindResultsID( const string & name, int index = 0 );
 extern string FindLatestResultsID( const string & name );
 extern int GetNumData( const string & results_id, const string & data_name );
 extern int GetResultsType( const string & results_id, const string & data_name );
-extern const std::vector< int > & GetIntResults( const string & id, const string & name, int index = 0 );
-extern const std::vector< double > & GetDoubleResults( const string & id, const string & name, int index = 0 );
-extern const std::vector< std::string > & GetStringResults( const string & id, const string & name, int index = 0 );
-extern const std::vector< vec3d > & GetVec3dResults( const string & id, const string & name, int index = 0 );
+extern const vector< int > & GetIntResults( const string & id, const string & name, int index = 0 );
+extern const vector< double > & GetDoubleResults( const string & id, const string & name, int index = 0 );
+extern const vector<string> & GetStringResults( const string & id, const string & name, int index = 0 );
+extern const vector< vec3d > & GetVec3dResults( const string & id, const string & name, int index = 0 );
 extern string CreateGeomResults( const string & geom_id, const string & name );
 extern void DeleteAllResults();
 extern void DeleteResult( const string & id );
@@ -115,19 +115,19 @@ extern void WriteResultsCSVFile( const string & id, const string & file_name );
 extern void StartGui( );
 
 //======================== Geom Functions ================================//
-extern std::vector< std::string > GetGeomTypes();
+extern vector<string> GetGeomTypes();
 extern string AddGeom( const string & type, const string & parent = string() );
 extern void DeleteGeom( const string & geom_id );
 extern void DeleteGeomVec( const vector< string > & del_vec );
 extern void CutGeomToClipboard( const string & geom_id );
 extern void CopyGeomToClipboard( const string & geom_id );
 extern void PasteGeomClipboard( const string & parent = string() );
-extern std::vector< std::string > FindGeoms();
-extern std::vector< std::string > FindGeomsWithName( const string & name );
+extern vector<string> FindGeoms();
+extern vector<string> FindGeomsWithName( const string & name );
 extern string FindGeom( const string & name, int index );
 extern void SetGeomName( const string & geom_id, const string & name );
 extern string GetGeomName( const string & geom_id );
-extern std::vector< std::string > GetGeomParmIDs( const string & geom_id );
+extern vector<string> GetGeomParmIDs( const string & geom_id );
 extern string GetParm( const string & geom_id, const string & name, const string & group );
 extern int GetNumXSecSurfs( const string & geom_id );
 extern int GetNumMainSurfs( const string & geom_id );
@@ -157,10 +157,10 @@ extern int GetXSecShape( const string& xsec_id );
 extern double GetXSecWidth( const string& xsec_id );
 extern double GetXSecHeight( const string& xsec_id );
 extern void SetXSecWidthHeight( const string& xsec_id, double w, double h );
-extern std::vector< std::string > GetXSecParmIDs( const string& xsec_id );
+extern vector<string> GetXSecParmIDs( const string& xsec_id );
 extern string GetXSecParm( const string& xsec_id, const string& name );
-extern std::vector<vec3d> ReadFileXSec( const string& xsec_id, const string& file_name );
-extern void SetXSecPnts( const string& xsec_id, std::vector< vec3d > & pnt_vec );
+extern vector<vec3d> ReadFileXSec( const string& xsec_id, const string& file_name );
+extern void SetXSecPnts( const string& xsec_id, vector< vec3d > & pnt_vec );
 extern vec3d ComputeXSecPnt( const string& xsec_id, double fract );
 extern vec3d ComputeXSecTan( const string& xsec_id, double fract );
 extern void ResetXSecSkinParms( const string& xsec_id );
@@ -170,15 +170,15 @@ extern void SetXSecTanSlews( const string& xsec_id, int side, double top, double
 extern void SetXSecTanStrengths( const string& xsec_id, int side, double top, double right, double bottom, double left );
 extern void SetXSecCurvatures( const string& xsec_id, int side, double top, double right, double bottom, double left );
 extern void ReadFileAirfoil( const string& xsec_id, const string& file_name );
-extern void SetAirfoilPnts( const string& xsec_id, std::vector< vec3d > & up_pnt_vec, std::vector< vec3d > & low_pnt_vec );
-extern std::vector<vec3d> GetAirfoilUpperPnts( const string& xsec_id );
-extern std::vector<vec3d> GetAirfoilLowerPnts( const string& xsec_id );
-extern std::vector<double> GetUpperCSTCoefs( const string& xsec_id );
-extern std::vector<double> GetLowerCSTCoefs( const string& xsec_id );
+extern void SetAirfoilPnts( const string& xsec_id, vector< vec3d > & up_pnt_vec, vector< vec3d > & low_pnt_vec );
+extern vector<vec3d> GetAirfoilUpperPnts( const string& xsec_id );
+extern vector<vec3d> GetAirfoilLowerPnts( const string& xsec_id );
+extern vector<double> GetUpperCSTCoefs( const string& xsec_id );
+extern vector<double> GetLowerCSTCoefs( const string& xsec_id );
 extern int GetUpperCSTDegree( const string& xsec_id );
 extern int GetLowerCSTDegree( const string& xsec_id );
-extern void SetUpperCST( const string& xsec_id, int deg, const std::vector<double> &coefs );
-extern void SetLowerCST( const string& xsec_id, int deg, const std::vector<double> &coefs );
+extern void SetUpperCST( const string& xsec_id, int deg, const vector<double> &coefs );
+extern void SetLowerCST( const string& xsec_id, int deg, const vector<double> &coefs );
 extern void PromoteCSTUpper( const string& xsec_id );
 extern void PromoteCSTLower( const string& xsec_id );
 extern void DemoteCSTUpper( const string& xsec_id );
@@ -189,8 +189,8 @@ extern void FitAfCST( const string & xsec_surf_id, int xsec_index, int deg );
 extern int GetNumSets();
 extern void SetSetName( int index, const string& name );
 extern string GetSetName( int index );
-extern std::vector< std::string > GetGeomSetAtIndex( int index );
-extern std::vector< std::string > GetGeomSet( const string & name );
+extern vector<string> GetGeomSetAtIndex( int index );
+extern vector<string> GetGeomSet( const string & name );
 extern int GetSetIndex( const string & name );
 extern bool GetSetFlag( const string & geom_id, int set_index );
 extern void SetSetFlag( const string & geom_id, int set_index, bool flag );
@@ -220,12 +220,12 @@ extern string FindParm( const string & parm_container_id, const string& parm_nam
 
 //======================== Parm Container Functions ======================//
 
-extern std::vector< std::string > FindContainers();
-extern std::vector< std::string > FindContainersWithName( const string & name );
+extern vector<string> FindContainers();
+extern vector<string> FindContainersWithName( const string & name );
 extern string FindContainer( const string & name, int index );
 extern string GetContainerName( const string & parm_container_id );
-extern std::vector< std::string > FindContainerGroupNames( const string & parm_container_id );
-extern std::vector< std::string > FindContainerParmIDs( const string & parm_container_id );
+extern vector<string> FindContainerGroupNames( const string & parm_container_id );
+extern vector<string> FindContainerParmIDs( const string & parm_container_id );
 
 //======================== Snap To Functions ======================//
 extern double ComputeMinClearanceDistance( const string & geom_id, int set  = SET_ALL );
