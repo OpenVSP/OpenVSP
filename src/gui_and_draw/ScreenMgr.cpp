@@ -41,6 +41,7 @@
 #include "STLOptionsScreen.h"
 #include "TypeEditorScreen.h"
 #include "UserParmScreen.h"
+#include "VarPresetScreen.h"
 #include "VSPAEROScreen.h"
 #include "WaveDragScreen.h"
 
@@ -183,6 +184,7 @@ void ScreenMgr::Init()
     m_ScreenVec[VSP_TYPE_EDITOR_SCREEN] = new TypeEditorScreen( this );
     m_ScreenVec[VSP_USER_PARM_SCREEN] = new UserParmScreen( this );
     m_ScreenVec[VSP_VIEW_SCREEN] = new ManageViewScreen( this );
+    m_ScreenVec[VSP_VAR_PRESET_SCREEN] = new VarPresetScreen( this );
     m_ScreenVec[VSP_VSPAERO_SCREEN] = new VSPAEROScreen( this );
     m_ScreenVec[VSP_WAVEDRAG_SCREEN] = new WaveDragScreen( this );
     m_ScreenVec[VSP_XSEC_SCREEN] = new XSecViewScreen( this );

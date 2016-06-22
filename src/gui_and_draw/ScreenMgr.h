@@ -58,6 +58,7 @@ public:
            VSP_STL_OPTIONS_SCREEN,
            VSP_TYPE_EDITOR_SCREEN,
            VSP_USER_PARM_SCREEN,
+           VSP_VAR_PRESET_SCREEN,
            VSP_VIEW_SCREEN,
            VSP_VSPAERO_SCREEN,
            VSP_XSEC_SCREEN,

@@ -111,6 +111,7 @@ protected:
     ScreenMenuItem m_UserParmMenuItem;
     ScreenMenuItem m_FitModelMenuItem;
     ScreenMenuItem m_SnapToMenuItem;
+    ScreenMenuItem m_VarPresetMenuItem;
 
     ScreenMenuItem m_CompGeomMenuItem;
     ScreenMenuItem m_WaveDragMenuItem;
