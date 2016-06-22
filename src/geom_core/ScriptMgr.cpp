@@ -945,6 +945,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "EXPORT_TYPE", "EXPORT_CART3D", EXPORT_CART3D, "/*!< Cart3D (*.tri) export type */" );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "EXPORT_TYPE", "EXPORT_VSPGEOM", EXPORT_VSPGEOM, "/*!< VSPGeom (*.vspgeom) export type */" );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "EXPORT_TYPE", "EXPORT_VORXSEC", EXPORT_VORXSEC, "/*!< VORXSEC  export type (NOT IMPLEMENTED) */" ); // TODO: Remove or implement
     assert( r >= 0 );
     r = se->RegisterEnumValue( "EXPORT_TYPE", "EXPORT_XSECGEOM", EXPORT_XSECGEOM, "/*!< XSECGEOM export type (NOT IMPLEMENTED) */" ); // TODO: Remove or implement

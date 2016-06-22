@@ -44,6 +44,7 @@ ExportScreen::ExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 180, 25 + 22*20
     m_GenLayout.AddButton( m_STLButton, "Stereolith (.stl)" );
     m_GenLayout.AddButton( m_NASCARTButton, "NASCART (.dat)" );
     m_GenLayout.AddButton( m_TRIButton, "Cart3D (.tri)" );
+    m_GenLayout.AddButton( m_VSPGeomButton, "VSPGeom (.vspgeom)" );
     m_GenLayout.AddButton( m_GMSHButton, "Gmsh (.msh)" );
     m_GenLayout.AddButton( m_POVButton, "POVRAY (.pov)" );
     m_GenLayout.AddButton( m_X3DButton, "X3D (.x3d)" );
@@ -131,6 +132,10 @@ void ExportScreen::ExportFile( string &newfile, int write_set, int type )
     else if ( type == EXPORT_OBJ )
     {
         newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write OBJ Files?", "*.obj" );
+    }
+    else if ( type == EXPORT_VSPGEOM )
+    {
+        newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write VSPGeom Files?", "*.vspgeom" );
     }
     else if ( type == EXPORT_GMSH )
     {
@@ -262,6 +267,10 @@ void ExportScreen::GuiDeviceCallBack( GuiDevice* device )
     else if (  device == &m_OBJButton )
     {
         ExportFile( newfile, m_SelectedSetIndex, EXPORT_OBJ );
+    }
+    else if (  device == &m_VSPGeomButton )
+    {
+        ExportFile( newfile, m_SelectedSetIndex, EXPORT_VSPGEOM );
     }
     else if (  device == &m_GMSHButton )
     {

@@ -2332,6 +2332,12 @@ void Vehicle::WriteOBJFile( const string & file_name, int write_set )
     fclose( file_id );
 }
 
+//==== Write VSPGeom File ====//
+void Vehicle::WriteVSPGeomFile( const string &file_name, int write_set )
+{
+}
+
+
 //==== Write Nascart Files ====//
 void Vehicle::WriteNascartFiles( const string & file_name, int write_set )
 {
@@ -4757,6 +4763,10 @@ void Vehicle::ExportFile( const string & file_name, int write_set, int file_type
     else if ( file_type == EXPORT_OBJ )
     {
         WriteOBJFile( file_name, write_set );
+    }
+    else if ( file_type == EXPORT_VSPGEOM )
+    {
+        WriteVSPGeomFile( file_name, write_set );
     }
     else if ( file_type == EXPORT_NASCART )
     {

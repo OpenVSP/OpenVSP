@@ -203,6 +203,7 @@ public:
     void WriteFacetFile( const string & file_name, int write_set );
     void WriteTRIFile( const string & file_name, int write_set );
     void WriteOBJFile( const string & file_name, int write_set );
+    void WriteVSPGeomFile( const string & file_name, int write_set );
     void WriteNascartFiles( const string & file_name, int write_set );
     void WriteGmshFile( const string & file_name, int write_set );
     void WriteX3DFile( const string & file_name, int write_set );
