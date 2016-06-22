@@ -83,6 +83,20 @@ void vector_remove_val( vector< T > & vec, T const & val )
     vec = new_vector;
 }
 
+//==== Find Index of Vector Where Val =====//
+template <class T>
+int vector_find_val( const vector< T > & vec, T const & val )
+{
+    for ( int i = 0 ; i < ( int )vec.size() ; i++ )
+    {
+        if ( val == vec[i] )
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
 //==== Clamp Value Between Two Vals ====//
 template <typename T>
 T Clamp( const T& value, const T& low, const T& high )
