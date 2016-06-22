@@ -59,6 +59,7 @@ SubSurfaceMgr.cpp
 Texture.cpp
 TextureMgr.cpp
 TMesh.cpp
+VarPresetMgr.cpp
 Vehicle.cpp
 VehicleMgr.cpp
 WaveDragMgr.cpp
@@ -116,6 +117,7 @@ SWIGDefines.h
 Texture.h
 TextureMgr.h
 TMesh.h
+VarPresetMgr.h
 Vehicle.h
 VehicleMgr.h
 VSPAEROMgr.h

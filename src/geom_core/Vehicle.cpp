@@ -30,6 +30,7 @@
 #include "ResultsMgr.h"
 #include "FitModelMgr.h"
 #include "FileUtil.h"
+#include "VarPresetMgr.h"
 #include "VSPAEROMgr.h"
 #include "main.h"
 
@@ -231,6 +232,7 @@ void Vehicle::Wype()
     DesignVarMgr.Renew();
     FitModelMgr.Renew();
     AnalysisMgr.Renew();
+    VarPresetMgr.Renew();
 }
 
 void Vehicle::SetVSP3FileName( const string & f_name )
@@ -1221,6 +1223,7 @@ xmlNodePtr Vehicle::EncodeXml( xmlNodePtr & node, int set )
     LinkMgr.EncodeXml( node );
     AdvLinkMgr.EncodeXml( node );
     VSPAEROMgr.EncodeXml( node );
+    VarPresetMgr.EncodeXml( node );
     m_CfdSettings.EncodeXml( node );
     m_CfdGridDensity.EncodeXml( node );
     m_FeaGridDensity.EncodeXml( node );
@@ -1287,6 +1290,7 @@ xmlNodePtr Vehicle::DecodeXml( xmlNodePtr & node )
     LinkMgr.DecodeXml( node );
     AdvLinkMgr.DecodeXml( node );
     VSPAEROMgr.DecodeXml( node );
+    VarPresetMgr.DecodeXml( node );
     m_CfdSettings.DecodeXml( node );
     m_CfdGridDensity.DecodeXml( node );
     m_FeaGridDensity.DecodeXml( node );
