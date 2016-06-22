@@ -21,6 +21,7 @@
 #include "Util.h"
 #include "DesignVarMgr.h"
 #include "SubSurfaceMgr.h"
+#include "VarPresetMgr.h"
 #include "WingGeom.h"
 
 #ifdef VSP_USE_FLTK
@@ -3058,6 +3059,197 @@ double SnapParm( const string & parm_id, double target_min_dist, bool inc_flag, 
     return min_clearance_dist;
 }
 
+//===================================================================//
+//===============     Variable Presets Functions       ==============//
+//===================================================================//
+
+void AddVarPresetGroup( const string &group_name )
+{
+    VarPresetMgr.AddGroup( group_name );
+    VarPresetMgr.SavePreset();
+
+    ErrorMgr.NoError();
+}
+
+void AddVarPresetSetting( const string &setting_name )
+{
+    VarPresetMgr.AddSetting( setting_name );
+    VarPresetMgr.SavePreset();
+
+    ErrorMgr.NoError();
+}
+
+void AddVarPresetParm( const string &parm_ID )
+{
+    VarPresetMgr.AddVar( parm_ID );
+    VarPresetMgr.SavePreset();
+
+    ErrorMgr.NoError();
+}
+
+void AddVarPresetParm( const string &parm_ID, const string &group_name )
+{
+    VarPresetMgr.GroupChange( group_name );
+    VarPresetMgr.AddVar( parm_ID );
+    VarPresetMgr.SavePreset();
+
+    ErrorMgr.NoError();
+}
+
+void EditVarPresetParm( const string &parm_ID, double parm_val )
+{
+    Parm *p = ParmMgr.FindParm( parm_ID );
+    if ( p )
+    {
+        p->Set( parm_val );
+    }
+    else
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "EditVarPresetParm::Can't Find Parm " + parm_ID  );
+    }
+    VarPresetMgr.SavePreset();
+}
+
+void EditVarPresetParm( const string &parm_ID, double parm_val, const string &group_name,
+    const string &setting_name )
+{
+    SwitchVarPreset( group_name, setting_name );
+    EditVarPresetParm( parm_ID, parm_val );
+}
+
+void DeleteVarPresetParm( const string &parm_ID )
+{
+    VarPresetMgr.SetWorkingParmID( parm_ID );
+    VarPresetMgr.DelCurrVar();
+    VarPresetMgr.SavePreset();
+
+    ErrorMgr.NoError();
+}
+
+void DeleteVarPresetParm( const string &parm_ID, const string &group_name )
+{
+    VarPresetMgr.GroupChange( group_name );
+    if (VarPresetMgr.GetActiveGroupText().compare( group_name ) == 0 )
+    {
+        ErrorMgr.NoError();
+    }
+    else
+    {
+        ErrorMgr.AddError( VSP_INVALID_VARPRESET_GROUPNAME, "DeleteVarPresetParm::Can't Find Group " + group_name );
+    }
+    DeleteVarPresetParm( parm_ID );
+}
+
+void SwitchVarPreset( const string &group_name, const string &setting_name )
+{
+    VarPresetMgr.GroupChange( group_name );
+    if (VarPresetMgr.GetActiveGroupText().compare( group_name ) == 0 )
+    {
+        ErrorMgr.NoError();
+    }
+    else
+    {
+        ErrorMgr.AddError( VSP_INVALID_VARPRESET_GROUPNAME, "SwitchVarPreset::Can't Find Group " + group_name );
+    }
+    VarPresetMgr.SettingChange( setting_name );
+    if (VarPresetMgr.GetActiveSettingText().compare( setting_name ) == 0 )
+    {
+        ErrorMgr.NoError();
+    }
+    else
+    {
+        ErrorMgr.AddError( VSP_INVALID_VARPRESET_SETNAME, "SwitchSaveParmGroup::Can't Find Setting " + setting_name  );
+    }
+}
+
+bool DeleteVarPresetSet( const string &group_name, const string &setting_name )
+{
+    if ( VarPresetMgr.DeletePreset( group_name, setting_name ) )
+    {
+        ErrorMgr.NoError();
+        return true;
+    }
+    else
+    {
+        ErrorMgr.AddError( VSP_INVALID_VARPRESET_GROUPNAME, "SwitchSaveParmGroup::Can't Find Group " + group_name  );
+        ErrorMgr.AddError( VSP_INVALID_VARPRESET_SETNAME, "SwitchSaveParmGroup::Can't Find Setting " + setting_name  );
+        return false;
+    }
+}
+
+string GetCurrentGroupName()
+{
+    return VarPresetMgr.GetActiveGroupText();
+}
+
+string GetCurrentSettingName()
+{
+    return VarPresetMgr.GetActiveSettingText();
+}
+
+vector <string> GetVarPresetGroupNames()
+{
+    ErrorMgr.NoError();
+    return VarPresetMgr.GetGroupNames();
+}
+
+vector <string> GetVarPresetSettingNames( const string &group_name )
+{
+    vector <string> vec;
+    vec = VarPresetMgr.GetSettingNames( group_name );
+
+    if ( vec.empty() )
+    {
+        ErrorMgr.AddError( VSP_INVALID_VARPRESET_GROUPNAME, "SwitchSaveParmGroup::Can't Find Group " + group_name  );
+        return vec;
+    }
+    else
+    {
+        ErrorMgr.NoError();
+        return vec;
+    }
+}
+
+vector <string> GetVarPresetSettingNames( int group_index )
+{
+    vector <string> vec;
+    vec = VarPresetMgr.GetSettingNames( group_index );
+
+    if ( vec.empty() )
+    {
+        ErrorMgr.AddError( VSP_INVALID_VARPRESET_GROUPNAME, "SwitchSaveParmGroup::Can't Find Group @ Index " + to_string( group_index ) );
+        return vec;
+    }
+    else
+    {
+        ErrorMgr.NoError();
+        return vec;
+    }
+}
+
+vector <double> GetVarPresetParmVals()
+{
+    ErrorMgr.NoError();
+    return VarPresetMgr.GetCurrentParmVals();
+}
+
+vector <double> GetVarPresetParmVals( const string &group_name, const string &setting_name )
+{
+    ErrorMgr.NoError();
+    return VarPresetMgr.GetParmVals( group_name, setting_name );
+}
+
+vector <string> GetVarPresetParmIDs()
+{
+    ErrorMgr.NoError();
+    return VarPresetMgr.GetCurrentParmIDs();
+}
+
+vector <string> GetVarPresetParmIDs( const string &group_name )
+{
+    ErrorMgr.NoError();
+    return VarPresetMgr.GetParmIDs( group_name );
+}
 
 //============================================================================//
 }   // vsp namespace

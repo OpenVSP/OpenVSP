@@ -28,7 +28,9 @@ enum ERROR_CODE {   VSP_OK,
                     VSP_INVALID_XSEC_ID,
                     VSP_INVALID_ID,
                     VSP_CANT_SET_NOT_EQ_PARM,
-                    VSP_AMBIGUOUS_SUBSURF
+                    VSP_AMBIGUOUS_SUBSURF,
+                    VSP_INVALID_VARPRESET_SETNAME,
+                    VSP_INVALID_VARPRESET_GROUPNAME
                 };
 
 enum {  SYM_XY = ( 1 << 0 ),

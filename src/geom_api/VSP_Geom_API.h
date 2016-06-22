@@ -231,6 +231,29 @@ extern std::vector< std::string > FindContainerParmIDs( const string & parm_cont
 extern double ComputeMinClearanceDistance( const string & geom_id, int set  = SET_ALL );
 extern double SnapParm( const string & parm_id, double target_min_dist, bool inc_flag, int set = SET_ALL );
 
+//======================== Variable Preset Functions ======================//
+extern void AddVarPresetGroup( const string &group_name );
+extern void AddVarPresetSetting( const string &setting_name );
+extern void AddVarPresetParm( const string &parm_ID );
+extern void AddVarPresetParm( const string &parm_ID, const string &group_name );
+extern void EditVarPresetParm( const string &parm_ID, double parm_val );
+extern void EditVarPresetParm( const string &parm_ID, double parm_val, const string &group_name,
+    const string &setting_name );
+extern void DeleteVarPresetParm( const string &parm_ID );
+extern void DeleteVarPresetParm( const string &parm_ID, const string &group_name );
+extern void SwitchVarPreset( const string &group_name, const string &setting_name );
+extern bool DeleteVarPresetSet( const string &group_name, const string &setting_name );
+extern std::string GetCurrentGroupName();
+extern std::string GetCurrentSettingName();
+extern std::vector< std::string > GetVarPresetGroupNames();
+extern std::vector< std::string > GetVarPresetSettingNames( const string &group_name );
+extern std::vector< std::string > GetVarPresetSettingNames( int group_index );
+extern std::vector< double > GetVarPresetParmVals();
+extern std::vector< double > GetVarPresetParmVals( const string &group_name, const string &setting_name );
+extern std::vector< std::string > GetVarPresetParmIDs();
+extern std::vector< std::string > GetVarPresetParmIDs( const string &group_name );
+
+
 }           // End vsp namespace
 
 

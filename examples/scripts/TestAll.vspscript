@@ -30,6 +30,7 @@ void main()
 	TestMatrix();
 	TestProxy();
     TestAPIScript();
+	TestVarPreset();
 	Print(string("End Scripting Test"));
 
 }
@@ -533,3 +534,122 @@ void TestAPIScript()
 //	VSPExit( errcount - 1 );
 }
 
+void TestVarPreset()
+{
+	Print( string("--> Testing Variable Presets"));
+
+	string pod1 = AddGeom( "POD", "");
+
+	Print( string("--> Testing Add Group/Setting"));
+
+	AddVarPresetGroup( string("Tess"));
+	if ( GetVarPresetGroupNames.size() != 1 )					Print( "---> Error: API AddVarPresetGroup");
+
+	AddVarPresetSetting( string("Coarse"));
+	if ( GetVarPresetSettingNames(string("Tess")).size() != 1 )			Print( "---> Error: API AddVarPresetSetting");
+
+	string p1 = FindParm("PodGeom","Shape","Tess_U");
+	string p2 = FindParm("PodGeom","Shape","Tess_V");
+
+	AddVarPresetParm( p1 );
+	AddVarPresetParm( p2 );
+
+	array <string> p_IDs = GetVarPresetParmIDs();
+	if ( p_IDs.size() != 2 )								Print( "---> Error: API AddVarPresetParm");
+
+	for(int i = 0; i < p_IDs.size(); i++ )
+	{
+		EditVarPresetParm( p_IDs[i], 5 );
+	}
+
+	array <double> p_vals = GetVarPresetParmVals();
+	for(int i = 0; i < p_vals.size(); i++)
+	{
+		if ( p_vals[i] != 5 )								Print ( "---> Error: API EditVarPresetParm");
+	}
+
+	AddVarPresetSetting( string("Fine"));
+	if ( GetVarPresetSettingNames(string("Tess")).size() != 2 )			Print ( "---> Error: API AddVarPresetSetting");
+
+	for(int i = 0; i < p_IDs.size(); i++ )
+	{
+		EditVarPresetParm( p_IDs[i], 25 );
+	}
+
+	array <double> p_vals = GetVarPresetParmVals();
+	for(int i = 0; i < p_vals.size(); i++)
+	{
+		if ( p_vals[i] != 25 )								Print ( "---> Error: API EditVarPresetParm");
+	}
+
+	AddVarPresetGroup( string("Config"));
+	if ( GetVarPresetGroupNames.size() != 2 )					Print ( "---> Error: API AddVarPresetGroup");
+
+
+	AddVarPresetSetting( string("Default"));
+	if ( GetVarPresetSettingNames(string("Default")).size() != 1 )	Print ( "---> Error: API AddVarPresetSetting");
+
+	string p1 = FindParm("PodGeom","XForm","Y_Rel_Rotation");
+	string p2 = FindParm("PodGeom","XForm","Z_Rel_Rotation");
+
+	AddVarPresetParm( p1 );
+	AddVarPresetParm( p2 );
+
+	array <string> p_IDs = GetVarPresetParmIDs();
+	if ( p_IDs.size() != 2 )								Print( "---> Error: API AddVarPresetParm");
+
+	AddVarPresetSetting( string("Rotated"));
+	if ( GetVarPresetSettingNames(string("Config")).size() != 2 )	Print ( "---> Error: API AddVarPresetSetting");
+
+	for(int i = 0; i < p_IDs.size(); i++ )
+	{
+		EditVarPresetParm( p_IDs[i], -45 );
+	}
+
+	array <double> p_vals = GetVarPresetParmVals();
+	for(int i = 0; i < p_vals.size(); i++)
+	{
+		if ( p_vals[i] != -45 )								Print ( "---> Error: API EditVarPresetParm");
+	}
+
+	string p3 = FindParm("PodGeom","XForm","X_Rel_Rotation");
+
+	AddVarPresetParm( p3 );
+	array <string> p_IDs = GetVarPresetParmIDs();
+	if (p_IDs.size() != 3)									Print ( "---> Error: API AddVarPresetParm");
+	EditVarPresetParm( p_IDs[2] , -45 );
+	array <double> p_vals = GetVarPresetParmVals();
+	if ( p_vals[2] != -45 )									Print ( "---> Error: API AddVarPresetParm");
+
+	SwitchVarPreset( string("Config"), string("Default"));
+	array <double> p_vals = GetVarPresetParmVals();
+	if ( p_vals.size() != 3 )								Print ( "---> Error: API SwitchVarPreset");
+	for (int i = 0; i < p_vals.size();i++)
+	{
+		if (p_vals[i] != 0)									Print ( "---> Error: Incorrect Parm Vals After SwitchVarPreset");
+	}
+
+	DeleteVarPresetParm( p3 );
+	array <string> p_IDs = GetVarPresetParmIDs();
+	if ( p_IDs.size() != 2 )								Print ( "---> Error: DeleteVarPresetParm");
+
+	SwitchVarPreset( string("Config"), string("Rotated"));
+	array <string> p_IDs = GetVarPresetParmIDs();
+	if ( p_IDs.size() != 2 )								Print ( "---> Error: DeleteVarPresetParm");
+
+	DeleteVarPresetSet( string("Rotated"));
+	if ( GetVarPresetSettingNames(string("Config").size() != 1 ))		Print ( "---> Error: DeleteVarPresetSet");
+
+	DeleteVarPresetSet( string("Default"));
+	if ( GetVarPresetSettingNames().size() != 1 )					Print ( "---> Error: DeleteVarPresetSet");
+
+	DeleteVarPresetSet( string("Fine"));
+	if ( GetVarPresetSettingNames(string("Tess")).size() != 1)	Print ( "---> Error: DeleteVarPresetSet");
+
+	DeleteVarPresetSet( string("Coarse"));
+	if ( GetVarPresetSettingNames().size() != 0 )					Print ( "---> Error: DeleteVarPresetSet");
+
+
+	ClearVSPModel();
+
+}
