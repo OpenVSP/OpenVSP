@@ -703,7 +703,7 @@ void AddPoint( const vector < double > & x, const vector < double > & y, Fl_Colo
 }
 
 //==== Create & Init Text Input  ====//
-void GroupLayout::AddInput( StringInput& text_input, const char* label )
+void GroupLayout::AddInput( StringInput& text_input, const char* label, int used_w )
 {
     assert( m_Group && m_Screen );
 
@@ -714,7 +714,7 @@ void GroupLayout::AddInput( StringInput& text_input, const char* label )
     }
 
     //==== Add Text Input ====//
-    int iw = FitWidth( m_ButtonWidth, m_InputWidth );
+    int iw = FitWidth( m_ButtonWidth + used_w, m_InputWidth );
     Fl_Input* input = new Fl_Input( m_X, m_Y, iw, m_StdHeight );
     input->box( FL_THIN_DOWN_BOX );
     input->textsize( 12 );
