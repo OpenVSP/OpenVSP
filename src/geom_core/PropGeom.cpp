@@ -32,7 +32,6 @@ using namespace vsp;
 // v2 import
 
 // Nice default prop
-// Audit for proper default rotation sense and camber orientation.
 
 // Import / Export blade element format.
 // Support curved section shapes for Nick
@@ -92,7 +91,7 @@ void PropPositioner::Update()
     m_Transform.loadIdentity();
 
     // Propeller rotation first because order is reversed.
-    m_Transform.rotateX( m_PropRot );
+    m_Transform.rotateX( -m_PropRot );
     m_Transform.rotateY( m_Feather );
 
     m_Transform.translatef( 0, m_Radius, 0 );
@@ -218,7 +217,7 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_Type.m_Name = "Propeller";
     m_Type.m_Type = PROP_GEOM_TYPE;
 
-    m_XSecSurf.SetBasicOrientation( Y_DIR, Z_DIR, XS_SHIFT_MID, false );
+    m_XSecSurf.SetBasicOrientation( Y_DIR, Z_DIR, XS_SHIFT_MID, true );
 
     m_XSecSurf.SetParentContainer( GetID() );
 
