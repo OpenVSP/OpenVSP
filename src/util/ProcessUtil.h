@@ -39,6 +39,8 @@ public:
 
     bool IsRunning();
 
+    void ReadStdoutPipe(char * buf, int bufsize, unsigned long * nread );
+
 #ifdef WIN32
     string QuoteString( const string &str );
     void StartThread( LPTHREAD_START_ROUTINE threadfun, LPVOID data );

@@ -343,10 +343,23 @@ bool ProcessUtil::IsRunning()
 void ProcessUtil::StartThread( LPTHREAD_START_ROUTINE threadfun, LPVOID data )
 {
     HANDLE m_Handle = CreateThread( 0, 0, threadfun, data, 0, &m_ThreadID );
+
+    //TODO return thread creation success/failure
 }
 #else
 void ProcessUtil::StartThread( void *(*threadfun)( void *data ), void *data )
 {
     pthread_create( &m_Thread, NULL, threadfun, data );
+
+    //TODO return thread creation success/failure
 }
 #endif
+
+void ProcessUtil::ReadStdoutPipe(char * bufptr, int bufsize, unsigned long * nreadptr )
+{
+#ifdef WIN32
+    ReadFile( m_StdoutPipe[0], bufptr, bufsize, nreadptr, NULL);
+#else
+    *nreadptr = read( m_StdoutPipe[0], bufptr, bufsize );
+#endif
+}
