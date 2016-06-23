@@ -21,6 +21,16 @@
 #include <signal.h>
 #endif
 
+
+void SleepForMilliseconds( unsigned int sleep_time)
+{
+#ifdef WIN32
+    Sleep( sleep_time );
+#else
+    usleep( sleep_time*1000 );
+#endif
+}
+
 ProcessUtil::ProcessUtil()
 {
 #ifdef WIN32

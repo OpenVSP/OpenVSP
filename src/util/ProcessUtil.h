@@ -22,6 +22,8 @@ using std::vector;
 #define PIPE_READ 0
 #define PIPE_WRITE 1
 
+void SleepForMilliseconds( unsigned int sleep_time);
+
 class ProcessUtil
 {
 public:
