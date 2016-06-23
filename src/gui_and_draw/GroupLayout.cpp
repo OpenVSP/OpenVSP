@@ -1471,15 +1471,16 @@ void GroupLayout::AddPCurveEditor( PCurveEditor & curve_editor )
     SetFitWidthFlag( true );
     AddSlider( curve_editor.m_SplitPtSlider, "r/R Split", 1, "%3.2f" );
     ForceNewLine();
-    SetSameLineFlag( false );
+    SetSameLineFlag( true );
 
     curve_editor.m_ConvertChoice.AddItem( "LINEAR" );
     curve_editor.m_ConvertChoice.AddItem( "PCHIP" );
     curve_editor.m_ConvertChoice.AddItem( "CEDIT" );
 
-    AddChoice( curve_editor.m_ConvertChoice, "Convert to:" );
+    m_ChoiceButtonWidth = m_ButtonWidth;
+    AddChoice( curve_editor.m_ConvertChoice, "Convert to:", m_ButtonWidth );
 
-    bw = FitWidth( 0, m_ButtonWidth );
+    bw = FitWidth( m_X, m_ButtonWidth );
     Fl_Button* convbutton = new Fl_Button( m_X, m_Y, bw, m_StdHeight, "Convert" );
     convbutton->labelfont( 1 );
     convbutton->labelsize( 12 );
@@ -1489,6 +1490,9 @@ void GroupLayout::AddPCurveEditor( PCurveEditor & curve_editor )
     AddX( bw );
     AddY( m_StdHeight );
     NewLineX();
+
+    this->ForceNewLine();
+    SetSameLineFlag( false );
 
     AddYGap();
     AddDividerBox( "Control Points" );
