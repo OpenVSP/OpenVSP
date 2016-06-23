@@ -63,7 +63,7 @@ int ProcessUtil::SystemCmd( const string &path, const string &cmd, const vector<
 {
 #ifdef WIN32
     string command = string( "start " ) + path + string("\\") + cmd;
-    for( int i = 0; i < opts.size(); i++ )
+    for( unsigned int i = 0; i < opts.size(); i++ )
     {
         command += string(" ") + opts[i];
     }
@@ -72,7 +72,7 @@ int ProcessUtil::SystemCmd( const string &path, const string &cmd, const vector<
 
 #else
     string command = path + string("/") + cmd;
-    for( int i = 0; i < opts.size(); i++ )
+    for( unsigned int i = 0; i < opts.size(); i++ )
     {
         command += string(" ") + opts[i];
     }
