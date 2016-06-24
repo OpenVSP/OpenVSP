@@ -840,16 +840,19 @@ xmlNodePtr VarPresetMgrSingleton::DecodeXml( xmlNodePtr & node )
     }
 
     // Decode Group and Setting Index
-    int val = 0;
+    int val = -1;
     m_CurGroupIndex = XmlUtil::FindInt( varpresetnode, "CurrentGroupIndex", val );
     m_CurSettingIndex = XmlUtil::FindInt( varpresetnode, "CurrentSettingIndex", val );
 
-    // Assign Current Setting Name
-    m_CurSettingText = m_PresetVec[ m_CurGroupIndex ].GetSettingName( m_CurSettingIndex );
-    m_PresetVec[ m_CurGroupIndex ].SetCurSetName( m_CurSettingText );
+    if ( m_CurGroupIndex >= 0 && m_CurSettingIndex >= 0 )
+    {
+        // Assign Current Setting Name
+        m_CurSettingText = m_PresetVec[ m_CurGroupIndex ].GetSettingName( m_CurSettingIndex );
+        m_PresetVec[ m_CurGroupIndex ].SetCurSetName( m_CurSettingText );
 
-    // Set Active Group and Setting
-    GroupChange( m_CurGroupIndex );
+        // Set Active Group and Setting
+        GroupChange( m_CurGroupIndex );
+    }
 
     return varpresetnode;
 }
