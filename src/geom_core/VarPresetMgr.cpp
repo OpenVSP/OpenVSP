@@ -39,7 +39,14 @@ void Preset::Init( const string &group_name, const vector < string > &p_IDvec)
 //==== Get Setting Index ====//
 int Preset::GetSettingIndex()
 {
-    return vector_find_val( m_SettingNameVec, m_CurSetName );
+    if ( !m_SettingNameVec.empty() )
+    {
+        return vector_find_val( m_SettingNameVec, m_CurSetName );
+    }
+    else
+    {
+        return -1;
+    }
 }
 
 int Preset::GetSettingIndex( const string &name )

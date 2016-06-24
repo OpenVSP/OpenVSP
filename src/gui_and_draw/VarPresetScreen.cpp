@@ -145,6 +145,19 @@ bool VarPresetScreen::Update()
         m_DelVarButton.Deactivate();
         varBrowser->deactivate();
     }
+    else if ( VarPresetMgr.GetDeleteFlag() == 1 )
+    {
+        m_GroupChoice.Activate();
+        m_SettingChoice.Activate();
+        m_ApplyButton.Activate();
+        m_DeleteButton.Deactivate();
+        m_SettingInput.Deactivate();
+        m_AddSettingButton.Deactivate();
+        m_ParmPicker.Deactivate();
+        m_AddVarButton.Deactivate();
+        m_DelVarButton.Deactivate();
+        varBrowser->deactivate();
+    }
     else
     {
         if ( VarPresetMgr.GetNumSet() == 0 )
@@ -294,25 +307,33 @@ void VarPresetScreen::RebuildAdjustTab()
 void VarPresetScreen::RebuildMenus( int g_index )
 {
     //printf( "Rebuilding Menus ====================================== \n" );
+    int s_index;
     vector < Preset > m_PresetVec = VarPresetMgr.GetPresetVec();
+
     if ( m_PresetVec.size() != 0 || g_index != -1 )
     {
-        int s_index = VarPresetMgr.GetActiveSettingIndexFromGroup( g_index );
+        if ( g_index == -1 )
+        {
+            g_index = 0;
+            s_index = 0;
+        }
+        else
+        {
+            s_index = VarPresetMgr.GetActiveSettingIndexFromGroup( g_index );
+        }
+
         // Add Item to Apply Lists
         m_GroupChoice.ClearItems();
-        //cout << "Determining which Group is currently active." << endl;
         for ( int i = 0; i < m_PresetVec.size(); i++ )
         {
             m_GroupChoice.AddItem( m_PresetVec[i].GetGroupName() );
             m_GroupChoice.UpdateItems();
             if ( i ==  g_index )
             {
-                //cout << "Active Group Name: " << m_PresetVec[i].GetGroupName() << endl;
                 m_GroupChoice.SetVal( i );
                 m_SettingChoice.ClearItems();
                 for ( int j = 0; j < m_PresetVec[i].GetNumSet(); j++ )
                 {
-                    //cout << "Adding " << m_PresetVec[i].GetSettingName(j) << " to drop down menu." << endl;
                     m_SettingChoice.AddItem( m_PresetVec[i].GetSettingName(j) );
                 }
                 m_SettingChoice.UpdateItems();
@@ -384,6 +405,10 @@ void VarPresetScreen::CallBack( Fl_Widget* w )
     if( Fl::event() == FL_PASTE || Fl::event() == FL_DND_RELEASE )
     {
         string ParmID( Fl::event_text() );
+        if ( VarPresetMgr.GetDeleteFlag() )
+        {
+            return;
+        }
 
         if ( VarPresetMgr.GetNumSet() != 0 )
         {
@@ -465,16 +490,12 @@ void VarPresetScreen::GuiDeviceCallBack( GuiDevice* device )
             m_SettingInputText = VarPresetMgr.GetActiveSettingText();
             RebuildMenus( VarPresetMgr.GetActiveGroupIndex() );
         }
-        else
-        {
-            fl_alert( "Error: Apply a Preset before pressing delete again." );
-        }
     }
     else if ( device == &m_ApplyButton ) 
     {
         if ( m_GroupChoice.GetVal() != -1 && m_SettingChoice.GetVal() != -1 )
         {
-            if ( VarPresetMgr.GetActiveSettingIndex() == -1 )
+            if ( VarPresetMgr.GetActiveSettingIndex() == -1 && !VarPresetMgr.GetDeleteFlag() )
             {
                 fl_alert( "Error: At least 1 setting required before switching groups." );
             }
