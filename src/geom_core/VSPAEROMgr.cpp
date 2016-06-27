@@ -183,6 +183,8 @@ Read .HISTORY file output from VSPAERO
 See: VSP_Solver.C in vspaero project
 line 4351 - void VSP_SOLVER::OutputStatusFile(int Type)
 line 4407 - void VSP_SOLVER::OutputZeroLiftDragToStatusFile(void)
+TODO:
+- Update this function to use the generic table read as used in: string VSPAEROMgrSingleton::ReadStabFile()
 *******************************************************/
 string VSPAEROMgrSingleton::ReadHistoryFile()
 {
@@ -269,8 +271,6 @@ string VSPAEROMgrSingleton::ReadHistoryFile()
             for( int i_wake=0; i_wake<n_wakeiters; i_wake++ )
             {
                 //TODO - add results to results manager based on header string
-                //for (int i_field=0; i_field<n_fields; i_field++)
-                //{}
                 result = fscanf(fp,"%d",&i[i_wake]);
                 result = fscanf(fp,"%lf",&Mach[i_wake]);
                 result = fscanf(fp,"%lf",&Alpha[i_wake]);
@@ -315,6 +315,103 @@ string VSPAEROMgrSingleton::ReadHistoryFile()
 
             res_id = res->GetID();
         }
+    }    
+
+    return res_id;
+}
+
+/*******************************************************
+Read .LOD file output from VSPAERO
+See: VSP_Solver.C in vspaero project
+line 2851 - void VSP_SOLVER::CalculateSpanWiseLoading(void)
+TODO:
+- Update this function to use the generic table read as used in: string VSPAEROMgrSingleton::ReadStabFile()
+- Read in Component table information, this is the 2nd table at the bottom of the .lod file
+*******************************************************/
+string VSPAEROMgrSingleton::ReadLoadFile()
+{
+    string res_id;
+
+    FILE *fp = NULL;
+    size_t result;
+    bool read_success = false;
+
+    //LOAD file
+    WaitForFile(m_LoadFile);
+    fp = fopen( m_LoadFile.c_str(), "r" );
+    if (fp==NULL) 
+    {
+        fputs ("VSPAEROMgrSingleton::ReadLoadFile() - File open error\n",stderr);
+    }
+    else
+    {
+        // Read header line - we don't ever use this it's just a way to move the file pointer
+        // TODO - use the fields in the header string as the parameter names in the results manager
+        std::vector<string>fieldnames;
+        char strbuff[1024];                // buffer for entire line in file
+        char * pch;
+        fgets(strbuff,1024,fp);
+        pch = strtok (strbuff," ");
+        while (pch != NULL)
+        {
+            fieldnames.push_back(pch);
+            pch = strtok (NULL, " ");
+        }
+        
+        std::vector<int> WingId;
+        std::vector<double> Yavg;
+        std::vector<double> Chord;
+        std::vector<double> CL;
+        std::vector<double> CD;
+        std::vector<double> CS;
+
+        std::vector<double> CLc;
+        std::vector<double> CDc;
+        std::vector<double> CSc;
+        //std::vector<double> CLc_ideal;  // TODO represents elliptical load distribution
+
+        int t_WingId;
+        double t_Yavg;
+        double t_Chord;
+        double t_CL;
+        double t_CD;
+        double t_CS;
+
+        //READ and ADD to the results manager
+        Results* res = ResultsMgr.CreateResults( "VSPAERO_Load" );
+        result = fscanf(fp,"%d %lf %lf %lf %lf %lf",&t_WingId,&t_Yavg,&t_Chord,&t_CL,&t_CD,&t_CS);
+        while ( result == fieldnames.size()-1 )
+        {
+
+            WingId.push_back(t_WingId);
+            Yavg.push_back(t_Yavg);
+            Chord.push_back(t_Chord);
+            CL.push_back(t_CL);
+            CD.push_back(t_CD);
+            CS.push_back(t_CS);
+
+            CLc.push_back(t_CL*t_Chord);
+            CDc.push_back(t_CD*t_Chord);
+            CSc.push_back(t_CS*t_Chord);
+
+            // read the next line
+            result = fscanf(fp,"%d %lf %lf %lf %lf %lf",&t_WingId,&t_Yavg,&t_Chord,&t_CL,&t_CD,&t_CS);
+        }
+        fclose (fp);
+
+        // add to results manager
+        res->Add( NameValData( "WingId", WingId ));
+        res->Add( NameValData( "Yavg", Yavg ));
+        res->Add( NameValData( "Chord", Chord ));
+        res->Add( NameValData( "cl", CL ));
+        res->Add( NameValData( "cd", CD ));
+        res->Add( NameValData( "cs", CS ));
+
+        res->Add( NameValData( "cl*c", CLc ));
+        res->Add( NameValData( "cd*c", CDc ));
+        res->Add( NameValData( "cs*c", CSc ));
+
+        res_id = res->GetID();
     }    
 
     return res_id;
