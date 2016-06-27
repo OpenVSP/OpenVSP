@@ -134,6 +134,23 @@ void VSPAEROMgrSingleton::Update()
 
 }
 
+std::string VSPAEROMgrSingleton::ReplaceAddNameValue(std::string contents, std::string name, std::string value_str)
+{
+    std::string new_contents = contents;
+    std::regex replacement_expression(name + " = (.*)");
+    std::smatch match;
+    std::string replacement_string = name + " = " + value_str + " ";
+    if (std::regex_search(contents, match, replacement_expression) && match.size() > 1) 
+    {
+        new_contents = std::regex_replace (contents,replacement_expression,replacement_string);
+    } 
+    else 
+    {
+        //TODO throw error because a match wasn't found
+    }
+    //std::cout<<new_contents;
+    return new_contents;
+}
 // helper thread functions for VSPAERO GUI interface and multi-threaded impleentation
 bool VSPAEROMgrSingleton::IsSolverRunning()
 {
