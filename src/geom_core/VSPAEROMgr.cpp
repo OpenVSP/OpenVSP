@@ -133,6 +133,20 @@ void VSPAEROMgrSingleton::Update()
 
 
 }
+
+// function is used to wait for the result to show up on the file system
+void VSPAEROMgrSingleton::WaitForFile(string filename)
+{
+    // Wait until the results show up on the file system
+    int n_wait = 0;
+    // wait no more than 5 seconds = (50*100)/1000
+    while ( (!FileExist(filename)) & (n_wait<50) )
+    {
+        n_wait++;
+        SleepForMilliseconds(100);
+    }
+    SleepForMilliseconds(100);    //additional wait for file
+}
 /*******************************************************
 Read .HISTORY file output from VSPAERO
 See: VSP_Solver.C in vspaero project

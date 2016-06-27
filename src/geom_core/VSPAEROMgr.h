@@ -60,6 +60,8 @@ public:
     enum { MANUAL_REF = 0, COMPONENT_REF, };
 
 
+    void WaitForFile(string filename);    // function is used to wait for the result to show up on the file system
+
 private:
 
     VSPAEROMgrSingleton();
