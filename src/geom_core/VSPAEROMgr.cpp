@@ -134,6 +134,20 @@ void VSPAEROMgrSingleton::Update()
 
 }
 
+// helper thread functions for VSPAERO GUI interface and multi-threaded impleentation
+bool VSPAEROMgrSingleton::IsSolverRunning()
+{
+    return m_SolverProcess.IsRunning();
+}
+void VSPAEROMgrSingleton::KillSolver()
+{
+    return m_SolverProcess.Kill();
+}
+ProcessUtil* VSPAEROMgrSingleton::GetSolverProcess()
+{
+    return &m_SolverProcess;
+}
+
 // function is used to wait for the result to show up on the file system
 void VSPAEROMgrSingleton::WaitForFile(string filename)
 {
