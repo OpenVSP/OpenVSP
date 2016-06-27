@@ -15,15 +15,20 @@
 #include "APIDefines.h"
 #include "WingGeom.h"
 
+#include "StringUtil.h"
+#include "FileUtil.h"
+
+#include <regex>
+
 //==== Constructor ====//
-VSPAEROMgrSingleton::VSPAEROMgrSingleton()
+VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
 {
     m_Name = "VSPAEROSettings";
 
-    m_DegenGeomSet.Init( "GeomSet", "VSPAERO", this, 0, 0, 12 );
-    m_DegenGeomSet.SetDescript( "Geometry set" );
+    m_GeomSet.Init( "GeomSet", "VSPAERO", this, 0, 0, 12 );
+    m_GeomSet.SetDescript( "Geometry set" );
 
-    m_Sref.Init( "Sref", "VSPAERO", this, 100.0, 0.0, 1e12 );
+    m_Sref.Init( "Sref", "VSPAERO", this, 100.0, 0.0, 1e12);
     m_Sref.SetDescript( "Reference area" );
 
     m_bref.Init( "bref", "VSPAERO", this, 1.0, 0.0, 1e6 );
@@ -35,7 +40,7 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton()
     m_RefFlag.Init( "RefFlag", "VSPAERO", this, MANUAL_REF, MANUAL_REF, COMPONENT_REF );
     m_RefFlag.SetDescript( "Reference quantity flag" );
 
-    m_CGGeomSet.Init( "MassSet", "VSPAERO", this, 0, 0, 12 );
+    m_CGGeomSet.Init( "CGGeomSet", "VSPAERO", this, 0, 0, 12 );
     m_CGGeomSet.SetDescript( "Mass property set" );
 
     m_NumMassSlice.Init( "NumMassSlice", "VSPAERO", this, 10, 10, 200 );
@@ -50,18 +55,61 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton()
     m_Zcg.Init( "Zcg", "VSPAERO", this, 0.0, -1.0e12, 1.0e12 );
     m_Zcg.SetDescript( "Z Center of Gravity" );
 
+    // Single point parameters
     m_Alpha.Init( "Alpha", "VSPAERO", this, 5.0, -180, 180 );
     m_Alpha.SetDescript( "Angle of attack" );
-
     m_Beta.Init( "Beta", "VSPAERO", this, 0.0, -180, 180 );
     m_Beta.SetDescript( "Angle of sideslip" );
-
     m_Mach.Init( "Mach", "VSPAERO", this, 0.3, 0.0, 5.0 );
     m_Mach.SetDescript( "Freestream Mach number" );
 
+    // Sweep parameters
+    m_AlphaStart.Init( "AlphaStart", "VSPAERO", this, 1.0, -180, 180 );
+    m_AlphaStart.SetDescript( "Angle of attack (Start)" );
+    m_AlphaEnd.Init( "AlphaEnd", "VSPAERO", this, 10.0, -180, 180 );
+    m_AlphaEnd.SetDescript( "Angle of attack (End)" );
+    m_AlphaNpts.Init( "AlphaNpts", "VSPAERO", this, 3, 1, 10 );
+    m_AlphaNpts.SetDescript( "Angle of attack (Num Points)" );
 
-    m_NCPU.Init( "NCPU", "VSPAERO", this, 2, 1, 255 );
+    m_BetaStart.Init( "BetaStart", "VSPAERO", this, 0.0, -180, 180 );
+    m_BetaStart.SetDescript( "Angle of sideslip (Start)" );
+    m_BetaEnd.Init( "BetaEnd", "VSPAERO", this, 0.0, -180, 180 );
+    m_BetaEnd.SetDescript( "Angle of sideslip (End)" );
+    m_BetaNpts.Init( "BetaNpts", "VSPAERO", this, 1, 1, 10 );
+    m_BetaNpts.SetDescript( "Angle of sideslip (Num Points)" );
+
+    m_MachStart.Init( "MachStart", "VSPAERO", this, 0.0, 0.0, 5.0 );
+    m_MachStart.SetDescript( "Freestream Mach number (Start)" );
+    m_MachEnd.Init( "MachEnd", "VSPAERO", this, 0.0, 0.0, 5.0 );
+    m_MachEnd.SetDescript( "Freestream Mach number (End)" );
+    m_MachNpts.Init( "MachNpts", "VSPAERO", this, 1, 1, 10 );
+    m_MachNpts.SetDescript( "Freestream Mach number (Num Points)" );
+
+
+    // Case Setup
+    m_NCPU.Init( "NCPU", "VSPAERO", this, 4, 1, 255 );
     m_NCPU.SetDescript( "Number of processors to use" );
+    //    wake parameters
+    m_WakeNumIter.Init( "WakeNumIter", "VSPAERO", this, 5, 1, 255 );
+    m_WakeNumIter.SetDescript( "Number of wake iterations to execute, Default = 5" );
+    m_WakeAvgStartIter.Init( "WakeAvgStartIter", "VSPAERO", this, 0, 0, 255 );
+    m_WakeAvgStartIter.SetDescript( "Iteration at which to START averaging the wake. Default=0 --> No wake averaging" );
+    m_WakeSkipUntilIter.Init( "WakeSkipUntilIter", "VSPAERO", this, 5, 0, 255 );
+    m_WakeSkipUntilIter.SetDescript( "Iteration at which to START calculating the wake. Default=0 --> Wake calculated on each iteration" );
+    m_StabilityCalcFlag.Init( "StabilityCalcFlag", "VSPAERO", this, 0.0, 0.0, 1.0);
+    m_StabilityCalcFlag.SetDescript( "Flag to calculate stability derivatives" );
+    m_StabilityCalcFlag = false;
+
+
+    m_DegenFile   = string();
+    m_SetupFile   = string();
+    m_AdbFile     = string();
+    m_HistoryFile = string();
+    m_LoadFile    = string();
+    m_StabFile      = string();
+
+    Update();
+
 }
 
 void VSPAEROMgrSingleton::ParmChanged( Parm* parm_ptr, int type )
@@ -83,6 +131,8 @@ xmlNodePtr VSPAEROMgrSingleton::EncodeXml( xmlNodePtr & node )
 
     XmlUtil::AddStringNode( VSPAEROsetnode, "ReferenceGeomID", m_RefGeomID );
 
+    //TODO XmlUtil::AddStringNode( VSPAEROsetnode, "AlphaVec", m_AlphaVec );    //vector to store generic alpha vector
+
     return VSPAEROsetnode;
 }
 
@@ -93,6 +143,8 @@ xmlNodePtr VSPAEROMgrSingleton::DecodeXml( xmlNodePtr & node )
     {
         ParmContainer::DecodeXml( VSPAEROsetnode );
         m_RefGeomID   = XmlUtil::FindString( VSPAEROsetnode, "ReferenceGeomID", m_RefGeomID );
+
+        //TODO XmlUtil::FindString( VSPAEROsetnode, "AlphaVec", m_AlphaVec );    //vector to store generic alpha vector
     }
 
     return VSPAEROsetnode;
@@ -131,7 +183,353 @@ void VSPAEROMgrSingleton::Update()
         }
     }
 
+    UpdateFilenames();
+}
 
+void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
+{
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    if( veh )
+    {
+
+        m_DegenFile = veh->getExportFileName( vsp::DEGEN_GEOM_CSV_TYPE );
+
+        // test if we can open the file
+        FILE *fp = NULL;
+        fp = fopen( m_DegenFile.c_str(), "r" );
+        if( fp )
+        {
+            fclose( fp );
+        }
+        else
+        {
+            m_DegenFile = string();
+        }
+
+        // remove the .csv file extension so it can be used as the base name for VSPAERO files
+        if( !m_DegenFile.empty() )
+        {
+            int pos = m_DegenFile.find( ".csv" );
+            if ( pos >= 0 )
+            {
+                m_DegenFile.erase( pos, m_DegenFile.length() - 1 );
+            }
+        }
+    }
+    else
+    {
+        m_DegenFile = string();
+    }
+
+    // Setup the remaining file names
+    if( !m_DegenFile.empty() )
+    {
+        m_SetupFile   = m_DegenFile + string(".vspaero");
+        m_AdbFile     = m_DegenFile + string(".adb");
+        m_HistoryFile = m_DegenFile + string(".history");
+        m_LoadFile    = m_DegenFile + string(".lod");
+        m_StabFile    = m_DegenFile + string(".stab");
+    }
+    else
+    {
+        m_SetupFile   = string();
+        m_AdbFile     = string();
+        m_HistoryFile = string();
+        m_LoadFile    = string();
+        m_StabFile    = string();
+    }
+}
+
+std::vector <string> VSPAEROMgrSingleton::ComputeGeometry()
+{
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    veh->CreateDegenGeom( VSPAEROMgr.m_GeomSet() );
+
+    // record original values
+    bool exptMfile_orig = veh->getExportDegenGeomMFile();
+    bool exptCSVfile_orig = veh->getExportDegenGeomCsvFile();
+    veh->setExportDegenGeomMFile( false );
+    veh->setExportDegenGeomCsvFile( true );
+
+    UpdateFilenames();
+
+    veh->WriteDegenGeomFile();
+
+    // restore original values
+    veh->setExportDegenGeomMFile( exptMfile_orig );
+    veh->setExportDegenGeomCsvFile( exptCSVfile_orig );
+
+    // add output filenames to results manager (this is important for the Analysis Manager)
+    Results* res = ResultsMgr.CreateResults( "VSPAERO_DegenGeom" );
+    // add to results manager
+    res->Add( NameValData( "OutputFileName", m_DegenFile + string(".csv") ));
+    res->Add( NameValData( "GeometrySet", VSPAEROMgr.m_GeomSet() ));
+
+    std::vector <string> res_id_vector;
+    res_id_vector.push_back(res->GetID());
+
+    return res_id_vector;
+
+}
+
+/* TODO - finish implementation of generating the setup file from the VSPAEROMgr*/
+void VSPAEROMgrSingleton::CreateSetupFile()
+{
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    // Clear existing serup file
+    if ( FileExist(m_SetupFile) )
+    {
+        remove(m_SetupFile.c_str());
+    }
+
+    vector<string> args;
+    args.push_back( "-setup" );
+
+    args.push_back( "-sref" );
+    args.push_back( StringUtil::double_to_string( m_Sref(), "%f" ) );
+
+    args.push_back( "-bref" );
+    args.push_back( StringUtil::double_to_string( m_bref(), "%f" ) );
+
+    args.push_back( "-cref" );
+    args.push_back( StringUtil::double_to_string( m_cref(), "%f" ) );
+
+    args.push_back( "-cg" );
+    args.push_back( StringUtil::double_to_string( m_Xcg(), "%f" ) );
+    args.push_back( StringUtil::double_to_string( m_Ycg(), "%f" ) );
+    args.push_back( StringUtil::double_to_string( m_Zcg(), "%f" ) );
+
+    args.push_back( "-aoa" );
+    args.push_back( StringUtil::double_to_string( m_Alpha(), "%f" ) );
+
+    args.push_back( "-beta" );
+    args.push_back( StringUtil::double_to_string( m_Beta(), "%f" ) );
+
+    args.push_back( "-mach" );
+    args.push_back( StringUtil::double_to_string( m_Mach(), "%f" ) );
+
+    args.push_back( m_DegenFile );
+    printf("%s\n",m_DegenFile.c_str());
+    
+    m_SolverProcess.SystemCmd( veh->GetExePath(), veh->GetVSPAEROCmd(), args );
+
+    // Wait until the setup file shows up on the file system
+    WaitForFile(m_SetupFile);
+
+    //Custom setup options for setup file (this should be an additional text entry box in the GUI and the parameter should be saved in the VSP3 file
+    if ( FileExist(m_SetupFile) )
+    {
+        // read in entire file
+        std::string contents;
+        contents = GetFileContents(m_SetupFile.c_str());
+
+        // rename file to *_orig
+        std::string filename_orig = m_SetupFile + "_orig";
+        if ( FileExist(filename_orig) )
+        {
+            remove(filename_orig.c_str());
+        }
+        rename(m_SetupFile.c_str(),filename_orig.c_str());
+
+        // find name and set new value
+        std::string new_contents = contents;
+        std::string name;
+
+        name = "WakeIters";
+        new_contents = ReplaceAddNameValue(new_contents,name, std::to_string(m_WakeNumIter.Get()));
+
+        // write out to file
+        std::ofstream outputfile(m_SetupFile.c_str(),std::ios::binary);    //opening as binary keeps the system from changing the line endings
+        outputfile.write(new_contents.c_str(),new_contents.size());
+        outputfile.close();
+    }
+    else
+    {
+        // shouldn't be able to get here but create a setup file with the correct settings
+        printf("ERROR - setup file not found\n");
+    }
+}
+
+void VSPAEROMgrSingleton::ClearAllPreviousResults()
+{
+    while (ResultsMgr.GetNumResults( "VSPAERO_DegenGeom" ) > 0)
+    {
+        ResultsMgr.DeleteResult( ResultsMgr.FindResultsID( "VSPAERO_DegenGeom",  0) );
+    }
+    while (ResultsMgr.GetNumResults( "VSPAERO_History" ) > 0)
+    {
+        ResultsMgr.DeleteResult( ResultsMgr.FindResultsID( "VSPAERO_History",  0) );
+    }
+    while (ResultsMgr.GetNumResults( "VSPAERO_Load" ) > 0)
+    {
+        ResultsMgr.DeleteResult( ResultsMgr.FindResultsID( "VSPAERO_Load",  0) );
+    }
+    while (ResultsMgr.GetNumResults( "VSPAERO_Stab" ) > 0)
+    {
+        ResultsMgr.DeleteResult( ResultsMgr.FindResultsID( "VSPAERO_Stab",  0) );
+    }
+}
+
+std::vector <string> VSPAEROMgrSingleton::ComputeSolver()
+{
+    std::vector <string> res_id_vector;
+
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        double alphaOrig = m_Alpha.Get();
+        double betaOrig = m_Beta.Get();
+        double machOrig = m_Mach.Get();
+
+        // Calculate spacing
+        double alphaDelta=0.0;
+        if ( m_AlphaNpts.Get() > 1)
+        {
+            alphaDelta = (m_AlphaEnd.Get() - m_AlphaStart.Get()) / (m_AlphaNpts.Get()-1.0);
+        }
+        double betaDelta=0.0;
+        if ( m_BetaNpts.Get() > 1)
+        {
+            betaDelta = (m_BetaEnd.Get() - m_BetaStart.Get()) / (m_BetaNpts.Get()-1.0);
+        }
+        double machDelta=0.0;
+        if ( m_MachNpts.Get() > 1)
+        {
+            machDelta = (m_MachEnd.Get() - m_MachStart.Get()) / (m_MachNpts.Get()-1.0);
+        }
+
+        //====== Loop over flight conditions and solve ======//
+        // TODO make this into a case list with a single loop
+        for (int iAlpha = 0; iAlpha<m_AlphaNpts.Get(); iAlpha++)
+        {
+            //Set current alpha value
+            m_Alpha.Set(m_AlphaStart.Get() + double(iAlpha)*alphaDelta);
+
+            for (int iBeta = 0; iBeta<m_BetaNpts.Get(); iBeta++)
+            {
+                //Set current alpha value
+                m_Beta.Set(m_BetaStart.Get() + double(iBeta)*betaDelta);
+
+                for (int iMach = 0; iMach<m_MachNpts.Get(); iMach++)
+                {
+                    //Set current alpha value
+                    m_Mach.Set(m_MachStart.Get() + double(iMach)*machDelta);
+                    
+                    //====== Clear VSPAERO output files ======//
+                    if ( FileExist(m_AdbFile) )
+                    {
+                        remove(m_AdbFile.c_str());
+                    }
+                    if ( FileExist(m_HistoryFile) )
+                    {
+                        remove(m_HistoryFile.c_str());
+                    }
+                    if ( FileExist(m_LoadFile) )
+                    {
+                        remove(m_LoadFile.c_str());
+                    }
+                    if ( FileExist(m_StabFile) )
+                    {
+                        remove(m_StabFile.c_str());
+                    }
+
+                    //====== Modify/Update the setup file ======//
+                    if ( !FileExist(m_SetupFile) )
+                    {
+                        // if the setup file doesn't exist, create one with the current settings
+                        // TODO output a warning to the user that we are creating a default file
+                        CreateSetupFile();
+                    }
+
+                    //====== Send command to be executed by the system at the command prompt ======//
+                    vector<string> args;
+                    // Set mach, alpha, beta (save to local "current*" variables to use as header information in the results manager)
+                    double current_mach = m_Mach.Get();
+                    double current_alpha = m_Alpha.Get();
+                    double current_beta = m_Beta.Get();
+                    args.push_back( "-fs");        // "freestream" override flag 
+                    args.push_back( StringUtil::double_to_string( current_mach, "%f" ));
+                    args.push_back( StringUtil::double_to_string( current_alpha, "%f"));
+                    args.push_back( StringUtil::double_to_string( current_beta, "%f" ));
+                    // Set number of openmp threads
+                    args.push_back( "-omp" );
+                    args.push_back( StringUtil::int_to_string( m_NCPU.Get(), "%d" ) );
+                    // Set stability run arguments
+                    if (m_StabilityCalcFlag.Get())
+                    {
+                        args.push_back( "-stab" );
+                    }
+                    // TODO: Additional command line arguments
+                    //    Force averaging startign at wake iteration N
+                    args.push_back( "-avg" );
+                    args.push_back( StringUtil::int_to_string( m_WakeAvgStartIter.Get(), "%d" ) );
+                    // No wake for first N iterations
+                    args.push_back( "-nowake" );
+                    args.push_back(StringUtil::int_to_string(m_WakeSkipUntilIter.Get(), "%d"));
+
+                    // Add model file name
+                    args.push_back( m_DegenFile );
+                    
+                    // Execute VSPAero
+                    m_SolverProcess.ForkCmd( veh->GetExePath(), veh->GetVSPAEROCmd(), args );
+
+                    // wait for the solver to finish
+                    bool runflag = m_SolverProcess.IsRunning();
+                    while ( runflag )
+                    {
+                        SleepForMilliseconds(100);
+                        runflag = m_SolverProcess.IsRunning();
+                    }
+
+                    //====== Read in all of the results ======//
+                    // read the files if there is new data that has not successfully been read in yet
+                    res_id_vector.push_back( ReadHistoryFile() );
+                    AddResultHeader(res_id_vector[res_id_vector.size()-1], current_mach, current_alpha, current_beta);
+                    res_id_vector.push_back( ReadLoadFile() );
+                    AddResultHeader(res_id_vector[res_id_vector.size()-1], current_mach, current_alpha, current_beta);
+                    if (m_StabilityCalcFlag.Get())
+                    {
+                        res_id_vector.push_back( ReadStabFile() );        //*.STAB stability coeff file
+                        AddResultHeader(res_id_vector[res_id_vector.size()-1], current_mach, current_alpha, current_beta);
+                    }
+
+                }    //Mach sweep loop
+
+            }    //beta sweep loop
+
+        }    //alpha sweep loop
+
+        //Reset parms to their original values
+        m_Alpha.Set(alphaOrig);
+        m_Beta.Set(betaOrig);
+        m_Mach.Set(machOrig);
+
+    }
+
+    return res_id_vector;
+}
+
+void VSPAEROMgrSingleton::AddResultHeader(string res_id, double mach, double alpha, double beta)
+{
+    // Add freestream condition header to each result
+    Results * res = ResultsMgr.FindResultsPtr(res_id);
+    res->Add(NameValData( "FS_Mach", mach ));
+    res->Add(NameValData( "FS_Alpha", alpha ));
+    res->Add(NameValData( "FS_Beta", beta ));
+}
+
+std::string VSPAEROMgrSingleton::GetFileContents(const char *filename)
+{
+  std::ifstream in(filename, std::ios::in | std::ios::binary);
+  if (in)
+  {
+    return(std::string((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>()));
+  }
+  throw(errno);
 }
 
 std::string VSPAEROMgrSingleton::ReplaceAddNameValue(std::string contents, std::string name, std::string value_str)

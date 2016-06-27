@@ -59,45 +59,50 @@ protected:
 
     //==== Overview Tab ====//
     GroupLayout m_OverviewLayout;
-
+    
+    // Case Setup
     GroupLayout m_GeomLayout;
-    GroupLayout m_FlowLayout;
-    GroupLayout m_RefLayout;
-    GroupLayout m_CGLayout;
-
     Choice m_GeomSetChoice;
     TriggerButton m_DegenGeomButton;
     StringOutput m_DegenFileName;
     TriggerButton m_DegenFileButton;
+    SliderAdjRangeInput m_NCPUSlider;
+    SliderAdjRangeInput m_WakeNumIterSlider;
+    SliderAdjRangeInput m_WakeAvgStartIterSlider;
+    SliderAdjRangeInput m_WakeSkipUntilIterSlider;
+    ToggleButton m_StabilityCalcToggle;
 
-    SliderAdjRangeInput m_AlphaSlider;
-    SliderAdjRangeInput m_BetaSlider;
-    SliderAdjRangeInput m_MachSlider;
-
-
+    // Freestream settings
+    GroupLayout m_FlowLayout;
+    Input m_AlphaStartInput, m_AlphaEndInput, m_AlphaNptsInput;
+    Input m_BetaStartInput, m_BetaEndInput, m_BetaNptsInput;
+    Input m_MachStartInput, m_MachEndInput, m_MachNptsInput;
+    
+    // Reference lengths & areas
+    GroupLayout m_RefLayout;
     Choice m_RefWingChoice;
-    vector <string> m_WingGeomVec;
-
     ToggleButton m_RefManualToggle;
     ToggleButton m_RefChoiceToggle;
     ToggleRadioGroup m_RefToggle;
     SliderAdjRangeInput m_SrefSlider;
     SliderAdjRangeInput m_brefSlider;
     SliderAdjRangeInput m_crefSlider;
-    
+
+    vector <string> m_WingGeomVec;
+
+    // Moment reference location
+    GroupLayout m_CGLayout;
     Choice m_CGSetChoice;
     TriggerButton m_MassPropButton;
     SliderInput m_NumSliceSlider;
     SliderAdjRangeInput m_XcgSlider;
     SliderAdjRangeInput m_YcgSlider;
     SliderAdjRangeInput m_ZcgSlider;
-    
+
+    // Execute
     TriggerButton m_SetupButton;
     TriggerButton m_SolverButton;
     TriggerButton m_ViewerButton;
-
-
-    SliderInput m_NCPUSlider;
 
     //==== Setup Tab ====//
     GroupLayout m_SetupLayout;
@@ -123,11 +128,7 @@ protected:
     Fl_Text_Display *m_ViewerDisplay;
     Fl_Text_Buffer *m_ViewerBuffer;
 
-    string m_DegenFile;
-    bool m_SetupFlag;
-    bool m_ADBFlag;
 
-    void SetupDegenFile();
 
     // Additional thread handling stuff
     ProcessUtil m_SolverProcess;
