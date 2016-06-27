@@ -133,3 +133,145 @@ void VSPAEROMgrSingleton::Update()
 
 
 }
+/*******************************************************
+Read .HISTORY file output from VSPAERO
+See: VSP_Solver.C in vspaero project
+line 4351 - void VSP_SOLVER::OutputStatusFile(int Type)
+line 4407 - void VSP_SOLVER::OutputZeroLiftDragToStatusFile(void)
+*******************************************************/
+string VSPAEROMgrSingleton::ReadHistoryFile()
+{
+    string res_id;
+    //TODO return success or failure
+    FILE *fp = NULL;
+    size_t result;
+    bool read_success = false;
+
+    //Read setup file to get number of wakeiterations
+    fp = fopen( m_SetupFile.c_str(), "r" );
+      if (fp==NULL) 
+    {
+        fputs ("VSPAEROMgrSingleton::ReadHistoryFile() - File open error\n",stderr);
+    }
+    else
+    {
+        // find the 'WakeIters' token
+        char key[] = "WakeIters";
+        char param[30];
+        float param_val=0;
+        int n_wakeiters = -1;
+        bool found = false;
+        while (!feof(fp) & !found)
+        {
+            if( fscanf(fp,"%s = %f\n",param,&param_val)==2 )
+            {
+                if( strcmp(key,param)==0 )
+                {
+                    n_wakeiters = (int)param_val;
+                    found = true;
+                }
+            }
+        } 
+        fclose(fp);
+
+        //HISTORY file
+        WaitForFile(m_HistoryFile);
+        fp = fopen( m_HistoryFile.c_str(), "r" );
+          if (fp==NULL) 
+        {
+            fputs ("VSPAEROMgrSingleton::ReadHistoryFile() - File open error\n",stderr);
+        }
+        else
+        {
+            // Read header line - we don't ever use this it's just a way to move the file pointer
+            // TODO - use the fields in the header string as the parameter names in the results manager
+            char headerstr [256];
+            fgets(headerstr,255,fp);
+            // split headerstr into fieldnames
+            std::vector<string>fieldnames;
+            int n_fields=0;
+            char * pch;
+            pch = strtok (headerstr," ");
+            while (pch != NULL)
+            {
+                n_fields++;
+                fieldnames.push_back(pch);
+                pch = strtok (NULL, " ");
+            }
+        
+
+            // Read wake iter data
+            std::vector<int> i;                 i.assign(n_wakeiters,0);
+            std::vector<double> Mach;           Mach.assign(n_wakeiters,0);
+            std::vector<double> Alpha;          Alpha.assign(n_wakeiters,0);
+            std::vector<double> Beta;           Beta.assign(n_wakeiters,0);
+            std::vector<double> CL;             CL.assign(n_wakeiters,0);
+            std::vector<double> CDo;            CDo.assign(n_wakeiters,0);
+            std::vector<double> CDi;            CDi.assign(n_wakeiters,0);
+            std::vector<double> CDtot;          CDtot.assign(n_wakeiters,0);
+            std::vector<double> CS;             CS.assign(n_wakeiters,0);
+            std::vector<double> CFx;            CFx.assign(n_wakeiters,0);
+            std::vector<double> CFy;            CFy.assign(n_wakeiters,0);
+            std::vector<double> CFz;            CFz.assign(n_wakeiters,0);
+            std::vector<double> CMx;            CMx.assign(n_wakeiters,0);
+            std::vector<double> CMy;            CMy.assign(n_wakeiters,0);
+            std::vector<double> CMz;            CMz.assign(n_wakeiters,0);
+            std::vector<double> LoD;            LoD.assign(n_wakeiters,0);
+            std::vector<double> E;              E.assign(n_wakeiters,0);
+            std::vector<double> ToQS;           ToQS.assign(n_wakeiters,0);
+
+            // Read in all of the wake data first before adding to the results manager
+            for( int i_wake=0; i_wake<n_wakeiters; i_wake++ )
+            {
+                //TODO - add results to results manager based on header string
+                //for (int i_field=0; i_field<n_fields; i_field++)
+                //{}
+                result = fscanf(fp,"%d",&i[i_wake]);
+                result = fscanf(fp,"%lf",&Mach[i_wake]);
+                result = fscanf(fp,"%lf",&Alpha[i_wake]);
+                result = fscanf(fp,"%lf",&Beta[i_wake]);
+                result = fscanf(fp,"%lf",&CL[i_wake]);
+                result = fscanf(fp,"%lf",&CDo[i_wake]);
+                result = fscanf(fp,"%lf",&CDi[i_wake]);
+                result = fscanf(fp,"%lf",&CDtot[i_wake]);
+                result = fscanf(fp,"%lf",&CS[i_wake]);
+                result = fscanf(fp,"%lf",&LoD[i_wake]);
+                result = fscanf(fp,"%lf",&E[i_wake]);
+                result = fscanf(fp,"%lf",&CFx[i_wake]);
+                result = fscanf(fp,"%lf",&CFy[i_wake]);
+                result = fscanf(fp,"%lf",&CFz[i_wake]);
+                result = fscanf(fp,"%lf",&CMx[i_wake]);
+                result = fscanf(fp,"%lf",&CMy[i_wake]);
+                result = fscanf(fp,"%lf",&CMz[i_wake]);
+                result = fscanf(fp,"%lf",&ToQS[i_wake]);
+            }
+            fclose (fp);
+
+            //add to the results manager
+            Results* res = ResultsMgr.CreateResults( "VSPAERO_History" );
+            res->Add( NameValData( "WakeIter", i ));
+            res->Add( NameValData( "Mach", Mach ));
+            res->Add( NameValData( "Alpha", Alpha ));
+            res->Add( NameValData( "Beta", Beta ));
+            res->Add( NameValData( "CL", CL ));
+            res->Add( NameValData( "CDo", CDo ));
+            res->Add( NameValData( "CDi", CDi ));
+            res->Add( NameValData( "CDtot", CDtot ));
+            res->Add( NameValData( "CS", CS ));
+            res->Add( NameValData( "L/D", LoD ));
+            res->Add( NameValData( "E", E ));
+            res->Add( NameValData( "CFx", CFx ));
+            res->Add( NameValData( "CFy", CFy ));
+            res->Add( NameValData( "CFz", CFz ));
+            res->Add( NameValData( "CMx", CMx ));
+            res->Add( NameValData( "CMy", CMy ));
+            res->Add( NameValData( "CMz", CMz ));
+            res->Add( NameValData( "T/QS", ToQS ));
+
+            res_id = res->GetID();
+        }
+    }    
+
+    return res_id;
+}
+
