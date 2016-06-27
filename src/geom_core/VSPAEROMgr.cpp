@@ -417,3 +417,121 @@ string VSPAEROMgrSingleton::ReadLoadFile()
     return res_id;
 }
 
+/*******************************************************
+Read .STAB file output from VSPAERO
+See: VSP_Solver.C in vspaero project
+*******************************************************/
+string VSPAEROMgrSingleton::ReadStabFile()
+{
+    string res_id;
+
+    FILE *fp = NULL;
+    size_t result;
+    bool read_success = false;
+    fp = fopen( m_StabFile.c_str() , "r" );
+    if (fp==NULL) 
+    {
+        fputs ("VSPAEROMgrSingleton::ReadStabFile() - File open error\n",stderr);
+    }
+    else
+    {
+        Results* res = ResultsMgr.CreateResults( "VSPAERO_Stab" );
+
+        /* Read top header sectio.  Example: 
+            Sref_:      45.0000 
+            Cref_:       2.5000 
+            Bref_:      18.0000 
+            Xcg_:        0.0000 
+            Ycg_:        0.0000 
+            Zcg_:        0.0000 
+            AoA:         4.0000 
+            Beta_:      -3.0000 
+            Mach_:       0.4000 
+            Rho_:        0.0024 
+            Vinf_:     100.0000 
+        #  
+        */
+        float value;
+        char strbuff[1024];
+        result = fscanf(fp,"%s%f\n",strbuff,&value);
+        while (result == 2)
+        {
+            // format and add name/value pair to the results manager
+            string name = strbuff;
+            size_t pos = name.find("_"); // find and erase underscore
+            if (pos!=std::string::npos)
+            {
+                name.erase(pos); 
+            }
+            pos = name.find(":"); //find and erase :
+            if (pos!=std::string::npos) 
+            {
+                name.erase(pos);
+            }
+            res->Add( NameValData( name, value ));
+
+            // read the next value
+            result = fscanf(fp,"%s%f\n",strbuff,&value);
+        }
+
+        /* Read the available data tables
+        Example:
+
+        */
+        std::vector<string> table_column_names;
+        std::vector<string> data_string_array;
+        char * pch;
+        // Read in all of the data into the results manager
+        while (!feof(fp))
+        {
+            // Read entire line
+            char strbuff2[1024];
+            fgets(strbuff2,1023,fp);
+            strcpy(strbuff," "); 
+            strcat(strbuff,strbuff2);
+
+            // Parse if this is not a comment line
+            if (strncmp(strbuff2,"#",1)!=0)
+            {
+                // Split space delimited string
+                data_string_array.clear();
+                pch = strtok (strbuff," ");
+                while (pch != NULL)
+                {
+                    data_string_array.push_back(pch);
+                    pch = strtok (NULL, " ");
+                }
+
+                // Checks for header format
+                if ((data_string_array.size() != table_column_names.size()) | (table_column_names.size()==0))
+                {
+                    //Indicator that the data table has changed or has not been initialized.  
+                    table_column_names.clear();
+                    table_column_names = data_string_array;
+                }
+                else
+                {
+                    //This is a continuation of the current table and add this row to the results manager
+                    for (unsigned int i_field=1; i_field<data_string_array.size()-1; i_field++)
+                    {
+                        //convert to double
+                        double temp_val=0;
+                        int result = 0;
+                        result = sscanf(data_string_array[i_field].c_str(),"%lf",&temp_val);
+                        if (result == 1)
+                        {
+                            res->Add( NameValData(data_string_array[0] + "_" + table_column_names[i_field], temp_val));
+                        }
+                    }
+                } //end new table check
+            } // end comment line check
+        } //end for while !feof(fp)
+
+
+        fclose (fp);
+        res_id = res->GetID();
+     }   
+
+     return res_id;
+}    
+
