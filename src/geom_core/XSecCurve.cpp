@@ -1376,7 +1376,7 @@ SuperXSec::SuperXSec( ) : XSecCurve( )
     m_N_bot.SetDescript( "Generalized Super Ellipse N Exponent for Bottom Half" );
     m_MaxWidthLoc.Init( "Super_MaxWidthLoc", m_GroupName, this, 0.0, -10, 10 );
     m_MaxWidthLoc.SetDescript( "Maximum Width Location for Super Ellipse" );
-    m_TopBotSym.Init( "Super_MaxWidthLoc", m_GroupName, this, true, 0, 1 );
+    m_TopBotSym.Init( "Super_TopBotSym", m_GroupName, this, true, 0, 1 );
     m_TopBotSym.SetDescript( "Toggle Symmetry for Top and Bottom Curve" );
 }
 
