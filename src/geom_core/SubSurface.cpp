@@ -1316,32 +1316,44 @@ void SSControlSurf::Update()
 
     // Build Control Surface
 
-    pnt_vec.reserve( 8 );
+    pnt_vec.reserve( 14 );
     if ( !m_LEFlag() )
     {
         if ( m_SurfType() == UPPER_SURF )
         {
             pnt_vec.push_back( vec3d( m_UStart(), 1, 0 ) );
+            pnt_vec.push_back( c_uwsm_upper );
             pnt_vec.push_back( c_uws_upper );
+            pnt_vec.push_back( c_uwm_upper );
             pnt_vec.push_back( c_uwe_upper );
+            pnt_vec.push_back( c_uwem_upper );
             pnt_vec.push_back( vec3d( m_UEnd(), 1, 0 ) );
         }
         else if ( m_SurfType() == LOWER_SURF )
         {
             pnt_vec.push_back( vec3d( m_UStart(), 0, 0 ) );
+            pnt_vec.push_back( c_uwsm_lower );
             pnt_vec.push_back( c_uws_lower );
+            pnt_vec.push_back( c_uwm_lower );
             pnt_vec.push_back( c_uwe_lower );
+            pnt_vec.push_back( c_uwem_lower );
             pnt_vec.push_back( vec3d( m_UEnd(), 0, 0 ) );
         }
         else
         {
             pnt_vec.push_back( vec3d( m_UStart(), 1, 0 ) );
+            pnt_vec.push_back( c_uwsm_upper );
             pnt_vec.push_back( c_uws_upper );
+            pnt_vec.push_back( c_uwm_upper );
             pnt_vec.push_back( c_uwe_upper );
+            pnt_vec.push_back( c_uwem_upper );
             pnt_vec.push_back( vec3d( m_UEnd(), 1, 0 ) );
             pnt_vec.push_back( vec3d( m_UEnd(), 0, 0 ) );
+            pnt_vec.push_back( c_uwem_lower );
             pnt_vec.push_back( c_uwe_lower );
+            pnt_vec.push_back( c_uwm_lower );
             pnt_vec.push_back( c_uws_lower );
+            pnt_vec.push_back( c_uwsm_lower );
             pnt_vec.push_back( vec3d( m_UStart(), 0, 0 ) );
         }
         //  pnt_vec[3] = pnt_vec[0];
@@ -1351,28 +1363,40 @@ void SSControlSurf::Update()
         if ( m_SurfType() == UPPER_SURF )
         {
             pnt_vec.push_back( vec3d( m_UEnd(), 0.5, 0 ) );
+            pnt_vec.push_back( c_uwem_upper );
             pnt_vec.push_back( c_uwe_upper );
+            pnt_vec.push_back( c_uwm_upper );
             pnt_vec.push_back( c_uws_upper );
+            pnt_vec.push_back( c_uwsm_upper );
             pnt_vec.push_back( vec3d( m_UStart(), 0.5, 0 ) );
             pnt_vec.push_back( pnt_vec[0] );
         }
         else if ( m_SurfType() == LOWER_SURF )
         {
             pnt_vec.push_back( vec3d( m_UEnd(), 0.5, 0 ) );
+            pnt_vec.push_back( c_uwem_lower );
             pnt_vec.push_back( c_uwe_lower );
+            pnt_vec.push_back( c_uwm_lower );
             pnt_vec.push_back( c_uws_lower );
+            pnt_vec.push_back( c_uwsm_lower );
             pnt_vec.push_back( vec3d( m_UStart(), 0.5, 0 ) );
             pnt_vec.push_back( pnt_vec[0] );
         }
         else
         {
             pnt_vec.push_back( vec3d( m_UEnd(), 0.5, 0 ) );
+            pnt_vec.push_back( c_uwem_upper );
             pnt_vec.push_back( c_uwe_upper );
+            pnt_vec.push_back( c_uwm_upper );
             pnt_vec.push_back( c_uws_upper );
+            pnt_vec.push_back( c_uwsm_upper );
             pnt_vec.push_back( vec3d( m_UStart(), 0.5, 0 ) );
             pnt_vec.push_back( vec3d( m_UStart(), 0.5, 0 ) );
+            pnt_vec.push_back( c_uwsm_lower );
             pnt_vec.push_back( c_uws_lower );
+            pnt_vec.push_back( c_uwm_lower );
             pnt_vec.push_back( c_uwe_lower );
+            pnt_vec.push_back( c_uwem_lower );
             pnt_vec.push_back( vec3d( m_UEnd(), 0.5, 0 ) );
         }
         //  pnt_vec[3] = pnt_vec[0];
@@ -1391,7 +1415,7 @@ void SSControlSurf::Update()
 
     for ( int i = 0; i < num_segs; i++ )
     {
-        if ( m_SurfType() == BOTH_SURF && i == 3 )
+        if ( m_SurfType() == BOTH_SURF && i == 6 )
         {
             pind++;
         }
@@ -1509,8 +1533,8 @@ void SSControlSurf::UpdatePolygonPnts()
     {
         m_PolyPntsVec[i].clear();
 
-        if ( i == 0 ) { last_ind = 3; }
-        if ( i == 1 ) { last_ind = 6; }
+        if ( i == 0 ) { last_ind = 6; }
+        if ( i == 1 ) { last_ind = 12; }
 
         vec3d pnt;
         for ( int ls = start_ind; ls < last_ind; ls++ )
