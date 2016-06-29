@@ -926,6 +926,7 @@ void SSControlSurf::Update()
 
     vec3d c_uws_upper, c_uws_lower, c_uwe_upper, c_uwe_lower;
     vec3d c_uwsm_upper, c_uwsm_lower, c_uwem_upper, c_uwem_lower;
+    vec3d c_uwm_upper, c_uwm_lower;
     vector< vec3d > pnt_vec;
 
     Geom* geom = VehicleMgr.GetVehicle()->FindGeom( m_CompID );
@@ -1308,6 +1309,10 @@ void SSControlSurf::Update()
             m_EndAngle = acos( dot( udir, vdir ) ) * 180.0 / PI;
         }
     }
+
+    // Terrible hack to place middle points.
+    c_uwm_upper = ( c_uws_upper + c_uwe_upper ) * 0.5;
+    c_uwm_lower = ( c_uws_lower + c_uwe_lower ) * 0.5;
 
     // Build Control Surface
 
