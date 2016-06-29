@@ -23,6 +23,7 @@
 #include "eli/geom/surface/piecewise_body_of_revolution_creator.hpp"
 #include "eli/geom/surface/piecewise_multicap_surface_creator.hpp"
 #include "eli/geom/intersect/minimum_distance_surface.hpp"
+#include "eli/geom/intersect/distance_angle_surface.hpp"
 
 typedef piecewise_surface_type::index_type surface_index_type;
 typedef piecewise_surface_type::point_type surface_point_type;
@@ -189,6 +190,72 @@ double VspSurf::FindNearest01( double &u, double &w, const vec3d &pt, const doub
     w = w / GetWMax();
 
     return dist;
+}
+
+void VspSurf::FindDistanceAngle( double &u, double &w, const vec3d &pt, const vec3d &dir, const double &d, const double &theta, const double &u0, const double &w0 ) const
+{
+    surface_point_type p, dr;
+    p << pt.x(), pt.y(), pt.z();
+    dr << dir.x(), dir.y(), dir.z();
+
+    double dot = cos( theta );
+
+    double wllim, wulim;
+    if ( w0 < 2.0 )
+    {
+        wllim = 0.0 + TMAGIC;
+        wulim = 2.0 - TMAGIC;
+    }
+    else
+    {
+        wllim = 2.0 + TMAGIC;
+        wulim = 4.0 - TMAGIC;
+    }
+
+    double wguess = w0;
+    if ( wguess <= wllim )
+    {
+        wguess = wllim + 1e-6;
+    }
+    else if ( wguess >= wulim )
+    {
+        wguess = wulim - 1e-6;
+    }
+
+    double umin = m_Surface.get_u0();
+    double umax = m_Surface.get_umax();
+    double uguess = u0;
+    if ( uguess <= umin )
+    {
+        uguess = umin + 1e-6;
+    }
+    else if ( uguess >= umax )
+    {
+        uguess = umax - 1e-6;
+    }
+
+    int retval;
+    eli::geom::intersect::distance_angle( u, w, m_Surface, p, dr, d*d, dot, uguess, wguess, wllim, wulim, retval );
+}
+
+void VspSurf::GuessDistanceAngle( double &du, double &dw, const vec3d &udir, const vec3d & wdir, const double &d, const double &theta ) const
+{
+    if ( udir.mag() < 1e-6 )
+    {
+        dw = d / wdir.mag();
+        du = 0;
+    }
+    else
+    {
+        double k = dot( wdir, udir ) / dot( udir, udir );
+        vec3d wproju = udir * k;
+        vec3d ndir = wdir - wproju;
+
+        double dn = sin ( theta ) / ndir.mag();
+        dw = d * dn;
+
+        du = d * ( cos( theta ) / udir.mag() - k * dn );
+    }
 }
 
 void VspSurf::GetUConstCurve( VspCurve &c, const double &u ) const

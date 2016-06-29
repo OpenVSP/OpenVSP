@@ -100,6 +100,9 @@ public:
     double FindNearest01( double &u, double &w, const vec3d &pt ) const;
     double FindNearest01( double &u, double &w, const vec3d &pt, const double &u0, const double &w0 ) const;
 
+    void FindDistanceAngle( double &u, double &w, const vec3d &pt, const vec3d &dir, const double &d, const double &theta, const double &u0, const double &w0 ) const;
+    void GuessDistanceAngle( double &du, double &dw, const vec3d &udir, const vec3d & wdir, const double &d, const double &theta ) const;
+
     void GetUConstCurve( VspCurve &c, const double &u ) const;
     void GetWConstCurve( VspCurve &c, const double &w ) const;
 
