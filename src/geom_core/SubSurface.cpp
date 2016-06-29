@@ -925,6 +925,7 @@ void SSControlSurf::Update()
     // Build Control Surface as a rectangle with the points counter clockwise
 
     vec3d c_uws_upper, c_uws_lower, c_uwe_upper, c_uwe_lower;
+    vec3d c_uwsm_upper, c_uwsm_lower, c_uwem_upper, c_uwem_lower;
     vector< vec3d > pnt_vec;
 
     Geom* geom = VehicleMgr.GetVehicle()->FindGeom( m_CompID );
@@ -1014,6 +1015,9 @@ void SSControlSurf::Update()
                 udir.normalize();
                 surf->FindDistanceAngle( u, v, teup, udir, d, m_StartAngle() * PI / 180.0, ucs + du, vteup - dv ); // reverse v
                 c_uws_upper = vec3d( u / umax, v / vmax, 0 );
+
+                surf->FindDistanceAngle( u, v, teup, udir, 0.5 * d, m_StartAngle() * PI / 180.0, ucs + 0.5 * du, vteup - 0.5 * dv ); // reverse v
+                c_uwsm_upper = vec3d( u / umax, v / vmax, 0 );
             }
             else
             {
@@ -1021,6 +1025,9 @@ void SSControlSurf::Update()
                 c.split( clow, cup, vle );
                 eli::geom::intersect::specified_distance( v, cup, teup, d );
                 c_uws_upper = vec3d( m_UStart(), v / vmax, 0 );
+
+                eli::geom::intersect::specified_distance( v, cup, teup, 0.5 * d );
+                c_uwsm_upper = vec3d( m_UStart(), v / vmax, 0 );
             }
         }
         else
@@ -1035,6 +1042,9 @@ void SSControlSurf::Update()
                 udir.normalize();
                 surf->FindDistanceAngle( u, v, leup, udir, d, m_StartAngle() * PI / 180.0, ucs + du, vleup + dv );
                 c_uws_upper = vec3d( u / umax, v / vmax, 0 );
+
+                surf->FindDistanceAngle( u, v, leup, udir, 0.5 * d, m_StartAngle() * PI / 180.0, ucs + 0.5 * du, vleup + 0.5 * dv );
+                c_uwsm_upper = vec3d( u / umax, v / vmax, 0 );
             }
             else
             {
@@ -1042,6 +1052,9 @@ void SSControlSurf::Update()
                 c.split( clow, cup, vle );
                 eli::geom::intersect::specified_distance( v, cup, leup, d );
                 c_uws_upper = vec3d( m_UStart(), v / vmax, 0 );
+
+                eli::geom::intersect::specified_distance( v, cup, leup, 0.5 * d );
+                c_uwsm_upper = vec3d( m_UStart(), v / vmax, 0 );
             }
         }
         m_UWStart.push_back( c_uws_upper );
@@ -1061,6 +1074,9 @@ void SSControlSurf::Update()
                 udir.normalize();
                 surf->FindDistanceAngle( u, v, telow, udir, d, m_StartAngle() * PI / 180.0, ucs + du, vtelow + dv );
                 c_uws_lower = vec3d( u / umax, v / vmax, 0 );
+
+                surf->FindDistanceAngle( u, v, telow, udir, 0.5 * d, m_StartAngle() * PI / 180.0, ucs + 0.5 * du, vtelow + 0.5 * dv );
+                c_uwsm_lower = vec3d( u / umax, v / vmax, 0 );
             }
             else
             {
@@ -1068,6 +1084,9 @@ void SSControlSurf::Update()
                 c.split( clow, cup, vle );
                 eli::geom::intersect::specified_distance( v, clow, telow, d );
                 c_uws_lower = vec3d( m_UStart(), v / vmax, 0 );
+
+                eli::geom::intersect::specified_distance( v, clow, telow, 0.5 * d );
+                c_uwsm_lower = vec3d( m_UStart(), v / vmax, 0 );
             }
         }
         else
@@ -1082,6 +1101,9 @@ void SSControlSurf::Update()
                 udir.normalize();
                 surf->FindDistanceAngle( u, v, lelow, udir, d, m_StartAngle() * PI / 180.0, ucs + du, vlelow - dv );
                 c_uws_lower = vec3d( u / umax, v / vmax, 0 );
+
+                surf->FindDistanceAngle( u, v, lelow, udir, 0.5 * d, m_StartAngle() * PI / 180.0, ucs + 0.5 * du, vlelow - 0.5 * dv );
+                c_uwsm_lower = vec3d( u / umax, v / vmax, 0 );
             }
             else
             {
@@ -1089,6 +1111,9 @@ void SSControlSurf::Update()
                 c.split( clow, cup, vle );
                 eli::geom::intersect::specified_distance( v, clow, lelow, d );
                 c_uws_lower = vec3d( m_UStart(), v / vmax, 0 );
+
+                eli::geom::intersect::specified_distance( v, clow, lelow, 0.5 * d );
+                c_uwsm_lower = vec3d( m_UStart(), v / vmax, 0 );
             }
         }
         m_UWStart.push_back( c_uws_lower );
@@ -1158,6 +1183,9 @@ void SSControlSurf::Update()
                 udir.normalize();
                 surf->FindDistanceAngle( u, v, teup, udir, d, m_EndAngle() * PI / 180.0, ucs + du, vteup - dv ); // reverse v
                 c_uwe_upper = vec3d( u / umax, v / vmax, 0 );
+
+                surf->FindDistanceAngle( u, v, teup, udir, 0.5 * d, m_EndAngle() * PI / 180.0, ucs + 0.5 * du, vteup - 0.5 * dv ); // reverse v
+                c_uwem_upper = vec3d( u / umax, v / vmax, 0 );
             }
             else
             {
@@ -1165,6 +1193,9 @@ void SSControlSurf::Update()
                 c.split( clow, cup, vle );
                 eli::geom::intersect::specified_distance( v, cup, teup, d );
                 c_uwe_upper = vec3d( m_UEnd(), v / vmax, 0 );
+
+                eli::geom::intersect::specified_distance( v, cup, teup, 0.5 * d );
+                c_uwem_upper = vec3d( m_UEnd(), v / vmax, 0 );
             }
         }
         else
@@ -1179,6 +1210,9 @@ void SSControlSurf::Update()
                 udir.normalize();
                 surf->FindDistanceAngle( u, v, leup, udir, d, m_EndAngle() * PI / 180.0, ucs + du, vleup + dv );
                 c_uwe_upper = vec3d( u / umax, v / vmax, 0 );
+
+                surf->FindDistanceAngle( u, v, leup, udir, 0.5 * d, m_EndAngle() * PI / 180.0, ucs + 0.5 * du, vleup + 0.5 * dv );
+                c_uwem_upper = vec3d( u / umax, v / vmax, 0 );
             }
             else
             {
@@ -1186,6 +1220,9 @@ void SSControlSurf::Update()
                 c.split( clow, cup, vle );
                 eli::geom::intersect::specified_distance( v, cup, leup, d );
                 c_uwe_upper = vec3d( m_UEnd(), v / vmax, 0 );
+
+                eli::geom::intersect::specified_distance( v, cup, leup, 0.5 * d );
+                c_uwem_upper = vec3d( m_UEnd(), v / vmax, 0 );
             }
         }
         m_UWEnd.push_back( c_uwe_upper );
@@ -1205,6 +1242,9 @@ void SSControlSurf::Update()
                 udir.normalize();
                 surf->FindDistanceAngle( u, v, telow, udir, d, m_EndAngle() * PI / 180.0, ucs + du, vtelow + dv );
                 c_uwe_lower = vec3d( u / umax, v / vmax, 0 );
+
+                surf->FindDistanceAngle( u, v, telow, udir, 0.5 * d, m_EndAngle() * PI / 180.0, ucs + 0.5 * du, vtelow + 0.5 * dv );
+                c_uwem_lower = vec3d( u / umax, v / vmax, 0 );
             }
             else
             {
@@ -1212,6 +1252,9 @@ void SSControlSurf::Update()
                 c.split( clow, cup, vle );
                 eli::geom::intersect::specified_distance( v, clow, telow, d );
                 c_uwe_lower = vec3d( m_UEnd(), v / vmax, 0 );
+
+                eli::geom::intersect::specified_distance( v, clow, telow, 0.5 * d );
+                c_uwem_lower = vec3d( m_UEnd(), v / vmax, 0 );
             }
         }
         else
@@ -1226,6 +1269,9 @@ void SSControlSurf::Update()
                 udir.normalize();
                 surf->FindDistanceAngle( u, v, lelow, udir, d, m_EndAngle() * PI / 180.0, ucs + du, vlelow - dv );
                 c_uwe_lower = vec3d( u / umax, v / vmax, 0 );
+
+                surf->FindDistanceAngle( u, v, lelow, udir, 0.5 * d, m_EndAngle() * PI / 180.0, ucs + 0.5 * du, vlelow - 0.5 * dv );
+                c_uwem_lower = vec3d( u / umax, v / vmax, 0 );
             }
             else
             {
@@ -1233,6 +1279,9 @@ void SSControlSurf::Update()
                 c.split( clow, cup, vle );
                 eli::geom::intersect::specified_distance( v, clow, lelow, d );
                 c_uwe_lower = vec3d( m_UEnd(), v / vmax, 0 );
+
+                eli::geom::intersect::specified_distance( v, clow, lelow, 0.5 * d );
+                c_uwem_lower = vec3d( m_UEnd(), v / vmax, 0 );
             }
         }
         m_UWEnd.push_back( c_uwe_lower );
