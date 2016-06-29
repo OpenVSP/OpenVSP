@@ -1262,35 +1262,33 @@ void SSControlSurf::Update()
 
     // Build Control Surface
 
+    pnt_vec.reserve( 8 );
     if ( !m_LEFlag() )
     {
         if ( m_SurfType() == UPPER_SURF )
         {
-            pnt_vec.resize( 4 );
-            pnt_vec[0] = vec3d( m_UStart(), 1, 0 );
-            pnt_vec[1] = c_uws_upper;
-            pnt_vec[2] = c_uwe_upper;
-            pnt_vec[3] = vec3d( m_UEnd(), 1, 0 );
+            pnt_vec.push_back( vec3d( m_UStart(), 1, 0 ) );
+            pnt_vec.push_back( c_uws_upper );
+            pnt_vec.push_back( c_uwe_upper );
+            pnt_vec.push_back( vec3d( m_UEnd(), 1, 0 ) );
         }
         else if ( m_SurfType() == LOWER_SURF )
         {
-            pnt_vec.resize( 4 );
-            pnt_vec[0] = vec3d( m_UStart(), 0, 0 );
-            pnt_vec[1] = c_uws_lower;
-            pnt_vec[2] = c_uwe_lower;
-            pnt_vec[3] = vec3d( m_UEnd(), 0, 0 );
+            pnt_vec.push_back( vec3d( m_UStart(), 0, 0 ) );
+            pnt_vec.push_back( c_uws_lower );
+            pnt_vec.push_back( c_uwe_lower );
+            pnt_vec.push_back( vec3d( m_UEnd(), 0, 0 ) );
         }
         else
         {
-            pnt_vec.resize( 8 );
-            pnt_vec[0] = vec3d( m_UStart(), 1, 0 );
-            pnt_vec[1] = c_uws_upper;
-            pnt_vec[2] = c_uwe_upper;
-            pnt_vec[3] = vec3d( m_UEnd(), 1, 0 );
-            pnt_vec[4] = vec3d( m_UEnd(), 0, 0 );
-            pnt_vec[5] = c_uwe_lower;
-            pnt_vec[6] = c_uws_lower;
-            pnt_vec[7] = vec3d( m_UStart(), 0, 0 );
+            pnt_vec.push_back( vec3d( m_UStart(), 1, 0 ) );
+            pnt_vec.push_back( c_uws_upper );
+            pnt_vec.push_back( c_uwe_upper );
+            pnt_vec.push_back( vec3d( m_UEnd(), 1, 0 ) );
+            pnt_vec.push_back( vec3d( m_UEnd(), 0, 0 ) );
+            pnt_vec.push_back( c_uwe_lower );
+            pnt_vec.push_back( c_uws_lower );
+            pnt_vec.push_back( vec3d( m_UStart(), 0, 0 ) );
         }
         //  pnt_vec[3] = pnt_vec[0];
     }
@@ -1298,33 +1296,30 @@ void SSControlSurf::Update()
     {
         if ( m_SurfType() == UPPER_SURF )
         {
-            pnt_vec.resize( 5 );
-            pnt_vec[0] = vec3d( m_UEnd(), 0.5, 0 );
-            pnt_vec[1] = c_uwe_upper;
-            pnt_vec[2] = c_uws_upper;
-            pnt_vec[3] = vec3d( m_UStart(), 0.5, 0 );
-            pnt_vec[4] = pnt_vec[0];
+            pnt_vec.push_back( vec3d( m_UEnd(), 0.5, 0 ) );
+            pnt_vec.push_back( c_uwe_upper );
+            pnt_vec.push_back( c_uws_upper );
+            pnt_vec.push_back( vec3d( m_UStart(), 0.5, 0 ) );
+            pnt_vec.push_back( pnt_vec[0] );
         }
         else if ( m_SurfType() == LOWER_SURF )
         {
-            pnt_vec.resize( 5 );
-            pnt_vec[3] = vec3d( m_UEnd(), 0.5, 0 );
-            pnt_vec[2] = c_uwe_lower;
-            pnt_vec[1] = c_uws_lower;
-            pnt_vec[0] = vec3d( m_UStart(), 0.5, 0 );
-            pnt_vec[4] = pnt_vec[0];
+            pnt_vec.push_back( vec3d( m_UEnd(), 0.5, 0 ) );
+            pnt_vec.push_back( c_uwe_lower );
+            pnt_vec.push_back( c_uws_lower );
+            pnt_vec.push_back( vec3d( m_UStart(), 0.5, 0 ) );
+            pnt_vec.push_back( pnt_vec[0] );
         }
         else
         {
-            pnt_vec.resize( 8 );
-            pnt_vec[0] = vec3d( m_UEnd(), 0.5, 0 );
-            pnt_vec[1] = c_uwe_upper;
-            pnt_vec[2] = c_uws_upper;
-            pnt_vec[3] = vec3d( m_UStart(), 0.5, 0 );
-            pnt_vec[4] = vec3d( m_UStart(), 0.5, 0 );
-            pnt_vec[5] = c_uws_lower;
-            pnt_vec[6] = c_uwe_lower;
-            pnt_vec[7] = vec3d( m_UEnd(), 0.5, 0 );
+            pnt_vec.push_back( vec3d( m_UEnd(), 0.5, 0 ) );
+            pnt_vec.push_back( c_uwe_upper );
+            pnt_vec.push_back( c_uws_upper );
+            pnt_vec.push_back( vec3d( m_UStart(), 0.5, 0 ) );
+            pnt_vec.push_back( vec3d( m_UStart(), 0.5, 0 ) );
+            pnt_vec.push_back( c_uws_lower );
+            pnt_vec.push_back( c_uwe_lower );
+            pnt_vec.push_back( vec3d( m_UEnd(), 0.5, 0 ) );
         }
         //  pnt_vec[3] = pnt_vec[0];
     }
