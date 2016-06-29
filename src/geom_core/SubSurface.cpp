@@ -859,6 +859,21 @@ SSControlSurf::SSControlSurf( string compID, int type ) : SubSurface( compID, ty
     m_LEFlag.Init( "LE_Flag", "SS_Control", this, false, 0, 1 );
     m_LEFlag.SetDescript( "Flag to determine whether control surface is on the leading/trailing edge." );
 
+    m_StartAngle.Init( "StartAngle", "SS_Control", this, 90, 0, 180 );
+    m_StartAngle.SetDescript( "Angle that control surface start meets leading/trailing edge." );
+
+    m_EndAngle.Init( "EndAngle", "SS_Control", this, 90, 0, 180 );
+    m_EndAngle.SetDescript( "Angle that control surface end meets leading/trailing edge." );
+
+    m_StartAngleFlag.Init( "StartAngleFlag", "SS_Control", this, false, 0, 1 );
+    m_StartAngleFlag.SetDescript( "Flag to determine whether to set control surface start angle." );
+
+    m_EndAngleFlag.Init( "EndAngleFlag", "SS_Control", this, false, 0, 1 );
+    m_EndAngleFlag.SetDescript( "Flag to determine whether to set control surface end angle." );
+
+    m_SameAngleFlag.Init( "SameAngleFlag", "SS_Control", this, true, 0, 1 );
+    m_SameAngleFlag.SetDescript( "Flag to set control surface start/end angles equal." );
+
     for ( int i = 0; i < 3; i++ )
     {
         m_LVec.push_back( SSLineSeg() );

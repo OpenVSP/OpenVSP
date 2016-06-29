@@ -653,7 +653,9 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SSConSurfTypeChoice.AddItem("Both");
     m_SSConGroup.AddChoice(m_SSConSurfTypeChoice, "Upper/Lower", m_SSConGroup.GetButtonWidth() );
 
+    m_SSConGroup.SetFitWidthFlag( false );
     m_SSConGroup.AddButton( m_SSConLEFlagButton, "Leading Edge" );
+    m_SSConGroup.SetFitWidthFlag( true );
 
     m_SSConGroup.SetSameLineFlag(false);
     m_SSConGroup.ForceNewLine();
@@ -690,6 +692,23 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
 
     m_SSConGroup.AddSlider( m_SSConELenSlider, "End Length", 10.0, "%5.4f" );
     m_SSConGroup.AddSlider( m_SSConEFracSlider, "End Length/C", 1.0, "%5.4f" );
+
+    m_SSConGroup.AddYGap();
+    m_SSConGroup.AddDividerBox( "Surface End Angle" );
+
+    m_SSConGroup.SetSameLineFlag( true );
+    m_SSConGroup.SetFitWidthFlag( false );
+
+    m_SSConGroup.AddButton( m_SSConSAngleButton, "Start" );
+    m_SSConGroup.AddButton( m_SSConEAngleButton, "End" );
+    m_SSConGroup.AddButton( m_SSConSameAngleButton, "Same Angle" );
+
+    m_SSConGroup.SetSameLineFlag( false );
+    m_SSConGroup.SetFitWidthFlag( true );
+    m_SSConGroup.ForceNewLine();
+
+    m_SSConGroup.AddSlider( m_SSConSAngleSlider, "Start Angle", 10.0, "%5.4f" );
+    m_SSConGroup.AddSlider( m_SSConEAngleSlider, "End Angle", 10.0, "%5.4f" );
 
     m_RotActive = true;
 }
@@ -908,6 +927,41 @@ bool GeomScreen::Update()
 
             m_SSConSAbsRelToggleGroup.Update(sscon->m_AbsRelFlag.GetID());
             m_SSConSEConstButton.Update(sscon->m_ConstFlag.GetID());
+
+            m_SSConSAngleButton.Update( sscon->m_StartAngleFlag.GetID() );
+            m_SSConEAngleButton.Update( sscon->m_EndAngleFlag.GetID() );
+
+            m_SSConSAngleSlider.Update( sscon->m_StartAngle.GetID() );
+            m_SSConEAngleSlider.Update( sscon->m_EndAngle.GetID() );
+
+            if ( sscon->m_StartAngleFlag() )
+            {
+                m_SSConSAngleSlider.Activate();
+            }
+            else
+            {
+                m_SSConSAngleSlider.Deactivate();
+            }
+
+            m_SSConSameAngleButton.Update( sscon->m_SameAngleFlag.GetID() );
+
+            if ( sscon->m_StartAngleFlag() && sscon->m_EndAngleFlag() )
+            {
+                m_SSConSameAngleButton.Activate();
+            }
+            else
+            {
+                m_SSConSameAngleButton.Deactivate();
+            }
+
+            if ( sscon->m_EndAngleFlag() && ( !sscon->m_SameAngleFlag() || ( !sscon->m_StartAngleFlag() && sscon->m_SameAngleFlag() ) ) )
+            {
+                m_SSConEAngleSlider.Activate();
+            }
+            else
+            {
+                m_SSConEAngleSlider.Deactivate();
+            }
 
             m_SSConLEFlagButton.Update(sscon->m_LEFlag.GetID());
 

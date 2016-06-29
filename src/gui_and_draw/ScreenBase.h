@@ -329,6 +329,12 @@ public:
     ToggleRadioGroup m_SSConTestToggleGroup;
     Choice m_SSConSurfTypeChoice;
 
+    SliderAdjRangeInput m_SSConSAngleSlider;
+    SliderAdjRangeInput m_SSConEAngleSlider;
+    ToggleButton m_SSConSAngleButton;
+    ToggleButton m_SSConEAngleButton;
+    ToggleButton m_SSConSameAngleButton;
+
 protected:
     bool m_RotActive;
 };

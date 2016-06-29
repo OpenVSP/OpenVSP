@@ -229,6 +229,14 @@ public:
     Parm m_EndLenFrac; // Percent chord that the control surface should occupy
     Parm m_StartLength; // Dimensional distance for control surface
     Parm m_EndLength; // Dimensional distance for control surface
+
+    Parm m_StartAngle;
+    Parm m_EndAngle;
+
+    BoolParm m_StartAngleFlag;
+    BoolParm m_EndAngleFlag;
+    BoolParm m_SameAngleFlag;
+
     IntParm m_AbsRelFlag; // Flag to identify whether fractional or absolute should be used.
     BoolParm m_ConstFlag; // Flag to identify if start/end parameters are equal.
     BoolParm m_LEFlag; // Flag to indicate leading/trailing edge control surface.
