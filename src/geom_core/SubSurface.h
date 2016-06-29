@@ -211,7 +211,6 @@ public:
     IntParm m_Tess; // Number of line segments to break shape into
 
     virtual void Update();
-    virtual void UpdateLVecSize();
 
 };
 

@@ -624,7 +624,7 @@ SSLine::SSLine( string comp_id, int type ) : SubSurface( comp_id, type )
     m_TestType.Init( "Test_Type", "SubSurface", this, SSLineSeg::GT, SSLineSeg::GT, SSLineSeg::LT );
     m_TestType.SetDescript( "Tag surface as being either greater than or less than const value line" );
 
-    m_LVec.push_back( SSLineSeg() );
+    m_LVec.resize( 1 );
 }
 
 SSLine::~SSLine()
@@ -707,11 +707,7 @@ SSRectangle::SSRectangle( string comp_id, int type ) : SubSurface( comp_id, type
     m_TestType.Init( "Test_Type", "SS_Rectangle", this, vsp::INSIDE, vsp::INSIDE, vsp::OUTSIDE );
     m_TestType.SetDescript( "Determines whether or not the inside or outside of the region is tagged" );
 
-    // Each Rectangle will always have 4 line segments
-    for ( int i = 0; i < 4 ; i++ )
-    {
-        m_LVec.push_back( SSLineSeg() );
-    }
+    m_LVec.resize(4);
 }
 
 //===== Destructor =====//
@@ -800,35 +796,9 @@ SSEllipse::~SSEllipse()
 
 }
 
-// Resize LVec if Tessellation has changed
-void SSEllipse::UpdateLVecSize()
-{
-    // Do nothing if already the correct size
-    if ( m_LVec.size() == m_Tess() )
-    {
-        return;
-    }
-
-    // If too few more line segments
-    if ( ( int )m_LVec.size() < m_Tess() )
-    {
-        for ( int i = m_LVec.size() ; i < m_Tess() ; i++ )
-        {
-            m_LVec.push_back( SSLineSeg() );
-        }
-    }
-    else if ( ( int )m_LVec.size() > m_Tess() )
-    {
-        // if too many line segments delete extra ones
-
-        m_LVec.erase( m_LVec.begin() + m_Tess(), m_LVec.begin() + m_LVec.size() );
-    }
-}
 // Main Update Routine
 void SSEllipse::Update()
 {
-    UpdateLVecSize();
-
     Geom* geom = VehicleMgr.GetVehicle()->FindGeom( m_CompID );
     if ( !geom )
     {
@@ -836,6 +806,7 @@ void SSEllipse::Update()
     }
 
     int num_pnts = m_Tess();
+    m_LVec.resize( num_pnts );
 
     vec3d center;
 
