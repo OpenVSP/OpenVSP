@@ -1318,8 +1318,8 @@ void SSControlSurf::Update()
     vector< vec3d > low_pnt_vec;
 
 
-    up_pnt_vec.reserve( 14 );
-    low_pnt_vec.reserve( 14 );
+    up_pnt_vec.reserve( 9 );
+    low_pnt_vec.reserve( 9 );
     if ( !m_LEFlag() )
     {
         if ( m_SurfType() == UPPER_SURF )
@@ -1373,6 +1373,7 @@ void SSControlSurf::Update()
             up_pnt_vec.push_back( c_uws_upper );
             up_pnt_vec.push_back( c_uwsm_upper );
             up_pnt_vec.push_back( vec3d( m_UStart(), 0.5, 0 ) );
+            up_pnt_vec.push_back( vec3d( 0.5 * ( m_UEnd() + m_UStart() ), 0.5, 0 ) );
             up_pnt_vec.push_back( up_pnt_vec[0] );
         }
         else if ( m_SurfType() == LOWER_SURF )
@@ -1384,6 +1385,7 @@ void SSControlSurf::Update()
             low_pnt_vec.push_back( c_uws_lower );
             low_pnt_vec.push_back( c_uwsm_lower );
             low_pnt_vec.push_back( vec3d( m_UStart(), 0.5, 0 ) );
+            low_pnt_vec.push_back( vec3d( 0.5 * ( m_UEnd() + m_UStart() ), 0.5, 0 ) );
             low_pnt_vec.push_back( low_pnt_vec[0] );
         }
         else
