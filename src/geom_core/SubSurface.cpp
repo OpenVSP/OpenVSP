@@ -378,14 +378,9 @@ void SubSurface::ReorderSplitSegs( int ind )
     m_SplitLVec = ret_vec;
 }
 
-void SubSurface::CleanUpSplitVec()
-{
-    m_SplitLVec.clear();
-}
-
 void SubSurface::PrepareSplitVec()
 {
-    CleanUpSplitVec();
+    m_SplitLVec.clear();
     m_FirstSplit = true;
     m_SplitLVec = m_LVec;
 }
