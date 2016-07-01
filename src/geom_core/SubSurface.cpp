@@ -1313,6 +1313,137 @@ void SSControlSurf::Update()
     c_uwm_upper = ( c_uws_upper + c_uwe_upper ) * 0.5;
     c_uwm_lower = ( c_uws_lower + c_uwe_lower ) * 0.5;
 
+    // Now do a better job as needed.
+
+    bool midangleflag = true;
+    if ( !m_StartAngleFlag() && !m_EndAngleFlag() )
+    {
+        midangleflag = false;
+    }
+
+    double midangle = 0.5 * ( m_StartAngle() + m_EndAngle() );
+    double umid = 0.5 * ( m_UStart() + m_UEnd() );
+
+    VspCurve midcrv;
+    surf->GetU01ConstCurve( midcrv, umid );
+    c = midcrv.GetCurve();
+
+    te = c.f( vmin );
+    le = c.f( vle );
+
+    chord = dist( le, te );
+
+    if ( m_AbsRelFlag() == vsp::REL )
+    {
+        double frac = 0.5 * ( m_StartLenFrac() + m_EndLenFrac() );
+        d = chord * frac;
+    }
+    else
+    {
+        d = 0.5 * ( m_StartLength() + m_EndLength() );
+    }
+
+    telow = c.f( vtelow );
+    teup = c.f( vteup );
+    lelow = c.f( vlelow );
+    leup = c.f( vleup );
+
+    ucs = umid * umax;
+
+    if ( m_SurfType() != LOWER_SURF )
+    {
+        if ( !m_LEFlag() )
+        {
+            if ( midangleflag )
+            {
+                vec3d udir = surf->CompTanU( ucs, vteup );
+                vec3d vdir;
+                vdir = ( le - te ) / 2.0; // reverse direction
+                double du, dv;
+                surf->GuessDistanceAngle( du, dv, udir, vdir, d, midangle * PI / 180.0 );
+                udir.normalize();
+                surf->FindDistanceAngle( u, v, teup, udir, d, midangle * PI / 180.0, ucs + du, vteup - dv ); // reverse v
+                c_uwm_upper = vec3d( u / umax, v / vmax, 0 );
+            }
+            else
+            {
+                piecewise_curve_type clow, cup;
+                c.split( clow, cup, vle );
+                eli::geom::intersect::specified_distance( v, cup, teup, d );
+                c_uwm_upper = vec3d( umid, v / vmax, 0 );
+            }
+        }
+        else
+        {
+            if ( midangleflag )
+            {
+                vec3d udir = surf->CompTanU( ucs, vleup );
+                vec3d vdir;
+                vdir = ( te - le ) / 2.0;
+                double du, dv;
+                surf->GuessDistanceAngle( du, dv, udir, vdir, d, midangle * PI / 180.0 );
+                udir.normalize();
+                surf->FindDistanceAngle( u, v, leup, udir, d, midangle * PI / 180.0, ucs + du, vleup + dv );
+                c_uwm_upper = vec3d( u / umax, v / vmax, 0 );
+            }
+            else
+            {
+                piecewise_curve_type clow, cup;
+                c.split( clow, cup, vle );
+                eli::geom::intersect::specified_distance( v, cup, leup, d );
+                c_uwm_upper = vec3d( umid, v / vmax, 0 );
+            }
+        }
+    }
+
+    if ( m_SurfType() != UPPER_SURF )
+    {
+        if ( !m_LEFlag() )
+        {
+            if ( midangleflag )
+            {
+                vec3d udir = surf->CompTanU( ucs, vtelow );
+                vec3d vdir;
+                vdir = ( le - te ) / 2.0;
+                double du, dv;
+                surf->GuessDistanceAngle( du, dv, udir, vdir, d, midangle * PI / 180.0 );
+                udir.normalize();
+                surf->FindDistanceAngle( u, v, telow, udir, d, midangle * PI / 180.0, ucs + du, vtelow + dv );
+                c_uwm_lower = vec3d( u / umax, v / vmax, 0 );
+            }
+            else
+            {
+                piecewise_curve_type clow, cup;
+                c.split( clow, cup, vle );
+                eli::geom::intersect::specified_distance( v, clow, telow, d );
+                c_uwm_lower = vec3d( umid, v / vmax, 0 );
+            }
+        }
+        else
+        {
+            if ( midangleflag )
+            {
+                vec3d udir = surf->CompTanU( ucs, vlelow );
+                vec3d vdir;
+                vdir = ( te - le ) / 2.0;
+                double du, dv;
+                surf->GuessDistanceAngle( du, dv, udir, vdir, d, midangle * PI / 180.0 );
+                udir.normalize();
+                surf->FindDistanceAngle( u, v, lelow, udir, d, midangle * PI / 180.0, ucs + du, vlelow - dv );
+                c_uwm_lower = vec3d( u / umax, v / vmax, 0 );
+            }
+            else
+            {
+                piecewise_curve_type clow, cup;
+                c.split( clow, cup, vle );
+                eli::geom::intersect::specified_distance( v, clow, lelow, d );
+                c_uwm_lower = vec3d( umid, v / vmax, 0 );
+            }
+        }
+    }
+
+
+
     // Build Control Surface
     vector< vec3d > up_pnt_vec;
     vector< vec3d > low_pnt_vec;
