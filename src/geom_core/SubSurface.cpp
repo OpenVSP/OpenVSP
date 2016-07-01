@@ -260,25 +260,6 @@ bool SubSurface::Subtag( TTri* tri )
     return Subtag( center );
 }
 
-
-void SubSurface::SplitSegs( const vector<int> & split_u, const vector<int> & split_w )
-{
-    // Method to Split subsurfaces for CFDMesh surfs
-    CleanUpSplitVec();
-
-    PrepareSplitVec();
-
-    for ( int ui = 0 ; ui < ( int )split_u.size() ; ui++ )
-    {
-        SplitSegsU( split_u[ui] );
-    }
-
-    for ( int wi = 0 ; wi < ( int )split_w.size() ; wi++ )
-    {
-        SplitSegsW( split_w[wi] );
-    }
-}
-
 void SubSurface::SplitSegsU( const double & u )
 {
     double tol = 1e-10;

@@ -122,7 +122,6 @@ public:
     virtual void UpdatePolygonPnts();
     virtual std::vector< TMesh* > CreateTMeshVec(); // Method to create a TMeshVector
     virtual void UpdateDrawObjs(); // Method to create lines to draw
-    virtual void SplitSegs( const vector<int> & split_u, const vector<int> & split_w ); // Split line segments for CfdMesh surfaces
     virtual void SplitSegsU( const double & u ); // Split line segments that cross a constant U value
     virtual void SplitSegsW( const double & w ); // Split line segments that cross a constant W value
     virtual void CleanUpSplitVec();
