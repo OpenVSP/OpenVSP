@@ -927,7 +927,6 @@ void SSControlSurf::Update()
     vec3d c_uws_upper, c_uws_lower, c_uwe_upper, c_uwe_lower;
     vec3d c_uwsm_upper, c_uwsm_lower, c_uwem_upper, c_uwem_lower;
     vec3d c_uwm_upper, c_uwm_lower;
-    vector< vec3d > pnt_vec;
 
     Geom* geom = VehicleMgr.GetVehicle()->FindGeom( m_CompID );
     if ( !geom ) { return; }
@@ -1315,46 +1314,51 @@ void SSControlSurf::Update()
     c_uwm_lower = ( c_uws_lower + c_uwe_lower ) * 0.5;
 
     // Build Control Surface
+    vector< vec3d > up_pnt_vec;
+    vector< vec3d > low_pnt_vec;
 
-    pnt_vec.reserve( 14 );
+
+    up_pnt_vec.reserve( 14 );
+    low_pnt_vec.reserve( 14 );
     if ( !m_LEFlag() )
     {
         if ( m_SurfType() == UPPER_SURF )
         {
-            pnt_vec.push_back( vec3d( m_UStart(), 1, 0 ) );
-            pnt_vec.push_back( c_uwsm_upper );
-            pnt_vec.push_back( c_uws_upper );
-            pnt_vec.push_back( c_uwm_upper );
-            pnt_vec.push_back( c_uwe_upper );
-            pnt_vec.push_back( c_uwem_upper );
-            pnt_vec.push_back( vec3d( m_UEnd(), 1, 0 ) );
+            up_pnt_vec.push_back( vec3d( m_UStart(), 1, 0 ) );
+            up_pnt_vec.push_back( c_uwsm_upper );
+            up_pnt_vec.push_back( c_uws_upper );
+            up_pnt_vec.push_back( c_uwm_upper );
+            up_pnt_vec.push_back( c_uwe_upper );
+            up_pnt_vec.push_back( c_uwem_upper );
+            up_pnt_vec.push_back( vec3d( m_UEnd(), 1, 0 ) );
         }
         else if ( m_SurfType() == LOWER_SURF )
         {
-            pnt_vec.push_back( vec3d( m_UStart(), 0, 0 ) );
-            pnt_vec.push_back( c_uwsm_lower );
-            pnt_vec.push_back( c_uws_lower );
-            pnt_vec.push_back( c_uwm_lower );
-            pnt_vec.push_back( c_uwe_lower );
-            pnt_vec.push_back( c_uwem_lower );
-            pnt_vec.push_back( vec3d( m_UEnd(), 0, 0 ) );
+            low_pnt_vec.push_back( vec3d( m_UStart(), 0, 0 ) );
+            low_pnt_vec.push_back( c_uwsm_lower );
+            low_pnt_vec.push_back( c_uws_lower );
+            low_pnt_vec.push_back( c_uwm_lower );
+            low_pnt_vec.push_back( c_uwe_lower );
+            low_pnt_vec.push_back( c_uwem_lower );
+            low_pnt_vec.push_back( vec3d( m_UEnd(), 0, 0 ) );
         }
         else
         {
-            pnt_vec.push_back( vec3d( m_UStart(), 1, 0 ) );
-            pnt_vec.push_back( c_uwsm_upper );
-            pnt_vec.push_back( c_uws_upper );
-            pnt_vec.push_back( c_uwm_upper );
-            pnt_vec.push_back( c_uwe_upper );
-            pnt_vec.push_back( c_uwem_upper );
-            pnt_vec.push_back( vec3d( m_UEnd(), 1, 0 ) );
-            pnt_vec.push_back( vec3d( m_UEnd(), 0, 0 ) );
-            pnt_vec.push_back( c_uwem_lower );
-            pnt_vec.push_back( c_uwe_lower );
-            pnt_vec.push_back( c_uwm_lower );
-            pnt_vec.push_back( c_uws_lower );
-            pnt_vec.push_back( c_uwsm_lower );
-            pnt_vec.push_back( vec3d( m_UStart(), 0, 0 ) );
+            up_pnt_vec.push_back( vec3d( m_UStart(), 1, 0 ) );
+            up_pnt_vec.push_back( c_uwsm_upper );
+            up_pnt_vec.push_back( c_uws_upper );
+            up_pnt_vec.push_back( c_uwm_upper );
+            up_pnt_vec.push_back( c_uwe_upper );
+            up_pnt_vec.push_back( c_uwem_upper );
+            up_pnt_vec.push_back( vec3d( m_UEnd(), 1, 0 ) );
+
+            low_pnt_vec.push_back( vec3d( m_UEnd(), 0, 0 ) );
+            low_pnt_vec.push_back( c_uwem_lower );
+            low_pnt_vec.push_back( c_uwe_lower );
+            low_pnt_vec.push_back( c_uwm_lower );
+            low_pnt_vec.push_back( c_uws_lower );
+            low_pnt_vec.push_back( c_uwsm_lower );
+            low_pnt_vec.push_back( vec3d( m_UStart(), 0, 0 ) );
         }
         //  pnt_vec[3] = pnt_vec[0];
     }
@@ -1362,67 +1366,71 @@ void SSControlSurf::Update()
     {
         if ( m_SurfType() == UPPER_SURF )
         {
-            pnt_vec.push_back( vec3d( m_UEnd(), 0.5, 0 ) );
-            pnt_vec.push_back( c_uwem_upper );
-            pnt_vec.push_back( c_uwe_upper );
-            pnt_vec.push_back( c_uwm_upper );
-            pnt_vec.push_back( c_uws_upper );
-            pnt_vec.push_back( c_uwsm_upper );
-            pnt_vec.push_back( vec3d( m_UStart(), 0.5, 0 ) );
-            pnt_vec.push_back( pnt_vec[0] );
+            up_pnt_vec.push_back( vec3d( m_UEnd(), 0.5, 0 ) );
+            up_pnt_vec.push_back( c_uwem_upper );
+            up_pnt_vec.push_back( c_uwe_upper );
+            up_pnt_vec.push_back( c_uwm_upper );
+            up_pnt_vec.push_back( c_uws_upper );
+            up_pnt_vec.push_back( c_uwsm_upper );
+            up_pnt_vec.push_back( vec3d( m_UStart(), 0.5, 0 ) );
+            up_pnt_vec.push_back( up_pnt_vec[0] );
         }
         else if ( m_SurfType() == LOWER_SURF )
         {
-            pnt_vec.push_back( vec3d( m_UEnd(), 0.5, 0 ) );
-            pnt_vec.push_back( c_uwem_lower );
-            pnt_vec.push_back( c_uwe_lower );
-            pnt_vec.push_back( c_uwm_lower );
-            pnt_vec.push_back( c_uws_lower );
-            pnt_vec.push_back( c_uwsm_lower );
-            pnt_vec.push_back( vec3d( m_UStart(), 0.5, 0 ) );
-            pnt_vec.push_back( pnt_vec[0] );
+            low_pnt_vec.push_back( vec3d( m_UEnd(), 0.5, 0 ) );
+            low_pnt_vec.push_back( c_uwem_lower );
+            low_pnt_vec.push_back( c_uwe_lower );
+            low_pnt_vec.push_back( c_uwm_lower );
+            low_pnt_vec.push_back( c_uws_lower );
+            low_pnt_vec.push_back( c_uwsm_lower );
+            low_pnt_vec.push_back( vec3d( m_UStart(), 0.5, 0 ) );
+            low_pnt_vec.push_back( low_pnt_vec[0] );
         }
         else
         {
-            pnt_vec.push_back( vec3d( m_UEnd(), 0.5, 0 ) );
-            pnt_vec.push_back( c_uwem_upper );
-            pnt_vec.push_back( c_uwe_upper );
-            pnt_vec.push_back( c_uwm_upper );
-            pnt_vec.push_back( c_uws_upper );
-            pnt_vec.push_back( c_uwsm_upper );
-            pnt_vec.push_back( vec3d( m_UStart(), 0.5, 0 ) );
-            pnt_vec.push_back( vec3d( m_UStart(), 0.5, 0 ) );
-            pnt_vec.push_back( c_uwsm_lower );
-            pnt_vec.push_back( c_uws_lower );
-            pnt_vec.push_back( c_uwm_lower );
-            pnt_vec.push_back( c_uwe_lower );
-            pnt_vec.push_back( c_uwem_lower );
-            pnt_vec.push_back( vec3d( m_UEnd(), 0.5, 0 ) );
+            up_pnt_vec.push_back( vec3d( m_UEnd(), 0.5, 0 ) );
+            up_pnt_vec.push_back( c_uwem_upper );
+            up_pnt_vec.push_back( c_uwe_upper );
+            up_pnt_vec.push_back( c_uwm_upper );
+            up_pnt_vec.push_back( c_uws_upper );
+            up_pnt_vec.push_back( c_uwsm_upper );
+            up_pnt_vec.push_back( vec3d( m_UStart(), 0.5, 0 ) );
+
+            low_pnt_vec.push_back( vec3d( m_UStart(), 0.5, 0 ) );
+            low_pnt_vec.push_back( c_uwsm_lower );
+            low_pnt_vec.push_back( c_uws_lower );
+            low_pnt_vec.push_back( c_uwm_lower );
+            low_pnt_vec.push_back( c_uwe_lower );
+            low_pnt_vec.push_back( c_uwem_lower );
+            low_pnt_vec.push_back( vec3d( m_UEnd(), 0.5, 0 ) );
         }
         //  pnt_vec[3] = pnt_vec[0];
     }
 
-    int pind = 0;
-    int num_segs = pnt_vec.size() - 1;
 
-    if ( m_SurfType() == BOTH_SURF )
+    m_LVec.clear();
+
+    if ( !up_pnt_vec.empty() )
     {
-        num_segs--;
+        for ( int i = 0; i < up_pnt_vec.size() - 1; i++ )
+        {
+            m_LVec.push_back( SSLineSeg() );
+            m_LVec.back().SetSP0( up_pnt_vec[i] );
+            m_LVec.back().SetSP1( up_pnt_vec[i+1] );
+            m_LVec.back().Update( geom );
+        }
     }
 
 
-    m_LVec.resize( num_segs );
-
-    for ( int i = 0; i < num_segs; i++ )
+    if ( !low_pnt_vec.empty() )
     {
-        if ( m_SurfType() == BOTH_SURF && i == 6 )
+        for ( int i = 0; i < low_pnt_vec.size() - 1; i++ )
         {
-            pind++;
+            m_LVec.push_back( SSLineSeg() );
+            m_LVec.back().SetSP0( low_pnt_vec[i] );
+            m_LVec.back().SetSP1( low_pnt_vec[i+1] );
+            m_LVec.back().Update( geom );
         }
-        m_LVec[i].SetSP0( pnt_vec[pind] );
-        pind++;
-        m_LVec[i].SetSP1( pnt_vec[pind] );
-        m_LVec[i].Update( geom );
     }
 
     SubSurface::Update();
