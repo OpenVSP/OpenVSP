@@ -175,7 +175,6 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 680, "Propeller
 
     m_XSecLayout.AddDividerBox( "Type" );
 
-    m_XSecTypeChoice.AddItem( "POINT" );
     m_XSecTypeChoice.AddItem( "CIRCLE" );
     m_XSecTypeChoice.AddItem( "ELLIPSE" );
     m_XSecTypeChoice.AddItem( "SUPER_ELLIPSE" );
@@ -782,12 +781,13 @@ bool PropScreen::Update()
         XSecCurve* xsc = xs->GetXSecCurve();
         if ( xsc )
         {
-            m_XSecTypeChoice.SetVal( xsc->GetType() );
+            m_XSecTypeChoice.SetVal( xsc->GetType() - 1 ); // -1 to skip over POINT type XSec
 
 
             if ( xsc->GetType() == XS_POINT )
             {
                 DisplayGroup( NULL );
+                printf("Error\n");
             }
             else if ( xsc->GetType() == XS_SUPER_ELLIPSE )
             {
@@ -1278,7 +1278,7 @@ void PropScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( gui_device == &m_XSecTypeChoice )
     {
-        int t = m_XSecTypeChoice.GetVal();
+        int t = m_XSecTypeChoice.GetVal() + 1; // +1 to skip over POINT type XSec.
         propeller_ptr->SetActiveXSecType( t );
     }
     else if ( gui_device == &m_ShowXSecButton )

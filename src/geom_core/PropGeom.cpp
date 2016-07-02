@@ -25,8 +25,6 @@ using namespace vsp;
 // Curve splitting from API
 // Other API additions?
 
-// Use unit circle surrogate for point XSec.  Or disable point type.
-
 // Allow curve control of thickness.
 
 // v2 import
@@ -413,6 +411,16 @@ void PropGeom::UpdateSurf()
 
         if ( xs )
         {
+            if ( xs->GetXSecCurve()->GetType() == XS_POINT )
+            {
+                printf( "Warning: XS_POINT type not valid for propellers\n" );
+                // Propellers are constructed in two phases.  The first phase stacks
+                // all the XSecs with unit chord.  Intermediate curves are extracted
+                // from that surface and are scaled to match the required chord.
+                // Since XS_POINT XSecs already have zero chord, they mess up this
+                // process.
+            }
+
             //==== Reset Group Names ====//
             xs->SetGroupDisplaySuffix( i );
 
