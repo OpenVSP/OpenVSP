@@ -86,23 +86,23 @@ void PropPositioner::Update()
     m_ParentProp->GetBasicTransformation( m_Chord, mat );
     m_TransformedCurve.Transform( mat );
 
-    m_Transform.loadIdentity();
+    mat.loadIdentity();
 
     // Propeller rotation first because order is reversed.
-    m_Transform.rotateX( -m_PropRot );
-    m_Transform.rotateY( m_Feather );
+    mat.rotateX( -m_PropRot );
+    mat.rotateY( m_Feather );
 
-    m_Transform.translatef( 0, m_Radius, 0 );
+    mat.translatef( 0, m_Radius, 0 );
 
-    m_Transform.rotateY( m_Twist );
+    mat.rotateY( m_Twist );
 
-    m_Transform.rotateX( m_XRotate ); // About rake direction
+    mat.rotateX( m_XRotate ); // About rake direction
 
-    m_Transform.translatef( m_Rake, 0, m_Skew );
+    mat.translatef( m_Rake, 0, m_Skew );
 
-    m_Transform.rotateZ( m_ZRotate ); // About chord
+    mat.rotateZ( m_ZRotate ); // About chord
 
-    m_TransformedCurve.Transform( m_Transform );
+    m_TransformedCurve.Transform( mat );
 }
 
 void PropPositioner::SetCurve( const VspCurve &c )

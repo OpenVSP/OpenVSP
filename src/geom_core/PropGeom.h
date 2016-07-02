@@ -31,8 +31,6 @@ public:
 
     XSecSurf * m_ParentProp;
 
-    Matrix4d m_Transform;
-
     double m_Chord;
 
     double m_Twist;
