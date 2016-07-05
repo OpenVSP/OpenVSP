@@ -15,8 +15,6 @@
 #include "APIDefines.h"
 using namespace vsp;
 
-// Fix thickness/height scaling for non-airfoil Xsec types.
-
 // Remove control points
 // Beautify control point editing GUI
 // Renumbering of parameters when delete points.
@@ -555,44 +553,73 @@ void PropGeom::UpdateSurf()
 
         if ( xs )
         {
-            //==== Find Width Parm ====//
-            string width_id = xs->GetXSecCurve()->GetWidthParmID();
-            Parm* width_parm = ParmMgr.FindParm( width_id );
+            XSecCurve* xsc = xs->GetXSecCurve();
 
             double r = xs->m_RadiusFrac();
             double w = m_ChordCurve.Comp( r ) * radius;
 
-            piecewise_curve_type pwc;
-            if ( width_parm )
+            if ( xsc )
             {
-                width_parm->Deactivate();
-                width_parm->Set( 1.0 );
-                pwc = xs->GetCurve().GetCurve();
-                width_parm->Set( w );
+                //==== Find Width Parm ====//
+                string width_id = xsc->GetWidthParmID();
+                Parm* width_parm = ParmMgr.FindParm( width_id );
+
+                piecewise_curve_type pwc;
+
+                if ( width_parm )
+                {
+                    width_parm->Deactivate();
+
+                    Airfoil* af = dynamic_cast < Airfoil* > ( xsc );
+                    if ( af )
+                    {
+                        width_parm->Set( 1.0 );
+                        pwc = xs->GetCurve().GetCurve();
+                        width_parm->Set( w );
+                    }
+                    else
+                    {
+                        CircleXSec* cir = dynamic_cast < CircleXSec* > ( xsc );
+                        if ( cir )
+                        {
+                            width_parm->Set( 1.0 );
+                            pwc = xs->GetCurve().GetCurve();
+                            width_parm->Set( w );
+                        }
+                        else
+                        {
+                            double h = xs->GetXSecCurve()->GetHeight();
+                            xsc->SetWidthHeight( 1.0, h/w );
+                            pwc = xs->GetCurve().GetCurve();
+                            xsc->SetWidthHeight( w, h );
+                        }
+                    }
+
+                }
+                else
+                {
+                    pwc = xs->GetCurve().GetCurve();
+                }
+
+                // Set up prop positioner for highlight curves - not lofting.
+                xs->m_PropPos.m_ParentProp = GetXSecSurf( 0 );
+                xs->m_PropPos.m_Radius = r * radius;
+                xs->m_PropPos.m_Chord = w;
+                xs->m_PropPos.m_Twist = m_TwistCurve.Comp( r );
+                xs->m_PropPos.m_XRotate = m_XRotateCurve.Comp( r );
+                xs->m_PropPos.m_ZRotate = m_ZRotateCurve.Comp( r );
+                xs->m_PropPos.m_Rake = m_RakeCurve.Comp( r ) * radius;
+                xs->m_PropPos.m_Skew = m_SkewCurve.Comp( r ) * radius;
+                xs->m_PropPos.m_PropRot = m_Rotate();
+                xs->m_PropPos.m_Feather = m_Feather();
+
+                xs->m_PropPos.m_FoldOrigin = m_FoldAxOrigin;
+                xs->m_PropPos.m_FoldDirection = m_FoldAxDirection;
+                xs->m_PropPos.m_FoldAngle = m_FoldAngle();
+
+                rib_vec[i].set_f( pwc );
+                crv_vec[i].SetCurve( pwc );
             }
-            else
-            {
-                pwc = xs->GetCurve().GetCurve();
-            }
-
-            // Set up prop positioner for highlight curves - not lofting.
-            xs->m_PropPos.m_ParentProp = GetXSecSurf( 0 );
-            xs->m_PropPos.m_Radius = r * radius;
-            xs->m_PropPos.m_Chord = w;
-            xs->m_PropPos.m_Twist = m_TwistCurve.Comp( r );
-            xs->m_PropPos.m_XRotate = m_XRotateCurve.Comp( r );
-            xs->m_PropPos.m_ZRotate = m_ZRotateCurve.Comp( r );
-            xs->m_PropPos.m_Rake = m_RakeCurve.Comp( r ) * radius;
-            xs->m_PropPos.m_Skew = m_SkewCurve.Comp( r ) * radius;
-            xs->m_PropPos.m_PropRot = m_Rotate();
-            xs->m_PropPos.m_Feather = m_Feather();
-
-            xs->m_PropPos.m_FoldOrigin = m_FoldAxOrigin;
-            xs->m_PropPos.m_FoldDirection = m_FoldAxDirection;
-            xs->m_PropPos.m_FoldAngle = m_FoldAngle();
-
-            rib_vec[i].set_f( pwc );
-            crv_vec[i].SetCurve( pwc );
         }
     }
 
