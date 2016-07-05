@@ -78,6 +78,26 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 622, "FEA Me
     m_GlobalTabLayout.AddChoice(m_UseSet, "Use Set");
 
     globalTab->show();
+
+
+    //=== Create Console Area ===//
+    m_ConsoleLayout.SetGroupAndScreen( m_FLTK_Window, this );
+
+    m_ConsoleLayout.AddY( m_ConsoleLayout.GetRemainY()
+                        - 7 * m_ConsoleLayout.GetStdHeight()
+                        - 2.0 * m_ConsoleLayout.GetGapHeight() );
+
+    m_ConsoleLayout.AddYGap();
+    m_ConsoleLayout.AddX(5);
+
+    m_ConsoleLayout.AddSubGroupLayout( m_BorderConsoleLayout, m_ConsoleLayout.GetRemainX() - 5.0,
+                                       m_ConsoleLayout.GetRemainY() - 5.0);
+
+    m_ConsoleDisplay = m_BorderConsoleLayout.AddFlTextDisplay( 115 );
+    m_ConsoleBuffer = new Fl_Text_Buffer;
+    m_ConsoleDisplay->buffer( m_ConsoleBuffer );
+
+
 }
 
 StructScreen::~StructScreen()

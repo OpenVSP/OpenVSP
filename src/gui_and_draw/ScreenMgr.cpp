@@ -136,7 +136,7 @@ void ScreenMgr::MessageCallback( const MessageBase* from, const MessageData& dat
     }
     else if ( data.m_String == string( "FEAMessage" ) )
     {
-        FeaStructScreen* scr = ( FeaStructScreen* ) m_ScreenVec[VSP_FEA_MESH_SCREEN];
+        StructScreen* scr = ( StructScreen* ) m_ScreenVec[VSP_STRUCT_SCREEN];
         if ( scr )
         {
             for ( int i = 0; i < (int)data.m_StringVec.size(); i++ )

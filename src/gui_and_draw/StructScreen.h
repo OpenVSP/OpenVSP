@@ -48,6 +48,8 @@ private:
     Fl_Text_Buffer m_TextBuffer;
 
     GroupLayout m_GlobalTabLayout;
+    GroupLayout m_ConsoleLayout;
+    GroupLayout m_BorderConsoleLayout;
 
     //===== Console Items =====//
 
