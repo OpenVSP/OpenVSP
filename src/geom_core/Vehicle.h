@@ -20,6 +20,7 @@
 #include "LightMgr.h"
 #include "DegenGeom.h"
 #include "CfdMeshSettings.h"
+#include "StructSettings.h"
 #include "ClippingMgr.h"
 #include "SnapTo.h"
 #include "STEPutil.h"
@@ -257,6 +258,11 @@ public:
         return &m_CfdSettings;
     }
 
+    StructSettings* GetStructSettingsPtr()
+    {
+        return &m_StructSettings;
+    }
+
     virtual GridDensity* GetCfdGridDensityPtr()
     {
         return &m_CfdGridDensity;
@@ -402,6 +408,7 @@ protected:
 
 
     CfdMeshSettings m_CfdSettings;
+    StructSettings m_StructSettings;
     CfdGridDensity m_CfdGridDensity;
     FeaGridDensity m_FeaGridDensity;
 

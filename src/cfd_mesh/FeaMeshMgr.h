@@ -91,6 +91,11 @@ public:
         return m_Vehicle->GetFeaGridDensityPtr();
     }
 
+    StructSettings* GetStructSettingsPtr()
+    {
+        return m_Vehicle->GetStructSettingsPtr();
+    }
+
     virtual bool LoadSurfaces();
     virtual void Build();
     virtual void Export();
@@ -187,10 +192,6 @@ public:
         return m_CurrEditType;
     }
 
-    virtual bool GetDrawMeshFlag()
-    {
-        return m_DrawMeshFlag;
-    }
     virtual void SetDrawMeshFlag( bool f )
     {
         m_DrawMeshFlag = f;
@@ -271,6 +272,7 @@ private:
     DrawObj m_SkinElemDO;
     DrawObj m_SliceElemDO;
 
+    CfdMeshSettings* GetCfdSettingsPtr()         { return NULL; }
 
 };
 //FEAMesh:

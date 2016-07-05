@@ -1409,6 +1409,7 @@ xmlNodePtr Vehicle::EncodeXml( xmlNodePtr & node, int set )
     VarPresetMgr.EncodeXml( node );
     m_CfdSettings.EncodeXml( node );
     m_CfdGridDensity.EncodeXml( node );
+    m_StructSettings.EncodeXml( node );
     m_FeaGridDensity.EncodeXml( node );
     m_ClippingMgr.EncodeXml( node );
     WaveDragMgr.EncodeXml( node );
@@ -1448,6 +1449,7 @@ xmlNodePtr Vehicle::DecodeXml( xmlNodePtr & node )
     VSPAEROMgr.DecodeXml( node );
     m_CfdSettings.DecodeXml( node );
     m_CfdGridDensity.DecodeXml( node );
+    m_StructSettings.DecodeXml( node );
     m_FeaGridDensity.DecodeXml( node );
     m_ClippingMgr.DecodeXml( node );
     WaveDragMgr.DecodeXml( node );

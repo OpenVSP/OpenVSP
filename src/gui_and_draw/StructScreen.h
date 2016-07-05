@@ -28,6 +28,8 @@ public:
 
     virtual void Show();
 
+    virtual void GuiDeviceCallBack( GuiDevice* device );
+
     virtual void CallBack( Fl_Widget* w );
     virtual void CloseCallBack( Fl_Widget *w );
 
@@ -78,6 +80,13 @@ private:
     TriggerButton m_GlobSrcAdjustRadRhtRht;
 
     Choice m_UseSet;
+
+    //===== Common buttons
+
+    TriggerButton m_ExportFEAMeshButton;
+    TriggerButton m_ComputeFEAMeshButton;
+    ToggleButton m_DrawMeshButton;
+
 
 };
 

@@ -2809,7 +2809,7 @@ void FeaMeshMgrSingleton::MouseClick( vec2d & cursor )
 void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 {
 
-    if ( !m_DrawMeshFlag )
+    if ( !GetStructSettingsPtr()->m_DrawMeshFlag() )
     {
         int k = 0;
         FeaRib* curr_rib = GetCurrRib();

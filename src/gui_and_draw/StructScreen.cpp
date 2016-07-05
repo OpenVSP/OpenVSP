@@ -97,6 +97,16 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 622, "FEA Me
     m_ConsoleBuffer = new Fl_Text_Buffer;
     m_ConsoleDisplay->buffer( m_ConsoleBuffer );
 
+    m_BorderConsoleLayout.AddYGap();
+
+    m_BorderConsoleLayout.SetButtonWidth( m_BorderConsoleLayout.GetW()/3 );
+
+    m_BorderConsoleLayout.SetFitWidthFlag( false );
+    m_BorderConsoleLayout.SetSameLineFlag( true );
+
+    m_BorderConsoleLayout.AddButton( m_ComputeFEAMeshButton, "Compute" );
+    m_BorderConsoleLayout.AddButton( m_ExportFEAMeshButton, "Export" );
+    m_BorderConsoleLayout.AddButton( m_DrawMeshButton, "Draw Mesh" );
 
 }
 
@@ -168,6 +178,8 @@ bool StructScreen::Update()
     m_ThickScale.Update( FeaMeshMgr.m_ThickScale.GetID() );
 
 
+    m_DrawMeshButton.Update( FeaMeshMgr.GetStructSettingsPtr()->m_DrawMeshFlag.GetID() );
+
     return true;
 }
 
@@ -194,6 +206,23 @@ void StructScreen::CallBack( Fl_Widget* w )
 {
 
 
+}
+
+void StructScreen::GuiDeviceCallBack( GuiDevice* device )
+{
+    assert( m_ScreenMgr );
+
+    if ( device == &m_ExportFEAMeshButton )
+    {
+        FeaMeshMgr.Build();
+        FeaMeshMgr.Export();
+        FeaMeshMgr.GetStructSettingsPtr()->m_DrawMeshFlag = true;
+    }
+    else if ( device == &m_ComputeFEAMeshButton )
+    {
+        FeaMeshMgr.Build();
+        FeaMeshMgr.GetStructSettingsPtr()->m_DrawMeshFlag = true;
+    }
 }
 
 void StructScreen::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
