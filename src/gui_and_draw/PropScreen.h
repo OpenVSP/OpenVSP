@@ -49,6 +49,13 @@ protected:
     ToggleButton m_FeatherToggle;
     ToggleRadioGroup m_BetaToggle;
 
+    SliderAdjRangeInput m_RFoldSlider;
+    SliderAdjRangeInput m_AxFoldSlider;
+    SliderAdjRangeInput m_OffFoldSlider;
+    SliderAdjRangeInput m_AzFoldSlider;
+    SliderAdjRangeInput m_ElFoldSlider;
+    SliderAdjRangeInput m_FoldAngleSlider;
+
     SliderInput m_AFLimitSlider;
     StringOutput m_AFOutput;
 

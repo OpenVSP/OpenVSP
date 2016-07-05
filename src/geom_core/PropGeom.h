@@ -43,6 +43,10 @@ public:
     double m_Rake;
     double m_Skew;
 
+    vec3d m_FoldOrigin;
+    vec3d m_FoldDirection;
+    double m_FoldAngle;
+
 protected:
 
     bool m_NeedsUpdate;
@@ -81,6 +85,8 @@ class PropGeom : public GeomXSec
 public:
     PropGeom( Vehicle* vehicle_ptr );
     virtual ~PropGeom();
+
+    virtual void UpdateDrawObj();
 
     virtual void ComputeCenter();
 
@@ -127,6 +133,16 @@ public:
     Parm m_Beta34;
     Parm m_Feather;
     IntParm m_UseBeta34Flag;
+
+    Parm m_RadFoldAxis;
+    Parm m_AxialFoldAxis;
+    Parm m_OffsetFoldAxis;
+    Parm m_AzimuthFoldDir;
+    Parm m_ElevationFoldDir;
+    Parm m_FoldAngle;
+
+    vec3d m_FoldAxOrigin;
+    vec3d m_FoldAxDirection;
 
     IntParm m_Nblade;
 

@@ -77,6 +77,17 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 680, "Propeller
 
     m_DesignLayout.AddYGap();
 
+    m_DesignLayout.AddDividerBox( "Folding" );
+
+    m_DesignLayout.AddSlider( m_FoldAngleSlider, "Angle", 100, "%5.3f" );
+    m_DesignLayout.AddSlider( m_RFoldSlider, "Radial/R", 1, "%5.3f" );
+    m_DesignLayout.AddSlider( m_AxFoldSlider, "Axial/R", 1, "%5.3f" );
+    m_DesignLayout.AddSlider( m_OffFoldSlider, "Offset/R", 1, "%5.3f" );
+    m_DesignLayout.AddSlider( m_AzFoldSlider, "Azimuth", 100, "%5.3f" );
+    m_DesignLayout.AddSlider( m_ElFoldSlider, "Elevation", 100, "%5.3f" );
+
+    m_DesignLayout.AddYGap();
+
     m_DesignLayout.AddDividerBox( "Tip Treatment" );
     m_DesignLayout.AddSlider( m_CapTessSlider, "Cap Tess", 10, "%3.0f" );
 
@@ -658,6 +669,13 @@ bool PropScreen::Update()
     char str[255];
     sprintf( str, "%6.2f", propeller_ptr->m_AF() );
     m_AFOutput.Update( string( str ) );
+
+    m_RFoldSlider.Update( propeller_ptr->m_RadFoldAxis.GetID() );
+    m_AxFoldSlider.Update( propeller_ptr->m_AxialFoldAxis.GetID() );
+    m_OffFoldSlider.Update( propeller_ptr->m_OffsetFoldAxis.GetID() );
+    m_AzFoldSlider.Update( propeller_ptr->m_AzimuthFoldDir.GetID() );
+    m_ElFoldSlider.Update( propeller_ptr->m_ElevationFoldDir.GetID() );
+    m_FoldAngleSlider.Update( propeller_ptr->m_FoldAngle.GetID() );
 
     m_LEClusterSlider.Update( propeller_ptr->m_LECluster.GetID() );
     m_TEClusterSlider.Update( propeller_ptr->m_TECluster.GetID() );

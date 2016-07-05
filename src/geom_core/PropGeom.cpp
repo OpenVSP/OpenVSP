@@ -36,7 +36,6 @@ using namespace vsp;
 
 // New section types
 // Easy prop reversal
-// Consider folding propeller
 
 // Skinning options (PCHIP, Linear, etc.)
 // Adaptive skinning
@@ -61,6 +60,10 @@ PropPositioner::PropPositioner()
     m_Radius = 0.0;
     m_Rake = 0.0;
     m_Skew = 0.0;
+
+    m_FoldOrigin = vec3d( 0, 0, 0 );
+    m_FoldDirection = vec3d( 0, 0, 1 );
+    m_FoldAngle = 0.0;
 
     m_NeedsUpdate = true;
 
@@ -103,6 +106,17 @@ void PropPositioner::Update()
     mat.rotateZ( m_ZRotate ); // About chord
 
     m_TransformedCurve.Transform( mat );
+
+    Matrix4d fold, foldrot;
+
+    fold.loadIdentity();
+    fold.translatef( m_FoldOrigin.x(), m_FoldOrigin.y(), m_FoldOrigin.z() );
+    foldrot.rotate( m_FoldAngle * PI / 180.0, m_FoldDirection );
+    fold.matMult( foldrot.data() );
+    fold.translatef( -m_FoldOrigin.x(), -m_FoldOrigin.y(), -m_FoldOrigin.z() );
+
+    m_TransformedCurve.Transform( fold );
+
 }
 
 void PropPositioner::SetCurve( const VspCurve &c )
@@ -232,6 +246,24 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
 
     m_Rotate.Init( "Rotate", "Design", this, 0.0, -360.0, 360.0 );
     m_Rotate.SetDescript( "Rotation of first propeller blade." );
+
+    m_RadFoldAxis.Init( "RFoldAx", "Design", this, 0.2, 0.0, 1.0 );
+    m_RadFoldAxis.SetDescript( "Radial position of fold axis as fraction of radius" );
+
+    m_AxialFoldAxis.Init( "AxFoldAx", "Design", this, 0, -1.0, 1.0 );
+    m_AxialFoldAxis.SetDescript( "Axial position of fold axis as fraction of radius" );
+
+    m_OffsetFoldAxis.Init( "OffFoldAx", "Design", this, 0, -1.0, 1.0 );
+    m_OffsetFoldAxis.SetDescript( "Offset position of fold axis as fraction of radius" );
+
+    m_AzimuthFoldDir.Init( "AzFoldDir", "Design", this, 0.0, -90.0, 90.0 );
+    m_AzimuthFoldDir.SetDescript( "Azimuth angle of fold axis direction vector" );
+
+    m_ElevationFoldDir.Init( "ElFoldDir", "Design", this, 0.0, -90.0, 90.0 );
+    m_ElevationFoldDir.SetDescript( "Elevation angle of fold axis direction vector" );
+
+    m_FoldAngle.Init( "FoldAngle", "Design", this, 0.0, -180.0, 180.0 );
+    m_FoldAngle.SetDescript( "Propeller fold angle" );
 
     m_Beta34.Init( "Beta34", "Design", this, 20.0, -400.0, 400.0 );
     m_Beta34.SetDescript( "Blade pitch at 3/4 of radius" );
@@ -385,6 +417,19 @@ PropGeom::~PropGeom()
 
 }
 
+void PropGeom::UpdateDrawObj()
+{
+    GeomXSec::UpdateDrawObj();
+
+    DrawObj rotAxis;
+
+    rotAxis.m_PntVec.push_back( m_FoldAxOrigin - m_FoldAxDirection );
+    rotAxis.m_PntVec.push_back( m_FoldAxOrigin + m_FoldAxDirection );
+    rotAxis.m_GeomChanged = true;
+
+    m_FeatureDrawObj_vec.push_back( rotAxis );
+}
+
 void PropGeom::ChangeID( string id )
 {
     Geom::ChangeID( id );
@@ -489,6 +534,13 @@ void PropGeom::UpdateSurf()
         m_Feather.Activate();
     }
 
+    // Set up fold axis & store for visualization.
+    Matrix4d fold, foldrot;
+    fold.loadIdentity();
+    fold.rotateY( m_AzimuthFoldDir() );
+    fold.rotateX( m_ElevationFoldDir() );
+    m_FoldAxDirection = fold.xform( vec3d( 0, 0, 1 ) );
+    m_FoldAxOrigin = vec3d( m_AxialFoldAxis() * radius, m_RadFoldAxis() * radius, m_OffsetFoldAxis() * radius );
 
     //==== Cross Section Curves & joint info ====//
     vector< rib_data_type > rib_vec;
@@ -534,6 +586,10 @@ void PropGeom::UpdateSurf()
             xs->m_PropPos.m_Skew = m_SkewCurve.Comp( r ) * radius;
             xs->m_PropPos.m_PropRot = m_Rotate();
             xs->m_PropPos.m_Feather = m_Feather();
+
+            xs->m_PropPos.m_FoldOrigin = m_FoldAxOrigin;
+            xs->m_PropPos.m_FoldDirection = m_FoldAxDirection;
+            xs->m_PropPos.m_FoldAngle = m_FoldAngle();
 
             rib_vec[i].set_f( pwc );
             crv_vec[i].SetCurve( pwc );
@@ -591,6 +647,10 @@ void PropGeom::UpdateSurf()
 
         pp.m_PropRot = m_Rotate();
         pp.m_Feather = m_Feather();
+
+        pp.m_FoldOrigin = m_FoldAxOrigin;
+        pp.m_FoldDirection = m_FoldAxDirection;
+        pp.m_FoldAngle = m_FoldAngle();
 
         // Set a bunch of other pp variables.
         pp.SetCurve( c );
