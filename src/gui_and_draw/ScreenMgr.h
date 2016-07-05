@@ -59,6 +59,7 @@ public:
            VSP_SET_EDITOR_SCREEN,
            VSP_STEP_OPTIONS_SCREEN,
            VSP_STL_OPTIONS_SCREEN,
+           VSP_STRUCT_SCREEN,
            VSP_SVG_OPTIONS_SCREEN,
            VSP_TYPE_EDITOR_SCREEN,
            VSP_USER_PARM_SCREEN,

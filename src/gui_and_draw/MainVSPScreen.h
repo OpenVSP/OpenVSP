@@ -120,6 +120,7 @@ protected:
     ScreenMenuItem m_ProjectionMenuItem;
     ScreenMenuItem m_CFDMeshMenuItem;
     ScreenMenuItem m_WingStructMenuItem;
+    ScreenMenuItem m_StructMenuItem;
     ScreenMenuItem m_DegenGeomMenuItem;
     ScreenMenuItem m_VSPAEROMenuItem;
     ScreenMenuItem m_ParasiteDragMenuItem;

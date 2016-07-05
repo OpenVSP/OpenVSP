@@ -80,6 +80,7 @@ SelectFileScreen.cpp
 SetEditorScreen.cpp
 SnapToScreen.cpp
 StackScreen.cpp
+StructScreen.cpp
 STEPOptionsScreen.cpp
 STLOptionsScreen.cpp
 SubGLWindow.cpp
@@ -147,6 +148,7 @@ SelectFileScreen.h
 SetEditorScreen.h
 SnapToScreen.h
 StackScreen.h
+StructScreen.h
 STEPOptionsScreen.h
 STLOptionsScreen.h
 SubGLWindow.h
