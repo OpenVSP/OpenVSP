@@ -3,7 +3,6 @@
 #include "Vehicle.h"
 #include "ScreenMgr.h"
 #include "CfdMeshScreen.h"
-#include "FeaStructScreen.h"
 #include "StructScreen.h"
 #include "Display.h"
 #include "Scene.h"
@@ -297,14 +296,6 @@ void VspGlWindow::update()
         if( measureScreen )
         {
             measureScreen->LoadDrawObjs( drawObjs );
-        }
-
-        // Load Render Objects from FeaStructScreen.
-        FeaStructScreen * feaScreen = dynamic_cast< FeaStructScreen* >
-            ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_FEA_MESH_SCREEN ) );
-        if( feaScreen )
-        {
-            feaScreen->LoadDrawObjs( drawObjs );
         }
 
         // Load Render Objects from FeaStructScreen.
