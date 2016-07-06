@@ -50,6 +50,7 @@ private:
     Fl_Text_Buffer m_TextBuffer;
 
     GroupLayout m_GlobalTabLayout;
+    GroupLayout m_OutputTabLayout;
     GroupLayout m_ConsoleLayout;
     GroupLayout m_BorderConsoleLayout;
 
@@ -80,6 +81,26 @@ private:
     TriggerButton m_GlobSrcAdjustRadRhtRht;
 
     Choice m_UseSet;
+
+    //===== Output Tab Items =====//
+
+    ToggleButton m_StlFile;
+    ToggleButton m_MassFile;
+    ToggleButton m_NastFile;
+    ToggleButton m_GeomFile;
+    ToggleButton m_ThickFile;
+
+    TriggerButton m_SelectStlFile;
+    TriggerButton m_SelectMassFile;
+    TriggerButton m_SelectNastFile;
+    TriggerButton m_SelectGeomFile;
+    TriggerButton m_SelectThickFile;
+
+    StringOutput m_StlOutput;
+    StringOutput m_MassOutput;
+    StringOutput m_NastOutput;
+    StringOutput m_GeomOutput;
+    StringOutput m_ThickOutput;
 
     //===== Common buttons
 

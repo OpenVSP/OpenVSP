@@ -26,6 +26,8 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 622, "FEA Me
 
     Fl_Group* globalTab = AddTab( "Global" );
     Fl_Group* globalTabGroup = AddSubGroup( globalTab, 5 );
+    Fl_Group* outputTab = AddTab( "Output" );
+    Fl_Group* outputTabGroup = AddSubGroup( outputTab, 5 );
 
     m_GlobalTabLayout.SetGroupAndScreen( globalTabGroup, this );
 
@@ -79,6 +81,61 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 622, "FEA Me
 
     globalTab->show();
 
+
+    m_OutputTabLayout.SetGroupAndScreen( outputTabGroup, this );
+
+    m_OutputTabLayout.AddDividerBox("Export File Names");
+    m_OutputTabLayout.AddYGap();
+
+    m_OutputTabLayout.SetFitWidthFlag( false );
+    m_OutputTabLayout.SetSameLineFlag( true );
+
+    m_OutputTabLayout.SetButtonWidth(50);
+    m_OutputTabLayout.SetInputWidth(305);
+
+
+    m_OutputTabLayout.AddButton(m_StlFile, ".stl");
+    m_OutputTabLayout.AddOutput(m_StlOutput);
+    m_OutputTabLayout.AddButton(m_SelectStlFile, "...");
+    m_OutputTabLayout.ForceNewLine();
+
+    m_OutputTabLayout.AddYGap();
+    m_OutputTabLayout.SetFitWidthFlag( true );
+    m_OutputTabLayout.AddDividerBox( "Mass" );
+    m_OutputTabLayout.ForceNewLine();
+    m_OutputTabLayout.SetFitWidthFlag( false );
+
+    m_OutputTabLayout.AddButton(m_MassFile, ".mass");
+    m_OutputTabLayout.AddOutput(m_MassOutput);
+    m_OutputTabLayout.AddButton(m_SelectMassFile, "...");
+    m_OutputTabLayout.ForceNewLine();
+
+    m_OutputTabLayout.AddYGap();
+    m_OutputTabLayout.SetFitWidthFlag( true );
+    m_OutputTabLayout.AddDividerBox( "NASTRAN" );
+    m_OutputTabLayout.ForceNewLine();
+    m_OutputTabLayout.SetFitWidthFlag( false );
+
+    m_OutputTabLayout.AddButton(m_NastFile, ".nast");
+    m_OutputTabLayout.AddOutput(m_NastOutput);
+    m_OutputTabLayout.AddButton(m_SelectNastFile, "...");
+    m_OutputTabLayout.ForceNewLine();
+
+    m_OutputTabLayout.AddYGap();
+    m_OutputTabLayout.SetFitWidthFlag( true );
+    m_OutputTabLayout.AddDividerBox( "Calculix" );
+    m_OutputTabLayout.ForceNewLine();
+    m_OutputTabLayout.SetFitWidthFlag( false );
+
+    m_OutputTabLayout.AddButton(m_GeomFile, ".geom");
+    m_OutputTabLayout.AddOutput(m_GeomOutput);
+    m_OutputTabLayout.AddButton(m_SelectGeomFile, "...");
+    m_OutputTabLayout.ForceNewLine();
+
+    m_OutputTabLayout.AddButton(m_ThickFile, ".thick");
+    m_OutputTabLayout.AddOutput(m_ThickOutput);
+    m_OutputTabLayout.AddButton(m_SelectThickFile, "...");
+    m_OutputTabLayout.ForceNewLine();
 
     //=== Create Console Area ===//
     m_ConsoleLayout.SetGroupAndScreen( m_FLTK_Window, this );
