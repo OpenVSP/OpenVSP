@@ -891,7 +891,7 @@ void GroupLayout::AddIndexSelector( IndexSelector& selector, const char* label, 
     but_ll->labelsize( 20 );
     but_ll->labelcolor( ( Fl_Color )4 );
     but_ll->align( Fl_Align( FL_ALIGN_CLIP ) );
-
+    m_Group->add( but_ll );
     AddX( butw );
 
     Fl_Button* but_l = new Fl_Button( m_X, m_Y, butw, m_StdHeight, "<" );
@@ -900,7 +900,7 @@ void GroupLayout::AddIndexSelector( IndexSelector& selector, const char* label, 
     but_l->labelsize( 20 );
     but_l->labelcolor( ( Fl_Color )4 );
     but_l->align( Fl_Align( FL_ALIGN_CLIP ) );
-
+    m_Group->add( but_l );
     AddX( butw );
 
     int iw = FitWidth( 4 * butw + used_w, m_InputWidth );
@@ -912,7 +912,7 @@ void GroupLayout::AddIndexSelector( IndexSelector& selector, const char* label, 
     int_inp->textsize( 14 );
     int_inp->align( Fl_Align( FL_ALIGN_CENTER ) );
     int_inp->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE );
-
+    m_Group->add( int_inp );
     AddX( iw );
 
     Fl_Button* but_r = new Fl_Button( m_X, m_Y, butw, m_StdHeight, ">" );
@@ -921,7 +921,7 @@ void GroupLayout::AddIndexSelector( IndexSelector& selector, const char* label, 
     but_r->labelsize( 20 );
     but_r->labelcolor( ( Fl_Color )4 );
     but_r->align( Fl_Align( FL_ALIGN_CLIP ) );
-
+    m_Group->add( but_r );
     AddX( butw );
 
     Fl_Button* but_rr = new Fl_Button( m_X, m_Y, butw, m_StdHeight, ">>" );
@@ -930,7 +930,7 @@ void GroupLayout::AddIndexSelector( IndexSelector& selector, const char* label, 
     but_rr->labelsize( 20 );
     but_rr->labelcolor( ( Fl_Color )4 );
     but_rr->align( Fl_Align( FL_ALIGN_CLIP ) );
-
+    m_Group->add( but_rr );
     AddX( butw );
 
     selector.Init( m_Screen, but_ll, but_l, int_inp, but_r, but_rr, button );
