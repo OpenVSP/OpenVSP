@@ -268,6 +268,8 @@ bool StructScreen::Update()
     m_GrowthRatio.Update( FeaMeshMgr.GetGridDensityPtr()->m_GrowRatio.GetID() );
     m_ThickScale.Update( FeaMeshMgr.m_ThickScale.GetID() );
 
+    //==== SectID ====//
+    m_SectSel.SetIndex( FeaMeshMgr.GetCurrSectID() );
 
     m_DrawMeshButton.Update( FeaMeshMgr.GetStructSettingsPtr()->m_DrawMeshFlag.GetID() );
 
@@ -332,6 +334,10 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         FeaMeshMgr.Build();
         FeaMeshMgr.GetStructSettingsPtr()->m_DrawMeshFlag = true;
+    }
+    else if ( device == &m_SectSel )
+    {
+        FeaMeshMgr.SetCurrSectID( m_SectSel.GetIndex() );
     }
     else if ( device == &m_SelectStlFile )
     {
