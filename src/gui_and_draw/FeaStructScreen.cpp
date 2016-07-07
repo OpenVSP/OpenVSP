@@ -515,15 +515,15 @@ bool FeaStructScreen::Update()
         m_FeaStructUI->moveAttachPointButton->value( 0 );
     }
 
-    string massname = FeaMeshMgr.GetFeaExportFileName( FeaMeshMgrSingleton::MASS_FILE_NAME );
+    string massname = FeaMeshMgr.GetStructSettingsPtr()->GetExportFileName( vsp::MASS_FILE_NAME );
     m_FeaStructUI->massName->value( truncateFileName( massname, 40 ).c_str() );
-    string nastranname = FeaMeshMgr.GetFeaExportFileName( FeaMeshMgrSingleton::NASTRAN_FILE_NAME );
+    string nastranname = FeaMeshMgr.GetStructSettingsPtr()->GetExportFileName( vsp::NASTRAN_FILE_NAME );
     m_FeaStructUI->nastranName->value( truncateFileName( nastranname, 40 ).c_str() );
-    string geomname = FeaMeshMgr.GetFeaExportFileName( FeaMeshMgrSingleton::GEOM_FILE_NAME );
+    string geomname = FeaMeshMgr.GetStructSettingsPtr()->GetExportFileName( vsp::GEOM_FILE_NAME );
     m_FeaStructUI->geomName->value( truncateFileName( geomname, 40 ).c_str() );
-    string thickname = FeaMeshMgr.GetFeaExportFileName( FeaMeshMgrSingleton::THICK_FILE_NAME );
+    string thickname = FeaMeshMgr.GetStructSettingsPtr()->GetExportFileName( vsp::THICK_FILE_NAME );
     m_FeaStructUI->thickName->value( truncateFileName( thickname, 40 ).c_str() );
-    string stlname = FeaMeshMgr.GetFeaExportFileName( FeaMeshMgrSingleton::STL_FEA_NAME );
+    string stlname = FeaMeshMgr.GetStructSettingsPtr()->GetExportFileName( vsp::STL_FEA_NAME );
     m_FeaStructUI->stlName->value( truncateFileName( stlname, 40 ).c_str() );
 
     return true;
@@ -997,7 +997,7 @@ void FeaStructScreen::CallBack( Fl_Widget* w )
         string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select Mass .dat file.", "*.dat" );
         if ( newfile.compare( "" ) != 0 )
         {
-            FeaMeshMgr.SetFeaExportFileName( newfile, FeaMeshMgrSingleton::MASS_FILE_NAME );
+            FeaMeshMgr.GetStructSettingsPtr()->SetExportFileName( newfile, vsp::MASS_FILE_NAME );
         }
         Update();
     }
@@ -1006,7 +1006,7 @@ void FeaStructScreen::CallBack( Fl_Widget* w )
         string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select NASTRAN .dat file.", "*.dat" );
         if ( newfile.compare( "" ) != 0 )
         {
-            FeaMeshMgr.SetFeaExportFileName( newfile, FeaMeshMgrSingleton::NASTRAN_FILE_NAME );
+            FeaMeshMgr.GetStructSettingsPtr()->SetExportFileName( newfile, vsp::NASTRAN_FILE_NAME );
         }
         Update();
     }
@@ -1015,7 +1015,7 @@ void FeaStructScreen::CallBack( Fl_Widget* w )
         string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select Calculix Geom .dat file.", "*.dat" );
         if ( newfile.compare( "" ) != 0 )
         {
-            FeaMeshMgr.SetFeaExportFileName( newfile, FeaMeshMgrSingleton::GEOM_FILE_NAME );
+            FeaMeshMgr.GetStructSettingsPtr()->SetExportFileName( newfile, vsp::GEOM_FILE_NAME );
         }
         Update();
     }
@@ -1024,7 +1024,7 @@ void FeaStructScreen::CallBack( Fl_Widget* w )
         string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select Calculix Thickness .dat file.", "*.dat" );
         if ( newfile.compare( "" ) != 0 )
         {
-            FeaMeshMgr.SetFeaExportFileName( newfile, FeaMeshMgrSingleton::THICK_FILE_NAME );
+            FeaMeshMgr.GetStructSettingsPtr()->SetExportFileName( newfile, vsp::THICK_FILE_NAME );
         }
         Update();
     }
@@ -1033,7 +1033,7 @@ void FeaStructScreen::CallBack( Fl_Widget* w )
         string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .stl file.", "*.stl" );
         if ( newfile.compare( "" ) != 0 )
         {
-            FeaMeshMgr.SetFeaExportFileName( newfile, FeaMeshMgrSingleton::STL_FEA_NAME );
+            FeaMeshMgr.GetStructSettingsPtr()->SetExportFileName( newfile, vsp::STL_FEA_NAME );
         }
         Update();
     }

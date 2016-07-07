@@ -83,15 +83,11 @@ StructSettings::StructSettings() : ParmContainer()
     m_SelectedSetIndex.Init( "Set", "Global", this, 0, 0, 12 );
     m_SelectedSetIndex.SetDescript( "Selected set for operation" );
 
-    m_ExportFileFlags[ vsp::CFD_DAT_FILE_NAME ].Init( "DAT_Export", "ExportCFD", this, true, 0, 1 );
-    m_ExportFileFlags[ vsp::CFD_KEY_FILE_NAME ].Init( "KEY_Export", "ExportCFD", this, true, 0, 1 );
-    m_ExportFileFlags[ vsp::CFD_OBJ_FILE_NAME ].Init( "OBJ_Export", "ExportCFD", this, true, 0, 1 );
-    m_ExportFileFlags[ vsp::CFD_POLY_FILE_NAME ].Init( "POLY_Export", "ExportCFD", this, true, 0, 1 );
-    m_ExportFileFlags[ vsp::CFD_STL_FILE_NAME ].Init( "STL_Export", "ExportCFD", this, true, 0, 1 );
-    m_ExportFileFlags[ vsp::CFD_TRI_FILE_NAME ].Init( "TRI_Export", "ExportCFD", this, true, 0, 1 );
-    m_ExportFileFlags[ vsp::CFD_GMSH_FILE_NAME ].Init( "GMSH_Export", "ExportCFD", this, true, 0, 1 );
-    m_ExportFileFlags[ vsp::CFD_SRF_FILE_NAME ].Init( "SRF_Export", "ExportCFD", this, true, 0, 1 );
-    m_ExportFileFlags[ vsp::CFD_TKEY_FILE_NAME ].Init( "TKEY_Export", "ExportCFD", this, true, 0, 1 );
+    m_ExportFileFlags[ vsp::MASS_FILE_NAME ].Init( "MASS_Export", "ExportFEA", this, true, 0, 1 );
+    m_ExportFileFlags[ vsp::NASTRAN_FILE_NAME ].Init( "NASTRAN_Export", "ExportFEA", this, true, 0, 1 );
+    m_ExportFileFlags[ vsp::GEOM_FILE_NAME ].Init( "GEOM_Export", "ExportFEA", this, true, 0, 1 );
+    m_ExportFileFlags[ vsp::THICK_FILE_NAME ].Init( "THICK_Export", "ExportFEA", this, true, 0, 1 );
+    m_ExportFileFlags[ vsp::STL_FEA_NAME ].Init( "STL_Export", "ExportFEA", this, true, 0, 1 );
 
     m_XYZIntCurveFlag.Init( "SRF_XYZIntCurve", "ExportCFD", this, false, 0, 1 );
 }
@@ -140,7 +136,7 @@ void StructSettings::ParmChanged( Parm* parm_ptr, int type )
 
 string StructSettings::GetExportFileName( int type )
 {
-    if ( type >= 0 && type < vsp::CFD_NUM_FILE_NAMES )
+    if ( type >= 0 && type < vsp::NUM_FEA_FILE_NAMES )
     {
         return m_ExportFileNames[type];
     }
@@ -150,7 +146,7 @@ string StructSettings::GetExportFileName( int type )
 
 void StructSettings::SetExportFileName( const string &fn, int type )
 {
-    if ( type >= 0 && type < vsp::CFD_NUM_FILE_NAMES )
+    if ( type >= 0 && type < vsp::NUM_FEA_FILE_NAMES )
     {
         m_ExportFileNames[type] = fn;
     }
@@ -168,9 +164,9 @@ void StructSettings::ResetExportFileNames()
 void StructSettings::ResetExportFileNames( string basename )
 {
     int pos;
-    const char *suffix[] = {".stl", ".poly", ".tri", ".obj", "_NASCART.dat", "_NASCART.key", ".msh", ".srf", ".tkey" };
+    const char *suffix[] = {"_mass.dat", "_NASTRAN.dat", "_calculix_geom.dat", "_calculix_thick.dat", ".stl" };
 
-    for ( int i = 0 ; i < vsp::CFD_NUM_FILE_NAMES ; i++ )
+    for ( int i = 0 ; i < vsp::NUM_FEA_FILE_NAMES ; i++ )
     {
         m_ExportFileNames[i] = basename;
         pos = m_ExportFileNames[i].find( ".vsp3" );
@@ -184,14 +180,14 @@ void StructSettings::ResetExportFileNames( string basename )
 
 BoolParm* StructSettings::GetExportFileFlag( int type )
 {
-    assert( type >= 0 && type < vsp::CFD_NUM_FILE_NAMES );
+    assert( type >= 0 && type < vsp::NUM_FEA_FILE_NAMES );
 
     return &m_ExportFileFlags[type];
 }
 
 void StructSettings::SetAllFileExportFlags( bool flag )
 {
-    for ( int i = 0 ; i < vsp::CFD_NUM_FILE_NAMES ; i++ )
+    for ( int i = 0 ; i < vsp::NUM_FEA_FILE_NAMES ; i++ )
     {
 		m_ExportFileFlags[i] = flag;
 	}
@@ -199,6 +195,6 @@ void StructSettings::SetAllFileExportFlags( bool flag )
 
 void StructSettings::SetFileExportFlag( int type, bool flag )
 {
-	if ( type >= 0 && type < vsp::CFD_NUM_FILE_NAMES )
+	if ( type >= 0 && type < vsp::NUM_FEA_FILE_NAMES )
 		m_ExportFileFlags[type] = flag;
 }

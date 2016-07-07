@@ -285,6 +285,15 @@ enum CFD_MESH_SOURCE_TYPE { POINT_SOURCE,
                             NUM_SOURCE_TYPES,
                           };
 
+enum FEA_EXPORT_TYPE { MASS_FILE_NAME,
+                       NASTRAN_FILE_NAME,
+                       GEOM_FILE_NAME,
+                       THICK_FILE_NAME,
+                       STL_FEA_NAME,
+                       NUM_FEA_FILE_NAMES
+};
+
+
 enum XDDM_QUANTITY_TYPE { XDDM_VAR,
                           XDDM_CONST,
                         };

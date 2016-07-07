@@ -418,59 +418,6 @@ void FeaMeshMgrSingleton::CleanUp()
     CfdMeshMgrSingleton::CleanUp();
 }
 
-string FeaMeshMgrSingleton::GetFeaExportFileName( int type )
-{
-    if ( type >= 0 && type < NUM_FEA_FILE_NAMES )
-    {
-        return m_ExportFeaFileNames[type];
-    }
-
-    return string();
-}
-
-void FeaMeshMgrSingleton::SetFeaExportFileName( const string &fn, int type )
-{
-    if ( type >= 0 && type < NUM_FEA_FILE_NAMES )
-    {
-        m_ExportFeaFileNames[type] = fn;
-    }
-}
-
-bool FeaMeshMgrSingleton::GetFeaExportFileFlag( int type )
-{
-    if ( type >= 0 && type < NUM_FEA_FILE_NAMES )
-    {
-        return m_ExportFeaFileFlags[type];
-    }
-
-    return false;
-}
-
-void FeaMeshMgrSingleton::SetFeaExportFileFlag( bool flag, int type )
-{
-    if ( type >= 0 && type < NUM_FEA_FILE_NAMES )
-    {
-        m_ExportFeaFileFlags[type] = flag;
-    }
-}
-
-void FeaMeshMgrSingleton::ResetFeaExportFileNames()
-{
-    int pos;
-    const char *suffix[] = {"_mass.dat", "_NASTRAN.dat", "_calculix_geom.dat", "_calculix_thick.dat", ".stl" };
-
-    for ( int i = 0 ; i < NUM_FEA_FILE_NAMES ; i++ )
-    {
-        m_ExportFeaFileNames[i] = m_Vehicle->GetVSP3FileName();
-        pos = m_ExportFeaFileNames[i].find( ".vsp" );
-        if ( pos >= 0 )
-        {
-            m_ExportFeaFileNames[i].erase( pos, m_ExportFeaFileNames[i].length() - 1 );
-        }
-        m_ExportFeaFileNames[i].append( suffix[i] );
-    }
-}
-
 void FeaMeshMgrSingleton::SaveData()
 {
     if ( !m_WingGeom )
@@ -750,9 +697,9 @@ void FeaMeshMgrSingleton::Export()
 {
     addOutputText( "Write Results\n", FEA_OUTPUT );
 
-    WriteNASTRAN( m_ExportFeaFileNames[NASTRAN_FILE_NAME] );
+    WriteNASTRAN( GetStructSettingsPtr()->GetExportFileName( vsp::NASTRAN_FILE_NAME ) );
     WriteCalculix();
-    WriteSTL( m_ExportFeaFileNames[STL_FEA_NAME] );
+    WriteSTL( GetStructSettingsPtr()->GetExportFileName( vsp::STL_FEA_NAME ) );
 
     addOutputText( "Wrote Calculix File: feageom.dat\n", FEA_OUTPUT );
     addOutputText( "Wrote Calculix File: feanodethick.dat\n", FEA_OUTPUT );
@@ -1517,7 +1464,7 @@ void FeaMeshMgrSingleton::ComputeWriteMass()
 
     m_TotalMass = total_mass;
 
-    FILE* fp = fopen( m_ExportFeaFileNames[MASS_FILE_NAME].c_str(), "w" );
+    FILE* fp = fopen( GetStructSettingsPtr()->GetExportFileName( vsp::MASS_FILE_NAME ).c_str(), "w" );
     if ( fp )
     {
         fprintf( fp, "Section_ID, Upper_Skin_Mass, Lower_Skin_Mass, Rib_Mass, Spar_Mass, Total_Section_Mass\n" );
@@ -1961,7 +1908,7 @@ void FeaMeshMgrSingleton::WriteCalculix( )
     //Stringc fn( base_filename );
     //fn.concatenate( "geom.dat" );
 
-    string fn = m_ExportFeaFileNames[GEOM_FILE_NAME];
+    string fn = GetStructSettingsPtr()->GetExportFileName( vsp::GEOM_FILE_NAME );
     FILE* fp = fopen( fn.c_str(), "w" );
     if ( fp )
     {
@@ -2135,7 +2082,7 @@ void FeaMeshMgrSingleton::WriteCalculix( )
     //Stringc node_fn( base_filename );
     //node_fn.concatenate( "nodethick.dat" );
 
-    string node_fn = m_ExportFeaFileNames[THICK_FILE_NAME];
+    string node_fn = GetStructSettingsPtr()->GetExportFileName( vsp::THICK_FILE_NAME );
     fp = fopen( node_fn.c_str(), "w" );
     if ( fp )
     {

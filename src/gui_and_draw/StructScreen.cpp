@@ -271,6 +271,25 @@ bool StructScreen::Update()
 
     m_DrawMeshButton.Update( FeaMeshMgr.GetStructSettingsPtr()->m_DrawMeshFlag.GetID() );
 
+
+    string massname = FeaMeshMgr.GetStructSettingsPtr()->GetExportFileName( vsp::MASS_FILE_NAME );
+    m_MassOutput.Update( truncateFileName( massname, 40 ).c_str() );
+    string nastranname = FeaMeshMgr.GetStructSettingsPtr()->GetExportFileName( vsp::NASTRAN_FILE_NAME );
+    m_NastOutput.Update( truncateFileName( nastranname, 40 ).c_str() );
+    string geomname = FeaMeshMgr.GetStructSettingsPtr()->GetExportFileName( vsp::GEOM_FILE_NAME );
+    m_GeomOutput.Update( truncateFileName( geomname, 40 ).c_str() );
+    string thickname = FeaMeshMgr.GetStructSettingsPtr()->GetExportFileName( vsp::THICK_FILE_NAME );
+    m_ThickOutput.Update( truncateFileName( thickname, 40 ).c_str() );
+    string stlname = FeaMeshMgr.GetStructSettingsPtr()->GetExportFileName( vsp::STL_FEA_NAME );
+    m_StlOutput.Update( truncateFileName( stlname, 40 ).c_str() );
+
+    //==== Update File Output Flags ====//
+    m_MassFile.Update( FeaMeshMgr.GetStructSettingsPtr()->GetExportFileFlag( vsp::MASS_FILE_NAME )->GetID() );
+    m_NastFile.Update( FeaMeshMgr.GetStructSettingsPtr()->GetExportFileFlag( vsp::NASTRAN_FILE_NAME )->GetID() );
+    m_GeomFile.Update( FeaMeshMgr.GetStructSettingsPtr()->GetExportFileFlag( vsp::GEOM_FILE_NAME )->GetID() );
+    m_ThickFile.Update( FeaMeshMgr.GetStructSettingsPtr()->GetExportFileFlag( vsp::THICK_FILE_NAME )->GetID() );
+    m_StlFile.Update( FeaMeshMgr.GetStructSettingsPtr()->GetExportFileFlag( vsp::STL_FEA_NAME )->GetID() );
+
     return true;
 }
 
@@ -314,6 +333,48 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
         FeaMeshMgr.Build();
         FeaMeshMgr.GetStructSettingsPtr()->m_DrawMeshFlag = true;
     }
+    else if ( device == &m_SelectStlFile )
+    {
+        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .stl file.", "*.stl" );
+        if ( newfile.compare( "" ) != 0 )
+        {
+            FeaMeshMgr.GetStructSettingsPtr()->SetExportFileName( newfile, vsp::STL_FEA_NAME );
+        }
+    }
+    else if ( device == &m_SelectMassFile )
+    {
+        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select mass .dat file.", "*.dat" );
+        if ( newfile.compare( "" ) != 0 )
+        {
+            FeaMeshMgr.GetStructSettingsPtr()->SetExportFileName( newfile, vsp::MASS_FILE_NAME );
+        }
+    }
+    else if ( device == &m_SelectNastFile )
+    {
+        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select NASTRAN .dat file.", "*.dat" );
+        if ( newfile.compare( "" ) != 0 )
+        {
+            FeaMeshMgr.GetStructSettingsPtr()->SetExportFileName( newfile, vsp::NASTRAN_FILE_NAME );
+        }
+    }
+    else if ( device == &m_SelectGeomFile  )
+    {
+        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select Calculix geom .dat file.", "*.dat" );
+        if ( newfile.compare( "" ) != 0 )
+        {
+            FeaMeshMgr.GetStructSettingsPtr()->SetExportFileName( newfile, vsp::GEOM_FILE_NAME );
+        }
+    }
+    else if ( device == &m_SelectThickFile )
+    {
+        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select Calculix thick .dat file.", "*.dat" );
+        if ( newfile.compare( "" ) != 0 )
+        {
+            FeaMeshMgr.GetStructSettingsPtr()->SetExportFileName( newfile, vsp::THICK_FILE_NAME );
+        }
+    }
+
+    m_ScreenMgr->SetUpdateFlag( true );
 }
 
 void StructScreen::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )

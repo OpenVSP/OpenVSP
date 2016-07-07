@@ -176,7 +176,7 @@ public:
 
     IntParm m_SelectedSetIndex;
 
-    BoolParm m_ExportFileFlags[vsp::CFD_NUM_FILE_NAMES];
+    BoolParm m_ExportFileFlags[vsp::NUM_FEA_FILE_NAMES];
     BoolParm m_XYZIntCurveFlag;
 
 protected:
@@ -185,7 +185,7 @@ protected:
     // the file name is set (save/save as/open).  There is no way to have good
     // default behavior based on the main file name -- and to use the user-set
     // file names.
-    string m_ExportFileNames[vsp::CFD_NUM_FILE_NAMES];
+    string m_ExportFileNames[vsp::NUM_FEA_FILE_NAMES];
 
 };
 

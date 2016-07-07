@@ -219,13 +219,6 @@ public:
     virtual void CursorPos( vec2d & cursor );
     virtual void MouseClick( vec2d & cursor );
 
-    enum { MASS_FILE_NAME, NASTRAN_FILE_NAME, GEOM_FILE_NAME, THICK_FILE_NAME, STL_FEA_NAME, NUM_FEA_FILE_NAMES };
-    string GetFeaExportFileName( int type );
-    void SetFeaExportFileName( const string &fn, int type );
-    bool GetFeaExportFileFlag( int type );
-    void SetFeaExportFileFlag( bool flag, int type );
-    void ResetFeaExportFileNames();
-
     Parm m_ThickScale;
 
 protected:
@@ -261,10 +254,6 @@ protected:
     vector< vec3d > m_AttachPoints;
 
     vector< FeaPointMass* > m_PointMassVec;
-
-    bool m_ExportFeaFileFlags[NUM_FEA_FILE_NAMES];
-    string m_ExportFeaFileNames[NUM_FEA_FILE_NAMES];
-
 
     vector< vec3d >debugPnts;
 
