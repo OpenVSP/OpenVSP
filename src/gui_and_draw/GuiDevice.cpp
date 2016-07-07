@@ -3092,6 +3092,71 @@ void Group::Show()
 }
 
 //=====================================================================//
+//===========       Tab Group Device                        ===========//
+//=====================================================================//
+TabGroup::TabGroup()
+{
+    m_MenuTabs = NULL;
+}
+
+void TabGroup::Init( VspScreen* screen, Fl_Tabs* tabs )
+{
+    GuiDevice::Init( screen );
+
+    m_MenuTabs = tabs;
+}
+
+void TabGroup::Hide()
+{
+    if ( m_MenuTabs )
+    {
+        m_MenuTabs->hide();
+    }
+}
+
+void TabGroup::Show()
+{
+    if ( m_MenuTabs )
+    {
+        m_MenuTabs->show();
+    }
+}
+
+void TabGroup::AddTabLayout( GroupLayout& layout, const string & title, int border )
+{
+    int rx, ry, rw, rh;
+    m_MenuTabs->client_area( rx, ry, rw, rh, TAB_H );
+
+    rx += border;
+    ry += border;
+    rw -= 2 * border;
+    rh -= 2 * border;
+
+    Fl_Group* grp = new Vsp_Group( rx, ry, rw, rh );
+    grp->copy_label( title.c_str() );
+    grp->selection_color( FL_GRAY );
+    grp->labelfont( 1 );
+    grp->labelcolor( FL_BLACK );
+    grp->hide();
+    m_TabGroupVec.push_back( grp );
+
+    m_MenuTabs->add( grp );
+
+    layout.SetGroupAndScreen( grp, m_Screen );
+}
+
+void TabGroup::ShowTab( int index )
+{
+    if ( index >= 0 && index < ( int )m_TabGroupVec.size() )
+    {
+        if ( m_TabGroupVec[index] )
+        {
+            m_TabGroupVec[index]->show();
+        }
+    }
+}
+
+//=====================================================================//
 //===========       Tab Device                          ===========//
 //=====================================================================//
 Tab::Tab()

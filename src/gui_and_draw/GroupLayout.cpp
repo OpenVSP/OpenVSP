@@ -1089,6 +1089,21 @@ void GroupLayout::AddSubGroupLayout( GroupLayout& layout, int w, int h )
     layout.SetGroupAndScreen( grp,  m_Screen );
 }
 
+//==== Add Tab Group Layout At Current Position  ====//
+void GroupLayout::AddTabGroup( TabGroup &tgrp, int w, int h )
+{
+    Fl_Tabs* tabs = new Fl_Tabs( m_X, m_Y, w , h );
+    tabs->labelcolor( FL_BLUE );
+
+    m_Group->add( tabs );
+
+    AddX( w );
+    AddY( h );
+    NewLineX();
+
+    tgrp.Init( m_Screen, tabs );
+}
+
 //==== Add Fl_CheckBrowser ====//
 Fl_Check_Browser* GroupLayout::AddCheckBrowser( int h )
 {

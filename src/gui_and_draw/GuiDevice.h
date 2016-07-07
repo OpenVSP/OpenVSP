@@ -897,6 +897,31 @@ protected:
     Fl_Group* m_Group;
 };
 
+class TabGroup : public GuiDevice
+{
+public:
+    TabGroup();
+
+    virtual void Init( VspScreen* screen, Fl_Tabs* tabs );
+    virtual void Hide();
+    virtual void Show();
+
+    virtual void DeviceCB( Fl_Widget* w )           {}
+
+    virtual void AddTabLayout( GroupLayout& layout, const string &title, int border );
+    virtual void ShowTab( int index );
+
+protected:
+
+    virtual void SetValAndLimits( Parm* parm_ptr )  {}
+
+    enum { TAB_H = 25 };
+
+    Fl_Tabs* m_MenuTabs;
+
+    vector< Fl_Group* > m_TabGroupVec;
+};
+
 class Tab : public Group
 {
 public:
