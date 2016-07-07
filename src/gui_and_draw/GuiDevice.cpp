@@ -3127,11 +3127,6 @@ void TabGroup::AddTabLayout( GroupLayout& layout, const string & title, int bord
     int rx, ry, rw, rh;
     m_MenuTabs->client_area( rx, ry, rw, rh, TAB_H );
 
-    rx += border;
-    ry += border;
-    rw -= 2 * border;
-    rh -= 2 * border;
-
     Fl_Group* grp = new Vsp_Group( rx, ry, rw, rh );
     grp->copy_label( title.c_str() );
     grp->selection_color( FL_GRAY );
@@ -3142,7 +3137,19 @@ void TabGroup::AddTabLayout( GroupLayout& layout, const string & title, int bord
 
     m_MenuTabs->add( grp );
 
-    layout.SetGroupAndScreen( grp, m_Screen );
+    m_MenuTabs->client_area( rx, ry, rw, rh, TAB_H );
+
+    int x = rx + border;
+    int y = ry + border;
+    int w = rw - 2 * border;
+    int h = rh - 2 * border;
+
+    Fl_Group* sub_group = new Fl_Group( x, y, w, h );
+    sub_group->show();
+
+    grp->add( sub_group );
+
+    layout.SetGroupAndScreen( sub_group, m_Screen );
 }
 
 void TabGroup::ShowTab( int index )
