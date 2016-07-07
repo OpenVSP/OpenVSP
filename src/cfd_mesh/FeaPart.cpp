@@ -1328,11 +1328,12 @@ void FeaSlice::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id )
 FeaSpar::FeaSpar()
 {
     m_SectID = 0;
-    m_AbsSweepFlag = true;
-    m_TrimFlag = true;
 
     m_PerChord.Init( "PerChord", "FEAPart", this, 0.5, 0.0, 1.0 );
     m_Sweep.Init( "Sweep", "FEAPart", this, 0.0, -90.0, 90.0 );
+
+    m_AbsSweepFlag.Init( "AbsSweepFlag", "FEAPart", this, true, 0, 1 );
+    m_TrimFlag.Init( "TrimFlag", "FEAPart", this, true, 0, 1 );
 }
 
 FeaSpar::~FeaSpar()
@@ -1356,7 +1357,7 @@ void FeaSpar::ComputeEndPoints()
     vec3d norm  = cross( axis, sectPtr->m_ChordNormal );
 
     double sweep = m_Sweep();
-    if ( !m_AbsSweepFlag )
+    if ( !m_AbsSweepFlag() )
     {
         vec2d uwOut  = sectPtr->GetUW( WingSection::OUT_CHORD, 1.0 - m_PerChord() );
         uwOut[0] = uwOut[0] + m_SectID;
@@ -1377,7 +1378,7 @@ void FeaSpar::ComputeEndPoints()
     vector< vec2d > uwVec;
     for ( int s = 0 ; s < FeaMeshMgr.GetNumSections() ; s++ )
     {
-        if ( !m_TrimFlag || s == m_SectID )
+        if ( !m_TrimFlag() || s == m_SectID )
         {
             sectPtr = FeaMeshMgr.GetWingSection( s );
             for ( int i = 0 ; i < WingSection::NUM_EDGES ; i++ )

@@ -64,8 +64,8 @@ void WingSection::WriteData( xmlNodePtr root )
         XmlUtil::AddIntNode( spar_node, "SectionID",      m_SparVec[i]->m_SectID );
         XmlUtil::AddDoubleNode( spar_node, "PerChord",     m_SparVec[i]->m_PerChord() );
         XmlUtil::AddDoubleNode( spar_node, "Sweep",     m_SparVec[i]->m_Sweep() );
-        XmlUtil::AddIntNode( spar_node, "AbsSweepFlag",   m_SparVec[i]->m_AbsSweepFlag );
-        XmlUtil::AddIntNode( spar_node, "TrimFlag",   m_SparVec[i]->m_TrimFlag );
+        XmlUtil::AddIntNode( spar_node, "AbsSweepFlag",   m_SparVec[i]->m_AbsSweepFlag() );
+        XmlUtil::AddIntNode( spar_node, "TrimFlag",   m_SparVec[i]->m_TrimFlag() );
         XmlUtil::AddDoubleNode( spar_node, "Thick",     m_SparVec[i]->m_Thick() );
         XmlUtil::AddDoubleNode( spar_node, "Density",     m_SparVec[i]->m_Density() );
     }

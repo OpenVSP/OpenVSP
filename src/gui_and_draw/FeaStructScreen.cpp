@@ -311,7 +311,7 @@ bool FeaStructScreen::Update()
 
         m_SparSweepSlider.Update( spar->m_Sweep.GetID() );
 
-        if ( spar->m_AbsSweepFlag )
+        if ( spar->m_AbsSweepFlag() )
         {
             m_FeaStructUI->sparSweepAbsButton->value( 1 );
             m_FeaStructUI->sparSweepRelButton->value( 0 );
@@ -321,7 +321,7 @@ bool FeaStructScreen::Update()
             m_FeaStructUI->sparSweepAbsButton->value( 0 );
             m_FeaStructUI->sparSweepRelButton->value( 1 );
         }
-        if ( spar->m_TrimFlag )
+        if ( spar->m_TrimFlag() )
         {
             m_FeaStructUI->trimSparButton->value( 1 );
         }

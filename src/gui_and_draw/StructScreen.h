@@ -59,6 +59,7 @@ private:
     GroupLayout m_RibTabLayout;
     GroupLayout m_RibEditLayout;
     GroupLayout m_SparTabLayout;
+    GroupLayout m_SparEditLayout;
     GroupLayout m_UpSkinTabLayout;
     GroupLayout m_LowSkinTabLayout;
     GroupLayout m_PtMassTabLayout;
@@ -131,6 +132,24 @@ private:
     ToggleButton m_RibSweepAbsButton;
     ToggleButton m_RibSweepRelButton;
     ToggleRadioGroup m_RibSweepToggle;
+
+    //===== Spar =====//
+    IndexSelector m_SparSel;
+
+    TriggerButton m_AddSpar;
+    TriggerButton m_DelSpar;
+
+    SliderAdjRangeInput m_SparThickSlider;
+    SliderAdjRangeInput m_SparDensitySlider;
+
+    SliderAdjRangeInput m_SparPosSlider;
+    SliderAdjRangeInput m_SparSweepSlider;
+
+    ToggleButton m_SparTrimButton;
+
+    ToggleButton m_SparSweepAbsButton;
+    ToggleButton m_SparSweepRelButton;
+    ToggleRadioGroup m_SparSweepToggle;
 
     //===== Common buttons =====//
 

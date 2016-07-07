@@ -390,10 +390,10 @@ public:
 
     int m_SectID;               // Section
     Parm m_PerChord;            // Percent Chord
-    bool m_AbsSweepFlag;        // Use Absolute Sweep
+    BoolParm m_AbsSweepFlag;        // Use Absolute Sweep
     Parm m_Sweep;
 
-    bool m_TrimFlag;
+    BoolParm m_TrimFlag;
 };
 
 class FeaRib : public FeaSlice

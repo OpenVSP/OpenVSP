@@ -210,6 +210,30 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 622, "FEA Me
     m_ComponentGroup.AddTabLayout( m_SparTabLayout, "Spar", 5 );
     m_SparTabLayout.AddDividerBox( "Spar" );
 
+    m_SparTabLayout.AddIndexSelector( m_SparSel );
+
+    m_SparTabLayout.AddButton( m_AddSpar, "Add Spar" );
+    m_SparTabLayout.AddButton( m_DelSpar, "Delete Spar" );
+
+    ystart = m_SparTabLayout.GetY();
+
+    m_SparTabLayout.AddSubGroupLayout( m_SparEditLayout, m_SparTabLayout.GetRemainX(), m_SparTabLayout.GetRemainY() );
+
+    m_SparEditLayout.AddSlider( m_SparThickSlider, "Thickness", 1, "%5.3f" );
+    m_SparEditLayout.AddSlider( m_SparDensitySlider, "Density", 1, "%5.3f" );
+
+    m_SparEditLayout.AddSlider( m_SparPosSlider, "Position", 1, "%5.3f" );
+    m_SparEditLayout.AddSlider( m_SparSweepSlider, "Sweep", 10, "%5.3f" );
+
+    m_SparEditLayout.AddButton( m_SparTrimButton, "Trim at Border" );
+
+    m_SparEditLayout.AddButton( m_SparSweepAbsButton, "Abs" );
+    m_SparEditLayout.AddButton( m_SparSweepRelButton, "Rel" );
+
+    m_SparSweepToggle.Init( this );
+    m_SparSweepToggle.AddButton( m_SparSweepAbsButton.GetFlButton() );
+    m_SparSweepToggle.AddButton( m_SparSweepRelButton.GetFlButton() );
+
 
     m_ComponentGroup.AddTabLayout( m_UpSkinTabLayout, "Up Skin", 5 );
     m_UpSkinTabLayout.AddDividerBox( "Up Skin" );
@@ -320,6 +344,29 @@ bool StructScreen::Update()
         m_RibEditLayout.Hide();
     }
 
+    //==== Spar ====//
+    m_SparSel.SetIndex( FeaMeshMgr.GetCurrSparID() );
+
+
+    FeaSpar* spar = FeaMeshMgr.GetCurrSpar();
+    if ( spar )
+    {
+        m_SparEditLayout.Show();
+
+        m_SparThickSlider.Update( spar->m_Thick.GetID() );
+        m_SparDensitySlider.Update( spar->m_Density.GetID() );
+        m_SparPosSlider.Update( spar->m_PerChord.GetID()  );
+        m_SparSweepSlider.Update( spar->m_Sweep.GetID()  );
+
+        m_SparTrimButton.Update( spar->m_TrimFlag.GetID() );
+
+        m_SparSweepToggle.Update( spar->m_AbsSweepFlag.GetID() );
+
+    }
+    else
+    {
+        m_SparEditLayout.Hide();
+    }
 
 
     m_DrawMeshButton.Update( FeaMeshMgr.GetStructSettingsPtr()->m_DrawMeshFlag.GetID() );
@@ -401,6 +448,18 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
     else if ( device == &m_DelRib )
     {
         FeaMeshMgr.DelCurrRib();
+    }
+    else if ( device == &m_SparSel )
+    {
+        FeaMeshMgr.SetCurrSparID( m_SparSel.GetIndex() );
+    }
+    else if ( device == &m_AddSpar )
+    {
+        FeaMeshMgr.AddSpar();
+    }
+    else if ( device == &m_DelSpar )
+    {
+        FeaMeshMgr.DelCurrSpar();
     }
     else if ( device == &m_SelectStlFile )
     {
