@@ -182,6 +182,31 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 622, "FEA Me
     m_RibTabLayout.AddDividerBox( "Rib" );
 
 
+    m_RibTabLayout.AddIndexSelector( m_RibSel );
+
+    m_RibTabLayout.AddButton( m_AddRib, "Add Rib" );
+    m_RibTabLayout.AddButton( m_DelRib, "Delete Rib" );
+
+    int ystart = m_RibTabLayout.GetY();
+
+    m_RibTabLayout.AddSubGroupLayout( m_RibEditLayout, m_RibTabLayout.GetRemainX(), m_RibTabLayout.GetRemainY() );
+
+    m_RibEditLayout.AddSlider( m_RibThickSlider, "Thickness", 1, "%5.3f" );
+    m_RibEditLayout.AddSlider( m_RibDensitySlider, "Density", 1, "%5.3f" );
+
+    m_RibEditLayout.AddSlider( m_RibPosSlider, "Position", 1, "%5.3f" );
+    m_RibEditLayout.AddSlider( m_RibSweepSlider, "Sweep", 10, "%5.3f" );
+
+    m_RibEditLayout.AddButton( m_RibTrimButton, "Trim at Border" );
+
+    m_RibEditLayout.AddButton( m_RibSweepAbsButton, "Abs" );
+    m_RibEditLayout.AddButton( m_RibSweepRelButton, "Rel" );
+
+    m_RibSweepToggle.Init( this );
+    m_RibSweepToggle.AddButton( m_RibSweepAbsButton.GetFlButton() );
+    m_RibSweepToggle.AddButton( m_RibSweepRelButton.GetFlButton() );
+
+
     m_ComponentGroup.AddTabLayout( m_SparTabLayout, "Spar", 5 );
     m_SparTabLayout.AddDividerBox( "Spar" );
 
@@ -271,6 +296,32 @@ bool StructScreen::Update()
     //==== SectID ====//
     m_SectSel.SetIndex( FeaMeshMgr.GetCurrSectID() );
 
+    //==== Rib ====//
+    m_RibSel.SetIndex( FeaMeshMgr.GetCurrRibID() );
+
+
+    FeaRib* rib = FeaMeshMgr.GetCurrRib();
+    if ( rib )
+    {
+        m_RibEditLayout.Show();
+
+        m_RibThickSlider.Update( rib->m_Thick.GetID() );
+        m_RibDensitySlider.Update( rib->m_Density.GetID() );
+        m_RibPosSlider.Update( rib->m_PerSpan.GetID()  );
+        m_RibSweepSlider.Update( rib->m_Sweep.GetID()  );
+
+        m_RibTrimButton.Update( rib->m_TrimFlag.GetID() );
+
+        m_RibSweepToggle.Update( rib->m_AbsSweepFlag.GetID() );
+
+    }
+    else
+    {
+        m_RibEditLayout.Hide();
+    }
+
+
+
     m_DrawMeshButton.Update( FeaMeshMgr.GetStructSettingsPtr()->m_DrawMeshFlag.GetID() );
 
 
@@ -338,6 +389,18 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
     else if ( device == &m_SectSel )
     {
         FeaMeshMgr.SetCurrSectID( m_SectSel.GetIndex() );
+    }
+    else if ( device == &m_RibSel )
+    {
+        FeaMeshMgr.SetCurrRibID( m_RibSel.GetIndex() );
+    }
+    else if ( device == &m_AddRib )
+    {
+        FeaMeshMgr.AddRib();
+    }
+    else if ( device == &m_DelRib )
+    {
+        FeaMeshMgr.DelCurrRib();
     }
     else if ( device == &m_SelectStlFile )
     {

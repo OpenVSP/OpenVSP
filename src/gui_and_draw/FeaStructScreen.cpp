@@ -274,7 +274,7 @@ bool FeaStructScreen::Update()
         m_RibPosSlider.Update( rib->m_PerSpan.GetID()  );
         m_RibSweepSlider.Update( rib->m_Sweep.GetID()  );
 
-        if ( rib->m_AbsSweepFlag )
+        if ( rib->m_AbsSweepFlag() )
         {
             m_FeaStructUI->ribSweepAbsButton->value( 1 );
             m_FeaStructUI->ribSweepRelButton->value( 0 );
@@ -284,7 +284,7 @@ bool FeaStructScreen::Update()
             m_FeaStructUI->ribSweepAbsButton->value( 0 );
             m_FeaStructUI->ribSweepRelButton->value( 1 );
         }
-        if ( rib->m_TrimFlag )
+        if ( rib->m_TrimFlag() )
         {
             m_FeaStructUI->trimRibButton->value( 1 );
         }

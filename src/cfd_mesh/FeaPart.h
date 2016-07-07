@@ -413,10 +413,10 @@ public:
 
     int m_SectID;
     Parm m_PerSpan;
-    bool m_AbsSweepFlag;
+    BoolParm m_AbsSweepFlag;
     Parm m_Sweep;
 
-    bool m_TrimFlag;
+    BoolParm m_TrimFlag;
 };
 
 class FeaPointMass : public ParmContainer

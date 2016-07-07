@@ -50,8 +50,8 @@ void WingSection::WriteData( xmlNodePtr root )
         XmlUtil::AddIntNode( rib_node, "SectionID",      m_RibVec[i]->m_SectID );
         XmlUtil::AddDoubleNode( rib_node, "PerSpan",     m_RibVec[i]->m_PerSpan() );
         XmlUtil::AddDoubleNode( rib_node, "Sweep",     m_RibVec[i]->m_Sweep() );
-        XmlUtil::AddIntNode( rib_node, "AbsSweepFlag",   m_RibVec[i]->m_AbsSweepFlag );
-        XmlUtil::AddIntNode( rib_node, "TrimFlag",   m_RibVec[i]->m_TrimFlag );
+        XmlUtil::AddIntNode( rib_node, "AbsSweepFlag",   m_RibVec[i]->m_AbsSweepFlag() );
+        XmlUtil::AddIntNode( rib_node, "TrimFlag",   m_RibVec[i]->m_TrimFlag() );
         XmlUtil::AddDoubleNode( rib_node, "Thick",     m_RibVec[i]->m_Thick() );
         XmlUtil::AddDoubleNode( rib_node, "Density",     m_RibVec[i]->m_Density() );
     }

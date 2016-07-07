@@ -57,6 +57,7 @@ private:
     GroupLayout m_StructureTabLayout;
     TabGroup m_ComponentGroup;
     GroupLayout m_RibTabLayout;
+    GroupLayout m_RibEditLayout;
     GroupLayout m_SparTabLayout;
     GroupLayout m_UpSkinTabLayout;
     GroupLayout m_LowSkinTabLayout;
@@ -113,6 +114,23 @@ private:
     //===== Structure Tab Items =====//
     IndexSelector m_SectSel;
 
+    //===== Rib =====//
+    IndexSelector m_RibSel;
+
+    TriggerButton m_AddRib;
+    TriggerButton m_DelRib;
+
+    SliderAdjRangeInput m_RibThickSlider;
+    SliderAdjRangeInput m_RibDensitySlider;
+
+    SliderAdjRangeInput m_RibPosSlider;
+    SliderAdjRangeInput m_RibSweepSlider;
+
+    ToggleButton m_RibTrimButton;
+
+    ToggleButton m_RibSweepAbsButton;
+    ToggleButton m_RibSweepRelButton;
+    ToggleRadioGroup m_RibSweepToggle;
 
     //===== Common buttons =====//
 
