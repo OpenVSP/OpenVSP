@@ -28,6 +28,8 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 622, "FEA Me
     Fl_Group* globalTabGroup = AddSubGroup( globalTab, 5 );
     Fl_Group* outputTab = AddTab( "Output" );
     Fl_Group* outputTabGroup = AddSubGroup( outputTab, 5 );
+    Fl_Group* structTab = AddTab( "Structure" );
+    Fl_Group* structTabGroup = AddSubGroup( structTab, 5 );
 
     m_GlobalTabLayout.SetGroupAndScreen( globalTabGroup, this );
 
@@ -164,6 +166,38 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 622, "FEA Me
     m_BorderConsoleLayout.AddButton( m_ComputeFEAMeshButton, "Compute" );
     m_BorderConsoleLayout.AddButton( m_ExportFEAMeshButton, "Export" );
     m_BorderConsoleLayout.AddButton( m_DrawMeshButton, "Draw Mesh" );
+
+
+    m_StructureTabLayout.SetGroupAndScreen( structTabGroup, this );
+
+    m_StructureTabLayout.AddDividerBox( "Section" );
+    m_StructureTabLayout.AddIndexSelector( m_SectSel );
+    m_StructureTabLayout.AddYGap();
+
+
+
+    m_StructureTabLayout.AddTabGroup( m_ComponentGroup, m_StructureTabLayout.GetRemainX(), m_StructureTabLayout.GetRemainY() );
+
+    m_ComponentGroup.AddTabLayout( m_RibTabLayout, "Rib", 5 );
+    m_RibTabLayout.AddDividerBox( "Rib" );
+
+
+    m_ComponentGroup.AddTabLayout( m_SparTabLayout, "Spar", 5 );
+    m_SparTabLayout.AddDividerBox( "Spar" );
+
+
+    m_ComponentGroup.AddTabLayout( m_UpSkinTabLayout, "Up Skin", 5 );
+    m_UpSkinTabLayout.AddDividerBox( "Up Skin" );
+
+
+    m_ComponentGroup.AddTabLayout( m_LowSkinTabLayout, "Low Skin", 5 );
+    m_LowSkinTabLayout.AddDividerBox( "Low Skin" );
+
+
+    m_ComponentGroup.AddTabLayout( m_PtMassTabLayout, "Pt Mass", 5 );
+    m_PtMassTabLayout.AddDividerBox( "Pt Mass" );
+
+    m_ComponentGroup.ShowTab( 0 );
 
 }
 

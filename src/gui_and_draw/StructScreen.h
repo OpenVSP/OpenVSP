@@ -54,6 +54,14 @@ private:
     GroupLayout m_ConsoleLayout;
     GroupLayout m_BorderConsoleLayout;
 
+    GroupLayout m_StructureTabLayout;
+    TabGroup m_ComponentGroup;
+    GroupLayout m_RibTabLayout;
+    GroupLayout m_SparTabLayout;
+    GroupLayout m_UpSkinTabLayout;
+    GroupLayout m_LowSkinTabLayout;
+    GroupLayout m_PtMassTabLayout;
+
     //===== Console Items =====//
 
     Fl_Text_Display *m_ConsoleDisplay;
@@ -102,7 +110,11 @@ private:
     StringOutput m_GeomOutput;
     StringOutput m_ThickOutput;
 
-    //===== Common buttons
+    //===== Structure Tab Items =====//
+    IndexSelector m_SectSel;
+
+
+    //===== Common buttons =====//
 
     TriggerButton m_ExportFEAMeshButton;
     TriggerButton m_ComputeFEAMeshButton;
