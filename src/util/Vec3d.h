@@ -259,6 +259,11 @@ double signed_angle( const vec3d& a, const vec3d& b, const vec3d& ref );
 double cos_angle( const vec3d& a, const vec3d& b );
 vec3d RotateArbAxis( const vec3d & p, double theta, const vec3d & r );
 
+namespace std
+{
+string to_string( const vec3d &v);
+}
+
 #endif
 
 

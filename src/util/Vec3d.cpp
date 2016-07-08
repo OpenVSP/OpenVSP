@@ -1409,4 +1409,12 @@ double pnt_tri_min_dist( vec3d & v0, vec3d & v1, vec3d & v2, vec3d & pnt )
         return sqrt(d20);
 }
 
-
+namespace std
+{
+string to_string( const vec3d &v)
+{
+    return "x: " + std::to_string( v.x() ) +
+          " y: " + std::to_string( v.y() ) +
+          " z: " + std::to_string( v.z() );
+}
+}
