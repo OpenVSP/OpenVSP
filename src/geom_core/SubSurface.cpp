@@ -527,6 +527,8 @@ TMesh* SSLineSeg::CreateTMesh()
     int num_cut_lines = 0;
     int num_z_lines = 0;
 
+    double tol = 1.0e-6;
+
     TMesh* tmesh = new TMesh();
 
     vec3d dc = m_line / ( num_cut_lines + 1.0 );
@@ -568,7 +570,7 @@ TMesh* SSLineSeg::CreateTMesh()
             d01 = v0 - v1;
             d20 = v2 - v0;
 
-            if ( d21.mag() > 0.000001 && d01.mag() > 0.000001 && d20.mag() > 0.000001 )
+            if ( d21.mag() > tol && d01.mag() > tol && d20.mag() > tol )
             {
                 norm = cross( d21, d01 );
                 norm.normalize();
@@ -577,7 +579,7 @@ TMesh* SSLineSeg::CreateTMesh()
 
             d03 = v0 - v3;
             d23 = v2 - v3;
-            if ( d03.mag() > 0.000001 && d23.mag() > 0.000001 && d20.mag() > 0.000001 )
+            if ( d03.mag() > tol && d23.mag() > tol && d20.mag() > tol )
             {
                 norm = cross( d03, d23 );
                 norm.normalize();
