@@ -186,6 +186,7 @@ public:
     friend vec3d operator+( const vec3d& a, const vec3d& b );
     friend vec3d operator-( const vec3d& a, const vec3d& b );
     friend vec3d operator*( const vec3d& a, double b );
+    friend vec3d operator*( double b, const vec3d& a );
     friend vec3d operator*( const vec3d& a, const vec3d& b );
     friend vec3d operator/( const vec3d& a, double b );
 

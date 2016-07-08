@@ -150,6 +150,13 @@ vec3d operator*( const vec3d& a, double b )
 }
 
 //******* x = a * b ******//
+vec3d operator*( double b, const vec3d& a )
+{
+    vec3d ret( a.v[0] * b, a.v[1] * b, a.v[2] * b );
+    return ret;
+}
+
+//******* x = a * b ******//
 vec3d operator*( const vec3d& a, const vec3d& b )
 {
     vec3d ret( a.v[0] * b.v[0], a.v[1] * b.v[1], a.v[2] * b.v[2] );
