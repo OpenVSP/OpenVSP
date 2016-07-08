@@ -1472,9 +1472,9 @@ bool TTri::MatchEdge( TNode* n0, TNode* n1, TNode* nA, TNode* nB, double tol )
 void TTri::SplitTri()
 {
     int i, j;
-    double onEdgeTol = 0.00001;
-    double uvMinTol  = 0.001;
-    double uvMaxTol  = 0.999;
+    double onEdgeTol = 1e-5; // was 1e-5
+    double uvMinTol  = 1e-3; // was 1e-3
+    double uvMaxTol  = 1.0 - uvMinTol;
 
     //==== No Need To Split ====//
     if ( m_ISectEdgeVec.size() == 0 )
@@ -2414,6 +2414,8 @@ void TBndBox::Intersect( TBndBox* iBox, bool UWFlag )
 {
     int i;
 
+    double tol = 1e-6; // was 1e-6
+
     if ( !Compare( m_Box, iBox->m_Box ) )
     {
         return;
@@ -2458,7 +2460,7 @@ void TBndBox::Intersect( TBndBox* iBox, bool UWFlag )
                 {
                     if ( UWFlag )
                     {
-                        if ( dist( e0, e1 ) > 0.000001 )
+                        if ( dist( e0, e1 ) > tol ) // was 1e-6
                         {
                             // Figure out with tri has xyz info
                             TTri* tri;
@@ -2528,7 +2530,7 @@ void TBndBox::Intersect( TBndBox* iBox, bool UWFlag )
                         ie1->m_N1->m_Pnt = e1;
 
 
-                        if ( dist( e0, e1 ) > 0.000001 )
+                        if ( dist( e0, e1 ) > tol )
                         {
                             t0->m_ISectEdgeVec.push_back( ie0 );
                             t1->m_ISectEdgeVec.push_back( ie1 );
