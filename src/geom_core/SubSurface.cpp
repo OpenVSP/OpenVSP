@@ -68,12 +68,9 @@ void SubSurface::SetDisplaySuffix( int num )
 
 void SubSurface::LoadDrawObjs( std::vector< DrawObj* > & draw_obj_vec )
 {
-    for ( int i = 0 ; i < ( int )m_DrawObjVec.size() ; i++ )
-    {
-        m_DrawObjVec[i].m_LineColor = m_LineColor;
-        m_DrawObjVec[i].m_GeomID = ( m_ID + to_string( ( long long )i ) );
-        draw_obj_vec.push_back( &m_DrawObjVec[i] );
-    }
+    m_SubSurfDO.m_LineColor = m_LineColor;
+
+    draw_obj_vec.push_back( &m_SubSurfDO );
 }
 
 void SubSurface::LoadAllColoredDrawObjs( std::vector < DrawObj* > & draw_obj_vec )
@@ -128,15 +125,18 @@ void SubSurface::UpdateDrawObjs()
         return;
     }
     Geom* geom = veh->FindGeom( m_CompID );
-    m_DrawObjVec.clear();
+
+    m_SubSurfDO.m_PntVec.clear();
+    m_SubSurfDO.m_GeomID = m_ID + string( "_ss_line" );
+    m_SubSurfDO.m_LineWidth = 3.0;
+    m_SubSurfDO.m_Type = DrawObj::VSP_LINES;
+
     if ( geom )
     {
         vector< VspSurf > surf_vec;
         geom->GetSurfVec( surf_vec );
         int ncopy = geom->GetNumSymmCopies();
 
-        m_DrawObjVec.resize( m_LVec.size()*ncopy, DrawObj() );
-        int ind = 0;
         for ( int ls = 0 ; ls < ( int )m_LVec.size() ; ls++ )
         {
             int num_pnts = CompNumDrawPnts( geom );
@@ -153,11 +153,13 @@ void SubSurface::UpdateDrawObjs()
 
             for ( int s = 0 ; s < ncopy ; s++ )
             {
-                m_LVec[ls].UpdateDrawObj( &surf_vec[symms[s]], geom, m_DrawObjVec[ind], num_pnts_ptr );
-                ind++;
+                vector < vec3d > pts;
+                m_LVec[ls].GetDOPts( &surf_vec[symms[s]], geom, pts, num_pnts_ptr );
+                m_SubSurfDO.m_PntVec.insert( m_SubSurfDO.m_PntVec.begin(), pts.begin(), pts.end() );
             }
         }
     }
+    m_SubSurfDO.m_GeomChanged = true;
 }
 
 void SubSurface::Update()
@@ -476,19 +478,50 @@ void SSLineSeg::UpdateDrawObj( VspSurf* surf, Geom* geom, DrawObj& draw_obj, con
         return;
     }
 
-    draw_obj.m_PntVec.resize( num_pnts + 1 );
+    draw_obj.m_PntVec.resize( 2 * num_pnts );
 
 
-    for ( int i = 0; i <= num_pnts; i++ )
+    vec3d pprev = CompPnt( surf, m_P0 );
+    vec3d p = pprev;
+    for ( int i = 0 ; i < num_pnts ; i ++ )
     {
-        vec3d uw = ( m_P0 + m_line * ( (double)i / num_pnts ) );
-        draw_obj.m_PntVec[i] = CompPnt( surf, uw );
+        vec3d uw = ( m_P0 + m_line * ( ( double )i / ( num_pnts - 1 ) ) );
+        p = CompPnt( surf, uw );
+        draw_obj.m_PntVec[2*i] = pprev;
+        draw_obj.m_PntVec[2*i+1] = p;
+        pprev = p;
     }
 
     draw_obj.m_LineWidth = 3.0;
     draw_obj.m_LineColor = vec3d( 177.0 / 255, 1, 58.0 / 255 );
-    draw_obj.m_Type = DrawObj::VSP_LINE_STRIP;
+    draw_obj.m_Type = DrawObj::VSP_LINES;
     draw_obj.m_GeomChanged = true;
+}
+
+void SSLineSeg::GetDOPts( VspSurf* surf, Geom* geom, vector < vec3d > &pts, const int *num_pnts_ptr )
+{
+    int num_pnts;
+    if ( num_pnts_ptr )
+    {
+        num_pnts = *num_pnts_ptr;
+    }
+    else
+    {
+        num_pnts = CompNumDrawPnts( surf, geom );
+    }
+
+    pts.resize( 2 * num_pnts );
+
+    vec3d pprev = CompPnt( surf, m_P0 );
+    vec3d p = pprev;
+    for ( int i = 0 ; i < num_pnts ; i ++ )
+    {
+        vec3d uw = ( m_P0 + m_line * ( ( double )i / ( num_pnts - 1 ) ) );
+        p = CompPnt( surf, uw );
+        pts[2*i] = pprev;
+        pts[2*i+1] = p;
+        pprev = p;
+    }
 }
 
 vec3d SSLineSeg::CompPnt( VspSurf* surf, vec3d uw_pnt ) const

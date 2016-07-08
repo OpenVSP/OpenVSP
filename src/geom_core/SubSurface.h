@@ -61,6 +61,7 @@ public:
         return m_P1;
     }
     virtual void UpdateDrawObj( VspSurf* surf, Geom* geom, DrawObj& draw_obj, const int *num_pnts_ptr );
+    virtual void GetDOPts( VspSurf* surf, Geom* geom, vector < vec3d > &pts, const int *num_pnts_ptr );
     virtual int CompNumDrawPnts( VspSurf* surf, Geom* geom );
 
 protected:
@@ -139,6 +140,7 @@ protected:
     int m_Type; // Type of SubSurface
     std::vector< DrawObj > m_DrawObjVec;
     bool m_UpdateDrawFlag;
+    DrawObj m_SubSurfDO;
     vector<SSLineSeg> m_LVec; // Line Segment Vector
     vector<SSLineSeg> m_SplitLVec; // Split Line Vector
     vec3d m_LineColor; // Line Color Displayed when drawn on screen
