@@ -1334,12 +1334,11 @@ void SSControlSurf::Update()
     te = c.f( vmin );
     le = c.f( vle );
 
-    chord = dist( le, te );
-
-    if ( m_AbsRelFlag() == vsp::REL )
+    if ( midangleflag )
     {
-        double frac = 0.5 * ( m_StartLenFrac() + m_EndLenFrac() );
-        d = chord * frac;
+        double d1 = m_StartLength() * sin( m_StartAngle() * PI / 180.0 );
+        double d2 = m_EndLength() * sin( m_EndAngle() * PI / 180.0 );
+        d = 0.5 * ( d1 + d2 ) / sin( midangle * PI / 180.0 );
     }
     else
     {
