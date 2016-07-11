@@ -859,6 +859,9 @@ void SSEllipse::Update()
 
 SSControlSurf::SSControlSurf( string compID, int type ) : SubSurface( compID, type )
 {
+    m_Tess.Init( "Tess_Num", "SS_Control", this, 15, 1, 1000 );
+    m_Tess.SetDescript( " Number of points to discretize edges" );
+
     m_StartLenFrac.Init( "Length_C_Start", "SS_Control", this, 0.25, 0, 1 );
     m_StartLenFrac.SetDescript( "Specifies control surface width as fraction of chord" );
 
@@ -1543,7 +1546,7 @@ void SSControlSurf::Update()
 
     if ( !up_pnt_vec.empty() )
     {
-        RefVec( up_pnt_vec, 50 );
+        RefVec( up_pnt_vec, m_Tess() );
     }
 
     if ( !low_pnt_vec.empty() )

@@ -710,6 +710,8 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SSConGroup.AddSlider( m_SSConSAngleSlider, "Start Angle", 10.0, "%5.4f" );
     m_SSConGroup.AddSlider( m_SSConEAngleSlider, "End Angle", 10.0, "%5.4f" );
 
+    m_SSConGroup.AddSlider( m_SSConTessSlider, "Num Points", 100, "%5.0f" );
+
     m_RotActive = true;
 }
 
@@ -933,6 +935,8 @@ bool GeomScreen::Update()
 
             m_SSConSAngleSlider.Update( sscon->m_StartAngle.GetID() );
             m_SSConEAngleSlider.Update( sscon->m_EndAngle.GetID() );
+
+            m_SSConTessSlider.Update( sscon->m_Tess.GetID() );
 
             if ( sscon->m_StartAngleFlag() )
             {

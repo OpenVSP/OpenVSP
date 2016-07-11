@@ -335,6 +335,8 @@ public:
     ToggleButton m_SSConEAngleButton;
     ToggleButton m_SSConSameAngleButton;
 
+    SliderInput m_SSConTessSlider;
+
 protected:
     bool m_RotActive;
 };

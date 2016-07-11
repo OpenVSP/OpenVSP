@@ -225,6 +225,8 @@ public:
 
     enum SS_CONTROL_SUBTYPE { UPPER_SURF, LOWER_SURF, BOTH_SURF };
 
+    IntParm m_Tess; // Number of line segments to break shape into
+
     Parm m_UStart; // U Starting location for control surface
     Parm m_UEnd;   // U End location for control surface
     Parm m_StartLenFrac; // Percent chord that the control surface should occupy
