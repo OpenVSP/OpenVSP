@@ -98,7 +98,7 @@ void ScreenMgr::ForceUpdate()
 void ScreenMgr::TimerCB()
 {
     if ( m_UpdateFlag )
-    {    
+    {
         if (m_ShowPlotScreenOnce)
         {
             m_ShowPlotScreenOnce = false;

@@ -235,7 +235,6 @@ void Results::WriteCSVFile( const string & file_name )
 
 void Results::WriteCSVFile( FILE* fid )
 {
-    
     if ( fid )
     {
 
@@ -975,4 +974,3 @@ void ResultsMgrSingleton::WriteCSVFile( const string & file_name, const vector <
         fclose( fid );          // Close File
     }
 }
-

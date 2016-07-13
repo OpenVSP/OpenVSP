@@ -888,4 +888,3 @@ void VSPAEROScreen::SaveSetup()
 {
     m_SetupBuffer->savefile( VSPAEROMgr.m_SetupFile.c_str() );
 }
-

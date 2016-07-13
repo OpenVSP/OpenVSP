@@ -959,4 +959,3 @@ int VSPAEROMgrSingleton::ExportResultsToCSV( string fileName )
 
     return 0; //success
 }
-

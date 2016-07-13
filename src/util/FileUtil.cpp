@@ -308,4 +308,3 @@ string GetFilename( const string &pathfile )
     return fileParts.back();
 
 }
-
