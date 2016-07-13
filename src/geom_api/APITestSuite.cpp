@@ -257,10 +257,10 @@ void APITestSuite::TestAnalysesWithPod()
     PrintAnalysisInputs(analysis_name);
 
     // Execute
-    string results_id_vector = vsp::ExecAnalysis(analysis_name);
+    string results_id = vsp::ExecAnalysis(analysis_name);
 
     // Get & Display Results
-    PrintResults(results_id_vector);
+    PrintResults(results_id);
         
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
     printf("\n");
@@ -300,10 +300,10 @@ void APITestSuite::TestVSPAeroComputeGeom()
     PrintAnalysisInputs(analysis_name);
 
     // Execute
-    string results_id_vector = vsp::ExecAnalysis(analysis_name);
+    string results_id = vsp::ExecAnalysis(analysis_name);
 
     // Get & Display Results
-    PrintResults( vsp::GetStringResults( results_id_vector, "ResultsVec", 0 ) );
+    PrintResults( results_id );
 
     // Final check for errors
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
@@ -366,7 +366,7 @@ void APITestSuite::TestVSPAeroSinglePoint()
     string results_id = vsp::ExecAnalysis(analysis_name);
 
     // Get & Display Results
-    PrintResults( vsp::GetStringResults( results_id, "ResultsVec", 0 ) );
+    PrintResults( results_id );
     
     // Final check for errors
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
@@ -433,7 +433,7 @@ void APITestSuite::TestVSPAeroSinglePointStab()
     string results_id = vsp::ExecAnalysis(analysis_name);
 
     // Get & Display Results
-    PrintResults( vsp::GetStringResults( results_id, "ResultsVec", 0 ) );
+    PrintResults( results_id );
     
     // Final check for errors
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
@@ -511,7 +511,7 @@ void APITestSuite::TestVSPAeroSweep()
     string results_id_vector = vsp::ExecAnalysis(analysis_name);
 
     // Get & Display Results
-    PrintResults( vsp::GetStringResults( results_id_vector, "ResultsVec", 0 ) );
+    PrintResults( results_id_vector );
     
     // Final check for errors
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
@@ -632,6 +632,11 @@ void APITestSuite::PrintResults(const string &results_id)
                 for ( unsigned int j_val=0; j_val<current_string_val.size(); j_val++)
                 {
                     printf("%s ",current_string_val[j_val].c_str());
+                }
+                //Recursive call if results vector found
+                if( strcmp(results_names[i_result_name].c_str(),"ResultsVec")==0)
+                {
+                    PrintResults( vsp::GetStringResults( results_id, "ResultsVec", 0 ) );
                 }
                 break;
             }
