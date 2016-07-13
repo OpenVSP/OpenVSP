@@ -469,6 +469,15 @@ string VSPAEROMgrSingleton::ComputeSolver()
                         runflag = m_SolverProcess.IsRunning();
                     }
 
+                    // Check if the kill solver flag has been raised, if so clean up and return
+                    //  note: we could have exited the IsRunning loop if the process was killed
+                    if( m_SolverProcessKill )
+                    {
+                        m_SolverProcessKill = false;    //reset kill flag
+
+                        return string();    //return empty result ID vector
+                    }
+
                     //====== Read in all of the results ======//
                     // read the files if there is new data that has not successfully been read in yet
                     res_id_vector.push_back( ReadHistoryFile() );
@@ -518,6 +527,8 @@ bool VSPAEROMgrSingleton::IsSolverRunning()
 }
 void VSPAEROMgrSingleton::KillSolver()
 {
+    // Raise flag to break the compute solver thread
+    m_SolverProcessKill = true;
     return m_SolverProcess.Kill();
 }
 ProcessUtil* VSPAEROMgrSingleton::GetSolverProcess()
