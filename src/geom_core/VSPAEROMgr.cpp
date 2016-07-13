@@ -40,8 +40,8 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_RefFlag.Init( "RefFlag", "VSPAERO", this, MANUAL_REF, MANUAL_REF, COMPONENT_REF );
     m_RefFlag.SetDescript( "Reference quantity flag" );
 
-    m_CGGeomSet.Init( "CGGeomSet", "VSPAERO", this, 0, 0, 12 );
-    m_CGGeomSet.SetDescript( "Mass property set" );
+    m_MassSet.Init( "MassSet", "VSPAERO", this, 0, 0, 12 );
+    m_MassSet.SetDescript( "Mass property set" );
 
     m_NumMassSlice.Init( "NumMassSlice", "VSPAERO", this, 10, 10, 200 );
     m_NumMassSlice.SetDescript( "Number of mass property slices" );

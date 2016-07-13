@@ -72,7 +72,7 @@ public:
     IntParm m_RefFlag;
     BoolParm m_StabilityCalcFlag;
 
-    IntParm m_CGGeomSet;
+    IntParm m_MassSet;
     IntParm m_NumMassSlice;
     Parm m_Xcg;
     Parm m_Ycg;

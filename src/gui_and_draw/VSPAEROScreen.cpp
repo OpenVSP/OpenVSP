@@ -333,7 +333,7 @@ bool VSPAEROScreen::Update()
         m_CGSetChoice.UpdateItems();
 
         m_GeomSetChoice.SetVal( VSPAEROMgr.m_GeomSet() );
-        m_CGSetChoice.SetVal( VSPAEROMgr.m_CGGeomSet() );
+        m_CGSetChoice.SetVal( VSPAEROMgr.m_MassSet() );
 
 
         // Case Setup
@@ -814,7 +814,7 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
         }
         else if( device == &m_CGSetChoice )
         {
-            VSPAEROMgr.m_CGGeomSet = m_CGSetChoice.GetVal();
+            VSPAEROMgr.m_MassSet = m_CGSetChoice.GetVal();
         }
         else if( device == &m_MassPropButton )
         {
