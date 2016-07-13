@@ -25,8 +25,8 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
 {
     m_Name = "VSPAEROSettings";
 
-    m_GeomSet.Init( "GeomSet", "VSPAERO", this, 0, 0, 12 );
-    m_GeomSet.SetDescript( "Geometry set" );
+    m_DegenGeomSet.Init( "GeomSet", "VSPAERO", this, 0, 0, 12 );
+    m_DegenGeomSet.SetDescript( "Geometry set" );
 
     m_Sref.Init( "Sref", "VSPAERO", this, 100.0, 0.0, 1e12 );
     m_Sref.SetDescript( "Reference area" );
@@ -40,8 +40,8 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_RefFlag.Init( "RefFlag", "VSPAERO", this, MANUAL_REF, MANUAL_REF, COMPONENT_REF );
     m_RefFlag.SetDescript( "Reference quantity flag" );
 
-    m_MassSet.Init( "MassSet", "VSPAERO", this, 0, 0, 12 );
-    m_MassSet.SetDescript( "Mass property set" );
+    m_CGGeomSet.Init( "MassSet", "VSPAERO", this, 0, 0, 12 );
+    m_CGGeomSet.SetDescript( "Mass property set" );
 
     m_NumMassSlice.Init( "NumMassSlice", "VSPAERO", this, 10, 10, 200 );
     m_NumMassSlice.SetDescript( "Number of mass property slices" );
@@ -274,7 +274,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
 
-    veh->CreateDegenGeom( VSPAEROMgr.m_GeomSet() );
+    veh->CreateDegenGeom( VSPAEROMgr.m_DegenGeomSet() );
 
     // record original values
     bool exptMfile_orig = veh->getExportDegenGeomMFile();
@@ -294,7 +294,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
     Results* res = ResultsMgr.CreateResults( "VSPAERO_DegenGeom" );
     // add to results manager
     res->Add( NameValData( "OutputFileName", m_DegenFile + string( ".csv" ) ) );
-    res->Add( NameValData( "GeometrySet", VSPAEROMgr.m_GeomSet() ) );
+    res->Add( NameValData( "GeometrySet", VSPAEROMgr.m_DegenGeomSet() ) );
 
     return res->GetID();
 

@@ -63,7 +63,7 @@ public:
     string m_LoadFile;
     string m_StabFile;
 
-    IntParm m_GeomSet;
+    IntParm m_DegenGeomSet;
 
     Parm m_Sref;
     Parm m_bref;
@@ -72,7 +72,7 @@ public:
     IntParm m_RefFlag;
     BoolParm m_StabilityCalcFlag;
 
-    IntParm m_MassSet;
+    IntParm m_CGGeomSet;
     IntParm m_NumMassSlice;
     Parm m_Xcg;
     Parm m_Ycg;

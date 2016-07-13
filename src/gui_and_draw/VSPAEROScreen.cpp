@@ -332,8 +332,8 @@ bool VSPAEROScreen::Update()
         m_GeomSetChoice.UpdateItems();
         m_CGSetChoice.UpdateItems();
 
-        m_GeomSetChoice.SetVal( VSPAEROMgr.m_GeomSet() );
-        m_CGSetChoice.SetVal( VSPAEROMgr.m_MassSet() );
+        m_GeomSetChoice.SetVal( VSPAEROMgr.m_DegenGeomSet() );
+        m_CGSetChoice.SetVal( VSPAEROMgr.m_CGGeomSet() );
 
 
         // Case Setup
@@ -802,7 +802,7 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
         }
         else if( device == &m_GeomSetChoice )
         {
-            VSPAEROMgr.m_GeomSet = m_GeomSetChoice.GetVal();
+            VSPAEROMgr.m_DegenGeomSet = m_GeomSetChoice.GetVal();
         }
         else if( device == &m_DegenGeomButton )
         {
@@ -814,7 +814,7 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
         }
         else if( device == &m_CGSetChoice )
         {
-            VSPAEROMgr.m_MassSet = m_CGSetChoice.GetVal();
+            VSPAEROMgr.m_CGGeomSet = m_CGSetChoice.GetVal();
         }
         else if( device == &m_MassPropButton )
         {

@@ -843,7 +843,7 @@ void VSPAERODegenGeomAnalysis::SetDefaults()
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( veh )
     {
-        m_Inputs.Add( NameValData( "GeomSet", VSPAEROMgr.m_GeomSet.Get() ) );
+        m_Inputs.Add( NameValData( "GeomSet", VSPAEROMgr.m_DegenGeomSet.Get() ) );
     }
     else
     {
@@ -866,15 +866,15 @@ string VSPAERODegenGeomAnalysis::Execute()
         int geomSetOrig;
         if ( nvd )
         {
-            geomSetOrig = VSPAEROMgr.m_GeomSet.Get();
-            VSPAEROMgr.m_GeomSet.Set( nvd->GetInt( 0 ) );
+            geomSetOrig = VSPAEROMgr.m_DegenGeomSet.Get();
+            VSPAEROMgr.m_DegenGeomSet.Set( nvd->GetInt( 0 ) );
         }
 
         // Execute analysis
         res_id = VSPAEROMgr.ComputeGeometry();
 
         //Restore original values that were overwritten by analysis inputs
-        VSPAEROMgr.m_GeomSet.Set( geomSetOrig );
+        VSPAEROMgr.m_DegenGeomSet.Set( geomSetOrig );
 
     }
     
@@ -891,7 +891,7 @@ void VSPAEROSinglePointAnalysis::SetDefaults()
     {
 
         //Case Setup
-        m_Inputs.Add( NameValData( "GeomSet",           VSPAEROMgr.m_GeomSet.Get()              ) );
+        m_Inputs.Add( NameValData( "GeomSet",           VSPAEROMgr.m_DegenGeomSet.Get()              ) );
         m_Inputs.Add( NameValData( "NCPU",              VSPAEROMgr.m_NCPU.Get()              ) );
         m_Inputs.Add( NameValData( "WakeNumIter",       VSPAEROMgr.m_WakeNumIter.Get()       ) );
         m_Inputs.Add( NameValData( "WakeAvgStartIter",  VSPAEROMgr.m_WakeAvgStartIter.Get()  ) );
@@ -906,7 +906,7 @@ void VSPAEROSinglePointAnalysis::SetDefaults()
 
         //Moment center
         //TODO add flag to indentify if this is manual or computed
-        m_Inputs.Add( NameValData( "CGGeomSet",           VSPAEROMgr.m_MassSet.Get()         ) );
+        m_Inputs.Add( NameValData( "CGGeomSet",           VSPAEROMgr.m_CGGeomSet.Get()         ) );
         m_Inputs.Add( NameValData( "NumMassSlice",      VSPAEROMgr.m_NumMassSlice.Get()      ) );
         m_Inputs.Add( NameValData( "Xcg",               VSPAEROMgr.m_Xcg.Get()               ) );
         m_Inputs.Add( NameValData( "Ycg",               VSPAEROMgr.m_Ycg.Get()               ) );
@@ -937,9 +937,9 @@ string VSPAEROSinglePointAnalysis::Execute()
 
         //==== Apply current analysis input values ====//
         //    Geometry set
-        int geomSetOrig    = VSPAEROMgr.m_GeomSet.Get();
+        int geomSetOrig    = VSPAEROMgr.m_DegenGeomSet.Get();
         nvd = m_Inputs.FindPtr( "GeomSet", 0 );
-        VSPAEROMgr.m_GeomSet.Set( nvd->GetInt(0) );
+        VSPAEROMgr.m_DegenGeomSet.Set( nvd->GetInt(0) );
 
         //    Regerence area, length parameters
         int refFlagOrig    = VSPAEROMgr.m_RefFlag.Get();
@@ -956,13 +956,13 @@ string VSPAEROSinglePointAnalysis::Execute()
         VSPAEROMgr.m_cref.Set( nvd->GetDouble(0) );
 
         //    Mass properties
-        int cgGeomSetOrig    = VSPAEROMgr.m_MassSet.Get();
+        int cgGeomSetOrig    = VSPAEROMgr.m_CGGeomSet.Get();
         int numMassSliceOrig = VSPAEROMgr.m_NumMassSlice.Get();
         double xcgOrig        = VSPAEROMgr.m_Xcg.Get();
         double ycgOrig        = VSPAEROMgr.m_Ycg.Get();
         double zcgOrig        = VSPAEROMgr.m_Zcg.Get();
         nvd = m_Inputs.FindPtr( "CGGeomSet", 0 );
-        VSPAEROMgr.m_MassSet.Set( nvd->GetInt(0) );
+        VSPAEROMgr.m_CGGeomSet.Set( nvd->GetInt(0) );
         nvd = m_Inputs.FindPtr( "NumMassSlice", 0 );
         VSPAEROMgr.m_NumMassSlice.Set( nvd->GetInt(0) );
         nvd = m_Inputs.FindPtr( "Xcg", 0 );
@@ -1012,7 +1012,7 @@ string VSPAEROSinglePointAnalysis::Execute()
 
         //==== Restore Original Values ====//
         //    Geometry set
-        VSPAEROMgr.m_GeomSet.Set( geomSetOrig );
+        VSPAEROMgr.m_DegenGeomSet.Set( geomSetOrig );
 
         //    Regerence area, length parameters
         VSPAEROMgr.m_RefFlag.Set( refFlagOrig );
@@ -1021,7 +1021,7 @@ string VSPAEROSinglePointAnalysis::Execute()
         VSPAEROMgr.m_cref.Set( crefOrig );
 
         //    Mass properties
-        VSPAEROMgr.m_MassSet.Set(cgGeomSetOrig);
+        VSPAEROMgr.m_CGGeomSet.Set(cgGeomSetOrig);
         VSPAEROMgr.m_NumMassSlice.Set(numMassSliceOrig);
         VSPAEROMgr.m_Xcg.Set(xcgOrig);
         VSPAEROMgr.m_Ycg.Set(ycgOrig);
@@ -1056,7 +1056,7 @@ void VSPAEROSweepAnalysis::SetDefaults()
     {
 
         //Case Setup
-        m_Inputs.Add( NameValData( "GeomSet",           VSPAEROMgr.m_GeomSet.Get()              ) );
+        m_Inputs.Add( NameValData( "GeomSet",           VSPAEROMgr.m_DegenGeomSet.Get()              ) );
         m_Inputs.Add( NameValData( "NCPU",              VSPAEROMgr.m_NCPU.Get()              ) );
         m_Inputs.Add( NameValData( "WakeNumIter",       VSPAEROMgr.m_WakeNumIter.Get()       ) );
         m_Inputs.Add( NameValData( "WakeAvgStartIter",  VSPAEROMgr.m_WakeAvgStartIter.Get()  ) );
@@ -1071,7 +1071,7 @@ void VSPAEROSweepAnalysis::SetDefaults()
 
         //Moment center
         //TODO add flag to indentify if this is manual or computed
-        m_Inputs.Add( NameValData( "CGGeomSet",           VSPAEROMgr.m_MassSet.Get()         ) );
+        m_Inputs.Add( NameValData( "CGGeomSet",           VSPAEROMgr.m_CGGeomSet.Get()         ) );
         m_Inputs.Add( NameValData( "NumMassSlice",      VSPAEROMgr.m_NumMassSlice.Get()      ) );
         m_Inputs.Add( NameValData( "Xcg",               VSPAEROMgr.m_Xcg.Get()               ) );
         m_Inputs.Add( NameValData( "Ycg",               VSPAEROMgr.m_Ycg.Get()               ) );
@@ -1108,9 +1108,9 @@ string VSPAEROSweepAnalysis::Execute()
 
         //==== Apply current analysis input values ====//
         //    Geometry set
-        int geomSetOrig    = VSPAEROMgr.m_GeomSet.Get();
+        int geomSetOrig    = VSPAEROMgr.m_DegenGeomSet.Get();
         nvd = m_Inputs.FindPtr( "GeomSet", 0 );
-        VSPAEROMgr.m_GeomSet.Set( nvd->GetInt(0) );
+        VSPAEROMgr.m_DegenGeomSet.Set( nvd->GetInt(0) );
 
         //    Regerence area, length parameters
         int refFlagOrig    = VSPAEROMgr.m_RefFlag.Get();
@@ -1127,13 +1127,13 @@ string VSPAEROSweepAnalysis::Execute()
         VSPAEROMgr.m_cref.Set( nvd->GetDouble(0) );
 
         //    Mass properties
-        int cgGeomSetOrig    = VSPAEROMgr.m_MassSet.Get();
+        int cgGeomSetOrig    = VSPAEROMgr.m_CGGeomSet.Get();
         int numMassSliceOrig = VSPAEROMgr.m_NumMassSlice.Get();
         double xcgOrig        = VSPAEROMgr.m_Xcg.Get();
         double ycgOrig        = VSPAEROMgr.m_Ycg.Get();
         double zcgOrig        = VSPAEROMgr.m_Zcg.Get();
         nvd = m_Inputs.FindPtr( "CGGeomSet", 0 );
-        VSPAEROMgr.m_MassSet.Set( nvd->GetInt(0) );
+        VSPAEROMgr.m_CGGeomSet.Set( nvd->GetInt(0) );
         nvd = m_Inputs.FindPtr( "NumMassSlice", 0 );
         VSPAEROMgr.m_NumMassSlice.Set( nvd->GetInt(0) );
         nvd = m_Inputs.FindPtr( "Xcg", 0 );
@@ -1196,7 +1196,7 @@ string VSPAEROSweepAnalysis::Execute()
 
         //==== Restore Original Values ====//
         //    Geometry set
-        VSPAEROMgr.m_GeomSet.Set( geomSetOrig );
+        VSPAEROMgr.m_DegenGeomSet.Set( geomSetOrig );
 
         //    Regerence area, length parameters
         VSPAEROMgr.m_RefFlag.Set( refFlagOrig );
@@ -1205,7 +1205,7 @@ string VSPAEROSweepAnalysis::Execute()
         VSPAEROMgr.m_cref.Set( crefOrig );
 
         //    Mass properties
-        VSPAEROMgr.m_MassSet.Set(cgGeomSetOrig);
+        VSPAEROMgr.m_CGGeomSet.Set(cgGeomSetOrig);
         VSPAEROMgr.m_NumMassSlice.Set(numMassSliceOrig);
         VSPAEROMgr.m_Xcg.Set(xcgOrig);
         VSPAEROMgr.m_Ycg.Set(ycgOrig);
