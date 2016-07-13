@@ -41,9 +41,9 @@ public:
     void Update();
 
     void UpdateFilenames();
-    std::vector <string> ComputeGeometry();        // returns a vector of results id's
+    string ComputeGeometry();
     void CreateSetupFile();
-    std::vector <string> ComputeSolver(); // returns a vector of results id's
+    string ComputeSolver();     // returns a vector of results id's within a parent result container
     ProcessUtil* GetSolverProcess();
     bool IsSolverRunning();
     void KillSolver();

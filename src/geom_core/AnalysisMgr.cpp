@@ -854,7 +854,7 @@ void VSPAERODegenGeomAnalysis::SetDefaults()
 
 string VSPAERODegenGeomAnalysis::Execute()
 {
-    vector <string> res_id_vector;
+    string res_id;
     Vehicle *veh = VehicleMgr.GetVehicle();
 
     if ( veh )
@@ -871,18 +871,14 @@ string VSPAERODegenGeomAnalysis::Execute()
         }
 
         // Execute analysis
-        res_id_vector = VSPAEROMgr.ComputeGeometry();
+        res_id = VSPAEROMgr.ComputeGeometry();
 
         //Restore original values that were overwritten by analysis inputs
         VSPAEROMgr.m_GeomSet.Set( geomSetOrig );
 
     }
-
-    Results *res = ResultsMgr.CreateResults( "VSPAERO_Wrapper" );
-
-    res->Add( NameValData( "ResultsVec", res_id_vector ) );
-
-    return res->GetID();
+    
+    return res_id;
 }
 
 
@@ -931,7 +927,7 @@ void VSPAEROSinglePointAnalysis::SetDefaults()
 
 string VSPAEROSinglePointAnalysis::Execute()
 {
-    vector <string> res_id_vector;
+    string resId;
     Vehicle *veh = VehicleMgr.GetVehicle();
 
     if ( veh )
@@ -1011,7 +1007,7 @@ string VSPAEROSinglePointAnalysis::Execute()
         VSPAEROMgr.m_StabilityCalcFlag.Set( nvd->GetInt(0) );
 
         //==== Execute Analysis ====//
-        res_id_vector = VSPAEROMgr.ComputeSolver();
+        resId = VSPAEROMgr.ComputeSolver();
 
 
         //==== Restore Original Values ====//
@@ -1048,11 +1044,7 @@ string VSPAEROSinglePointAnalysis::Execute()
 
     }
 
-    Results *res = ResultsMgr.CreateResults( "VSPAERO_Wrapper" );
-
-    res->Add( NameValData( "ResultsVec", res_id_vector ) );
-
-    return res->GetID();
+    return resId;
 }
 
 void VSPAEROSweepAnalysis::SetDefaults()
@@ -1106,7 +1098,7 @@ void VSPAEROSweepAnalysis::SetDefaults()
 
 string VSPAEROSweepAnalysis::Execute()
 {
-    vector <string> res_id_vector;
+    string resId;
     Vehicle *veh = VehicleMgr.GetVehicle();
 
     if ( veh )
@@ -1199,7 +1191,7 @@ string VSPAEROSweepAnalysis::Execute()
 
 
         //==== Execute Analysis ====//
-        res_id_vector = VSPAEROMgr.ComputeSolver();
+        resId = VSPAEROMgr.ComputeSolver();
 
 
         //==== Restore Original Values ====//
@@ -1239,9 +1231,5 @@ string VSPAEROSweepAnalysis::Execute()
 
     }
 
-    Results *res = ResultsMgr.CreateResults( "VSPAERO_Wrapper" );
-
-    res->Add( NameValData( "ResultsVec", res_id_vector ) );
-
-    return res->GetID();
+    return resId;
 }

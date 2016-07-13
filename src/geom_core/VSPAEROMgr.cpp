@@ -239,7 +239,7 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
     }
 }
 
-std::vector <string> VSPAEROMgrSingleton::ComputeGeometry()
+string VSPAEROMgrSingleton::ComputeGeometry()
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
 
@@ -265,10 +265,7 @@ std::vector <string> VSPAEROMgrSingleton::ComputeGeometry()
     res->Add( NameValData( "OutputFileName", m_DegenFile + string(".csv") ));
     res->Add( NameValData( "GeometrySet", VSPAEROMgr.m_GeomSet() ));
 
-    std::vector <string> res_id_vector;
-    res_id_vector.push_back(res->GetID());
-
-    return res_id_vector;
+    return res->GetID();
 
 }
 
@@ -360,9 +357,13 @@ void VSPAEROMgrSingleton::ClearAllPreviousResults()
     {
         ResultsMgr.DeleteResult( ResultsMgr.FindResultsID( "VSPAERO_Stab",  0) );
     }
+    while (ResultsMgr.GetNumResults( "VSPAERO_Wrapper" ) > 0)
+    {
+        ResultsMgr.DeleteResult( ResultsMgr.FindResultsID( "VSPAERO_Wrapper",  0) );
+    }
 }
 
-std::vector <string> VSPAEROMgrSingleton::ComputeSolver()
+string VSPAEROMgrSingleton::ComputeSolver()
 {
     std::vector <string> res_id_vector;
 
@@ -488,7 +489,17 @@ std::vector <string> VSPAEROMgrSingleton::ComputeSolver()
 
     }
 
-    return res_id_vector;
+    // Create "wrapper" result to contain a vector of result IDs (this maintains compatibility to return a single result after computation)
+    Results *res = ResultsMgr.CreateResults( "VSPAERO_Wrapper" );
+    if( !res )
+    {
+        return string();
+    }
+    else
+    {
+        res->Add( NameValData( "ResultsVec", res_id_vector ) );
+        return res->GetID();
+    }
 }
 
 void VSPAEROMgrSingleton::AddResultHeader(string res_id, double mach, double alpha, double beta)
