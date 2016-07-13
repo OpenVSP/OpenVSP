@@ -283,13 +283,12 @@ bool VSPAEROScreen::Update()
         m_StabilityCalcToggle.Update( VSPAEROMgr.m_StabilityCalcFlag.GetID() );
 
 
-        // Regerence Quantities
+        // Reference Quantities
         m_RefToggle.Update( VSPAEROMgr.m_RefFlag.GetID() );
-
         m_SrefSlider.Update( VSPAEROMgr.m_Sref.GetID() );
         m_brefSlider.Update( VSPAEROMgr.m_bref.GetID() );
         m_crefSlider.Update( VSPAEROMgr.m_cref.GetID() );
-
+        
 
         // CG Position
         m_NumSliceSlider.Update( VSPAEROMgr.m_NumMassSlice.GetID() );
@@ -306,11 +305,11 @@ bool VSPAEROScreen::Update()
         if ( VSPAEROMgr.m_AlphaNpts.Get()==1 )
         {
             m_AlphaEndInput.Deactivate();
-        } 
+        }
         else if ( VSPAEROMgr.m_AlphaNpts.Get()>1 )
         {
             m_AlphaEndInput.Activate();
-        } 
+        }
         // Beta
         m_BetaStartInput.Update( VSPAEROMgr.m_BetaStart.GetID() );
         m_BetaEndInput.Update( VSPAEROMgr.m_BetaEnd.GetID() );
@@ -318,11 +317,11 @@ bool VSPAEROScreen::Update()
         if ( VSPAEROMgr.m_BetaNpts.Get()==1 )
         {
             m_BetaEndInput.Deactivate();
-        } 
+        }
         else if ( VSPAEROMgr.m_BetaNpts.Get()>1 )
         {
             m_BetaEndInput.Activate();
-        } 
+        }
         // Mach
         m_MachStartInput.Update( VSPAEROMgr.m_MachStart.GetID() );
         m_MachEndInput.Update( VSPAEROMgr.m_MachEnd.GetID() );
