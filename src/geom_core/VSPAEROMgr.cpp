@@ -55,47 +55,42 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_Zcg.Init( "Zcg", "VSPAERO", this, 0.0, -1.0e12, 1.0e12 );
     m_Zcg.SetDescript( "Z Center of Gravity" );
 
-    // Single point parameters
-    m_Alpha.Init( "Alpha", "VSPAERO", this, 5.0, -180, 180 );
-    m_Alpha.SetDescript( "Angle of attack" );
-    m_Beta.Init( "Beta", "VSPAERO", this, 0.0, -180, 180 );
-    m_Beta.SetDescript( "Angle of sideslip" );
-    m_Mach.Init( "Mach", "VSPAERO", this, 0.3, 0.0, 5.0 );
-    m_Mach.SetDescript( "Freestream Mach number" );
-
-    // Sweep parameters
+    
+    // Flow Condition
     m_AlphaStart.Init( "AlphaStart", "VSPAERO", this, 1.0, -180, 180 );
     m_AlphaStart.SetDescript( "Angle of attack (Start)" );
     m_AlphaEnd.Init( "AlphaEnd", "VSPAERO", this, 10.0, -180, 180 );
     m_AlphaEnd.SetDescript( "Angle of attack (End)" );
-    m_AlphaNpts.Init( "AlphaNpts", "VSPAERO", this, 3, 1, 10 );
+    m_AlphaNpts.Init( "AlphaNpts", "VSPAERO", this, 3, 1, 100 );
     m_AlphaNpts.SetDescript( "Angle of attack (Num Points)" );
 
     m_BetaStart.Init( "BetaStart", "VSPAERO", this, 0.0, -180, 180 );
     m_BetaStart.SetDescript( "Angle of sideslip (Start)" );
     m_BetaEnd.Init( "BetaEnd", "VSPAERO", this, 0.0, -180, 180 );
     m_BetaEnd.SetDescript( "Angle of sideslip (End)" );
-    m_BetaNpts.Init( "BetaNpts", "VSPAERO", this, 1, 1, 10 );
+    m_BetaNpts.Init( "BetaNpts", "VSPAERO", this, 1, 1, 100 );
     m_BetaNpts.SetDescript( "Angle of sideslip (Num Points)" );
 
     m_MachStart.Init( "MachStart", "VSPAERO", this, 0.0, 0.0, 5.0 );
     m_MachStart.SetDescript( "Freestream Mach number (Start)" );
     m_MachEnd.Init( "MachEnd", "VSPAERO", this, 0.0, 0.0, 5.0 );
     m_MachEnd.SetDescript( "Freestream Mach number (End)" );
-    m_MachNpts.Init( "MachNpts", "VSPAERO", this, 1, 1, 10 );
+    m_MachNpts.Init( "MachNpts", "VSPAERO", this, 1, 1, 100 );
     m_MachNpts.SetDescript( "Freestream Mach number (Num Points)" );
 
 
     // Case Setup
     m_NCPU.Init( "NCPU", "VSPAERO", this, 4, 1, 255 );
     m_NCPU.SetDescript( "Number of processors to use" );
+
     //    wake parameters
     m_WakeNumIter.Init( "WakeNumIter", "VSPAERO", this, 5, 1, 255 );
     m_WakeNumIter.SetDescript( "Number of wake iterations to execute, Default = 5" );
     m_WakeAvgStartIter.Init( "WakeAvgStartIter", "VSPAERO", this, 0, 0, 255 );
     m_WakeAvgStartIter.SetDescript( "Iteration at which to START averaging the wake. Default=0 --> No wake averaging" );
-    m_WakeSkipUntilIter.Init( "WakeSkipUntilIter", "VSPAERO", this, 5, 0, 255 );
+    m_WakeSkipUntilIter.Init( "WakeSkipUntilIter", "VSPAERO", this, 0, 0, 255 );
     m_WakeSkipUntilIter.SetDescript( "Iteration at which to START calculating the wake. Default=0 --> Wake calculated on each iteration" );
+
     m_StabilityCalcFlag.Init( "StabilityCalcFlag", "VSPAERO", this, 0.0, 0.0, 1.0);
     m_StabilityCalcFlag.SetDescript( "Flag to calculate stability derivatives" );
     m_StabilityCalcFlag = false;
@@ -303,13 +298,13 @@ void VSPAEROMgrSingleton::CreateSetupFile()
     args.push_back( StringUtil::double_to_string( m_Zcg(), "%f" ) );
 
     args.push_back( "-aoa" );
-    args.push_back( StringUtil::double_to_string( m_Alpha(), "%f" ) );
+    args.push_back( StringUtil::double_to_string( m_AlphaStart(), "%f" ) );
 
     args.push_back( "-beta" );
-    args.push_back( StringUtil::double_to_string( m_Beta(), "%f" ) );
+    args.push_back( StringUtil::double_to_string( m_BetaStart(), "%f" ) );
 
     args.push_back( "-mach" );
-    args.push_back( StringUtil::double_to_string( m_Mach(), "%f" ) );
+    args.push_back( StringUtil::double_to_string( m_MachStart(), "%f" ) );
 
     args.push_back( m_DegenFile );
     printf("%s\n",m_DegenFile.c_str());
@@ -381,10 +376,6 @@ std::vector <string> VSPAEROMgrSingleton::ComputeSolver()
 
     if ( veh )
     {
-        double alphaOrig = m_Alpha.Get();
-        double betaOrig = m_Beta.Get();
-        double machOrig = m_Mach.Get();
-
         // Calculate spacing
         double alphaDelta=0.0;
         if ( m_AlphaNpts.Get() > 1)
@@ -407,17 +398,17 @@ std::vector <string> VSPAEROMgrSingleton::ComputeSolver()
         for (int iAlpha = 0; iAlpha<m_AlphaNpts.Get(); iAlpha++)
         {
             //Set current alpha value
-            m_Alpha.Set(m_AlphaStart.Get() + double(iAlpha)*alphaDelta);
+            double current_alpha = m_AlphaStart.Get() + double(iAlpha)*alphaDelta;
 
             for (int iBeta = 0; iBeta<m_BetaNpts.Get(); iBeta++)
             {
-                //Set current alpha value
-                m_Beta.Set(m_BetaStart.Get() + double(iBeta)*betaDelta);
+                //Set current beta value
+                double current_beta = m_BetaStart.Get() + double(iBeta)*betaDelta;
 
                 for (int iMach = 0; iMach<m_MachNpts.Get(); iMach++)
                 {
-                    //Set current alpha value
-                    m_Mach.Set(m_MachStart.Get() + double(iMach)*machDelta);
+                    //Set current mach value
+                    double current_mach = m_MachStart.Get() + double(iMach)*machDelta;
                     
                     //====== Clear VSPAERO output files ======//
                     if ( FileExist(m_AdbFile) )
@@ -448,9 +439,6 @@ std::vector <string> VSPAEROMgrSingleton::ComputeSolver()
                     //====== Send command to be executed by the system at the command prompt ======//
                     vector<string> args;
                     // Set mach, alpha, beta (save to local "current*" variables to use as header information in the results manager)
-                    double current_mach = m_Mach.Get();
-                    double current_alpha = m_Alpha.Get();
-                    double current_beta = m_Beta.Get();
                     args.push_back( "-fs");        // "freestream" override flag 
                     args.push_back( StringUtil::double_to_string( current_mach, "%f" ));
                     args.push_back( StringUtil::double_to_string( current_alpha, "%f"));
@@ -463,8 +451,7 @@ std::vector <string> VSPAEROMgrSingleton::ComputeSolver()
                     {
                         args.push_back( "-stab" );
                     }
-                    // TODO: Additional command line arguments
-                    //    Force averaging startign at wake iteration N
+                    // Force averaging startign at wake iteration N
                     args.push_back( "-avg" );
                     args.push_back( StringUtil::int_to_string( m_WakeAvgStartIter.Get(), "%d" ) );
                     // No wake for first N iterations
@@ -502,11 +489,6 @@ std::vector <string> VSPAEROMgrSingleton::ComputeSolver()
             }    //beta sweep loop
 
         }    //alpha sweep loop
-
-        //Reset parms to their original values
-        m_Alpha.Set(alphaOrig);
-        m_Beta.Set(betaOrig);
-        m_Mach.Set(machOrig);
 
     }
 
@@ -931,5 +913,5 @@ string VSPAEROMgrSingleton::ReadStabFile()
      }   
 
      return res_id;
-}    
+}
 

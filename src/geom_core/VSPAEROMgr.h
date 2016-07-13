@@ -76,12 +76,7 @@ public:
     Parm m_Ycg;
     Parm m_Zcg;
 
-    // Single Point Values (Current Value)
-    Parm m_Alpha;
-    Parm m_Beta;
-    Parm m_Mach;
-
-    // Sweep parameter settings
+    // Flow Condition Settings
     Parm m_AlphaStart, m_AlphaEnd; IntParm m_AlphaNpts;
     Parm m_BetaStart, m_BetaEnd; IntParm m_BetaNpts;
     Parm m_MachStart, m_MachEnd; IntParm m_MachNpts;
