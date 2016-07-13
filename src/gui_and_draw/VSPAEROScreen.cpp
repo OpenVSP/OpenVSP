@@ -34,39 +34,39 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_SolverPair = make_pair( &VSPAEROMgr, this );  //solverpair type
     m_ViewerPair = make_pair( this, VSPAERO_VIEWER );   //monitorpair type
 
-    int window_boarder_width = 5;
-    int group_boarder_width = 2;
+    int window_border_width = 5;
+    int group_border_width = 2;
 
-    int total_width = VSPAERO_SCREEN_WIDTH - 2 * window_boarder_width;
-    int total_height = VSPAERO_SCREEN_HEIGHT - 2 * window_boarder_width;
+    int total_width = VSPAERO_SCREEN_WIDTH - 2 * window_border_width;
+    int total_height = VSPAERO_SCREEN_HEIGHT - 2 * window_border_width;
     int row_height = 20;
     int action_button_height = 0 * row_height; //space reserved for action buttons at the bottom
 
     //==== Overview Tab ====//
     Fl_Group* overview_tab = AddTab( "Overview" );
-    Fl_Group* overview_group = AddSubGroup( overview_tab, window_boarder_width );
+    Fl_Group* overview_group = AddSubGroup( overview_tab, window_border_width );
     m_OverviewLayout.SetGroupAndScreen( overview_group, this );
 
-    m_OverviewLayout.AddX( group_boarder_width );
-    m_OverviewLayout.AddY( group_boarder_width );
+    m_OverviewLayout.AddX( group_border_width );
+    m_OverviewLayout.AddY( group_border_width );
 
     // Column layout
     GroupLayout left_col_layout;
-    int left_col_width = 350 - 2 * group_boarder_width;
-    int col_height = m_OverviewLayout.GetH() - 2 * group_boarder_width - action_button_height;
+    int left_col_width = 350 - 2 * group_border_width;
+    int col_height = m_OverviewLayout.GetH() - 2 * group_border_width - action_button_height;
     m_OverviewLayout.AddSubGroupLayout( left_col_layout, left_col_width, col_height );
 
-    m_OverviewLayout.AddX( left_col_layout.GetW() + 2 * group_boarder_width );
+    m_OverviewLayout.AddX( left_col_layout.GetW() + 2 * group_border_width );
 
     GroupLayout right_col_layout;
-    int right_col_width = m_OverviewLayout.GetRemainX() - group_boarder_width;
+    int right_col_width = m_OverviewLayout.GetRemainX() - group_border_width;
     m_OverviewLayout.AddSubGroupLayout( right_col_layout, right_col_width, col_height );
 
     m_OverviewLayout.ForceNewLine();
     m_OverviewLayout.AddY( right_col_layout.GetH() );   //add Y for Execute divider box
 
     // Case Setup
-    left_col_layout.AddSubGroupLayout( m_GeomLayout, left_col_layout.GetW() - 2 * group_boarder_width, 5 * row_height );
+    left_col_layout.AddSubGroupLayout( m_GeomLayout, left_col_layout.GetW() - 2 * group_border_width, 5 * row_height );
     left_col_layout.AddY( m_GeomLayout.GetH() );
 
     m_GeomLayout.AddDividerBox( "Case Setup" );
@@ -102,7 +102,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     left_col_layout.AddYGap();
 
     // Wake
-    left_col_layout.AddSubGroupLayout( m_WakeLayout, left_col_layout.GetW() - 2 * group_boarder_width, 4 * row_height );
+    left_col_layout.AddSubGroupLayout( m_WakeLayout, left_col_layout.GetW() - 2 * group_border_width, 4 * row_height );
     left_col_layout.AddY( m_WakeLayout.GetH() );
 
     m_WakeLayout.AddDividerBox( "Wake" );
@@ -115,7 +115,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     left_col_layout.AddYGap();
 
     // Reference Quantities
-    left_col_layout.AddSubGroupLayout( m_RefLayout, left_col_layout.GetW() - 2 * group_boarder_width, 6 * row_height );
+    left_col_layout.AddSubGroupLayout( m_RefLayout, left_col_layout.GetW() - 2 * group_border_width, 6 * row_height );
     left_col_layout.AddY( m_RefLayout.GetH() );
 
     m_RefLayout.AddDividerBox( "Reference Area, Lengths" );
@@ -147,7 +147,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     left_col_layout.AddYGap();
 
     // CG
-    left_col_layout.AddSubGroupLayout( m_CGLayout, left_col_layout.GetW() - 2 * group_boarder_width, 6 * row_height );
+    left_col_layout.AddSubGroupLayout( m_CGLayout, left_col_layout.GetW() - 2 * group_border_width, 6 * row_height );
     left_col_layout.AddY( m_CGLayout.GetH() );
 
     m_CGLayout.AddDividerBox( "Moment Reference Position" );
@@ -173,7 +173,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     left_col_layout.AddYGap();
 
     // Flow Condition
-    left_col_layout.AddSubGroupLayout( m_FlowLayout, left_col_layout.GetW() - 2 * group_boarder_width, 4 * row_height );
+    left_col_layout.AddSubGroupLayout( m_FlowLayout, left_col_layout.GetW() - 2 * group_border_width, 4 * row_height );
     left_col_layout.AddY( m_FlowLayout.GetH() );
 
     m_FlowLayout.AddDividerBox( "Flow Condition" );
@@ -187,7 +187,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     left_col_layout.AddYGap();
 
     // Execute
-    left_col_layout.AddSubGroupLayout( m_ExecuteLayout, left_col_layout.GetW() - 2 * group_boarder_width, 6 * row_height );
+    left_col_layout.AddSubGroupLayout( m_ExecuteLayout, left_col_layout.GetW() - 2 * group_border_width, 6 * row_height );
     left_col_layout.AddY( m_ExecuteLayout.GetH() );
 
     m_ExecuteLayout.AddDividerBox( "Execute" );
@@ -217,7 +217,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_ExportResultsToCsvButton.Deactivate();
 
     // Setup File
-    right_col_layout.AddSubGroupLayout( m_SetupLayout, right_col_layout.GetW() - 2 * group_boarder_width, right_col_layout.GetH() - 2 * group_boarder_width );
+    right_col_layout.AddSubGroupLayout( m_SetupLayout, right_col_layout.GetW() - 2 * group_border_width, right_col_layout.GetH() - 2 * group_border_width );
 
     m_SetupDividerBox = m_SetupLayout.AddDividerBox( "VSPAERO Setup File: *.vspaero" );
 
@@ -236,7 +236,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     //==== Solver Tab ====//
     Fl_Group* solver_tab = AddTab( "Solver Console" );
-    Fl_Group* solver_group = AddSubGroup( solver_tab, window_boarder_width );
+    Fl_Group* solver_group = AddSubGroup( solver_tab, window_border_width );
     m_SolverLayout.SetGroupAndScreen( solver_group, this );
 
     m_SolverLayout.AddDividerBox( "VSPAERO Solver Console" );
@@ -248,7 +248,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     //==== Viewer Tab ====//
     Fl_Group* viewer_tab = AddTab( "Viewer Console" );
-    Fl_Group* viewer_group = AddSubGroup( viewer_tab, window_boarder_width );
+    Fl_Group* viewer_group = AddSubGroup( viewer_tab, window_border_width );
     m_ViewerLayout.SetGroupAndScreen( viewer_group, this );
 
     m_ViewerLayout.AddDividerBox( "VSPAERO Viewer Console" );

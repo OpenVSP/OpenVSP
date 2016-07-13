@@ -32,24 +32,24 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
 {
     m_FLTK_Window->callback( staticCloseCB, this );
 
-    int windowBoarderWidth = 5;
-    int groupBoarderWidth = 2;
+    int windowBorderWidth = 5;
+    int groupBorderWidth = 2;
 
-    int totalWidth = VSPAERO_PLOT_SCREEN_WIDTH - 2 * windowBoarderWidth;
-    int totalHeight = VSPAERO_PLOT_SCREEN_HEIGHT - 2 * windowBoarderWidth;
+    int totalWidth = VSPAERO_PLOT_SCREEN_WIDTH - 2 * windowBorderWidth;
+    int totalHeight = VSPAERO_PLOT_SCREEN_HEIGHT - 2 * windowBorderWidth;
     int controlWidth = 200;
 
 
     //==== Convergence Tab ====//
     m_ConvergenceTab = AddTab( "Convergence" );
-    Fl_Group* convergencePlotGroup = AddSubGroup( m_ConvergenceTab, windowBoarderWidth );
+    Fl_Group* convergencePlotGroup = AddSubGroup( m_ConvergenceTab, windowBorderWidth );
     m_ConvergenceLayout.SetGroupAndScreen( convergencePlotGroup, this );
 
-    m_ConvergenceLayout.AddX( groupBoarderWidth );
-    m_ConvergenceLayout.AddY( groupBoarderWidth );
+    m_ConvergenceLayout.AddX( groupBorderWidth );
+    m_ConvergenceLayout.AddY( groupBorderWidth );
 
     // Control layout
-    m_ConvergenceLayout.AddSubGroupLayout( m_ConvergenceControlLayout, controlWidth, m_ConvergenceLayout.GetH() - 2 * groupBoarderWidth );
+    m_ConvergenceLayout.AddSubGroupLayout( m_ConvergenceControlLayout, controlWidth, m_ConvergenceLayout.GetH() - 2 * groupBorderWidth );
 
     // layout the heights of the control layout
     int rowHeight = 20;
@@ -57,7 +57,7 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     int legendHeight = 6 * rowHeight;
     int actionButtonHeight = 6 * rowHeight;          //space reserved for action buttons at the bottom
     //  remaining space is used for the flow condition borwser
-    int flowConditionSelectHeight = m_ConvergenceLayout.GetH() - 2 * groupBoarderWidth - yDataSelectHeight - legendHeight - actionButtonHeight - groupBoarderWidth;
+    int flowConditionSelectHeight = m_ConvergenceLayout.GetH() - 2 * groupBorderWidth - yDataSelectHeight - legendHeight - actionButtonHeight - groupBorderWidth;
 
     GroupLayout convergenceYDataSelectLayout;
     m_ConvergenceControlLayout.AddSubGroupLayout( convergenceYDataSelectLayout, m_ConvergenceControlLayout.GetW(), yDataSelectHeight );
@@ -65,7 +65,7 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     m_ConvergenceYDataBrowser = convergenceYDataSelectLayout.AddFlBrowser( convergenceYDataSelectLayout.GetRemainY() );
     m_ConvergenceYDataBrowser->callback( staticScreenCB, this );
     m_ConvergenceYDataBrowser->type( FL_MULTI_BROWSER );
-    m_ConvergenceControlLayout.AddY( convergenceYDataSelectLayout.GetH() + 2 * groupBoarderWidth );
+    m_ConvergenceControlLayout.AddY( convergenceYDataSelectLayout.GetH() + 2 * groupBorderWidth );
 
     GroupLayout convergenceFlowConditionLayout;
     m_ConvergenceControlLayout.AddSubGroupLayout( convergenceFlowConditionLayout, m_ConvergenceControlLayout.GetW(), flowConditionSelectHeight );
@@ -73,7 +73,7 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     m_ConvergenceFlowConditionBrowser = convergenceFlowConditionLayout.AddFlBrowser( convergenceFlowConditionLayout.GetRemainY() );
     m_ConvergenceFlowConditionBrowser->callback( staticScreenCB, this );
     m_ConvergenceFlowConditionBrowser->type( FL_MULTI_BROWSER );
-    m_ConvergenceControlLayout.AddY( convergenceFlowConditionLayout.GetH() + 2 * groupBoarderWidth );
+    m_ConvergenceControlLayout.AddY( convergenceFlowConditionLayout.GetH() + 2 * groupBorderWidth );
 
     m_ConvergenceControlLayout.AddDividerBox( "Legend" );
     m_ConvergenceLegendGroup = m_ConvergenceControlLayout.AddFlScroll( legendHeight - rowHeight );
@@ -128,11 +128,11 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     convergenceActionLayout.InitWidthHeightVals();
 
     // Plot layout
-    int plotWidth = totalWidth - controlWidth - 2 * groupBoarderWidth;
+    int plotWidth = totalWidth - controlWidth - 2 * groupBorderWidth;
     int plotTopBottomMargin = 25;
     int plotSideMargin = 20;
-    m_ConvergenceLayout.AddX( controlWidth + 2 * groupBoarderWidth );
-    m_ConvergenceLayout.AddSubGroupLayout( m_ConvergencePlotLayout, plotWidth, m_ConvergenceLayout.GetH() - 2 * groupBoarderWidth );
+    m_ConvergenceLayout.AddX( controlWidth + 2 * groupBorderWidth );
+    m_ConvergenceLayout.AddSubGroupLayout( m_ConvergencePlotLayout, plotWidth, m_ConvergenceLayout.GetH() - 2 * groupBorderWidth );
     m_ConvergencePlotLayout.AddX( plotSideMargin );
     m_ConvergencePlotLayout.AddY( plotTopBottomMargin );
     m_ConvergencePlotCanvas = m_ConvergencePlotLayout.AddCanvas( m_ConvergencePlotLayout.GetW() - 2 * plotSideMargin, m_ConvergencePlotLayout.GetH() - 2 * plotTopBottomMargin,
@@ -144,14 +144,14 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
 
     //==== Load Distribution Tab ====//
     m_LoadDistTab = AddTab( "Load Dist." );
-    Fl_Group* loadDistPlotGroup = AddSubGroup( m_LoadDistTab, windowBoarderWidth );
+    Fl_Group* loadDistPlotGroup = AddSubGroup( m_LoadDistTab, windowBorderWidth );
     m_LoadDistLayout.SetGroupAndScreen( loadDistPlotGroup, this );
 
-    m_LoadDistLayout.AddX( groupBoarderWidth );
-    m_LoadDistLayout.AddY( groupBoarderWidth );
+    m_LoadDistLayout.AddX( groupBorderWidth );
+    m_LoadDistLayout.AddY( groupBorderWidth );
 
     // Control layout
-    m_LoadDistLayout.AddSubGroupLayout( m_LoadDistControlLayout, controlWidth, m_LoadDistLayout.GetH() - 2 * groupBoarderWidth );
+    m_LoadDistLayout.AddSubGroupLayout( m_LoadDistControlLayout, controlWidth, m_LoadDistLayout.GetH() - 2 * groupBorderWidth );
 
     GroupLayout yDataSelectLayout;
     m_LoadDistControlLayout.AddSubGroupLayout( yDataSelectLayout, m_LoadDistControlLayout.GetW(), yDataSelectHeight );
@@ -159,7 +159,7 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     m_LoadDistYDataBrowser = yDataSelectLayout.AddFlBrowser( yDataSelectLayout.GetRemainY() );
     m_LoadDistYDataBrowser->callback( staticScreenCB, this );
     m_LoadDistYDataBrowser->type( FL_MULTI_BROWSER );
-    m_LoadDistControlLayout.AddY( yDataSelectLayout.GetH() + 2 * groupBoarderWidth );
+    m_LoadDistControlLayout.AddY( yDataSelectLayout.GetH() + 2 * groupBorderWidth );
 
     GroupLayout flowConditionLayout;
     m_LoadDistControlLayout.AddSubGroupLayout( flowConditionLayout, m_LoadDistControlLayout.GetW(), flowConditionSelectHeight );
@@ -167,7 +167,7 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     m_LoadDistFlowConditionBrowser = flowConditionLayout.AddFlBrowser( flowConditionLayout.GetRemainY() );
     m_LoadDistFlowConditionBrowser->callback( staticScreenCB, this );
     m_LoadDistFlowConditionBrowser->type( FL_MULTI_BROWSER );
-    m_LoadDistControlLayout.AddY( flowConditionLayout.GetH() + 2 * groupBoarderWidth );
+    m_LoadDistControlLayout.AddY( flowConditionLayout.GetH() + 2 * groupBorderWidth );
 
     m_LoadDistControlLayout.AddDividerBox( "Legend" );
     m_LoadDistLegendGroup = m_LoadDistControlLayout.AddFlScroll( legendHeight - rowHeight );
@@ -218,8 +218,8 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     loadDistActionLayout.InitWidthHeightVals();
 
     // Plot layout
-    m_LoadDistLayout.AddX( controlWidth + 2 * groupBoarderWidth );
-    m_LoadDistLayout.AddSubGroupLayout( m_LoadDistPlotLayout, plotWidth, m_LoadDistLayout.GetH() - 2 * groupBoarderWidth );
+    m_LoadDistLayout.AddX( controlWidth + 2 * groupBorderWidth );
+    m_LoadDistLayout.AddSubGroupLayout( m_LoadDistPlotLayout, plotWidth, m_LoadDistLayout.GetH() - 2 * groupBorderWidth );
     m_LoadDistPlotLayout.AddX( plotSideMargin );
     m_LoadDistPlotLayout.AddY( plotTopBottomMargin );
     m_LoadDistPlotCanvas = m_LoadDistPlotLayout.AddCanvas( m_LoadDistPlotLayout.GetW() - 2 * plotSideMargin, m_LoadDistPlotLayout.GetH() - 2 * plotTopBottomMargin,
@@ -234,11 +234,11 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     Fl_Group* sweepPlotGroup = AddSubGroup( m_SweepTab, 5 );
     m_SweepLayout.SetGroupAndScreen( sweepPlotGroup, this );
 
-    m_SweepLayout.AddX( groupBoarderWidth );
-    m_SweepLayout.AddY( groupBoarderWidth );
+    m_SweepLayout.AddX( groupBorderWidth );
+    m_SweepLayout.AddY( groupBorderWidth );
 
     // Control layout
-    m_SweepLayout.AddSubGroupLayout( m_SweepControlLayout, controlWidth, m_SweepLayout.GetH() - 2 * groupBoarderWidth );
+    m_SweepLayout.AddSubGroupLayout( m_SweepControlLayout, controlWidth, m_SweepLayout.GetH() - 2 * groupBorderWidth );
 
     GroupLayout sweepXYDataSelectLayout;
     m_SweepControlLayout.AddSubGroupLayout( sweepXYDataSelectLayout, m_SweepControlLayout.GetW(), yDataSelectHeight );
@@ -257,7 +257,7 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     m_SweepYDataBrowser = sweepYDataSelectLayout.AddFlBrowser( sweepYDataSelectLayout.GetRemainY() );
     m_SweepYDataBrowser->callback( staticScreenCB, this );
     m_SweepYDataBrowser->type( FL_MULTI_BROWSER );
-    m_SweepControlLayout.AddY( sweepYDataSelectLayout.GetH() + 2 * groupBoarderWidth );
+    m_SweepControlLayout.AddY( sweepYDataSelectLayout.GetH() + 2 * groupBorderWidth );
 
     GroupLayout sweepFlowConditionLayout;
     m_SweepControlLayout.AddSubGroupLayout( flowConditionLayout, m_SweepControlLayout.GetW(), flowConditionSelectHeight );
@@ -265,7 +265,7 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     m_SweepFlowConditionBrowser = flowConditionLayout.AddFlBrowser( flowConditionLayout.GetRemainY() );
     m_SweepFlowConditionBrowser->callback( staticScreenCB, this );
     m_SweepFlowConditionBrowser->type( FL_MULTI_BROWSER );
-    m_SweepControlLayout.AddY( flowConditionLayout.GetH() + 2 * groupBoarderWidth );
+    m_SweepControlLayout.AddY( flowConditionLayout.GetH() + 2 * groupBorderWidth );
 
     m_SweepControlLayout.AddDividerBox( "Legend" );
     m_SweepLegendGroup = m_SweepControlLayout.AddFlScroll( legendHeight - rowHeight );
@@ -316,8 +316,8 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     sweepActionLayout.InitWidthHeightVals();
 
     // Plot layout
-    m_SweepLayout.AddX( controlWidth + 2 * groupBoarderWidth );
-    m_SweepLayout.AddSubGroupLayout( m_SweepPlotLayout, plotWidth, m_SweepLayout.GetH() - 2 * groupBoarderWidth );
+    m_SweepLayout.AddX( controlWidth + 2 * groupBorderWidth );
+    m_SweepLayout.AddSubGroupLayout( m_SweepPlotLayout, plotWidth, m_SweepLayout.GetH() - 2 * groupBorderWidth );
     m_SweepPlotLayout.AddX( plotSideMargin );
     m_SweepPlotLayout.AddY( plotTopBottomMargin );
     m_SweepPlotCanvas = m_SweepPlotLayout.AddCanvas( m_SweepPlotLayout.GetW() - 2 * plotSideMargin, m_SweepPlotLayout.GetH() - 2 * plotTopBottomMargin,
