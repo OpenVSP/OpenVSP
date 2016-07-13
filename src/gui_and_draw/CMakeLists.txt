@@ -77,6 +77,7 @@ SubGLWindow.cpp
 TypeEditorScreen.cpp
 UserParmScreen.cpp
 VarPresetScreen.cpp
+VSPAEROPlotScreen.cpp
 VSPAEROScreen.cpp
 VSPWindow.cpp
 WaveDragScreen.cpp
@@ -132,6 +133,7 @@ SubGLWindow.h
 TypeEditorScreen.h
 UserParmScreen.h
 VarPresetScreen.h
+VSPAEROPlotScreen.h
 VSPAEROScreen.h
 VSPWindow.h
 WaveDragScreen.h

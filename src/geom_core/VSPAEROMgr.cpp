@@ -104,6 +104,37 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_LoadFile      = string();
     m_StabFile      = string();
 
+    m_SolverProcessKill = false;
+
+    // Plot limits
+    m_ConvergenceXMinIsManual.Init("m_ConvergenceXMinIsManual","VSPAERO",this,0,0,1);
+    m_ConvergenceXMaxIsManual.Init("m_ConvergenceXMaxIsManual","VSPAERO",this,0,0,1);
+    m_ConvergenceYMinIsManual.Init("m_ConvergenceYMinIsManual","VSPAERO",this,0,0,1);
+    m_ConvergenceYMaxIsManual.Init("m_ConvergenceYMaxIsManual","VSPAERO",this,0,0,1);
+    m_ConvergenceXMin.Init("m_ConvergenceXMin","VSPAERO",this,-1,-1e12,1e12);
+    m_ConvergenceXMax.Init("m_ConvergenceXMax","VSPAERO",this,1,-1e12,1e12);
+    m_ConvergenceYMin.Init("m_ConvergenceYMin","VSPAERO",this,-1,-1e12,1e12);
+    m_ConvergenceYMax.Init("m_ConvergenceYMax","VSPAERO",this,1,-1e12,1e12);
+
+    m_LoadDistXMinIsManual.Init("m_LoadDistXMinIsManual","VSPAERO",this,0,0,1);
+    m_LoadDistXMaxIsManual.Init("m_LoadDistXMaxIsManual","VSPAERO",this,0,0,1);
+    m_LoadDistYMinIsManual.Init("m_LoadDistYMinIsManual","VSPAERO",this,0,0,1);
+    m_LoadDistYMaxIsManual.Init("m_LoadDistYMaxIsManual","VSPAERO",this,0,0,1);
+    m_LoadDistXMin.Init("m_LoadDistXMin","VSPAERO",this,-1,-1e12,1e12);
+    m_LoadDistXMax.Init("m_LoadDistXMax","VSPAERO",this,1,-1e12,1e12);
+    m_LoadDistYMin.Init("m_LoadDistYMin","VSPAERO",this,-1,-1e12,1e12);
+    m_LoadDistYMax.Init("m_LoadDistYMax","VSPAERO",this,1,-1e12,1e12);
+
+    m_SweepXMinIsManual.Init("m_SweepXMinIsManual","VSPAERO",this,0,0,1);
+    m_SweepXMaxIsManual.Init("m_SweepXMaxIsManual","VSPAERO",this,0,0,1);
+    m_SweepYMinIsManual.Init("m_SweepYMinIsManual","VSPAERO",this,0,0,1);
+    m_SweepYMaxIsManual.Init("m_SweepYMaxIsManual","VSPAERO",this,0,0,1);
+    m_SweepXMin.Init("m_SweepXMin","VSPAERO",this,-1,-1e12,1e12);
+    m_SweepXMax.Init("m_SweepXMax","VSPAERO",this,1,-1e12,1e12);
+    m_SweepYMin.Init("m_SweepYMin","VSPAERO",this,-1,-1e12,1e12);
+    m_SweepYMax.Init("m_SweepYMax","VSPAERO",this,1,-1e12,1e12);
+
+    // Run the update cycle to complete the setup
     Update();
 
 }

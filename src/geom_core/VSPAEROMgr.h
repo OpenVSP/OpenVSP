@@ -92,14 +92,42 @@ public:
 
     enum { MANUAL_REF = 0, COMPONENT_REF, };
 
+    // Plotwindow settings
+    BoolParm m_ConvergenceXMinIsManual;
+    BoolParm m_ConvergenceXMaxIsManual;
+    BoolParm m_ConvergenceYMinIsManual;
+    BoolParm m_ConvergenceYMaxIsManual;
+    Parm m_ConvergenceXMin;
+    Parm m_ConvergenceXMax;
+    Parm m_ConvergenceYMin;
+    Parm m_ConvergenceYMax;
+
+    BoolParm m_LoadDistXMinIsManual;
+    BoolParm m_LoadDistXMaxIsManual;
+    BoolParm m_LoadDistYMinIsManual;
+    BoolParm m_LoadDistYMaxIsManual;
+    Parm m_LoadDistXMin;
+    Parm m_LoadDistXMax;
+    Parm m_LoadDistYMin;
+    Parm m_LoadDistYMax;
+
+    BoolParm m_SweepXMinIsManual;
+    BoolParm m_SweepXMaxIsManual;
+    BoolParm m_SweepYMinIsManual;
+    BoolParm m_SweepYMaxIsManual;
+    Parm m_SweepXMin;
+    Parm m_SweepXMax;
+    Parm m_SweepYMin;
+    Parm m_SweepYMax;
+
     ProcessUtil m_SolverProcess;
 
 protected: 
     void WaitForFile(string filename);    // function is used to wait for the result to show up on the file system
 
     bool m_SolverProcessKill;
-private:
 
+private:
     VSPAEROMgrSingleton();
     VSPAEROMgrSingleton( VSPAEROMgrSingleton const& copy );            // Not Implemented
     VSPAEROMgrSingleton& operator=( VSPAEROMgrSingleton const& copy ); // Not Implemented

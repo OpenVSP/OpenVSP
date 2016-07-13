@@ -8,6 +8,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "VSPAEROScreen.h"
+#include "VSPAEROPlotScreen.h"
 #include "APIDefines.h"
 #include "StringUtil.h"
 #include "FileUtil.h"
@@ -206,6 +207,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_ExecuteLayout.ForceNewLine();
 
+    m_ExecuteLayout.AddButton( m_PlotButton, "Show Results Mgr" );
     m_ExecuteLayout.AddButton( m_ViewerButton, "Launch Viewer" );
 
     m_ExecuteLayout.ForceNewLine();
@@ -462,6 +464,16 @@ bool VSPAEROScreen::Update()
         else
         {
             m_KillSolverButton.Deactivate();
+        }
+
+        // Plot Window Button
+        if( veh->GetVSPAEROCmd().empty() || !FileExist(VSPAEROMgr.m_DegenFileFull) || !FileExist(VSPAEROMgr.m_SetupFile))
+        {
+            m_PlotButton.Deactivate();
+        }
+        else
+        {
+            m_PlotButton.Activate();
         }
 
         // Viewer Button

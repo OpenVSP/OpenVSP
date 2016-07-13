@@ -60,6 +60,7 @@ public:
            VSP_USER_PARM_SCREEN,
            VSP_VAR_PRESET_SCREEN,
            VSP_VIEW_SCREEN,
+           VSP_VSPAERO_PLOT_SCREEN,
            VSP_VSPAERO_SCREEN,
            VSP_XSEC_SCREEN,
            VSP_WAVEDRAG_SCREEN,
@@ -115,6 +116,8 @@ public:
     {
 //        ( ( MainVSPScreen* ) m_ScreenVec[VSP_MAIN_SCREEN] )->HideReturnToAPI();
     };
+
+    bool m_ShowPlotScreenOnce;
 
 protected:
 

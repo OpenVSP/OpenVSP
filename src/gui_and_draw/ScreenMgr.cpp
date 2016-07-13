@@ -42,6 +42,7 @@
 #include "TypeEditorScreen.h"
 #include "UserParmScreen.h"
 #include "VarPresetScreen.h"
+#include "VSPAEROPlotScreen.h"
 #include "VSPAEROScreen.h"
 #include "WaveDragScreen.h"
 
@@ -70,6 +71,8 @@ ScreenMgr::ScreenMgr( Vehicle* vPtr )
 
     m_RunGUI = true;
 
+    m_ShowPlotScreenOnce = false;
+
 }
 
 //==== Destructor ====//
@@ -95,7 +98,13 @@ void ScreenMgr::ForceUpdate()
 void ScreenMgr::TimerCB()
 {
     if ( m_UpdateFlag )
-    {
+    {    
+        if (m_ShowPlotScreenOnce)
+        {
+            m_ShowPlotScreenOnce = false;
+            m_ScreenVec[VSP_MAIN_SCREEN]->Show();   //set main screen as "current" before show
+            m_ScreenVec[VSP_VSPAERO_PLOT_SCREEN]->Show();
+        }
         m_UpdateFlag = false;
         UpdateAllScreens();
     }
@@ -185,6 +194,7 @@ void ScreenMgr::Init()
     m_ScreenVec[VSP_USER_PARM_SCREEN] = new UserParmScreen( this );
     m_ScreenVec[VSP_VIEW_SCREEN] = new ManageViewScreen( this );
     m_ScreenVec[VSP_VAR_PRESET_SCREEN] = new VarPresetScreen( this );
+    m_ScreenVec[VSP_VSPAERO_PLOT_SCREEN] = new VSPAEROPlotScreen( this );
     m_ScreenVec[VSP_VSPAERO_SCREEN] = new VSPAEROScreen( this );
     m_ScreenVec[VSP_WAVEDRAG_SCREEN] = new WaveDragScreen( this );
     m_ScreenVec[VSP_XSEC_SCREEN] = new XSecViewScreen( this );
@@ -199,7 +209,6 @@ void ScreenMgr::Init()
     h1 = m_ScreenVec[VSP_MAIN_SCREEN]->GetFlWindow()->h();
 
     m_ScreenVec[VSP_MANAGE_GEOM_SCREEN]->GetFlWindow()->position(x+w+5,y);
-    m_ScreenVec[VSP_MANAGE_GEOM_SCREEN]->Show();
 
     h2 = m_ScreenVec[VSP_XSEC_SCREEN]->GetFlWindow()->h();
     m_ScreenVec[VSP_XSEC_SCREEN]->GetFlWindow()->position( x + w + 5, y + h1 - h2 );
@@ -218,6 +227,9 @@ void ScreenMgr::Init()
             m_ScreenVec[i]->GetFlWindow()->set_non_modal();
         }
     }
+
+    // Show() after setting non_modal, as modality can not change if window shown.
+    m_ScreenVec[VSP_MANAGE_GEOM_SCREEN]->Show();
 }
 
 //==== Update All Displayed Screens ====//
