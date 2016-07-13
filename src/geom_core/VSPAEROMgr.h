@@ -30,7 +30,6 @@ public:
         static VSPAEROMgrSingleton instance;
         return instance;
     }
-    void Init()                                         {}
     virtual void ParmChanged( Parm* parm_ptr, int type );
 
     void ClearAllPreviousResults();

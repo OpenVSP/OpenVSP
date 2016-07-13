@@ -108,9 +108,9 @@ void Vehicle::Init()
     SetVSP3FileName( "Unnamed.vsp3" );
     m_FileOpenVersion = -1;
 
-    //==== Init VSPAero Mgr ====//
-    // must initialize this after the SetVSP3FileName()
-    VSPAEROMgr.Init();
+    //==== Update VSPAero Mgr ====//
+    // must do this after the SetVSP3FileName()
+    VSPAEROMgr.Update();
 
     //==== Load Default Set Names =====//
     m_SetNameVec.push_back( "All" );        // SET_ALL
@@ -141,6 +141,7 @@ void Vehicle::Init()
     LinkMgr.RegisterContainer( m_CfdSettings.GetID() );
     LinkMgr.RegisterContainer( m_CfdGridDensity.GetID() );
     LinkMgr.RegisterContainer( m_FeaGridDensity.GetID() );
+    LinkMgr.RegisterContainer( VSPAEROMgr.GetID() );
     LinkMgr.RegisterContainer( WaveDragMgr.GetID() );
 
     m_IxxIyyIzz = vec3d( 0, 0, 0 );
