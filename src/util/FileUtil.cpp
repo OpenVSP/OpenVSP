@@ -276,7 +276,7 @@ bool FileExist( const string & file )
 }
 
 // This is similar to basename() on linux and returns the last portion of the pathfile string
-string GetFilename(const string &pathfile)
+string GetFilename( const string &pathfile )
 {
     /*  _splitpath is defined on windows only
     char drive[1000];       // Drive     : Output
@@ -293,16 +293,16 @@ string GetFilename(const string &pathfile)
 
     // split headerstr into fieldnames
     std::vector<string>fileParts;
-    int n_parts=0;
+    int n_parts = 0;
     char * pch;
     char strbuf[1000];
-    strcpy(strbuf,pathfile.c_str());
-    pch = strtok (strbuf,sepToken.c_str());
-    while (pch != NULL)
+    strcpy( strbuf, pathfile.c_str() );
+    pch = strtok ( strbuf, sepToken.c_str() );
+    while ( pch != NULL )
     {
         n_parts++;
-        fileParts.push_back(pch);
-        pch = strtok (NULL,sepToken.c_str());
+        fileParts.push_back( pch );
+        pch = strtok ( NULL, sepToken.c_str() );
     }
 
     return fileParts.back();

@@ -51,8 +51,8 @@ public:
     string ReadHistoryFile();
     string ReadLoadFile();
     string ReadStabFile();
-    void AddResultHeader(string res_id, double mach, double alpha, double beta);
-    int ExportResultsToCSV(string fileName);
+    void AddResultHeader( string res_id, double mach, double alpha, double beta );
+    int ExportResultsToCSV( string fileName );
 
 
     // file names
@@ -122,8 +122,8 @@ public:
 
     ProcessUtil m_SolverProcess;
 
-protected: 
-    void WaitForFile(string filename);    // function is used to wait for the result to show up on the file system
+protected:
+    void WaitForFile( string filename );  // function is used to wait for the result to show up on the file system
 
     bool m_SolverProcessKill;
 

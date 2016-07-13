@@ -35,8 +35,8 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     int windowBoarderWidth = 5;
     int groupBoarderWidth = 2;
 
-    int totalWidth = VSPAERO_PLOT_SCREEN_WIDTH - 2*windowBoarderWidth;
-    int totalHeight = VSPAERO_PLOT_SCREEN_HEIGHT - 2*windowBoarderWidth;
+    int totalWidth = VSPAERO_PLOT_SCREEN_WIDTH - 2 * windowBoarderWidth;
+    int totalHeight = VSPAERO_PLOT_SCREEN_HEIGHT - 2 * windowBoarderWidth;
     int controlWidth = 200;
 
 
@@ -49,31 +49,31 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     m_ConvergenceLayout.AddY( groupBoarderWidth );
 
     // Control layout
-    m_ConvergenceLayout.AddSubGroupLayout( m_ConvergenceControlLayout, controlWidth, m_ConvergenceLayout.GetH()-2*groupBoarderWidth );
+    m_ConvergenceLayout.AddSubGroupLayout( m_ConvergenceControlLayout, controlWidth, m_ConvergenceLayout.GetH() - 2 * groupBoarderWidth );
 
     // layout the heights of the control layout
     int rowHeight = 20;
-    int yDataSelectHeight = 11*rowHeight;
-    int legendHeight = 6*rowHeight;
-    int actionButtonHeight = 6*rowHeight;            //space reserved for action buttons at the bottom
+    int yDataSelectHeight = 11 * rowHeight;
+    int legendHeight = 6 * rowHeight;
+    int actionButtonHeight = 6 * rowHeight;          //space reserved for action buttons at the bottom
     //  remaining space is used for the flow condition borwser
-    int flowConditionSelectHeight = m_ConvergenceLayout.GetH()-2*groupBoarderWidth - yDataSelectHeight - legendHeight - actionButtonHeight - groupBoarderWidth;
+    int flowConditionSelectHeight = m_ConvergenceLayout.GetH() - 2 * groupBoarderWidth - yDataSelectHeight - legendHeight - actionButtonHeight - groupBoarderWidth;
 
     GroupLayout convergenceYDataSelectLayout;
-    m_ConvergenceControlLayout.AddSubGroupLayout( convergenceYDataSelectLayout, m_ConvergenceControlLayout.GetW(), yDataSelectHeight);
-    convergenceYDataSelectLayout.AddDividerBox("Y-Data");
+    m_ConvergenceControlLayout.AddSubGroupLayout( convergenceYDataSelectLayout, m_ConvergenceControlLayout.GetW(), yDataSelectHeight );
+    convergenceYDataSelectLayout.AddDividerBox( "Y-Data" );
     m_ConvergenceYDataBrowser = convergenceYDataSelectLayout.AddFlBrowser( convergenceYDataSelectLayout.GetRemainY() );
     m_ConvergenceYDataBrowser->callback( staticScreenCB, this );
     m_ConvergenceYDataBrowser->type( FL_MULTI_BROWSER );
-    m_ConvergenceControlLayout.AddY( convergenceYDataSelectLayout.GetH()+2*groupBoarderWidth );
+    m_ConvergenceControlLayout.AddY( convergenceYDataSelectLayout.GetH() + 2 * groupBoarderWidth );
 
     GroupLayout convergenceFlowConditionLayout;
-    m_ConvergenceControlLayout.AddSubGroupLayout( convergenceFlowConditionLayout, m_ConvergenceControlLayout.GetW(), flowConditionSelectHeight);
-    convergenceFlowConditionLayout.AddDividerBox("Flow Condition");
+    m_ConvergenceControlLayout.AddSubGroupLayout( convergenceFlowConditionLayout, m_ConvergenceControlLayout.GetW(), flowConditionSelectHeight );
+    convergenceFlowConditionLayout.AddDividerBox( "Flow Condition" );
     m_ConvergenceFlowConditionBrowser = convergenceFlowConditionLayout.AddFlBrowser( convergenceFlowConditionLayout.GetRemainY() );
     m_ConvergenceFlowConditionBrowser->callback( staticScreenCB, this );
     m_ConvergenceFlowConditionBrowser->type( FL_MULTI_BROWSER );
-    m_ConvergenceControlLayout.AddY( convergenceFlowConditionLayout.GetH()+2*groupBoarderWidth );
+    m_ConvergenceControlLayout.AddY( convergenceFlowConditionLayout.GetH() + 2 * groupBoarderWidth );
 
     m_ConvergenceControlLayout.AddDividerBox( "Legend" );
     m_ConvergenceLegendGroup = m_ConvergenceControlLayout.AddFlScroll( legendHeight - rowHeight );
@@ -83,8 +83,8 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
 
     // Action buttons
     GroupLayout convergenceActionLayout;
-    m_ConvergenceControlLayout.AddSubGroupLayout( convergenceActionLayout, m_ConvergenceControlLayout.GetW(), actionButtonHeight);
-    convergenceActionLayout.AddDividerBox("Actions:");
+    m_ConvergenceControlLayout.AddSubGroupLayout( convergenceActionLayout, m_ConvergenceControlLayout.GetW(), actionButtonHeight );
+    convergenceActionLayout.AddDividerBox( "Actions:" );
     convergenceActionLayout.AddButton( m_ConvergenceYDataResidualToggle, "Residual log10(|Y(i)-Y(i-1) |)" );
     m_ConvergenceYDataResidualToggle.GetFlButton()->set();      //turn this on by default
 
@@ -94,53 +94,53 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
 
     convergenceActionLayout.SetFitWidthFlag( false );
     convergenceActionLayout.SetButtonWidth( actionToggleButtonWidth );
-    convergenceActionLayout.AddButton( m_ConvergenceManualXMinToggle, "");
+    convergenceActionLayout.AddButton( m_ConvergenceManualXMinToggle, "" );
     convergenceActionLayout.SetButtonWidth( actionSliderButtonWidth );
     convergenceActionLayout.SetFitWidthFlag( true );
-    convergenceActionLayout.AddSlider( m_ConvergenceXMinSlider, "Xmin",1.0,"%g");
+    convergenceActionLayout.AddSlider( m_ConvergenceXMinSlider, "Xmin", 1.0, "%g" );
 
     convergenceActionLayout.ForceNewLine();
 
     convergenceActionLayout.SetFitWidthFlag( false );
     convergenceActionLayout.SetButtonWidth( actionToggleButtonWidth );
-    convergenceActionLayout.AddButton( m_ConvergenceManualXMaxToggle, "");
+    convergenceActionLayout.AddButton( m_ConvergenceManualXMaxToggle, "" );
     convergenceActionLayout.SetButtonWidth( actionSliderButtonWidth );
     convergenceActionLayout.SetFitWidthFlag( true );
-    convergenceActionLayout.AddSlider( m_ConvergenceXMaxSlider, "Xmax",1.0,"%g");
+    convergenceActionLayout.AddSlider( m_ConvergenceXMaxSlider, "Xmax", 1.0, "%g" );
 
     convergenceActionLayout.ForceNewLine();
 
     convergenceActionLayout.SetFitWidthFlag( false );
     convergenceActionLayout.SetButtonWidth( actionToggleButtonWidth );
-    convergenceActionLayout.AddButton( m_ConvergenceManualYMinToggle, "");
+    convergenceActionLayout.AddButton( m_ConvergenceManualYMinToggle, "" );
     convergenceActionLayout.SetButtonWidth( actionSliderButtonWidth );
     convergenceActionLayout.SetFitWidthFlag( true );
-    convergenceActionLayout.AddSlider( m_ConvergenceYMinSlider, "Ymin",1.0,"%g");
+    convergenceActionLayout.AddSlider( m_ConvergenceYMinSlider, "Ymin", 1.0, "%g" );
 
     convergenceActionLayout.ForceNewLine();
 
     convergenceActionLayout.SetFitWidthFlag( false );
     convergenceActionLayout.SetButtonWidth( actionToggleButtonWidth );
-    convergenceActionLayout.AddButton( m_ConvergenceManualYMaxToggle, "");
+    convergenceActionLayout.AddButton( m_ConvergenceManualYMaxToggle, "" );
     convergenceActionLayout.SetButtonWidth( actionSliderButtonWidth );
     convergenceActionLayout.SetFitWidthFlag( true );
-    convergenceActionLayout.AddSlider( m_ConvergenceYMaxSlider, "Ymax",1.0,"%g");
+    convergenceActionLayout.AddSlider( m_ConvergenceYMaxSlider, "Ymax", 1.0, "%g" );
     convergenceActionLayout.InitWidthHeightVals();
 
     // Plot layout
-    int plotWidth = totalWidth - controlWidth - 2*groupBoarderWidth;
+    int plotWidth = totalWidth - controlWidth - 2 * groupBoarderWidth;
     int plotTopBottomMargin = 25;
     int plotSideMargin = 20;
-    m_ConvergenceLayout.AddX( controlWidth + 2*groupBoarderWidth );
-    m_ConvergenceLayout.AddSubGroupLayout( m_ConvergencePlotLayout, plotWidth, m_ConvergenceLayout.GetH()-2*groupBoarderWidth );
+    m_ConvergenceLayout.AddX( controlWidth + 2 * groupBoarderWidth );
+    m_ConvergenceLayout.AddSubGroupLayout( m_ConvergencePlotLayout, plotWidth, m_ConvergenceLayout.GetH() - 2 * groupBoarderWidth );
     m_ConvergencePlotLayout.AddX( plotSideMargin );
     m_ConvergencePlotLayout.AddY( plotTopBottomMargin );
-    m_ConvergencePlotCanvas = m_ConvergencePlotLayout.AddCanvas( m_ConvergencePlotLayout.GetW()-2*plotSideMargin, m_ConvergencePlotLayout.GetH()-2*plotTopBottomMargin,
-        0, 1, 0, 1, //xMin, xMax, yMin, yMax, 
-        "", "[X]", "[Y]");
-    m_ConvergencePlotCanvas->align(FL_ALIGN_TOP);
-    m_ConvergencePlotCanvas->current_x()->label_format("%g");
-    m_ConvergencePlotCanvas->current_y()->label_format("%g");
+    m_ConvergencePlotCanvas = m_ConvergencePlotLayout.AddCanvas( m_ConvergencePlotLayout.GetW() - 2 * plotSideMargin, m_ConvergencePlotLayout.GetH() - 2 * plotTopBottomMargin,
+                              0, 1, 0, 1, //xMin, xMax, yMin, yMax,
+                              "", "[X]", "[Y]" );
+    m_ConvergencePlotCanvas->align( FL_ALIGN_TOP );
+    m_ConvergencePlotCanvas->current_x()->label_format( "%g" );
+    m_ConvergencePlotCanvas->current_y()->label_format( "%g" );
 
     //==== Load Distribution Tab ====//
     m_LoadDistTab = AddTab( "Load Dist." );
@@ -151,23 +151,23 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     m_LoadDistLayout.AddY( groupBoarderWidth );
 
     // Control layout
-    m_LoadDistLayout.AddSubGroupLayout( m_LoadDistControlLayout, controlWidth, m_LoadDistLayout.GetH()-2*groupBoarderWidth );
+    m_LoadDistLayout.AddSubGroupLayout( m_LoadDistControlLayout, controlWidth, m_LoadDistLayout.GetH() - 2 * groupBoarderWidth );
 
     GroupLayout yDataSelectLayout;
-    m_LoadDistControlLayout.AddSubGroupLayout( yDataSelectLayout, m_LoadDistControlLayout.GetW(), yDataSelectHeight);
-    yDataSelectLayout.AddDividerBox("Y-Data");
+    m_LoadDistControlLayout.AddSubGroupLayout( yDataSelectLayout, m_LoadDistControlLayout.GetW(), yDataSelectHeight );
+    yDataSelectLayout.AddDividerBox( "Y-Data" );
     m_LoadDistYDataBrowser = yDataSelectLayout.AddFlBrowser( yDataSelectLayout.GetRemainY() );
     m_LoadDistYDataBrowser->callback( staticScreenCB, this );
     m_LoadDistYDataBrowser->type( FL_MULTI_BROWSER );
-    m_LoadDistControlLayout.AddY( yDataSelectLayout.GetH()+2*groupBoarderWidth );
+    m_LoadDistControlLayout.AddY( yDataSelectLayout.GetH() + 2 * groupBoarderWidth );
 
     GroupLayout flowConditionLayout;
-    m_LoadDistControlLayout.AddSubGroupLayout( flowConditionLayout, m_LoadDistControlLayout.GetW(), flowConditionSelectHeight);
-    flowConditionLayout.AddDividerBox("Flow Condition");
+    m_LoadDistControlLayout.AddSubGroupLayout( flowConditionLayout, m_LoadDistControlLayout.GetW(), flowConditionSelectHeight );
+    flowConditionLayout.AddDividerBox( "Flow Condition" );
     m_LoadDistFlowConditionBrowser = flowConditionLayout.AddFlBrowser( flowConditionLayout.GetRemainY() );
     m_LoadDistFlowConditionBrowser->callback( staticScreenCB, this );
     m_LoadDistFlowConditionBrowser->type( FL_MULTI_BROWSER );
-    m_LoadDistControlLayout.AddY( flowConditionLayout.GetH()+2*groupBoarderWidth );
+    m_LoadDistControlLayout.AddY( flowConditionLayout.GetH() + 2 * groupBoarderWidth );
 
     m_LoadDistControlLayout.AddDividerBox( "Legend" );
     m_LoadDistLegendGroup = m_LoadDistControlLayout.AddFlScroll( legendHeight - rowHeight );
@@ -177,57 +177,57 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
 
     // Action buttons
     GroupLayout loadDistActionLayout;
-    m_LoadDistControlLayout.AddSubGroupLayout( loadDistActionLayout, m_LoadDistControlLayout.GetW(), actionButtonHeight);
-    loadDistActionLayout.AddDividerBox("Actions:");
+    m_LoadDistControlLayout.AddSubGroupLayout( loadDistActionLayout, m_LoadDistControlLayout.GetW(), actionButtonHeight );
+    loadDistActionLayout.AddDividerBox( "Actions:" );
 
     loadDistActionLayout.SetSameLineFlag( true );
 
     loadDistActionLayout.SetFitWidthFlag( false );
     loadDistActionLayout.SetButtonWidth( actionToggleButtonWidth );
-    loadDistActionLayout.AddButton( m_LoadDistManualXMinToggle, "");
+    loadDistActionLayout.AddButton( m_LoadDistManualXMinToggle, "" );
     loadDistActionLayout.SetButtonWidth( actionSliderButtonWidth );
     loadDistActionLayout.SetFitWidthFlag( true );
-    loadDistActionLayout.AddSlider( m_LoadDistXMinSlider, "Xmin",1.0,"%g");
+    loadDistActionLayout.AddSlider( m_LoadDistXMinSlider, "Xmin", 1.0, "%g" );
 
     loadDistActionLayout.ForceNewLine();
 
     loadDistActionLayout.SetFitWidthFlag( false );
     loadDistActionLayout.SetButtonWidth( actionToggleButtonWidth );
-    loadDistActionLayout.AddButton( m_LoadDistManualXMaxToggle, "");
+    loadDistActionLayout.AddButton( m_LoadDistManualXMaxToggle, "" );
     loadDistActionLayout.SetButtonWidth( actionSliderButtonWidth );
     loadDistActionLayout.SetFitWidthFlag( true );
-    loadDistActionLayout.AddSlider( m_LoadDistXMaxSlider, "Xmax",1.0,"%g");
+    loadDistActionLayout.AddSlider( m_LoadDistXMaxSlider, "Xmax", 1.0, "%g" );
 
     loadDistActionLayout.ForceNewLine();
 
     loadDistActionLayout.SetFitWidthFlag( false );
     loadDistActionLayout.SetButtonWidth( actionToggleButtonWidth );
-    loadDistActionLayout.AddButton( m_LoadDistManualYMinToggle, "");
+    loadDistActionLayout.AddButton( m_LoadDistManualYMinToggle, "" );
     loadDistActionLayout.SetButtonWidth( actionSliderButtonWidth );
     loadDistActionLayout.SetFitWidthFlag( true );
-    loadDistActionLayout.AddSlider( m_LoadDistYMinSlider, "Ymin",1.0,"%g");
+    loadDistActionLayout.AddSlider( m_LoadDistYMinSlider, "Ymin", 1.0, "%g" );
 
     loadDistActionLayout.ForceNewLine();
 
     loadDistActionLayout.SetFitWidthFlag( false );
     loadDistActionLayout.SetButtonWidth( actionToggleButtonWidth );
-    loadDistActionLayout.AddButton( m_LoadDistManualYMaxToggle, "");
+    loadDistActionLayout.AddButton( m_LoadDistManualYMaxToggle, "" );
     loadDistActionLayout.SetButtonWidth( actionSliderButtonWidth );
     loadDistActionLayout.SetFitWidthFlag( true );
-    loadDistActionLayout.AddSlider( m_LoadDistYMaxSlider, "Ymax",1.0,"%g");
+    loadDistActionLayout.AddSlider( m_LoadDistYMaxSlider, "Ymax", 1.0, "%g" );
     loadDistActionLayout.InitWidthHeightVals();
 
     // Plot layout
-    m_LoadDistLayout.AddX( controlWidth + 2*groupBoarderWidth );
-    m_LoadDistLayout.AddSubGroupLayout( m_LoadDistPlotLayout, plotWidth, m_LoadDistLayout.GetH()-2*groupBoarderWidth );
+    m_LoadDistLayout.AddX( controlWidth + 2 * groupBoarderWidth );
+    m_LoadDistLayout.AddSubGroupLayout( m_LoadDistPlotLayout, plotWidth, m_LoadDistLayout.GetH() - 2 * groupBoarderWidth );
     m_LoadDistPlotLayout.AddX( plotSideMargin );
     m_LoadDistPlotLayout.AddY( plotTopBottomMargin );
-    m_LoadDistPlotCanvas = m_LoadDistPlotLayout.AddCanvas( m_LoadDistPlotLayout.GetW()-2*plotSideMargin, m_LoadDistPlotLayout.GetH()-2*plotTopBottomMargin,
-        0, 1, 0, 1, //xMin, xMax, yMin, yMax, 
-        "", "[X]", "[Y]");
-    m_LoadDistPlotCanvas->align(FL_ALIGN_TOP);
-    m_LoadDistPlotCanvas->current_x()->label_format("%g");
-    m_LoadDistPlotCanvas->current_y()->label_format("%g");
+    m_LoadDistPlotCanvas = m_LoadDistPlotLayout.AddCanvas( m_LoadDistPlotLayout.GetW() - 2 * plotSideMargin, m_LoadDistPlotLayout.GetH() - 2 * plotTopBottomMargin,
+                           0, 1, 0, 1, //xMin, xMax, yMin, yMax,
+                           "", "[X]", "[Y]" );
+    m_LoadDistPlotCanvas->align( FL_ALIGN_TOP );
+    m_LoadDistPlotCanvas->current_x()->label_format( "%g" );
+    m_LoadDistPlotCanvas->current_y()->label_format( "%g" );
 
     //==== Sweep Tab ====//
     m_SweepTab = AddTab( "Sweep" );
@@ -238,34 +238,34 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     m_SweepLayout.AddY( groupBoarderWidth );
 
     // Control layout
-    m_SweepLayout.AddSubGroupLayout( m_SweepControlLayout, controlWidth, m_SweepLayout.GetH()-2*groupBoarderWidth );
+    m_SweepLayout.AddSubGroupLayout( m_SweepControlLayout, controlWidth, m_SweepLayout.GetH() - 2 * groupBoarderWidth );
 
     GroupLayout sweepXYDataSelectLayout;
-    m_SweepControlLayout.AddSubGroupLayout( sweepXYDataSelectLayout, m_SweepControlLayout.GetW(), yDataSelectHeight);
+    m_SweepControlLayout.AddSubGroupLayout( sweepXYDataSelectLayout, m_SweepControlLayout.GetW(), yDataSelectHeight );
     //  X Data browser
     GroupLayout sweepXDataSelectLayout;
-    sweepXYDataSelectLayout.AddSubGroupLayout( sweepXDataSelectLayout, sweepXYDataSelectLayout.GetW()/2, sweepXYDataSelectLayout.GetH());
-    m_SweepXDataDividerBox = sweepXDataSelectLayout.AddDividerBox("X-Data");
+    sweepXYDataSelectLayout.AddSubGroupLayout( sweepXDataSelectLayout, sweepXYDataSelectLayout.GetW() / 2, sweepXYDataSelectLayout.GetH() );
+    m_SweepXDataDividerBox = sweepXDataSelectLayout.AddDividerBox( "X-Data" );
     m_SweepXDataBrowser = sweepXDataSelectLayout.AddFlBrowser( sweepXDataSelectLayout.GetRemainY() );
     m_SweepXDataBrowser->callback( staticScreenCB, this );
     m_SweepXDataBrowser->type( FL_MULTI_BROWSER );
     sweepXYDataSelectLayout.AddX( sweepXDataSelectLayout.GetW() );
     //  Y Data browser
     GroupLayout sweepYDataSelectLayout;
-    sweepXYDataSelectLayout.AddSubGroupLayout( sweepYDataSelectLayout, sweepXYDataSelectLayout.GetW()/2, sweepXYDataSelectLayout.GetH());
-    m_SweepYDataDividerBox = sweepYDataSelectLayout.AddDividerBox("Y-Data");
+    sweepXYDataSelectLayout.AddSubGroupLayout( sweepYDataSelectLayout, sweepXYDataSelectLayout.GetW() / 2, sweepXYDataSelectLayout.GetH() );
+    m_SweepYDataDividerBox = sweepYDataSelectLayout.AddDividerBox( "Y-Data" );
     m_SweepYDataBrowser = sweepYDataSelectLayout.AddFlBrowser( sweepYDataSelectLayout.GetRemainY() );
     m_SweepYDataBrowser->callback( staticScreenCB, this );
     m_SweepYDataBrowser->type( FL_MULTI_BROWSER );
-    m_SweepControlLayout.AddY( sweepYDataSelectLayout.GetH()+2*groupBoarderWidth );
+    m_SweepControlLayout.AddY( sweepYDataSelectLayout.GetH() + 2 * groupBoarderWidth );
 
     GroupLayout sweepFlowConditionLayout;
-    m_SweepControlLayout.AddSubGroupLayout( flowConditionLayout, m_SweepControlLayout.GetW(), flowConditionSelectHeight);
-    flowConditionLayout.AddDividerBox("Flow Condition");
+    m_SweepControlLayout.AddSubGroupLayout( flowConditionLayout, m_SweepControlLayout.GetW(), flowConditionSelectHeight );
+    flowConditionLayout.AddDividerBox( "Flow Condition" );
     m_SweepFlowConditionBrowser = flowConditionLayout.AddFlBrowser( flowConditionLayout.GetRemainY() );
     m_SweepFlowConditionBrowser->callback( staticScreenCB, this );
     m_SweepFlowConditionBrowser->type( FL_MULTI_BROWSER );
-    m_SweepControlLayout.AddY( flowConditionLayout.GetH()+2*groupBoarderWidth );
+    m_SweepControlLayout.AddY( flowConditionLayout.GetH() + 2 * groupBoarderWidth );
 
     m_SweepControlLayout.AddDividerBox( "Legend" );
     m_SweepLegendGroup = m_SweepControlLayout.AddFlScroll( legendHeight - rowHeight );
@@ -275,57 +275,57 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
 
     // Action buttons
     GroupLayout sweepActionLayout;
-    m_SweepControlLayout.AddSubGroupLayout( sweepActionLayout, m_SweepControlLayout.GetW(), actionButtonHeight);
-    sweepActionLayout.AddDividerBox("Actions:");
+    m_SweepControlLayout.AddSubGroupLayout( sweepActionLayout, m_SweepControlLayout.GetW(), actionButtonHeight );
+    sweepActionLayout.AddDividerBox( "Actions:" );
 
     sweepActionLayout.SetSameLineFlag( true );
 
     sweepActionLayout.SetFitWidthFlag( false );
     sweepActionLayout.SetButtonWidth( actionToggleButtonWidth );
-    sweepActionLayout.AddButton( m_SweepManualXMinToggle, "");
+    sweepActionLayout.AddButton( m_SweepManualXMinToggle, "" );
     sweepActionLayout.SetButtonWidth( actionSliderButtonWidth );
     sweepActionLayout.SetFitWidthFlag( true );
-    sweepActionLayout.AddSlider( m_SweepXMinSlider, "Xmin",1.0,"%g");
+    sweepActionLayout.AddSlider( m_SweepXMinSlider, "Xmin", 1.0, "%g" );
 
     sweepActionLayout.ForceNewLine();
 
     sweepActionLayout.SetFitWidthFlag( false );
     sweepActionLayout.SetButtonWidth( actionToggleButtonWidth );
-    sweepActionLayout.AddButton( m_SweepManualXMaxToggle, "");
+    sweepActionLayout.AddButton( m_SweepManualXMaxToggle, "" );
     sweepActionLayout.SetButtonWidth( actionSliderButtonWidth );
     sweepActionLayout.SetFitWidthFlag( true );
-    sweepActionLayout.AddSlider( m_SweepXMaxSlider, "Xmax",1.0,"%g");
+    sweepActionLayout.AddSlider( m_SweepXMaxSlider, "Xmax", 1.0, "%g" );
 
     sweepActionLayout.ForceNewLine();
 
     sweepActionLayout.SetFitWidthFlag( false );
     sweepActionLayout.SetButtonWidth( actionToggleButtonWidth );
-    sweepActionLayout.AddButton( m_SweepManualYMinToggle, "");
+    sweepActionLayout.AddButton( m_SweepManualYMinToggle, "" );
     sweepActionLayout.SetButtonWidth( actionSliderButtonWidth );
     sweepActionLayout.SetFitWidthFlag( true );
-    sweepActionLayout.AddSlider( m_SweepYMinSlider, "Ymin",1.0,"%g");
+    sweepActionLayout.AddSlider( m_SweepYMinSlider, "Ymin", 1.0, "%g" );
 
     sweepActionLayout.ForceNewLine();
 
     sweepActionLayout.SetFitWidthFlag( false );
     sweepActionLayout.SetButtonWidth( actionToggleButtonWidth );
-    sweepActionLayout.AddButton( m_SweepManualYMaxToggle, "");
+    sweepActionLayout.AddButton( m_SweepManualYMaxToggle, "" );
     sweepActionLayout.SetButtonWidth( actionSliderButtonWidth );
     sweepActionLayout.SetFitWidthFlag( true );
-    sweepActionLayout.AddSlider( m_SweepYMaxSlider, "Ymax",1.0,"%g");
+    sweepActionLayout.AddSlider( m_SweepYMaxSlider, "Ymax", 1.0, "%g" );
     sweepActionLayout.InitWidthHeightVals();
 
     // Plot layout
-    m_SweepLayout.AddX( controlWidth + 2*groupBoarderWidth );
-    m_SweepLayout.AddSubGroupLayout( m_SweepPlotLayout, plotWidth, m_SweepLayout.GetH()-2*groupBoarderWidth );
+    m_SweepLayout.AddX( controlWidth + 2 * groupBoarderWidth );
+    m_SweepLayout.AddSubGroupLayout( m_SweepPlotLayout, plotWidth, m_SweepLayout.GetH() - 2 * groupBoarderWidth );
     m_SweepPlotLayout.AddX( plotSideMargin );
     m_SweepPlotLayout.AddY( plotTopBottomMargin );
-    m_SweepPlotCanvas = m_SweepPlotLayout.AddCanvas( m_SweepPlotLayout.GetW()-2*plotSideMargin, m_SweepPlotLayout.GetH()-2*plotTopBottomMargin,
-        0, 1, 0, 1, //xMin, xMax, yMin, yMax, 
-        "", "[X]", "[Y]");
-    m_SweepPlotCanvas->align(FL_ALIGN_TOP);
-    m_SweepPlotCanvas->current_x()->label_format("%g");
-    m_SweepPlotCanvas->current_y()->label_format("%g");
+    m_SweepPlotCanvas = m_SweepPlotLayout.AddCanvas( m_SweepPlotLayout.GetW() - 2 * plotSideMargin, m_SweepPlotLayout.GetH() - 2 * plotTopBottomMargin,
+                        0, 1, 0, 1, //xMin, xMax, yMin, yMax,
+                        "", "[X]", "[Y]" );
+    m_SweepPlotCanvas->align( FL_ALIGN_TOP );
+    m_SweepPlotCanvas->current_x()->label_format( "%g" );
+    m_SweepPlotCanvas->current_y()->label_format( "%g" );
 
     SetDefaultView();
 }
@@ -376,14 +376,14 @@ void VSPAEROPlotScreen::UpdateAutoManualAxisLimits()
     m_ConvergenceXMinSlider.Update( VSPAEROMgr.m_ConvergenceXMin.GetID() );
     m_ConvergenceXMaxSlider.Update( VSPAEROMgr.m_ConvergenceXMax.GetID() );
     t_Axis = m_ConvergencePlotCanvas->current_x();
-    if(t_Axis)
+    if( t_Axis )
     {
         // Minimum
         if( VSPAEROMgr.m_ConvergenceXMinIsManual() )
         {
             // MANUAL
             m_ConvergenceXMinSlider.Activate();
-            t_Axis->minimum(VSPAEROMgr.m_ConvergenceXMin.Get());
+            t_Axis->minimum( VSPAEROMgr.m_ConvergenceXMin.Get() );
         }
         else
         {
@@ -396,7 +396,7 @@ void VSPAEROPlotScreen::UpdateAutoManualAxisLimits()
         {
             // MANUAL
             m_ConvergenceXMaxSlider.Activate();
-            t_Axis->maximum(VSPAEROMgr.m_ConvergenceXMax.Get());
+            t_Axis->maximum( VSPAEROMgr.m_ConvergenceXMax.Get() );
         }
         else
         {
@@ -410,14 +410,14 @@ void VSPAEROPlotScreen::UpdateAutoManualAxisLimits()
     m_ConvergenceYMinSlider.Update( VSPAEROMgr.m_ConvergenceYMin.GetID() );
     m_ConvergenceYMaxSlider.Update( VSPAEROMgr.m_ConvergenceYMax.GetID() );
     t_Axis = m_ConvergencePlotCanvas->current_y();
-    if(t_Axis)
+    if( t_Axis )
     {
         // Minimum
         if( VSPAEROMgr.m_ConvergenceYMinIsManual() )
         {
             // MANUAL
             m_ConvergenceYMinSlider.Activate();
-            t_Axis->minimum(VSPAEROMgr.m_ConvergenceYMin.Get());
+            t_Axis->minimum( VSPAEROMgr.m_ConvergenceYMin.Get() );
         }
         else
         {
@@ -430,7 +430,7 @@ void VSPAEROPlotScreen::UpdateAutoManualAxisLimits()
         {
             // MANUAL
             m_ConvergenceYMaxSlider.Activate();
-            t_Axis->maximum(VSPAEROMgr.m_ConvergenceYMax.Get());
+            t_Axis->maximum( VSPAEROMgr.m_ConvergenceYMax.Get() );
         }
         else
         {
@@ -447,14 +447,14 @@ void VSPAEROPlotScreen::UpdateAutoManualAxisLimits()
     m_LoadDistXMinSlider.Update( VSPAEROMgr.m_LoadDistXMin.GetID() );
     m_LoadDistXMaxSlider.Update( VSPAEROMgr.m_LoadDistXMax.GetID() );
     t_Axis = m_LoadDistPlotCanvas->current_x();
-    if(t_Axis)
+    if( t_Axis )
     {
         // Minimum
         if( VSPAEROMgr.m_LoadDistXMinIsManual() )
         {
             // MANUAL
             m_LoadDistXMinSlider.Activate();
-            t_Axis->minimum(VSPAEROMgr.m_LoadDistXMin.Get());
+            t_Axis->minimum( VSPAEROMgr.m_LoadDistXMin.Get() );
         }
         else
         {
@@ -467,7 +467,7 @@ void VSPAEROPlotScreen::UpdateAutoManualAxisLimits()
         {
             // MANUAL
             m_LoadDistXMaxSlider.Activate();
-            t_Axis->maximum(VSPAEROMgr.m_LoadDistXMax.Get());
+            t_Axis->maximum( VSPAEROMgr.m_LoadDistXMax.Get() );
         }
         else
         {
@@ -481,14 +481,14 @@ void VSPAEROPlotScreen::UpdateAutoManualAxisLimits()
     m_LoadDistYMinSlider.Update( VSPAEROMgr.m_LoadDistYMin.GetID() );
     m_LoadDistYMaxSlider.Update( VSPAEROMgr.m_LoadDistYMax.GetID() );
     t_Axis = m_LoadDistPlotCanvas->current_y();
-    if(t_Axis)
+    if( t_Axis )
     {
         // Minimum
         if( VSPAEROMgr.m_LoadDistYMinIsManual() )
         {
             // MANUAL
             m_LoadDistYMinSlider.Activate();
-            t_Axis->minimum(VSPAEROMgr.m_LoadDistYMin.Get());
+            t_Axis->minimum( VSPAEROMgr.m_LoadDistYMin.Get() );
         }
         else
         {
@@ -501,7 +501,7 @@ void VSPAEROPlotScreen::UpdateAutoManualAxisLimits()
         {
             // MANUAL
             m_LoadDistYMaxSlider.Activate();
-            t_Axis->maximum(VSPAEROMgr.m_LoadDistYMax.Get());
+            t_Axis->maximum( VSPAEROMgr.m_LoadDistYMax.Get() );
         }
         else
         {
@@ -517,14 +517,14 @@ void VSPAEROPlotScreen::UpdateAutoManualAxisLimits()
     m_SweepXMinSlider.Update( VSPAEROMgr.m_SweepXMin.GetID() );
     m_SweepXMaxSlider.Update( VSPAEROMgr.m_SweepXMax.GetID() );
     t_Axis = m_SweepPlotCanvas->current_x();
-    if(t_Axis)
+    if( t_Axis )
     {
         // Minimum
         if( VSPAEROMgr.m_SweepXMinIsManual() )
         {
             // MANUAL
             m_SweepXMinSlider.Activate();
-            t_Axis->minimum(VSPAEROMgr.m_SweepXMin.Get());
+            t_Axis->minimum( VSPAEROMgr.m_SweepXMin.Get() );
         }
         else
         {
@@ -537,7 +537,7 @@ void VSPAEROPlotScreen::UpdateAutoManualAxisLimits()
         {
             // MANUAL
             m_SweepXMaxSlider.Activate();
-            t_Axis->maximum(VSPAEROMgr.m_SweepXMax.Get());
+            t_Axis->maximum( VSPAEROMgr.m_SweepXMax.Get() );
         }
         else
         {
@@ -551,14 +551,14 @@ void VSPAEROPlotScreen::UpdateAutoManualAxisLimits()
     m_SweepYMinSlider.Update( VSPAEROMgr.m_SweepYMin.GetID() );
     m_SweepYMaxSlider.Update( VSPAEROMgr.m_SweepYMax.GetID() );
     t_Axis = m_SweepPlotCanvas->current_y();
-    if(t_Axis)
+    if( t_Axis )
     {
         // Minimum
         if( VSPAEROMgr.m_SweepYMinIsManual() )
         {
             // MANUAL
             m_SweepYMinSlider.Activate();
-            t_Axis->minimum(VSPAEROMgr.m_SweepYMin.Get());
+            t_Axis->minimum( VSPAEROMgr.m_SweepYMin.Get() );
         }
         else
         {
@@ -571,7 +571,7 @@ void VSPAEROPlotScreen::UpdateAutoManualAxisLimits()
         {
             // MANUAL
             m_SweepYMaxSlider.Activate();
-            t_Axis->maximum(VSPAEROMgr.m_SweepYMax.Get());
+            t_Axis->maximum( VSPAEROMgr.m_SweepYMax.Get() );
         }
         else
         {
@@ -608,26 +608,26 @@ void VSPAEROPlotScreen::CallBack( Fl_Widget* w )
     {
         // count the number of selected elements
         //if more than 1 set the y browser selection to 1
-        int countSelected=0;
-        for (unsigned int iCase=1; iCase<=m_SweepXDataBrowser->size(); iCase++)
+        int countSelected = 0;
+        for ( unsigned int iCase = 1; iCase <= m_SweepXDataBrowser->size(); iCase++ )
         {
-            if(m_SweepXDataBrowser->selected(iCase))
+            if( m_SweepXDataBrowser->selected( iCase ) )
             {
                 countSelected++;
             }
         }
-        if (countSelected>1)
+        if ( countSelected > 1 )
         {
             bool oneSelected = false;
-            for (unsigned int iCase=1; iCase<=m_SweepYDataBrowser->size(); iCase++)
+            for ( unsigned int iCase = 1; iCase <= m_SweepYDataBrowser->size(); iCase++ )
             {
-                if (m_SweepYDataBrowser->selected(iCase) & !oneSelected)
+                if ( m_SweepYDataBrowser->selected( iCase ) & !oneSelected )
                 {
                     oneSelected = true;
                 }
                 else
                 {
-                    m_SweepYDataBrowser->select(iCase,0);  //deselect
+                    m_SweepYDataBrowser->select( iCase, 0 ); //deselect
                 }
             }
         }
@@ -636,26 +636,26 @@ void VSPAEROPlotScreen::CallBack( Fl_Widget* w )
     {
         // count the number of selected elements
         //if more than 1 set the y browser selection to 1
-        int countSelected=0;
-        for (unsigned int iCase=1; iCase<=m_SweepYDataBrowser->size(); iCase++)
+        int countSelected = 0;
+        for ( unsigned int iCase = 1; iCase <= m_SweepYDataBrowser->size(); iCase++ )
         {
-            if(m_SweepYDataBrowser->selected(iCase))
+            if( m_SweepYDataBrowser->selected( iCase ) )
             {
                 countSelected++;
             }
         }
-        if (countSelected>1)
+        if ( countSelected > 1 )
         {
             bool oneSelected = false;
-            for (unsigned int iCase=1; iCase<=m_SweepXDataBrowser->size(); iCase++)
+            for ( unsigned int iCase = 1; iCase <= m_SweepXDataBrowser->size(); iCase++ )
             {
-                if (m_SweepXDataBrowser->selected(iCase) & !oneSelected)
+                if ( m_SweepXDataBrowser->selected( iCase ) & !oneSelected )
                 {
                     oneSelected = true;
                 }
                 else
                 {
-                    m_SweepXDataBrowser->select(iCase,0);  //deselect
+                    m_SweepXDataBrowser->select( iCase, 0 ); //deselect
                 }
             }
         }
@@ -686,9 +686,9 @@ void VSPAEROPlotScreen::UpdateConvergenceFlowConditionBrowser()
 {
     // keeps track of the previously selected rows (browser uses 1-based indexing)
     vector<bool> wasSelected;
-    for (unsigned int iCase=1; iCase<=m_ConvergenceFlowConditionBrowser->size(); iCase++)
+    for ( unsigned int iCase = 1; iCase <= m_ConvergenceFlowConditionBrowser->size(); iCase++ )
     {
-        wasSelected.push_back(m_ConvergenceFlowConditionBrowser->selected(iCase));
+        wasSelected.push_back( m_ConvergenceFlowConditionBrowser->selected( iCase ) );
     }
 
     int scrollPos = m_ConvergenceFlowConditionBrowser->position();
@@ -697,33 +697,33 @@ void VSPAEROPlotScreen::UpdateConvergenceFlowConditionBrowser()
 
     string resultName = "VSPAERO_History";
 
-    int numCases = ResultsMgr.GetNumResults(resultName);
-    
-    for (unsigned int iCase=0; iCase<numCases; iCase++)
+    int numCases = ResultsMgr.GetNumResults( resultName );
+
+    for ( unsigned int iCase = 0; iCase < numCases; iCase++ )
     {
-        Results* res = ResultsMgr.FindResults(resultName,iCase);
+        Results* res = ResultsMgr.FindResults( resultName, iCase );
         if( res )
         {
             char strbuf[1024];
-            ConstructFlowConditionString(strbuf, res);
-            m_ConvergenceFlowConditionBrowser->add(strbuf);
+            ConstructFlowConditionString( strbuf, res );
+            m_ConvergenceFlowConditionBrowser->add( strbuf );
             if( m_SelectDefaultData )   //select ALL flow conditions
             {
-                m_ConvergenceFlowConditionSelectedResultIDs.push_back(res->GetID());
-                m_ConvergenceFlowConditionBrowser->select(iCase+1);  //account for browser using 1-based indexing
+                m_ConvergenceFlowConditionSelectedResultIDs.push_back( res->GetID() );
+                m_ConvergenceFlowConditionBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
             }
-            else if (iCase<wasSelected.size()) // restore original row selections
+            else if ( iCase < wasSelected.size() ) // restore original row selections
             {
-                if (wasSelected[iCase])
+                if ( wasSelected[iCase] )
                 {
-                    m_ConvergenceFlowConditionSelectedResultIDs.push_back(res->GetID());
-                    m_ConvergenceFlowConditionBrowser->select(iCase+1);  //account for browser using 1-based indexing
+                    m_ConvergenceFlowConditionSelectedResultIDs.push_back( res->GetID() );
+                    m_ConvergenceFlowConditionBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
                 }
             }
         }   //if( res )
     }   //for (unsigned int iCase=0; iCase<numCases; iCase++)
 
-    m_ConvergenceFlowConditionBrowser->position(scrollPos);
+    m_ConvergenceFlowConditionBrowser->position( scrollPos );
 
 }
 
@@ -731,9 +731,9 @@ void VSPAEROPlotScreen::UpdateLoadDistFlowConditionBrowser()
 {
     // keeps track of the previously selected rows (browser uses 1-based indexing)
     vector<bool> wasSelected;
-    for (unsigned int iCase=1; iCase<=m_LoadDistFlowConditionBrowser->size(); iCase++)
+    for ( unsigned int iCase = 1; iCase <= m_LoadDistFlowConditionBrowser->size(); iCase++ )
     {
-        wasSelected.push_back(m_LoadDistFlowConditionBrowser->selected(iCase));
+        wasSelected.push_back( m_LoadDistFlowConditionBrowser->selected( iCase ) );
     }
 
     int scrollPos = m_LoadDistFlowConditionBrowser->position();
@@ -742,41 +742,41 @@ void VSPAEROPlotScreen::UpdateLoadDistFlowConditionBrowser()
 
     string resultName = "VSPAERO_Load";
 
-    int numCases = ResultsMgr.GetNumResults(resultName);
-    for (unsigned int iCase=0; iCase<numCases; iCase++)
+    int numCases = ResultsMgr.GetNumResults( resultName );
+    for ( unsigned int iCase = 0; iCase < numCases; iCase++ )
     {
-        Results* res = ResultsMgr.FindResults(resultName,iCase);
+        Results* res = ResultsMgr.FindResults( resultName, iCase );
         if( res )
         {
             char strbuf[1024];
-            ConstructFlowConditionString(strbuf, res);
-            m_LoadDistFlowConditionBrowser->add(strbuf);
+            ConstructFlowConditionString( strbuf, res );
+            m_LoadDistFlowConditionBrowser->add( strbuf );
             if( m_SelectDefaultData )   //select ALL flow conditions
             {
-                m_LoadDistFlowConditionSelectedResultIDs.push_back(res->GetID());
-                m_LoadDistFlowConditionBrowser->select(iCase+1);  //account for browser using 1-based indexing
+                m_LoadDistFlowConditionSelectedResultIDs.push_back( res->GetID() );
+                m_LoadDistFlowConditionBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
             }
-            else if (iCase<wasSelected.size()) // restore original row selections
+            else if ( iCase < wasSelected.size() ) // restore original row selections
             {
-                if (wasSelected[iCase])
+                if ( wasSelected[iCase] )
                 {
-                    m_LoadDistFlowConditionSelectedResultIDs.push_back(res->GetID());
-                    m_LoadDistFlowConditionBrowser->select(iCase+1);  //account for browser using 1-based indexing
+                    m_LoadDistFlowConditionSelectedResultIDs.push_back( res->GetID() );
+                    m_LoadDistFlowConditionBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
                 }
             }
         }   //if( res )
     }   //for (unsigned int iCase=0; iCase<numCases; iCase++)
 
-    m_LoadDistFlowConditionBrowser->position(scrollPos);
+    m_LoadDistFlowConditionBrowser->position( scrollPos );
 }
 
 void VSPAEROPlotScreen::UpdateSweepFlowConditionBrowser()
 {
     // keeps track of the previously selected rows (browser uses 1-based indexing)
     vector<bool> wasSelected;
-    for (unsigned int iCase=1; iCase<=m_SweepFlowConditionBrowser->size(); iCase++)
+    for ( unsigned int iCase = 1; iCase <= m_SweepFlowConditionBrowser->size(); iCase++ )
     {
-        wasSelected.push_back(m_SweepFlowConditionBrowser->selected(iCase));
+        wasSelected.push_back( m_SweepFlowConditionBrowser->selected( iCase ) );
     }
 
     int scrollPos = m_SweepFlowConditionBrowser->position();
@@ -785,37 +785,37 @@ void VSPAEROPlotScreen::UpdateSweepFlowConditionBrowser()
 
     string resultName = "VSPAERO_History";
 
-    int numCases = ResultsMgr.GetNumResults(resultName);
-    for (unsigned int iCase=0; iCase<numCases; iCase++)
+    int numCases = ResultsMgr.GetNumResults( resultName );
+    for ( unsigned int iCase = 0; iCase < numCases; iCase++ )
     {
-        Results* res = ResultsMgr.FindResults(resultName,iCase);
+        Results* res = ResultsMgr.FindResults( resultName, iCase );
         if( res )
         {
             char strbuf[1024];
-            ConstructFlowConditionString(strbuf, res);
-            m_SweepFlowConditionBrowser->add(strbuf);
+            ConstructFlowConditionString( strbuf, res );
+            m_SweepFlowConditionBrowser->add( strbuf );
             if( m_SelectDefaultData )   //select ALL flow conditions
             {
-                m_SweepFlowConditionSelectedResultIDs.push_back(res->GetID());
-                m_SweepFlowConditionBrowser->select(iCase+1);  //account for browser using 1-based indexing
+                m_SweepFlowConditionSelectedResultIDs.push_back( res->GetID() );
+                m_SweepFlowConditionBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
             }
-            else if (iCase<wasSelected.size()) // restore original row selections
+            else if ( iCase < wasSelected.size() ) // restore original row selections
             {
-                if (wasSelected[iCase])
+                if ( wasSelected[iCase] )
                 {
-                    m_SweepFlowConditionSelectedResultIDs.push_back(res->GetID());
-                    m_SweepFlowConditionBrowser->select(iCase+1);  //account for browser using 1-based indexing
+                    m_SweepFlowConditionSelectedResultIDs.push_back( res->GetID() );
+                    m_SweepFlowConditionBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
                 }
             }
         }   //if( res )
     }   //for (unsigned int iCase=0; iCase<numCases; iCase++)
 
-    m_SweepFlowConditionBrowser->position(scrollPos);
+    m_SweepFlowConditionBrowser->position( scrollPos );
 }
 
-void VSPAEROPlotScreen::ConstructFlowConditionString(char * strbuf, Results * res)
+void VSPAEROPlotScreen::ConstructFlowConditionString( char * strbuf, Results * res )
 {
-    if( strbuf && res)
+    if( strbuf && res )
     {
         NameValData* nvd;
         vector <double> dataVector;
@@ -824,28 +824,28 @@ void VSPAEROPlotScreen::ConstructFlowConditionString(char * strbuf, Results * re
         double beta = 0;
         double mach = 0;
 
-        nvd = res->FindPtr("FS_Alpha");
+        nvd = res->FindPtr( "FS_Alpha" );
         if( nvd )
         {
             dataVector = nvd->GetDoubleData();
-            alpha = dataVector[dataVector.size()-1];
+            alpha = dataVector[dataVector.size() - 1];
         }
 
-        nvd = res->FindPtr("FS_Beta");
+        nvd = res->FindPtr( "FS_Beta" );
         if( nvd )
         {
             dataVector = nvd->GetDoubleData();
-            beta = dataVector[dataVector.size()-1];
+            beta = dataVector[dataVector.size() - 1];
         }
 
-        nvd = res->FindPtr("FS_Mach");
+        nvd = res->FindPtr( "FS_Mach" );
         if( nvd )
         {
             dataVector = nvd->GetDoubleData();
-            mach = dataVector[dataVector.size()-1];
+            mach = dataVector[dataVector.size() - 1];
         }
 
-        sprintf(strbuf,"a=%5.2f, b=%5.2f, M=%4.2f, resID=%s",alpha,beta,mach,res->GetID().c_str());
+        sprintf( strbuf, "a=%5.2f, b=%5.2f, M=%4.2f, resID=%s", alpha, beta, mach, res->GetID().c_str() );
     }
 }
 
@@ -854,93 +854,93 @@ void VSPAEROPlotScreen::UpdateConvergenceYDataBrowser()
 {
     // keeps track of the previously selected rows (browser uses 1-based indexing)
     vector<bool> wasSelected;
-    for (unsigned int iCase=1; iCase<=m_ConvergenceYDataBrowser->size(); iCase++)
+    for ( unsigned int iCase = 1; iCase <= m_ConvergenceYDataBrowser->size(); iCase++ )
     {
-        wasSelected.push_back(m_ConvergenceYDataBrowser->selected(iCase));
+        wasSelected.push_back( m_ConvergenceYDataBrowser->selected( iCase ) );
     }
 
     int scrollPos = m_ConvergenceYDataBrowser->position();
     m_ConvergenceYDataBrowser->clear();
 
     string resultName = "VSPAERO_History";
-    string resultID = ResultsMgr.FindLatestResultsID(resultName);
-    vector < string > dataNames = ResultsMgr.GetAllDataNames(resultID);
-    for (unsigned int iDataName = 0; iDataName<dataNames.size(); iDataName++)
+    string resultID = ResultsMgr.FindLatestResultsID( resultName );
+    vector < string > dataNames = ResultsMgr.GetAllDataNames( resultID );
+    for ( unsigned int iDataName = 0; iDataName < dataNames.size(); iDataName++ )
     {
-        if ( (strcmp(dataNames[iDataName].c_str(),"FS_Mach")  !=0 )  & 
-            (strcmp(dataNames[iDataName].c_str(),"FS_Alpha") !=0 )  & 
-            (strcmp(dataNames[iDataName].c_str(),"FS_Beta")  !=0 )  & 
-            (strcmp(dataNames[iDataName].c_str(),"WakeIter") !=0 )  & 
-            (strcmp(dataNames[iDataName].c_str(),"Mach")     !=0 )  & 
-            (strcmp(dataNames[iDataName].c_str(),"Alpha")    !=0 )  & 
-            (strcmp(dataNames[iDataName].c_str(),"Beta")     !=0 )   )
+        if ( ( strcmp( dataNames[iDataName].c_str(), "FS_Mach" )  != 0 )  &
+                ( strcmp( dataNames[iDataName].c_str(), "FS_Alpha" ) != 0 )  &
+                ( strcmp( dataNames[iDataName].c_str(), "FS_Beta" )  != 0 )  &
+                ( strcmp( dataNames[iDataName].c_str(), "WakeIter" ) != 0 )  &
+                ( strcmp( dataNames[iDataName].c_str(), "Mach" )     != 0 )  &
+                ( strcmp( dataNames[iDataName].c_str(), "Alpha" )    != 0 )  &
+                ( strcmp( dataNames[iDataName].c_str(), "Beta" )     != 0 )   )
         {
-            m_ConvergenceYDataBrowser->add(dataNames[iDataName].c_str());
+            m_ConvergenceYDataBrowser->add( dataNames[iDataName].c_str() );
         }
     }
 
     // restore original row selections
-    for (unsigned int iCase=0; iCase<m_ConvergenceYDataBrowser->size(); iCase++)
+    for ( unsigned int iCase = 0; iCase < m_ConvergenceYDataBrowser->size(); iCase++ )
     {
-        if( (m_SelectDefaultData && strcmp(m_ConvergenceYDataBrowser->text(iCase+1),"L/D")==0) )
+        if( ( m_SelectDefaultData && strcmp( m_ConvergenceYDataBrowser->text( iCase + 1 ), "L/D" ) == 0 ) )
         {
-            m_ConvergenceYDataBrowser->select(iCase+1);  //account for browser using 1-based indexing
+            m_ConvergenceYDataBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
         }
-        if (iCase<wasSelected.size())
+        if ( iCase < wasSelected.size() )
         {
-            if (wasSelected[iCase])
+            if ( wasSelected[iCase] )
             {
-                m_ConvergenceYDataBrowser->select(iCase+1);  //account for browser using 1-based indexing
+                m_ConvergenceYDataBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
             }
         }
     }
 
-    m_ConvergenceYDataBrowser->position(scrollPos);
+    m_ConvergenceYDataBrowser->position( scrollPos );
 }
 
 void VSPAEROPlotScreen::UpdateLoadDistYDataBrowser()
 {
     // keeps track of the previously selected rows (browser uses 1-based indexing)
     vector<bool> wasSelected;
-    for (unsigned int iCase=1; iCase<=m_LoadDistYDataBrowser->size(); iCase++)
+    for ( unsigned int iCase = 1; iCase <= m_LoadDistYDataBrowser->size(); iCase++ )
     {
-        wasSelected.push_back(m_LoadDistYDataBrowser->selected(iCase));
+        wasSelected.push_back( m_LoadDistYDataBrowser->selected( iCase ) );
     }
 
     int scrollPos = m_LoadDistYDataBrowser->position();
     m_LoadDistYDataBrowser->clear();
 
     string resultName = "VSPAERO_Load";
-    string resultID = ResultsMgr.FindLatestResultsID(resultName);
-    vector < string > dataNames = ResultsMgr.GetAllDataNames(resultID);
-    for (unsigned int iDataName = 0; iDataName<dataNames.size(); iDataName++)
+    string resultID = ResultsMgr.FindLatestResultsID( resultName );
+    vector < string > dataNames = ResultsMgr.GetAllDataNames( resultID );
+    for ( unsigned int iDataName = 0; iDataName < dataNames.size(); iDataName++ )
     {
-        if ( (strcmp(dataNames[iDataName].c_str(),"FS_Mach")  !=0 )  & 
-            (strcmp(dataNames[iDataName].c_str(),"FS_Alpha") !=0 )  & 
-            (strcmp(dataNames[iDataName].c_str(),"FS_Beta")  !=0 )  & 
-            (strcmp(dataNames[iDataName].c_str(),"WingId")   !=0 )   )
+        if ( ( strcmp( dataNames[iDataName].c_str(), "FS_Mach" )  != 0 )  &
+                ( strcmp( dataNames[iDataName].c_str(), "FS_Alpha" ) != 0 )  &
+                ( strcmp( dataNames[iDataName].c_str(), "FS_Beta" )  != 0 )  &
+                ( strcmp( dataNames[iDataName].c_str(), "WingId" )   != 0 )   )
         {
-            m_LoadDistYDataBrowser->add(dataNames[iDataName].c_str());
+            m_LoadDistYDataBrowser->add( dataNames[iDataName].c_str() );
         }
     }
 
     // restore original row selections
-    for (unsigned int iCase=0; iCase<m_LoadDistYDataBrowser->size(); iCase++)
+    for ( unsigned int iCase = 0; iCase < m_LoadDistYDataBrowser->size(); iCase++ )
     {
-        if( (m_SelectDefaultData && strcmp(m_LoadDistYDataBrowser->text(iCase+1),"cl*c")==0) )
+        if( ( m_SelectDefaultData && strcmp( m_LoadDistYDataBrowser->text( iCase + 1 ), "cl*c" ) == 0 ) )
         {
-            m_LoadDistYDataBrowser->select(iCase+1);  //account for browser using 1-based indexing
+            m_LoadDistYDataBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
         }
-        if (iCase<wasSelected.size())
+        if ( iCase < wasSelected.size() )
         {
-            if (wasSelected[iCase] )
+            if ( wasSelected[iCase] )
             {
-                m_LoadDistYDataBrowser->select(iCase+1);  //account for browser using 1-based indexing
+                m_LoadDistYDataBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
             }
         }
     }
 
-    m_LoadDistYDataBrowser->position(scrollPos);
+    m_LoadDistYDataBrowser->position( scrollPos );
 
 }
 
@@ -948,14 +948,14 @@ void VSPAEROPlotScreen::UpdateSweepXYDataBrowser()
 {
     // keeps track of the previously selected rows (browser uses 1-based indexing)
     vector<bool> wasSelectedX;
-    for (unsigned int iCase=1; iCase<=m_SweepXDataBrowser->size(); iCase++)
+    for ( unsigned int iCase = 1; iCase <= m_SweepXDataBrowser->size(); iCase++ )
     {
-        wasSelectedX.push_back(m_SweepXDataBrowser->selected(iCase));
+        wasSelectedX.push_back( m_SweepXDataBrowser->selected( iCase ) );
     }
     vector<bool> wasSelectedY;
-    for (unsigned int iCase=1; iCase<=m_SweepYDataBrowser->size(); iCase++)
+    for ( unsigned int iCase = 1; iCase <= m_SweepYDataBrowser->size(); iCase++ )
     {
-        wasSelectedY.push_back(m_SweepYDataBrowser->selected(iCase));
+        wasSelectedY.push_back( m_SweepYDataBrowser->selected( iCase ) );
     }
 
     int scrollPosXData = m_SweepXDataBrowser->position();
@@ -965,61 +965,61 @@ void VSPAEROPlotScreen::UpdateSweepXYDataBrowser()
     m_SweepYDataBrowser->clear();
 
     string resultName = "VSPAERO_History";
-    string resultID = ResultsMgr.FindLatestResultsID(resultName);
-    vector < string > dataNames = ResultsMgr.GetAllDataNames(resultID);
-    if (strcmp(resultName.c_str(),"VSPAERO_History")==0)
+    string resultID = ResultsMgr.FindLatestResultsID( resultName );
+    vector < string > dataNames = ResultsMgr.GetAllDataNames( resultID );
+    if ( strcmp( resultName.c_str(), "VSPAERO_History" ) == 0 )
     {
-        for (unsigned int iDataName = 0; iDataName<dataNames.size(); iDataName++)
+        for ( unsigned int iDataName = 0; iDataName < dataNames.size(); iDataName++ )
         {
-            if ( (strcmp(dataNames[iDataName].c_str(),"FS_Mach")  !=0 )  & 
-                (strcmp(dataNames[iDataName].c_str(),"FS_Alpha") !=0 )  & 
-                (strcmp(dataNames[iDataName].c_str(),"FS_Beta")  !=0 )  & 
-                (strcmp(dataNames[iDataName].c_str(),"WakeIter") !=0 )   )
+            if ( ( strcmp( dataNames[iDataName].c_str(), "FS_Mach" )  != 0 )  &
+                    ( strcmp( dataNames[iDataName].c_str(), "FS_Alpha" ) != 0 )  &
+                    ( strcmp( dataNames[iDataName].c_str(), "FS_Beta" )  != 0 )  &
+                    ( strcmp( dataNames[iDataName].c_str(), "WakeIter" ) != 0 )   )
             {
-                m_SweepXDataBrowser->add(dataNames[iDataName].c_str());
-                m_SweepYDataBrowser->add(dataNames[iDataName].c_str());
+                m_SweepXDataBrowser->add( dataNames[iDataName].c_str() );
+                m_SweepYDataBrowser->add( dataNames[iDataName].c_str() );
             }
         }
     }
 
     // restore original row selections
-    for (unsigned int iCase=0; iCase<m_SweepXDataBrowser->size(); iCase++)
+    for ( unsigned int iCase = 0; iCase < m_SweepXDataBrowser->size(); iCase++ )
     {
-        if( (m_SelectDefaultData && strcmp(m_SweepXDataBrowser->text(iCase+1),"CDtot")==0) )
+        if( ( m_SelectDefaultData && strcmp( m_SweepXDataBrowser->text( iCase + 1 ), "CDtot" ) == 0 ) )
         {
-            m_SweepXDataBrowser->select(iCase+1);  //account for browser using 1-based indexing
+            m_SweepXDataBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
         }
-        if (iCase<wasSelectedX.size())
+        if ( iCase < wasSelectedX.size() )
         {
-            if (wasSelectedX[iCase])
+            if ( wasSelectedX[iCase] )
             {
-                m_SweepXDataBrowser->select(iCase+1);  //account for browser using 1-based indexing
+                m_SweepXDataBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
             }
         }
     }
-    for (unsigned int iCase=0; iCase<m_SweepYDataBrowser->size(); iCase++)
+    for ( unsigned int iCase = 0; iCase < m_SweepYDataBrowser->size(); iCase++ )
     {
-        if( (m_SelectDefaultData && strcmp(m_SweepYDataBrowser->text(iCase+1),"CL")==0) )
+        if( ( m_SelectDefaultData && strcmp( m_SweepYDataBrowser->text( iCase + 1 ), "CL" ) == 0 ) )
         {
-            m_SweepYDataBrowser->select(iCase+1);  //account for browser using 1-based indexing
+            m_SweepYDataBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
         }
-        if (iCase<wasSelectedY.size())
+        if ( iCase < wasSelectedY.size() )
         {
-            if (wasSelectedY[iCase])
+            if ( wasSelectedY[iCase] )
             {
-                m_SweepYDataBrowser->select(iCase+1);  //account for browser using 1-based indexing
+                m_SweepYDataBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
             }
         }
     }
 
-    m_SweepXDataBrowser->position(scrollPosXData);
-    m_SweepYDataBrowser->position(scrollPosYData);
+    m_SweepXDataBrowser->position( scrollPosXData );
+    m_SweepYDataBrowser->position( scrollPosYData );
 }
 
 
 void VSPAEROPlotScreen::RedrawConvergencePlot()
 {
-    Ca_Canvas::current(m_ConvergencePlotCanvas);
+    Ca_Canvas::current( m_ConvergencePlotCanvas );
     m_ConvergencePlotCanvas->clear();
 
     m_ConvergenceLegendGroup->clear();
@@ -1031,9 +1031,9 @@ void VSPAEROPlotScreen::RedrawConvergencePlot()
     vector <string> yDataSetNames;
     for ( int i = 1 ; i <= m_ConvergenceYDataBrowser->size() ; i++ )
     {
-        if ( m_ConvergenceYDataBrowser->selected( i ))
+        if ( m_ConvergenceYDataBrowser->selected( i ) )
         {
-            yDataSetNames.push_back(m_ConvergenceYDataBrowser->text(i));
+            yDataSetNames.push_back( m_ConvergenceYDataBrowser->text( i ) );
         }
     }
 
@@ -1044,9 +1044,9 @@ void VSPAEROPlotScreen::RedrawConvergencePlot()
     if ( m_ConvergenceNLines > 0 )
     {
         bool expandOnly = false;
-        for (unsigned int iCase = 0; iCase<m_ConvergenceFlowConditionSelectedResultIDs.size(); iCase++)
+        for ( unsigned int iCase = 0; iCase < m_ConvergenceFlowConditionSelectedResultIDs.size(); iCase++ )
         {
-            PlotConvergence(m_ConvergenceFlowConditionSelectedResultIDs[iCase],yDataSetNames,expandOnly, iCase );
+            PlotConvergence( m_ConvergenceFlowConditionSelectedResultIDs[iCase], yDataSetNames, expandOnly, iCase );
             expandOnly = true;
         }
     }
@@ -1057,7 +1057,7 @@ void VSPAEROPlotScreen::RedrawConvergencePlot()
 
 void VSPAEROPlotScreen::RedrawLoadDistPlot()
 {
-    Ca_Canvas::current(m_LoadDistPlotCanvas);
+    Ca_Canvas::current( m_LoadDistPlotCanvas );
     m_LoadDistPlotCanvas->clear();
 
     m_LoadDistLegendGroup->clear();
@@ -1069,9 +1069,9 @@ void VSPAEROPlotScreen::RedrawLoadDistPlot()
     vector <string> yDataSetNames;
     for ( int i = 1 ; i <= m_LoadDistYDataBrowser->size() ; i++ )
     {
-        if ( m_LoadDistYDataBrowser->selected( i ))
+        if ( m_LoadDistYDataBrowser->selected( i ) )
         {
-            yDataSetNames.push_back(m_LoadDistYDataBrowser->text(i));
+            yDataSetNames.push_back( m_LoadDistYDataBrowser->text( i ) );
         }
     }
 
@@ -1082,9 +1082,9 @@ void VSPAEROPlotScreen::RedrawLoadDistPlot()
     if ( m_LoadDistNLines > 0 )
     {
         bool expandOnly = false;
-        for (unsigned int iCase = 0; iCase<m_LoadDistFlowConditionSelectedResultIDs.size(); iCase++)
+        for ( unsigned int iCase = 0; iCase < m_LoadDistFlowConditionSelectedResultIDs.size(); iCase++ )
         {
-            PlotLoadDistribution(m_LoadDistFlowConditionSelectedResultIDs[iCase],yDataSetNames,expandOnly, iCase);
+            PlotLoadDistribution( m_LoadDistFlowConditionSelectedResultIDs[iCase], yDataSetNames, expandOnly, iCase );
             expandOnly = true;
         }
     }
@@ -1094,24 +1094,24 @@ void VSPAEROPlotScreen::RedrawLoadDistPlot()
 
 void VSPAEROPlotScreen::RedrawSweepPlot()
 {
-    Ca_Canvas::current(m_SweepPlotCanvas);
+    Ca_Canvas::current( m_SweepPlotCanvas );
     m_SweepPlotCanvas->clear();
 
     // Get selected dataset names
     vector <string> xDataSetNames;
     for ( int i = 1 ; i <= m_SweepXDataBrowser->size() ; i++ )
     {
-        if ( m_SweepXDataBrowser->selected( i ))
+        if ( m_SweepXDataBrowser->selected( i ) )
         {
-            xDataSetNames.push_back(m_SweepXDataBrowser->text(i));
+            xDataSetNames.push_back( m_SweepXDataBrowser->text( i ) );
         }
     }
     vector <string> yDataSetNames;
     for ( int i = 1 ; i <= m_SweepYDataBrowser->size() ; i++ )
     {
-        if ( m_SweepYDataBrowser->selected( i ))
+        if ( m_SweepYDataBrowser->selected( i ) )
         {
-            yDataSetNames.push_back(m_SweepYDataBrowser->text(i));
+            yDataSetNames.push_back( m_SweepYDataBrowser->text( i ) );
         }
     }
 
@@ -1126,30 +1126,30 @@ void VSPAEROPlotScreen::RedrawSweepPlot()
     //Redraw plot if data is available and selected
     bool expandOnly = false;
     int nPolarPoints = m_SweepFlowConditionSelectedResultIDs.size();
-    if ( (nPolarPoints>0) & (xDataSetNames.size()>0) & (yDataSetNames.size()>0) )
+    if ( ( nPolarPoints > 0 ) & ( xDataSetNames.size() > 0 ) & ( yDataSetNames.size() > 0 ) )
     {
-        for (int iXData=0; iXData<xDataSetNames.size(); iXData++)
+        for ( int iXData = 0; iXData < xDataSetNames.size(); iXData++ )
         {
-            for (int iYData=0; iYData<yDataSetNames.size(); iYData++)
+            for ( int iYData = 0; iYData < yDataSetNames.size(); iYData++ )
             {
                 vector <double> xDoubleData;
                 vector <double> yDoubleData;
                 NameValData* tResultDataPtr;
-                int nData;        
-                for (int iPolarPoint = 0; iPolarPoint<nPolarPoints; iPolarPoint++)
+                int nData;
+                for ( int iPolarPoint = 0; iPolarPoint < nPolarPoints; iPolarPoint++ )
                 {
                     Results* res = ResultsMgr.FindResultsPtr( m_SweepFlowConditionSelectedResultIDs[iPolarPoint] );
                     if ( res )
                     {
                         //====Plot Stuff====//
-                        tResultDataPtr = res->FindPtr(xDataSetNames[iXData]);
-                        nData = res->GetNumData(xDataSetNames[iXData]);
-                        xDoubleData.push_back(tResultDataPtr->GetDouble(nData-1));
+                        tResultDataPtr = res->FindPtr( xDataSetNames[iXData] );
+                        nData = res->GetNumData( xDataSetNames[iXData] );
+                        xDoubleData.push_back( tResultDataPtr->GetDouble( nData - 1 ) );
 
                         //NameValData* tResultDataPtr;
-                        tResultDataPtr = res->FindPtr(yDataSetNames[iYData]);
-                        nData = res->GetNumData(yDataSetNames[iYData]);
-                        yDoubleData.push_back(tResultDataPtr->GetDouble(nData-1));
+                        tResultDataPtr = res->FindPtr( yDataSetNames[iYData] );
+                        nData = res->GetNumData( yDataSetNames[iYData] );
+                        yDoubleData.push_back( tResultDataPtr->GetDouble( nData - 1 ) );
                     }
                 }
 
@@ -1163,7 +1163,7 @@ void VSPAEROPlotScreen::RedrawSweepPlot()
                 iplot++;
 
                 //Handle axis limits
-                UpdateAxisLimits(m_SweepPlotCanvas, xDoubleData, yDoubleData, expandOnly);
+                UpdateAxisLimits( m_SweepPlotCanvas, xDoubleData, yDoubleData, expandOnly );
                 expandOnly = true;
             }
         }
@@ -1172,21 +1172,21 @@ void VSPAEROPlotScreen::RedrawSweepPlot()
         //string yLabelStr = MakeAxisLabelStr(yDataSetNames);
         //m_SweepPlotCanvas->current_x()->copy_label(xLabelStr.c_str());
         //m_SweepPlotCanvas->current_y()->copy_label(yLabelStr.c_str());
-        if(xDataSetNames.size()==1)
+        if( xDataSetNames.size() == 1 )
         {
-            m_SweepPlotCanvas->current_x()->copy_label(xDataSetNames[0].c_str());
+            m_SweepPlotCanvas->current_x()->copy_label( xDataSetNames[0].c_str() );
         }
         else
         {
-            m_SweepPlotCanvas->current_x()->copy_label("[multiple]");
+            m_SweepPlotCanvas->current_x()->copy_label( "[multiple]" );
         }
-        if(yDataSetNames.size()==1)
+        if( yDataSetNames.size() == 1 )
         {
-            m_SweepPlotCanvas->current_y()->copy_label(yDataSetNames[0].c_str());
+            m_SweepPlotCanvas->current_y()->copy_label( yDataSetNames[0].c_str() );
         }
         else
         {
-            m_SweepPlotCanvas->current_y()->copy_label("[multiple]");
+            m_SweepPlotCanvas->current_y()->copy_label( "[multiple]" );
         }
 
     }
@@ -1194,13 +1194,13 @@ void VSPAEROPlotScreen::RedrawSweepPlot()
 }
 
 
-string VSPAEROPlotScreen::MakeAxisLabelStr(vector <string> dataSetNames)
+string VSPAEROPlotScreen::MakeAxisLabelStr( vector <string> dataSetNames )
 {
     string labelStr;
-    for (int iDataSet=0; iDataSet<dataSetNames.size(); iDataSet++)
+    for ( int iDataSet = 0; iDataSet < dataSetNames.size(); iDataSet++ )
     {
         labelStr = labelStr + dataSetNames[iDataSet].c_str();
-        if (iDataSet < ( int )dataSetNames.size()-1)
+        if ( iDataSet < ( int )dataSetNames.size() - 1 )
         {
             labelStr = labelStr + ", ";
         }
@@ -1209,46 +1209,46 @@ string VSPAEROPlotScreen::MakeAxisLabelStr(vector <string> dataSetNames)
 }
 
 
-void VSPAEROPlotScreen::PlotConvergence(string resultID, vector <string> yDataSetNames, bool expandOnly, int icase)
+void VSPAEROPlotScreen::PlotConvergence( string resultID, vector <string> yDataSetNames, bool expandOnly, int icase )
 {
 
     Results* res = ResultsMgr.FindResultsPtr( resultID );
     if ( !res )
     {
         //TODO indicate that no data exists
-        m_ConvergencePlotCanvas->current_y()->label("[Y]");
-        m_ConvergencePlotCanvas->current_x()->label("[X]");
+        m_ConvergencePlotCanvas->current_y()->label( "[Y]" );
+        m_ConvergencePlotCanvas->current_x()->label( "[X]" );
     }
-    else if (strcmp(res->GetName().c_str(),"VSPAERO_History")==0)
+    else if ( strcmp( res->GetName().c_str(), "VSPAERO_History" ) == 0 )
     {
 
         NameValData* xResultDataPtr;
-        xResultDataPtr = res->FindPtr("WakeIter");
+        xResultDataPtr = res->FindPtr( "WakeIter" );
 
         NameValData* yResultDataPtr;
 
         string labelStr;
-        for ( int iDataSet = 0; iDataSet < ( int )yDataSetNames.size(); iDataSet++)
+        for ( int iDataSet = 0; iDataSet < ( int )yDataSetNames.size(); iDataSet++ )
         {
-            yResultDataPtr = res->FindPtr(yDataSetNames[iDataSet]);
-            if ( (xResultDataPtr!=NULL) & (yResultDataPtr !=NULL) )
+            yResultDataPtr = res->FindPtr( yDataSetNames[iDataSet] );
+            if ( ( xResultDataPtr != NULL ) & ( yResultDataPtr != NULL ) )
             {
                 //often the X Data may be a vector of integers, if so convert the data to doubles first
                 vector <double> xDoubleData;
-                if ( xResultDataPtr->GetType()==vsp::INT_DATA )
+                if ( xResultDataPtr->GetType() == vsp::INT_DATA )
                 {
                     vector <int> tIntData = xResultDataPtr->GetIntData();
-                    copy(tIntData.begin(), tIntData.end(), back_inserter(xDoubleData));
+                    copy( tIntData.begin(), tIntData.end(), back_inserter( xDoubleData ) );
                 }
                 else
                 {
                     xDoubleData = xResultDataPtr->GetDoubleData();
                 }
                 vector <double> yDoubleData;
-                if ( yResultDataPtr->GetType()==vsp::INT_DATA )
+                if ( yResultDataPtr->GetType() == vsp::INT_DATA )
                 {
                     vector <int> tIntData = yResultDataPtr->GetIntData();
-                    copy(tIntData.begin(), tIntData.end(), back_inserter(yDoubleData));
+                    copy( tIntData.begin(), tIntData.end(), back_inserter( yDoubleData ) );
                 }
                 else
                 {
@@ -1256,16 +1256,16 @@ void VSPAEROPlotScreen::PlotConvergence(string resultID, vector <string> yDataSe
                 }
 
                 //normalize the iteration data w.r.t. the final value
-                if (m_ConvergenceYDataResidualToggle.GetFlButton()->value()==1)
+                if ( m_ConvergenceYDataResidualToggle.GetFlButton()->value() == 1 )
                 {
                     vector <double> diffY = yDoubleData;
-                    for (int j = 1; j<(int)yDoubleData.size(); j++)
+                    for ( int j = 1; j < ( int )yDoubleData.size(); j++ )
                     {
-                        diffY[j] = yDoubleData[j] - yDoubleData[j-1];
+                        diffY[j] = yDoubleData[j] - yDoubleData[j - 1];
                     }
-                    for (int j = 0; j<(int)yDoubleData.size(); j++)
+                    for ( int j = 0; j < ( int )yDoubleData.size(); j++ )
                     {
-                        yDoubleData[j] = log10( abs( (diffY[j]) ) + FLT_MIN ); //add FLT_MIN for negative inf protection on log10()
+                        yDoubleData[j] = log10( abs( ( diffY[j] ) ) + FLT_MIN ); //add FLT_MIN for negative inf protection on log10()
                     }
                 }
 
@@ -1274,23 +1274,23 @@ void VSPAEROPlotScreen::PlotConvergence(string resultID, vector <string> yDataSe
                 //add the normalized data to the plot
                 AddPointLine( xDoubleData, yDoubleData, 2, c, 4, StyleWheel( m_ConvergenceiPlot ) );
 
-                string legendstr = "FC: " + std::to_string(icase) + " " + yDataSetNames[iDataSet];
+                string legendstr = "FC: " + std::to_string( icase ) + " " + yDataSetNames[iDataSet];
                 m_ConvergenceLegendLayout.AddLegendEntry( legendstr, c );
                 m_ConvergenceiPlot++;
 
                 //Handle Axis limits
                 //  Set explicit limits for interation # on X-Axis
-                m_ConvergencePlotCanvas->current_x()->minimum(xDoubleData[0]);
-                m_ConvergencePlotCanvas->current_x()->maximum(xDoubleData[xDoubleData.size()-1]);
+                m_ConvergencePlotCanvas->current_x()->minimum( xDoubleData[0] );
+                m_ConvergencePlotCanvas->current_x()->maximum( xDoubleData[xDoubleData.size() - 1] );
                 //  Auto adjust and expand limits for Y-Axis
-                if (m_ConvergenceYDataResidualToggle.GetFlButton()->value()==1)
+                if ( m_ConvergenceYDataResidualToggle.GetFlButton()->value() == 1 )
                 {
                     //Always show 0 on Y Axis if the data is normalized on a log scale
-                    UpdateSingleAxisLimits(m_ConvergencePlotCanvas->current_y(), yDoubleData, expandOnly, true);
+                    UpdateSingleAxisLimits( m_ConvergencePlotCanvas->current_y(), yDoubleData, expandOnly, true );
                 }
                 else
                 {
-                    UpdateSingleAxisLimits(m_ConvergencePlotCanvas->current_y(), yDoubleData, expandOnly, true);
+                    UpdateSingleAxisLimits( m_ConvergencePlotCanvas->current_y(), yDoubleData, expandOnly, true );
                 }
 
                 expandOnly = true;
@@ -1299,7 +1299,7 @@ void VSPAEROPlotScreen::PlotConvergence(string resultID, vector <string> yDataSe
 
         // Annotate axes
         labelStr.clear();
-        if(yDataSetNames.size()==1)
+        if( yDataSetNames.size() == 1 )
         {
             labelStr = yDataSetNames[0];
         }
@@ -1307,79 +1307,79 @@ void VSPAEROPlotScreen::PlotConvergence(string resultID, vector <string> yDataSe
         {
             labelStr = "[multiple]";
         }
-        if (m_ConvergenceYDataResidualToggle.GetFlButton()->value()==1)
+        if ( m_ConvergenceYDataResidualToggle.GetFlButton()->value() == 1 )
         {
             labelStr = "log10(|" + labelStr + "|)";
         }
-        m_ConvergencePlotCanvas->current_y()->copy_label(labelStr.c_str());
-        m_ConvergencePlotCanvas->current_x()->label("Wake Iteration #");
+        m_ConvergencePlotCanvas->current_y()->copy_label( labelStr.c_str() );
+        m_ConvergencePlotCanvas->current_x()->label( "Wake Iteration #" );
 
     }
     else
     {
-        m_ConvergencePlotCanvas->label("PLOT ERROR - INVALID RESULT TYPE");
+        m_ConvergencePlotCanvas->label( "PLOT ERROR - INVALID RESULT TYPE" );
     }
 
 }
 
-void VSPAEROPlotScreen::PlotLoadDistribution(string resultID, vector <string> yDataSetNames, bool expandOnly, int icase)
+void VSPAEROPlotScreen::PlotLoadDistribution( string resultID, vector <string> yDataSetNames, bool expandOnly, int icase )
 {
     Results* res = ResultsMgr.FindResultsPtr( resultID );
     if ( !res )
     {
         //TODO indicate that no data exists
-        m_LoadDistPlotCanvas->current_y()->label("[Y]");
-        m_LoadDistPlotCanvas->current_x()->label("[X]");
+        m_LoadDistPlotCanvas->current_y()->label( "[Y]" );
+        m_LoadDistPlotCanvas->current_x()->label( "[X]" );
     }
-    else if (strcmp(res->GetName().c_str(),"VSPAERO_Load")==0)
+    else if ( strcmp( res->GetName().c_str(), "VSPAERO_Load" ) == 0 )
     {
         NameValData* wingIdResultDataPtr;
-        wingIdResultDataPtr = res->FindPtr("WingId");
+        wingIdResultDataPtr = res->FindPtr( "WingId" );
 
         NameValData* xResultDataPtr;
-        xResultDataPtr = res->FindPtr("Yavg");
+        xResultDataPtr = res->FindPtr( "Yavg" );
 
         NameValData* yResultDataPtr;
         string labelStr;
-        for ( int iDataSet = 0; iDataSet < ( int )yDataSetNames.size(); iDataSet++)
+        for ( int iDataSet = 0; iDataSet < ( int )yDataSetNames.size(); iDataSet++ )
         {
-            yResultDataPtr = res->FindPtr(yDataSetNames[iDataSet]);
+            yResultDataPtr = res->FindPtr( yDataSetNames[iDataSet] );
             if( wingIdResultDataPtr && xResultDataPtr && yResultDataPtr )
             {
                 // get unique indicies and generate loop over unique wings
                 vector <int> wingIdIntDataRaw = wingIdResultDataPtr->GetIntData();
                 vector <int> wingIdIntDataUnique;
-                std::unique_copy(wingIdIntDataRaw.begin(),wingIdIntDataRaw.end(),std::back_inserter(wingIdIntDataUnique));
+                std::unique_copy( wingIdIntDataRaw.begin(), wingIdIntDataRaw.end(), std::back_inserter( wingIdIntDataUnique ) );
 
                 Fl_Color c = ColorWheel( m_LoadDistiPlot, m_LoadDistNLines );
 
                 // Collect data for each wing and plot individual line for each wing (assumes unsorted list)
-                for (int iWing: wingIdIntDataUnique)
+                for ( int iWing : wingIdIntDataUnique )
                 {
                     //collect the data for each wing checking each point
                     vector <double> xDoubleData;
                     vector <double> yDoubleData;
-                    for (unsigned int iPt = 0; iPt<wingIdIntDataRaw.size(); iPt++)
+                    for ( unsigned int iPt = 0; iPt < wingIdIntDataRaw.size(); iPt++ )
                     {
-                        if (wingIdIntDataRaw[iPt]==iWing)
+                        if ( wingIdIntDataRaw[iPt] == iWing )
                         {
-                            xDoubleData.push_back(xResultDataPtr->GetDouble(iPt));
-                            yDoubleData.push_back(yResultDataPtr->GetDouble(iPt));
+                            xDoubleData.push_back( xResultDataPtr->GetDouble( iPt ) );
+                            yDoubleData.push_back( yResultDataPtr->GetDouble( iPt ) );
                         }
                     }
 
                     //Sort data for this wing along Yavg dimension
                     // generate sorted indicies array
-                    vector < int > Indx;                    Indx.assign(yDoubleData.size(),0);
-                    for (unsigned int iPt = 0; iPt<xDoubleData.size(); iPt++)  
+                    vector < int > Indx;                    Indx.assign( yDoubleData.size(), 0 );
+                    for ( unsigned int iPt = 0; iPt < xDoubleData.size(); iPt++ )
                     {
                         Indx[iPt] = iPt;
                     }
-                    std::sort(Indx.begin(), Indx.end(), [&xDoubleData](int i, int j) {return xDoubleData[i] < xDoubleData[j];});
+                    std::sort( Indx.begin(), Indx.end(), [&xDoubleData]( int i, int j ) {return xDoubleData[i] < xDoubleData[j];} );
                     // copy data to sorted arrays
-                    vector <double> xDoubleData_sorted;     xDoubleData_sorted.assign(xDoubleData.size(),0);
-                    vector <double> yDoubleData_sorted;     yDoubleData_sorted.assign(yDoubleData.size(),0);
-                    for (unsigned int iPt = 0; iPt<xDoubleData.size(); iPt++)  
+                    vector <double> xDoubleData_sorted;     xDoubleData_sorted.assign( xDoubleData.size(), 0 );
+                    vector <double> yDoubleData_sorted;     yDoubleData_sorted.assign( yDoubleData.size(), 0 );
+                    for ( unsigned int iPt = 0; iPt < xDoubleData.size(); iPt++ )
                     {
                         xDoubleData_sorted[iPt] = xDoubleData[Indx[iPt]];
                         yDoubleData_sorted[iPt] = yDoubleData[Indx[iPt]];
@@ -1389,7 +1389,7 @@ void VSPAEROPlotScreen::PlotLoadDistribution(string resultID, vector <string> yD
                     AddPointLine( xDoubleData_sorted, yDoubleData_sorted, 2, c, 4, StyleWheel( m_LoadDistiPlot ) );
 
                     //Handle axis limits
-                    UpdateAxisLimits(m_LoadDistPlotCanvas, xDoubleData_sorted, yDoubleData_sorted, expandOnly);
+                    UpdateAxisLimits( m_LoadDistPlotCanvas, xDoubleData_sorted, yDoubleData_sorted, expandOnly );
                     expandOnly = true;
                 }
 
@@ -1401,7 +1401,7 @@ void VSPAEROPlotScreen::PlotLoadDistribution(string resultID, vector <string> yD
 
         // Annotate axes
         labelStr.clear();
-        if(yDataSetNames.size()==1)
+        if( yDataSetNames.size() == 1 )
         {
             labelStr = yDataSetNames[0];
         }
@@ -1409,43 +1409,43 @@ void VSPAEROPlotScreen::PlotLoadDistribution(string resultID, vector <string> yD
         {
             labelStr = "[multiple]";
         }
-        m_LoadDistPlotCanvas->current_y()->copy_label(labelStr.c_str());
-        m_LoadDistPlotCanvas->current_x()->label("Span Location: Y");
+        m_LoadDistPlotCanvas->current_y()->copy_label( labelStr.c_str() );
+        m_LoadDistPlotCanvas->current_x()->label( "Span Location: Y" );
     }
     else
     {
-        m_LoadDistPlotCanvas->label("PLOT ERROR - INVALID RESULT TYPE");
+        m_LoadDistPlotCanvas->label( "PLOT ERROR - INVALID RESULT TYPE" );
     }
 
 }
 
 
-void VSPAEROPlotScreen::UpdateAxisLimits(Ca_Canvas * canvas, vector <double> xDoubleData, vector <double> yDoubleData, bool expandOnly)
+void VSPAEROPlotScreen::UpdateAxisLimits( Ca_Canvas * canvas, vector <double> xDoubleData, vector <double> yDoubleData, bool expandOnly )
 {
-    UpdateSingleAxisLimits(canvas->current_x(), xDoubleData, expandOnly);
-    UpdateSingleAxisLimits(canvas->current_y(), yDoubleData, expandOnly);
+    UpdateSingleAxisLimits( canvas->current_x(), xDoubleData, expandOnly );
+    UpdateSingleAxisLimits( canvas->current_y(), yDoubleData, expandOnly );
 }
 
-void VSPAEROPlotScreen::UpdateSingleAxisLimits(Ca_Axis_ * tAxis, vector <double> doubleData, bool expandOnly, bool keepZero)
+void VSPAEROPlotScreen::UpdateSingleAxisLimits( Ca_Axis_ * tAxis, vector <double> doubleData, bool expandOnly, bool keepZero )
 {
     //TODO Get data from canvas and make this a part of the Canvas class
 
     // Find min and max of vector
-    auto dataMinMax = std::minmax_element(doubleData.begin(),doubleData.end());
+    auto dataMinMax = std::minmax_element( doubleData.begin(), doubleData.end() );
     double dataMin = dataMinMax.first[0];
     double dataMax = dataMinMax.second[0];
-    double dataRange = (dataMax - dataMin);
-    double dataRangeScale = scale(dataRange);
+    double dataRange = ( dataMax - dataMin );
+    double dataRangeScale = scale( dataRange );
 
 
     // Infinity protection
     if( dataMin < -FLT_MAX )
     {
-        dataMin = -FLT_MAX/10;
+        dataMin = -FLT_MAX / 10;
     }
     if( dataMax > FLT_MAX )
     {
-        dataMax = FLT_MAX/10;
+        dataMax = FLT_MAX / 10;
     }
 
     // Calculate min and max number magnitudes or "scale"
@@ -1469,17 +1469,17 @@ void VSPAEROPlotScreen::UpdateSingleAxisLimits(Ca_Axis_ * tAxis, vector <double>
     }
 
     // Apply limits to axis
-    if (tAxis && axisMin < axisMax)
+    if ( tAxis && axisMin < axisMax )
     {
-        if (expandOnly)
+        if ( expandOnly )
         {
-            tAxis->minimum(std::min(tAxis->minimum(),axisMin));
-            tAxis->maximum(std::max(tAxis->maximum(),axisMax));
+            tAxis->minimum( std::min( tAxis->minimum(), axisMin ) );
+            tAxis->maximum( std::max( tAxis->maximum(), axisMax ) );
         }
         else
         {
-            tAxis->minimum(axisMin);
-            tAxis->maximum(axisMax);
+            tAxis->minimum( axisMin );
+            tAxis->maximum( axisMax );
         }
     }
 }

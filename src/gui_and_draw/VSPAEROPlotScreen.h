@@ -50,12 +50,12 @@ protected:
     //==== Utility functions ====//
     //  plotting helpers
     void UpdateAutoManualAxisLimits();
-    string MakeAxisLabelStr(vector <string> dataSetNames);
-    void UpdateAxisLimits(Ca_Canvas * canvas, vector <double> xDoubleData, vector <double> yDoubleData, bool expand_only);
-    void UpdateSingleAxisLimits(Ca_Axis_ * tAxis, vector <double> doubleData, bool expandOnly, bool keepZero=false);
+    string MakeAxisLabelStr( vector <string> dataSetNames );
+    void UpdateAxisLimits( Ca_Canvas * canvas, vector <double> xDoubleData, vector <double> yDoubleData, bool expand_only );
+    void UpdateSingleAxisLimits( Ca_Axis_ * tAxis, vector <double> doubleData, bool expandOnly, bool keepZero = false );
     //  general utility
-    void ConstructFlowConditionString(char * strbuf, Results * res);
-    
+    void ConstructFlowConditionString( char * strbuf, Results * res );
+
     //==== Convergence Tab ====//
     Fl_Group* m_ConvergenceTab;
     GroupLayout m_ConvergenceLayout;
@@ -87,8 +87,8 @@ protected:
     void UpdateConvergenceYDataBrowser();
 
     void RedrawConvergencePlot();
-    void PlotConvergence(string resultID, vector <string> yDataSetNames, bool expand_only, int icase);
-    
+    void PlotConvergence( string resultID, vector <string> yDataSetNames, bool expand_only, int icase );
+
     //==== Load Distribution Tab ====//
     Fl_Group* m_LoadDistTab;
     GroupLayout m_LoadDistLayout;
@@ -113,12 +113,12 @@ protected:
     Fl_Browser * m_LoadDistYDataBrowser;
     Fl_Browser * m_LoadDistFlowConditionBrowser;
     vector< string > m_LoadDistFlowConditionSelectedResultIDs;
-    
+
     void UpdateLoadDistFlowConditionBrowser();
     void UpdateLoadDistYDataBrowser();
 
     void RedrawLoadDistPlot();
-    void PlotLoadDistribution(string resultID, vector <string> yDataSetNames, bool expand_only, int icase);
+    void PlotLoadDistribution( string resultID, vector <string> yDataSetNames, bool expand_only, int icase );
     void ExportToCSV();
 
     //==== Sweep Tab ====//
