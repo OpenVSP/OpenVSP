@@ -674,10 +674,6 @@ void VSPAEROPlotScreen::GuiDeviceCallBack( GuiDevice* device )
 
     m_SelectDefaultData = false;
 
-    if ( device == &m_ConvergenceYDataResidualToggle )
-    {
-        RedrawConvergencePlot();
-    }
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
@@ -868,12 +864,12 @@ void VSPAEROPlotScreen::UpdateConvergenceYDataBrowser()
     for ( unsigned int iDataName = 0; iDataName < dataNames.size(); iDataName++ )
     {
         if ( ( strcmp( dataNames[iDataName].c_str(), "FS_Mach" )  != 0 )  &
-                ( strcmp( dataNames[iDataName].c_str(), "FS_Alpha" ) != 0 )  &
-                ( strcmp( dataNames[iDataName].c_str(), "FS_Beta" )  != 0 )  &
-                ( strcmp( dataNames[iDataName].c_str(), "WakeIter" ) != 0 )  &
-                ( strcmp( dataNames[iDataName].c_str(), "Mach" )     != 0 )  &
-                ( strcmp( dataNames[iDataName].c_str(), "Alpha" )    != 0 )  &
-                ( strcmp( dataNames[iDataName].c_str(), "Beta" )     != 0 )   )
+             ( strcmp( dataNames[iDataName].c_str(), "FS_Alpha" ) != 0 )  &
+             ( strcmp( dataNames[iDataName].c_str(), "FS_Beta" )  != 0 )  &
+             ( strcmp( dataNames[iDataName].c_str(), "WakeIter" ) != 0 )  &
+             ( strcmp( dataNames[iDataName].c_str(), "Mach" )     != 0 )  &
+             ( strcmp( dataNames[iDataName].c_str(), "Alpha" )    != 0 )  &
+             ( strcmp( dataNames[iDataName].c_str(), "Beta" )     != 0 )   )
         {
             m_ConvergenceYDataBrowser->add( dataNames[iDataName].c_str() );
         }
@@ -916,9 +912,9 @@ void VSPAEROPlotScreen::UpdateLoadDistYDataBrowser()
     for ( unsigned int iDataName = 0; iDataName < dataNames.size(); iDataName++ )
     {
         if ( ( strcmp( dataNames[iDataName].c_str(), "FS_Mach" )  != 0 )  &
-                ( strcmp( dataNames[iDataName].c_str(), "FS_Alpha" ) != 0 )  &
-                ( strcmp( dataNames[iDataName].c_str(), "FS_Beta" )  != 0 )  &
-                ( strcmp( dataNames[iDataName].c_str(), "WingId" )   != 0 )   )
+             ( strcmp( dataNames[iDataName].c_str(), "FS_Alpha" ) != 0 )  &
+             ( strcmp( dataNames[iDataName].c_str(), "FS_Beta" )  != 0 )  &
+             ( strcmp( dataNames[iDataName].c_str(), "WingId" )   != 0 )   )
         {
             m_LoadDistYDataBrowser->add( dataNames[iDataName].c_str() );
         }
@@ -972,9 +968,9 @@ void VSPAEROPlotScreen::UpdateSweepXYDataBrowser()
         for ( unsigned int iDataName = 0; iDataName < dataNames.size(); iDataName++ )
         {
             if ( ( strcmp( dataNames[iDataName].c_str(), "FS_Mach" )  != 0 )  &
-                    ( strcmp( dataNames[iDataName].c_str(), "FS_Alpha" ) != 0 )  &
-                    ( strcmp( dataNames[iDataName].c_str(), "FS_Beta" )  != 0 )  &
-                    ( strcmp( dataNames[iDataName].c_str(), "WakeIter" ) != 0 )   )
+                 ( strcmp( dataNames[iDataName].c_str(), "FS_Alpha" ) != 0 )  &
+                 ( strcmp( dataNames[iDataName].c_str(), "FS_Beta" )  != 0 )  &
+                 ( strcmp( dataNames[iDataName].c_str(), "WakeIter" ) != 0 )   )
             {
                 m_SweepXDataBrowser->add( dataNames[iDataName].c_str() );
                 m_SweepYDataBrowser->add( dataNames[iDataName].c_str() );

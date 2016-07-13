@@ -853,23 +853,37 @@ void VSPAEROScreen::AddOutputText( Fl_Text_Display *display, const char *text )
 ProcessUtil* VSPAEROScreen::GetProcess( int id )
 {
     if( id == VSPAERO_SOLVER )
-    { return &m_SolverProcess; }
+    {
+        return &m_SolverProcess;
+    }
     else if( id == VSPAERO_VIEWER )
-    { return &m_ViewerProcess; }
+    {
+        return &m_ViewerProcess;
+    }
     else if( id == VSPAERO_SOLVER_MONITOR )
-    { return &m_SolverMonitor; }
+    {
+        return &m_SolverMonitor;
+    }
     else
-    { return NULL; }
+    {
+        return NULL;
+    }
 }
 
 Fl_Text_Display* VSPAEROScreen::GetDisplay( int id )
 {
     if( id == VSPAERO_SOLVER )
-    { return m_SolverDisplay; }
+    {
+        return m_SolverDisplay;
+    }
     else if( id == VSPAERO_VIEWER )
-    { return m_ViewerDisplay; }
+    {
+        return m_ViewerDisplay;
+    }
     else
-    { return NULL; }
+    {
+        return NULL;
+    }
 }
 
 void VSPAEROScreen::ReadSetup()

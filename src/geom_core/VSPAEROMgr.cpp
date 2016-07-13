@@ -158,8 +158,6 @@ xmlNodePtr VSPAEROMgrSingleton::EncodeXml( xmlNodePtr & node )
 
     XmlUtil::AddStringNode( VSPAEROsetnode, "ReferenceGeomID", m_RefGeomID );
 
-    //TODO XmlUtil::AddStringNode( VSPAEROsetnode, "AlphaVec", m_AlphaVec );    //vector to store generic alpha vector
-
     return VSPAEROsetnode;
 }
 
@@ -170,8 +168,6 @@ xmlNodePtr VSPAEROMgrSingleton::DecodeXml( xmlNodePtr & node )
     {
         ParmContainer::DecodeXml( VSPAEROsetnode );
         m_RefGeomID   = XmlUtil::FindString( VSPAEROsetnode, "ReferenceGeomID", m_RefGeomID );
-
-        //TODO XmlUtil::FindString( VSPAEROsetnode, "AlphaVec", m_AlphaVec );    //vector to store generic alpha vector
     }
 
     return VSPAEROsetnode;
@@ -556,12 +552,14 @@ bool VSPAEROMgrSingleton::IsSolverRunning()
 {
     return m_SolverProcess.IsRunning();
 }
+
 void VSPAEROMgrSingleton::KillSolver()
 {
     // Raise flag to break the compute solver thread
     m_SolverProcessKill = true;
     return m_SolverProcess.Kill();
 }
+
 ProcessUtil* VSPAEROMgrSingleton::GetSolverProcess()
 {
     return &m_SolverProcess;
@@ -580,6 +578,7 @@ void VSPAEROMgrSingleton::WaitForFile( string filename )
     }
     SleepForMilliseconds( 100 );  //additional wait for file
 }
+
 /*******************************************************
 Read .HISTORY file output from VSPAERO
 See: VSP_Solver.C in vspaero project
