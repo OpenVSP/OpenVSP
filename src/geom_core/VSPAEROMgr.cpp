@@ -96,11 +96,12 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_StabilityCalcFlag = false;
 
 
-    m_DegenFile   = string();
-    m_SetupFile   = string();
-    m_AdbFile     = string();
-    m_HistoryFile = string();
-    m_LoadFile    = string();
+    m_DegenFile     = string();
+    m_DegenFileFull = string();
+    m_SetupFile     = string();
+    m_AdbFile       = string();
+    m_HistoryFile   = string();
+    m_LoadFile      = string();
     m_StabFile      = string();
 
     Update();
@@ -220,19 +221,21 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
     // Setup the remaining file names
     if( !m_DegenFile.empty() )
     {
-        m_SetupFile   = m_DegenFile + string(".vspaero");
-        m_AdbFile     = m_DegenFile + string(".adb");
-        m_HistoryFile = m_DegenFile + string(".history");
-        m_LoadFile    = m_DegenFile + string(".lod");
-        m_StabFile    = m_DegenFile + string(".stab");
+        m_DegenFileFull = m_DegenFile + string(".csv");
+        m_SetupFile     = m_DegenFile + string(".vspaero");
+        m_AdbFile       = m_DegenFile + string(".adb");
+        m_HistoryFile   = m_DegenFile + string(".history");
+        m_LoadFile      = m_DegenFile + string(".lod");
+        m_StabFile      = m_DegenFile + string(".stab");
     }
     else
     {
-        m_SetupFile   = string();
-        m_AdbFile     = string();
-        m_HistoryFile = string();
-        m_LoadFile    = string();
-        m_StabFile    = string();
+        m_DegenFileFull = string();
+        m_SetupFile     = string();
+        m_AdbFile       = string();
+        m_HistoryFile   = string();
+        m_LoadFile      = string();
+        m_StabFile      = string();
     }
 }
 

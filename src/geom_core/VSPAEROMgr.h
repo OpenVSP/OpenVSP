@@ -54,7 +54,8 @@ public:
     void AddResultHeader(string res_id, double mach, double alpha, double beta);
 
     // file names
-    string m_DegenFile;
+    string m_DegenFile;     //degengeom file name WITHOUT .csv file extension
+    string m_DegenFileFull; //degengeom file name WITH .csv file extension
     string m_SetupFile;
     string m_AdbFile;
     string m_HistoryFile;
