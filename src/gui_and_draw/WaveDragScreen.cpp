@@ -544,7 +544,7 @@ void WaveDragScreen::RedrawPlot()
         // Components
         for ( int icomp = 0; icomp < WaveDragMgr.m_NComp; icomp++ )
         {
-            Fl_Color c = icolor( icomp );
+            Fl_Color c = ColorWheel( icomp, WaveDragMgr.m_NComp );
             AddPointLine( xfit, WaveDragMgr.m_CompFitAreaDist[itheta][icomp], 2, c );
 
             Geom *g = veh->FindGeom( WaveDragMgr.m_CompIDVec[icomp] );
@@ -555,7 +555,7 @@ void WaveDragScreen::RedrawPlot()
 
             if ( WaveDragMgr.m_PointFlag() )
             {
-                AddPoint( xvec, WaveDragMgr.m_CompSliceAreaDist[itheta][icomp], c, 3, icomp % nstyle + 1 );
+                AddPoint( xvec, WaveDragMgr.m_CompSliceAreaDist[itheta][icomp], c, 3, StyleWheel( icomp ) );
             }
         }
         AddPointLine( xfit, WaveDragMgr.m_FitAreaDist[itheta], 2, FL_BLACK );
@@ -568,7 +568,7 @@ void WaveDragScreen::RedrawPlot()
     {
         for ( int icomp = 0; icomp < WaveDragMgr.m_NComp; icomp++ )
         {
-            Fl_Color c = icolor( icomp );
+            Fl_Color c = ColorWheel( icomp, WaveDragMgr.m_NComp );
             AddPointLine( xfit, WaveDragMgr.m_BuildupFitAreaDist[itheta][icomp], 2, c );
 
             Geom *g = veh->FindGeom( WaveDragMgr.m_CompIDVec[icomp] );
@@ -579,7 +579,7 @@ void WaveDragScreen::RedrawPlot()
 
             if ( WaveDragMgr.m_PointFlag() )
             {
-                AddPoint( xvec, WaveDragMgr.m_BuildupAreaDist[itheta][icomp], c, 3, icomp % nstyle + 1 );
+                AddPoint( xvec, WaveDragMgr.m_BuildupAreaDist[itheta][icomp], c, 3, StyleWheel( icomp ) );
             }
         }
     }
@@ -660,32 +660,6 @@ void WaveDragScreen::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
             WaveDragMgr.LoadDrawObjs( draw_obj_vec );
         }
     }
-}
-
-Fl_Color WaveDragScreen::icolor( int icomp )
-{
-    // Golden ratio.
-    // double phi = ( 1.0 + sqrt( 5.0 ) ) / 2.0;
-
-    double h, s, v, r, g, b;
-
-    int nhue = 5;  // Rough number of color divisions.  Prime is good.
-    int npass = ( WaveDragMgr.m_NComp / nhue ) + 1; // floor implied by integer division.
-
-    int hbase = icomp % nhue;
-
-    // h is [0,6)
-    h = ( hbase +  (icomp - hbase) * 1.0 / (nhue * npass) ) * 6.0 / nhue;
-
-    // Uniformly distributed pseudo-random.
-    // h = ( icomp * phi - floor( icomp * phi ) ) * 6.0;
-    // s and v are [0,1]
-    s = 0.7;
-    v = 0.95;
-
-    Fl_Color_Chooser::hsv2rgb( h, s, v, r, g, b );
-    Fl_Color c = fl_rgb_color( r * 255, g * 255, b * 255 );
-    return c;
 }
 
 bool WaveDragScreen::hittest( int mx, double datax, int r )

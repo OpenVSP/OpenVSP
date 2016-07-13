@@ -48,8 +48,6 @@ public:
 
 protected:
 
-    Fl_Color icolor( int icomp );
-
     //==== Run Tab ====//
     GroupLayout m_RunLayout;
 
