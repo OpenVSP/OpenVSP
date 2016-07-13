@@ -17,6 +17,8 @@
 #include "ProcessUtil.h"
 #include "VSPAEROMgr.h"
 
+#include "SelectFileScreen.h"
+
 #include <FL/Fl_Text_Buffer.H>
 #include <FL/Fl_Text_Display.H>
 
@@ -24,9 +26,11 @@ using namespace std;
 
 #define VSPAERO_SOLVER 0
 #define VSPAERO_VIEWER 1
+#define VSPAERO_SOLVER_MONITOR 2
 
 class VSPAEROScreen;
 typedef std::pair< VSPAEROScreen*, int > monitorpair;
+typedef std::pair< VSPAEROMgrSingleton*, VSPAEROScreen* > solverpair;
 
 class VSPAEROScreen : public TabScreen
 {
@@ -52,14 +56,20 @@ public:
     ProcessUtil *GetProcess( int id );
     Fl_Text_Display *GetDisplay( int id );
 
-protected:
-
+    //Setup file GUI I/O (these must be public because they are accessed by the thread)
     void ReadSetup();
     void SaveSetup();
 
+    // Solver thread kill flags (these must be public because they are accessed by the thread)
+    bool m_SolverSetupThreadIsRunning;
+    bool m_SolverThreadIsRunning;
+    bool m_RunSolverMonitor;
+
+protected:
+
     //==== Overview Tab ====//
     GroupLayout m_OverviewLayout;
-    
+
     // Case Setup
     GroupLayout m_GeomLayout;
     Choice m_GeomSetChoice;
@@ -67,17 +77,20 @@ protected:
     StringOutput m_DegenFileName;
     TriggerButton m_DegenFileButton;
     SliderAdjRangeInput m_NCPUSlider;
+    ToggleButton m_StabilityCalcToggle;
+
+    // Wake calculation options
+    GroupLayout m_WakeLayout;
     SliderAdjRangeInput m_WakeNumIterSlider;
     SliderAdjRangeInput m_WakeAvgStartIterSlider;
     SliderAdjRangeInput m_WakeSkipUntilIterSlider;
-    ToggleButton m_StabilityCalcToggle;
 
     // Freestream settings
     GroupLayout m_FlowLayout;
     Input m_AlphaStartInput, m_AlphaEndInput, m_AlphaNptsInput;
     Input m_BetaStartInput, m_BetaEndInput, m_BetaNptsInput;
     Input m_MachStartInput, m_MachEndInput, m_MachNptsInput;
-    
+
     // Reference lengths & areas
     GroupLayout m_RefLayout;
     Choice m_RefWingChoice;
@@ -100,12 +113,19 @@ protected:
     SliderAdjRangeInput m_ZcgSlider;
 
     // Execute
+    GroupLayout m_ExecuteLayout;
     TriggerButton m_SetupButton;
+    TriggerButton m_KillSolverSetupButton;
     TriggerButton m_SolverButton;
+    TriggerButton m_KillSolverButton;
     TriggerButton m_ViewerButton;
+    TriggerButton m_PlotButton;
+    TriggerButton m_ExportResultsToCsvButton;
 
     //==== Setup Tab ====//
     GroupLayout m_SetupLayout;
+
+    Fl_Box * m_SetupDividerBox;
 
     Fl_Text_Editor* m_SetupEditor;
     Fl_Text_Buffer* m_SetupBuffer;
@@ -117,7 +137,6 @@ protected:
     //==== Solver Tab ====//
     GroupLayout m_SolverLayout;
 
-    TriggerButton m_KillSolverButton;
     Fl_Text_Display *m_SolverDisplay;
     Fl_Text_Buffer *m_SolverBuffer;
 
@@ -134,7 +153,7 @@ protected:
     ProcessUtil m_SolverProcess;
     ProcessUtil m_ViewerProcess;
 
-    monitorpair m_SolverPair;
+    solverpair m_SolverPair;
     monitorpair m_ViewerPair;
 
     ProcessUtil m_SolverMonitor;
