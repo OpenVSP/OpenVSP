@@ -376,6 +376,14 @@ std::vector <string> VSPAEROMgrSingleton::ComputeSolver()
             machDelta = (m_MachEnd.Get() - m_MachStart.Get()) / (m_MachNpts.Get()-1.0);
         }
 
+        //====== Modify/Update the setup file ======//
+        if ( !FileExist(m_SetupFile) )
+        {
+            // if the setup file doesn't exist, create one with the current settings
+            // TODO output a warning to the user that we are creating a default file
+            CreateSetupFile();
+        }
+
         //====== Loop over flight conditions and solve ======//
         // TODO make this into a case list with a single loop
         for (int iAlpha = 0; iAlpha<m_AlphaNpts.Get(); iAlpha++)
@@ -411,13 +419,7 @@ std::vector <string> VSPAEROMgrSingleton::ComputeSolver()
                         remove(m_StabFile.c_str());
                     }
 
-                    //====== Modify/Update the setup file ======//
-                    if ( !FileExist(m_SetupFile) )
-                    {
-                        // if the setup file doesn't exist, create one with the current settings
-                        // TODO output a warning to the user that we are creating a default file
-                        CreateSetupFile();
-                    }
+
 
                     //====== Send command to be executed by the system at the command prompt ======//
                     vector<string> args;
