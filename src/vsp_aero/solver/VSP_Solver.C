@@ -840,8 +840,8 @@ void VSP_SOLVER::Solve(int Case)
     if ( Case <= 0 ) fclose(StatusFile_);
 
     // Calculate spanwise load distributions for lifting surfaces
-    
-    CalculateSpanWiseLoading();
+    // Calculate only for first "non-delta" case, this prevents the analysis from overwriting the .lod file from the baseline flow condition
+    if ( Case == 0 || Case == 1 )  CalculateSpanWiseLoading();
         
     // Interpolate solution from grid 1 to 0
     
@@ -2850,7 +2850,7 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(void)
 
 void VSP_SOLVER::CalculateSpanWiseLoading(void)
 {
- 
+    printf("Writing spanwise loading output\n");
     int i, k, NumberOfStations;
     double TotalLift, CFx, CFy, CFz;
     double CL, CD, CS, CMx, CMy, CMz;
