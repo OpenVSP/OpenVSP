@@ -1435,7 +1435,7 @@ void VSPAEROPlotScreen::UpdateSingleAxisLimits( Ca_Axis_ * tAxis, vector <double
     double dataMin = dataMinMax.first[0];
     double dataMax = dataMinMax.second[0];
     double dataRange = ( dataMax - dataMin );
-    double dataRangeScale = scale( dataRange );
+    double dataRangeScale = pow( 10.0, mag( dataRange ) );
 
 
     // Infinity protection

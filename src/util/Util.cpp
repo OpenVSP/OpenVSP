@@ -56,17 +56,12 @@ double mag( double x )
 
 double magrounddn( double x )
 {
-    return MIN( 0.0, floor2scale( x, scale( x ) ) );
+    return MIN( 0.0, floor2scale( x, pow( 10.0, mag( x ) ) ) );
 }
 
 double magroundup( double x )
 {
-    return MAX( 0.0, ceil2scale( x, scale( x ) ) );
-}
-
-double scale( double x )
-{
-    return pow( 10.0, mag( x ) );
+    return MAX( 0.0, ceil2scale( x, pow( 10.0, mag( x ) ) ) );
 }
 
 double floor2scale( double x, double scale )
