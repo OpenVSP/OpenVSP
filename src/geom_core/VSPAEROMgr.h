@@ -52,6 +52,8 @@ public:
     string ReadLoadFile();
     string ReadStabFile();
     void AddResultHeader(string res_id, double mach, double alpha, double beta);
+    int ExportResultsToCSV(string fileName);
+
 
     // file names
     string m_DegenFile;     //degengeom file name WITHOUT .csv file extension

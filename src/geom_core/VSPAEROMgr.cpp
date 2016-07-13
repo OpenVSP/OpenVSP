@@ -895,3 +895,26 @@ string VSPAEROMgrSingleton::ReadStabFile()
      return res_id;
 }
 
+//Export Results to CSV
+//  Return Values:
+//  -1 = INVALID Result ID
+//  0 = Success
+// TODO make return values into enum
+int VSPAEROMgrSingleton::ExportResultsToCSV(string fileName)
+{
+    // Get the results
+    string resId = ResultsMgr.FindResultsID( "VSPAERO_Wrapper",  0);
+    Results* resptr = ResultsMgr.FindResultsPtr( resId );
+    if ( !resptr )
+    {
+        printf("WriteResultsCSVFile::Invalid ID %s",resId.c_str() );
+        return -1;
+    }
+
+    //Write the output file
+    vector <string> resIdVector = ResultsMgr.GetStringResults(resId, "ResultsVec");
+    ResultsMgr.WriteCSVFile( fileName, resIdVector);
+
+    return 0; //success
+}
+
