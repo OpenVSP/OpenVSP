@@ -228,6 +228,17 @@ void Results::WriteCSVFile( const string & file_name )
     FILE* fid = fopen( file_name.c_str(), "w" );
     if ( fid )
     {
+        WriteCSVFile( fid );
+        fclose( fid );          // Close File
+    }
+}
+
+void Results::WriteCSVFile( FILE* fid )
+{
+    
+    if ( fid )
+    {
+
         fprintf( fid, "Results_Name,%s\n", m_Name.c_str() );
         fprintf( fid, "Results_Timestamp,%ld\n", m_Timestamp );
         fprintf( fid, "Results_Date,%d,%d,%d\n", m_Month, m_Day, m_Year );
@@ -271,7 +282,6 @@ void Results::WriteCSVFile( const string & file_name )
                 fprintf( fid, "\n" );
             }
         }
-        fclose( fid );          // Close File
     }
 }
 
@@ -946,3 +956,23 @@ void ResultsMgrSingleton::TestSpeed()
 //  int del_t1 = tics2 - tics1;
 //  printf(" Results Speed %d %d \n", del_t0, del_t1 );
 }
+
+
+void ResultsMgrSingleton::WriteCSVFile( const string & file_name, const vector < string > &resids )
+{
+    FILE* fid = fopen( file_name.c_str(), "w" );
+    if( fid )
+    {
+        for( unsigned int iRes=0; iRes<resids.size(); iRes++ )
+        {
+            Results* resptr = ResultsMgr.FindResultsPtr( resids[iRes] );
+            if( resptr )
+            {
+                // TODO print the name of the result to the file as a header for each result
+                resptr->WriteCSVFile( fid );    //append this result to the csv file
+            }
+        }
+        fclose( fid );          // Close File
+    }
+}
+

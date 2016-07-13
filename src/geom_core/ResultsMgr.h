@@ -147,6 +147,7 @@ public:
     void SetDateTime();
 
     void WriteCSVFile( const string & file_name );
+    void WriteCSVFile( FILE* fid );
     void WriteMassProp( const string & file_name );
     void WriteCompGeomTxtFile( const string & file_name );
     void WriteCompGeomCsvFile( const string & file_name );
@@ -216,6 +217,7 @@ public:
     void WriteTestResults();        // Write Some Test Results
     void TestSpeed();               // Test Speed
 
+    void WriteCSVFile( const string & file_name, const vector < string > &resids );
 
 private:
     ResultsMgrSingleton();
