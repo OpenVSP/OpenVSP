@@ -94,6 +94,8 @@ public:
 
 protected: 
     void WaitForFile(string filename);    // function is used to wait for the result to show up on the file system
+
+    bool m_SolverProcessKill;
 private:
 
     VSPAEROMgrSingleton();

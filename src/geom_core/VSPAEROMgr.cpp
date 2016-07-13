@@ -313,16 +313,27 @@ void VSPAEROMgrSingleton::CreateSetupFile()
     args.push_back( StringUtil::int_to_string( m_WakeNumIter(), "%d" ) );
 
     args.push_back( m_DegenFile );
-    printf("%s\n",m_DegenFile.c_str());
-    
-    m_SolverProcess.SystemCmd( veh->GetExePath(), veh->GetVSPAEROCmd(), args );
+
+    // Execute VSPAero
+    m_SolverProcess.ForkCmd( veh->GetExePath(), veh->GetVSPAEROCmd(), args );
+
+    // wait for the solver to finish
+    bool runflag = m_SolverProcess.IsRunning();
+    while ( runflag )
+    {
+        SleepForMilliseconds(100);
+        runflag = m_SolverProcess.IsRunning();
+    }
+
+    // Check if the kill solver flag has been raised, if so clean up and return
+    //  note: we could have exited the IsRunning loop if the process was killed
+    if( m_SolverProcessKill )
+    {
+        m_SolverProcessKill = false;    //reset kill flag
+    }
 
     // Wait until the setup file shows up on the file system
     WaitForFile(m_SetupFile);
-
-    {
-
-
 
     if ( !FileExist(m_SetupFile) )
     {
