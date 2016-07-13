@@ -275,7 +275,7 @@ void ParseInput(int argc, char *argv[])
        printf("Additional options: \n");
        printf(" -omp N          Use 'N' processes.\n");
        printf(" -stab           Calculate stability derivatives.\n");
-       printf(" -fs M A B       Set freestream Mach, Alpha, and Beta.\n");
+       printf(" -fs M A B       Set freestream Mach, Alpha, and Beta (overrides setup file).\n");
        printf(" -save           Save restart file.\n");
        printf(" -restart        Restart analysis.\n");
        printf(" -geom           Process and write geometry without solving.\n");
@@ -289,6 +289,7 @@ void ParseInput(int argc, char *argv[])
        printf("    -mach  M     Freestream Mach number.\n");
        printf("    -aoa   A     Angle of attack.\n");
        printf("    -beta  B     Sideslip angle.\n");
+       printf("    -wakeiters N Number of wake iterations to calculate.\n");
 
        exit(1);
 
@@ -396,6 +397,7 @@ void ParseInput(int argc, char *argv[])
           printf("    -mach  M     Freestream Mach number.\n");
           printf("    -aoa   A     Angle of attack.\n");
           printf("    -beta  B     Sideslip angle.\n");
+          printf("    -wakeiters N Number of wake iterations to calculate.\n");
 
           exit(1);
 
@@ -509,6 +511,12 @@ void CreateInputFile(char *argv[], int argc, int &i)
        else if ( strcmp(argv[i],"-beta") == 0 ) {
           
           Beta_ = atof(argv[++i]);
+          
+       }    
+
+       else if ( strcmp(argv[i],"-wakeiters") == 0 ) {
+          
+          WakeIterations_ = atof(argv[++i]);
           
        }    
        

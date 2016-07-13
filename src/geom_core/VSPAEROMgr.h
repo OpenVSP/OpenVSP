@@ -93,9 +93,6 @@ public:
     ProcessUtil m_SolverProcess;
 
 protected: 
-    std::string GetFileContents(const char *filename);
-    std::string ReplaceAddNameValue(std::string contents, std::string name, std::string value_str);
-    
     void WaitForFile(string filename);    // function is used to wait for the result to show up on the file system
 private:
 

@@ -309,6 +309,9 @@ void VSPAEROMgrSingleton::CreateSetupFile()
     args.push_back( "-mach" );
     args.push_back( StringUtil::double_to_string( m_MachStart(), "%f" ) );
 
+    args.push_back( "-wakeiters" );
+    args.push_back( StringUtil::int_to_string( m_WakeNumIter(), "%d" ) );
+
     args.push_back( m_DegenFile );
     printf("%s\n",m_DegenFile.c_str());
     
@@ -317,34 +320,11 @@ void VSPAEROMgrSingleton::CreateSetupFile()
     // Wait until the setup file shows up on the file system
     WaitForFile(m_SetupFile);
 
-    //Custom setup options for setup file (this should be an additional text entry box in the GUI and the parameter should be saved in the VSP3 file
-    if ( FileExist(m_SetupFile) )
     {
-        // read in entire file
-        std::string contents;
-        contents = GetFileContents(m_SetupFile.c_str());
 
-        // rename file to *_orig
-        std::string filename_orig = m_SetupFile + "_orig";
-        if ( FileExist(filename_orig) )
-        {
-            remove(filename_orig.c_str());
-        }
-        rename(m_SetupFile.c_str(),filename_orig.c_str());
 
-        // find name and set new value
-        std::string new_contents = contents;
-        std::string name;
 
-        name = "WakeIters";
-        new_contents = ReplaceAddNameValue(new_contents,name, std::to_string(m_WakeNumIter.Get()));
-
-        // write out to file
-        std::ofstream outputfile(m_SetupFile.c_str(),std::ios::binary);    //opening as binary keeps the system from changing the line endings
-        outputfile.write(new_contents.c_str(),new_contents.size());
-        outputfile.close();
-    }
-    else
+    if ( !FileExist(m_SetupFile) )
     {
         // shouldn't be able to get here but create a setup file with the correct settings
         printf("ERROR - setup file not found\n");
@@ -507,33 +487,6 @@ void VSPAEROMgrSingleton::AddResultHeader(string res_id, double mach, double alp
     res->Add(NameValData( "FS_Beta", beta ));
 }
 
-std::string VSPAEROMgrSingleton::GetFileContents(const char *filename)
-{
-  std::ifstream in(filename, std::ios::in | std::ios::binary);
-  if (in)
-  {
-    return(std::string((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>()));
-  }
-  throw(errno);
-}
-
-std::string VSPAEROMgrSingleton::ReplaceAddNameValue(std::string contents, std::string name, std::string value_str)
-{
-    std::string new_contents = contents;
-    std::regex replacement_expression(name + " = (.*)");
-    std::smatch match;
-    std::string replacement_string = name + " = " + value_str + " ";
-    if (std::regex_search(contents, match, replacement_expression) && match.size() > 1) 
-    {
-        new_contents = std::regex_replace (contents,replacement_expression,replacement_string);
-    } 
-    else 
-    {
-        //TODO throw error because a match wasn't found
-    }
-    //std::cout<<new_contents;
-    return new_contents;
-}
 // helper thread functions for VSPAERO GUI interface and multi-threaded impleentation
 bool VSPAEROMgrSingleton::IsSolverRunning()
 {
