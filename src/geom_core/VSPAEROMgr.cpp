@@ -715,14 +715,6 @@ string VSPAEROMgrSingleton::ReadHistoryFile()
             res->Add( NameValData( "CMz", CMz ) );
             res->Add( NameValData( "T/QS", ToQS ) );
 
-            //additional calculations
-            std::vector<double> L32oD;            L32oD.assign( n_wakeiters, 0 );
-            for( int i_wake = 0; i_wake < n_wakeiters; i_wake++ )
-            {
-                L32oD[i_wake] = pow( CL[i_wake], 1.5 ) / CDtot[i_wake];
-            }
-            res->Add( NameValData( "L^(3/2)/D", L32oD ) );
-
             res_id = res->GetID();
         }
     }
