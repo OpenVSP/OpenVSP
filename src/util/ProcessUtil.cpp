@@ -344,7 +344,11 @@ void ProcessUtil::StartThread( LPTHREAD_START_ROUTINE threadfun, LPVOID data )
 {
     HANDLE m_Handle = CreateThread( 0, 0, threadfun, data, 0, &m_ThreadID );
 
-    //TODO return thread creation success/failure
+    if(m_Handle==NULL)
+    {
+        //THREAD CREATION FAILED
+        printf("ERROR: Thread creation failed\n");
+    }
 }
 #else
 void ProcessUtil::StartThread( void *(*threadfun)( void *data ), void *data )
