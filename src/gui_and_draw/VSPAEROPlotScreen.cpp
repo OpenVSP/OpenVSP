@@ -1454,15 +1454,11 @@ void VSPAEROPlotScreen::UpdateSingleAxisLimits( Ca_Axis_ * tAxis, vector <double
     double dataRangeScale = pow( 10.0, mag( dataRange ) );
 
 
-    // Infinity protection
-    if( dataMin < -FLT_MAX )
-    {
-        dataMin = -FLT_MAX / 10;
-    }
-    if( dataMax > FLT_MAX )
-    {
-        dataMax = FLT_MAX / 10;
-    }
+    // Infinity protection - bounds the magnitude of dataMin and dataMax to single precision magnitudes
+    dataMin = std::min(dataMin,(double)FLT_MAX);
+    dataMin = std::max(dataMin,(double)-FLT_MAX);
+    dataMax = std::min(dataMax,(double)FLT_MAX);
+    dataMax = std::max(dataMax,(double)-FLT_MAX);
 
     // Calculate min and max number magnitudes or "scale"
     double axisMin, axisMax;
@@ -1480,8 +1476,8 @@ void VSPAEROPlotScreen::UpdateSingleAxisLimits( Ca_Axis_ * tAxis, vector <double
     // Protection for if the magnitudes are identical (plot won't have any range unless this is here)
     if( axisMin == axisMax || dataRange == 0 )
     {
-        axisMin = dataMin - FLT_MIN;
-        axisMax = dataMax + FLT_MIN;
+        axisMin -= 1e-12;
+        axisMax += 1e-12;
     }
 
     // Apply limits to axis
