@@ -362,8 +362,33 @@ void ProcessUtil::StartThread( void *(*threadfun)( void *data ), void *data )
 void ProcessUtil::ReadStdoutPipe(char * bufptr, int bufsize, unsigned long * nreadptr )
 {
 #ifdef WIN32
-    ReadFile( m_StdoutPipe[0], bufptr, bufsize, nreadptr, NULL);
+    ReadFile( m_StdoutPipe[PIPE_READ], bufptr, bufsize, nreadptr, NULL);
 #else
-    *nreadptr = read( m_StdoutPipe[0], bufptr, bufsize );
+    *nreadptr = read( m_StdoutPipe[PIPE_READ], bufptr, bufsize );
 #endif
+}
+
+/* PrettyCmd( path, cmd, opts )
+    Returns a command string that could be used on the command line
+*/
+string ProcessUtil::PrettyCmd( const string &path, const string &cmd, const vector<string> &opts )
+{
+#ifdef WIN32
+    string command = QuoteString( path + string("\\") + cmd );
+    for( int i = 0; i < opts.size(); i++ )
+    {
+        command += string(" ") + QuoteString( opts[i] );
+    }
+#else
+    string command = path + string("/") + cmd;
+    for( unsigned int i = 0; i < opts.size(); i++ )
+    {
+        command += string(" ") + opts[i];
+    }
+#endif
+
+    //add line feed ending
+    command += string("\n");
+
+    return command;
 }

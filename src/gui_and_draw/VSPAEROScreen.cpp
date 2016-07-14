@@ -598,51 +598,6 @@ void * monitorfun( void *data )
 }
 
 #ifdef WIN32
-DWORD WINAPI solver_monitor_thread_fun( LPVOID data )
-#else
-void * solver_monitor_thread_fun( void *data )
-#endif
-{
-    solverpair *sp = ( solverpair * ) data;
-
-    VSPAEROMgrSingleton* vsmgr = sp->first;
-    VSPAEROScreen *vsscreen = sp->second;
-
-    if( vsmgr && vsscreen )
-    {
-        int bufsize = 1000;
-        char *buf;
-        buf = ( char* ) malloc( sizeof( char ) * ( bufsize + 1 ) );
-        unsigned long nread = 1;
-        Fl_Text_Display *display = vsscreen->GetDisplay( VSPAERO_SOLVER );
-        if ( display )
-        {
-            while ( vsscreen->m_RunSolverMonitor || nread > 0 )
-            {
-                vsmgr->m_SolverProcess.ReadStdoutPipe( buf, bufsize, &nread );
-
-                if( nread > 0 )
-                {
-                    buf[nread] = 0;
-                    StringUtil::change_from_to( buf, '\r', '\n' );
-
-                    Fl::lock();
-                    // Any FL calls must occur between Fl::lock() and Fl::unlock().
-                    vsscreen->AddOutputText( display, buf );
-                    Fl::unlock();
-
-                }
-                SleepForMilliseconds( 100 );
-
-                vsscreen->GetScreenMgr()->SetUpdateFlag( true );
-            }  //while(...)
-        }  //if (display)
-    }  //if(vsmgr && vsscreen)
-
-    return 0;
-}
-
-#ifdef WIN32
 DWORD WINAPI solver_setup_thread_fun( LPVOID data )
 #else
 void * solver_setup_thread_fun( void *data )
@@ -657,22 +612,15 @@ void * solver_setup_thread_fun( void *data )
     {
         vsscreen->m_SolverSetupThreadIsRunning = true;
 
-        ProcessUtil* monitor;
-        monitor = vsscreen->GetProcess( VSPAERO_SOLVER_MONITOR );
-        if( monitor )
-        {
-            // Start Monitor
-            vsscreen->m_RunSolverMonitor = true;
-            monitor->StartThread( solver_monitor_thread_fun, data );
+        // EXECUTE SOLVER
+        vsmgr->CreateSetupFile();
 
-            // EXECUTE SOLVER
-            vsmgr->CreateSetupFile();
+        // Read setup file
+        vsscreen->ReadSetup();
 
-            vsscreen->ReadSetup();
-
-        }
-        vsscreen->m_RunSolverMonitor = false;
         vsscreen->m_SolverSetupThreadIsRunning = false;
+
+        vsscreen->GetScreenMgr()->SetUpdateFlag( true );
     }
 
     return 0;
@@ -693,20 +641,12 @@ void * solver_thread_fun( void *data )
     {
         vsscreen->m_SolverThreadIsRunning = true;
 
-        ProcessUtil* monitor;
-        monitor = vsscreen->GetProcess( VSPAERO_SOLVER_MONITOR );
-        if( monitor )
-        {
-            // Start Monitor
-            vsscreen->m_RunSolverMonitor = true;
-            monitor->StartThread( solver_monitor_thread_fun, data );
+        // EXECUTE SOLVER
+        vsmgr->ComputeSolver();
 
-            // EXECUTE SOLVER
-            vsmgr->ComputeSolver();
-
-        }
-        vsscreen->m_RunSolverMonitor = false;
         vsscreen->m_SolverThreadIsRunning = false;
+
+        vsscreen->GetScreenMgr()->SetUpdateFlag( true );
     }
 
     return 0;
@@ -736,12 +676,18 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
                     case ( 1 ):
                         break;
                     case( 2 ):
+                        // Clear the solver console
+                        m_SolverBuffer->text( "" );
+
                         m_SolverProcess.StartThread( solver_setup_thread_fun, ( void* ) &m_SolverPair );
                         break;
                     }
                 }
                 else
                 {
+                    // Clear the solver console
+                    m_SolverBuffer->text( "" );
+
                     m_SolverProcess.StartThread( solver_setup_thread_fun, ( void* ) &m_SolverPair );
                 }
             }
@@ -754,6 +700,9 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
             {
                 // Clear out previous results
                 VSPAEROMgr.ClearAllPreviousResults();
+
+                // Clear the solver console
+                m_SolverBuffer->text( "" );
 
                 //Show the plot screen
                 m_ScreenMgr->m_ShowPlotScreenOnce = true;   //deferred show of plot screen

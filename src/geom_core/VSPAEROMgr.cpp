@@ -297,7 +297,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
 }
 
 /* TODO - finish implementation of generating the setup file from the VSPAEROMgr*/
-void VSPAEROMgrSingleton::CreateSetupFile()
+void VSPAEROMgrSingleton::CreateSetupFile(FILE * outputFile)
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
 
@@ -338,13 +338,49 @@ void VSPAEROMgrSingleton::CreateSetupFile()
 
     args.push_back( m_DegenFile );
 
+    //Print out execute command
+    string cmdStr = m_SolverProcess.PrettyCmd( veh->GetExePath(), veh->GetVSPAEROCmd(), args );
+    if( outputFile )
+    {
+        fprintf(outputFile,cmdStr.c_str());
+    }
+    else
+    {
+        MessageData data;
+        data.m_String = "VSPAEROSolverMessage";
+        data.m_StringVec.push_back( cmdStr );
+        MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+    }
+
     // Execute VSPAero
     m_SolverProcess.ForkCmd( veh->GetExePath(), veh->GetVSPAEROCmd(), args );
 
-    // wait for the solver to finish
+    // ==== MonitorSolverProcess ==== //
+    int bufsize = 1000;
+    char *buf;
+    buf = ( char* ) malloc( sizeof( char ) * ( bufsize + 1 ) );
+    unsigned long nread=1;
     bool runflag = m_SolverProcess.IsRunning();
-    while ( runflag )
+    while ( runflag || nread>0)
     {
+        m_SolverProcess.ReadStdoutPipe( buf, bufsize, &nread );
+        if( nread > 0 )
+        {
+            buf[nread] = 0;
+            StringUtil::change_from_to( buf, '\r', '\n' );
+            if( outputFile )
+            {
+                fprintf(outputFile,buf);
+            }
+            else
+            {
+                MessageData data;
+                data.m_String = "VSPAEROSolverMessage";
+                data.m_StringVec.push_back( string( buf ) );
+                MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+            }
+        }
+
         SleepForMilliseconds( 100 );
         runflag = m_SolverProcess.IsRunning();
     }
@@ -364,6 +400,12 @@ void VSPAEROMgrSingleton::CreateSetupFile()
         // shouldn't be able to get here but create a setup file with the correct settings
         printf( "ERROR - setup file not found\n" );
     }
+
+    // Send the message to update the screens
+    MessageData data;
+    data.m_String = "UpdateAllScreens";
+    MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+
 }
 
 void VSPAEROMgrSingleton::ClearAllPreviousResults()
@@ -487,10 +529,24 @@ string VSPAEROMgrSingleton::ComputeSolver(FILE * outputFile)
                     // Add model file name
                     args.push_back( m_DegenFile );
 
+                    //Print out execute command
+                    string cmdStr = m_SolverProcess.PrettyCmd( veh->GetExePath(), veh->GetVSPAEROCmd(), args );
+                    if( outputFile )
+                    {
+                        fprintf(outputFile,cmdStr.c_str());
+                    }
+                    else
+                    {
+                        MessageData data;
+                        data.m_String = "VSPAEROSolverMessage";
+                        data.m_StringVec.push_back( cmdStr );
+                        MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+                    }
+
                     // Execute VSPAero
                     m_SolverProcess.ForkCmd( veh->GetExePath(), veh->GetVSPAEROCmd(), args );
 
-                    // wait for the solver to finish
+                    // ==== MonitorSolverProcess ==== //
                     int bufsize = 1000;
                     char *buf;
                     buf = ( char* ) malloc( sizeof( char ) * ( bufsize + 1 ) );
@@ -498,21 +554,28 @@ string VSPAEROMgrSingleton::ComputeSolver(FILE * outputFile)
                     bool runflag = m_SolverProcess.IsRunning();
                     while ( runflag || nread>0)
                     {
-                        nread = 0;  //set to 0 to exit the loop when not outputing to a file
-                        if( outputFile )
+                        m_SolverProcess.ReadStdoutPipe( buf, bufsize, &nread );
+                        if( nread > 0 )
                         {
-                            m_SolverProcess.ReadStdoutPipe( buf, bufsize, &nread );
-                            if( nread > 0 )
+                            buf[nread] = 0;
+                            StringUtil::change_from_to( buf, '\r', '\n' );
+                            if( outputFile )
                             {
-                                buf[nread] = 0;
-                                StringUtil::change_from_to( buf, '\r', '\n' );
-
                                 fprintf(outputFile,buf);
                             }
+                            else
+                            {
+                                MessageData data;
+                                data.m_String = "VSPAEROSolverMessage";
+                                data.m_StringVec.push_back( string( buf ) );
+                                MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+                            }
                         }
+
                         SleepForMilliseconds( 100 );
                         runflag = m_SolverProcess.IsRunning();
                     }
+
 
                     // Check if the kill solver flag has been raised, if so clean up and return
                     //  note: we could have exited the IsRunning loop if the process was killed
@@ -534,6 +597,11 @@ string VSPAEROMgrSingleton::ComputeSolver(FILE * outputFile)
                         res_id_vector.push_back( ReadStabFile() );        //*.STAB stability coeff file
                         AddResultHeader( res_id_vector[res_id_vector.size() - 1], current_mach, current_alpha, current_beta );
                     }
+
+                    // Send the message to update the screens
+                    MessageData data;
+                    data.m_String = "UpdateAllScreens";
+                    MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
 
                 }    //Mach sweep loop
 

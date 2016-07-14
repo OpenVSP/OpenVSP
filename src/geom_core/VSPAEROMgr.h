@@ -41,7 +41,7 @@ public:
 
     void UpdateFilenames();
     string ComputeGeometry();
-    void CreateSetupFile();
+    void CreateSetupFile(FILE * outputFile=NULL);
     string ComputeSolver(FILE * outputFile=NULL);     // returns a result with a vector of results id's under the name ResultVec
     ProcessUtil* GetSolverProcess();
     bool IsSolverRunning();

@@ -137,6 +137,17 @@ void ScreenMgr::MessageCallback( const MessageBase* from, const MessageData& dat
             }
         }
     }
+    else if ( data.m_String == string( "VSPAEROSolverMessage" ) )
+    {
+        VSPAEROScreen* scr = ( VSPAEROScreen* ) m_ScreenVec[VSP_VSPAERO_SCREEN];
+        if ( scr )
+        {
+            for ( int i = 0; i < (int)data.m_StringVec.size(); i++ )
+            {
+                scr->AddOutputText( scr->GetDisplay( VSPAERO_SOLVER ), data.m_StringVec[i].c_str() );
+            }
+        }
+    }
     else if ( data.m_String == string( "Error" ) )
     {
         const char* msg = data.m_StringVec[0].c_str();
