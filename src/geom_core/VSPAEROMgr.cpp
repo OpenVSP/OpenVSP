@@ -390,7 +390,11 @@ void VSPAEROMgrSingleton::ClearAllPreviousResults()
     }
 }
 
-string VSPAEROMgrSingleton::ComputeSolver()
+/* ComputeSolver(FILE * outputFile)
+    Returns a result with a vector of results id's under the name ResultVec
+    Optional input of outputFile allows outputting to a log file or the console
+*/
+string VSPAEROMgrSingleton::ComputeSolver(FILE * outputFile)
 {
     std::vector <string> res_id_vector;
 
@@ -458,8 +462,6 @@ string VSPAEROMgrSingleton::ComputeSolver()
                         remove( m_StabFile.c_str() );
                     }
 
-
-
                     //====== Send command to be executed by the system at the command prompt ======//
                     vector<string> args;
                     // Set mach, alpha, beta (save to local "current*" variables to use as header information in the results manager)
@@ -489,9 +491,25 @@ string VSPAEROMgrSingleton::ComputeSolver()
                     m_SolverProcess.ForkCmd( veh->GetExePath(), veh->GetVSPAEROCmd(), args );
 
                     // wait for the solver to finish
+                    int bufsize = 1000;
+                    char *buf;
+                    buf = ( char* ) malloc( sizeof( char ) * ( bufsize + 1 ) );
+                    unsigned long nread=1;
                     bool runflag = m_SolverProcess.IsRunning();
-                    while ( runflag )
+                    while ( runflag || nread>0)
                     {
+                        nread = 0;  //set to 0 to exit the loop when not outputing to a file
+                        if( outputFile )
+                        {
+                            m_SolverProcess.ReadStdoutPipe( buf, bufsize, &nread );
+                            if( nread > 0 )
+                            {
+                                buf[nread] = 0;
+                                StringUtil::change_from_to( buf, '\r', '\n' );
+
+                                fprintf(outputFile,buf);
+                            }
+                        }
                         SleepForMilliseconds( 100 );
                         runflag = m_SolverProcess.IsRunning();
                     }
