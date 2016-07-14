@@ -540,11 +540,11 @@ string VSPAEROMgrSingleton::ComputeSolver()
 
 void VSPAEROMgrSingleton::AddResultHeader( string res_id, double mach, double alpha, double beta )
 {
-    // Add freestream condition header to each result
+    // Add Flow Condition header to each result
     Results * res = ResultsMgr.FindResultsPtr( res_id );
-    res->Add( NameValData( "FS_Mach", mach ) );
-    res->Add( NameValData( "FS_Alpha", alpha ) );
-    res->Add( NameValData( "FS_Beta", beta ) );
+    res->Add( NameValData( "FC_Mach", mach ) );
+    res->Add( NameValData( "FC_Alpha", alpha ) );
+    res->Add( NameValData( "FC_Beta", beta ) );
 }
 
 // helper thread functions for VSPAERO GUI interface and multi-threaded impleentation

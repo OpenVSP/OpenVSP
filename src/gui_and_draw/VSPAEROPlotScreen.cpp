@@ -820,21 +820,21 @@ void VSPAEROPlotScreen::ConstructFlowConditionString( char * strbuf, Results * r
         double beta = 0;
         double mach = 0;
 
-        nvd = res->FindPtr( "FS_Alpha" );
+        nvd = res->FindPtr( "FC_Alpha" );
         if( nvd )
         {
             dataVector = nvd->GetDoubleData();
             alpha = dataVector[dataVector.size() - 1];
         }
 
-        nvd = res->FindPtr( "FS_Beta" );
+        nvd = res->FindPtr( "FC_Beta" );
         if( nvd )
         {
             dataVector = nvd->GetDoubleData();
             beta = dataVector[dataVector.size() - 1];
         }
 
-        nvd = res->FindPtr( "FS_Mach" );
+        nvd = res->FindPtr( "FC_Mach" );
         if( nvd )
         {
             dataVector = nvd->GetDoubleData();
@@ -863,9 +863,9 @@ void VSPAEROPlotScreen::UpdateConvergenceYDataBrowser()
     vector < string > dataNames = ResultsMgr.GetAllDataNames( resultID );
     for ( unsigned int iDataName = 0; iDataName < dataNames.size(); iDataName++ )
     {
-        if ( ( strcmp( dataNames[iDataName].c_str(), "FS_Mach" )  != 0 )  &
-             ( strcmp( dataNames[iDataName].c_str(), "FS_Alpha" ) != 0 )  &
-             ( strcmp( dataNames[iDataName].c_str(), "FS_Beta" )  != 0 )  &
+        if ( ( strcmp( dataNames[iDataName].c_str(), "FC_Mach" )  != 0 )  &
+             ( strcmp( dataNames[iDataName].c_str(), "FC_Alpha" ) != 0 )  &
+             ( strcmp( dataNames[iDataName].c_str(), "FC_Beta" )  != 0 )  &
              ( strcmp( dataNames[iDataName].c_str(), "WakeIter" ) != 0 )  &
              ( strcmp( dataNames[iDataName].c_str(), "Mach" )     != 0 )  &
              ( strcmp( dataNames[iDataName].c_str(), "Alpha" )    != 0 )  &
@@ -911,9 +911,9 @@ void VSPAEROPlotScreen::UpdateLoadDistYDataBrowser()
     vector < string > dataNames = ResultsMgr.GetAllDataNames( resultID );
     for ( unsigned int iDataName = 0; iDataName < dataNames.size(); iDataName++ )
     {
-        if ( ( strcmp( dataNames[iDataName].c_str(), "FS_Mach" )  != 0 )  &
-             ( strcmp( dataNames[iDataName].c_str(), "FS_Alpha" ) != 0 )  &
-             ( strcmp( dataNames[iDataName].c_str(), "FS_Beta" )  != 0 )  &
+        if ( ( strcmp( dataNames[iDataName].c_str(), "FC_Mach" )  != 0 )  &
+             ( strcmp( dataNames[iDataName].c_str(), "FC_Alpha" ) != 0 )  &
+             ( strcmp( dataNames[iDataName].c_str(), "FC_Beta" )  != 0 )  &
              ( strcmp( dataNames[iDataName].c_str(), "WingId" )   != 0 )   )
         {
             m_LoadDistYDataBrowser->add( dataNames[iDataName].c_str() );
@@ -967,9 +967,9 @@ void VSPAEROPlotScreen::UpdateSweepXYDataBrowser()
     {
         for ( unsigned int iDataName = 0; iDataName < dataNames.size(); iDataName++ )
         {
-            if ( ( strcmp( dataNames[iDataName].c_str(), "FS_Mach" )  != 0 )  &
-                 ( strcmp( dataNames[iDataName].c_str(), "FS_Alpha" ) != 0 )  &
-                 ( strcmp( dataNames[iDataName].c_str(), "FS_Beta" )  != 0 )  &
+            if ( ( strcmp( dataNames[iDataName].c_str(), "FC_Mach" )  != 0 )  &
+                 ( strcmp( dataNames[iDataName].c_str(), "FC_Alpha" ) != 0 )  &
+                 ( strcmp( dataNames[iDataName].c_str(), "FC_Beta" )  != 0 )  &
                  ( strcmp( dataNames[iDataName].c_str(), "WakeIter" ) != 0 )   )
             {
                 m_SweepXDataBrowser->add( dataNames[iDataName].c_str() );
