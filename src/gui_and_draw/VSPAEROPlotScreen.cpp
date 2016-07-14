@@ -701,7 +701,7 @@ void VSPAEROPlotScreen::UpdateConvergenceFlowConditionBrowser()
         if( res )
         {
             char strbuf[1024];
-            ConstructFlowConditionString( strbuf, res );
+            ConstructFlowConditionString( strbuf, res, false );
             m_ConvergenceFlowConditionBrowser->add( strbuf );
             if( m_SelectDefaultData )   //select ALL flow conditions
             {
@@ -745,7 +745,7 @@ void VSPAEROPlotScreen::UpdateLoadDistFlowConditionBrowser()
         if( res )
         {
             char strbuf[1024];
-            ConstructFlowConditionString( strbuf, res );
+            ConstructFlowConditionString( strbuf, res, false );
             m_LoadDistFlowConditionBrowser->add( strbuf );
             if( m_SelectDefaultData )   //select ALL flow conditions
             {
@@ -788,7 +788,7 @@ void VSPAEROPlotScreen::UpdateSweepFlowConditionBrowser()
         if( res )
         {
             char strbuf[1024];
-            ConstructFlowConditionString( strbuf, res );
+            ConstructFlowConditionString( strbuf, res, false );
             m_SweepFlowConditionBrowser->add( strbuf );
             if( m_SelectDefaultData )   //select ALL flow conditions
             {
@@ -809,7 +809,7 @@ void VSPAEROPlotScreen::UpdateSweepFlowConditionBrowser()
     m_SweepFlowConditionBrowser->position( scrollPos );
 }
 
-void VSPAEROPlotScreen::ConstructFlowConditionString( char * strbuf, Results * res )
+void VSPAEROPlotScreen::ConstructFlowConditionString( char * strbuf, Results * res, bool includeResultId )
 {
     if( strbuf && res )
     {
@@ -841,7 +841,15 @@ void VSPAEROPlotScreen::ConstructFlowConditionString( char * strbuf, Results * r
             mach = dataVector[dataVector.size() - 1];
         }
 
-        sprintf( strbuf, "a=%5.2f, b=%5.2f, M=%4.2f, resID=%s", alpha, beta, mach, res->GetID().c_str() );
+        if( includeResultId )
+        {
+            sprintf( strbuf, "a=%.2g, b=%.2g, M=%.2g, resID=%s", alpha, beta, mach, res->GetID().c_str() );
+        }
+        else
+        {
+            sprintf( strbuf, "a=%.2g, b=%.2g, M=%.2g", alpha, beta, mach );
+        }
+
     }
 }
 
@@ -1021,7 +1029,7 @@ void VSPAEROPlotScreen::RedrawConvergencePlot()
     m_ConvergenceLegendGroup->clear();
     m_ConvergenceLegendLayout.SetGroup( m_ConvergenceLegendGroup );
     m_ConvergenceLegendLayout.InitWidthHeightVals();
-    m_ConvergenceLegendLayout.SetButtonWidth( m_ConvergenceLegendLayout.GetW() * 0.7 );
+    m_ConvergenceLegendLayout.SetButtonWidth( m_ConvergenceLegendLayout.GetW() * 0.75 );
 
     // Get selected y data names
     vector <string> yDataSetNames;
@@ -1059,7 +1067,7 @@ void VSPAEROPlotScreen::RedrawLoadDistPlot()
     m_LoadDistLegendGroup->clear();
     m_LoadDistLegendLayout.SetGroup( m_LoadDistLegendGroup );
     m_LoadDistLegendLayout.InitWidthHeightVals();
-    m_LoadDistLegendLayout.SetButtonWidth( m_LoadDistLegendLayout.GetW() * 0.7 );
+    m_LoadDistLegendLayout.SetButtonWidth( m_LoadDistLegendLayout.GetW() * 0.75 );
 
     // Get selected y data names
     vector <string> yDataSetNames;
@@ -1117,7 +1125,7 @@ void VSPAEROPlotScreen::RedrawSweepPlot()
     m_SweepLegendGroup->clear();
     m_SweepLegendLayout.SetGroup( m_SweepLegendGroup );
     m_SweepLegendLayout.InitWidthHeightVals();
-    m_SweepLegendLayout.SetButtonWidth( m_SweepLegendLayout.GetW() * 0.7 );
+    m_SweepLegendLayout.SetButtonWidth( m_SweepLegendLayout.GetW() * 0.75 );
 
     //Redraw plot if data is available and selected
     bool expandOnly = false;
@@ -1270,7 +1278,9 @@ void VSPAEROPlotScreen::PlotConvergence( string resultID, vector <string> yDataS
                 //add the normalized data to the plot
                 AddPointLine( xDoubleData, yDoubleData, 2, c, 4, StyleWheel( m_ConvergenceiPlot ) );
 
-                string legendstr = "FC: " + std::to_string( icase ) + " " + yDataSetNames[iDataSet];
+                char strbuf[100];
+                ConstructFlowConditionString( strbuf, res, false );
+                string legendstr = strbuf + string("; Y: ") + yDataSetNames[iDataSet];
                 m_ConvergenceLegendLayout.AddLegendEntry( legendstr, c );
                 m_ConvergenceiPlot++;
 
@@ -1389,7 +1399,9 @@ void VSPAEROPlotScreen::PlotLoadDistribution( string resultID, vector <string> y
                     expandOnly = true;
                 }
 
-                string legendstr = "FC: " + std::to_string( icase ) + " " + yDataSetNames[iDataSet];
+                char strbuf[100];
+                ConstructFlowConditionString( strbuf, res, false );
+                string legendstr = strbuf + string("; Y: ") + yDataSetNames[iDataSet];
                 m_LoadDistLegendLayout.AddLegendEntry( legendstr, c );
                 m_LoadDistiPlot++;
             }

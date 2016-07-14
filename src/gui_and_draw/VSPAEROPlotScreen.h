@@ -54,7 +54,7 @@ protected:
     void UpdateAxisLimits( Ca_Canvas * canvas, vector <double> xDoubleData, vector <double> yDoubleData, bool expand_only );
     void UpdateSingleAxisLimits( Ca_Axis_ * tAxis, vector <double> doubleData, bool expandOnly, bool keepZero = false );
     //  general utility
-    void ConstructFlowConditionString( char * strbuf, Results * res );
+    void ConstructFlowConditionString( char * strbuf, Results * res, bool includeResultId);
 
     //==== Convergence Tab ====//
     Fl_Group* m_ConvergenceTab;
