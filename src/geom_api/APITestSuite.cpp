@@ -10,9 +10,13 @@
 #include <stdio.h>
 #include <float.h>
 
+//Default tolerance to use for tests.  Most calculations are done as doubles and choosing single precision FLT_MIN gives some allowance for precision stackup in calculations
+#define TEST_TOL FLT_MIN
+
 //==== Test Geometry Creation ====//
 void APITestSuite::CheckSetup()
 {
+    
     printf("APITestSuite::CheckSetup()\n");
     vsp::VSPCheckSetup();
     if ( vsp::ErrorMgr.PopErrorAndPrint( stdout ) )
@@ -83,28 +87,28 @@ void APITestSuite::ChangePodParams()
     //==== Change Length with TWO step method: step 1 - GetParm(), step 2 - SetParmValUpdate()
     double len_val = 7.0;
     string len_id = vsp::GetParm( pod_id, "Length", "Design" );
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( len_id, len_val ), len_val, FLT_EPSILON );    //tests SetParmValUpdate)
-    TEST_ASSERT_DELTA( vsp::GetParmVal( len_id ), len_val, FLT_EPSILON );                //tests GetParmVal
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( len_id, len_val ), len_val, TEST_TOL );    //tests SetParmValUpdate)
+    TEST_ASSERT_DELTA( vsp::GetParmVal( len_id ), len_val, TEST_TOL );                //tests GetParmVal
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     //==== Change Finess Ratio with ONE step method: SetParmValUpdate()
     double finess_val = 10;
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( pod_id, "FineRatio", "Design", finess_val ), finess_val, FLT_EPSILON) ;
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( pod_id, "FineRatio", "Design", finess_val ), finess_val, TEST_TOL) ;
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     //==== Change X Location  with ONE step method: SetParmValUpdate()
     double x_loc_val = 3.0;
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( pod_id, "X_Rel_Location", "XForm", x_loc_val ), x_loc_val, FLT_EPSILON) ;
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( pod_id, "X_Rel_Location", "XForm", x_loc_val ), x_loc_val, TEST_TOL) ;
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     //==== Change Y Location  with ONE step method: SetParmValUpdate()
     double y_loc_val = 1.0;
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( pod_id, "Y_Rel_Location", "XForm", y_loc_val ), y_loc_val, FLT_EPSILON) ;
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( pod_id, "Y_Rel_Location", "XForm", y_loc_val ), y_loc_val, TEST_TOL) ;
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     //==== Change Z Location  with ONE step method: SetParmValUpdate()
     double z_loc_val = 4.2;
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( pod_id, "Z_Rel_Location", "XForm", z_loc_val ), z_loc_val, FLT_EPSILON) ;
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( pod_id, "Z_Rel_Location", "XForm", z_loc_val ), z_loc_val, TEST_TOL) ;
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     //==== Change Symmetry =====//
@@ -143,11 +147,11 @@ void APITestSuite::CopyPasteGeometry()
     //==== Change First Pod Parameters (name, length, finess ratio, y location, x location, symetry) ====//
     string pod_name = "Pod";
     vsp::SetGeomName( first_pod_id, pod_name );
-    //    test that the parameters got set within the FLT_EPSILON tolerance
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  first_pod_id, "Length", "Design", 7.0 ), 7.0, FLT_EPSILON);
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( first_pod_id, "FineRatio", "Design", 10.0 ), 10.0, FLT_EPSILON);
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( first_pod_id, "X_Rel_Location", "XForm", 3.0 ), 3.0, FLT_EPSILON);
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( first_pod_id, "Y_Rel_Location", "XForm", 1.0 ), 1.0, FLT_EPSILON);
+    //    test that the parameters got set within the TEST_TOL tolerance
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  first_pod_id, "Length", "Design", 7.0 ), 7.0, TEST_TOL);
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( first_pod_id, "FineRatio", "Design", 10.0 ), 10.0, TEST_TOL);
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( first_pod_id, "X_Rel_Location", "XForm", 3.0 ), 3.0, TEST_TOL);
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( first_pod_id, "Y_Rel_Location", "XForm", 1.0 ), 1.0, TEST_TOL);
     vsp::SetParmValUpdate( first_pod_id, "Sym_Planar_Flag", "Sym", vsp::SYM_XZ  );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
@@ -163,15 +167,15 @@ void APITestSuite::CopyPasteGeometry()
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
     
     //==== Change Second Pod Parameters (name, y location, z location, symetry) ====//
-    TEST_ASSERT_DELTA( vsp::SetParmVal( second_pod_id, "Y_Rel_Location", "XForm", 0.0 ), 0.0, FLT_EPSILON);
-    TEST_ASSERT_DELTA( vsp::SetParmVal( second_pod_id, "Z_Rel_Location", "XForm", 1.0 ), 1.0, FLT_EPSILON);
+    TEST_ASSERT_DELTA( vsp::SetParmVal( second_pod_id, "Y_Rel_Location", "XForm", 0.0 ), 0.0, TEST_TOL);
+    TEST_ASSERT_DELTA( vsp::SetParmVal( second_pod_id, "Z_Rel_Location", "XForm", 1.0 ), 1.0, TEST_TOL);
     vsp::SetParmVal( second_pod_id, "Sym_Planar_Flag", "Sym", 0 );    // no symetry
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     //==== Check Second pod has the same length, finess ratio, and x location as the first ====//
-    TEST_ASSERT_DELTA( vsp::GetParmVal( first_pod_id, "Length", "Design"  ), vsp::GetParmVal( second_pod_id, "Length", "Design" ), FLT_EPSILON );
-    TEST_ASSERT_DELTA( vsp::GetParmVal( first_pod_id, "FineRatio", "Design" ), vsp::GetParmVal( second_pod_id, "FineRatio", "Design" ), FLT_EPSILON );
-    TEST_ASSERT_DELTA( vsp::GetParmVal( first_pod_id, "X_Rel_Location", "XForm" ), vsp::GetParmVal( second_pod_id, "X_Rel_Location", "XForm" ), FLT_EPSILON );
+    TEST_ASSERT_DELTA( vsp::GetParmVal( first_pod_id, "Length", "Design"  ), vsp::GetParmVal( second_pod_id, "Length", "Design" ), TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::GetParmVal( first_pod_id, "FineRatio", "Design" ), vsp::GetParmVal( second_pod_id, "FineRatio", "Design" ), TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::GetParmVal( first_pod_id, "X_Rel_Location", "XForm" ), vsp::GetParmVal( second_pod_id, "X_Rel_Location", "XForm" ), TEST_TOL );
     
     //==== Save Vehicle to File ====//
     string fname = "apitest_CopyPasteGeometry.vsp3";
@@ -232,11 +236,11 @@ void APITestSuite::TestAnalysesWithPod()
     //==== Change Pod Parameters (name, length, finess ratio, y location, x location, symetry) ====//
     string pod_name = "Pod_Test";
     vsp::SetGeomName( pod_id, pod_name );
-    //    test that the parameters got set within the FLT_EPSILON tolerance
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  pod_id, "Length", "Design", 7.0 ), 7.0, FLT_EPSILON);
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( pod_id, "FineRatio", "Design", 10.0 ), 10.0, FLT_EPSILON);
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( pod_id, "X_Rel_Location", "XForm", 3.0 ), 3.0, FLT_EPSILON);
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( pod_id, "Y_Rel_Location", "XForm", 1.0 ), 1.0, FLT_EPSILON);
+    //    test that the parameters got set within the TEST_TOL tolerance
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  pod_id, "Length", "Design", 7.0 ), 7.0, TEST_TOL);
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( pod_id, "FineRatio", "Design", 10.0 ), 10.0, TEST_TOL);
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( pod_id, "X_Rel_Location", "XForm", 3.0 ), 3.0, TEST_TOL);
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( pod_id, "Y_Rel_Location", "XForm", 1.0 ), 1.0, TEST_TOL);
     vsp::SetParmValUpdate( pod_id, "Sym_Planar_Flag", "Sym", vsp::SYM_XZ  );
     vsp::Update();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
@@ -278,9 +282,9 @@ void APITestSuite::TestVSPAeroComputeGeom()
     //==== Add Wing Geom and set some parameters =====//
     string wing_id = vsp::AddGeom( "WING");
     TEST_ASSERT( wing_id.c_str() != NULL );
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "TotalSpan", "WingGeom", 17.0 ), 17.0, FLT_EPSILON);
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "LECluster", "WingGeom", 0.0 ), 0.0, FLT_EPSILON);
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "TECluster", "WingGeom", 2.0 ), 2.0, FLT_EPSILON);
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "TotalSpan", "WingGeom", 17.0 ), 17.0, TEST_TOL);
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "LECluster", "WingGeom", 0.0 ), 0.0, TEST_TOL);
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "TECluster", "WingGeom", 2.0 ), 2.0, TEST_TOL);
     vsp::Update();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
     
