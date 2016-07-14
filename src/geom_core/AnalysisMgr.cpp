@@ -1007,7 +1007,7 @@ string VSPAEROSinglePointAnalysis::Execute()
         VSPAEROMgr.m_StabilityCalcFlag.Set( nvd->GetInt(0) );
 
         //==== Execute Analysis ====//
-        resId = VSPAEROMgr.ComputeSolver();
+        resId = VSPAEROMgr.ComputeSolver(stdout);
 
 
         //==== Restore Original Values ====//
@@ -1191,7 +1191,7 @@ string VSPAEROSweepAnalysis::Execute()
 
 
         //==== Execute Analysis ====//
-        resId = VSPAEROMgr.ComputeSolver();
+        resId = VSPAEROMgr.ComputeSolver(stdout);
 
 
         //==== Restore Original Values ====//
