@@ -1457,8 +1457,23 @@ void SSControlSurf::Update()
         double te = m_EndLength() * sin( m_EndAngle() * PI / 180.0 );
         d = 0.5 * ( ts + te ) / sin( midangle * PI / 180.0 );
 
-        d1 = ( ts + ( te - ts ) / 3.0   ) / sin( angle1 * PI / 180.0 );
-        d2 = ( ts + 2.0 * ( te - ts ) / 3.0 ) / sin( angle2 * PI / 180.0 );
+        if ( angle1 < 1e-6 )
+        {
+            d1 = 0.0;
+        }
+        else
+        {
+            d1 = ( ts + ( te - ts ) / 3.0   ) / sin( angle1 * PI / 180.0 );
+        }
+
+        if ( angle2 < 1e-6 )
+        {
+            d2 = 0.0;
+        }
+        else
+        {
+            d2 = ( ts + 2.0 * ( te - ts ) / 3.0 ) / sin( angle2 * PI / 180.0 );
+        }
     }
     else
     {
