@@ -265,6 +265,9 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_SolverSetupThreadIsRunning = false;
     m_SolverThreadIsRunning = false;
 
+    // String to enable detection of degen file name changes
+    m_DegenFilePrevious = string();
+
 }
 
 VSPAEROScreen::~VSPAEROScreen()
@@ -279,6 +282,13 @@ bool VSPAEROScreen::Update()
 
     if( veh )
     {
+        //check if the degenfile name has changed
+        string t_DegenFile = veh->getExportFileName( vsp::DEGEN_GEOM_CSV_TYPE );
+        if( !t_DegenFile.empty() && strcmp(m_DegenFilePrevious.c_str(),t_DegenFile.c_str())!=0)
+        {
+            ReadSetup();
+        }
+        m_DegenFilePrevious = t_DegenFile;
 
         // Reference Wing Choice
         //    find & list all Wing type geometries
@@ -505,7 +515,6 @@ bool VSPAEROScreen::Update()
 
 void VSPAEROScreen::Show()
 {
-    ReadSetup();
     m_ScreenMgr->SetUpdateFlag( true );
     m_FLTK_Window->show();
 }

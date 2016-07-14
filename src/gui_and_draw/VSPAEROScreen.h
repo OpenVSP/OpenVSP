@@ -148,6 +148,8 @@ protected:
     Fl_Text_Buffer *m_ViewerBuffer;
 
 
+    // Variable to check for changes in degenfile name
+    string m_DegenFilePrevious;
 
     // Additional thread handling stuff
     ProcessUtil m_SolverProcess;
