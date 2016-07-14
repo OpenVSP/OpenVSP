@@ -342,23 +342,25 @@ void VSPAEROPlotScreen::SetDefaultView()
 
 bool VSPAEROPlotScreen::Update()
 {
+    //TODO Update only the tab that is visible
+
     // Update single plot canvas
     UpdateConvergenceFlowConditionBrowser();
     UpdateConvergenceYDataBrowser();
     RedrawConvergencePlot();
+    UpdateConvergenceAutoManualAxisLimits();
 
     // Update single plot canvas
     UpdateLoadDistFlowConditionBrowser();
     UpdateLoadDistYDataBrowser();
     RedrawLoadDistPlot();
+    UpdateLoadDistAutoManualAxisLimits();
 
     // Update sweep condition plot canvas
     UpdateSweepFlowConditionBrowser();
     UpdateSweepXYDataBrowser();
     RedrawSweepPlot();
-
-    //Update Axis limits depending on auto/manual flags
-    UpdateAutoManualAxisLimits();
+    UpdateSweepAutoManualAxisLimits();
 
     m_FLTK_Window->redraw();
 
@@ -366,11 +368,10 @@ bool VSPAEROPlotScreen::Update()
 
 }
 
-void VSPAEROPlotScreen::UpdateAutoManualAxisLimits()
+void VSPAEROPlotScreen::UpdateConvergenceAutoManualAxisLimits()
 {
     Ca_Axis_ *  t_Axis;
 
-    //======== Convergence ========//
     m_ConvergenceManualXMinToggle.Update( VSPAEROMgr.m_ConvergenceXMinIsManual.GetID() );
     m_ConvergenceManualXMaxToggle.Update( VSPAEROMgr.m_ConvergenceXMaxIsManual.GetID() );
     m_ConvergenceXMinSlider.Update( VSPAEROMgr.m_ConvergenceXMin.GetID() );
@@ -439,9 +440,12 @@ void VSPAEROPlotScreen::UpdateAutoManualAxisLimits()
             VSPAEROMgr.m_ConvergenceYMax = t_Axis->maximum();
         }
     }
+}
 
+void VSPAEROPlotScreen::UpdateLoadDistAutoManualAxisLimits()
+{
+    Ca_Axis_ *  t_Axis;
 
-    //======== Load Distribution ========//
     m_LoadDistManualXMinToggle.Update( VSPAEROMgr.m_LoadDistXMinIsManual.GetID() );
     m_LoadDistManualXMaxToggle.Update( VSPAEROMgr.m_LoadDistXMaxIsManual.GetID() );
     m_LoadDistXMinSlider.Update( VSPAEROMgr.m_LoadDistXMin.GetID() );
@@ -510,8 +514,12 @@ void VSPAEROPlotScreen::UpdateAutoManualAxisLimits()
             VSPAEROMgr.m_LoadDistYMax = t_Axis->maximum();
         }
     }
+}
 
-    //======== Sweep ========//
+void VSPAEROPlotScreen::UpdateSweepAutoManualAxisLimits()
+{
+    Ca_Axis_ *  t_Axis;
+
     m_SweepManualXMinToggle.Update( VSPAEROMgr.m_SweepXMinIsManual.GetID() );
     m_SweepManualXMaxToggle.Update( VSPAEROMgr.m_SweepXMaxIsManual.GetID() );
     m_SweepXMinSlider.Update( VSPAEROMgr.m_SweepXMin.GetID() );

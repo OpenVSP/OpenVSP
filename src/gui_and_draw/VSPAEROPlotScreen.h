@@ -49,7 +49,9 @@ protected:
 
     //==== Utility functions ====//
     //  plotting helpers
-    void UpdateAutoManualAxisLimits();
+    void UpdateConvergenceAutoManualAxisLimits();
+    void UpdateLoadDistAutoManualAxisLimits();
+    void UpdateSweepAutoManualAxisLimits();
     string MakeAxisLabelStr( vector <string> dataSetNames );
     void UpdateAxisLimits( Ca_Canvas * canvas, vector <double> xDoubleData, vector <double> yDoubleData, bool expand_only );
     void UpdateSingleAxisLimits( Ca_Axis_ * tAxis, vector <double> doubleData, bool expandOnly, bool keepZero = false );
