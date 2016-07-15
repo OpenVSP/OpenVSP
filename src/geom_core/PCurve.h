@@ -77,6 +77,8 @@ public:
 
     virtual void EnforcePtOrder( double rfirst, double rlast );
 
+    void BinCubicTMap( vector < double > &tmap, vector < double > &tdisc );
+
 protected:
 
     virtual void ValidateCEDIT();

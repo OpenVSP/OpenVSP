@@ -649,3 +649,8 @@ double PCurve::IntegrateAF( double r0 )
 
     return m_Curve.IntegrateAF( r0 );
 }
+
+void PCurve::BinCubicTMap( vector < double > &tmap, vector < double > &tdisc )
+{
+    m_Curve.BinCubicTMap( tmap, tdisc );
+}

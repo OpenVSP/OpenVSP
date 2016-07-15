@@ -301,6 +301,26 @@ void Vsp1DCurve::InterpolateCSpline( vector< double > & input_pnt_vec, const dou
     }
 }
 
+void Vsp1DCurve::BinCubicTMap( vector < double > &tmap, vector < double > &tdisc )
+{
+    oned_piecewise_binary_cubic_creator pbcc;
+
+    // Setup copies base curve into creator.
+    // tolerance, min adapt levels, max adapt levels
+    pbcc.setup( m_Curve, 1e-2, 0.01, 0, 7 );
+
+    // Pick off discontinuities because we want to return them as well
+    // as use them in corner_create
+    m_Curve.find_discontinuities( 0.01, tdisc );
+    tdisc.push_back( m_Curve.get_tmax() );
+
+    // Create makes new curve
+    oned_piecewise_curve_type c;
+    pbcc.corner_create( c, tdisc );
+    // Get parameter map
+    c.get_pmap( tmap );
+}
+
 void Vsp1DCurve::ToBinaryCubic( )
 {
     oned_piecewise_binary_cubic_creator pbcc;

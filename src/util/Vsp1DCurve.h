@@ -49,6 +49,7 @@ public:
     // creates C2 continuous piecewise cubic spline polynomial with clamped end slopes
     void InterpolateCSpline( vector< double > & input_pnt_vec, const double &start_slope, const double &end_slope, const vector<double> &param );
 
+    void BinCubicTMap( vector < double > &tmap, vector < double > &tdisc );
     void ToBinaryCubic( );
     void ToCubic();
 
