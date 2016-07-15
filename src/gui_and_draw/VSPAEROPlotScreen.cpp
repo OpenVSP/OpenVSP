@@ -939,7 +939,7 @@ void VSPAEROPlotScreen::UpdateLoadDistYDataBrowser()
     // restore original row selections
     for ( unsigned int iCase = 0; iCase < m_LoadDistYDataBrowser->size(); iCase++ )
     {
-        if( ( m_SelectDefaultData && strcmp( m_LoadDistYDataBrowser->text( iCase + 1 ), "cl*c" ) == 0 ) )
+        if( ( m_SelectDefaultData && strcmp( m_LoadDistYDataBrowser->text( iCase + 1 ), "cl*c/cref" ) == 0 ) )
         {
             m_LoadDistYDataBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
         }

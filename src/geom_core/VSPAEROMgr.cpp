@@ -852,9 +852,9 @@ string VSPAEROMgrSingleton::ReadLoadFile()
         std::vector<double> CD;
         std::vector<double> CS;
 
-        std::vector<double> CLc;
-        std::vector<double> CDc;
-        std::vector<double> CSc;
+        std::vector<double> CLc_cref;
+        std::vector<double> CDc_cref;
+        std::vector<double> CSc_cref;
         //std::vector<double> CLc_ideal;  // TODO represents elliptical load distribution
 
         int t_WingId;
@@ -877,9 +877,9 @@ string VSPAEROMgrSingleton::ReadLoadFile()
             CD.push_back( t_CD );
             CS.push_back( t_CS );
 
-            CLc.push_back( t_CL * t_Chord );
-            CDc.push_back( t_CD * t_Chord );
-            CSc.push_back( t_CS * t_Chord );
+            CLc_cref.push_back( t_CL * t_Chord / m_cref.Get() );
+            CDc_cref.push_back( t_CD * t_Chord / m_cref.Get() );
+            CSc_cref.push_back( t_CS * t_Chord / m_cref.Get() );
 
             // read the next line
             result = fscanf( fp, "%d %lf %lf %lf %lf %lf", &t_WingId, &t_Yavg, &t_Chord, &t_CL, &t_CD, &t_CS );
@@ -894,9 +894,9 @@ string VSPAEROMgrSingleton::ReadLoadFile()
         res->Add( NameValData( "cd", CD ) );
         res->Add( NameValData( "cs", CS ) );
 
-        res->Add( NameValData( "cl*c", CLc ) );
-        res->Add( NameValData( "cd*c", CDc ) );
-        res->Add( NameValData( "cs*c", CSc ) );
+        res->Add( NameValData( "cl*c/cref", CLc_cref ) );
+        res->Add( NameValData( "cd*c/cref", CDc_cref ) );
+        res->Add( NameValData( "cs*c/cref", CSc_cref ) );
 
         res_id = res->GetID();
     }
