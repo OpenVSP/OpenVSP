@@ -1368,14 +1368,14 @@ void VSPAEROPlotScreen::PlotLoadDistribution( string resultID, vector <string> y
                 Fl_Color c = ColorWheel( m_LoadDistiPlot, m_LoadDistNLines );
 
                 // Collect data for each wing and plot individual line for each wing (assumes unsorted list)
-                for ( int iWing : wingIdIntDataUnique )
+                for ( int iWing = 0; iWing < wingIdIntDataUnique.size(); iWing++ )
                 {
                     //collect the data for each wing checking each point
                     vector <double> xDoubleData;
                     vector <double> yDoubleData;
                     for ( unsigned int iPt = 0; iPt < wingIdIntDataRaw.size(); iPt++ )
                     {
-                        if ( wingIdIntDataRaw[iPt] == iWing )
+                        if ( wingIdIntDataRaw[iPt] == wingIdIntDataUnique[iWing] )
                         {
                             xDoubleData.push_back( xResultDataPtr->GetDouble( iPt ) );
                             yDoubleData.push_back( yResultDataPtr->GetDouble( iPt ) );
