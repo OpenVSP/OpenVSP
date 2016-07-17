@@ -39,7 +39,6 @@ using namespace vsp;
 // Easy prop reversal
 
 // Skinning options (PCHIP, Linear, etc.)
-// Adaptive skinning
 
 
 //==========================================================================//
@@ -437,6 +436,16 @@ void PropGeom::ChangeID( string id )
     m_XSecSurf.SetParentContainer( GetID() );
 }
 
+bool aboutcomp(const double &a, const double &b)
+{
+    return ( a + 0.001 ) < b;
+}
+
+bool abouteq(const double &a, const double &b)
+{
+    return fabs( a - b ) < 0.001;
+}
+
 //==== Update Fuselage And Cross Section Placement ====//
 void PropGeom::UpdateSurf()
 {
@@ -636,24 +645,79 @@ void PropGeom::UpdateSurf()
     VspSurf foilsurf;
     foilsurf.SkinC0( crv_vec, false );
 
+    // Find the union of stations required to approximate the blade parameters
+    // with cubic functions.
+    vector < double > tmap = rvec;  // Initialize with specified XSecs.
+    vector < double > tdisc;
+    tdisc.push_back( rfirst );
+    tdisc.push_back( rlast );
+    for ( int i = 0; i < m_pcurve_vec.size(); i++ )
+    {
+        vector < double > tm;
+        vector < double > tmout;
+        vector < double > td;
+        vector < double > tdout;
+        m_pcurve_vec[i]->BinCubicTMap( tm, td );
+
+        std::set_union( tmap.begin(), tmap.end(), tm.begin(), tm.end(), std::back_inserter(tmout), &aboutcomp );
+        std::swap( tmout, tmap );
+        std::set_union( tdisc.begin(), tdisc.end(), td.begin(), td.end(), std::back_inserter(tdout), &aboutcomp );
+        std::swap( tdout, tdisc );
+    }
+
+    // Not sure why above set_union leaves duplicate entries, but
+    // sort and force unique just to be sure.
+    std::sort( tmap.begin(), tmap.end() );
+    auto tmit = std::unique( tmap.begin(), tmap.end(), &abouteq );
+    tmap.erase( tmit, tmap.end() );
+
+    std::sort( tdisc.begin(), tdisc.end() );
+    auto tdit = std::unique( tdisc.begin(), tdisc.end(), &abouteq );
+    tdisc.erase( tdit, tdisc.end() );
+
+
+    // Refine by adding two intermediate points to each cubic section
+    // this is needed because the adaptive algorithm above uses derivatives
+    // while our later reconstruction does not.
+    vector < double > tref( ( tmap.size() - 1 ) * 3 + 1 );
+    for ( int i = 0; i < tmap.size() - 1; i++ )
+    {
+        int iref = 3*i;
+        double t = tmap[i];
+        double tnxt = tmap[i+1];
+        double dt = (tnxt-t)/3.0;
+
+        tref[iref] = t;
+        tref[iref+1] = t + dt;
+        tref[iref+2] = t + 2 * dt;
+    }
+    tref.back() = tmap.back();
+    std::swap( tmap, tref );
+
+    for ( int i = 0; i < tdisc.size(); i++ )
+    {
+        tdisc[i] = ( tdisc[i] - rfirst ) / ( rlast - rfirst );
+    }
+
     crv_vec.clear();
     rib_vec.clear();
 
     // Pseudo cross sections
     // Not directly user-controlled, but an intermediate step in lofting the
     // surface.
-    int npseudo = 31;
+    int npseudo = tmap.size();
 
 
     crv_vec.resize( npseudo );
     rib_vec.resize( npseudo );
 
+    vector < double > u_pseudo( npseudo );
 
 
     for ( int i = 0; i < npseudo; i++ )
     {
         // Assume linear interpolation means linear u/r relationship.
-        double r = rfirst + ( rlast - rfirst ) * (double) i/ (double) ( npseudo - 1 );
+        double r = tmap[i];
         double u = rtou.CompPnt( r );
 
         VspCurve c;
@@ -688,16 +752,14 @@ void PropGeom::UpdateSurf()
 
         crv_vec[i] = pp.GetCurve();
         rib_vec[i].set_f( crv_vec[i].GetCurve() );
+        u_pseudo[i] = ( r - rfirst ) / ( rlast - rfirst );
     }
-
-
-
 
     m_MainSurfVec.resize( m_Nblade() );
 
 //    m_MainSurfVec[0].SkinC0( crv_vec, false );
     m_MainSurfVec[0].SetMagicVParm( false );
-    m_MainSurfVec[0].SkinCubicSpline( rib_vec, false );
+    m_MainSurfVec[0].SkinCubicSpline( rib_vec, u_pseudo, tdisc, false );
 
     m_MainSurfVec[0].SetMagicVParm( true );
     m_MainSurfVec[0].SetSurfType( PROP_SURF );

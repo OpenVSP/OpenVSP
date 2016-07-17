@@ -53,8 +53,9 @@ public:
     void SkinRibs( const vector<rib_data_type> &ribs, const vector < int > &degree, bool closed_flag );
     void SkinRibs( const vector<rib_data_type> &ribs, bool closed_flag );
 
-    void SkinCubicSpline( const vector<rib_data_type> &ribs, const vector < int > &degree, bool closed_flag );
-    void SkinCubicSpline( const vector<rib_data_type> &ribs, bool closed_flag );
+    void SkinCubicSpline( const vector<rib_data_type> &ribs, const vector<double> &param, const vector <double> &tdisc, const vector < int > &degree, bool closed_flag );
+    void SkinCubicSpline( const vector<rib_data_type> &ribs, const vector<double> &param, const vector <double> &tdisc, bool closed_flag );
+    void SkinCubicSpline( const vector<rib_data_type> &ribs, const vector<double> &param, bool closed_flag );
 
     void SkinCX( const vector< VspCurve > &input_crv_vec, const vector< int > &cx, const vector < int > &degree, bool closed_flag );
     void SkinCX( const vector< VspCurve > &input_crv_vec, const vector< int > &cx, bool closed_flag );

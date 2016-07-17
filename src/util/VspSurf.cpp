@@ -302,7 +302,7 @@ void VspSurf::SkinRibs( const vector<rib_data_type> &ribs, bool closed_flag )
     SkinRibs( ribs, degree, closed_flag );
 }
 
-void VspSurf::SkinCubicSpline( const vector<rib_data_type> &ribs, const vector < int > &degree, bool closed_flag )
+void VspSurf::SkinCubicSpline( const vector<rib_data_type> &ribs, const vector<double> &param, const vector <double> &tdisc, const vector < int > &degree, bool closed_flag )
 {
     spline_creator_type sc;
     surface_index_type nrib, i;
@@ -326,6 +326,15 @@ void VspSurf::SkinCubicSpline( const vector<rib_data_type> &ribs, const vector <
         printf( "Failure in SkinCubicSpline set_conditions\n" );
     }
 
+    // set the delta u for each surface segment
+    sc.set_u0( param[0] );
+    for ( i = 0; i < sc.get_number_u_segments(); ++i )
+    {
+        sc.set_segment_du( param[i + 1] - param[i], i );
+    }
+
+    sc.set_tdisc( tdisc );
+
     m_Surface.clear();
     bool creat = sc.create( m_Surface );
 
@@ -339,12 +348,25 @@ void VspSurf::SkinCubicSpline( const vector<rib_data_type> &ribs, const vector <
 }
 
 //==== Interpolate A Set Of Points =====//
-void VspSurf::SkinCubicSpline( const vector<rib_data_type> &ribs, bool closed_flag )
+void VspSurf::SkinCubicSpline( const vector<rib_data_type> &ribs, const vector<double> &param, const vector <double> &tdisc, bool closed_flag )
 {
     surface_index_type nrib;
     nrib = ribs.size();
     vector< int > degree( nrib - 1, 0 );
-    SkinCubicSpline( ribs, degree, closed_flag );
+    SkinCubicSpline( ribs, param, tdisc, degree, closed_flag );
+}
+
+//==== Interpolate A Set Of Points =====//
+void VspSurf::SkinCubicSpline( const vector<rib_data_type> &ribs, const vector<double> &param, bool closed_flag )
+{
+    surface_index_type nrib;
+    nrib = ribs.size();
+    vector< int > degree( nrib - 1, 0 );
+    vector < double > tdisc(2);
+    tdisc[0] = param[0];
+    tdisc[1] = param.back();
+
+    SkinCubicSpline( ribs, param, tdisc, degree, closed_flag );
 }
 
 void VspSurf::SkinCX( const vector< VspCurve > &input_crv_vec, const vector< int > &cx, const vector< int > &degree, bool closed_flag )
