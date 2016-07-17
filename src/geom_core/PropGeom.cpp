@@ -40,6 +40,10 @@ using namespace vsp;
 
 // Skinning options (PCHIP, Linear, etc.)
 
+// Blunt TE modification applied with wrong scale.
+// Correct when specified as t/c, wrong when specified dimensionally.
+
+// Does not work when restored from file
 
 //==========================================================================//
 //==========================================================================//
