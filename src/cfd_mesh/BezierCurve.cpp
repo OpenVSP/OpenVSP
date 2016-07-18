@@ -181,6 +181,26 @@ void Bezier_curve::PutControlPoints( const vector< vec3d > &pnts_in )
     }
 }
 
+void Bezier_curve::GetControlPoints( vector< vec3d > &pnts_out )
+{
+    pnts_out.clear();
+
+    int num_sections = m_Curve.number_segments();
+
+    for ( int i = 0; i < num_sections; i++ )
+    {
+        curve_segment_type c;
+
+        m_Curve.get( c, i );
+
+        for ( int j = 0; j < c.degree() + 1; j++ )
+        {
+            curve_point_type cp = c.get_control_point( j );
+            pnts_out.push_back( vec3d( cp ) );
+        }
+    }
+}
+
 vec3d Bezier_curve::FirstPnt() const  // Could be implemented with comp_pnt, but should be faster/more accurate.
 {
     curve_segment_type c;
