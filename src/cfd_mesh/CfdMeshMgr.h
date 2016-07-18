@@ -421,6 +421,9 @@ private:
     DrawObj m_BBoxLineStripSymSplit;
     DrawObj m_BBoxLineSymSplit;
     vector< DrawObj > m_TagDO;
+
+//    DrawObj m_ISegChainDO;
+//    DrawObj m_ISegChainPtsDO;
 };
 
 #define CfdMeshMgr CfdMeshMgrSingleton::getInstance()
