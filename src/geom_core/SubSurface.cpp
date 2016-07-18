@@ -304,7 +304,7 @@ void SubSurface::SplitSegsU( const double & u )
 
     if ( reorder )
     {
-        ReorderSplitSegs( inds[0] );
+        ReorderSplitSegs( inds[0], m_SplitLVec );
     }
 }
 
@@ -351,33 +351,33 @@ void SubSurface::SplitSegsW( const double & w )
 
     if ( reorder )
     {
-        ReorderSplitSegs( inds[0] );
+        ReorderSplitSegs( inds[0], m_SplitLVec );
     }
 }
 
-void SubSurface::ReorderSplitSegs( int ind )
+void SubSurface::ReorderSplitSegs( int ind, vector<SSLineSeg> &splitvec )
 {
-    if ( ind < 0 || ind > ( int )m_SplitLVec.size() - 1 )
+    if ( ind < 0 || ind > ( int )splitvec.size() - 1 )
     {
         return;
     }
 
     vector<SSLineSeg> ret_vec;
-    ret_vec.resize( m_SplitLVec.size() );
+    ret_vec.resize( splitvec.size() );
 
     int cnt = 0;
-    for ( int i = ind ; i < ( int )m_SplitLVec.size() ; i++ )
+    for ( int i = ind ; i < ( int )splitvec.size() ; i++ )
     {
-        ret_vec[cnt] = m_SplitLVec[i];
+        ret_vec[cnt] = splitvec[i];
         cnt++;
     }
     for ( int i = 0 ; i < ind ; i++ )
     {
-        ret_vec[cnt] = m_SplitLVec[i];
+        ret_vec[cnt] = splitvec[i];
         cnt++;
     }
 
-    m_SplitLVec = ret_vec;
+    splitvec = ret_vec;
 }
 
 void SubSurface::PrepareSplitVec()

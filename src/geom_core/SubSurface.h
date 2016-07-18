@@ -154,7 +154,7 @@ protected:
     {
         return -1;
     }
-    virtual void ReorderSplitSegs( int ind );
+    virtual void ReorderSplitSegs( int ind, vector<SSLineSeg> &splitvec );
 
 };
 
