@@ -871,6 +871,8 @@ SSControlSurf::SSControlSurf( string compID, int type ) : SubSurface( compID, ty
     {
         m_LVec.push_back( SSLineSeg() );
     }
+
+    m_PolyFlag = false;
 }
 
 //==== Destructor ====//
