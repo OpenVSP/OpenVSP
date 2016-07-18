@@ -455,49 +455,6 @@ int SSLineSeg::CompNumDrawPnts( VspSurf* surf, Geom* geom )
     return ( int )( ( avg_num_secs ) * ( avg_tess - 1 ) );
 }
 
-void SSLineSeg::UpdateDrawObj( VspSurf* surf, Geom* geom, DrawObj& draw_obj, const int *num_pnts_ptr )
-{
-    if ( !surf || !geom )
-    {
-        return;
-    }
-
-    int num_pnts;
-    if ( num_pnts_ptr )
-    {
-        num_pnts = *num_pnts_ptr;
-    }
-    else
-    {
-        num_pnts = CompNumDrawPnts( surf, geom );
-    }
-
-    if ( num_pnts <=0 )
-    {
-        draw_obj.m_PntVec.clear();
-        return;
-    }
-
-    draw_obj.m_PntVec.resize( 2 * num_pnts );
-
-
-    vec3d pprev = CompPnt( surf, m_P0 );
-    vec3d p = pprev;
-    for ( int i = 0 ; i < num_pnts ; i ++ )
-    {
-        vec3d uw = ( m_P0 + m_line * ( ( double )i / ( num_pnts - 1 ) ) );
-        p = CompPnt( surf, uw );
-        draw_obj.m_PntVec[2*i] = pprev;
-        draw_obj.m_PntVec[2*i+1] = p;
-        pprev = p;
-    }
-
-    draw_obj.m_LineWidth = 3.0;
-    draw_obj.m_LineColor = vec3d( 177.0 / 255, 1, 58.0 / 255 );
-    draw_obj.m_Type = DrawObj::VSP_LINES;
-    draw_obj.m_GeomChanged = true;
-}
-
 void SSLineSeg::GetDOPts( VspSurf* surf, Geom* geom, vector < vec3d > &pts, const int *num_pnts_ptr )
 {
     int num_pnts;

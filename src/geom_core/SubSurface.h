@@ -60,7 +60,6 @@ public:
     {
         return m_P1;
     }
-    virtual void UpdateDrawObj( VspSurf* surf, Geom* geom, DrawObj& draw_obj, const int *num_pnts_ptr );
     virtual void GetDOPts( VspSurf* surf, Geom* geom, vector < vec3d > &pts, const int *num_pnts_ptr );
     virtual int CompNumDrawPnts( VspSurf* surf, Geom* geom );
 
