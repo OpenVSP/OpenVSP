@@ -1616,8 +1616,8 @@ void SSControlSurf::Update()
     vector< vec3d > low_pnt_vec;
 
 
-    up_pnt_vec.reserve( 9 );
-    low_pnt_vec.reserve( 9 );
+    up_pnt_vec.reserve( 13 );
+    low_pnt_vec.reserve( 13 );
     if ( !m_LEFlag() )
     {
         if ( m_SurfType() == UPPER_SURF )
