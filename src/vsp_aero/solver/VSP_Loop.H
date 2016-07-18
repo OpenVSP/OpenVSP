@@ -44,6 +44,8 @@ private:
     double Area_;
     
     double Length_;
+    
+    double CentroidOffSet_;
 
     // Triangle Normal
     
@@ -56,19 +58,25 @@ private:
     // Centroid
     
     double XYZc_[3];
+    
+    // UV Centroid
+    
+    double UVc_[2];
 
     // Solution data
     
     double Gamma_;
     double dCp_;
     double Velocity_[3];
+    double CompressibilityFactor_;
         
     double Force_[3];
     double NormalForce_;
     
     int SurfaceType_;
-    int BodyID_;
-    int WingID_;        
+    int DegenBodyID_;
+    int DegenWingID_;        
+    int Cart3dID_;
     
     // Agglomeration data
     
@@ -93,6 +101,7 @@ public:
     // Accesss to tri data
 
     void SizeNodeList(int NumberOfNodes);
+    int NumberOfNodes(void) { return NumberOfNodes_; };
     int &Node1(void) { return NodeList_[0]; };
     int &Node2(void) { return NodeList_[1]; };
     int &Node3(void) { return NodeList_[2]; };
@@ -102,7 +111,7 @@ public:
     // Access to edge data
     
     void SizeEdgeList(int NumberOfEdges);
-    int &NumberOfEdges(void) { return NumberOfEdges_;  };
+    int NumberOfEdges(void) { return NumberOfEdges_;  };
     int &Edge1(void) { return EdgeList_[0]; };
     int &Edge2(void) { return EdgeList_[1]; };
     int &Edge3(void) { return EdgeList_[2]; };
@@ -137,6 +146,8 @@ public:
     double &Area(void) { return Area_; };
     
     double &Length(void) { return Length_; };
+    
+    double &CentroidOffSet(void) { return CentroidOffSet_; };
 
     double &Nx(void) { return Normal_[0]; };
     double &Ny(void) { return Normal_[1]; };
@@ -153,6 +164,10 @@ public:
     double &Zc(void) { return XYZc_[2]; };
     double *xyz_c(void) { return XYZc_; };
     
+    double &Uc(void) { return UVc_[0]; };
+    double &Vc(void) { return UVc_[1]; };
+    double *UVc(void) { return UVc_; };    
+    
     double &U(void) { return Velocity_[0]; };
     double &V(void) { return Velocity_[1]; };
     double &W(void) { return Velocity_[2]; };
@@ -161,6 +176,7 @@ public:
     
     double &Gamma(void) { return Gamma_; };
     double &dCp(void) { return dCp_; };
+    double &CompressibilityFactor(void) { return CompressibilityFactor_; };
   
     double &Fx(void) { return Force_[0]; };
     double &Fy(void) { return Force_[1]; };
@@ -170,15 +186,16 @@ public:
     double &NormalForce(void) { return NormalForce_; };
     
     int &SurfaceType(void) { return SurfaceType_; };
-    int &BodyID(void) { return BodyID_; };
-    int &WingID(void) { return WingID_; };        
+    int &DegenBodyID(void) { return DegenBodyID_; };
+    int &DegenWingID(void) { return DegenWingID_; };    
+    int &Cart3dID(void) { return Cart3dID_; };    
     
     // Agglomeration data
     
     int &CoarseGridLoop(void) { return CoarseGridLoop_; };
     
     void SizeFineGridLoopList(int NumberOfLoops);    
-    int &NumberOfFineGridLoops(void) { return NumberOfFineGridLoops_; };
+    int  NumberOfFineGridLoops(void) { return NumberOfFineGridLoops_; };
     int &FineGridLoop(void) { return FineGridLoopList_[0]; };
     int &FineGridLoop(int i) { return FineGridLoopList_[i-1]; };
     

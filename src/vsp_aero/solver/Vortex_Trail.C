@@ -1,9 +1,3 @@
-//
-// This file is released under the terms of the NASA Open Source Agreement (NOSA)
-// version 1.3 as detailed in the LICENSE file which accompanies this software.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "Vortex_Trail.H"
 
 /*##############################################################################
@@ -128,16 +122,9 @@ VORTEX_TRAIL& VORTEX_TRAIL::operator=(const VORTEX_TRAIL &Trailing_Vortex)
     FreeStreamVelocity_[0] = Trailing_Vortex.FreeStreamVelocity_[0];
     FreeStreamVelocity_[1] = Trailing_Vortex.FreeStreamVelocity_[1];
     FreeStreamVelocity_[2] = Trailing_Vortex.FreeStreamVelocity_[2];
-    
-    // Mach number
-    
+
     Mach_ = Trailing_Vortex.Mach_;
-    
-    // Pointers to circulation strengths
-    
-    VortexLoop1_ = Trailing_Vortex.VortexLoop1_;
-    VortexLoop2_ = Trailing_Vortex.VortexLoop2_;
-    
+
     Gamma_ = Trailing_Vortex.Gamma_;
 
     Length_ = Trailing_Vortex.Length_;
@@ -217,7 +204,7 @@ void VORTEX_TRAIL::Setup(int NumSubVortices, double FarDist, VSP_NODE &Node1, VS
     
        printf("Number of trailing wake nodes must be a power of 2! \n"); fflush(NULL);
        printf("NumberOfLevels_: %d \n",NumberOfLevels_);
-       printf("2^NumberOfLevels_: %f \n",pow(2.0,NumberOfLevels_));
+       printf("2^NumberOfLevels_: %f \n",pow(2,NumberOfLevels_));
         
        exit(1);
        
@@ -247,7 +234,7 @@ void VORTEX_TRAIL::Setup(int NumSubVortices, double FarDist, VSP_NODE &Node1, VS
     
     for ( i = 1 ; i <= NumberOfSubVortices() + 2 ; i++ ) {
      
-      VortexEdgeVelocity_[i] = new double[3];
+      VortexEdgeVelocity_[i] = new double[6];
      
     }
     
@@ -278,7 +265,7 @@ void VORTEX_TRAIL::Setup(int NumSubVortices, double FarDist, VSP_NODE &Node1, VS
        Theta = (i-1)*DTheta;
        
        S_[i] = FarDist*(1.-cos(Theta));
-    
+
     }
     
     S_[NumberOfNodes_] = Length_ - FarDist;
@@ -313,7 +300,7 @@ void VORTEX_TRAIL::Setup(int NumSubVortices, double FarDist, VSP_NODE &Node1, VS
           NodeB.y() = NodeList_[i+m].y();
           NodeB.z() = NodeList_[i+m].z();
           
-          VortexEdgeList(Level)[j].Wing() = Wing_;
+          VortexEdgeList(Level)[j].DegenWing() = Wing_;
           
           VortexEdgeList(Level)[j].Node() = Node_;
           
@@ -322,19 +309,12 @@ void VORTEX_TRAIL::Setup(int NumSubVortices, double FarDist, VSP_NODE &Node1, VS
           VortexEdgeList(Level)[j].Sigma() = Sigma_;
       
           VortexEdgeList(Level)[j].Setup(NodeA, NodeB);
-
-//printf("i,j,k, m: %d %d %d %d ..... i, i+m: %d %d \n",i,j,k,m,i,i+m);
-          
-    //      if ( Level == 1 ) printf("Level: %d ... i: %d ... j: %d \n",Level,i,j);
-          
+   
           if ( Level > 1 ) {
-          
-//             printf("Level: %d ... j: %d ... k, k+1 : %d %d \n",Level,j,k,k+1);
 
              VortexEdgeList(Level)[j].SetupChildren(VortexEdgeList_[Level-1][k  ],
                                                     VortexEdgeList_[Level-1][k+1]);
   
-             
           }
           
           k += 2;
@@ -351,7 +331,7 @@ void VORTEX_TRAIL::Setup(int NumSubVortices, double FarDist, VSP_NODE &Node1, VS
        NodeB.y() = NodeList_[NumberOfSubVortices()+2].y();
        NodeB.z() = NodeList_[NumberOfSubVortices()+2].z();
      
-       VortexEdgeList(Level)[j+1].Wing() = Wing_;
+       VortexEdgeList(Level)[j+1].DegenWing() = Wing_;
        
        VortexEdgeList(Level)[j+1].Node() = Node_;
        
@@ -377,7 +357,7 @@ void VORTEX_TRAIL::InducedVelocity(double xyz_p[3], double q[3])
 {
  
    int i, Level;
-   double dq[3], Rho, Fact;
+   double dq[3], Fact;
    double Vec1[3], Vec2[3], Radius;
 
    // Update the vortex strengths for all of the sub vortex elements
@@ -417,20 +397,14 @@ void VORTEX_TRAIL::InducedVelocity(double xyz_p[3], double q[3])
    vector_cross(VortexEdgeList(Level)[i].Vec(), Vec1, Vec2);
    
    Radius = sqrt(vector_dot(Vec2,Vec2));
-              
-   if ( Radius > Tolerance_ ) {
     
-      VortexEdgeList(Level)[i].InducedVelocity(xyz_p, dq);
+   VortexEdgeList(Level)[i].InducedVelocity(xyz_p, dq);
 
-      Rho = Radius / VortexEdgeList(Level)[i].Sigma();
-      
-      Fact = pow(Rho,3.)/pow(Rho*Rho + sqrt(Tolerance_),1.5);
+   Fact = MIN(Radius/pow(VortexEdgeList(Level)[i].Sigma(),2.),1.);
 
-      q[0] += Fact*dq[0];
-      q[1] += Fact*dq[1];
-      q[2] += Fact*dq[2];
-      
-   }
+   q[0] += Fact*dq[0];
+   q[1] += Fact*dq[1];
+   q[2] += Fact*dq[2];
 
 }
 
@@ -443,7 +417,7 @@ void VORTEX_TRAIL::InducedVelocity(double xyz_p[3], double q[3])
 void VORTEX_TRAIL::CalculateVelocityForSubVortex(VSP_EDGE &VortexEdge, double xyz_p[3], double q[3])
 {
  
-   double Vec[3], dq[3], Dot, Dist, Radius, Rho, Fact, Ratio, FarAway;
+   double Vec[3], dq[3], Dot, Dist, Radius, Fact, Ratio, FarAway;
 
    FarAway = 3.;
    
@@ -469,19 +443,13 @@ void VORTEX_TRAIL::CalculateVelocityForSubVortex(VSP_EDGE &VortexEdge, double xy
       
       Radius = sqrt(vector_dot(Vec,Vec));
       
-      if ( Radius > Tolerance_ ) {
- 
-         VortexEdge.InducedVelocity(xyz_p, dq);
+      VortexEdge.InducedVelocity(xyz_p, dq);
 
-         Rho = Radius / VortexEdge.Sigma();
+      Fact = MIN(Radius/pow(VortexEdge.Sigma(),2.),1.);
 
-         Fact = pow(Rho,3.)/pow(Rho*Rho + sqrt(Tolerance_),1.5);
-  
-         q[0] += Fact*dq[0];
-         q[1] += Fact*dq[1];
-         q[2] += Fact*dq[2];                 
-
-      }
+      q[0] += Fact*dq[0];
+      q[1] += Fact*dq[1];
+      q[2] += Fact*dq[2];                 
         
    }
    
@@ -563,9 +531,9 @@ void VORTEX_TRAIL::UpdateLocation(void)
     
     // Smooth the velocity... currently not reliable
     
-    //SmoothVelocity(U);
-    //SmoothVelocity(V);
-    //SmoothVelocity(W);
+   // SmoothVelocity(U);
+   // SmoothVelocity(V);
+   // SmoothVelocity(W);
  
     NodeList_[1].x() = TE_Node_.x();
     NodeList_[1].y() = TE_Node_.y(); 
@@ -594,7 +562,11 @@ void VORTEX_TRAIL::UpdateLocation(void)
         NodeList_[i+1].z() += 0.5*dz;
 
     }
-
+    
+    // Smooth (x,y,z)
+    
+    Smooth(); 
+    
 /*
     Level = 1;
     
@@ -876,7 +848,7 @@ void VORTEX_TRAIL::Smooth(void)
                    + pow(NodeList_[i].y() - NodeList_[i-1].y(),2.)
                    + pow(NodeList_[i].z() - NodeList_[i-1].z(),2.) );
                   
-          Eps = 2.*Ds;
+          Eps = 1.00*Ds;
                    
           a[i] = -0.5*Eps/(Ds*Ds);
           b[i] = 1. + Eps/(Ds*Ds);

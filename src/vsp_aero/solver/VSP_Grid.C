@@ -42,6 +42,14 @@ void VSP_GRID::init(void)
     
     EdgeList_ = NULL;
     
+    NumberOfKuttaNodes_ = 0;
+    
+    KuttaNode_ = NULL;
+    
+    WingSurface_ = NULL;
+    
+    WingSurfaceIsPeriodic_ = NULL;   
+    
     Verbose_ = 0;
 
 }
@@ -128,6 +136,14 @@ void VSP_GRID::SizeKuttaNodeList(int NumberOfKuttaNodes)
     NumberOfKuttaNodes_ = NumberOfKuttaNodes;
 
     KuttaNode_ = new int[NumberOfKuttaNodes_ + 1];
+    
+    WingSurface_ = new int[NumberOfKuttaNodes_ + 1];
+    
+    WingSurfaceIsPeriodic_ = new int[NumberOfKuttaNodes_ + 1];
+    
+    zero_int_array(KuttaNode_ ,NumberOfKuttaNodes_);
+    zero_int_array(WingSurface_ ,NumberOfKuttaNodes_);
+    zero_int_array(WingSurfaceIsPeriodic_ ,NumberOfKuttaNodes_);
     
     WakeTrailingEdgeX_ = new double[NumberOfKuttaNodes_ + 1];
     WakeTrailingEdgeY_ = new double[NumberOfKuttaNodes_ + 1];
@@ -235,11 +251,7 @@ void VSP_GRID::CalculateTriNormalsAndCentroids(void)
        LoopList(i).BoundBox().z_max = MAX3(NodeList(Node1).z(), NodeList(Node2).z(), NodeList(Node3).z() );
        
        box_calculate_size(LoopList(i).BoundBox());
-       
-       // Number of fine grid loops
-       
-       LoopList(i).NumberOfFineGridLoops() = 0;
-       
+
     }
        
 }
@@ -254,8 +266,8 @@ void VSP_GRID::CreateTriEdges(void)
 {
 
     int i, j, k, nod1, nod2, noda, nodb, start_edge, Node1, Node2, Edge;
-    int level, edge_to_node[4][3], nod_list[4];
-    int max_edge, new_edge, *jump_pnt, Error;
+    int level, edge_to_node[4][3], nod_list[4], Tri1, Tri2;
+    int max_edge, new_edge, *jump_pnt;
     double x1, y1, z1, x2, y2, z2;
     EDGE_ENTRY *list, *tlist;
 
@@ -526,15 +538,8 @@ void VSP_GRID::CreateTriEdges(void)
           while ( level != 0 ) {
 
              EdgeList(level).Node1() = i;
-             EdgeList(level).Node2() = list[level].node;
-
-             // This edge only has one tri attached... 
              
-             if ( list[level].tri_2 == 0 ) {
-
-                Error = 1;
-
-             }
+             EdgeList(level).Node2() = list[level].node;
 
              level = list[level].next;
 
@@ -543,6 +548,16 @@ void VSP_GRID::CreateTriEdges(void)
        }
 
     }
+ 
+   // Zero out leading, trailing edge information
+    
+    for ( j = 1 ; j <= NumberOfEdges() ; j++ ) {
+     
+       EdgeList(j).IsTrailingEdge() = 0;
+       EdgeList(j).IsLeadingEdge()  = 0;
+       EdgeList(j).IsBoundaryEdge() = 0;
+       
+    }    
 
     // Store edge to tri pointers
 
@@ -554,20 +569,23 @@ void VSP_GRID::CreateTriEdges(void)
 
           if ( list[level].tri_1 != 0 ) {
 
-             if ( list[level].tri_2 != 0) {
+             // Store pointers to tris on both sides of edge
 
-                // Store pointers to tris
+             if ( list[level].tri_2 != 0) {
 
                 EdgeList(level).Tri1() = list[level].tri_1;
                 EdgeList(level).Tri2() = list[level].tri_2;
 
              }
 
+             // Store pointers to tris on just the first side
+
              else {
 
                 EdgeList(level).Tri1() = list[level].tri_1;
                 EdgeList(level).Tri2() = list[level].tri_1;
-
+                
+                EdgeList(level).IsBoundaryEdge() = 2; // djk 2
 
              }
 
@@ -610,36 +628,38 @@ void VSP_GRID::CreateTriEdges(void)
        
        Edge = LoopList(j).Edge1();
  
-       EdgeList(Edge).Wing() = LoopList(j).WingID();
+       EdgeList(Edge).DegenWing() = LoopList(j).DegenWingID();
        
-       EdgeList(Edge).Body() = LoopList(j).BodyID();
+       EdgeList(Edge).DegenBody() = LoopList(j).DegenBodyID();
+       
+       EdgeList(Edge).Cart3DSurface() = LoopList(j).Cart3dID();
 
        // Edge 2
        
        Edge = LoopList(j).Edge2();
   
-       EdgeList(Edge).Wing() = LoopList(j).WingID();
+       EdgeList(Edge).DegenWing() = LoopList(j).DegenWingID();
        
-       EdgeList(Edge).Body() = LoopList(j).BodyID();
+       EdgeList(Edge).DegenBody() = LoopList(j).DegenBodyID();
+       
+       EdgeList(Edge).Cart3DSurface() = LoopList(j).Cart3dID();
        
        // Edge 3
        
        Edge = LoopList(j).Edge3();
   
-       EdgeList(Edge).Wing() = LoopList(j).WingID();
+       EdgeList(Edge).DegenWing() = LoopList(j).DegenWingID();
        
-       EdgeList(Edge).Body() = LoopList(j).BodyID();       
+       EdgeList(Edge).DegenBody() = LoopList(j).DegenBodyID();       
+       
+       EdgeList(Edge).Cart3DSurface() = LoopList(j).Cart3dID();
        
     }
            
     for ( j = 1 ; j <= NumberOfEdges() ; j++ ) {
      
-       // Leading, trailing edge information
-       
-       EdgeList(j).IsTrailingEdge() = 0;
-       EdgeList(j).IsLeadingEdge()  = 0;
-       EdgeList(j).IsBoundaryEdge() = 0;
-        
+       // Leading, trailing, and general edge list information
+
        if ( EdgeList(j).Tri2() == EdgeList(j).Tri1() ) {
    
           if ( NodeList(EdgeList(j).Node1()).IsTrailingEdgeNode() &&
@@ -659,13 +679,29 @@ void VSP_GRID::CreateTriEdges(void)
           if ( NodeList(EdgeList(j).Node1()).IsBoundaryEdgeNode() &&
                NodeList(EdgeList(j).Node2()).IsBoundaryEdgeNode()     ) {
 
-             EdgeList(j).IsBoundaryEdge() = 1;
+             if ( EdgeList(j).IsBoundaryEdge() == 0 ) EdgeList(j).IsBoundaryEdge() = 1;
              
           }    
           
        }
 
     }
+    
+    
+    // Mark edges on boarders of diffrent surface IDs
+    
+    for ( i = 1 ; i <= NumberOfEdges() ; i++ ) {
+       
+       Tri1 = EdgeList(i).Tri1();
+       Tri2 = EdgeList(i).Tri2();
+       
+       if ( LoopList(Tri1).SurfaceID() != LoopList(Tri2).SurfaceID() ) {
+          
+          if ( EdgeList(i).IsTrailingEdge() == 0 ) EdgeList(i).IsBoundaryEdge() = 1;
+             
+       }
+       
+    }    
     
     // Calculate edge lengths
    
@@ -699,6 +735,7 @@ void VSP_GRID::CalculateUpwindEdges(void)
  
    int j, k,  Edge, Node1, Node2, TotalUpwind;
    double xVec[3], Vec[3], *Flux, TotalFlux, LoopNormal[3], Normal[3], Mag;
+   double Xb, Yb, Zb;
    
    // Loop over triangles and determine which nodes, and then edges are upwind
    
@@ -707,24 +744,24 @@ void VSP_GRID::CalculateUpwindEdges(void)
    xVec[2] = 0.;
  
    for ( k = 1 ; k <= NumberOfLoops() ; k++ ) {
-       
+
        LoopNormal[0] = LoopList(k).Nx();
        LoopNormal[1] = LoopList(k).Ny();
        LoopNormal[2] = LoopList(k).Nz();
       
        Flux = new double[LoopList(k).NumberOfEdges() + 1];
-       
+
        TotalFlux = 0.;
 
        for ( j = 1 ; j <= LoopList(k).NumberOfEdges() ; j++ ) {
 
           Edge = LoopList(k).Edge(j);
-
+          
           if ( LoopList(k).EdgeDirection(j) == 1 ) {
 
              Node1 = EdgeList(Edge).Node1();
              Node2 = EdgeList(Edge).Node2();
-             
+          
           }
           
           else {
@@ -732,8 +769,8 @@ void VSP_GRID::CalculateUpwindEdges(void)
              Node1 = EdgeList(Edge).Node2();
              Node2 = EdgeList(Edge).Node1();
 
-          }           
-
+          }        
+             
           Vec[0] = NodeList(Node2).x() - NodeList(Node1).x();
           Vec[1] = NodeList(Node2).y() - NodeList(Node1).y();
           Vec[2] = NodeList(Node2).z() - NodeList(Node1).z();
@@ -751,7 +788,7 @@ void VSP_GRID::CalculateUpwindEdges(void)
           TotalFlux += Flux[j];
         
        }
- 
+
        // Create weighting
        
        for ( j = 1 ; j <= LoopList(k).NumberOfEdges() ; j++ ) {
@@ -761,7 +798,7 @@ void VSP_GRID::CalculateUpwindEdges(void)
           LoopList(k).EdgeIsUpWind(j) = 0;
          
        }
-       
+    
        // Determine which edges are upwind
        
        TotalUpwind = 0;
@@ -780,7 +817,7 @@ void VSP_GRID::CalculateUpwindEdges(void)
 
        }      
 
-       if ( TotalUpwind == 0 ) {
+       if (0&& TotalUpwind == 0 ) {
         
           printf("wtf! \n");
        
@@ -795,14 +832,26 @@ void VSP_GRID::CalculateUpwindEdges(void)
         //  exit(1);
         
        }
-    
+
        delete [] Flux;
-       
+
        // Calculate reference length for this loop
-       
+//djk       
        LoopList(k).Length() = sqrt(LoopList(k).Area());
+       
+    //   LoopList(k).Length() = sqrt(LoopList(k).BoundBox().Length_Squared)/sqrt(3.);
+       
+   //    LoopList(k).Length() = MAX3(LoopList(k).BoundBox().x_max - LoopList(k).BoundBox().x_min,
+    //                               LoopList(k).BoundBox().y_max - LoopList(k).BoundBox().y_min,
+   //                               LoopList(k).BoundBox().z_max - LoopList(k).BoundBox().z_min );
+       
+
+       Xb = 0.5*( LoopList(k).BoundBox().x_max + LoopList(k).BoundBox().x_min );
+       Yb = 0.5*( LoopList(k).BoundBox().y_max + LoopList(k).BoundBox().y_min );
+       Zb = 0.5*( LoopList(k).BoundBox().z_max + LoopList(k).BoundBox().z_min );
 
     } 
+
 
 }
 

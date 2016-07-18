@@ -13,10 +13,12 @@
 #include <math.h>
 #include <assert.h>
 #include "utils.H"
-#include "VSP_DegenGeom.H"
+#include "VSP_Geom.H"
 #include "Vortex_Trail.H"
+#include "Vortex_Sheet.H"
 #include "RotorDisk.H"
 #include "VSPAERO_OMP.H"
+#include "time.H"
 
 #define SOLVER_JACOBI 1
 #define SOLVER_GMRES  2
@@ -45,10 +47,16 @@ class VSP_SOLVER {
 private:
 
     friend class VSP_MGSOLVER;
-    
+
     // Filename
     
     char FileName_[2000];
+    
+    int iFix_;
+    
+    // Geometry type
+    
+    int ModelType_;
     
     // Debug
     
@@ -68,11 +76,15 @@ private:
     
     // VSP Geometry
     
-    VSP_DEGEN_GEOM VSPGeom_;
+    VSP_GEOM VSPGeom_;
     
     // VSP Solver
     
     int NumberOfMGLevels_;
+    int NumberOfEquations_;
+    int NumberOfKelvinConstraints_;
+    int *LoopInKelvinConstraintGroup_;
+    int *LoopIsOnBaseRegion_;
     
     // Rotor Geoemtry
     
@@ -81,10 +93,10 @@ private:
     ROTOR_DISK *RotorDisk_;
     
     // Velocity survey points
-
+    
     int NumberofSurveyPoints_;
-    VSP_NODE *SurveyPointList_;
-
+    VSP_NODE *SurveyPointList_;    
+    
     // Solver routines and data
 
     double FreeStreamVelocity_[3];
@@ -135,6 +147,11 @@ private:
     int AveragingIteration_;
     int NumberOfAveragingSteps_;
     
+    double  QMax_;
+    double CpMin_;
+    double CpMax_;
+    double CpBase_;
+    
     double CL_[2];
     double CD_[2];
     double CS_[2];    
@@ -159,6 +176,7 @@ private:
     double **Span_Cl_;
     double **Span_Cs_;
     double **Span_Cd_;
+    double **Span_LE_;
     double **Span_Yavg_;
     double **Span_Area_;
     double **Local_Vel_;
@@ -185,6 +203,14 @@ private:
  
     VORTEX_TRAIL &TrailingVortexEdge(int i) { return TrailingVortexEdge_[i]; };
     
+    // Vortex Sheets
+    
+    int NumberOfVortexSheets_;
+    
+    VORTEX_SHEET *VortexSheet_;
+    
+    VORTEX_SHEET &VortexSheet(int i) { return VortexSheet_[i]; };
+    
     // Vortex/grid edge interaction lists
     
     int *NumberOfVortexEdgesForInteractionListEntry_;
@@ -205,6 +231,10 @@ private:
     
     void CalculateDiagonal(void);
     
+    // Calculate nearest neighbor coeffients of the influence matrix
+    
+    void CalculateNeighborCoefs(void);
+    
     // Multi Grid Routines
 
     void RestrictSolutionFromGrid(int Level);
@@ -218,11 +248,17 @@ private:
     void DoPreconditionedMatrixMultiply(double *vec_in, double *vec_out);
     
     void DoMatrixPrecondition(double *vec_in);
+ 
+    double *MatrixVecTemp_;
     
     void DoMatrixMultiply(double *vec_in, double *vec_out);
-
+    
+    void MatrixMultiply(double *vec_in, double *vec_out);    
+ 
+    void MatrixTransposeMultiply(double *vec_in, double *vec_out);
+    
     // GMRES routines
-
+    
     void Do_GMRES_Solve(void);
 
     void GMRES_Solver(int Neq,                   // Number of Equations, 0 <= i < Neq
@@ -244,7 +280,7 @@ private:
        
     // Setup stuff
     
-    void Size_Lists(void);
+    void DetermineNumberOfKelvinConstrains(void);
 
     void Setup_VortexLoops(void);
    
@@ -273,6 +309,13 @@ private:
     int FirstTimeSolve_;    
     int DoRestart_;
     int SaveRestartFile_;
+    
+    // ADB file
+    
+    FILE *ADBFile_;
+    FILE *ADBCaseListFile_;
+    
+    char CaseString_[2000];
 
     // Restart files
     
@@ -283,6 +326,22 @@ private:
     
     FILE *StatusFile_;
     
+    // Loads file
+    
+    FILE *LoadFile_;
+    
+    double Time1_;
+    double Time2_;
+    
+    // FEM Analysis
+    
+    int LoadDeformationFile_;
+    
+    // File IO
+    
+    void WriteOutAerothermalDatabaseGeometry(void);
+    void WriteOutAerothermalDatabaseSolution(void);
+
 public:
 
     // Constructor, Destructor, Copy
@@ -296,6 +355,8 @@ public:
     VSP_SOLVER& operator=(const VSP_SOLVER &Solver_);
 
     // Solver routines
+    
+    int ModelType(void) { return ModelType_; };
     
     int &NoWakeIteration(void) { return NoWakeIteration_; };
     int &WakeIterations(void) { return WakeIterations_; };
@@ -318,12 +379,12 @@ public:
     void SetNumberOfRotors(int NumberOfRotors) { NumberOfRotors_ = NumberOfRotors; RotorDisk_ = new ROTOR_DISK[NumberOfRotors_ + 1]; };
     ROTOR_DISK &RotorDisk(int i) { return RotorDisk_[i]; };
     
-    void DoSymmetryPlaneSolve(int Direction) { DoSymmetryPlaneSolve_ = Direction; };
+    void DoSymmetryPlaneSolve(int Direction) { DoSymmetryPlaneSolve_ = VSPGeom_.DoSymmetryPlaneSolve() = Direction; };
 
     void SetFarFieldDist(double FarDist) { SetFarFieldDist_ = 1; FarFieldDist_ = FarDist; };
     
     void SetNumberOfWakeTrailingNodes(int NumberOfNodes) { NumberOfWakeTrailingNodes_ = NumberOfNodes; };
-
+    
     void SetNumberOfSurveyPoints(int NumberOfSurveyPoints) { NumberofSurveyPoints_ = NumberOfSurveyPoints; SurveyPointList_ = new VSP_NODE[NumberofSurveyPoints_ + 1]; };
     VSP_NODE &SurveyPointList(int i) { return SurveyPointList_[i]; };
 
@@ -364,14 +425,18 @@ public:
     double &ClMax(void) { return Clmax_2d_; };
     
     double &MaxTurningAngle(void) { return MaxTurningAngle_; };
-
-    // Read in the VSP degenerate geometry file
     
-    void ReadFile(char *FileName) { sprintf(FileName_,"%s",FileName); VSPGeom_.ReadFile(FileName); };    
+    // Read in the VSP geometry file
     
-    // Access to DegenGeom geometry
+    void ReadFile(char *FileName) { sprintf(FileName_,"%s",FileName); VSPGeom_.LoadDeformationFile() = LoadDeformationFile_; ModelType_ = VSPGeom_.ReadFile(FileName); };    
 
-    VSP_DEGEN_GEOM &VSPGeom(void) { return VSPGeom_; };
+    // Read in the FEM deformation file
+    
+    void LoadFEMDeformationData(void) { VSPGeom_.LoadFEMDeformationData(FileName_); };
+    
+    // Access to VSP geometry
+    
+    VSP_GEOM &VSPGeom(void) { return VSPGeom_; };
 
     // Solver setup and solve
     
@@ -395,20 +460,24 @@ public:
     double L2Residual(void) { return L2Residual_; };
 
     // Force and moment calculations
-
+    
     void CalculateForces(void);
     void CalculatePressureForces(void);
-    void CalculateInducedDrag(void);
+    void CalculateTrefftzForces(void);
+    void CalculateKuttaJukowskiForces(void);
+    void IntegrateForcesAndMoments(void);
     void CalculateDeltaCPs(void);
+    void CalculateSurfacePressures(void);
     void CalculateCLmaxLimitedForces(void);
 
     void CalculateSpanWiseLoading(void);
     void WriteOutAerothermalDatabaseFiles(void);
+    void CreateFEMLoadFile(void);
 
     // Field surveys
-
+    
     void CalculateVelocitySurvey(void);
-
+    
     // Set solver method
     
     int &SolverType(void) { return SolverType_; };
@@ -431,6 +500,14 @@ public:
     
     int &ForceType(void) { return ForceType_; };
     int &AveragingIteration(void) { return AveragingIteration_; };
+    
+    // FEM Analysis
+    
+    int &LoadFEMDeformation(void) { return LoadDeformationFile_; };
+    
+    // User case string
+    
+    char *CaseString(void) { return CaseString_; };
 
 };
 

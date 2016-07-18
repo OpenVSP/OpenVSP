@@ -146,10 +146,6 @@ GL_VIEWER::GL_VIEWER(int x,int y,int w,int h,const char *l) : Fl_Gl_Window(x,y,w
 
     UseEnglishUnits = 0;
 
-    ScriptFile = NULL;
-
-    WriteScriptFile = 0;
-
     for ( i = 0 ; i <= 10000 ; i++ ) {
 
        SurfaceID_R[i] = 1.00;
@@ -180,6 +176,14 @@ GL_VIEWER::GL_VIEWER(int x,int y,int w,int h,const char *l) : Fl_Gl_Window(x,y,w
     NumberOfMeshLevels = 0;
     
     CoarseMeshLevelSelected = 1;
+    
+    // Control surfaces
+    
+    DrawControlSurfacesIsOn = 0;
+    
+    // Load in the first solution to begin with
+    
+    UserSelectedSolutionCase_ = 1;
     
 }
 
@@ -249,6 +253,10 @@ void GL_VIEWER::LoadInitialData(char *name)
        // Load in the Mesh
 
        LoadMeshData();
+       
+       // Load ADB Case list
+       
+       LoadSolutionCaseList();
        
        // Load in the solution data
        
@@ -390,7 +398,7 @@ void GL_VIEWER::LoadMeshData(void)
 {
 
     char file_name_w_ext[2000], DumChar[1000], GridName[1000];
-    int i, k, DumInt;
+    int i, k, DumInt, Level, Edge;
     int TotNum, i_size, f_size, c_size;
     float DumFloat;
     FILE *adb_file, *madb_file;
@@ -431,24 +439,30 @@ void GL_VIEWER::LoadMeshData(void)
        BIO.fread(&DumInt, i_size, 1, adb_file);
 
     }
+    
+    // Read in model type... VLM or PANEL
+    
+    BIO.fread(&ModelType, i_size, 1, adb_file);
+    
+    // Read in symmetry flag
+    
+    BIO.fread(&SymmetryFlag, i_size, 1, adb_file);    
 
     // Read in header
 
     BIO.fread(&NumberOfNodes,  i_size, 1, adb_file);
     BIO.fread(&NumberOfTris,   i_size, 1, adb_file);
-    BIO.fread(&NumberOfMachs,  i_size, 1, adb_file);
-    BIO.fread(&NumberOfAlphas, i_size, 1, adb_file);
     BIO.fread(&Sref,           f_size, 1, adb_file);
     BIO.fread(&Cref,           f_size, 1, adb_file);
     BIO.fread(&Bref,           f_size, 1, adb_file);
     BIO.fread(&Xcg,            f_size, 1, adb_file);
     BIO.fread(&Ycg,            f_size, 1, adb_file);
     BIO.fread(&Zcg,            f_size, 1, adb_file);
+    
+    NumberOfMachs = NumberOfAlphas = NumberOfBetas = 1;
 
     printf("NumberOfNodes:  %d \n",NumberOfNodes);
     printf("NumberOfTris:   %d \n",NumberOfTris);
-    printf("NumberOfMachs:  %d \n",NumberOfMachs);
-    printf("NumberOfAlphas: %d \n",NumberOfAlphas);
     printf("Sref:           %f \n",Sref);
     printf("Cref:           %f \n",Cref);
     printf("Bref:           %f \n",Bref);
@@ -456,8 +470,6 @@ void GL_VIEWER::LoadMeshData(void)
     printf("Ycg:            %f \n",Ycg);
     printf("Zcg:            %f \n",Zcg);fflush(NULL);
 
-    NumberOfBetas = 1;
-    
     TotNum = NumberOfMachs * NumberOfBetas * NumberOfAlphas;
 
     // Create space to store grid and solution
@@ -473,12 +485,6 @@ void GL_VIEWER::LoadMeshData(void)
     MachList = new float[NumberOfMachs + 1];
     BetaList = new float[NumberOfBetas + 1];
     AlphaList = new float[NumberOfAlphas + 1];
-
-    // Read in the EdgeMach, Q, and Alpha lists
-
-    for ( k = 1 ; k <= NumberOfMachs  ; k++ ) BIO.fread(&MachList[k],    f_size, 1, adb_file);
-    for ( k = 1 ; k <= NumberOfAlphas ; k++ ) { BIO.fread(&AlphaList[k], f_size, 1, adb_file); AlphaList[k] /= TORAD; };
-    for ( k = 1 ; k <= NumberOfBetas  ; k++ ) { BIO.fread(&BetaList[k],  f_size, 1, adb_file); BetaList[k]  /= TORAD; };
 
     // Read in wing ID flags, names...
  
@@ -498,7 +504,7 @@ void GL_VIEWER::LoadMeshData(void)
      
     }
     
-    // Write out body ID flags, names...
+    // Read in body ID flags, names...
 
     fread(&NumberOfBodies_, i_size, 1, adb_file);
     
@@ -515,6 +521,24 @@ void GL_VIEWER::LoadMeshData(void)
        printf("Body: %d ... %s \n",i,BodyListName_[i]);fflush(NULL);
      
     } 
+    
+    // Read in Cart3d ID flags, names...
+
+    fread(&NumberOfCart3dSurfaces_, i_size, 1, adb_file);
+    
+    Cart3dListName_ = new char*[NumberOfCart3dSurfaces_ + 1];
+    
+    for ( i = 1 ; i <= NumberOfCart3dSurfaces_ ; i++ ) { 
+     
+       fread(&DumInt, i_size, 1, adb_file);
+       
+       Cart3dListName_[i] = new char[200];
+
+       fread(Cart3dListName_[i], c_size, 100, adb_file);
+       
+       printf("Cart3d: %d ... %s \n",i,Cart3dListName_[i]);fflush(NULL);
+     
+    }     
 
     // Load in the geometry and surface information
 
@@ -539,6 +563,128 @@ void GL_VIEWER::LoadMeshData(void)
 
     }
     
+    // Find Min/Max of geometry
+
+    FindMeshMinMax();
+    
+    // Read in any propulsion data
+    
+    BIO.fread(&(NumberOfPropulsionElements), i_size, 1, adb_file); 
+    
+    printf("NumberOfPropulsionElements: %d \n",NumberOfPropulsionElements);fflush(NULL);
+    
+    PropulsionElement = new PROPULSION_ELEMENT[NumberOfPropulsionElements + 1];
+    
+    for ( i = 1 ; i <= NumberOfPropulsionElements ; i++ ) {
+     
+       PropulsionElement[i].Rotor.Read_Binary_STP_Data(adb_file);
+    
+    }
+    
+    DrawPropulsionElementsIsOn = 0;    
+    
+    // Read in any coarse mesh edge data
+    
+    BIO.fread(&(NumberOfMeshLevels), i_size, 1, adb_file); 
+    
+    printf("NumberOfMeshLevels: %d \n",NumberOfMeshLevels);fflush(NULL);
+    
+    CoarseNodeList = new NODE*[NumberOfMeshLevels + 1];
+    CoarseEdgeList = new EDGE*[NumberOfMeshLevels + 1];
+    
+    NumberOfCourseNodesForLevel = new int[NumberOfMeshLevels + 1];
+    NumberOfCourseEdgesForLevel = new int[NumberOfMeshLevels + 1];
+    
+    for ( Level = 1 ; Level < NumberOfMeshLevels ; Level++ ) {
+     
+       BIO.fread(&(NumberOfCourseNodesForLevel[Level]), i_size, 1, adb_file);    
+       BIO.fread(&(NumberOfCourseEdgesForLevel[Level]), i_size, 1, adb_file);          
+     
+       printf("Number of course nodes for level: %d is: %d \n",Level,NumberOfCourseNodesForLevel[Level]);fflush(NULL);
+       printf("Number of course edges for level: %d is: %d \n",Level,NumberOfCourseEdgesForLevel[Level]);fflush(NULL);
+  
+       CoarseNodeList[Level] = new NODE[NumberOfCourseNodesForLevel[Level] + 1];
+       CoarseEdgeList[Level] = new EDGE[NumberOfCourseEdgesForLevel[Level] + 1];
+
+       for ( i = 1 ; i <= NumberOfCourseNodesForLevel[Level] ; i++ ) {
+ 
+          BIO.fread(&(CoarseNodeList[Level][i].x), f_size, 1, adb_file);       
+          BIO.fread(&(CoarseNodeList[Level][i].y), f_size, 1, adb_file);  
+          BIO.fread(&(CoarseNodeList[Level][i].z), f_size, 1, adb_file);       
+          
+          CoarseNodeList[Level][i].x -= GeometryXShift;
+          CoarseNodeList[Level][i].y -= GeometryYShift;
+          CoarseNodeList[Level][i].z -= GeometryZShift;
+          
+       }
+         
+       for ( i = 1 ; i <= NumberOfCourseEdgesForLevel[Level] ; i++ ) {
+ 
+          BIO.fread(&(CoarseEdgeList[Level][i].SurfaceID), i_size, 1, adb_file);       
+        
+          BIO.fread(&(CoarseEdgeList[Level][i].node1), i_size, 1, adb_file);       
+          BIO.fread(&(CoarseEdgeList[Level][i].node2), i_size, 1, adb_file);       
+          
+          CoarseEdgeList[Level][i].IsKuttaEdge = 0;
+          
+       }
+    
+    }    
+    
+    // Read in the kutta edge data
+    
+    Level = 1;
+    
+    BIO.fread(&(NumberOfKuttaEdges), i_size, 1, adb_file);       
+
+    for ( i = 1 ; i <= NumberOfKuttaEdges; i++ ) {
+       
+       BIO.fread(&(Edge), i_size, 1, adb_file);      
+       
+       CoarseEdgeList[Level][Edge].IsKuttaEdge = 1;
+        
+    }
+    
+    // Read in the kutta node data
+    
+    Level = 1;
+    
+    BIO.fread(&(NumberOfKuttaNodes), i_size, 1, adb_file);       
+
+    for ( i = 1 ; i <= NumberOfKuttaNodes; i++ ) {
+       
+       BIO.fread(&(DumInt), i_size, 1, adb_file);      
+
+    }    
+    
+    // Read in any control surfaces
+    
+    BIO.fread(&(NumberOfControlSurfaces), i_size, 1, adb_file);       
+    
+    printf("NumberOfControlSurfaces: %d \n",NumberOfControlSurfaces);
+    
+    ControlSurface = new CONTROL_SURFACE[NumberOfControlSurfaces + 1];
+    
+    for ( i = 1 ; i <= NumberOfControlSurfaces; i++ ) {
+
+       BIO.fread(&(ControlSurface[i].Node1[0]), f_size, 1, adb_file); ControlSurface[i].Node1[0] -= GeometryXShift;      
+       BIO.fread(&(ControlSurface[i].Node1[1]), f_size, 1, adb_file); ControlSurface[i].Node1[1] -= GeometryYShift;       
+       BIO.fread(&(ControlSurface[i].Node1[2]), f_size, 1, adb_file); ControlSurface[i].Node1[2] -= GeometryZShift;            
+                 
+       BIO.fread(&(ControlSurface[i].Node2[0]), f_size, 1, adb_file); ControlSurface[i].Node2[0] -= GeometryXShift;       
+       BIO.fread(&(ControlSurface[i].Node2[1]), f_size, 1, adb_file); ControlSurface[i].Node2[1] -= GeometryYShift;  
+       BIO.fread(&(ControlSurface[i].Node2[2]), f_size, 1, adb_file); ControlSurface[i].Node2[2] -= GeometryZShift;    
+
+       BIO.fread(&(ControlSurface[i].Node3[0]), f_size, 1, adb_file); ControlSurface[i].Node3[0] -= GeometryXShift;       
+       BIO.fread(&(ControlSurface[i].Node3[1]), f_size, 1, adb_file); ControlSurface[i].Node3[1] -= GeometryYShift;  
+       BIO.fread(&(ControlSurface[i].Node3[2]), f_size, 1, adb_file); ControlSurface[i].Node3[2] -= GeometryZShift;    
+       
+       BIO.fread(&(ControlSurface[i].Node4[0]), f_size, 1, adb_file); ControlSurface[i].Node4[0] -= GeometryXShift;       
+       BIO.fread(&(ControlSurface[i].Node4[1]), f_size, 1, adb_file); ControlSurface[i].Node4[1] -= GeometryYShift;  
+       BIO.fread(&(ControlSurface[i].Node4[2]), f_size, 1, adb_file); ControlSurface[i].Node4[2] -= GeometryZShift;    
+                     
+    }       
+    
     // Store the current location in the file
 
     fgetpos(adb_file, &StartOfWallTemperatureData);
@@ -546,10 +692,6 @@ void GL_VIEWER::LoadMeshData(void)
     // Close the adb file
 
     fclose(adb_file);
-
-    // Find Min/Max of geometry
-
-    FindMeshMinMax();
 
     // Force the view box to a fixed value
 
@@ -567,6 +709,205 @@ void GL_VIEWER::LoadMeshData(void)
     ComGeom2PanelTag = new int[NumberOfTris + 1];
 
 }
+
+/*##############################################################################
+#                                                                              #
+#                        GL_VIEWER LoadSolutionCaseList                        #
+#                                                                              #
+##############################################################################*/
+
+void GL_VIEWER::LoadSolutionCaseList(void)
+{
+ 
+    int i;
+    char file_name_w_ext[2000], DumChar[2000];
+    FILE *adb_file;
+    
+    // Open the solution case list
+
+    sprintf(file_name_w_ext,"%s.adb.cases",file_name);
+
+    if ( (adb_file = fopen(file_name_w_ext,"r")) == NULL ) {
+
+       printf("Could not open the adb case list file... ! \n");fflush(NULL);
+                     
+       exit(1);
+
+    }       
+    
+    // Read in the cases until eof
+    
+    NumberOfADBCases_ = 0;
+    
+    while ( fgets(DumChar,2000,adb_file) != NULL ) {
+       
+       NumberOfADBCases_++;
+       
+    }
+    
+    rewind(adb_file);
+    
+    ADBCaseList_ = new SOLUTION_CASE[NumberOfADBCases_ + 1];
+
+    for ( i = 1 ; i <= NumberOfADBCases_ ; i++ ) {
+
+       fscanf(adb_file,"%f %f %f",
+       &(ADBCaseList_[i].Mach),
+       &(ADBCaseList_[i].Alpha),
+       &(ADBCaseList_[i].Beta));
+        
+       fgets(ADBCaseList_[i].CommentLine,200,adb_file);
+        
+    }
+        
+    fclose(adb_file); 
+   
+}
+
+
+/*##############################################################################
+#                                                                              #
+#                              GL_VIEWER LoadSolutionData                      #
+#                                                                              #
+##############################################################################*/
+
+void GL_VIEWER::LoadSolutionData(void)
+{
+
+    int i;
+
+    // Get the user selected case
+
+    LoadExistingSolutionData(UserSelectedSolutionCase_);
+
+    FindSolutionMinMax();
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                      GL_VIEWER LoadExistingSolutionData                      #
+#                                                                              #
+##############################################################################*/
+
+void GL_VIEWER::LoadExistingSolutionData(int Case)
+{
+
+    char file_name_w_ext[2000], DumChar[100], GridName[100];
+    int i, j, k, m, p, Level;
+    int i_size, f_size, c_size;
+    int DumInt, nod1, nod2, nod3, CFDCaseFlag, Edge;
+    float FreeStreamPressure, DynamicPressure, Xc, Yc, Zc, Fx, Fy, Fz, Cf;
+    float BoundaryLayerThicknessCode, LaminarDelta, TurbulentDelta, DumFloat;
+    FILE *adb_file, *madb_file;
+    BINARYIO BIO;
+    long OffSet;
+
+    // Sizeof ints and floats
+
+    i_size = sizeof(int);
+    f_size = sizeof(float);
+    c_size = sizeof(char);
+
+    // Check on endian issues
+
+    if ( ByteSwapForADB ) BIO.TurnByteSwapForReadsOn();
+
+    // Open the aerothermal data base file
+
+    sprintf(file_name_w_ext,"%s.adb",file_name);
+
+    if ( (adb_file = fopen(file_name_w_ext,"rb")) == NULL ) {
+
+       printf("Could not open either an adb or madb file... ! \n");fflush(NULL);
+                     
+       exit(1);
+
+    } 
+    
+    // Read in the default text string to check on endianess
+
+    BIO.fread(&DumInt, i_size, 1, adb_file);
+
+    if ( DumInt != -123789456  ) {
+
+       BIO.TurnByteSwapForReadsOn();
+
+       rewind(adb_file);
+
+       BIO.fread(&DumInt, i_size, 1, adb_file);
+
+    }
+
+    // Set the file position to the top of the temperature data
+
+    fsetpos(adb_file, &StartOfWallTemperatureData);
+    
+    for ( p = 1 ; p <= Case ; p++ ) {  
+   
+       // Read in the EdgeMach, Q, and Alpha lists
+   
+       for ( k = 1 ; k <= NumberOfMachs  ; k++ ) BIO.fread(&MachList[k],    f_size, 1, adb_file);
+       for ( k = 1 ; k <= NumberOfAlphas ; k++ ) { BIO.fread(&AlphaList[k], f_size, 1, adb_file); AlphaList[k] /= TORAD; };
+       for ( k = 1 ; k <= NumberOfBetas  ; k++ ) { BIO.fread(&BetaList[k],  f_size, 1, adb_file); BetaList[k]  /= TORAD; };
+
+       // Read in data set 
+   
+       BIO.fread(&(CpMinSoln), f_size, 1, adb_file); // Min Cp from solver
+       BIO.fread(&(CpMaxSoln), f_size, 1, adb_file); // Max Cp from solver
+   
+       for ( m = 1 ; m <= NumberOfTris ; m++ ) {
+   
+          BIO.fread(&(Cp[m]), f_size, 1, adb_file); // Cp
+    
+       }
+      
+       // Read in the wake location data
+       
+       BIO.fread(&(NumberOfTrailingVortexEdges_), i_size, 1, adb_file); // Number of trailing wake vortices
+   
+       XWake_ = new float*[NumberOfTrailingVortexEdges_ + 1];
+       YWake_ = new float*[NumberOfTrailingVortexEdges_ + 1];
+       ZWake_ = new float*[NumberOfTrailingVortexEdges_ + 1];
+       
+       for ( i = 1 ; i <= NumberOfTrailingVortexEdges_ ; i++ ) {
+        
+          BIO.fread(&(NumberOfSubVortexNodes_), i_size, 1, adb_file); // Number of sub vortices
+   
+          XWake_[i] = new float[NumberOfSubVortexNodes_ + 1];
+          YWake_[i] = new float[NumberOfSubVortexNodes_ + 1];
+          ZWake_[i] = new float[NumberOfSubVortexNodes_ + 1];
+          
+          for ( j = 1 ; j <= NumberOfSubVortexNodes_ ; j++ ) {
+          
+             BIO.fread(&(XWake_[i][j]), f_size, 1, adb_file); // X
+             BIO.fread(&(YWake_[i][j]), f_size, 1, adb_file); // Y
+             BIO.fread(&(ZWake_[i][j]), f_size, 1, adb_file); // Z
+             
+             XWake_[i][j] -= GeometryXShift;
+             YWake_[i][j] -= GeometryYShift;
+             ZWake_[i][j] -= GeometryZShift;
+             
+           }
+          
+       }
+       
+       CurrentEdgeMach  =  MachList[1];
+       CurrentAlpha     = AlphaList[1];
+       CurrentBeta      = BetaList[1];
+   
+       CurrentChoiceMach  = 1;
+       CurrentChoiceAlpha = 1;
+       CurrentChoiceBeta  = 1;
+       
+    }
+
+    // Close the adb file
+
+    fclose(adb_file);
+
+}
+
 
 /*##############################################################################
 #                                                                              #
@@ -1144,189 +1485,6 @@ void GL_VIEWER::FixViewingBox(float x1, float x2, float y1, float y2, float z1, 
 
 /*##############################################################################
 #                                                                              #
-#                              GL_VIEWER LoadSolutionData                      #
-#                                                                              #
-##############################################################################*/
-
-void GL_VIEWER::LoadSolutionData(void)
-{
-
-    int Case = 0;
-
-    // Get the user selected case
-
-    LoadExistingSolutionData();
-
-    FindSolutionMinMax();
-
-    // Save to script file
-
-    WriteToScriptFile("LoadSolutionData");
-
-}
-
-/*##############################################################################
-#                                                                              #
-#                      GL_VIEWER LoadExistingSolutionData                      #
-#                                                                              #
-##############################################################################*/
-
-void GL_VIEWER::LoadExistingSolutionData(void)
-{
-
-    char file_name_w_ext[2000], DumChar[100], GridName[100];
-    int i, j, m, Level;
-    int i_size, f_size, c_size;
-    int DumInt, nod1, nod2, nod3, CFDCaseFlag;
-    float FreeStreamPressure, DynamicPressure, Xc, Yc, Zc, Fx, Fy, Fz, Cf;
-    float BoundaryLayerThicknessCode, LaminarDelta, TurbulentDelta;
-    FILE *adb_file, *madb_file;
-    BINARYIO BIO;
-    long OffSet;
-
-    // Sizeof ints and floats
-
-    i_size = sizeof(int);
-    f_size = sizeof(float);
-    c_size = sizeof(char);
-
-    // Check on endian issues
-
-    if ( ByteSwapForADB ) BIO.TurnByteSwapForReadsOn();
-
-    // Open the aerothermal data base file
-
-    sprintf(file_name_w_ext,"%s.adb",file_name);
-
-    if ( (adb_file = fopen(file_name_w_ext,"rb")) == NULL ) {
-
- 
-       printf("Could not open either an adb or madb file... ! \n");fflush(NULL);
-                     
-       exit(1);
-
-    }       
-
-    // Read in the default text string to check on endianess
-
-    BIO.fread(&DumInt, i_size, 1, adb_file);
-
-    if ( DumInt != -123789456  ) {
-
-       BIO.TurnByteSwapForReadsOn();
-
-       rewind(adb_file);
-
-       BIO.fread(&DumInt, i_size, 1, adb_file);
-
-    }
-
-    // Set the file position to the top of the temperature data
-
-    fsetpos(adb_file, &StartOfWallTemperatureData);
-
-	// Read in data set
-
-	BIO.fread(&(FreeStreamPressure), f_size, 1, adb_file); // Freestream static pressure
-	BIO.fread(&(DynamicPressure),    f_size, 1, adb_file); // Freestream dynamic pressure
-
-	for ( m = 1 ; m <= NumberOfTris ; m++ ) {
-
-       BIO.fread(&(Cp[m]), f_size, 1, adb_file); // Cp
- 
- 	}
- 	
- 	// Read in the wake location data
-    
-    BIO.fread(&(NumberOfTrailingVortexEdges_), i_size, 1, adb_file); // Number of trailing wake vortices
-    
-    XWake_ = new float*[NumberOfTrailingVortexEdges_ + 1];
-    YWake_ = new float*[NumberOfTrailingVortexEdges_ + 1];
-    ZWake_ = new float*[NumberOfTrailingVortexEdges_ + 1];
-    
-    for ( i = 1 ; i <= NumberOfTrailingVortexEdges_ ; i++ ) {
-     
-       BIO.fread(&(NumberOfSubVortexNodes_), i_size, 1, adb_file); // Number of sub vortices
-
-       XWake_[i] = new float[NumberOfSubVortexNodes_ + 1];
-       YWake_[i] = new float[NumberOfSubVortexNodes_ + 1];
-       ZWake_[i] = new float[NumberOfSubVortexNodes_ + 1];
-       
-       for ( j = 1 ; j <= NumberOfSubVortexNodes_ ; j++ ) {
-       
-          BIO.fread(&(XWake_[i][j]), f_size, 1, adb_file); // X
-          BIO.fread(&(YWake_[i][j]), f_size, 1, adb_file); // Y
-          BIO.fread(&(ZWake_[i][j]), f_size, 1, adb_file); // Z
-          
-          XWake_[i][j] -= GeometryXShift;
-          YWake_[i][j] -= GeometryYShift;
-          ZWake_[i][j] -= GeometryZShift;
-          
-        }
-       
-    }
-    
-    // Read in any propulsion data
-    
-    BIO.fread(&(NumberOfPropulsionElements), i_size, 1, adb_file); 
-    
-    printf("NumberOfPropulsionElements: %d \n",NumberOfPropulsionElements);fflush(NULL);
-    
-    PropulsionElement = new PROPULSION_ELEMENT[NumberOfPropulsionElements + 1];
-    
-    for ( i = 1 ; i <= NumberOfPropulsionElements ; i++ ) {
-     
-       PropulsionElement[i].Rotor.Read_Binary_STP_Data(adb_file);
-    
-    }
-    
-    DrawPropulsionElementsIsOn = 0;
-    
-    // Read in any coarse mesh edge data
-    
-    BIO.fread(&(NumberOfMeshLevels), i_size, 1, adb_file); 
-    
-    printf("NumberOfMeshLevels: %d \n",NumberOfMeshLevels);fflush(NULL);
-    
-    CoarseEdgeList = new EDGE*[NumberOfMeshLevels + 1];
-    
-    NumberOfCourseEdgesForLevel = new int[NumberOfMeshLevels + 1];
-    
-    for ( Level = 1 ; Level < NumberOfMeshLevels ; Level++ ) {
-     
-       BIO.fread(&(NumberOfCourseEdgesForLevel[Level]), i_size, 1, adb_file);       
-     
-       printf("Number of course edges for level: %d is: %d \n",Level,NumberOfCourseEdgesForLevel[Level]);fflush(NULL);
-       
-       CoarseEdgeList[Level] = new EDGE[NumberOfCourseEdgesForLevel[Level] + 1];
-       
-       for ( i = 1 ; i <= NumberOfCourseEdgesForLevel[Level] ; i++ ) {
- 
-          BIO.fread(&(CoarseEdgeList[Level][i].SurfaceID), i_size, 1, adb_file);       
-        
-          BIO.fread(&(CoarseEdgeList[Level][i].node1), i_size, 1, adb_file);       
-          BIO.fread(&(CoarseEdgeList[Level][i].node2), i_size, 1, adb_file);       
-          
-       }
-       
-    }    
-     
-    CurrentEdgeMach  =  MachList[1];
-    CurrentAlpha     = AlphaList[1];
-    CurrentBeta      = BetaList[1];
-
-    CurrentChoiceMach  = 1;
-    CurrentChoiceAlpha = 1;
-    CurrentChoiceBeta  = 1;
-
-    // Close the adb file
-
-    fclose(adb_file);
-
-}
-
-/*##############################################################################
-#                                                                              #
 #                            GL_VIEWER FindSolutionMinMax                      #
 #                                                                              #
 ##############################################################################*/
@@ -1367,12 +1525,19 @@ void GL_VIEWER::FindSolutionMinMax(void)
 
     // Set Cp min, and max
     
-    CpMin = MAX(Avg - 1. * StdDev, CpMinActual);
-    CpMax = MIN(Avg + 1. * StdDev, CpMaxActual);
-
-    // Save this to script file
-
-    WriteToScriptFile("FindSolutionMinMax");
+    if ( ModelType == VLM_MODEL ) {
+    
+       CpMin = MAX(Avg - 1. * StdDev, CpMinActual);
+       CpMax = MIN(Avg + 1. * StdDev, CpMaxActual);
+       
+    }
+    
+    else {
+       
+       CpMin = CpMinSoln;
+       CpMax = CpMaxSoln;
+       
+    }
 
 }
 
@@ -1389,10 +1554,6 @@ void GL_VIEWER::SetSolutionMin(float MinVal)
 
     if ( DrawCpIsOn) CpMin = MinVal;
 
-    // Save this to script file
-
-    WriteToScriptFileTextData("SetSolutionMin", MinVal);
-
 }
 
 /*##############################################################################
@@ -1407,10 +1568,6 @@ void GL_VIEWER::SetSolutionMax(float MaxVal)
     int i;
 
     if ( DrawCpIsOn ) CpMax = MaxVal;
-
-    // Save this to script file
-
-    WriteToScriptFileTextData("SetSolutionMax", MaxVal);
 
 }
 
@@ -1430,8 +1587,6 @@ void GL_VIEWER::ResetView(void)
     NewScale = OldScale = 1.;
 
     trackball(NewQuat, 0.0, 0.0, 0.0, 0.0);
-
-    WriteToScriptFile("ResetView");
 
 }
 
@@ -1454,8 +1609,6 @@ void GL_VIEWER::FitToWindow(void)
 
     trackball(NewQuat, 0.0, 0.0, 0.0, 0.0);
 
-    WriteToScriptFile("FitToWindow");
-
 }
 
 /*##############################################################################
@@ -1476,8 +1629,6 @@ void GL_VIEWER::TopView(void)
     NewScale = OldScale = 2.;
 
     trackball(NewQuat, 0.0, 0.0, 0.0, 0.0);
-
-    WriteToScriptFile("TopView");
 
 }
 
@@ -1502,8 +1653,6 @@ void GL_VIEWER::BottomView(void)
 
     trackball(NewQuat, 0.0, 0.0, 0.0, 0.0);
 
-    WriteToScriptFile("BottomView");
-
 }
 
 /*##############################################################################
@@ -1526,8 +1675,6 @@ void GL_VIEWER::LeftView(void)
     NewScale = OldScale = 2.;
 
     trackball(NewQuat, 0.0, 0.0, 0.0, 0.0);
-
-    WriteToScriptFile("LeftView");
 
 }
 
@@ -1552,8 +1699,6 @@ void GL_VIEWER::RightView(void)
 
     trackball(NewQuat, 0.0, 0.0, 0.0, 0.0);
 
-    WriteToScriptFile("RightView");
-
 }
 
 /*##############################################################################
@@ -1576,8 +1721,6 @@ void GL_VIEWER::FrontView(void)
     NewScale = OldScale = 2.;
 
     trackball(NewQuat, 0.0, 0.0, 0.0, 0.0);
-
-    WriteToScriptFile("FrontView");
 
 }
 
@@ -1602,8 +1745,6 @@ void GL_VIEWER::RearView(void)
 
     trackball(NewQuat, 0.0, 0.0, 0.0, 0.0);
 
-    WriteToScriptFile("RearView");
-
 }
 
 /*##############################################################################
@@ -1625,8 +1766,6 @@ void GL_VIEWER::IsoViewDown(void)
     NewTransX = NewTransY = OldTransX = OldTransY = 0.;
     NewScale = OldScale = 2.;
 
-    WriteToScriptFile("IsoViewDown");
-
 }
 
 /*##############################################################################
@@ -1647,398 +1786,6 @@ void GL_VIEWER::IsoViewUp(void)
 
     NewTransX = NewTransY = OldTransX = OldTransY = 0.;
     NewScale = OldScale = 2.;
-
-    WriteToScriptFile("IsoViewUp");
-
-}
-
-/*##############################################################################
-#                                                                              #
-#                             GL_VIEWER StartScript                            #
-#                                                                              #
-##############################################################################*/
-
-void GL_VIEWER::StartScript(void)
-{
-
-    char file_name_w_ext[2000];
-
-    // Open the script file
-
-    sprintf(file_name_w_ext,"%s.new.script",file_name);
-
-    if ( (ScriptFile = fopen(file_name_w_ext,"w")) == NULL ) {
-
-       printf("Could not open the file: %s for output! \n",file_name_w_ext);fflush(NULL);
-
-       exit(1);
-
-    }
-
-    WriteScriptFile = 1;
-
-    // Set initial solution to first entry in adb file
-
-     MachNumberWasChangedTo(1);
-     BetaNumberWasChangedTo(1);
-    AlphaNumberWasChangedTo(1);
-
-}
-
-/*##############################################################################
-#                                                                              #
-#                             GL_VIEWER RunScript                              #
-#                                                                              #
-##############################################################################*/
-
-void GL_VIEWER::RunScript(char *ScriptName, viewerUI *vui)
-{
-
-    float q;
-    char NextLine[80];
-    FILE *ScriptFile;
-
-    // Open the font file
-
-    if ( (ScriptFile = fopen(ScriptName,"r")) == NULL ) {
-
-       printf("Could not open the script file: %s for reading! \n",ScriptName);fflush(NULL);
-
-       exit(1);
-
-    }
-
-    while ( fscanf(ScriptFile,"%s \n",NextLine) != EOF ) {
-
-       printf("NextLine: %s \n",NextLine);fflush(NULL);
-
-       // Parse the script file
-
-       // Smooth shading
-
-       if ( strcmp(NextLine,"DrawSmoothShadeIsOn" ) == 0 ) DrawSmoothShadeIsOn = 1;
-       if ( strcmp(NextLine,"DrawSmoothShadeIsOff") == 0 ) DrawSmoothShadeIsOn = 0;
-
-       // Smooth function
-
-       if ( strcmp(NextLine,"DrawSmoothFunctionsIsOn" ) == 0 ) DrawSmoothFunctionsIsOn = 1;
-       if ( strcmp(NextLine,"DrawSmoothFunctionsIsOff") == 0 ) DrawSmoothFunctionsIsOn = 0;
-
-       // Draw reflected geometry
-
-       if ( strcmp(NextLine,"DrawReflectedGeometryIsOn" ) == 0 ) DrawReflectedGeometryIsOn = 1;
-       if ( strcmp(NextLine,"DrawReflectedGeometryIsOff") == 0 ) DrawReflectedGeometryIsOn = 0;
-
-       // Legend
-
-       if ( strcmp(NextLine,"DrawLegendIsOn" ) == 0 ) DrawLegendIsOn = 1;
-       if ( strcmp(NextLine,"DrawLegendIsOff") == 0 ) DrawLegendIsOn = 0;
-
-       // Label
-
-       if ( strcmp(NextLine,"DrawLabelIsOn" ) == 0 ) DrawLabelIsOn = 1;
-       if ( strcmp(NextLine,"DrawLabelIsOff") == 0 ) DrawLabelIsOn = 0;
-
-       // CG Labels
-
-       if ( strcmp(NextLine,"DrawCGLabelIsOn" ) == 0 ) DrawCGLabelIsOn = 1;
-       if ( strcmp(NextLine,"DrawCGLabelIsOff") == 0 ) DrawCGLabelIsOn = 0;
-
-       // White background
-
-       if ( strcmp(NextLine,"DrawWithWhiteBackgroundIsOn" ) == 0 ) DrawWithWhiteBackgroundIsOn = 1;
-       if ( strcmp(NextLine,"DrawWithWhiteBackgroundIsOff") == 0 ) DrawWithWhiteBackgroundIsOn = 0;
-
-       // Wire frame
-
-       if ( strcmp(NextLine,"DrawWireFrameIsOn" ) == 0 ) DrawWireFrameIsOn = 1;
-       if ( strcmp(NextLine,"DrawWireFrameIsOff") == 0 ) DrawWireFrameIsOn = 0;
-
-       // Shaded
-
-       if ( strcmp(NextLine,"DrawShadedIsOn" ) == 0 ) DrawShadedIsOn = 1;
-       if ( strcmp(NextLine,"DrawShadedIsOff") == 0 ) DrawShadedIsOn = 0;
-
-       // Draw only selected
-
-       if ( strcmp(NextLine,"DrawOnlySelectedIsOn" ) == 0 ) DrawOnlySelectedIsOn = 1;
-       if ( strcmp(NextLine,"DrawOnlySelectedIsOff") == 0 ) DrawOnlySelectedIsOn = 0;
-
-       // Cp
-
-       if ( strcmp(NextLine,"DrawCpIsOn" ) == 0 ) DrawCpIsOn = 1;
-       if ( strcmp(NextLine,"DrawCpIsOff") == 0 ) DrawCpIsOn = 0;
-
-       // CG
-
-       if ( strcmp(NextLine,"DrawCGIsOn" ) == 0 ) DrawCGIsOn = 1;
-       if ( strcmp(NextLine,"DrawCGIsOff") == 0 ) DrawCGIsOn = 0;
-       
-       // Wakes
-       
-       if ( strcmp(NextLine,"DrawWakesIsOn" ) == 0 ) DrawWakesIsOn = 1;
-       if ( strcmp(NextLine,"DrawWakesIsOff") == 0 ) DrawWakesIsOn = 0;
-       
-       //  Adjust views
-
-       if ( strcmp(NextLine,"ResetView"    ) == 0 ) ResetView();
-       if ( strcmp(NextLine,"TopView"      ) == 0 ) TopView();
-       if ( strcmp(NextLine,"BottomView"   ) == 0 ) BottomView();
-       if ( strcmp(NextLine,"LeftView"     ) == 0 ) LeftView();
-       if ( strcmp(NextLine,"RightView"    ) == 0 ) RightView();
-       if ( strcmp(NextLine,"FrontView"    ) == 0 ) FrontView();
-       if ( strcmp(NextLine,"RearView"     ) == 0 ) RearView();
-       if ( strcmp(NextLine,"IsoViewUp"    ) == 0 ) IsoViewUp();
-       if ( strcmp(NextLine,"IsoViewDown"  ) == 0 ) IsoViewDown();
-       if ( strcmp(NextLine,"ZeroAllViews" ) == 0 ) ZeroAllViews();
-
-       // Mouse button 1 down
-
-       if ( strcmp(NextLine,"MouseButton1Down" ) == 0 ) {
-
-          fscanf(ScriptFile,"%s \n",NextLine); OldX = atoi(NextLine);
-          fscanf(ScriptFile,"%s \n",NextLine); OldY = atoi(NextLine);
-
-       }
-
-       // Mouse button 2 down
-
-       if ( strcmp(NextLine,"MouseButton2Down" ) == 0 ) {
-
-          fscanf(ScriptFile,"%s \n",NextLine); OldX = atoi(NextLine);
-          fscanf(ScriptFile,"%s \n",NextLine); OldY = atoi(NextLine);
-
-          OldScale = NewScale;
-
-       }
-
-       // Mouse button 3 down
-
-       if ( strcmp(NextLine,"MouseButton3Down" ) == 0 ) {
-
-          fscanf(ScriptFile,"%s \n",NextLine); OldX = atoi(NextLine);
-          fscanf(ScriptFile,"%s \n",NextLine); OldY = atoi(NextLine);
-
-          OldTransX = NewTransX;
-          OldTransY = NewTransY;
-
-       }
-
-       // Mouse rotation
-
-       if ( strcmp(NextLine,"MouseRotation" ) == 0 ) {
-
-          fscanf(ScriptFile,"%s \n",NextLine); OldX = atoi(NextLine);
-          fscanf(ScriptFile,"%s \n",NextLine); OldY = atoi(NextLine);
-          fscanf(ScriptFile,"%s \n",NextLine); NewX = atoi(NextLine);
-          fscanf(ScriptFile,"%s \n",NextLine); NewY = atoi(NextLine);
-
-          trackball(OldQuat,
-                    2.*(2.*OldX - w()) / w(), 2.*(h() - 2.*OldY) / h(),
-                    2.*(2.*NewX - w()) / w(), 2.*(h() - 2.*NewY) / h() );
-
-          add_quats(OldQuat, NewQuat, NewQuat);
-
-          OldX = NewX;
-          OldY = NewY;
-
-          redraw();
-
-       }
-
-       // Mouse zooming
-
-       if ( strcmp(NextLine,"MouseZooming" ) == 0 ) {
-
-          fscanf(ScriptFile,"%s \n",NextLine); OldX = atoi(NextLine);
-          fscanf(ScriptFile,"%s \n",NextLine); NewY = atoi(NextLine);
-
-          q = (float) -( ( OldY - NewY )/400. );
-
-          NewScale = OldScale * exp(q);
-
-          redraw();
-
-       }
-
-       // Mouse translation
-
-       if ( strcmp(NextLine,"MouseTranslation" ) == 0 ) {
-
-          fscanf(ScriptFile,"%s \n",NextLine); OldX = atoi(NextLine);
-          fscanf(ScriptFile,"%s \n",NextLine); OldY = atoi(NextLine);
-          fscanf(ScriptFile,"%s \n",NextLine); NewX = atoi(NextLine);
-          fscanf(ScriptFile,"%s \n",NextLine); NewY = atoi(NextLine);
-
-          NewTransX = ( OldTransX + ( ( NewX - OldX )/1000. ) );
-          NewTransY = ( OldTransY - ( ( NewY - OldY )/1000. ) );
-
-          redraw();
-
-       }
-
-       // Set Size (zoom by slider)
-
-       if ( strcmp(NextLine,"SetSize" ) == 0 ) {
-
-          fscanf(ScriptFile,"%s \n",NextLine);
-
-          SetSize(atof(NextLine));
-
-       }
-
-       // Set Brightness
-
-       if ( strcmp(NextLine,"SetBrightness" ) == 0 ) {
-
-          fscanf(ScriptFile,"%s \n",NextLine);
-
-          SetBrightness(atof(NextLine));
-
-       }
-
-       // Set Vertical rotation angle
-
-       if ( strcmp(NextLine,"SetVAngle" ) == 0 ) {
-
-          fscanf(ScriptFile,"%s \n",NextLine);
-
-          v_angle(atof(NextLine));
-
-       }
-
-       // Set Horizontal rotation angle
-
-       if ( strcmp(NextLine,"SetHAngle" ) == 0 ) {
-
-          fscanf(ScriptFile,"%s \n",NextLine);
-
-          h_angle(atof(NextLine));
-
-       }
-
-       // Set pan in x direction
-
-       if ( strcmp(NextLine,"SetXShift" ) == 0 ) {
-
-          fscanf(ScriptFile,"%s \n",NextLine);
-
-          panx(atof(NextLine));
-
-       }
-
-       // Set pan in y direction
-
-       if ( strcmp(NextLine,"SetYShift" ) == 0 ) {
-
-          fscanf(ScriptFile,"%s \n",NextLine);
-
-          pany(atof(NextLine));
-
-       }
-
-       // Toggle use of english Units
-
-       if ( strcmp(NextLine,"UseEnglishUnitsOn" ) == 0 ) UseEnglishUnits = 1;
-       if ( strcmp(NextLine,"UseEnglishUnitsOff") == 0 ) UseEnglishUnits = 0;
-
-       // Set EdgeMach by index
-
-       if ( strcmp(NextLine,"MachNumberWasChangedTo" ) == 0 ) {
-
-          fscanf(ScriptFile,"%s \n",NextLine);
-
-          MachNumberWasChangedTo(atoi(NextLine));
-
-	   }
-
-       // Set dynamic pressure by index
-
-       if ( strcmp(NextLine,"BetaNumberWasChangedTo" ) == 0 ) {
-
-          fscanf(ScriptFile,"%s \n",NextLine);
-
-          BetaNumberWasChangedTo(atoi(NextLine));
-
-	   }
-
-	   // Set Alpha by index
-
-       if ( strcmp(NextLine,"AlphaNumberWasChangedTo" ) == 0 ) {
-
-          fscanf(ScriptFile,"%s \n",NextLine);
-
-          AlphaNumberWasChangedTo(atoi(NextLine));
-
-	   }
-
-	   // Set EdgeMach by value
-
-       if ( strcmp(NextLine,"SetEdgeMachTo" ) == 0 ) {
-
-          fscanf(ScriptFile,"%s \n",NextLine);
-
-	      SetEdgeMachTo(atof(NextLine));
-
-	   }
-
-	   // Set dynamic pressure by value
-
-       if ( strcmp(NextLine,"SetBetaTo" ) == 0 ) {
-
-          fscanf(ScriptFile,"%s \n",NextLine);
-
-          SetBetaTo(atof(NextLine));
-
-	   }
-
-	   // Set Alpha by value
-
-       if ( strcmp(NextLine,"SetAlphaTo" ) == 0 ) {
-
-          fscanf(ScriptFile,"%s \n",NextLine);
-
-          SetAlphaTo(atof(NextLine));
-
-	   }
-
-       // Load solution data
-
-       if ( strcmp(NextLine,"LoadSolutionData" ) == 0 ) LoadSolutionData();
-
-       // Set solution min
-
-       if ( strcmp(NextLine,"SetSolutionMin" ) == 0 ) {
-
-          fscanf(ScriptFile,"%s \n",NextLine);
-
-	      SetSolutionMin(atof(NextLine));
-
-	   }
-
-	   // Set solution max
-
-       if ( strcmp(NextLine,"SetSolutionMax" ) == 0 ) {
-
-          fscanf(ScriptFile,"%s \n",NextLine);
-
-	      SetSolutionMax(atof(NextLine));
-
-	   }
-
-	   // Reset solution min/max to defaults
-
-       if ( strcmp(NextLine,"FindSolutionMinMax" ) == 0 ) FindSolutionMinMax();
-
-	   // Exit out of cbviewer
-
-       if ( strcmp(NextLine,"Exit" ) == 0 )  {
-
-          exit(1);
-
-	   }
-
-    }
 
 }
 
@@ -2102,181 +1849,14 @@ void GL_VIEWER::ClearADBFile(void)
 
 /*##############################################################################
 #                                                                              #
-#                        GL_VIEWER WriteToScriptFile                           #
+#                        GL_VIEWER ToggleFlag                                  #
 #                                                                              #
 ##############################################################################*/
 
-void GL_VIEWER::WriteToScriptFile(const char *Text)
-{
-
-    if ( WriteScriptFile ) {
-
-       fprintf(ScriptFile,"%s\n",Text);
-
-       fflush(ScriptFile);
-
-    }
-
-}
-
-/*##############################################################################
-#                                                                              #
-#                        GL_VIEWER WriteToScriptFile                           #
-#                                                                              #
-##############################################################################*/
-
-void GL_VIEWER::WriteToScriptFile(int &Flag, const char *Text)
+void GL_VIEWER::ToggleFlag(int &Flag, const char *Text)
 {
 
     Flag = 1 - Flag;
-
-    if ( WriteScriptFile ) {
-
-       if ( Flag ) {
-
-          fprintf(ScriptFile,"%sOn\n",Text);
-
-       }
-
-       else {
-
-          fprintf(ScriptFile,"%sOff\n",Text);
-
-       }
-
-       fflush(ScriptFile);
-
-    }
-
-}
-
-/*##############################################################################
-#                                                                              #
-#                   GL_VIEWER WriteToScriptFileTextData                        #
-#                                                                              #
-##############################################################################*/
-
-void GL_VIEWER::WriteToScriptFileTextData(const char *Text, int Data)
-{
-
-    if ( WriteScriptFile ) {
-
-       fprintf(ScriptFile,"%s\n",Text);
-       fprintf(ScriptFile,"%d\n",Data);
-
-       fflush(ScriptFile);
-
-    }
-
-}
-
-/*##############################################################################
-#                                                                              #
-#                   GL_VIEWER WriteToScriptFileTextData                        #
-#                                                                              #
-##############################################################################*/
-
-void GL_VIEWER::WriteToScriptFileTextData(const char *Text, int Data1, int Data2)
-{
-
-    if ( WriteScriptFile ) {
-
-       fprintf(ScriptFile,"%s\n",Text);
-       fprintf(ScriptFile,"%d\n",Data1);
-       fprintf(ScriptFile,"%d\n",Data2);
-
-       fflush(ScriptFile);
-
-    }
-
-}
-
-/*##############################################################################
-#                                                                              #
-#                   GL_VIEWER WriteToScriptFileTextData                        #
-#                                                                              #
-##############################################################################*/
-
-void GL_VIEWER::WriteToScriptFileTextData(const char *Text, int Data1, int Data2,
-                                          int Data3, int Data4)
-{
-
-    if ( WriteScriptFile ) {
-
-       fprintf(ScriptFile,"%s\n",Text);
-       fprintf(ScriptFile,"%d\n",Data1);
-       fprintf(ScriptFile,"%d\n",Data2);
-       fprintf(ScriptFile,"%d\n",Data3);
-       fprintf(ScriptFile,"%d\n",Data4);
-
-       fflush(ScriptFile);
-
-    }
-
-}
-
-/*##############################################################################
-#                                                                              #
-#                   GL_VIEWER WriteToScriptFileTextData                        #
-#                                                                              #
-##############################################################################*/
-
-void GL_VIEWER::WriteToScriptFileTextData(const char *Text, float Data)
-{
-
-    if ( WriteScriptFile ) {
-
-       fprintf(ScriptFile,"%s\n",Text);
-       fprintf(ScriptFile,"%f\n",Data);
-
-       fflush(ScriptFile);
-
-    }
-
-}
-
-/*##############################################################################
-#                                                                              #
-#                   GL_VIEWER WriteToScriptFileTextData                        #
-#                                                                              #
-##############################################################################*/
-
-void GL_VIEWER::WriteToScriptFileTextData(const char *Text, float Data1, float Data2)
-{
-
-    if ( WriteScriptFile ) {
-
-       fprintf(ScriptFile,"%s\n",Text);
-       fprintf(ScriptFile,"%f\n",Data1);
-       fprintf(ScriptFile,"%f\n",Data2);
-
-       fflush(ScriptFile);
-
-    }
-
-}
-
-/*##############################################################################
-#                                                                              #
-#                   GL_VIEWER WriteToScriptFileTextData                        #
-#                                                                              #
-##############################################################################*/
-
-void GL_VIEWER::WriteToScriptFileTextData(const char *Text, float Data1, float Data2,
-                                          float Data3, float Data4)
-{
-
-    if ( WriteScriptFile ) {
-
-       fprintf(ScriptFile,"%s\n",Text);
-       fprintf(ScriptFile,"%f\n",Data1);
-       fprintf(ScriptFile,"%f\n",Data2);
-       fprintf(ScriptFile,"%f\n",Data3);
-       fprintf(ScriptFile,"%f\n",Data4);
-
-       fflush(ScriptFile);
-
-    }
 
 }
 
@@ -2427,7 +2007,7 @@ int GL_VIEWER::handle(int event)
              if ( Fl::event_key() == 65474 ) { FrontView();   Draw(); } // F5
              if ( Fl::event_key() == 65475 ) { RearView();    Draw(); } // F6
              if ( Fl::event_key() == 65476 ) { IsoViewUp();   Draw(); } // F7
-             if ( Fl::event_key() == 65477 ) { IsoViewDown(); Draw(); } // F8
+             if ( Fl::event_key() == 65477 ) { IsoViewDown(); Draw(); } // F8        
              
           }
           
@@ -2463,8 +2043,6 @@ int GL_VIEWER::handle(int event)
 		     OldX = Fl::event_x();
 		     OldY = Fl::event_y();
 
-           WriteToScriptFileTextData("MouseButton1Down",OldX, OldY);
-
 		   }
 
          // Button 2 Down - Zoom Control
@@ -2475,9 +2053,6 @@ int GL_VIEWER::handle(int event)
 		     OldY = Fl::event_y();
 
 		     OldScale = NewScale;
-
-           WriteToScriptFileTextData("MouseButton2Down",OldX, OldY);
-
 
 		   }
 
@@ -2490,8 +2065,6 @@ int GL_VIEWER::handle(int event)
 
 		     OldTransX = NewTransX;
 		     OldTransY = NewTransY;
-
-           WriteToScriptFileTextData("MouseButton3Down",OldX, OldY);
 
 		   }
 
@@ -2518,10 +2091,6 @@ int GL_VIEWER::handle(int event)
 
              add_quats(OldQuat, NewQuat, NewQuat);
 
-             // Save to script
-
-             WriteToScriptFileTextData("MouseRotation",OldX, OldY, NewX, NewY);
-
 		       OldX = Fl::event_x();
 		       OldY = Fl::event_y();
 
@@ -2540,10 +2109,6 @@ int GL_VIEWER::handle(int event)
 
              NewScale = OldScale * exp(q);
 
-             // Save to script
-
-             WriteToScriptFileTextData("MouseZooming",OldY, NewY);
-
              redraw();
 
 	      }
@@ -2557,10 +2122,6 @@ int GL_VIEWER::handle(int event)
 
              NewTransX = ( OldTransX + ( ( NewX - OldX )/1000. ) );
              NewTransY = ( OldTransY - ( ( NewY - OldY )/1000. ) );
-
-             // Save to script
-
-             WriteToScriptFileTextData("MouseTranslation",OldX, OldY, NewX, NewY);
 
              redraw();
 
@@ -2691,16 +2252,24 @@ void GL_VIEWER::Draw(void)
        }
 
        else {
-
+      
           if ( DrawWireFrameIsOn          ) DrawWireFrame();
+              
           if ( DrawShadedIsOn             ) DrawShadedSurface();
+                  
           if ( DrawCpIsOn                 ) DrawCp();          
+              
           if ( DrawPropulsionElementsIsOn ) DrawRotorSurfacesShaded();
+                  
           if ( DrawCGIsOn                 ) DrawCGMarker();         
+               
           if ( DrawWakesIsOn              ) DrawWakes();
-          if ( DrawCoarseMeshesIsOn       ) DrawCoarseMeshEdgesForLevel(CoarseMeshLevelSelected);
+     
+          if ( DrawCoarseMeshesIsOn       ) { DrawCoarseMeshEdgesForLevel(CoarseMeshLevelSelected); DrawCoarseMeshNodesForLevel(CoarseMeshLevelSelected); };
+
           if ( DrawAxesIsOn               ) DrawAxes();
 
+          if ( DrawControlSurfacesIsOn    ) DrawControlSurfaces();
           
        }
 
@@ -3123,8 +2692,9 @@ void GL_VIEWER::DrawWireFrame(void)
 
        SurfaceID = TriList[j].surface_id;
        
-       if ( TriList[j].surface_type == WING_SURFACE ) SurfID = SurfaceID;
-       if ( TriList[j].surface_type == BODY_SURFACE ) SurfID = SurfaceID;
+       if ( TriList[j].surface_type == WING_SURFACE   ) SurfID = SurfaceID;
+       if ( TriList[j].surface_type == BODY_SURFACE   ) SurfID = SurfaceID;
+       if ( TriList[j].surface_type == CART3D_SURFACE ) SurfID = SurfaceID;
        
        if ( !DrawOnlySelectedIsOn || DrawOnlySelectedIsOn + PanelComGeomTagsBrowser->selected(ComGeom2PanelTag[SurfID]) == 2 ) {
 
@@ -3198,22 +2768,57 @@ void GL_VIEWER::DrawCoarseMeshEdgesForLevel(int Level)
 
       SurfaceID = CoarseEdgeList[Level][j].SurfaceID;
  
+      if ( SurfaceID == 999 ) {
+
+          rgb[0] = 1.;
+          rgb[1] = 0.;
+          rgb[2] = 0.;
+      
+          glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+          glColor3fv(rgb);         
+         
+         
+      }
+      
+      else if ( CoarseEdgeList[Level][j].IsKuttaEdge ) {
+         
+          rgb[0] = 0.;
+          rgb[1] = 1.;
+          rgb[2] = 0.;
+      
+          glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+          glColor3fv(rgb);               
+         
+      }
+      
+      else {
+         
+          rgb[0] = 0.;
+          rgb[1] = 0.;
+          rgb[2] = 1.;
+      
+          glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+          glColor3fv(rgb);         
+         
+      }         
+         
+         
       if ( !DrawOnlySelectedIsOn || DrawOnlySelectedIsOn + PanelComGeomTagsBrowser->selected(ComGeom2PanelTag[SurfaceID]) == 2 ) {
 
           glBegin(GL_LINES);
    
              node1 = CoarseEdgeList[Level][j].node1;
              node2 = CoarseEdgeList[Level][j].node2;
-   
-             vec[0] = NodeList[node1].x;
-             vec[1] = NodeList[node1].y;
-             vec[2] = NodeList[node1].z;
+
+             vec[0] = CoarseNodeList[Level][node1].x;
+             vec[1] = CoarseNodeList[Level][node1].y;
+             vec[2] = CoarseNodeList[Level][node1].z;
    
              glVertex3fv(vec);
    
-             vec[0] = NodeList[node2].x;
-             vec[1] = NodeList[node2].y;
-             vec[2] = NodeList[node2].z;
+             vec[0] = CoarseNodeList[Level][node2].x;
+             vec[1] = CoarseNodeList[Level][node2].y;
+             vec[2] = CoarseNodeList[Level][node2].z;
    
              glVertex3fv(vec);
    
@@ -3226,6 +2831,46 @@ void GL_VIEWER::DrawCoarseMeshEdgesForLevel(int Level)
     glDisable(GL_POLYGON_OFFSET_LINE);
 
     glPolygonOffset(1.,1.);
+    glEnable(GL_LIGHTING);
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                              GL_VIEWER DrawWireFrame                         #
+#                                                                              #
+##############################################################################*/
+
+void GL_VIEWER::DrawCoarseMeshNodesForLevel(int Level)
+{
+
+    int j, node1, node2, node3, SurfaceID, SurfID;
+    float vec[3], rgb[3];
+
+    glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+    glPointSize(4.);
+    glDisable(GL_LIGHTING);
+
+    rgb[0] = 1.;
+    rgb[1] = 0.;
+    rgb[2] = 0.;
+
+    glColor3fv(rgb);
+    
+    for ( j = 1 ; j <= NumberOfCourseNodesForLevel[Level]; j++ ) {
+
+       vec[0] = CoarseNodeList[Level][j].x;
+       vec[1] = CoarseNodeList[Level][j].y;
+       vec[2] = CoarseNodeList[Level][j].z;
+          
+       glBegin(GL_POINTS);
+
+          glVertex3fv(vec);
+
+       glEnd();
+
+    }
+    
     glEnable(GL_LIGHTING);
 
 }
@@ -3283,6 +2928,56 @@ void GL_VIEWER::DrawWakes(void)
               
        }
 
+    }
+
+    glDisable(GL_POLYGON_OFFSET_LINE);
+
+    glPolygonOffset(1.,1.);
+    glEnable(GL_LIGHTING);
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                       GL_VIEWER DrawControlSurfaces                          #
+#                                                                              #
+##############################################################################*/
+
+void GL_VIEWER::DrawControlSurfaces(void)
+{
+
+    int j, node1, node2, node3, SurfaceID, SurfID;
+    float vec[3], rgb[3];
+
+    // Draw triangles as wire frames
+
+    rgb[0] = 0.;
+    rgb[1] = 0.;
+    rgb[2] = 0.;
+
+    glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+    glColor3fv(rgb);
+    glLineWidth(3.);
+    glDisable(GL_LIGHTING);
+
+    // Draw the surface triangles
+
+    glEnable(GL_POLYGON_OFFSET_LINE);
+
+    glPolygonOffset(0.,-10.);
+
+    for ( j = 1 ; j <= NumberOfControlSurfaces; j++ ) {
+
+       glBegin(GL_LINE_STRIP);
+
+          glVertex3fv(ControlSurface[j].Node1);
+          glVertex3fv(ControlSurface[j].Node2);
+          glVertex3fv(ControlSurface[j].Node3);
+          glVertex3fv(ControlSurface[j].Node4);
+          glVertex3fv(ControlSurface[j].Node1);
+
+       glEnd();
+          
     }
 
     glDisable(GL_POLYGON_OFFSET_LINE);
@@ -3489,6 +3184,8 @@ void GL_VIEWER::DrawShadedSurface(void)
     glPolygonOffset(1.,0.);
 
     // Draw the surface triangles
+    
+    LastTri = 0;
 
     for ( j = 1 ; j <= NumberOfTris; j++ ) {
 
@@ -3496,9 +3193,10 @@ void GL_VIEWER::DrawShadedSurface(void)
 
        SurfaceID = TriList[j].surface_id;
        
-       if ( TriList[j].surface_type == WING_SURFACE ) SurfID = SurfaceID;
-       if ( TriList[j].surface_type == BODY_SURFACE ) SurfID = SurfaceID;
-       
+       if ( TriList[j].surface_type == WING_SURFACE   ) SurfID = SurfaceID;
+       if ( TriList[j].surface_type == BODY_SURFACE   ) SurfID = SurfaceID;
+       if ( TriList[j].surface_type == CART3D_SURFACE ) SurfID = SurfaceID;
+
        if ( ComGeom2PanelTag[SurfID] != 0 &&
                  DrawComGeomTagsIsOn &&
                  DrawComGeomTagsShadedIsOn &&
@@ -3532,7 +3230,7 @@ void GL_VIEWER::DrawShadedSurface(void)
 
              LastTri = SRF_TRI;
 
-		 }
+          }
 
        }
 
@@ -3569,7 +3267,7 @@ void GL_VIEWER::DrawShadedSurface(void)
              glEnd();
    
              if ( DrawReflectedGeometryIsOn ) {
-   
+
                 glBegin(GL_TRIANGLES);
    
                    glNormal3f( Nx[j], -Ny[j], Nz[j] );
@@ -3603,7 +3301,7 @@ void GL_VIEWER::DrawShadedSurface(void)
           }
    
           else {
-   
+
              glBegin(GL_TRIANGLES);
    
                 node1 = TriList[j].node1;
@@ -3634,7 +3332,7 @@ void GL_VIEWER::DrawShadedSurface(void)
              glEnd();
    
              if ( DrawReflectedGeometryIsOn ) {
-   
+
                 glBegin(GL_TRIANGLES);
    
                    node1 = TriList[j].node1;
@@ -3735,7 +3433,7 @@ void GL_VIEWER::DrawShadedSolution(float *Function, float FMin, float FMax)
 	      }
 
 	      NodalMin = 1.e9;
-	      NodalMax = -NodalMin;
+	      NodalMax = -NewMin;
 
           for ( i = 1 ; i <= NumberOfNodes ; i++ ) {
 
@@ -3808,8 +3506,9 @@ void GL_VIEWER::DrawShadedSolutionPerTri(float *Function, float FMin, float FMax
 
           SurfaceID = TriList[j].surface_id;
        
-          if ( TriList[j].surface_type == WING_SURFACE ) SurfID = SurfaceID;
-          if ( TriList[j].surface_type == BODY_SURFACE ) SurfID = SurfaceID;
+          if ( TriList[j].surface_type == WING_SURFACE   ) SurfID = SurfaceID;
+          if ( TriList[j].surface_type == BODY_SURFACE   ) SurfID = SurfaceID;
+          if ( TriList[j].surface_type == CART3D_SURFACE ) SurfID = SurfaceID;
                
           if ( !DrawOnlySelectedIsOn || DrawOnlySelectedIsOn + PanelComGeomTagsBrowser->selected(ComGeom2PanelTag[SurfID]) == 2 ) {
 
@@ -3904,8 +3603,9 @@ void GL_VIEWER::DrawShadedSolutionPerTri(float *Function, float FMin, float FMax
 
           SurfaceID = TriList[j].surface_id;
        
-          if ( TriList[j].surface_type == WING_SURFACE ) SurfID = SurfaceID;
-          if ( TriList[j].surface_type == BODY_SURFACE ) SurfID = SurfaceID;
+          if ( TriList[j].surface_type == WING_SURFACE   ) SurfID = SurfaceID;
+          if ( TriList[j].surface_type == BODY_SURFACE   ) SurfID = SurfaceID;
+          if ( TriList[j].surface_type == CART3D_SURFACE ) SurfID = SurfaceID;
         
           if ( !DrawOnlySelectedIsOn || DrawOnlySelectedIsOn + PanelComGeomTagsBrowser->selected(ComGeom2PanelTag[SurfID]) == 2 ) {
 
@@ -4230,8 +3930,9 @@ void GL_VIEWER::DrawShadedSolutionPerNode(float *Function, float FMin, float FMa
 
           SurfaceID = TriList[j].surface_id;
        
-          if ( TriList[j].surface_type == WING_SURFACE ) SurfID = SurfaceID;
-          if ( TriList[j].surface_type == BODY_SURFACE ) SurfID = SurfaceID;
+          if ( TriList[j].surface_type == WING_SURFACE   ) SurfID = SurfaceID;
+          if ( TriList[j].surface_type == BODY_SURFACE   ) SurfID = SurfaceID;
+          if ( TriList[j].surface_type == CART3D_SURFACE ) SurfID = SurfaceID;
             
           if ( !DrawOnlySelectedIsOn || DrawOnlySelectedIsOn + PanelComGeomTagsBrowser->selected(ComGeom2PanelTag[SurfID]) == 2 ) {
 
@@ -4325,8 +4026,9 @@ void GL_VIEWER::DrawShadedSolutionPerNode(float *Function, float FMin, float FMa
 
           SurfaceID = TriList[j].surface_id;
        
-          if ( TriList[j].surface_type == WING_SURFACE ) SurfID = SurfaceID;
-          if ( TriList[j].surface_type == BODY_SURFACE ) SurfID = SurfaceID;
+          if ( TriList[j].surface_type == WING_SURFACE   ) SurfID = SurfaceID;
+          if ( TriList[j].surface_type == BODY_SURFACE   ) SurfID = SurfaceID;
+          if ( TriList[j].surface_type == CART3D_SURFACE ) SurfID = SurfaceID;
         
           if ( !DrawOnlySelectedIsOn || DrawOnlySelectedIsOn + PanelComGeomTagsBrowser->selected(ComGeom2PanelTag[SurfID]) == 2 ) {
 
@@ -5436,6 +5138,122 @@ void GL_VIEWER::SwapSurfaceNormals(void)
 
     delete [] TotalArea;
     
+}
+
+/*##############################################################################
+#                                                                              #
+#                          GL_VIEWER WriteTiffFile                             #
+#                                                                              #
+##############################################################################*/
+
+void GL_VIEWER::WriteTiffFile(char *FileName)
+{
+
+    int width, height;
+    char rgbstr[256];
+
+    if ( FileName != NULL ) {
+
+       // Make sure everything is drawn to the screen
+
+       flush(); glFlush ();
+
+       // Now right to tiff file
+
+       sprintf(rgbstr,"%s.%s.tiff",file_name,FileName);
+       width = w();
+       height = h();
+       WriteTiff( rgbstr, "CBVIEWER", 0, 0, width, height, COMPRESSION_NONE );
+
+       fflush(NULL);
+
+    }
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                          GL_VIEWER WriteMovieFrame                           #
+#                                                                              #
+##############################################################################*/
+
+void GL_VIEWER::WriteMovieFrame(char *FileName)
+{
+
+    int width, height;
+    char rgbstr[256];
+
+    if ( FileName != NULL ) {
+
+       // Make sure everything is drawn to the screen
+
+       flush(); glFlush ();
+
+       // Now right to tiff file
+
+       sprintf(rgbstr,"%s.tiff",FileName);
+       width = w();
+       height = h();
+       WriteTiff( rgbstr, "CBVIEWER", 0, 0, width, height, COMPRESSION_NONE );
+
+       fflush(NULL);
+
+    }
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                          GL_VIEWER WriteTiff                                 #
+#                                                                              #
+##############################################################################*/
+
+int GL_VIEWER::WriteTiff(char *filename, char *description,
+                         int x, int y, int width, int height, int compression)
+{
+
+  TIFF *file;
+  GLubyte *image, *p;
+  int i;
+
+  file = TIFFOpen(filename, "w");
+  if (file == NULL) {
+    return 1;
+  }
+  image = (GLubyte *) malloc(width * height * sizeof(GLubyte) * 3);
+
+  // OpenGL's default 4 byte pack alignment would leave extra bytes at the
+  // end of each image row so that each full row contained a number of bytes
+  // divisible by 4.  Ie, an RGB row with 3 pixels and 8-bit componets would
+  // be laid out like "RGBRGBRGBxxx" where the last three "xxx" bytes exist
+  // just to pad the row out to 12 bytes (12 is divisible by 4). To make sure
+  // the rows are packed as tight as possible (no row padding), set the pack
+  // alignment to 1.
+
+  glPixelStorei(GL_PACK_ALIGNMENT, 1);
+
+  glReadPixels(x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, image);
+  TIFFSetField(file, TIFFTAG_IMAGEWIDTH, (uint32) width);
+  TIFFSetField(file, TIFFTAG_IMAGELENGTH, (uint32) height);
+  TIFFSetField(file, TIFFTAG_BITSPERSAMPLE, 8);
+  TIFFSetField(file, TIFFTAG_COMPRESSION, compression);
+  TIFFSetField(file, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
+  TIFFSetField(file, TIFFTAG_SAMPLESPERPIXEL, 3);
+  TIFFSetField(file, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
+  TIFFSetField(file, TIFFTAG_ROWSPERSTRIP, 1);
+  TIFFSetField(file, TIFFTAG_IMAGEDESCRIPTION, description);
+  p = image;
+  for (i = height - 1; i >= 0; i--) {
+    if (TIFFWriteScanline(file, p, i, 0) < 0) {
+      free(image); image = NULL;
+      TIFFClose(file);
+      return 1;
+    }
+    p += width * sizeof(GLubyte) * 3;
+  }
+  TIFFClose(file);
+  if ( image != NULL) free(image);
+  return 0;
 }
 
 /*##############################################################################

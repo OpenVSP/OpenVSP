@@ -1190,7 +1190,7 @@ void MATRIX::LU_pivot(int *indx)
 
         }
 
-        }
+    }
 
     if ( j != imax ) {
 

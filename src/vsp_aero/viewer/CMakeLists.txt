@@ -38,6 +38,7 @@ IF( NOT VSP_NO_GRAPHICS )
     utils.C
     vspaero_viewer.C
     CharSizes.H
+    ControlSurface.H
     GL_VIEWER.forward.declaration.H
     PropElement.H
     RotorDisk.H

@@ -196,6 +196,7 @@ void VORTEX::Velocity(float xyz_1[3], float xyz_2[3], float xyz_p[3], float Mach
     arg2 = SQR(x2) + beta_2*( SQR(y2) + SQR(zobar) );
 
     f2 = 0.;
+    g2 = 0.;
 
     if ( arg2 > 0. ) {
 

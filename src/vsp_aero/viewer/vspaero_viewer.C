@@ -6,8 +6,9 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <config.h>
 #include <FL/Fl.H>
-#include "viewerUI.h"
+#include "viewerUI.H"
 
 int ForceView = 0;
 int TimeStamp = 0;
@@ -23,7 +24,7 @@ float BoxSize;
 int main(int argc, char **argv) {
 
     int i;
-    char dumchar[80], *ScriptName=NULL;
+    char dumchar[80];
 
     viewerUI *vui = new viewerUI;
 
@@ -39,15 +40,7 @@ int main(int argc, char **argv) {
 
     while ( i <= argc - 2 ) {
 
-	   if ( strcmp(argv[i],"-script") == 0 ) {
-
-	      ScriptName = argv[++i];
-
-          name = argv[++i];
-
-	   }
-
-	   else if ( strcmp(argv[i],"-forceview") == 0 ) {
+	   if ( strcmp(argv[i],"-forceview") == 0 ) {
 
           ForceView = 1;
 
@@ -65,13 +58,11 @@ int main(int argc, char **argv) {
 
 	   else {
 
-          printf("VSPVIEWER v1.0.0 --- 5/2015 \n");
-          printf("Please direct questions to David Kinney, David.J.Kinney@nasa.gov \n");
+         printf("VSPVIEWER v1.0.0 --- 5/2015 \n");
+         printf("Please direct questions to David Kinney, David.J.Kinney@nasa.gov \n");
 	      printf("Unrecognized option! \n");
 	      printf("Usage: \n");
 	      printf("vspviewer filename \n");
-	      printf("or \n");
-	      printf("vspviewer -script scriptname filename \n");fflush(NULL);
 
 	   }
 
@@ -86,8 +77,7 @@ int main(int argc, char **argv) {
        printf("Unrecognized option! \n");
        printf("Usage: \n");
        printf("vspviewer filename \n");
-       printf("or \n");
-       printf("vspviewer -script scriptname filename \n");fflush(NULL);
+
        exit(1);
 
     }
@@ -116,21 +106,7 @@ int main(int argc, char **argv) {
 
     argc = 1;
 
-    if ( ScriptName == NULL ) {
-
-       vui->show(argc, argv);
-
-    }
-
-    else {
-
-       printf("ScriptName: %s \n",ScriptName);
-
-       fflush(NULL);
-
-       vui->RunScript(argc, argv, ScriptName);
-
-    }
+    vui->show(argc, argv);
 
     return Fl::run();
 }

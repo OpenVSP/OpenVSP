@@ -16,6 +16,9 @@
 #include "VSP_Node.H"
 #include "VSP_Loop.H"
 
+#define INT_BOUNDARY_EDGE 1
+#define VLM_BOUNDARY_EDGE 2  
+
 // Small class for building edge list
 
 class EDGE_ENTRY {
@@ -78,8 +81,9 @@ private:
  
     // Wing and edge, or trailing node this vortex belongs to
     
-    int Wing_;
-    int Body_;
+    int DegenWing_;
+    int DegenBody_;
+    int Cart3DSurface_;
     int Node_;
 
     // Rotation Quaternions
@@ -198,8 +202,9 @@ public:
 
     // Accesss to Vortex edge data
 
-    int &Wing(void) { return Wing_; };
-    int &Body(void) { return Body_; };
+    int &DegenWing(void) { return DegenWing_; };
+    int &DegenBody(void) { return DegenBody_; };
+    int &Cart3DSurface(void) { return Cart3DSurface_; };
     int &Node(void) { return Node_; };
     
     // Solver routines
