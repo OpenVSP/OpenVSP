@@ -25,9 +25,6 @@ using namespace vsp;
 
 // Allow curve control of thickness.
 
-// Brandon's squawks
-// save/restore with r0 < 0.2 and close spacing.
-
 // v2 import
 
 // Nice default prop

@@ -83,6 +83,8 @@ xmlNodePtr PCurve::EncodeXml( xmlNodePtr & node )
 
 xmlNodePtr PCurve::DecodeXml( xmlNodePtr & node )
 {
+    ClearPtOrder();
+
     xmlNodePtr curve_node = XmlUtil::GetNode( node, m_CurveName.c_str(), 0 );
     if ( curve_node )
     {
