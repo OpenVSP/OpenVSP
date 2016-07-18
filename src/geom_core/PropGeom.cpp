@@ -43,8 +43,6 @@ using namespace vsp;
 // Blunt TE modification applied with wrong scale.
 // Correct when specified as t/c, wrong when specified dimensionally.
 
-// Does not work when restored from file
-
 //==========================================================================//
 //==========================================================================//
 //==========================================================================//
@@ -438,6 +436,11 @@ void PropGeom::ChangeID( string id )
 {
     Geom::ChangeID( id );
     m_XSecSurf.SetParentContainer( GetID() );
+
+    for ( int i = 0; i < m_pcurve_vec.size(); i++ )
+    {
+        m_pcurve_vec[i]->SetParentContainer( GetID() );
+    }
 }
 
 bool aboutcomp(const double &a, const double &b)
