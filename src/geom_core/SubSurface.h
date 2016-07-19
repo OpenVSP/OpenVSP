@@ -124,6 +124,8 @@ public:
     virtual void UpdateDrawObjs(); // Method to create lines to draw
     virtual void SplitSegsU( const double & u ); // Split line segments that cross a constant U value
     virtual void SplitSegsW( const double & w ); // Split line segments that cross a constant W value
+    virtual void SplitSegsU( const double & u, vector<SSLineSeg> &splitvec ); // Split line segments that cross a constant U value
+    virtual void SplitSegsW( const double & w, vector<SSLineSeg> &splitvec ); // Split line segments that cross a constant W value
     virtual void PrepareSplitVec();
     virtual void SetDisplaySuffix( int num );
     // Save, Load

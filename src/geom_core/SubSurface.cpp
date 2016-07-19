@@ -264,15 +264,25 @@ bool SubSurface::Subtag( TTri* tri )
 
 void SubSurface::SplitSegsU( const double & u )
 {
+    SplitSegsU( u, m_SplitLVec );
+}
+
+void SubSurface::SplitSegsW( const double & w )
+{
+    SplitSegsW( w, m_SplitLVec );
+}
+
+void SubSurface::SplitSegsU( const double & u, vector<SSLineSeg> &splitvec )
+{
     double tol = 1e-10;
-    int num_l_segs = m_SplitLVec.size();
+    int num_l_segs = splitvec.size();
     int num_splits = 0;
     bool reorder = false;
     vector<SSLineSeg> new_lsegs;
     vector<int> inds;
     for ( int i = 0 ; i < num_l_segs ; i++ )
     {
-        SSLineSeg& seg = m_SplitLVec[i];
+        SSLineSeg& seg = splitvec[i];
         vec3d p0 = seg.GetP0();
         vec3d p1 = seg.GetP1();
 
@@ -299,19 +309,19 @@ void SubSurface::SplitSegsU( const double & u )
 
     for ( int i = 0; i < ( int )inds.size() ; i++ )
     {
-        m_SplitLVec.insert( m_SplitLVec.begin() + inds[i], new_lsegs[i] );
+        splitvec.insert( splitvec.begin() + inds[i], new_lsegs[i] );
     }
 
     if ( reorder )
     {
-        ReorderSplitSegs( inds[0], m_SplitLVec );
+        ReorderSplitSegs( inds[0], splitvec );
     }
 }
 
-void SubSurface::SplitSegsW( const double & w )
+void SubSurface::SplitSegsW( const double & w, vector<SSLineSeg> &splitvec )
 {
     double tol = 1e-10;
-    int num_l_segs = m_SplitLVec.size();
+    int num_l_segs = splitvec.size();
     int num_splits = 0;
     bool reorder = false;
     vector<SSLineSeg> new_lsegs;
@@ -319,7 +329,7 @@ void SubSurface::SplitSegsW( const double & w )
     for ( int i = 0 ; i < num_l_segs ; i++ )
     {
 
-        SSLineSeg& seg = m_SplitLVec[i];
+        SSLineSeg& seg = splitvec[i];
         vec3d p0 = seg.GetP0();
         vec3d p1 = seg.GetP1();
 
@@ -346,12 +356,12 @@ void SubSurface::SplitSegsW( const double & w )
 
     for ( int i = 0; i < ( int )inds.size() ; i++ )
     {
-        m_SplitLVec.insert( m_SplitLVec.begin() + inds[i], new_lsegs[i] );
+        splitvec.insert( splitvec.begin() + inds[i], new_lsegs[i] );
     }
 
     if ( reorder )
     {
-        ReorderSplitSegs( inds[0], m_SplitLVec );
+        ReorderSplitSegs( inds[0], splitvec );
     }
 }
 
