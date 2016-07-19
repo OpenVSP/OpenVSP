@@ -1102,13 +1102,13 @@ void DegenGeom::write_degenGeomDiskM_file( FILE* file_id )
 void DegenGeom::write_degenSubSurfM_file( FILE* file_id, int isubsurf )
 {
     char num[80];
-    sprintf( num, "degenGeom(end).subsurf(%d).", isubsurf );
+    sprintf( num, "degenGeom(end).subsurf(%d).", isubsurf + 1 );
     string basename = string( num );
 
     WriteVecDoubleM writeVecDouble;
 
-    fprintf( file_id, "\ndegenGeom(end).subsurf(%d).name = '%s';\n", isubsurf, degenSubSurfs[isubsurf].name.c_str() );
-    fprintf( file_id, "\ndegenGeom(end).subsurf(%d).testType = %d;\n", isubsurf, degenSubSurfs[isubsurf].testType );
+    fprintf( file_id, "\ndegenGeom(end).subsurf(%d).name = '%s';\n", isubsurf + 1, degenSubSurfs[isubsurf].name.c_str() );
+    fprintf( file_id, "\ndegenGeom(end).subsurf(%d).testType = %d;\n", isubsurf + 1, degenSubSurfs[isubsurf].testType );
 
     int n = degenSubSurfs[isubsurf].u.size();
 
@@ -1162,6 +1162,6 @@ void DegenGeom::write_degenGeomM_file( FILE* file_id )
 
     for ( int i = 0; i < degenSubSurfs.size(); i++ )
     {
-        write_degenSubSurfM_file( file_id, i + 1 );
+        write_degenSubSurfM_file( file_id, i );
     }
 }
