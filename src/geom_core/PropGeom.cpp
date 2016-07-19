@@ -422,8 +422,8 @@ void PropGeom::UpdateDrawObj()
 
     DrawObj rotAxis;
 
-    rotAxis.m_PntVec.push_back( m_FoldAxOrigin - m_FoldAxDirection );
-    rotAxis.m_PntVec.push_back( m_FoldAxOrigin + m_FoldAxDirection );
+    rotAxis.m_PntVec.push_back( m_ModelMatrix.xform( m_FoldAxOrigin - m_FoldAxDirection ) );
+    rotAxis.m_PntVec.push_back( m_ModelMatrix.xform( m_FoldAxOrigin + m_FoldAxDirection ) );
     rotAxis.m_GeomChanged = true;
 
     m_FeatureDrawObj_vec.push_back( rotAxis );
