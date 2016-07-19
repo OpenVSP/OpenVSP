@@ -422,11 +422,49 @@ void PropGeom::UpdateDrawObj()
 
     DrawObj rotAxis;
 
-    rotAxis.m_PntVec.push_back( m_ModelMatrix.xform( m_FoldAxOrigin - m_FoldAxDirection ) );
-    rotAxis.m_PntVec.push_back( m_ModelMatrix.xform( m_FoldAxOrigin + m_FoldAxDirection ) );
+    vec3d ptstart = m_ModelMatrix.xform( m_FoldAxOrigin + m_FoldAxDirection );
+    vec3d ptend = m_ModelMatrix.xform( m_FoldAxOrigin - m_FoldAxDirection );
+
+    rotAxis.m_PntVec.push_back( ptstart );
+    rotAxis.m_PntVec.push_back( ptend );
     rotAxis.m_GeomChanged = true;
 
     m_FeatureDrawObj_vec.push_back( rotAxis );
+
+
+    vec3d dir = ptend - ptstart;
+    double len = dir.mag();
+    dir.normalize();
+
+    m_ArrowDO.m_PntVec.clear();
+    m_ArrowDO.m_Type = DrawObj::VSP_SHADED_TRIS;
+    m_ArrowDO.m_GeomID = m_ID + string( "_arrow" );
+    m_ArrowDO.m_GeomChanged = true;
+
+    for ( int i = 0; i < 4; i++ )
+    {
+        m_ArrowDO.m_MaterialInfo.Ambient[i] = 0.2;
+        m_ArrowDO.m_MaterialInfo.Diffuse[i] = 0.1;
+        m_ArrowDO.m_MaterialInfo.Specular[i] = 0.7;
+        m_ArrowDO.m_MaterialInfo.Emission[i] = 0.0;
+    }
+    m_ArrowDO.m_MaterialInfo.Diffuse[3] = 0.5;
+    m_ArrowDO.m_MaterialInfo.Shininess = 5.0;
+
+    MakeArrowhead( ptend, dir, 0.15 * len, m_ArrowDO.m_PntVec );
+
+    m_ArrowDO.m_NormVec.clear();
+    m_ArrowDO.m_NormVec.resize( m_ArrowDO.m_PntVec.size(), vec3d() );
+}
+
+void PropGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
+{
+    GeomXSec::LoadDrawObjs( draw_obj_vec );
+
+    if ( m_GuiDraw.GetDispFeatureFlag() && !m_GuiDraw.GetNoShowFlag() )
+    {
+        draw_obj_vec.push_back( &m_ArrowDO );
+    }
 }
 
 void PropGeom::ChangeID( string id )

@@ -87,6 +87,7 @@ public:
     virtual ~PropGeom();
 
     virtual void UpdateDrawObj();
+    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
     virtual void ComputeCenter();
 
@@ -176,6 +177,8 @@ protected:
 
     virtual void UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, bool degen );
     virtual void UpdateSplitTesselate( int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms );
+
+    DrawObj m_ArrowDO;
 
 };
 #endif // !defined(VSPPROPGEOM__INCLUDED_)
