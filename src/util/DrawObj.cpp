@@ -12,6 +12,78 @@
 #include "DrawObj.h"
 #include <math.h>
 
+void MakeArrowhead( const vec3d &ptip, vec3d &u, double len, vector < vec3d > &pts )
+{
+    double fr = 0.1;
+    u.normalize();
+
+    if ( u.mag() < 1e-6 )
+    {
+        printf("Zero direction vector in MakeArrowhead!\n");
+        return;
+    }
+
+    vec3d v, w;
+    v.v[ u.minor_comp() ] = 1.0;
+    w = cross( u, v );
+    w.normalize();
+    v = cross( w, u );
+    v.normalize();
+
+    vec3d p = ptip - len * u;
+    vec3d p1 = p + fr * len * v;
+    vec3d p2 = p + fr * len * w;
+    vec3d p3 = p - fr * len * v;
+    vec3d p4 = p - fr * len * w;
+
+    pts.clear();
+    pts.reserve( 18 );
+    pts.push_back( p1 );
+    pts.push_back( p2 );
+    pts.push_back( p3 );
+
+    pts.push_back( p1 );
+    pts.push_back( p3 );
+    pts.push_back( p4 );
+
+    pts.push_back( p1 );
+    pts.push_back( p2 );
+    pts.push_back( ptip );
+
+    pts.push_back( p2 );
+    pts.push_back( p3 );
+    pts.push_back( ptip );
+
+    pts.push_back( p3 );
+    pts.push_back( p4 );
+    pts.push_back( ptip );
+
+    pts.push_back( p4 );
+    pts.push_back( p1 );
+    pts.push_back( ptip );
+}
+
+void MakeArrowhead( const vec3d &ptip, vec3d &u, double len, DrawObj &dobj )
+{
+    MakeArrowhead( ptip, u, len, dobj.m_PntVec );
+
+    dobj.m_LineWidth = 1.0;
+    dobj.m_Type = DrawObj::VSP_SHADED_TRIS;
+    dobj.m_NormVec = vector <vec3d> ( dobj.m_PntVec.size() );
+
+    for ( int i = 0; i < 4; i++ )
+    {
+        dobj.m_MaterialInfo.Ambient[i] = 0.2;
+        dobj.m_MaterialInfo.Diffuse[i] = 0.1;
+        dobj.m_MaterialInfo.Specular[i] = 0.7;
+        dobj.m_MaterialInfo.Emission[i] = 0.0;
+    }
+    dobj.m_MaterialInfo.Diffuse[3] = 0.5;
+    dobj.m_MaterialInfo.Shininess = 5.0;
+
+    dobj.m_GeomChanged = true;
+}
+
 //====================== Contructor ======================//
 DrawObj::DrawObj()
 {

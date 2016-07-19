@@ -367,6 +367,9 @@ protected:
 
 };
 
+void MakeArrowhead( const vec3d &ptip, vec3d &u, double len, vector < vec3d > &pts );
+void MakeArrowhead( const vec3d &ptip, vec3d &u, double len, DrawObj &dobj );
+
 
 
 #endif
