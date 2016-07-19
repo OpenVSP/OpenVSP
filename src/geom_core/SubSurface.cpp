@@ -1948,3 +1948,26 @@ void SSControlSurf::UpdatePolygonPnts()
 
     m_PolyPntsReadyFlag = true;
 }
+
+void SSControlSurf::PrepareSplitVec()
+{
+    m_SplitLVec.clear();
+    m_FirstSplit = true;
+
+    vector<SSLineSeg> grp;
+    grp.reserve( m_Tess() );
+
+    int cnt = 0;
+    for ( int i = 0; i < m_LVec.size(); i++ )
+    {
+        grp.push_back( m_LVec[i] );
+        cnt++;
+
+        if ( cnt >= m_Tess() )
+        {
+            m_SplitLVec.push_back( grp );
+            grp.clear();
+            cnt = 0;
+        }
+    }
+}

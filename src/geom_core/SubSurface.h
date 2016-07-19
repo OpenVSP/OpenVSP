@@ -223,6 +223,7 @@ public:
     virtual void Update();
     virtual void UpdateDrawObjs();
     virtual void LoadDrawObjs( std::vector< DrawObj* >& draw_obj_vec );
+    virtual void PrepareSplitVec();
 
     enum SS_CONTROL_SUBTYPE { UPPER_SURF, LOWER_SURF, BOTH_SURF };
 
