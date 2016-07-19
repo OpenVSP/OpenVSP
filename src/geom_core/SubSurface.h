@@ -89,7 +89,7 @@ public:
     {
         return m_CompID;
     }
-    virtual std::vector< SSLineSeg >& GetSplitSegs()
+    virtual std::vector< std::vector< SSLineSeg > >& GetSplitSegs()
     {
         return m_SplitLVec;
     }
@@ -143,7 +143,7 @@ protected:
     bool m_UpdateDrawFlag;
     DrawObj m_SubSurfDO;
     vector<SSLineSeg> m_LVec; // Line Segment Vector
-    vector<SSLineSeg> m_SplitLVec; // Split Line Vector
+    vector< vector<SSLineSeg> > m_SplitLVec; // Split Line Vector
     vec3d m_LineColor; // Line Color Displayed when drawn on screen
 
     //std::vector< vec2d > m_PolyPnts;

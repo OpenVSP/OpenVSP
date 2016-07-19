@@ -264,12 +264,18 @@ bool SubSurface::Subtag( TTri* tri )
 
 void SubSurface::SplitSegsU( const double & u )
 {
-    SplitSegsU( u, m_SplitLVec );
+    for ( int i = 0; i < m_SplitLVec.size(); i++ )
+    {
+	    SplitSegsU( u, m_SplitLVec[i] );
+    }
 }
 
 void SubSurface::SplitSegsW( const double & w )
 {
-    SplitSegsW( w, m_SplitLVec );
+    for ( int i = 0; i < m_SplitLVec.size(); i++ )
+    {
+        SplitSegsW( w, m_SplitLVec[i] );
+    }
 }
 
 void SubSurface::SplitSegsU( const double & u, vector<SSLineSeg> &splitvec )
@@ -394,7 +400,7 @@ void SubSurface::PrepareSplitVec()
 {
     m_SplitLVec.clear();
     m_FirstSplit = true;
-    m_SplitLVec = m_LVec;
+    m_SplitLVec.push_back( m_LVec );
 }
 
 //////////////////////////////////////////////////////
