@@ -249,6 +249,9 @@ public:
     IntParm m_SurfType; // Defines if the control surface is on the upper/lower or both surfaces of the wing
     virtual void UpdatePolygonPnts();
 
+    vector < vec3d > m_UWStart;
+    vector < vec3d > m_UWEnd;
+
 protected:
 
     vector < vec3d > m_UWStart01;

@@ -1788,6 +1788,14 @@ void SSControlSurf::Update()
         }
     }
 
+    m_UWStart.resize( m_UWStart01.size() );
+    m_UWEnd.resize( m_UWStart01.size() );
+    for ( int i = 0; i < m_UWStart01.size(); i++ )
+    {
+        m_UWStart[i] = vec3d( m_UWStart01[i].x() * umax, m_UWStart01[i].y() * vmax, 0.0 );
+        m_UWEnd[i] = vec3d( m_UWEnd01[i].x() * umax, m_UWEnd01[i].y() * vmax, 0.0 );
+    }
+
     SubSurface::Update();
 }
 
