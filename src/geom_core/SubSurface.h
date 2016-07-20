@@ -251,8 +251,8 @@ public:
 
 protected:
 
-    vector < vec3d > m_UWStart;
-    vector < vec3d > m_UWEnd;
+    vector < vec3d > m_UWStart01;
+    vector < vec3d > m_UWEnd01;
     DrawObj m_HingeDO;
     DrawObj m_ArrowDO;
 

@@ -917,8 +917,8 @@ void SSControlSurf::Update()
     VspSurf* surf = geom->GetSurfPtr();
     if ( !surf ) { return; }
 
-    m_UWStart.clear();
-    m_UWEnd.clear();
+    m_UWStart01.clear();
+    m_UWEnd01.clear();
 
     VspCurve startcrv;
     surf->GetU01ConstCurve( startcrv, m_UStart() );
@@ -1052,7 +1052,7 @@ void SSControlSurf::Update()
                 c_uws2_upper = vec3d( m_UStart(), v / vmax, 0 );
             }
         }
-        m_UWStart.push_back( c_uws_upper );
+        m_UWStart01.push_back( c_uws_upper );
     }
 
     if ( m_SurfType() != UPPER_SURF )
@@ -1123,7 +1123,7 @@ void SSControlSurf::Update()
                 c_uws2_lower = vec3d( m_UStart(), v / vmax, 0 );
             }
         }
-        m_UWStart.push_back( c_uws_lower );
+        m_UWStart01.push_back( c_uws_lower );
     }
 
     if ( !m_StartAngleFlag() )
@@ -1244,7 +1244,7 @@ void SSControlSurf::Update()
                 c_uwe2_upper = vec3d( m_UEnd(), v / vmax, 0 );
             }
         }
-        m_UWEnd.push_back( c_uwe_upper );
+        m_UWEnd01.push_back( c_uwe_upper );
     }
 
     if ( m_SurfType() != UPPER_SURF )
@@ -1315,7 +1315,7 @@ void SSControlSurf::Update()
                 c_uwe2_lower = vec3d( m_UEnd(), v / vmax, 0 );
             }
         }
-        m_UWEnd.push_back( c_uwe_lower );
+        m_UWEnd01.push_back( c_uwe_lower );
     }
 
     if ( !m_EndAngleFlag() )
@@ -1834,7 +1834,7 @@ void SSControlSurf::UpdateDrawObjs()
         vector < int > symms = geom->GetSymmIndexs( isurf );
         assert( ncopy == symms.size() );
 
-        int npt = m_UWStart.size();
+        int npt = m_UWStart01.size();
 
         for ( int s = 0 ; s < ncopy ; s++ )
         {
@@ -1843,8 +1843,8 @@ void SSControlSurf::UpdateDrawObjs()
             vec3d pst, pend;
             for ( int i = 0; i < npt; i++ )
             {
-                pst = pst + surf->CompPnt01( m_UWStart[i].x(), m_UWStart[i].y() );
-                pend = pend + surf->CompPnt01( m_UWEnd[i].x(), m_UWEnd[i].y() );
+                pst = pst + surf->CompPnt01( m_UWStart01[i].x(), m_UWStart01[i].y() );
+                pend = pend + surf->CompPnt01( m_UWEnd01[i].x(), m_UWEnd01[i].y() );
             }
             pst = pst / ( 1.0 * npt );
             pend = pend / ( 1.0 * npt );
