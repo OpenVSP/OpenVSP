@@ -3149,6 +3149,12 @@ void Geom::CreateDegenGeom( vector<DegenGeom> &dgs)
             if ( m_SurfIndxVec[i] == m_SubSurfVec[j]->m_MainSurfIndx() )
             {
                 degenGeom.addDegenSubSurf( m_SubSurfVec[j], i );    //TODO is there a way to eliminate having to send in the surf index "i"
+
+                SSControlSurf *csurf = dynamic_cast < SSControlSurf* > ( m_SubSurfVec[j] );
+                if ( csurf )
+                {
+                    degenGeom.addDegenHingeLine( csurf );
+                }
             }
         }
 
