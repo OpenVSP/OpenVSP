@@ -676,7 +676,6 @@ void FeaMeshMgrSingleton::Build()
     addOutputText( "Build Target Map\n", FEA_OUTPUT );
     BuildTargetMap( CfdMeshMgrSingleton::FEA_OUTPUT );
 
-    RemoveSliceSurfaces();
 
     addOutputText( "InitMesh\n", FEA_OUTPUT );
     InitMesh( );
@@ -1268,28 +1267,6 @@ void FeaMeshMgrSingleton::DelCurrPointMass()
     m_CurrPointMassID = 0;
 }
 
-
-void FeaMeshMgrSingleton::RemoveSliceSurfaces()
-{
-    vector< Surf* > slice_surf_vec;
-    for ( int i = 0 ; i < ( int )m_SliceVec.size() ; i++ )
-    {
-        slice_surf_vec.push_back( m_SliceVec[i]->GetSurf() );
-    }
-
-    vector< Surf* > tempVec;
-    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
-    {
-        if ( !( ContainsVal<Surf*> ( slice_surf_vec, m_SurfVec[i] ) ) )
-        {
-            tempVec.push_back(  m_SurfVec[i] );
-        }
-    }
-    m_SurfVec = tempVec;
-}
-
-
-
 void FeaMeshMgrSingleton::LoadChains( Surf* sliceSurf, bool upperFlag, int sect_id, list< ISegChain* > & chain_list )
 {
     Surf* skin_surf = NULL;
@@ -1360,28 +1337,6 @@ void FeaMeshMgrSingleton::BuildSliceMesh()
 {
     int i;
 
-    //==== Find Upper/Lower Points ====//
-    for ( i = 0 ; i < ( int )m_SliceVec.size() ; i++ )
-    {
-        m_SliceVec[i]->FindUpperLowerPoints();
-    }
-
-    //==== Find Max Number of Divisions ====//
-    int max_num_divisions = 1;
-    for (  i = 0 ; i < ( int )m_SliceVec.size() ; i++ )
-    {
-        int num = m_SliceVec[i]->ComputeNumDivisions();
-        if ( num > max_num_divisions )
-        {
-            max_num_divisions = num;
-        }
-    }
-    //==== Set Num Divisions For All Slices (So Elements Line Up ) ====//
-    for (  i = 0 ; i < ( int )m_SliceVec.size() ; i++ )
-    {
-        m_SliceVec[i]->SetNumDivisions( max_num_divisions );
-    }
-
     //==== Build Skin FEA Elements ====//
     for (  i = 0 ; i < ( int )m_SkinVec.size() ; i++ )
     {
@@ -1389,23 +1344,11 @@ void FeaMeshMgrSingleton::BuildSliceMesh()
         m_SkinVec[i]->SetNodeThick();
     }
 
-    //==== Snap Slice Points to Skin Nodes ====//
-    vector < FeaNode* > skinNodes;
-    for (  i = 0 ; i < ( int )m_SkinVec.size() ; i++ )
-    {
-        m_SkinVec[i]->LoadNodes( skinNodes );
-    }
-    for (  i = 0 ; i < ( int )m_SliceVec.size() ; i++ )
-    {
-        m_SliceVec[i]->SnapUpperLowerToSkin( skinNodes );
-    }
-
     //==== Build Slice FEA Elements ====//
     for (  i = 0 ; i < ( int )m_SliceVec.size() ; i++ )
     {
         m_SliceVec[i]->BuildMesh();
     }
-
 
 }
 

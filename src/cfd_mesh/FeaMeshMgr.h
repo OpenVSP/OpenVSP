@@ -104,7 +104,6 @@ public:
     virtual void IdentifyUpperLowerSurfaces();
 
     virtual void AddStructureParts();
-    virtual void RemoveSliceSurfaces();
 
     virtual bool FetchWingSurf( vector< XferSurf > &xfersurfs );
 
