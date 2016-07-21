@@ -233,6 +233,7 @@ public:
     {
         return m_Surf;
     }
+    void BuildMesh();
 
     void LoadNodes( vector< FeaNode* > & node_vec );
 
@@ -265,7 +266,6 @@ public:
     {
         m_Surf = s;    // Upper or Lower Wing Surface
     }
-    void BuildMesh();
     void SetNodeThick();
     void SetExportFlag( bool f )
     {
@@ -329,7 +329,6 @@ public:
         m_NumDivisions = n;
     }
 
-    virtual void BuildMesh();
     virtual void MergeChains( list< ISegChain* > & chain_list, vec3d & start_pnt, vector< vec3d > & pnt_vec );
 
     virtual void FindLowerPnts(  vector< vec3d > & upper_pnts, list< ISegChain* > & chain_list,

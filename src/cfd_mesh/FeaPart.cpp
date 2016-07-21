@@ -926,64 +926,6 @@ int FeaSlice::ComputeNumDivisions()
     return max_num;
 }
 
-void FeaSlice::BuildMesh()
-{
-    //==== Create Elements ====//
-    double duptol = 0.00001;
-    for ( int i = 0 ; i < ( int )m_UpperPnts.size() - 1 ; i++ )
-    {
-        vec3d puA = m_UpperPnts[i];
-        vec3d plA = m_LowerPnts[i];
-        vec3d puB = m_UpperPnts[i + 1];
-        vec3d plB = m_LowerPnts[i + 1];
-
-        for ( int j = 0 ; j < m_NumDivisions ; j++ )
-        {
-            double f0 = ( double )j / ( double )m_NumDivisions;
-            double f1 = ( double )( j + 1 ) / ( double )m_NumDivisions;
-            vec3d p0 = puA + ( plA - puA ) * f0;
-            vec3d p1 = puA + ( plA - puA ) * f1;
-            vec3d p2 = puB + ( plB - puB ) * f1;
-            vec3d p3 = puB + ( plB - puB ) * f0;
-
-            double d01 = dist( p0, p1 );
-            double d12 = dist( p1, p2 );
-            double d23 = dist( p2, p3 );
-            double d30 = dist( p3, p0 );
-            if ( d01 > duptol && d12 > duptol && d23 > duptol && d30 > duptol )
-            {
-                FeaQuad* quad = new FeaQuad;
-                quad->Create( p0, p1, p2, p3 );
-                m_Elements.push_back( quad );
-            }
-            else if ( d01 > duptol && d12 > duptol && d23 > duptol )
-            {
-                FeaTri* tri = new FeaTri;
-                tri->Create( p0, p1, p2 );
-                m_Elements.push_back( tri );
-            }
-            else if ( d01 > duptol && d12 > duptol && d30 > duptol )
-            {
-                FeaTri* tri = new FeaTri;
-                tri->Create( p0, p1, p2 );
-                m_Elements.push_back( tri );
-            }
-            else if ( d12 > duptol && d23 > duptol && d30 > duptol )
-            {
-                FeaTri* tri = new FeaTri;
-                tri->Create( p0, p2, p3 );
-                m_Elements.push_back( tri );
-            }
-            else if ( d01 > duptol && d23 > duptol && d30 > duptol )
-            {
-                FeaTri* tri = new FeaTri;
-                tri->Create( p0, p2, p3 );
-                m_Elements.push_back( tri );
-            }
-        }
-    }
-}
-
 void FeaSlice::MergeChains( list < ISegChain* > & chain_list, vec3d & start_pnt, vector< vec3d > & pnt_vec )
 {
     //==== Look For First Upper Point ====//
@@ -1622,9 +1564,33 @@ void FeaRib::Update()
 //  }
 //}
 
+void FeaPart::BuildMesh()
+{
+    if ( !m_Surf )
+    {
+        return;
+    }
 
+    //list< Tri* >::iterator t;
+    //list <Tri*> tlist = m_Surf->GetMesh()->GetTriList();
 
+    //for ( t = tlist.begin() ; t != tlist.end(); t++ )
+    //{
+    //  FeaTri* tri = new FeaTri;
+    //  tri->Create( (*t)->n0->pnt, (*t)->n1->pnt, (*t)->n2->pnt );
+    //  m_Elements.push_back( tri );
+    //}
+    //
 
+    vector < vec3d >pvec = m_Surf->GetMesh()->GetSimpPntVec();
+    vector < SimpTri > tvec = m_Surf->GetMesh()->GetSimpTriVec();
+    for ( int i = 0 ; i < ( int )tvec.size() ; i++ )
+    {
+        FeaTri* tri = new FeaTri;
+        tri->Create( pvec[tvec[i].ind0], pvec[tvec[i].ind1], pvec[tvec[i].ind2] );
+        m_Elements.push_back( tri );
+    }
+}
 
 //============================================================================//
 //============================================================================//
@@ -1788,35 +1754,6 @@ void FeaSkin::SetCurrSpliceLineID( int id )
     if ( id >= 0 && id < ( int )m_SpliceLineVec.size() )
     {
         m_CurrSpliceLineID = id;
-    }
-}
-
-
-void FeaSkin::BuildMesh()
-{
-    if ( !m_Surf )
-    {
-        return;
-    }
-
-    //list< Tri* >::iterator t;
-    //list <Tri*> tlist = m_Surf->GetMesh()->GetTriList();
-
-    //for ( t = tlist.begin() ; t != tlist.end(); t++ )
-    //{
-    //  FeaTri* tri = new FeaTri;
-    //  tri->Create( (*t)->n0->pnt, (*t)->n1->pnt, (*t)->n2->pnt );
-    //  m_Elements.push_back( tri );
-    //}
-    //
-
-    vector < vec3d >pvec = m_Surf->GetMesh()->GetSimpPntVec();
-    vector < SimpTri > tvec = m_Surf->GetMesh()->GetSimpTriVec();
-    for ( int i = 0 ; i < ( int )tvec.size() ; i++ )
-    {
-        FeaTri* tri = new FeaTri;
-        tri->Create( pvec[tvec[i].ind0], pvec[tvec[i].ind1], pvec[tvec[i].ind2] );
-        m_Elements.push_back( tri );
     }
 }
 
