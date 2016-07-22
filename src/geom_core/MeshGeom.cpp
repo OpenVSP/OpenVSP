@@ -3015,12 +3015,6 @@ void MeshGeom::MassSlice( vector< DegenGeom > &degenGeom, bool degen, int numSli
         b.Update( m_TMeshVec[i]->m_TBox.m_Box );
     }
     m_BBox = b;
-    //update_xformed_bbox();            // Load Xform BBox
-
-    double xMin = m_BBox.GetMin( 0 );
-    double xMax = m_BBox.GetMax( 0 );
-
-    double sliceW = ( xMax - xMin ) / ( double )( numSlices );
 
     //==== Build Slice Mesh Object =====//
     if ( numSlices < 3 )
@@ -3028,36 +3022,7 @@ void MeshGeom::MassSlice( vector< DegenGeom > &degenGeom, bool degen, int numSli
         numSlices = 3;
     }
 
-    for ( s = 0 ; s < numSlices ; s++ )
-    {
-        TMesh* tm = new TMesh();
-        m_SliceVec.push_back( tm );
-
-        tm->m_ThickSurf = false;
-        tm->m_SurfCfdType = vsp::CFD_STRUCTURE;
-
-        double x = xMin + ( double )s * sliceW + 0.5 * sliceW;
-
-        double ydel = 1.02 * ( m_BBox.GetMax( 1 ) - m_BBox.GetMin( 1 ) );
-        double ys   = m_BBox.GetMin( 1 ) - 0.01 * ydel;
-        double zdel = 1.02 * ( m_BBox.GetMax( 2 ) - m_BBox.GetMin( 2 ) );
-        double zs   = m_BBox.GetMin( 2 ) - 0.01 * zdel;
-
-        for ( i = 0 ; i < 10 ; i++ )
-        {
-            double y0 = ys + ydel * 0.1 * ( double )i;
-            double y1 = ys + ydel * 0.1 * ( double )( i + 1 );
-
-            for ( j = 0 ; j < 10 ; j++ )
-            {
-                double z0 = zs + zdel * 0.1 * ( double )j;
-                double z1 = zs + zdel * 0.1 * ( double )( j + 1 );
-
-                tm->AddTri( vec3d( x, y0, z0 ), vec3d( x, y1, z0 ), vec3d( x, y1, z1 ), vec3d( 1, 0, 0 ) );
-                tm->AddTri( vec3d( x, y0, z0 ), vec3d( x, y1, z1 ), vec3d( x, y0, z1 ), vec3d( 1, 0, 0 ) );
-            }
-        }
-    }
+    double sliceW = MakeSlices( numSlices, idir );
 
     // Fill vector of cfdtypes so we don't have to pass TMeshVec all the way down.
     vector < int > bTypes( m_TMeshVec.size() );
@@ -3647,6 +3612,48 @@ void MeshGeom::MassSlice( vector< DegenGeom > &degenGeom, bool degen, int numSli
         res->WriteMassProp( f_name );
     }
     }
+}
+
+double MeshGeom::MakeSlices( int numSlices, int swdir )
+{
+    int s, i, j;
+    double xMin = m_BBox.GetMin( 0 );
+    double xMax = m_BBox.GetMax( 0 );
+
+    double sliceW = ( xMax - xMin ) / ( double )( numSlices );
+
+    for ( s = 0 ; s < numSlices ; s++ )
+    {
+        TMesh* tm = new TMesh();
+
+        tm->m_ThickSurf = false;
+        tm->m_SurfCfdType = vsp::CFD_STRUCTURE;
+
+        m_SliceVec.push_back( tm );
+
+        double x = xMin + ( double )s * sliceW + 0.5 * sliceW;
+
+        double ydel = 1.02 * ( m_BBox.GetMax( 1 ) - m_BBox.GetMin( 1 ) );
+        double ys   = m_BBox.GetMin( 1 ) - 0.01 * ydel;
+        double zdel = 1.02 * ( m_BBox.GetMax( 2 ) - m_BBox.GetMin( 2 ) );
+        double zs   = m_BBox.GetMin( 2 ) - 0.01 * zdel;
+
+        for ( i = 0 ; i < 10 ; i++ )
+        {
+            double y0 = ys + ydel * 0.1 * ( double )i;
+            double y1 = ys + ydel * 0.1 * ( double )( i + 1 );
+
+            for ( j = 0 ; j < 10 ; j++ )
+            {
+                double z0 = zs + zdel * 0.1 * ( double )j;
+                double z1 = zs + zdel * 0.1 * ( double )( j + 1 );
+
+                tm->AddTri( vec3d( x, y0, z0 ), vec3d( x, y1, z0 ), vec3d( x, y1, z1 ), vec3d( 1, 0, 0 ) );
+                tm->AddTri( vec3d( x, y0, z0 ), vec3d( x, y1, z1 ), vec3d( x, y0, z1 ), vec3d( 1, 0, 0 ) );
+            }
+        }
+    }
+    return sliceW;
 }
 
 //==== Create a Prism Made of Tetras - Extrude Tri +- len/2 ====//
