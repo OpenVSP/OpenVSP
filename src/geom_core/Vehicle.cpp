@@ -4687,7 +4687,7 @@ string Vehicle::MassProps( int set, int numSlices, bool hidegeom, bool writefile
     if ( mesh_ptr->m_TMeshVec.size() || mesh_ptr->m_PointMassVec.size() )
     {
         vector <DegenGeom> dg;
-        mesh_ptr->MassSliceX( dg, false, numSlices, writefile );
+        mesh_ptr->MassSlice( dg, false, numSlices, vsp::X_DIR, writefile );
         m_TotalMass = mesh_ptr->m_TotalMass;
         m_IxxIyyIzz = vec3d( mesh_ptr->m_TotalIxx, mesh_ptr->m_TotalIyy, mesh_ptr->m_TotalIzz );
         m_IxyIxzIyz = vec3d( mesh_ptr->m_TotalIxy, mesh_ptr->m_TotalIxz, mesh_ptr->m_TotalIyz );
@@ -5375,7 +5375,7 @@ void Vehicle::CreateDegenGeom( int set )
         MeshGeom* mesh_ptr = dynamic_cast<MeshGeom*> ( FindGeom( id ) );
         if ( mesh_ptr != NULL )
         {
-            mesh_ptr->MassSliceX( m_DegenGeomVec, true, 250, false );
+            mesh_ptr->MassSlice( m_DegenGeomVec, true, 250, vsp::X_DIR, false );
             DeleteGeom( id );
         }
     }
