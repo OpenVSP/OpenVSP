@@ -3614,7 +3614,7 @@ void MeshGeom::MassSlice( vector< DegenGeom > &degenGeom, bool degen, int numSli
     }
 }
 
-double MeshGeom::MakeSlices( int numSlices, int swdir )
+double MeshGeom::MakeSlices( int numSlices, int swdir, vector < double > &slicevec )
 {
     int s, i, j;
 
@@ -3639,6 +3639,7 @@ double MeshGeom::MakeSlices( int numSlices, int swdir )
     double swMax = m_BBox.GetMax( swdir );
 
     double sliceW = ( swMax - swMin ) / ( double )( numSlices );
+    slicevec.resize( numSlices );
 
     double del1 = 1.02 * ( m_BBox.GetMax( dir1 ) - m_BBox.GetMin( dir1 ) );
     double s1   = m_BBox.GetMin( dir1 ) - 0.01 * del1;
@@ -3658,6 +3659,7 @@ double MeshGeom::MakeSlices( int numSlices, int swdir )
         m_SliceVec.push_back( tm );
 
         double sw = swMin + ( double )s * sliceW + 0.5 * sliceW;
+        slicevec[s] = sw;
 
         for ( i = 0 ; i < 10 ; i++ )
         {
