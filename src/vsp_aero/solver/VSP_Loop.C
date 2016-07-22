@@ -57,6 +57,8 @@ VSP_LOOP::VSP_LOOP(void)
     
     CompressibilityFactor_ = 0.;
 
+    CompressibilityFactor_ = 0;
+
 }
 
 /*##############################################################################

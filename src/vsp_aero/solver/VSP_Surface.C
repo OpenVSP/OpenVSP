@@ -3278,6 +3278,8 @@ void VSP_SURFACE::CreateUpwindEdgeData(int SurfaceID)
     int VortexLoop1IsDownWind, VortexLoop2IsDownWind;
     double VortexLoop1DownWindWeight, VortexLoop2DownWindWeight;
 
+    VortexLoop1DownWindWeight = VortexLoop2DownWindWeight = 0;
+
     VSP_NODE VSP_Node1, VSP_Node2;
     
     // Setup the surface vortex edge data

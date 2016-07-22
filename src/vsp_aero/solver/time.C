@@ -8,7 +8,7 @@
 
 double myclock(void)
 {
- 
+/*
    struct timezone tzone;
    struct timeval tval;
      
@@ -30,5 +30,7 @@ double myclock(void)
  //  printf("t1, t2, t is %f, %f, %f, %d, %d \n",t1,t2,t,tval.tv_sec,tval.tv_usec);
    
    return t;
-              
+*/
+    return 0;
+
 }
