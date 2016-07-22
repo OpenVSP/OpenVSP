@@ -165,6 +165,10 @@ public:
     {
         v[2] += offset;
     };
+    void offset_i( double offset, int idir )
+    {
+        v[idir] += offset;
+    };
 
     // Rotate About Axis : Assume Zero Coord --> Change Internal Values
     void rotate_z_zero_x( double cos_alpha, double sin_alpha )
