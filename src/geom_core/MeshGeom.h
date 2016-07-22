@@ -149,7 +149,7 @@ public:
     //==== Intersection, Splitting and Trimming ====//
     virtual void IntersectTrim( vector< DegenGeom > &degenGeom, bool degen = true, int intSubsFlag = 1 );
 
-    virtual void MassSliceX( vector< DegenGeom > &degenGeom, bool degen, int numSlices, bool writefile = true );
+    virtual void MassSlice( vector< DegenGeom > &degenGeom, bool degen, int numSlices, int idir = vsp::X_DIR, bool writefile = true );
     virtual void AreaSlice( int numSlices, vec3d norm, bool autoBounds, double start = 0, double end = 0 );
 
     virtual void WaveStartEnd( const double &sliceAngle, const vec3d &center );

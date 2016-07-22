@@ -2955,7 +2955,7 @@ void MeshGeom::WaveDragSlice( int numSlices, double sliceAngle, int coneSections
 }
 
 //==== Call After BndBoxes Have Been Create But Before Intersect ====//
-void MeshGeom::MassSliceX( vector< DegenGeom > &degenGeom, bool degen, int numSlices, bool writefile )
+void MeshGeom::MassSlice( vector< DegenGeom > &degenGeom, bool degen, int numSlices, int idir, bool writefile )
 {
     int i, j, s;
 
