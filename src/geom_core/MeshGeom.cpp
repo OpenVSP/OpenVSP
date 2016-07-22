@@ -3127,7 +3127,7 @@ void MeshGeom::MassSlice( vector< DegenGeom > &degenGeom, bool degen, int numSli
 
     //==== Build Tetrahedrons ====//
     double prismLength = sliceW;
-    vector< TetraMassProp* > tetraVec;
+    vector < vector< TetraMassProp* > > tetraVecVec(1);
 
     for ( s = 0 ; s < ( int )m_SliceVec.size() ; s++ )
     {
@@ -3146,7 +3146,7 @@ void MeshGeom::MassSlice( vector< DegenGeom > &degenGeom, bool degen, int numSli
                         {
                             tri->m_SplitVec[j]->m_Density = 1.0;
                         }
-                        CreatePrism( tetraVec, tri->m_SplitVec[j], prismLength, idir );
+                        CreatePrism( tetraVecVec[0], tri->m_SplitVec[j], prismLength, idir );
                     }
                 }
             }
@@ -3156,7 +3156,7 @@ void MeshGeom::MassSlice( vector< DegenGeom > &degenGeom, bool degen, int numSli
                 {
                     tri->m_Density = 1.0;
                 }
-                CreatePrism( tetraVec, tri, prismLength, idir );
+                CreatePrism( tetraVecVec[0], tri, prismLength, idir );
             }
         }
     }
@@ -3169,21 +3169,20 @@ void MeshGeom::MassSlice( vector< DegenGeom > &degenGeom, bool degen, int numSli
     //==== Add in Point Masses ====//
     for ( i = 0 ; i < ( int )m_PointMassVec.size() ; i++ )
     {
-        tetraVec.push_back( m_PointMassVec[i] );
+        tetraVecVec[0].push_back( m_PointMassVec[i] );
     }
 
-
-    for ( i = 0 ; i < ( int )tetraVec.size() ; i++ )
+    for ( i = 0 ; i < ( int )tetraVecVec[0].size() ; i++ )
     {
-        totalVol += tetraVec[i]->m_Vol;
+        totalVol += tetraVecVec[0][i]->m_Vol;
     }
 
 
     m_TotalMass = 0.0;
-    for ( i = 0 ; i < ( int )tetraVec.size() ; i++ )
+    for ( i = 0 ; i < ( int )tetraVecVec[0].size() ; i++ )
     {
-        m_TotalMass += tetraVec[i]->m_Mass;
-        cg = cg + tetraVec[i]->m_CG * tetraVec[i]->m_Mass;
+        m_TotalMass += tetraVecVec[0][i]->m_Mass;
+        cg = cg + tetraVecVec[0][i]->m_CG * tetraVecVec[0][i]->m_Mass;
     }
     for ( i = 0 ; i < ( int )triShellVec.size() ; i++ )
     {
@@ -3200,9 +3199,9 @@ void MeshGeom::MassSlice( vector< DegenGeom > &degenGeom, bool degen, int numSli
 
     m_TotalIxx = m_TotalIyy = m_TotalIzz = 0.0;
     m_TotalIxy = m_TotalIxz = m_TotalIyz = 0.0;
-    for ( i = 0 ; i < ( int )tetraVec.size() ; i++ )
+    for ( i = 0 ; i < ( int )tetraVecVec[0].size() ; i++ )
     {
-        TetraMassProp* tet = tetraVec[i];
+        TetraMassProp* tet = tetraVecVec[0][i];
         m_TotalIxx += tet->m_Ixx +
                       tet->m_Mass * ( ( cg.y() - tet->m_CG.y() ) * ( cg.y() - tet->m_CG.y() ) + ( cg.z() - tet->m_CG.z() ) * ( cg.z() - tet->m_CG.z() ) );
         m_TotalIyy += tet->m_Iyy +
@@ -3270,20 +3269,20 @@ void MeshGeom::MassSlice( vector< DegenGeom > &degenGeom, bool degen, int numSli
 
         id_vec.push_back( id );
 
-        for ( i = 0 ; i < ( int )tetraVec.size() ; i++ )
+        for ( i = 0 ; i < ( int )tetraVecVec[0].size() ; i++ )
         {
-            if ( !tetraVec[i]->m_CompId.compare( id ) )
+            if ( !tetraVecVec[0][i]->m_CompId.compare( id ) )
             {
-                compVol += tetraVec[i]->m_Vol;
+                compVol += tetraVecVec[0][i]->m_Vol;
             }
         }
 
-        for ( i = 0 ; i < ( int )tetraVec.size() ; i++ )
+        for ( i = 0 ; i < ( int )tetraVecVec[0].size() ; i++ )
         {
-            if ( !tetraVec[i]->m_CompId.compare( id ) )
+            if ( !tetraVecVec[0][i]->m_CompId.compare( id ) )
             {
-                compMass += tetraVec[i]->m_Mass;
-                cg = cg + tetraVec[i]->m_CG * tetraVec[i]->m_Mass;
+                compMass += tetraVecVec[0][i]->m_Mass;
+                cg = cg + tetraVecVec[0][i]->m_CG * tetraVecVec[0][i]->m_Mass;
             }
         }
         for ( i = 0 ; i < ( int )triShellVec.size() ; i++ )
@@ -3304,12 +3303,12 @@ void MeshGeom::MassSlice( vector< DegenGeom > &degenGeom, bool degen, int numSli
        else
        {
 
-        for ( i = 0 ; i < ( int )tetraVec.size() ; i++ )
+        for ( i = 0 ; i < ( int )tetraVecVec[0].size() ; i++ )
         {
-            if ( !tetraVec[i]->m_CompId.compare( id ) )
+            if ( !tetraVecVec[0][i]->m_CompId.compare( id ) )
             {
-                compMassSolid += tetraVec[i]->m_Vol;
-                cgSolid = cgSolid + tetraVec[i]->m_CG * tetraVec[i]->m_Vol;
+                compMassSolid += tetraVecVec[0][i]->m_Vol;
+                cgSolid = cgSolid + tetraVecVec[0][i]->m_CG * tetraVecVec[0][i]->m_Vol;
             }
         }
         for ( i = 0 ; i < ( int )triShellVec.size() ; i++ )
@@ -3348,9 +3347,9 @@ void MeshGeom::MassSlice( vector< DegenGeom > &degenGeom, bool degen, int numSli
         if ( !degen )
         {
 
-        for ( i = 0 ; i < ( int )tetraVec.size() ; i++ )
+        for ( i = 0 ; i < ( int )tetraVecVec[0].size() ; i++ )
         {
-            TetraMassProp* tet = tetraVec[i];
+            TetraMassProp* tet = tetraVecVec[0][i];
             if ( !tet->m_CompId.compare( id ) )
             {
                 compIxx += tet->m_Ixx +
@@ -3404,9 +3403,9 @@ void MeshGeom::MassSlice( vector< DegenGeom > &degenGeom, bool degen, int numSli
         else
         {
 
-        for ( i = 0 ; i < ( int )tetraVec.size() ; i++ )
+        for ( i = 0 ; i < ( int )tetraVecVec[0].size() ; i++ )
         {
-            TetraMassProp* tet = tetraVec[i];
+            TetraMassProp* tet = tetraVecVec[0][i];
             if ( !tet->m_CompId.compare( id ) )
             {
                 compIxx += tet->m_Ixx +
@@ -3579,9 +3578,9 @@ void MeshGeom::MassSlice( vector< DegenGeom > &degenGeom, bool degen, int numSli
 
 
     //==== Clean Up Mess ====//
-    for ( i = 0 ; i < ( int )tetraVec.size() ; i++ )
+    for ( i = 0 ; i < ( int )tetraVecVec[0].size() ; i++ )
     {
-        delete tetraVec[i];
+        delete tetraVecVec[0][i];
     }
 
     for ( i = 0 ; i < ( int )triShellVec.size() ; i++ )
