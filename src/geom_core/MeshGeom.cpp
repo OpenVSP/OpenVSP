@@ -3022,7 +3022,9 @@ void MeshGeom::MassSlice( vector< DegenGeom > &degenGeom, bool degen, int numSli
         numSlices = 3;
     }
 
-    double sliceW = MakeSlices( numSlices, idir );
+    vector< double > slice_fill_vec;
+
+    double sliceW = MakeSlices( numSlices, idir, slice_fill_vec );
 
     // Fill vector of cfdtypes so we don't have to pass TMeshVec all the way down.
     vector < int > bTypes( m_TMeshVec.size() );
