@@ -3617,10 +3617,36 @@ void MeshGeom::MassSlice( vector< DegenGeom > &degenGeom, bool degen, int numSli
 double MeshGeom::MakeSlices( int numSlices, int swdir )
 {
     int s, i, j;
-    double xMin = m_BBox.GetMin( 0 );
-    double xMax = m_BBox.GetMax( 0 );
 
-    double sliceW = ( xMax - xMin ) / ( double )( numSlices );
+    int dir1, dir2;
+    if ( swdir == vsp::X_DIR )
+    {
+        dir1 = vsp::Y_DIR;
+        dir2 = vsp::Z_DIR;
+    }
+    else if ( swdir == vsp::Y_DIR )
+    {
+        dir1 = vsp::Z_DIR;
+        dir2 = vsp::X_DIR;
+    }
+    else
+    {
+        dir1 = vsp::X_DIR;
+        dir2 = vsp::Y_DIR;
+    }
+
+    double swMin = m_BBox.GetMin( swdir );
+    double swMax = m_BBox.GetMax( swdir );
+
+    double sliceW = ( swMax - swMin ) / ( double )( numSlices );
+
+    double del1 = 1.02 * ( m_BBox.GetMax( dir1 ) - m_BBox.GetMin( dir1 ) );
+    double s1   = m_BBox.GetMin( dir1 ) - 0.01 * del1;
+    double del2 = 1.02 * ( m_BBox.GetMax( dir2 ) - m_BBox.GetMin( dir2 ) );
+    double s2   = m_BBox.GetMin( dir2 ) - 0.01 * del2;
+
+    vec3d n;
+    n[ swdir ] = 1;
 
     for ( s = 0 ; s < numSlices ; s++ )
     {
@@ -3631,25 +3657,37 @@ double MeshGeom::MakeSlices( int numSlices, int swdir )
 
         m_SliceVec.push_back( tm );
 
-        double x = xMin + ( double )s * sliceW + 0.5 * sliceW;
-
-        double ydel = 1.02 * ( m_BBox.GetMax( 1 ) - m_BBox.GetMin( 1 ) );
-        double ys   = m_BBox.GetMin( 1 ) - 0.01 * ydel;
-        double zdel = 1.02 * ( m_BBox.GetMax( 2 ) - m_BBox.GetMin( 2 ) );
-        double zs   = m_BBox.GetMin( 2 ) - 0.01 * zdel;
+        double sw = swMin + ( double )s * sliceW + 0.5 * sliceW;
 
         for ( i = 0 ; i < 10 ; i++ )
         {
-            double y0 = ys + ydel * 0.1 * ( double )i;
-            double y1 = ys + ydel * 0.1 * ( double )( i + 1 );
+            double d10 = s1 + del1 * 0.1 * ( double )i;
+            double d11 = s1 + del1 * 0.1 * ( double )( i + 1 );
 
             for ( j = 0 ; j < 10 ; j++ )
             {
-                double z0 = zs + zdel * 0.1 * ( double )j;
-                double z1 = zs + zdel * 0.1 * ( double )( j + 1 );
+                double d20 = s2 + del2 * 0.1 * ( double )j;
+                double d21 = s2 + del2 * 0.1 * ( double )( j + 1 );
 
-                tm->AddTri( vec3d( x, y0, z0 ), vec3d( x, y1, z0 ), vec3d( x, y1, z1 ), vec3d( 1, 0, 0 ) );
-                tm->AddTri( vec3d( x, y0, z0 ), vec3d( x, y1, z1 ), vec3d( x, y0, z1 ), vec3d( 1, 0, 0 ) );
+                vec3d p1, p2, p3, p4;
+                p1[swdir] = sw;
+                p1[dir1] = d10;
+                p1[dir2] = d20;
+
+                p2[swdir] = sw;
+                p2[dir1] = d11;
+                p2[dir2] = d20;
+
+                p3[swdir] = sw;
+                p3[dir1] = d11;
+                p3[dir2] = d21;
+
+                p4[swdir] = sw;
+                p4[dir1] = d10;
+                p4[dir2] = d21;
+
+                tm->AddTri( p1, p2, p3, n );
+                tm->AddTri( p1, p3, p4, n );
             }
         }
     }
