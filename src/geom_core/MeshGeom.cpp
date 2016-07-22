@@ -3179,7 +3179,7 @@ void MeshGeom::MassSlice( vector< DegenGeom > &degenGeom, bool degen, int numSli
                         {
                             tri->m_SplitVec[j]->m_Density = 1.0;
                         }
-                        CreatePrism( tetraVec, tri->m_SplitVec[j], prismLength );
+                        CreatePrism( tetraVec, tri->m_SplitVec[j], prismLength, idir );
                     }
                 }
             }
@@ -3189,7 +3189,7 @@ void MeshGeom::MassSlice( vector< DegenGeom > &degenGeom, bool degen, int numSli
                 {
                     tri->m_Density = 1.0;
                 }
-                CreatePrism( tetraVec, tri, prismLength );
+                CreatePrism( tetraVec, tri, prismLength, idir );
             }
         }
     }
