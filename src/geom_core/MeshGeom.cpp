@@ -3164,8 +3164,108 @@ void MeshGeom::MassSlice( vector< DegenGeom > &degenGeom, bool degen, int numSli
     double totalVol = 0.0;
     vec3d cg( 0, 0, 0 );
 
+    vector< double > mass_fill_vec;
+    vector< vec3d > cg_fill_vec;
+    vector< double > ixx_fill_vec;
+    vector< double > iyy_fill_vec;
+    vector< double > izz_fill_vec;
+    vector< double > ixy_fill_vec;
+    vector< double > ixz_fill_vec;
+    vector< double > iyz_fill_vec;
+    vector< double > vol_fill_vec;
+
     if ( !degen )
     {
+
+    // Filling mass calcs
+    double fillVol = 0.0;
+    vec3d fillMoment( 0, 0, 0 );
+    vec3d fillCG( 0, 0, 0 );
+    double fillMass = 0.0;
+    double fillIxx, fillIyy, fillIzz;
+    double fillIxy, fillIxz, fillIyz;
+    fillIxx = fillIyy = fillIzz = 0.0;
+    fillIxy = fillIxz = fillIyz = 0.0;
+
+    for ( j = 0; j < tetraVecVec.size(); j++ )
+    {
+        double sliceVol = 0.0;
+        vec3d sliceMoment( 0, 0, 0 );
+        vec3d sliceCG( 0, 0, 0 );
+        double sliceMass = 0.0;
+
+        vec3d oldCG = fillCG;
+        double oldMass = fillMass;
+
+        for ( i = 0 ; i < ( int )tetraVecVec[j].size() ; i++ )
+        {
+            sliceVol += tetraVecVec[j][i]->m_Vol;
+        }
+        fillVol += sliceVol;
+
+        for ( i = 0 ; i < ( int )tetraVecVec[j].size() ; i++ )
+        {
+            sliceMass += tetraVecVec[j][i]->m_Mass;
+            sliceMoment = sliceMoment + tetraVecVec[j][i]->m_CG * tetraVecVec[j][i]->m_Mass;
+        }
+
+        if ( sliceMass )
+        {
+            sliceCG = sliceMoment * ( 1.0 / sliceMass );
+        }
+
+        fillMoment = fillMoment + sliceMoment;
+        fillMass += sliceMass;
+
+        if ( fillMass )
+        {
+            fillCG = fillMoment * (1.0 / fillMass );
+        }
+
+        // Transform running total to new CG location
+        fillIxx = fillIxx +
+                  oldMass * ( ( fillCG.y() - oldCG.y() ) * ( fillCG.y() - oldCG.y() ) + ( fillCG.z() - oldCG.z() ) * ( fillCG.z() - oldCG.z() ) );
+        fillIyy = fillIyy +
+                  oldMass * ( ( fillCG.x() - oldCG.x() ) * ( fillCG.x() - oldCG.x() ) + ( fillCG.z() - oldCG.z() ) * ( fillCG.z() - oldCG.z() ) );
+        fillIzz = fillIzz +
+                  oldMass * ( ( fillCG.x() - oldCG.x() ) * ( fillCG.x() - oldCG.x() ) + ( fillCG.y() - oldCG.y() ) * ( fillCG.y() - oldCG.y() ) );
+
+        fillIxy = fillIxy +
+                  oldMass * ( ( fillCG.x() - oldCG.x() ) * ( fillCG.y() - oldCG.y() ) );
+        fillIxz = fillIxz +
+                  oldMass * ( ( fillCG.x() - oldCG.x() ) * ( fillCG.z() - oldCG.z() ) );
+        fillIyz = fillIyz +
+                  oldMass * ( ( fillCG.y() - oldCG.y() ) * ( fillCG.z() - oldCG.z() ) );
+
+        // Add in all tets, no need to form slice subtotal.
+        for ( i = 0 ; i < ( int )tetraVecVec[j].size() ; i++ )
+        {
+            TetraMassProp* tet = tetraVecVec[j][i];
+            fillIxx += tet->m_Ixx +
+                       tet->m_Mass * ( ( fillCG.y() - tet->m_CG.y() ) * ( fillCG.y() - tet->m_CG.y() ) + ( fillCG.z() - tet->m_CG.z() ) * ( fillCG.z() - tet->m_CG.z() ) );
+            fillIyy += tet->m_Iyy +
+                       tet->m_Mass * ( ( fillCG.x() - tet->m_CG.x() ) * ( fillCG.x() - tet->m_CG.x() ) + ( fillCG.z() - tet->m_CG.z() ) * ( fillCG.z() - tet->m_CG.z() ) );
+            fillIzz += tet->m_Izz +
+                       tet->m_Mass * ( ( fillCG.x() - tet->m_CG.x() ) * ( fillCG.x() - tet->m_CG.x() ) + ( fillCG.y() - tet->m_CG.y() ) * ( fillCG.y() - tet->m_CG.y() ) );
+
+            fillIxy += tet->m_Ixy +
+                       tet->m_Mass * ( ( fillCG.x() - tet->m_CG.x() ) * ( fillCG.y() - tet->m_CG.y() ) );
+            fillIxz += tet->m_Ixz +
+                       tet->m_Mass * ( ( fillCG.x() - tet->m_CG.x() ) * ( fillCG.z() - tet->m_CG.z() ) );
+            fillIyz += tet->m_Iyz +
+                       tet->m_Mass * ( ( fillCG.y() - tet->m_CG.y() ) * ( fillCG.z() - tet->m_CG.z() ) );
+        }
+
+        vol_fill_vec.push_back( fillVol );
+        mass_fill_vec.push_back( fillMass );
+        cg_fill_vec.push_back( fillCG );
+        ixx_fill_vec.push_back( fillIxx );
+        iyy_fill_vec.push_back( fillIyy );
+        izz_fill_vec.push_back( fillIzz );
+        ixy_fill_vec.push_back( fillIxy );
+        ixz_fill_vec.push_back( fillIxz );
+        iyz_fill_vec.push_back( fillIyz );
+    }
 
     // Normal mass calcs below.
 
@@ -3547,6 +3647,19 @@ void MeshGeom::MassSlice( vector< DegenGeom > &degenGeom, bool degen, int numSli
     res->Add( NameValData( "Comp_Ixz", ixz_vec ) );
     res->Add( NameValData( "Comp_Iyz", iyz_vec ) );
     res->Add( NameValData( "Comp_Vol", vol_vec ) );
+
+    //==== Totals ====//
+    res->Add( NameValData( "Num_Fill_Slice", ( int )slice_fill_vec.size() ) );
+    res->Add( NameValData( "Fill_Slice", slice_fill_vec ) );
+    res->Add( NameValData( "Fill_Mass", mass_fill_vec ) );
+    res->Add( NameValData( "Fill_CG", cg_fill_vec ) );
+    res->Add( NameValData( "Fill_Ixx", ixx_fill_vec ) );
+    res->Add( NameValData( "Fill_Iyy", iyy_fill_vec ) );
+    res->Add( NameValData( "Fill_Izz", izz_fill_vec ) );
+    res->Add( NameValData( "Fill_Ixy", ixy_fill_vec ) );
+    res->Add( NameValData( "Fill_Ixz", ixz_fill_vec ) );
+    res->Add( NameValData( "Fill_Iyz", iyz_fill_vec ) );
+    res->Add( NameValData( "Fill_Vol", vol_fill_vec ) );
 
     //==== Totals ====//
     res->Add( NameValData( "Total_Mass", m_TotalMass ) );
