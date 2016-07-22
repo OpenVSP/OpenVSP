@@ -446,6 +446,36 @@ void Results::WriteMassProp( const string & file_name )
                  "Totals", Find( "Total_Mass" ).GetDouble( 0 ), total_cg.x(), total_cg.y(), total_cg.z(),
                  ixx, iyy, izz, ixy, ixz, iyz, Find( "Total_Volume" ).GetDouble( 0 ) );
 
+
+
+        fprintf( fid, "\n...Filling Mass Properties (Volume Only -- No Shell or Point Mass)...\n" );
+
+        int num_slice = Find( "Num_Fill_Slice" ).GetInt( 0 );
+
+        fprintf( fid, "%d Num Slice\n", num_slice );
+
+        fprintf( fid, "\n" );
+        fprintf( fid, "Slice\tMass\tcgX\tcgY\tcgZ\tIxx\tIyy\tIzz\tIxy\tIxz\tIyz\tVolume\n" );
+
+        for ( int i = 0 ; i < num_slice ; i++ )
+        {
+            double fillslice = Find( "Fill_Slice" ).GetDouble( i );
+            double fillmass = Find( "Fill_Mass" ).GetDouble( i );
+            vec3d fillcg = Find( "Fill_CG" ).GetVec3d( i );
+            double fillIxx = Find( "Fill_Ixx" ).GetDouble( i );
+            double fillIyy = Find( "Fill_Iyy" ).GetDouble( i );
+            double fillIzz = Find( "Fill_Izz" ).GetDouble( i );
+            double fillIxy = Find( "Fill_Ixy" ).GetDouble( i );
+            double fillIyz = Find( "Fill_Iyz" ).GetDouble( i );
+            double fillIxz = Find( "Fill_Ixz" ).GetDouble( i );
+            double fillVol = Find( "Fill_Vol" ).GetDouble( i );
+
+            fprintf( fid, "%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\n",
+                     fillslice, fillmass, fillcg.x(), fillcg.y(), fillcg.z(),
+                     fillIxx, fillIyy, fillIzz, fillIxy, fillIxz, fillIyz, fillVol );
+        }
+
+
         fclose( fid );          // Close File
     }
 }
