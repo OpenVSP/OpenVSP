@@ -158,7 +158,7 @@ public:
 
     virtual void MergeRemoveOpenMeshes( MeshInfo* info, bool deleteopen = true );
 
-    virtual void CreatePrism( vector< TetraMassProp* >& tetraVec, TTri* tri, double len );
+    virtual void CreatePrism( vector< TetraMassProp* >& tetraVec, TTri* tri, double len, int idir );
 
     virtual void AddPointMass( TetraMassProp* pm )
     {
