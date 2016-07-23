@@ -372,14 +372,6 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     vector < double > vv3( v3, v3 + sizeof( v3 ) / sizeof( v3[0] ) );
     m_XRotateCurve.InitCurve( tv3, vv3 );
 
-    m_ZRotateCurve.SetParentContainer( GetID() );
-    m_ZRotateCurve.SetDispNames( "r/R", "Z Rotate" );
-    m_ZRotateCurve.SetParmNames( "r", "zr" );
-    m_ZRotateCurve.SetCurveName( "ZRotate" );
-    m_ZRotateCurve.InitParms();
-    m_ZRotateCurve.m_CurveType = PCurve::LINEAR;
-    m_ZRotateCurve.InitCurve( tv3, vv3 );
-
     m_RakeCurve.SetParentContainer( GetID() );
     m_RakeCurve.SetDispNames( "r/R", "Rake/R" );
     m_RakeCurve.SetParmNames( "r", "rak" );
@@ -397,13 +389,12 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_SkewCurve.InitCurve( tv3, vv3 );
 
     // Set up vector to allow treatment as a group.
-    m_pcurve_vec.resize( 6 );
+    m_pcurve_vec.resize( 5 );
     m_pcurve_vec[0] = &m_ChordCurve;
     m_pcurve_vec[1] = &m_TwistCurve;
     m_pcurve_vec[2] = &m_XRotateCurve;
-    m_pcurve_vec[3] = &m_ZRotateCurve;
-    m_pcurve_vec[4] = &m_RakeCurve;
-    m_pcurve_vec[5] = &m_SkewCurve;
+    m_pcurve_vec[3] = &m_RakeCurve;
+    m_pcurve_vec[4] = &m_SkewCurve;
 
 }
 
@@ -669,7 +660,8 @@ void PropGeom::UpdateSurf()
                 xs->m_PropPos.m_Chord = w;
                 xs->m_PropPos.m_Twist = m_TwistCurve.Comp( r );
                 xs->m_PropPos.m_XRotate = m_XRotateCurve.Comp( r );
-                xs->m_PropPos.m_ZRotate = m_ZRotateCurve.Comp( r );
+                xs->m_PropPos.m_ZRotate = atan( -m_RakeCurve.Compdt( r ) ) * 180.0 / PI;
+
                 xs->m_PropPos.m_Rake = m_RakeCurve.Comp( r ) * radius;
                 xs->m_PropPos.m_Skew = m_SkewCurve.Comp( r ) * radius;
                 xs->m_PropPos.m_PropRot = m_Rotate();
@@ -784,7 +776,7 @@ void PropGeom::UpdateSurf()
         pp.m_Twist = m_TwistCurve.Comp( r );
 
         pp.m_XRotate = m_XRotateCurve.Comp( r );
-        pp.m_ZRotate = m_ZRotateCurve.Comp( r );
+        pp.m_ZRotate = atan( -m_RakeCurve.Compdt( r ) ) * 180.0 / PI;
 
         pp.m_Rake = m_RakeCurve.Comp( r ) * radius;
         pp.m_Skew = m_SkewCurve.Comp( r ) * radius;
@@ -848,7 +840,6 @@ xmlNodePtr PropGeom::EncodeXml( xmlNodePtr & node )
         m_ChordCurve.EncodeXml( propeller_node );
         m_TwistCurve.EncodeXml( propeller_node );
         m_XRotateCurve.EncodeXml( propeller_node );
-        m_ZRotateCurve.EncodeXml( propeller_node );
         m_RakeCurve.EncodeXml( propeller_node );
         m_SkewCurve.EncodeXml( propeller_node );
     }
@@ -867,7 +858,6 @@ xmlNodePtr PropGeom::DecodeXml( xmlNodePtr & node )
         m_ChordCurve.DecodeXml( propeller_node );
         m_TwistCurve.DecodeXml( propeller_node );
         m_XRotateCurve.DecodeXml( propeller_node );
-        m_ZRotateCurve.DecodeXml( propeller_node );
         m_RakeCurve.DecodeXml( propeller_node );
         m_SkewCurve.DecodeXml( propeller_node );
     }
@@ -990,7 +980,6 @@ void PropGeom::AddLinkableParms( vector< string > & linkable_parm_vec, const str
     m_ChordCurve.AddLinkableParms( linkable_parm_vec, m_ID  );
     m_TwistCurve.AddLinkableParms( linkable_parm_vec, m_ID  );
     m_XRotateCurve.AddLinkableParms( linkable_parm_vec, m_ID  );
-    m_ZRotateCurve.AddLinkableParms( linkable_parm_vec, m_ID  );
     m_RakeCurve.AddLinkableParms( linkable_parm_vec, m_ID  );
     m_SkewCurve.AddLinkableParms( linkable_parm_vec, m_ID  );
 }

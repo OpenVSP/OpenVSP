@@ -152,7 +152,6 @@ public:
     PCurve m_TwistCurve;
 
     PCurve m_XRotateCurve;
-    PCurve m_ZRotateCurve;
 
     PCurve m_RakeCurve;
     PCurve m_SkewCurve;
