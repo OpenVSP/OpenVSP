@@ -37,9 +37,6 @@ using namespace vsp;
 
 // Skinning options (PCHIP, Linear, etc.)
 
-// Blunt TE modification applied with wrong scale.
-// Correct when specified as t/c, wrong when specified dimensionally.
-
 //==========================================================================//
 //==========================================================================//
 //==========================================================================//
@@ -628,7 +625,10 @@ void PropGeom::UpdateSurf()
                     if ( af )
                     {
                         width_parm->Set( 1.0 );
+                        xs->GetXSecCurve()->SetFakeWidth( w );
+                        xs->GetXSecCurve()->SetUseFakeWidth( true );
                         pwc = xs->GetCurve().GetCurve();
+                        xs->GetXSecCurve()->SetUseFakeWidth( false );
                         width_parm->Set( w );
                     }
                     else

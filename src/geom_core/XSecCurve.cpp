@@ -116,6 +116,9 @@ XSecCurve::XSecCurve()
     m_DeltaX.Init( "DeltaX", m_GroupName, this, 0, -1e3, 1e3 );
     m_DeltaY.Init( "DeltaY", m_GroupName, this, 0, -1e3, 1e3 );
     m_ShiftLE.Init( "ShiftLE", m_GroupName, this, 0, -1.9, 1.9 );
+
+    m_FakeWidth = 1.0;
+    m_UseFakeWidth = false;
 }
 
 void XSecCurve::SetGroupDisplaySuffix( int num )
@@ -279,7 +282,14 @@ void XSecCurve::CloseTE( bool wingtype )
 
     if ( m_TECloseAbsRel() == ABS )
     {
-        thick = m_TECloseThick();
+        if ( m_UseFakeWidth )
+        {
+            thick = m_TECloseThick() * GetWidth() / GetFakeWidth();
+        }
+        else
+        {
+            thick = m_TECloseThick();
+        }
     }
     else
     {
@@ -450,6 +460,16 @@ void XSecCurve::CloseTE( bool wingtype )
         div = 1.0;
     }
 
+    if ( m_UseFakeWidth )
+    {
+        div = GetFakeWidth();
+        if ( div == 0.0 )
+        {
+            div = 1.0;
+        }
+        d = d * div;
+    }
+
     if ( m_TECloseType() != CLOSE_NONE )
     {
 
@@ -491,7 +511,14 @@ void XSecCurve::CloseLE( bool wingtype )
 
     if ( m_LECloseAbsRel() == ABS )
     {
-        thick = m_LECloseThick();
+        if ( m_UseFakeWidth )
+        {
+            thick = m_LECloseThick() * GetWidth() / GetFakeWidth();
+        }
+        else
+        {
+            thick = m_LECloseThick();
+        }
     }
     else
     {
@@ -586,6 +613,16 @@ void XSecCurve::CloseLE( bool wingtype )
         div = 1.0;
     }
 
+    if ( m_UseFakeWidth )
+    {
+        div = GetFakeWidth();
+        if ( div == 0.0 )
+        {
+            div = 1.0;
+        }
+        d = d * div;
+    }
+
     if ( m_LECloseType() != CLOSE_NONE )
     {
 
@@ -638,7 +675,14 @@ void XSecCurve::TrimTE( bool wingtype )
     {
         if ( m_TETrimType() == TRIM_X )
         {
-            xtrim = m_TETrimX();
+            if ( m_UseFakeWidth )
+            {
+                xtrim = m_TETrimX() * GetWidth() / GetFakeWidth();
+            }
+            else
+            {
+                xtrim = m_TETrimX();
+            }
 
             if ( m_TETrimAbsRel() == REL )
             {
@@ -651,7 +695,14 @@ void XSecCurve::TrimTE( bool wingtype )
         }
         else if ( m_TETrimType() == TRIM_THICK )
         {
-            ttrim = m_TETrimThick();
+            if ( m_UseFakeWidth )
+            {
+                ttrim = m_TETrimThick() * GetWidth() / GetFakeWidth();
+            }
+            else
+            {
+                ttrim = m_TETrimThick();
+            }
 
             if ( m_TETrimAbsRel() == REL )
             {
@@ -817,6 +868,17 @@ void XSecCurve::TrimTE( bool wingtype )
         div = 1.0;
     }
 
+    if ( m_UseFakeWidth )
+    {
+        div = GetFakeWidth();
+        if ( div == 0.0 )
+        {
+            div = 1.0;
+        }
+        xtrim = xtrim * div;
+        ttrim = ttrim * div;
+    }
+
     // Set non-driving parameters to match current state.
     if ( m_TETrimType() == TRIM_NONE )
     {
@@ -891,7 +953,14 @@ void XSecCurve::TrimLE( bool wingtype )
     {
         if ( m_LETrimType() == TRIM_X )
         {
-            xtrim = m_LETrimX();
+            if ( m_UseFakeWidth )
+            {
+                xtrim = m_LETrimX() * GetWidth() / GetFakeWidth();
+            }
+            else
+            {
+                xtrim = m_LETrimX();
+            }
 
             if ( m_LETrimAbsRel() == REL )
             {
@@ -904,7 +973,14 @@ void XSecCurve::TrimLE( bool wingtype )
         }
         else if ( m_LETrimType() == TRIM_THICK )
         {
-            ttrim = m_LETrimThick();
+            if ( m_UseFakeWidth )
+            {
+                ttrim = m_LETrimThick() * GetWidth() / GetFakeWidth();
+            }
+            else
+            {
+                ttrim = m_LETrimThick();
+            }
 
             if ( m_LETrimAbsRel() == REL )
             {
@@ -1065,6 +1141,17 @@ void XSecCurve::TrimLE( bool wingtype )
     if ( div == 0.0 )
     {
         div = 1.0;
+    }
+
+    if ( m_UseFakeWidth )
+    {
+        div = GetFakeWidth();
+        if ( div == 0.0 )
+        {
+            div = 1.0;
+        }
+        xtrim = xtrim * div;
+        ttrim = ttrim * div;
     }
 
     // Set non-driving parameters to match current state.
