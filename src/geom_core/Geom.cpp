@@ -469,18 +469,13 @@ Matrix4d GeomXForm::ComposeAttachMatrix()
         parentMat = parent->getModelMatrix();
         double tempMat[16];
         parentMat.getMat( tempMat );
-        VspSurf* surf_ptr =  parent->GetSurfPtr();
 
         bool revertCompTrans = false;
         bool revertCompRot = false;
 
         if ( m_TransAttachFlag() == ATTACH_TRANS_UV )
         {
-            if ( surf_ptr )
-            {
-                transMat = surf_ptr->CompTransCoordSys( m_ULoc(), m_WLoc() );
-            }
-            else
+            if ( !( parent->CompTransCoordSys( m_ULoc(), m_WLoc(), transMat ) ) )
             {
                 revertCompTrans = true;
             }
@@ -488,11 +483,7 @@ Matrix4d GeomXForm::ComposeAttachMatrix()
 
         if ( m_RotAttachFlag() == ATTACH_ROT_UV )
         {
-            if ( surf_ptr )
-            {
-                rotMat = surf_ptr->CompRotCoordSys( m_ULoc(), m_WLoc() );
-            }
-            else
+            if ( !( parent->CompRotCoordSys( m_ULoc(), m_WLoc(), rotMat ) ) )
             {
                 revertCompRot = true;
             }
@@ -2109,6 +2100,28 @@ vec3d Geom::GetUWPt( const double &u, const double &w )
 vec3d Geom::GetUWPt( const int &indx, const double &u, const double &w )
 {
     return GetSurfPtr( indx )->CompPnt01( u, w );
+}
+
+bool Geom::CompRotCoordSys( const double &u, const double &w, Matrix4d &rotMat )
+{
+    VspSurf* surf_ptr = GetSurfPtr();
+    if ( surf_ptr )
+    {
+        rotMat = surf_ptr->CompRotCoordSys( u, w );
+        return true;
+    }
+    return false;
+}
+
+bool Geom::CompTransCoordSys( const double &u, const double &w, Matrix4d &transMat )
+{
+    VspSurf* surf_ptr = GetSurfPtr();
+    if ( surf_ptr )
+    {
+        transMat = surf_ptr->CompTransCoordSys( u, w );
+        return true;
+    }
+    return false;
 }
 
 void Geom::WriteXSecFile( int geom_no, FILE* dump_file )
