@@ -419,8 +419,16 @@ void PropGeom::UpdateDrawObj()
 
     DrawObj rotAxis;
 
-    vec3d ptstart = m_ModelMatrix.xform( m_FoldAxOrigin + m_FoldAxDirection );
-    vec3d ptend = m_ModelMatrix.xform( m_FoldAxOrigin - m_FoldAxDirection );
+    double data[16];
+    m_ModelMatrix.getMat( data );
+
+    Matrix4d mat;
+    mat.loadIdentity();
+    mat.rotateX( -m_Rotate() );
+    mat.postMult( data );
+
+    vec3d ptstart = mat.xform( m_FoldAxOrigin + m_FoldAxDirection );
+    vec3d ptend = mat.xform( m_FoldAxOrigin - m_FoldAxDirection );
 
     rotAxis.m_PntVec.push_back( ptstart );
     rotAxis.m_PntVec.push_back( ptend );
