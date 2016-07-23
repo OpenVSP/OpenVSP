@@ -331,6 +331,16 @@ double PCurve::Comp( double t )
     return m_Curve.CompPnt( t );
 }
 
+double PCurve::Compdt( double t )
+{
+    if ( m_LateUpdateFlag )
+    {
+        Update();
+    }
+
+    return m_Curve.CompTan( t );
+}
+
 void PCurve::Tessellate( vector < double > & t, vector < double > & v )
 {
     if ( m_LateUpdateFlag )

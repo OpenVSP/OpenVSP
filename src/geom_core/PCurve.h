@@ -49,6 +49,7 @@ public:
     virtual void Update();
 
     virtual double Comp( double t );
+    virtual double Compdt( double t );
     virtual void Tessellate( vector < double > & t, vector < double > & v );
 
     virtual int GetNumPts()    { return m_ValParmVec.size(); }
