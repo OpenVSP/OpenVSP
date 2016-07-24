@@ -3173,9 +3173,70 @@ void PCurveEditor::Update()
         vector < double > xdata = m_Curve->GetTVec();
         vector < double > ydata = m_Curve->GetValVec();
 
-        if ( xdata.size() > 0 )
+        int ndata = xdata.size();
+
+        if ( ndata > 0 )
         {
-            AddPoint( xdata, ydata, FL_BLACK, 4, CA_DIAMOND );
+            if ( m_Curve->m_CurveType() != PCurve::CEDIT )
+            {
+                AddPoint( xdata, ydata, FL_BLACK, 4, CA_DIAMOND );
+            }
+            else
+            {
+                int nseg = ( ndata - 1 ) / 3;
+
+                vector < double > xend( nseg + 1 ); // Cubic segment endpoints
+                vector < double > yend( nseg + 1 );
+
+                vector < double > xmid( 2 * nseg ); // Cubic segment midpoints
+                vector < double > ymid( 2 * nseg );
+
+                int imid = 0;
+                int iend = 0;
+
+                for ( int i = 0; i < ndata; i++ )
+                {
+                    if ( ( i % 3 ) == 0)
+                    {
+                        xend[ iend ] = xdata[ i ];
+                        yend[ iend ] = ydata[ i ];
+                        iend++;
+
+                        if ( i != 0 )
+                        {
+                            vector < double > xtan( 2 );
+                            vector < double > ytan( 2 );
+                            xtan[ 0 ] = xdata[ i - 1 ];
+                            xtan[ 1 ] = xdata[ i ];
+                            ytan[ 0 ] = ydata[ i - 1 ];
+                            ytan[ 1 ] = ydata[ i ];
+
+                            AddPointLine( xtan, ytan, 1, FL_GRAY0 );
+                        }
+
+                        if ( i != ndata - 1 )
+                        {
+                            vector < double > xtan( 2 );
+                            vector < double > ytan( 2 );
+                            xtan[ 0 ] = xdata[ i ];
+                            xtan[ 1 ] = xdata[ i + 1 ];
+                            ytan[ 0 ] = ydata[ i ];
+                            ytan[ 1 ] = ydata[ i + 1 ];
+
+                            AddPointLine( xtan, ytan, 1, FL_GRAY0 );
+                        }
+                    }
+                    else
+                    {
+                        xmid[ imid ] = xdata[ i ];
+                        ymid[ imid ] = ydata[ i ];
+                        imid++;
+                    }
+                }
+
+                AddPoint( xend, yend, FL_BLACK, 4, CA_DIAMOND );
+                AddPoint( xmid, ymid, FL_GREEN, 4, CA_ROUND );
+            }
         }
 
         if ( ! m_FreezeAxis )
