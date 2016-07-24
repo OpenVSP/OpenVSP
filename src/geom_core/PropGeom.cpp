@@ -15,8 +15,6 @@
 #include "APIDefines.h"
 using namespace vsp;
 
-// Beautify control point editing GUI
-
 // Change curve type from API
 // Curve splitting from API
 // Other API additions?

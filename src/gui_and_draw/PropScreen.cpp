@@ -21,7 +21,7 @@ using namespace vsp;
 
 
 //==== Constructor ====//
-PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 680, "Propeller" )
+PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 690, "Propeller" )
 {
     m_CurrDisplayGroup = NULL;
 
@@ -39,9 +39,14 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 680, "Propeller
 
     m_DesignLayout.AddSlider( m_NBladeSlider, "Num Blades", 100, "%5.0f" );
 
+    m_DesignLayout.SetFitWidthFlag( false );
+    m_DesignLayout.SetSameLineFlag( true );
+    m_DesignLayout.SetButtonWidth( 45 );
+    m_DesignLayout.AddButton( m_ReverseToggle, "Rev" );
+    m_DesignLayout.SetFitWidthFlag( true );
+    m_DesignLayout.SetButtonWidth( 100 - 45 );
     m_DesignLayout.AddSlider( m_PropRotateSlider, "Rotate", 100, "%6.5f" );
-
-    m_DesignLayout.AddButton( m_ReverseToggle, "Reverse" );
+    m_DesignLayout.ForceNewLine();
 
     m_DesignLayout.SetFitWidthFlag( false );
     m_DesignLayout.SetSameLineFlag( true );
