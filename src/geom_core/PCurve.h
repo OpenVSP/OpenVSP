@@ -77,6 +77,7 @@ public:
     virtual double IntegrateAF( double r0 );
 
     virtual void EnforcePtOrder( double rfirst, double rlast );
+    virtual void EnforcePtOrder( );
 
     void BinCubicTMap( vector < double > &tmap, vector < double > &tdisc );
 

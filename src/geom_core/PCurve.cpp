@@ -207,6 +207,14 @@ void PCurve::ValidateCEDIT( vector < double > &tvec )
     }
 }
 
+void PCurve::EnforcePtOrder( )
+{
+    double rfirst = m_TParmVec[0]->Get();
+    double rlast = m_TParmVec.back()->Get();
+
+    EnforcePtOrder( rfirst, rlast );
+}
+
 void PCurve::EnforcePtOrder( double rfirst, double rlast )
 {
     double offset = 1e-4;
