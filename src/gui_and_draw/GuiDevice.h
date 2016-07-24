@@ -1101,7 +1101,7 @@ public:
 
     PCurveEditor();
 
-    virtual void Init( VspScreen* screen, Vsp_Canvas* canvas, Fl_Scroll *ptscroll, Fl_Button *spbutton, Fl_Button *convbutton, Fl_Light_Button *deletebutton, GroupLayout *scLayout );
+    virtual void Init( VspScreen* screen, Vsp_Canvas* canvas, Fl_Scroll *ptscroll, Fl_Button *spbutton, Fl_Button *convbutton, Fl_Light_Button *deletebutton, Fl_Light_Button *splitpickutton, GroupLayout *scLayout );
 
     virtual void DeviceCB( Fl_Widget* w );
 
@@ -1115,6 +1115,7 @@ public:
     Fl_Button* m_SplitButton;
 
     Fl_Light_Button* m_DeleteButton;
+    Fl_Light_Button* m_SplitPickButton;
 
     Choice m_ConvertChoice;
     Fl_Button* m_ConvertButton;
@@ -1139,6 +1140,7 @@ protected:
     bool m_FreezeAxis;
 
     bool m_DeleteActive;
+    bool m_SplitActive;
 
     virtual void Update();
 

@@ -1467,6 +1467,19 @@ void GroupLayout::AddPCurveEditor( PCurveEditor & curve_editor )
     AddY( m_StdHeight );
     NewLineX();
 
+    bw = FitWidth( 0, m_ButtonWidth );
+    Fl_Light_Button* splitpickbutton = new Fl_Light_Button( m_X, m_Y, bw, m_StdHeight, "Split Pick" );
+    splitpickbutton->labelfont( 1 );
+    splitpickbutton->labelsize( 12 );
+    splitpickbutton->align( Fl_Align( 132 | FL_ALIGN_INSIDE ) );
+    splitpickbutton->copy_label( "Split Pick" );
+    splitpickbutton->labelcolor( FL_DARK_BLUE );
+    m_Group->add( splitpickbutton );
+    AddX( bw );
+    AddY( m_StdHeight );
+    NewLineX();
+
+
     SetFitWidthFlag( false );
     SetSameLineFlag( true );
 
@@ -1517,7 +1530,7 @@ void GroupLayout::AddPCurveEditor( PCurveEditor & curve_editor )
     GroupLayout *ptlayout = new GroupLayout();
     ptlayout->SetGroupAndScreen( ptscroll, this->m_Screen );
 
-    curve_editor.Init( m_Screen, canvas, ptscroll, spbutton, convbutton, deletebutton, ptlayout );
+    curve_editor.Init( m_Screen, canvas, ptscroll, spbutton, convbutton, deletebutton, splitpickbutton, ptlayout );
 }
 
 //==== Add Fl Browser ====//

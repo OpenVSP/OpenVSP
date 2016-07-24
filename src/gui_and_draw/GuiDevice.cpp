@@ -3089,9 +3089,10 @@ PCurveEditor::PCurveEditor()
 
     m_FreezeAxis = false;
     m_DeleteActive = false;
+    m_SplitActive = false;
 }
 
-void PCurveEditor::Init( VspScreen* screen, Vsp_Canvas* canvas, Fl_Scroll* ptscroll, Fl_Button *spbutton, Fl_Button *convbutton, Fl_Light_Button *deletebutton, GroupLayout *ptlayout )
+void PCurveEditor::Init( VspScreen* screen, Vsp_Canvas* canvas, Fl_Scroll* ptscroll, Fl_Button *spbutton, Fl_Button *convbutton, Fl_Light_Button *deletebutton, Fl_Light_Button *splitpickbutton, GroupLayout *ptlayout )
 {
     GuiDevice::Init( screen );
 
@@ -3100,11 +3101,13 @@ void PCurveEditor::Init( VspScreen* screen, Vsp_Canvas* canvas, Fl_Scroll* ptscr
     m_SplitButton = spbutton;
     m_ConvertButton = convbutton;
     m_DeleteButton = deletebutton;
+    m_SplitPickButton = splitpickbutton;
     m_PtLayout = ptlayout;
 
     m_canvas->callback( StaticDeviceCB, this );
     m_SplitButton->callback( StaticDeviceCB, this );
     m_DeleteButton->callback( StaticDeviceCB, this );
+    m_SplitPickButton->callback( StaticDeviceCB, this );
     m_ConvertButton->callback( StaticDeviceCB, this );
 }
 
@@ -3133,6 +3136,19 @@ void PCurveEditor::DeviceCB( Fl_Widget* w )
                     m_Curve->DeletePt( m_LastHit );
                 }
             }
+
+            if ( m_SplitActive )
+            {
+                m_SplitActive = false;
+
+                double sx = m_canvas->current_x()->value( x );
+
+                if ( sx > m_Curve->GetRFirst() && sx < m_Curve->GetRLast() )
+                {
+                    m_Curve->m_SplitPt = sx;
+                    m_Curve->Split();
+                }
+            }
         }
 
         if ( Fl::event() == FL_DRAG && m_LastHit != -1 )
@@ -3157,6 +3173,18 @@ void PCurveEditor::DeviceCB( Fl_Widget* w )
     else if ( w == m_DeleteButton )
     {
         m_DeleteActive = !m_DeleteActive;
+        if ( m_DeleteActive )
+        {
+            m_SplitActive = false;
+        }
+    }
+    else if ( w == m_SplitPickButton )
+    {
+        m_SplitActive = !m_SplitActive;
+        if ( m_SplitActive )
+        {
+            m_DeleteActive = false;
+        }
     }
 
     m_Screen->GuiDeviceCallBack( this );
@@ -3184,6 +3212,7 @@ void PCurveEditor::Update()
 
 
         m_DeleteButton->value( m_DeleteActive );
+        m_SplitPickButton->value( m_SplitActive );
 
 
         //add the data to the plot
