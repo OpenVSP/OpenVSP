@@ -15,7 +15,6 @@
 #include "APIDefines.h"
 using namespace vsp;
 
-// Remove control points
 // Beautify control point editing GUI
 // Renumbering of parameters when delete points.
 
