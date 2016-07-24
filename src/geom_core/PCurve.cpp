@@ -247,12 +247,19 @@ void PCurve::ValidateCEDIT( vector < double > &tvec )
     }
 }
 
+double PCurve::GetRFirst()
+{
+    return m_TParmVec[0]->Get();
+}
+
+double PCurve::GetRLast()
+{
+    return m_TParmVec.back()->Get();
+}
+
 void PCurve::EnforcePtOrder( )
 {
-    double rfirst = m_TParmVec[0]->Get();
-    double rlast = m_TParmVec.back()->Get();
-
-    EnforcePtOrder( rfirst, rlast );
+    EnforcePtOrder( GetRFirst(), GetRLast() );
 }
 
 void PCurve::EnforcePtOrder( double rfirst, double rlast )

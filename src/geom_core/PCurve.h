@@ -67,6 +67,9 @@ public:
 
     virtual void Split();
 
+    virtual double GetRFirst();
+    virtual double GetRLast();
+
     virtual void ConvertTo( int newtype );
 
     virtual void InitCurve( const vector < double > & tvec, const vector < double > & valvec );
