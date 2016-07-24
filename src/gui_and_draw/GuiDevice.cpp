@@ -3267,7 +3267,7 @@ void PCurveEditor::Update()
                 }
             }
 
-            for ( int i = 1; i < xdata.size(); i++ )
+            for ( int i = 0; i < xdata.size(); i++ )
             {
                 if ( xdata[i] < xmin )
                 {
