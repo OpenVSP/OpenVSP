@@ -3365,6 +3365,19 @@ void PCurveEditor::Update()
 
         m_ConvertChoice.Update( m_Curve->m_ConvType.GetID() );
 
+        switch( m_Curve->m_CurveType() )
+        {
+        case PCurve::LINEAR:
+            m_CurveType.Update( "Linear" );
+            break;
+        case PCurve::PCHIP:
+            m_CurveType.Update( "Cubic Spline (PCHIP)" );
+            break;
+        case PCurve::CEDIT:
+            m_CurveType.Update( "Cubic Bezier" );
+            break;
+        }
+
         if ( n != m_XPtSliderVec.size() )
         {
             m_PtScroll->clear();

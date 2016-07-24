@@ -1119,6 +1119,7 @@ public:
 
     Choice m_ConvertChoice;
     Fl_Button* m_ConvertButton;
+    StringOutput m_CurveType;
 
 protected:
 

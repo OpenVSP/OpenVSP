@@ -1498,6 +1498,10 @@ void GroupLayout::AddPCurveEditor( PCurveEditor & curve_editor )
     SetFitWidthFlag( true );
     AddSlider( curve_editor.m_SplitPtSlider, "r/R Split", 1, "%3.2f" );
     ForceNewLine();
+
+    AddOutput( curve_editor.m_CurveType, "Type" );
+    ForceNewLine();
+
     SetSameLineFlag( true );
 
     curve_editor.m_ConvertChoice.AddItem( "Linear" );
