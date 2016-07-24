@@ -126,6 +126,44 @@ void PCurve::AddPt()
     }
 }
 
+void PCurve::DeletePt( int indx )
+{
+    if ( indx > 0 && indx < ( m_TParmVec.size() - 1 ) )
+    {
+        if ( m_CurveType() == CEDIT )
+        {
+            if ( ( indx % 3 ) == 0 )
+            {
+                delete m_TParmVec[indx-1];
+                delete m_TParmVec[indx];
+                delete m_TParmVec[indx+1];
+
+                m_TParmVec.erase( m_TParmVec.begin() + indx - 1, m_TParmVec.begin() + indx + 2 );
+
+                delete m_ValParmVec[indx-1];
+                delete m_ValParmVec[indx];
+                delete m_ValParmVec[indx+1];
+                m_ValParmVec.erase( m_ValParmVec.begin() + indx - 1, m_ValParmVec.begin() + indx + 2 );
+
+                ValidateCEDIT();
+            }
+        }
+        else
+        {
+            delete m_TParmVec[indx];
+            m_TParmVec.erase( m_TParmVec.begin() + indx );
+
+            delete m_ValParmVec[indx];
+            m_ValParmVec.erase( m_ValParmVec.begin() + indx );
+
+            EnforcePtOrder();
+        }
+
+        m_LateUpdateFlag = true;
+        ParmChanged( NULL, Parm::SET_FROM_DEVICE ); // Force update.
+    }
+}
+
 void PCurve::ParmChanged( Parm* parm_ptr, int type )
 {
     if ( type == Parm::SET )

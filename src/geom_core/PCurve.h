@@ -43,6 +43,7 @@ public:
     xmlNodePtr DecodeXml( xmlNodePtr & node );
 
     virtual void AddPt();
+    virtual void DeletePt( int indx );
 
     virtual void ParmChanged( Parm* parm_ptr, int type );
 
