@@ -139,6 +139,8 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 680, "Propeller
     m_BladeLayout.SetSameLineFlag( false );
     m_BladeLayout.SetFitWidthFlag( true );
 
+    m_BladeLayout.AddDividerBox( "Curve Editor" );
+
     m_CurveChoice.AddItem( "Chord" );
     m_CurveChoice.AddItem( "Twist" );
     m_CurveChoice.AddItem( "Rake" );
@@ -146,6 +148,7 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 680, "Propeller
 
     m_EditCurve = CHORD;
 
+    m_BladeLayout.SetChoiceButtonWidth( m_BladeLayout.GetButtonWidth() );
     m_BladeLayout.AddChoice( m_CurveChoice, "Curve" );
 
     m_BladeLayout.AddPCurveEditor( m_CurveEditor );

@@ -1447,44 +1447,45 @@ void GroupLayout::AddPCurveEditor( PCurveEditor & curve_editor )
 {
     assert( m_Group && m_Screen );
 
+    SetSameLineFlag( true );
+
+    AddOutput( curve_editor.m_CurveType, "Type", GetW()/2 );
+
+    Fl_Button* convbutton = new Fl_Button( m_X, m_Y, m_ButtonWidth, m_StdHeight, "Convert" );
+    convbutton->labelfont( 1 );
+    convbutton->labelsize( 12 );
+    convbutton->labelcolor( FL_DARK_BLUE );
+    convbutton->copy_label( "Convert to:" );
+    m_Group->add( convbutton );
+    AddX( m_ButtonWidth );
+
+
+    curve_editor.m_ConvertChoice.AddItem( "Linear" );
+    curve_editor.m_ConvertChoice.AddItem( "Spline (PCHIP)" );
+    curve_editor.m_ConvertChoice.AddItem( "Cubic Bezier" );
+
+    m_ChoiceButtonWidth = 0;
+    AddChoice( curve_editor.m_ConvertChoice, "Convert to:", GetW()/2 + m_ButtonWidth );
+
+    AddY( m_StdHeight );
+    NewLineX();
+
+    ForceNewLine();
+    SetSameLineFlag( false );
+
+    AddYGap();
+
     int canvas_w = FitWidth( 0, m_CanvasWidth ) - 5;
 
     AddY( 25 );
     Vsp_Canvas *canvas = AddCanvas( canvas_w, m_CanvasHeight, 0, 1, 0, 1, "", "X", "Y" );
     AddY( 25 );
 
-
-    //==== Add Delete Button ====//
-    int bw = FitWidth( 0, m_ButtonWidth );
-    Fl_Light_Button* deletebutton = new Fl_Light_Button( m_X, m_Y, bw, m_StdHeight, "Delete" );
-    deletebutton->labelfont( 1 );
-    deletebutton->labelsize( 12 );
-    deletebutton->align( Fl_Align( 132 | FL_ALIGN_INSIDE ) );
-    deletebutton->copy_label( "Delete" );
-    deletebutton->labelcolor( FL_DARK_BLUE );
-    m_Group->add( deletebutton );
-    AddX( bw );
-    AddY( m_StdHeight );
-    NewLineX();
-
-    bw = FitWidth( 0, m_ButtonWidth );
-    Fl_Light_Button* splitpickbutton = new Fl_Light_Button( m_X, m_Y, bw, m_StdHeight, "Split Pick" );
-    splitpickbutton->labelfont( 1 );
-    splitpickbutton->labelsize( 12 );
-    splitpickbutton->align( Fl_Align( 132 | FL_ALIGN_INSIDE ) );
-    splitpickbutton->copy_label( "Split Pick" );
-    splitpickbutton->labelcolor( FL_DARK_BLUE );
-    m_Group->add( splitpickbutton );
-    AddX( bw );
-    AddY( m_StdHeight );
-    NewLineX();
-
-
     SetFitWidthFlag( false );
     SetSameLineFlag( true );
 
     //==== Add Split Button ====//
-    bw = FitWidth( 0, m_ButtonWidth );
+    int bw = FitWidth( 0, m_ButtonWidth );
     Fl_Button* spbutton = new Fl_Button( m_X, m_Y, bw, m_StdHeight, "Split" );
     spbutton->labelfont( 1 );
     spbutton->labelsize( 12 );
@@ -1492,43 +1493,45 @@ void GroupLayout::AddPCurveEditor( PCurveEditor & curve_editor )
     spbutton->copy_label( "Split" );
     m_Group->add( spbutton );
     AddX( bw );
-    AddY( m_StdHeight );
-    NewLineX();
 
     SetFitWidthFlag( true );
-    AddSlider( curve_editor.m_SplitPtSlider, "r/R Split", 1, "%3.2f" );
+    AddSlider( curve_editor.m_SplitPtSlider, "r/R Split", 1, "%3.2f", m_ButtonWidth );
+
+
+    Fl_Light_Button* splitpickbutton = new Fl_Light_Button( m_X, m_Y, m_ButtonWidth, m_StdHeight, "Pick" );
+    splitpickbutton->labelfont( 1 );
+    splitpickbutton->labelsize( 12 );
+    splitpickbutton->align( Fl_Align( 132 | FL_ALIGN_INSIDE ) );
+    splitpickbutton->copy_label( "Pick" );
+    splitpickbutton->labelcolor( FL_DARK_BLUE );
+    m_Group->add( splitpickbutton );
+
+
     ForceNewLine();
 
-    AddOutput( curve_editor.m_CurveType, "Type" );
-    ForceNewLine();
+    SetFitWidthFlag( true );
+    SetSameLineFlag( false );
 
-    SetSameLineFlag( true );
-
-    curve_editor.m_ConvertChoice.AddItem( "Linear" );
-    curve_editor.m_ConvertChoice.AddItem( "Cubic Spline (PCHIP)" );
-    curve_editor.m_ConvertChoice.AddItem( "Cubic Bezier" );
-
-    m_ChoiceButtonWidth = m_ButtonWidth;
-    AddChoice( curve_editor.m_ConvertChoice, "Convert to:", m_ButtonWidth );
-
-    bw = FitWidth( m_X, m_ButtonWidth );
-    Fl_Button* convbutton = new Fl_Button( m_X, m_Y, bw, m_StdHeight, "Convert" );
-    convbutton->labelfont( 1 );
-    convbutton->labelsize( 12 );
-    convbutton->labelcolor( FL_DARK_BLUE );
-    convbutton->copy_label( "Convert" );
-    m_Group->add( spbutton );
+    //==== Add Delete Button ====//
+    bw = FitWidth( 0, m_ButtonWidth );
+    Fl_Light_Button* deletebutton = new Fl_Light_Button( m_X, m_Y, bw, m_StdHeight, "Delete Control Point" );
+    deletebutton->labelfont( 1 );
+    deletebutton->labelsize( 12 );
+    deletebutton->align( Fl_Align( 132 | FL_ALIGN_INSIDE ) );
+    deletebutton->copy_label( "Delete Control Point" );
+    deletebutton->labelcolor( FL_DARK_BLUE );
+    m_Group->add( deletebutton );
     AddX( bw );
     AddY( m_StdHeight );
     NewLineX();
 
-    this->ForceNewLine();
+
     SetSameLineFlag( false );
 
     AddYGap();
     AddDividerBox( "Control Points" );
 
-    Fl_Scroll *ptscroll = AddFlScroll( 100 );
+    Fl_Scroll *ptscroll = AddFlScroll( GetRemainY() );
     ptscroll->type( Fl_Scroll::VERTICAL_ALWAYS );
     ptscroll->box( FL_BORDER_BOX );
     GroupLayout *ptlayout = new GroupLayout();

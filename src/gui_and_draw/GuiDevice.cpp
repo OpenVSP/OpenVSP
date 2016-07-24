@@ -3371,7 +3371,7 @@ void PCurveEditor::Update()
             m_CurveType.Update( "Linear" );
             break;
         case PCurve::PCHIP:
-            m_CurveType.Update( "Cubic Spline (PCHIP)" );
+            m_CurveType.Update( "Spline (PCHIP)" );
             break;
         case PCurve::CEDIT:
             m_CurveType.Update( "Cubic Bezier" );
