@@ -475,6 +475,19 @@ void PCurve::SetValVec( const vector < double > & vec )
     m_LateUpdateFlag = true;
 }
 
+void PCurve::RenameParms()
+{
+    for ( int i = 0; i < m_TParmVec.size(); i++ )
+    {
+        char str[255];
+        sprintf( str, "%s_%d", m_XParmName.c_str(), i );
+        m_TParmVec[i]->SetName( string( str ) );
+
+        sprintf( str, "%s_%d", m_YParmName.c_str(), i );
+        m_ValParmVec[i]->SetName( string( str ) );
+    }
+}
+
 void PCurve::SetPt( double t, double v, int indx )
 {
     Parm *tp = m_TParmVec[ indx ];

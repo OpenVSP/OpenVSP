@@ -61,6 +61,8 @@ public:
     virtual void SetTVec( const vector < double > & vec );
     virtual void SetValVec( const vector < double > & vec );
 
+    virtual void RenameParms();
+
     virtual void SetPt( double t, double v, int indx );
 
     virtual void Split();
