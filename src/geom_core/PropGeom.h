@@ -47,6 +47,8 @@ public:
     vec3d m_FoldDirection;
     double m_FoldAngle;
 
+    double m_Reverse;
+
 protected:
 
     bool m_NeedsUpdate;
@@ -134,6 +136,8 @@ public:
     Parm m_Beta34;
     Parm m_Feather;
     IntParm m_UseBeta34Flag;
+
+    BoolParm m_ReverseFlag;
 
     Parm m_RadFoldAxis;
     Parm m_AxialFoldAxis;

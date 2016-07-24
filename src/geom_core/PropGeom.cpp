@@ -33,7 +33,6 @@ using namespace vsp;
 // Support curved section shapes for Nick
 
 // New section types
-// Easy prop reversal
 
 //==========================================================================//
 //==========================================================================//
@@ -59,6 +58,8 @@ PropPositioner::PropPositioner()
     m_FoldDirection = vec3d( 0, 0, 1 );
     m_FoldAngle = 0.0;
 
+    m_Reverse = 1.0;
+
     m_NeedsUpdate = true;
 
 }
@@ -72,6 +73,13 @@ void PropPositioner::Update()
 
     Matrix4d mat;
     mat.scale( m_Chord );
+
+    if ( m_Reverse < 0 )
+    {
+        mat.translatef( 1.0, 0.0, 0.0 );
+        mat.flipx();
+    }
+
     m_TransformedCurve.Transform( mat );
 
     if ( !m_ParentProp )
@@ -86,16 +94,16 @@ void PropPositioner::Update()
     mat.loadIdentity();
 
     // Propeller rotation first because order is reversed.
-    mat.rotateX( -m_PropRot );
+    mat.rotateX( -m_Reverse * m_PropRot );
     mat.rotateY( m_Feather );
 
     mat.translatef( 0, m_Radius, 0 );
 
-    mat.rotateY( m_Twist );
+    mat.rotateY( m_Reverse * m_Twist );
 
     mat.rotateX( m_XRotate ); // About rake direction
 
-    mat.translatef( m_Rake, 0, m_Skew );
+    mat.translatef( m_Rake, 0, m_Reverse * m_Skew );
 
     mat.rotateZ( m_ZRotate ); // About chord
 
@@ -268,6 +276,9 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_UseBeta34Flag.Init( "UseBeta34Flag", "Design", this, 1, 0, 1 );
     m_UseBeta34Flag.SetDescript( "Flag to use Beta34 or Beta0 as driver" );
 
+    m_ReverseFlag.Init( "ReverseFlag", "Design", this, false, 0, 1 );
+    m_ReverseFlag.SetDescript( "Flag to reverse propeller rotation direction" );
+
     m_AFLimit.Init( "AFLimit", "Design", this, 0.2, 0, 1 );
     m_AFLimit.SetDescript( "Lower limit of activity factor integration" );
 
@@ -400,12 +411,18 @@ void PropGeom::UpdateDrawObj()
 
     DrawObj rotAxis;
 
+    double rev = 1.0;
+    if ( m_ReverseFlag() )
+    {
+        rev = -1.0;
+    }
+
     double data[16];
     m_ModelMatrix.getMat( data );
 
     Matrix4d mat;
     mat.loadIdentity();
-    mat.rotateX( -m_Rotate() );
+    mat.rotateX( -rev * m_Rotate() );
     mat.postMult( data );
 
     vec3d ptstart = mat.xform( m_FoldAxOrigin + m_FoldAxDirection );
@@ -486,6 +503,12 @@ void PropGeom::UpdateSurf()
 
     vector < double > uvec( nxsec );
     vector < double > rvec( nxsec );
+
+    double rev = 1.0;
+    if ( m_ReverseFlag() )
+    {
+        rev = -1.0;
+    }
 
     //==== Update XSec Location/Rotation ====//
     for ( int i = 0 ; i < nxsec ; i++ )
@@ -661,6 +684,8 @@ void PropGeom::UpdateSurf()
                 xs->m_PropPos.m_FoldDirection = m_FoldAxDirection;
                 xs->m_PropPos.m_FoldAngle = m_FoldAngle();
 
+                xs->m_PropPos.m_Reverse = rev;
+
                 rib_vec[i].set_f( pwc );
                 crv_vec[i].SetCurve( pwc );
             }
@@ -778,6 +803,8 @@ void PropGeom::UpdateSurf()
         pp.m_FoldDirection = m_FoldAxDirection;
         pp.m_FoldAngle = m_FoldAngle();
 
+        pp.m_Reverse = rev;
+
         // Set a bunch of other pp variables.
         pp.SetCurve( c );
         pp.Update();
@@ -798,6 +825,11 @@ void PropGeom::UpdateSurf()
     m_MainSurfVec[0].SetClustering( m_LECluster(), m_TECluster() );
 
     if ( m_XSecSurf.GetFlipUD() )
+    {
+        m_MainSurfVec[0].FlipNormal();
+    }
+
+    if ( this->m_ReverseFlag() )
     {
         m_MainSurfVec[0].FlipNormal();
     }

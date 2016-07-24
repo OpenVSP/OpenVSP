@@ -41,6 +41,8 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 680, "Propeller
 
     m_DesignLayout.AddSlider( m_PropRotateSlider, "Rotate", 100, "%6.5f" );
 
+    m_DesignLayout.AddButton( m_ReverseToggle, "Reverse" );
+
     m_DesignLayout.SetFitWidthFlag( false );
     m_DesignLayout.SetSameLineFlag( true );
     m_DesignLayout.SetButtonWidth( 15 );
@@ -647,6 +649,8 @@ bool PropScreen::Update()
     m_NBladeSlider.Update( propeller_ptr->m_Nblade.GetID() );
 
     m_PropRotateSlider.Update( propeller_ptr->m_Rotate.GetID() );
+
+    m_ReverseToggle.Update( propeller_ptr->m_ReverseFlag.GetID() );
 
     m_Beta34Slider.Update( propeller_ptr->m_Beta34.GetID() );
     m_FeatherSlider.Update( propeller_ptr->m_Feather.GetID() );
