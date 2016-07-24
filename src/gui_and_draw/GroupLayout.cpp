@@ -1473,9 +1473,9 @@ void GroupLayout::AddPCurveEditor( PCurveEditor & curve_editor )
     ForceNewLine();
     SetSameLineFlag( true );
 
-    curve_editor.m_ConvertChoice.AddItem( "LINEAR" );
-    curve_editor.m_ConvertChoice.AddItem( "PCHIP" );
-    curve_editor.m_ConvertChoice.AddItem( "CEDIT" );
+    curve_editor.m_ConvertChoice.AddItem( "Linear" );
+    curve_editor.m_ConvertChoice.AddItem( "Cubic Spline (PCHIP)" );
+    curve_editor.m_ConvertChoice.AddItem( "Cubic Bezier" );
 
     m_ChoiceButtonWidth = m_ButtonWidth;
     AddChoice( curve_editor.m_ConvertChoice, "Convert to:", m_ButtonWidth );
