@@ -164,7 +164,14 @@ void PCurve::Update()
         m_Curve.InterpolateLinear( valvec, tvec, false );
         break;
     case PCHIP:
-        m_Curve.InterpolatePCHIP( valvec, tvec, false );
+        if ( tvec.size() >= 3 )
+        {
+            m_Curve.InterpolatePCHIP( valvec, tvec, false );
+        }
+        else
+        {
+            m_Curve.InterpolateLinear( valvec, tvec, false );
+        }
         break;
     case CEDIT:
         m_Curve.SetCubicControlPoints( valvec, tvec, false );
