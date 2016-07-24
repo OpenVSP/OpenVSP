@@ -345,10 +345,14 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_ChordCurve.SetCurveName( "Chord" );
     m_ChordCurve.InitParms();
     m_ChordCurve.m_CurveType = PCurve::CEDIT;
-    static const double t1[] = {0.2, 0.2 + 0.55 / 3.0, 0.75 - 0.55 / 3.0, 0.75,
-                             0.75 + 0.25 / 3.0, 1.0 - 0.25 / 3.0, 1.0};
-    static const double v1[] = {0.08, 0.15, 0.21, 0.21,
-                             0.21, 0.25, 0.01};
+    static const double t1[] = {0.2, 0.2 + 0.4 / 3.0,
+               0.6 - 0.4 / 3.0, 0.6, 0.6 + 0.35 / 3.0,
+               0.95 - 0.35 / 3.0, 0.95, 0.95 + 0.05 / 3.0,
+               1.0 - 0.05 / 3.0, 1.0};
+    static const double v1[] = {0.08, 0.15,
+                           0.2, 0.2, 0.2,
+                           0.2, 0.2, 0.2,
+                           0.2, 0.13};
     vector < double > tv1( t1, t1 + sizeof( t1 ) / sizeof( t1[0] ) );
     vector < double > vv1( v1, v1 + sizeof( v1 ) / sizeof( v1[0] ) );
     m_ChordCurve.InitCurve( tv1, vv1 );
