@@ -32,6 +32,7 @@ public:
     void affineInverse();
     void scale( const double &scale );
 
+    void flipx();
 
     void getMat( double* m );
     void matMult( double* m );

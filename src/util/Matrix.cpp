@@ -225,6 +225,11 @@ void Matrix4d::scale( const double &scale )
     mat[10] *= scale;
 }
 
+void Matrix4d::flipx()
+{
+    mat[0] *= -1.0;
+}
+
 vec3d Matrix4d::xform( const vec3d & in ) const
 {
     vec3d out;
