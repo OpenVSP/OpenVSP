@@ -16,7 +16,6 @@
 using namespace vsp;
 
 // Beautify control point editing GUI
-// Renumbering of parameters when delete points.
 
 // Change curve type from API
 // Curve splitting from API

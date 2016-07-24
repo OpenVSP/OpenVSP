@@ -159,6 +159,8 @@ void PCurve::DeletePt( int indx )
             EnforcePtOrder();
         }
 
+        RenameParms();
+
         m_LateUpdateFlag = true;
         ParmChanged( NULL, Parm::SET_FROM_DEVICE ); // Force update.
     }
@@ -603,6 +605,8 @@ void PCurve::Split()
         break;
     }
 
+    RenameParms();
+
     m_LateUpdateFlag = true;
     ParmChanged( NULL, Parm::SET_FROM_DEVICE ); // Force update.
 }
@@ -695,6 +699,8 @@ void PCurve::ConvertTo( int newtype )
         }
         break;
     }
+
+    RenameParms();
 
     m_LateUpdateFlag = true;
     ParmChanged( NULL, Parm::SET_FROM_DEVICE ); // Force update.
