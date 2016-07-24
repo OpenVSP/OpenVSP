@@ -85,7 +85,7 @@ ManageViewScreen::ManageViewScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 44
     m_BorderLayout.AddSlider( m_PanYPos, "Pan Y:", 10.0, "%7.3f" );
     m_BorderLayout.AddYGap();
 
-    m_BorderLayout.AddSlider( m_Zoom, "Zoom:", 1, "%7.3g", true );
+    m_BorderLayout.AddSlider( m_Zoom, "Zoom:", 1, "%7.3g", 0, true );
     m_BorderLayout.AddYGap();
 
     //===== Attempt at Euler Angle Rotation =====//

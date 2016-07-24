@@ -374,7 +374,7 @@ void GroupLayout::AddSlider( FractParmSlider& slid_adj_input,
 
 
 //==== Create & Init Gui Slider Input  ====//
-void GroupLayout::AddSlider( SliderInput& slider_input, const char* label, double range, const char* format, bool log_slider )
+void GroupLayout::AddSlider( SliderInput& slider_input, const char* label, double range, const char* format, int used_w, bool log_slider )
 {
     assert( m_Group && m_Screen );
 
@@ -384,7 +384,7 @@ void GroupLayout::AddSlider( SliderInput& slider_input, const char* label, doubl
     VspButton* button = AddParmButton( label );
 
     //==== Slider ====//
-    int sw = FitWidth( m_ButtonWidth + m_InputWidth + init_used_w, m_SliderWidth );
+    int sw = FitWidth( m_ButtonWidth + m_InputWidth + init_used_w + used_w, m_SliderWidth );
     Fl_Slider* slider = new Fl_Slider( m_X, m_Y, sw, m_StdHeight );
     slider->type( 5 );
     slider->box( FL_THIN_DOWN_BOX );

@@ -37,7 +37,7 @@ STEPOptionsScreen::STEPOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 
     m_LenUnitChoice.AddItem( "FT" );
     m_LenUnitChoice.AddItem( "YD" );
     m_GenLayout.AddChoice( m_LenUnitChoice, "Length Unit" );
-    m_GenLayout.AddSlider( m_TolSlider, "Tolerance", 10, "%5.4g", true );
+    m_GenLayout.AddSlider( m_TolSlider, "Tolerance", 10, "%5.4g", 0, true );
     m_GenLayout.AddYGap();
 
     m_GenLayout.AddButton( m_SplitSurfsToggle, "Split Surfaces" );
@@ -45,7 +45,7 @@ STEPOptionsScreen::STEPOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 
     m_GenLayout.AddButton( m_MergePointsToggle, "Merge Points" );
     m_GenLayout.AddYGap();
     m_GenLayout.AddButton( m_ToCubicToggle, "Convert to Cubic" );
-    m_GenLayout.AddSlider( m_ToCubicTolSlider, "Tolerance", 10, "%5.4g", true );
+    m_GenLayout.AddSlider( m_ToCubicTolSlider, "Tolerance", 10, "%5.4g", 0, true );
 
     m_GenLayout.AddY( 25 );
     m_GenLayout.SetFitWidthFlag( false );

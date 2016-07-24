@@ -137,7 +137,7 @@ public:
                      double range, const char* format );
     void AddSlider(  FractParmSlider& slid_adj_input, const char* label,
                      double range, const char* format );
-    void AddSlider( SliderInput & slider_input, const char* label, double range, const char* format, bool log_slider = false );
+    void AddSlider( SliderInput & slider_input, const char* label, double range, const char* format, int used_w = 0, bool log_slider = false );
     void AddButton(  CheckButton& check_button, const char* label );
     void AddButton(  ToggleButton& toggle_button, const char* label );
     void AddButton(  CheckButtonBit& check_bit_button, const char* label, int val );
