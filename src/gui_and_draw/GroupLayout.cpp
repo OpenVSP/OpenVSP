@@ -1453,11 +1453,25 @@ void GroupLayout::AddPCurveEditor( PCurveEditor & curve_editor )
     Vsp_Canvas *canvas = AddCanvas( canvas_w, m_CanvasHeight, 0, 1, 0, 1, "", "X", "Y" );
     AddY( 25 );
 
+
+    //==== Add Delete Button ====//
+    int bw = FitWidth( 0, m_ButtonWidth );
+    Fl_Light_Button* deletebutton = new Fl_Light_Button( m_X, m_Y, bw, m_StdHeight, "Delete" );
+    deletebutton->labelfont( 1 );
+    deletebutton->labelsize( 12 );
+    deletebutton->align( Fl_Align( 132 | FL_ALIGN_INSIDE ) );
+    deletebutton->copy_label( "Delete" );
+    deletebutton->labelcolor( FL_DARK_BLUE );
+    m_Group->add( deletebutton );
+    AddX( bw );
+    AddY( m_StdHeight );
+    NewLineX();
+
     SetFitWidthFlag( false );
     SetSameLineFlag( true );
 
     //==== Add Split Button ====//
-    int bw = FitWidth( 0, m_ButtonWidth );
+    bw = FitWidth( 0, m_ButtonWidth );
     Fl_Button* spbutton = new Fl_Button( m_X, m_Y, bw, m_StdHeight, "Split" );
     spbutton->labelfont( 1 );
     spbutton->labelsize( 12 );
@@ -1503,7 +1517,7 @@ void GroupLayout::AddPCurveEditor( PCurveEditor & curve_editor )
     GroupLayout *ptlayout = new GroupLayout();
     ptlayout->SetGroupAndScreen( ptscroll, this->m_Screen );
 
-    curve_editor.Init( m_Screen, canvas, ptscroll, spbutton, convbutton, ptlayout );
+    curve_editor.Init( m_Screen, canvas, ptscroll, spbutton, convbutton, deletebutton, ptlayout );
 }
 
 //==== Add Fl Browser ====//

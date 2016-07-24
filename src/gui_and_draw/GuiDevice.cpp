@@ -3088,9 +3088,10 @@ PCurveEditor::PCurveEditor()
     m_LastHit = -1;
 
     m_FreezeAxis = false;
+    m_DeleteActive = false;
 }
 
-void PCurveEditor::Init( VspScreen* screen, Vsp_Canvas* canvas, Fl_Scroll* ptscroll, Fl_Button *spbutton, Fl_Button *convbutton, GroupLayout *ptlayout )
+void PCurveEditor::Init( VspScreen* screen, Vsp_Canvas* canvas, Fl_Scroll* ptscroll, Fl_Button *spbutton, Fl_Button *convbutton, Fl_Light_Button *deletebutton, GroupLayout *ptlayout )
 {
     GuiDevice::Init( screen );
 
@@ -3098,10 +3099,12 @@ void PCurveEditor::Init( VspScreen* screen, Vsp_Canvas* canvas, Fl_Scroll* ptscr
     m_PtScroll = ptscroll;
     m_SplitButton = spbutton;
     m_ConvertButton = convbutton;
+    m_DeleteButton = deletebutton;
     m_PtLayout = ptlayout;
 
     m_canvas->callback( StaticDeviceCB, this );
     m_SplitButton->callback( StaticDeviceCB, this );
+    m_DeleteButton->callback( StaticDeviceCB, this );
     m_ConvertButton->callback( StaticDeviceCB, this );
 }
 
@@ -3120,6 +3123,16 @@ void PCurveEditor::DeviceCB( Fl_Widget* w )
         if ( Fl::event() == FL_PUSH )
         {
             m_LastHit = ihit( x, y, 5 );
+
+            if ( m_DeleteActive )
+            {
+                m_DeleteActive = false;
+
+                if ( m_LastHit >= 0 )
+                {
+                    m_Curve->DeletePt( m_LastHit );
+                }
+            }
         }
 
         if ( Fl::event() == FL_DRAG && m_LastHit != -1 )
@@ -3140,6 +3153,10 @@ void PCurveEditor::DeviceCB( Fl_Widget* w )
     else if ( w == m_ConvertButton )
     {
         m_Curve->ConvertTo( m_Curve->m_ConvType() );
+    }
+    else if ( w == m_DeleteButton )
+    {
+        m_DeleteActive = !m_DeleteActive;
     }
 
     m_Screen->GuiDeviceCallBack( this );
@@ -3165,6 +3182,8 @@ void PCurveEditor::Update()
 
         m_Curve->Tessellate( xt, yt );
 
+
+        m_DeleteButton->value( m_DeleteActive );
 
 
         //add the data to the plot
