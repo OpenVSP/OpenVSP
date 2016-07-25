@@ -23,8 +23,6 @@ using namespace vsp;
 
 // v2 import
 
-// Nice default prop
-
 // Import / Export blade element format.
 // Support curved section shapes for Nick
 
@@ -308,7 +306,6 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_XSecSurf.AddXSec( XS_FOUR_SERIES );
     m_XSecSurf.AddXSec( XS_FOUR_SERIES );
     m_XSecSurf.AddXSec( XS_FOUR_SERIES );
-    m_XSecSurf.AddXSec( XS_FOUR_SERIES );
 
     int j;
     PropXSec* xs;
@@ -321,22 +318,38 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     ++j;
     xs = ( PropXSec* ) m_XSecSurf.FindXSec( j );
     xs->SetGroupDisplaySuffix( j );
-    xs->m_RadiusFrac = 0.4;
+    xs->m_RadiusFrac = 0.45;
+    FourSeries* af = dynamic_cast< FourSeries* >( xs->GetXSecCurve() );
+    if ( af )
+    {
+        af->m_ThickChord.Set( 0.12 );
+        af->m_Camber.Set( .05 );
+        af->m_CamberLoc.Set( 0.4 );
+    }
 
     ++j;
     xs = ( PropXSec* ) m_XSecSurf.FindXSec( j );
     xs->SetGroupDisplaySuffix( j );
-    xs->m_RadiusFrac = 0.6;
-
-    ++j;
-    xs = ( PropXSec* ) m_XSecSurf.FindXSec( j );
-    xs->SetGroupDisplaySuffix( j );
-    xs->m_RadiusFrac = 0.8;
+    xs->m_RadiusFrac = 0.7;
+    af = dynamic_cast< FourSeries* >( xs->GetXSecCurve() );
+    if ( af )
+    {
+        af->m_ThickChord.Set( 0.05 );
+        af->m_Camber.Set( .05 );
+        af->m_CamberLoc.Set( 0.4 );
+    }
 
     ++j;
     xs = ( PropXSec* ) m_XSecSurf.FindXSec( j );
     xs->SetGroupDisplaySuffix( j );
     xs->m_RadiusFrac = 1.0;
+    af = dynamic_cast< FourSeries* >( xs->GetXSecCurve() );
+    if ( af )
+    {
+        af->m_ThickChord.Set( 0.03 );
+        af->m_Camber.Set( .01 );
+        af->m_CamberLoc.Set( 0.4 );
+    }
 
 
     m_ChordCurve.SetParentContainer( GetID() );
