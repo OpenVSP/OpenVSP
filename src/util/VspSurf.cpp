@@ -35,6 +35,12 @@ typedef eli::geom::surface::piecewise_general_skinning_surface_creator<double, 3
 typedef eli::geom::surface::piecewise_multicap_surface_creator<double, 3, surface_tolerance_type> multicap_creator_type;
 typedef eli::geom::surface::piecewise_cubic_spline_skinning_surface_creator<double, 3, surface_tolerance_type> spline_creator_type;
 
+double Cluster( const double &t, const double &a, const double &b )
+{
+    double mt = 1.0 - t;
+    return mt * mt * t * a + mt * t * t * ( 3.0 - b ) + t * t * t;
+}
+
 //===== Constructor  =====//
 VspSurf::VspSurf()
 {
@@ -656,12 +662,6 @@ void VspSurf::FlagDuplicate( VspSurf *othersurf )
             othersurf->m_WSkip[jp] = true;
         }
     }
-}
-
-double VspSurf::Cluster( const double &t, const double &a, const double &b ) const
-{
-    double mt = 1.0 - t;
-    return mt * mt * t * a + mt * t * t * ( 3.0 - b ) + t * t * t;
 }
 
 void VspSurf::MakeUTess( const vector<int> &num_u, vector<double> &u, const std::vector<int> & umerge ) const

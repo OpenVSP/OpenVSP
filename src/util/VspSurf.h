@@ -41,6 +41,8 @@ typedef eli::geom::surface::connection_data<double, 3, surface_tolerance_type> r
 #include <string>
 using std::vector;
 
+double Cluster( const double &t, const double &a, const double &b );
+
 class VspSurf
 {
 public:
@@ -142,7 +144,6 @@ public:
 
     void SetClustering( const double &le, const double &te );
     void SetRootTipClustering( const vector < double > &root, const vector < double > &tip );
-    double Cluster( const double &t, const double &a, const double &b ) const;
 
     void MakeUTess( const vector<int> &num_u, std::vector<double> &utess, const std::vector<int> & umerge ) const;
     void MakeVTess( int num_v, std::vector<double> &vtess, const int &n_cap, bool degen ) const;
