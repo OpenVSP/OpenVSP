@@ -24,7 +24,6 @@ using namespace vsp;
 // v2 import
 
 // Import / Export blade element format.
-// Support curved section shapes for Nick
 
 // New section types
 
