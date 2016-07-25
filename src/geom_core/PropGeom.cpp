@@ -567,8 +567,8 @@ void PropGeom::UpdateSurf()
         }
     }
 
-    Vsp1DCurve rtou;
-    rtou.InterpolateLinear( uvec, rvec, false );
+    m_rtou = Vsp1DCurve();
+    m_rtou.InterpolateLinear( uvec, rvec, false );
 
     EnforcePCurveOrder( rfirst, rlast );
 
@@ -705,8 +705,8 @@ void PropGeom::UpdateSurf()
     // any other transformations.
     // These sections can be extracted (as u-const curves) and then
     // transformed to their final position before skinning.
-    VspSurf foilsurf;
-    foilsurf.SkinC0( crv_vec, false );
+    m_FoilSurf = VspSurf();
+    m_FoilSurf.SkinC0( crv_vec, false );
 
     // Find the union of stations required to approximate the blade parameters
     // with cubic functions.
@@ -769,10 +769,10 @@ void PropGeom::UpdateSurf()
     {
         // Assume linear interpolation means linear u/r relationship.
         double r = tmap[i];
-        double u = rtou.CompPnt( r );
+        double u = m_rtou.CompPnt( r );
 
         VspCurve c;
-        foilsurf.GetUConstCurve( c, u );
+        m_FoilSurf.GetUConstCurve( c, u );
         vec3d v = c.CompPnt( 0 );
         c.OffsetZ( -v.z() );
 

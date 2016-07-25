@@ -181,5 +181,8 @@ protected:
 
     DrawObj m_ArrowDO;
 
+    Vsp1DCurve m_rtou;
+    VspSurf m_FoilSurf;
+
 };
 #endif // !defined(VSPPROPGEOM__INCLUDED_)
