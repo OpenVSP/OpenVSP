@@ -11,6 +11,7 @@
 
 #include "DrawObj.h"
 #include <math.h>
+#include "Matrix.h"
 
 void MakeArrowhead( const vec3d &ptip, vec3d &u, double len, vector < vec3d > &pts )
 {
@@ -82,6 +83,97 @@ void MakeArrowhead( const vec3d &ptip, vec3d &u, double len, DrawObj &dobj )
     dobj.m_MaterialInfo.Shininess = 5.0;
 
     dobj.m_GeomChanged = true;
+}
+
+void MakeCircle( const vec3d &pcen, const vec3d &norm, const vec3d &pstart, vector < vec3d > &pts )
+{
+    int nseg = 48;
+
+    pts.clear();
+    pts.reserve( 2 * nseg );
+    for ( int i = 0; i < nseg; i++ )
+    {
+        double theta = i * 2.0 * PI / nseg;
+        pts.push_back( RotateArbAxis( pstart, theta, norm ) + pcen );
+        theta = ( i + 1 ) * 2.0 * PI / nseg;
+        pts.push_back( RotateArbAxis( pstart, theta, norm ) + pcen );
+    }
+}
+
+void MakeCircle( const vec3d &pcen, const vec3d &norm, double rad, vector < vec3d > &pts )
+{
+    vec3d n = norm;
+    n.normalize();
+
+    vec3d ref;
+    ref.v[ n.minor_comp() ] = 1.0;
+
+    vec3d v = cross( n, ref );
+    v.normalize();
+    vec3d u = cross( v, n );
+    u.normalize();
+
+    vec3d pstart = u * rad;
+
+    MakeCircle( pcen, n, pstart, pts );
+
+}
+
+void MakeCircle( const vec3d &pcen, const vec3d &norm, double rad, DrawObj &dobj )
+{
+    MakeCircle( pcen, norm, rad, dobj.m_PntVec );
+
+    dobj.m_LineWidth = 2.0;
+    dobj.m_Type = DrawObj::VSP_LINES;
+    dobj.m_LineColor = vec3d( 0, 0, 0 );
+    dobj.m_GeomChanged = true;
+}
+
+void MakeCircleArrow( const vec3d &pcen, const vec3d &norm, double rad, DrawObj &dobj, DrawObj &arrow )
+{
+    double lenfrac = 0.5;
+    vec3d n = norm;
+    n.normalize();
+
+    vec3d ref;
+    ref.v[ n.minor_comp() ] = 1.0;
+
+    vec3d v = cross( n, ref );
+    v.normalize();
+    vec3d u = cross( v, n );
+    u.normalize();
+
+    vec3d pstart = u * rad;
+
+    MakeCircle( pcen, n, pstart, dobj.m_PntVec );
+    dobj.m_LineWidth = 2.0;
+    dobj.m_Type = DrawObj::VSP_LINES;
+    dobj.m_LineColor = vec3d( 0, 0, 0 );
+    dobj.m_GeomChanged = true;
+
+    MakeArrowhead( vec3d( 0, 0, 0 ), v, rad * lenfrac, arrow.m_PntVec );
+
+    Matrix4d mat;
+    mat.translatev( pcen + pstart );
+    mat.rotate( atan( lenfrac * 0.5 ), n );
+    mat.xformvec( arrow.m_PntVec );
+
+
+    arrow.m_LineWidth = 1.0;
+    arrow.m_Type = DrawObj::VSP_SHADED_TRIS;
+    arrow.m_NormVec = vector <vec3d> ( dobj.m_PntVec.size() );
+
+    for ( int i = 0; i < 4; i++ )
+    {
+        arrow.m_MaterialInfo.Ambient[i] = 0.2;
+        arrow.m_MaterialInfo.Diffuse[i] = 0.1;
+        arrow.m_MaterialInfo.Specular[i] = 0.7;
+        arrow.m_MaterialInfo.Emission[i] = 0.0;
+    }
+    arrow.m_MaterialInfo.Diffuse[3] = 0.5;
+    arrow.m_MaterialInfo.Shininess = 5.0;
+
+    arrow.m_GeomChanged = true;
 }
 
 //====================== Contructor ======================//
