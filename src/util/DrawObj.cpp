@@ -13,9 +13,11 @@
 #include <math.h>
 #include "Matrix.h"
 
-void MakeArrowhead( const vec3d &ptip, vec3d &u, double len, vector < vec3d > &pts )
+void MakeArrowhead( const vec3d &ptip, const vec3d &uref, double len, vector < vec3d > &pts )
 {
     double fr = 0.2;
+
+    vec3d u = uref;
     u.normalize();
 
     if ( u.mag() < 1e-6 )
@@ -37,8 +39,7 @@ void MakeArrowhead( const vec3d &ptip, vec3d &u, double len, vector < vec3d > &p
     vec3d p3 = p - fr * len * v;
     vec3d p4 = p - fr * len * w;
 
-    pts.clear();
-    pts.reserve( 18 );
+    pts.reserve( pts.size() + 18 );
     pts.push_back( p1 );
     pts.push_back( p2 );
     pts.push_back( p3 );
@@ -64,9 +65,9 @@ void MakeArrowhead( const vec3d &ptip, vec3d &u, double len, vector < vec3d > &p
     pts.push_back( ptip );
 }
 
-void MakeArrowhead( const vec3d &ptip, vec3d &u, double len, DrawObj &dobj )
+void MakeArrowhead( const vec3d &ptip, const vec3d &uref, double len, DrawObj &dobj )
 {
-    MakeArrowhead( ptip, u, len, dobj.m_PntVec );
+    MakeArrowhead( ptip, uref, len, dobj.m_PntVec );
 
     dobj.m_LineWidth = 1.0;
     dobj.m_Type = DrawObj::VSP_SHADED_TRIS;
@@ -89,8 +90,7 @@ void MakeCircle( const vec3d &pcen, const vec3d &norm, const vec3d &pstart, vect
 {
     int nseg = 48;
 
-    pts.clear();
-    pts.reserve( 2 * nseg );
+    pts.reserve( pts.size() + 2 * nseg );
     for ( int i = 0; i < nseg; i++ )
     {
         double theta = i * 2.0 * PI / nseg;
@@ -151,13 +151,16 @@ void MakeCircleArrow( const vec3d &pcen, const vec3d &norm, double rad, DrawObj 
     dobj.m_LineColor = vec3d( 0, 0, 0 );
     dobj.m_GeomChanged = true;
 
-    MakeArrowhead( vec3d( 0, 0, 0 ), v, rad * lenfrac, arrow.m_PntVec );
+
+    vector < vec3d > arrowpts;
+    MakeArrowhead( vec3d( 0, 0, 0 ), v, rad * lenfrac, arrowpts );
 
     Matrix4d mat;
     mat.translatev( pcen + pstart );
     mat.rotate( atan( lenfrac * 0.5 ), n );
-    mat.xformvec( arrow.m_PntVec );
+    mat.xformvec( arrowpts );
 
+    arrow.m_PntVec.insert( arrow.m_PntVec.end(), arrowpts.begin(), arrowpts.end() );
 
     arrow.m_LineWidth = 1.0;
     arrow.m_Type = DrawObj::VSP_SHADED_TRIS;
@@ -179,13 +182,12 @@ void MakeCircleArrow( const vec3d &pcen, const vec3d &norm, double rad, DrawObj 
 void MakeDashedLine( const vec3d &pstart, const vec3d &pend, int ndash, vector < vec3d > &dashpts )
 {
     int npt = 2 * ndash;
-    dashpts.clear();
-    dashpts.resize( npt );
+    dashpts.reserve( dashpts.size() + npt );
 
     vec3d dpt = ( pend - pstart ) * ( 1.0 / ( npt - 1 ) );
     for ( int i = 0; i < npt; i++ )
     {
-        dashpts[i] = pstart + static_cast < double > ( i ) * dpt;
+        dashpts.push_back( pstart + static_cast < double > ( i ) * dpt );
     }
 }
 
