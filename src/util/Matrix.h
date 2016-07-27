@@ -52,6 +52,7 @@ public:
     void loadYZRef();
 
     vec3d xform( const vec3d & in ) const;
+    void xformvec( std::vector < vec3d > & in ) const;
     vec3d getAngles() const;
 
     void buildXForm( const vec3d & pos, const vec3d & rot, const vec3d & cent_rot );

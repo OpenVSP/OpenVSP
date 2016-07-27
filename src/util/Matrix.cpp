@@ -244,6 +244,14 @@ vec3d Matrix4d::xform( const vec3d & in ) const
     return out;
 }
 
+void Matrix4d::xformvec( std::vector < vec3d > & in ) const
+{
+    for ( int i = 0; i < in.size(); i++ )
+    {
+        in[i] = xform( in[i] );
+    }
+}
+
 vec3d Matrix4d::getAngles() const
 {
     vec3d angles;
