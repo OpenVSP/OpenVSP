@@ -45,6 +45,11 @@ void Matrix4d::translatef( const double &x, const double &y, const double &z )
 
 }
 
+void Matrix4d::translatev( const vec3d &v )
+{
+    translatef( v.x(), v.y(), v.z() );
+}
+
 void Matrix4d::rotateX( const double &ang )
 {
     double tmat[16];

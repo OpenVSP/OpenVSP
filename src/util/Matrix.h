@@ -22,6 +22,7 @@ public:
     void loadIdentity();
     void setIdentity( double* m ) const;
     void translatef( const double &x, const double &y, const double & );
+    void translatev( const vec3d &v );
     void rotateX( const double &ang );
     void rotateY( const double &ang );
     void rotateZ( const double &ang );
