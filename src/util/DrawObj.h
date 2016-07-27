@@ -376,7 +376,7 @@ void MakeCircle( const vec3d &pcen, const vec3d &norm, double rad, DrawObj &dobj
 
 void MakeCircleArrow( const vec3d &pcen, const vec3d &norm, double rad, DrawObj &dobj, DrawObj &arrow );
 
-
+void MakeDashedLine( const vec3d &pstart, const vec3d &pend, int ndash, vector < vec3d > &dashpts );
 
 #endif
 

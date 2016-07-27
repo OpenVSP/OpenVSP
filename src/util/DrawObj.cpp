@@ -176,6 +176,19 @@ void MakeCircleArrow( const vec3d &pcen, const vec3d &norm, double rad, DrawObj 
     arrow.m_GeomChanged = true;
 }
 
+void MakeDashedLine( const vec3d &pstart, const vec3d &pend, int ndash, vector < vec3d > &dashpts )
+{
+    int npt = 2 * ndash;
+    dashpts.clear();
+    dashpts.resize( npt );
+
+    vec3d dpt = ( pend - pstart ) * ( 1.0 / ( npt - 1 ) );
+    for ( int i = 0; i < npt; i++ )
+    {
+        dashpts[i] = pstart + static_cast < double > ( i ) * dpt;
+    }
+}
+
 //====================== Contructor ======================//
 DrawObj::DrawObj()
 {
