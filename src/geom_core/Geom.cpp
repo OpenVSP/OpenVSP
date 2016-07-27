@@ -473,11 +473,14 @@ Matrix4d GeomXForm::ComposeAttachMatrix()
         bool revertCompTrans = false;
         bool revertCompRot = false;
 
+        // Parent CompXXXCoordSys methods query the positioned m_SurfVec[0] surface,
+        // not m_MainSurfVec[0].  Consequently, m_ModelMatrix is already implied in
+        // these calculations and does not need to be applied again.
         if ( m_TransAttachFlag() == ATTACH_TRANS_UV )
         {
             if ( !( parent->CompTransCoordSys( m_ULoc(), m_WLoc(), transMat ) ) )
             {
-                revertCompTrans = true;
+                revertCompTrans = true; // Blank components revert to the component matrix.
             }
         }
 
@@ -485,7 +488,7 @@ Matrix4d GeomXForm::ComposeAttachMatrix()
         {
             if ( !( parent->CompRotCoordSys( m_ULoc(), m_WLoc(), rotMat ) ) )
             {
-                revertCompRot = true;
+                revertCompRot = true; // For blank component.
             }
         }
 
