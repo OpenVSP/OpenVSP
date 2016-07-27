@@ -15,7 +15,7 @@
 
 void MakeArrowhead( const vec3d &ptip, vec3d &u, double len, vector < vec3d > &pts )
 {
-    double fr = 0.1;
+    double fr = 0.2;
     u.normalize();
 
     if ( u.mag() < 1e-6 )
