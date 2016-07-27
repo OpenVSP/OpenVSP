@@ -1180,6 +1180,7 @@ void ToggleRadioGroup::Init( VspScreen* screen )
 void ToggleRadioGroup::AddButton( Fl_Button* button )
 {
     assert( button );
+    AddWidget(button);
     m_ButtonVec.push_back( button );
     button->callback( StaticDeviceCB, this );
 }
