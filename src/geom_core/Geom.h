@@ -322,7 +322,6 @@ public:
 
     Parm m_ULoc;                        // UV Attachment Parameters
     Parm m_WLoc;
-    BoolParm m_relFlag;                 // Bool Parm to determine relative or absolute transformations
 
     Parm m_Scale;                       // Scaling Parameter
     Parm m_LastScale;

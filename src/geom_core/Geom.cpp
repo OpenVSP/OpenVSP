@@ -355,7 +355,6 @@ GeomXForm::GeomXForm( Vehicle* vehicle_ptr ) : GeomBase( vehicle_ptr )
     m_ULoc.SetDescript( "U Location of Parent's Surface" );
     m_WLoc.Init( "V_Attach_Location", "Attach", this, 1e-6, 1e-6, 1 - 1e-6 );
     m_WLoc.SetDescript( "V Location of Parent's Surface" );
-    m_relFlag.Init( "Abs_Rel_Flag", "Attach", this, true, 0, 1 );
 
     m_Scale.Init( "Scale", "XForm", this, 1, 1.0e-3, 1.0e3 );
     m_Scale.SetDescript( "Scale Geometry Size" );
