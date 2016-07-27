@@ -315,6 +315,7 @@ void XSec::GetTanNormVec( double t, double theta, double phi, vec3d &tangent, ve
     // Rotate basis to specified slope.
     rmat.rotate( theta, updir );
     basis.postMult( rmat.data() );
+    rmat.loadIdentity();
     rmat.rotate( phi, wdir );
     basis.postMult( rmat.data() );
 
@@ -460,11 +461,14 @@ void XSec::GetAngStrCrv( double t, int irib,
     // Rotate basis to specified slope.
     rmat.rotate( thetaL, updir );
     basisL.postMult( rmat.data() );
+    rmat.loadIdentity();
     rmat.rotate( phiL, wdir );
     basisL.postMult( rmat.data() );
 
+    rmat.loadIdentity();
     rmat.rotate( thetaR, updir );
     basisR.postMult( rmat.data() );
+    rmat.loadIdentity();
     rmat.rotate( phiR, wdir );
     basisR.postMult( rmat.data() );
 

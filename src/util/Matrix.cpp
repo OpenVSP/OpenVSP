@@ -155,19 +155,23 @@ void Matrix4d::rotate( const double &angle, const vec3d & axis )
     double z = a[2];
     double m  = 1.0 - c;
 
-    loadIdentity();
+    double tmat[16];
 
-    mat[0]      = x * x * ( m ) + c;
-    mat[4]      = y * x * ( m ) + z * s;
-    mat[8]      = x * z * ( m ) - y * s;
+    setIdentity( tmat );
 
-    mat[1]      = x * y * ( m ) - z * s;
-    mat[5]      = y * y * ( m ) + c;
-    mat[9]      = y * z * ( m ) + x * s;
+    tmat[0]      = x * x * ( m ) + c;
+    tmat[4]      = y * x * ( m ) + z * s;
+    tmat[8]      = x * z * ( m ) - y * s;
 
-    mat[2]      = x * z * ( m ) + y * s;
-    mat[6]      = y * z * ( m ) - x * s;
-    mat[10]      = z * z * ( m ) + c;
+    tmat[1]      = x * y * ( m ) - z * s;
+    tmat[5]      = y * y * ( m ) + c;
+    tmat[9]      = y * z * ( m ) + x * s;
+
+    tmat[2]      = x * z * ( m ) + y * s;
+    tmat[6]      = y * z * ( m ) - x * s;
+    tmat[10]      = z * z * ( m ) + c;
+
+    matMult( tmat );
 }
 
 void Matrix4d::rotatealongX( const vec3d & dir )
