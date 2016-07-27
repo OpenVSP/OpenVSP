@@ -75,6 +75,9 @@ void BlankGeom::UpdateDrawObj()
     {
         m_FeatureDrawObj_vec[i].m_PntVec.push_back( m_Origin );
         m_FeatureDrawObj_vec[i].m_PntVec.push_back( m_Axis[i] );
+        vec3d c;
+        c.v[i] = 1.0;
+        m_FeatureDrawObj_vec[i].m_LineColor = c;
         m_FeatureDrawObj_vec[i].m_GeomChanged = true;
     }
 }
@@ -103,7 +106,6 @@ void BlankGeom::LoadDrawObjs(vector< DrawObj* > & draw_obj_vec)
             sprintf( str, "_%d", i );
             m_FeatureDrawObj_vec[i].m_GeomID = m_ID + "Feature_" + str;
             m_FeatureDrawObj_vec[i].m_LineWidth = 2.0;
-            m_FeatureDrawObj_vec[i].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
             m_FeatureDrawObj_vec[i].m_Type = DrawObj::VSP_LINE_STRIP;
             draw_obj_vec.push_back( &m_FeatureDrawObj_vec[i] );
         }
