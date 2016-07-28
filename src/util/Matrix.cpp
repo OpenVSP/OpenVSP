@@ -313,3 +313,13 @@ void Matrix4d::getBasis( vec3d &xdir, vec3d &ydir, vec3d &zdir )
         zdir.v[i] = mat[ i + 8 ];
     }
 }
+
+void Matrix4d::setBasis( const vec3d &xdir, const vec3d &ydir, const vec3d &zdir )
+{
+    for( int i = 0; i < 3; i++ )
+    {
+        mat[ i ] = xdir.v[i];
+        mat[ i + 4 ] = ydir.v[i];
+        mat[ i + 8 ] = zdir.v[i];
+    }
+}

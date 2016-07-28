@@ -56,6 +56,7 @@ public:
     void buildXForm( const vec3d & pos, const vec3d & rot, const vec3d & cent_rot );
 
     void getBasis( vec3d &xdir, vec3d &ydir, vec3d &zdir );
+    void setBasis( const vec3d &xdir, const vec3d &ydir, const vec3d &zdir );
 
 private:
 
