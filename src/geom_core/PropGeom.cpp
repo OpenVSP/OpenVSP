@@ -726,12 +726,18 @@ void PropGeom::UpdateSurf()
         vector < double > tmout;
         vector < double > td;
         vector < double > tdout;
-        m_pcurve_vec[i]->BinCubicTMap( tm, td );
+//        m_pcurve_vec[i]->BinCubicTMap( tm, td );
+        m_pcurve_vec[i]->GetTMap( tm, td );
+
 
         std::set_union( tmap.begin(), tmap.end(), tm.begin(), tm.end(), std::back_inserter(tmout), &aboutcomp );
         std::swap( tmout, tmap );
         std::set_union( tdisc.begin(), tdisc.end(), td.begin(), td.end(), std::back_inserter(tdout), &aboutcomp );
         std::swap( tdout, tdisc );
+
+        std::set_union( tdisc.begin(), tdisc.end(), tmap.begin(), tmap.end(), std::back_inserter(tdout), &aboutcomp );
+        std::swap( tdout, tdisc );
+
     }
 
     // Not sure why above set_union leaves duplicate entries, but

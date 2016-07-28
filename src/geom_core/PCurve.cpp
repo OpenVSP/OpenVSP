@@ -745,3 +745,8 @@ void PCurve::BinCubicTMap( vector < double > &tmap, vector < double > &tdisc )
 {
     m_Curve.BinCubicTMap( tmap, tdisc );
 }
+
+void PCurve::GetTMap( vector < double > &tmap, vector < double > &tdisc )
+{
+    m_Curve.GetTMap( tmap, tdisc );
+}

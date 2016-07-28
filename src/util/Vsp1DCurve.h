@@ -50,6 +50,7 @@ public:
     void InterpolateCSpline( vector< double > & input_pnt_vec, const double &start_slope, const double &end_slope, const vector<double> &param );
 
     void BinCubicTMap( vector < double > &tmap, vector < double > &tdisc );
+    void GetTMap( vector < double > &tmap, vector < double > &tdisc );
     void ToBinaryCubic( );
     void ToCubic();
 

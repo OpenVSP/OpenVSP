@@ -321,6 +321,17 @@ void Vsp1DCurve::BinCubicTMap( vector < double > &tmap, vector < double > &tdisc
     c.get_pmap( tmap );
 }
 
+void Vsp1DCurve::GetTMap( vector < double > &tmap, vector < double > &tdisc )
+{
+    // Pick off discontinuities because we want to return them as well
+    // as use them in corner_create
+    m_Curve.find_discontinuities( 0.01, tdisc );
+    tdisc.push_back( m_Curve.get_tmax() );
+
+    // Get parameter map
+    m_Curve.get_pmap( tmap );
+}
+
 void Vsp1DCurve::ToBinaryCubic( )
 {
     oned_piecewise_binary_cubic_creator pbcc;

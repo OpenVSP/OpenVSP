@@ -86,6 +86,7 @@ public:
     virtual void EnforcePtOrder( );
 
     void BinCubicTMap( vector < double > &tmap, vector < double > &tdisc );
+    void GetTMap( vector < double > &tmap, vector < double > &tdisc );
 
 protected:
 
