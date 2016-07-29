@@ -38,6 +38,15 @@ void VSP_SURFACE::init(void)
     
     ControlSurface_ = new CONTROL_SURFACE[MaxNumberOfControlSurfaces_ + 1];
     
+    //Initialize stuff
+    NumberOfSurfacePatches_ = 0;
+
+    NumGeomI_ = 0;
+    NumGeomJ_ = 0;
+
+    NumPlateI_ = 0;
+    NumPlateJ_ = 0;
+
 }
 
 /*##############################################################################
