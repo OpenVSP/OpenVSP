@@ -616,9 +616,7 @@ void PropGeom::UpdateSurf()
     m_FoldAxOrigin = vec3d( m_AxialFoldAxis() * radius, m_RadFoldAxis() * radius, m_OffsetFoldAxis() * radius );
 
     //==== Cross Section Curves & joint info ====//
-    vector< rib_data_type > rib_vec;
     vector< VspCurve > crv_vec;
-    rib_vec.resize( nxsec );
     crv_vec.resize( nxsec );
 
     //==== Update XSec Location/Rotation ====//
@@ -698,14 +696,10 @@ void PropGeom::UpdateSurf()
 
                 xs->m_PropPos.m_Reverse = rev;
 
-                rib_vec[i].set_f( pwc );
                 crv_vec[i].SetCurve( pwc );
             }
         }
     }
-
-
-
 
     // This surface linearly interpolates the airfoil sections without
     // any other transformations.
@@ -725,19 +719,10 @@ void PropGeom::UpdateSurf()
         vector < double > tm;
         vector < double > tmout;
         vector < double > td;
-        vector < double > tdout;
-//        m_pcurve_vec[i]->BinCubicTMap( tm, td );
         m_pcurve_vec[i]->GetTMap( tm, td );
-
 
         std::set_union( tmap.begin(), tmap.end(), tm.begin(), tm.end(), std::back_inserter(tmout), &aboutcomp );
         std::swap( tmout, tmap );
-        std::set_union( tdisc.begin(), tdisc.end(), td.begin(), td.end(), std::back_inserter(tdout), &aboutcomp );
-        std::swap( tdout, tdisc );
-
-        std::set_union( tdisc.begin(), tdisc.end(), tmap.begin(), tmap.end(), std::back_inserter(tdout), &aboutcomp );
-        std::swap( tdout, tdisc );
-
     }
 
     // Not sure why above set_union leaves duplicate entries, but
@@ -746,10 +731,8 @@ void PropGeom::UpdateSurf()
     auto tmit = std::unique( tmap.begin(), tmap.end(), &abouteq );
     tmap.erase( tmit, tmap.end() );
 
-    std::sort( tdisc.begin(), tdisc.end() );
-    auto tdit = std::unique( tdisc.begin(), tdisc.end(), &abouteq );
-    tdisc.erase( tdit, tdisc.end() );
-
+    // Treat all control points as possible discontinuities.
+    tdisc = tmap;
 
     // Refine by adding two intermediate points to each cubic section
     // this is needed because the adaptive algorithm above uses derivatives
@@ -769,26 +752,19 @@ void PropGeom::UpdateSurf()
     tref.back() = tmap.back();
     std::swap( tmap, tref );
 
+    // Convert tdisc to final parameterization.
     for ( int i = 0; i < tdisc.size(); i++ )
     {
         tdisc[i] = ( tdisc[i] - rfirst ) / ( rlast - rfirst );
     }
-
-    crv_vec.clear();
-    rib_vec.clear();
 
     // Pseudo cross sections
     // Not directly user-controlled, but an intermediate step in lofting the
     // surface.
     int npseudo = tmap.size();
 
-
-    crv_vec.resize( npseudo );
-    rib_vec.resize( npseudo );
-
+    vector < rib_data_type > rib_vec( npseudo );
     vector < double > u_pseudo( npseudo );
-
-
     for ( int i = 0; i < npseudo; i++ )
     {
         // Assume linear interpolation means linear u/r relationship.
@@ -827,14 +803,12 @@ void PropGeom::UpdateSurf()
         pp.SetCurve( c );
         pp.Update();
 
-        crv_vec[i] = pp.GetCurve();
-        rib_vec[i].set_f( crv_vec[i].GetCurve() );
+        rib_vec[i].set_f( pp.GetCurve().GetCurve() );
         u_pseudo[i] = ( r - rfirst ) / ( rlast - rfirst );
     }
 
     m_MainSurfVec.resize( m_Nblade() );
 
-//    m_MainSurfVec[0].SkinC0( crv_vec, false );
     m_MainSurfVec[0].SetMagicVParm( false );
     m_MainSurfVec[0].SkinCubicSpline( rib_vec, u_pseudo, tdisc, false );
 
