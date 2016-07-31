@@ -14,12 +14,13 @@
 #include "STEPOptionsScreen.h"
 #include "IGESOptionsScreen.h"
 #include "STLOptionsScreen.h"
+#include "BEMOptionsScreen.h"
 using namespace vsp;
 
 #include <assert.h>
 
 //==== Constructor ====//
-ExportScreen::ExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 150, 25 + (1+10)*20 + 2*15 + 4*6, "Export" )
+ExportScreen::ExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 150, 25 + (1+11)*20 + 2*15 + 4*6, "Export" )
 {
     m_SelectedSetIndex = 0;
 
@@ -49,6 +50,7 @@ ExportScreen::ExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 150, 25 + (1+10
     m_GenLayout.AddButton( m_X3DButton, "X3D (.x3d)" );
     m_GenLayout.AddButton( m_STEPButton, "STEP (.stp)" );
     m_GenLayout.AddButton( m_IGESButton, "IGES (.igs)" );
+    m_GenLayout.AddButton( m_BEMButton, "Blade Element (.bem)" );
 }
 
 //==== Update Screen ====//
@@ -140,6 +142,13 @@ void ExportScreen::ExportFile( string &newfile, int write_set, int type )
             newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write IGES File?", "*.igs" );
         }
     }
+    else if ( type == EXPORT_BEM )
+    {
+        if ( (( BEMOptionsScreen* ) m_ScreenMgr->GetScreen( ScreenMgr::VSP_BEM_OPTIONS_SCREEN ))->ShowBEMOptionsScreen() )
+        {
+            newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write Blade Element File?", "*.bem" );
+        }
+    }
     else if ( type == -1 )
     {
         return;
@@ -201,6 +210,10 @@ void ExportScreen::GuiDeviceCallBack( GuiDevice* device )
     else if ( device == &m_IGESButton )
     {
         ExportFile( newfile, m_SelectedSetIndex, EXPORT_IGES );
+    }
+    else if ( device == &m_BEMButton )
+    {
+        ExportFile( newfile, m_SelectedSetIndex, EXPORT_BEM );
     }
     else if (  device == &m_ExportSetChoice )
     {
