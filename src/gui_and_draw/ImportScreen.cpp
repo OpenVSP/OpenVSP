@@ -30,9 +30,9 @@ ImportScreen::ImportScreen( ScreenMgr* mgr ) : BasicScreen( mgr , 150, 25 + 6*20
     m_GenLayout.AddButton( m_TRIButton, "Cart3D (.tri)" );
     m_GenLayout.AddButton( m_STLButton, "Stereolith (.stl)" );
     m_GenLayout.AddButton( m_NASCARTButton, "NASCART (.dat)" );
-    m_GenLayout.AddButton( m_XSecButton, "XSec (*.hrm)" );
+    m_GenLayout.AddButton( m_XSecButton, "XSec (.hrm)" );
     m_GenLayout.AddButton( m_PTSButton, "Point Cloud (.pts)" );
-    m_GenLayout.AddButton( m_V2Button, "OpenVSP v2 (*.vsp)" );
+    m_GenLayout.AddButton( m_V2Button, "OpenVSP v2 (.vsp)" );
 }
 
 //==== Destructor ====//
