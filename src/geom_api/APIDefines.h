@@ -118,7 +118,8 @@ enum IMPORT_TYPE {  IMPORT_STL,
                     IMPORT_CART3D_TRI,
                     IMPORT_XSEC_MESH,
                     IMPORT_PTS,
-                    IMPORT_V2
+                    IMPORT_V2,
+                    IMPORT_BEM
                  };
 
 enum EXPORT_TYPE {  EXPORT_FELISA,

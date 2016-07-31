@@ -633,6 +633,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "IMPORT_TYPE", "IMPORT_V2", IMPORT_V2 );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "IMPORT_TYPE", "IMPORT_BEM", IMPORT_BEM );
+    assert( r >= 0 );
 
     r = se->RegisterEnum( "EXPORT_TYPE" );
     assert( r >= 0 );
@@ -663,6 +665,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "EXPORT_TYPE", "EXPORT_STEP", EXPORT_STEP );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "EXPORT_TYPE", "EXPORT_IGES", EXPORT_IGES );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "EXPORT_TYPE", "EXPORT_BEM", EXPORT_BEM );
     assert( r >= 0 );
 
     r = se->RegisterEnum( "COMPUTATION_FILE_TYPE" );
