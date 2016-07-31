@@ -134,6 +134,8 @@ public:
 
     virtual int ReadBEM( const string &file_name );
 
+    virtual PCurve* GetPCurve( int curveid );
+
     Parm m_Diameter;
 
     Parm m_Rotate;

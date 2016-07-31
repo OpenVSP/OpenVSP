@@ -1336,3 +1336,12 @@ int PropGeom::ReadBEM( const string &file_name )
 
     return 1;
 }
+
+PCurve* PropGeom::GetPCurve( int curveid )
+{
+    if ( curveid >= 0 && curveid < NUM_PROP_PCURVE )
+    {
+        return m_pcurve_vec[ curveid ];
+    }
+    return NULL;
+}
