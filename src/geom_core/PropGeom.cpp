@@ -1138,3 +1138,79 @@ void PropGeom::UpdateSplitTesselate( int indx, vector< vector< vector< vec3d > >
     m_SurfVec[indx].SetRootTipClustering( rootc, tipc );
     m_SurfVec[indx].SplitTesselate( tessvec, m_TessW(), pnts, norms, m_CapUMinTess(), umerge );
 }
+
+string PropGeom::BuildBEMResults()
+{
+    // Calculate prop center and normal vector
+    vec3d cen = m_ModelMatrix.xform( vec3d( 0, 0, 0 ) );
+    vec3d norm = m_ModelMatrix.xform( vec3d( -1.0, 0, 0 ) ) - cen;
+
+    int n = m_TessU();
+
+    //==== Create Results ====//
+    Results* res = ResultsMgr.CreateResults( "PropBEM" );
+    res->Add( NameValData( "Num_Sections", n ) );
+    res->Add( NameValData( "Num_Blade", m_Nblade() ) );
+    res->Add( NameValData( "Diameter", m_Diameter() ) );
+    res->Add( NameValData( "Beta34", m_Beta34() ) );
+    res->Add( NameValData( "Feather", m_Feather() ) );
+    res->Add( NameValData( "Center", cen ) );
+    res->Add( NameValData( "Normal", norm ) );
+
+    double rfirst = m_ChordCurve.GetRFirst();
+    double rlast = m_ChordCurve.GetRLast();
+
+    // Establish points to evaluate sections at.
+    vector < double > vtess;
+    m_MainSurfVec[0].MakeVTess( m_TessW(), vtess, m_CapUMinTess(), false );
+
+    vector < double > r_vec(n);
+    vector < double > chord_vec(n);
+    vector < double > twist_vec(n);
+    vector < double > rake_vec(n);
+    vector < double > skew_vec(n);
+
+    double rspan = rlast - rfirst;
+    for ( int i = 0; i < n; i++ )
+    {
+        double t = static_cast < double > ( i ) / ( n - 1 );
+        double r = rfirst + rspan * Cluster( t, m_RootCluster(), m_TipCluster() );
+        double u = m_rtou.CompPnt( r );
+
+        VspCurve c;
+        m_FoilSurf.GetUConstCurve( c, u );
+        vec3d v = c.CompPnt( 0 );
+        c.OffsetZ( -v.z() );
+
+        vector < vec3d > pts;
+        c.Tesselate( vtess, pts );
+
+        vector < double > xpts( pts.size() );
+        vector < double > ypts( pts.size() );
+
+        for ( int j = 0; j < pts.size(); j++ )
+        {
+            xpts[j] = pts[j].x();
+            ypts[j] = pts[j].y();
+        }
+
+        char str[255];
+        sprintf( str, "%03d", i );
+        res->Add( NameValData( "XSection_" + string( str ), xpts ) );
+        res->Add( NameValData( "YSection_" + string( str ), ypts ) );
+
+        r_vec[i] = r;
+        chord_vec[i] = m_ChordCurve.Comp( r );
+        twist_vec[i] = m_TwistCurve.Comp( r );
+        rake_vec[i] = m_RakeCurve.Comp( r );
+        skew_vec[i] = m_SkewCurve.Comp( r );
+    }
+
+    res->Add( NameValData( "Radius", r_vec ) );
+    res->Add( NameValData( "Chord", chord_vec ) );
+    res->Add( NameValData( "Twist", twist_vec ) );
+    res->Add( NameValData( "Rake", rake_vec ) );
+    res->Add( NameValData( "Skew", skew_vec ) );
+
+    return res->GetID();
+}

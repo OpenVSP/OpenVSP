@@ -130,6 +130,8 @@ public:
     //==== Set Drag Factors ====//
     virtual void LoadDragFactors( DragFactors& drag_factors );
 
+    virtual string BuildBEMResults();
+
     Parm m_Diameter;
 
     Parm m_Rotate;
