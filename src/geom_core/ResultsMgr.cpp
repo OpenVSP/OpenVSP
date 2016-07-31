@@ -532,6 +532,60 @@ void Results::WriteWaveDragFile( const string & file_name )
 
 }
 
+void Results::WriteBEMFile( const string & file_name )
+{
+    FILE* fid = fopen( file_name.c_str(), "w" );
+    if ( fid )
+    {
+        fprintf( fid, "...BEM Propeller...\n" );
+
+        int num_sect = Find( "Num_Sections" ).GetInt( 0 );
+        int num_blade = Find( "Num_Blade" ).GetInt( 0 );
+        double diam = Find( "Diameter" ).GetDouble( 0 );
+        double beta34 = Find( "Beta34" ).GetDouble( 0 );
+        double feather = Find( "Feather" ).GetDouble( 0 );
+        vec3d cen = Find( "Center" ).GetVec3d( 0 );
+        vec3d norm = Find( "Normal" ).GetVec3d( 0 );
+
+        fprintf( fid, "Num_Sections: %d\n", num_sect );
+        fprintf( fid, "Num_Blade: %d\n", num_blade );
+        fprintf( fid, "Diameter: %.8f\n", diam );
+        fprintf( fid, "Beta 3/4 (deg): %.8f\n", beta34 );
+        fprintf( fid, "Feather (deg): %.8f\n", feather );
+        fprintf( fid, "Center: %.8f, %.8f, %.8f\n", cen.x(), cen.y(), cen.z() );
+        fprintf( fid, "Normal: %.8f, %.8f, %.8f\n", norm.x(), norm.y(), norm.z() );
+
+        vector < double > r_vec = Find( "Radius" ).GetDoubleData();
+        vector < double > chord_vec = Find( "Chord" ).GetDoubleData();
+        vector < double > twist_vec = Find( "Twist" ).GetDoubleData();
+        vector < double > rake_vec = Find( "Rake" ).GetDoubleData();
+        vector < double > skew_vec = Find( "Skew" ).GetDoubleData();
+
+        fprintf( fid, "\nRadius/R, Chord/R, Twist (deg), Rake/R, Skew/R\n" );
+        for ( int i = 0; i < num_sect; i++ )
+        {
+            fprintf( fid, "%.8f, %.8f, %.8f, %.8f, %.8f\n", r_vec[i], chord_vec[i], twist_vec[i], rake_vec[i], skew_vec[i] );
+        }
+
+        for ( int i = 0; i < num_sect; i++ )
+        {
+            char str[255];
+            sprintf( str, "%03d", i );
+            vector < double > xpts = Find( "XSection_" + string( str ) ).GetDoubleData();
+            vector < double > ypts = Find( "YSection_" + string( str ) ).GetDoubleData();
+
+            fprintf( fid, "\nSection %d X, Y\n", i );
+
+            for ( int j = 0; j < xpts.size(); j++ )
+            {
+                fprintf( fid, "%.8f, %.8f\n", xpts[j], ypts[j] );
+            }
+        }
+
+        fclose( fid );
+    }
+}
+
 //======================================================================================//
 //======================================================================================//
 //======================================================================================//

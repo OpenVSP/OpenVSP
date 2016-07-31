@@ -154,6 +154,7 @@ public:
     void WriteDragBuildFile( const string & file_name );
     void WriteSliceFile( const string & file_name );
     void WriteWaveDragFile( const string & file_name );
+    void WriteBEMFile( const string & file_name );
 
     time_t GetTimestamp()
     {
