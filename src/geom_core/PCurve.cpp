@@ -550,9 +550,12 @@ void PCurve::SetPt( double t, double v, int indx )
 
 void PCurve::Split()
 {
-
     double tsplit = m_SplitPt();
+    Split( tsplit );
+}
 
+void PCurve::Split( const double & tsplit )
+{
     switch( m_CurveType() )
     {
     case vsp::LINEAR:

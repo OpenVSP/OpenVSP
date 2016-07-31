@@ -62,6 +62,7 @@ public:
     virtual void SetPt( double t, double v, int indx );
 
     virtual void Split();
+    virtual void Split( const double & tsplit );
 
     virtual double GetRFirst();
     virtual double GetRLast();
