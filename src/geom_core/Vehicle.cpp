@@ -166,6 +166,8 @@ void Vehicle::Init()
 
     m_STLMultiSolid.Set( false );
 
+    m_BEMPropID = string();
+
     m_UpdatingBBox = false;
     m_BbXLen.Set( 0 );
     m_BbYLen.Set( 0 );
@@ -210,6 +212,8 @@ void Vehicle::Wype()
     m_Name = string();
 
     m_VSP3FileName = string();
+
+    m_BEMPropID = string();
 
     for ( int i = 0 ; i < ( int )m_GeomStoreVec.size() ; i++ )
     {
@@ -2245,6 +2249,23 @@ void Vehicle::WriteIGESFile( const string & file_name, int write_set )
     model.Write( file_name.c_str(), true );
 }
 
+void Vehicle::WriteBEMFile( const string &file_name, int write_set )
+{
+    Geom* geom = FindGeom( m_BEMPropID );
+
+    PropGeom* pgeom = dynamic_cast < PropGeom* > ( geom );
+    if ( pgeom )
+    {
+        string rid = pgeom->BuildBEMResults();
+
+        Results* resptr = ResultsMgr.FindResultsPtr( rid );
+        if( resptr )
+        {
+            resptr->WriteBEMFile( file_name );
+        }
+    }
+}
+
 void Vehicle::AddLinkableContainers( vector< string > & linkable_container_vec )
 {
     ParmContainer::AddLinkableContainers( linkable_container_vec );
@@ -2915,6 +2936,10 @@ void Vehicle::ExportFile( const string & file_name, int write_set, int file_type
     else if ( file_type == EXPORT_IGES )
     {
         WriteIGESFile( file_name, write_set );
+    }
+    else if ( file_type == EXPORT_BEM )
+    {
+        WriteBEMFile( file_name, write_set );
     }
 }
 
