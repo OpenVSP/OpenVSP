@@ -11,6 +11,7 @@
 #include "Vehicle.h"
 #include "StlHelper.h"
 #include <float.h>
+#include <stdio.h>
 
 #include "APIDefines.h"
 using namespace vsp;
@@ -1213,4 +1214,78 @@ string PropGeom::BuildBEMResults()
     res->Add( NameValData( "Skew", skew_vec ) );
 
     return res->GetID();
+}
+
+int PropGeom::ReadBEM( const string &file_name )
+{
+    int num_sect;
+    int num_blade;
+    double diam;
+    double beta34;
+    double feather;
+    vec3d cen;
+    vec3d norm;
+
+    vector < double > r_vec;
+    vector < double > chord_vec;
+    vector < double > twist_vec;
+    vector < double > rake_vec;
+    vector < double > skew_vec;
+
+    FILE* fid = fopen( file_name.c_str(), "r" );
+
+    if ( !fid )
+    {
+        return 0;
+    }
+    else
+    {
+        char buf[255];
+        fgets( buf, 255, fid );  // Advance past "...BEM Propeller..."
+
+        fscanf( fid, "Num_Sections: %d\n", &num_sect );
+        fscanf( fid, "Num_Blade: %d\n", &num_blade );
+        fscanf( fid, "Diameter: %lf\n", &diam );
+        fscanf( fid, "Beta 3/4 (deg): %lf\n", &beta34 );
+        fscanf( fid, "Feather (deg): %lf\n", &feather );
+        double x, y, z;
+        fscanf( fid, "Center: %lf, %lf, %lf\n", &x, &y, &z );
+        cen.set_xyz( x, y, z );
+        fscanf( fid, "Normal: %lf, %lf, %lf\n", &x, &y, &z );
+        norm.set_xyz( x, y, z );
+
+        r_vec.resize( num_sect );
+        chord_vec.resize( num_sect );
+        twist_vec.resize( num_sect );
+        rake_vec.resize( num_sect );
+        skew_vec.resize( num_sect );
+
+        fgets( buf, 255, fid );  // Advance past "Radius/R, Chord/R, Twist (deg), Rake/R, Skew/R"
+
+        for ( int i = 0; i < num_sect; i++ )
+        {
+            fscanf( fid, "%lf, %lf, %lf, %lf, %lf\n", &r_vec[i], &chord_vec[i], &twist_vec[i], &rake_vec[i], &skew_vec[i] );
+        }
+
+        fclose( fid );
+    }
+
+    if ( true )
+    {
+        printf( "Num_Sections: %d\n", num_sect );
+        printf( "Num_Blade: %d\n", num_blade );
+        printf( "Diameter: %.8f\n", diam );
+        printf( "Beta 3/4 (deg): %.8f\n", beta34 );
+        printf( "Feather (deg): %.8f\n", feather );
+        printf( "Center: %.8f, %.8f, %.8f\n", cen.x(), cen.y(), cen.z() );
+        printf( "Normal: %.8f, %.8f, %.8f\n", norm.x(), norm.y(), norm.z() );
+
+        printf( "\nRadius/R, Chord/R, Twist (deg), Rake/R, Skew/R\n" );
+        for ( int i = 0; i < num_sect; i++ )
+        {
+            printf( "%.8f, %.8f, %.8f, %.8f, %.8f\n", r_vec[i], chord_vec[i], twist_vec[i], rake_vec[i], skew_vec[i] );
+        }
+    }
+
+    return 1;
 }

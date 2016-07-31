@@ -132,6 +132,8 @@ public:
 
     virtual string BuildBEMResults();
 
+    virtual int ReadBEM( const string &file_name );
+
     Parm m_Diameter;
 
     Parm m_Rotate;
