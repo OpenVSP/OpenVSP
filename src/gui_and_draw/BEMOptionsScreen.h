@@ -29,7 +29,6 @@ public:
     {
         ( ( BEMOptionsScreen* )data )->CallBack( w );
     }
-    virtual void CloseCallBack( Fl_Widget *w );
     virtual void GuiDeviceCallBack( GuiDevice* device );
 
     bool ShowBEMOptionsScreen();
@@ -38,15 +37,7 @@ protected:
 
     GroupLayout m_GenLayout;
 
-    Choice m_LenUnitChoice;
-    ToggleButton m_SplitSurfsToggle;
-    ToggleButton m_ToCubicToggle;
-    SliderInput m_ToCubicTolSlider;
-
-    int m_PrevUnit;
-    bool m_PrevSplit;
-    bool m_PrevCubic;
-    double m_PrevToCubicTol;
+    GeomPicker m_PropGeomPicker;
 
     TriggerButton m_OkButton;
     TriggerButton m_CancelButton;

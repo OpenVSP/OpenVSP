@@ -15,31 +15,17 @@
 
 BEMOptionsScreen::BEMOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 174, "BEM Options" )
 {
-    m_FLTK_Window->callback( staticCloseCB, this );
-
     m_OkFlag = false;
-    m_PrevUnit = 0;
-    m_PrevSplit = false;
-    m_PrevCubic = false;;
-    m_PrevToCubicTol = 1e-6;
 
     m_GenLayout.SetGroupAndScreen( m_FLTK_Window, this );
     m_GenLayout.AddY( 25 );
 
     m_GenLayout.AddYGap();
 
-    m_LenUnitChoice.AddItem( "MM" );
-    m_LenUnitChoice.AddItem( "CM" );
-    m_LenUnitChoice.AddItem( "M" );
-    m_LenUnitChoice.AddItem( "IN" );
-    m_LenUnitChoice.AddItem( "FT" );
-    m_GenLayout.AddChoice( m_LenUnitChoice, "Length Unit" );
-    m_GenLayout.AddYGap();
+    m_PropGeomPicker.AddIncludeType( PROP_GEOM_TYPE );
 
-    m_GenLayout.AddButton( m_SplitSurfsToggle, "Split Surfaces" );
+    m_GenLayout.AddGeomPicker( m_PropGeomPicker );
     m_GenLayout.AddYGap();
-    m_GenLayout.AddButton( m_ToCubicToggle, "Convert to Cubic" );
-    m_GenLayout.AddSlider( m_ToCubicTolSlider, "Tolerance", 10, "%5.4g", 0, true );
 
     m_GenLayout.AddY( 25 );
     m_GenLayout.SetFitWidthFlag( false );
@@ -59,20 +45,7 @@ BEMOptionsScreen::~BEMOptionsScreen()
 
 bool BEMOptionsScreen::Update()
 {
-    Vehicle *veh = VehicleMgr.GetVehicle();
-
-    if( veh )
-    {
-        m_LenUnitChoice.Update( veh->m_IGESLenUnit.GetID() );
-        m_SplitSurfsToggle.Update( veh->m_IGESSplitSurfs.GetID() );
-        m_ToCubicToggle.Update( veh->m_IGESToCubic.GetID() );
-        m_ToCubicTolSlider.Update( veh->m_IGESToCubicTol.GetID() );
-
-        if ( !veh->m_IGESToCubic() )
-        {
-            m_ToCubicTolSlider.Deactivate();
-        }
-    }
+    m_PropGeomPicker.Update();
 
     m_FLTK_Window->redraw();
 
@@ -98,19 +71,16 @@ void BEMOptionsScreen::GuiDeviceCallBack( GuiDevice* device )
     if ( device == &m_OkButton )
     {
         m_OkFlag = true;
-        Hide();
-    }
-    else if ( device == &m_CancelButton )
-    {
         Vehicle *veh = VehicleMgr.GetVehicle();
 
         if( veh )
         {
-            veh->m_IGESLenUnit.Set( m_PrevUnit );
-            veh->m_IGESSplitSurfs.Set( m_PrevSplit );
-            veh->m_IGESToCubic.Set( m_PrevCubic );
-            veh->m_IGESToCubicTol.Set( m_PrevToCubicTol );
+            veh->m_BEMPropID = m_PropGeomPicker.GetGeomChoice();
         }
+        Hide();
+    }
+    else if ( device == &m_CancelButton )
+    {
         Hide();
     }
 
@@ -123,37 +93,10 @@ bool BEMOptionsScreen::ShowBEMOptionsScreen()
 
     m_OkFlag = false;
 
-    Vehicle *veh = VehicleMgr.GetVehicle();
-
-    if( veh )
-    {
-        m_PrevUnit = veh->m_IGESLenUnit();
-        m_PrevSplit = veh->m_IGESSplitSurfs();
-        m_PrevCubic = veh->m_IGESToCubic();
-        m_PrevToCubicTol = veh->m_IGESToCubicTol();
-    }
-
     while( m_FLTK_Window->shown() )
     {
         Fl::wait();
     }
 
     return m_OkFlag;
-}
-
-void BEMOptionsScreen::CloseCallBack( Fl_Widget *w )
-{
-    assert( m_ScreenMgr );
-
-    Vehicle *veh = VehicleMgr.GetVehicle();
-
-    if( veh )
-    {
-        veh->m_IGESLenUnit.Set( m_PrevUnit );
-        veh->m_IGESSplitSurfs.Set( m_PrevSplit );
-        veh->m_IGESToCubic.Set( m_PrevCubic );
-        veh->m_IGESToCubicTol.Set( m_PrevToCubicTol );
-    }
-
-    Hide();
 }
