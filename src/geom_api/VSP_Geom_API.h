@@ -253,6 +253,15 @@ extern std::vector< double > GetVarPresetParmVals( const string &group_name, con
 extern std::vector< std::string > GetVarPresetParmIDs();
 extern std::vector< std::string > GetVarPresetParmIDs( const string &group_name );
 
+//======================== Parametric Curve Functions ======================//
+extern void SetPCurve( const std::string & geom_id, const int & pcurveid, const std::vector < double > & tvec,
+    const std::vector < double > & valvec, const int & newtype );
+extern void PCurveConvertTo( const std::string & geom_id, const int & pcurveid, const int & newtype );
+extern int PCurveGetType( const std::string & geom_id, const int & pcurveid );
+extern std::vector < double > PCurveGetTVec( const std::string & geom_id, const int & pcurveid );
+extern std::vector < double > PCurveGetValVec( const std::string & geom_id, const int & pcurveid );
+extern void PCurveDeletePt( const std::string & geom_id, const int & pcurveid, const int & indx );
+extern void PCurveSplit( const std::string & geom_id, const int & pcurveid, const double & tsplit );
 
 }           // End vsp namespace
 

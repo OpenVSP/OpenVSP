@@ -23,6 +23,8 @@
 #include "SubSurfaceMgr.h"
 #include "VarPresetMgr.h"
 #include "WingGeom.h"
+#include "PropGeom.h"
+#include "PCurve.h"
 
 #ifdef VSP_USE_FLTK
 #include "GuiInterface.h"
@@ -3249,6 +3251,264 @@ vector <string> GetVarPresetParmIDs( const string &group_name )
 {
     ErrorMgr.NoError();
     return VarPresetMgr.GetParmIDs( group_name );
+}
+
+//===================================================================//
+//===============     Parametric Curve Functions       ==============//
+//===================================================================//
+
+void SetPCurve( const string & geom_id, const int & pcurveid, const vector < double > & tvec,
+    const vector < double > & valvec, const int & newtype )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetPCurve::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    PropGeom* prop_ptr = dynamic_cast < PropGeom* > (geom_ptr );
+    if ( !prop_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetPCurve::Geom doesn't support PCurves " + geom_id );
+        return;
+    }
+
+    PCurve *pc = NULL;
+
+    if ( prop_ptr )
+    {
+        pc = prop_ptr->GetPCurve( pcurveid );
+    }
+
+    if ( !pc )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetPCurve::PCurve not found " + geom_id + " " + to_string( pcurveid ) );
+        return;
+    }
+
+    pc->SetCurve( tvec, valvec, newtype );
+
+    ErrorMgr.NoError();
+}
+
+void PCurveConvertTo( const string & geom_id, const int & pcurveid, const int & newtype )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveConvertTo::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    PropGeom* prop_ptr = dynamic_cast < PropGeom* > (geom_ptr );
+    if ( !prop_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveConvertTo::Geom doesn't support PCurves " + geom_id );
+        return;
+    }
+
+    PCurve *pc = NULL;
+
+    if ( prop_ptr )
+    {
+        pc = prop_ptr->GetPCurve( pcurveid );
+    }
+
+    if ( !pc )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "PCurveConvertTo::PCurve not found " + geom_id + " " + to_string( pcurveid ) );
+        return;
+    }
+
+    pc->ConvertTo( newtype );
+
+    ErrorMgr.NoError();
+}
+
+int PCurveGetType( const std::string & geom_id, const int & pcurveid )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveGetType::Can't Find Geom " + geom_id );
+        return -1;
+    }
+
+    PropGeom* prop_ptr = dynamic_cast < PropGeom* > (geom_ptr );
+    if ( !prop_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveGetType::Geom doesn't support PCurves " + geom_id );
+        return -1;
+    }
+
+    PCurve *pc = NULL;
+
+    if ( prop_ptr )
+    {
+        pc = prop_ptr->GetPCurve( pcurveid );
+    }
+
+    if ( !pc )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "PCurveGetType::PCurve not found " + geom_id + " " + to_string( pcurveid ) );
+        return -1;
+    }
+
+    ErrorMgr.NoError();
+
+    return pc->m_CurveType();
+}
+
+vector < double > PCurveGetTVec( const string & geom_id, const int & pcurveid )
+{
+    vector < double > retvec;
+
+	Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveGetTVec::Can't Find Geom " + geom_id );
+        return retvec;
+    }
+
+    PropGeom* prop_ptr = dynamic_cast < PropGeom* > (geom_ptr );
+    if ( !prop_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveGetTVec::Geom doesn't support PCurves " + geom_id );
+        return retvec;
+    }
+
+    PCurve *pc = NULL;
+
+    if ( prop_ptr )
+    {
+        pc = prop_ptr->GetPCurve( pcurveid );
+    }
+
+    if ( !pc )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "PCurveGetTVec::PCurve not found " + geom_id + " " + to_string( pcurveid ) );
+        return retvec;
+    }
+
+    retvec = pc->GetTVec();
+
+    ErrorMgr.NoError();
+
+    return retvec;
+}
+
+vector < double > PCurveGetValVec( const string & geom_id, const int & pcurveid )
+{
+    vector < double > retvec;
+
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveGetValVec::Can't Find Geom " + geom_id );
+        return retvec;
+    }
+
+    PropGeom* prop_ptr = dynamic_cast < PropGeom* > (geom_ptr );
+    if ( !prop_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveGetValVec::Geom doesn't support PCurves " + geom_id );
+        return retvec;
+    }
+
+    PCurve *pc = NULL;
+
+    if ( prop_ptr )
+    {
+        pc = prop_ptr->GetPCurve( pcurveid );
+    }
+
+    if ( !pc )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "PCurveGetValVec::PCurve not found " + geom_id + " " + to_string( pcurveid ) );
+        return retvec;
+    }
+
+    retvec = pc->GetValVec();
+
+    ErrorMgr.NoError();
+
+    return retvec;
+}
+
+void PCurveDeletePt( const string & geom_id, const int & pcurveid, const int & indx )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveDeletePt::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    PropGeom* prop_ptr = dynamic_cast < PropGeom* > (geom_ptr );
+    if ( !prop_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveDeletePt::Geom doesn't support PCurves " + geom_id );
+        return;
+    }
+
+    PCurve *pc = NULL;
+
+    if ( prop_ptr )
+    {
+        pc = prop_ptr->GetPCurve( pcurveid );
+    }
+
+    if ( !pc )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "PCurveDeletePt::PCurve not found " + geom_id + " " + to_string( pcurveid ) );
+        return;
+    }
+
+    return pc->DeletePt( indx );
+
+    ErrorMgr.NoError();
+}
+
+void PCurveSplit( const string & geom_id, const int & pcurveid, const double & tsplit )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveSplit::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    PropGeom* prop_ptr = dynamic_cast < PropGeom* > (geom_ptr );
+    if ( !prop_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveSplit::Geom doesn't support PCurves " + geom_id );
+        return;
+    }
+
+    PCurve *pc = NULL;
+
+    if ( prop_ptr )
+    {
+        pc = prop_ptr->GetPCurve( pcurveid );
+    }
+
+    if ( !pc )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "PCurveSplit::PCurve not found " + geom_id + " " + to_string( pcurveid ) );
+        return;
+    }
+
+    return pc->Split( tsplit );
+
+    ErrorMgr.NoError();
 }
 
 //============================================================================//

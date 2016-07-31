@@ -16,10 +16,6 @@
 #include "APIDefines.h"
 using namespace vsp;
 
-// Change curve type from API
-// Curve splitting from API
-// Other API additions?
-
 // Allow curve control of thickness.
 
 // v2 import
