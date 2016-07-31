@@ -1066,6 +1066,9 @@ public:
     virtual void AddExcludeType( int type );
     virtual void ClearExcludeType();
 
+    virtual void AddIncludeType( int type );
+    virtual void ClearIncludeType();
+
     string GetGeomChoice()
     {
         return m_GeomIDChoice;
@@ -1088,6 +1091,7 @@ protected:
     Vehicle * m_Vehicle;
 
     vector < int > m_ExcludeTypes;
+    vector < int > m_IncludeTypes;
 
 };
 

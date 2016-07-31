@@ -2973,23 +2973,45 @@ void GeomPicker::Update( )
         Geom* g = m_Vehicle->FindGeom( allGeomVec[i] );
         if ( g )
         {
-            bool match = false;
+            bool excludematch = false;
 
             for ( int j = 0; j < m_ExcludeTypes.size(); j++ )
             {
                 if ( g->GetType().m_Type == m_ExcludeTypes[j] )
                 {
-                    match = true;
+                    excludematch = true;
+                    break;
                 }
             }
 
-            if ( !match )
+            if ( !excludematch )
             {
-                m_GeomVec.push_back( allGeomVec[i] );
+                bool includematch = false;
 
-                char str[256];
-                sprintf( str, "%d_%s", i, g->GetName().c_str() );
-                m_GeomChoice->add( str );
+                if ( m_IncludeTypes.size() > 0 )
+                {
+                    for ( int j = 0; j < m_IncludeTypes.size(); j++ )
+                    {
+                        if ( g->GetType().m_Type == m_IncludeTypes[j] )
+                        {
+                            includematch = true;
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    includematch = true;
+                }
+
+                if ( includematch )
+                {
+                    m_GeomVec.push_back( allGeomVec[i] );
+
+                    char str[256];
+                    sprintf( str, "%d_%s", i, g->GetName().c_str() );
+                    m_GeomChoice->add( str );
+                }
             }
         }
     }
@@ -3040,6 +3062,16 @@ void GeomPicker::AddExcludeType( int type )
 void GeomPicker::ClearExcludeType()
 {
     m_ExcludeTypes.clear();
+}
+
+void GeomPicker::AddIncludeType( int type )
+{
+    m_IncludeTypes.push_back( type );
+}
+
+void GeomPicker::ClearIncludeType()
+{
+    m_IncludeTypes.clear();
 }
 
 //=====================================================================//
