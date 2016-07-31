@@ -725,6 +725,13 @@ void PCurve::SetDispNames( const string & xname, const string & yname )
     m_YDispName = yname;
 }
 
+void PCurve::SetCurve( const vector < double > & tvec, const vector < double > & valvec, int newtype )
+{
+    ConvertTo( newtype );
+    InitCurve( tvec, valvec );
+    RenameParms();
+}
+
 void PCurve::SetParmNames( const string & xname, const string & yname )
 {
     m_XParmName = xname;

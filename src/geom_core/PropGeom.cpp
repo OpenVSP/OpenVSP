@@ -24,8 +24,6 @@ using namespace vsp;
 
 // v2 import
 
-// Import / Export blade element format.
-
 // New section types
 
 //==========================================================================//
@@ -1286,6 +1284,55 @@ int PropGeom::ReadBEM( const string &file_name )
             printf( "%.8f, %.8f, %.8f, %.8f, %.8f\n", r_vec[i], chord_vec[i], twist_vec[i], rake_vec[i], skew_vec[i] );
         }
     }
+
+    double rfirst = r_vec[ 0 ];
+    double rlast = r_vec[ r_vec.size() - 1 ];
+
+    int nxsec = m_XSecSurf.NumXSec();
+
+    PropXSec* xs;
+    xs = ( PropXSec* ) m_XSecSurf.FindXSec( 0 );
+    if ( xs )
+    {
+        xs->m_RadiusFrac = rfirst;
+    }
+
+    xs = ( PropXSec* ) m_XSecSurf.FindXSec( nxsec - 1 );
+    if ( xs )
+    {
+        xs->m_RadiusFrac = rlast;
+    }
+
+    m_Diameter = diam;
+    m_Nblade = num_blade;
+    m_Beta34 = beta34;
+    m_Feather = feather;
+
+    m_XRelLoc = cen.x();
+    m_YRelLoc = cen.y();
+    m_ZRelLoc = cen.z();
+
+    norm = norm * -1.0;
+    norm.normalize();
+    vec3d minor;
+    minor.v[ norm.minor_comp() ] = 1.0;
+    vec3d counter = cross( norm, minor );
+    counter.normalize();
+    minor = cross( counter, norm );
+    minor.normalize();
+
+    Matrix4d mat;
+    mat.setBasis( norm, minor, counter );
+
+    vec3d angles = mat.getAngles();
+    m_XRelRot = angles.x();
+    m_YRelRot = angles.y();
+    m_ZRelRot = angles.z();
+
+    m_ChordCurve.SetCurve( r_vec, chord_vec, PCurve::PCHIP );
+    m_TwistCurve.SetCurve( r_vec, twist_vec, PCurve::PCHIP );
+    m_RakeCurve.SetCurve( r_vec, rake_vec, PCurve::PCHIP );
+    m_SkewCurve.SetCurve( r_vec, skew_vec, PCurve::PCHIP );
 
     return 1;
 }
