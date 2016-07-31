@@ -2619,15 +2619,7 @@ string Vehicle::ImportFile( const string & file_name, int file_type )
         PtCloudGeom* new_geom = ( PtCloudGeom* )FindGeom( id );
         if ( new_geom )
         {
-            int validFlag;
-            if ( file_type == IMPORT_PTS )
-            {
-                validFlag = new_geom->ReadPTS( file_name.c_str() );
-            }
-            else
-            {
-                validFlag = 0;
-            }
+            int validFlag = new_geom->ReadPTS( file_name.c_str() );
 
             if ( !validFlag )
             {
