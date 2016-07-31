@@ -3225,7 +3225,7 @@ void PCurveEditor::Update()
 
         if ( ndata > 0 )
         {
-            if ( m_Curve->m_CurveType() != PCurve::CEDIT )
+            if ( m_Curve->m_CurveType() != vsp::CEDIT )
             {
                 AddPoint( xdata, ydata, FL_BLACK, 4, CA_DIAMOND );
             }
@@ -3367,13 +3367,13 @@ void PCurveEditor::Update()
 
         switch( m_Curve->m_CurveType() )
         {
-        case PCurve::LINEAR:
+        case vsp::LINEAR:
             m_CurveType.Update( "Linear" );
             break;
-        case PCurve::PCHIP:
+        case vsp::PCHIP:
             m_CurveType.Update( "Spline (PCHIP)" );
             break;
-        case PCurve::CEDIT:
+        case vsp::CEDIT:
             m_CurveType.Update( "Cubic Bezier" );
             break;
         }

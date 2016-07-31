@@ -355,7 +355,7 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_ChordCurve.SetParmNames( "r", "crd" );
     m_ChordCurve.SetCurveName( "Chord" );
     m_ChordCurve.InitParms();
-    m_ChordCurve.m_CurveType = PCurve::CEDIT;
+    m_ChordCurve.m_CurveType = vsp::CEDIT;
     static const double t1[] = {0.2, 0.2 + 0.4 / 3.0,
                0.6 - 0.4 / 3.0, 0.6, 0.6 + 0.35 / 3.0,
                0.95 - 0.35 / 3.0, 0.95, 0.95 + 0.05 / 3.0,
@@ -373,7 +373,7 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_TwistCurve.SetParmNames( "r", "tw" );
     m_TwistCurve.SetCurveName( "Twist" );
     m_TwistCurve.InitParms();
-    m_TwistCurve.m_CurveType = PCurve::PCHIP;
+    m_TwistCurve.m_CurveType = vsp::PCHIP;
     static const double t2[] = {0.2, 0.75, 1.0};
     static const double v2[] = {46.75, 20.0, 13.0};
     vector < double > tv2( t2, t2 + sizeof( t2 ) / sizeof( t2[0] ) );
@@ -390,7 +390,7 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_RakeCurve.SetParmNames( "r", "rak" );
     m_RakeCurve.SetCurveName( "Rake" );
     m_RakeCurve.InitParms();
-    m_RakeCurve.m_CurveType = PCurve::LINEAR;
+    m_RakeCurve.m_CurveType = vsp::LINEAR;
     m_RakeCurve.InitCurve( tv3, vv3 );
 
     m_SkewCurve.SetParentContainer( GetID() );
@@ -398,7 +398,7 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_SkewCurve.SetParmNames( "r", "skw" );
     m_SkewCurve.SetCurveName( "Skew" );
     m_SkewCurve.InitParms();
-    m_SkewCurve.m_CurveType = PCurve::LINEAR;
+    m_SkewCurve.m_CurveType = vsp::LINEAR;
     m_SkewCurve.InitCurve( tv3, vv3 );
 
     // Set up vector to allow treatment as a group.
@@ -1329,10 +1329,10 @@ int PropGeom::ReadBEM( const string &file_name )
     m_YRelRot = angles.y();
     m_ZRelRot = angles.z();
 
-    m_ChordCurve.SetCurve( r_vec, chord_vec, PCurve::PCHIP );
-    m_TwistCurve.SetCurve( r_vec, twist_vec, PCurve::PCHIP );
-    m_RakeCurve.SetCurve( r_vec, rake_vec, PCurve::PCHIP );
-    m_SkewCurve.SetCurve( r_vec, skew_vec, PCurve::PCHIP );
+    m_ChordCurve.SetCurve( r_vec, chord_vec, vsp::PCHIP );
+    m_TwistCurve.SetCurve( r_vec, twist_vec, vsp::PCHIP );
+    m_RakeCurve.SetCurve( r_vec, rake_vec, vsp::PCHIP );
+    m_SkewCurve.SetCurve( r_vec, skew_vec, vsp::PCHIP );
 
     return 1;
 }

@@ -19,10 +19,10 @@ PCurve::PCurve() : ParmContainer()
 
 void PCurve::InitParms()
 {
-    m_CurveType.Init( "CrvType", m_GroupName, this, PCHIP, LINEAR, CEDIT );
+    m_CurveType.Init( "CrvType", m_GroupName, this, vsp::PCHIP, vsp::LINEAR, vsp::CEDIT );
     m_CurveType.SetDescript( "Curve type" );
 
-    m_ConvType.Init( "ConvType", m_GroupName, this, CEDIT, LINEAR, CEDIT );
+    m_ConvType.Init( "ConvType", m_GroupName, this, vsp::CEDIT, vsp::LINEAR, vsp::CEDIT );
     m_ConvType.SetDescript( "Curve conversion type" );
 
     m_SplitPt.Init( "SplitPt", m_GroupName, this, 0.5, -1.0e12, 1.0e12 );
@@ -130,7 +130,7 @@ void PCurve::DeletePt( int indx )
 {
     if ( indx > 0 && indx < ( m_TParmVec.size() - 1 ) )
     {
-        if ( m_CurveType() == CEDIT )
+        if ( m_CurveType() == vsp::CEDIT )
         {
             if ( ( indx % 3 ) == 0 )
             {
@@ -200,10 +200,10 @@ void PCurve::Update()
 
     switch( this->m_CurveType() )
     {
-    case LINEAR:
+    case vsp::LINEAR:
         m_Curve.InterpolateLinear( valvec, tvec, false );
         break;
-    case PCHIP:
+    case vsp::PCHIP:
         if ( tvec.size() >= 3 )
         {
             m_Curve.InterpolatePCHIP( valvec, tvec, false );
@@ -213,7 +213,7 @@ void PCurve::Update()
             m_Curve.InterpolateLinear( valvec, tvec, false );
         }
         break;
-    case CEDIT:
+    case vsp::CEDIT:
         m_Curve.SetCubicControlPoints( valvec, tvec, false );
         break;
     }
@@ -266,7 +266,7 @@ void PCurve::EnforcePtOrder( double rfirst, double rlast )
 {
     double offset = 1e-4;
 
-    if ( m_CurveType() == CEDIT )
+    if ( m_CurveType() == vsp::CEDIT )
     {
         int npt = m_TParmVec.size();
         int nseg = ( npt - 1 ) / 3;
@@ -506,12 +506,12 @@ void PCurve::SetPt( double t, double v, int indx )
     {
         switch( this->m_CurveType() )
         {
-        case LINEAR:
-        case PCHIP:
+        case vsp::LINEAR:
+        case vsp::PCHIP:
             tp->Set( t );
             vp->Set( v );
             break;
-        case CEDIT:
+        case vsp::CEDIT:
           {
             int m = indx % 3;
             if ( m == 0)  // Changing an end point
@@ -555,8 +555,8 @@ void PCurve::Split()
 
     switch( m_CurveType() )
     {
-    case LINEAR:
-    case PCHIP:
+    case vsp::LINEAR:
+    case vsp::PCHIP:
       {
           double vsplit = Comp( tsplit );
 
@@ -597,7 +597,7 @@ void PCurve::Split()
 
       }
         break;
-    case CEDIT:
+    case vsp::CEDIT:
       {
           m_Curve.Split( tsplit );
 
@@ -622,17 +622,17 @@ void PCurve::ConvertTo( int newtype )
 {
     switch( m_CurveType() )
     {
-    case LINEAR:
+    case vsp::LINEAR:
         {
             switch( newtype )
             {
-            case LINEAR:
+            case vsp::LINEAR:
                 return;
                 break;
-            case PCHIP:
-                m_CurveType = PCHIP;
+            case vsp::PCHIP:
+                m_CurveType = vsp::PCHIP;
                 break;
-            case CEDIT:
+            case vsp::CEDIT:
                 m_Curve.ToCubic();
 
                 vector < double > tvec;
@@ -640,7 +640,7 @@ void PCurve::ConvertTo( int newtype )
 
                 m_Curve.GetCubicControlPoints( valvec, tvec );
 
-                m_CurveType = CEDIT;
+                m_CurveType = vsp::CEDIT;
 
                 InitCurve( tvec, valvec );
 
@@ -648,36 +648,36 @@ void PCurve::ConvertTo( int newtype )
             }
         }
         break;
-    case PCHIP:
+    case vsp::PCHIP:
         {
             switch( newtype )
             {
-            case LINEAR:
-                m_CurveType = LINEAR;
+            case vsp::LINEAR:
+                m_CurveType = vsp::LINEAR;
                 break;
-            case PCHIP:
+            case vsp::PCHIP:
                 return;
                 break;
-            case CEDIT:
+            case vsp::CEDIT:
 
                 vector < double > tvec;
                 vector < double > valvec;
 
                 m_Curve.GetCubicControlPoints( valvec, tvec );
 
-                m_CurveType = CEDIT;
+                m_CurveType = vsp::CEDIT;
                 InitCurve( tvec, valvec );
 
                 break;
             }
         }
         break;
-    case CEDIT:
+    case vsp::CEDIT:
         {
             switch( newtype )
             {
-            case LINEAR:
-            case PCHIP:
+            case vsp::LINEAR:
+            case vsp::PCHIP:
                 {
                     vector < double > tvec = GetTVec();
                     vector < double > valvec = GetValVec();
@@ -699,7 +699,7 @@ void PCurve::ConvertTo( int newtype )
                     InitCurve( newtvec, newvalvec );
                 }
                 break;
-            case CEDIT:
+            case vsp::CEDIT:
                 return;
                 break;
             }

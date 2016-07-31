@@ -20,10 +20,6 @@ class PCurve : public ParmContainer
 public:
     PCurve();
 
-    enum {
-        LINEAR, PCHIP, CEDIT,
-    };
-
     IntParm m_CurveType;
 
     Parm m_SplitPt;

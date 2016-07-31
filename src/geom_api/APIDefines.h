@@ -298,6 +298,12 @@ enum PROJ_DIR_TYPE { X_PROJ,
                      NUM_PROJ_DIR_OPTIONS
                    };
 
+enum PCURV_TYPE { LINEAR,
+                  PCHIP,
+                  CEDIT,
+                  NUM_PCURV_TYPE
+                };
+
 }   // Namespace
 
 #endif // !defined(VSPDEFINES__INCLUDED_)
