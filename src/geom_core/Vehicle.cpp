@@ -2658,6 +2658,36 @@ string Vehicle::ImportFile( const string & file_name, int file_type )
     {
         return ImportV2File( file_name );
     }
+    else if ( file_type == IMPORT_BEM )
+    {
+        GeomType type = GeomType( PROP_GEOM_TYPE, "PROP", true );
+        id = AddGeom( type );
+        if ( !id.compare( "NONE" ) )
+        {
+            return id;
+        }
+
+        Geom* new_geom = FindGeom( id );
+        if ( new_geom )
+        {
+            PropGeom* prop = dynamic_cast < PropGeom* > (new_geom );
+            if ( prop )
+            {
+                int validFlag = prop->ReadBEM( file_name.c_str() );
+
+                if ( !validFlag )
+                {
+                    DeleteGeom( id );
+                    id = "NONE";
+                }
+                else
+                {
+                    SetActiveGeom( id );
+                    prop->Update();
+                }
+            }
+        }
+    }
     else
     {
         GeomType type = GeomType( MESH_GEOM_TYPE, "MESH", true );
