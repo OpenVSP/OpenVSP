@@ -402,11 +402,11 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_SkewCurve.InitCurve( tv3, vv3 );
 
     // Set up vector to allow treatment as a group.
-    m_pcurve_vec.resize( 4 );
-    m_pcurve_vec[0] = &m_ChordCurve;
-    m_pcurve_vec[1] = &m_TwistCurve;
-    m_pcurve_vec[2] = &m_RakeCurve;
-    m_pcurve_vec[3] = &m_SkewCurve;
+    m_pcurve_vec.resize( NUM_PROP_PCURVE );
+    m_pcurve_vec[ PROP_CHORD ] = &m_ChordCurve;
+    m_pcurve_vec[ PROP_TWIST ] = &m_TwistCurve;
+    m_pcurve_vec[ PROP_RAKE ] = &m_RakeCurve;
+    m_pcurve_vec[ PROP_SKEW ] = &m_SkewCurve;
 
 }
 

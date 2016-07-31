@@ -304,6 +304,13 @@ enum PCURV_TYPE { LINEAR,
                   NUM_PCURV_TYPE
                 };
 
+enum PROP_PCURVE { PROP_CHORD,
+                   PROP_TWIST,
+                   PROP_RAKE,
+                   PROP_SKEW,
+                   NUM_PROP_PCURVE
+                 };
+
 }   // Namespace
 
 #endif // !defined(VSPDEFINES__INCLUDED_)
