@@ -416,8 +416,6 @@ void PropGeom::UpdateDrawObj()
 {
     GeomXSec::UpdateDrawObj();
 
-    DrawObj rotAxis;
-
     double rev = 1.0;
     if ( m_ReverseFlag() )
     {
@@ -427,53 +425,71 @@ void PropGeom::UpdateDrawObj()
     double data[16];
     m_ModelMatrix.getMat( data );
 
+    vec3d cen( 0, 0, 0 );
+    vec3d rotdir( -1, 0, 0 );
+    vec3d thrustdir( -1, 0, 0 );
+    rotdir = rotdir * rev;
+
+    cen = m_ModelMatrix.xform( cen );
+    rotdir = m_ModelMatrix.xform( rotdir ) - cen;
+    thrustdir = m_ModelMatrix.xform( thrustdir ) - cen;
+
     Matrix4d mat;
     mat.loadIdentity();
     mat.rotateX( -rev * m_Rotate() );
     mat.postMult( data );
 
+    vec3d pmid = mat.xform( m_FoldAxOrigin );
     vec3d ptstart = mat.xform( m_FoldAxOrigin + m_FoldAxDirection );
     vec3d ptend = mat.xform( m_FoldAxOrigin - m_FoldAxDirection );
-
-    rotAxis.m_PntVec.push_back( ptstart );
-    rotAxis.m_PntVec.push_back( ptend );
-    rotAxis.m_GeomChanged = true;
-
-    m_FeatureDrawObj_vec.push_back( rotAxis );
 
 
     vec3d dir = ptend - ptstart;
     double len = dir.mag();
     dir.normalize();
 
-    m_ArrowDO.m_PntVec.clear();
-    m_ArrowDO.m_Type = DrawObj::VSP_SHADED_TRIS;
-    m_ArrowDO.m_GeomID = m_ID + string( "_arrow" );
-    m_ArrowDO.m_GeomChanged = true;
+    m_ArrowLinesDO.m_PntVec.clear();
+    m_ArrowHeadDO.m_PntVec.clear();
 
-    for ( int i = 0; i < 4; i++ )
-    {
-        m_ArrowDO.m_MaterialInfo.Ambient[i] = 0.2;
-        m_ArrowDO.m_MaterialInfo.Diffuse[i] = 0.1;
-        m_ArrowDO.m_MaterialInfo.Specular[i] = 0.7;
-        m_ArrowDO.m_MaterialInfo.Emission[i] = 0.0;
-    }
-    m_ArrowDO.m_MaterialInfo.Diffuse[3] = 0.5;
-    m_ArrowDO.m_MaterialInfo.Shininess = 5.0;
+    m_ArrowLinesDO.m_PntVec.push_back( ptstart );
+    m_ArrowLinesDO.m_PntVec.push_back( ptend );
+    m_ArrowLinesDO.m_PntVec.push_back( cen );
+    m_ArrowLinesDO.m_PntVec.push_back( cen + thrustdir );
 
-    MakeArrowhead( ptend, dir, 0.15 * len, m_ArrowDO.m_PntVec );
+    MakeArrowhead( cen + thrustdir, thrustdir, 0.125 * len, m_ArrowHeadDO.m_PntVec );
+    MakeCircleArrow( pmid, dir, 0.25 * len, m_ArrowLinesDO, m_ArrowHeadDO );
+    MakeCircleArrow( cen, rotdir, 0.25 * len, m_ArrowLinesDO, m_ArrowHeadDO );
 
-    m_ArrowDO.m_NormVec.clear();
-    m_ArrowDO.m_NormVec.resize( m_ArrowDO.m_PntVec.size(), vec3d() );
 }
 
 void PropGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
     GeomXSec::LoadDrawObjs( draw_obj_vec );
 
-    if ( m_GuiDraw.GetDispFeatureFlag() && !m_GuiDraw.GetNoShowFlag() )
+    if ( ( m_GuiDraw.GetDispFeatureFlag() && !m_GuiDraw.GetNoShowFlag() ) || m_Vehicle->IsGeomActive( m_ID ) )
     {
-        draw_obj_vec.push_back( &m_ArrowDO );
+        m_ArrowHeadDO.m_GeomID = m_ID + "Arrows";
+        m_ArrowHeadDO.m_LineWidth = 1.0;
+        m_ArrowHeadDO.m_Type = DrawObj::VSP_SHADED_TRIS;
+        m_ArrowHeadDO.m_NormVec = vector <vec3d> ( m_ArrowHeadDO.m_PntVec.size() );
+
+        for ( int i = 0; i < 4; i++ )
+        {
+            m_ArrowHeadDO.m_MaterialInfo.Ambient[i] = 0.2;
+            m_ArrowHeadDO.m_MaterialInfo.Diffuse[i] = 0.1;
+            m_ArrowHeadDO.m_MaterialInfo.Specular[i] = 0.7;
+            m_ArrowHeadDO.m_MaterialInfo.Emission[i] = 0.0;
+        }
+        m_ArrowHeadDO.m_MaterialInfo.Diffuse[3] = 0.5;
+        m_ArrowHeadDO.m_MaterialInfo.Shininess = 5.0;
+
+        m_ArrowLinesDO.m_GeomID = m_ID + "ALines";
+        m_ArrowLinesDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+        m_ArrowLinesDO.m_LineWidth = 2.0;
+        m_ArrowLinesDO.m_Type = DrawObj::VSP_LINES;
+
+        draw_obj_vec.push_back( &m_ArrowLinesDO );
+        draw_obj_vec.push_back( &m_ArrowHeadDO );
     }
 }
 

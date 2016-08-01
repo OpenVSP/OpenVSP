@@ -185,7 +185,8 @@ protected:
     virtual void UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, bool degen );
     virtual void UpdateSplitTesselate( int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms );
 
-    DrawObj m_ArrowDO;
+    DrawObj m_ArrowLinesDO;
+    DrawObj m_ArrowHeadDO;
 
     Vsp1DCurve m_rtou;
     VspSurf m_FoilSurf;
