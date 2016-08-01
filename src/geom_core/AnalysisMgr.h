@@ -105,6 +105,15 @@ private:
 
 #define AnalysisMgr AnalysisMgrSingleton::getInstance()
 
+class BEMAnalysis : public Analysis
+{
+public:
+
+    virtual void SetDefaults();
+    virtual string Execute();
+
+};
+
 class CompGeomAnalysis : public Analysis
 {
 public:
@@ -185,6 +194,7 @@ public:
     virtual string Execute();
 
 };
+
 class VSPAEROSweepAnalysis : public Analysis
 {
 public:
@@ -193,4 +203,5 @@ public:
     virtual string Execute();
 
 };
+
 #endif // !defined(ANALYSISMGR__INCLUDED_)

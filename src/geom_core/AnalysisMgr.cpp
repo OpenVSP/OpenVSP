@@ -12,6 +12,7 @@
 #include "Vehicle.h"
 #include "VehicleMgr.h"
 #include "ProjectionMgr.h"
+#include "PropGeom.h"
 
 #include "VSPAEROMgr.h"
 
@@ -323,6 +324,10 @@ void AnalysisMgrSingleton::SetVec3dAnalysisInput( const string & analysis, const
 
 void AnalysisMgrSingleton::RegisterBuiltins()
 {
+    BEMAnalysis *bem = new BEMAnalysis();
+
+    RegisterAnalysis( "BladeElement", bem );
+
     CompGeomAnalysis *cga = new CompGeomAnalysis();
 
     RegisterAnalysis( "CompGeom", cga );
@@ -366,6 +371,55 @@ void AnalysisMgrSingleton::RegisterBuiltins()
     VSPAEROSweepAnalysis *vsasa = new VSPAEROSweepAnalysis();
 
     RegisterAnalysis( "VSPAEROSweep", vsasa );
+}
+
+//======================================================================================//
+//======================================= BEM ==========================================//
+//======================================================================================//
+
+void BEMAnalysis::SetDefaults()
+{
+    m_Inputs.Clear();
+
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        m_Inputs.Add( NameValData( "PropID", veh->m_BEMPropID ) );
+    }
+}
+
+string BEMAnalysis::Execute()
+{
+    string res;
+
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        string propid;
+
+        NameValData *nvd = NULL;
+
+        nvd = m_Inputs.FindPtr( "PropID", 0 );
+        if ( nvd )
+        {
+            propid = nvd->GetString( 0 );
+        }
+
+        Geom* geom = veh->FindGeom( propid );
+
+        if ( geom )
+        {
+        	PropGeom* pgeom = dynamic_cast < PropGeom* > ( geom );
+        	if ( pgeom )
+        	{
+        		res = pgeom->BuildBEMResults();
+        	}
+        }
+    }
+
+    return res;
 }
 
 //======================================================================================//
