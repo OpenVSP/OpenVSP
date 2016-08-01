@@ -1592,6 +1592,21 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "double SnapParm( const string & in parm_id, double target_min_dist, bool inc_flag, int set  )", asFUNCTION( vsp::SnapParm ), asCALL_CDECL );
     assert( r >= 0 );
 
+    //=== Register PCurve Functions ====//
+    r = se->RegisterGlobalFunction( "void SetPCurve( const string& in geom_id, const int & in pcurveid, array<double>@ tvec, array<double>@ valvec, const int & in newtype )", asMETHOD( ScriptMgrSingleton, SetPCurve ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void PCurveConvertTo( const string & in geom_id, const int & in pcurveid, const int & in newtype )", asFUNCTION( vsp::PCurveConvertTo ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "int PCurveGetType( const string & in geom_id, const int & in pcurveid )", asFUNCTION( vsp::PCurveGetType ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "array<double>@ PCurveGetTVec( const string & in geom_id, const int & in pcurveid )", asMETHOD( ScriptMgrSingleton, PCurveGetTVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "array<double>@ PCurveGetValVec( const string & in geom_id, const int & in pcurveid )", asMETHOD( ScriptMgrSingleton, PCurveGetValVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void PCurveDeletePt( const string & in geom_id, const int & in pcurveid, const int & in indx )", asFUNCTION( vsp::PCurveDeletePt ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void PCurveSplit( const string & in geom_id, const int & in pcurveid, const double & in tsplit )", asFUNCTION( vsp::PCurveSplit ), asCALL_CDECL );
+    assert( r >= 0 );
 
 }
 
@@ -2016,6 +2031,39 @@ void ScriptMgrSingleton::SwitchVarPreset( string group_name, string setting_name
 void ScriptMgrSingleton::DeleteVarPresetSet( string group_name, string setting_name )
 {
     vsp::DeleteVarPresetSet( group_name, setting_name );
+}
+
+void ScriptMgrSingleton::SetPCurve( const string& geom_id, const int & pcurveid, CScriptArray* t_arr, CScriptArray* val_arr, const int & newtype )
+{
+    vector < double > t_vec;
+
+    t_vec.resize( t_arr->GetSize() );
+    for ( int i = 0 ; i < ( int )t_arr->GetSize() ; i++ )
+    {
+        t_vec[i] = * ( double* )( t_arr->At( i ) );
+    }
+
+    vector < double > val_vec;
+
+    val_vec.resize( t_arr->GetSize() );
+    for ( int i = 0 ; i < ( int )val_arr->GetSize() ; i++ )
+    {
+        val_vec[i] = * ( double* )( val_arr->At( i ) );
+    }
+
+    vsp::SetPCurve( geom_id, pcurveid, t_vec, val_vec, newtype );
+}
+
+CScriptArray* ScriptMgrSingleton::PCurveGetTVec( const std::string & geom_id, const int & pcurveid )
+{
+    m_ProxyDoubleArray = vsp::PCurveGetTVec( geom_id, pcurveid );
+    return GetProxyDoubleArray();
+}
+
+CScriptArray* ScriptMgrSingleton::PCurveGetValVec( const std::string & geom_id, const int & pcurveid )
+{
+    m_ProxyDoubleArray = vsp::PCurveGetValVec( geom_id, pcurveid );
+    return GetProxyDoubleArray();
 }
 
 void ScriptMgrSingleton::SetIntAnalysisInput( const string& analysis, const string & name, CScriptArray* indata, int index )

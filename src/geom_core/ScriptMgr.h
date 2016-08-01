@@ -189,6 +189,11 @@ private:
     void SwitchVarPreset( string group_name, string setting_name );
     void DeleteVarPresetSet( string group_name, string setting_name );
 
+    // ==== PCurve Functions ====//
+    void SetPCurve( const string& geom_id, const int & pcurveid, CScriptArray* tvec, CScriptArray* valvec, const int & newtype );
+    CScriptArray* PCurveGetTVec( const std::string & geom_id, const int & pcurveid );
+    CScriptArray* PCurveGetValVec( const std::string & geom_id, const int & pcurveid );
+
 };
 
 #define ScriptMgr ScriptMgrSingleton::getInstance()
