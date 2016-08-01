@@ -83,6 +83,11 @@ void PropPositioner::Update()
 
     // Propeller rotation first because order is reversed.
     mat.rotateX( -m_Reverse * m_PropRot );
+
+    mat.translatef( m_FoldOrigin.x(), m_FoldOrigin.y(), m_FoldOrigin.z() );
+    mat.rotate( m_FoldAngle * PI / 180.0, m_FoldDirection );
+    mat.translatef( -m_FoldOrigin.x(), -m_FoldOrigin.y(), -m_FoldOrigin.z() );
+
     mat.rotateY( m_Feather );
 
     mat.translatef( 0, m_Radius, 0 );
@@ -96,17 +101,6 @@ void PropPositioner::Update()
     mat.rotateZ( m_ZRotate ); // About chord
 
     m_TransformedCurve.Transform( mat );
-
-    Matrix4d fold, foldrot;
-
-    fold.loadIdentity();
-    fold.translatef( m_FoldOrigin.x(), m_FoldOrigin.y(), m_FoldOrigin.z() );
-    foldrot.rotate( m_FoldAngle * PI / 180.0, m_FoldDirection );
-    fold.matMult( foldrot.data() );
-    fold.translatef( -m_FoldOrigin.x(), -m_FoldOrigin.y(), -m_FoldOrigin.z() );
-
-    m_TransformedCurve.Transform( fold );
-
 }
 
 void PropPositioner::SetCurve( const VspCurve &c )
