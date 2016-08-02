@@ -361,6 +361,7 @@ void ProcessUtil::StartThread( void *(*threadfun)( void *data ), void *data )
 
 void ProcessUtil::ReadStdoutPipe(char * bufptr, int bufsize, unsigned long * nreadptr )
 {
+    bufptr[0] = 0;
 #ifdef WIN32
     ReadFile( m_StdoutPipe[PIPE_READ], bufptr, bufsize, nreadptr, NULL);
 #else
