@@ -1048,7 +1048,7 @@ string VSPAEROSinglePointAnalysis::Execute()
         int wakeNumIterOrig          = VSPAEROMgr.m_WakeNumIter.Get();
         int wakeAvgStartIterOrig     = VSPAEROMgr.m_WakeAvgStartIter.Get();
         int wakeSkipUntilIterOrig    = VSPAEROMgr.m_WakeSkipUntilIter.Get();
-        bool stabilityCalcFlagOrig = VSPAEROMgr.m_StabilityCalcFlag.Get(); // note: this is NOT an input
+        bool stabilityCalcFlagOrig   = VSPAEROMgr.m_StabilityCalcFlag.Get();
         nvd = m_Inputs.FindPtr( "NCPU", 0 );
         VSPAEROMgr.m_NCPU.Set( nvd->GetInt(0) );
         nvd = m_Inputs.FindPtr( "WakeNumIter" );
