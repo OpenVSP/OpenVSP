@@ -269,20 +269,20 @@ void ParseInput(int argc, char *argv[])
        printf("Additional options: \n");
        printf(" -omp N          Use 'N' processes.\n");
        printf(" -stab           Calculate stability derivatives.\n");
-       printf(" -fs M A B       Set freestream Mach, Alpha, and Beta.\n");
+       printf(" -fs M A B       Set freestream Mach, Alpha, and Beta (overrides setup file).\n");
        printf(" -save           Save restart file.\n");
        printf(" -restart        Restart analysis.\n");
        printf(" -geom           Process and write geometry without solving.\n");
        printf(" -avg N          Force averaging startign at wake iteration N\n");
        printf(" -nowake N       No wake for first N iterations.\n");
        printf(" -setup          Write template *.vspaero file, can specify parameters below:\n");
-       printf(" -sref  S        Reference area.\n");
-       printf(" -bref  b        Reference span.\n");
-       printf(" -cref  c        Reference chord.\n");
-       printf(" -cg  X Y Z      Moment reference point.\n");
-       printf(" -mach  M        Freestream Mach number.\n");
-       printf(" -aoa   A        Angle of attack.\n");
-       printf(" -beta  B        Sideslip angle.\n");
+       printf("    -sref  S     Reference area.\n");
+       printf("    -bref  b     Reference span.\n");
+       printf("    -cref  c     Reference chord.\n");
+       printf("    -cg  X Y Z   Moment reference point.\n");
+       printf("    -mach  M     Freestream Mach number.\n");
+       printf("    -aoa   A     Angle of attack.\n");
+       printf("    -beta  B     Sideslip angle.\n");
 
  
        exit(1);
@@ -339,6 +339,8 @@ void ParseInput(int argc, char *argv[])
           
              AoAList_[++NumberOfAoAs_] = atof(argv[++i]);
              
+             printf("NumberOfAoAs_: %d ---> %s \n",NumberOfAoAs_,argv[i]);
+
           }
           
           i++;
@@ -349,6 +351,8 @@ void ParseInput(int argc, char *argv[])
           
              BetaList_[++NumberOfBetas_] = atof(argv[++i]);
              
+             printf("NumberOfBetas_: %d ---> %s \n",NumberOfBetas_,argv[i]);
+
           }    
           
           i++;
@@ -428,13 +432,13 @@ void ParseInput(int argc, char *argv[])
           printf(" -avg N          Force averaging startign at wake iteration N\n");
           printf(" -nowake N       No wake for first N iterations.\n");
           printf(" -setup          Write template *.vspaero file, can specify parameters below:\n");
-          printf(" -sref  S        Reference area.\n");
-          printf(" -bref  b        Reference span.\n");
-          printf(" -cref  c        Reference chord.\n");
-          printf(" -cg  X Y Z      Moment reference point.\n");
-          printf(" -mach  M        Freestream Mach number.\n");
-          printf(" -aoa   A        Angle of attack.\n");
-          printf(" -beta  B        Sideslip angle.\n");
+          printf("    -sref  S     Reference area.\n");
+          printf("    -bref  b     Reference span.\n");
+          printf("    -cref  c     Reference chord.\n");
+          printf("    -cg  X Y Z   Moment reference point.\n");
+          printf("    -mach  M     Freestream Mach number.\n");
+          printf("    -aoa   A     Angle of attack.\n");
+          printf("    -beta  B     Sideslip angle.\n");
 
           exit(1);
 
@@ -534,7 +538,7 @@ void CreateInputFile(char *argv[], int argc, int &i)
           Bref_ = atof(argv[++i]);
           
        }                     
-
+       
        else if ( strcmp(argv[i],"-cg") == 0 ) {
           
           Xcg_ = atof(argv[++i]);
@@ -1885,7 +1889,7 @@ void CalculateStabilityDerivatives(void)
     fprintf(StabFile,"Xcg_:  %12.6lf \n",Xcg_);
     fprintf(StabFile,"Ycg_:  %12.6lf \n",Ycg_);
     fprintf(StabFile,"Zcg_:  %12.6lf \n",Zcg_);
-    fprintf(StabFile,"AoA:   %12.6lf \n",AoA_);
+    fprintf(StabFile,"AoA_:  %12.6lf \n",AoA_);
     fprintf(StabFile,"Beta_: %12.6lf \n",Beta_);
     fprintf(StabFile,"Mach_: %12.6lf \n",Mach_);
     fprintf(StabFile,"Rho_:  %12.6lf \n",Rho_);
