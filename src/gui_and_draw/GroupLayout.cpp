@@ -676,6 +676,12 @@ Vsp_Canvas* GroupLayout::AddCanvas( int w, int h, double xmin, double xmax, doub
 void AddPointLine( const vector <double> & xdata, const vector <double> & ydata, int linewidth, Fl_Color color, int pointsize, int pointstyle )
 {
     int n = xdata.size();
+    
+    if ( n != ydata.size() )
+    {
+        printf("ERROR: xdata.size() != ydata.size()\n\tFunction:void AddPointLine( const vector <double> & xdata, const vector <double> & ydata, int linewidth, Fl_Color color, int pointsize, int pointstyle )\n\tFile:GroupLayout.cpp\n");
+        return;
+    }
 
     Ca_LinePoint* LP = 0;
     for( int i=0; i<n; i++ )
