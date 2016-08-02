@@ -1901,10 +1901,19 @@ void CalculateStabilityDerivatives(void)
     fprintf(StabFile,"Mach_: %12.6lf \n",Mach_);
     fprintf(StabFile,"Rho_:  %12.6lf \n",Rho_);
     fprintf(StabFile,"Vinf_: %12.6lf \n",Vinf_);
+    //Delta parameters for corrosponding cases
+    /*
+    fprintf(StabFile,"Delta_Alpha_deg: %+12.7lf \n",Delta_AoA_);        //TODO: duplicate information wrt. the next for loop
+    fprintf(StabFile,"Delta_Beta_deg:  %+12.7lf \n",Delta_Beta_);       //TODO: duplicate information wrt. the next for loop
+    fprintf(StabFile,"Delta_P_deg/s:   %+12.7lf \n",Delta_P_ / TORAD);  //TODO: duplicate information wrt. the next for loop
+    fprintf(StabFile,"Delta_Q_deg/s:   %+12.7lf \n",Delta_Q_ / TORAD);  //TODO: duplicate information wrt. the next for loop
+    fprintf(StabFile,"Delta_R_deg/s:   %+12.7lf \n",Delta_R_ / TORAD);  //TODO: duplicate information wrt. the next for loop
+    fprintf(StabFile,"Delta_Mach_:     %+12.7lf \n",Delta_Mach_);       //TODO: duplicate information wrt. the next for loop
+    */
     fprintf(StabFile,"#\n");
 
-    //                12345678901234567890123456789 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012    
-    fprintf(StabFile,"             Case     Delta        CFx          CFy          CFz          CMx          CMy          CMz          CL           CD           CS          CMl          CMm          CMn      \n");
+    //                123456789012345678901234567890123456789 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012   
+    fprintf(StabFile,"Case                   Delta    Units         CFx          CFy          CFz          CMx          CMy          CMz          CL           CD           CS           CMl          CMm          CMn\n");
        
     fprintf(StabFile,"#\n");
 
@@ -1912,19 +1921,20 @@ void CalculateStabilityDerivatives(void)
        
        // Stability derivative cases
                                      //12345678901234567890123456789
-       if ( n == 1 ) sprintf(CaseType,"Base_Aero              +%5.3lf",0.0);
-       if ( n == 2 ) sprintf(CaseType,"Alpha                  +%5.3lf",Delta_AoA_);
-       if ( n == 3 ) sprintf(CaseType,"Beta                   +%5.3lf",Delta_Beta_);
-       if ( n == 4 ) sprintf(CaseType,"Roll__Rate             +%5.3lf",Delta_P_);
-       if ( n == 5 ) sprintf(CaseType,"Pitch_Rate             +%5.3lf",Delta_Q_);
-       if ( n == 6 ) sprintf(CaseType,"Yaw___Rate             +%5.3lf",Delta_R_);
-       if ( n == 7 ) sprintf(CaseType,"Mach                   +%5.3lf",Delta_Mach_);
+       char caseTypeFormatStr[] = "%-22s +%5.3lf %-11s";
+       if ( n == 1 ) sprintf(CaseType,caseTypeFormatStr,"Base_Aero",0.0,"");
+       if ( n == 2 ) sprintf(CaseType,caseTypeFormatStr,"Alpha",Delta_AoA_,"deg");
+       if ( n == 3 ) sprintf(CaseType,"Beta                   +%5.3lf %-9s",Delta_Beta_,"deg");
+       if ( n == 4 ) sprintf(CaseType,"Roll__Rate             +%5.3lf %-9s",Delta_P_,"rad/T_unit");
+       if ( n == 5 ) sprintf(CaseType,"Pitch_Rate             +%5.3lf %-9s",Delta_Q_,"rad/T_unit");
+       if ( n == 6 ) sprintf(CaseType,"Yaw___Rate             +%5.3lf %-9s",Delta_R_,"rad/T_unit");
+       if ( n == 7 ) sprintf(CaseType,"Mach                   +%5.3lf %-9s",Delta_Mach_,"no_unit");
        
        // Control derivatve cases
                                      //12345678901234567890123456
-       if ( n  > 7 ) sprintf(CaseType,"Control_Group_%-5d    +%5.3lf",n-NumStabCases_,Delta_Control_);
+       if ( n  > 7 ) sprintf(CaseType,"Control_Group_%-5d    +%5.3lf %-9s",n-NumStabCases_,Delta_Control_,"deg");
        
-       fprintf(StabFile,"%29s %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f \n",
+       fprintf(StabFile,"%-39s %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f \n",
                CaseType,
                
                CFxForCase[n],
@@ -2023,9 +2033,9 @@ void CalculateStabilityDerivatives(void)
     //                        123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012           
     fprintf(StabFile,"#             Base    Derivative:                                                                               "); for ( n = 8 ; n <= NumStabCases_ + NumberOfControlGroups_ ; n++ ) fprintf(StabFile,"             ");     fprintf(StabFile,"\n");
     fprintf(StabFile,"#             Aero         wrt          wrt          wrt          wrt          wrt          wrt          wrt    "); for ( n = 8 ; n <= NumStabCases_ + NumberOfControlGroups_ ; n++ ) fprintf(StabFile,"      wrt    ");     fprintf(StabFile,"\n");
-    fprintf(StabFile,"#             Coef         Alpha        Beta          p            q            r           Mach         U      "); for ( n = 8 ; n <= NumStabCases_ + NumberOfControlGroups_ ; n++ ) fprintf(StabFile,"  ConGrp_%-3d ",n-7); fprintf(StabFile,"\n");
+    fprintf(StabFile,"Coef          Total        Alpha        Beta          p            q            r           Mach         U      "); for ( n = 8 ; n <= NumStabCases_ + NumberOfControlGroups_ ; n++ ) fprintf(StabFile,"  ConGrp_%-3d ",n-7); fprintf(StabFile,"\n");
     fprintf(StabFile,"#              -           per          per          per          per          per          per          per    "); for ( n = 8 ; n <= NumStabCases_ + NumberOfControlGroups_ ; n++ ) fprintf(StabFile,"      per    ");     fprintf(StabFile,"\n");
-    fprintf(StabFile,"#              -           rad          rad          rad          rad          rad          rad          rad    "); for ( n = 8 ; n <= NumStabCases_ + NumberOfControlGroups_ ; n++ ) fprintf(StabFile,"      rad    ");     fprintf(StabFile,"\n");
+    fprintf(StabFile,"#              -           rad          rad          rad          rad          rad          M            u      "); for ( n = 8 ; n <= NumStabCases_ + NumberOfControlGroups_ ; n++ ) fprintf(StabFile,"      rad    ");     fprintf(StabFile,"\n");
    
     fprintf(StabFile,"#\n");
     
