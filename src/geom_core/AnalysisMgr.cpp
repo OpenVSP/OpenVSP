@@ -951,6 +951,7 @@ void VSPAEROSinglePointAnalysis::SetDefaults()
         m_Inputs.Add( NameValData( "WakeAvgStartIter",  VSPAEROMgr.m_WakeAvgStartIter.Get()  ) );
         m_Inputs.Add( NameValData( "WakeSkipUntilIter", VSPAEROMgr.m_WakeSkipUntilIter.Get() ) );
         m_Inputs.Add( NameValData( "StabilityCalcFlag", VSPAEROMgr.m_StabilityCalcFlag.Get() ) );
+        m_Inputs.Add( NameValData( "ForceNewSetupfile", VSPAEROMgr.m_ForceNewSetupfile.Get() ) );
 
         //Reference area, lengths
         m_Inputs.Add( NameValData( "RefFlag",           VSPAEROMgr.m_RefFlag.Get()           ) );
@@ -1060,6 +1061,10 @@ string VSPAEROSinglePointAnalysis::Execute()
         nvd = m_Inputs.FindPtr( "StabilityCalcFlag", 0 );
         VSPAEROMgr.m_StabilityCalcFlag.Set( nvd->GetInt(0) );
 
+        bool forceNewSetupfileOrig   = VSPAEROMgr.m_ForceNewSetupfile.Get();
+        nvd = m_Inputs.FindPtr( "ForceNewSetupfile", 0 );
+        VSPAEROMgr.m_ForceNewSetupfile.Set( nvd->GetInt(0) );
+
         //==== Execute Analysis ====//
         resId = VSPAEROMgr.ComputeSolver(stdout);
 
@@ -1096,6 +1101,7 @@ string VSPAEROSinglePointAnalysis::Execute()
         VSPAEROMgr.m_WakeSkipUntilIter.Set( wakeSkipUntilIterOrig );
         VSPAEROMgr.m_StabilityCalcFlag.Set( stabilityCalcFlagOrig );
 
+        VSPAEROMgr.m_ForceNewSetupfile.Set( forceNewSetupfileOrig );
     }
 
     return resId;
@@ -1116,6 +1122,7 @@ void VSPAEROSweepAnalysis::SetDefaults()
         m_Inputs.Add( NameValData( "WakeAvgStartIter",  VSPAEROMgr.m_WakeAvgStartIter.Get()  ) );
         m_Inputs.Add( NameValData( "WakeSkipUntilIter", VSPAEROMgr.m_WakeSkipUntilIter.Get() ) );
         m_Inputs.Add( NameValData( "StabilityCalcFlag", VSPAEROMgr.m_StabilityCalcFlag.Get() ) );
+        m_Inputs.Add( NameValData( "ForceNewSetupfile", VSPAEROMgr.m_ForceNewSetupfile.Get() ) );
 
         //Reference area, lengths
         m_Inputs.Add( NameValData( "RefFlag",           VSPAEROMgr.m_RefFlag.Get()           ) );
@@ -1243,6 +1250,9 @@ string VSPAEROSweepAnalysis::Execute()
         nvd = m_Inputs.FindPtr( "StabilityCalcFlag", 0 );
         VSPAEROMgr.m_StabilityCalcFlag.Set( nvd->GetInt(0) );
 
+        bool forceNewSetupfileOrig   = VSPAEROMgr.m_ForceNewSetupfile.Get();
+        nvd = m_Inputs.FindPtr( "ForceNewSetupfile", 0 );
+        VSPAEROMgr.m_ForceNewSetupfile.Set( nvd->GetInt(0) );
 
         //==== Execute Analysis ====//
         resId = VSPAEROMgr.ComputeSolver(stdout);
@@ -1283,6 +1293,7 @@ string VSPAEROSweepAnalysis::Execute()
         VSPAEROMgr.m_WakeSkipUntilIter.Set( wakeSkipUntilIterOrig );
         VSPAEROMgr.m_StabilityCalcFlag.Set( stabilityCalcFlagOrig );
 
+        VSPAEROMgr.m_ForceNewSetupfile.Set( forceNewSetupfileOrig );
     }
 
     return resId;

@@ -95,6 +95,9 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_StabilityCalcFlag.SetDescript( "Flag to calculate stability derivatives" );
     m_StabilityCalcFlag = false;
 
+    m_ForceNewSetupfile.Init( "ForceNewSetupfile", "VSPAERO", this, 0.0, 0.0, 1.0 );
+    m_ForceNewSetupfile.SetDescript( "Flag to creation of new setup file in ComputeSolver() even if one exists" );
+    m_ForceNewSetupfile = false;
 
     m_DegenFile     = string();
     m_DegenFileFull = string();
@@ -465,7 +468,7 @@ string VSPAEROMgrSingleton::ComputeSolver(FILE * outputFile)
         }
 
         //====== Modify/Update the setup file ======//
-        if ( !FileExist( m_SetupFile ) )
+        if ( !FileExist( m_SetupFile ) || m_ForceNewSetupfile.Get() )
         {
             // if the setup file doesn't exist, create one with the current settings
             // TODO output a warning to the user that we are creating a default file
