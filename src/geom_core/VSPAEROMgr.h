@@ -64,7 +64,7 @@ public:
     string m_LoadFile;
     string m_StabFile;
 
-    IntParm m_DegenGeomSet;
+    IntParm m_GeomSet;
 
     Parm m_Sref;
     Parm m_bref;

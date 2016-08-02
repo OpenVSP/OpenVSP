@@ -342,7 +342,7 @@ bool VSPAEROScreen::Update()
         m_GeomSetChoice.UpdateItems();
         m_CGSetChoice.UpdateItems();
 
-        m_GeomSetChoice.SetVal( VSPAEROMgr.m_DegenGeomSet() );
+        m_GeomSetChoice.SetVal( VSPAEROMgr.m_GeomSet() );
         m_CGSetChoice.SetVal( VSPAEROMgr.m_CGGeomSet() );
 
 
@@ -760,7 +760,7 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
         }
         else if( device == &m_GeomSetChoice )
         {
-            VSPAEROMgr.m_DegenGeomSet = m_GeomSetChoice.GetVal();
+            VSPAEROMgr.m_GeomSet = m_GeomSetChoice.GetVal();
         }
         else if( device == &m_DegenGeomButton )
         {

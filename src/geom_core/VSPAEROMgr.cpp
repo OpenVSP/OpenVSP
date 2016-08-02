@@ -25,8 +25,8 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
 {
     m_Name = "VSPAEROSettings";
 
-    m_DegenGeomSet.Init( "GeomSet", "VSPAERO", this, 0, 0, 12 );
-    m_DegenGeomSet.SetDescript( "Geometry set" );
+    m_GeomSet.Init( "GeomSet", "VSPAERO", this, 0, 0, 12 );
+    m_GeomSet.SetDescript( "Geometry set" );
 
     m_Sref.Init( "Sref", "VSPAERO", this, 100.0, 0.0, 1e12 );
     m_Sref.SetDescript( "Reference area" );
@@ -270,7 +270,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
 
-    veh->CreateDegenGeom( VSPAEROMgr.m_DegenGeomSet() );
+    veh->CreateDegenGeom( VSPAEROMgr.m_GeomSet() );
 
     // record original values
     bool exptMfile_orig = veh->getExportDegenGeomMFile();
@@ -290,7 +290,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
     Results* res = ResultsMgr.CreateResults( "VSPAERO_DegenGeom" );
     // add to results manager
     res->Add( NameValData( "OutputFileName", m_DegenFile + string( ".csv" ) ) );
-    res->Add( NameValData( "GeometrySet", VSPAEROMgr.m_DegenGeomSet() ) );
+    res->Add( NameValData( "GeometrySet", VSPAEROMgr.m_GeomSet() ) );
 
     return res->GetID();
 

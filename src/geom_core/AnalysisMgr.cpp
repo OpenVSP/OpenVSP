@@ -897,7 +897,7 @@ void VSPAERODegenGeomAnalysis::SetDefaults()
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( veh )
     {
-        m_Inputs.Add( NameValData( "GeomSet", VSPAEROMgr.m_DegenGeomSet.Get() ) );
+        m_Inputs.Add( NameValData( "GeomSet", VSPAEROMgr.m_GeomSet.Get() ) );
     }
     else
     {
@@ -920,15 +920,15 @@ string VSPAERODegenGeomAnalysis::Execute()
         int geomSetOrig;
         if ( nvd )
         {
-            geomSetOrig = VSPAEROMgr.m_DegenGeomSet.Get();
-            VSPAEROMgr.m_DegenGeomSet.Set( nvd->GetInt( 0 ) );
+            geomSetOrig = VSPAEROMgr.m_GeomSet.Get();
+            VSPAEROMgr.m_GeomSet.Set( nvd->GetInt( 0 ) );
         }
 
         // Execute analysis
         res_id = VSPAEROMgr.ComputeGeometry();
 
         //Restore original values that were overwritten by analysis inputs
-        VSPAEROMgr.m_DegenGeomSet.Set( geomSetOrig );
+        VSPAEROMgr.m_GeomSet.Set( geomSetOrig );
 
     }
     
@@ -945,7 +945,7 @@ void VSPAEROSinglePointAnalysis::SetDefaults()
     {
 
         //Case Setup
-        m_Inputs.Add( NameValData( "GeomSet",           VSPAEROMgr.m_DegenGeomSet.Get()              ) );
+        m_Inputs.Add( NameValData( "GeomSet",           VSPAEROMgr.m_GeomSet.Get()           ) );
         m_Inputs.Add( NameValData( "NCPU",              VSPAEROMgr.m_NCPU.Get()              ) );
         m_Inputs.Add( NameValData( "WakeNumIter",       VSPAEROMgr.m_WakeNumIter.Get()       ) );
         m_Inputs.Add( NameValData( "WakeAvgStartIter",  VSPAEROMgr.m_WakeAvgStartIter.Get()  ) );
@@ -991,9 +991,9 @@ string VSPAEROSinglePointAnalysis::Execute()
 
         //==== Apply current analysis input values ====//
         //    Geometry set
-        int geomSetOrig    = VSPAEROMgr.m_DegenGeomSet.Get();
+        int geomSetOrig    = VSPAEROMgr.m_GeomSet.Get();
         nvd = m_Inputs.FindPtr( "GeomSet", 0 );
-        VSPAEROMgr.m_DegenGeomSet.Set( nvd->GetInt(0) );
+        VSPAEROMgr.m_GeomSet.Set( nvd->GetInt(0) );
 
         //    Regerence area, length parameters
         int refFlagOrig    = VSPAEROMgr.m_RefFlag.Get();
@@ -1066,7 +1066,7 @@ string VSPAEROSinglePointAnalysis::Execute()
 
         //==== Restore Original Values ====//
         //    Geometry set
-        VSPAEROMgr.m_DegenGeomSet.Set( geomSetOrig );
+        VSPAEROMgr.m_GeomSet.Set( geomSetOrig );
 
         //    Regerence area, length parameters
         VSPAEROMgr.m_RefFlag.Set( refFlagOrig );
@@ -1110,7 +1110,7 @@ void VSPAEROSweepAnalysis::SetDefaults()
     {
 
         //Case Setup
-        m_Inputs.Add( NameValData( "GeomSet",           VSPAEROMgr.m_DegenGeomSet.Get()              ) );
+        m_Inputs.Add( NameValData( "GeomSet",           VSPAEROMgr.m_GeomSet.Get()           ) );
         m_Inputs.Add( NameValData( "NCPU",              VSPAEROMgr.m_NCPU.Get()              ) );
         m_Inputs.Add( NameValData( "WakeNumIter",       VSPAEROMgr.m_WakeNumIter.Get()       ) );
         m_Inputs.Add( NameValData( "WakeAvgStartIter",  VSPAEROMgr.m_WakeAvgStartIter.Get()  ) );
@@ -1162,9 +1162,9 @@ string VSPAEROSweepAnalysis::Execute()
 
         //==== Apply current analysis input values ====//
         //    Geometry set
-        int geomSetOrig    = VSPAEROMgr.m_DegenGeomSet.Get();
+        int geomSetOrig    = VSPAEROMgr.m_GeomSet.Get();
         nvd = m_Inputs.FindPtr( "GeomSet", 0 );
-        VSPAEROMgr.m_DegenGeomSet.Set( nvd->GetInt(0) );
+        VSPAEROMgr.m_GeomSet.Set( nvd->GetInt(0) );
 
         //    Regerence area, length parameters
         int refFlagOrig    = VSPAEROMgr.m_RefFlag.Get();
@@ -1250,7 +1250,7 @@ string VSPAEROSweepAnalysis::Execute()
 
         //==== Restore Original Values ====//
         //    Geometry set
-        VSPAEROMgr.m_DegenGeomSet.Set( geomSetOrig );
+        VSPAEROMgr.m_GeomSet.Set( geomSetOrig );
 
         //    Regerence area, length parameters
         VSPAEROMgr.m_RefFlag.Set( refFlagOrig );
