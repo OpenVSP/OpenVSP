@@ -191,6 +191,7 @@ enum COMPUTATION_FILE_TYPE  {   NO_FILE_TYPE        = 0,
                                 CFD_TKEY_TYPE       = 32768,
                                 PROJ_AREA_CSV_TYPE  = 65536,
                                 WAVE_DRAG_TXT_TYPE  = 131072,
+                                VSPAERO_PANEL_TRI_TYPE = 262144,
                             };
 
 enum SET_TYPE { SET_ALL = 0,
