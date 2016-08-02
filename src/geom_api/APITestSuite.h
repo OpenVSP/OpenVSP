@@ -20,23 +20,23 @@ public:
     APITestSuite()
     {
         // General
-        TEST_ADD( APITestSuite::CheckSetup)
+        TEST_ADD( APITestSuite::CheckSetup )
         // Geometry manipulation
-        TEST_ADD( APITestSuite::CreateGeometry)
-        TEST_ADD( APITestSuite::ChangePodParams)
-        TEST_ADD( APITestSuite::CopyPasteGeometry)
+        TEST_ADD( APITestSuite::CreateGeometry )
+        TEST_ADD( APITestSuite::ChangePodParams )
+        TEST_ADD( APITestSuite::CopyPasteGeometry )
         // Analysis
-        TEST_ADD( APITestSuite::CheckAnalysisMgr)
-        TEST_ADD( APITestSuite::TestAnalysesWithPod)
+        TEST_ADD( APITestSuite::CheckAnalysisMgr )
+        TEST_ADD( APITestSuite::TestAnalysesWithPod )
 
         // VSPAERO
-        TEST_ADD( APITestSuite::TestVSPAeroComputeGeom)
-        TEST_ADD( APITestSuite::TestVSPAeroSinglePoint)
-        TEST_ADD( APITestSuite::TestVSPAeroSinglePointStab)
-        TEST_ADD( APITestSuite::TestVSPAeroSweep)
+
+        TEST_ADD( APITestSuite::TestVSPAeroComputeGeom )
+        TEST_ADD( APITestSuite::TestVSPAeroSinglePoint )
+        TEST_ADD( APITestSuite::TestVSPAeroSinglePointStab )
+        TEST_ADD( APITestSuite::TestVSPAeroSweep )
         // Export
         TEST_ADD( APITestSuite::TestDXFExport )
-
     }
 
 private:
