@@ -29,14 +29,19 @@ public:
         TEST_ADD( APITestSuite::CheckAnalysisMgr )
         TEST_ADD( APITestSuite::TestAnalysesWithPod )
 
-        // VSPAERO
+        // Export
+        TEST_ADD( APITestSuite::TestDXFExport )
 
+        // VSPAERO
+        //  Vortex Lattice Method Tests
         TEST_ADD( APITestSuite::TestVSPAeroComputeGeom )
         TEST_ADD( APITestSuite::TestVSPAeroSinglePoint )
         TEST_ADD( APITestSuite::TestVSPAeroSinglePointStab )
         TEST_ADD( APITestSuite::TestVSPAeroSweep )
-        // Export
-        TEST_ADD( APITestSuite::TestDXFExport )
+
+        //  Panel Method Tests
+        TEST_ADD( APITestSuite::TestVSPAeroComputeGeomPanel )
+        TEST_ADD( APITestSuite::TestVSPAeroSinglePointPanel )
     }
 
 private:
@@ -52,10 +57,14 @@ private:
     // Export
     void TestDXFExport();
     // VSPAERO
+    //  Vortex Lattice Method Tests
     void TestVSPAeroComputeGeom();        //<--Execute this VSPERO test first
     void TestVSPAeroSinglePoint();
     void TestVSPAeroSinglePointStab();
     void TestVSPAeroSweep();
+    //  Panel Method Tests
+    void TestVSPAeroComputeGeomPanel();        //<--Execute this VSPERO test first for panel methods
+    void TestVSPAeroSinglePointPanel();
 
     // Helper functions
     void PrintAnalysisInputs(const string analysis_name);
@@ -63,6 +72,7 @@ private:
     void PrintResults(const string &results_id);
 
     string m_vspfname_for_vspaerotests;
+    string m_vspfname_for_vspaerotests_panel;
 };
 
 #endif // !defined(VSPAPITESTSUITE__INCLUDED_)

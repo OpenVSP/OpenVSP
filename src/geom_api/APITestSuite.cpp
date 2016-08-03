@@ -9,6 +9,7 @@
 #include "APITestSuite.h"
 #include <stdio.h>
 #include <float.h>
+#include "APIDefines.h"
 
 //Default tolerance to use for tests.  Most calculations are done as doubles and choosing single precision FLT_MIN gives some allowance for precision stackup in calculations
 #define TEST_TOL FLT_MIN
@@ -366,7 +367,7 @@ void APITestSuite::TestVSPAeroComputeGeom()
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     //==== Analysis: VSPAero Compute Geometry ====//
-    string analysis_name = "VSPAERODegenGeom";
+    string analysis_name = "VSPAEROComputeGeometry";
     printf("\t%s\n",analysis_name.c_str());
 
     // Set defaults
@@ -381,6 +382,144 @@ void APITestSuite::TestVSPAeroComputeGeom()
     // Get & Display Results
     PrintResults( results_id );
 
+    // Final check for errors
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+    printf("\n");
+}
+
+void APITestSuite::TestVSPAeroComputeGeomPanel()
+{
+    printf("APITestSuite::TestVSPAeroComputeGeomPanel()\n");
+
+    // make sure setup works
+    vsp::VSPCheckSetup();        //TODO check that vspaero.exe is found
+    vsp::VSPRenew();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    //==== Add Wing Geom and set some parameters =====//
+    string wing_id = vsp::AddGeom( "WING");
+    TEST_ASSERT( wing_id.c_str() != NULL );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "TotalSpan", "WingGeom", 17.0 ), 17.0, TEST_TOL);
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "LECluster", "WingGeom", 0.0 ), 0.0, TEST_TOL);
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "TECluster", "WingGeom", 2.0 ), 2.0, TEST_TOL);
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "SectTess_U", "XSec_1", 25 ), 25, TEST_TOL);
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "InCluster", "XSec_1", 0.1 ), 0.1, TEST_TOL);
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "OutCluster", "XSec_1", 0.0 ), 0.0, TEST_TOL);
+    string pod_id = vsp::AddGeom( "POD");
+    TEST_ASSERT( pod_id.c_str() != NULL );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  pod_id, "X_Rel_Location", "XForm", 0.0 ), 0.0, TEST_TOL);
+    string disk_id = vsp::AddGeom( "DISK");
+    TEST_ASSERT( disk_id.c_str() != NULL );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  disk_id, "Diameter", "Design", 3.0 ), 3.0, TEST_TOL);
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  disk_id, "Y_Rel_Location", "XForm", 3.5 ), 3.5, TEST_TOL);
+    vsp::Update();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    //==== Setup export filenames ====//
+    // Execution of one of these methods is required to propperly set the export filenames for creation of vspaero input files and execution commands
+    m_vspfname_for_vspaerotests_panel = "apitest_TestVSPAeroWithWingPanelMethod.vsp3";
+    vsp::SetVSP3FileName( m_vspfname_for_vspaerotests_panel );  // this still needs to be done even if a call to WriteVSPFile is made
+    //vsp::ReadVSPFile( m_vspfname_for_vspaerotests_panel);   // reading the vsp file calls vehicle::resetFilenames() function to reset ALL filenames to their default built off of the vsp filename
+    //vsp::SetComputationFileName(vsp::COMPUTATION_FILE_TYPE::VSPAERO_PANEL_TRI_TYPE,"apitest_TestVSPAeroWithWingPanelMethod");
+
+    //==== Save Vehicle to File ====//
+    vsp::WriteVSPFile( vsp::GetVSPFileName(), vsp::SET_ALL );
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    //==== Analysis: VSPAero Compute Geometry ====//
+    string analysis_name = "VSPAEROComputeGeometry";
+    printf("\t%s\n",analysis_name.c_str());
+
+    // Set defaults
+    vsp::SetAnalysisInputDefaults(analysis_name);
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    // Set to panel method
+    std::vector< int > analysis_method; analysis_method.push_back( vsp::VSPAERO_ANALYSIS_METHOD::PANEL );
+    vsp::SetIntAnalysisInput(analysis_name, "AnalysisMethod", analysis_method, 0);
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    // list inputs, type, and current values
+    PrintAnalysisInputs(analysis_name);
+
+    // Execute
+    string results_id = vsp::ExecAnalysis(analysis_name);
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    // Get & Display Results
+    PrintResults( results_id );
+
+    // Final check for errors
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+    printf("\n");
+}
+
+void APITestSuite::TestVSPAeroSinglePointPanel()
+{
+    printf("APITestSuite::TestVSPAeroSinglePointPanel()\n");
+
+    // make sure setup works
+    vsp::VSPCheckSetup();
+    vsp::VSPRenew();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    //open the file created in TestVSPAeroComputeGeom
+    vsp::ReadVSPFile( m_vspfname_for_vspaerotests_panel );
+    if ( m_vspfname_for_vspaerotests_panel == string() )
+    {
+        TEST_FAIL("m_vspfname_for_vspaerotests_panel = NULL, need to run: APITestSuite::TestVSPAeroComputeGeomPanel");
+        return;
+    }
+    if ( vsp::ErrorMgr.PopErrorAndPrint( stdout ) )
+    {
+        TEST_FAIL("m_vspfname_for_vspaerotests_panel failed to open");
+        return;
+    }
+
+    //==== Analysis: VSPAERO Single Point ====//
+    string analysis_name = "VSPAEROSinglePoint";
+    printf("\t%s\n",analysis_name.c_str());
+    // Set defaults
+    vsp::SetAnalysisInputDefaults(analysis_name);
+    
+    // Change some input values
+    //    Reference geometry set
+    std::vector< int > geom_set; geom_set.push_back(0);
+    vsp::SetIntAnalysisInput(analysis_name, "GeomSet", geom_set, 0);
+    // Set to panel method
+    std::vector< int > analysis_method; analysis_method.push_back( vsp::VSPAERO_ANALYSIS_METHOD::PANEL );
+    vsp::SetIntAnalysisInput(analysis_name, "AnalysisMethod", analysis_method, 0);
+    // Force creation of new setup file
+    std::vector< int > force_new_setup_file; force_new_setup_file.push_back( 1 );
+    vsp::SetIntAnalysisInput(analysis_name, "ForceNewSetupfile", force_new_setup_file, 0);
+    //    Reference areas, lengths
+    std::vector< double > sref; sref.push_back(10);
+    vsp::SetDoubleAnalysisInput(analysis_name, "Sref", sref, 0);
+    std::vector< double > bref; bref.push_back(17);
+    vsp::SetDoubleAnalysisInput(analysis_name, "bref", bref, 0);
+    std::vector< double > cref; cref.push_back(3);
+    vsp::SetDoubleAnalysisInput(analysis_name, "cref", cref, 0);
+    std::vector< int > ref_flag; ref_flag.push_back(3);
+    vsp::SetIntAnalysisInput(analysis_name, "RefFlag", ref_flag, 0);
+    //    freestream parameters
+    std::vector< double > alpha; alpha.push_back(5);
+    vsp::SetDoubleAnalysisInput(analysis_name, "Alpha", alpha, 0);
+    std::vector< double > beta; beta.push_back(2.5);
+    vsp::SetDoubleAnalysisInput(analysis_name, "Beta", beta, 0);
+    std::vector< double > mach; mach.push_back(0.1);
+    vsp::SetDoubleAnalysisInput(analysis_name, "Mach", mach, 0);
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    // list inputs, type, and current values
+    PrintAnalysisInputs(analysis_name);
+
+    // Execute
+    string results_id = vsp::ExecAnalysis(analysis_name);
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    // Get & Display Results
+    PrintResults( results_id );
+    
     // Final check for errors
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
     printf("\n");
@@ -434,12 +573,14 @@ void APITestSuite::TestVSPAeroSinglePoint()
     vsp::SetDoubleAnalysisInput(analysis_name, "Beta", beta, 0);
     std::vector< double > mach; mach.push_back(0.1);
     vsp::SetDoubleAnalysisInput(analysis_name, "Mach", mach, 0);
-    
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
     // list inputs, type, and current values
     PrintAnalysisInputs(analysis_name);
 
     // Execute
     string results_id = vsp::ExecAnalysis(analysis_name);
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     // Get & Display Results
     PrintResults( results_id );
@@ -501,12 +642,14 @@ void APITestSuite::TestVSPAeroSinglePointStab()
     //     Case Setup
     std::vector< int > stabilityCalcFlag; stabilityCalcFlag.push_back(1);
     vsp::SetIntAnalysisInput(analysis_name, "StabilityCalcFlag", stabilityCalcFlag, 0);
-    
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
     // list inputs, type, and current values
     PrintAnalysisInputs(analysis_name);
 
     // Execute
     string results_id = vsp::ExecAnalysis(analysis_name);
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     // Get & Display Results
     PrintResults( results_id );
@@ -579,15 +722,17 @@ void APITestSuite::TestVSPAeroSweep()
     vsp::SetDoubleAnalysisInput(analysis_name, "MachEnd", mach_end, 0);
     std::vector< int > mach_npts; mach_npts.push_back(3);
     vsp::SetIntAnalysisInput(analysis_name, "MachNpts", mach_npts, 0);
-    
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
     // list inputs, type, and current values
     PrintAnalysisInputs(analysis_name);
 
     // Execute
-    string results_id_vector = vsp::ExecAnalysis(analysis_name);
+    string results_id = vsp::ExecAnalysis(analysis_name);
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     // Get & Display Results
-    PrintResults( results_id_vector );
+    PrintResults( results_id );
     
     // Final check for errors
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
