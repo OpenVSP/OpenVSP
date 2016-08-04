@@ -501,6 +501,56 @@ void VSPAEROMgrSingleton::ClearAllPreviousResults()
     }
 }
 
+void VSPAEROMgrSingleton::GetSweepVectors( vector<double> &alphaVec, vector<double> &betaVec, vector<double> &machVec)
+{
+        // grab current parm values
+        double alphaStart = m_AlphaStart.Get();
+        double alphaEnd = m_AlphaEnd.Get();
+        int alphaNpts = m_AlphaNpts.Get();
+
+        double betaStart = m_BetaStart.Get();
+        double betaEnd = m_BetaEnd.Get();
+        int betaNpts = m_BetaNpts.Get();
+
+        double machStart = m_MachStart.Get();
+        double machEnd = m_MachEnd.Get();
+        int machNpts = m_MachNpts.Get();
+
+        // Calculate spacing
+        double alphaDelta = 0.0;
+        if ( alphaNpts > 1 )
+        {
+            alphaDelta = ( alphaEnd - alphaStart ) / ( alphaNpts - 1.0 );
+        }
+        for ( int iAlpha = 0; iAlpha < alphaNpts; iAlpha++ )
+        {
+            //Set current alpha value
+            alphaVec.push_back( alphaStart + double( iAlpha ) * alphaDelta );
+        }
+
+        double betaDelta = 0.0;
+        if ( betaNpts > 1 )
+        {
+            betaDelta = ( betaEnd - betaStart ) / ( betaNpts - 1.0 );
+        }
+        for ( int iBeta = 0; iBeta < betaNpts; iBeta++ )
+        {
+            //Set current alpha value
+            betaVec.push_back( betaStart + double( iBeta ) * betaDelta );
+        }
+
+        double machDelta = 0.0;
+        if ( machNpts > 1 )
+        {
+            machDelta = ( machEnd - machStart ) / ( machNpts - 1.0 );
+        }
+        for ( int iMach = 0; iMach < machNpts; iMach++ )
+        {
+            //Set current alpha value
+            machVec.push_back( machStart + double( iMach ) * machDelta );
+        }
+}
+
 /* ComputeSolver(FILE * outputFile)
     Returns a result with a vector of results id's under the name ResultVec
     Optional input of outputFile allows outputting to a log file or the console
@@ -513,22 +563,18 @@ string VSPAEROMgrSingleton::ComputeSolver(FILE * outputFile)
 
     if ( veh )
     {
-        // Calculate spacing
-        double alphaDelta = 0.0;
-        if ( m_AlphaNpts.Get() > 1 )
-        {
-            alphaDelta = ( m_AlphaEnd.Get() - m_AlphaStart.Get() ) / ( m_AlphaNpts.Get() - 1.0 );
-        }
-        double betaDelta = 0.0;
-        if ( m_BetaNpts.Get() > 1 )
-        {
-            betaDelta = ( m_BetaEnd.Get() - m_BetaStart.Get() ) / ( m_BetaNpts.Get() - 1.0 );
-        }
-        double machDelta = 0.0;
-        if ( m_MachNpts.Get() > 1 )
-        {
-            machDelta = ( m_MachEnd.Get() - m_MachStart.Get() ) / ( m_MachNpts.Get() - 1.0 );
-        }
+
+        string adbFileName = m_AdbFile;
+        string historyFileName = m_HistoryFile;
+        string loadFileName = m_LoadFile;
+        string stabFileName = m_StabFile;
+        string modelNameBase = m_ModelNameBase;
+
+        int ncpu = m_NCPU.Get();
+
+        int wakeAvgStartIter = m_WakeAvgStartIter.Get();
+        int wakeSkipUntilIter = m_WakeSkipUntilIter.Get();
+
 
         //====== Modify/Update the setup file ======//
         if ( !FileExist( m_SetupFile ) || m_ForceNewSetupfile.Get() )
@@ -538,39 +584,44 @@ string VSPAEROMgrSingleton::ComputeSolver(FILE * outputFile)
             CreateSetupFile();
         }
 
+        vector<double> alphaVec;
+        vector<double> betaVec;
+        vector<double> machVec;
+        GetSweepVectors( alphaVec, betaVec, machVec);
+
         //====== Loop over flight conditions and solve ======//
         // TODO make this into a case list with a single loop
-        for ( int iAlpha = 0; iAlpha < m_AlphaNpts.Get(); iAlpha++ )
+        for ( int iAlpha = 0; iAlpha < alphaVec.size(); iAlpha++ )
         {
             //Set current alpha value
-            double current_alpha = m_AlphaStart.Get() + double( iAlpha ) * alphaDelta;
+            double current_alpha = alphaVec[iAlpha];
 
-            for ( int iBeta = 0; iBeta < m_BetaNpts.Get(); iBeta++ )
+            for ( int iBeta = 0; iBeta < betaVec.size(); iBeta++ )
             {
                 //Set current beta value
-                double current_beta = m_BetaStart.Get() + double( iBeta ) * betaDelta;
+                double current_beta = betaVec[iBeta];
 
-                for ( int iMach = 0; iMach < m_MachNpts.Get(); iMach++ )
+                for ( int iMach = 0; iMach < machVec.size(); iMach++ )
                 {
                     //Set current mach value
-                    double current_mach = m_MachStart.Get() + double( iMach ) * machDelta;
+                    double current_mach = machVec[iMach];
 
                     //====== Clear VSPAERO output files ======//
-                    if ( FileExist( m_AdbFile ) )
+                    if ( FileExist( adbFileName ) )
                     {
-                        remove( m_AdbFile.c_str() );
+                        remove( adbFileName.c_str() );
                     }
-                    if ( FileExist( m_HistoryFile ) )
+                    if ( FileExist( historyFileName ) )
                     {
-                        remove( m_HistoryFile.c_str() );
+                        remove( historyFileName.c_str() );
                     }
-                    if ( FileExist( m_LoadFile ) )
+                    if ( FileExist( loadFileName ) )
                     {
-                        remove( m_LoadFile.c_str() );
+                        remove( loadFileName.c_str() );
                     }
-                    if ( FileExist( m_StabFile ) )
+                    if ( FileExist( stabFileName ) )
                     {
-                        remove( m_StabFile.c_str() );
+                        remove( stabFileName.c_str() );
                     }
 
                     //====== Send command to be executed by the system at the command prompt ======//
@@ -592,20 +643,20 @@ string VSPAEROMgrSingleton::ComputeSolver(FILE * outputFile)
                         args.push_back( "-stab" );
                     }
                     // Force averaging startign at wake iteration N
-                    if( m_WakeAvgStartIter.Get() >= 1 )
+                    if( wakeAvgStartIter >= 1 )
                     {
                         args.push_back( "-avg" );
-                        args.push_back( StringUtil::int_to_string( m_WakeAvgStartIter.Get(), "%d" ) );
+                        args.push_back( StringUtil::int_to_string( wakeAvgStartIter, "%d" ) );
                     }
-                    if( m_WakeSkipUntilIter.Get() >= 1 )
+                    if( wakeSkipUntilIter >= 1 )
                     {
                         // No wake for first N iterations
                         args.push_back( "-nowake" );
-                        args.push_back( StringUtil::int_to_string( m_WakeSkipUntilIter.Get(), "%d" ) );
+                        args.push_back( StringUtil::int_to_string( wakeSkipUntilIter, "%d" ) );
                     }
 
                     // Add model file name
-                    args.push_back( m_ModelNameBase );
+                    args.push_back( modelNameBase );
 
                     //Print out execute command
                     string cmdStr = m_SolverProcess.PrettyCmd( veh->GetExePath(), veh->GetVSPAEROCmd(), args );
@@ -706,10 +757,13 @@ void VSPAEROMgrSingleton::AddResultHeader( string res_id, double mach, double al
 {
     // Add Flow Condition header to each result
     Results * res = ResultsMgr.FindResultsPtr( res_id );
-    res->Add( NameValData( "FC_Mach", mach ) );
-    res->Add( NameValData( "FC_Alpha", alpha ) );
-    res->Add( NameValData( "FC_Beta", beta ) );
-    res->Add( NameValData( "AnalysisMethod", m_AnalysisMethod.Get() ) );
+    if ( res )
+    {
+        res->Add( NameValData( "FC_Mach", mach ) );
+        res->Add( NameValData( "FC_Alpha", alpha ) );
+        res->Add( NameValData( "FC_Beta", beta ) );
+        res->Add( NameValData( "AnalysisMethod", m_AnalysisMethod.Get() ) );
+    }
 }
 
 // helper thread functions for VSPAERO GUI interface and multi-threaded impleentation
