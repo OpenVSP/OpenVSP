@@ -901,6 +901,8 @@ void SSControlSurf::Update()
     VspSurf* surf = geom->GetSurfPtr();
     if ( !surf ) { return; }
 
+    m_UWStart.clear();
+    m_UWEnd.clear();
 
     VspCurve startcrv;
     surf->GetU01ConstCurve( startcrv, m_UStart() );
@@ -972,6 +974,7 @@ void SSControlSurf::Update()
             eli::geom::intersect::specified_distance( vup, cup, leup, d );
         }
         c_uws_upper = vec3d( m_UStart(), vup / vmax, 0 );
+        m_UWStart.push_back( c_uws_upper );
     }
 
     if ( m_SurfType() != UPPER_SURF )
@@ -985,6 +988,7 @@ void SSControlSurf::Update()
             eli::geom::intersect::specified_distance( vlow, clow, lelow, d );
         }
         c_uws_lower = vec3d( m_UStart(), vlow / vmax, 0 );
+        m_UWStart.push_back( c_uws_lower );
     }
 
     VspCurve endcrv;
@@ -1026,6 +1030,7 @@ void SSControlSurf::Update()
             eli::geom::intersect::specified_distance( vup, cup, leup, d );
         }
         c_uwe_upper = vec3d( m_UEnd(), vup / vmax, 0 );
+        m_UWEnd.push_back( c_uwe_upper );
     }
 
     if ( m_SurfType() != UPPER_SURF )
@@ -1039,6 +1044,7 @@ void SSControlSurf::Update()
             eli::geom::intersect::specified_distance( vlow, clow, lelow, d );
         }
         c_uwe_lower = vec3d( m_UEnd(), vlow / vmax, 0 );
+        m_UWEnd.push_back( c_uwe_lower );
     }
 
     // Build Control Surface
@@ -1134,6 +1140,87 @@ void SSControlSurf::Update()
     }
 
     SubSurface::Update();
+}
+
+void SSControlSurf::UpdateDrawObjs()
+{
+    SubSurface::UpdateDrawObjs();
+
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( !veh )
+    {
+        return;
+    }
+    Geom* geom = veh->FindGeom( m_CompID );
+    if ( geom )
+    {
+        vector< VspSurf > surf_vec;
+        geom->GetSurfVec( surf_vec );
+        int ncopy = geom->GetNumSymmCopies();
+
+        m_HingeDO.m_PntVec.clear();
+        m_HingeDO.m_LineWidth = 2.0;
+        m_HingeDO.m_Type = DrawObj::VSP_LINES;
+        m_HingeDO.m_GeomID = m_ID + string( "_ss_hinge" );
+        m_HingeDO.m_GeomChanged = true;
+
+        m_ArrowDO.m_PntVec.clear();
+        m_ArrowDO.m_Type = DrawObj::VSP_SHADED_TRIS;
+        m_ArrowDO.m_GeomID = m_ID + string( "_ss_arrow" );
+        m_ArrowDO.m_GeomChanged = true;
+
+        for ( int i = 0; i < 4; i++ )
+        {
+            m_ArrowDO.m_MaterialInfo.Ambient[i] = 0.2;
+            m_ArrowDO.m_MaterialInfo.Diffuse[i] = 0.1;
+            m_ArrowDO.m_MaterialInfo.Specular[i] = 0.7;
+            m_ArrowDO.m_MaterialInfo.Emission[i] = 0.0;
+        }
+        m_ArrowDO.m_MaterialInfo.Diffuse[3] = 0.5;
+        m_ArrowDO.m_MaterialInfo.Shininess = 5.0;
+
+
+        int isurf = m_MainSurfIndx();
+
+        vector < int > symms = geom->GetSymmIndexs( isurf );
+        assert( ncopy == symms.size() );
+
+        int npt = m_UWStart.size();
+
+        for ( int s = 0 ; s < ncopy ; s++ )
+        {
+            VspSurf* surf = &( surf_vec[ symms[ s ] ] );
+
+            vec3d pst, pend;
+            for ( int i = 0; i < npt; i++ )
+            {
+                pst = pst + surf->CompPnt01( m_UWStart[i].x(), m_UWStart[i].y() );
+                pend = pend + surf->CompPnt01( m_UWEnd[i].x(), m_UWEnd[i].y() );
+            }
+            pst = pst / ( 1.0 * npt );
+            pend = pend / ( 1.0 * npt );
+
+            vec3d pmid = ( pst + pend ) * 0.5;
+
+            vec3d dir = pend - pst;
+            double len = dir.mag();
+            dir.normalize();
+
+            m_HingeDO.m_PntVec.push_back( pst );
+            m_HingeDO.m_PntVec.push_back( pend );
+
+            MakeCircleArrow( pmid, dir, 0.25, m_HingeDO, m_ArrowDO );
+        }
+    }
+}
+
+void SSControlSurf::LoadDrawObjs( std::vector< DrawObj* > & draw_obj_vec )
+{
+    SubSurface::LoadDrawObjs( draw_obj_vec );
+
+    m_HingeDO.m_LineColor = m_LineColor;
+    draw_obj_vec.push_back( &m_HingeDO );
+    draw_obj_vec.push_back( &m_ArrowDO );
 }
 
 void SSControlSurf::UpdatePolygonPnts()

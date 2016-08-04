@@ -218,6 +218,8 @@ public:
     SSControlSurf(string compID, int type = vsp::SS_CONTROL );
     virtual ~SSControlSurf();
     virtual void Update();
+    virtual void UpdateDrawObjs();
+    virtual void LoadDrawObjs( std::vector< DrawObj* >& draw_obj_vec );
 
     enum { UPPER_SURF, LOWER_SURF, BOTH_SURF };
 
@@ -232,6 +234,13 @@ public:
     BoolParm m_LEFlag; // Flag to indicate leading/trailing edge control surface.
     IntParm m_SurfType; // Defines if the control surface is on the upper/lower or both surfaces of the wing
     virtual void UpdatePolygonPnts();
+
+protected:
+
+    vector < vec3d > m_UWStart;
+    vector < vec3d > m_UWEnd;
+    DrawObj m_HingeDO;
+    DrawObj m_ArrowDO;
 };
 
 #endif
