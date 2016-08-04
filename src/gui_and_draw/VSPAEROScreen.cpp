@@ -482,7 +482,11 @@ bool VSPAEROScreen::Update()
         }
 
         // Create Setup Button
-        if( veh->GetVSPAEROCmd().empty() || !FileExist( VSPAEROMgr.m_DegenFileFull ) || ( VSPAEROMgr.m_AnalysisMethod.Get()==vsp::VSPAERO_ANALYSIS_METHOD::PANEL && !FileExist( VSPAEROMgr.m_CompGeomFileFull ) ) || m_SolverThreadIsRunning || m_SolverSetupThreadIsRunning )
+        if( veh->GetVSPAEROCmd().empty()             ||
+            !FileExist( VSPAEROMgr.m_DegenFileFull ) ||
+            m_SolverThreadIsRunning                  ||
+            m_SolverSetupThreadIsRunning             ||
+            ( ( VSPAEROMgr.m_AnalysisMethod.Get()==vsp::VSPAERO_ANALYSIS_METHOD::PANEL ) && ( !FileExist( VSPAEROMgr.m_CompGeomFileFull ) ) ) )
         {
             m_SetupButton.Deactivate();
         }
@@ -520,7 +524,11 @@ bool VSPAEROScreen::Update()
         }
 
         // Solver Button
-        if( veh->GetVSPAEROCmd().empty() || !FileExist( VSPAEROMgr.m_DegenFileFull ) || ( VSPAEROMgr.m_AnalysisMethod.Get()==vsp::VSPAERO_ANALYSIS_METHOD::PANEL & !FileExist( VSPAEROMgr.m_CompGeomFileFull ) ) || !FileExist( VSPAEROMgr.m_SetupFile ) || m_SolverThreadIsRunning )
+        if( veh->GetVSPAEROCmd().empty()             ||
+            !FileExist( VSPAEROMgr.m_DegenFileFull ) ||
+            !FileExist( VSPAEROMgr.m_SetupFile )     ||
+            m_SolverThreadIsRunning                  ||
+            ( VSPAEROMgr.m_AnalysisMethod.Get()==vsp::VSPAERO_ANALYSIS_METHOD::PANEL && !FileExist( VSPAEROMgr.m_CompGeomFileFull ) ) )
         {
             m_SolverButton.Deactivate();
         }
@@ -539,7 +547,10 @@ bool VSPAEROScreen::Update()
         }
 
         // Plot Window Button
-        if( veh->GetVSPAEROCmd().empty() || !FileExist( VSPAEROMgr.m_DegenFileFull ) || ( VSPAEROMgr.m_AnalysisMethod.Get()==vsp::VSPAERO_ANALYSIS_METHOD::PANEL & !FileExist( VSPAEROMgr.m_CompGeomFileFull ) ) || !FileExist( VSPAEROMgr.m_SetupFile ) )
+        if( veh->GetVSPAEROCmd().empty()             ||
+            !FileExist( VSPAEROMgr.m_DegenFileFull ) ||
+            !FileExist( VSPAEROMgr.m_SetupFile )     ||
+            ( VSPAEROMgr.m_AnalysisMethod.Get()==vsp::VSPAERO_ANALYSIS_METHOD::PANEL && !FileExist( VSPAEROMgr.m_CompGeomFileFull ) ) )
         {
             m_PlotButton.Deactivate();
         }
