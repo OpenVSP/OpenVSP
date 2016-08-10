@@ -1410,6 +1410,16 @@ void SSControlSurf::Update()
     }
 
 
+    if ( !up_pnt_vec.empty() )
+    {
+        RefVec( up_pnt_vec, 50 );
+    }
+
+    if ( !low_pnt_vec.empty() )
+    {
+        RefVec( low_pnt_vec, m_Tess() );
+    }
+
     m_LVec.clear();
 
     if ( !up_pnt_vec.empty() )
@@ -1520,6 +1530,38 @@ void SSControlSurf::LoadDrawObjs( std::vector< DrawObj* > & draw_obj_vec )
     draw_obj_vec.push_back( &m_HingeDO );
     draw_obj_vec.push_back( &m_ArrowDO );
 }
+
+void SSControlSurf::RefVec( vector < vec3d > &pt_vec, int nref )
+{
+    vector < vec3d > pnt_ref;
+
+    int nseg = ( pt_vec.size() - 1 ) / 2;
+    pnt_ref.reserve( nref * nseg + 1 );
+
+    vector < double > parm(3,0);
+    parm[1] = 0.5; parm[2] = 1.0;
+
+    VspCurve crv;
+    for ( int iseg = 0; iseg < nseg; iseg++ )
+    {
+        int ifirst = iseg * 2;
+
+        vector < vec3d > pts;
+        pts.insert( pts.begin(), pt_vec.begin() + ifirst, pt_vec.begin() + ifirst + 3 );
+
+        crv.InterpolatePCHIP( pts, parm, false );
+
+        for ( int iref = 0; iref < nref; iref++ )
+        {
+            double p = iref * 1.0 / ( 1.0 * nref );
+            pnt_ref.push_back( crv.CompPnt( p ) );
+        }
+    }
+    pnt_ref.push_back( crv.CompPnt( 1.0 ) );
+
+    pt_vec = pnt_ref;
+}
+
 
 void SSControlSurf::UpdatePolygonPnts()
 {

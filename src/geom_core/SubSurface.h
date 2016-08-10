@@ -254,6 +254,8 @@ protected:
 
     int m_SepIndex;
 
+    void RefVec( vector < vec3d > &pt_vec, int nref );
+
 };
 
 #endif
