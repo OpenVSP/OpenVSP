@@ -473,12 +473,12 @@ string Vehicle::AddGeom( const GeomType & type )
 //=== Create Geom and Set Up Parent/Child ====//
 string Vehicle::AddGeom( Geom* add_geom )
 {
-    string add_id = add_geom->GetID();
-
     if ( !add_geom )
     {
         return string( "NONE" );
     }
+
+    string add_id = add_geom->GetID();
 
     //==== Set Parent/Child ====//
     vector< string > active_vec = GetActiveGeomVec();
