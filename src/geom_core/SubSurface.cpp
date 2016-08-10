@@ -1421,6 +1421,7 @@ void SSControlSurf::Update()
         }
     }
 
+    m_SepIndex = m_LVec.size();
 
     if ( !low_pnt_vec.empty() )
     {
@@ -1535,28 +1536,28 @@ void SSControlSurf::UpdatePolygonPnts()
 
     m_PolyPntsVec.resize( 2 );
 
-    int last_ind = 0;
-    int start_ind = 0;
-    for ( int i = 0; i < ( int )m_PolyPntsVec.size(); i++ )
+    vec3d pnt;
+    int ipp = 0;
+    m_PolyPntsVec[ipp].clear();
+    for ( int i = 0; i < m_SepIndex; i++ )
     {
-        m_PolyPntsVec[i].clear();
-
-        if ( i == 0 ) { last_ind = 6; }
-        if ( i == 1 ) { last_ind = 12; }
-
-        vec3d pnt;
-        for ( int ls = start_ind; ls < last_ind; ls++ )
-        {
-            pnt = m_LVec[ls].GetP0();
-            m_PolyPntsVec[i].push_back( vec2d( pnt.x(), pnt.y() ) );
-        }
-        pnt = m_LVec[last_ind - 1].GetP1();
-        m_PolyPntsVec[i].push_back( vec2d( pnt.x(), pnt.y() ) );
-        pnt = m_LVec[start_ind].GetP0();
-        m_PolyPntsVec[i].push_back( vec2d( pnt.x(), pnt.y() ) );
-
-        start_ind = last_ind;
+        pnt = m_LVec[i].GetP0();
+        m_PolyPntsVec[ipp].push_back( vec2d( pnt.x(), pnt.y() ) );
     }
+    pnt = m_LVec[ m_SepIndex - 1 ].GetP1();
+    m_PolyPntsVec[ipp].push_back( vec2d( pnt.x(), pnt.y() ) );
+    m_PolyPntsVec[ipp].push_back( m_PolyPntsVec[ipp][0] );
+
+    ipp = 1;
+    m_PolyPntsVec[ipp].clear();
+    for ( int i = m_SepIndex; i < m_LVec.size(); i++ )
+    {
+        pnt = m_LVec[i].GetP0();
+        m_PolyPntsVec[ipp].push_back( vec2d( pnt.x(), pnt.y() ) );
+    }
+    pnt = m_LVec[ m_LVec.size() - 1 ].GetP1();
+    m_PolyPntsVec[ipp].push_back( vec2d( pnt.x(), pnt.y() ) );
+    m_PolyPntsVec[ipp].push_back( m_PolyPntsVec[ipp][0] );
 
     m_PolyPntsReadyFlag = true;
 }

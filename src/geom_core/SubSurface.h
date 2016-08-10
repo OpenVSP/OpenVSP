@@ -251,6 +251,9 @@ protected:
     vector < vec3d > m_UWEnd;
     DrawObj m_HingeDO;
     DrawObj m_ArrowDO;
+
+    int m_SepIndex;
+
 };
 
 #endif
