@@ -27,7 +27,7 @@ BEMOptionsScreen::BEMOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 17
     m_GenLayout.AddGeomPicker( m_PropGeomPicker );
     m_GenLayout.AddYGap();
 
-    m_GenLayout.AddY( 25 );
+    m_GenLayout.AddY( 91 );
     m_GenLayout.SetFitWidthFlag( false );
     m_GenLayout.SetSameLineFlag( true );
     m_GenLayout.SetButtonWidth( 100 );
