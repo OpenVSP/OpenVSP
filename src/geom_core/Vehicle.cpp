@@ -2414,6 +2414,9 @@ void Vehicle::UpdateGroup()
         double new_x = 0.0;
         double new_y = 0.0;
         double new_z = 0.0;
+        double delta_xrot = 0.0;
+        double delta_yrot = 0.0;
+        double delta_zrot = 0.0;
 
         // Only apply transform (except scale) if either the geom has no active parent or its coordinate system
         // is not relative to another geometry's coordinate system
@@ -2422,6 +2425,15 @@ void Vehicle::UpdateGroup()
             delta_x = m_GroupXLoc.Get();
             delta_y = m_GroupYLoc.Get();
             delta_z = m_GroupZLoc.Get();
+        }
+
+        // Only apply rotation if either the geom has no active parent or its
+        // rotation coordinate system is not relative to another geometry's rotational coordiante system
+        if ( !parent_in_group || thisGeom->m_RotAttachFlag.Get() == GeomXForm::ATTACH_ROT_NONE )
+        {
+            delta_xrot = m_GroupXRot.Get();
+            delta_yrot = m_GroupYRot.Get();
+            delta_zrot = m_GroupZRot.Get();
         }
 
         // Apply the deltas to stored orignal x,y,z
@@ -2443,6 +2455,11 @@ void Vehicle::UpdateGroup()
         thisGeom->m_XRelLoc = new_x;
         thisGeom->m_YRelLoc = new_y;
         thisGeom->m_ZRelLoc = new_z;
+
+        // Set the new rotations
+        thisGeom->m_XRelRot = m_oldVarVals[i][3] + delta_xrot;
+        thisGeom->m_YRelRot = m_oldVarVals[i][4] + delta_yrot;
+        thisGeom->m_ZRelRot = m_oldVarVals[i][5] + delta_zrot;
     }
 
     // Only update geoms that do not have parent's in the group
