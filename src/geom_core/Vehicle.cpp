@@ -2445,7 +2445,17 @@ void Vehicle::UpdateGroup()
         thisGeom->m_ZRelLoc = new_z;
     }
 
-    Update();
+    // Only update geoms that do not have parent's in the group
+    for ( int i = 0; i < activeGroup.size(); i++ )
+    {
+        Geom* thisGeom = FindGeom( activeGroup[i] );
+        string parent_id = thisGeom->GetParentID();
+
+        bool parent_in_group = std::find( activeGroup.begin(), activeGroup.end(), parent_id ) != activeGroup.end();
+
+        if ( !parent_in_group )
+            thisGeom->Update();
+    }
 
     // Loop over all of the active geom's and set the ignore absolute transformation flag to false
     // to restore normal transformation behavior
