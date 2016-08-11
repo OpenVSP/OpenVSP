@@ -3195,7 +3195,7 @@ vector <string> GetVarPresetGroupNames()
     return VarPresetMgr.GetGroupNames();
 }
 
-vector <string> GetVarPresetSettingNames( const string &group_name )
+vector <string> GetVarPresetSettingNamesWName( const string &group_name )
 {
     vector <string> vec;
     vec = VarPresetMgr.GetSettingNames( group_name );
@@ -3212,7 +3212,7 @@ vector <string> GetVarPresetSettingNames( const string &group_name )
     }
 }
 
-vector <string> GetVarPresetSettingNames( int group_index )
+vector <string> GetVarPresetSettingNamesWIndex( int group_index )
 {
     vector <string> vec;
     vec = VarPresetMgr.GetSettingNames( group_index );
@@ -3235,7 +3235,7 @@ vector <double> GetVarPresetParmVals()
     return VarPresetMgr.GetCurrentParmVals();
 }
 
-vector <double> GetVarPresetParmVals( const string &group_name, const string &setting_name )
+vector <double> GetVarPresetParmValsWNames( const string &group_name, const string &setting_name )
 {
     ErrorMgr.NoError();
     return VarPresetMgr.GetParmVals( group_name, setting_name );
@@ -3247,7 +3247,7 @@ vector <string> GetVarPresetParmIDs()
     return VarPresetMgr.GetCurrentParmIDs();
 }
 
-vector <string> GetVarPresetParmIDs( const string &group_name )
+vector <string> GetVarPresetParmIDsWName( const string &group_name )
 {
     ErrorMgr.NoError();
     return VarPresetMgr.GetParmIDs( group_name );

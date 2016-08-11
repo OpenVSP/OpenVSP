@@ -1592,6 +1592,47 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "double SnapParm( const string & in parm_id, double target_min_dist, bool inc_flag, int set  )", asFUNCTION( vsp::SnapParm ), asCALL_CDECL );
     assert( r >= 0 );
 
+    //=== Register Var Preset Functions ====//
+    r = se->RegisterGlobalFunction( "void AddVarPresetGroup( const string &group_name )", asFUNCTION( vsp::AddVarPresetGroup ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void AddVarPresetSetting( const string &setting_name )", asFUNCTION( vsp::AddVarPresetSetting ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void AddVarPresetParm( const string &parm_ID )", asFUNCTIONPR( vsp::AddVarPresetParm, ( const string & ), void ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void AddVarPresetParm( const string &parm_ID, const string &group_name )", asFUNCTIONPR( vsp::AddVarPresetParm, ( const string &, const string & ), void ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void EditVarPresetParm( const string &parm_ID, double parm_val )", asFUNCTIONPR( vsp::EditVarPresetParm, ( const string &, double ), void ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void EditVarPresetParm( const string &parm_ID, double parm_val, const string &group_name, const string &setting_name )", asFUNCTIONPR( vsp::EditVarPresetParm,
+        ( const string &, double, const string &, const string & ), void ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void DeleteVarPresetParm( const string &parm_ID )", asFUNCTIONPR( vsp::DeleteVarPresetParm, ( const string & ), void ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void DeleteVarPresetParm( const string &parm_ID, const string &group_name )", asFUNCTIONPR( vsp::DeleteVarPresetParm, ( const string &, const string & ), void ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void SwitchVarPreset( const string &group_name, const string &setting_name )", asFUNCTION( vsp::SwitchVarPreset ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "bool DeleteVarPresetSet( const string &group_name, const string &setting_name )", asFUNCTION( vsp::DeleteVarPresetSet ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "string GetCurrentGroupName()", asFUNCTION( vsp::GetCurrentGroupName ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "string GetCurrentSettingName()", asFUNCTION( vsp::GetCurrentSettingName ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "array<string>@ GetVarPresetGroupNames()", asMETHOD( ScriptMgrSingleton, GetVarPresetGroupNames ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "array<string>@ GetVarPresetSettingNamesWName( const string &group_name )", asMETHOD( ScriptMgrSingleton, GetVarPresetSettingNamesWName ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "array<string>@ GetVarPresetSettingNamesWIndex( int group_index )", asMETHOD( ScriptMgrSingleton, GetVarPresetSettingNamesWIndex ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "array<double>@ GetVarPresetParmVals()", asMETHOD( ScriptMgrSingleton, GetVarPresetParmVals ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "array<double>@ GetVarPresetParmValsWNames( const string &group_name, const string &setting_name )", asMETHOD( ScriptMgrSingleton, GetVarPresetParmValsWNames ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "array<string>@ GetVarPresetParmIDs()", asMETHOD( ScriptMgrSingleton, GetVarPresetParmIDs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "array<string>@ GetVarPresetParmIDsWName( const string &group_name )", asMETHOD( ScriptMgrSingleton, GetVarPresetParmIDsWName ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
     //=== Register PCurve Functions ====//
     r = se->RegisterGlobalFunction( "void SetPCurve( const string& in geom_id, const int & in pcurveid, array<double>@ tvec, array<double>@ valvec, const int & in newtype )", asMETHOD( ScriptMgrSingleton, SetPCurve ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
@@ -1940,22 +1981,21 @@ void ScriptMgrSingleton::SetLowerCST( const string& xsec_id, int deg, CScriptArr
 }
 
 //==== Variable Preset Functions ====//
-
 CScriptArray* ScriptMgrSingleton::GetVarPresetGroupNames()
 {
     m_ProxyStringArray = vsp::GetVarPresetGroupNames();
     return GetProxyStringArray();
 }
 
-CScriptArray* ScriptMgrSingleton::GetVarPresetSettingNames( string group_name )
+CScriptArray* ScriptMgrSingleton::GetVarPresetSettingNamesWName( string group_name )
 {
-    m_ProxyStringArray = vsp::GetVarPresetSettingNames( group_name );
+    m_ProxyStringArray = vsp::GetVarPresetSettingNamesWName( group_name );
     return GetProxyStringArray();
 }
 
-CScriptArray* ScriptMgrSingleton::GetVarPresetSettingNames( int group_index )
+CScriptArray* ScriptMgrSingleton::GetVarPresetSettingNamesWIndex( int group_index )
 {
-    m_ProxyStringArray = vsp::GetVarPresetSettingNames( group_index );
+    m_ProxyStringArray = vsp::GetVarPresetSettingNamesWIndex( group_index );
     return GetProxyStringArray();
 }
 
@@ -1965,9 +2005,9 @@ CScriptArray* ScriptMgrSingleton::GetVarPresetParmVals()
     return GetProxyDoubleArray();
 }
 
-CScriptArray* ScriptMgrSingleton::GetVarPresetParmVals( string group_name, string setting_name )
+CScriptArray* ScriptMgrSingleton::GetVarPresetParmValsWNames( string group_name, string setting_name )
 {
-    m_ProxyDoubleArray = vsp::GetVarPresetParmVals( group_name, setting_name );
+    m_ProxyDoubleArray = vsp::GetVarPresetParmValsWNames( group_name, setting_name );
     return GetProxyDoubleArray();
 }
 
@@ -1977,9 +2017,9 @@ CScriptArray* ScriptMgrSingleton::GetVarPresetParmIDs()
     return GetProxyStringArray();
 }
 
-CScriptArray* ScriptMgrSingleton::GetVarPresetParmIDs( string group_name )
+CScriptArray* ScriptMgrSingleton::GetVarPresetParmIDsWName( string group_name )
 {
-    m_ProxyStringArray = vsp::GetVarPresetParmIDs( group_name );
+    m_ProxyStringArray = vsp::GetVarPresetParmIDsWName( group_name );
     return GetProxyStringArray();
 }
 

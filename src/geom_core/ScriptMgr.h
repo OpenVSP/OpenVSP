@@ -172,12 +172,12 @@ private:
 
     // ==== Variable Preset Functions ====//
     CScriptArray* GetVarPresetGroupNames();
-    CScriptArray* GetVarPresetSettingNames( string group_name );
-    CScriptArray* GetVarPresetSettingNames( int group_index );
+    CScriptArray* GetVarPresetSettingNamesWName( string group_name );
+    CScriptArray* GetVarPresetSettingNamesWIndex( int group_index );
     CScriptArray* GetVarPresetParmVals();
-    CScriptArray* GetVarPresetParmVals( string group_name, string setting_name );
+    CScriptArray* GetVarPresetParmValsWNames( string group_name, string setting_name );
     CScriptArray* GetVarPresetParmIDs();
-    CScriptArray* GetVarPresetParmIDs( string group_name );
+    CScriptArray* GetVarPresetParmIDsWName( string group_name );
     void AddVarPresetGroup( const string &group_name );
     void AddVarPresetSetting( const string &setting_name );
     void AddVarPresetParm( const string &parm_ID );
