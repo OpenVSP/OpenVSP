@@ -84,6 +84,7 @@ Vehicle::Vehicle()
     m_GroupYRot.Init( "Group_YRot", "Group", this, 0, -1e12, 1e12 );
     m_GroupZRot.Init( "Group_ZRot", "Group", this, 0, -1e12, 1e12 );
     m_GroupScale.Init( "Group_Scale", "Group", this, 1, 1.0e-3, 1.0e3 );
+    m_scaleGroupTranslations.Init( "ScaleGroupTranslations", "Group", this, true, false, true );
 
     m_exportCompGeomCsvFile.Init( "CompGeom_CSV_Export", "ExportFlag", this, true, 0, 1 );
     m_exportDragBuildTsvFile.Init( "DragBuild_TSV_Export", "ExportFlag", this, true, 0, 1 );
@@ -2441,11 +2442,14 @@ void Vehicle::UpdateGroup()
         new_y = m_oldVarVals[i][1] + delta_y;
         new_z = m_oldVarVals[i][2] + delta_z;
 
-        // Apply scaling to the translations
         double scale = m_GroupScale.Get();
-        new_x *= scale;
-        new_y *= scale;
-        new_z *= scale;
+        // Apply scaling to the translations if requested
+        if ( m_scaleGroupTranslations.Get() )
+        {
+            new_x *= scale;
+            new_y *= scale;
+            new_z *= scale;
+        }
 
         // Apply scaling to geom (not sure what makes most sense if the original scale
         // is not 1; for now will apply group scale on top of any current scaling)

@@ -311,6 +311,7 @@ public:
     double m_oldX;
     double m_oldY;
     double m_oldZ;
+    BoolParm m_scaleGroupTranslations;
 
     vector< vector< double > > m_oldVarVals;      //Keeps old values of a geom group
 
