@@ -21,6 +21,7 @@ public:
 
 protected:
 
+    GroupLayout m_MainLayout;
     GroupLayout m_GenLayout;
 
     SliderAdjRangeInput m_XLoc;
@@ -32,6 +33,7 @@ protected:
     SliderAdjRangeInput m_ZRot;
 
     SliderInput m_Scale;
+    ToggleButton m_ApplyScaleToTranslations;
 
 private:
 };

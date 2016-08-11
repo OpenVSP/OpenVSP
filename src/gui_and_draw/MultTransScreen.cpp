@@ -5,10 +5,12 @@
 
 #include <assert.h>
 
-MultTransScreen::MultTransScreen( ScreenMgr * mgr ) : BasicScreen( mgr, 250, 180, "Multiple Transformation" )
+MultTransScreen::MultTransScreen( ScreenMgr * mgr ) : BasicScreen( mgr, 250, 200, "Multiple Transformation" )
 {
-    m_GenLayout.SetGroupAndScreen( m_FLTK_Window, this );
-    m_GenLayout.AddY( 25 );
+    m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
+    m_MainLayout.AddX( 5 );
+    m_MainLayout.AddY( 25 );
+    m_MainLayout.AddSubGroupLayout( m_GenLayout, m_MainLayout.GetRemainX() - 5, m_MainLayout.GetRemainY() );
 
     m_GenLayout.AddSlider( m_XLoc, "XLoc", 10.0, "%7.3f" );
     m_GenLayout.AddSlider( m_YLoc, "YLoc", 10.0, "%7.3f" );
@@ -20,6 +22,7 @@ MultTransScreen::MultTransScreen( ScreenMgr * mgr ) : BasicScreen( mgr, 250, 180
     m_GenLayout.AddSlider( m_ZRot, "ZRot", 10.0, "%7.3f" );
     m_GenLayout.AddYGap();
 
+    m_GenLayout.AddButton( m_ApplyScaleToTranslations, "Scale Translations" );
     m_GenLayout.AddSlider(m_Scale, "Scale", 1, " %5.4f" );
 }
 
@@ -64,6 +67,7 @@ bool MultTransScreen::Update()
     m_YRot.Update( veh->m_GroupYRot.GetID() );
     m_ZRot.Update( veh->m_GroupZRot.GetID() );
     m_Scale.Update(veh->m_GroupScale.GetID());
+    m_ApplyScaleToTranslations.Update(veh->m_scaleGroupTranslations.GetID());
 
     return true;
 }
