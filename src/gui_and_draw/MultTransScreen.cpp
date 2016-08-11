@@ -60,6 +60,9 @@ bool MultTransScreen::Update()
     m_XLoc.Update(veh->m_GroupXLoc.GetID());
     m_YLoc.Update(veh->m_GroupYLoc.GetID());
     m_ZLoc.Update(veh->m_GroupZLoc.GetID());
+    m_XRot.Update( veh->m_GroupXRot.GetID() );
+    m_YRot.Update( veh->m_GroupYRot.GetID() );
+    m_ZRot.Update( veh->m_GroupZRot.GetID() );
     m_Scale.Update(veh->m_GroupScale.GetID());
 
     return true;
