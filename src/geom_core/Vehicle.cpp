@@ -1025,35 +1025,6 @@ void Vehicle::ResetGroupVars()
 //    oldX,oldY,oldZ = 0;
 }
 
-void Vehicle::GroupTransX( string geom, int index )
-{
-    Geom* gptr = FindGeom( geom );
-    gptr->m_XRelLoc.Set( m_oldVarVals[index][0] + m_GroupXLoc.Get() );
-}
-
-void Vehicle::GroupTransY( string geom, int index )
-{
-    Geom* gptr = FindGeom( geom );
-    gptr->m_YRelLoc.Set( m_oldVarVals[index][1] + m_GroupYLoc.Get() );
-}
-
-void Vehicle::GroupTransZ( string geom, int index )
-{
-    Geom* gptr = FindGeom( geom );
-    gptr->m_ZRelLoc.Set( m_oldVarVals[index][2] + m_GroupZLoc.Get() );
-}
-
-void Vehicle::GroupScale( string geom, int index )
-{
-    Geom* gptr = FindGeom( geom );
-    double scale = m_GroupScale.Get();
-
-    gptr->m_Scale.Set( m_oldVarVals[index][6] * scale );
-    gptr->m_XRelLoc.Set( m_oldVarVals[index][0] * scale );
-    gptr->m_YRelLoc.Set( m_oldVarVals[index][1] * scale );
-    gptr->m_ZRelLoc.Set( m_oldVarVals[index][2] * scale );
-}
-
 //==== Get Draw Objects ====//
 vector< DrawObj* > Vehicle::GetDrawObjs()
 {
@@ -2434,18 +2405,44 @@ void Vehicle::UpdateGroup()
         // to the relative property
         thisGeom->SetIgnoreAbsFlag(true);
 
-        GroupScale( activeGroup[ i ], i );
-
         bool parent_in_group = std::find(activeGroup.begin(), activeGroup.end(), parent_id) != activeGroup.end();
+
+        // Create local variables to keep track of translation deltas and new x,y,z locations
+        double delta_x = 0.0;
+        double delta_y = 0.0;
+        double delta_z = 0.0;
+        double new_x = 0.0;
+        double new_y = 0.0;
+        double new_z = 0.0;
 
         // Only apply transform (except scale) if either the geom has no active parent or its coordinate system
         // is not relative to another geometry's coordinate system
         if( parent_in_group == false || thisGeom->m_TransAttachFlag.Get() == GeomXForm::ATTACH_TRANS_NONE )
         {
-            GroupTransX( activeGroup[ i ], i );
-            GroupTransY( activeGroup[ i ], i );
-            GroupTransZ( activeGroup[ i ], i );
+            delta_x = m_GroupXLoc.Get();
+            delta_y = m_GroupYLoc.Get();
+            delta_z = m_GroupZLoc.Get();
         }
+
+        // Apply the deltas to stored orignal x,y,z
+        new_x = m_oldVarVals[i][0] + delta_x;
+        new_y = m_oldVarVals[i][1] + delta_y;
+        new_z = m_oldVarVals[i][2] + delta_z;
+
+        // Apply scaling to the translations
+        double scale = m_GroupScale.Get();
+        new_x *= scale;
+        new_y *= scale;
+        new_z *= scale;
+
+        // Apply scaling to geom (not sure what makes most sense if the original scale
+        // is not 1; for now will apply group scale on top of any current scaling)
+        thisGeom->m_Scale = m_oldVarVals[i][6] * scale;
+
+        // Set the new translations
+        thisGeom->m_XRelLoc = new_x;
+        thisGeom->m_YRelLoc = new_y;
+        thisGeom->m_ZRelLoc = new_z;
     }
 
     Update();

@@ -118,11 +118,6 @@ public:
     void DeleteClipBoard();
     void PasteClipboard();
 
-    void GroupTransX( string geom, int oldVarsIndex );
-    void GroupTransY( string geom, int oldVarsIndex );
-    void GroupTransZ( string geom, int oldVarsIndex );
-    void GroupScale( string geom, int oldVarsIndex );
-
     vector< DrawObj* > GetDrawObjs();
 
     //==== Reset DrawObjs' m_GeomChanged flag to false. ====//
