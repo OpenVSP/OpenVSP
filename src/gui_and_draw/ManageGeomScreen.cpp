@@ -639,25 +639,14 @@ void ManageGeomScreen::CreateScreens()
 void ManageGeomScreen::ShowHideGeomScreens()
 {
     //==== Hide All Geom Screens =====//
-    for ( int i = 0 ; i < ( int )m_GeomScreenVec.size() - 1 ; i++ )
+    for ( int i = 0 ; i < ( int )m_GeomScreenVec.size() ; i++ )
     {
         m_GeomScreenVec[i]->Hide();
     }
     //==== Show Screen - Each Screen Will Test Check Valid Active Geom Type ====//
-    for ( int i = 0 ; i < ( int )m_GeomScreenVec.size() - 1 ; i++ )
+    for ( int i = 0 ; i < ( int )m_GeomScreenVec.size() ; i++ )
     {
         m_GeomScreenVec[i]->Show();
-    }
-
-    if ( ( int )GetActiveGeoms().size() > 1 && !m_CollapseFlag )
-    {
-        m_VehiclePtr->SetActiveGeomVarVals();
-        m_GeomScreenVec[8]->Show();
-    }
-    else
-    {
-        m_GeomScreenVec[8]->Hide();
-        m_VehiclePtr->ResetGroupVars();
     }
 }
 

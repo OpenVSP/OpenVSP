@@ -29,20 +29,39 @@ MultTransScreen::~MultTransScreen()
 
 void MultTransScreen::Show()
 {
-    BasicScreen::Show();
+    assert( m_ScreenMgr );
+    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
+    assert( veh );
+
+    // Reset the vehicle group transformation variables
+    veh->SetActiveGeomVarVals();
+    veh->ResetGroupVars();
+
+    // Update and show if applicable
+    if ( Update() )
+    {
+        BasicScreen::Show();
+    }
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
 bool MultTransScreen::Update()
 {
+    assert( m_ScreenMgr );
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
+    assert( veh );
 
+    // Check that more than one Geom is active
+    if ( veh->GetActiveGeomVec().size() <= 1 )
+    {
+        Hide();
+        return false;
+    }
     m_XLoc.Update(veh->m_GroupXLoc.GetID());
     m_YLoc.Update(veh->m_GroupYLoc.GetID());
     m_ZLoc.Update(veh->m_GroupZLoc.GetID());
     m_Scale.Update(veh->m_GroupScale.GetID());
 
-    veh->m_UpdatingGroup = false;
     return true;
 }
 

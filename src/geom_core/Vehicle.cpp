@@ -325,7 +325,7 @@ void Vehicle::ParmChanged( Parm* parm_ptr, int type )
     {
         m_UpdatingGroup = true;
         UpdateGroup();
-
+        m_UpdatingGroup = false;
     }
 
     UpdateGui();
