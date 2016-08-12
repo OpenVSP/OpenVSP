@@ -505,8 +505,7 @@ void ManageGeomScreen::SelectAll()
 
     LoadActiveGeomOutput();
 
-    m_VehiclePtr->SetActiveGeomVarVals();
-    m_GeomScreenVec[8]->Show();
+    m_GeomScreenVec[MULT_GEOM_SCREEN]->Show();
 
 //jrg FIX!!!
 //  aircraftPtr->triggerDraw();

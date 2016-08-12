@@ -39,6 +39,7 @@ FuselageGeom.cpp
 Geom.cpp
 GeomCoreTestSuite.cpp
 GridDensity.cpp
+GroupTransformations.cpp
 HingeGeom.cpp
 Link.cpp
 LinkMgr.cpp
@@ -95,6 +96,7 @@ FuselageGeom.h
 Geom.h
 GeomCoreTestSuite.h
 GridDensity.h
+GroupTransformations.h
 HingeGeom.h
 Label.h
 LabelMgr.h

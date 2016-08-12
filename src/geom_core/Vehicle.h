@@ -27,6 +27,7 @@
 #include "XferSurf.h"
 #include "MaterialMgr.h"
 #include "WaveDragMgr.h"
+#include "GroupTransformations.h"
 
 #include <assert.h>
 
@@ -102,8 +103,6 @@ public:
     void ClearActiveGeom()                                           { m_ActiveGeom.clear(); }
     vector< string > GetActiveGeomVec()                              { return m_ActiveGeom; }
     vector< Geom* > GetActiveGeomPtrVec()                            { return FindGeomVec( m_ActiveGeom ); }
-    void SetActiveGeomVarVals();
-    void ResetGroupVars();
 
     bool IsGeomActive( const string & geom_id );
     void ReorderActiveGeom( int direction );
@@ -150,7 +149,6 @@ public:
     BndBox GetBndBox()                                        { return m_BBox; }
     void UpdateBBox();
     bool GetVisibleBndBox( BndBox &b );
-    void UpdateGroup();
 
     xmlNodePtr EncodeXml( xmlNodePtr & node, int set );
     xmlNodePtr DecodeXml( xmlNodePtr & node );
@@ -260,6 +258,12 @@ public:
         return &m_SnapTo;
     }
 
+    // ==== Getter for GroupTransformations ==== //
+    GroupTransformations* GetGroupTransformationsPtr()
+    {
+        return &m_GroupTransformations;
+    }
+
     //==== Mass Properties ====//
     vec3d m_IxxIyyIzz;
     vec3d m_IxyIxzIyz;
@@ -273,16 +277,6 @@ public:
     Parm m_BbXMin;
     Parm m_BbYMin;
     Parm m_BbZMin;
-
-    Parm m_GroupXLoc;
-    Parm m_GroupYLoc;
-    Parm m_GroupZLoc;
-
-    Parm m_GroupXRot;
-    Parm m_GroupYRot;
-    Parm m_GroupZRot;
-
-    Parm m_GroupScale;
 
     IntParm m_STEPLenUnit;
     Parm m_STEPTol;
@@ -306,14 +300,6 @@ public:
     BoolParm m_exportDegenGeomMFile;
 
     Parm m_AxisLength;
-
-    bool m_UpdatingGroup;
-    double m_oldX;
-    double m_oldY;
-    double m_oldZ;
-    BoolParm m_scaleGroupTranslations;
-
-    vector< vector< double > > m_oldVarVals;      //Keeps old values of a geom group
 
 protected:
 
@@ -364,6 +350,9 @@ protected:
     SnapTo m_SnapTo;
 
     VehicleGuiDraw m_VGuiDraw;
+
+    // Class to handle group transformations
+    GroupTransformations m_GroupTransformations;
 
 private:
 

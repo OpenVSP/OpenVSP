@@ -37,8 +37,7 @@ void MultTransScreen::Show()
     assert( veh );
 
     // Reset the vehicle group transformation variables
-    veh->SetActiveGeomVarVals();
-    veh->ResetGroupVars();
+    veh->GetGroupTransformationsPtr()->Reset();
 
     // Update and show if applicable
     if ( Update() )
@@ -60,14 +59,17 @@ bool MultTransScreen::Update()
         Hide();
         return false;
     }
-    m_XLoc.Update(veh->m_GroupXLoc.GetID());
-    m_YLoc.Update(veh->m_GroupYLoc.GetID());
-    m_ZLoc.Update(veh->m_GroupZLoc.GetID());
-    m_XRot.Update( veh->m_GroupXRot.GetID() );
-    m_YRot.Update( veh->m_GroupYRot.GetID() );
-    m_ZRot.Update( veh->m_GroupZRot.GetID() );
-    m_Scale.Update(veh->m_GroupScale.GetID());
-    m_ApplyScaleToTranslations.Update(veh->m_scaleGroupTranslations.GetID());
+
+    // Get the group transformations class
+    GroupTransformations* group_trans = veh->GetGroupTransformationsPtr();
+    m_XLoc.Update( group_trans->m_GroupXLoc.GetID());
+    m_YLoc.Update( group_trans->m_GroupYLoc.GetID());
+    m_ZLoc.Update( group_trans->m_GroupZLoc.GetID());
+    m_XRot.Update( group_trans->m_GroupXRot.GetID() );
+    m_YRot.Update( group_trans->m_GroupYRot.GetID() );
+    m_ZRot.Update( group_trans->m_GroupZRot.GetID() );
+    m_Scale.Update( group_trans->m_GroupScale.GetID());
+    m_ApplyScaleToTranslations.Update( group_trans->m_scaleGroupTranslations.GetID());
 
     return true;
 }
