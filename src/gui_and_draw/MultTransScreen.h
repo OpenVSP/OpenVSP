@@ -35,6 +35,9 @@ protected:
     SliderInput m_Scale;
     ToggleButton m_ApplyScaleToTranslations;
 
+    TriggerButton m_ResetButton;
+    TriggerButton m_AcceptButton;
+
 private:
 };
 

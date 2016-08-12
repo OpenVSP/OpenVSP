@@ -164,7 +164,7 @@ void GroupTransformations::Update()
 }
 
 // ====  Method to store the current transformation values of the active geoms ==== //
-void GroupTransformations::Reset()
+void GroupTransformations::ReInitialize()
 {
     vector< string > activeGroup = m_Vehicle->GetActiveGeomVec();
     m_oldVarVals.resize( activeGroup.size() );
@@ -183,6 +183,58 @@ void GroupTransformations::Reset()
         m_oldVarVals[i][6] = geom->m_Scale.Get();
     }
 
+    ResetParmeters();
+
+    // Turn off the late update flag, everything should be up to date
+    m_LateUpdateFlag = false;
+}
+
+// ==== Calls the reset scale method on all active geoms ==== //
+void GroupTransformations::Reset()
+{
+    ResetParmeters();
+
+    // Update the active geoms with the new values
+    Update();
+
+    // Trigger parm changed at the vehicle level
+    m_Vehicle->ParmChanged( &m_GroupScale, Parm::SET );
+}
+
+// ==== Calls the accept scale method on all active geoms === //
+void GroupTransformations::Accept()
+{
+        // Get the active geoms
+    vector< string > activeGroup = m_Vehicle->GetActiveGeomVec();
+
+    // m_oldVarVals should be the same size as the activeGroup
+    assert( m_oldVarVals.size() == activeGroup.size() );
+
+    for ( int i = 0; i < activeGroup.size(); i++ )
+    {
+        Geom* thisGeom = m_Vehicle->FindGeom( activeGroup[i] );
+        thisGeom->AcceptScale();
+
+        m_oldVarVals[i][0] = thisGeom->m_XRelLoc.Get();
+        m_oldVarVals[i][1] = thisGeom->m_YRelLoc.Get();
+        m_oldVarVals[i][2] = thisGeom->m_ZRelLoc.Get();
+        m_oldVarVals[i][3] = thisGeom->m_XRelRot.Get();
+        m_oldVarVals[i][4] = thisGeom->m_YRelRot.Get();
+        m_oldVarVals[i][5] = thisGeom->m_ZRelRot.Get();
+        m_oldVarVals[i][6] = thisGeom->m_Scale.Get();
+    }
+
+    ResetParmeters();
+
+    m_LateUpdateFlag = false;
+
+    // Trigger parm changed at the vehicle level
+    m_Vehicle->ParmChanged( &m_GroupScale, Parm::SET );
+}
+
+// ==== Helper method that will set all the parameters back to default values ==== //
+void GroupTransformations::ResetParmeters()
+{
     // Set the values
     m_GroupXLoc.Set( 0 );
     m_GroupYLoc.Set( 0 );
@@ -191,7 +243,4 @@ void GroupTransformations::Reset()
     m_GroupYRot.Set( 0 );
     m_GroupZRot.Set( 0 );
     m_GroupScale.Set( 1 );
-
-    // Turn off the late update flag, everything should be up to date
-    m_LateUpdateFlag = false;
 }

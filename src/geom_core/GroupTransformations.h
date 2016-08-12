@@ -32,7 +32,13 @@ public:
     virtual void Update();
 
     // Method used reset the transformations in prepartion for operating on a new group
+    virtual void ReInitialize();
+
+    // Resets all values
     virtual void Reset();
+
+    // Accepts all values
+    virtual void Accept();
 
     // Initialization function
     virtual void Init( Vehicle* vehicle );
@@ -52,6 +58,9 @@ public:
     BoolParm m_scaleGroupTranslations;
 
 protected:
+    // Helper method that will set all the parameters back to default values
+    virtual void ResetParmeters();
+
     // Stores original group variable values
     vector< vector< double > > m_oldVarVals;
 

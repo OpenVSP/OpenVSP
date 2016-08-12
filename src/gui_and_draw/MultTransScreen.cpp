@@ -5,7 +5,7 @@
 
 #include <assert.h>
 
-MultTransScreen::MultTransScreen( ScreenMgr * mgr ) : BasicScreen( mgr, 250, 200, "Multiple Transformation" )
+MultTransScreen::MultTransScreen( ScreenMgr * mgr ) : BasicScreen( mgr, 250, 225, "Multiple Transformation" )
 {
     m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
     m_MainLayout.AddX( 5 );
@@ -24,6 +24,14 @@ MultTransScreen::MultTransScreen( ScreenMgr * mgr ) : BasicScreen( mgr, 250, 200
 
     m_GenLayout.AddButton( m_ApplyScaleToTranslations, "Scale Translations" );
     m_GenLayout.AddSlider(m_Scale, "Scale", 1, " %5.4f" );
+
+    m_GenLayout.AddYGap();
+
+    m_GenLayout.SetButtonWidth( m_GenLayout.GetRemainX() / 2.0 );
+    m_GenLayout.SetFitWidthFlag( false );
+    m_GenLayout.SetSameLineFlag( true );
+    m_GenLayout.AddButton( m_AcceptButton, "Accept" );
+    m_GenLayout.AddButton( m_ResetButton, "Reset" );
 }
 
 MultTransScreen::~MultTransScreen()
@@ -37,7 +45,7 @@ void MultTransScreen::Show()
     assert( veh );
 
     // Reset the vehicle group transformation variables
-    veh->GetGroupTransformationsPtr()->Reset();
+    veh->GetGroupTransformationsPtr()->ReInitialize();
 
     // Update and show if applicable
     if ( Update() )
@@ -77,6 +85,21 @@ bool MultTransScreen::Update()
 void MultTransScreen::GuiDeviceCallBack( GuiDevice* device )
 {
     assert( m_ScreenMgr );
+    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
+    assert( veh );
+    GroupTransformations* trans = veh->GetGroupTransformationsPtr();
+    assert( trans );
+
+    // If the device is the accept button,
+    // then accept the values
+    if ( device == &m_AcceptButton )
+    {
+        trans->Accept();
+    }
+    else if ( device == &m_ResetButton )
+    {
+        trans->Reset();
+    }
 
 //    if ( device == &m_LightChoice )
 //    {
