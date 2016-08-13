@@ -482,18 +482,6 @@ void TestAPIScript()
 
 	CutGeomToClipboard( slice_mesh_id );
 
-	//==== Test AWave Slice ====//
-    Print(string("---> Test Awave Slice"));
-	mesh_id = ComputeAwaveSlice( 0, 4, 4, 22.0, true, vec3d(1.0, 0.0, 0.0), true );
-	string aslice_results = FindLatestResultsID( "Slice" );
-	if ( GetNumResults( "Slice" ) != 2 )							Print( "---> Error: API ComputeAwaveSlice" );
-
-	DeleteResult( pslice_results );
-	if ( GetNumResults( "Slice" ) != 1 )							Print( "---> Error: API DeleteResult" );
-
-	DeleteAllResults();
-	if ( GetNumResults( "Slice" ) != 0 )							Print( "---> Error: API DeleteAllResults" );
-
 	ClearVSPModel();
 
 	array<string> @ctr_arr = FindContainers();
