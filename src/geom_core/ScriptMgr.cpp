@@ -1593,26 +1593,26 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
     //=== Register Var Preset Functions ====//
-    r = se->RegisterGlobalFunction( "void AddVarPresetGroup( const string &group_name )", asFUNCTION( vsp::AddVarPresetGroup ), asCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void AddVarPresetGroup( const string & in group_name )", asFUNCTION( vsp::AddVarPresetGroup ), asCALL_CDECL );
     assert( r >= 0 );
-    r = se->RegisterGlobalFunction( "void AddVarPresetSetting( const string &setting_name )", asFUNCTION( vsp::AddVarPresetSetting ), asCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void AddVarPresetSetting( const string & in setting_name )", asFUNCTION( vsp::AddVarPresetSetting ), asCALL_CDECL );
     assert( r >= 0 );
-    r = se->RegisterGlobalFunction( "void AddVarPresetParm( const string &parm_ID )", asFUNCTIONPR( vsp::AddVarPresetParm, ( const string & ), void ), asCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void AddVarPresetParm( const string & in parm_ID )", asFUNCTIONPR( vsp::AddVarPresetParm, ( const string & ), void ), asCALL_CDECL );
     assert( r >= 0 );
-    r = se->RegisterGlobalFunction( "void AddVarPresetParm( const string &parm_ID, const string &group_name )", asFUNCTIONPR( vsp::AddVarPresetParm, ( const string &, const string & ), void ), asCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void AddVarPresetParm( const string & in parm_ID, const string & in group_name )", asFUNCTIONPR( vsp::AddVarPresetParm, ( const string &, const string & ), void ), asCALL_CDECL );
     assert( r >= 0 );
-    r = se->RegisterGlobalFunction( "void EditVarPresetParm( const string &parm_ID, double parm_val )", asFUNCTIONPR( vsp::EditVarPresetParm, ( const string &, double ), void ), asCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void EditVarPresetParm( const string & in parm_ID, double parm_val )", asFUNCTIONPR( vsp::EditVarPresetParm, ( const string &, double ), void ), asCALL_CDECL );
     assert( r >= 0 );
-    r = se->RegisterGlobalFunction( "void EditVarPresetParm( const string &parm_ID, double parm_val, const string &group_name, const string &setting_name )", asFUNCTIONPR( vsp::EditVarPresetParm,
+    r = se->RegisterGlobalFunction( "void EditVarPresetParm( const string & in parm_ID, double parm_val, const string & in group_name, const string & in setting_name )", asFUNCTIONPR( vsp::EditVarPresetParm,
         ( const string &, double, const string &, const string & ), void ), asCALL_CDECL );
     assert( r >= 0 );
-    r = se->RegisterGlobalFunction( "void DeleteVarPresetParm( const string &parm_ID )", asFUNCTIONPR( vsp::DeleteVarPresetParm, ( const string & ), void ), asCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void DeleteVarPresetParm( const string & in parm_ID )", asFUNCTIONPR( vsp::DeleteVarPresetParm, ( const string & ), void ), asCALL_CDECL );
     assert( r >= 0 );
-    r = se->RegisterGlobalFunction( "void DeleteVarPresetParm( const string &parm_ID, const string &group_name )", asFUNCTIONPR( vsp::DeleteVarPresetParm, ( const string &, const string & ), void ), asCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void DeleteVarPresetParm( const string & in parm_ID, const string & in group_name )", asFUNCTIONPR( vsp::DeleteVarPresetParm, ( const string &, const string & ), void ), asCALL_CDECL );
     assert( r >= 0 );
-    r = se->RegisterGlobalFunction( "void SwitchVarPreset( const string &group_name, const string &setting_name )", asFUNCTION( vsp::SwitchVarPreset ), asCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void SwitchVarPreset( const string & in group_name, const string & in setting_name )", asFUNCTION( vsp::SwitchVarPreset ), asCALL_CDECL );
     assert( r >= 0 );
-    r = se->RegisterGlobalFunction( "bool DeleteVarPresetSet( const string &group_name, const string &setting_name )", asFUNCTION( vsp::DeleteVarPresetSet ), asCALL_CDECL );
+    r = se->RegisterGlobalFunction( "bool DeleteVarPresetSet( const string & in group_name, const string & in setting_name )", asFUNCTION( vsp::DeleteVarPresetSet ), asCALL_CDECL );
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "string GetCurrentGroupName()", asFUNCTION( vsp::GetCurrentGroupName ), asCALL_CDECL );
     assert( r >= 0 );
@@ -1620,17 +1620,17 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "array<string>@ GetVarPresetGroupNames()", asMETHOD( ScriptMgrSingleton, GetVarPresetGroupNames ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
-    r = se->RegisterGlobalFunction( "array<string>@ GetVarPresetSettingNamesWName( const string &group_name )", asMETHOD( ScriptMgrSingleton, GetVarPresetSettingNamesWName ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@ GetVarPresetSettingNamesWName( const string & in group_name )", asMETHOD( ScriptMgrSingleton, GetVarPresetSettingNamesWName ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "array<string>@ GetVarPresetSettingNamesWIndex( int group_index )", asMETHOD( ScriptMgrSingleton, GetVarPresetSettingNamesWIndex ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "array<double>@ GetVarPresetParmVals()", asMETHOD( ScriptMgrSingleton, GetVarPresetParmVals ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
-    r = se->RegisterGlobalFunction( "array<double>@ GetVarPresetParmValsWNames( const string &group_name, const string &setting_name )", asMETHOD( ScriptMgrSingleton, GetVarPresetParmValsWNames ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<double>@ GetVarPresetParmValsWNames( const string & in group_name, const string & in setting_name )", asMETHOD( ScriptMgrSingleton, GetVarPresetParmValsWNames ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "array<string>@ GetVarPresetParmIDs()", asMETHOD( ScriptMgrSingleton, GetVarPresetParmIDs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
-    r = se->RegisterGlobalFunction( "array<string>@ GetVarPresetParmIDsWName( const string &group_name )", asMETHOD( ScriptMgrSingleton, GetVarPresetParmIDsWName ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@ GetVarPresetParmIDsWName( const string & in group_name )", asMETHOD( ScriptMgrSingleton, GetVarPresetParmIDsWName ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
     //=== Register PCurve Functions ====//
