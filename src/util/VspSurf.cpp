@@ -220,7 +220,6 @@ Matrix4d VspSurf::CompRotCoordSys( const double &u, const double &w )
 {
     Matrix4d retMat; // Return Matrix
 
-    double tempMat[16];
     // Get du and norm, cross them to get the last orthonormal vector
     vec3d du = CompTanU01( u, w );
     du.normalize();
@@ -229,17 +228,7 @@ Matrix4d VspSurf::CompRotCoordSys( const double &u, const double &w )
     vec3d dw = cross( norm, du );
 
     // Place axes in as cols of Rot mat
-    retMat.getMat( tempMat );
-    tempMat[0] = du.x();
-    tempMat[4] = dw.x();
-    tempMat[8]  = norm.x();
-    tempMat[1] = du.y();
-    tempMat[5] = dw.y();
-    tempMat[9]  = norm.y();
-    tempMat[2] = du.z();
-    tempMat[6] = dw.z();
-    tempMat[10] = norm.z();
-    retMat.initMat( tempMat );
+    retMat.setBasis( du, dw, norm );
     return retMat;
 }
 
