@@ -233,6 +233,20 @@ public:
         m_Range = range;
     }
 
+    virtual void SetMinBound( double minb )
+    {
+        m_MinBound = minb;
+        m_Range = m_MaxBound - m_MinBound;
+        m_Slider->bounds( m_MinBound, m_MaxBound );
+    }
+
+    virtual void SetMaxBound( double maxb )
+    {
+        m_MaxBound = maxb;
+        m_Range = m_MaxBound - m_MinBound;
+        m_Slider->bounds( m_MinBound, m_MaxBound );
+    }
+
 protected:
 
     virtual void SetValAndLimits( Parm* parm_ptr );
@@ -525,6 +539,14 @@ public:
     virtual void SetRange( double range )
     {
         m_Slider.SetRange( range );
+    }
+    virtual void SetMinBound( double minb )
+    {
+        m_Slider.SetMinBound( minb );
+    }
+    virtual void SetMaxBound( double maxb )
+    {
+        m_Slider.SetMaxBound( maxb );
     }
     virtual void SetFormat( const char* format )
     {
