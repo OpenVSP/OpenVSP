@@ -12,6 +12,7 @@
 #include "ParmMgr.h"
 #include "SubSurfaceMgr.h"
 #include "APIDefines.h"
+#include "HingeGeom.h"
 using namespace vsp;
 
 #include <time.h>
@@ -188,6 +189,20 @@ int GeomBase::CountParents( int count )
         return parentPtr->CountParents( count );
     }
     return count;
+}
+
+bool GeomBase::IsParentJoint()
+{
+    GeomBase* parentPtr = m_Vehicle->FindGeom( m_ParentID );
+    if ( parentPtr )
+    {
+        HingeGeom* hingeParentPtr = dynamic_cast < HingeGeom* > ( parentPtr );
+        if ( hingeParentPtr )
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 string GeomBase::GetAncestorID( int gen )
