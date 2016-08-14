@@ -17,16 +17,14 @@ Link::Link()
 {
     m_Name = "Link";
     m_OffsetFlag = true;
-    m_Offset = 0.0;
     m_ScaleFlag = false;
-    m_Scale = 1.0;
     m_LowerLimitFlag = false;
     m_LowerLimit = -1.0e12;
     m_UpperLimitFlag = false;
     m_UpperLimit =  1.0e12;
 
     m_Offset.Init( "Offset", "Link", this, 0.0, -1.0e12,  1.0e12 );
-    m_Scale.Init( "Scale", "Link", this,   0.0, 1.0e-12, 1.0e12 );
+    m_Scale.Init( "Scale", "Link", this,   1.0, -1.0e12, 1.0e12 );
     m_LowerLimit.Init( "LowerLimit", "Link", this, -100, -1.0e12, 1.0e12 );
     m_UpperLimit.Init( "UpperLimit", "Link", this,  100,    -1.0e12, 1.0e12 );
 
