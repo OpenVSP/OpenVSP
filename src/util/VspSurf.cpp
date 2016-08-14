@@ -225,6 +225,54 @@ Matrix4d VspSurf::CompRotCoordSys( const double &u, const double &w )
     du.normalize();
     vec3d norm = CompNorm01( u, w ); // use CompNorm01 since normals now face outward
     norm.normalize();
+
+    if ( m_MagicVParm ) // Surfs with magic parameter treatment (wings) have added chances to degenerate
+    {
+        double tmagic01 = TMAGIC / GetWMax();
+
+        if ( du.mag() < 1e-6 ) // Zero direction vector
+        {
+            if ( w <= tmagic01 ) // Near TE lower
+            {
+                du = CompTanU01( u, tmagic01 + 1e-6 );
+                du.normalize();
+            }
+
+            if ( w >= ( 0.5 - tmagic01 ) && w <= ( 0.5 + tmagic01 ) ) // Near leading edge
+            {
+                du = CompTanU01( u, 0.5 + tmagic01 + 1e-6 );
+                du.normalize();
+            }
+
+            if ( w >= ( 1.0 - tmagic01 ) ) // Near TE upper
+            {
+                du = CompTanU01( u, 1.0 - ( tmagic01 + 1e-6 ) );
+                du.normalize();
+            }
+        }
+
+        if ( norm.mag() < 1e-6 ) // Zero normal vector
+        {
+            if ( w <= tmagic01 ) // Near TE lower
+            {
+                norm = CompNorm01( u, tmagic01 + 1e-6 );
+                norm.normalize();
+            }
+
+            if ( w >= ( 0.5 - tmagic01 ) && w <= ( 0.5 + tmagic01 ) ) // Near leading edge
+            {
+                norm = CompNorm01( u, 0.5 + tmagic01 + 1e-6 );
+                norm.normalize();
+            }
+
+            if ( w >= ( 1.0 - tmagic01 ) ) // Near TE upper
+            {
+                norm = CompNorm01( u, 1.0 - ( tmagic01 + 1e-6 ) );
+                norm.normalize();
+            }
+        }
+    }
+
     vec3d dw = cross( norm, du );
 
     // Place axes in as cols of Rot mat
@@ -932,13 +980,38 @@ void VspSurf::Tesselate( const vector<double> &u, const vector<double> &v, std::
         for ( surface_index_type j = 0; j < nv; j++ )
         {
             pnts[i][j] = ptmat[i][j];
+
+            vec3d norm = nmat[i][j];
+            if ( norm.mag() < 1e-6 ) // Zero normal vector
+            {
+                double tmax = GetWMax();
+                double thalf = 0.5 * GetWMax();
+                if ( v[j] <= TMAGIC ) // Near TE lower
+                {
+                    norm = CompNorm( u[i], TMAGIC + 1e-6 );
+                }
+                else if ( v[j] <= thalf && v[j] >= ( thalf - TMAGIC ) ) // Near leading edge
+                {
+                    norm = CompNorm( u[i], thalf - ( TMAGIC + 1e-6 ) );
+                }
+                else if ( v[j] >= thalf && v[j] <= ( thalf + TMAGIC ) ) // Near leading edge
+                {
+                    norm = CompNorm( u[i], thalf + TMAGIC + 1e-6 );
+                }
+                else if ( v[j] >= ( tmax - TMAGIC ) ) // Near TE upper
+                {
+                    norm = CompNorm( u[i], tmax - ( TMAGIC + 1e-6 ) );
+                }
+                norm.normalize();
+            }
+
             if ( m_FlipNormal )
             {
-                norms[i][j] = -nmat[i][j];
+                norms[i][j] = -1.0 * norm;
             }
             else
             {
-                norms[i][j] = nmat[i][j];
+                norms[i][j] = norm;
             }
             uw_pnts[i][j].set_xyz( u[i], v[j], 0.0 );
         }
