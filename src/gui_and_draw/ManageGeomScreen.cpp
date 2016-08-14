@@ -211,8 +211,12 @@ void ManageGeomScreen::LoadBrowser()
                 str.append( "--" );
             }
 
-            if ( gPtr->m_TransAttachFlag() == GeomXForm::ATTACH_TRANS_NONE &&
-                    gPtr->m_RotAttachFlag() == GeomXForm::ATTACH_ROT_NONE )
+            if ( gPtr->IsParentJoint() )
+            {
+                str.append( "^^ " );
+            }
+            else if ( gPtr->m_TransAttachFlag() == GeomXForm::ATTACH_TRANS_NONE &&
+                      gPtr->m_RotAttachFlag() == GeomXForm::ATTACH_ROT_NONE )
             {
                 str.append( "> " );
             }
