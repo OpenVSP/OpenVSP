@@ -23,8 +23,6 @@ protected:
     ToggleButton m_PointMassButton;
     Input m_MassInput;
 
-    SliderAdjRangeInput m_AxisLengthSlider;
-
 };
 
 

@@ -19,7 +19,6 @@ BlankGeom::BlankGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     // Point Mass Parms
     m_PointMassFlag.Init( "Point_Mass_Flag", "Mass", this, false, 0, 1 );
     m_PointMass.Init( "Point_Mass", "Mass", this, 0, 0, 1e12 );
-    m_AxisLength.Init( "Axis_Length", "Axis", this, 1.0, 0.0, 1e12 );
 
     // Disable Parameters that don't make sense for BlankGeom
     m_SymPlanFlag.Deactivate();
@@ -51,34 +50,54 @@ void BlankGeom::UpdateSurf()
 
     GeomXForm::Update();
 
-    m_Origin = m_ModelMatrix.xform( vec3d( 0.0, 0.0, 0.0 ) );
+    double axlen = 1.0;
 
-    m_Axis.clear();
-    m_Axis.resize( 3 );
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        axlen = veh->m_AxisLength();
+    }
+
+    m_BlankOrigin = m_ModelMatrix.xform( vec3d( 0.0, 0.0, 0.0 ) );
+
+    m_BlankAxis.clear();
+    m_BlankAxis.resize( 3 );
     for ( int i = 0; i < 3; i++ )
     {
         vec3d pt = vec3d( 0.0, 0.0, 0.0 );
-        pt.v[i] = m_AxisLength.Get();
-        m_Axis[i] = m_ModelMatrix.xform( pt );
+        pt.v[i] = axlen;
+        m_BlankAxis[i] = m_ModelMatrix.xform( pt );
     }
 }
 
 void BlankGeom::UpdateDrawObj()
 {
     m_HighlightDrawObj.m_PntVec.resize(1);
-    m_HighlightDrawObj.m_PntVec[0] = m_Origin;
+    m_HighlightDrawObj.m_PntVec[0] = m_BlankOrigin;
     m_HighlightDrawObj.m_PointSize = 10.0;
 
     m_FeatureDrawObj_vec.clear();
     m_FeatureDrawObj_vec.resize( 3 );
     for ( int i = 0; i < 3; i++ )
     {
-        m_FeatureDrawObj_vec[i].m_PntVec.push_back( m_Origin );
-        m_FeatureDrawObj_vec[i].m_PntVec.push_back( m_Axis[i] );
+        m_FeatureDrawObj_vec[i].m_PntVec.push_back( m_BlankOrigin );
+        m_FeatureDrawObj_vec[i].m_PntVec.push_back( m_BlankAxis[i] );
         vec3d c;
         c.v[i] = 1.0;
         m_FeatureDrawObj_vec[i].m_LineColor = c;
         m_FeatureDrawObj_vec[i].m_GeomChanged = true;
+    }
+
+    //=== Attach Axis ===//
+    m_AxisDrawObj_vec.clear();
+    m_AxisDrawObj_vec.resize( 3 );
+    for ( int i = 0; i < 3; i++ )
+    {
+        MakeDashedLine( m_AttachOrigin,  m_AttachAxis[i], 4, m_AxisDrawObj_vec[i].m_PntVec );
+        vec3d c;
+        c.v[i] = 1.0;
+        m_AxisDrawObj_vec[i].m_LineColor = c;
+        m_AxisDrawObj_vec[i].m_GeomChanged = true;
     }
 }
 
@@ -96,6 +115,17 @@ void BlankGeom::LoadDrawObjs(vector< DrawObj* > & draw_obj_vec)
         m_HighlightDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
         m_HighlightDrawObj.m_Type = DrawObj::VSP_POINTS;
         draw_obj_vec.push_back( &m_HighlightDrawObj) ;
+
+
+        for ( int i = 0; i < m_AxisDrawObj_vec.size(); i++ )
+        {
+            m_AxisDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+            sprintf( str, "_%d", i );
+            m_AxisDrawObj_vec[i].m_GeomID = m_ID + "Axis_" + str;
+            m_AxisDrawObj_vec[i].m_LineWidth = 2.0;
+            m_AxisDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
+            draw_obj_vec.push_back( &m_AxisDrawObj_vec[i] );
+        }
     }
 
     if ( ( m_GuiDraw.GetDispFeatureFlag() && !m_GuiDraw.GetNoShowFlag() ) || m_Vehicle->IsGeomActive( m_ID ))

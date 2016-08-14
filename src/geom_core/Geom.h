@@ -326,6 +326,9 @@ public:
     Parm m_Scale;                       // Scaling Parameter
     Parm m_LastScale;
 
+    vec3d m_AttachOrigin;
+    vector < vec3d > m_AttachAxis;
+
 protected:
 
     bool m_ignoreAbsFlag;
@@ -641,6 +644,7 @@ protected:
     vector<DrawObj> m_WireShadeDrawObj_vec;
     vector<DrawObj> m_FeatureDrawObj_vec;
     DrawObj m_HighlightDrawObj;
+    vector<DrawObj> m_AxisDrawObj_vec;
 
     BndBox m_BBox;
 

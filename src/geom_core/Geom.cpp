@@ -378,6 +378,27 @@ GeomXForm::~GeomXForm()
 void GeomXForm::Update( bool fullupdate )
 {
     ComposeModelMatrix();
+
+    double axlen = 1.0;
+
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        axlen = veh->m_AxisLength();
+    }
+
+    Matrix4d attachedMat = ComposeAttachMatrix();
+
+    m_AttachOrigin = attachedMat.xform( vec3d( 0.0, 0.0, 0.0 ) );
+
+    m_AttachAxis.clear();
+    m_AttachAxis.resize( 3 );
+    for ( int i = 0; i < 3; i++ )
+    {
+        vec3d pt = vec3d( 0.0, 0.0, 0.0 );
+        pt.v[i] = axlen;
+        m_AttachAxis[i] = attachedMat.xform( pt );
+    }
 }
 
 //==== Update XForm ====//
@@ -1399,6 +1420,19 @@ void Geom::UpdateDrawObj()
 
     //==== Bounding Box ====//
     m_HighlightDrawObj.m_PntVec = m_BBox.GetBBoxDrawLines();
+
+    //=== Axis ===//
+    m_AxisDrawObj_vec.clear();
+    m_AxisDrawObj_vec.resize( 3 );
+    for ( int i = 0; i < 3; i++ )
+    {
+        MakeDashedLine( m_AttachOrigin,  m_AttachAxis[i], 4, m_AxisDrawObj_vec[i].m_PntVec );
+        vec3d c;
+        c.v[i] = 1.0;
+        m_AxisDrawObj_vec[i].m_LineColor = c;
+        m_AxisDrawObj_vec[i].m_GeomChanged = true;
+    }
+
 }
 
 //==== Encode Data Into XML Data Struct ====//
@@ -1898,6 +1932,17 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         m_HighlightDrawObj.m_LineColor = vec3d( 1.0, 0., 0.0 );
         m_HighlightDrawObj.m_Type = DrawObj::VSP_LINES;
         draw_obj_vec.push_back( &m_HighlightDrawObj );
+
+        for ( int i = 0; i < m_AxisDrawObj_vec.size(); i++ )
+        {
+            m_AxisDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+            sprintf( str, "_%d", i );
+            m_AxisDrawObj_vec[i].m_GeomID = m_ID + "Axis_" + str;
+            m_AxisDrawObj_vec[i].m_LineWidth = 2.0;
+            m_AxisDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
+            draw_obj_vec.push_back( &m_AxisDrawObj_vec[i] );
+        }
+
     }
 
     // Load Feature Lines

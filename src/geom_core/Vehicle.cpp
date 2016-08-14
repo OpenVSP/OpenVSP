@@ -80,6 +80,8 @@ Vehicle::Vehicle()
     m_exportDegenGeomCsvFile.Init( "DegenGeom_CSV_Export", "ExportFlag", this, true, 0, 1 );
     m_exportDegenGeomMFile.Init( "DegenGeom_M_Export", "ExportFlag", this, true, 0, 1 );
 
+    m_AxisLength.Init( "AxisLength", "Axis", this, 1.0, 1e-12, 1e12 );
+    m_AxisLength.SetDescript( "Length of axis icon displayed on screen" );
 
     SetupPaths();
 }
@@ -299,6 +301,11 @@ void Vehicle::ParmChanged( Parm* parm_ptr, int type )
     m_UpdatingBBox = true;
     UpdateBBox();
     m_UpdatingBBox = false;
+
+    if ( parm_ptr == &m_AxisLength )
+    {
+        ForceUpdate();
+    }
 
     UpdateGui();
 }
@@ -2536,7 +2543,7 @@ string Vehicle::MassProps( int set, int numSlices, bool hidegeom, bool writefile
                     if ( BGeom->m_PointMassFlag() )
                     {
                         TetraMassProp* pm = new TetraMassProp(); // Deleted by mesh_ptr
-                        pm->SetPointMass( BGeom->m_PointMass(), BGeom->m_Origin );
+                        pm->SetPointMass( BGeom->m_PointMass(), BGeom->m_BlankOrigin );
                         pm->m_CompId = BGeom->GetID();
                         mesh_ptr->AddPointMass( pm );
                     }
@@ -2994,7 +3001,7 @@ void Vehicle::CreateDegenGeom( int set )
                     DegenPtMass pm;
                     pm.name = g->GetName();
                     pm.mass = g->m_PointMass();
-                    pm.x = g->m_Origin;
+                    pm.x = g->m_BlankOrigin;
                     m_DegenPtMassVec.push_back( pm );
                 }
             }

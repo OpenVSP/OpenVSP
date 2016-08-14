@@ -292,6 +292,8 @@ public:
     BoolParm m_exportDegenGeomCsvFile;
     BoolParm m_exportDegenGeomMFile;
 
+    Parm m_AxisLength;
+
 protected:
 
     vector< Geom* > m_GeomStoreVec;                 // All Geom Ptrs

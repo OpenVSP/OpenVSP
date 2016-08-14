@@ -97,6 +97,8 @@ protected:
     SliderAdjRangeInput m_YRotation;
     SliderAdjRangeInput m_ZRotation;
 
+    SliderAdjRangeInput m_AxisLenSlider;
+
     TriggerButton m_ResetCamera;
 
     int m_windowDX;
