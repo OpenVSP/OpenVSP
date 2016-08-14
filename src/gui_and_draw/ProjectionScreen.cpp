@@ -40,6 +40,7 @@ ProjectionScreen::ProjectionScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 300, 39
     m_BorderLayout.SetFitWidthFlag( true );
     m_TargetGeom.AddExcludeType( PT_CLOUD_GEOM_TYPE );
     m_TargetGeom.AddExcludeType( BLANK_GEOM_TYPE );
+    m_TargetGeom.AddExcludeType( HINGE_GEOM_TYPE );
     m_BorderLayout.AddGeomPicker( m_TargetGeom, m_BorderLayout.GetButtonWidth() );
     m_BorderLayout.SetFitWidthFlag( false );
     m_BorderLayout.ForceNewLine();
@@ -74,6 +75,7 @@ ProjectionScreen::ProjectionScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 300, 39
     m_BoundaryGeom.AddExcludeType( MESH_GEOM_TYPE );
     m_BoundaryGeom.AddExcludeType( PT_CLOUD_GEOM_TYPE );
     m_BoundaryGeom.AddExcludeType( BLANK_GEOM_TYPE );
+    m_BoundaryGeom.AddExcludeType( HINGE_GEOM_TYPE );
     m_BorderLayout.AddGeomPicker( m_BoundaryGeom, m_BorderLayout.GetButtonWidth() );
     m_BorderLayout.SetFitWidthFlag( false );
     m_BorderLayout.ForceNewLine();
@@ -137,6 +139,7 @@ ProjectionScreen::ProjectionScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 300, 39
     m_DirectionGeom.AddExcludeType( MESH_GEOM_TYPE );
     m_DirectionGeom.AddExcludeType( PT_CLOUD_GEOM_TYPE );
     m_DirectionGeom.AddExcludeType( BLANK_GEOM_TYPE );
+    m_DirectionGeom.AddExcludeType( HINGE_GEOM_TYPE );
     m_BorderLayout.AddGeomPicker( m_DirectionGeom, m_BorderLayout.GetButtonWidth() );
     m_BorderLayout.SetFitWidthFlag( false );
     m_BorderLayout.ForceNewLine();
