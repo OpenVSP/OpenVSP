@@ -385,45 +385,47 @@ vector< Geom* > Vehicle::FindGeomVec( const vector< string > & geom_id_vec )
 string Vehicle::CreateGeom( const GeomType & type )
 {
     Geom* new_geom = NULL;
-    if ( type.m_Type == POD_GEOM_TYPE )
-    {
-        new_geom = new PodGeom( this );
-    }
-    else if ( type.m_Type == FUSELAGE_GEOM_TYPE )
-    {
-        new_geom = new FuselageGeom( this );
-    }
-    else if ( type.m_Type == MS_WING_GEOM_TYPE )
-    {
-        new_geom = new WingGeom( this );
-    }
-    else if ( type.m_Type == BLANK_GEOM_TYPE )
-    {
-        new_geom = new BlankGeom( this );
-    }
-    else if ( type.m_Type == MESH_GEOM_TYPE )
-    {
-        new_geom = new MeshGeom( this );
-    }
-    else if ( type.m_Type == STACK_GEOM_TYPE )
-    {
-        new_geom = new StackGeom( this );
-    }
-    else if ( type.m_Type == CUSTOM_GEOM_TYPE )
+
+    if ( type.m_Type == CUSTOM_GEOM_TYPE )     // Match Custom on number
     {
         new_geom = new CustomGeom( this );
     }
-    else if ( type.m_Type == PT_CLOUD_GEOM_TYPE )
+    else if ( type.m_Name == "Pod" || type.m_Name == "POD" )   // Match all others on name
+    {
+        new_geom = new PodGeom( this );
+    }
+    else if ( type.m_Name == "Fuselage" || type.m_Name == "FUSELAGE" )
+    {
+        new_geom = new FuselageGeom( this );
+    }
+    else if ( type.m_Name == "Wing" || type.m_Name == "WING" )
+    {
+        new_geom = new WingGeom( this );
+    }
+    else if ( type.m_Name == "Blank" || type.m_Name == "BLANK" )
+    {
+        new_geom = new BlankGeom( this );
+    }
+    else if ( type.m_Name == "Mesh" || type.m_Name == "MESH" )
+    {
+        new_geom = new MeshGeom( this );
+    }
+    else if ( type.m_Name == "Stack" || type.m_Name == "STACK" )
+    {
+        new_geom = new StackGeom( this );
+    }
+    else if ( type.m_Name == "PtCloud" || type.m_Name == "PTS" )
     {
         new_geom = new PtCloudGeom( this );
     }
-    else if ( type.m_Type == PROP_GEOM_TYPE )
+    else if ( type.m_Name == "Propeller" || type.m_Name == "PROP" )
     {
         new_geom = new PropGeom( this );
     }
 
     if ( !new_geom )
     {
+        printf( "Error: Could not create Geom of type: %s\n", type.m_Name.c_str() );
         return "NONE";
     }
 

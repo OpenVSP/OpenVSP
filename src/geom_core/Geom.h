@@ -37,8 +37,15 @@
 
 class XSecSurf;
 
-//#define stringify( name ) # name
-
+// Type matching predominately performed by name matching -- use unique type names when
+// adding new Geom types.  However, custom geoms each get a new type name and must be
+// identified by matching ( type.m_Type == CUSTOM_GEOM_TYPE ).  Furthermore, this number
+// must not change in the future -- i.e. CUSTOM_GEOM_TYPE must always == 9.  Otherwise,
+// future users will not be able to open past files with custom geoms.
+//
+// In general, add any new XXX_GEOM_TYPE to this list before NUM_GEOM_TYPE and everything
+// will be OK.  (Don't alphabetize or re-order this list).
+//
 enum { BASE_GEOM_TYPE, XFORM_GEOM_TYPE, GEOM_GEOM_TYPE, POD_GEOM_TYPE, FUSELAGE_GEOM_TYPE,
        MS_WING_GEOM_TYPE, BLANK_GEOM_TYPE, MESH_GEOM_TYPE, STACK_GEOM_TYPE, CUSTOM_GEOM_TYPE,
        PT_CLOUD_GEOM_TYPE, PROP_GEOM_TYPE, NUM_GEOM_TYPE,
