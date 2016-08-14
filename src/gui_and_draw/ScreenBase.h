@@ -254,8 +254,8 @@ public:
     ToggleButton m_RotUVButton;
     ToggleRadioGroup m_RotToggleGroup;
 
-    SliderInput m_AttachUSlider;
-    SliderInput m_AttachVSlider;
+    SliderAdjRangeInput m_AttachUSlider;
+    SliderAdjRangeInput m_AttachVSlider;
 
     //====== SubSurface Tab =====//
     int m_SubSurfTab_ind;
