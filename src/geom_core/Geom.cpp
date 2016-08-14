@@ -489,13 +489,25 @@ Matrix4d GeomXForm::ComposeAttachMatrix()
 {
     Matrix4d attachedMat;
     attachedMat.loadIdentity();
+
+    Geom* parent = m_Vehicle->FindGeom( GetParentID() );
+
+    if ( parent )
+    {
+        HingeGeom* hingeparent = dynamic_cast < HingeGeom* > ( parent );
+        if ( hingeparent )
+        {
+            attachedMat = hingeparent->GetJointMatrix();
+            return attachedMat;
+        }
+    }
+
     // If both attachment flags set to none, return identity
     if ( m_TransAttachFlag() == ATTACH_TRANS_NONE && m_RotAttachFlag() == ATTACH_ROT_NONE )
     {
         return attachedMat;
     }
 
-    Geom* parent = m_Vehicle->FindGeom( GetParentID() );
     if ( parent )
     {
         Matrix4d transMat;
