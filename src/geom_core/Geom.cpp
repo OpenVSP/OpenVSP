@@ -595,6 +595,21 @@ void GeomXForm::DeactivateXForms()
         m_YRot.Activate();
         m_ZRot.Activate();
     }
+
+    if ( IsParentJoint() )
+    {
+        m_ULoc.Deactivate();
+        m_WLoc.Deactivate();
+        m_TransAttachFlag.Deactivate();
+        m_RotAttachFlag.Deactivate();
+    }
+    else
+    {
+        m_ULoc.Activate();
+        m_WLoc.Activate();
+        m_TransAttachFlag.Activate();
+        m_RotAttachFlag.Activate();
+    }
 }
 
 Matrix4d GeomXForm::GetAncestorAttachMatrix( int gen )
