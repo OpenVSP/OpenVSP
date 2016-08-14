@@ -325,6 +325,9 @@ public:
     ToggleButton m_SSConOutsideButton;
     ToggleRadioGroup m_SSConTestToggleGroup;
     Choice m_SSConSurfTypeChoice;
+
+protected:
+    bool m_RotActive;
 };
 
 //==== Skin Screen ====//
