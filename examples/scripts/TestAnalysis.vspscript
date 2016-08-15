@@ -227,8 +227,8 @@ void main()
     area_vec[0] = 0;
     area_vec[npt-1] = 0;
 
-    SetDoubleAnalysisInput( "EmintonLord", "x_vec", x_vec );
-    SetDoubleAnalysisInput( "EmintonLord", "area_vec", area_vec );
+    SetDoubleAnalysisInput( "EmintonLord", "X_vec", x_vec );
+    SetDoubleAnalysisInput( "EmintonLord", "Area_vec", area_vec );
 
     string ridel = ExecAnalysis( "EmintonLord" );
     PrintResults( ridel );
