@@ -78,6 +78,7 @@ void main()
 
     for ( int i = 0; i < int( results_array.size() ); i++ )
     {
+        Print( results_array[i] );
         string resid = FindLatestResultsID( results_array[i] );
         PrintResults( resid );
         Print( "" );
