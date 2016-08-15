@@ -410,6 +410,14 @@ void PropGeom::UpdateDrawObj()
 {
     GeomXSec::UpdateDrawObj();
 
+    double axlen = 1.0;
+
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        axlen = veh->m_AxisLength();
+    }
+
     double rev = 1.0;
     if ( m_ReverseFlag() )
     {
@@ -434,12 +442,11 @@ void PropGeom::UpdateDrawObj()
     mat.postMult( data );
 
     vec3d pmid = mat.xform( m_FoldAxOrigin );
-    vec3d ptstart = mat.xform( m_FoldAxOrigin + m_FoldAxDirection );
-    vec3d ptend = mat.xform( m_FoldAxOrigin - m_FoldAxDirection );
+    vec3d ptstart = mat.xform( m_FoldAxOrigin + m_FoldAxDirection * axlen / 2.0 );
+    vec3d ptend = mat.xform( m_FoldAxOrigin - m_FoldAxDirection * axlen / 2.0 );
 
 
     vec3d dir = ptend - ptstart;
-    double len = dir.mag();
     dir.normalize();
 
     m_ArrowLinesDO.m_PntVec.clear();
@@ -448,11 +455,11 @@ void PropGeom::UpdateDrawObj()
     m_ArrowLinesDO.m_PntVec.push_back( ptstart );
     m_ArrowLinesDO.m_PntVec.push_back( ptend );
     m_ArrowLinesDO.m_PntVec.push_back( cen );
-    m_ArrowLinesDO.m_PntVec.push_back( cen + thrustdir );
+    m_ArrowLinesDO.m_PntVec.push_back( cen + thrustdir * axlen );
 
-    MakeArrowhead( cen + thrustdir, thrustdir, 0.125 * len, m_ArrowHeadDO.m_PntVec );
-    MakeCircleArrow( pmid, dir, 0.25 * len, m_ArrowLinesDO, m_ArrowHeadDO );
-    MakeCircleArrow( cen, rotdir, 0.25 * len, m_ArrowLinesDO, m_ArrowHeadDO );
+    MakeArrowhead( cen + thrustdir * axlen, thrustdir, 0.25 * axlen, m_ArrowHeadDO.m_PntVec );
+    MakeCircleArrow( pmid, dir, 0.5 * axlen, m_ArrowLinesDO, m_ArrowHeadDO );
+    MakeCircleArrow( cen, rotdir, 0.5 * axlen, m_ArrowLinesDO, m_ArrowHeadDO );
 
 }
 
