@@ -176,6 +176,7 @@ enum RES_DATA_TYPE {    INVALID_TYPE = -1,
 enum RES_GEOM_TYPE {    MESH_INDEXED_TRI,
                         MESH_SLICE_TRI,
                         GEOM_XSECS,
+                        MESH_INDEX_AND_SLICE_TRI,
                    };
 
 enum CFD_MESH_EXPORT_TYPE { CFD_STL_FILE_NAME,

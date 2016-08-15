@@ -894,7 +894,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "RES_GEOM_TYPE", "GEOM_XSECS", GEOM_XSECS );
     assert( r >= 0 );
-
+    r = se->RegisterEnumValue( "RES_GEOM_TYPE", "MESH_INDEX_AND_SLICE_TRI", MESH_INDEX_AND_SLICE_TRI );
+    assert( r >= 0 );
 
     r = se->RegisterEnum( "PROJ_TGT_TYPE" );
     assert( r >= 0 );

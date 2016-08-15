@@ -1256,11 +1256,22 @@ void MeshGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 //==== Create And Load Tris into Results Data Structures ====//
 void MeshGeom::CreateGeomResults( Results* res )
 {
+    if ( m_TMeshVec.size() && m_SliceVec.size() )
+    {
+        res->Add( NameValData( "Type", vsp::MESH_INDEX_AND_SLICE_TRI ) );
+    }
+    else if ( m_TMeshVec.size() )
+    {
+        res->Add( NameValData( "Type", vsp::MESH_INDEXED_TRI ) );
+    }
+    else if ( m_SliceVec.size() )
+    {
+        res->Add( NameValData( "Type", vsp::MESH_SLICE_TRI ) );
+    }
+
     //==== Add Index Tris =====//
     if ( m_TMeshVec.size() )
     {
-        res->Add( NameValData( "Type", vsp::MESH_INDEXED_TRI ) );
-
         BuildIndexedMesh( 0 );
 
         vector< vec3d > pvec;
@@ -1291,11 +1302,10 @@ void MeshGeom::CreateGeomResults( Results* res )
         res->Add( NameValData( "Tri_Index1", id1_vec ) );
         res->Add( NameValData( "Tri_Index2", id2_vec ) );
     }
-    //==== Add Slices =====//
-    else if ( m_SliceVec.size() )
-    {
-        res->Add( NameValData( "Type", vsp::MESH_SLICE_TRI ) );
 
+    //==== Add Slices =====//
+    if ( m_SliceVec.size() )
+    {
         //==== Load m_SliceVec ====//
         res->Add( NameValData( "Num_Slices", ( int )m_SliceVec.size() ) );
         for ( int i = 0; i < ( int )m_SliceVec.size(); i++ )
@@ -1316,8 +1326,6 @@ void MeshGeom::CreateGeomResults( Results* res )
             res->Add( NameValData( "Slice_Tris_Pnt_2", slice_tri_n2_vec ) );
         }
     }
-
-
 }
 
 void MeshGeom::CreatePtCloudGeom()
