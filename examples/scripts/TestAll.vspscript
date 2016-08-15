@@ -26,13 +26,17 @@ double tol = 0.00001;
 void main()
 {
     Print(string("Begin Scripting Test"));
+    int errcount = 0;
+    errcount = TestErrorHandling();
+
     TestVec3d();
     TestMatrix();
     TestProxy();
     TestAPIScript();
     TestVarPreset();
-    Print(string("End Scripting Test"));
 
+    Print(string("End Scripting Test"));
+    DumpErrorsAndExit( errcount );
 }
 
 void TestVec3d()
@@ -183,9 +187,40 @@ void TestProxy()
 //    if ( GetSaveInt() != 23 )                        Print( "---> Error: Int Proxy  " );
 //}
 
+int TestErrorHandling()
+{
+    //==== Bogus Call To Create API Error ====//
+    Print(string("---> Test Error Handling"));
+    SetParmVal( "BogusParmID", 23.0 );
+
+    if ( !GetErrorLastCallFlag() )                        Print( "---> Error: API GetErrorLastCallFlag " );
+
+    int errcount = GetNumTotalErrors();
+
+    ErrorObj err = PopLastError();
+    if ( err.GetErrorCode() != VSP_CANT_FIND_PARM )            Print( "---> Error: API PopLast" );
+
+    return errcount;
+}
+
+void DumpErrorsAndExit( int errcount )
+{
+    errcount += GetNumTotalErrors();
+
+    //==== Check For API Errors ====//
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+        Print( err.GetErrorString() );
+    }
+
+    // Return error count.  Test framework includes one error 'on purpose' to test
+    // the error system itself.
+//    VSPExit( errcount - 1 );
+}
+
 void TestAPIScript()
 {
-    int errcount = 0;
     Print(string("--> Testing API Code"));
 
     string pod1 = AddGeom( "POD", "");
@@ -328,22 +363,6 @@ void TestAPIScript()
     if ( cid.size() == 0 )                                Print( "---> Error: API GetParmContainer " );
 
     Update();
-
-    //==== Bogus Call To Create API Error ====//
-    Print(string("---> Test Error Handling"));
-    SetParmVal( "BogusParmID", 23.0 );
-
-    if ( !GetErrorLastCallFlag() )                        Print( "---> Error: API GetErrorLastCallFlag " );
-
-    errcount += GetNumTotalErrors();
-
-    //==== Check For API Errors ====//
-    while ( GetNumTotalErrors() > 0 )
-    {
-        ErrorObj err = PopLastError();
-        if ( err.GetErrorCode() != VSP_CANT_FIND_PARM)    Print( "---> Error: API PopLast" );
-    }
-
 
     ClearVSPModel();
 
@@ -507,19 +526,6 @@ void TestAPIScript()
     if ( uparm_arr.size() == 0 )                            Print( "---> Error: API FindContainerParmIDs" );
 
     ClearVSPModel();
-
-    errcount += GetNumTotalErrors();
-
-    //==== Check For API Errors ====//
-    while ( GetNumTotalErrors() > 0 )
-    {
-        ErrorObj err = PopLastError();
-        Print( err.GetErrorString() );
-    }
-
-    // Return error count.  Test framework includes one error 'on purpose' to test
-    // the error system itself.
-//    VSPExit( errcount - 1 );
 }
 
 void TestVarPreset()
