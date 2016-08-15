@@ -33,7 +33,7 @@ void main()
     TestMatrix();
     TestProxy();
     TestAPIScript();
-    TestVarPreset();
+//    TestVarPreset();
 
     Print(string("End Scripting Test"));
     DumpErrorsAndExit( errcount );
