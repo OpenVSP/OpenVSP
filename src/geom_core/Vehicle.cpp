@@ -1678,8 +1678,9 @@ void Vehicle::WriteTaggedMSSTLFile( const string & file_name, int write_set )
 void Vehicle::WriteTRIFile( const string & file_name, int write_set )
 {
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
-    if ( !geom_vec[0] )
+    if ( geom_vec.size()==0 )
     {
+        printf("WARNING: No geometry to write \n\tFile: %s \tLine:%d\n",__FILE__,__LINE__);
         return;
     }
 
