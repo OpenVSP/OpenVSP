@@ -39,6 +39,7 @@ FuselageGeom.cpp
 Geom.cpp
 GeomCoreTestSuite.cpp
 GridDensity.cpp
+HingeGeom.cpp
 Link.cpp
 LinkMgr.cpp
 MaterialMgr.cpp
@@ -94,6 +95,7 @@ FuselageGeom.h
 Geom.h
 GeomCoreTestSuite.h
 GridDensity.h
+HingeGeom.h
 Label.h
 LabelMgr.h
 Light.h

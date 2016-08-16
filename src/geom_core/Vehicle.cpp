@@ -15,6 +15,7 @@
 #include "CustomGeom.h"
 #include "PtCloudGeom.h"
 #include "PropGeom.h"
+#include "HingeGeom.h"
 #include "ScriptMgr.h"
 #include "MessageMgr.h"
 #include "StlHelper.h"
@@ -133,6 +134,7 @@ void Vehicle::Init()
     m_GeomTypeVec.push_back( GeomType( STACK_GEOM_TYPE, "STACK", true ) );
     m_GeomTypeVec.push_back( GeomType( BLANK_GEOM_TYPE, "BLANK", true ) );
     m_GeomTypeVec.push_back( GeomType( PROP_GEOM_TYPE, "PROP", true ) );
+    m_GeomTypeVec.push_back( GeomType( HINGE_GEOM_TYPE, "HINGE", true ) );
 
     //==== Get Custom Geom Types =====//
     vector< GeomType > custom_types = CustomGeomMgr.GetCustomTypes();
@@ -429,6 +431,10 @@ string Vehicle::CreateGeom( const GeomType & type )
     {
         new_geom = new PropGeom( this );
     }
+    else if ( type.m_Name == "Hinge" || type.m_Name == "HINGE" )
+    {
+        new_geom = new HingeGeom( this );
+    }
 
     if ( !new_geom )
     {
@@ -472,6 +478,7 @@ string Vehicle::AddGeom( const GeomType & type )
             CustomGeomMgr.InitGeom( geom_id, type.m_ModuleName );
 //            add_geom->Update();
         }
+        add_geom->Update();
     }
     return geom_id;
 }
@@ -1935,7 +1942,7 @@ void Vehicle::WriteX3DFile( const string & file_name, int write_set )
     //==== All Geometry ====//
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
-        if ( geom_vec[i]->GetSetFlag( write_set ) && geom_vec[i]->GetType().m_Type != BLANK_GEOM_TYPE )
+        if ( geom_vec[i]->GetSetFlag( write_set ) && geom_vec[i]->GetType().m_Type != BLANK_GEOM_TYPE && geom_vec[i]->GetType().m_Type != HINGE_GEOM_TYPE )
         {
             xmlNodePtr shape_node = xmlNewChild( scene_node, NULL, BAD_CAST "Shape", NULL );
 
