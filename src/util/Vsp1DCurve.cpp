@@ -381,7 +381,7 @@ void Vsp1DCurve::SetCubicControlPoints( const vector< double > & cntrl_pts, cons
     int ncp = cntrl_pts.size();
     int nseg = ( ncp - 1 ) / 3;
 
-    assert( nseg + 1 == param.size() );
+    assert( ncp == param.size() );
 
     m_Curve.clear();
     m_Curve.set_t0( param[0] );
