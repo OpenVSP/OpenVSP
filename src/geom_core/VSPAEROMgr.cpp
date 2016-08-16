@@ -289,6 +289,11 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
 string VSPAEROMgrSingleton::ComputeGeometry()
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( !veh )
+    {
+        printf("ERROR: Unable to get vehicle \n\tFile: %s \tLine:%d\n",__FILE__,__LINE__);
+        return string();
+    }
 
     veh->CreateDegenGeom( VSPAEROMgr.m_GeomSet() );
 
@@ -335,7 +340,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
     Results* res = ResultsMgr.CreateResults( "VSPAERO_Geom" );
     if ( !res )
     {
-        printf("ERROR: Unable to create result in result manager \n\tFunction: string VSPAEROMgrSingleton::ComputeGeometry()\n");
+        printf("ERROR: Unable to create result in result manager \n\tFile: %s \tLine:%d\n",__FILE__,__LINE__);
         return string();
     }
     res->Add( NameValData( "GeometrySet", VSPAEROMgr.m_GeomSet() ) );
@@ -360,6 +365,11 @@ string VSPAEROMgrSingleton::ComputeGeometry()
 void VSPAEROMgrSingleton::CreateSetupFile(FILE * outputFile)
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( !veh )
+    {
+        printf("ERROR: Unable to get vehicle \n\tFile: %s \tLine:%d\n",__FILE__,__LINE__);
+        return;
+    }
 
     // Clear existing serup file
     if ( FileExist( m_SetupFile ) )
