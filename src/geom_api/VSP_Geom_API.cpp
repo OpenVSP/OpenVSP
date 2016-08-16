@@ -172,6 +172,18 @@ void WriteVSPFile( const string & file_name, int set )
     ErrorMgr.NoError();
 }
 
+void SetVSP3FileName( const string & file_name )
+{
+    Vehicle* veh = GetVehicle();
+    if ( !veh )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetVSP3FileName::Failure Getting Vehicle Ptr"  );
+        return;
+    }
+    veh->SetVSP3FileName( file_name );
+    ErrorMgr.NoError();
+}
+
 string GetVSPFileName()
 {
     Vehicle* veh = GetVehicle();

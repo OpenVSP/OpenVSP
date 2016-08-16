@@ -39,6 +39,7 @@ extern void VSPExit( int error_code );
 //======================== File I/O ================================//
 extern void ReadVSPFile( const std::string & file_name );
 extern void WriteVSPFile( const std::string & file_name, int set = SET_ALL );
+extern void SetVSP3FileName( const std::string & file_name );
 extern std::string GetVSPFileName();
 extern void ClearVSPModel();
 extern void InsertVSPFile( const std::string & file_name, const std::string & parent_geom_id );
