@@ -57,7 +57,7 @@ public:
     BoolParm m_ForceNewSetupfile;
 
     // file names
-    string m_DegenFile;     //degengeom file name WITHOUT .csv file extension
+    string m_ModelNameBase; // this is the name used in the execution string
     string m_DegenFileFull; //degengeom file name WITH .csv file extension
     string m_SetupFile;
     string m_AdbFile;

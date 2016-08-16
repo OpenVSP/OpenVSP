@@ -149,7 +149,7 @@ protected:
 
 
     // Variable to check for changes in degenfile name
-    string m_DegenFilePrevious;
+    string m_ModelNameBasePrevious;
 
     // Additional thread handling stuff
     ProcessUtil m_SolverProcess;

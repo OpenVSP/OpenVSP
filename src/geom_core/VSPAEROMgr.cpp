@@ -99,13 +99,8 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_ForceNewSetupfile.SetDescript( "Flag to creation of new setup file in ComputeSolver() even if one exists" );
     m_ForceNewSetupfile = false;
 
-    m_DegenFile     = string();
-    m_DegenFileFull = string();
-    m_SetupFile     = string();
-    m_AdbFile       = string();
-    m_HistoryFile   = string();
-    m_LoadFile      = string();
-    m_StabFile      = string();
+    // This sets all the filename members to the appropriate value (for example: empty strings if there is no vehicle)
+    UpdateFilenames();
 
     m_SolverProcessKill = false;
 
@@ -214,59 +209,53 @@ void VSPAEROMgrSingleton::Update()
 
 void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
 {
-    Vehicle *veh = VehicleMgr.GetVehicle();
+    // Initialize these to blanks.  if any of the checks fail the variables will at least contain an empty string
+    m_ModelNameBase     = string();
+    m_DegenFileFull     = string();
+    m_CompGeomFileFull  = string();     // TODO this is set from the get export name
+    m_SetupFile         = string();
+    m_AdbFile           = string();
+    m_HistoryFile       = string();
+    m_LoadFile          = string();
+    m_StabFile          = string();
 
+    Vehicle *veh = VehicleMgr.GetVehicle();
     if( veh )
     {
-
-        m_DegenFile = veh->getExportFileName( vsp::DEGEN_GEOM_CSV_TYPE );
-
-        // test if we can open the file
-        FILE *fp = NULL;
-        fp = fopen( m_DegenFile.c_str(), "r" );
-        if( fp )
+        // Generate the base name based on the vsp3filename without the extension
+        int pos = -1;
         {
-            fclose( fp );
-        }
-        else
-        {
-            m_DegenFile = string();
+            // The base_name is dependent on the DegenFileName
+            // TODO extra "_DegenGeom" is added to the m_ModelBase
+            m_ModelNameBase = veh->getExportFileName( vsp::DEGEN_GEOM_CSV_TYPE );
+            pos = m_ModelNameBase.find( ".csv" );
+            if ( pos >= 0 )
+            {
+                m_ModelNameBase.erase( pos, m_ModelNameBase.length() - 1 );
+            }
         }
 
         // remove the .csv file extension so it can be used as the base name for VSPAERO files
-        if( !m_DegenFile.empty() )
+        if( !m_ModelNameBase.empty() )
         {
-            int pos = m_DegenFile.find( ".csv" );
-            if ( pos >= 0 )
+            // TODO Test file creation/accessibility
+
             {
-                m_DegenFile.erase( pos, m_DegenFile.length() - 1 );
+                // m_ModelNameBase already has the "_DegenGeom" suffix so there is no need to add it again
+                m_DegenFileFull     = m_ModelNameBase + string( ".csv" );
             }
+
+            // Now that we have passed all the checks set the member variables and return
+            m_SetupFile         = m_ModelNameBase + string( ".vspaero" );
+            m_AdbFile           = m_ModelNameBase + string( ".adb" );
+            m_HistoryFile       = m_ModelNameBase + string( ".history" );
+            m_LoadFile          = m_ModelNameBase + string( ".lod" );
+            m_StabFile          = m_ModelNameBase + string( ".stab" );
+
         }
-    }
-    else
-    {
-        m_DegenFile = string();
+
     }
 
-    // Setup the remaining file names
-    if( !m_DegenFile.empty() )
-    {
-        m_DegenFileFull = m_DegenFile + string( ".csv" );
-        m_SetupFile     = m_DegenFile + string( ".vspaero" );
-        m_AdbFile       = m_DegenFile + string( ".adb" );
-        m_HistoryFile   = m_DegenFile + string( ".history" );
-        m_LoadFile      = m_DegenFile + string( ".lod" );
-        m_StabFile      = m_DegenFile + string( ".stab" );
-    }
-    else
-    {
-        m_DegenFileFull = string();
-        m_SetupFile     = string();
-        m_AdbFile       = string();
-        m_HistoryFile   = string();
-        m_LoadFile      = string();
-        m_StabFile      = string();
-    }
 }
 
 string VSPAEROMgrSingleton::ComputeGeometry()
@@ -289,11 +278,15 @@ string VSPAEROMgrSingleton::ComputeGeometry()
     veh->setExportDegenGeomMFile( exptMfile_orig );
     veh->setExportDegenGeomCsvFile( exptCSVfile_orig );
 
-    // add output filenames to results manager (this is important for the Analysis Manager)
-    Results* res = ResultsMgr.CreateResults( "VSPAERO_DegenGeom" );
-    // add to results manager
-    res->Add( NameValData( "OutputFileName", m_DegenFile + string( ".csv" ) ) );
+    Results* res = ResultsMgr.CreateResults( "VSPAERO_Geom" );
+    if ( !res )
+    {
+        printf("ERROR: Unable to create result in result manager \n\tFunction: string VSPAEROMgrSingleton::ComputeGeometry()\n");
+        return string();
+    }
     res->Add( NameValData( "GeometrySet", VSPAEROMgr.m_GeomSet() ) );
+    res->Add( NameValData( "AnalysisMethod", m_AnalysisMethod.Get() ) );
+    res->Add( NameValData( "DegenGeomFileName", m_DegenFileFull ) );
 
     return res->GetID();
 
@@ -342,7 +335,7 @@ void VSPAEROMgrSingleton::CreateSetupFile(FILE * outputFile)
     args.push_back( "-wakeiters" );
     args.push_back( StringUtil::int_to_string( m_WakeNumIter(), "%d" ) );
 
-    args.push_back( m_DegenFile );
+    args.push_back( m_ModelNameBase );
 
     //Print out execute command
     string cmdStr = m_SolverProcess.PrettyCmd( veh->GetExePath(), veh->GetVSPAEROCmd(), args );
@@ -542,7 +535,7 @@ string VSPAEROMgrSingleton::ComputeSolver(FILE * outputFile)
                     }
 
                     // Add model file name
-                    args.push_back( m_DegenFile );
+                    args.push_back( m_ModelNameBase );
 
                     //Print out execute command
                     string cmdStr = m_SolverProcess.PrettyCmd( veh->GetExePath(), veh->GetVSPAEROCmd(), args );
