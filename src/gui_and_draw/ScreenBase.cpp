@@ -391,7 +391,7 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
 
     m_XFormLayout.AddChoice( m_SymAncestorChoice, "About:", m_XFormLayout.GetButtonWidth() * 2 );
     m_XFormLayout.SetFitWidthFlag( false );
-    m_XFormLayout.AddButton( m_SymAncestorOriginToggle, "Origin" );
+    m_XFormLayout.AddButton( m_SymAncestorOriginToggle, "Attach" );
     m_XFormLayout.AddButton( m_SymAncestorObjectToggle, "Object" );
     m_XFormLayout.ForceNewLine();
     m_XFormLayout.AddYGap();
