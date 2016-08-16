@@ -774,6 +774,7 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
                 if( vspapscreen )
                 {
                     vspapscreen->SetDefaultView();
+                    vspapscreen->Update();
                 }
 
                 m_SolverProcess.StartThread( solver_thread_fun, ( void* ) &m_SolverPair );

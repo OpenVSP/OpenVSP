@@ -336,7 +336,20 @@ VSPAEROPlotScreen::~VSPAEROPlotScreen()
 
 void VSPAEROPlotScreen::SetDefaultView()
 {
-    m_LoadDistTab->show();
+
+    switch (VSPAEROMgr.m_AnalysisMethod.Get() )
+    {
+    case vsp::VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE:
+        m_LoadDistTab->show();
+        break;
+    case vsp::VSPAERO_ANALYSIS_METHOD::PANEL:
+        m_ConvergenceTab->show();
+        //m_LoadDistTab->hide();
+        break;
+    default:
+        break;
+    }
+
     m_SelectDefaultData = true;
 }
 
@@ -350,7 +363,23 @@ bool VSPAEROPlotScreen::Update()
     RedrawConvergencePlot();
     UpdateConvergenceAutoManualAxisLimits();
 
-    // Update single plot canvas
+    // Update load distribution
+    // Let's check to see what analysis method was used on the first result found
+    // note that only VSPAEROMgr clear alls VSPAERO_* results from the results manager each time it's run all analyses in the results 'should' have the same analysis method
+    string resultName = "VSPAERO_Load";
+    Results* res = ResultsMgr.FindResults( resultName, 0 );
+    if ( res )
+    {
+        // Load distribution plots are supported only in certain modes (Panel method is not currently supported)
+        if ( res->FindPtr( "AnalysisMethod" )->GetInt(0) == vsp::VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE )
+        {
+            m_LoadDistTab->activate();
+        }
+        else
+        {
+            m_LoadDistTab->deactivate();
+        }
+    }
     UpdateLoadDistFlowConditionBrowser();
     UpdateLoadDistYDataBrowser();
     RedrawLoadDistPlot();
@@ -752,20 +781,24 @@ void VSPAEROPlotScreen::UpdateLoadDistFlowConditionBrowser()
         Results* res = ResultsMgr.FindResults( resultName, iCase );
         if( res )
         {
-            char strbuf[1024];
-            ConstructFlowConditionString( strbuf, res, false );
-            m_LoadDistFlowConditionBrowser->add( strbuf );
-            if( m_SelectDefaultData )   //select ALL flow conditions
+            // Load distribution plots are supported only in certain modes (Panel method is not currently supported)
+            if ( res->FindPtr( "AnalysisMethod" )->GetInt(0) == vsp::VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE )
             {
-                m_LoadDistFlowConditionSelectedResultIDs.push_back( res->GetID() );
-                m_LoadDistFlowConditionBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
-            }
-            else if ( iCase < wasSelected.size() ) // restore original row selections
-            {
-                if ( wasSelected[iCase] )
+                char strbuf[1024];
+                ConstructFlowConditionString( strbuf, res, false );
+                m_LoadDistFlowConditionBrowser->add( strbuf );
+                if( m_SelectDefaultData )   //select ALL flow conditions
                 {
                     m_LoadDistFlowConditionSelectedResultIDs.push_back( res->GetID() );
                     m_LoadDistFlowConditionBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
+                }
+                else if ( iCase < wasSelected.size() ) // restore original row selections
+                {
+                    if ( wasSelected[iCase] )
+                    {
+                        m_LoadDistFlowConditionSelectedResultIDs.push_back( res->GetID() );
+                        m_LoadDistFlowConditionBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
+                    }
                 }
             }
         }   //if( res )
@@ -885,7 +918,8 @@ void VSPAEROPlotScreen::UpdateConvergenceYDataBrowser()
              ( strcmp( dataNames[iDataName].c_str(), "WakeIter" ) != 0 )  &
              ( strcmp( dataNames[iDataName].c_str(), "Mach" )     != 0 )  &
              ( strcmp( dataNames[iDataName].c_str(), "Alpha" )    != 0 )  &
-             ( strcmp( dataNames[iDataName].c_str(), "Beta" )     != 0 )   )
+             ( strcmp( dataNames[iDataName].c_str(), "Beta" )     != 0 )  &
+             ( strcmp( dataNames[iDataName].c_str(), "AnalysisMethod" ) != 0 ) )
         {
             m_ConvergenceYDataBrowser->add( dataNames[iDataName].c_str() );
         }
@@ -924,15 +958,24 @@ void VSPAEROPlotScreen::UpdateLoadDistYDataBrowser()
 
     string resultName = "VSPAERO_Load";
     string resultID = ResultsMgr.FindLatestResultsID( resultName );
-    vector < string > dataNames = ResultsMgr.GetAllDataNames( resultID );
-    for ( unsigned int iDataName = 0; iDataName < dataNames.size(); iDataName++ )
+     Results* res = ResultsMgr.FindResultsPtr(resultID);
+    if( res )
     {
-        if ( ( strcmp( dataNames[iDataName].c_str(), "FC_Mach" )  != 0 )  &
-             ( strcmp( dataNames[iDataName].c_str(), "FC_Alpha" ) != 0 )  &
-             ( strcmp( dataNames[iDataName].c_str(), "FC_Beta" )  != 0 )  &
-             ( strcmp( dataNames[iDataName].c_str(), "WingId" )   != 0 )   )
+        // Load distribution plots are supported only in certain modes (Panel method is not currently supported)
+        if ( res->FindPtr( "AnalysisMethod" )->GetInt(0) == vsp::VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE )
         {
-            m_LoadDistYDataBrowser->add( dataNames[iDataName].c_str() );
+            vector < string > dataNames = ResultsMgr.GetAllDataNames( resultID );
+            for ( unsigned int iDataName = 0; iDataName < dataNames.size(); iDataName++ )
+            {
+                if ( ( strcmp( dataNames[iDataName].c_str(), "FC_Mach" )  != 0 )  &
+                     ( strcmp( dataNames[iDataName].c_str(), "FC_Alpha" ) != 0 )  &
+                     ( strcmp( dataNames[iDataName].c_str(), "FC_Beta" )  != 0 )  &
+                     ( strcmp( dataNames[iDataName].c_str(), "WingId" )   != 0 )  &
+                     ( strcmp( dataNames[iDataName].c_str(), "AnalysisMethod" ) != 0 ) )
+                {
+                    m_LoadDistYDataBrowser->add( dataNames[iDataName].c_str() );
+                }
+            }
         }
     }
 
@@ -986,7 +1029,8 @@ void VSPAEROPlotScreen::UpdateSweepXYDataBrowser()
             if ( ( strcmp( dataNames[iDataName].c_str(), "FC_Mach" )  != 0 )  &
                  ( strcmp( dataNames[iDataName].c_str(), "FC_Alpha" ) != 0 )  &
                  ( strcmp( dataNames[iDataName].c_str(), "FC_Beta" )  != 0 )  &
-                 ( strcmp( dataNames[iDataName].c_str(), "WakeIter" ) != 0 )   )
+                 ( strcmp( dataNames[iDataName].c_str(), "WakeIter" ) != 0 )  &
+                 ( strcmp( dataNames[iDataName].c_str(), "AnalysisMethod" ) != 0 ) )
             {
                 m_SweepXDataBrowser->add( dataNames[iDataName].c_str() );
                 m_SweepYDataBrowser->add( dataNames[iDataName].c_str() );
@@ -1281,6 +1325,8 @@ void VSPAEROPlotScreen::PlotConvergence( string resultID, vector <string> yDataS
                     }
                 }
 
+                if ( xDoubleData.size() == yDoubleData.size() )
+                {
                 Fl_Color c = ColorWheel( m_ConvergenceiPlot, m_ConvergenceNLines );
 
                 //add the normalized data to the plot
@@ -1305,6 +1351,11 @@ void VSPAEROPlotScreen::PlotConvergence( string resultID, vector <string> yDataS
                 else
                 {
                     UpdateSingleAxisLimits( m_ConvergencePlotCanvas->current_y(), yDoubleData, expandOnly, true );
+                }
+                }
+                else
+                {
+                    printf("WARNING: xDoubleData.size() != yDoubleData.size()\n\tFunction:void VSPAEROPlotScreen::PlotConvergence( string resultID, vector <string> yDataSetNames, bool expandOnly, int icase )\n\tFile:VSPAEROPlotScreen.cpp\n");
                 }
 
                 expandOnly = true;

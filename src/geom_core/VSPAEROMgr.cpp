@@ -709,6 +709,7 @@ void VSPAEROMgrSingleton::AddResultHeader( string res_id, double mach, double al
     res->Add( NameValData( "FC_Mach", mach ) );
     res->Add( NameValData( "FC_Alpha", alpha ) );
     res->Add( NameValData( "FC_Beta", beta ) );
+    res->Add( NameValData( "AnalysisMethod", m_AnalysisMethod.Get() ) );
 }
 
 // helper thread functions for VSPAERO GUI interface and multi-threaded impleentation
