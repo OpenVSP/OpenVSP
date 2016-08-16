@@ -288,8 +288,8 @@ xmlNodePtr GeomBase::DecodeXml( xmlNodePtr & node )
     xmlNodePtr child_node = XmlUtil::GetNode( node, "GeomBase", 0 );
     if ( child_node )
     {
-        m_Type.m_Name   = XmlUtil::FindString( child_node, "TypeName", m_Type.m_Name );
-        m_Type.m_Type   = XmlUtil::FindInt( child_node, "TypeID", m_Type.m_Type );
+        //m_Type.m_Name   = XmlUtil::FindString( child_node, "TypeName", m_Type.m_Name );
+        //m_Type.m_Type   = XmlUtil::FindInt( child_node, "TypeID", m_Type.m_Type );
         m_Type.m_FixedFlag = !!XmlUtil::FindInt( child_node, "TypeFixed", m_Type.m_FixedFlag );
         m_ParentID = ParmMgr.RemapID( XmlUtil::FindString( child_node, "ParentID", m_ParentID ) );
 
