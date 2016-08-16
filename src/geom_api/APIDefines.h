@@ -346,6 +346,10 @@ enum PROP_PCURVE { PROP_CHORD,
                    NUM_PROP_PCURVE
                  };
 
+enum VSPAERO_ANALYSIS_METHOD { VORTEX_LATTICE,
+                               PANEL
+                             };
+
 }   // Namespace
 
 #endif // !defined(VSPDEFINES__INCLUDED_)

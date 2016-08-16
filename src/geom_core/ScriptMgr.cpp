@@ -999,6 +999,11 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "PROJ_DIR_TYPE", "NUM_PROJ_DIR_OPTIONS", NUM_PROJ_DIR_OPTIONS );
     assert( r >= 0 );
 
+    r = se->RegisterEnum( "VSPAERO_ANALYSIS_METHOD" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VSPAERO_ANALYSIS_METHOD", "VORTEX_LATTICE", VORTEX_LATTICE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VSPAERO_ANALYSIS_METHOD", "PANEL", PANEL );
 
 }
 
