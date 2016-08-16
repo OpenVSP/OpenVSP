@@ -262,7 +262,9 @@ void APITestSuite::TestAnalysesWithPod()
     PrintAnalysisInputs(analysis_name);
 
     // Execute
+    printf("\tExecuting...");
     string results_id = vsp::ExecAnalysis(analysis_name);
+    printf("COMPLETE\n");
 
     // Get & Display Results
     PrintResults(results_id);
@@ -353,6 +355,7 @@ void APITestSuite::TestVSPAeroComputeGeom()
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     //==== Add Wing Geom and set some parameters =====//
+    printf("\tAdding wing...");
     string wing_id = vsp::AddGeom( "WING");
     TEST_ASSERT( wing_id.c_str() != NULL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "TotalSpan", "WingGeom", 17.0 ), 17.0, TEST_TOL);
@@ -360,11 +363,14 @@ void APITestSuite::TestVSPAeroComputeGeom()
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "TECluster", "WingGeom", 2.0 ), 2.0, TEST_TOL);
     vsp::Update();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
-    
+    printf("COMPLETE\n");
+
     //==== Save Vehicle to File ====//
     m_vspfname_for_vspaerotests = "apitest_TestVSPAeroWithWing.vsp3";
+    printf("\tSaving vehicle file to: %s ...", m_vspfname_for_vspaerotests.c_str());
     vsp::WriteVSPFile( m_vspfname_for_vspaerotests );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+    printf("COMPLETE\n");
 
     //==== Analysis: VSPAero Compute Geometry ====//
     string analysis_name = "VSPAEROComputeGeometry";
@@ -377,7 +383,9 @@ void APITestSuite::TestVSPAeroComputeGeom()
     PrintAnalysisInputs(analysis_name);
 
     // Execute
+    printf("\tExecuting...");
     string results_id = vsp::ExecAnalysis(analysis_name);
+    printf("COMPLETE\n");
 
     // Get & Display Results
     PrintResults( results_id );
@@ -443,7 +451,9 @@ void APITestSuite::TestVSPAeroComputeGeomPanel()
     PrintAnalysisInputs(analysis_name);
 
     // Execute
+    printf("\tExecuting...");
     string results_id = vsp::ExecAnalysis(analysis_name);
+    printf("COMPLETE\n");
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     // Get & Display Results
@@ -514,7 +524,9 @@ void APITestSuite::TestVSPAeroSinglePointPanel()
     PrintAnalysisInputs(analysis_name);
 
     // Execute
+    printf("\tExecuting...");
     string results_id = vsp::ExecAnalysis(analysis_name);
+    printf("COMPLETE\n");
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     // Get & Display Results
@@ -579,7 +591,9 @@ void APITestSuite::TestVSPAeroSinglePoint()
     PrintAnalysisInputs(analysis_name);
 
     // Execute
+    printf("\tExecuting...");
     string results_id = vsp::ExecAnalysis(analysis_name);
+    printf("COMPLETE\n");
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     // Get & Display Results
@@ -648,7 +662,9 @@ void APITestSuite::TestVSPAeroSinglePointStab()
     PrintAnalysisInputs(analysis_name);
 
     // Execute
+    printf("\tExecuting...");
     string results_id = vsp::ExecAnalysis(analysis_name);
+    printf("COMPLETE\n");
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     // Get & Display Results
@@ -728,7 +744,9 @@ void APITestSuite::TestVSPAeroSweep()
     PrintAnalysisInputs(analysis_name);
 
     // Execute
+    printf("\tExecuting...");
     string results_id = vsp::ExecAnalysis(analysis_name);
+    printf("COMPLETE\n");
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     // Get & Display Results
