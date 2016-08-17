@@ -182,6 +182,19 @@ public:
         return( vec3d( -v[0],  v[1],  v[2] ) );
     }
 
+    vec3d swap_xy() const
+    {
+        return( vec3d( v[1],  v[0],  v[2] ) );
+    }
+    vec3d swap_xz() const
+    {
+        return( vec3d( v[2],  v[1],  v[0] ) );
+    }
+    vec3d swap_yz() const
+    {
+        return( vec3d( v[0],  v[2],  v[1] ) );
+    }
+
     // x = a + b, x = a - b, a*scale, a/scale
     friend vec3d operator+( const vec3d& a, const vec3d& b );
     friend vec3d operator-( const vec3d& a, const vec3d& b );
