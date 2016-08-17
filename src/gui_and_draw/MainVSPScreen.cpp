@@ -96,11 +96,11 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
 
     m_TopMenuItem.Init( this, m_MenuBar, "View/Top", FL_F + 5 );
     m_FrontMenuItem.Init( this, m_MenuBar, "View/Front", FL_F + 6 );
-    m_LeftSideMenuItem.Init( this, m_MenuBar, "View/Left Side", FL_F + 7 );
+    m_LeftSideMenuItem.Init( this, m_MenuBar, "View/Left", FL_F + 7 );
     m_LeftIsoMenuItem.Init( this, m_MenuBar, "View/Left Iso", FL_F + 8 );
     m_BottomMenuItem.Init( this, m_MenuBar, "View/Bottom", FL_F + 9 );
     m_RearMenuItem.Init( this, m_MenuBar, "View/Rear", FL_F + 10 );
-    m_RightSideMenuItem.Init( this, m_MenuBar, "View/Right Side", FL_F + 11 );
+    m_RightSideMenuItem.Init( this, m_MenuBar, "View/Right", FL_F + 11 );
     m_RightIsoMenuItem.Init( this, m_MenuBar, "View/Right Iso", FL_F + 12 );
     m_CenterMenuItem.Init( this, m_MenuBar, "View/Center", 'c' );
     m_SetCORMenuItem.Init( this, m_MenuBar, "View/Set Rotation Center", 'r' );
