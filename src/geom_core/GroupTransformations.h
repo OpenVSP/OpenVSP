@@ -12,6 +12,7 @@
 
 #include "Parm.h"
 #include "ParmContainer.h"
+#include "MaterialMgr.h"
 #include <vector>
 
 class Vehicle;
@@ -21,7 +22,7 @@ class GroupTransformations : ParmContainer
 public:
     // Default Constructor
     GroupTransformations();
-    
+
     // Destructor
     virtual ~GroupTransformations();
 
@@ -42,6 +43,12 @@ public:
 
     // Initialization function
     virtual void Init( Vehicle* vehicle );
+
+    // Getters and setters
+    virtual vec3d GetColor() { return m_GroupColor; }
+    virtual void SetColor( const vec3d &color );
+    virtual Material* GetMaterial() { return &m_GroupMaterial; }
+    virtual void SetMaterial( const Material &material );
 
     // Translations Parms
     Parm m_GroupXLoc;
@@ -66,6 +73,10 @@ protected:
 
     // Pointer back to the vehicle that owns this class
     Vehicle* m_Vehicle;
+
+    // Material properties
+    Material m_GroupMaterial;
+    vec3d m_GroupColor;
 };
 
 #endif
