@@ -1,7 +1,7 @@
 #include "MultTransScreen.h"
 #include "ScreenMgr.h"
 #include "LightMgr.h"
-#include "../geom_core/Vehicle.h"
+#include "Vehicle.h"
 
 #include <assert.h>
 
