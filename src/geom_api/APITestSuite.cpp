@@ -309,8 +309,8 @@ void APITestSuite::TestDXFExport()
 
     //==== 2D 1 View DXF Export ====//
     TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( geom_id, "2DViewType", "DXFSettings" ), vsp::VIEW_1 ), vsp::VIEW_1, TEST_TOL );
-    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( geom_id, "TopLeftLocation", "DXFSettings" ), vsp::VIEW_BOTTOM ), vsp::VIEW_BOTTOM, TEST_TOL );
-    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( geom_id, "Rotation1", "DXFSettings" ), vsp::ROT_90 ), vsp::ROT_90, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( geom_id, "TopLeftView", "DXFSettings" ), vsp::VIEW_BOTTOM ), vsp::VIEW_BOTTOM, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( geom_id, "TopLeftRotation", "DXFSettings" ), vsp::ROT_90 ), vsp::ROT_90, TEST_TOL );
     vsp::Update();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
@@ -319,8 +319,8 @@ void APITestSuite::TestDXFExport()
 
     //==== 2D 2 Horizontal View DXF Export ====//
     TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( geom_id, "2DViewType", "DXFSettings" ), vsp::VIEW_2HOR ), vsp::VIEW_2HOR, TEST_TOL );
-    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( geom_id, "TopRightLocation", "DXFSettings" ), vsp::VIEW_RIGHT ), vsp::VIEW_RIGHT, TEST_TOL );
-    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( geom_id, "Rotation2", "DXFSettings" ), vsp::ROT_270 ), vsp::ROT_270, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( geom_id, "TopRightView", "DXFSettings" ), vsp::VIEW_RIGHT ), vsp::VIEW_RIGHT, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( geom_id, "TopRightRotation", "DXFSettings" ), vsp::ROT_270 ), vsp::ROT_270, TEST_TOL );
     vsp::Update();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
@@ -329,8 +329,8 @@ void APITestSuite::TestDXFExport()
 
     //==== 2D 2 Vertical View DXF Export ====//
     TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( geom_id, "2DViewType", "DXFSettings" ), vsp::VIEW_2VER ), vsp::VIEW_2VER, TEST_TOL );
-    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( geom_id, "BottomLeftLocation", "DXFSettings" ), vsp::VIEW_REAR ), vsp::VIEW_REAR, TEST_TOL );
-    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( geom_id, "Rotation3", "DXFSettings" ), vsp::ROT_0 ), vsp::ROT_0, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( geom_id, "BottomLeftView", "DXFSettings" ), vsp::VIEW_REAR ), vsp::VIEW_REAR, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( geom_id, "BottomLeftRotation", "DXFSettings" ), vsp::ROT_0 ), vsp::ROT_0, TEST_TOL );
     vsp::Update();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 

@@ -64,14 +64,14 @@ Vehicle::Vehicle()
     m_DXFLenUnit.Init( "LenUnit", "DXFSettings", this, vsp::LEN_FT, vsp::LEN_MM, vsp::LEN_UNITLESS );
     m_2D3DFlag.Init( "2D3DFlag", "DXFSettings", this , vsp::SET_3D, vsp::SET_3D, vsp::SET_2D );
     m_2DView.Init( "2DViewType", "DXFSettings", this, vsp::VIEW_1, vsp::VIEW_1, vsp::VIEW_4 );
-    m_4View1.Init( "TopLeftLocation", "DXFSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
-    m_4View2.Init( "TopRightLocation", "DXFSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
-    m_4View3.Init( "BottomLeftLocation", "DXFSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
-    m_4View4.Init( "BottomRightLocation", "DXFSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
-    m_4View1_rot.Init( "Rotation1", "DXFSettings", this, vsp::ROT_90, vsp::ROT_0, vsp::ROT_270 );
-    m_4View2_rot.Init( "Rotation2", "DXFSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
-    m_4View3_rot.Init( "Rotation3", "DXFSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
-    m_4View4_rot.Init( "Rotation4", "DXFSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
+    m_4View1.Init( "TopLeftView", "DXFSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
+    m_4View2.Init( "TopRightView", "DXFSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
+    m_4View3.Init( "BottomLeftView", "DXFSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
+    m_4View4.Init( "BottomRightView", "DXFSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
+    m_4View1_rot.Init( "TopLeftRotation", "DXFSettings", this, vsp::ROT_90, vsp::ROT_0, vsp::ROT_270 );
+    m_4View2_rot.Init( "TopRightRotation", "DXFSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
+    m_4View3_rot.Init( "BottomLeftRotation", "DXFSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
+    m_4View4_rot.Init( "BottomRightRotation", "DXFSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
 
     m_STLMultiSolid.Init( "MultiSolid", "STLSettings", this, false, 0, 1 );
 

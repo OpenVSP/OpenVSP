@@ -78,8 +78,8 @@ void TestDXF()
 
     //==== 2D 1 View DXF Export ====//
     SetParmVal( FindParm( geom_id, "2DViewType", "DXFSettings" ), VIEW_1 );
-    SetParmVal( FindParm( geom_id, "TopLeftLocation", "DXFSettings" ), VIEW_BOTTOM );
-    SetParmVal( FindParm( geom_id, "Rotation1", "DXFSettings" ), ROT_90 );
+    SetParmVal( FindParm( geom_id, "TopLeftView", "DXFSettings" ), VIEW_BOTTOM );
+    SetParmVal( FindParm( geom_id, "TopLeftRotation", "DXFSettings" ), ROT_90 );
     Update();
 
     Print( string( "---> Test Write 2D 1 View" ) );
@@ -90,8 +90,8 @@ void TestDXF()
 
     //==== 2D 2 Horizontal View DXF Export ====//
     SetParmVal( FindParm( geom_id, "2DViewType", "DXFSettings" ), VIEW_2HOR );
-    SetParmVal( FindParm( geom_id, "TopRightLocation", "DXFSettings" ), VIEW_RIGHT );
-    SetParmVal( FindParm( geom_id, "Rotation2", "DXFSettings" ), ROT_270 );
+    SetParmVal( FindParm( geom_id, "TopRightView", "DXFSettings" ), VIEW_RIGHT );
+    SetParmVal( FindParm( geom_id, "TopRightRotation", "DXFSettings" ), ROT_270 );
     Update();
 
     Print( string( "---> Test Write 2D 2 Horizontal View" ) );
@@ -102,8 +102,8 @@ void TestDXF()
 
     //==== 2D 2 Vertical View DXF Export ====//
     SetParmVal( FindParm( geom_id, "2DViewType", "DXFSettings" ), VIEW_2VER );
-    SetParmVal( FindParm( geom_id, "BottomLeftLocation", "DXFSettings" ), VIEW_REAR );
-    SetParmVal( FindParm( geom_id, "Rotation3", "DXFSettings" ), ROT_0 );
+    SetParmVal( FindParm( geom_id, "BottomLeftView", "DXFSettings" ), VIEW_REAR );
+    SetParmVal( FindParm( geom_id, "BottomLeftRotation", "DXFSettings" ), ROT_0 );
     Update();
 
     Print( string( "---> Test Write 2D 2 Vertical View" ) );
