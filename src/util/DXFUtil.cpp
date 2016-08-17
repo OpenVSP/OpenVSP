@@ -95,7 +95,7 @@ void WriteDXFHeader( FILE* dxf_file, int LenUnitChoice )
     }
 }
 
-vector < vector < vec3d > > DXFManipulate( vector < vector < vec3d > > allflines, BndBox dxfbox, int Parm1 )
+void DXFManipulate( vector < vector < vec3d > > &allflines, BndBox dxfbox, int Parm1 )
 {
     for ( unsigned int l = 0; l < allflines.size(); l++ )
     {
@@ -224,7 +224,7 @@ vector < vector < vec3d > > DXFRot( vector < vector < vec3d > > allflines, int a
     return allflines;
 }
 
-void WriteDXFPolylines3D( FILE* dxf_file, vector < vector < vec3d > > allflines, string layer )
+void WriteDXFPolylines3D( FILE* dxf_file, const vector < vector < vec3d > > &allflines, string layer )
 {
     if ( dxf_file )
     {
@@ -283,7 +283,7 @@ void WriteDXFPolylines3D( FILE* dxf_file, vector < vector < vec3d > > allflines,
     }
 }
 
-void WriteDXFPolylines2D( FILE* dxf_file, vector < vector < vec3d > > allflines, string layer )
+void WriteDXFPolylines2D( FILE* dxf_file, const vector < vector < vec3d > > &allflines, string layer )
 {
     if ( dxf_file )
     {

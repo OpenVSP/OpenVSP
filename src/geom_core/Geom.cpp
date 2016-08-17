@@ -1429,8 +1429,9 @@ void Geom::WriteFeatureLinesDXF( FILE * file_name, BndBox dxfbox )
         {
             if ( View == vsp::VIEW_NUM::VIEW_1 )
             {
-                allflines1 = DXFManipulate( allflines, dxfbox, View4_1 );
-                allflines1 = DXFRot( allflines1, View4_1_rot );
+                allflines1 = allflines;
+                DXFManipulate( allflines1, dxfbox, View4_1 );
+                DXFRot( allflines1, View4_1_rot );
                 WriteDXFPolylines2D( file_name, allflines1, layer );
             }
             else if ( View == vsp::VIEW_NUM::VIEW_2HOR )
