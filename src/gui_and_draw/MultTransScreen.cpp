@@ -5,33 +5,61 @@
 
 #include <assert.h>
 
-MultTransScreen::MultTransScreen( ScreenMgr * mgr ) : BasicScreen( mgr, 250, 225, "Multiple Transformation" )
+MultTransScreen::MultTransScreen( ScreenMgr * mgr ) : TabScreen( mgr, 300, 270, "Group Modifications" )
 {
-    m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
-    m_MainLayout.AddX( 5 );
-    m_MainLayout.AddY( 25 );
-    m_MainLayout.AddSubGroupLayout( m_GenLayout, m_MainLayout.GetRemainX() - 5, m_MainLayout.GetRemainY() );
+    //==== XForm Tab ====//
+    Fl_Group* xform_tab = AddTab( "XForm" );
+    m_TransTabMainLayout.SetGroupAndScreen( xform_tab, this );
+    m_TransTabMainLayout.AddX( 5 );
+    m_TransTabMainLayout.AddSubGroupLayout( m_TransTabGenLayout, m_TransTabMainLayout.GetRemainX() - 5, m_TransTabMainLayout.GetRemainY() );
 
-    m_GenLayout.AddSlider( m_XLoc, "XLoc", 10.0, "%7.3f" );
-    m_GenLayout.AddSlider( m_YLoc, "YLoc", 10.0, "%7.3f" );
-    m_GenLayout.AddSlider( m_ZLoc, "ZLoc", 10.0, "%7.3f" );
-    m_GenLayout.AddYGap();
+    m_TransTabGenLayout.AddDividerBox( "Transformations and Scaling" );
 
-    m_GenLayout.AddSlider( m_XRot, "XRot", 10.0, "%7.3f" );
-    m_GenLayout.AddSlider( m_YRot, "YRot", 10.0, "%7.3f" );
-    m_GenLayout.AddSlider( m_ZRot, "ZRot", 10.0, "%7.3f" );
-    m_GenLayout.AddYGap();
+    m_TransTabGenLayout.AddSlider( m_XLoc, "XLoc", 10.0, "%7.3f" );
+    m_TransTabGenLayout.AddSlider( m_YLoc, "YLoc", 10.0, "%7.3f" );
+    m_TransTabGenLayout.AddSlider( m_ZLoc, "ZLoc", 10.0, "%7.3f" );
+    m_TransTabGenLayout.AddYGap();
 
-    m_GenLayout.AddButton( m_ApplyScaleToTranslations, "Scale Translations" );
-    m_GenLayout.AddSlider(m_Scale, "Scale", 1, " %5.4f" );
+    m_TransTabGenLayout.AddSlider( m_XRot, "XRot", 10.0, "%7.3f" );
+    m_TransTabGenLayout.AddSlider( m_YRot, "YRot", 10.0, "%7.3f" );
+    m_TransTabGenLayout.AddSlider( m_ZRot, "ZRot", 10.0, "%7.3f" );
+    m_TransTabGenLayout.AddYGap();
 
-    m_GenLayout.AddYGap();
+    m_TransTabGenLayout.AddButton( m_ApplyScaleToTranslations, "Scale Translations" );
+    m_TransTabGenLayout.AddSlider(m_Scale, "Scale", 1, " %5.4f" );
 
-    m_GenLayout.SetButtonWidth( m_GenLayout.GetRemainX() / 2.0 );
-    m_GenLayout.SetFitWidthFlag( false );
-    m_GenLayout.SetSameLineFlag( true );
-    m_GenLayout.AddButton( m_AcceptButton, "Accept" );
-    m_GenLayout.AddButton( m_ResetButton, "Reset" );
+    m_TransTabGenLayout.AddYGap();
+
+    m_TransTabGenLayout.SetButtonWidth( m_TransTabGenLayout.GetRemainX() / 2.0 );
+    m_TransTabGenLayout.SetFitWidthFlag( false );
+    m_TransTabGenLayout.SetSameLineFlag( true );
+    m_TransTabGenLayout.AddButton( m_AcceptButton, "Accept" );
+    m_TransTabGenLayout.AddButton( m_ResetButton, "Reset" );
+
+    //==== General Properties Tab
+    Fl_Group* gen_tab = AddTab( "Gen" );
+    m_MaterialTabMainLayout.SetGroupAndScreen( gen_tab, this );
+    m_MaterialTabMainLayout.AddX( 5 );
+    m_MaterialTabMainLayout.AddSubGroupLayout( m_MaterialTabGenLayout, m_MaterialTabMainLayout.GetRemainX() - 5, m_MaterialTabMainLayout.GetRemainY() );
+
+    m_MaterialTabGenLayout.AddDividerBox( "Material & Color" );
+    m_MaterialTabGenLayout.AddYGap();
+    m_MaterialTabGenLayout.AddColorPicker( m_ColorPicker );
+    m_MaterialTabGenLayout.AddYGap();
+
+    UpdateMaterialNames();
+
+    m_MaterialTabGenLayout.SetFitWidthFlag( true );
+    m_MaterialTabGenLayout.SetSameLineFlag( true );
+
+    m_MaterialTabGenLayout.AddChoice( m_MaterialChoice, "Material:", m_MaterialTabGenLayout.GetButtonWidth() );
+
+    m_MaterialTabGenLayout.SetFitWidthFlag( false );
+    //m_MaterialTabGenLayout.AddButton( m_CustomMaterialButton, "Custom" );
+    m_MaterialTabGenLayout.ForceNewLine();
+
+    m_MaterialTabGenLayout.SetFitWidthFlag( true );
+    m_MaterialTabGenLayout.SetSameLineFlag( false );
 }
 
 MultTransScreen::~MultTransScreen()
@@ -50,7 +78,7 @@ void MultTransScreen::Show()
     // Update and show if applicable
     if ( Update() )
     {
-        BasicScreen::Show();
+        TabScreen::Show();
     }
     m_ScreenMgr->SetUpdateFlag( true );
 }
@@ -79,6 +107,24 @@ bool MultTransScreen::Update()
     m_Scale.Update( group_trans->m_GroupScale.GetID());
     m_ApplyScaleToTranslations.Update( group_trans->m_scaleGroupTranslations.GetID());
 
+    // Update the wire color
+    m_ColorPicker.Update( group_trans->GetColor() );
+
+    // Update the material properties
+    m_MaterialChoice.UpdateItems();
+    m_MaterialChoice.SetVal( 0 );
+
+    Material * mat = group_trans->GetMaterial();
+    std::vector< std::string > choices = m_MaterialChoice.GetItems();
+    for ( int i = 0; i < (int)choices.size(); i++ )
+    {
+        if ( mat->m_Name == choices[i] )
+        {
+            m_MaterialChoice.SetVal( i );
+            break;
+        }
+    }
+
     return true;
 }
 
@@ -100,6 +146,23 @@ void MultTransScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         trans->Reset();
     }
+    else if ( device == &m_MaterialChoice )
+    {
+        int index = m_MaterialChoice.GetVal() - 1;
+        Material mat;
+        if ( !MaterialMgr.FindMaterial( index, mat ) )
+        {
+            mat.SetMaterialToDefault();
+        }
+
+        trans->SetMaterial( mat );
+    }
+    else if ( device == &m_ColorPicker )
+    {
+        trans->SetColor( m_ColorPicker.GetColor() );
+    }
+
+    m_ScreenMgr->SetUpdateFlag( true );
 
 //    if ( device == &m_LightChoice )
 //    {
@@ -108,34 +171,16 @@ void MultTransScreen::GuiDeviceCallBack( GuiDevice* device )
 //    m_ScreenMgr->SetUpdateFlag( true );
 }
 
-void MultTransScreen::LoadDrawObjs(vector< DrawObj* > & draw_obj_vec)
+// ==== Updates the list of material choices ==== //
+void MultTransScreen::UpdateMaterialNames()
 {
-//    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-//    LightMgr * lightMgr = veh->getVGuiDraw()->getLightMgr();
-//
-//    // Create DrawObj that provides Global Lighting Setting.
-//    m_LightingDO.m_Type = DrawObj::VSP_SETTING;
-//    m_LightingDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-//
-//    // Clear Light info, redo list on every GetDrawObjs().
-//    m_LightingDO.m_LightingInfos.clear();
-//
-//    std::vector< Light* > lightList = lightMgr->GetVec();
-//
-//    // Load Lighting Info.
-//    for ( int i = 0; i < ( int )lightList.size() ; i++ )
-//    {
-//        DrawObj::LightSourceInfo info;
-//
-//        info.Active = lightList[i]->m_Active.Get();
-//        info.X = ( float )lightList[i]->m_X.Get();
-//        info.Y = ( float )lightList[i]->m_Y.Get();
-//        info.Z = ( float )lightList[i]->m_Z.Get();
-//        info.Amb = ( float )lightList[i]->m_Amb.Get();
-//        info.Diff = ( float )lightList[i]->m_Diff.Get();
-//        info.Spec = ( float )lightList[i]->m_Spec.Get();
-//
-//        m_LightingDO.m_LightingInfos.push_back( info );
-//    }
-//    draw_obj_vec.push_back( &m_LightingDO );
+    std::vector<std::string> matNames;
+    matNames = MaterialMgr.GetNames();
+
+    m_MaterialChoice.ClearItems();
+    m_MaterialChoice.AddItem( "DEFAULT" );
+    for ( int i = 0; i < (int)matNames.size(); i++ )
+    {
+        m_MaterialChoice.AddItem( matNames[i] );
+    }
 }

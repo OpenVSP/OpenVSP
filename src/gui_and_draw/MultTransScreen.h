@@ -6,7 +6,7 @@
 
 #include <vector>
 
-class MultTransScreen : public BasicScreen
+class MultTransScreen : public TabScreen
 {
 public:
     MultTransScreen( ScreenMgr * mgr );
@@ -17,12 +17,10 @@ public:
 
     virtual void GuiDeviceCallBack( GuiDevice* device );
 
-    void LoadDrawObjs(vector< DrawObj* > & draw_obj_vec);
-
 protected:
 
-    GroupLayout m_MainLayout;
-    GroupLayout m_GenLayout;
+    GroupLayout m_TransTabMainLayout;
+    GroupLayout m_TransTabGenLayout;
 
     SliderAdjRangeInput m_XLoc;
     SliderAdjRangeInput m_YLoc;
@@ -37,6 +35,16 @@ protected:
 
     TriggerButton m_ResetButton;
     TriggerButton m_AcceptButton;
+
+    // Material Tab members
+    GroupLayout m_MaterialTabMainLayout;
+    GroupLayout m_MaterialTabGenLayout;
+    Choice m_MaterialChoice;
+    TriggerButton m_CustomMaterialButton;
+    ColorPicker m_ColorPicker;
+
+    // Methods for materials
+    virtual void UpdateMaterialNames();
 
 private:
 };
