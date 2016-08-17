@@ -34,6 +34,9 @@ public:
         TEST_ADD( APITestSuite::TestVSPAeroSinglePoint)
         TEST_ADD( APITestSuite::TestVSPAeroSinglePointStab)
         TEST_ADD( APITestSuite::TestVSPAeroSweep)
+        // Export
+        TEST_ADD( APITestSuite::TestDXFExport )
+
     }
 
 private:
@@ -46,6 +49,8 @@ private:
     // Analysis
     void CheckAnalysisMgr();
     void TestAnalysesWithPod();
+    // Export
+    void TestDXFExport();
     // VSPAERO
     void TestVSPAeroComputeGeom();        //<--Execute this VSPERO test first
     void TestVSPAeroSinglePoint();
