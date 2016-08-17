@@ -1384,16 +1384,7 @@ void Geom::WriteFeatureLinesDXF( FILE * file_name, const BndBox &dxfbox )
     double tol = 10e-2;
 
     Vehicle *veh = VehicleMgr.GetVehicle();
-    int Dim = veh->m_2D3DFlag();
-    int View = veh->m_2DView();
-    int View4_1 = veh->m_4View1();
-    int View4_2 = veh->m_4View2();
-    int View4_3 = veh->m_4View3();
-    int View4_4 = veh->m_4View4();
-    int View4_1_rot = veh->m_4View1_rot();
-    int View4_2_rot = veh->m_4View2_rot();
-    int View4_3_rot = veh->m_4View3_rot();
-    int View4_4_rot = veh->m_4View4_rot();
+
     vec3d shiftvec = dxfbox.GetMax() - dxfbox.GetMin();
 
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
@@ -1421,19 +1412,19 @@ void Geom::WriteFeatureLinesDXF( FILE * file_name, const BndBox &dxfbox )
         }
         string layer = m_Name + string ( "_" ) + to_string( i );
 
-        if ( Dim == vsp::DIMENSION_SET::SET_3D )
+        if ( veh->m_2D3DFlag() == vsp::DIMENSION_SET::SET_3D )
         {
             WriteDXFPolylines3D( file_name, allflines, layer );
         }
-        else if ( Dim == vsp::DIMENSION_SET::SET_2D )
+        else if ( veh->m_2D3DFlag() == vsp::DIMENSION_SET::SET_2D )
         {
-            if ( View == vsp::VIEW_NUM::VIEW_1 )
+            if ( veh->m_2DView() == vsp::VIEW_NUM::VIEW_1 )
             {
                 allflines1 = allflines;
                 DXFManipulate( allflines1, dxfbox, veh->m_4View1(), veh->m_4View1_rot() );
                 WriteDXFPolylines2D( file_name, allflines1, layer );
             }
-            else if ( View == vsp::VIEW_NUM::VIEW_2HOR )
+            else if ( veh->m_2DView() == vsp::VIEW_NUM::VIEW_2HOR )
             {
                 allflines1 = allflines;
                 DXFManipulate( allflines1, dxfbox, veh->m_4View1(), veh->m_4View1_rot() );
@@ -1446,7 +1437,7 @@ void Geom::WriteFeatureLinesDXF( FILE * file_name, const BndBox &dxfbox )
                 WriteDXFPolylines2D( file_name, allflines1, layer );
                 WriteDXFPolylines2D( file_name, allflines2, layer );
             }
-            else if ( View == vsp::VIEW_NUM::VIEW_2VER )
+            else if ( veh->m_2DView() == vsp::VIEW_NUM::VIEW_2VER )
             {
                 allflines1 = allflines;
                 DXFManipulate( allflines1, dxfbox, veh->m_4View1(), veh->m_4View1_rot() );
@@ -1457,9 +1448,9 @@ void Geom::WriteFeatureLinesDXF( FILE * file_name, const BndBox &dxfbox )
                 DXFShift( allflines3, shiftvec, vsp::VIEW_SHIFT::DOWN, veh->m_4View3_rot(), 0 );
 
                 WriteDXFPolylines2D( file_name, allflines1, layer );
-                WriteDXFPolylines2D( file_name, allflines2, layer );
+                WriteDXFPolylines2D( file_name, allflines3, layer );
             }
-            else if ( View == vsp::VIEW_NUM::VIEW_4 )
+            else if ( veh->m_2DView() == vsp::VIEW_NUM::VIEW_4 )
             {
                 allflines1 = allflines;
                 DXFManipulate( allflines1, dxfbox, veh->m_4View1(), veh->m_4View1_rot() );

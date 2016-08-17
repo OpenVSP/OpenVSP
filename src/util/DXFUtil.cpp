@@ -102,29 +102,29 @@ void DXFManipulate( vector < vector < vec3d > > &allflines, const BndBox &dxfbox
         for ( unsigned int j = 0; j < allflines[l].size(); j++ )
         {
             // Left: +x,+z; swap y & z
-            if ( Parm1 == vsp::VIEW_TYPE::VIEW_LEFT )
+            if ( view == vsp::VIEW_TYPE::VIEW_LEFT )
             {
                 allflines[l][j] = allflines[l][j].swap_yz();
             }
             // Right: -x,+z; reflect x, swap y & z
-            else if ( Parm1 == vsp::VIEW_TYPE::VIEW_RIGHT )
+            else if ( view == vsp::VIEW_TYPE::VIEW_RIGHT )
             {
                 allflines[l][j] = allflines[l][j].reflect_yz();
                 allflines[l][j].set_x( allflines[l][j].x() + ( dxfbox.GetMax().x() + dxfbox.GetMin().x() ) );
                 allflines[l][j] = allflines[l][j].swap_yz();
             }
             // Top: +x,+y; Do nothing
-            else if ( Parm1 == vsp::VIEW_TYPE::VIEW_TOP )
+            else if ( view == vsp::VIEW_TYPE::VIEW_TOP )
             {
             }
             // Bottom: +x,-y; reflect y
-            else if ( Parm1 == vsp::VIEW_TYPE::VIEW_BOTTOM )
+            else if ( view == vsp::VIEW_TYPE::VIEW_BOTTOM )
             {
                 allflines[l][j] = allflines[l][j].reflect_xz();
                 allflines[l][j].set_y( allflines[l][j].y() + ( dxfbox.GetMax().y() + dxfbox.GetMin().y() ) );
             }
             // Front: -y,+z; swap x & y, swap y & z, reflect y
-            else if ( Parm1 == vsp::VIEW_TYPE::VIEW_FRONT )
+            else if ( view == vsp::VIEW_TYPE::VIEW_FRONT )
             {
                 allflines[l][j] = allflines[l][j].swap_xy();
                 allflines[l][j] = allflines[l][j].reflect_yz();
@@ -132,49 +132,17 @@ void DXFManipulate( vector < vector < vec3d > > &allflines, const BndBox &dxfbox
                 allflines[l][j] = allflines[l][j].swap_yz();
             }
             // Rear: +y,+z; swap x & y, swap y & z
-            else if ( Parm1 == vsp::VIEW_TYPE::VIEW_REAR )
+            else if ( view == vsp::VIEW_TYPE::VIEW_REAR )
             {
                 allflines[l][j] = allflines[l][j].swap_xy();
                 allflines[l][j] = allflines[l][j].swap_yz();
             }
         }
     }
-    if ( Parm1 == vsp::VIEW_TYPE::VIEW_NONE )
+    if ( view == vsp::VIEW_TYPE::VIEW_NONE )
     {
         allflines.clear();
     }
-
-{
-    if ( Parm2 == vsp::VIEW_ROT::ROT_90 )
-    {
-        shiftvec = shiftvec.swap_xy();
-    }
-    else if ( Parm2 == vsp::VIEW_ROT::ROT_270 )
-    {
-        shiftvec = shiftvec.swap_xy();
-    }
-    else if ( Parm3 == vsp::VIEW_ROT::ROT_90 )
-    {
-        shiftvec = shiftvec.swap_xy();
-    }
-    else if ( Parm3 == vsp::VIEW_ROT::ROT_270 )
-    {
-        shiftvec = shiftvec.swap_xy();
-    }
-
-    for ( unsigned int l = 0; l < allflines.size(); l++ )
-    {
-        for ( unsigned int j = 0; j < allflines[l].size(); j++ )
-        {
-            double old_x = allflines[l][j].x();
-            allflines[l][j].set_x( ( cos( rad ) * allflines[l][j].x() + sin( rad ) * allflines[l][j].y() ) );
-            allflines[l][j].set_y( ( -sin( rad ) * old_x + cos( rad ) * allflines[l][j].y() ) );
-        }
-    }
-}
-
-void DXFShift( vector < vector < vec3d > > &allflines, vec3d shiftvec, int shift, int ang1, int ang2 )
-{
 
     if ( ang == vsp::VIEW_ROT::ROT_0 )
     {
@@ -194,6 +162,36 @@ void DXFShift( vector < vector < vec3d > > &allflines, vec3d shiftvec, int shift
     }
 
     double rad = ang * 3.14159265 / 180;
+
+    for ( unsigned int l = 0; l < allflines.size(); l++ )
+    {
+        for ( unsigned int j = 0; j < allflines[l].size(); j++ )
+        {
+            double old_x = allflines[l][j].x();
+            allflines[l][j].set_x( ( cos( rad ) * allflines[l][j].x() + sin( rad ) * allflines[l][j].y() ) );
+            allflines[l][j].set_y( ( -sin( rad ) * old_x + cos( rad ) * allflines[l][j].y() ) );
+        }
+    }
+}
+
+void DXFShift( vector < vector < vec3d > > &allflines, vec3d shiftvec, int shift, int ang1, int ang2 )
+{
+    if ( ang1 == vsp::VIEW_ROT::ROT_90 )
+    {
+        shiftvec = shiftvec.swap_xy();
+    }
+    else if ( ang1 == vsp::VIEW_ROT::ROT_270 )
+    {
+        shiftvec = shiftvec.swap_xy();
+    }
+    else if ( ang2 == vsp::VIEW_ROT::ROT_90 )
+    {
+        shiftvec = shiftvec.swap_xy();
+    }
+    else if ( ang2 == vsp::VIEW_ROT::ROT_270 )
+    {
+        shiftvec = shiftvec.swap_xy();
+    }
 
     for ( unsigned int l = 0; l < allflines.size(); l++ )
     {
