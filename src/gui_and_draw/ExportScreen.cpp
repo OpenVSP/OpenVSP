@@ -52,7 +52,7 @@ ExportScreen::ExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 150, 25 + (1+12
     m_GenLayout.AddButton( m_STEPButton, "STEP (.stp)" );
     m_GenLayout.AddButton( m_IGESButton, "IGES (.igs)" );
     m_GenLayout.AddButton( m_BEMButton, "Blade Element (.bem)" );
-    m_GenLayout.AddButton( m_DXFButton, "DXF (.dxf)" );
+    m_GenLayout.AddButton( m_DXFButton, "AutoCAD (.dxf)" );
 }
 
 //==== Update Screen ====//

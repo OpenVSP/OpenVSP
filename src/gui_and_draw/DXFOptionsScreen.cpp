@@ -28,6 +28,8 @@ DXFOptionsScreen::DXFOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 36
     m_GenLayout.AddY( 25 );
 
     m_GenLayout.AddYGap();
+    m_GenLayout.AddDividerBox( "General" );
+    m_GenLayout.AddYGap();
 
     m_GenLayout.SetChoiceButtonWidth( m_GenLayout.GetW() / 2 );
     m_LenUnitChoice.AddItem( "MM" );
@@ -38,9 +40,6 @@ DXFOptionsScreen::DXFOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 36
     m_LenUnitChoice.AddItem( "YD" );
     m_LenUnitChoice.AddItem( "Unitless" );
     m_GenLayout.AddChoice( m_LenUnitChoice, "Length Unit" );
-    m_GenLayout.AddYGap();
-
-    m_GenLayout.AddDividerBox( "Dimensions" );
     m_GenLayout.AddYGap();
 
     m_GenLayout.SetSameLineFlag( false );
