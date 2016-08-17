@@ -27,6 +27,7 @@
 #include "StringUtil.h"
 #include "SubSurfaceMgr.h"
 #include "DesignVarMgr.h"
+#include "DXFUtil.h"
 #include "XmlUtil.h"
 #include "APIDefines.h"
 #include "ResultsMgr.h"
@@ -59,6 +60,18 @@ Vehicle::Vehicle()
     m_IGESSplitSurfs.Init( "SplitSurfs", "IGESSettings", this, true, 0, 1 );
     m_IGESToCubic.Init( "ToCubic", "IGESSettings", this, false, 0, 1 );
     m_IGESToCubicTol.Init( "ToCubicTol", "IGESSettings", this, 1e-6, 1e-12, 1e12 );
+
+    m_DXFLenUnit.Init( "LenUnit", "DXFSettings", this, vsp::LEN_FT, vsp::LEN_MM, vsp::LEN_UNITLESS );
+    m_2D3DFlag.Init( "2D3DFlag", "DXFSettings", this , vsp::SET_3D, vsp::SET_3D, vsp::SET_2D );
+    m_2DView.Init( "2DViewType", "DXFSettings", this, vsp::VIEW_1, vsp::VIEW_1, vsp::VIEW_4 );
+    m_4View1.Init( "TopLeftLocation", "DXFSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
+    m_4View2.Init( "TopRightLocation", "DXFSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
+    m_4View3.Init( "BottomLeftLocation", "DXFSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
+    m_4View4.Init( "BottomRightLocation", "DXFSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
+    m_4View1_rot.Init( "Rotation1", "DXFSettings", this, vsp::ROT_90, vsp::ROT_0, vsp::ROT_270 );
+    m_4View2_rot.Init( "Rotation2", "DXFSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
+    m_4View3_rot.Init( "Rotation3", "DXFSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
+    m_4View4_rot.Init( "Rotation4", "DXFSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
 
     m_STLMultiSolid.Init( "MultiSolid", "STLSettings", this, false, 0, 1 );
 
@@ -170,6 +183,18 @@ void Vehicle::Init()
     m_IGESSplitSurfs.Set( true );
     m_IGESToCubic.Set( false );
     m_IGESToCubicTol.Set( 1e-6 );
+
+    m_DXFLenUnit.Set( vsp::LEN_UNITLESS );
+    m_2DView.Set( vsp::VIEW_4 );
+    m_2D3DFlag.Set( vsp::SET_3D );
+    m_4View1.Set( vsp::VIEW_TOP );
+    m_4View2.Set( vsp::VIEW_NONE );
+    m_4View3.Set( vsp::VIEW_FRONT );
+    m_4View4.Set( vsp::VIEW_LEFT );
+    m_4View1_rot.Set( vsp::ROT_270 );
+    m_4View2_rot.Set( vsp::ROT_0 );
+    m_4View3_rot.Set( vsp::ROT_0 );
+    m_4View4_rot.Set( vsp::ROT_0 );
 
     m_STLMultiSolid.Set( false );
 
@@ -2287,6 +2312,31 @@ void Vehicle::WriteBEMFile( const string &file_name, int write_set )
 
 void Vehicle::WriteDXFFile( const string & file_name, int write_set )
 {
+    FILE* dxf_file = fopen( file_name.c_str(), "w" );
+    WriteDXFHeader( dxf_file, m_DXFLenUnit.Get() );
+
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+
+    BndBox dxfbox;
+    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        if ( geom_vec[i]->GetSetFlag( write_set ) )
+        {
+            dxfbox.Update( geom_vec[i]->GetBndBox() );
+        }
+    }
+
+    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        if ( geom_vec[i]->GetSetFlag( write_set ) )
+        {
+            geom_vec[i]->WriteFeatureLinesDXF( dxf_file, dxfbox );
+        }
+    }
+
+    WriteDXFClose( dxf_file );
+
+    fclose( dxf_file );
 }
 
 void Vehicle::AddLinkableContainers( vector< string > & linkable_container_vec )

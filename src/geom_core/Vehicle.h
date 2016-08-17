@@ -291,6 +291,20 @@ public:
     BoolParm m_IGESToCubic;
     Parm m_IGESToCubicTol;
 
+    IntParm m_DXFLenUnit;
+    IntParm m_2DView;
+    IntParm m_2D3DFlag;
+    BoolParm m_3DExport;
+    BoolParm m_2DExport;
+    IntParm m_4View1;
+    IntParm m_4View2;
+    IntParm m_4View3;
+    IntParm m_4View4;
+    IntParm m_4View1_rot;
+    IntParm m_4View2_rot;
+    IntParm m_4View3_rot;
+    IntParm m_4View4_rot;
+
     string m_BEMPropID;
 
     BoolParm m_STLMultiSolid;
