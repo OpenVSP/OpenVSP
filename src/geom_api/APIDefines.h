@@ -61,7 +61,39 @@ enum LEN_UNITS { LEN_MM,
                  LEN_M,
                  LEN_IN,
                  LEN_FT,
-                 LEN_YD
+                 LEN_YD,
+                 LEN_UNITLESS
+};
+
+enum DIMENSION_SET { SET_3D,
+                     SET_2D,
+                   };
+
+enum VIEW_TYPE { VIEW_LEFT,
+                 VIEW_RIGHT,
+                 VIEW_TOP,
+                 VIEW_BOTTOM,
+                 VIEW_FRONT,
+                 VIEW_REAR,
+                 VIEW_NONE
+};
+
+enum VIEW_SHIFT { LEFT,
+                  RIGHT,
+                  UP,
+                  DOWN,
+};
+
+enum VIEW_NUM { VIEW_1,
+                VIEW_2HOR,
+                VIEW_2VER,
+                VIEW_4,
+};
+
+enum VIEW_ROT { ROT_0,
+                ROT_90,
+                ROT_180,
+                ROT_270,
 };
 
 enum ANG_UNITS { ANG_RAD,

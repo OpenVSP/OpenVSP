@@ -517,6 +517,65 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "LEN_UNITS", "LEN_YD", LEN_YD );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "LEN_UNITS", "LEN_UNITLESS", LEN_UNITLESS );
+    assert( r >= 0 );
+
+    r = se->RegisterEnum( "DIMENSION_SET" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "DIMENSION_SET", "SET_3D", SET_3D );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "DIMENSION_SET", "SET_2D", SET_2D );
+    assert( r >= 0 );
+
+    r = se->RegisterEnum( "VIEW_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VIEW_TYPE", "VIEW_LEFT", VIEW_LEFT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VIEW_TYPE", "VIEW_RIGHT", VIEW_RIGHT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VIEW_TYPE", "VIEW_TOP", VIEW_TOP );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VIEW_TYPE", "VIEW_BOTTOM", VIEW_BOTTOM );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VIEW_TYPE", "VIEW_FRONT", VIEW_FRONT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VIEW_TYPE", "VIEW_REAR", VIEW_REAR );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VIEW_TYPE", "VIEW_NONE", VIEW_NONE );
+    assert( r >= 0 );
+
+    r = se->RegisterEnum( "VIEW_SHIFT" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VIEW_SHIFT", "LEFT", LEFT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VIEW_SHIFT", "RIGHT", RIGHT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VIEW_SHIFT", "UP", UP );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VIEW_SHIFT", "DOWN", DOWN );
+    assert( r >= 0 );
+
+    r = se->RegisterEnum( "VIEW_NUM" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VIEW_NUM", "VIEW_1", VIEW_1 );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VIEW_NUM", "VIEW_2HOR", VIEW_2HOR );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VIEW_NUM", "VIEW_2VER", VIEW_2VER );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VIEW_NUM", "VIEW_4", VIEW_4 );
+    assert( r >= 0 );
+
+    r = se->RegisterEnum( "VIEW_ROT" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VIEW_ROT", "ROT_0", ROT_0 );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VIEW_ROT", "ROT_90", ROT_90 );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VIEW_ROT", "ROT_180", ROT_180 );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VIEW_ROT", "ROT_270", ROT_270 );
+    assert( r >= 0 );
 
     r = se->RegisterEnum( "ANG_UNITS" );
     assert( r >= 0 );
