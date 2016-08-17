@@ -8,6 +8,7 @@
 #include "Geom.h"
 #include "Vehicle.h"
 #include "StlHelper.h"
+#include "DXFUtil.h"
 #include "StringUtil.h"
 #include "ParmMgr.h"
 #include "SubSurfaceMgr.h"
@@ -1375,6 +1376,117 @@ void Geom::UpdateFlags( )
     for( int i = 0; i < (int)m_MainSurfVec.size(); i++ )
     {
         m_MainSurfVec[i].SetSurfCfdType( m_NegativeVolumeFlag.Get() );
+    }
+}
+
+void Geom::WriteFeatureLinesDXF( FILE * file_name, BndBox dxfbox )
+{
+    double tol = 10e-2;
+
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    int Dim = veh->m_2D3DFlag();
+    int View = veh->m_2DView();
+    int View4_1 = veh->m_4View1();
+    int View4_2 = veh->m_4View2();
+    int View4_3 = veh->m_4View3();
+    int View4_4 = veh->m_4View4();
+    int View4_1_rot = veh->m_4View1_rot();
+    int View4_2_rot = veh->m_4View2_rot();
+    int View4_3_rot = veh->m_4View3_rot();
+    int View4_4_rot = veh->m_4View4_rot();
+    vec3d shiftvec = dxfbox.GetMax() - dxfbox.GetMin();
+
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    {
+        vector < vector < vec3d > > allflines;
+        vector < vector < vec3d > > allflines1;
+        vector < vector < vec3d > > allflines2;
+        vector < vector < vec3d > > allflines3;
+        vector < vector < vec3d > > allflines4;
+
+        if( m_GuiDraw.GetDispFeatureFlag() )
+        {
+            int nu = m_SurfVec[i].GetNumUFeature();
+            int nw = m_SurfVec[i].GetNumWFeature();
+            allflines.resize( nu + nw );
+            for( int j = 0; j < nu; j++ )
+            {
+                m_SurfVec[i].TessUFeatureLine( j, allflines[ j ], tol );
+            }
+
+            for( int j = 0; j < nw; j++ )
+            {
+                m_SurfVec[i].TessWFeatureLine( j, allflines[ j + nu ], tol );
+            }
+        }
+        string layer = m_Name + string ( "_" ) + to_string( i );
+
+        if ( Dim == vsp::DIMENSION_SET::SET_3D )
+        {
+            WriteDXFPolylines3D( file_name, allflines, layer );
+        }
+        else if ( Dim == vsp::DIMENSION_SET::SET_2D )
+        {
+            if ( View == vsp::VIEW_NUM::VIEW_1 )
+            {
+                allflines1 = DXFManipulate( allflines, dxfbox, View4_1 );
+                allflines1 = DXFRot( allflines1, View4_1_rot );
+                WriteDXFPolylines2D( file_name, allflines1, layer );
+            }
+            else if ( View == vsp::VIEW_NUM::VIEW_2HOR )
+            {
+                allflines1 = DXFManipulate( allflines, dxfbox, View4_1 );
+                allflines1 = DXFRot( allflines1, View4_1_rot );
+                allflines1 = DXFShift( allflines1, shiftvec, vsp::VIEW_SHIFT::LEFT, View4_1_rot, 0 );
+
+                allflines2 = DXFManipulate( allflines, dxfbox, View4_2 );
+                allflines2 = DXFRot( allflines2, View4_2_rot );
+                allflines2 = DXFShift( allflines2, shiftvec, vsp::VIEW_SHIFT::RIGHT, View4_2_rot, 0 );
+
+                WriteDXFPolylines2D( file_name, allflines1, layer );
+                WriteDXFPolylines2D( file_name, allflines2, layer );
+            }
+            else if ( View == vsp::VIEW_NUM::VIEW_2VER )
+            {
+                allflines1 = DXFManipulate( allflines, dxfbox, View4_1 );
+                allflines1 = DXFRot( allflines1, View4_1_rot );
+                allflines1 = DXFShift( allflines1, shiftvec, vsp::VIEW_SHIFT::UP, View4_1_rot, 0 );
+
+                allflines2 = DXFManipulate( allflines, dxfbox, View4_3 );
+                allflines2 = DXFRot( allflines2, View4_3_rot );
+                allflines2 = DXFShift( allflines2, shiftvec, vsp::VIEW_SHIFT::DOWN, View4_3_rot, 0 );
+
+                WriteDXFPolylines2D( file_name, allflines1, layer );
+                WriteDXFPolylines2D( file_name, allflines2, layer );
+            }
+            else if ( View == vsp::VIEW_NUM::VIEW_4 )
+            {
+                allflines1 = DXFManipulate( allflines, dxfbox, View4_1 );
+                allflines1 = DXFRot( allflines1, View4_1_rot );
+                allflines1 = DXFShift( allflines1, shiftvec, vsp::VIEW_SHIFT::UP, View4_1_rot, View4_2_rot );
+                allflines1 = DXFShift( allflines1, shiftvec, vsp::VIEW_SHIFT::LEFT, View4_1_rot, View4_3_rot );
+
+                allflines2 = DXFManipulate( allflines, dxfbox, View4_2 );
+                allflines2 = DXFRot( allflines2, View4_2_rot );
+                allflines2 = DXFShift( allflines2, shiftvec, vsp::VIEW_SHIFT::UP, View4_2_rot, View4_1_rot );
+                allflines2 = DXFShift( allflines2, shiftvec, vsp::VIEW_SHIFT::RIGHT, View4_2_rot, View4_4_rot );
+
+                allflines3 = DXFManipulate( allflines, dxfbox, View4_3 );
+                allflines3 = DXFRot( allflines3, View4_3_rot );
+                allflines3 = DXFShift( allflines3, shiftvec, vsp::VIEW_SHIFT::DOWN, View4_3_rot, View4_4_rot );
+                allflines3 = DXFShift( allflines3, shiftvec, vsp::VIEW_SHIFT::LEFT, View4_3_rot, View4_1_rot );
+
+                allflines4 = DXFManipulate( allflines, dxfbox, View4_4 );
+                allflines4 = DXFRot( allflines4, View4_4_rot );
+                allflines4 = DXFShift( allflines4, shiftvec, vsp::VIEW_SHIFT::DOWN, View4_4_rot, View4_3_rot );
+                allflines4 = DXFShift( allflines4, shiftvec, vsp::VIEW_SHIFT::RIGHT, View4_4_rot, View4_2_rot );
+
+                WriteDXFPolylines2D( file_name, allflines1, layer );
+                WriteDXFPolylines2D( file_name, allflines2, layer );
+                WriteDXFPolylines2D( file_name, allflines3, layer );
+                WriteDXFPolylines2D( file_name, allflines4, layer );
+            }
+        }
     }
 }
 
