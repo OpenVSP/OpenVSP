@@ -617,7 +617,7 @@ public:
     virtual void PasteXSec( int index )             {}
     virtual void InsertXSec( int index, int type )  {}
 
-    void WriteFeatureLinesDXF( FILE * file_name, BndBox dxfbox );
+    void WriteFeatureLinesDXF( FILE * file_name, const BndBox &dxfbox );
 
 protected:
 

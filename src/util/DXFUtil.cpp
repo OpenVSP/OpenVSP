@@ -95,7 +95,7 @@ void WriteDXFHeader( FILE* dxf_file, int LenUnitChoice )
     }
 }
 
-void DXFManipulate( vector < vector < vec3d > > &allflines, BndBox dxfbox, int Parm1 )
+void DXFManipulate( vector < vector < vec3d > > &allflines, const BndBox &dxfbox, int view, int ang )
 {
     for ( unsigned int l = 0; l < allflines.size(); l++ )
     {
@@ -143,10 +143,7 @@ void DXFManipulate( vector < vector < vec3d > > &allflines, BndBox dxfbox, int P
     {
         allflines.clear();
     }
-    return allflines;
-}
 
-vector < vector < vec3d > > DXFShift( vector < vector < vec3d > > allflines, vec3d shiftvec, int Parm1, int Parm2, int Parm3 )
 {
     if ( Parm2 == vsp::VIEW_ROT::ROT_90 )
     {
@@ -169,28 +166,14 @@ vector < vector < vec3d > > DXFShift( vector < vector < vec3d > > allflines, vec
     {
         for ( unsigned int j = 0; j < allflines[l].size(); j++ )
         {
-            if ( Parm1 == vsp::VIEW_SHIFT::LEFT )
-            {
-                allflines[l][j].offset_x( -abs( shiftvec.x() ) * 0.75 );
-            }
-            else if ( Parm1 == vsp::VIEW_SHIFT::RIGHT )
-            {
-                allflines[l][j].offset_x( abs( shiftvec.x() ) * 0.75 );
-            }
-            else if ( Parm1 == vsp::VIEW_SHIFT::UP )
-            {
-                allflines[l][j].offset_y( abs( shiftvec.y() ) );
-            }
-            else if ( Parm1 == vsp::VIEW_SHIFT::DOWN )
-            {
-                allflines[l][j].offset_y( -abs( shiftvec.y() ) );
-            }
+            double old_x = allflines[l][j].x();
+            allflines[l][j].set_x( ( cos( rad ) * allflines[l][j].x() + sin( rad ) * allflines[l][j].y() ) );
+            allflines[l][j].set_y( ( -sin( rad ) * old_x + cos( rad ) * allflines[l][j].y() ) );
         }
     }
-    return allflines;
 }
 
-vector < vector < vec3d > > DXFRot( vector < vector < vec3d > > allflines, int ang )
+void DXFShift( vector < vector < vec3d > > &allflines, vec3d shiftvec, int shift, int ang1, int ang2 )
 {
 
     if ( ang == vsp::VIEW_ROT::ROT_0 )
@@ -216,12 +199,24 @@ vector < vector < vec3d > > DXFRot( vector < vector < vec3d > > allflines, int a
     {
         for ( unsigned int j = 0; j < allflines[l].size(); j++ )
         {
-            double old_x = allflines[l][j].x();
-            allflines[l][j].set_x( ( cos( rad ) * allflines[l][j].x() + sin( rad ) * allflines[l][j].y() ) );
-            allflines[l][j].set_y( ( -sin( rad ) * old_x + cos( rad ) * allflines[l][j].y() ) );
+            if ( shift == vsp::VIEW_SHIFT::LEFT )
+            {
+                allflines[l][j].offset_x( -abs( shiftvec.x() ) * 0.75 );
+            }
+            else if ( shift == vsp::VIEW_SHIFT::RIGHT )
+            {
+                allflines[l][j].offset_x( abs( shiftvec.x() ) * 0.75 );
+            }
+            else if ( shift == vsp::VIEW_SHIFT::UP )
+            {
+                allflines[l][j].offset_y( abs( shiftvec.y() ) );
+            }
+            else if ( shift == vsp::VIEW_SHIFT::DOWN )
+            {
+                allflines[l][j].offset_y( -abs( shiftvec.y() ) );
+            }
         }
     }
-    return allflines;
 }
 
 void WriteDXFPolylines3D( FILE* dxf_file, const vector < vector < vec3d > > &allflines, string layer )

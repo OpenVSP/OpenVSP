@@ -1379,7 +1379,7 @@ void Geom::UpdateFlags( )
     }
 }
 
-void Geom::WriteFeatureLinesDXF( FILE * file_name, BndBox dxfbox )
+void Geom::WriteFeatureLinesDXF( FILE * file_name, const BndBox &dxfbox )
 {
     double tol = 10e-2;
 
@@ -1430,57 +1430,56 @@ void Geom::WriteFeatureLinesDXF( FILE * file_name, BndBox dxfbox )
             if ( View == vsp::VIEW_NUM::VIEW_1 )
             {
                 allflines1 = allflines;
-                DXFManipulate( allflines1, dxfbox, View4_1 );
-                DXFRot( allflines1, View4_1_rot );
+                DXFManipulate( allflines1, dxfbox, veh->m_4View1(), veh->m_4View1_rot() );
                 WriteDXFPolylines2D( file_name, allflines1, layer );
             }
             else if ( View == vsp::VIEW_NUM::VIEW_2HOR )
             {
-                allflines1 = DXFManipulate( allflines, dxfbox, View4_1 );
-                allflines1 = DXFRot( allflines1, View4_1_rot );
-                allflines1 = DXFShift( allflines1, shiftvec, vsp::VIEW_SHIFT::LEFT, View4_1_rot, 0 );
+                allflines1 = allflines;
+                DXFManipulate( allflines1, dxfbox, veh->m_4View1(), veh->m_4View1_rot() );
+                DXFShift( allflines1, shiftvec, vsp::VIEW_SHIFT::LEFT, veh->m_4View1_rot(), 0 );
 
-                allflines2 = DXFManipulate( allflines, dxfbox, View4_2 );
-                allflines2 = DXFRot( allflines2, View4_2_rot );
-                allflines2 = DXFShift( allflines2, shiftvec, vsp::VIEW_SHIFT::RIGHT, View4_2_rot, 0 );
+                allflines2 = allflines;
+                DXFManipulate( allflines2, dxfbox, veh->m_4View2(), veh->m_4View2_rot() );
+                DXFShift( allflines2, shiftvec, vsp::VIEW_SHIFT::RIGHT, veh->m_4View2_rot(), 0 );
 
                 WriteDXFPolylines2D( file_name, allflines1, layer );
                 WriteDXFPolylines2D( file_name, allflines2, layer );
             }
             else if ( View == vsp::VIEW_NUM::VIEW_2VER )
             {
-                allflines1 = DXFManipulate( allflines, dxfbox, View4_1 );
-                allflines1 = DXFRot( allflines1, View4_1_rot );
-                allflines1 = DXFShift( allflines1, shiftvec, vsp::VIEW_SHIFT::UP, View4_1_rot, 0 );
+                allflines1 = allflines;
+                DXFManipulate( allflines1, dxfbox, veh->m_4View1(), veh->m_4View1_rot() );
+                DXFShift( allflines1, shiftvec, vsp::VIEW_SHIFT::UP, veh->m_4View1_rot(), 0 );
 
-                allflines2 = DXFManipulate( allflines, dxfbox, View4_3 );
-                allflines2 = DXFRot( allflines2, View4_3_rot );
-                allflines2 = DXFShift( allflines2, shiftvec, vsp::VIEW_SHIFT::DOWN, View4_3_rot, 0 );
+                allflines3 = allflines;
+                DXFManipulate( allflines3, dxfbox, veh->m_4View3(), veh->m_4View3_rot() );
+                DXFShift( allflines3, shiftvec, vsp::VIEW_SHIFT::DOWN, veh->m_4View3_rot(), 0 );
 
                 WriteDXFPolylines2D( file_name, allflines1, layer );
                 WriteDXFPolylines2D( file_name, allflines2, layer );
             }
             else if ( View == vsp::VIEW_NUM::VIEW_4 )
             {
-                allflines1 = DXFManipulate( allflines, dxfbox, View4_1 );
-                allflines1 = DXFRot( allflines1, View4_1_rot );
-                allflines1 = DXFShift( allflines1, shiftvec, vsp::VIEW_SHIFT::UP, View4_1_rot, View4_2_rot );
-                allflines1 = DXFShift( allflines1, shiftvec, vsp::VIEW_SHIFT::LEFT, View4_1_rot, View4_3_rot );
+                allflines1 = allflines;
+                DXFManipulate( allflines1, dxfbox, veh->m_4View1(), veh->m_4View1_rot() );
+                DXFShift( allflines1, shiftvec, vsp::VIEW_SHIFT::UP, veh->m_4View1_rot(), veh->m_4View2_rot() );
+                DXFShift( allflines1, shiftvec, vsp::VIEW_SHIFT::LEFT, veh->m_4View1_rot(), veh->m_4View3_rot() );
 
-                allflines2 = DXFManipulate( allflines, dxfbox, View4_2 );
-                allflines2 = DXFRot( allflines2, View4_2_rot );
-                allflines2 = DXFShift( allflines2, shiftvec, vsp::VIEW_SHIFT::UP, View4_2_rot, View4_1_rot );
-                allflines2 = DXFShift( allflines2, shiftvec, vsp::VIEW_SHIFT::RIGHT, View4_2_rot, View4_4_rot );
+                allflines2 = allflines;
+                DXFManipulate( allflines2, dxfbox, veh->m_4View2(), veh->m_4View2_rot() );
+                DXFShift( allflines2, shiftvec, vsp::VIEW_SHIFT::UP, veh->m_4View2_rot(), veh->m_4View1_rot() );
+                DXFShift( allflines2, shiftvec, vsp::VIEW_SHIFT::RIGHT, veh->m_4View2_rot(), veh->m_4View4_rot() );
 
-                allflines3 = DXFManipulate( allflines, dxfbox, View4_3 );
-                allflines3 = DXFRot( allflines3, View4_3_rot );
-                allflines3 = DXFShift( allflines3, shiftvec, vsp::VIEW_SHIFT::DOWN, View4_3_rot, View4_4_rot );
-                allflines3 = DXFShift( allflines3, shiftvec, vsp::VIEW_SHIFT::LEFT, View4_3_rot, View4_1_rot );
+                allflines3 = allflines;
+                DXFManipulate( allflines3, dxfbox, veh->m_4View3(), veh->m_4View3_rot() );
+                DXFShift( allflines3, shiftvec, vsp::VIEW_SHIFT::DOWN, veh->m_4View3_rot(), veh->m_4View4_rot() );
+                DXFShift( allflines3, shiftvec, vsp::VIEW_SHIFT::LEFT, veh->m_4View3_rot(), veh->m_4View1_rot() );
 
-                allflines4 = DXFManipulate( allflines, dxfbox, View4_4 );
-                allflines4 = DXFRot( allflines4, View4_4_rot );
-                allflines4 = DXFShift( allflines4, shiftvec, vsp::VIEW_SHIFT::DOWN, View4_4_rot, View4_3_rot );
-                allflines4 = DXFShift( allflines4, shiftvec, vsp::VIEW_SHIFT::RIGHT, View4_4_rot, View4_2_rot );
+                allflines4 = allflines;
+                DXFManipulate( allflines4, dxfbox, veh->m_4View4(), veh->m_4View4_rot() );
+                DXFShift( allflines4, shiftvec, vsp::VIEW_SHIFT::DOWN, veh->m_4View4_rot(), veh->m_4View3_rot() );
+                DXFShift( allflines4, shiftvec, vsp::VIEW_SHIFT::RIGHT, veh->m_4View4_rot(), veh->m_4View2_rot() );
 
                 WriteDXFPolylines2D( file_name, allflines1, layer );
                 WriteDXFPolylines2D( file_name, allflines2, layer );
