@@ -168,7 +168,8 @@ enum EXPORT_TYPE {  EXPORT_FELISA,
                     EXPORT_STEP,
                     EXPORT_PLOT3D,
                     EXPORT_IGES,
-                    EXPORT_BEM
+                    EXPORT_BEM,
+                    EXPORT_DXF
                  };
 
 enum COMPUTATION_FILE_TYPE  {   NO_FILE_TYPE        = 0,

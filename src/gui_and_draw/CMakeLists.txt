@@ -35,6 +35,7 @@ CompGeomScreen.cpp
 CustomScreen.cpp
 DegenGeomScreen.cpp
 DesignVarScreen.cpp
+DXFOptionsScreen.cpp
 ExportScreen.cpp
 FeaStructScreen.cpp
 FitModelScreen.cpp
@@ -95,6 +96,7 @@ CompGeomScreen.h
 CustomScreen.h
 DegenGeomScreen.h
 DesignVarScreen.h
+DXFOptionsScreen.h
 ExportScreen.h
 FeaStructScreen.h
 FitModelScreen.h

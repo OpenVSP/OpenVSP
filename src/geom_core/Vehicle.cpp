@@ -2285,6 +2285,10 @@ void Vehicle::WriteBEMFile( const string &file_name, int write_set )
     }
 }
 
+void Vehicle::WriteDXFFile( const string & file_name, int write_set )
+{
+}
+
 void Vehicle::AddLinkableContainers( vector< string > & linkable_container_vec )
 {
     ParmContainer::AddLinkableContainers( linkable_container_vec );
@@ -2989,6 +2993,10 @@ void Vehicle::ExportFile( const string & file_name, int write_set, int file_type
     else if ( file_type == EXPORT_BEM )
     {
         WriteBEMFile( file_name, write_set );
+    }
+    else if ( file_type == EXPORT_DXF )
+    {
+        WriteDXFFile( file_name, write_set  );
     }
 }
 

@@ -56,6 +56,7 @@ public:
            VSP_SCREENSHOT_SCREEN,
            VSP_SET_EDITOR_SCREEN,
            VSP_STEP_OPTIONS_SCREEN,
+           VSP_DXF_OPTIONS_SCREEN,
            VSP_STL_OPTIONS_SCREEN,
            VSP_TYPE_EDITOR_SCREEN,
            VSP_USER_PARM_SCREEN,

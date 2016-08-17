@@ -14,6 +14,7 @@
 #include "CompGeomScreen.h"
 #include "DegenGeomScreen.h"
 #include "DesignVarScreen.h"
+#include "DXFOptionsScreen.h"
 #include "ExportScreen.h"
 #include "FeaStructScreen.h"
 #include "FitModelScreen.h"
@@ -201,6 +202,7 @@ void ScreenMgr::Init()
     m_ScreenVec[VSP_PSLICE_SCREEN] = new PSliceScreen( this );
     m_ScreenVec[VSP_SCREENSHOT_SCREEN] = new ScreenshotScreen( this );
     m_ScreenVec[VSP_SET_EDITOR_SCREEN] = new SetEditorScreen( this );
+    m_ScreenVec[VSP_DXF_OPTIONS_SCREEN] = new DXFOptionsScreen( this);
     m_ScreenVec[VSP_STEP_OPTIONS_SCREEN] = new STEPOptionsScreen( this );
     m_ScreenVec[VSP_STL_OPTIONS_SCREEN] = new STLOptionsScreen( this );
     m_ScreenVec[VSP_TYPE_EDITOR_SCREEN] = new TypeEditorScreen( this );

@@ -198,6 +198,7 @@ public:
     void WriteSTEPFile( const string & file_name, int write_set );
     void WriteIGESFile( const string & file_name, int write_set );
     void WriteBEMFile( const string & file_name, int write_set );
+    void WriteDXFFile( const string & file_name, int write_set );
 
     void FetchXFerSurfs( int write_set, vector< XferSurf > &xfersurfs );
     //==== Computation File Names ====//
