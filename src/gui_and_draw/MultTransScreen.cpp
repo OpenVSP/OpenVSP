@@ -60,6 +60,8 @@ MultTransScreen::MultTransScreen( ScreenMgr * mgr ) : TabScreen( mgr, 300, 270, 
 
     m_MaterialTabGenLayout.SetFitWidthFlag( true );
     m_MaterialTabGenLayout.SetSameLineFlag( false );
+
+    xform_tab->show();
 }
 
 MultTransScreen::~MultTransScreen()
