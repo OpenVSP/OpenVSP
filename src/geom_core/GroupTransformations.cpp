@@ -41,9 +41,6 @@ void GroupTransformations::Init( Vehicle * vehicle )
 {
     assert( vehicle );
     m_Vehicle = vehicle;
-
-    // Make the vehicle the parent of this container
-    SetParentContainer( m_Vehicle->GetID() );
 }
 
 // ==== Handle a changed paramter ==== //
