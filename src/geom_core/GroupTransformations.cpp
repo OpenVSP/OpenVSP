@@ -20,9 +20,9 @@ GroupTransformations::GroupTransformations()
     m_GroupXLoc.Init( "Group_XLoc", "Group", this, 0, -1e12, 1e12 );
     m_GroupYLoc.Init( "Group_YLoc", "Group", this, 0, -1e12, 1e12 );
     m_GroupZLoc.Init( "Group_ZLoc", "Group", this, 0, -1e12, 1e12 );
-    m_GroupXRot.Init( "Group_XRot", "Group", this, 0, -180.0, 180.0 );
-    m_GroupYRot.Init( "Group_YRot", "Group", this, 0, -180.0, 180.0 );
-    m_GroupZRot.Init( "Group_ZRot", "Group", this, 0, -180.0, 180.0 );
+    m_GroupXRot.Init( "Group_XRot", "Group", this, 0, -360.0, 360.0 );
+    m_GroupYRot.Init( "Group_YRot", "Group", this, 0, -360.0, 360.0 );
+    m_GroupZRot.Init( "Group_ZRot", "Group", this, 0, -360.0, 360.0 );
     m_GroupScale.Init( "Group_Scale", "Group", this, 1, 1.0e-3, 1.0e3 );
     m_scaleGroupTranslations.Init( "ScaleGroupTranslations", "Group", this, true, false, true );
 
@@ -98,6 +98,9 @@ void GroupTransformations::Update()
         double delta_xrot = 0.0;
         double delta_yrot = 0.0;
         double delta_zrot = 0.0;
+        double new_xrot = 0.0;
+        double new_yrot = 0.0;
+        double new_zrot = 0.0;
 
         // Only apply transform (except scale) if either the geom has no active parent or its coordinate system
         // is not relative to another geometry's coordinate system
@@ -122,6 +125,11 @@ void GroupTransformations::Update()
         new_y = m_oldVarVals[i][1] + delta_y;
         new_z = m_oldVarVals[i][2] + delta_z;
 
+        // Apply the delta to the stored original x,y,z rotations
+        new_xrot = MakeValidRotation( m_oldVarVals[i][3] + delta_xrot );
+        new_yrot = MakeValidRotation( m_oldVarVals[i][4] + delta_yrot );
+        new_zrot = MakeValidRotation( m_oldVarVals[i][5] + delta_zrot );
+
         double scale = m_GroupScale.Get();
         // Apply scaling to the translations if requested
         if ( m_scaleGroupTranslations.Get() )
@@ -141,9 +149,9 @@ void GroupTransformations::Update()
         thisGeom->m_ZRelLoc = new_z;
 
         // Set the new rotations
-        thisGeom->m_XRelRot = m_oldVarVals[i][3] + delta_xrot;
-        thisGeom->m_YRelRot = m_oldVarVals[i][4] + delta_yrot;
-        thisGeom->m_ZRelRot = m_oldVarVals[i][5] + delta_zrot;
+        thisGeom->m_XRelRot = new_xrot;
+        thisGeom->m_YRelRot = new_yrot;
+        thisGeom->m_ZRelRot = new_zrot;
     }
 
     // Only update geoms that do not have parent's in the group
@@ -281,4 +289,23 @@ void GroupTransformations::SetColor( const vec3d & color )
         // Set the geom's color
         geom->SetColor( color.x(), color.y(), color.z() );
     }
+}
+// ==== Helper to force rotations to be between +/- 180 ==== //
+double GroupTransformations::MakeValidRotation( const double &rotation )
+{
+    // get the angle to be between 0 and 360
+    double angle = fabs( rotation ) - floor( fabs( rotation / 360.0 ) )*360.0;
+    if ( rotation < 0 ) angle *= -1.0;
+
+    // convert the angle to be between +/- 180
+    if ( angle > 180.0 )
+    {
+        angle -= 360.0;
+    }
+    else if ( angle < -180.0 )
+    {
+        angle += 360.0;
+    }
+
+    return angle;
 }

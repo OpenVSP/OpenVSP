@@ -77,6 +77,10 @@ protected:
     // Material properties
     Material m_GroupMaterial;
     vec3d m_GroupColor;
+
+private:
+    // Helper to force rotations to be between +/- 180
+    double MakeValidRotation( const double &rotation );
 };
 
 #endif
