@@ -111,6 +111,7 @@ bool MultTransScreen::Update()
     m_ColorPicker.Update( group_trans->GetColor() );
 
     // Update the material properties
+    UpdateMaterialNames();
     m_MaterialChoice.UpdateItems();
     m_MaterialChoice.SetVal( 0 );
 
