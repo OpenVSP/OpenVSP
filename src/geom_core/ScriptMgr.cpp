@@ -870,6 +870,10 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "SUBSURF_TYPE", "SS_ELLIPSE", SS_ELLIPSE );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "SUBSURF_TYPE", "SS_CONTROL", SS_CONTROL );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SUBSURF_TYPE", "SS_NUM_TYPES", SS_NUM_TYPES );
+    assert( r >= 0 );
 
     r = se->RegisterEnum( "WING_DRIVERS" );
     assert( r >= 0 );
