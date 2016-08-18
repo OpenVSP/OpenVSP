@@ -7,6 +7,11 @@
 
 MultTransScreen::MultTransScreen( ScreenMgr * mgr ) : TabScreen( mgr, 300, 270, "Group Modifications" )
 {
+    // Set the window as a geom screen window
+    VSP_Window* vsp_win = dynamic_cast<VSP_Window*>(m_FLTK_Window);
+
+    vsp_win->SetGeomScreenFlag( true );
+
     //==== XForm Tab ====//
     Fl_Group* xform_tab = AddTab( "XForm" );
     m_TransTabMainLayout.SetGroupAndScreen( xform_tab, this );
