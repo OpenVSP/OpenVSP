@@ -363,6 +363,11 @@ void AnalysisMgrSingleton::RegisterBuiltins()
     RegisterAnalysis( "VSPAERODegenGeom", vsadga );
 
 
+    VSPAEROComputeGeometryAnalysis *vsaga = new VSPAEROComputeGeometryAnalysis();
+
+    RegisterAnalysis( "VSPAEROComputeGeometry", vsaga );
+
+
     VSPAEROSinglePointAnalysis *vsaspa = new VSPAEROSinglePointAnalysis();
 
     RegisterAnalysis( "VSPAEROSinglePoint", vsaspa );
@@ -935,6 +940,52 @@ string VSPAERODegenGeomAnalysis::Execute()
     return res_id;
 }
 
+void VSPAEROComputeGeometryAnalysis::SetDefaults()
+{
+    // the default values use exactly what is setup in the VSPAEROMgr
+    m_Inputs.Clear();
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        m_Inputs.Add( NameValData( "GeomSet", VSPAEROMgr.m_GeomSet.Get() ) );
+        m_Inputs.Add( NameValData( "AnalysisMethod", VSPAEROMgr.m_AnalysisMethod.Get() ) );
+    }
+    else
+    {
+        // TODO Throw an error here
+        printf("ERROR - trying to set defaults without a vehicle: void VSPAERODegenGeomAnalysis::SetDefaults()\n");
+    }
+}
+
+string VSPAEROComputeGeometryAnalysis::Execute()
+{
+    string resId;
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        NameValData *nvd = NULL;
+
+        //==== Apply current analysis input values ====//
+        int geomSetOrig    = VSPAEROMgr.m_GeomSet.Get();
+        nvd = m_Inputs.FindPtr( "GeomSet", 0 );
+        VSPAEROMgr.m_GeomSet.Set( nvd->GetInt(0) );
+
+        int analysisMethodOrig = VSPAEROMgr.m_AnalysisMethod.Get();
+        nvd = m_Inputs.FindPtr( "AnalysisMethod", 0 );
+        VSPAEROMgr.m_AnalysisMethod.Set( nvd->GetInt( 0 ) );
+
+        //==== Execute Analysis ====//
+        resId = VSPAEROMgr.ComputeGeometry();
+
+        //==== Restore Original Values ====//
+        VSPAEROMgr.m_GeomSet.Set( geomSetOrig );
+        VSPAEROMgr.m_AnalysisMethod.Set( analysisMethodOrig );
+
+    }
+    
+    return resId;
+}
 
 void VSPAEROSinglePointAnalysis::SetDefaults()
 {

@@ -168,7 +168,17 @@ public:
 
 };
 
+// This can be deprecated
 class VSPAERODegenGeomAnalysis : public Analysis
+{
+public:
+
+    virtual void SetDefaults();
+    virtual string Execute();
+
+};
+
+class VSPAEROComputeGeometryAnalysis : public Analysis
 {
 public:
 
