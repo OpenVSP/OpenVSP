@@ -1012,7 +1012,7 @@ void VSPAEROSinglePointAnalysis::SetDefaults()
 
         //Moment center
         //TODO add flag to indentify if this is manual or computed
-        m_Inputs.Add( NameValData( "CGGeomSet",           VSPAEROMgr.m_CGGeomSet.Get()         ) );
+        m_Inputs.Add( NameValData( "CGGeomSet",         VSPAEROMgr.m_CGGeomSet.Get()         ) );
         m_Inputs.Add( NameValData( "NumMassSlice",      VSPAEROMgr.m_NumMassSlice.Get()      ) );
         m_Inputs.Add( NameValData( "Xcg",               VSPAEROMgr.m_Xcg.Get()               ) );
         m_Inputs.Add( NameValData( "Ycg",               VSPAEROMgr.m_Ycg.Get()               ) );
@@ -1080,11 +1080,11 @@ string VSPAEROSinglePointAnalysis::Execute()
 
         //    Freestream parameters (Alpha, Beta, Mach)
         double alphaOrig      = VSPAEROMgr.m_AlphaStart.Get();
-        int    alphaNptsOrig = VSPAEROMgr.m_AlphaNpts.Get();        // note this is NOT an input
+        int    alphaNptsOrig  = VSPAEROMgr.m_AlphaNpts.Get();        // note this is NOT an input
         double betaOrig       = VSPAEROMgr.m_BetaStart.Get();
-        int    betaNptsOrig  = VSPAEROMgr.m_BetaNpts.Get();        // note this is NOT an input
+        int    betaNptsOrig   = VSPAEROMgr.m_BetaNpts.Get();        // note this is NOT an input
         double machOrig       = VSPAEROMgr.m_MachStart.Get();
-        int    machNptsOrig  = VSPAEROMgr.m_MachNpts.Get();        // note this is NOT an input
+        int    machNptsOrig   = VSPAEROMgr.m_MachNpts.Get();        // note this is NOT an input
         nvd = m_Inputs.FindPtr( "Alpha", 0 );
         VSPAEROMgr.m_AlphaStart.Set( nvd->GetDouble(0) );
         VSPAEROMgr.m_AlphaNpts.Set( 1 );                    // note: this is NOT an input
@@ -1173,6 +1173,7 @@ void VSPAEROSweepAnalysis::SetDefaults()
         m_Inputs.Add( NameValData( "WakeAvgStartIter",  VSPAEROMgr.m_WakeAvgStartIter.Get()  ) );
         m_Inputs.Add( NameValData( "WakeSkipUntilIter", VSPAEROMgr.m_WakeSkipUntilIter.Get() ) );
         m_Inputs.Add( NameValData( "StabilityCalcFlag", VSPAEROMgr.m_StabilityCalcFlag.Get() ) );
+        m_Inputs.Add( NameValData( "BatchModeFlag",     VSPAEROMgr.m_BatchModeFlag.Get()     ) );
         m_Inputs.Add( NameValData( "ForceNewSetupfile", VSPAEROMgr.m_ForceNewSetupfile.Get() ) );
 
         //Reference area, lengths
@@ -1289,7 +1290,7 @@ string VSPAEROSweepAnalysis::Execute()
         int wakeNumIterOrig          = VSPAEROMgr.m_WakeNumIter.Get();
         int wakeAvgStartIterOrig     = VSPAEROMgr.m_WakeAvgStartIter.Get();
         int wakeSkipUntilIterOrig    = VSPAEROMgr.m_WakeSkipUntilIter.Get();
-        bool stabilityCalcFlagOrig   = VSPAEROMgr.m_StabilityCalcFlag.Get(); // note: this is NOT an input
+        bool stabilityCalcFlagOrig   = VSPAEROMgr.m_StabilityCalcFlag.Get();
         nvd = m_Inputs.FindPtr( "NCPU", 0 );
         VSPAEROMgr.m_NCPU.Set( nvd->GetInt(0) );
         nvd = m_Inputs.FindPtr( "WakeNumIter" );
@@ -1300,6 +1301,11 @@ string VSPAEROSweepAnalysis::Execute()
         VSPAEROMgr.m_WakeSkipUntilIter.Set( nvd->GetInt(0) );
         nvd = m_Inputs.FindPtr( "StabilityCalcFlag", 0 );
         VSPAEROMgr.m_StabilityCalcFlag.Set( nvd->GetInt(0) );
+
+        bool BatchModeFlagOrig       = VSPAEROMgr.m_BatchModeFlag.Get();
+        nvd = m_Inputs.FindPtr( "BatchModeFlag", 0 );
+        VSPAEROMgr.m_BatchModeFlag.Set( nvd->GetInt(0) );
+
 
         bool forceNewSetupfileOrig   = VSPAEROMgr.m_ForceNewSetupfile.Get();
         nvd = m_Inputs.FindPtr( "ForceNewSetupfile", 0 );
@@ -1343,6 +1349,8 @@ string VSPAEROSweepAnalysis::Execute()
         VSPAEROMgr.m_WakeAvgStartIter.Set( wakeAvgStartIterOrig );
         VSPAEROMgr.m_WakeSkipUntilIter.Set( wakeSkipUntilIterOrig );
         VSPAEROMgr.m_StabilityCalcFlag.Set( stabilityCalcFlagOrig );
+
+        VSPAEROMgr.m_BatchModeFlag.Set( BatchModeFlagOrig );
 
         VSPAEROMgr.m_ForceNewSetupfile.Set( forceNewSetupfileOrig );
     }
