@@ -930,7 +930,7 @@ string VSPAEROMgrSingleton::ComputeSolverBatch(FILE * logFile)
                 if ( buf )
                 {
                     buf[nread] = 0;
-                    //StringUtil::change_from_to( buf, '\r', '\n' );
+                    StringUtil::change_from_to( buf, '\r', '\n' );
                     if( logFile )
                     {
                         fprintf(logFile,buf);
