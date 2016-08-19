@@ -72,10 +72,19 @@ protected:
 
     // Case Setup
     GroupLayout m_GeomLayout;
+    //  Radio buttons for analysis method selection VLM OR Panel 
+    ToggleButton m_AeroMethodToggleVLM;
+    ToggleButton m_AeroMethodTogglePanel;
+    ToggleRadioGroup m_AeroMethodToggleGroup;
     Choice m_GeomSetChoice;
-    TriggerButton m_DegenGeomButton;
+    TriggerButton m_ComputeGeometryButton;
+    //  Degengeom (VLM & Panel)
     StringOutput m_DegenFileName;
     TriggerButton m_DegenFileButton;
+    //  CompGeom (Panel only)
+    StringOutput m_CompGeomFileName;
+    TriggerButton m_CompGeomFileButton;
+    // Additional options
     SliderAdjRangeInput m_NCPUSlider;
     ToggleButton m_StabilityCalcToggle;
 

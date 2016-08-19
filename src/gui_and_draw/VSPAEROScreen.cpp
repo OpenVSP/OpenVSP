@@ -25,7 +25,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 #define VSPAERO_SCREEN_WIDTH 850
-#define VSPAERO_SCREEN_HEIGHT 695
+#define VSPAERO_SCREEN_HEIGHT 730
 
 VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_WIDTH, VSPAERO_SCREEN_HEIGHT, "VSPAERO" )
 {
@@ -66,7 +66,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_OverviewLayout.AddY( right_col_layout.GetH() );   //add Y for Execute divider box
 
     // Case Setup
-    left_col_layout.AddSubGroupLayout( m_GeomLayout, left_col_layout.GetW() - 2 * group_border_width, 5 * row_height );
+    left_col_layout.AddSubGroupLayout( m_GeomLayout, left_col_layout.GetW() - 2 * group_border_width, 7 * row_height );
     left_col_layout.AddY( m_GeomLayout.GetH() );
 
     m_GeomLayout.AddDividerBox( "Case Setup" );
@@ -74,14 +74,46 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_GeomLayout.SetSameLineFlag( true );
     m_GeomLayout.SetFitWidthFlag( false );
 
-    m_GeomLayout.SetButtonWidth( 50 );
-    m_GeomLayout.SetInputWidth( m_GeomLayout.GetW() - 50 - 25 );
+    // Analysis method radio button group setup
+    m_GeomLayout.SetButtonWidth( m_GeomLayout.GetW() / 2 );
+    m_GeomLayout.AddButton( m_AeroMethodToggleVLM, "Vortex Lattice (VLM)" );
+    m_GeomLayout.AddButton( m_AeroMethodTogglePanel, "Panel Method" );
 
-    m_GeomLayout.AddOutput( m_DegenFileName, "File" );
+    m_AeroMethodToggleGroup.Init( this );
+    m_AeroMethodToggleGroup.AddButton( m_AeroMethodToggleVLM.GetFlButton() );
+    m_AeroMethodToggleGroup.AddButton( m_AeroMethodTogglePanel.GetFlButton() );
 
-    m_GeomLayout.SetButtonWidth( 25 );
+    vector< int > val_map;
+    val_map.push_back( vsp::VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE );
+    val_map.push_back( vsp::VSPAERO_ANALYSIS_METHOD::PANEL );
+    m_AeroMethodToggleGroup.SetValMapVec( val_map );
+
+    m_GeomLayout.ForceNewLine();
+
+    //  Degengeom output file selection, used for VLM & Panel methods
+    int lebelButtonWidth = 60;
+    int fileButtonWidth = 25;
+    int inputWidth = m_GeomLayout.GetW() - lebelButtonWidth - fileButtonWidth;
+
+    m_GeomLayout.SetButtonWidth( lebelButtonWidth );
+    m_GeomLayout.SetInputWidth( inputWidth );
+
+    m_GeomLayout.AddOutput( m_DegenFileName, "Degen" );
+
+    m_GeomLayout.SetButtonWidth( fileButtonWidth );
 
     m_GeomLayout.AddButton( m_DegenFileButton, "..." );
+    m_GeomLayout.ForceNewLine();
+
+    //  CompGeom output file selection, used for Panel method only
+    m_GeomLayout.SetButtonWidth( lebelButtonWidth );
+    m_GeomLayout.SetInputWidth( inputWidth );
+
+    m_GeomLayout.AddOutput( m_CompGeomFileName, "Panel" );
+
+    m_GeomLayout.SetButtonWidth( fileButtonWidth );
+
+    m_GeomLayout.AddButton( m_CompGeomFileButton, "..." );
     m_GeomLayout.ForceNewLine();
 
     m_GeomLayout.SetButtonWidth( 125 );
@@ -89,7 +121,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_GeomLayout.SetFitWidthFlag( true );
     m_GeomLayout.AddChoice( m_GeomSetChoice, "Geometry Set:", m_GeomLayout.GetButtonWidth() );
     m_GeomLayout.SetFitWidthFlag( false );
-    m_GeomLayout.AddButton( m_DegenGeomButton, "Generate Geometry" );
+    m_GeomLayout.AddButton( m_ComputeGeometryButton, "Generate Geometry" ); //This calls VSAERO.ComputeGeometry()
     m_GeomLayout.ForceNewLine();
 
     m_GeomLayout.InitWidthHeightVals();
@@ -347,17 +379,47 @@ bool VSPAEROScreen::Update()
 
 
         // Case Setup
+        m_AeroMethodToggleGroup.Update( VSPAEROMgr.m_AnalysisMethod.GetID() );
+        switch ( VSPAEROMgr.m_AnalysisMethod.Get() )
+        {
+        case vsp::VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE:
+
+            m_DegenFileName.Activate();
+            m_DegenFileButton.Activate();
+
+            m_CompGeomFileName.Deactivate();
+            m_CompGeomFileButton.Deactivate();
+
+            break;
+
+        case vsp::VSPAERO_ANALYSIS_METHOD::PANEL:
+
+            m_DegenFileName.Deactivate();
+            m_DegenFileButton.Deactivate();
+
+            m_CompGeomFileName.Activate();
+            m_CompGeomFileButton.Activate();
+
+            break;
+
+        default:
+            //do nothing; this should not be reachable
+            break;
+        }
+
         m_DegenFileName.Update( veh->getExportFileName( vsp::DEGEN_GEOM_CSV_TYPE ) );
+        m_CompGeomFileName.Update( veh->getExportFileName( vsp::VSPAERO_PANEL_TRI_TYPE) );
+
         m_NCPUSlider.Update( VSPAEROMgr.m_NCPU.GetID() );
         m_StabilityCalcToggle.Update( VSPAEROMgr.m_StabilityCalcFlag.GetID() );
         //printf("m_SolverProcess.m_ThreadID = %lu\n", m_SolverProcess.m_ThreadID);
         if( m_SolverThreadIsRunning )
         {
-            m_DegenGeomButton.Deactivate();
+            m_ComputeGeometryButton.Deactivate();
         }
         else
         {
-            m_DegenGeomButton.Activate();
+            m_ComputeGeometryButton.Activate();
         }
 
 
@@ -420,7 +482,7 @@ bool VSPAEROScreen::Update()
         }
 
         // Create Setup Button
-        if( veh->GetVSPAEROCmd().empty() || !FileExist( VSPAEROMgr.m_DegenFileFull ) || m_SolverThreadIsRunning || m_SolverSetupThreadIsRunning )
+        if( veh->GetVSPAEROCmd().empty() || !FileExist( VSPAEROMgr.m_DegenFileFull ) || ( VSPAEROMgr.m_AnalysisMethod.Get()==vsp::VSPAERO_ANALYSIS_METHOD::PANEL && !FileExist( VSPAEROMgr.m_CompGeomFileFull ) ) || m_SolverThreadIsRunning || m_SolverSetupThreadIsRunning )
         {
             m_SetupButton.Deactivate();
         }
@@ -458,7 +520,7 @@ bool VSPAEROScreen::Update()
         }
 
         // Solver Button
-        if( veh->GetVSPAEROCmd().empty() || !FileExist( VSPAEROMgr.m_DegenFileFull ) || !FileExist( VSPAEROMgr.m_SetupFile ) || m_SolverThreadIsRunning )
+        if( veh->GetVSPAEROCmd().empty() || !FileExist( VSPAEROMgr.m_DegenFileFull ) || ( VSPAEROMgr.m_AnalysisMethod.Get()==vsp::VSPAERO_ANALYSIS_METHOD::PANEL & !FileExist( VSPAEROMgr.m_CompGeomFileFull ) ) || !FileExist( VSPAEROMgr.m_SetupFile ) || m_SolverThreadIsRunning )
         {
             m_SolverButton.Deactivate();
         }
@@ -477,7 +539,7 @@ bool VSPAEROScreen::Update()
         }
 
         // Plot Window Button
-        if( veh->GetVSPAEROCmd().empty() || !FileExist( VSPAEROMgr.m_DegenFileFull ) || !FileExist( VSPAEROMgr.m_SetupFile ) )
+        if( veh->GetVSPAEROCmd().empty() || !FileExist( VSPAEROMgr.m_DegenFileFull ) || ( VSPAEROMgr.m_AnalysisMethod.Get()==vsp::VSPAERO_ANALYSIS_METHOD::PANEL & !FileExist( VSPAEROMgr.m_CompGeomFileFull ) ) || !FileExist( VSPAEROMgr.m_SetupFile ) )
         {
             m_PlotButton.Deactivate();
         }
@@ -661,6 +723,7 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
 
     if( veh )
     {
+        //TODO add callback to determine if the setup file text has been edited
 
         if ( device == &m_SetupButton )
         {
@@ -762,13 +825,17 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             VSPAEROMgr.m_GeomSet = m_GeomSetChoice.GetVal();
         }
-        else if( device == &m_DegenGeomButton )
+        else if( device == &m_ComputeGeometryButton )
         {
             VSPAEROMgr.ComputeGeometry();
         }
         else if( device == &m_DegenFileButton )
         {
             veh->setExportFileName( vsp::DEGEN_GEOM_CSV_TYPE, m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select degen geom CSV output file.", "*.csv" ) );
+        }
+        else if( device == &m_CompGeomFileButton )
+        {
+            veh->setExportFileName( vsp::VSPAERO_PANEL_TRI_TYPE, m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select comp geom TRI output file.", "*.tri" ) );
         }
         else if( device == &m_CGSetChoice )
         {
