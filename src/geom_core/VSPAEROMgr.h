@@ -50,6 +50,7 @@ public:
     string ReadHistoryFile();
     string ReadLoadFile();
     string ReadStabFile();
+    vector <string> ReadDelimLine(FILE * fp, char * delimeters);
     void AddResultHeader( string res_id, double mach, double alpha, double beta );
     int ExportResultsToCSV( string fileName );
 

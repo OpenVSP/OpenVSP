@@ -326,12 +326,15 @@ void VSPAEROMgrSingleton::CreateSetupFile(FILE * outputFile)
 
     args.push_back( "-aoa" );
     args.push_back( StringUtil::double_to_string( m_AlphaStart(), "%f" ) );
+    args.push_back( "END" );
 
     args.push_back( "-beta" );
     args.push_back( StringUtil::double_to_string( m_BetaStart(), "%f" ) );
+    args.push_back( "END" );
 
     args.push_back( "-mach" );
     args.push_back( StringUtil::double_to_string( m_MachStart(), "%f" ) );
+    args.push_back( "END" );
 
     args.push_back( "-wakeiters" );
     args.push_back( StringUtil::int_to_string( m_WakeNumIter(), "%d" ) );
@@ -509,8 +512,11 @@ string VSPAEROMgrSingleton::ComputeSolver(FILE * outputFile)
                     // Set mach, alpha, beta (save to local "current*" variables to use as header information in the results manager)
                     args.push_back( "-fs" );       // "freestream" override flag
                     args.push_back( StringUtil::double_to_string( current_mach, "%f" ) );
+                    args.push_back( "END" );
                     args.push_back( StringUtil::double_to_string( current_alpha, "%f" ) );
+                    args.push_back( "END" );
                     args.push_back( StringUtil::double_to_string( current_beta, "%f" ) );
+                    args.push_back( "END" );
                     // Set number of openmp threads
                     args.push_back( "-omp" );
                     args.push_back( StringUtil::int_to_string( m_NCPU.Get(), "%d" ) );
@@ -520,11 +526,17 @@ string VSPAEROMgrSingleton::ComputeSolver(FILE * outputFile)
                         args.push_back( "-stab" );
                     }
                     // Force averaging startign at wake iteration N
-                    args.push_back( "-avg" );
-                    args.push_back( StringUtil::int_to_string( m_WakeAvgStartIter.Get(), "%d" ) );
-                    // No wake for first N iterations
-                    args.push_back( "-nowake" );
-                    args.push_back( StringUtil::int_to_string( m_WakeSkipUntilIter.Get(), "%d" ) );
+                    if( m_WakeAvgStartIter.Get() >= 1 )
+                    {
+                        args.push_back( "-avg" );
+                        args.push_back( StringUtil::int_to_string( m_WakeAvgStartIter.Get(), "%d" ) );
+                    }
+                    if( m_WakeSkipUntilIter.Get() >= 1 )
+                    {
+                        // No wake for first N iterations
+                        args.push_back( "-nowake" );
+                        args.push_back( StringUtil::int_to_string( m_WakeSkipUntilIter.Get(), "%d" ) );
+                    }
 
                     // Add model file name
                     args.push_back( m_DegenFile );
@@ -685,7 +697,7 @@ string VSPAEROMgrSingleton::ReadHistoryFile()
     fp = fopen( m_SetupFile.c_str(), "r" );
     if ( fp == NULL )
     {
-        fputs ( "VSPAEROMgrSingleton::ReadHistoryFile() - File open error\n", stderr );
+        fputs ( string("VSPAEROMgrSingleton::ReadHistoryFile() - Could not open Setup file: " + m_SetupFile + "\n").c_str(), stderr );
     }
     else
     {
@@ -713,24 +725,33 @@ string VSPAEROMgrSingleton::ReadHistoryFile()
         fp = fopen( m_HistoryFile.c_str(), "r" );
         if ( fp == NULL )
         {
-            fputs ( "VSPAEROMgrSingleton::ReadHistoryFile() - File open error\n", stderr );
+            fputs ( string("VSPAEROMgrSingleton::ReadHistoryFile() - Could not open History file: " + m_SetupFile + "\n").c_str(), stderr );
         }
         else
         {
-            // Read header line - we don't ever use this it's just a way to move the file pointer
-            // TODO - use the fields in the header string as the parameter names in the results manager
-            char headerstr [256];
-            fgets( headerstr, 255, fp );
-            // split headerstr into fieldnames
-            std::vector<string>fieldnames;
-            int n_fields = 0;
-            char * pch;
-            pch = strtok ( headerstr, " " );
-            while ( pch != NULL )
+            //// Solution Header
+            //fscanf(fp,"\n");
+            //fscanf(fp,"\n");
+            //int iSolverCase = 0;
+            //fscanf(fp,"Solver Case: %d \n", &iSolverCase);
+            //fscanf(fp,"\n");
+
+            // Read header lines until we find the table header idetified by a line with 13 strings
+            //  TODO - use the fields in the header string as the parameter names in the results manager
+            std::vector<string> fieldnames;
+            while( !feof(fp) && fieldnames.size()!=18 )
             {
-                n_fields++;
-                fieldnames.push_back( pch );
-                pch = strtok ( NULL, " " );
+                fieldnames.clear();
+
+                char seps[]   = " ,\t\n";
+                fieldnames = ReadDelimLine(fp,seps);
+            }
+
+            if( feof(fp) )
+            {
+                // no header found return an empty string
+                printf("WARNING wake iteration table not found! string VSPAEROMgrSingleton::ReadHistoryFile()\n");
+                return string();
             }
 
 
@@ -744,14 +765,14 @@ string VSPAEROMgrSingleton::ReadHistoryFile()
             std::vector<double> CDi;            CDi.assign( n_wakeiters, 0 );
             std::vector<double> CDtot;          CDtot.assign( n_wakeiters, 0 );
             std::vector<double> CS;             CS.assign( n_wakeiters, 0 );
+            std::vector<double> LoD;            LoD.assign( n_wakeiters, 0 );
+            std::vector<double> E;              E.assign( n_wakeiters, 0 );
             std::vector<double> CFx;            CFx.assign( n_wakeiters, 0 );
             std::vector<double> CFy;            CFy.assign( n_wakeiters, 0 );
             std::vector<double> CFz;            CFz.assign( n_wakeiters, 0 );
             std::vector<double> CMx;            CMx.assign( n_wakeiters, 0 );
             std::vector<double> CMy;            CMy.assign( n_wakeiters, 0 );
             std::vector<double> CMz;            CMz.assign( n_wakeiters, 0 );
-            std::vector<double> LoD;            LoD.assign( n_wakeiters, 0 );
-            std::vector<double> E;              E.assign( n_wakeiters, 0 );
             std::vector<double> ToQS;           ToQS.assign( n_wakeiters, 0 );
 
             // Read in all of the wake data first before adding to the results manager
@@ -832,71 +853,126 @@ string VSPAEROMgrSingleton::ReadLoadFile()
     }
     else
     {
-        // Read header line - we don't ever use this it's just a way to move the file pointer
-        // TODO - use the fields in the header string as the parameter names in the results manager
-        std::vector<string>fieldnames;
-        char strbuff[1024];                // buffer for entire line in file
-        char * pch;
-        fgets( strbuff, 1024, fp );
-        pch = strtok ( strbuff, " " );
-        while ( pch != NULL )
+        // Read header lines until we find the table header idetified by a line with 13 strings
+        //  TODO - use the fields in the header string as the parameter names in the results manager
+        std::vector<string> fieldnames;
+        while( !feof(fp) && fieldnames.size()!=13 )
         {
-            fieldnames.push_back( pch );
-            pch = strtok ( NULL, " " );
+            fieldnames.clear();
+
+            char seps[]   = " ,\t\n";
+            fieldnames = ReadDelimLine(fp,seps);
+        }
+
+        if( feof(fp) )
+        {
+            // no header found return an empty string
+            printf("WARNING load distribution table not found! string VSPAEROMgrSingleton::ReadLoadFile()\n");
+            return string();
         }
 
         std::vector<int> WingId;
         std::vector<double> Yavg;
         std::vector<double> Chord;
-        std::vector<double> CL;
-        std::vector<double> CD;
-        std::vector<double> CS;
+        std::vector<double> VoVinf;
+        std::vector<double> Cl;
+        std::vector<double> Cd;
+        std::vector<double> Cs;
+        std::vector<double> Cx;
+        std::vector<double> Cy;
+        std::vector<double> Cz;
+        std::vector<double> Cmx;
+        std::vector<double> Cmy;
+        std::vector<double> Cmz;
 
-        std::vector<double> CLc_cref;
-        std::vector<double> CDc_cref;
-        std::vector<double> CSc_cref;
-        //std::vector<double> CLc_ideal;  // TODO represents elliptical load distribution
+        //normalized by local chord
+        std::vector<double> Clc_cref;
+        std::vector<double> Cdc_cref;
+        std::vector<double> Csc_cref;
+        std::vector<double> Cxc_cref;
+        std::vector<double> Cyc_cref;
+        std::vector<double> Czc_cref;
+        std::vector<double> Cmxc_cref;
+        std::vector<double> Cmyc_cref;
+        std::vector<double> Cmzc_cref;
 
         int t_WingId;
         double t_Yavg;
         double t_Chord;
-        double t_CL;
-        double t_CD;
-        double t_CS;
+        double t_VoVinf;
+        double t_Cl;
+        double t_Cd;
+        double t_Cs;
+        double t_Cx;
+        double t_Cy;
+        double t_Cz;
+        double t_Cmx;
+        double t_Cmy;
+        double t_Cmz;
 
         //READ and ADD to the results manager
         Results* res = ResultsMgr.CreateResults( "VSPAERO_Load" );
-        result = fscanf( fp, "%d %lf %lf %lf %lf %lf", &t_WingId, &t_Yavg, &t_Chord, &t_CL, &t_CD, &t_CS );
-        while ( result == fieldnames.size() - 1 )
+        result = fieldnames.size();    //initialize to enter loop
+        double chordRatio;
+        while ( result == fieldnames.size() )
         {
+            result = fscanf( fp, "%d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf", &t_WingId, &t_Yavg, &t_Chord, &t_VoVinf, &t_Cl, &t_Cd, &t_Cs, &t_Cx, &t_Cy, &t_Cz, &t_Cmx, &t_Cmy, &t_Cmz );
 
-            WingId.push_back( t_WingId );
-            Yavg.push_back( t_Yavg );
-            Chord.push_back( t_Chord );
-            CL.push_back( t_CL );
-            CD.push_back( t_CD );
-            CS.push_back( t_CS );
+            if( result == fieldnames.size() )
+            {
+                WingId.push_back( t_WingId );
+                Yavg.push_back( t_Yavg );
+                Chord.push_back( t_Chord );
+                VoVinf.push_back( t_VoVinf );
+                Cl.push_back( t_Cl );
+                Cd.push_back( t_Cd );
+                Cs.push_back( t_Cs );
+                Cx.push_back( t_Cx );
+                Cy.push_back( t_Cy );
+                Cz.push_back( t_Cz );
+                Cmx.push_back( t_Cmx );
+                Cmy.push_back( t_Cmy );
+                Cmz.push_back( t_Cmz );
 
-            CLc_cref.push_back( t_CL * t_Chord / m_cref.Get() );
-            CDc_cref.push_back( t_CD * t_Chord / m_cref.Get() );
-            CSc_cref.push_back( t_CS * t_Chord / m_cref.Get() );
-
-            // read the next line
-            result = fscanf( fp, "%d %lf %lf %lf %lf %lf", &t_WingId, &t_Yavg, &t_Chord, &t_CL, &t_CD, &t_CS );
+                // Normalized by local chord
+                chordRatio = t_Chord / m_cref.Get();
+                Clc_cref.push_back( t_Cl * chordRatio );
+                Cdc_cref.push_back( t_Cd * chordRatio );
+                Csc_cref.push_back( t_Cs * chordRatio );
+                Cxc_cref.push_back( t_Cx * chordRatio );
+                Cyc_cref.push_back( t_Cy * chordRatio );
+                Czc_cref.push_back( t_Cz * chordRatio );
+                Cmxc_cref.push_back( t_Cmx * chordRatio );
+                Cmyc_cref.push_back( t_Cmy * chordRatio );
+                Cmzc_cref.push_back( t_Cmz * chordRatio );
+            }
         }
-        fclose ( fp );
+        std::fclose ( fp );
 
         // add to results manager
         res->Add( NameValData( "WingId", WingId ) );
         res->Add( NameValData( "Yavg", Yavg ) );
         res->Add( NameValData( "Chord", Chord ) );
-        res->Add( NameValData( "cl", CL ) );
-        res->Add( NameValData( "cd", CD ) );
-        res->Add( NameValData( "cs", CS ) );
+        res->Add( NameValData( "V/Vinf", Chord ) );
+        res->Add( NameValData( "cl", Cl ) );
+        res->Add( NameValData( "cd", Cd ) );
+        res->Add( NameValData( "cs", Cs ) );
+        res->Add( NameValData( "cx", Cx ) );
+        res->Add( NameValData( "cy", Cy ) );
+        res->Add( NameValData( "cz", Cz ) );
+        res->Add( NameValData( "cmx", Cmx ) );
+        res->Add( NameValData( "cmy", Cmy ) );
+        res->Add( NameValData( "cmz", Cmz ) );
 
-        res->Add( NameValData( "cl*c/cref", CLc_cref ) );
-        res->Add( NameValData( "cd*c/cref", CDc_cref ) );
-        res->Add( NameValData( "cs*c/cref", CSc_cref ) );
+        res->Add( NameValData( "cl*c/cref", Clc_cref ) );
+        res->Add( NameValData( "cd*c/cref", Cdc_cref ) );
+        res->Add( NameValData( "cs*c/cref", Csc_cref ) );
+        res->Add( NameValData( "cx*c/cref", Cxc_cref ) );
+        res->Add( NameValData( "cy*c/cref", Cyc_cref ) );
+        res->Add( NameValData( "cz*c/cref", Czc_cref ) );
+        res->Add( NameValData( "cmx*c/cref", Cmxc_cref ) );
+        res->Add( NameValData( "cmy*c/cref", Cmyc_cref ) );
+        res->Add( NameValData( "cmz*c/cref", Cmzc_cref ) );
 
         res_id = res->GetID();
     }
@@ -990,7 +1066,7 @@ string VSPAEROMgrSingleton::ReadStabFile()
                 }
 
                 // Checks for header format
-                if ( ( data_string_array.size() != table_column_names.size() ) | ( table_column_names.size() == 0 ) )
+                if ( ( data_string_array.size() != table_column_names.size() ) || ( table_column_names.size() == 0 ) )
                 {
                     //Indicator that the data table has changed or has not been initialized.
                     table_column_names.clear();
@@ -1022,6 +1098,25 @@ string VSPAEROMgrSingleton::ReadStabFile()
     return res_id;
 }
 
+vector <string> VSPAEROMgrSingleton::ReadDelimLine(FILE * fp, char * delimeters)
+{
+
+    vector <string> dataStringVector;
+    dataStringVector.clear();
+
+    char strbuff[1024];                // buffer for entire line in file
+    fgets( strbuff, 1024, fp );
+    char * pch;
+    pch = strtok ( strbuff, delimeters );
+    while ( pch != NULL )
+    {
+        dataStringVector.push_back( pch );
+        pch = strtok ( NULL, delimeters );
+    }
+
+    return dataStringVector;
+}
+
 //Export Results to CSV
 //  Return Values:
 //  -1 = INVALID Result ID
@@ -1044,3 +1139,4 @@ int VSPAEROMgrSingleton::ExportResultsToCSV( string fileName )
 
     return 0; //success
 }
+
