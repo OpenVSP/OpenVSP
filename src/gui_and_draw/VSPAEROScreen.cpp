@@ -47,19 +47,16 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     Fl_Group* overview_group = AddSubGroup( overview_tab, window_border_width );
     m_OverviewLayout.SetGroupAndScreen( overview_group, this );
 
-    m_OverviewLayout.AddX( group_border_width );
-    m_OverviewLayout.AddY( group_border_width );
-
     // Column layout
     GroupLayout left_col_layout;
     int left_col_width = 350 - 2 * group_border_width;
-    int col_height = m_OverviewLayout.GetH() - 2 * group_border_width - action_button_height;
+    int col_height = m_OverviewLayout.GetH() - group_border_width - action_button_height;
     m_OverviewLayout.AddSubGroupLayout( left_col_layout, left_col_width, col_height );
 
     m_OverviewLayout.AddX( left_col_layout.GetW() + 2 * group_border_width );
 
     GroupLayout right_col_layout;
-    int right_col_width = m_OverviewLayout.GetRemainX() - group_border_width;
+    int right_col_width = m_OverviewLayout.GetRemainX();
     m_OverviewLayout.AddSubGroupLayout( right_col_layout, right_col_width, col_height );
 
     m_OverviewLayout.ForceNewLine();
@@ -91,11 +88,11 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_GeomLayout.ForceNewLine();
 
     //  Degengeom output file selection, used for VLM & Panel methods
-    int lebelButtonWidth = 60;
+    int labelButtonWidth = 60;
     int fileButtonWidth = 25;
-    int inputWidth = m_GeomLayout.GetW() - lebelButtonWidth - fileButtonWidth;
+    int inputWidth = m_GeomLayout.GetW() - labelButtonWidth - fileButtonWidth;
 
-    m_GeomLayout.SetButtonWidth( lebelButtonWidth );
+    m_GeomLayout.SetButtonWidth( labelButtonWidth );
     m_GeomLayout.SetInputWidth( inputWidth );
 
     m_GeomLayout.AddOutput( m_DegenFileName, "Degen" );
@@ -106,7 +103,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_GeomLayout.ForceNewLine();
 
     //  CompGeom output file selection, used for Panel method only
-    m_GeomLayout.SetButtonWidth( lebelButtonWidth );
+    m_GeomLayout.SetButtonWidth( labelButtonWidth );
     m_GeomLayout.SetInputWidth( inputWidth );
 
     m_GeomLayout.AddOutput( m_CompGeomFileName, "Panel" );
@@ -115,24 +112,16 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_GeomLayout.AddButton( m_CompGeomFileButton, "..." );
     m_GeomLayout.ForceNewLine();
-
-    m_GeomLayout.SetButtonWidth( 125 );
-
-    m_GeomLayout.SetFitWidthFlag( true );
-    m_GeomLayout.AddChoice( m_GeomSetChoice, "Geometry Set:", m_GeomLayout.GetButtonWidth() );
-    m_GeomLayout.SetFitWidthFlag( false );
-    m_GeomLayout.AddButton( m_ComputeGeometryButton, "Generate Geometry" ); //This calls VSAERO.ComputeGeometry()
-    m_GeomLayout.ForceNewLine();
-
+    
     m_GeomLayout.InitWidthHeightVals();
-    m_GeomLayout.SetButtonWidth( 125 );
     m_GeomLayout.SetSameLineFlag( false );
     m_GeomLayout.SetFitWidthFlag( true );
+    m_GeomLayout.AddChoice( m_GeomSetChoice, "Geometry Set:" );
     m_GeomLayout.AddSlider( m_NCPUSlider, "Num CPU", 10.0, "%3.0f" );
     m_GeomLayout.AddButton( m_StabilityCalcToggle, "Stability Calculation" );
     m_GeomLayout.AddButton( m_BatchCalculationToggle, "Batch Calculation" );
 
-    left_col_layout.AddYGap();
+    left_col_layout.AddY(group_border_width);
 
     // Wake
     left_col_layout.AddSubGroupLayout( m_WakeLayout, left_col_layout.GetW() - 2 * group_border_width, 4 * row_height );
@@ -145,7 +134,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_WakeLayout.AddSlider( m_WakeAvgStartIterSlider, "Avg Start It.", 11, "%3.0f" );
     m_WakeLayout.AddSlider( m_WakeSkipUntilIterSlider, "Skip Until It.", 11, "%3.0f" );
 
-    left_col_layout.AddYGap();
+    left_col_layout.AddY(group_border_width);
 
     // Reference Quantities
     left_col_layout.AddSubGroupLayout( m_RefLayout, left_col_layout.GetW() - 2 * group_border_width, 6 * row_height );
@@ -177,7 +166,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_RefToggle.AddButton( m_RefManualToggle.GetFlButton() );
     m_RefToggle.AddButton( m_RefChoiceToggle.GetFlButton() );
 
-    left_col_layout.AddYGap();
+    left_col_layout.AddY(group_border_width);
 
     // CG
     left_col_layout.AddSubGroupLayout( m_CGLayout, left_col_layout.GetW() - 2 * group_border_width, 6 * row_height );
@@ -203,7 +192,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_CGLayout.AddSlider( m_YcgSlider, "Yref", 100.0, "%7.3f" );
     m_CGLayout.AddSlider( m_ZcgSlider, "Zref", 100.0, "%7.3f" );
 
-    left_col_layout.AddYGap();
+    left_col_layout.AddY(group_border_width);
 
     // Flow Condition
     left_col_layout.AddSubGroupLayout( m_FlowLayout, left_col_layout.GetW() - 2 * group_border_width, 4 * row_height );
@@ -217,13 +206,15 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_FlowLayout.AddInputEvenSpacedVector( m_BetaStartInput, m_BetaEndInput, m_BetaNptsInput, "Beta", "%7.3f" );
     m_FlowLayout.AddInputEvenSpacedVector( m_MachStartInput, m_MachEndInput, m_MachNptsInput, "Mach", "%7.3f" );
 
-    left_col_layout.AddYGap();
+    left_col_layout.AddY(group_border_width);
 
     // Execute
-    left_col_layout.AddSubGroupLayout( m_ExecuteLayout, left_col_layout.GetW() - 2 * group_border_width, 6 * row_height );
+    left_col_layout.AddSubGroupLayout( m_ExecuteLayout, left_col_layout.GetW() - 2 * group_border_width, 7 * row_height );
     left_col_layout.AddY( m_ExecuteLayout.GetH() );
 
     m_ExecuteLayout.AddDividerBox( "Execute" );
+
+    m_ExecuteLayout.AddButton( m_ComputeGeometryButton, "Generate Geometry" ); //This calls VSAERO.ComputeGeometry()
 
     m_ExecuteLayout.SetButtonWidth( m_ExecuteLayout.GetW() / 2 );
 
@@ -231,7 +222,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_ExecuteLayout.SetFitWidthFlag( false );
 
     m_ExecuteLayout.AddButton( m_SetupButton, "Create New Setup" );
-    m_ExecuteLayout.AddButton( m_KillSolverSetupButton, "Kill Solver Setup" );
+    m_ExecuteLayout.AddButton( m_KillSolverSetupButton, "Kill Setup" );
 
     m_ExecuteLayout.ForceNewLine();
 
@@ -252,7 +243,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     // Setup File
     right_col_layout.AddSubGroupLayout( m_SetupLayout, right_col_layout.GetW() - 2 * group_border_width, right_col_layout.GetH() - 2 * group_border_width );
 
-    m_SetupDividerBox = m_SetupLayout.AddDividerBox( "VSPAERO Setup File: *.vspaero" );
+    m_SetupDividerBox = m_SetupLayout.AddDividerBox( "Setup File: *.vspaero" );
 
     m_SetupEditor = m_SetupLayout.AddFlTextEditor( m_SetupLayout.GetRemainY() - m_SetupLayout.GetStdHeight() );
 
@@ -935,7 +926,7 @@ void VSPAEROScreen::ReadSetup()
     if( loadStatus == 0 && m_SetupDividerBox )
     {
         string fileName = GetFilename( VSPAEROMgr.m_SetupFile );
-        m_SetupDividerBox->copy_label( std::string( "VSPAERO Setup File: " + fileName ).c_str() );
+        m_SetupDividerBox->copy_label( std::string( "Setup File: " + fileName ).c_str() );
     }
 }
 
