@@ -679,7 +679,7 @@ void AddPointLine( const vector <double> & xdata, const vector <double> & ydata,
     
     if ( n != ydata.size() )
     {
-        printf("ERROR: xdata.size() != ydata.size()\n\tFunction:void AddPointLine( const vector <double> & xdata, const vector <double> & ydata, int linewidth, Fl_Color color, int pointsize, int pointstyle )\n\tFile:GroupLayout.cpp\n");
+        printf("ERROR: xdata.size() != ydata.size() \n\tFile: %s \tLine:%d\n",__FILE__,__LINE__);
         return;
     }
 

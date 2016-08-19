@@ -902,7 +902,7 @@ void VSPAERODegenGeomAnalysis::SetDefaults()
     else
     {
         // TODO Throw an error here
-        printf("ERROR - trying to set defaults without a vehicle: void VSPAERODegenGeomAnalysis::SetDefaults()\n");
+        printf("ERROR: trying to set defaults without a vehicle \n\tFile: %s \tLine:%d\n",__FILE__,__LINE__);
     }
 }
 
@@ -975,7 +975,7 @@ void VSPAEROSinglePointAnalysis::SetDefaults()
     else
     {
         // TODO Throw an error here
-        printf("ERROR - trying to set defaults without a vehicle: void VSPAERODegenGeomAnalysis::SetDefaults()\n");
+        printf("ERROR: trying to set defaults without a vehicle \n\tFile: %s \tLine:%d\n",__FILE__,__LINE__);
     }
 }
 
@@ -1146,7 +1146,7 @@ void VSPAEROSweepAnalysis::SetDefaults()
     else
     {
         // TODO Throw an error here
-        printf("ERROR - trying to set defaults without a vehicle: void VSPAERODegenGeomAnalysis::SetDefaults()\n");
+        printf("ERROR: trying to set defaults without a vehicle \n\tFile: %s \tLine:%d\n",__FILE__,__LINE__);
     }
 }
 

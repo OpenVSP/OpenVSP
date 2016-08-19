@@ -240,7 +240,7 @@ int Ca_Axis_::next_tick(int &tick_index, double &tick_value, int &tick_order, do
 
   if(scale_ & CA_LOG){   /////////////     begin logarithmic   /////////////////
     if (!interval){
-        if(min_==0){printf("ERROR: Infinite Loop caused by log10(0) see: Cartesian.cpp(Ca_Axis_::next_tick))\n");}
+        if(min_==0){printf("ERROR: Infinite Loop caused by log10(0) \n\tFile: %s \tLine:%d\n",__FILE__,__LINE__);}
       if (tick_interval_!=0){
         interval=fabs(tick_interval_);
         number_per_order=(int)floor(10/interval+0.5);
