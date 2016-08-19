@@ -30,7 +30,7 @@ protected:
     SliderAdjRangeInput m_YRot;
     SliderAdjRangeInput m_ZRot;
 
-    SliderInput m_Scale;
+    SliderAdjRangeInput m_Scale;
     ToggleButton m_ApplyScaleToTranslations;
 
     TriggerButton m_ResetButton;
