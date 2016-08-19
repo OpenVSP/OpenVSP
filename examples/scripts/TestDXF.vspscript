@@ -68,7 +68,7 @@ void TestDXF()
     string geom_id = FindContainer( "Vehicle", 0 );
 
     //==== Default 2D 4 View DXF Export ====//
-    SetParmVal( FindParm( geom_id, "2D3DFlag", "DXFSettings" ), SET_2D );
+    SetParmVal( FindParm( geom_id, "DimFlag", "DXFSettings" ), SET_2D );
     Update();
 
     Print( string( "---> Test Write 2D 4 View" ) );
@@ -77,7 +77,7 @@ void TestDXF()
     Print( string( "" ) );
 
     //==== 2D 1 View DXF Export ====//
-    SetParmVal( FindParm( geom_id, "2DViewType", "DXFSettings" ), VIEW_1 );
+    SetParmVal( FindParm( geom_id, "ViewType", "DXFSettings" ), VIEW_1 );
     SetParmVal( FindParm( geom_id, "TopLeftView", "DXFSettings" ), VIEW_BOTTOM );
     SetParmVal( FindParm( geom_id, "TopLeftRotation", "DXFSettings" ), ROT_90 );
     Update();
@@ -89,7 +89,7 @@ void TestDXF()
     Print( string( "" ) );
 
     //==== 2D 2 Horizontal View DXF Export ====//
-    SetParmVal( FindParm( geom_id, "2DViewType", "DXFSettings" ), VIEW_2HOR );
+    SetParmVal( FindParm( geom_id, "ViewType", "DXFSettings" ), VIEW_2HOR );
     SetParmVal( FindParm( geom_id, "TopRightView", "DXFSettings" ), VIEW_RIGHT );
     SetParmVal( FindParm( geom_id, "TopRightRotation", "DXFSettings" ), ROT_270 );
     Update();
@@ -101,7 +101,7 @@ void TestDXF()
     Print( string( "" ) );
 
     //==== 2D 2 Vertical View DXF Export ====//
-    SetParmVal( FindParm( geom_id, "2DViewType", "DXFSettings" ), VIEW_2VER );
+    SetParmVal( FindParm( geom_id, "ViewType", "DXFSettings" ), VIEW_2VER );
     SetParmVal( FindParm( geom_id, "BottomLeftView", "DXFSettings" ), VIEW_REAR );
     SetParmVal( FindParm( geom_id, "BottomLeftRotation", "DXFSettings" ), ROT_0 );
     Update();
