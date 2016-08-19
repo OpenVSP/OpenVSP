@@ -54,11 +54,14 @@ public:
     void AddResultHeader( string res_id, double mach, double alpha, double beta );
     int ExportResultsToCSV( string fileName );
 
+    IntParm m_AnalysisMethod;
+
     BoolParm m_ForceNewSetupfile;
 
     // file names
     string m_ModelNameBase; // this is the name used in the execution string
     string m_DegenFileFull; //degengeom file name WITH .csv file extension
+    string m_CompGeomFileFull; //geometry file used for panel method
     string m_SetupFile;
     string m_AdbFile;
     string m_HistoryFile;
@@ -124,6 +127,8 @@ public:
     ProcessUtil m_SolverProcess;
 
 protected:
+    string m_LastPanelMeshGeomId;
+
     void WaitForFile( string filename );  // function is used to wait for the result to show up on the file system
 
     bool m_SolverProcessKill;

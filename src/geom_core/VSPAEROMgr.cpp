@@ -14,6 +14,8 @@
 #include "StlHelper.h"
 #include "APIDefines.h"
 #include "WingGeom.h"
+#include "MeshGeom.h"
+#include "APIDefines.h"
 
 #include "StringUtil.h"
 #include "FileUtil.h"
@@ -27,6 +29,11 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
 
     m_GeomSet.Init( "GeomSet", "VSPAERO", this, 0, 0, 12 );
     m_GeomSet.SetDescript( "Geometry set" );
+
+    m_AnalysisMethod.Init( "AnalysisMethod", "VSPAERO", this, vsp::VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE, vsp::VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE, vsp::VSPAERO_ANALYSIS_METHOD::PANEL );
+    m_AnalysisMethod.SetDescript( "Analysis method: 0=VLM, 1=Panel" );
+
+    m_LastPanelMeshGeomId = string();
 
     m_Sref.Init( "Sref", "VSPAERO", this, 100.0, 0.0, 1e12 );
     m_Sref.SetDescript( "Reference area" );
@@ -224,7 +231,9 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
     {
         // Generate the base name based on the vsp3filename without the extension
         int pos = -1;
+        switch (m_AnalysisMethod.Get() )
         {
+        case vsp::VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE:
             // The base_name is dependent on the DegenFileName
             // TODO extra "_DegenGeom" is added to the m_ModelBase
             m_ModelNameBase = veh->getExportFileName( vsp::DEGEN_GEOM_CSV_TYPE );
@@ -233,6 +242,17 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
             {
                 m_ModelNameBase.erase( pos, m_ModelNameBase.length() - 1 );
             }
+            break;
+        case vsp::VSPAERO_ANALYSIS_METHOD::PANEL:
+            m_ModelNameBase = veh->getExportFileName( vsp::VSPAERO_PANEL_TRI_TYPE );
+            pos = m_ModelNameBase.find( ".tri" );
+            if ( pos >= 0 )
+            {
+                m_ModelNameBase.erase( pos, m_ModelNameBase.length() - 1 );
+            }
+            break;
+        default:
+            break;
         }
 
         // remove the .csv file extension so it can be used as the base name for VSPAERO files
@@ -240,12 +260,20 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
         {
             // TODO Test file creation/accessibility
 
+            //Conditional setting of m_DegenFileFull due to the way m_ModelNameBase is created from the export file name
+            switch (m_AnalysisMethod.Get() )
             {
+            case vsp::VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE:
                 // m_ModelNameBase already has the "_DegenGeom" suffix so there is no need to add it again
                 m_DegenFileFull     = m_ModelNameBase + string( ".csv" );
+                break;
+            case vsp::VSPAERO_ANALYSIS_METHOD::PANEL:
+                m_DegenFileFull     = m_ModelNameBase + string( "_DegenGeom.csv" );
+                break;
             }
 
             // Now that we have passed all the checks set the member variables and return
+            m_CompGeomFileFull  = m_ModelNameBase + string( ".tri" );
             m_SetupFile         = m_ModelNameBase + string( ".vspaero" );
             m_AdbFile           = m_ModelNameBase + string( ".adb" );
             m_HistoryFile       = m_ModelNameBase + string( ".history" );
@@ -278,6 +306,32 @@ string VSPAEROMgrSingleton::ComputeGeometry()
     veh->setExportDegenGeomMFile( exptMfile_orig );
     veh->setExportDegenGeomCsvFile( exptCSVfile_orig );
 
+    if ( m_AnalysisMethod.Get() == vsp::VSPAERO_ANALYSIS_METHOD::PANEL )
+    {
+        // Cleanup previously created meshGeom IDs created from VSPAEROMgr
+        if ( veh->FindGeom(m_LastPanelMeshGeomId) )
+        {
+            veh->DeleteGeom(m_LastPanelMeshGeomId);
+        }
+        int halfFlag = 0;
+        m_LastPanelMeshGeomId = veh->CompGeomAndFlatten( VSPAEROMgr.m_GeomSet(), halfFlag);
+
+        // After CompGeom() is run all the geometry is hidden and the intersected & trimmed mesh is the only one shown
+        veh->WriteTRIFile( m_CompGeomFileFull , vsp::SET_TYPE::SET_SHOWN );
+        WaitForFile(m_CompGeomFileFull);
+        if ( !FileExist(m_CompGeomFileFull) )
+        {
+            printf("WARNING: CompGeom file not found: %s\n\tFunction: string VSPAEROMgrSingleton::ComputeGeometry()\n", m_CompGeomFileFull.c_str() );
+        }
+
+    }
+
+    // Clear previous results
+    while ( ResultsMgr.GetNumResults( "VSPAERO_Geom" ) > 0 )
+    {
+        ResultsMgr.DeleteResult( ResultsMgr.FindResultsID( "VSPAERO_Geom",  0 ) );
+    }
+    // Write out new results
     Results* res = ResultsMgr.CreateResults( "VSPAERO_Geom" );
     if ( !res )
     {
@@ -287,6 +341,16 @@ string VSPAEROMgrSingleton::ComputeGeometry()
     res->Add( NameValData( "GeometrySet", VSPAEROMgr.m_GeomSet() ) );
     res->Add( NameValData( "AnalysisMethod", m_AnalysisMethod.Get() ) );
     res->Add( NameValData( "DegenGeomFileName", m_DegenFileFull ) );
+    if ( m_AnalysisMethod.Get() == vsp::VSPAERO_ANALYSIS_METHOD::PANEL )
+    {
+        res->Add( NameValData( "CompGeomFileName", m_CompGeomFileFull ) );
+        res->Add( NameValData( "Mesh_GeomID", m_LastPanelMeshGeomId ) );
+    }
+    else
+    {
+        res->Add( NameValData( "CompGeomFileName", string() ) );
+        res->Add( NameValData( "Mesh_GeomID", string() ) );
+    }
 
     return res->GetID();
 
@@ -409,10 +473,6 @@ void VSPAEROMgrSingleton::CreateSetupFile(FILE * outputFile)
 
 void VSPAEROMgrSingleton::ClearAllPreviousResults()
 {
-    while ( ResultsMgr.GetNumResults( "VSPAERO_DegenGeom" ) > 0 )
-    {
-        ResultsMgr.DeleteResult( ResultsMgr.FindResultsID( "VSPAERO_DegenGeom",  0 ) );
-    }
     while ( ResultsMgr.GetNumResults( "VSPAERO_History" ) > 0 )
     {
         ResultsMgr.DeleteResult( ResultsMgr.FindResultsID( "VSPAERO_History",  0 ) );
