@@ -32,16 +32,6 @@ public:
         // Export
         TEST_ADD( APITestSuite::TestDXFExport )
 
-        // VSPAERO
-        //  Vortex Lattice Method Tests
-        TEST_ADD( APITestSuite::TestVSPAeroComputeGeom )
-        TEST_ADD( APITestSuite::TestVSPAeroSinglePoint )
-        TEST_ADD( APITestSuite::TestVSPAeroSinglePointStab )
-        TEST_ADD( APITestSuite::TestVSPAeroSweep )
-
-        //  Panel Method Tests
-        TEST_ADD( APITestSuite::TestVSPAeroComputeGeomPanel )
-        TEST_ADD( APITestSuite::TestVSPAeroSinglePointPanel )
     }
 
 private:
@@ -56,23 +46,40 @@ private:
     void TestAnalysesWithPod();
     // Export
     void TestDXFExport();
+};
+
+class APITestSuiteVSPAERO : public Test::Suite
+{
+public:
+    APITestSuiteVSPAERO()
+    {
+        // VSPAERO
+        TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroCreateModel )     //this test just creates the model with various features
+        //  Vortex Lattice Method Tests
+        TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroComputeGeom )
+        TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroSinglePoint )
+        TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroSinglePointStab )
+        TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroSweep )
+        TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroSweepBatch )
+        //  Panel Method Tests
+        TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroComputeGeomPanel )
+        TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroSinglePointPanel )
+    }
+
+private:
     // VSPAERO
+    void TestVSPAeroCreateModel();
     //  Vortex Lattice Method Tests
     void TestVSPAeroComputeGeom();        //<--Execute this VSPERO test first
     void TestVSPAeroSinglePoint();
     void TestVSPAeroSinglePointStab();
     void TestVSPAeroSweep();
+    void TestVSPAeroSweepBatch();
     //  Panel Method Tests
     void TestVSPAeroComputeGeomPanel();        //<--Execute this VSPERO test first for panel methods
     void TestVSPAeroSinglePointPanel();
 
-    // Helper functions
-    void PrintAnalysisInputs(const string analysis_name);
-    void PrintResults(const vector < string > &results_id_vec );
-    void PrintResults(const string &results_id);
-
     string m_vspfname_for_vspaerotests;
-    string m_vspfname_for_vspaerotests_panel;
 };
 
 #endif // !defined(VSPAPITESTSUITE__INCLUDED_)

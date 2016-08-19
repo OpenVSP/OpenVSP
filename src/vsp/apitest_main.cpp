@@ -29,8 +29,8 @@ bool run_tests()
     // Add desired suites to parent suite
     Test::Suite ts;
     ts.add(std::auto_ptr<Test::Suite>(new APITestSuite));    //This line can be copied to add new test suites
-
-
+    ts.add(std::auto_ptr<Test::Suite>(new APITestSuiteVSPAERO));
+    
     // Test Suite run parameters
     Test::TextOutput output(Test::TextOutput::Verbose);
     bool cont_after_fail = true; //TRUE continues test execution after failure
