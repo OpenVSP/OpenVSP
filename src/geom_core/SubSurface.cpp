@@ -1211,6 +1211,7 @@ void SSControlSurf::UpdateDrawObjs()
 
             MakeCircleArrow( pmid, dir, 0.25, m_HingeDO, m_ArrowDO );
         }
+        m_ArrowDO.m_NormVec = vector <vec3d> ( m_ArrowDO.m_PntVec.size() );
     }
 }
 
