@@ -25,7 +25,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 #define VSPAERO_SCREEN_WIDTH 850
-#define VSPAERO_SCREEN_HEIGHT 730
+#define VSPAERO_SCREEN_HEIGHT 750
 
 VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_WIDTH, VSPAERO_SCREEN_HEIGHT, "VSPAERO" )
 {
@@ -66,7 +66,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_OverviewLayout.AddY( right_col_layout.GetH() );   //add Y for Execute divider box
 
     // Case Setup
-    left_col_layout.AddSubGroupLayout( m_GeomLayout, left_col_layout.GetW() - 2 * group_border_width, 7 * row_height );
+    left_col_layout.AddSubGroupLayout( m_GeomLayout, left_col_layout.GetW() - 2 * group_border_width, 8 * row_height );
     left_col_layout.AddY( m_GeomLayout.GetH() );
 
     m_GeomLayout.AddDividerBox( "Case Setup" );
@@ -130,6 +130,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_GeomLayout.SetFitWidthFlag( true );
     m_GeomLayout.AddSlider( m_NCPUSlider, "Num CPU", 10.0, "%3.0f" );
     m_GeomLayout.AddButton( m_StabilityCalcToggle, "Stability Calculation" );
+    m_GeomLayout.AddButton( m_BatchCalculationToggle, "Batch Calculation" );
 
     left_col_layout.AddYGap();
 
@@ -412,6 +413,7 @@ bool VSPAEROScreen::Update()
 
         m_NCPUSlider.Update( VSPAEROMgr.m_NCPU.GetID() );
         m_StabilityCalcToggle.Update( VSPAEROMgr.m_StabilityCalcFlag.GetID() );
+        m_BatchCalculationToggle.Update( VSPAEROMgr.m_BatchModeFlag.GetID() );
         //printf("m_SolverProcess.m_ThreadID = %lu\n", m_SolverProcess.m_ThreadID);
         if( m_SolverThreadIsRunning )
         {
@@ -570,12 +572,13 @@ bool VSPAEROScreen::Update()
         }
 
         // Export Button
-        string resId = ResultsMgr.FindResultsID( "VSPAERO_Wrapper",  0 );
-        Results* resptr = ResultsMgr.FindResultsPtr( resId );
-        if ( resptr )
+        if ( ResultsMgr.GetNumResults("VSPAERO_Wrapper")==0 )
+        {
+            m_ExportResultsToCsvButton.Deactivate();
+        }
+        else
         {
             m_ExportResultsToCsvButton.Activate();
-            //m_ExportResultsToMatlabButton.Activate();
         }
 
     }
@@ -635,6 +638,7 @@ void * monitorfun( void *data )
             bool runflag = pu->IsRunning();
             while( runflag || nread > 0 )
             {
+                nread=0;
                 pu->ReadStdoutPipe( buf, bufsize, &nread );
 
                 if( nread > 0 )

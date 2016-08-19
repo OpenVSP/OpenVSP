@@ -41,17 +41,15 @@ public:
 
     void UpdateFilenames();
     string ComputeGeometry();
-    void CreateSetupFile(FILE * outputFile=NULL);
-    string ComputeSolver(FILE * outputFile=NULL);     // returns a result with a vector of results id's under the name ResultVec
+    void CreateSetupFile(FILE * logFile=NULL);
+    string ComputeSolver(FILE * logFile=NULL);     // returns a result with a vector of results id's under the name ResultVec
+    string ComputeSolverBatch(FILE * logFile=NULL);
+    string ComputeSolverSingle(FILE * logFile=NULL);
     ProcessUtil* GetSolverProcess();
     bool IsSolverRunning();
     void KillSolver();
     void ReadAllResults();
-    string ReadHistoryFile();
-    string ReadLoadFile();
-    string ReadStabFile();
-    vector <string> ReadDelimLine(FILE * fp, char * delimeters);
-    void AddResultHeader( string res_id, double mach, double alpha, double beta );
+
     int ExportResultsToCSV( string fileName );
 
     IntParm m_AnalysisMethod;
@@ -76,6 +74,7 @@ public:
     string m_RefGeomID;
     IntParm m_RefFlag;
     BoolParm m_StabilityCalcFlag;
+    BoolParm m_BatchModeFlag;
 
     IntParm m_CGGeomSet;
     IntParm m_NumMassSlice;
@@ -133,6 +132,17 @@ protected:
     void GetSweepVectors( vector<double> &alphaVec, vector<double> &betaVec, vector<double> &machVec);
 
     bool m_SolverProcessKill;
+
+    // helper functions for VSPAERO files
+    void ReadHistoryFile(string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod);
+    void ReadLoadFile(string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod);
+    void ReadStabFile(string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod);
+    vector <string> ReadDelimLine(FILE * fp, char * delimeters);
+    bool CheckForCaseHeader(std::vector<string> headerStr);
+    int ReadVSPAEROCaseHeader(Results * res, FILE * fp, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod);
+
+    void AddResultHeader( string res_id, double mach, double alpha, double beta, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod );
+
 
 private:
     VSPAEROMgrSingleton();

@@ -87,6 +87,7 @@ protected:
     // Additional options
     SliderAdjRangeInput m_NCPUSlider;
     ToggleButton m_StabilityCalcToggle;
+    ToggleButton m_BatchCalculationToggle;
 
     // Wake calculation options
     GroupLayout m_WakeLayout;
