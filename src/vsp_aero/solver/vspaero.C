@@ -283,6 +283,7 @@ void ParseInput(int argc, char *argv[])
        printf("    -mach  M     Freestream Mach number.\n");
        printf("    -aoa   A     Angle of attack.\n");
        printf("    -beta  B     Sideslip angle.\n");
+       printf("    -wakeiters N Number of wake iterations to calculate.\n");
 
  
        exit(1);
@@ -439,6 +440,7 @@ void ParseInput(int argc, char *argv[])
           printf("    -mach  M     Freestream Mach number.\n");
           printf("    -aoa   A     Angle of attack.\n");
           printf("    -beta  B     Sideslip angle.\n");
+          printf("    -wakeiters N Number of wake iterations to calculate.\n");
 
           exit(1);
 
@@ -609,6 +611,11 @@ void CreateInputFile(char *argv[], int argc, int &i)
           
        }  
                      
+       else if ( strcmp(argv[i],"-wakeiters") == 0 ) {
+
+          WakeIterations_ = atof(argv[++i]);
+
+       }
        i++; 
        
     }
