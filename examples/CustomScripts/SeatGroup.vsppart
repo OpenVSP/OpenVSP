@@ -252,7 +252,35 @@ void BuildSeatBack( string surf_id, double width, double length, double height,
 }
 
 
+//==== Optional Scale =====//
+void Scale(double curr_scale )
+{
+    string geom_id = GetCurrCustomGeom();
 
+    string width = GetParm( geom_id, "Width", "Design" );
+    string seat_height = GetParm( geom_id, "SeatHeight", "Design" );
+    string seat_length = GetParm( geom_id, "SeatLength", "Design" );
+    string back_height = GetParm( geom_id, "BackHeight", "Design" );
+    string back_thick = GetParm( geom_id, "BackThick", "Design" );
+    string seat_pitch = GetParm( geom_id, "SeatPitch", "Layout" );
+    string seat_gap = GetParm( geom_id, "SeatGap", "Layout" );
+    string aisle_width = GetParm( geom_id, "AisleWidth", "Layout" );
 
+    double width_v = curr_scale*GetParmVal( width );
+    double seat_height_v = curr_scale*GetParmVal( seat_height );
+    double seat_length_v = curr_scale*GetParmVal( seat_length );
+    double back_height_v = curr_scale*GetParmVal( back_height );
+    double back_thick_v = curr_scale*GetParmVal( back_thick );
+    double seat_pitch_v = curr_scale*GetParmVal( seat_pitch );
+    double seat_gap_v = curr_scale*GetParmVal( seat_gap );
+    double aisle_width_v = curr_scale*GetParmVal( aisle_width );
 
-
+    SetParmVal( width, width_v );
+    SetParmVal( seat_height, seat_height_v );
+    SetParmVal( seat_length, seat_length_v );
+    SetParmVal( back_height, back_height_v );
+    SetParmVal( back_thick, back_thick_v );
+    SetParmVal( seat_pitch, seat_pitch_v );
+    SetParmVal( seat_gap, seat_gap_v );
+    SetParmVal( aisle_width, aisle_width_v );
+}

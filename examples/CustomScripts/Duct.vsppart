@@ -136,3 +136,21 @@ void UpdateXSecLocRot( string xsec, string spine_id, double fract  )
 	SetCustomXSecRot( xsec, vec3d( 0, Rad2Deg(ang), 0) );
     SetXSecContinuity( xsec, 2 );
 }
+
+//==== Optional Scale =====//
+void Scale(double curr_scale )
+{
+    string geom_id = GetCurrCustomGeom();
+
+    string width_id = GetParm( geom_id, "Width", "Design" );
+    string height_id = GetParm( geom_id,  "Height", "Design" );
+    string chord_id = GetParm( geom_id,  "Chord", "Design" );
+
+    double width = curr_scale*GetParmVal( width_id );
+    double height = curr_scale*GetParmVal( height_id );
+    double chord = curr_scale*GetParmVal( chord_id );
+
+    SetParmVal( width_id, width);
+    SetParmVal( height_id, height);
+    SetParmVal( chord_id, chord );
+}

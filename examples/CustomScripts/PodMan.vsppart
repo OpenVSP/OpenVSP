@@ -232,3 +232,15 @@ void BuildPod( string surf_id, double length, double width, double thickness, do
     SetXSecTanStrengths( xsec4, XSEC_BOTH_SIDES, width*tan_str );
   
 }
+
+//==== Optional Scale =====//
+void Scale(double curr_scale )
+{
+    string geom_id = GetCurrCustomGeom();
+
+    string ht_id = GetParm( geom_id, "Height", "Design" );
+
+    double ht  = curr_scale*GetParmVal( ht_id );
+
+    SetParmVal( ht_id, ht );
+}
