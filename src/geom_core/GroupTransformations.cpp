@@ -101,7 +101,7 @@ void GroupTransformations::Update()
 
         // Only apply transform (except scale) if either the geom has no active parent or its coordinate system
         // is not relative to another geometry's coordinate system
-        if ( parent_in_group == false || thisGeom->m_TransAttachFlag.Get() == GeomXForm::ATTACH_TRANS_NONE )
+        if ( parent_in_group == false || ( thisGeom->m_TransAttachFlag.Get() == GeomXForm::ATTACH_TRANS_NONE && !thisGeom->IsParentJoint() ) )
         {
             delta_x = m_GroupXLoc.Get();
             delta_y = m_GroupYLoc.Get();
@@ -110,7 +110,7 @@ void GroupTransformations::Update()
 
         // Only apply rotation if either the geom has no active parent or its
         // rotation coordinate system is not relative to another geometry's rotational coordiante system
-        if ( !parent_in_group || thisGeom->m_RotAttachFlag.Get() == GeomXForm::ATTACH_ROT_NONE )
+        if ( !parent_in_group || ( thisGeom->m_RotAttachFlag.Get() == GeomXForm::ATTACH_ROT_NONE && !thisGeom->IsParentJoint() ))
         {
             delta_xrot = m_GroupXRot.Get();
             delta_yrot = m_GroupYRot.Get();
