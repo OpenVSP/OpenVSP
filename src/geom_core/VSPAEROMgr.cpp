@@ -333,10 +333,12 @@ string VSPAEROMgrSingleton::ComputeGeometry()
         {
             veh->DeleteGeom(m_LastPanelMeshGeomId);
         }
+
+        // Compute intersected and trimmed geometry
         int halfFlag = 0;
         m_LastPanelMeshGeomId = veh->CompGeomAndFlatten( VSPAEROMgr.m_GeomSet(), halfFlag);
 
-        // After CompGeom() is run all the geometry is hidden and the intersected & trimmed mesh is the only one shown
+        // After CompGeomAndFlatten() is run all the geometry is hidden and the intersected & trimmed mesh is the only one shown
         veh->WriteTRIFile( m_CompGeomFileFull , vsp::SET_TYPE::SET_SHOWN );
         WaitForFile(m_CompGeomFileFull);
         if ( !FileExist(m_CompGeomFileFull) )
@@ -523,57 +525,57 @@ void VSPAEROMgrSingleton::ClearAllPreviousResults()
 
 void VSPAEROMgrSingleton::GetSweepVectors( vector<double> &alphaVec, vector<double> &betaVec, vector<double> &machVec)
 {
-        // grab current parm values
-        double alphaStart = m_AlphaStart.Get();
-        double alphaEnd = m_AlphaEnd.Get();
-        int alphaNpts = m_AlphaNpts.Get();
+    // grab current parm values
+    double alphaStart = m_AlphaStart.Get();
+    double alphaEnd = m_AlphaEnd.Get();
+    int alphaNpts = m_AlphaNpts.Get();
 
-        double betaStart = m_BetaStart.Get();
-        double betaEnd = m_BetaEnd.Get();
-        int betaNpts = m_BetaNpts.Get();
+    double betaStart = m_BetaStart.Get();
+    double betaEnd = m_BetaEnd.Get();
+    int betaNpts = m_BetaNpts.Get();
 
-        double machStart = m_MachStart.Get();
-        double machEnd = m_MachEnd.Get();
-        int machNpts = m_MachNpts.Get();
+    double machStart = m_MachStart.Get();
+    double machEnd = m_MachEnd.Get();
+    int machNpts = m_MachNpts.Get();
 
-        // Calculate spacing
-        double alphaDelta = 0.0;
-        if ( alphaNpts > 1 )
-        {
-            alphaDelta = ( alphaEnd - alphaStart ) / ( alphaNpts - 1.0 );
-        }
-        for ( int iAlpha = 0; iAlpha < alphaNpts; iAlpha++ )
-        {
-            //Set current alpha value
-            alphaVec.push_back( alphaStart + double( iAlpha ) * alphaDelta );
-        }
+    // Calculate spacing
+    double alphaDelta = 0.0;
+    if ( alphaNpts > 1 )
+    {
+        alphaDelta = ( alphaEnd - alphaStart ) / ( alphaNpts - 1.0 );
+    }
+    for ( int iAlpha = 0; iAlpha < alphaNpts; iAlpha++ )
+    {
+        //Set current alpha value
+        alphaVec.push_back( alphaStart + double( iAlpha ) * alphaDelta );
+    }
 
-        double betaDelta = 0.0;
-        if ( betaNpts > 1 )
-        {
-            betaDelta = ( betaEnd - betaStart ) / ( betaNpts - 1.0 );
-        }
-        for ( int iBeta = 0; iBeta < betaNpts; iBeta++ )
-        {
-            //Set current alpha value
-            betaVec.push_back( betaStart + double( iBeta ) * betaDelta );
-        }
+    double betaDelta = 0.0;
+    if ( betaNpts > 1 )
+    {
+        betaDelta = ( betaEnd - betaStart ) / ( betaNpts - 1.0 );
+    }
+    for ( int iBeta = 0; iBeta < betaNpts; iBeta++ )
+    {
+        //Set current alpha value
+        betaVec.push_back( betaStart + double( iBeta ) * betaDelta );
+    }
 
-        double machDelta = 0.0;
-        if ( machNpts > 1 )
-        {
-            machDelta = ( machEnd - machStart ) / ( machNpts - 1.0 );
-        }
-        for ( int iMach = 0; iMach < machNpts; iMach++ )
-        {
-            //Set current alpha value
-            machVec.push_back( machStart + double( iMach ) * machDelta );
-        }
+    double machDelta = 0.0;
+    if ( machNpts > 1 )
+    {
+        machDelta = ( machEnd - machStart ) / ( machNpts - 1.0 );
+    }
+    for ( int iMach = 0; iMach < machNpts; iMach++ )
+    {
+        //Set current alpha value
+        machVec.push_back( machStart + double( iMach ) * machDelta );
+    }
 }
 
-/* ComputeSolver(FILE * outputFile)
-    Returns a result with a vector of results id's under the name ResultVec
-    Optional input of outputFile allows outputting to a log file or the console
+/* ComputeSolver(FILE * logFile)
+Returns a result with a vector of results id's under the name ResultVec
+Optional input of logFile allows outputting to a log file or the console
 */
 string VSPAEROMgrSingleton::ComputeSolver(FILE * logFile)
 {
