@@ -291,7 +291,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( !veh )
     {
-        printf("ERROR: Unable to get vehicle \n\tFile: %s \tLine:%d\n",__FILE__,__LINE__);
+        fprintf(stderr,"ERROR: Unable to get vehicle \n\tFile: %s \tLine:%d\n",__FILE__,__LINE__);
         return string();
     }
 
@@ -322,7 +322,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
     WaitForFile(m_DegenFileFull);
     if ( !FileExist(m_DegenFileFull) )
     {
-        printf("WARNING: DegenGeom file not found: %s\n\tFile: %s \tLine:%d\n", m_DegenFileFull.c_str(),__FILE__,__LINE__);
+        fprintf(stderr,"WARNING: DegenGeom file not found: %s\n\tFile: %s \tLine:%d\n", m_DegenFileFull.c_str(),__FILE__,__LINE__);
     }
 
     // Generate *.tri geometry file for Panel method
@@ -343,7 +343,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
         WaitForFile(m_CompGeomFileFull);
         if ( !FileExist(m_CompGeomFileFull) )
         {
-            printf("WARNING: CompGeom file not found: %s\n\tFunction: string VSPAEROMgrSingleton::ComputeGeometry()\n", m_CompGeomFileFull.c_str() );
+            fprintf(stderr,"WARNING: CompGeom file not found: %s\n\tFile: %s \tLine:%d\n", m_CompGeomFileFull.c_str(),__FILE__,__LINE__);
         }
 
     }
@@ -357,7 +357,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
     Results* res = ResultsMgr.CreateResults( "VSPAERO_Geom" );
     if ( !res )
     {
-        printf("ERROR: Unable to create result in result manager \n\tFile: %s \tLine:%d\n",__FILE__,__LINE__);
+        fprintf(stderr,"ERROR: Unable to create result in result manager \n\tFile: %s \tLine:%d\n",__FILE__,__LINE__);
         return string();
     }
     res->Add( NameValData( "GeometrySet", VSPAEROMgr.m_GeomSet() ) );
@@ -386,7 +386,7 @@ void VSPAEROMgrSingleton::CreateSetupFile(FILE * logFile)
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( !veh )
     {
-        printf("ERROR: Unable to get vehicle \n\tFile: %s \tLine:%d\n",__FILE__,__LINE__);
+        fprintf(stderr,"ERROR %d: Unable to get vehicle \n\tFile: %s \tLine:%d\n",vsp::VSP_INVALID_PTR,__FILE__,__LINE__);
         return;
     }
 
@@ -493,7 +493,7 @@ void VSPAEROMgrSingleton::CreateSetupFile(FILE * logFile)
     if ( !FileExist( m_SetupFile ) )
     {
         // shouldn't be able to get here but create a setup file with the correct settings
-        printf( "ERROR - setup file not found\n" );
+        fprintf(stderr,"ERROR %d: setup file not found, file %s\n\tFile: %s \tLine:%d\n",vsp::VSP_FILE_DOES_NOT_EXIST,m_SetupFile.c_str(),__FILE__,__LINE__);
     }
 
     // Send the message to update the screens
