@@ -509,6 +509,8 @@ public:
     
     char *CaseString(void) { return CaseString_; };
 
+    void WriteCaseHeader(FILE *fid);
+
 };
 
 #endif

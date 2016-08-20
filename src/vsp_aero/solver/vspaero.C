@@ -150,6 +150,7 @@ void Solve(void);
 void StabilityAndControlSolve(void);
 void CalculateStabilityDerivatives(void);
 
+
 VSP_SOLVER VSP_VLM_;
 VSP_SOLVER &VSP_VLM(void) { return VSP_VLM_; };
 
@@ -1715,7 +1716,11 @@ void StabilityAndControlSolve(void)
                 VSP_VLM().SaveRestartFile() = VSP_VLM().DoRestart() = 0;
          
                 if ( CaseTotal < TotalCases ) {
-                   
+
+                   if ( CaseTotal == Case0 ) {
+                       VSP_VLM().WriteCaseHeader(StabFile);
+                   }
+
                    VSP_VLM().Solve(CaseTotal);
                    
                 }
@@ -1887,29 +1892,8 @@ void CalculateStabilityDerivatives(void)
     double Delta;
     char CaseType[2000];
 
-    // Write out raw data to file
-    
-    fprintf(StabFile,"***************************************************************************************************************************************************************************************** \n\n");
-    fprintf(StabFile,"Sref_: %12.6lf \n",Sref_);
-    fprintf(StabFile,"Cref_: %12.6lf \n",Cref_);
-    fprintf(StabFile,"Bref_: %12.6lf \n",Bref_);
-    fprintf(StabFile,"Xcg_:  %12.6lf \n",Xcg_);
-    fprintf(StabFile,"Ycg_:  %12.6lf \n",Ycg_);
-    fprintf(StabFile,"Zcg_:  %12.6lf \n",Zcg_);
-    fprintf(StabFile,"AoA_:  %12.6lf \n",AoA_);
-    fprintf(StabFile,"Beta_: %12.6lf \n",Beta_);
-    fprintf(StabFile,"Mach_: %12.6lf \n",Mach_);
-    fprintf(StabFile,"Rho_:  %12.6lf \n",Rho_);
-    fprintf(StabFile,"Vinf_: %12.6lf \n",Vinf_);
-    //Delta parameters for corrosponding cases
-    /*
-    fprintf(StabFile,"Delta_Alpha_deg: %+12.7lf \n",Delta_AoA_);        //TODO: duplicate information wrt. the next for loop
-    fprintf(StabFile,"Delta_Beta_deg:  %+12.7lf \n",Delta_Beta_);       //TODO: duplicate information wrt. the next for loop
-    fprintf(StabFile,"Delta_P_deg/s:   %+12.7lf \n",Delta_P_ / TORAD);  //TODO: duplicate information wrt. the next for loop
-    fprintf(StabFile,"Delta_Q_deg/s:   %+12.7lf \n",Delta_Q_ / TORAD);  //TODO: duplicate information wrt. the next for loop
-    fprintf(StabFile,"Delta_R_deg/s:   %+12.7lf \n",Delta_R_ / TORAD);  //TODO: duplicate information wrt. the next for loop
-    fprintf(StabFile,"Delta_Mach_:     %+12.7lf \n",Delta_Mach_);       //TODO: duplicate information wrt. the next for loop
-    */
+    int Case0 = 1;
+
     fprintf(StabFile,"#\n");
 
     //                123456789012345678901234567890123456789 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012   
@@ -2060,5 +2044,3 @@ void CalculateStabilityDerivatives(void)
     fprintf(StabFile,"#\n");
 
 }
-    
-

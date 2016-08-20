@@ -1355,13 +1355,15 @@ void VSP_SOLVER::Solve(int Case)
     }
 
     // Header for history file
-    
+
     if ( ABS(Case) > 0 ) {
-       
+
+       WriteCaseHeader(StatusFile_);
+
        fprintf(StatusFile_,"\n\nSolver Case: %d \n\n",ABS(Case));
        
     }
-    
+
                        //123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789   
     fprintf(StatusFile_,"  Iter      Mach       AoA      Beta       CL         CDo       CDi      CDtot      CS        L/D        E        CFx       CFy       CFz       CMx       CMy       CMz       T/QS \n");
 
@@ -3965,11 +3967,14 @@ void VSP_SOLVER::CalculateSpanWiseLoading(void)
     double TotalLift, CFx, CFy, CFz;
     double CL, CD, CS, CMx, CMy, CMz;
     
+    WriteCaseHeader(LoadFile_);
+    /*
     fprintf(LoadFile_,"******************************************************************************************************************************************************* \n\n");
     fprintf(LoadFile_,"Mach: %9.5lf  \n",Mach_);
     fprintf(LoadFile_,"AoA:  %9.5lf  \n",AngleOfAttack_/TORAD);
     fprintf(LoadFile_,"Beta: %9.5lf  \n",AngleOfBeta_/TORAD);      
     fprintf(LoadFile_,"\n\n");
+    */
 
                     // 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 
     fprintf(LoadFile_,"   Wing      Yavg     Chord     V/Vinf      Cl        Cd        Cs        Cx        Cy       Cz        Cmx       Cmy       Cmz \n");
@@ -6446,3 +6451,35 @@ void VSP_SOLVER::OutputZeroLiftDragToStatusFile(void)
     } 
 }
 
+void VSP_SOLVER::WriteCaseHeader(FILE *fid)
+{
+    char headerFormatStr[] = "%-20s %12s %-20s\n";
+    char dataFormatStr[] =   "%-20s %12.7lf %-20s\n";
+    fprintf(fid,"***************************************************************************************************************************************************************************************** \n");
+    fprintf(fid,"\n");
+    //          123456789012345678901234567890123456789
+    fprintf(fid,headerFormatStr, "# Name", "Value   ", "  Units");
+    fprintf(fid,dataFormatStr, "Sref_", Sref(), "Lunit^2");
+    fprintf(fid,dataFormatStr, "Cref_", Cref(), "Lunit");
+    fprintf(fid,dataFormatStr, "Bref_", Bref(), "Lunit");
+    fprintf(fid,dataFormatStr, "Xcg_", Xcg(), "Lunit");
+    fprintf(fid,dataFormatStr, "Ycg_", Ycg(), "Lunit");
+    fprintf(fid,dataFormatStr, "Zcg_", Zcg(), "Lunit");
+    fprintf(fid,dataFormatStr, "Mach_", Mach(), "no_unit");
+    fprintf(fid,dataFormatStr, "AoA_", AngleOfAttack()/TORAD, "deg");
+    fprintf(fid,dataFormatStr, "Beta_", AngleOfBeta()/TORAD, "deg");
+    fprintf(fid,dataFormatStr, "Rho_", Density(), "Munit/Lunit^3");
+    fprintf(fid,dataFormatStr, "Vinf_", Vinf(), "Lunit/Tunit");
+    fprintf(fid,dataFormatStr, "Roll__Rate", RotationalRate_p(), "rad/Tunit");
+    fprintf(fid,dataFormatStr, "Pitch_Rate", RotationalRate_q(), "rad/Tunit");
+    fprintf(fid,dataFormatStr, "Yaw___Rate", RotationalRate_r(), "rad/Tunit");
+    /*
+    char control_name[20];
+    for ( int n = 1 ; n <= NumberOfControlGroups_ ; n++ ) {
+        //                    1234567890123456789
+        sprintf(control_name,"Control_Group_%-5d",n);
+        fprintf(fid,dataFormatStr, control_name, Delta_Control_, "deg");
+    }
+    */
+    fprintf(fid,"\n");
+}
