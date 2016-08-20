@@ -6208,7 +6208,7 @@ void VSP_SOLVER::InterpolateSolutionFromGrid(int Level)
 
           }
 
-          Dif[j] = 0.;
+          Dif[i] = 0.;
 
        }
 

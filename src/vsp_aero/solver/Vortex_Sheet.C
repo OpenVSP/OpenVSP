@@ -777,7 +777,7 @@ void VORTEX_SHEET::InducedKuttaVelocity(double xyz_p[3], double q[3])
           
           VortexSheet = &VortexSheetListForLevel_[NumberOfLevels_][i];
        
-          CreateTrailingVortexInteractionList(*VortexSheet, xyz_k);
+          CreateTrailingVortexInteractionList(*VortexSheet, xyz_p);
           
        } 
        
