@@ -175,7 +175,7 @@ int main(int argc, char **argv)
 
     // Output a header
 
-    printf("VSPAERO v.3.x --- 10/20/2015 \n");
+    printf("VSPAERO v.3.0 --- 8/21/2016 \n");
     printf("\n\n\n\n");
     
 #ifdef VSPAERO_OPENMP
@@ -262,7 +262,7 @@ void ParseInput(int argc, char *argv[])
 
     if ( argc < 2 ) {
 
-       printf("VSPAERO v.3.x --- 10/20/2015 \n");
+       printf("VSPAERO v.3.0 --- 8/21/2016 \n");
        printf("\n\n\n\n");
 
        printf("Usage: vspaero -(see below) FileName\n");
@@ -419,7 +419,7 @@ void ParseInput(int argc, char *argv[])
 
           printf("argv[i]: %s \n",argv[i]);
           
-          printf("VSPAERO v.3.x --- 10/20/2015 \n");
+          printf("VSPAERO v.3.0 --- 8/21/2016 \n");
           printf("\n\n\n\n");
 
           printf("Usage: vspaero -(see below) FileName\n");
