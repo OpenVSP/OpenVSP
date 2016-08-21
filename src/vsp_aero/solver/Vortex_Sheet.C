@@ -256,6 +256,7 @@ void VORTEX_SHEET::SetupPlanarVortexSheets(void)
           
           k++;
           
+          assert( k<=NumberOfTrailingVorticesForLevel_[Level] ); // check for WRITE overruns on next line
           TrailingVortexListForLevel_[Level][k] = &(TrailingVortexList_[j]);
           
        }
@@ -295,6 +296,7 @@ void VORTEX_SHEET::SetupPlanarVortexSheets(void)
     
           // Set the two trailing vortices for this sheet
           
+          assert( (k+1)<=NumberOfTrailingVorticesForLevel_[Level] ); // check for READ overruns on next line
           VortexSheetListForLevel_[Level][k].SetTrailingVortices(*TrailingVortexListForLevel_[Level][k], 
                                                                  *TrailingVortexListForLevel_[Level][k+1]);
                                                                  

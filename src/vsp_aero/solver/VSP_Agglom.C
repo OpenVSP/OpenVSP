@@ -765,6 +765,7 @@ void VSP_AGGLOM::CheckLoopQuality_(void)
     // Determine number of coarse grid loops
     
     CoarseGridLoop = new int[FineGrid().NumberOfLoops() + 1];
+    unsigned int numElements = FineGrid().NumberOfLoops() + 1;
     
     zero_int_array(CoarseGridLoop, FineGrid().NumberOfLoops());
   
@@ -1467,9 +1468,13 @@ VSP_GRID* VSP_AGGLOM::DeleteDuplicateNodes_(VSP_GRID &Grid)
     double dS, Epsilon;
     VSP_GRID *NewGrid;
     
+    unsigned int numNodeIsUsed = Grid.NumberOfNodes();
+
     NodeIsUsed = new int[Grid.NumberOfNodes() + 1];
-    
+    zero_int_array( NodeIsUsed,Grid.NumberOfNodes() );
+
     NodePerm = new int[Grid.NumberOfNodes() + 1];
+    zero_int_array( NodePerm,Grid.NumberOfNodes() );
     
     for ( i = 1 ; i <= Grid.NumberOfNodes() ; i++ ) {
        
@@ -1605,12 +1610,14 @@ VSP_GRID* VSP_AGGLOM::DeleteDuplicateNodes_(VSP_GRID &Grid)
     
     NumberOfNodes = 0;
     
+    assert( Grid.NumberOfNodes() <= numNodeIsUsed ); // check for READ overrun on next lines
     for ( i = 1 ; i <= Grid.NumberOfNodes() ; i++ ) {
        
        if ( ABS(NodeIsUsed[i]) == i ) NodePerm[i] = ++NumberOfNodes;
        
     }
  
+    assert( Grid.NumberOfNodes() <= numNodeIsUsed ); // check for READ overrun on next lines
     for ( i = 1 ; i <= Grid.NumberOfNodes() ; i++ ) {
        
        if ( NodeIsUsed[i] < 0 ) NodePerm[i] = NodePerm[-NodeIsUsed[i]];
@@ -2789,6 +2796,7 @@ void VSP_AGGLOM::CleanUpSmallAreaLoops_(void)
     
     // Calculate areas for new merged loops
     
+    const unsigned int numMergedLoopArea = FineGrid().NumberOfLoops();
     MergedLoopArea = new double[FineGrid().NumberOfLoops() + 1];
     
     MaxRatio = 100.;
@@ -2811,16 +2819,19 @@ void VSP_AGGLOM::CleanUpSmallAreaLoops_(void)
           
        }
        
+       assert( FineGrid().NumberOfLoops()<=numMergedLoopArea ); // check for WRITE overruns on next line
        for ( i = 1 ; i <= FineGrid().NumberOfLoops() ; i++ ) {
           
           j = ABS(VortexLoopWasAgglomerated_[i]);
           
+          assert( j<=numMergedLoopArea ); // check for READ overruns on next line
           if ( i != j ) MergedLoopArea[i] = MergedLoopArea[j];
           
        }    
              
        // Now loop over merged loops... and merge any small loops next to big loops
    
+       assert( FineGrid().NumberOfLoops()<=numMergedLoopArea ); // check for READ overruns on next line
        for ( Loop = 1 ; Loop <= FineGrid().NumberOfLoops() ; Loop++) {
    
           Area = MergedLoopArea[Loop];

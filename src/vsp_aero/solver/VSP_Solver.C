@@ -575,6 +575,7 @@ void VSP_SOLVER::DetermineNumberOfKelvinConstrains(void)
                    
                while ( Next <= StackSize ) {
                    
+                  assert( Next <= NumberOfVortexLoops_ ); // check for READ overrun on next line
                   Loop = LoopStack[Next];
                    
                   for ( j = 1 ; j <= VSPGeom().Grid(MGLevel_).LoopList(Loop).NumberOfEdges() ; j++ ) {
@@ -591,6 +592,7 @@ void VSP_SOLVER::DetermineNumberOfKelvinConstrains(void)
                             
                            LoopInKelvinConstraintGroup_[Loop1] = -KelvinGroup;
                             
+                           assert( (StackSize+1) <= NumberOfVortexLoops_ ); // check for WRITE overrun on next line
                            LoopStack[++StackSize] = Loop1;
                             
                         }
@@ -629,6 +631,7 @@ void VSP_SOLVER::DetermineNumberOfKelvinConstrains(void)
                
                NotFlipped = 0;
                
+               assert( VSPGeom().Grid(MGLevel_).NumberOfLoops() <= (NumberOfVortexLoops_ ) ); // check for WRITE overrun on next line
                for ( j = 1 ; j <= VSPGeom().Grid(MGLevel_).NumberOfLoops() ; j++ ) {                  
                         
                   if ( LoopInKelvinConstraintGroup_[j] == KelvinGroup ) {
@@ -714,6 +717,7 @@ void VSP_SOLVER::DetermineNumberOfKelvinConstrains(void)
                   
                   else {
              
+                     assert( VSPGeom().Grid(MGLevel_).NumberOfLoops() <= (NumberOfVortexLoops_ ) ); // check for READ & WRITE overruns on next lines
                      for ( j = 1 ; j <= VSPGeom().Grid(MGLevel_).NumberOfLoops() ; j++ ) {                  
                            
                         if ( LoopInKelvinConstraintGroup_[j] == -KelvinGroup ) {
@@ -726,6 +730,7 @@ void VSP_SOLVER::DetermineNumberOfKelvinConstrains(void)
                         
                      }
                      
+                     assert( VSPGeom().Grid(MGLevel_).NumberOfLoops() <= (NumberOfVortexLoops_ ) ); // check for READ & WRITE overruns on next lines
                      for ( j = 1 ; j <= VSPGeom().Grid(MGLevel_).NumberOfLoops() ; j++ ) {                  
                            
                         if ( LoopInKelvinConstraintGroup_[j] == KelvinGroup ) {
@@ -2556,6 +2561,8 @@ void VSP_SOLVER::GMRES_Solver(int Neq,                   // Number of Equations,
 
     rho = 1.e9;
 
+    rho_zero = rho;
+
     rho_tol = 0.;
 
     Done = 0;
@@ -2575,7 +2582,7 @@ void VSP_SOLVER::GMRES_Solver(int Neq,                   // Number of Equations,
 
       rho = sqrt(VectorDot(Neq,r,r));
 
-      if ( Iter == 0 ) rho_zero = rho;
+      //if ( Iter == 0 ) rho_zero = rho;
      
       if ( Verbose && Iter == 0 ) printf("Wake Iteration: %5d ... GMRES Iteration: %5d ... Reduction: %10.5f ...  Maximum: %10.5f \r",CurrentWakeIteration_, 0,log10(rho/rho_zero),log10(rho)); fflush(NULL);
       
@@ -4289,7 +4296,7 @@ void VSP_SOLVER::CreateFEMLoadFile(void)
 void VSP_SOLVER::CalculateVelocitySurvey(void)
 {
 
-    int i, j, k, p;
+    int i, /*j,*/ k, p;
     double xyz[3], q[5];
     double *U, *V, *W;
     char SurveyFileName[2000];
@@ -4913,7 +4920,7 @@ void VSP_SOLVER::WriteOutAerothermalDatabaseGeometry(void)
     float Y_cg = XYZcg_[1];
     float Z_cg = XYZcg_[2];
 
-    float DumFloat;
+    //float DumFloat;
 
     float Area;
     
@@ -5235,12 +5242,12 @@ void VSP_SOLVER::WriteOutAerothermalDatabaseGeometry(void)
 void VSP_SOLVER::WriteOutAerothermalDatabaseSolution(void)
 {
 
-    char DumChar[2000];
-    int i, j, k, Node1, Node2, Node3, SurfaceType, SurfaceID;
-    int i_size, c_size, f_size, DumInt, number_of_nodes, number_of_tris;
-    int Level, NumberOfCoarseEdges, NumberOfCoarseNodes, MaxLevels;
-    int NumberOfKuttaTE, NumberOfKuttaNodes;
-    int NumberOfControlSurfaces;
+    //char DumChar[2000];
+    int i, j, k/*, Node1, Node2, Node3, SurfaceType, SurfaceID*/;
+    int i_size, c_size, f_size/*, DumInt, number_of_nodes, number_of_tris*/;
+    //int Level, NumberOfCoarseEdges, NumberOfCoarseNodes, MaxLevels;
+    //int NumberOfKuttaTE, NumberOfKuttaNodes;
+    //int NumberOfControlSurfaces;
 
     float DumFloat;
     
@@ -5872,6 +5879,7 @@ VSP_EDGE **VSP_SOLVER::CreateInteractionList(double xyz[3], int &NumberOfInterac
        
     }
 
+    unsigned int numelInterationEdgeList = NumberOfInteractionEdges + 1;
     InteractionEdgeList = new VSP_EDGE*[NumberOfInteractionEdges + 1];
     
     NumberOfInteractionEdges = 0;
@@ -5886,6 +5894,7 @@ VSP_EDGE **VSP_SOLVER::CreateInteractionList(double xyz[3], int &NumberOfInterac
            
              NumberOfInteractionEdges++;
            
+             assert( NumberOfInteractionEdges < (numelInterationEdgeList ) ); // check for WRITE overruns on next line
              InteractionEdgeList[NumberOfInteractionEdges] = &(VSPGeom().Grid(Level).EdgeList(i));
    
           }

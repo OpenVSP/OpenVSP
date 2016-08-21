@@ -1355,7 +1355,7 @@ void VSPAEROPlotScreen::PlotConvergence( string resultID, vector <string> yDataS
                 }
                 else
                 {
-                    printf("WARNING: xDoubleData.size() != yDoubleData.size()\n\tFunction:void VSPAEROPlotScreen::PlotConvergence( string resultID, vector <string> yDataSetNames, bool expandOnly, int icase )\n\tFile:VSPAEROPlotScreen.cpp\n");
+                    printf("WARNING: xDoubleData.size() != yDoubleData.size()\n\tFile: %s \tLine:%d\n",__FILE__,__LINE__);
                 }
 
                 expandOnly = true;

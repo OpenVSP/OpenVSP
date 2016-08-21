@@ -1158,9 +1158,9 @@ void LoadCaseFile(void)
     
     // Symmetry options
     
-    if ( strcmp(SymmetryFlag,"X") == 0 ) DoSymmetry_ = SYM_X;
-    if ( strcmp(SymmetryFlag,"Y") == 0 ) DoSymmetry_ = SYM_Y;
-    if ( strcmp(SymmetryFlag,"Z") == 0 ) DoSymmetry_ = SYM_Z;
+    if ( strncmp(SymmetryFlag,"X",1) == 0 ) DoSymmetry_ = SYM_X;
+    if ( strncmp(SymmetryFlag,"Y",1) == 0 ) DoSymmetry_ = SYM_Y;
+    if ( strncmp(SymmetryFlag,"Z",1) == 0 ) DoSymmetry_ = SYM_Z;
         
     if ( DoSymmetry_ == SYM_X ) VSP_VLM().DoSymmetryPlaneSolve(SYM_X);
     if ( DoSymmetry_ == SYM_Y ) VSP_VLM().DoSymmetryPlaneSolve(SYM_Y);
