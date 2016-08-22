@@ -27,7 +27,10 @@ IF( NOT VSP_NO_GRAPHICS )
 	FIND_PACKAGE(GLEW_VSP REQUIRED)
 
 	ADD_SUBDIRECTORY( glfont2 )
+
 	ADD_SUBDIRECTORY( stb )
+
+	ADD_SUBDIRECTORY( cartesian )
 ENDIF()
 
 # Add Eigen3 and Code-Eli
@@ -52,6 +55,8 @@ ADD_SUBDIRECTORY( nanoflann )
 ADD_SUBDIRECTORY( sixseries )
 ADD_SUBDIRECTORY( tritri )
 ADD_SUBDIRECTORY( clipper )
+
+ADD_SUBDIRECTORY( wavedragEL )
 
 INCLUDE( ExternalProject )
 INCLUDE( External_STEPCode )

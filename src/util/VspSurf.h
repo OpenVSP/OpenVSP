@@ -28,6 +28,7 @@
 #include "eli/geom/surface/piecewise.hpp"
 #include "eli/geom/curve/piecewise_creator.hpp"
 #include "eli/geom/surface/piecewise_general_skinning_surface_creator.hpp"
+#include "eli/geom/surface/piecewise_cubic_spline_skinning_surface_creator.hpp"
 
 typedef eli::geom::surface::bezier<double, 3> surface_patch_type;
 typedef eli::geom::surface::piecewise<eli::geom::surface::bezier, double, 3> piecewise_surface_type;
@@ -40,6 +41,8 @@ typedef eli::geom::surface::connection_data<double, 3, surface_tolerance_type> r
 #include <string>
 using std::vector;
 
+double Cluster( const double &t, const double &a, const double &b );
+
 class VspSurf
 {
 public:
@@ -51,6 +54,10 @@ public:
 
     void SkinRibs( const vector<rib_data_type> &ribs, const vector < int > &degree, bool closed_flag );
     void SkinRibs( const vector<rib_data_type> &ribs, bool closed_flag );
+
+    void SkinCubicSpline( const vector<rib_data_type> &ribs, const vector<double> &param, const vector <double> &tdisc, const vector < int > &degree, bool closed_flag );
+    void SkinCubicSpline( const vector<rib_data_type> &ribs, const vector<double> &param, const vector <double> &tdisc, bool closed_flag );
+    void SkinCubicSpline( const vector<rib_data_type> &ribs, const vector<double> &param, bool closed_flag );
 
     void SkinCX( const vector< VspCurve > &input_crv_vec, const vector< int > &cx, const vector < int > &degree, bool closed_flag );
     void SkinCX( const vector< VspCurve > &input_crv_vec, const vector< int > &cx, bool closed_flag );
@@ -137,19 +144,18 @@ public:
 
     void SetClustering( const double &le, const double &te );
     void SetRootTipClustering( const vector < double > &root, const vector < double > &tip );
-    double Cluster( const double &t, const double &a, const double &b ) const;
 
-    void MakeUTess( const vector<int> &num_u, std::vector<double> &utess ) const;
+    void MakeUTess( const vector<int> &num_u, std::vector<double> &utess, const std::vector<int> & umerge ) const;
     void MakeVTess( int num_v, std::vector<double> &vtess, const int &n_cap, bool degen ) const;
 
     //===== Tesselate ====//
     void TesselateTEforWake( std::vector< vector< vec3d > > & pnts ) const;
 
     void Tesselate( int num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts, const int &n_cap, bool degen ) const;
-    void Tesselate( const vector<int> &num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts, const int &n_cap, bool degen ) const;
+    void Tesselate( const vector<int> &num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts, const int &n_cap, bool degen, const std::vector<int> & umerge = std::vector<int>() ) const;
 
     void SplitTesselate( int num_u, int num_v, std::vector< vector< vector< vec3d > > > & pnts,  std::vector< vector< vector< vec3d > > > & norms, const int &n_cap ) const;
-    void SplitTesselate( const vector<int> &num_u, int num_v, std::vector< vector< vector< vec3d > > > & pnts,  std::vector< vector< vector< vec3d > > > & norms, const int &n_cap ) const;
+    void SplitTesselate( const vector<int> &num_u, int num_v, std::vector< vector< vector< vec3d > > > & pnts,  std::vector< vector< vector< vec3d > > > & norms, const int &n_cap, const std::vector<int> & umerge = std::vector<int>() ) const;
 
     void TessUFeatureLine( int iu, std::vector< vec3d > & pnts, double tol );
     void TessWFeatureLine( int iw, std::vector< vec3d > & pnts, double tol );
@@ -174,12 +180,17 @@ public:
     void SetWSkipFirst( bool f );
     void SetWSkipLast( bool f );
 
+    int GetNumSectU() const;
+    int GetNumSectW() const;
+
 protected:
 
     void Tesselate( const vector<double> &utess, const vector<double> &vtess, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts ) const;
     void SplitTesselate( const vector<double> &usplit, const vector<double> &vsplit, const vector<double> &u, const vector<double> &v, std::vector< vector< vector< vec3d > > > & pnts,  std::vector< vector< vector< vec3d > > > & norms ) const;
 
     static void IGESKnots( int deg, int npatch, vector< double > &knot );
+
+    bool CheckValidPatch( const piecewise_surface_type &surf );
 
     bool m_FlipNormal;
     bool m_MagicVParm;
@@ -198,9 +209,6 @@ protected:
 
     vector < double > m_RootCluster;
     vector < double > m_TipCluster;
-
-    int GetNumSectU() const;
-    int GetNumSectW() const;
 
 };
 #endif

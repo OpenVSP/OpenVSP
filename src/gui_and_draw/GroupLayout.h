@@ -8,6 +8,7 @@
 
 #if !defined(GROUPLAYOUT__INCLUDED_)
 #define GROUPLAYOUT__INCLUDED_
+#include "Cartesian.H"
 
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Check_Browser.H>
@@ -113,29 +114,39 @@ public:
     void SetButtonWidth( int w )        { m_ButtonWidth = w; }
     int GetButtonWidth()                { return m_ButtonWidth; }
     void SetChoiceButtonWidth( int w )  { m_ChoiceButtonWidth = w; }
+    int GetChoiceButtonWidth()          { return m_ChoiceButtonWidth; }
     void SetRangeButtonWidth( int w )   { m_RangeButtonWidth = w; }
     void SetInputWidth( int w )         { m_InputWidth = w; }
     int GetInputWidth()                 { return m_InputWidth; }
     void SetSliderWidth( int w )        { m_SliderWidth = w; }
+    int GetCanvasWidth()                { return m_CanvasWidth; }
+    void SetCanvasWdith( int w )        { m_CanvasWidth = w; }
+    int GetCanvasHeight()               { return m_CanvasHeight; }
+    void SetCanvasHeight( int h )       { m_CanvasHeight = h; }
 
     //==== Add FLTK Widgets and Initalize GUI Devices ====//
-    void AddDividerBox( const string& text, int used_w = 0 );
+    Fl_Box* AddDividerBox( const string& text, int used_w = 0 );
     void AddResizeBox( );
+
+    Vsp_Canvas* AddCanvas( int w, int h, double xmin, double xmax, double ymin, double ymax, const char *label, const char *xlabel, const char *ylabel );
+    void AddLegendEntry( const string& text, Fl_Color c );
+
     void AddSlider(  SliderAdjRangeInput& slid_adj_input, const char* label,
                      double range, const char* format, int used_w = 0, bool log_slider = false );
     void AddSlider(  SliderAdjRange2Input& slid_adj_input, const char* label,
                      double range, const char* format );
     void AddSlider(  FractParmSlider& slid_adj_input, const char* label,
                      double range, const char* format );
-    void AddSlider( SliderInput & slider_input, const char* label, double range, const char* format, bool log_slider = false );
+    void AddSlider( SliderInput & slider_input, const char* label, double range, const char* format, int used_w = 0, bool log_slider = false );
     void AddButton(  CheckButton& check_button, const char* label );
     void AddButton(  ToggleButton& toggle_button, const char* label );
     void AddButton(  CheckButtonBit& check_bit_button, const char* label, int val );
     void AddButton(  TriggerButton& trigger_button, const char* label );
     void AddButton(  ParmButton& parm_button, const char* label );
     void AddButton( RadioButton& radio_button, const char* label, int val = 0);
-    void AddInput(  StringInput& string_input, const char* label );
+    void AddInput(  StringInput& string_input, const char* label, int used_w = 0 );
     void AddInput(  Input& input, const char* label, const char* format  );
+    void AddInputEvenSpacedVector(Input& start_input, Input& end_input, Input& npts_input,const char * label,const char * format);
     void AddOutput( StringOutput& string_output );
     void AddOutput( StringOutput& string_output, const char* label, int used_w = 0 );
     void AddIndexSelector( IndexSelector& selector, int used_w = 0 );
@@ -150,6 +161,7 @@ public:
     void AddSkinControl( SkinControl & skin_control, const char* label, double range, const char* format );
     void AddSkinHeader( SkinHeader & skin_header );
     void AddGeomPicker( GeomPicker & geom_picker, int used_w = 0 );
+    void AddPCurveEditor( PCurveEditor & curve_editor );
 
     Fl_Browser* AddFlBrowser( int height );
     Fl_Text_Editor* AddFlTextEditor( int height );
@@ -195,11 +207,18 @@ private:
     int m_RangeButtonWidth;
     int m_InputWidth;
     int m_SliderWidth;
+    int m_CanvasWidth;
+    int m_CanvasHeight;
 
     GroupLayout( GroupLayout const& copy );          // Not Implemented
     GroupLayout& operator=( GroupLayout const& copy ); // Not Implemented
 
 };
 
+void AddPointLine( const vector <double> & xdata, const vector <double> & ydata, int linewidth, Fl_Color color, int pointsize = 0, int pointstyle = 1 );
+void AddPoint( const double & x, const double & y, Fl_Color color, int pointsize = 2, int pointstyle = CA_ROUND );
+void AddPoint( const vector <double> & xdata,  const vector <double> & ydata, Fl_Color color, int pointsize = 2, int pointstyle = CA_ROUND );
+Fl_Color ColorWheel( int i, int nunique, int nhue = 7 );
+int StyleWheel( int i );
 
 #endif // !defined(GUIDEVICE__INCLUDED_)

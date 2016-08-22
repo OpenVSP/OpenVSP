@@ -11,6 +11,7 @@
 #define DESIGNVAR__INCLUDED_
 
 #include "Parm.h"
+#include "ParmContainer.h"
 #include "APIDefines.h"
 #include <vector>
 #include <string>

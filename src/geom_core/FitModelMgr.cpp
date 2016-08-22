@@ -25,49 +25,6 @@
 #include <cstdlib>
 #include <set>
 
-//==== Name Compare ====//
-bool DesignVarNameCompare( const string &parmID_A, const string & parmID_B )
-{
-    Parm* pA = ParmMgr.FindParm( parmID_A );
-    Parm* pB = ParmMgr.FindParm( parmID_B );
-
-    if ( pA && pB )
-    {
-        string c_name_A, g_name_A, p_name_A, c_name_B, g_name_B, p_name_B;
-        ParmMgr.GetNames( parmID_A, c_name_A, g_name_A, p_name_A );
-        ParmMgr.GetNames( parmID_B, c_name_B, g_name_B, p_name_B );
-
-        // Check container names first
-        if ( c_name_A.compare( c_name_B ) != 0 )
-        {
-            return c_name_A < c_name_B;
-        }
-
-        string cAID = pA->GetContainerID();
-        string cBID = pB->GetContainerID();
-
-        // Matching container names, sort by container ID
-        if ( cAID.compare( cBID ) != 0 )
-        {
-            return cAID < cBID;
-        }
-
-        // Matching ID, sort by group
-        if ( g_name_A.compare( g_name_B ) != 0 )
-        {
-            return g_name_A < g_name_B;
-        }
-
-        // Matching group, sort by parameter
-        if ( p_name_A.compare( p_name_B ) != 0 )
-        {
-            return p_name_A < p_name_B;
-        }
-
-    }
-    return ( false );
-}
-
 vec3d TargetPt::GetMatchPt()
 {
     Geom* matchgeom = VehicleMgr.GetVehicle()->FindGeom( m_MatchGeom );
@@ -442,11 +399,11 @@ bool FitModelMgrSingleton::CheckForDuplicateVar( const string & p )
 
 bool FitModelMgrSingleton::SortVars()
 {
-    bool wassorted = std::is_sorted( m_VarVec.begin(), m_VarVec.end(), DesignVarNameCompare );
+    bool wassorted = std::is_sorted( m_VarVec.begin(), m_VarVec.end(), NameCompare );
 
     if ( !wassorted )
     {
-        std::sort( m_VarVec.begin(), m_VarVec.end(), DesignVarNameCompare );
+        std::sort( m_VarVec.begin(), m_VarVec.end(), NameCompare );
     }
 
     return wassorted;

@@ -55,6 +55,8 @@ void GroupLayout::InitWidthHeightVals()
     m_RangeButtonWidth = 10;
     m_InputWidth = 60;
     m_SliderWidth = 110;
+    m_CanvasWidth = 250;
+    m_CanvasHeight = 250;
 
 }
 
@@ -372,7 +374,7 @@ void GroupLayout::AddSlider( FractParmSlider& slid_adj_input,
 
 
 //==== Create & Init Gui Slider Input  ====//
-void GroupLayout::AddSlider( SliderInput& slider_input, const char* label, double range, const char* format, bool log_slider )
+void GroupLayout::AddSlider( SliderInput& slider_input, const char* label, double range, const char* format, int used_w, bool log_slider )
 {
     assert( m_Group && m_Screen );
 
@@ -382,7 +384,7 @@ void GroupLayout::AddSlider( SliderInput& slider_input, const char* label, doubl
     VspButton* button = AddParmButton( label );
 
     //==== Slider ====//
-    int sw = FitWidth( m_ButtonWidth + m_InputWidth + init_used_w, m_SliderWidth );
+    int sw = FitWidth( m_ButtonWidth + m_InputWidth + init_used_w + used_w, m_SliderWidth );
     Fl_Slider* slider = new Fl_Slider( m_X, m_Y, sw, m_StdHeight );
     slider->type( 5 );
     slider->box( FL_THIN_DOWN_BOX );
@@ -545,7 +547,7 @@ void GroupLayout::AddButton( RadioButton& rbutton, const char* label, int val )
 }
 
 //==== Create & Init Box Divider  ====//
-void GroupLayout::AddDividerBox( const string& text, int used_w )
+Fl_Box* GroupLayout::AddDividerBox( const string& text, int used_w )
 {
     assert( m_Group && m_Screen );
 
@@ -563,6 +565,8 @@ void GroupLayout::AddDividerBox( const string& text, int used_w )
 
     AddY( m_DividerHeight );
     NewLineX();
+
+    return flbox;
 }
 
 //==== Create & Init Resize Box  ====//
@@ -584,8 +588,132 @@ void GroupLayout::AddResizeBox( )
     NewLineX();
 }
 
+void GroupLayout::AddLegendEntry( const string& text, Fl_Color c )
+{
+    assert( m_Group && m_Screen );
+
+    Fl_Button* button = new Fl_Button( m_X, m_Y, m_ButtonWidth, m_StdHeight );
+    button->copy_label( text.c_str() );
+    button->box( FL_THIN_UP_BOX );
+    button->labelfont( 1 );
+    button->labelsize( 12 );
+    button->labelcolor( FL_BLACK );
+    m_Group->add( button );
+    AddX( m_ButtonWidth );
+
+    int dw = FitWidth( m_ButtonWidth, m_ButtonWidth );
+
+    Fl_Box* flbox = new Fl_Box( m_X, m_Y, dw, m_StdHeight );
+    flbox->box( FL_FLAT_BOX );
+    flbox->color( c );
+    m_Group->add( flbox );
+    m_Group->resizable( flbox );
+
+    AddX( dw );
+
+    AddY( m_StdHeight );
+    NewLineX();
+}
+
+//==== Create Cartesian Canvas ====//
+Vsp_Canvas* GroupLayout::AddCanvas( int w, int h, double xmin, double xmax, double ymin, double ymax, const char *label, const char *xlabel, const char *ylabel )
+{
+    assert( m_Group && m_Screen );
+
+    int hxaxis = 30;
+    int wyaxis = 60;
+    int margin = 10;
+
+    Vsp_Canvas* canvas = new Vsp_Canvas( m_X + wyaxis, m_Y, w - wyaxis, h - hxaxis, label );
+    Vsp_Canvas::current(canvas);
+    canvas->box( FL_DOWN_BOX );
+    canvas->color( 7 );
+    canvas->border( 0 );
+    m_Group->add( canvas );
+
+    Ca_X_Axis* xaxis = new Ca_X_Axis( m_X, m_Y + h - hxaxis, w + margin, hxaxis, xlabel );
+    canvas->current_x(xaxis);    // this is needed to ensure that the axis gets associated with the right canvas
+    xaxis->labelsize(14);
+    xaxis->align( Fl_Align( FL_ALIGN_BOTTOM ) );
+    xaxis->minimum( xmin );
+    xaxis->maximum( xmax );
+    xaxis->label_format( "%g" );
+    xaxis->minor_grid_color( fl_gray_ramp( 20 ) );
+    xaxis->major_grid_color( fl_gray_ramp( 15 ) );
+    xaxis->label_grid_color( fl_gray_ramp( 10 ) );
+    xaxis->grid_visible( CA_MINOR_GRID|CA_MAJOR_GRID|CA_LABEL_GRID );
+    xaxis->major_step( 10 );
+    xaxis->label_step( 10 );
+    xaxis->axis_color( FL_BLACK );
+    xaxis->axis_align( CA_BOTTOM );
+    m_Group->add( xaxis );
+
+    Ca_Y_Axis* yaxis = new Ca_Y_Axis( m_X, m_Y - margin, wyaxis, h + margin, ylabel );
+    canvas->current_y(yaxis);    // this is needed to ensure that the axis gets associated with the right canvas
+    yaxis->labelsize( 14 );
+    yaxis->align( Fl_Align( FL_ALIGN_TOP ) );
+    yaxis->minimum( ymin );
+    yaxis->maximum( ymax );
+    yaxis->label_format( "%.2f" );
+    yaxis->minor_grid_color( fl_gray_ramp( 20 ) );
+    yaxis->major_grid_color( fl_gray_ramp( 15 ) );
+    yaxis->label_grid_color( fl_gray_ramp( 10 ) );
+    yaxis->grid_visible( CA_MINOR_GRID|CA_MAJOR_GRID|CA_LABEL_GRID );
+    yaxis->major_step( 10 );
+    yaxis->label_step( 10 );
+    yaxis->axis_color( FL_BLACK );
+    yaxis->axis_align( CA_LEFT );
+    m_Group->add( yaxis );      // this is needed for correct resize behavior
+
+    AddX( w );
+    AddY( h );
+    NewLineX();
+
+    return canvas;
+}
+
+//==== Create Cartesian Point Line ====//
+void AddPointLine( const vector <double> & xdata, const vector <double> & ydata, int linewidth, Fl_Color color, int pointsize, int pointstyle )
+{
+    int n = xdata.size();
+    
+    if ( n != ydata.size() )
+    {
+        printf("ERROR: xdata.size() != ydata.size() \n\tFile: %s \tLine:%d\n",__FILE__,__LINE__);
+        return;
+    }
+
+    Ca_LinePoint* LP = 0;
+    for( int i=0; i<n; i++ )
+    {
+        LP = new Ca_LinePoint( LP, xdata[i], ydata[i], linewidth, color, pointstyle|CA_BORDER, 0.0 );
+    }
+    // Second pass to plot symbols on top of line.
+    for( int i=0; i<n; i++ )
+    {
+        new Ca_Point( xdata[i], ydata[i], color, pointstyle|CA_BORDER, pointsize );
+    }
+}
+
+//==== Create Cartesian Point ====//
+void AddPoint( const double & x, const double & y, Fl_Color color, int pointsize, int pointstyle )
+{
+    new Ca_Point( x, y, color, pointstyle|CA_BORDER, pointsize );
+}
+
+//==== Create Cartesian Point ====//
+void AddPoint( const vector < double > & x, const vector < double > & y, Fl_Color color, int pointsize, int pointstyle )
+{
+    int n = x.size();
+
+    for( int i=0; i<n; i++ )
+    {
+        new Ca_Point( x[i], y[i], color, pointstyle|CA_BORDER, pointsize );
+    }
+}
+
 //==== Create & Init Text Input  ====//
-void GroupLayout::AddInput( StringInput& text_input, const char* label )
+void GroupLayout::AddInput( StringInput& text_input, const char* label, int used_w )
 {
     assert( m_Group && m_Screen );
 
@@ -596,7 +724,7 @@ void GroupLayout::AddInput( StringInput& text_input, const char* label )
     }
 
     //==== Add Text Input ====//
-    int iw = FitWidth( m_ButtonWidth, m_InputWidth );
+    int iw = FitWidth( m_ButtonWidth + used_w, m_InputWidth );
     Fl_Input* input = new Fl_Input( m_X, m_Y, iw, m_StdHeight );
     input->box( FL_THIN_DOWN_BOX );
     input->textsize( 12 );
@@ -680,6 +808,45 @@ void GroupLayout::AddInput( Input& input, const char* label, const char* format 
     NewLineX();
 
     input.Init( m_Screen, flinput, format, button );
+}
+
+void GroupLayout::AddInputEvenSpacedVector(Input& start_input, Input& end_input, Input& npts_input,const char * label,const char * format)
+{
+    assert( m_Group && m_Screen );
+
+    bool tSameLineFlagOrig, tFitWidthFlagOrig;
+    tSameLineFlagOrig = m_SameLineFlag;
+    tFitWidthFlagOrig = m_FitWidthFlag;
+    SetSameLineFlag( true );
+    SetFitWidthFlag( false );
+
+    // record the original settings for button and input width
+    int tButtonWidthOrig, tInputWidthOrig;
+    tButtonWidthOrig = m_ButtonWidth;
+    tInputWidthOrig = m_InputWidth;
+
+    // calculate the new input and button widths
+    int tInputWidth, tButtonWidth;
+    tButtonWidth = 40;
+    tInputWidth = (m_W - m_ButtonWidth - 2* tButtonWidth)/3;
+
+    // add the left button using the default button width
+    string left_button_label;
+    left_button_label = string(label) + " Start";
+    SetInputWidth(tInputWidth);
+    AddInput( start_input, left_button_label.c_str(), format );
+
+    SetButtonWidth( tButtonWidth );
+    AddInput( end_input, "End", format );
+    AddInput( npts_input, "Npts", "%3.0f" );    // this is an integer input
+
+    // reset object settings
+    SetButtonWidth( tButtonWidthOrig );
+    SetInputWidth( tInputWidthOrig );
+    SetSameLineFlag( tSameLineFlagOrig );
+    SetFitWidthFlag( tFitWidthFlagOrig );
+
+    ForceNewLine();
 }
 
 //==== Create & Init Index Selector  ====//
@@ -1281,6 +1448,104 @@ void GroupLayout::AddGeomPicker( GeomPicker & geom_picker, int used_w )
     geom_picker.Init( m_Screen, geom_choice );
 }
 
+//==== Add Curve Editor ====//
+void GroupLayout::AddPCurveEditor( PCurveEditor & curve_editor )
+{
+    assert( m_Group && m_Screen );
+
+    SetSameLineFlag( true );
+
+    AddOutput( curve_editor.m_CurveType, "Type", GetW()/2 );
+
+    Fl_Button* convbutton = new Fl_Button( m_X, m_Y, m_ButtonWidth, m_StdHeight, "Convert" );
+    convbutton->labelfont( 1 );
+    convbutton->labelsize( 12 );
+    convbutton->labelcolor( FL_DARK_BLUE );
+    convbutton->copy_label( "Convert to:" );
+    m_Group->add( convbutton );
+    AddX( m_ButtonWidth );
+
+
+    curve_editor.m_ConvertChoice.AddItem( "Linear" );
+    curve_editor.m_ConvertChoice.AddItem( "Spline (PCHIP)" );
+    curve_editor.m_ConvertChoice.AddItem( "Cubic Bezier" );
+
+    m_ChoiceButtonWidth = 0;
+    AddChoice( curve_editor.m_ConvertChoice, "Convert to:", GetW()/2 + m_ButtonWidth );
+
+    AddY( m_StdHeight );
+    NewLineX();
+
+    ForceNewLine();
+    SetSameLineFlag( false );
+
+    AddYGap();
+
+    int canvas_w = FitWidth( 0, m_CanvasWidth ) - 5;
+
+    AddY( 25 );
+    Vsp_Canvas *canvas = AddCanvas( canvas_w, m_CanvasHeight, 0, 1, 0, 1, "", "X", "Y" );
+    AddY( 25 );
+
+    SetFitWidthFlag( false );
+    SetSameLineFlag( true );
+
+    //==== Add Split Button ====//
+    int bw = FitWidth( 0, m_ButtonWidth );
+    Fl_Button* spbutton = new Fl_Button( m_X, m_Y, bw, m_StdHeight, "Split" );
+    spbutton->labelfont( 1 );
+    spbutton->labelsize( 12 );
+    spbutton->labelcolor( FL_DARK_BLUE );
+    spbutton->copy_label( "Split" );
+    m_Group->add( spbutton );
+    AddX( bw );
+
+    SetFitWidthFlag( true );
+    AddSlider( curve_editor.m_SplitPtSlider, "r/R Split", 1, "%3.2f", m_ButtonWidth );
+
+
+    Fl_Light_Button* splitpickbutton = new Fl_Light_Button( m_X, m_Y, m_ButtonWidth, m_StdHeight, "Pick" );
+    splitpickbutton->labelfont( 1 );
+    splitpickbutton->labelsize( 12 );
+    splitpickbutton->align( Fl_Align( 132 | FL_ALIGN_INSIDE ) );
+    splitpickbutton->copy_label( "Pick" );
+    splitpickbutton->labelcolor( FL_DARK_BLUE );
+    m_Group->add( splitpickbutton );
+
+
+    ForceNewLine();
+
+    SetFitWidthFlag( true );
+    SetSameLineFlag( false );
+
+    //==== Add Delete Button ====//
+    bw = FitWidth( 0, m_ButtonWidth );
+    Fl_Light_Button* deletebutton = new Fl_Light_Button( m_X, m_Y, bw, m_StdHeight, "Delete Control Point" );
+    deletebutton->labelfont( 1 );
+    deletebutton->labelsize( 12 );
+    deletebutton->align( Fl_Align( 132 | FL_ALIGN_INSIDE ) );
+    deletebutton->copy_label( "Delete Control Point" );
+    deletebutton->labelcolor( FL_DARK_BLUE );
+    m_Group->add( deletebutton );
+    AddX( bw );
+    AddY( m_StdHeight );
+    NewLineX();
+
+
+    SetSameLineFlag( false );
+
+    AddYGap();
+    AddDividerBox( "Control Points" );
+
+    Fl_Scroll *ptscroll = AddFlScroll( GetRemainY() );
+    ptscroll->type( Fl_Scroll::VERTICAL_ALWAYS );
+    ptscroll->box( FL_BORDER_BOX );
+    GroupLayout *ptlayout = new GroupLayout();
+    ptlayout->SetGroupAndScreen( ptscroll, this->m_Screen );
+
+    curve_editor.Init( m_Screen, canvas, ptscroll, spbutton, convbutton, deletebutton, splitpickbutton, ptlayout );
+}
+
 //==== Add Fl Browser ====//
 Fl_Browser* GroupLayout::AddFlBrowser( int height )
 {
@@ -1372,4 +1637,38 @@ Fl_Color_Chooser* GroupLayout::AddFlColorChooser(int height)
     NewLineX();
 
     return color_chooser;
+}
+
+// nhue prime is good
+Fl_Color ColorWheel( int i, int nunique, int nhue )
+{
+    // Golden ratio.
+    // double phi = ( 1.0 + sqrt( 5.0 ) ) / 2.0;
+
+    double h, s, v, r, g, b;
+
+    int npass = ( nunique / nhue ) + 1; // floor implied by integer division.
+
+    int hbase = i % nhue;
+
+    // h is [0,6)
+    h = ( hbase +  (i - hbase) * 1.0 / (nhue * npass) ) * 6.0 / nhue;
+
+    // Uniformly distributed pseudo-random.
+    // h = ( i * phi - floor( i * phi ) ) * 6.0;
+    // s and v are [0,1]
+    s = 0.7;
+    v = 0.95;
+
+    Fl_Color_Chooser::hsv2rgb( h, s, v, r, g, b );
+    Fl_Color c = fl_rgb_color( r * 255, g * 255, b * 255 );
+    return c;
+}
+
+// Rotate through Cartesian symbol styles.
+int StyleWheel( int i )
+{
+    // There are 5 true styles, but the 0th style is no-symbol at all.
+    int nstyle = 5;
+    return i % nstyle + 1;
 }

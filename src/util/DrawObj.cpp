@@ -11,6 +11,185 @@
 
 #include "DrawObj.h"
 #include <math.h>
+#include "Matrix.h"
+
+void MakeArrowhead( const vec3d &ptip, const vec3d &uref, double len, vector < vec3d > &pts )
+{
+    double fr = 0.2;
+
+    vec3d u = uref;
+    u.normalize();
+
+    if ( u.mag() < 1e-6 )
+    {
+        printf("Zero direction vector in MakeArrowhead!\n");
+        return;
+    }
+
+    vec3d v, w;
+    v.v[ u.minor_comp() ] = 1.0;
+    w = cross( u, v );
+    w.normalize();
+    v = cross( w, u );
+    v.normalize();
+
+    vec3d p = ptip - len * u;
+    vec3d p1 = p + fr * len * v;
+    vec3d p2 = p + fr * len * w;
+    vec3d p3 = p - fr * len * v;
+    vec3d p4 = p - fr * len * w;
+
+    pts.reserve( pts.size() + 18 );
+    pts.push_back( p1 );
+    pts.push_back( p2 );
+    pts.push_back( p3 );
+
+    pts.push_back( p1 );
+    pts.push_back( p3 );
+    pts.push_back( p4 );
+
+    pts.push_back( p1 );
+    pts.push_back( p2 );
+    pts.push_back( ptip );
+
+    pts.push_back( p2 );
+    pts.push_back( p3 );
+    pts.push_back( ptip );
+
+    pts.push_back( p3 );
+    pts.push_back( p4 );
+    pts.push_back( ptip );
+
+    pts.push_back( p4 );
+    pts.push_back( p1 );
+    pts.push_back( ptip );
+}
+
+void MakeArrowhead( const vec3d &ptip, const vec3d &uref, double len, DrawObj &dobj )
+{
+    MakeArrowhead( ptip, uref, len, dobj.m_PntVec );
+
+    dobj.m_LineWidth = 1.0;
+    dobj.m_Type = DrawObj::VSP_SHADED_TRIS;
+    dobj.m_NormVec = vector <vec3d> ( dobj.m_PntVec.size() );
+
+    for ( int i = 0; i < 4; i++ )
+    {
+        dobj.m_MaterialInfo.Ambient[i] = 0.2;
+        dobj.m_MaterialInfo.Diffuse[i] = 0.1;
+        dobj.m_MaterialInfo.Specular[i] = 0.7;
+        dobj.m_MaterialInfo.Emission[i] = 0.0;
+    }
+    dobj.m_MaterialInfo.Diffuse[3] = 0.5;
+    dobj.m_MaterialInfo.Shininess = 5.0;
+
+    dobj.m_GeomChanged = true;
+}
+
+void MakeCircle( const vec3d &pcen, const vec3d &norm, const vec3d &pstart, vector < vec3d > &pts )
+{
+    int nseg = 48;
+
+    pts.reserve( pts.size() + 2 * nseg );
+    for ( int i = 0; i < nseg; i++ )
+    {
+        double theta = i * 2.0 * PI / nseg;
+        pts.push_back( RotateArbAxis( pstart, theta, norm ) + pcen );
+        theta = ( i + 1 ) * 2.0 * PI / nseg;
+        pts.push_back( RotateArbAxis( pstart, theta, norm ) + pcen );
+    }
+}
+
+void MakeCircle( const vec3d &pcen, const vec3d &norm, double rad, vector < vec3d > &pts )
+{
+    vec3d n = norm;
+    n.normalize();
+
+    vec3d ref;
+    ref.v[ n.minor_comp() ] = 1.0;
+
+    vec3d v = cross( n, ref );
+    v.normalize();
+    vec3d u = cross( v, n );
+    u.normalize();
+
+    vec3d pstart = u * rad;
+
+    MakeCircle( pcen, n, pstart, pts );
+
+}
+
+void MakeCircle( const vec3d &pcen, const vec3d &norm, double rad, DrawObj &dobj )
+{
+    MakeCircle( pcen, norm, rad, dobj.m_PntVec );
+
+    dobj.m_LineWidth = 2.0;
+    dobj.m_Type = DrawObj::VSP_LINES;
+    dobj.m_LineColor = vec3d( 0, 0, 0 );
+    dobj.m_GeomChanged = true;
+}
+
+void MakeCircleArrow( const vec3d &pcen, const vec3d &norm, double rad, DrawObj &dobj, DrawObj &arrow )
+{
+    double lenfrac = 0.5;
+    vec3d n = norm;
+    n.normalize();
+
+    vec3d ref;
+    ref.v[ n.minor_comp() ] = 1.0;
+
+    vec3d v = cross( n, ref );
+    v.normalize();
+    vec3d u = cross( v, n );
+    u.normalize();
+
+    vec3d pstart = u * rad;
+
+    MakeCircle( pcen, n, pstart, dobj.m_PntVec );
+    dobj.m_LineWidth = 2.0;
+    dobj.m_Type = DrawObj::VSP_LINES;
+    dobj.m_LineColor = vec3d( 0, 0, 0 );
+    dobj.m_GeomChanged = true;
+
+
+    vector < vec3d > arrowpts;
+    MakeArrowhead( vec3d( 0, 0, 0 ), v, rad * lenfrac, arrowpts );
+
+    Matrix4d mat;
+    mat.translatev( pcen + pstart );
+    mat.rotate( atan( lenfrac * 0.5 ), n );
+    mat.xformvec( arrowpts );
+
+    arrow.m_PntVec.insert( arrow.m_PntVec.end(), arrowpts.begin(), arrowpts.end() );
+
+    arrow.m_LineWidth = 1.0;
+    arrow.m_Type = DrawObj::VSP_SHADED_TRIS;
+    arrow.m_NormVec = vector <vec3d> ( dobj.m_PntVec.size() );
+
+    for ( int i = 0; i < 4; i++ )
+    {
+        arrow.m_MaterialInfo.Ambient[i] = 0.2;
+        arrow.m_MaterialInfo.Diffuse[i] = 0.1;
+        arrow.m_MaterialInfo.Specular[i] = 0.7;
+        arrow.m_MaterialInfo.Emission[i] = 0.0;
+    }
+    arrow.m_MaterialInfo.Diffuse[3] = 0.5;
+    arrow.m_MaterialInfo.Shininess = 5.0;
+
+    arrow.m_GeomChanged = true;
+}
+
+void MakeDashedLine( const vec3d &pstart, const vec3d &pend, int ndash, vector < vec3d > &dashpts )
+{
+    int npt = 2 * ndash;
+    dashpts.reserve( dashpts.size() + npt );
+
+    vec3d dpt = ( pend - pstart ) * ( 1.0 / ( npt - 1 ) );
+    for ( int i = 0; i < npt; i++ )
+    {
+        dashpts.push_back( pstart + static_cast < double > ( i ) * dpt );
+    }
+}
 
 //====================== Contructor ======================//
 DrawObj::DrawObj()

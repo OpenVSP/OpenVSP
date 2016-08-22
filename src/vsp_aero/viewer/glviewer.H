@@ -1,22 +1,12 @@
-//
-// This file is released under the terms of the NASA Open Source Agreement (NOSA)
-// version 1.3 as detailed in the LICENSE file which accompanies this software.
-//
-//////////////////////////////////////////////////////////////////////
-
 #ifndef GL_VIEWER_H
 #define GL_VIEWER_H
-
-#ifdef WIN32
-#include <windows.h>
-#else
-#include <unistd.h>
-#endif
 
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
+//#include <config.h>
 #include <sys/stat.h>
+//#include <unistd.h>
 #include <time.h>
 
 #include <FL/Fl.H>
@@ -30,18 +20,30 @@
 #include <FL/Fl_Button.H>
 #include <FL/forms.H>
 
+#ifdef OSX
 
+//#include <OpenGL/glu.h>
+//#include <GLUT/glut.h>
+
+#else
+
+//#include <GL/glu.h>
+//#include <GL/glut.h>
+
+#endif
 
 #include "trackball.H"
 #include "utils.H"
 #include "glf.H"
 #include "binaryio.H"
-#include "viewerUI.h"
+#include "viewerUI.H"
+//#include "tiffio.h"
 #include "TagList.H"
 #include "TagListGroup.H"
 #include "surfIDs.H"
 #include "RotorDisk.H"
 #include "PropElement.H"
+#include "ControlSurface.H"
 #include "VSP_DegenGeom.H"
 
 //  Define marked tri types
@@ -50,6 +52,13 @@
 #define GOMGEOM_TRI 10
 
 #define TORAD 3.141592/180.
+
+#define SYM_X 1
+#define SYM_Y 2
+#define SYM_Z 3
+
+#define   VLM_MODEL 1
+#define PANEL_MODEL 2
 
 // Forward declarations
 
@@ -95,6 +104,8 @@ struct EDGE_STRUCT
    int tri2;
    
    int SurfaceID;
+   
+   int IsKuttaEdge;
 
 }; typedef struct EDGE_STRUCT EDGE;
 
@@ -111,6 +122,19 @@ public:
 
 };
 
+// Small class for solution list
+
+class SOLUTION_CASE {
+
+public:
+
+    float Mach;
+    float Alpha;
+    float Beta;
+    char CommentLine[2000];
+
+};
+
 // The GL_VIEWER Class definition
 
 class GL_VIEWER : public Fl_Gl_Window {
@@ -120,6 +144,19 @@ private:
     // File version
 
     int FILE_VERSION;
+    
+    // Model type
+    
+    int ModelType;
+    
+    // Symmetry Flag
+    
+    int SymmetryFlag;
+    
+    // Cpmin, and Cpmax
+    
+    float CpMinSoln;
+    float CpMaxSoln;
 
     // Rotation and translation data
 
@@ -153,6 +190,11 @@ private:
     VSP_DEGEN_GEOM &VSPGeom(void) { return VSPGeom_; };
 
     // Aerothermal database data
+    
+    int NumberOfADBCases_;
+    int UserSelectedSolutionCase_;
+    
+    SOLUTION_CASE *ADBCaseList_;
 
     char file_name[2000];
 
@@ -166,9 +208,11 @@ private:
     
     int NumberOfWings_;
     int NumberOfBodies_;
+    int NumberOfCart3dSurfaces_;
     
     char **BodyListName_;
     char **WingListName_;
+    char **Cart3dListName_;
 
     int NumberOfMachs;
     int NumberOfBetas;
@@ -213,6 +257,11 @@ private:
     int NumberOfPropulsionElements;
     int MaxNumberOfPropulsionElements;
     PROPULSION_ELEMENT *PropulsionElement;
+    
+    // Control Surface data
+    
+    int NumberOfControlSurfaces;
+    CONTROL_SURFACE *ControlSurface;
 
     // Adjust center of geometry for better rotations
 
@@ -251,8 +300,13 @@ private:
     EDGE *EdgeList;
     
     int NumberOfMeshLevels;
+    int *NumberOfCourseNodesForLevel;
     int *NumberOfCourseEdgesForLevel;
+    NODE **CoarseNodeList;
     EDGE **CoarseEdgeList;
+    
+    int NumberOfKuttaEdges;
+    int NumberOfKuttaNodes;
 
     // Surface Normals
 
@@ -302,6 +356,8 @@ private:
         
     int DrawWakesToInfinityIsOn;
     
+    int DrawControlSurfacesIsOn;
+    
     // Panel Group
 
     int DrawSurfaceRegionsIsOn;
@@ -330,7 +386,7 @@ private:
 
     // Support code
 
-    void LoadExistingSolutionData(void);
+    void LoadExistingSolutionData(int Case);
     void LoadExistingGradientSolutionData(void);
 
     // Pointer to the vui
@@ -354,9 +410,12 @@ private:
     void DrawBBox(void);
     void DrawWireFrame(void);
     void DrawShadedSurface(void);
+    void DrawCoarseMeshNodesForLevel(int Level);
     void DrawCoarseMeshEdgesForLevel(int Level);
     
     void DrawWakes(void);
+    
+    void DrawControlSurfaces(void);
 
     void DrawShadedSolution(float *Function, float FMin, float FMax);
     void DrawShadedSolution(int   *Function, float FMin, float FMax);
@@ -403,6 +462,11 @@ private:
 
     fpos_t StartOfWallTemperatureData;
 
+    // Write out a tiff file
+
+    int WriteTiff(char *filename, char *description,
+                  int x, int y, int width, int height, int compression);
+
 public:
 
     // Constructor, Destructor, Copy
@@ -417,6 +481,7 @@ public:
     // Load in the mesh data
 
     void LoadInitialData(char *name);
+    void LoadSolutionCaseList(void);
     void LoadSolutionData(void);
 
     void draw(void) { Draw(); };
@@ -440,24 +505,28 @@ public:
 
     void RunScript(char *ScriptName, viewerUI *vui);
 
+    // Write out a tiff file
+
+    void WriteTiffFile(char *FileName);
+
+    void WriteMovieFrame(char *FileName);
+
     // Event handler
 
     int handle(int event);
 
     // Access functions
 
-    void SetSize(float InputSize) { size = InputSize; WriteToScriptFileTextData("SetSize",InputSize); };
+    void SetSize(float InputSize) { size = InputSize; };
 
-    void SetBrightness(float InputBrightness) { Brightness = InputBrightness; WriteToScriptFileTextData("SetBrightness",InputBrightness); };
-
-    void v_angle(float angle) { vAng = angle; WriteToScriptFileTextData("SetVAngle",angle); };
+    void v_angle(float angle) { vAng = angle;  };
     float v_angle(){return vAng;};
 
-    void h_angle(float angle) { hAng = angle; WriteToScriptFileTextData("SetHAngle",angle); };
+    void h_angle(float angle) { hAng = angle; };
     float h_angle(){return hAng;};
 
-    void panx(float x) {xshift = x; WriteToScriptFileTextData("SetXShift",x); };
-    void pany(float y) {yshift = y; WriteToScriptFileTextData("SetYShift",y); };
+    void panx(float x) {xshift = x; };
+    void pany(float y) {yshift = y; };
 
     // Set up EdgeMach, Q, Alpha case
 
@@ -483,56 +552,59 @@ public:
 
     void StartScript(void);
 
-    void WriteToScriptFile(const char *Text);
-    void WriteToScriptFile(int &Flag, const char *Text);
-    void WriteToScriptFileTextData(const char *Text, int Data);
-    void WriteToScriptFileTextData(const char *Text, float Data);
-    void WriteToScriptFileTextData(const char *Text, float Data1, float Data2);
-    void WriteToScriptFileTextData(const char *Text, float Data1, float Data2, float Data3, float Data4);
-    void WriteToScriptFileTextData(const char *Text, int Data1, int Data2);
-    void WriteToScriptFileTextData(const char *Text, int Data1, int Data2, int Data3, int Data4);
-
-    void WriteToScriptFileTrajectoryText(int &Flag, const char *Text, int Type);
-
-    void Exit(int Flag) { WriteToScriptFile("Exit") ; exit(Flag); };
+    void ToggleFlag(int &Flag, const char *Text);
+    
+    void Exit(int Flag) { exit(Flag); };
 
     // What to draw
 
-    void DrawSmoothShadeWasPicked(void)             { WriteToScriptFile(DrawSmoothShadeIsOn,                           "DrawSmoothShadeIs"); };
-    void DrawSmoothFunctionsWasPicked(void)         { WriteToScriptFile(DrawSmoothFunctionsIsOn,                       "DrawSmoothFunctionsIs"); };
-    void DrawReflectedGeometryWasPicked(void)       { WriteToScriptFile(DrawReflectedGeometryIsOn,                     "DrawReflectedGeometryIs"); };
+    void DrawSmoothShadeWasPicked(void)             { ToggleFlag(DrawSmoothShadeIsOn,                           "DrawSmoothShadeIs"); };
+    void DrawSmoothFunctionsWasPicked(void)         { ToggleFlag(DrawSmoothFunctionsIsOn,                       "DrawSmoothFunctionsIs"); };
+    void DrawReflectedGeometryWasPicked(void)       { ToggleFlag(DrawReflectedGeometryIsOn,                     "DrawReflectedGeometryIs"); };
 
-    void DrawLegendWasPicked(void)                  { WriteToScriptFile(DrawLegendIsOn,                                "DrawLegendIs"); };
-    void DrawLabelWasPicked(void)                   { WriteToScriptFile(DrawLabelIsOn,                                 "DrawLabelIs"); };
-    void DrawCGLabelWasPicked(void)                 { WriteToScriptFile(DrawCGLabelIsOn,                               "DrawCGLabelIs"); };
-    void DrawWhiteBackgroundWasPicked(void)         { WriteToScriptFile(DrawWithWhiteBackgroundIsOn,                   "DrawWithWhiteBackgroundIs");};
-    void DrawFlatShadedWasPicked(void)              { WriteToScriptFile(DrawFlatShadedIsOn,                            "DrawFlatShadedIs"); };
+    void DrawLegendWasPicked(void)                  { ToggleFlag(DrawLegendIsOn,                                "DrawLegendIs"); };
+    void DrawLabelWasPicked(void)                   { ToggleFlag(DrawLabelIsOn,                                 "DrawLabelIs"); };
+    void DrawCGLabelWasPicked(void)                 { ToggleFlag(DrawCGLabelIsOn,                               "DrawCGLabelIs"); };
+    void DrawWhiteBackgroundWasPicked(void)         { ToggleFlag(DrawWithWhiteBackgroundIsOn,                   "DrawWithWhiteBackgroundIs");};
+    void DrawFlatShadedWasPicked(void)              { ToggleFlag(DrawFlatShadedIsOn,                            "DrawFlatShadedIs"); };
     
-    void DrawCGWasPicked(void)                      { WriteToScriptFile(DrawCGIsOn,                                    "DrawCGIs");     };
-    void DrawAxesWasPicked(void)                    { WriteToScriptFile(DrawAxesIsOn,                                  "DrawAxesIs");     };
+    void DrawCGWasPicked(void)                      { ToggleFlag(DrawCGIsOn,                                    "DrawCGIs");     };
+    void DrawAxesWasPicked(void)                    { ToggleFlag(DrawAxesIsOn,                                  "DrawAxesIs");     };
 
-    void DrawWakesWasPicked(void)                   { WriteToScriptFile(DrawWakesIsOn,                                 "DrawWakesIs");     };
-    void DrawRotorsWasPicked(void)                  { WriteToScriptFile(DrawPropulsionElementsIsOn,                    "DrawPropulsionElementsIs");     };
+    void DrawWakesWasPicked(void)                   { ToggleFlag(DrawWakesIsOn,                                 "DrawWakesIs");     };
+    void DrawRotorsWasPicked(void)                  { ToggleFlag(DrawPropulsionElementsIsOn,                    "DrawPropulsionElementsIs");     };
+    
+    void DraControlSurfacesWasPicked(void)          { ToggleFlag(DrawControlSurfacesIsOn,                       "DrawControlSurfacesIsOn");     };
 
-    void DrawWakesToInfinityWasPicked(void)         { WriteToScriptFile(DrawWakesToInfinityIsOn,                       "DrawWakesToInfinityIsOn");     };
+    void DrawWakesToInfinityWasPicked(void)         { ToggleFlag(DrawWakesToInfinityIsOn,                       "DrawWakesToInfinityIsOn");     };
     
     // ADB Menu
 
     void ClearADBFile(void);
 
-    void DrawWireFrameWasPicked(void)                { WriteToScriptFile(DrawWireFrameIsOn,                             "DrawWireFrameIs"); };
+    void DrawWireFrameWasPicked(void)                { ToggleFlag(DrawWireFrameIsOn,                             "DrawWireFrameIs"); };
 
-    void DrawOnlySelectedWasPicked(void)             { WriteToScriptFile(DrawOnlySelectedIsOn,                          "DrawOnlySelectedIs");};
+    void DrawOnlySelectedWasPicked(void)             { ToggleFlag(DrawOnlySelectedIsOn,                          "DrawOnlySelectedIs");};
 
-    void DrawShadedWasPicked(void)                   { WriteToScriptFile(DrawShadedIsOn,                                "DrawShadedIs");
-                                                       WriteToScriptFile(DrawCpIsOn,                                    "DrawCpIs");     };
+    void DrawShadedWasPicked(void)                   { ToggleFlag(DrawShadedIsOn,                                "DrawShadedIs");
+                                                       ToggleFlag(DrawCpIsOn,                                    "DrawCpIs");     };
 
-    void DrawCpWasPicked(void)                       { WriteToScriptFile(DrawShadedIsOn,                                "DrawShadedIs");
-                                                       WriteToScriptFile(DrawCpIsOn,                                    "DrawCpIs");     };
+    void DrawCpWasPicked(void)                       { ToggleFlag(DrawShadedIsOn,                                "DrawShadedIs");
+                                                       ToggleFlag(DrawCpIsOn,                                    "DrawCpIs");     };
 
-    void DrawCoarseMeshWasPicked(void)               { WriteToScriptFile(DrawCoarseMeshesIsOn,                          "DrawCoarseMeshesIs"); };
+    void DrawCoarseMeshWasPicked(void)               { ToggleFlag(DrawCoarseMeshesIsOn,                          "DrawCoarseMeshesIs"); };
 
     void SwapSurfaceNormals(void);
+    
+    // Solution case slider
+    
+    void SolutionCaseSliderWasMoved(int Case) { UserSelectedSolutionCase_ = Case; LoadSolutionData(); };
+    
+    // Access the number of solutions in the adb file
+    
+    int GetNumberOfADBCases(void) { return NumberOfADBCases_; };
+    
+    void GetCommentTextString(char *c) { sprintf(c,"%s",ADBCaseList_[UserSelectedSolutionCase_].CommentLine); };
                                                        
     // Access size of data set
 
@@ -542,9 +614,9 @@ public:
 
     // Update the value of the EdgeMach, Q, Alpha case the user wants to view
 
-    void  MachNumberWasChangedTo(int  EdgeMach) { UserTouchedEdgeMach  = 0 ; UserChoiceMach  = EdgeMach;  WriteToScriptFileTextData("MachNumberWasChangedTo",  EdgeMach); };
-    void  BetaNumberWasChangedTo(int  Beta) { UserTouchedBeta  = 0 ; UserChoiceBeta  = Beta;  WriteToScriptFileTextData("BetaNumberWasChangedTo", Beta);};
-    void AlphaNumberWasChangedTo(int Alpha) { UserTouchedAlpha = 0 ; UserChoiceAlpha = Alpha; WriteToScriptFileTextData("AlphaNumberWasChangedTo", Alpha);};
+    void  MachNumberWasChangedTo(int  EdgeMach) { UserTouchedEdgeMach  = 0 ; UserChoiceMach  = EdgeMach;  };
+    void  BetaNumberWasChangedTo(int  Beta) { UserTouchedBeta  = 0 ; UserChoiceBeta  = Beta; };
+    void AlphaNumberWasChangedTo(int Alpha) { UserTouchedAlpha = 0 ; UserChoiceAlpha = Alpha; };
 
     // Access actual EdgeMach values for each case
 
@@ -558,9 +630,9 @@ public:
     void BetaWasTouched(void)   { UserTouchedBeta  = 1; };
     void AlphaWasTouched(void ) { UserTouchedAlpha = 1; };
 
-    void  SetEdgeMachTo(float EdgeMach)  { UserInputtedEdgeMach  = EdgeMach;  WriteToScriptFileTextData("SetEdgeMachTo",  EdgeMach); };
-    void  SetBetaTo(float Beta)  { UserInputtedBeta  = Beta;  WriteToScriptFileTextData("SetBetaTo", Beta); };
-    void SetAlphaTo(float Alpha) { UserInputtedAlpha = Alpha; WriteToScriptFileTextData("SetAlphaTo", Alpha); };
+    void  SetEdgeMachTo(float EdgeMach)  { UserInputtedEdgeMach  = EdgeMach;   };
+    void  SetBetaTo(float Beta)  { UserInputtedBeta  = Beta;   };
+    void SetAlphaTo(float Alpha) { UserInputtedAlpha = Alpha;  };
 
     // Return actual EdgeMach, Q, Alpha after a load data set or interpolation operation
 
@@ -578,7 +650,7 @@ public:
 
     // Use English Units in legends, etc.
 
-    void UseEnglishUnitsWasPicked(void) { WriteToScriptFile(UseEnglishUnits,"UseEnglishUnits"); };
+    void UseEnglishUnitsWasPicked(void) { ToggleFlag(UseEnglishUnits,"UseEnglishUnits"); };
 
     void DrawComGeomTagsWasPicked(void) { DrawComGeomTagsIsOn = 1 - DrawComGeomTagsIsOn; };
     void DrawComGeomTagsShadedWasPicked(int val) { DrawComGeomTagsShadedIsOn = val; };
@@ -593,7 +665,7 @@ public:
     void PassThePanelComGeomTagsBrowser(Fl_Browser *Browser) { PanelComGeomTagsBrowser = Browser; };
     void PanelComGeomTagsBrowser_UnSelectAll(void);
     void PanelComGeomTagsBrowser_SelectAll(void);
-	void PanelComGeomTagsBrowser_Update(void);
+	 void PanelComGeomTagsBrowser_Update(void);
 
     // Set octree cutting plane direction and value
 

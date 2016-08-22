@@ -23,6 +23,8 @@ using std::map;
 
 class Parm;
 
+bool NameCompare( const string &parmID_A, const string &parmID_B );
+
 //==============================================================================//
 //==============================================================================//
 //==============================================================================//
@@ -76,7 +78,6 @@ protected:
     bool m_LockParmContainerID;
     bool m_LockParmID;
     bool m_LateUpdateFlag;
-    bool m_LinkableFlag;
 
     vector< string > m_ParmVec;                         // Parms in container
 

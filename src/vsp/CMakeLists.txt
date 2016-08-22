@@ -57,6 +57,8 @@ IF( NOT VSP_NO_GRAPHICS )
 		tritri
 		clipper
         Angelscript
+        cartesian
+        wavedragEL
 		${CPPTEST_LIBRARIES}
 		${LIBXML2_LIBRARIES}
 		${FLTK_LIBRARIES}
@@ -72,6 +74,7 @@ IF( NOT VSP_NO_GRAPHICS )
 
 	ADD_EXECUTABLE(apitest_g
 	apitest_main.cpp
+	../geom_api/APITestSuite.cpp
 	../vsp/main.h.in
 	)
 
@@ -91,6 +94,8 @@ IF( NOT VSP_NO_GRAPHICS )
 		screens
 		xmlvsp
 		sixseries
+		cartesian
+		wavedragEL
 		${CPPTEST_LIBRARIES}
 		${LIBXML2_LIBRARIES}
 		${FLTK_LIBRARIES}
@@ -107,6 +112,7 @@ ENDIF()
 
 ADD_EXECUTABLE(apitest
 apitest_main.cpp
+../geom_api/APITestSuite.cpp
 ../vsp/main.h.in
 )
 
@@ -121,6 +127,7 @@ TARGET_LINK_LIBRARIES(apitest
 	tritri
 	clipper
     Angelscript
+    wavedragEL
 	${CPPTEST_LIBRARIES}
 	${LIBXML2_LIBRARIES}
 	${WINSOCK_LIBRARIES}
@@ -128,6 +135,10 @@ TARGET_LINK_LIBRARIES(apitest
 	${STEPCODE_LIBRARIES}
 	${LIBIGES_LIBRARIES}
 )
+
+IF( VSP_INSTALL_API_TEST )
+    INSTALL( TARGETS apitest RUNTIME DESTINATION . )
+ENDIF()
 
 ADD_EXECUTABLE(vspscript
 common.cpp
@@ -147,6 +158,7 @@ TARGET_LINK_LIBRARIES(vspscript
 	tritri
 	clipper
 	Angelscript
+	wavedragEL
 	${CPPTEST_LIBRARIES}
 	${LIBXML2_LIBRARIES}
 	${WINSOCK_LIBRARIES}

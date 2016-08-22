@@ -4,8 +4,8 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#ifndef VSP_DEGEN_GEOM_H
-#define VSP_DEGEN_GEOM_H
+#ifndef VSP_GEOM_H
+#define VSP_GEOM_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,12 +17,16 @@
 #include "VSP_Agglom.H"
 #include "RotorDisk.H"
 
-#define WING_SURFACE 1
-#define BODY_SURFACE 2  
+#define   VLM_MODEL 1
+#define PANEL_MODEL 2
 
-// Definition of the VSP_DEGEN_GEOM_H class
+#define SYM_X 1
+#define SYM_Y 2
+#define SYM_Z 3
 
-class VSP_DEGEN_GEOM {
+// Definition of the VSP_GEOM_H class
+
+class VSP_GEOM {
 
 private:
 
@@ -34,20 +38,32 @@ private:
     
     void init(void);
     
+    // Model type
+    
+    int ModelType_;
+    
+    // Symmetry flag
+    
+    int DoSymmetryPlaneSolve_;
+    
     // Geometry data
     
     int NumberOfComponents_;
     
     // Wing Data
     
-    int NumberOfWings_;
+    int NumberOfDegenWings_;
 
     // Body Data
     
-    int NumberOfBodies_;
-
+    int NumberOfDegenBodies_;
+    
+    // CART3D data
+    
+    int NumberOfCart3dSurfaces_;
+    
     // Rotor Disk Data
-
+    
     int NumberOfRotors_;
     ROTOR_DISK *RotorDisk_;
 
@@ -55,6 +71,8 @@ private:
     
     int NumberOfSurfaces_;
     
+    int NumberOfSurfacePatches_;
+   
     VSP_SURFACE *VSP_Surface_;
     
     // Merged global mesh
@@ -66,22 +84,42 @@ private:
     
     void AgglomerateMeshes(void);
 
+    // I/O
+    
+    void Read_CART3D_File(char *FileName);
+    void Read_VSP_Degen_File(char *FileName);
+    
+    // FEM Analysis
+    
+    int LoadDeformationFile_;
+    
+    // Control surface routines
+    
+    void FindControlSurfaceVortexLoops(void);
+
 public:
 
     // Constructor, Destructor, Copy
 
-    VSP_DEGEN_GEOM(void);
-   ~VSP_DEGEN_GEOM(void);
-    VSP_DEGEN_GEOM(const VSP_DEGEN_GEOM &VSP_DegenGeom);
+    VSP_GEOM(void);
+   ~VSP_GEOM(void);
+    VSP_GEOM(const VSP_GEOM &VSP_Geom);
 
     // Copy function
 
-    VSP_DEGEN_GEOM& operator=(const VSP_DEGEN_GEOM &VSP_DegenGeom);
+    VSP_GEOM& operator=(const VSP_GEOM &VSP_Geom);
     
     // Read in the VSP degenerate geometry file
     
-    void ReadFile(char *FileName);
+    int ReadFile(char *FileName);
     
+    // FEM
+
+    int &LoadDeformationFile(void) { return LoadDeformationFile_; };    
+ 
+    void LoadFEMDeformationData(char *FileName);
+    void FEMDeformGeometry(void);    
+
     // Meshing
     
     void MeshGeom(void);
@@ -90,9 +128,11 @@ public:
     
     int NumberOfComponents(void) { return NumberOfComponents_; };
     
-    int NumberOfWings(void) { return NumberOfWings_; };
+    int NumberOfDegenWings(void) { return NumberOfDegenWings_; };
 
-    int NumberOfBodies(void) { return NumberOfBodies_; };
+    int NumberOfDegenBodies(void) { return NumberOfDegenBodies_; };
+
+    int NumberOfCart3dSurfaces(void) { return NumberOfCart3dSurfaces_; };
  
     int NumberOfSurfaces(void) { return NumberOfSurfaces_; };
     
@@ -101,11 +141,12 @@ public:
     int NumberOfGridLevels(void) { return NumberOfGridLevels_; };
     VSP_GRID &Grid(void) { return *(Grid_[0]); };
     VSP_GRID &Grid(int i) { return *(Grid_[i]); };
-
+    
     int NumberOfRotors(void) { return NumberOfRotors_; };
     ROTOR_DISK &RotorDisk(int i) { return RotorDisk_[i]; };
+    
+    int &DoSymmetryPlaneSolve(void) { return DoSymmetryPlaneSolve_; };
 
- 
 };
 
 #endif

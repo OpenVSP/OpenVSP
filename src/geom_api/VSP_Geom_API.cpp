@@ -21,7 +21,10 @@
 #include "Util.h"
 #include "DesignVarMgr.h"
 #include "SubSurfaceMgr.h"
+#include "VarPresetMgr.h"
 #include "WingGeom.h"
+#include "PropGeom.h"
+#include "PCurve.h"
 
 #ifdef VSP_USE_FLTK
 #include "GuiInterface.h"
@@ -166,6 +169,18 @@ void WriteVSPFile( const string & file_name, int set )
         ErrorMgr.AddError( VSP_FILE_WRITE_FAILURE, "WriteVSPFile::Failure Writing File"  );
         return;
     }
+    ErrorMgr.NoError();
+}
+
+void SetVSP3FileName( const string & file_name )
+{
+    Vehicle* veh = GetVehicle();
+    if ( !veh )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetVSP3FileName::Failure Getting Vehicle Ptr"  );
+        return;
+    }
+    veh->SetVSP3FileName( file_name );
     ErrorMgr.NoError();
 }
 
@@ -447,27 +462,6 @@ string ComputePlaneSlice( int set, int num_slices, const vec3d & norm, bool auto
     if ( id.size() == 0 )
     {
         ErrorMgr.AddError( VSP_INVALID_ID, "ComputePlaneSlice::Invalid ID " );
-    }
-    else
-    {
-        ErrorMgr.NoError();
-    }
-
-    return id;
-}
-
-//==== Compute AWave Slice =====//
-extern string ComputeAwaveSlice( int set, int num_slices, int num_rots, double ang_control, bool comp_ang,
-                                 const vec3d & norm, bool auto_bnd, double start_bnd, double end_bnd )
-{
-    Update();
-    Vehicle* veh = GetVehicle();
-
-    string id = veh->AwaveSliceAndFlatten( set, num_slices, num_rots, ang_control, comp_ang, norm, auto_bnd, start_bnd, end_bnd );
-
-    if ( id.size() == 0 )
-    {
-        ErrorMgr.AddError( VSP_INVALID_ID, "ComputeAwaveSlice::Invalid ID " );
     }
     else
     {
@@ -876,6 +870,72 @@ void SetVec3dAnalysisInput( const string & analysis, const string & name, const 
     AnalysisMgr.SetVec3dAnalysisInput( analysis, name, indata, index );
 }
 
+void PrintAnalysisInputs(FILE * outputStream, const string analysis_name)
+{
+    fprintf(outputStream,"\t\t%-20s%s\t%s\t%s\n","[input_name] ","[type]","[#]","[current values-->]");
+
+    vector < string > input_names = GetAnalysisInputNames( analysis_name );
+    for ( unsigned int i_input_name = 0; i_input_name<input_names.size(); i_input_name++)
+    {
+        // print out type and number of data entries
+        int current_input_type = GetAnalysisInputType(analysis_name,input_names[i_input_name]);
+        unsigned int current_input_num_data = (unsigned int) GetNumAnalysisInputData(analysis_name,input_names[i_input_name]);
+        fprintf(outputStream,"\t\t%-20s%d\t\t%d",input_names[i_input_name].c_str(), current_input_type, current_input_num_data);
+
+        // print out the current value (this needs to handle different types and vector lengths
+        fprintf(outputStream,"\t");
+        for ( unsigned int i_val = 0; i_val<current_input_num_data; i_val++)
+        {
+            switch(current_input_type) 
+            {
+            case vsp::RES_DATA_TYPE::INT_DATA :
+                {
+                    vector<int> current_int_val = GetIntAnalysisInput(analysis_name,input_names[i_input_name],i_val);
+                    for ( unsigned int j_val=0; j_val<current_int_val.size(); j_val++)
+                    {
+                        fprintf(outputStream,"%d ",current_int_val[j_val]);
+                    }
+                    break;
+                }
+            case vsp::RES_DATA_TYPE::DOUBLE_DATA :
+                {
+                    vector<double> current_double_val = GetDoubleAnalysisInput(analysis_name,input_names[i_input_name],i_val);
+                    for ( unsigned int j_val=0; j_val<current_double_val.size(); j_val++)
+                    {
+                        fprintf(outputStream,"%f ",current_double_val[j_val]);
+                    }
+                    break;
+                }
+            case vsp::RES_DATA_TYPE::STRING_DATA :
+                {
+                    vector<string> current_string_val = GetStringAnalysisInput(analysis_name,input_names[i_input_name],i_val);
+                    for ( unsigned int j_val=0; j_val<current_string_val.size(); j_val++)
+                    {
+                        fprintf(outputStream,"%s ",current_string_val[j_val].c_str());
+                    }
+                    break;
+                }
+            case vsp::RES_DATA_TYPE::VEC3D_DATA :
+                {
+                    vector<vec3d> current_vec3d_val = GetVec3dAnalysisInput(analysis_name,input_names[i_input_name],i_val);
+                    for ( unsigned int j_val=0; j_val<current_vec3d_val.size(); j_val++)
+                    {
+                        fprintf(outputStream,"%f,%f,%f ",current_vec3d_val[j_val].x(),current_vec3d_val[j_val].y(),current_vec3d_val[j_val].z());
+                    }
+                    break;
+                }
+            default:
+                {
+                    ErrorMgr.AddError( VSP_INVALID_TYPE, "analysis_name: " + analysis_name + " input_names[i_input_name]: " + input_names[i_input_name] );
+                    break;
+                }
+            }    //end switch
+        }    // end for
+
+        fprintf(outputStream,"\n");
+    }
+}
+
 //===================================================================//
 //===============       Results Functions         ===================//
 //===================================================================//
@@ -1092,7 +1152,83 @@ void WriteResultsCSVFile( const string & id, const string & file_name )
     ErrorMgr.NoError();
  }
 
+void PrintResults(FILE * outputStream, const vector < string > &results_id_vec )
+{
+    for ( unsigned int i = 0; i < results_id_vec.size(); i++ )
+    {
+        PrintResults(outputStream, results_id_vec[i] );
+    }
+}
 
+void PrintResults(FILE * outputStream, const string &results_id)
+{
+    fprintf(outputStream,"\n\t\t%-20s%s\t%s\t%s\n","[result_name]","[type]","[#]","[current values-->]");
+
+    vector<string> results_names = GetAllDataNames(results_id);
+    for ( unsigned int i_result_name = 0; i_result_name< results_names.size(); i_result_name++)
+    {
+        int current_result_type = GetResultsType(results_id,results_names[i_result_name]);
+        unsigned int current_result_num_data = (unsigned int)GetNumData(results_id,results_names[i_result_name]);
+        fprintf(outputStream,"\t\t%-20s%d\t\t%d",results_names[i_result_name].c_str(), current_result_type, current_result_num_data);
+        // print out the current value (this needs to handle different types and vector lengths
+        fprintf(outputStream,"\t");
+        for ( unsigned int i_val = 0; i_val<current_result_num_data; i_val++)
+        {
+            switch(current_result_type)
+            {
+            case vsp::RES_DATA_TYPE::INT_DATA :
+            {
+                vector<int> current_int_val = GetIntResults(results_id,results_names[i_result_name],i_val);
+                for ( unsigned int j_val=0; j_val<current_int_val.size(); j_val++)
+                {
+                    fprintf(outputStream,"%d ",current_int_val[j_val]);
+                }
+                break;
+            }
+            case vsp::RES_DATA_TYPE::DOUBLE_DATA :
+            {
+                vector<double> current_double_val = GetDoubleResults(results_id,results_names[i_result_name],i_val);
+                for ( unsigned int j_val=0; j_val<current_double_val.size(); j_val++)
+                {
+                    fprintf(outputStream,"%f ",current_double_val[j_val]);
+                }
+                break;
+            }
+            case vsp::RES_DATA_TYPE::STRING_DATA :
+            {
+                vector<string> current_string_val = GetStringResults(results_id,results_names[i_result_name],i_val);
+                for ( unsigned int j_val=0; j_val<current_string_val.size(); j_val++)
+                {
+                    fprintf(outputStream,"%s ",current_string_val[j_val].c_str());
+                }
+                //Recursive call if results vector found
+                if( strcmp(results_names[i_result_name].c_str(),"ResultsVec")==0)
+                {
+                    PrintResults(outputStream, GetStringResults( results_id, "ResultsVec", 0 ) );
+                }
+                break;
+            }
+            case vsp::RES_DATA_TYPE::VEC3D_DATA :
+            {
+                vector<vec3d> current_vec3d_val = GetVec3dResults(results_id,results_names[i_result_name],i_val);
+                for ( unsigned int j_val=0; j_val<current_vec3d_val.size(); j_val++)
+                {
+                    fprintf(outputStream,"%f,%f,%f ",current_vec3d_val[j_val].x(),current_vec3d_val[j_val].y(),current_vec3d_val[j_val].z());
+                }
+                break;
+            }
+            default:
+            {
+                ErrorMgr.AddError( VSP_INVALID_TYPE, " results_id: " + results_id + "results_names[i_result_name]: " + results_names[i_result_name] );
+                break;
+            }
+            }    //end switch
+
+        }    // end for
+
+        fprintf(outputStream,"\n");
+    }
+}
 
 //===================================================================//
 //===============        GUI Functions            ===================//
@@ -2692,9 +2828,9 @@ double SetParmValUpdate( const string & parm_id, double val )
 
 /// Set the parm value.  If update is true, the parm container is updated.
 /// The final value of parm is returned.
-double SetParmValUpdate( const string & geom_id, const string & name, const string & group, double val )
+double SetParmValUpdate( const string & geom_id, const string & parm_name, const string & parm_group_name, double val )
 {
-    string parm_id = GetParm( geom_id, name, group );
+    string parm_id = GetParm( geom_id, parm_name, parm_group_name );
     Parm* p = ParmMgr.FindParm( parm_id );
     if ( !p )
     {
@@ -2899,7 +3035,7 @@ void SetParmDescript( const string & parm_id, const string & desc )
 }
 
 ///  Find a parm id given parm container, name and group
-string FindParm( const string & parm_container_id, const string & name, const string & group )
+string FindParm( const string & parm_container_id, const string& parm_name, const string& group_name )
 {
     ParmContainer* pc = ParmMgr.FindParmContainer( parm_container_id );
 
@@ -2909,7 +3045,7 @@ string FindParm( const string & parm_container_id, const string & name, const st
         return string();
     }
 
-   string parm_id = pc->FindParm( name, group );
+   string parm_id = pc->FindParm( parm_name, group_name );
    Parm* p = ParmMgr.FindParm( parm_id );
    if ( !p )
    {
@@ -3079,6 +3215,455 @@ double SnapParm( const string & parm_id, double target_min_dist, bool inc_flag, 
     return min_clearance_dist;
 }
 
+//===================================================================//
+//===============     Variable Presets Functions       ==============//
+//===================================================================//
+
+void AddVarPresetGroup( const string &group_name )
+{
+    VarPresetMgr.AddGroup( group_name );
+    VarPresetMgr.SavePreset();
+
+    ErrorMgr.NoError();
+}
+
+void AddVarPresetSetting( const string &setting_name )
+{
+    VarPresetMgr.AddSetting( setting_name );
+    VarPresetMgr.SavePreset();
+
+    ErrorMgr.NoError();
+}
+
+void AddVarPresetParm( const string &parm_ID )
+{
+    VarPresetMgr.AddVar( parm_ID );
+    VarPresetMgr.SavePreset();
+
+    ErrorMgr.NoError();
+}
+
+void AddVarPresetParm( const string &parm_ID, const string &group_name )
+{
+    VarPresetMgr.GroupChange( group_name );
+    VarPresetMgr.AddVar( parm_ID );
+    VarPresetMgr.SavePreset();
+
+    ErrorMgr.NoError();
+}
+
+void EditVarPresetParm( const string &parm_ID, double parm_val )
+{
+    Parm *p = ParmMgr.FindParm( parm_ID );
+    if ( p )
+    {
+        p->Set( parm_val );
+    }
+    else
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "EditVarPresetParm::Can't Find Parm " + parm_ID  );
+    }
+    VarPresetMgr.SavePreset();
+}
+
+void EditVarPresetParm( const string &parm_ID, double parm_val, const string &group_name,
+    const string &setting_name )
+{
+    SwitchVarPreset( group_name, setting_name );
+    EditVarPresetParm( parm_ID, parm_val );
+}
+
+void DeleteVarPresetParm( const string &parm_ID )
+{
+    VarPresetMgr.SetWorkingParmID( parm_ID );
+    VarPresetMgr.DelCurrVar();
+    VarPresetMgr.SavePreset();
+
+    ErrorMgr.NoError();
+}
+
+void DeleteVarPresetParm( const string &parm_ID, const string &group_name )
+{
+    VarPresetMgr.GroupChange( group_name );
+    if (VarPresetMgr.GetActiveGroupText().compare( group_name ) == 0 )
+    {
+        ErrorMgr.NoError();
+    }
+    else
+    {
+        ErrorMgr.AddError( VSP_INVALID_VARPRESET_GROUPNAME, "DeleteVarPresetParm::Can't Find Group " + group_name );
+    }
+    DeleteVarPresetParm( parm_ID );
+}
+
+void SwitchVarPreset( const string &group_name, const string &setting_name )
+{
+    VarPresetMgr.GroupChange( group_name );
+    if (VarPresetMgr.GetActiveGroupText().compare( group_name ) == 0 )
+    {
+        ErrorMgr.NoError();
+    }
+    else
+    {
+        ErrorMgr.AddError( VSP_INVALID_VARPRESET_GROUPNAME, "SwitchVarPreset::Can't Find Group " + group_name );
+    }
+    VarPresetMgr.SettingChange( setting_name );
+    if (VarPresetMgr.GetActiveSettingText().compare( setting_name ) == 0 )
+    {
+        ErrorMgr.NoError();
+    }
+    else
+    {
+        ErrorMgr.AddError( VSP_INVALID_VARPRESET_SETNAME, "SwitchSaveParmGroup::Can't Find Setting " + setting_name  );
+    }
+}
+
+bool DeleteVarPresetSet( const string &group_name, const string &setting_name )
+{
+    if ( VarPresetMgr.DeletePreset( group_name, setting_name ) )
+    {
+        ErrorMgr.NoError();
+        return true;
+    }
+    else
+    {
+        ErrorMgr.AddError( VSP_INVALID_VARPRESET_GROUPNAME, "SwitchSaveParmGroup::Can't Find Group " + group_name  );
+        ErrorMgr.AddError( VSP_INVALID_VARPRESET_SETNAME, "SwitchSaveParmGroup::Can't Find Setting " + setting_name  );
+        return false;
+    }
+}
+
+string GetCurrentGroupName()
+{
+    return VarPresetMgr.GetActiveGroupText();
+}
+
+string GetCurrentSettingName()
+{
+    return VarPresetMgr.GetActiveSettingText();
+}
+
+vector <string> GetVarPresetGroupNames()
+{
+    ErrorMgr.NoError();
+    return VarPresetMgr.GetGroupNames();
+}
+
+vector <string> GetVarPresetSettingNamesWName( const string &group_name )
+{
+    vector <string> vec;
+    vec = VarPresetMgr.GetSettingNames( group_name );
+
+    if ( vec.empty() )
+    {
+        ErrorMgr.AddError( VSP_INVALID_VARPRESET_GROUPNAME, "SwitchSaveParmGroup::Can't Find Group " + group_name  );
+        return vec;
+    }
+    else
+    {
+        ErrorMgr.NoError();
+        return vec;
+    }
+}
+
+vector <string> GetVarPresetSettingNamesWIndex( int group_index )
+{
+    vector <string> vec;
+    vec = VarPresetMgr.GetSettingNames( group_index );
+
+    if ( vec.empty() )
+    {
+        ErrorMgr.AddError( VSP_INVALID_VARPRESET_GROUPNAME, "SwitchSaveParmGroup::Can't Find Group @ Index " + to_string( group_index ) );
+        return vec;
+    }
+    else
+    {
+        ErrorMgr.NoError();
+        return vec;
+    }
+}
+
+vector <double> GetVarPresetParmVals()
+{
+    ErrorMgr.NoError();
+    return VarPresetMgr.GetCurrentParmVals();
+}
+
+vector <double> GetVarPresetParmValsWNames( const string &group_name, const string &setting_name )
+{
+    ErrorMgr.NoError();
+    return VarPresetMgr.GetParmVals( group_name, setting_name );
+}
+
+vector <string> GetVarPresetParmIDs()
+{
+    ErrorMgr.NoError();
+    return VarPresetMgr.GetCurrentParmIDs();
+}
+
+vector <string> GetVarPresetParmIDsWName( const string &group_name )
+{
+    ErrorMgr.NoError();
+    return VarPresetMgr.GetParmIDs( group_name );
+}
+
+//===================================================================//
+//===============     Parametric Curve Functions       ==============//
+//===================================================================//
+
+void SetPCurve( const string & geom_id, const int & pcurveid, const vector < double > & tvec,
+    const vector < double > & valvec, const int & newtype )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetPCurve::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    PropGeom* prop_ptr = dynamic_cast < PropGeom* > (geom_ptr );
+    if ( !prop_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetPCurve::Geom doesn't support PCurves " + geom_id );
+        return;
+    }
+
+    PCurve *pc = NULL;
+
+    if ( prop_ptr )
+    {
+        pc = prop_ptr->GetPCurve( pcurveid );
+    }
+
+    if ( !pc )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetPCurve::PCurve not found " + geom_id + " " + to_string( pcurveid ) );
+        return;
+    }
+
+    pc->SetCurve( tvec, valvec, newtype );
+
+    ErrorMgr.NoError();
+}
+
+void PCurveConvertTo( const string & geom_id, const int & pcurveid, const int & newtype )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveConvertTo::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    PropGeom* prop_ptr = dynamic_cast < PropGeom* > (geom_ptr );
+    if ( !prop_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveConvertTo::Geom doesn't support PCurves " + geom_id );
+        return;
+    }
+
+    PCurve *pc = NULL;
+
+    if ( prop_ptr )
+    {
+        pc = prop_ptr->GetPCurve( pcurveid );
+    }
+
+    if ( !pc )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "PCurveConvertTo::PCurve not found " + geom_id + " " + to_string( pcurveid ) );
+        return;
+    }
+
+    pc->ConvertTo( newtype );
+
+    ErrorMgr.NoError();
+}
+
+int PCurveGetType( const std::string & geom_id, const int & pcurveid )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveGetType::Can't Find Geom " + geom_id );
+        return -1;
+    }
+
+    PropGeom* prop_ptr = dynamic_cast < PropGeom* > (geom_ptr );
+    if ( !prop_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveGetType::Geom doesn't support PCurves " + geom_id );
+        return -1;
+    }
+
+    PCurve *pc = NULL;
+
+    if ( prop_ptr )
+    {
+        pc = prop_ptr->GetPCurve( pcurveid );
+    }
+
+    if ( !pc )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "PCurveGetType::PCurve not found " + geom_id + " " + to_string( pcurveid ) );
+        return -1;
+    }
+
+    ErrorMgr.NoError();
+
+    return pc->m_CurveType();
+}
+
+vector < double > PCurveGetTVec( const string & geom_id, const int & pcurveid )
+{
+    vector < double > retvec;
+
+	Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveGetTVec::Can't Find Geom " + geom_id );
+        return retvec;
+    }
+
+    PropGeom* prop_ptr = dynamic_cast < PropGeom* > (geom_ptr );
+    if ( !prop_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveGetTVec::Geom doesn't support PCurves " + geom_id );
+        return retvec;
+    }
+
+    PCurve *pc = NULL;
+
+    if ( prop_ptr )
+    {
+        pc = prop_ptr->GetPCurve( pcurveid );
+    }
+
+    if ( !pc )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "PCurveGetTVec::PCurve not found " + geom_id + " " + to_string( pcurveid ) );
+        return retvec;
+    }
+
+    retvec = pc->GetTVec();
+
+    ErrorMgr.NoError();
+
+    return retvec;
+}
+
+vector < double > PCurveGetValVec( const string & geom_id, const int & pcurveid )
+{
+    vector < double > retvec;
+
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveGetValVec::Can't Find Geom " + geom_id );
+        return retvec;
+    }
+
+    PropGeom* prop_ptr = dynamic_cast < PropGeom* > (geom_ptr );
+    if ( !prop_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveGetValVec::Geom doesn't support PCurves " + geom_id );
+        return retvec;
+    }
+
+    PCurve *pc = NULL;
+
+    if ( prop_ptr )
+    {
+        pc = prop_ptr->GetPCurve( pcurveid );
+    }
+
+    if ( !pc )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "PCurveGetValVec::PCurve not found " + geom_id + " " + to_string( pcurveid ) );
+        return retvec;
+    }
+
+    retvec = pc->GetValVec();
+
+    ErrorMgr.NoError();
+
+    return retvec;
+}
+
+void PCurveDeletePt( const string & geom_id, const int & pcurveid, const int & indx )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveDeletePt::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    PropGeom* prop_ptr = dynamic_cast < PropGeom* > (geom_ptr );
+    if ( !prop_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveDeletePt::Geom doesn't support PCurves " + geom_id );
+        return;
+    }
+
+    PCurve *pc = NULL;
+
+    if ( prop_ptr )
+    {
+        pc = prop_ptr->GetPCurve( pcurveid );
+    }
+
+    if ( !pc )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "PCurveDeletePt::PCurve not found " + geom_id + " " + to_string( pcurveid ) );
+        return;
+    }
+
+    return pc->DeletePt( indx );
+
+    ErrorMgr.NoError();
+}
+
+void PCurveSplit( const string & geom_id, const int & pcurveid, const double & tsplit )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveSplit::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    PropGeom* prop_ptr = dynamic_cast < PropGeom* > (geom_ptr );
+    if ( !prop_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveSplit::Geom doesn't support PCurves " + geom_id );
+        return;
+    }
+
+    PCurve *pc = NULL;
+
+    if ( prop_ptr )
+    {
+        pc = prop_ptr->GetPCurve( pcurveid );
+    }
+
+    if ( !pc )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "PCurveSplit::PCurve not found " + geom_id + " " + to_string( pcurveid ) );
+        return;
+    }
+
+    return pc->Split( tsplit );
+
+    ErrorMgr.NoError();
+}
 
 //============================================================================//
 }   // vsp namespace

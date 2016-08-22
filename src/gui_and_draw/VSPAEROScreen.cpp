@@ -8,87 +8,144 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "VSPAEROScreen.h"
+#include "VSPAEROPlotScreen.h"
 #include "APIDefines.h"
 #include "StringUtil.h"
 #include "FileUtil.h"
+#include "float.h"
+#include <FL/fl_ask.H>
 
 #include <utility>
 #include <string>
+#include <algorithm>
+
+#include <iostream>
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
+#define VSPAERO_SCREEN_WIDTH 850
+#define VSPAERO_SCREEN_HEIGHT 750
 
-VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, 650, 340, "VSPAERO" )
+VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_WIDTH, VSPAERO_SCREEN_HEIGHT, "VSPAERO" )
 {
-    m_SolverPair = make_pair( this, VSPAERO_SOLVER );
-    m_ViewerPair = make_pair( this, VSPAERO_VIEWER );
-    m_SetupFlag = false;
-    m_ADBFlag = false;
+    m_FLTK_Window->callback( staticCloseCB, this );
 
+    m_SolverPair = make_pair( &VSPAEROMgr, this );  //solverpair type
+    m_ViewerPair = make_pair( this, VSPAERO_VIEWER );   //monitorpair type
+
+    int window_border_width = 5;
+    int group_border_width = 2;
+
+    int total_width = VSPAERO_SCREEN_WIDTH - 2 * window_border_width;
+    int total_height = VSPAERO_SCREEN_HEIGHT - 2 * window_border_width;
+    int row_height = 20;
+    int action_button_height = 0 * row_height; //space reserved for action buttons at the bottom
+
+    //==== Overview Tab ====//
     Fl_Group* overview_tab = AddTab( "Overview" );
-    Fl_Group* setup_tab = AddTab( "Setup" );
-    Fl_Group* solver_tab = AddTab( "Solver" );
-    Fl_Group* viewer_tab = AddTab( "Viewer" );
-
-    overview_tab->show();
-
-
-    Fl_Group* overview_group = AddSubGroup( overview_tab, 5 );
+    Fl_Group* overview_group = AddSubGroup( overview_tab, window_border_width );
     m_OverviewLayout.SetGroupAndScreen( overview_group, this );
 
-    m_OverviewLayout.AddSubGroupLayout( m_GeomLayout, 320 - 2, 80 );
-    m_OverviewLayout.AddX( 320 + 2 );
-    m_OverviewLayout.AddSubGroupLayout( m_FlowLayout, 320 - 2, 80 );
-    m_OverviewLayout.ForceNewLine();
-    m_OverviewLayout.AddY( 70 );
+    // Column layout
+    GroupLayout left_col_layout;
+    int left_col_width = 350 - 2 * group_border_width;
+    int col_height = m_OverviewLayout.GetH() - group_border_width - action_button_height;
+    m_OverviewLayout.AddSubGroupLayout( left_col_layout, left_col_width, col_height );
 
-    m_OverviewLayout.AddSubGroupLayout( m_RefLayout, 320 - 2, 120 );
-    m_OverviewLayout.AddX( 320 + 2 );
-    m_OverviewLayout.AddSubGroupLayout( m_CGLayout, 320 - 2, 120 );
+    m_OverviewLayout.AddX( left_col_layout.GetW() + 2 * group_border_width );
+
+    GroupLayout right_col_layout;
+    int right_col_width = m_OverviewLayout.GetRemainX();
+    m_OverviewLayout.AddSubGroupLayout( right_col_layout, right_col_width, col_height );
+
     m_OverviewLayout.ForceNewLine();
-    m_OverviewLayout.AddY( 110 );
+    m_OverviewLayout.AddY( right_col_layout.GetH() );   //add Y for Execute divider box
+
+    // Case Setup
+    left_col_layout.AddSubGroupLayout( m_GeomLayout, left_col_layout.GetW() - 2 * group_border_width, 8 * row_height );
+    left_col_layout.AddY( m_GeomLayout.GetH() );
 
     m_GeomLayout.AddDividerBox( "Case Setup" );
 
     m_GeomLayout.SetSameLineFlag( true );
     m_GeomLayout.SetFitWidthFlag( false );
 
-    m_GeomLayout.SetButtonWidth( 50 );
-    m_GeomLayout.SetInputWidth( 318 - 50 - 25 );
+    // Analysis method radio button group setup
+    m_GeomLayout.SetButtonWidth( m_GeomLayout.GetW() / 2 );
+    m_GeomLayout.AddButton( m_AeroMethodToggleVLM, "Vortex Lattice (VLM)" );
+    m_GeomLayout.AddButton( m_AeroMethodTogglePanel, "Panel Method" );
 
-    m_GeomLayout.AddOutput( m_DegenFileName, "File" );
+    m_AeroMethodToggleGroup.Init( this );
+    m_AeroMethodToggleGroup.AddButton( m_AeroMethodToggleVLM.GetFlButton() );
+    m_AeroMethodToggleGroup.AddButton( m_AeroMethodTogglePanel.GetFlButton() );
 
-    m_GeomLayout.SetButtonWidth( 25 );
+    vector< int > val_map;
+    val_map.push_back( vsp::VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE );
+    val_map.push_back( vsp::VSPAERO_ANALYSIS_METHOD::PANEL );
+    m_AeroMethodToggleGroup.SetValMapVec( val_map );
+
+    m_GeomLayout.ForceNewLine();
+
+    //  Degengeom output file selection, used for VLM & Panel methods
+    int labelButtonWidth = 60;
+    int fileButtonWidth = 25;
+    int inputWidth = m_GeomLayout.GetW() - labelButtonWidth - fileButtonWidth;
+
+    m_GeomLayout.SetButtonWidth( labelButtonWidth );
+    m_GeomLayout.SetInputWidth( inputWidth );
+
+    m_GeomLayout.AddOutput( m_DegenFileName, "Degen" );
+
+    m_GeomLayout.SetButtonWidth( fileButtonWidth );
 
     m_GeomLayout.AddButton( m_DegenFileButton, "..." );
     m_GeomLayout.ForceNewLine();
 
-    m_GeomLayout.SetButtonWidth( 125 );
+    //  CompGeom output file selection, used for Panel method only
+    m_GeomLayout.SetButtonWidth( labelButtonWidth );
+    m_GeomLayout.SetInputWidth( inputWidth );
 
-    m_GeomLayout.SetFitWidthFlag( true );
-    m_GeomLayout.AddChoice( m_GeomSetChoice, "Geometry Set:", m_GeomLayout.GetButtonWidth() );
-    m_GeomLayout.SetFitWidthFlag( false );
-    m_GeomLayout.AddButton( m_DegenGeomButton, "Generate Geometry" );
+    m_GeomLayout.AddOutput( m_CompGeomFileName, "Panel" );
+
+    m_GeomLayout.SetButtonWidth( fileButtonWidth );
+
+    m_GeomLayout.AddButton( m_CompGeomFileButton, "..." );
     m_GeomLayout.ForceNewLine();
-
+    
+    m_GeomLayout.InitWidthHeightVals();
     m_GeomLayout.SetSameLineFlag( false );
     m_GeomLayout.SetFitWidthFlag( true );
-
-    m_GeomLayout.InitWidthHeightVals();
+    m_GeomLayout.AddChoice( m_GeomSetChoice, "Geometry Set:" );
     m_GeomLayout.AddSlider( m_NCPUSlider, "Num CPU", 10.0, "%3.0f" );
+    m_GeomLayout.AddButton( m_StabilityCalcToggle, "Stability Calculation" );
+    m_GeomLayout.AddButton( m_BatchCalculationToggle, "Batch Calculation" );
 
-    m_FlowLayout.AddDividerBox( "Flow Condition" );
-    m_FlowLayout.AddSlider( m_AlphaSlider, "Alpha", 10.0, "%7.3f" );
-    m_FlowLayout.AddSlider( m_BetaSlider, "Beta", 10.0, "%7.3f" );
-    m_FlowLayout.AddSlider( m_MachSlider, "Mach", 3.0, "%7.3f" );
+    left_col_layout.AddY(group_border_width);
 
-    m_RefLayout.AddDividerBox( "Reference Quantities" );
+    // Wake
+    left_col_layout.AddSubGroupLayout( m_WakeLayout, left_col_layout.GetW() - 2 * group_border_width, 4 * row_height );
+    left_col_layout.AddY( m_WakeLayout.GetH() );
+
+    m_WakeLayout.AddDividerBox( "Wake" );
+    m_WakeLayout.SetSameLineFlag( false );
+    m_WakeLayout.SetFitWidthFlag( true );
+    m_WakeLayout.AddSlider( m_WakeNumIterSlider, "Num It.", 10, "%3.0f" );
+    m_WakeLayout.AddSlider( m_WakeAvgStartIterSlider, "Avg Start It.", 11, "%3.0f" );
+    m_WakeLayout.AddSlider( m_WakeSkipUntilIterSlider, "Skip Until It.", 11, "%3.0f" );
+
+    left_col_layout.AddY(group_border_width);
+
+    // Reference Quantities
+    left_col_layout.AddSubGroupLayout( m_RefLayout, left_col_layout.GetW() - 2 * group_border_width, 6 * row_height );
+    left_col_layout.AddY( m_RefLayout.GetH() );
+
+    m_RefLayout.AddDividerBox( "Reference Area, Lengths" );
 
     m_RefLayout.SetSameLineFlag( true );
     m_RefLayout.SetFitWidthFlag( false );
 
-    m_RefLayout.SetButtonWidth( m_RefLayout.GetW()/2 );
+    m_RefLayout.SetButtonWidth( m_RefLayout.GetW() / 2 );
 
     m_RefLayout.AddButton( m_RefManualToggle, "Manual" );
     m_RefLayout.AddButton( m_RefChoiceToggle, "From Model" );
@@ -109,16 +166,20 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, 650, 340, "VSPA
     m_RefToggle.AddButton( m_RefManualToggle.GetFlButton() );
     m_RefToggle.AddButton( m_RefChoiceToggle.GetFlButton() );
 
+    left_col_layout.AddY(group_border_width);
 
+    // CG
+    left_col_layout.AddSubGroupLayout( m_CGLayout, left_col_layout.GetW() - 2 * group_border_width, 6 * row_height );
+    left_col_layout.AddY( m_CGLayout.GetH() );
 
-    m_CGLayout.AddDividerBox( "CG Position" );
+    m_CGLayout.AddDividerBox( "Moment Reference Position" );
 
     m_CGLayout.SetButtonWidth( 125 );
 
     m_CGLayout.SetSameLineFlag( true );
-    m_CGLayout.AddChoice( m_CGSetChoice, "Mass Prop Set:",  m_CGLayout.GetButtonWidth() );
+    m_CGLayout.AddChoice( m_CGSetChoice, "Mass Set:",  m_CGLayout.GetButtonWidth() );
     m_CGLayout.SetFitWidthFlag( false );
-    m_CGLayout.AddButton( m_MassPropButton, "Calc Mass Prop" );
+    m_CGLayout.AddButton( m_MassPropButton, "Calc CG" );
     m_CGLayout.ForceNewLine();
 
     m_CGLayout.SetSameLineFlag( false );
@@ -127,72 +188,109 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, 650, 340, "VSPA
     m_CGLayout.InitWidthHeightVals();
 
     m_CGLayout.AddSlider( m_NumSliceSlider, "Num Slices", 100, "%4.0f" );
-    m_CGLayout.AddSlider( m_XcgSlider, "Xcg", 100.0, "%7.3f" );
-    m_CGLayout.AddSlider( m_YcgSlider, "Ycg", 100.0, "%7.3f" );
-    m_CGLayout.AddSlider( m_ZcgSlider, "Zcg", 100.0, "%7.3f" );
+    m_CGLayout.AddSlider( m_XcgSlider, "Xref", 100.0, "%7.3f" );
+    m_CGLayout.AddSlider( m_YcgSlider, "Yref", 100.0, "%7.3f" );
+    m_CGLayout.AddSlider( m_ZcgSlider, "Zref", 100.0, "%7.3f" );
 
+    left_col_layout.AddY(group_border_width);
 
+    // Flow Condition
+    left_col_layout.AddSubGroupLayout( m_FlowLayout, left_col_layout.GetW() - 2 * group_border_width, 4 * row_height );
+    left_col_layout.AddY( m_FlowLayout.GetH() );
 
-    m_OverviewLayout.AddDividerBox( "Execute VSPAERO" );
+    m_FlowLayout.AddDividerBox( "Flow Condition" );
+    m_FlowLayout.SetSameLineFlag( false );
+    m_FlowLayout.SetFitWidthFlag( true );
 
-    m_OverviewLayout.SetButtonWidth( m_OverviewLayout.GetW()/2 );
+    m_FlowLayout.AddInputEvenSpacedVector( m_AlphaStartInput, m_AlphaEndInput, m_AlphaNptsInput, "Alpha", "%7.3f" );
+    m_FlowLayout.AddInputEvenSpacedVector( m_BetaStartInput, m_BetaEndInput, m_BetaNptsInput, "Beta", "%7.3f" );
+    m_FlowLayout.AddInputEvenSpacedVector( m_MachStartInput, m_MachEndInput, m_MachNptsInput, "Mach", "%7.3f" );
 
-    m_OverviewLayout.SetSameLineFlag( true );
-    m_OverviewLayout.SetFitWidthFlag( false );
+    left_col_layout.AddY(group_border_width);
 
-    m_OverviewLayout.AddButton( m_SetupButton, "Setup Input File" );
-    m_OverviewLayout.AddButton( m_ViewerButton, "Launch Viewer" );
+    // Execute
+    left_col_layout.AddSubGroupLayout( m_ExecuteLayout, left_col_layout.GetW() - 2 * group_border_width, 7 * row_height );
+    left_col_layout.AddY( m_ExecuteLayout.GetH() );
 
-    m_OverviewLayout.ForceNewLine();
+    m_ExecuteLayout.AddDividerBox( "Execute" );
 
-    m_OverviewLayout.AddButton( m_SolverButton, "Launch Solver" );
-    m_OverviewLayout.AddButton( m_KillSolverButton, "Kill Solver" );
+    m_ExecuteLayout.AddButton( m_ComputeGeometryButton, "Generate Geometry" ); //This calls VSAERO.ComputeGeometry()
 
+    m_ExecuteLayout.SetButtonWidth( m_ExecuteLayout.GetW() / 2 );
 
+    m_ExecuteLayout.SetSameLineFlag( true );
+    m_ExecuteLayout.SetFitWidthFlag( false );
 
-    // Set up VSPAERO Setup tab
+    m_ExecuteLayout.AddButton( m_SetupButton, "Create New Setup" );
+    m_ExecuteLayout.AddButton( m_KillSolverSetupButton, "Kill Setup" );
 
-    Fl_Group* setup_group = AddSubGroup( setup_tab, 5 );
-    m_SetupLayout.SetGroupAndScreen( setup_group, this );
+    m_ExecuteLayout.ForceNewLine();
 
-    m_SetupLayout.AddDividerBox( "VSPAERO Setup *.vspaero File" );
+    m_ExecuteLayout.AddButton( m_SolverButton, "Launch Solver" );
+    m_ExecuteLayout.AddButton( m_KillSolverButton, "Kill Solver" );
 
-    m_SetupEditor = m_SetupLayout.AddFlTextEditor( 245 );
+    m_ExecuteLayout.ForceNewLine();
+
+    m_ExecuteLayout.AddButton( m_PlotButton, "Show Results Mgr" );
+    m_ExecuteLayout.AddButton( m_ViewerButton, "Launch Viewer" );
+
+    m_ExecuteLayout.ForceNewLine();
+
+    //m_ExecuteLayout.AddButton( m_ExportResultsToMatlabButton, "Export to *.m" );
+    m_ExecuteLayout.AddButton( m_ExportResultsToCsvButton, "Export to *.csv" );
+    m_ExportResultsToCsvButton.Deactivate();
+
+    // Setup File
+    right_col_layout.AddSubGroupLayout( m_SetupLayout, right_col_layout.GetW() - 2 * group_border_width, right_col_layout.GetH() - 2 * group_border_width );
+
+    m_SetupDividerBox = m_SetupLayout.AddDividerBox( "Setup File: *.vspaero" );
+
+    m_SetupEditor = m_SetupLayout.AddFlTextEditor( m_SetupLayout.GetRemainY() - m_SetupLayout.GetStdHeight() );
 
     m_SetupBuffer = new Fl_Text_Buffer;
     m_SetupEditor->buffer( m_SetupBuffer );
     m_SetupEditor->textfont( FL_COURIER );
 
-    m_SetupLayout.SetButtonWidth( m_SetupLayout.GetW()/2 );
+    m_SetupLayout.SetButtonWidth( m_SetupLayout.GetW() / 2 );
     m_SetupLayout.SetSameLineFlag( true );
     m_SetupLayout.SetFitWidthFlag( false );
-    m_SetupLayout.AddButton( m_SaveSetup, "Save Setup" );
     m_SetupLayout.AddButton( m_ReadSetup, "Read Setup" );
+    m_SetupLayout.AddButton( m_SaveSetup, "Save Setup" );
 
-    // Set up VSPAERO Solver tab
 
-    Fl_Group* solver_group = AddSubGroup( solver_tab, 5 );
+    //==== Solver Tab ====//
+    Fl_Group* solver_tab = AddTab( "Solver Console" );
+    Fl_Group* solver_group = AddSubGroup( solver_tab, window_border_width );
     m_SolverLayout.SetGroupAndScreen( solver_group, this );
 
     m_SolverLayout.AddDividerBox( "VSPAERO Solver Console" );
 
-
-    m_SolverDisplay = m_SolverLayout.AddFlTextDisplay( 260 );
+    m_SolverDisplay = m_SolverLayout.AddFlTextDisplay( m_SolverLayout.GetRemainY() - m_SolverLayout.GetStdHeight() );
     m_SolverBuffer = new Fl_Text_Buffer;
     m_SolverDisplay->buffer( m_SolverBuffer );
 
 
-    // Set up VSPAERO Viewer tab
-
-    Fl_Group* viewer_group = AddSubGroup( viewer_tab, 5 );
+    //==== Viewer Tab ====//
+    Fl_Group* viewer_tab = AddTab( "Viewer Console" );
+    Fl_Group* viewer_group = AddSubGroup( viewer_tab, window_border_width );
     m_ViewerLayout.SetGroupAndScreen( viewer_group, this );
 
     m_ViewerLayout.AddDividerBox( "VSPAERO Viewer Console" );
 
-
-    m_ViewerDisplay = m_ViewerLayout.AddFlTextDisplay( 260 );
+    m_ViewerDisplay = m_ViewerLayout.AddFlTextDisplay( m_ViewerLayout.GetRemainY() - m_ViewerLayout.GetStdHeight() );
     m_ViewerBuffer = new Fl_Text_Buffer;
     m_ViewerDisplay->buffer( m_ViewerBuffer );
+
+
+    // Show the starting tab
+    overview_tab->show();
+
+    // Flags to control Kill thread functionality
+    m_SolverSetupThreadIsRunning = false;
+    m_SolverThreadIsRunning = false;
+
+    // String to enable detection of degen file name changes
+    m_ModelNameBasePrevious = string();
 
 }
 
@@ -204,18 +302,20 @@ bool VSPAEROScreen::Update()
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
 
-    SetupDegenFile();
-
-    string setupfile = m_DegenFile + string(".vspaero");
-    m_SetupFlag = FileExist( setupfile );
-    string adbfile = m_DegenFile + string(".adb");
-    m_ADBFlag = FileExist( adbfile );
-
     VSPAEROMgr.Update();
 
     if( veh )
     {
+        //check if the degenfile name has changed
+        string t_ModelNameBase = VSPAEROMgr.m_ModelNameBase;  //m_ModelNameBase is built from calling veh->getExportFileName();
+        if( !t_ModelNameBase.empty() && strcmp(m_ModelNameBasePrevious.c_str(),t_ModelNameBase.c_str())!=0)
+        {
+            ReadSetup();
+        }
+        m_ModelNameBasePrevious = t_ModelNameBase;
 
+        // Reference Wing Choice
+        //    find & list all Wing type geometries
         vector <string> geomVec = veh->GetGeomVec();
 
         m_RefWingChoice.ClearItems();
@@ -240,7 +340,7 @@ bool VSPAEROScreen::Update()
             }
         }
         m_RefWingChoice.UpdateItems();
-
+        //    Update selected value
         string refGeomID = VSPAEROMgr.m_RefGeomID;
         if( refGeomID.length() == 0 && m_WingGeomVec.size() > 0 )
         {
@@ -253,41 +353,184 @@ bool VSPAEROScreen::Update()
         m_RefWingChoice.SetVal( WingCompIDMap[ refGeomID ] );
 
 
+        // Update available set choices
         m_GeomSetChoice.ClearItems();
         m_CGSetChoice.ClearItems();
 
         vector <string> setVec = veh->GetSetNameVec();
-        for ( int i = 0; i < setVec.size(); i++ )
+        for ( int iSet = 0; iSet < setVec.size(); iSet++ )
         {
-            m_GeomSetChoice.AddItem( setVec[i] );
-            m_CGSetChoice.AddItem( setVec[i] );
+            m_GeomSetChoice.AddItem( setVec[iSet] );
+            m_CGSetChoice.AddItem( setVec[iSet] );
         }
         m_GeomSetChoice.UpdateItems();
         m_CGSetChoice.UpdateItems();
 
-        m_GeomSetChoice.SetVal( VSPAEROMgr.m_DegenGeomSet() );
+        m_GeomSetChoice.SetVal( VSPAEROMgr.m_GeomSet() );
         m_CGSetChoice.SetVal( VSPAEROMgr.m_CGGeomSet() );
 
 
+        // Case Setup
+        m_AeroMethodToggleGroup.Update( VSPAEROMgr.m_AnalysisMethod.GetID() );
+        switch ( VSPAEROMgr.m_AnalysisMethod.Get() )
+        {
+        case vsp::VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE:
+
+            m_DegenFileName.Activate();
+            m_DegenFileButton.Activate();
+
+            m_CompGeomFileName.Deactivate();
+            m_CompGeomFileButton.Deactivate();
+
+            break;
+
+        case vsp::VSPAERO_ANALYSIS_METHOD::PANEL:
+
+            m_DegenFileName.Deactivate();
+            m_DegenFileButton.Deactivate();
+
+            m_CompGeomFileName.Activate();
+            m_CompGeomFileButton.Activate();
+
+            break;
+
+        default:
+            //do nothing; this should not be reachable
+            break;
+        }
+
         m_DegenFileName.Update( veh->getExportFileName( vsp::DEGEN_GEOM_CSV_TYPE ) );
+        m_CompGeomFileName.Update( veh->getExportFileName( vsp::VSPAERO_PANEL_TRI_TYPE) );
 
+        m_NCPUSlider.Update( VSPAEROMgr.m_NCPU.GetID() );
+        m_StabilityCalcToggle.Update( VSPAEROMgr.m_StabilityCalcFlag.GetID() );
+        m_BatchCalculationToggle.Update( VSPAEROMgr.m_BatchModeFlag.GetID() );
+        //printf("m_SolverProcess.m_ThreadID = %lu\n", m_SolverProcess.m_ThreadID);
+        if( m_SolverThreadIsRunning )
+        {
+            m_ComputeGeometryButton.Deactivate();
+        }
+        else
+        {
+            m_ComputeGeometryButton.Activate();
+        }
+
+
+        // Wake Options
+        m_WakeNumIterSlider.Update( VSPAEROMgr.m_WakeNumIter.GetID() );
+        m_WakeAvgStartIterSlider.Update( VSPAEROMgr.m_WakeAvgStartIter.GetID() );
+        m_WakeSkipUntilIterSlider.Update( VSPAEROMgr.m_WakeSkipUntilIter.GetID() );
+
+
+        // Reference Quantities
         m_RefToggle.Update( VSPAEROMgr.m_RefFlag.GetID() );
-
         m_SrefSlider.Update( VSPAEROMgr.m_Sref.GetID() );
         m_brefSlider.Update( VSPAEROMgr.m_bref.GetID() );
         m_crefSlider.Update( VSPAEROMgr.m_cref.GetID() );
 
+
+        // CG Position
         m_NumSliceSlider.Update( VSPAEROMgr.m_NumMassSlice.GetID() );
         m_XcgSlider.Update( VSPAEROMgr.m_Xcg.GetID() );
         m_YcgSlider.Update( VSPAEROMgr.m_Ycg.GetID() );
         m_ZcgSlider.Update( VSPAEROMgr.m_Zcg.GetID() );
-        m_AlphaSlider.Update( VSPAEROMgr.m_Alpha.GetID() );
-        m_BetaSlider.Update( VSPAEROMgr.m_Beta.GetID() );
-        m_MachSlider.Update( VSPAEROMgr.m_Mach.GetID() );
 
-        m_NCPUSlider.Update( VSPAEROMgr.m_NCPU.GetID() );
 
-        if( m_SolverProcess.IsRunning() )
+        // Flow Condition
+        // Alpha
+        m_AlphaStartInput.Update( VSPAEROMgr.m_AlphaStart.GetID() );
+        m_AlphaEndInput.Update( VSPAEROMgr.m_AlphaEnd.GetID() );
+        m_AlphaNptsInput.Update( VSPAEROMgr.m_AlphaNpts.GetID() );
+        if ( VSPAEROMgr.m_AlphaNpts.Get() == 1 )
+        {
+            m_AlphaEndInput.Deactivate();
+        }
+        else if ( VSPAEROMgr.m_AlphaNpts.Get() > 1 )
+        {
+            m_AlphaEndInput.Activate();
+        }
+        // Beta
+        m_BetaStartInput.Update( VSPAEROMgr.m_BetaStart.GetID() );
+        m_BetaEndInput.Update( VSPAEROMgr.m_BetaEnd.GetID() );
+        m_BetaNptsInput.Update( VSPAEROMgr.m_BetaNpts.GetID() );
+        if ( VSPAEROMgr.m_BetaNpts.Get() == 1 )
+        {
+            m_BetaEndInput.Deactivate();
+        }
+        else if ( VSPAEROMgr.m_BetaNpts.Get() > 1 )
+        {
+            m_BetaEndInput.Activate();
+        }
+        // Mach
+        m_MachStartInput.Update( VSPAEROMgr.m_MachStart.GetID() );
+        m_MachEndInput.Update( VSPAEROMgr.m_MachEnd.GetID() );
+        m_MachNptsInput.Update( VSPAEROMgr.m_MachNpts.GetID() );
+        if ( VSPAEROMgr.m_MachNpts.Get() == 1 )
+        {
+            m_MachEndInput.Deactivate();
+        }
+        else if ( VSPAEROMgr.m_MachNpts.Get() > 1 )
+        {
+            m_MachEndInput.Activate();
+        }
+
+        // Create Setup Button
+        if( veh->GetVSPAEROCmd().empty()             ||
+            !FileExist( VSPAEROMgr.m_DegenFileFull ) ||
+            m_SolverThreadIsRunning                  ||
+            m_SolverSetupThreadIsRunning             ||
+            ( ( VSPAEROMgr.m_AnalysisMethod.Get()==vsp::VSPAERO_ANALYSIS_METHOD::PANEL ) && ( !FileExist( VSPAEROMgr.m_CompGeomFileFull ) ) ) )
+        {
+            m_SetupButton.Deactivate();
+        }
+        else
+        {
+            m_SetupButton.Activate();
+        }
+        // Kill Solver Setup Button
+        if( m_SolverSetupThreadIsRunning )
+        {
+            m_KillSolverSetupButton.Activate();
+        }
+        else
+        {
+            m_KillSolverSetupButton.Deactivate();
+        }
+
+        // Read Setup Button
+        if( !FileExist( VSPAEROMgr.m_SetupFile ) )
+        {
+            m_ReadSetup.Deactivate();
+        }
+        else
+        {
+            m_ReadSetup.Activate();
+        }
+        // Save Setup Button
+        if( veh->GetVSPAEROCmd().empty() || m_SolverThreadIsRunning || m_SolverSetupThreadIsRunning )
+        {
+            m_SaveSetup.Deactivate();
+        }
+        else
+        {
+            m_SaveSetup.Activate();
+        }
+
+        // Solver Button
+        if( veh->GetVSPAEROCmd().empty()             ||
+            !FileExist( VSPAEROMgr.m_DegenFileFull ) ||
+            !FileExist( VSPAEROMgr.m_SetupFile )     ||
+            m_SolverThreadIsRunning                  ||
+            ( VSPAEROMgr.m_AnalysisMethod.Get()==vsp::VSPAERO_ANALYSIS_METHOD::PANEL && !FileExist( VSPAEROMgr.m_CompGeomFileFull ) ) )
+        {
+            m_SolverButton.Deactivate();
+        }
+        else
+        {
+            m_SolverButton.Activate();
+        }
+        // Kill Solver Button
+        if( m_SolverThreadIsRunning )
         {
             m_KillSolverButton.Activate();
         }
@@ -296,31 +539,37 @@ bool VSPAEROScreen::Update()
             m_KillSolverButton.Deactivate();
         }
 
-        if( veh->GetVSPAEROCmd().empty() || m_DegenFile.empty() || m_SolverProcess.IsRunning() )
+        // Plot Window Button
+        if( veh->GetVSPAEROCmd().empty()             ||
+            !FileExist( VSPAEROMgr.m_DegenFileFull ) ||
+            !FileExist( VSPAEROMgr.m_SetupFile )     ||
+            ( VSPAEROMgr.m_AnalysisMethod.Get()==vsp::VSPAERO_ANALYSIS_METHOD::PANEL && !FileExist( VSPAEROMgr.m_CompGeomFileFull ) ) )
         {
-            m_SetupButton.Deactivate();
+            m_PlotButton.Deactivate();
         }
         else
         {
-            m_SetupButton.Activate();
+            m_PlotButton.Activate();
         }
 
-        if( veh->GetVSPAEROCmd().empty() || m_DegenFile.empty() || m_SolverProcess.IsRunning() || !m_SetupFlag )
-        {
-            m_SolverButton.Deactivate();
-        }
-        else
-        {
-            m_SolverButton.Activate();
-        }
-
-        if( veh->GetVIEWERCmd().empty() || m_DegenFile.empty() || m_ViewerProcess.IsRunning() || !m_SetupFlag || !m_ADBFlag )
+        // Viewer Button
+        if( veh->GetVIEWERCmd().empty() || m_SolverThreadIsRunning || m_ViewerProcess.IsRunning() || !FileExist( VSPAEROMgr.m_AdbFile ) )
         {
             m_ViewerButton.Deactivate();
         }
         else
         {
             m_ViewerButton.Activate();
+        }
+
+        // Export Button
+        if ( ResultsMgr.GetNumResults("VSPAERO_Wrapper")==0 )
+        {
+            m_ExportResultsToCsvButton.Deactivate();
+        }
+        else
+        {
+            m_ExportResultsToCsvButton.Activate();
         }
 
     }
@@ -333,21 +582,26 @@ bool VSPAEROScreen::Update()
 
 void VSPAEROScreen::Show()
 {
-    Update();
+    m_ScreenMgr->SetUpdateFlag( true );
     m_FLTK_Window->show();
-
 }
 
 void VSPAEROScreen::Hide()
 {
     m_FLTK_Window->hide();
+    m_ScreenMgr->SetUpdateFlag( true );
 }
+
 
 void VSPAEROScreen::CallBack( Fl_Widget* w )
 {
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
+void VSPAEROScreen::CloseCallBack( Fl_Widget* w )
+{
+    Hide();
+}
 
 #ifdef WIN32
 DWORD WINAPI monitorfun( LPVOID data )
@@ -355,12 +609,12 @@ DWORD WINAPI monitorfun( LPVOID data )
 void * monitorfun( void *data )
 #endif
 {
-    monitorpair *mp = (monitorpair *) data;
+    monitorpair *mp = ( monitorpair * ) data;
 
     VSPAEROScreen *vs = mp->first;
     int id = mp->second;
 
-    if(vs)
+    if( vs )
     {
         Fl_Text_Display *display = vs->GetDisplay( id );
         ProcessUtil *pu = vs->GetProcess( id );
@@ -368,22 +622,15 @@ void * monitorfun( void *data )
         {
             int bufsize = 1000;
             char *buf;
-            buf = (char*) malloc( sizeof( char ) * (bufsize + 1) );
+            buf = ( char* ) malloc( sizeof( char ) * ( bufsize + 1 ) );
 
-#ifdef WIN32
-            DWORD nread = 1;
-#else
-            int nread = 1;
-#endif
+            unsigned long nread = 1;
 
             bool runflag = pu->IsRunning();
-            while( runflag || nread > 0)
+            while( runflag || nread > 0 )
             {
-#ifdef WIN32
-                ReadFile( pu->m_StdoutPipe[0], buf, bufsize, &nread, NULL);
-#else
-                nread = read( pu->m_StdoutPipe[0], buf, bufsize );
-#endif
+                nread=0;
+                pu->ReadStdoutPipe( buf, bufsize, &nread );
 
                 if( nread > 0 )
                 {
@@ -394,16 +641,11 @@ void * monitorfun( void *data )
                     // Any FL calls must occur between Fl::lock() and Fl::unlock().
                     vs->AddOutputText( display, buf );
                     Fl::unlock();
-                    // printf( "%s", buf );
                 }
 
                 if( runflag )
                 {
-#ifdef WIN32
-                    Sleep( 100 );
-#else
-                    usleep( 100000 );
-#endif
+                    SleepForMilliseconds( 100 );
                 }
                 runflag = pu->IsRunning();
             }
@@ -423,6 +665,62 @@ void * monitorfun( void *data )
     return 0;
 }
 
+#ifdef WIN32
+DWORD WINAPI solver_setup_thread_fun( LPVOID data )
+#else
+void * solver_setup_thread_fun( void *data )
+#endif
+{
+    solverpair *sp = ( solverpair * ) data;
+
+    VSPAEROMgrSingleton* vsmgr = sp->first;
+    VSPAEROScreen *vsscreen = sp->second;
+
+    if( vsmgr && vsscreen )
+    {
+        vsscreen->m_SolverSetupThreadIsRunning = true;
+
+        // EXECUTE SOLVER
+        vsmgr->CreateSetupFile();
+
+        // Read setup file
+        vsscreen->ReadSetup();
+
+        vsscreen->m_SolverSetupThreadIsRunning = false;
+
+        vsscreen->GetScreenMgr()->SetUpdateFlag( true );
+    }
+
+    return 0;
+}
+
+#ifdef WIN32
+DWORD WINAPI solver_thread_fun( LPVOID data )
+#else
+void * solver_thread_fun( void *data )
+#endif
+{
+    solverpair *sp = ( solverpair * ) data;
+
+    VSPAEROMgrSingleton* vsmgr = sp->first;
+    VSPAEROScreen *vsscreen = sp->second;
+
+    if( vsmgr && vsscreen )
+    {
+        vsscreen->m_SolverThreadIsRunning = true;
+
+        // EXECUTE SOLVER
+        vsmgr->ComputeSolver();
+
+        vsscreen->m_SolverThreadIsRunning = false;
+
+        vsscreen->GetScreenMgr()->SetUpdateFlag( true );
+    }
+
+    return 0;
+}
+
+
 void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
 {
     assert( m_ScreenMgr );
@@ -431,87 +729,91 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
 
     if( veh )
     {
+        //TODO add callback to determine if the setup file text has been edited
 
         if ( device == &m_SetupButton )
         {
-            if( veh->GetVSPAEROCmd().empty() || m_DegenFile.empty() || m_SolverProcess.IsRunning() )
+            if( veh->GetVSPAEROCmd().empty() || !FileExist( VSPAEROMgr.m_DegenFileFull ) || VSPAEROMgr.IsSolverRunning() )
             { /* Do nothing. Should not be reachable, button should be deactivated.*/ }
             else
             {
-                vector<string> args;
-                args.push_back( "-setup" );
+                if ( FileExist( VSPAEROMgr.m_SetupFile ) )
+                {
+                    switch( fl_choice( "Overwrite any existing setup file?", "Cancel", "Abort", "Overwrite" ) )
+                    {
+                    case( 0 ):
+                    case ( 1 ):
+                        break;
+                    case( 2 ):
+                        // Clear the solver console
+                        m_SolverBuffer->text( "" );
 
-                args.push_back( "-sref" );
-                args.push_back( StringUtil::double_to_string( VSPAEROMgr.m_Sref(), "%f" ) );
+                        m_SolverProcess.StartThread( solver_setup_thread_fun, ( void* ) &m_SolverPair );
+                        break;
+                    }
+                }
+                else
+                {
+                    // Clear the solver console
+                    m_SolverBuffer->text( "" );
 
-                args.push_back( "-bref" );
-                args.push_back( StringUtil::double_to_string( VSPAEROMgr.m_bref(), "%f" ) );
-
-                args.push_back( "-cref" );
-                args.push_back( StringUtil::double_to_string( VSPAEROMgr.m_cref(), "%f" ) );
-
-                args.push_back( "-cg" );
-                args.push_back( StringUtil::double_to_string( VSPAEROMgr.m_Xcg(), "%f" ) );
-                args.push_back( StringUtil::double_to_string( VSPAEROMgr.m_Ycg(), "%f" ) );
-                args.push_back( StringUtil::double_to_string( VSPAEROMgr.m_Zcg(), "%f" ) );
-
-                args.push_back( "-aoa" );
-                args.push_back( StringUtil::double_to_string( VSPAEROMgr.m_Alpha(), "%f" ) );
-
-                args.push_back( "-beta" );
-                args.push_back( StringUtil::double_to_string( VSPAEROMgr.m_Beta(), "%f" ) );
-
-                args.push_back( "-mach" );
-                args.push_back( StringUtil::double_to_string( VSPAEROMgr.m_Mach(), "%f" ) );
-
-                args.push_back( m_DegenFile );
-
-                m_SolverProcess.ForkCmd( veh->GetExePath(), veh->GetVSPAEROCmd(), args );
-
-#ifdef WIN32
-                Sleep( 100 );
-#else
-                usleep( 100000 );
-#endif
-                ReadSetup();
+                    m_SolverProcess.StartThread( solver_setup_thread_fun, ( void* ) &m_SolverPair );
+                }
             }
         }
         else if ( device == &m_SolverButton )
         {
-            if( veh->GetVSPAEROCmd().empty() || m_DegenFile.empty() || m_SolverProcess.IsRunning() )
+            if( veh->GetVSPAEROCmd().empty() || !FileExist( VSPAEROMgr.m_DegenFileFull ) || VSPAEROMgr.IsSolverRunning() )
             { /* Do nothing. Should not be reachable, button should be deactivated.*/ }
             else
             {
-                vector<string> args;
-                args.push_back( "-omp" );
-                args.push_back( StringUtil::int_to_string( VSPAEROMgr.m_NCPU(), "%d" ) );
-                args.push_back( m_DegenFile );
+                // Clear out previous results
+                VSPAEROMgr.ClearAllPreviousResults();
 
-                m_SolverProcess.ForkCmd( veh->GetExePath(), veh->GetVSPAEROCmd(), args );
-
+                // Clear the solver console
                 m_SolverBuffer->text( "" );
-                m_SolverMonitor.StartThread( monitorfun, (void*) &m_SolverPair );
+
+                //Show the plot screen
+                m_ScreenMgr->m_ShowPlotScreenOnce = true;   //deferred show of plot screen
+
+                VSPAEROPlotScreen * vspapscreen = ( VSPAEROPlotScreen * )m_ScreenMgr->GetScreen( ScreenMgr::VSP_VSPAERO_PLOT_SCREEN );
+                if( vspapscreen )
+                {
+                    vspapscreen->SetDefaultView();
+                    vspapscreen->Update();
+                }
+
+                m_SolverProcess.StartThread( solver_thread_fun, ( void* ) &m_SolverPair );
+
             }
         }
         else if ( device == &m_ViewerButton )
         {
-            if( veh->GetVIEWERCmd().empty() || m_DegenFile.empty() || m_ViewerProcess.IsRunning() )
+            if( veh->GetVIEWERCmd().empty() || !FileExist( VSPAEROMgr.m_DegenFileFull ) || m_ViewerProcess.IsRunning() )
             { /* Do nothing. Should not be reachable, button should be deactivated.*/ }
             else
             {
                 vector<string> args;
-                args.push_back( m_DegenFile );
+                args.push_back( VSPAEROMgr.m_ModelNameBase );
 
                 m_ViewerProcess.ForkCmd( veh->GetExePath(), veh->GetVIEWERCmd(), args );
 
                 m_ViewerBuffer->text( "" );
-                m_ViewerMonitor.StartThread( monitorfun, (void*) &m_ViewerPair );
+                m_ViewerMonitor.StartThread( monitorfun, ( void* ) &m_ViewerPair );
 
             }
         }
+        else if( device == &m_KillSolverSetupButton )
+        {
+            VSPAEROMgr.KillSolver();
+        }
         else if( device == &m_KillSolverButton )
         {
-            m_SolverProcess.Kill();
+            VSPAEROMgr.KillSolver();
+        }
+        else if( device == &m_PlotButton )
+        {
+            m_ScreenMgr->m_ShowPlotScreenOnce = true;   //deferred show of plot screen
         }
         else if( device == &m_SaveSetup )
         {
@@ -528,25 +830,19 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
         }
         else if( device == &m_GeomSetChoice )
         {
-            VSPAEROMgr.m_DegenGeomSet = m_GeomSetChoice.GetVal();
+            VSPAEROMgr.m_GeomSet = m_GeomSetChoice.GetVal();
         }
-        else if( device == &m_DegenGeomButton )
+        else if( device == &m_ComputeGeometryButton )
         {
-            veh->CreateDegenGeom( VSPAEROMgr.m_DegenGeomSet() );
-
-            bool exptMfile = veh->getExportDegenGeomMFile();
-            bool exptCSVfile = veh->getExportDegenGeomCsvFile();
-            veh->setExportDegenGeomMFile( false );
-            veh->setExportDegenGeomCsvFile( true );
-
-            veh->WriteDegenGeomFile();
-
-            veh->setExportDegenGeomMFile( exptMfile );
-            veh->setExportDegenGeomCsvFile( exptCSVfile );
+            VSPAEROMgr.ComputeGeometry();
         }
         else if( device == &m_DegenFileButton )
         {
             veh->setExportFileName( vsp::DEGEN_GEOM_CSV_TYPE, m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select degen geom CSV output file.", "*.csv" ) );
+        }
+        else if( device == &m_CompGeomFileButton )
+        {
+            veh->setExportFileName( vsp::VSPAERO_PANEL_TRI_TYPE, m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select comp geom TRI output file.", "*.tri" ) );
         }
         else if( device == &m_CGSetChoice )
         {
@@ -561,55 +857,20 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
             VSPAEROMgr.m_Ycg = veh->m_CG.y();
             VSPAEROMgr.m_Zcg = veh->m_CG.z();
         }
+        else if( device == &m_ExportResultsToCsvButton )
+        {
+            string fileName = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select CSV File", "*.csv" );
+            if ( fileName.size() > 0 )
+            {
+                VSPAEROMgr.ExportResultsToCSV( fileName );
+            }
+        }
     }
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
-void VSPAEROScreen::SetupDegenFile()
-{
-    Vehicle *veh = VehicleMgr.GetVehicle();
-
-    string oldfile = m_DegenFile;
-
-    if( veh )
-    {
-        m_DegenFile = veh->getExportFileName( vsp::DEGEN_GEOM_CSV_TYPE );
-
-        FILE *fp = NULL;
-        fp = fopen( m_DegenFile.c_str(), "r" );
-        if( fp )
-        {
-            fclose( fp );
-        }
-        else
-        {
-            m_DegenFile = string();
-        }
-
-        if( !m_DegenFile.empty() )
-        {
-            int pos = m_DegenFile.find( ".csv" );
-            if ( pos >= 0 )
-            {
-                m_DegenFile.erase( pos, m_DegenFile.length() - 1 );
-            }
-        }
-    }
-    else
-    {
-        m_DegenFile = string();
-    }
-
-    if( m_DegenFile.compare( oldfile ) != 0 )
-    {
-        if( !m_DegenFile.empty() )
-        {
-            ReadSetup();
-        }
-    }
-}
-
-
+// VSPAEROScreen::AddOutputText( Fl_Text_Display *display, const char *text )
+//     This is used for the Solver tab to show the current results of the solver in the GUI
 void VSPAEROScreen::AddOutputText( Fl_Text_Display *display, const char *text )
 {
     if ( display )
@@ -624,31 +885,52 @@ void VSPAEROScreen::AddOutputText( Fl_Text_Display *display, const char *text )
 ProcessUtil* VSPAEROScreen::GetProcess( int id )
 {
     if( id == VSPAERO_SOLVER )
+    {
         return &m_SolverProcess;
+    }
     else if( id == VSPAERO_VIEWER )
+    {
         return &m_ViewerProcess;
+    }
+    else if( id == VSPAERO_SOLVER_MONITOR )
+    {
+        return &m_SolverMonitor;
+    }
     else
+    {
         return NULL;
+    }
 }
 
 Fl_Text_Display* VSPAEROScreen::GetDisplay( int id )
 {
     if( id == VSPAERO_SOLVER )
+    {
         return m_SolverDisplay;
+    }
     else if( id == VSPAERO_VIEWER )
+    {
         return m_ViewerDisplay;
+    }
     else
+    {
         return NULL;
+    }
 }
 
 void VSPAEROScreen::ReadSetup()
 {
-    string setupfile = m_DegenFile + string(".vspaero");
-    m_SetupBuffer->loadfile( setupfile.c_str() );
+    int loadStatus = m_SetupBuffer->loadfile( VSPAEROMgr.m_SetupFile.c_str() );
+
+    //Update the divider box title to show the filename
+    if( loadStatus == 0 && m_SetupDividerBox )
+    {
+        string fileName = GetFilename( VSPAEROMgr.m_SetupFile );
+        m_SetupDividerBox->copy_label( std::string( "Setup File: " + fileName ).c_str() );
+    }
 }
 
 void VSPAEROScreen::SaveSetup()
 {
-    string setupfile = m_DegenFile + string(".vspaero");
-    m_SetupBuffer->savefile( setupfile.c_str() );
+    m_SetupBuffer->savefile( VSPAEROMgr.m_SetupFile.c_str() );
 }

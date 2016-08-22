@@ -157,8 +157,11 @@ public:
     virtual void degenGeomIntersectTrim( vector< DegenGeom > &degenGeom );
     virtual void MassSliceX( int numSlice, bool writefile = true );
     virtual void degenGeomMassSliceX( vector< DegenGeom > &degenGeom );
-    virtual void AreaSlice( int style, int numSlices, double sliceAngle, double coneSections, vec3d norm, bool autoBounds,
-                            double start = 0, double end = 0 );
+    virtual void AreaSlice( int numSlices, vec3d norm, bool autoBounds, double start = 0, double end = 0 );
+
+    virtual void WaveStartEnd( const double &sliceAngle, const vec3d &center );
+    virtual void WaveDragSlice( int numSlices, double sliceAngle, int coneSections,
+                             const vector <string> & Flow_vec, bool Symm = 0 );
     virtual vector<vec3d> TessTriangles( vector<vec3d> &tri );
     virtual vector<vec3d> TessTri( vec3d t1, vec3d t2, vec3d t3, int iterations );
 
@@ -195,6 +198,9 @@ public:
     virtual void SubTagTris( bool tag_subs );
 
     virtual void PreMerge();
+
+    BoolParm m_ViewMeshFlag;
+    BoolParm m_ViewSliceFlag;
 
     // Debug Attributes
 

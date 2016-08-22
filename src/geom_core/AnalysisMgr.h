@@ -105,7 +105,25 @@ private:
 
 #define AnalysisMgr AnalysisMgrSingleton::getInstance()
 
+class BEMAnalysis : public Analysis
+{
+public:
+
+    virtual void SetDefaults();
+    virtual string Execute();
+
+};
+
 class CompGeomAnalysis : public Analysis
+{
+public:
+
+    virtual void SetDefaults();
+    virtual string Execute();
+
+};
+
+class EmintonLordAnalysis : public Analysis
 {
 public:
 
@@ -133,6 +151,61 @@ public:
 };
 
 class ProjectionAnalysis : public Analysis
+{
+public:
+
+    virtual void SetDefaults();
+    virtual string Execute();
+
+};
+
+class WaveDragAnalysis : public Analysis
+{
+public:
+
+    virtual void SetDefaults();
+    virtual string Execute();
+
+};
+
+// This can be deprecated
+class VSPAERODegenGeomAnalysis : public Analysis
+{
+public:
+
+    virtual void SetDefaults();
+    virtual string Execute();
+
+};
+
+class VSPAEROComputeGeometryAnalysis : public Analysis
+{
+public:
+
+    virtual void SetDefaults();
+    virtual string Execute();
+
+};
+
+class VSPAEROSinglePointAnalysis : public Analysis
+{
+public:
+
+    virtual void SetDefaults();
+    virtual string Execute();
+
+};
+
+class VSPAEROSinglePointStabAnalysis : public Analysis
+{
+public:
+
+    virtual void SetDefaults();
+    virtual string Execute();
+
+};
+
+class VSPAEROSweepAnalysis : public Analysis
 {
 public:
 

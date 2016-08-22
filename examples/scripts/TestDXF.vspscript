@@ -1,0 +1,119 @@
+
+void main()
+{
+    Print( string( "Begin Scripting Test" ) );
+    Print( string( "" ) );
+    TestDXF();
+    Print( string( "End Scripting Test" ) );
+}
+
+void TestDXF()
+{
+    Print( string( "--> Generating Geometries and Testing DXF Code" ) );
+    Print( string( "" ) );
+
+    //==== Add Fuselage ====//
+    string fid = AddGeom( "FUSELAGE", "" );
+    SetParmVal( fid, "X_Rel_Location", "XForm", -9.0 );
+    SetParmVal( fid, "Z_Rel_Location", "XForm", -1.0 );
+    Update();
+
+    //==== Add Wing ====//
+    string wid = AddGeom( "WING", "" );
+
+    //===== Insert A Couple More Sections =====//
+    InsertXSec( wid, 1, XS_FOUR_SERIES );
+    InsertXSec( wid, 1, XS_FOUR_SERIES );
+    InsertXSec( wid, 1, XS_FOUR_SERIES );
+
+    //===== Cut The Original Section =====//
+    CutXSec( wid, 1 );
+
+    //===== Change Driver =====//
+    SetDriverGroup( wid, 1, AREA_WSECT_DRIVER, ROOTC_WSECT_DRIVER, TIPC_WSECT_DRIVER );
+
+    SetParmVal( wid, "RotateAirfoilMatchDideralFlag", "WingGeom", 1.0 );
+
+    //===== Change Some Parameters 1st Section ====//
+    SetParmVal( wid, "Root_Chord", "XSec_1", 7.0 );
+    SetParmVal( wid, "Tip_Chord", "XSec_1", 3.0 );
+    SetParmVal( wid, "Area", "XSec_1", 45.0 );
+    SetParmVal( wid, "Sweep", "XSec_1", 40.0 );
+
+    //==== Because Sections Are Connected Change One Section At A Time Then Update ====//
+    Update();
+
+    //===== Change Some Parameters 2nd Section ====//
+    SetParmVal( wid, "Tip_Chord", "XSec_2", 2.0 );
+    SetParmVal( wid, "Sweep", "XSec_2", 60.0 );
+    SetParmVal( wid, "Dihedral", "XSec_2", 30.0 );
+    Update();
+
+    //===== Change Some Parameters 3rd Section ====//
+    SetParmVal( wid, "Sweep", "XSec_3", 60.0 );
+    SetParmVal( wid, "Dihedral", "XSec_3", 80.0 );
+    Update();
+
+    //==== Change Airfoil ====//
+    SetParmVal( wid, "Camber", "XSecCurve_0", 0.02 );
+    Update();
+
+    //==== Default 3D DXF Export ====//
+
+    Print( string( "---> Test Write 3D" ) );
+    ExportFile( "TestDXF_3D.dxf", SET_ALL, EXPORT_DXF );
+    Print( string( "---> Default 3D Export Success: Saved as TestDXF_3D.dxf" ) );
+    Print( string( "" ) );
+
+    string geom_id = FindContainer( "Vehicle", 0 );
+
+    //==== Default 2D 4 View DXF Export ====//
+    SetParmVal( FindParm( geom_id, "DimFlag", "DXFSettings" ), SET_2D );
+    Update();
+
+    Print( string( "---> Test Write 2D 4 View" ) );
+    ExportFile( "TestDXF_2D_4View.dxf", SET_ALL, EXPORT_DXF );
+    Print( string( "---> Default 2D 4 View Export Success: Saved as TestDXF_2D_4View" ) );
+    Print( string( "" ) );
+
+    //==== 2D 1 View DXF Export ====//
+    SetParmVal( FindParm( geom_id, "ViewType", "DXFSettings" ), VIEW_1 );
+    SetParmVal( FindParm( geom_id, "TopLeftView", "DXFSettings" ), VIEW_BOTTOM );
+    SetParmVal( FindParm( geom_id, "TopLeftRotation", "DXFSettings" ), ROT_90 );
+    Update();
+
+    Print( string( "---> Test Write 2D 1 View" ) );
+    Print( string( "     Bottom view rotated 90 deg" ) );
+    ExportFile( "TestDXF_2D_1View.dxf", SET_ALL, EXPORT_DXF );
+    Print( string( "---> 2D 1 View Export Success: Saved as TestDXF_2D_1View.dxf" ) );
+    Print( string( "" ) );
+
+    //==== 2D 2 Horizontal View DXF Export ====//
+    SetParmVal( FindParm( geom_id, "ViewType", "DXFSettings" ), VIEW_2HOR );
+    SetParmVal( FindParm( geom_id, "TopRightView", "DXFSettings" ), VIEW_RIGHT );
+    SetParmVal( FindParm( geom_id, "TopRightRotation", "DXFSettings" ), ROT_270 );
+    Update();
+
+    Print( string( "---> Test Write 2D 2 Horizontal View" ) );
+    Print( string( "     Left: Bottom view rotated 90 deg, Right: Right view rotated 270 deg" ) );
+    ExportFile( "TestDXF_2D_2HView.dxf", SET_ALL, EXPORT_DXF );
+    Print( string( "---> 2D 2 Horizontal View Export Success: Saved as TestDXF_2D_2HView.dxf" ) );
+    Print( string( "" ) );
+
+    //==== 2D 2 Vertical View DXF Export ====//
+    SetParmVal( FindParm( geom_id, "ViewType", "DXFSettings" ), VIEW_2VER );
+    SetParmVal( FindParm( geom_id, "BottomLeftView", "DXFSettings" ), VIEW_REAR );
+    SetParmVal( FindParm( geom_id, "BottomLeftRotation", "DXFSettings" ), ROT_0 );
+    Update();
+
+    Print( string( "---> Test Write 2D 2 Vertical View" ) );
+    Print( string( "     Top: Top view rotated 90 deg, Bottom: Rear view rotated 0 deg" ) );
+    ExportFile( "TestDXF_2D_2VView.dxf", SET_ALL, EXPORT_DXF );
+    Print( string( "---> 2D 2 Vertical View Export Success: Saved as TestDXF_2D_2VView.dxf" ) );
+    Print( string( "" ) );
+
+    //==== Open Each DXF File In A Viewer To Verify ====//
+    Print( string( "-> Open Each DXF File In A DXF Viewer To Verify" ) );
+    Print( string( "" ) );
+
+}

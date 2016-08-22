@@ -26,7 +26,7 @@ using namespace std;
 class ClippingScreen : public BasicScreen
 {
 public:
-	ClippingScreen( ScreenMgr* mgr );
+    ClippingScreen( ScreenMgr* mgr );
     virtual ~ClippingScreen();
 
     void Show();

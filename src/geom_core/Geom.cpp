@@ -8,10 +8,12 @@
 #include "Geom.h"
 #include "Vehicle.h"
 #include "StlHelper.h"
+#include "DXFUtil.h"
 #include "StringUtil.h"
 #include "ParmMgr.h"
 #include "SubSurfaceMgr.h"
 #include "APIDefines.h"
+#include "HingeGeom.h"
 using namespace vsp;
 
 #include <time.h>
@@ -190,6 +192,20 @@ int GeomBase::CountParents( int count )
     return count;
 }
 
+bool GeomBase::IsParentJoint()
+{
+    GeomBase* parentPtr = m_Vehicle->FindGeom( m_ParentID );
+    if ( parentPtr )
+    {
+        HingeGeom* hingeParentPtr = dynamic_cast < HingeGeom* > ( parentPtr );
+        if ( hingeParentPtr )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 string GeomBase::GetAncestorID( int gen )
 {
     if ( gen == 0 )
@@ -288,8 +304,8 @@ xmlNodePtr GeomBase::DecodeXml( xmlNodePtr & node )
     xmlNodePtr child_node = XmlUtil::GetNode( node, "GeomBase", 0 );
     if ( child_node )
     {
-        m_Type.m_Name   = XmlUtil::FindString( child_node, "TypeName", m_Type.m_Name );
-        m_Type.m_Type   = XmlUtil::FindInt( child_node, "TypeID", m_Type.m_Type );
+        //m_Type.m_Name   = XmlUtil::FindString( child_node, "TypeName", m_Type.m_Name );
+        //m_Type.m_Type   = XmlUtil::FindInt( child_node, "TypeID", m_Type.m_Type );
         m_Type.m_FixedFlag = !!XmlUtil::FindInt( child_node, "TypeFixed", m_Type.m_FixedFlag );
         m_ParentID = ParmMgr.RemapID( XmlUtil::FindString( child_node, "ParentID", m_ParentID ) );
 
@@ -355,7 +371,6 @@ GeomXForm::GeomXForm( Vehicle* vehicle_ptr ) : GeomBase( vehicle_ptr )
     m_ULoc.SetDescript( "U Location of Parent's Surface" );
     m_WLoc.Init( "V_Attach_Location", "Attach", this, 1e-6, 1e-6, 1 - 1e-6 );
     m_WLoc.SetDescript( "V Location of Parent's Surface" );
-    m_relFlag.Init( "Abs_Rel_Flag", "Attach", this, true, 0, 1 );
 
     m_Scale.Init( "Scale", "XForm", this, 1, 1.0e-3, 1.0e3 );
     m_Scale.SetDescript( "Scale Geometry Size" );
@@ -379,6 +394,27 @@ GeomXForm::~GeomXForm()
 void GeomXForm::Update( bool fullupdate )
 {
     ComposeModelMatrix();
+
+    double axlen = 1.0;
+
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        axlen = veh->m_AxisLength();
+    }
+
+    Matrix4d attachedMat = ComposeAttachMatrix();
+
+    m_AttachOrigin = attachedMat.xform( vec3d( 0.0, 0.0, 0.0 ) );
+
+    m_AttachAxis.clear();
+    m_AttachAxis.resize( 3 );
+    for ( int i = 0; i < 3; i++ )
+    {
+        vec3d pt = vec3d( 0.0, 0.0, 0.0 );
+        pt.v[i] = axlen;
+        m_AttachAxis[i] = attachedMat.xform( pt );
+    }
 }
 
 //==== Update XForm ====//
@@ -454,13 +490,25 @@ Matrix4d GeomXForm::ComposeAttachMatrix()
 {
     Matrix4d attachedMat;
     attachedMat.loadIdentity();
+
+    Geom* parent = m_Vehicle->FindGeom( GetParentID() );
+
+    if ( parent )
+    {
+        HingeGeom* hingeparent = dynamic_cast < HingeGeom* > ( parent );
+        if ( hingeparent )
+        {
+            attachedMat = hingeparent->GetJointMatrix();
+            return attachedMat;
+        }
+    }
+
     // If both attachment flags set to none, return identity
     if ( m_TransAttachFlag() == ATTACH_TRANS_NONE && m_RotAttachFlag() == ATTACH_ROT_NONE )
     {
         return attachedMat;
     }
 
-    Geom* parent = m_Vehicle->FindGeom( GetParentID() );
     if ( parent )
     {
         Matrix4d transMat;
@@ -470,32 +518,26 @@ Matrix4d GeomXForm::ComposeAttachMatrix()
         parentMat = parent->getModelMatrix();
         double tempMat[16];
         parentMat.getMat( tempMat );
-        VspSurf* surf_ptr =  parent->GetSurfPtr();
 
         bool revertCompTrans = false;
         bool revertCompRot = false;
 
+        // Parent CompXXXCoordSys methods query the positioned m_SurfVec[0] surface,
+        // not m_MainSurfVec[0].  Consequently, m_ModelMatrix is already implied in
+        // these calculations and does not need to be applied again.
         if ( m_TransAttachFlag() == ATTACH_TRANS_UV )
         {
-            if ( surf_ptr )
+            if ( !( parent->CompTransCoordSys( m_ULoc(), m_WLoc(), transMat ) ) )
             {
-                transMat = surf_ptr->CompTransCoordSys( m_ULoc(), m_WLoc() );
-            }
-            else
-            {
-                revertCompTrans = true;
+                revertCompTrans = true; // Blank components revert to the component matrix.
             }
         }
 
         if ( m_RotAttachFlag() == ATTACH_ROT_UV )
         {
-            if ( surf_ptr )
+            if ( !( parent->CompRotCoordSys( m_ULoc(), m_WLoc(), rotMat ) ) )
             {
-                rotMat = surf_ptr->CompRotCoordSys( m_ULoc(), m_WLoc() );
-            }
-            else
-            {
-                revertCompRot = true;
+                revertCompRot = true; // For blank component.
             }
         }
 
@@ -553,6 +595,21 @@ void GeomXForm::DeactivateXForms()
         m_XRot.Activate();
         m_YRot.Activate();
         m_ZRot.Activate();
+    }
+
+    if ( IsParentJoint() )
+    {
+        m_ULoc.Deactivate();
+        m_WLoc.Deactivate();
+        m_TransAttachFlag.Deactivate();
+        m_RotAttachFlag.Deactivate();
+    }
+    else
+    {
+        m_ULoc.Activate();
+        m_WLoc.Activate();
+        m_TransAttachFlag.Activate();
+        m_RotAttachFlag.Activate();
     }
 }
 
@@ -1056,7 +1113,7 @@ void Geom::UpdateEndCaps()
     m_CapWMinSuccess.resize( nmain );
     m_CapWMaxSuccess.resize( nmain );
 
-	// cycle through all vspsurfs, check if wing type then cap using new Code-Eli cap surface creator
+    // cycle through all vspsurfs, check if wing type then cap using new Code-Eli cap surface creator
     for ( int i = 0; i < nmain; i++ )
     {
         m_CapUMinSuccess[i] = false;
@@ -1322,6 +1379,108 @@ void Geom::UpdateFlags( )
     }
 }
 
+void Geom::WriteFeatureLinesDXF( FILE * file_name, const BndBox &dxfbox )
+{
+    double tol = 10e-2;
+
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    vec3d shiftvec = dxfbox.GetMax() - dxfbox.GetMin();
+
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    {
+        vector < vector < vec3d > > allflines;
+        vector < vector < vec3d > > allflines1;
+        vector < vector < vec3d > > allflines2;
+        vector < vector < vec3d > > allflines3;
+        vector < vector < vec3d > > allflines4;
+
+        if( m_GuiDraw.GetDispFeatureFlag() )
+        {
+            int nu = m_SurfVec[i].GetNumUFeature();
+            int nw = m_SurfVec[i].GetNumWFeature();
+            allflines.resize( nu + nw );
+            for( int j = 0; j < nu; j++ )
+            {
+                m_SurfVec[i].TessUFeatureLine( j, allflines[ j ], tol );
+            }
+
+            for( int j = 0; j < nw; j++ )
+            {
+                m_SurfVec[i].TessWFeatureLine( j, allflines[ j + nu ], tol );
+            }
+        }
+        string layer = m_Name + string ( "_" ) + to_string( i );
+
+        if ( veh->m_2D3DFlag() == vsp::DIMENSION_SET::SET_3D )
+        {
+            WriteDXFPolylines3D( file_name, allflines, layer );
+        }
+        else if ( veh->m_2D3DFlag() == vsp::DIMENSION_SET::SET_2D )
+        {
+            if ( veh->m_2DView() == vsp::VIEW_NUM::VIEW_1 )
+            {
+                allflines1 = allflines;
+                DXFManipulate( allflines1, dxfbox, veh->m_4View1(), veh->m_4View1_rot() );
+                WriteDXFPolylines2D( file_name, allflines1, layer );
+            }
+            else if ( veh->m_2DView() == vsp::VIEW_NUM::VIEW_2HOR )
+            {
+                allflines1 = allflines;
+                DXFManipulate( allflines1, dxfbox, veh->m_4View1(), veh->m_4View1_rot() );
+                DXFShift( allflines1, shiftvec, vsp::VIEW_SHIFT::LEFT, veh->m_4View1_rot(), 0 );
+
+                allflines2 = allflines;
+                DXFManipulate( allflines2, dxfbox, veh->m_4View2(), veh->m_4View2_rot() );
+                DXFShift( allflines2, shiftvec, vsp::VIEW_SHIFT::RIGHT, veh->m_4View2_rot(), 0 );
+
+                WriteDXFPolylines2D( file_name, allflines1, layer );
+                WriteDXFPolylines2D( file_name, allflines2, layer );
+            }
+            else if ( veh->m_2DView() == vsp::VIEW_NUM::VIEW_2VER )
+            {
+                allflines1 = allflines;
+                DXFManipulate( allflines1, dxfbox, veh->m_4View1(), veh->m_4View1_rot() );
+                DXFShift( allflines1, shiftvec, vsp::VIEW_SHIFT::UP, veh->m_4View1_rot(), 0 );
+
+                allflines3 = allflines;
+                DXFManipulate( allflines3, dxfbox, veh->m_4View3(), veh->m_4View3_rot() );
+                DXFShift( allflines3, shiftvec, vsp::VIEW_SHIFT::DOWN, veh->m_4View3_rot(), 0 );
+
+                WriteDXFPolylines2D( file_name, allflines1, layer );
+                WriteDXFPolylines2D( file_name, allflines3, layer );
+            }
+            else if ( veh->m_2DView() == vsp::VIEW_NUM::VIEW_4 )
+            {
+                allflines1 = allflines;
+                DXFManipulate( allflines1, dxfbox, veh->m_4View1(), veh->m_4View1_rot() );
+                DXFShift( allflines1, shiftvec, vsp::VIEW_SHIFT::UP, veh->m_4View1_rot(), veh->m_4View2_rot() );
+                DXFShift( allflines1, shiftvec, vsp::VIEW_SHIFT::LEFT, veh->m_4View1_rot(), veh->m_4View3_rot() );
+
+                allflines2 = allflines;
+                DXFManipulate( allflines2, dxfbox, veh->m_4View2(), veh->m_4View2_rot() );
+                DXFShift( allflines2, shiftvec, vsp::VIEW_SHIFT::UP, veh->m_4View2_rot(), veh->m_4View1_rot() );
+                DXFShift( allflines2, shiftvec, vsp::VIEW_SHIFT::RIGHT, veh->m_4View2_rot(), veh->m_4View4_rot() );
+
+                allflines3 = allflines;
+                DXFManipulate( allflines3, dxfbox, veh->m_4View3(), veh->m_4View3_rot() );
+                DXFShift( allflines3, shiftvec, vsp::VIEW_SHIFT::DOWN, veh->m_4View3_rot(), veh->m_4View4_rot() );
+                DXFShift( allflines3, shiftvec, vsp::VIEW_SHIFT::LEFT, veh->m_4View3_rot(), veh->m_4View1_rot() );
+
+                allflines4 = allflines;
+                DXFManipulate( allflines4, dxfbox, veh->m_4View4(), veh->m_4View4_rot() );
+                DXFShift( allflines4, shiftvec, vsp::VIEW_SHIFT::DOWN, veh->m_4View4_rot(), veh->m_4View3_rot() );
+                DXFShift( allflines4, shiftvec, vsp::VIEW_SHIFT::RIGHT, veh->m_4View4_rot(), veh->m_4View2_rot() );
+
+                WriteDXFPolylines2D( file_name, allflines1, layer );
+                WriteDXFPolylines2D( file_name, allflines2, layer );
+                WriteDXFPolylines2D( file_name, allflines3, layer );
+                WriteDXFPolylines2D( file_name, allflines4, layer );
+            }
+        }
+    }
+}
+
 void Geom::UpdateDrawObj()
 {
     m_FeatureDrawObj_vec.clear();
@@ -1406,6 +1565,19 @@ void Geom::UpdateDrawObj()
 
     //==== Bounding Box ====//
     m_HighlightDrawObj.m_PntVec = m_BBox.GetBBoxDrawLines();
+
+    //=== Axis ===//
+    m_AxisDrawObj_vec.clear();
+    m_AxisDrawObj_vec.resize( 3 );
+    for ( int i = 0; i < 3; i++ )
+    {
+        MakeDashedLine( m_AttachOrigin,  m_AttachAxis[i], 4, m_AxisDrawObj_vec[i].m_PntVec );
+        vec3d c;
+        c.v[i] = 1.0;
+        m_AxisDrawObj_vec[i].m_LineColor = c;
+        m_AxisDrawObj_vec[i].m_GeomChanged = true;
+    }
+
 }
 
 //==== Encode Data Into XML Data Struct ====//
@@ -1905,6 +2077,17 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         m_HighlightDrawObj.m_LineColor = vec3d( 1.0, 0., 0.0 );
         m_HighlightDrawObj.m_Type = DrawObj::VSP_LINES;
         draw_obj_vec.push_back( &m_HighlightDrawObj );
+
+        for ( int i = 0; i < m_AxisDrawObj_vec.size(); i++ )
+        {
+            m_AxisDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+            sprintf( str, "_%d", i );
+            m_AxisDrawObj_vec[i].m_GeomID = m_ID + "Axis_" + str;
+            m_AxisDrawObj_vec[i].m_LineWidth = 2.0;
+            m_AxisDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
+            draw_obj_vec.push_back( &m_AxisDrawObj_vec[i] );
+        }
+
     }
 
     // Load Feature Lines
@@ -2110,6 +2293,28 @@ vec3d Geom::GetUWPt( const double &u, const double &w )
 vec3d Geom::GetUWPt( const int &indx, const double &u, const double &w )
 {
     return GetSurfPtr( indx )->CompPnt01( u, w );
+}
+
+bool Geom::CompRotCoordSys( const double &u, const double &w, Matrix4d &rotMat )
+{
+    VspSurf* surf_ptr = GetSurfPtr();
+    if ( surf_ptr )
+    {
+        rotMat = surf_ptr->CompRotCoordSys( u, w );
+        return true;
+    }
+    return false;
+}
+
+bool Geom::CompTransCoordSys( const double &u, const double &w, Matrix4d &transMat )
+{
+    VspSurf* surf_ptr = GetSurfPtr();
+    if ( surf_ptr )
+    {
+        transMat = surf_ptr->CompTransCoordSys( u, w );
+        return true;
+    }
+    return false;
 }
 
 void Geom::WriteXSecFile( int geom_no, FILE* dump_file )
@@ -2806,7 +3011,7 @@ void GeomXSec::UpdateDrawObj()
         XSec* xs = m_XSecSurf.FindXSec( i );
         if ( xs )
         {
-            m_XSecDrawObj_vec[i].m_PntVec = xs->GetDrawLines( m_TessW(), relTrans );
+            m_XSecDrawObj_vec[i].m_PntVec = xs->GetDrawLines( relTrans );
         }
         else
         {
@@ -2818,7 +3023,7 @@ void GeomXSec::UpdateDrawObj()
     XSec* axs = m_XSecSurf.FindXSec( m_ActiveXSec );
     if ( axs )
     {
-        m_HighlightXSecDrawObj.m_PntVec = axs->GetDrawLines( m_TessW(), relTrans );
+        m_HighlightXSecDrawObj.m_PntVec = axs->GetDrawLines( relTrans );
 
         double w = axs->GetXSecCurve()->GetWidth();
         double h = axs->GetXSecCurve()->GetHeight();

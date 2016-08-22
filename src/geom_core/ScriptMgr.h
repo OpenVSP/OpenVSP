@@ -170,6 +170,30 @@ private:
     void SetStringAnalysisInput( const string& analysis, const string & name, CScriptArray* indata, int index );
     void SetVec3dAnalysisInput( const string& analysis, const string & name, CScriptArray* indata, int index );
 
+    // ==== Variable Preset Functions ====//
+    CScriptArray* GetVarPresetGroupNames();
+    CScriptArray* GetVarPresetSettingNamesWName( string group_name );
+    CScriptArray* GetVarPresetSettingNamesWIndex( int group_index );
+    CScriptArray* GetVarPresetParmVals();
+    CScriptArray* GetVarPresetParmValsWNames( string group_name, string setting_name );
+    CScriptArray* GetVarPresetParmIDs();
+    CScriptArray* GetVarPresetParmIDsWName( string group_name );
+    void AddVarPresetGroup( const string &group_name );
+    void AddVarPresetSetting( const string &setting_name );
+    void AddVarPresetParm( const string &parm_ID );
+    void AddVarPresetParm( const string &parm_ID, string group_name );
+    void EditVarPresetParm( const string &parm_ID, double parm_val );
+    void EditVarPresetParm( const string &parm_ID, double parm_val, string group_name, string setting_name );
+    void DeleteVarPresetParm( const string &parm_ID );
+    void DeleteVarPresetParm( const string &parm_ID, string group_name );
+    void SwitchVarPreset( string group_name, string setting_name );
+    void DeleteVarPresetSet( string group_name, string setting_name );
+
+    // ==== PCurve Functions ====//
+    void SetPCurve( const string& geom_id, const int & pcurveid, CScriptArray* tvec, CScriptArray* valvec, const int & newtype );
+    CScriptArray* PCurveGetTVec( const std::string & geom_id, const int & pcurveid );
+    CScriptArray* PCurveGetValVec( const std::string & geom_id, const int & pcurveid );
+
 };
 
 #define ScriptMgr ScriptMgrSingleton::getInstance()

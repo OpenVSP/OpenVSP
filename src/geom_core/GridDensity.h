@@ -150,7 +150,7 @@ class BaseSimpleSource
 {
 public:
 
-	BaseSimpleSource();
+    BaseSimpleSource();
     virtual ~BaseSimpleSource()   {};
 
     virtual void SetName( const string str )
@@ -204,7 +204,7 @@ protected:
 class PointSimpleSource : public BaseSimpleSource
 {
 public:
-	PointSimpleSource();
+    PointSimpleSource();
     virtual ~PointSimpleSource()      {}
 
     double GetTargetLen( double base_len, vec3d &  pos );
@@ -231,7 +231,7 @@ protected:
 class LineSimpleSource : public BaseSimpleSource
 {
 public:
-	LineSimpleSource();
+    LineSimpleSource();
     virtual ~LineSimpleSource()       {}
 
     void SetEndPnts( const vec3d & pnt1, const vec3d & pnt2 );
@@ -278,7 +278,7 @@ protected:
 class BoxSimpleSource : public BaseSimpleSource
 {
 public:
-	BoxSimpleSource();
+    BoxSimpleSource();
     virtual ~BoxSimpleSource()        {};
 
     void SetMinMaxPnts( const vec3d & min_pnt, const vec3d & max_pnt );

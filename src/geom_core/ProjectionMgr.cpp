@@ -79,7 +79,7 @@ vec3d ProjectionMgrSingleton::GetDirection( int dirtype, string dirid )
 {
     vec3d dir;
 
-    switch ( m_DirectionType() )
+    switch ( dirtype )
     {
         case vsp::X_PROJ:
             dir = vec3d( 1.0, 0.0, 0.0 );
@@ -94,7 +94,7 @@ vec3d ProjectionMgrSingleton::GetDirection( int dirtype, string dirid )
             Vehicle *veh = VehicleMgr.GetVehicle();
             if ( veh )
             {
-                Geom* g = veh->FindGeom( m_DirectionGeomID );
+                Geom* g = veh->FindGeom( dirid );
                 if ( g )
                 {
                     VspSurf *s = g->GetSurfPtr();

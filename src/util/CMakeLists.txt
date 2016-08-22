@@ -17,6 +17,7 @@ INCLUDE_DIRECTORIES(
 ADD_LIBRARY(util
 BndBox.cpp
 DrawObj.cpp
+DXFUtil.cpp
 FileUtil.cpp
 Matrix.cpp
 MessageMgr.cpp
@@ -31,12 +32,14 @@ Util.cpp
 UtilTestSuite.cpp
 Vec2d.cpp
 Vec3d.cpp
+Vsp1DCurve.cpp
 VspCurve.cpp
 VspSurf.cpp
 BndBox.h
 Combination.h
 Defines.h
 DrawObj.h
+DXFUtil.h
 FileUtil.h
 GuiDeviceEnums.h
 Matrix.h
@@ -54,6 +57,7 @@ UtilTestSuite.h
 UsingCpp11.h
 Vec2d.h
 Vec3d.h
+Vsp1DCurve.h
 VspCurve.h
 VspSurf.h
 WriteMatlab.h

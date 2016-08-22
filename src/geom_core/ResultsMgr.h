@@ -147,11 +147,14 @@ public:
     void SetDateTime();
 
     void WriteCSVFile( const string & file_name );
+    void WriteCSVFile( FILE* fid );
     void WriteMassProp( const string & file_name );
     void WriteCompGeomTxtFile( const string & file_name );
     void WriteCompGeomCsvFile( const string & file_name );
     void WriteDragBuildFile( const string & file_name );
-    void WriteSliceFile( const string & file_name, int type );
+    void WriteSliceFile( const string & file_name );
+    void WriteWaveDragFile( const string & file_name );
+    void WriteBEMFile( const string & file_name );
 
     time_t GetTimestamp()
     {
@@ -215,6 +218,7 @@ public:
     void WriteTestResults();        // Write Some Test Results
     void TestSpeed();               // Test Speed
 
+    void WriteCSVFile( const string & file_name, const vector < string > &resids );
 
 private:
     ResultsMgrSingleton();

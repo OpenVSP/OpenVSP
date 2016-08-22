@@ -16,18 +16,23 @@ namespace vsp
 //======================== Error Codes ================================//
 enum ERROR_CODE {   VSP_OK,
                     VSP_INVALID_PTR,
+                    VSP_INVALID_TYPE,
                     VSP_CANT_FIND_TYPE,
                     VSP_CANT_FIND_PARM,
                     VSP_CANT_FIND_NAME,
                     VSP_INVALID_GEOM_ID,
                     VSP_FILE_DOES_NOT_EXIST,
                     VSP_FILE_WRITE_FAILURE,
+                    VSP_FILE_READ_FAILURE,
                     VSP_WRONG_XSEC_TYPE,
                     VSP_WRONG_FILE_TYPE,
                     VSP_INDEX_OUT_RANGE,
                     VSP_INVALID_XSEC_ID,
                     VSP_INVALID_ID,
-                    VSP_CANT_SET_NOT_EQ_PARM
+                    VSP_CANT_SET_NOT_EQ_PARM,
+                    VSP_AMBIGUOUS_SUBSURF,
+                    VSP_INVALID_VARPRESET_SETNAME,
+                    VSP_INVALID_VARPRESET_GROUPNAME
                 };
 
 enum {  SYM_XY = ( 1 << 0 ),
@@ -44,6 +49,7 @@ enum XSEC_TYPE { XSEC_FUSE,
                  XSEC_STACK,
                  XSEC_WING,
                  XSEC_CUSTOM,
+                 XSEC_PROP,
                  XSEC_NUM_TYPES
                };
 
@@ -57,7 +63,39 @@ enum LEN_UNITS { LEN_MM,
                  LEN_M,
                  LEN_IN,
                  LEN_FT,
-                 LEN_YD
+                 LEN_YD,
+                 LEN_UNITLESS
+};
+
+enum DIMENSION_SET { SET_3D,
+                     SET_2D,
+                   };
+
+enum VIEW_TYPE { VIEW_LEFT,
+                 VIEW_RIGHT,
+                 VIEW_TOP,
+                 VIEW_BOTTOM,
+                 VIEW_FRONT,
+                 VIEW_REAR,
+                 VIEW_NONE
+};
+
+enum VIEW_SHIFT { LEFT,
+                  RIGHT,
+                  UP,
+                  DOWN,
+};
+
+enum VIEW_NUM { VIEW_1,
+                VIEW_2HOR,
+                VIEW_2VER,
+                VIEW_4,
+};
+
+enum VIEW_ROT { ROT_0,
+                ROT_90,
+                ROT_180,
+                ROT_270,
 };
 
 enum ANG_UNITS { ANG_RAD,
@@ -114,7 +152,8 @@ enum IMPORT_TYPE {  IMPORT_STL,
                     IMPORT_CART3D_TRI,
                     IMPORT_XSEC_MESH,
                     IMPORT_PTS,
-                    IMPORT_V2
+                    IMPORT_V2,
+                    IMPORT_BEM
                  };
 
 enum EXPORT_TYPE {  EXPORT_FELISA,
@@ -130,7 +169,9 @@ enum EXPORT_TYPE {  EXPORT_FELISA,
                     EXPORT_X3D,
                     EXPORT_STEP,
                     EXPORT_PLOT3D,
-                    EXPORT_IGES
+                    EXPORT_IGES,
+                    EXPORT_BEM,
+                    EXPORT_DXF
                  };
 
 enum COMPUTATION_FILE_TYPE  {   NO_FILE_TYPE        = 0,
@@ -151,12 +192,9 @@ enum COMPUTATION_FILE_TYPE  {   NO_FILE_TYPE        = 0,
                                 CFD_SRF_TYPE        = 16384,
                                 CFD_TKEY_TYPE       = 32768,
                                 PROJ_AREA_CSV_TYPE  = 65536,
+                                WAVE_DRAG_TXT_TYPE  = 131072,
+                                VSPAERO_PANEL_TRI_TYPE = 262144,
                             };
-
-enum SLICE_STYLE {  SLICE_PLANAR,
-                    SLICE_AWAVE,
-                 };
-
 
 enum SET_TYPE { SET_ALL = 0,
                 SET_SHOWN = 1,
@@ -174,6 +212,7 @@ enum RES_DATA_TYPE {    INVALID_TYPE = -1,
 enum RES_GEOM_TYPE {    MESH_INDEXED_TRI,
                         MESH_SLICE_TRI,
                         GEOM_XSECS,
+                        MESH_INDEX_AND_SLICE_TRI,
                    };
 
 enum CFD_MESH_EXPORT_TYPE { CFD_STL_FILE_NAME,
@@ -230,6 +269,7 @@ enum XDDM_QUANTITY_TYPE { XDDM_VAR,
 enum VSP_SURF_TYPE { NORMAL_SURF,
                      WING_SURF,
                      DISK_SURF,
+                     PROP_SURF,
                      NUM_SURF_TYPES,
                };
 
@@ -294,6 +334,23 @@ enum PROJ_DIR_TYPE { X_PROJ,
                      VEC_PROJ,
                      NUM_PROJ_DIR_OPTIONS
                    };
+
+enum PCURV_TYPE { LINEAR,
+                  PCHIP,
+                  CEDIT,
+                  NUM_PCURV_TYPE
+                };
+
+enum PROP_PCURVE { PROP_CHORD,
+                   PROP_TWIST,
+                   PROP_RAKE,
+                   PROP_SKEW,
+                   NUM_PROP_PCURVE
+                 };
+
+enum VSPAERO_ANALYSIS_METHOD { VORTEX_LATTICE,
+                               PANEL
+                             };
 
 }   // Namespace
 

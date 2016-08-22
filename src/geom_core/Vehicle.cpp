@@ -14,6 +14,8 @@
 #include "StackGeom.h"
 #include "CustomGeom.h"
 #include "PtCloudGeom.h"
+#include "PropGeom.h"
+#include "HingeGeom.h"
 #include "ScriptMgr.h"
 #include "MessageMgr.h"
 #include "StlHelper.h"
@@ -25,13 +27,16 @@
 #include "StringUtil.h"
 #include "SubSurfaceMgr.h"
 #include "DesignVarMgr.h"
+#include "DXFUtil.h"
 #include "XmlUtil.h"
 #include "APIDefines.h"
 #include "ResultsMgr.h"
 #include "FitModelMgr.h"
 #include "FileUtil.h"
+#include "VarPresetMgr.h"
 #include "VSPAEROMgr.h"
 #include "main.h"
+
 using namespace vsp;
 
 #include <set>
@@ -56,6 +61,18 @@ Vehicle::Vehicle()
     m_IGESToCubic.Init( "ToCubic", "IGESSettings", this, false, 0, 1 );
     m_IGESToCubicTol.Init( "ToCubicTol", "IGESSettings", this, 1e-6, 1e-12, 1e12 );
 
+    m_DXFLenUnit.Init( "LenUnit", "DXFSettings", this, vsp::LEN_FT, vsp::LEN_MM, vsp::LEN_UNITLESS );
+    m_2D3DFlag.Init( "DimFlag", "DXFSettings", this , vsp::SET_3D, vsp::SET_3D, vsp::SET_2D );
+    m_2DView.Init( "ViewType", "DXFSettings", this, vsp::VIEW_1, vsp::VIEW_1, vsp::VIEW_4 );
+    m_4View1.Init( "TopLeftView", "DXFSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
+    m_4View2.Init( "TopRightView", "DXFSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
+    m_4View3.Init( "BottomLeftView", "DXFSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
+    m_4View4.Init( "BottomRightView", "DXFSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
+    m_4View1_rot.Init( "TopLeftRotation", "DXFSettings", this, vsp::ROT_90, vsp::ROT_0, vsp::ROT_270 );
+    m_4View2_rot.Init( "TopRightRotation", "DXFSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
+    m_4View3_rot.Init( "BottomLeftRotation", "DXFSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
+    m_4View4_rot.Init( "BottomRightRotation", "DXFSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
+
     m_STLMultiSolid.Init( "MultiSolid", "STLSettings", this, false, 0, 1 );
 
     m_UpdatingBBox = false;
@@ -77,6 +94,11 @@ Vehicle::Vehicle()
     m_exportDegenGeomCsvFile.Init( "DegenGeom_CSV_Export", "ExportFlag", this, true, 0, 1 );
     m_exportDegenGeomMFile.Init( "DegenGeom_M_Export", "ExportFlag", this, true, 0, 1 );
 
+    m_AxisLength.Init( "AxisLength", "Axis", this, 1.0, 1e-12, 1e12 );
+    m_AxisLength.SetDescript( "Length of axis icon displayed on screen" );
+
+    // Initialize the group transformations object
+    m_GroupTransformations.Init( this );
 
     SetupPaths();
 }
@@ -106,6 +128,10 @@ void Vehicle::Init()
     SetVSP3FileName( "Unnamed.vsp3" );
     m_FileOpenVersion = -1;
 
+    //==== Update VSPAero Mgr ====//
+    // must do this after the SetVSP3FileName()
+    VSPAEROMgr.Update();
+
     //==== Load Default Set Names =====//
     m_SetNameVec.push_back( "All" );        // SET_ALL
     m_SetNameVec.push_back( "Shown" );      // SET_SHOWN
@@ -123,6 +149,8 @@ void Vehicle::Init()
     m_GeomTypeVec.push_back( GeomType( MS_WING_GEOM_TYPE, "WING", true ) );
     m_GeomTypeVec.push_back( GeomType( STACK_GEOM_TYPE, "STACK", true ) );
     m_GeomTypeVec.push_back( GeomType( BLANK_GEOM_TYPE, "BLANK", true ) );
+    m_GeomTypeVec.push_back( GeomType( PROP_GEOM_TYPE, "PROP", true ) );
+    m_GeomTypeVec.push_back( GeomType( HINGE_GEOM_TYPE, "HINGE", true ) );
 
     //==== Get Custom Geom Types =====//
     vector< GeomType > custom_types = CustomGeomMgr.GetCustomTypes();
@@ -136,6 +164,7 @@ void Vehicle::Init()
     LinkMgr.RegisterContainer( m_CfdGridDensity.GetID() );
     LinkMgr.RegisterContainer( m_FeaGridDensity.GetID() );
     LinkMgr.RegisterContainer( VSPAEROMgr.GetID() );
+    LinkMgr.RegisterContainer( WaveDragMgr.GetID() );
 
     m_IxxIyyIzz = vec3d( 0, 0, 0 );
     m_IxyIxzIyz = vec3d( 0, 0, 0 );
@@ -155,7 +184,21 @@ void Vehicle::Init()
     m_IGESToCubic.Set( false );
     m_IGESToCubicTol.Set( 1e-6 );
 
+    m_DXFLenUnit.Set( vsp::LEN_UNITLESS );
+    m_2DView.Set( vsp::VIEW_4 );
+    m_2D3DFlag.Set( vsp::SET_3D );
+    m_4View1.Set( vsp::VIEW_TOP );
+    m_4View2.Set( vsp::VIEW_NONE );
+    m_4View3.Set( vsp::VIEW_FRONT );
+    m_4View4.Set( vsp::VIEW_LEFT );
+    m_4View1_rot.Set( vsp::ROT_270 );
+    m_4View2_rot.Set( vsp::ROT_0 );
+    m_4View3_rot.Set( vsp::ROT_0 );
+    m_4View4_rot.Set( vsp::ROT_0 );
+
     m_STLMultiSolid.Set( false );
+
+    m_BEMPropID = string();
 
     m_UpdatingBBox = false;
     m_BbXLen.Set( 0 );
@@ -202,6 +245,8 @@ void Vehicle::Wype()
 
     m_VSP3FileName = string();
 
+    m_BEMPropID = string();
+
     for ( int i = 0 ; i < ( int )m_GeomStoreVec.size() ; i++ )
     {
         delete m_GeomStoreVec[i];
@@ -229,6 +274,7 @@ void Vehicle::Wype()
     DesignVarMgr.Renew();
     FitModelMgr.Renew();
     AnalysisMgr.Renew();
+    VarPresetMgr.Renew();
 }
 
 void Vehicle::SetVSP3FileName( const string & f_name )
@@ -285,6 +331,11 @@ void Vehicle::ParmChanged( Parm* parm_ptr, int type )
     m_UpdatingBBox = true;
     UpdateBBox();
     m_UpdatingBBox = false;
+
+    if ( parm_ptr == &m_AxisLength )
+    {
+        ForceUpdate();
+    }
 
     UpdateGui();
 }
@@ -371,41 +422,51 @@ vector< Geom* > Vehicle::FindGeomVec( const vector< string > & geom_id_vec )
 string Vehicle::CreateGeom( const GeomType & type )
 {
     Geom* new_geom = NULL;
-    if ( type.m_Type == POD_GEOM_TYPE )
-    {
-        new_geom = new PodGeom( this );
-    }
-    else if ( type.m_Type == FUSELAGE_GEOM_TYPE )
-    {
-        new_geom = new FuselageGeom( this );
-    }
-    else if ( type.m_Type == MS_WING_GEOM_TYPE )
-    {
-        new_geom = new WingGeom( this );
-    }
-    else if ( type.m_Type == BLANK_GEOM_TYPE )
-    {
-        new_geom = new BlankGeom( this );
-    }
-    else if ( type.m_Type == MESH_GEOM_TYPE )
-    {
-        new_geom = new MeshGeom( this );
-    }
-    else if ( type.m_Type == STACK_GEOM_TYPE )
-    {
-        new_geom = new StackGeom( this );
-    }
-    else if ( type.m_Type == CUSTOM_GEOM_TYPE )
+
+    if ( type.m_Type == CUSTOM_GEOM_TYPE )     // Match Custom on number
     {
         new_geom = new CustomGeom( this );
     }
-    else if ( type.m_Type == PT_CLOUD_GEOM_TYPE )
+    else if ( type.m_Name == "Pod" || type.m_Name == "POD" )   // Match all others on name
+    {
+        new_geom = new PodGeom( this );
+    }
+    else if ( type.m_Name == "Fuselage" || type.m_Name == "FUSELAGE" )
+    {
+        new_geom = new FuselageGeom( this );
+    }
+    else if ( type.m_Name == "Wing" || type.m_Name == "WING" )
+    {
+        new_geom = new WingGeom( this );
+    }
+    else if ( type.m_Name == "Blank" || type.m_Name == "BLANK" )
+    {
+        new_geom = new BlankGeom( this );
+    }
+    else if ( type.m_Name == "Mesh" || type.m_Name == "MESH" )
+    {
+        new_geom = new MeshGeom( this );
+    }
+    else if ( type.m_Name == "Stack" || type.m_Name == "STACK" )
+    {
+        new_geom = new StackGeom( this );
+    }
+    else if ( type.m_Name == "PtCloud" || type.m_Name == "PTS" )
     {
         new_geom = new PtCloudGeom( this );
+    }
+    else if ( type.m_Name == "Propeller" || type.m_Name == "PROP" )
+    {
+        new_geom = new PropGeom( this );
+    }
+    else if ( type.m_Name == "Hinge" || type.m_Name == "HINGE" )
+    {
+        new_geom = new HingeGeom( this );
     }
 
     if ( !new_geom )
     {
+        printf( "Error: Could not create Geom of type: %s\n", type.m_Name.c_str() );
         return "NONE";
     }
 
@@ -445,6 +506,7 @@ string Vehicle::AddGeom( const GeomType & type )
             CustomGeomMgr.InitGeom( geom_id, type.m_ModuleName );
 //            add_geom->Update();
         }
+        add_geom->Update();
     }
     return geom_id;
 }
@@ -453,12 +515,12 @@ string Vehicle::AddGeom( const GeomType & type )
 //=== Create Geom and Set Up Parent/Child ====//
 string Vehicle::AddGeom( Geom* add_geom )
 {
-    string add_id = add_geom->GetID();
-
     if ( !add_geom )
     {
         return string( "NONE" );
     }
+
+    string add_id = add_geom->GetID();
 
     //==== Set Parent/Child ====//
     vector< string > active_vec = GetActiveGeomVec();
@@ -1219,10 +1281,12 @@ xmlNodePtr Vehicle::EncodeXml( xmlNodePtr & node, int set )
     LinkMgr.EncodeXml( node );
     AdvLinkMgr.EncodeXml( node );
     VSPAEROMgr.EncodeXml( node );
+    VarPresetMgr.EncodeXml( node );
     m_CfdSettings.EncodeXml( node );
     m_CfdGridDensity.EncodeXml( node );
     m_FeaGridDensity.EncodeXml( node );
     m_ClippingMgr.EncodeXml( node );
+    WaveDragMgr.EncodeXml( node );
 
     xmlNodePtr setnamenode = xmlNewChild( node, NULL, BAD_CAST"SetNames", NULL );
     if ( setnamenode )
@@ -1284,10 +1348,12 @@ xmlNodePtr Vehicle::DecodeXml( xmlNodePtr & node )
     LinkMgr.DecodeXml( node );
     AdvLinkMgr.DecodeXml( node );
     VSPAEROMgr.DecodeXml( node );
+    VarPresetMgr.DecodeXml( node );
     m_CfdSettings.DecodeXml( node );
     m_CfdGridDensity.DecodeXml( node );
     m_FeaGridDensity.DecodeXml( node );
     m_ClippingMgr.DecodeXml( node );
+    WaveDragMgr.DecodeXml( node );
 
     xmlNodePtr setnamenode = XmlUtil::GetNode( node, "SetNames", 0 );
     if ( setnamenode )
@@ -1612,8 +1678,9 @@ void Vehicle::WriteTaggedMSSTLFile( const string & file_name, int write_set )
 void Vehicle::WriteTRIFile( const string & file_name, int write_set )
 {
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
-    if ( !geom_vec[0] )
+    if ( geom_vec.size()==0 )
     {
+        printf("WARNING: No geometry to write \n\tFile: %s \tLine:%d\n",__FILE__,__LINE__);
         return;
     }
 
@@ -1904,7 +1971,7 @@ void Vehicle::WriteX3DFile( const string & file_name, int write_set )
     //==== All Geometry ====//
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
-        if ( geom_vec[i]->GetSetFlag( write_set ) && geom_vec[i]->GetType().m_Type != BLANK_GEOM_TYPE )
+        if ( geom_vec[i]->GetSetFlag( write_set ) && geom_vec[i]->GetType().m_Type != BLANK_GEOM_TYPE && geom_vec[i]->GetType().m_Type != HINGE_GEOM_TYPE )
         {
             xmlNodePtr shape_node = xmlNewChild( scene_node, NULL, BAD_CAST "Shape", NULL );
 
@@ -2227,6 +2294,52 @@ void Vehicle::WriteIGESFile( const string & file_name, int write_set )
     model.Write( file_name.c_str(), true );
 }
 
+void Vehicle::WriteBEMFile( const string &file_name, int write_set )
+{
+    Geom* geom = FindGeom( m_BEMPropID );
+
+    PropGeom* pgeom = dynamic_cast < PropGeom* > ( geom );
+    if ( pgeom )
+    {
+        string rid = pgeom->BuildBEMResults();
+
+        Results* resptr = ResultsMgr.FindResultsPtr( rid );
+        if( resptr )
+        {
+            resptr->WriteBEMFile( file_name );
+        }
+    }
+}
+
+void Vehicle::WriteDXFFile( const string & file_name, int write_set )
+{
+    FILE* dxf_file = fopen( file_name.c_str(), "w" );
+    WriteDXFHeader( dxf_file, m_DXFLenUnit.Get() );
+
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+
+    BndBox dxfbox;
+    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        if ( geom_vec[i]->GetSetFlag( write_set ) )
+        {
+            dxfbox.Update( geom_vec[i]->GetBndBox() );
+        }
+    }
+
+    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        if ( geom_vec[i]->GetSetFlag( write_set ) )
+        {
+            geom_vec[i]->WriteFeatureLinesDXF( dxf_file, dxfbox );
+        }
+    }
+
+    WriteDXFClose( dxf_file );
+
+    fclose( dxf_file );
+}
+
 void Vehicle::AddLinkableContainers( vector< string > & linkable_container_vec )
 {
     ParmContainer::AddLinkableContainers( linkable_container_vec );
@@ -2322,6 +2435,14 @@ string Vehicle::getExportFileName( int type )
     {
         doreturn = true;
     }
+    else if ( type == WAVE_DRAG_TXT_TYPE )
+    {
+        doreturn = true;
+    }
+    else if ( type == VSPAERO_PANEL_TRI_TYPE )
+    {
+        doreturn = true;
+    }
 
     if( doreturn )
     {
@@ -2374,6 +2495,14 @@ void Vehicle::setExportFileName( int type, string f_name )
     {
         doset = true;
     }
+    else if ( type == WAVE_DRAG_TXT_TYPE )
+    {
+        doset = true;
+    }
+    else if ( type == VSPAERO_PANEL_TRI_TYPE )
+    {
+        doset = true;
+    }
 
     if( doset )
     {
@@ -2383,9 +2512,9 @@ void Vehicle::setExportFileName( int type, string f_name )
 
 void Vehicle::resetExportFileNames()
 {
-    const char *suffix[] = {"_CompGeom.txt", "_CompGeom.csv", "_DragBuild.tsv", "_AwaveSlice.txt", "_MassProps.txt", "_DegenGeom.csv", "_DegenGeom.m", "_ProjArea.csv" };
-    const int types[] = { COMP_GEOM_TXT_TYPE, COMP_GEOM_CSV_TYPE, DRAG_BUILD_TSV_TYPE, SLICE_TXT_TYPE, MASS_PROP_TXT_TYPE, DEGEN_GEOM_CSV_TYPE, DEGEN_GEOM_M_TYPE, PROJ_AREA_CSV_TYPE };
-    const int ntype = 8;
+    const char *suffix[] = {"_CompGeom.txt", "_CompGeom.csv", "_DragBuild.tsv", "_AwaveSlice.txt", "_MassProps.txt", "_DegenGeom.csv", "_DegenGeom.m", "_ProjArea.csv", "_WaveDrag.txt", ".tri" };
+    const int types[] = { COMP_GEOM_TXT_TYPE, COMP_GEOM_CSV_TYPE, DRAG_BUILD_TSV_TYPE, SLICE_TXT_TYPE, MASS_PROP_TXT_TYPE, DEGEN_GEOM_CSV_TYPE, DEGEN_GEOM_M_TYPE, PROJ_AREA_CSV_TYPE, WAVE_DRAG_TXT_TYPE, VSPAERO_PANEL_TRI_TYPE };
+    const int ntype = ( sizeof(types) / sizeof(types[0]) );
     int pos;
 
     for( int i = 0; i < ntype; i++ )
@@ -2487,7 +2616,7 @@ string Vehicle::MassProps( int set, int numSlices, bool hidegeom, bool writefile
                     if ( BGeom->m_PointMassFlag() )
                     {
                         TetraMassProp* pm = new TetraMassProp(); // Deleted by mesh_ptr
-                        pm->SetPointMass( BGeom->m_PointMass(), BGeom->m_Origin );
+                        pm->SetPointMass( BGeom->m_PointMass(), BGeom->m_BlankOrigin );
                         pm->m_CompId = BGeom->GetID();
                         mesh_ptr->AddPointMass( pm );
                     }
@@ -2530,58 +2659,6 @@ string Vehicle::MassPropsAndFlatten( int set, int numSlices, bool hidegeom, bool
     return id;
 }
 
-string Vehicle::AwaveSlice( int set, int numSlices, int numRots, double AngleControlVal, bool computeAngle,
-                            vec3d norm, bool autoBoundsFlag, double start , double end )
-{
-    string id = AddMeshGeom( set );
-    if ( id.compare( "NONE" ) == 0 )
-    {
-        return id;
-    }
-
-    HideAllExcept( id );
-
-    MeshGeom* mesh_ptr = ( MeshGeom* )FindGeom( id );
-    if ( mesh_ptr == NULL )
-    {
-        return id;
-    }
-
-    if ( mesh_ptr->m_TMeshVec.size() )
-    {
-        // Compute Angle if necessary for awave slice
-        if ( computeAngle )
-        {
-            AngleControlVal = asin( 1 / AngleControlVal ) * RAD_2_DEG;
-        }
-        mesh_ptr->AreaSlice( vsp::SLICE_AWAVE, numSlices, AngleControlVal, numRots, norm, autoBoundsFlag, start, end );
-    }
-    else
-    {
-        CutActiveGeomVec();
-        DeleteClipBoard();
-        id = "NONE";
-    }
-
-    return id;
-}
-
-string Vehicle::AwaveSliceAndFlatten( int set, int numSlices, int numRots, double AngleControlVal, bool computeAngle,
-                                      vec3d norm, bool autoBoundsFlag, double start , double end )
-{
-    string id = AwaveSlice( set, numSlices, numRots, AngleControlVal, computeAngle, norm, autoBoundsFlag, start, end );
-    Geom* geom = FindGeom( id );
-    if ( !geom )
-    {
-        return string( "NONE" );
-    }
-    MeshGeom* mesh_ptr = ( MeshGeom* )geom;
-    mesh_ptr->FlattenTMeshVec();
-    mesh_ptr->FlattenSliceVec();
-    mesh_ptr->Update();
-    return id;
-}
-
 string Vehicle::PSlice( int set, int numSlices, vec3d axis, bool autoBoundsFlag, double start, double end )
 {
 
@@ -2601,7 +2678,7 @@ string Vehicle::PSlice( int set, int numSlices, vec3d axis, bool autoBoundsFlag,
 
     if ( mesh_ptr->m_TMeshVec.size() )
     {
-        mesh_ptr->AreaSlice( vsp::SLICE_PLANAR, numSlices, 90, 0, axis, autoBoundsFlag, start, end );
+        mesh_ptr->AreaSlice( numSlices, axis, autoBoundsFlag, start, end );
     }
     else
     {
@@ -2645,15 +2722,7 @@ string Vehicle::ImportFile( const string & file_name, int file_type )
         PtCloudGeom* new_geom = ( PtCloudGeom* )FindGeom( id );
         if ( new_geom )
         {
-            int validFlag;
-            if ( file_type == IMPORT_PTS )
-            {
-                validFlag = new_geom->ReadPTS( file_name.c_str() );
-            }
-            else
-            {
-                validFlag = 0;
-            }
+            int validFlag = new_geom->ReadPTS( file_name.c_str() );
 
             if ( !validFlag )
             {
@@ -2670,6 +2739,36 @@ string Vehicle::ImportFile( const string & file_name, int file_type )
     else if ( file_type == IMPORT_V2 )
     {
         return ImportV2File( file_name );
+    }
+    else if ( file_type == IMPORT_BEM )
+    {
+        GeomType type = GeomType( PROP_GEOM_TYPE, "PROP", true );
+        id = AddGeom( type );
+        if ( !id.compare( "NONE" ) )
+        {
+            return id;
+        }
+
+        Geom* new_geom = FindGeom( id );
+        if ( new_geom )
+        {
+            PropGeom* prop = dynamic_cast < PropGeom* > (new_geom );
+            if ( prop )
+            {
+                int validFlag = prop->ReadBEM( file_name.c_str() );
+
+                if ( !validFlag )
+                {
+                    DeleteGeom( id );
+                    id = "NONE";
+                }
+                else
+                {
+                    SetActiveGeom( id );
+                    prop->Update();
+                }
+            }
+        }
     }
     else
     {
@@ -2950,6 +3049,14 @@ void Vehicle::ExportFile( const string & file_name, int write_set, int file_type
     {
         WriteIGESFile( file_name, write_set );
     }
+    else if ( file_type == EXPORT_BEM )
+    {
+        WriteBEMFile( file_name, write_set );
+    }
+    else if ( file_type == EXPORT_DXF )
+    {
+        WriteDXFFile( file_name, write_set  );
+    }
 }
 
 void Vehicle::CreateDegenGeom( int set )
@@ -2971,7 +3078,7 @@ void Vehicle::CreateDegenGeom( int set )
                     DegenPtMass pm;
                     pm.name = g->GetName();
                     pm.mass = g->m_PointMass();
-                    pm.x = g->m_Origin;
+                    pm.x = g->m_BlankOrigin;
                     m_DegenPtMassVec.push_back( pm );
                 }
             }

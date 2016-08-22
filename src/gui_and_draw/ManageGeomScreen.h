@@ -23,7 +23,10 @@
 #include "StackScreen.h"
 #include "CustomScreen.h"
 #include "PtCloudScreen.h"
+#include "PropScreen.h"
+#include "HingeScreen.h"
 #include "DrawObj.h"
+#include "MultTransScreen.h"
 
 using std::string;
 using std::vector;
@@ -36,7 +39,7 @@ public:
 
     enum { POD_GEOM_SCREEN, FUSELAGE_GEOM_SCREEN, MS_WING_GEOM_SCREEN, BLANK_GEOM_SCREEN,
            MESH_GEOM_SCREEN, STACK_GEOM_SCREEN, CUSTOM_GEOM_SCREEN, PT_CLOUD_GEOM_SCREEN,
-           NUM_GEOM_SCREENS
+           PROP_GEOM_SCREEN, HINGE_GEOM_SCREEN, MULT_GEOM_SCREEN, NUM_GEOM_SCREENS
          };
 
     void Show();

@@ -59,7 +59,7 @@ void GeomCoreTestSuite::VehicleTest()
 
     Vehicle veh;
     GeomType type;
-    type.m_Type = POD_GEOM_TYPE;
+    type.m_Name = "POD";
 
     string id0 = veh.AddGeom( type );
     veh.AddActiveGeom( id0 );
@@ -202,6 +202,7 @@ void GeomCoreTestSuite::MeshIOTest()
     GeomType type;
     string out_file;
     type.m_Type = POD_GEOM_TYPE;
+    type.m_Name = "POD";
 
     string id0 = veh.AddGeom( type );
 

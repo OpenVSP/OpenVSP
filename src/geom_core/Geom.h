@@ -37,11 +37,18 @@
 
 class XSecSurf;
 
-//#define stringify( name ) # name
-
+// Type matching predominately performed by name matching -- use unique type names when
+// adding new Geom types.  However, custom geoms each get a new type name and must be
+// identified by matching ( type.m_Type == CUSTOM_GEOM_TYPE ).  Furthermore, this number
+// must not change in the future -- i.e. CUSTOM_GEOM_TYPE must always == 9.  Otherwise,
+// future users will not be able to open past files with custom geoms.
+//
+// In general, add any new XXX_GEOM_TYPE to this list before NUM_GEOM_TYPE and everything
+// will be OK.  (Don't alphabetize or re-order this list).
+//
 enum { BASE_GEOM_TYPE, XFORM_GEOM_TYPE, GEOM_GEOM_TYPE, POD_GEOM_TYPE, FUSELAGE_GEOM_TYPE,
        MS_WING_GEOM_TYPE, BLANK_GEOM_TYPE, MESH_GEOM_TYPE, STACK_GEOM_TYPE, CUSTOM_GEOM_TYPE,
-       PT_CLOUD_GEOM_TYPE, NUM_GEOM_TYPE,
+       PT_CLOUD_GEOM_TYPE, PROP_GEOM_TYPE, HINGE_GEOM_TYPE, NUM_GEOM_TYPE,
      };
 
 class GeomType
@@ -194,6 +201,7 @@ public:
     virtual void ForceUpdate();
 
     virtual int CountParents( int count );
+    virtual bool IsParentJoint();
 
     virtual void SetParentID( string id )
     {
@@ -315,10 +323,12 @@ public:
 
     Parm m_ULoc;                        // UV Attachment Parameters
     Parm m_WLoc;
-    BoolParm m_relFlag;                 // Bool Parm to determine relative or absolute transformations
 
     Parm m_Scale;                       // Scaling Parameter
     Parm m_LastScale;
+
+    vec3d m_AttachOrigin;
+    vector < vec3d > m_AttachAxis;
 
 protected:
 
@@ -392,6 +402,9 @@ public:
 
     virtual vec3d GetUWPt( const double &u, const double &w );
     virtual vec3d GetUWPt( const int &indx, const double &u, const double &w );
+
+    virtual bool CompRotCoordSys( const double &u, const double &w, Matrix4d &rotmat );
+    virtual bool CompTransCoordSys( const double &u, const double &w, Matrix4d &transmat );
 
     //==== XSec Surfs ====//
     virtual int GetNumXSecSurfs()
@@ -604,6 +617,7 @@ public:
     virtual void PasteXSec( int index )             {}
     virtual void InsertXSec( int index, int type )  {}
 
+    void WriteFeatureLinesDXF( FILE * file_name, const BndBox &dxfbox );
 
 protected:
 
@@ -632,6 +646,7 @@ protected:
     vector<DrawObj> m_WireShadeDrawObj_vec;
     vector<DrawObj> m_FeatureDrawObj_vec;
     DrawObj m_HighlightDrawObj;
+    vector<DrawObj> m_AxisDrawObj_vec;
 
     BndBox m_BBox;
 

@@ -150,6 +150,13 @@ vec3d operator*( const vec3d& a, double b )
 }
 
 //******* x = a * b ******//
+vec3d operator*( double b, const vec3d& a )
+{
+    vec3d ret( a.v[0] * b, a.v[1] * b, a.v[2] * b );
+    return ret;
+}
+
+//******* x = a * b ******//
 vec3d operator*( const vec3d& a, const vec3d& b )
 {
     vec3d ret( a.v[0] * b.v[0], a.v[1] * b.v[1], a.v[2] * b.v[2] );
@@ -1402,4 +1409,12 @@ double pnt_tri_min_dist( vec3d & v0, vec3d & v1, vec3d & v2, vec3d & pnt )
         return sqrt(d20);
 }
 
-
+namespace std
+{
+string to_string( const vec3d &v)
+{
+    return "x: " + std::to_string( v.x() ) +
+          " y: " + std::to_string( v.y() ) +
+          " z: " + std::to_string( v.z() );
+}
+}

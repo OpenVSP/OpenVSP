@@ -28,6 +28,7 @@ private:
     // Wing and edge, or trailing node this vortex belongs to
     
     int Wing_;
+    
     int Node_;
     
     // Wake points list
@@ -43,7 +44,7 @@ private:
     VSP_NODE TE_Node_;
     
     VSP_NODE *NodeList_;
-    
+
     // List of trailing vortices
     
     int NumberOfLevels_;
@@ -53,7 +54,7 @@ private:
     VSP_EDGE **VortexEdgeList_;
 
     VSP_EDGE *VortexEdgeList(int Level) { return VortexEdgeList_[Level]; };
-    
+  
     double **VortexEdgeVelocity_;
     
     double FreeStreamVelocity_[3];
@@ -74,11 +75,10 @@ private:
     
     double TEVec_[3];
     
-    // Pointers to circulation strengths
+    // Circulation strength
     
-    int VortexLoop1_;
-    int VortexLoop2_;
-    
+    int Evaluate_;
+
     double Gamma_;
 
     // Update gamma values for sub vortices
@@ -130,13 +130,12 @@ public:
     
     double &TEVec(int i) { return TEVec_[i]; };
     double *TEVec(void) { return TEVec_; };
+
+    // Evaluation flag... for agglomeration multipole routine
     
-    // Access to the two bounding vortex loops
+    int &Evaluate(void) { return Evaluate_; };
     
-    int &VortexLoop1(void) { return VortexLoop1_; };
-    int &VortexLoop2(void) { return VortexLoop2_; };
-    
-    // Access to the circulation strength
+    // Circulation strength
     
     double &Gamma(void) { return Gamma_; };
      
@@ -164,13 +163,17 @@ public:
     double &V(int i) { return VortexEdgeVelocity_[i][1]; };
     double &W(int i) { return VortexEdgeVelocity_[i][2]; };
     
+    double &Utmp(int i) { return VortexEdgeVelocity_[i][3]; };
+    double &Vtmp(int i) { return VortexEdgeVelocity_[i][4]; };
+    double &Wtmp(int i) { return VortexEdgeVelocity_[i][5]; };
+        
     // Free stream velocity
     
     double &FreeStreamVelocity(int i) { return FreeStreamVelocity_[i];};
     
     double *VortexEdgeVelocity(int i) { return VortexEdgeVelocity_[i]; };
     
-    void UpdateLocation(void);
+    void UpdateLocation(void);     
    
     void WriteToFile(FILE *adb_file);
 

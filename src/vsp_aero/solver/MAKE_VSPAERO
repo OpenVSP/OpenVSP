@@ -8,12 +8,13 @@
 ################################################################################
 .SUFFIXES:	.h .C .cc
 
-C_SRCS	=	    matrix.C	        \
+C_SRCS	=	matrix.C	        \
                 utils.C			     \
                 quat.C			     \
                 Vortex.C	    	   \
-	             Vortex_Trail.C		\
-                VSP_DegenGeom.C		\
+                Vortex_Trail.C		\
+		          Vortex_Sheet.C		\
+                VSP_Geom.C		\
                 VSP_Edge.C		      \
                 VSP_Grid.C	    	   \
                 VSP_Node.C		       \
@@ -22,6 +23,10 @@ C_SRCS	=	    matrix.C	        \
                 VSP_Surface.C		   \
 		          RotorDisk.C		    \
                 VSP_Agglom.C		   \
+		          time.C 			\
+                FEM_Node.C    \
+                ControlSurface.C    \
+                ControlSurfaceGroup.C    \
                 vspaero.C
           
         

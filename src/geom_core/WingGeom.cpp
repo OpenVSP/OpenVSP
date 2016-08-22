@@ -877,10 +877,10 @@ WingGeom::WingGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_TotalArea.Init( "TotalArea", m_Name, this, 1.0, 1e-10, 1.0e12 );
     m_TotalArea.SetDescript( "Total Planform Area" );
 
-    m_LECluster.Init( "LECluster", m_Name, this, 1.0, 0.0, 2.0 );
+    m_LECluster.Init( "LECluster", m_Name, this, 0.25, 0.0, 2.0 );
     m_LECluster.SetDescript( "LE Tess Cluster Control" );
 
-    m_TECluster.Init( "TECluster", m_Name, this, 1.0, 0.0, 2.0 );
+    m_TECluster.Init( "TECluster", m_Name, this, 0.25, 0.0, 2.0 );
     m_TECluster.SetDescript( "TE Tess Cluster Control" );
 
     //==== rename capping controls for wing specific terminology ====//
@@ -1497,11 +1497,11 @@ void WingGeom::UpdateDrawObj()
     //==== Tesselate Surface ====//
     for ( int i = 0 ; i < nxsec ; i++ )
     {
-        m_XSecDrawObj_vec[i].m_PntVec = m_XSecSurf.FindXSec( i )->GetDrawLines( m_TessW(), relTrans );
+        m_XSecDrawObj_vec[i].m_PntVec = m_XSecSurf.FindXSec( i )->GetDrawLines( relTrans );
         m_XSecDrawObj_vec[i].m_GeomChanged = true;
     }
 
-    m_HighlightXSecDrawObj.m_PntVec = m_XSecSurf.FindXSec( m_ActiveAirfoil )->GetDrawLines( m_TessW(), relTrans );
+    m_HighlightXSecDrawObj.m_PntVec = m_XSecSurf.FindXSec( m_ActiveAirfoil )->GetDrawLines( relTrans );
     m_HighlightXSecDrawObj.m_GeomChanged = true;
 
     double w = m_XSecSurf.FindXSec( m_ActiveAirfoil )->GetXSecCurve()->GetWidth();

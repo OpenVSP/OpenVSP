@@ -151,7 +151,7 @@ VspCurve& XSec::GetUntransformedCurve()
     return m_XSCurve->GetCurve();
 }
 
-vector< vec3d > XSec::GetDrawLines( int num_pnts, Matrix4d &transMat  )
+vector< vec3d > XSec::GetDrawLines( Matrix4d &transMat  )
 {
     vector< vec3d > lines;
 
@@ -315,6 +315,7 @@ void XSec::GetTanNormVec( double t, double theta, double phi, vec3d &tangent, ve
     // Rotate basis to specified slope.
     rmat.rotate( theta, updir );
     basis.postMult( rmat.data() );
+    rmat.loadIdentity();
     rmat.rotate( phi, wdir );
     basis.postMult( rmat.data() );
 
@@ -460,11 +461,14 @@ void XSec::GetAngStrCrv( double t, int irib,
     // Rotate basis to specified slope.
     rmat.rotate( thetaL, updir );
     basisL.postMult( rmat.data() );
+    rmat.loadIdentity();
     rmat.rotate( phiL, wdir );
     basisL.postMult( rmat.data() );
 
+    rmat.loadIdentity();
     rmat.rotate( thetaR, updir );
     basisR.postMult( rmat.data() );
+    rmat.loadIdentity();
     rmat.rotate( phiR, wdir );
     basisR.postMult( rmat.data() );
 
@@ -1646,7 +1650,7 @@ FuseXSec::FuseXSec( XSecCurve *xsc ) : SkinXSec( xsc)
     m_YRotate.Init( "YRotate", m_GroupName, this,  0.0, -180.0, 180.0 );
     m_YRotate.SetDescript( "Rotation about y-axis of cross section" );
     m_ZRotate.Init( "ZRotate", m_GroupName, this,  0.0, -180.0, 180.0 );
-    m_YRotate.SetDescript( "Rotation about z-axis of cross section" );
+    m_ZRotate.SetDescript( "Rotation about z-axis of cross section" );
 
     m_Spin.Init( "Spin", m_GroupName, this, 0.0, -180.0, 180.0 );
 
@@ -1873,7 +1877,7 @@ StackXSec::StackXSec( XSecCurve *xsc ) : SkinXSec( xsc)
     m_YRotate.Init( "YRotate", m_GroupName, this,  0.0, -180.0, 180.0 );
     m_YRotate.SetDescript( "Rotation about y-axis of cross section" );
     m_ZRotate.Init( "ZRotate", m_GroupName, this,  0.0, -180.0, 180.0 );
-    m_YRotate.SetDescript( "Rotation about z-axis of cross section" );
+    m_ZRotate.SetDescript( "Rotation about z-axis of cross section" );
 
     m_XCenterRot.Init( "m_XCenterRot", m_GroupName, this,  0.0, -1.0e12, 1.0e12 );
     m_XCenterRot.SetDescript( "X Center Of Rotation" );

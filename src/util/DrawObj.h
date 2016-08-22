@@ -367,7 +367,16 @@ protected:
 
 };
 
+void MakeArrowhead( const vec3d &ptip, const vec3d &uref, double len, vector < vec3d > &pts );
+void MakeArrowhead( const vec3d &ptip, const vec3d &uref, double len, DrawObj &dobj );
 
+void MakeCircle( const vec3d &pcen, const vec3d &norm, double rad, vector < vec3d > &pts );
+void MakeCircle( const vec3d &pcen, const vec3d &norm, const vec3d &pstart, vector < vec3d > &pts );
+void MakeCircle( const vec3d &pcen, const vec3d &norm, double rad, DrawObj &dobj );
+
+void MakeCircleArrow( const vec3d &pcen, const vec3d &norm, double rad, DrawObj &dobj, DrawObj &arrow );
+
+void MakeDashedLine( const vec3d &pstart, const vec3d &pend, int ndash, vector < vec3d > &dashpts );
 
 #endif
 

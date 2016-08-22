@@ -15,12 +15,24 @@
 #include "VSP_Node.H"
 #include "VSP_Loop.H"
 #include "VSP_Grid.H"
+#include "VSP_Surface.H"
 
 #define CORNER_BC        1
 #define TE_EDGE_BC       2
 #define LE_EDGE_BC       3
 #define BOUNDARY_EDGE_BC 4
 #define INTERIOR_EDGE_BC 5
+
+// Small stack list class
+
+class EDGE_STACK_LIST {
+   
+public:
+
+    int Edge;
+    int Side[2];
+    
+};
 
 // Definition of the VSP_AGGLOM class
 
@@ -43,6 +55,10 @@ private:
     int *VortexLoopWasAgglomerated_;
     int *CoarseEdgeList_;    
     int *CoarseNodeList_;
+    int *EdgeDegree_;
+    int *FrontEdgeQueue_;
+    int NextEdgeInQueue_;
+    int NumberOfEdgesInQueue_;
     int NextBestEdgeOnFront_;
     
     // Scratch arrays
@@ -53,33 +69,67 @@ private:
     int StackSize_;
 
     // Agglomeration Routines
+    
+    int NumberOfLoopsMerged_;
+    
+    int *NodeOnSurfaceBorder_;
    
     void InitializeFront_(void);
     
     int NextAgglomerationEdge_(void);
+    int NextAgglomerationEdgeOld_(void);
     
     void UpdateFront_(void);
     
     void MergeVortexLoops_(void);
     
-    void CleanUpLoneLoops_(void);
+    void CheckLoopQuality_(void);
     
     void CreateCoarseMesh_(void);
+    
+    VSP_GRID* MergeCoLinearEdges_(void);
            
     VSP_GRID* Agglomerate_(VSP_GRID &Grid);
 
-    // Simplify mesh routines
-    
+    // Simplify and clean up mesh routines
+ 
     VSP_GRID* SimplifyMesh_(VSP_GRID &Grid);
     
+    void CheckMesh_(VSP_GRID &ThisGrid);
+    
     void CreateMixedMesh_(void);
+    
+    VSP_GRID* DeleteDuplicateNodes_(VSP_GRID &Grid);
+    
+    void CleanUpMesh_(void);
+    
+    void CleanUpFans_(void);
+    
+    void CleanUpHighAspectRatioTris_(void);
 
-    void FindNeighborLoopOnEdge_(VSP_GRID &ThisGrid, int Tri, int LocalEdge, 
+    void CleanUpSmallAreaLoops_(void);
+
+    void FindNeighborLoopOnLocalEdge_(VSP_GRID &ThisGrid, int Tri, int LocalEdge, 
+                                      int &NeighborTri, int &Node1, int &Node2);
+
+    void FindNeighborLoopOnEdge_(VSP_GRID &ThisGrid, int Tri, int Edge, 
                                  int &NeighborTri, int &Node1, int &Node2);
 
     double CalculateQuadQuality_(VSP_GRID &ThisGrid, int Node1,
                                  int Node2, int Node3, int Node4);    
                                  
+    int BadTriangle_(VSP_GRID &ThisGrid, int Loop, int &MinEdge);
+    
+    double CalculateAspectRatioOld_(VSP_GRID &ThisGrid, int Loop);
+    
+    int LoopsAreCoplanar_(VSP_GRID &ThisGrid, int Loop1, int Loop2, double MaxAngle);
+    
+    int EdgesAreColinear_(VSP_GRID &ThisGrid, int Edge1, int Edge2, double MaxAngle);
+
+    int MergedLoopsAreConvex_(VSP_GRID &ThisGrid, int Loop1, int Loop2, double MaxAngle);
+    
+    double CalculateLoopAngle_(VSP_GRID &ThisGrid, int Loop, int Node);
+                                  
     // Initialization
     
     void Initialize_(void);

@@ -54,36 +54,46 @@ endif()
 if(BUILD_VSPAERO)
 
   ADD_EXECUTABLE(vspaero
+  ControlSurface.C
+  ControlSurfaceGroup.C
+  FEM_Node.C
   RotorDisk.C
   VSP_Agglom.C
-  VSP_DegenGeom.C
   VSP_Edge.C
+  VSP_Geom.C
   VSP_Grid.C
   VSP_Loop.C
   VSP_Node.C
   VSP_Solver.C
   VSP_Surface.C
   Vortex.C
+  Vortex_Sheet.C
   Vortex_Trail.C
   matrix.C
   quat.C
+  time.C
   utils.C
   vspaero.C
   CharSizes.H
+  ControlSurface.H
+  ControlSurfaceGroup.H
+  FEM_Node.C
   RotorDisk.H
   VSPAERO_OMP.H
   VSP_Agglom.H
-  VSP_DegenGeom.H
   VSP_Edge.H
+  VSP_Geom.H
   VSP_Grid.H
   VSP_Loop.H
   VSP_Node.H
   VSP_Solver.H
   VSP_Surface.H
   Vortex.H
+  Vortex_Sheet.H
   Vortex_Trail.H
   matrix.H
   quat.H
+  time.H
   utils.H
   )
 

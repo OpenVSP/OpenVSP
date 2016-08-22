@@ -294,7 +294,7 @@ public:
     {
         return area( m_N0->m_Pnt, m_N1->m_Pnt, m_N2->m_Pnt );
     }
-    virtual double ComputeAwArea()
+    virtual double ComputeYZArea()
     {
         vec3d t1, t2, t3;
         t1.set_xyz( 0.0, m_N0->m_Pnt.y(), m_N0->m_Pnt.z() );
@@ -434,6 +434,7 @@ public:
 
     double m_TheoArea;
     double m_WetArea;
+    vector < double > m_CompAreaVec;
     double m_TheoVol;
     double m_GuessVol;
     double m_WetVol;
@@ -449,12 +450,14 @@ public:
     void DeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec );
     void MassDeterIntExt( vector< TMesh* >& meshVec );
     void MassDeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec );
+    void WaveDeterIntExt( vector< TMesh* >& meshVec );
+    void WaveDeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec );
 
     void LoadBndBox();
 
     virtual double ComputeTheoArea();
     virtual double ComputeWetArea();
-    virtual double ComputeAwaveArea();
+    virtual double ComputeWaveDragArea( const std::map< string, int > &idmap );
     virtual double ComputeTheoVol();
     virtual double ComputeTrimVol();
 

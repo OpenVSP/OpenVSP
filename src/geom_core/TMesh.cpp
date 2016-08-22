@@ -858,6 +858,56 @@ void TMesh::MassDeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec )
     }
 }
 
+void TMesh::WaveDeterIntExt( vector< TMesh* >& meshVec )
+{
+    for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
+    {
+        TTri* tri = m_TVec[t];
+
+        //==== Do Interior Tris ====//
+        if ( tri->m_SplitVec.size() )
+        {
+            tri->m_InteriorFlag = 1;
+            for ( int s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
+            {
+                WaveDeterIntExtTri( tri->m_SplitVec[s], meshVec );
+            }
+        }
+        else
+        {
+            WaveDeterIntExtTri( tri, meshVec );
+        }
+    }
+}
+
+void TMesh::WaveDeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec )
+{
+    vec3d orig = ( tri->m_N0->m_Pnt + tri->m_N1->m_Pnt ) * 0.5;
+    orig = ( orig + tri->m_N2->m_Pnt ) * 0.5;
+    tri->m_InteriorFlag = 0;
+    int prior = -1;
+
+    vec3d dir( 1.0, 0.000001, 0.000001 );
+
+    for ( int m = 0 ; m < ( int )meshVec.size() ; m++ )
+    {
+        if ( meshVec[m] != this )
+        {
+            vector<double > tParmVec;
+            meshVec[m]->m_TBox.RayCast( orig, dir, tParmVec );
+            if ( tParmVec.size() % 2 )
+            {
+                if ( meshVec[m]->m_MassPrior > prior )
+                {
+                    tri->m_InteriorFlag = 1;
+                    tri->m_ID = meshVec[m]->m_PtrID;
+                    prior = meshVec[m]->m_MassPrior;
+                }
+            }
+        }
+    }
+}
+
 double TMesh::ComputeTheoArea()
 {
     m_TheoArea = 0;
@@ -903,7 +953,7 @@ double TMesh::ComputeWetArea()
     return m_WetArea;
 }
 
-double TMesh::ComputeAwaveArea()
+double TMesh::ComputeWaveDragArea( const std::map< string, int > &idmap )
 {
     m_WetArea = 0;
     m_AreaCenter = vec3d(0,0,0);
@@ -913,23 +963,36 @@ double TMesh::ComputeAwaveArea()
         TTri* tri = m_TVec[t];
 
         //==== Do Interior Tris ====//
+        // For WaveDragArea, they should all be split tris by definition.
         if ( tri->m_SplitVec.size() )
         {
             for ( int s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
             {
                 if ( !tri->m_SplitVec[s]->m_InteriorFlag )
                 {
-                    double area = tri->m_SplitVec[s]->ComputeAwArea();
+                    double area = tri->m_SplitVec[s]->ComputeYZArea();
                     m_AreaCenter = m_AreaCenter + tri->m_SplitVec[s]->ComputeCenter()*area;
                     m_WetArea += area;
+
+                    std::map<string, int>::const_iterator it = idmap.find( tri->m_SplitVec[s]->m_ID );
+                    if ( it != idmap.end() )
+                    {
+                        m_CompAreaVec[ it->second ] += area;
+                    }
                 }
             }
         }
         else if ( !tri->m_InteriorFlag )
         {
-            double area = tri->ComputeAwArea();
+            double area = tri->ComputeYZArea();
             m_AreaCenter = m_AreaCenter + tri->ComputeCenter()*area;
             m_WetArea += area;
+
+            std::map<string, int>::const_iterator it = idmap.find( tri->m_ID );
+            if ( it != idmap.end() )
+            {
+                m_CompAreaVec[ it->second ] += area;
+            }
         }
     }
     m_AreaCenter = m_AreaCenter/m_WetArea;
@@ -1095,6 +1158,8 @@ void TMesh::AddUWTri( const vec3d & uw0, const vec3d & uw1, const vec3d & uw2, c
 
 void TMesh::LoadBndBox()
 {
+    m_TBox.Reset();
+
     for ( int i = 0 ; i < ( int )m_TVec.size() ; i++ )
     {
         m_TBox.AddTri( m_TVec[i] );

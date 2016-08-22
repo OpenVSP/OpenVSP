@@ -1112,6 +1112,8 @@ void MATRIX::LU_pivot(int *indx)
     float big,dum,sum,d,tiny;
     double *ans;
 
+    imax = 0;
+
     // find LU decomposition of matrix using Crout's algorithm - with pivots
     // From 'Numerical Recipes in C, 2nd edition' pp 46-47
 
@@ -1190,7 +1192,7 @@ void MATRIX::LU_pivot(int *indx)
 
         }
 
-        }
+    }
 
     if ( j != imax ) {
 
@@ -1318,6 +1320,7 @@ void MATRIX::solve_vdk(MATRIX &vec)
 
     ii= 0;
 
+    assert( num <= neq ); // check for WRITE overruns on next line
     for ( i = 1 ; i <= num ; i++ ) {
 
        ip = indx[i];

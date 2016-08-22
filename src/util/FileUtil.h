@@ -19,6 +19,7 @@ string PathToHome();
 
 bool CheckForFile( const string & path, string &file );
 bool FileExist( const string & file );
+string GetFilename( const string &pathfile );
 
 #endif
 

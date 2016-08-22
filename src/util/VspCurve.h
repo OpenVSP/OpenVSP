@@ -105,6 +105,8 @@ public:
 
     void Transform( Matrix4d & mat );
 
+    void Scale( double s );
+
     void ReflectXY();
     void ReflectXZ();
     void ReflectYZ();

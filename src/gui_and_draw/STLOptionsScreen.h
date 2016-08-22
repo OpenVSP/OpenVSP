@@ -18,7 +18,7 @@
 class STLOptionsScreen : public BasicScreen
 {
 public:
-	STLOptionsScreen( ScreenMgr* mgr );
+    STLOptionsScreen( ScreenMgr* mgr );
     virtual ~STLOptionsScreen();
 
     void Show();

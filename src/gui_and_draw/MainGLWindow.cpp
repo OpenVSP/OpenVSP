@@ -35,6 +35,7 @@
 #include "Clipping.h"
 #include "BndBox.h"
 #include "ManageViewScreen.h"
+#include "WaveDragScreen.h"
 
 #define PRECISION_PAN_SPEED 0.005f
 #define PAN_SPEED 0.025f
@@ -330,6 +331,14 @@ void VspGlWindow::update()
         if( clipScreen )
         {
             clipScreen->LoadDrawObjs( drawObjs );
+        }
+
+        // Load Render Objects from WDSrceen ( Wave Drag Tool)
+        WaveDragScreen * WDScreen = dynamic_cast< WaveDragScreen* >
+            ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_WAVEDRAG_SCREEN ) );
+        if( WDScreen )
+        {
+            WDScreen->LoadDrawObjs( drawObjs );
         }
 
         // Load Objects to Renderer.
@@ -1725,7 +1734,7 @@ int VspGlWindow::OnKeyup( int x, int y )
         if( Fl::event_button3() )
         {
             m_prevRB = glm::vec2( x, y );
-        }		
+        }
         break;
 
     case FL_Control_L:
@@ -1746,7 +1755,7 @@ int VspGlWindow::OnKeyup( int x, int y )
         if( Fl::event_button3() )
         {
             m_prevRB = glm::vec2( x, y );
-        }		
+        }
         break;
 
     case FL_Meta_L:
@@ -1767,7 +1776,7 @@ int VspGlWindow::OnKeyup( int x, int y )
         if( Fl::event_button3() )
         {
             m_prevRB = glm::vec2( x, y );
-        }		
+        }
         break;
     }
     redraw();

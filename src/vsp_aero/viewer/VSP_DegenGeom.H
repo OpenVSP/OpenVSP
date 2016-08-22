@@ -16,8 +16,9 @@
 #include "VSP_Wing.H"
 #include "VSP_Body.H"
 
-#define WING_SURFACE 1
-#define BODY_SURFACE 2  
+#define WING_SURFACE   1
+#define BODY_SURFACE   2  
+#define CART3D_SURFACE 3
 
 // Definition of the VSP_DEGEN_GEOM_H class
 

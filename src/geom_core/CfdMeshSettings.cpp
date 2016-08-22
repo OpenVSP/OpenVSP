@@ -220,12 +220,12 @@ void CfdMeshSettings::SetAllFileExportFlags( bool flag )
 {
     for ( int i = 0 ; i < vsp::CFD_NUM_FILE_NAMES ; i++ )
     {
-		m_ExportFileFlags[i] = flag;
-	}
+        m_ExportFileFlags[i] = flag;
+    }
 }
 
 void CfdMeshSettings::SetFileExportFlag( int type, bool flag )
 {
-	if ( type >= 0 && type < vsp::CFD_NUM_FILE_NAMES )
-		m_ExportFileFlags[type] = flag;
+    if ( type >= 0 && type < vsp::CFD_NUM_FILE_NAMES )
+        m_ExportFileFlags[type] = flag;
 }

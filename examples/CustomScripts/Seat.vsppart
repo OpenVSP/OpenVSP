@@ -11,6 +11,9 @@ void Init()
 	string seat_height   = AddParm( PARM_DOUBLE_TYPE, "SeatHeight", "Design" );
 	SetParmValLimits( seat_height, 0.35, 0.001, 1.0e12 );
 
+	string seat_length   = AddParm( PARM_DOUBLE_TYPE, "SeatLength", "Design" );
+	SetParmValLimits( seat_length, 0.5, 0.001, 1.0e12 );
+
 	string back_height   = AddParm( PARM_DOUBLE_TYPE, "BackHeight", "Design" );
 	SetParmValLimits( back_height, 1.0, 0.001, 1.0e12 );
 
@@ -45,6 +48,7 @@ void Init()
 int DesignTab;
 int WidthSlider;
 int SeatHeightSlider;
+int SeatLengthSlider;
 int BackHeightSlider;
 int BackThickSlider;
 int BackAngleSlider;
@@ -57,6 +61,7 @@ void InitGui()
 	AddGui( GDEV_DIVIDER_BOX, "Design" );
 	WidthSlider = AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Width"  );
 	SeatHeightSlider = AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Seat_Ht"  );
+	SeatLengthSlider = AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Seat_Length"  );
 	AddGui( GDEV_YGAP  );
 	BackHeightSlider = AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Back_Ht"  );
 	BackThickSlider = AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Back_Thick"  );
@@ -70,7 +75,8 @@ void UpdateGui()
 	string geom_id = GetCurrCustomGeom();
 
 	UpdateGui( WidthSlider, GetParm( geom_id, "Width", "Design" ) ); 
-	UpdateGui( SeatHeightSlider, GetParm( geom_id, "SeatHeight", "Design" ) ); 
+	UpdateGui( SeatHeightSlider, GetParm( geom_id, "SeatHeight", "Design" ) );
+	UpdateGui( SeatLengthSlider, GetParm( geom_id, "SeatLength", "Design" ) ); 
 	UpdateGui( BackHeightSlider, GetParm( geom_id, "BackHeight", "Design" ) ); 
 	UpdateGui( BackThickSlider, GetParm( geom_id, "BackThick", "Design" ) ); 
 	UpdateGui( BackAngleSlider, GetParm( geom_id, "BackAngle", "Design" ) ); 
@@ -84,11 +90,10 @@ void UpdateSurf()
 	//==== Get The Current Vals ====//
 	double w  = GetParmVal( GetParm( geom_id, "Width", "Design" ) );
 	double sh = GetParmVal( GetParm( geom_id, "SeatHeight", "Design" ) );
+	double seat_len = GetParmVal( GetParm( geom_id, "SeatLength", "Design" ) );
 	double bh = GetParmVal( GetParm( geom_id, "BackHeight", "Design" ) );
 	double bt = GetParmVal( GetParm( geom_id, "BackThick", "Design" ) );
 	double ba = 90 + GetParmVal( GetParm( geom_id, "BackAngle", "Design" ) );
-
-	double seat_len = .5;
 
 	//==== Build Seat Bottom ====//
 	string seat_surf = GetXSecSurf( geom_id, 0 );
@@ -145,3 +150,27 @@ void UpdateSurf()
 
 }
 
+
+//==== Optional Scale =====//
+void Scale(double curr_scale )
+{
+    string geom_id = GetCurrCustomGeom();
+
+    string width = GetParm( geom_id, "Width", "Design" );
+    string seat_height = GetParm( geom_id, "SeatHeight", "Design" );
+    string seat_length = GetParm( geom_id, "SeatLength", "Design" );
+    string back_height = GetParm( geom_id, "BackHeight", "Design" );
+    string back_thick = GetParm( geom_id, "BackThick", "Design" );
+
+    double width_v = curr_scale*GetParmVal( width );
+    double seat_height_v = curr_scale*GetParmVal( seat_height );
+    double seat_length_v = curr_scale*GetParmVal( seat_length );
+    double back_height_v = curr_scale*GetParmVal( back_height );
+    double back_thick_v = curr_scale*GetParmVal( back_thick );
+
+    SetParmVal( width, width_v );
+    SetParmVal( seat_height, seat_height_v );
+    SetParmVal( seat_length, seat_length_v );
+    SetParmVal( back_height, back_height_v );
+    SetParmVal( back_thick, back_thick_v );
+}

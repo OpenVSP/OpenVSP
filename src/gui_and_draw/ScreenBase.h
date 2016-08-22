@@ -254,8 +254,8 @@ public:
     ToggleButton m_RotUVButton;
     ToggleRadioGroup m_RotToggleGroup;
 
-    SliderInput m_AttachUSlider;
-    SliderInput m_AttachVSlider;
+    SliderAdjRangeInput m_AttachUSlider;
+    SliderAdjRangeInput m_AttachVSlider;
 
     //====== SubSurface Tab =====//
     int m_SubSurfTab_ind;
@@ -325,6 +325,9 @@ public:
     ToggleButton m_SSConOutsideButton;
     ToggleRadioGroup m_SSConTestToggleGroup;
     Choice m_SSConSurfTypeChoice;
+
+protected:
+    bool m_RotActive;
 };
 
 //==== Skin Screen ====//

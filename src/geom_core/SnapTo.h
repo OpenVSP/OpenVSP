@@ -19,7 +19,7 @@
 class SnapTo : public ParmContainer
 {
 public:
-	SnapTo();
+    SnapTo();
     virtual ~SnapTo();
     virtual void ParmChanged( Parm* parm_ptr, int type );
 

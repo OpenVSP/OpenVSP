@@ -186,3 +186,27 @@ void BuildBox( string surf_id, double length, double width, double height )
 	SetParmVal( GetXSecParm( xsec2, "RoundRectXSec_Radius" ), 0.0 );
 	SetCustomXSecLoc( xsec2, vec3d( length, 0, 0 ) );
 }
+
+//==== Optional Scale =====//
+void Scale(double curr_scale )
+{
+    string geom_id = GetCurrCustomGeom();
+
+    string len_id = GetParm( geom_id, "Length", "Design" );
+    string width_id = GetParm( geom_id, "Width", "Design" );
+    string height_id = GetParm( geom_id, "Height", "Design" );
+    string gap_row_id = GetParm( geom_id, "GapRow", "Design" );
+    string gap_col_id = GetParm( geom_id, "GapCol", "Design" );
+
+    double len  = curr_scale*GetParmVal( len_id );
+    double w  = curr_scale*GetParmVal( width_id );
+    double h  = curr_scale*GetParmVal( height_id );
+    double gr  = curr_scale*GetParmVal( gap_row_id );
+    double gc  = curr_scale*GetParmVal( gap_col_id );
+
+    SetParmVal( len_id, len );
+    SetParmVal( width_id, w );
+    SetParmVal( height_id, h );
+    SetParmVal( gap_row_id, gr );
+    SetParmVal( gap_col_id, gc );
+}

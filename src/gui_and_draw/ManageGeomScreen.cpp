@@ -211,8 +211,12 @@ void ManageGeomScreen::LoadBrowser()
                 str.append( "--" );
             }
 
-            if ( gPtr->m_TransAttachFlag() == GeomXForm::ATTACH_TRANS_NONE &&
-                    gPtr->m_RotAttachFlag() == GeomXForm::ATTACH_ROT_NONE )
+            if ( gPtr->IsParentJoint() )
+            {
+                str.append( "^^ " );
+            }
+            else if ( gPtr->m_TransAttachFlag() == GeomXForm::ATTACH_TRANS_NONE &&
+                      gPtr->m_RotAttachFlag() == GeomXForm::ATTACH_ROT_NONE )
             {
                 str.append( "> " );
             }
@@ -501,6 +505,8 @@ void ManageGeomScreen::SelectAll()
 
     LoadActiveGeomOutput();
 
+    m_GeomScreenVec[MULT_GEOM_SCREEN]->Show();
+
 //jrg FIX!!!
 //  aircraftPtr->triggerDraw();
 
@@ -618,6 +624,9 @@ void ManageGeomScreen::CreateScreens()
     m_GeomScreenVec[STACK_GEOM_SCREEN] = new StackScreen( m_ScreenMgr );
     m_GeomScreenVec[CUSTOM_GEOM_SCREEN] = new CustomScreen( m_ScreenMgr );
     m_GeomScreenVec[PT_CLOUD_GEOM_SCREEN] = new PtCloudScreen( m_ScreenMgr );
+    m_GeomScreenVec[PROP_GEOM_SCREEN] = new PropScreen( m_ScreenMgr );
+    m_GeomScreenVec[HINGE_GEOM_SCREEN] = new HingeScreen( m_ScreenMgr );
+    m_GeomScreenVec[MULT_GEOM_SCREEN] = new MultTransScreen( m_ScreenMgr );
 
     for ( int i = 0 ; i < ( int )m_GeomScreenVec.size() ; i++ )
     {
@@ -816,6 +825,7 @@ std::string ManageGeomScreen::getFeedbackGroupName()
 
 void ManageGeomScreen::Set( std::string geomId )
 {
+    printf("%s\n", geomId.c_str());
     m_VehiclePtr->SetActiveGeom(geomId);
 
     ShowHideGeomScreens();

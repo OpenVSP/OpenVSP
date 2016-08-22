@@ -45,6 +45,11 @@ void Matrix4d::translatef( const double &x, const double &y, const double &z )
 
 }
 
+void Matrix4d::translatev( const vec3d &v )
+{
+    translatef( v.x(), v.y(), v.z() );
+}
+
 void Matrix4d::rotateX( const double &ang )
 {
     double tmat[16];
@@ -150,19 +155,23 @@ void Matrix4d::rotate( const double &angle, const vec3d & axis )
     double z = a[2];
     double m  = 1.0 - c;
 
-    loadIdentity();
+    double tmat[16];
 
-    mat[0]      = x * x * ( m ) + c;
-    mat[4]      = y * x * ( m ) + z * s;
-    mat[8]      = x * z * ( m ) - y * s;
+    setIdentity( tmat );
 
-    mat[1]      = x * y * ( m ) - z * s;
-    mat[5]      = y * y * ( m ) + c;
-    mat[9]      = y * z * ( m ) + x * s;
+    tmat[0]      = x * x * ( m ) + c;
+    tmat[4]      = y * x * ( m ) + z * s;
+    tmat[8]      = x * z * ( m ) - y * s;
 
-    mat[2]      = x * z * ( m ) + y * s;
-    mat[6]      = y * z * ( m ) - x * s;
-    mat[10]      = z * z * ( m ) + c;
+    tmat[1]      = x * y * ( m ) - z * s;
+    tmat[5]      = y * y * ( m ) + c;
+    tmat[9]      = y * z * ( m ) + x * s;
+
+    tmat[2]      = x * z * ( m ) + y * s;
+    tmat[6]      = y * z * ( m ) - x * s;
+    tmat[10]      = z * z * ( m ) + c;
+
+    matMult( tmat );
 }
 
 void Matrix4d::rotatealongX( const vec3d & dir )
@@ -225,6 +234,11 @@ void Matrix4d::scale( const double &scale )
     mat[10] *= scale;
 }
 
+void Matrix4d::flipx()
+{
+    mat[0] *= -1.0;
+}
+
 vec3d Matrix4d::xform( const vec3d & in ) const
 {
     vec3d out;
@@ -232,6 +246,14 @@ vec3d Matrix4d::xform( const vec3d & in ) const
     out[1] = mat[1] * in[0] + mat[5] * in[1] + mat[9] * in[2] + mat[13];
     out[2] = mat[2] * in[0] + mat[6] * in[1] + mat[10] * in[2] + mat[14];
     return out;
+}
+
+void Matrix4d::xformvec( std::vector < vec3d > & in ) const
+{
+    for ( int i = 0; i < in.size(); i++ )
+    {
+        in[i] = xform( in[i] );
+    }
 }
 
 vec3d Matrix4d::getAngles() const
@@ -306,5 +328,15 @@ void Matrix4d::getBasis( vec3d &xdir, vec3d &ydir, vec3d &zdir )
         xdir.v[i] = mat[ i ];
         ydir.v[i] = mat[ i + 4 ];
         zdir.v[i] = mat[ i + 8 ];
+    }
+}
+
+void Matrix4d::setBasis( const vec3d &xdir, const vec3d &ydir, const vec3d &zdir )
+{
+    for( int i = 0; i < 3; i++ )
+    {
+        mat[ i ] = xdir.v[i];
+        mat[ i + 4 ] = ydir.v[i];
+        mat[ i + 8 ] = zdir.v[i];
     }
 }

@@ -10,6 +10,7 @@
 #include "XSecSurf.h"
 #include "WingGeom.h"
 #include "CustomGeom.h"
+#include "PropGeom.h"
 #include "StlHelper.h"
 #include "APIDefines.h"
 using namespace vsp;
@@ -194,6 +195,10 @@ XSec* XSecSurf::CreateXSec( int type )
         else if ( m_XSecType == XSEC_CUSTOM )
         {
              xsec_ptr = ( XSec* ) new CustomXSec( xscrv_ptr );
+        }
+        else if ( m_XSecType == XSEC_PROP )
+        {
+             xsec_ptr = ( XSec* ) new PropXSec( xscrv_ptr );
         }
         else
         {

@@ -26,6 +26,8 @@
 #include "STEPutil.h"
 #include "XferSurf.h"
 #include "MaterialMgr.h"
+#include "WaveDragMgr.h"
+#include "GroupTransformations.h"
 
 #include <assert.h>
 
@@ -195,6 +197,8 @@ public:
     void WritePovRayFile( const string & file_name, int write_set );
     void WriteSTEPFile( const string & file_name, int write_set );
     void WriteIGESFile( const string & file_name, int write_set );
+    void WriteBEMFile( const string & file_name, int write_set );
+    void WriteDXFFile( const string & file_name, int write_set );
 
     void FetchXFerSurfs( int write_set, vector< XferSurf > &xfersurfs );
     //==== Computation File Names ====//
@@ -222,16 +226,12 @@ public:
     string CompGeomAndFlatten( int set, int halfFlag, int intSubsFlag = 1 );
     string MassProps( int set, int numSlices, bool hidegeom = true, bool writefile = true );
     string MassPropsAndFlatten( int set, int numSlices, bool hidegeom = true, bool writefile = true );
-    string AwaveSlice( int set, int numSlices, int numRots, double AngleControlVal, bool computeAngle,
-                       vec3d norm, bool autoBoundsFlag, double start = 0, double end = 0 );
-    string AwaveSliceAndFlatten( int set, int numSlices, int numRots, double AngleControlVal, bool computeAngle,
-                                 vec3d norm, bool autoBoundsFlag, double start = 0, double end = 0 );
     string PSlice( int set, int numSlices, vec3d norm, bool autoBoundsFlag, double start = 0, double end = 0 );
     string PSliceAndFlatten( int set, int numSlices, vec3d norm, bool autoBoundsFlag, double start = 0, double end = 0 );
 
     //==== Degenerate Geometry ====//
     void CreateDegenGeom( int set );
-    vector< DegenGeom > GetDegenGeomVec()	{ return m_DegenGeomVec; }
+    vector< DegenGeom > GetDegenGeomVec()    { return m_DegenGeomVec; }
     string WriteDegenGeomFile();
 
     CfdMeshSettings* GetCfdSettingsPtr()
@@ -257,6 +257,12 @@ public:
     SnapTo* GetSnapToPtr()
     {
         return &m_SnapTo;
+    }
+
+    // ==== Getter for GroupTransformations ==== //
+    GroupTransformations* GetGroupTransformationsPtr()
+    {
+        return &m_GroupTransformations;
     }
 
     //==== Mass Properties ====//
@@ -285,12 +291,30 @@ public:
     BoolParm m_IGESToCubic;
     Parm m_IGESToCubicTol;
 
+    IntParm m_DXFLenUnit;
+    IntParm m_2DView;
+    IntParm m_2D3DFlag;
+    BoolParm m_3DExport;
+    BoolParm m_2DExport;
+    IntParm m_4View1;
+    IntParm m_4View2;
+    IntParm m_4View3;
+    IntParm m_4View4;
+    IntParm m_4View1_rot;
+    IntParm m_4View2_rot;
+    IntParm m_4View3_rot;
+    IntParm m_4View4_rot;
+
+    string m_BEMPropID;
+
     BoolParm m_STLMultiSolid;
 
     BoolParm m_exportCompGeomCsvFile;
     BoolParm m_exportDragBuildTsvFile;
     BoolParm m_exportDegenGeomCsvFile;
     BoolParm m_exportDegenGeomMFile;
+
+    Parm m_AxisLength;
 
 protected:
 
@@ -341,6 +365,9 @@ protected:
     SnapTo m_SnapTo;
 
     VehicleGuiDraw m_VGuiDraw;
+
+    // Class to handle group transformations
+    GroupTransformations m_GroupTransformations;
 
 private:
 

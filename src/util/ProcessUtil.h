@@ -22,6 +22,8 @@ using std::vector;
 #define PIPE_READ 0
 #define PIPE_WRITE 1
 
+void SleepForMilliseconds( unsigned int sleep_time);
+
 class ProcessUtil
 {
 public:
@@ -36,6 +38,10 @@ public:
     void Kill();
 
     bool IsRunning();
+
+    void ReadStdoutPipe(char * buf, int bufsize, unsigned long * nread );
+
+    string PrettyCmd( const string &path, const string &cmd, const vector<string> &opts ); //returns a command string that could be used on the command line
 
 #ifdef WIN32
     string QuoteString( const string &str );

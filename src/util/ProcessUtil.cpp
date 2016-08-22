@@ -21,6 +21,16 @@
 #include <signal.h>
 #endif
 
+
+void SleepForMilliseconds( unsigned int sleep_time)
+{
+#ifdef WIN32
+    Sleep( sleep_time );
+#else
+    usleep( sleep_time*1000 );
+#endif
+}
+
 ProcessUtil::ProcessUtil()
 {
 #ifdef WIN32
@@ -63,7 +73,7 @@ int ProcessUtil::SystemCmd( const string &path, const string &cmd, const vector<
 {
 #ifdef WIN32
     string command = string( "start " ) + path + string("\\") + cmd;
-    for( int i = 0; i < opts.size(); i++ )
+    for( unsigned int i = 0; i < opts.size(); i++ )
     {
         command += string(" ") + opts[i];
     }
@@ -72,7 +82,7 @@ int ProcessUtil::SystemCmd( const string &path, const string &cmd, const vector<
 
 #else
     string command = path + string("/") + cmd;
-    for( int i = 0; i < opts.size(); i++ )
+    for( unsigned int i = 0; i < opts.size(); i++ )
     {
         command += string(" ") + opts[i];
     }
@@ -333,10 +343,53 @@ bool ProcessUtil::IsRunning()
 void ProcessUtil::StartThread( LPTHREAD_START_ROUTINE threadfun, LPVOID data )
 {
     HANDLE m_Handle = CreateThread( 0, 0, threadfun, data, 0, &m_ThreadID );
+
+    if(m_Handle==NULL)
+    {
+        //THREAD CREATION FAILED
+        printf("ERROR: Thread creation failed \n\tFile: %s \tLine:%d\n",__FILE__,__LINE__);
+    }
 }
 #else
 void ProcessUtil::StartThread( void *(*threadfun)( void *data ), void *data )
 {
     pthread_create( &m_Thread, NULL, threadfun, data );
+
+    //TODO return thread creation success/failure
 }
 #endif
+
+void ProcessUtil::ReadStdoutPipe(char * bufptr, int bufsize, unsigned long * nreadptr )
+{
+    bufptr[0] = 0;
+#ifdef WIN32
+    ReadFile( m_StdoutPipe[PIPE_READ], bufptr, bufsize, nreadptr, NULL);
+#else
+    *nreadptr = read( m_StdoutPipe[PIPE_READ], bufptr, bufsize );
+#endif
+}
+
+/* PrettyCmd( path, cmd, opts )
+    Returns a command string that could be used on the command line
+*/
+string ProcessUtil::PrettyCmd( const string &path, const string &cmd, const vector<string> &opts )
+{
+#ifdef WIN32
+    string command = QuoteString( path + string("\\") + cmd );
+    for( int i = 0; i < opts.size(); i++ )
+    {
+        command += string(" ") + QuoteString( opts[i] );
+    }
+#else
+    string command = path + string("/") + cmd;
+    for( unsigned int i = 0; i < opts.size(); i++ )
+    {
+        command += string(" ") + opts[i];
+    }
+#endif
+
+    //add line feed ending
+    command += string("\n");
+
+    return command;
+}

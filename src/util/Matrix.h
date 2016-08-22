@@ -22,6 +22,7 @@ public:
     void loadIdentity();
     void setIdentity( double* m ) const;
     void translatef( const double &x, const double &y, const double & );
+    void translatev( const vec3d &v );
     void rotateX( const double &ang );
     void rotateY( const double &ang );
     void rotateZ( const double &ang );
@@ -32,6 +33,7 @@ public:
     void affineInverse();
     void scale( const double &scale );
 
+    void flipx();
 
     void getMat( double* m );
     void matMult( double* m );
@@ -50,11 +52,13 @@ public:
     void loadYZRef();
 
     vec3d xform( const vec3d & in ) const;
+    void xformvec( std::vector < vec3d > & in ) const;
     vec3d getAngles() const;
 
     void buildXForm( const vec3d & pos, const vec3d & rot, const vec3d & cent_rot );
 
     void getBasis( vec3d &xdir, vec3d &ydir, vec3d &zdir );
+    void setBasis( const vec3d &xdir, const vec3d &ydir, const vec3d &zdir );
 
 private:
 

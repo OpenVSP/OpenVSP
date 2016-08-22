@@ -65,6 +65,12 @@ public:
     virtual void SetScale( double scale );
     virtual string GetWidthParmID()                                    { return string(); }
 
+    // FakeWidth is introduced to provide a scale value for leading/trailing edge
+    // modifications when a unit-chord is forced for a propeller.
+    virtual double GetFakeWidth()                                      { return m_FakeWidth; }
+    virtual void SetFakeWidth( double w )                              { m_FakeWidth = w; }
+    virtual void SetUseFakeWidth( double b )                           { m_UseFakeWidth = b; }
+
     virtual double ComputeArea();
 
     virtual void CloseTE( bool wingtype );
@@ -124,6 +130,9 @@ public:
     Parm m_ShiftLE;
 
 protected:
+
+    bool m_UseFakeWidth;
+    double m_FakeWidth;
 
     int m_Type;
 

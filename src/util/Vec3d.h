@@ -182,10 +182,24 @@ public:
         return( vec3d( -v[0],  v[1],  v[2] ) );
     }
 
+    vec3d swap_xy() const
+    {
+        return( vec3d( v[1],  v[0],  v[2] ) );
+    }
+    vec3d swap_xz() const
+    {
+        return( vec3d( v[2],  v[1],  v[0] ) );
+    }
+    vec3d swap_yz() const
+    {
+        return( vec3d( v[0],  v[2],  v[1] ) );
+    }
+
     // x = a + b, x = a - b, a*scale, a/scale
     friend vec3d operator+( const vec3d& a, const vec3d& b );
     friend vec3d operator-( const vec3d& a, const vec3d& b );
     friend vec3d operator*( const vec3d& a, double b );
+    friend vec3d operator*( double b, const vec3d& a );
     friend vec3d operator*( const vec3d& a, const vec3d& b );
     friend vec3d operator/( const vec3d& a, double b );
 
@@ -257,6 +271,11 @@ double angle( const vec3d& a, const vec3d& b );
 double signed_angle( const vec3d& a, const vec3d& b, const vec3d& ref );
 double cos_angle( const vec3d& a, const vec3d& b );
 vec3d RotateArbAxis( const vec3d & p, double theta, const vec3d & r );
+
+namespace std
+{
+string to_string( const vec3d &v);
+}
 
 #endif
 

@@ -1023,6 +1023,11 @@ void VspCurve::Transform( Matrix4d & mat )
     m_Curve.translate( trans );
 }
 
+void VspCurve::Scale( double s )
+{
+    m_Curve.scale( s );
+}
+
 void VspCurve::ReflectXY()
 {
     m_Curve.reflect_xy();
