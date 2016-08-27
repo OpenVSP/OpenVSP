@@ -36,7 +36,7 @@
 #include "utils.H"
 #include "glf.H"
 #include "binaryio.H"
-#include "viewerUI.H"
+#include "viewerUI.h"
 //#include "tiffio.h"
 #include "TagList.H"
 #include "TagListGroup.H"
