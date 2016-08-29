@@ -1178,6 +1178,14 @@ void LoadCaseFile(void)
           
           sscanf(DumChar,"NumberOfControlGroups = %d \n",&NumberOfControlGroups_);
 
+          if (NumberOfControlGroups_ < 0) {
+
+              printf( "INVALID NumberOfControlGroups: %d\n", NumberOfControlGroups_ );
+
+              exit( 1 );
+
+          }
+
           ControlSurfaceGroup_ = new CONTROL_SURFACE_GROUP[NumberOfControlGroups_ + 1];
           
           for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) {
