@@ -871,14 +871,19 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
 
 // VSPAEROScreen::AddOutputText( Fl_Text_Display *display, const char *text )
 //     This is used for the Solver tab to show the current results of the solver in the GUI
-void VSPAEROScreen::AddOutputText( Fl_Text_Display *display, const char *text )
+void VSPAEROScreen::AddOutputText( Fl_Text_Display *display, const string &text )
 {
     if ( display )
     {
-        display->buffer()->append( text );
-        while( display->move_down() ) {}
+        // Added lock(), unlock() calls to avoid heap corruption while updating the text and rapidly scrolling with the mouse wheel inside the text display
+        Fl::lock();
+
+        display->buffer()->append( text.c_str() );
+        display->insert_position(display->buffer()->length());
 
         display->show_insert_position();
+
+        Fl::unlock();
     }
 }
 
