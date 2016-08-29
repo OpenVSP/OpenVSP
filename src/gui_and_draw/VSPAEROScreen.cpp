@@ -497,6 +497,8 @@ bool VSPAEROScreen::Update()
             m_KillSolverSetupButton.Deactivate();
         }
 
+        // Setup Text Display
+        m_SetupDividerBox->copy_label( std::string( "Setup File: " + GetFilename( VSPAEROMgr.m_SetupFile ) ).c_str() );
         // Read Setup Button
         if( !FileExist( VSPAEROMgr.m_SetupFile ) )
         {
@@ -926,13 +928,6 @@ Fl_Text_Display* VSPAEROScreen::GetDisplay( int id )
 void VSPAEROScreen::ReadSetup()
 {
     int loadStatus = m_SetupBuffer->loadfile( VSPAEROMgr.m_SetupFile.c_str() );
-
-    //Update the divider box title to show the filename
-    if( loadStatus == 0 && m_SetupDividerBox )
-    {
-        string fileName = GetFilename( VSPAEROMgr.m_SetupFile );
-        m_SetupDividerBox->copy_label( std::string( "Setup File: " + fileName ).c_str() );
-    }
 }
 
 void VSPAEROScreen::SaveSetup()
