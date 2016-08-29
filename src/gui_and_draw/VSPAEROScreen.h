@@ -51,7 +51,7 @@ public:
 
     virtual void GuiDeviceCallBack( GuiDevice* device );
 
-    void AddOutputText( Fl_Text_Display *display, const char *text );
+    void AddOutputText( Fl_Text_Display *display, const string &text );
 
     ProcessUtil *GetProcess( int id );
     Fl_Text_Display *GetDisplay( int id );

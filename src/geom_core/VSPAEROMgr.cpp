@@ -448,37 +448,7 @@ void VSPAEROMgrSingleton::CreateSetupFile(FILE * logFile)
     m_SolverProcess.ForkCmd( veh->GetExePath(), veh->GetVSPAEROCmd(), args );
 
     // ==== MonitorSolverProcess ==== //
-    int bufsize = 1000;
-    char *buf;
-    buf = ( char* ) malloc( sizeof( char ) * ( bufsize + 1 ) );
-    unsigned long nread=1;
-    bool runflag = m_SolverProcess.IsRunning();
-    while ( runflag || nread>0)
-    {
-        m_SolverProcess.ReadStdoutPipe( buf, bufsize, &nread );
-        if( nread > 0 )
-        {
-            if ( buf )
-            {
-                buf[nread] = 0;
-                StringUtil::change_from_to( buf, '\r', '\n' );
-                if( logFile )
-                {
-                    fprintf(logFile,buf);
-                }
-                else
-                {
-                    MessageData data;
-                    data.m_String = "VSPAEROSolverMessage";
-                    data.m_StringVec.push_back( string( buf ) );
-                    MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
-                }
-            }
-        }
-
-        SleepForMilliseconds( 100 );
-        runflag = m_SolverProcess.IsRunning();
-    }
+    MonitorSolver(logFile);
 
     // Check if the kill solver flag has been raised, if so clean up and return
     //  note: we could have exited the IsRunning loop if the process was killed
@@ -716,37 +686,7 @@ string VSPAEROMgrSingleton::ComputeSolverSingle(FILE * logFile)
                     m_SolverProcess.ForkCmd( veh->GetExePath(), veh->GetVSPAEROCmd(), args );
 
                     // ==== MonitorSolverProcess ==== //
-                    int bufsize = 1000;
-                    char *buf;
-                    buf = ( char* ) malloc( sizeof( char ) * ( bufsize + 1 ) );
-                    unsigned long nread=1;
-                    bool runflag = m_SolverProcess.IsRunning();
-                    while ( runflag || nread>0)
-                    {
-                        m_SolverProcess.ReadStdoutPipe( buf, bufsize, &nread );
-                        if( nread > 0 )
-                        {
-                            if ( buf )
-                            {
-                                buf[nread] = '\0'; //null terminate
-                                StringUtil::change_from_to( buf, '\r', '\n' );
-                                if( logFile )
-                                {
-                                    fprintf(logFile,buf);
-                                }
-                                else
-                                {
-                                    MessageData data;
-                                    data.m_String = "VSPAEROSolverMessage";
-                                    data.m_StringVec.push_back( string( buf ) );
-                                    MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
-                                }
-                            }
-                        }
-
-                        SleepForMilliseconds( 100 );
-                        runflag = m_SolverProcess.IsRunning();
-                    }
+                    MonitorSolver(logFile);
 
 
                     // Check if the kill solver flag has been raised, if so clean up and return
@@ -917,37 +857,7 @@ string VSPAEROMgrSingleton::ComputeSolverBatch(FILE * logFile)
         m_SolverProcess.ForkCmd( veh->GetExePath(), veh->GetVSPAEROCmd(), args );
 
         // ==== MonitorSolverProcess ==== //
-        int bufsize = 1000;
-        char *buf;
-        buf = ( char* ) malloc( sizeof( char ) * ( bufsize + 1 ) );
-        unsigned long nread=1;
-        bool runflag = m_SolverProcess.IsRunning();
-        while ( runflag || nread>0)
-        {
-            m_SolverProcess.ReadStdoutPipe( buf, bufsize, &nread );
-            if( nread > 0 )
-            {
-                if ( buf )
-                {
-                    buf[nread] = 0;
-                    StringUtil::change_from_to( buf, '\r', '\n' );
-                    if( logFile )
-                    {
-                        fprintf(logFile,buf);
-                    }
-                    else
-                    {
-                        MessageData data;
-                        data.m_String = "VSPAEROSolverMessage";
-                        data.m_StringVec.push_back( string( buf ) );
-                        MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
-                    }
-                }
-            }
-
-            SleepForMilliseconds( 100 );
-            runflag = m_SolverProcess.IsRunning();
-        }
+        MonitorSolver(logFile);
 
 
         // Check if the kill solver flag has been raised, if so clean up and return
@@ -984,6 +894,47 @@ string VSPAEROMgrSingleton::ComputeSolverBatch(FILE * logFile)
     {
         res->Add( NameValData( "ResultsVec", res_id_vector ) );
         return res->GetID();
+    }
+}
+
+void VSPAEROMgrSingleton::MonitorSolver(FILE * logFile)
+{
+    // ==== MonitorSolverProcess ==== //
+    int bufsize = 3000;
+    char *buf;
+    buf = ( char* ) malloc( sizeof( char ) * ( bufsize + 1 ) );
+    unsigned long nread=1;
+    bool runflag = m_SolverProcess.IsRunning();
+    while ( runflag || nread>0)
+    {
+        m_SolverProcess.ReadStdoutPipe( buf, bufsize, &nread );
+        if( nread > 0 )
+        {
+            if ( nread>=bufsize )
+            {
+                fprintf(stderr,"WARNING read buffer full, possible loss of data in console display and/or logfile\n\tFile: %s \tLine:%d\n",__FILE__,__LINE__);
+            }
+
+            if ( buf )
+            {
+                buf[nread] = 0;
+                StringUtil::change_from_to( buf, '\r', '\n' );
+                if( logFile )
+                {
+                    fprintf(logFile,buf);
+                }
+                else
+                {
+                    MessageData data;
+                    data.m_String = "VSPAEROSolverMessage";
+                    data.m_StringVec.push_back( string( buf ) );
+                    MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+                }
+            }
+        }
+
+        SleepForMilliseconds( 100 );
+        runflag = m_SolverProcess.IsRunning();
     }
 }
 

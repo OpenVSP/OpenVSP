@@ -131,6 +131,7 @@ protected:
     void WaitForFile( string filename );  // function is used to wait for the result to show up on the file system
     void GetSweepVectors( vector<double> &alphaVec, vector<double> &betaVec, vector<double> &machVec);
 
+    void VSPAEROMgrSingleton::MonitorSolver(FILE * logFile);
     bool m_SolverProcessKill;
 
     // helper functions for VSPAERO files

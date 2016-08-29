@@ -146,7 +146,7 @@ void ScreenMgr::MessageCallback( const MessageBase* from, const MessageData& dat
         {
             for ( int i = 0; i < (int)data.m_StringVec.size(); i++ )
             {
-                scr->AddOutputText( scr->GetDisplay( VSPAERO_SOLVER ), data.m_StringVec[i].c_str() );
+                scr->AddOutputText( scr->GetDisplay( VSPAERO_SOLVER ), data.m_StringVec[i] );
             }
         }
     }
