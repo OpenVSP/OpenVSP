@@ -3148,35 +3148,35 @@ string Vehicle::WriteDegenGeomFile()
         }
         else
         {
-        fprintf(file_id, "# DEGENERATE GEOMETRY CSV FILE\n\n");
-        fprintf(file_id, "# NUMBER OF COMPONENTS\n%d\n", geomCnt);
+            fprintf(file_id, "# DEGENERATE GEOMETRY CSV FILE\n\n");
+            fprintf(file_id, "# NUMBER OF COMPONENTS\n%d\n", geomCnt);
 
-        if ( m_DegenPtMassVec.size() > 0 )
-        {
-            fprintf(file_id, "BLANK_GEOMS,%d\n", blankCnt);
-            fprintf(file_id, "# Name, xLoc, yLoc, zLoc, Mass");
-
-            for ( int i = 0; i < (int)m_DegenPtMassVec.size(); i++ )
+            if ( m_DegenPtMassVec.size() > 0 )
             {
-                // Blank geom translated location
-                fprintf(file_id, "\n%s,%f,%f,%f,%f", m_DegenPtMassVec[i].name.c_str(), \
-                                                     m_DegenPtMassVec[i].x.v[0], \
-                                                     m_DegenPtMassVec[i].x.v[1], \
-                                                     m_DegenPtMassVec[i].x.v[2], \
-                                                     m_DegenPtMassVec[i].mass );
+                fprintf(file_id, "BLANK_GEOMS,%d\n", blankCnt);
+                fprintf(file_id, "# Name, xLoc, yLoc, zLoc, Mass");
+
+                for ( int i = 0; i < (int)m_DegenPtMassVec.size(); i++ )
+                {
+                    // Blank geom translated location
+                    fprintf(file_id, "\n%s,%f,%f,%f,%f", m_DegenPtMassVec[i].name.c_str(), \
+                                                         m_DegenPtMassVec[i].x.v[0], \
+                                                         m_DegenPtMassVec[i].x.v[1], \
+                                                         m_DegenPtMassVec[i].x.v[2], \
+                                                         m_DegenPtMassVec[i].mass );
+                }
             }
-        }
 
-        for ( int i = 0; i < (int)m_DegenGeomVec.size(); i++ )
-        {
-            m_DegenGeomVec[i].write_degenGeomCsv_file( file_id );
-        }
+            for ( int i = 0; i < (int)m_DegenGeomVec.size(); i++ )
+            {
+                m_DegenGeomVec[i].write_degenGeomCsv_file( file_id );
+            }
 
-        fclose(file_id);
+            fclose(file_id);
 
-        outStr += "\t";
-        outStr += file_name;
-        outStr += "\n";
+            outStr += "\t";
+            outStr += file_name;
+            outStr += "\n";
         }
     }
 
@@ -3192,39 +3192,39 @@ string Vehicle::WriteDegenGeomFile()
         }
         else
         {
-        fprintf( file_id, "%%-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-%%\n" );
-        fprintf( file_id, "%%-=-=-=-=-=-= DEGENERATE GEOMETRY M FILE =-=-=-=-=-=-=%%\n" );
-        fprintf( file_id, "%%-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-%%\n\n" );
+            fprintf( file_id, "%%-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-%%\n" );
+            fprintf( file_id, "%%-=-=-=-=-=-= DEGENERATE GEOMETRY M FILE =-=-=-=-=-=-=%%\n" );
+            fprintf( file_id, "%%-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-%%\n\n" );
 
-        if ( blankCnt > 0)
-        {
-            fprintf( file_id, "blankGeom = [];" );
-
-            for ( int i = 0; i < (int)m_DegenPtMassVec.size(); i++ )
+            if ( blankCnt > 0)
             {
-                fprintf( file_id, "\nblankGeom(end+1).name = '%s';", \
-                                 m_DegenPtMassVec[i].name.c_str() );
+                fprintf( file_id, "blankGeom = [];" );
 
-                fprintf( file_id, "\nblankGeom(end).X = [%f, %f, %f];", m_DegenPtMassVec[i].x.v[0],\
-                                                                       m_DegenPtMassVec[i].x.v[1],\
-                                                                       m_DegenPtMassVec[i].x.v[2] );
-                fprintf( file_id, "\nblankGeom(end).mass = %f;", m_DegenPtMassVec[i].mass );
+                for ( int i = 0; i < (int)m_DegenPtMassVec.size(); i++ )
+                {
+                    fprintf( file_id, "\nblankGeom(end+1).name = '%s';", \
+                                     m_DegenPtMassVec[i].name.c_str() );
+
+                    fprintf( file_id, "\nblankGeom(end).X = [%f, %f, %f];", m_DegenPtMassVec[i].x.v[0],\
+                                                                            m_DegenPtMassVec[i].x.v[1],\
+                                                                            m_DegenPtMassVec[i].x.v[2] );
+                    fprintf( file_id, "\nblankGeom(end).mass = %f;", m_DegenPtMassVec[i].mass );
+                }
+                fprintf( file_id, "\n\n" );
             }
-            fprintf( file_id, "\n\n" );
-        }
 
-        fprintf(file_id, "degenGeom = [];");
+            fprintf(file_id, "degenGeom = [];");
 
-        for ( int i = 0, propIdx = 1; i < (int)m_DegenGeomVec.size(); i++, propIdx++ )
-        {
-            m_DegenGeomVec[i].write_degenGeomM_file(file_id);
-        }
+            for ( int i = 0, propIdx = 1; i < (int)m_DegenGeomVec.size(); i++, propIdx++ )
+            {
+                m_DegenGeomVec[i].write_degenGeomM_file(file_id);
+            }
 
-        fclose(file_id);
+            fclose(file_id);
 
-        outStr += "\t";
-        outStr += file_name;
-        outStr += "\n";
+            outStr += "\t";
+            outStr += file_name;
+            outStr += "\n";
         }
     }
     return outStr;
