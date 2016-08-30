@@ -3140,6 +3140,14 @@ string Vehicle::WriteDegenGeomFile()
         string file_name = getExportFileName( DEGEN_GEOM_CSV_TYPE );
         FILE* file_id = fopen(file_name.c_str(), "w");
 
+        if ( !file_id ) // Check if the file was successfully opened
+        {
+            outStr += "\tFAILED TO OPEN: ";
+            outStr += file_name;
+            outStr += "\n";
+        }
+        else
+        {
         fprintf(file_id, "# DEGENERATE GEOMETRY CSV FILE\n\n");
         fprintf(file_id, "# NUMBER OF COMPONENTS\n%d\n", geomCnt);
 
@@ -3169,13 +3177,21 @@ string Vehicle::WriteDegenGeomFile()
         outStr += "\t";
         outStr += file_name;
         outStr += "\n";
+        }
     }
 
     if ( getExportDegenGeomMFile() )
     {
         string file_name = getExportFileName( DEGEN_GEOM_M_TYPE );
         FILE* file_id = fopen(file_name.c_str(), "w");
-
+        if ( !file_id )
+        {
+            outStr += "\tFAILED TO OPEN: ";
+            outStr += file_name;
+            outStr += "\n";
+        }
+        else
+        {
         fprintf( file_id, "%%-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-%%\n" );
         fprintf( file_id, "%%-=-=-=-=-=-= DEGENERATE GEOMETRY M FILE =-=-=-=-=-=-=%%\n" );
         fprintf( file_id, "%%-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-%%\n\n" );
@@ -3209,6 +3225,7 @@ string Vehicle::WriteDegenGeomFile()
         outStr += "\t";
         outStr += file_name;
         outStr += "\n";
+        }
     }
     return outStr;
 }
