@@ -86,6 +86,8 @@ typedef struct
 {
     string                      name;       //!
     int                         testType;   //!
+    string                      typeName;   //! used to identify the design intent of the surface
+    vsp::SUBSURF_TYPE           typeId;     //!
     vector< double >            u;          //!
     vector< double >            w;          //!
 } DegenSubSurf;

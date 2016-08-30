@@ -685,6 +685,8 @@ void DegenGeom::addDegenSubSurf( SubSurface *ssurf )
     {
         DegenSubSurf dgss;
         dgss.name = ssurf->GetName();
+        dgss.typeName = ssurf->GetTypeName(ssurf->GetType());
+        dgss.typeId = (vsp::SUBSURF_TYPE)ssurf->GetType();
         dgss.testType = ssurf->m_TestType();
 
         int npt = ppvec[i].size();
@@ -924,8 +926,10 @@ void DegenGeom::write_degenGeomDiskCsv_file( FILE* file_id )
 
 void DegenGeom::write_degenSubSurfCsv_file( FILE* file_id, int isubsurf )
 {
-    fprintf( file_id, "# DegenGeom Type\n" );
-    fprintf( file_id, "SUBSURF,%s\n", degenSubSurfs[isubsurf].name.c_str() );
+    fprintf( file_id, "# DegenGeom Type, name, typeName, typeId\n" );
+    fprintf( file_id, "SUBSURF,%s,%s,%d\n", degenSubSurfs[isubsurf].name.c_str(),
+                                            degenSubSurfs[isubsurf].typeName.c_str(),
+                                            degenSubSurfs[isubsurf].typeId );
 
     fprintf( file_id, "# testType\n" );
     fprintf( file_id, "%d\n", \
@@ -1108,6 +1112,8 @@ void DegenGeom::write_degenSubSurfM_file( FILE* file_id, int isubsurf )
     WriteVecDoubleM writeVecDouble;
 
     fprintf( file_id, "\ndegenGeom(end).subsurf(%d).name = '%s';\n", isubsurf + 1, degenSubSurfs[isubsurf].name.c_str() );
+    fprintf( file_id, "\ndegenGeom(end).subsurf(%d).typeName = %d;\n", isubsurf + 1, degenSubSurfs[isubsurf].testType );
+    fprintf( file_id, "\ndegenGeom(end).subsurf(%d).typeId = %d;\n", isubsurf + 1, degenSubSurfs[isubsurf].testType );
     fprintf( file_id, "\ndegenGeom(end).subsurf(%d).testType = %d;\n", isubsurf + 1, degenSubSurfs[isubsurf].testType );
 
     int n = degenSubSurfs[isubsurf].u.size();
