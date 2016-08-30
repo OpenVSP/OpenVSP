@@ -5148,7 +5148,7 @@ void GL_VIEWER::SwapSurfaceNormals(void)
 
 void GL_VIEWER::WriteTiffFile(char *FileName)
 {
-    /*
+
     int width, height;
     char rgbstr[256];
 
@@ -5168,7 +5168,6 @@ void GL_VIEWER::WriteTiffFile(char *FileName)
        fflush(NULL);
 
     }
-    */
 
 }
 
@@ -5180,7 +5179,7 @@ void GL_VIEWER::WriteTiffFile(char *FileName)
 
 void GL_VIEWER::WriteMovieFrame(char *FileName)
 {
-    /*
+
     int width, height;
     char rgbstr[256];
 
@@ -5200,7 +5199,6 @@ void GL_VIEWER::WriteMovieFrame(char *FileName)
        fflush(NULL);
 
     }
-    */
 
 }
 
@@ -5213,7 +5211,7 @@ void GL_VIEWER::WriteMovieFrame(char *FileName)
 int GL_VIEWER::WriteTiff(char *filename, char *description,
                          int x, int y, int width, int height, int compression)
 {
-    /*
+
   TIFF *file;
   GLubyte *image, *p;
   int i;
@@ -5255,8 +5253,8 @@ int GL_VIEWER::WriteTiff(char *filename, char *description,
   }
   TIFFClose(file);
   if ( image != NULL) free(image);
-  */
   return 0;
+
 }
 
 /*##############################################################################

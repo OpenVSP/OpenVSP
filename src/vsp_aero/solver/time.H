@@ -1,5 +1,9 @@
 #include <stdio.h>
-//#include <sys/time.h>
+
+#ifndef MYTIME
+#include <sys/time.h>
+#endif
+
 #include <errno.h>
 #include <stdlib.h>
 

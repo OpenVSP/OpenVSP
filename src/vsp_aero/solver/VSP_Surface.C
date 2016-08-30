@@ -39,6 +39,7 @@ void VSP_SURFACE::init(void)
     ControlSurface_ = new CONTROL_SURFACE[MaxNumberOfControlSurfaces_ + 1];
     
     //Initialize stuff
+
     NumberOfSurfacePatches_ = 0;
 
     NumGeomI_ = 0;
@@ -987,7 +988,7 @@ void VSP_SURFACE::GetComponentBBox(FILE *VSP_Degen_File, BBOX &ComponentBBox)
 void VSP_SURFACE::ReadWingDataFromFile(char *Name, FILE *VSP_Degen_File)
 {
  
-    int i, j, NumI, NumJ, Wing, Done, HingeNode[2];
+    int i, j, NumI, NumJ, Wing, Done, SubSurfIsTyped, HingeNode[2];
     double DumFloat, zCamber, Vec[3], VecQC_1[3], VecQC_2[3], Mag, HingeVec[3];
     double x1, y1, z1, x2, y2, z2, ArcLength, Chord, up[4], wp[4], xyz[3];
     char DumChar[2000], Stuff[2000], LastSubSurf[2000], Comma[2000], *Next;
@@ -1165,11 +1166,21 @@ void VSP_SURFACE::ReadWingDataFromFile(char *Name, FILE *VSP_Degen_File)
        if ( Verbose_ ) printf("DumChar: %s \n",DumChar);
        
        if ( strstr(DumChar,"DegenGeom") != NULL ) {
+          
+          // Check if this version of vsp wrote out subsurface types...
+          
+          SubSurfIsTyped = 0;
+          
+          if ( strstr(DumChar,"typeName") != NULL ) {
+             
+             SubSurfIsTyped = 1;
+             
+          }
        
           fgets(DumChar,1000,VSP_Degen_File);
-          
-          if ( strstr(DumChar,"SUBSURF") != NULL ) {
-        
+  
+          if ( strstr(DumChar,"SUBSURF") ) {
+   
              if ( Verbose_ ) printf("DumChar: %s .... LastSubSurf: %s \n",DumChar,LastSubSurf);
         
              // Skip over possible second instance of this control surface.. it may be defined on both the top and bottom surfaces
@@ -1261,7 +1272,7 @@ void VSP_SURFACE::ReadWingDataFromFile(char *Name, FILE *VSP_Degen_File)
                 ControlSurface_[NumberOfControlSurfaces_].Node_4(2) = xyz[2];
                 
                 // Determine hinge line
-                
+           
                 LocateHingeLine(up, wp, HingeNode);
                                                           
                 // Hinge point 1
@@ -1322,7 +1333,7 @@ void VSP_SURFACE::ReadWingDataFromFile(char *Name, FILE *VSP_Degen_File)
                 
              }
              
-          }
+          }         
       
        }
        
@@ -1505,6 +1516,8 @@ void VSP_SURFACE::LocateHingeLine(const double *up, const double *wp, int *Hinge
 
     int i, Done, Iter, Node[4], iTemp;
     double u[4], w[4], dw[4], Temp[5];
+    
+    // Copy over boundary data
 
     for ( i = 0 ; i <= 3 ; i++ ) {
        
@@ -1516,6 +1529,8 @@ void VSP_SURFACE::LocateHingeLine(const double *up, const double *wp, int *Hinge
        Node[i] = i;
       
     }
+       
+    // Bubble sort the nodes in increasing w
        
     Done = 0;
     
@@ -1561,14 +1576,27 @@ void VSP_SURFACE::LocateHingeLine(const double *up, const double *wp, int *Hinge
            
     }
     
+    // Grab the hinge line
+    
     for ( i = 0 ; i <= 3 ; i++ ) {
        
        if ( Verbose_ ) printf("i: %d --> u,w,dw: %lf %lf %lf %d \n",i,u[i],w[i],dw[i],Node[i]);
        
     }    
     
-    HingeNode[0] = Node[0];
-    HingeNode[1] = Node[1];
+    if ( u[0] > u[1] ) {
+    
+       HingeNode[0] = Node[0];
+       HingeNode[1] = Node[1];
+       
+    }
+    
+    else{
+
+       HingeNode[0] = Node[0];
+       HingeNode[1] = Node[1];
+              
+    }
 
 }
 

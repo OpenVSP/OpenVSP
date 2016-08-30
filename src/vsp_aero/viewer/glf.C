@@ -26,7 +26,7 @@
 #include <string.h>
 #include <math.h>
 
-#ifdef __APPLE__
+#ifdef OSX
 
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>

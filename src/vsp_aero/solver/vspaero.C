@@ -139,6 +139,7 @@ int ForceAveragingIter_   = 0;
 int NoWakeIteration_      = 0;
 int NumberofSurveyPoints_ = 0;
 int LoadFEMDeformation_   = 0;
+int Write2DFEMFile_       = 0;
 
 // Prototypes
 
@@ -149,7 +150,6 @@ void LoadCaseFile(void);
 void Solve(void);
 void StabilityAndControlSolve(void);
 void CalculateStabilityDerivatives(void);
-
 
 VSP_SOLVER VSP_VLM_;
 VSP_SOLVER &VSP_VLM(void) { return VSP_VLM_; };
@@ -175,7 +175,7 @@ int main(int argc, char **argv)
 
     // Output a header
 
-    printf("VSPAERO v.3.0 --- 8/21/2016 \n");
+    printf("VSPAERO v.3.x --- 10/20/2015 \n");
     printf("\n\n\n\n");
     
 #ifdef VSPAERO_OPENMP
@@ -198,6 +198,10 @@ int main(int argc, char **argv)
     // Read in FEM deformation file
     
     if ( LoadFEMDeformation_ ) VSP_VLM().LoadFEMDeformation() = 1;
+    
+    // Write out 2D FEM file
+    
+    if ( Write2DFEMFile_ ) VSP_VLM().Write2DFEMFile() = 1;
             
     // Load in the VSP degenerate geometry file
     
@@ -262,7 +266,7 @@ void ParseInput(int argc, char *argv[])
 
     if ( argc < 2 ) {
 
-       printf("VSPAERO v.3.0 --- 8/21/2016 \n");
+       printf("VSPAERO v.3.x --- 08/30/2016 \n");
        printf("\n\n\n\n");
 
        printf("Usage: vspaero -(see below) FileName\n");
@@ -277,15 +281,15 @@ void ParseInput(int argc, char *argv[])
        printf(" -avg N          Force averaging startign at wake iteration N\n");
        printf(" -nowake N       No wake for first N iterations.\n");
        printf(" -setup          Write template *.vspaero file, can specify parameters below:\n");
-       printf("    -sref  S     Reference area.\n");
-       printf("    -bref  b     Reference span.\n");
-       printf("    -cref  c     Reference chord.\n");
-       printf("    -cg  X Y Z   Moment reference point.\n");
-       printf("    -mach  M     Freestream Mach number.\n");
-       printf("    -aoa   A     Angle of attack.\n");
-       printf("    -beta  B     Sideslip angle.\n");
-       printf("    -wakeiters N Number of wake iterations to calculate.\n");
-
+       printf(" -sref  S        Reference area.\n");
+       printf(" -bref  b        Reference span.\n");
+       printf(" -cref  c        Reference chord.\n");
+       printf(" -cg  X Y Z      Moment reference point.\n");
+       printf(" -mach  M        Freestream Mach number.\n");
+       printf(" -aoa   A        Angle of attack.\n");
+       printf(" -beta  B        Sideslip angle.\n");
+       printf(" -fem            Load in FEM deformation file \n");
+       printf(" -write2dfem     Write out 2D FEM load file \n");
  
        exit(1);
 
@@ -407,6 +411,12 @@ void ParseInput(int argc, char *argv[])
           
        }    
        
+       else if ( strcmp(argv[i],"-write2dfem") == 0 ) {
+          
+          Write2DFEMFile_ = 1;
+          
+       }
+       
        else if ( strcmp(argv[i],"END") == 0 ) {
 
           // Do nothing... we assume this was the marker to the end of a list
@@ -419,7 +429,7 @@ void ParseInput(int argc, char *argv[])
 
           printf("argv[i]: %s \n",argv[i]);
           
-          printf("VSPAERO v.3.0 --- 8/21/2016 \n");
+          printf("VSPAERO v.3.x --- 08/30/2016 \n");
           printf("\n\n\n\n");
 
           printf("Usage: vspaero -(see below) FileName\n");
@@ -434,14 +444,15 @@ void ParseInput(int argc, char *argv[])
           printf(" -avg N          Force averaging startign at wake iteration N\n");
           printf(" -nowake N       No wake for first N iterations.\n");
           printf(" -setup          Write template *.vspaero file, can specify parameters below:\n");
-          printf("    -sref  S     Reference area.\n");
-          printf("    -bref  b     Reference span.\n");
-          printf("    -cref  c     Reference chord.\n");
-          printf("    -cg  X Y Z   Moment reference point.\n");
-          printf("    -mach  M     Freestream Mach number.\n");
-          printf("    -aoa   A     Angle of attack.\n");
-          printf("    -beta  B     Sideslip angle.\n");
-          printf("    -wakeiters N Number of wake iterations to calculate.\n");
+          printf(" -sref  S        Reference area.\n");
+          printf(" -bref  b        Reference span.\n");
+          printf(" -cref  c        Reference chord.\n");
+          printf(" -cg  X Y Z      Moment reference point.\n");
+          printf(" -mach  M        Freestream Mach number.\n");
+          printf(" -aoa   A        Angle of attack.\n");
+          printf(" -beta  B        Sideslip angle.\n");
+          printf(" -fem            Load in FEM deformation file \n");
+          printf(" -write2dfem     Write out 2D FEM load file \n");
 
           exit(1);
 
@@ -541,7 +552,7 @@ void CreateInputFile(char *argv[], int argc, int &i)
           Bref_ = atof(argv[++i]);
           
        }                     
-       
+
        else if ( strcmp(argv[i],"-cg") == 0 ) {
           
           Xcg_ = atof(argv[++i]);
@@ -612,11 +623,6 @@ void CreateInputFile(char *argv[], int argc, int &i)
           
        }  
                      
-       else if ( strcmp(argv[i],"-wakeiters") == 0 ) {
-
-          WakeIterations_ = atof(argv[++i]);
-
-       }
        i++; 
        
     }
@@ -770,13 +776,13 @@ void CreateInputFile(char *argv[], int argc, int &i)
     for ( k = 1 ; k <= VSP_VLM().VSPGeom().NumberOfSurfaces() ; k++ ) {
             
        for ( p = 1 ; p <= VSP_VLM().VSPGeom().VSP_Surface(k).NumberOfControlSurfaces() ; p++ ) {
+
+          if ( Group <= NumberOfControlGroups && VSP_VLM().VSPGeom().VSP_Surface(k).ControlSurface(p).ControlGroup() == 0 ) {
           
-          Group++;
+             Group++;
           
-          NumControls = 1;
-          
-          if ( Group <= NumberOfControlGroups ) {
-          
+             NumControls = 1;
+                    
              fprintf(case_file,"ControlGroup_%d\n",Group);
              
              fprintf(case_file,"%s",VSP_VLM().VSPGeom().VSP_Surface(k).ControlSurface(p).Name());
@@ -793,6 +799,9 @@ void CreateInputFile(char *argv[], int argc, int &i)
                          fprintf(case_file,", %s",VSP_VLM().VSPGeom().VSP_Surface(k2).ControlSurface(p2).Name());
                          
                          NumControls++;
+                         
+                         VSP_VLM().VSPGeom().VSP_Surface(k ).ControlSurface(p ).ControlGroup() = Group;
+                         VSP_VLM().VSPGeom().VSP_Surface(k2).ControlSurface(p2).ControlGroup() = Group;
                          
                       }
                                   
@@ -1158,9 +1167,9 @@ void LoadCaseFile(void)
     
     // Symmetry options
     
-    if ( strncmp(SymmetryFlag,"X",1) == 0 ) DoSymmetry_ = SYM_X;
-    if ( strncmp(SymmetryFlag,"Y",1) == 0 ) DoSymmetry_ = SYM_Y;
-    if ( strncmp(SymmetryFlag,"Z",1) == 0 ) DoSymmetry_ = SYM_Z;
+    if ( strcmp(SymmetryFlag,"X") == 0 ) DoSymmetry_ = SYM_X;
+    if ( strcmp(SymmetryFlag,"Y") == 0 ) DoSymmetry_ = SYM_Y;
+    if ( strcmp(SymmetryFlag,"Z") == 0 ) DoSymmetry_ = SYM_Z;
         
     if ( DoSymmetry_ == SYM_X ) VSP_VLM().DoSymmetryPlaneSolve(SYM_X);
     if ( DoSymmetry_ == SYM_Y ) VSP_VLM().DoSymmetryPlaneSolve(SYM_Y);
@@ -1177,14 +1186,6 @@ void LoadCaseFile(void)
        if ( strstr(DumChar,"NumberOfControlGroups") != NULL ) {
           
           sscanf(DumChar,"NumberOfControlGroups = %d \n",&NumberOfControlGroups_);
-
-          if (NumberOfControlGroups_ < 0) {
-
-              printf( "INVALID NumberOfControlGroups: %d\n", NumberOfControlGroups_ );
-
-              exit( 1 );
-
-          }
 
           ControlSurfaceGroup_ = new CONTROL_SURFACE_GROUP[NumberOfControlGroups_ + 1];
           
@@ -1558,7 +1559,7 @@ void Solve(void)
 
              E = ( CLForCase[Case] *CLForCase[Case] / ( PI * AR) ) / CDForCase[Case];
              
-             fprintf(PolarFile,"%9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf\n",             
+             fprintf(PolarFile,"%9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf \n",             
                      BetaList_[i],
                      MachList_[j],
                      AoAList_[k],
@@ -1724,11 +1725,7 @@ void StabilityAndControlSolve(void)
                 VSP_VLM().SaveRestartFile() = VSP_VLM().DoRestart() = 0;
          
                 if ( CaseTotal < TotalCases ) {
-
-                   if ( CaseTotal == Case0 ) {
-                       VSP_VLM().WriteCaseHeader(StabFile);
-                   }
-
+                   
                    VSP_VLM().Solve(CaseTotal);
                    
                 }
@@ -1899,21 +1896,26 @@ void CalculateStabilityDerivatives(void)
     int n;
     double Delta;
     char CaseType[2000];
+    char caseTypeFormatStr[] = "%-22s +%5.3lf %-11s";
 
-    int Case0 = 1;
-
+    // Write out generic header file
+    
+    VSP_VLM().WriteCaseHeader(StabFile);
+    
+    // Write out column labels
+    
     fprintf(StabFile,"#\n");
 
-    //                123456789012345678901234567890123456789 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012   
-    fprintf(StabFile,"Case                   Delta    Units         CFx          CFy          CFz          CMx          CMy          CMz          CL           CD           CS           CMl          CMm          CMn\n");
+    //                12345678901234567890123456789 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012    
+    fprintf(StabFile,"             Case     Delta        CFx          CFy          CFz          CMx          CMy          CMz          CL           CD           CS          CMl          CMm          CMn      \n");
        
     fprintf(StabFile,"#\n");
 
     for ( n = 1 ; n <= NumStabCases_ + NumberOfControlGroups_ ; n++ ) {
        
        // Stability derivative cases
+       
                                      //12345678901234567890123456789
-       char caseTypeFormatStr[] = "%-22s +%5.3lf %-11s";
        if ( n == 1 ) sprintf(CaseType,caseTypeFormatStr,"Base_Aero",0.0,"");
        if ( n == 2 ) sprintf(CaseType,caseTypeFormatStr,"Alpha",Delta_AoA_,"deg");
        if ( n == 3 ) sprintf(CaseType,"Beta                   +%5.3lf %-9s",Delta_Beta_,"deg");
@@ -1921,12 +1923,13 @@ void CalculateStabilityDerivatives(void)
        if ( n == 5 ) sprintf(CaseType,"Pitch_Rate             +%5.3lf %-9s",Delta_Q_,"rad/T_unit");
        if ( n == 6 ) sprintf(CaseType,"Yaw___Rate             +%5.3lf %-9s",Delta_R_,"rad/T_unit");
        if ( n == 7 ) sprintf(CaseType,"Mach                   +%5.3lf %-9s",Delta_Mach_,"no_unit");
+
        
        // Control derivatve cases
                                      //12345678901234567890123456
-       if ( n  > 7 ) sprintf(CaseType,"Control_Group_%-5d    +%5.3lf %-9s",n-NumStabCases_,Delta_Control_,"deg");
+       if ( n  > 7 ) sprintf(CaseType,"Control_Group_%-5d    +%5.3lf",n-NumStabCases_,Delta_Control_);
        
-       fprintf(StabFile,"%-39s %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f \n",
+       fprintf(StabFile,"%29s %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f \n",
                CaseType,
                
                CFxForCase[n],
@@ -2025,9 +2028,9 @@ void CalculateStabilityDerivatives(void)
     //                        123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012           
     fprintf(StabFile,"#             Base    Derivative:                                                                               "); for ( n = 8 ; n <= NumStabCases_ + NumberOfControlGroups_ ; n++ ) fprintf(StabFile,"             ");     fprintf(StabFile,"\n");
     fprintf(StabFile,"#             Aero         wrt          wrt          wrt          wrt          wrt          wrt          wrt    "); for ( n = 8 ; n <= NumStabCases_ + NumberOfControlGroups_ ; n++ ) fprintf(StabFile,"      wrt    ");     fprintf(StabFile,"\n");
-    fprintf(StabFile,"Coef          Total        Alpha        Beta          p            q            r           Mach         U      "); for ( n = 8 ; n <= NumStabCases_ + NumberOfControlGroups_ ; n++ ) fprintf(StabFile,"  ConGrp_%-3d ",n-7); fprintf(StabFile,"\n");
+    fprintf(StabFile,"#             Coef         Alpha        Beta          p            q            r           Mach         U      "); for ( n = 8 ; n <= NumStabCases_ + NumberOfControlGroups_ ; n++ ) fprintf(StabFile,"  ConGrp_%-3d ",n-7); fprintf(StabFile,"\n");
     fprintf(StabFile,"#              -           per          per          per          per          per          per          per    "); for ( n = 8 ; n <= NumStabCases_ + NumberOfControlGroups_ ; n++ ) fprintf(StabFile,"      per    ");     fprintf(StabFile,"\n");
-    fprintf(StabFile,"#              -           rad          rad          rad          rad          rad          M            u      "); for ( n = 8 ; n <= NumStabCases_ + NumberOfControlGroups_ ; n++ ) fprintf(StabFile,"      rad    ");     fprintf(StabFile,"\n");
+    fprintf(StabFile,"#              -           rad          rad          rad          rad          rad          rad          rad    "); for ( n = 8 ; n <= NumStabCases_ + NumberOfControlGroups_ ; n++ ) fprintf(StabFile,"      rad    ");     fprintf(StabFile,"\n");
    
     fprintf(StabFile,"#\n");
     
@@ -2052,3 +2055,5 @@ void CalculateStabilityDerivatives(void)
     fprintf(StabFile,"#\n");
 
 }
+    
+

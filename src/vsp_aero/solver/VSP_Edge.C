@@ -654,7 +654,7 @@ double VSP_EDGE::GeneralizedPrincipalPartOfDownWash(void)
     Theta = 0.5*PI - acos(Mag);
     
     T = tan(Theta);
-    
+ 
 //    printf("Mag, Theta, T: %lf %lf %lf \n",Mag,Theta,T);
     
     Arg = -Beta_2 - T*T;
@@ -664,7 +664,7 @@ double VSP_EDGE::GeneralizedPrincipalPartOfDownWash(void)
 ////printf("LocalSpacing_: %lf \n",LocalSpacing_);
 ////printf("Length_: %lf \n",Length_);
 
-    if ( Mach_ > 1. && Arg > 0. ) Ws = 0.5*sqrt(Arg)/LocalSpacing_;
+    if ( Mach_ > 1. && Arg > 0. ) Ws = 0.50*sqrt(Arg)*cos(Theta)/LocalSpacing_;
     
  //    if ( Mach_ > 1. && T > 0. ) Ws = 0.5*sqrt( -Beta_2 );  
  //   if ( Mach_ > 1. ) Ws = 0.5*sqrt( -Beta_2 )/Length_;  

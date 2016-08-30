@@ -38,6 +38,8 @@ CONTROL_SURFACE::CONTROL_SURFACE(void)
     HingeVec_[0] = HingeVec_[1] = HingeVec_[2] = 0.;
     
     DeflectionAngle_ = 0.;
+    
+    ControlGroup_ = 0;
 
 }
 

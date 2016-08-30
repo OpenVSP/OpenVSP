@@ -4,9 +4,9 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
-//#include <config.h>
+#include <config.h>
 #include <sys/stat.h>
-//#include <unistd.h>
+#include <unistd.h>
 #include <time.h>
 
 #include <FL/Fl.H>
@@ -37,7 +37,7 @@
 #include "glf.H"
 #include "binaryio.H"
 #include "viewerUI.H"
-//#include "tiffio.h"
+#include "tiffio.h"
 #include "TagList.H"
 #include "TagListGroup.H"
 #include "surfIDs.H"
@@ -167,7 +167,7 @@ private:
     float yshift;
 
     double size;
-    float Brightness;
+    double Brightness;
 
     int OldX, OldY;
 
