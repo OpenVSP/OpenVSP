@@ -33,6 +33,8 @@ public:
         TEST_ADD( APITestSuite::TestDXFExport )
         TEST_ADD( APITestSuite::TestSVGExport )
         TEST_ADD( APITestSuite::TestFacetExport )
+        // Save and Load
+        TEST_ADD( APITestSuite::TestSaveLoad)
     }
 
 private:
@@ -49,6 +51,8 @@ private:
     void TestDXFExport();
     void TestSVGExport();
     void TestFacetExport();
+    // Save and Load
+    void TestSaveLoad();
 };
 
 class APITestSuiteVSPAERO : public Test::Suite

@@ -477,6 +477,62 @@ void APITestSuite::TestFacetExport()
     printf( "\n" );
 }
 
+void APITestSuite::TestSaveLoad()
+{
+    printf( "APITestSuite::TestSaveLoad()\n" );
+
+    // make sure setup works
+    vsp::VSPCheckSetup();
+    vsp::VSPRenew();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    //==== Add Wing Geom and set some parameters =====//
+    string wing_id = vsp::AddGeom( "WING" );
+    TEST_ASSERT( wing_id.c_str() != NULL );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "TotalSpan", "WingGeom", 30.0 ), 30.0, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "LECluster", "WingGeom", 0.0 ), 0.0, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "TECluster", "WingGeom", 2.0 ), 2.0, TEST_TOL );
+    vsp::Update();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    //==== Add Fuselage Geom and set some parameters =====//
+    string fus_id = vsp::AddGeom( "FUSELAGE" );
+    TEST_ASSERT( fus_id.c_str() != NULL );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  fus_id, "X_Rel_Location", "XForm", -9.0 ), -9.0, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  fus_id, "Z_Rel_Location", "XForm", -1.0 ), -1.0, TEST_TOL );
+    vsp::Update();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    //==== Save Vehicle to File ====//
+    printf( "Saving VSP model\n" );
+    string fname = "apitest_SaveLoad.vsp3";
+    vsp::WriteVSPFile( fname );
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    //==== Reset Geometry ====//
+    printf( "Resetting VSP model to blank slate\n" );
+    vsp::VSPRenew();
+    vsp::ErrorMgr.PopErrorAndPrint( stdout );
+
+    //==== Read Geometry From File ====//
+    printf( "Reading model from: %s\n",fname.c_str() );
+    vsp::ReadVSPFile( fname );
+    vsp::ErrorMgr.PopErrorAndPrint( stdout );
+
+    //==== List out all geoms ====//
+    printf( "All geoms in Vehicle:\n" );
+    vector<string> geoms = vsp::FindGeoms();
+    for ( int i = 0; i < ( int ) geoms.size(); i++ )
+    {
+        printf( "Geom id: %s name: %s \n", geoms[i].c_str(), vsp::GetGeomName( geoms[i] ).c_str() );
+    }
+    vsp::ErrorMgr.PopErrorAndPrint( stdout );
+
+    // Final check for errors
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+    printf( "\n" );
+}
+
 //=============================================================================//
 //========================== APITestSuiteVSPAERO ==============================//
 //=============================================================================//
