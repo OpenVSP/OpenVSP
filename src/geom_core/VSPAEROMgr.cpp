@@ -1374,13 +1374,17 @@ void VSPAEROMgrSingleton::ReadStabFile(string filename, vector <string> &res_id_
                     //This is a continuation of the current table and add this row to the results manager
                     for ( unsigned int i_field = 1; i_field < data_string_array.size() - 1; i_field++ )
                     {
-                        //convert to double
+                        //attempt to read a double if that fails then treat it as a string result
                         double temp_val = 0;
                         int result = 0;
                         result = sscanf( data_string_array[i_field].c_str(), "%lf", &temp_val );
                         if ( result == 1 )
                         {
                             res->Add( NameValData( data_string_array[0] + "_" + table_column_names[i_field], temp_val ) );
+                        }
+                        else
+                        {
+                            res->Add( NameValData( data_string_array[0] + "_" + table_column_names[i_field], data_string_array[i_field] ) );
                         }
                     }
                 } //end new table check
