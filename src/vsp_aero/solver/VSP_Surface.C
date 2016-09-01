@@ -1215,9 +1215,17 @@ void VSP_SURFACE::ReadWingDataFromFile(char *Name, FILE *VSP_Degen_File)
                 
                 // Save control surface name
                 
-                sprintf(ControlSurface_[NumberOfControlSurfaces_].Name(),"%s\0",Next);
+                sprintf(ControlSurface_[NumberOfControlSurfaces_].Name(),"%s\0",Next); 
+                
+                Next = strtok(NULL,Comma);
+                sprintf(ControlSurface_[NumberOfControlSurfaces_].TypeName(),"%s\0",Next); 
+                
+                Next = strtok(NULL,Comma);
+                sscanf(Next,"%d",&ControlSurface_[NumberOfControlSurfaces_].Type());
                 
                 if ( Verbose_ ) printf("Control Surface Name: %s \n",ControlSurface_[NumberOfControlSurfaces_].Name());
+                if ( Verbose_ ) printf("Control Surface TypeName: %s \n",ControlSurface_[NumberOfControlSurfaces_].TypeName());
+                if ( Verbose_ ) printf("Control Surface Type: %d \n",ControlSurface_[NumberOfControlSurfaces_].Type());
                 
                 fgets(DumChar,1000,VSP_Degen_File);
                 fgets(DumChar,1000,VSP_Degen_File);

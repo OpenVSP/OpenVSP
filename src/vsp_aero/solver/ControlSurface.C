@@ -90,6 +90,7 @@ CONTROL_SURFACE& CONTROL_SURFACE::operator=(const CONTROL_SURFACE &ControlSurfac
     
     NumberOfLoops_ = ControlSurface.NumberOfLoops_;
     
+    sprintf(TypeName_,"%s",ControlSurface.TypeName_);
     Type_ = ControlSurface.Type_;
 
     SizeList(NumberOfLoops_);

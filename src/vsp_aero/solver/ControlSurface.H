@@ -27,6 +27,7 @@ private:
 
     // Control surface type
     
+    char TypeName_[2000];
     int Type_;
     
     // Control Surface group 
@@ -115,6 +116,10 @@ public:
     
     char *Name(void) { return Name_; };
     
+    // TypeName
+    
+    char *TypeName(void) { return TypeName_; };
+
     // Type
     
     int &Type(void) { return Type_; };
