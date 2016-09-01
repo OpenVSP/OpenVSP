@@ -5148,7 +5148,7 @@ void GL_VIEWER::SwapSurfaceNormals(void)
 
 void GL_VIEWER::WriteTiffFile(char *FileName)
 {
-
+#ifdef _TIFFIO_
     int width, height;
     char rgbstr[256];
 
@@ -5168,7 +5168,7 @@ void GL_VIEWER::WriteTiffFile(char *FileName)
        fflush(NULL);
 
     }
-
+#endif
 }
 
 /*##############################################################################
@@ -5194,8 +5194,9 @@ void GL_VIEWER::WriteMovieFrame(char *FileName)
        sprintf(rgbstr,"%s.tiff",FileName);
        width = w();
        height = h();
+#ifdef _TIFFIO_
        WriteTiff( rgbstr, "CBVIEWER", 0, 0, width, height, COMPRESSION_NONE );
-
+#endif
        fflush(NULL);
 
     }
@@ -5211,7 +5212,7 @@ void GL_VIEWER::WriteMovieFrame(char *FileName)
 int GL_VIEWER::WriteTiff(char *filename, char *description,
                          int x, int y, int width, int height, int compression)
 {
-
+#ifdef _TIFFIO_
   TIFF *file;
   GLubyte *image, *p;
   int i;
@@ -5253,6 +5254,8 @@ int GL_VIEWER::WriteTiff(char *filename, char *description,
   }
   TIFFClose(file);
   if ( image != NULL) free(image);
+
+#endif
   return 0;
 
 }

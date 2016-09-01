@@ -9,7 +9,7 @@
 double myclock(void)
 {
  
-#ifndef MYTIME
+#ifdef MYTIME
  
    struct timezone tzone;
    struct timeval tval;
@@ -35,8 +35,28 @@ double myclock(void)
    
 #else
 
+#ifdef WIN32
+
+    double t;
+
+    struct tm *newtime;
+    __time64_t long_time;
+    struct _timeb tstruct;
+
+    _time64( &long_time );           // Get time as 64-bit integer.
+    newtime = _localtime64( &long_time );
+    _ftime( &tstruct );     //get time for milliseconds
+
+    t = newtime->tm_hour*3600 + newtime->tm_min*60 + newtime->tm_sec + 1e-3 * tstruct.millitm;
+
+    return t;
+
+#else
+
    return 0.
-   
+
+#endif
+
 #endif
               
 }

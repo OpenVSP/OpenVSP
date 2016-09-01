@@ -6,7 +6,9 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#ifndef WIN32
 #include <config.h>
+#endif
 #include <FL/Fl.H>
 #include "viewerUI.H"
 
