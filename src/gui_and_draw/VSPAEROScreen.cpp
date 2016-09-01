@@ -864,7 +864,13 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
             string fileName = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select CSV File", "*.csv" );
             if ( fileName.size() > 0 )
             {
-                VSPAEROMgr.ExportResultsToCSV( fileName );
+                int status = VSPAEROMgr.ExportResultsToCSV( fileName );
+                if ( status!=vsp::VSP_OK )
+                {
+                    char strBuf[1000];
+                    sprintf(strBuf,"File export failed\nFile: %s",fileName.c_str());
+                    fl_alert(strBuf);
+                }
             }
         }
     }
