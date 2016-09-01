@@ -6617,12 +6617,11 @@ void VSP_SOLVER::WriteCaseHeader(FILE *fid)
     fprintf(fid,dataFormatStr, "Mach_", Mach(), "no_unit");
     fprintf(fid,dataFormatStr, "AoA_", AngleOfAttack()/TORAD, "deg");
     fprintf(fid,dataFormatStr, "Beta_", AngleOfBeta()/TORAD, "deg");
-    fprintf(fid,dataFormatStr, "Rho_", Density(), "mass_unit/L_unit^3");
-    fprintf(fid,dataFormatStr, "Vinf_", Vinf(), "L_unit/T_unit");
-    fprintf(fid,dataFormatStr, "Roll__Rate", RotationalRate_p(), "rad/T_unit");
-    fprintf(fid,dataFormatStr, "Pitch_Rate", RotationalRate_q(), "rad/T_unit");
-    fprintf(fid,dataFormatStr, "Yaw___Rate", RotationalRate_r(), "rad/T_unit");
-    
+    fprintf(fid,dataFormatStr, "Rho_", Density(), "Munit/Lunit^3");
+    fprintf(fid,dataFormatStr, "Vinf_", Vinf(), "Lunit/Tunit");
+    fprintf(fid,dataFormatStr, "Roll__Rate", RotationalRate_p(), "rad/Tunit");
+    fprintf(fid,dataFormatStr, "Pitch_Rate", RotationalRate_q(), "rad/Tunit");
+    fprintf(fid,dataFormatStr, "Yaw___Rate", RotationalRate_r(), "rad/Tunit");
     /*
     char control_name[20];
     for ( int n = 1 ; n <= NumberOfControlGroups_ ; n++ ) {

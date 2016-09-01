@@ -1914,30 +1914,30 @@ void CalculateStabilityDerivatives(void)
     
     fprintf(StabFile,"#\n");
 
-    //                12345678901234567890123456789 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012    
-    fprintf(StabFile,"             Case     Delta        CFx          CFy          CFz          CMx          CMy          CMz          CL           CD           CS          CMl          CMm          CMn      \n");
+    //                123456789012345678901234567890123456789 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012   
+    fprintf(StabFile,"Case                   Delta    Units         CFx          CFy          CFz          CMx          CMy          CMz          CL           CD           CS           CMl          CMm          CMn\n");
        
     fprintf(StabFile,"#\n");
 
     for ( n = 1 ; n <= NumStabCases_ + NumberOfControlGroups_ ; n++ ) {
        
        // Stability derivative cases
-       
                                      //12345678901234567890123456789
-       if ( n == 1 ) sprintf(CaseType,caseTypeFormatStr,"Base_Aero",0.0,"");
-       if ( n == 2 ) sprintf(CaseType,caseTypeFormatStr,"Alpha",Delta_AoA_,"deg");
-       if ( n == 3 ) sprintf(CaseType,"Beta                   +%5.3lf %-9s",Delta_Beta_,"deg");
-       if ( n == 4 ) sprintf(CaseType,"Roll__Rate             +%5.3lf %-9s",Delta_P_,"rad/T_unit");
-       if ( n == 5 ) sprintf(CaseType,"Pitch_Rate             +%5.3lf %-9s",Delta_Q_,"rad/T_unit");
-       if ( n == 6 ) sprintf(CaseType,"Yaw___Rate             +%5.3lf %-9s",Delta_R_,"rad/T_unit");
-       if ( n == 7 ) sprintf(CaseType,"Mach                   +%5.3lf %-9s",Delta_Mach_,"no_unit");
+       char caseTypeFormatStr[] = "%-22s +%5.3lf %-9s";
+       if ( n == 1 ) sprintf(CaseType,caseTypeFormatStr,"Base_Aero", 0.0,        "n/a"); // note must print a "-" for the units column here or the parser in VSP has a hard time
+       if ( n == 2 ) sprintf(CaseType,caseTypeFormatStr,"Alpha",     Delta_AoA_, "deg");
+       if ( n == 3 ) sprintf(CaseType,caseTypeFormatStr,"Beta",      Delta_Beta_,"deg");
+       if ( n == 4 ) sprintf(CaseType,caseTypeFormatStr,"Roll__Rate",Delta_P_,   "rad/Tunit");
+       if ( n == 5 ) sprintf(CaseType,caseTypeFormatStr,"Pitch_Rate",Delta_Q_,   "rad/Tunit");
+       if ( n == 6 ) sprintf(CaseType,caseTypeFormatStr,"Yaw___Rate",Delta_R_,   "rad/Tunit");
+       if ( n == 7 ) sprintf(CaseType,caseTypeFormatStr,"Mach",      Delta_Mach_,"no_unit");
 
        
        // Control derivatve cases
                                      //12345678901234567890123456
-       if ( n  > 7 ) sprintf(CaseType,"Control_Group_%-5d    +%5.3lf",n-NumStabCases_,Delta_Control_);
+       if ( n  > 7 ) sprintf(CaseType,"Control_Group_%-5d    +%5.3lf %-9s",n-NumStabCases_,Delta_Control_,"deg");
        
-       fprintf(StabFile,"%29s %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f \n",
+       fprintf(StabFile,"%-39s %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f \n",
                CaseType,
                
                CFxForCase[n],
@@ -2036,9 +2036,9 @@ void CalculateStabilityDerivatives(void)
     //                        123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012 123456789012           
     fprintf(StabFile,"#             Base    Derivative:                                                                               "); for ( n = 8 ; n <= NumStabCases_ + NumberOfControlGroups_ ; n++ ) fprintf(StabFile,"             ");     fprintf(StabFile,"\n");
     fprintf(StabFile,"#             Aero         wrt          wrt          wrt          wrt          wrt          wrt          wrt    "); for ( n = 8 ; n <= NumStabCases_ + NumberOfControlGroups_ ; n++ ) fprintf(StabFile,"      wrt    ");     fprintf(StabFile,"\n");
-    fprintf(StabFile,"#             Coef         Alpha        Beta          p            q            r           Mach         U      "); for ( n = 8 ; n <= NumStabCases_ + NumberOfControlGroups_ ; n++ ) fprintf(StabFile,"  ConGrp_%-3d ",n-7); fprintf(StabFile,"\n");
+    fprintf(StabFile,"Coef          Total        Alpha        Beta          p            q            r           Mach         U      "); for ( n = 8 ; n <= NumStabCases_ + NumberOfControlGroups_ ; n++ ) fprintf(StabFile,"  ConGrp_%-3d ",n-7); fprintf(StabFile,"\n");
     fprintf(StabFile,"#              -           per          per          per          per          per          per          per    "); for ( n = 8 ; n <= NumStabCases_ + NumberOfControlGroups_ ; n++ ) fprintf(StabFile,"      per    ");     fprintf(StabFile,"\n");
-    fprintf(StabFile,"#              -           rad          rad          rad          rad          rad          rad          rad    "); for ( n = 8 ; n <= NumStabCases_ + NumberOfControlGroups_ ; n++ ) fprintf(StabFile,"      rad    ");     fprintf(StabFile,"\n");
+    fprintf(StabFile,"#              -           rad          rad          rad          rad          rad          M            u      "); for ( n = 8 ; n <= NumStabCases_ + NumberOfControlGroups_ ; n++ ) fprintf(StabFile,"      rad    ");     fprintf(StabFile,"\n");
    
     fprintf(StabFile,"#\n");
     
