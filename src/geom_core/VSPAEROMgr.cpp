@@ -1479,21 +1479,22 @@ int VSPAEROMgrSingleton::ReadVSPAEROCaseHeader(Results * res, FILE * fp, vsp::VS
 // TODO make return values into enum
 int VSPAEROMgrSingleton::ExportResultsToCSV( string fileName )
 {
+    int retVal;
+
     // Get the results
     string resId = ResultsMgr.FindLatestResultsID( "VSPAERO_Wrapper" );
     if ( resId !=string() )
     {
         // Get all the child results
         vector <string> resIdVector = ResultsMgr.GetStringResults( resId, "ResultsVec" );
-        ResultsMgr.WriteCSVFile( fileName, resIdVector );
+        retVal = ResultsMgr.WriteCSVFile( fileName, resIdVector );
     }
     else
     {
         fprintf(stderr,"ERROR %d: Unable to get VSPAERO_Wrapper result \n\tFile: %s \tLine:%d\n",vsp::VSP_CANT_FIND_NAME,__FILE__,__LINE__);
-        return -1; //failure
+        retVal = vsp::VSP_CANT_FIND_NAME; //failure
     }
 
-
-    return 0; //success
+    return retVal;
 }
 
