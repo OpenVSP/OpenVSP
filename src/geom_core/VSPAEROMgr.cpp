@@ -413,17 +413,58 @@ void VSPAEROMgrSingleton::CreateSetupFile(FILE * logFile)
     args.push_back( StringUtil::double_to_string( m_Ycg(), "%f" ) );
     args.push_back( StringUtil::double_to_string( m_Zcg(), "%f" ) );
 
-    args.push_back( "-aoa" );
-    args.push_back( StringUtil::double_to_string( m_AlphaStart(), "%f" ) );
-    args.push_back( "END" );
+    // If the GUI is selected for batch calculation write the setup file with 
+    // the entire vector of mach alpha and beta points otherwise just write the
+    // starting freestream condition.  This will give the easiest to use setup 
+    // file representing the options in the GUI.
+    if ( m_BatchModeFlag.Get() )
+    {
+        vector<double> alphaVec;
+        vector<double> betaVec;
+        vector<double> machVec;
+        GetSweepVectors( alphaVec, betaVec, machVec);
 
-    args.push_back( "-beta" );
-    args.push_back( StringUtil::double_to_string( m_BetaStart(), "%f" ) );
-    args.push_back( "END" );
+        //====== Loop over flight conditions and solve ======//
+        // Mach
+        args.push_back( "-mach" );
+        for ( int iMach = 0; iMach < machVec.size(); iMach++ )
+        {
+            args.push_back( StringUtil::double_to_string( machVec[iMach], "%f " ) );
+        }
+        args.push_back( "END" );
 
-    args.push_back( "-mach" );
-    args.push_back( StringUtil::double_to_string( m_MachStart(), "%f" ) );
-    args.push_back( "END" );
+        // Alpha
+        args.push_back( "-aoa" );
+        for ( int iAlpha = 0; iAlpha < alphaVec.size(); iAlpha++ )
+        {
+            args.push_back( StringUtil::double_to_string( alphaVec[iAlpha], "%f " ) );
+        }
+        args.push_back( "END" );
+
+        // Beta
+        args.push_back( "-beta" );
+        for ( int iBeta = 0; iBeta < betaVec.size(); iBeta++ )
+        {
+            args.push_back( StringUtil::double_to_string( betaVec[iBeta], "%f " ) );
+        }
+        args.push_back( "END" );
+    }
+    else
+    {
+        args.push_back( "-aoa" );
+        args.push_back( StringUtil::double_to_string( m_AlphaStart(), "%f" ) );
+        args.push_back( "END" );
+
+        args.push_back( "-beta" );
+        args.push_back( StringUtil::double_to_string( m_BetaStart(), "%f" ) );
+        args.push_back( "END" );
+
+        args.push_back( "-mach" );
+        args.push_back( StringUtil::double_to_string( m_MachStart(), "%f" ) );
+        args.push_back( "END" );
+    }
+        
+
 
     args.push_back( "-wakeiters" );
     args.push_back( StringUtil::int_to_string( m_WakeNumIter(), "%d" ) );
