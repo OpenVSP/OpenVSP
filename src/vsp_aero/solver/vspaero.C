@@ -144,6 +144,7 @@ int Write2DFEMFile_       = 0;
 // Prototypes
 
 int main(int argc, char **argv);
+void PrintUsageHelp();
 void ParseInput(int argc, char *argv[]);
 void CreateInputFile(char *argv[], int argc, int &i);
 void LoadCaseFile(void);
@@ -253,6 +254,54 @@ int main(int argc, char **argv)
 
 /*##############################################################################
 #                                                                              #
+#                              UsageHelp                                       #
+#                                                                              #
+##############################################################################*/
+
+void PrintUsageHelp()
+{
+       printf("VSPAERO v.3.x --- 08/30/2016 \n");
+       printf("\n\n\n\n");
+
+       printf("Usage: vspaero [options] <FileName>\n");
+       printf("\n\n");
+       printf("Options: \n");
+       printf(" -omp <N>        Use 'N' processes.\n");
+       printf(" -stab           Calculate stability derivatives.\n");
+       printf(" -fs <M> END <A> END <B> END        Set/Override freestream Mach, Alpha, and Beta. note: M, A, and B are space delimited lists.\n");
+       printf(" -save           Save restart file.\n");
+       printf(" -restart        Restart analysis.\n");
+       printf(" -geom           Process and write geometry without solving.\n");
+       printf(" -avg <N>        Force averaging startign at wake iteration N.\n");
+       printf(" -nowake <N>     No wake for first N iterations.\n");
+       printf(" -fem            Load in FEM deformation file.\n");
+       printf(" -write2dfem     Write out 2D FEM load file.\n");
+       printf(" -setup          Write template *.vspaero file, can specify parameters below:\n");
+       printf("     -sref  <S>        Reference area S.\n");
+       printf("     -bref  <b>        Reference span b.\n");
+       printf("     -cref  <c>        Reference chord c.\n");
+       printf("     -cg  <X Y Z>      Moment reference point.\n");
+       printf("     -mach <M> END     Freestream Mach number. M is a space delimited list of mach values.\n");
+       printf("     -aoa  <A> END     Angle of attack. A is a space delimited list of aoa values.\n");
+       printf("     -beta <B> END     Sideslip angle. B is a space delimited list of beta values.\n");
+       printf("     -symx             Symetry flag - vehicle is symetric at x=0.\n");
+       printf("     -symy             Symetry flag - vehicle is symetric at y=0 (this is the most common).\n");
+       printf("     -symz             Symetry flag - vehicle is symetric at z=0.\n");
+       printf("\n");
+       printf("EXAMPLES:\n");
+       printf("Example: Creating a setup file for testModel with mach and alpha sweep matrix\n");
+       printf("vspaero -setup -sref 10 -bref 10 -cref 1 -cg 0.1 0 0.1 -mach 0 0.1 0.3 END -aoa 1 5.5 10 END -beta 0 END testModel_DegenGeom\n");
+       printf("\n");
+       printf("Example: Solve testModel with 4 threads\n");
+       printf("vspaero -omp 4 testModel_DegenGeom\n");
+       printf("\n");
+       printf("Example: Solve testModel with 4 threads and freestream overrides\n");
+       printf("vspaero -omp 4 -fs 0.05 0.15 0.35 END 1 5.5 10 END 0 END testModel_DegenGeom\n");
+       printf("\n");
+}
+
+/*##############################################################################
+#                                                                              #
 #                              ParseInput                                      #
 #                                                                              #
 ##############################################################################*/
@@ -266,30 +315,7 @@ void ParseInput(int argc, char *argv[])
 
     if ( argc < 2 ) {
 
-       printf("VSPAERO v.3.x --- 08/30/2016 \n");
-       printf("\n\n\n\n");
-
-       printf("Usage: vspaero -(see below) FileName\n");
-       printf("\n\n");
-       printf("Additional options: \n");
-       printf(" -omp N          Use 'N' processes.\n");
-       printf(" -stab           Calculate stability derivatives.\n");
-       printf(" -fs M A B       Set freestream Mach, Alpha, and Beta (overrides setup file).\n");
-       printf(" -save           Save restart file.\n");
-       printf(" -restart        Restart analysis.\n");
-       printf(" -geom           Process and write geometry without solving.\n");
-       printf(" -avg N          Force averaging startign at wake iteration N\n");
-       printf(" -nowake N       No wake for first N iterations.\n");
-       printf(" -setup          Write template *.vspaero file, can specify parameters below:\n");
-       printf(" -sref  S        Reference area.\n");
-       printf(" -bref  b        Reference span.\n");
-       printf(" -cref  c        Reference chord.\n");
-       printf(" -cg  X Y Z      Moment reference point.\n");
-       printf(" -mach  M        Freestream Mach number.\n");
-       printf(" -aoa   A        Angle of attack.\n");
-       printf(" -beta  B        Sideslip angle.\n");
-       printf(" -fem            Load in FEM deformation file \n");
-       printf(" -write2dfem     Write out 2D FEM load file \n");
+       PrintUsageHelp();
  
        exit(1);
 
@@ -427,32 +453,9 @@ void ParseInput(int argc, char *argv[])
 
        else {
 
-          printf("argv[i]: %s \n",argv[i]);
+          printf("Unknown option argv[%d]: %s \n",i,argv[i]);
           
-          printf("VSPAERO v.3.x --- 08/30/2016 \n");
-          printf("\n\n\n\n");
-
-          printf("Usage: vspaero -(see below) FileName\n");
-          printf("\n\n");
-          printf("Additional options: \n");
-          printf(" -omp N          Use 'N' processes.\n");
-          printf(" -stab           Calculate stability derivatives.\n");
-          printf(" -fs M A B       Set freestream Mach, Alpha, and Beta.\n");
-          printf(" -save           Save restart file.\n");
-          printf(" -restart        Restart analysis.\n");
-          printf(" -geom           Process and write geometry without solving.\n");
-          printf(" -avg N          Force averaging startign at wake iteration N\n");
-          printf(" -nowake N       No wake for first N iterations.\n");
-          printf(" -setup          Write template *.vspaero file, can specify parameters below:\n");
-          printf(" -sref  S        Reference area.\n");
-          printf(" -bref  b        Reference span.\n");
-          printf(" -cref  c        Reference chord.\n");
-          printf(" -cg  X Y Z      Moment reference point.\n");
-          printf(" -mach  M        Freestream Mach number.\n");
-          printf(" -aoa   A        Angle of attack.\n");
-          printf(" -beta  B        Sideslip angle.\n");
-          printf(" -fem            Load in FEM deformation file \n");
-          printf(" -write2dfem     Write out 2D FEM load file \n");
+          PrintUsageHelp();
 
           exit(1);
 
