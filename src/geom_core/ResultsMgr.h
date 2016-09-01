@@ -218,7 +218,7 @@ public:
     void WriteTestResults();        // Write Some Test Results
     void TestSpeed();               // Test Speed
 
-    void WriteCSVFile( const string & file_name, const vector < string > &resids );
+    int WriteCSVFile( const string & file_name, const vector < string > &resids );
 
 private:
     ResultsMgrSingleton();

@@ -1011,7 +1011,7 @@ void ResultsMgrSingleton::TestSpeed()
 }
 
 
-void ResultsMgrSingleton::WriteCSVFile( const string & file_name, const vector < string > &resids )
+int ResultsMgrSingleton::WriteCSVFile( const string & file_name, const vector < string > &resids )
 {
     FILE* fid = fopen( file_name.c_str(), "w" );
     if( fid )
@@ -1026,5 +1026,10 @@ void ResultsMgrSingleton::WriteCSVFile( const string & file_name, const vector <
             }
         }
         fclose( fid );          // Close File
+        return vsp::VSP_OK;
+    }
+    else
+    {
+        return vsp::VSP_FILE_WRITE_FAILURE;
     }
 }
