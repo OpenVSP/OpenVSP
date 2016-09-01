@@ -284,6 +284,7 @@ void PrintUsageHelp()
        printf("     -mach <M> END     Freestream Mach number. M is a space delimited list of mach values.\n");
        printf("     -aoa  <A> END     Angle of attack. A is a space delimited list of aoa values.\n");
        printf("     -beta <B> END     Sideslip angle. B is a space delimited list of beta values.\n");
+       printf("     -wakeiters <N>    Number of wake iterations to calculate.\n");
        printf("     -symx             Symetry flag - vehicle is symetric at x=0.\n");
        printf("     -symy             Symetry flag - vehicle is symetric at y=0 (this is the most common).\n");
        printf("     -symz             Symetry flag - vehicle is symetric at z=0.\n");
@@ -626,6 +627,11 @@ void CreateInputFile(char *argv[], int argc, int &i)
           
        }  
                      
+       else if ( strcmp(argv[i],"-wakeiters") == 0 ) {
+
+          WakeIterations_ = atof(argv[++i]);
+
+       }
        i++; 
        
     }
