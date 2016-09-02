@@ -2181,6 +2181,7 @@ void ScriptMgrSingleton::DeleteVarPresetSet( string group_name, string setting_n
     vsp::DeleteVarPresetSet( group_name, setting_name );
 }
 
+//==== PCurve Functions ====//
 void ScriptMgrSingleton::SetPCurve( const string& geom_id, const int & pcurveid, CScriptArray* t_arr, CScriptArray* val_arr, const int & newtype )
 {
     vector < double > t_vec;
