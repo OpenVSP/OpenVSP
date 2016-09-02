@@ -954,7 +954,7 @@ void DegenGeom::write_degenGeomCsv_file( FILE* file_id )
 
     if( type == SURFACE_TYPE )
     {
-        fprintf( file_id, "\nLIFTING_SURFACE,%s\n", name.c_str() );
+        fprintf( file_id, "\nLIFTING_SURFACE,%s,%d\n", name.c_str(),getSurfNum() );
     }
     else if( type == DISK_TYPE )
     {
