@@ -1180,6 +1180,9 @@ void VSP_SURFACE::ReadWingDataFromFile(char *Name, FILE *VSP_Degen_File)
           fgets(DumChar,1000,VSP_Degen_File);
   
           if ( strstr(DumChar,"SUBSURF") ) {
+
+              // Check for supported sub-surface types.  This could be made into an if-elseif statement to handle each individually
+             if ( strstr(DumChar,"Control_Surf") || strstr(DumChar,"Rectangle") ) {
    
              if ( Verbose_ ) printf("DumChar: %s .... LastSubSurf: %s \n",DumChar,LastSubSurf);
         
@@ -1342,6 +1345,8 @@ void VSP_SURFACE::ReadWingDataFromFile(char *Name, FILE *VSP_Degen_File)
              }
              
           }         
+
+          } //check for "Control_Surf"
       
        }
        
