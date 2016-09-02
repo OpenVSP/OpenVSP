@@ -1984,7 +1984,7 @@ string GetXSecParm( const string& xsec_id, const string& name )
         return xscparm;
     }
 
-    ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetXSecParm::Can't Find XSecCurve " + name  );
+    ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetXSecParm::Can't Find Parm " + name  );
     return string();
 }
 
