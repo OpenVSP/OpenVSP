@@ -944,9 +944,6 @@ void VSPAEROMgrSingleton::AddResultHeader( string res_id, double mach, double al
     Results * res = ResultsMgr.FindResultsPtr( res_id );
     if ( res )
     {
-        res->Add( NameValData( "FC_Mach", mach ) );
-        res->Add( NameValData( "FC_Alpha", alpha ) );
-        res->Add( NameValData( "FC_Beta", beta ) );
         res->Add( NameValData( "AnalysisMethod", analysisMethod ) );
     }
 }
@@ -1170,7 +1167,7 @@ void VSPAEROMgrSingleton::ReadLoadFile(string filename, vector <string> &res_id_
                 return;
             }
 
-            cref = res->FindPtr("Cref_")->GetDouble(0);
+            cref = res->FindPtr("FC_Cref_")->GetDouble(0);
 
         }
 
@@ -1433,7 +1430,7 @@ int VSPAEROMgrSingleton::ReadVSPAEROCaseHeader(Results * res, FILE * fp, vsp::VS
             // assumption that the 2nd entry is a number
             if ( sscanf(data_string_array[1].c_str(),"%lf", &value)==1 )
             {
-                res->Add( NameValData( data_string_array[0], value ) );
+                res->Add( NameValData( "FC_" + data_string_array[0], value ) );
 
                 // save flow condition information to be added to the header later
                 if ( strcmp(data_string_array[0].c_str(),"Mach_" )==0 ) 

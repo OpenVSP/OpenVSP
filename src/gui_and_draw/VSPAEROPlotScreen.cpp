@@ -861,21 +861,21 @@ void VSPAEROPlotScreen::ConstructFlowConditionString( char * strbuf, Results * r
         double beta = 0;
         double mach = 0;
 
-        nvd = res->FindPtr( "FC_Alpha" );
+        nvd = res->FindPtr( "FC_AoA_" );
         if( nvd )
         {
             dataVector = nvd->GetDoubleData();
             alpha = dataVector[dataVector.size() - 1];
         }
 
-        nvd = res->FindPtr( "FC_Beta" );
+        nvd = res->FindPtr( "FC_Beta_" );
         if( nvd )
         {
             dataVector = nvd->GetDoubleData();
             beta = dataVector[dataVector.size() - 1];
         }
 
-        nvd = res->FindPtr( "FC_Mach" );
+        nvd = res->FindPtr( "FC_Mach_" );
         if( nvd )
         {
             dataVector = nvd->GetDoubleData();
@@ -912,9 +912,7 @@ void VSPAEROPlotScreen::UpdateConvergenceYDataBrowser()
     vector < string > dataNames = ResultsMgr.GetAllDataNames( resultID );
     for ( unsigned int iDataName = 0; iDataName < dataNames.size(); iDataName++ )
     {
-        if ( ( strcmp( dataNames[iDataName].c_str(), "FC_Mach" )  != 0 )  &
-             ( strcmp( dataNames[iDataName].c_str(), "FC_Alpha" ) != 0 )  &
-             ( strcmp( dataNames[iDataName].c_str(), "FC_Beta" )  != 0 )  &
+        if ( ( strncmp( dataNames[iDataName].c_str(), "FC_",3 )   != 0 )  &
              ( strcmp( dataNames[iDataName].c_str(), "WakeIter" ) != 0 )  &
              ( strcmp( dataNames[iDataName].c_str(), "Mach" )     != 0 )  &
              ( strcmp( dataNames[iDataName].c_str(), "Alpha" )    != 0 )  &
@@ -967,7 +965,7 @@ void VSPAEROPlotScreen::UpdateLoadDistYDataBrowser()
             vector < string > dataNames = ResultsMgr.GetAllDataNames( resultID );
             for ( unsigned int iDataName = 0; iDataName < dataNames.size(); iDataName++ )
             {
-                if ( ( strcmp( dataNames[iDataName].c_str(), "FC_Mach" )  != 0 )  &
+                if ( ( strncmp( dataNames[iDataName].c_str(), "FC_",3 )   != 0 )  &
                      ( strcmp( dataNames[iDataName].c_str(), "FC_Alpha" ) != 0 )  &
                      ( strcmp( dataNames[iDataName].c_str(), "FC_Beta" )  != 0 )  &
                      ( strcmp( dataNames[iDataName].c_str(), "WingId" )   != 0 )  &
@@ -1026,9 +1024,7 @@ void VSPAEROPlotScreen::UpdateSweepXYDataBrowser()
     {
         for ( unsigned int iDataName = 0; iDataName < dataNames.size(); iDataName++ )
         {
-            if ( ( strcmp( dataNames[iDataName].c_str(), "FC_Mach" )  != 0 )  &
-                 ( strcmp( dataNames[iDataName].c_str(), "FC_Alpha" ) != 0 )  &
-                 ( strcmp( dataNames[iDataName].c_str(), "FC_Beta" )  != 0 )  &
+            if ( ( strncmp( dataNames[iDataName].c_str(), "FC_",3 )   != 0 )  &
                  ( strcmp( dataNames[iDataName].c_str(), "WakeIter" ) != 0 )  &
                  ( strcmp( dataNames[iDataName].c_str(), "AnalysisMethod" ) != 0 ) )
             {
@@ -1280,25 +1276,27 @@ void VSPAEROPlotScreen::PlotConvergence( string resultID, vector <string> yDataS
 
         NameValData* xResultDataPtr;
         xResultDataPtr = res->FindPtr( "WakeIter" );
-
+        
         NameValData* yResultDataPtr;
 
         string labelStr;
         for ( int iDataSet = 0; iDataSet < ( int )yDataSetNames.size(); iDataSet++ )
         {
             yResultDataPtr = res->FindPtr( yDataSetNames[iDataSet] );
-            if ( ( xResultDataPtr != NULL ) & ( yResultDataPtr != NULL ) )
+            if ( ( xResultDataPtr != NULL ) && ( yResultDataPtr != NULL ) )
             {
-                //often the X Data may be a vector of integers, if so convert the data to doubles first
+                //  Get the X Data and explicitly set limits for interation # on X-Axis
                 vector <double> xDoubleData;
-                if ( xResultDataPtr->GetType() == vsp::INT_DATA )
+                if ( ( xResultDataPtr != NULL ) )
                 {
                     vector <int> tIntData = xResultDataPtr->GetIntData();
                     copy( tIntData.begin(), tIntData.end(), back_inserter( xDoubleData ) );
-                }
-                else
-                {
-                    xDoubleData = xResultDataPtr->GetDoubleData();
+
+                    if ( xDoubleData.size()>0 )
+                    {
+                        m_ConvergencePlotCanvas->current_x()->minimum( xDoubleData[0] );
+                        m_ConvergencePlotCanvas->current_x()->maximum( xDoubleData[xDoubleData.size()-1] );
+                    }
                 }
                 vector <double> yDoubleData;
                 if ( yResultDataPtr->GetType() == vsp::INT_DATA )
@@ -1314,44 +1312,53 @@ void VSPAEROPlotScreen::PlotConvergence( string resultID, vector <string> yDataS
                 //normalize the iteration data w.r.t. the final value
                 if ( m_ConvergenceYDataResidualToggle.GetFlButton()->value() == 1 )
                 {
-                    vector <double> diffY = yDoubleData;
-                    for ( int j = 1; j < ( int )yDoubleData.size(); j++ )
+                    double diffY;
+                    vector <double> tempY = yDoubleData;
+                    unsigned int j=1;
+                    unsigned int jMax = ( unsigned int )tempY.size();
+                    while( j < jMax )
                     {
-                        diffY[j] = yDoubleData[j] - yDoubleData[j - 1];
-                    }
-                    for ( int j = 0; j < ( int )yDoubleData.size(); j++ )
-                    {
-                        yDoubleData[j] = log10( abs( ( diffY[j] ) ) + FLT_MIN ); //add FLT_MIN for negative inf protection on log10()
+                        diffY = tempY[j] - tempY[j - 1];
+                        if ( diffY!=0 ) // inf protection on log10()
+                        {
+                            yDoubleData[j] = log10( abs( diffY ) );
+                            j++;
+                        }
+                        else
+                        {
+                            //value did not change, eliminate the data point, this eliminates "jumping" on plot screen
+                            xDoubleData.erase(xDoubleData.begin() + j);
+                            yDoubleData.erase(yDoubleData.begin() + j);
+                            tempY.erase(tempY.begin() + j);
+                            jMax--;
+                        }
                     }
                 }
 
                 if ( xDoubleData.size() == yDoubleData.size() )
                 {
-                Fl_Color c = ColorWheel( m_ConvergenceiPlot, m_ConvergenceNLines );
+                    Fl_Color c = ColorWheel( m_ConvergenceiPlot, m_ConvergenceNLines );
 
-                //add the normalized data to the plot
-                AddPointLine( xDoubleData, yDoubleData, 2, c, 4, StyleWheel( m_ConvergenceiPlot ) );
+                    //add the normalized data to the plot
+                    AddPointLine( xDoubleData, yDoubleData, 2, c, 4, StyleWheel( m_ConvergenceiPlot ) );
 
-                char strbuf[100];
-                ConstructFlowConditionString( strbuf, res, false );
-                string legendstr = strbuf + string("; Y: ") + yDataSetNames[iDataSet];
-                m_ConvergenceLegendLayout.AddLegendEntry( legendstr, c );
-                m_ConvergenceiPlot++;
+                    char strbuf[100];
+                    ConstructFlowConditionString( strbuf, res, false );
+                    string legendstr = strbuf + string("; Y: ") + yDataSetNames[iDataSet];
+                    m_ConvergenceLegendLayout.AddLegendEntry( legendstr, c );
+                    m_ConvergenceiPlot++;
 
-                //Handle Axis limits
-                //  Set explicit limits for interation # on X-Axis
-                m_ConvergencePlotCanvas->current_x()->minimum( xDoubleData[0] );
-                m_ConvergencePlotCanvas->current_x()->maximum( xDoubleData[xDoubleData.size() - 1] );
-                //  Auto adjust and expand limits for Y-Axis
-                if ( m_ConvergenceYDataResidualToggle.GetFlButton()->value() == 1 )
-                {
-                    //Always show 0 on Y Axis if the data is normalized on a log scale
-                    UpdateSingleAxisLimits( m_ConvergencePlotCanvas->current_y(), yDoubleData, expandOnly, true );
-                }
-                else
-                {
-                    UpdateSingleAxisLimits( m_ConvergencePlotCanvas->current_y(), yDoubleData, expandOnly, true );
-                }
+                    //Handle Axis limits
+                    //  Auto adjust and expand limits for Y-Axis
+                    if ( m_ConvergenceYDataResidualToggle.GetFlButton()->value() == 1 )
+                    {
+                        //Always show 0 on Y Axis if the data is normalized on a log scale
+                        UpdateSingleAxisLimits( m_ConvergencePlotCanvas->current_y(), yDoubleData, expandOnly, true );
+                    }
+                    else
+                    {
+                        UpdateSingleAxisLimits( m_ConvergencePlotCanvas->current_y(), yDoubleData, expandOnly, true );
+                    }
                 }
                 else
                 {
