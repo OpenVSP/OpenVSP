@@ -266,6 +266,8 @@ void PCurve::EnforcePtOrder( double rfirst, double rlast )
 {
     double offset = 1e-4;
 
+    ClearPtOrder();
+
     if ( m_CurveType() == vsp::CEDIT )
     {
         int npt = m_TParmVec.size();
@@ -284,14 +286,16 @@ void PCurve::EnforcePtOrder( double rfirst, double rlast )
             {
                 pstart->Set( rfirst );
                 pstart->Deactivate();
-                pstart->SetLowerLimit( 0.0 );
+                pstart->SetLowerLimit( rfirst );
+                pstart->SetUpperLimit( rfirst );
             }
 
             if ( i == nseg - 1 && pend )
             {
                 pend->Set( rlast );
                 pend->Deactivate();
-                pend->SetUpperLimit( 1.0 );
+                pend->SetUpperLimit( rlast );
+                pend->SetLowerLimit( rlast );
             }
 
             if ( pstart && pend )
@@ -299,6 +303,11 @@ void PCurve::EnforcePtOrder( double rfirst, double rlast )
                 pstart->SetUpperLimit( pend->Get() - offset );
                 pend->SetLowerLimit( pstart->Get() + offset );
             }
+
+            // Keep intermediate points valid.
+            double dt = pend->Get() - pstart->Get();
+            m_TParmVec[iend - 1]->Set( pend->Get() - dt/3.0 );
+            m_TParmVec[istart + 1]->Set( pstart->Get() + dt/3.0 );
         }
 
         // Deactivate interior control points without setting limits.
@@ -328,21 +337,15 @@ void PCurve::EnforcePtOrder( double rfirst, double rlast )
                 {
                     p->Set( rfirst );
                     p->Deactivate();
-                    p->SetLowerLimit( 0.0 );
-                    if ( pnxt )
-                    {
-                        p->SetUpperLimit( pnxt->Get() - offset );
-                    }
+                    p->SetLowerLimit( rfirst );
+                    p->SetUpperLimit( rfirst );
                 }
                 else if ( j == m_TParmVec.size() - 1 )
                 {
                     p->Set( rlast );
                     p->Deactivate();
-                    p->SetUpperLimit( 1.0 );
-                    if ( pprev )
-                    {
-                        p->SetLowerLimit( pprev->Get() + offset );
-                    }
+                    p->SetUpperLimit( rlast );
+                    p->SetLowerLimit( rlast );
                 }
                 else
                 {
