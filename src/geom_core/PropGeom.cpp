@@ -88,7 +88,7 @@ void PropPositioner::Update()
     mat.rotate( m_FoldAngle * PI / 180.0, m_FoldDirection );
     mat.translatef( -m_FoldOrigin.x(), -m_FoldOrigin.y(), -m_FoldOrigin.z() );
 
-    mat.rotateY( m_Feather );
+    mat.rotateY( m_Reverse * m_Feather );
 
     mat.translatef( 0, m_Radius, 0 );
 
