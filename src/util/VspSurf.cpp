@@ -813,13 +813,14 @@ void VspSurf::MakeUTess( const vector<int> &num_u, vector<double> &u, const std:
 
 void VspSurf::MakeVTess( int num_v, std::vector<double> &vtess, const int &n_cap, bool degen ) const
 {
-    double vmin, vmax, vabsmin, vle, vlelow, vleup;
+    double vmin, vmax, vabsmin, vabsmax, vle, vlelow, vleup;
     surface_index_type nv( num_v );
 
     vmin = m_Surface.get_v0();
     vmax = m_Surface.get_vmax();
 
     vabsmin = vmin;
+    vabsmax = vmax;
 
     double tol = 1e-6;
 
@@ -835,13 +836,27 @@ void VspSurf::MakeVTess( int num_v, std::vector<double> &vtess, const int &n_cap
         vtess.resize(nv);
         int jle = ( nv - 1 ) / 2;
         int j = 0;
+        if ( degen )
+        {
+            vtess[j] = vabsmin;
+            j++;
+        }
         for ( ; j < jle; ++j )
         {
             vtess[j] = vmin + ( vlelow - vmin ) * Cluster( 2.0 * static_cast<double>( j ) / ( nv - 1 ), m_TECluster, m_LECluster );
         }
+        if ( degen )
+        {
+            vtess[j] = vle;
+            j++;
+        }
         for ( ; j < nv; ++j )
         {
             vtess[j] = vleup + ( vmax - vleup ) * (Cluster( 2.0 * static_cast<double>( j - jle ) / ( nv - 1 ), m_LECluster, m_TECluster ));
+        }
+        if ( degen )
+        {
+            vtess[ nv - 1 ] = vabsmax;
         }
 
         if ( degen ) // DegenGeom, don't tessellate blunt TE or LE.
