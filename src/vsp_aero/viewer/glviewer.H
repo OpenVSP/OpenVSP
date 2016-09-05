@@ -5,10 +5,6 @@
 #include <math.h>
 #include <stdio.h>
 
-#ifndef WIN32
-#include <config.h>
-#endif
-
 #include <sys/stat.h>
 
 #ifndef WIN32
