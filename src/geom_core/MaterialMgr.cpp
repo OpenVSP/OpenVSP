@@ -614,7 +614,11 @@ std::vector<std::string> MaterialMgrSingleton::GetNames()
 
 void MaterialMgrSingleton::AddMaterial( const Material &mat )
 {
-    m_Materials.push_back( mat );
+    Material tmpmat;
+    if ( !FindMaterial( mat.m_Name, tmpmat ) )
+    {
+        m_Materials.push_back( mat );
+    }
 }
 
 xmlNodePtr MaterialMgrSingleton::EncodeXml( xmlNodePtr & node )
