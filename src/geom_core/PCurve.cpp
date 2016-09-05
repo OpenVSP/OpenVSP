@@ -327,7 +327,7 @@ void PCurve::EnforcePtOrder( double rfirst, double rlast )
     else  // LINEAR or PCHIP
     {
         Parm *pprev = NULL;
-        for ( int j = 0; j < m_TParmVec.size()-1; j++ )
+        for ( int j = 0; j < m_TParmVec.size(); j++ )
         {
             Parm *p = m_TParmVec[j];
             Parm *pnxt = m_TParmVec[j + 1];
