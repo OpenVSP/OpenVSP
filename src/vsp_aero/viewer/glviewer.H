@@ -175,7 +175,7 @@ private:
     float yshift;
 
     double size;
-    double Brightness;
+    float Brightness;
 
     int OldX, OldY;
 
