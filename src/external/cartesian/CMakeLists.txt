@@ -7,8 +7,8 @@ Cartesian.cpp
 Cartesian.H
 )
 
-# INCLUDE_DIRECTORIES( ${FLTK_INCLUDE_DIR} )
-#
+INCLUDE_DIRECTORIES( ${FLTK_INCLUDE_DIR} )
+
 # ADD_EXECUTABLE( Ca_Example
 # example.cpp
 # )
