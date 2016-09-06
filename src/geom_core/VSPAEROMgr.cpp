@@ -475,7 +475,7 @@ void VSPAEROMgrSingleton::CreateSetupFile( FILE * logFile )
     string cmdStr = m_SolverProcess.PrettyCmd( veh->GetExePath(), veh->GetVSPAEROCmd(), args );
     if( logFile )
     {
-        fprintf( logFile, cmdStr.c_str() );
+        fprintf( logFile, "%s", cmdStr.c_str() );
     }
     else
     {
@@ -713,7 +713,7 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
                     string cmdStr = m_SolverProcess.PrettyCmd( veh->GetExePath(), veh->GetVSPAEROCmd(), args );
                     if( logFile )
                     {
-                        fprintf( logFile, cmdStr.c_str() );
+                        fprintf( logFile, "%s", cmdStr.c_str() );
                     }
                     else
                     {
@@ -884,7 +884,7 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
         string cmdStr = m_SolverProcess.PrettyCmd( veh->GetExePath(), veh->GetVSPAEROCmd(), args );
         if( logFile )
         {
-            fprintf( logFile, cmdStr.c_str() );
+            fprintf( logFile, "%s", cmdStr.c_str() );
         }
         else
         {
@@ -957,7 +957,7 @@ void VSPAEROMgrSingleton::MonitorSolver( FILE * logFile )
                 StringUtil::change_from_to( buf, '\r', '\n' );
                 if( logFile )
                 {
-                    fprintf( logFile, buf );
+                    fprintf( logFile, "%s", buf );
                 }
                 else
                 {
@@ -1434,13 +1434,13 @@ int VSPAEROMgrSingleton::ReadVSPAEROCaseHeader( Results * res, FILE * fp, vsp::V
     if ( res == NULL )
     {
         // Bad pointer
-        fprintf( stderr, "ERROR %d: Invalid results pointer\n\tFile: %s \tLine:%d\n", vsp::VSP_INVALID_PTR, m_StabFile.c_str(), __FILE__, __LINE__ );
+        fprintf( stderr, "ERROR %d: Invalid results pointer\n\tFile: %s \tLine:%d\n", vsp::VSP_INVALID_PTR, __FILE__, __LINE__ );
         return -1;
     }
     if ( fp == NULL )
     {
         // Bad pointer
-        fprintf( stderr, "ERROR %d: Invalid file pointer\n\tFile: %s \tLine:%d\n", vsp::VSP_INVALID_PTR, m_StabFile.c_str(), __FILE__, __LINE__ );
+        fprintf( stderr, "ERROR %d: Invalid file pointer\n\tFile: %s \tLine:%d\n", vsp::VSP_INVALID_PTR, __FILE__, __LINE__ );
         return -2;
     }
 
