@@ -941,7 +941,7 @@ string VSPAEROMgrSingleton::ComputeSolverBatch(FILE * logFile)
 void VSPAEROMgrSingleton::MonitorSolver(FILE * logFile)
 {
     // ==== MonitorSolverProcess ==== //
-    int bufsize = 3000;
+    int bufsize = 1000;
     char *buf;
     buf = ( char* ) malloc( sizeof( char ) * ( bufsize + 1 ) );
     unsigned long nread=1;
@@ -951,11 +951,6 @@ void VSPAEROMgrSingleton::MonitorSolver(FILE * logFile)
         m_SolverProcess.ReadStdoutPipe( buf, bufsize, &nread );
         if( nread > 0 )
         {
-            if ( nread>=bufsize )
-            {
-                fprintf(stderr,"WARNING read buffer full, possible loss of data in console display and/or logfile\n\tFile: %s \tLine:%d\n",__FILE__,__LINE__);
-            }
-
             if ( buf )
             {
                 buf[nread] = 0;
