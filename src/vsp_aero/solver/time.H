@@ -7,7 +7,7 @@
 
 #else
 
-#ifndef MYTIME
+#ifdef MYTIME
 #include <sys/time.h>
 #endif
 
