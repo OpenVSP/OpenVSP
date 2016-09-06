@@ -176,7 +176,7 @@ int main(int argc, char **argv)
 
     // Output a header
 
-    printf("VSPAERO v.3.x --- 10/20/2015 \n");
+    printf("VSPAERO v.3.1 --- 9/5/2016 \n");
     printf("\n\n\n\n");
     
 #ifdef VSPAERO_OPENMP
@@ -260,7 +260,7 @@ int main(int argc, char **argv)
 
 void PrintUsageHelp()
 {
-       printf("VSPAERO v.3.x --- 08/30/2016 \n");
+       printf("VSPAERO v.3.1 --- 9/5/2016 \n");
        printf("\n\n\n\n");
 
        printf("Usage: vspaero [options] <FileName>\n");

@@ -7,7 +7,7 @@ class viewerUI {open
   Function {viewerUI()} {open
   } {
     Fl_Window mainWindow {
-      label {VSPAERO Viewer 3.x} open
+      label {VSPAERO Viewer 3.1} open
       private xywh {630 364 1160 710} type Double labelsize 12 align 0 resizable visible
     } {
       Fl_Group {} {open
