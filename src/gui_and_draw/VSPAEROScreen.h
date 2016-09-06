@@ -72,7 +72,7 @@ protected:
 
     // Case Setup
     GroupLayout m_GeomLayout;
-    //  Radio buttons for analysis method selection VLM OR Panel 
+    //  Radio buttons for analysis method selection VLM OR Panel
     ToggleButton m_AeroMethodToggleVLM;
     ToggleButton m_AeroMethodTogglePanel;
     ToggleRadioGroup m_AeroMethodToggleGroup;
