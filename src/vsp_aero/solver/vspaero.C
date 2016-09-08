@@ -480,7 +480,7 @@ void CreateInputFile(char *argv[], int argc, int &i)
     int k, p, k2, p2, NumberOfControlGroups, Group, NumControls;
     int NumberOfUsedRotors, *RotorIsUsed;
     FILE *case_file;
-    char file_name_w_ext[80], SymmetryFlag[80];
+    char file_name_w_ext[2000], SymmetryFlag[80];
     
     // Defaults
     
