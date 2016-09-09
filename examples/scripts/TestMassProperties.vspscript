@@ -1,0 +1,1027 @@
+void main()
+{
+    Print( string( "Begin Mass Properties Test" ) );
+    Print( string( "" ) );
+    TestAll();
+    Print( string( "End Mass Properties Test" ) );
+}
+
+void TestAll()
+{
+    TestSolidCylinder();
+    ClearVSPModel();
+    TestThickWallCylinder();
+    ClearVSPModel();
+    TestCylindricalShell();
+    ClearVSPModel();
+    TestSphere();
+    ClearVSPModel();
+    TestSolidCone();
+    ClearVSPModel();
+    TestShellCone();
+    ClearVSPModel();
+    TestRectangularPrism();
+    ClearVSPModel();
+}
+
+void TestSolidCylinder()
+{
+    Print( string( "--> Generating Solid Cylinder Geometry" ) );
+    Print( string( "" ) );
+
+    //==== Add Fuselage Geom and Set Parameters =====//
+    string fus_id = AddGeom( "FUSELAGE" );
+
+    // Adjust length to 12:
+    int length = 12;
+    SetParmVal(  fus_id, "Length", "Design", length );
+
+    // Change Type of Middle XSec to Circle and Ends to Points 
+    CutXSec( fus_id, 2 );
+    string fusxsurf_id = GetXSecSurf( fus_id, 0 );
+    ChangeXSecShape( fusxsurf_id, 0, XS_POINT );
+    ChangeXSecShape( fusxsurf_id, 1, XS_CIRCLE );
+    ChangeXSecShape( fusxsurf_id, 2, XS_CIRCLE );
+    ChangeXSecShape( fusxsurf_id, 3, XS_POINT );
+
+    string xsec_id0 = GetXSec( fusxsurf_id, 0 );
+    string xsec_id1 = GetXSec( fusxsurf_id, 1 );
+    string xsec_id2 = GetXSec( fusxsurf_id, 2 );
+    string xsec_id3 = GetXSec( fusxsurf_id, 3 );
+
+    // Set Beginning and End of Cylinder (% value)
+    string xloc_id1 = GetXSecParm( xsec_id1, "XLocPercent" );
+    SetParmVal( xloc_id1, 0.0 );
+    string xloc_id2 = GetXSecParm( xsec_id2, "XLocPercent" );
+    SetParmVal( xloc_id2, 1.0 );
+
+    // Set Radius to 2:
+    int radius = 2;
+    string dia_id1 = GetXSecParm( xsec_id1, "Circle_Diameter" );
+    string dia_id2 = GetXSecParm( xsec_id2, "Circle_Diameter" );
+    SetParmVal( dia_id1, radius * 2 );
+    SetParmVal( dia_id2, radius * 2 );
+
+    // Straighten Cylinder Ends:
+    string sym_id0 = GetXSecParm( xsec_id0, "AllSym" );
+    SetParmVal( sym_id0, 1 );
+    string Lstrength_id0 = GetXSecParm( xsec_id0, "TopLStrength" );
+    SetParmVal( Lstrength_id0, 0 );
+    string Rstrength_id0 = GetXSecParm( xsec_id0, "TopRStrength" );
+    SetParmVal( Rstrength_id0, 0 );
+    string sym_id3 = GetXSecParm( xsec_id3, "AllSym" );
+    SetParmVal( sym_id3, 1 );
+    string Lstrength_id3 = GetXSecParm( xsec_id3, "TopLStrength" );
+    SetParmVal( Lstrength_id3, 0 );
+    string Rstrength_id3 = GetXSecParm( xsec_id3, "TopRStrength" );
+    SetParmVal( Rstrength_id3, 0 );
+
+    // Straighten Cylinder Middle:
+    string sym_id1 = GetXSecParm( xsec_id1, "AllSym" );
+    SetParmVal( sym_id1, 1 );
+    string Lstrength_id1 = GetXSecParm( xsec_id1, "TopLStrength" );
+    SetParmVal( Lstrength_id1, 0 );
+    string Rstrength_id1 = GetXSecParm( xsec_id1, "TopRStrength" );
+    SetParmVal( Rstrength_id1, 0 );
+    string sym_id2 = GetXSecParm( xsec_id2, "AllSym" );
+    SetParmVal( sym_id2, 1 );
+    string Lstrength_id2 = GetXSecParm( xsec_id2, "TopLStrength" );
+    SetParmVal( Lstrength_id2, 0 );
+    string Rstrength_id2 = GetXSecParm( xsec_id2, "TopRStrength" );
+    SetParmVal( Rstrength_id2, 0 );
+
+    // Set Density to 5:
+    int rho = 5;
+    SetParmVal( fus_id, "Density", "Mass_Props", rho );
+
+    // Increase W Tesselation:
+    SetParmVal( fus_id, "Tess_W", "Shape", 97 );
+
+    //==== Analytical Mass Properties ====//    
+    double pi = 3.14159265359;
+    double I_xx = pi * pow( radius, 4 ) * rho * length / 2;
+    double I_xy = 0;
+    double I_yy = pi * pow( radius, 2 ) * rho * length * ( 3 * pow( radius, 2 ) + pow( length, 2 ) ) / 12;
+    double I_yz = 0;
+    double I_zz = I_yy;
+    double I_xz = 0;
+    double Cz = 0;
+    double Cy = 0;
+    double Cx = length / 2;
+    double volume = pi * pow( radius, 2 ) * length;
+    double mass = rho * volume;
+
+    Update();
+
+    Print( "Cylinder Radius: ", false);
+    Print( radius, true);
+    Print( "Cylinder Length: ", false);
+    Print( length, true);
+    Print( "Cylinder Density: ", false);
+    Print( rho, true);
+    Print ( "" );
+
+    //==== Save Vehicle to File ====//
+    Print( string( "-->Saving VSP model\n" ) );
+    string fname = "TestSolidCylinder.vsp3";
+    WriteVSPFile( fname, SET_ALL );
+
+    //==== Execute Mass Properties Analysis ====//
+    // Set defaults
+    SetAnalysisInputDefaults( "MassProp" );
+    PrintAnalysisInputs( "MassProp" );
+    Print( string( "\n-->Executing Mass Properties Analysis" ) );
+    string ridmp = ExecAnalysis( "MassProp" );
+    PrintResults( ridmp );
+    DeleteGeomVec( GetStringResults( ridmp, "Mesh_GeomID" ) );
+
+    Print( string( "\n-->Analytical Mass Properties:\n" ) );
+
+    Print( "Cylinder_CG: ", false );
+    Print( Cx, false );
+    Print( Cy, false );
+    Print( Cz, true );
+    Print( "Cylinder_Ixx: ", false );
+    Print( I_xx, true );
+    Print( "Cylinder_Ixy: ", false );
+    Print( I_xy, true );
+    Print( "Cylinder_Ixz: ", false );
+    Print( I_xz, true );
+    Print( "Cylinder_Iyy: ", false );
+    Print( I_yy, true );
+    Print( "Cylinder_Iyz: ", false );
+    Print( I_yz, true );
+    Print( "Cylinder_Izz: ", false );
+    Print( I_zz, true );
+    Print ( "" );
+    Print( "Cylinder Mass: ", false );
+    Print( mass, true );
+    Print( "Cylinder Volume: ", false );
+    Print( volume, true );
+    Print( "" );
+}
+
+void TestThickWallCylinder()
+{
+    Print( string( "--> Generating Thick Wall Cylinder Geometry" ) );
+    Print( string( "" ) );
+
+    //==== Add Stack Geom and Set Parameters =====//
+    string stack_id = AddGeom( "STACK" );
+
+    // Change Type of All XSec to Circle 
+    string stackxsurf_id = GetXSecSurf( stack_id, 0 );
+    ChangeXSecShape( stackxsurf_id, 0, XS_CIRCLE );
+    ChangeXSecShape( stackxsurf_id, 1, XS_CIRCLE );
+    ChangeXSecShape( stackxsurf_id, 2, XS_CIRCLE );
+    ChangeXSecShape( stackxsurf_id, 3, XS_CIRCLE );
+    ChangeXSecShape( stackxsurf_id, 4, XS_CIRCLE );
+
+    // Set Design Policy to STACK_LOOP
+    SetParmVal( stack_id, "OrderPolicy", "Design", 1 );
+
+    // Get XSec IDs:
+    string xsec_id0 = GetXSec( stackxsurf_id, 0 );
+    string xsec_id1 = GetXSec( stackxsurf_id, 1 );
+    string xsec_id2 = GetXSec( stackxsurf_id, 2 );
+    string xsec_id3 = GetXSec( stackxsurf_id, 3 );
+    string xsec_id4 = GetXSec( stackxsurf_id, 4 );
+
+    // Set Inner Radius to 1:
+    int r_in = 1;
+    string dia_id0 = GetXSecParm( xsec_id0, "Circle_Diameter" );
+    string dia_id3 = GetXSecParm( xsec_id3, "Circle_Diameter" );
+    string dia_id4 = GetXSecParm( xsec_id4, "Circle_Diameter" );
+    
+    SetParmVal( dia_id0, r_in * 2 );
+    SetParmVal( dia_id3, r_in * 2 );
+    SetParmVal( dia_id4, r_in * 2 );
+
+    // Set Outer Radius to 2:
+    int R_out = 2;
+    string dia_id1 = GetXSecParm( xsec_id1, "Circle_Diameter" );
+    string dia_id2 = GetXSecParm( xsec_id2, "Circle_Diameter" );
+    SetParmVal( dia_id1, R_out * 2 );
+    SetParmVal( dia_id2, R_out * 2 );
+
+    // Set Beginning and End of Cylinder
+    int length = 12;
+    string xloc_id1 = GetXSecParm( xsec_id1, "XDelta" );
+    SetParmVal( xloc_id1, 0.0 );
+    string xloc_id2 = GetXSecParm( xsec_id2, "XDelta" );
+    SetParmVal( xloc_id2, length );
+    string xloc_id3 = GetXSecParm( xsec_id3, "XDelta" );
+    SetParmVal( xloc_id3, 0.0 );
+
+    // Straighten Cylinder:
+    string sym_id0 = GetXSecParm( xsec_id0, "AllSym" );
+    SetParmVal( sym_id0, 1 );
+    string Lstrength_id0 = GetXSecParm( xsec_id0, "TopLStrength" );
+    SetParmVal( Lstrength_id0, 0 );
+    string Rstrength_id0 = GetXSecParm( xsec_id0, "TopRStrength" );
+    SetParmVal( Rstrength_id0, 0 );
+    string sym_id1 = GetXSecParm( xsec_id1, "AllSym" );
+    SetParmVal( sym_id1, 1 );
+    string Lstrength_id1 = GetXSecParm( xsec_id1, "TopLStrength" );
+    SetParmVal( Lstrength_id1, 0 );
+    string Rstrength_id1 = GetXSecParm( xsec_id1, "TopRStrength" );
+    SetParmVal( Rstrength_id1, 0 );
+    string sym_id2 = GetXSecParm( xsec_id2, "AllSym" );
+    SetParmVal( sym_id2, 1 );
+    string Lstrength_id2 = GetXSecParm( xsec_id2, "TopLStrength" );
+    SetParmVal( Lstrength_id2, 0 );
+    string Rstrength_id2 = GetXSecParm( xsec_id2, "TopRStrength" );
+    SetParmVal( Rstrength_id2, 0 );
+    string sym_id3 = GetXSecParm( xsec_id3, "AllSym" );
+    SetParmVal( sym_id3, 1 );
+    string Lstrength_id3 = GetXSecParm( xsec_id3, "TopLStrength" );
+    SetParmVal( Lstrength_id3, 0 );
+    string Rstrength_id3 = GetXSecParm( xsec_id3, "TopRStrength" );
+    SetParmVal( Rstrength_id3, 0 );
+    string sym_id4 = GetXSecParm( xsec_id4, "AllSym" );
+    SetParmVal( sym_id4, 1 );
+    string Lstrength_id4 = GetXSecParm( xsec_id4, "TopLStrength" );
+    SetParmVal( Lstrength_id4, 0 );
+    string Rstrength_id4 = GetXSecParm( xsec_id4, "TopRStrength" );
+    SetParmVal( Rstrength_id4, 0 );
+
+    // Set Density to 5:
+    int rho = 5;
+    SetParmVal( stack_id, "Density", "Mass_Props", rho );
+
+    // Increase W Tesselation:
+    SetParmVal( stack_id, "Tess_W", "Shape", 73 );
+
+    //==== Analytical Mass Properties ====//
+    double pi = 3.14159265359;
+    double I_xx = ( pi * rho * length / 2 ) * ( pow( R_out, 4 ) - pow( r_in, 4 ) );
+    double I_xy = 0;
+    double I_yy = ( pi * rho * length / 12 )* ( 3 * ( pow( R_out, 4 ) - pow( r_in, 4 ) ) + pow( length, 2 ) * ( pow( R_out, 2 ) - pow( r_in, 2 ) ) );
+    double I_yz = 0;
+    double I_zz = I_yy;
+    double I_xz = 0;
+    double Cz = 0;
+    double Cy = 0;
+    double Cx = length / 2;
+    double volume = pi * length * ( pow( R_out, 2 ) - pow( r_in, 2 ) );
+    double mass = rho * volume;
+
+    Update();
+
+    Print( "Cylinder Outer Radius: ", false);
+    Print( R_out, true);
+    Print( "Cylinder Inner Radius: ", false);
+    Print( r_in, true);
+    Print( "Cylinder Length: ", false);
+    Print( length, true);
+    Print( "Cylinder Density: ", false);
+    Print( rho, true);
+    Print ( "" );
+
+    //==== Save Vehicle to File ====//
+    Print( string( "-->Saving VSP model\n" ) );
+    string fname = "TestThickWallCylinder.vsp3";
+    WriteVSPFile( fname, SET_ALL );
+
+    //==== Execute Mass Properties Analysis ====//
+    // Set defaults
+    SetAnalysisInputDefaults( "MassProp" );
+    PrintAnalysisInputs( "MassProp" );
+    Print( string( "\n-->Executing Mass Properties Analysis" ) );
+    string ridmp = ExecAnalysis( "MassProp" );
+    PrintResults( ridmp );
+    DeleteGeomVec( GetStringResults( ridmp, "Mesh_GeomID" ) );
+
+    Print( string( "\n-->Analytical Mass Properties:\n" ) );
+
+    Print( "Cylinder_CG: ", false );
+    Print( Cx, false );
+    Print( Cy, false );
+    Print( Cz, true );
+    Print( "Cylinder_Ixx: ", false );
+    Print( I_xx, true );
+    Print( "Cylinder_Ixy: ", false );
+    Print( I_xy, true );
+    Print( "Cylinder_Ixz: ", false );
+    Print( I_xz, true );
+    Print( "Cylinder_Iyy: ", false );
+    Print( I_yy, true );
+    Print( "Cylinder_Iyz: ", false );
+    Print( I_yz, true );
+    Print( "Cylinder_Izz: ", false );
+    Print( I_zz, true );
+    Print ( "" );
+    Print( "Cylinder Mass: ", false );
+    Print( mass, true );
+    Print( "Cylinder Volume: ", false );
+    Print( volume, true );
+    Print( "" );
+}
+
+void TestCylindricalShell()
+{
+    Print( string( "--> Generating Cylindrical Shell Geometry" ) );
+    Print( string( "" ) );
+
+    //==== Add Stack Geom and Set Parameters =====//
+    string stack_id = AddGeom( "STACK" );
+
+    // Change Type of All XSec to Circle 
+    CutXSec( stack_id, 2 );
+    CutXSec( stack_id, 3 );
+    string stackxsurf_id = GetXSecSurf( stack_id, 0 );
+    ChangeXSecShape( stackxsurf_id, 0, XS_CIRCLE );
+    ChangeXSecShape( stackxsurf_id, 1, XS_CIRCLE );
+    ChangeXSecShape( stackxsurf_id, 2, XS_CIRCLE );
+
+    // Get XSec IDs:
+    string xsec_id0 = GetXSec( stackxsurf_id, 0 );
+    string xsec_id1 = GetXSec( stackxsurf_id, 1 );
+    string xsec_id2 = GetXSec( stackxsurf_id, 2 );
+
+    // Set Radius to 2:
+    double radius = 2;
+    string dia_id0 = GetXSecParm( xsec_id0, "Circle_Diameter" );
+    string dia_id1 = GetXSecParm( xsec_id1, "Circle_Diameter" );
+    string dia_id2 = GetXSecParm( xsec_id2, "Circle_Diameter" );
+
+    SetParmVal( dia_id0, radius * 2 );
+    SetParmVal( dia_id1, radius * 2 );
+    SetParmVal( dia_id2, radius * 2 );
+
+    // Set Beginning and End of Cylinder 
+    int length = 12;
+    string xloc_id0 = GetXSecParm( xsec_id0, "XDelta" );
+    SetParmVal( xloc_id0, 0.0 );
+    string xloc_id1 = GetXSecParm( xsec_id1, "XDelta" );
+    SetParmVal( xloc_id1, length );
+    string xloc_id2 = GetXSecParm( xsec_id2, "XDelta" );
+    SetParmVal( xloc_id2, 0.0 );
+
+    // Straighten Cylinder:
+    string sym_id0 = GetXSecParm( xsec_id0, "AllSym" );
+    SetParmVal( sym_id0, 1 );
+    string Lstrength_id0 = GetXSecParm( xsec_id0, "TopLStrength" );
+    SetParmVal( Lstrength_id0, 0 );
+    string Rstrength_id0 = GetXSecParm( xsec_id0, "TopRStrength" );
+    SetParmVal( Rstrength_id0, 0 );
+    string sym_id1 = GetXSecParm( xsec_id1, "AllSym" );
+    SetParmVal( sym_id1, 1 );
+    string Lstrength_id1 = GetXSecParm( xsec_id1, "TopLStrength" );
+    SetParmVal( Lstrength_id1, 0 );
+    string Rstrength_id1 = GetXSecParm( xsec_id1, "TopRStrength" );
+    SetParmVal( Rstrength_id1, 0 );
+    string sym_id2 = GetXSecParm( xsec_id2, "AllSym" );
+    SetParmVal( sym_id2, 1 );
+    string Lstrength_id2 = GetXSecParm( xsec_id2, "TopLStrength" );
+    SetParmVal( Lstrength_id2, 0 );
+    string Rstrength_id2 = GetXSecParm( xsec_id2, "TopRStrength" );
+    SetParmVal( Rstrength_id2, 0 );
+
+    // Set Thin Shell Flag:
+    SetParmVal( stack_id, "Shell_Flag", "Mass_Props", 1 );
+
+    // Set Mass/Area:
+    double rho_A = 0.5;
+    SetParmVal( stack_id, "Mass_Area", "Mass_Props", rho_A );
+
+    // Set Density:
+    double rho = 0;
+    SetParmVal( stack_id, "Density", "Mass_Props", rho );
+
+    // Increase W Tesselation:
+    SetParmVal( stack_id, "Tess_W", "Shape", 73 );
+
+    //==== Analytical Mass Properties ====//    
+    double pi = 3.14159265359;
+    double SA = 2 * pi * radius * length;
+    double mass = rho_A * SA;
+    double I_xx = mass * pow( radius, 2 );
+    double I_xy = 0;
+    double I_yy = mass * pow( radius, 2 ) / 2 + mass * pow( length, 2 ) / 12;
+    double I_yz = 0;
+    double I_zz = I_yy;
+    double I_xz = 0;
+    double Cz = 0;
+    double Cy = 0;
+    double Cx = length / 2;
+
+    Update();
+
+    Print( "Cylinder Radius: ", false);
+    Print( radius, true);
+    Print( "Cylinder Length: ", false);
+    Print( length, true);
+    Print( "Cylinder Density: ", false);
+    Print( rho, true);
+    Print( "Cylinder Area Density: ", false);
+    Print( rho_A, true);
+    Print ( "" );
+
+    //==== Save Vehicle to File ====//
+    Print( string( "-->Saving VSP model\n" ) );
+    string fname = "TestCylindricalShell.vsp3";
+    WriteVSPFile( fname, SET_ALL );
+
+    //==== Execute Mass Properties Analysis ====//
+    // Set defaults
+    SetAnalysisInputDefaults( "MassProp" );
+    PrintAnalysisInputs( "MassProp" );
+    Print( string( "\n-->Executing Mass Properties Analysis" ) );
+    string ridmp = ExecAnalysis( "MassProp" );
+    PrintResults( ridmp );
+    DeleteGeomVec( GetStringResults( ridmp, "Mesh_GeomID" ) );
+
+    Print( string( "\n-->Analytical Mass Properties:\n" ) );    
+
+    Print( "Cylinder_CG: ", false );
+    Print( Cx, false );
+    Print( Cy, false );
+    Print( Cz, true );
+    Print( "Cylinder_Ixx: ", false );
+    Print( I_xx, true );
+    Print( "Cylinder_Ixy: ", false );
+    Print( I_xy, true );
+    Print( "Cylinder_Ixz: ", false );
+    Print( I_xz, true );    
+    Print( "Cylinder_Iyy: ", false );
+    Print( I_yy, true );
+    Print( "Cylinder_Iyz: ", false );
+    Print( I_yz, true );
+    Print( "Cylinder_Izz: ", false );
+    Print( I_zz, true );
+    Print ( "" );
+    Print( "Cylinder Mass: ", false );
+    Print( mass, true );
+    Print( "Cylinder Surface Area: ", false );
+    Print( SA, true );
+    Print( "" );
+}
+
+void TestSphere()
+{
+    Print( string( "--> Generating Sphere Geometry" ) );
+    Print( string( "" ) );
+
+    //==== Add Stack Geom and Set Parameters =====//
+    string stack_id = AddGeom( "STACK" );
+
+    // Change Type of Middle XSec to Circle and Ends to Points
+    CutXSec( stack_id, 2 );
+    CutXSec( stack_id, 3 );
+    string stackxsurf_id = GetXSecSurf( stack_id, 0 );
+    ChangeXSecShape( stackxsurf_id, 0, XS_POINT );
+    ChangeXSecShape( stackxsurf_id, 1, XS_CIRCLE );
+    ChangeXSecShape( stackxsurf_id, 2, XS_POINT );
+
+    // Get XSec IDs:
+    string xsec_id0 = GetXSec( stackxsurf_id, 0 );
+    string xsec_id1 = GetXSec( stackxsurf_id, 1 );
+    string xsec_id2 = GetXSec( stackxsurf_id, 2 );
+
+    // Set Radius to 2:
+    double radius = 2;
+    string dia_id1 = GetXSecParm( xsec_id1, "Circle_Diameter" );
+
+    SetParmVal( dia_id1, radius * 2 );
+
+    // Set Beginning and End of Sphere 
+    string xloc_id0 = GetXSecParm( xsec_id0, "XDelta" );
+    SetParmVal( xloc_id0, 0.0 );
+    string xloc_id1 = GetXSecParm( xsec_id1, "XDelta" );
+    SetParmVal( xloc_id1, radius );
+    string xloc_id2 = GetXSecParm( xsec_id2, "XDelta" );
+    SetParmVal( xloc_id2, radius );
+
+    // Increase U Tesselation
+    string xutess_id0 = GetXSecParm( xsec_id0, "SectTess_U" );
+    SetParmVal( xutess_id0, 20 );
+    string xutess_id1 = GetXSecParm( xsec_id1, "SectTess_U" );
+    SetParmVal( xutess_id1, 20 );
+    string xutess_id2 = GetXSecParm( xsec_id2, "SectTess_U" );
+    SetParmVal( xutess_id2, 20 );
+
+    // Round Sphere:
+    string sym_id0 = GetXSecParm( xsec_id0, "AllSym" );
+    SetParmVal( sym_id0, 1 );
+    string Lstrength_id0 = GetXSecParm( xsec_id0, "TopLStrength" );
+    SetParmVal( Lstrength_id0, 1.172 );
+    string Langle_id0 = GetXSecParm( xsec_id0, "TopLAngle" );
+    SetParmVal( Langle_id0, 90 );
+    string Rstrength_id0 = GetXSecParm( xsec_id0, "TopRStrength" );
+    SetParmVal( Rstrength_id0, 1.172 );
+    string sym_id1 = GetXSecParm( xsec_id1, "AllSym" );
+    SetParmVal( sym_id1, 1 );
+    string Lstrength_id1 = GetXSecParm( xsec_id1, "TopLStrength" );
+    SetParmVal( Lstrength_id1, 1.172 );
+    string Langle_id1 = GetXSecParm( xsec_id1, "TopLAngle" );
+    SetParmVal( Langle_id1, 0 );
+    string Rstrength_id1 = GetXSecParm( xsec_id1, "TopRStrength" );
+    SetParmVal( Rstrength_id1, 1.172 );
+    string sym_id2 = GetXSecParm( xsec_id2, "AllSym" );
+    SetParmVal( sym_id2, 1 );
+    string Lstrength_id2 = GetXSecParm( xsec_id2, "TopLStrength" );
+    SetParmVal( Lstrength_id2, 1.172 );
+    string Langle_id2 = GetXSecParm( xsec_id2, "TopLAngle" );
+    SetParmVal( Langle_id2, -90 );
+    string Rstrength_id2 = GetXSecParm( xsec_id2, "TopRStrength" );
+    SetParmVal( Rstrength_id2, 1.172 );
+
+    // Center at orgin:
+    SetParmVal( stack_id, "X_Rel_Location", "XForm", ( -1 * radius ) );
+
+    // Set Density to 5:
+    int rho = 5;
+    SetParmVal( stack_id, "Density", "Mass_Props", rho );
+
+    // Increase W Tesselation:
+    SetParmVal( stack_id, "Tess_W", "Shape", 113 );
+
+    //==== Analytical Mass Properties ====//
+    double pi = 3.14159265359;
+    double I_xx = 8 * pi * pow( radius, 5 ) * rho / 15;
+    double I_xy = 0;
+    double I_yy = I_xx;
+    double I_yz = 0;
+    double I_zz = I_yy;
+    double I_xz = 0;
+    double Cz = 0;
+    double Cy = 0;
+    double Cx = 0;
+    double volume = 4 * pi * pow( radius , 3 ) / 3;
+    double mass = rho * volume;
+
+    Update();
+
+    Print( "Sphere Radius: ", false);
+    Print( radius, true);
+    Print( "Sphere Density: ", false);
+    Print( rho, true);
+    Print ( "" );
+
+    //==== Save Vehicle to File ====//
+    Print( string( "-->Saving VSP model\n" ) );
+    string fname = "TestSphere.vsp3";
+    WriteVSPFile( fname, SET_ALL );
+
+    //==== Execute Mass Properties Analysis ====//
+    // Set defaults
+    SetAnalysisInputDefaults( "MassProp" );
+    PrintAnalysisInputs( "MassProp" );
+    Print( string( "\n-->Executing Mass Properties Analysis" ) );
+    string ridmp = ExecAnalysis( "MassProp" );
+    PrintResults( ridmp );
+    DeleteGeomVec( GetStringResults( ridmp, "Mesh_GeomID" ) );
+
+    Print( string( "\n-->Analytical Mass Properties:\n" ) );
+
+    Print( "Sphere_CG: ", false );
+    Print( Cx, false );
+    Print( Cy, false );
+    Print( Cz, true );
+    Print( "Sphere_Ixx: ", false );
+    Print( I_xx, true );
+    Print( "Sphere_Ixy: ", false );
+    Print( I_xy, true );
+    Print( "Sphere_Ixz: ", false );
+    Print( I_xz, true );
+    Print( "Sphere_Iyy: ", false );
+    Print( I_yy, true );
+    Print( "Sphere_Iyz: ", false );
+    Print( I_yz, true );
+    Print( "Sphere_Izz: ", false );
+    Print( I_zz, true );
+    Print ( "" );
+    Print( "Sphere Mass: ", false );
+    Print( mass, true );
+    Print( "Sphere Volume: ", false );
+    Print( volume, true );
+    Print( "" );
+}
+
+void TestSolidCone()
+{
+    Print( string( "--> Generating Solid Cone Geometry" ) );
+    Print( string( "" ) );
+
+    //==== Add Stack Geom and Set Parameters =====//
+    string stack_id = AddGeom( "STACK" );
+
+    // Change Type of Middle XSec to Circle and Ends to Points
+    CutXSec( stack_id, 2 );
+    CutXSec( stack_id, 3 );
+    string stackxsurf_id = GetXSecSurf( stack_id, 0 );
+    ChangeXSecShape( stackxsurf_id, 0, XS_POINT );
+    ChangeXSecShape( stackxsurf_id, 1, XS_CIRCLE );
+    ChangeXSecShape( stackxsurf_id, 2, XS_POINT );
+
+    // Get XSec IDs:
+    string xsec_id0 = GetXSec( stackxsurf_id, 0 );
+    string xsec_id1 = GetXSec( stackxsurf_id, 1 );
+    string xsec_id2 = GetXSec( stackxsurf_id, 2 );
+
+    // Set Radius to 2:
+    double radius = 2;
+    string dia_id1 = GetXSecParm( xsec_id1, "Circle_Diameter" );
+
+    SetParmVal( dia_id1, radius * 2 );
+
+    // Set Beginning and End of Cone 
+    int length = 12;
+    string xloc_id1 = GetXSecParm( xsec_id1, "XDelta" );
+    SetParmVal( xloc_id1, length );
+    string xloc_id2 = GetXSecParm( xsec_id2, "XDelta" );
+    SetParmVal( xloc_id2, 0.0 );
+
+    // Straighten Cone:
+    string sym_id0 = GetXSecParm( xsec_id0, "AllSym" );
+    SetParmVal( sym_id0, 1 );
+    string Lstrength_id0 = GetXSecParm( xsec_id0, "TopLStrength" );
+    SetParmVal( Lstrength_id0, 0 );
+    string Rstrength_id0 = GetXSecParm( xsec_id0, "TopRStrength" );
+    SetParmVal( Rstrength_id0, 0 );
+    string sym_id1 = GetXSecParm( xsec_id1, "AllSym" );
+    SetParmVal( sym_id1, 1 );
+    string Lstrength_id1 = GetXSecParm( xsec_id1, "TopLStrength" );
+    SetParmVal( Lstrength_id1, 0 );
+    string Rstrength_id1 = GetXSecParm( xsec_id1, "TopRStrength" );
+    SetParmVal( Rstrength_id1, 0 );
+    string sym_id2 = GetXSecParm( xsec_id2, "AllSym" );
+    SetParmVal( sym_id2, 1 );
+    string Lstrength_id2 = GetXSecParm( xsec_id2, "TopLStrength" );
+    SetParmVal( Lstrength_id2, 0 );
+    string Rstrength_id2 = GetXSecParm( xsec_id2, "TopRStrength" );
+    SetParmVal( Rstrength_id2, 0 );
+
+    // Set Density:
+    double rho = 5;
+    SetParmVal( stack_id, "Density", "Mass_Props", rho );
+
+    // Increase W Tesselation:
+    SetParmVal( stack_id, "Tess_W", "Shape", 73 );
+
+    // Increase U Tesselation 
+    string xutess_id0 = GetXSecParm( xsec_id0, "SectTess_U" );
+    SetParmVal( xutess_id0, 20 );
+    string xutess_id1 = GetXSecParm( xsec_id1, "SectTess_U" );
+    SetParmVal( xutess_id1, 20 );
+    string xutess_id2 = GetXSecParm( xsec_id2, "SectTess_U" );
+    SetParmVal( xutess_id2, 20 );
+
+    //==== Analytical Mass Properties ====//
+    double pi = 3.14159265359;
+    double I_xx = pi * pow( radius, 4 ) * length * rho / 10;
+    double I_xy = 0;
+    double I_yy = pi * pow( radius, 2 ) * length * rho * ( 4 * pow( radius, 2 ) + pow( length, 2 ) ) / 80;
+    double I_yz = 0;
+    double I_zz = I_yy;
+    double I_xz = 0;
+    double Cz = 0;
+    double Cy = 0;
+    double Cx = 3 * length / 4;
+    double volume = pi * pow( radius, 2 ) * length / 3;
+    double mass = rho * volume;
+
+    Update();
+
+    Print( "Cone Radius: ", false );
+    Print( radius, true );
+    Print( "Cone Length: ", false );
+    Print( length, true );
+    Print( "Cone Density: ", false );
+    Print( rho, true );
+    Print ( "" );
+
+    //==== Save Vehicle to File ====//
+    Print( string( "-->Saving VSP model\n" ) );
+    string fname = "TestCone.vsp3";
+    WriteVSPFile( fname, SET_ALL );
+
+    //==== Execute Mass Properties Analysis ====//
+    // Set defaults
+    SetAnalysisInputDefaults( "MassProp" );
+    PrintAnalysisInputs( "MassProp" );
+    Print( string( "\n-->Executing Mass Properties Analysis" ) );
+    string ridmp = ExecAnalysis( "MassProp" );
+    PrintResults( ridmp );
+    DeleteGeomVec( GetStringResults( ridmp, "Mesh_GeomID" ) );
+
+    Print( string( "-->Analytical Mass Properties:\n" ) );
+
+    Print( "Cone_CG: ", false );
+    Print( Cx, false );
+    Print( Cy, false );
+    Print( Cz, true );
+    Print( "Cone_Ixx: ", false );
+    Print( I_xx, true );
+    Print( "Cone_Ixy: ", false );
+    Print( I_xy, true );
+    Print( "Cone_Ixz: ", false );
+    Print( I_xz, true );
+    Print( "Cone_Iyy: ", false );
+    Print( I_yy, true );
+    Print( "Cone_Iyz: ", false );
+    Print( I_yz, true );
+    Print( "Cone_Izz: ", false );
+    Print( I_zz, true );
+    Print ( "" );
+    Print( "Cone Mass: ", false );
+    Print( mass, true );
+    Print( "Cone Volume: ", false );
+    Print( volume, true );
+    Print( "" );
+}
+
+void TestShellCone()
+{
+    Print( string( "--> Generating Shell Cone Geometry" ) );
+    Print( string( "" ) );
+
+    //==== Add Stack Geom and Set Parameters =====//
+    string stack_id = AddGeom( "STACK" );
+
+    // Change Type of Middle XSec to Circle and Ends to Points
+    CutXSec( stack_id, 2 );
+    CutXSec( stack_id, 3 );
+    string stackxsurf_id = GetXSecSurf( stack_id, 0 );
+    ChangeXSecShape( stackxsurf_id, 0, XS_POINT );
+    ChangeXSecShape( stackxsurf_id, 1, XS_CIRCLE );
+
+    // Get XSec IDs:
+    string xsec_id0 = GetXSec( stackxsurf_id, 0 );
+    string xsec_id1 = GetXSec( stackxsurf_id, 1 );
+
+    // Set Radius to 2:
+    double radius = 2;
+    string dia_id1 = GetXSecParm( xsec_id1, "Circle_Diameter" );
+
+    SetParmVal( dia_id1, radius * 2 );
+
+    // Set Beginning and End of Cone 
+    int length = 12;
+    string xloc_id1 = GetXSecParm( xsec_id1, "XDelta" );
+    SetParmVal( xloc_id1, length );
+
+    // Straighten Cone:
+    string sym_id0 = GetXSecParm( xsec_id0, "AllSym" );
+    SetParmVal( sym_id0, 1 );
+    string Lstrength_id0 = GetXSecParm( xsec_id0, "TopLStrength" );
+    SetParmVal( Lstrength_id0, 0 );
+    string Rstrength_id0 = GetXSecParm( xsec_id0, "TopRStrength" );
+    SetParmVal( Rstrength_id0, 0 );
+    string sym_id1 = GetXSecParm( xsec_id1, "AllSym" );
+    SetParmVal( sym_id1, 1 );
+    string Lstrength_id1 = GetXSecParm( xsec_id1, "TopLStrength" );
+    SetParmVal( Lstrength_id1, 0 );
+    string Rstrength_id1 = GetXSecParm( xsec_id1, "TopRStrength" );
+    SetParmVal( Rstrength_id1, 0 );
+
+    // Open End of Cone
+    CutXSec( stack_id, 2 );
+    
+    // Set Thin Shell Flag:
+    SetParmVal( stack_id, "Shell_Flag", "Mass_Props", 1 );
+
+    // Set Mass/Area:
+    double rho_A = 0.5;
+    SetParmVal( stack_id, "Mass_Area", "Mass_Props", rho_A );
+
+    // Set Density:
+    double rho = 0;
+    SetParmVal( stack_id, "Density", "Mass_Props", rho );
+
+    // Increase W Tesselation:
+    SetParmVal( stack_id, "Tess_W", "Shape", 73 );
+
+    // Increase U Tesselation 
+    string xutess_id0 = GetXSecParm( xsec_id0, "SectTess_U" );
+    SetParmVal( xutess_id0, 20 );
+    string xutess_id1 = GetXSecParm( xsec_id1, "SectTess_U" );
+    SetParmVal( xutess_id1, 20 );
+
+    //==== Analytical Mass Properties ====//
+    double pi = 3.14159265359;
+    double SA = pi * sqrt( pow( length, 2 ) + pow( radius, 2 ) );
+    double mass = rho_A * SA;
+    double I_xx = mass * pow( radius, 2 ) / 2;
+    double I_xy = 0;
+    double I_yy = ( mass * pow( radius, 2 ) / 4 ) + ( mass * pow( length, 2 ) / 6 );
+    double I_yz = 0;
+    double I_zz = I_yy;
+    double I_xz = 0;
+    double Cz = 0;
+    double Cy = 0;
+    double Cx = 3 * length / 4;
+
+    Update();
+
+    Print( "Cone Radius: ", false );
+    Print( radius, true );
+    Print( "Cone Length: ", false );
+    Print( length, true );
+    Print( "Cone Density: ", false );
+    Print( rho, true );
+    Print( "Cone Area Density: ", false );
+    Print( rho_A, true );
+    Print ( "" );
+
+    //==== Save Vehicle to File ====//
+    Print( string( "-->Saving VSP model\n" ) );
+    string fname = "TestShellCone.vsp3";
+    WriteVSPFile( fname, SET_ALL );
+
+    //==== Execute Mass Properties Analysis ====//
+    // Set defaults
+    SetAnalysisInputDefaults( "MassProp" );
+    Print( string( "\n-->Executing Mass Properties Analysis" ) );
+    string ridmp = ExecAnalysis( "MassProp" );
+    PrintResults( ridmp );
+    DeleteGeomVec( GetStringResults( ridmp, "Mesh_GeomID" ) );
+
+    Print( string( "\n-->Analytical Mass Properties:\n" ) );
+
+    Print( "Cone_CG: ", false );
+    Print( Cx, false );
+    Print( Cy, false );
+    Print( Cz, true );
+    Print( "Cone_Ixx: ", false );
+    Print( I_xx, true );
+    Print( "Cone_Ixy: ", false );
+    Print( I_xy, true );
+    Print( "Cone_Ixz: ", false );
+    Print( I_xz, true );
+    Print( "Cone_Iyy: ", false );
+    Print( I_yy, true );
+    Print( "Cone_Iyz: ", false );
+    Print( I_yz, true );
+    Print( "Cone_Izz: ", false );
+    Print( I_zz, true );
+    Print ( "" );
+    Print( "Cone Mass: ", false );
+    Print( mass, true );
+    Print( "Cone Surface Area: ", false );
+    Print( SA, true );
+    Print( "" );
+}
+
+void TestRectangularPrism()
+{
+    Print( string( "--> Generating Rectangular Prism Geometry" ) );
+    Print( string( "" ) );
+
+    //==== Add Stack Geom and Set Parameters =====//
+    string stack_id = AddGeom( "STACK" );
+
+    // Change Type of Middle XSec to Rounded Rectangles and Ends to Points 
+    CutXSec( stack_id, 2 );
+    string stackxsurf_id = GetXSecSurf( stack_id, 0 );
+    ChangeXSecShape( stackxsurf_id, 0, XS_POINT );
+    ChangeXSecShape( stackxsurf_id, 1, XS_ROUNDED_RECTANGLE );
+    ChangeXSecShape( stackxsurf_id, 2, XS_ROUNDED_RECTANGLE );
+    ChangeXSecShape( stackxsurf_id, 3, XS_POINT );
+
+    // Get XSec IDs:
+    string xsec_id0 = GetXSec( stackxsurf_id, 0 );
+    string xsec_id1 = GetXSec( stackxsurf_id, 1 );
+    string xsec_id2 = GetXSec( stackxsurf_id, 2 );
+    string xsec_id3 = GetXSec( stackxsurf_id, 3 );
+
+    // Set Height to 2:
+    int height = 2;
+    string height_id1 = GetXSecParm( xsec_id1, "RoundedRect_Height" );
+    string height_id2 = GetXSecParm( xsec_id2, "RoundedRect_Height" );
+
+    SetParmVal( height_id1, height );
+    SetParmVal( height_id2, height );
+
+    // Set Width to 4:
+    int width = 4;
+    string width_id1 = GetXSecParm( xsec_id1, "RoundedRect_Width" );
+    string width_id2 = GetXSecParm( xsec_id2, "RoundedRect_Width" );
+
+    SetParmVal( width_id1, width );
+    SetParmVal( width_id2, width );
+
+    // Sharpen Corners
+    string corner_id1 = GetXSecParm( xsec_id1, "RoundRectXSec_Radius" );
+    string corner_id2 = GetXSecParm( xsec_id2, "RoundRectXSec_Radius" );
+
+    SetParmVal( corner_id1, 0 );
+    SetParmVal( corner_id2, 0 );
+
+    // Set Beginning and End of Rectangular Prism
+    int length = 12;
+    string xloc_id1 = GetXSecParm( xsec_id1, "XDelta" );
+    SetParmVal( xloc_id1, 0.0 );
+    string xloc_id2 = GetXSecParm( xsec_id2, "XDelta" );
+    SetParmVal( xloc_id2, length );
+    string xloc_id3 = GetXSecParm( xsec_id3, "XDelta" );
+    SetParmVal( xloc_id3, 0.0 );
+
+    // Straighten Rectangular Prism:
+    string sym_id0 = GetXSecParm( xsec_id0, "AllSym" );
+    SetParmVal( sym_id0, 1 );
+    string Lstrength_id0 = GetXSecParm( xsec_id0, "TopLStrength" );
+    SetParmVal( Lstrength_id0, 0 );
+    string Rstrength_id0 = GetXSecParm( xsec_id0, "TopRStrength" );
+    SetParmVal( Rstrength_id0, 0 );
+    string sym_id1 = GetXSecParm( xsec_id1, "AllSym" );
+    SetParmVal( sym_id1, 1 );
+    string Lstrength_id1 = GetXSecParm( xsec_id1, "TopLStrength" );
+    SetParmVal( Lstrength_id1, 0 );
+    string Rstrength_id1 = GetXSecParm( xsec_id1, "TopRStrength" );
+    SetParmVal( Rstrength_id1, 0 );
+    string sym_id2 = GetXSecParm( xsec_id2, "AllSym" );
+    SetParmVal( sym_id2, 1 );
+    string Lstrength_id2 = GetXSecParm( xsec_id2, "TopLStrength" );
+    SetParmVal( Lstrength_id2, 0 );
+    string Rstrength_id2 = GetXSecParm( xsec_id2, "TopRStrength" );
+    SetParmVal( Rstrength_id2, 0 );
+    string sym_id3 = GetXSecParm( xsec_id3, "AllSym" );
+    SetParmVal( sym_id3, 1 );
+    string Lstrength_id3 = GetXSecParm( xsec_id3, "TopLStrength" );
+    SetParmVal( Lstrength_id3, 0 );
+    string Rstrength_id3 = GetXSecParm( xsec_id3, "TopRStrength" );
+    SetParmVal( Rstrength_id3, 0 );
+
+    // Set Density to 5:
+    int rho = 5;
+    SetParmVal( stack_id, "Density", "Mass_Props", rho );
+
+    // Increase W Tesselation:
+    SetParmVal( stack_id, "Tess_W", "Shape", 81 );
+
+    // Increase U Tesselation 
+    string xutess_id0 = GetXSecParm( xsec_id0, "SectTess_U" );
+    SetParmVal( xutess_id0, 20 );
+    string xutess_id1 = GetXSecParm( xsec_id1, "SectTess_U" );
+    SetParmVal( xutess_id1, 20 );
+    string xutess_id2 = GetXSecParm( xsec_id2, "SectTess_U" );
+    SetParmVal( xutess_id2, 20 );
+    string xutess_id3 = GetXSecParm( xsec_id3, "SectTess_U" );
+    SetParmVal( xutess_id3, 20 );
+
+    //==== Analytical Mass Properties ====//
+    double pi = 3.14159265359;
+    double I_xx = rho * length * width * height * ( pow( width, 2 ) + pow( height, 2 ) ) / 12;
+    double I_xy = 0;
+    double I_yy = rho * length * width * height * ( pow( length, 2 ) + pow( height, 2 ) ) / 12;
+    double I_yz = 0;
+    double I_zz = rho * length * width * height * ( pow( length, 2 ) + pow( width, 2 ) ) / 12;
+    double I_xz = 0;
+    double Cz = 0;
+    double Cy = 0;
+    double Cx = length / 2;
+    double volume = length * width * height;
+    double mass = rho * volume;
+
+    Update();
+
+    Print( "Rectangular Prism Height: ", false);
+    Print( height, true);
+    Print( "Rectangular Prism Width: ", false);
+    Print( width, true);
+    Print( "Rectangular Prism Length: ", false);
+    Print( length, true);
+    Print( "Rectangular Prism Density: ", false);
+    Print( rho, true);
+    Print ( "" );
+
+    //==== Save Vehicle to File ====//
+    Print( string( "-->Saving VSP model\n" ) );
+    string fname = "TestRectangularPrism.vsp3";
+    WriteVSPFile( fname, SET_ALL );
+
+    //==== Execute Mass Properties Analysis ====//
+    // Set defaults
+    SetAnalysisInputDefaults( "MassProp" );
+    Print( string( "\n-->Executing Mass Properties Analysis" ) );
+    string ridmp = ExecAnalysis( "MassProp" );
+    PrintResults( ridmp );
+    DeleteGeomVec( GetStringResults( ridmp, "Mesh_GeomID" ) );
+
+    Print( string( "\n-->Analytical Mass Properties:\n" ) );
+
+    Print( "Rectangular Prism_CG: ", false );
+    Print( Cx, false );
+    Print( Cy, false );
+    Print( Cz, true );
+    Print( "Rectangular Prism_Ixx: ", false );
+    Print( I_xx, true );
+    Print( "Rectangular Prism_Ixy: ", false );
+    Print( I_xy, true );
+    Print( "Rectangular Prism_Ixz: ", false );
+    Print( I_xz, true );
+    Print( "Rectangular Prism_Iyy: ", false );
+    Print( I_yy, true );
+    Print( "Rectangular Prism_Iyz: ", false );
+    Print( I_yz, true );
+    Print( "Rectangular Prism_Izz: ", false );
+    Print( I_zz, true );
+    Print ( "" );
+    Print( "Rectangular Prism Mass: ", false );
+    Print( mass, true );
+    Print( "Rectangular Prism Volume: ", false );
+    Print( volume, true );
+    Print( "" );
+}
