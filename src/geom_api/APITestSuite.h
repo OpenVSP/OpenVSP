@@ -55,40 +55,4 @@ private:
     void TestSaveLoad();
 };
 
-class APITestSuiteVSPAERO : public Test::Suite
-{
-public:
-    APITestSuiteVSPAERO()
-    {
-        // VSPAERO
-        TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroCreateModel )     //this test just creates the model with various features
-        //  Vortex Lattice Method Tests
-        TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroComputeGeom )
-        TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroSinglePoint )
-        TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroSinglePointStab )
-        TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroSweep )
-        TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroSweepBatch )
-        //  Panel Method Tests
-        TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroComputeGeomPanel )
-        TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroSinglePointPanel )
-    }
-
-private:
-    // VSPAERO
-    void TestVSPAeroCreateModel();
-    //  Vortex Lattice Method Tests
-    void TestVSPAeroComputeGeom();        //<--Execute this VSPERO test first
-    void TestVSPAeroSinglePoint();
-    void TestVSPAeroSinglePointStab();
-    void TestVSPAeroSweep();
-    void TestVSPAeroSweepBatch();
-    //  Panel Method Tests
-    void TestVSPAeroComputeGeomPanel();        //<--Execute this VSPERO test first for panel methods
-    void TestVSPAeroSinglePointPanel();
-
-    double  calcTessWCheckVal( double t_tess_w );
-
-    string m_vspfname_for_vspaerotests;
-};
-
 #endif // !defined(VSPAPITESTSUITE__INCLUDED_)
