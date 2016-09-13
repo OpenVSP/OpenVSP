@@ -1094,6 +1094,7 @@ void VSPAEROSinglePointAnalysis::SetDefaults()
 
         //Reference area, lengths
         m_Inputs.Add( NameValData( "RefFlag",           VSPAEROMgr.m_RefFlag.Get()           ) );
+        m_Inputs.Add( NameValData( "WingID",            " "                                  ) );
         m_Inputs.Add( NameValData( "Sref",              VSPAEROMgr.m_Sref.Get()              ) );
         m_Inputs.Add( NameValData( "bref",              VSPAEROMgr.m_bref.Get()              ) );
         m_Inputs.Add( NameValData( "cref",              VSPAEROMgr.m_cref.Get()              ) );
@@ -1133,7 +1134,7 @@ string VSPAEROSinglePointAnalysis::Execute()
         //    Geometry set
         int geomSetOrig    = VSPAEROMgr.m_GeomSet.Get();
         nvd = m_Inputs.FindPtr( "GeomSet", 0 );
-        VSPAEROMgr.m_GeomSet.Set( nvd->GetInt(0) );
+        if ( nvd ); VSPAEROMgr.m_GeomSet.Set( nvd->GetInt(0) );
 
         int analysisMethodOrig = VSPAEROMgr.m_AnalysisMethod.Get();
         nvd = m_Inputs.FindPtr( "AnalysisMethod", 0 );
@@ -1141,17 +1142,41 @@ string VSPAEROSinglePointAnalysis::Execute()
 
         //    Regerence area, length parameters
         int refFlagOrig    = VSPAEROMgr.m_RefFlag.Get();
+        string WingIDOrig    = VSPAEROMgr.m_RefGeomID;
         double srefOrig    = VSPAEROMgr.m_Sref.Get();
         double brefOrig    = VSPAEROMgr.m_bref.Get();
         double crefOrig    = VSPAEROMgr.m_cref.Get();
         nvd = m_Inputs.FindPtr( "RefFlag", 0 );
-        VSPAEROMgr.m_RefFlag.Set( nvd->GetInt(0) );
-        nvd = m_Inputs.FindPtr( "Sref", 0 );
-        VSPAEROMgr.m_Sref.Set( nvd->GetDouble(0) );
-        nvd = m_Inputs.FindPtr( "bref", 0 );
-        VSPAEROMgr.m_bref.Set( nvd->GetDouble(0) );
-        nvd = m_Inputs.FindPtr( "cref", 0 );
-        VSPAEROMgr.m_cref.Set( nvd->GetDouble(0) );
+        if ( nvd ); VSPAEROMgr.m_RefFlag.Set( nvd->GetInt(0) );
+        nvd = m_Inputs.FindPtr( "WingID", 0 );
+        if ( nvd ); VSPAEROMgr.m_RefGeomID = nvd->GetString(0) ;
+
+        if ( VSPAEROMgr.m_RefFlag.Get() == vsp::VSPAERO_COMP_REFERENCE_TYPE::MANUAL_REF )
+        {
+            nvd = m_Inputs.FindPtr( "Sref", 0 );
+            if ( nvd ); VSPAEROMgr.m_Sref.Set( nvd->GetDouble(0) );
+            nvd = m_Inputs.FindPtr( "bref", 0 );
+            if ( nvd ); VSPAEROMgr.m_bref.Set( nvd->GetDouble(0) );
+            nvd = m_Inputs.FindPtr( "cref", 0 );
+            if ( nvd ); VSPAEROMgr.m_cref.Set( nvd->GetDouble(0) );        
+        }
+        else if ( VSPAEROMgr.m_RefFlag.Get() == vsp::VSPAERO_COMP_REFERENCE_TYPE::COMPONENT_REF )
+        {
+            VSPAEROMgr.Update();
+            printf( "Wing Reference Parms: \n" );
+
+            nvd = m_Inputs.FindPtr( "Sref", 0 );
+            if ( nvd ); VSPAEROMgr.m_Sref.Set( VSPAEROMgr.m_Sref.Get() );
+            printf( " Sref: %7.3f \n", VSPAEROMgr.m_Sref.Get() );
+            nvd = m_Inputs.FindPtr( "bref", 0 );
+            if ( nvd ); VSPAEROMgr.m_bref.Set( VSPAEROMgr.m_bref.Get() );
+            printf( " bref: %7.3f \n", VSPAEROMgr.m_bref.Get() );
+            nvd = m_Inputs.FindPtr( "cref", 0 );
+            if ( nvd ); VSPAEROMgr.m_cref.Set( VSPAEROMgr.m_cref.Get() );
+            printf( " cref: %7.3f \n", VSPAEROMgr.m_cref.Get() );
+
+            printf( "\n" );
+        }
 
         //    Mass properties
         int cgGeomSetOrig    = VSPAEROMgr.m_CGGeomSet.Get();
@@ -1160,15 +1185,15 @@ string VSPAEROSinglePointAnalysis::Execute()
         double ycgOrig        = VSPAEROMgr.m_Ycg.Get();
         double zcgOrig        = VSPAEROMgr.m_Zcg.Get();
         nvd = m_Inputs.FindPtr( "CGGeomSet", 0 );
-        VSPAEROMgr.m_CGGeomSet.Set( nvd->GetInt(0) );
+        if ( nvd ); VSPAEROMgr.m_CGGeomSet.Set( nvd->GetInt(0) );
         nvd = m_Inputs.FindPtr( "NumMassSlice", 0 );
-        VSPAEROMgr.m_NumMassSlice.Set( nvd->GetInt(0) );
+        if ( nvd ); VSPAEROMgr.m_NumMassSlice.Set( nvd->GetInt(0) );
         nvd = m_Inputs.FindPtr( "Xcg", 0 );
-        VSPAEROMgr.m_Xcg.Set( nvd->GetDouble(0) );
+        if ( nvd ); VSPAEROMgr.m_Xcg.Set( nvd->GetDouble(0) );
         nvd = m_Inputs.FindPtr( "Ycg", 0 );
-        VSPAEROMgr.m_Ycg.Set( nvd->GetDouble(0) );
+        if ( nvd ); VSPAEROMgr.m_Ycg.Set( nvd->GetDouble(0) );
         nvd = m_Inputs.FindPtr( "Zcg", 0 );
-        VSPAEROMgr.m_Zcg.Set( nvd->GetDouble(0) );
+        if ( nvd ); VSPAEROMgr.m_Zcg.Set( nvd->GetDouble(0) );
 
         //    Freestream parameters (Alpha, Beta, Mach)
         double alphaOrig      = VSPAEROMgr.m_AlphaStart.Get();
@@ -1178,13 +1203,13 @@ string VSPAEROSinglePointAnalysis::Execute()
         double machOrig       = VSPAEROMgr.m_MachStart.Get();
         int    machNptsOrig   = VSPAEROMgr.m_MachNpts.Get();        // note this is NOT an input
         nvd = m_Inputs.FindPtr( "Alpha", 0 );
-        VSPAEROMgr.m_AlphaStart.Set( nvd->GetDouble(0) );
+        if ( nvd ); VSPAEROMgr.m_AlphaStart.Set( nvd->GetDouble(0) );
         VSPAEROMgr.m_AlphaNpts.Set( 1 );                    // note: this is NOT an input
         nvd = m_Inputs.FindPtr( "Beta", 0 );
-        VSPAEROMgr.m_BetaStart.Set( nvd->GetDouble(0) );
+        if ( nvd ); VSPAEROMgr.m_BetaStart.Set( nvd->GetDouble(0) );
         VSPAEROMgr.m_BetaNpts.Set( 1 );                    // note: this is NOT an input
         nvd = m_Inputs.FindPtr( "Mach", 0 );
-        VSPAEROMgr.m_MachStart.Set( nvd->GetDouble(0) );
+        if ( nvd ); VSPAEROMgr.m_MachStart.Set( nvd->GetDouble(0) );
         VSPAEROMgr.m_MachNpts.Set( 1 );                    // note: this is NOT an input
 
         //Case Setup
@@ -1194,19 +1219,19 @@ string VSPAEROSinglePointAnalysis::Execute()
         int wakeSkipUntilIterOrig    = VSPAEROMgr.m_WakeSkipUntilIter.Get();
         bool stabilityCalcFlagOrig   = VSPAEROMgr.m_StabilityCalcFlag.Get();
         nvd = m_Inputs.FindPtr( "NCPU", 0 );
-        VSPAEROMgr.m_NCPU.Set( nvd->GetInt(0) );
+        if ( nvd ); VSPAEROMgr.m_NCPU.Set( nvd->GetInt(0) );
         nvd = m_Inputs.FindPtr( "WakeNumIter" );
-        VSPAEROMgr.m_WakeNumIter.Set( nvd->GetInt(0) );
+        if ( nvd ); VSPAEROMgr.m_WakeNumIter.Set( nvd->GetInt(0) );
         nvd = m_Inputs.FindPtr( "WakeAvgStartIter" );
-        VSPAEROMgr.m_WakeAvgStartIter.Set( nvd->GetInt(0) );
+        if ( nvd ); VSPAEROMgr.m_WakeAvgStartIter.Set( nvd->GetInt(0) );
         nvd = m_Inputs.FindPtr( "WakeSkipUntilIter" );
-        VSPAEROMgr.m_WakeSkipUntilIter.Set( nvd->GetInt(0) );
+        if ( nvd ); VSPAEROMgr.m_WakeSkipUntilIter.Set( nvd->GetInt(0) );
         nvd = m_Inputs.FindPtr( "StabilityCalcFlag", 0 );
-        VSPAEROMgr.m_StabilityCalcFlag.Set( nvd->GetInt(0) );
+        if ( nvd ); VSPAEROMgr.m_StabilityCalcFlag.Set( nvd->GetInt(0) );
 
         bool forceNewSetupfileOrig   = VSPAEROMgr.m_ForceNewSetupfile.Get();
         nvd = m_Inputs.FindPtr( "ForceNewSetupfile", 0 );
-        VSPAEROMgr.m_ForceNewSetupfile.Set( nvd->GetInt(0) );
+        if ( nvd ); VSPAEROMgr.m_ForceNewSetupfile.Set( nvd->GetInt(0) );
 
         //==== Execute Analysis ====//
         resId = VSPAEROMgr.ComputeSolver(stdout);
@@ -1219,6 +1244,7 @@ string VSPAEROSinglePointAnalysis::Execute()
 
         //    Regerence area, length parameters
         VSPAEROMgr.m_RefFlag.Set( refFlagOrig );
+        VSPAEROMgr.m_RefGeomID = WingIDOrig;
         VSPAEROMgr.m_Sref.Set( srefOrig );
         VSPAEROMgr.m_bref.Set( brefOrig );
         VSPAEROMgr.m_cref.Set( crefOrig );
@@ -1272,6 +1298,7 @@ void VSPAEROSweepAnalysis::SetDefaults()
 
         //Reference area, lengths
         m_Inputs.Add( NameValData( "RefFlag",           VSPAEROMgr.m_RefFlag.Get()           ) );
+        m_Inputs.Add( NameValData( "WingID",            " "                                  ) );
         m_Inputs.Add( NameValData( "Sref",              VSPAEROMgr.m_Sref.Get()              ) );
         m_Inputs.Add( NameValData( "bref",              VSPAEROMgr.m_bref.Get()              ) );
         m_Inputs.Add( NameValData( "cref",              VSPAEROMgr.m_cref.Get()              ) );
@@ -1317,7 +1344,7 @@ string VSPAEROSweepAnalysis::Execute()
         //    Geometry set
         int geomSetOrig    = VSPAEROMgr.m_GeomSet.Get();
         nvd = m_Inputs.FindPtr( "GeomSet", 0 );
-        VSPAEROMgr.m_GeomSet.Set( nvd->GetInt(0) );
+        if ( nvd ); VSPAEROMgr.m_GeomSet.Set( nvd->GetInt(0) );
 
         int analysisMethodOrig = VSPAEROMgr.m_AnalysisMethod.Get();
         nvd = m_Inputs.FindPtr( "AnalysisMethod", 0 );
@@ -1325,17 +1352,41 @@ string VSPAEROSweepAnalysis::Execute()
 
         //    Regerence area, length parameters
         int refFlagOrig    = VSPAEROMgr.m_RefFlag.Get();
+        string WingIDOrig  = VSPAEROMgr.m_RefGeomID;
         double srefOrig    = VSPAEROMgr.m_Sref.Get();
         double brefOrig    = VSPAEROMgr.m_bref.Get();
         double crefOrig    = VSPAEROMgr.m_cref.Get();
         nvd = m_Inputs.FindPtr( "RefFlag", 0 );
-        VSPAEROMgr.m_RefFlag.Set( nvd->GetInt(0) );
-        nvd = m_Inputs.FindPtr( "Sref", 0 );
-        VSPAEROMgr.m_Sref.Set( nvd->GetDouble(0) );
-        nvd = m_Inputs.FindPtr( "bref", 0 );
-        VSPAEROMgr.m_bref.Set( nvd->GetDouble(0) );
-        nvd = m_Inputs.FindPtr( "cref", 0 );
-        VSPAEROMgr.m_cref.Set( nvd->GetDouble(0) );
+        if ( nvd ); VSPAEROMgr.m_RefFlag.Set( nvd->GetInt(0) );
+        nvd = m_Inputs.FindPtr( "WingID", 0 );
+        if ( nvd ); VSPAEROMgr.m_RefGeomID = nvd->GetString(0) ;
+
+        if ( VSPAEROMgr.m_RefFlag.Get() == vsp::VSPAERO_COMP_REFERENCE_TYPE::MANUAL_REF )
+        {
+            nvd = m_Inputs.FindPtr( "Sref", 0 );
+            if ( nvd ); VSPAEROMgr.m_Sref.Set( nvd->GetDouble(0) );
+            nvd = m_Inputs.FindPtr( "bref", 0 );
+            if ( nvd ); VSPAEROMgr.m_bref.Set( nvd->GetDouble(0) );
+            nvd = m_Inputs.FindPtr( "cref", 0 );
+            if ( nvd ); VSPAEROMgr.m_cref.Set( nvd->GetDouble(0) );        
+        }
+        else if ( VSPAEROMgr.m_RefFlag.Get() == vsp::VSPAERO_COMP_REFERENCE_TYPE::COMPONENT_REF )
+        {
+            VSPAEROMgr.Update();
+            printf( "Wing Reference Parms: \n" );
+
+            nvd = m_Inputs.FindPtr( "Sref", 0 );
+            if ( nvd ); VSPAEROMgr.m_Sref.Set( VSPAEROMgr.m_Sref.Get() );
+            printf( " Sref: %7.3f \n", VSPAEROMgr.m_Sref.Get() );
+            nvd = m_Inputs.FindPtr( "bref", 0 );
+            if ( nvd ); VSPAEROMgr.m_bref.Set( VSPAEROMgr.m_bref.Get() );
+            printf( " bref: %7.3f \n", VSPAEROMgr.m_bref.Get() );
+            nvd = m_Inputs.FindPtr( "cref", 0 );
+            if ( nvd ); VSPAEROMgr.m_cref.Set( VSPAEROMgr.m_cref.Get() );
+            printf( " cref: %7.3f \n", VSPAEROMgr.m_cref.Get() );
+
+            printf( "\n" );
+        }
 
         //    Mass properties
         int cgGeomSetOrig    = VSPAEROMgr.m_CGGeomSet.Get();
@@ -1344,15 +1395,15 @@ string VSPAEROSweepAnalysis::Execute()
         double ycgOrig        = VSPAEROMgr.m_Ycg.Get();
         double zcgOrig        = VSPAEROMgr.m_Zcg.Get();
         nvd = m_Inputs.FindPtr( "CGGeomSet", 0 );
-        VSPAEROMgr.m_CGGeomSet.Set( nvd->GetInt(0) );
+        if ( nvd ); VSPAEROMgr.m_CGGeomSet.Set( nvd->GetInt(0) );
         nvd = m_Inputs.FindPtr( "NumMassSlice", 0 );
-        VSPAEROMgr.m_NumMassSlice.Set( nvd->GetInt(0) );
+        if ( nvd ); VSPAEROMgr.m_NumMassSlice.Set( nvd->GetInt(0) );
         nvd = m_Inputs.FindPtr( "Xcg", 0 );
-        VSPAEROMgr.m_Xcg.Set( nvd->GetDouble(0) );
+        if ( nvd ); VSPAEROMgr.m_Xcg.Set( nvd->GetDouble(0) );
         nvd = m_Inputs.FindPtr( "Ycg", 0 );
-        VSPAEROMgr.m_Ycg.Set( nvd->GetDouble(0) );
+        if ( nvd ); VSPAEROMgr.m_Ycg.Set( nvd->GetDouble(0) );
         nvd = m_Inputs.FindPtr( "Zcg", 0 );
-        VSPAEROMgr.m_Zcg.Set( nvd->GetDouble(0) );
+        if ( nvd ); VSPAEROMgr.m_Zcg.Set( nvd->GetDouble(0) );
 
         //    Freestream parameters (Alpha, Beta, Mach)
         double alphaStartOrig    = VSPAEROMgr.m_AlphaStart.Get();
@@ -1365,23 +1416,23 @@ string VSPAEROSweepAnalysis::Execute()
         double machEndOrig    = VSPAEROMgr.m_MachEnd.Get();
         int machNptsOrig        = VSPAEROMgr.m_MachNpts.Get();
         nvd = m_Inputs.FindPtr( "AlphaStart", 0 );
-        VSPAEROMgr.m_AlphaStart.Set( nvd->GetDouble(0) );
+        if ( nvd ); VSPAEROMgr.m_AlphaStart.Set( nvd->GetDouble(0) );
         nvd = m_Inputs.FindPtr( "AlphaEnd", 0 );
-        VSPAEROMgr.m_AlphaEnd.Set( nvd->GetDouble(0) );
+        if ( nvd ); VSPAEROMgr.m_AlphaEnd.Set( nvd->GetDouble(0) );
         nvd = m_Inputs.FindPtr( "AlphaNpts", 0 );
-        VSPAEROMgr.m_AlphaNpts.Set( nvd->GetInt(0) );
+        if ( nvd ); VSPAEROMgr.m_AlphaNpts.Set( nvd->GetInt(0) );
         nvd = m_Inputs.FindPtr( "BetaStart", 0 );
-        VSPAEROMgr.m_BetaStart.Set( nvd->GetDouble(0) );
+        if ( nvd ); VSPAEROMgr.m_BetaStart.Set( nvd->GetDouble(0) );
         nvd = m_Inputs.FindPtr( "BetaEnd", 0 );
-        VSPAEROMgr.m_BetaEnd.Set( nvd->GetDouble(0) );
+        if ( nvd ); VSPAEROMgr.m_BetaEnd.Set( nvd->GetDouble(0) );
         nvd = m_Inputs.FindPtr( "BetaNpts", 0 );
-        VSPAEROMgr.m_BetaNpts.Set( nvd->GetInt(0) );
+        if ( nvd ); VSPAEROMgr.m_BetaNpts.Set( nvd->GetInt(0) );
         nvd = m_Inputs.FindPtr( "MachStart", 0 );
-        VSPAEROMgr.m_MachStart.Set( nvd->GetDouble(0) );
+        if ( nvd ); VSPAEROMgr.m_MachStart.Set( nvd->GetDouble(0) );
         nvd = m_Inputs.FindPtr( "MachEnd", 0 );
-        VSPAEROMgr.m_MachEnd.Set( nvd->GetDouble(0) );
+        if ( nvd ); VSPAEROMgr.m_MachEnd.Set( nvd->GetDouble(0) );
         nvd = m_Inputs.FindPtr( "MachNpts", 0 );
-        VSPAEROMgr.m_MachNpts.Set( nvd->GetInt(0) );
+        if ( nvd ); VSPAEROMgr.m_MachNpts.Set( nvd->GetInt(0) );
 
         //Case Setup
         int ncpuOrig                 = VSPAEROMgr.m_NCPU.Get();
@@ -1390,24 +1441,24 @@ string VSPAEROSweepAnalysis::Execute()
         int wakeSkipUntilIterOrig    = VSPAEROMgr.m_WakeSkipUntilIter.Get();
         bool stabilityCalcFlagOrig   = VSPAEROMgr.m_StabilityCalcFlag.Get();
         nvd = m_Inputs.FindPtr( "NCPU", 0 );
-        VSPAEROMgr.m_NCPU.Set( nvd->GetInt(0) );
+        if ( nvd ); VSPAEROMgr.m_NCPU.Set( nvd->GetInt(0) );
         nvd = m_Inputs.FindPtr( "WakeNumIter" );
-        VSPAEROMgr.m_WakeNumIter.Set( nvd->GetInt(0) );
+        if ( nvd ); VSPAEROMgr.m_WakeNumIter.Set( nvd->GetInt(0) );
         nvd = m_Inputs.FindPtr( "WakeAvgStartIter" );
-        VSPAEROMgr.m_WakeAvgStartIter.Set( nvd->GetInt(0) );
+        if ( nvd ); VSPAEROMgr.m_WakeAvgStartIter.Set( nvd->GetInt(0) );
         nvd = m_Inputs.FindPtr( "WakeSkipUntilIter" );
-        VSPAEROMgr.m_WakeSkipUntilIter.Set( nvd->GetInt(0) );
+        if ( nvd ); VSPAEROMgr.m_WakeSkipUntilIter.Set( nvd->GetInt(0) );
         nvd = m_Inputs.FindPtr( "StabilityCalcFlag", 0 );
-        VSPAEROMgr.m_StabilityCalcFlag.Set( nvd->GetInt(0) );
+        if ( nvd ); VSPAEROMgr.m_StabilityCalcFlag.Set( nvd->GetInt(0) );
 
         bool BatchModeFlagOrig       = VSPAEROMgr.m_BatchModeFlag.Get();
         nvd = m_Inputs.FindPtr( "BatchModeFlag", 0 );
-        VSPAEROMgr.m_BatchModeFlag.Set( nvd->GetInt(0) );
+        if ( nvd ); VSPAEROMgr.m_BatchModeFlag.Set( nvd->GetInt(0) );
 
 
         bool forceNewSetupfileOrig   = VSPAEROMgr.m_ForceNewSetupfile.Get();
         nvd = m_Inputs.FindPtr( "ForceNewSetupfile", 0 );
-        VSPAEROMgr.m_ForceNewSetupfile.Set( nvd->GetInt(0) );
+        if ( nvd ); VSPAEROMgr.m_ForceNewSetupfile.Set( nvd->GetInt(0) );
 
         //==== Execute Analysis ====//
         resId = VSPAEROMgr.ComputeSolver(stdout);
@@ -1420,6 +1471,7 @@ string VSPAEROSweepAnalysis::Execute()
 
         //    Regerence area, length parameters
         VSPAEROMgr.m_RefFlag.Set( refFlagOrig );
+        VSPAEROMgr.m_RefGeomID = WingIDOrig;
         VSPAEROMgr.m_Sref.Set( srefOrig );
         VSPAEROMgr.m_bref.Set( brefOrig );
         VSPAEROMgr.m_cref.Set( crefOrig );
