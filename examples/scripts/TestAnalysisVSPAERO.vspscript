@@ -1,5 +1,79 @@
+void main()
+{
+    Print( string( "Begin VSPAERO Test Analysis" ) );
+    Print( string( "" ) );
+    
+    TestAll();
+
+    //==== Check For API Errors ====//
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+        Print( err.GetErrorString() );
+    }
+
+    Print( string( "End VSPAERO Test Analysis" ) );		
+}
+
+void TestAll()
+{
+    //==== Generate Geometry ====//
+    GenerateGeom();
+    ClearVSPModel();
+
+    //==== Vortex Lattice Method ====//
+    TestVSPAeroComputeGeom();
+    ClearVSPModel();
+
+    //==== Panel Method ====//
+    TestVSPAeroComputeGeomPanel();
+    ClearVSPModel();
+
+    //==== Sharp Trailing Edge Test ====//
+    TestVSPAeroSharpTrailingEdge();
+    ClearVSPModel();
+
+    //==== Blunt Trailing Edge Test ====//
+    TestVSPAeroBluntTrailingEdge();
+    ClearVSPModel();
+}
+
+void GenerateGeom()
+{
+    //==== Create some test geometries ====//
+    Print( string( "--> Generating Geometries" ) );
+    Print( string( "" ) );
+
+    string pod_id = AddGeom( "POD", "" );
+    string wing_id = AddGeom( "WING", "" );
+
+    SetParmVal( wing_id, "X_Rel_Location", "XForm", 2.5 );
+    SetParmVal( wing_id, "TotalArea", "WingGeom", 25 );
+
+    string subsurf_id = AddSubSurf( wing_id, SS_CONTROL, 0 );
+    
+    Update();
+
+    //==== Setup export filenames ====//
+    string fname_vspaerotests = "TestVSPAero.vsp3";
+
+    //==== Save Vehicle to File ====//
+    Print("-->Saving vehicle file to: ", false );
+    Print( fname_vspaerotests, true );
+    Print( "" );
+    WriteVSPFile( fname_vspaerotests, SET_ALL );
+    Print( "COMPLETE\n" );
+    Update();
+}
 void TestVSPAeroComputeGeom()
 {
+    Print( string( "-> Begin TestVSPAeroComputeGeom" ) );
+    Print( string( "" ) );
+
+    //open the file created in GenerateGeom
+    string fname_vspaerotests = "TestVSPAero.vsp3";
+    ReadVSPFile( fname_vspaerotests );  // Sets VSP3 file name
+
     //==== Analysis: VSPAero Compute Geometry ====//
     string analysis_name = "VSPAEROComputeGeometry";
     Print( analysis_name );
@@ -27,14 +101,21 @@ void TestVSPAeroComputeGeom()
 
 void TestVSPAeroComputeGeomPanel()
 {
+    Print( string( "-> Begin TestVSPAeroComputeGeomPanel" ) );
+    Print( string( "" ) );
+
+    //open the file created in GenerateGeom
+    string fname_vspaerotests = "TestVSPAero.vsp3";
+    ReadVSPFile( fname_vspaerotests );  // Sets VSP3 file name    
+
     //==== Analysis: VSPAero Compute Geometry ====//
     string analysis_name = "VSPAEROComputeGeometry";
     Print( analysis_name );
 
     // Set defaults
     SetAnalysisInputDefaults(analysis_name);
-    
-    // Analysis method
+
+    // Set to panel method
     array< int > analysis_method = GetIntAnalysisInput(analysis_name,"AnalysisMethod");
     analysis_method[0] = ( VSPAERO_ANALYSIS_METHOD::PANEL );
     SetIntAnalysisInput(analysis_name, "AnalysisMethod", analysis_method);
@@ -52,33 +133,269 @@ void TestVSPAeroComputeGeomPanel()
     PrintResults( rid );
 }
 
-void main()
+void TestVSPAeroSharpTrailingEdge()
 {
-    //==== Create some test geometry ====//
-    string pod_id = AddGeom( "POD", "" );
+    Print( string( "-> Begin TestVSPAeroSharpTrailingEdge" ) );
+    Print( string( "" ) );
+
+    //==== Analysis: VSPAero Single Point ====//
+    string analysis_name = "VSPAEROSinglePoint";
+    Print( analysis_name );
+
+    //==== Create some test geometries ====//
+    Print( string( "--> Generating Geometries" ) );
+    Print( string( "" ) );
+
     string wing_id = AddGeom( "WING", "" );
 
-    SetParmVal( wing_id, "X_Rel_Location", "XForm", 2.5 );
-    SetParmVal( wing_id, "TotalArea", "WingGeom", 25 );
+    // Get Section IDs
+    string wingxsurf_id = GetXSecSurf( wing_id, 0 );
+    string xsec_id0 = GetXSec( wingxsurf_id, 0 );
+    string xsec_id1 = GetXSec( wingxsurf_id, 1 );
 
-    string subsurf_id = AddSubSurf( wing_id, SS_CONTROL, 0 );
-    
+    // Set Root and Tip Chord to 3:
+    SetDriverGroup( wing_id, 1, AREA_WSECT_DRIVER, ROOTC_WSECT_DRIVER, TIPC_WSECT_DRIVER );
+    SetParmVal( wing_id, "Root_Chord", "XSec_1", 3.0 );
+    SetParmVal( wing_id, "Tip_Chord", "XSec_1", 3.0 );
+    SetParmVal( wing_id, "Area", "XSec_1", 25.0 );
+
+    // Set Sweep to 0:
+    string xsweep_id1 = GetXSecParm( xsec_id1, "Sweep" );
+    SetParmVal( xsweep_id1, 0.0 );
+
+    // Increase W Tesselation:
+    SetParmVal( wing_id, "Tess_W", "Shape", 69 );
+
+    // Increase U Tesselation 
+    string xutess_id1 = GetXSecParm( xsec_id1, "SectTess_U" );
+    SetParmVal( xutess_id1, 16 );
+
     Update();
-    
 
-    //==== Vortex Lattice Method ====//
-    TestVSPAeroComputeGeom();
-    
-    
-    //==== Panel Method ====//
-    TestVSPAeroComputeGeomPanel();
+    //==== Save Vehicle to File ====//
+    Print( string( "-->Saving VSP model\n" ) );
+    string fname = "TestVSPAeroSharpTrailingEdge.vsp3";
+    WriteVSPFile( fname, SET_ALL );
+    Update();
 
-    
-    //==== Check For API Errors ====//
-    while ( GetNumTotalErrors() > 0 )
+    // Close and open the file
+    ClearVSPModel();
+    Update();
+    ReadVSPFile( fname ); // Sets VSP3 file name
+    Update();
+
+    //==== Analysis: VSPAero Compute Geometry to Create Vortex Lattice DegenGeom File ====//
+    string compgeom_name = "VSPAEROComputeGeometry";
+    Print( compgeom_name );
+
+    // Set defaults
+    SetAnalysisInputDefaults( compgeom_name );
+
+    // list inputs, type, and current values
+    PrintAnalysisInputs( compgeom_name );
+
+    // Execute
+    Print( "\tExecuting..." );
+    string compgeom_resid = ExecAnalysis( compgeom_name );
+    Print( "COMPLETE" );
+
+    // Get & Display Results
+    PrintResults( compgeom_resid );
+
+    //==== Analysis: VSPAero Single Point ====//
+    // Set defaults
+    SetAnalysisInputDefaults(analysis_name);
+
+    // Reference geometry set
+    array< int > geom_set; 
+    geom_set.push_back( 0 );
+    SetIntAnalysisInput( analysis_name, "GeomSet", geom_set, 0 );
+    array< int > ref_flag; 
+    ref_flag.push_back(1);
+    SetIntAnalysisInput(analysis_name, "RefFlag", ref_flag, 0);
+    array< string > wid = FindGeomsWithName( "WingGeom" );
+    SetStringAnalysisInput(analysis_name, "WingID", wid, 0);
+
+    // Freestream Parameters
+    array< double > alpha; 
+    alpha.push_back(0.0);
+    SetDoubleAnalysisInput(analysis_name, "Alpha", alpha, 0);
+    array< double > mach; 
+    mach.push_back(0.1);
+    SetDoubleAnalysisInput(analysis_name, "Mach", mach, 0);
+
+    Update();
+
+    // list inputs, type, and current values
+    PrintAnalysisInputs( analysis_name );
+    Print( "" );
+
+    // Execute
+    Print( "\tExecuting..." );
+    string rid = ExecAnalysis( analysis_name );
+    Print( "COMPLETE" );
+
+    // Get & Display Results
+    PrintResults( rid );
+
+    array<string> results_names = GetAllDataNames( rid );
+    array<string>res_id = GetStringResults( rid, results_names[0] ,0 );
+
+    array<double> CL = GetDoubleResults( res_id[0], "CL", 0 );
+    array<double> cl = GetDoubleResults( res_id[1], "cl", 0 );
+
+    Print( "CL at 0 angle of attack: ", false );
+
+    for ( int i = 0; i < int( CL.size() ); i ++ )
     {
-        ErrorObj err = PopLastError();
-        Print( err.GetErrorString() );
+        Print( CL[i], false );
     }
+    Print( "" );
 
+    Print( "cl at 0 angle of attack: ", false );
+    for ( int j = 0; j < int( cl.size() ); j ++ )
+    {
+        Print( cl[j], false );
+    }
+    Print( "" );
+    Print( "" );
+}
+
+void TestVSPAeroBluntTrailingEdge()
+{
+    Print( string( "-> Begin TestVSPAeroBluntTrailingEdge" ) );
+    Print( string( "" ) );
+
+    //==== Analysis: VSPAero Single Point ====//
+    string analysis_name = "VSPAEROSinglePoint";
+    Print( analysis_name );
+
+    //==== Create some test geometries ====//
+    Print( string( "--> Generating Geometries" ) );
+    Print( string( "" ) );
+
+    string wing_id = AddGeom( "WING", "" );
+
+    // Get Section IDs
+    string wingxsurf_id = GetXSecSurf( wing_id, 0 );
+    string xsec_id0 = GetXSec( wingxsurf_id, 0 );
+    string xsec_id1 = GetXSec( wingxsurf_id, 1 );
+    
+    // Set Root and Tip Chord to 3:
+    SetDriverGroup( wing_id, 1, AREA_WSECT_DRIVER, ROOTC_WSECT_DRIVER, TIPC_WSECT_DRIVER );
+    SetParmVal( wing_id, "Root_Chord", "XSec_1", 3.0 );
+    SetParmVal( wing_id, "Tip_Chord", "XSec_1", 3.0 );
+    SetParmVal( wing_id, "Area", "XSec_1", 25.0 );
+
+    // Set Sweep to 0:
+    string xsweep_id1 = GetXSecParm( xsec_id1, "Sweep" );
+    SetParmVal( xsweep_id1, 0.0 );
+
+    // Set Trailing Edge to Blunt:
+    string xtrimtype_id0 = GetXSecParm( xsec_id0, "TE_Trim_Type" );
+    SetParmVal( xtrimtype_id0, 1 );
+    string xtrimval_id0 = GetXSecParm( xsec_id0, "TE_Trim_X" );
+    SetParmVal( xtrimval_id0, 0.5 );
+    string xtrimtype_id1 = GetXSecParm( xsec_id1, "TE_Trim_Type" );
+    SetParmVal( xtrimtype_id1, 1 );
+    string xtrimval_id1 = GetXSecParm( xsec_id1, "TE_Trim_X" );
+    SetParmVal( xtrimval_id1, 0.5 );
+
+    // Increase W Tesselation:
+    SetParmVal( wing_id, "Tess_W", "Shape", 69 );
+
+    // Increase U Tesselation 
+    string xutess_id1 = GetXSecParm( xsec_id1, "SectTess_U" );
+    SetParmVal( xutess_id1, 16 );
+
+    Update();
+
+    //==== Save Vehicle to File ====//
+    Print( string( "-->Saving VSP model\n" ) );
+    string fname = "TestVSPAeroBluntTrailingEdge.vsp3";
+    WriteVSPFile( fname, SET_ALL );
+    Update();
+
+    // Close and open the file
+    ClearVSPModel();
+    Update();
+    ReadVSPFile( fname ); // Sets VSP3 file name
+    Update();
+
+    //==== Analysis: VSPAero Compute Geometry to Create Vortex Lattice DegenGeom File ====//
+    string compgeom_name = "VSPAEROComputeGeometry";
+    Print( compgeom_name );
+
+    // Set defaults
+    SetAnalysisInputDefaults( compgeom_name );
+
+    // list inputs, type, and current values
+    PrintAnalysisInputs( compgeom_name );
+
+    // Execute
+    Print( "\tExecuting..." );
+    string compgeom_resid = ExecAnalysis( compgeom_name );
+    Print( "COMPLETE" );
+
+    // Get & Display Results
+    PrintResults( compgeom_resid );
+
+    //==== Analysis: VSPAero Single Point ====//
+    // Set defaults
+    SetAnalysisInputDefaults(analysis_name);
+
+    // Reference geometry set
+    array< int > geom_set; 
+    geom_set.push_back( 0 );
+    SetIntAnalysisInput( analysis_name, "GeomSet", geom_set, 0 );
+    array< int > ref_flag; 
+    ref_flag.push_back(1);
+    SetIntAnalysisInput(analysis_name, "RefFlag", ref_flag, 0);
+    
+    array< string > wid = FindGeomsWithName( "WingGeom" );
+    SetStringAnalysisInput(analysis_name, "WingID", wid, 0);
+
+    // Freestream Parameters
+    array< double > alpha; 
+    alpha.push_back(0.0);
+    SetDoubleAnalysisInput(analysis_name, "Alpha", alpha, 0);
+    array< double > mach; 
+    mach.push_back(0.1);
+    SetDoubleAnalysisInput(analysis_name, "Mach", mach, 0);
+
+    Update();
+
+    // list inputs, type, and current values
+    PrintAnalysisInputs( analysis_name );
+    Print( "" );
+
+    // Execute
+    Print( "\tExecuting..." );
+    string rid = ExecAnalysis( analysis_name );
+    Print( "COMPLETE" );
+
+    // Get & Display Results
+    PrintResults( rid );
+
+    array<string> results_names = GetAllDataNames( rid );
+    array<string>res_id = GetStringResults( rid, results_names[0] ,0 );
+
+    array<double> CL = GetDoubleResults( res_id[0], "CL", 0 );
+    array<double> cl = GetDoubleResults( res_id[1], "cl", 0 );
+
+    Print( "CL at 0 angle of attack: ", false );
+
+    for ( int i = 0; i < int( CL.size() ); i ++ )
+    {
+        Print( CL[i], false );
+    }
+    Print( "" );
+
+    Print( "cl at 0 angle of attack: ", false );
+    for ( int j = 0; j < int( cl.size() ); j ++ )
+    {
+        Print( cl[j], false );
+    }
+    Print( "" );
+    Print( "" );
 }
