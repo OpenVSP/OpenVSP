@@ -1057,6 +1057,13 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "VSPAERO_ANALYSIS_METHOD", "PANEL", PANEL );
     assert( r >= 0 );
 
+    r = se->RegisterEnum( "VSPAERO_COMP_REFERENCE_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VSPAERO_COMP_REFERENCE_TYPE", "MANUAL_REF", MANUAL_REF );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VSPAERO_COMP_REFERENCE_TYPE", "COMPONENT_REF", COMPONENT_REF );
+
+
 }
 
 //==== Vec3d Constructors ====//
