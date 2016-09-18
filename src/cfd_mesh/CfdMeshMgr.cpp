@@ -4046,32 +4046,36 @@ bool CfdMeshMgrSingleton::SetDeleteTriFlag( int aType, bool symPlane, vector < b
     for ( int b = 0 ; b < ( int )m_SurfVec.size() ; b++ )
     {
         int c = m_SurfVec[b]->GetCompID();
-        bool aInThisB = aInB[c];
-        int bType = m_SurfVec[b]->GetSurfaceCfdType();
-
-        // Can make absolute decisions about deleting a triangle or not in the cases below
-        if ( aInThisB )
+        if ( c >= 0 && c < aInB.size() )
         {
-            // Trim Symmetry plane
-            if ( symPlane && m_SurfVec[b]->GetFarFlag() &&
-                 GetCfdSettingsPtr()->GetFarCompFlag() )
+            bool aInThisB = aInB[c];
+
+            int bType = m_SurfVec[b]->GetSurfaceCfdType();
+
+            // Can make absolute decisions about deleting a triangle or not in the cases below
+            if ( aInThisB )
             {
-                return true;
-            }
-            // Normal(Positive) inside another Normal, or Negative inside another Negative
-            if ( aType == bType && aType != vsp::CFD_TRANSPARENT && aInThisB )
-            {
-                return true;
-            }
-            // Always delete Normal tris inside Negative surfaces
-            else if ( aType == vsp::CFD_NORMAL && bType == vsp::CFD_NEGATIVE )
-            {
-                return true;
-            }
-            // Never delete Transparent tris inside Negative surfaces
-            else if ( aType == vsp::CFD_TRANSPARENT && bType == vsp::CFD_NEGATIVE )
-            {
-                return false;
+                // Trim Symmetry plane
+                if ( symPlane && m_SurfVec[b]->GetFarFlag() &&
+                     GetCfdSettingsPtr()->GetFarCompFlag() )
+                {
+                    return true;
+                }
+                // Normal(Positive) inside another Normal, or Negative inside another Negative
+                if ( aType == bType && aType != vsp::CFD_TRANSPARENT && aInThisB )
+                {
+                    return true;
+                }
+                // Always delete Normal tris inside Negative surfaces
+                else if ( aType == vsp::CFD_NORMAL && bType == vsp::CFD_NEGATIVE )
+                {
+                    return true;
+                }
+                // Never delete Transparent tris inside Negative surfaces
+                else if ( aType == vsp::CFD_TRANSPARENT && bType == vsp::CFD_NEGATIVE )
+                {
+                    return false;
+                }
             }
         }
     }
@@ -4080,25 +4084,28 @@ bool CfdMeshMgrSingleton::SetDeleteTriFlag( int aType, bool symPlane, vector < b
     for ( int b = 0 ; b < ( int )m_SurfVec.size() ; b++ )
     {
         int c = m_SurfVec[b]->GetCompID();
-        bool aInThisB = aInB[c];
-        int bType = m_SurfVec[b]->GetSurfaceCfdType();
+        if ( c >= 0 && c < aInB.size() )
+        {
+            bool aInThisB = aInB[c];
+            int bType = m_SurfVec[b]->GetSurfaceCfdType();
 
-        if ( aInThisB )
-        {
-            if ( aType == vsp::CFD_NEGATIVE && bType == vsp::CFD_NORMAL )
+            if ( aInThisB )
             {
-                return false;
+                if ( aType == vsp::CFD_NEGATIVE && bType == vsp::CFD_NORMAL )
+                {
+                    return false;
+                }
+                else if ( aType == vsp::CFD_TRANSPARENT && bType == vsp::CFD_NORMAL )
+                {
+                    return true;
+                }
             }
-            else if ( aType == vsp::CFD_TRANSPARENT && bType == vsp::CFD_NORMAL )
+            else
             {
-                return true;
-            }
-        }
-        else
-        {
-            if ( aType == vsp::CFD_NEGATIVE )
-            {
-                deleteTri = true;
+                if ( aType == vsp::CFD_NEGATIVE )
+                {
+                    deleteTri = true;
+                }
             }
         }
     }
@@ -4168,20 +4175,23 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
             {
                 int c = m_SurfVec[i]->GetCompID();
 
-                if ( m_SurfVec[s]->GetSymPlaneFlag() && m_SurfVec[i]->GetFarFlag() &&
-                     GetCfdSettingsPtr()->GetFarCompFlag() )
+                if ( c >= 0 && c < ( *t )->insideSurf.size() )
                 {
-                    if ( ( int )( t_vec_vec[c].size() + 1 ) % 2 == 1 ) // +1 Reverse action on sym plane wrt outer boundary.
+                    if ( m_SurfVec[s]->GetSymPlaneFlag() && m_SurfVec[i]->GetFarFlag() &&
+                         GetCfdSettingsPtr()->GetFarCompFlag() )
                     {
-                        ( *t )->insideSurf[c] = true;
+                        if ( ( int )( t_vec_vec[c].size() + 1 ) % 2 == 1 ) // +1 Reverse action on sym plane wrt outer boundary.
+                        {
+                            ( *t )->insideSurf[c] = true;
+                        }
                     }
-                }
-                else
-                {
-
-                    if ( ( int )t_vec_vec[c].size() % 2 == 1)
+                    else
                     {
-                        ( *t )->insideSurf[c] = true;
+
+                        if ( ( int )t_vec_vec[c].size() % 2 == 1)
+                        {
+                            ( *t )->insideSurf[c] = true;
+                        }
                     }
                 }
             }
@@ -4198,16 +4208,19 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
             for ( int i = 0 ; i < ( int )m_SurfVec.size() ; ++i )
             {
                 int c = m_SurfVec[i]->GetCompID();
-
-                for ( st = triSet.begin() ; st != triSet.end() ; ++st )
+                if ( c >= 0 && c < ( *t )->insideSurf.size() )
                 {
-                    if ( ( *t )->insideSurf[c] )
+
+                    for ( st = triSet.begin() ; st != triSet.end() ; ++st )
                     {
-                        ( *st )->insideCount[c]++;
-                    }
-                    else
-                    {
-                        ( *st )->insideCount[c]--;
+                        if ( ( *t )->insideSurf[c] )
+                        {
+                            ( *st )->insideCount[c]++;
+                        }
+                        else
+                        {
+                            ( *st )->insideCount[c]--;
+                        }
                     }
                 }
             }
@@ -4226,17 +4239,22 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
                 int bType = m_SurfVec[i]->GetSurfaceCfdType();
                 int c = m_SurfVec[i]->GetCompID();
 
-                if ( ( *t )->insideCount[c] > 0 )
+                if ( c >= 0 && c < ( *t )->insideSurf.size() )
                 {
-                    ( *t )->insideSurf[c] = true;
-                }
-                else if ( ( *t )->insideCount[c] < 0 )
-                {
-                    ( *t )->insideSurf[c] = false;
-                }
-                else // Can't determine if Tri is inside or outside based on neighbor votes
-                {
-                    printf( "IntExtCount ZERO!\n" );
+
+                    if ( ( *t )->insideCount[c] > 0 )
+                    {
+                        ( *t )->insideSurf[c] = true;
+                    }
+                    else if ( ( *t )->insideCount[c] < 0 )
+                    {
+                        ( *t )->insideSurf[c] = false;
+                    }
+                    else // Can't determine if Tri is inside or outside based on neighbor votes
+                    {
+                        printf( "IntExtCount ZERO!\n" );
+                    }
+
                 }
             }
         }
