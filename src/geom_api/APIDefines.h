@@ -309,6 +309,7 @@ enum VSP_SURF_TYPE { NORMAL_SURF,
 enum VSP_SURF_CFD_TYPE { CFD_NORMAL,
                          CFD_NEGATIVE,
                          CFD_TRANSPARENT,
+                         CFD_STRUCTURE,
                          CFD_NUM_TYPES,
                        };
 

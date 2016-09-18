@@ -1156,6 +1156,8 @@ void FeaMeshMgrSingleton::AddRib()
     rib->m_SectID = m_CurrSectID;
     rib->ComputeEndPoints();
 
+    rib->GetSurf()->SetSurfaceCfdType( vsp::CFD_STRUCTURE );
+
     m_WingSections[m_CurrSectID].m_RibVec.push_back( rib );
     m_CurrRibID = m_WingSections[m_CurrSectID].m_RibVec.size() - 1;
 }
@@ -1198,6 +1200,8 @@ void FeaMeshMgrSingleton::AddSpar()
     spar->m_Sweep = 0.0;
     spar->m_SectID = m_CurrSectID;
     spar->ComputeEndPoints();
+
+    spar->GetSurf()->SetSurfaceCfdType( vsp::CFD_STRUCTURE );
 
     m_WingSections[m_CurrSectID].m_SparVec.push_back( spar );
     m_CurrSparID = m_WingSections[m_CurrSectID].m_SparVec.size() - 1;

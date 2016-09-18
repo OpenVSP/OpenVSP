@@ -4062,7 +4062,7 @@ bool CfdMeshMgrSingleton::SetDeleteTriFlag( int aType, bool symPlane, vector < b
                     return true;
                 }
                 // Normal(Positive) inside another Normal, or Negative inside another Negative
-                if ( aType == bType && aType != vsp::CFD_TRANSPARENT && aInThisB )
+                if ( aType == bType && ( aType != vsp::CFD_TRANSPARENT || aType != vsp::CFD_STRUCTURE ) )
                 {
                     return true;
                 }
@@ -4157,7 +4157,8 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
                 int comp_id = m_SurfVec[i]->GetCompID();
                 if ( comp_id != tri_comp_id ) // Don't check self intersection.
                 {
-                    if ( m_SurfVec[i]->GetSurfaceCfdType() != vsp::CFD_TRANSPARENT) // Don't check against transparent surf.
+                    if ( m_SurfVec[i]->GetSurfaceCfdType() != vsp::CFD_TRANSPARENT &&
+                         m_SurfVec[i]->GetSurfaceCfdType() != vsp::CFD_STRUCTURE ) // Don't check against transparent surf.
                     {
                         m_SurfVec[i]->IntersectLineSeg( cp, ep, t_vec_vec[comp_id] );
                     }
