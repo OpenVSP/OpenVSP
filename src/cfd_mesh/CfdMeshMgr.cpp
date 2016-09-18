@@ -4076,6 +4076,19 @@ bool CfdMeshMgrSingleton::SetDeleteTriFlag( int aType, bool symPlane, vector < b
                 {
                     return false;
                 }
+                // Always delete Structure tris inside Negative surfaces
+                else if ( aType == vsp::CFD_STRUCTURE && bType == vsp::CFD_NEGATIVE )
+                {
+                    return true;
+                }
+            }
+            else  // Triangle is outside.
+            {
+                if ( aType == vsp::CFD_STRUCTURE && bType == vsp::CFD_NORMAL )
+                {
+                    return true;
+                }
+
             }
         }
     }
