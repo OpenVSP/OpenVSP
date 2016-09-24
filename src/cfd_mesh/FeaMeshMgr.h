@@ -116,11 +116,6 @@ public:
         return m_UpperSurfVec.size();
     }
 
-    virtual void LoadChains( Surf* sliceSurf, bool upperFlag, int sect_id,
-                             list< ISegChain* > & chain_list );
-    virtual void LoadCapChains( Surf* s0, Surf* s1, list< ISegChain* > & chain_list );
-    virtual void LoadCapChains( Surf* s0, double w, list< ISegChain* > & chain_list );
-
     virtual void BuildSliceMesh();
 
     virtual void WriteCalculix( );
@@ -213,10 +208,7 @@ public:
     virtual void SetFeaStructData( Geom* geom_ptr, xmlNodePtr root );
     virtual void ReadFeaStructData( );
     virtual void CopyGeomPtr( Geom* from_geom, Geom* to_geom );
-    virtual void LoadAttachPoints();
 
-    virtual void CursorPos( vec2d & cursor );
-    virtual void MouseClick( vec2d & cursor );
 
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 

@@ -322,34 +322,9 @@ public:
         m_Normal = norm;
     }
 
-    virtual void FindUpperLowerPoints();
-    virtual int  ComputeNumDivisions();
-    virtual void SetNumDivisions( int n )
-    {
-        m_NumDivisions = n;
-    }
-
-    virtual void MergeChains( list< ISegChain* > & chain_list, vec3d & start_pnt, vector< vec3d > & pnt_vec );
-
-    virtual void FindLowerPnts(  vector< vec3d > & upper_pnts, list< ISegChain* > & chain_list,
-                                 vector< vec3d > & lower_pnts );
-    virtual void MatchUpperLowerPnts( vector< vec3d > & upper_pnts, vector< vec3d > & lower_pnts );
-
-    virtual int FindClosestPnt( vec3d & pnt, vector< vec3d > & target_vec );
-    virtual int FindClosestPnt( vec3d & pnt, vec3d & dir, vector< vec3d > & target_vec );
-
-    virtual bool IsCap()
-    {
-        return false;
-    }
-    virtual void SetUpperCapSurfs( Surf* s0, Surf* s1 );
-    virtual void SetLowerCapSurfs( Surf* s0, Surf* s1 );
-
 //  virtual void Draw();
 //  virtual void DrawSlicePlane();
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id );
-
-    virtual void SnapUpperLowerToSkin( vector < FeaNode* > & skinNodes );
 
     Parm m_Thick;
 
@@ -359,15 +334,6 @@ public:
     vec3d m_UpperEndChainPnt;
     vec3d m_LowerEndChainPnt;
     vec3d m_Normal;
-
-    int m_NumDivisions;
-    vector < vec3d > m_UpperPnts;
-    vector < vec3d > m_LowerPnts;
-
-    //==== Surfaces That Border Cap ====//
-    bool m_CapInFlag;
-    Surf* m_CapUpperSurf[2];
-    Surf* m_CapLowerSurf[2];
 
     DrawObj m_SliceDO;
 
@@ -402,7 +368,6 @@ public:
     virtual ~FeaRib();
 
     virtual void ComputeEndPoints();
-    virtual bool IsCap();
 
 //  virtual void Draw( bool highlight );
 //  virtual void Draw() {FeaSlice::Draw();}

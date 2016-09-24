@@ -401,7 +401,6 @@ FeaMeshMgrSingleton::FeaMeshMgrSingleton() : CfdMeshMgrSingleton()
     m_WingGeom = NULL;
     m_XmlDataNode = NULL;
     m_DrawAttachPoints = false;
-    m_ClosestAttachPoint = -1;
 }
 
 FeaMeshMgrSingleton::~FeaMeshMgrSingleton()
@@ -647,9 +646,6 @@ void FeaMeshMgrSingleton::BuildClean()
         m_WingSections[i].BuildClean();
     }
 
-    m_AttachPoints.clear();
-    m_ClosestAttachPoint = -1;
-
 }
 
 
@@ -685,8 +681,6 @@ void FeaMeshMgrSingleton::Build()
 
     addOutputText( "Build Spar/Rib Mesh\n", FEA_OUTPUT );
     BuildSliceMesh();
-
-    LoadAttachPoints();
 
     addOutputText( "Finished\n", FEA_OUTPUT );
 
@@ -958,35 +952,9 @@ void FeaMeshMgrSingleton::AddStructureParts()
         for ( int i = 0 ; i < num_ribs ; i++ )
         {
             FeaRib* rib = m_WingSections[s].m_RibVec[i];
-            bool capFlag = rib->IsCap();
-            if ( !capFlag )
-            {
-                rib->ComputeEndPoints();
-                m_SurfVec.push_back( rib->GetSurf() );
-            }
-            else
-            {
-                if ( s == 0 && rib->m_CapInFlag )
-                {
-                    rib->SetUpperCapSurfs( m_UpperSurfVec[s], m_UpperSurfVec[s] );
-                    rib->SetLowerCapSurfs( m_LowerSurfVec[s], m_LowerSurfVec[s] );
-                }
-                else if ( s == m_WingSections.size() - 1 && !rib->m_CapInFlag )
-                {
-                    rib->SetUpperCapSurfs( m_UpperSurfVec[s], m_UpperSurfVec[s] );
-                    rib->SetLowerCapSurfs( m_LowerSurfVec[s], m_LowerSurfVec[s] );
-                }
-                else if ( rib->m_CapInFlag )
-                {
-                    rib->SetUpperCapSurfs( m_UpperSurfVec[s - 1], m_UpperSurfVec[s] );
-                    rib->SetLowerCapSurfs( m_LowerSurfVec[s - 1], m_LowerSurfVec[s] );
-                }
-                else
-                {
-                    rib->SetUpperCapSurfs( m_UpperSurfVec[s], m_UpperSurfVec[s + 1] );
-                    rib->SetLowerCapSurfs( m_LowerSurfVec[s], m_LowerSurfVec[s + 1] );
-                }
-            }
+            rib->ComputeEndPoints();
+            m_SurfVec.push_back( rib->GetSurf() );
+
             rib->SetNormal( m_WingSections[s].m_Normal );
             m_SliceVec.push_back( rib );
         }
@@ -1271,72 +1239,6 @@ void FeaMeshMgrSingleton::DelCurrPointMass()
     m_CurrPointMassID = 0;
 }
 
-void FeaMeshMgrSingleton::LoadChains( Surf* sliceSurf, bool upperFlag, int sect_id, list< ISegChain* > & chain_list )
-{
-    Surf* skin_surf = NULL;
-    if ( upperFlag )
-    {
-        skin_surf = m_UpperSurfVec[sect_id];
-    }
-    else
-    {
-        skin_surf = m_LowerSurfVec[sect_id];
-    }
-
-    list< ISegChain* >::iterator c;
-    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
-    {
-        if ( ( *c )->m_SurfA == skin_surf && ( *c )->m_SurfB == sliceSurf )
-        {
-            chain_list.push_back( ( *c ) );
-        }
-        else if ( ( *c )->m_SurfB == skin_surf && ( *c )->m_SurfA == sliceSurf )
-        {
-            chain_list.push_back( ( *c ) );
-        }
-    }
-}
-
-void FeaMeshMgrSingleton::LoadCapChains( Surf* s0, Surf* s1, list< ISegChain* > & chain_list )
-{
-    list< ISegChain* >::iterator c;
-    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
-    {
-        if ( ( *c )->m_SurfA == s0 && ( *c )->m_SurfB == s1 )
-        {
-            chain_list.push_back( ( *c ) );
-        }
-        else if ( ( *c )->m_SurfB == s0 && ( *c )->m_SurfA == s1 )
-        {
-            chain_list.push_back( ( *c ) );
-        }
-    }
-}
-void FeaMeshMgrSingleton::LoadCapChains( Surf* s0, double u, list< ISegChain* > & chain_list )
-{
-    list< ISegChain* >::iterator c;
-    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
-    {
-        if ( ( *c )->m_SurfA == s0 && ( *c )->m_SurfB == s0 )
-        {
-            bool matchFlag = true;
-            vector< vec3d > uwpnts = ( *c )->m_ACurve.GetUWTessPnts();
-            for ( int i = 0 ; i < ( int )uwpnts.size() ; i++ )
-            {
-                double del = std::abs( u - uwpnts[i].x() );
-                if ( del > 0.001 )
-                {
-                    matchFlag = false;
-                }
-            }
-            if ( matchFlag )
-            {
-                chain_list.push_back( ( *c ) );
-            }
-        }
-    }
-}
-
 void FeaMeshMgrSingleton::BuildSliceMesh()
 {
     int i;
@@ -1355,26 +1257,6 @@ void FeaMeshMgrSingleton::BuildSliceMesh()
     }
 
 }
-
-void FeaMeshMgrSingleton::LoadAttachPoints()
-{
-    int i;
-
-    //==== Load Upper and Lower Points to Attach Point Masses ====//
-    m_AttachPoints.clear();
-    for (  i = 0 ; i < ( int )m_SliceVec.size() ; i++ )
-    {
-        for ( int j = 0 ; j < ( int )m_SliceVec[i]->m_UpperPnts.size() ; j++ )
-        {
-            m_AttachPoints.push_back( m_SliceVec[i]->m_UpperPnts[j] );
-        }
-        for ( int j = 0 ; j < ( int )m_SliceVec[i]->m_LowerPnts.size() ; j++ )
-        {
-            m_AttachPoints.push_back( m_SliceVec[i]->m_LowerPnts[j] );
-        }
-    }
-}
-
 
 void FeaMeshMgrSingleton::ComputeWriteMass()
 {
@@ -1498,26 +1380,6 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
                     rib->m_Elements[i]->WriteNASTRAN( fp, elem_id );
                 }
                 fprintf( fp, "\n" );
-
-                //==== Tag Rib Upper/Lower Nodes ====//
-                for ( int i = 0 ; i < ( int )rib->m_UpperPnts.size() ; i++ )
-                {
-                    int ind = FindPntIndex( rib->m_UpperPnts[i], allPntVec, indMap );
-                    FeaNode* node = FindNode( nodeVec, pntShift[ind] + 1 );
-                    if ( node )
-                    {
-                        node->AddTag( RIB_UPPER, rib_cnt );
-                    }
-                }
-                for ( int i = 0 ; i < ( int )rib->m_LowerPnts.size() ; i++ )
-                {
-                    int ind = FindPntIndex( rib->m_LowerPnts[i], allPntVec, indMap );
-                    FeaNode* node = FindNode( nodeVec, pntShift[ind] + 1 );
-                    if ( node )
-                    {
-                        node->AddTag( RIB_LOWER, rib_cnt );
-                    }
-                }
             }
         }
         //===== Write Spars ====//
@@ -1535,26 +1397,6 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
                     spar->m_Elements[i]->WriteNASTRAN( fp, elem_id );
                 }
                 fprintf( fp, "\n" );
-
-                //==== Tag Spar Upper/Lower Nodes ====//
-                for ( int i = 0 ; i < ( int )spar->m_UpperPnts.size() ; i++ )
-                {
-                    int ind = FindPntIndex( spar->m_UpperPnts[i], allPntVec, indMap );
-                    FeaNode* node = FindNode( nodeVec, pntShift[ind] + 1 );
-                    if ( node )
-                    {
-                        node->AddTag( SPAR_UPPER, spar_cnt );
-                    }
-                }
-                for ( int i = 0 ; i < ( int )spar->m_LowerPnts.size() ; i++ )
-                {
-                    int ind = FindPntIndex( spar->m_LowerPnts[i], allPntVec, indMap );
-                    FeaNode* node = FindNode( nodeVec, pntShift[ind] + 1 );
-                    if ( node )
-                    {
-                        node->AddTag( SPAR_LOWER, spar_cnt );
-                    }
-                }
             }
         }
         //===== Write Upper Skin ====//
@@ -1704,19 +1546,6 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
             //==== Snap To Nearest Attach Point ====//
             int close_ind  = 0;
             double close_d = 1.0e12;
-            for ( int i = 0 ; i < ( int )m_AttachPoints.size() ; i++ )
-            {
-                double d = dist_squared(  m_PointMassVec[p]->m_AttachPos, m_AttachPoints[i] );
-                if ( d < close_d )
-                {
-                    close_d = d;
-                    close_ind = i;
-                }
-            }
-            if ( m_AttachPoints.size() )
-            {
-                m_PointMassVec[p]->m_AttachPos = m_AttachPoints[close_ind];
-            }
 
             FeaNode node;
             node.m_Pnt = vec3d( m_PointMassVec[p]->m_PosX(), m_PointMassVec[p]->m_PosY(), m_PointMassVec[p]->m_PosZ() );
@@ -2423,77 +2252,6 @@ void FeaMeshMgrSingleton::WriteCalculix( )
 //
 //
 //}
-
-
-
-
-void FeaMeshMgrSingleton::CursorPos( vec2d & cursor )
-{
-    m_ClosestAttachPoint = -1;
-    if ( !m_DrawMeshFlag || !m_DrawAttachPoints  )
-    {
-        return;
-    }
-    if ( !m_WingGeom )
-    {
-        return;
-    }
-    if ( m_CurrEditType != POINT_MASS_EDIT )
-    {
-        return;
-    }
-
-    int i;
-    int nearCPnt = -1;
-    double nearDist = 0.05;
-    for ( i = 0 ; i < ( int )m_AttachPoints.size() ; i++ )
-    {
-//      vec2d p2 = m_WingGeom->projectPoint( m_AttachPoints[i], 0 );
-        vec2d p2 = vec2d( 0, 0 );
-        double dist = dist_squared( cursor, p2 );
-        if ( dist < nearDist )
-        {
-            nearDist = dist;
-            nearCPnt = i;
-        }
-    }
-    if ( nearCPnt >= 0 )
-    {
-        m_ClosestAttachPoint = nearCPnt;
-//      UpdateGUI();
-    }
-
-}
-
-void FeaMeshMgrSingleton::MouseClick( vec2d & cursor )
-{
-    CursorPos( cursor );
-
-    if ( !m_DrawMeshFlag || !m_DrawAttachPoints  )
-    {
-        return;
-    }
-    if ( !m_WingGeom )
-    {
-        return;
-    }
-    if ( m_CurrEditType != POINT_MASS_EDIT )
-    {
-        return;
-    }
-
-    FeaPointMass* pm = GetCurrPointMass();
-    if ( pm )
-    {
-        if ( m_ClosestAttachPoint >= 0 && m_ClosestAttachPoint < ( int )m_AttachPoints.size() )
-        {
-            pm->m_AttachPos = m_AttachPoints[m_ClosestAttachPoint];
-            m_DrawAttachPoints = false;
-//          UpdateGUI();
-        }
-    }
-}
-
 
 //void FeaMeshMgrSingleton::Draw()
 //{
