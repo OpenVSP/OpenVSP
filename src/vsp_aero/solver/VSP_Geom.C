@@ -636,8 +636,17 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
           
           Surface++;
               
-          sscanf(DumChar,"%15s,%s",Type,Name);
+          char *Next;
+          char delimiters[] = ",\n";
 
+          Next = strtok( DumChar, delimiters );
+
+          sprintf( Type, "%s\0", Next );
+          
+          Next = strtok( NULL, delimiters );
+
+          sprintf( Name, "%s\0", Next );
+          
           printf("Working on reading wing: %d --> %s \n",Wing,Name);
   
           VSP_Surface(Surface).ReadWingDataFromFile(Name,VSP_Degen_File);
