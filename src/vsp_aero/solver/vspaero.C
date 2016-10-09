@@ -1797,18 +1797,6 @@ void StabilityAndControlSolve(void)
                 VSP_VLM().RotationalRate_q() = RotationalRate_qList_[1];
                 VSP_VLM().RotationalRate_r() = RotationalRate_rList_[1];
                        
-                // Zero out all control surfaces
-         
-                for ( k = 1 ; k <= VSP_VLM().VSPGeom().NumberOfSurfaces() ; k++ ) {
-                   
-                   for ( p = 1 ; p <= VSP_VLM().VSPGeom().VSP_Surface(k).NumberOfControlSurfaces() ; p++ ) {
-         
-                      VSP_VLM().VSPGeom().VSP_Surface(k).ControlSurface(p).DeflectionAngle() = 0.;
-         
-                   }
-                   
-                }
-            
                 Case++;
                 
                 k = 1;
@@ -1883,6 +1871,18 @@ void StabilityAndControlSolve(void)
                 CMmForCase[Case] =  VSP_VLM().CMy();       
                 CMnForCase[Case] = -VSP_VLM().CMz();                        
          
+                // Zero out all control surfaces for the cases that follow
+
+                for ( k = 1 ; k <= VSP_VLM().VSPGeom().NumberOfSurfaces() ; k++ ) {
+
+                   for ( p = 1 ; p <= VSP_VLM().VSPGeom().VSP_Surface(k).NumberOfControlSurfaces() ; p++ ) {
+
+                      VSP_VLM().VSPGeom().VSP_Surface(k).ControlSurface(p).DeflectionAngle() = 0.;
+
+                   }
+
+                }
+
                 printf("\n");      
                
              }   
