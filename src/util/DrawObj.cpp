@@ -74,10 +74,10 @@ void MakeArrowhead( const vec3d &ptip, const vec3d &uref, double len, DrawObj &d
 
     for ( int i = 0; i < 4; i++ )
     {
-        dobj.m_MaterialInfo.Ambient[i] = 0.2;
-        dobj.m_MaterialInfo.Diffuse[i] = 0.1;
-        dobj.m_MaterialInfo.Specular[i] = 0.7;
-        dobj.m_MaterialInfo.Emission[i] = 0.0;
+        dobj.m_MaterialInfo.Ambient[i] = 0.2f;
+        dobj.m_MaterialInfo.Diffuse[i] = 0.1f;
+        dobj.m_MaterialInfo.Specular[i] = 0.7f;
+        dobj.m_MaterialInfo.Emission[i] = 0.0f;
     }
     dobj.m_MaterialInfo.Diffuse[3] = 0.5;
     dobj.m_MaterialInfo.Shininess = 5.0;
@@ -167,13 +167,13 @@ void MakeCircleArrow( const vec3d &pcen, const vec3d &norm, double rad, DrawObj 
 
     for ( int i = 0; i < 4; i++ )
     {
-        arrow.m_MaterialInfo.Ambient[i] = 0.2;
-        arrow.m_MaterialInfo.Diffuse[i] = 0.1;
-        arrow.m_MaterialInfo.Specular[i] = 0.7;
-        arrow.m_MaterialInfo.Emission[i] = 0.0;
+        arrow.m_MaterialInfo.Ambient[i] = 0.2f;
+        arrow.m_MaterialInfo.Diffuse[i] = 0.1f;
+        arrow.m_MaterialInfo.Specular[i] = 0.7f;
+        arrow.m_MaterialInfo.Emission[i] = 0.0f;
     }
-    arrow.m_MaterialInfo.Diffuse[3] = 0.5;
-    arrow.m_MaterialInfo.Shininess = 5.0;
+    arrow.m_MaterialInfo.Diffuse[3] = 0.5f;
+    arrow.m_MaterialInfo.Shininess = 5.0f;
 
     arrow.m_GeomChanged = true;
 }
