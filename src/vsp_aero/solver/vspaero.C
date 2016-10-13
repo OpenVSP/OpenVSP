@@ -1297,13 +1297,13 @@ void LoadCaseFile(void)
    
                 while ( Next != NULL ) {
                    
-                    Next = strtok(NULL,Comma);
+                    Next = strtok(NULL," ,\n");
          
                     if ( Next != NULL ) {
                        
                        NumberOfControlSurfaces++;
-                       
-                       sprintf(ControlSurfaceGroup_[i].ControlSurface_Name(NumberOfControlSurfaces),"%s",DumChar);
+
+                       sprintf(ControlSurfaceGroup_[i].ControlSurface_Name(NumberOfControlSurfaces),"%s", Next );
                 
                        printf("Control surface(%d): %s \n",NumberOfControlSurfaces,ControlSurfaceGroup_[i].ControlSurface_Name(NumberOfControlSurfaces));
    
