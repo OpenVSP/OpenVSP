@@ -210,7 +210,17 @@ xmlNodePtr ParmContainer::DecodeXml( xmlNodePtr & node )
             for ( parmIter = groupIter->second.begin(); parmIter != groupIter->second.end(); parmIter++ )
             {
                 Parm* p = ParmMgr.FindParm( ( *parmIter ) );
-                p->DecodeXml( gnode );
+                if ( p )
+                {
+                    p->DecodeXml( gnode );
+                }
+                else
+                {
+                    fprintf( stderr, "ERROR: Parm* p = ParmMgr.FindParm( ( *parmIter ) ); \n\tFile: %s \tLine:%d\n", __FILE__, __LINE__ );
+                    parmIter--;
+                    Parm* p = ParmMgr.FindParm( (*parmIter) );
+                    if ( p ) fprintf( stderr, "\t Last successful parm: %s\n", p->GetName().c_str());
+                }
             }
         }
     }
