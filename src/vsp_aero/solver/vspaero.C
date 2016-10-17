@@ -148,6 +148,7 @@ void PrintUsageHelp();
 void ParseInput(int argc, char *argv[]);
 void CreateInputFile(char *argv[], int argc, int &i);
 void LoadCaseFile(void);
+void ApplyControlDeflections(void);
 void Solve(void);
 void StabilityAndControlSolve(void);
 void CalculateStabilityDerivatives(void);
@@ -1425,6 +1426,53 @@ void LoadCaseFile(void)
     
 }
 
+void ApplyControlDeflections()
+{
+    int i, j, k, p, Found;
+
+    // Set control surface deflections
+
+    for ( i = 1; i <= NumberOfControlGroups_; i++ )
+    {
+
+        k = 1;
+
+        for ( j = 1; j <= ControlSurfaceGroup_[i].NumberOfControlSurfaces(); j++ )
+        {
+
+            Found = 0;
+
+            while ( k <= VSP_VLM().VSPGeom().NumberOfSurfaces() && !Found )
+            {
+
+                for ( p = 1; p <= VSP_VLM().VSPGeom().VSP_Surface( k ).NumberOfControlSurfaces(); p++ )
+                {
+
+                    if ( strcmp( ControlSurfaceGroup_[i].ControlSurface_Name( j ), VSP_VLM().VSPGeom().VSP_Surface( k ).ControlSurface( p ).Name() ) == 0 )
+                    {
+
+                        Found = 1;
+
+                        VSP_VLM().VSPGeom().VSP_Surface( k ).ControlSurface( p ).DeflectionAngle() = ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection( j ) * ControlSurfaceGroup_[i].ControlSurface_DeflectionAngle() * TORAD;
+
+                    }
+
+                }
+
+                k++;
+
+            }
+
+            if ( !Found ) printf( "Could not find control surface: %s in control surface group: %s \n",
+                ControlSurfaceGroup_[i].ControlSurface_Name( j ),
+                ControlSurfaceGroup_[i].Name() );
+
+        }
+
+    }
+
+}
+
 /*##############################################################################
 #                                                                              #
 #                                   Solve                                      #
@@ -1434,46 +1482,12 @@ void LoadCaseFile(void)
 void Solve(void)
 {
 
-    int i, j, k, p, Found, Case, NumCases;
+    int i, j, k, Case, NumCases;
     double AR, E;
     char PolarFileName[2000];
     FILE *PolarFile;
 
-    // Set control surface deflections
-    
-    for ( i = 1 ; i <= NumberOfControlGroups_ ; i++ ) {
-       
-       k = 1;
-        
-       for ( j = 1 ; j <= ControlSurfaceGroup_[i].NumberOfControlSurfaces() ; j++ ) {
-         
-         Found = 0;
-
-          while ( k <= VSP_VLM().VSPGeom().NumberOfSurfaces() && !Found ) {
-            
-             for ( p = 1 ; p <= VSP_VLM().VSPGeom().VSP_Surface(k).NumberOfControlSurfaces() ; p++ ) {
-     
-                if ( strcmp(ControlSurfaceGroup_[i].ControlSurface_Name(j), VSP_VLM().VSPGeom().VSP_Surface(k).ControlSurface(p).Name()) == 0 ) {
-         
-                   Found = 1;
-                  
-                   VSP_VLM().VSPGeom().VSP_Surface(k).ControlSurface(p).DeflectionAngle() = ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j) * ControlSurfaceGroup_[i].ControlSurface_DeflectionAngle() * TORAD;
-  
-                }
-               
-             }
-            
-             k++;
-            
-          }
-         
-          if ( !Found ) printf("Could not find control surface: %s in control surface group: %s \n",
-                               ControlSurfaceGroup_[i].ControlSurface_Name(j),
-                               ControlSurfaceGroup_[i].Name());
-         
-       }
-      
-    }
+    ApplyControlDeflections();
     
     NumCases = NumberOfBetas_ * NumberOfMachs_ * NumberOfAoAs_;
        
@@ -1618,7 +1632,7 @@ void StabilityAndControlSolve(void)
 
     int i, j, k, p, ic, jc, kc, Found, Case, Case0, Deriv, TotalCases, CaseTotal;
     char StabFileName[2000];
-
+    
     // Open the stability and control output file
     
     sprintf(StabFileName,"%s.stab",FileName);
@@ -1648,6 +1662,10 @@ void StabilityAndControlSolve(void)
              Beta_ = BetaList_[ic];
              Mach_ = MachList_[jc];  
              AoA_  =  AoAList_[kc];
+
+             // Set Control surface group deflection to un-perturbed control surface deflections
+
+             ApplyControlDeflections();
              
              // Perform stability and control calculation for this Mach, Alpha, Beta condition
       
@@ -1797,18 +1815,9 @@ void StabilityAndControlSolve(void)
                 VSP_VLM().RotationalRate_q() = RotationalRate_qList_[1];
                 VSP_VLM().RotationalRate_r() = RotationalRate_rList_[1];
                        
-                // Zero out all control surfaces
-         
-                for ( k = 1 ; k <= VSP_VLM().VSPGeom().NumberOfSurfaces() ; k++ ) {
-                   
-                   for ( p = 1 ; p <= VSP_VLM().VSPGeom().VSP_Surface(k).NumberOfControlSurfaces() ; p++ ) {
-         
-                      VSP_VLM().VSPGeom().VSP_Surface(k).ControlSurface(p).DeflectionAngle() = 0.;
-         
-                   }
-                   
-                }
             
+                // Perturb controls
+
                 Case++;
                 
                 k = 1;
@@ -1825,7 +1834,7 @@ void StabilityAndControlSolve(void)
                   
                             Found = 1;
                            
-                            VSP_VLM().VSPGeom().VSP_Surface(k).ControlSurface(p).DeflectionAngle() = ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j) * Delta_Control_ * TORAD;
+                            VSP_VLM().VSPGeom().VSP_Surface(k).ControlSurface(p).DeflectionAngle() = ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j) * (ControlSurfaceGroup_[i].ControlSurface_DeflectionAngle() + Delta_Control_) * TORAD;
            
                          }
                         
@@ -1883,23 +1892,11 @@ void StabilityAndControlSolve(void)
                 CMmForCase[Case] =  VSP_VLM().CMy();       
                 CMnForCase[Case] = -VSP_VLM().CMz();                        
          
-                // Zero out all control surfaces (this is done after so that all subsequent mach, alpha, beta runs have the controls 0'd
+                // Reset Control surface group deflection to un-perturbed control surface deflections
 
-                for ( k = 1; k <= VSP_VLM().VSPGeom().NumberOfSurfaces(); k++ )
-                {
+                ApplyControlDeflections();
 
-                    for ( p = 1; p <= VSP_VLM().VSPGeom().VSP_Surface( k ).NumberOfControlSurfaces(); p++ )
-                    {
-
-                        VSP_VLM().VSPGeom().VSP_Surface( k ).ControlSurface( p ).DeflectionAngle() = 0.;
-
-                    }
-
-                }
-
-                printf("\n");      
-               
-             }   
+             }
              
              // Now calculate actual stability derivatives 
              
