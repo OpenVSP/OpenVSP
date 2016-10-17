@@ -132,14 +132,14 @@
    2D Delaunay triangulator.  This routine has been included in
    this distribution.
    
-   - triInt by Tomas Moller - Fast triangle-triangle intersection test.
+   - triInt by Tomas Moller [jgt.akpeters.com/papers/Moller97](http://web.archive.org/web/*/http://jgt.akpeters.com/papers/Moller97) - Fast triangle-triangle intersection test.
    This code comes from two sources previously available online.
    When JGT was taken over by Taylor and Francis, the source
    accompanying the articles became unavailable.  The routines are
    included in this distribution.
      - Old URL:
-        - jgt.akpeters.com/papers/Moller97/tritri.html
-        - jgt.akpeters.com/papers/MollerTrumbore97/code.html
+        -[jgt.akpeters.com/papers/Moller97/tritri.html](http://web.archive.org/web/*/http://jgt.akpeters.com/papers/Moller97/tritri.html)
+        -[jgt.akpeters.com/papers/MollerTrumbore97/code.html](http://web.archive.org/web/*/http://jgt.akpeters.com/papers/MollerTrumbore97/code.html)
     
       - Tomas Mšller, Ben Trumbore, "Fast, Minimum Storage Ray-Triangle
       Intersection", Journal of Graphics Tools, Vol. 2, Iss. 1, 1997.
@@ -147,7 +147,7 @@
       - Tomas Mšller, "A Fast Triangle-Triangle Intersection Test", Journal
       of Graphics Tools, Vol. 2, Iss. 2, 1997.
   
-   - [glFont2 by Brad Fish](http://students.cs.byu.edu/~bfish/glfont2.php) -
+   - glFont2 by Brad Fish [students.cs.byu.edu/~bfish/glfont2.php] (http://web.archive.org/web/*/https://students.cs.byu.edu/~bfish/glfont2.php) - 
    2D OpenGL font tool.  glFont2 has been included in this source
    distribution.  GRAPHICS_ONLY
 
