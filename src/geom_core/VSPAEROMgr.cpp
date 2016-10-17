@@ -1363,7 +1363,7 @@ void VSPAEROMgrSingleton::ReadStabFile( string filename, vector <string> &res_id
                 else
                 {
                     //This is a continuation of the current table and add this row to the results manager
-                    for ( unsigned int i_field = 1; i_field < data_string_array.size() - 1; i_field++ )
+                    for ( unsigned int i_field = 1; i_field < data_string_array.size(); i_field++ )
                     {
                         //attempt to read a double if that fails then treat it as a string result
                         double temp_val = 0;
