@@ -1883,6 +1883,20 @@ void StabilityAndControlSolve(void)
                 CMmForCase[Case] =  VSP_VLM().CMy();       
                 CMnForCase[Case] = -VSP_VLM().CMz();                        
          
+                // Zero out all control surfaces (this is done after so that all subsequent mach, alpha, beta runs have the controls 0'd
+
+                for ( k = 1; k <= VSP_VLM().VSPGeom().NumberOfSurfaces(); k++ )
+                {
+
+                    for ( p = 1; p <= VSP_VLM().VSPGeom().VSP_Surface( k ).NumberOfControlSurfaces(); p++ )
+                    {
+
+                        VSP_VLM().VSPGeom().VSP_Surface( k ).ControlSurface( p ).DeflectionAngle() = 0.;
+
+                    }
+
+                }
+
                 printf("\n");      
                
              }   
