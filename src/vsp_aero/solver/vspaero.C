@@ -502,7 +502,7 @@ void CreateInputFile(char *argv[], int argc, int &i)
     FarDist_           = -1.;
     NumberOfWakeNodes_ = -1;
     WakeIterations_    = 5;
-    NumberOfRotors_    = 0.;
+    NumberOfRotors_    = 0;
     
     NumberOfMachs_     = 1;
     NumberOfAoAs_      = 1;
@@ -630,7 +630,7 @@ void CreateInputFile(char *argv[], int argc, int &i)
                      
        else if ( strcmp(argv[i],"-wakeiters") == 0 ) {
 
-          WakeIterations_ = atof(argv[++i]);
+          WakeIterations_ = atoi(argv[++i]);
 
        }
        i++; 
