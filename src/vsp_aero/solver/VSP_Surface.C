@@ -1237,24 +1237,40 @@ void VSP_SURFACE::ReadWingDataFromFile(char *Name, FILE *VSP_Degen_File)
                    if ( Verbose_ ) printf("Control Surface TypeName: %s \n",ControlSurface_[NumberOfControlSurfaces_].TypeName());
                    if ( Verbose_ ) printf("Control Surface Type: %d \n",ControlSurface_[NumberOfControlSurfaces_].Type());
                    
-                   fgets(DumChar,1000,VSP_Degen_File);
-                   fgets(DumChar,1000,VSP_Degen_File);
-                   fgets(DumChar,1000,VSP_Degen_File);
-                   fgets(DumChar,1000,VSP_Degen_File);
-                   fgets(DumChar,1000,VSP_Degen_File);
-                   
-                   fgets(DumChar,1000,VSP_Degen_File); sscanf(DumChar,"%lf, %lf",&(up[0]),&(wp[0])); if ( Verbose_ ) printf("up,wp: %lf %lf \n",up[0],wp[0]);
-                   fgets(DumChar,1000,VSP_Degen_File); sscanf(DumChar,"%lf, %lf",&(up[1]),&(wp[1])); if ( Verbose_ ) printf("up,wp: %lf %lf \n",up[1],wp[1]);
-                   fgets(DumChar,1000,VSP_Degen_File); sscanf(DumChar,"%lf, %lf",&(up[2]),&(wp[2])); if ( Verbose_ ) printf("up,wp: %lf %lf \n",up[2],wp[2]);
-                   fgets(DumChar,1000,VSP_Degen_File); sscanf(DumChar,"%lf, %lf",&(up[3]),&(wp[3])); if ( Verbose_ ) printf("up,wp: %lf %lf \n",up[3],wp[3]);
-                   fgets(DumChar,1000,VSP_Degen_File);
+                   // Skip past these lines:
+
+                   fgets(DumChar,1000,VSP_Degen_File);          // # testType
+                   fgets(DumChar,1000,VSP_Degen_File);          // 0
+                   fgets(DumChar,1000,VSP_Degen_File);          // # DegenGeom Type, nPts
+
+                   // Read in number of boundary points
+
+                   fgets(DumChar,1000,VSP_Degen_File);          // SUBSURF_BNDY, 5
+                   unsigned int nSubSurfBndyPts = 5;            // Set to default of 5 in case the SUBSURF_BNDY key is not found
+                   if ( strstr( DumChar, "SUBSURF_BNDY" ) )
+                   {
+                       Next = strtok( DumChar, Comma );
+                       sscanf( Next, "%d", nSubSurfBndyPts );
+                   }
+
+                   // Skip past these lines:
+
+                   fgets(DumChar,1000,VSP_Degen_File);          // # u, w,
+
+                   // Read u,w table skipping the last point since this is a duplicate point
+
+                   for ( unsigned int iPt = 0; iPt < nSubSurfBndyPts-1; iPt++ )
+                   {
+                       fgets( DumChar, 1000, VSP_Degen_File ); sscanf( DumChar, "%lf, %lf", &(up[iPt]), &(wp[iPt]) ); if ( Verbose_ ) printf( "up,wp: %lf %lf \n", up[iPt], wp[iPt] );
+                   }
+                   fgets(DumChar,1000,VSP_Degen_File);          // Skip the last point since it's a repeat of the first point
                    
                    // If control surface definition is on the upper surface, transform to the lower surface
                    
-                   if ( wp[0] > 2. ) wp[0] = 4. - wp[0]; 
-                   if ( wp[1] > 2. ) wp[1] = 4. - wp[1]; 
-                   if ( wp[2] > 2. ) wp[2] = 4. - wp[2]; 
-                   if ( wp[3] > 2. ) wp[3] = 4. - wp[3]; 
+                   for ( unsigned int iPt = 0; iPt < nSubSurfBndyPts - 1; iPt++ )
+                   {
+                       if ( wp[iPt] > 2. ) wp[iPt] = 4. - wp[iPt];
+                   }
                    
                    // Bounding box for control surface
                    
