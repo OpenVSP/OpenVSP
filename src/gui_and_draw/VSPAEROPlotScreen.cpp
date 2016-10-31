@@ -1269,30 +1269,24 @@ void VSPAEROPlotScreen::PlotConvergence( string resultID, vector <string> yDataS
     else if ( strcmp( res->GetName().c_str(), "VSPAERO_History" ) == 0 )
     {
 
+        //  Get the X Data
+        vector <double> xDoubleData_orig;
         NameValData* xResultDataPtr;
         xResultDataPtr = res->FindPtr( "WakeIter" );
-
+        if ( (xResultDataPtr != NULL) )
+        {
+            vector <int> tIntData = xResultDataPtr->GetIntData();
+            copy( tIntData.begin(), tIntData.end(), back_inserter( xDoubleData_orig ) );
+        }
+                
+        // Get the Y-Data
         NameValData* yResultDataPtr;
-
-        string labelStr;
         for ( int iDataSet = 0; iDataSet < ( int )yDataSetNames.size(); iDataSet++ )
         {
             yResultDataPtr = res->FindPtr( yDataSetNames[iDataSet] );
-            if ( ( xResultDataPtr != NULL ) && ( yResultDataPtr != NULL ) )
+            if (  yResultDataPtr != NULL  )
             {
-                //  Get the X Data and explicitly set limits for interation # on X-Axis
-                vector <double> xDoubleData;
-                if ( ( xResultDataPtr != NULL ) )
-                {
-                    vector <int> tIntData = xResultDataPtr->GetIntData();
-                    copy( tIntData.begin(), tIntData.end(), back_inserter( xDoubleData ) );
-
-                    if ( xDoubleData.size() > 0 )
-                    {
-                        m_ConvergencePlotCanvas->current_x()->minimum( xDoubleData[0] );
-                        m_ConvergencePlotCanvas->current_x()->maximum( xDoubleData[xDoubleData.size() - 1] );
-                    }
-                }
+                vector <double> xDoubleData = xDoubleData_orig;
                 vector <double> yDoubleData;
                 if ( yResultDataPtr->GetType() == vsp::INT_DATA )
                 {
@@ -1304,67 +1298,81 @@ void VSPAEROPlotScreen::PlotConvergence( string resultID, vector <string> yDataS
                     yDoubleData = yResultDataPtr->GetDoubleData();
                 }
 
-                //normalize the iteration data w.r.t. the final value
-                if ( m_ConvergenceYDataResidualToggle.GetFlButton()->value() == 1 )
+                if (  (xDoubleData.size() == yDoubleData.size()) && (xDoubleData.size()>0) )
                 {
-                    double diffY;
-                    vector <double> tempY = yDoubleData;
-                    unsigned int j = 1;
-                    unsigned int jMax = ( unsigned int )tempY.size();
-                    while( j < jMax )
+                    //normalize the iteration data w.r.t. the final value
+                    if ( m_ConvergenceYDataResidualToggle.GetFlButton()->value() == 1 )
                     {
-                        diffY = tempY[j] - tempY[j - 1];
-                        if ( diffY != 0 ) // inf protection on log10()
+                        double diffY;
+                        vector <double> tempY = yDoubleData;
+                        unsigned int j = 1;
+                        unsigned int jMax = ( unsigned int )tempY.size();
+                        while( j < jMax )
                         {
-                            yDoubleData[j] = log10( abs( diffY ) );
-                            j++;
+                            diffY = tempY[j] - tempY[j - 1];
+                            if ( diffY != 0 ) // inf protection on log10()
+                            {
+                                yDoubleData[j] = log10( abs( diffY ) );
+                                j++;
+                            }
+                            else
+                            {
+                                //value did not change, eliminate the data point, this eliminates "jumping" on plot screen
+                                xDoubleData.erase( xDoubleData.begin() + j );
+                                yDoubleData.erase( yDoubleData.begin() + j );
+                                tempY.erase( tempY.begin() + j );
+                                jMax--;
+                            }
+                        }
+                    }
+
+                    // check again if there are still points to plot
+                    if ( xDoubleData.size()>0 )
+                    {
+                        Fl_Color c = ColorWheel( m_ConvergenceiPlot, m_ConvergenceNLines );
+
+                        //add the normalized data to the plot
+                        AddPointLine( xDoubleData, yDoubleData, 2, c, 4, StyleWheel( m_ConvergenceiPlot ) );
+
+                        char strbuf[100];
+                        ConstructFlowConditionString( strbuf, res, false );
+                        string legendstr = strbuf + string( "; Y: " ) + yDataSetNames[iDataSet];
+                        m_ConvergenceLegendLayout.AddLegendEntry( legendstr, c );
+                        m_ConvergenceiPlot++;
+
+                        //Handle Axis limits
+                        //  Auto adjust and expand limits for Y-Axis
+                        if ( m_ConvergenceYDataResidualToggle.GetFlButton()->value() == 1 )
+                        {
+                            //Always show 0 on Y Axis if the data is normalized on a log scale
+                            UpdateSingleAxisLimits( m_ConvergencePlotCanvas->current_y(), yDoubleData, expandOnly, true );
                         }
                         else
                         {
-                            //value did not change, eliminate the data point, this eliminates "jumping" on plot screen
-                            xDoubleData.erase( xDoubleData.begin() + j );
-                            yDoubleData.erase( yDoubleData.begin() + j );
-                            tempY.erase( tempY.begin() + j );
-                            jMax--;
+                            UpdateSingleAxisLimits( m_ConvergencePlotCanvas->current_y(), yDoubleData, expandOnly, true );
                         }
-                    }
-                }
-
-                if ( xDoubleData.size() == yDoubleData.size() )
-                {
-                    Fl_Color c = ColorWheel( m_ConvergenceiPlot, m_ConvergenceNLines );
-
-                    //add the normalized data to the plot
-                    AddPointLine( xDoubleData, yDoubleData, 2, c, 4, StyleWheel( m_ConvergenceiPlot ) );
-
-                    char strbuf[100];
-                    ConstructFlowConditionString( strbuf, res, false );
-                    string legendstr = strbuf + string( "; Y: " ) + yDataSetNames[iDataSet];
-                    m_ConvergenceLegendLayout.AddLegendEntry( legendstr, c );
-                    m_ConvergenceiPlot++;
-
-                    //Handle Axis limits
-                    //  Auto adjust and expand limits for Y-Axis
-                    if ( m_ConvergenceYDataResidualToggle.GetFlButton()->value() == 1 )
-                    {
-                        //Always show 0 on Y Axis if the data is normalized on a log scale
-                        UpdateSingleAxisLimits( m_ConvergencePlotCanvas->current_y(), yDoubleData, expandOnly, true );
-                    }
-                    else
-                    {
-                        UpdateSingleAxisLimits( m_ConvergencePlotCanvas->current_y(), yDoubleData, expandOnly, true );
                     }
                 }
                 else
                 {
-                    printf( "WARNING: xDoubleData.size() != yDoubleData.size()\n\tFile: %s \tLine:%d\n", __FILE__, __LINE__ );
+                    fprintf( stderr, "WARNING: xDoubleData.size() and yDoubleData.size() must be equal AND greater than 0\n\txDoubleData.size()=%d\n\tyDoubleData.size()=%d\n\tFile: %s \tLine:%d\n", xDoubleData.size(), yDoubleData.size(), __FILE__, __LINE__ );
                 }
 
                 expandOnly = true;
             }
         }
+                
+
+        // Explicitly set the X-axis limits  to the wake iteration limits
+        if ( xDoubleData_orig.size() > 0 )
+        {
+            m_ConvergencePlotCanvas->current_x()->minimum( xDoubleData_orig[0] );
+            m_ConvergencePlotCanvas->current_x()->maximum( xDoubleData_orig[xDoubleData_orig.size() - 1] );
+        }
+
 
         // Annotate axes
+        string labelStr;
         labelStr.clear();
         if( yDataSetNames.size() == 1 )
         {
@@ -1498,53 +1506,56 @@ void VSPAEROPlotScreen::UpdateAxisLimits( Ca_Canvas * canvas, vector <double> xD
 void VSPAEROPlotScreen::UpdateSingleAxisLimits( Ca_Axis_ * tAxis, vector <double> doubleData, bool expandOnly, bool keepZero )
 {
     //TODO Get data from canvas and make this a part of the Canvas class
-
-    // Find min and max of vector
-    auto dataMinMax = std::minmax_element( doubleData.begin(), doubleData.end() );
-    double dataMin = dataMinMax.first[0];
-    double dataMax = dataMinMax.second[0];
-    double dataRange = ( dataMax - dataMin );
-    double dataRangeScale = pow( 10.0, mag( dataRange ) );
-
-
-    // Infinity protection - bounds the magnitude of dataMin and dataMax to single precision magnitudes
-    dataMin = std::min( dataMin, ( double )FLT_MAX );
-    dataMin = std::max( dataMin, ( double ) - FLT_MAX );
-    dataMax = std::min( dataMax, ( double )FLT_MAX );
-    dataMax = std::max( dataMax, ( double ) - FLT_MAX );
-
-    // Calculate min and max number magnitudes or "scale"
-    double axisMin, axisMax;
-    if( keepZero )
+    if ( doubleData.size() > 0 )
     {
-        axisMin = magrounddn( dataMin );
-        axisMax = magroundup( dataMax );
-    }
-    else
-    {
-        axisMin = floor2scale( dataMin, dataRangeScale );
-        axisMax = ceil2scale( dataMax, dataRangeScale );
-    }
 
-    // Protection for if the magnitudes are identical (plot won't have any range unless this is here)
-    if( axisMin == axisMax || dataRange == 0 )
-    {
-        axisMin -= 1e-12;
-        axisMax += 1e-12;
-    }
+        // Find min and max of vector
+        auto dataMinMax = std::minmax_element( doubleData.begin(), doubleData.end() );
+        double dataMin = dataMinMax.first[0];
+        double dataMax = dataMinMax.second[0];
+        double dataRange = (dataMax - dataMin);
+        double dataRangeScale = pow( 10.0, mag( dataRange ) );
 
-    // Apply limits to axis
-    if ( tAxis && axisMin < axisMax )
-    {
-        if ( expandOnly )
+
+        // Infinity protection - bounds the magnitude of dataMin and dataMax to single precision magnitudes
+        dataMin = std::min( dataMin, (double)FLT_MAX );
+        dataMin = std::max( dataMin, (double)-FLT_MAX );
+        dataMax = std::min( dataMax, (double)FLT_MAX );
+        dataMax = std::max( dataMax, (double)-FLT_MAX );
+
+        // Calculate min and max number magnitudes or "scale"
+        double axisMin, axisMax;
+        if ( keepZero )
         {
-            tAxis->minimum( std::min( tAxis->minimum(), axisMin ) );
-            tAxis->maximum( std::max( tAxis->maximum(), axisMax ) );
+            axisMin = magrounddn( dataMin );
+            axisMax = magroundup( dataMax );
         }
         else
         {
-            tAxis->minimum( axisMin );
-            tAxis->maximum( axisMax );
+            axisMin = floor2scale( dataMin, dataRangeScale );
+            axisMax = ceil2scale( dataMax, dataRangeScale );
+        }
+
+        // Protection for if the magnitudes are identical (plot won't have any range unless this is here)
+        if ( axisMin == axisMax || dataRange == 0 )
+        {
+            axisMin -= 1e-12;
+            axisMax += 1e-12;
+        }
+
+        // Apply limits to axis
+        if ( tAxis && axisMin < axisMax )
+        {
+            if ( expandOnly )
+            {
+                tAxis->minimum( std::min( tAxis->minimum(), axisMin ) );
+                tAxis->maximum( std::max( tAxis->maximum(), axisMax ) );
+            }
+            else
+            {
+                tAxis->minimum( axisMin );
+                tAxis->maximum( axisMax );
+            }
         }
     }
 }
