@@ -1072,7 +1072,7 @@ void VSPAEROPlotScreen::RedrawConvergencePlot()
     m_ConvergenceLegendGroup->clear();
     m_ConvergenceLegendLayout.SetGroup( m_ConvergenceLegendGroup );
     m_ConvergenceLegendLayout.InitWidthHeightVals();
-    m_ConvergenceLegendLayout.SetButtonWidth( m_ConvergenceLegendLayout.GetW() * 0.75 );
+    m_ConvergenceLegendLayout.SetButtonWidth( (int)(m_ConvergenceLegendLayout.GetW() * 0.75) );
 
     // Get selected y data names
     vector <string> yDataSetNames;
@@ -1110,7 +1110,7 @@ void VSPAEROPlotScreen::RedrawLoadDistPlot()
     m_LoadDistLegendGroup->clear();
     m_LoadDistLegendLayout.SetGroup( m_LoadDistLegendGroup );
     m_LoadDistLegendLayout.InitWidthHeightVals();
-    m_LoadDistLegendLayout.SetButtonWidth( m_LoadDistLegendLayout.GetW() * 0.75 );
+    m_LoadDistLegendLayout.SetButtonWidth( (int)(m_LoadDistLegendLayout.GetW() * 0.75) );
 
     // Get selected y data names
     vector <string> yDataSetNames;
@@ -1168,7 +1168,7 @@ void VSPAEROPlotScreen::RedrawSweepPlot()
     m_SweepLegendGroup->clear();
     m_SweepLegendLayout.SetGroup( m_SweepLegendGroup );
     m_SweepLegendLayout.InitWidthHeightVals();
-    m_SweepLegendLayout.SetButtonWidth( m_SweepLegendLayout.GetW() * 0.75 );
+    m_SweepLegendLayout.SetButtonWidth( (int)(m_SweepLegendLayout.GetW() * 0.75) );
 
     //Redraw plot if data is available and selected
     bool expandOnly = false;

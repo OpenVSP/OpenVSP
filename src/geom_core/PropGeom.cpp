@@ -480,13 +480,13 @@ void PropGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
         for ( int i = 0; i < 4; i++ )
         {
-            m_ArrowHeadDO.m_MaterialInfo.Ambient[i] = 0.2;
-            m_ArrowHeadDO.m_MaterialInfo.Diffuse[i] = 0.1;
-            m_ArrowHeadDO.m_MaterialInfo.Specular[i] = 0.7;
-            m_ArrowHeadDO.m_MaterialInfo.Emission[i] = 0.0;
+            m_ArrowHeadDO.m_MaterialInfo.Ambient[i] = 0.2f;
+            m_ArrowHeadDO.m_MaterialInfo.Diffuse[i] = 0.1f;
+            m_ArrowHeadDO.m_MaterialInfo.Specular[i] = 0.7f;
+            m_ArrowHeadDO.m_MaterialInfo.Emission[i] = 0.0f;
         }
-        m_ArrowHeadDO.m_MaterialInfo.Diffuse[3] = 0.5;
-        m_ArrowHeadDO.m_MaterialInfo.Shininess = 5.0;
+        m_ArrowHeadDO.m_MaterialInfo.Diffuse[3] = 0.5f;
+        m_ArrowHeadDO.m_MaterialInfo.Shininess = 5.0f;
 
         m_ArrowLinesDO.m_GeomID = m_ID + "ALines";
         m_ArrowLinesDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;

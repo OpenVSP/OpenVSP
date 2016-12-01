@@ -536,13 +536,13 @@ void HingeGeom::LoadDrawObjs(vector< DrawObj* > & draw_obj_vec)
 
         for ( int i = 0; i < 4; i++ )
         {
-            m_MotionArrowsDO.m_MaterialInfo.Ambient[i] = 0.2;
-            m_MotionArrowsDO.m_MaterialInfo.Diffuse[i] = 0.1;
-            m_MotionArrowsDO.m_MaterialInfo.Specular[i] = 0.7;
-            m_MotionArrowsDO.m_MaterialInfo.Emission[i] = 0.0;
+            m_MotionArrowsDO.m_MaterialInfo.Ambient[i] = 0.2f;
+            m_MotionArrowsDO.m_MaterialInfo.Diffuse[i] = 0.1f;
+            m_MotionArrowsDO.m_MaterialInfo.Specular[i] = 0.7f;
+            m_MotionArrowsDO.m_MaterialInfo.Emission[i] = 0.0f;
         }
-        m_MotionArrowsDO.m_MaterialInfo.Diffuse[3] = 0.5;
-        m_MotionArrowsDO.m_MaterialInfo.Shininess = 5.0;
+        m_MotionArrowsDO.m_MaterialInfo.Diffuse[3] = 0.5f;
+        m_MotionArrowsDO.m_MaterialInfo.Shininess = 5.0f;
 
 
         m_MotionLinesDO.m_GeomID = m_ID + "MLines";

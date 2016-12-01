@@ -1160,13 +1160,13 @@ void SSControlSurf::UpdateDrawObjs()
 
         for ( int i = 0; i < 4; i++ )
         {
-            m_ArrowDO.m_MaterialInfo.Ambient[i] = 0.2;
-            m_ArrowDO.m_MaterialInfo.Diffuse[i] = 0.1;
-            m_ArrowDO.m_MaterialInfo.Specular[i] = 0.7;
-            m_ArrowDO.m_MaterialInfo.Emission[i] = 0.0;
+            m_ArrowDO.m_MaterialInfo.Ambient[i] = 0.2f;
+            m_ArrowDO.m_MaterialInfo.Diffuse[i] = 0.1f;
+            m_ArrowDO.m_MaterialInfo.Specular[i] = 0.7f;
+            m_ArrowDO.m_MaterialInfo.Emission[i] = 0.0f;
         }
-        m_ArrowDO.m_MaterialInfo.Diffuse[3] = 0.5;
-        m_ArrowDO.m_MaterialInfo.Shininess = 5.0;
+        m_ArrowDO.m_MaterialInfo.Diffuse[3] = 0.5f;
+        m_ArrowDO.m_MaterialInfo.Shininess = 5.0f;
 
 
         int isurf = m_MainSurfIndx();
