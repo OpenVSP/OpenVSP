@@ -8,12 +8,8 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "Vehicle.h"
-#include "VehicleMgr.h"
-#include "WaveDragMgr.h"
 #include "MeshGeom.h"
 #include "WingGeom.h"
-
-#include <algorithm>
 
 #include "wavedragEL.h"
 

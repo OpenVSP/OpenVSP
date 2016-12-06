@@ -9,14 +9,9 @@
 
 #include "XSec.h"
 #include "Geom.h"
-#include "XSecSurf.h"
-#include "Parm.h"
-#include "VehicleMgr.h"
 #include "ParmMgr.h"
 #include "StlHelper.h"
-#include "APIDefines.h"
 #include <float.h>
-#include <stdio.h>
 
 #include "Vehicle.h"
 

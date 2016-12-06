@@ -2,9 +2,6 @@
 #include "VehicleMgr.h"
 #include "Vehicle.h"
 #include "ParmMgr.h"
-#include "XmlUtil.h"
-
-#include <assert.h>
 
 
 Material::Material()

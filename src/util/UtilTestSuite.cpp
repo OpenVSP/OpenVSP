@@ -7,14 +7,9 @@
 
 #include "UtilTestSuite.h"
 
-#include "Vec2d.h"
-#include "Defines.h"
 #include <float.h>
 #include "StringUtil.h"
 #include "StlHelper.h"
-#include "VspCurve.h"
-#include "VspSurf.h"
-#include "SuperEllipse.h"
 
 
 //==== Test vec2d ====//

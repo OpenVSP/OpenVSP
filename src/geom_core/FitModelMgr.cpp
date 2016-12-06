@@ -9,21 +9,11 @@
 
 #include "FitModelMgr.h"
 #include "ParmMgr.h"
-#include "Vehicle.h"
-#include "VehicleMgr.h"
 #include "StlHelper.h"
-#include "MeshGeom.h"
 #include "PtCloudGeom.h"
-#include "APIDefines.h"
-#include "XmlUtil.h"
 
 #define CMINPACK_NO_DLL
 #include <cminpack.h>
-
-#include <algorithm>
-#include <cmath>
-#include <cstdlib>
-#include <set>
 
 vec3d TargetPt::GetMatchPt()
 {

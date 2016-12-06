@@ -10,7 +10,6 @@
 
 #include "AnalysisMgr.h"
 #include "Vehicle.h"
-#include "VehicleMgr.h"
 #include "ProjectionMgr.h"
 #include "PropGeom.h"
 

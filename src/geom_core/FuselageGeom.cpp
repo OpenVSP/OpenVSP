@@ -7,11 +7,9 @@
 
 #include "FuselageGeom.h"
 #include "ParmMgr.h"
-#include "VspSurf.h"
 #include "Vehicle.h"
 #include "StlHelper.h"
 
-#include "APIDefines.h"
 using namespace vsp;
 
 //==== Constructor ====//

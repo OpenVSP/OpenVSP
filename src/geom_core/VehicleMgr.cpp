@@ -8,7 +8,6 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "Vehicle.h"
-#include "VehicleMgr.h"
 
 #ifdef WIN32
 #include <windows.h>

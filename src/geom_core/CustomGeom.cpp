@@ -11,9 +11,7 @@
 #include "ParmMgr.h"
 #include "LinkMgr.h"
 #include "ScriptMgr.h"
-#include "VspSurf.h"
 #include "Vehicle.h"
-#include "VehicleMgr.h"
 #include "VSP_Geom_API.h"
 
 using namespace vsp;

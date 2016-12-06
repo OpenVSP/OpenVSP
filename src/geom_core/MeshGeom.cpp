@@ -17,21 +17,13 @@
 #include "PtCloudGeom.h"
 #include "ParmMgr.h"
 #include "LinkMgr.h"
-#include "VspSurf.h"
 #include "Vehicle.h"
 #include "PntNodeMerge.h"
-#include "APIDefines.h"
 
-#include "Defines.h"
-#include "Tritri.h"
-#include "BndBox.h"
 #include "StringUtil.h"
 #include "StlHelper.h"
 
 #include "SubSurfaceMgr.h"
-#include <set>
-#include <map>
-#include <algorithm>
 
 //==== Constructor =====//
 MeshGeom::MeshGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )

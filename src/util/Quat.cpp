@@ -1,5 +1,4 @@
 #include <math.h>
-#include <stdio.h>
 #include "Quat.h"
 
 // New quat with out any initial values //

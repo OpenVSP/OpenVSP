@@ -10,8 +10,6 @@
 #include "FeaMeshMgr.h"
 // #include "FeaStructScreen.h"
 // #include "ScreenMgr.h"
-#include "Geom.h"
-#include "Vehicle.h"
 #include "Util.h"
 
 

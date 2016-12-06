@@ -7,14 +7,12 @@
 
 #include "PropGeom.h"
 #include "ParmMgr.h"
-#include "VspSurf.h"
 #include "Vehicle.h"
 #include "StlHelper.h"
 #include <float.h>
 #include <stdio.h>
 #include "Cluster.h"
 
-#include "APIDefines.h"
 using namespace vsp;
 
 // Allow curve control of thickness.

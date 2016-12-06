@@ -7,14 +7,9 @@
 
 #include "WingScreen.h"
 #include "ScreenMgr.h"
-#include "WingGeom.h"
 #include "EventMgr.h"
-#include "Vehicle.h"
 #include "ParmMgr.h"
 #include "StlHelper.h"
-#include "APIDefines.h"
-
-#include <assert.h>
 
 using namespace vsp;
 

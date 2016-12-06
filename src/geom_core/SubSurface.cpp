@@ -11,12 +11,7 @@
 #include "SubSurface.h"
 #include "Geom.h"
 #include "Vehicle.h"
-#include "VehicleMgr.h"
-#include "VspSurf.h"
 #include "ParmMgr.h"
-#include "Util.h"
-#include "Matrix.h"
-#include "Defines.h"
 
 #include "eli/geom/intersect/specified_distance_curve.hpp"
 

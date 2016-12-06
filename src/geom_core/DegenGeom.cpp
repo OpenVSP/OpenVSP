@@ -1,6 +1,5 @@
 #include "DegenGeom.h"
 #include "Geom.h"
-#include <cmath>
 #include "WriteMatlab.h"
 
 void DegenGeom::build_trans_mat( vec3d x, vec3d y, vec3d z, const vec3d &p, Matrix4d &mat, Matrix4d &invmat )

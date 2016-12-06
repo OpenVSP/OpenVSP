@@ -5,12 +5,9 @@
 
 #include "SurfCore.h"
 #include "BezierCurve.h"
-#include "Surf.h"
 
-#include "eli/geom/curve/piecewise_creator.hpp"
 #include "eli/geom/surface/piecewise_body_of_revolution_creator.hpp"
 #include "eli/geom/surface/piecewise_capped_surface_creator.hpp"
-#include "eli/geom/intersect/minimum_distance_surface.hpp"
 
 typedef piecewise_surface_type::index_type surface_index_type;
 typedef piecewise_surface_type::rotation_matrix_type surface_rotation_matrix_type;

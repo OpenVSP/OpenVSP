@@ -6,9 +6,6 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "Vehicle.h"
-#include "Geom.h"
-#include "GroupTransformations.h"
-#include "Parm.h"
 
 // ==== Constructor ==== //
 GroupTransformations::GroupTransformations()

@@ -11,13 +11,11 @@
 #include "WingGeom.h"
 #include "BlankGeom.h"
 #include "MeshGeom.h"
-#include "StackGeom.h"
 #include "CustomGeom.h"
 #include "PtCloudGeom.h"
 #include "PropGeom.h"
 #include "HingeGeom.h"
 #include "ScriptMgr.h"
-#include "MessageMgr.h"
 #include "StlHelper.h"
 #include "ParmMgr.h"
 #include "LinkMgr.h"
@@ -28,9 +26,6 @@
 #include "SubSurfaceMgr.h"
 #include "DesignVarMgr.h"
 #include "DXFUtil.h"
-#include "XmlUtil.h"
-#include "APIDefines.h"
-#include "ResultsMgr.h"
 #include "FitModelMgr.h"
 #include "FileUtil.h"
 #include "VarPresetMgr.h"
@@ -38,13 +33,6 @@
 #include "main.h"
 
 using namespace vsp;
-
-#include <set>
-#include <map>
-#include <algorithm>
-#include <utility>
-
-#include <api/dll_iges.h>
 
 //==== Constructor ====//
 Vehicle::Vehicle()

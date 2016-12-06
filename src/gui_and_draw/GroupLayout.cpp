@@ -6,11 +6,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "GroupLayout.h"
-#include <FL/Fl_Group.H>
 #include <FL/Fl_Value_Slider.H>
-#include <FL/Fl_Scroll.H>
-
-#include <assert.h>
 
 //==== Constructor ====//
 GroupLayout::GroupLayout()

@@ -1,9 +1,8 @@
 #include "ArcballCam.h"
-#define GLM_FORCE_RADIANS
 
-#include <iostream>
-#include <cmath>
 #include <algorithm>
+
+#define GLM_FORCE_RADIANS
 
 #define TOLERANCE 0.00001
 #define R_SENSITIVITY 1.0f  // Rotation Sensitivity

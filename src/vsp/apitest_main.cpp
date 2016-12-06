@@ -15,7 +15,6 @@
 #include "main.h"
 #include "VSP_Geom_API.h"
 #include "APITestSuite.h"
-#include "cpptest.h"
 
 
 void vsp_exit()

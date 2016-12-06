@@ -7,9 +7,7 @@
 
 #include "VSP_Geom_API.h"
 #include "APITestSuite.h"
-#include <stdio.h>
 #include <float.h>
-#include "APIDefines.h"
 
 //Default tolerance to use for tests.  Most calculations are done as doubles and choosing single precision FLT_MIN gives some allowance for precision stackup in calculations
 #define TEST_TOL FLT_MIN

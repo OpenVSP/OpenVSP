@@ -6,13 +6,8 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "GeomCoreTestSuite.h"
-#include "Geom.h"
-#include "Parm.h"
-#include "Vehicle.h"
 #include "MeshGeom.h"
 #include "StlHelper.h"
-#include <float.h>
-#include "APIDefines.h"
 
 
 //==== Test GeomXForm ====//

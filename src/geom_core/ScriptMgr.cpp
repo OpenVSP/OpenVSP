@@ -11,15 +11,11 @@
 #include "ScriptMgr.h"
 
 #include "Parm.h"
-#include "Vec3d.h"
 #include "Matrix.h"
 #include "VSP_Geom_API.h"
-#include "APIErrorMgr.h"
 #include "CustomGeom.h"
 #include "AdvLinkMgr.h"
-#include "XSec.h"
 #include "Vehicle.h"
-#include "ResultsMgr.h"
 #include "StringUtil.h"
 #include "FileUtil.h"
 

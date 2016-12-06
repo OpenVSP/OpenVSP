@@ -9,23 +9,13 @@
 
 #include "XSecCurve.h"
 #include "Geom.h"
-#include "XSecSurf.h"
 //#include "SuperEllipse.h"
-#include "Parm.h"
-#include "VehicleMgr.h"
 #include "ParmMgr.h"
 #include "StlHelper.h"
-#include <float.h>
-#include <stdio.h>
-#include "APIDefines.h"
 #include "FuselageGeom.h"
-
-#include <algorithm>
 
 #include "Vehicle.h"
 
-#include "eli/geom/curve/piecewise.hpp"
-#include "eli/geom/curve/piecewise_creator.hpp"
 #include "eli/geom/curve/length.hpp"
 
 typedef piecewise_curve_type::index_type curve_index_type;

@@ -7,10 +7,7 @@
 #include "PSliceScreen.h"
 #include "ScreenMgr.h"
 #include "EventMgr.h"
-#include "Vehicle.h"
 #include "StlHelper.h"
-#include "APIDefines.h"
-#include <assert.h>
 
 PSliceScreen::PSliceScreen( ScreenMgr *mgr ) : VspScreen( mgr )
 {

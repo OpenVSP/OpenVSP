@@ -8,8 +8,6 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "Vehicle.h"
-#include "VehicleMgr.h"
-#include "ClippingMgr.h"
 
 #ifdef DEBUG_CFD_MESH
 #include <direct.h>

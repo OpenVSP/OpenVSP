@@ -3,7 +3,6 @@
 // version 1.3 as detailed in the LICENSE file which accompanies this software.
 //
 
-#include <stdarg.h>
 #include "StringUtil.h"
 
 void StringUtil::change_from_to( char *str, const char from, const char to )

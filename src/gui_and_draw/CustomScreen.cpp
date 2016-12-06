@@ -7,12 +7,8 @@
 
 #include "CustomScreen.h"
 #include "ScreenMgr.h"
-#include "PodGeom.h"
 #include "EventMgr.h"
-#include "Vehicle.h"
 #include "ParmMgr.h"
-
-#include <assert.h>
 
 
 //==== Constructor ====//

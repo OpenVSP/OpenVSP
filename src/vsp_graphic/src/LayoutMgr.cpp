@@ -2,7 +2,6 @@
 #include "LayoutMgr.h"
 #include "Viewport.h"
 #include "Camera.h"
-#include "Background.h"
 #include "Scene.h"
 #include "Ruler.h"
 

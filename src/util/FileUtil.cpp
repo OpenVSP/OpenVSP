@@ -5,8 +5,6 @@
 
 #include "FileUtil.h"
 #include "tinydir.h"
-#include <stdio.h>
-#include <stdlib.h>
 
 #ifdef __APPLE__
 #include <mach-o/dyld.h>    /* _NSGetExecutablePath */
@@ -18,7 +16,6 @@
 #else
 #include <unistd.h>
 #include <libgen.h>
-#include <sys/types.h>
 #include <pwd.h>
 #endif
 

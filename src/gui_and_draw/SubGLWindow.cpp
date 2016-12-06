@@ -7,9 +7,6 @@
 #include "Viewport.h"
 #include "Camera.h"
 #include "Renderable.h"
-#include "Common.h"
-#include <vector>
-#include <assert.h>
 
 using namespace VSPGraphic;
 

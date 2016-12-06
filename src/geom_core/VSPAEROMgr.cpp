@@ -9,13 +9,9 @@
 
 #include "VSPAEROMgr.h"
 #include "ParmMgr.h"
-#include "Vehicle.h"
-#include "VehicleMgr.h"
 #include "StlHelper.h"
-#include "APIDefines.h"
 #include "WingGeom.h"
 #include "MeshGeom.h"
-#include "APIDefines.h"
 
 #include "StringUtil.h"
 #include "FileUtil.h"

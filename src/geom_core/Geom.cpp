@@ -12,12 +12,8 @@
 #include "StringUtil.h"
 #include "ParmMgr.h"
 #include "SubSurfaceMgr.h"
-#include "APIDefines.h"
 #include "HingeGeom.h"
 using namespace vsp;
-
-#include <time.h>
-#include <stdlib.h>
 
 //==== Constructor ====//
 GeomType::GeomType()

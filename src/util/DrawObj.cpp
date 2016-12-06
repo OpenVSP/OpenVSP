@@ -10,7 +10,6 @@
 
 
 #include "DrawObj.h"
-#include <math.h>
 #include "Matrix.h"
 
 void MakeArrowhead( const vec3d &ptip, const vec3d &uref, double len, vector < vec3d > &pts )

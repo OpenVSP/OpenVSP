@@ -10,7 +10,6 @@
 #include "AdvLinkMgr.h"
 #include "ParmMgr.h"
 #include "Vehicle.h"
-#include "VehicleMgr.h"
 #include "VSP_Geom_API.h"
 #include "ScriptMgr.h"
 

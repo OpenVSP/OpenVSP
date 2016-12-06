@@ -1,11 +1,8 @@
 #include "Ruler.h"
 #include "TextMgr.h"
-#include "Common.h"
 #include "OpenGLHeaders.h"
 #include "glm/ext.hpp"
 #include "Display.h"
-
-#include <vector>
 
 namespace VSPGraphic
 {

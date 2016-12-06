@@ -10,16 +10,8 @@
 #include "CfdMeshMgr.h"
 //#include "CfdMeshScreen.h"
 //#include "feaStructScreen.h"
-#include "Geom.h"
-#include "Vehicle.h"
-#include "VehicleMgr.h"
-#include "SurfPatch.h"
-#include "Tri.h"
 #include "Util.h"
 #include "SubSurfaceMgr.h"
-#include "SubSurface.h"
-#include "APIDefines.h"
-#include "SurfCore.h"
 
 #ifdef DEBUG_CFD_MESH
 #include <direct.h>

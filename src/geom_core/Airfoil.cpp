@@ -9,12 +9,8 @@
 
 #include "Airfoil.h"
 #include "Geom.h"
-#include "Parm.h"
-#include "ParmContainer.h"
-#include "VehicleMgr.h"
 #include "ParmMgr.h"
 #include "StringUtil.h"
-#include "APIDefines.h"
 #include <float.h>
 
 using std::string;

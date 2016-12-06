@@ -9,11 +9,6 @@
 
 #include "Geom.h"
 #include "Vehicle.h"
-#include "VehicleMgr.h"
-#include "Util.h"
-#include "SubSurfaceMgr.h"
-#include "SubSurface.h"
-#include "CfdMeshSettings.h"
 #include "ParmMgr.h"
 
 #ifdef DEBUG_CFD_MESH

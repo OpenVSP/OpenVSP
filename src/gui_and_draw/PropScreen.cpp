@@ -9,15 +9,9 @@
 #include "ScreenMgr.h"
 #include "PropGeom.h"
 #include "EventMgr.h"
-#include "Vehicle.h"
 #include "ParmMgr.h"
-#include "APIDefines.h"
-
-#include "Vsp1DCurve.h"
 
 using namespace vsp;
-
-#include <assert.h>
 
 
 //==== Constructor ====//

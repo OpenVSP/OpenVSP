@@ -11,7 +11,6 @@
 #include "AdvLinkMgr.h"
 #include "ParmMgr.h"
 #include "Vehicle.h"
-#include "VehicleMgr.h"
 #include "StlHelper.h"
 
 bool LinkMgrSingleton::m_firsttime = true;

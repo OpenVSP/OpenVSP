@@ -8,12 +8,8 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "Vehicle.h"
-#include "VehicleMgr.h"
-#include "ResultsMgr.h"
-#include "APIDefines.h"
 #include "Util.h"
 #include "StlHelper.h"
-#include <ctime>
 
 #ifdef WIN32
 #include <windows.h>

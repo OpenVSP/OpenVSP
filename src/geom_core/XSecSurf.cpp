@@ -12,7 +12,7 @@
 #include "CustomGeom.h"
 #include "PropGeom.h"
 #include "StlHelper.h"
-#include "APIDefines.h"
+
 using namespace vsp;
 
 

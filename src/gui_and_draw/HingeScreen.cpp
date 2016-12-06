@@ -9,10 +9,7 @@
 #include "HingeGeom.h"
 #include "ScreenMgr.h"
 #include "EventMgr.h"
-#include "Vehicle.h"
 #include "ParmMgr.h"
-
-#include <assert.h>
 
 
 //==== Constructor ====//

@@ -10,8 +10,6 @@
 #include "SurfPatch.h"
 #include "Surf.h"
 
-#include "Tritri.h"
-
 //////////////////////////////////////////////////////////////////////
 
 SurfPatch::SurfPatch()

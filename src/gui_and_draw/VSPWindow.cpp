@@ -10,7 +10,6 @@
 
 #include <FL/Fl.H>
 #include "VSPWindow.h"
-#include <cstdlib>
 
 int VSP_Window::m_x = 1;
 int VSP_Window::m_y = 1;

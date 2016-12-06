@@ -8,12 +8,6 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "ParmMgr.h"
-#include "VehicleMgr.h"
-#include "UsingCpp11.h"
-#include "APIDefines.h"
-#include <assert.h>
-#include <time.h>
-#include <algorithm>
 
 using std::map;
 using std::string;

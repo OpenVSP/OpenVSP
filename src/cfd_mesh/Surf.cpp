@@ -14,7 +14,6 @@
 #include "Tritri.h"
 #include "CfdMeshMgr.h"
 #include "StlHelper.h"
-#include "SubSurface.h"
 #include "SubSurfaceMgr.h"
 
 Surf::Surf()

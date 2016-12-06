@@ -11,12 +11,7 @@
 #include "ParmMgr.h"
 #include "LinkMgr.h"
 #include "Vehicle.h"
-#include "VehicleMgr.h"
-#include <float.h>
-#include <time.h>
-#include <algorithm>
 
-#include "XmlUtil.h"
 #include "StringUtil.h"
 #include "StlHelper.h"
 

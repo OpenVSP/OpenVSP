@@ -11,16 +11,11 @@
 #include "ScreenMgr.h"
 #include "ParmMgr.h"
 #include "SubSurfaceMgr.h"
-#include "SubSurface.h"
-#include "APIDefines.h"
-#include "MaterialMgr.h"
 #include "GraphicEngine.h"
 #include "Display.h"
 #include "Viewport.h"
 #include "Camera.h"
-#include "ScreenMgr.h"
 #include "MaterialEditScreen.h"
-#include "VSPWindow.h"
 
 using namespace vsp;
 

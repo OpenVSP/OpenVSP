@@ -11,8 +11,6 @@
 
 #include <stdio.h>
 #include <math.h>
-#include <assert.h>
-#include <float.h>
 
 #include "VspCurve.h"
 #include "APIDefines.h"
@@ -20,7 +18,6 @@
 
 #include "eli/geom/curve/length.hpp"
 #include "eli/geom/curve/piecewise_creator.hpp"
-#include "eli/geom/intersect/minimum_distance_curve.hpp"
 #include "eli/geom/intersect/specified_distance_curve.hpp"
 #include "eli/geom/intersect/specified_thickness_curve.hpp"
 

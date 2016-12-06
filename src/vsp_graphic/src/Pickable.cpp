@@ -4,8 +4,6 @@
 #include "ColorCoder.h"
 #include "VertexBuffer.h"
 #include "ColorBuffer.h"
-#include <vector>
-#include <assert.h>
 
 namespace VSPGraphic
 {

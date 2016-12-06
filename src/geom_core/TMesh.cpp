@@ -18,19 +18,12 @@
 #endif
 
 #include "TMesh.h"
-#include "BndBox.h"
 
 #include "Tritri.h"
-#include "Defines.h"
 
 #include "triangle.h"
-#include "Util.h"
 #include "Geom.h"
 #include "SubSurfaceMgr.h"
-
-#include <map>
-#include <set>
-#include <algorithm>
 
 
 //===============================================//

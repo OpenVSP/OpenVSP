@@ -9,22 +9,17 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "VSP_Geom_API.h"
-#include "APIErrorMgr.h"
 #include "VehicleMgr.h"
 #include "Vehicle.h"
 #include "ParmMgr.h"
 #include "LinkMgr.h"
-#include "ResultsMgr.h"
 #include "AnalysisMgr.h"
-#include "XSecSurf.h"
 #include "CfdMeshMgr.h"
 #include "Util.h"
 #include "DesignVarMgr.h"
-#include "SubSurfaceMgr.h"
 #include "VarPresetMgr.h"
 #include "WingGeom.h"
 #include "PropGeom.h"
-#include "PCurve.h"
 
 #ifdef VSP_USE_FLTK
 #include "GuiInterface.h"

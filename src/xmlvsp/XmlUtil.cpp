@@ -3,7 +3,6 @@
 // version 1.3 as detailed in the LICENSE file which accompanies this software.
 //
 
-#include <stdarg.h>
 #include <algorithm>
 #include "XmlUtil.h"
 #include "StringUtil.h"

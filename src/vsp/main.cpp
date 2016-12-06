@@ -8,7 +8,6 @@
 
 #include <stdio.h>
 
-#include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -37,10 +36,6 @@
 #include "GuiInterface.h"
 #include "EventMgr.h"
 #include "GeomCoreTestSuite.h"
-#include "UtilTestSuite.h"
-#include <string>
-#include <time.h>
-#include "APIDefines.h"
 #include "common.h"
 
 using namespace vsp;

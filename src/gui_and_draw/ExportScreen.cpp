@@ -8,17 +8,13 @@
 #include "ExportScreen.h"
 #include "ScreenMgr.h"
 #include "EventMgr.h"
-#include "Vehicle.h"
 #include "StlHelper.h"
-#include "APIDefines.h"
 #include "STEPOptionsScreen.h"
 #include "IGESOptionsScreen.h"
 #include "STLOptionsScreen.h"
 #include "BEMOptionsScreen.h"
 #include "DXFOptionsScreen.h"
 using namespace vsp;
-
-#include <assert.h>
 
 //==== Constructor ====//
 ExportScreen::ExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 150, 25 + (1+12)*20 + 2*15 + 4*6, "Export" )

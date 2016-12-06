@@ -15,12 +15,8 @@
 
 #include "BezierCurve.h"
 #include "Util.h"
-#include <algorithm>
 
 #include "eli/geom/curve/length.hpp"
-#include "eli/geom/curve/piecewise_creator.hpp"
-#include "eli/geom/intersect/minimum_distance_curve.hpp"
-#include "eli/geom/point/distance.hpp"
 
 typedef piecewise_curve_type::index_type curve_index_type;
 typedef piecewise_curve_type::rotation_matrix_type curve_rotation_matrix_type;

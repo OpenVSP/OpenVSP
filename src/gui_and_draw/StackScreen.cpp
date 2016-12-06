@@ -9,11 +9,7 @@
 #include "ScreenMgr.h"
 #include "StackGeom.h"
 #include "EventMgr.h"
-#include "Vehicle.h"
 #include "ParmMgr.h"
-#include "APIDefines.h"
-
-#include <assert.h>
 
 using namespace vsp;
 
