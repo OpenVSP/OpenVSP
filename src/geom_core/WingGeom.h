@@ -168,6 +168,9 @@ public:
     Parm m_LECluster;
     Parm m_TECluster;
 
+    Parm m_SmallPanelW;
+    Parm m_MaxGrowth;
+
     BoolParm m_RelativeDihedralFlag;
     BoolParm m_RelativeTwistFlag;
     BoolParm m_RotateAirfoilMatchDiedralFlag;
@@ -189,6 +192,8 @@ protected:
     virtual void UpdateSplitTesselate( int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms );
     virtual void UpdateDrawObj();
     virtual void MatchWingSections();
+
+    virtual void CalculateMeshMetrics();
 
     virtual double ComputeTotalSpan();
     virtual double ComputeTotalProjSpan();

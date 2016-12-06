@@ -883,6 +883,12 @@ WingGeom::WingGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_TECluster.Init( "TECluster", m_Name, this, 0.25, 0.0, 2.0 );
     m_TECluster.SetDescript( "TE Tess Cluster Control" );
 
+    m_SmallPanelW.Init( "SmallPanelW", m_Name, this, 0.0, 0.0, 1e12 );
+    m_SmallPanelW.SetDescript( "Smallest LE/TE panel width");
+
+    m_MaxGrowth.Init( "MaxGrowth", m_Name, this, 1.0, 1.0, 1e12);
+    m_MaxGrowth.SetDescript( "Maximum chordwise panel growth ratio" );
+
     //==== rename capping controls for wing specific terminology ====//
     m_CapUMinOption.SetDescript("Type of End Cap on Wing Root");
     m_CapUMinOption.Parm::Set(FLAT_END_CAP);
@@ -1416,6 +1422,90 @@ void WingGeom::UpdateSurf()
     m_TotalChord = ComputeTotalChord();
     m_TotalArea = ComputeTotalArea();
 
+    CalculateMeshMetrics();
+}
+
+void WingGeom::CalculateMeshMetrics()
+{
+    // Check dimensional LE/TE first panel width at all hard airfoil sections.
+
+    int nu = m_MainSurfVec[0].GetNumSectU();
+
+    std::vector<double> vcheck;
+    vcheck.reserve( 8 );
+
+    double vmin, vmax, vle, vlelow, vleup;
+
+    vmin = 0.0;
+    vmax = m_MainSurfVec[0].GetWMax();
+
+    vle = ( vmin + vmax ) * 0.5;
+
+    vmin += TMAGIC;
+    vmax -= TMAGIC;
+
+    vlelow = vle - TMAGIC;
+    vleup = vle + TMAGIC;
+
+    double dj = 2.0 / ( m_TessW() - 1 );
+
+    // Calculate lower surface tessellation check points.
+    vcheck.push_back( vmin );
+    vcheck.push_back( vmin + ( vlelow - vmin ) * Cluster( dj, m_TECluster(), m_LECluster() ) );
+    vcheck.push_back( vmin + ( vlelow - vmin ) * Cluster( 1.0 - dj, m_TECluster(), m_LECluster() ) );
+    vcheck.push_back( vlelow );
+
+    // Upper surface could be constructed as:  vupper = m_Surface.get_vmax() - vlower;
+    vcheck.push_back( vleup );
+    vcheck.push_back( vleup + ( vmax - vleup ) * (Cluster( dj, m_LECluster(), m_TECluster() )) );
+    vcheck.push_back( vleup + ( vmax - vleup ) * (Cluster( 1.0 - dj, m_LECluster(), m_TECluster() )) );
+    vcheck.push_back( vmax );
+
+    // Loop over points checking for minimum panel width.
+    double mind = std::numeric_limits < double >::max();
+    for ( int i = 0; i < vcheck.size() - 1; i += 2 )
+    {
+        double v1 = vcheck[ i ];
+        double v2 = vcheck[ i + 1 ];
+
+        for ( int j = 0; j <= nu; j++ )
+        {
+            double u = 1.0 * j;
+
+            double d = dist( m_MainSurfVec[0].CompPnt( u, v1 ), m_MainSurfVec[0].CompPnt( u, v2 ) );
+            mind = min( mind, d );
+        }
+    }
+    m_SmallPanelW = mind;
+
+    // Check theoretical growth ratio assuming arclength parameterization is correct.  No need to check actual
+    // actual realized surface.  Also, no need to check all airfoil sections.
+    double maxrat = 1.0;
+
+    int jle = ( m_TessW() - 1 ) / 2;
+    int j = 0;
+
+    double t0 = Cluster( static_cast<double>( j ) / jle, m_TECluster(), m_LECluster() );
+    j++;
+    double t1 = Cluster( static_cast<double>( j ) / jle, m_TECluster(), m_LECluster() );
+    double dt1 = t1 - t0;
+    j++;
+    double t2;
+    for ( ; j <= jle; ++j )
+    {
+        t2 = Cluster( static_cast<double>( j ) / jle, m_TECluster(), m_LECluster() );
+
+        double dt2 = t2 - t1;
+
+        maxrat = max( maxrat, dt1 / dt2 );
+        maxrat = max( maxrat, dt2 / dt1 );
+
+        t0 = t1;
+        t1 = t2;
+        dt1 = dt2;
+
+    }
+    m_MaxGrowth = maxrat;
 }
 
 void WingGeom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, bool degen )
