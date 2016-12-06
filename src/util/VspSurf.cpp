@@ -847,7 +847,7 @@ void VspSurf::MakeVTess( int num_v, std::vector<double> &vtess, const int &n_cap
         }
         for ( ; j < nv; ++j )
         {
-            vtess[j] = vleup + ( vmax - vleup ) * (Cluster( 2.0 * static_cast<double>( j - jle ) / ( nv - 1 ), m_LECluster, m_TECluster ));
+            vtess[j] = vleup + ( vmax - vleup ) * ( 1.0 - Cluster( 1.0 - 2.0 * static_cast<double>( j - jle ) / ( nv - 1 ), m_TECluster, m_LECluster ));
         }
         if ( degen )
         {

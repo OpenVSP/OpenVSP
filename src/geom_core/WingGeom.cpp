@@ -1432,13 +1432,13 @@ void WingGeom::CalculateMeshMetrics()
 
     int nu = m_MainSurfVec[0].GetNumSectU();
 
-    std::vector<double> vcheck;
-    vcheck.reserve( 8 );
+    std::vector<double> vcheck( 8 );
 
-    double vmin, vmax, vle, vlelow, vleup;
+    double vmin, vmax, vle, vlelow, vleup, vtruemax;
 
     vmin = 0.0;
     vmax = m_MainSurfVec[0].GetWMax();
+    vtruemax = vmax;
 
     vle = ( vmin + vmax ) * 0.5;
 
@@ -1451,16 +1451,16 @@ void WingGeom::CalculateMeshMetrics()
     double dj = 2.0 / ( m_TessW() - 1 );
 
     // Calculate lower surface tessellation check points.
-    vcheck.push_back( vmin );
-    vcheck.push_back( vmin + ( vlelow - vmin ) * Cluster( dj, m_TECluster(), m_LECluster() ) );
-    vcheck.push_back( vmin + ( vlelow - vmin ) * Cluster( 1.0 - dj, m_TECluster(), m_LECluster() ) );
-    vcheck.push_back( vlelow );
+    vcheck[0] = ( vmin );
+    vcheck[1] = ( vmin + ( vlelow - vmin ) * Cluster( dj, m_TECluster(), m_LECluster() ) );
+    vcheck[2] = ( vmin + ( vlelow - vmin ) * Cluster( 1.0 - dj, m_TECluster(), m_LECluster() ) );
+    vcheck[3] = ( vlelow );
 
-    // Upper surface could be constructed as:  vupper = m_Surface.get_vmax() - vlower;
-    vcheck.push_back( vleup );
-    vcheck.push_back( vleup + ( vmax - vleup ) * (Cluster( dj, m_LECluster(), m_TECluster() )) );
-    vcheck.push_back( vleup + ( vmax - vleup ) * (Cluster( 1.0 - dj, m_LECluster(), m_TECluster() )) );
-    vcheck.push_back( vmax );
+    // Upper surface constructed as:  vupper = m_Surface.get_vmax() - vlower;
+    vcheck[4] = vtruemax - vcheck[0];
+    vcheck[5] = vtruemax - vcheck[1];
+    vcheck[6] = vtruemax - vcheck[2];
+    vcheck[7] = vtruemax - vcheck[3];
 
     // Loop over points checking for minimum panel width.
     double mind = std::numeric_limits < double >::max();
