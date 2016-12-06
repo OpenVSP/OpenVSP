@@ -1752,6 +1752,39 @@ void MeshGeom::IntersectTrim( int halfFlag, int intSubsFlag )
         }
     }
 
+    int ntags = -1;
+    vector < double > tagTheoAreaVec;
+    vector < double > tagWetAreaVec;
+    vector < string > tagNameVec;
+
+    if ( intSubsFlag )
+    {
+        // Subtract off dummy tag.
+        ntags = SubSurfaceMgr.GetNumTags() - 1;
+
+        tagTheoAreaVec.resize( ntags, 0.0 );
+        tagWetAreaVec.resize( ntags, 0.0 );
+        tagNameVec.resize( ntags );
+
+        for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+        {
+            for ( j = 0; j < ntags; j++ )
+            {
+                tagTheoAreaVec[j] += m_TMeshVec[i]->m_TagTheoAreaVec[j];
+                tagWetAreaVec[j] += m_TMeshVec[i]->m_TagWetAreaVec[j];
+            }
+        }
+
+        vector < int > tags = SubSurfaceMgr.GetAllTags();
+
+        assert( tags.size() == ntags );
+
+        for ( j = 0; j < ntags; j++ )
+        {
+            tagNameVec[j] = SubSurfaceMgr.GetTagNames( j );
+        }
+    }
+
     //==== Add Results ====//
     vector< string > name_vec;
     vector< double > theo_area_vec;
@@ -1795,6 +1828,11 @@ void MeshGeom::IntersectTrim( int halfFlag, int intSubsFlag )
     res->Add( NameValData( "Wet_Area", wet_area_vec ) );
     res->Add( NameValData( "Theo_Vol", theo_vol_vec ) );
     res->Add( NameValData( "Wet_Vol", wet_vol_vec ) );
+
+    res->Add( NameValData( "Num_Tags", ntags ) );
+    res->Add( NameValData( "Tag_Name", tagNameVec ) );
+    res->Add( NameValData( "Tag_Theo_Area", tagTheoAreaVec ) );
+    res->Add( NameValData( "Tag_Wet_Area", tagWetAreaVec ) );
 
     res->Add( NameValData( "Total_Theo_Area", m_TotalTheoArea ) );
     res->Add( NameValData( "Total_Wet_Area", m_TotalWetArea ) );
