@@ -1577,7 +1577,7 @@ void VspSurf::ExtractCPts( piecewise_surface_type &s, vector< vector< int > > &p
 }
 
 
-void VspSurf::ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface_with_knots *> &surfs, bool splitsurf, bool mergepts, bool tocubic, double tol )
+void VspSurf::ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface_with_knots *> &surfs, bool splitsurf, bool mergepts, bool tocubic, double tol, bool trimte )
 {
     // Make copy for local changes.
     piecewise_surface_type s( m_Surface );
@@ -1585,6 +1585,13 @@ void VspSurf::ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface
     if( !m_FlipNormal )
     {
         s.reverse_v();
+    }
+
+    if ( trimte && m_MagicVParm )
+    {
+        piecewise_surface_type s1, s2;
+        s.split_v( s1, s2, s.get_v0() + TMAGIC );
+        s2.split_v( s, s1, s.get_vmax() - TMAGIC );
     }
 
     if ( tocubic )

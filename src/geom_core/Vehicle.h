@@ -285,6 +285,7 @@ public:
     BoolParm m_STEPMergePoints;
     BoolParm m_STEPToCubic;
     Parm m_STEPToCubicTol;
+    BoolParm m_STEPTrimTE;
 
     IntParm m_IGESLenUnit;
     BoolParm m_IGESSplitSurfs;

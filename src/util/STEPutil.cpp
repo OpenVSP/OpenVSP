@@ -739,13 +739,13 @@ void STEPutil::WriteFile( string fname )
     }
 }
 
-void STEPutil::AddSurf( VspSurf *s, bool splitsurf, bool mergepts, bool tocubic, double tol )
+void STEPutil::AddSurf( VspSurf *s, bool splitsurf, bool mergepts, bool tocubic, double tol, bool trimte )
 {
 //  vector<SdaiBezier_surface *> surfs;
 //  s->ToSTEP_Bez_Patches( this, surfs );
 
     vector<SdaiB_spline_surface_with_knots *> surfs;
-    s->ToSTEP_BSpline_Quilt( this, surfs, splitsurf, mergepts, tocubic, tol );
+    s->ToSTEP_BSpline_Quilt( this, surfs, splitsurf, mergepts, tocubic, tol, trimte );
 
     SdaiGeometric_set *gset = ( SdaiGeometric_set* ) registry->ObjCreate( "GEOMETRIC_SET" );
     instance_list->Append( ( SDAI_Application_instance * ) gset, completeSE );
