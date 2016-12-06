@@ -419,7 +419,13 @@ void XSecCurve::CloseTE( bool wingtype )
     threed_point_type p2 = crv.f( tmax );
     double d = dist( p1, p2 );
 
-    if ( wingtype || d > 1e-4 )
+    double div = GetWidth();
+    if ( div == 0.0 )
+    {
+        div = 1.0;
+    }
+
+    if ( wingtype || ( d / div ) > 1e-4 )
     {
         // Connect TE points with straight blunt face.  Place corners at appropriate parameter.
         piecewise_curve_type c_last, c_main;
@@ -453,12 +459,6 @@ void XSecCurve::CloseTE( bool wingtype )
         crv.set_tmax( tmax );
     }
     m_Curve.SetCurve( crv );
-
-    double div = GetWidth();
-    if ( div == 0.0 )
-    {
-        div = 1.0;
-    }
 
     if ( m_UseFakeWidth )
     {
