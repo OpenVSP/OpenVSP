@@ -290,6 +290,7 @@ public:
     BoolParm m_IGESSplitSurfs;
     BoolParm m_IGESToCubic;
     Parm m_IGESToCubicTol;
+    BoolParm m_IGESTrimTE;
 
     IntParm m_DXFLenUnit;
     IntParm m_2DView;

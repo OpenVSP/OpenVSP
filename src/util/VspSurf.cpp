@@ -1791,7 +1791,7 @@ void VspSurf::ToSTEP_Bez_Patches( STEPutil * step, vector<SdaiBezier_surface *> 
     }
 }
 
-void VspSurf::ToIGES( DLL_IGES &model, bool splitsurf, bool tocubic, double tol )
+void VspSurf::ToIGES( DLL_IGES &model, bool splitsurf, bool tocubic, double tol, bool trimTE )
 {
     // Make copy for local changes.
     piecewise_surface_type s( m_Surface );
@@ -1799,6 +1799,13 @@ void VspSurf::ToIGES( DLL_IGES &model, bool splitsurf, bool tocubic, double tol 
     if( !m_FlipNormal )
     {
         s.reverse_v();
+    }
+
+    if ( trimTE && m_MagicVParm )
+    {
+        piecewise_surface_type s1, s2;
+        s.split_v( s1, s2, s.get_v0() + TMAGIC );
+        s2.split_v( s, s1, s.get_vmax() - TMAGIC );
     }
 
     if ( tocubic )

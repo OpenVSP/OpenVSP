@@ -42,11 +42,13 @@ protected:
     ToggleButton m_SplitSurfsToggle;
     ToggleButton m_ToCubicToggle;
     SliderInput m_ToCubicTolSlider;
+    ToggleButton m_TrimTEToggle;
 
     int m_PrevUnit;
     bool m_PrevSplit;
     bool m_PrevCubic;
     double m_PrevToCubicTol;
+    bool m_PrevTrimTE;
 
     TriggerButton m_OkButton;
     TriggerButton m_CancelButton;

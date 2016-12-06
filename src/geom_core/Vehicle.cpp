@@ -60,6 +60,7 @@ Vehicle::Vehicle()
     m_IGESSplitSurfs.Init( "SplitSurfs", "IGESSettings", this, true, 0, 1 );
     m_IGESToCubic.Init( "ToCubic", "IGESSettings", this, false, 0, 1 );
     m_IGESToCubicTol.Init( "ToCubicTol", "IGESSettings", this, 1e-6, 1e-12, 1e12 );
+    m_IGESTrimTE.Init( "TrimTE", "IGESSettings", this, false, 0, 1 );
 
     m_DXFLenUnit.Init( "LenUnit", "DXFSettings", this, vsp::LEN_FT, vsp::LEN_MM, vsp::LEN_UNITLESS );
     m_2D3DFlag.Init( "DimFlag", "DXFSettings", this , vsp::SET_3D, vsp::SET_3D, vsp::SET_2D );
@@ -183,6 +184,7 @@ void Vehicle::Init()
     m_IGESSplitSurfs.Set( true );
     m_IGESToCubic.Set( false );
     m_IGESToCubicTol.Set( 1e-6 );
+    m_IGESTrimTE.Set( false );
 
     m_DXFLenUnit.Set( vsp::LEN_UNITLESS );
     m_2DView.Set( vsp::VIEW_4 );
@@ -2286,7 +2288,7 @@ void Vehicle::WriteIGESFile( const string & file_name, int write_set )
 
             for ( int j = 0; j < surf_vec.size(); j++ )
             {
-                surf_vec[j].ToIGES( model, m_IGESSplitSurfs(), m_IGESToCubic(), m_IGESToCubicTol() );
+                surf_vec[j].ToIGES( model, m_IGESSplitSurfs(), m_IGESToCubic(), m_IGESToCubicTol(), m_IGESTrimTE() );
             }
         }
     }
