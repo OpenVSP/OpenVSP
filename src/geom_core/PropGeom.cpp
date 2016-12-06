@@ -268,16 +268,16 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_AF.Init( "AF", "Design", this, 100, 0, 1e12 );
     m_AF.SetDescript( "Propeller activity factor" );
 
-    m_LECluster.Init( "LECluster", "Design", this, 0.2, 0.0, 2.0 );
+    m_LECluster.Init( "LECluster", "Design", this, 0.25, 1e-4, 10.0 );
     m_LECluster.SetDescript( "LE Tess Cluster Control" );
 
-    m_TECluster.Init( "TECluster", "Design", this, 1.0, 0.0, 2.0 );
+    m_TECluster.Init( "TECluster", "Design", this, 0.25, 1e-4, 10.0 );
     m_TECluster.SetDescript( "TE Tess Cluster Control" );
 
-    m_RootCluster.Init( "InCluster", "Design", this, 1.0, 0.0, 2.0 );
+    m_RootCluster.Init( "InCluster", "Design", this, 1.0, 1e-4, 10.0 );
     m_RootCluster.SetDescript( "Inboard Tess Cluster Control" );
 
-    m_TipCluster.Init( "OutCluster", "Design", this, 1.0, 0.0, 2.0 );
+    m_TipCluster.Init( "OutCluster", "Design", this, 1.0, 1e-4, 10.0 );
     m_TipCluster.SetDescript( "Outboard Tess Cluster Control" );
 
     //==== rename capping controls for wing specific terminology ====//

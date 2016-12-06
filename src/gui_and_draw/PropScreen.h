@@ -75,10 +75,10 @@ protected:
 
     SliderAdjRangeInput m_CapTessSlider;
 
-    SliderInput m_LEClusterSlider;
-    SliderInput m_TEClusterSlider;
-    SliderInput m_RootClusterSlider;
-    SliderInput m_TipClusterSlider;
+    SliderAdjRangeInput m_LEClusterSlider;
+    SliderAdjRangeInput m_TEClusterSlider;
+    SliderAdjRangeInput m_RootClusterSlider;
+    SliderAdjRangeInput m_TipClusterSlider;
 
     GroupLayout m_XSecLayout;
 

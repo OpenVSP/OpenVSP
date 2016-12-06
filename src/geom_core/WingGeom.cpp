@@ -531,9 +531,9 @@ WingSect::WingSect( XSecCurve *xsc ) : XSec( xsc)
     m_Dihedral.Init( "Dihedral", m_GroupName, this, 0.0, -360.0, 360.0 );
     m_Dihedral.SetDescript( "Dihedral of Wing Section" );
 
-    m_RootCluster.Init( "InCluster", m_GroupName, this, 1.0, 0.0, 2.0 );
+    m_RootCluster.Init( "InCluster", m_GroupName, this, 1.0, 1e-4, 10.0 );
     m_RootCluster.SetDescript( "Inboard Tess Cluster Control" );
-    m_TipCluster.Init( "OutCluster", m_GroupName, this, 1.0, 0.0, 2.0 );
+    m_TipCluster.Init( "OutCluster", m_GroupName, this, 1.0, 1e-4, 10.0 );
     m_TipCluster.SetDescript( "Outboard Tess Cluster Control" );
 }
 
@@ -878,10 +878,10 @@ WingGeom::WingGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_TotalArea.Init( "TotalArea", m_Name, this, 1.0, 1e-10, 1.0e12 );
     m_TotalArea.SetDescript( "Total Planform Area" );
 
-    m_LECluster.Init( "LECluster", m_Name, this, 0.25, 0.0, 2.0 );
+    m_LECluster.Init( "LECluster", m_Name, this, 0.25, 1e-4, 10.0 );
     m_LECluster.SetDescript( "LE Tess Cluster Control" );
 
-    m_TECluster.Init( "TECluster", m_Name, this, 0.25, 0.0, 2.0 );
+    m_TECluster.Init( "TECluster", m_Name, this, 0.25, 1e-4, 10.0 );
     m_TECluster.SetDescript( "TE Tess Cluster Control" );
 
     m_SmallPanelW.Init( "SmallPanelW", m_Name, this, 0.0, 0.0, 1e12 );
