@@ -99,6 +99,15 @@ double asinhc_approx( const double &y )
 //
 double asinhc( const double &y )
 {
+    static double lasty = -1.0; // Negative argument impossible
+    static double lastx = 0;
+
+    if ( y == lasty )
+    {
+        return lastx;
+    }
+    lasty = y;
+
     // Initialize with series expansion initial guess.
     double x = asinhc_approx( y );
 
@@ -123,6 +132,7 @@ double asinhc( const double &y )
         {
             // x fell below xmin
             x = 0.0;
+            lastx = x;
             return x;
         }
 
@@ -130,6 +140,7 @@ double asinhc( const double &y )
         if ( std::abs( f ) < tol )
         {
             // Converged
+            lastx = x;
             return x;
         }
 
@@ -137,6 +148,7 @@ double asinhc( const double &y )
     }
 
     // Exceeded max iterations.
+    lastx = x;
     return x;
 }
 
@@ -174,6 +186,15 @@ double asinc_approx( const double &y )
 //
 double asinc( const double &y )
 {
+    static double lasty = -1.0; // Negative argument impossible
+    static double lastx = 0;
+
+    if ( y == lasty )
+    {
+        return lastx;
+    }
+    lasty = y;
+
     // Initialize with series expansion initial guess.
     double x = asinc_approx( y );
 
@@ -198,12 +219,14 @@ double asinc( const double &y )
         {
             // x fell below xmin
             x = 0.0;
+            lastx = x;
             return x;
         }
 
         if ( std::abs( f ) < tol )
         {
             // Converged
+            lastx = x;
             return x;
         }
 
@@ -211,5 +234,6 @@ double asinc( const double &y )
     }
 
     // Exceeded max iterations
+    lastx = x;
     return x;
 }
