@@ -424,6 +424,8 @@ public:
     double m_TheoArea;
     double m_WetArea;
     vector < double > m_CompAreaVec;
+    vector < double > m_TagTheoAreaVec;
+    vector < double > m_TagWetAreaVec;
     double m_TheoVol;
     double m_GuessVol;
     double m_WetVol;
