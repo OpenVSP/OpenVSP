@@ -8,7 +8,6 @@
 #include "PtCloudScreen.h"
 #include "PtCloudGeom.h"
 #include "ScreenMgr.h"
-#include "EventMgr.h"
 #include "Vehicle.h"
 #include "ParmMgr.h"
 

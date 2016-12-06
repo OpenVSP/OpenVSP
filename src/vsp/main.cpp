@@ -34,7 +34,6 @@
 #include "VSP_Geom_API.h"
 #include "VehicleMgr.h"
 #include "GuiInterface.h"
-#include "EventMgr.h"
 #include "GeomCoreTestSuite.h"
 #include "common.h"
 

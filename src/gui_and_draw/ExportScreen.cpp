@@ -7,7 +7,6 @@
 
 #include "ExportScreen.h"
 #include "ScreenMgr.h"
-#include "EventMgr.h"
 #include "StlHelper.h"
 #include "STEPOptionsScreen.h"
 #include "IGESOptionsScreen.h"

@@ -8,7 +8,6 @@
 #include "HingeScreen.h"
 #include "HingeGeom.h"
 #include "ScreenMgr.h"
-#include "EventMgr.h"
 #include "ParmMgr.h"
 
 

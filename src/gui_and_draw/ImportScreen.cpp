@@ -6,7 +6,6 @@
 
 #include "ImportScreen.h"
 #include "ScreenMgr.h"
-#include "EventMgr.h"
 
 using namespace vsp;
 

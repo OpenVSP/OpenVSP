@@ -6,7 +6,6 @@
 
 #include "PSliceScreen.h"
 #include "ScreenMgr.h"
-#include "EventMgr.h"
 #include "StlHelper.h"
 
 PSliceScreen::PSliceScreen( ScreenMgr *mgr ) : VspScreen( mgr )

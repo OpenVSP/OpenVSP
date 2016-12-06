@@ -8,7 +8,6 @@
 #include "PropScreen.h"
 #include "ScreenMgr.h"
 #include "PropGeom.h"
-#include "EventMgr.h"
 #include "ParmMgr.h"
 
 using namespace vsp;

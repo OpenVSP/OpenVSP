@@ -8,7 +8,6 @@
 #include "StackScreen.h"
 #include "ScreenMgr.h"
 #include "StackGeom.h"
-#include "EventMgr.h"
 #include "ParmMgr.h"
 
 using namespace vsp;

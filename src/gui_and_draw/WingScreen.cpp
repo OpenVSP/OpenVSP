@@ -7,7 +7,6 @@
 
 #include "WingScreen.h"
 #include "ScreenMgr.h"
-#include "EventMgr.h"
 #include "ParmMgr.h"
 #include "StlHelper.h"
 
