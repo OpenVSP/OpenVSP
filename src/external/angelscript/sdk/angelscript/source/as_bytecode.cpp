@@ -1,6 +1,6 @@
 /*
    AngelCode Scripting Library
-   Copyright (c) 2003-2013 Andreas Jonsson
+   Copyright (c) 2003-2016 Andreas Jonsson
 
    This software is provided 'as-is', without any express or implied
    warranty. In no event will the authors be held liable for any
@@ -864,7 +864,6 @@ void asCByteCode::OptimizeLocally(const asCArray<int> &tempVariableOffsets)
 
 				instr = GoForward(curr);
 			}
-
 		}
 		else if( currOp == asBC_RDSPtr )
 		{
@@ -1016,6 +1015,21 @@ void asCByteCode::OptimizeLocally(const asCArray<int> &tempVariableOffsets)
 				ChangeFirstDeleteNext(curr, asBC_PSF);
 				instr = GoForward(curr);
 			}
+			// VAR a, GETOBJREF 0 -> PshVPtr a
+			else if( curr->next && curr->next->op == asBC_GETOBJREF && curr->next->wArg[0] == 0 )
+			{
+				ChangeFirstDeleteNext(curr, asBC_PshVPtr);
+				instr = GoForward(curr);
+			}
+			// VAR, PSF, GETREF {PTR_SIZE} -> PSF, PSF
+			if( curr->next && curr->next->op == asBC_PSF &&
+				curr->next->next && curr->next->next->op == asBC_GETREF &&
+				curr->next->next->wArg[0] == AS_PTR_SIZE )
+			{
+				curr->op = asBC_PSF;
+				DeleteInstruction(curr->next->next);
+				instr = GoForward(curr);
+			}
 		}
 	}
 
@@ -1031,7 +1045,7 @@ void asCByteCode::OptimizeLocally(const asCArray<int> &tempVariableOffsets)
 		short tempVar = last->wArg[0];
 		asCArray<short> freedVars;
 
-		asCByteInstruction *instr = last->prev;
+		instr = last->prev;
 		asASSERT( instr && instr->op == asBC_Block );
 		instr = instr->prev;
 		while( instr && instr->op == asBC_FREE )
@@ -1522,7 +1536,7 @@ void asCByteCode::ExtractObjectVariableInfo(asCScriptFunction *outFunc)
 			asSObjectVariableInfo info;
 			info.programPos     = pos;
 			info.variableOffset = (short)instr->wArg[0];
-			info.option         = *(int*)ARG_DW(instr->arg);
+			info.option         = (asEObjVarInfoOption)*(int*)ARG_DW(instr->arg);
 			outFunc->scriptData->objVariableInfo.PushLast(info);
 		}
 		else if( instr->op == asBC_VarDecl )
@@ -1553,6 +1567,7 @@ int asCByteCode::GetSize()
 
 void asCByteCode::AddCode(asCByteCode *bc)
 {
+	if( bc == this ) return;
 	if( bc->first )
 	{
 		if( first == 0 )
@@ -2037,23 +2052,35 @@ void asCByteCode::PostProcess()
 			DeleteInstruction(curr);
 		}
 		else
+		{
+#ifndef AS_DEBUG
+			// If the stackSize is negative, then there is a problem with the bytecode.
+			// If AS_DEBUG is turned on, this same check is done in DebugOutput.
+			asASSERT( instr->stackSize >= 0 || asBCInfo[instr->op].type == asBCTYPE_INFO );
+#endif
 			instr = instr->next;
+		}
 	}
 }
 
 #ifdef AS_DEBUG
-void asCByteCode::DebugOutput(const char *name, asCScriptEngine *engine, asCScriptFunction *func)
+void asCByteCode::DebugOutput(const char *name, asCScriptFunction *func)
 {
 	_mkdir("AS_DEBUG");
 
-	asCString str = "AS_DEBUG/";
-	str += name;
+	asCString path = "AS_DEBUG/";
+	path += name;
+
+	// Anonymous functions created from within class methods will contain :: as part of the name
+	// Replace :: with __ to avoid error when creating the file for debug output
+	for (asUINT n = 0; n < path.GetLength(); n++)
+		if (path[n] == ':') path[n] = '_';
 
 #if _MSC_VER >= 1500 && !defined(AS_MARMALADE)
 	FILE *file;
-	fopen_s(&file, str.AddressOf(), "w");
+	fopen_s(&file, path.AddressOf(), "w");
 #else
-	FILE *file = fopen(str.AddressOf(), "w");
+	FILE *file = fopen(path.AddressOf(), "w");
 #endif
 
 #if !defined(AS_XENON) // XBox 360: When running in DVD Emu, no write is allowed
@@ -2079,7 +2106,9 @@ void asCByteCode::DebugOutput(const char *name, asCScriptEngine *engine, asCScri
 	fprintf(file, "Variables: \n");
 	for( n = 0; n < func->scriptData->variables.GetLength(); n++ )
 	{
-		fprintf(file, " %.3d: %s %s\n", func->scriptData->variables[n]->stackOffset, func->scriptData->variables[n]->type.Format().AddressOf(), func->scriptData->variables[n]->name.AddressOf());
+		int idx = func->scriptData->objVariablePos.IndexOf(func->scriptData->variables[n]->stackOffset);
+		bool isOnHeap = asUINT(idx) < func->scriptData->objVariablesOnHeap ? true : false;
+		fprintf(file, " %.3d: %s%s %s\n", func->scriptData->variables[n]->stackOffset, isOnHeap ? "(heap) " : "", func->scriptData->variables[n]->type.Format(func->nameSpace).AddressOf(), func->scriptData->variables[n]->name.AddressOf());
 	}
 	asUINT offset = 0;
 	if( func->objectType )
@@ -2099,7 +2128,11 @@ void asCByteCode::DebugOutput(const char *name, asCScriptEngine *engine, asCScri
 			}
 		}
 		if( !found )
-			fprintf(file, " %.3d: %s {noname param}\n", offset, func->parameterTypes[n].Format().AddressOf());
+		{
+			int idx = func->scriptData->objVariablePos.IndexOf(offset);
+			bool isOnHeap = asUINT(idx) < func->scriptData->objVariablesOnHeap ? true : false;
+			fprintf(file, " %.3d: %s%s {noname param}\n", offset, isOnHeap ? "(heap) " : "", func->parameterTypes[n].Format(func->nameSpace).AddressOf());
+		}
 
 		offset -= func->parameterTypes[n].GetSizeOnStackDWords();
 	}
@@ -2115,10 +2148,20 @@ void asCByteCode::DebugOutput(const char *name, asCScriptEngine *engine, asCScri
 			}
 		}
 		if( !found )
-			fprintf(file, " %.3d: %s {noname}\n", func->scriptData->objVariablePos[n], func->scriptData->objVariableTypes[n]->name.AddressOf());
+		{
+			if( func->scriptData->objVariableTypes[n] )
+			{
+				int idx = func->scriptData->objVariablePos.IndexOf(func->scriptData->objVariablePos[n]);
+				bool isOnHeap = asUINT(idx) < func->scriptData->objVariablesOnHeap ? true : false;
+				fprintf(file, " %.3d: %s%s {noname}\n", func->scriptData->objVariablePos[n], isOnHeap ? "(heap) " : "", func->scriptData->objVariableTypes[n]->name.AddressOf());
+			}
+			else
+				fprintf(file, " %.3d: null handle {noname}\n", func->scriptData->objVariablePos[n]);
+		}
 	}
 	fprintf(file, "\n\n");
 
+	bool invalidStackSize = false;
 	int pos = 0;
 	asUINT lineIndex = 0;
 	asCByteInstruction *instr = first;
@@ -2131,10 +2174,19 @@ void asCByteCode::DebugOutput(const char *name, asCScriptEngine *engine, asCScri
 			lineIndex += 2;
 		}
 
-		fprintf(file, "%5d ", pos);
-		pos += instr->GetSize();
+		if( instr->GetSize() > 0 )
+		{
+			fprintf(file, "%5d ", pos);
+			pos += instr->GetSize();
 
-		fprintf(file, "%3d %c ", int(instr->stackSize + func->scriptData->variableSpace), instr->marked ? '*' : ' ');
+			fprintf(file, "%3d %c ", int(instr->stackSize + func->scriptData->variableSpace), instr->marked ? '*' : ' ');
+			if( instr->stackSize < 0 )
+				invalidStackSize = true;
+		}
+		else
+		{
+			fprintf(file, "            ");
+		}
 
 		switch( asBCInfo[instr->op].type )
 		{
@@ -2182,7 +2234,17 @@ void asCByteCode::DebugOutput(const char *name, asCScriptEngine *engine, asCScri
 			switch( instr->op )
 			{
 			case asBC_OBJTYPE:
-				fprintf(file, "   %-8s 0x%x\n", asBCInfo[instr->op].name, (asUINT)*ARG_DW(instr->arg));
+				{
+					asCObjectType *ot = *(asCObjectType**)ARG_DW(instr->arg);
+					fprintf(file, "   %-8s 0x%x           (type:%s)\n", asBCInfo[instr->op].name, (asUINT)*ARG_DW(instr->arg), ot->GetName());
+				}
+				break;
+
+			case asBC_FuncPtr:
+				{
+					asCScriptFunction *f = *(asCScriptFunction**)ARG_DW(instr->arg);
+					fprintf(file, "   %-8s 0x%x          (func:%s)\n", asBCInfo[instr->op].name, (asUINT)*ARG_DW(instr->arg), f->GetDeclaration());
+				}
 				break;
 
 			case asBC_PshC4:
@@ -2198,6 +2260,7 @@ void asCByteCode::DebugOutput(const char *name, asCScriptEngine *engine, asCScri
 			case asBC_CALLSYS:
 			case asBC_CALLBND:
 			case asBC_CALLINTF:
+			case asBC_Thiscall1:
 				{
 					int funcID = *(int*)ARG_DW(instr->arg);
 					asCString decl = engine->GetFunctionDeclaration(funcID);
@@ -2229,6 +2292,23 @@ void asCByteCode::DebugOutput(const char *name, asCScriptEngine *engine, asCScri
 			break;
 
 		case asBCTYPE_QW_ARG:
+			switch( instr->op )
+			{
+			case asBC_OBJTYPE:
+				{
+					asCObjectType *ot = *(asCObjectType**)ARG_QW(instr->arg);
+					fprintf(file, "   %-8s 0x%x          (type:%s)\n", asBCInfo[instr->op].name, (asUINT)*ARG_QW(instr->arg), ot->GetName());
+				}
+				break;
+
+			case asBC_FuncPtr:
+				{
+					asCScriptFunction *f = *(asCScriptFunction**)ARG_QW(instr->arg);
+					fprintf(file, "   %-8s 0x%x          (func:%s)\n", asBCInfo[instr->op].name, (asUINT)*ARG_QW(instr->arg), f->GetDeclaration());
+				}
+				break;
+	
+			default:
 #ifdef __GNUC__
 #ifdef _LP64
 			fprintf(file, "   %-8s 0x%lx           (i:%ld, f:%g)\n", asBCInfo[instr->op].name, *ARG_QW(instr->arg), *((asINT64*) ARG_QW(instr->arg)), *((double*) ARG_QW(instr->arg)));
@@ -2238,26 +2318,40 @@ void asCByteCode::DebugOutput(const char *name, asCScriptEngine *engine, asCScri
 #else
 			fprintf(file, "   %-8s 0x%I64x          (i:%I64d, f:%g)\n", asBCInfo[instr->op].name, *ARG_QW(instr->arg), *((asINT64*) ARG_QW(instr->arg)), *((double*) ARG_QW(instr->arg)));
 #endif
+			}
 			break;
 
 		case asBCTYPE_wW_QW_ARG:
 		case asBCTYPE_rW_QW_ARG:
+			switch( instr->op )
+			{
+			case asBC_RefCpyV:
+			case asBC_FREE:
+				{
+					asCObjectType *ot = *(asCObjectType**)ARG_QW(instr->arg);
+					fprintf(file, "   %-8s v%d, 0x%x          (type:%s)\n", asBCInfo[instr->op].name, instr->wArg[0], (asUINT)*ARG_QW(instr->arg), ot->GetName());
+				}
+				break;
+
+			default:
 #ifdef __GNUC__
 #ifdef _LP64
-			fprintf(file, "   %-8s v%d, 0x%lx           (i:%ld, f:%g)\n", asBCInfo[instr->op].name, instr->wArg[0], *ARG_QW(instr->arg), *((asINT64*) ARG_QW(instr->arg)), *((double*) ARG_QW(instr->arg)));
+				fprintf(file, "   %-8s v%d, 0x%lx           (i:%ld, f:%g)\n", asBCInfo[instr->op].name, instr->wArg[0], *ARG_QW(instr->arg), *((asINT64*) ARG_QW(instr->arg)), *((double*) ARG_QW(instr->arg)));
 #else
-			fprintf(file, "   %-8s v%d, 0x%llx           (i:%lld, f:%g)\n", asBCInfo[instr->op].name, instr->wArg[0], *ARG_QW(instr->arg), *((asINT64*) ARG_QW(instr->arg)), *((double*) ARG_QW(instr->arg)));
+				fprintf(file, "   %-8s v%d, 0x%llx           (i:%lld, f:%g)\n", asBCInfo[instr->op].name, instr->wArg[0], *ARG_QW(instr->arg), *((asINT64*) ARG_QW(instr->arg)), *((double*) ARG_QW(instr->arg)));
 #endif
 #else
-			fprintf(file, "   %-8s v%d, 0x%I64x          (i:%I64d, f:%g)\n", asBCInfo[instr->op].name, instr->wArg[0], *ARG_QW(instr->arg), *((asINT64*) ARG_QW(instr->arg)), *((double*) ARG_QW(instr->arg)));
+				fprintf(file, "   %-8s v%d, 0x%I64x          (i:%I64d, f:%g)\n", asBCInfo[instr->op].name, instr->wArg[0], *ARG_QW(instr->arg), *((asINT64*) ARG_QW(instr->arg)), *((double*) ARG_QW(instr->arg)));
 #endif
+			}
 			break;
 
 		case asBCTYPE_DW_DW_ARG:
 			if( instr->op == asBC_ALLOC )
 			{
 				asCObjectType *ot = *(asCObjectType**)ARG_DW(instr->arg);
-				fprintf(file, "   %-8s 0x%x, %d             (type:%s)\n", asBCInfo[instr->op].name, *(int*)ARG_DW(instr->arg), *(int*)(ARG_DW(instr->arg)+1), ot->GetName());
+				asCScriptFunction *f = engine->scriptFunctions[instr->wArg[0]];
+				fprintf(file, "   %-8s 0x%x, %d             (type:%s, %s)\n", asBCInfo[instr->op].name, *(int*)ARG_DW(instr->arg), *(int*)(ARG_DW(instr->arg)+1), ot->GetName(), f ? f->GetDeclaration() : "{no func}");
 			}
 			else
 				fprintf(file, "   %-8s %u, %d\n", asBCInfo[instr->op].name, *(int*)ARG_DW(instr->arg), *(int*)(ARG_DW(instr->arg)+1));
@@ -2271,18 +2365,19 @@ void asCByteCode::DebugOutput(const char *name, asCScriptEngine *engine, asCScri
 			if( instr->op == asBC_ALLOC )
 			{
 				asCObjectType *ot = *(asCObjectType**)ARG_QW(instr->arg);
-#ifdef __GNUC__
+				asCScriptFunction *f = engine->scriptFunctions[instr->wArg[0]];
+#if defined(__GNUC__) && !defined(_MSC_VER)
 #ifdef AS_64BIT_PTR
-				fprintf(file, "   %-8s 0x%lx, %d             (type:%s)\n", asBCInfo[instr->op].name, *(asINT64*)ARG_QW(instr->arg), *(int*)(ARG_DW(instr->arg)+2), ot->GetName());
+				fprintf(file, "   %-8s 0x%lx, %d             (type:%s, %s)\n", asBCInfo[instr->op].name, *(asINT64*)ARG_QW(instr->arg), *(int*)(ARG_DW(instr->arg)+2), ot->GetName(), f ? f->GetDeclaration() : "{no func}");
 #else
-				fprintf(file, "   %-8s 0x%llx, %d             (type:%s)\n", asBCInfo[instr->op].name, *(asINT64*)ARG_QW(instr->arg), *(int*)(ARG_DW(instr->arg)+2), ot->GetName());
+				fprintf(file, "   %-8s 0x%llx, %d             (type:%s, %s)\n", asBCInfo[instr->op].name, *(asINT64*)ARG_QW(instr->arg), *(int*)(ARG_DW(instr->arg)+2), ot->GetName(), f ? f->GetDeclaration() : "{no func}");
 #endif
 #else
-				fprintf(file, "   %-8s 0x%I64x, %d             (type:%s)\n", asBCInfo[instr->op].name, *(asINT64*)ARG_QW(instr->arg), *(int*)(ARG_DW(instr->arg)+2), ot->GetName());
+				fprintf(file, "   %-8s 0x%I64x, %d             (type:%s, %s)\n", asBCInfo[instr->op].name, *(asINT64*)ARG_QW(instr->arg), *(int*)(ARG_DW(instr->arg)+2), ot->GetName(), f ? f->GetDeclaration() : "{no func}");
 #endif
 			}
 			else
-#ifdef __GNUC__
+#if defined(__GNUC__) && !defined(_MSC_VER)
 #ifdef AS_64BIT_PTR
 				fprintf(file, "   %-8s %lu, %d\n", asBCInfo[instr->op].name, *(asINT64*)ARG_QW(instr->arg), *(int*)(ARG_DW(instr->arg)+2));
 #else
@@ -2333,6 +2428,11 @@ void asCByteCode::DebugOutput(const char *name, asCScriptEngine *engine, asCScri
 	}
 
 	fclose(file);
+
+	// If the stackSize is negative then there is something wrong with the 
+	// bytecode, i.e. there is a bug in the compiler or in the optimizer. We 
+	// only check this here to have the bytecode available on file for verification
+	asASSERT( !invalidStackSize );
 }
 #endif
 

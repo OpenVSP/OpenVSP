@@ -40,7 +40,7 @@
 //  1 = on
 
 #ifndef AS_USE_STLNAMES
-#define AS_USE_STLNAMES 1
+#define AS_USE_STLNAMES 0
 #endif
 
 BEGIN_AS_NAMESPACE

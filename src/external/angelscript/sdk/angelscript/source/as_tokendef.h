@@ -1,6 +1,6 @@
 /*
    AngelCode Scripting Library
-   Copyright (c) 2003-2013 Andreas Jonsson
+   Copyright (c) 2003-2016 Andreas Jonsson
 
    This software is provided 'as-is', without any express or implied 
    warranty. In no event will the authors be held liable for any 
@@ -71,6 +71,7 @@ enum eTokenType
 	ttStar,                // *
 	ttSlash,               // /
 	ttPercent,             // %
+	ttStarStar,            // **
 
 	ttHandle,              // @
 
@@ -79,6 +80,7 @@ enum eTokenType
 	ttMulAssign,           // *=
 	ttDivAssign,           // /=
 	ttModAssign,           // %=
+	ttPowAssign,           // **=
 
 	ttOrAssign,            // |=
 	ttAndAssign,           // &=
@@ -149,9 +151,9 @@ enum eTokenType
 	ttFalse,               // false
 	ttReturn,              // return
 	ttNot,                 // not
-	ttAnd,                 // and
-	ttOr,                  // or
-	ttXor,                 // xor
+	ttAnd,                 // and, &&
+	ttOr,                  // or, ||
+	ttXor,                 // xor, ^^
 	ttBreak,               // break
 	ttContinue,            // continue
 	ttConst,               // const
@@ -169,8 +171,10 @@ enum eTokenType
 	ttEnum,                // enum
 	ttCast,                // cast
 	ttPrivate,             // private
+	ttProtected,           // protected
 	ttNamespace,           // namespace
-	ttMixin                // mixin
+	ttMixin,               // mixin
+	ttAuto                 // auto
 };
 
 struct sTokenWord
@@ -196,6 +200,8 @@ sTokenWord const tokenWords[] =
 	asTokenDef("/="        , ttDivAssign),
 	asTokenDef("%"         , ttPercent),
 	asTokenDef("%="        , ttModAssign),
+	asTokenDef("**"        , ttStarStar),
+	asTokenDef("**="       , ttPowAssign),
 	asTokenDef("="         , ttAssignment),
 	asTokenDef("=="        , ttEqual),
 	asTokenDef("."         , ttDot),
@@ -235,6 +241,7 @@ sTokenWord const tokenWords[] =
 	asTokenDef("!is"       , ttNotIs),
 	asTokenDef("@"         , ttHandle),
 	asTokenDef("and"       , ttAnd),
+	asTokenDef("auto"      , ttAuto),
 	asTokenDef("bool"      , ttBool),
 	asTokenDef("break"     , ttBreak),
 	asTokenDef("case"      , ttCase), 
@@ -273,6 +280,7 @@ sTokenWord const tokenWords[] =
 	asTokenDef("or"        , ttOr),
 	asTokenDef("out"       , ttOut),
 	asTokenDef("private"   , ttPrivate),
+	asTokenDef("protected" , ttProtected),
 	asTokenDef("return"    , ttReturn),
 	asTokenDef("switch"    , ttSwitch),
 	asTokenDef("true"      , ttTrue),
@@ -294,14 +302,17 @@ const char * const whiteSpace = " \t\r\n";
 // Some keywords that are not considered tokens by the parser
 // These only have meaning in specific situations. Outside these
 // situations they are treated as normal identifiers.
-const char * const THIS_TOKEN     = "this";
-const char * const FROM_TOKEN     = "from";
-const char * const SUPER_TOKEN    = "super";
-const char * const SHARED_TOKEN   = "shared";
-const char * const FINAL_TOKEN    = "final";
-const char * const OVERRIDE_TOKEN = "override";
-const char * const GET_TOKEN      = "get";
-const char * const SET_TOKEN      = "set";
+const char * const THIS_TOKEN      = "this";
+const char * const FROM_TOKEN      = "from";
+const char * const SUPER_TOKEN     = "super";
+const char * const SHARED_TOKEN    = "shared";
+const char * const FINAL_TOKEN     = "final";
+const char * const OVERRIDE_TOKEN  = "override";
+const char * const GET_TOKEN       = "get";
+const char * const SET_TOKEN       = "set";
+const char * const ABSTRACT_TOKEN  = "abstract";
+const char * const FUNCTION_TOKEN  = "function";
+const char * const IF_HANDLE_TOKEN = "if_handle_then_const";
 
 END_AS_NAMESPACE
 

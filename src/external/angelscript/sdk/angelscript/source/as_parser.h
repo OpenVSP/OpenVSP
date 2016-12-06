@@ -1,6 +1,6 @@
 /*
    AngelCode Scripting Library
-   Copyright (c) 2003-2013 Andreas Jonsson
+   Copyright (c) 2003-2015 Andreas Jonsson
 
    This software is provided 'as-is', without any express or implied 
    warranty. In no event will the authors be held liable for any 
@@ -76,6 +76,7 @@ protected:
 	void RewindTo(const sToken *token);
 	void SetPos(size_t pos);
 	void Error(const asCString &text, sToken *token);
+	void Warning(const asCString &text, sToken *token);
 	void Info(const asCString &text, sToken *token);
 
 	asCScriptNode *CreateNode(eScriptNode type);
@@ -83,12 +84,13 @@ protected:
 	asCScriptNode *ParseFunctionDefinition();
 	asCScriptNode *ParseParameterList();
 	asCScriptNode *SuperficiallyParseExpression();
-	asCScriptNode *ParseType(bool allowConst, bool allowVariableType = false);
+	asCScriptNode *ParseType(bool allowConst, bool allowVariableType = false, bool allowAuto = false);
 	asCScriptNode *ParseTypeMod(bool isParam);
 	void           ParseOptionalScope(asCScriptNode *node);
 	asCScriptNode *ParseRealType();
-	asCScriptNode *ParseDataType(bool allowVariableType = false);
+	asCScriptNode *ParseDataType(bool allowVariableType = false, bool allowAuto = false);
 	asCScriptNode *ParseIdentifier();
+	bool           ParseTemplTypeList(asCScriptNode *node, bool required = true);
 
 	asCScriptNode *ParseListPattern();
 
@@ -132,6 +134,8 @@ protected:
 	bool IsVarDecl();
 	bool IsVirtualPropertyDecl();
 	bool IsFuncDecl(bool isMethod);
+	bool IsLambda();
+	bool IsFunctionCall();
 
 	// Expressions
 	asCScriptNode *ParseAssignment();
@@ -143,22 +147,22 @@ protected:
 	asCScriptNode *ParseExprPreOp();
 	asCScriptNode *ParseExprPostOp();
 	asCScriptNode *ParseExprValue();
-	asCScriptNode *ParseArgList();
+	asCScriptNode *ParseArgList(bool withParenthesis = true);
 	asCScriptNode *ParseFunctionCall();
 	asCScriptNode *ParseVariableAccess();
 	asCScriptNode *ParseConstructCall();
 	asCScriptNode *ParseCast();
 	asCScriptNode *ParseConstant();
 	asCScriptNode *ParseStringConstant();
+	asCScriptNode *ParseLambda();
 
 	bool IsConstant(int tokenType);
 	bool IsOperator(int tokenType);
 	bool IsPreOperator(int tokenType);
 	bool IsPostOperator(int tokenType);
 	bool IsAssignOperator(int tokenType);
-	bool IsFunctionCall();
 
-	bool CheckTemplateType(sToken &t);
+	bool CheckTemplateType(const sToken &t);
 #endif
 
 	asCScriptNode *ParseToken(int token);
@@ -168,6 +172,7 @@ protected:
 	asCString ExpectedTokens(const char *token1, const char *token2);
 	asCString ExpectedOneOf(int *tokens, int count);
 	asCString ExpectedOneOf(const char **tokens, int count);
+	asCString InsteadFound(sToken &t);
 
 	bool errorWhileParsing;
 	bool isSyntaxError;
