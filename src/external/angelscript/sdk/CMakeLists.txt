@@ -7,6 +7,8 @@ SET(ANGELSCRIPT_ADD_ON_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/add_on/ CACHE PAT
 
 project(Angelscript)
 
+add_definitions( -DAS_USE_STLNAMES )
+
 option(BUILD_SHARED_LIBS "Build shared library" OFF)
 
 if(APPLE)
