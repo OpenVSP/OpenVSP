@@ -817,7 +817,7 @@ void VspSurf::MakeVTess( int num_v, std::vector<double> &vtess, const int &n_cap
     vabsmin = vmin;
     vabsmax = vmax;
 
-    double tol = 1e-6;
+    double tol = 1e-8;
 
     if ( IsMagicVParm() ) // V uses 'Magic' values for things like blunted TE.
     {
@@ -863,7 +863,8 @@ void VspSurf::MakeVTess( int num_v, std::vector<double> &vtess, const int &n_cap
         m_Surface.get_vconst_curve( c1, vmin );
         m_Surface.get_vconst_curve( c2, vmin + TMAGIC );
 
-        if ( !c1.abouteq( c2, tol ) ) // V Min edge is not repeated.
+        // Note: piecewise_curve_type::abouteq test is based on distance squared.
+        if ( !c1.abouteq( c2, tol * tol ) ) // V Min edge is not repeated.
         {
             for ( int j = 0; j < n_cap; j++ )
             {
@@ -874,7 +875,7 @@ void VspSurf::MakeVTess( int num_v, std::vector<double> &vtess, const int &n_cap
         m_Surface.get_vconst_curve( c1, vmax );
         m_Surface.get_vconst_curve( c2, vmax - TMAGIC );
 
-        if ( !c1.abouteq( c2, tol ) ) // V Max edge is not repeated.
+        if ( !c1.abouteq( c2, tol * tol ) ) // V Max edge is not repeated.
         {
             for ( int j = 0; j < n_cap; j++ )
             {
@@ -885,7 +886,7 @@ void VspSurf::MakeVTess( int num_v, std::vector<double> &vtess, const int &n_cap
         m_Surface.get_vconst_curve( c1, vlelow );
         m_Surface.get_vconst_curve( c2, vleup );
 
-        if ( !c1.abouteq( c2, tol ) ) // Leading edge is not repeated.
+        if ( !c1.abouteq( c2, tol * tol ) ) // Leading edge is not repeated.
         {
             for ( int j = 0; j < n_cap * 2 - 1; j++ )
             {
@@ -1474,7 +1475,8 @@ bool VspSurf::CheckValidPatch( const piecewise_surface_type &surf )
     surf.get_umin_bndy_curve( c1 );
     surf.get_umax_bndy_curve( c2 );
 
-    if ( c1.abouteq( c2, tol ) )
+    // Note: piecewise_curve_type::abouteq test is based on distance squared.
+    if ( c1.abouteq( c2, tol * tol ) )
     {
         // Degenerate surface, skip it.
         // Opposite edges are equal.
@@ -1484,7 +1486,7 @@ bool VspSurf::CheckValidPatch( const piecewise_surface_type &surf )
     surf.get_vmin_bndy_curve( c1 );
     surf.get_vmax_bndy_curve( c2 );
 
-    if ( c1.abouteq( c2, tol ) )
+    if ( c1.abouteq( c2, tol * tol ) )
     {
         // Degenerate surface, skip it.
         // Opposite edges are equal.
