@@ -280,6 +280,12 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_TipCluster.Init( "OutCluster", "Design", this, 1.0, 1e-4, 10.0 );
     m_TipCluster.SetDescript( "Outboard Tess Cluster Control" );
 
+    m_SmallPanelW.Init( "SmallPanelW", m_Name, this, 0.0, 0.0, 1e12 );
+    m_SmallPanelW.SetDescript( "Smallest LE/TE panel width");
+
+    m_MaxGrowth.Init( "MaxGrowth", m_Name, this, 1.0, 1.0, 1e12);
+    m_MaxGrowth.SetDescript( "Maximum chordwise panel growth ratio" );
+
     //==== rename capping controls for wing specific terminology ====//
     m_CapUMinOption.SetDescript( "Type of End Cap on Propeller Root" );
     m_CapUMinOption.Parm::Set( FLAT_END_CAP );
@@ -849,6 +855,87 @@ void PropGeom::UpdateSurf()
         m_MainSurfVec[i] = m_MainSurfVec[0];
         m_MainSurfVec[i].Transform( rot );
     }
+
+    CalculateMeshMetrics( u_pseudo );
+}
+
+void PropGeom::CalculateMeshMetrics( const vector < double > &u_pseudo  )
+{
+    std::vector<double> vcheck( 8 );
+
+    double vmin, vmax, vle, vlelow, vleup, vtruemax;
+
+    vmin = 0.0;
+    vmax = m_MainSurfVec[0].GetWMax();
+    vtruemax = vmax;
+
+    vle = ( vmin + vmax ) * 0.5;
+
+    vmin += TMAGIC;
+    vmax -= TMAGIC;
+
+    vlelow = vle - TMAGIC;
+    vleup = vle + TMAGIC;
+
+    double dj = 2.0 / ( m_TessW() - 1 );
+
+    // Calculate lower surface tessellation check points.
+    vcheck[0] = ( vmin );
+    vcheck[1] = ( vmin + ( vlelow - vmin ) * Cluster( dj, m_TECluster(), m_LECluster() ) );
+    vcheck[2] = ( vmin + ( vlelow - vmin ) * Cluster( 1.0 - dj, m_TECluster(), m_LECluster() ) );
+    vcheck[3] = ( vlelow );
+
+    // Upper surface constructed as:  vupper = m_Surface.get_vmax() - vlower;
+    vcheck[4] = vtruemax - vcheck[0];
+    vcheck[5] = vtruemax - vcheck[1];
+    vcheck[6] = vtruemax - vcheck[2];
+    vcheck[7] = vtruemax - vcheck[3];
+
+    // Loop over points checking for minimum panel width.
+    double mind = std::numeric_limits < double >::max();
+    for ( int i = 0; i < vcheck.size() - 1; i += 2 )
+    {
+        double v1 = vcheck[ i ];
+        double v2 = vcheck[ i + 1 ];
+
+        for ( int j = 0; j < u_pseudo.size(); j++ )
+        {
+            double u = u_pseudo[ j ];
+
+            double d = dist( m_MainSurfVec[0].CompPnt( u, v1 ), m_MainSurfVec[0].CompPnt( u, v2 ) );
+            mind = min( mind, d );
+        }
+    }
+    m_SmallPanelW = mind;
+
+    // Check theoretical growth ratio assuming arclength parameterization is correct.  No need to check actual
+    // actual realized surface.  Also, no need to check all airfoil sections.
+    double maxrat = 1.0;
+
+    int jle = ( m_TessW() - 1 ) / 2;
+    int j = 0;
+
+    double t0 = Cluster( static_cast<double>( j ) / jle, m_TECluster(), m_LECluster() );
+    j++;
+    double t1 = Cluster( static_cast<double>( j ) / jle, m_TECluster(), m_LECluster() );
+    double dt1 = t1 - t0;
+    j++;
+    double t2;
+    for ( ; j <= jle; ++j )
+    {
+        t2 = Cluster( static_cast<double>( j ) / jle, m_TECluster(), m_LECluster() );
+
+        double dt2 = t2 - t1;
+
+        maxrat = max( maxrat, dt1 / dt2 );
+        maxrat = max( maxrat, dt2 / dt1 );
+
+        t0 = t1;
+        t1 = t2;
+        dt1 = dt2;
+
+    }
+    m_MaxGrowth = maxrat;
 }
 
 //==== Compute Rotation Center ====//

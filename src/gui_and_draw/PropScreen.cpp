@@ -134,6 +134,11 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 690, "Propeller
     m_DesignLayout.AddSlider( m_RootClusterSlider, "Root Clustering", 1, "%6.5f" );
     m_DesignLayout.AddSlider( m_TipClusterSlider, "Tip Clustering", 1, "%6.5f" );
 
+    m_DesignLayout.AddYGap();
+    m_DesignLayout.SetButtonWidth( 200 );
+    m_DesignLayout.AddOutput( m_SmallPanelWOutput, "Minimum LE/TE Panel Width" );
+    m_DesignLayout.AddOutput( m_MaxGrowthOutput, "Maximum Growth Ratio" );
+
     //==== Blade Tab ====//
     Fl_Group* plot_tab = AddTab( "Blade" );
 
@@ -693,6 +698,12 @@ bool PropScreen::Update()
     m_TEClusterSlider.Update( propeller_ptr->m_TECluster.GetID() );
     m_RootClusterSlider.Update( propeller_ptr->m_RootCluster.GetID() );
     m_TipClusterSlider.Update( propeller_ptr->m_TipCluster.GetID() );
+
+    sprintf( str, "%6.4g", propeller_ptr->m_SmallPanelW() );
+    m_SmallPanelWOutput.Update( str );
+
+    sprintf( str, "%6.3f", propeller_ptr->m_MaxGrowth() );
+    m_MaxGrowthOutput.Update( str );
 
     m_RootCapTypeChoice.Update( propeller_ptr->m_CapUMinOption.GetID() );
     m_TipCapTypeChoice.Update( propeller_ptr->m_CapUMaxOption.GetID() );

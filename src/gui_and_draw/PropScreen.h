@@ -79,6 +79,8 @@ protected:
     SliderAdjRangeInput m_TEClusterSlider;
     SliderAdjRangeInput m_RootClusterSlider;
     SliderAdjRangeInput m_TipClusterSlider;
+    StringOutput m_SmallPanelWOutput;
+    StringOutput m_MaxGrowthOutput;
 
     GroupLayout m_XSecLayout;
 
