@@ -84,17 +84,6 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 690, "Propeller
 
     m_DesignLayout.AddYGap();
 
-    m_DesignLayout.AddDividerBox( "Folding" );
-
-    m_DesignLayout.AddSlider( m_FoldAngleSlider, "Angle", 100, "%5.3f" );
-    m_DesignLayout.AddSlider( m_RFoldSlider, "Radial/R", 1, "%5.3f" );
-    m_DesignLayout.AddSlider( m_AxFoldSlider, "Axial/R", 1, "%5.3f" );
-    m_DesignLayout.AddSlider( m_OffFoldSlider, "Offset/R", 1, "%5.3f" );
-    m_DesignLayout.AddSlider( m_AzFoldSlider, "Azimuth", 100, "%5.3f" );
-    m_DesignLayout.AddSlider( m_ElFoldSlider, "Elevation", 100, "%5.3f" );
-
-    m_DesignLayout.AddYGap();
-
     m_DesignLayout.AddDividerBox( "Tip Treatment" );
     m_DesignLayout.AddSlider( m_CapTessSlider, "Cap Tess", 10, "%3.0f" );
 
@@ -623,6 +612,23 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 690, "Propeller
 
     m_ModifyLayout.AddSlider( m_TrimTEXSlider, "X", 10.0, "%6.5f" );
     m_ModifyLayout.AddSlider( m_TrimTEThickSlider, "T", 10.0, "%6.5f" );
+
+    Fl_Group* fold_tab = AddTab( "Fold" );
+    Fl_Group* fold_group = AddSubGroup( fold_tab, 5 );
+
+    m_FoldLayout.SetGroupAndScreen( fold_group, this );
+
+    m_FoldLayout.SetButtonWidth( 100 );
+    m_FoldLayout.SetChoiceButtonWidth( 100 );
+
+    m_FoldLayout.AddDividerBox( "Folding" );
+
+    m_FoldLayout.AddSlider( m_FoldAngleSlider, "Angle", 100, "%5.3f" );
+    m_FoldLayout.AddSlider( m_RFoldSlider, "Radial/R", 1, "%5.3f" );
+    m_FoldLayout.AddSlider( m_AxFoldSlider, "Axial/R", 1, "%5.3f" );
+    m_FoldLayout.AddSlider( m_OffFoldSlider, "Offset/R", 1, "%5.3f" );
+    m_FoldLayout.AddSlider( m_AzFoldSlider, "Azimuth", 100, "%5.3f" );
+    m_FoldLayout.AddSlider( m_ElFoldSlider, "Elevation", 100, "%5.3f" );
 
 }
 
