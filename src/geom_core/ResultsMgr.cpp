@@ -382,6 +382,19 @@ void Results::WriteCompGeomTxtFile( const string & file_name )
                  Find( "Total_Theo_Area" ).GetDouble( 0 ),   Find( "Total_Wet_Area" ).GetDouble( 0 ),
                  Find( "Total_Theo_Vol" ).GetDouble( 0 ),    Find( "Total_Wet_Vol" ).GetDouble( 0 ), "Totals" );
 
+        int num_tag = Find( "Num_Tags" ).GetInt( 0 );
+        if ( num_tag > 0 )
+        {
+            fprintf( fid, "\n" );
+            fprintf( fid, "Tag_Theo_Area   Tag_Wet_Area    Tag_Name\n" );
+
+            for ( int i = 0 ; i < num_tag ; i++ )
+            {
+                fprintf( fid, "    %9.3f      %9.3f    %-15s\n",
+                         Find( "Tag_Theo_Area" ).GetDouble( i ), Find( "Tag_Wet_Area" ).GetDouble( i ),
+                         Find( "Tag_Name" ).GetString( i ).c_str() );
+            }
+        }
 
         if ( Find( "Num_Degen_Tris_Removed" ).GetInt( 0 ) )
         {
@@ -419,6 +432,18 @@ void Results::WriteCompGeomCsvFile( const string & file_name )
         fprintf( fid, "%s,%f,%f,%f,%f\n", "Totals",
                  Find( "Total_Theo_Area" ).GetDouble( 0 ),   Find( "Total_Wet_Area" ).GetDouble( 0 ),
                  Find( "Total_Theo_Vol" ).GetDouble( 0 ),    Find( "Total_Wet_Vol" ).GetDouble( 0 ) );
+
+        int num_tag = Find( "Num_Tags" ).GetInt( 0 );
+        if ( num_tag > 0 )
+        {
+            fprintf( fid, "\nTag_Name, Tag_Theo_Area, Tag_Wet_Area\n" );
+            for ( int i = 0 ; i < num_tag ; i++ )
+            {
+                fprintf( fid, "%s,%f,%f\n",
+                         Find( "Tag_Name" ).GetString( i ).c_str(),
+                         Find( "Tag_Theo_Area" ).GetDouble( i ), Find( "Tag_Wet_Area" ).GetDouble( i ) );
+            }
+        }
 
         fclose( fid );
     }
