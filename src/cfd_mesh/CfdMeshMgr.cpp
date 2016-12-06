@@ -362,6 +362,8 @@ CfdMeshMgrSingleton::CfdMeshMgrSingleton() : ParmContainer()
     // allocation will fail with a negative argument.
     m_NumComps = -10;
 
+    m_MeshInProgress = false;
+
 #ifdef DEBUG_CFD_MESH
     m_DebugDir  = Stringc( "MeshDebug/" );
     _mkdir( m_DebugDir.get_char_star() );
@@ -395,6 +397,8 @@ void CfdMeshMgrSingleton::ParmChanged( Parm* parm_ptr, int type )
 
 void CfdMeshMgrSingleton::GenerateMesh()
 {
+    m_MeshInProgress = true;
+
     CfdMeshMgr.addOutputText( "Fetching Bezier Surfaces\n" );
 
     vector< XferSurf > xfersurfs;
@@ -456,6 +460,8 @@ void CfdMeshMgrSingleton::GenerateMesh()
 //  m_ScreenMgr->Update( GEOM_SCREEN );
 
     GetCfdSettingsPtr()->m_DrawMeshFlag = true;
+
+    m_MeshInProgress = false;
 }
 
 void CfdMeshMgrSingleton::CleanUp()
@@ -543,27 +549,7 @@ void CfdMeshMgrSingleton::CleanUp()
 
 void CfdMeshMgrSingleton::addOutputText( const string &str, int output_type )
 {
-//    m_OutStream << str;
-
-    MessageData data;
-    data.m_String = "CFDMessage";
-    data.m_StringVec.push_back( str );
-    MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
-
-
-//        ScreenMgr* screenMgr = m_Vehicle->getScreenMgr();
-//        if ( screenMgr )
-//        {
-//                if ( output_type == CFD_OUTPUT )
-//                        screenMgr->getCfdMeshScreen()->addOutputText( str );
-//                else if ( output_type == FEA_OUTPUT )
-//                        screenMgr->getFeaStructScreen()->addOutputText( str );
-//        }
-//        else
-//        {
-//                printf( "%s", str );
-//                fflush( stdout );
-//        }
+    m_OutStream << str;
 }
 
 void CfdMeshMgrSingleton::AdjustAllSourceLen( double mult )
@@ -4495,6 +4481,11 @@ void CfdMeshMgrSingleton::TestStuff()
 
 void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 {
+    if ( m_MeshInProgress )
+    {
+        return;
+    }
+
     GetGridDensityPtr()->Highlight( GetCurrSource() );
     GetGridDensityPtr()->Show( GetCfdSettingsPtr()->m_DrawSourceFlag.Get() );
     GetGridDensityPtr()->LoadDrawObjs( draw_obj_vec );

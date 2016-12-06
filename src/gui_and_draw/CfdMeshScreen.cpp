@@ -9,7 +9,6 @@
 
 #include "CfdMeshScreen.h"
 #include "CfdMeshMgr.h"
-#include "StreamUtil.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -810,9 +809,8 @@ void CfdMeshScreen::LoadSetChoice()
 void CfdMeshScreen::AddOutputText( const string &text )
 {
     m_ConsoleBuffer->append( text.c_str() );
-    m_ConsoleDisplay->move_down();
+    m_ConsoleDisplay->insert_position( m_ConsoleDisplay->buffer()->length() );
     m_ConsoleDisplay->show_insert_position();
-    Fl::flush();
 }
 
 string CfdMeshScreen::truncateFileName( const string &fn, int len )
@@ -863,6 +861,63 @@ void CfdMeshScreen::CloseCallBack( Fl_Widget *w )
     Hide();
 }
 
+#ifdef WIN32
+DWORD WINAPI cfdmonitorfun( LPVOID data )
+#else
+void * cfdmonitorfun( void *data )
+#endif
+{
+    CfdMeshScreen *cs = ( CfdMeshScreen * ) data;
+
+    if( cs )
+    {
+        unsigned long nread = 1;
+
+        bool running = true;
+
+        while( running || nread > 0 )
+        {
+            running = CfdMeshMgr.GetMeshInProgress();
+            nread = 0;
+
+            int ig = CfdMeshMgr.m_OutStream.tellg();
+            CfdMeshMgr.m_OutStream.seekg( 0, CfdMeshMgr.m_OutStream.end );
+            nread = (int)(CfdMeshMgr.m_OutStream.tellg()) - ig;
+            CfdMeshMgr.m_OutStream.seekg( ig );
+
+            if( nread > 0 )
+            {
+                char * buffer = new char [nread+1];
+
+                CfdMeshMgr.m_OutStream.read( buffer, nread );
+                buffer[nread]=0;
+
+                Fl::lock();
+                // Any FL calls must occur between Fl::lock() and Fl::unlock().
+                cs->AddOutputText( buffer );
+                Fl::unlock();
+
+                delete[] buffer;
+            }
+            SleepForMilliseconds( 100 );
+        }
+        cs->GetScreenMgr()->SetUpdateFlag( true );
+    }
+
+    return 0;
+}
+
+#ifdef WIN32
+DWORD WINAPI cfdmesh_thread_fun( LPVOID data )
+#else
+void * cfdmesh_thread_fun( void *data )
+#endif
+{
+    CfdMeshMgr.GenerateMesh();
+
+    return 0;
+}
+
 void CfdMeshScreen::GuiDeviceCallBack( GuiDevice* device )
 {
     assert( m_ScreenMgr );
@@ -875,8 +930,9 @@ void CfdMeshScreen::GuiDeviceCallBack( GuiDevice* device )
 
     if ( device == &m_MeshAndExport )
     {
-        redirecter redir( std::cout, CfdMeshMgr.m_OutStream );
-        CfdMeshMgr.GenerateMesh();
+        m_CFDMeshProcess.StartThread( cfdmesh_thread_fun, NULL );
+
+        m_MonitorProcess.StartThread( cfdmonitorfun, ( void* ) this );
 
         // Hide all geoms.
         m_Vehicle->HideAll();

@@ -346,7 +346,7 @@ public:
     vector< vec3d > m_DebugColors;
 #endif
 
-    ostringstream m_OutStream;
+    stringstream m_OutStream;
 
 
     CfdMeshSettings* GetCfdSettingsPtr()
@@ -354,6 +354,10 @@ public:
         return m_Vehicle->GetCfdSettingsPtr();
     }
 
+    bool GetMeshInProgress()
+    {
+        return m_MeshInProgress;
+    }
 
 protected:
 
@@ -364,6 +368,8 @@ protected:
     virtual void UpdateBBoxDOSymSplit( BndBox box );
 
     Vehicle* m_Vehicle;
+
+    bool m_MeshInProgress;
 
     string m_CurrSourceGeomID;
     int m_CurrMainSurfIndx;

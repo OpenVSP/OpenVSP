@@ -14,6 +14,7 @@
 #include "ScreenBase.h"
 #include "Vehicle.h"
 #include "GuiDevice.h"
+#include "ProcessUtil.h"
 
 using namespace std;
 
@@ -41,6 +42,11 @@ public:
     void AddOutputText( const string &text );
     string truncateFileName( const string &fn, int len );
     void LoadDrawObjs( vector< DrawObj* > &draw_obj_vec );
+
+    ProcessUtil* getCfdMeshProcess()
+    {
+        return &m_CFDMeshProcess;
+    }
 
 protected:
 
@@ -202,6 +208,9 @@ protected:
     Fl_Text_Buffer *m_ConsoleBuffer;
 
     TriggerButton m_MeshAndExport;
+
+    ProcessUtil m_CFDMeshProcess;
+    ProcessUtil m_MonitorProcess;
 
 private:
 
