@@ -16,6 +16,7 @@ INCLUDE_DIRECTORIES(
 
 ADD_LIBRARY(util
 BndBox.cpp
+Cluster.cpp
 DrawObj.cpp
 DXFUtil.cpp
 FileUtil.cpp
@@ -36,6 +37,7 @@ Vsp1DCurve.cpp
 VspCurve.cpp
 VspSurf.cpp
 BndBox.h
+Cluster.h
 Combination.h
 Defines.h
 DrawObj.h

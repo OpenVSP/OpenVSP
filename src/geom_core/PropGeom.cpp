@@ -12,6 +12,7 @@
 #include "StlHelper.h"
 #include <float.h>
 #include <stdio.h>
+#include "Cluster.h"
 
 #include "APIDefines.h"
 using namespace vsp;

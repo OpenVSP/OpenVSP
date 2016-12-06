@@ -41,8 +41,6 @@ typedef eli::geom::surface::connection_data<double, 3, surface_tolerance_type> r
 #include <string>
 using std::vector;
 
-double Cluster( const double &t, const double &a, const double &b );
-
 class VspSurf
 {
 public:

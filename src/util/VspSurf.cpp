@@ -18,6 +18,7 @@
 #include "StlHelper.h"
 #include "PntNodeMerge.h"
 #include "APIDefines.h"
+#include "Cluster.h"
 
 #include "eli/geom/curve/piecewise_creator.hpp"
 #include "eli/geom/surface/piecewise_body_of_revolution_creator.hpp"
@@ -34,12 +35,6 @@ typedef eli::geom::curve::piecewise_linear_creator<double, 3, surface_tolerance_
 typedef eli::geom::surface::piecewise_general_skinning_surface_creator<double, 3, surface_tolerance_type> general_creator_type;
 typedef eli::geom::surface::piecewise_multicap_surface_creator<double, 3, surface_tolerance_type> multicap_creator_type;
 typedef eli::geom::surface::piecewise_cubic_spline_skinning_surface_creator<double, 3, surface_tolerance_type> spline_creator_type;
-
-double Cluster( const double &t, const double &a, const double &b )
-{
-    double mt = 1.0 - t;
-    return mt * mt * t * a + mt * t * t * ( 3.0 - b ) + t * t * t;
-}
 
 //===== Constructor  =====//
 VspSurf::VspSurf()

@@ -12,6 +12,7 @@
 #include "StlHelper.h"
 #include "APIDefines.h"
 #include <assert.h>
+#include "Cluster.h"
 
 using namespace vsp;
 
