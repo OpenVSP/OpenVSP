@@ -20,6 +20,7 @@
 
 typedef piecewise_curve_type::index_type curve_index_type;
 typedef piecewise_curve_type::tolerance_type curve_tolerance_type;
+typedef piecewise_curve_type::bounding_box_type curve_bounding_box_type;
 
 //===== Constructor  =====//
 Bezier_curve::Bezier_curve()
@@ -356,4 +357,15 @@ bool Bezier_curve::SingleLinear()
         }
     }
     return true;
+}
+
+void Bezier_curve::GetBBox( BndBox &box )
+{
+    box.Reset();
+
+    curve_bounding_box_type bbox;
+    m_Curve.get_bounding_box( bbox );
+
+    box.Update( bbox.get_max() );
+    box.Update( bbox.get_min() );
 }
