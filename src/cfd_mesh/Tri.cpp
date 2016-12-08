@@ -179,11 +179,13 @@ void Node::AreaWeightedLaplacianSmooth( Surf* surfPtr )
         moveUW = moveUW + ( connectTris[i]->n0->uw + connectTris[i]->n1->uw + connectTris[i]->n2->uw ) * k;
     }
 
-//  vec2d close_uw = surfPtr->ClosestUW( movePnt, moveUW.x(),  moveUW.y(), 0.001, 0.001, 0.00001 );
+    // TODO:  This routine calculates an area weighted smoothed point to high precision.
+    // it then moves 1/10th the way from the old point to the new point (in UW terms).
+    // This is likely a remnant from the v2 code that searched much less precisely.
+    // Consider a (much) less precise search, discarding (or tuning) the 1/10th lag, or
+    // performing the 1/10th step in x,y,z space before performing the surface search.
+    // Profiling shows this routine is one of the most expensive parts of Remesh.
     vec2d close_uw = surfPtr->ClosestUW( movePnt, moveUW.x(),  moveUW.y() );
-
-    vec2d old_uw = uw;
-    vec3d old_pnt = pnt;
 
     uw = uw + ( close_uw - uw ) * 0.1;
     pnt = surfPtr->CompPnt( uw.x(), uw.y() );
