@@ -694,22 +694,28 @@ bool Surf::BorderCurveOnSurface( Surf* surfPtr )
         Bezier_curve crv;
         border_curves[i]->GetBorderCurve( crv );
 
-        Bezier_curve projcrv = crv;
-        projcrv.XYZCurveToUWCurve( this );
-        projcrv.UWCurveToXYZCurve( this );
+        BndBox crvbox;
+        crv.GetBBox( crvbox );
 
-        int num_pnts_on_surf = crv.CountMatch( projcrv, tol );
-
-        if ( num_pnts_on_surf > 0 )
+        if ( Compare( m_BBox, crvbox ) )
         {
-            retFlag = true;
-        }
+            Bezier_curve projcrv = crv;
+            projcrv.XYZCurveToUWCurve( this );
+            projcrv.UWCurveToXYZCurve( this );
 
-        if ( num_pnts_on_surf > 2 || ( num_pnts_on_surf == 2 && crv.SingleLinear() ) )
-        {
-            //==== If Surface Add To List ====//
-            CfdMeshMgr.AddPossCoPlanarSurf( this, surfPtr );
-            PlaneBorderCurveIntersect( surfPtr, border_curves[i] );
+            int num_pnts_on_surf = crv.CountMatch( projcrv, tol );
+
+            if ( num_pnts_on_surf > 0 )
+            {
+                retFlag = true;
+            }
+
+            if ( num_pnts_on_surf > 2 || ( num_pnts_on_surf == 2 && crv.SingleLinear() ) )
+            {
+                //==== If Surface Add To List ====//
+                CfdMeshMgr.AddPossCoPlanarSurf( this, surfPtr );
+                PlaneBorderCurveIntersect( surfPtr, border_curves[i] );
+            }
         }
     }
 
