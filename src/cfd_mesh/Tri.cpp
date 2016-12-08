@@ -154,14 +154,14 @@ void Node::AreaWeightedLaplacianSmooth( Surf* surfPtr )
     vector< Tri* > connectTris;
     GetConnectTris( connectTris );
 
-    vector< double > fracts;
-    fracts.resize( connectTris.size() );
+    vector< double > areas;
+    areas.resize( connectTris.size() );
 
     double sum_area = 0.0;
     for ( int i = 0 ; i < ( int )connectTris.size() ; i++ )
     {
-        fracts[i] = connectTris[i]->Area();
-        sum_area += fracts[i];
+        areas[i] = connectTris[i]->Area();
+        sum_area += areas[i];
     }
 
     if ( sum_area < 1.0e-12 )
@@ -171,14 +171,12 @@ void Node::AreaWeightedLaplacianSmooth( Surf* surfPtr )
 
     vec3d movePnt = vec3d( 0, 0, 0 );
     vec2d moveUW  = vec2d( 0, 0 );
+    double k2 = 1.0 / ( 3.0 * sum_area );
     for ( int i = 0 ; i < ( int )connectTris.size() ; i++ )
     {
-        movePnt = movePnt + connectTris[i]->n0->pnt * ( 1.0 / 3.0 ) * ( fracts[i] / sum_area );
-        moveUW = moveUW + connectTris[i]->n0->uw * ( 1.0 / 3.0 ) * ( fracts[i] / sum_area );
-        movePnt = movePnt + connectTris[i]->n1->pnt * ( 1.0 / 3.0 ) * ( fracts[i] / sum_area );
-        moveUW = moveUW + connectTris[i]->n1->uw * ( 1.0 / 3.0 ) * ( fracts[i] / sum_area );
-        movePnt = movePnt + connectTris[i]->n2->pnt * ( 1.0 / 3.0 ) * ( fracts[i] / sum_area );
-        moveUW = moveUW + connectTris[i]->n2->uw * ( 1.0 / 3.0 ) * ( fracts[i] / sum_area );
+        double k = k2 * areas[i];
+        movePnt = movePnt + ( connectTris[i]->n0->pnt + connectTris[i]->n1->pnt + connectTris[i]->n2->pnt ) * k;
+        moveUW = moveUW + ( connectTris[i]->n0->uw + connectTris[i]->n1->uw + connectTris[i]->n2->uw ) * k;
     }
 
 //  vec2d close_uw = surfPtr->ClosestUW( movePnt, moveUW.x(),  moveUW.y(), 0.001, 0.001, 0.00001 );
