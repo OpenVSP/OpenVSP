@@ -24,6 +24,7 @@
 #include "triangle.h"
 #include "Geom.h"
 #include "SubSurfaceMgr.h"
+#include "PntNodeMerge.h"
 
 
 //===============================================//
@@ -3204,58 +3205,28 @@ void TMesh::BuildNodeMaps()
     // This method builds the map between a node and its aliases and a map between
     // each node to its master node
 
-    int i, n;
-
-    map< TNode*, list<TNode*> >::iterator mi;
+    int n;
 
     double tol = 1.0e-12;
-    double sqtol = sqrt( tol );
 
+    vector< vec3d > allPntVec( m_NVec.size() );
     for ( n = 0 ; n < ( int )m_NVec.size() ; n++ )
     {
         m_NVec[n]->m_MergeVec.clear();
+        allPntVec[n] = m_NVec[n]->m_Pnt;
     }
 
-    NBndBox nBox;
-    for ( n = 0 ; n < ( int )m_NVec.size() ; n++ )
-    {
-        nBox.AddNode( m_NVec[n] );
-    }
-    nBox.SplitBox( sqrt( tol ) );
+    //==== Build Map ====//
+    PntNodeCloud pnCloud;
+    pnCloud.AddPntNodes( allPntVec );
 
-    //==== Find All Leaves of Oct Tree ====//
-    vector< NBndBox* > leafVec;
-    nBox.AddLeafNodes( leafVec );
-
-    for ( i = 0 ; i < ( int )leafVec.size() ; i++ )
-    {
-        leafVec[i]->m_Box.Expand( sqtol );
-    }
+    //==== Use NanoFlann to Find Close Points and Group ====//
+    IndexPntNodes( pnCloud, tol );
 
     for ( n = 0 ; n < ( int )m_NVec.size() ; n++ )
     {
-        if ( m_NSMMap.find( m_NVec[n] ) == m_NSMMap.end() ) // This node doesn't have a master so continue
+        if ( pnCloud.UsedNode( n ) ) // This point is a NanoFlann master.
         {
-            for ( i = 0 ; i < ( int )leafVec.size() ; i++ )
-            {
-
-                if ( leafVec[i]->m_Box.CheckPnt( m_NVec[n]->m_Pnt.x(), m_NVec[n]->m_Pnt.y(), m_NVec[n]->m_Pnt.z() ) )
-                {
-                    for ( int m = 0 ; m < ( int )leafVec[i]->m_NodeVec.size() ; m++ )
-                    {
-                        if ( m_NVec[n] != leafVec[i]->m_NodeVec[m] ) // If it is the same node skip
-                        {
-                            if ( dist_squared( m_NVec[n]->m_Pnt, leafVec[i]->m_NodeVec[m]->m_Pnt ) < tol )
-                            {
-                                m_NVec[n]->m_MergeVec.push_back( leafVec[i]->m_NodeVec[m] );
-                                m_NAMap[m_NVec[n]].push_back( leafVec[i]->m_NodeVec[m] ); // Add node m to n's list of aliases
-                                m_NSMMap[leafVec[i]->m_NodeVec[m]] = m_NVec[n]; // Set m's master to be n
-                            }
-                        }
-                    }
-                }
-            }
-
             // Set n to be its own master
             m_NSMMap[ m_NVec[n] ] = m_NVec[n];
 
@@ -3264,6 +3235,16 @@ void TMesh::BuildNodeMaps()
         }
     }
 
+    for ( int islave = 0 ; islave < ( int )m_NVec.size() ; islave++ )
+    {
+        if ( !(pnCloud.UsedNode( islave )) ) // This point is a NanoFlann slave.
+        {
+            int imaster = pnCloud.GetNodeBaseIndex( islave );
+            m_NVec[imaster]->m_MergeVec.push_back( m_NVec[islave] );
+            m_NAMap[m_NVec[imaster]].push_back( m_NVec[islave] ); // Add node islave to imaster's list of aliases
+            m_NSMMap[m_NVec[islave]] = m_NVec[imaster]; // Set islave's master to be imaster
+        }
+    }
 }
 
 void TMesh::DeleteDupNodes()
