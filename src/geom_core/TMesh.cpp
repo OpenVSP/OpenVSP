@@ -3102,16 +3102,15 @@ void TMesh::BuildNodeMaps()
 
     double tol = 1.0e-12;
 
-    vector< vec3d > allPntVec( m_NVec.size() );
+    //==== Build Map ====//
+    PntNodeCloud pnCloud;
+    pnCloud.ReserveMorePntNodes( m_NVec.size() );
+
     for ( n = 0 ; n < ( int )m_NVec.size() ; n++ )
     {
         m_NVec[n]->m_MergeVec.clear();
-        allPntVec[n] = m_NVec[n]->m_Pnt;
+        pnCloud.AddPntNode( m_NVec[n]->m_Pnt );
     }
-
-    //==== Build Map ====//
-    PntNodeCloud pnCloud;
-    pnCloud.AddPntNodes( allPntVec );
 
     //==== Use NanoFlann to Find Close Points and Group ====//
     IndexPntNodes( pnCloud, tol );
