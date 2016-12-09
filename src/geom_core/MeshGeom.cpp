@@ -710,6 +710,7 @@ void MeshGeom::BuildIndexedMesh( int partOffset )
 
     //==== Collect All Points ====//
     vector< TNode* > allNodeVec;
+    allNodeVec.reserve( m_IndexedTriVec.size() * 3 );
     for ( t = 0 ; t < ( int )m_IndexedTriVec.size() ; t++ )
     {
         m_IndexedTriVec[t]->m_N0->m_ID = ( int )allNodeVec.size();
@@ -719,10 +720,10 @@ void MeshGeom::BuildIndexedMesh( int partOffset )
         m_IndexedTriVec[t]->m_N2->m_ID = ( int )allNodeVec.size();
         allNodeVec.push_back( m_IndexedTriVec[t]->m_N2 );
     }
-    vector< vec3d > allPntVec;
+    vector< vec3d > allPntVec( allNodeVec.size() );
     for ( int i = 0 ; i < ( int )allNodeVec.size() ; i++ )
     {
-        allPntVec.push_back( allNodeVec[i]->m_Pnt );
+        allPntVec[i] = allNodeVec[i]->m_Pnt;
     }
 
     if ( allPntVec.size() == 0 )
@@ -742,6 +743,7 @@ void MeshGeom::BuildIndexedMesh( int partOffset )
     IndexPntNodes( pnCloud, tol );
 
     //==== Load Used Nodes ====//
+    m_IndexedNodeVec.reserve( pnCloud.m_NumUsedPts );
     for ( int i = 0 ; i < ( int )allNodeVec.size() ; i++ )
     {
         if ( pnCloud.UsedNode( i ) )
@@ -758,7 +760,7 @@ void MeshGeom::BuildIndexedMesh( int partOffset )
 
     //==== Remove Any Bogus Tris ====//
     vector< TTri* > goodTriVec;
-
+    goodTriVec.reserve( m_IndexedTriVec.size() );
     //==== Write Out Tris ====//
     for ( t = 0 ; t < ( int )m_IndexedTriVec.size() ; t++ )
     {
@@ -773,7 +775,9 @@ void MeshGeom::BuildIndexedMesh( int partOffset )
             }
         }
     }
-    m_IndexedTriVec = goodTriVec;
+    // Swap instead of assign to avoid copy.
+    // m_IndexedTriVec = goodTriVec;
+    swap( m_IndexedTriVec, goodTriVec );
 
     Update();
 }
