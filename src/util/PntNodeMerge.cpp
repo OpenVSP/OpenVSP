@@ -44,6 +44,13 @@ int PntNodeCloud::GetNodeUsedIndex( int i )
 
 }
 
+int PntNodeCloud::GetNodeBaseIndex( int i )
+{
+    assert ( i >= 0 && i < ( int )m_PntNodes.size() );
+
+    return m_PntNodes[i].m_Index;
+}
+
 void IndexPntNodes( PntNodeCloud & cloud, double tol )
 {
     PNTree index( 3, cloud, KDTreeSingleIndexAdaptorParams( 10 )  );

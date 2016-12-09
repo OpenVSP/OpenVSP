@@ -109,6 +109,7 @@ struct PntNodeCloud
     void AddPntNodes( vector< vec3d > & pnts );
     bool UsedNode( int i );
     int GetNodeUsedIndex( int i );
+    int GetNodeBaseIndex( int i );
 
 };
 
