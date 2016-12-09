@@ -370,23 +370,6 @@ public:
 
 };
 
-class NBndBox
-{
-public:
-    NBndBox();
-    virtual ~NBndBox();
-
-    BndBox m_Box;
-    vector< TNode* > m_NodeVec;
-
-    NBndBox* m_SBoxVec[8];      // Split Bnd Boxes
-
-    void SplitBox( double maxSize );
-    void AddNode( TNode* n );
-    virtual void AddLeafNodes( vector< NBndBox* > & leafVec );
-
-};
-
 class Geom;
 
 class TMesh
