@@ -44,7 +44,7 @@ struct PntNode
         m_Index = -1;
         m_UsedIndex = -1;
     }
-    PntNode( vec3d & p )
+    PntNode( const vec3d & p )
     {
         m_Index = -1;
         m_UsedIndex = -1;
@@ -62,6 +62,8 @@ struct PntNodeCloud
 {
     // Underlying storage a vector.
     vector< PntNode > m_PntNodes;
+
+    int m_NumUsedPts;
 
     // Must return the number of data points
     inline size_t kdtree_get_point_count() const
@@ -106,7 +108,9 @@ struct PntNodeCloud
         return false;
     }
 
-    void AddPntNodes( vector< vec3d > & pnts );
+    void AddPntNodes( const vector< vec3d > & pnts );
+    void ReserveMorePntNodes( int n );
+    void AddPntNode( const vec3d & pnt );
     bool UsedNode( int i );
     int GetNodeUsedIndex( int i );
     int GetNodeBaseIndex( int i );

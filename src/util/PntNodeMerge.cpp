@@ -14,12 +14,23 @@
 #include "PntNodeMerge.h"
 
 
-void PntNodeCloud::AddPntNodes( vector< vec3d > & pnts )
+void PntNodeCloud::AddPntNodes( const vector< vec3d > & pnts )
 {
+    m_PntNodes.reserve( m_PntNodes.size() + pnts.size() );
     for ( size_t i = 0 ; i < pnts.size() ; i++ )
     {
         m_PntNodes.push_back( PntNode( pnts[i] ) );
     }
+}
+
+void PntNodeCloud::ReserveMorePntNodes( int n )
+{
+    m_PntNodes.reserve( m_PntNodes.size() + n );
+}
+
+void PntNodeCloud::AddPntNode( const vec3d & pnt )
+{
+    m_PntNodes.push_back( pnt );
 }
 
 bool PntNodeCloud::UsedNode( int i )
@@ -76,6 +87,7 @@ void IndexPntNodes( PntNodeCloud & cloud, double tol )
             cnt++;
         }
     }
+    cloud.m_NumUsedPts = cnt;
 }
 
 
