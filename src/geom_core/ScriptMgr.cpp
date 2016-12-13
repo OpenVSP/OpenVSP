@@ -725,6 +725,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "EXPORT_TYPE", "EXPORT_DXF", EXPORT_DXF );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "EXPORT_TYPE", "EXPORT_FACET", EXPORT_FACET );
+    assert( r >= 0 );
 
     r = se->RegisterEnum( "COMPUTATION_FILE_TYPE" );
     assert( r >= 0 );
