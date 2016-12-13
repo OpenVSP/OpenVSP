@@ -186,6 +186,7 @@ public:
     void WritePLOT3DFile( const string & file_name, int write_set );
     void WriteSTLFile( const string & file_name, int write_set );
     void WriteTaggedMSSTLFile( const string & file_name, int write_set );
+    void WriteFacetFile( const string & file_name, int write_set );
     void WriteTRIFile( const string & file_name, int write_set );
     void WriteNascartFiles( const string & file_name, int write_set );
     void WriteGmshFile( const string & file_name, int write_set );

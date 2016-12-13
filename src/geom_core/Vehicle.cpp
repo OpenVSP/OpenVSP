@@ -1698,6 +1698,104 @@ void Vehicle::WriteTaggedMSSTLFile( const string & file_name, int write_set )
     }
 }
 
+//==== Write Facet File ====//
+void Vehicle::WriteFacetFile( const string & file_name, int write_set )
+{
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    if ( !geom_vec[0] )
+    {
+        return;
+    }
+
+    // Note: If there is already a mesh geometry for the write_set, a new one is not created.
+    if ( !ExistMesh( write_set ) )
+    {
+        string mesh_id = AddMeshGeom( write_set );
+        if ( mesh_id.compare( "NONE" ) != 0 )
+        {
+            Geom* gPtr = FindGeom( mesh_id );
+            if ( gPtr )
+            {
+                MeshGeom* mg = dynamic_cast<MeshGeom*>( gPtr );
+                mg->SubTagTris( true );
+                geom_vec.push_back( gPtr );
+                gPtr->Update();
+            }
+            HideAllExcept( mesh_id );
+        }
+    }
+
+    // Open File
+    FILE* fid = fopen( file_name.c_str(), "w" );
+
+    if ( fid )
+    {
+        fprintf( fid, "Exported from %s\n", VSPVERSION4 ); // Title/comment line
+        fprintf( fid, "1\n" ); // Number of "Big" parts (1 Vehicle broken into small parts by geom and subsurface)
+
+        fprintf( fid, m_Name.c_str() ); // Name of "Big" part: Vehicle name
+        fprintf( fid, "\n" );
+
+        // mirror -> i, a b c d
+        //     if i = 0 -> no mirror
+        //     if i = 1 -> "Big" part is mirrored across plane defined by ax+by+cz-d=0
+        fprintf( fid, "0, 0.000 1.000 0.000 0.000\n" );
+
+        //==== Count Number of Points, Tris, and Parts ====//
+        int num_pnts = 0;
+        int num_parts = 0;
+
+        for ( int i = 0; i < (int)geom_vec.size(); i++ )
+        {
+            if ( geom_vec[i]->GetSetFlag( write_set ) && geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
+            {
+                MeshGeom* mg = (MeshGeom*)geom_vec[i];            // Cast
+                mg->BuildIndexedMesh( num_parts );
+                num_parts += mg->GetNumIndexedParts();
+                num_pnts += mg->GetNumIndexedPnts();
+            }
+        }
+
+        fprintf( fid, "%d \n", num_pnts ); // # of nodes in "Big" part
+
+        // List all points (nodes) in "Big" part
+        for ( int i = 0; i < (int)geom_vec.size(); i++ )
+        {
+            if ( geom_vec[i]->GetSetFlag( write_set ) && geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
+            {
+                MeshGeom* mg = (MeshGeom*)geom_vec[i];
+                mg->WriteFacetNodes( fid );
+            }
+        }
+
+        // Define each "Small" part by corresponding nodes for each facet
+        int offset = 0;
+        int tri_count = 0;
+        int part_count = 0;
+
+        // Note: offset, tri_count, and part_count have been implemented in the case of the existence
+        //      of multiple meshes. However, tagging is only supported for a single mesh at this time.
+        //      A facet export of more than one mesh will lead to tagging and naming errors.
+
+        for ( int i = 0; i < (int)geom_vec.size(); i++ )
+        {
+            if ( geom_vec[i]->GetSetFlag( write_set ) &&
+                 geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
+            {
+                MeshGeom* mg = (MeshGeom*)geom_vec[i];            // Cast
+                mg->WriteFacetTriParts( fid, offset, tri_count, part_count );
+            }
+        }
+
+        // Note: The mesh geom created during the export is not deleted.
+        //      If the mesh geometry is not manually deleted, it will be
+        //      used to generate the export regardless of changes to the
+        //      vehicle.
+
+        fclose( fid );
+    }
+}
+
 //==== Write Tri File ====//
 void Vehicle::WriteTRIFile( const string & file_name, int write_set )
 {
