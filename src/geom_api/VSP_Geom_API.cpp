@@ -357,6 +357,8 @@ void SetComputationFileName( int file_type, const string & file_name )
         CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_POLY_FILE_NAME );
     if ( file_type == CFD_TRI_TYPE )
         CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_TRI_FILE_NAME );
+    if ( file_type == CFD_FACET_TYPE )
+        CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_FACET_FILE_NAME );
     if ( file_type == CFD_OBJ_TYPE )
         CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_OBJ_FILE_NAME );
     if ( file_type == CFD_DAT_TYPE )
@@ -626,6 +628,8 @@ void ComputeCFDMesh( int set, int file_export_types )
         CfdMeshMgr.GetCfdSettingsPtr()->SetFileExportFlag( CFD_POLY_FILE_NAME, true );
     if ( file_export_types & CFD_TRI_TYPE )
         CfdMeshMgr.GetCfdSettingsPtr()->SetFileExportFlag( CFD_TRI_FILE_NAME, true );
+    if ( file_export_types & CFD_FACET_TYPE )
+        CfdMeshMgr.GetCfdSettingsPtr()->SetFileExportFlag( CFD_FACET_FILE_NAME, true );
     if ( file_export_types & CFD_OBJ_TYPE )
         CfdMeshMgr.GetCfdSettingsPtr()->SetFileExportFlag( CFD_OBJ_FILE_NAME, true );
     if ( file_export_types & CFD_DAT_TYPE )

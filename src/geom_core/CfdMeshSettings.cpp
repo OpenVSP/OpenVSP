@@ -87,6 +87,7 @@ CfdMeshSettings::CfdMeshSettings() : ParmContainer()
     m_ExportFileFlags[ vsp::CFD_GMSH_FILE_NAME ].Init( "GMSH_Export", "ExportCFD", this, true, 0, 1 );
     m_ExportFileFlags[ vsp::CFD_SRF_FILE_NAME ].Init( "SRF_Export", "ExportCFD", this, true, 0, 1 );
     m_ExportFileFlags[ vsp::CFD_TKEY_FILE_NAME ].Init( "TKEY_Export", "ExportCFD", this, true, 0, 1 );
+    m_ExportFileFlags[ vsp::CFD_FACET_FILE_NAME ].Init( "FACET_Export", "ExportCFD", this, true, 0, 1 );
 
     m_XYZIntCurveFlag.Init( "SRF_XYZIntCurve", "ExportCFD", this, false, 0, 1 );
 }
@@ -147,6 +148,7 @@ void CfdMeshSettings::ReadV2File( xmlNodePtr &root )
     SetFileExportFlag( vsp::CFD_KEY_FILE_NAME, !!XmlUtil::FindInt( root, "CFD_Key_File_Flag", GetExportFileFlag( vsp::CFD_KEY_FILE_NAME )->Get() ) );
     SetFileExportFlag( vsp::CFD_GMSH_FILE_NAME, !!XmlUtil::FindInt( root, "CFD_Gmsh_File_Flag", GetExportFileFlag( vsp::CFD_GMSH_FILE_NAME )->Get() ) );
     SetFileExportFlag( vsp::CFD_SRF_FILE_NAME, !!XmlUtil::FindInt( root, "CFD_Srf_File_Flag", GetExportFileFlag( vsp::CFD_SRF_FILE_NAME )->Get() ) );
+    SetFileExportFlag( vsp::CFD_FACET_FILE_NAME, !!XmlUtil::FindInt( root, "CFD_Facet_File_Flag", GetExportFileFlag( vsp::CFD_FACET_FILE_NAME )->Get() ) );
 }
 
 //==== Parm Changed ====//
@@ -190,7 +192,7 @@ void CfdMeshSettings::ResetExportFileNames()
 void CfdMeshSettings::ResetExportFileNames( string basename )
 {
     int pos;
-    const char *suffix[] = {".stl", ".poly", ".tri", ".obj", "_NASCART.dat", "_NASCART.key", ".msh", ".srf", ".tkey" };
+    const char *suffix[] = {".stl", ".poly", ".tri", ".obj", "_NASCART.dat", "_NASCART.key", ".msh", ".srf", ".tkey", ".facet" };
 
     for ( int i = 0 ; i < vsp::CFD_NUM_FILE_NAMES ; i++ )
     {
