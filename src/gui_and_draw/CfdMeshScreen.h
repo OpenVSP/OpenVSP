@@ -98,6 +98,7 @@ protected:
     ToggleButton m_TaggedMultiSolid;
     ToggleButton m_PolyFile;
     ToggleButton m_TriFile;
+    ToggleButton m_FacFile;
     ToggleButton m_ObjFile;
     ToggleButton m_MshFile;
     ToggleButton m_DatFile;
@@ -109,6 +110,7 @@ protected:
     TriggerButton m_SelectStlFile;
     TriggerButton m_SelectPolyFile;
     TriggerButton m_SelectTriFile;
+    TriggerButton m_SelectFacFile;
     TriggerButton m_SelectObjFile;
     TriggerButton m_SelectMshFile;
     TriggerButton m_SelectDatFile;
@@ -119,6 +121,7 @@ protected:
     StringOutput m_StlOutput;
     StringOutput m_PolyOutput;
     StringOutput m_TriOutput;
+    StringOutput m_FacOutput;
     StringOutput m_ObjOutput;
     StringOutput m_MshOutput;
     StringOutput m_DatOutput;
