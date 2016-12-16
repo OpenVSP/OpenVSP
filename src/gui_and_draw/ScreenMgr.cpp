@@ -120,17 +120,6 @@ void ScreenMgr::MessageCallback( const MessageBase* from, const MessageData& dat
     {
         SetUpdateFlag( true );
     }
-    else if ( data.m_String == string( "CFDMessage" ) )
-    {
-        CfdMeshScreen* scr = ( CfdMeshScreen* ) m_ScreenVec[VSP_CFD_MESH_SCREEN];
-        if ( scr )
-        {
-            for ( int i = 0; i < (int)data.m_StringVec.size(); i++ )
-            {
-                scr->AddOutputText( data.m_StringVec[i] );
-            }
-        }
-    }
     else if ( data.m_String == string( "VSPAEROSolverMessage" ) )
     {
         VSPAEROScreen* scr = ( VSPAEROScreen* ) m_ScreenVec[VSP_VSPAERO_SCREEN];
