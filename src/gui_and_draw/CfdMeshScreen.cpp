@@ -455,6 +455,15 @@ bool CfdMeshScreen::Update()
 {
     LoadSetChoice();
 
+    if ( CfdMeshMgr.GetMeshInProgress() )
+    {
+        m_MeshAndExport.Deactivate();
+    }
+    else
+    {
+        m_MeshAndExport.Activate();
+    }
+
     CfdMeshMgr.UpdateSourcesAndWakes();
     CfdMeshMgr.UpdateDomain();
 
