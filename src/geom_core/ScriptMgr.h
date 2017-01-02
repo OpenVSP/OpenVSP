@@ -80,10 +80,10 @@ public:
     CScriptArray* GetProxyDoubleArray();
 
     //==== Common Types =====//
-    asIObjectType* m_IntArrayType;
-    asIObjectType* m_DoubleArrayType;
-    asIObjectType* m_Vec3dArrayType;
-    asIObjectType* m_StringArrayType;
+    asITypeInfo* m_IntArrayType;
+    asITypeInfo* m_DoubleArrayType;
+    asITypeInfo* m_Vec3dArrayType;
+    asITypeInfo* m_StringArrayType;
 
     //==== Utility ====//
     void Print( const string & data, bool new_line );
