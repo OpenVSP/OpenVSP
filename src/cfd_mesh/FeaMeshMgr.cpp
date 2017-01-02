@@ -2869,3 +2869,31 @@ void FeaMeshMgrSingleton::MouseClick( vec2d & cursor )
 //
 //}
 
+void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
+{
+    m_SkinElemDO.m_GeomID = string( "FEASkin" );
+    m_SkinElemDO.m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
+    m_SkinElemDO.m_Visible = true;
+    m_SkinElemDO.m_LineColor = vec3d( 0.4, 0.4, 0.4 );
+
+    m_SkinElemDO.m_FlipNormals = true;  // Display skin tris backwards for internal visibility.
+
+    //==== Draw Skin ====//
+    for ( int i = 0 ; i < (int)m_SkinVec.size() ; i++ )
+    {
+        if ( m_SkinVec[i]->GetExportFlag() )
+        {
+            for ( int e = 0 ; e < (int)m_SkinVec[i]->m_Elements.size() ; e++ )
+            {
+                FeaElement* fe = m_SkinVec[i]->m_Elements[e];
+                for ( int p = 0 ; p < (int)fe->m_Corners.size() ; p++ )
+                {
+                    m_SkinElemDO.m_PntVec.push_back( fe->m_Corners[p]->m_Pnt );
+                    m_SkinElemDO.m_NormVec.push_back( vec3d( 0, 0, 0) );
+                }
+            }
+        }
+    }
+
+    draw_obj_vec.push_back( &m_SkinElemDO );
+}

@@ -277,6 +277,10 @@ protected:
 
     vector< vec3d >debugPnts;
 
+private:
+    DrawObj m_SkinElemDO;
+
+
 };
 //FEAMesh:
 //feamass.dat        -> [modelname]_mass.dat
