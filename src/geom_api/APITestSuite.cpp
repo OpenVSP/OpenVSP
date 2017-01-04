@@ -257,7 +257,7 @@ void APITestSuite::TestAnalysesWithPod()
     vsp::SetAnalysisInputDefaults(analysis_name);
 
     // list inputs, type, and current values
-    vsp::PrintAnalysisInputs(stdout,analysis_name);
+    vsp::PrintAnalysisInputs(analysis_name);
 
     // Execute
     printf("\tExecuting...");
@@ -466,7 +466,7 @@ void APITestSuiteVSPAERO::TestVSPAeroComputeGeom()
     vsp::SetAnalysisInputDefaults(analysis_name);
 
     // list inputs, type, and current values
-    vsp::PrintAnalysisInputs(stdout,analysis_name);
+    vsp::PrintAnalysisInputs(analysis_name);
 
     // Execute
     printf("\tExecuting...\n");
@@ -517,7 +517,7 @@ void APITestSuiteVSPAERO::TestVSPAeroComputeGeomPanel()
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     // list inputs, type, and current values
-    vsp::PrintAnalysisInputs(stdout,analysis_name);
+    vsp::PrintAnalysisInputs(analysis_name);
 
     // Execute
     printf("\tExecuting...\n");
@@ -590,7 +590,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSinglePointPanel()
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     // list inputs, type, and current values
-    vsp::PrintAnalysisInputs(stdout,analysis_name);
+    vsp::PrintAnalysisInputs(analysis_name);
 
     // Execute
     printf("\tExecuting...\n");
@@ -658,7 +658,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSinglePoint()
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     // list inputs, type, and current values
-    vsp::PrintAnalysisInputs(stdout,analysis_name);
+    vsp::PrintAnalysisInputs(analysis_name);
 
     // Execute
     printf("\tExecuting...\n");
@@ -729,7 +729,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSinglePointStab()
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     // list inputs, type, and current values
-    vsp::PrintAnalysisInputs(stdout,analysis_name);
+    vsp::PrintAnalysisInputs(analysis_name);
 
     // Execute
     printf("\tExecuting...\n");
@@ -812,7 +812,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSweep()
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     // list inputs, type, and current values
-    vsp::PrintAnalysisInputs(stdout,analysis_name);
+    vsp::PrintAnalysisInputs(analysis_name);
 
     // Execute
     printf("\tExecuting...\n");
@@ -899,7 +899,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSweepBatch()
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     // list inputs, type, and current values
-    vsp::PrintAnalysisInputs(stdout,analysis_name);
+    vsp::PrintAnalysisInputs(analysis_name);
 
     // Execute
     printf("\tExecuting...\n");

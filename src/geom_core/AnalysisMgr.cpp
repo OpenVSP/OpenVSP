@@ -174,6 +174,88 @@ int AnalysisMgrSingleton::GetAnalysisInputType( const string & analysis, const s
     return inpt_ptr->GetType();
 }
 
+void AnalysisMgrSingleton::PrintAnalysisInputs( const string &fname, const string analysis_name )
+{
+    FILE *fp;
+    fp = fopen( fname.c_str(), "w" );
+    if ( fp )
+    {
+        PrintAnalysisInputs( fp, analysis_name );
+        fclose( fp );
+    }
+}
+
+void AnalysisMgrSingleton::PrintAnalysisInputs( const string analysis_name )
+{
+    PrintAnalysisInputs( stdout, analysis_name );
+}
+
+void AnalysisMgrSingleton::PrintAnalysisInputs( FILE * outputStream, const string analysis_name )
+{
+    fprintf( outputStream, "\t\t%-20s%s\t%s\t%s\n", "[input_name] ", "[type]", "[#]", "[current values-->]" );
+
+    Analysis* analysis_ptr = FindAnalysis( analysis_name );
+    if ( !analysis_ptr )
+    {
+        return;
+    }
+    vector < string > input_names = analysis_ptr->m_Inputs.GetAllDataNames();
+    for ( unsigned int i_input_name = 0; i_input_name < input_names.size(); i_input_name++ )
+    {
+        // print out type and number of data entries
+        int current_input_type = GetAnalysisInputType( analysis_name, input_names[i_input_name] );
+        unsigned int current_input_num_data = ( unsigned int ) GetNumInputData( analysis_name, input_names[i_input_name] );
+        fprintf( outputStream, "\t\t%-20s%d\t\t%d", input_names[i_input_name].c_str(), current_input_type, current_input_num_data );
+
+        // print out the current value (this needs to handle different types and vector lengths
+        fprintf( outputStream, "\t" );
+        for ( unsigned int i_val = 0; i_val < current_input_num_data; i_val++ )
+        {
+            switch( current_input_type )
+            {
+            case vsp::RES_DATA_TYPE::INT_DATA :
+            {
+                vector<int> current_int_val = GetIntInputData( analysis_name, input_names[i_input_name], i_val );
+                for ( unsigned int j_val = 0; j_val < current_int_val.size(); j_val++ )
+                {
+                    fprintf( outputStream, "%d ", current_int_val[j_val] );
+                }
+                break;
+            }
+            case vsp::RES_DATA_TYPE::DOUBLE_DATA :
+            {
+                vector<double> current_double_val = GetDoubleInputData( analysis_name, input_names[i_input_name], i_val );
+                for ( unsigned int j_val = 0; j_val < current_double_val.size(); j_val++ )
+                {
+                    fprintf( outputStream, "%f ", current_double_val[j_val] );
+                }
+                break;
+            }
+            case vsp::RES_DATA_TYPE::STRING_DATA :
+            {
+                vector<string> current_string_val = GetStringInputData( analysis_name, input_names[i_input_name], i_val );
+                for ( unsigned int j_val = 0; j_val < current_string_val.size(); j_val++ )
+                {
+                    fprintf( outputStream, "%s ", current_string_val[j_val].c_str() );
+                }
+                break;
+            }
+            case vsp::RES_DATA_TYPE::VEC3D_DATA :
+            {
+                vector<vec3d> current_vec3d_val = GetVec3dInputData( analysis_name, input_names[i_input_name], i_val );
+                for ( unsigned int j_val = 0; j_val < current_vec3d_val.size(); j_val++ )
+                {
+                    fprintf( outputStream, "%f,%f,%f ", current_vec3d_val[j_val].x(), current_vec3d_val[j_val].y(), current_vec3d_val[j_val].z() );
+                }
+                break;
+            }
+            }    //end switch
+        }    // end for
+
+        fprintf( outputStream, "\n" );
+    }
+}
+
 const vector<int> & AnalysisMgrSingleton::GetIntInputData( const string & analysis, const string & name, int index )
 {
     Analysis* analysis_ptr = FindAnalysis( analysis );

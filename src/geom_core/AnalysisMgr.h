@@ -74,6 +74,10 @@ public:
     int GetNumInputData( const string & analysis, const string & name );
     int GetAnalysisInputType( const string & analysis, const string & name );
 
+    void PrintAnalysisInputs( const string & fname, const std::string analysis_name );
+    void PrintAnalysisInputs( const std::string analysis_name );
+    void PrintAnalysisInputs( FILE * outputStream, const std::string analysis_name );
+
     const vector<int> & GetIntInputData( const string & analysis, const string & name, int index = 0 );
     const vector<double> & GetDoubleInputData( const string & analysis, const string & name, int index = 0 );
     const vector<string> & GetStringInputData( const string & analysis, const string & name, int index = 0 );

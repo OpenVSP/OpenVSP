@@ -1,5 +1,8 @@
 
-void PrintAnalysisInputs( string analysis )
+// PrintAnalysisInputs is now available as an API routine.
+// However, this provides a nice example of using the API to interacti with
+// the analysis input information, so it is preserved here.
+void PrintAnalysisInputsExample( string analysis )
 {
     Print( "Analysis: " + analysis );
     Print( "Inputs:" );
@@ -166,7 +169,7 @@ void main()
 
     for ( int i = 0; i < int( analysis_array.size() ); i++ )
     {
-        PrintAnalysisInputs( analysis_array[i] );
+        PrintAnalysisInputsExample( analysis_array[i] );
         Print( "" );
     }
 
