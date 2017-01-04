@@ -7,7 +7,7 @@ SET(ANGELSCRIPT_ADD_ON_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/add_on/ CACHE PAT
 
 project(Angelscript)
 
-add_definitions( -DAS_USE_STLNAMES )
+add_definitions( -DAS_USE_STLNAMES -D__STDC_LIMIT_MACROS )
 
 option(BUILD_SHARED_LIBS "Build shared library" OFF)
 
