@@ -75,7 +75,10 @@ void PrintAnalysisInputsExample( string analysis )
     }
 }
 
-void PrintResults( string results )
+// PrintResults is now available as an API routine.
+// However, this provides a nice example of using the API to interacti with
+// the analysis result information, so it is preserved here.
+void PrintResultsExample( string results )
 {
     Print( "Results ID: " + results );
 
@@ -183,12 +186,12 @@ void main()
     SetIntAnalysisInput( "CompGeom", "WriteCSVFlag", writecsvflag );
 
     string rid = ExecAnalysis( "CompGeom" );
-    PrintResults( rid );
+    PrintResultsExample( rid );
     DeleteGeomVec( GetStringResults( rid, "Mesh_GeomID" ) );
 
     // MassProp
     string ridmp = ExecAnalysis( "MassProp" );
-    PrintResults( ridmp );
+    PrintResultsExample( ridmp );
     DeleteGeomVec( GetStringResults( ridmp, "Mesh_GeomID" ) );
 
     // PlanarSlice
@@ -205,12 +208,12 @@ void main()
     SetDoubleAnalysisInput( "PlanarSlice", "EndVal", send );
 
     string ridslice = ExecAnalysis( "PlanarSlice" );
-    PrintResults( ridslice );
+    PrintResultsExample( ridslice );
     DeleteGeomVec( GetStringResults( ridslice, "Mesh_GeomID" ) );
 
     // WaveDrag
     string ridwd = ExecAnalysis( "WaveDrag" );
-    PrintResults( ridwd );
+    PrintResultsExample( ridwd );
     DeleteGeomVec( GetStringResults( ridwd, "Mesh_GeomID" ) );
 
     // EmintonLord
@@ -234,7 +237,7 @@ void main()
     SetDoubleAnalysisInput( "EmintonLord", "Area_vec", area_vec );
 
     string ridel = ExecAnalysis( "EmintonLord" );
-    PrintResults( ridel );
+    PrintResultsExample( ridel );
 
     //==== Check For API Errors ====//
     while ( GetNumTotalErrors() > 0 )

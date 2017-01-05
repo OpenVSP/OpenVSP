@@ -266,7 +266,7 @@ void APITestSuite::TestAnalysesWithPod()
 
     // Get & Display Results
 
-    vsp::PrintResults(stdout,results_id);
+    vsp::PrintResults(results_id);
 
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
@@ -474,7 +474,7 @@ void APITestSuiteVSPAERO::TestVSPAeroComputeGeom()
     printf("COMPLETE\n");
 
     // Get & Display Results
-    vsp::PrintResults(stdout, results_id );
+    vsp::PrintResults( results_id );
 
     // Final check for errors
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
@@ -526,7 +526,7 @@ void APITestSuiteVSPAERO::TestVSPAeroComputeGeomPanel()
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     // Get & Display Results
-    vsp::PrintResults(stdout, results_id );
+    vsp::PrintResults( results_id );
 
     // Final check for errors
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
@@ -599,7 +599,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSinglePointPanel()
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     // Get & Display Results
-    vsp::PrintResults(stdout, results_id );
+    vsp::PrintResults( results_id );
     
     // Final check for errors
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
@@ -667,7 +667,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSinglePoint()
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     // Get & Display Results
-    vsp::PrintResults(stdout, results_id );
+    vsp::PrintResults( results_id );
     
     // Final check for errors
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
@@ -738,7 +738,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSinglePointStab()
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     // Get & Display Results
-    vsp::PrintResults(stdout, results_id );
+    vsp::PrintResults( results_id );
     
     // Final check for errors
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
@@ -821,7 +821,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSweep()
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     // Get & Display Results
-    vsp::PrintResults(stdout, results_id );
+    vsp::PrintResults( results_id );
     
     // Final check for errors
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
@@ -908,7 +908,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSweepBatch()
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     // Get & Display Results
-    vsp::PrintResults(stdout, results_id );
+    vsp::PrintResults( results_id );
     
     // Final check for errors
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE

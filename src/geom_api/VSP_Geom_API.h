@@ -113,8 +113,7 @@ extern std::string CreateGeomResults( const std::string & geom_id, const std::st
 extern void DeleteAllResults();
 extern void DeleteResult( const std::string & id );
 extern void WriteResultsCSVFile( const std::string & id, const std::string & file_name );
-extern void PrintResults( FILE * outputStream, const std::vector < std::string > &results_id_vec );
-extern void PrintResults( FILE * outputStream, const std::string &results_id );
+extern void PrintResults( const std::string &results_id );
 
 //======================== GUI Functions ================================//
 extern void StartGui( );

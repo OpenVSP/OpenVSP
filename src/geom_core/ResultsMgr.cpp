@@ -834,6 +834,93 @@ vector< string > ResultsMgrSingleton::GetAllDataNames( const string & results_id
     return results_ptr->GetAllDataNames();
 }
 
+void ResultsMgrSingleton::PrintResults( const string &fname, const string &results_id )
+{
+    FILE *fp;
+    fp = fopen( fname.c_str(), "w" );
+    if ( fp )
+    {
+        PrintResults( fp, results_id );
+        fclose( fp );
+    }
+}
+
+void ResultsMgrSingleton::PrintResults( const string &results_id )
+{
+    PrintResults( stdout, results_id );
+}
+
+void ResultsMgrSingleton::PrintResults( FILE * outputStream, const string &results_id )
+{
+    fprintf( outputStream, "\n\t\t%-20s%s\t%s\t%s\n", "[result_name]", "[type]", "[#]", "[current values-->]" );
+
+    vector<string> results_names = GetAllDataNames( results_id );
+    for ( unsigned int i_result_name = 0; i_result_name < results_names.size(); i_result_name++ )
+    {
+        int current_result_type = GetResultsType( results_id, results_names[i_result_name] );
+        unsigned int current_result_num_data = ( unsigned int )GetNumData( results_id, results_names[i_result_name] );
+        fprintf( outputStream, "\t\t%-20s%d\t\t%d", results_names[i_result_name].c_str(), current_result_type, current_result_num_data );
+        // print out the current value (this needs to handle different types and vector lengths
+        fprintf( outputStream, "\t" );
+        for ( unsigned int i_val = 0; i_val < current_result_num_data; i_val++ )
+        {
+            switch( current_result_type )
+            {
+            case vsp::RES_DATA_TYPE::INT_DATA :
+            {
+                vector<int> current_int_val = GetIntResults( results_id, results_names[i_result_name], i_val );
+                for ( unsigned int j_val = 0; j_val < current_int_val.size(); j_val++ )
+                {
+                    fprintf( outputStream, "%d ", current_int_val[j_val] );
+                }
+                break;
+            }
+            case vsp::RES_DATA_TYPE::DOUBLE_DATA :
+            {
+                vector<double> current_double_val = GetDoubleResults( results_id, results_names[i_result_name], i_val );
+                for ( unsigned int j_val = 0; j_val < current_double_val.size(); j_val++ )
+                {
+                    fprintf( outputStream, "%f ", current_double_val[j_val] );
+                }
+                break;
+            }
+            case vsp::RES_DATA_TYPE::STRING_DATA :
+            {
+                vector<string> current_string_val = GetStringResults( results_id, results_names[i_result_name], i_val );
+                for ( unsigned int j_val = 0; j_val < current_string_val.size(); j_val++ )
+                {
+                    fprintf( outputStream, "%s ", current_string_val[j_val].c_str() );
+                }
+                //Recursive call if results vector found
+                if( strcmp( results_names[i_result_name].c_str(), "ResultsVec" ) == 0 )
+                {
+                    vector < string > res_vec = GetStringResults( results_id, "ResultsVec", 0 );
+                    for ( unsigned int i = 0; i < res_vec.size(); i++ )
+                    {
+                        PrintResults( outputStream, res_vec[i] );
+                    }
+                }
+                break;
+            }
+            case vsp::RES_DATA_TYPE::VEC3D_DATA :
+            {
+                vector<vec3d> current_vec3d_val = GetVec3dResults( results_id, results_names[i_result_name], i_val );
+                for ( unsigned int j_val = 0; j_val < current_vec3d_val.size(); j_val++ )
+                {
+                    fprintf( outputStream, "%f,%f,%f ", current_vec3d_val[j_val].x(), current_vec3d_val[j_val].y(), current_vec3d_val[j_val].z() );
+                }
+                break;
+            }
+            }    //end switch
+
+        }    // end for
+
+        fprintf( outputStream, "\n" );
+    }
+}
+
+
+
 //==== Get Int Results Given Results ID and Name of Data and Index (Default 0) ====//
 const vector<int> & ResultsMgrSingleton::GetIntResults( const string & results_id, const string & name, int index )
 {

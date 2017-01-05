@@ -206,6 +206,10 @@ public:
     vector< string > GetAllResultsNames();
     vector< string > GetAllDataNames( const string & results_id );
 
+    void PrintResults( const string &fname, const std::string &results_id );
+    void PrintResults( const std::string &results_id );
+    void PrintResults( FILE * outputStream, const std::string &results_id );
+
     const vector<int> & GetIntResults( const string & id, const string & name, int index = 0 );
     const vector<double> & GetDoubleResults( const string & id, const string & name, int index = 0 );
     const vector<string> & GetStringResults( const string & id, const string & name, int index = 0 );
