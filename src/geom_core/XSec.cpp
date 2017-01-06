@@ -357,9 +357,7 @@ void XSec::GetTanNormCrv( const vector< double > &ts, const vector< double > &th
 
     // Parameters that define the XSecCurve
     vector< double > crvts;
-    // Work around non-constness of get_pmap.
-    piecewise_curve_type crv = m_TransformedCurve.GetCurve();
-    crv.get_pmap( crvts );
+    m_TransformedCurve.GetCurve().get_pmap( crvts );
 
     int ntcrv = crvts.size();
 
