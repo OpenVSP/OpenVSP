@@ -173,12 +173,12 @@ int main( int argc, char** argv )
 
     //==== Copy Cros-Section to Clipboard ====//
     printf( "Copy/Paste cross-section\n" );
-    vsp::CopyXSec( xsurf_id, 0 );        //FIXME: this operation can't fine this geometry
+    vsp::CopyXSec( fuse_id, 0 );
     vsp::ErrorMgr.PopErrorAndPrint( stdout );
     //==== Paste Cross-Section ====///
-    vsp::PasteXSec( xsurf_id, 1 );
-    vsp::PasteXSec( xsurf_id, 2 );
-    vsp::PasteXSec( xsurf_id, 3 );
+    vsp::PasteXSec( fuse_id, 1 );
+    vsp::PasteXSec( fuse_id, 2 );
+    vsp::PasteXSec( fuse_id, 3 );
     vsp::ErrorMgr.PopErrorAndPrint( stdout );
 
     //===== Change Type To File XSec ====//
