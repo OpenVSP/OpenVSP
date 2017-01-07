@@ -24,7 +24,6 @@ Surf::Surf()
     m_SurfID = -1;
     m_FlipFlag = false;
     m_WakeFlag = false;
-    m_SurfType = vsp::NORMAL_SURF;
     m_SurfCfdType = vsp::CFD_NORMAL;
     m_SymPlaneFlag = false;
     m_FarFlag = false;
@@ -297,7 +296,7 @@ void Surf::LimitTargetMap()
     std::sort( index.begin(), index.end(), indxcompare );
 
     // Start from smallest
-    for( int k = 0; k < nmap; k++ )
+    for( k = 0; k < nmap; k++ )
     {
         pair< int, int > ij = index[k].second;
         int i = ij.first;
@@ -617,8 +616,6 @@ void Surf::Intersect( Surf* surfPtr )
                 if ( Compare( *m_PatchVec[i]->get_bbox(), *otherPatchVec[j]->get_bbox() ) )
                 {
                     intersect( *m_PatchVec[i], *otherPatchVec[j], 0 );
-                    m_PatchVec[i]->draw_flag = true;
-                    otherPatchVec[j]->draw_flag = true;
                 }
             }
         }

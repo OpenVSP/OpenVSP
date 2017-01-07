@@ -1031,7 +1031,7 @@ void GroupLayout::AddCounter( Counter & count, const char* label, int used_w )
     VspButton* button = NULL;
     if ( strcmp( label, "" ) != 0 )
     {
-        VspButton* button = AddParmButton( label );
+        button = AddParmButton( label );
         button->align( Fl_Align( FL_ALIGN_CLIP ) );
     }
 

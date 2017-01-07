@@ -8,7 +8,6 @@
 #include "ManageBackgroundScreen.h"
 #include "ScreenMgr.h"
 
-#include "MainVSPScreen.h"
 #include "MainGLWindow.h"
 
 #include "GraphicEngine.h"
@@ -17,7 +16,6 @@
 #include "Background.h"
 #include "TextureRepo.h"
 #include "GraphicSingletons.h"
-#include "Common.h"
 
 ManageBackgroundScreen::ManageBackgroundScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 210, 347, "Background" )
 {

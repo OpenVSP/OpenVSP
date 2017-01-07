@@ -894,7 +894,7 @@ void FitModelMgrSingleton::CalcMetricDeriv( const double *x, double *y, double *
     }
 
     // Calculate exact derivatives of target point movement.
-    for ( int i = 0 ; i < npt; i++ )
+    for ( i = 0 ; i < npt; i++ )
     {
         TargetPt* tpt = m_TargetPts[i];
         Geom* g = m_TargetGeomPtrVec[i];

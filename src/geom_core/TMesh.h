@@ -42,7 +42,6 @@ class TEdge;
 class TTri;
 class TBndBox;
 class NBndBox;
-class TNodeGroup;
 class TMesh;
 
 class TetraMassProp
@@ -53,8 +52,6 @@ public:
     ~TetraMassProp()        {}
 
     void SetPointMass( double massIn, vec3d& posIn );           // For Point Mass
-
-    bool m_PointMassFlag;
 
     vec3d m_v0;
     vec3d m_v1;
@@ -188,8 +185,6 @@ public:
 
     vector< TNode* > m_MergeVec;
 
-    vector< TNode* > m_SplitNodeVec;
-
     virtual void CopyFrom( const TNode* node);
     virtual void MakePntUW();
     virtual void MakePntXYZ();
@@ -223,12 +218,6 @@ public:
 protected:
     bool m_XYZFlag;
     int m_CoordInfo;
-};
-
-class TNodeGroup
-{
-public:
-    vector< TNode* > nVec;
 };
 
 class TEdge
@@ -511,7 +500,6 @@ public:
     static double Rand01();
 
     vector< vec3d > m_VertVec;
-    vector< vec3d > m_ISectPairs;
 
     bool m_HalfBoxFlag;
 

@@ -8,12 +8,9 @@
 #include "FuselageScreen.h"
 #include "ScreenMgr.h"
 #include "FuselageGeom.h"
-#include "Vehicle.h"
 #include "ParmMgr.h"
-#include "APIDefines.h"
 using namespace vsp;
 
-#include <assert.h>
 
 
 //==== Constructor ====//

@@ -20,7 +20,6 @@
 
 typedef piecewise_curve_type::index_type curve_index_type;
 typedef piecewise_curve_type::point_type curve_point_type;
-typedef piecewise_curve_type::rotation_matrix_type curve_rotation_matrix_type;
 typedef piecewise_curve_type::tolerance_type curve_tolerance_type;
 
 typedef eli::geom::curve::piecewise_point_creator<double, 3, curve_tolerance_type> piecewise_point_creator;
@@ -357,7 +356,7 @@ void XSecCurve::CloseTE( bool wingtype )
                     pnewup[1] += thick;
 
                     // Calculate arclen to scale parameters.
-                    double lup, llow;
+                    double lup = 0.0, llow = 0.0;
 
                     length( llow, c_low, 1.0e-4 );
                     length( lup, c_up, 1.0e-4 );

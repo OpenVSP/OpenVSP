@@ -33,9 +33,7 @@ public:
         ( ( ProjectionScreen* )data )->CallBack( w );
     }
 
-    void LoadDrawObjs(vector< DrawObj* > & draw_obj_vec);
     void LoadSetChoice( Choice & c, int & index );
-    void LoadGeomChoice( Choice & c, int & index );
 
 protected:
 
@@ -81,9 +79,6 @@ protected:
 
 
     TriggerButton m_Execute;
-
-    Fl_Text_Display* m_TextDisplay;
-    Fl_Text_Buffer* m_TextBuffer;
 
 };
 #endif //PROJECTIONSCREEN_H

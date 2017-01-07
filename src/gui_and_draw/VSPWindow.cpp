@@ -81,11 +81,6 @@ void VSP_Window::SetParent( VSP_Window* win)
     m_Parent = win;
 }
 
-void VSP_Window::position( int X, int Y )
-{
-    Fl_Double_Window::position(X,Y);
-}
-
 void VSP_Window::show()
 {
     if ( m_GeomScreen )

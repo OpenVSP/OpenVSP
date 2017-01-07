@@ -465,7 +465,7 @@ void XSecSurf::GetBasicTransformation( int pdir, int wdir, int wshift, bool flip
     int row = 3 - ( prow + wrow );
 
     // Cross product to ensure right handed system
-    int r1, r2;
+    int r1 = Y_DIR, r2 = Z_DIR;
     switch( row )
     {
     case X_DIR:

@@ -64,14 +64,11 @@ public:
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
-    string m_FileName;
-
     double m_TotalTheoArea;
     double m_TotalWetArea;
     double m_TotalTheoVol;
     double m_TotalWetVol;
 
-    int m_MassPropFlag;
     vec3d m_CenterOfGrav;
 
     double m_TotalMass;
@@ -126,14 +123,6 @@ public:
     {
         return m_TMeshVec.size();
     }
-    virtual vector< TTri* > & GetIndexedTriVec()
-    {
-        return m_IndexedTriVec;
-    }
-    virtual vector< TNode* > & GetIndexedNodeVec()
-    {
-        return m_IndexedNodeVec;
-    }
 
     virtual void WriteNascartPnts( FILE* file_id );
     virtual void WriteCart3DPnts( FILE* file_id );
@@ -149,7 +138,6 @@ public:
 
     virtual void CreatePtCloudGeom();
 
-    virtual void dump_xsec_file( int, FILE* ) {}
     virtual void Scale();
 
     //==== Intersection, Splitting and Trimming ====//

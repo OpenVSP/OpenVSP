@@ -18,7 +18,6 @@ SurfPatch::SurfPatch()
     u_max = w_max = 1.0;
     m_SurfPtr = NULL;
     sub_depth = 0;
-    draw_flag = false;
 }
 
 SurfPatch::~SurfPatch()

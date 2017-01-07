@@ -999,7 +999,6 @@ bool WingScreen::Update()
                 int num_up = cst_xs->m_UpDeg() + 1;
                 int num_low = cst_xs->m_LowDeg() + 1;
 
-                char str[255];
                 sprintf( str, "%d", cst_xs->m_UpDeg() );
                 m_UpDegreeOutput.Update( str );
                 sprintf( str, "%d", cst_xs->m_LowDeg() );

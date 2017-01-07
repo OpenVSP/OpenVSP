@@ -8,16 +8,11 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "VSPAEROPlotScreen.h"
-#include "APIDefines.h"
 #include "StringUtil.h"
 #include "FileUtil.h"
 #include "float.h"
 
 #include "Util.h"
-
-#include <utility>
-#include <string>
-#include <algorithm>
 
 
 //////////////////////////////////////////////////////////////////////
@@ -245,7 +240,7 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     //  X Data browser
     GroupLayout sweepXDataSelectLayout;
     sweepXYDataSelectLayout.AddSubGroupLayout( sweepXDataSelectLayout, sweepXYDataSelectLayout.GetW() / 2, sweepXYDataSelectLayout.GetH() );
-    m_SweepXDataDividerBox = sweepXDataSelectLayout.AddDividerBox( "X-Data" );
+    sweepXDataSelectLayout.AddDividerBox( "X-Data" );
     m_SweepXDataBrowser = sweepXDataSelectLayout.AddFlBrowser( sweepXDataSelectLayout.GetRemainY() );
     m_SweepXDataBrowser->callback( staticScreenCB, this );
     m_SweepXDataBrowser->type( FL_MULTI_BROWSER );
@@ -253,7 +248,7 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     //  Y Data browser
     GroupLayout sweepYDataSelectLayout;
     sweepXYDataSelectLayout.AddSubGroupLayout( sweepYDataSelectLayout, sweepXYDataSelectLayout.GetW() / 2, sweepXYDataSelectLayout.GetH() );
-    m_SweepYDataDividerBox = sweepYDataSelectLayout.AddDividerBox( "Y-Data" );
+    sweepYDataSelectLayout.AddDividerBox( "Y-Data" );
     m_SweepYDataBrowser = sweepYDataSelectLayout.AddFlBrowser( sweepYDataSelectLayout.GetRemainY() );
     m_SweepYDataBrowser->callback( staticScreenCB, this );
     m_SweepYDataBrowser->type( FL_MULTI_BROWSER );

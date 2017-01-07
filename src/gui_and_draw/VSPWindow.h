@@ -50,7 +50,6 @@ public:
     void resize( int X, int Y, int W, int H );
     void resizeFromParent( int X, int Y, int W, int H);
     void resizeFromChild( int X, int Y, int W, int H, VSP_Window * child);
-    void position( int X, int Y);
     void show();
     int handle( int fl_event );
     virtual void UpdateChildren( VSP_Window* child = NULL);

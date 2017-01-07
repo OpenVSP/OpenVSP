@@ -1142,10 +1142,10 @@ vector< ISegChain* > ISegChain::FindCoPlanarChains( Surf* sPtr, Surf* adjSurf )
             Puw* puwb = new Puw( sPtr, vec2d( uw[0], uw[1] ) );
             CfdMeshMgr.AddDelPuw( puwb );
 
-            IPnt* ip  = new IPnt( puwa, puwb );
-            m_CreatedIPnts.push_back( ip );
+            IPnt* newip  = new IPnt( puwa, puwb );
+            m_CreatedIPnts.push_back( newip );
 
-            ipnt_vec.push_back( ip );
+            ipnt_vec.push_back( newip );
         }
     }
 

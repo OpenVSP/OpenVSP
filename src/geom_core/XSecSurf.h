@@ -70,10 +70,6 @@ public:
     {
         m_XSecType = xstype;
     }
-    int GetXSecType( )
-    {
-        return m_XSecType;
-    }
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );

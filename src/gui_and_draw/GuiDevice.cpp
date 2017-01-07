@@ -2416,8 +2416,6 @@ void ParmTreePicker::CleanGarbage()
 void ParmTreePicker::UpdateParmTree()
 {
     int i, j;
-    ContainerTreeIt cit;
-    ParmTreeIt pit;
 
     ResetFlag( true );
 

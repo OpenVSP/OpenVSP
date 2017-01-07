@@ -13,14 +13,12 @@
 #include "MainVSPScreen.h"
 #include "MainGLWindow.h"
 #include "ScreenMgr.h"
-#include "Vehicle.h"
 #include "GraphicEngine.h"
 #include "Display.h"
 #include "Camera.h"
 #include "LayoutMgr.h"
 #include "Viewport.h"
 #include <FL/fl_ask.H>
-#include <FL/Fl_Group.H>
 #include "ManageCORScreen.h"
 #include "ManageGeomScreen.h"
 #include "ManageViewScreen.h"

@@ -35,13 +35,13 @@ class Node
 public:
     Node()
     {
-        fixed = u_undef = w_undef = m_DeleteMeFlag = false;
+        fixed = m_DeleteMeFlag = false;
     }
     Node( vec3d& p, vec2d& uw_in )
     {
         pnt = p;
         uw = uw_in;
-        fixed = u_undef = w_undef = m_DeleteMeFlag = false;
+        fixed = m_DeleteMeFlag = false;
     }
     virtual ~Node();
 
@@ -52,8 +52,6 @@ public:
     vec3d pnt;              // Position
     vec2d uw;               // Parametric
     bool fixed;             // Dont move or delete
-    bool u_undef;           // U is Undefined
-    bool w_undef;           // W is Undefined
     int  id;
 
     vector< Edge* >  edgeVec;       // All Edges Which Use This Node
@@ -61,10 +59,8 @@ public:
     void GetConnectNodes( vector< Node* > & cnVec );
     void GetConnectTris( vector< Tri* > & ctVec );
 
-    void AddConnectNode( Node* n );
     void AddConnectEdge( Edge* e );
     void RemoveConnectEdge( Edge* e );
-    void BuildNodeConnect();
     void LaplacianSmooth();
     void LaplacianSmoothUW();
 //  void AngleSmooth();
@@ -87,7 +83,6 @@ public:
         n0 = n1 = NULL;
         t0 = t1 = NULL;
         ridge = border = debugFlag = m_DeleteMeFlag = false;
-        splitFlag = true;
     }
     Edge( Node* node0, Node* node1 )
     {
@@ -95,7 +90,6 @@ public:
         n1 = node1;
         t0 = t1 = NULL;
         ridge = border = debugFlag = m_DeleteMeFlag = false;
-        splitFlag = true;
     }
     virtual ~Edge()                         {}
 
@@ -111,8 +105,6 @@ public:
 
     bool ridge;             // Dont Remove but Can Split
     bool border;            // Dont remove or split
-
-    bool splitFlag;         // Edge Was Affected By Split
 
     bool debugFlag;         // Flag for testing
 
@@ -130,10 +122,6 @@ public:
     double length()
     {
         return dist( n0->pnt, n1->pnt );
-    }
-    double length2()
-    {
-        return dist_squared( n0->pnt, n1->pnt );
     }
 
     double ComputeLength()
@@ -213,7 +201,6 @@ public:
     bool deleteFlag;
 
     void LoadAdjTris( int num_levels, set< Tri* > & triSet );
-    int intExtCount;
 
     unsigned char rgb[3];
 

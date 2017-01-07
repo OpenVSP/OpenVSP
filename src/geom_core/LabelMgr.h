@@ -55,10 +55,6 @@ public:
     * Remove Label with Id.
     */
     void Remove(std::string ID);
-    /*!
-    * Remove all Labels.
-    */
-    void Clear();
 
 public:
     /*!

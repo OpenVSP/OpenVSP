@@ -9,17 +9,9 @@
 
 #include "VSPAEROScreen.h"
 #include "VSPAEROPlotScreen.h"
-#include "APIDefines.h"
 #include "StringUtil.h"
 #include "FileUtil.h"
-#include "float.h"
 #include <FL/fl_ask.H>
-
-#include <utility>
-#include <string>
-#include <algorithm>
-
-#include <iostream>
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction

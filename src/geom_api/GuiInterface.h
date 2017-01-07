@@ -25,7 +25,6 @@ private:
     GuiInterface& operator=( GuiInterface const& copy ); // Not Implemented
 
     ScreenMgr* m_ScreenMgr;
-    Vehicle* m_Vehicle;
 public:
     static GuiInterface& getInstance()
     {

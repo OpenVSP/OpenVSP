@@ -50,12 +50,6 @@ protected:
 
     GroupLayout m_ChangeStateLayout;
     GroupLayout m_PickLayout;
-    GroupLayout m_PeLayout;
-
-    // Var tree tab variables
-    GroupLayout m_PickTreeLayout;
-
-    ParmTreePicker m_ParmTreePicker;
 
     Fl_Scroll* m_AdjustGroup;
     GroupLayout m_AdjustLayout;
@@ -63,15 +57,8 @@ protected:
     ParmPicker m_ParmPicker;
     Choice m_GroupChoice;
     Choice m_SettingChoice;
-    StringOutput m_GroupOutput;
-    StringOutput m_SettingOutput;
     StringInput m_GroupInput;
     StringInput m_SettingInput;
-
-    string m_GroupInputText;
-    string m_SettingInputText;
-    string m_GroupOutputText;
-    string m_SettingOutputText;
 
     TriggerButton m_AddVarButton;
     TriggerButton m_DelVarButton;
@@ -83,10 +70,8 @@ protected:
     TriggerButton m_DeleteButton;
     TriggerButton m_ApplyButton;
     TriggerButton m_SaveButton;
-    TriggerButton m_LoadButton;
 
     vector < SliderAdjRangeInput > m_ParmSliderVec;
-    vector < Preset > m_PresetVec;
 };
 
 #endif

@@ -36,7 +36,7 @@ public:
     virtual vector < string > GetParmIDs()                      { return m_ParmIDVec; }
     virtual int GetNumSet()                                     { return m_SettingNameVec.size(); }
     virtual vector < double > GetParmVals( int set_index )      { return m_ParmValVec[ set_index ]; }
-    virtual vector < vector < double > > GetAllParmVals()       { return m_ParmValVec; }
+
     virtual int GetSettingIndex();
     virtual int GetSettingIndex( const string &set_name );
 

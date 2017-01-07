@@ -33,7 +33,6 @@ public:
         ( ( ScreenshotScreen* )data )->CallBack( w );
     }
 
-    void LoadDrawObjs(vector< DrawObj* > & draw_obj_vec);
     string truncateFileName( const string &fn, int len );
 
 protected:

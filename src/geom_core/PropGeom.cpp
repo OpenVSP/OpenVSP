@@ -10,7 +10,6 @@
 #include "Vehicle.h"
 #include "StlHelper.h"
 #include <float.h>
-#include <stdio.h>
 #include "Cluster.h"
 
 using namespace vsp;

@@ -43,7 +43,6 @@ public:
 
     void BuildClean();
 
-    void LoadControlPnts( vector< vector< vec3d > > & pnts );
     void GetBorderCurve( const vec3d &uw0, const vec3d &uw1, Bezier_curve & crv ) const;
 
     vec3d CompPnt( double u, double w ) const;
@@ -129,10 +128,6 @@ public:
     {
         return m_MainSurfID;
     }
-    string GetCompName()
-    {
-        return m_CompName;
-    }
 
     void Draw();
 
@@ -197,16 +192,6 @@ public:
         return m_WakeParentSurfID;
     }
 
-    //Getter/Setter Surface Type
-    void SetSurfaceType( int surfType )
-    {
-        m_SurfType = surfType;
-    }
-    int GetSurfaceType()
-    {
-        return m_SurfType;
-    }
-
     //Getter/Setter Surface CFD TYPE (NEG, TRANS, NORM)
     void SetSurfaceCfdType( int surfCfdType )
     {
@@ -248,10 +233,6 @@ public:
     {
         m_BaseTag = tag;
     }
-    int GetBaseTag()
-    {
-        return m_BaseTag;
-    }
 
     void Subtag( bool tag_subs );
 
@@ -261,7 +242,6 @@ protected:
     int m_UnmergedCompID; // Comp ID that does not change when open components are merged
     string m_GeomID;
     string m_RefGeomID;   // Geom ID of the surface a wake attaches to
-    string m_CompName;
     int m_SurfID;
     int m_MainSurfID;
 
@@ -275,7 +255,6 @@ protected:
     bool m_SymPlaneFlag;
     bool m_FarFlag;
 
-    int m_SurfType;
     int m_SurfCfdType;
 
     SurfCore m_SurfCore;
@@ -292,12 +271,9 @@ protected:
     int m_NumMap;
     vector< vector< MapSource > > m_SrcMap;
 
-    int m_NumWScalePnts;
     bool m_ScaleUFlag;
     vector< double > m_UScaleMap;
     vector< double > m_WScaleMap;
-
-    int m_VspSurfInd;
 
 };
 

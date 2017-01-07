@@ -9,13 +9,9 @@
 
 
 #include "WaveDragScreen.h"
-#include "Cartesian.H"
 #include "SubSurfaceMgr.h"
-#include "SubSurface.h"
 #include "StlHelper.h"
 #include "Util.h"
-
-#include <FL/Fl_Color_Chooser.H>
 
 /////////////////// Construction/Destruction /////////////////////////
 
@@ -242,6 +238,7 @@ WaveDragScreen::~WaveDragScreen()
 
 bool WaveDragScreen::Update()
 {
+    char str[256];
     WaveDragMgr.Update();
 
     Vehicle *veh = VehicleMgr.GetVehicle();
@@ -255,7 +252,6 @@ bool WaveDragScreen::Update()
         int iwing = 0;
         for ( int i = 0 ; i < ( int )geomVec.size() ; i++ )
         {
-            char str[256];
             Geom* g = veh->FindGeom( geomVec[i] );
             if ( g )
             {
@@ -316,11 +312,9 @@ bool WaveDragScreen::Update()
             tdval = WaveDragMgr.m_ThetaRad[ itheta ] * 180.0 / PI;
         }
 
-        char tdvalstr[256];
-        sprintf( tdvalstr, "%.1f", tdval );
-        m_ThetaDegValResult.Update( tdvalstr );
+        sprintf( str, "%.1f", tdval );
+        m_ThetaDegValResult.Update( str );
 
-        char str[255];
         sprintf( str, "%7.4f", WaveDragMgr.m_CDWave );
         m_CDwResult.Update( string( str ) );
 
@@ -357,7 +351,6 @@ bool WaveDragScreen::Update()
             Geom* gptr = veh->FindGeom( geomid );
             if ( gptr )
             {
-                char str[256];
                 sprintf( str, "%s:  %s", gptr->GetName().c_str(), subsurf_vec[i]->GetName().c_str() );
 
                 if ( vector_contains_val( WaveDragMgr.m_SSFlow_vec, subsurf_vec[i]->GetID() ) )

@@ -25,10 +25,10 @@ public:
     bool Update();
 
     void CallBack( Fl_Widget *w );
-    static void staticScreenCB( Fl_Widget *w, void* data )
-    {
-        ( ( BEMOptionsScreen* )data )->CallBack( w );
-    }
+//    static void staticScreenCB( Fl_Widget *w, void* data )
+//    {
+//        ( ( BEMOptionsScreen* )data )->CallBack( w );
+//    }
     virtual void GuiDeviceCallBack( GuiDevice* device );
 
     bool ShowBEMOptionsScreen();

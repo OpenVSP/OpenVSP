@@ -20,7 +20,6 @@
 
 typedef oned_piecewise_curve_type::index_type oned_curve_index_type;
 typedef oned_piecewise_curve_type::point_type oned_curve_point_type;
-typedef oned_piecewise_curve_type::bounding_box_type oned_curve_bounding_box_type;
 typedef oned_piecewise_curve_type::tolerance_type oned_curve_tolerance_type;
 
 

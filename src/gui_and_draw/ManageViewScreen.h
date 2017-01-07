@@ -33,8 +33,6 @@ public:
         ( ( ManageViewScreen* )data )->CallBack( w );
     }
 
-    void LoadDrawObjs(vector< DrawObj* > & draw_obj_vec);
-
     /*!
      * Updates Viewport GUI devices for changes that occur manually
      * in the application; i.e: User manually resizes the window.

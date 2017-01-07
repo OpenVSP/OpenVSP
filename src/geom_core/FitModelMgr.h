@@ -125,15 +125,6 @@ protected:
     vec3d m_Pt;
 };
 
-class FitVar
-{
-public:
-
-    FitVar();
-
-    string m_ParmID;
-};
-
 //==== Fit Model Manager ====//
 class FitModelMgrSingleton
 {

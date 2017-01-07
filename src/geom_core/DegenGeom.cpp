@@ -327,7 +327,7 @@ void DegenGeom::createDegenPlate( DegenPlate &degenPlate, const vector< vector< 
     vector<double>  tVec(  platePnts );
     vector<double>  zVec(  platePnts );
 
-    vec3d  lePnt, tePnt, topPnt, botPnt, chordVec, camberPnt, chordPnt, nPlate;
+    vec3d  lePnt, tePnt, topPnt, botPnt, camberPnt, chordPnt, nPlate;
 
     for ( int i = nLow; i < nHigh; i++ )
     {
@@ -471,7 +471,7 @@ void DegenGeom::createBodyDegenStick( const vector< vector< vec3d > > &pntsarr, 
 void DegenGeom::createDegenStick( DegenStick &degenStick, const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts, int nLow, int nHigh, int startPnt )
 {
     int platePnts = ( num_pnts + 1 ) / 2;
-    vec3d chordVec, camberPnt;
+    vec3d camberPnt;
 
     for ( int i = nLow; i < nHigh; i++ )
     {

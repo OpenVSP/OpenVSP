@@ -99,7 +99,7 @@ STEPcomplex * STEPutil::Geometric_Context( const vsp::LEN_UNITS & len, const vsp
 
         char lenname[10];
         lenname[0] = '\0';
-        double lenconv;
+        double lenconv = 1.0;
 
         switch( len )
         {

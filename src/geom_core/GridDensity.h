@@ -153,22 +153,9 @@ public:
     BaseSimpleSource();
     virtual ~BaseSimpleSource()   {};
 
-    virtual void SetName( const string str )
-    {
-        m_Name = str;
-    }
-    virtual string GetName()
-    {
-        return m_Name;
-    }
     virtual void AdjustLen( double val );
 
     virtual double GetTargetLen( double base_len, vec3d &  pos ) = 0;
-
-    virtual int GetType()
-    {
-        return m_Type;
-    }
 
     virtual void Draw()                                             {}
 
@@ -185,15 +172,10 @@ public:
     double m_Len;
     double m_Rad;
 
-    int m_MainSurfIndx;
     int m_SurfIndx;
     string m_OrigSourceID;
 
 protected:
-
-    string m_Name;
-
-    int m_Type;
 
     BndBox m_Box;
 

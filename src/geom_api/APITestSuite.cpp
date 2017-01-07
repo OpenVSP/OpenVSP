@@ -45,7 +45,7 @@ void APITestSuite::CreateGeometry()
         TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
         //==== Set Name ====//
-        string geom_name = "TestGeom_" + types[i_geom_type];
+        string geom_name = string( "TestGeom_" ) + types[i_geom_type];
         vsp::SetGeomName( geom_id, geom_name );
         printf("\t%s\n", geom_name.c_str());
         TEST_ASSERT( vsp::GetGeomName( geom_id ) == geom_name )

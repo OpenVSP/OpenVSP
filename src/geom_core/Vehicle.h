@@ -122,8 +122,6 @@ public:
     //==== Reset DrawObjs' m_GeomChanged flag to false. ====//
     void ResetDrawObjsGeomChangedFlags();
 
-    int GetFileOpenVersion()                                { return m_FileOpenVersion; }
-
     //==== Geom Sets ====//
     void SetSetName( int index, const string& name );
     vector< string > GetSetNameVec()                        { return m_SetNameVec; }
@@ -231,7 +229,6 @@ public:
 
     //==== Degenerate Geometry ====//
     void CreateDegenGeom( int set );
-    vector< DegenGeom > GetDegenGeomVec()    { return m_DegenGeomVec; }
     string WriteDegenGeomFile();
 
     CfdMeshSettings* GetCfdSettingsPtr()
@@ -296,8 +293,6 @@ public:
     IntParm m_DXFLenUnit;
     IntParm m_2DView;
     IntParm m_2D3DFlag;
-    BoolParm m_3DExport;
-    BoolParm m_2DExport;
     IntParm m_4View1;
     IntParm m_4View2;
     IntParm m_4View3;
@@ -330,8 +325,6 @@ protected:
     vector< string > m_TopGeom;                 // Top (no Parent) Geom IDs
     vector< string > m_ClipBoard;               // Clipboard IDs
 
-    stack< ParmUndo > m_ParmUndoStack;
-
     vector< string > m_SetNameVec;
 
     vector< GeomType > m_GeomTypeVec;
@@ -340,7 +333,6 @@ protected:
     BndBox m_BBox;                              // Bounding Box Around All Geometries
 
     vector< string > CopyGeomVec( const vector<string> & geom_vec );
-    void InsertIntoActiveDeque( const string & add_id, const string & parent_id );  // Insert Geom After Parent
     void SetApplyAbsIgnoreFlag( const vector< string > &g_vec, bool val );
 
     //==== Primary file name ====//

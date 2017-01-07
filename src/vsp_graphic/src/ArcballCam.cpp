@@ -21,11 +21,6 @@ ArcballCam::ArcballCam() : Camera()
     _center = glm::vec2( _vx + _vWidth / 2, _vy + _vHeight / 2 );
     _radius = _vHeight < _vWidth ? _vHeight / 2.0f : _vWidth / 2.0f;
 
-    _prevLB = _prevMB = _prevRB = _prevAltLB = glm::vec2( 0xffffffff );
-
-    _oldRadian = 0.0;
-    _oldZoomValue = 0.0;
-
     camInfo initSave;
     initSave.empty = true;
     initSave.globalQuat = _globalQuat;

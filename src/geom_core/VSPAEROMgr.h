@@ -48,7 +48,6 @@ public:
     ProcessUtil* GetSolverProcess();
     bool IsSolverRunning();
     void KillSolver();
-    void ReadAllResults();
 
     int ExportResultsToCSV( string fileName );
 

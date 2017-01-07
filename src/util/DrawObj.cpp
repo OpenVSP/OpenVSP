@@ -211,8 +211,6 @@ DrawObj::DrawObj()
     m_PointSize = 10.0;
     m_PointColor = vec3d( 1, 0, 0 );
 
-    m_Priority = 0;
-
     m_Ruler.Step = DrawObj::VSP_RULER_STEP_ZERO;
 
     m_MaterialInfo.Ambient[0] = m_MaterialInfo.Ambient[1] = 

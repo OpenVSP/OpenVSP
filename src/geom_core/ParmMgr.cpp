@@ -85,20 +85,6 @@ void ParmMgrSingleton::RemoveParmContainer( ParmContainer* pc  )
     }
 }
 
-//==== Name Compare ====//
-bool NameCompare( const string a, const string b )
-{
-    ParmContainer* pcA = ParmMgr.FindParmContainer( a );
-    ParmContainer* pcB = ParmMgr.FindParmContainer( b );
-
-    if ( pcA && pcB )
-    {
-        return ( pcA->GetName() < pcB->GetName() );
-    }
-    return ( false );
-}
-
-
 //==== Find Parm GivenID ====//
 Parm* ParmMgrSingleton::FindParm( const string & id )
 {

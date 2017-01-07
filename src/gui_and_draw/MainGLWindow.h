@@ -194,10 +194,6 @@ private:
     };
     std::vector<ID> m_ids;
 
-    float m_LightAmb;
-    float m_LightDiff;
-    float m_LightSpec;
-
     int m_mouse_x;
     int m_mouse_y;
 

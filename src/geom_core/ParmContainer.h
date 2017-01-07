@@ -41,10 +41,8 @@ public:
     virtual void AddParm( const string & id );
     virtual void RemoveParm( const string & id );
 
-    virtual string GetParentContainer()             { return m_ParentContainer; }
     virtual ParmContainer* GetParentContainerPtr();
 
-    virtual bool GetLateUpdateFlag()                { return m_LateUpdateFlag; }
     virtual void SetLateUpdateFlag( bool flag )     { m_LateUpdateFlag = flag; }
     virtual int GetLatestChangeCnt();
 
@@ -75,8 +73,6 @@ protected:
 
     string m_Name;
 
-    bool m_LockParmContainerID;
-    bool m_LockParmID;
     bool m_LateUpdateFlag;
 
     vector< string > m_ParmVec;                         // Parms in container

@@ -8,18 +8,12 @@
 #include "ScreenshotScreen.h"
 #include "ScreenMgr.h"
 
-#include "MainVSPScreen.h"
 #include "MainGLWindow.h"
 
 #include "GraphicEngine.h"
-#include "Display.h"
 #include "Viewport.h"
-#include "TextureRepo.h"
-#include "GraphicSingletons.h"
-#include "Common.h"
 
 #include "FL/Fl_File_Chooser.H"
-#include "OpenGLHeaders.h"
 
 ScreenshotScreen::ScreenshotScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 270, 233, "Screenshot" )
 {

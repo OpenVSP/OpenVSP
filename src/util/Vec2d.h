@@ -61,10 +61,6 @@ public:
     vec2d& set_y( double yy );
 
     // Get Point Values
-    double* get_pnt()
-    {
-        return( v );
-    }
     double x() const;
     double y() const;
     double* data()

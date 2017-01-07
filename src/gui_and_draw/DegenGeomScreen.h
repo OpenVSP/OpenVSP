@@ -33,7 +33,6 @@ public:
         ( ( DegenGeomScreen* )data )->CallBack( w );
     }
 
-    void LoadDrawObjs(vector< DrawObj* > & draw_obj_vec);
     void LoadSetChoice();
     string truncateFileName( const string &fn, int len );
 

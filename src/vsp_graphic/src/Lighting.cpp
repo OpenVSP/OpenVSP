@@ -162,9 +162,6 @@ Lighting::Lighting()
     _lightSources.push_back( light5 );
     _lightSources.push_back( light6 );
     _lightSources.push_back( light7 );
-
-    _enabled = false;
-    _isChanged = false;
 }
 Lighting::~Lighting()
 {
@@ -181,7 +178,6 @@ void Lighting::update()
     {
         _lightSources[i]->update();
     }
-    _isChanged = false;
 }
 
 std::vector<bool> Lighting::getLightEnableStatus()

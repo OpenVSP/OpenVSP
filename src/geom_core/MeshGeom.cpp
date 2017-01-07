@@ -31,7 +31,6 @@ MeshGeom::MeshGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_Name = "MeshGeom";
     m_Type.m_Name = "Mesh";
     m_Type.m_Type = MESH_GEOM_TYPE;
-    m_FileName = "";
 
     m_TessU.Deactivate();
     m_TessW.Deactivate();
@@ -55,7 +54,6 @@ MeshGeom::MeshGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_TotalTheoArea = m_TotalWetArea = 0.0;
     m_TotalTheoVol  = m_TotalWetVol  = 0.0;
 
-    m_MassPropFlag = 0;
     m_CenterOfGrav = vec3d( 0, 0, 0 );
     m_TotalMass = 0.0;
     m_TotalIxx = 0.0;
@@ -163,7 +161,6 @@ xmlNodePtr MeshGeom::DecodeXml( xmlNodePtr & node )
 
 int MeshGeom::ReadXSec( const char* file_name )
 {
-    int i, j, c;
     FILE *fp;
     char str[256];
 
@@ -189,7 +186,7 @@ int MeshGeom::ReadXSec( const char* file_name )
     }
 
     TMesh*  tMesh = new TMesh();
-    for ( c = 0 ; c < num_comps ; c++ )
+    for ( int c = 0 ; c < num_comps ; c++ )
     {
         char name_str[256];
         float x, y, z;
@@ -205,10 +202,10 @@ int MeshGeom::ReadXSec( const char* file_name )
 
         //===== Size Cross Vec ====//
         crossVec.resize( num_cross );
-        for ( i = 0 ; i < num_cross ; i++ )
+        for ( int i = 0 ; i < num_cross ; i++ )
         {
             crossVec[i].resize( num_pnts );
-            for ( j = 0 ; j < num_pnts ; j++ )
+            for ( int j = 0 ; j < num_pnts ; j++ )
             {
                 fscanf( fp, "%f %f %f\n", &x, &y, &z );
                 crossVec[i][j] = vec3d( x, y, z );
@@ -256,8 +253,6 @@ void MeshGeom::AddTri( TMesh* tMesh, vec3d & p0, vec3d & p1, vec3d & p2 )
 
 int MeshGeom::ReadSTL( const char* file_name )
 {
-    m_FileName = file_name;
-
     FILE* file_id = fopen( file_name, "r" );
 
     char str[256];
@@ -664,7 +659,7 @@ void MeshGeom::BuildIndexedMesh( int partOffset )
                     {
                         char str[80];
                         sprintf( str, "%d", partOffset + m + 1 );
-                        tri->m_SplitVec[s]->m_ID = str;
+                        tri->m_SplitVec[s]->m_ID = string( str );
                         m_IndexedTriVec.push_back( tri->m_SplitVec[s] );
                     }
                 }
@@ -673,7 +668,7 @@ void MeshGeom::BuildIndexedMesh( int partOffset )
             {
                 char str[80];
                 sprintf( str, "%d", partOffset + m + 1 );
-                tri->m_ID = str;
+                tri->m_ID = string( str );
                 m_IndexedTriVec.push_back( tri );
             }
         }
@@ -692,7 +687,7 @@ void MeshGeom::BuildIndexedMesh( int partOffset )
                     {
                         char str[80];
                         sprintf( str, "%d", partOffset + m + 1 + mTMesh );
-                        tri->m_SplitVec[s]->m_ID = str;
+                        tri->m_SplitVec[s]->m_ID = string( str );
                         m_IndexedTriVec.push_back( tri->m_SplitVec[s] );
                     }
                 }
@@ -701,7 +696,7 @@ void MeshGeom::BuildIndexedMesh( int partOffset )
             {
                 char str[80];
                 sprintf( str, "%d", partOffset + m + 1 + mTMesh );
-                tri->m_ID = str;
+                tri->m_ID = string( str );
                 m_IndexedTriVec.push_back( tri );
             }
         }
@@ -3103,7 +3098,6 @@ void MeshGeom::MassSliceX( int numSlices, bool writefile )
         cg = cg * ( 1.0 / m_TotalMass );
     }
 
-    m_MassPropFlag = 1;
     m_CenterOfGrav = cg;
 
     m_TotalIxx = m_TotalIyy = m_TotalIzz = 0.0;
@@ -3170,7 +3164,7 @@ void MeshGeom::MassSliceX( int numSlices, bool writefile )
             }
         }
 
-        vec3d cg( 0, 0, 0 );
+        cg = vec3d( 0, 0, 0 );
         double compMass = 0.0;
         for ( i = 0 ; i < ( int )tetraVec.size() ; i++ )
         {

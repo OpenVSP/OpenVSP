@@ -23,7 +23,6 @@
 GuiInterface::GuiInterface()
 {
     m_ScreenMgr = NULL;
-    m_Vehicle = NULL;
 }
 
 //==== Destructor ====//
@@ -36,8 +35,6 @@ GuiInterface::~GuiInterface()
 
 void GuiInterface::InitGui( Vehicle* vPtr )
 {
-    m_Vehicle = vPtr;
-
 #ifdef VSP_USE_FLTK
     if( !m_ScreenMgr )
     {

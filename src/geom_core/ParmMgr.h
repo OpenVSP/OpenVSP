@@ -75,7 +75,6 @@ public:
     void ResetRemapID();
 
     void SetActiveParm( string id )         { m_ActiveParmID = id; }
-    string GetActiveParmID()                { return m_ActiveParmID; }
     Parm* GetActiveParm()                   { return FindParm( m_ActiveParmID ); }
     int GetNumParmChanges()                 { return m_NumParmChanges; }
     int GetChangeCnt()                      { m_ChangeCnt++; return m_ChangeCnt; }

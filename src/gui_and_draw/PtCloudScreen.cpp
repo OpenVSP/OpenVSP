@@ -8,10 +8,7 @@
 #include "PtCloudScreen.h"
 #include "PtCloudGeom.h"
 #include "ScreenMgr.h"
-#include "Vehicle.h"
 #include "ParmMgr.h"
-
-#include <assert.h>
 
 
 //==== Constructor ====//

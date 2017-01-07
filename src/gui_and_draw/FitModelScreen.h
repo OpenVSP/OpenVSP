@@ -134,8 +134,6 @@ protected:
     TriggerButton m_Save;
     TriggerButton m_Load;
 
-    vector< DrawObj > m_PickList;
-
 };
 
 #endif

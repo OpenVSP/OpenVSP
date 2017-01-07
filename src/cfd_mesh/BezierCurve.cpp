@@ -19,13 +19,7 @@
 #include "eli/geom/curve/length.hpp"
 
 typedef piecewise_curve_type::index_type curve_index_type;
-typedef piecewise_curve_type::rotation_matrix_type curve_rotation_matrix_type;
-typedef piecewise_curve_type::bounding_box_type curve_bounding_box_type;
 typedef piecewise_curve_type::tolerance_type curve_tolerance_type;
-
-typedef eli::geom::curve::piecewise_cubic_spline_creator<double, 3, curve_tolerance_type> piecewise_cubic_spline_creator_type;
-typedef eli::geom::curve::piecewise_linear_creator<double, 3, curve_tolerance_type> piecewise_linear_creator_type;
-
 
 //===== Constructor  =====//
 Bezier_curve::Bezier_curve()

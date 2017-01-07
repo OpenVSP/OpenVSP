@@ -857,7 +857,7 @@ vec3d VspCurve::CompTan01( double u )
 //===== Compute Length =====//
 double VspCurve::CompLength( double tol )
 {
-    double len;
+    double len = 0.0;
     eli::geom::curve::length( len, m_Curve, tol );
 
     return len;

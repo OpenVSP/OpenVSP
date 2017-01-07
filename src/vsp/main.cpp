@@ -181,11 +181,11 @@ void* CheckVersionNumber( void *threadid )
             }
         }
         //===== Write Time =====//
-        FILE* vsptime_fp = fopen( ".vsptime", "w" );
-        if ( vsptime_fp )
+        FILE* vsptime_fpw = fopen( ".vsptime", "w" );
+        if ( vsptime_fpw )
         {
-            fprintf( vsptime_fp, "%d", ( int )time( NULL ) );
-            fclose( vsptime_fp );
+            fprintf( vsptime_fpw, "%d", ( int )time( NULL ) );
+            fclose( vsptime_fpw );
         }
     }
 

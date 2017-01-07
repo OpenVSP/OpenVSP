@@ -454,9 +454,9 @@ string CompGeomAnalysis::Execute()
 
     if ( veh )
     {
-        int geomSet;
-        int halfMeshFlag;
-        int subSurfFlag;
+        int geomSet = 0;
+        int halfMeshFlag = 0;
+        int subSurfFlag = 1;
 
         NameValData *nvd = NULL;
 
@@ -573,8 +573,8 @@ string MassPropAnalysis::Execute()
 
     if ( veh )
     {
-        int geomSet;
-        int numMassSlice;
+        int geomSet = 0;
+        int numMassSlice = 20;
 
         NameValData *nvd = NULL;
 
@@ -621,11 +621,11 @@ string PlanarSliceAnalysis::Execute()
 
     if ( veh )
     {
-        int geomSet;
-        int numSlice;
-        vec3d axis;
+        int geomSet = 0;
+        int numSlice = 10;
+        vec3d axis( 1.0, 0.0, 0.0 );
         bool autobnd = true;
-        double start, end;
+        double start = 0.0, end = 10.0;
 
         NameValData *nvd = NULL;
 
@@ -776,7 +776,7 @@ string ProjectionAnalysis::Execute()
         dir = ProjectionMgr.GetDirection( directionType, directionGeomID );
     }
 
-    Results* res;
+    Results* res = NULL;
 
     switch ( boundaryType )
     {
@@ -812,7 +812,14 @@ string ProjectionAnalysis::Execute()
             break;
     }
 
-    return res->GetID();
+    if ( !res )
+    {
+        return string();
+    }
+    else
+    {
+        return res->GetID();
+    }
 }
 
 //======================================================================================//
@@ -838,12 +845,12 @@ string WaveDragAnalysis::Execute()
 
     if ( veh )
     {
-        int set;
-        int numSlices;
-        int numRots;
-        double Mach;
-        vector <string> Flow_vec;
-        bool Symm;
+        int set = WaveDragMgr.m_SelectedSetIndex.Get();
+        int numSlices = WaveDragMgr.m_NumSlices.Get();
+        int numRots = WaveDragMgr.m_NumRotSects.Get();
+        double Mach = WaveDragMgr.m_MachNumber.Get();
+        vector <string> Flow_vec = WaveDragMgr.m_SSFlow_vec;
+        bool Symm = WaveDragMgr.m_SymmFlag.Get();
 
         NameValData *nvd = NULL;
 
@@ -921,10 +928,9 @@ string VSPAERODegenGeomAnalysis::Execute()
 
         // Apply current analysis input values
         nvd = m_Inputs.FindPtr( "GeomSet", 0 );
-        int geomSetOrig;
+        int geomSetOrig = VSPAEROMgr.m_GeomSet.Get();
         if ( nvd )
         {
-            geomSetOrig = VSPAEROMgr.m_GeomSet.Get();
             VSPAEROMgr.m_GeomSet.Set( nvd->GetInt( 0 ) );
         }
 

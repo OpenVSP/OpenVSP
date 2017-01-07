@@ -7,14 +7,11 @@
 
 #include "ManageGeomScreen.h"
 #include "ScreenMgr.h"
-#include "Vehicle.h"
 #include "StlHelper.h"
 #include "StringUtil.h"
-#include "APIDefines.h"
+
 using namespace vsp;
 
-
-#include <assert.h>
 
 //==== Constructor ====//
 ManageGeomScreen::ManageGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 235, 625, "Geom Browser" )

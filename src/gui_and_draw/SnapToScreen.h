@@ -49,8 +49,6 @@ protected:
     StringOutput m_MinDistOutput;
 
     TriggerButton m_CheckClearance;
-    ToggleButton m_Center;
-
 
     Choice m_SetChoice;
     Choice m_MethodChoice;

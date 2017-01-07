@@ -20,7 +20,6 @@ SubSurface::SubSurface( string compID, int type )
     m_Type = type;
     m_CompID = compID;
     m_Tag = 0;
-    m_UpdateDrawFlag = true;
     m_LineColor = vec3d( 0, 0, 0 );
     m_PolyPntsReadyFlag = false;
     m_FirstSplit = true;
@@ -88,11 +87,6 @@ vector< TMesh* > SubSurface::CreateTMeshVec()
 
 void SubSurface::UpdateDrawObjs()
 {
-    if ( !m_UpdateDrawFlag )
-    {
-        return;
-    }
-
     Vehicle* veh = VehicleMgr.GetVehicle();
     if ( !veh )
     {

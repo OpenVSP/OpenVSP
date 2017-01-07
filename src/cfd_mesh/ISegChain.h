@@ -78,8 +78,6 @@ public:
     deque< IPnt* > m_IPnts;
     vector< int > m_AdjBins;            // Adjancent Bins
 
-    deque< ISegChain* > m_Chains;
-
     IPnt* Match( IPnt* ip, map< int, IPntBin > & binMap );
     void AddCompareIPnts( IPnt* ip, vector< IPnt* > & compareIPntVec );
 

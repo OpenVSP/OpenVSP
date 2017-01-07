@@ -86,7 +86,6 @@ void HingeGeom::UpdateSurf()
     // Evaluate hinge base point.
     m_BaseOrigin = m_ModelMatrix.xform( vec3d( 0.0, 0.0, 0.0 ) );
     m_PrimEndpt = m_BaseOrigin;
-    m_SecEndpt = m_BaseOrigin;
 
     // Ensure secondary and primary directions are different.
     if ( m_PrimaryDir() == m_SecondaryDir() )

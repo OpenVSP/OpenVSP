@@ -12,7 +12,6 @@
 #include "ScreenMgr.h"
 #include "StringUtil.h"
 
-#include <stdio.h>  /* defines FILENAME_MAX */
 #ifdef WIN32
 #include <direct.h>
 #define GetCurrentDir _getcwd

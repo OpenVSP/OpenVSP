@@ -113,14 +113,6 @@ public:
     void SetMaterialToDefault();
     void SetMaterial( std::string name, double ambi[], double diff[], double spec[], double emis[], double shin );
     void SetMaterial( const std::string &name );
-    void SetMaterialID( int m )
-    {
-        m_MaterialID = m;
-    }
-    virtual int getMaterialID()
-    {
-        return m_MaterialID;
-    }
 
     void SetDisplayChildrenFlag( bool f )
     {
@@ -171,8 +163,6 @@ protected:
     bool m_DispSubSurfFlag;
     bool m_DispFeatureFlag;
 
-    int m_MaterialID;
-
     TextureMgr m_TextureMgr;
     ColorMgr m_ColorMgr;
     Material m_Material;
@@ -195,7 +185,6 @@ public:
     }
 
     virtual void Update( bool fullupdate = true )           {}
-    virtual void UpdateXForm()                              {}
 
     virtual void ParmChanged( Parm* parm_ptr, int type );
     virtual void ForceUpdate();
@@ -229,8 +218,6 @@ public:
 
     virtual bool UpdatedParm( const string & id );
 
-    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )      {}
-
     virtual void LoadIDAndChildren( vector< string > & id_vec, bool check_display_flag = false );
 
     virtual bool IsMatch( const string& id_string );
@@ -260,7 +247,6 @@ public:
     virtual ~GeomXForm();
 
     virtual void Update( bool fullupdate = true );
-    virtual void UpdateXForm();
     virtual void ComposeModelMatrix();
     virtual Matrix4d ComposeAttachMatrix();
     virtual void SetCenter( double x, double y, double z )      { m_Center.set_xyz( x, y, z ); }
@@ -547,49 +533,8 @@ public:
     {
         m_WakeActiveFlag.Set( flag );
     }
-    virtual bool GetWakeActiveFlag()
-    {
-        return m_WakeActiveFlag();
-    }
     virtual void AppendWakeEdges( vector< vector< vec3d > > & edges );
     virtual bool HasWingTypeSurfs();
-
-    //==== Override end capping ====//
-    bool CapUMin() const
-    {
-      return m_CapUMin;
-    }
-    void CapUMin( bool cp )
-    {
-      m_CapUMin = cp;
-    }
-
-    bool CapUMax() const
-    {
-      return m_CapWMax;
-    }
-    void CapUMax( bool cp )
-    {
-      m_CapWMax = cp;
-    }
-
-    bool CapWMin() const
-    {
-      return m_CapWMin;
-    }
-    void CapWMin( bool cp )
-    {
-      m_CapWMin = cp;
-    }
-
-    bool CapWMax() const
-    {
-      return m_CapWMax;
-    }
-    void CapWMax( bool cp )
-    {
-      m_CapWMax = cp;
-    }
 
     //=== End Cap Parms ===//
     IntParm m_CapUMinOption;
@@ -662,12 +607,6 @@ protected:
     int currSourceID;
     vector< BaseSource* > m_MainSourceVec;
     vector< BaseSimpleSource* > m_SimpSourceVec;
-
-    //==== Manual override of caps ====//
-    bool m_CapUMin;
-    bool m_CapUMax;
-    bool m_CapWMin;
-    bool m_CapWMax;
 
     vector< bool > m_CapUMinSuccess;
     vector< bool > m_CapUMaxSuccess;

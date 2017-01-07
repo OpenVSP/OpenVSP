@@ -254,8 +254,6 @@ void Vehicle::Wype()
 //jrg should we clear types????
     m_GeomTypeVec.clear();
 
-    m_ParmUndoStack = stack< ParmUndo >();
-
     m_BBox = BndBox();
 
     m_ExportFileNames.clear();
@@ -563,12 +561,12 @@ string Vehicle::AddMeshGeom( int set )
     // Create TMeshVec
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
-        Geom* geom_ptr = FindGeom( geom_vec[i] );
-        if ( geom_ptr )
+        Geom* g_ptr = FindGeom( geom_vec[i] );
+        if ( g_ptr )
         {
-            if ( geom_ptr->GetSetFlag( set ) )
+            if ( g_ptr->GetSetFlag( set ) )
             {
-                vector< TMesh* > tMeshVec = geom_ptr->CreateTMeshVec();
+                vector< TMesh* > tMeshVec = g_ptr->CreateTMeshVec();
                 for ( int j = 0 ; j < ( int )tMeshVec.size() ; j++ )
                 {
                     mesh_geom->m_TMeshVec.push_back( tMeshVec[j] );

@@ -1180,7 +1180,7 @@ void VSPAEROMgrSingleton::ReadLoadFile( string filename, vector <string> &res_id
     std::vector< std::string > data_string_array;
     std::vector< std::vector< double > > data_array;
 
-    double cref;
+    double cref = 1.0;
 
     char seps[]   = " :,\t\n";
     while ( !feof( fp ) )

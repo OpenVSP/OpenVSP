@@ -447,7 +447,6 @@ Tri::Tri()
     n0 = n1 = n2 = NULL;
     e0 = e1 = e2 = NULL;
     deleteFlag = false;
-    intExtCount = 0;
 }
 
 Tri::Tri( Node* nn0, Node* nn1, Node* nn2, Edge* ee0, Edge* ee1, Edge* ee2 )
@@ -456,7 +455,6 @@ Tri::Tri( Node* nn0, Node* nn1, Node* nn2, Edge* ee0, Edge* ee1, Edge* ee2 )
     debugFlag = false;
     SetNodesEdges( nn0, nn1, nn2, ee0, ee1, ee2 );
     deleteFlag = false;
-    intExtCount = 0;
 }
 
 Tri::~Tri()

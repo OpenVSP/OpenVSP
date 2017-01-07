@@ -5,15 +5,11 @@
 #include "ManageTextureScreen.h"
 #include "textureMgrFlScreen.h"
 
-#include "SubGLWindow.h"
 #include "GraphicEngine.h"
 #include "Display.h"
 #include "Viewport.h"
 #include "Background.h"
 #include "GraphicSingletons.h"
-
-#include "Geom.h"
-#include "TextureMgr.h"
 
 ManageTextureScreen::ManageTextureScreen( ScreenMgr * mgr ) : VspScreen( mgr )
 {

@@ -63,7 +63,6 @@ public:
     // Solver thread kill flags (these must be public because they are accessed by the thread)
     bool m_SolverSetupThreadIsRunning;
     bool m_SolverThreadIsRunning;
-    bool m_RunSolverMonitor;
 
 protected:
 

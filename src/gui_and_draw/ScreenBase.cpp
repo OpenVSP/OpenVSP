@@ -822,7 +822,6 @@ bool GeomScreen::Update()
     int nmain = geom_ptr->GetNumMainSurfs();
     for ( int i = 0; i < nmain; ++i )
     {
-        char str[256];
         sprintf( str, "Surf_%d", i );
         m_SubSurfSelectSurface.AddItem( str );
     }

@@ -7,14 +7,12 @@
 #include "ManageViewScreen.h"
 #include "ScreenMgr.h"
 
-#include "MainVSPScreen.h"
 #include "MainGLWindow.h"
 
 #include "ManageCORScreen.h"
 
 #include "GraphicEngine.h"
 #include "Display.h"
-#include "FL/Fl.H"
 
 ManageViewScreen::ManageViewScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 445 + 45, "Adjust View" )
 {

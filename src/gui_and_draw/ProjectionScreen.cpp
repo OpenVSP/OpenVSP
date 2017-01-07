@@ -7,8 +7,6 @@
 
 #include "ProjectionScreen.h"
 #include "ProjectionMgr.h"
-#include "Vehicle.h"
-#include "MeshGeom.h"
 
 ProjectionScreen::ProjectionScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 300, 397, "Projected Area Analysis" )
 {

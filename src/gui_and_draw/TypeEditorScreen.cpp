@@ -9,8 +9,6 @@
 #include "ScreenMgr.h"
 #include "CustomGeom.h"
 
-#include <assert.h>
-
 //==== Constructor ====//
 TypeEditorScreen::TypeEditorScreen( ScreenMgr* mgr ) : VspScreen( mgr )
 {

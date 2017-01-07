@@ -163,7 +163,6 @@ public:
     Parm m_TotalProjSpan;
     Parm m_TotalChord;
     Parm m_TotalArea;
-    double m_TotalAspectRatio;
 
     Parm m_LECluster;
     Parm m_TECluster;

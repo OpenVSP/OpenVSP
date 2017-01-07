@@ -21,8 +21,6 @@ typedef eli::geom::surface::piecewise<eli::geom::surface::bezier, double, 3> pie
 typedef piecewise_surface_type::point_type surface_point_type;
 
 typedef piecewise_surface_type::tolerance_type surface_tolerance_type;
-typedef eli::geom::curve::piecewise_cubic_spline_creator<double, 3, surface_tolerance_type> piecewise_cubic_spline_creator_type;
-typedef eli::geom::surface::connection_data<double, 3, surface_tolerance_type> rib_data_type;
 
 #include <vector>
 using std::vector;
@@ -50,11 +48,6 @@ public:
     vec3d CompPnt01( double u, double w ) const;
 
     void CompCurvature( double u, double w, double& k1, double& k2, double& ka, double& kg ) const;
-
-    double GetUWArea() const
-    {
-        return GetDU() * GetDW();
-    }
 
     int GetNumUPatches() const
     {
