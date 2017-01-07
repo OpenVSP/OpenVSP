@@ -757,11 +757,14 @@ void MeshGeom::BuildIndexedMesh( int partOffset )
     for ( t = 0 ; t < ( int )m_IndexedTriVec.size() ; t++ )
     {
         TTri* ttri = m_IndexedTriVec[t];
-        if ( ttri->m_N0->m_ID != ttri->m_N1->m_ID &&
-                ttri->m_N0->m_ID != ttri->m_N2->m_ID &&
-                ttri->m_N1->m_ID != ttri->m_N2->m_ID )
+        if( ttri )
         {
-            goodTriVec.push_back( ttri );
+            if ( ttri->m_N0->m_ID != ttri->m_N1->m_ID &&
+                    ttri->m_N0->m_ID != ttri->m_N2->m_ID &&
+                    ttri->m_N1->m_ID != ttri->m_N2->m_ID )
+            {
+                goodTriVec.push_back( ttri );
+            }
         }
     }
     m_IndexedTriVec = goodTriVec;
@@ -778,8 +781,11 @@ void MeshGeom::WriteNascartPnts( FILE* fp )
     {
         TNode* tnode = m_IndexedNodeVec[i];
         // Apply Transformations
-        v = XFormMat.xform( tnode->m_Pnt );
-        fprintf( fp, "%16.10g %16.10g %16.10g\n", v.x(), v.z(), -v.y() );
+        if( tnode )
+        {
+            v = XFormMat.xform( tnode->m_Pnt );
+            fprintf( fp, "%16.10g %16.10g %16.10g\n", v.x(), v.z(), -v.y() );
+        }
     }
 }
 
@@ -792,8 +798,11 @@ void MeshGeom::WriteCart3DPnts( FILE* fp )
     {
         TNode* tnode = m_IndexedNodeVec[i];
         // Apply Transformations
-        v = XFormMat.xform( tnode->m_Pnt );
-        fprintf( fp, "%16.10g %16.10g %16.10g\n", v.x(), v.y(),  v.z() );
+        if( tnode )
+        {
+            v = XFormMat.xform( tnode->m_Pnt );
+            fprintf( fp, "%16.10g %16.10g %16.10g\n", v.x(), v.y(),  v.z() );
+        }
     }
 }
 
@@ -805,9 +814,12 @@ int MeshGeom::WriteGMshNodes( FILE* fp, int node_offset )
     {
         TNode* tnode = m_IndexedNodeVec[i];
         // Apply Transformations
-        v = XFormMat.xform( tnode->m_Pnt );
-        fprintf( fp, "%d %16.10f %16.10f %16.10f\n", i + node_offset + 1,
-                 v.x(), v.y(), v.z() );
+        if( tnode )
+        {
+            v = XFormMat.xform( tnode->m_Pnt );
+            fprintf( fp, "%d %16.10f %16.10f %16.10f\n", i + node_offset + 1,
+                     v.x(), v.y(), v.z() );
+        }
     }
     return node_offset + ( int )m_IndexedNodeVec.size();
 }
@@ -818,8 +830,11 @@ int MeshGeom::WriteNascartTris( FILE* fp, int off )
     for ( int t = 0 ; t < ( int )m_IndexedTriVec.size() ; t++ )
     {
         TTri* ttri = m_IndexedTriVec[t];
-        fprintf( fp, "%d %d %d %d.0\n", ttri->m_N0->m_ID + 1 + off,  ttri->m_N2->m_ID + 1 + off,
-                 ttri->m_N1->m_ID + 1 + off, SubSurfaceMgr.GetTag( ttri->m_Tags ) );
+        if( ttri )
+        {
+            fprintf( fp, "%d %d %d %d.0\n", ttri->m_N0->m_ID + 1 + off,  ttri->m_N2->m_ID + 1 + off,
+                     ttri->m_N1->m_ID + 1 + off, SubSurfaceMgr.GetTag( ttri->m_Tags ) );
+        }
     }
 
     return ( off + m_IndexedNodeVec.size() );
@@ -831,7 +846,10 @@ int MeshGeom::WriteCart3DTris( FILE* fp, int off )
     for ( int t = 0 ; t < ( int )m_IndexedTriVec.size() ; t++ )
     {
         TTri* ttri = m_IndexedTriVec[t];
-        fprintf( fp, "%d %d %d\n", ttri->m_N0->m_ID + 1 + off,  ttri->m_N1->m_ID + 1 + off, ttri->m_N2->m_ID + 1 + off );
+        if( ttri )
+        {
+            fprintf( fp, "%d %d %d\n", ttri->m_N0->m_ID + 1 + off,  ttri->m_N1->m_ID + 1 + off, ttri->m_N2->m_ID + 1 + off );
+        }
     }
 
     return ( off + m_IndexedNodeVec.size() );
@@ -843,8 +861,11 @@ int MeshGeom::WriteGMshTris( FILE* fp, int node_offset, int tri_offset )
     for ( int t = 0 ; t < ( int )m_IndexedTriVec.size() ; t++ )
     {
         TTri* ttri = m_IndexedTriVec[t];
-        fprintf( fp, "%d 2 0 %d %d %d\n", t + tri_offset + 1,
-                 ttri->m_N0->m_ID + 1 + node_offset,  ttri->m_N2->m_ID + 1 + node_offset, ttri->m_N1->m_ID + 1 + node_offset );
+        if( ttri )
+        {
+            fprintf( fp, "%d 2 0 %d %d %d\n", t + tri_offset + 1,
+                     ttri->m_N0->m_ID + 1 + node_offset,  ttri->m_N2->m_ID + 1 + node_offset, ttri->m_N1->m_ID + 1 + node_offset );
+        }
     }
     return ( tri_offset + m_IndexedTriVec.size() );
 }
