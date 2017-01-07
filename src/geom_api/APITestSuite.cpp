@@ -286,7 +286,7 @@ void APITestSuite::TestDXFExport()
     string wing_id = vsp::AddGeom( "WING" );
     TEST_ASSERT( wing_id.c_str() != NULL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "TotalSpan", "WingGeom", 30.0 ), 30.0, TEST_TOL );
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "LECluster", "WingGeom", 0.0 ), 0.0, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "LECluster", "WingGeom", 0.1 ), 0.1, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "TECluster", "WingGeom", 2.0 ), 2.0, TEST_TOL );
     vsp::Update();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
@@ -372,12 +372,12 @@ void APITestSuiteVSPAERO::TestVSPAeroCreateModel()
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "Z_Rel_Location", "XForm", 0.5 ), 0.5, TEST_TOL);
     // Adjust chordwise tesselation
     //TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "Tess_W", "Shape", 33 ), 33, TEST_TOL);
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "LECluster", "WingGeom", 0.0 ), 0.0, TEST_TOL);
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "LECluster", "WingGeom", 0.1 ), 0.1, TEST_TOL);
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "TECluster", "WingGeom", 2.0 ), 2.0, TEST_TOL);
     // Adjust spanwise tesselation
     //TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "SectTess_U", "XSec_1", 25 ), 25, TEST_TOL);
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "InCluster", "XSec_1", 0.1 ), 0.1, TEST_TOL);
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "OutCluster", "XSec_1", 0.0 ), 0.0, TEST_TOL);
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "OutCluster", "XSec_1", 0.1 ), 0.1, TEST_TOL);
     string subsurf_id = AddSubSurf( wing_id, vsp::SS_CONTROL, 0 );
     TEST_ASSERT( subsurf_id.c_str() != NULL );
     /*
@@ -404,11 +404,11 @@ void APITestSuiteVSPAERO::TestVSPAeroCreateModel()
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing2_id, "X_Rel_Location", "XForm", 9.0 ), 9.0, TEST_TOL);
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing2_id, "X_Rel_Rotation", "XForm", 30.0 ), 60.0, TEST_TOL);
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing2_id, "TotalSpan", "WingGeom", 5.0 ), 5.0, TEST_TOL);
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing2_id, "LECluster", "WingGeom", 0.0 ), 0.0, TEST_TOL);
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing2_id, "LECluster", "WingGeom", 0.1 ), 0.1, TEST_TOL);
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing2_id, "TECluster", "WingGeom", 2.0 ), 2.0, TEST_TOL);
     //TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing2_id, "SectTess_U", "XSec_1", 25 ), 25, TEST_TOL);
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing2_id, "InCluster", "XSec_1", 0.1 ), 0.1, TEST_TOL);
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing2_id, "OutCluster", "XSec_1", 0.0 ), 0.0, TEST_TOL);
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing2_id, "OutCluster", "XSec_1", 0.1 ), 0.1, TEST_TOL);
     // change symetry for tail to make Y shape tail
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing2_id, "Sym_Planar_Flag", "Sym", 0 ), 0, TEST_TOL); //no planar symetry
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing2_id, "Sym_Axial_Flag", "Sym", vsp::SYM_ROT_X ), vsp::SYM_ROT_X, TEST_TOL); // X-a
