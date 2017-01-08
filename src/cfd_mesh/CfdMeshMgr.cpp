@@ -4952,59 +4952,59 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 
     draw_obj_vec.push_back( &m_MeshBadTriDO );
 
-//    // Draw ISegChains
-//    m_ISegChainDO.m_GeomID = GetID() + "ISEGCHAIN";
-//    m_ISegChainDO.m_Type = DrawObj::VSP_LINES;
-//    m_ISegChainDO.m_Visible = true;
-//    m_ISegChainDO.m_LineColor = vec3d( 0, 0, 1 );
-//    m_ISegChainDO.m_LineWidth = 3.0;
-//
-//    m_ISegChainPtsDO.m_GeomID = GetID() + "ISEGCHAINPTS";
-//    m_ISegChainPtsDO.m_Type = DrawObj::VSP_POINTS;
-//    m_ISegChainPtsDO.m_Visible = true;
-//    m_ISegChainPtsDO.m_PointColor = vec3d( 0, 0, 0 );
-//    m_ISegChainPtsDO.m_PointSize = 10.0;
-//
-//
-//    m_ISegChainDO.m_PntVec.clear();
-//    m_ISegChainPtsDO.m_PntVec.clear();
-//    list< ISegChain* >::iterator c;
-//    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
-//    {
-//        if ( true )
-//        {
-//            m_ISegChainPtsDO.m_PntVec.push_back( (*c)->m_TessVec[0]->m_Pnt );
-//            for ( int j = 1 ; j < ( int )( *c )->m_TessVec.size() ; j++ )
-//            {
-//                m_ISegChainDO.m_PntVec.push_back( (*c)->m_TessVec[j-1]->m_Pnt );
-//                m_ISegChainDO.m_PntVec.push_back( (*c)->m_TessVec[j]->m_Pnt );
-//                m_ISegChainPtsDO.m_PntVec.push_back( (*c)->m_TessVec[j]->m_Pnt );
-//            }
-//
-//        }
-//        else
-//        {
-//            Bezier_curve xyzcrvA = (*c)->m_ACurve.GetUWCrv();
-//            xyzcrvA.UWCurveToXYZCurve( (*c)->m_ACurve.GetSurf() );
-//            vector< vec3d > ptvec;
-//            xyzcrvA.GetControlPoints(ptvec);
-//
-//            m_ISegChainPtsDO.m_PntVec.insert( m_ISegChainPtsDO.m_PntVec.begin(), ptvec.begin(), ptvec.end() );
-//
-//            for ( int j = 1; j < ptvec.size(); j++ )
-//            {
-//                m_ISegChainDO.m_PntVec.push_back( ptvec[j-1] );
-//                m_ISegChainDO.m_PntVec.push_back( ptvec[j] );
-//            }
-//        }
-//    }
-//
-//    // Normal Vec is not required, load placeholder.
-//    m_ISegChainDO.m_NormVec = m_ISegChainDO.m_PntVec;
-//    m_ISegChainPtsDO.m_NormVec = m_ISegChainPtsDO.m_PntVec;
-//
-//    draw_obj_vec.push_back( &m_ISegChainDO );
-//    draw_obj_vec.push_back( &m_ISegChainPtsDO );
+    // Draw ISegChains
+    m_ISegChainDO.m_GeomID = GetID() + "ISEGCHAIN";
+    m_ISegChainDO.m_Type = DrawObj::VSP_LINES;
+    m_ISegChainDO.m_Visible = true;
+    m_ISegChainDO.m_LineColor = vec3d( 0, 0, 1 );
+    m_ISegChainDO.m_LineWidth = 3.0;
+
+    m_ISegChainPtsDO.m_GeomID = GetID() + "ISEGCHAINPTS";
+    m_ISegChainPtsDO.m_Type = DrawObj::VSP_POINTS;
+    m_ISegChainPtsDO.m_Visible = true;
+    m_ISegChainPtsDO.m_PointColor = vec3d( 0, 0, 0 );
+    m_ISegChainPtsDO.m_PointSize = 10.0;
+
+
+    m_ISegChainDO.m_PntVec.clear();
+    m_ISegChainPtsDO.m_PntVec.clear();
+    list< ISegChain* >::iterator c;
+    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+    {
+        if ( true )
+        {
+            m_ISegChainPtsDO.m_PntVec.push_back( (*c)->m_TessVec[0]->m_Pnt );
+            for ( int j = 1 ; j < ( int )( *c )->m_TessVec.size() ; j++ )
+            {
+                m_ISegChainDO.m_PntVec.push_back( (*c)->m_TessVec[j-1]->m_Pnt );
+                m_ISegChainDO.m_PntVec.push_back( (*c)->m_TessVec[j]->m_Pnt );
+                m_ISegChainPtsDO.m_PntVec.push_back( (*c)->m_TessVec[j]->m_Pnt );
+            }
+
+        }
+        else
+        {
+            Bezier_curve xyzcrvA = (*c)->m_ACurve.GetUWCrv();
+            xyzcrvA.UWCurveToXYZCurve( (*c)->m_ACurve.GetSurf() );
+            vector< vec3d > ptvec;
+            xyzcrvA.GetControlPoints(ptvec);
+
+            m_ISegChainPtsDO.m_PntVec.insert( m_ISegChainPtsDO.m_PntVec.begin(), ptvec.begin(), ptvec.end() );
+
+            for ( int j = 1; j < ptvec.size(); j++ )
+            {
+                m_ISegChainDO.m_PntVec.push_back( ptvec[j-1] );
+                m_ISegChainDO.m_PntVec.push_back( ptvec[j] );
+            }
+        }
+    }
+
+    // Normal Vec is not required, load placeholder.
+    m_ISegChainDO.m_NormVec = m_ISegChainDO.m_PntVec;
+    m_ISegChainPtsDO.m_NormVec = m_ISegChainPtsDO.m_PntVec;
+
+    draw_obj_vec.push_back( &m_ISegChainDO );
+    draw_obj_vec.push_back( &m_ISegChainPtsDO );
 }
 
 /*

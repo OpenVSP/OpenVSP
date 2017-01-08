@@ -218,6 +218,8 @@ public:
     virtual void CursorPos( vec2d & cursor );
     virtual void MouseClick( vec2d & cursor );
 
+    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
+
     Parm m_ThickScale;
 
 protected:

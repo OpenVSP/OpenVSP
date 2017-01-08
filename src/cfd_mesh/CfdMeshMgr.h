@@ -413,6 +413,9 @@ protected:
     vector<Tri*> m_BadTris;
     vector< Node* > m_nodeStore;
 
+    DrawObj m_ISegChainDO;
+    DrawObj m_ISegChainPtsDO;
+
 private:
     DrawObj m_MeshBadEdgeDO;
     DrawObj m_MeshBadTriDO;
