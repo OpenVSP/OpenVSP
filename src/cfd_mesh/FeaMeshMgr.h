@@ -207,6 +207,8 @@ private:
     DrawObj m_SliceElemDO;
     vector< DrawObj > m_SSTagDO;
 
+    DrawObj m_ISegChainDO;
+    DrawObj m_ISegChainPtsDO;
 
 };
 //FEAMesh:
