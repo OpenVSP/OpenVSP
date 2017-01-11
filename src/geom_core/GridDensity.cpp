@@ -10,7 +10,6 @@
 #include "GridDensity.h"
 #include "Geom.h"
 #include "Vehicle.h"
-#include "VehicleMgr.h"
 #include "ParmMgr.h"
 
 
@@ -250,14 +249,10 @@ void BoxSource::ReadV2File( xmlNodePtr &root )
 
 BaseSimpleSource::BaseSimpleSource()
 {
-    m_Name = "Source_Name";
-    m_Type = -1;
-
     m_Len = 0.1;
 
     m_Rad = 1.0;
 
-    m_MainSurfIndx = -1;
     m_SurfIndx = -1;
 
     m_DrawObjID = ParmMgr.GenerateID( 8 );
@@ -303,9 +298,6 @@ PointSimpleSource::PointSimpleSource()
 
     m_WLoc = 0.0;
 
-    m_Type = vsp::POINT_SOURCE;
-    m_Name = "Point_Name";
-
     m_PointDO.m_GeomID = m_DrawObjID;
     m_PointDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
     m_PointDO.m_Type = DrawObj::VSP_LINE_STRIP;
@@ -315,12 +307,8 @@ PointSimpleSource::PointSimpleSource()
 
 void PointSimpleSource::CopyFrom( BaseSource* s )
 {
-    m_Name = s->GetName();
-    m_Type = s->GetType();
     m_Len = s->m_Len();
     m_Rad = s->m_Rad();
-
-    m_MainSurfIndx = s->m_MainSurfIndx();
 
     m_OrigSourceID = s->GetID();
 
@@ -390,9 +378,6 @@ LineSimpleSource::LineSimpleSource()
 
     m_WLoc2 = 0.0;
 
-    m_Type = vsp::LINE_SOURCE;
-    m_Name = "Line_Name";
-
     m_LineDO1.m_GeomID = m_DrawObjID + "1";
     m_LineDO1.m_Screen = DrawObj::VSP_MAIN_SCREEN;
     m_LineDO1.m_Type = DrawObj::VSP_LINE_STRIP;
@@ -414,12 +399,8 @@ LineSimpleSource::LineSimpleSource()
 
 void LineSimpleSource::CopyFrom( BaseSource* s )
 {
-    m_Name = s->GetName();
-    m_Type = s->GetType();
     m_Len = s->m_Len();
     m_Rad = s->m_Rad();
-
-    m_MainSurfIndx = s->m_MainSurfIndx();
 
     m_OrigSourceID = s->GetID();
 
@@ -587,9 +568,7 @@ void LineSimpleSource::Highlight( bool flag )
 
 BoxSimpleSource::BoxSimpleSource()
 {
-    m_Type = vsp::BOX_SOURCE;
     m_Rad = 0;
-    m_Name = "Box_Name";
 
     m_ULoc1 = 0.0;
 
@@ -627,12 +606,8 @@ void BoxSimpleSource::ComputeCullPnts()
 
 void BoxSimpleSource::CopyFrom( BaseSource* s )
 {
-    m_Name = s->GetName();
-    m_Type = s->GetType();
     m_Len = s->m_Len();
     m_Rad = s->m_Rad();
-
-    m_MainSurfIndx = s->m_MainSurfIndx();
 
     m_OrigSourceID = s->GetID();
 

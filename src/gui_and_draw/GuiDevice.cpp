@@ -6,7 +6,6 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "GuiDevice.h"
-#include "Parm.h"
 #include "ParmMgr.h"
 #include "ScreenBase.h"
 #include "ScreenMgr.h"
@@ -14,11 +13,6 @@
 #include "AdvLinkMgr.h"
 #include "StlHelper.h"
 #include "Util.h"
-#include "GroupLayout.h"
-
-#include <float.h>
-#include <assert.h>
-#include <cmath>
 
 using std::max;
 using std::min;
@@ -2422,8 +2416,6 @@ void ParmTreePicker::CleanGarbage()
 void ParmTreePicker::UpdateParmTree()
 {
     int i, j;
-    ContainerTreeIt cit;
-    ParmTreeIt pit;
 
     ResetFlag( true );
 

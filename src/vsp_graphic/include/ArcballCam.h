@@ -63,13 +63,6 @@ public:
     void rotateSphere( float angleX, float angleY, float angleZ );
 
     /*!
-     * Retrieves the euler angles from a quaternion.
-     *
-     * @return vec3 euler angles.
-     */
-    glm::vec3 getEulerAngles( glm::vec4 quat );
-
-    /*!
      * Converts Eueler to point along a sphere
      * @return vec3 point along a sphere (normalized)
      */
@@ -81,8 +74,6 @@ public:
      * Returns euler angles, yitch as x, yaw as y, roll as z.
      */
     glm::vec3 getRotationEulerAngles();
-
-    void setCameraLookAt( glm::vec3 theEye, glm::vec3 camUp );
 
     /*!
     * Panning the scene.
@@ -165,7 +156,6 @@ private:
     glm::vec4 _toQuat( glm::vec3 axis, float angle );
     glm::mat4 _toMatrix( glm::vec4 quat );
     glm::vec4 _matrixToQuat ( glm::mat4 mat );
-    glm::mat4 _toRotationMatrix( glm::vec4 quat );
 
     // Normalize to [-1, 1] on x and y axis.
     glm::vec2 _toNDC2f( float x, float y );
@@ -179,14 +169,7 @@ private:
     glm::mat4 _rMat, _tMat;
     glm::mat4 _cMat;
     glm::vec2 _pan;
-    glm::vec2 _prevLB;
-    glm::vec2 _prevMB;
-    glm::vec2 _prevRB;
-    glm::vec2 _prevAltLB;
     glm::vec2 _center;
-
-    float _oldRadian;
-    float _oldZoomValue;
 
 private:
     struct camInfo

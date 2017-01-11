@@ -9,13 +9,9 @@
 
 #include "VSPAEROMgr.h"
 #include "ParmMgr.h"
-#include "Vehicle.h"
-#include "VehicleMgr.h"
 #include "StlHelper.h"
-#include "APIDefines.h"
 #include "WingGeom.h"
 #include "MeshGeom.h"
-#include "APIDefines.h"
 
 #include "StringUtil.h"
 #include "FileUtil.h"
@@ -235,7 +231,7 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
     {
         // Generate the base name based on the vsp3filename without the extension
         int pos = -1;
-        switch (m_AnalysisMethod.Get() )
+        switch ( m_AnalysisMethod.Get() )
         {
         case vsp::VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE:
             // The base_name is dependent on the DegenFileName
@@ -291,7 +287,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( !veh )
     {
-        fprintf(stderr,"ERROR: Unable to get vehicle \n\tFile: %s \tLine:%d\n",__FILE__,__LINE__);
+        fprintf( stderr, "ERROR: Unable to get vehicle \n\tFile: %s \tLine:%d\n", __FILE__, __LINE__ );
         return string();
     }
 
@@ -306,8 +302,8 @@ string VSPAEROMgrSingleton::ComputeGeometry()
 
     UpdateFilenames();
 
-    // Note: while in panel mode the degen file required by vspaero is 
-    // dependent on the tri filename and not necessarily what the current 
+    // Note: while in panel mode the degen file required by vspaero is
+    // dependent on the tri filename and not necessarily what the current
     // setting is for the vsp::DEGEN_GEOM_CSV_TYPE
     string degenGeomFile_orig = veh->getExportFileName( vsp::DEGEN_GEOM_CSV_TYPE );
     veh->setExportFileName( vsp::DEGEN_GEOM_CSV_TYPE, m_DegenFileFull );
@@ -319,31 +315,31 @@ string VSPAEROMgrSingleton::ComputeGeometry()
     veh->setExportDegenGeomCsvFile( exptCSVfile_orig );
     veh->setExportFileName( vsp::DEGEN_GEOM_CSV_TYPE, degenGeomFile_orig );
 
-    WaitForFile(m_DegenFileFull);
-    if ( !FileExist(m_DegenFileFull) )
+    WaitForFile( m_DegenFileFull );
+    if ( !FileExist( m_DegenFileFull ) )
     {
-        fprintf(stderr,"WARNING: DegenGeom file not found: %s\n\tFile: %s \tLine:%d\n", m_DegenFileFull.c_str(),__FILE__,__LINE__);
+        fprintf( stderr, "WARNING: DegenGeom file not found: %s\n\tFile: %s \tLine:%d\n", m_DegenFileFull.c_str(), __FILE__, __LINE__ );
     }
 
     // Generate *.tri geometry file for Panel method
     if ( m_AnalysisMethod.Get() == vsp::VSPAERO_ANALYSIS_METHOD::PANEL )
     {
         // Cleanup previously created meshGeom IDs created from VSPAEROMgr
-        if ( veh->FindGeom(m_LastPanelMeshGeomId) )
+        if ( veh->FindGeom( m_LastPanelMeshGeomId ) )
         {
-            veh->DeleteGeom(m_LastPanelMeshGeomId);
+            veh->DeleteGeom( m_LastPanelMeshGeomId );
         }
 
         // Compute intersected and trimmed geometry
         int halfFlag = 0;
-        m_LastPanelMeshGeomId = veh->CompGeomAndFlatten( VSPAEROMgr.m_GeomSet(), halfFlag);
+        m_LastPanelMeshGeomId = veh->CompGeomAndFlatten( VSPAEROMgr.m_GeomSet(), halfFlag );
 
         // After CompGeomAndFlatten() is run all the geometry is hidden and the intersected & trimmed mesh is the only one shown
         veh->WriteTRIFile( m_CompGeomFileFull , vsp::SET_TYPE::SET_SHOWN );
-        WaitForFile(m_CompGeomFileFull);
-        if ( !FileExist(m_CompGeomFileFull) )
+        WaitForFile( m_CompGeomFileFull );
+        if ( !FileExist( m_CompGeomFileFull ) )
         {
-            fprintf(stderr,"WARNING: CompGeom file not found: %s\n\tFile: %s \tLine:%d\n", m_CompGeomFileFull.c_str(),__FILE__,__LINE__);
+            fprintf( stderr, "WARNING: CompGeom file not found: %s\n\tFile: %s \tLine:%d\n", m_CompGeomFileFull.c_str(), __FILE__, __LINE__ );
         }
 
     }
@@ -357,7 +353,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
     Results* res = ResultsMgr.CreateResults( "VSPAERO_Geom" );
     if ( !res )
     {
-        fprintf(stderr,"ERROR: Unable to create result in result manager \n\tFile: %s \tLine:%d\n",__FILE__,__LINE__);
+        fprintf( stderr, "ERROR: Unable to create result in result manager \n\tFile: %s \tLine:%d\n", __FILE__, __LINE__ );
         return string();
     }
     res->Add( NameValData( "GeometrySet", VSPAEROMgr.m_GeomSet() ) );
@@ -379,14 +375,14 @@ string VSPAEROMgrSingleton::ComputeGeometry()
 }
 
 /* TODO - finish implementation of generating the setup file from the VSPAEROMgr*/
-void VSPAEROMgrSingleton::CreateSetupFile(FILE * logFile)
+void VSPAEROMgrSingleton::CreateSetupFile( FILE * logFile )
 {
     UpdateFilenames();
 
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( !veh )
     {
-        fprintf(stderr,"ERROR %d: Unable to get vehicle \n\tFile: %s \tLine:%d\n",vsp::VSP_INVALID_PTR,__FILE__,__LINE__);
+        fprintf( stderr, "ERROR %d: Unable to get vehicle \n\tFile: %s \tLine:%d\n", vsp::VSP_INVALID_PTR, __FILE__, __LINE__ );
         return;
     }
 
@@ -413,17 +409,58 @@ void VSPAEROMgrSingleton::CreateSetupFile(FILE * logFile)
     args.push_back( StringUtil::double_to_string( m_Ycg(), "%f" ) );
     args.push_back( StringUtil::double_to_string( m_Zcg(), "%f" ) );
 
-    args.push_back( "-aoa" );
-    args.push_back( StringUtil::double_to_string( m_AlphaStart(), "%f" ) );
-    args.push_back( "END" );
+    // If the GUI is selected for batch calculation write the setup file with
+    // the entire vector of mach alpha and beta points otherwise just write the
+    // starting freestream condition.  This will give the easiest to use setup
+    // file representing the options in the GUI.
+    if ( m_BatchModeFlag.Get() )
+    {
+        vector<double> alphaVec;
+        vector<double> betaVec;
+        vector<double> machVec;
+        GetSweepVectors( alphaVec, betaVec, machVec );
 
-    args.push_back( "-beta" );
-    args.push_back( StringUtil::double_to_string( m_BetaStart(), "%f" ) );
-    args.push_back( "END" );
+        //====== Loop over flight conditions and solve ======//
+        // Mach
+        args.push_back( "-mach" );
+        for ( int iMach = 0; iMach < machVec.size(); iMach++ )
+        {
+            args.push_back( StringUtil::double_to_string( machVec[iMach], "%f " ) );
+        }
+        args.push_back( "END" );
 
-    args.push_back( "-mach" );
-    args.push_back( StringUtil::double_to_string( m_MachStart(), "%f" ) );
-    args.push_back( "END" );
+        // Alpha
+        args.push_back( "-aoa" );
+        for ( int iAlpha = 0; iAlpha < alphaVec.size(); iAlpha++ )
+        {
+            args.push_back( StringUtil::double_to_string( alphaVec[iAlpha], "%f " ) );
+        }
+        args.push_back( "END" );
+
+        // Beta
+        args.push_back( "-beta" );
+        for ( int iBeta = 0; iBeta < betaVec.size(); iBeta++ )
+        {
+            args.push_back( StringUtil::double_to_string( betaVec[iBeta], "%f " ) );
+        }
+        args.push_back( "END" );
+    }
+    else
+    {
+        args.push_back( "-aoa" );
+        args.push_back( StringUtil::double_to_string( m_AlphaStart(), "%f" ) );
+        args.push_back( "END" );
+
+        args.push_back( "-beta" );
+        args.push_back( StringUtil::double_to_string( m_BetaStart(), "%f" ) );
+        args.push_back( "END" );
+
+        args.push_back( "-mach" );
+        args.push_back( StringUtil::double_to_string( m_MachStart(), "%f" ) );
+        args.push_back( "END" );
+    }
+
+
 
     args.push_back( "-wakeiters" );
     args.push_back( StringUtil::int_to_string( m_WakeNumIter(), "%d" ) );
@@ -434,7 +471,7 @@ void VSPAEROMgrSingleton::CreateSetupFile(FILE * logFile)
     string cmdStr = m_SolverProcess.PrettyCmd( veh->GetExePath(), veh->GetVSPAEROCmd(), args );
     if( logFile )
     {
-        fprintf(logFile,cmdStr.c_str());
+        fprintf( logFile, "%s", cmdStr.c_str() );
     }
     else
     {
@@ -448,37 +485,7 @@ void VSPAEROMgrSingleton::CreateSetupFile(FILE * logFile)
     m_SolverProcess.ForkCmd( veh->GetExePath(), veh->GetVSPAEROCmd(), args );
 
     // ==== MonitorSolverProcess ==== //
-    int bufsize = 1000;
-    char *buf;
-    buf = ( char* ) malloc( sizeof( char ) * ( bufsize + 1 ) );
-    unsigned long nread=1;
-    bool runflag = m_SolverProcess.IsRunning();
-    while ( runflag || nread>0)
-    {
-        m_SolverProcess.ReadStdoutPipe( buf, bufsize, &nread );
-        if( nread > 0 )
-        {
-            if ( buf )
-            {
-                buf[nread] = 0;
-                StringUtil::change_from_to( buf, '\r', '\n' );
-                if( logFile )
-                {
-                    fprintf(logFile,buf);
-                }
-                else
-                {
-                    MessageData data;
-                    data.m_String = "VSPAEROSolverMessage";
-                    data.m_StringVec.push_back( string( buf ) );
-                    MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
-                }
-            }
-        }
-
-        SleepForMilliseconds( 100 );
-        runflag = m_SolverProcess.IsRunning();
-    }
+    MonitorSolver( logFile );
 
     // Check if the kill solver flag has been raised, if so clean up and return
     //  note: we could have exited the IsRunning loop if the process was killed
@@ -493,7 +500,7 @@ void VSPAEROMgrSingleton::CreateSetupFile(FILE * logFile)
     if ( !FileExist( m_SetupFile ) )
     {
         // shouldn't be able to get here but create a setup file with the correct settings
-        fprintf(stderr,"ERROR %d: setup file not found, file %s\n\tFile: %s \tLine:%d\n",vsp::VSP_FILE_DOES_NOT_EXIST,m_SetupFile.c_str(),__FILE__,__LINE__);
+        fprintf( stderr, "ERROR %d: setup file not found, file %s\n\tFile: %s \tLine:%d\n", vsp::VSP_FILE_DOES_NOT_EXIST, m_SetupFile.c_str(), __FILE__, __LINE__ );
     }
 
     // Send the message to update the screens
@@ -523,7 +530,7 @@ void VSPAEROMgrSingleton::ClearAllPreviousResults()
     }
 }
 
-void VSPAEROMgrSingleton::GetSweepVectors( vector<double> &alphaVec, vector<double> &betaVec, vector<double> &machVec)
+void VSPAEROMgrSingleton::GetSweepVectors( vector<double> &alphaVec, vector<double> &betaVec, vector<double> &machVec )
 {
     // grab current parm values
     double alphaStart = m_AlphaStart.Get();
@@ -577,7 +584,7 @@ void VSPAEROMgrSingleton::GetSweepVectors( vector<double> &alphaVec, vector<doub
 Returns a result with a vector of results id's under the name ResultVec
 Optional input of logFile allows outputting to a log file or the console
 */
-string VSPAEROMgrSingleton::ComputeSolver(FILE * logFile)
+string VSPAEROMgrSingleton::ComputeSolver( FILE * logFile )
 {
     UpdateFilenames();
     if ( m_BatchModeFlag.Get() )
@@ -592,7 +599,7 @@ string VSPAEROMgrSingleton::ComputeSolver(FILE * logFile)
 
 /* ComputeSolverSingle(FILE * logFile)
 */
-string VSPAEROMgrSingleton::ComputeSolverSingle(FILE * logFile)
+string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
 {
     std::vector <string> res_id_vector;
 
@@ -608,7 +615,7 @@ string VSPAEROMgrSingleton::ComputeSolverSingle(FILE * logFile)
         string modelNameBase = m_ModelNameBase;
 
         bool stabilityFlag = m_StabilityCalcFlag.Get();
-        vsp::VSPAERO_ANALYSIS_METHOD analysisMethod = (vsp::VSPAERO_ANALYSIS_METHOD)m_AnalysisMethod.Get();
+        vsp::VSPAERO_ANALYSIS_METHOD analysisMethod = ( vsp::VSPAERO_ANALYSIS_METHOD )m_AnalysisMethod.Get();
 
         int ncpu = m_NCPU.Get();
 
@@ -627,7 +634,7 @@ string VSPAEROMgrSingleton::ComputeSolverSingle(FILE * logFile)
         vector<double> alphaVec;
         vector<double> betaVec;
         vector<double> machVec;
-        GetSweepVectors( alphaVec, betaVec, machVec);
+        GetSweepVectors( alphaVec, betaVec, machVec );
 
         //====== Loop over flight conditions and solve ======//
         // TODO make this into a case list with a single loop
@@ -702,7 +709,7 @@ string VSPAEROMgrSingleton::ComputeSolverSingle(FILE * logFile)
                     string cmdStr = m_SolverProcess.PrettyCmd( veh->GetExePath(), veh->GetVSPAEROCmd(), args );
                     if( logFile )
                     {
-                        fprintf(logFile,cmdStr.c_str());
+                        fprintf( logFile, "%s", cmdStr.c_str() );
                     }
                     else
                     {
@@ -716,37 +723,7 @@ string VSPAEROMgrSingleton::ComputeSolverSingle(FILE * logFile)
                     m_SolverProcess.ForkCmd( veh->GetExePath(), veh->GetVSPAEROCmd(), args );
 
                     // ==== MonitorSolverProcess ==== //
-                    int bufsize = 1000;
-                    char *buf;
-                    buf = ( char* ) malloc( sizeof( char ) * ( bufsize + 1 ) );
-                    unsigned long nread=1;
-                    bool runflag = m_SolverProcess.IsRunning();
-                    while ( runflag || nread>0)
-                    {
-                        m_SolverProcess.ReadStdoutPipe( buf, bufsize, &nread );
-                        if( nread > 0 )
-                        {
-                            if ( buf )
-                            {
-                                buf[nread] = '\0'; //null terminate
-                                StringUtil::change_from_to( buf, '\r', '\n' );
-                                if( logFile )
-                                {
-                                    fprintf(logFile,buf);
-                                }
-                                else
-                                {
-                                    MessageData data;
-                                    data.m_String = "VSPAEROSolverMessage";
-                                    data.m_StringVec.push_back( string( buf ) );
-                                    MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
-                                }
-                            }
-                        }
-
-                        SleepForMilliseconds( 100 );
-                        runflag = m_SolverProcess.IsRunning();
-                    }
+                    MonitorSolver( logFile );
 
 
                     // Check if the kill solver flag has been raised, if so clean up and return
@@ -760,11 +737,11 @@ string VSPAEROMgrSingleton::ComputeSolverSingle(FILE * logFile)
 
                     //====== Read in all of the results ======//
                     // read the files if there is new data that has not successfully been read in yet
-                    ReadHistoryFile(historyFileName, res_id_vector, analysisMethod);
-                    ReadLoadFile(loadFileName, res_id_vector, analysisMethod);
+                    ReadHistoryFile( historyFileName, res_id_vector, analysisMethod );
+                    ReadLoadFile( loadFileName, res_id_vector, analysisMethod );
                     if ( stabilityFlag )
                     {
-                        ReadStabFile(stabFileName, res_id_vector, analysisMethod);        //*.STAB stability coeff file
+                        ReadStabFile( stabFileName, res_id_vector, analysisMethod );      //*.STAB stability coeff file
                     }
 
                     // Send the message to update the screens
@@ -795,7 +772,7 @@ string VSPAEROMgrSingleton::ComputeSolverSingle(FILE * logFile)
 
 /* ComputeSolverBatch(FILE * logFile)
 */
-string VSPAEROMgrSingleton::ComputeSolverBatch(FILE * logFile)
+string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
 {
     std::vector <string> res_id_vector;
 
@@ -811,7 +788,7 @@ string VSPAEROMgrSingleton::ComputeSolverBatch(FILE * logFile)
         string modelNameBase = m_ModelNameBase;
 
         bool stabilityFlag = m_StabilityCalcFlag.Get();
-        vsp::VSPAERO_ANALYSIS_METHOD analysisMethod = (vsp::VSPAERO_ANALYSIS_METHOD)m_AnalysisMethod.Get();
+        vsp::VSPAERO_ANALYSIS_METHOD analysisMethod = ( vsp::VSPAERO_ANALYSIS_METHOD )m_AnalysisMethod.Get();
 
         int ncpu = m_NCPU.Get();
 
@@ -830,7 +807,7 @@ string VSPAEROMgrSingleton::ComputeSolverBatch(FILE * logFile)
         vector<double> alphaVec;
         vector<double> betaVec;
         vector<double> machVec;
-        GetSweepVectors( alphaVec, betaVec, machVec);
+        GetSweepVectors( alphaVec, betaVec, machVec );
 
         //====== Clear VSPAERO output files ======//
         if ( FileExist( adbFileName ) )
@@ -903,7 +880,7 @@ string VSPAEROMgrSingleton::ComputeSolverBatch(FILE * logFile)
         string cmdStr = m_SolverProcess.PrettyCmd( veh->GetExePath(), veh->GetVSPAEROCmd(), args );
         if( logFile )
         {
-            fprintf(logFile,cmdStr.c_str());
+            fprintf( logFile, "%s", cmdStr.c_str() );
         }
         else
         {
@@ -917,37 +894,7 @@ string VSPAEROMgrSingleton::ComputeSolverBatch(FILE * logFile)
         m_SolverProcess.ForkCmd( veh->GetExePath(), veh->GetVSPAEROCmd(), args );
 
         // ==== MonitorSolverProcess ==== //
-        int bufsize = 1000;
-        char *buf;
-        buf = ( char* ) malloc( sizeof( char ) * ( bufsize + 1 ) );
-        unsigned long nread=1;
-        bool runflag = m_SolverProcess.IsRunning();
-        while ( runflag || nread>0)
-        {
-            m_SolverProcess.ReadStdoutPipe( buf, bufsize, &nread );
-            if( nread > 0 )
-            {
-                if ( buf )
-                {
-                    buf[nread] = 0;
-                    StringUtil::change_from_to( buf, '\r', '\n' );
-                    if( logFile )
-                    {
-                        fprintf(logFile,buf);
-                    }
-                    else
-                    {
-                        MessageData data;
-                        data.m_String = "VSPAEROSolverMessage";
-                        data.m_StringVec.push_back( string( buf ) );
-                        MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
-                    }
-                }
-            }
-
-            SleepForMilliseconds( 100 );
-            runflag = m_SolverProcess.IsRunning();
-        }
+        MonitorSolver( logFile );
 
 
         // Check if the kill solver flag has been raised, if so clean up and return
@@ -960,11 +907,11 @@ string VSPAEROMgrSingleton::ComputeSolverBatch(FILE * logFile)
         }
 
         //====== Read in all of the results ======//
-        ReadHistoryFile(historyFileName, res_id_vector, analysisMethod);
-        ReadLoadFile(loadFileName, res_id_vector, analysisMethod);
+        ReadHistoryFile( historyFileName, res_id_vector, analysisMethod );
+        ReadLoadFile( loadFileName, res_id_vector, analysisMethod );
         if ( stabilityFlag )
         {
-            ReadStabFile(stabFileName, res_id_vector, analysisMethod);        //*.STAB stability coeff file
+            ReadStabFile( stabFileName, res_id_vector, analysisMethod );      //*.STAB stability coeff file
         }
 
         // Send the message to update the screens
@@ -987,15 +934,48 @@ string VSPAEROMgrSingleton::ComputeSolverBatch(FILE * logFile)
     }
 }
 
+void VSPAEROMgrSingleton::MonitorSolver( FILE * logFile )
+{
+    // ==== MonitorSolverProcess ==== //
+    int bufsize = 1000;
+    char *buf;
+    buf = ( char* ) malloc( sizeof( char ) * ( bufsize + 1 ) );
+    unsigned long nread = 1;
+    bool runflag = m_SolverProcess.IsRunning();
+    while ( runflag || nread > 0 )
+    {
+        m_SolverProcess.ReadStdoutPipe( buf, bufsize, &nread );
+        if( nread > 0 )
+        {
+            if ( buf )
+            {
+                buf[nread] = 0;
+                StringUtil::change_from_to( buf, '\r', '\n' );
+                if( logFile )
+                {
+                    fprintf( logFile, "%s", buf );
+                }
+                else
+                {
+                    MessageData data;
+                    data.m_String = "VSPAEROSolverMessage";
+                    data.m_StringVec.push_back( string( buf ) );
+                    MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+                }
+            }
+        }
+
+        SleepForMilliseconds( 100 );
+        runflag = m_SolverProcess.IsRunning();
+    }
+}
+
 void VSPAEROMgrSingleton::AddResultHeader( string res_id, double mach, double alpha, double beta, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod )
 {
     // Add Flow Condition header to each result
     Results * res = ResultsMgr.FindResultsPtr( res_id );
     if ( res )
     {
-        res->Add( NameValData( "FC_Mach", mach ) );
-        res->Add( NameValData( "FC_Alpha", alpha ) );
-        res->Add( NameValData( "FC_Beta", beta ) );
         res->Add( NameValData( "AnalysisMethod", analysisMethod ) );
     }
 }
@@ -1041,7 +1021,7 @@ line 4407 - void VSP_SOLVER::OutputZeroLiftDragToStatusFile(void)
 TODO:
 - Update this function to use the generic table read as used in: string VSPAEROMgrSingleton::ReadStabFile()
 *******************************************************/
-void VSPAEROMgrSingleton::ReadHistoryFile(string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod)
+void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod )
 {
     //TODO return success or failure
     FILE *fp = NULL;
@@ -1053,27 +1033,27 @@ void VSPAEROMgrSingleton::ReadHistoryFile(string filename, vector <string> &res_
     fp = fopen( filename.c_str(), "r" );
     if ( fp == NULL )
     {
-        fprintf(stderr,"ERROR %d: Could not open History file: %s\n\tFile: %s \tLine:%d\n",vsp::VSP_FILE_DOES_NOT_EXIST,m_HistoryFile.c_str(),__FILE__,__LINE__);
+        fprintf( stderr, "ERROR %d: Could not open History file: %s\n\tFile: %s \tLine:%d\n", vsp::VSP_FILE_DOES_NOT_EXIST, m_HistoryFile.c_str(), __FILE__, __LINE__ );
         return;
     }
 
-    Results* res=NULL;
+    Results* res = NULL;
     std::vector<string> data_string_array;
 
     char seps[]   = " :,\t\n";
     while ( !feof( fp ) )
     {
-        data_string_array = ReadDelimLine(fp, seps); //this is also done in some of the embedded loops below
+        data_string_array = ReadDelimLine( fp, seps ); //this is also done in some of the embedded loops below
 
-        if ( CheckForCaseHeader(data_string_array) )
+        if ( CheckForCaseHeader( data_string_array ) )
         {
             res = ResultsMgr.CreateResults( "VSPAERO_History" );
-            res_id_vector.push_back(res->GetID());
+            res_id_vector.push_back( res->GetID() );
 
-            if ( ReadVSPAEROCaseHeader(res, fp, analysisMethod)!=0 )
+            if ( ReadVSPAEROCaseHeader( res, fp, analysisMethod ) != 0 )
             {
                 // Failed to read the case header
-                fprintf(stderr,"ERROR %d: Could not read case header in VSPAERO file: %s\n\tFile: %s \tLine:%d\n",vsp::VSP_FILE_READ_FAILURE,m_StabFile.c_str(),__FILE__,__LINE__);
+                fprintf( stderr, "ERROR %d: Could not read case header in VSPAERO file: %s\n\tFile: %s \tLine:%d\n", vsp::VSP_FILE_READ_FAILURE, m_StabFile.c_str(), __FILE__, __LINE__ );
                 return;
             }
 
@@ -1081,16 +1061,16 @@ void VSPAEROMgrSingleton::ReadHistoryFile(string filename, vector <string> &res_
 
         //READ wake iteration table
         /* Example wake iteration table
-        Iter      Mach       AoA      Beta       CL         CDo       CDi      CDtot      CS        L/D        E        CFx       CFy       CFz       CMx       CMy       CMz       T/QS 
+        Iter      Mach       AoA      Beta       CL         CDo       CDi      CDtot      CS        L/D        E        CFx       CFy       CFz       CMx       CMy       CMz       T/QS
         1   0.00000   1.00000   0.00000   0.03329   0.00364   0.00009   0.00373  -0.00000   8.93773 395.42033  -0.00049  -0.00000   0.03329  -0.00000  -0.09836  -0.00000   0.00000
         2   0.00000   1.00000   0.00000   0.03329   0.00364   0.00009   0.00373  -0.00000   8.93494 394.87228  -0.00049  -0.00000   0.03328  -0.00000  -0.09834  -0.00000   0.00000
         ...
         */
         int wake_iter_table_columns = 18;
-        if( data_string_array.size()==wake_iter_table_columns )
+        if( data_string_array.size() == wake_iter_table_columns )
         {
             //discard the header row and read the next line assuming that it is numeric
-            data_string_array = ReadDelimLine(fp, seps);
+            data_string_array = ReadDelimLine( fp, seps );
 
             // create new vectors for this set of results information
             std::vector<int> i;
@@ -1112,34 +1092,34 @@ void VSPAEROMgrSingleton::ReadHistoryFile(string filename, vector <string> &res_
             std::vector<double> CMz;
             std::vector<double> ToQS;
 
-            while ( data_string_array.size()==wake_iter_table_columns )
+            while ( data_string_array.size() == wake_iter_table_columns )
             {
-                i.push_back(        std::stoi(data_string_array[0]) );
+                i.push_back(        std::stoi( data_string_array[0] ) );
 
-                Mach.push_back(     std::stod(data_string_array[1]) );
-                Alpha.push_back(    std::stod(data_string_array[2]) );
-                Beta.push_back(     std::stod(data_string_array[3]) );
+                Mach.push_back(     std::stod( data_string_array[1] ) );
+                Alpha.push_back(    std::stod( data_string_array[2] ) );
+                Beta.push_back(     std::stod( data_string_array[3] ) );
 
-                CL.push_back(       std::stod(data_string_array[4]) );
-                CDo.push_back(      std::stod(data_string_array[5]) );
-                CDi.push_back(      std::stod(data_string_array[6]) );
-                CDtot.push_back(    std::stod(data_string_array[7]) );
-                CS.push_back(       std::stod(data_string_array[8]) );
+                CL.push_back(       std::stod( data_string_array[4] ) );
+                CDo.push_back(      std::stod( data_string_array[5] ) );
+                CDi.push_back(      std::stod( data_string_array[6] ) );
+                CDtot.push_back(    std::stod( data_string_array[7] ) );
+                CS.push_back(       std::stod( data_string_array[8] ) );
 
-                LoD.push_back(      std::stod(data_string_array[9]) );
-                E.push_back(        std::stod(data_string_array[10]) );
+                LoD.push_back(      std::stod( data_string_array[9] ) );
+                E.push_back(        std::stod( data_string_array[10] ) );
 
-                CFx.push_back(      std::stod(data_string_array[11]) );
-                CFy.push_back(      std::stod(data_string_array[12]) );
-                CFz.push_back(      std::stod(data_string_array[13]) );
+                CFx.push_back(      std::stod( data_string_array[11] ) );
+                CFy.push_back(      std::stod( data_string_array[12] ) );
+                CFz.push_back(      std::stod( data_string_array[13] ) );
 
-                CMx.push_back(      std::stod(data_string_array[14]) );
-                CMy.push_back(      std::stod(data_string_array[15]) );
-                CMz.push_back(      std::stod(data_string_array[16]) );
+                CMx.push_back(      std::stod( data_string_array[14] ) );
+                CMy.push_back(      std::stod( data_string_array[15] ) );
+                CMz.push_back(      std::stod( data_string_array[16] ) );
 
-                ToQS.push_back(     std::stod(data_string_array[17]) );
+                ToQS.push_back(     std::stod( data_string_array[17] ) );
 
-                data_string_array = ReadDelimLine(fp,seps);
+                data_string_array = ReadDelimLine( fp, seps );
             }
 
             //add to the results manager
@@ -1182,7 +1162,7 @@ TODO:
 - Update this function to use the generic table read as used in: string VSPAEROMgrSingleton::ReadStabFile()
 - Read in Component table information, this is the 2nd table at the bottom of the .lod file
 *******************************************************/
-void VSPAEROMgrSingleton::ReadLoadFile(string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod)
+void VSPAEROMgrSingleton::ReadLoadFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod )
 {
     FILE *fp = NULL;
     bool read_success = false;
@@ -1192,43 +1172,43 @@ void VSPAEROMgrSingleton::ReadLoadFile(string filename, vector <string> &res_id_
     fp = fopen( filename.c_str(), "r" );
     if ( fp == NULL )
     {
-        fprintf(stderr,"ERROR %d: Could not open Load file: %s\n\tFile: %s \tLine:%d\n",vsp::VSP_FILE_DOES_NOT_EXIST,m_LoadFile.c_str(),__FILE__,__LINE__);
+        fprintf( stderr, "ERROR %d: Could not open Load file: %s\n\tFile: %s \tLine:%d\n", vsp::VSP_FILE_DOES_NOT_EXIST, m_LoadFile.c_str(), __FILE__, __LINE__ );
         return;
     }
 
-    Results* res=NULL;
+    Results* res = NULL;
     std::vector< std::string > data_string_array;
     std::vector< std::vector< double > > data_array;
 
-    double cref;
+    double cref = 1.0;
 
     char seps[]   = " :,\t\n";
     while ( !feof( fp ) )
     {
-        data_string_array = ReadDelimLine(fp, seps); //this is also done in some of the embedded loops below
+        data_string_array = ReadDelimLine( fp, seps ); //this is also done in some of the embedded loops below
 
-        if ( CheckForCaseHeader(data_string_array) )
+        if ( CheckForCaseHeader( data_string_array ) )
         {
             res = ResultsMgr.CreateResults( "VSPAERO_Load" );
-            res_id_vector.push_back(res->GetID());
+            res_id_vector.push_back( res->GetID() );
 
-            if ( ReadVSPAEROCaseHeader(res, fp, analysisMethod)!=0 )
+            if ( ReadVSPAEROCaseHeader( res, fp, analysisMethod ) != 0 )
             {
                 // Failed to read the case header
-                fprintf(stderr,"ERROR %d: Could not read case header in VSPAERO file: %s\n\tFile: %s \tLine:%d\n",vsp::VSP_FILE_READ_FAILURE,m_StabFile.c_str(),__FILE__,__LINE__);
+                fprintf( stderr, "ERROR %d: Could not read case header in VSPAERO file: %s\n\tFile: %s \tLine:%d\n", vsp::VSP_FILE_READ_FAILURE, m_StabFile.c_str(), __FILE__, __LINE__ );
                 return;
             }
 
-            cref = res->FindPtr("Cref_")->GetDouble(0);
+            cref = res->FindPtr( "FC_Cref_" )->GetDouble( 0 );
 
         }
 
         // Sectional distribution table
         int nSectionalDataTableCols = 13;
-        if ( data_string_array.size()==nSectionalDataTableCols )
+        if ( data_string_array.size() == nSectionalDataTableCols )
         {
             //discard the header row and read the next line assuming that it is numeric
-            data_string_array = ReadDelimLine(fp, seps);
+            data_string_array = ReadDelimLine( fp, seps );
 
             // Raw data vectors
             std::vector<int> WingId;
@@ -1259,22 +1239,22 @@ void VSPAEROMgrSingleton::ReadLoadFile(string filename, vector <string> &res_id_
             double chordRatio;
 
             // read the data rows
-            while ( data_string_array.size()==nSectionalDataTableCols )
+            while ( data_string_array.size() == nSectionalDataTableCols )
             {
                 // Store the raw data
-                WingId.push_back( std::stoi(data_string_array[0]) );
-                Yavg.push_back(   std::stod(data_string_array[1]) );
-                Chord.push_back(  std::stod(data_string_array[2]) );
-                VoVinf.push_back( std::stod(data_string_array[3]) );
-                Cl.push_back(     std::stod(data_string_array[4]) );
-                Cd.push_back(     std::stod(data_string_array[5]) );
-                Cs.push_back(     std::stod(data_string_array[6]) );
-                Cx.push_back(     std::stod(data_string_array[7]) );
-                Cy.push_back(     std::stod(data_string_array[8]) );
-                Cz.push_back(     std::stod(data_string_array[9]) );
-                Cmx.push_back(    std::stod(data_string_array[10]) );
-                Cmy.push_back(    std::stod(data_string_array[11]) );
-                Cmz.push_back(    std::stod(data_string_array[12]) );
+                WingId.push_back( std::stoi( data_string_array[0] ) );
+                Yavg.push_back(   std::stod( data_string_array[1] ) );
+                Chord.push_back(  std::stod( data_string_array[2] ) );
+                VoVinf.push_back( std::stod( data_string_array[3] ) );
+                Cl.push_back(     std::stod( data_string_array[4] ) );
+                Cd.push_back(     std::stod( data_string_array[5] ) );
+                Cs.push_back(     std::stod( data_string_array[6] ) );
+                Cx.push_back(     std::stod( data_string_array[7] ) );
+                Cy.push_back(     std::stod( data_string_array[8] ) );
+                Cz.push_back(     std::stod( data_string_array[9] ) );
+                Cmx.push_back(    std::stod( data_string_array[10] ) );
+                Cmy.push_back(    std::stod( data_string_array[11] ) );
+                Cmz.push_back(    std::stod( data_string_array[12] ) );
 
                 chordRatio = Chord.back() / cref;
 
@@ -1290,7 +1270,7 @@ void VSPAEROMgrSingleton::ReadLoadFile(string filename, vector <string> &res_id_
                 Cmzc_cref.push_back( Cmz.back() * chordRatio );
 
                 // Read the next line and loop
-                data_string_array = ReadDelimLine(fp, seps);
+                data_string_array = ReadDelimLine( fp, seps );
             }
 
             // Finish up by adding the data to the result res
@@ -1331,7 +1311,7 @@ void VSPAEROMgrSingleton::ReadLoadFile(string filename, vector <string> &res_id_
 Read .STAB file output from VSPAERO
 See: VSP_Solver.C in vspaero project
 *******************************************************/
-void VSPAEROMgrSingleton::ReadStabFile(string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod)
+void VSPAEROMgrSingleton::ReadStabFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod )
 {
     FILE *fp = NULL;
     bool read_success = false;
@@ -1339,11 +1319,11 @@ void VSPAEROMgrSingleton::ReadStabFile(string filename, vector <string> &res_id_
     fp = fopen( filename.c_str() , "r" );
     if ( fp == NULL )
     {
-        fprintf(stderr,"ERROR %d: Could not open Stab file: %s\n\tFile: %s \tLine:%d\n",vsp::VSP_FILE_DOES_NOT_EXIST,m_StabFile.c_str(),__FILE__,__LINE__);
+        fprintf( stderr, "ERROR %d: Could not open Stab file: %s\n\tFile: %s \tLine:%d\n", vsp::VSP_FILE_DOES_NOT_EXIST, m_StabFile.c_str(), __FILE__, __LINE__ );
         return;
     }
 
-    Results* res=NULL;
+    Results* res = NULL;
 
     std::vector<string> table_column_names;
     std::vector<string> data_string_array;
@@ -1352,21 +1332,21 @@ void VSPAEROMgrSingleton::ReadStabFile(string filename, vector <string> &res_id_
     char seps[]   = " :,\t\n";
     while ( !feof( fp ) )
     {
-        data_string_array = ReadDelimLine(fp, seps); //this is also done in some of the embedded loops below
+        data_string_array = ReadDelimLine( fp, seps ); //this is also done in some of the embedded loops below
 
-        if ( CheckForCaseHeader(data_string_array) )
+        if ( CheckForCaseHeader( data_string_array ) )
         {
             res = ResultsMgr.CreateResults( "VSPAERO_Stab" );
-            res_id_vector.push_back(res->GetID());
+            res_id_vector.push_back( res->GetID() );
 
-            if ( ReadVSPAEROCaseHeader(res, fp, analysisMethod)!=0 )
+            if ( ReadVSPAEROCaseHeader( res, fp, analysisMethod ) != 0 )
             {
                 // Failed to read the case header
-                fprintf(stderr,"ERROR %d: Could not read case header in VSPAERO file: %s\n\tFile: %s \tLine:%d\n",vsp::VSP_FILE_READ_FAILURE,m_StabFile.c_str(),__FILE__,__LINE__);
+                fprintf( stderr, "ERROR %d: Could not read case header in VSPAERO file: %s\n\tFile: %s \tLine:%d\n", vsp::VSP_FILE_READ_FAILURE, m_StabFile.c_str(), __FILE__, __LINE__ );
                 return;
             }
         }
-        else if ( data_string_array.size()>0 )
+        else if ( data_string_array.size() > 0 )
         {
             // Parse if this is not a comment line
             if ( res && strncmp( data_string_array[0].c_str(), "#", 1 ) != 0 )
@@ -1383,15 +1363,19 @@ void VSPAEROMgrSingleton::ReadStabFile(string filename, vector <string> &res_id_
                 else
                 {
                     //This is a continuation of the current table and add this row to the results manager
-                    for ( unsigned int i_field = 1; i_field < data_string_array.size() - 1; i_field++ )
+                    for ( unsigned int i_field = 1; i_field < data_string_array.size(); i_field++ )
                     {
-                        //convert to double
+                        //attempt to read a double if that fails then treat it as a string result
                         double temp_val = 0;
                         int result = 0;
                         result = sscanf( data_string_array[i_field].c_str(), "%lf", &temp_val );
                         if ( result == 1 )
                         {
                             res->Add( NameValData( data_string_array[0] + "_" + table_column_names[i_field], temp_val ) );
+                        }
+                        else
+                        {
+                            res->Add( NameValData( data_string_array[0] + "_" + table_column_names[i_field], data_string_array[i_field] ) );
                         }
                     }
                 } //end new table check
@@ -1407,14 +1391,14 @@ void VSPAEROMgrSingleton::ReadStabFile(string filename, vector <string> &res_id_
     return;
 }
 
-vector <string> VSPAEROMgrSingleton::ReadDelimLine(FILE * fp, char * delimeters)
+vector <string> VSPAEROMgrSingleton::ReadDelimLine( FILE * fp, char * delimeters )
 {
 
     vector <string> dataStringVector;
     dataStringVector.clear();
 
     char strbuff[1024];                // buffer for entire line in file
-    if ( fgets( strbuff, 1024, fp )!=NULL )
+    if ( fgets( strbuff, 1024, fp ) != NULL )
     {
         char * pch = strtok ( strbuff, delimeters );
         while ( pch != NULL )
@@ -1427,11 +1411,11 @@ vector <string> VSPAEROMgrSingleton::ReadDelimLine(FILE * fp, char * delimeters)
     return dataStringVector;
 }
 
-bool VSPAEROMgrSingleton::CheckForCaseHeader(std::vector<string> headerStr)
+bool VSPAEROMgrSingleton::CheckForCaseHeader( std::vector<string> headerStr )
 {
-    if ( headerStr.size()==1 )
+    if ( headerStr.size() == 1 )
     {
-        if ( strcmp( headerStr[0].c_str(), "*****************************************************************************************************************************************************************************************") == 0)
+        if ( strcmp( headerStr[0].c_str(), "*****************************************************************************************************************************************************************************************" ) == 0 )
         {
             return true;
         }
@@ -1440,19 +1424,19 @@ bool VSPAEROMgrSingleton::CheckForCaseHeader(std::vector<string> headerStr)
     return false;
 }
 
-int VSPAEROMgrSingleton::ReadVSPAEROCaseHeader(Results * res, FILE * fp, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod)
+int VSPAEROMgrSingleton::ReadVSPAEROCaseHeader( Results * res, FILE * fp, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod )
 {
     // check input arguments
-    if ( res == NULL)
+    if ( res == NULL )
     {
         // Bad pointer
-        fprintf(stderr,"ERROR %d: Invalid results pointer\n\tFile: %s \tLine:%d\n",vsp::VSP_INVALID_PTR,m_StabFile.c_str(),__FILE__,__LINE__);
+        fprintf( stderr, "ERROR %d: Invalid results pointer\n\tFile: %s \tLine:%d\n", vsp::VSP_INVALID_PTR, __FILE__, __LINE__ );
         return -1;
     }
-    if ( fp == NULL)
+    if ( fp == NULL )
     {
         // Bad pointer
-        fprintf(stderr,"ERROR %d: Invalid file pointer\n\tFile: %s \tLine:%d\n",vsp::VSP_INVALID_PTR,m_StabFile.c_str(),__FILE__,__LINE__);
+        fprintf( stderr, "ERROR %d: Invalid file pointer\n\tFile: %s \tLine:%d\n", vsp::VSP_INVALID_PTR, __FILE__, __LINE__ );
         return -2;
     }
 
@@ -1460,49 +1444,49 @@ int VSPAEROMgrSingleton::ReadVSPAEROCaseHeader(Results * res, FILE * fp, vsp::VS
     std::vector<string> data_string_array;
 
     //skip any blank lines before the header
-    while ( !feof( fp ) && data_string_array.size()==0)
+    while ( !feof( fp ) && data_string_array.size() == 0 )
     {
-        data_string_array = ReadDelimLine(fp, seps); //this is also done in some of the embedded loops below
+        data_string_array = ReadDelimLine( fp, seps ); //this is also done in some of the embedded loops below
     }
 
     // Read header table
     bool needs_header = true;
-    bool mach_found = false; 
+    bool mach_found = false;
     bool alpha_found = false;
     bool beta_found = false;
-    double current_mach=-FLT_MAX;
-    double current_alpha=-FLT_MAX;
-    double current_beta=-FLT_MAX;
+    double current_mach = -FLT_MAX;
+    double current_alpha = -FLT_MAX;
+    double current_beta = -FLT_MAX;
     double value;
-    while ( !feof( fp ) && data_string_array.size()>0 )
+    while ( !feof( fp ) && data_string_array.size() > 0 )
     {
         // Parse if this is not a comment line
-        if ( (strncmp( data_string_array[0].c_str(), "#", 1 ) != 0) && (data_string_array.size()==3) )
+        if ( ( strncmp( data_string_array[0].c_str(), "#", 1 ) != 0 ) && ( data_string_array.size() == 3 ) )
         {
             // assumption that the 2nd entry is a number
-            if ( sscanf(data_string_array[1].c_str(),"%lf", &value)==1 )
+            if ( sscanf( data_string_array[1].c_str(), "%lf", &value ) == 1 )
             {
-                res->Add( NameValData( data_string_array[0], value ) );
+                res->Add( NameValData( "FC_" + data_string_array[0], value ) );
 
                 // save flow condition information to be added to the header later
-                if ( strcmp(data_string_array[0].c_str(),"Mach_" )==0 ) 
+                if ( strcmp( data_string_array[0].c_str(), "Mach_" ) == 0 )
                 {
-                    current_mach = value; 
+                    current_mach = value;
                     mach_found = true;
                 }
-                if ( strcmp(data_string_array[0].c_str(),"AoA_" )==0 )
+                if ( strcmp( data_string_array[0].c_str(), "AoA_" ) == 0 )
                 {
-                    current_alpha = value; 
+                    current_alpha = value;
                     alpha_found = true;
                 }
-                if ( strcmp(data_string_array[0].c_str(),"Beta_" )==0 ) 
+                if ( strcmp( data_string_array[0].c_str(), "Beta_" ) == 0 )
                 {
-                    current_beta = value; 
+                    current_beta = value;
                     beta_found = true;
                 }
 
                 // check if the information needed for the result header has been read in
-                if ( mach_found && alpha_found && beta_found && needs_header)
+                if ( mach_found && alpha_found && beta_found && needs_header )
                 {
                     AddResultHeader( res->GetID(), current_mach, current_alpha, current_beta, analysisMethod );
                     needs_header = false;
@@ -1511,13 +1495,13 @@ int VSPAEROMgrSingleton::ReadVSPAEROCaseHeader(Results * res, FILE * fp, vsp::VS
         }
 
         // read the next line
-        data_string_array = ReadDelimLine(fp, seps);
+        data_string_array = ReadDelimLine( fp, seps );
 
     } // end while
 
     if ( needs_header )
     {
-        fprintf(stderr,"WARNING: Case header incomplete \n\tFile: %s \tLine:%d\n",__FILE__,__LINE__);
+        fprintf( stderr, "WARNING: Case header incomplete \n\tFile: %s \tLine:%d\n", __FILE__, __LINE__ );
         return -3;
     }
 
@@ -1531,21 +1515,22 @@ int VSPAEROMgrSingleton::ReadVSPAEROCaseHeader(Results * res, FILE * fp, vsp::VS
 // TODO make return values into enum
 int VSPAEROMgrSingleton::ExportResultsToCSV( string fileName )
 {
+    int retVal;
+
     // Get the results
     string resId = ResultsMgr.FindLatestResultsID( "VSPAERO_Wrapper" );
-    if ( resId !=string() )
+    if ( resId != string() )
     {
         // Get all the child results
         vector <string> resIdVector = ResultsMgr.GetStringResults( resId, "ResultsVec" );
-        ResultsMgr.WriteCSVFile( fileName, resIdVector );
+        retVal = ResultsMgr.WriteCSVFile( fileName, resIdVector );
     }
     else
     {
-        fprintf(stderr,"ERROR %d: Unable to get VSPAERO_Wrapper result \n\tFile: %s \tLine:%d\n",vsp::VSP_CANT_FIND_NAME,__FILE__,__LINE__);
-        return -1; //failure
+        fprintf( stderr, "ERROR %d: Unable to get VSPAERO_Wrapper result \n\tFile: %s \tLine:%d\n", vsp::VSP_CANT_FIND_NAME, __FILE__, __LINE__ );
+        retVal = vsp::VSP_CANT_FIND_NAME; //failure
     }
 
-
-    return 0; //success
+    return retVal;
 }
 

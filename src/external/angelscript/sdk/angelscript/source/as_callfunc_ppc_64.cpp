@@ -1,6 +1,6 @@
 /*
    AngelCode Scripting Library
-   Copyright (c) 2003-2013 Andreas Jonsson
+   Copyright (c) 2003-2016 Andreas Jonsson
 
    This software is provided 'as-is', without any express or implied
    warranty. In no event will the authors be held liable for any
@@ -41,6 +41,10 @@
 
 #ifndef AS_MAX_PORTABILITY
 #ifdef AS_PPC_64
+#if AS_PTR_SIZE == 2
+// TODO: Add support for PPC 64bit platforms with 64bit pointers, for example Linux PPC64 (big endian) and PPC64 (little endian)
+#error This code has not been prepared for PPC with 64bit pointers. Most likely the ABI is different
+#else
 
 #include "as_callfunc.h"
 #include "as_scriptengine.h"
@@ -547,8 +551,10 @@ inline bool IsVariableArgument( asCDataType type )
 	return (type.GetTokenType() == ttQuestion) ? true : false;
 }
 
-asQWORD CallSystemFunctionNative(asCContext *context, asCScriptFunction *descr, void *obj, asDWORD *args, void *retPointer, asQWORD &/*retQW2*/)
+asQWORD CallSystemFunctionNative(asCContext *context, asCScriptFunction *descr, void *obj, asDWORD *args, void *retPointer, asQWORD &/*retQW2*/, void */*secondObject*/)
 {
+	// TODO: PPC 64 does not yet support THISCALL_OBJFIRST/LAST
+
 	// use a working array of types, we'll configure the final one in stackArgs
 	asBYTE argsType[AS_PPC_MAX_ARGS + 1 + 1 + 1];
 	memset( argsType, 0, sizeof(argsType));
@@ -663,10 +669,11 @@ asQWORD CallSystemFunctionNative(asCContext *context, asCScriptFunction *descr, 
 
 		for( asUINT n = 0; n < descr->parameterTypes.GetLength(); n++ )
 		{
-			if( descr->parameterTypes[n].IsObject() && !descr->parameterTypes[n].IsObjectHandle() && !descr->parameterTypes[n].IsReference() )
+			if( descr->parameterTypes[n].IsObject() && !descr->parameterTypes[n].IsObjectHandle() && !descr->parameterTypes[n].IsReference() &&
+				!(descr->parameterTypes[n].GetTypeInfo()->flags & asOBJ_APP_ARRAY) )
 			{
 #ifdef COMPLEX_OBJS_PASSED_BY_REF
-				if( descr->parameterTypes[n].GetObjectType()->flags & COMPLEX_MASK )
+				if( descr->parameterTypes[n].GetTypeInfo()->flags & COMPLEX_MASK )
 				{
 					paramBuffer[dpos++] = args[spos++];
 					++paramSize;
@@ -760,6 +767,7 @@ asQWORD CallSystemFunctionNative(asCContext *context, asCScriptFunction *descr, 
 
 END_AS_NAMESPACE
 
+#endif // AS_PTR_SIZE == 2
 #endif // AS_PPC_64
 #endif // AS_MAX_PORTABILITY
 

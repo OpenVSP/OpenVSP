@@ -10,21 +10,10 @@
 #include "ProjectionMgr.h"
 #include "ParmMgr.h"
 #include "Vehicle.h"
-#include "VehicleMgr.h"
 #include "StlHelper.h"
 #include "MeshGeom.h"
-#include "APIDefines.h"
-#include "XmlUtil.h"
-#include "APIDefines.h"
-#include "MeshGeom.h"
 
-#include "clipper.hpp"
 #include "triangle.h"
-
-#include <algorithm>
-#include <cmath>
-#include <cstdlib>
-#include <set>
 
 //==== Constructor ====//
 ProjectionMgrSingleton::ProjectionMgrSingleton()

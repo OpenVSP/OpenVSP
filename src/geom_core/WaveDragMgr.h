@@ -61,8 +61,6 @@ public:
 
     void CalcVolArea( const vector < double > &x, const vector < double > &S, double length, double &volume, double &maxArea ) const;
 
-    void CalcCompOrder();
-
     void FitBuildup();
 
     void PushSliceResults( Results* res );

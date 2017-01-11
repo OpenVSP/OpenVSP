@@ -51,13 +51,6 @@ protected:
 
     ToggleButton m_ReverseToggle;
 
-    SliderAdjRangeInput m_RFoldSlider;
-    SliderAdjRangeInput m_AxFoldSlider;
-    SliderAdjRangeInput m_OffFoldSlider;
-    SliderAdjRangeInput m_AzFoldSlider;
-    SliderAdjRangeInput m_ElFoldSlider;
-    SliderAdjRangeInput m_FoldAngleSlider;
-
     SliderInput m_AFLimitSlider;
     StringOutput m_AFOutput;
 
@@ -75,10 +68,12 @@ protected:
 
     SliderAdjRangeInput m_CapTessSlider;
 
-    SliderInput m_LEClusterSlider;
-    SliderInput m_TEClusterSlider;
-    SliderInput m_RootClusterSlider;
-    SliderInput m_TipClusterSlider;
+    SliderAdjRangeInput m_LEClusterSlider;
+    SliderAdjRangeInput m_TEClusterSlider;
+    SliderAdjRangeInput m_RootClusterSlider;
+    SliderAdjRangeInput m_TipClusterSlider;
+    StringOutput m_SmallPanelWOutput;
+    StringOutput m_MaxGrowthOutput;
 
     GroupLayout m_XSecLayout;
 
@@ -266,6 +261,14 @@ protected:
 
     PCurveEditor m_CurveEditor;
 
+    GroupLayout m_FoldLayout;
+
+    SliderAdjRangeInput m_RFoldSlider;
+    SliderAdjRangeInput m_AxFoldSlider;
+    SliderAdjRangeInput m_OffFoldSlider;
+    SliderAdjRangeInput m_AzFoldSlider;
+    SliderAdjRangeInput m_ElFoldSlider;
+    SliderAdjRangeInput m_FoldAngleSlider;
 
 };
 

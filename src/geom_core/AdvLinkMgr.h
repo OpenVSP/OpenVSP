@@ -37,8 +37,6 @@ public:
     void DelAllLinks();
     void CheckLinks();                  // Check If All Links Are Still Valid
 
-    void AddAdvLink( const string & script_module_name );
-
     void AddInput( const string & parm_id, const string & var_name );
     void AddOutput( const string & parm_id, const string & var_name );
 
@@ -52,7 +50,6 @@ public:
     void UpdateLinks( const string& pid );
     void ForceUpdate( );
     void SetActiveLink( AdvLink* adv_link )                             { m_ActiveLink = adv_link; }
-    AdvLink* GetActiveLink()                                            { return m_ActiveLink; }
 
     AdvLink* GetLink( int index );
     void SetEditLinkIndex( int index )                                  { m_EditLinkIndex = index; }

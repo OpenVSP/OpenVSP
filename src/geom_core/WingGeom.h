@@ -163,10 +163,12 @@ public:
     Parm m_TotalProjSpan;
     Parm m_TotalChord;
     Parm m_TotalArea;
-    double m_TotalAspectRatio;
 
     Parm m_LECluster;
     Parm m_TECluster;
+
+    Parm m_SmallPanelW;
+    Parm m_MaxGrowth;
 
     BoolParm m_RelativeDihedralFlag;
     BoolParm m_RelativeTwistFlag;
@@ -189,6 +191,8 @@ protected:
     virtual void UpdateSplitTesselate( int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms );
     virtual void UpdateDrawObj();
     virtual void MatchWingSections();
+
+    virtual void CalculateMeshMetrics();
 
     virtual double ComputeTotalSpan();
     virtual double ComputeTotalProjSpan();

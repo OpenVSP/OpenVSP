@@ -7,7 +7,6 @@
 #include "APIDefines.h"
 #include "SnapTo.h"
 #include "Vehicle.h"
-#include "VehicleMgr.h"
 #include "ParmMgr.h"
 
 SnapTo::SnapTo() : ParmContainer()

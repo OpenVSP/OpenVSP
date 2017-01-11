@@ -17,6 +17,7 @@
 #include <sys/wait.h>
 #include <sys/types.h>
 #include <unistd.h>
+
 #include <fcntl.h>
 #include <signal.h>
 #endif
@@ -353,6 +354,14 @@ void ProcessUtil::StartThread( LPTHREAD_START_ROUTINE threadfun, LPVOID data )
 #else
 void ProcessUtil::StartThread( void *(*threadfun)( void *data ), void *data )
 {
+// Example code for setting thread stack size.
+//    pthread_attr_t thread_attr;
+//    size_t tmp_size=0;
+//    pthread_attr_init( &thread_attr );
+//    pthread_attr_setstacksize( &thread_attr , 0x80000 * 2 ); // 0x80000 // Default
+//    pthread_attr_getstacksize( &thread_attr , &tmp_size );
+//    pthread_create( &m_Thread, &thread_attr, threadfun, data );
+
     pthread_create( &m_Thread, NULL, threadfun, data );
 
     //TODO return thread creation success/failure

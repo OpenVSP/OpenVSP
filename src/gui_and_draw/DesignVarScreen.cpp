@@ -166,7 +166,7 @@ bool DesignVarScreen::Update()
     }
 
     //==== Update Parm Adjust Tab ====//
-    for ( int i = 0 ; i < num_vars ; i++ )
+    for ( i = 0 ; i < num_vars ; i++ )
     {
         m_ParmSliderVec[i].Update( DesignVarMgr.GetVar( i )->m_ParmID );
     }

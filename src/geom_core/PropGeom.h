@@ -171,6 +171,9 @@ public:
     Parm m_RootCluster;
     Parm m_TipCluster;
 
+    Parm m_SmallPanelW;
+    Parm m_MaxGrowth;
+
     Parm m_AFLimit;
     Parm m_AF;
 
@@ -184,6 +187,8 @@ protected:
 
     virtual void UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, bool degen );
     virtual void UpdateSplitTesselate( int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms );
+
+    virtual void CalculateMeshMetrics( const vector < double > &u_pseudo );
 
     DrawObj m_ArrowLinesDO;
     DrawObj m_ArrowHeadDO;

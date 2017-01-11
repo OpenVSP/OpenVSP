@@ -69,10 +69,8 @@ public:
 
 
     int m_TargetSetIndex;
-    int m_TargetGeomIndex;
 
     int m_BoundarySetIndex;
-    int m_BoundaryGeomIndex;
 
     IntParm m_TargetType;
     IntParm m_BoundaryType;

@@ -10,10 +10,7 @@
 #include "DesignVarMgr.h"
 #include "ParmMgr.h"
 #include "Vehicle.h"
-#include "VehicleMgr.h"
 #include "StlHelper.h"
-
-#include <algorithm>
 
 //==== Constructor ====//
 DesignVar:: DesignVar()

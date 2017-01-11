@@ -1,6 +1,6 @@
 /*
    AngelCode Scripting Library
-   Copyright (c) 2003-2013 Andreas Jonsson
+   Copyright (c) 2003-2016 Andreas Jonsson
 
    This software is provided 'as-is', without any express or implied 
    warranty. In no event will the authors be held liable for any 
@@ -53,6 +53,7 @@ class asCModule;
 class asCConfigGroup;
 class asCGlobalProperty;
 class asCScriptNode;
+class asCFuncdefType;
 struct asSNameSpace;
 
 struct asSScriptVariable
@@ -66,6 +67,7 @@ struct asSScriptVariable
 enum asEListPatternNodeType
 {
 	asLPT_REPEAT,
+	asLPT_REPEAT_SAME,
 	asLPT_START,
 	asLPT_END,
 	asLPT_TYPE
@@ -97,9 +99,9 @@ enum asEObjVarInfoOption
 
 struct asSObjectVariableInfo
 {
-	asUINT programPos;
-	int    variableOffset;
-	asUINT option;
+	asUINT              programPos;
+	int                 variableOffset;
+	asEObjVarInfoOption option;
 };
 
 struct asSSystemFunctionInterface;
@@ -128,20 +130,26 @@ public:
 	const char          *GetScriptSectionName() const;
 	const char          *GetConfigGroup() const;
 	asDWORD              GetAccessMask() const;
+	void                *GetAuxiliary() const;
 
 	// Function signature
-	asIObjectType       *GetObjectType() const;
+	asITypeInfo         *GetObjectType() const;
 	const char          *GetObjectName() const;
 	const char          *GetName() const;
 	const char          *GetNamespace() const;
-	const char          *GetDeclaration(bool includeObjectName = true, bool includeNamespace = false) const;
+	const char          *GetDeclaration(bool includeObjectName = true, bool includeNamespace = false, bool includeParamNames = false) const;
 	bool                 IsReadOnly() const;
 	bool                 IsPrivate() const;
+	bool                 IsProtected() const;
 	bool                 IsFinal() const;
 	bool                 IsOverride() const;
 	bool                 IsShared() const;
 	asUINT               GetParamCount() const;
+	int                  GetParam(asUINT index, int *typeId, asDWORD *flags = 0, const char **name = 0, const char **defaultArg = 0) const;
+#ifdef AS_DEPRECATED
+	// Deprecated, since 2.29.0, 2014-04-06
 	int                  GetParamTypeId(asUINT index, asDWORD *flags = 0) const;
+#endif
 	int                  GetReturnTypeId(asDWORD *flags = 0) const;
 
 	// Type id for function pointers 
@@ -150,7 +158,7 @@ public:
 
 	// Delegates
 	void                *GetDelegateObject() const;
-	asIObjectType       *GetDelegateObjectType() const;
+	asITypeInfo         *GetDelegateObjectType() const;
 	asIScriptFunction   *GetDelegateFunction() const;
 
 	// Debug information
@@ -163,8 +171,8 @@ public:
 	asDWORD             *GetByteCode(asUINT *length = 0);
 
 	// User data
-	void                *SetUserData(void *userData);
-	void                *GetUserData() const;
+	void                *SetUserData(void *userData, asPWORD type);
+	void                *GetUserData(asPWORD type) const;
 
 public:
 	//-----------------------------------
@@ -173,14 +181,28 @@ public:
 	asCScriptFunction(asCScriptEngine *engine, asCModule *mod, asEFuncType funcType);
 	~asCScriptFunction();
 
+	// Keep an internal reference counter to separate references coming from 
+	// application or script objects and references coming from the script code
+	int AddRefInternal();
+	int ReleaseInternal();
+
+	void     DestroyHalfCreated();
+
+	// TODO: operator==
+	// TODO: The asIScriptFunction should provide operator== and operator!= that should do a
+	//       a value comparison. Two delegate objects that point to the same object and class method should compare as equal
+	// TODO: The operator== should also be provided in script as opEquals to allow the same comparison in script
+	//       To do this we'll need some way to adapt the argtype for opEquals for each funcdef, preferrably without instantiating lots of different methods
+	//       Perhaps reusing 'auto' to mean the same type as the object
+	//bool      operator==(const asCScriptFunction &other) const;
+
 	void      DestroyInternal();
-	void      Orphan(asIScriptModule *mod);
 
 	void      AddVariable(asCString &name, asCDataType &type, int stackOffset);
 
 	int       GetSpaceNeededForArguments();
 	int       GetSpaceNeededForReturnValue();
-	asCString GetDeclarationStr(bool includeObjectName = true, bool includeNamespace = false) const;
+	asCString GetDeclarationStr(bool includeObjectName = true, bool includeNamespace = false, bool includeParamNames = false) const;
 	int       GetLineNumber(int programPosition, int *sectionIdx);
 	void      ComputeSignatureId();
 	bool      IsSignatureEqual(const asCScriptFunction *func) const;
@@ -190,7 +212,7 @@ public:
 	bool      IsSignatureExceptNameAndReturnTypeEqual(const asCArray<asCDataType> &paramTypes, const asCArray<asETypeModifiers> &inOutFlags, const asCObjectType *type, bool isReadOnly) const;
 	bool      IsSignatureExceptNameAndObjectTypeEqual(const asCScriptFunction *func) const;
 
-	asCObjectType *GetObjectTypeOfLocalVar(short varOffset);
+	asCTypeInfo *GetTypeInfoOfLocalVar(short varOffset);
 
 	void      MakeDelegate(asCScriptFunction *func, void *obj);
 
@@ -209,7 +231,7 @@ public:
 
 	asCGlobalProperty *GetPropertyByGlobalVarPtr(void *gvarPtr);
 
-	// GC methods
+	// GC methods (for delegates)
 	int  GetRefCount();
 	void SetFlag();
 	bool GetFlag();
@@ -220,21 +242,24 @@ public:
 	//-----------------------------------
 	// Properties
 
-	mutable asCAtomic            refCount;
+	mutable asCAtomic            externalRefCount; // Used for external referneces
+	        asCAtomic            internalRefCount; // Used for internal references
 	mutable bool                 gcFlag;
 	asCScriptEngine             *engine;
 	asCModule                   *module;
 
-	void                        *userData;
+	asCArray<asPWORD>            userData;
 
 	// Function signature
 	asCString                    name;
 	asCDataType                  returnType;
 	asCArray<asCDataType>        parameterTypes;
+	asCArray<asCString>          parameterNames;
 	asCArray<asETypeModifiers>   inOutFlags;
 	asCArray<asCString *>        defaultArgs;
 	bool                         isReadOnly;
 	bool                         isPrivate;
+	bool                         isProtected;
 	bool                         isFinal;
 	bool                         isOverride;
 	asCObjectType               *objectType;
@@ -246,7 +271,12 @@ public:
 	asDWORD                      accessMask;
 	bool                         isShared;
 
+	// Namespace will be null for funcdefs that are declared as child funcdefs 
+	// of a class. In this case the namespace shall be taken from the parentClass 
+	// in the funcdefType
 	asSNameSpace                *nameSpace;
+
+	asCFuncdefType              *funcdefType; // Doesn't increase refCount
 
 	// Used by asFUNC_DELEGATE
 	void              *objForDelegate;
@@ -264,10 +294,9 @@ public:
 		// The stack space needed for the local variables
 		asDWORD                         variableSpace;
 
-		// These hold information objects and function pointers, including temporary
+		// These hold information on objects and function pointers, including temporary
 		// variables used by exception handler and when saving bytecode
-		asCArray<asCObjectType*>        objVariableTypes;
-		asCArray<asCScriptFunction*>    funcVariableTypes;
+		asCArray<asCTypeInfo*>          objVariableTypes;
 		asCArray<int>                   objVariablePos;
 
 		// The first variables in above array are allocated on the heap, the rest on the stack.
@@ -289,7 +318,7 @@ public:
 		asCArray<int>                   lineNumbers;
 		// Store the script section where the code was declared
 		int                             scriptSectionIdx;
-		// Store the location where the function was declared
+		// Store the location where the function was declared  (row in the lower 20 bits, and column in the upper 12)
 		int                             declaredAt;
 		// Store position/index pairs if the bytecode is compiled from multiple script sections
 		asCArray<int>                   sectionIdxs;
@@ -306,7 +335,7 @@ public:
 	asSSystemFunctionInterface  *sysFuncIntf;
 };
 
-const char * const DELEGATE_FACTORY = "%delegate_factory";
+const char * const DELEGATE_FACTORY = "$dlgte";
 asCScriptFunction *CreateDelegate(asCScriptFunction *func, void *obj);
 
 END_AS_NAMESPACE

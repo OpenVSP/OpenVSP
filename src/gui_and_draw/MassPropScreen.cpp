@@ -6,11 +6,7 @@
 
 #include "MassPropScreen.h"
 #include "ScreenMgr.h"
-#include "EventMgr.h"
-#include "Vehicle.h"
 #include "StlHelper.h"
-#include "APIDefines.h"
-#include <assert.h>
 
 MassPropScreen::MassPropScreen( ScreenMgr *mgr ) : VspScreen( mgr )
 {

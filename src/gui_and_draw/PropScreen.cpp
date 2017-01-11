@@ -8,16 +8,9 @@
 #include "PropScreen.h"
 #include "ScreenMgr.h"
 #include "PropGeom.h"
-#include "EventMgr.h"
-#include "Vehicle.h"
 #include "ParmMgr.h"
-#include "APIDefines.h"
-
-#include "Vsp1DCurve.h"
 
 using namespace vsp;
-
-#include <assert.h>
 
 
 //==== Constructor ====//
@@ -84,17 +77,6 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 690, "Propeller
 
     m_DesignLayout.AddYGap();
 
-    m_DesignLayout.AddDividerBox( "Folding" );
-
-    m_DesignLayout.AddSlider( m_FoldAngleSlider, "Angle", 100, "%5.3f" );
-    m_DesignLayout.AddSlider( m_RFoldSlider, "Radial/R", 1, "%5.3f" );
-    m_DesignLayout.AddSlider( m_AxFoldSlider, "Axial/R", 1, "%5.3f" );
-    m_DesignLayout.AddSlider( m_OffFoldSlider, "Offset/R", 1, "%5.3f" );
-    m_DesignLayout.AddSlider( m_AzFoldSlider, "Azimuth", 100, "%5.3f" );
-    m_DesignLayout.AddSlider( m_ElFoldSlider, "Elevation", 100, "%5.3f" );
-
-    m_DesignLayout.AddYGap();
-
     m_DesignLayout.AddDividerBox( "Tip Treatment" );
     m_DesignLayout.AddSlider( m_CapTessSlider, "Cap Tess", 10, "%3.0f" );
 
@@ -133,6 +115,11 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 690, "Propeller
     m_DesignLayout.AddSlider( m_TEClusterSlider, "TE Clustering", 1, "%6.5f" );
     m_DesignLayout.AddSlider( m_RootClusterSlider, "Root Clustering", 1, "%6.5f" );
     m_DesignLayout.AddSlider( m_TipClusterSlider, "Tip Clustering", 1, "%6.5f" );
+
+    m_DesignLayout.AddYGap();
+    m_DesignLayout.SetButtonWidth( 200 );
+    m_DesignLayout.AddOutput( m_SmallPanelWOutput, "Minimum LE/TE Panel Width" );
+    m_DesignLayout.AddOutput( m_MaxGrowthOutput, "Maximum Growth Ratio" );
 
     //==== Blade Tab ====//
     Fl_Group* plot_tab = AddTab( "Blade" );
@@ -619,6 +606,23 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 690, "Propeller
     m_ModifyLayout.AddSlider( m_TrimTEXSlider, "X", 10.0, "%6.5f" );
     m_ModifyLayout.AddSlider( m_TrimTEThickSlider, "T", 10.0, "%6.5f" );
 
+    Fl_Group* fold_tab = AddTab( "Fold" );
+    Fl_Group* fold_group = AddSubGroup( fold_tab, 5 );
+
+    m_FoldLayout.SetGroupAndScreen( fold_group, this );
+
+    m_FoldLayout.SetButtonWidth( 100 );
+    m_FoldLayout.SetChoiceButtonWidth( 100 );
+
+    m_FoldLayout.AddDividerBox( "Folding" );
+
+    m_FoldLayout.AddSlider( m_FoldAngleSlider, "Angle", 100, "%5.3f" );
+    m_FoldLayout.AddSlider( m_RFoldSlider, "Radial/R", 1, "%5.3f" );
+    m_FoldLayout.AddSlider( m_AxFoldSlider, "Axial/R", 1, "%5.3f" );
+    m_FoldLayout.AddSlider( m_OffFoldSlider, "Offset/R", 1, "%5.3f" );
+    m_FoldLayout.AddSlider( m_AzFoldSlider, "Azimuth", 100, "%5.3f" );
+    m_FoldLayout.AddSlider( m_ElFoldSlider, "Elevation", 100, "%5.3f" );
+
 }
 
 //==== Show Pod Screen ====//
@@ -693,6 +697,12 @@ bool PropScreen::Update()
     m_TEClusterSlider.Update( propeller_ptr->m_TECluster.GetID() );
     m_RootClusterSlider.Update( propeller_ptr->m_RootCluster.GetID() );
     m_TipClusterSlider.Update( propeller_ptr->m_TipCluster.GetID() );
+
+    sprintf( str, "%6.4g", propeller_ptr->m_SmallPanelW() );
+    m_SmallPanelWOutput.Update( str );
+
+    sprintf( str, "%6.3f", propeller_ptr->m_MaxGrowth() );
+    m_MaxGrowthOutput.Update( str );
 
     m_RootCapTypeChoice.Update( propeller_ptr->m_CapUMinOption.GetID() );
     m_TipCapTypeChoice.Update( propeller_ptr->m_CapUMaxOption.GetID() );
@@ -968,7 +978,6 @@ bool PropScreen::Update()
                 int num_up = cst_xs->m_UpDeg() + 1;
                 int num_low = cst_xs->m_LowDeg() + 1;
 
-                char str[255];
                 sprintf( str, "%d", cst_xs->m_UpDeg() );
                 m_UpDegreeOutput.Update( str );
                 sprintf( str, "%d", cst_xs->m_LowDeg() );

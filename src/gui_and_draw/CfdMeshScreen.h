@@ -14,6 +14,7 @@
 #include "ScreenBase.h"
 #include "Vehicle.h"
 #include "GuiDevice.h"
+#include "ProcessUtil.h"
 
 using namespace std;
 
@@ -38,10 +39,14 @@ public:
 
     virtual void GuiDeviceCallBack( GuiDevice* device );
 
-    void parm_changed( Parm* parm ) {}
     void AddOutputText( const string &text );
     string truncateFileName( const string &fn, int len );
     void LoadDrawObjs( vector< DrawObj* > &draw_obj_vec );
+
+    ProcessUtil* getCfdMeshProcess()
+    {
+        return &m_CFDMeshProcess;
+    }
 
 protected:
 
@@ -204,6 +209,9 @@ protected:
 
     TriggerButton m_MeshAndExport;
 
+    ProcessUtil m_CFDMeshProcess;
+    ProcessUtil m_MonitorProcess;
+
 private:
 
     void CreateGlobalTab();
@@ -221,7 +229,6 @@ private:
     void UpdateWakesTab();
 
     void GuiDeviceGlobalTabCallback( GuiDevice* device );
-    void GuiDeviceDisplayTabCallback( GuiDevice* device );
     void GuiDeviceOutputTabCallback( GuiDevice* device );
     void GuiDeviceSourcesTabCallback( GuiDevice* device );
     void GuiDeviceDomainTabCallback( GuiDevice* device );

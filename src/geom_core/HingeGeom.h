@@ -72,7 +72,6 @@ public:
 
     IntParm m_OrientType;
 
-    IntParm m_FreeDir;
     IntParm m_PrimaryDir;
     IntParm m_SecondaryDir;
 
@@ -90,7 +89,6 @@ protected:
     DrawObj m_MotionArrowsDO;
 
     DrawObj m_PrimaryLineDO;
-    DrawObj m_SecondaryLineDO;
 
     vec3d m_BaseOrigin;
     vector < vec3d > m_BaseAxis;
@@ -99,7 +97,6 @@ protected:
     Matrix4d m_JointMatrix;
 
     vec3d m_PrimEndpt;
-    vec3d m_SecEndpt;
 
     void SetParmLimits( Parm & p, Parm & pflag, Parm & pmin, Parm & pminflag, Parm & pmax, Parm & pmaxflag );
 

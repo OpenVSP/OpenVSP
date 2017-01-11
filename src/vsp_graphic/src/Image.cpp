@@ -1,10 +1,9 @@
 #include <assert.h>
 #include <MultiImageLoader.h>
-#include <algorithm>
-#include <stdlib.h>
 
 #include "Image.h"
-
+#include <algorithm>
+#include <stdlib.h>
 
 namespace VSPGraphic
 {

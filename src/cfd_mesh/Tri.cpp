@@ -154,14 +154,14 @@ void Node::AreaWeightedLaplacianSmooth( Surf* surfPtr )
     vector< Tri* > connectTris;
     GetConnectTris( connectTris );
 
-    vector< double > fracts;
-    fracts.resize( connectTris.size() );
+    vector< double > areas;
+    areas.resize( connectTris.size() );
 
     double sum_area = 0.0;
     for ( int i = 0 ; i < ( int )connectTris.size() ; i++ )
     {
-        fracts[i] = connectTris[i]->Area();
-        sum_area += fracts[i];
+        areas[i] = connectTris[i]->Area();
+        sum_area += areas[i];
     }
 
     if ( sum_area < 1.0e-12 )
@@ -171,21 +171,21 @@ void Node::AreaWeightedLaplacianSmooth( Surf* surfPtr )
 
     vec3d movePnt = vec3d( 0, 0, 0 );
     vec2d moveUW  = vec2d( 0, 0 );
+    double k2 = 1.0 / ( 3.0 * sum_area );
     for ( int i = 0 ; i < ( int )connectTris.size() ; i++ )
     {
-        movePnt = movePnt + connectTris[i]->n0->pnt * ( 1.0 / 3.0 ) * ( fracts[i] / sum_area );
-        moveUW = moveUW + connectTris[i]->n0->uw * ( 1.0 / 3.0 ) * ( fracts[i] / sum_area );
-        movePnt = movePnt + connectTris[i]->n1->pnt * ( 1.0 / 3.0 ) * ( fracts[i] / sum_area );
-        moveUW = moveUW + connectTris[i]->n1->uw * ( 1.0 / 3.0 ) * ( fracts[i] / sum_area );
-        movePnt = movePnt + connectTris[i]->n2->pnt * ( 1.0 / 3.0 ) * ( fracts[i] / sum_area );
-        moveUW = moveUW + connectTris[i]->n2->uw * ( 1.0 / 3.0 ) * ( fracts[i] / sum_area );
+        double k = k2 * areas[i];
+        movePnt = movePnt + ( connectTris[i]->n0->pnt + connectTris[i]->n1->pnt + connectTris[i]->n2->pnt ) * k;
+        moveUW = moveUW + ( connectTris[i]->n0->uw + connectTris[i]->n1->uw + connectTris[i]->n2->uw ) * k;
     }
 
-//  vec2d close_uw = surfPtr->ClosestUW( movePnt, moveUW.x(),  moveUW.y(), 0.001, 0.001, 0.00001 );
+    // TODO:  This routine calculates an area weighted smoothed point to high precision.
+    // it then moves 1/10th the way from the old point to the new point (in UW terms).
+    // This is likely a remnant from the v2 code that searched much less precisely.
+    // Consider a (much) less precise search, discarding (or tuning) the 1/10th lag, or
+    // performing the 1/10th step in x,y,z space before performing the surface search.
+    // Profiling shows this routine is one of the most expensive parts of Remesh.
     vec2d close_uw = surfPtr->ClosestUW( movePnt, moveUW.x(),  moveUW.y() );
-
-    vec2d old_uw = uw;
-    vec3d old_pnt = pnt;
 
     uw = uw + ( close_uw - uw ) * 0.1;
     pnt = surfPtr->CompPnt( uw.x(), uw.y() );
@@ -447,7 +447,6 @@ Tri::Tri()
     n0 = n1 = n2 = NULL;
     e0 = e1 = e2 = NULL;
     deleteFlag = false;
-    intExtCount = 0;
 }
 
 Tri::Tri( Node* nn0, Node* nn1, Node* nn2, Edge* ee0, Edge* ee1, Edge* ee2 )
@@ -456,7 +455,6 @@ Tri::Tri( Node* nn0, Node* nn1, Node* nn2, Edge* ee0, Edge* ee1, Edge* ee2 )
     debugFlag = false;
     SetNodesEdges( nn0, nn1, nn2, ee0, ee1, ee2 );
     deleteFlag = false;
-    intExtCount = 0;
 }
 
 Tri::~Tri()

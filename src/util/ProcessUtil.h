@@ -34,7 +34,7 @@ public:
 
     int ForkCmd( const string &path, const string &cmd, const vector<string> &opts );
 
-    void WaitCmd( void *(*updatefun)( void *data ), void *data );
+    void WaitCmd( void *(*updatefun)( void * ), void *data );
     void Kill();
 
     bool IsRunning();
@@ -49,7 +49,7 @@ public:
 
     HANDLE m_StdoutPipe[2];
 #else
-    void StartThread( void *(*threadfun)( void *data ), void *data );
+    void StartThread( void *(*threadfun)( void * ), void *data );
 
     int m_StdoutPipe[2];
 #endif

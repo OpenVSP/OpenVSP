@@ -1,6 +1,5 @@
 #include "Label.h"
 #include "Vehicle.h"
-#include "VehicleMgr.h"
 
 Label::Label() : ParmContainer()
 {

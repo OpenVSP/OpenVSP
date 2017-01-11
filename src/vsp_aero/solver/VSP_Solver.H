@@ -66,6 +66,10 @@ private:
     
     int DumpGeom_;
     
+    // Write out 2d FEM output file
+    
+    int Write2DFEMFile_;
+   
     // Function data
     
     void init(void);
@@ -337,6 +341,13 @@ private:
     
     int LoadDeformationFile_;
     
+    // 2D Fem loads files
+    
+    FILE *FEM2DLoadFile_;
+    
+    void WriteFEM2DGeometry(void);
+    void WriteFEM2DSolution(void);
+    
     // File IO
     
     void WriteOutAerothermalDatabaseGeometry(void);
@@ -505,10 +516,14 @@ public:
     
     int &LoadFEMDeformation(void) { return LoadDeformationFile_; };
     
+    int &Write2DFEMFile(void) { return Write2DFEMFile_; };
+    
     // User case string
     
     char *CaseString(void) { return CaseString_; };
-
+        
+    // Generic File header
+    
     void WriteCaseHeader(FILE *fid);
 
 };

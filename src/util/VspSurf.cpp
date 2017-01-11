@@ -17,9 +17,8 @@
 #include "VspSurf.h"
 #include "StlHelper.h"
 #include "PntNodeMerge.h"
-#include "APIDefines.h"
+#include "Cluster.h"
 
-#include "eli/geom/curve/piecewise_creator.hpp"
 #include "eli/geom/surface/piecewise_body_of_revolution_creator.hpp"
 #include "eli/geom/surface/piecewise_multicap_surface_creator.hpp"
 #include "eli/geom/intersect/minimum_distance_surface.hpp"
@@ -28,18 +27,10 @@ typedef piecewise_surface_type::index_type surface_index_type;
 typedef piecewise_surface_type::point_type surface_point_type;
 typedef piecewise_surface_type::rotation_matrix_type surface_rotation_matrix_type;
 typedef piecewise_surface_type::bounding_box_type surface_bounding_box_type;
-typedef piecewise_curve_type::point_type curve_point_type;
 
-typedef eli::geom::curve::piecewise_linear_creator<double, 3, surface_tolerance_type> piecewise_linear_creator_type;
 typedef eli::geom::surface::piecewise_general_skinning_surface_creator<double, 3, surface_tolerance_type> general_creator_type;
 typedef eli::geom::surface::piecewise_multicap_surface_creator<double, 3, surface_tolerance_type> multicap_creator_type;
 typedef eli::geom::surface::piecewise_cubic_spline_skinning_surface_creator<double, 3, surface_tolerance_type> spline_creator_type;
-
-double Cluster( const double &t, const double &a, const double &b )
-{
-    double mt = 1.0 - t;
-    return mt * mt * t * a + mt * t * t * ( 3.0 - b ) + t * t * t;
-}
 
 //===== Constructor  =====//
 VspSurf::VspSurf()
@@ -813,15 +804,16 @@ void VspSurf::MakeUTess( const vector<int> &num_u, vector<double> &u, const std:
 
 void VspSurf::MakeVTess( int num_v, std::vector<double> &vtess, const int &n_cap, bool degen ) const
 {
-    double vmin, vmax, vabsmin, vle, vlelow, vleup;
+    double vmin, vmax, vabsmin, vabsmax, vle, vlelow, vleup;
     surface_index_type nv( num_v );
 
     vmin = m_Surface.get_v0();
     vmax = m_Surface.get_vmax();
 
     vabsmin = vmin;
+    vabsmax = vmax;
 
-    double tol = 1e-6;
+    double tol = 1e-8;
 
     if ( IsMagicVParm() ) // V uses 'Magic' values for things like blunted TE.
     {
@@ -835,13 +827,27 @@ void VspSurf::MakeVTess( int num_v, std::vector<double> &vtess, const int &n_cap
         vtess.resize(nv);
         int jle = ( nv - 1 ) / 2;
         int j = 0;
+        if ( degen )
+        {
+            vtess[j] = vabsmin;
+            j++;
+        }
         for ( ; j < jle; ++j )
         {
             vtess[j] = vmin + ( vlelow - vmin ) * Cluster( 2.0 * static_cast<double>( j ) / ( nv - 1 ), m_TECluster, m_LECluster );
         }
+        if ( degen )
+        {
+            vtess[j] = vle;
+            j++;
+        }
         for ( ; j < nv; ++j )
         {
-            vtess[j] = vleup + ( vmax - vleup ) * (Cluster( 2.0 * static_cast<double>( j - jle ) / ( nv - 1 ), m_LECluster, m_TECluster ));
+            vtess[j] = vleup + ( vmax - vleup ) * ( 1.0 - Cluster( 1.0 - 2.0 * static_cast<double>( j - jle ) / ( nv - 1 ), m_TECluster, m_LECluster ));
+        }
+        if ( degen )
+        {
+            vtess[ nv - 1 ] = vabsmax;
         }
 
         if ( degen ) // DegenGeom, don't tessellate blunt TE or LE.
@@ -853,9 +859,10 @@ void VspSurf::MakeVTess( int num_v, std::vector<double> &vtess, const int &n_cap
         m_Surface.get_vconst_curve( c1, vmin );
         m_Surface.get_vconst_curve( c2, vmin + TMAGIC );
 
-        if ( !c1.abouteq( c2, tol ) ) // V Min edge is not repeated.
+        // Note: piecewise_curve_type::abouteq test is based on distance squared.
+        if ( !c1.abouteq( c2, tol * tol ) ) // V Min edge is not repeated.
         {
-            for ( int j = 0; j < n_cap; j++ )
+            for ( j = 0; j < n_cap; j++ )
             {
                 vtess.push_back( vabsmin + TMAGIC * j / (n_cap -1) );
             }
@@ -864,9 +871,9 @@ void VspSurf::MakeVTess( int num_v, std::vector<double> &vtess, const int &n_cap
         m_Surface.get_vconst_curve( c1, vmax );
         m_Surface.get_vconst_curve( c2, vmax - TMAGIC );
 
-        if ( !c1.abouteq( c2, tol ) ) // V Max edge is not repeated.
+        if ( !c1.abouteq( c2, tol * tol ) ) // V Max edge is not repeated.
         {
-            for ( int j = 0; j < n_cap; j++ )
+            for ( j = 0; j < n_cap; j++ )
             {
                 vtess.push_back( vmax + TMAGIC * j / (n_cap -1) );
             }
@@ -875,9 +882,9 @@ void VspSurf::MakeVTess( int num_v, std::vector<double> &vtess, const int &n_cap
         m_Surface.get_vconst_curve( c1, vlelow );
         m_Surface.get_vconst_curve( c2, vleup );
 
-        if ( !c1.abouteq( c2, tol ) ) // Leading edge is not repeated.
+        if ( !c1.abouteq( c2, tol * tol ) ) // Leading edge is not repeated.
         {
-            for ( int j = 0; j < n_cap * 2 - 1; j++ )
+            for ( j = 0; j < n_cap * 2 - 1; j++ )
             {
                 vtess.push_back( vlelow + TMAGIC * j / (n_cap -1) );
             }
@@ -1464,7 +1471,8 @@ bool VspSurf::CheckValidPatch( const piecewise_surface_type &surf )
     surf.get_umin_bndy_curve( c1 );
     surf.get_umax_bndy_curve( c2 );
 
-    if ( c1.abouteq( c2, tol ) )
+    // Note: piecewise_curve_type::abouteq test is based on distance squared.
+    if ( c1.abouteq( c2, tol * tol ) )
     {
         // Degenerate surface, skip it.
         // Opposite edges are equal.
@@ -1474,7 +1482,7 @@ bool VspSurf::CheckValidPatch( const piecewise_surface_type &surf )
     surf.get_vmin_bndy_curve( c1 );
     surf.get_vmax_bndy_curve( c2 );
 
-    if ( c1.abouteq( c2, tol ) )
+    if ( c1.abouteq( c2, tol * tol ) )
     {
         // Degenerate surface, skip it.
         // Opposite edges are equal.
@@ -1562,7 +1570,7 @@ void VspSurf::ExtractCPts( piecewise_surface_type &s, vector< vector< int > > &p
 }
 
 
-void VspSurf::ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface_with_knots *> &surfs, bool splitsurf, bool mergepts, bool tocubic, double tol )
+void VspSurf::ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface_with_knots *> &surfs, bool splitsurf, bool mergepts, bool tocubic, double tol, bool trimte )
 {
     // Make copy for local changes.
     piecewise_surface_type s( m_Surface );
@@ -1570,6 +1578,13 @@ void VspSurf::ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface
     if( !m_FlipNormal )
     {
         s.reverse_v();
+    }
+
+    if ( trimte && m_MagicVParm )
+    {
+        piecewise_surface_type s1, s2;
+        s.split_v( s1, s2, s.get_v0() + TMAGIC );
+        s2.split_v( s, s1, s.get_vmax() - TMAGIC );
     }
 
     if ( tocubic )
@@ -1776,7 +1791,7 @@ void VspSurf::ToSTEP_Bez_Patches( STEPutil * step, vector<SdaiBezier_surface *> 
     }
 }
 
-void VspSurf::ToIGES( DLL_IGES &model, bool splitsurf, bool tocubic, double tol )
+void VspSurf::ToIGES( DLL_IGES &model, bool splitsurf, bool tocubic, double tol, bool trimTE )
 {
     // Make copy for local changes.
     piecewise_surface_type s( m_Surface );
@@ -1784,6 +1799,13 @@ void VspSurf::ToIGES( DLL_IGES &model, bool splitsurf, bool tocubic, double tol 
     if( !m_FlipNormal )
     {
         s.reverse_v();
+    }
+
+    if ( trimTE && m_MagicVParm )
+    {
+        piecewise_surface_type s1, s2;
+        s.split_v( s1, s2, s.get_v0() + TMAGIC );
+        s2.split_v( s, s1, s.get_vmax() - TMAGIC );
     }
 
     if ( tocubic )

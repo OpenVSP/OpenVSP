@@ -19,8 +19,6 @@ using std::cout;
 using std::endl;
 using std::vector;
 
-#include <algorithm>
-
 //****** Constructor:  vec3d x() ******//
 vec3d::vec3d()
 {

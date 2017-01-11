@@ -8,8 +8,6 @@
 #include "PodGeom.h"
 #include "ParmMgr.h"
 #include "LinkMgr.h"
-#include "VspCurve.h"
-#include "VspSurf.h"
 #include "Vehicle.h"
 
 //==== Constructor ====//

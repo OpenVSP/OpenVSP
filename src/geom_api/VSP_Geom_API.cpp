@@ -9,22 +9,17 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "VSP_Geom_API.h"
-#include "APIErrorMgr.h"
 #include "VehicleMgr.h"
 #include "Vehicle.h"
 #include "ParmMgr.h"
 #include "LinkMgr.h"
-#include "ResultsMgr.h"
 #include "AnalysisMgr.h"
-#include "XSecSurf.h"
 #include "CfdMeshMgr.h"
 #include "Util.h"
 #include "DesignVarMgr.h"
-#include "SubSurfaceMgr.h"
 #include "VarPresetMgr.h"
 #include "WingGeom.h"
 #include "PropGeom.h"
-#include "PCurve.h"
 
 #ifdef VSP_USE_FLTK
 #include "GuiInterface.h"
@@ -870,70 +865,14 @@ void SetVec3dAnalysisInput( const string & analysis, const string & name, const 
     AnalysisMgr.SetVec3dAnalysisInput( analysis, name, indata, index );
 }
 
-void PrintAnalysisInputs(FILE * outputStream, const string analysis_name)
+void PrintAnalysisInputs( const string analysis_name )
 {
-    fprintf(outputStream,"\t\t%-20s%s\t%s\t%s\n","[input_name] ","[type]","[#]","[current values-->]");
-
-    vector < string > input_names = GetAnalysisInputNames( analysis_name );
-    for ( unsigned int i_input_name = 0; i_input_name<input_names.size(); i_input_name++)
+    if ( !AnalysisMgr.ValidAnalysisName( analysis_name ) )
     {
-        // print out type and number of data entries
-        int current_input_type = GetAnalysisInputType(analysis_name,input_names[i_input_name]);
-        unsigned int current_input_num_data = (unsigned int) GetNumAnalysisInputData(analysis_name,input_names[i_input_name]);
-        fprintf(outputStream,"\t\t%-20s%d\t\t%d",input_names[i_input_name].c_str(), current_input_type, current_input_num_data);
-
-        // print out the current value (this needs to handle different types and vector lengths
-        fprintf(outputStream,"\t");
-        for ( unsigned int i_val = 0; i_val<current_input_num_data; i_val++)
-        {
-            switch(current_input_type) 
-            {
-            case vsp::RES_DATA_TYPE::INT_DATA :
-                {
-                    vector<int> current_int_val = GetIntAnalysisInput(analysis_name,input_names[i_input_name],i_val);
-                    for ( unsigned int j_val=0; j_val<current_int_val.size(); j_val++)
-                    {
-                        fprintf(outputStream,"%d ",current_int_val[j_val]);
-                    }
-                    break;
-                }
-            case vsp::RES_DATA_TYPE::DOUBLE_DATA :
-                {
-                    vector<double> current_double_val = GetDoubleAnalysisInput(analysis_name,input_names[i_input_name],i_val);
-                    for ( unsigned int j_val=0; j_val<current_double_val.size(); j_val++)
-                    {
-                        fprintf(outputStream,"%f ",current_double_val[j_val]);
-                    }
-                    break;
-                }
-            case vsp::RES_DATA_TYPE::STRING_DATA :
-                {
-                    vector<string> current_string_val = GetStringAnalysisInput(analysis_name,input_names[i_input_name],i_val);
-                    for ( unsigned int j_val=0; j_val<current_string_val.size(); j_val++)
-                    {
-                        fprintf(outputStream,"%s ",current_string_val[j_val].c_str());
-                    }
-                    break;
-                }
-            case vsp::RES_DATA_TYPE::VEC3D_DATA :
-                {
-                    vector<vec3d> current_vec3d_val = GetVec3dAnalysisInput(analysis_name,input_names[i_input_name],i_val);
-                    for ( unsigned int j_val=0; j_val<current_vec3d_val.size(); j_val++)
-                    {
-                        fprintf(outputStream,"%f,%f,%f ",current_vec3d_val[j_val].x(),current_vec3d_val[j_val].y(),current_vec3d_val[j_val].z());
-                    }
-                    break;
-                }
-            default:
-                {
-                    ErrorMgr.AddError( VSP_INVALID_TYPE, "analysis_name: " + analysis_name + " input_names[i_input_name]: " + input_names[i_input_name] );
-                    break;
-                }
-            }    //end switch
-        }    // end for
-
-        fprintf(outputStream,"\n");
+        ErrorMgr.AddError( VSP_INVALID_ID, "PrintAnalysisInputs::Invalid Analysis ID " + analysis_name );
     }
+
+    AnalysisMgr.PrintAnalysisInputs( analysis_name );
 }
 
 //===================================================================//
@@ -1152,82 +1091,9 @@ void WriteResultsCSVFile( const string & id, const string & file_name )
     ErrorMgr.NoError();
  }
 
-void PrintResults(FILE * outputStream, const vector < string > &results_id_vec )
+void PrintResults( const string &results_id )
 {
-    for ( unsigned int i = 0; i < results_id_vec.size(); i++ )
-    {
-        PrintResults(outputStream, results_id_vec[i] );
-    }
-}
-
-void PrintResults(FILE * outputStream, const string &results_id)
-{
-    fprintf(outputStream,"\n\t\t%-20s%s\t%s\t%s\n","[result_name]","[type]","[#]","[current values-->]");
-
-    vector<string> results_names = GetAllDataNames(results_id);
-    for ( unsigned int i_result_name = 0; i_result_name< results_names.size(); i_result_name++)
-    {
-        int current_result_type = GetResultsType(results_id,results_names[i_result_name]);
-        unsigned int current_result_num_data = (unsigned int)GetNumData(results_id,results_names[i_result_name]);
-        fprintf(outputStream,"\t\t%-20s%d\t\t%d",results_names[i_result_name].c_str(), current_result_type, current_result_num_data);
-        // print out the current value (this needs to handle different types and vector lengths
-        fprintf(outputStream,"\t");
-        for ( unsigned int i_val = 0; i_val<current_result_num_data; i_val++)
-        {
-            switch(current_result_type)
-            {
-            case vsp::RES_DATA_TYPE::INT_DATA :
-            {
-                vector<int> current_int_val = GetIntResults(results_id,results_names[i_result_name],i_val);
-                for ( unsigned int j_val=0; j_val<current_int_val.size(); j_val++)
-                {
-                    fprintf(outputStream,"%d ",current_int_val[j_val]);
-                }
-                break;
-            }
-            case vsp::RES_DATA_TYPE::DOUBLE_DATA :
-            {
-                vector<double> current_double_val = GetDoubleResults(results_id,results_names[i_result_name],i_val);
-                for ( unsigned int j_val=0; j_val<current_double_val.size(); j_val++)
-                {
-                    fprintf(outputStream,"%f ",current_double_val[j_val]);
-                }
-                break;
-            }
-            case vsp::RES_DATA_TYPE::STRING_DATA :
-            {
-                vector<string> current_string_val = GetStringResults(results_id,results_names[i_result_name],i_val);
-                for ( unsigned int j_val=0; j_val<current_string_val.size(); j_val++)
-                {
-                    fprintf(outputStream,"%s ",current_string_val[j_val].c_str());
-                }
-                //Recursive call if results vector found
-                if( strcmp(results_names[i_result_name].c_str(),"ResultsVec")==0)
-                {
-                    PrintResults(outputStream, GetStringResults( results_id, "ResultsVec", 0 ) );
-                }
-                break;
-            }
-            case vsp::RES_DATA_TYPE::VEC3D_DATA :
-            {
-                vector<vec3d> current_vec3d_val = GetVec3dResults(results_id,results_names[i_result_name],i_val);
-                for ( unsigned int j_val=0; j_val<current_vec3d_val.size(); j_val++)
-                {
-                    fprintf(outputStream,"%f,%f,%f ",current_vec3d_val[j_val].x(),current_vec3d_val[j_val].y(),current_vec3d_val[j_val].z());
-                }
-                break;
-            }
-            default:
-            {
-                ErrorMgr.AddError( VSP_INVALID_TYPE, " results_id: " + results_id + "results_names[i_result_name]: " + results_names[i_result_name] );
-                break;
-            }
-            }    //end switch
-
-        }    // end for
-
-        fprintf(outputStream,"\n");
-    }
+	ResultsMgr.PrintResults( results_id );
 }
 
 //===================================================================//

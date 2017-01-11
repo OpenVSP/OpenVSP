@@ -7,7 +7,6 @@
 
 #include "CompGeomScreen.h"
 #include "CfdMeshMgr.h"
-#include "Vehicle.h"
 
 CompGeomScreen::CompGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 375, 430, "Comp Geom - Mesh, Intersect, Trim" )
 {

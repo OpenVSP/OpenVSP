@@ -1,9 +1,8 @@
 #include "ArcballCam.h"
-#define GLM_FORCE_RADIANS
 
-#include <iostream>
-#include <cmath>
 #include <algorithm>
+
+#define GLM_FORCE_RADIANS
 
 #define TOLERANCE 0.00001
 #define R_SENSITIVITY 1.0f  // Rotation Sensitivity
@@ -21,11 +20,6 @@ ArcballCam::ArcballCam() : Camera()
     _pan = glm::vec2( 0.0f );
     _center = glm::vec2( _vx + _vWidth / 2, _vy + _vHeight / 2 );
     _radius = _vHeight < _vWidth ? _vHeight / 2.0f : _vWidth / 2.0f;
-
-    _prevLB = _prevMB = _prevRB = _prevAltLB = glm::vec2( 0xffffffff );
-
-    _oldRadian = 0.0;
-    _oldZoomValue = 0.0;
 
     camInfo initSave;
     initSave.empty = true;

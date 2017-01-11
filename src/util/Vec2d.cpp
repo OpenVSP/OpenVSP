@@ -234,17 +234,6 @@ double cos_angle( const vec2d& a, const vec2d& b )
     }
 }
 
-
-//******* Dist Between Point And Plane ******//
-double dist_pnt_2_plane( vec2d& org, vec2d& norm, vec2d& pnt )
-{
-    //===== NORM SHOULD BE NORMALIZED ====//
-    double d = dot( ( pnt - org ), norm );
-
-    return( fabs( d ) );
-
-}
-
 //******* Encode Segment Points To Rectangle  Boundaries ******//
 // Adapted From : Hill, "Computer Graphics", Macmillan Pub., New York, 1990. //
 void encode( double x_min, double y_min, double x_max, double y_max, const vec2d& pnt, int code[4] )

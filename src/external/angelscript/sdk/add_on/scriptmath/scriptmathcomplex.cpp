@@ -166,7 +166,12 @@ static void RegisterScriptMathComplex_Native(asIScriptEngine *engine)
 	int r;
 
 	// Register the type
+#if AS_CAN_USE_CPP11
+	// With C++11 it is possible to use asGetTypeTraits to determine the correct flags to represent the C++ class, except for the asOBJ_APP_CLASS_ALLFLOATS
+	r = engine->RegisterObjectType("complex", sizeof(Complex), asOBJ_VALUE | asOBJ_POD | asGetTypeTraits<Complex>() | asOBJ_APP_CLASS_ALLFLOATS); assert( r >= 0 );
+#else
 	r = engine->RegisterObjectType("complex", sizeof(Complex), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CAK | asOBJ_APP_CLASS_ALLFLOATS); assert( r >= 0 );
+#endif
 
 	// Register the object properties
 	r = engine->RegisterObjectProperty("complex", "float r", asOFFSET(Complex, r)); assert( r >= 0 );

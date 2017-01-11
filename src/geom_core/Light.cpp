@@ -1,6 +1,5 @@
 #include "Light.h"
 #include "Vehicle.h"
-#include "VehicleMgr.h"
 
 Light::Light() : ParmContainer()
 {

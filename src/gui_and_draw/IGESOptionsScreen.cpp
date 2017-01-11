@@ -13,7 +13,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-IGESOptionsScreen::IGESOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 174, "IGES Options" )
+IGESOptionsScreen::IGESOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 174 + 25, "IGES Options" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
 
@@ -37,6 +37,8 @@ IGESOptionsScreen::IGESOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 
     m_GenLayout.AddYGap();
 
     m_GenLayout.AddButton( m_SplitSurfsToggle, "Split Surfaces" );
+    m_GenLayout.AddYGap();
+    m_GenLayout.AddButton( m_TrimTEToggle, "Omit TE Surfaces" );
     m_GenLayout.AddYGap();
     m_GenLayout.AddButton( m_ToCubicToggle, "Convert to Cubic" );
     m_GenLayout.AddSlider( m_ToCubicTolSlider, "Tolerance", 10, "%5.4g", 0, true );
@@ -67,6 +69,7 @@ bool IGESOptionsScreen::Update()
         m_SplitSurfsToggle.Update( veh->m_IGESSplitSurfs.GetID() );
         m_ToCubicToggle.Update( veh->m_IGESToCubic.GetID() );
         m_ToCubicTolSlider.Update( veh->m_IGESToCubicTol.GetID() );
+        m_TrimTEToggle.Update( veh->m_IGESTrimTE.GetID() );
 
         if ( !veh->m_IGESToCubic() )
         {
@@ -110,6 +113,7 @@ void IGESOptionsScreen::GuiDeviceCallBack( GuiDevice* device )
             veh->m_IGESSplitSurfs.Set( m_PrevSplit );
             veh->m_IGESToCubic.Set( m_PrevCubic );
             veh->m_IGESToCubicTol.Set( m_PrevToCubicTol );
+            veh->m_IGESTrimTE.Set( m_PrevTrimTE );
         }
         Hide();
     }
@@ -131,6 +135,7 @@ bool IGESOptionsScreen::ShowIGESOptionsScreen()
         m_PrevSplit = veh->m_IGESSplitSurfs();
         m_PrevCubic = veh->m_IGESToCubic();
         m_PrevToCubicTol = veh->m_IGESToCubicTol();
+        m_PrevTrimTE = veh->m_IGESTrimTE();
     }
 
     while( m_FLTK_Window->shown() )
@@ -153,6 +158,7 @@ void IGESOptionsScreen::CloseCallBack( Fl_Widget *w )
         veh->m_IGESSplitSurfs.Set( m_PrevSplit );
         veh->m_IGESToCubic.Set( m_PrevCubic );
         veh->m_IGESToCubicTol.Set( m_PrevToCubicTol );
+        veh->m_IGESTrimTE.Set( m_PrevTrimTE );
     }
 
     Hide();

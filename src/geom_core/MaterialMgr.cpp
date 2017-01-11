@@ -2,9 +2,6 @@
 #include "VehicleMgr.h"
 #include "Vehicle.h"
 #include "ParmMgr.h"
-#include "XmlUtil.h"
-
-#include <assert.h>
 
 
 Material::Material()
@@ -214,7 +211,7 @@ MaterialMgrSingleton::MaterialMgrSingleton()
     mat.m_Emis[0] = 0.0; mat.m_Emis[1] = 0.0; mat.m_Emis[2] = 0.0; mat.m_Emis[3] = 1.0;
     mat.m_Shininess = 76.0;
     mat.m_UserMaterial = false;
-    m_Materials.push_back(mat);
+    AddMaterial(mat);
 
     mat.m_Name = "Jade";
     mat.m_Ambi[0] = 0.135; mat.m_Ambi[1] = 0.2225; mat.m_Ambi[2] = 0.1575; mat.m_Ambi[3] = 1.0;
@@ -223,7 +220,7 @@ MaterialMgrSingleton::MaterialMgrSingleton()
     mat.m_Emis[0] = 0.0; mat.m_Emis[1] = 0.0; mat.m_Emis[2] = 0.0; mat.m_Emis[3] = 1.0;
     mat.m_Shininess = 12.0;
     mat.m_UserMaterial = false;
-    m_Materials.push_back(mat);
+    AddMaterial(mat);
 
     mat.m_Name = "Obsidian";
     mat.m_Ambi[0] = 0.054; mat.m_Ambi[1] = 0.05; mat.m_Ambi[2] = 0.066; mat.m_Ambi[3] = 1.0;
@@ -232,7 +229,7 @@ MaterialMgrSingleton::MaterialMgrSingleton()
     mat.m_Emis[0] = 0.0; mat.m_Emis[1] = 0.0; mat.m_Emis[2] = 0.0; mat.m_Emis[3] = 1.0;
     mat.m_Shininess = 38.0;
     mat.m_UserMaterial = false;
-    m_Materials.push_back(mat);
+    AddMaterial(mat);
 
     mat.m_Name = "Pearl";
     mat.m_Ambi[0] = 0.250; mat.m_Ambi[1] = 0.207; mat.m_Ambi[2] = 0.207; mat.m_Ambi[3] = 1.0;
@@ -241,7 +238,7 @@ MaterialMgrSingleton::MaterialMgrSingleton()
     mat.m_Emis[0] = 0.0; mat.m_Emis[1] = 0.0; mat.m_Emis[2] = 0.0; mat.m_Emis[3] = 1.0;
     mat.m_Shininess = 11.0;
     mat.m_UserMaterial = false;
-    m_Materials.push_back(mat);
+    AddMaterial(mat);
 
     mat.m_Name = "Ruby";
     mat.m_Ambi[0] = 0.175; mat.m_Ambi[1] = 0.01175; mat.m_Ambi[2] = 0.01175; mat.m_Ambi[3] = 1.0;
@@ -250,7 +247,7 @@ MaterialMgrSingleton::MaterialMgrSingleton()
     mat.m_Emis[0] = 0.0; mat.m_Emis[1] = 0.0; mat.m_Emis[2] = 0.0; mat.m_Emis[3] = 1.0;
     mat.m_Shininess = 76.0;
     mat.m_UserMaterial = false;
-    m_Materials.push_back(mat);
+    AddMaterial(mat);
 
     mat.m_Name = "Turquoise";
     mat.m_Ambi[0] = 0.1; mat.m_Ambi[1] = 0.18725; mat.m_Ambi[2] = 0.1745; mat.m_Ambi[3] = 1.0;
@@ -259,7 +256,7 @@ MaterialMgrSingleton::MaterialMgrSingleton()
     mat.m_Emis[0] = 0.0; mat.m_Emis[1] = 0.0; mat.m_Emis[2] = 0.0; mat.m_Emis[3] = 1.0;
     mat.m_Shininess = 12.0;
     mat.m_UserMaterial = false;
-    m_Materials.push_back(mat);
+    AddMaterial(mat);
 
     mat.m_Name = "Brass";
     mat.m_Ambi[0] = 0.330; mat.m_Ambi[1] = 0.223; mat.m_Ambi[2] = 0.0275; mat.m_Ambi[3] = 1.0;
@@ -268,7 +265,7 @@ MaterialMgrSingleton::MaterialMgrSingleton()
     mat.m_Emis[0] = 0.0; mat.m_Emis[1] = 0.0; mat.m_Emis[2] = 0.0; mat.m_Emis[3] = 1.0;
     mat.m_Shininess = 27.0;
     mat.m_UserMaterial = false;
-    m_Materials.push_back(mat);
+    AddMaterial(mat);
 
     mat.m_Name = "Bronze";
     mat.m_Ambi[0] = 0.2125; mat.m_Ambi[1] = 0.1275; mat.m_Ambi[2] = 0.054; mat.m_Ambi[3] = 1.0;
@@ -277,7 +274,7 @@ MaterialMgrSingleton::MaterialMgrSingleton()
     mat.m_Emis[0] = 0.0; mat.m_Emis[1] = 0.0; mat.m_Emis[2] = 0.0; mat.m_Emis[3] = 1.0;
     mat.m_Shininess = 27.0;
     mat.m_UserMaterial = false;
-    m_Materials.push_back(mat);
+    AddMaterial(mat);
 
     mat.m_Name = "Chrome";
     mat.m_Ambi[0] = 0.25; mat.m_Ambi[1] = 0.25; mat.m_Ambi[2] = 0.25; mat.m_Ambi[3] = 1.0;
@@ -286,7 +283,7 @@ MaterialMgrSingleton::MaterialMgrSingleton()
     mat.m_Emis[0] = 0.0; mat.m_Emis[1] = 0.0; mat.m_Emis[2] = 0.0; mat.m_Emis[3] = 1.0;
     mat.m_Shininess = 77.0;
     mat.m_UserMaterial = false;
-    m_Materials.push_back(mat);
+    AddMaterial(mat);
 
     mat.m_Name = "Copper";
     mat.m_Ambi[0] = 0.19125; mat.m_Ambi[1] = 0.0735; mat.m_Ambi[2] = 0.0225; mat.m_Ambi[3] = 1.0;
@@ -295,7 +292,7 @@ MaterialMgrSingleton::MaterialMgrSingleton()
     mat.m_Emis[0] = 0.0; mat.m_Emis[1] = 0.0; mat.m_Emis[2] = 0.0; mat.m_Emis[3] = 1.0;
     mat.m_Shininess = 13.0;
     mat.m_UserMaterial = false;
-    m_Materials.push_back(mat);
+    AddMaterial(mat);
 
     mat.m_Name = "Gold";
     mat.m_Ambi[0] = 0.25; mat.m_Ambi[1] = 0.20; mat.m_Ambi[2] = 0.07; mat.m_Ambi[3] = 1.0;
@@ -304,7 +301,7 @@ MaterialMgrSingleton::MaterialMgrSingleton()
     mat.m_Emis[0] = 0.0; mat.m_Emis[1] = 0.0; mat.m_Emis[2] = 0.0; mat.m_Emis[3] = 1.0;
     mat.m_Shininess = 51.0;
     mat.m_UserMaterial = false;
-    m_Materials.push_back(mat);
+    AddMaterial(mat);
 
     mat.m_Name = "Silver";
     mat.m_Ambi[0] = 0.20; mat.m_Ambi[1] = 0.20; mat.m_Ambi[2] = 0.20; mat.m_Ambi[3] = 1.0;
@@ -313,7 +310,7 @@ MaterialMgrSingleton::MaterialMgrSingleton()
     mat.m_Emis[0] = 0.0; mat.m_Emis[1] = 0.0; mat.m_Emis[2] = 0.0; mat.m_Emis[3] = 1.0;
     mat.m_Shininess = 51.0;
     mat.m_UserMaterial = false;
-    m_Materials.push_back(mat);
+    AddMaterial(mat);
 
     mat.m_Name = "Aluminum";
     mat.m_Ambi[0] = 0.25, mat.m_Ambi[1] = 0.25, mat.m_Ambi[2] = 0.25, mat.m_Ambi[3] = 1.0;
@@ -322,7 +319,7 @@ MaterialMgrSingleton::MaterialMgrSingleton()
     mat.m_Emis[0] = 0.0, mat.m_Emis[1] = 0.0, mat.m_Emis[2] = 0.0, mat.m_Emis[3] = 1.0;
     mat.m_Shininess = 5.0;
     mat.m_UserMaterial = false;
-    m_Materials.push_back(mat);
+    AddMaterial(mat);
 
     mat.m_Name = "Shiny Gold";
     mat.m_Ambi[0] = 0.4; mat.m_Ambi[1] = 0.2; mat.m_Ambi[2] = 0.0; mat.m_Ambi[3] = 1.0;
@@ -331,7 +328,7 @@ MaterialMgrSingleton::MaterialMgrSingleton()
     mat.m_Emis[0] = 0.0; mat.m_Emis[1] = 0.0; mat.m_Emis[2] = 0.0; mat.m_Emis[3] = 1.0;
     mat.m_Shininess = 2.0;
     mat.m_UserMaterial = false;
-    m_Materials.push_back(mat);
+    AddMaterial(mat);
 
     mat.m_Name = "Black Plastic";
     mat.m_Ambi[0] = 0.0; mat.m_Ambi[1] = 0.0; mat.m_Ambi[2] = 0.0; mat.m_Ambi[3] = 1.0;
@@ -340,7 +337,7 @@ MaterialMgrSingleton::MaterialMgrSingleton()
     mat.m_Emis[0] = 0.0; mat.m_Emis[1] = 0.0; mat.m_Emis[2] = 0.0; mat.m_Emis[3] = 1.0;
     mat.m_Shininess = 32.0;
     mat.m_UserMaterial = false;
-    m_Materials.push_back(mat);
+    AddMaterial(mat);
 
     mat.m_Name = "Cyan Plastic";
     mat.m_Ambi[0] = 0.0; mat.m_Ambi[1] = 0.1; mat.m_Ambi[2] = 0.06; mat.m_Ambi[3] = 1.0;
@@ -349,7 +346,7 @@ MaterialMgrSingleton::MaterialMgrSingleton()
     mat.m_Emis[0] = 0.0; mat.m_Emis[1] = 0.0; mat.m_Emis[2] = 0.0; mat.m_Emis[3] = 1.0;
     mat.m_Shininess = 32.0;
     mat.m_UserMaterial = false;
-    m_Materials.push_back(mat);
+    AddMaterial(mat);
 
     mat.m_Name =  "Green Plastic";
     mat.m_Ambi[0] = 0.0; mat.m_Ambi[1] = 0.0; mat.m_Ambi[2] = 0.0; mat.m_Ambi[3] = 1.0;
@@ -358,7 +355,7 @@ MaterialMgrSingleton::MaterialMgrSingleton()
     mat.m_Emis[0] = 0.0; mat.m_Emis[1] = 0.0; mat.m_Emis[2] = 0.0; mat.m_Emis[3] = 1.0;
     mat.m_Shininess = 32.0;
     mat.m_UserMaterial = false;
-    m_Materials.push_back(mat);
+    AddMaterial(mat);
 
     mat.m_Name = "Red Plastic";
     mat.m_Ambi[0] = 0.0, mat.m_Ambi[1] = 0.0, mat.m_Ambi[2] = 0.0, mat.m_Ambi[3] = 1.0;
@@ -367,7 +364,7 @@ MaterialMgrSingleton::MaterialMgrSingleton()
     mat.m_Emis[0] = 0.0, mat.m_Emis[1] = 0.0, mat.m_Emis[2] = 0.0, mat.m_Emis[3] = 1.0;
     mat.m_Shininess = 32.0;
     mat.m_UserMaterial = false;
-    m_Materials.push_back(mat);
+    AddMaterial(mat);
 
     mat.m_Name = "Blue Plastic";
     mat.m_Ambi[0] = 0.5; mat.m_Ambi[1] = 0.5; mat.m_Ambi[2] = 0.87; mat.m_Ambi[3] = 1.0;
@@ -376,7 +373,7 @@ MaterialMgrSingleton::MaterialMgrSingleton()
     mat.m_Emis[0] = 0.0; mat.m_Emis[1] = 0.0; mat.m_Emis[2] = 0.0; mat.m_Emis[3] = 1.0;
     mat.m_Shininess = 35.0;
     mat.m_UserMaterial = false;
-    m_Materials.push_back(mat);
+    AddMaterial(mat);
 
     mat.m_Name = "Yellow Plastic";
     mat.m_Ambi[0] = 0.3; mat.m_Ambi[1] = 0.2; mat.m_Ambi[2] = 0.0; mat.m_Ambi[3] = 1.0;
@@ -385,7 +382,7 @@ MaterialMgrSingleton::MaterialMgrSingleton()
     mat.m_Emis[0] = 0.0; mat.m_Emis[1] = 0.0; mat.m_Emis[2] = 0.0; mat.m_Emis[3] = 1.0;
     mat.m_Shininess = 30.0;
     mat.m_UserMaterial = false;
-    m_Materials.push_back(mat);
+    AddMaterial(mat);
 
 // Materials from reference, but they don't look good.
 //    mat.name = "White Plastic";
@@ -395,7 +392,7 @@ MaterialMgrSingleton::MaterialMgrSingleton()
 //    mat.emis[0] = 0.0; mat.emis[1] = 0.0; mat.emis[2] = 0.0; mat.emis[3] = 1.0;
 //    mat.shininess = 32.0;
 //    mat.m_UserMaterial = false;
-//    m_Materials.push_back(mat);
+//    AddMaterial(mat);
 //
 //    mat.name = "Yellow Plastic 2";
 //    mat.ambi[0] = 0.0; mat.ambi[1] = 0.0; mat.ambi[2] = 0.0; mat.ambi[3] = 1.0;
@@ -404,7 +401,7 @@ MaterialMgrSingleton::MaterialMgrSingleton()
 //    mat.emis[0] = 0.0; mat.emis[1] = 0.0; mat.emis[2] = 0.0; mat.emis[3] = 1.0;
 //    mat.shininess = 32.0;
 //    mat.m_UserMaterial = false;
-//    m_Materials.push_back(mat);
+//    AddMaterial(mat);
 
     mat.m_Name = "White";
     mat.m_Ambi[0] = 0.9; mat.m_Ambi[1] = 0.9; mat.m_Ambi[2] = 0.9; mat.m_Ambi[3] = 1.0;
@@ -413,7 +410,7 @@ MaterialMgrSingleton::MaterialMgrSingleton()
     mat.m_Emis[0] = 0.0; mat.m_Emis[1] = 0.0; mat.m_Emis[2] = 0.0; mat.m_Emis[3] = 1.0;
     mat.m_Shininess = 40.0;
     mat.m_UserMaterial = false;
-    m_Materials.push_back(mat);
+    AddMaterial(mat);
 
     mat.m_Name = "Black Rubber";
     mat.m_Ambi[0] = 0.02; mat.m_Ambi[1] = 0.02; mat.m_Ambi[2] = 0.02; mat.m_Ambi[3] = 1.0;
@@ -422,7 +419,7 @@ MaterialMgrSingleton::MaterialMgrSingleton()
     mat.m_Emis[0] = 0.0; mat.m_Emis[1] = 0.0; mat.m_Emis[2] = 0.0; mat.m_Emis[3] = 1.0;
     mat.m_Shininess = 10.0;
     mat.m_UserMaterial = false;
-    m_Materials.push_back(mat);
+    AddMaterial(mat);
 
     mat.m_Name = "Cyan Rubber";
     mat.m_Ambi[0] = 0.0; mat.m_Ambi[1] = 0.05; mat.m_Ambi[2] = 0.05; mat.m_Ambi[3] = 1.0;
@@ -431,7 +428,7 @@ MaterialMgrSingleton::MaterialMgrSingleton()
     mat.m_Emis[0] = 0.0; mat.m_Emis[1] = 0.0; mat.m_Emis[2] = 0.0; mat.m_Emis[3] = 1.0;
     mat.m_Shininess = 10.0;
     mat.m_UserMaterial = false;
-    m_Materials.push_back(mat);
+    AddMaterial(mat);
 
     mat.m_Name = "Green Rubber";
     mat.m_Ambi[0] = 0.0; mat.m_Ambi[1] = 0.05; mat.m_Ambi[2] = 0.0; mat.m_Ambi[3] = 1.0;
@@ -440,7 +437,7 @@ MaterialMgrSingleton::MaterialMgrSingleton()
     mat.m_Emis[0] = 0.0; mat.m_Emis[1] = 0.0; mat.m_Emis[2] = 0.0; mat.m_Emis[3] = 1.0;
     mat.m_Shininess = 10.0;
     mat.m_UserMaterial = false;
-    m_Materials.push_back(mat);
+    AddMaterial(mat);
 
     mat.m_Name = "Red Rubber";
     mat.m_Ambi[0] = 0.05; mat.m_Ambi[1] = 0.0; mat.m_Ambi[2] = 0.0; mat.m_Ambi[3] = 1.0;
@@ -449,7 +446,7 @@ MaterialMgrSingleton::MaterialMgrSingleton()
     mat.m_Emis[0] = 0.0; mat.m_Emis[1] = 0.0; mat.m_Emis[2] = 0.0; mat.m_Emis[3] = 1.0;
     mat.m_Shininess = 10.0;
     mat.m_UserMaterial = false;
-    m_Materials.push_back(mat);
+    AddMaterial(mat);
 
     mat.m_Name = "Blue Rubber";
     mat.m_Ambi[0] = 0.0; mat.m_Ambi[1] = 0.0; mat.m_Ambi[2] = 0.05; mat.m_Ambi[3] = 1.0;
@@ -458,7 +455,7 @@ MaterialMgrSingleton::MaterialMgrSingleton()
     mat.m_Emis[0] = 0.0; mat.m_Emis[1] = 0.0; mat.m_Emis[2] = 0.0; mat.m_Emis[3] = 1.0;
     mat.m_Shininess = 10.0;
     mat.m_UserMaterial = false;
-    m_Materials.push_back(mat);
+    AddMaterial(mat);
 
     mat.m_Name = "White Rubber";
     mat.m_Ambi[0] = 0.05; mat.m_Ambi[1] = 0.05; mat.m_Ambi[2] = 0.05; mat.m_Ambi[3] = 1.0;
@@ -467,7 +464,7 @@ MaterialMgrSingleton::MaterialMgrSingleton()
     mat.m_Emis[0] = 0.0; mat.m_Emis[1] = 0.0; mat.m_Emis[2] = 0.0; mat.m_Emis[3] = 1.0;
     mat.m_Shininess = 10.0;
     mat.m_UserMaterial = false;
-    m_Materials.push_back(mat);
+    AddMaterial(mat);
 
     mat.m_Name = "Yellow Rubber";
     mat.m_Ambi[0] = 0.05; mat.m_Ambi[1] = 0.05; mat.m_Ambi[2] = 0.0; mat.m_Ambi[3] = 1.0;
@@ -476,7 +473,7 @@ MaterialMgrSingleton::MaterialMgrSingleton()
     mat.m_Emis[0] = 0.0; mat.m_Emis[1] = 0.0; mat.m_Emis[2] = 0.0; mat.m_Emis[3] = 1.0;
     mat.m_Shininess = 10.0;
     mat.m_UserMaterial = false;
-    m_Materials.push_back(mat);
+    AddMaterial(mat);
 
     mat.m_Name = "Glass Light";
     mat.m_Ambi[0] = 0.2; mat.m_Ambi[1] = 0.2; mat.m_Ambi[2] = 0.2; mat.m_Ambi[3] = 0.2;
@@ -485,7 +482,7 @@ MaterialMgrSingleton::MaterialMgrSingleton()
     mat.m_Emis[0] = 0.0; mat.m_Emis[1] = 0.0; mat.m_Emis[2] = 0.0; mat.m_Emis[3] = 1.0;
     mat.m_Shininess = 5.0;
     mat.m_UserMaterial = false;
-    m_Materials.push_back(mat);
+    AddMaterial(mat);
 
     mat.m_Name = "Glass Med";
     mat.m_Ambi[0] = 0.2; mat.m_Ambi[1] = 0.2; mat.m_Ambi[2] = 0.2; mat.m_Ambi[3] = 0.2;
@@ -494,7 +491,7 @@ MaterialMgrSingleton::MaterialMgrSingleton()
     mat.m_Emis[0] = 0.0; mat.m_Emis[1] = 0.0; mat.m_Emis[2] = 0.0; mat.m_Emis[3] = 1.0;
     mat.m_Shininess = 5.0;
     mat.m_UserMaterial = false;
-    m_Materials.push_back(mat);
+    AddMaterial(mat);
 
     mat.m_Name = "Glass Dark";
     mat.m_Ambi[0] = 0.0; mat.m_Ambi[1] = 0.0; mat.m_Ambi[2] = 0.0; mat.m_Ambi[3] = 0.0;
@@ -503,7 +500,7 @@ MaterialMgrSingleton::MaterialMgrSingleton()
     mat.m_Emis[0] = 0.0; mat.m_Emis[1] = 0.0; mat.m_Emis[2] = 0.0; mat.m_Emis[3] = 1.0;
     mat.m_Shininess = 5.0;
     mat.m_UserMaterial = false;
-    m_Materials.push_back(mat);
+    AddMaterial(mat);
 
     mat.m_Name = "Glass Golden";
     mat.m_Ambi[0] = 0.27; mat.m_Ambi[1] = 0.28; mat.m_Ambi[2] = 0.23; mat.m_Ambi[3] = 1.0;
@@ -512,7 +509,7 @@ MaterialMgrSingleton::MaterialMgrSingleton()
     mat.m_Emis[0] = 0.0; mat.m_Emis[1] = 0.0; mat.m_Emis[2] = 0.0; mat.m_Emis[3] = 1.0;
     mat.m_Shininess = 10.0;
     mat.m_UserMaterial = false;
-    m_Materials.push_back(mat);
+    AddMaterial(mat);
 
     mat.m_Name = "Blank";
     mat.m_Ambi[0] = 0.0; mat.m_Ambi[1] = 0.0; mat.m_Ambi[2] = 0.0; mat.m_Ambi[3] = 1.0;
@@ -521,7 +518,7 @@ MaterialMgrSingleton::MaterialMgrSingleton()
     mat.m_Emis[0] = 0.0; mat.m_Emis[1] = 0.0; mat.m_Emis[2] = 0.0; mat.m_Emis[3] = 1.0;
     mat.m_Shininess = 0.0;
     mat.m_UserMaterial = false;
-    m_Materials.push_back(mat);
+    AddMaterial(mat);
 
     mat.m_Name = "Red Default";
     mat.m_Ambi[0] = 0.6; mat.m_Ambi[1] = 0.0; mat.m_Ambi[2] = 0.0; mat.m_Ambi[3] = 1.0;
@@ -530,7 +527,7 @@ MaterialMgrSingleton::MaterialMgrSingleton()
     mat.m_Emis[0] = 0.0; mat.m_Emis[1] = 0.0; mat.m_Emis[2] = 0.0; mat.m_Emis[3] = 1.0;
     mat.m_Shininess = 10.0;
     mat.m_UserMaterial = false;
-    m_Materials.push_back(mat);
+    AddMaterial(mat);
 
     mat.m_Name = "Green Default";
     mat.m_Ambi[0] = 0.0; mat.m_Ambi[1] = 0.6; mat.m_Ambi[2] = 0.0; mat.m_Ambi[3] = 1.0;
@@ -539,7 +536,7 @@ MaterialMgrSingleton::MaterialMgrSingleton()
     mat.m_Emis[0] = 0.0; mat.m_Emis[1] = 0.0; mat.m_Emis[2] = 0.0; mat.m_Emis[3] = 1.0;
     mat.m_Shininess = 10.0;
     mat.m_UserMaterial = false;
-    m_Materials.push_back(mat);
+    AddMaterial(mat);
 
     mat.m_Name = "Blue Default";
     mat.m_Ambi[0] = 0.0; mat.m_Ambi[1] = 0.0; mat.m_Ambi[2] = 0.6; mat.m_Ambi[3] = 1.0;
@@ -548,7 +545,7 @@ MaterialMgrSingleton::MaterialMgrSingleton()
     mat.m_Emis[0] = 0.0; mat.m_Emis[1] = 0.0; mat.m_Emis[2] = 0.0; mat.m_Emis[3] = 1.0;
     mat.m_Shininess = 10.0;
     mat.m_UserMaterial = false;
-    m_Materials.push_back(mat);
+    AddMaterial(mat);
 
 }
 
@@ -614,7 +611,11 @@ std::vector<std::string> MaterialMgrSingleton::GetNames()
 
 void MaterialMgrSingleton::AddMaterial( const Material &mat )
 {
-    m_Materials.push_back( mat );
+    Material tmpmat;
+    if ( !FindMaterial( mat.m_Name, tmpmat ) )
+    {
+        m_Materials.push_back( mat );
+    }
 }
 
 xmlNodePtr MaterialMgrSingleton::EncodeXml( xmlNodePtr & node )

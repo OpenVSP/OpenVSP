@@ -36,7 +36,6 @@ protected:
     GuiDevice* FindGuiDevice( const string & custom_type_name, int index );
 
     GroupLayout m_Layout;
-    SliderAdjRangeInput m_Slider;
     map< string, vector< GuiDevice* > > m_DeviceVecMap;
 
     bool m_SameLineFlag;

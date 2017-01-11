@@ -20,7 +20,6 @@
 #include "FitModelScreen.h"
 #include "IGESOptionsScreen.h"
 #include "ImportScreen.h"
-#include "MainVSPScreen.h"
 #include "ManageBackgroundScreen.h"
 #include "ManageCORScreen.h"
 #include "ManageGeomScreen.h"
@@ -36,7 +35,6 @@
 #include "ParmScreen.h"
 #include "ProjectionScreen.h"
 #include "PSliceScreen.h"
-#include "ScreenMgr.h"
 #include "ScreenshotScreen.h"
 #include "SetEditorScreen.h"
 #include "STEPOptionsScreen.h"
@@ -47,12 +45,6 @@
 #include "VSPAEROPlotScreen.h"
 #include "VSPAEROScreen.h"
 #include "WaveDragScreen.h"
-
-#include <time.h>
-#include <assert.h>
-#include <FL/Fl.H>
-#include <FL/fl_ask.H>
-#include <FL/names.h>
 
 #define UPDATE_TIME (1.0/30.0)
 
@@ -128,17 +120,6 @@ void ScreenMgr::MessageCallback( const MessageBase* from, const MessageData& dat
     {
         SetUpdateFlag( true );
     }
-    else if ( data.m_String == string( "CFDMessage" ) )
-    {
-        CfdMeshScreen* scr = ( CfdMeshScreen* ) m_ScreenVec[VSP_CFD_MESH_SCREEN];
-        if ( scr )
-        {
-            for ( int i = 0; i < (int)data.m_StringVec.size(); i++ )
-            {
-                scr->AddOutputText( data.m_StringVec[i] );
-            }
-        }
-    }
     else if ( data.m_String == string( "VSPAEROSolverMessage" ) )
     {
         VSPAEROScreen* scr = ( VSPAEROScreen* ) m_ScreenVec[VSP_VSPAERO_SCREEN];
@@ -146,7 +127,7 @@ void ScreenMgr::MessageCallback( const MessageBase* from, const MessageData& dat
         {
             for ( int i = 0; i < (int)data.m_StringVec.size(); i++ )
             {
-                scr->AddOutputText( scr->GetDisplay( VSPAERO_SOLVER ), data.m_StringVec[i].c_str() );
+                scr->AddOutputText( scr->GetDisplay( VSPAERO_SOLVER ), data.m_StringVec[i] );
             }
         }
     }

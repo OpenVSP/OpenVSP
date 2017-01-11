@@ -1,12 +1,7 @@
 #include "PickablePnts.h"
 #include "Renderable.h"
-#include "Pickable.h"
-#include "ColorCoder.h"
 #include "ColorBuffer.h"
 #include "VertexBuffer.h"
-#include "OpenGLHeaders.h"
-
-#include <assert.h>
 
 namespace VSPGraphic
 {

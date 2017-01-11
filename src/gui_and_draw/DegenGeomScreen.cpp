@@ -7,7 +7,6 @@
 
 #include "DegenGeomScreen.h"
 #include "CfdMeshMgr.h"
-#include "Vehicle.h"
 
 DegenGeomScreen::DegenGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 375, 365, "Degen Geom - Compute Models, File IO" )
 {

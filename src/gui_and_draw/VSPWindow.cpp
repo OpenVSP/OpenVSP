@@ -10,7 +10,6 @@
 
 #include <FL/Fl.H>
 #include "VSPWindow.h"
-#include <cstdlib>
 
 int VSP_Window::m_x = 1;
 int VSP_Window::m_y = 1;
@@ -80,11 +79,6 @@ void VSP_Window::SetParent( VSP_Window* win)
         m_Parent->RemoveChild(this);
     }
     m_Parent = win;
-}
-
-void VSP_Window::position( int X, int Y )
-{
-    Fl_Double_Window::position(X,Y);
 }
 
 void VSP_Window::show()

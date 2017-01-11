@@ -8,15 +8,11 @@
 #include "HingeScreen.h"
 #include "HingeGeom.h"
 #include "ScreenMgr.h"
-#include "EventMgr.h"
-#include "Vehicle.h"
 #include "ParmMgr.h"
-
-#include <assert.h>
 
 
 //==== Constructor ====//
-HingeScreen::HingeScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 720, "Hinge" )
+HingeScreen::HingeScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 525, "Hinge" )
 {
     Fl_Group* orient_tab = AddTab( "Orient" );
     Fl_Group* orient_group = AddSubGroup( orient_tab, 5 );

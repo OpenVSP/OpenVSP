@@ -68,6 +68,8 @@ void VSP_SOLVER::init(void)
     
     LoadDeformationFile_ = 0;
     
+    Write2DFEMFile_ = 0;
+    
     sprintf(CaseString_,"No Comment");
     
 }
@@ -575,7 +577,6 @@ void VSP_SOLVER::DetermineNumberOfKelvinConstrains(void)
                    
                while ( Next <= StackSize ) {
                    
-                  assert( Next <= NumberOfVortexLoops_ ); // check for READ overrun on next line
                   Loop = LoopStack[Next];
                    
                   for ( j = 1 ; j <= VSPGeom().Grid(MGLevel_).LoopList(Loop).NumberOfEdges() ; j++ ) {
@@ -592,7 +593,6 @@ void VSP_SOLVER::DetermineNumberOfKelvinConstrains(void)
                             
                            LoopInKelvinConstraintGroup_[Loop1] = -KelvinGroup;
                             
-                           assert( (StackSize+1) <= NumberOfVortexLoops_ ); // check for WRITE overrun on next line
                            LoopStack[++StackSize] = Loop1;
                             
                         }
@@ -631,7 +631,6 @@ void VSP_SOLVER::DetermineNumberOfKelvinConstrains(void)
                
                NotFlipped = 0;
                
-               assert( VSPGeom().Grid(MGLevel_).NumberOfLoops() <= (NumberOfVortexLoops_ ) ); // check for WRITE overrun on next line
                for ( j = 1 ; j <= VSPGeom().Grid(MGLevel_).NumberOfLoops() ; j++ ) {                  
                         
                   if ( LoopInKelvinConstraintGroup_[j] == KelvinGroup ) {
@@ -717,7 +716,6 @@ void VSP_SOLVER::DetermineNumberOfKelvinConstrains(void)
                   
                   else {
              
-                     assert( VSPGeom().Grid(MGLevel_).NumberOfLoops() <= (NumberOfVortexLoops_ ) ); // check for READ & WRITE overruns on next lines
                      for ( j = 1 ; j <= VSPGeom().Grid(MGLevel_).NumberOfLoops() ; j++ ) {                  
                            
                         if ( LoopInKelvinConstraintGroup_[j] == -KelvinGroup ) {
@@ -730,7 +728,6 @@ void VSP_SOLVER::DetermineNumberOfKelvinConstrains(void)
                         
                      }
                      
-                     assert( VSPGeom().Grid(MGLevel_).NumberOfLoops() <= (NumberOfVortexLoops_ ) ); // check for READ & WRITE overruns on next lines
                      for ( j = 1 ; j <= VSPGeom().Grid(MGLevel_).NumberOfLoops() ; j++ ) {                  
                            
                         if ( LoopInKelvinConstraintGroup_[j] == KelvinGroup ) {
@@ -1360,15 +1357,19 @@ void VSP_SOLVER::Solve(int Case)
     }
 
     // Header for history file
-
+    
     if ( ABS(Case) > 0 ) {
-
+       
+       // Write out generic header
+       
        WriteCaseHeader(StatusFile_);
-
+       
+       // Status update to user
+       
        fprintf(StatusFile_,"\n\nSolver Case: %d \n\n",ABS(Case));
        
     }
-
+    
                        //123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789   
     fprintf(StatusFile_,"  Iter      Mach       AoA      Beta       CL         CDo       CDi      CDtot      CS        L/D        E        CFx       CFy       CFz       CMx       CMy       CMz       T/QS \n");
 
@@ -1451,7 +1452,7 @@ void VSP_SOLVER::Solve(int Case)
     // Write out FEM loading file
     
     CreateFEMLoadFile();
-        
+
     // Interpolate solution from grid 1 to 0
     
     InterpolateSolutionFromGrid(1);
@@ -1466,18 +1467,33 @@ void VSP_SOLVER::Solve(int Case)
 
        WriteOutAerothermalDatabaseGeometry();
        
+       if ( Write2DFEMFile_ ) WriteFEM2DGeometry();
+       
     }       
+    
+    // Write out 2d FEM geometry if requested
+    
+    if ( Case == 0 || Case == 1 ) {
+
+       if ( Write2DFEMFile_ ) WriteFEM2DGeometry();
+       
+    }          
     
     // Write out ADB Solution
 
     WriteOutAerothermalDatabaseSolution();
-
+    
+    // Write out 2d FEM solution if requested
+    
+    if ( Write2DFEMFile_ ) WriteFEM2DSolution();
+ 
     // Close up files
     
-    if ( Case <= 0 ) fclose(StatusFile_);
-    if ( Case <= 0 ) fclose(LoadFile_);
-    if ( Case <= 0 ) fclose(ADBFile_);
-    if ( Case <= 0 ) fclose(ADBCaseListFile_);
+    if ( Case <= 0                    ) fclose(StatusFile_);
+    if ( Case <= 0                    ) fclose(LoadFile_);
+    if ( Case <= 0                    ) fclose(ADBFile_);
+    if ( Case <= 0                    ) fclose(ADBCaseListFile_);
+    if ( Case <= 0 && Write2DFEMFile_ ) fclose(FEM2DLoadFile_);
 
 }
 
@@ -1890,7 +1906,7 @@ void VSP_SOLVER::MatrixMultiply(double *vec_in, double *vec_out)
           vec_out[NumberOfVortexLoops_ + LoopInKelvinConstraintGroup_[i]] += vec_in[i];
           
        }
-       
+
     }
     
     // Base region
@@ -1923,7 +1939,7 @@ void VSP_SOLVER::MatrixTransposeMultiply(double *vec_in, double *vec_out)
     // Kelvin constraint
 
     for ( i = 1 ; i <= NumberOfVortexLoops_ ; i++ ) {
-      
+
        vec_out[i] = vec_in[i] + vec_in[NumberOfVortexLoops_ + LoopInKelvinConstraintGroup_[i]];
     
     }
@@ -2430,7 +2446,7 @@ void VSP_SOLVER::Do_GMRES_Solve(void)
        Gamma_[i] = GammaOld_[i] + Delta_[i];
 
     }
- 
+
     if ( Verbose_) printf("log10(ABS(L2Residual_)): %lf \n",L2Residual_);
 
 }
@@ -2480,7 +2496,7 @@ void VSP_SOLVER::CalculateResidual(void)
       MatrixMultiply(Gamma_, Residual_);
       
 #pragma omp parallel for 
-      for ( i = 0 ; i <= NumberOfVortexLoops_ + 1 ; i++ ) {
+      for ( i = 0 ; i <= NumberOfVortexLoops_  ; i++ ) {
      
          MatrixVecTemp_[i] = RightHandSide_[i] - Residual_[i];
 
@@ -2582,7 +2598,7 @@ void VSP_SOLVER::GMRES_Solver(int Neq,                   // Number of Equations,
 
       rho = sqrt(VectorDot(Neq,r,r));
 
-      //if ( Iter == 0 ) rho_zero = rho;
+      if ( Iter == 0 ) rho_zero = rho;
      
       if ( Verbose && Iter == 0 ) printf("Wake Iteration: %5d ... GMRES Iteration: %5d ... Reduction: %10.5f ...  Maximum: %10.5f \r",CurrentWakeIteration_, 0,log10(rho/rho_zero),log10(rho)); fflush(NULL);
       
@@ -3120,19 +3136,29 @@ void VSP_SOLVER::CalculateDeltaCPs(void)
        
        // 2nd order correction
        
-       Cp = VortexLoop(i).dCp();
+       if ( Mach_ < 1. ) {
        
-       CpI = sqrt(1.-Mach_*Mach_)*Cp;
+          Cp = VortexLoop(i).dCp();
+          
+          CpI = sqrt(1.-Mach_*Mach_)*Cp;
+          
+          CpI = ABS(Cp);
+          
+          Fact1 = 1./sqrt(1.-Mach_*Mach_);
+          
+          Fact2 = 1. + 0.25*CpI*Mach_*Mach_/sqrt(1.-Mach_*Mach_); 
+   
+          VortexLoop(i).CompressibilityFactor() = Fact2;
+   
+          VortexLoop(i).dCp() = Cp * Fact2;
+          
+       }
        
-       CpI = ABS(Cp);
-       
-       Fact1 = 1./sqrt(1.-Mach_*Mach_);
-       
-       Fact2 = 1. + 0.25*CpI*Mach_*Mach_/sqrt(1.-Mach_*Mach_); 
-
-       VortexLoop(i).CompressibilityFactor() = Fact2;
-
-       VortexLoop(i).dCp() = Cp * Fact2;
+       else {
+          
+          VortexLoop(i).CompressibilityFactor() = 1.;
+          
+       }
 
     }  
             
@@ -3388,19 +3414,17 @@ void VSP_SOLVER::IntegrateForcesAndMoments(void)
     
     else {
     
-#pragma omp parallel for reduction(+:Cx, Cy, Cz, Cmx, Cmy, Cmz) private(Loop1, Loop2, Fx, Fy, Fz, CompressibilityFactor)
+#pragma omp parallel for reduction(+:Cx, Cy, Cz, Cmx, Cmy, Cmz) private(Loop1, Loop2, Fx, Fy, Fz)
        for ( j = 1 ; j <= NumberOfSurfaceVortexEdges_ ; j++ ) {
     
           Loop1 = SurfaceVortexEdge(j).LoopL();
           Loop2 = SurfaceVortexEdge(j).LoopR();
           
-          CompressibilityFactor = 0.5*( VortexLoop(Loop1).CompressibilityFactor() + VortexLoop(Loop2).CompressibilityFactor() );
-                    
           // Edge forces
    
-          Fx = SurfaceVortexEdge(j).Fx() * CompressibilityFactor;
-          Fy = SurfaceVortexEdge(j).Fy() * CompressibilityFactor;
-          Fz = SurfaceVortexEdge(j).Fz() * CompressibilityFactor;
+          Fx = SurfaceVortexEdge(j).Fx();
+          Fy = SurfaceVortexEdge(j).Fy();
+          Fz = SurfaceVortexEdge(j).Fz();
   
           // Integrate forces
           
@@ -3423,7 +3447,7 @@ void VSP_SOLVER::IntegrateForcesAndMoments(void)
        }
           
     }
-        
+ 
     CFx_[0] = Cx;
     CFy_[0] = Cy;
     CFz_[0] = Cz;
@@ -3453,7 +3477,7 @@ void VSP_SOLVER::IntegrateForcesAndMoments(void)
        CMz_[0] *= 2.; 
        
     }
-        
+   
     if ( DoSymmetryPlaneSolve_ == SYM_X ) CMy_[0] = CMz_[0] = CFx_[0] = 0.;
     if ( DoSymmetryPlaneSolve_ == SYM_Y ) CMx_[0] = CMz_[0] = CFy_[0] = 0.;
     if ( DoSymmetryPlaneSolve_ == SYM_Z ) CMx_[0] = CMy_[0] = CFz_[0] = 0.;
@@ -3462,7 +3486,7 @@ void VSP_SOLVER::IntegrateForcesAndMoments(void)
  
     CL_[0] = (-CFx_[0] * SA + CFz_[0] * CA );
     CD_[0] = ( CFx_[0] * CA + CFz_[0] * SA ) * CB - CFy_[0] * SB;
-    CS_[0] = ( CFx_[0] * CA + CFz_[0] * SA ) * SB + CFy_[0] * CB;
+    CS_[0] = ( CFx_[0] * CA + CFz_[0] * SA ) * SB + CFy_[0] * CB; 
         
 }
 
@@ -3552,9 +3576,9 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(void)
           
           else {
              
-             Fx = SurfaceVortexEdge(j).Fx() * CompressibilityFactor;
-             Fy = SurfaceVortexEdge(j).Fy() * CompressibilityFactor;
-             Fz = SurfaceVortexEdge(j).Fz() * CompressibilityFactor;
+             Fx = SurfaceVortexEdge(j).Fx();
+             Fy = SurfaceVortexEdge(j).Fy();
+             Fz = SurfaceVortexEdge(j).Fz();
              
           }
           
@@ -3611,10 +3635,7 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(void)
                 SurfaceID = VortexLoop(Loop).SurfaceID();
                 
                 SpanStation = 1;
-
-                // Do not included body forces... in theory, they should be zero
-                
-// djk                 
+           
                 // Chordwise integrated forces
                        
                 Span_Cx_[SurfaceID][SpanStation] += 0.5*Fx;
@@ -3868,7 +3889,7 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(void)
         
           Swet = VSPGeom().VSP_Surface(i).WettedArea();
           
-          // Body is split into 4 parts, wetted area over account for...  also add in 10% for form drag
+          // Body is split into 4 parts, wetted area over accounted for...  also add in 10% for form drag
           
           Swet *= 0.25 * 1.10;
     
@@ -3974,15 +3995,12 @@ void VSP_SOLVER::CalculateSpanWiseLoading(void)
     double TotalLift, CFx, CFy, CFz;
     double CL, CD, CS, CMx, CMy, CMz;
     
+    // Write out generic header
+    
     WriteCaseHeader(LoadFile_);
-    /*
-    fprintf(LoadFile_,"******************************************************************************************************************************************************* \n\n");
-    fprintf(LoadFile_,"Mach: %9.5lf  \n",Mach_);
-    fprintf(LoadFile_,"AoA:  %9.5lf  \n",AngleOfAttack_/TORAD);
-    fprintf(LoadFile_,"Beta: %9.5lf  \n",AngleOfBeta_/TORAD);      
-    fprintf(LoadFile_,"\n\n");
-    */
-
+    
+    // Write out column labels
+    
                     // 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 
     fprintf(LoadFile_,"   Wing      Yavg     Chord     V/Vinf      Cl        Cd        Cs        Cx        Cy       Cz        Cmx       Cmy       Cmz \n");
 
@@ -4289,6 +4307,120 @@ void VSP_SOLVER::CreateFEMLoadFile(void)
 
 /*##############################################################################
 #                                                                              #
+#                         VSP_SOLVER WriteFEM2DGeometry                        #
+#                                                                              #
+##############################################################################*/
+
+void VSP_SOLVER::WriteFEM2DGeometry(void)
+{
+
+    int i, j, k, Node1, Node2, Node3, SurfaceID;
+    int number_of_nodes, number_of_tris;
+    char LoadFileName[2000];
+    
+    float Sref = Sref_;
+    float Cref = Cref_;
+    float Bref = Bref_;
+    float X_cg = XYZcg_[0];
+    float Y_cg = XYZcg_[1];
+    float Z_cg = XYZcg_[2];
+
+    float DumFloat;
+
+    float Area;
+    
+    float x, y, z;
+
+    // Open the fem load file
+    
+    sprintf(LoadFileName,"%s.fem2d",FileName_);
+    
+    if ( (FEM2DLoadFile_ = fopen(LoadFileName, "w")) == NULL ) {
+
+       printf("Could not open the fem load file for output! \n");
+
+       exit(1);
+
+    }
+    
+    // Write out header 
+
+    number_of_tris  = VSPGeom().Grid().NumberOfLoops();
+    number_of_nodes = VSPGeom().Grid().NumberOfNodes();
+
+    fprintf(FEM2DLoadFile_,"NumberOfNodes:%d \n",number_of_nodes);
+    fprintf(FEM2DLoadFile_,"NumberOfTris: %d \n",number_of_tris);
+
+    // Write out node data
+    
+    fprintf(FEM2DLoadFile_,"Nodal data: \n");
+    fprintf(FEM2DLoadFile_,"X, Y, Z \n");
+
+    for ( j = 1 ; j <= VSPGeom().Grid().NumberOfNodes() ; j++ ) {
+
+       fprintf(FEM2DLoadFile_,"%f %f %f \n",
+        VSPGeom().Grid().NodeList(j).x(),
+        VSPGeom().Grid().NodeList(j).y(),
+        VSPGeom().Grid().NodeList(j).z());
+       
+    }
+        
+    // Write out triangulated surface mesh
+    
+    fprintf(FEM2DLoadFile_,"Tri data: \n");
+    fprintf(FEM2DLoadFile_,"Node1, Node2, Node3, SurfType, SurfID, Area, Nx, Ny, Nz \n");
+
+    for ( j = 1 ; j <= VSPGeom().Grid().NumberOfLoops() ; j++ ) {
+
+       SurfaceID   = VSPGeom().Grid().LoopList(j).DegenBodyID()
+                   + VSPGeom().Grid().LoopList(j).DegenWingID()
+                   + VSPGeom().Grid().LoopList(j).Cart3dID();
+                 
+       fprintf(FEM2DLoadFile_,"%d %d %d %d %d %f %f %f %f \n",
+         VSPGeom().Grid().LoopList(j).Node1(), 
+         VSPGeom().Grid().LoopList(j).Node2(), 
+         VSPGeom().Grid().LoopList(j).Node3(), 
+         VSPGeom().Grid().LoopList(j).SurfaceType(),
+         SurfaceID, 
+         VSPGeom().Grid().LoopList(j).Area(),
+         VSPGeom().Grid().LoopList(j).Nx(),
+         VSPGeom().Grid().LoopList(j).Ny(),
+         VSPGeom().Grid().LoopList(j).Nz());
+
+    }
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                         VSP_SOLVER WriteFEM2DSolution                        #
+#                                                                              #
+##############################################################################*/
+
+void VSP_SOLVER::WriteFEM2DSolution(void)
+{
+
+    int j;
+
+    fprintf(FEM2DLoadFile_,"\n");
+    
+    WriteCaseHeader(FEM2DLoadFile_);
+            
+    // Write out solution
+
+    fprintf(FEM2DLoadFile_,"Solution Data\n");    
+    fprintf(FEM2DLoadFile_,"Tri, DeltaCp_or_Cp \n");
+
+    for ( j = 1 ; j <= VSPGeom().Grid().NumberOfLoops() ; j++ ) {
+
+       fprintf(FEM2DLoadFile_,"%d %f \n", j, VSPGeom().Grid().LoopList(j).dCp());
+
+    }
+
+}
+
+/*##############################################################################
+#                                                                              #
 #                       VSP_SOLVER CalculateVelocitySurvey                     #
 #                                                                              #
 ##############################################################################*/
@@ -4296,7 +4428,7 @@ void VSP_SOLVER::CreateFEMLoadFile(void)
 void VSP_SOLVER::CalculateVelocitySurvey(void)
 {
 
-    int i, /*j,*/ k, p;
+    int i, j, k, p;
     double xyz[3], q[5];
     double *U, *V, *W;
     char SurveyFileName[2000];
@@ -4699,7 +4831,7 @@ void VSP_SOLVER::WriteOutAerothermalDatabaseFiles(void)
     for ( j = 1 ; j <= VSPGeom().Grid().NumberOfLoops() ; j++ ) {
   
        Cp = VSPGeom().Grid().LoopList(j).dCp();
-
+       
        fwrite(&Cp, f_size, 1, ADBFile_); // Wall or Edge Pressure, Pa
 
     }
@@ -4920,7 +5052,7 @@ void VSP_SOLVER::WriteOutAerothermalDatabaseGeometry(void)
     float Y_cg = XYZcg_[1];
     float Z_cg = XYZcg_[2];
 
-    //float DumFloat;
+    float DumFloat;
 
     float Area;
     
@@ -5242,12 +5374,12 @@ void VSP_SOLVER::WriteOutAerothermalDatabaseGeometry(void)
 void VSP_SOLVER::WriteOutAerothermalDatabaseSolution(void)
 {
 
-    //char DumChar[2000];
-    int i, j, k/*, Node1, Node2, Node3, SurfaceType, SurfaceID*/;
-    int i_size, c_size, f_size/*, DumInt, number_of_nodes, number_of_tris*/;
-    //int Level, NumberOfCoarseEdges, NumberOfCoarseNodes, MaxLevels;
-    //int NumberOfKuttaTE, NumberOfKuttaNodes;
-    //int NumberOfControlSurfaces;
+    char DumChar[2000];
+    int i, j, k, Node1, Node2, Node3, SurfaceType, SurfaceID;
+    int i_size, c_size, f_size, DumInt, number_of_nodes, number_of_tris;
+    int Level, NumberOfCoarseEdges, NumberOfCoarseNodes, MaxLevels;
+    int NumberOfKuttaTE, NumberOfKuttaNodes;
+    int NumberOfControlSurfaces;
 
     float DumFloat;
     
@@ -5646,7 +5778,9 @@ VSP_EDGE **VSP_SOLVER::CreateInteractionList(double xyz[3], int &NumberOfInterac
     // Ratio of distance to maximum loop size
     
     FarAway = 3.0;
-     
+    
+    if ( Mach_ > 1. ) FarAway = 6.;
+
     // Insert loops on coarsest level into stack
     
     Level = VSPGeom().NumberOfGridLevels() - 1;
@@ -5681,7 +5815,7 @@ VSP_EDGE **VSP_SOLVER::CreateInteractionList(double xyz[3], int &NumberOfInterac
     // Now loop over stack and begin AGMP process
 
     Next = 1;
-    
+        
     while ( Next <= StackSize ) {
      
        Level = LoopStackList_[Next].Level;
@@ -5879,7 +6013,6 @@ VSP_EDGE **VSP_SOLVER::CreateInteractionList(double xyz[3], int &NumberOfInterac
        
     }
 
-    unsigned int numelInterationEdgeList = NumberOfInteractionEdges + 1;
     InteractionEdgeList = new VSP_EDGE*[NumberOfInteractionEdges + 1];
     
     NumberOfInteractionEdges = 0;
@@ -5894,7 +6027,6 @@ VSP_EDGE **VSP_SOLVER::CreateInteractionList(double xyz[3], int &NumberOfInterac
            
              NumberOfInteractionEdges++;
            
-             assert( NumberOfInteractionEdges < (numelInterationEdgeList ) ); // check for WRITE overruns on next line
              InteractionEdgeList[NumberOfInteractionEdges] = &(VSPGeom().Grid(Level).EdgeList(i));
    
           }
@@ -6460,12 +6592,20 @@ void VSP_SOLVER::OutputZeroLiftDragToStatusFile(void)
     } 
 }
 
+/*##############################################################################
+#                                                                              #
+#                     VSP_SOLVER WriteCaseHeader                               #
+#                                                                              #
+##############################################################################*/
+
 void VSP_SOLVER::WriteCaseHeader(FILE *fid)
 {
     char headerFormatStr[] = "%-20s %12s %-20s\n";
     char dataFormatStr[] =   "%-20s %12.7lf %-20s\n";
+    
     fprintf(fid,"***************************************************************************************************************************************************************************************** \n");
     fprintf(fid,"\n");
+    
     //          123456789012345678901234567890123456789
     fprintf(fid,headerFormatStr, "# Name", "Value   ", "  Units");
     fprintf(fid,dataFormatStr, "Sref_", Sref(), "Lunit^2");
@@ -6490,5 +6630,7 @@ void VSP_SOLVER::WriteCaseHeader(FILE *fid)
         fprintf(fid,dataFormatStr, control_name, Delta_Control_, "deg");
     }
     */
+    
     fprintf(fid,"\n");
 }
+

@@ -854,8 +854,6 @@ public:
 
     virtual void Update( );
 
-    void BuildLinkableParmData();
-
     vector< string > FindParmNames( vector< string > & parm_id_vec );
 
     string GetParmChoice()

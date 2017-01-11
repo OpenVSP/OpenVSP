@@ -1,6 +1,4 @@
 #include "ManageCORScreen.h"
-#include "Vehicle.h"
-#include "VehicleMgr.h"
 #include "ScreenMgr.h"
 
 ManageCORScreen::ManageCORScreen( ScreenMgr * mgr ) : VspScreen( mgr )
@@ -88,10 +86,8 @@ void ManageCORScreen::EnableSelection()
     m_ScreenMgr->SetUpdateFlag(true);
 }
 
-void ManageCORScreen::Set( vec3d location )
+void ManageCORScreen::Set()
 {
-    m_CenterOfRotation = location;
-
     m_SelectionFlag = false;
 
     Update();

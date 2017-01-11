@@ -48,8 +48,6 @@ public:
     void SetName( const string & name )                             { m_Name = name; }
     string GetName()                                                { return m_Name; }
 
-    void SetModuleName( const string & module_name )                { m_ScriptModule = module_name; }
-
     void SetScriptCode( const string & code )                       { m_ScriptCode = code; }
     string GetScriptCode()                                          { return m_ScriptCode; }
     bool BuildScript();

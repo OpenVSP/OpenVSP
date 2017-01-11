@@ -6,13 +6,8 @@
 
 #include "ImportScreen.h"
 #include "ScreenMgr.h"
-#include "EventMgr.h"
-#include "Vehicle.h"
-#include "StlHelper.h"
-#include "APIDefines.h"
-using namespace vsp;
 
-#include <assert.h>
+using namespace vsp;
 
 //==== Constructor ====//
 ImportScreen::ImportScreen( ScreenMgr* mgr ) : BasicScreen( mgr , 150, 25 + 7*20 + 1*15 + 2*6, "Import" )

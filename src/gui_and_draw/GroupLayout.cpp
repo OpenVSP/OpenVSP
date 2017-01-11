@@ -6,11 +6,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "GroupLayout.h"
-#include <FL/Fl_Group.H>
 #include <FL/Fl_Value_Slider.H>
-#include <FL/Fl_Scroll.H>
-
-#include <assert.h>
 
 //==== Constructor ====//
 GroupLayout::GroupLayout()
@@ -1035,7 +1031,7 @@ void GroupLayout::AddCounter( Counter & count, const char* label, int used_w )
     VspButton* button = NULL;
     if ( strcmp( label, "" ) != 0 )
     {
-        VspButton* button = AddParmButton( label );
+        button = AddParmButton( label );
         button->align( Fl_Align( FL_ALIGN_CLIP ) );
     }
 

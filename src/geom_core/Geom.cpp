@@ -12,12 +12,8 @@
 #include "StringUtil.h"
 #include "ParmMgr.h"
 #include "SubSurfaceMgr.h"
-#include "APIDefines.h"
 #include "HingeGeom.h"
 using namespace vsp;
-
-#include <time.h>
-#include <stdlib.h>
 
 //==== Constructor ====//
 GeomType::GeomType()
@@ -64,7 +60,6 @@ GeomGuiDraw::GeomGuiDraw()
     m_DrawType = GEOM_DRAW_WIRE;
     m_NoShowFlag = false;
     m_DisplayChildrenFlag = true;
-    m_MaterialID = 0;
     m_DispSubSurfFlag = true;
     m_DispFeatureFlag = true;
 }
@@ -417,12 +412,6 @@ void GeomXForm::Update( bool fullupdate )
     }
 }
 
-//==== Update XForm ====//
-void GeomXForm::UpdateXForm()
-{
-    ComposeModelMatrix();
-}
-
 //==== Compose Model Matrix =====//
 void GeomXForm::ComposeModelMatrix()
 {
@@ -756,11 +745,6 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_Name = "Geom";
     m_Type.m_Type = GEOM_GEOM_TYPE;
     m_Type.m_Name = m_Name;
-
-    m_CapUMin = true;
-    m_CapUMax = true;
-    m_CapWMin = true;
-    m_CapWMax = true;
 
     m_TessU.Init( "Tess_U", "Shape", this, 8, 2,  1000 );
     m_TessU.SetDescript( "Number of tessellated curves in the U direction" );
@@ -1743,7 +1727,7 @@ void Geom::ReadV2File( xmlNodePtr &root )
 
     m_AbsRelFlag = XmlUtil::FindInt( root, "RelXFormFlag", m_AbsRelFlag() );
 
-    int materialID = XmlUtil::FindInt( root, "MaterialID", materialID );
+    int materialID = XmlUtil::FindInt( root, "MaterialID", 0 );
 
     vector < string > v2materials;
     v2materials.push_back( "Default" );
@@ -1776,9 +1760,9 @@ void Geom::ReadV2File( xmlNodePtr &root )
     m_TessW = XmlUtil::FindInt( root, "NumPnts", m_TessW() );
     m_TessU = XmlUtil::FindInt( root, "NumXsecs", m_TessU() );
 
-    int outputFlag   = XmlUtil::FindInt( root, "OutputFlag", outputFlag );
-    int outputNameID = XmlUtil::FindInt( root, "OutputNameID", outputNameID );
-    int displayChildrenFlag = XmlUtil::FindInt( root, "DisplayChildrenFlag", displayChildrenFlag );
+    int outputFlag   = XmlUtil::FindInt( root, "OutputFlag", 0 );
+    int outputNameID = XmlUtil::FindInt( root, "OutputNameID", 0 );
+    int displayChildrenFlag = XmlUtil::FindInt( root, "DisplayChildrenFlag", 0 );
 
     m_MassPrior = XmlUtil::FindInt( root, "MassPrior", m_MassPrior() );
     m_ShellFlag = XmlUtil::FindInt( root, "ShellFlag", m_ShellFlag() );
@@ -1808,23 +1792,23 @@ void Geom::ReadV2File( xmlNodePtr &root )
     m_Density = XmlUtil::FindDouble( root, "Density", m_Density() );
     m_MassArea = XmlUtil::FindDouble( root, "ShellMassArea", m_MassArea() );
 
-    int refFlag = XmlUtil::FindInt( root, "RefFlag", refFlag );
-    double refArea = XmlUtil::FindDouble( root, "RefArea", refArea );
-    double refSpan = XmlUtil::FindDouble( root, "RefSpan", refSpan );
-    double refCbar = XmlUtil::FindDouble( root, "RefCbar", refCbar );
-    int autoRefAreaFlag = XmlUtil::FindInt( root, "AutoRefAreaFlag", autoRefAreaFlag );
-    int autoRefSpanFlag = XmlUtil::FindInt( root, "AutoRefSpanFlag", autoRefSpanFlag );
-    int autoRefCbarFlag = XmlUtil::FindInt( root, "AutoRefCbarFlag", autoRefCbarFlag );
+    int refFlag = XmlUtil::FindInt( root, "RefFlag", 0 );
+    double refArea = XmlUtil::FindDouble( root, "RefArea", 0 );
+    double refSpan = XmlUtil::FindDouble( root, "RefSpan", 0 );
+    double refCbar = XmlUtil::FindDouble( root, "RefCbar", 0 );
+    int autoRefAreaFlag = XmlUtil::FindInt( root, "AutoRefAreaFlag", 0 );
+    int autoRefSpanFlag = XmlUtil::FindInt( root, "AutoRefSpanFlag", 0 );
+    int autoRefCbarFlag = XmlUtil::FindInt( root, "AutoRefCbarFlag", 0 );
     vec3d aeroCenter;
     aeroCenter.set_x( XmlUtil::FindDouble( root, "AeroCenter_X", aeroCenter.x() ) );
     aeroCenter.set_y( XmlUtil::FindDouble( root, "AeroCenter_Y", aeroCenter.y() ) );
     aeroCenter.set_z( XmlUtil::FindDouble( root, "AeroCenter_Z", aeroCenter.z() ) );
-    int autoAeroCenterFlag = XmlUtil::FindInt( root, "AutoAeroCenterFlag", autoAeroCenterFlag );
+    int autoAeroCenterFlag = XmlUtil::FindInt( root, "AutoAeroCenterFlag", 0 );
 
     m_WakeActiveFlag = !!(XmlUtil::FindInt( root, "WakeActiveFlag", m_WakeActiveFlag() ));
 
     //==== Read Attach Flags ====//
-    int posAttachFlag = XmlUtil::FindInt( root, "PosAttachFlag", posAttachFlag );
+    int posAttachFlag = XmlUtil::FindInt( root, "PosAttachFlag", 0 );
 
     // A series of flags to override specific coordinates
     bool overrideRelTrans = false;

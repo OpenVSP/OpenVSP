@@ -33,7 +33,6 @@ public:
         ( ( CompGeomScreen* )data )->CallBack( w );
     }
 
-    void LoadDrawObjs(vector< DrawObj* > & draw_obj_vec);
     void LoadSetChoice();
 
 protected:

@@ -4,9 +4,13 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
-//#include <config.h>
+
 #include <sys/stat.h>
-//#include <unistd.h>
+
+#ifndef WIN32
+#include <unistd.h>
+#endif
+
 #include <time.h>
 
 #include <FL/Fl.H>
@@ -36,7 +40,7 @@
 #include "utils.H"
 #include "glf.H"
 #include "binaryio.H"
-#include "viewerUI.H"
+#include "viewerUI.h"
 //#include "tiffio.h"
 #include "TagList.H"
 #include "TagListGroup.H"

@@ -133,8 +133,6 @@ private:
     int _startx, _starty;
 
     std::vector<Common::VSPenum> _vOrder;
-
-    float _screenSizeDiffRatio;
 };
 }
 #endif

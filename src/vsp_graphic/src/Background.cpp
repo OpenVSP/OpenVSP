@@ -6,7 +6,6 @@
 
 #include "Texture2D.h"
 #include "TextureMgr.h"
-#include "Renderable.h"
 #include "VertexBuffer.h"
 
 #define TOPL	 0

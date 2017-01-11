@@ -11,8 +11,6 @@
 
 #include <stdio.h>
 #include <math.h>
-#include <assert.h>
-#include <float.h>
 
 #include "VspCurve.h"
 #include "APIDefines.h"
@@ -20,7 +18,6 @@
 
 #include "eli/geom/curve/length.hpp"
 #include "eli/geom/curve/piecewise_creator.hpp"
-#include "eli/geom/intersect/minimum_distance_curve.hpp"
 #include "eli/geom/intersect/specified_distance_curve.hpp"
 #include "eli/geom/intersect/specified_thickness_curve.hpp"
 
@@ -860,7 +857,7 @@ vec3d VspCurve::CompTan01( double u )
 //===== Compute Length =====//
 double VspCurve::CompLength( double tol )
 {
-    double len;
+    double len = 0.0;
     eli::geom::curve::length( len, m_Curve, tol );
 
     return len;

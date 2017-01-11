@@ -7,14 +7,8 @@
 
 #include "WingScreen.h"
 #include "ScreenMgr.h"
-#include "WingGeom.h"
-#include "EventMgr.h"
-#include "Vehicle.h"
 #include "ParmMgr.h"
 #include "StlHelper.h"
-#include "APIDefines.h"
-
-#include <assert.h>
 
 using namespace vsp;
 
@@ -80,6 +74,10 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 335, 680, "Wing" )
     m_PlanLayout.AddDividerBox( "Tessellation Control" );
     m_PlanLayout.AddSlider( m_LEClusterSlider, "LE Clustering", 1, "%6.5f" );
     m_PlanLayout.AddSlider( m_TEClusterSlider, "TE Clustering", 1, "%6.5f" );
+    m_PlanLayout.AddYGap();
+    m_PlanLayout.SetButtonWidth( 200 );
+    m_PlanLayout.AddOutput( m_SmallPanelWOutput, "Minimum LE/TE Panel Width" );
+    m_PlanLayout.AddOutput( m_MaxGrowthOutput, "Maximum Growth Ratio" );
 
     Fl_Group* sect_tab = AddTab( "Sect" );
     Fl_Group* sect_group = AddSubGroup( sect_tab, 5 );
@@ -698,6 +696,12 @@ bool WingScreen::Update()
     m_LEClusterSlider.Update( wing_ptr->m_LECluster.GetID() );
     m_TEClusterSlider.Update( wing_ptr->m_TECluster.GetID() );
 
+    sprintf( str, "%6.4g", wing_ptr->m_SmallPanelW() );
+    m_SmallPanelWOutput.Update( str );
+
+    sprintf( str, "%6.3f", wing_ptr->m_MaxGrowth() );
+    m_MaxGrowthOutput.Update( str );
+
     sprintf( str, "%6.4f", wing_ptr->m_TotalProjSpan() * wing_ptr->m_TotalProjSpan() / wing_ptr->m_TotalArea() );
     m_PlanAROutput.Update( str );
 
@@ -995,7 +999,6 @@ bool WingScreen::Update()
                 int num_up = cst_xs->m_UpDeg() + 1;
                 int num_low = cst_xs->m_LowDeg() + 1;
 
-                char str[255];
                 sprintf( str, "%d", cst_xs->m_UpDeg() );
                 m_UpDegreeOutput.Update( str );
                 sprintf( str, "%d", cst_xs->m_LowDeg() );

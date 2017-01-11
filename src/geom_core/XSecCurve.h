@@ -34,10 +34,6 @@ public:
     virtual void Update();
 
     virtual void SetGroupDisplaySuffix( int num );
-    virtual string GetGroupName()
-    {
-        return m_GroupName;
-    }
 
     virtual string GetName();
 
@@ -275,8 +271,6 @@ public:
     Parm m_Width;
     Parm m_Height;
     Parm m_Radius;
-    Parm m_BotRadius;
-    Parm m_MaxHeightLoc;
     Parm m_Skew;
     Parm m_Keystone;
     BoolParm m_KeyCornerParm;

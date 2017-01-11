@@ -1,7 +1,6 @@
 
 #include <MenuItem.h>
 #include "ScreenMgr.h"
-#include "ScreenBase.h"
 
 void ScreenMenuItem::Init( ScreenMgr *mgr, Fl_Sys_Menu_Bar *mbar, std::string mpath, int sid )
 {

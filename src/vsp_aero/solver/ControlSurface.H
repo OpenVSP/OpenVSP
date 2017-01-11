@@ -27,7 +27,12 @@ private:
 
     // Control surface type
     
+    char TypeName_[2000];
     int Type_;
+    
+    // Control Surface group 
+    
+    int ControlGroup_;
     
     // Control surface name
     
@@ -111,6 +116,10 @@ public:
     
     char *Name(void) { return Name_; };
     
+    // TypeName
+    
+    char *TypeName(void) { return TypeName_; };
+
     // Type
     
     int &Type(void) { return Type_; };
@@ -118,6 +127,10 @@ public:
     // Deflection angle
     
     double &DeflectionAngle(void) { return DeflectionAngle_; };
+    
+    // Control group
+    
+    int &ControlGroup(void) { return ControlGroup_; };
     
 };
 

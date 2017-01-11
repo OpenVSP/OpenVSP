@@ -10,16 +10,10 @@
 #include "Parm.h"
 #include "ParmMgr.h"
 #include "LinkMgr.h"
-#include "VehicleMgr.h"
 #include <float.h>
-#include <time.h>
-#include <algorithm>
 
-#include "XmlUtil.h"
 #include "StringUtil.h"
 #include "Combination.h"
-#include "MessageMgr.h"
-#include "APIDefines.h"
 
 using std::string;
 
@@ -37,7 +31,6 @@ Parm::Parm()
     m_UpperLimit =  1.0e16;
     m_LowerLimit = -1.0e16;
     m_ActiveFlag = true;
-    m_LinkedFlag = false;
     m_LinkUpdateFlag = false;
     m_ChangeCnt = 0;
 }

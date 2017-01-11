@@ -35,7 +35,7 @@ public:
     /*!
     * Set value.
     */
-    void Set(vec3d location);
+    void Set();
 
 public:
     virtual std::string getFeedbackGroupName();
@@ -43,6 +43,5 @@ public:
 private:
     std::vector< DrawObj > m_PickList;
     bool m_SelectionFlag;
-    vec3d m_CenterOfRotation;
 };
 #endif

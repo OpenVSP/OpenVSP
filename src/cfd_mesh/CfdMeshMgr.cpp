@@ -10,16 +10,8 @@
 #include "CfdMeshMgr.h"
 //#include "CfdMeshScreen.h"
 //#include "feaStructScreen.h"
-#include "Geom.h"
-#include "Vehicle.h"
-#include "VehicleMgr.h"
-#include "SurfPatch.h"
-#include "Tri.h"
 #include "Util.h"
 #include "SubSurfaceMgr.h"
-#include "SubSurface.h"
-#include "APIDefines.h"
-#include "SurfCore.h"
 
 #ifdef DEBUG_CFD_MESH
 #include <direct.h>
@@ -201,7 +193,7 @@ void WakeMgr::CreateWakesAppendBorderCurves( vector< ICurve* > & border_curves )
     vector < SCurve* > leading_edge_scurves;
     for ( i = 0 ; i < ( int )m_WakeVec.size() ; i++ )
     {
-        for ( int j = 0 ; j < ( int )m_WakeVec[i]->m_LeadingCurves.size() ; j++ )
+        for ( j = 0 ; j < ( int )m_WakeVec[i]->m_LeadingCurves.size() ; j++ )
         {
             leading_edge_scurves.push_back( m_WakeVec[i]->m_LeadingCurves[j]->m_SCurve_A );
         }
@@ -370,6 +362,8 @@ CfdMeshMgrSingleton::CfdMeshMgrSingleton() : ParmContainer()
     // allocation will fail with a negative argument.
     m_NumComps = -10;
 
+    m_MeshInProgress = false;
+
 #ifdef DEBUG_CFD_MESH
     m_DebugDir  = Stringc( "MeshDebug/" );
     _mkdir( m_DebugDir.get_char_star() );
@@ -403,6 +397,8 @@ void CfdMeshMgrSingleton::ParmChanged( Parm* parm_ptr, int type )
 
 void CfdMeshMgrSingleton::GenerateMesh()
 {
+    m_MeshInProgress = true;
+
     CfdMeshMgr.addOutputText( "Fetching Bezier Surfaces\n" );
 
     vector< XferSurf > xfersurfs;
@@ -464,6 +460,8 @@ void CfdMeshMgrSingleton::GenerateMesh()
 //  m_ScreenMgr->Update( GEOM_SCREEN );
 
     GetCfdSettingsPtr()->m_DrawMeshFlag = true;
+
+    m_MeshInProgress = false;
 }
 
 void CfdMeshMgrSingleton::CleanUp()
@@ -551,27 +549,7 @@ void CfdMeshMgrSingleton::CleanUp()
 
 void CfdMeshMgrSingleton::addOutputText( const string &str, int output_type )
 {
-//    m_OutStream << str;
-
-    MessageData data;
-    data.m_String = "CFDMessage";
-    data.m_StringVec.push_back( str );
-    MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
-
-
-//        ScreenMgr* screenMgr = m_Vehicle->getScreenMgr();
-//        if ( screenMgr )
-//        {
-//                if ( output_type == CFD_OUTPUT )
-//                        screenMgr->getCfdMeshScreen()->addOutputText( str );
-//                else if ( output_type == FEA_OUTPUT )
-//                        screenMgr->getFeaStructScreen()->addOutputText( str );
-//        }
-//        else
-//        {
-//                printf( "%s", str );
-//                fflush( stdout );
-//        }
+    m_OutStream << str;
 }
 
 void CfdMeshMgrSingleton::AdjustAllSourceLen( double mult )
@@ -850,9 +828,6 @@ void CfdMeshMgrSingleton::UpdateDomain()
 
     vec3d xyzc = m_Domain.GetCenter();
 
-    vec3d xyz0 = xyzc;
-    xyz0.v[0] = m_Domain.GetMin( 0 );
-
     if ( GetCfdSettingsPtr()->GetFarMeshFlag() )
     {
         if( !GetCfdSettingsPtr()->GetFarCompFlag() )
@@ -878,7 +853,7 @@ void CfdMeshMgrSingleton::UpdateDomain()
 
             if ( GetCfdSettingsPtr()->GetFarManLocFlag() )
             {
-                xyz0 = vec3d( GetCfdSettingsPtr()->m_FarXLocation(), GetCfdSettingsPtr()->m_FarYLocation(), GetCfdSettingsPtr()->m_FarZLocation() );
+                vec3d xyz0 = vec3d( GetCfdSettingsPtr()->m_FarXLocation(), GetCfdSettingsPtr()->m_FarYLocation(), GetCfdSettingsPtr()->m_FarZLocation() );
                 xyzc = xyz0;
                 xyzc.v[0] += lwh.v[0] / 2.0;
             }
@@ -978,8 +953,7 @@ void CfdMeshMgrSingleton::LoadSurfs( vector< XferSurf > &xfersurfs )
         }
 
         surfPtr->SetFlipFlag( xfersurfs[i].m_FlipNormal );
-        //Sets whether WING, DISK, NORMAL
-        surfPtr->SetSurfaceType(xfersurfs[i].m_SurfType);
+
         //Sets whether NORMAL, NEGATIVE, TRANSPARENT
         surfPtr->SetSurfaceCfdType(xfersurfs[i].m_SurfCfdType);
 
@@ -1309,11 +1283,10 @@ void CfdMeshMgrSingleton::Remesh( int output_type )
     {
         int num_tris = 0;
 
-        int num_rev_removed;
+        int num_rev_removed = 0;
 
         for ( int iter = 0 ; iter < 10 ; ++iter )
         {
-            m_SurfVec[i]->GetMesh()->m_Iteration = iter;
             num_tris = 0;
             m_SurfVec[i]->GetMesh()->Remesh();
 
@@ -1364,7 +1337,6 @@ void CfdMeshMgrSingleton::RemeshSingleComp( int comp_id, int output_type )
             for ( int iter = 0 ; iter < 10 ; iter++ )
             {
                 num_tris = 0;
-                m_SurfVec[i]->GetMesh()->m_Iteration = iter;
                 m_SurfVec[i]->GetMesh()->Remesh();
 
                 num_tris += m_SurfVec[i]->GetMesh()->GetTriList().size();
@@ -3825,8 +3797,6 @@ void CfdMeshMgrSingleton::MergeBorderEndPoints()
 
 void CfdMeshMgrSingleton::MergeIPntGroups( list< IPntGroup* > & iPntGroupList, double tol_fract )
 {
-    list< IPntGroup* >::iterator g;
-
     //===== Merge Two Closest Groups While Under Tol ====//
     IPntGroup* nearG1 = NULL;
     IPntGroup* nearG2 = NULL;
@@ -4511,6 +4481,11 @@ void CfdMeshMgrSingleton::TestStuff()
 
 void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 {
+    if ( m_MeshInProgress )
+    {
+        return;
+    }
+
     GetGridDensityPtr()->Highlight( GetCurrSource() );
     GetGridDensityPtr()->Show( GetCfdSettingsPtr()->m_DrawSourceFlag.Get() );
     GetGridDensityPtr()->LoadDrawObjs( draw_obj_vec );

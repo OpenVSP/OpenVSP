@@ -95,7 +95,7 @@ extern void SetDoubleAnalysisInput( const std::string & analysis, const std::str
 extern void SetStringAnalysisInput( const std::string & analysis, const std::string & name, const std::vector<std::string> & indata, int index = 0 );
 extern void SetVec3dAnalysisInput( const std::string & analysis, const std::string & name, const std::vector< vec3d > & indata, int index = 0 );
 
-extern void PrintAnalysisInputs( FILE * outputStream, const std::string analysis_name );
+extern void PrintAnalysisInputs( const std::string analysis_name );
 
 //======================== Results ================================//
 extern std::vector<std::string> GetAllResultsNames();
@@ -113,8 +113,7 @@ extern std::string CreateGeomResults( const std::string & geom_id, const std::st
 extern void DeleteAllResults();
 extern void DeleteResult( const std::string & id );
 extern void WriteResultsCSVFile( const std::string & id, const std::string & file_name );
-extern void PrintResults( FILE * outputStream, const std::vector < std::string > &results_id_vec );
-extern void PrintResults( FILE * outputStream, const std::string &results_id );
+extern void PrintResults( const std::string &results_id );
 
 //======================== GUI Functions ================================//
 extern void StartGui( );

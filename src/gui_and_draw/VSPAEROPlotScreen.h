@@ -56,7 +56,7 @@ protected:
     void UpdateAxisLimits( Ca_Canvas * canvas, vector <double> xDoubleData, vector <double> yDoubleData, bool expand_only );
     void UpdateSingleAxisLimits( Ca_Axis_ * tAxis, vector <double> doubleData, bool expandOnly, bool keepZero = false );
     //  general utility
-    void ConstructFlowConditionString( char * strbuf, Results * res, bool includeResultId);
+    void ConstructFlowConditionString( char * strbuf, Results * res, bool includeResultId );
 
     //==== Convergence Tab ====//
     Fl_Group* m_ConvergenceTab;
@@ -71,7 +71,6 @@ protected:
     int m_ConvergenceiPlot;
 
     ToggleButton m_ConvergenceYDataResidualToggle;
-    ToggleButton m_ConvergenceYDataYLogToggle;
     Fl_Browser * m_ConvergenceYDataBrowser;
     Fl_Browser * m_ConvergenceFlowConditionBrowser;
     vector< string > m_ConvergenceFlowConditionSelectedResultIDs;
@@ -121,7 +120,6 @@ protected:
 
     void RedrawLoadDistPlot();
     void PlotLoadDistribution( string resultID, vector <string> yDataSetNames, bool expand_only, int icase );
-    void ExportToCSV();
 
     //==== Sweep Tab ====//
     Fl_Group* m_SweepTab;
@@ -129,13 +127,10 @@ protected:
     GroupLayout m_SweepControlLayout;
     GroupLayout m_SweepPlotLayout;
     Ca_Canvas*  m_SweepPlotCanvas;
-    vector <double> m_SweepPlotXminMax;
 
     GroupLayout m_SweepLegendLayout;
     Fl_Scroll* m_SweepLegendGroup;
 
-    Fl_Box * m_SweepXDataDividerBox;
-    Fl_Box * m_SweepYDataDividerBox;
     Fl_Browser * m_SweepXDataBrowser;
     Fl_Browser * m_SweepYDataBrowser;
     Fl_Browser * m_SweepFlowConditionBrowser;

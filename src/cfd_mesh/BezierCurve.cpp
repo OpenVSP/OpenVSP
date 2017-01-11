@@ -15,21 +15,12 @@
 
 #include "BezierCurve.h"
 #include "Util.h"
-#include <algorithm>
 
 #include "eli/geom/curve/length.hpp"
-#include "eli/geom/curve/piecewise_creator.hpp"
-#include "eli/geom/intersect/minimum_distance_curve.hpp"
-#include "eli/geom/point/distance.hpp"
 
 typedef piecewise_curve_type::index_type curve_index_type;
-typedef piecewise_curve_type::rotation_matrix_type curve_rotation_matrix_type;
-typedef piecewise_curve_type::bounding_box_type curve_bounding_box_type;
 typedef piecewise_curve_type::tolerance_type curve_tolerance_type;
-
-typedef eli::geom::curve::piecewise_cubic_spline_creator<double, 3, curve_tolerance_type> piecewise_cubic_spline_creator_type;
-typedef eli::geom::curve::piecewise_linear_creator<double, 3, curve_tolerance_type> piecewise_linear_creator_type;
-
+typedef piecewise_curve_type::bounding_box_type curve_bounding_box_type;
 
 //===== Constructor  =====//
 Bezier_curve::Bezier_curve()
@@ -366,4 +357,15 @@ bool Bezier_curve::SingleLinear()
         }
     }
     return true;
+}
+
+void Bezier_curve::GetBBox( BndBox &box )
+{
+    box.Reset();
+
+    curve_bounding_box_type bbox;
+    m_Curve.get_bounding_box( bbox );
+
+    box.Update( bbox.get_max() );
+    box.Update( bbox.get_min() );
 }

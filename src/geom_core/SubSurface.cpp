@@ -11,12 +11,7 @@
 #include "SubSurface.h"
 #include "Geom.h"
 #include "Vehicle.h"
-#include "VehicleMgr.h"
-#include "VspSurf.h"
 #include "ParmMgr.h"
-#include "Util.h"
-#include "Matrix.h"
-#include "Defines.h"
 
 #include "eli/geom/intersect/specified_distance_curve.hpp"
 
@@ -25,7 +20,6 @@ SubSurface::SubSurface( string compID, int type )
     m_Type = type;
     m_CompID = compID;
     m_Tag = 0;
-    m_UpdateDrawFlag = true;
     m_LineColor = vec3d( 0, 0, 0 );
     m_PolyPntsReadyFlag = false;
     m_FirstSplit = true;
@@ -93,11 +87,6 @@ vector< TMesh* > SubSurface::CreateTMeshVec()
 
 void SubSurface::UpdateDrawObjs()
 {
-    if ( !m_UpdateDrawFlag )
-    {
-        return;
-    }
-
     Vehicle* veh = VehicleMgr.GetVehicle();
     if ( !veh )
     {
@@ -1171,13 +1160,13 @@ void SSControlSurf::UpdateDrawObjs()
 
         for ( int i = 0; i < 4; i++ )
         {
-            m_ArrowDO.m_MaterialInfo.Ambient[i] = 0.2;
-            m_ArrowDO.m_MaterialInfo.Diffuse[i] = 0.1;
-            m_ArrowDO.m_MaterialInfo.Specular[i] = 0.7;
-            m_ArrowDO.m_MaterialInfo.Emission[i] = 0.0;
+            m_ArrowDO.m_MaterialInfo.Ambient[i] = 0.2f;
+            m_ArrowDO.m_MaterialInfo.Diffuse[i] = 0.1f;
+            m_ArrowDO.m_MaterialInfo.Specular[i] = 0.7f;
+            m_ArrowDO.m_MaterialInfo.Emission[i] = 0.0f;
         }
-        m_ArrowDO.m_MaterialInfo.Diffuse[3] = 0.5;
-        m_ArrowDO.m_MaterialInfo.Shininess = 5.0;
+        m_ArrowDO.m_MaterialInfo.Diffuse[3] = 0.5f;
+        m_ArrowDO.m_MaterialInfo.Shininess = 5.0f;
 
 
         int isurf = m_MainSurfIndx();

@@ -1,7 +1,5 @@
 #include "Color.h"
 
-#include <assert.h>
-
 Color::Color()
 {
     m_Red.Init( "Red", "Color_Parm", this, 0, 0, 255 );

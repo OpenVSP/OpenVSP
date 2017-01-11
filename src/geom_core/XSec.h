@@ -38,10 +38,6 @@ public:
     virtual void Update() = 0;
 
     virtual void SetGroupDisplaySuffix( int num );
-    virtual string GetGroupName()
-    {
-        return m_GroupName;
-    }
 
     virtual string GetName();
 
@@ -105,7 +101,6 @@ protected:
 
     string m_GroupName;
     int m_GroupSuffix;
-    string m_ParentGeomID;
 
     VspCurve m_TransformedCurve;
 

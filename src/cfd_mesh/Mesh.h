@@ -84,7 +84,6 @@ public:
 
     void LaplacianSmooth( int num_iter );
     void OptSmooth( int num_iter );
-    void FindNodeTris();
 
     void DumpGarbage();
 
@@ -161,8 +160,6 @@ public:
 
     void RemoveInteriorTrisEdgesNodes();
 
-    int m_Iteration;
-
 protected:
 
     Surf* m_Surf;
@@ -176,7 +173,6 @@ protected:
     vector< Edge* > garbageEdgeVec;
     vector< Node* > garbageNodeVec;
 
-    int m_TotalIterations;
     int m_HighlightNodeIndex;
     int m_HighlightEdgeIndex;
 

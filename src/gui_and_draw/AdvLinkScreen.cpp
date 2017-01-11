@@ -8,13 +8,11 @@
 #include "AdvLinkScreen.h"
 #include "AdvLinkMgr.h"
 #include "ScreenMgr.h"
-#include "CustomGeom.h"
 #include "LinkMgr.h"
 #include "ParmMgr.h"
 
 #include <FL/fl_ask.H>
 
-#include <assert.h>
 
 //==== Constructor ====//
 AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 429, 645, "Advanced Parameter Links" )

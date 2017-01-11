@@ -149,8 +149,6 @@ public:
     virtual vec3d GetLoc()                                  { return m_Loc; }
     virtual void SetRot( const vec3d & rot );
     virtual vec3d GetRot()                                  { return m_Rot; }
-    virtual void SetCenterRot( const vec3d & cent );
-    virtual vec3d GetCenterRot()                            { return m_CenterRot; }
 
     virtual double GetScale();
 
@@ -158,7 +156,6 @@ protected:
 
     vec3d m_Loc;
     vec3d m_Rot;
-    vec3d m_CenterRot;
 
 };
 

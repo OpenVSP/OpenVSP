@@ -51,7 +51,7 @@ public:
 
     virtual void GuiDeviceCallBack( GuiDevice* device );
 
-    void AddOutputText( Fl_Text_Display *display, const char *text );
+    void AddOutputText( Fl_Text_Display *display, const string &text );
 
     ProcessUtil *GetProcess( int id );
     Fl_Text_Display *GetDisplay( int id );
@@ -63,7 +63,6 @@ public:
     // Solver thread kill flags (these must be public because they are accessed by the thread)
     bool m_SolverSetupThreadIsRunning;
     bool m_SolverThreadIsRunning;
-    bool m_RunSolverMonitor;
 
 protected:
 
@@ -72,7 +71,7 @@ protected:
 
     // Case Setup
     GroupLayout m_GeomLayout;
-    //  Radio buttons for analysis method selection VLM OR Panel 
+    //  Radio buttons for analysis method selection VLM OR Panel
     ToggleButton m_AeroMethodToggleVLM;
     ToggleButton m_AeroMethodTogglePanel;
     ToggleRadioGroup m_AeroMethodToggleGroup;

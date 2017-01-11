@@ -7,12 +7,7 @@
 
 #include "PickSetScreen.h"
 #include "ScreenMgr.h"
-#include "EventMgr.h"
-#include "Vehicle.h"
-#include "VehicleMgr.h"
 #include "StlHelper.h"
-
-#include <assert.h>
 
 //==== Constructor ====//
 PickSetScreen::PickSetScreen()

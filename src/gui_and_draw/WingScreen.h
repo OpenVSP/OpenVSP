@@ -60,8 +60,10 @@ protected:
     SliderAdjRangeInput m_IncidenceSlider;
     SliderAdjRangeInput m_IncidenceLocSlider;
 
-    SliderInput m_LEClusterSlider;
-    SliderInput m_TEClusterSlider;
+    SliderAdjRangeInput m_LEClusterSlider;
+    SliderAdjRangeInput m_TEClusterSlider;
+    StringOutput m_SmallPanelWOutput;
+    StringOutput m_MaxGrowthOutput;
 
     // Wing section tab
     GroupLayout m_SectionLayout;
@@ -77,8 +79,8 @@ protected:
     TriggerButton m_InsertSectButton;
 
     SliderInput m_SectUTessSlider;
-    SliderInput m_RootClusterSlider;
-    SliderInput m_TipClusterSlider;
+    SliderAdjRangeInput m_RootClusterSlider;
+    SliderAdjRangeInput m_TipClusterSlider;
 
     WingDriverGroup m_DefaultWingDriverGroup;
     DriverGroupBank m_WingDriverGroupBank;

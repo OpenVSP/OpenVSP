@@ -1,7 +1,6 @@
 #include "Texture.h"
 #include "StringUtil.h"
 #include "Vehicle.h"
-#include "VehicleMgr.h"
 
 Texture::Texture( std::string fileName )
 {

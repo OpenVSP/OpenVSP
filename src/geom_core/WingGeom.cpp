@@ -7,11 +7,9 @@
 
 #include "WingGeom.h"
 #include "ParmMgr.h"
-#include "VspSurf.h"
 #include "Vehicle.h"
 #include "StlHelper.h"
-#include "APIDefines.h"
-#include <assert.h>
+#include "Cluster.h"
 
 using namespace vsp;
 
@@ -530,9 +528,9 @@ WingSect::WingSect( XSecCurve *xsc ) : XSec( xsc)
     m_Dihedral.Init( "Dihedral", m_GroupName, this, 0.0, -360.0, 360.0 );
     m_Dihedral.SetDescript( "Dihedral of Wing Section" );
 
-    m_RootCluster.Init( "InCluster", m_GroupName, this, 1.0, 0.0, 2.0 );
+    m_RootCluster.Init( "InCluster", m_GroupName, this, 1.0, 1e-4, 10.0 );
     m_RootCluster.SetDescript( "Inboard Tess Cluster Control" );
-    m_TipCluster.Init( "OutCluster", m_GroupName, this, 1.0, 0.0, 2.0 );
+    m_TipCluster.Init( "OutCluster", m_GroupName, this, 1.0, 1e-4, 10.0 );
     m_TipCluster.SetDescript( "Outboard Tess Cluster Control" );
 }
 
@@ -877,11 +875,17 @@ WingGeom::WingGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_TotalArea.Init( "TotalArea", m_Name, this, 1.0, 1e-10, 1.0e12 );
     m_TotalArea.SetDescript( "Total Planform Area" );
 
-    m_LECluster.Init( "LECluster", m_Name, this, 0.25, 0.0, 2.0 );
+    m_LECluster.Init( "LECluster", m_Name, this, 0.25, 1e-4, 10.0 );
     m_LECluster.SetDescript( "LE Tess Cluster Control" );
 
-    m_TECluster.Init( "TECluster", m_Name, this, 0.25, 0.0, 2.0 );
+    m_TECluster.Init( "TECluster", m_Name, this, 0.25, 1e-4, 10.0 );
     m_TECluster.SetDescript( "TE Tess Cluster Control" );
+
+    m_SmallPanelW.Init( "SmallPanelW", m_Name, this, 0.0, 0.0, 1e12 );
+    m_SmallPanelW.SetDescript( "Smallest LE/TE panel width");
+
+    m_MaxGrowth.Init( "MaxGrowth", m_Name, this, 1.0, 1.0, 1e12);
+    m_MaxGrowth.SetDescript( "Maximum chordwise panel growth ratio" );
 
     //==== rename capping controls for wing specific terminology ====//
     m_CapUMinOption.SetDescript("Type of End Cap on Wing Root");
@@ -1416,6 +1420,90 @@ void WingGeom::UpdateSurf()
     m_TotalChord = ComputeTotalChord();
     m_TotalArea = ComputeTotalArea();
 
+    CalculateMeshMetrics();
+}
+
+void WingGeom::CalculateMeshMetrics()
+{
+    // Check dimensional LE/TE first panel width at all hard airfoil sections.
+
+    int nu = m_MainSurfVec[0].GetNumSectU();
+
+    std::vector<double> vcheck( 8 );
+
+    double vmin, vmax, vle, vlelow, vleup, vtruemax;
+
+    vmin = 0.0;
+    vmax = m_MainSurfVec[0].GetWMax();
+    vtruemax = vmax;
+
+    vle = ( vmin + vmax ) * 0.5;
+
+    vmin += TMAGIC;
+    vmax -= TMAGIC;
+
+    vlelow = vle - TMAGIC;
+    vleup = vle + TMAGIC;
+
+    double dj = 2.0 / ( m_TessW() - 1 );
+
+    // Calculate lower surface tessellation check points.
+    vcheck[0] = ( vmin );
+    vcheck[1] = ( vmin + ( vlelow - vmin ) * Cluster( dj, m_TECluster(), m_LECluster() ) );
+    vcheck[2] = ( vmin + ( vlelow - vmin ) * Cluster( 1.0 - dj, m_TECluster(), m_LECluster() ) );
+    vcheck[3] = ( vlelow );
+
+    // Upper surface constructed as:  vupper = m_Surface.get_vmax() - vlower;
+    vcheck[4] = vtruemax - vcheck[0];
+    vcheck[5] = vtruemax - vcheck[1];
+    vcheck[6] = vtruemax - vcheck[2];
+    vcheck[7] = vtruemax - vcheck[3];
+
+    // Loop over points checking for minimum panel width.
+    double mind = std::numeric_limits < double >::max();
+    for ( int i = 0; i < vcheck.size() - 1; i += 2 )
+    {
+        double v1 = vcheck[ i ];
+        double v2 = vcheck[ i + 1 ];
+
+        for ( int j = 0; j <= nu; j++ )
+        {
+            double u = 1.0 * j;
+
+            double d = dist( m_MainSurfVec[0].CompPnt( u, v1 ), m_MainSurfVec[0].CompPnt( u, v2 ) );
+            mind = min( mind, d );
+        }
+    }
+    m_SmallPanelW = mind;
+
+    // Check theoretical growth ratio assuming arclength parameterization is correct.  No need to check actual
+    // actual realized surface.  Also, no need to check all airfoil sections.
+    double maxrat = 1.0;
+
+    int jle = ( m_TessW() - 1 ) / 2;
+    int j = 0;
+
+    double t0 = Cluster( static_cast<double>( j ) / jle, m_TECluster(), m_LECluster() );
+    j++;
+    double t1 = Cluster( static_cast<double>( j ) / jle, m_TECluster(), m_LECluster() );
+    double dt1 = t1 - t0;
+    j++;
+    double t2;
+    for ( ; j <= jle; ++j )
+    {
+        t2 = Cluster( static_cast<double>( j ) / jle, m_TECluster(), m_LECluster() );
+
+        double dt2 = t2 - t1;
+
+        maxrat = max( maxrat, dt1 / dt2 );
+        maxrat = max( maxrat, dt2 / dt1 );
+
+        t0 = t1;
+        t1 = t2;
+        dt1 = dt2;
+
+    }
+    m_MaxGrowth = maxrat;
 }
 
 void WingGeom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, bool degen )
@@ -1834,7 +1922,7 @@ void WingGeom::ReadV2File( xmlNodePtr &root )
         m_RelativeDihedralFlag = XmlUtil::FindInt( node, "Rel_Dihedral_Flag", m_RelativeDihedralFlag() )!= 0;
         m_RelativeTwistFlag = XmlUtil::FindInt( node, "Rel_Twist_Flag", m_RelativeTwistFlag() )!= 0;
 
-        int round_end_cap_flag = XmlUtil::FindInt( node, "Round_End_Cap_Flag", round_end_cap_flag )!= 0;
+        int round_end_cap_flag = XmlUtil::FindInt( node, "Round_End_Cap_Flag", 0 )!= 0;
         if ( round_end_cap_flag )
         {
             m_CapUMaxOption = ROUND_END_CAP;

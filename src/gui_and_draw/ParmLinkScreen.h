@@ -27,8 +27,6 @@ public:
         ( ( ParmLinkScreen* )data )->CallBack( w );
     }
 
-    void LoadDrawObjs(vector< DrawObj* > & draw_obj_vec);
-
 protected:
 
     // Main group
@@ -62,10 +60,5 @@ protected:
     SliderInput m_UpperLimitSlider;
 
     Fl_Browser* m_LinkBrowser;
-
-private:
-    int m_CurrentSelected;
-
-    DrawObj m_LightingDO;
 };
 #endif

@@ -1,9 +1,6 @@
 #include "SelectedPnt.h"
 #include "Renderable.h"
 #include "OpenGLHeaders.h"
-#include "VertexBuffer.h"
-
-#include <assert.h>
 
 namespace VSPGraphic
 {

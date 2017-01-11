@@ -511,11 +511,6 @@ void VORTEX_TRAIL::UpdateLocation(void)
     V = new double[NumberOfSubVortices() + 2];
     W = new double[NumberOfSubVortices() + 2];
    
-    // initialize memory
-    zero_double_array(U,NumberOfSubVortices() + 1);
-    zero_double_array(U,NumberOfSubVortices() + 1);
-    zero_double_array(U,NumberOfSubVortices() + 1);
-
     for ( i = 1 ; i <= NumberOfSubVortices() + 1 ; i++ ) {
      
         LimitVelocity(VortexEdgeVelocity(i));

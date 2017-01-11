@@ -1,8 +1,5 @@
 #include "ManageLightingScreen.h"
 #include "ScreenMgr.h"
-#include "LightMgr.h"
-
-#include <assert.h>
 
 ManageLightingScreen::ManageLightingScreen( ScreenMgr * mgr ) : BasicScreen( mgr, 250, 325, "Manage Lighting" )
 {

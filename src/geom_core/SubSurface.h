@@ -102,10 +102,6 @@ public:
         return m_PolyPntsVec;
     }
     virtual void LoadDrawObjs( std::vector< DrawObj* >& draw_obj_vec );
-    virtual void SetUpdateDraw( bool flag )
-    {
-        m_UpdateDrawFlag = flag;
-    }
 
     virtual void SetLineColor( vec3d color )
     {
@@ -137,7 +133,6 @@ protected:
     string m_CompID; // Component ID used to match Subsurface to a specific geom
     int m_Type; // Type of SubSurface
     std::vector< DrawObj > m_DrawObjVec;
-    bool m_UpdateDrawFlag;
     vector<SSLineSeg> m_LVec; // Line Segment Vector
     vector<SSLineSeg> m_SplitLVec; // Split Line Vector
     vec3d m_LineColor; // Line Color Displayed when drawn on screen

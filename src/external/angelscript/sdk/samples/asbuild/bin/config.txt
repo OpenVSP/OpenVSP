@@ -1,0 +1,100 @@
+// AngelScript 2.28.0
+
+// Engine properties
+ep 0 0
+ep 1 0
+ep 2 1
+ep 3 1
+ep 4 0
+ep 5 0
+ep 6 0
+ep 7 0
+ep 8 0
+ep 9 0
+ep 10 0
+ep 11 1
+ep 12 0
+ep 13 0
+ep 14 2
+ep 15 0
+ep 16 1
+ep 17 0
+ep 18 0
+ep 19 1
+ep 20 0
+
+// Enums
+access FFFFFFFF
+enum myEnum
+enumval myEnum value1 1
+enumval myEnum value2 2
+
+// Types
+access 1
+objtype "array<T>" 69
+objtype "string" 2
+access FFFFFFFF
+intf MyIntf
+typedef myFloat "float"
+funcdef "void Callback(int, int)"
+
+// Type members
+access 1
+objbeh "array<T>" 3 "array<T>@ array(int&in)"
+objbeh "array<T>" 3 "array<T>@ array(int&in, uint)"
+objbeh "array<T>" 3 "array<T>@ array(int&in, uint, const T&in)"
+objbeh "array<T>" 5 "void _beh_5_()"
+objbeh "array<T>" 6 "void _beh_6_()"
+objbeh "array<T>" 13 "int _beh_13_()"
+objbeh "array<T>" 14 "void _beh_14_()"
+objbeh "array<T>" 15 "bool _beh_15_()"
+objbeh "array<T>" 16 "void _beh_16_(int&in)"
+objbeh "array<T>" 17 "void _beh_17_(int&in)"
+objmthd "array<T>" "T& opIndex(uint)"
+objmthd "array<T>" "const T& opIndex(uint) const"
+objmthd "array<T>" "array<T>& opAssign(const array<T>&in)"
+objmthd "array<T>" "uint length() const"
+objmthd "array<T>" "void resize(uint)"
+objbeh "string" 2 "void string()"
+objbeh "string" 0 "void string()"
+objmthd "string" "string& opAssign(const string&in)"
+objmthd "string" "string& opAddAssign(const string&in)"
+objmthd "string" "bool opEquals(const string&in) const"
+objmthd "string" "int opCmp(const string&in) const"
+objmthd "string" "string opAdd(const string&in) const"
+objmthd "string" "uint length() const"
+objmthd "string" "void resize(uint)"
+objmthd "string" "uint8& opIndex(uint)"
+objmthd "string" "const uint8& opIndex(uint) const"
+objmthd "string" "string& opAssign(double)"
+objmthd "string" "string& opAddAssign(double)"
+objmthd "string" "string opAdd(double) const"
+objmthd "string" "string opAdd_r(double) const"
+objmthd "string" "string& opAssign(int)"
+objmthd "string" "string& opAddAssign(int)"
+objmthd "string" "string opAdd(int) const"
+objmthd "string" "string opAdd_r(int) const"
+objmthd "string" "string& opAssign(uint)"
+objmthd "string" "string& opAddAssign(uint)"
+objmthd "string" "string opAdd(uint) const"
+objmthd "string" "string opAdd_r(uint) const"
+objmthd "string" "string& opAssign(bool)"
+objmthd "string" "string& opAddAssign(bool)"
+objmthd "string" "string opAdd(bool) const"
+objmthd "string" "string opAdd_r(bool) const"
+access FFFFFFFF
+intfmthd MyIntf "void func() const"
+
+// Functions
+access 1
+func "void Print(const string &in = \"\n\")"
+
+// Properties
+prop "float f"
+prop "const float myConst"
+
+// String factory
+strfactory "string"
+
+// Default array type
+defarray "array<T>"

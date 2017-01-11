@@ -11,13 +11,11 @@
 #include "WingGeom.h"
 #include "BlankGeom.h"
 #include "MeshGeom.h"
-#include "StackGeom.h"
 #include "CustomGeom.h"
 #include "PtCloudGeom.h"
 #include "PropGeom.h"
 #include "HingeGeom.h"
 #include "ScriptMgr.h"
-#include "MessageMgr.h"
 #include "StlHelper.h"
 #include "ParmMgr.h"
 #include "LinkMgr.h"
@@ -28,9 +26,6 @@
 #include "SubSurfaceMgr.h"
 #include "DesignVarMgr.h"
 #include "DXFUtil.h"
-#include "XmlUtil.h"
-#include "APIDefines.h"
-#include "ResultsMgr.h"
 #include "FitModelMgr.h"
 #include "FileUtil.h"
 #include "VarPresetMgr.h"
@@ -38,13 +33,6 @@
 #include "main.h"
 
 using namespace vsp;
-
-#include <set>
-#include <map>
-#include <algorithm>
-#include <utility>
-
-#include <api/dll_iges.h>
 
 //==== Constructor ====//
 Vehicle::Vehicle()
@@ -55,11 +43,13 @@ Vehicle::Vehicle()
     m_STEPMergePoints.Init( "MergePoints", "STEPSettings", this, true, 0, 1 );
     m_STEPToCubic.Init( "ToCubic", "STEPSettings", this, false, 0, 1 );
     m_STEPToCubicTol.Init( "ToCubicTol", "STEPSettings", this, 1e-6, 1e-12, 1e12 );
+    m_STEPTrimTE.Init( "TrimTE", "STEPSettings", this, false, 0, 1 );
 
     m_IGESLenUnit.Init( "LenUnit", "IGESSettings", this, vsp::LEN_FT, vsp::LEN_MM, vsp::LEN_FT );
     m_IGESSplitSurfs.Init( "SplitSurfs", "IGESSettings", this, true, 0, 1 );
     m_IGESToCubic.Init( "ToCubic", "IGESSettings", this, false, 0, 1 );
     m_IGESToCubicTol.Init( "ToCubicTol", "IGESSettings", this, 1e-6, 1e-12, 1e12 );
+    m_IGESTrimTE.Init( "TrimTE", "IGESSettings", this, false, 0, 1 );
 
     m_DXFLenUnit.Init( "LenUnit", "DXFSettings", this, vsp::LEN_FT, vsp::LEN_MM, vsp::LEN_UNITLESS );
     m_2D3DFlag.Init( "DimFlag", "DXFSettings", this , vsp::SET_3D, vsp::SET_3D, vsp::SET_2D );
@@ -178,11 +168,13 @@ void Vehicle::Init()
     m_STEPMergePoints.Set( true );
     m_STEPToCubic.Set( false );
     m_STEPToCubicTol.Set( 1e-6 );
+    m_STEPTrimTE.Set( false );
 
     m_IGESLenUnit.Set( vsp::LEN_FT );
     m_IGESSplitSurfs.Set( true );
     m_IGESToCubic.Set( false );
     m_IGESToCubicTol.Set( 1e-6 );
+    m_IGESTrimTE.Set( false );
 
     m_DXFLenUnit.Set( vsp::LEN_UNITLESS );
     m_2DView.Set( vsp::VIEW_4 );
@@ -261,8 +253,6 @@ void Vehicle::Wype()
 
 //jrg should we clear types????
     m_GeomTypeVec.clear();
-
-    m_ParmUndoStack = stack< ParmUndo >();
 
     m_BBox = BndBox();
 
@@ -571,12 +561,12 @@ string Vehicle::AddMeshGeom( int set )
     // Create TMeshVec
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
-        Geom* geom_ptr = FindGeom( geom_vec[i] );
-        if ( geom_ptr )
+        Geom* g_ptr = FindGeom( geom_vec[i] );
+        if ( g_ptr )
         {
-            if ( geom_ptr->GetSetFlag( set ) )
+            if ( g_ptr->GetSetFlag( set ) )
             {
-                vector< TMesh* > tMeshVec = geom_ptr->CreateTMeshVec();
+                vector< TMesh* > tMeshVec = g_ptr->CreateTMeshVec();
                 for ( int j = 0 ; j < ( int )tMeshVec.size() ; j++ )
                 {
                     mesh_geom->m_TMeshVec.push_back( tMeshVec[j] );
@@ -2242,7 +2232,7 @@ void Vehicle::WriteSTEPFile( const string & file_name, int write_set )
 
             for ( int j = 0; j < surf_vec.size(); j++ )
             {
-                step.AddSurf( &surf_vec[j], m_STEPSplitSurfs(), m_STEPMergePoints(), m_STEPToCubic(), m_STEPToCubicTol() );
+                step.AddSurf( &surf_vec[j], m_STEPSplitSurfs(), m_STEPMergePoints(), m_STEPToCubic(), m_STEPToCubicTol(), m_STEPTrimTE() );
             }
         }
     }
@@ -2286,7 +2276,7 @@ void Vehicle::WriteIGESFile( const string & file_name, int write_set )
 
             for ( int j = 0; j < surf_vec.size(); j++ )
             {
-                surf_vec[j].ToIGES( model, m_IGESSplitSurfs(), m_IGESToCubic(), m_IGESToCubicTol() );
+                surf_vec[j].ToIGES( model, m_IGESSplitSurfs(), m_IGESToCubic(), m_IGESToCubicTol(), m_IGESTrimTE() );
             }
         }
     }
@@ -3140,75 +3130,92 @@ string Vehicle::WriteDegenGeomFile()
         string file_name = getExportFileName( DEGEN_GEOM_CSV_TYPE );
         FILE* file_id = fopen(file_name.c_str(), "w");
 
-        fprintf(file_id, "# DEGENERATE GEOMETRY CSV FILE\n\n");
-        fprintf(file_id, "# NUMBER OF COMPONENTS\n%d\n", geomCnt);
-
-        if ( m_DegenPtMassVec.size() > 0 )
+        if ( !file_id ) // Check if the file was successfully opened
         {
-            fprintf(file_id, "BLANK_GEOMS,%d\n", blankCnt);
-            fprintf(file_id, "# Name, xLoc, yLoc, zLoc, Mass");
+            outStr += "\tFAILED TO OPEN: ";
+            outStr += file_name;
+            outStr += "\n";
+        }
+        else
+        {
+            fprintf(file_id, "# DEGENERATE GEOMETRY CSV FILE\n\n");
+            fprintf(file_id, "# NUMBER OF COMPONENTS\n%d\n", geomCnt);
 
-            for ( int i = 0; i < (int)m_DegenPtMassVec.size(); i++ )
+            if ( m_DegenPtMassVec.size() > 0 )
             {
-                // Blank geom translated location
-                fprintf(file_id, "\n%s,%f,%f,%f,%f", m_DegenPtMassVec[i].name.c_str(), \
-                                                     m_DegenPtMassVec[i].x.v[0], \
-                                                     m_DegenPtMassVec[i].x.v[1], \
-                                                     m_DegenPtMassVec[i].x.v[2], \
-                                                     m_DegenPtMassVec[i].mass );
+                fprintf(file_id, "BLANK_GEOMS,%d\n", blankCnt);
+                fprintf(file_id, "# Name, xLoc, yLoc, zLoc, Mass");
+
+                for ( int i = 0; i < (int)m_DegenPtMassVec.size(); i++ )
+                {
+                    // Blank geom translated location
+                    fprintf(file_id, "\n%s,%f,%f,%f,%f", m_DegenPtMassVec[i].name.c_str(), \
+                                                         m_DegenPtMassVec[i].x.v[0], \
+                                                         m_DegenPtMassVec[i].x.v[1], \
+                                                         m_DegenPtMassVec[i].x.v[2], \
+                                                         m_DegenPtMassVec[i].mass );
+                }
             }
+
+            for ( int i = 0; i < (int)m_DegenGeomVec.size(); i++ )
+            {
+                m_DegenGeomVec[i].write_degenGeomCsv_file( file_id );
+            }
+
+            fclose(file_id);
+
+            outStr += "\t";
+            outStr += file_name;
+            outStr += "\n";
         }
-
-        for ( int i = 0; i < (int)m_DegenGeomVec.size(); i++ )
-        {
-            m_DegenGeomVec[i].write_degenGeomCsv_file( file_id );
-        }
-
-        fclose(file_id);
-
-        outStr += "\t";
-        outStr += file_name;
-        outStr += "\n";
     }
 
     if ( getExportDegenGeomMFile() )
     {
         string file_name = getExportFileName( DEGEN_GEOM_M_TYPE );
         FILE* file_id = fopen(file_name.c_str(), "w");
-
-        fprintf( file_id, "%%-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-%%\n" );
-        fprintf( file_id, "%%-=-=-=-=-=-= DEGENERATE GEOMETRY M FILE =-=-=-=-=-=-=%%\n" );
-        fprintf( file_id, "%%-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-%%\n\n" );
-
-        if ( blankCnt > 0)
+        if ( !file_id )
         {
-            fprintf( file_id, "blankGeom = [];" );
+            outStr += "\tFAILED TO OPEN: ";
+            outStr += file_name;
+            outStr += "\n";
+        }
+        else
+        {
+            fprintf( file_id, "%%-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-%%\n" );
+            fprintf( file_id, "%%-=-=-=-=-=-= DEGENERATE GEOMETRY M FILE =-=-=-=-=-=-=%%\n" );
+            fprintf( file_id, "%%-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-%%\n\n" );
 
-            for ( int i = 0; i < (int)m_DegenPtMassVec.size(); i++ )
+            if ( blankCnt > 0)
             {
-                fprintf( file_id, "\nblankGeom(end+1).name = '%s';", \
-                                 m_DegenPtMassVec[i].name.c_str() );
+                fprintf( file_id, "blankGeom = [];" );
 
-                fprintf( file_id, "\nblankGeom(end).X = [%f, %f, %f];", m_DegenPtMassVec[i].x.v[0],\
-                                                                       m_DegenPtMassVec[i].x.v[1],\
-                                                                       m_DegenPtMassVec[i].x.v[2] );
-                fprintf( file_id, "\nblankGeom(end).mass = %f;", m_DegenPtMassVec[i].mass );
+                for ( int i = 0; i < (int)m_DegenPtMassVec.size(); i++ )
+                {
+                    fprintf( file_id, "\nblankGeom(end+1).name = '%s';", \
+                                     m_DegenPtMassVec[i].name.c_str() );
+
+                    fprintf( file_id, "\nblankGeom(end).X = [%f, %f, %f];", m_DegenPtMassVec[i].x.v[0],\
+                                                                            m_DegenPtMassVec[i].x.v[1],\
+                                                                            m_DegenPtMassVec[i].x.v[2] );
+                    fprintf( file_id, "\nblankGeom(end).mass = %f;", m_DegenPtMassVec[i].mass );
+                }
+                fprintf( file_id, "\n\n" );
             }
-            fprintf( file_id, "\n\n" );
+
+            fprintf(file_id, "degenGeom = [];");
+
+            for ( int i = 0, propIdx = 1; i < (int)m_DegenGeomVec.size(); i++, propIdx++ )
+            {
+                m_DegenGeomVec[i].write_degenGeomM_file(file_id);
+            }
+
+            fclose(file_id);
+
+            outStr += "\t";
+            outStr += file_name;
+            outStr += "\n";
         }
-
-        fprintf(file_id, "degenGeom = [];");
-
-        for ( int i = 0, propIdx = 1; i < (int)m_DegenGeomVec.size(); i++, propIdx++ )
-        {
-            m_DegenGeomVec[i].write_degenGeomM_file(file_id);
-        }
-
-        fclose(file_id);
-
-        outStr += "\t";
-        outStr += file_name;
-        outStr += "\n";
     }
     return outStr;
 }

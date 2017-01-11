@@ -6,10 +6,6 @@
 #include "common.h"
 #include "main.h"
 #include "VSP_Geom_API.h"
-#include "VehicleMgr.h"
-#include "Vehicle.h"
-#include <string>
-#include "APIDefines.h"
 #include "DesignVarMgr.h"
 
 // Bitwise adds ecode to the current exit status code and returns to current exit status code

@@ -272,11 +272,6 @@ public:
     Ruler m_Ruler;
 
     /*
-    * No Use for now.
-    */
-    int m_Priority;
-
-    /*
     * Line thickness.
     * LineWidth is set to 1.0 by default.
     */

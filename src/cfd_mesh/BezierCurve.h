@@ -73,6 +73,8 @@ public:
 
     bool SingleLinear();
 
+    void GetBBox( BndBox &box );
+
     piecewise_curve_type GetCurve() const
     {
         return m_Curve;

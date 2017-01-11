@@ -44,7 +44,6 @@ public:
     SubSurface* GetSubSurf( std::string subsurf_id );
 
     void SetCurrSubSurfInd( int index );
-    void SetCurrCompID( std::string comp_id );
 
     void SetSubSurfTags( int tag_offset );
 

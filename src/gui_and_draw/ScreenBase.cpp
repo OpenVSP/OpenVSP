@@ -11,16 +11,11 @@
 #include "ScreenMgr.h"
 #include "ParmMgr.h"
 #include "SubSurfaceMgr.h"
-#include "SubSurface.h"
-#include "APIDefines.h"
-#include "MaterialMgr.h"
 #include "GraphicEngine.h"
 #include "Display.h"
 #include "Viewport.h"
 #include "Camera.h"
-#include "ScreenMgr.h"
 #include "MaterialEditScreen.h"
-#include "VSPWindow.h"
 
 using namespace vsp;
 
@@ -827,7 +822,6 @@ bool GeomScreen::Update()
     int nmain = geom_ptr->GetNumMainSurfs();
     for ( int i = 0; i < nmain; ++i )
     {
-        char str[256];
         sprintf( str, "Surf_%d", i );
         m_SubSurfSelectSurface.AddItem( str );
     }

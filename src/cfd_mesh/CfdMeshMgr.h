@@ -271,11 +271,6 @@ public:
     virtual void PrintQual();
     virtual string GetQualString();
 
-    virtual Surf* GetSurf( int ind )
-    {
-        return m_SurfVec[ind];
-    }
-
 //  virtual void AddISeg( Surf* sA, Surf* sB, vec2d & sAuw0, vec2d & sAuw1,  vec2d & sBuw0, vec2d & sBuw1 );
     virtual void AddIntersectionSeg( SurfPatch& pA, SurfPatch& pB, vec3d & ip0, vec3d & ip1 );
 //  virtual ISeg* CreateSurfaceSeg( Surf* sPtr, vec3d & p0, vec3d & p1, vec2d & uw0, vec2d & uw1 );
@@ -351,7 +346,7 @@ public:
     vector< vec3d > m_DebugColors;
 #endif
 
-    ostringstream m_OutStream;
+    stringstream m_OutStream;
 
 
     CfdMeshSettings* GetCfdSettingsPtr()
@@ -359,6 +354,10 @@ public:
         return m_Vehicle->GetCfdSettingsPtr();
     }
 
+    bool GetMeshInProgress()
+    {
+        return m_MeshInProgress;
+    }
 
 protected:
 
@@ -369,6 +368,8 @@ protected:
     virtual void UpdateBBoxDOSymSplit( BndBox box );
 
     Vehicle* m_Vehicle;
+
+    bool m_MeshInProgress;
 
     string m_CurrSourceGeomID;
     int m_CurrMainSurfIndx;
@@ -383,8 +384,6 @@ protected:
 
     list< ISegChain* > m_ISegChainList;
 
-    vector< IPnt* > m_IPntVec;
-    vector< ISeg* > m_IsegVec;
     map< int, IPntBin > m_BinMap;
 
     //vector< ISegSplit* > m_ISegSplitVec;
@@ -409,11 +408,7 @@ protected:
     vector<Tri*> m_BadTris;
     vector< Node* > m_nodeStore;
 
-    vector< string > m_GeomIDs;
-
 private:
-    vector < DrawObj > m_MeshTriDO;
-    vector < DrawObj > m_MeshWakeTriDO;
     DrawObj m_MeshBadEdgeDO;
     DrawObj m_MeshBadTriDO;
     DrawObj m_BBoxLineStripDO;

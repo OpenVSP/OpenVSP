@@ -28,8 +28,6 @@ class RWCollection : public NameValCollection
 public:
     RWCollection() {};
 
-    RWCollection( const string & name, const string & id );
-
     void Clear();
 
 };
@@ -38,6 +36,8 @@ public:
 class Analysis
 {
 public:
+
+    virtual ~Analysis(){};
 
     virtual void SetDefaults() = 0;
     virtual string Execute() = 0;
@@ -73,6 +73,10 @@ public:
 
     int GetNumInputData( const string & analysis, const string & name );
     int GetAnalysisInputType( const string & analysis, const string & name );
+
+    void PrintAnalysisInputs( const string & fname, const std::string analysis_name );
+    void PrintAnalysisInputs( const std::string analysis_name );
+    void PrintAnalysisInputs( FILE * outputStream, const std::string analysis_name );
 
     const vector<int> & GetIntInputData( const string & analysis, const string & name, int index = 0 );
     const vector<double> & GetDoubleInputData( const string & analysis, const string & name, int index = 0 );
@@ -188,15 +192,6 @@ public:
 };
 
 class VSPAEROSinglePointAnalysis : public Analysis
-{
-public:
-
-    virtual void SetDefaults();
-    virtual string Execute();
-
-};
-
-class VSPAEROSinglePointStabAnalysis : public Analysis
 {
 public:
 

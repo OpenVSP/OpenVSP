@@ -53,9 +53,7 @@ public:
     MessageData();
     string m_String;
     vector< int > m_IntVec;
-    vector< double > m_DoubleVec;
     vector< string > m_StringVec;
-    void* m_Ptr;
 };
 
 

@@ -9,24 +9,17 @@
 
 
 #include <stdio.h>
-#include <math.h>
-#include <assert.h>
-#include <float.h>
 
 #include "Vsp1DCurve.h"
-#include "APIDefines.h"
 
 
 #include "eli/geom/curve/length.hpp"
 #include "eli/geom/curve/piecewise_creator.hpp"
-#include "eli/geom/intersect/minimum_distance_curve.hpp"
 #include "eli/geom/intersect/specified_distance_curve.hpp"
 #include "eli/geom/intersect/specified_thickness_curve.hpp"
-#include "eli/mutil/quad/simpson.hpp"
 
 typedef oned_piecewise_curve_type::index_type oned_curve_index_type;
 typedef oned_piecewise_curve_type::point_type oned_curve_point_type;
-typedef oned_piecewise_curve_type::bounding_box_type oned_curve_bounding_box_type;
 typedef oned_piecewise_curve_type::tolerance_type oned_curve_tolerance_type;
 
 

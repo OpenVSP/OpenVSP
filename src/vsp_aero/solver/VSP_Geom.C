@@ -318,11 +318,13 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
     int i, Wing, Done, NumberOfBodySets, BodySet, Surface;
     int TotalNumberOfWings, TotalNumberOfBodies;
     int *ReadInThisWing, *ReadInThisBody;
-    double Diam, x, y, z, nx, ny, nz, Epsilon, MinVal=0, MaxVal=0;
+    double Diam, x, y, z, nx, ny, nz, Epsilon, MinVal, MaxVal;
     char VSP_File_Name[2000], DumChar[2000], Type[2000], Name[2000];
     VSP_SURFACE SurfaceParser;
     BBOX ComponentBBox;
     FILE *VSP_Degen_File;
+    
+    MinVal = MaxVal = 0.;
     
     // Open degen file
 
@@ -634,8 +636,17 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
           
           Surface++;
               
-          sscanf(DumChar,"%15s,%s",Type,Name);
+          char *Next;
+          char delimiters[] = ",\n";
 
+          Next = strtok( DumChar, delimiters );
+
+          sprintf( Type, "%s\0", Next );
+          
+          Next = strtok( NULL, delimiters );
+
+          sprintf( Name, "%s\0", Next );
+          
           printf("Working on reading wing: %d --> %s \n",Wing,Name);
   
           VSP_Surface(Surface).ReadWingDataFromFile(Name,VSP_Degen_File);

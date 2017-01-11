@@ -41,8 +41,6 @@ typedef eli::geom::surface::connection_data<double, 3, surface_tolerance_type> r
 #include <string>
 using std::vector;
 
-double Cluster( const double &t, const double &a, const double &b );
-
 class VspSurf
 {
 public:
@@ -171,9 +169,9 @@ public:
                       piecewise_surface_type::index_type &nupts, piecewise_surface_type::index_type &nvpts );
 
     void ToSTEP_Bez_Patches( STEPutil * step, vector<SdaiBezier_surface *> &surfs );
-    void ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface_with_knots *> &surfs, bool splitsurf, bool mergepts, bool tocubic, double tol );
+    void ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface_with_knots *> &surfs, bool splitsurf, bool mergepts, bool tocubic, double tol, bool trimte );
 
-    void ToIGES( DLL_IGES &model, bool splitsurf, bool tocubic, double tol );
+    void ToIGES( DLL_IGES &model, bool splitsurf, bool tocubic, double tol, bool trimTE );
 
     void SetUSkipFirst( bool f );
     void SetUSkipLast( bool f );

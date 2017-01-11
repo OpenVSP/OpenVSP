@@ -138,15 +138,6 @@ public:
         return m_ActiveFlag;
     }
 
-    virtual void SetLinkedFlag( bool flag )
-    {
-        m_LinkedFlag = flag;
-    }
-    virtual bool GetLinkedFlag()
-    {
-        return m_LinkedFlag;
-    }
-
     virtual void SetLinkUpdateFlag( bool flag )
     {
         m_LinkUpdateFlag = flag;
@@ -191,7 +182,6 @@ protected:
 
     bool m_ActiveFlag;
     bool m_LinkedFlag;
-    bool m_LinkableFlag;
     bool m_LinkUpdateFlag;
     string m_LinkContainerID;
 

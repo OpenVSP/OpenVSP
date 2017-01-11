@@ -14,7 +14,6 @@
 #include "Tritri.h"
 #include "CfdMeshMgr.h"
 #include "StlHelper.h"
-#include "SubSurface.h"
 #include "SubSurfaceMgr.h"
 
 Surf::Surf()
@@ -25,7 +24,6 @@ Surf::Surf()
     m_SurfID = -1;
     m_FlipFlag = false;
     m_WakeFlag = false;
-    m_SurfType = vsp::NORMAL_SURF;
     m_SurfCfdType = vsp::CFD_NORMAL;
     m_SymPlaneFlag = false;
     m_FarFlag = false;
@@ -209,62 +207,103 @@ bool indxcompare( const pair < double, pair < int, int > > &a, const pair < doub
     return ( a.first < b.first );
 }
 
-void Surf::WalkMap( int istart, int jstart, int kstart, int icurrent, int jcurrent )
+void Surf::WalkMap( int istart, int jstart, int kstart )
 {
     static int iadd[] = { -1, 1,  0, 0 };
     static int jadd[] = {  0, 0, -1, 1 };
 
+    vector < pair < int, int > > v;
+
     for( int i = 0; i < 4; i++ )
     {
-        static int itarget;
-        itarget = icurrent + iadd[i];
-        static int jtarget;
-        jtarget = jcurrent + jadd[i];
+        int inext = istart + iadd[i];
+        int jnext = jstart + jadd[i];
 
-        if( itarget < m_SrcMap.size() && itarget >= 0 && jtarget < m_SrcMap[0].size() && jtarget >= 0 )
+        if( inext < m_SrcMap.size() && inext >= 0 && jnext < m_SrcMap[0].size() && jnext >= 0 )
         {
+            v.push_back( make_pair( inext, jnext ) );
+        }
+    }
 
-            if( m_SrcMap[ itarget ][ jtarget ].m_maxvisited < kstart )
+    while ( !v.empty() )
+    {
+        pair < int, int > p = v.back();
+        v.pop_back();
+        int icurrent = p.first;
+        int jcurrent = p.second;
+
+        if( m_SrcMap[ icurrent ][ jcurrent ].m_maxvisited < kstart )
+        {
+            m_SrcMap[ icurrent ][ jcurrent ].m_maxvisited = kstart;
+
+            double targetstr = m_SrcMap[istart][jstart].m_str +
+                    ( m_SrcMap[ icurrent ][ jcurrent ].m_pt - m_SrcMap[istart][jstart].m_pt ).mag() *
+                    (m_GridDensityPtr->m_GrowRatio() - 1.0);
+
+            if( m_SrcMap[ icurrent ][ jcurrent ].m_str > targetstr )
             {
-                m_SrcMap[ itarget ][ jtarget ].m_maxvisited = kstart;
-                static double targetstr;
-                targetstr = m_SrcMap[ istart ][ jstart ].m_str +
-                          ( m_SrcMap[ itarget ][ jtarget ].m_pt - m_SrcMap[ istart ][ jstart ].m_pt ).mag() *
-                          ( m_GridDensityPtr->m_GrowRatio() - 1.0 );
-                if( m_SrcMap[ itarget ][ jtarget ].m_str > targetstr )
+                // Mark dominated as progress is made
+                m_SrcMap[ icurrent ][ jcurrent ].m_dominated = true;
+                m_SrcMap[ icurrent ][ jcurrent ].m_str = targetstr;
+
+                for( int i = 0; i < 4; i++ )
                 {
-                    // Mark dominated as progress is made
-                    m_SrcMap[ itarget ][ jtarget ].m_dominated = true;
-                    m_SrcMap[ itarget ][ jtarget ].m_str = targetstr;
-                    WalkMap( istart, jstart, kstart, itarget, jtarget );
+                    int inext = icurrent + iadd[i];
+                    int jnext = jcurrent + jadd[i];
+
+                    if( inext < m_SrcMap.size() && inext >= 0 && jnext < m_SrcMap[0].size() && jnext >= 0 )
+                    {
+                        v.push_back( make_pair( inext, jnext ) );
+                    }
                 }
             }
         }
     }
 }
 
-void Surf::WalkMap( int istart, int jstart, int icurrent, int jcurrent )
+void Surf::WalkMap( int istart, int jstart )
 {
     static const int iadd[] = { -1, 1,  0, 0 };
     static const int jadd[] = {  0, 0, -1, 1 };
 
+    vector < pair < int, int > > v;
+
     for( int i = 0; i < 4; i++ )
     {
-        static int itarget;
-        itarget = icurrent + iadd[i];
-        static int jtarget;
-        jtarget = jcurrent + jadd[i];
+        int inext = istart + iadd[i];
+        int jnext = jstart + jadd[i];
 
-        if( itarget < m_SrcMap.size() && itarget >= 0 && jtarget < m_SrcMap[0].size() && jtarget >= 0 )
+        if( inext < m_SrcMap.size() && inext >= 0 && jnext < m_SrcMap[0].size() && jnext >= 0 )
         {
-            static double targetstr;
-            targetstr = m_SrcMap[istart][jstart].m_str +
-                    ( m_SrcMap[ itarget ][ jtarget ].m_pt - m_SrcMap[istart][jstart].m_pt ).mag() *
-                    (m_GridDensityPtr->m_GrowRatio() - 1.0);
-            if( m_SrcMap[ itarget ][ jtarget ].m_str > targetstr )
+            v.push_back( make_pair( inext, jnext ) );
+        }
+    }
+
+    while ( !v.empty() )
+    {
+        pair < int, int > p = v.back();
+        v.pop_back();
+        int icurrent = p.first;
+        int jcurrent = p.second;
+
+        double targetstr = m_SrcMap[istart][jstart].m_str +
+                ( m_SrcMap[ icurrent ][ jcurrent ].m_pt - m_SrcMap[istart][jstart].m_pt ).mag() *
+                (m_GridDensityPtr->m_GrowRatio() - 1.0);
+
+
+        if( m_SrcMap[ icurrent ][ jcurrent ].m_str > targetstr )
+        {
+            m_SrcMap[ icurrent ][ jcurrent ].m_str = targetstr;
+
+            for( int i = 0; i < 4; i++ )
             {
-                m_SrcMap[ itarget ][ jtarget ].m_str = targetstr;
-                WalkMap( istart, jstart, itarget, jtarget );
+                int inext = icurrent + iadd[i];
+                int jnext = jcurrent + jadd[i];
+
+                if( inext < m_SrcMap.size() && inext >= 0 && jnext < m_SrcMap[0].size() && jnext >= 0 )
+                {
+                    v.push_back( make_pair( inext, jnext ) );
+                }
             }
         }
     }
@@ -298,7 +337,7 @@ void Surf::LimitTargetMap()
     std::sort( index.begin(), index.end(), indxcompare );
 
     // Start from smallest
-    for( int k = 0; k < nmap; k++ )
+    for( k = 0; k < nmap; k++ )
     {
         pair< int, int > ij = index[k].second;
         int i = ij.first;
@@ -309,7 +348,7 @@ void Surf::LimitTargetMap()
         // Recursively limit from small to large (skip if dominated)
         if( !src.m_dominated )
         {
-            WalkMap( i, j, k, i, j );
+            WalkMap( i, j, k );
         }
     }
 }
@@ -361,7 +400,7 @@ void Surf::LimitTargetMap( MSCloud &es_cloud, MSTree &es_tree, double minmap )
                 if( t < torig )
                 {
                     m_SrcMap[i][j].m_str = t;
-                    WalkMap( i, j, i, j );
+                    WalkMap( i, j );
                 }
             }
         }
@@ -450,7 +489,7 @@ void Surf::ApplyES( vec3d uw, double t )
             if( m_SrcMap[ itarget ][ jtarget ].m_str > targetstr )
             {
                 m_SrcMap[ itarget ][ jtarget ].m_str = targetstr;
-                WalkMap( itarget, jtarget, itarget, jtarget );
+                WalkMap( itarget, jtarget );
             }
         }
     }
@@ -618,8 +657,6 @@ void Surf::Intersect( Surf* surfPtr )
                 if ( Compare( *m_PatchVec[i]->get_bbox(), *otherPatchVec[j]->get_bbox() ) )
                 {
                     intersect( *m_PatchVec[i], *otherPatchVec[j], 0 );
-                    m_PatchVec[i]->draw_flag = true;
-                    otherPatchVec[j]->draw_flag = true;
                 }
             }
         }
@@ -698,22 +735,28 @@ bool Surf::BorderCurveOnSurface( Surf* surfPtr )
         Bezier_curve crv;
         border_curves[i]->GetBorderCurve( crv );
 
-        Bezier_curve projcrv = crv;
-        projcrv.XYZCurveToUWCurve( this );
-        projcrv.UWCurveToXYZCurve( this );
+        BndBox crvbox;
+        crv.GetBBox( crvbox );
 
-        int num_pnts_on_surf = crv.CountMatch( projcrv, tol );
-
-        if ( num_pnts_on_surf > 0 )
+        if ( Compare( m_BBox, crvbox ) )
         {
-            retFlag = true;
-        }
+            Bezier_curve projcrv = crv;
+            projcrv.XYZCurveToUWCurve( this );
+            projcrv.UWCurveToXYZCurve( this );
 
-        if ( num_pnts_on_surf > 2 || ( num_pnts_on_surf == 2 && crv.SingleLinear() ) )
-        {
-            //==== If Surface Add To List ====//
-            CfdMeshMgr.AddPossCoPlanarSurf( this, surfPtr );
-            PlaneBorderCurveIntersect( surfPtr, border_curves[i] );
+            int num_pnts_on_surf = crv.CountMatch( projcrv, tol );
+
+            if ( num_pnts_on_surf > 0 )
+            {
+                retFlag = true;
+            }
+
+            if ( num_pnts_on_surf > 2 || ( num_pnts_on_surf == 2 && crv.SingleLinear() ) )
+            {
+                //==== If Surface Add To List ====//
+                CfdMeshMgr.AddPossCoPlanarSurf( this, surfPtr );
+                PlaneBorderCurveIntersect( surfPtr, border_curves[i] );
+            }
         }
     }
 

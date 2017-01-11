@@ -244,7 +244,10 @@ void GL_VIEWER::LoadInitialData(char *name)
 
     // Determine if an adb file exists
     
-    sprintf(file_name_w_ext,"%s.adb",file_name);
+    if (strstr(file_name,".adb") )    
+        sprintf(file_name_w_ext,"%s",file_name);
+    else
+        sprintf(file_name_w_ext,"%s.adb",file_name);
 
     if ( (adb_file = fopen(file_name_w_ext,"rb")) != NULL ) {
      
@@ -416,7 +419,10 @@ void GL_VIEWER::LoadMeshData(void)
 
     // Open the aerothermal data base file
 
-    sprintf(file_name_w_ext,"%s.adb",file_name);
+    if (strstr(file_name,".adb") )    
+        sprintf(file_name_w_ext,"%s",file_name);
+    else
+        sprintf(file_name_w_ext,"%s.adb",file_name);
 
     if ( (adb_file = fopen(file_name_w_ext,"rb")) == NULL ) {
 
@@ -725,7 +731,10 @@ void GL_VIEWER::LoadSolutionCaseList(void)
     
     // Open the solution case list
 
-    sprintf(file_name_w_ext,"%s.adb.cases",file_name);
+    if (strstr(file_name,".adb") )    
+        sprintf(file_name_w_ext,"%s.cases",file_name);
+    else
+        sprintf(file_name_w_ext,"%s.adb.cases",file_name);
 
     if ( (adb_file = fopen(file_name_w_ext,"r")) == NULL ) {
 
@@ -815,7 +824,10 @@ void GL_VIEWER::LoadExistingSolutionData(int Case)
 
     // Open the aerothermal data base file
 
-    sprintf(file_name_w_ext,"%s.adb",file_name);
+    if (strstr(file_name,".adb") )    
+        sprintf(file_name_w_ext,"%s",file_name);
+    else
+        sprintf(file_name_w_ext,"%s.adb",file_name);
 
     if ( (adb_file = fopen(file_name_w_ext,"rb")) == NULL ) {
 
@@ -5148,7 +5160,7 @@ void GL_VIEWER::SwapSurfaceNormals(void)
 
 void GL_VIEWER::WriteTiffFile(char *FileName)
 {
-    /*
+#ifdef _TIFFIO_
     int width, height;
     char rgbstr[256];
 
@@ -5168,8 +5180,7 @@ void GL_VIEWER::WriteTiffFile(char *FileName)
        fflush(NULL);
 
     }
-    */
-
+#endif
 }
 
 /*##############################################################################
@@ -5180,7 +5191,7 @@ void GL_VIEWER::WriteTiffFile(char *FileName)
 
 void GL_VIEWER::WriteMovieFrame(char *FileName)
 {
-    /*
+
     int width, height;
     char rgbstr[256];
 
@@ -5195,12 +5206,12 @@ void GL_VIEWER::WriteMovieFrame(char *FileName)
        sprintf(rgbstr,"%s.tiff",FileName);
        width = w();
        height = h();
+#ifdef _TIFFIO_
        WriteTiff( rgbstr, "CBVIEWER", 0, 0, width, height, COMPRESSION_NONE );
-
+#endif
        fflush(NULL);
 
     }
-    */
 
 }
 
@@ -5213,7 +5224,7 @@ void GL_VIEWER::WriteMovieFrame(char *FileName)
 int GL_VIEWER::WriteTiff(char *filename, char *description,
                          int x, int y, int width, int height, int compression)
 {
-    /*
+#ifdef _TIFFIO_
   TIFF *file;
   GLubyte *image, *p;
   int i;
@@ -5255,8 +5266,10 @@ int GL_VIEWER::WriteTiff(char *filename, char *description,
   }
   TIFFClose(file);
   if ( image != NULL) free(image);
-  */
+
+#endif
   return 0;
+
 }
 
 /*##############################################################################

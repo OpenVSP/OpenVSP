@@ -10,8 +10,6 @@
 
 #include "SubSurfaceMgr.h"
 #include "Vehicle.h"
-#include "VehicleMgr.h"
-#include <algorithm>
 
 using std::vector;
 using std::string;
@@ -368,7 +366,11 @@ string SubSurfaceMgrSingleton::GetTagNames( const vector<int> & tags )
 
 string SubSurfaceMgrSingleton::GetTagNames( int indx )
 {
-    return GetTagNames( m_TagKeys[indx] );
+    if ( indx < m_TagKeys.size() && indx >= 0 )
+    {
+        return GetTagNames( m_TagKeys[indx] );
+    }
+    return string( "Error_Tag" );
 }
 
 int SubSurfaceMgrSingleton::GetTag( const vector<int> & tags )

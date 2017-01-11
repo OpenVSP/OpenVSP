@@ -13,7 +13,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-STEPOptionsScreen::STEPOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 220, "STEP Options" )
+STEPOptionsScreen::STEPOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 245, "STEP Options" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
 
@@ -41,6 +41,8 @@ STEPOptionsScreen::STEPOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 
     m_GenLayout.AddYGap();
 
     m_GenLayout.AddButton( m_SplitSurfsToggle, "Split Surfaces" );
+    m_GenLayout.AddYGap();
+    m_GenLayout.AddButton( m_TrimTEToggle, "Omit TE Surfaces" );
     m_GenLayout.AddYGap();
     m_GenLayout.AddButton( m_MergePointsToggle, "Merge Points" );
     m_GenLayout.AddYGap();
@@ -75,6 +77,7 @@ bool STEPOptionsScreen::Update()
         m_MergePointsToggle.Update( veh->m_STEPMergePoints.GetID() );
         m_ToCubicToggle.Update( veh->m_STEPToCubic.GetID() );
         m_ToCubicTolSlider.Update( veh->m_STEPToCubicTol.GetID() );
+        m_TrimTEToggle.Update( veh->m_STEPTrimTE.GetID() );
 
         if ( !veh->m_STEPToCubic() )
         {
@@ -120,6 +123,7 @@ void STEPOptionsScreen::GuiDeviceCallBack( GuiDevice* device )
             veh->m_STEPMergePoints.Set( m_PrevMerge );
             veh->m_STEPToCubic.Set( m_PrevCubic );
             veh->m_STEPToCubicTol.Set( m_PrevToCubicTol );
+            veh->m_STEPTrimTE.Set( m_PrevTrimTE );
         }
         Hide();
     }
@@ -143,6 +147,7 @@ bool STEPOptionsScreen::ShowSTEPOptionsScreen()
         m_PrevMerge = veh->m_STEPMergePoints();
         m_PrevCubic = veh->m_STEPToCubic();
         m_PrevToCubicTol = veh->m_STEPToCubicTol();
+        m_PrevTrimTE = veh->m_STEPTrimTE();
     }
 
     while( m_FLTK_Window->shown() )
@@ -167,6 +172,7 @@ void STEPOptionsScreen::CloseCallBack( Fl_Widget *w )
         veh->m_STEPMergePoints.Set( m_PrevMerge );
         veh->m_STEPToCubic.Set( m_PrevCubic );
         veh->m_STEPToCubicTol.Set( m_PrevToCubicTol );
+        veh->m_STEPTrimTE.Set( m_PrevTrimTE );
     }
 
     Hide();

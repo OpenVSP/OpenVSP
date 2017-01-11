@@ -17,7 +17,6 @@ addons:
     - libcpptest-dev
     - libjpeg-dev
     - libglm-dev
-    - libeigen3-dev
     - libcminpack-dev
     - libglew-dev
 script:
@@ -26,7 +25,7 @@ script:
      cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="~/OpenVSP_Install" -DVSP_INSTALL_API_TEST=true ../SuperProject;
    fi
  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-     cmake -DCMAKE_BUILD_TYPE=Release -DVSP_USE_SYSTEM_FLTK=true -DVSP_USE_SYSTEM_CPPTEST=true -DVSP_USE_SYSTEM_LIBXML2=true -DVSP_USE_SYSTEM_EIGEN=true -DVSP_USE_SYSTEM_FLTK=true -DVSP_USE_SYSTEM_GLM=true -DVSP_USE_SYSTEM_GLEW=true -DVSP_USE_SYSTEM_CMINPACK=true -DCMAKE_INSTALL_PREFIX="~/OpenVSP_Install" -DVSP_INSTALL_API_TEST=true ../SuperProject; 
+     cmake -DCMAKE_BUILD_TYPE=Release -DVSP_USE_SYSTEM_FLTK=true -DVSP_USE_SYSTEM_CPPTEST=true -DVSP_USE_SYSTEM_LIBXML2=true -DVSP_USE_SYSTEM_FLTK=true -DVSP_USE_SYSTEM_GLM=true -DVSP_USE_SYSTEM_GLEW=true -DVSP_USE_SYSTEM_CMINPACK=true -DCMAKE_INSTALL_PREFIX="~/OpenVSP_Install" -DVSP_INSTALL_API_TEST=true ../SuperProject; 
    fi
  - make
  - ~/OpenVSP_Install/vspscript -script ../examples/scripts/TestAll.vspscript

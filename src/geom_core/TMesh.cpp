@@ -18,19 +18,12 @@
 #endif
 
 #include "TMesh.h"
-#include "BndBox.h"
 
 #include "Tritri.h"
-#include "Defines.h"
 
 #include "triangle.h"
-#include "Util.h"
 #include "Geom.h"
 #include "SubSurfaceMgr.h"
-
-#include <map>
-#include <set>
-#include <algorithm>
 
 
 //===============================================//
@@ -165,10 +158,9 @@ TMesh* TEdge::GetParTMesh()
 TetraMassProp::TetraMassProp( string id, double denIn, vec3d& p0, vec3d& p1, vec3d& p2, vec3d& p3 )
 {
     m_CompId = id;
-    m_PointMassFlag = false;
     m_Density = denIn;
 
-    m_v0 = p0;
+    m_v0 = vec3d( 0, 0, 0 );
     m_v1 = p1 - p0;
     m_v2 = p2 - p0;
     m_v3 = p3 - p0;
@@ -207,7 +199,6 @@ TetraMassProp::TetraMassProp( string id, double denIn, vec3d& p0, vec3d& p1, vec
 void TetraMassProp::SetPointMass( double massIn, vec3d& pos )
 {
     m_CompId = "NONE";
-    m_PointMassFlag = true;
     m_Density = 0.0;
     m_CG = pos;
     m_Vol  = 0.0;
@@ -282,7 +273,7 @@ DegenGeomTetraMassProp::DegenGeomTetraMassProp( string id, vec3d& p0, vec3d& p1,
 {
     m_CompId = id;
 
-    m_v0 = p0;
+    m_v0 = vec3d( 0, 0, 0 );
     m_v1 = p1 - p0;
     m_v2 = p2 - p0;
     m_v3 = p3 - p0;
@@ -2409,7 +2400,6 @@ void TBndBox::Intersect( TBndBox* iBox, bool UWFlag )
     }
     else
     {
-        int i, j;
         int coplanarFlag;
         vec3d e0;
         vec3d e1;
@@ -2419,7 +2409,7 @@ void TBndBox::Intersect( TBndBox* iBox, bool UWFlag )
         for ( i = 0 ; i < ( int )m_TriVec.size() ; i++ )
         {
             TTri* t0 = m_TriVec[i];
-            for ( j = 0 ; j < ( int )iBox->m_TriVec.size() ; j++ )
+            for ( int j = 0 ; j < ( int )iBox->m_TriVec.size() ; j++ )
             {
                 TTri* t1 = iBox->m_TriVec[j];
 

@@ -18,9 +18,6 @@
 #include <FL/Fl_Text_Buffer.H>
 #include <FL/Fl_Text_Display.H>
 
-#define DES_FILE 0
-#define XDDM_FILE 1
-
 using namespace std;
 
 class ClippingScreen : public BasicScreen

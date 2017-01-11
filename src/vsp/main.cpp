@@ -8,7 +8,6 @@
 
 #include <stdio.h>
 
-#include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -35,12 +34,7 @@
 #include "VSP_Geom_API.h"
 #include "VehicleMgr.h"
 #include "GuiInterface.h"
-#include "EventMgr.h"
 #include "GeomCoreTestSuite.h"
-#include "UtilTestSuite.h"
-#include <string>
-#include <time.h>
-#include "APIDefines.h"
 #include "common.h"
 
 using namespace vsp;
@@ -187,11 +181,11 @@ void* CheckVersionNumber( void *threadid )
             }
         }
         //===== Write Time =====//
-        FILE* vsptime_fp = fopen( ".vsptime", "w" );
-        if ( vsptime_fp )
+        FILE* vsptime_fpw = fopen( ".vsptime", "w" );
+        if ( vsptime_fpw )
         {
-            fprintf( vsptime_fp, "%d", ( int )time( NULL ) );
-            fclose( vsptime_fp );
+            fprintf( vsptime_fpw, "%d", ( int )time( NULL ) );
+            fclose( vsptime_fpw );
         }
     }
 

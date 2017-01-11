@@ -7,11 +7,9 @@
 
 #include "FuselageGeom.h"
 #include "ParmMgr.h"
-#include "VspSurf.h"
 #include "Vehicle.h"
 #include "StlHelper.h"
 
-#include "APIDefines.h"
 using namespace vsp;
 
 //==== Constructor ====//
@@ -502,7 +500,6 @@ void FuselageGeom::ReadV2FileFuse2( xmlNodePtr &root )
         Geom::ReadV2File( node );
     }
 
-    int num_xsecs;
 //    int space_type = PNT_SPACE_FIXED;
 
     //===== Read Fuse Parameters =====//
@@ -525,7 +522,7 @@ void FuselageGeom::ReadV2FileFuse2( xmlNodePtr &root )
         {
             if ( !xmlStrcmp( xsec_node->name, ( const xmlChar * )"Cross_Section" ) )
             {
-                int xstype = XmlUtil::FindInt( xsec_node, "Type", xstype );
+                int xstype = XmlUtil::FindInt( xsec_node, "Type", 0 );
 
                 XSec* xsec_ptr = NULL;
 

@@ -2,7 +2,6 @@
 #include "OpenGLHeaders.h"
 #include "Renderable.h"
 #include "Pickable.h"
-#include "SceneObject.h"
 #include "Entity.h"
 #include "Marker.h"
 #include "Ruler.h"
@@ -16,7 +15,6 @@
 #include "ByteOperationUtil.h"
 
 #include <assert.h>
-#include <stdlib.h>
 
 namespace VSPGraphic
 {

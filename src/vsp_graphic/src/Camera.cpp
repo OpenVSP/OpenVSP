@@ -2,8 +2,6 @@
 
 #include "glm/ext.hpp"
 
-#define ORTHOGRAPHIC_Z_NEAR -2500.0f
-#define ORTHOGRAPHIC_Z_FAR 2500.0f
 #define PERSPECTIVE_NEAR 0.1f
 #define PERSPECTIVE_FAR 5000.0f
 

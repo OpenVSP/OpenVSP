@@ -12,7 +12,6 @@ using std::deque;
 //==== Message Data ====//
 MessageData::MessageData()
 {
-    m_Ptr = NULL;
 }
 
 //==== Message Base ====//

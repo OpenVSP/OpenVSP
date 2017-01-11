@@ -50,7 +50,6 @@ protected:
     TriggerButton m_CreateParm;
     TriggerButton m_DeleteParm;
     TriggerButton m_DeleteAllParm;
-    TriggerButton m_EditParm;
 
     StringInput m_EditParmNameInput;
     StringInput m_EditParmGroupInput;
@@ -58,18 +57,13 @@ protected:
 
     Fl_Browser* m_UserDefinedBrowser;
 
-    GroupLayout m_EditLayout;
-
     GroupLayout m_AdjustLayout;
     Fl_Scroll* m_AdjustScroll;
-
-    int m_NumEditSliders;
 
     vector< SliderAdjRangeInput > m_PredefSliderVec;
     vector < SliderAdjRangeInput > m_ParmSliderVec;
  
     vector< string > m_UserParmBrowserVec;
-    deque< string > m_EditParmVec;
 
     string m_NameText;
     string m_GroupText;

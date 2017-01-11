@@ -2,7 +2,6 @@
 #include "LayoutMgr.h"
 #include "Viewport.h"
 #include "Camera.h"
-#include "Background.h"
 #include "Scene.h"
 #include "Ruler.h"
 
@@ -18,7 +17,6 @@ LayoutMgr::LayoutMgr( int row, int column )
     _column = column;
 
     _sWidth = _sHeight = 1;
-    _screenSizeDiffRatio = 1.0;
 
     _startx = _starty = -1;
 
@@ -82,7 +80,6 @@ void LayoutMgr::resizeScreenshot( int width, int height, float screenSizeDiffRat
 
     _sWidth = width;
     _sHeight = height;
-    _screenSizeDiffRatio = screenSizeDiffRatio;
 
     float ratioW = 1.0f / _column;
     float ratioH = 1.0f / _row;

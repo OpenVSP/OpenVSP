@@ -9,7 +9,6 @@
 
 #include "FitModelScreen.h"
 #include "ParmMgr.h"
-#include "MeshGeom.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -424,7 +423,7 @@ bool FitModelScreen::Update()
     }
 
     //==== Update Parm Adjust Tab ====//
-    for ( int i = 0 ; i < num_vars ; i++ )
+    for ( i = 0 ; i < num_vars ; i++ )
     {
         m_ParmSliderVec[i].Update( FitModelMgr.GetVar( i ) );
     }

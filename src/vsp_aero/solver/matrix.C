@@ -1320,7 +1320,6 @@ void MATRIX::solve_vdk(MATRIX &vec)
 
     ii= 0;
 
-    assert( num <= neq ); // check for WRITE overruns on next line
     for ( i = 1 ; i <= num ; i++ ) {
 
        ip = indx[i];

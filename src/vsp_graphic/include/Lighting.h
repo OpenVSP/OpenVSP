@@ -125,8 +125,6 @@ public:
 
 private:
     std::vector<LightSource *> _lightSources;
-    bool _enabled;
-    bool _isChanged;
 };
 }
 #endif

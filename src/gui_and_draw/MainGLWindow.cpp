@@ -15,32 +15,22 @@
 #include "Lighting.h"
 #include "Image.h"
 #include "Texture2D.h"
-#include "TextureMgr.h"
 #include "Entity.h"
 #include "Ruler.h"
 #include "GraphicEngine.h"
-#include "ScreenMgr.h"
 #include "ManageLabelScreen.h"
 #include "ManageLightingScreen.h"
 #include "ManageGeomScreen.h"
 #include "ManageCORScreen.h"
 #include "FitModelScreen.h"
-#include "Common.h"
 #include "GraphicSingletons.h"
 #include "Selectable.h"
 #include "SelectedPnt.h"
 #include "SelectedLoc.h"
-#include "Material.h"
 #include "ClippingScreen.h"
 #include "Clipping.h"
-#include "BndBox.h"
 #include "ManageViewScreen.h"
 #include "WaveDragScreen.h"
-
-#define PRECISION_PAN_SPEED 0.005f
-#define PAN_SPEED 0.025f
-#define PRECISION_ZOOM_SPEED 0.00005f
-#define ZOOM_SPEED 0.00025f
 
 #pragma warning(disable:4244)
 
@@ -63,7 +53,6 @@ VspGlWindow::VspGlWindow( int x, int y, int w, int h, ScreenMgr * mgr, DrawObj::
     m_GEngine->getDisplay()->setDisplayLayout( 1, 1 );
     m_GEngine->getDisplay()->selectViewport( 0 );
 
-    m_LightAmb = m_LightSpec = m_LightDiff = 0.5f;
     m_mouse_x = m_mouse_y = 0xFFFFFFF;
 
     m_initialized = false;
@@ -1898,7 +1887,7 @@ void VspGlWindow::_sendFeedback( Selectable * selected )
                 m_GEngine->getDisplay()->center();
 
                 // This is a dummy call to let corScreen know the job is done.
-                corScreen->Set( vec3d( placement.x, placement.y, placement.z ) );
+                corScreen->Set();
 
                 // Only one selection is needed for Center of Rotation, remove this 'selected' from selection list.
                 m_GEngine->getScene()->removeSelected( selected );

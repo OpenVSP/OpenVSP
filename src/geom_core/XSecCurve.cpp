@@ -9,28 +9,17 @@
 
 #include "XSecCurve.h"
 #include "Geom.h"
-#include "XSecSurf.h"
 //#include "SuperEllipse.h"
-#include "Parm.h"
-#include "VehicleMgr.h"
 #include "ParmMgr.h"
 #include "StlHelper.h"
-#include <float.h>
-#include <stdio.h>
-#include "APIDefines.h"
 #include "FuselageGeom.h"
-
-#include <algorithm>
 
 #include "Vehicle.h"
 
-#include "eli/geom/curve/piecewise.hpp"
-#include "eli/geom/curve/piecewise_creator.hpp"
 #include "eli/geom/curve/length.hpp"
 
 typedef piecewise_curve_type::index_type curve_index_type;
 typedef piecewise_curve_type::point_type curve_point_type;
-typedef piecewise_curve_type::rotation_matrix_type curve_rotation_matrix_type;
 typedef piecewise_curve_type::tolerance_type curve_tolerance_type;
 
 typedef eli::geom::curve::piecewise_point_creator<double, 3, curve_tolerance_type> piecewise_point_creator;
@@ -367,7 +356,7 @@ void XSecCurve::CloseTE( bool wingtype )
                     pnewup[1] += thick;
 
                     // Calculate arclen to scale parameters.
-                    double lup, llow;
+                    double lup = 0.0, llow = 0.0;
 
                     length( llow, c_low, 1.0e-4 );
                     length( lup, c_up, 1.0e-4 );
@@ -419,7 +408,13 @@ void XSecCurve::CloseTE( bool wingtype )
     threed_point_type p2 = crv.f( tmax );
     double d = dist( p1, p2 );
 
-    if ( wingtype || d > 1e-4 )
+    double div = GetWidth();
+    if ( div == 0.0 )
+    {
+        div = 1.0;
+    }
+
+    if ( wingtype || ( d / div ) > 1e-4 )
     {
         // Connect TE points with straight blunt face.  Place corners at appropriate parameter.
         piecewise_curve_type c_last, c_main;
@@ -453,12 +448,6 @@ void XSecCurve::CloseTE( bool wingtype )
         crv.set_tmax( tmax );
     }
     m_Curve.SetCurve( crv );
-
-    double div = GetWidth();
-    if ( div == 0.0 )
-    {
-        div = 1.0;
-    }
 
     if ( m_UseFakeWidth )
     {

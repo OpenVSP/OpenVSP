@@ -11,7 +11,6 @@
 #include "AdvLinkMgr.h"
 #include "ParmMgr.h"
 #include "Vehicle.h"
-#include "VehicleMgr.h"
 #include "StlHelper.h"
 
 bool LinkMgrSingleton::m_firsttime = true;
@@ -234,9 +233,6 @@ bool LinkMgrSingleton::AddLink( const string& pidA, const string& pidB )
     pl->SetScaleFlag( false );
     pl->m_Scale.Set( 1.0 );
 
-    pA->SetLinkedFlag( true );
-    pB->SetLinkedFlag( true );
-
     m_LinkVec.push_back( pl );
     m_CurrLinkIndex = ( int )m_LinkVec.size() - 1;
 
@@ -453,10 +449,10 @@ void LinkMgrSingleton::ParmChanged( const string& pid, bool start_flag  )
     {
         for ( int i = 0 ; i < ( int )m_UpdatedParmVec.size() ; i++ )
         {
-            Parm* parm_ptr = ParmMgr.FindParm( m_UpdatedParmVec[i] );
-            if ( parm_ptr )
+            Parm* p = ParmMgr.FindParm( m_UpdatedParmVec[i] );
+            if ( p )
             {
-                parm_ptr->SetLinkUpdateFlag( false );
+                p->SetLinkUpdateFlag( false );
             }
         }
         m_UpdatedParmVec.clear();

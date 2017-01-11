@@ -9,21 +9,11 @@
 
 #include "FitModelMgr.h"
 #include "ParmMgr.h"
-#include "Vehicle.h"
-#include "VehicleMgr.h"
 #include "StlHelper.h"
-#include "MeshGeom.h"
 #include "PtCloudGeom.h"
-#include "APIDefines.h"
-#include "XmlUtil.h"
 
 #define CMINPACK_NO_DLL
 #include <cminpack.h>
-
-#include <algorithm>
-#include <cmath>
-#include <cstdlib>
-#include <set>
 
 vec3d TargetPt::GetMatchPt()
 {
@@ -904,7 +894,7 @@ void FitModelMgrSingleton::CalcMetricDeriv( const double *x, double *y, double *
     }
 
     // Calculate exact derivatives of target point movement.
-    for ( int i = 0 ; i < npt; i++ )
+    for ( i = 0 ; i < npt; i++ )
     {
         TargetPt* tpt = m_TargetPts[i];
         Geom* g = m_TargetGeomPtrVec[i];

@@ -1,9 +1,5 @@
 #include "MultTransScreen.h"
 #include "ScreenMgr.h"
-#include "LightMgr.h"
-#include "Vehicle.h"
-
-#include <assert.h>
 
 MultTransScreen::MultTransScreen( ScreenMgr * mgr ) : TabScreen( mgr, 300, 270, "Group Modifications" )
 {

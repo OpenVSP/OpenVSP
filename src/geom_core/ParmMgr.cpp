@@ -8,12 +8,6 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "ParmMgr.h"
-#include "VehicleMgr.h"
-#include "UsingCpp11.h"
-#include "APIDefines.h"
-#include <assert.h>
-#include <time.h>
-#include <algorithm>
 
 using std::map;
 using std::string;
@@ -90,20 +84,6 @@ void ParmMgrSingleton::RemoveParmContainer( ParmContainer* pc  )
         m_ParmContainerMap.erase( iter );
     }
 }
-
-//==== Name Compare ====//
-bool NameCompare( const string a, const string b )
-{
-    ParmContainer* pcA = ParmMgr.FindParmContainer( a );
-    ParmContainer* pcB = ParmMgr.FindParmContainer( b );
-
-    if ( pcA && pcB )
-    {
-        return ( pcA->GetName() < pcB->GetName() );
-    }
-    return ( false );
-}
-
 
 //==== Find Parm GivenID ====//
 Parm* ParmMgrSingleton::FindParm( const string & id )

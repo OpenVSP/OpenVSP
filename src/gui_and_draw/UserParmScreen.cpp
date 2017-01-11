@@ -7,18 +7,14 @@
 
 #include "UserParmScreen.h"
 #include "ScreenMgr.h"
-#include "CustomGeom.h"
 #include "LinkMgr.h"
 #include "ParmMgr.h"
-
-#include <assert.h>
 
 //==== Constructor ====//
 UserParmScreen::UserParmScreen( ScreenMgr* mgr ) : TabScreen( mgr, 400, 550, "User Parms" )
 {
     //==== Variables =====//
     m_NumParmsLast = 0;
-    m_NumEditSliders = 10;
     m_UserBrowserSelection = 0;
     m_NameText = "Default_Name";
     m_GroupText = "Default_Group";
@@ -302,10 +298,10 @@ void UserParmScreen::GuiDeviceCallBack( GuiDevice* gui_device )
                 m_UserDefinedBrowser->clear();
                 for ( int i = 0 ; i < (int)m_UserParmBrowserVec.size() ; i++ )
                 {
-                    Parm* p = ParmMgr.FindParm( m_UserParmBrowserVec[i] );
-                    if ( p )
+                    Parm* p2 = ParmMgr.FindParm( m_UserParmBrowserVec[i] );
+                    if ( p2 )
                     {
-                        string pname = p->GetName();
+                        string pname = p2->GetName();
                         m_UserDefinedBrowser->add( pname.c_str() );
                     }
                 }

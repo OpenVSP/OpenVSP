@@ -9,8 +9,6 @@
 
 #include "VarPresetScreen.h"
 #include "ParmMgr.h"
-#include "CustomGeom.h"
-#include "ParmContainer.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -19,9 +17,6 @@
 VarPresetScreen::VarPresetScreen( ScreenMgr* mgr ) : TabScreen( mgr, 300, 600, "Variable Presets", (-6 * 20) - 25) // 6 rows * 20 StdHeight of UI objects, 25 Height of Tabs
 {
     //==== Variables ====//
-    m_GroupInputText = "Default_Group";
-    m_SettingInputText = "Default_Setting";
-
     m_NVarLast = 0;
     m_menuUpdateFlag = 1;
 
@@ -255,7 +250,7 @@ bool VarPresetScreen::Update()
     }
 
     //==== Update Parm Adjust Tab ====//
-    for ( int i = 0 ; i < num_vars ; i++ )
+    for ( i = 0 ; i < num_vars ; i++ )
     {
         m_ParmSliderVec[i].Update( VarPresetMgr.GetVar( i ) );
     }
@@ -464,10 +459,6 @@ void VarPresetScreen::GuiDeviceCallBack( GuiDevice* device )
             string groupText = m_GroupInput.GetString();
             VarPresetMgr.AddGroup( groupText );
 
-            // Set New Default Group Input
-            m_GroupInputText = groupText;
-            m_SettingInputText = "";
-
             m_menuUpdateFlag = 1;
         }
     }
@@ -486,8 +477,6 @@ void VarPresetScreen::GuiDeviceCallBack( GuiDevice* device )
         if ( !VarPresetMgr.GetDeleteFlag() )
         {
             VarPresetMgr.DeletePreset( VarPresetMgr.GetActiveGroupIndex(), VarPresetMgr.GetActiveSettingIndex() );
-            m_GroupInputText = VarPresetMgr.GetActiveGroupText();
-            m_SettingInputText = VarPresetMgr.GetActiveSettingText();
             RebuildMenus( VarPresetMgr.GetActiveGroupIndex() );
         }
     }
@@ -502,9 +491,7 @@ void VarPresetScreen::GuiDeviceCallBack( GuiDevice* device )
             else
             {
                 VarPresetMgr.GroupChange( m_GroupChoice.GetVal() );
-                m_GroupInputText = VarPresetMgr.GetActiveGroupText();
                 VarPresetMgr.SettingChange( m_SettingChoice.GetVal() );
-                m_SettingInputText = VarPresetMgr.GetActiveSettingText();
             }
         }
     }

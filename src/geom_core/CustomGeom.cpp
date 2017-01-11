@@ -11,9 +11,7 @@
 #include "ParmMgr.h"
 #include "LinkMgr.h"
 #include "ScriptMgr.h"
-#include "VspSurf.h"
 #include "Vehicle.h"
-#include "VehicleMgr.h"
 #include "VSP_Geom_API.h"
 
 using namespace vsp;
@@ -575,11 +573,10 @@ void CustomXSec::Update()
     rotate_mat.rotateZ( m_Rot.z() );
 
     Matrix4d cent_mat;
-    vec3d cent = m_CenterRot + m_Loc;
-    cent_mat.translatef( -cent.x(), -cent.y(), -cent.z() );
+    cent_mat.translatef( -m_Loc.x(), -m_Loc.y(), -m_Loc.z() );
 
     Matrix4d inv_cent_mat;
-    inv_cent_mat.translatef(  cent.x(),  cent.y(),  cent.z() );
+    inv_cent_mat.translatef(  m_Loc.x(),  m_Loc.y(),  m_Loc.z() );
 
     m_Transform.loadIdentity();
 
@@ -603,7 +600,6 @@ void CustomXSec::CopyBasePos( XSec* xs )
         {
             m_Loc = cxs->m_Loc;
             m_Rot = cxs->m_Rot;
-            m_CenterRot = cxs->m_CenterRot;
         }
     }
 }
@@ -619,13 +615,6 @@ void CustomXSec::SetLoc( const vec3d & loc )
 void CustomXSec::SetRot( const vec3d & rot )
 {
     m_Rot = rot;
-    m_LateUpdateFlag = true;
-}
-
-//==== Set XSec Center Rotation - Not Using Parms To Avoid Exposing Dependant Vars ====//
-void CustomXSec::SetCenterRot( const vec3d & cent )
-{
-    m_CenterRot = cent;
     m_LateUpdateFlag = true;
 }
 

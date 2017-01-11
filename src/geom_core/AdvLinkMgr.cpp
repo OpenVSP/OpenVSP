@@ -8,12 +8,10 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "AdvLinkMgr.h"
-#include "AdvLink.h"
 #include "FileUtil.h"
 #include "ScriptMgr.h"
 #include "ParmMgr.h"
 #include "Vehicle.h"
-#include "VehicleMgr.h"
 #include "VSP_Geom_API.h"
 #include "StringUtil.h"
 #include "StlHelper.h"

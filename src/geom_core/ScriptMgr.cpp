@@ -11,15 +11,11 @@
 #include "ScriptMgr.h"
 
 #include "Parm.h"
-#include "Vec3d.h"
 #include "Matrix.h"
 #include "VSP_Geom_API.h"
-#include "APIErrorMgr.h"
 #include "CustomGeom.h"
 #include "AdvLinkMgr.h"
-#include "XSec.h"
 #include "Vehicle.h"
-#include "ResultsMgr.h"
 #include "StringUtil.h"
 #include "FileUtil.h"
 
@@ -79,11 +75,11 @@ void ScriptMgrSingleton::Init( )
     RegisterScriptAny( m_ScriptEngine );
 
     //==== Cache Some Commom Types ====//
-    m_IntArrayType    = se->GetObjectTypeById( se->GetTypeIdByDecl( "array<int>" ) );
+    m_IntArrayType    = se->GetTypeInfoById( se->GetTypeIdByDecl( "array<int>" ) );
     assert( m_IntArrayType );
-    m_DoubleArrayType = se->GetObjectTypeById( se->GetTypeIdByDecl( "array<double>" ) );
+    m_DoubleArrayType = se->GetTypeInfoById( se->GetTypeIdByDecl( "array<double>" ) );
     assert( m_DoubleArrayType );
-    m_StringArrayType = se->GetObjectTypeById( se->GetTypeIdByDecl( "array<string>" ) );
+    m_StringArrayType = se->GetTypeInfoById( se->GetTypeIdByDecl( "array<string>" ) );
     assert( m_StringArrayType );
 
     //==== Register VSP Enums ====//
@@ -91,7 +87,7 @@ void ScriptMgrSingleton::Init( )
 
     //==== Register VSP Objects ====//
     RegisterVec3d( m_ScriptEngine );
-    m_Vec3dArrayType  = se->GetObjectTypeById( se->GetTypeIdByDecl( "array<vec3d>" ) );
+    m_Vec3dArrayType  = se->GetTypeInfoById( se->GetTypeIdByDecl( "array<vec3d>" ) );
     assert( m_Vec3dArrayType );
 
     RegisterMatrix4d( m_ScriptEngine );
@@ -1004,6 +1000,7 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "VSPAERO_ANALYSIS_METHOD", "VORTEX_LATTICE", VORTEX_LATTICE );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "VSPAERO_ANALYSIS_METHOD", "PANEL", PANEL );
+    assert( r >= 0 );
 
 }
 
@@ -1401,6 +1398,8 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "array<vec3d>@  GetVec3dAnalysisInput( const string & in analysis, const string & in name, int index = 0 )", asMETHOD( ScriptMgrSingleton, GetVec3dAnalysisInput ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void PrintAnalysisInputs( const string & in analysis )", asFUNCTION( vsp::PrintAnalysisInputs ), asCALL_CDECL );
+    assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "void SetAnalysisInputDefaults( const string & in analysis )", asFUNCTION( vsp::SetAnalysisInputDefaults ), asCALL_CDECL );
     assert( r >= 0 );
@@ -1444,6 +1443,8 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "void DeleteResult( const string & in id )", asFUNCTION( vsp::DeleteResult ), asCALL_CDECL );
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "void WriteResultsCSVFile( const string & in id, const string & in file_name )", asFUNCTION( vsp::WriteResultsCSVFile ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void PrintResults( const string & in id )", asFUNCTION( vsp::PrintResults ), asCALL_CDECL );
     assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "void WriteTestResults()", asMETHOD( ResultsMgrSingleton, WriteTestResults ), asCALL_THISCALL_ASGLOBAL, &ResultsMgr );
@@ -1768,7 +1769,7 @@ void ScriptMgrSingleton::SetVec3dArray( CScriptArray* varr )
 CScriptArray* ScriptMgrSingleton::GetProxyVec3dArray()
 {
     //==== This Will Get Deleted By The Script Engine ====//
-    CScriptArray* sarr = new CScriptArray( m_ProxyVec3dArray.size(), m_Vec3dArrayType );
+    CScriptArray* sarr = CScriptArray::Create( m_Vec3dArrayType, m_ProxyVec3dArray.size() );
     for ( int i = 0 ; i < ( int )sarr->GetSize() ; i++ )
     {
         sarr->SetValue( i, &m_ProxyVec3dArray[i] );
@@ -1780,7 +1781,7 @@ CScriptArray* ScriptMgrSingleton::GetProxyVec3dArray()
 CScriptArray* ScriptMgrSingleton::GetProxyStringArray()
 {
     //==== This Will Get Deleted By The Script Engine ====//
-    CScriptArray* sarr = new CScriptArray( m_ProxyStringArray.size(), m_StringArrayType );
+    CScriptArray* sarr = CScriptArray::Create( m_StringArrayType, m_ProxyStringArray.size() );
     for ( int i = 0 ; i < ( int )sarr->GetSize() ; i++ )
     {
         sarr->SetValue( i, &m_ProxyStringArray[i] );
@@ -1792,7 +1793,7 @@ CScriptArray* ScriptMgrSingleton::GetProxyStringArray()
 CScriptArray* ScriptMgrSingleton::GetProxyIntArray()
 {
     //==== This Will Get Deleted By The Script Engine ====//
-    CScriptArray* sarr = new CScriptArray( m_ProxyIntArray.size(), m_IntArrayType );
+    CScriptArray* sarr = CScriptArray::Create( m_IntArrayType, m_ProxyIntArray.size() );
     for ( int i = 0 ; i < ( int )sarr->GetSize() ; i++ )
     {
         sarr->SetValue( i, &m_ProxyIntArray[i] );
@@ -1804,7 +1805,7 @@ CScriptArray* ScriptMgrSingleton::GetProxyIntArray()
 CScriptArray* ScriptMgrSingleton::GetProxyDoubleArray()
 {
     //==== This Will Get Deleted By The Script Engine ====//
-    CScriptArray* sarr = new CScriptArray( m_ProxyDoubleArray.size(), m_DoubleArrayType );
+    CScriptArray* sarr = CScriptArray::Create( m_DoubleArrayType, m_ProxyDoubleArray.size() );
     for ( int i = 0 ; i < ( int )sarr->GetSize() ; i++ )
     {
         sarr->SetValue( i, &m_ProxyDoubleArray[i] );

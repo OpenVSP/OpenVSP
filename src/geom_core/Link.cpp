@@ -10,7 +10,6 @@
 #include "Link.h"
 #include "ParmMgr.h"
 #include "LinkMgr.h"
-#include "VehicleMgr.h"
 
 //==== Constructor ====//
 Link::Link()
