@@ -15,7 +15,6 @@
 #include "ByteOperationUtil.h"
 
 #include <assert.h>
-#include <stdlib.h>
 
 namespace VSPGraphic
 {
