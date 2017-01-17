@@ -303,6 +303,17 @@ enum WING_DRIVERS { AR_WSECT_DRIVER,
                     SECSWEEPLOC_WSECT_DRIVER = SECSWEEP_WSECT_DRIVER + 3,
                   };
 
+enum WING_BLEND { BLEND_FREE,
+                  BLEND_ANGLES,
+                  BLEND_MATCH_IN_LE_TRAP,
+                  BLEND_MATCH_IN_TE_TRAP,
+                  BLEND_MATCH_OUT_LE_TRAP,
+                  BLEND_MATCH_OUT_TE_TRAP,
+                  BLEND_MATCH_IN_ANGLES,
+                  BLEND_MATCH_LE_ANGLES,
+                  BLEND_NUM_TYPES
+                };
+
 enum COLLISION_ERRORS { COLLISION_OK,
                         COLLISION_INTERSECT_NO_SOLUTION,
                         COLLISION_CLEAR_NO_SOLUTION,
