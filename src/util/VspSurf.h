@@ -183,6 +183,8 @@ public:
     void SetWSkipFirst( bool f );
     void SetWSkipLast( bool f );
 
+    piecewise_surface_type* GetBezierSurface()           { return &m_Surface; }
+
     int GetNumSectU() const;
     int GetNumSectW() const;
 
