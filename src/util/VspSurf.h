@@ -41,6 +41,9 @@ typedef eli::geom::surface::connection_data<double, 3, surface_tolerance_type> r
 #include <string>
 using std::vector;
 
+void SplitSurfsU( vector< piecewise_surface_type > &surfvec, const vector < double > &USplit );
+void SplitSurfsW( vector< piecewise_surface_type > &surfvec, const vector < double > &WSplit );
+
 class VspSurf
 {
 public:

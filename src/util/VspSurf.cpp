@@ -1375,7 +1375,13 @@ bool VspSurf::CapWMax(int CapType)
 
 void VspSurf::SplitSurfs( vector< piecewise_surface_type > &surfvec )
 {
-    for ( int i = 0; i < m_UFeature.size(); ++i )
+    SplitSurfsU( surfvec, m_UFeature );
+    SplitSurfsW( surfvec, m_WFeature );
+}
+
+void SplitSurfsU( vector< piecewise_surface_type > &surfvec, const vector < double > &USplit )
+{
+    for ( int i = 0; i < USplit.size(); ++i )
     {
         vector < piecewise_surface_type > splitsurfvec;
         for ( int j = 0; j < surfvec.size(); j++ )
@@ -1384,9 +1390,9 @@ void VspSurf::SplitSurfs( vector< piecewise_surface_type > &surfvec )
 
             s = surfvec[j];
 
-            if ( s.get_u0() < m_UFeature[i] && s.get_umax() > m_UFeature[i] )
+            if ( s.get_u0() < USplit[i] && s.get_umax() > USplit[i] )
             {
-                s.split_u( s1, s2, m_UFeature[i] );
+                s.split_u( s1, s2, USplit[i] );
 
                 if ( s1.number_u_patches() > 0 && s1.number_v_patches() > 0 )
                 {
@@ -1404,9 +1410,11 @@ void VspSurf::SplitSurfs( vector< piecewise_surface_type > &surfvec )
         }
         surfvec = splitsurfvec;
     }
+}
 
-
-    for ( int i = 0; i < m_WFeature.size(); ++i )
+void SplitSurfsW( vector< piecewise_surface_type > &surfvec, const vector < double > &WSplit )
+{
+    for ( int i = 0; i < WSplit.size(); ++i )
     {
         vector < piecewise_surface_type > splitsurfvec;
         for ( int j = 0; j < surfvec.size(); j++ )
@@ -1415,9 +1423,9 @@ void VspSurf::SplitSurfs( vector< piecewise_surface_type > &surfvec )
 
             s = surfvec[j];
 
-            if ( s.get_v0() < m_WFeature[i] && s.get_vmax() > m_WFeature[i] )
+            if ( s.get_v0() < WSplit[i] && s.get_vmax() > WSplit[i] )
             {
-                s.split_v( s1, s2, m_WFeature[i] );
+                s.split_v( s1, s2, WSplit[i] );
 
                 if ( s1.number_u_patches() > 0 && s1.number_v_patches() > 0 )
                 {
