@@ -1373,10 +1373,8 @@ bool VspSurf::CapWMax(int CapType)
     return false;
 }
 
-void VspSurf::SplitSurfs( const piecewise_surface_type &basesurf, vector< piecewise_surface_type > &surfvec )
+void VspSurf::SplitSurfs( vector< piecewise_surface_type > &surfvec )
 {
-    surfvec.push_back( basesurf );
-
     for ( int i = 0; i < m_UFeature.size(); ++i )
     {
         vector < piecewise_surface_type > splitsurfvec;
@@ -1496,7 +1494,8 @@ bool VspSurf::CheckValidPatch( const piecewise_surface_type &surf )
 void VspSurf::FetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_ind, vector< XferSurf > &xfersurfs )
 {
     vector < piecewise_surface_type > surfvec;
-    SplitSurfs( m_Surface, surfvec );
+    surfvec.push_back( m_Surface );
+    SplitSurfs( surfvec );
 
     int num_sections = surfvec.size();
 
@@ -1594,13 +1593,10 @@ void VspSurf::ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface
     }
 
     vector < piecewise_surface_type > surfvec;
+    surfvec.push_back( s );
     if ( splitsurf )
     {
-        SplitSurfs( s, surfvec );
-    }
-    else
-    {
-        surfvec.push_back( s );
+        SplitSurfs( surfvec );
     }
 
     for ( int isurf = 0; isurf < surfvec.size(); isurf++ )
@@ -1815,13 +1811,10 @@ void VspSurf::ToIGES( DLL_IGES &model, bool splitsurf, bool tocubic, double tol,
     }
 
     vector < piecewise_surface_type > surfvec;
+    surfvec.push_back( s );
     if ( splitsurf )
     {
-        SplitSurfs( s, surfvec );
-    }
-    else
-    {
-        surfvec.push_back( s );
+        SplitSurfs( surfvec );
     }
 
     for ( int is = 0; is < surfvec.size(); is++ )
