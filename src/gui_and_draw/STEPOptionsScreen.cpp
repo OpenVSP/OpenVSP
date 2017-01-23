@@ -13,7 +13,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-STEPOptionsScreen::STEPOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 245, "STEP Options" )
+STEPOptionsScreen::STEPOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 270, "STEP Options" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
 
@@ -21,6 +21,7 @@ STEPOptionsScreen::STEPOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 
     m_PrevUnit = 0;
     m_PrevTol = 1e-6;
     m_PrevSplit = false;
+    m_PrevSplitSub = false;
     m_PrevMerge = true;
     m_PrevCubic = false;;
     m_PrevToCubicTol = 1e-6;
@@ -41,6 +42,8 @@ STEPOptionsScreen::STEPOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 
     m_GenLayout.AddYGap();
 
     m_GenLayout.AddButton( m_SplitSurfsToggle, "Split Surfaces" );
+    m_GenLayout.AddYGap();
+    m_GenLayout.AddButton( m_SplitSubSurfsToggle, "Split U/W-Const Sub-Surfaces" );
     m_GenLayout.AddYGap();
     m_GenLayout.AddButton( m_TrimTEToggle, "Omit TE Surfaces" );
     m_GenLayout.AddYGap();
@@ -74,6 +77,7 @@ bool STEPOptionsScreen::Update()
         m_LenUnitChoice.Update( veh->m_STEPLenUnit.GetID() );
         m_TolSlider.Update( veh->m_STEPTol.GetID() );
         m_SplitSurfsToggle.Update( veh->m_STEPSplitSurfs.GetID() );
+        m_SplitSubSurfsToggle.Update( veh->m_STEPSplitSubSurfs.GetID() );
         m_MergePointsToggle.Update( veh->m_STEPMergePoints.GetID() );
         m_ToCubicToggle.Update( veh->m_STEPToCubic.GetID() );
         m_ToCubicTolSlider.Update( veh->m_STEPToCubicTol.GetID() );
@@ -120,6 +124,7 @@ void STEPOptionsScreen::GuiDeviceCallBack( GuiDevice* device )
             veh->m_STEPLenUnit.Set( m_PrevUnit );
             veh->m_STEPTol.Set( m_PrevTol );
             veh->m_STEPSplitSurfs.Set( m_PrevSplit );
+            veh->m_STEPSplitSubSurfs.Set( m_PrevSplitSub );
             veh->m_STEPMergePoints.Set( m_PrevMerge );
             veh->m_STEPToCubic.Set( m_PrevCubic );
             veh->m_STEPToCubicTol.Set( m_PrevToCubicTol );
@@ -144,6 +149,7 @@ bool STEPOptionsScreen::ShowSTEPOptionsScreen()
         m_PrevUnit = veh->m_STEPLenUnit();
         m_PrevTol = veh->m_STEPTol();
         m_PrevSplit = veh->m_STEPSplitSurfs();
+        m_PrevSplitSub = veh->m_STEPSplitSubSurfs();
         m_PrevMerge = veh->m_STEPMergePoints();
         m_PrevCubic = veh->m_STEPToCubic();
         m_PrevToCubicTol = veh->m_STEPToCubicTol();
@@ -169,6 +175,7 @@ void STEPOptionsScreen::CloseCallBack( Fl_Widget *w )
         veh->m_STEPLenUnit.Set( m_PrevUnit );
         veh->m_STEPTol.Set( m_PrevTol );
         veh->m_STEPSplitSurfs.Set( m_PrevSplit );
+        veh->m_STEPSplitSubSurfs.Set( m_PrevSplitSub );
         veh->m_STEPMergePoints.Set( m_PrevMerge );
         veh->m_STEPToCubic.Set( m_PrevCubic );
         veh->m_STEPToCubicTol.Set( m_PrevToCubicTol );

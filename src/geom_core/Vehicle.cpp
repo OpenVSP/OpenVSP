@@ -40,6 +40,7 @@ Vehicle::Vehicle()
     m_STEPLenUnit.Init( "LenUnit", "STEPSettings", this, vsp::LEN_FT, vsp::LEN_MM, vsp::LEN_YD );
     m_STEPTol.Init( "Tolerance", "STEPSettings", this, 1e-6, 1e-12, 1e12 );
     m_STEPSplitSurfs.Init( "SplitSurfs", "STEPSettings", this, true, 0, 1 );
+    m_STEPSplitSubSurfs.Init( "SplitSubSurfs", "STEPSettings", this, false, 0, 1 );
     m_STEPMergePoints.Init( "MergePoints", "STEPSettings", this, true, 0, 1 );
     m_STEPToCubic.Init( "ToCubic", "STEPSettings", this, false, 0, 1 );
     m_STEPToCubicTol.Init( "ToCubicTol", "STEPSettings", this, 1e-6, 1e-12, 1e12 );
@@ -166,6 +167,7 @@ void Vehicle::Init()
     m_STEPLenUnit.Set( vsp::LEN_FT );
     m_STEPTol.Set( 1e-6 );
     m_STEPSplitSurfs.Set( true );
+    m_STEPSplitSubSurfs.Set( false );
     m_STEPMergePoints.Set( true );
     m_STEPToCubic.Set( false );
     m_STEPToCubicTol.Set( 1e-6 );
@@ -2234,7 +2236,41 @@ void Vehicle::WriteSTEPFile( const string & file_name, int write_set )
 
             for ( int j = 0; j < surf_vec.size(); j++ )
             {
-                step.AddSurf( &surf_vec[j], m_STEPSplitSurfs(), m_STEPMergePoints(), m_STEPToCubic(), m_STEPToCubicTol(), m_STEPTrimTE() );
+                int mainid = geom_vec[i]->GetMainSurfID( j );
+
+                vector < double > usplit;
+                vector < double > wsplit;
+
+                vector < SubSurface *> ssvec = geom_vec[i]->GetSubSurfVec();
+
+                if ( m_STEPSplitSubSurfs() )
+                {
+                    for ( int k = 0; k < ssvec.size(); k++ )
+                    {
+                        SubSurface *sub = ssvec[ k ];
+                        if ( sub )
+                        {
+                            if( sub->m_MainSurfIndx() == mainid )
+                            {
+                                if( sub->GetType() == vsp::SS_LINE )
+                                {
+                                    SSLine *subline = (SSLine*) sub;
+
+                                    if( subline->m_ConstType() == SSLine::CONST_U )
+                                    {
+                                        usplit.push_back( subline->m_ConstVal() * surf_vec[j].GetUMax() );
+                                    }
+                                    else
+                                    {
+                                        wsplit.push_back( subline->m_ConstVal() * surf_vec[j].GetWMax() );
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                step.AddSurf( &surf_vec[j], m_STEPSplitSurfs(), m_STEPMergePoints(), m_STEPToCubic(), m_STEPToCubicTol(), m_STEPTrimTE(), usplit, wsplit );
             }
         }
     }
