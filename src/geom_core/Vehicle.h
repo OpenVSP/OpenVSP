@@ -286,6 +286,7 @@ public:
 
     IntParm m_IGESLenUnit;
     BoolParm m_IGESSplitSurfs;
+    BoolParm m_IGESSplitSubSurfs;
     BoolParm m_IGESToCubic;
     Parm m_IGESToCubicTol;
     BoolParm m_IGESTrimTE;

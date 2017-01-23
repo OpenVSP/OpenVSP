@@ -47,6 +47,7 @@ Vehicle::Vehicle()
 
     m_IGESLenUnit.Init( "LenUnit", "IGESSettings", this, vsp::LEN_FT, vsp::LEN_MM, vsp::LEN_FT );
     m_IGESSplitSurfs.Init( "SplitSurfs", "IGESSettings", this, true, 0, 1 );
+    m_IGESSplitSubSurfs.Init( "SplitSubSurfs", "IGESSettings", this, false, 0, 1 );
     m_IGESToCubic.Init( "ToCubic", "IGESSettings", this, false, 0, 1 );
     m_IGESToCubicTol.Init( "ToCubicTol", "IGESSettings", this, 1e-6, 1e-12, 1e12 );
     m_IGESTrimTE.Init( "TrimTE", "IGESSettings", this, false, 0, 1 );
@@ -172,6 +173,7 @@ void Vehicle::Init()
 
     m_IGESLenUnit.Set( vsp::LEN_FT );
     m_IGESSplitSurfs.Set( true );
+    m_IGESSplitSubSurfs.Set( false );
     m_IGESToCubic.Set( false );
     m_IGESToCubicTol.Set( 1e-6 );
     m_IGESTrimTE.Set( false );
@@ -2276,7 +2278,41 @@ void Vehicle::WriteIGESFile( const string & file_name, int write_set )
 
             for ( int j = 0; j < surf_vec.size(); j++ )
             {
-                surf_vec[j].ToIGES( model, m_IGESSplitSurfs(), m_IGESToCubic(), m_IGESToCubicTol(), m_IGESTrimTE() );
+                int mainid = geom_vec[i]->GetMainSurfID( j );
+
+                vector < double > usplit;
+                vector < double > wsplit;
+
+                vector < SubSurface *> ssvec = geom_vec[i]->GetSubSurfVec();
+
+                if ( m_IGESSplitSubSurfs() )
+                {
+                    for ( int k = 0; k < ssvec.size(); k++ )
+                    {
+                        SubSurface *sub = ssvec[ k ];
+                        if ( sub )
+                        {
+                            if( sub->m_MainSurfIndx() == mainid )
+                            {
+                                if( sub->GetType() == vsp::SS_LINE )
+                                {
+                                    SSLine *subline = (SSLine*) sub;
+
+                                    if( subline->m_ConstType() == SSLine::CONST_U )
+                                    {
+                                        usplit.push_back( subline->m_ConstVal() * surf_vec[j].GetUMax() );
+                                    }
+                                    else
+                                    {
+                                        wsplit.push_back( subline->m_ConstVal() * surf_vec[j].GetWMax()  );
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                surf_vec[j].ToIGES( model, m_IGESSplitSurfs(), m_IGESToCubic(), m_IGESToCubicTol(), m_IGESTrimTE(), usplit, wsplit );
             }
         }
     }

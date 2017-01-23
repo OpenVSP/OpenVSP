@@ -40,12 +40,14 @@ protected:
 
     Choice m_LenUnitChoice;
     ToggleButton m_SplitSurfsToggle;
+    ToggleButton m_SplitSubSurfsToggle;
     ToggleButton m_ToCubicToggle;
     SliderInput m_ToCubicTolSlider;
     ToggleButton m_TrimTEToggle;
 
     int m_PrevUnit;
     bool m_PrevSplit;
+    bool m_PrevSplitSub;
     bool m_PrevCubic;
     double m_PrevToCubicTol;
     bool m_PrevTrimTE;
