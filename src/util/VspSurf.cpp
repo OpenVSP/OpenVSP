@@ -291,7 +291,7 @@ void VspSurf::CreateBodyRevolution( const VspCurve &input_crv )
     ResetUWSkip();
 }
 
-void VspSurf::SkinRibs( const vector<rib_data_type> &ribs, const vector < int > &degree, bool closed_flag )
+void VspSurf::SkinRibs( const vector<rib_data_type> &ribs, const vector < int > &degree, const vector < double > & param, bool closed_flag )
 {
     general_creator_type gc;
     surface_index_type nrib, i;
@@ -315,6 +315,13 @@ void VspSurf::SkinRibs( const vector<rib_data_type> &ribs, const vector < int > 
         printf( "Failure in SkinRibs set_conditions\n" );
     }
 
+    // set the delta u for each surface segment
+    gc.set_u0( param[0] );
+    for ( i = 0; i < gc.get_number_u_segments(); ++i )
+    {
+        gc.set_segment_du( param[i + 1] - param[i], i );
+    }
+
     m_Surface.clear();
     bool creat = gc.create( m_Surface );
 
@@ -325,6 +332,26 @@ void VspSurf::SkinRibs( const vector<rib_data_type> &ribs, const vector < int > 
 
     ResetFlipNormal();
     ResetUWSkip();
+}
+
+void VspSurf::SkinRibs( const vector<rib_data_type> &ribs, const vector < double > & param, bool closed_flag )
+{
+    surface_index_type nrib;
+    nrib = ribs.size();
+    vector< int > degree( nrib - 1, 0 );
+    SkinRibs( ribs, degree, param, closed_flag );
+}
+
+void VspSurf::SkinRibs( const vector<rib_data_type> &ribs, const vector < int > &degree, bool closed_flag )
+{
+    surface_index_type nrib;
+    nrib = ribs.size();
+    vector< double > param( nrib );
+    for ( int i = 0; i < nrib; i++ )
+    {
+        param[i] = 1.0 * i;
+    }
+    SkinRibs( ribs, degree, param, closed_flag );
 }
 
 //==== Interpolate A Set Of Points =====//

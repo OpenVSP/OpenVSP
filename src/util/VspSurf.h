@@ -53,6 +53,8 @@ public:
     // create surface as a body of revolution using the specified curve
     void CreateBodyRevolution( const VspCurve &input_crv );
 
+    void SkinRibs( const vector<rib_data_type> &ribs, const vector < int > &degree, const vector < double > & param, bool closed_flag );
+    void SkinRibs( const vector<rib_data_type> &ribs, const vector < double > & param, bool closed_flag );
     void SkinRibs( const vector<rib_data_type> &ribs, const vector < int > &degree, bool closed_flag );
     void SkinRibs( const vector<rib_data_type> &ribs, bool closed_flag );
 
