@@ -1433,15 +1433,17 @@ void WingGeom::CalculateMeshMetrics()
 {
     // Check dimensional LE/TE first panel width at all hard airfoil sections.
 
-    int nu = m_MainSurfVec[0].GetNumSectU();
-
     std::vector<double> vcheck( 8 );
 
     double vmin, vmax, vle, vlelow, vleup, vtruemax;
+    double umin, umax;
 
     vmin = 0.0;
     vmax = m_MainSurfVec[0].GetWMax();
     vtruemax = vmax;
+
+    umin = 0.0;
+    umax = m_MainSurfVec[0].GetUMax();
 
     vle = ( vmin + vmax ) * 0.5;
 
@@ -1472,10 +1474,8 @@ void WingGeom::CalculateMeshMetrics()
         double v1 = vcheck[ i ];
         double v2 = vcheck[ i + 1 ];
 
-        for ( int j = 0; j <= nu; j++ )
+        for ( double u = umin; u <= umax; u++ )
         {
-            double u = 1.0 * j;
-
             double d = dist( m_MainSurfVec[0].CompPnt( u, v1 ), m_MainSurfVec[0].CompPnt( u, v2 ) );
             mind = min( mind, d );
         }
