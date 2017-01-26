@@ -1202,9 +1202,10 @@ void VspSurf::BuildFeatureLines()
         if ( GetSurfType() == vsp::WING_SURF )
         {
             // Force all patch boundaries in u direction.
-            vector < double > pmap;
-            m_Surface.get_pmap_u( pmap );
-            m_UFeature.insert( m_UFeature.end(), pmap.begin(), pmap.end() );
+            for ( double u = umin; u <= umax; u++ )
+            {
+                m_UFeature.push_back( u );
+            }
         }
 
         // Add start/mid/end curves.
