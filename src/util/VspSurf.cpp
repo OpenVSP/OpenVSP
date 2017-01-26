@@ -701,19 +701,12 @@ void VspSurf::MakeUTess( const vector<int> &num_u, vector<double> &u, const std:
             printf( "Error.  num_u does not match umerge.\n" );
         }
 
-        const int nusect = GetNumSectU();
-
         int sum = 0;
         int nu = 1;
         for ( int i = 0; i < umerge.size(); i++ )
         {
             sum += umerge[i];
             nu += num_u[i] - 1;
-        }
-
-        if ( nusect != sum )
-        {
-            printf( "Error.  umerge does not match nsect.\n" );
         }
 
         int iusect = 0;
@@ -756,9 +749,8 @@ void VspSurf::MakeUTess( const vector<int> &num_u, vector<double> &u, const std:
         surface_index_type i, j, nu;
         double umin, umax;
 
-        const int nusect = GetNumSectU();
+        const int nusect = num_u.size();
 
-        assert( num_u.size() == nusect );
         assert( m_USkip.size() == nusect );
 
         // calculate nu
