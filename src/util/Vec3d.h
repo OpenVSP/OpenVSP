@@ -261,6 +261,7 @@ public:
     friend double tri_tri_min_dist( vec3d & v0, vec3d & v1, vec3d & v2, vec3d & v3, vec3d & v4, vec3d & v5 );
     friend double pnt_tri_min_dist( vec3d & v0, vec3d & v1, vec3d & v2, vec3d & pnt );
 
+    friend vec3d slerp( const vec3d& a, const vec3d& b, const double &t );
 };
 
 double dist( const vec3d& a, const vec3d& b );
@@ -276,6 +277,8 @@ namespace std
 {
 string to_string( const vec3d &v);
 }
+
+vec3d slerp( const vec3d& a, const vec3d& b, const double &t );
 
 #endif
 

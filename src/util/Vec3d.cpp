@@ -1416,3 +1416,35 @@ string to_string( const vec3d &v)
           " z: " + std::to_string( v.z() );
 }
 }
+
+// Spherical linear interpolation between direction vectors.
+// Intermediate vectors follow great circle path with constant velocity.
+vec3d slerp( const vec3d& a, const vec3d& b, const double &t )
+{
+    vec3d an = a / a.mag();
+    vec3d bn = b / b.mag();
+
+    double dp = dot( an, bn );
+
+    double theta = 0.0;
+    if ( dp >= -1.0 && dp <= 1.0 )
+    {
+        theta = acos( dp );
+    }
+
+    // Initialize retvec as a-direction.
+    vec3d retvec = an;
+
+    // If vectors are not parallel, interpolate between them.
+    if ( std::abs( theta ) > 1.0e-6 )
+    {
+        // Drop division by sin(theta) because .normalize() will scale
+        double coeff1 = sin( ( 1.0 - t ) * theta );  // implied  / sin(theta)
+        double coeff2 = sin( t * theta );            // implied  / sin(theta)
+
+        retvec = coeff1 * an + coeff2 * bn;
+        retvec.normalize();
+    }
+
+    return retvec;
+}
