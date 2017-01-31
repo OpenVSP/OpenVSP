@@ -470,14 +470,20 @@ void MeshGeom::WriteStl( FILE* file_id )
 {
     int m;
 
-    for ( m = 0 ; m < ( int )m_TMeshVec.size() ; m++ )
+    if ( m_ViewMeshFlag() )
     {
-        m_TMeshVec[m]->WriteSTLTris( file_id, GetTotalTransMat() );
+        for (m = 0; m < (int) m_TMeshVec.size(); m++)
+        {
+            m_TMeshVec[m]->WriteSTLTris(file_id, GetTotalTransMat());
+        }
     }
 
-    for ( m = 0 ; m < ( int )m_SliceVec.size() ; m++ )
+    if ( m_ViewSliceFlag() )
     {
-        m_SliceVec[m]->WriteSTLTris( file_id, GetTotalTransMat() );
+        for (m = 0; m < (int) m_SliceVec.size(); m++)
+        {
+            m_SliceVec[m]->WriteSTLTris(file_id, GetTotalTransMat());
+        }
     }
 }
 
