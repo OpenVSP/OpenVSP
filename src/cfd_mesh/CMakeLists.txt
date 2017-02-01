@@ -22,7 +22,6 @@ ADD_LIBRARY(cfd_mesh
 BezierCurve.cpp
 CfdMeshMgr.cpp
 FeaMeshMgr.cpp
-FeaPart.cpp
 ICurve.cpp
 IntersectPatch.cpp
 ISegChain.cpp
@@ -35,7 +34,6 @@ Tri.cpp
 BezierCurve.h
 CfdMeshMgr.h
 FeaMeshMgr.h
-FeaPart.h
 ICurve.h
 IntersectPatch.h
 ISegChain.h
