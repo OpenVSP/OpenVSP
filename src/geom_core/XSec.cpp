@@ -296,6 +296,14 @@ void XSec::GetBasis( double t, Matrix4d &basis )
 // Given a position along a curve t, and a desired surfce angle theta, calculate
 // the tangent and normal unit vectors that will be required by the surface
 // skinning algorithm.
+
+// TODO: XSec::GetAngStrCrv and XSec::GetTanNormVec should be refactored
+// such that the core math performed by each is isolated (like GetTanNormVec) and they
+// could be unit tested to behave as perfect inverses of one another.
+//
+// Currently, they appear to give wrong results in cases with nonzero
+// theta and phi.
+
 void XSec::GetTanNormVec( double t, double theta, double phi, vec3d &tangent, vec3d &normal )
 {
     Matrix4d basis;
