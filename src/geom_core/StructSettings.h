@@ -44,81 +44,6 @@ public:
 
     virtual void ParmChanged( Parm* parm_ptr, int type );
 
-    virtual string GetFarGeomID()
-    {
-        return m_FarGeomID;
-    }
-    virtual void SetFarGeomID( string gid )
-    {
-        m_FarGeomID = gid;
-    }
-    virtual bool GetFarMeshFlag()
-    {
-        return m_FarMeshFlag.Get();
-    }
-    virtual void SetFarMeshFlag( bool f )
-    {
-        m_FarMeshFlag = f;
-    }
-    virtual bool GetFarCompFlag()
-    {
-        return m_FarCompFlag.Get();
-    }
-    virtual void SetFarCompFlag( bool f )
-    {
-        m_FarCompFlag = f;
-    }
-    virtual bool GetFarManLocFlag()
-    {
-        return m_FarManLocFlag.Get();
-    }
-    virtual void SetFarManLocFlag( bool f )
-    {
-        m_FarManLocFlag = f;
-    }
-
-    //Symmetry Plane Item Quad BoolParm
-    virtual bool GetSymSplittingOnFlag()
-    {
-        return m_SymSplittingOnFlag.Get();
-    }
-    virtual void SetSymSplittingOnFlag(bool isOn)
-    {
-        m_SymSplittingOnFlag.Set(isOn);
-    }
-
-    virtual bool GetFarAbsSizeFlag()
-    {
-        return m_FarAbsSizeFlag.Get();
-    }
-    virtual void SetFarAbsSizeFlag( bool f )
-    {
-        m_FarAbsSizeFlag = f;
-    }
-    virtual bool GetHalfMeshFlag()
-    {
-        return m_HalfMeshFlag.Get();
-    }
-    virtual void SetHalfMeshFlag( bool f )
-    {
-        m_HalfMeshFlag = f;
-    }
-    virtual void SetWakeScale( double s )
-    {
-        m_WakeScale = s;
-    }
-    virtual double GetWakeScale()
-    {
-        return m_WakeScale();
-    }
-    virtual void SetWakeAngle( double a )
-    {
-        m_WakeAngle = a;
-    }
-    virtual double GetWakeAngle()
-    {
-        return m_WakeAngle();
-    }
     virtual void SetIntersectSubSurfs( bool f )
     {
         m_IntersectSubSurfs = f;
@@ -126,6 +51,15 @@ public:
     virtual bool GetIntersectSubSurfs()
     {
         return m_IntersectSubSurfs();
+    }
+
+    virtual bool GetHalfMeshFlag()
+    {
+        return m_HalfMeshFlag.Get();
+    }
+    virtual void SetHalfMeshFlag( bool f )
+    {
+        m_HalfMeshFlag = f;
     }
 
     string GetExportFileName( int type );
@@ -137,47 +71,15 @@ public:
     void SetAllFileExportFlags( bool flag );
     void SetFileExportFlag( int type, bool flag );
 
-    //Symmetry Plane Boolean Items
-    BoolParm m_SymSplittingOnFlag;
-
-    BoolParm m_FarMeshFlag;
-    BoolParm m_FarCompFlag;
-    BoolParm m_FarManLocFlag;
-    BoolParm m_FarAbsSizeFlag;
-    BoolParm m_HalfMeshFlag;
-
-    string m_FarGeomID;
-
-    FractionParm m_FarXScale;
-    FractionParm m_FarYScale;
-    FractionParm m_FarZScale;
-
-    Parm m_FarLength;
-    Parm m_FarWidth;
-    Parm m_FarHeight;
-
-    Parm m_FarXLocation;
-    Parm m_FarYLocation;
-    Parm m_FarZLocation;
-
-    Parm m_WakeScale;
-    Parm m_WakeAngle;
-
     BoolParm m_DrawMeshFlag;
-    BoolParm m_DrawSourceFlag;
-    BoolParm m_DrawFarFlag;
-    BoolParm m_DrawFarPreFlag;
     BoolParm m_DrawBadFlag;
-    BoolParm m_DrawSymmFlag;
-    BoolParm m_DrawWakeFlag;
     BoolParm m_ColorTagsFlag;
 
     BoolParm m_IntersectSubSurfs;
 
-    IntParm m_SelectedSetIndex;
+    BoolParm m_HalfMeshFlag;
 
     BoolParm m_ExportFileFlags[vsp::NUM_FEA_FILE_NAMES];
-    BoolParm m_XYZIntCurveFlag;
 
 protected:
 

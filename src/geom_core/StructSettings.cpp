@@ -27,61 +27,14 @@ StructSettings::StructSettings() : ParmContainer()
 {
     m_Name = "StructSettings";
 
-    m_DrawMeshFlag.Init( "DrawMesh", "DrawCFD", this, true, 0, 1 );
-    m_DrawSourceFlag.Init( "DrawSourceWake", "DrawCFD", this, true, 0, 1 );
-    m_DrawFarFlag.Init( "DrawFarField", "DrawCFD", this, true, 0, 1 );
-    m_DrawFarPreFlag.Init( "DrawFarFieldPreview", "DrawCFD", this, true, 0, 1 );
-    m_DrawBadFlag.Init( "DrawBadMeshElements", "DrawCFD", this, true, 0, 1 );
-    m_DrawSymmFlag.Init( "DrawSymmetryPlane", "DrawCFD", this, true, 0, 1 );
-    m_DrawWakeFlag.Init( "DrawWake", "DrawCFD", this, true, 0, 1 );
-    m_ColorTagsFlag.Init( "ColorTagsFlag", "DrawCFD", this, true, 0, 1 );
-
-    m_HalfMeshFlag.Init( "HalfMesh", "FarField", this, false, 0, 1 );
-    m_FarCompFlag.Init( "FarComp", "FarField", this, false, 0, 1 );
-    m_FarMeshFlag.Init( "FarMesh", "FarField", this, false, 0, 1 );
-
-    //Symmetry Plane Splitting Default Value: OFF
-    m_SymSplittingOnFlag.Init( "SymmetrySplitting", "FarField", this, false, 0, 1);
-
-    m_FarManLocFlag.Init( "FarManualLoc", "FarField", this, false, 0, 1 );
-    m_FarAbsSizeFlag.Init( "FarAbsSize", "FarField", this, false, 0, 1 );
-
-    m_FarXScale.Init( "FarXScale", "FarField", this, 4.0, 1.0, 1.0e12 );
-    m_FarXScale.SetDescript( "Far field X scale" );
-
-    m_FarYScale.Init( "FarYScale", "FarField", this, 4.0, 1.0, 1.0e12 );
-    m_FarYScale.SetDescript( "Far field Y scale" );
-
-    m_FarZScale.Init( "FarZScale", "FarField", this, 4.0, 1.0, 1.0e12 );
-    m_FarZScale.SetDescript( "Far field Z scale" );
-
-    m_FarLength.Init( "FarLength", "FarField", this, 4.0, 1.1, 1.0e12 );
-    m_FarLength.SetDescript( "Far field length" );
-    m_FarWidth.Init( "FarWidth", "FarField", this, 4.0, 1.0, 1.0e12 );
-    m_FarWidth.SetDescript( "Far field width" );
-    m_FarHeight.Init( "FarHeight", "FarField", this, 4.0, 1.1, 1.0e12 );
-    m_FarHeight.SetDescript( "Far field height" );
-
-    m_FarXLocation.Init( "FarXLocation", "FarField", this, 0.0, -1.0e12, 1.0e12 );
-    m_FarXLocation.SetDescript( "Far field X location" );
-
-    m_FarYLocation.Init( "FarYLocation", "FarField", this, 0.0, -1.0e12, 1.0e12 );
-    m_FarYLocation.SetDescript( "Far field Y location" );
-
-    m_FarZLocation.Init( "FarZLocation", "FarField", this, 0.0, -1.0e12, 1.0e12 );
-    m_FarZLocation.SetDescript( "Far field Z location" );
-
-    m_WakeScale.Init( "WakeScale", "Wake", this, 2.0, 1.0, 1.0e12 );
-    m_WakeScale.SetDescript( "Wake length scale" );
-
-    m_WakeAngle.Init( "WakeAngle", "Wake", this, 0.0, -90.0, 90.0 );
-    m_WakeAngle.SetDescript( "Wake angle" );
+    m_DrawMeshFlag.Init( "DrawMesh", "DrawFea", this, true, 0, 1 );
+    m_DrawBadFlag.Init( "DrawBadMeshElements", "DrawFea", this, true, 0, 1 );
+    m_ColorTagsFlag.Init( "ColorTagsFlag", "DrawFea", this, true, 0, 1 );
 
     m_IntersectSubSurfs.Init( "IntersectSubSurfs", "Global", this, true, 0, 1 );
     m_IntersectSubSurfs.SetDescript( "Flag to intersect subsurfaces" );
 
-    m_SelectedSetIndex.Init( "Set", "Global", this, 0, 0, 12 );
-    m_SelectedSetIndex.SetDescript( "Selected set for operation" );
+    m_HalfMeshFlag.Init( "HalfMesh", "FarField", this, false, 0, 1 );
 
     m_ExportFileFlags[ vsp::MASS_FILE_NAME ].Init( "MASS_Export", "ExportFEA", this, true, 0, 1 );
     m_ExportFileFlags[ vsp::NASTRAN_FILE_NAME ].Init( "NASTRAN_Export", "ExportFEA", this, true, 0, 1 );
@@ -89,7 +42,6 @@ StructSettings::StructSettings() : ParmContainer()
     m_ExportFileFlags[ vsp::THICK_FILE_NAME ].Init( "THICK_Export", "ExportFEA", this, true, 0, 1 );
     m_ExportFileFlags[ vsp::STL_FEA_NAME ].Init( "STL_Export", "ExportFEA", this, true, 0, 1 );
 
-    m_XYZIntCurveFlag.Init( "SRF_XYZIntCurve", "ExportCFD", this, false, 0, 1 );
 }
 
 StructSettings::~StructSettings()
@@ -102,8 +54,6 @@ xmlNodePtr StructSettings::EncodeXml( xmlNodePtr & node )
 
     ParmContainer::EncodeXml( cfdsetnode );
 
-    XmlUtil::AddStringNode( cfdsetnode, "FarFieldGeomID", m_FarGeomID );
-
     return cfdsetnode;
 }
 
@@ -113,7 +63,6 @@ xmlNodePtr StructSettings::DecodeXml( xmlNodePtr & node )
     if ( cfdsetnode )
     {
         ParmContainer::DecodeXml( cfdsetnode );
-        m_FarGeomID   = XmlUtil::FindString( cfdsetnode, "FarFieldGeomID", m_FarGeomID );
     }
 
     return cfdsetnode;
