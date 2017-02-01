@@ -40,7 +40,6 @@ DesignVarScreen.cpp
 DXFOptionsScreen.cpp
 EllipsoidScreen.cpp
 ExportScreen.cpp
-FeaStructScreen.cpp
 FitModelScreen.cpp
 FuselageScreen.cpp
 GroupLayout.cpp
@@ -108,7 +107,6 @@ DesignVarScreen.h
 DXFOptionsScreen.h
 ExportScreen.h
 EllipsoidScreen.h
-FeaStructScreen.h
 FitModelScreen.h
 FuselageScreen.h
 GroupLayout.h

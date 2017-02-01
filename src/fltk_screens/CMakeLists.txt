@@ -7,7 +7,6 @@ SET(SCREENS_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR} CACHE PATH "Path to FLTK gen
 FLTK_WRAP_UI( screens
 aboutScreen.fl
 curveEditFlScreen.fl
-feaStructFlScreen.fl
 massPropFlScreen.fl
 parmFlScreen.fl
 pickSetFlScreen.fl
