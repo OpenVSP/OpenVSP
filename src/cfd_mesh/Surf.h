@@ -129,6 +129,22 @@ public:
     {
         return m_MainSurfID;
     }
+    void SetFeaPartType( int type )
+    {
+        m_FeaPartType = type;
+    }
+    int  GetFeaPartType()
+    {
+        return m_FeaPartType;
+    }
+    void SetFeaPartID( string id )
+    {
+        m_FeaPartID = id;
+    }
+    string  GetFeaPartID()
+    {
+        return m_FeaPartID;
+    }
 
     void Draw();
 
@@ -275,6 +291,9 @@ protected:
     bool m_ScaleUFlag;
     vector< double > m_UScaleMap;
     vector< double > m_WScaleMap;
+
+    int m_FeaPartType;
+    string m_FeaPartID;
 
 };
 
