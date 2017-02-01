@@ -328,6 +328,14 @@ enum SUBSURF_INOUT { INSIDE,
                      OUTSIDE
                    };
 
+enum FEA_STRUCT_TYPE { FEA_RIB,
+                       FEA_SPAR,
+                       FEA_FIX_POINT,
+                       FEA_STIFFENER,
+                       FEA_SUB_SURF,
+                       FEA_SKIN,
+                       FEA_NUM_TYPES };
+
 enum WING_DRIVERS { AR_WSECT_DRIVER,
                     SPAN_WSECT_DRIVER,
                     AREA_WSECT_DRIVER,
