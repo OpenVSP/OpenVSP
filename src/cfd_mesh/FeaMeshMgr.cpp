@@ -3,384 +3,339 @@
 // version 1.3 as detailed in the LICENSE file which accompanies this software.
 //
 
-// FeaMeshMgr
+// FeaMeshMgr.cpp
 //
 //////////////////////////////////////////////////////////////////////
 
 #include "FeaMeshMgr.h"
-// #include "FeaStructScreen.h"
-// #include "ScreenMgr.h"
 #include "Util.h"
-
+#include "APIDefines.h"
+#include "SubSurfaceMgr.h"
+#include "StructureMgr.h"
 
 //=============================================================//
 //=============================================================//
-WingSection::WingSection()
-{
-    m_UpperSurfPtr = NULL;
-    m_LowerSurfPtr = NULL;
-}
 
-WingSection::~WingSection()
-{
-}
-
-
-void WingSection::BuildClean()
-{
-    if ( m_UpperSurfPtr )
-    {
-        m_UpperSurfPtr->BuildClean();
-    }
-    if ( m_LowerSurfPtr )
-    {
-        m_LowerSurfPtr->BuildClean();
-    }
-}
-
-void WingSection::WriteData( xmlNodePtr root )
-{
-    int i;
-
-    //===== Ribs =====//
-    xmlNodePtr rib_list_node = xmlNewChild( root, NULL, ( const xmlChar * )"Rib_List", NULL );
-    for ( i = 0 ; i < ( int )m_RibVec.size() ; i++ )
-    {
-        xmlNodePtr rib_node = xmlNewChild( rib_list_node, NULL, ( const xmlChar * )"Rib", NULL );
-        XmlUtil::AddIntNode( rib_node, "SectionID",      m_RibVec[i]->m_SectID );
-        XmlUtil::AddDoubleNode( rib_node, "PerSpan",     m_RibVec[i]->m_PerSpan() );
-        XmlUtil::AddDoubleNode( rib_node, "Sweep",     m_RibVec[i]->m_Sweep() );
-        XmlUtil::AddIntNode( rib_node, "AbsSweepFlag",   m_RibVec[i]->m_AbsSweepFlag() );
-        XmlUtil::AddIntNode( rib_node, "TrimFlag",   m_RibVec[i]->m_TrimFlag() );
-        XmlUtil::AddDoubleNode( rib_node, "Thick",     m_RibVec[i]->m_Thick() );
-        XmlUtil::AddDoubleNode( rib_node, "Density",     m_RibVec[i]->m_Density() );
-    }
-
-    //===== Spars =====//
-    xmlNodePtr spar_list_node = xmlNewChild( root, NULL, ( const xmlChar * )"Spar_List", NULL );
-    for ( i = 0 ; i < ( int )m_SparVec.size() ; i++ )
-    {
-        xmlNodePtr spar_node = xmlNewChild( spar_list_node, NULL, ( const xmlChar * )"Spar", NULL );
-        XmlUtil::AddIntNode( spar_node, "SectionID",      m_SparVec[i]->m_SectID );
-        XmlUtil::AddDoubleNode( spar_node, "PerChord",     m_SparVec[i]->m_PerChord() );
-        XmlUtil::AddDoubleNode( spar_node, "Sweep",     m_SparVec[i]->m_Sweep() );
-        XmlUtil::AddIntNode( spar_node, "AbsSweepFlag",   m_SparVec[i]->m_AbsSweepFlag() );
-        XmlUtil::AddIntNode( spar_node, "TrimFlag",   m_SparVec[i]->m_TrimFlag() );
-        XmlUtil::AddDoubleNode( spar_node, "Thick",     m_SparVec[i]->m_Thick() );
-        XmlUtil::AddDoubleNode( spar_node, "Density",     m_SparVec[i]->m_Density() );
-    }
-
-    //===== Skins =====//
-    xmlNodePtr upper_skin_node = xmlNewChild( root, NULL, ( const xmlChar * )"Upper_Skin", NULL );
-    m_UpperSkin.WriteData( upper_skin_node );
-
-    xmlNodePtr lower_skin_node = xmlNewChild( root, NULL, ( const xmlChar * )"Lower_Skin", NULL );
-    m_LowerSkin.WriteData( lower_skin_node );
-
-
-}
-
-void WingSection::ReadData( xmlNodePtr root )
-{
-    //===== Ribs =====//
-    for ( int i = 0 ; i < ( int )m_RibVec.size() ; i++ )
-    {
-        delete m_RibVec[i];
-    }
-    m_RibVec.clear();
-
-    xmlNodePtr rib_list_node = XmlUtil::GetNode( root, "Rib_List", 0 );
-    if ( rib_list_node )
-    {
-        int num_ribs =  XmlUtil::GetNumNames( rib_list_node, "Rib" );
-        for ( int i = 0 ; i < num_ribs ; i++ )
-        {
-            xmlNodePtr rib_node = XmlUtil::GetNode( rib_list_node, "Rib", i );
-            if ( rib_node )
-            {
-                FeaRib* rib = new FeaRib();
-                rib->m_SectID = XmlUtil::FindInt( rib_node, "SectionID", 0 );
-                rib->m_PerSpan = XmlUtil::FindDouble( rib_node, "PerSpan", 0.5 );
-                rib->m_Sweep   = XmlUtil::FindDouble( rib_node, "Sweep", 0.0 );
-                rib->m_AbsSweepFlag = ( XmlUtil::FindInt( rib_node, "AbsSweepFlag", 1 ) != 0 ); // Bool
-                rib->m_TrimFlag     = ( XmlUtil::FindInt( rib_node, "TrimFlag", 1 ) != 0 );
-                rib->m_Thick   = XmlUtil::FindDouble( rib_node, "Thick", 0.1 );
-                rib->m_Density = XmlUtil::FindDouble( rib_node, "Density", 1.0 );
-                m_RibVec.push_back( rib );
-            }
-        }
-    }
-
-    //===== Spars =====//
-    for ( int i = 0 ; i < ( int )m_SparVec.size() ; i++ )
-    {
-        delete m_SparVec[i];
-    }
-    m_SparVec.clear();
-
-    xmlNodePtr spar_list_node = XmlUtil::GetNode( root, "Spar_List", 0 );
-    if ( spar_list_node )
-    {
-        int num_spars =  XmlUtil::GetNumNames( spar_list_node, "Spar" );
-        for ( int i = 0 ; i < num_spars ; i++ )
-        {
-            xmlNodePtr spar_node = XmlUtil::GetNode( spar_list_node, "Spar", i );
-            if ( spar_node )
-            {
-                FeaSpar* spar = new FeaSpar();
-                spar->m_SectID = XmlUtil::FindInt( spar_node, "SectionID", 0 );
-                spar->m_PerChord = XmlUtil::FindDouble( spar_node, "PerChord", 0.5 );
-                spar->m_Sweep   = XmlUtil::FindDouble( spar_node, "Sweep", 0.0 );
-                spar->m_AbsSweepFlag = ( XmlUtil::FindInt( spar_node, "AbsSweepFlag", 1 ) != 0 );
-                spar->m_TrimFlag     = ( XmlUtil::FindInt( spar_node, "TrimFlag", 1 ) != 0 );
-                spar->m_Thick   = XmlUtil::FindDouble( spar_node, "Thick", 0.1 );
-                spar->m_Density = XmlUtil::FindDouble( spar_node, "Density", 1.0 );
-                m_SparVec.push_back( spar );
-            }
-        }
-    }
-
-    //===== Skins =====//
-    xmlNodePtr upper_skin_node = XmlUtil::GetNode( root, "Upper_Skin", 0 );
-    if ( upper_skin_node )
-    {
-        m_UpperSkin.ReadData( upper_skin_node );
-    }
-
-    xmlNodePtr lower_skin_node = XmlUtil::GetNode( root, "Lower_Skin", 0 );
-    if ( lower_skin_node )
-    {
-        m_LowerSkin.ReadData( lower_skin_node );
-    }
-
-}
-
-
-void WingSection::Load( Surf* upper_surf, Surf* lower_surf )
-{
-    int i, e;
-    vec2d uw;
-    vec3d pnt;
-
-    m_UpperSurfPtr = upper_surf;
-    m_LowerSurfPtr = lower_surf;
-
-    m_UpperSkin.SetSurf( upper_surf );
-    m_UpperSkin.SetWingSection( this );
-    m_LowerSkin.SetSurf( lower_surf );
-    m_LowerSkin.SetWingSection( this );
-
-    //==== Load Corner Pnts ====//
-    m_CornerPnts[UW00] = upper_surf->GetSurfCore()->CompPnt01( 0, 0 ); // Inner TE
-    m_CornerPnts[UW10] = upper_surf->GetSurfCore()->CompPnt01( 1, 0 );  // Outer TE
-    m_CornerPnts[UW01] = upper_surf->GetSurfCore()->CompPnt01( 0, 1 ); // Inner LE
-    m_CornerPnts[UW11] = upper_surf->GetSurfCore()->CompPnt01( 1, 1 );  // Outer LE
-
-    //==== Compute Section Normal =====//
-    vec3d vchd = m_CornerPnts[UW00] - m_CornerPnts[UW01];
-    vec3d vle  = m_CornerPnts[UW11] - m_CornerPnts[UW01];
-    m_Normal = cross( vchd, vle );
-    m_Normal.normalize();
-
-    //==== Find Normal to Chord Line ====//
-    m_ChordNormal = cross( m_Normal, vchd  );
-    m_ChordNormal.normalize();
-
-    //==== Find Sweep Angle of LE ====//
-    m_SweepLE = RAD_2_DEG * signed_angle( m_ChordNormal, vle, m_Normal * -1.0 );
-
-    //==== Load UW Pnts ====//
-    int num_pnts = 101;
-    for ( i = 0 ; i < num_pnts ; i++ )
-    {
-        double fract = ( double )i / ( double )( num_pnts - 1 );
-        m_Edges[LE].m_UWVec.push_back( vec2d( fract, 1 ) );
-        m_Edges[TE].m_UWVec.push_back( vec2d( fract, 0 ) );
-        m_Edges[IN_CHORD].m_UWVec.push_back( vec2d( 0, fract ) );
-        m_Edges[OUT_CHORD].m_UWVec.push_back( vec2d( 1, fract ) );
-    }
-
-    //==== Load 3D Pnts ====//
-    for ( e = 0 ; e < NUM_EDGES ; e++ )
-    {
-        for ( i = 0 ; i < num_pnts ; i++ )
-        {
-            uw  = m_Edges[e].m_UWVec[i];
-            pnt = upper_surf->GetSurfCore()->CompPnt01( uw[0], uw[1] );
-            m_Edges[e].m_PntVec.push_back( pnt );
-        }
-    }
-
-    //==== Load Line Proj Dist Fract ====//
-    for ( e = 0 ; e < NUM_EDGES ; e++ )
-    {
-        vec3d lp0 = m_Edges[e].m_PntVec[0];
-        vec3d lp1 = m_Edges[e].m_PntVec.back();
-        double line_dist = dist( lp0, lp1 );
-        for ( i = 0 ; i < num_pnts ; i++ )
-        {
-            vec3d proj_pnt = proj_pnt_on_line( lp0, lp1, m_Edges[e].m_PntVec[i] );
-            double ldf = dist( proj_pnt, lp0 );
-            if ( line_dist > DBL_EPSILON )
-            {
-                ldf = ldf / line_dist;
-            }
-
-            m_Edges[e].m_LineFractVec.push_back( ldf );
-        }
-    }
-}
-
-vec2d WingSection::GetUW( int edge_id, double fract )
-{
-    assert( edge_id >= 0 && edge_id < NUM_EDGES );
-
-    SectionEdge* se = &m_Edges[edge_id];
-    assert( se->m_LineFractVec.size() >= 2 );
-
-    if ( fract <= 0.0 )
-    {
-        return se->m_UWVec[0];
-    }
-
-    for ( int i = 0 ; i < ( int )se->m_LineFractVec.size() - 1 ; i++ )
-    {
-        if ( fract >= se->m_LineFractVec[i] && fract <= se->m_LineFractVec[i + 1] )
-        {
-            double denom = se->m_LineFractVec[i + 1] - se->m_LineFractVec[i];
-            double uw_fract = 0.0;
-            if ( denom > DBL_EPSILON )
-            {
-                uw_fract = ( fract - se->m_LineFractVec[i] ) / denom;
-            }
-
-            vec2d uw = se->m_UWVec[i] + ( se->m_UWVec[i + 1] - se->m_UWVec[i] ) * uw_fract;
-            return uw;
-        }
-    }
-    return se->m_UWVec.back();
-}
-
-vec3d WingSection::CompPnt( int edge_id, double fract )
-{
-    vec2d uw = GetUW( edge_id, fract );
-    vec3d p = m_UpperSurfPtr->GetSurfCore()->CompPnt01( uw[0], uw[1] );
-    return p;
-}
-
-bool WingSection::IntersectPlaneEdge( int edge_id, vec3d & orig, vec3d & norm, vec2d & result )
-{
-    assert( edge_id >= 0 && edge_id < NUM_EDGES );
-
-    SectionEdge* se = &m_Edges[edge_id];
-    assert( se->m_PntVec.size() >= 2 );
-
-    for ( int i = 0 ; i < ( int )se->m_PntVec.size() - 1 ; i++ )
-    {
-        int side1 = plane_half_space( orig, norm, se->m_PntVec[i] );
-        int side2 = plane_half_space( orig, norm, se->m_PntVec[i + 1] );
-
-        if ( side1 != side2 )
-        {
-            double t;
-            vec3d rayvec = se->m_PntVec[i + 1] - se->m_PntVec[i];
-            int valid = plane_ray_intersect( orig, norm, se->m_PntVec[i], rayvec, t );
-            if ( valid )
-            {
-                result = se->m_UWVec[i] + ( se->m_UWVec[i + 1] - se->m_UWVec[i] ) * t;
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
-void WingSection::ComputePerSpanChord( vec3d & pnt, double* per_span, double* per_chord )
-{
-    //==== Find Distance to Inside  Chord ====//
-    double d = dist_pnt_2_line( m_CornerPnts[UW01], m_CornerPnts[UW00], pnt );
-    double denom = dist_pnt_2_line( m_CornerPnts[UW01], m_CornerPnts[UW00], m_CornerPnts[UW11] );
-
-    *per_span = 0.0;
-    if ( denom > DBL_EPSILON )
-    {
-        *per_span = d / denom;
-    }
-
-    //==== Find Intersection of Projected Chordline ===//
-    vec3d dir = m_CornerPnts[UW01] - m_CornerPnts[UW00];
-    vec3d poff = pnt + dir;
-
-    double s, t;
-    bool valid = line_line_intersect( pnt, poff, m_CornerPnts[UW01], m_CornerPnts[UW11], &s, &t );
-    vec3d ple = m_CornerPnts[UW01];
-    if ( valid )
-    {
-        ple = m_CornerPnts[UW01] + ( m_CornerPnts[UW11] - m_CornerPnts[UW01] ) * t;
-    }
-
-
-    valid = line_line_intersect( pnt, poff, m_CornerPnts[UW00], m_CornerPnts[UW10], &s, &t );
-    vec3d pte = m_CornerPnts[UW00];
-    if ( valid )
-    {
-        pte = m_CornerPnts[UW00] + ( m_CornerPnts[UW10] - m_CornerPnts[UW00] ) * t;
-    }
-
-    d = dist( ple, pnt );
-    denom = dist( ple, pte );
-    *per_chord = 0.0;
-    if ( denom > DBL_EPSILON )
-    {
-        *per_chord = d / denom;
-    }
-
-}
-//
-//void WingSection::Draw( bool highlight )
+//FeaGeom::FeaGeom()
 //{
-//  //if ( highlight )
-//  //{
-//  //  glColor3ub( 255, 0, 255 );
-//  //  glLineStipple( 1, 0x000F );
-//  //  glLineWidth( 2.0 );
-//  //  glEnable(GL_LINE_STIPPLE);
-//  //}
-//  //else
-//  //{
-//  //  glColor3ub( 150, 150, 150 );
-//  //  glLineStipple( 1, 0x000F );
-//  //  glLineWidth( 1.0 );
-//  //  glEnable(GL_LINE_STIPPLE);
-//  //}
+//    m_GeomSurfPtr = NULL;
+//}
 //
-//  //glBegin( GL_LINE_LOOP );
+//FeaGeom::~FeaGeom()
+//{
+//}
 //
-//  //glVertex3dv( m_CornerPnts[UW00].data() );
-//  //glVertex3dv( m_CornerPnts[UW10].data() );
-//  //glVertex3dv( m_CornerPnts[UW11].data() );
-//  //glVertex3dv( m_CornerPnts[UW01].data() );
 //
-//  //glEnd();
-//  //glDisable(GL_LINE_STIPPLE);
+//void FeaGeom::BuildClean()
+//{
+//    if ( m_GeomSurfPtr )
+//    {
+//        m_GeomSurfPtr->BuildClean();
+//    }
+//}
+
+//void WingSection::WriteData( xmlNodePtr root )
+//{
+//    int i;
 //
-//  if ( highlight )
-//  {
-//      glColor4ub( 220, 220, 220, 240 );
-//  }
-//  else
-//  {
-//      glColor4ub( 170, 170, 170, 240 );
-//  }
+//    //===== Ribs =====//
+//    xmlNodePtr rib_list_node = xmlNewChild( root, NULL, ( const xmlChar * )"Rib_List", NULL );
+//    for ( i = 0 ; i < ( int )m_RibVec.size() ; i++ )
+//    {
+//        xmlNodePtr rib_node = xmlNewChild( rib_list_node, NULL, ( const xmlChar * )"Rib", NULL );
+//        XmlUtil::AddIntNode( rib_node, "SectionID",      m_RibVec[i]->m_SectID );
+//        XmlUtil::AddDoubleNode( rib_node, "PerSpan",     m_RibVec[i]->m_PerSpan() );
+//        XmlUtil::AddDoubleNode( rib_node, "Sweep",     m_RibVec[i]->m_Sweep() );
+//        XmlUtil::AddIntNode( rib_node, "AbsSweepFlag",   m_RibVec[i]->m_AbsSweepFlag() );
+//        XmlUtil::AddIntNode( rib_node, "TrimFlag",   m_RibVec[i]->m_TrimFlag() );
+//        XmlUtil::AddDoubleNode( rib_node, "Thick",     m_RibVec[i]->m_Thick() );
+//        XmlUtil::AddDoubleNode( rib_node, "Density",     m_RibVec[i]->m_Density() );
+//    }
 //
-//  glBegin( GL_POLYGON );
+//    //===== Spars =====//
+//    xmlNodePtr spar_list_node = xmlNewChild( root, NULL, ( const xmlChar * )"Spar_List", NULL );
+//    for ( i = 0 ; i < ( int )m_SparVec.size() ; i++ )
+//    {
+//        xmlNodePtr spar_node = xmlNewChild( spar_list_node, NULL, ( const xmlChar * )"Spar", NULL );
+//        XmlUtil::AddIntNode( spar_node, "SectionID",      m_SparVec[i]->m_SectID );
+//        XmlUtil::AddDoubleNode( spar_node, "PerChord",     m_SparVec[i]->m_PerChord() );
+//        XmlUtil::AddDoubleNode( spar_node, "Sweep",     m_SparVec[i]->m_Sweep() );
+//        XmlUtil::AddIntNode( spar_node, "AbsSweepFlag",   m_SparVec[i]->m_AbsSweepFlag() );
+//        XmlUtil::AddIntNode( spar_node, "TrimFlag",   m_SparVec[i]->m_TrimFlag() );
+//        XmlUtil::AddDoubleNode( spar_node, "Thick",     m_SparVec[i]->m_Thick() );
+//        XmlUtil::AddDoubleNode( spar_node, "Density",     m_SparVec[i]->m_Density() );
+//    }
 //
-//  glVertex3dv( m_CornerPnts[UW00].data() );
-//  glVertex3dv( m_CornerPnts[UW10].data() );
-//  glVertex3dv( m_CornerPnts[UW11].data() );
-//  glVertex3dv( m_CornerPnts[UW01].data() );
+//    //===== Skins =====//
+//    xmlNodePtr upper_skin_node = xmlNewChild( root, NULL, ( const xmlChar * )"Upper_Skin", NULL );
+//    m_UpperSkin.WriteData( upper_skin_node );
 //
-//  glEnd();
+//    xmlNodePtr lower_skin_node = xmlNewChild( root, NULL, ( const xmlChar * )"Lower_Skin", NULL );
+//    m_LowerSkin.WriteData( lower_skin_node );
+//
+//
+//}
+//
+//void WingSection::ReadData( xmlNodePtr root )
+//{
+//    //===== Ribs =====//
+//    for ( int i = 0 ; i < ( int )m_RibVec.size() ; i++ )
+//    {
+//        delete m_RibVec[i];
+//    }
+//    m_RibVec.clear();
+//
+//    xmlNodePtr rib_list_node = XmlUtil::GetNode( root, "Rib_List", 0 );
+//    if ( rib_list_node )
+//    {
+//        int num_ribs =  XmlUtil::GetNumNames( rib_list_node, "Rib" );
+//        for ( int i = 0 ; i < num_ribs ; i++ )
+//        {
+//            xmlNodePtr rib_node = XmlUtil::GetNode( rib_list_node, "Rib", i );
+//            if ( rib_node )
+//            {
+//                FeaRib* rib = new FeaRib();
+//                rib->m_SectID = XmlUtil::FindInt( rib_node, "SectionID", 0 );
+//                rib->m_PerSpan = XmlUtil::FindDouble( rib_node, "PerSpan", 0.5 );
+//                rib->m_Sweep   = XmlUtil::FindDouble( rib_node, "Sweep", 0.0 );
+//                rib->m_AbsSweepFlag = ( XmlUtil::FindInt( rib_node, "AbsSweepFlag", 1 ) != 0 ); // Bool
+//                rib->m_TrimFlag     = ( XmlUtil::FindInt( rib_node, "TrimFlag", 1 ) != 0 );
+//                rib->m_Thick   = XmlUtil::FindDouble( rib_node, "Thick", 0.1 );
+//                rib->m_Density = XmlUtil::FindDouble( rib_node, "Density", 1.0 );
+//                m_RibVec.push_back( rib );
+//            }
+//        }
+//    }
+//
+//    //===== Spars =====//
+//    for ( int i = 0 ; i < ( int )m_SparVec.size() ; i++ )
+//    {
+//        delete m_SparVec[i];
+//    }
+//    m_SparVec.clear();
+//
+//    xmlNodePtr spar_list_node = XmlUtil::GetNode( root, "Spar_List", 0 );
+//    if ( spar_list_node )
+//    {
+//        int num_spars =  XmlUtil::GetNumNames( spar_list_node, "Spar" );
+//        for ( int i = 0 ; i < num_spars ; i++ )
+//        {
+//            xmlNodePtr spar_node = XmlUtil::GetNode( spar_list_node, "Spar", i );
+//            if ( spar_node )
+//            {
+//                FeaSpar* spar = new FeaSpar();
+//                spar->m_SectID = XmlUtil::FindInt( spar_node, "SectionID", 0 );
+//                spar->m_PerChord = XmlUtil::FindDouble( spar_node, "PerChord", 0.5 );
+//                spar->m_Sweep   = XmlUtil::FindDouble( spar_node, "Sweep", 0.0 );
+//                spar->m_AbsSweepFlag = ( XmlUtil::FindInt( spar_node, "AbsSweepFlag", 1 ) != 0 );
+//                spar->m_TrimFlag     = ( XmlUtil::FindInt( spar_node, "TrimFlag", 1 ) != 0 );
+//                spar->m_Thick   = XmlUtil::FindDouble( spar_node, "Thick", 0.1 );
+//                spar->m_Density = XmlUtil::FindDouble( spar_node, "Density", 1.0 );
+//                m_SparVec.push_back( spar );
+//            }
+//        }
+//    }
+//
+//    //===== Skins =====//
+//    xmlNodePtr upper_skin_node = XmlUtil::GetNode( root, "Upper_Skin", 0 );
+//    if ( upper_skin_node )
+//    {
+//        m_UpperSkin.ReadData( upper_skin_node );
+//    }
+//
+//    xmlNodePtr lower_skin_node = XmlUtil::GetNode( root, "Lower_Skin", 0 );
+//    if ( lower_skin_node )
+//    {
+//        m_LowerSkin.ReadData( lower_skin_node );
+//    }
+//
+//}
+//
+//
+//void FeaGeom::Load( Surf* surf )
+//{
+//    // TODO: Fix this function. Currently all points are the same in m_Edge
+//
+//    int i, e;
+//    vec2d uw;
+//    vec3d pnt;
+//
+//    m_GeomSurfPtr = surf;
+//
+//    //m_TotalSkin.SetSurf( surf );
+//    //m_TotalSkin.SetWingSection( this );
+//
+//    double minu = surf->GetSurfCore()->GetMinU();
+//    double minw = surf->GetSurfCore()->GetMinW();
+//    double maxu = surf->GetSurfCore()->GetMaxU();
+//    double maxw = surf->GetSurfCore()->GetMaxW();
+//
+//    //==== Load Corner Pnts ====//
+//    m_CornerPnts[UW00] = surf->GetSurfCore()->CompPnt( minu, minw ); // Inner TE
+//    m_CornerPnts[UW10] = surf->GetSurfCore()->CompPnt( maxu, minw );  // Outer TE
+//    m_CornerPnts[UW01] = surf->GetSurfCore()->CompPnt( minu, maxw ); // Inner LE
+//    m_CornerPnts[UW11] = surf->GetSurfCore()->CompPnt( maxu, maxw );  // Outer LE
+//
+//    //==== Compute Surface Normal =====//
+//    //vec3d vchd = m_CornerPnts[UW00] - m_CornerPnts[UW01];
+//    //vec3d vle  = m_CornerPnts[UW11] - m_CornerPnts[UW01];
+//    //m_Normal = cross( vchd, vle );
+//    //m_Normal.normalize();
+//
+//    //==== Find Normal to Chord Line ====//
+//    //m_OutNormal = cross( m_Normal, vchd  );
+//    //m_OutNormal.normalize();
+//
+//    //==== Find Sweep Angle of LE ====//
+//    //m_SweepLE = RAD_2_DEG * signed_angle( m_ChordNormal, vle, m_Normal * -1.0 );
+//
+//    //==== Load UW Pnts ====//
+//    int num_pnts = 101;
+//    for ( i = 0 ; i < num_pnts ; i++ )
+//    {
+//        double fract = ( double )i / ( double )( num_pnts - 1 );
+//        m_Edges[LEADEDGE].m_UWVec.push_back( vec2d( fract, 1 ) );
+//        m_Edges[TRAILEDGE].m_UWVec.push_back( vec2d( fract, 0 ) );
+//        m_Edges[INNERSIDE].m_UWVec.push_back( vec2d( 0, fract ) );
+//        m_Edges[OUTERSIDE].m_UWVec.push_back( vec2d( 1, fract ) );
+//    }
+//
+//    //==== Load 3D Pnts ====//
+//    for ( e = 0 ; e < NUM_EDGES ; e++ )
+//    {
+//        for ( i = 0 ; i < num_pnts ; i++ )
+//        {
+//            uw  = m_Edges[e].m_UWVec[i];
+//            pnt = surf->GetSurfCore()->CompPnt01( uw[0], uw[1] );
+//            m_Edges[e].m_PntVec.push_back( pnt );
+//        }
+//    }
+//
+//    //==== Load Line Proj Dist Fract ====//
+//    for ( e = 0 ; e < NUM_EDGES ; e++ )
+//    {
+//        vec3d lp0 = m_Edges[e].m_PntVec[0];
+//        vec3d lp1 = m_Edges[e].m_PntVec.back();
+//        double line_dist = dist( lp0, lp1 );
+//        for ( i = 0 ; i < num_pnts ; i++ )
+//        {
+//            vec3d proj_pnt = proj_pnt_on_line( lp0, lp1, m_Edges[e].m_PntVec[i] );
+//            double ldf = dist( proj_pnt, lp0 );
+//            if ( line_dist > DBL_EPSILON )
+//            {
+//                ldf = ldf / line_dist;
+//            }
+//
+//            m_Edges[e].m_LineFractVec.push_back( ldf );
+//        }
+//    }
+//}
+//
+//vec2d FeaGeom::GetUW( int edge_id, double fract )
+//{
+//    assert( edge_id >= 0 && edge_id < NUM_EDGES );
+//
+//    SectionEdge* se = &m_Edges[edge_id];
+//    assert( se->m_LineFractVec.size() >= 2 );
+//
+//    if ( fract <= 0.0 )
+//    {
+//        return se->m_UWVec[0];
+//    }
+//
+//    for ( int i = 0 ; i < ( int )se->m_LineFractVec.size() - 1 ; i++ )
+//    {
+//        if ( fract >= se->m_LineFractVec[i] && fract <= se->m_LineFractVec[i + 1] )
+//        {
+//            double denom = se->m_LineFractVec[i + 1] - se->m_LineFractVec[i];
+//            double uw_fract = 0.0;
+//            if ( denom > DBL_EPSILON )
+//            {
+//                uw_fract = ( fract - se->m_LineFractVec[i] ) / denom;
+//            }
+//
+//            vec2d uw = se->m_UWVec[i] + ( se->m_UWVec[i + 1] - se->m_UWVec[i] ) * uw_fract;
+//            return uw;
+//        }
+//    }
+//    return se->m_UWVec.back();
+//}
+//
+//vec3d FeaGeom::CompPnt( int edge_id, double fract )
+//{
+//    vec2d uw = GetUW( edge_id, fract );
+//    vec3d p = m_GeomSurfPtr->GetSurfCore()->CompPnt01( uw[0], uw[1] );
+//    return p;
+//}
+//
+//bool FeaGeom::IntersectPlaneEdge( int edge_id, vec3d & orig, vec3d & norm, vec2d & result )
+//{
+//    assert( edge_id >= 0 && edge_id < NUM_EDGES );
+//
+//    SectionEdge* se = &m_Edges[edge_id];
+//    assert( se->m_PntVec.size() >= 2 );
+//
+//    for ( int i = 0 ; i < ( int )se->m_PntVec.size() - 1 ; i++ )
+//    {
+//        int side1 = plane_half_space( orig, norm, se->m_PntVec[i] );
+//        int side2 = plane_half_space( orig, norm, se->m_PntVec[i + 1] );
+//
+//        if ( side1 != side2 )
+//        {
+//            double t;
+//            vec3d rayvec = se->m_PntVec[i + 1] - se->m_PntVec[i];
+//            int valid = plane_ray_intersect( orig, norm, se->m_PntVec[i], rayvec, t );
+//            if ( valid )
+//            {
+//                result = se->m_UWVec[i] + ( se->m_UWVec[i + 1] - se->m_UWVec[i] ) * t;
+//                return true;
+//            }
+//        }
+//    }
+//    return false;
+//}
+//
+//void FeaGeom::ComputePerUW( vec3d & pnt, double* per_U, double* per_W )
+//{
+//    // TODO: Confirm per_U and per_W match with per_span and per_chord
+//
+//    //==== Find Distance to Inside  Chord ====//
+//    double d = dist_pnt_2_line( m_CornerPnts[UW01], m_CornerPnts[UW00], pnt );
+//    double denom = dist_pnt_2_line( m_CornerPnts[UW01], m_CornerPnts[UW00], m_CornerPnts[UW11] );
+//
+//    *per_U = 0.0;
+//    if ( denom > DBL_EPSILON )
+//    {
+//        *per_U = d / denom;
+//    }
+//
+//    //==== Find Intersection of Projected Chordline ===//
+//    vec3d dir = m_CornerPnts[UW01] - m_CornerPnts[UW00];
+//    vec3d poff = pnt + dir;
+//
+//    double s, t;
+//    bool valid = line_line_intersect( pnt, poff, m_CornerPnts[UW01], m_CornerPnts[UW11], &s, &t );
+//    vec3d ple = m_CornerPnts[UW01];
+//    if ( valid )
+//    {
+//        ple = m_CornerPnts[UW01] + ( m_CornerPnts[UW11] - m_CornerPnts[UW01] ) * t;
+//    }
+//
+//
+//    valid = line_line_intersect( pnt, poff, m_CornerPnts[UW00], m_CornerPnts[UW10], &s, &t );
+//    vec3d pte = m_CornerPnts[UW00];
+//    if ( valid )
+//    {
+//        pte = m_CornerPnts[UW00] + ( m_CornerPnts[UW10] - m_CornerPnts[UW00] ) * t;
+//    }
+//
+//    d = dist( ple, pnt );
+//    denom = dist( ple, pte );
+//    *per_W = 0.0;
+//    if ( denom > DBL_EPSILON )
+//    {
+//        *per_W = d / denom;
+//    }
 //
 //}
 
@@ -389,334 +344,330 @@ void WingSection::ComputePerSpanChord( vec3d & pnt, double* per_span, double* pe
 
 FeaMeshMgrSingleton::FeaMeshMgrSingleton() : CfdMeshMgrSingleton()
 {
-    m_CurrSectID = 0;
-    m_CurrRibID = 0;
-    m_CurrSparID = 0;
-    m_CurrPointMassID = 0;
-    m_ThickScale = 1.0;
     m_TotalMass = 0.0;
-    m_CurrEditType = UP_SKIN_EDIT;
-    m_DrawFlag = false;
     m_DrawMeshFlag = false;
-    m_WingGeom = NULL;
-    m_XmlDataNode = NULL;
-    m_DrawAttachPoints = false;
+    //m_XmlDataNode = NULL;
+    //m_DrawAttachPoints = false;
+    m_FeaMeshInProgress = false;
 }
 
 FeaMeshMgrSingleton::~FeaMeshMgrSingleton()
 {
     CleanUp();
+    m_OutStream.clear();
 }
 
 void FeaMeshMgrSingleton::CleanUp()
 {
-    m_UpperSurfVec.clear();
-    m_LowerSurfVec.clear();
-    m_WingSections.clear();
+    //==== Delete Old Elements ====//
+    for ( unsigned int i = 0; i < m_FeaElementVec.size(); i++ )
+    {
+        m_FeaElementVec[i]->DeleteAllNodes();
+        delete m_FeaElementVec[i];
+    }
+    m_FeaElementVec.clear();
 
     CfdMeshMgrSingleton::CleanUp();
 }
 
-void FeaMeshMgrSingleton::SaveData()
-{
-    if ( !m_WingGeom )
-    {
-        return;
-    }
+//void FeaMeshMgrSingleton::WriteFeaStructData( Geom* geom_ptr, xmlNodePtr root )
+//{
+//    if ( geom_ptr != m_WingGeom )
+//    {
+//        return;
+//    }
+//
+//    bool found = false;
+//    for ( int i = 0 ; i < ( int )m_DataGeomVec.size() ; i++ )
+//    {
+//        if ( m_WingGeom == m_DataGeomVec[i] )
+//        {
+//            found = true;
+//        }
+//    }
+//    if ( !found )
+//    {
+//        m_DataGeomVec.push_back( m_WingGeom );
+//    }
+//
+//    xmlNodePtr fea_node = xmlNewChild( root, NULL, ( const xmlChar * )"FEA_Structure_Parms", NULL );
+//
+//    XmlUtil::AddDoubleNode( fea_node, "DefElemSize", GetGridDensityPtr()->m_BaseLen() );
+//    XmlUtil::AddDoubleNode( fea_node, "FEA_Mesh_Min_Length", GetGridDensityPtr()->m_MinLen() );
+//    XmlUtil::AddDoubleNode( fea_node, "FEA_Mesh_Max_Gap", GetGridDensityPtr()->m_MaxGap() );
+//    XmlUtil::AddDoubleNode( fea_node, "FEA_Mesh_Num_Circle_Segments", GetGridDensityPtr()->m_NCircSeg() );
+//    XmlUtil::AddDoubleNode( fea_node, "FEA_Mesh_Growth_Ratio", GetGridDensityPtr()->m_GrowRatio() );
+//
+//    XmlUtil::AddDoubleNode( fea_node, "ThickScale",  m_ThickScale() );
+//
+//    xmlNodePtr sec_node;
+//    xmlNodePtr sec_list_node = xmlNewChild( fea_node, NULL, ( const xmlChar * )"Wing_Section_List", NULL );
+//
+//    for ( int i = 0 ; i < ( int )m_WingSections.size() ; i++ )
+//    {
+//        sec_node = xmlNewChild( sec_list_node, NULL, ( const xmlChar * )"Wing_Section", NULL );
+//        m_WingSections[i].WriteData( sec_node );
+//    }
+//
+//    //===== Point Masses ====//
+//    xmlNodePtr point_mass_list_node = xmlNewChild( fea_node, NULL, ( const xmlChar * )"Point_Mass_List", NULL );
+//    for ( int i = 0 ; i < ( int )m_PointMassVec.size() ; i++ )
+//    {
+//        xmlNodePtr point_mass_node = xmlNewChild( point_mass_list_node, NULL, ( const xmlChar * )"Point_Mass", NULL );
+//        XmlUtil::AddDoubleNode( point_mass_node, "Pos_X", m_PointMassVec[i]->m_PosX() );
+//        XmlUtil::AddDoubleNode( point_mass_node, "Pos_Y", m_PointMassVec[i]->m_PosY() );
+//        XmlUtil::AddDoubleNode( point_mass_node, "Pos_Z", m_PointMassVec[i]->m_PosZ() );
+//        XmlUtil::AddDoubleNode( point_mass_node, "Attach_X", m_PointMassVec[i]->m_AttachPos.x() );
+//        XmlUtil::AddDoubleNode( point_mass_node, "Attach_Y", m_PointMassVec[i]->m_AttachPos.y() );
+//        XmlUtil::AddDoubleNode( point_mass_node, "Attach_Z", m_PointMassVec[i]->m_AttachPos.z() );
+//    }
+//
+//}
 
-    if ( m_XmlDataNode )
-    {
-        xmlFreeNode( m_XmlDataNode );
-    }
+//void FeaMeshMgrSingleton::SetFeaStructData( Geom* geom_ptr, xmlNodePtr root )
+//{
+//    int numFEAStructureNodes = XmlUtil::GetNumNames( root, "FEA_Structure_Parms" );
+//
+//    if ( numFEAStructureNodes == 0 )
+//    {
+//        return;
+//    }
+//
+//    m_DataGeomVec.push_back( geom_ptr );
+//    m_XmlDataNode = xmlCopyNode( root, 100 );
+//}
+//
+//void FeaMeshMgrSingleton::CopyGeomPtr( Geom* from_geom, Geom* to_geom )
+//{
+//    bool found = false;
+//    for ( int i = 0 ; i < ( int )m_DataGeomVec.size() ; i++ )
+//        if ( from_geom == m_DataGeomVec[i] )
+//        {
+//            found = true;
+//        }
+//
+//    if ( found )
+//    {
+//        m_DataGeomVec.push_back( to_geom );
+//    }
+//}
 
-    m_XmlDataNode = xmlNewNode( NULL, ( const xmlChar * )"FEA_Struct_Data" );
-    if ( !m_XmlDataNode )
-    {
-        return;
-    }
-
-    WriteFeaStructData( m_WingGeom, m_XmlDataNode );
-}
-
-void FeaMeshMgrSingleton::WriteFeaStructData( Geom* geom_ptr, xmlNodePtr root )
-{
-    if ( geom_ptr != m_WingGeom )
-    {
-        return;
-    }
-
-    bool found = false;
-    for ( int i = 0 ; i < ( int )m_DataGeomVec.size() ; i++ )
-    {
-        if ( m_WingGeom == m_DataGeomVec[i] )
-        {
-            found = true;
-        }
-    }
-    if ( !found )
-    {
-        m_DataGeomVec.push_back( m_WingGeom );
-    }
-
-    xmlNodePtr fea_node = xmlNewChild( root, NULL, ( const xmlChar * )"FEA_Structure_Parms", NULL );
-
-    XmlUtil::AddDoubleNode( fea_node, "DefElemSize", GetGridDensityPtr()->m_BaseLen() );
-    XmlUtil::AddDoubleNode( fea_node, "FEA_Mesh_Min_Length", GetGridDensityPtr()->m_MinLen() );
-    XmlUtil::AddDoubleNode( fea_node, "FEA_Mesh_Max_Gap", GetGridDensityPtr()->m_MaxGap() );
-    XmlUtil::AddDoubleNode( fea_node, "FEA_Mesh_Num_Circle_Segments", GetGridDensityPtr()->m_NCircSeg() );
-    XmlUtil::AddDoubleNode( fea_node, "FEA_Mesh_Growth_Ratio", GetGridDensityPtr()->m_GrowRatio() );
-
-    XmlUtil::AddDoubleNode( fea_node, "ThickScale",  m_ThickScale() );
-
-    xmlNodePtr sec_node;
-    xmlNodePtr sec_list_node = xmlNewChild( fea_node, NULL, ( const xmlChar * )"Wing_Section_List", NULL );
-
-    for ( int i = 0 ; i < ( int )m_WingSections.size() ; i++ )
-    {
-        sec_node = xmlNewChild( sec_list_node, NULL, ( const xmlChar * )"Wing_Section", NULL );
-        m_WingSections[i].WriteData( sec_node );
-    }
-
-    //===== Point Masses ====//
-    xmlNodePtr point_mass_list_node = xmlNewChild( fea_node, NULL, ( const xmlChar * )"Point_Mass_List", NULL );
-    for ( int i = 0 ; i < ( int )m_PointMassVec.size() ; i++ )
-    {
-        xmlNodePtr point_mass_node = xmlNewChild( point_mass_list_node, NULL, ( const xmlChar * )"Point_Mass", NULL );
-        XmlUtil::AddDoubleNode( point_mass_node, "Pos_X", m_PointMassVec[i]->m_PosX() );
-        XmlUtil::AddDoubleNode( point_mass_node, "Pos_Y", m_PointMassVec[i]->m_PosY() );
-        XmlUtil::AddDoubleNode( point_mass_node, "Pos_Z", m_PointMassVec[i]->m_PosZ() );
-        XmlUtil::AddDoubleNode( point_mass_node, "Attach_X", m_PointMassVec[i]->m_AttachPos.x() );
-        XmlUtil::AddDoubleNode( point_mass_node, "Attach_Y", m_PointMassVec[i]->m_AttachPos.y() );
-        XmlUtil::AddDoubleNode( point_mass_node, "Attach_Z", m_PointMassVec[i]->m_AttachPos.z() );
-    }
-
-}
-
-void FeaMeshMgrSingleton::SetFeaStructData( Geom* geom_ptr, xmlNodePtr root )
-{
-    int numFEAStructureNodes = XmlUtil::GetNumNames( root, "FEA_Structure_Parms" );
-
-    if ( numFEAStructureNodes == 0 )
-    {
-        return;
-    }
-
-    m_DataGeomVec.push_back( geom_ptr );
-    m_XmlDataNode = xmlCopyNode( root, 100 );
-}
-
-void FeaMeshMgrSingleton::CopyGeomPtr( Geom* from_geom, Geom* to_geom )
-{
-    bool found = false;
-    for ( int i = 0 ; i < ( int )m_DataGeomVec.size() ; i++ )
-        if ( from_geom == m_DataGeomVec[i] )
-        {
-            found = true;
-        }
-
-    if ( found )
-    {
-        m_DataGeomVec.push_back( to_geom );
-    }
-}
-
-void FeaMeshMgrSingleton::ReadFeaStructData()
-{
-    bool found = false;
-    for ( int i = 0 ; i < ( int )m_DataGeomVec.size() ; i++ )
-    {
-        if ( m_WingGeom == m_DataGeomVec[i] )
-        {
-            found = true;
-        }
-    }
-
-    if ( !found )
-    {
-        return;
-    }
-
-    int numFEAStructureNodes = XmlUtil::GetNumNames( m_XmlDataNode, "FEA_Structure_Parms" );
-
-    if ( numFEAStructureNodes == 0 )
-    {
-        return;
-    }
-
-    xmlNodePtr struct_parms_node = XmlUtil::GetNode( m_XmlDataNode, "FEA_Structure_Parms", 0 );
-
-    GetGridDensityPtr()->m_BaseLen = XmlUtil::FindDouble( struct_parms_node, "DefElemSize", GetGridDensityPtr()->m_BaseLen() );
-
-    GetGridDensityPtr()->m_MinLen = XmlUtil::FindDouble( struct_parms_node, "FEA_Mesh_Min_Length", GetGridDensityPtr()->m_MinLen() );
-    GetGridDensityPtr()->m_MaxGap = XmlUtil::FindDouble( struct_parms_node, "FEA_Mesh_Max_Gap", GetGridDensityPtr()->m_MaxGap() );
-    GetGridDensityPtr()->m_NCircSeg = XmlUtil::FindDouble( struct_parms_node, "FEA_Mesh_Num_Circle_Segments", GetGridDensityPtr()->m_NCircSeg() );
-    GetGridDensityPtr()->m_GrowRatio = XmlUtil::FindDouble( struct_parms_node, "FEA_Mesh_Growth_Ratio", GetGridDensityPtr()->m_GrowRatio() );
-
-    m_ThickScale  = XmlUtil::FindDouble( struct_parms_node, "ThickScale", m_ThickScale() );
-
-    xmlNodePtr wing_sec_list_node = XmlUtil::GetNode( struct_parms_node, "Wing_Section_List", 0 );
-    if ( wing_sec_list_node )
-    {
-        int num_wing_sec =  XmlUtil::GetNumNames( wing_sec_list_node, "Wing_Section" );
-        if ( num_wing_sec == ( int )m_WingSections.size() )
-        {
-            for ( int i = 0 ; i < ( int )m_WingSections.size() ; i++ )
-            {
-                xmlNodePtr sec_node = XmlUtil::GetNode( wing_sec_list_node, "Wing_Section", i );
-                m_WingSections[i].ReadData( sec_node );
-            }
-        }
-    }
-
-    //==== Compute Rib and Spar End Points ====//
-    for ( int i = 0 ; i < ( int )m_WingSections.size() ; i++ )
-    {
-        for ( int j = 0 ; j < ( int )m_WingSections[i].m_RibVec.size() ; j++ )
-        {
-            m_WingSections[i].m_RibVec[j]->ComputeEndPoints();
-        }
-        for ( int j = 0 ; j < ( int )m_WingSections[i].m_SparVec.size() ; j++ )
-        {
-            m_WingSections[i].m_SparVec[j]->ComputeEndPoints();
-        }
-    }
-
-    xmlNodePtr point_mass_list_node = XmlUtil::GetNode( struct_parms_node, "Point_Mass_List", 0 );
-    if ( point_mass_list_node )
-    {
-        int num_point_masses =  XmlUtil::GetNumNames( point_mass_list_node, "Point_Mass" );
-        for ( int i = 0 ; i < num_point_masses ; i++ )
-        {
-            xmlNodePtr point_mass_node = XmlUtil::GetNode( point_mass_list_node, "Point_Mass", i );
-            if ( point_mass_node )
-            {
-                FeaPointMass* pm = new FeaPointMass();
-                pm->m_PosX = XmlUtil::FindDouble( point_mass_node, "Pos_X", 0.0 );
-                pm->m_PosY = XmlUtil::FindDouble( point_mass_node, "Pos_Y", 0.0 );
-                pm->m_PosZ = XmlUtil::FindDouble( point_mass_node, "Pos_Z", 0.0 );
-                pm->m_AttachPos.set_x( XmlUtil::FindDouble( point_mass_node, "Attach_X", 0.0 ) );
-                pm->m_AttachPos.set_y( XmlUtil::FindDouble( point_mass_node, "Attach_Y", 0.0 ) );
-                pm->m_AttachPos.set_z( XmlUtil::FindDouble( point_mass_node, "Attach_Z", 0.0 ) );
-                m_PointMassVec.push_back( pm );
-            }
-        }
-    }
-}
+//void FeaMeshMgrSingleton::ReadFeaStructData()
+//{
+//    bool found = false;
+//    for ( int i = 0 ; i < ( int )m_DataGeomVec.size() ; i++ )
+//    {
+//        if ( m_WingGeom == m_DataGeomVec[i] )
+//        {
+//            found = true;
+//        }
+//    }
+//
+//    if ( !found )
+//    {
+//        return;
+//    }
+//
+//    int numFEAStructureNodes = XmlUtil::GetNumNames( m_XmlDataNode, "FEA_Structure_Parms" );
+//
+//    if ( numFEAStructureNodes == 0 )
+//    {
+//        return;
+//    }
+//
+//    xmlNodePtr struct_parms_node = XmlUtil::GetNode( m_XmlDataNode, "FEA_Structure_Parms", 0 );
+//
+//    GetGridDensityPtr()->m_BaseLen = XmlUtil::FindDouble( struct_parms_node, "DefElemSize", GetGridDensityPtr()->m_BaseLen() );
+//
+//    GetGridDensityPtr()->m_MinLen = XmlUtil::FindDouble( struct_parms_node, "FEA_Mesh_Min_Length", GetGridDensityPtr()->m_MinLen() );
+//    GetGridDensityPtr()->m_MaxGap = XmlUtil::FindDouble( struct_parms_node, "FEA_Mesh_Max_Gap", GetGridDensityPtr()->m_MaxGap() );
+//    GetGridDensityPtr()->m_NCircSeg = XmlUtil::FindDouble( struct_parms_node, "FEA_Mesh_Num_Circle_Segments", GetGridDensityPtr()->m_NCircSeg() );
+//    GetGridDensityPtr()->m_GrowRatio = XmlUtil::FindDouble( struct_parms_node, "FEA_Mesh_Growth_Ratio", GetGridDensityPtr()->m_GrowRatio() );
+//
+//    m_ThickScale  = XmlUtil::FindDouble( struct_parms_node, "ThickScale", m_ThickScale() );
+//
+//    xmlNodePtr wing_sec_list_node = XmlUtil::GetNode( struct_parms_node, "Wing_Section_List", 0 );
+//    if ( wing_sec_list_node )
+//    {
+//        int num_wing_sec =  XmlUtil::GetNumNames( wing_sec_list_node, "Wing_Section" );
+//        if ( num_wing_sec == ( int )m_WingSections.size() )
+//        {
+//            for ( int i = 0 ; i < ( int )m_WingSections.size() ; i++ )
+//            {
+//                xmlNodePtr sec_node = XmlUtil::GetNode( wing_sec_list_node, "Wing_Section", i );
+//                m_WingSections[i].ReadData( sec_node );
+//            }
+//        }
+//    }
+//
+//    //==== Compute Rib and Spar End Points ====//
+//    for ( int i = 0 ; i < ( int )m_WingSections.size() ; i++ )
+//    {
+//        for ( int j = 0 ; j < ( int )m_WingSections[i].m_RibVec.size() ; j++ )
+//        {
+//            m_WingSections[i].m_RibVec[j]->ComputeEndPoints();
+//        }
+//        for ( int j = 0 ; j < ( int )m_WingSections[i].m_SparVec.size() ; j++ )
+//        {
+//            m_WingSections[i].m_SparVec[j]->ComputeEndPoints();
+//        }
+//    }
+//
+//    xmlNodePtr point_mass_list_node = XmlUtil::GetNode( struct_parms_node, "Point_Mass_List", 0 );
+//    if ( point_mass_list_node )
+//    {
+//        int num_point_masses =  XmlUtil::GetNumNames( point_mass_list_node, "Point_Mass" );
+//        for ( int i = 0 ; i < num_point_masses ; i++ )
+//        {
+//            xmlNodePtr point_mass_node = XmlUtil::GetNode( point_mass_list_node, "Point_Mass", i );
+//            if ( point_mass_node )
+//            {
+//                FeaPointMass* pm = new FeaPointMass();
+//                pm->m_PosX = XmlUtil::FindDouble( point_mass_node, "Pos_X", 0.0 );
+//                pm->m_PosY = XmlUtil::FindDouble( point_mass_node, "Pos_Y", 0.0 );
+//                pm->m_PosZ = XmlUtil::FindDouble( point_mass_node, "Pos_Z", 0.0 );
+//                pm->m_AttachPos.set_x( XmlUtil::FindDouble( point_mass_node, "Attach_X", 0.0 ) );
+//                pm->m_AttachPos.set_y( XmlUtil::FindDouble( point_mass_node, "Attach_Y", 0.0 ) );
+//                pm->m_AttachPos.set_z( XmlUtil::FindDouble( point_mass_node, "Attach_Z", 0.0 ) );
+//                m_PointMassVec.push_back( pm );
+//            }
+//        }
+//    }
+//}
 
 bool FeaMeshMgrSingleton::LoadSurfaces()
 {
     CleanUp();
 
-    vector< XferSurf > xfersurfs;
-
-    if ( !FetchWingSurf( xfersurfs ) )
+    if ( !StructureMgr.ValidTotalFeaStructInd( m_FeaMeshStructIndex ) )
     {
+        addOutputText( "FeaMesh Failed: Invalid FeaStructure Selection\n" );
+        m_FeaMeshInProgress = false;
         return false;
     }
 
-    LoadSurfs( xfersurfs );
-    IdentifyUpperLowerSurfaces();
+    // Identify the structure to mesh (m_FeaMeshStructIndex must be set) 
+    vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
+    m_FeaMeshStruct = structvec[m_FeaMeshStructIndex];
 
-    ReadFeaStructData();
+    LoadSkins();
+
+    CleanMergeSurfs( );
 
     return true;
 }
 
-void FeaMeshMgrSingleton::BuildClean()
+void FeaMeshMgrSingleton::LoadSkins()
 {
-    //==== Delete ICurves =====//
-    int i;
-    for ( i = 0 ; i < ( int )m_ICurveVec.size() ; i++ )
-    {
-        delete m_ICurveVec[i];
-    }
-    m_ICurveVec.clear();
+    FeaPart* FeaSkin = m_FeaMeshStruct->GetFeaSkin();
 
-    //==== Delete Seg Chains ====//
-    list< ISegChain* >::iterator cl;
-    for ( cl = m_ISegChainList.begin() ; cl != m_ISegChainList.end(); cl++ )
-    {
-        delete ( *cl );
-    }
-    m_ISegChainList.clear();
+    //===== Add FeaSkins ====//
+    vector< XferSurf > skinxfersurfs;
 
-    //==== Build Clean Wing Sections ====//
-    for ( i = 0 ; i < ( int )m_WingSections.size() ; i++ )
-    {
-        m_WingSections[i].BuildClean();
-    }
+    FeaSkin->FetchFeaXFerSurf( skinxfersurfs );
 
+    // Load Skin XFerSurf to m_SurfVec
+    LoadSurfs( skinxfersurfs );
+
+    // Identify the FeaPart Type and ID. Add to m_FeaSkinSurfVec
+    int begin = m_SurfVec.size() - skinxfersurfs.size();
+    int end = m_SurfVec.size();
+
+    for ( int j = begin; j < end; j++ )
+    {
+        Surf* ssurf = m_SurfVec[j];
+        ssurf->SetFeaPartType( vsp::FEA_SKIN );
+        ssurf->SetFeaPartID( FeaSkin->GetID() );
+    }
 }
 
-
-void FeaMeshMgrSingleton::Build()
+void FeaMeshMgrSingleton::GenerateFeaMesh()
 {
-    if ( m_WingSections.size() <= 0 )
+    m_OutStream.clear();
+    m_FeaMeshInProgress = true;
+
+    addOutputText( "Load Surfaces\n" );
+    LoadSurfaces();
+
+    if ( m_SurfVec.size() <= 0 )
     {
+        m_FeaMeshInProgress = false;
         return;
     }
 
-    BuildClean();
-
-    addOutputText( "Add Structure Parts\n", FEA_OUTPUT );
+    addOutputText( "Add Structure Parts\n" );
     AddStructureParts();
 
-    GetGridDensityPtr()->ClearSources();
+    // TODO: Update and Build Domain for Half Mesh?
 
-    addOutputText( "Build Slice Planes\n", FEA_OUTPUT );
+    DeleteAllSources(); // TODO: Remove? No sources in FeaMesh
+
+    addOutputText( "Build Slice Planes\n" );
     BuildGrid();
 
-    addOutputText( "Intersect\n", FEA_OUTPUT );
+    addOutputText( "Intersect\n" );
     Intersect();
 
-    addOutputText( "Build Target Map\n", FEA_OUTPUT );
-    BuildTargetMap( CfdMeshMgrSingleton::FEA_OUTPUT );
+    addOutputText( "Build Target Map\n" );
+    BuildTargetMap( CfdMeshMgrSingleton::VOCAL_OUTPUT );
 
 
-    addOutputText( "InitMesh\n", FEA_OUTPUT );
-    InitMesh( );
+    addOutputText( "InitMesh\n" );
+    InitMesh();
 
-    addOutputText( "Mesh Skins\n", FEA_OUTPUT );
-    Remesh( CfdMeshMgrSingleton::FEA_OUTPUT );
+    SubTagTris();
 
-    addOutputText( "Build Spar/Rib Mesh\n", FEA_OUTPUT );
-    BuildSliceMesh();
+    addOutputText( "Remesh\n" );
+    Remesh( CfdMeshMgrSingleton::VOCAL_OUTPUT );
 
-    addOutputText( "Finished\n", FEA_OUTPUT );
+    SubSurfaceMgr.BuildSingleTagMap();
 
+    addOutputText( "Build Fea Mesh\n" );
+    BuildFeaMesh();
+
+    addOutputText( "Tag Fea Nodes\n" );
+    TagFeaNodes();
+
+    addOutputText( "Exporting Files\n" );
+    ExportFeaMesh();
+
+    addOutputText( "Finished\n" );
+
+    m_FeaMeshInProgress = false;
 }
 
-void FeaMeshMgrSingleton::Export()
+void FeaMeshMgrSingleton::ExportFeaMesh()
 {
-    addOutputText( "Write Results\n", FEA_OUTPUT );
+    //AddFeaOutputText( "Write Results\n" );
 
     WriteNASTRAN( GetStructSettingsPtr()->GetExportFileName( vsp::NASTRAN_FILE_NAME ) );
     WriteCalculix();
     WriteSTL( GetStructSettingsPtr()->GetExportFileName( vsp::STL_FEA_NAME ) );
 
-    addOutputText( "Wrote Calculix File: feageom.dat\n", FEA_OUTPUT );
-    addOutputText( "Wrote Calculix File: feanodethick.dat\n", FEA_OUTPUT );
-    addOutputText( "Wrote NASTRAN File: NASTRAN.dat\n", FEA_OUTPUT );
-    addOutputText( "Wrote Mesh: feamesh.stl\n", FEA_OUTPUT );
+    //AddFeaOutputText( "Wrote Calculix File: feageom.dat\n" );
+    //AddFeaOutputText( "Wrote Calculix File: feanodethick.dat\n" );
+    //AddFeaOutputText( "Wrote NASTRAN File: NASTRAN.dat\n" );
+    //AddFeaOutputText( "Wrote Mesh: feamesh.stl\n" );
 
     ComputeWriteMass();
-    addOutputText( "Wrote Mass: feamass.dat\n", FEA_OUTPUT );
+    //AddFeaOutputText( "Wrote Mass: feamass.dat\n" );
 
-    char str[256];
-    sprintf( str, "Total Mass = %f\n", m_TotalMass );
-
-    addOutputText( str, FEA_OUTPUT );
-    addOutputText( "Finished\n", FEA_OUTPUT );
+    string mass_output = "Total Mass = " + std::to_string( m_TotalMass ) + "\n";
+    addOutputText( mass_output );
+    //AddFeaOutputText( "Finished\n" );
 }
 
 void FeaMeshMgrSingleton::Intersect()
 {
+    if ( GetStructSettingsPtr()->GetIntersectSubSurfs() ) BuildSubSurfIntChains();
+
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
         for ( int j = i + 1 ; j < ( int )m_SurfVec.size() ; j++ )
         {
             m_SurfVec[i]->Intersect( m_SurfVec[j], this );
         }
 
+    addOutputText( "Build Chains\n" );
     BuildChains();
 //DebugWriteChains("Intersect_UW", false );
     //if ( !m_BatchFlag )
@@ -724,591 +675,200 @@ void FeaMeshMgrSingleton::Intersect()
 //  MergeChains();
 //DebugWriteChains("MergeChains_UW", false );
 
-    addOutputText( "Load Border Curves\n", FEA_OUTPUT );
+    addOutputText( "Load Border Curves\n" );
     LoadBorderCurves();
 
-    addOutputText( "Merge Interior Chains IPnts\n", FEA_OUTPUT );
+    addOutputText( "Merge Interior Chains IPnts\n" );
     MergeInteriorChainIPnts();
 //DebugWriteChains("MergeInterior_UW", false );
 
-    addOutputText( "Split Border Curves\n", FEA_OUTPUT );
+    addOutputText( "Split Border Curves\n" );
     SplitBorderCurves();
 //DebugWriteChains("BorderSplit_UW", false );
 
-    addOutputText( "Intersect Split Chains\n", FEA_OUTPUT );
+    addOutputText( "Intersect Split Chains\n" );
     IntersectSplitChains();
 //DebugWriteChains("IntersectSplit_UW", false );
 
-    BuildCurves();
+    addOutputText( "Build Curves\n" );
+    BuildCurves(); // Slows or gets into endless loop before here
 }
-
-
-bool FeaMeshMgrSingleton::FetchWingSurf( vector< XferSurf > &xfersurfs )
-{
-    vector< string > geomVec = m_Vehicle->GetGeomVec();
-    if ( geomVec.size() == 0 )
-    {
-        return false;
-    }
-
-    Geom* wing_geom = NULL;
-    vector< string > activeVec = m_Vehicle->GetActiveGeomVec();
-    if ( activeVec.size() > 0 )
-    {
-        for ( int i = 0 ; i < ( int )activeVec.size() ; i++ )
-        {
-            Geom* g = m_Vehicle->FindGeom( activeVec[i] );
-            if ( g )
-            {
-                if ( g->GetType().m_Type == MS_WING_GEOM_TYPE )
-                {
-                    wing_geom = g;
-                    break;
-                }
-            }
-        }
-    }
-
-    if( wing_geom == NULL )
-    {
-        for ( int i = 0 ; i < ( int )geomVec.size() ; i++ )
-        {
-            Geom* g = m_Vehicle->FindGeom( geomVec[i] );
-            if ( g )
-            {
-                if ( g->GetType().m_Type == MS_WING_GEOM_TYPE )
-                {
-                    wing_geom = g;
-                    break;
-                }
-            }
-        }
-    }
-
-    if ( !wing_geom )
-    {
-        return false;
-    }
-
-    m_WingGeom = wing_geom;
-
-    // Need to turn off symmetry first.
-    int planSym = wing_geom->m_SymPlanFlag();
-    int rotSym = wing_geom->m_SymAxFlag();
-    wing_geom->m_SymPlanFlag.Set( 0 );
-    wing_geom->m_SymAxFlag.Set( 0 );
-    wing_geom->Update();
-
-    vector<VspSurf> surf_vec;
-    wing_geom->GetSurfVec( surf_vec );
-
-    for ( int j = 0; j < ( int )surf_vec.size(); j++ )
-    {
-        surf_vec[j].FetchXFerSurf( wing_geom->GetID(), wing_geom->GetMainSurfID( j ), 0, xfersurfs );
-    }
-
-    // Need to restore symmetry.
-    wing_geom->m_SymPlanFlag.Set( planSym );
-    wing_geom->m_SymAxFlag.Set( rotSym );
-    wing_geom->Update();
-
-    return true;
-}
-
-void FeaMeshMgrSingleton::IdentifyUpperLowerSurfaces()
-{
-    m_UpperSurfVec.clear();
-    for ( int i = 2 ; i < ( int )m_SurfVec.size() - 2 ; i += 2 )
-    {
-        m_UpperSurfVec.push_back( m_SurfVec[i] );
-    }
-
-    m_LowerSurfVec.clear();
-    for ( int i = 3 ; i < ( int )m_SurfVec.size() - 2 ; i += 2 )
-    {
-        m_LowerSurfVec.push_back( m_SurfVec[i] );
-    }
-
-    for ( int i = 0 ; i < 2 ; i++ )
-    {
-        delete m_SurfVec[i];
-    }
-    for ( int i = m_SurfVec.size() - 2 ; i < ( int )m_SurfVec.size() ; i++ )
-    {
-        delete m_SurfVec[i];
-    }
-
-    m_SurfVec.clear();
-    for ( int i = 0 ; i < ( int )m_UpperSurfVec.size() ; i++ )
-    {
-        m_SurfVec.push_back( m_UpperSurfVec[i] );
-    }
-    for ( int i = 0 ; i < ( int )m_LowerSurfVec.size() ; i++ )
-    {
-        m_SurfVec.push_back( m_LowerSurfVec[i] );
-    }
-
-    //==== Load Upper Section Edges =====//
-    m_WingSections.resize( ( int )m_UpperSurfVec.size() );
-    for ( int i = 0 ; i < ( int )m_UpperSurfVec.size() ; i++ )
-    {
-        m_WingSections[i].Load( m_UpperSurfVec[i], m_LowerSurfVec[i] );
-    }
-
-}
-
-vec3d FeaMeshMgrSingleton::GetNormal( int sectID )
-{
-    if ( sectID >= 0 && sectID < ( int )m_WingSections.size() )
-    {
-        return m_WingSections[sectID].m_Normal;
-    }
-
-    return vec3d( 1.0, 0, 0 );
-}
-
-WingSection* FeaMeshMgrSingleton::GetWingSection( int sectID )
-{
-    if ( sectID >= 0 && sectID < ( int )m_WingSections.size() )
-    {
-        return &m_WingSections[sectID];
-    }
-
-    return NULL;
-}
-
-vec3d FeaMeshMgrSingleton::ComputePoint( vec2d & uw, bool upperFlag )
-{
-    vec3d pnt;
-    if ( m_UpperSurfVec.size() == 0 )
-    {
-        return pnt;
-    }
-
-    int sid = ( int )uw[0];
-    double u = uw[0] - ( double )sid;
-
-    if ( sid < 0 )
-    {
-        u = 0.0;
-        sid = 0;
-    }
-    else if ( sid >= ( int )m_UpperSurfVec.size() )
-    {
-        u = 1.0;
-        sid = ( int )m_UpperSurfVec.size() - 1;
-    }
-
-    if ( upperFlag  )
-    {
-        pnt = m_UpperSurfVec[sid]->GetSurfCore()->CompPnt01( u, uw[1] );
-    }
-    else
-    {
-        pnt = m_LowerSurfVec[sid]->GetSurfCore()->CompPnt01( u, 1.0 - uw[1] );
-    }
-
-    return pnt;
-}
-
-
 
 void FeaMeshMgrSingleton::AddStructureParts()
 {
-    //==== Clean Out Ribs, Spars, Skins  ====//
-    for ( int s = 0 ; s < ( int )m_WingSections.size() ; s++ )
+    vector < FeaPart* > FeaPartVec = m_FeaMeshStruct->GetFeaPartVec();
+
+    //===== Add FeaParts ====//
+    int num_parts = FeaPartVec.size();
+
+    for ( int i = 0; i < num_parts; i++ )
     {
-        for ( int i = 0 ; i < ( int )m_WingSections[s].m_RibVec.size() ; i++ )
+        if ( FeaPartVec[i]->GetType() == vsp::FEA_RIB )
         {
-            m_WingSections[s].m_RibVec[i]->Clean();
+            vector< XferSurf > ribxfersurfs;
+
+            FeaPartVec[i]->FetchFeaXFerSurf( ribxfersurfs );
+
+            // Load Rib XFerSurf to m_SurfVec
+            LoadSurfs( ribxfersurfs );
+
+            // Identify the FeaPart Type and ID. Add to m_FeaPartSurfVec
+            int begin = m_SurfVec.size() - ribxfersurfs.size();
+            int end = m_SurfVec.size();
+
+            for ( int j = begin; j < end; j++ )
+            {
+                Surf* rsurf = m_SurfVec[j];
+                rsurf->SetFeaPartType( vsp::FEA_RIB );
+                rsurf->SetFeaPartID( FeaPartVec[i]->GetID() );
+            }
         }
-
-        for ( int i = 0 ; i < ( int )m_WingSections[s].m_SparVec.size() ; i++ )
+        else if ( FeaPartVec[i]->GetType() == vsp::FEA_SPAR )
         {
-            m_WingSections[s].m_SparVec[i]->Clean();
+            vector< XferSurf > sparxfersurfs;
+
+            FeaPartVec[i]->FetchFeaXFerSurf( sparxfersurfs );
+
+            // Load Spar XFerSurf to m_SurfVec
+            LoadSurfs( sparxfersurfs );
+
+            // Identify the FeaPart Type and ID. Add to m_FeaPartSurfVec
+            int begin = m_SurfVec.size() - sparxfersurfs.size();
+            int end = m_SurfVec.size();
+
+            for ( int j = begin; j < end; j++ )
+            {
+                Surf* ssurf = m_SurfVec[j];
+                ssurf->SetFeaPartType( vsp::FEA_SPAR );
+                ssurf->SetFeaPartID( FeaPartVec[i]->GetID() );
+            }
         }
-
-        m_WingSections[s].m_UpperSkin.Clean();
-        m_WingSections[s].m_LowerSkin.Clean();
-    }
-    //==== Clear Pointer Vecs ====//
-    m_SliceVec.clear();
-    m_SurfVec.clear();
-    m_SkinVec.clear();
-
-    for ( int i = 0 ; i < ( int )m_UpperSurfVec.size() ; i++ )
-    {
-        m_SurfVec.push_back( m_UpperSurfVec[i] );
-    }
-    for ( int i = 0 ; i < ( int )m_LowerSurfVec.size() ; i++ )
-    {
-        m_SurfVec.push_back( m_LowerSurfVec[i] );
-    }
-
-    for ( int s = 0 ; s < ( int )m_WingSections.size() ; s++ )
-    {
-        //===== Add Ribs ====//
-        int num_ribs = m_WingSections[s].m_RibVec.size();
-        for ( int i = 0 ; i < num_ribs ; i++ )
+        else if ( FeaPartVec[i]->GetType() == vsp::FEA_FIX_POINT )
         {
-            FeaRib* rib = m_WingSections[s].m_RibVec[i];
-            rib->ComputeEndPoints();
-            m_SurfVec.push_back( rib->GetSurf() );
+            FeaFixPoint* fixpt = dynamic_cast<FeaFixPoint*>( FeaPartVec[i] );
+            assert( fixpt );
 
-            rib->SetNormal( m_WingSections[s].m_Normal );
-            m_SliceVec.push_back( rib );
+
         }
-
-        //==== Add Spar ====//
-        for ( int i = 0 ; i < ( int )m_WingSections[s].m_SparVec.size() ; i++ )
+        else if ( FeaPartVec[i]->GetType() == vsp::FEA_STIFFENER )
         {
-            m_WingSections[s].m_SparVec[i]->ComputeEndPoints();
-            m_SliceVec.push_back( m_WingSections[s].m_SparVec[i] );
-            m_SurfVec.push_back( m_WingSections[s].m_SparVec[i]->GetSurf() );
-        }
+            FeaStiffener* stiffener = dynamic_cast<FeaStiffener*>( FeaPartVec[i] );
+            assert( stiffener );
 
-        //===== Add Upper & Lower Skins ====//
-        m_SkinVec.push_back( &m_WingSections[s].m_UpperSkin );
-        m_SkinVec.push_back( &m_WingSections[s].m_LowerSkin );
-    }
-}
 
-void FeaMeshMgrSingleton::SetCurrSectID( int id )
-{
-    if ( id >= 0 && id < GetNumSections() )
-    {
-        m_CurrSectID = id;
-    }
-
-    if ( m_CurrRibID >= ( int )m_WingSections[m_CurrSectID].m_RibVec.size() )
-    {
-        SetCurrRibID( m_WingSections[m_CurrSectID].m_RibVec.size() - 1 );
-    }
-    if ( m_CurrSparID >= ( int )m_WingSections[m_CurrSectID].m_SparVec.size() )
-    {
-        SetCurrSparID( m_WingSections[m_CurrSectID].m_SparVec.size() - 1 );
-    }
-
-    FeaSkin* skin = GetCurrUpperSkin();
-    if ( skin )
-    {
-        if ( skin->GetCurrSpliceLineID() > ( int )skin->m_SpliceLineVec.size() )
-        {
-            skin->SetCurrSpliceLineID( ( int )skin->m_SpliceLineVec.size() - 1 );
         }
     }
 }
 
-void FeaMeshMgrSingleton::SetCurrRibID( int id )
+void FeaMeshMgrSingleton::BuildFeaMesh()
 {
-    if ( m_WingSections.size() <= 0 )
+    for ( int s = 0; s < (int)m_SurfVec.size(); s++ )
     {
-        return;
-    }
+        vector< FeaElement* > tempelementvec;
+        list< Tri* >::iterator t;
+        list <Tri*> tlist = m_SurfVec[s]->GetMesh()->GetTriList();
 
-    if ( id >= 0 && id < ( int )m_WingSections[m_CurrSectID].m_RibVec.size() )
-    {
-        m_CurrRibID = id;
-    }
-}
-
-int FeaMeshMgrSingleton::GetNumRibs()
-{
-    if ( m_WingSections.size() <= 0 )
-    {
-        return 0;
-    }
-
-    return m_WingSections[m_CurrSectID].m_RibVec.size();
-}
-
-void FeaMeshMgrSingleton::SetCurrSparID( int id )
-{
-    if ( m_WingSections.size() <= 0 )
-    {
-        return;
-    }
-
-    if ( id >= 0 && id < ( int )m_WingSections[m_CurrSectID].m_SparVec.size() )
-    {
-        m_CurrSparID = id;
-    }
-}
-
-int FeaMeshMgrSingleton::GetNumSpars()
-{
-    if ( m_WingSections.size() <= 0 )
-    {
-        return 0;
-    }
-
-    return m_WingSections[m_CurrSectID].m_SparVec.size();
-}
-
-FeaRib* FeaMeshMgrSingleton::GetCurrRib()
-{
-    if ( m_CurrSectID >= 0 && m_CurrSectID < ( int )m_WingSections.size() )
-    {
-        if ( m_CurrRibID >= 0 &&  m_CurrRibID < ( int )m_WingSections[m_CurrSectID].m_RibVec.size() )
+        for ( t = tlist.begin(); t != tlist.end(); t++ )
         {
-            return m_WingSections[m_CurrSectID].m_RibVec[m_CurrRibID];
+            FeaTri* tri = new FeaTri;
+            tri->Create( ( *t )->n0->pnt, ( *t )->n1->pnt, ( *t )->n2->pnt );
+            tri->SetFeaPartType( m_SurfVec[s]->GetFeaPartType() );
+            tempelementvec.push_back( tri );
+        }
+
+        vector < vec3d >pvec = m_SurfVec[s]->GetMesh()->GetSimpPntVec();
+        vector < SimpTri > tvec = m_SurfVec[s]->GetMesh()->GetSimpTriVec();
+        for ( int i = 0; i < (int)tvec.size(); i++ )
+        {
+            FeaTri* tri = new FeaTri;
+            tri->Create( pvec[tvec[i].ind0], pvec[tvec[i].ind1], pvec[tvec[i].ind2] );
+            tri->SetFeaPartType( m_SurfVec[s]->GetFeaPartType() );
+            tempelementvec.push_back( tri );
+        }
+
+        // Get Thickness and Density for Skin
+        int prop_index = StructureMgr.GetFeaPropertyIndex( m_SurfVec[s]->GetFeaPartID() );
+        //int mat_index = StructureMgr.GetFeaMaterialIndex( m_SurfVec[s]->GetFeaPartID() );
+
+        //double thick = StructureMgr.GetFeaPropertyVec()[prop_index]->m_Thickness();
+        //double density = StructureMgr.GetFeaMaterialVec()[mat_index]->m_MassDensity();
+
+        //==== Assign thickness and density to nodes before adding to m_FeaSkinElementVec ====//
+        for ( int i = 0; i < (int)tempelementvec.size(); i++ )
+        {
+            //for ( int j = 0; j < (int)tempelementvec[i]->m_Corners.size(); j++ )
+            //{
+            //    tempelementvec[i]->m_Corners[j]->m_Thick = thick;
+            //    tempelementvec[i]->m_Corners[j]->m_Dense = density;
+            //}
+            //for ( int j = 0; j < (int)tempelementvec[i]->m_Mids.size(); j++ )
+            //{
+            //    tempelementvec[i]->m_Mids[j]->m_Thick = thick;
+            //    tempelementvec[i]->m_Mids[j]->m_Dense = density;
+            //}
+            tempelementvec[i]->SetFeaPropertyIndex( prop_index );
+            tempelementvec[i]->SetFeaPartID( m_SurfVec[s]->GetFeaPartID() );
+
+            m_FeaElementVec.push_back( tempelementvec[i] );
         }
     }
-    return NULL;
-}
-
-FeaSpar* FeaMeshMgrSingleton::GetCurrSpar()
-{
-    if ( m_CurrSectID >= 0 && m_CurrSectID < ( int )m_WingSections.size() )
-    {
-        if ( m_CurrSparID >= 0 &&  m_CurrSparID < ( int )m_WingSections[m_CurrSectID].m_SparVec.size() )
-        {
-            return m_WingSections[m_CurrSectID].m_SparVec[m_CurrSparID];
-        }
-    }
-    return NULL;
-}
-
-FeaSkin* FeaMeshMgrSingleton::GetCurrUpperSkin()
-{
-    if ( m_CurrSectID >= 0 && m_CurrSectID < ( int )m_WingSections.size() )
-    {
-        return &m_WingSections[m_CurrSectID].m_UpperSkin;
-    }
-    return NULL;
-}
-
-FeaSkin* FeaMeshMgrSingleton::GetCurrLowerSkin()
-{
-    if ( m_CurrSectID >= 0 && m_CurrSectID < ( int )m_WingSections.size() )
-    {
-        return &m_WingSections[m_CurrSectID].m_LowerSkin;
-    }
-    return NULL;
-}
-
-int FeaMeshMgrSingleton::GetNumPointMasses()
-{
-    return m_PointMassVec.size();
-}
-
-void FeaMeshMgrSingleton::SetCurrPointMassID( int id )
-{
-    if ( id >= 0 && id < ( int )m_PointMassVec.size() )
-    {
-        m_CurrPointMassID = id;
-    }
-}
-
-FeaPointMass* FeaMeshMgrSingleton::GetCurrPointMass()
-{
-    if ( m_CurrPointMassID >= 0 && m_CurrPointMassID < ( int )m_PointMassVec.size() )
-    {
-        return m_PointMassVec[m_CurrPointMassID];
-    }
-    return NULL;
-}
-
-void FeaMeshMgrSingleton::AddRib()
-{
-    if ( m_WingSections.size() <= 0 )
-    {
-        return;
-    }
-
-    FeaRib* rib = new FeaRib();
-    rib->m_PerSpan = 0.5;
-    rib->m_AbsSweepFlag = true;
-    rib->m_TrimFlag = true;
-    rib->m_Sweep = 0.0;
-    rib->m_SectID = m_CurrSectID;
-    rib->ComputeEndPoints();
-
-    rib->GetSurf()->SetSurfaceCfdType( vsp::CFD_STRUCTURE );
-
-    m_WingSections[m_CurrSectID].m_RibVec.push_back( rib );
-    m_CurrRibID = m_WingSections[m_CurrSectID].m_RibVec.size() - 1;
-}
-
-void FeaMeshMgrSingleton::DelCurrRib()
-{
-    if ( m_WingSections.size() <= 0 )
-    {
-        return;
-    }
-
-    vector< FeaRib* > tempVec;
-    for ( int i = 0 ; i < ( int )m_WingSections[m_CurrSectID].m_RibVec.size() ; i++ )
-    {
-        FeaRib* rib =  m_WingSections[m_CurrSectID].m_RibVec[i];
-        if ( i != m_CurrRibID )
-        {
-            tempVec.push_back( rib );
-        }
-        else
-        {
-            delete rib;
-        }
-    }
-    m_WingSections[m_CurrSectID].m_RibVec = tempVec;
-    m_CurrRibID = 0;
-}
-
-void FeaMeshMgrSingleton::AddSpar()
-{
-    if ( m_WingSections.size() <= 0 )
-    {
-        return;
-    }
-
-    FeaSpar* spar = new FeaSpar();
-    spar->m_PerChord = 0.5;
-    spar->m_AbsSweepFlag = true;
-    spar->m_TrimFlag = true;
-    spar->m_Sweep = 0.0;
-    spar->m_SectID = m_CurrSectID;
-    spar->ComputeEndPoints();
-
-    spar->GetSurf()->SetSurfaceCfdType( vsp::CFD_STRUCTURE );
-
-    m_WingSections[m_CurrSectID].m_SparVec.push_back( spar );
-    m_CurrSparID = m_WingSections[m_CurrSectID].m_SparVec.size() - 1;
-
-}
-
-void FeaMeshMgrSingleton::DelCurrSpar()
-{
-    if ( m_WingSections.size() <= 0 )
-    {
-        return;
-    }
-
-    vector< FeaSpar* > tempVec;
-    for ( int i = 0 ; i < ( int )m_WingSections[m_CurrSectID].m_SparVec.size() ; i++ )
-    {
-        FeaSpar* spar =  m_WingSections[m_CurrSectID].m_SparVec[i];
-        if ( i != m_CurrSparID )
-        {
-            tempVec.push_back( spar );
-        }
-        else
-        {
-            delete spar;
-        }
-    }
-    m_WingSections[m_CurrSectID].m_SparVec = tempVec;
-    m_CurrSparID = 0;
-}
-
-void FeaMeshMgrSingleton::AddPointMass()
-{
-    if ( m_WingSections.size() <= 0 )
-    {
-        return;
-    }
-
-    FeaPointMass* pm = new FeaPointMass();
-    pm->m_PosX = 0;
-    pm->m_PosY = 0;
-    pm->m_PosZ = 0;
-    pm->m_AttachPos = vec3d( 1, 0, 0 );
-
-    m_PointMassVec.push_back( pm );
-
-    m_CurrPointMassID = m_PointMassVec.size() - 1;
-
-}
-
-void FeaMeshMgrSingleton::DelCurrPointMass()
-{
-    vector< FeaPointMass* > tempVec;
-    for ( int i = 0 ; i < ( int )m_PointMassVec.size() ; i++ )
-    {
-        FeaPointMass* pm =  m_PointMassVec[i];
-        if ( i != m_CurrPointMassID )
-        {
-            tempVec.push_back( pm );
-        }
-        else
-        {
-            delete pm;
-        }
-    }
-
-    m_PointMassVec = tempVec;
-    m_CurrPointMassID = 0;
-}
-
-void FeaMeshMgrSingleton::BuildSliceMesh()
-{
-    int i;
-
-    //==== Build Skin FEA Elements ====//
-    for (  i = 0 ; i < ( int )m_SkinVec.size() ; i++ )
-    {
-        m_SkinVec[i]->BuildMesh();
-        m_SkinVec[i]->SetNodeThick();
-    }
-
-    //==== Build Slice FEA Elements ====//
-    for (  i = 0 ; i < ( int )m_SliceVec.size() ; i++ )
-    {
-        m_SliceVec[i]->BuildMesh();
-    }
-
 }
 
 void FeaMeshMgrSingleton::ComputeWriteMass()
 {
-    double total_mass = 0.0;
-    vector< double > upSkinMass;
-    vector< double > lowSkinMass;
-    vector< double > ribMass;
-    vector< double > sparMass;
-
-    for ( int i = 0 ; i < ( int )m_WingSections.size() ; i++ )
-    {
-        double up_skin_mass  = m_WingSections[i].m_UpperSkin.ComputeMass() * m_ThickScale();
-        upSkinMass.push_back( up_skin_mass );
-
-        double low_skin_mass = m_WingSections[i].m_LowerSkin.ComputeMass() * m_ThickScale();
-        lowSkinMass.push_back( low_skin_mass );
-
-        double rib_mass = 0.0;
-        for ( int r = 0 ; r < ( int )m_WingSections[i].m_RibVec.size() ; r++ )
-        {
-            rib_mass += m_WingSections[i].m_RibVec[r]->ComputeMass() * m_ThickScale();
-        }
-        ribMass.push_back( rib_mass );
-
-        double spar_mass = 0.0;
-        for ( int s = 0 ; s < ( int )m_WingSections[i].m_SparVec.size() ; s++ )
-        {
-            spar_mass += m_WingSections[i].m_SparVec[s]->ComputeMass() * m_ThickScale();
-        }
-        sparMass.push_back( spar_mass );
-
-        total_mass += up_skin_mass + low_skin_mass + rib_mass + spar_mass;
-    }
-
-    m_TotalMass = total_mass;
+    m_TotalMass = 0.0;
 
     FILE* fp = fopen( GetStructSettingsPtr()->GetExportFileName( vsp::MASS_FILE_NAME ).c_str(), "w" );
     if ( fp )
     {
-        fprintf( fp, "Section_ID, Upper_Skin_Mass, Lower_Skin_Mass, Rib_Mass, Spar_Mass, Total_Section_Mass\n" );
-        for ( int i = 0 ; i < ( int )m_WingSections.size() ; i++ )
+        double StructMass = 0.0;
+        double FeaSkinMass = 0.0;
+        double FeaRibMass = 0.0;
+        double FeaSparMass = 0.0;
+
+        // Calculate FeaPart Mass
+        double ribmass = 0;
+        double sparmass = 0;
+        double skinmass = 0;
+
+        for ( int k = 0; k < m_FeaElementVec.size(); k++ )
         {
-            double sect_total = upSkinMass[i] + lowSkinMass[i] + ribMass[i] + sparMass[i];
-            fprintf( fp, "%d, %f, %f, %f, %f, %f\n",
-                     i, upSkinMass[i], lowSkinMass[i], ribMass[i], sparMass[i], sect_total );
+            if ( m_FeaElementVec[k]->GetFeaPartType() == vsp::FEA_RIB )
+            {
+                ribmass += m_FeaElementVec[k]->ComputeMass();
+            }
+            else if ( m_FeaElementVec[k]->GetFeaPartType() == vsp::FEA_SPAR )
+            {
+                sparmass += m_FeaElementVec[k]->ComputeMass();
+            }
+            else if ( m_FeaElementVec[k]->GetFeaPartType() == vsp::FEA_SKIN )
+            {
+                skinmass += m_FeaElementVec[k]->ComputeMass();
+            }
         }
-        fprintf( fp, "Total Mass = %f \n", m_TotalMass );
-        fclose( fp );
+
+        FeaRibMass += ribmass;
+        FeaSparMass += sparmass;
+        FeaSkinMass += skinmass;
+
+        StructMass += FeaRibMass + FeaSparMass + FeaSkinMass;
+
+        m_TotalMass += StructMass;
+
+        fprintf( fp, "FeaStruct_Name, Skin_Mass, Rib_Mass, Spar_Mass, Total_Struct_Mass\n" );
+
+        fprintf( fp, "%s, %f, %f, %f, %f\n", m_FeaMeshStruct->GetFeaStructName().c_str(), FeaSkinMass, FeaRibMass, FeaSparMass, StructMass );
+
+        // TODO: Improve/fix mass data for surfaces, structures, etc.
     }
+
+
+    fprintf( fp, "Total Mass = %f \n", m_TotalMass );
+
+    fclose( fp );
 }
 
-FeaNode* FeaMeshMgrSingleton::FindNode(  vector< FeaNode* > nodeVec, int id )
+FeaNode* FeaMeshMgrSingleton::FindNode( vector< FeaNode* > nodeVec, int id )
 {
     //==== jrg Brute Force for Now ====//
     for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
@@ -1322,356 +882,447 @@ FeaNode* FeaMeshMgrSingleton::FindNode(  vector< FeaNode* > nodeVec, int id )
     return NULL;
 }
 
-
-void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
+void FeaMeshMgrSingleton::TagFeaNodes()
 {
     //==== Collect All FeaNodes ====//
-    vector< FeaNode* > nodeVec;
-    for ( int i = 0 ; i < ( int )m_SkinVec.size() ; i++ )
+    m_FeaNodeVec.clear();
+    for ( int i = 0; i < (int)m_FeaElementVec.size(); i++ )
     {
-        if ( m_SkinVec[i]->GetExportFlag() )
-        {
-            m_SkinVec[i]->LoadNodes( nodeVec );
-        }
-    }
-    for ( int i = 0 ; i < ( int )m_SliceVec.size() ; i++ )
-    {
-        m_SliceVec[i]->LoadNodes( nodeVec );
+        m_FeaElementVec[i]->LoadNodes( m_FeaNodeVec );
     }
 
-    vector< vec3d* > allPntVec;
-    for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
+    vector< vec3d* > m_AllPntVec;
+    for ( int i = 0; i < (int)m_FeaNodeVec.size(); i++ )
     {
-        allPntVec.push_back( &nodeVec[i]->m_Pnt );
+        m_AllPntVec.push_back( &m_FeaNodeVec[i]->m_Pnt );
     }
 
     //==== Build Node Map ====//
-    map< int, vector< int > > indMap;
-    vector< int > pntShift;
-    int numPnts = BuildIndMap( allPntVec, indMap, pntShift );
+    m_IndMap.clear();
+    m_PntShift.clear();
+    int numPnts = BuildIndMap( m_AllPntVec, m_IndMap, m_PntShift );
 
     //==== Assign Index Numbers to Nodes ====//
-    for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
+    for ( int i = 0; i < (int)m_FeaNodeVec.size(); i++ )
     {
-        nodeVec[i]->m_Tags.clear();
-        int ind = FindPntIndex( nodeVec[i]->m_Pnt, allPntVec, indMap );
-        nodeVec[i]->m_Index = pntShift[ind] + 1;
+        m_FeaNodeVec[i]->m_Tags.clear();
+        int ind = FindPntIndex( m_FeaNodeVec[i]->m_Pnt, m_AllPntVec, m_IndMap );
+        m_FeaNodeVec[i]->m_Index = m_PntShift[ind] + 1;
     }
 
+    vector < string > skin_id_vec;
+
+    //==== Get Unique Skin IDs ====//
+    for ( unsigned int i = 0; i < m_SurfVec.size(); i++ )
+    {
+        if ( m_SurfVec[i]->GetFeaPartType() == vsp::FEA_SKIN )
+        {
+            if ( std::find( skin_id_vec.begin(), skin_id_vec.end(), m_SurfVec[i]->GetFeaPartID() ) == skin_id_vec.end() )
+            {
+                skin_id_vec.push_back( m_SurfVec[i]->GetFeaPartID() );
+            }
+        }
+    }
+
+    //==== Tag Nodes ====//
+    for ( int j = 0; j < skin_id_vec.size(); j++ )
+    {
+        bool found_skin = false;
+
+        for ( int s = 0; s < (int)m_SurfVec.size(); s++ )
+        {
+            //===== Tag Skin ====//
+            if ( m_SurfVec[s]->GetFeaPartID() == skin_id_vec[j] && !found_skin )
+            {
+                vector< FeaNode* > temp_nVec;
+
+                for ( int r = 0; r < m_FeaElementVec.size(); r++ )
+                {
+                    if ( m_FeaElementVec[r]->GetFeaPartID() == m_SurfVec[s]->GetFeaPartID() )
+                    {
+                        m_FeaElementVec[r]->LoadNodes( temp_nVec );
+                    }
+                }
+
+                for ( int i = 0; i < (int)temp_nVec.size(); i++ )
+                {
+                    int ind = FindPntIndex( temp_nVec[i]->m_Pnt, m_AllPntVec, m_IndMap );
+                    m_FeaNodeVec[ind]->AddTag( vsp::FEA_SKIN, s );
+                }
+                found_skin = true;
+            }
+        }
+    }
+
+    for ( int s = 0; s < (int)m_SurfVec.size(); s++ )
+    {
+        //===== Tag Ribs ====//
+        if ( m_SurfVec[s]->GetFeaPartType() == vsp::FEA_RIB )
+        {
+            vector< FeaNode* > temp_nVec;
+
+            for ( int r = 0; r < m_FeaElementVec.size(); r++ )
+            {
+                if ( m_FeaElementVec[r]->GetFeaPartID() == m_SurfVec[s]->GetFeaPartID() )
+                {
+                    m_FeaElementVec[r]->LoadNodes( temp_nVec );
+                }
+            }
+
+            for ( int i = 0; i < (int)temp_nVec.size(); i++ )
+            {
+                int ind = FindPntIndex( temp_nVec[i]->m_Pnt, m_AllPntVec, m_IndMap );
+                m_FeaNodeVec[ind]->AddTag( vsp::FEA_RIB, s );
+            }
+        }
+        //===== Tag Spars ====//
+        if ( m_SurfVec[s]->GetFeaPartType() == vsp::FEA_SPAR )
+        {
+            vector< FeaNode* > temp_nVec;
+
+            for ( int r = 0; r < m_FeaElementVec.size(); r++ )
+            {
+                if ( m_FeaElementVec[r]->GetFeaPartID() == m_SurfVec[s]->GetFeaPartID() )
+                {
+                    m_FeaElementVec[r]->LoadNodes( temp_nVec );
+                }
+            }
+
+            for ( int i = 0; i < (int)temp_nVec.size(); i++ )
+            {
+                int ind = FindPntIndex( temp_nVec[i]->m_Pnt, m_AllPntVec, m_IndMap );
+                m_FeaNodeVec[ind]->AddTag( vsp::FEA_SPAR, s );
+            }
+        }
+    }
+}
+
+void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
+{
     //Stringc fn( base_filename );
     //fn.concatenate( "NASTRAN.dat" );
 
     FILE* fp = fopen( filename.c_str(), "w" );
     if ( fp )
     {
-        //===== Write Ribs ====//
+        //fprintf( fp, "CEND\n" );
+        fprintf( fp, "BEGIN BULK\n" );
+
+        //===== Write Ribs and Spars ====//
         int elem_id = 0;
         int rib_cnt = 0;
-        for ( int s = 0 ; s < ( int )m_WingSections.size() ; s++ )
+        int spar_cnt = 0;
+        int skin_cnt = 0;
+
+        for ( int s = 0; s < m_SurfVec.size(); s++ )
         {
-            for ( int r = 0 ; r < ( int )m_WingSections[s].m_RibVec.size() ; r++ )
+            if ( m_SurfVec[s]->GetFeaPartType() == vsp::FEA_RIB )
             {
                 rib_cnt++;
-                fprintf( fp, "$Rib,%d\n", r + 1 );
-                FeaRib* rib = m_WingSections[s].m_RibVec[r];
-                for ( int i = 0 ; i < ( int )rib->m_Elements.size() ; i++ )
+                fprintf( fp, "$Rib,%d\n", rib_cnt );
+
+                for ( int i = 0; i < (int)m_FeaElementVec.size(); i++ )
                 {
-                    elem_id++;
-                    rib->m_Elements[i]->WriteNASTRAN( fp, elem_id );
+                    if ( m_FeaElementVec[i]->GetFeaPartID() == m_SurfVec[s]->GetFeaPartID() )
+                    {
+                        elem_id++;
+                        m_FeaElementVec[i]->WriteNASTRAN( fp, elem_id );
+                    }
                 }
-                fprintf( fp, "\n" );
             }
-        }
-        //===== Write Spars ====//
-        int spar_cnt = 0;
-        for ( int s = 0 ; s < ( int )m_WingSections.size() ; s++ )
-        {
-            for ( int r = 0 ; r < ( int )m_WingSections[s].m_SparVec.size() ; r++ )
+            else if ( m_SurfVec[s]->GetFeaPartType() == vsp::FEA_SPAR )
             {
                 spar_cnt++;
-                fprintf( fp, "$Spar,%d\n", r + 1 );
-                FeaSpar* spar = m_WingSections[s].m_SparVec[r];
-                for ( int i = 0 ; i < ( int )spar->m_Elements.size() ; i++ )
+                fprintf( fp, "$Spar,%d\n", spar_cnt );
+
+                for ( int i = 0; i < (int)m_FeaElementVec.size(); i++ )
                 {
-                    elem_id++;
-                    spar->m_Elements[i]->WriteNASTRAN( fp, elem_id );
+                    if ( m_FeaElementVec[i]->GetFeaPartID() == m_SurfVec[s]->GetFeaPartID() )
+                    {
+                        elem_id++;
+                        m_FeaElementVec[i]->WriteNASTRAN( fp, elem_id );
+                    }
+                }
+            }
+        }
+
+        vector < string > skin_id_vec;
+
+        //==== Get Unique Skin IDs ====//
+        for ( unsigned int i = 0; i < m_SurfVec.size(); i++ )
+        {
+            if ( m_SurfVec[i]->GetFeaPartType() == vsp::FEA_SKIN )
+            {
+                if ( std::find( skin_id_vec.begin(), skin_id_vec.end(), m_SurfVec[i]->GetFeaPartID() ) == skin_id_vec.end() )
+                {
+                    skin_id_vec.push_back( m_SurfVec[i]->GetFeaPartID() );
+                }
+            }
+        }
+
+        //===== Write Skin ====//
+        for ( int j = 0; j < skin_id_vec.size(); j++ )
+        {
+            bool found_skin = false;
+            for ( int s = 0; s < m_SurfVec.size(); s++ )
+            {
+                if ( m_SurfVec[s]->GetFeaPartID() == skin_id_vec[j] && !found_skin )
+                {
+                    skin_cnt++;
+                    fprintf( fp, "$Skin,%d\n", skin_cnt );
+
+                    for ( int i = 0; i < (int)m_FeaElementVec.size(); i++ )
+                    {
+                        if ( m_FeaElementVec[i]->GetFeaPartID() == m_SurfVec[s]->GetFeaPartID() )
+                        {
+                            elem_id++;
+                            m_FeaElementVec[i]->WriteNASTRAN( fp, elem_id );
+                        }
+                    }
+                    fprintf( fp, "\n" );
+
+                    found_skin = true;
+                }
+            }
+        }
+
+        fprintf( fp, "$Skin Gridpoints\n" );
+
+        //==== Skin Nodes ====//
+        for ( int i = 0; i < (int)m_FeaNodeVec.size(); i++ )
+        {
+            if ( m_PntShift[i] >= 0 )
+            {
+                if ( m_FeaNodeVec[i]->HasOnlyType( vsp::FEA_SKIN ) )
+                {
+                    m_FeaNodeVec[i]->WriteNASTRAN( fp );
+                }
+            }
+        }
+
+        fprintf( fp, "\n" );
+
+        rib_cnt = 0;
+        spar_cnt = 0;
+
+        //==== FeaParts ====//
+        for ( int s = 0; s < (int)m_SurfVec.size(); s++ )
+        {
+            //==== Spars ====//
+            if ( m_SurfVec[s]->GetFeaPartType() == vsp::FEA_SPAR )
+            {
+                spar_cnt++;
+                fprintf( fp, "$Spar %d Gridpoints\n", spar_cnt );
+
+                for ( int i = 0; i < (int)m_FeaNodeVec.size(); i++ )
+                {
+                    if ( m_PntShift[i] >= 0 && m_FeaNodeVec[i]->HasTag( vsp::FEA_SPAR, s ) )
+                    {
+                        if ( !m_FeaNodeVec[i]->HasTag( vsp::FEA_RIB ) )
+                        {
+                            m_FeaNodeVec[i]->WriteNASTRAN( fp );
+                        }
+                    }
+                }
+                fprintf( fp, "\n" );
+            }
+
+            //==== Ribs ====//
+            if ( m_SurfVec[s]->GetFeaPartType() == vsp::FEA_RIB )
+            {
+                rib_cnt++;
+                fprintf( fp, "$Rib %d Gridpoints\n", rib_cnt );
+
+                for ( int i = 0; i < (int)m_FeaNodeVec.size(); i++ )
+                {
+                    if ( m_PntShift[i] >= 0 && m_FeaNodeVec[i]->HasTag( vsp::FEA_RIB, s ) )
+                    {
+                        if ( !m_FeaNodeVec[i]->HasTag( vsp::FEA_SPAR ) )
+                        {
+                            m_FeaNodeVec[i]->WriteNASTRAN( fp );
+                        }
+                    }
                 }
                 fprintf( fp, "\n" );
             }
         }
-        //===== Write Upper Skin ====//
-        fprintf( fp, "$Upperskin\n" );
-        for ( int s = 0 ; s < ( int )m_WingSections.size() ; s++ )
-        {
-            FeaSkin* skin = &m_WingSections[s].m_UpperSkin;
-            for ( int i = 0 ; i < ( int )skin->m_Elements.size() ; i++ )
-            {
-                elem_id++;
-                skin->m_Elements[i]->WriteNASTRAN( fp, elem_id );
-            }
-        }
-        fprintf( fp, "\n" );
-
-        //===== Write Lower Skin ====//
-        fprintf( fp, "$Lowerskin\n" );
-        for ( int s = 0 ; s < ( int )m_WingSections.size() ; s++ )
-        {
-            FeaSkin* skin = &m_WingSections[s].m_LowerSkin;
-            for ( int i = 0 ; i < ( int )skin->m_Elements.size() ; i++ )
-            {
-                elem_id++;
-                skin->m_Elements[i]->WriteNASTRAN( fp, elem_id );
-            }
-        }
-        fprintf( fp, "\n" );
-        fprintf( fp, "$Gridpoints\n\n" );
 
         //==== Write Rib Spar Intersections =====//
-        for ( int r = 0 ; r < rib_cnt ; r++ )
+        for ( int r = 0 ; r < m_SurfVec.size(); r++ )
         {
-            for ( int s = 0 ; s < spar_cnt ; s++ )
+            if ( m_SurfVec[r]->GetFeaPartType() == vsp::FEA_RIB )
             {
-                FeaNode* upperINode = NULL;
-                FeaNode* lowerINode = NULL;
-                for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
+                for ( int s = 0; s < m_SurfVec.size(); s++ )
                 {
-                    if ( nodeVec[i]->m_Tags.size() > 1 )
+                    if ( m_SurfVec[s]->GetFeaPartType() == vsp::FEA_SPAR )
                     {
-                        if ( nodeVec[i]->HasTag( RIB_UPPER, r + 1 ) && nodeVec[i]->HasTag( SPAR_UPPER, s + 1 ) )
+                        fprintf( fp, "\n" );
+                        fprintf( fp, "$Intersection,%d,%d\n", r, s );
+
+                        for ( int i = 0; i < (int)m_FeaNodeVec.size(); i++ )
                         {
-                            upperINode = nodeVec[i];
+                            if ( m_PntShift[i] >= 0 )
+                            {
+                                if ( m_FeaNodeVec[i]->HasTag( vsp::FEA_RIB, r ) && m_FeaNodeVec[i]->HasTag( vsp::FEA_SPAR, s ) )
+                                {
+                                    m_FeaNodeVec[i]->WriteNASTRAN( fp );
+                                }
+                            }
                         }
-                        if ( nodeVec[i]->HasTag( RIB_LOWER, r + 1 ) && nodeVec[i]->HasTag( SPAR_LOWER, s + 1 ) )
-                        {
-                            lowerINode = nodeVec[i];
-                        }
-                    }
-                }
-                if ( upperINode && lowerINode )
-                {
-                    fprintf( fp, "\n" );
-                    fprintf( fp, "$Intersection,%d,%d\n", r + 1, s + 1 );
-                    upperINode->WriteNASTRAN( fp );
-                    lowerINode->WriteNASTRAN( fp );
-                }
-            }
-        }
-        //==== Write Out Rib LE/TE ====//
-        for ( int r = 0 ; r < rib_cnt ; r++ )
-        {
-            vector< FeaNode* > letenodes;
-            for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
-            {
-                if ( nodeVec[i]->m_Tags.size() == 2 )
-                {
-                    if ( nodeVec[i]->HasTag( RIB_LOWER, r + 1 ) && nodeVec[i]->HasTag( RIB_UPPER, r + 1 ) )
-                    {
-                        letenodes.push_back( nodeVec[i] );
+                        fprintf( fp, "\n" );
                     }
                 }
             }
-            if ( letenodes.size() == 2 )
-            {
-                if ( letenodes[1]->m_Pnt.x() < letenodes[0]->m_Pnt.x() )
-                {
-                    FeaNode* temp = letenodes[0];
-                    letenodes[0]  = letenodes[1];
-                    letenodes[1]  = temp;
-                }
-                fprintf( fp, "\n" );
-                fprintf( fp, "$RibLE,%d\n", r + 1 );
-                letenodes[0]->WriteNASTRAN( fp );
-
-                fprintf( fp, "\n" );
-                fprintf( fp, "$RibTE,%d\n", r + 1 );
-                letenodes[1]->WriteNASTRAN( fp );
-            }
         }
 
-        //==== Write Rib Upper Boundary =====//
-        for ( int r = 0 ; r < rib_cnt ; r++ )
-        {
-            fprintf( fp, "\n" );
-            fprintf( fp, "$RibUpperBoundary,%d\n", r + 1 );
-            for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
-            {
-                if ( nodeVec[i]->HasTag( RIB_UPPER, r + 1 ) && nodeVec[i]->m_Tags.size() == 1 )
-                {
-                    nodeVec[i]->WriteNASTRAN( fp );
-                }
-            }
-        }
-        //==== Write Spar Upper Boundary =====//
-        for ( int s = 0 ; s < spar_cnt ; s++ )
-        {
-            fprintf( fp, "\n" );
-            fprintf( fp, "$SparUpperBoundary,%d\n", s + 1 );
-            for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
-            {
-                if ( nodeVec[i]->HasTag( SPAR_UPPER, s + 1 ) && nodeVec[i]->m_Tags.size() == 1 )
-                {
-                    nodeVec[i]->WriteNASTRAN( fp );
-                }
-            }
-        }
-        //==== Write Rib Lower Boundary  =====//
-        for ( int r = 0 ; r < rib_cnt ; r++ )
-        {
-            fprintf( fp, "\n" );
-            fprintf( fp, "$RibLowerBoundary,%d\n", r + 1 );
-            for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
-            {
-                if ( nodeVec[i]->HasTag( RIB_LOWER, r + 1 ) && nodeVec[i]->m_Tags.size() == 1 )
-                {
-                    nodeVec[i]->WriteNASTRAN( fp );
-                }
-            }
-        }
-        //==== Write Spar Lower Boundary =====//
-        for ( int s = 0 ; s < spar_cnt ; s++ )
-        {
-            fprintf( fp, "\n" );
-            fprintf( fp, "$SparLowerBoundary,%d\n", s + 1 );
-            for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
-            {
-                if ( nodeVec[i]->HasTag( SPAR_LOWER, s + 1 ) && nodeVec[i]->m_Tags.size() == 1 )
-                {
-                    nodeVec[i]->WriteNASTRAN( fp );
-                }
-            }
-        }
-        //==== Write Point Masses =====//
-        for ( int p = 0 ; p < ( int )m_PointMassVec.size() ; p++ )
-        {
-            //==== Snap To Nearest Attach Point ====//
-            int close_ind  = 0;
-            double close_d = 1.0e12;
+        ////==== Write Out Rib LE/TE ====//
+        //for ( int r = 0 ; r < rib_cnt ; r++ )
+        //{
+        //    vector< FeaNode* > letenodes;
+        //    for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
+        //    {
+        //        if ( nodeVec[i]->m_Tags.size() == 2 )
+        //        {
+        //            if ( nodeVec[i]->HasTag( RIB_LOWER, r + 1 ) && nodeVec[i]->HasTag( RIB_UPPER, r + 1 ) )
+        //            {
+        //                letenodes.push_back( nodeVec[i] );
+        //            }
+        //        }
+        //    }
+        //    if ( letenodes.size() == 2 )
+        //    {
+        //        if ( letenodes[1]->m_Pnt.x() < letenodes[0]->m_Pnt.x() )
+        //        {
+        //            FeaNode* temp = letenodes[0];
+        //            letenodes[0]  = letenodes[1];
+        //            letenodes[1]  = temp;
+        //        }
+        //        fprintf( fp, "\n" );
+        //        fprintf( fp, "$RibLE,%d\n", r + 1 );
+        //        letenodes[0]->WriteNASTRAN( fp );
 
-            FeaNode node;
-            node.m_Pnt = vec3d( m_PointMassVec[p]->m_PosX(), m_PointMassVec[p]->m_PosY(), m_PointMassVec[p]->m_PosZ() );
-            node.m_Index = numPnts + p + 1;
-            fprintf( fp, "\n" );
-            fprintf( fp, "$Pointmass,%d\n", p + 1 );
-            node.WriteNASTRAN( fp );
+        //        fprintf( fp, "\n" );
+        //        fprintf( fp, "$RibTE,%d\n", r + 1 );
+        //        letenodes[1]->WriteNASTRAN( fp );
+        //    }
+        //}
 
-            //==== Find Attach Point Index ====//
-            int ind = FindPntIndex( m_PointMassVec[p]->m_AttachPos, allPntVec, indMap );
-            fprintf( fp, "$Connects,%d\n", pntShift[ind] + 1 );
-        }
+        ////==== Write Rib Upper Boundary =====//
+        //for ( int r = 0 ; r < rib_cnt ; r++ )
+        //{
+        //    fprintf( fp, "\n" );
+        //    fprintf( fp, "$RibUpperBoundary,%d\n", r + 1 );
+        //    for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
+        //    {
+        //        if ( nodeVec[i]->HasTag( RIB_UPPER, r + 1 ) && nodeVec[i]->m_Tags.size() == 1 )
+        //        {
+        //            nodeVec[i]->WriteNASTRAN( fp );
+        //        }
+        //    }
+        //}
+        ////==== Write Spar Upper Boundary =====//
+        //for ( int s = 0 ; s < spar_cnt ; s++ )
+        //{
+        //    fprintf( fp, "\n" );
+        //    fprintf( fp, "$SparUpperBoundary,%d\n", s + 1 );
+        //    for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
+        //    {
+        //        if ( nodeVec[i]->HasTag( SPAR_UPPER, s + 1 ) && nodeVec[i]->m_Tags.size() == 1 )
+        //        {
+        //            nodeVec[i]->WriteNASTRAN( fp );
+        //        }
+        //    }
+        //}
+        ////==== Write Rib Lower Boundary  =====//
+        //for ( int r = 0 ; r < rib_cnt ; r++ )
+        //{
+        //    fprintf( fp, "\n" );
+        //    fprintf( fp, "$RibLowerBoundary,%d\n", r + 1 );
+        //    for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
+        //    {
+        //        if ( nodeVec[i]->HasTag( RIB_LOWER, r + 1 ) && nodeVec[i]->m_Tags.size() == 1 )
+        //        {
+        //            nodeVec[i]->WriteNASTRAN( fp );
+        //        }
+        //    }
+        //}
+        ////==== Write Spar Lower Boundary =====//
+        //for ( int s = 0 ; s < spar_cnt ; s++ )
+        //{
+        //    fprintf( fp, "\n" );
+        //    fprintf( fp, "$SparLowerBoundary,%d\n", s + 1 );
+        //    for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
+        //    {
+        //        if ( nodeVec[i]->HasTag( SPAR_LOWER, s + 1 ) && nodeVec[i]->m_Tags.size() == 1 )
+        //        {
+        //            nodeVec[i]->WriteNASTRAN( fp );
+        //        }
+        //    }
+        //}
+        ////==== Write Point Masses =====//
+        //for ( int p = 0 ; p < ( int )m_PointMassVec.size() ; p++ )
+        //{
+        //    //==== Snap To Nearest Attach Point ====//
+        //    int close_ind  = 0;
+        //    double close_d = 1.0e12;
+
+        //    FeaNode node;
+        //    node.m_Pnt = vec3d( m_PointMassVec[p]->m_PosX(), m_PointMassVec[p]->m_PosY(), m_PointMassVec[p]->m_PosZ() );
+        //    node.m_Index = numPnts + p + 1;
+        //    fprintf( fp, "\n" );
+        //    fprintf( fp, "$Pointmass,%d\n", p + 1 );
+        //    node.WriteNASTRAN( fp );
+
+        //    //==== Find Attach Point Index ====//
+        //    int ind = FindPntIndex( m_PointMassVec[p]->m_AttachPos, allPntVec, indMap );
+        //    fprintf( fp, "$Connects,%d\n", pntShift[ind] + 1 );
+        //}
 
         //==== Remaining Nodes ====//
         fprintf( fp, "\n" );
         fprintf( fp, "$Remainingnodes\n" );
-        for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
+        for ( int i = 0 ; i < ( int )m_FeaNodeVec.size() ; i++ )
         {
-            if ( pntShift[i] >= 0 && nodeVec[i]->m_Tags.size() == 0 )
+            if ( m_PntShift[i] >= 0 && m_FeaNodeVec[i]->m_Tags.size() == 0 )
             {
-                nodeVec[i]->WriteNASTRAN( fp );
+                m_FeaNodeVec[i]->WriteNASTRAN( fp );
             }
         }
+
+        //==== Properties ====//
+        fprintf( fp, "\n" );
+        fprintf( fp, "$Properties\n" );
+
+        vector < FeaProperty* > property_vec = StructureMgr.GetFeaPropertyVec();
+
+        for ( unsigned int i = 0; i < property_vec.size(); i++ )
+        {
+            property_vec[i]->WriteNASTRAN( fp, i );
+        }
+
+        //==== Materials ====//
+        fprintf( fp, "\n" );
+        fprintf( fp, "$Materials\n" );
+
+        vector < FeaMaterial* > material_vec = StructureMgr.GetFeaMaterialVec();
+
+        for ( unsigned int i = 0; i < material_vec.size(); i++ )
+        {
+            material_vec[i]->WriteNASTRAN( fp, i );
+        }
+
+
+        fprintf( fp, "END DATA\n" );
 
         fclose( fp );
     }
 }
 
-void FeaMeshMgrSingleton::WriteCalculix( )
+void FeaMeshMgrSingleton::WriteCalculix()
 {
-    //==== Collect All FeaNodes ====//
-    vector< FeaNode* > nodeVec;
-    for ( int s = 0 ; s < ( int )m_WingSections.size() ; s++ )
-    {
-        if ( m_WingSections[s].m_UpperSkin.GetExportFlag() )
-        {
-            m_WingSections[s].m_UpperSkin.LoadNodes( nodeVec );
-        }
-        if ( m_WingSections[s].m_LowerSkin.GetExportFlag() )
-        {
-            m_WingSections[s].m_LowerSkin.LoadNodes( nodeVec );
-        }
-        for ( int r = 0 ; r < ( int )m_WingSections[s].m_RibVec.size() ; r++ )
-        {
-            m_WingSections[s].m_RibVec[r]->LoadNodes( nodeVec );
-        }
-        for ( int r = 0 ; r < ( int )m_WingSections[s].m_SparVec.size() ; r++ )
-        {
-            m_WingSections[s].m_SparVec[r]->LoadNodes( nodeVec );
-        }
-    }
-
-    vector< vec3d* > allPntVec;
-    for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
-    {
-        allPntVec.push_back( &nodeVec[i]->m_Pnt );
-    }
-
-    //==== Build Node Map ====//
-    map< int, vector< int > > indMap;
-    vector< int > pntShift;
-    BuildIndMap( allPntVec, indMap, pntShift );
-
-    //==== Assign Index Numbers to Nodes ====//
-    for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
-    {
-        nodeVec[i]->m_Tags.clear();
-        int ind = FindPntIndex( nodeVec[i]->m_Pnt, allPntVec, indMap );
-        nodeVec[i]->m_Index = pntShift[ind] + 1;
-    }
-
-    //==== Tag Nodes ====//
-    vector< FeaSkin* > upperSkins;
-    vector< FeaSkin* > lowerSkins;
-    vector< FeaRib*  > ribs;
-    vector< FeaSpar* > spars;
-    for ( int s = 0 ; s < ( int )m_WingSections.size() ; s++ )
-    {
-        if ( m_WingSections[s].m_UpperSkin.GetExportFlag() )
-        {
-            vector< FeaNode* > nVec;
-            m_WingSections[s].m_UpperSkin.LoadNodes( nVec );
-            for ( int i = 0 ; i < ( int )nVec.size() ; i++ )
-            {
-                int ind = FindPntIndex( nVec[i]->m_Pnt, allPntVec, indMap );
-                nodeVec[ind]->AddTag( SKIN_UPPER, s );
-            }
-            upperSkins.push_back( &m_WingSections[s].m_UpperSkin );
-        }
-        if ( m_WingSections[s].m_LowerSkin.GetExportFlag() )
-        {
-            vector< FeaNode* > nVec;
-            m_WingSections[s].m_LowerSkin.LoadNodes( nVec );
-            for ( int i = 0 ; i < ( int )nVec.size() ; i++ )
-            {
-                int ind = FindPntIndex( nVec[i]->m_Pnt, allPntVec, indMap );
-                nodeVec[ind]->AddTag( SKIN_LOWER, s );
-            }
-            lowerSkins.push_back( &m_WingSections[s].m_LowerSkin );
-        }
-
-        //===== Tag Ribs ====//
-        for ( int r = 0 ; r < ( int )m_WingSections[s].m_RibVec.size() ; r++ )
-        {
-            vector< FeaNode* > nVec;
-            m_WingSections[s].m_RibVec[r]->LoadNodes( nVec );
-            for ( int i = 0 ; i < ( int )nVec.size() ; i++ )
-            {
-                int ind = FindPntIndex( nVec[i]->m_Pnt, allPntVec, indMap );
-                nodeVec[ind]->AddTag( RIB_ALL, r );
-            }
-            ribs.push_back( m_WingSections[s].m_RibVec[r] );
-        }
-        //===== Tag Spars ====//
-        for ( int r = 0 ; r < ( int )m_WingSections[s].m_SparVec.size() ; r++ )
-        {
-            vector< FeaNode* > nVec;
-            m_WingSections[s].m_SparVec[r]->LoadNodes( nVec );
-            for ( int i = 0 ; i < ( int )nVec.size() ; i++ )
-            {
-                int ind = FindPntIndex( nVec[i]->m_Pnt, allPntVec, indMap );
-                nodeVec[ind]->AddTag( SPAR_ALL, r );
-            }
-            spars.push_back( m_WingSections[s].m_SparVec[r] );
-        }
-    }
+    int rib_cnt = 0;
+    int spar_cnt = 0;
+    int skin_cnt = 0;
 
 //for ( int i = 0 ; i < (int)nodeVec.size() ; i++ )
 //{
@@ -1689,168 +1340,207 @@ void FeaMeshMgrSingleton::WriteCalculix( )
     if ( fp )
     {
         int elem_id = 1;
+        int property_id = 0;
 
-        //==== Upper Skin Nodes ====//
-        fprintf( fp, "**%%Upper Skin\n" );
-        fprintf( fp, "*NODE, NSET=Nupperskin\n" );
-        for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
+        //==== Skin Nodes ====//
+        fprintf( fp, "**%%Skin\n" );
+        fprintf( fp, "*NODE, NSET=Nskin\n" );
+        for ( int i = 0 ; i < ( int )m_FeaNodeVec.size() ; i++ )
         {
-            if ( pntShift[i] >= 0 )
+            if ( m_PntShift[i] >= 0 )
             {
-                if ( nodeVec[i]->HasOnlyType( SKIN_UPPER ) )
+                if ( m_FeaNodeVec[i]->HasOnlyType( vsp::FEA_SKIN ) )
                 {
-                    nodeVec[i]->WriteCalculix( fp );
-                }
-                if ( ( nodeVec[i]->HasTag( SKIN_UPPER ) && nodeVec[i]->HasTag( SKIN_LOWER ) ) &&
-                        ( !nodeVec[i]->HasTag( RIB_ALL )    && !nodeVec[i]->HasTag( SPAR_ALL ) ) )
-                {
-                    nodeVec[i]->WriteCalculix( fp );
+                    m_FeaNodeVec[i]->WriteCalculix( fp );
                 }
             }
         }
         fprintf( fp, "\n" );
-        fprintf( fp, "*ELEMENT, TYPE=S6, ELSET=Eupperskin\n" );
-        for ( int s = 0 ; s < ( int )upperSkins.size() ; s++ )
+        fprintf( fp, "*ELEMENT, TYPE=S6, ELSET=Eskin\n" );
+        for ( int s = 0 ; s < ( int )m_FeaElementVec.size() ; s++ )
         {
-            for ( int e = 0 ; e < ( int )upperSkins[s]->m_Elements.size() ; e++ )
+            if ( m_FeaElementVec[s]->GetFeaPartType() == vsp::FEA_SKIN )
             {
-                if ( upperSkins[s]->m_Elements[e]->GetType() == FeaElement::FEA_TRI_6 )
+                if ( m_FeaElementVec[s]->GetElementType() == FeaElement::FEA_TRI_6 )
                 {
-                    upperSkins[s]->m_Elements[e]->WriteCalculix( fp, elem_id );
+                    m_FeaElementVec[s]->WriteCalculix( fp, elem_id );
                     elem_id++;
-                }
-            }
-        }
-        //==== Upper Skin Nodes ====//
-        fprintf( fp, "\n" );
-        fprintf( fp, "**%%Lower Skin\n" );
-        fprintf( fp, "*NODE, NSET=Nlowerskin\n" );
-        for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
-        {
-            if ( pntShift[i] >= 0 )
-            {
-                if ( nodeVec[i]->HasOnlyType( SKIN_LOWER ) )
-                {
-                    nodeVec[i]->WriteCalculix( fp );
-                }
-            }
-        }
-        fprintf( fp, "\n" );
-        fprintf( fp, "*ELEMENT, TYPE=S6, ELSET=Elowerskin\n" );
-        for ( int s = 0 ; s < ( int )lowerSkins.size() ; s++ )
-        {
-            for ( int e = 0 ; e < ( int )lowerSkins[s]->m_Elements.size() ; e++ )
-            {
-                if ( lowerSkins[s]->m_Elements[e]->GetType() == FeaElement::FEA_TRI_6 )
-                {
-                    lowerSkins[s]->m_Elements[e]->WriteCalculix( fp, elem_id );
-                    elem_id++;
+                    property_id = m_FeaElementVec[s]->GetFeaPropertyIndex();
                 }
             }
         }
 
-        //==== Spars ====//
-        for ( int s = 0 ; s < ( int )spars.size() ; s++ )
-        {
-            fprintf( fp, "\n" );
-            fprintf( fp, "**%%Spar %d\n", s );
-            fprintf( fp, "*NODE, NSET=Nspar%d\n", s );
+        fprintf( fp, "\n" );
+        StructureMgr.GetFeaProperty( property_id )->WriteCalculix( fp, "Eskin" );
 
-            for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
+        char str[256];
+
+        //==== FeaParts ====//
+        for ( int s = 0 ; s < ( int )m_SurfVec.size() ; s++ )
+        {
+            //==== Spars ====//
+            if ( m_SurfVec[s]->GetFeaPartType() == vsp::FEA_SPAR )
             {
-                if ( pntShift[i] >= 0 && nodeVec[i]->HasTag( SPAR_ALL, s ) )
+                spar_cnt++;
+
+                fprintf( fp, "\n" );
+                fprintf( fp, "**%%Spar %d\n", spar_cnt );
+                fprintf( fp, "*NODE, NSET=Nspar%d\n", spar_cnt );
+
+                for ( int i = 0; i < (int)m_FeaNodeVec.size(); i++ )
                 {
-                    if ( !nodeVec[i]->HasTag( RIB_ALL ) )
+                    if ( m_PntShift[i] >= 0 && m_FeaNodeVec[i]->HasTag( vsp::FEA_SPAR, s ) )
                     {
-                        nodeVec[i]->m_Thick = spars[s]->m_Thick();
-                        nodeVec[i]->WriteCalculix( fp );
+                        if ( !m_FeaNodeVec[i]->HasTag( vsp::FEA_RIB ) )
+                        {
+                            m_FeaNodeVec[i]->WriteCalculix( fp );
+                        }
                     }
                 }
-            }
 
-            fprintf( fp, "\n" );
-            fprintf( fp, "*ELEMENT, TYPE=S6, ELSET=Espartri%d\n", s );
-            for ( int e = 0 ; e < ( int )spars[s]->m_Elements.size() ; e++ )
-            {
-                if ( spars[s]->m_Elements[e]->GetType() == FeaElement::FEA_TRI_6 )
+                fprintf( fp, "\n" );
+                fprintf( fp, "*ELEMENT, TYPE=S6, ELSET=Espartri%d\n", spar_cnt );
+                for ( int i = 0; i < (int)m_FeaElementVec.size(); i++ )
                 {
-                    spars[s]->m_Elements[e]->WriteCalculix( fp, elem_id );
-                    elem_id++;
-                }
-            }
-            fprintf( fp, "\n" );
-            fprintf( fp, "*ELEMENT, TYPE=S8, ELSET=Esparquad%d\n", s );
-            for ( int e = 0 ; e < ( int )spars[s]->m_Elements.size() ; e++ )
-            {
-                if ( spars[s]->m_Elements[e]->GetType() == FeaElement::FEA_QUAD_8 )
-                {
-                    spars[s]->m_Elements[e]->WriteCalculix( fp, elem_id );
-                    elem_id++;
-                }
-            }
-        }
-        //==== Ribs ====//
-        for ( int r = 0 ; r < ( int )ribs.size() ; r++ )
-        {
-            fprintf( fp, "\n" );
-            fprintf( fp, "**%%Rib %d\n", r );
-            fprintf( fp, "*NODE, NSET=Nrib%d\n", r );
-
-            for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
-            {
-                if ( pntShift[i] >= 0 && nodeVec[i]->HasTag( RIB_ALL, r ) )
-                {
-                    if ( !nodeVec[i]->HasTag( SPAR_ALL ) )
+                    if ( m_FeaElementVec[i]->GetFeaPartID() == m_SurfVec[s]->GetFeaPartID() )
                     {
-                        nodeVec[i]->m_Thick = ribs[r]->m_Thick();
-                        nodeVec[i]->WriteCalculix( fp );
+                        if ( m_FeaElementVec[i]->GetElementType() == FeaElement::FEA_TRI_6 )
+                        {
+                            m_FeaElementVec[i]->WriteCalculix( fp, elem_id );
+                            elem_id++;
+                            property_id = m_FeaElementVec[i]->GetFeaPropertyIndex();
+                        }
                     }
                 }
-            }
 
-            fprintf( fp, "\n" );
-            fprintf( fp, "*ELEMENT, TYPE=S6, ELSET=Eribtri%d\n", r );
-            for ( int e = 0 ; e < ( int )ribs[r]->m_Elements.size() ; e++ )
-            {
-                if ( ribs[r]->m_Elements[e]->GetType() == FeaElement::FEA_TRI_6 )
+                fprintf( fp, "\n" );
+                sprintf( str, "Espartri%d", spar_cnt );
+                StructureMgr.GetFeaProperty( property_id )->WriteCalculix( fp, str );
+
+                fprintf( fp, "\n" );
+                fprintf( fp, "*ELEMENT, TYPE=S8, ELSET=Esparquad%d\n", spar_cnt );
+                for ( int i = 0; i < (int)m_FeaElementVec.size(); i++ )
                 {
-                    ribs[r]->m_Elements[e]->WriteCalculix( fp, elem_id );
-                    elem_id++;
+                    if ( m_FeaElementVec[i]->GetFeaPartID() == m_SurfVec[s]->GetFeaPartID() )
+                    {
+                        if ( m_FeaElementVec[i]->GetElementType() == FeaElement::FEA_QUAD_8 )
+                        {
+                            m_FeaElementVec[i]->WriteCalculix( fp, elem_id );
+                            elem_id++;
+                            property_id = m_FeaElementVec[i]->GetFeaPropertyIndex();
+                        }
+                    }
                 }
+
+                fprintf( fp, "\n" );
+                sprintf( str, "Esparquad%d", spar_cnt );
+                StructureMgr.GetFeaProperty( property_id )->WriteCalculix( fp, str );
             }
-            fprintf( fp, "\n" );
-            fprintf( fp, "*ELEMENT, TYPE=S8, ELSET=Eribquad%d\n", r );
-            for ( int e = 0 ; e < ( int )ribs[r]->m_Elements.size() ; e++ )
+            //==== Ribs ====//
+            if ( m_SurfVec[s]->GetFeaPartType() == vsp::FEA_RIB )
             {
-                if ( ribs[r]->m_Elements[e]->GetType() == FeaElement::FEA_QUAD_8 )
+                rib_cnt++;
+
+                fprintf( fp, "\n" );
+                fprintf( fp, "**%%Rib %d\n", rib_cnt );
+                fprintf( fp, "*NODE, NSET=Nrib%d\n", rib_cnt );
+
+                for ( int i = 0; i < (int)m_FeaNodeVec.size(); i++ )
                 {
-                    ribs[r]->m_Elements[e]->WriteCalculix( fp, elem_id );
-                    elem_id++;
+                    if ( m_PntShift[i] >= 0 && m_FeaNodeVec[i]->HasTag( vsp::FEA_RIB, s ) )
+                    {
+                        if ( !m_FeaNodeVec[i]->HasTag( vsp::FEA_SPAR ) )
+                        {
+                            m_FeaNodeVec[i]->WriteCalculix( fp );
+                        }
+                    }
                 }
+
+                fprintf( fp, "\n" );
+                fprintf( fp, "*ELEMENT, TYPE=S6, ELSET=Eribtri%d\n", rib_cnt );
+                for ( int i = 0; i < (int)m_FeaElementVec.size(); i++ )
+                {
+                    if ( m_FeaElementVec[i]->GetFeaPartID() == m_SurfVec[s]->GetFeaPartID() )
+                    {
+                        if ( m_FeaElementVec[i]->GetElementType() == FeaElement::FEA_TRI_6 )
+                        {
+                            m_FeaElementVec[i]->WriteCalculix( fp, elem_id );
+                            elem_id++;
+                            property_id = m_FeaElementVec[i]->GetFeaPropertyIndex();
+                        }
+                    }
+                }
+
+                fprintf( fp, "\n" );
+                sprintf( str, "Eribtri%d", rib_cnt );
+                StructureMgr.GetFeaProperty( property_id )->WriteCalculix( fp, str );
+
+                fprintf( fp, "\n" );
+                fprintf( fp, "*ELEMENT, TYPE=S8, ELSET=Eribquad%d\n", rib_cnt );
+                for ( int i = 0; i < (int)m_FeaElementVec.size(); i++ )
+                {
+                    if ( m_FeaElementVec[i]->GetFeaPartID() == m_SurfVec[s]->GetFeaPartID() )
+                    {
+                        if ( m_FeaElementVec[i]->GetElementType() == FeaElement::FEA_QUAD_8 )
+                        {
+                            m_FeaElementVec[i]->WriteCalculix( fp, elem_id );
+                            elem_id++;
+                            property_id = m_FeaElementVec[i]->GetFeaPropertyIndex();
+                        }
+                    }
+                }
+
+                fprintf( fp, "\n" );
+                sprintf( str, "Eribquad%d", rib_cnt );
+                StructureMgr.GetFeaProperty( property_id )->WriteCalculix( fp, str );
             }
         }
+
+        rib_cnt = 0;
 
         //==== Rib Spar Intersections ====//
-        for ( int r = 0 ; r < ( int )ribs.size() ; r++ )
+        for ( int r = 0 ; r < ( int )m_SurfVec.size(); r++ )
         {
-            for ( int s = 0 ; s < ( int )spars.size() ; s++ )
+            if ( m_SurfVec[r]->GetFeaPartType() == vsp::FEA_RIB )
             {
-                fprintf( fp, "\n" );
-                fprintf( fp, "**%%Rib-Spar connections %d %d\n", r, s );
-                fprintf( fp, "*NODE, NSET=Nconnections%d%d\n", r, s );
-                for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
+                rib_cnt++;
+                spar_cnt = 0;
+
+                for ( int s = 0; s < (int)m_SurfVec.size(); s++ )
                 {
-                    if ( pntShift[i] >= 0 )
+                    if ( m_SurfVec[s]->GetFeaPartType() == vsp::FEA_SPAR )
                     {
-                        if ( nodeVec[i]->HasTag( RIB_ALL, r ) && nodeVec[i]->HasTag( SPAR_ALL, s ) )
+                        spar_cnt++;
+                        fprintf( fp, "\n" );
+                        fprintf( fp, "**%%Rib-Spar connections %d %d\n", rib_cnt, spar_cnt );
+                        fprintf( fp, "*NODE, NSET=Nconnections%d%d\n", rib_cnt, spar_cnt );
+                        for ( int i = 0; i < (int)m_FeaNodeVec.size(); i++ )
                         {
-                            nodeVec[i]->m_Thick = 0.5 * ( ribs[r]->m_Thick() + spars[s]->m_Thick() );
-                            nodeVec[i]->WriteCalculix( fp );
+                            if ( m_PntShift[i] >= 0 )
+                            {
+                                if ( m_FeaNodeVec[i]->HasTag( vsp::FEA_RIB, r ) && m_FeaNodeVec[i]->HasTag( vsp::FEA_SPAR, s ) )
+                                {
+                                    //nodeVec[i]->m_Thick = 0.5 * ( ribs[r]->m_Thickness + spars[s]->m_Thickness );
+                                    m_FeaNodeVec[i]->WriteCalculix( fp );
+                                }
+                            }
                         }
                     }
                 }
             }
         }
+
+        //==== Materials ====//
+        fprintf( fp, "\n" );
+        fprintf( fp, "$Materials\n" );
+
+        vector < FeaMaterial* > material_vec = StructureMgr.GetFeaMaterialVec();
+
+        for ( unsigned int i = 0; i < material_vec.size(); i++ )
+        {
+            material_vec[i]->WriteCalculix( fp, i );
+        }
+
         fclose( fp );
     }
 
@@ -1858,191 +1548,149 @@ void FeaMeshMgrSingleton::WriteCalculix( )
     //Stringc node_fn( base_filename );
     //node_fn.concatenate( "nodethick.dat" );
 
-    string node_fn = GetStructSettingsPtr()->GetExportFileName( vsp::THICK_FILE_NAME );
-    fp = fopen( node_fn.c_str(), "w" );
-    if ( fp )
-    {
-        fprintf( fp, "*NODAL THICKNESS\n" );
+    //string node_fn = GetStructSettingsPtr()->GetExportFileName( vsp::THICK_FILE_NAME );
+    //fp = fopen( node_fn.c_str(), "w" );
+    //if ( fp )
+    //{
+    //    fprintf( fp, "*NODAL THICKNESS\n" );
 
-        //==== Upper Skin Nodes ====//
-        fprintf( fp, "**%%Upper Skin\n" );
-        for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
-        {
-            if ( pntShift[i] >= 0 )
-            {
-                if ( nodeVec[i]->m_Tags.size() == 1 && nodeVec[i]->HasTag( SKIN_UPPER ) )
-                {
-                    fprintf( fp, "%d,%f\n", nodeVec[i]->m_Index, nodeVec[i]->m_Thick * m_ThickScale() );
-                }
-                if ( nodeVec[i]->m_Tags.size() == 2 &&
-                        nodeVec[i]->HasTag( SKIN_UPPER ) && nodeVec[i]->HasTag( SKIN_LOWER  ) )
-                {
-                    fprintf( fp, "%d,%f\n", nodeVec[i]->m_Index, nodeVec[i]->m_Thick * m_ThickScale() );
-                }
+    //    //==== Skin Nodes ====//
+    //    fprintf( fp, "**%%Skin\n" );
+    //    for ( int i = 0 ; i < ( int )m_FeaNodeVec.size() ; i++ )
+    //    {
+    //        if ( m_PntShift[i] >= 0 )
+    //        {
+    //            if ( m_FeaNodeVec[i]->m_Tags.size() == 1 && m_FeaNodeVec[i]->HasTag( vsp::FEA_SKIN ) )
+    //            {
+    //                fprintf( fp, "%d,%f\n", m_FeaNodeVec[i]->m_Index, m_FeaNodeVec[i]->m_Thick );
+    //            }
+    //        }
+    //    }
 
-            }
-        }
+    //    for ( int s = 0 ; s < ( int )m_SurfVec.size(); s++ )
+    //    {
+    //        //==== Spars ====//
+    //        if ( m_SurfVec[s]->GetFeaPartType() == vsp::FEA_SPAR )
+    //        {
+    //            fprintf( fp, "\n" );
+    //            fprintf( fp, "**%%Spar %d\n", s );
+    //            for ( int i = 0; i < (int)m_FeaNodeVec.size(); i++ )
+    //            {
+    //                if ( m_PntShift[i] >= 0 && m_FeaNodeVec[i]->HasTag( vsp::FEA_SPAR, s ) )
+    //                {
+    //                    if ( m_FeaNodeVec[i]->m_Tags.size() == 1 )
+    //                    {
+    //                        fprintf( fp, "%d,%f\n", m_FeaNodeVec[i]->m_Index, m_FeaNodeVec[i]->m_Thick );
+    //                    }
+    //                }
+    //            }
+    //        }
+    //        //==== Ribs ====//
+    //        if ( m_SurfVec[s]->GetFeaPartType() == vsp::FEA_RIB )
+    //        {
+    //            fprintf( fp, "\n" );
+    //            fprintf( fp, "**%%Rib %d\n", s );
+    //            for ( int i = 0; i < (int)m_FeaNodeVec.size(); i++ )
+    //            {
+    //                if ( m_PntShift[i] >= 0 && m_FeaNodeVec[i]->HasTag( vsp::FEA_RIB, s ) )
+    //                {
+    //                    if ( m_FeaNodeVec[i]->m_Tags.size() == 1 )
+    //                    {
+    //                        fprintf( fp, "%d,%f\n", m_FeaNodeVec[i]->m_Index, m_FeaNodeVec[i]->m_Thick );
+    //                    }
+    //                }
+    //            }
+    //        }
+    //    }
 
-        fprintf( fp, "**%%Lower Skin\n" );
-        for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
-        {
-            if ( pntShift[i] >= 0 )
-            {
-                if ( nodeVec[i]->m_Tags.size() == 1 && nodeVec[i]->HasTag( SKIN_LOWER ) )
-                {
-                    fprintf( fp, "%d,%f\n", nodeVec[i]->m_Index, nodeVec[i]->m_Thick * m_ThickScale() );
-                }
-            }
-        }
+    //    //==== Rib Spar Intersections ====//
+    //    for ( int r = 0 ; r < ( int )m_SurfVec.size(); r++ )
+    //    {
+    //        if ( m_SurfVec[r]->GetFeaPartType() == vsp::FEA_RIB )
+    //        {
+    //            for ( int s = 0; s < (int)m_SurfVec.size(); s++ )
+    //            {
+    //                if ( m_SurfVec[s]->GetFeaPartType() == vsp::FEA_SPAR )
+    //                {
+    //                    fprintf( fp, "\n" );
+    //                    fprintf( fp, "**%%Rib-Spar connections %d %d\n", r, s );
+    //                    for ( int i = 0; i < (int)m_FeaNodeVec.size(); i++ )
+    //                    {
+    //                        if ( m_PntShift[i] >= 0 && m_FeaNodeVec[i]->m_Tags.size() == 2 )
+    //                        {
+    //                            if ( m_FeaNodeVec[i]->HasTag( vsp::FEA_RIB, r ) && m_FeaNodeVec[i]->HasTag( vsp::FEA_SPAR, s ) )
+    //                            {
+    //                                fprintf( fp, "%d,%f\n", m_FeaNodeVec[i]->m_Index, m_FeaNodeVec[i]->m_Thick );
+    //                            }
+    //                        }
+    //                    }
+    //                }
+    //            }
+    //        }
+    //    }
 
-        //==== Spars ====//
-        for ( int s = 0 ; s < ( int )spars.size() ; s++ )
-        {
-            fprintf( fp, "\n" );
-            fprintf( fp, "**%%Spar %d\n", s );
-            for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
-            {
-                if ( pntShift[i] >= 0 && nodeVec[i]->HasTag( SPAR_ALL, s ) )
-                {
-                    if ( nodeVec[i]->m_Tags.size() == 1 )
-                    {
-                        fprintf( fp, "%d,%f\n", nodeVec[i]->m_Index, nodeVec[i]->m_Thick * m_ThickScale() );
-                    }
-                }
-            }
-        }
+    //    //==== FeaPart Skin Intersections ====//
+    //    for ( int s = 0; s < (int)m_SurfVec.size(); s++ )
+    //    {
+    //        //==== Spar Skin Intersections ====//
+    //        if ( m_SurfVec[s]->GetFeaPartType() == vsp::FEA_SPAR )
+    //        {
+    //            fprintf( fp, "\n" );
+    //            fprintf( fp, "**%%Spar-Skin connections %d skin \n", s );
+    //            for ( int i = 0; i < (int)m_FeaNodeVec.size(); i++ )
+    //            {
+    //                if ( m_PntShift[i] >= 0 )
+    //                {
+    //                    if ( m_FeaNodeVec[i]->HasTag( vsp::FEA_SPAR, s ) && m_FeaNodeVec[i]->HasTag( vsp::FEA_SKIN ) )
+    //                    {
+    //                        fprintf( fp, "%d,%f\n", m_FeaNodeVec[i]->m_Index, m_FeaNodeVec[i]->m_Thick );
+    //                    }
+    //                }
+    //            }
+    //        }
+    //        //==== Rib Skin Intersections ====//
+    //        if ( m_SurfVec[s]->GetFeaPartType() == vsp::FEA_RIB )
+    //        {
+    //            fprintf( fp, "\n" );
+    //            fprintf( fp, "**%%Rib-Skin connections %d skin \n", s );
+    //            for ( int i = 0; i < (int)m_FeaNodeVec.size(); i++ )
+    //            {
+    //                if ( m_PntShift[i] >= 0 )
+    //                {
+    //                    if ( m_FeaNodeVec[i]->HasTag( vsp::FEA_RIB, s ) && m_FeaNodeVec[i]->HasTag( vsp::FEA_SKIN ) )
+    //                    {
+    //                        fprintf( fp, "%d,%f\n", m_FeaNodeVec[i]->m_Index, m_FeaNodeVec[i]->m_Thick );
+    //                    }
+    //                }
+    //            }
+    //        }
+    //    }
 
-        //==== Ribs ====//
-        for ( int r = 0 ; r < ( int )ribs.size() ; r++ )
-        {
-            fprintf( fp, "\n" );
-            fprintf( fp, "**%%Rib %d\n", r );
-            for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
-            {
-                if ( pntShift[i] >= 0 && nodeVec[i]->HasTag( RIB_ALL, r ) )
-                {
-                    if ( nodeVec[i]->m_Tags.size() == 1 )
-                    {
-                        fprintf( fp, "%d,%f\n", nodeVec[i]->m_Index, nodeVec[i]->m_Thick * m_ThickScale() );
-                    }
-                }
-            }
-        }
+    //    fclose( fp );
+    //}
 
+  ////==== Write Out All Nodes < YTol ====/
+  //double ytol = 0.01;
+  //fp = fopen( "fixed.nam", "w" );
+  //if ( fp )
+  //{
+  //    fprintf( fp, "**Fixed Nodes\n");
+  //    fprintf( fp, "*NSET,NSET=NFIXED\n");
 
-        //==== Rib Spar Intersections ====//
-        for ( int r = 0 ; r < ( int )ribs.size() ; r++ )
-        {
-            for ( int s = 0 ; s < ( int )spars.size() ; s++ )
-            {
-                fprintf( fp, "\n" );
-                fprintf( fp, "**%%Rib-Spar connections %d %d\n", r, s );
-                for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
-                {
-                    if ( pntShift[i] >= 0 && nodeVec[i]->m_Tags.size() == 2 )
-                    {
-                        if ( nodeVec[i]->HasTag( RIB_ALL, r ) && nodeVec[i]->HasTag( SPAR_ALL, s ) )
-                        {
-                            fprintf( fp, "%d,%f\n", nodeVec[i]->m_Index, nodeVec[i]->m_Thick * m_ThickScale() );
-                        }
-                    }
-                }
-            }
-        }
-
-        //==== Spar Upper Skin Intersections ====//
-        for ( int s = 0 ; s < ( int )spars.size() ; s++ )
-        {
-            fprintf( fp, "\n" );
-            fprintf( fp, "**%%Spar-Skin connections %d upperskin \n", s );
-            for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
-            {
-                if ( pntShift[i] >= 0 )
-                {
-                    if ( nodeVec[i]->HasTag( SPAR_ALL, s ) && nodeVec[i]->HasTag( SKIN_UPPER ) )
-                    {
-                        fprintf( fp, "%d,%f\n", nodeVec[i]->m_Index, nodeVec[i]->m_Thick * m_ThickScale() );
-                    }
-                }
-            }
-        }
-
-        //==== Spar Lower Skin Intersections ====//
-        for ( int s = 0 ; s < ( int )spars.size() ; s++ )
-        {
-            fprintf( fp, "\n" );
-            fprintf( fp, "**%%Spar-Skin connections %d lowerskin \n", s );
-            for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
-            {
-                if ( pntShift[i] >= 0 )
-                {
-                    if ( nodeVec[i]->HasTag( SPAR_ALL, s ) && nodeVec[i]->HasTag( SKIN_LOWER ) )
-                    {
-                        fprintf( fp, "%d,%f\n", nodeVec[i]->m_Index, nodeVec[i]->m_Thick * m_ThickScale() );
-                    }
-                }
-            }
-        }
-
-        //==== Rib Upper Skin Intersections ====//
-        for ( int r = 0 ; r < ( int )ribs.size() ; r++ )
-        {
-            fprintf( fp, "\n" );
-            fprintf( fp, "**%%Rib-Skin connections %d upperskin \n", r );
-            for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
-            {
-                if ( pntShift[i] >= 0 )
-                {
-                    if ( nodeVec[i]->HasTag( RIB_ALL, r ) && nodeVec[i]->HasTag( SKIN_UPPER ) )
-                    {
-                        fprintf( fp, "%d,%f\n", nodeVec[i]->m_Index, nodeVec[i]->m_Thick * m_ThickScale() );
-                    }
-                }
-            }
-        }
-
-        //==== Rib Lower Skin Intersections ====//
-        for ( int r = 0 ; r < ( int )ribs.size() ; r++ )
-        {
-            fprintf( fp, "\n" );
-            fprintf( fp, "**%%Rib-Skin connections %d lowerskin \n", r );
-            for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
-            {
-                if ( pntShift[i] >= 0 )
-                {
-                    if ( nodeVec[i]->HasTag( RIB_ALL, r ) && nodeVec[i]->HasTag( SKIN_LOWER ) )
-                    {
-                        fprintf( fp, "%d,%f\n", nodeVec[i]->m_Index, nodeVec[i]->m_Thick * m_ThickScale() );
-                    }
-                }
-            }
-        }
-
-        fclose( fp );
-    }
-
-//  //==== Write Out All Nodes < YTol ====/
-//  double ytol = 0.01;
-//  fp = fopen( "fixed.nam", "w" );
-//  if ( fp )
-//  {
-//      fprintf( fp, "**Fixed Nodes\n");
-//      fprintf( fp, "*NSET,NSET=NFIXED\n");
-//
-//      int ncnt = 0;
-//      for ( int i = 0 ; i < (int)unique_node_vec.size() ; i++ )
-//      {
-//          if ( unique_node_vec[i]->m_Pnt[1] < ytol )
-//          {
-//              fprintf(fp, "%d,", unique_node_vec[i]->m_Index );
-//              ncnt++;
-//              if ( ncnt%10 == 9 )
-//                  fprintf(fp, "\n" );
-//          }
-//      }
-//      fprintf(fp, "\n" );
-//      fclose(fp);
-//  }
+  //    int ncnt = 0;
+  //    for ( int i = 0 ; i < (int)unique_node_vec.size() ; i++ )
+  //    {
+  //        if ( unique_node_vec[i]->m_Pnt[1] < ytol )
+  //        {
+  //            fprintf(fp, "%d,", unique_node_vec[i]->m_Index );
+  //            ncnt++;
+  //            if ( ncnt%10 == 9 )
+  //                fprintf(fp, "\n" );
+  //        }
+  //    }
+  //    fprintf(fp, "\n" );
+  //    fclose(fp);
+  //}
 
 
 }
@@ -2460,173 +2108,363 @@ void FeaMeshMgrSingleton::WriteCalculix( )
 
 void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 {
+    // TODO: Select a method for drawing FeaMesh. Both ways currently work
 
-    if ( !GetStructSettingsPtr()->m_DrawMeshFlag() )
+    if ( GetStructSettingsPtr()->m_DrawMeshFlag() && !GetFeaMeshInProgress() )
     {
-        int k = 0;
-        FeaRib* curr_rib = GetCurrRib();
-        for ( int i = 0 ; i < (int)m_WingSections.size() ; i++ )
+        // Render Tag Colors
+        int num_tags = SubSurfaceMgr.GetNumTags();
+        m_SSTagDO.resize( num_tags );
+        map<int, DrawObj*> tag_dobj_map;
+        map< std::vector<int>, int >::const_iterator mit;
+        map< int, DrawObj* >::const_iterator dmit;
+        map< std::vector<int>, int > tagMap = SubSurfaceMgr.GetSingleTagMap();
+        int cnt = 0;
+
+        // Calculate constants for color sequence.
+        const int ncgrp = 6; // Number of basic colors
+        const int ncstep = (int)ceil( (double)num_tags / (double)ncgrp );
+        const double nctodeg = 360.0 / ( ncgrp*ncstep );
+
+        char str[256];
+        for ( mit = tagMap.begin(); mit != tagMap.end(); mit++ )
         {
-            for ( int j = 0 ; j < (int)m_WingSections[i].m_RibVec.size() ; j++ )
+            m_SSTagDO[cnt] = DrawObj();
+            tag_dobj_map[mit->second] = &m_SSTagDO[cnt];
+            sprintf( str, "%s_TAG_%d", GetID().c_str(), cnt );
+            m_SSTagDO[cnt].m_GeomID = string( str );
+
+            m_SSTagDO[cnt].m_Type = DrawObj::VSP_SHADED_TRIS;
+            m_SSTagDO[cnt].m_Visible = false;
+            if ( GetStructSettingsPtr()->m_DrawMeshFlag.Get() ||
+                 GetStructSettingsPtr()->m_ColorTagsFlag.Get() )   // At least mesh or tags are visible.
             {
-                FeaRib* rib = m_WingSections[i].m_RibVec[j];
-                if ( m_CurrEditType == RIB_EDIT && rib == curr_rib )
-                    rib->LoadDrawObjs( draw_obj_vec, k, true );
-                else
-                    rib->LoadDrawObjs( draw_obj_vec, k, false );
-                k++;
-            }
-        }
+                m_SSTagDO[cnt].m_Visible = true;
 
-        FeaSpar* curr_spar = GetCurrSpar();
-        for ( int i = 0 ; i < (int)m_WingSections.size() ; i++ )
-        {
-            for ( int j = 0 ; j < (int)m_WingSections[i].m_SparVec.size() ; j++ )
-            {
-                FeaSpar* spar = m_WingSections[i].m_SparVec[j];
-                if ( m_CurrEditType == SPAR_EDIT && spar == curr_spar )
-                    spar->LoadDrawObjs( draw_obj_vec, k, true );
-                else
-                    spar->LoadDrawObjs( draw_obj_vec, k, false );
-                k++;
-            }
-        }
-
-        //==== Wing Sections ====//
-        for ( int i = 0 ; i < (int)m_WingSections.size() ; i++ )
-        {
-//            if ( i == m_CurrSectID )
-//            {
-//                if ( m_CurrEditType == UP_SKIN_EDIT )
-//                    m_WingSections[i].m_UpperSkin.LoadDrawObjs( draw_obj_vec, true );
-//                else if ( m_CurrEditType == LOW_SKIN_EDIT )
-//                    m_WingSections[i].m_LowerSkin.LoadDrawObjs( draw_obj_vec, true );
-//                m_WingSections[i].LoadDrawObjs( draw_obj_vec, true );
-//            }
-//            else
-//            {
-//                if ( m_CurrEditType == UP_SKIN_EDIT )
-//                    m_WingSections[i].m_UpperSkin.LoadDrawObjs( draw_obj_vec, false );
-//                else if ( m_CurrEditType == LOW_SKIN_EDIT )
-//                    m_WingSections[i].m_LowerSkin.LoadDrawObjs( draw_obj_vec, false );
-//                m_WingSections[i].LoadDrawObjs( draw_obj_vec, false );
-//            }
-        }
-    }
-    else
-    {
-        m_SkinElemDO.m_GeomID = string( "FEASkin" );
-        m_SkinElemDO.m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
-        m_SkinElemDO.m_Visible = true;
-        m_SkinElemDO.m_LineColor = vec3d( 0.4, 0.4, 0.4 );
-        m_SkinElemDO.m_PntVec.clear();
-        m_SkinElemDO.m_NormVec.clear();
-
-        m_SkinElemDO.m_FlipNormals = true;  // Display skin tris backwards for internal visibility.
-
-        //==== Draw Skin ====//
-        for ( int i = 0 ; i < (int)m_SkinVec.size() ; i++ )
-        {
-            if ( m_SkinVec[i]->GetExportFlag() )
-            {
-                for ( int e = 0 ; e < (int)m_SkinVec[i]->m_Elements.size() ; e++ )
+                if ( GetStructSettingsPtr()->m_DrawMeshFlag.Get() &&
+                     GetStructSettingsPtr()->m_ColorTagsFlag.Get() ) // Both are visible.
                 {
-                    FeaElement* fe = m_SkinVec[i]->m_Elements[e];
-                    for ( int p = 0 ; p < (int)fe->m_Corners.size() ; p++ )
+                    m_SSTagDO[cnt].m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
+                    m_SSTagDO[cnt].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
+                }
+                else if ( GetStructSettingsPtr()->m_DrawMeshFlag.Get() ) // Mesh only
+                {
+                    m_SSTagDO[cnt].m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
+                    m_SSTagDO[cnt].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
+                }
+                else // Tags only
+                {
+                    m_SSTagDO[cnt].m_Type = DrawObj::VSP_SHADED_TRIS;
+                }
+            }
+
+            if ( GetStructSettingsPtr()->m_ColorTagsFlag.Get() )
+            {
+                // Color sequence -- go around color wheel ncstep times with slight
+                // offset from ncgrp basic colors.
+                // Note, (cnt/ncgrp) uses integer division resulting in floor.
+                double deg = ( ( cnt % ncgrp ) * ncstep + ( cnt / ncgrp ) ) * nctodeg;
+                vec3d rgb = m_SSTagDO[cnt].ColorWheel( deg );
+                rgb.normalize();
+
+                for ( int i = 0; i < 3; i++ )
+                {
+                    m_SSTagDO[cnt].m_MaterialInfo.Ambient[i] = (float)rgb.v[i] / 5.0f;
+                    m_SSTagDO[cnt].m_MaterialInfo.Diffuse[i] = 0.4f + (float)rgb.v[i] / 10.0f;
+                    m_SSTagDO[cnt].m_MaterialInfo.Specular[i] = 0.04f + 0.7f * (float)rgb.v[i];
+                    m_SSTagDO[cnt].m_MaterialInfo.Emission[i] = (float)rgb.v[i] / 20.0f;
+                }
+                m_SSTagDO[cnt].m_MaterialInfo.Ambient[3] = 1.0f;
+                m_SSTagDO[cnt].m_MaterialInfo.Diffuse[3] = 1.0f;
+                m_SSTagDO[cnt].m_MaterialInfo.Specular[3] = 1.0f;
+                m_SSTagDO[cnt].m_MaterialInfo.Emission[3] = 1.0f;
+
+                m_SSTagDO[cnt].m_MaterialInfo.Shininess = 32.0f;
+            }
+            else
+            {
+                // No color needed for mesh only.
+            }
+
+            draw_obj_vec.push_back( &m_SSTagDO[cnt] );
+            cnt++;
+        }
+
+        for ( int i = 0; i < (int)m_SurfVec.size(); i++ )
+        {
+            vector< vec3d > pVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
+            vector < SimpTri > test = m_SurfVec[i]->GetMesh()->GetSimpTriVec();
+
+            for ( int t = 0; t < (int)m_SurfVec[i]->GetMesh()->GetSimpTriVec().size(); t++ )
+            {
+                if ( ( !m_SurfVec[i]->GetWakeFlag() ) && ( !m_SurfVec[i]->GetFarFlag() ) && ( !m_SurfVec[i]->GetSymPlaneFlag() ) )
+                {
+                    SimpTri* stri = &m_SurfVec[i]->GetMesh()->GetSimpTriVec()[t];
+                    dmit = tag_dobj_map.find( SubSurfaceMgr.GetTag( stri->m_Tags ) );
+                    if ( dmit == tag_dobj_map.end() )
                     {
-                        m_SkinElemDO.m_PntVec.push_back( fe->m_Corners[p]->m_Pnt );
-                        m_SkinElemDO.m_NormVec.push_back( vec3d( 0, 0, 0) );
+                        continue;
                     }
+
+                    DrawObj* obj = dmit->second;
+                    vec3d norm = cross( pVec[stri->ind1] - pVec[stri->ind0], pVec[stri->ind2] - pVec[stri->ind0] );
+                    norm.normalize();
+                    obj->m_PntVec.push_back( pVec[stri->ind0] );
+                    obj->m_PntVec.push_back( pVec[stri->ind1] );
+                    obj->m_PntVec.push_back( pVec[stri->ind2] );
+                    obj->m_NormVec.push_back( norm );
+                    obj->m_NormVec.push_back( norm );
+                    obj->m_NormVec.push_back( norm );
                 }
             }
         }
 
-        draw_obj_vec.push_back( &m_SkinElemDO );
+        //m_SkinElemDO.m_GeomID = string( "FEASkin" );
+        //m_SkinElemDO.m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
+        //m_SkinElemDO.m_Visible = true;
+        //m_SkinElemDO.m_LineColor = vec3d( 0.4, 0.4, 0.4 );
+        //m_SkinElemDO.m_PntVec.clear();
+        //m_SkinElemDO.m_NormVec.clear();
 
-        m_SliceElemDO.m_GeomID = string( "FEASlice" );
-        m_SliceElemDO.m_Type = DrawObj::VSP_HIDDEN_QUADS;
-        m_SliceElemDO.m_Visible = true;
-        m_SliceElemDO.m_LineColor = vec3d( 0.4, 0.4, 0.4 );
-        m_SliceElemDO.m_PntVec.clear();
-        m_SliceElemDO.m_NormVec.clear();
+        //m_SkinElemDO.m_FlipNormals = true;  // Display skin tris backwards for internal visibility.
 
-        for ( int i = 0 ; i < (int)m_SliceVec.size() ; i++ )
+        ////==== Draw Skin ====//
+        //for ( int j = 0; j < m_FeaSkinElementVec.size(); j++ )
+        //{
+        //    FeaElement* fe = m_FeaSkinElementVec[j];
+
+        //    for ( int p = 0; p < (int)fe->m_Corners.size(); p++ )
+        //    {
+        //        m_SkinElemDO.m_PntVec.push_back( fe->m_Corners[p]->m_Pnt );
+        //        m_SkinElemDO.m_NormVec.push_back( vec3d( 0, 0, 0 ) );
+        //    }
+        //}
+
+        //draw_obj_vec.push_back( &m_SkinElemDO );
+
+        //m_SliceElemDO.m_GeomID = string( "FEASlice" );
+        //m_SliceElemDO.m_Type = DrawObj::VSP_HIDDEN_QUADS;
+        //m_SliceElemDO.m_Visible = true;
+        //m_SliceElemDO.m_LineColor = vec3d( 0.4, 0.4, 0.4 );
+        //m_SliceElemDO.m_PntVec.clear();
+        //m_SliceElemDO.m_NormVec.clear();
+
+        //for ( int i = 0; i < (int)m_FeaPartElementVec.size(); i++ )
+        //{
+        //    FeaElement* fe = m_FeaPartElementVec[i];
+        //    int p;
+        //    for ( p = 0; p < (int)fe->m_Corners.size(); p++ )
+        //    {
+        //        m_SliceElemDO.m_PntVec.push_back( fe->m_Corners[p]->m_Pnt );
+        //        m_SliceElemDO.m_NormVec.push_back( vec3d( 0, 0, 0 ) );
+        //    }
+        //    // Handle degenerate quads (triangles).
+        //    while ( p < 4 ) // Repeat first point until we have 4 points.
+        //    {
+        //        m_SliceElemDO.m_PntVec.push_back( fe->m_Corners[0]->m_Pnt );
+        //        m_SliceElemDO.m_NormVec.push_back( vec3d( 0, 0, 0 ) );
+        //        p++;
+        //    }
+        //}
+
+        //draw_obj_vec.push_back( &m_SliceElemDO );
+
+        // Draw ISegChains
+        m_ISegChainDO.m_GeomID = GetID() + "ISEGCHAIN";
+        m_ISegChainDO.m_Type = DrawObj::VSP_LINES;
+        m_ISegChainDO.m_Visible = true;
+        m_ISegChainDO.m_LineColor = vec3d( 0, 0, 1 );
+        m_ISegChainDO.m_LineWidth = 3.0;
+
+        m_ISegChainPtsDO.m_GeomID = GetID() + "ISEGCHAINPTS";
+        m_ISegChainPtsDO.m_Type = DrawObj::VSP_POINTS;
+        m_ISegChainPtsDO.m_Visible = true;
+        m_ISegChainPtsDO.m_PointColor = vec3d( 0, 0, 0 );
+        m_ISegChainPtsDO.m_PointSize = 10.0;
+
+
+        m_ISegChainDO.m_PntVec.clear();
+        m_ISegChainPtsDO.m_PntVec.clear();
+        list< ISegChain* >::iterator c;
+        for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); c++ )
         {
-            for ( int e = 0 ; e < (int)m_SliceVec[i]->m_Elements.size() ; e++ )
+            if ( false )
             {
-                FeaElement* fe = m_SliceVec[i]->m_Elements[e];
-                int p;
-                for ( p = 0 ; p < (int)fe->m_Corners.size() ; p++ )
+                m_ISegChainPtsDO.m_PntVec.push_back( ( *c )->m_TessVec[0]->m_Pnt );
+                for ( int j = 1; j < (int)( *c )->m_TessVec.size(); j++ )
                 {
-                    m_SliceElemDO.m_PntVec.push_back( fe->m_Corners[p]->m_Pnt );
-                    m_SliceElemDO.m_NormVec.push_back( vec3d( 0, 0, 0) );
+                    m_ISegChainDO.m_PntVec.push_back( ( *c )->m_TessVec[j - 1]->m_Pnt );
+                    m_ISegChainDO.m_PntVec.push_back( ( *c )->m_TessVec[j]->m_Pnt );
+                    m_ISegChainPtsDO.m_PntVec.push_back( ( *c )->m_TessVec[j]->m_Pnt );
                 }
-                // Handle degenerate quads (triangles).
-                while ( p < 4 ) // Repeat first point until we have 4 points.
+            }
+            else
+            {
+                Bezier_curve xyzcrvA = ( *c )->m_ACurve.GetUWCrv();
+                xyzcrvA.UWCurveToXYZCurve( ( *c )->m_ACurve.GetSurf() );
+                vector< vec3d > ptvec;
+                xyzcrvA.GetControlPoints( ptvec );
+
+                m_ISegChainPtsDO.m_PntVec.insert( m_ISegChainPtsDO.m_PntVec.begin(), ptvec.begin(), ptvec.end() );
+
+                for ( int j = 1; j < ptvec.size(); j++ )
                 {
-                    m_SliceElemDO.m_PntVec.push_back( fe->m_Corners[0]->m_Pnt );
-                    m_SliceElemDO.m_NormVec.push_back( vec3d( 0, 0, 0) );
-                    p++;
+                    m_ISegChainDO.m_PntVec.push_back( ptvec[j - 1] );
+                    m_ISegChainDO.m_PntVec.push_back( ptvec[j] );
                 }
             }
         }
 
-        draw_obj_vec.push_back( &m_SliceElemDO );
+        // Normal Vec is not required, load placeholder.
+        m_ISegChainDO.m_NormVec = m_ISegChainDO.m_PntVec;
+        m_ISegChainPtsDO.m_NormVec = m_ISegChainPtsDO.m_PntVec;
+
+        draw_obj_vec.push_back( &m_ISegChainDO );
+        draw_obj_vec.push_back( &m_ISegChainPtsDO );
     }
-
-
-
-    // Draw ISegChains
-    m_ISegChainDO.m_GeomID = GetID() + "ISEGCHAIN";
-    m_ISegChainDO.m_Type = DrawObj::VSP_LINES;
-    m_ISegChainDO.m_Visible = true;
-    m_ISegChainDO.m_LineColor = vec3d( 0, 0, 1 );
-    m_ISegChainDO.m_LineWidth = 3.0;
-
-    m_ISegChainPtsDO.m_GeomID = GetID() + "ISEGCHAINPTS";
-    m_ISegChainPtsDO.m_Type = DrawObj::VSP_POINTS;
-    m_ISegChainPtsDO.m_Visible = true;
-    m_ISegChainPtsDO.m_PointColor = vec3d( 0, 0, 0 );
-    m_ISegChainPtsDO.m_PointSize = 10.0;
-
-
-    m_ISegChainDO.m_PntVec.clear();
-    m_ISegChainPtsDO.m_PntVec.clear();
-    list< ISegChain* >::iterator c;
-    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
-    {
-        if ( false )
-        {
-            m_ISegChainPtsDO.m_PntVec.push_back( (*c)->m_TessVec[0]->m_Pnt );
-            for ( int j = 1 ; j < ( int )( *c )->m_TessVec.size() ; j++ )
-            {
-                m_ISegChainDO.m_PntVec.push_back( (*c)->m_TessVec[j-1]->m_Pnt );
-                m_ISegChainDO.m_PntVec.push_back( (*c)->m_TessVec[j]->m_Pnt );
-                m_ISegChainPtsDO.m_PntVec.push_back( (*c)->m_TessVec[j]->m_Pnt );
-            }
-
-        }
-        else
-        {
-            Bezier_curve xyzcrvA = (*c)->m_ACurve.GetUWCrv();
-            xyzcrvA.UWCurveToXYZCurve( (*c)->m_ACurve.GetSurf() );
-            vector< vec3d > ptvec;
-            xyzcrvA.GetControlPoints(ptvec);
-
-            m_ISegChainPtsDO.m_PntVec.insert( m_ISegChainPtsDO.m_PntVec.begin(), ptvec.begin(), ptvec.end() );
-
-            for ( int j = 1; j < ptvec.size(); j++ )
-            {
-                m_ISegChainDO.m_PntVec.push_back( ptvec[j-1] );
-                m_ISegChainDO.m_PntVec.push_back( ptvec[j] );
-            }
-        }
-    }
-
-    // Normal Vec is not required, load placeholder.
-    m_ISegChainDO.m_NormVec = m_ISegChainDO.m_PntVec;
-    m_ISegChainPtsDO.m_NormVec = m_ISegChainPtsDO.m_PntVec;
-
-    draw_obj_vec.push_back( &m_ISegChainDO );
-    draw_obj_vec.push_back( &m_ISegChainPtsDO );
 }
+
+//void FeaMeshMgrSingleton::BuildFeaPartIntChains()
+//{
+//    // Adds subsurface intersection chains
+//    vec2d uw_pnt0;
+//    vec2d uw_pnt1;
+//    int num_sects = 100; // Number of segments to break FeaParts up into
+//
+//    StructureMgr.PrepareToSplit(); // Prepare All FeaParts for Split
+//    for ( int s = 0; s < (int)m_SurfVec.size(); s++ )
+//    {
+//        // Get all FeaParts for the specified geom
+//        Surf* surf = m_SurfVec[s];
+//        vector< FeaPart* > fea_vec = StructureMgr.GetFeaStructs( surf->GetGeomID(), surf->GetMainSurfID() );
+//
+//        // Split SubSurfs
+//        for ( int f = 0; f < (int)fea_vec.size(); f++ )
+//        {
+//            fea_vec[f]->SplitSegsU( surf->GetSurfCore()->GetMinU() );
+//            fea_vec[f]->SplitSegsU( surf->GetSurfCore()->GetMaxU() );
+//            fea_vec[f]->SplitSegsW( surf->GetSurfCore()->GetMinW() );
+//            fea_vec[f]->SplitSegsW( surf->GetSurfCore()->GetMaxW() );
+//
+//            //vector< SSLineSeg >& segs = ss_vec[ss]->GetSplitSegs();
+//            ISegChain* chain = NULL;
+//
+//            bool new_chain = true;
+//            bool is_poly = fea_vec[f]->GetPolyFlag();
+//
+//            // Build Intersection Chains
+//            for ( int ls = 0; ls < (int)segs.size(); ls++ )
+//            {
+//                if ( new_chain && chain )
+//                {
+//                    if ( chain->Valid() )
+//                    {
+//                        m_ISegChainList.push_back( chain );
+//                    }
+//                    else
+//                    {
+//                        delete chain;
+//                        chain = NULL;
+//                    }
+//                }
+//
+//                if ( new_chain )
+//                {
+//                    chain = new ISegChain;
+//                    chain->m_SurfA = surf;
+//                    chain->m_SurfB = surf;
+//                    if ( !is_poly )
+//                    {
+//                        new_chain = false;
+//                    }
+//                }
+//
+//                SSLineSeg l_seg = segs[ls];
+//                vec3d lp0, lp1;
+//
+//                lp0 = l_seg.GetP0();
+//                lp1 = l_seg.GetP1();
+//                uw_pnt0 = vec2d( lp0.x(), lp0.y() );
+//                uw_pnt1 = vec2d( lp1.x(), lp1.y() );
+//                double max_u, max_w, tol;
+//                double min_u, min_w;
+//                tol = 1e-6;
+//                min_u = surf->GetSurfCore()->GetMinU();
+//                min_w = surf->GetSurfCore()->GetMinW();
+//                max_u = surf->GetSurfCore()->GetMaxU();
+//                max_w = surf->GetSurfCore()->GetMaxW();
+//
+//                if ( uw_pnt0[0] < min_u || uw_pnt0[1] < min_w || uw_pnt1[0] < min_u || uw_pnt1[1] < min_w )
+//                {
+//                    new_chain = true;
+//                    continue; // Skip if either point has a value not on this surface
+//                }
+//                if ( uw_pnt0[0] > max_u || uw_pnt0[1] > max_w || uw_pnt1[0] > max_u || uw_pnt1[1] > max_w )
+//                {
+//                    new_chain = true;
+//                    continue; // Skip if either point has a value not on this surface
+//                }
+//                if ( ( ( fabs( uw_pnt0[0] - max_u ) < tol && fabs( uw_pnt1[0] - max_u ) < tol ) ||
+//                    ( fabs( uw_pnt0[1] - max_w ) < tol && fabs( uw_pnt1[1] - max_w ) < tol ) ||
+//                     ( fabs( uw_pnt0[0] - min_u ) < tol && fabs( uw_pnt1[0] - min_u ) < tol ) ||
+//                     ( fabs( uw_pnt0[1] - min_w ) < tol && fabs( uw_pnt1[1] - min_w ) < tol ) )
+//                     && is_poly )
+//                {
+//                    new_chain = true;
+//                    continue; // Skip if both end points are on the same edge of the surface
+//                }
+//
+//                double delta_u = ( uw_pnt1[0] - uw_pnt0[0] ) / num_sects;
+//                double delta_w = ( uw_pnt1[1] - uw_pnt0[1] ) / num_sects;
+//
+//                vector< vec2d > uw_pnts;
+//                uw_pnts.resize( num_sects + 1 );
+//                uw_pnts[0] = uw_pnt0;
+//                uw_pnts[num_sects] = uw_pnt1;
+//
+//                // Add additional points between the segment endpoints to hopefully make the curve planar with the surface
+//                for ( int p = 1; p < num_sects; p++ )
+//                {
+//                    uw_pnts[p] = vec2d( uw_pnt0[0] + delta_u * p, uw_pnt0[1] + delta_w * p );
+//                }
+//
+//                for ( int p = 1; p < (int)uw_pnts.size(); p++ )
+//                {
+//                    Puw* puwA0 = new Puw( surf, uw_pnts[p - 1] );
+//                    Puw* puwA1 = new Puw( surf, uw_pnts[p] );
+//                    Puw* puwB0 = new Puw( surf, uw_pnts[p - 1] );
+//                    Puw* puwB1 = new Puw( surf, uw_pnts[p] );
+//
+//                    m_DelPuwVec.push_back( puwA0 );         // Save to delete later
+//                    m_DelPuwVec.push_back( puwA1 );
+//                    m_DelPuwVec.push_back( puwB0 );
+//                    m_DelPuwVec.push_back( puwB1 );
+//
+//                    IPnt* p0 = new IPnt( puwA0, puwB0 );
+//                    IPnt* p1 = new IPnt( puwA1, puwB1 );
+//
+//                    m_DelIPntVec.push_back( p0 );           // Save to delete later
+//                    m_DelIPntVec.push_back( p1 );
+//
+//                    p0->CompPnt();
+//                    p1->CompPnt();
+//
+//                    ISeg* seg = new ISeg( surf, surf, p0, p1 );
+//                    chain->m_ISegDeque.push_back( seg );
+//                }
+//            }
+//            if ( chain )
+//            {
+//                if ( chain->Valid() )
+//                {
+//                    m_ISegChainList.push_back( chain );
+//                }
+//                else
+//                {
+//                    delete chain;
+//                    chain = NULL;
+//                }
+//            }
+//        }
+//    }
+//}
