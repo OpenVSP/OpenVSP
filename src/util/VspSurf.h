@@ -232,6 +232,8 @@ public:
     void SetFoilSurf( VspSurf *s )                           { m_FoilSurf = s; }
     VspSurf *GetFoilSurf()                                   { return m_FoilSurf; }
 
+    void MakePlaneSurf( const vec3d &ptA, const vec3d &ptB, const vec3d &ptC, const vec3d &ptD );
+
 protected:
 
     void Tesselate( const vector<double> &utess, const vector<double> &vtess, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts ) const;

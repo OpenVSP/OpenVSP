@@ -2304,3 +2304,28 @@ void VspSurf::ScaleZ( double s )
 {
     m_Surface.scale_z( s );
 }
+
+void VspSurf::MakePlaneSurf( const vec3d &ptA, const vec3d &ptB, const vec3d &ptC, const vec3d &ptD )
+{
+    // This function is used to construct a plane, using the four inputs as corner points
+    // If the inputs are not truly planar, the function will work, but the surface will be 
+    // constructed via bi-linear interpolation
+
+    surface_patch_type patch;
+    patch.resize( 1, 1 );
+
+    threed_point_type pt0, pt1, pt2, pt3;
+
+    ptA.get_pnt( pt0 );
+    ptB.get_pnt( pt1 );
+    ptC.get_pnt( pt2 );
+    ptD.get_pnt( pt3 );
+
+    patch.set_control_point( pt0, 0, 0 );
+    patch.set_control_point( pt1, 1, 0 );
+    patch.set_control_point( pt2, 0, 1 );
+    patch.set_control_point( pt3, 1, 1 );
+
+    m_Surface.init_uv( 1, 1 );
+    m_Surface.set( patch, 0, 0 );
+}
