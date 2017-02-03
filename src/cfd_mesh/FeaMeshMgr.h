@@ -12,7 +12,7 @@
 #define FeaMeshMgr_FeaMeshMgr__INCLUDED_
 
 #include "CfdMeshMgr.h"
-#include "FeaPart.h"
+#include "FeaStructure.h"
 
 class SectionEdge
 {

@@ -38,6 +38,7 @@ CustomGeom.cpp
 DegenGeom.cpp
 DesignVarMgr.cpp
 EllipsoidGeom.cpp
+FeaStructure.cpp
 FitModelMgr.cpp
 FuselageGeom.cpp
 Geom.cpp
@@ -104,6 +105,7 @@ DegenGeom.h
 DesignVarMgr.h
 DragFactors.h
 EllipsoidGeom.h
+FeaStructure.h
 FitModelMgr.h
 FuselageGeom.h
 Geom.h

@@ -14,7 +14,7 @@
 #include "GuiDevice.h"
 #include "Vehicle.h"
 #include "ScreenMgr.h"
-#include "FeaPart.h"
+#include "FeaStructure.h"
 
 #include <deque>
 using namespace std;
