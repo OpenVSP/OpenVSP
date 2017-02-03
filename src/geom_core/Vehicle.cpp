@@ -29,6 +29,7 @@
 #include "Quat.h"
 #include "StringUtil.h"
 #include "SubSurfaceMgr.h"
+#include "StructureMgr.h"
 #include "DesignVarMgr.h"
 #include "DXFUtil.h"
 #include "SVGUtil.h"
@@ -201,6 +202,7 @@ void Vehicle::Init()
 
     LinkMgr.RegisterContainer( this->GetID() );
     LinkMgr.RegisterContainer( m_CfdSettings.GetID() );
+    LinkMgr.RegisterContainer( m_StructSettings.GetID() );
     LinkMgr.RegisterContainer( m_CfdGridDensity.GetID() );
     LinkMgr.RegisterContainer( m_FeaGridDensity.GetID() );
     LinkMgr.RegisterContainer( VSPAEROMgr.GetID() );
@@ -1412,6 +1414,7 @@ xmlNodePtr Vehicle::EncodeXml( xmlNodePtr & node, int set )
     m_CfdGridDensity.EncodeXml( node );
     m_StructSettings.EncodeXml( node );
     m_FeaGridDensity.EncodeXml( node );
+    StructureMgr.EncodeXml( node );
     m_ClippingMgr.EncodeXml( node );
     WaveDragMgr.EncodeXml( node );
     ParasiteDragMgr.EncodeXml( node );
@@ -1452,6 +1455,7 @@ xmlNodePtr Vehicle::DecodeXml( xmlNodePtr & node )
     m_CfdGridDensity.DecodeXml( node );
     m_StructSettings.DecodeXml( node );
     m_FeaGridDensity.DecodeXml( node );
+    StructureMgr.DecodeXml( node );
     m_ClippingMgr.DecodeXml( node );
     WaveDragMgr.DecodeXml( node );
     ParasiteDragMgr.DecodeXml( node );
