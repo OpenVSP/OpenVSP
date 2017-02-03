@@ -2403,6 +2403,15 @@ xmlNodePtr Geom::EncodeXml( xmlNodePtr & node )
                 }
             }
         }
+
+        xmlNodePtr structvecnode = xmlNewChild( geom_node, NULL, BAD_CAST"FeaStructures", NULL );
+        if ( structvecnode )
+        {
+            for ( int i = 0; i < m_FeaStructVec.size(); i++ )
+            {
+                m_FeaStructVec[i]->EncodeXml( structvecnode );
+            }
+        }
     }
     return geom_node;
 
@@ -2466,6 +2475,34 @@ xmlNodePtr Geom::DecodeXml( xmlNodePtr & node )
                         {
                             ssurf->DecodeXml( ss_node );
                         }
+                    }
+                }
+            }
+        }
+
+        // Decode FeaStructures
+        xmlNodePtr structvecnode = XmlUtil::GetNode( geom_node, "FeaStructures", 0 );
+        if ( structvecnode )
+        {
+            int num = XmlUtil::GetNumNames( structvecnode, "FeaStructureInfo" );
+
+            for ( int i = 0; i < num; i++ )
+            {
+                xmlNodePtr structnode = XmlUtil::GetNode( structvecnode, "FeaStructureInfo", i );
+
+                if ( structnode )
+                {
+                    string structID = XmlUtil::FindString( structnode, "FeaStructID", structID );
+                    int surf_index = XmlUtil::FindInt( structnode, "MainSurfIndx", 0 );
+
+                    // Provide a new structure to decode to. Do not initialize the skin because it will be decoded
+                    FeaStructure* feastruct = AddFeaStruct( false, surf_index );
+
+                    if ( feastruct )
+                    {
+                        feastruct->SetFeaStructID( structID );
+                    
+                        feastruct->DecodeXml( structnode );
                     }
                 }
             }
