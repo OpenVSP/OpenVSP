@@ -1466,12 +1466,14 @@ void Choice::ClearFlags()
     m_Flags.resize( m_Items.size(), 0 );
 }
 
- void Choice::UpdateItems()
- {
+void Choice::UpdateItems( bool keepsetting )
+{
     if ( m_Flags.size() != m_Items.size() )
     {
         m_Flags.resize( m_Items.size(), 0 );
     }
+
+    int savesetting = m_Choice->value();
 
     //==== Add Choice Text ===//
     m_Choice->clear();
@@ -1479,9 +1481,16 @@ void Choice::ClearFlags()
     {
         m_Choice->add( m_Items[i].c_str(), 0, 0, 0, m_Flags[i] );
     }
-    m_Choice->value( 0 );
- }
 
+    if( keepsetting )
+    {
+        m_Choice->value( savesetting );
+    }
+    else
+    {
+        m_Choice->value( 0 );
+    }
+}
 
 //==== CallBack ====//
 void Choice::DeviceCB( Fl_Widget* w )

@@ -464,6 +464,8 @@ public:
     {
         return m_Items;
     }
+    virtual void UpdateItems( bool keepsetting = false );
+
     virtual void SetButtonNameUpdate( bool flag )
     {
         m_ParmButton.SetButtonNameUpdate( flag );
