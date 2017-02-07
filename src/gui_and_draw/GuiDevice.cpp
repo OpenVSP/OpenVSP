@@ -1432,13 +1432,52 @@ int Choice::GetVal()
     return m_Choice->value() + m_Offset;
 }
 
+void Choice::SetFlag( int indx, int flag )
+{
+    if ( m_Flags.size() != m_Items.size() )
+    {
+        m_Flags.resize( m_Items.size(), 0 );
+    }
+
+    if ( indx < m_Flags.size() )
+    {
+        m_Flags[indx] = flag;
+    }
+}
+
+int Choice::GetFlag( int indx )
+{
+    if ( m_Flags.size() != m_Items.size() )
+    {
+        m_Flags.resize( m_Items.size(), 0 );
+    }
+
+    if ( indx < m_Flags.size() )
+    {
+        return m_Flags[indx];
+    }
+
+    return 0;
+}
+
+void Choice::ClearFlags()
+{
+    m_Flags.clear();
+    m_Flags.resize( m_Items.size(), 0 );
+}
+
  void Choice::UpdateItems()
  {
+    if ( m_Flags.size() != m_Items.size() )
+    {
+        m_Flags.resize( m_Items.size(), 0 );
+    }
+
     //==== Add Choice Text ===//
     m_Choice->clear();
     for ( int i = 0 ; i < ( int )m_Items.size() ; i++ )
     {
-        m_Choice->add( m_Items[i].c_str() );
+        m_Choice->add( m_Items[i].c_str(), 0, 0, 0, m_Flags[i] );
     }
     m_Choice->value( 0 );
  }

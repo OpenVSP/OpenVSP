@@ -1002,15 +1002,10 @@ void GroupLayout::AddChoice( Choice & choice, const char* label, int used_w )
     m_Group->add( fl_choice );
     AddX( choice_w );
 
-    //==== Add Choice Text ===//
-    vector< string > choice_vec = choice.GetItems();
-    for ( int i = 0 ; i < ( int )choice_vec.size() ; i++ )
-    {
-        fl_choice->add( choice_vec[i].c_str() );
-    }
-    fl_choice->value( 0 );
-
     choice.Init( m_Screen, fl_choice, button );
+
+    //==== Add Choice Text ===//
+    choice.UpdateItems();
 
     if( strcmp( label, "AUTO_UPDATE" ) == 0 || strcmp( label, "" ) == 0 )
     {
