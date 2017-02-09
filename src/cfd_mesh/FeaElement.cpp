@@ -1,0 +1,291 @@
+//
+// This file is released under the terms of the NASA Open Source Agreement (NOSA)
+// version 1.3 as detailed in the LICENSE file which accompanies this software.
+//
+
+// FeaElement.cpp
+//
+// Justin Gravett
+//////////////////////////////////////////////////////////////////////
+
+#include "FeaElement.h"
+#include "StructureMgr.h"
+
+//////////////////////////////////////////////////////
+//==================== FeaNode =====================//
+//////////////////////////////////////////////////////
+
+void FeaNode::AddTag( int type, int id )
+{
+    //==== Check For Duplicate Tags ====//
+    for ( int i = 0; i < (int)m_Tags.size(); i++ )
+    {
+        if ( m_Tags[i].m_ID == id && m_Tags[i].m_Type == type )
+        {
+            return;
+        }
+    }
+
+    FeaNodeTag tag;
+    tag.m_Type = type;
+    tag.m_ID = id;
+    m_Tags.push_back( tag );
+}
+
+bool FeaNode::HasTag( int type, int id )
+{
+    for ( int i = 0; i < (int)m_Tags.size(); i++ )
+    {
+        if ( m_Tags[i].m_ID == id && m_Tags[i].m_Type == type )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool FeaNode::HasTag( int type )
+{
+    for ( int i = 0; i < (int)m_Tags.size(); i++ )
+    {
+        if ( m_Tags[i].m_Type == type )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool FeaNode::HasOnlyType( int type )
+{
+    for ( int i = 0; i < (int)m_Tags.size(); i++ )
+    {
+        if ( m_Tags[i].m_Type != type )
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+int FeaNode::GetIndex()
+{
+    return m_Index;
+}
+
+void FeaNode::WriteNASTRAN( FILE* fp )
+{
+    fprintf( fp, "GRID,%d,,", m_Index );
+
+    double x = m_Pnt.x();
+    double y = m_Pnt.y();
+    double z = m_Pnt.z();
+
+    if ( fabs( x ) < 10.0 )
+    {
+        fprintf( fp, "%8.5f,", x );
+    }
+    else if ( fabs( x ) < 100.0 )
+    {
+        fprintf( fp, "%8.4f,", x );
+    }
+    else
+    {
+        fprintf( fp, "%8.3f,", x );
+    }
+
+    if ( fabs( y ) < 10.0 )
+    {
+        fprintf( fp, "%8.5f,", y );
+    }
+    else if ( fabs( y ) < 100.0 )
+    {
+        fprintf( fp, "%8.4f,", y );
+    }
+    else
+    {
+        fprintf( fp, "%8.3f,", y );
+    }
+
+    if ( fabs( z ) < 10.0 )
+    {
+        fprintf( fp, "%8.5f\n", z );
+    }
+    else if ( fabs( z ) < 100.0 )
+    {
+        fprintf( fp, "%8.4f\n", z );
+    }
+    else
+    {
+        fprintf( fp, "%8.3f\n", z );
+    }
+
+}
+
+void FeaNode::WriteCalculix( FILE* fp )
+{
+    fprintf( fp, "%d,%f,%f,%f\n", m_Index, m_Pnt.x(), m_Pnt.y(), m_Pnt.z() );
+}
+
+
+//////////////////////////////////////////////////////
+//================== FeaElement ====================//
+//////////////////////////////////////////////////////
+
+void FeaElement::DeleteAllNodes()
+{
+    int i;
+    for ( i = 0; i < (int)m_Corners.size(); i++ )
+    {
+        delete m_Corners[i];
+    }
+    for ( i = 0; i < (int)m_Mids.size(); i++ )
+    {
+        delete m_Mids[i];
+    }
+
+    m_Corners.clear();
+    m_Mids.clear();
+}
+void FeaElement::LoadNodes( vector< FeaNode* > & node_vec )
+{
+    int i;
+    for ( i = 0; i < (int)m_Corners.size(); i++ )
+    {
+        node_vec.push_back( m_Corners[i] );
+    }
+    for ( i = 0; i < (int)m_Mids.size(); i++ )
+    {
+        node_vec.push_back( m_Mids[i] );
+    }
+}
+
+//////////////////////////////////////////////////////
+//==================== FeaTri ======================//
+//////////////////////////////////////////////////////
+
+void FeaTri::Create( vec3d & p0, vec3d & p1, vec3d & p2 )
+{
+    m_ElementType = FEA_TRI_6;
+    DeleteAllNodes();
+    m_Corners.push_back( new FeaNode( p0 ) );
+    m_Corners.push_back( new FeaNode( p1 ) );
+    m_Corners.push_back( new FeaNode( p2 ) );
+
+    vec3d p01 = ( p0 + p1 ) * 0.5;
+    vec3d p12 = ( p1 + p2 ) * 0.5;
+    vec3d p20 = ( p2 + p0 ) * 0.5;
+
+    m_Mids.push_back( new FeaNode( p01 ) );
+    m_Mids.push_back( new FeaNode( p12 ) );
+    m_Mids.push_back( new FeaNode( p20 ) );
+}
+
+void FeaTri::WriteCalculix( FILE* fp, int id )
+{
+    fprintf( fp, "%d,%d,%d,%d,%d,%d,%d\n", id,
+             m_Corners[0]->GetIndex(), m_Corners[1]->GetIndex(), m_Corners[2]->GetIndex(),
+             m_Mids[0]->GetIndex(), m_Mids[1]->GetIndex(), m_Mids[2]->GetIndex() );
+}
+
+void FeaTri::WriteNASTRAN( FILE* fp, int id )
+{
+    fprintf( fp, "CTRIA6,%d,%d,%d,%d,%d,%d,%d,%d\n", id, m_FeaPropertyIndex,
+             m_Corners[0]->GetIndex(), m_Corners[1]->GetIndex(), m_Corners[2]->GetIndex(),
+             m_Mids[0]->GetIndex(), m_Mids[1]->GetIndex(), m_Mids[2]->GetIndex() );
+}
+
+double FeaTri::ComputeMass()
+{
+    double mass = 0.0;
+    if ( m_Corners.size() < 3 )
+    {
+        return mass;
+    }
+
+    double a = area( m_Corners[0]->m_Pnt, m_Corners[1]->m_Pnt, m_Corners[2]->m_Pnt );
+
+    double avg_t = StructureMgr.GetFeaProperty( m_FeaPropertyIndex )->m_Thickness();
+    int mat_index = StructureMgr.GetFeaProperty( m_FeaPropertyIndex )->GetFeaMaterialIndex();
+    double avg_d = StructureMgr.GetFeaMaterial( mat_index )->m_MassDensity();
+
+    //double avg_t = ( m_Corners[0]->m_Thick + m_Corners[1]->m_Thick + m_Corners[2]->m_Thick ) / 3.0;
+    //double avg_d = ( m_Corners[0]->m_Dense + m_Corners[1]->m_Dense + m_Corners[2]->m_Dense ) / 3.0;
+
+    mass = a * avg_t * avg_d;
+    return mass;
+}
+
+//////////////////////////////////////////////////////
+//=================== FeaQuad ======================//
+//////////////////////////////////////////////////////
+
+void FeaQuad::Create( vec3d & p0, vec3d & p1, vec3d & p2, vec3d & p3 )
+{
+    m_ElementType = FEA_QUAD_8;
+    DeleteAllNodes();
+    m_Corners.push_back( new FeaNode( p0 ) );
+    m_Corners.push_back( new FeaNode( p1 ) );
+    m_Corners.push_back( new FeaNode( p2 ) );
+    m_Corners.push_back( new FeaNode( p3 ) );
+
+    vec3d p01 = ( p0 + p1 ) * 0.5;
+    vec3d p12 = ( p1 + p2 ) * 0.5;
+    vec3d p23 = ( p2 + p3 ) * 0.5;
+    vec3d p30 = ( p3 + p0 ) * 0.5;
+
+    m_Mids.push_back( new FeaNode( p01 ) );
+    m_Mids.push_back( new FeaNode( p12 ) );
+    m_Mids.push_back( new FeaNode( p23 ) );
+    m_Mids.push_back( new FeaNode( p30 ) );
+}
+
+void FeaQuad::WriteCalculix( FILE* fp, int id )
+{
+    fprintf( fp, "%d,%d,%d,%d,%d,%d,%d,%d,%d\n", id,
+             m_Corners[0]->GetIndex(), m_Corners[1]->GetIndex(), m_Corners[2]->GetIndex(), m_Corners[3]->GetIndex(),
+             m_Mids[0]->GetIndex(), m_Mids[1]->GetIndex(), m_Mids[2]->GetIndex(), m_Mids[3]->GetIndex() );
+}
+void FeaQuad::WriteNASTRAN( FILE* fp, int id )
+{
+    fprintf( fp, "CQUAD8,%d,%d,%d,%d,%d,%d,%d,%d,+\n+,%d,%d\n", id, m_FeaPropertyIndex,
+             m_Corners[0]->GetIndex(), m_Corners[1]->GetIndex(), m_Corners[2]->GetIndex(), m_Corners[3]->GetIndex(),
+             m_Mids[0]->GetIndex(), m_Mids[1]->GetIndex(), m_Mids[2]->GetIndex(), m_Mids[3]->GetIndex() );
+}
+
+double FeaQuad::ComputeMass()
+{
+    double mass = 0.0;
+    if ( m_Corners.size() < 4 )
+    {
+        return mass;
+    }
+
+    double a012 = area( m_Corners[0]->m_Pnt, m_Corners[1]->m_Pnt, m_Corners[2]->m_Pnt );
+    double a023 = area( m_Corners[0]->m_Pnt, m_Corners[2]->m_Pnt, m_Corners[3]->m_Pnt );
+    double a = a012 + a023;
+
+    double avg_t = StructureMgr.GetFeaProperty( m_FeaPropertyIndex )->m_Thickness();
+    int mat_index = StructureMgr.GetFeaProperty( m_FeaPropertyIndex )->GetFeaMaterialIndex();
+    double avg_d = StructureMgr.GetFeaMaterial( mat_index )->m_MassDensity();
+
+    //double avg_t = ( m_Corners[0]->m_Thick + m_Corners[1]->m_Thick +
+    //                 m_Corners[2]->m_Thick + m_Corners[3]->m_Thick ) / 4.0;
+
+    //double avg_d = ( m_Corners[0]->m_Dense + m_Corners[1]->m_Dense +
+    //                 m_Corners[2]->m_Dense + m_Corners[3]->m_Dense ) / 4.0;
+
+    mass = a * avg_t * avg_d;
+    return mass;
+}
+
+//////////////////////////////////////////////////////
+//=================== FeaBeam ======================//
+//////////////////////////////////////////////////////
+
+void FeaBeam::Create( vec3d & p0, vec3d & p1, vec3d & p2 )
+{
+    m_ElementType = FEA_BEAM;
+    DeleteAllNodes();
+
+}
