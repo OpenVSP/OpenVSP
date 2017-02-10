@@ -50,6 +50,7 @@ LinkMgr.cpp
 MaterialMgr.cpp
 Measure.cpp
 MeasureMgr.cpp
+MeshCommonSettings.cpp
 MeshGeom.cpp
 ParasiteDragMgr.cpp
 Parm.cpp
@@ -117,6 +118,7 @@ LinkMgr.h
 MaterialMgr.h
 Measure.h
 MeasureMgr.h
+MeshCommonSettings.h
 MeshGeom.h
 ParasiteDragMgr.h
 Parm.h
