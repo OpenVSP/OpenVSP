@@ -19,6 +19,8 @@
 #include "DrawObj.h"
 #include "APIDefines.h"
 
+#include "MeshCommonSettings.h"
+
 #include <assert.h>
 
 #include <set>
@@ -31,36 +33,11 @@
 using namespace std;
 
 //////////////////////////////////////////////////////////////////////
-class StructSettings : public ParmContainer
+class StructSettings : public MeshCommonSettings
 {
 public:
 	StructSettings();
     virtual ~StructSettings();
-
-    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
-    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
-
-    virtual void ReadV2File( xmlNodePtr &root );
-
-    virtual void ParmChanged( Parm* parm_ptr, int type );
-
-    virtual void SetIntersectSubSurfs( bool f )
-    {
-        m_IntersectSubSurfs = f;
-    }
-    virtual bool GetIntersectSubSurfs()
-    {
-        return m_IntersectSubSurfs();
-    }
-
-    virtual bool GetHalfMeshFlag()
-    {
-        return m_HalfMeshFlag.Get();
-    }
-    virtual void SetHalfMeshFlag( bool f )
-    {
-        m_HalfMeshFlag = f;
-    }
 
     string GetExportFileName( int type );
     void SetExportFileName( const string &fn, int type );
@@ -70,14 +47,6 @@ public:
     BoolParm* GetExportFileFlag( int type );
     void SetAllFileExportFlags( bool flag );
     void SetFileExportFlag( int type, bool flag );
-
-    BoolParm m_DrawMeshFlag;
-    BoolParm m_DrawBadFlag;
-    BoolParm m_ColorTagsFlag;
-
-    BoolParm m_IntersectSubSurfs;
-
-    BoolParm m_HalfMeshFlag;
 
     BoolParm m_ExportFileFlags[vsp::NUM_FEA_FILE_NAMES];
 

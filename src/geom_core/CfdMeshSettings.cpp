@@ -18,25 +18,15 @@
 /////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////
 
-CfdMeshSettings::CfdMeshSettings() : ParmContainer()
+CfdMeshSettings::CfdMeshSettings() : MeshCommonSettings()
 {
     m_Name = "CFDMeshSettings";
 
-    m_DrawMeshFlag.Init( "DrawMesh", "DrawCFD", this, true, 0, 1 );
-    m_DrawSourceFlag.Init( "DrawSourceWake", "DrawCFD", this, true, 0, 1 );
-    m_DrawFarFlag.Init( "DrawFarField", "DrawCFD", this, true, 0, 1 );
-    m_DrawFarPreFlag.Init( "DrawFarFieldPreview", "DrawCFD", this, true, 0, 1 );
-    m_DrawBadFlag.Init( "DrawBadMeshElements", "DrawCFD", this, true, 0, 1 );
-    m_DrawSymmFlag.Init( "DrawSymmetryPlane", "DrawCFD", this, true, 0, 1 );
-    m_DrawWakeFlag.Init( "DrawWake", "DrawCFD", this, true, 0, 1 );
-    m_ColorTagsFlag.Init( "ColorTagsFlag", "DrawCFD", this, true, 0, 1 );
-
-    m_HalfMeshFlag.Init( "HalfMesh", "FarField", this, false, 0, 1 );
-    m_FarCompFlag.Init( "FarComp", "FarField", this, false, 0, 1 );
-    m_FarMeshFlag.Init( "FarMesh", "FarField", this, false, 0, 1 );
-
-    //Symmetry Plane Splitting Default Value: OFF
-    m_SymSplittingOnFlag.Init( "SymmetrySplitting", "FarField", this, false, 0, 1);
+    m_DrawSourceFlag.Init( "DrawSourceWake", "DrawMesh", this, true, 0, 1 );
+    m_DrawFarFlag.Init( "DrawFarField", "DrawMesh", this, true, 0, 1 );
+    m_DrawFarPreFlag.Init( "DrawFarFieldPreview", "DrawMesh", this, true, 0, 1 );
+    m_DrawSymmFlag.Init( "DrawSymmetryPlane", "DrawMesh", this, true, 0, 1 );
+    m_DrawWakeFlag.Init( "DrawWake", "DrawMesh", this, true, 0, 1 );
 
     m_FarManLocFlag.Init( "FarManualLoc", "FarField", this, false, 0, 1 );
     m_FarAbsSizeFlag.Init( "FarAbsSize", "FarField", this, false, 0, 1 );
@@ -72,9 +62,6 @@ CfdMeshSettings::CfdMeshSettings() : ParmContainer()
     m_WakeAngle.Init( "WakeAngle", "Wake", this, 0.0, -90.0, 90.0 );
     m_WakeAngle.SetDescript( "Wake angle" );
 
-    m_IntersectSubSurfs.Init( "IntersectSubSurfs", "Global", this, true, 0, 1 );
-    m_IntersectSubSurfs.SetDescript( "Flag to intersect subsurfaces" );
-
     m_SelectedSetIndex.Init( "Set", "Global", this, 0, 0, 12 );
     m_SelectedSetIndex.SetDescript( "Selected set for operation" );
 
@@ -90,37 +77,18 @@ CfdMeshSettings::CfdMeshSettings() : ParmContainer()
     m_ExportFileFlags[ vsp::CFD_FACET_FILE_NAME ].Init( "FACET_Export", "ExportCFD", this, true, 0, 1 );
 
     m_XYZIntCurveFlag.Init( "SRF_XYZIntCurve", "ExportCFD", this, false, 0, 1 );
+
+    InitCommonParms();
 }
 
 CfdMeshSettings::~CfdMeshSettings()
 {
 }
 
-xmlNodePtr CfdMeshSettings::EncodeXml( xmlNodePtr & node )
-{
-    xmlNodePtr cfdsetnode = xmlNewChild( node, NULL, BAD_CAST"CfdSettings", NULL );
-
-    ParmContainer::EncodeXml( cfdsetnode );
-
-    XmlUtil::AddStringNode( cfdsetnode, "FarFieldGeomID", m_FarGeomID );
-
-    return cfdsetnode;
-}
-
-xmlNodePtr CfdMeshSettings::DecodeXml( xmlNodePtr & node )
-{
-    xmlNodePtr cfdsetnode = XmlUtil::GetNode( node, "CfdSettings", 0 );
-    if ( cfdsetnode )
-    {
-        ParmContainer::DecodeXml( cfdsetnode );
-        m_FarGeomID   = XmlUtil::FindString( cfdsetnode, "FarFieldGeomID", m_FarGeomID );
-    }
-
-    return cfdsetnode;
-}
-
 void CfdMeshSettings::ReadV2File( xmlNodePtr &root )
 {
+    // TODO: Complete ReadV2File Functions
+
     m_FarXScale = XmlUtil::FindDouble( root, "CFD_Far_Field_Scale_X", m_FarXScale() );
     m_FarYScale = XmlUtil::FindDouble( root, "CFD_Far_Field_Scale_Y", m_FarYScale() );
     m_FarZScale = XmlUtil::FindDouble( root, "CFD_Far_Field_Scale_Z", m_FarZScale() );
@@ -149,17 +117,6 @@ void CfdMeshSettings::ReadV2File( xmlNodePtr &root )
     SetFileExportFlag( vsp::CFD_GMSH_FILE_NAME, !!XmlUtil::FindInt( root, "CFD_Gmsh_File_Flag", GetExportFileFlag( vsp::CFD_GMSH_FILE_NAME )->Get() ) );
     SetFileExportFlag( vsp::CFD_SRF_FILE_NAME, !!XmlUtil::FindInt( root, "CFD_Srf_File_Flag", GetExportFileFlag( vsp::CFD_SRF_FILE_NAME )->Get() ) );
     SetFileExportFlag( vsp::CFD_FACET_FILE_NAME, !!XmlUtil::FindInt( root, "CFD_Facet_File_Flag", GetExportFileFlag( vsp::CFD_FACET_FILE_NAME )->Get() ) );
-}
-
-//==== Parm Changed ====//
-void CfdMeshSettings::ParmChanged( Parm* parm_ptr, int type )
-{
-    Vehicle* veh = VehicleMgr.GetVehicle();
-
-    if ( veh )
-    {
-        veh->ParmChanged( parm_ptr, type );
-    }
 }
 
 string CfdMeshSettings::GetExportFileName( int type )

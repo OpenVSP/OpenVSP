@@ -23,18 +23,9 @@
 /////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////
 
-StructSettings::StructSettings() : ParmContainer()
+StructSettings::StructSettings() : MeshCommonSettings()
 {
     m_Name = "StructSettings";
-
-    m_DrawMeshFlag.Init( "DrawMesh", "DrawFea", this, true, 0, 1 );
-    m_DrawBadFlag.Init( "DrawBadMeshElements", "DrawFea", this, true, 0, 1 );
-    m_ColorTagsFlag.Init( "ColorTagsFlag", "DrawFea", this, true, 0, 1 );
-
-    m_IntersectSubSurfs.Init( "IntersectSubSurfs", "Global", this, true, 0, 1 );
-    m_IntersectSubSurfs.SetDescript( "Flag to intersect subsurfaces" );
-
-    m_HalfMeshFlag.Init( "HalfMesh", "FarField", this, false, 0, 1 );
 
     m_ExportFileFlags[ vsp::MASS_FILE_NAME ].Init( "MASS_Export", "ExportFEA", this, true, 0, 1 );
     m_ExportFileFlags[ vsp::NASTRAN_FILE_NAME ].Init( "NASTRAN_Export", "ExportFEA", this, true, 0, 1 );
@@ -42,45 +33,15 @@ StructSettings::StructSettings() : ParmContainer()
     m_ExportFileFlags[ vsp::THICK_FILE_NAME ].Init( "THICK_Export", "ExportFEA", this, true, 0, 1 );
     m_ExportFileFlags[ vsp::STL_FEA_NAME ].Init( "STL_Export", "ExportFEA", this, true, 0, 1 );
 
+    InitCommonParms();
+
+    SetFarCompFlag( false );
+    SetFarMeshFlag( false );
+    SetSymSplittingOnFlag( false );
 }
 
 StructSettings::~StructSettings()
 {
-}
-
-xmlNodePtr StructSettings::EncodeXml( xmlNodePtr & node )
-{
-    xmlNodePtr cfdsetnode = xmlNewChild( node, NULL, BAD_CAST"StructSettings", NULL );
-
-    ParmContainer::EncodeXml( cfdsetnode );
-
-    return cfdsetnode;
-}
-
-xmlNodePtr StructSettings::DecodeXml( xmlNodePtr & node )
-{
-    xmlNodePtr cfdsetnode = XmlUtil::GetNode( node, "StructSettings", 0 );
-    if ( cfdsetnode )
-    {
-        ParmContainer::DecodeXml( cfdsetnode );
-    }
-
-    return cfdsetnode;
-}
-
-void StructSettings::ReadV2File( xmlNodePtr &root )
-{
-}
-
-//==== Parm Changed ====//
-void StructSettings::ParmChanged( Parm* parm_ptr, int type )
-{
-    Vehicle* veh = VehicleMgr.GetVehicle();
-
-    if ( veh )
-    {
-        veh->ParmChanged( parm_ptr, type );
-    }
 }
 
 string StructSettings::GetExportFileName( int type )
