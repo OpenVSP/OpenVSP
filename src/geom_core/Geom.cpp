@@ -867,7 +867,10 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_GroupedAncestorGen.SetDescript("Ancestor Generation that incorporates this geoms Swet");
 
     m_ExpandedListFlag.Init("ExpandedList", "ParasiteDragProps", this, false, false, true);
-    m_ExpandedListFlag.SetDescript("Flag to determine whether or not this geom has a collapsed list in parasite drag");
+    m_ExpandedListFlag.SetDescript("Flag to determine whether or not this geom has a collapsed list in parasite drag")
+
+    m_FeaStructCount = 0;
+;
 }
 //==== Destructor ====//
 Geom::~Geom()
@@ -878,6 +881,14 @@ Geom::~Geom()
         delete m_SubSurfVec[i];
     }
     m_SubSurfVec.clear();
+
+    // Delete FeaStructures
+    for ( int i = 0; i < (int)m_FeaStructVec.size(); i++ )
+    {
+        delete m_FeaStructVec[i];
+    }
+
+    m_FeaStructVec.clear();
 }
 
 //==== Set Set Flag ====//
@@ -3908,6 +3919,55 @@ void Geom::RecolorSubSurfs( int active_ind )
         {
             m_SubSurfVec[i]->SetLineColor( vec3d( 0, 0, 0 ) );
         }
+    }
+}
+
+//==== Add FeaStructure =====//
+FeaStructure* Geom::AddFeaStruct( bool initskin, int surf_index )
+{
+    FeaStructure* feastruct = NULL;
+
+    if ( GetType().m_Type != BLANK_GEOM_TYPE && GetType().m_Type != PT_CLOUD_GEOM_TYPE && GetType().m_Type != HINGE_GEOM_TYPE )
+    {
+        feastruct = new FeaStructure( GetID(), surf_index );
+
+        if ( feastruct )
+        {
+            string defaultname = m_Name + "_Struct_" + to_string( m_FeaStructCount );
+            feastruct->SetFeaStructName( defaultname );
+
+            if ( initskin )
+            {
+                feastruct->InitFeaSkin();
+            }
+
+            m_FeaStructVec.push_back( feastruct );
+            m_FeaStructCount++;
+        }
+    }
+
+    return feastruct;
+}
+
+//==== Delete FeaStructure =====//
+void Geom::DeleteFeaStruct( int index )
+{
+    if ( !ValidGeomFeaStructInd( index ) )
+        return;
+
+    delete m_FeaStructVec[index];
+    m_FeaStructVec.erase( m_FeaStructVec.begin() + index );
+}
+
+bool Geom::ValidGeomFeaStructInd( int index )
+{
+    if ( (int)m_FeaStructVec.size() > 0 && index >= 0 && index < (int)m_FeaStructVec.size() )
+    {
+        return true;
+    }
+    else
+    {
+        return false;
     }
 }
 

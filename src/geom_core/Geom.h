@@ -30,6 +30,7 @@
 #include "XSec.h"
 #include "XSecCurve.h"
 #include "XSecSurf.h"
+#include "FeaStructure.h"
 
 #include <string>
 #include <vector>
@@ -474,6 +475,15 @@ public:
     }
     virtual void RecolorSubSurfs( int active_ind );
 
+    //==== FeaStructure Data =====//
+    vector < FeaStructure* > GetFeaStructVec()
+    {
+        return m_FeaStructVec;
+    }
+    FeaStructure* AddFeaStruct( bool initskin, int surf_index );
+    void DeleteFeaStruct( int index );
+    bool ValidGeomFeaStructInd( int index );
+
     //==== Set Drag Factors ====//
     virtual void LoadDragFactors( DragFactors& drag_factors )   {};
 
@@ -675,6 +685,9 @@ protected:
 //  //==== Structure Parts ====//
 //  int currPartID;
 //  vector< Part* > partVec;
+
+    vector< FeaStructure* > m_FeaStructVec;     // Vector of All FeaStructures
+    int m_FeaStructCount; // Counter used for creating unique name for structures
 
     //==== CFD Mesh Sources ====//
     int currSourceID;
