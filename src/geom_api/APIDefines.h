@@ -36,7 +36,7 @@ enum ERROR_CODE {   VSP_OK,
                     VSP_CONFORMAL_PARENT_UNSUPPORTED
                 };
 
-enum {  SYM_XY = ( 1 << 0 ),
+enum SYM_FLAG {  SYM_XY = ( 1 << 0 ),
         SYM_XZ = ( 1 << 1 ),
         SYM_YZ = ( 1 << 2 ),
         SYM_ROT_X = ( 1 << 3 ),

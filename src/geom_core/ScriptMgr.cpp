@@ -416,6 +416,25 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "PARM_TYPE", "PARM_STRING_TYPE", PARM_STRING_TYPE );
     assert( r >= 0 );
 
+    r = se->RegisterEnum( "SYM_FLAG" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SYM_FLAG", "SYM_XY", SYM_XY );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SYM_FLAG", "SYM_XZ", SYM_XZ );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SYM_FLAG", "SYM_YZ", SYM_YZ );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SYM_FLAG", "SYM_ROT_X", SYM_ROT_X );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SYM_FLAG", "SYM_ROT_Y", SYM_ROT_Y );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SYM_FLAG", "SYM_ROT_Z", SYM_ROT_Z );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SYM_FLAG", "SYM_PLANAR_TYPES", SYM_PLANAR_TYPES );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SYM_FLAG", "SYM_NUM_TYPES", SYM_NUM_TYPES );
+    assert( r >= 0 );
+
     r = se->RegisterEnum( "GDEV" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GDEV", "GDEV_TAB", GDEV_TAB );
