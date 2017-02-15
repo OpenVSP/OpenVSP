@@ -132,6 +132,18 @@ public:
     // Save, Load
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
 
+    virtual int GetFeaPropertyIndex()
+    {
+        return m_FeaPropertyIndex;
+    }
+    virtual void SetFeaPropertyIndex( int index )
+    {
+        m_FeaPropertyIndex = index;
+    }
+
+    virtual int GetFeaMaterialIndex();
+    virtual void SetFeaMaterialIndex( int index );
+
     int m_Tag;
     IntParm m_TestType;
     IntParm m_MainSurfIndx;
@@ -147,6 +159,7 @@ public:
     Parm m_TeTwRatio;
     Parm m_TawTwRatio;
 
+
 protected:
     string m_CompID; // Component ID used to match Subsurface to a specific geom
     int m_Type; // Type of SubSurface
@@ -156,6 +169,8 @@ protected:
     vector<SSLineSeg> m_LVec; // Line Segment Vector
     vector< vector<SSLineSeg> > m_SplitLVec; // Split Line Vector
     vec3d m_LineColor; // Line Color Displayed when drawn on screen
+
+    int m_FeaPropertyIndex;
 
     //std::vector< vec2d > m_PolyPnts;
     std::vector< std::vector< vec2d > > m_PolyPntsVec;

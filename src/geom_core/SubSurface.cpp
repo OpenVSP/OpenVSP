@@ -12,6 +12,7 @@
 #include "Geom.h"
 #include "Vehicle.h"
 #include "ParmMgr.h"
+#include "StructureMgr.h"
 
 #include "eli/geom/intersect/specified_distance_curve.hpp"
 
@@ -55,6 +56,8 @@ SubSurface::SubSurface( string compID, int type )
 
     m_TawTwRatio.Init("TawTwRatio", "ParasiteDragProps", this, -1, -1, 1e6 );
     m_TawTwRatio.SetDescript("Temperature Ratio of Ambient Wall to Wall" );
+
+    m_FeaPropertyIndex = -1;
 }
 
 SubSurface::~SubSurface()
@@ -209,6 +212,7 @@ xmlNodePtr SubSurface::EncodeXml( xmlNodePtr & node )
 
     xmlNodePtr ss_info = xmlNewChild( node, NULL, BAD_CAST "SubSurfaceInfo", NULL );
     XmlUtil::AddIntNode( ss_info, "Type", m_Type );
+    XmlUtil::AddIntNode( ss_info, "FeaPropertyIndex", m_FeaPropertyIndex );
 
     return ss_info;
 }
@@ -237,6 +241,20 @@ bool SubSurface::Subtag( const vec3d & center )
     }
 
     return false;
+}
+
+int SubSurface::GetFeaMaterialIndex()
+{
+    FeaProperty* fea_prop = StructureMgr.GetFeaProperty( m_FeaPropertyIndex );
+
+    return fea_prop->GetFeaMaterialIndex();
+}
+
+void SubSurface::SetFeaMaterialIndex( int index )
+{
+    FeaProperty* fea_prop = StructureMgr.GetFeaProperty( m_FeaPropertyIndex );
+
+    fea_prop->SetFeaMaterialIndex( index );
 }
 
 //==================================//
