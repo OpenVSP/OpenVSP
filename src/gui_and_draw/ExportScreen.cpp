@@ -13,10 +13,11 @@
 #include "STLOptionsScreen.h"
 #include "BEMOptionsScreen.h"
 #include "DXFOptionsScreen.h"
+#include "SVGOptionsScreen.h"
 using namespace vsp;
 
 //==== Constructor ====//
-ExportScreen::ExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 150, 25 + (1+13)*20 + 2*15 + 4*6, "Export" )
+ExportScreen::ExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 150, 25 + (1+14)*20 + 2*15 + 4*6, "Export" )
 {
     m_SelectedSetIndex = 0;
 
@@ -48,6 +49,7 @@ ExportScreen::ExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 150, 25 + (1+13
     m_GenLayout.AddButton( m_IGESButton, "IGES (.igs)" );
     m_GenLayout.AddButton( m_BEMButton, "Blade Element (.bem)" );
     m_GenLayout.AddButton( m_DXFButton, "AutoCAD (.dxf)" );
+    m_GenLayout.AddButton( m_SVGButton, "SVG (.svg)" );
     m_GenLayout.AddButton( m_FacetButton, "Xpatch (.facet)" );
 }
 
@@ -156,9 +158,16 @@ void ExportScreen::ExportFile( string &newfile, int write_set, int type )
             newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write DXF File?", "*.dxf" );
         }
     }
+    else if ( type == EXPORT_SVG )
+    {
+        if ( (( SVGOptionsScreen* ) m_ScreenMgr->GetScreen( ScreenMgr::VSP_SVG_OPTIONS_SCREEN ))->ShowSVGOptionsScreen( write_set ) )
+        {
+            newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write SVG File?", "*.svg" );
+        }
+    }
     else if ( type == EXPORT_FACET )
     {
-        newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write Facet File?", "*.facet" );
+        newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser("Write Facet File?", "*.facet");
     }
     else if ( type == -1 )
     {
@@ -230,9 +239,13 @@ void ExportScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         ExportFile( newfile, m_SelectedSetIndex, EXPORT_DXF );
     }
+    else if ( device == &m_SVGButton )
+    {
+        ExportFile( newfile, m_SelectedSetIndex, EXPORT_SVG );
+    }
     else if ( device == &m_FacetButton )
     {
-        ExportFile( newfile, m_SelectedSetIndex, EXPORT_FACET );
+        ExportFile(newfile, m_SelectedSetIndex, EXPORT_FACET);
     }
     else if (  device == &m_ExportSetChoice )
     {

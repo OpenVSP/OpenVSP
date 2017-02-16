@@ -3920,9 +3920,13 @@ void Vehicle::ExportFile( const string & file_name, int write_set, int file_type
     {
         WriteDXFFile( file_name, write_set  );
     }
+    else if ( file_type == EXPORT_SVG )
+    {
+        WriteSVGFile( file_name, write_set  );
+    }
     else if ( file_type == EXPORT_FACET )
     {
-        WriteFacetFile( file_name, write_set );
+        WriteFacetFile(file_name, write_set);
     }
 }
 

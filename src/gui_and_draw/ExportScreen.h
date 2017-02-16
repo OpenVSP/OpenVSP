@@ -60,6 +60,7 @@ protected:
     TriggerButton m_IGESButton;
     TriggerButton m_BEMButton;
     TriggerButton m_DXFButton;
+    TriggerButton m_SVGButton;
     TriggerButton m_FacetButton;
 
     int m_SelectedSetIndex;
