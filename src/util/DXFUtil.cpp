@@ -227,10 +227,21 @@ void FeatureLinesShift( vector < vector < vec3d > > &allflines, vec3d shiftvec, 
     }
 }
 
-void WriteDXFPolylines3D( FILE* dxf_file, const vector < vector < vec3d > > &allflines, string layer )
+void WriteDXFPolylines3D( FILE* dxf_file, const vector < vector < vec3d > > &allflines, string layer, bool colorflag, int color_count )
 {
     if ( dxf_file )
     {
+        int color;
+
+        if ( colorflag )
+        {
+            color = DXFColorWheel( color_count );
+        }
+        else
+        {
+            color = 0; // Black
+        }
+
         for ( unsigned int l = 0; l < allflines.size(); l++ )
         {
             fprintf( dxf_file, "  0\n" );
@@ -251,6 +262,8 @@ void WriteDXFPolylines3D( FILE* dxf_file, const vector < vector < vec3d > > &all
             fprintf( dxf_file, "%f\n", 0.0 ); //y
             fprintf( dxf_file, "  %d\n", 30 );
             fprintf( dxf_file, "%f\n", 0.0 ); //z
+            fprintf( dxf_file, "  62\n" );
+            fprintf( dxf_file, "  %d\n", color );
             //Same Start/End Width:
             fprintf( dxf_file, "  40\n" );
             fprintf( dxf_file, "0.0\n" );
@@ -270,6 +283,8 @@ void WriteDXFPolylines3D( FILE* dxf_file, const vector < vector < vec3d > > &all
                 fprintf( dxf_file, "  %d\n", 100 );
                 fprintf( dxf_file, "%s\n", "AcDb3dPolylineVertex" );
                 fprintf( dxf_file, "  %d\n", 10 );
+                fprintf( dxf_file, "  62\n" );
+                fprintf( dxf_file, "  %d\n", color );
                 fprintf( dxf_file, "%f\n", allflines[l][j].x() ); //x
                 fprintf( dxf_file, "  20\n" );
                 fprintf( dxf_file, "%f\n", allflines[l][j].y() ); //y
@@ -286,10 +301,21 @@ void WriteDXFPolylines3D( FILE* dxf_file, const vector < vector < vec3d > > &all
     }
 }
 
-void WriteDXFPolylines2D( FILE* dxf_file, const vector < vector < vec3d > > &allflines, string layer )
+void WriteDXFPolylines2D( FILE* dxf_file, const vector < vector < vec3d > > &allflines, string layer, bool colorflag, int color_count )
 {
     if ( dxf_file )
     {
+        int color;
+
+        if ( colorflag )
+        {
+            color = DXFColorWheel( color_count );
+        }
+        else
+        {
+            color = 0; // Black
+        }
+
         for ( unsigned int l = 0; l < allflines.size(); l++ )
         {
             fprintf( dxf_file, "  0\n" );
@@ -308,6 +334,8 @@ void WriteDXFPolylines2D( FILE* dxf_file, const vector < vector < vec3d > > &all
             fprintf( dxf_file, "%f\n", 0.0 ); //x
             fprintf( dxf_file, "  %d\n", 20 );
             fprintf( dxf_file, "%f\n", 0.0 ); //y
+            fprintf( dxf_file, "  62\n" );
+            fprintf( dxf_file, "  %d\n", color );
             //Same Start/End Width:
             fprintf( dxf_file, "  40\n" );
             fprintf( dxf_file, "0.0\n" );
@@ -327,6 +355,8 @@ void WriteDXFPolylines2D( FILE* dxf_file, const vector < vector < vec3d > > &all
                 fprintf( dxf_file, "  %d\n", 100 );
                 fprintf( dxf_file, "%s\n", "AcDb3dPolylineVertex" );
                 fprintf( dxf_file, "  %d\n", 10 );
+                fprintf( dxf_file, "  62\n" );
+                fprintf( dxf_file, "  %d\n", color );
                 fprintf( dxf_file, "%f\n", allflines[l][j].x() ); //x
                 fprintf( dxf_file, "  20\n" );
                 fprintf( dxf_file, "%f\n", allflines[l][j].y() ); //y
@@ -351,4 +381,17 @@ void WriteDXFClose( FILE* dxf_file )
         fprintf( dxf_file, "  %d\n", 0 );
         fprintf( dxf_file, "%s\n", "EOF" );
     }
+}
+int DXFColorWheel( int count )
+{
+    // Documentation: http://sub-atomic.com/~moses/acadcolors.html
+
+    int intense_group = ( count / 24 ) % 3; // Last digit in color_index will be 0, 1, or 3, corresponding to an intensity
+
+    count = count % 24; // Bound count to range 0-24
+
+    // Increment in steps of 50, beginning at 10 for count = 0.
+    int color_index = ( count % 5 ) * 50 + 10 * ( ( ( count / 5 ) % 24 ) + 1 ) + intense_group;
+
+    return color_index;
 }

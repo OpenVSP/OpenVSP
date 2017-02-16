@@ -23,10 +23,12 @@ using std::vector;
 using std::string;
 
 void WriteDXFHeader( FILE* dxf_file, int LenUnitChoice );
-void WriteDXFPolylines3D( FILE* dxf_file, const vector < vector < vec3d > > &allflines, string layer );
-void WriteDXFPolylines2D( FILE* dxf_file, const vector < vector < vec3d > > &allflines, string layer );
 void FeatureLinesManipulate( vector < vector < vec3d > > &allflines, int view, int ang, vec3d shiftvec );
 void FeatureLinesShift( vector < vector < vec3d > > &allflines, vec3d shiftvec, int shift, int ang1, int ang2 );
+void WriteDXFPolylines3D( FILE* dxf_file, const vector < vector < vec3d > > &allflines, string layer, bool colorflag, int color_count );
+void WriteDXFPolylines2D( FILE* dxf_file, const vector < vector < vec3d > > &allflines, string layer, bool colorflag, int color_count );
 void WriteDXFClose( FILE* dxf_file );
+
+int DXFColorWheel( int count );
 
 #endif
