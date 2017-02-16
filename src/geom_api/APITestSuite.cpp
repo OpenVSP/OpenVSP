@@ -341,6 +341,89 @@ void APITestSuite::TestDXFExport()
     ExportFile( "TestDXF_2D_2VView_API.dxf", vsp::SET_ALL, vsp::EXPORT_DXF );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
+    //==== Open Each DXF File In A Viewer To Verify ====//
+    printf( "-> COMPLETE: Open Each DXF File In A DXF Viewer To Verify \n" );
+
+    // Final check for errors
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+    printf( "\n" );
+}
+
+void APITestSuite::TestSVGExport()
+{
+    printf( "APITestSuite::TestSVGExport()\n" );
+
+    printf( "->Generating geometries...\n" );
+
+    // make sure setup works
+    vsp::VSPCheckSetup();
+    vsp::VSPRenew();
+
+    //==== Add Wing Geom and set some parameters =====//
+    string wing_id = vsp::AddGeom( "WING" );
+    TEST_ASSERT( wing_id.c_str() != NULL );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "TotalSpan", "WingGeom", 30.0 ), 30.0, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "LECluster", "WingGeom", 0.0 ), 0.0, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "TECluster", "WingGeom", 2.0 ), 2.0, TEST_TOL );
+    vsp::Update();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    //==== Add Fuselage Geom and set some parameters =====//
+    string fus_id = vsp::AddGeom( "FUSELAGE" );
+    TEST_ASSERT( fus_id.c_str() != NULL );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  fus_id, "X_Rel_Location", "XForm", -9.0 ), -9.0, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  fus_id, "Z_Rel_Location", "XForm", -1.0 ), -1.0, TEST_TOL );
+    vsp::Update();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    string geom_id = vsp::FindContainer( "Vehicle", 0 );
+
+    //==== Manually Add Scale Bar ====//
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( geom_id, "ScaleFlag", "SVGSettings" ), vsp::MANUAL ), vsp::MANUAL, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( geom_id, "LenUnit", "SVGSettings" ), vsp::LEN_IN ), vsp::LEN_IN, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( geom_id, "Scale", "SVGSettings" ), 30.0 ), 30.0, TEST_TOL );
+
+    //==== Test Default 4 View SVG Export =====//
+    ExportFile( "TestSVG_4View_API.svg", vsp::SET_ALL, vsp::EXPORT_SVG );
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+    printf("--> 4 View SVG Export Saved To: TestSVG_4View_API.svg \n" );
+
+    //==== 1 View SVG Export ====//
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( geom_id, "ViewType", "SVGSettings" ), vsp::VIEW_1 ), vsp::VIEW_1, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( geom_id, "TopLeftView", "SVGSettings" ), vsp::VIEW_BOTTOM ), vsp::VIEW_BOTTOM, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( geom_id, "TopLeftRotation", "SVGSettings" ), vsp::ROT_0 ), vsp::ROT_0, TEST_TOL );
+    vsp::Update();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    ExportFile( "TestSVG_1View_API.svg", vsp::SET_ALL, vsp::EXPORT_SVG );
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+    printf("--> 1 View SVG Export Saved To: TestSVG_1View_API.svg \n" );
+
+    //==== 2 Horizontal View SVG Export ====//
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( geom_id, "ViewType", "SVGSettings" ), vsp::VIEW_2HOR ), vsp::VIEW_2HOR, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( geom_id, "TopRightView", "SVGSettings" ), vsp::VIEW_RIGHT ), vsp::VIEW_RIGHT, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( geom_id, "TopRightRotation", "SVGSettings" ), vsp::ROT_0 ), vsp::ROT_0, TEST_TOL );
+    vsp::Update();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    ExportFile( "TestSVG_2HView_API.svg", vsp::SET_ALL, vsp::EXPORT_SVG );
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+    printf("--> 2 Horizontal View SVG Export Saved To: TestSVG_2HView_API.svg \n" );
+
+    //==== 2 Vertical View SVG Export ====//
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( geom_id, "ViewType", "SVGSettings" ), vsp::VIEW_2VER ), vsp::VIEW_2VER, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( geom_id, "BottomLeftView", "SVGSettings" ), vsp::VIEW_FRONT ), vsp::VIEW_FRONT, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( geom_id, "BottomLeftRotation", "SVGSettings" ), vsp::ROT_0 ), vsp::ROT_0, TEST_TOL );
+    vsp::Update();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    ExportFile( "TestSVG_2VView_API.svg", vsp::SET_ALL, vsp::EXPORT_SVG );
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+    printf("--> 2 Vertical View SVG Export Saved To: TestSVG_2VView_API.svg \n" );
+
+    //==== Open Each SVG File In A Viewer To Verify ====//
+    printf( "-> COMPLETE: Open Each SVG File In A SVG Viewer To Verify \n" );
+
     // Final check for errors
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
     printf( "\n" );

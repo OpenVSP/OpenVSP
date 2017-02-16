@@ -31,6 +31,7 @@ public:
 
         // Export
         TEST_ADD( APITestSuite::TestDXFExport )
+        TEST_ADD( APITestSuite::TestSVGExport )
         TEST_ADD( APITestSuite::TestFacetExport )
     }
 
@@ -46,6 +47,7 @@ private:
     void TestAnalysesWithPod();
     // Export
     void TestDXFExport();
+    void TestSVGExport();
     void TestFacetExport();
 };
 
