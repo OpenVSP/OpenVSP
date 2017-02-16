@@ -5,10 +5,10 @@
 
 // DXFOptionsScreen.cpp: implementation of the DXFOptionsScreen class.
 //
+// Justin Gravett
 //////////////////////////////////////////////////////////////////////
 
 #include "DXFOptionsScreen.h"
-
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -19,10 +19,6 @@ DXFOptionsScreen::DXFOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 36
     m_FLTK_Window->callback( staticCloseCB, this );
 
     m_OkFlag = false;
-    m_PrevUnit = 0;
-    m_PrevView = 0;
-    m_PrevView4 = 0;
-    m_PrevRot4 = 0;
 
     m_GenLayout.SetGroupAndScreen( m_FLTK_Window, this );
     m_GenLayout.AddY( 25 );
@@ -201,23 +197,22 @@ bool DXFOptionsScreen::Update()
     if( veh )
     {
         m_LenUnitChoice.Update( veh->m_DXFLenUnit.GetID() );
-        m_2DViewType.Update( veh->m_2DView.GetID() );
-        m_4ViewChoice1.Update( veh->m_4View1.GetID() );
-        m_4ViewChoice2.Update( veh->m_4View2.GetID() );
-        m_4ViewChoice3.Update( veh->m_4View3.GetID() );
-        m_4ViewChoice4.Update( veh->m_4View4.GetID() );
-        m_4RotChoice1.Update( veh->m_4View1_rot.GetID() );
-        m_4RotChoice2.Update( veh->m_4View2_rot.GetID() );
-        m_4RotChoice3.Update( veh->m_4View3_rot.GetID() );
-        m_4RotChoice4.Update( veh->m_4View4_rot.GetID() );
-        m_2D3DGroup.Update( veh->m_2D3DFlag.GetID() );
+        m_2DViewType.Update( veh->m_DXF2DView.GetID() );
+        m_4ViewChoice1.Update( veh->m_DXF4View1.GetID() );
+        m_4ViewChoice2.Update( veh->m_DXF4View2.GetID() );
+        m_4ViewChoice3.Update( veh->m_DXF4View3.GetID() );
+        m_4ViewChoice4.Update( veh->m_DXF4View4.GetID() );
+        m_4RotChoice1.Update( veh->m_DXF4View1_rot.GetID() );
+        m_4RotChoice2.Update( veh->m_DXF4View2_rot.GetID() );
+        m_4RotChoice3.Update( veh->m_DXF4View3_rot.GetID() );
+        m_4RotChoice4.Update( veh->m_DXF4View4_rot.GetID() );
+        m_2D3DGroup.Update( veh->m_DXF2D3DFlag.GetID() );
 
-        if ( veh->m_2D3DFlag() == vsp::SET_2D )
+        if ( veh->m_DXF2D3DFlag() == vsp::SET_2D )
         {
             m_2DViewType.Activate();
-
         }
-        else if ( veh->m_2D3DFlag() == vsp::SET_3D )
+        else if ( veh->m_DXF2D3DFlag() == vsp::SET_3D )
         {
             m_2DViewType.Deactivate();
             m_4ViewChoice1.Deactivate();
@@ -230,7 +225,7 @@ bool DXFOptionsScreen::Update()
             m_4RotChoice4.Deactivate();
         }
 
-        if ( veh->m_2DView() == vsp::VIEW_1 && veh->m_2D3DFlag() == vsp::SET_2D )
+        if ( veh->m_DXF2DView() == vsp::VIEW_1 && veh->m_DXF2D3DFlag() == vsp::SET_2D )
         {
             m_4ViewChoice1.Activate();
             m_4ViewChoice2.Deactivate();
@@ -241,7 +236,7 @@ bool DXFOptionsScreen::Update()
             m_4RotChoice3.Deactivate();
             m_4RotChoice4.Deactivate();
         }
-        else if ( veh->m_2DView() == vsp::VIEW_2HOR && veh->m_2D3DFlag() == vsp::SET_2D )
+        else if ( veh->m_DXF2DView() == vsp::VIEW_2HOR && veh->m_DXF2D3DFlag() == vsp::SET_2D )
         {
             m_4ViewChoice1.Activate();
             m_4ViewChoice2.Activate();
@@ -252,7 +247,7 @@ bool DXFOptionsScreen::Update()
             m_4RotChoice3.Deactivate();
             m_4RotChoice4.Deactivate();
         }
-        else if ( veh->m_2DView() == vsp::VIEW_2VER && veh->m_2D3DFlag() == vsp::SET_2D )
+        else if ( veh->m_DXF2DView() == vsp::VIEW_2VER && veh->m_DXF2D3DFlag() == vsp::SET_2D )
         {
             m_4ViewChoice1.Activate();
             m_4ViewChoice2.Deactivate();
@@ -263,7 +258,7 @@ bool DXFOptionsScreen::Update()
             m_4RotChoice3.Activate();
             m_4RotChoice4.Deactivate();
         }
-        else if ( veh->m_2DView() == vsp::VIEW_4 && veh->m_2D3DFlag() == vsp::SET_2D )
+        else if ( veh->m_DXF2DView() == vsp::VIEW_4 && veh->m_DXF2D3DFlag() == vsp::SET_2D )
         {
             m_4ViewChoice1.Activate();
             m_4ViewChoice2.Activate();
@@ -304,21 +299,6 @@ void DXFOptionsScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_CancelButton )
     {
-        Vehicle *veh = VehicleMgr.GetVehicle();
-
-        if( veh )
-        {
-            veh->m_DXFLenUnit.Set( m_PrevUnit );
-            veh->m_2DView.Set( m_PrevView );
-            veh->m_4View1.Set( m_PrevView4 );
-            veh->m_4View2.Set( m_PrevView4 );
-            veh->m_4View3.Set( m_PrevView4 );
-            veh->m_4View4.Set( m_PrevView4 );
-            veh->m_4View1_rot.Set( m_PrevRot4 );
-            veh->m_4View2_rot.Set( m_PrevRot4 );
-            veh->m_4View3_rot.Set( m_PrevRot4 );
-            veh->m_4View4_rot.Set( m_PrevRot4 );
-        }
         Hide();
     }
 
@@ -331,22 +311,6 @@ bool DXFOptionsScreen::ShowDXFOptionsScreen()
 
     m_OkFlag = false;
 
-    Vehicle *veh = VehicleMgr.GetVehicle();
-
-    if( veh )
-    {
-        m_PrevUnit = veh->m_DXFLenUnit();
-        m_PrevView = veh->m_2DView();
-        m_PrevView4 = veh->m_4View1();
-        m_PrevView4 = veh->m_4View2();
-        m_PrevView4 = veh->m_4View3();
-        m_PrevView4 = veh->m_4View4();
-        m_PrevRot4 = veh->m_4View1_rot();
-        m_PrevRot4 = veh->m_4View2_rot();
-        m_PrevRot4 = veh->m_4View3_rot();
-        m_PrevRot4 = veh->m_4View4_rot();
-    }
-
     while( m_FLTK_Window->shown() )
     {
         Fl::wait();
@@ -358,22 +322,6 @@ bool DXFOptionsScreen::ShowDXFOptionsScreen()
 void DXFOptionsScreen::CloseCallBack( Fl_Widget *w )
 {
     assert( m_ScreenMgr );
-
-    Vehicle *veh = VehicleMgr.GetVehicle();
-
-    if( veh )
-    {
-        veh->m_DXFLenUnit.Set( m_PrevUnit );
-        veh->m_2DView.Set( m_PrevView );
-        veh->m_4View1.Set( m_PrevView4 );
-        veh->m_4View2.Set( m_PrevView4 );
-        veh->m_4View3.Set( m_PrevView4 );
-        veh->m_4View4.Set( m_PrevView4 );
-        veh->m_4View1_rot.Set( m_PrevView4 );
-        veh->m_4View2_rot.Set( m_PrevView4 );
-        veh->m_4View3_rot.Set( m_PrevView4 );
-        veh->m_4View4_rot.Set( m_PrevView4 );
-    }
 
     Hide();
 }

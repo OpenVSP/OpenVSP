@@ -294,17 +294,18 @@ public:
     Parm m_IGESToCubicTol;
     BoolParm m_IGESTrimTE;
 
+    //==== DXF Export ====//
     IntParm m_DXFLenUnit;
-    IntParm m_2DView;
-    IntParm m_2D3DFlag;
-    IntParm m_4View1;
-    IntParm m_4View2;
-    IntParm m_4View3;
-    IntParm m_4View4;
-    IntParm m_4View1_rot;
-    IntParm m_4View2_rot;
-    IntParm m_4View3_rot;
-    IntParm m_4View4_rot;
+    IntParm m_DXF2DView;
+    IntParm m_DXF2D3DFlag;
+    IntParm m_DXF4View1;
+    IntParm m_DXF4View2;
+    IntParm m_DXF4View3;
+    IntParm m_DXF4View4;
+    IntParm m_DXF4View1_rot;
+    IntParm m_DXF4View2_rot;
+    IntParm m_DXF4View3_rot;
+    IntParm m_DXF4View4_rot;
 
     string m_BEMPropID;
 

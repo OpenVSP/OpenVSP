@@ -55,16 +55,18 @@ Vehicle::Vehicle()
     m_IGESTrimTE.Init( "TrimTE", "IGESSettings", this, false, 0, 1 );
 
     m_DXFLenUnit.Init( "LenUnit", "DXFSettings", this, vsp::LEN_FT, vsp::LEN_MM, vsp::LEN_UNITLESS );
-    m_2D3DFlag.Init( "DimFlag", "DXFSettings", this , vsp::SET_3D, vsp::SET_3D, vsp::SET_2D );
-    m_2DView.Init( "ViewType", "DXFSettings", this, vsp::VIEW_1, vsp::VIEW_1, vsp::VIEW_4 );
-    m_4View1.Init( "TopLeftView", "DXFSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
-    m_4View2.Init( "TopRightView", "DXFSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
-    m_4View3.Init( "BottomLeftView", "DXFSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
-    m_4View4.Init( "BottomRightView", "DXFSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
-    m_4View1_rot.Init( "TopLeftRotation", "DXFSettings", this, vsp::ROT_90, vsp::ROT_0, vsp::ROT_270 );
-    m_4View2_rot.Init( "TopRightRotation", "DXFSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
-    m_4View3_rot.Init( "BottomLeftRotation", "DXFSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
-    m_4View4_rot.Init( "BottomRightRotation", "DXFSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
+    m_DXFLenUnit.SetDescript( "Sets DXF Header Units; Numeric Values Unchanged" );
+    m_DXF2D3DFlag.Init( "DimFlag", "DXFSettings", this , vsp::SET_3D, vsp::SET_3D, vsp::SET_2D );
+    m_DXF2DView.Init( "ViewType", "DXFSettings", this, vsp::VIEW_1, vsp::VIEW_1, vsp::VIEW_4 );
+    m_DXF2DView.SetDescript( "Sets Number Of 2D Views" );
+    m_DXF4View1.Init( "TopLeftView", "DXFSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
+    m_DXF4View2.Init( "TopRightView", "DXFSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
+    m_DXF4View3.Init( "BottomLeftView", "DXFSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
+    m_DXF4View4.Init( "BottomRightView", "DXFSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
+    m_DXF4View1_rot.Init( "TopLeftRotation", "DXFSettings", this, vsp::ROT_90, vsp::ROT_0, vsp::ROT_270 );
+    m_DXF4View2_rot.Init( "TopRightRotation", "DXFSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
+    m_DXF4View3_rot.Init( "BottomLeftRotation", "DXFSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
+    m_DXF4View4_rot.Init( "BottomRightRotation", "DXFSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
 
     m_STLMultiSolid.Init( "MultiSolid", "STLSettings", this, false, 0, 1 );
 
@@ -182,17 +184,18 @@ void Vehicle::Init()
     m_IGESToCubicTol.Set( 1e-6 );
     m_IGESTrimTE.Set( false );
 
+	//=== DXF Initial Conditions ===//
     m_DXFLenUnit.Set( vsp::LEN_UNITLESS );
-    m_2DView.Set( vsp::VIEW_4 );
-    m_2D3DFlag.Set( vsp::SET_3D );
-    m_4View1.Set( vsp::VIEW_TOP );
-    m_4View2.Set( vsp::VIEW_NONE );
-    m_4View3.Set( vsp::VIEW_FRONT );
-    m_4View4.Set( vsp::VIEW_LEFT );
-    m_4View1_rot.Set( vsp::ROT_270 );
-    m_4View2_rot.Set( vsp::ROT_0 );
-    m_4View3_rot.Set( vsp::ROT_0 );
-    m_4View4_rot.Set( vsp::ROT_0 );
+    m_DXF2DView.Set( vsp::VIEW_4 );
+    m_DXF2D3DFlag.Set( vsp::SET_3D );
+    m_DXF4View1.Set( vsp::VIEW_TOP );
+    m_DXF4View2.Set( vsp::VIEW_NONE );
+    m_DXF4View3.Set( vsp::VIEW_FRONT );
+    m_DXF4View4.Set( vsp::VIEW_LEFT );
+    m_DXF4View1_rot.Set( vsp::ROT_90 );
+    m_DXF4View2_rot.Set( vsp::ROT_0 );
+    m_DXF4View3_rot.Set( vsp::ROT_0 );
+    m_DXF4View4_rot.Set( vsp::ROT_0 );
 
     m_STLMultiSolid.Set( false );
 
