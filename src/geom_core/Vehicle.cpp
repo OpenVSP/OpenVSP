@@ -27,6 +27,7 @@
 #include "SubSurfaceMgr.h"
 #include "DesignVarMgr.h"
 #include "DXFUtil.h"
+#include "SVGUtil.h"
 #include "FitModelMgr.h"
 #include "FileUtil.h"
 #include "VarPresetMgr.h"
@@ -82,6 +83,31 @@ Vehicle::Vehicle()
     m_DXF4View2_rot.Init( "TopRightRotation", "DXFSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
     m_DXF4View3_rot.Init( "BottomLeftRotation", "DXFSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
     m_DXF4View4_rot.Init( "BottomRightRotation", "DXFSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
+
+    m_SVGLenUnit.Init( "LenUnit", "SVGSettings", this, vsp::LEN_FT, vsp::LEN_MM, vsp::LEN_UNITLESS );
+    m_SVGLenUnit.SetDescript( "Sets Scale Bar Units; Numeric Values Unchanged" );
+    m_SVGSet.Init( "SVGSet", "SVGSettings", this, 0, 0, 12 );
+    m_Scale.Init( "Scale", "SVGSettings", this, 0, 0, 1e12 );
+    m_Scale.SetDescript( "Sets Scale Bar Size" );
+    m_ScaleFlag.Init( "ScaleFlag", "SVGSettings", this, 1, vsp::MANUAL, vsp::NOSCALE );
+    m_SVGGeomProjectionFlag.Init( "SVGGeomProjectionFlag", "SVGSettings", this , false, 0, 1 );
+    m_SVGGeomProjectionFlag.SetDescript( "Flag To Export Geom Projection Lines" );
+    m_SVGTotalProjectionFlag.Init( "SVGTotalProjectionFlag", "SVGSettings", this, false, 0, 1 );
+    m_SVGTotalProjectionFlag.SetDescript( "Flag To Export Vehicle Projection Lines" );
+    m_SVGTessFactor.Init( "SVGTessFactor", "SVGSettings", this, 2, 0, 100 );
+    m_SVGTessFactor.SetDescript( "SVG Tesselation Multiplier. Caution: May Slow Export" );
+    m_SVGAllXSecFlag.Init( "SVGAllXSecFlag", "SVGSettings", this, false, 0, 1 );
+    m_SVGAllXSecFlag.SetDescript( "Flag To Export XSec Feature Lines" );
+    m_SVGView.Init( "ViewType", "SVGSettings", this, vsp::VIEW_1, vsp::VIEW_1, vsp::VIEW_4 );
+    m_SVGView.SetDescript( "Sets Number Of 2D Views" );
+    m_SVGView1.Init( "TopLeftView", "SVGSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
+    m_SVGView2.Init( "TopRightView", "SVGSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
+    m_SVGView3.Init( "BottomLeftView", "SVGSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
+    m_SVGView4.Init( "BottomRightView", "SVGSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
+    m_SVGView1_rot.Init( "TopLeftRotation", "SVGSettings", this, vsp::ROT_90, vsp::ROT_0, vsp::ROT_270 );
+    m_SVGView2_rot.Init( "TopRightRotation", "SVGSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
+    m_SVGView3_rot.Init( "BottomLeftRotation", "SVGSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
+    m_SVGView4_rot.Init( "BottomRightRotation", "SVGSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
 
     m_STLMultiSolid.Init( "MultiSolid", "STLSettings", this, false, 0, 1 );
 
@@ -213,6 +239,18 @@ void Vehicle::Init()
     m_DXF4View2_rot.Set( vsp::ROT_0 );
     m_DXF4View3_rot.Set( vsp::ROT_0 );
     m_DXF4View4_rot.Set( vsp::ROT_0 );
+
+    //=== SVG Initial Conditions ===//
+    m_SVGLenUnit.Set( vsp::LEN_UNITLESS );
+    m_SVGView.Set( vsp::VIEW_4 );
+    m_SVGView1.Set( vsp::VIEW_TOP );
+    m_SVGView2.Set( vsp::VIEW_NONE );
+    m_SVGView3.Set( vsp::VIEW_FRONT );
+    m_SVGView4.Set( vsp::VIEW_LEFT );
+    m_SVGView1_rot.Set( vsp::ROT_90 );
+    m_SVGView2_rot.Set( vsp::ROT_0 );
+    m_SVGView3_rot.Set( vsp::ROT_0 );
+    m_SVGView4_rot.Set( vsp::ROT_0 );
 
     m_STLMultiSolid.Set( false );
 

@@ -573,6 +573,15 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "VIEW_ROT", "ROT_270", ROT_270 );
     assert( r >= 0 );
 
+    r = se->RegisterEnum( "SCALE_FLAG" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SCALE_FLAG", "MANUAL", MANUAL );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SCALE_FLAG", "REFERENCE", REFERENCE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SCALE_FLAG", "NOSCALE", NOSCALE );
+    assert( r >= 0 );
+
     r = se->RegisterEnum( "ANG_UNITS" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "ANG_UNITS", "ANG_RAD", ANG_RAD );
@@ -726,6 +735,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "EXPORT_TYPE", "EXPORT_DXF", EXPORT_DXF );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "EXPORT_TYPE", "EXPORT_FACET", EXPORT_FACET );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "EXPORT_TYPE", "EXPORT_SVG", EXPORT_SVG );
     assert( r >= 0 );
 
     r = se->RegisterEnum( "COMPUTATION_FILE_TYPE" );

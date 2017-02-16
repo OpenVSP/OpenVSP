@@ -99,6 +99,11 @@ enum VIEW_ROT { ROT_0,
                 ROT_270,
 };
 
+enum SCALE_FLAG { MANUAL,
+                  REFERENCE,
+                  NOSCALE
+};
+
 enum ANG_UNITS { ANG_RAD,
                  ANG_DEG
 };
@@ -173,7 +178,8 @@ enum EXPORT_TYPE {  EXPORT_FELISA,
                     EXPORT_IGES,
                     EXPORT_BEM,
                     EXPORT_DXF,
-                    EXPORT_FACET
+                    EXPORT_FACET,
+                    EXPORT_SVG
                  };
 
 enum COMPUTATION_FILE_TYPE  {   NO_FILE_TYPE        = 0,

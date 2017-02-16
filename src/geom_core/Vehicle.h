@@ -326,6 +326,25 @@ public:
     IntParm m_DXF4View3_rot;
     IntParm m_DXF4View4_rot;
 
+    //==== SVG Export ====//
+    IntParm m_SVGLenUnit;
+    IntParm m_SVGSet;
+    Parm m_Scale;
+    IntParm m_ScaleFlag;
+    BoolParm m_SVGGeomProjectionFlag;
+    BoolParm m_SVGTotalProjectionFlag;
+    Parm m_SVGTessFactor;
+    BoolParm m_SVGAllXSecFlag;
+    IntParm m_SVGView;
+    IntParm m_SVGView1;
+    IntParm m_SVGView2;
+    IntParm m_SVGView3;
+    IntParm m_SVGView4;
+    IntParm m_SVGView1_rot;
+    IntParm m_SVGView2_rot;
+    IntParm m_SVGView3_rot;
+    IntParm m_SVGView4_rot;
+
     string m_BEMPropID;
 
     BoolParm m_STLMultiSolid;
