@@ -1978,10 +1978,7 @@ void CalculateStabilityDerivatives(void)
        if ( n == 6 ) sprintf(CaseType,caseTypeFormatStr,"Yaw___Rate",Delta_R_,   "rad/Tunit");
        if ( n == 7 ) sprintf(CaseType,caseTypeFormatStr,"Mach",      Delta_Mach_,"no_unit");
 
-       
-       // Control derivatve cases
-                                     //12345678901234567890123456
-       if ( n  > 7 ) sprintf(CaseType,"Control_Group_%-5d    +%5.3lf %-9s",n-NumStabCases_,Delta_Control_,"deg");
+       if ( n  > 7 ) sprintf(CaseType,caseTypeFormatStr,ControlSurfaceGroup_[n - NumStabCases_].Name(), Delta_Control_, "deg" );
        
        fprintf(StabFile,"%-39s %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f %12.7f \n",
                CaseType,
