@@ -9,104 +9,90 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "DXFUtil.h"
+#include "main.h"
 
 void WriteDXFHeader( FILE* dxf_file, int LenUnitChoice )
 {
     if ( dxf_file )
     {
-        fprintf( dxf_file, "%d\n", 999 );
-        fprintf( dxf_file, "%s\n", "DXF file written from OpenVSP" );
-        fprintf( dxf_file, "  %d\n", 0 );
-        fprintf( dxf_file, "%s\n", "SECTION" );
-        fprintf( dxf_file, "  %d\n", 2 );
-        fprintf( dxf_file, "%s\n", "HEADER" );
-        fprintf( dxf_file, "  %d\n", 9 );
+        fprintf( dxf_file, "999\n" );
+        fprintf( dxf_file, "DXF file written from %s\n", VSPVERSION4 );
+        fprintf( dxf_file, "  0\n" );
+        fprintf( dxf_file, "SECTION\n" );
+        fprintf( dxf_file, "  2\n" );
+        fprintf( dxf_file, "HEADER\n" );
+        fprintf( dxf_file, "  9\n" );
         //AutoCAD drawing database version number: AC1006 = R10, AC1009 = R11 and R12, AC1012 = R13, AC1014 = R14
-        fprintf( dxf_file, "%s\n", "$ACADVER" );
-        fprintf( dxf_file, "  %d\n", 1 );
-        fprintf( dxf_file, "%s\n", "AC1006" );
-        fprintf( dxf_file, "  %d\n", 9 );
+        fprintf( dxf_file, "$ACADVER\n" );
+        fprintf( dxf_file, "  1\n" );
+        fprintf( dxf_file, "AC1006s\n" );
+        fprintf( dxf_file, "  9\n" );
         // Insertion base:
-        fprintf( dxf_file, "%s\n", "$INSBASE" );
-        fprintf( dxf_file, "  %d\n", 10 );
-        fprintf( dxf_file, "%f\n", 0.0 );
-        fprintf( dxf_file, "  %d\n", 20 );
-        fprintf( dxf_file, "%f\n", 0.0 );
-        fprintf( dxf_file, "  %d\n", 30 );
-        fprintf( dxf_file, "%f\n", 0.0 );
+        fprintf( dxf_file, "$INSBASE\n" );
+        fprintf( dxf_file, "  10\n" );
+        fprintf( dxf_file, "0.0\n" );
+        fprintf( dxf_file, "  20\n" );
+        fprintf( dxf_file, "0.0\n" );
+        fprintf( dxf_file, "  30\n" );
+        fprintf( dxf_file, "0.0\n" );
 
         // Units:
-        if ( LenUnitChoice == vsp::LEN_UNITS::LEN_UNITLESS )
+        fprintf( dxf_file, "  9\n" );
+        fprintf( dxf_file, "$INSUNITS\n" );
+        fprintf( dxf_file, "  70\n" );
+
+        switch ( LenUnitChoice )
         {
-            fprintf( dxf_file, "  %d\n", 9 );
-            fprintf( dxf_file, "%s\n", "$INSUNITS" );
-            fprintf( dxf_file, "  %d\n", 70 );
-            fprintf( dxf_file, "  %d\n", 0 );
-        }
-        else if ( LenUnitChoice == vsp::LEN_UNITS::LEN_MM )
-        {
-            fprintf( dxf_file, "  %d\n", 9 );
-            fprintf( dxf_file, "%s\n", "$INSUNITS" );
-            fprintf( dxf_file, "  %d\n", 70 );
-            fprintf( dxf_file, "  %d\n", 4 );
-        }
-        else if ( LenUnitChoice == vsp::LEN_UNITS::LEN_CM )
-        {
-            fprintf( dxf_file, "  %d\n", 9 );
-            fprintf( dxf_file, "%s\n", "$INSUNITS" );
-            fprintf( dxf_file, "  %d\n", 70 );
-            fprintf( dxf_file, "  %d\n", 5 );
-        }
-        else if (  LenUnitChoice == vsp::LEN_UNITS::LEN_M )
-        {
-            fprintf( dxf_file, "  %d\n", 9 );
-            fprintf( dxf_file, "%s\n", "$INSUNITS" );
-            fprintf( dxf_file, "  %d\n", 70 );
-            fprintf( dxf_file, "  %d\n", 6 );
-        }
-        else if ( LenUnitChoice == vsp::LEN_UNITS::LEN_IN )
-        {
-            fprintf( dxf_file, "  %d\n", 9 );
-            fprintf( dxf_file, "%s\n", "$INSUNITS" );
-            fprintf( dxf_file, "  %d\n", 70 );
-            fprintf( dxf_file, "  %d\n", 1 );
-        }
-        else if (  LenUnitChoice == vsp::LEN_UNITS::LEN_FT )
-        {
-            fprintf( dxf_file, "  %d\n", 9 );
-            fprintf( dxf_file, "%s\n", "$INSUNITS" );
-            fprintf( dxf_file, "  %d\n", 70 );
-            fprintf( dxf_file, "  %d\n", 2 );
-        }
-        else if ( LenUnitChoice == vsp::LEN_UNITS::LEN_YD )
-        {
-            fprintf( dxf_file, "  %d\n", 9 );
-            fprintf( dxf_file, "%s\n", "$INSUNITS" );
-            fprintf( dxf_file, "  %d\n", 70 );
-            fprintf( dxf_file, "  %d\n", 10 );
+        case vsp::LEN_UNITS::LEN_UNITLESS:
+            fprintf( dxf_file, "  0\n" );
+            break;
+        case vsp::LEN_UNITS::LEN_MM:
+            fprintf( dxf_file, "  4\n" );
+            break;
+        case vsp::LEN_UNITS::LEN_CM:
+            fprintf( dxf_file, "  5\n" );
+            break;
+        case vsp::LEN_UNITS::LEN_M:
+            fprintf( dxf_file, "  6\n" );
+            break;
+        case vsp::LEN_UNITS::LEN_IN:
+            fprintf( dxf_file, "  1\n" );
+            break;
+        case vsp::LEN_UNITS::LEN_FT:
+            fprintf( dxf_file, "  2\n" );
+            break;
+        case vsp::LEN_UNITS::LEN_YD:
+            fprintf( dxf_file, "  10\n" );
+            break;
         }
 
-        fprintf( dxf_file, "  %d\n", 0 );
-        fprintf( dxf_file, "%s\n", "ENDSEC" );
+        fprintf( dxf_file, "  0\n" );
+        fprintf( dxf_file, "ENDSEC\n" );
 
         //Blocks
-        fprintf( dxf_file, "  %d\n", 0 );
-        fprintf( dxf_file, "%s\n", "SECTION" );
-        fprintf( dxf_file, "  %d\n", 2 );
-        fprintf( dxf_file, "%s\n", "BLOCKS" );
-        fprintf( dxf_file, "  %d\n", 0 );
-        fprintf( dxf_file, "%s\n", "ENDSEC" );
+        fprintf( dxf_file, "  0\n" );
+        fprintf( dxf_file, "SECTION\n" );
+        fprintf( dxf_file, "  2\n" );
+        fprintf( dxf_file, "BLOCKS\n" );
+        fprintf( dxf_file, "  0\n" );
+        fprintf( dxf_file, "ENDSEC\n" );
 
         //Entities
-        fprintf( dxf_file, "  %d\n", 0 );
-        fprintf( dxf_file, "%s\n", "SECTION" );
-        fprintf( dxf_file, "  %d\n", 2 );
-        fprintf( dxf_file, "%s\n", "ENTITIES" );
+        fprintf( dxf_file, "  0\n" );
+        fprintf( dxf_file, "SECTION\n" );
+        fprintf( dxf_file, "  2\n" );
+        fprintf( dxf_file, "ENTITIES\n" );
     }
 }
 
-void DXFManipulate( vector < vector < vec3d > > &allflines, const BndBox &dxfbox, int view, int ang )
+void FeatureLinesManipulate( vector < vector < vec3d > > &allflines, int view, int ang, vec3d shiftvec )
 {
+    if ( view == vsp::VIEW_TYPE::VIEW_NONE )
+    {
+        allflines.clear();
+        return;
+    }
+
     for ( unsigned int l = 0; l < allflines.size(); l++ )
     {
         for ( unsigned int j = 0; j < allflines[l].size(); j++ )
@@ -120,7 +106,7 @@ void DXFManipulate( vector < vector < vec3d > > &allflines, const BndBox &dxfbox
             else if ( view == vsp::VIEW_TYPE::VIEW_RIGHT )
             {
                 allflines[l][j] = allflines[l][j].reflect_yz();
-                allflines[l][j].set_x( allflines[l][j].x() + ( dxfbox.GetMax().x() + dxfbox.GetMin().x() ) );
+                allflines[l][j].offset_x( shiftvec.x() ); 
                 allflines[l][j] = allflines[l][j].swap_yz();
             }
             // Top: +x,+y; Do nothing
@@ -131,14 +117,14 @@ void DXFManipulate( vector < vector < vec3d > > &allflines, const BndBox &dxfbox
             else if ( view == vsp::VIEW_TYPE::VIEW_BOTTOM )
             {
                 allflines[l][j] = allflines[l][j].reflect_xz();
-                allflines[l][j].set_y( allflines[l][j].y() + ( dxfbox.GetMax().y() + dxfbox.GetMin().y() ) );
+                allflines[l][j].offset_y( shiftvec.y() );
             }
             // Front: -y,+z; swap x & y, swap y & z, reflect y
             else if ( view == vsp::VIEW_TYPE::VIEW_FRONT )
             {
                 allflines[l][j] = allflines[l][j].swap_xy();
                 allflines[l][j] = allflines[l][j].reflect_yz();
-                allflines[l][j].set_x( allflines[l][j].x() + ( dxfbox.GetMax().y() + dxfbox.GetMin().y() ) );
+                allflines[l][j].offset_x( shiftvec.y() );
                 allflines[l][j] = allflines[l][j].swap_yz();
             }
             // Rear: +y,+z; swap x & y, swap y & z
@@ -149,10 +135,24 @@ void DXFManipulate( vector < vector < vec3d > > &allflines, const BndBox &dxfbox
             }
         }
     }
-    if ( view == vsp::VIEW_TYPE::VIEW_NONE )
+
+    vec3d NewShiftVec;
+
+    if ( view == vsp::VIEW_TYPE::VIEW_LEFT || view == vsp::VIEW_TYPE::VIEW_RIGHT )
     {
-        allflines.clear();
+        NewShiftVec = shiftvec.swap_yz();
     }
+    else if ( view == vsp::VIEW_TYPE::VIEW_FRONT || view == vsp::VIEW_TYPE::VIEW_REAR )
+    {
+        NewShiftVec = shiftvec.swap_xy();
+        NewShiftVec = NewShiftVec.swap_yz();
+    }
+    else
+    {
+        NewShiftVec = shiftvec;
+    }
+
+    vec3d RotShiftVec;
 
     if ( ang == vsp::VIEW_ROT::ROT_0 )
     {
@@ -161,46 +161,46 @@ void DXFManipulate( vector < vector < vec3d > > &allflines, const BndBox &dxfbox
     else if ( ang == vsp::VIEW_ROT::ROT_90 )
     {
         ang = 90;
+        RotShiftVec.set_x( NewShiftVec.y() );
     }
     else if ( ang == vsp::VIEW_ROT::ROT_180 )
     {
         ang = 180;
+        RotShiftVec.set_x( NewShiftVec.x() );
+        RotShiftVec.set_y( NewShiftVec.y() );
     }
     else if ( ang == vsp::VIEW_ROT::ROT_270 )
     {
         ang = 270;
+        RotShiftVec.set_y( NewShiftVec.x() );
     }
 
-    double rad = ang * 3.14159265 / 180;
+    double rad = ang * DEG_2_RAD;
 
     for ( unsigned int l = 0; l < allflines.size(); l++ )
     {
         for ( unsigned int j = 0; j < allflines[l].size(); j++ )
         {
             double old_x = allflines[l][j].x();
-            allflines[l][j].set_x( ( cos( rad ) * allflines[l][j].x() + sin( rad ) * allflines[l][j].y() ) );
-            allflines[l][j].set_y( ( -sin( rad ) * old_x + cos( rad ) * allflines[l][j].y() ) );
+            double old_y = allflines[l][j].y();
+
+            allflines[l][j].set_x( ( cos( rad ) * old_x - sin( rad ) * old_y ) + RotShiftVec.x() );
+            allflines[l][j].set_y( ( sin( rad ) * old_x + cos( rad ) * old_y ) + RotShiftVec.y() );
         }
     }
 }
 
-void DXFShift( vector < vector < vec3d > > &allflines, vec3d shiftvec, int shift, int ang1, int ang2 )
+void FeatureLinesShift( vector < vector < vec3d > > &allflines, vec3d shiftvec, int shift, int ang1, int ang2 )
 {
-    if ( ang1 == vsp::VIEW_ROT::ROT_90 )
+    vec3d shiftvec_temp = shiftvec;
+
+    if ( ang1 == vsp::VIEW_ROT::ROT_90 || ang1 == vsp::VIEW_ROT::ROT_270 )
     {
-        shiftvec = shiftvec.swap_xy();
+        shiftvec_temp = shiftvec.swap_xy();
     }
-    else if ( ang1 == vsp::VIEW_ROT::ROT_270 )
+    else if ( ang2 == vsp::VIEW_ROT::ROT_90 || ang2 == vsp::VIEW_ROT::ROT_270 )
     {
-        shiftvec = shiftvec.swap_xy();
-    }
-    else if ( ang2 == vsp::VIEW_ROT::ROT_90 )
-    {
-        shiftvec = shiftvec.swap_xy();
-    }
-    else if ( ang2 == vsp::VIEW_ROT::ROT_270 )
-    {
-        shiftvec = shiftvec.swap_xy();
+        shiftvec_temp = shiftvec.swap_xy();
     }
 
     for ( unsigned int l = 0; l < allflines.size(); l++ )
@@ -209,19 +209,19 @@ void DXFShift( vector < vector < vec3d > > &allflines, vec3d shiftvec, int shift
         {
             if ( shift == vsp::VIEW_SHIFT::LEFT )
             {
-                allflines[l][j].offset_x( -std::abs( shiftvec.x() ) * 0.75 );
+                allflines[l][j].offset_x( -std::abs( shiftvec_temp.x() ) );
             }
             else if ( shift == vsp::VIEW_SHIFT::RIGHT )
             {
-                allflines[l][j].offset_x( std::abs( shiftvec.x() ) * 0.75 );
+                allflines[l][j].offset_x( std::abs( shiftvec_temp.x() ) );
             }
             else if ( shift == vsp::VIEW_SHIFT::UP )
             {
-                allflines[l][j].offset_y( std::abs( shiftvec.y() ) );
+                allflines[l][j].offset_y( std::abs( shiftvec_temp.y() ) );
             }
             else if ( shift == vsp::VIEW_SHIFT::DOWN )
             {
-                allflines[l][j].offset_y( -std::abs( shiftvec.y() ) );
+                allflines[l][j].offset_y( -std::abs( shiftvec_temp.y() ) );
             }
         }
     }
@@ -233,11 +233,11 @@ void WriteDXFPolylines3D( FILE* dxf_file, const vector < vector < vec3d > > &all
     {
         for ( unsigned int l = 0; l < allflines.size(); l++ )
         {
-            fprintf( dxf_file, "  %d\n", 0 );
-            fprintf( dxf_file, "%s\n", "POLYLINE" );
-            fprintf( dxf_file, "  %d\n", 100 );
-            fprintf( dxf_file, "%s\n", "AcDbEntity" );
-            fprintf( dxf_file, "  %d\n", 8 );
+            fprintf( dxf_file, "  0\n" );
+            fprintf( dxf_file, "POLYLINE\n" );
+            fprintf( dxf_file, "  100\n" );
+            fprintf( dxf_file, "AcDbEntity\n" );
+            fprintf( dxf_file, "  8\n" );
             fprintf( dxf_file, "%s\n", layer.c_str() );
             fprintf( dxf_file, "  %d\n", 100 );
             fprintf( dxf_file, "%s\n", "AcDb3dPolyline" );
@@ -252,18 +252,18 @@ void WriteDXFPolylines3D( FILE* dxf_file, const vector < vector < vec3d > > &all
             fprintf( dxf_file, "  %d\n", 30 );
             fprintf( dxf_file, "%f\n", 0.0 ); //z
             //Same Start/End Width:
-            fprintf( dxf_file, "  %d\n", 40 );
-            fprintf( dxf_file, "%f\n", 0.0 );
-            fprintf( dxf_file, "  %d\n", 41 );
-            fprintf( dxf_file, "%f\n", 0.0 );
+            fprintf( dxf_file, "  40\n" );
+            fprintf( dxf_file, "0.0\n" );
+            fprintf( dxf_file, "  41\n" );
+            fprintf( dxf_file, "0.0\n" );
 
             for ( unsigned int j = 0; j < allflines[l].size(); j++ )
             {
-                fprintf( dxf_file, "  %d\n", 0 );
-                fprintf( dxf_file, "%s\n", "VERTEX" );
-                fprintf( dxf_file, "  %d\n", 100 );
-                fprintf( dxf_file, "%s\n", "AcDbEntity" );
-                fprintf( dxf_file, "  %d\n", 8 );
+                fprintf( dxf_file, "  0\n" );
+                fprintf( dxf_file, "VERTEX\n" );
+                fprintf( dxf_file, "  100\n" );
+                fprintf( dxf_file, "AcDbEntity\n" );
+                fprintf( dxf_file, "  8\n" );
                 fprintf( dxf_file, "%s\n", layer.c_str() );
                 fprintf( dxf_file, "  %d\n", 100 );
                 fprintf( dxf_file, "%s\n", "AcDbVertex" );
@@ -271,16 +271,16 @@ void WriteDXFPolylines3D( FILE* dxf_file, const vector < vector < vec3d > > &all
                 fprintf( dxf_file, "%s\n", "AcDb3dPolylineVertex" );
                 fprintf( dxf_file, "  %d\n", 10 );
                 fprintf( dxf_file, "%f\n", allflines[l][j].x() ); //x
-                fprintf( dxf_file, "  %d\n", 20 );
+                fprintf( dxf_file, "  20\n" );
                 fprintf( dxf_file, "%f\n", allflines[l][j].y() ); //y
-                fprintf( dxf_file, "  %d\n", 30 );
+                fprintf( dxf_file, "  30\n" );
                 fprintf( dxf_file, "%f\n", allflines[l][j].z() ); //z
-                fprintf( dxf_file, "  %d\n", 70 );
-                fprintf( dxf_file, "    %d\n", 32 );
+                fprintf( dxf_file, "  70\n" );
+                fprintf( dxf_file, "    32\n" );
             }
-            fprintf( dxf_file, "  %d\n", 0 );
-            fprintf( dxf_file, "%s\n", "SEQEND" );
-            fprintf( dxf_file, "  %d\n", 8 );
+            fprintf( dxf_file, "  0\n" );
+            fprintf( dxf_file, "SEQEND\n" );
+            fprintf( dxf_file, "  8\n" );
             fprintf( dxf_file, "%s\n", layer.c_str() );
         }
     }
@@ -292,11 +292,11 @@ void WriteDXFPolylines2D( FILE* dxf_file, const vector < vector < vec3d > > &all
     {
         for ( unsigned int l = 0; l < allflines.size(); l++ )
         {
-            fprintf( dxf_file, "  %d\n", 0 );
-            fprintf( dxf_file, "%s\n", "POLYLINE" );
-            fprintf( dxf_file, "  %d\n", 100 );
-            fprintf( dxf_file, "%s\n", "AcDbEntity" );
-            fprintf( dxf_file, "  %d\n", 8 );
+            fprintf( dxf_file, "  0\n" );
+            fprintf( dxf_file, "POLYLINE\n" );
+            fprintf( dxf_file, "  100\n" );
+            fprintf( dxf_file, "AcDbEntity\n" );
+            fprintf( dxf_file, "  8\n" );
             fprintf( dxf_file, "%s\n", layer.c_str() );
             fprintf( dxf_file, "  %d\n", 100 );
             fprintf( dxf_file, "%s\n", "AcDb3dPolyline" );
@@ -309,18 +309,18 @@ void WriteDXFPolylines2D( FILE* dxf_file, const vector < vector < vec3d > > &all
             fprintf( dxf_file, "  %d\n", 20 );
             fprintf( dxf_file, "%f\n", 0.0 ); //y
             //Same Start/End Width:
-            fprintf( dxf_file, "  %d\n", 40 );
-            fprintf( dxf_file, "%f\n", 0.0 );
-            fprintf( dxf_file, "  %d\n", 41 );
-            fprintf( dxf_file, "%f\n", 0.0 );
+            fprintf( dxf_file, "  40\n" );
+            fprintf( dxf_file, "0.0\n" );
+            fprintf( dxf_file, "  41\n" );
+            fprintf( dxf_file, "0.0\n" );
 
             for ( unsigned int j = 0; j < allflines[l].size(); j++ )
             {
-                fprintf( dxf_file, "  %d\n", 0 );
-                fprintf( dxf_file, "%s\n", "VERTEX" );
-                fprintf( dxf_file, "  %d\n", 100 );
-                fprintf( dxf_file, "%s\n", "AcDbEntity" );
-                fprintf( dxf_file, "  %d\n", 8 );
+                fprintf( dxf_file, "  0\n" );
+                fprintf( dxf_file, "VERTEX\n" );
+                fprintf( dxf_file, "  100\n" );
+                fprintf( dxf_file, "AcDbEntity\n" );
+                fprintf( dxf_file, "  8\n" );
                 fprintf( dxf_file, "%s\n", layer.c_str() );
                 fprintf( dxf_file, "  %d\n", 100 );
                 fprintf( dxf_file, "%s\n", "AcDbVertex" );
@@ -328,14 +328,14 @@ void WriteDXFPolylines2D( FILE* dxf_file, const vector < vector < vec3d > > &all
                 fprintf( dxf_file, "%s\n", "AcDb3dPolylineVertex" );
                 fprintf( dxf_file, "  %d\n", 10 );
                 fprintf( dxf_file, "%f\n", allflines[l][j].x() ); //x
-                fprintf( dxf_file, "  %d\n", 20 );
+                fprintf( dxf_file, "  20\n" );
                 fprintf( dxf_file, "%f\n", allflines[l][j].y() ); //y
-                fprintf( dxf_file, "  %d\n", 70 );
-                fprintf( dxf_file, "    %d\n", 32 );
+                fprintf( dxf_file, "  70\n" );
+                fprintf( dxf_file, "    32\n" );
             }
-            fprintf( dxf_file, "  %d\n", 0 );
-            fprintf( dxf_file, "%s\n", "SEQEND" );
-            fprintf( dxf_file, "  %d\n", 8 );
+            fprintf( dxf_file, "  0\n" );
+            fprintf( dxf_file, "SEQEND\n" );
+            fprintf( dxf_file, "  8\n" );
             fprintf( dxf_file, "%s\n", layer.c_str() );
         }
     }
