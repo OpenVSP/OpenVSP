@@ -1447,10 +1447,10 @@ void ApplyControlDeflections()
     for ( i = 1; i <= NumberOfControlGroups_; i++ )
     {
 
-        k = 1;
-
         for ( j = 1; j <= ControlSurfaceGroup_[i].NumberOfControlSurfaces(); j++ )
         {
+
+            k = 1;
 
             Found = 0;
 
