@@ -6622,14 +6622,13 @@ void VSP_SOLVER::WriteCaseHeader(FILE *fid)
     fprintf(fid,dataFormatStr, "Roll__Rate", RotationalRate_p(), "rad/Tunit");
     fprintf(fid,dataFormatStr, "Pitch_Rate", RotationalRate_q(), "rad/Tunit");
     fprintf(fid,dataFormatStr, "Yaw___Rate", RotationalRate_r(), "rad/Tunit");
-    /*
-    char control_name[20];
-    for ( int n = 1 ; n <= NumberOfControlGroups_ ; n++ ) {
-        //                    1234567890123456789
-        sprintf(control_name,"Control_Group_%-5d",n);
-        fprintf(fid,dataFormatStr, control_name, Delta_Control_, "deg");
+
+    // Control surface groups
+    for ( int i = 1 ; i <= NumberOfControlGroups_ ; i++ ) {
+
+        fprintf(fid,dataFormatStr, ControlSurfaceGroup_[i].Name(), ControlSurfaceGroup_[i].ControlSurface_DeflectionAngle(), "deg");
+
     }
-    */
     
     fprintf(fid,"\n");
 }

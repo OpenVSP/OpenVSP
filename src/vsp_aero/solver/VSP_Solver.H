@@ -17,6 +17,7 @@
 #include "Vortex_Trail.H"
 #include "Vortex_Sheet.H"
 #include "RotorDisk.H"
+#include "ControlSurfaceGroup.H"
 #include "VSPAERO_OMP.H"
 #include "time.H"
 
@@ -95,7 +96,12 @@ private:
     int NumberOfRotors_;
     
     ROTOR_DISK *RotorDisk_;
-    
+
+    // Control Surface Group information (used for case header)
+
+    int NumberOfControlGroups_;
+    CONTROL_SURFACE_GROUP *ControlSurfaceGroup_;
+
     // Velocity survey points
     
     int NumberofSurveyPoints_;
@@ -389,6 +395,10 @@ public:
 
     void SetNumberOfRotors(int NumberOfRotors) { NumberOfRotors_ = NumberOfRotors; RotorDisk_ = new ROTOR_DISK[NumberOfRotors_ + 1]; };
     ROTOR_DISK &RotorDisk(int i) { return RotorDisk_[i]; };
+
+    // Control Surface Group information (used for case header)
+    void SetControlSurfaceGroup( CONTROL_SURFACE_GROUP * csg, int NumberOfControlGroups ) { ControlSurfaceGroup_ = csg; NumberOfControlGroups_ = NumberOfControlGroups;  };
+    CONTROL_SURFACE_GROUP &ControlSurfaceGroup( int i ) { return ControlSurfaceGroup_[i]; };
     
     void DoSymmetryPlaneSolve(int Direction) { DoSymmetryPlaneSolve_ = VSPGeom_.DoSymmetryPlaneSolve() = Direction; };
 

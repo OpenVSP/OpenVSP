@@ -239,6 +239,10 @@ int main(int argc, char **argv)
        
     }
 
+    // Inform solver of Control Surface Groups ( this information is used in VSP_SOLVER::WriteCaseHeader(FILE *fid) )
+
+    VSP_VLM().SetControlSurfaceGroup( ControlSurfaceGroup_, NumberOfControlGroups_ );
+
     if ( !StabControlRun_ ) {
  
        Solve();
