@@ -80,6 +80,7 @@ StackScreen.cpp
 STEPOptionsScreen.cpp
 STLOptionsScreen.cpp
 SubGLWindow.cpp
+SVGOptionsScreen.cpp
 TypeEditorScreen.cpp
 UserParmScreen.cpp
 VarPresetScreen.cpp
@@ -142,6 +143,7 @@ StackScreen.h
 STEPOptionsScreen.h
 STLOptionsScreen.h
 SubGLWindow.h
+SVGOptionsScreen.h
 TypeEditorScreen.h
 UserParmScreen.h
 VarPresetScreen.h
