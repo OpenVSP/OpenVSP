@@ -769,7 +769,11 @@ void CreateInputFile(char *argv[], int argc, int &i)
                                VSP_VLM().VSPGeom().VSP_Surface(k2).ControlSurface(p2).Name() ) == 0 ) {
    
 
-                      NumberOfControlGroups--;
+                       printf( "\nERROR - duplicate control surface name: %s\n", VSP_VLM().VSPGeom().VSP_Surface( k ).ControlSurface( p ).Name() );
+                       printf( "\tSurface 1 [VSP_Surface].[ControlSurface]: %s.%s\n", VSP_VLM().VSPGeom().VSP_Surface( k ).ComponentName(), VSP_VLM().VSPGeom().VSP_Surface( k ).ControlSurface( p ).Name() );
+                       printf( "\tSurface 2 [VSP_Surface].[ControlSurface]: %s.%s\n", VSP_VLM().VSPGeom().VSP_Surface( k2 ).ComponentName(), VSP_VLM().VSPGeom().VSP_Surface( k2 ).ControlSurface( p2 ).Name() );
+
+                       NumberOfControlGroups--; // this ensures unique names for all sub-surfaces deflecting a control surface requires a unique name
                       
                    }
                                
@@ -1201,6 +1205,8 @@ void LoadCaseFile(void)
           
           sscanf(DumChar,"NumberOfControlGroups = %d \n",&NumberOfControlGroups_);
 
+          printf( "NumberOfControlGroups = %d \n", NumberOfControlGroups_ );
+
           if (NumberOfControlGroups_ < 0) {
 
               printf( "INVALID NumberOfControlGroups: %d\n", NumberOfControlGroups_ );
@@ -1230,6 +1236,8 @@ void LoadCaseFile(void)
                 NumberOfControlSurfaces = 1;
                 
                 ControlSurfaceGroup_[i].SizeList(NumberOfControlSurfaces);
+
+                printf( "There is %d control surface in group: %d \n", NumberOfControlSurfaces, i );
                 
                 DumChar[strcspn(DumChar, "\n")] = 0;
                 
@@ -1467,9 +1475,23 @@ void ApplyControlDeflections()
 
             }
 
-            if ( !Found ) printf( "Could not find control surface: %s in control surface group: %s \n",
-                ControlSurfaceGroup_[i].ControlSurface_Name( j ),
-                ControlSurfaceGroup_[i].Name() );
+            // Print out error report
+            if ( !Found )
+            {
+                printf( "Could not find control surface: %s in control surface group: %s \n",
+                    ControlSurfaceGroup_[i].ControlSurface_Name( j ),
+                    ControlSurfaceGroup_[i].Name() );
+
+                // print out names of all known surfaces
+                printf( "Known control surfaces:\n" );
+                for ( k = 1; k <= VSP_VLM().VSPGeom().NumberOfSurfaces(); k++ )
+                {
+                    for ( p = 1; p <= VSP_VLM().VSPGeom().VSP_Surface( k ).NumberOfControlSurfaces(); p++ )
+                    {
+                        printf( "\t%20s\n", VSP_VLM().VSPGeom().VSP_Surface( k ).ControlSurface( p ).Name() );
+                    }
+                }
+            }
 
         }
 
