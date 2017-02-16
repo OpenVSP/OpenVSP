@@ -3,6 +3,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 SET(UTIL_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH "Path to util headers")
 
 INCLUDE_DIRECTORIES(
+    ${LIBXML2_INCLUDE_DIR}
     ${NANOFLANN_INCLUDE_DIR}
     ${XMLVSP_INCLUDE_DIR}
     ${UTIL_INCLUDE_DIR}
@@ -29,6 +30,7 @@ STEPutil.cpp
 StlHelper.cpp
 StringUtil.cpp
 SuperEllipse.cpp
+SVGUtil.cpp
 Util.cpp
 UtilTestSuite.cpp
 Vec2d.cpp
@@ -54,6 +56,7 @@ STEPutil.h
 StreamUtil.h
 StringUtil.h
 SuperEllipse.h
+SVGUtil.h
 Util.h
 UtilTestSuite.h
 UsingCpp11.h
