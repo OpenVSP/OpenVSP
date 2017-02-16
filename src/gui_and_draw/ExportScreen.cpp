@@ -76,6 +76,8 @@ void ExportScreen::LoadSetChoice()
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
 
+    m_ExportSetChoice.ClearItems();
+
     vector <string> setVec = veh->GetSetNameVec();
     for ( int i = 0; i < setVec.size(); i++ )
     {
