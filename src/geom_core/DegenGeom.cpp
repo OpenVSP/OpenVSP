@@ -2,6 +2,9 @@
 #include "Geom.h"
 #include "WriteMatlab.h"
 
+#include "Vehicle.h"
+#include "VehicleMgr.h"
+
 void DegenGeom::build_trans_mat( vec3d x, vec3d y, vec3d z, const vec3d &p, Matrix4d &mat, Matrix4d &invmat )
 {
     // Initialize transformation matrix as identity.
@@ -674,16 +677,32 @@ void DegenGeom::createDegenDisk(  const vector< vector< vec3d > > &pntsarr, bool
     degenDisk.d = 2.0 * r;
 }
 
-void DegenGeom::addDegenSubSurf( SubSurface *ssurf )
+void DegenGeom::addDegenSubSurf( SubSurface *ssurf, int surfIndx )
 {
     ssurf->UpdatePolygonPnts();
 
     std::vector< std::vector< vec2d > > ppvec = ssurf->GetPolyPntsVec();
 
+    Vehicle * veh;
+    Geom * ssurfParentGeom;
+    string ssurfParentGeomId = "";
+    string ssurfParentName = "";
+    veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        ssurfParentGeomId = ssurf->GetCompID();
+        ssurfParentGeom = veh->FindGeom( ssurfParentGeomId );
+        if ( ssurfParentGeom )
+        {
+            ssurfParentName = ssurfParentGeom->GetName();
+        }
+    }
+
     for ( int i = 0; i < ppvec.size(); i++ )
     {
         DegenSubSurf dgss;
         dgss.name = ssurf->GetName();
+        dgss.fullName = ssurfParentName + "_Surf" + std::to_string( surfIndx ) + "_" + dgss.name;
         dgss.typeName = ssurf->GetTypeName(ssurf->GetType());
         dgss.typeId = (vsp::SUBSURF_TYPE)ssurf->GetType();
         dgss.testType = ssurf->m_TestType();
@@ -925,10 +944,11 @@ void DegenGeom::write_degenGeomDiskCsv_file( FILE* file_id )
 
 void DegenGeom::write_degenSubSurfCsv_file( FILE* file_id, int isubsurf )
 {
-    fprintf( file_id, "# DegenGeom Type, name, typeName, typeId\n" );
-    fprintf( file_id, "SUBSURF,%s,%s,%d\n", degenSubSurfs[isubsurf].name.c_str(),
-                                            degenSubSurfs[isubsurf].typeName.c_str(),
-                                            degenSubSurfs[isubsurf].typeId );
+    fprintf( file_id, "# DegenGeom Type, name, typeName, typeId, fullname\n" );
+    fprintf( file_id, "SUBSURF,%s,%s,%d,%s\n", degenSubSurfs[isubsurf].name.c_str(),
+                                               degenSubSurfs[isubsurf].typeName.c_str(),
+                                               degenSubSurfs[isubsurf].typeId,
+                                               degenSubSurfs[isubsurf].fullName.c_str() );
 
     fprintf( file_id, "# testType\n" );
     fprintf( file_id, "%d\n", \
@@ -1113,6 +1133,7 @@ void DegenGeom::write_degenSubSurfM_file( FILE* file_id, int isubsurf )
     fprintf( file_id, "\ndegenGeom(end).subsurf(%d).name = '%s';\n", isubsurf + 1, degenSubSurfs[isubsurf].name.c_str() );
     fprintf( file_id, "\ndegenGeom(end).subsurf(%d).typeName = %d;\n", isubsurf + 1, degenSubSurfs[isubsurf].testType );
     fprintf( file_id, "\ndegenGeom(end).subsurf(%d).typeId = %d;\n", isubsurf + 1, degenSubSurfs[isubsurf].testType );
+    fprintf( file_id, "\ndegenGeom(end).subsurf(%d).fullName = '%s';\n", isubsurf + 1, degenSubSurfs[isubsurf].fullName.c_str() );
     fprintf( file_id, "\ndegenGeom(end).subsurf(%d).testType = %d;\n", isubsurf + 1, degenSubSurfs[isubsurf].testType );
 
     int n = degenSubSurfs[isubsurf].u.size();

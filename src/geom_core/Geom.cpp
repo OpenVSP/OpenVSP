@@ -2595,11 +2595,12 @@ void Geom::CreateDegenGeom( vector<DegenGeom> &dgs)
             degenGeom.createBodyDegenStick( pnts, uwpnts );
         }
 
+        // degenerate subsurfaces
         for ( int j = 0; j < m_SubSurfVec.size(); j++ )
         {
             if ( m_SurfIndxVec[i] == m_SubSurfVec[j]->m_MainSurfIndx() )
             {
-                degenGeom.addDegenSubSurf( m_SubSurfVec[j] );
+                degenGeom.addDegenSubSurf( m_SubSurfVec[j], i );    //TODO is there a way to eliminate having to send in the surf index "i"
             }
         }
 

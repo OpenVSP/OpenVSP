@@ -85,6 +85,7 @@ typedef struct
 typedef struct
 {
     string                      name;       //! name displayed in the geom GUI
+    string                      fullName;   //! fullName identifying parent geometry and parent surface index
     int                         testType;   //! "test" for subsurfaces to define which side of the boundary the subsurface is on (commonly used for LINE subsurface types)
     string                      typeName;   //! used to identify the design intent of the surface (see vsp::SUBSURF_TYPE in APIDefines.h and std::string SubSurface::GetTypeName( int type ) for more info)
     vsp::SUBSURF_TYPE           typeId;     //! enumeration for the typeName; vsp::SUBSURF_TYPE
@@ -208,7 +209,7 @@ public:
     void createBodyDegenStick( const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts );
     void createDegenStick( DegenStick &degenStick, const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts, int nLow, int nHigh, int startPnt );
     void createDegenDisk(  const vector< vector< vec3d > > &pntsarr, bool flipnormal );
-    void addDegenSubSurf( SubSurface *ssurf );
+    void addDegenSubSurf( SubSurface *ssurf, int surfIndx );
 
     string makeCsvFmt( int n, bool newline = true );
     void write_degenGeomCsv_file( FILE* file_id );
