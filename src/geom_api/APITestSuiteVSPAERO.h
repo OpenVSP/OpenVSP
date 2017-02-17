@@ -32,6 +32,8 @@ public:
         //  Verification Tests
         TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroSharpTrailingEdge );
         TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroBluntTrailingEdge );
+        TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroSupersonicDeltaWing );
+    }
 
 private:
     // VSPAERO
@@ -48,6 +50,7 @@ private:
     //  Verification Tests
     void TestVSPAeroSharpTrailingEdge();
     void TestVSPAeroBluntTrailingEdge();
+    void TestVSPAeroSupersonicDeltaWing();
 
     string m_vspfname_for_vspaerotests;
 };
