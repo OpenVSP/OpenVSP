@@ -260,9 +260,9 @@ void APITestSuite::TestAnalysesWithPod()
     vsp::PrintAnalysisInputs(analysis_name);
 
     // Execute
-    printf("\tExecuting...");
+    printf("\n\t\tExecuting...");
     string results_id = vsp::ExecAnalysis(analysis_name);
-    printf("COMPLETE\n");
+    printf("COMPLETE\n\n");
 
     // Get & Display Results
 
@@ -544,9 +544,9 @@ void APITestSuiteVSPAERO::TestVSPAeroComputeGeom()
     vsp::PrintAnalysisInputs(analysis_name);
 
     // Execute
-    printf("\tExecuting...\n");
+    printf("\n\t\tExecuting...");
     string results_id = vsp::ExecAnalysis(analysis_name);
-    printf("COMPLETE\n");
+    printf("COMPLETE\n\n");
 
     // Get & Display Results
     vsp::PrintResults( results_id );
@@ -595,9 +595,9 @@ void APITestSuiteVSPAERO::TestVSPAeroComputeGeomPanel()
     vsp::PrintAnalysisInputs(analysis_name);
 
     // Execute
-    printf("\tExecuting...\n");
+    printf("\n\t\tExecuting...");
     string results_id = vsp::ExecAnalysis(analysis_name);
-    printf("COMPLETE\n");
+    printf("COMPLETE\n\n");
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     // Get & Display Results
@@ -667,9 +667,9 @@ void APITestSuiteVSPAERO::TestVSPAeroSinglePointPanel()
     vsp::PrintAnalysisInputs(analysis_name);
 
     // Execute
-    printf("\tExecuting...\n");
+    printf("\n\t\tExecuting...");
     string results_id = vsp::ExecAnalysis(analysis_name);
-    printf("COMPLETE\n");
+    printf("COMPLETE\n\n");
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     // Get & Display Results
@@ -738,9 +738,9 @@ void APITestSuiteVSPAERO::TestVSPAeroSinglePoint()
     vsp::PrintAnalysisInputs(analysis_name);
 
     // Execute
-    printf("\tExecuting...\n");
+    printf("\n\t\tExecuting...");
     string results_id = vsp::ExecAnalysis(analysis_name);
-    printf("COMPLETE\n");
+    printf("COMPLETE\n\n");
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     // Get & Display Results
@@ -812,9 +812,9 @@ void APITestSuiteVSPAERO::TestVSPAeroSinglePointStab()
     vsp::PrintAnalysisInputs(analysis_name);
 
     // Execute
-    printf("\tExecuting...\n");
+    printf("\n\t\tExecuting...");
     string results_id = vsp::ExecAnalysis(analysis_name);
-    printf("COMPLETE\n");
+    printf("COMPLETE\n\n");
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     // Get & Display Results
@@ -901,9 +901,9 @@ void APITestSuiteVSPAERO::TestVSPAeroSweep()
     vsp::PrintAnalysisInputs(analysis_name);
 
     // Execute
-    printf("\tExecuting...\n");
+    printf("\n\t\tExecuting...");
     string results_id = vsp::ExecAnalysis(analysis_name);
-    printf("COMPLETE\n");
+    printf("COMPLETE\n\n");
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     // Get & Display Results
@@ -991,9 +991,9 @@ void APITestSuiteVSPAERO::TestVSPAeroSweepBatch()
     vsp::PrintAnalysisInputs(analysis_name);
 
     // Execute
-    printf("\tExecuting...\n");
+    printf("\n\t\tExecuting...");
     string results_id = vsp::ExecAnalysis(analysis_name);
-    printf("COMPLETE\n");
+    printf("COMPLETE\n\n");
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     // Get & Display Results
