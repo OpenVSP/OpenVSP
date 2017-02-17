@@ -416,6 +416,7 @@ void CfdMeshMgrSingleton::GenerateMesh()
     if ( m_SurfVec.size() == 0 )
     {
         CfdMeshMgr.addOutputText( "No Surfaces To Mesh\n" );
+        m_MeshInProgress = false;
         return;
     }
 
