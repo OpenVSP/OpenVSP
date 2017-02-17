@@ -16,6 +16,7 @@
 #include "VSP_Geom_API.h"
 #include "APITestSuite.h"
 #include "APITestSuiteMassProp.h"
+#include "APITestSuiteVSPAERO.h"
 #include "cpptest.h"
 
 
