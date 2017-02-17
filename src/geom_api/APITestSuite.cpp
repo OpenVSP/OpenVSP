@@ -440,8 +440,6 @@ void APITestSuiteVSPAERO::TestVSPAeroComputeGeom()
 {
     printf("APITestSuiteVSPAERO::TestVSPAeroComputeGeom()\n");
 
-    // make sure setup works
-    vsp::VSPCheckSetup();        //TODO check that vspaero.exe is found
     vsp::VSPRenew();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
@@ -492,7 +490,6 @@ void APITestSuiteVSPAERO::TestVSPAeroComputeGeomPanel()
     printf("APITestSuiteVSPAERO::TestVSPAeroComputeGeomPanel()\n");
 
     // make sure setup works
-    vsp::VSPCheckSetup();        //TODO check that vspaero.exe is found
     vsp::VSPRenew();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
@@ -545,7 +542,6 @@ void APITestSuiteVSPAERO::TestVSPAeroSinglePointPanel()
     printf("APITestSuiteVSPAERO::TestVSPAeroSinglePointPanel()\n");
 
     // make sure setup works
-    vsp::VSPCheckSetup();
     vsp::VSPRenew();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
