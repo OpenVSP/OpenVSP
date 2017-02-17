@@ -75,6 +75,7 @@ IF( NOT VSP_NO_GRAPHICS )
 	ADD_EXECUTABLE(apitest_g
 	apitest_main.cpp
 	../geom_api/APITestSuite.cpp
+    ../geom_api/APITestSuiteMassProp.cpp
 	../vsp/main.h.in
 	)
 
@@ -113,6 +114,7 @@ ENDIF()
 ADD_EXECUTABLE(apitest
 apitest_main.cpp
 ../geom_api/APITestSuite.cpp
+../geom_api/APITestSuiteMassProp.cpp
 ../vsp/main.h.in
 )
 
