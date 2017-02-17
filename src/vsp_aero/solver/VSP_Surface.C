@@ -1220,6 +1220,7 @@ void VSP_SURFACE::ReadWingDataFromFile(char *Name, FILE *VSP_Degen_File)
                    // Save control surface name
                    
                    sprintf(ControlSurface_[NumberOfControlSurfaces_].Name(),"%s\0",Next); 
+                   sprintf( ControlSurface_[NumberOfControlSurfaces_].ShortName(), "%s\0", Next );
                    
                    // Save the control surface type, and type name
                    
@@ -1231,11 +1232,16 @@ void VSP_SURFACE::ReadWingDataFromFile(char *Name, FILE *VSP_Degen_File)
                       Next = strtok(NULL,Comma);
                       sscanf(Next,"%d",&ControlSurface_[NumberOfControlSurfaces_].Type());
                       
+                      // Use the unique fullName for the subsurface name if found
+                      Next = strtok( NULL, ",\n" );
+                      if ( Next ) sprintf( ControlSurface_[NumberOfControlSurfaces_].Name(), "%s\0", Next );
                    }
                    
-                   if ( Verbose_ ) printf("Control Surface Name: %s \n",ControlSurface_[NumberOfControlSurfaces_].Name());
-                   if ( Verbose_ ) printf("Control Surface TypeName: %s \n",ControlSurface_[NumberOfControlSurfaces_].TypeName());
-                   if ( Verbose_ ) printf("Control Surface Type: %d \n",ControlSurface_[NumberOfControlSurfaces_].Type());
+                   if ( Verbose_ ) printf( "Control Surface Info:\n" );
+                   if ( Verbose_ ) printf( "\t      Name: %s \n", ControlSurface_[NumberOfControlSurfaces_].Name() );
+                   if ( Verbose_ ) printf( "\t ShortName: %s \n", ControlSurface_[NumberOfControlSurfaces_].ShortName() );
+                   if ( Verbose_ ) printf( "\t  TypeName: %s \n", ControlSurface_[NumberOfControlSurfaces_].TypeName() );
+                   if ( Verbose_ ) printf( "\t      Type: %d \n", ControlSurface_[NumberOfControlSurfaces_].Type() );
                    
                    // Skip past these lines:
 

@@ -37,6 +37,7 @@ private:
     // Control surface name
     
     char Name_[2000];
+    char ShortName_[2000];
     
     // List of affected vortex loops
     
@@ -115,6 +116,8 @@ public:
     // Name
     
     char *Name(void) { return Name_; };
+
+    char *ShortName( void ) { return ShortName_; };
     
     // TypeName
     
