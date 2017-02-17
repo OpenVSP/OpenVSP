@@ -942,9 +942,6 @@ void CfdMeshScreen::GuiDeviceCallBack( GuiDevice* device )
         m_CFDMeshProcess.StartThread( cfdmesh_thread_fun, NULL );
 
         m_MonitorProcess.StartThread( cfdmonitorfun, ( void* ) this );
-
-        // Hide all geoms.
-        m_Vehicle->HideAll();
     }
 
     m_ScreenMgr->SetUpdateFlag( true );

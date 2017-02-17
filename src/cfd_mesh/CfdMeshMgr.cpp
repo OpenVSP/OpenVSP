@@ -404,6 +404,9 @@ void CfdMeshMgrSingleton::GenerateMesh()
     vector< XferSurf > xfersurfs;
     CfdMeshMgr.FetchSurfs( xfersurfs );
 
+    // Hide all geoms after fetching their surfaces
+    m_Vehicle->HideAll();
+
     CfdMeshMgr.CleanUp();
     CfdMeshMgr.addOutputText( "Loading Bezier Surfaces\n" );
     CfdMeshMgr.LoadSurfs( xfersurfs );
