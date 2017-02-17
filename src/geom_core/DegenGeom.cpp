@@ -973,16 +973,19 @@ void DegenGeom::write_degenGeomCsv_file( FILE* file_id )
 
     if( type == SURFACE_TYPE )
     {
-        fprintf( file_id, "\nLIFTING_SURFACE,%s,%d\n", name.c_str(),getSurfNum() );
+        fprintf( file_id, "\n# DegenGeom Type, SurfNdx, GeomID" );
+        fprintf( file_id, "\nLIFTING_SURFACE,%s,%d,%s\n", name.c_str(), getSurfNum(), this->parentGeom->GetID().c_str() );
     }
     else if( type == DISK_TYPE )
     {
-        fprintf( file_id, "\nDISK,%s\n", name.c_str() );
+        fprintf( file_id, "\n# DegenGeom Type, SurfNdx, GeomID" );
+        fprintf( file_id, "\nDISK,%s,%d,%s\n", name.c_str(), getSurfNum(), this->parentGeom->GetID().c_str() );
         write_degenGeomDiskCsv_file( file_id );
     }
     else
     {
-        fprintf( file_id, "\nBODY,%s\n", name.c_str() );
+        fprintf( file_id, "\n# DegenGeom Type, SurfNdx, GeomID" );
+        fprintf( file_id, "\nBODY,%s,%d,%s\n", name.c_str(), getSurfNum(), this->parentGeom->GetID().c_str() );
     }
 
     write_degenGeomSurfCsv_file( file_id, nxsecs );
