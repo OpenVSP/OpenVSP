@@ -29,6 +29,9 @@ public:
         //  Panel Method Tests
         TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroComputeGeomPanel )
         TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroSinglePointPanel )
+        //  Verification Tests
+        TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroSharpTrailingEdge );
+        TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroBluntTrailingEdge );
 
 private:
     // VSPAERO
@@ -42,6 +45,9 @@ private:
     //  Panel Method Tests
     void TestVSPAeroComputeGeomPanel();        //<--Execute this VSPERO test first for panel methods
     void TestVSPAeroSinglePointPanel();
+    //  Verification Tests
+    void TestVSPAeroSharpTrailingEdge();
+    void TestVSPAeroBluntTrailingEdge();
 
     string m_vspfname_for_vspaerotests;
 };

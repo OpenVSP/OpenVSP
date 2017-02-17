@@ -583,3 +583,307 @@ void APITestSuiteVSPAERO::TestVSPAeroSweepBatch()
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
     printf("\n");
 }
+
+void APITestSuiteVSPAERO::TestVSPAeroSharpTrailingEdge()
+{
+    printf("APITestSuiteVSPAERO::TestVSPAeroSharpTrailingEdge()\n");
+    
+    // make sure setup works
+    vsp::VSPCheckSetup();
+    vsp::VSPRenew();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    //==== Analysis: VSPAero Single Point ====//
+    string analysis_name = "VSPAEROSinglePoint";
+    printf("\t%s\n",analysis_name.c_str());
+
+    //==== Create Symmetric Airfoil Wing Geometry ====//
+    printf( "--> Generating Geometries\n" );
+
+    string wing_id = vsp::AddGeom( "WING" );
+    TEST_ASSERT( wing_id.c_str() != NULL );
+
+    // Get Wing Section IDs
+    string wingxsurf_id = vsp::GetXSecSurf( wing_id, 0 );
+    string xsec_id0 = vsp::GetXSec( wingxsurf_id, 0 );
+    string xsec_id1 = vsp::GetXSec( wingxsurf_id, 1 );
+
+    //  Set Root and Tip Chord to 3 and Area to 25:
+    SetDriverGroup( wing_id, 1, vsp::AREA_WSECT_DRIVER, vsp::ROOTC_WSECT_DRIVER, vsp::TIPC_WSECT_DRIVER );
+    string xtipchord_id1 = vsp::GetXSecParm( xsec_id1, "Tip_Chord" );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( xtipchord_id1, 3 ), 3, TEST_TOL );
+    string xrootchord_id1 = vsp::GetXSecParm( xsec_id1, "Root_Chord" );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( xrootchord_id1, 3 ), 3, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( wing_id, "Area", "XSec_1", 25.0 ), 25.0, TEST_TOL );
+
+    //  Set Sweep to 0:
+    string xsweep_id1 = vsp::GetXSecParm( xsec_id1, "Sweep" );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( xsweep_id1, 0.0 ), 0.0, TEST_TOL );
+
+    //  Increase W Tesselation:
+    TEST_ASSERT_DELTA( vsp::SetParmVal( wing_id, "Tess_W", "Shape", 69 ), 69, TEST_TOL );
+
+    //  Increase U Tesselation 
+    string xutess_id1 = vsp::GetXSecParm( xsec_id1, "SectTess_U" );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( xutess_id1, 16 ), 16, TEST_TOL );
+    string xrtcluster_id1 = vsp::GetXSecParm( xsec_id1, "InCluster" );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( xrtcluster_id1, 0 ), 0, TEST_TOL );
+    string xtipcluster_id1 = vsp::GetXSecParm( xsec_id1, "OutCluster" );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( xtipcluster_id1, 0 ), 0, TEST_TOL );
+
+    vsp::Update();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    //==== Setup export filenames ====//
+    // Execution of one of these methods is required to propperly set the export filenames for creation of vspaero input files and execution commands
+    string fname_sharptrailingedge = "apitest_VSPAeroSharpTrailingEdge.vsp3";
+    printf( "\tSetting export name: %s\n", fname_sharptrailingedge.c_str( ) );
+    vsp::SetVSP3FileName( fname_sharptrailingedge );  // this still needs to be done even if a call to WriteVSPFile is made
+    vsp::Update();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    //==== Save Vehicle to File ====//
+    printf( "\tSaving vehicle file to: %s ...\n", fname_sharptrailingedge.c_str( ) );
+    vsp::WriteVSPFile( vsp::GetVSPFileName(), vsp::SET_ALL );
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+    printf( "COMPLETE\n" );
+
+    //==== Analysis: VSPAero Compute Geometry to Create Vortex Lattice DegenGeom File ====//
+    string compgeom_name = "VSPAEROComputeGeometry";
+    printf( "\t%s\n",compgeom_name.c_str() );
+
+    // Set defaults
+    vsp::SetAnalysisInputDefaults( compgeom_name );
+
+    // list inputs, type, and current values
+    vsp::PrintAnalysisInputs( compgeom_name );
+
+    // Execute
+    printf( "\tExecuting...\n" );
+    string compgeom_resid = vsp::ExecAnalysis( compgeom_name );
+    printf( "COMPLETE\n" );
+
+    // Get & Display Results
+    vsp::PrintResults( compgeom_resid );
+
+    //==== Analysis: VSPAero Single Point ====//
+    // Set defaults
+    vsp::SetAnalysisInputDefaults( analysis_name );
+
+    // Reference geometry set
+    vector< int > geom_set; 
+    geom_set.push_back( 0 );
+    vsp::SetIntAnalysisInput( analysis_name, "GeomSet", geom_set, 0 );
+    vector< int > ref_flag; 
+    ref_flag.push_back( vsp::VSPAERO_COMP_REFERENCE_TYPE::COMPONENT_REF );
+    vsp::SetIntAnalysisInput(analysis_name, "RefFlag", ref_flag, 0);
+    vector< string > wid = vsp::FindGeomsWithName( "WingGeom" );
+    vsp::SetStringAnalysisInput(analysis_name, "WingID", wid, 0);
+
+    // Freestream Parameters
+    vector< double > alpha; 
+    alpha.push_back( 0.0 );
+    vsp::SetDoubleAnalysisInput( analysis_name, "Alpha", alpha, 0 );
+    vector< double > mach; 
+    mach.push_back( 0.1 );
+    vsp::SetDoubleAnalysisInput( analysis_name, "Mach", mach, 0 );
+
+    vsp::Update();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    // list inputs, type, and current values
+    vsp::PrintAnalysisInputs( analysis_name );
+
+    // Execute
+    printf( "\tExecuting...\n" );
+    string results_id = vsp::ExecAnalysis( analysis_name  );
+    printf( "COMPLETE\n" );
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    // Get & Display Results
+    vsp::PrintResults( results_id );
+    
+    vector<string> results_names = vsp::GetAllDataNames( results_id );
+    vector<string>res_id = vsp::GetStringResults( results_id, results_names[0] ,0 );
+
+    vector<double> CL = vsp::GetDoubleResults( res_id[0], "CL", 0 );
+    vector<double> cl = vsp::GetDoubleResults( res_id[1], "cl", 0 );
+
+    printf( "   CL: " );
+    for ( unsigned int i = 0; i < CL.size(); i++ )
+    {
+        TEST_ASSERT_DELTA( CL[i], 0.0, TEST_TOL );
+        printf("%7.3f", CL[i] );
+    }
+    printf( "\n" );
+    printf( "   cl: " );
+    for ( unsigned int i = 0; i < cl.size(); i++ )
+    {
+        TEST_ASSERT_DELTA( cl[i], 0.0, TEST_TOL );
+        printf("%7.3f", cl[i] );
+    }
+    printf( "\n" );
+
+    // Final check for errors
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+    printf( "\n" );
+}
+
+void APITestSuiteVSPAERO::TestVSPAeroBluntTrailingEdge()
+{
+    printf("APITestSuiteVSPAERO::TestVSPAeroBluntTrailingEdge()\n");
+    
+    // make sure setup works
+    vsp::VSPCheckSetup();
+    vsp::VSPRenew();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    //==== Analysis: VSPAero Single Point ====//
+    string analysis_name = "VSPAEROSinglePoint";
+    printf("\t%s\n",analysis_name.c_str());
+
+    //==== Create Symmetric Airfoil Wing Geometry ====//
+    printf( "--> Generating Geometries\n" );
+
+    string wing_id = vsp::AddGeom( "WING" );
+    TEST_ASSERT( wing_id.c_str() != NULL );
+
+    // Get Wing Section IDs
+    string wingxsurf_id = vsp::GetXSecSurf( wing_id, 0 );
+    string xsec_id0 = vsp::GetXSec( wingxsurf_id, 0 );
+    string xsec_id1 = vsp::GetXSec( wingxsurf_id, 1 );
+
+    //  Set Root and Tip Chord to 3 and Area to 25:
+    SetDriverGroup( wing_id, 1, vsp::AREA_WSECT_DRIVER, vsp::ROOTC_WSECT_DRIVER, vsp::TIPC_WSECT_DRIVER );
+    string xtipchord_id1 = vsp::GetXSecParm( xsec_id1, "Tip_Chord" );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( xtipchord_id1, 3 ), 3, TEST_TOL );
+    string xrootchord_id1 = vsp::GetXSecParm( xsec_id1, "Root_Chord" );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( xrootchord_id1, 3 ), 3, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( wing_id, "Area", "XSec_1", 25.0 ), 25.0, TEST_TOL );
+
+    //  Set Sweep to 0:
+    string xsweep_id1 = vsp::GetXSecParm( xsec_id1, "Sweep" );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( xsweep_id1, 0.0 ), 0.0, TEST_TOL );
+
+    //  Set Trailing Edge to Blunt:
+    string xtrimtype_id0 = vsp::GetXSecParm( xsec_id0, "TE_Trim_Type" );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( xtrimtype_id0, 1 ), 1, TEST_TOL );
+    string xtrimval_id0 = vsp::GetXSecParm( xsec_id0, "TE_Trim_X" );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( xtrimval_id0, 0.5 ), 0.5, TEST_TOL );
+    string xtrimtype_id1 = vsp::GetXSecParm( xsec_id1, "TE_Trim_Type" );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( xtrimtype_id1, 1 ), 1, TEST_TOL );
+    string xtrimval_id1 = vsp::GetXSecParm( xsec_id1, "TE_Trim_X" );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( xtrimval_id1, 0.5 ), 0.5, TEST_TOL );
+
+    vsp::Update();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    //  Increase W Tesselation:
+    TEST_ASSERT_DELTA( vsp::SetParmVal( wing_id, "Tess_W", "Shape", 69 ), 69, TEST_TOL );
+
+    //  Increase U Tesselation 
+    string xutess_id1 = vsp::GetXSecParm( xsec_id1, "SectTess_U" );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( xutess_id1, 16 ), 16, TEST_TOL );
+    string xrtcluster_id1 = vsp::GetXSecParm( xsec_id1, "InCluster" );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( xrtcluster_id1, 0 ), 0, TEST_TOL );
+    string xtipcluster_id1 = vsp::GetXSecParm( xsec_id1, "OutCluster" );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( xtipcluster_id1, 0 ), 0, TEST_TOL );
+
+    vsp::Update();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    //==== Setup export filenames ====//
+    // Execution of one of these methods is required to propperly set the export filenames for creation of vspaero input files and execution commands
+    string fname_blunttrailingedge = "apitest_VSPAeroBluntTrailingEdge.vsp3";
+    printf( "\tSetting export name: %s\n", fname_blunttrailingedge.c_str( ) );
+    vsp::SetVSP3FileName( fname_blunttrailingedge );  // this still needs to be done even if a call to WriteVSPFile is made
+    vsp::Update();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    //==== Save Vehicle to File ====//
+    printf( "\tSaving vehicle file to: %s ...\n", fname_blunttrailingedge.c_str( ) );
+    vsp::WriteVSPFile( vsp::GetVSPFileName(), vsp::SET_ALL );
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+    printf( "COMPLETE\n" );
+
+    //==== Analysis: VSPAero Compute Geometry to Create Vortex Lattice DegenGeom File ====//
+    string compgeom_name = "VSPAEROComputeGeometry";
+    printf( "\t%s\n",compgeom_name.c_str() );
+
+    // Set defaults
+    vsp::SetAnalysisInputDefaults( compgeom_name );
+
+    // list inputs, type, and current values
+    vsp::PrintAnalysisInputs( compgeom_name );
+
+    // Execute
+    printf( "\tExecuting...\n" );
+    string compgeom_resid = vsp::ExecAnalysis( compgeom_name );
+    printf( "COMPLETE\n" );
+
+    // Get & Display Results
+    vsp::PrintResults( compgeom_resid );
+
+    //==== Analysis: VSPAero Single Point ====//
+    // Set defaults
+    vsp::SetAnalysisInputDefaults( analysis_name );
+
+    // Reference geometry set
+    vector< int > geom_set; 
+    geom_set.push_back( 0 );
+    vsp::SetIntAnalysisInput( analysis_name, "GeomSet", geom_set, 0 );
+    vector< int > ref_flag; 
+    ref_flag.push_back( vsp::VSPAERO_COMP_REFERENCE_TYPE::COMPONENT_REF );
+    vsp::SetIntAnalysisInput(analysis_name, "RefFlag", ref_flag, 0);
+    vector< string > wid = vsp::FindGeomsWithName( "WingGeom" );
+    vsp::SetStringAnalysisInput(analysis_name, "WingID", wid, 0);
+
+    // Freestream Parameters
+    vector< double > alpha; 
+    alpha.push_back( 0.0 );
+    vsp::SetDoubleAnalysisInput( analysis_name, "Alpha", alpha, 0 );
+    vector< double > mach; 
+    mach.push_back( 0.1 );
+    vsp::SetDoubleAnalysisInput( analysis_name, "Mach", mach, 0 );
+
+    vsp::Update();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    // list inputs, type, and current values
+    vsp::PrintAnalysisInputs( analysis_name );
+
+    // Execute
+    printf( "\tExecuting...\n" );
+    string results_id = vsp::ExecAnalysis( analysis_name  );
+    printf( "COMPLETE\n" );
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    // Get & Display Results
+    vsp::PrintResults( results_id );
+    
+    vector<string> results_names = vsp::GetAllDataNames( results_id );
+    vector<string>res_id = vsp::GetStringResults( results_id, results_names[0] ,0 );
+
+    vector<double> CL = vsp::GetDoubleResults( res_id[0], "CL", 0 );
+    vector<double> cl = vsp::GetDoubleResults( res_id[1], "cl", 0 );
+
+    printf( "   CL: " );
+    for ( unsigned int i = 0; i < CL.size(); i++ )
+    {
+        TEST_ASSERT_DELTA( CL[i], 0.0, TEST_TOL );
+        printf("%7.3f", CL[i] );
+    }
+    printf( "\n" );
+    printf( "   cl: " );
+    for ( unsigned int i = 0; i < cl.size(); i++ )
+    {
+        TEST_ASSERT_DELTA( cl[i], 0.0, TEST_TOL );
+        printf("%7.3f", cl[i] );
+    }
+    printf( "\n" );
+
+    // Final check for errors
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+    printf( "\n" );
+}
+
