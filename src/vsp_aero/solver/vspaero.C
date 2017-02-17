@@ -789,61 +789,84 @@ void CreateInputFile(char *argv[], int argc, int &i)
           
     fprintf(case_file,"NumberOfControlGroups = %d \n",NumberOfControlGroups);
     
+    // Group control surfaces and write successful groupings to string buffer
     Group = 0;
-    
-    for ( k = 1 ; k <= VSP_VLM().VSPGeom().NumberOfSurfaces() ; k++ ) {
-            
-       for ( p = 1 ; p <= VSP_VLM().VSPGeom().VSP_Surface(k).NumberOfControlSurfaces() ; p++ ) {
 
-          if ( Group <= NumberOfControlGroups && VSP_VLM().VSPGeom().VSP_Surface(k).ControlSurface(p).ControlGroup() == 0 ) {
-          
-             Group++;
-          
-             NumControls = 1;
-                    
-             fprintf(case_file,"ControlGroup_%d\n",Group);
-             
-             fprintf(case_file,"%s",VSP_VLM().VSPGeom().VSP_Surface(k).ControlSurface(p).Name());
-             
-             for ( k2 = k ; k2 <= VSP_VLM().VSPGeom().NumberOfSurfaces() ; k2++ ) {
-               
-                for ( p2 = p ; p2 <= VSP_VLM().VSPGeom().VSP_Surface(k2).NumberOfControlSurfaces() ; p2++ ) {
-                   
-                   if ( (p != p2) || ( k != k2 ) ) {
-                      
-                      if ( strcmp(VSP_VLM().VSPGeom().VSP_Surface(k ).ControlSurface(p ).Name(),
-                                  VSP_VLM().VSPGeom().VSP_Surface(k2).ControlSurface(p2).Name() ) == 0 ) {
-      
-                         fprintf(case_file,", %s",VSP_VLM().VSPGeom().VSP_Surface(k2).ControlSurface(p2).Name());
-                         
-                         NumControls++;
-                         
-                         VSP_VLM().VSPGeom().VSP_Surface(k ).ControlSurface(p ).ControlGroup() = Group;
-                         VSP_VLM().VSPGeom().VSP_Surface(k2).ControlSurface(p2).ControlGroup() = Group;
-                         
-                      }
-                                  
-                   }
-                   
+    char tempStrBuf[2000];
+    char controlGroupStrBuf[10000];
+    strcpy( controlGroupStrBuf, "\0" );
+
+    for ( k = 1; k <= VSP_VLM().VSPGeom().NumberOfSurfaces(); k++ ) {
+
+        for ( p = 1; p <= VSP_VLM().VSPGeom().VSP_Surface( k ).NumberOfControlSurfaces(); p++ ) {
+
+            if ( Group <= NumberOfControlGroups && VSP_VLM().VSPGeom().VSP_Surface( k ).ControlSurface( p ).ControlGroup() == 0 ) {
+
+                Group++;
+
+                NumControls = 1;
+
+                sprintf( tempStrBuf, "ControlGroup_%d\n", Group );
+                strcat( controlGroupStrBuf, tempStrBuf );
+
+                sprintf( tempStrBuf, "%s", VSP_VLM().VSPGeom().VSP_Surface( k ).ControlSurface( p ).Name() );
+                strcat( controlGroupStrBuf, tempStrBuf );
+
+                for ( k2 = k; k2 <= VSP_VLM().VSPGeom().NumberOfSurfaces(); k2++ ) {
+
+                    for ( p2 = p; p2 <= VSP_VLM().VSPGeom().VSP_Surface( k2 ).NumberOfControlSurfaces(); p2++ ) {
+
+                        if ( (p != p2) || (k != k2) ) {
+
+                            // Compare parent component name then compare surface short name for grouping
+                            //  Note: the combination of the ComponentName and ShortName should result in 
+                            //  a unique name in OpenVSP versions where the geomID is appended to the name.
+                            //  This allows for fewer naming restrictions on the user
+                            if ( strcmp( VSP_VLM().VSPGeom().VSP_Surface( k ).ComponentName(),
+                                         VSP_VLM().VSPGeom().VSP_Surface( k2 ).ComponentName() ) == 0 ) {
+
+                                if ( strcmp( VSP_VLM().VSPGeom().VSP_Surface( k ).ControlSurface( p ).ShortName(),
+                                             VSP_VLM().VSPGeom().VSP_Surface( k2 ).ControlSurface( p2 ).ShortName() ) == 0 ) {
+
+                                    sprintf( tempStrBuf, ", %s", VSP_VLM().VSPGeom().VSP_Surface( k2 ).ControlSurface( p2 ).Name() );
+                                    strcat( controlGroupStrBuf, tempStrBuf );
+
+                                    NumControls++;
+
+                                    VSP_VLM().VSPGeom().VSP_Surface( k ).ControlSurface( p ).ControlGroup() = Group;
+                                    VSP_VLM().VSPGeom().VSP_Surface( k2 ).ControlSurface( p2 ).ControlGroup() = Group;
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
                 }
-                
-             }
-             
-             fprintf(case_file,"\n");
-             
-             for ( i = 1 ; i < NumControls ; i++ ) fprintf(case_file,"1., ");
-             fprintf(case_file,"1. \n");
-             
-             fprintf(case_file,"10. \n");
-             
-          }
-          
-       }
-       
-    }
 
-    fclose(case_file);       
- 
+                strcat( controlGroupStrBuf, "\n" );
+
+                for ( i = 1; i < NumControls; i++ ) {
+                    strcat( controlGroupStrBuf, "1., " );
+                }
+                strcat( controlGroupStrBuf, "1. \n" );
+
+                strcat( controlGroupStrBuf, "10. \n" );
+
+            }
+
+        }
+
+    }
+    NumberOfControlGroups = Group;
+
+    // Final writing of control surface grouping to the file
+    fprintf( case_file, "%s", controlGroupStrBuf );
+
+    fclose( case_file );
+
 }
 
 /*##############################################################################
