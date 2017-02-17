@@ -11,5 +11,19 @@
 #if !defined(VSPAPITESTSUITEMASSPROP__INCLUDED_)
 #define VSPAPITESTSUITEMASSPROP__INCLUDED_
 
+#include "cpptest.h"
+
+class APITestSuiteMassProp : public Test::Suite
+{
+public:
+
+private:
+
+    // Test Tolerance
+    double GetTol( double val );
+    double GetCGTol( double val, double mass );
+    double GetInertiaTol( double val, double mass );
+
+};
 
 #endif // !defined(VSPAPITESTSUITEMASSPROP__INCLUDED_)

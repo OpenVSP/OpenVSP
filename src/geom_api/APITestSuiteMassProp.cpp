@@ -13,3 +13,54 @@
 #include <stdio.h>
 #include <float.h>
 #include "APIDefines.h"
+
+//Default tolerance to use for tests.  Most calculations are done as doubles and choosing single precision FLT_MIN gives some allowance for precision stackup in calculations
+#define TEST_TOL FLT_MIN
+ 
+double APITestSuiteMassProp::GetTol( double val )
+{
+    double TOL;
+
+    if ( val != 0 )
+    {
+        TOL = val * 0.005;
+    }
+    else if ( val == 0 )
+    { 
+        TOL = 0.1;
+    }
+
+    return TOL;
+}
+
+double APITestSuiteMassProp::GetCGTol( double val, double mass )
+{
+    double TOL;
+
+    if ( val != 0 )
+    {
+        TOL = val * 0.001;
+    }
+    else if ( val == 0 )
+    { 
+        TOL = 0.005 * mass;
+    }
+
+    return TOL;
+}
+
+double APITestSuiteMassProp::GetInertiaTol( double val, double mass )
+{
+    double TOL;
+
+    if ( val != 0 )
+    {
+        TOL = val * 0.01;
+    }
+    else if ( val == 0 )
+    { 
+        TOL = 0.005 * mass;
+    }
+
+    return TOL;
+}
