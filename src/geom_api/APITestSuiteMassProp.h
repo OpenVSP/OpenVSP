@@ -16,6 +16,17 @@
 class APITestSuiteMassProp : public Test::Suite
 {
 public:
+    APITestSuiteMassProp()
+    {
+        // Analysis
+        TEST_ADD( APITestSuiteMassProp::TestSolidCylinder )
+        TEST_ADD( APITestSuiteMassProp::TestThickWallCylinder )
+        TEST_ADD( APITestSuiteMassProp::TestCylindricalShell )
+        TEST_ADD( APITestSuiteMassProp::TestSphere )
+        TEST_ADD( APITestSuiteMassProp::TestSolidCone )
+        TEST_ADD( APITestSuiteMassProp::TestShellCone )
+        TEST_ADD( APITestSuiteMassProp::TestRectangularPrism )
+    }
 
 private:
 
@@ -24,6 +35,14 @@ private:
     double GetCGTol( double val, double mass );
     double GetInertiaTol( double val, double mass );
 
+    // Analysis
+    void TestSolidCylinder();
+    void TestThickWallCylinder();
+    void TestCylindricalShell();
+    void TestSphere();
+    void TestSolidCone();
+    void TestShellCone();
+    void TestRectangularPrism();
 };
 
 #endif // !defined(VSPAPITESTSUITEMASSPROP__INCLUDED_)
