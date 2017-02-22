@@ -29,6 +29,7 @@ void WriteDXFPolylines3D( FILE* dxf_file, const vector < vector < vec3d > > &all
 void WriteDXFPolylines2D( FILE* dxf_file, const vector < vector < vec3d > > &allflines, string layer, bool colorflag, int color_count );
 void WriteDXFClose( FILE* dxf_file );
 
+vec3d GetVecToOrgin( const BndBox &bndbox );
 int DXFColorWheel( int count );
 
 #endif

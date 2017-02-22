@@ -382,6 +382,35 @@ void WriteDXFClose( FILE* dxf_file )
         fprintf( dxf_file, "%s\n", "EOF" );
     }
 }
+
+vec3d GetVecToOrgin( const BndBox &bndbox )
+{
+    vec3d to_orgin;
+
+    int max_majcomp = bndbox.GetMax().major_comp();
+    double max_maxval = bndbox.GetMax()[max_majcomp];
+
+    int min_mincomp = bndbox.GetMin().minor_comp();
+    double min_minval = bndbox.GetMin()[min_mincomp];
+
+    if ( ( max_maxval > 0 && min_minval >= 0 ) || ( max_maxval > 0 && min_minval < 0 ) )
+    {
+        to_orgin = bndbox.GetMin();
+    }
+    else if ( ( max_maxval < 0 && min_minval <= 0 ) || ( max_maxval < 0 && min_minval > 0 ) )
+    {
+        to_orgin = bndbox.GetMax();
+    }
+    else
+    {
+        to_orgin.set_x( 0 );
+        to_orgin.set_y( 0 );
+        to_orgin.set_z( 0 );
+    }
+
+    return to_orgin;
+}
+
 int DXFColorWheel( int count )
 {
     // Documentation: http://sub-atomic.com/~moses/acadcolors.html
