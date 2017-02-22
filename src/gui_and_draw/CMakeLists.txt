@@ -32,6 +32,7 @@ BEMOptionsScreen.cpp
 CfdMeshScreen.cpp
 ClippingScreen.cpp
 CompGeomScreen.cpp
+ConformalScreen.cpp
 CustomScreen.cpp
 DegenGeomScreen.cpp
 DesignVarScreen.cpp
@@ -93,6 +94,7 @@ BEMOptionsScreen.h
 CfdMeshScreen.h
 ClippingScreen.h
 CompGeomScreen.h
+ConformalScreen.h
 CustomScreen.h
 DegenGeomScreen.h
 DesignVarScreen.h
