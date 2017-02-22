@@ -83,6 +83,17 @@ VspCurve& Airfoil::GetOrigCurve()
     return m_OrigCurve;
 }
 
+void Airfoil::OffsetCurve( double offset_val )
+{
+    double c = m_Chord();
+    double t = m_Chord() * m_ThickChord();
+
+    double offset_c = c - 2.0*offset_val;
+    m_Chord = offset_c;
+    double offset_t = t - 2.0*offset_val;
+    m_ThickChord = offset_t/m_Chord();
+}
+
 void Airfoil::ReadV2File( xmlNodePtr &root )
 {
     m_Invert = XmlUtil::FindInt( root, "Inverted_Flag", m_Invert() );

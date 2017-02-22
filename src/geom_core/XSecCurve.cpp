@@ -191,6 +191,16 @@ void XSecCurve::SetScale( double scale )
     }
 }
 
+//==== Offset Curve ====//
+void XSecCurve::OffsetCurve( double offset_val )
+{
+    double w = GetWidth();
+    double h = GetHeight();
+
+    SetWidthHeight( w - offset_val*2.0, h - offset_val*2.0 );
+
+}
+
 //==== Parm Changed ====//
 void XSecCurve::ParmChanged( Parm* parm_ptr, int type )
 {
@@ -1391,6 +1401,11 @@ CircleXSec::CircleXSec( ) : XSecCurve( )
 void CircleXSec::SetWidthHeight( double w, double h )
 {
     m_Diameter  = ( w + h ) / 2.0;
+}
+
+void CircleXSec::OffsetCurve( double off )
+{
+    m_Diameter = m_Diameter() - 2.0*off;
 }
 
 //==== Update Geometry ====//
