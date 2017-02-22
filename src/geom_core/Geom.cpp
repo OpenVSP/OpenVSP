@@ -3158,3 +3158,20 @@ void GeomXSec::AddDefaultSourcesXSec( double base_len, double len_ref, int ixsec
         }
     }
 }
+
+void GeomXSec::OffsetXSecs( double off )
+{
+    int nxsec = m_XSecSurf.NumXSec();
+    for ( int i = 0 ; i < nxsec ; i++ )
+    {
+        XSec* xs = m_XSecSurf.FindXSec( i );
+        if ( xs )
+        {
+            XSecCurve* xsc = xs->GetXSecCurve();
+            if ( xsc )
+            {
+                xsc->OffsetCurve( off );
+            }
+        }
+    }
+}

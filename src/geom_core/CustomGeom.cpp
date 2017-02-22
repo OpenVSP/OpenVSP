@@ -638,6 +638,7 @@ CustomGeom::CustomGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_Type.m_Type = CUSTOM_GEOM_TYPE;
     m_VspSurfType = vsp::NORMAL_SURF;
     m_VspSurfCfdType = vsp::CFD_NORMAL;
+    m_ConformalFlag = false;
 }
 
 //==== Destructor ====//
@@ -877,6 +878,13 @@ XSecSurf* CustomGeom::GetXSecSurf( int index )
 //==== Skin XSec Surfs ====//
 void CustomGeom::SkinXSecSurf( bool closed_flag )
 {
+    if ( m_ConformalFlag )
+    {
+        ApplyConformalOffset( m_ConformalOffset );
+        m_ConformalFlag = false;
+    }
+
+
     m_MainSurfVec.resize( m_XSecSurfVec.size() );
     assert( m_XSecSurfVec.size() == m_MainSurfVec.size() );
 
@@ -1088,4 +1096,34 @@ void CustomGeom::Scale()
     ScriptMgr.ExecuteScript( GetScriptModuleName().c_str(), "void Scale(double s)", true, curr_scale );
 
     m_LastScale = m_Scale();
+}
+
+//==== Trigger Conformal XSec Offset =====//
+void CustomGeom::OffsetXSecs( double off )
+{
+    m_ConformalFlag = true;
+    m_ConformalOffset = off;
+}
+
+//==== Apply Conformal Offset ====//
+void CustomGeom::ApplyConformalOffset( double off )
+{
+
+    for ( int i = 0 ; i < ( int )m_XSecSurfVec.size() ; i++ )
+    {
+
+        int nxsec = m_XSecSurfVec[i]->NumXSec();
+        for ( int j = 0 ; j < nxsec ; j++ )
+        {
+            XSec* xs = m_XSecSurfVec[i]->FindXSec( j );
+            if ( xs )
+            {
+                XSecCurve* xsc = xs->GetXSecCurve();
+                if ( xsc )
+                {
+                    xsc->OffsetCurve( off );
+                }
+            }
+        }
+    }
 }

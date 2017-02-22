@@ -219,6 +219,9 @@ public:
     virtual void ComputeCenter();
     virtual void Scale();
 
+    //==== Offset XSecs For Conformal =====//
+    virtual void OffsetXSecs( double off );
+
 protected:
 
     bool m_InitGeomFlag;
@@ -242,6 +245,9 @@ protected:
     // Needed for transparent custom geoms
     virtual void UpdateFlags();
 
+    bool m_ConformalFlag;
+    double m_ConformalOffset;
+    virtual void ApplyConformalOffset( double off );
 };
 
 

@@ -564,6 +564,8 @@ public:
 
     void WriteFeatureLinesDXF( FILE * file_name, const BndBox &dxfbox );
 
+    virtual void OffsetXSecs( double off )          {}
+
 protected:
 
     bool m_UpdateBlock;
@@ -648,6 +650,8 @@ public:
 
     virtual XSec* GetXSec( int index );
     virtual void AddDefaultSourcesXSec( double base_len, double len_ref, int ixsec );
+
+    virtual void OffsetXSecs( double off );
 
 protected:
     virtual void UpdateDrawObj();
