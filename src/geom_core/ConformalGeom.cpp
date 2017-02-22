@@ -682,6 +682,10 @@ void ConformalGeom::TrimU( VspSurf & surf )
         return;
     }
 
+    // Prevent UTrim crossover.
+    m_UTrimMin.SetUpperLimit( m_UTrimMax() - 0.001 );
+    m_UTrimMax.SetLowerLimit( m_UTrimMin() + 0.001 );
+
     if ( m_UTrimMin() >= m_UTrimMax() )
     {
         m_UTrimMin = MAX( m_UTrimMax() - 0.001, 0.0 );
