@@ -360,6 +360,7 @@ public:
     {
         return m_MainSurfVec.size();
     }
+    virtual void GetMainSurfVec( vector<VspSurf> &surf_vec )    { surf_vec = m_MainSurfVec; }
     virtual int GetNumSymFlags();
     virtual int GetNumTotalSurfs();
     virtual int GetNumSymmCopies();
