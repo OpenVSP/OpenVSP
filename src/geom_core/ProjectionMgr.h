@@ -67,6 +67,7 @@ public:
 
     virtual string MakeMeshGeom();
 
+    virtual void ExportProjectLines( vector < TMesh* > targetTMeshVec );
 
     int m_TargetSetIndex;
 

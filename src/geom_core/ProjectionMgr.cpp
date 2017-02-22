@@ -482,6 +482,87 @@ Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vec
     return res;
 }
 
+bool TMeshCompare( TMesh* a, TMesh* b )
+{
+    return ( a->m_PtrID < b->m_PtrID );
+}
+
+void ProjectionMgrSingleton::ExportProjectLines( vector < TMesh* > targetTMeshVec )
+{
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        // Sort targetTMeshVec ids to match with targetids, which is alphabetized in Union();
+        std::sort( targetTMeshVec.begin(), targetTMeshVec.end(), TMeshCompare );
+
+        m_BBox.Reset();
+        UpdateBBox( targetTMeshVec );
+
+        Matrix4d toclipper, fromclipper;
+        double scale = BuildToFromClipper( toclipper, fromclipper, false ); // Do not translate to bounding box max
+
+        TransformMesh( targetTMeshVec, toclipper );
+
+        // Project in X, Y, and Z directions:
+        vector < vec2d > proj_dir_vec;
+        proj_dir_vec.resize( 3 );
+        proj_dir_vec[vsp::X_DIR] = { 1, 2 };
+        proj_dir_vec[vsp::Y_DIR] = { 0, 2 };
+        proj_dir_vec[vsp::Z_DIR] = { 0, 1 };
+
+        for ( int k = 0; k < proj_dir_vec.size(); k++ )
+        {
+            vector < ClipperLib::Paths > targetvec;
+            vector < string > targetids;
+
+            MeshToPathsVec( targetTMeshVec, targetvec, targetids, proj_dir_vec[k].x(), proj_dir_vec[k].y() );
+
+            vector < ClipperLib::Paths > utargetvec;
+
+            Union( targetvec, utargetvec, targetids );
+
+            // Geom Projection Lines:
+            for ( unsigned int i = 0; i < utargetvec.size(); i++ )
+            {
+                vector < vector < vec3d > > TargetPolyVec3d;
+
+                ClosePaths( utargetvec[i] );
+
+                PathsToPolyVec( utargetvec[i], TargetPolyVec3d, proj_dir_vec[k].x(), proj_dir_vec[k].y() );
+
+                TransformPolyVec( TargetPolyVec3d, fromclipper );
+
+                Geom* curr_geom = veh->FindGeom( targetids[i] );
+
+                if ( curr_geom )
+                {
+                    // Send geom projection lines 
+                    curr_geom->SetGeomProjectVec3d( TargetPolyVec3d, k );
+                }
+            }
+
+            ClipperLib::Paths solution;
+            Union( utargetvec, solution );
+
+            // Total projection Lines:
+            if ( solution.size() > 0 )
+            {
+                vector < vector < vec3d > > SolutionPolyVec3d;
+
+                ClosePaths( solution );
+
+                PathsToPolyVec( solution, SolutionPolyVec3d, proj_dir_vec[k].x(), proj_dir_vec[k].y() );
+
+                TransformPolyVec( SolutionPolyVec3d, fromclipper );
+
+                // Send total projection lines 
+                veh->SetVehProjectVec3d( SolutionPolyVec3d, k );
+            }
+        }
+    }
+}
+
 void ProjectionMgrSingleton::GetMesh( int set, vector < TMesh* > & tmv )
 {
 
