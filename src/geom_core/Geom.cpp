@@ -1367,101 +1367,159 @@ void Geom::UpdateFlags( )
 
 void Geom::WriteFeatureLinesDXF( FILE * file_name, const BndBox &dxfbox )
 {
-    double tol = 10e-2;
+    double tol = 10e-2; // Feature line tesselation tolerance
 
-    Vehicle *veh = VehicleMgr.GetVehicle();
+    bool color = m_Vehicle->m_DXFColorFlag.Get();
 
+    // Bounding box diagonal, used to separate multi-view drawings
     vec3d shiftvec = dxfbox.GetMax() - dxfbox.GetMin();
 
-    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
-    {
-        vector < vector < vec3d > > allflines;
-        vector < vector < vec3d > > allflines1;
-        vector < vector < vec3d > > allflines2;
-        vector < vector < vec3d > > allflines3;
-        vector < vector < vec3d > > allflines4;
+    // Shift the vehicle bounding box to align with the +x, +y, +z axes at the orgin
+    vec3d to_orgin = GetVecToOrgin( dxfbox );
 
-        if( m_GuiDraw.GetDispFeatureFlag() )
+    for ( int i = 0; i < m_SurfVec.size(); i++ )
+    {
+        vector < vector < vec3d > > allflines, allflines1, allflines2, allflines3, allflines4;
+
+        if ( m_GuiDraw.GetDispFeatureFlag() )
         {
             int nu = m_SurfVec[i].GetNumUFeature();
             int nw = m_SurfVec[i].GetNumWFeature();
             allflines.resize( nu + nw );
-            for( int j = 0; j < nu; j++ )
+            for ( int j = 0; j < nu; j++ )
             {
-                m_SurfVec[i].TessUFeatureLine( j, allflines[ j ], tol );
+                m_SurfVec[i].TessUFeatureLine( j, allflines[j], tol );
+
+                // Shift Feature Lines back near the orgin for multi-view case:
+                if ( m_Vehicle->m_DXF2D3DFlag() != vsp::DIMENSION_SET::SET_3D )
+                {
+                    for ( unsigned int k = 0; k < allflines[j].size(); k++ )
+                    {
+                        allflines[j][k].offset_x( -to_orgin.x() );
+                        allflines[j][k].offset_y( -to_orgin.y() );
+                        allflines[j][k].offset_z( -to_orgin.z() );
+                    }
+                }
             }
 
-            for( int j = 0; j < nw; j++ )
+            for ( int j = 0; j < nw; j++ )
             {
-                m_SurfVec[i].TessWFeatureLine( j, allflines[ j + nu ], tol );
+                m_SurfVec[i].TessWFeatureLine( j, allflines[j + nu], tol );
+
+                // Shift Feature Lines back near the orgin for multi-view case:
+                if ( m_Vehicle->m_DXF2D3DFlag() != vsp::DIMENSION_SET::SET_3D )
+                {
+                    for ( unsigned int k = 0; k < allflines[j + nu].size(); k++ )
+                    {
+                        allflines[j + nu][k].offset_x( -to_orgin.x() );
+                        allflines[j + nu][k].offset_y( -to_orgin.y() );
+                        allflines[j + nu][k].offset_z( -to_orgin.z() );
+                    }
+                }
             }
         }
-        string layer = m_Name + string ( "_" ) + to_string( i );
 
-        if ( veh->m_2D3DFlag() == vsp::DIMENSION_SET::SET_3D )
+        // Add layers:
+        string layer;
+
+        if ( m_Vehicle->m_DXFAppendIDFlag() ) // Add GeomID if true
         {
-            WriteDXFPolylines3D( file_name, allflines, layer );
+            layer = m_Name + string( "[" ) + m_ID + string( "]_Surf[" ) + to_string( i ) + string( "]" );
         }
-        else if ( veh->m_2D3DFlag() == vsp::DIMENSION_SET::SET_2D )
+        else
         {
-            if ( veh->m_2DView() == vsp::VIEW_NUM::VIEW_1 )
+            layer = m_Name + string( "_Surf[" ) + to_string( i ) + string( "]" );
+        }
+
+        if ( m_Vehicle->m_DXF2D3DFlag() == vsp::DIMENSION_SET::SET_3D )
+        {
+            WriteDXFPolylines3D( file_name, allflines, layer, color, m_Vehicle->m_ColorCount );
+            m_Vehicle->m_ColorCount++;
+        }
+        else if ( m_Vehicle->m_DXF2D3DFlag() == vsp::DIMENSION_SET::SET_2D )
+        {
+            if ( m_Vehicle->m_DXF2DView() == vsp::VIEW_NUM::VIEW_1 )
             {
                 allflines1 = allflines;
-                DXFManipulate( allflines1, dxfbox, veh->m_4View1(), veh->m_4View1_rot() );
-                WriteDXFPolylines2D( file_name, allflines1, layer );
+                FeatureLinesManipulate( allflines1, m_Vehicle->m_DXF4View1(), m_Vehicle->m_DXF4View1_rot(), shiftvec );
+                WriteDXFPolylines2D( file_name, allflines1, layer, color, m_Vehicle->m_ColorCount );
+                m_Vehicle->m_ColorCount++;
             }
-            else if ( veh->m_2DView() == vsp::VIEW_NUM::VIEW_2HOR )
+            else if ( m_Vehicle->m_DXF2DView() == vsp::VIEW_NUM::VIEW_2HOR )
             {
                 allflines1 = allflines;
-                DXFManipulate( allflines1, dxfbox, veh->m_4View1(), veh->m_4View1_rot() );
-                DXFShift( allflines1, shiftvec, vsp::VIEW_SHIFT::LEFT, veh->m_4View1_rot(), 0 );
+                FeatureLinesManipulate( allflines1, m_Vehicle->m_DXF4View1(), m_Vehicle->m_DXF4View1_rot(), shiftvec );
+                FeatureLinesShift( allflines1, shiftvec, vsp::VIEW_SHIFT::LEFT, m_Vehicle->m_DXF4View1_rot(), NULL );
+                string layer_v1 = layer + "_v1";
 
                 allflines2 = allflines;
-                DXFManipulate( allflines2, dxfbox, veh->m_4View2(), veh->m_4View2_rot() );
-                DXFShift( allflines2, shiftvec, vsp::VIEW_SHIFT::RIGHT, veh->m_4View2_rot(), 0 );
+                FeatureLinesManipulate( allflines2, m_Vehicle->m_DXF4View2(), m_Vehicle->m_DXF4View2_rot(), shiftvec );
+                FeatureLinesShift( allflines2, shiftvec, vsp::VIEW_SHIFT::RIGHT, m_Vehicle->m_DXF4View2_rot(), NULL );
+                string layer_v2 = layer + "_v2";
 
-                WriteDXFPolylines2D( file_name, allflines1, layer );
-                WriteDXFPolylines2D( file_name, allflines2, layer );
+                WriteDXFPolylines2D( file_name, allflines1, layer_v1, color, m_Vehicle->m_ColorCount );
+                m_Vehicle->m_ColorCount++;
+
+                WriteDXFPolylines2D( file_name, allflines2, layer_v2, color, m_Vehicle->m_ColorCount );
+                m_Vehicle->m_ColorCount++;
             }
-            else if ( veh->m_2DView() == vsp::VIEW_NUM::VIEW_2VER )
+            else if ( m_Vehicle->m_DXF2DView() == vsp::VIEW_NUM::VIEW_2VER )
             {
                 allflines1 = allflines;
-                DXFManipulate( allflines1, dxfbox, veh->m_4View1(), veh->m_4View1_rot() );
-                DXFShift( allflines1, shiftvec, vsp::VIEW_SHIFT::UP, veh->m_4View1_rot(), 0 );
+                FeatureLinesManipulate( allflines1, m_Vehicle->m_DXF4View1(), m_Vehicle->m_DXF4View1_rot(), shiftvec );
+                FeatureLinesShift( allflines1, shiftvec, vsp::VIEW_SHIFT::UP, m_Vehicle->m_DXF4View1_rot(), NULL );
 
                 allflines3 = allflines;
-                DXFManipulate( allflines3, dxfbox, veh->m_4View3(), veh->m_4View3_rot() );
-                DXFShift( allflines3, shiftvec, vsp::VIEW_SHIFT::DOWN, veh->m_4View3_rot(), 0 );
+                FeatureLinesManipulate( allflines3, m_Vehicle->m_DXF4View3(), m_Vehicle->m_DXF4View3_rot(), shiftvec );
+                FeatureLinesShift( allflines3, shiftvec, vsp::VIEW_SHIFT::DOWN, m_Vehicle->m_DXF4View3_rot(), NULL );
 
-                WriteDXFPolylines2D( file_name, allflines1, layer );
-                WriteDXFPolylines2D( file_name, allflines3, layer );
+                string layer_v1 = layer + "_v1";
+                string layer_v2 = layer + "_v2";
+
+                WriteDXFPolylines2D( file_name, allflines1, layer_v1, color, m_Vehicle->m_ColorCount );
+                m_Vehicle->m_ColorCount++;
+
+                WriteDXFPolylines2D( file_name, allflines3, layer_v2, color, m_Vehicle->m_ColorCount );
+                m_Vehicle->m_ColorCount++;
             }
-            else if ( veh->m_2DView() == vsp::VIEW_NUM::VIEW_4 )
+            else if ( m_Vehicle->m_DXF2DView() == vsp::VIEW_NUM::VIEW_4 )
             {
                 allflines1 = allflines;
-                DXFManipulate( allflines1, dxfbox, veh->m_4View1(), veh->m_4View1_rot() );
-                DXFShift( allflines1, shiftvec, vsp::VIEW_SHIFT::UP, veh->m_4View1_rot(), veh->m_4View2_rot() );
-                DXFShift( allflines1, shiftvec, vsp::VIEW_SHIFT::LEFT, veh->m_4View1_rot(), veh->m_4View3_rot() );
+                FeatureLinesManipulate( allflines1, m_Vehicle->m_DXF4View1(), m_Vehicle->m_DXF4View1_rot(), shiftvec );
+                FeatureLinesShift( allflines1, shiftvec, vsp::VIEW_SHIFT::UP, m_Vehicle->m_DXF4View1_rot(), m_Vehicle->m_DXF4View2_rot() );
+                FeatureLinesShift( allflines1, shiftvec, vsp::VIEW_SHIFT::LEFT, m_Vehicle->m_DXF4View1_rot(), m_Vehicle->m_DXF4View3_rot() );
 
                 allflines2 = allflines;
-                DXFManipulate( allflines2, dxfbox, veh->m_4View2(), veh->m_4View2_rot() );
-                DXFShift( allflines2, shiftvec, vsp::VIEW_SHIFT::UP, veh->m_4View2_rot(), veh->m_4View1_rot() );
-                DXFShift( allflines2, shiftvec, vsp::VIEW_SHIFT::RIGHT, veh->m_4View2_rot(), veh->m_4View4_rot() );
+                FeatureLinesManipulate( allflines2, m_Vehicle->m_DXF4View2(), m_Vehicle->m_DXF4View2_rot(), shiftvec );
+                FeatureLinesShift( allflines2, shiftvec, vsp::VIEW_SHIFT::UP, m_Vehicle->m_DXF4View2_rot(), m_Vehicle->m_DXF4View1_rot() );
+                FeatureLinesShift( allflines2, shiftvec, vsp::VIEW_SHIFT::RIGHT, m_Vehicle->m_DXF4View2_rot(), m_Vehicle->m_DXF4View4_rot() );
 
                 allflines3 = allflines;
-                DXFManipulate( allflines3, dxfbox, veh->m_4View3(), veh->m_4View3_rot() );
-                DXFShift( allflines3, shiftvec, vsp::VIEW_SHIFT::DOWN, veh->m_4View3_rot(), veh->m_4View4_rot() );
-                DXFShift( allflines3, shiftvec, vsp::VIEW_SHIFT::LEFT, veh->m_4View3_rot(), veh->m_4View1_rot() );
+                FeatureLinesManipulate( allflines3, m_Vehicle->m_DXF4View3(), m_Vehicle->m_DXF4View3_rot(), shiftvec );
+                FeatureLinesShift( allflines3, shiftvec, vsp::VIEW_SHIFT::DOWN, m_Vehicle->m_DXF4View3_rot(), m_Vehicle->m_DXF4View4_rot() );
+                FeatureLinesShift( allflines3, shiftvec, vsp::VIEW_SHIFT::LEFT, m_Vehicle->m_DXF4View3_rot(), m_Vehicle->m_DXF4View1_rot() );
 
                 allflines4 = allflines;
-                DXFManipulate( allflines4, dxfbox, veh->m_4View4(), veh->m_4View4_rot() );
-                DXFShift( allflines4, shiftvec, vsp::VIEW_SHIFT::DOWN, veh->m_4View4_rot(), veh->m_4View3_rot() );
-                DXFShift( allflines4, shiftvec, vsp::VIEW_SHIFT::RIGHT, veh->m_4View4_rot(), veh->m_4View2_rot() );
+                FeatureLinesManipulate( allflines4, m_Vehicle->m_DXF4View4(), m_Vehicle->m_DXF4View4_rot(), shiftvec );
+                FeatureLinesShift( allflines4, shiftvec, vsp::VIEW_SHIFT::DOWN, m_Vehicle->m_DXF4View4_rot(), m_Vehicle->m_DXF4View3_rot() );
+                FeatureLinesShift( allflines4, shiftvec, vsp::VIEW_SHIFT::RIGHT, m_Vehicle->m_DXF4View4_rot(), m_Vehicle->m_DXF4View2_rot() );
 
-                WriteDXFPolylines2D( file_name, allflines1, layer );
-                WriteDXFPolylines2D( file_name, allflines2, layer );
-                WriteDXFPolylines2D( file_name, allflines3, layer );
-                WriteDXFPolylines2D( file_name, allflines4, layer );
+                string layer_v1 = layer + "_v1";
+                string layer_v2 = layer + "_v2";
+                string layer_v3 = layer + "_v3";
+                string layer_v4 = layer + "_v4";
+
+                WriteDXFPolylines2D( file_name, allflines1, layer_v1, color, m_Vehicle->m_ColorCount );
+                m_Vehicle->m_ColorCount++;
+
+                WriteDXFPolylines2D( file_name, allflines2, layer_v2, color, m_Vehicle->m_ColorCount );
+                m_Vehicle->m_ColorCount++;
+
+                WriteDXFPolylines2D( file_name, allflines3, layer_v3, color, m_Vehicle->m_ColorCount );
+                m_Vehicle->m_ColorCount++;
+
+                WriteDXFPolylines2D( file_name, allflines4, layer_v4, color, m_Vehicle->m_ColorCount );
+                m_Vehicle->m_ColorCount++;
             }
         }
     }
