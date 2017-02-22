@@ -604,7 +604,7 @@ void ProjectionMgrSingleton::MeshToPaths( const vector < TMesh* > & tmv, Clipper
     }
 }
 
-void ProjectionMgrSingleton::MeshToPathsVec( const vector < TMesh* > & tmv, vector < ClipperLib::Paths > & pthvec, vector < string > & ids )
+void ProjectionMgrSingleton::MeshToPathsVec( const vector < TMesh* > & tmv, vector < ClipperLib::Paths > & pthvec, vector < string > & ids, const int keepdir1, const int keepdir2 )
 {
     pthvec.resize( tmv.size() );
     ids.resize( tmv.size() );
@@ -622,7 +622,7 @@ void ProjectionMgrSingleton::MeshToPathsVec( const vector < TMesh* > & tmv, vect
             for ( int k = 0; k < 3; k++ )
             {
                 vec3d p = tmv[i]->m_TVec[j]->GetTriNode( k )->m_Pnt;
-                pthvec[i][j][k] = ClipperLib::IntPoint( (int) p.y(), (int) p.z() );
+                pthvec[i][j][k] = ClipperLib::IntPoint( (int) p.v[keepdir1], (int) p.v[keepdir2] );
             }
 
             if ( !ClipperLib::Orientation( pthvec[i][j] ) )
@@ -633,7 +633,7 @@ void ProjectionMgrSingleton::MeshToPathsVec( const vector < TMesh* > & tmv, vect
     }
 }
 
-void ProjectionMgrSingleton::PathsToPolyVec( const ClipperLib::Paths & pths, vector < vector < vec3d > > & polyvec )
+void ProjectionMgrSingleton::PathsToPolyVec( const ClipperLib::Paths & pths, vector < vector < vec3d > > & polyvec, const int keepdir1, const int keepdir2 )
 {
     polyvec.clear();
     polyvec.reserve( pths.size() );
@@ -648,7 +648,10 @@ void ProjectionMgrSingleton::PathsToPolyVec( const ClipperLib::Paths & pths, vec
             for ( int j = 0; j < pths[i].size(); j++ )
             {
                 ClipperLib::IntPoint p = pths[i][j];
-                polyvec[k][j] = vec3d( 0.0, p.X, p.Y );
+                vec3d pv;
+                pv[keepdir1] = p.X;
+                pv[keepdir2] = p.Y;
+                polyvec[k][j] = pv;
             }
             k++;
         }
@@ -668,7 +671,7 @@ void ProjectionMgrSingleton::Poly3dToPoly2d( vector < vector < vec3d > > & invec
     }
 }
 
-double ProjectionMgrSingleton::BuildToFromClipper( Matrix4d & toclip, Matrix4d & fromclip )
+double ProjectionMgrSingleton::BuildToFromClipper( Matrix4d & toclip, Matrix4d & fromclip, bool translate_to_max )
 {
     vec3d center = m_BBox.GetCenter();
     double scale = ClipperLib::loRange/m_BBox.GetLargestDist();
@@ -678,7 +681,17 @@ double ProjectionMgrSingleton::BuildToFromClipper( Matrix4d & toclip, Matrix4d &
     toclip.translatef( -center.x(), -center.y(), -center.z() );
 
     fromclip.loadIdentity();
-    fromclip.translatef( m_BBox.GetMax( 0 ), center.y(), center.z() );
+
+    // Check flag to translate to the bounding box max or bounding box center
+    if ( translate_to_max ) 
+    {
+        fromclip.translatef( m_BBox.GetMax( 0 ), center.y(), center.z() );
+    }
+    else
+    {
+        fromclip.translatef( center.x(), center.y(), center.z() );
+    }
+
     fromclip.scale( 1.0/scale );
 
     return scale;
