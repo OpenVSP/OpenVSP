@@ -34,6 +34,8 @@
 #include "main.h"
 
 #include "ProjectionMgr.h"
+#include "DXFUtil.h"
+
 using namespace vsp;
 
 //==== Constructor ====//
@@ -199,7 +201,7 @@ void Vehicle::Init()
     m_IGESToCubicTol.Set( 1e-6 );
     m_IGESTrimTE.Set( false );
 
-	//=== DXF Initial Conditions ===//
+    //=== DXF Initial Conditions ===//
     m_DXFLenUnit.Set( vsp::LEN_UNITLESS );
     m_DXF2DView.Set( vsp::VIEW_4 );
     m_DXF2D3DFlag.Set( vsp::SET_3D );
@@ -2521,30 +2523,207 @@ void Vehicle::WriteBEMFile( const string &file_name, int write_set )
 void Vehicle::WriteDXFFile( const string & file_name, int write_set )
 {
     FILE* dxf_file = fopen( file_name.c_str(), "w" );
-    WriteDXFHeader( dxf_file, m_DXFLenUnit.Get() );
 
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
-
-    BndBox dxfbox;
-    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    if ( dxf_file )
     {
-        if ( geom_vec[i]->GetSetFlag( write_set ) )
-        {
-            dxfbox.Update( geom_vec[i]->GetBndBox() );
-        }
-    }
+        vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
 
-    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+        if ( geom_vec.size() == 0 )
+        {
+            return;
+        }
+
+        BndBox dxfbox;
+
+        // Clear Vehicle Projection Line Vec and Reset Color Count
+        m_ColorCount = 0;
+        m_VehProjectVec3d.clear();
+        m_VehProjectVec3d.resize( 3 );
+
+        // Tesselation adjustment
+        double tessfactor = m_DXFTessFactor.Get();
+
+        for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+        {
+            if ( geom_vec[i]->GetSetFlag( write_set ) )
+            {
+                // Get Vehicle Bounding Box
+                dxfbox.Update( geom_vec[i]->GetBndBox() );
+
+                // Clear Geom Projection Vec
+                geom_vec[i]->ClearGeomProjectVec3d();
+
+                if ( ( m_DXFGeomProjectionFlag() && m_DXFTessFactor.Get() != 1.0 ) || ( m_DXFTotalProjectionFlag() && tessfactor != 1.0 ) )
+                {
+                    // Increase tellelation:
+                    geom_vec[i]->m_TessW.Set( geom_vec[i]->m_TessW() * tessfactor );
+
+                    int num_xsec_surf = geom_vec[i]->GetNumXSecSurfs();
+
+                    if ( num_xsec_surf > 0 ) // Increase U tesselation by section for segmented geoms
+                    {
+                        for ( unsigned int j = 0; j < num_xsec_surf; j++ )
+                        {
+                            XSecSurf* xsecsurf = geom_vec[i]->GetXSecSurf( j );
+
+                            if ( xsecsurf )
+                            {
+                                int num_xsec = xsecsurf->NumXSec();
+
+                                for ( unsigned int k = 0; k < num_xsec; k++ )
+                                {
+                                    XSec* curr_xsec = xsecsurf->FindXSec( k );
+
+                                    if ( curr_xsec )
+                                    {
+                                        curr_xsec->m_SectTessU.Set( curr_xsec->m_SectTessU() * tessfactor );
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        geom_vec[i]->m_TessU.Set( geom_vec[i]->m_TessU() * tessfactor );
+                    }
+                }
+
+                if ( m_DXFAllXSecFlag() )
+                {
+                    // Force XSec Feature Line Visibility:
+                    geom_vec[i]->SetForceXSecFlag( true );
+                }
+
+                if ( ( m_DXFGeomProjectionFlag() && tessfactor != 1.0 ) || ( m_DXFTotalProjectionFlag() && tessfactor != 1.0 ) || m_DXFAllXSecFlag() )
+                {
+                    // Update Geom:
+                    geom_vec[i]->Update( true );
+                }
+            }
+        }
+
+        // Write DXF Header
+        WriteDXFHeader( dxf_file, m_DXFLenUnit.Get() );
+
+        if ( m_DXFGeomProjectionFlag() || m_DXFTotalProjectionFlag() )
+        {
+            // Generate Mesh for Projections:
+            vector < TMesh* > TotalProjectMeshVec;
+
+            for ( int i = 0; i < (int)geom_vec.size(); i++ )
+            {
+                if ( geom_vec[i]->GetSetFlag( write_set ) )
+                {
+                    vector< TMesh* > tMeshVec = geom_vec[i]->CreateTMeshVec();
+                    for ( int j = 0; j < (int)tMeshVec.size(); j++ )
+                    {
+                        TotalProjectMeshVec.push_back( tMeshVec[j] );
+                    }
+                }
+            }
+            // Generate Geom and Vehicle Projection Line Vectors:
+            ProjectionMgr.ExportProjectLines( TotalProjectMeshVec );
+
+            // Delete TMesh Pointers
+            for ( unsigned int i = 0; i < TotalProjectMeshVec.size(); i++ )
+            {
+                delete TotalProjectMeshVec[i];
+            }
+            TotalProjectMeshVec.clear();
+        }
+
+        for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+        {
+            if ( geom_vec[i]->GetSetFlag( write_set ) )
+            {
+                // Write Geom Projection Lines:
+                if ( m_DXFGeomProjectionFlag() )
+                {
+                    geom_vec[i]->WriteProjectionLinesDXF( dxf_file, dxfbox );
+                }
+
+                // Write Feature Lines:
+                geom_vec[i]->WriteFeatureLinesDXF( dxf_file, dxfbox );
+            }
+        }
+
+        if ( m_DXFTotalProjectionFlag() )
+        {
+            // Write Total Projection Lines:
+            WriteVehProjectionLinesDXF( dxf_file, dxfbox );
+        }
+
+        for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+        {
+            if ( geom_vec[i]->GetSetFlag( write_set ) )
+            {
+                // Clear Geom Projection Vec
+                geom_vec[i]->ClearGeomProjectVec3d();
+
+                if ( ( m_DXFGeomProjectionFlag() && tessfactor != 1.0 ) || ( m_DXFTotalProjectionFlag() && tessfactor != 1.0 ) )
+                {
+                    // Restore tellelation and update:
+                    geom_vec[i]->m_TessW.Set( geom_vec[i]->m_TessW.GetLastVal() );
+
+                    int num_xsec_surf = geom_vec[i]->GetNumXSecSurfs();
+
+                    if ( num_xsec_surf > 0 ) // Restore U tesselation by section for segmented geoms
+                    {
+                        for ( unsigned int j = 0; j < num_xsec_surf; j++ )
+                        {
+                            XSecSurf* xsecsurf = geom_vec[i]->GetXSecSurf( j );
+
+                            if ( xsecsurf )
+                            {
+                                int num_xsec = xsecsurf->NumXSec();
+
+                                for ( unsigned int k = 0; k < num_xsec; k++ )
+                                {
+                                    XSec* curr_xsec = xsecsurf->FindXSec( k );
+
+                                    if ( curr_xsec )
+                                    {
+                                        curr_xsec->m_SectTessU.Set( curr_xsec->m_SectTessU.GetLastVal() );
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        geom_vec[i]->m_TessU.Set( geom_vec[i]->m_TessU.GetLastVal() );
+                    }
+                }
+
+                if ( m_DXFAllXSecFlag() )
+                {
+                    // Restore Feature Line Visibility:
+                    geom_vec[i]->SetForceXSecFlag( false );
+                }
+
+                if ( ( m_DXFGeomProjectionFlag() && tessfactor != 1.0 ) || ( m_DXFTotalProjectionFlag() && tessfactor != 1.0 ) || m_DXFAllXSecFlag() )
+                {
+                    // Update Geom:
+                    geom_vec[i]->Update( true );
+                }
+            }
+        }
+
+        WriteDXFClose( dxf_file );
+
+        fclose( dxf_file );
+
+        // Clear Projection Line Vec:
+        m_VehProjectVec3d.clear(); 
+
+        // Restore Color Counter:
+        m_ColorCount = 0;
+    }
+    else
     {
-        if ( geom_vec[i]->GetSetFlag( write_set ) )
-        {
-            geom_vec[i]->WriteFeatureLinesDXF( dxf_file, dxfbox );
-        }
+        string export_error = "Error: File export failed\nFile: " + file_name + "\n";
+        fprintf( stderr, export_error.c_str() );
     }
-
-    WriteDXFClose( dxf_file );
-
-    fclose( dxf_file );
 }
 
 void Vehicle::AddLinkableContainers( vector< string > & linkable_container_vec )
