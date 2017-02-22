@@ -202,6 +202,8 @@ public:
     void WriteSVGFile( const string & file_name, int write_set );
 
     void WriteVehProjectionLinesDXF( FILE * file_name, const BndBox &dxfbox );
+    void WriteVehProjectionLinesSVG( xmlNodePtr root, const BndBox &svgbox );
+
     vector< vector < vec3d > > Vehicle::GetVehProjectionLines( int view, vec3d offset );
 
     virtual void SetVehProjectVec3d( vector < vector < vec3d > > polyvec, int dir_index )
