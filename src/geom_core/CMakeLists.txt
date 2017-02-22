@@ -31,6 +31,7 @@ AnalysisMgr.cpp
 BlankGeom.cpp
 CfdMeshSettings.cpp
 ClippingMgr.cpp
+ConformalGeom.cpp
 CustomGeom.cpp
 DegenGeom.cpp
 DesignVarMgr.cpp
@@ -87,6 +88,7 @@ CfdMeshSettings.h
 ClippingMgr.h
 Color.h
 ColorMgr.h
+ConformalGeom.h
 CustomGeom.h
 DegenGeom.h
 DesignVarMgr.h

@@ -11,6 +11,7 @@
 #include "WingGeom.h"
 #include "BlankGeom.h"
 #include "MeshGeom.h"
+#include "ConformalGeom.h"
 #include "CustomGeom.h"
 #include "PtCloudGeom.h"
 #include "PropGeom.h"
@@ -143,6 +144,7 @@ void Vehicle::Init()
     m_GeomTypeVec.push_back( GeomType( BLANK_GEOM_TYPE, "BLANK", true ) );
     m_GeomTypeVec.push_back( GeomType( PROP_GEOM_TYPE, "PROP", true ) );
     m_GeomTypeVec.push_back( GeomType( HINGE_GEOM_TYPE, "HINGE", true ) );
+    m_GeomTypeVec.push_back( GeomType( CONFORMAL_GEOM_TYPE, "CONFORMAL", true ) );
 
     //==== Get Custom Geom Types =====//
     vector< GeomType > custom_types = CustomGeomMgr.GetCustomTypes();
@@ -457,6 +459,10 @@ string Vehicle::CreateGeom( const GeomType & type )
     {
         new_geom = new HingeGeom( this );
     }
+    else if ( type.m_Type == CONFORMAL_GEOM_TYPE )
+    {
+        new_geom = new ConformalGeom( this );
+    }
 
     if ( !new_geom )
     {
@@ -500,7 +506,11 @@ string Vehicle::AddGeom( const GeomType & type )
             CustomGeomMgr.InitGeom( geom_id, type.m_ModuleName );
 //            add_geom->Update();
         }
-        add_geom->Update();
+        //==== Update Conformal After Attachment to Parent ====//
+        else if ( type.m_Type == CONFORMAL_GEOM_TYPE )
+        {
+            add_geom->Update();
+        }
     }
     return geom_id;
 }
