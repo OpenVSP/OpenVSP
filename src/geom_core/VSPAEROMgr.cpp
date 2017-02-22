@@ -7,11 +7,11 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "VSPAEROMgr.h"
+#include "MeshGeom.h"
 #include "ParmMgr.h"
 #include "StlHelper.h"
+#include "VSPAEROMgr.h"
 #include "WingGeom.h"
-#include "MeshGeom.h"
 
 #include "StringUtil.h"
 #include "FileUtil.h"
