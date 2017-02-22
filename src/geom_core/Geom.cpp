@@ -830,6 +830,7 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
 
     currSourceID = 0;
 
+    m_GeomProjectVec3d.resize( 3 );
 }
 //==== Destructor ====//
 Geom::~Geom()

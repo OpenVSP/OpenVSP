@@ -494,6 +494,20 @@ public:
 //Display Flags
 //OtherData
 
+    virtual void SetGeomProjectVec3d( vector < vector < vec3d > > polyvec, int dir_index )
+    {
+        m_GeomProjectVec3d[dir_index] = polyvec;
+    }
+    virtual vector < vector < vec3d > > GetGeomProjectVec3d( int dir_index )
+    {
+        return m_GeomProjectVec3d[dir_index];
+    }
+    virtual void ClearGeomProjectVec3d()
+    {
+        m_GeomProjectVec3d.clear();
+        m_GeomProjectVec3d.resize( 3 );
+    }
+
 //  //==== Structures ====//
 //  void SetCurrPartID( int pid )           { currPartID = pid; }
 //  int  GetCurrPartID()                    { return currPartID; }
@@ -602,6 +616,8 @@ protected:
     vector< bool > m_SetFlags;
 
     vector<SubSurface*> m_SubSurfVec;
+
+    vector < vector < vector < vec3d > > > m_GeomProjectVec3d; // Vector of projection lines for each view direction (x, y, or z)
 
 //  //==== Structure Parts ====//
 //  int currPartID;
