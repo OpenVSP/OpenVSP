@@ -588,6 +588,7 @@ public:
     virtual void InsertXSec( int index, int type )  {}
 
     void WriteFeatureLinesDXF( FILE * file_name, const BndBox &dxfbox );
+    vector < vector< vec3d > > GetGeomProjectionLines( int view, vec3d offset );
 
     virtual void OffsetXSecs( double off )          {}
 

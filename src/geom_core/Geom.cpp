@@ -1525,6 +1525,37 @@ void Geom::WriteFeatureLinesDXF( FILE * file_name, const BndBox &dxfbox )
     }
 }
 
+vector< vector < vec3d > > Geom::GetGeomProjectionLines( int view, vec3d offset )
+{
+    vector < vector < vec3d > > PathVec;
+
+    if ( view == vsp::VIEW_TYPE::VIEW_LEFT || view == vsp::VIEW_TYPE::VIEW_RIGHT ) 
+    {
+        PathVec = m_GeomProjectVec3d[1]; // Y axis projection
+    }
+    else if ( view == vsp::VIEW_TYPE::VIEW_FRONT || view == vsp::VIEW_TYPE::VIEW_REAR )
+    {
+        PathVec = m_GeomProjectVec3d[0]; // X axis projection
+    }
+    else if ( view == vsp::VIEW_TYPE::VIEW_TOP || view == vsp::VIEW_TYPE::VIEW_BOTTOM )
+    {
+        PathVec = m_GeomProjectVec3d[2]; // Z axis projection
+    }
+
+    for ( int j = 0; j < PathVec.size(); j++ )
+    {
+        // Shift Projection Lines back near the orgin:
+        for ( unsigned int k = 0; k < PathVec[j].size(); k++ )
+        {
+            PathVec[j][k].offset_x( -offset.x() );
+            PathVec[j][k].offset_y( -offset.y() );
+            PathVec[j][k].offset_z( -offset.z() );
+        }
+    }
+
+    return PathVec;
+}
+
 void Geom::UpdateDrawObj()
 {
     m_FeatureDrawObj_vec.clear();
