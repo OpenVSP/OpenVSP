@@ -1525,6 +1525,154 @@ void Geom::WriteFeatureLinesDXF( FILE * file_name, const BndBox &dxfbox )
     }
 }
 
+void Geom::WriteProjectionLinesDXF( FILE * file_name, const BndBox &dxfbox )
+{
+    bool color = m_Vehicle->m_DXFColorFlag.Get();
+
+    // Bounding box diagonal, used to separate multi-view drawings
+    vec3d shiftvec = dxfbox.GetMax() - dxfbox.GetMin();
+
+    // Shift the vehicle bounding box to align with the +x, +y, +z axes at the orgin
+    vec3d to_orgin = GetVecToOrgin( dxfbox );
+
+    // Add layers:
+    string projectionlayer;
+
+    if ( m_Vehicle->m_DXFAppendIDFlag() )
+    {
+        projectionlayer = m_Name + string( "[" ) + m_ID + string( "]_Projection" );
+    }
+    else
+    {
+        projectionlayer = m_Name + string( "_Projection" );
+    }
+
+    if ( m_Vehicle->m_DXF2D3DFlag() == vsp::DIMENSION_SET::SET_3D )
+    {
+        return; // Projection lines not valid for 3D view
+    }
+    else if ( m_Vehicle->m_DXF2D3DFlag() == vsp::DIMENSION_SET::SET_2D )
+    {
+        if ( m_Vehicle->m_DXF2DView() == vsp::VIEW_NUM::VIEW_1 )
+        {
+            vector < vector < vec3d > > projectionvec = GetGeomProjectionLines( m_Vehicle->m_DXF4View1(), to_orgin );
+
+            if ( projectionvec.size() > 0 )
+            {
+                FeatureLinesManipulate( projectionvec, m_Vehicle->m_DXF4View1(), m_Vehicle->m_DXF4View1_rot(), shiftvec );
+                WriteDXFPolylines2D( file_name, projectionvec, projectionlayer, color, m_Vehicle->m_ColorCount );
+                m_Vehicle->m_ColorCount++;
+            }
+        }
+        else if ( m_Vehicle->m_DXF2DView() == vsp::VIEW_NUM::VIEW_2HOR )
+        {
+            vector < vector < vec3d > > projectionvec1 = GetGeomProjectionLines( m_Vehicle->m_DXF4View1(), to_orgin );
+
+            if ( projectionvec1.size() > 0 )
+            {
+                FeatureLinesManipulate( projectionvec1, m_Vehicle->m_DXF4View1(), m_Vehicle->m_DXF4View1_rot(), shiftvec );
+                FeatureLinesShift( projectionvec1, shiftvec, vsp::VIEW_SHIFT::LEFT, m_Vehicle->m_DXF4View1_rot(), NULL );
+                string projectionlayer_v1 = projectionlayer + "_v1";
+
+                WriteDXFPolylines2D( file_name, projectionvec1, projectionlayer_v1, color, m_Vehicle->m_ColorCount );
+                m_Vehicle->m_ColorCount++;
+            }
+
+            vector < vector < vec3d > > projectionvec2 = GetGeomProjectionLines( m_Vehicle->m_DXF4View2(), to_orgin );
+
+            if ( projectionvec2.size() > 0 )
+            {
+                FeatureLinesManipulate( projectionvec2, m_Vehicle->m_DXF4View2(), m_Vehicle->m_DXF4View2_rot(), shiftvec );
+                FeatureLinesShift( projectionvec2, shiftvec, vsp::VIEW_SHIFT::RIGHT, m_Vehicle->m_DXF4View2_rot(), NULL );
+                string projectionlayer_v2 = projectionlayer + "_v2";
+
+                WriteDXFPolylines2D( file_name, projectionvec2, projectionlayer_v2, color, m_Vehicle->m_ColorCount );
+                m_Vehicle->m_ColorCount++;
+            }
+        }
+        else if ( m_Vehicle->m_DXF2DView() == vsp::VIEW_NUM::VIEW_2VER )
+        {
+            vector < vector < vec3d > > projectionvec1 = GetGeomProjectionLines( m_Vehicle->m_DXF4View1(), to_orgin );
+
+            if ( projectionvec1.size() > 0 )
+            {
+                FeatureLinesManipulate( projectionvec1, m_Vehicle->m_DXF4View1(), m_Vehicle->m_DXF4View1_rot(), shiftvec );
+                FeatureLinesShift( projectionvec1, shiftvec, vsp::VIEW_SHIFT::UP, m_Vehicle->m_DXF4View1_rot(), NULL );
+                string projectionlayer_v1 = projectionlayer + "_v1";
+
+                WriteDXFPolylines2D( file_name, projectionvec1, projectionlayer_v1, color, m_Vehicle->m_ColorCount );
+                m_Vehicle->m_ColorCount++;
+            }
+
+            vector < vector < vec3d > > projectionvec3 = GetGeomProjectionLines( m_Vehicle->m_DXF4View3(), to_orgin );
+
+            if ( projectionvec3.size() > 0 )
+            {
+                FeatureLinesManipulate( projectionvec3, m_Vehicle->m_DXF4View3(), m_Vehicle->m_DXF4View3_rot(), shiftvec );
+                FeatureLinesShift( projectionvec3, shiftvec, vsp::VIEW_SHIFT::DOWN, m_Vehicle->m_DXF4View3_rot(), NULL );
+                string projectionlayer_v2 = projectionlayer + "_v2";
+
+                WriteDXFPolylines2D( file_name, projectionvec3, projectionlayer_v2, color, m_Vehicle->m_ColorCount );
+                m_Vehicle->m_ColorCount++;
+            }
+        }
+        else if ( m_Vehicle->m_DXF2DView() == vsp::VIEW_NUM::VIEW_4 )
+        {
+            vector < vector < vec3d > > projectionvec1 = GetGeomProjectionLines( m_Vehicle->m_DXF4View1(), to_orgin );
+
+            if ( projectionvec1.size() > 0 )
+            {
+                FeatureLinesManipulate( projectionvec1, m_Vehicle->m_DXF4View1(), m_Vehicle->m_DXF4View1_rot(), shiftvec );
+                FeatureLinesShift( projectionvec1, shiftvec, vsp::VIEW_SHIFT::UP, m_Vehicle->m_DXF4View1_rot(), m_Vehicle->m_DXF4View2_rot() );
+                FeatureLinesShift( projectionvec1, shiftvec, vsp::VIEW_SHIFT::LEFT, m_Vehicle->m_DXF4View1_rot(), m_Vehicle->m_DXF4View3_rot() );
+                string projectionlayer_v1 = projectionlayer + "_v1";
+
+                WriteDXFPolylines2D( file_name, projectionvec1, projectionlayer_v1, color, m_Vehicle->m_ColorCount );
+                m_Vehicle->m_ColorCount++;
+            }
+
+            vector < vector < vec3d > > projectionvec2 = GetGeomProjectionLines( m_Vehicle->m_DXF4View2(), to_orgin );
+
+            if ( projectionvec2.size() > 0 )
+            {
+                FeatureLinesManipulate( projectionvec2, m_Vehicle->m_DXF4View2(), m_Vehicle->m_DXF4View2_rot(), shiftvec );
+                FeatureLinesShift( projectionvec2, shiftvec, vsp::VIEW_SHIFT::UP, m_Vehicle->m_DXF4View2_rot(), m_Vehicle->m_DXF4View1_rot() );
+                FeatureLinesShift( projectionvec2, shiftvec, vsp::VIEW_SHIFT::RIGHT, m_Vehicle->m_DXF4View2_rot(), m_Vehicle->m_DXF4View4_rot() );
+                string projectionlayer_v2 = projectionlayer + "_v2";
+
+                WriteDXFPolylines2D( file_name, projectionvec2, projectionlayer_v2, color, m_Vehicle->m_ColorCount );
+                m_Vehicle->m_ColorCount++;
+            }
+
+            vector < vector < vec3d > > projectionvec3 = GetGeomProjectionLines( m_Vehicle->m_DXF4View3(), to_orgin );
+
+            if ( projectionvec3.size() > 0 )
+            {
+                FeatureLinesManipulate( projectionvec3, m_Vehicle->m_DXF4View3(), m_Vehicle->m_DXF4View3_rot(), shiftvec );
+                FeatureLinesShift( projectionvec3, shiftvec, vsp::VIEW_SHIFT::DOWN, m_Vehicle->m_DXF4View3_rot(), m_Vehicle->m_DXF4View4_rot() );
+                FeatureLinesShift( projectionvec3, shiftvec, vsp::VIEW_SHIFT::LEFT, m_Vehicle->m_DXF4View3_rot(), m_Vehicle->m_DXF4View1_rot() );
+                string projectionlayer_v3 = projectionlayer + "_v3";
+
+                WriteDXFPolylines2D( file_name, projectionvec3, projectionlayer_v3, color, m_Vehicle->m_ColorCount );
+                m_Vehicle->m_ColorCount++;
+            }
+
+            vector < vector < vec3d > > projectionvec4 = GetGeomProjectionLines( m_Vehicle->m_DXF4View4(), to_orgin );
+
+            if ( projectionvec4.size() > 0 )
+            {
+                FeatureLinesManipulate( projectionvec4, m_Vehicle->m_DXF4View4(), m_Vehicle->m_DXF4View4_rot(), shiftvec );
+                FeatureLinesShift( projectionvec4, shiftvec, vsp::VIEW_SHIFT::DOWN, m_Vehicle->m_DXF4View4_rot(), m_Vehicle->m_DXF4View3_rot() );
+                FeatureLinesShift( projectionvec4, shiftvec, vsp::VIEW_SHIFT::RIGHT, m_Vehicle->m_DXF4View4_rot(), m_Vehicle->m_DXF4View2_rot() );
+                string projectionlayer_v4 = projectionlayer + "_v4";
+
+                WriteDXFPolylines2D( file_name, projectionvec4, projectionlayer_v4, color, m_Vehicle->m_ColorCount );
+                m_Vehicle->m_ColorCount++;
+            }
+        }
+    }
+}
+
 vector< vector < vec3d > > Geom::GetGeomProjectionLines( int view, vec3d offset )
 {
     vector < vector < vec3d > > PathVec;
