@@ -348,19 +348,35 @@ void ConformalGeom::AdjustShape( VspSurf & surf, VspSurf &  ref_surf, double off
     vector< double > change_offset_l(num_ribs, 0.0);
     vector< rib_data_type > orig_rib_vec = rib_vec;
 
+    bool reskin_flag = false;
     //==== Save Orig Offset and Adjust Rib Fp Scales ====//
     for ( int i = 0 ; i < num_ribs-1 ; i++ )
     {
         orig_offset_r[i] = ComputeAvgOffset( surf, ref_surf, double(i) + u_r );
         orig_offset_l[i] = ComputeAvgOffset( surf, ref_surf, double(i) + u_l );
 
-        piecewise_curve_type fp_r = rib_vec[i].get_right_fp();
-        fp_r.scale( 1.0 + del_scale );
-        rib_vec[i].set_right_fp( fp_r );
+        if ( rib_vec[i].use_right_fp() )
+        {
+            piecewise_curve_type fp_r = rib_vec[i].get_right_fp();
+            fp_r.scale(1.0 + del_scale);
+            rib_vec[i].set_right_fp(fp_r);
+            reskin_flag = true;
+        }
 
-        piecewise_curve_type fp_l = rib_vec[i+1].get_left_fp();
-        fp_l.scale( 1.0 + del_scale );
-        rib_vec[i+1].set_left_fp( fp_l );
+        if ( rib_vec[i+1].use_left_fp() )
+        {
+            piecewise_curve_type fp_l = rib_vec[i + 1].get_left_fp();
+            fp_l.scale(1.0 + del_scale);
+            rib_vec[i + 1].set_left_fp(fp_l);
+            reskin_flag = true;
+        }
+    }
+
+    // This object never uses right_fp or left_fp for skinning.  AdjustShape will
+    // not do anything, so bail now.
+    if ( !reskin_flag )
+    {
+        return;
     }
 
     //==== Reskin All - Changes Will Effect Other Ribs =====//
@@ -369,18 +385,21 @@ void ConformalGeom::AdjustShape( VspSurf & surf, VspSurf &  ref_surf, double off
     //==== Compute Changed Offset And Del Fp Scale RIGHT ====//
     for ( int i = 0 ; i < num_ribs-1 ; i++ )
     {
-        change_offset_r[i] = ComputeAvgOffset( surf, ref_surf, double(i) + u_r );
-        double del_offset =  orig_offset_r[i] - change_offset_r[i];
-        if ( fabs(del_offset) > DBL_EPSILON )
+        change_offset_r[i] = ComputeAvgOffset(surf, ref_surf, double(i) + u_r);
+        if (rib_vec[i].use_right_fp())
         {
-            double target_del_offset = orig_offset_r[i] - offset;
-            double target_del_scale  = del_scale*(target_del_offset/del_offset);
-            double target_scale = 1.0 + target_del_scale * fraction_target_scale;
-            if ( target_scale > 0.5 && target_scale < 2.0 )
+            double del_offset = orig_offset_r[i] - change_offset_r[i];
+            if (fabs(del_offset) > DBL_EPSILON)
             {
-                piecewise_curve_type fp_r = orig_rib_vec[i].get_right_fp();
-                fp_r.scale( target_scale );
-                rib_vec[i].set_right_fp( fp_r );
+                double target_del_offset = orig_offset_r[i] - offset;
+                double target_del_scale = del_scale * (target_del_offset / del_offset);
+                double target_scale = 1.0 + target_del_scale * fraction_target_scale;
+                if (target_scale > 0.5 && target_scale < 2.0)
+                {
+                    piecewise_curve_type fp_r = orig_rib_vec[i].get_right_fp();
+                    fp_r.scale(target_scale);
+                    rib_vec[i].set_right_fp(fp_r);
+                }
             }
         }
     }
@@ -389,17 +408,20 @@ void ConformalGeom::AdjustShape( VspSurf & surf, VspSurf &  ref_surf, double off
     for ( int i = 0 ; i < num_ribs-1 ; i++ )
     {
         change_offset_l[i] = ComputeAvgOffset( surf, ref_surf, double(i) + u_l );
-        double del_offset =  orig_offset_l[i] - change_offset_l[i];
-        if ( fabs(del_offset) > DBL_EPSILON )
+        if ( rib_vec[i+1].use_left_fp() )
         {
-            double target_del_offset = orig_offset_l[i] - offset;
-            double target_del_scale  = del_scale*(target_del_offset/del_offset);
-            double target_scale = 1.0 + target_del_scale * fraction_target_scale;
-            if ( target_scale > 0.5 && target_scale < 2.0 )
+            double del_offset = orig_offset_l[i] - change_offset_l[i];
+            if (fabs(del_offset) > DBL_EPSILON)
             {
-                piecewise_curve_type fp_l = orig_rib_vec[i+1].get_left_fp();
-                fp_l.scale( target_scale );
-                rib_vec[i+1].set_left_fp( fp_l );
+                double target_del_offset = orig_offset_l[i] - offset;
+                double target_del_scale = del_scale * (target_del_offset / del_offset);
+                double target_scale = 1.0 + target_del_scale * fraction_target_scale;
+                if (target_scale > 0.5 && target_scale < 2.0)
+                {
+                    piecewise_curve_type fp_l = orig_rib_vec[i + 1].get_left_fp();
+                    fp_l.scale(target_scale);
+                    rib_vec[i + 1].set_left_fp(fp_l);
+                }
             }
         }
     }
@@ -407,7 +429,7 @@ void ConformalGeom::AdjustShape( VspSurf & surf, VspSurf &  ref_surf, double off
     ReSkin( surf, rib_vec );
 
     //==== Check For Error Increase ===//
-    bool reskin_flag = false;
+    reskin_flag = false;
     for ( int i = 0 ; i < num_ribs-1 ; i++ )
     {
         double off_r = ComputeAvgOffset( surf, ref_surf, double(i) + u_r );
@@ -417,13 +439,13 @@ void ConformalGeom::AdjustShape( VspSurf & surf, VspSurf &  ref_surf, double off
         double orig_err_r = fabs( orig_offset_r[i] - offset );
         double orig_err_l = fabs( orig_offset_l[i] - offset );
 
-        if ( err_r > orig_err_r  )
+        if ( err_r > orig_err_r && rib_vec[i].use_right_fp() )
         {
             piecewise_curve_type fp_r = orig_rib_vec[i].get_right_fp();
             rib_vec[i].set_right_fp( fp_r );
             reskin_flag = true;
         }
-        if ( err_l > orig_err_l  )
+        if ( err_l > orig_err_l && rib_vec[i+1].use_left_fp() )
         {
             piecewise_curve_type fp_l = orig_rib_vec[i+1].get_left_fp();
             rib_vec[i+1].set_left_fp( fp_l );
