@@ -199,6 +199,8 @@ public:
     void WriteIGESFile( const string & file_name, int write_set );
     void WriteBEMFile( const string & file_name, int write_set );
     void WriteDXFFile( const string & file_name, int write_set );
+
+    void WriteVehProjectionLinesDXF( FILE * file_name, const BndBox &dxfbox );
     vector< vector < vec3d > > Vehicle::GetVehProjectionLines( int view, vec3d offset );
 
     virtual void SetVehProjectVec3d( vector < vector < vec3d > > polyvec, int dir_index )
