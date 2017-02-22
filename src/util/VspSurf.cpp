@@ -1233,7 +1233,7 @@ void VspSurf::TessAdaptLine( double umin, double umax, double wmin, double wmax,
     }
 }
 
-void VspSurf::BuildFeatureLines()
+void VspSurf::BuildFeatureLines( bool force_xsec_flag)
 {
     if ( m_Surface.number_u_patches() > 0 && m_Surface.number_v_patches() > 0 )
     {
@@ -1248,7 +1248,7 @@ void VspSurf::BuildFeatureLines()
         m_UFeature.push_back( umin );
         m_UFeature.push_back( umax );
 
-        if ( GetSurfType() == vsp::WING_SURF )
+        if ( GetSurfType() == vsp::WING_SURF || force_xsec_flag )
         {
             // Force all patch boundaries in u direction.
             for ( double u = umin; u <= umax; u++ )

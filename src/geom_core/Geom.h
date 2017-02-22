@@ -508,6 +508,15 @@ public:
         m_GeomProjectVec3d.resize( 3 );
     }
 
+    virtual void SetForceXSecFlag( bool flag )
+    {
+        m_ForceXSecFlag = flag;
+    }
+    virtual bool GetForceXSecFlag( )
+    {
+        return m_ForceXSecFlag;
+    }
+
 //  //==== Structures ====//
 //  void SetCurrPartID( int pid )           { currPartID = pid; }
 //  int  GetCurrPartID()                    { return currPartID; }
@@ -618,6 +627,7 @@ protected:
     vector<SubSurface*> m_SubSurfVec;
 
     vector < vector < vector < vec3d > > > m_GeomProjectVec3d; // Vector of projection lines for each view direction (x, y, or z)
+    bool m_ForceXSecFlag; // Flag to force feature lines at xsecs
 
 //  //==== Structure Parts ====//
 //  int currPartID;

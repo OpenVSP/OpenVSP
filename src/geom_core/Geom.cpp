@@ -831,6 +831,7 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     currSourceID = 0;
 
     m_GeomProjectVec3d.resize( 3 );
+    m_ForceXSecFlag = false;
 }
 //==== Destructor ====//
 Geom::~Geom()
@@ -1148,11 +1149,11 @@ void Geom::UpdateEndCaps()
     }
 }
 
-void Geom::UpdateFeatureLines()
+void Geom::UpdateFeatureLines( )
 {
     for ( int i = 0; i < m_MainSurfVec.size(); i++ )
     {
-        m_MainSurfVec[i].BuildFeatureLines();
+        m_MainSurfVec[i].BuildFeatureLines( m_ForceXSecFlag );
     }
 }
 
