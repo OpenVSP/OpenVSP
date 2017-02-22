@@ -33,6 +33,7 @@
 #include "VSPAEROMgr.h"
 #include "main.h"
 
+#include "ProjectionMgr.h"
 using namespace vsp;
 
 //==== Constructor ====//
@@ -96,6 +97,7 @@ Vehicle::Vehicle()
     m_GroupTransformations.Init( this );
 
     SetupPaths();
+    m_VehProjectVec3d.resize( 3 );
 }
 
 //==== Destructor ====//

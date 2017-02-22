@@ -199,6 +199,16 @@ public:
     void WriteIGESFile( const string & file_name, int write_set );
     void WriteBEMFile( const string & file_name, int write_set );
     void WriteDXFFile( const string & file_name, int write_set );
+    vector< vector < vec3d > > Vehicle::GetVehProjectionLines( int view, vec3d offset );
+
+    virtual void SetVehProjectVec3d( vector < vector < vec3d > > polyvec, int dir_index )
+    {
+        m_VehProjectVec3d[dir_index] = polyvec;
+    }
+    virtual vector < vector < vec3d > >  GetVehProjectVec3d( int dir_index )
+    {
+        return m_VehProjectVec3d[dir_index];
+    }
 
     void FetchXFerSurfs( int write_set, vector< XferSurf > &xfersurfs );
     //==== Computation File Names ====//
@@ -325,6 +335,7 @@ protected:
     vector< DegenGeom > m_DegenGeomVec;         // Vector of components in degenerate representation
     vector< DegenPtMass > m_DegenPtMassVec;
 
+    vector < vector < vector < vec3d > > > m_VehProjectVec3d; // Vector of projection lines for each view direction (x, y, or z)
 
     vector< string > m_ActiveGeom;              // Currently Active Geoms
     vector< string > m_TopGeom;                 // Top (no Parent) Geom IDs
