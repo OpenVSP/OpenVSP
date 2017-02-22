@@ -2764,6 +2764,218 @@ void Vehicle::WriteDXFFile( const string & file_name, int write_set )
     }
 }
 
+void Vehicle::WriteSVGFile( const string & file_name, int write_set )
+{
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+
+    if ( geom_vec.size() == 0 )
+    {
+        return;
+    }
+
+    xmlDocPtr doc = xmlNewDoc( ( const xmlChar * )"1.0" );
+
+    xmlNodePtr root = xmlNewNode( NULL, ( const xmlChar * )"svg" );
+    doc->standalone=0;
+    
+    xmlDocSetRootElement( doc, root );
+
+    // Tesselation adjustment
+    double tessfactor = m_SVGTessFactor.Get();
+
+    BndBox svgbox;
+
+    // Clear Vehicle Projection Line Vec
+    m_VehProjectVec3d.clear();
+    m_VehProjectVec3d.resize( 3 );
+
+    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        if ( geom_vec[i]->GetSetFlag( write_set ) )
+        {
+            // Get Vehicle Bounding Box
+            svgbox.Update( geom_vec[i]->GetBndBox() );
+
+            // Clear Geom Projection Vec
+            geom_vec[i]->ClearGeomProjectVec3d();
+
+            if ( ( m_SVGGeomProjectionFlag() && tessfactor != 1.0 ) || ( m_SVGTotalProjectionFlag() && tessfactor != 1.0 ) )
+            {
+                // Increase tellelation:
+                geom_vec[i]->m_TessW.Set( geom_vec[i]->m_TessW() * tessfactor );
+
+                int num_xsec_surf = geom_vec[i]->GetNumXSecSurfs();
+
+                if ( num_xsec_surf > 0 ) // Increase U tesselation by section for segmented geoms
+                {
+                    for ( unsigned int j = 0; j < num_xsec_surf; j++ )
+                    {
+                        XSecSurf* xsecsurf = geom_vec[i]->GetXSecSurf( j );
+
+                        if ( xsecsurf )
+                        {
+                            int num_xsec = xsecsurf->NumXSec();
+
+                            for ( unsigned int k = 0; k < num_xsec; k++ )
+                            {
+                                XSec* curr_xsec = xsecsurf->FindXSec( k );
+
+                                if ( curr_xsec )
+                                {
+                                    curr_xsec->m_SectTessU.Set( curr_xsec->m_SectTessU() * tessfactor );
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    geom_vec[i]->m_TessU.Set( geom_vec[i]->m_TessU() * tessfactor );
+                }
+            }
+
+            if ( m_SVGAllXSecFlag() )
+            {
+                // Force XSec Feature Line Visibility:
+                geom_vec[i]->SetForceXSecFlag( true );
+            }
+
+            if ( ( m_SVGGeomProjectionFlag() && tessfactor != 1.0 ) || ( m_SVGTotalProjectionFlag() && tessfactor != 1.0 ) || m_SVGAllXSecFlag() )
+            {
+                // Update Geom:
+                geom_vec[i]->Update( true );
+            }
+        }
+    }
+
+    // Write SVG Header:
+    WriteSVGHeader( root, svgbox );
+
+    if ( m_SVGGeomProjectionFlag() || m_SVGTotalProjectionFlag() )
+    {
+        // Generate Mesh for Projections:
+        vector < TMesh* > TotalProjectMeshVec;
+
+        for ( int i = 0; i < (int)geom_vec.size(); i++ )
+        {
+            if ( geom_vec[i]->GetSetFlag( write_set ) )
+            {
+                vector< TMesh* > tMeshVec = geom_vec[i]->CreateTMeshVec();
+                for ( int j = 0; j < (int)tMeshVec.size(); j++ )
+                {
+                    TotalProjectMeshVec.push_back( tMeshVec[j] );
+                }
+            }
+        }
+
+        // Generate Geom and Vehicle Projection Line Vectors:
+        ProjectionMgr.ExportProjectLines( TotalProjectMeshVec );
+
+        // Delete TMesh Pointers 
+        for ( unsigned int i = 0; i < TotalProjectMeshVec.size(); i++ )
+        {
+            delete TotalProjectMeshVec[i];
+        }
+        TotalProjectMeshVec.clear();
+    }
+
+    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        if ( geom_vec[i]->GetSetFlag( write_set ) )
+        {
+            if ( m_DXFGeomProjectionFlag() )
+            {
+                // Write Geom Projection Lines
+                geom_vec[i]->WriteProjectionLinesSVG( root, svgbox );
+            }
+
+            // Write Feature Lines
+            geom_vec[i]->WriteFeatureLinesSVG( root, svgbox );
+        }
+    }
+
+    if ( m_SVGTotalProjectionFlag() )
+    {
+        // Write Vehicle Projection Lines
+        WriteVehProjectionLinesSVG( root, svgbox );
+    }
+
+    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        if ( geom_vec[i]->GetSetFlag( write_set ) )
+        {
+            // Clear Geom Projection Line Vec
+            geom_vec[i]->ClearGeomProjectVec3d();
+
+            if ( ( m_SVGGeomProjectionFlag() && tessfactor != 1.0 ) || ( m_SVGTotalProjectionFlag() && tessfactor != 1.0 ) )
+            {
+                // Restore tellelation and update:
+                geom_vec[i]->m_TessW.Set( geom_vec[i]->m_TessW.GetLastVal() );
+
+                int num_xsec_surf = geom_vec[i]->GetNumXSecSurfs();
+
+                if ( num_xsec_surf > 0 ) // Restore U tesselation by section for segmented geoms
+                {
+                    for ( unsigned int j = 0; j < num_xsec_surf; j++ )
+                    {
+                        XSecSurf* xsecsurf = geom_vec[i]->GetXSecSurf( j );
+
+                        if ( xsecsurf )
+                        {
+                            int num_xsec = xsecsurf->NumXSec();
+
+                            for ( unsigned int k = 0; k < num_xsec; k++ )
+                            {
+                                XSec* curr_xsec = xsecsurf->FindXSec( k );
+
+                                if ( curr_xsec )
+                                {
+                                    curr_xsec->m_SectTessU.Set( curr_xsec->m_SectTessU.GetLastVal() );
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    geom_vec[i]->m_TessU.Set( geom_vec[i]->m_TessU.GetLastVal() );
+                }
+            }
+
+            if ( m_SVGAllXSecFlag() )
+            {
+                // Restore Feature Line Visibility:
+                geom_vec[i]->SetForceXSecFlag( false );
+            }
+
+            if ( ( m_SVGGeomProjectionFlag() && tessfactor != 1.0 ) || ( m_SVGTotalProjectionFlag() && tessfactor != 1.0 ) || m_SVGAllXSecFlag() )
+            {
+                // Update Geom:
+                geom_vec[i]->Update( true );
+            }
+        }
+    }
+
+    // Add Scale Bar:
+    if ( m_ScaleFlag.Get() != vsp::NOSCALE )
+    {
+        WriteSVGScaleBar( root, m_SVGView.Get(), svgbox, m_SVGLenUnit.Get(), m_Scale.Get() );
+    }
+
+    //===== Save XML Tree and Free Doc =====//
+    int err = xmlSaveFormatFile( file_name.c_str(), doc, 1 );
+    xmlFreeDoc( doc );
+
+    // Clear Vehicle Projection Line Vec:
+    m_VehProjectVec3d.clear();
+
+    if( err == -1 )  // Failure occurred
+    {
+        string export_error = "Error: File export failed\nFile: " + file_name + "\n";
+        fprintf( stderr, export_error.c_str() );
+    }
+}
+
 void Vehicle::WriteVehProjectionLinesDXF( FILE * file_name, const BndBox &dxfbox )
 {
     bool color = m_DXFColorFlag.Get();
