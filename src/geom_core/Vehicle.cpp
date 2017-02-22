@@ -2726,6 +2726,37 @@ void Vehicle::WriteDXFFile( const string & file_name, int write_set )
     }
 }
 
+vector< vector < vec3d > > Vehicle::GetVehProjectionLines( int view, vec3d offset )
+{
+    vector < vector < vec3d > > PathVec;
+
+    if ( view == vsp::VIEW_TYPE::VIEW_LEFT || view == vsp::VIEW_TYPE::VIEW_RIGHT )
+    {
+        PathVec = m_VehProjectVec3d[1];
+    }
+    else if ( view == vsp::VIEW_TYPE::VIEW_FRONT || view == vsp::VIEW_TYPE::VIEW_REAR )
+    {
+        PathVec = m_VehProjectVec3d[0];
+    }
+    else if ( view == vsp::VIEW_TYPE::VIEW_TOP || view == vsp::VIEW_TYPE::VIEW_BOTTOM )
+    {
+        PathVec = m_VehProjectVec3d[2];
+    }
+
+    for ( int j = 0; j < PathVec.size(); j++ )
+    {
+        // Shift Projection Lines back near the orgin:
+        for ( unsigned int k = 0; k < PathVec[j].size(); k++ )
+        {
+            PathVec[j][k].offset_x( -offset.x() );
+            PathVec[j][k].offset_y( -offset.y() );
+            PathVec[j][k].offset_z( -offset.z() );
+        }
+    }
+
+    return PathVec;
+}
+
 void Vehicle::AddLinkableContainers( vector< string > & linkable_container_vec )
 {
     ParmContainer::AddLinkableContainers( linkable_container_vec );
