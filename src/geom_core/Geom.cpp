@@ -9,6 +9,7 @@
 #include "Vehicle.h"
 #include "StlHelper.h"
 #include "DXFUtil.h"
+#include "SVGUtil.h"
 #include "StringUtil.h"
 #include "ParmMgr.h"
 #include "SubSurfaceMgr.h"
@@ -1702,6 +1703,116 @@ vector< vector < vec3d > > Geom::GetGeomProjectionLines( int view, vec3d offset 
     }
 
     return PathVec;
+}
+
+void Geom::WriteFeatureLinesSVG( xmlNodePtr root, const BndBox &svgbox )
+{
+    double tol = 10e-2; // Feature line tesselation tolerance
+    
+    // Bounding box diagonal, used to separate multi-view drawings
+    vec3d shiftvec = svgbox.GetMax() - svgbox.GetMin();
+
+    // Shift the vehicle bounding box to align with the +x, +y, +z axes at the orgin
+    vec3d to_orgin = GetVecToOrgin( svgbox );
+
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    {
+        vector < vector < vec3d > > allflines, allflines1, allflines2, allflines3, allflines4;
+
+        if( m_GuiDraw.GetDispFeatureFlag() )
+        {
+            int nu = m_SurfVec[i].GetNumUFeature();
+            int nw = m_SurfVec[i].GetNumWFeature();
+            allflines.resize( nw + nu );
+            for( int j = 0; j < nw; j++ )
+            {
+                m_SurfVec[i].TessWFeatureLine( j, allflines[ j ], tol );
+
+                // To Do: multiple view ports instead of shifting feature lines in a single view port
+
+                // Shift Feature Lines back near the orgin:
+                for ( unsigned int k = 0; k < allflines[j].size(); k++ )
+                {
+                    allflines[j][k].offset_x( -to_orgin.x() );
+                    allflines[j][k].offset_y( -to_orgin.y() );
+                    allflines[j][k].offset_z( -to_orgin.z() );
+                }
+            }
+            for( int j = 0; j < nu; j++ )
+            {
+                m_SurfVec[i].TessUFeatureLine( j, allflines[ j + nw ], tol );
+
+                // Shift Feature Lines back near the orgin :
+                for ( unsigned int k = 0; k < allflines[j + nw].size(); k++ )
+                {
+                    allflines[j + nw][k].offset_x( -to_orgin.x() );
+                    allflines[j + nw][k].offset_y( -to_orgin.y() );
+                    allflines[j + nw][k].offset_z( -to_orgin.z() );
+                }
+            }
+        }
+
+        if ( m_Vehicle->m_SVGView() == vsp::VIEW_NUM::VIEW_1 )
+        {
+            allflines1 = allflines;
+            FeatureLinesManipulate( allflines1, m_Vehicle->m_SVGView1(), m_Vehicle->m_SVGView1_rot(), shiftvec );
+            WriteSVGPolylines2D( root, allflines1, svgbox );
+        }
+        else if ( m_Vehicle->m_SVGView() == vsp::VIEW_NUM::VIEW_2HOR )
+        {
+            allflines1 = allflines;
+            FeatureLinesManipulate( allflines1, m_Vehicle->m_SVGView1(), m_Vehicle->m_SVGView1_rot(), shiftvec );
+            FeatureLinesShift( allflines1, shiftvec, vsp::VIEW_SHIFT::LEFT, m_Vehicle->m_SVGView1_rot(), NULL );
+
+            allflines2 = allflines;
+            FeatureLinesManipulate( allflines2, m_Vehicle->m_SVGView2(), m_Vehicle->m_SVGView2_rot(), shiftvec );
+            FeatureLinesShift( allflines2, shiftvec, vsp::VIEW_SHIFT::RIGHT, m_Vehicle->m_SVGView2_rot(), NULL );
+
+            WriteSVGPolylines2D( root, allflines1, svgbox );
+            WriteSVGPolylines2D( root, allflines2, svgbox );
+        }
+        else if ( m_Vehicle->m_SVGView() == vsp::VIEW_NUM::VIEW_2VER )
+        {
+            allflines1 = allflines;
+            FeatureLinesManipulate( allflines1, m_Vehicle->m_SVGView1(), m_Vehicle->m_SVGView1_rot(), shiftvec );
+            FeatureLinesShift( allflines1, shiftvec, vsp::VIEW_SHIFT::UP, m_Vehicle->m_SVGView1_rot(), NULL );
+
+            allflines3 = allflines;
+            FeatureLinesManipulate( allflines3, m_Vehicle->m_SVGView3(), m_Vehicle->m_SVGView3_rot(), shiftvec );
+            FeatureLinesShift( allflines3, shiftvec, vsp::VIEW_SHIFT::DOWN, m_Vehicle->m_SVGView3_rot(), NULL );
+
+            WriteSVGPolylines2D( root, allflines1, svgbox );
+            WriteSVGPolylines2D( root, allflines3, svgbox );
+        }
+        else if ( m_Vehicle->m_SVGView() == vsp::VIEW_NUM::VIEW_4 )
+        {
+            allflines1 = allflines;
+
+            FeatureLinesManipulate( allflines1, m_Vehicle->m_SVGView1(), m_Vehicle->m_SVGView1_rot(), shiftvec );
+            FeatureLinesShift( allflines1, shiftvec, vsp::VIEW_SHIFT::UP, m_Vehicle->m_SVGView1_rot(), m_Vehicle->m_SVGView2_rot() );
+            FeatureLinesShift( allflines1, shiftvec, vsp::VIEW_SHIFT::LEFT, m_Vehicle->m_SVGView1_rot(), m_Vehicle->m_SVGView3_rot() );
+
+            allflines2 = allflines;
+            FeatureLinesManipulate( allflines2, m_Vehicle->m_SVGView2(), m_Vehicle->m_SVGView2_rot(), shiftvec );
+            FeatureLinesShift( allflines2, shiftvec, vsp::VIEW_SHIFT::UP, m_Vehicle->m_SVGView2_rot(), m_Vehicle->m_SVGView1_rot() );
+            FeatureLinesShift( allflines2, shiftvec, vsp::VIEW_SHIFT::RIGHT, m_Vehicle->m_SVGView2_rot(), m_Vehicle->m_SVGView4_rot() );
+
+            allflines3 = allflines;
+            FeatureLinesManipulate( allflines3, m_Vehicle->m_SVGView3(), m_Vehicle->m_SVGView3_rot(), shiftvec );
+            FeatureLinesShift( allflines3, shiftvec, vsp::VIEW_SHIFT::DOWN, m_Vehicle->m_SVGView3_rot(), m_Vehicle->m_SVGView4_rot() );
+            FeatureLinesShift( allflines3, shiftvec, vsp::VIEW_SHIFT::LEFT, m_Vehicle->m_SVGView3_rot(), m_Vehicle->m_SVGView1_rot() );
+
+            allflines4 = allflines;
+            FeatureLinesManipulate( allflines4, m_Vehicle->m_SVGView4(), m_Vehicle->m_SVGView4_rot(), shiftvec );
+            FeatureLinesShift( allflines4, shiftvec, vsp::VIEW_SHIFT::DOWN, m_Vehicle->m_SVGView4_rot(), m_Vehicle->m_SVGView3_rot() );
+            FeatureLinesShift( allflines4, shiftvec, vsp::VIEW_SHIFT::RIGHT, m_Vehicle->m_SVGView4_rot(), m_Vehicle->m_SVGView2_rot() );
+
+            WriteSVGPolylines2D( root, allflines1, svgbox );
+            WriteSVGPolylines2D( root, allflines2, svgbox );
+            WriteSVGPolylines2D( root, allflines3, svgbox );
+            WriteSVGPolylines2D( root, allflines4, svgbox );
+        }
+    }
 }
 
 void Geom::UpdateDrawObj()

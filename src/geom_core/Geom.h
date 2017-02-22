@@ -590,6 +590,7 @@ public:
     void WriteFeatureLinesDXF( FILE * file_name, const BndBox &dxfbox );
     void WriteProjectionLinesDXF( FILE * file_name, const BndBox &dxfbox );
     vector < vector< vec3d > > GetGeomProjectionLines( int view, vec3d offset );
+    void WriteFeatureLinesSVG( xmlNodePtr root, const BndBox &dxfbox );
 
     virtual void OffsetXSecs( double off )          {}
 
