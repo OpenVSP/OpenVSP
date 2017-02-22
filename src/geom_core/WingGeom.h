@@ -197,6 +197,7 @@ public:
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
     virtual void ReadV2File( xmlNodePtr &root );
+    virtual void OffsetXSecs( double off );
 
     //==== Planform Parms ====//
     Parm m_TotalSpan;

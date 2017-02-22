@@ -2680,3 +2680,44 @@ void WingGeom::ReadV2File( xmlNodePtr &root )
         }
     }
 }
+
+void WingGeom::OffsetXSecs( double off )
+{
+
+    vector< WingSect* > ws_vec = GetWingSectVec();
+
+    //==== Make Sure Span, RC, TC Driver ====//
+    vector<int> span_rc_tc;
+    span_rc_tc.push_back( vsp::SPAN_WSECT_DRIVER );
+    span_rc_tc.push_back( vsp::ROOTC_WSECT_DRIVER );
+    span_rc_tc.push_back( vsp::TIPC_WSECT_DRIVER );
+
+    vector< double > ref_chord_vec;
+    for ( int i = 0 ; i < (int)ws_vec.size() ; i++ )
+    {
+        WingSect* ws = ws_vec[i];
+        if ( ws )
+        {
+            ws->m_DriverGroup.SetChoices( span_rc_tc );
+        }
+    }
+
+    //==== Load Up New Tc Vals ====//
+    vector< double > new_tc_vals;
+    for ( int i = 0 ; i < (int)ws_vec.size() ; i++ )
+    {
+        new_tc_vals.push_back( ws_vec[i]->m_TipChord() - 2.0*off );
+    }
+
+    //==== Change Chord Vals ====//
+    for ( int i = 0 ; i < (int)ws_vec.size() ; i++ )
+    {
+        if ( i > 0 )
+            ws_vec[i]->m_RootChord = new_tc_vals[i-1];
+
+        ws_vec[i]->m_TipChord = new_tc_vals[i];
+    }
+
+    GeomXSec::OffsetXSecs( off );
+
+}
