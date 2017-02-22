@@ -185,6 +185,15 @@ public:
 
     piecewise_surface_type* GetBezierSurface()           { return &m_Surface; }
 
+    enum { SKIN_NONE, SKIN_BODY_REV, SKIN_RIBS };
+
+    int  GetSkinType()                                      { return m_SkinType; }
+    void GetBodyRevCurve( VspCurve & crv )                  { crv = m_BodyRevCurve; }
+    int  GetSkinClosedFlag()                                { return m_SkinClosedFlag; }
+    void GetSkinRibVec( vector< rib_data_type > & ribvec )  { ribvec = m_SkinRibVec; }
+    void GetSkinDegreeVec( vector< int > & degvec )         { degvec = m_SkinDegreeVec; }
+    void GetSkinParmVec( vector< double > & parmvec )       { parmvec = m_SkinParmVec; }
+
     int GetNumSectU() const;
     int GetNumSectW() const;
 
@@ -214,6 +223,15 @@ protected:
 
     vector < double > m_RootCluster;
     vector < double > m_TipCluster;
+
+
+    //==== Store Skinning Inputs =====//
+    int m_SkinType;
+    VspCurve m_BodyRevCurve;
+    vector< rib_data_type > m_SkinRibVec;
+    vector< int > m_SkinDegreeVec;
+    vector< double > m_SkinParmVec;
+    int m_SkinClosedFlag;
 
 };
 #endif

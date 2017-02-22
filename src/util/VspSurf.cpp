@@ -40,6 +40,7 @@ VspSurf::VspSurf()
     m_MagicVParm = false;
     m_SurfType = vsp::NORMAL_SURF;
     m_SurfCfdType = vsp::CFD_NORMAL;
+    m_SkinType = SKIN_NONE;
 
     SetClustering( 1.0, 1.0 );
 }
@@ -304,6 +305,10 @@ void VspSurf::CreateBodyRevolution( const VspCurve &input_crv )
 
     ResetFlipNormal();
     ResetUWSkip();
+
+    //==== Store Skining Data ====//
+    m_SkinType = SKIN_BODY_REV;
+    m_BodyRevCurve = input_crv;
 }
 
 void VspSurf::SkinRibs( const vector<rib_data_type> &ribs, const vector < int > &degree, const vector < double > & param, bool closed_flag )
@@ -347,6 +352,14 @@ void VspSurf::SkinRibs( const vector<rib_data_type> &ribs, const vector < int > 
 
     ResetFlipNormal();
     ResetUWSkip();
+
+    //==== Store Skining Data ====//
+    m_SkinType = SKIN_RIBS;
+    m_SkinRibVec = ribs;
+    m_SkinDegreeVec = degree;
+    m_SkinParmVec = param;
+    m_SkinClosedFlag = closed_flag;
+
 }
 
 void VspSurf::SkinRibs( const vector<rib_data_type> &ribs, const vector < double > & param, bool closed_flag )
