@@ -116,6 +116,7 @@ public:
     void RemoveGeomVecFromHierarchy( const vector<string> & cut_vec );
     void DeleteClipBoard();
     void PasteClipboard();
+    vector< string > CopyGeomVec( const vector<string> & geom_vec );
 
     vector< DrawObj* > GetDrawObjs();
 
@@ -334,7 +335,8 @@ protected:
     bool m_UpdatingBBox;
     BndBox m_BBox;                              // Bounding Box Around All Geometries
 
-    vector< string > CopyGeomVec( const vector<string> & geom_vec );
+    void InsertIntoActiveDeque( const string & add_id, const string & parent_id );  // Insert Geom After Parent
+
     void SetApplyAbsIgnoreFlag( const vector< string > &g_vec, bool val );
 
     //==== Primary file name ====//
