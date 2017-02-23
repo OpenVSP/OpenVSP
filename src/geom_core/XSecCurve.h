@@ -132,6 +132,8 @@ protected:
     bool m_UseFakeWidth;
     double m_FakeWidth;
 
+    double m_yscale;
+
     int m_Type;
 
     string m_GroupName;

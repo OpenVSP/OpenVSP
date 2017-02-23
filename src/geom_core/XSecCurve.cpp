@@ -108,6 +108,8 @@ XSecCurve::XSecCurve()
 
     m_FakeWidth = 1.0;
     m_UseFakeWidth = false;
+
+    m_yscale = 1.0;
 }
 
 void XSecCurve::SetGroupDisplaySuffix( int num )
@@ -263,6 +265,11 @@ void XSecCurve::Update()
     }
 
     RotTransScale();
+
+    if ( m_yscale != 1.0 )
+    {
+        m_Curve.ScaleY( m_yscale );
+    }
 
     m_LateUpdateFlag = false;
 }

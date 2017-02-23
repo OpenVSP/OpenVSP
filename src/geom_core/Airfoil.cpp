@@ -23,6 +23,8 @@ Airfoil::Airfoil( ) : XSecCurve( )
     m_Chord.Init( "Chord", m_GroupName, this, 1.0, 0.0, 1.0e12 );
     m_ThickChord.Init( "ThickChord", m_GroupName, this, 0.1, 0.0, 1.0 );
     m_FitDegree.Init( "FitDegree", m_GroupName, this, 7, 1, MAX_CST_DEG );
+
+    m_yscale = 1.0;
 }
 
 //==== Update ====//
@@ -662,6 +664,24 @@ xmlNodePtr FileAirfoil::DecodeXml( xmlNodePtr & node )
 //{
 //
 //}
+
+void FileAirfoil::OffsetCurve( double offset_val )
+{
+    double t = EstimateThick();
+    double c = m_Chord();
+
+    double offset_c = c - 2.0*offset_val;
+    m_Chord = offset_c;
+
+    double offset_t = t - 2.0 * offset_val;
+
+    if ( offset_t < 0 )
+    {
+        offset_t = 0;
+    }
+
+    m_yscale = ( offset_t / offset_c ) / ( t / c );
+}
 
 //==== Read Airfoil File ====//
 bool FileAirfoil::ReadFile( string file_name )
@@ -1468,4 +1488,22 @@ void CSTAirfoil::CheckLERad()
             m_LowCoeffParmVec[0]->Set( -m_UpCoeffParmVec[0]->Get() );
         }
     }
+}
+
+void CSTAirfoil::OffsetCurve( double offset_val )
+{
+    double t = EstimateThick();
+    double c = m_Chord();
+
+    double offset_c = c - 2.0*offset_val;
+    m_Chord = offset_c;
+
+    double offset_t = t - 2.0 * offset_val;
+
+    if ( offset_t < 0 )
+    {
+        offset_t = 0;
+    }
+
+    m_yscale = ( offset_t / offset_c ) / ( t / c );
 }

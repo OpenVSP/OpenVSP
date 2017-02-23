@@ -193,6 +193,8 @@ public:
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
+    virtual void OffsetCurve( double offset_val );
+
     virtual bool ReadFile( string file_name );
 
     virtual string GetAirfoilName()
@@ -248,6 +250,8 @@ public:
     //==== Encode/Decode XML ====//
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+
+    virtual void OffsetCurve( double offset_val );
 
     virtual void PromoteUpper();
     virtual void PromoteLower();
