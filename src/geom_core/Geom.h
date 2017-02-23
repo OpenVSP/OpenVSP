@@ -444,6 +444,7 @@ public:
     virtual void DelSubSurf( int ind );
     virtual SubSurface* GetSubSurf( int ind );
     virtual SubSurface* GetSubSurf( const string & id );
+    virtual int GetSubSurfIndex( const string & id );
     virtual vector< SubSurface* > GetSubSurfVec()
     {
         return m_SubSurfVec;

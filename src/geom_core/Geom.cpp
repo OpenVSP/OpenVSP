@@ -2801,6 +2801,19 @@ SubSurface* Geom::GetSubSurf( const string & id )
     return NULL;
 }
 
+int Geom::GetSubSurfIndex( const string & id )
+{
+    for ( int i = 0; i < (int)m_SubSurfVec.size(); i++ )
+    {
+        if ( m_SubSurfVec[i]->GetID() == id )
+        {
+            if ( ValidSubSurfInd( i ) )
+                return i;
+        }
+    }
+    return -1;
+}
+
 //==== Highlight Active Subsurface ====//
 void Geom::RecolorSubSurfs( int active_ind )
 {

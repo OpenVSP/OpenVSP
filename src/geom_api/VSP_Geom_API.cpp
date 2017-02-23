@@ -1522,14 +1522,7 @@ void DeleteSubSurf( const string & geom_id, const string & sub_id )
         ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteSubSurf::Can't Find Geom " + geom_id );
         return;
     }
-
-    int index = -1;
-    vector< SubSurface* > svec = geom_ptr->GetSubSurfVec();
-    for ( int i = 0 ; i < (int)svec.size() ; i++ )
-    {
-        if ( svec[i]->GetID() == sub_id )
-            index = i;
-    }
+    int index = geom_ptr->GetSubSurfIndex( sub_id );
     if ( index == -1 )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteSubSurf::Can't Find SubSurf " + geom_id );
