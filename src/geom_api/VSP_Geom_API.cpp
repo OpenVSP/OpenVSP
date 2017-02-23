@@ -20,6 +20,7 @@
 #include "VarPresetMgr.h"
 #include "WingGeom.h"
 #include "PropGeom.h"
+#include "VSPAEROMgr.h"
 
 #ifdef VSP_USE_FLTK
 #include "GuiInterface.h"
@@ -641,6 +642,55 @@ void ComputeCFDMesh( int set, int file_export_types )
     CfdMeshMgr.GetCfdSettingsPtr()->m_SelectedSetIndex = set;
     CfdMeshMgr.GenerateMesh();
     ErrorMgr.NoError();
+}
+
+/// Get/Set reference wing
+string GetVSPAERORefWingID()
+{
+    Vehicle* veh = GetVehicle();
+    if ( !veh )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetVSPAERORefWingID::Can't Find Vehicle" );
+        return string();
+    }
+
+    if ( VSPAEROMgr.m_RefFlag.Get() != VSPAEROMgrSingleton::COMPONENT_REF )
+    {
+        return string();
+    }
+
+    Geom* geom_ptr = veh->FindGeom( VSPAEROMgr.m_RefGeomID );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetVSPAERORefWingID::Can't Find Geom" );
+        return string();
+    }
+
+    return VSPAEROMgr.m_RefGeomID;
+}
+
+string SetVSPAERORefWingID( const string & geom_id )
+{
+    Vehicle* veh = GetVehicle();
+    if (!veh)
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetVSPAERORefWingID::Can't Find Vehicle" );
+        return string();
+    }
+
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetVSPAERORefWingID::Can't Find Geom" );
+        return  string();
+    }
+
+    VSPAEROMgr.m_RefGeomID = geom_id;
+    VSPAEROMgr.m_RefFlag = VSPAEROMgrSingleton::COMPONENT_REF;
+
+    ErrorMgr.NoError();
+
+    return VSPAEROMgr.m_RefGeomID;
 }
 
 //===================================================================//
@@ -1434,7 +1484,7 @@ string AddSubSurf( const string & geom_id, int type, int surfindex )
     ssurf = geom_ptr->AddSubSurf( type, surfindex );
     if ( !ssurf )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "AddSubSurface::Invalid Sub Surface Ptr "  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "AddSubSurf::Invalid Sub Surface Ptr "  );
         return string();
     }
     ssurf->Update();
@@ -1454,7 +1504,7 @@ string GetSubSurf( const string & geom_id, int index )
     }
     SubSurface* ssurf = NULL;
     ssurf = geom_ptr->GetSubSurf( index );
-     if ( !ssurf )
+    if ( !ssurf )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurf::Invalid Sub Surface Ptr "  );
         return string();
@@ -1469,7 +1519,7 @@ void DeleteSubSurf( const string & geom_id, const string & sub_id )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteSubSurf::Can't Find Geom " + geom_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteSubSurf::Can't Find Geom " + geom_id );
         return;
     }
 
@@ -1482,11 +1532,12 @@ void DeleteSubSurf( const string & geom_id, const string & sub_id )
     }
     if ( index == -1 )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteSubSurf::Can't Find SubSurf " + geom_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteSubSurf::Can't Find SubSurf " + geom_id );
         return;
     }
     geom_ptr->DelSubSurf( index );
     ErrorMgr.NoError();
+    return;
 }
 
 
@@ -1496,7 +1547,7 @@ void CutXSec( const string & geom_id, int index )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "CutXSec::Can't Find Geom " + geom_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "CutXSec::Can't Find Geom " + geom_id );
         return;
     }
 
@@ -1505,20 +1556,21 @@ void CutXSec( const string & geom_id, int index )
 
     ErrorMgr.NoError();
 }
+
 void CopyXSec( const string & geom_id, int index )
 {
     Vehicle* veh = GetVehicle();
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "CopyXSec::Can't Find Geom " + geom_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "CopyXSec::Can't Find Geom " + geom_id );
         return;
     }
 
     geom_ptr->CopyXSec( index );
     ErrorMgr.NoError();
-
 }
+
 void PasteXSec( const string & geom_id, int index )
 {
     Vehicle* veh = GetVehicle();
@@ -1531,8 +1583,8 @@ void PasteXSec( const string & geom_id, int index )
 
     geom_ptr->PasteXSec( index );
     ErrorMgr.NoError();
-
 }
+
 void InsertXSec( const string & geom_id, int index, int type )
 {
     Vehicle* veh = GetVehicle();

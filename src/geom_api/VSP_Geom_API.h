@@ -75,6 +75,9 @@ extern void AddCFDSource( int type, const std::string & geom_id, int surf_index,
                           double l1, double r1, double u1, double w1,
                           double l2 = 0, double r2 = 0, double u2 = 0, double w2 = 0 );
 
+extern string GetVSPAERORefWingID();
+extern string SetVSPAERORefWingID( const std::string & geom_id );
+
 //======================== Analysis ================================//
 
 extern int GetNumAnalysis();
