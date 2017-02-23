@@ -66,6 +66,9 @@ public:
     IntParm m_FitDegree;
 
 protected:
+
+    virtual double EstimateThick();
+
     VspCurve m_OrigCurve;
 };
 
