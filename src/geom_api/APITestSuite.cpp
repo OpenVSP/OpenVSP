@@ -642,9 +642,6 @@ void APITestSuiteVSPAERO::TestVSPAeroSinglePointPanel()
     //    Reference geometry set
     std::vector< int > geom_set; geom_set.push_back(0);
     vsp::SetIntAnalysisInput(analysis_name, "GeomSet", geom_set, 0);
-    // Force creation of new setup file
-    std::vector< int > force_new_setup_file; force_new_setup_file.push_back( 1 );
-    vsp::SetIntAnalysisInput(analysis_name, "ForceNewSetupfile", force_new_setup_file, 0);
     //    Reference areas, lengths
     std::vector< double > sref; sref.push_back(10);
     vsp::SetDoubleAnalysisInput(analysis_name, "Sref", sref, 0);
@@ -661,6 +658,10 @@ void APITestSuiteVSPAERO::TestVSPAeroSinglePointPanel()
     vsp::SetDoubleAnalysisInput(analysis_name, "Beta", beta, 0);
     std::vector< double > mach; mach.push_back(0.1);
     vsp::SetDoubleAnalysisInput(analysis_name, "Mach", mach, 0);
+    // Case setup
+    std::vector< int > force_new_setup_file; force_new_setup_file.push_back( 1 );
+    vsp::SetIntAnalysisInput( analysis_name, "ForceNewSetupfile", force_new_setup_file, 0 );
+    vsp::Update();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     // list inputs, type, and current values
@@ -731,6 +732,9 @@ void APITestSuiteVSPAERO::TestVSPAeroSinglePoint()
     vsp::SetDoubleAnalysisInput(analysis_name, "Beta", beta, 0);
     std::vector< double > mach; mach.push_back(0.1);
     vsp::SetDoubleAnalysisInput(analysis_name, "Mach", mach, 0);
+    // Case setup
+    std::vector< int > force_new_setup_file; force_new_setup_file.push_back( 1 );
+    vsp::SetIntAnalysisInput( analysis_name, "ForceNewSetupfile", force_new_setup_file, 0 );
     vsp::Update();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
@@ -803,6 +807,12 @@ void APITestSuiteVSPAERO::TestVSPAeroSinglePointStab()
     std::vector< double > mach; mach.push_back(0.4);
     vsp::SetDoubleAnalysisInput(analysis_name, "Mach", mach, 0);
     //     Case Setup
+    std::vector< int > force_new_setup_file; force_new_setup_file.push_back( 1 );
+    vsp::SetIntAnalysisInput( analysis_name, "ForceNewSetupfile", force_new_setup_file, 0 );
+    std::vector< int > wakeNumIter; wakeNumIter.push_back( 1 );
+    vsp::SetIntAnalysisInput( analysis_name, "WakeNumIter", wakeNumIter, 0 );
+    std::vector< int > wakeSkipUntilIter; wakeSkipUntilIter.push_back( 2 );
+    vsp::SetIntAnalysisInput( analysis_name, "WakeSkipUntilIter", wakeSkipUntilIter, 0 );
     std::vector< int > stabilityCalcFlag; stabilityCalcFlag.push_back(1);
     vsp::SetIntAnalysisInput(analysis_name, "StabilityCalcFlag", stabilityCalcFlag, 0);
     vsp::Update();
@@ -878,7 +888,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSweep()
     vsp::SetDoubleAnalysisInput(analysis_name, "AlphaStart", alpha_start, 0);
     std::vector< double > alpha_end; alpha_end.push_back(10);
     vsp::SetDoubleAnalysisInput(analysis_name, "AlphaEnd", alpha_end, 0);
-    std::vector< int > alpha_npts; alpha_npts.push_back(3);
+    std::vector< int > alpha_npts; alpha_npts.push_back(4);
     vsp::SetIntAnalysisInput(analysis_name, "AlphaNpts", alpha_npts, 0);
     //        Beta
     std::vector< double > beta_start; beta_start.push_back(0);
@@ -892,8 +902,18 @@ void APITestSuiteVSPAERO::TestVSPAeroSweep()
     vsp::SetDoubleAnalysisInput(analysis_name, "MachStart", mach_start, 0);
     std::vector< double > mach_end; mach_end.push_back(0.15);
     vsp::SetDoubleAnalysisInput(analysis_name, "MachEnd", mach_end, 0);
-    std::vector< int > mach_npts; mach_npts.push_back(3);
+    std::vector< int > mach_npts; mach_npts.push_back(2);
     vsp::SetIntAnalysisInput(analysis_name, "MachNpts", mach_npts, 0);
+    vsp::Update();
+    //     Case Setup
+    std::vector< int > force_new_setup_file; force_new_setup_file.push_back( 1 );
+    vsp::SetIntAnalysisInput( analysis_name, "ForceNewSetupfile", force_new_setup_file, 0 );
+    std::vector< int > wakeNumIter; wakeNumIter.push_back( 1 );
+    vsp::SetIntAnalysisInput( analysis_name, "WakeNumIter", wakeNumIter, 0 );
+    std::vector< int > wakeSkipUntilIter; wakeSkipUntilIter.push_back( 2 );
+    vsp::SetIntAnalysisInput( analysis_name, "WakeSkipUntilIter", wakeSkipUntilIter, 0 );
+    std::vector< int > batch_mode_flag; batch_mode_flag.push_back( 0 );
+    vsp::SetIntAnalysisInput( analysis_name, "BatchModeFlag", batch_mode_flag, 0 );
     vsp::Update();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
@@ -964,7 +984,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSweepBatch()
     vsp::SetDoubleAnalysisInput(analysis_name, "AlphaStart", alpha_start, 0);
     std::vector< double > alpha_end; alpha_end.push_back(10);
     vsp::SetDoubleAnalysisInput(analysis_name, "AlphaEnd", alpha_end, 0);
-    std::vector< int > alpha_npts; alpha_npts.push_back(3);
+    std::vector< int > alpha_npts; alpha_npts.push_back(4);
     vsp::SetIntAnalysisInput(analysis_name, "AlphaNpts", alpha_npts, 0);
     //        Beta
     std::vector< double > beta_start; beta_start.push_back(0);
@@ -978,12 +998,17 @@ void APITestSuiteVSPAERO::TestVSPAeroSweepBatch()
     vsp::SetDoubleAnalysisInput(analysis_name, "MachStart", mach_start, 0);
     std::vector< double > mach_end; mach_end.push_back(0.15);
     vsp::SetDoubleAnalysisInput(analysis_name, "MachEnd", mach_end, 0);
-    std::vector< int > mach_npts; mach_npts.push_back(3);
+    std::vector< int > mach_npts; mach_npts.push_back(2);
     vsp::SetIntAnalysisInput(analysis_name, "MachNpts", mach_npts, 0);
-    //        Set Batch Mode
+    //     Case Setup
+    std::vector< int > force_new_setup_file; force_new_setup_file.push_back( 1 );
+    vsp::SetIntAnalysisInput( analysis_name, "ForceNewSetupfile", force_new_setup_file, 0 );
+    std::vector< int > wakeNumIter; wakeNumIter.push_back( 1 );
+    vsp::SetIntAnalysisInput( analysis_name, "WakeNumIter", wakeNumIter, 0 );
+    std::vector< int > wakeSkipUntilIter; wakeSkipUntilIter.push_back( 2 );
+    vsp::SetIntAnalysisInput( analysis_name, "WakeSkipUntilIter", wakeSkipUntilIter, 0 );
     std::vector< int > batch_mode_flag; batch_mode_flag.push_back(1);
     vsp::SetIntAnalysisInput(analysis_name, "BatchModeFlag", batch_mode_flag, 0);
-
     vsp::Update();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
