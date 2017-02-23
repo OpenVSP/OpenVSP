@@ -1025,6 +1025,21 @@ void VspCurve::Scale( double s )
     m_Curve.scale( s );
 }
 
+void VspCurve::ScaleX( double s )
+{
+    m_Curve.scale_x( s );
+}
+
+void VspCurve::ScaleY( double s )
+{
+    m_Curve.scale_y( s );
+}
+
+void VspCurve::ScaleZ( double s )
+{
+    m_Curve.scale_z( s );
+}
+
 void VspCurve::ReflectXY()
 {
     m_Curve.reflect_xy();
