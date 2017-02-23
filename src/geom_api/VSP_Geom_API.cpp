@@ -1533,6 +1533,46 @@ void DeleteSubSurf( const string & geom_id, const string & sub_id )
     return;
 }
 
+void SetSubSurfName( const std::string & geom_id, const std::string & sub_id, const std::string & name )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetSubSurfName::Can't Find Geom " + geom_id );
+        return;
+    }
+    SubSurface* ssurf = NULL;
+    ssurf = geom_ptr->GetSubSurf( sub_id );
+    if ( !ssurf )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetSubSurfName::Invalid Sub Surface Ptr " );
+        return;
+    }
+    ssurf->SetName( name );
+    ErrorMgr.NoError();
+    return;
+}
+
+std::string GetSubSurfName( const std::string & geom_id, const std::string & sub_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurfName::Can't Find Geom " + geom_id );
+        return string();
+    }
+    SubSurface* ssurf = NULL;
+    ssurf = geom_ptr->GetSubSurf( sub_id );
+    if ( !ssurf )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurfName::Invalid Sub Surface Ptr " );
+        return string();
+    }
+    ErrorMgr.NoError();
+    return ssurf->GetName();
+}
 
 void CutXSec( const string & geom_id, int index )
 {
