@@ -362,71 +362,142 @@ void APITestSuiteVSPAERO::TestVSPAeroCreateModel()
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     //==== Add Wing Geom and set some parameters =====//
-    printf("\tAdding WING (Main)\n");
+    printf("\tAdding WING (MainWing)...");
     string wing_id = vsp::AddGeom( "WING");
     vsp::SetGeomName( wing_id, "MainWing" );
     TEST_ASSERT( wing_id.c_str() != NULL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "TotalSpan", "WingGeom", 17.0 ), 17.0, TEST_TOL);
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "Z_Rel_Location", "XForm", 0.5 ), 0.5, TEST_TOL);
     // Adjust chordwise tesselation
-    //TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "Tess_W", "Shape", 33 ), 33, TEST_TOL);
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( wing_id, "Tess_W", "Shape", 20 ), calcTessWCheckVal( 20 ), TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "LECluster", "WingGeom", 0.1 ), 0.1, TEST_TOL);
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "TECluster", "WingGeom", 2.0 ), 2.0, TEST_TOL);
     // Adjust spanwise tesselation
-    //TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "SectTess_U", "XSec_1", 25 ), 25, TEST_TOL);
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "SectTess_U", "XSec_1", 15 ), 15, TEST_TOL);
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "InCluster", "XSec_1", 0.1 ), 0.1, TEST_TOL);
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "OutCluster", "XSec_1", 0.1 ), 0.1, TEST_TOL);
-    string subsurf_id = AddSubSurf( wing_id, vsp::SS_CONTROL, 0 );
-    TEST_ASSERT( subsurf_id.c_str() != NULL );
-    /*
+    // Set to cambered airfoils
+    int xsec_surf_index = 0;
+    string xsec_surf_id = vsp::GetXSecSurf( wing_id, xsec_surf_index );
+    int xsec_index;
+    string xsec_id;
+    string parm_id;
+    // Root airfoil - NACA 2412
+    xsec_index = 0;
+    vsp::ChangeXSecShape( xsec_surf_id, xsec_index, vsp::XSEC_CRV_TYPE::XS_FOUR_SERIES );
+    xsec_id = vsp::GetXSec( xsec_surf_id, xsec_index );
+    TEST_ASSERT_EQUALS( vsp::XSEC_CRV_TYPE::XS_FOUR_SERIES, vsp::GetXSecShape( xsec_id ) );
+    parm_id = vsp::GetXSecParm( xsec_id, "Camber" );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( parm_id, 0.02 ), 0.02, TEST_TOL );
+    parm_id = vsp::GetXSecParm( xsec_id, "CamberLoc" );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( parm_id, 0.4 ), 0.4, TEST_TOL );
+    parm_id = vsp::GetXSecParm( xsec_id, "ThickChord" );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( parm_id, 0.12 ), 0.12, TEST_TOL );
+    // Tip airfoil - NACA 2210
+    xsec_index = 1;
+    vsp::ChangeXSecShape( xsec_surf_id, xsec_index, vsp::XSEC_CRV_TYPE::XS_FOUR_SERIES );
+    xsec_id = vsp::GetXSec( xsec_surf_id, xsec_index );
+    TEST_ASSERT_EQUALS( vsp::XSEC_CRV_TYPE::XS_FOUR_SERIES, vsp::GetXSecShape( xsec_id ) );
+    parm_id = vsp::GetXSecParm( xsec_id, "Camber" );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( parm_id, 0.02 ), 0.02, TEST_TOL );
+    parm_id = vsp::GetXSecParm( xsec_id, "CamberLoc" );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( parm_id, 0.2 ), 0.2, TEST_TOL );
+    parm_id = vsp::GetXSecParm( xsec_id, "ThickChord" );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( parm_id, 0.10 ), 0.10, TEST_TOL );
+    // Add aileron control surface
+    string aileron_id = AddSubSurf( wing_id, vsp::SS_CONTROL, 0 );
+    vsp::SetSubSurfName(wing_id, aileron_id, "Aileron");
+    TEST_ASSERT(aileron_id.c_str() != NULL );
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+    printf( "COMPLETE\n" );
+
+    //==== Add Vertical tail and set some parameters =====//
+    printf( "\tAdding WING (Vert)..." );
+    string vert_id = vsp::AddGeom( "WING" );
+    vsp::SetGeomName( vert_id, "Vert" );
+    TEST_ASSERT( vert_id.c_str() != NULL );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( vert_id, "TotalArea", "WingGeom", 10.0 ), 10.0, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( vert_id, "X_Rel_Location", "XForm", 8.5 ), 8.5, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( vert_id, "Z_Rel_Location", "XForm", 0.2 ), 0.2, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( vert_id, "X_Rel_Rotation", "XForm", 90 ), 90, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( vert_id, "Sym_Planar_Flag", "Sym", 0 ), 0, TEST_TOL );
+    // Adjust chordwise tesselation
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( vert_id, "Tess_W", "Shape", 20 ), calcTessWCheckVal( 20 ), TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( vert_id, "LECluster", "WingGeom", 0.1 ), 0.1, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( vert_id, "TECluster", "WingGeom", 2.0 ), 2.0, TEST_TOL );
+    // Adjust spanwise tesselation
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( vert_id, "SectTess_U", "XSec_1", 8 ), 8, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( vert_id, "InCluster", "XSec_1", 0.1 ), 0.1, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( vert_id, "OutCluster", "XSec_1", 0.1 ), 0.1, TEST_TOL );
+    // Add rudder control surface
+    string rudder_id = AddSubSurf( vert_id, vsp::SS_CONTROL, 0 );
+    vsp::SetSubSurfName( vert_id, rudder_id, "Rudder" );
+    TEST_ASSERT( rudder_id.c_str() != NULL );
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+    printf( "COMPLETE\n" );
+
+    //==== Add Horizontal tail and set some parameters =====//
+    printf("\tAdding WING (Horiz)...");
+    string horiz_id = vsp::AddGeom("WING");
+    vsp::SetGeomName(horiz_id, "Horiz");
+    TEST_ASSERT(horiz_id.c_str() != NULL);
+    TEST_ASSERT_DELTA(vsp::SetParmValUpdate(horiz_id, "TotalArea", "WingGeom", 10.0), 10.0, TEST_TOL);
+    TEST_ASSERT_DELTA(vsp::SetParmValUpdate(horiz_id, "X_Rel_Location", "XForm", 8.5), 8.5, TEST_TOL);
+    TEST_ASSERT_DELTA(vsp::SetParmValUpdate(horiz_id, "Z_Rel_Location", "XForm", 0.2), 0.2, TEST_TOL);
+    // Adjust chordwise tesselation
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(horiz_id, "Tess_W", "Shape", 20 ), calcTessWCheckVal( 20 ), TEST_TOL);
+    TEST_ASSERT_DELTA(vsp::SetParmValUpdate(horiz_id, "LECluster", "WingGeom", 0.1), 0.1, TEST_TOL);
+    TEST_ASSERT_DELTA(vsp::SetParmValUpdate(horiz_id, "TECluster", "WingGeom", 2.0), 2.0, TEST_TOL);
+    // Adjust spanwise tesselation
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(horiz_id, "SectTess_U", "XSec_1", 8 ), 8, TEST_TOL);
+    TEST_ASSERT_DELTA(vsp::SetParmValUpdate(horiz_id, "InCluster", "XSec_1", 0.1), 0.1, TEST_TOL);
+    TEST_ASSERT_DELTA(vsp::SetParmValUpdate(horiz_id, "OutCluster", "XSec_1", 0.1), 0.1, TEST_TOL);
+    // Add elevator control surface
+    string elevator_id = AddSubSurf(horiz_id, vsp::SS_CONTROL, 0);
+    vsp::SetSubSurfName(horiz_id, elevator_id, "Elevator");
+    TEST_ASSERT(elevator_id.c_str() != NULL);
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+    printf( "COMPLETE\n" );
+
+    //==== Add Pod and set some parameters =====//
     printf("\tAdding POD\n");
     string pod_id = vsp::AddGeom( "POD");
     TEST_ASSERT( pod_id.c_str() != NULL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  pod_id, "Length", "Design", 14.5 ), 14.5, TEST_TOL);
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  pod_id, "X_Rel_Location", "XForm", -3.0 ), 0.0, TEST_TOL);
-    //TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "Tess_U", "Shape", 25 ), 25, TEST_TOL); //lengthwise tesselation
-    //TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "Tess_W", "Shape", 25 ), 25, TEST_TOL); //radial tesselation
-    */
-    /*
-    printf("\tAdding DISK\n");
-    string disk_id = vsp::AddGeom( "DISK");
-    TEST_ASSERT( disk_id.c_str() != NULL );
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  disk_id, "Diameter", "Design", 3.0 ), 3.0, TEST_TOL);
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  disk_id, "Y_Rel_Location", "XForm", 3.5 ), 3.5, TEST_TOL);
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  pod_id, "X_Rel_Location", "XForm", -3.0 ), -3.0, TEST_TOL);
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "Tess_U", "Shape", 15 ), 15, TEST_TOL); //lengthwise tesselation
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "Tess_W", "Shape", 15 ), calcTessWCheckVal( 15 ), TEST_TOL); //radial tesselation
 
-    // Add tail with X-axis symetry and 3 total surfaces (Y-Tail configuration)
-    printf("\tAdding WING (Tail)\n");
-    string wing2_id = vsp::AddGeom( "WING");
-    vsp::SetGeomName( wing2_id, "Tail" );
-    TEST_ASSERT( wing2_id.c_str() != NULL );
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing2_id, "X_Rel_Location", "XForm", 9.0 ), 9.0, TEST_TOL);
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing2_id, "X_Rel_Rotation", "XForm", 30.0 ), 60.0, TEST_TOL);
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing2_id, "TotalSpan", "WingGeom", 5.0 ), 5.0, TEST_TOL);
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing2_id, "LECluster", "WingGeom", 0.1 ), 0.1, TEST_TOL);
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing2_id, "TECluster", "WingGeom", 2.0 ), 2.0, TEST_TOL);
-    //TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing2_id, "SectTess_U", "XSec_1", 25 ), 25, TEST_TOL);
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing2_id, "InCluster", "XSec_1", 0.1 ), 0.1, TEST_TOL);
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing2_id, "OutCluster", "XSec_1", 0.1 ), 0.1, TEST_TOL);
-    // change symetry for tail to make Y shape tail
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing2_id, "Sym_Planar_Flag", "Sym", 0 ), 0, TEST_TOL); //no planar symetry
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing2_id, "Sym_Axial_Flag", "Sym", vsp::SYM_ROT_X ), vsp::SYM_ROT_X, TEST_TOL); // X-a
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing2_id, "Sym_Rot_N", "Sym", 3 ), 3, TEST_TOL); //no planar symetry
-    */
-    //TODO Organize geometry into sets: 1 setf for VLM and 1 set for panel
-
-    vsp::Update();
+    //==== Set VSPAERO Reference lengths & areas ====//
+    printf( "\tSetting reference wing..." );
+    // Set as reference wing for VSPAERO
+    TEST_ASSERT_EQUALS( wing_id, vsp::SetVSPAERORefWingID( wing_id ) );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+    printf( "COMPLETE\n" );
+
+    //==== Set VSPAERO Xcg position ====//
+    printf( "\tSetting reference position..." );
+    string vspaero_settings_container_id = vsp::FindContainer( "VSPAEROSettings", 0 );
+    string xcg_id = vsp::FindParm( vspaero_settings_container_id, "Xcg", "VSPAERO" );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( xcg_id, 0.75 ), 0.75, TEST_TOL );
+    printf( "COMPLETE\n" );
 
     //==== Setup export filenames ====//
-    // Execution of one of these methods is required to propperly set the export filenames for creation of vspaero input files and execution commands
     m_vspfname_for_vspaerotests = "apitest_TestVSPAero.vsp3";
-    printf("\tSetting export name: %s\n", m_vspfname_for_vspaerotests.c_str());
+    printf("\tSetting export name: %s...", m_vspfname_for_vspaerotests.c_str());
     vsp::SetVSP3FileName( m_vspfname_for_vspaerotests );  // this still needs to be done even if a call to WriteVSPFile is made
     vsp::Update();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+    printf( "COMPLETE\n" );
+
+    //==== Final vehicle update ====//
+    printf( "\tVehicle update..." );
+    vsp::Update();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+    printf( "COMPLETE\n" );
 
     //==== Save Vehicle to File ====//
-    printf("\tSaving vehicle file to: %s ...\n", m_vspfname_for_vspaerotests.c_str());
+    printf("\tSaving vehicle file to: %s ...", m_vspfname_for_vspaerotests.c_str());
     vsp::WriteVSPFile( vsp::GetVSPFileName(), vsp::SET_ALL );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
     printf("COMPLETE\n");
@@ -931,4 +1002,12 @@ void APITestSuiteVSPAERO::TestVSPAeroSweepBatch()
     // Final check for errors
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
     printf("\n");
+}
+
+double  APITestSuiteVSPAERO::calcTessWCheckVal( double t_tess_w )
+{
+    double t_mult = 4;
+    double t_shift = 1;
+
+    return t_mult*std::ceil( (t_tess_w - t_shift) / t_mult ) + t_shift;
 }

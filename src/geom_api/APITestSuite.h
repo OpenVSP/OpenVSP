@@ -79,6 +79,8 @@ private:
     void TestVSPAeroComputeGeomPanel();        //<--Execute this VSPERO test first for panel methods
     void TestVSPAeroSinglePointPanel();
 
+    double  calcTessWCheckVal( double t_tess_w );
+
     string m_vspfname_for_vspaerotests;
 };
 
