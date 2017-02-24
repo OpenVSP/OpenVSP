@@ -155,6 +155,9 @@ void ConformalGeom::UpdateSurf()
         //==== To Do - Body of Rev (Pods) ====//
         else if ( skin_type == VspSurf::SKIN_BODY_REV )
         {
+            //==== Trim U and V is Needed ====//
+            TrimU( m_MainSurfVec[i] );
+            TrimV( m_MainSurfVec[i] );
         }
     }
 
