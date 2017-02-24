@@ -18,6 +18,7 @@
 #include "StlHelper.h"
 #include "PntNodeMerge.h"
 #include "Cluster.h"
+#include "Util.h"
 
 #include "eli/geom/surface/piecewise_body_of_revolution_creator.hpp"
 #include "eli/geom/surface/piecewise_multicap_surface_creator.hpp"
@@ -152,7 +153,13 @@ double VspSurf::FindNearest( double &u, double &w, const vec3d &pt, const double
     surface_point_type p;
     p << pt.x(), pt.y(), pt.z();
 
-    dist = eli::geom::intersect::minimum_distance( u, w, m_Surface, p, u0, w0 );
+    double u0in = u0;
+    double w0in = w0;
+
+    u0in = clamp( u0in, 0.0, GetUMax() );
+    w0in = clamp( w0in, 0.0, GetWMax() );
+
+    dist = eli::geom::intersect::minimum_distance( u, w, m_Surface, p, u0in, w0in );
 
     return dist;
 }
