@@ -191,14 +191,22 @@ double VspSurf::FindNearest01( double &u, double &w, const vec3d &pt, const doub
 void VspSurf::GetUConstCurve( VspCurve &c, const double &u ) const
 {
     piecewise_curve_type pwc;
-    m_Surface.get_uconst_curve(pwc, u);
+
+    double uin = u;
+    uin = clamp( uin, 0.0, GetUMax() );
+
+    m_Surface.get_uconst_curve(pwc, uin);
     c.SetCurve(pwc);
 }
 
 void VspSurf::GetWConstCurve( VspCurve &c, const double &w ) const
 {
     piecewise_curve_type pwc;
-    m_Surface.get_vconst_curve(pwc, w);
+
+    double win = w;
+    win = clamp( win, 0.0, GetWMax() );
+
+    m_Surface.get_vconst_curve(pwc, win);
     c.SetCurve(pwc);
 }
 
