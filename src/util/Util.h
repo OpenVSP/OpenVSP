@@ -44,5 +44,20 @@ double magroundup( double x );
 double floor2scale( double x, double scale );
 double ceil2scale( double x, double scale );
 
+template <typename T> T clamp( T val, T min, T max )
+{
+    if ( val < min )
+    {
+        val = min;
+    }
+
+    if ( val > max )
+    {
+        val = max;
+    }
+
+    return val;
+}
+
 #endif
 
