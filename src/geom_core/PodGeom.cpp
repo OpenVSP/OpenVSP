@@ -26,6 +26,7 @@ PodGeom::PodGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_FineRatio.Init( "FineRatio", "Design", this, 15.0, 1.0, 1000.0 );
     m_FineRatio.SetDescript( "The ratio of the length to diameter" );
 
+    m_Xoff = 0.0;
 
 //jrg Create Geom Does Update
 //    Update();
@@ -42,28 +43,30 @@ void PodGeom::UpdateSurf()
     double len = m_Length();
     double rad = len / m_FineRatio();
 
+    double xo = m_Xoff;
+
     //==== Build Body/Stringer Curve ====//
     VspCurve stringer;
     curve_segment_type cs( 3 );
     curve_segment_type::control_point_type cp;
 
-    cp << 0.0,      0.0, 0.0;
+    cp << xo + 0.0,      0.0, 0.0;
     cs.set_control_point( cp, 0 );
-    cp << 0.05 * len, 0.0, rad * 0.95;
+    cp << xo + 0.05 * len, 0.0, rad * 0.95;
     cs.set_control_point( cp, 1 );
-    cp << 0.20 * len, 0.0, rad;
+    cp << xo + 0.20 * len, 0.0, rad;
     cs.set_control_point( cp, 2 );
-    cp << 0.50 * len, 0.0, rad;
+    cp << xo + 0.50 * len, 0.0, rad;
     cs.set_control_point( cp, 3 );
     stringer.AppendCurveSegment( cs );
 
-    cp << 0.50 * len, 0.0, rad;
+    cp << xo + 0.50 * len, 0.0, rad;
     cs.set_control_point( cp, 0 );
-    cp << 0.60 * len, 0.0, rad;
+    cp << xo + 0.60 * len, 0.0, rad;
     cs.set_control_point( cp, 1 );
-    cp << 0.95 * len, 0.0, rad * 0.3;
+    cp << xo + 0.95 * len, 0.0, rad * 0.3;
     cs.set_control_point( cp, 2 );
-    cp << len,      0.0, 0.0;
+    cp << xo + len,      0.0, 0.0;
     cs.set_control_point( cp, 3 );
     stringer.AppendCurveSegment( cs );
 
@@ -142,4 +145,34 @@ void PodGeom::ReadV2File( xmlNodePtr &root )
         m_Length = XmlUtil::FindDouble( node, "Length", m_Length() );
         m_FineRatio = XmlUtil::FindDouble( node, "Fine_Ratio", m_FineRatio() );
     }
+}
+
+void PodGeom::OffsetXSecs( double off )
+{
+    double len = m_Length();
+    double rad = len / m_FineRatio();
+
+    // Calculate offset parameters
+    double lenoff = len - 2.0 * off;
+    double radoff = rad - off;
+
+    // Protect against negative diameter
+    if ( radoff < 0.0 )
+    {
+        radoff = 0.0;
+    }
+
+    // Protect against negative length -- and divide by zero
+    if ( lenoff <= 0.0 )
+    {
+        lenoff = 0.0;
+        // Don't adjust fineness ratio.
+    }
+    else // Nominal case.
+    {
+        m_FineRatio = lenoff / radoff;
+    }
+
+    m_Length = lenoff;
+    m_Xoff = off;
 }
