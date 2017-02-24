@@ -40,7 +40,7 @@ PodGeom::~PodGeom()
 void PodGeom::UpdateSurf()
 {
     double len = m_Length();
-    double dia = len / m_FineRatio();
+    double rad = len / m_FineRatio();
 
     //==== Build Body/Stringer Curve ====//
     VspCurve stringer;
@@ -49,19 +49,19 @@ void PodGeom::UpdateSurf()
 
     cp << 0.0,      0.0, 0.0;
     cs.set_control_point( cp, 0 );
-    cp << 0.05 * len, 0.0, dia * 0.95;
+    cp << 0.05 * len, 0.0, rad * 0.95;
     cs.set_control_point( cp, 1 );
-    cp << 0.20 * len, 0.0, dia;
+    cp << 0.20 * len, 0.0, rad;
     cs.set_control_point( cp, 2 );
-    cp << 0.50 * len, 0.0, dia;
+    cp << 0.50 * len, 0.0, rad;
     cs.set_control_point( cp, 3 );
     stringer.AppendCurveSegment( cs );
 
-    cp << 0.50 * len, 0.0, dia;
+    cp << 0.50 * len, 0.0, rad;
     cs.set_control_point( cp, 0 );
-    cp << 0.60 * len, 0.0, dia;
+    cp << 0.60 * len, 0.0, rad;
     cs.set_control_point( cp, 1 );
-    cp << 0.95 * len, 0.0, dia * 0.3;
+    cp << 0.95 * len, 0.0, rad * 0.3;
     cs.set_control_point( cp, 2 );
     cp << len,      0.0, 0.0;
     cs.set_control_point( cp, 3 );
