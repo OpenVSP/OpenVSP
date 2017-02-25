@@ -381,38 +381,41 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_XFormLayout.AddYGap();
 
     m_XFormLayout.AddDividerBox( "Symmetry" );
-    m_XFormLayout.SetFitWidthFlag( true );
-    m_XFormLayout.SetSameLineFlag( true );
 
-    m_XFormLayout.SetChoiceButtonWidth( 50 );
-    m_XFormLayout.SetButtonWidth( 60 );
+    m_XFormLayout.AddSubGroupLayout( m_SymmLayout, m_XFormLayout.GetW(), 4 * m_SymmLayout.GetStdHeight() + 3 * m_SymmLayout.GetGapHeight() );
 
-    m_XFormLayout.AddChoice( m_SymAncestorChoice, "About:", m_XFormLayout.GetButtonWidth() * 2 );
-    m_XFormLayout.SetFitWidthFlag( false );
-    m_XFormLayout.AddButton( m_SymAncestorOriginToggle, "Attach" );
-    m_XFormLayout.AddButton( m_SymAncestorObjectToggle, "Object" );
-    m_XFormLayout.ForceNewLine();
-    m_XFormLayout.AddYGap();
+    m_SymmLayout.SetFitWidthFlag( true );
+    m_SymmLayout.SetSameLineFlag( true );
+
+    m_SymmLayout.SetChoiceButtonWidth( 50 );
+    m_SymmLayout.SetButtonWidth( 60 );
+
+    m_SymmLayout.AddChoice( m_SymAncestorChoice, "About:", m_SymmLayout.GetButtonWidth() * 2 );
+    m_SymmLayout.SetFitWidthFlag( false );
+    m_SymmLayout.AddButton( m_SymAncestorOriginToggle, "Attach" );
+    m_SymmLayout.AddButton( m_SymAncestorObjectToggle, "Object" );
+    m_SymmLayout.ForceNewLine();
+    m_SymmLayout.AddYGap();
 
     m_SymAncestorOriginObjectToggle.Init( this );
     m_SymAncestorOriginObjectToggle.AddButton( m_SymAncestorObjectToggle.GetFlButton() );
     m_SymAncestorOriginObjectToggle.AddButton( m_SymAncestorOriginToggle.GetFlButton() );
 
-    m_XFormLayout.AddLabel( "Planar:", 74 );
-    m_XFormLayout.SetButtonWidth( m_XFormLayout.GetRemainX() / 3 );
-    m_XFormLayout.AddButton( m_XYSymToggle, "XY", vsp::SYM_XY );
-    m_XFormLayout.AddButton( m_XZSymToggle, "XZ", vsp::SYM_XZ );
-    m_XFormLayout.AddButton( m_YZSymToggle, "YZ", vsp::SYM_YZ );
-    m_XFormLayout.ForceNewLine();
-    m_XFormLayout.AddYGap();
+    m_SymmLayout.AddLabel( "Planar:", 74 );
+    m_SymmLayout.SetButtonWidth( m_SymmLayout.GetRemainX() / 3 );
+    m_SymmLayout.AddButton( m_XYSymToggle, "XY", vsp::SYM_XY );
+    m_SymmLayout.AddButton( m_XZSymToggle, "XZ", vsp::SYM_XZ );
+    m_SymmLayout.AddButton( m_YZSymToggle, "YZ", vsp::SYM_YZ );
+    m_SymmLayout.ForceNewLine();
+    m_SymmLayout.AddYGap();
 
-    m_XFormLayout.AddLabel( "Axial:", 74 );
-    m_XFormLayout.SetButtonWidth( m_XFormLayout.GetRemainX() / 4 );
-    m_XFormLayout.AddButton( m_AxialNoneToggle, "None" );
-    m_XFormLayout.AddButton( m_AxialXToggle, "X" );
-    m_XFormLayout.AddButton( m_AxialYToggle, "Y" );
-    m_XFormLayout.AddButton( m_AxialZToggle, "Z" );
-    m_XFormLayout.ForceNewLine();
+    m_SymmLayout.AddLabel( "Axial:", 74 );
+    m_SymmLayout.SetButtonWidth( m_SymmLayout.GetRemainX() / 4 );
+    m_SymmLayout.AddButton( m_AxialNoneToggle, "None" );
+    m_SymmLayout.AddButton( m_AxialXToggle, "X" );
+    m_SymmLayout.AddButton( m_AxialYToggle, "Y" );
+    m_SymmLayout.AddButton( m_AxialZToggle, "Z" );
+    m_SymmLayout.ForceNewLine();
 
     m_AxialToggleGroup.Init( this );
     m_AxialToggleGroup.AddButton( m_AxialNoneToggle.GetFlButton() );
@@ -428,12 +431,19 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     axial_val_map.push_back( vsp::SYM_ROT_Z );
     m_AxialToggleGroup.SetValMapVec( axial_val_map );
 
+    m_SymmLayout.InitWidthHeightVals();
+    m_SymmLayout.SetFitWidthFlag( true );
+    m_SymmLayout.SetSameLineFlag( false );
+
+    m_SymmLayout.AddSlider( m_AxialNSlider, "N", 100, " %5.0f" );
+
+    m_SymmLayout.AddYGap();
+
+    m_XFormLayout.AddY( m_SymmLayout.GetH() );
+
     m_XFormLayout.InitWidthHeightVals();
     m_XFormLayout.SetFitWidthFlag( true );
     m_XFormLayout.SetSameLineFlag( false );
-
-    m_XFormLayout.AddSlider( m_AxialNSlider, "N", 100, " %5.0f" );
-    m_XFormLayout.AddYGap();
 
     m_XFormLayout.AddDividerBox( "Scale Factor" );
     m_XFormLayout.SetFitWidthFlag( false );
@@ -453,39 +463,41 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_XFormLayout.SetSameLineFlag( false );
     m_XFormLayout.AddDividerBox( "Attach To Parent" );
 
-    m_XFormLayout.SetFitWidthFlag( false );
-    m_XFormLayout.SetSameLineFlag( true );
+    m_XFormLayout.AddSubGroupLayout( m_AttachLayout, m_XFormLayout.GetW(), 4 * m_AttachLayout.GetStdHeight() + 3 * m_AttachLayout.GetGapHeight() );
 
-    m_XFormLayout.AddLabel( "Translate:", 74 );
-    m_XFormLayout.SetButtonWidth( ( m_XFormLayout.GetRemainX() ) / 3 );
-    m_XFormLayout.AddButton( m_TransNoneButton, "None" );
-    m_XFormLayout.AddButton( m_TransCompButton, "Comp" );
-    m_XFormLayout.AddButton( m_TransUVButton, "UW" );
-    m_XFormLayout.ForceNewLine();
-    m_XFormLayout.AddYGap();
+    m_AttachLayout.SetFitWidthFlag( false );
+    m_AttachLayout.SetSameLineFlag( true );
+
+    m_AttachLayout.AddLabel( "Translate:", 74 );
+    m_AttachLayout.SetButtonWidth( ( m_AttachLayout.GetRemainX() ) / 3 );
+    m_AttachLayout.AddButton( m_TransNoneButton, "None" );
+    m_AttachLayout.AddButton( m_TransCompButton, "Comp" );
+    m_AttachLayout.AddButton( m_TransUVButton, "UW" );
+    m_AttachLayout.ForceNewLine();
+    m_AttachLayout.AddYGap();
 
     m_TransToggleGroup.Init( this );
     m_TransToggleGroup.AddButton( m_TransNoneButton.GetFlButton() );
     m_TransToggleGroup.AddButton( m_TransCompButton.GetFlButton() );
     m_TransToggleGroup.AddButton( m_TransUVButton.GetFlButton() );
 
-    m_XFormLayout.AddLabel( "Rotate:", 74 );
-    m_XFormLayout.AddButton( m_RotNoneButton, "None" );
-    m_XFormLayout.AddButton( m_RotCompButton, "Comp" );
-    m_XFormLayout.AddButton( m_RotUVButton, "UW" );
-    m_XFormLayout.ForceNewLine();
-    m_XFormLayout.AddYGap();
+    m_AttachLayout.AddLabel( "Rotate:", 74 );
+    m_AttachLayout.AddButton( m_RotNoneButton, "None" );
+    m_AttachLayout.AddButton( m_RotCompButton, "Comp" );
+    m_AttachLayout.AddButton( m_RotUVButton, "UW" );
+    m_AttachLayout.ForceNewLine();
+    m_AttachLayout.AddYGap();
 
     m_RotToggleGroup.Init( this );
     m_RotToggleGroup.AddButton( m_RotNoneButton.GetFlButton() );
     m_RotToggleGroup.AddButton( m_RotCompButton.GetFlButton() );
     m_RotToggleGroup.AddButton( m_RotUVButton.GetFlButton() );
 
-    m_XFormLayout.SetFitWidthFlag( true );
-    m_XFormLayout.SetSameLineFlag( false );
+    m_AttachLayout.SetFitWidthFlag( true );
+    m_AttachLayout.SetSameLineFlag( false );
 
-    m_XFormLayout.AddSlider( m_AttachUSlider, "U", 1, " %5.4f" );
-    m_XFormLayout.AddSlider( m_AttachVSlider, "W", 1, " %5.4f" );
+    m_AttachLayout.AddSlider( m_AttachUSlider, "U", 1, " %5.4f" );
+    m_AttachLayout.AddSlider( m_AttachVSlider, "W", 1, " %5.4f" );
 
 
     //=============== SubSurface Tab ===================//

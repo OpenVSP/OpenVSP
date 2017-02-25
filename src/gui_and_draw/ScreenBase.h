@@ -187,6 +187,9 @@ public:
     GroupLayout m_XFormLayout;
     GroupLayout m_SubSurfLayout;
 
+    GroupLayout m_SymmLayout;
+    GroupLayout m_AttachLayout;
+
     //==== Names, Color, Material ====//
     StringInput m_NameInput;
     ColorPicker m_ColorPicker;
