@@ -173,6 +173,12 @@ void ConformalGeom::CopyDataFrom( Geom* geom_ptr )
     m_TransAttachFlag = ATTACH_TRANS_COMP;
     m_RotAttachFlag = ATTACH_ROT_COMP;
 
+    m_TransAttachFlag.Deactivate();
+    m_RotAttachFlag.Deactivate();
+
+    m_ULoc.Deactivate();
+    m_WLoc.Deactivate();
+
     //==== Copy Cap Options ====//
     m_CapUMinOption = geom_ptr->m_CapUMinOption();
     m_CapUMinTess   = geom_ptr->m_CapUMinTess();
@@ -193,6 +199,12 @@ void ConformalGeom::CopyDataFrom( Geom* geom_ptr )
     m_SymPlanFlag = geom_ptr->m_SymPlanFlag();
     m_SymAxFlag = geom_ptr->m_SymAxFlag();
     m_SymRotN = geom_ptr->m_SymRotN();
+
+    m_SymAncestor.Deactivate();
+    m_SymAncestOriginFlag.Deactivate();
+    m_SymPlanFlag.Deactivate();
+    m_SymAxFlag.Deactivate();
+    m_SymRotN.Deactivate();
 }
 
 void ConformalGeom::UpdateDrawObj()
