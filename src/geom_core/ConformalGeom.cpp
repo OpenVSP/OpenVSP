@@ -185,6 +185,10 @@ void ConformalGeom::CopyDataFrom( Geom* geom_ptr )
     //m_TessW = geom_ptr->m_TessW();
 
     m_SymAncestor = geom_ptr->m_SymAncestor();
+    if ( m_SymAncestor() != 0 ) // Not global ancestor.
+    {
+        m_SymAncestor = m_SymAncestor() + 1;  // + 1 increment for parent
+    }
     m_SymAncestOriginFlag = geom_ptr->m_SymAncestOriginFlag();
     m_SymPlanFlag = geom_ptr->m_SymPlanFlag();
     m_SymAxFlag = geom_ptr->m_SymAxFlag();
