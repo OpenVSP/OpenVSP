@@ -95,7 +95,7 @@ extern void SetDoubleAnalysisInput( const std::string & analysis, const std::str
 extern void SetStringAnalysisInput( const std::string & analysis, const std::string & name, const std::vector<std::string> & indata, int index = 0 );
 extern void SetVec3dAnalysisInput( const std::string & analysis, const std::string & name, const std::vector< vec3d > & indata, int index = 0 );
 
-extern void PrintAnalysisInputs( const std::string analysis_name );
+extern void PrintAnalysisInputs( const std::string & analysis_name );
 
 //======================== Results ================================//
 extern std::vector<std::string> GetAllResultsNames();

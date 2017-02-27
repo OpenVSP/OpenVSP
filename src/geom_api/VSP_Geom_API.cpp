@@ -865,7 +865,7 @@ void SetVec3dAnalysisInput( const string & analysis, const string & name, const 
     AnalysisMgr.SetVec3dAnalysisInput( analysis, name, indata, index );
 }
 
-void PrintAnalysisInputs( const string analysis_name )
+void PrintAnalysisInputs( const string & analysis_name )
 {
     if ( !AnalysisMgr.ValidAnalysisName( analysis_name ) )
     {
