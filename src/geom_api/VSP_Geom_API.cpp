@@ -1914,11 +1914,19 @@ vector<vec3d> ReadFileXSec( const string& xsec_id, const string& file_name )
     {
         FileXSec* file_xs = dynamic_cast<FileXSec*>( xs->GetXSecCurve() );
         assert( file_xs );
-        file_xs->ReadXsecFile( file_name );
-        return file_xs->GetUnityFilePnts();
+        if ( file_xs->ReadXsecFile( file_name ) )
+        {
+            ErrorMgr.NoError();
+            return file_xs->GetUnityFilePnts();
+        }
+        else
+        {
+            ErrorMgr.AddError( VSP_FILE_DOES_NOT_EXIST, "ReadFileXSec::Error reading fuselage file" );
+            return pnt_vec;
+        }
     }
 
-    ErrorMgr.NoError();
+    ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "ReadFileXSec::XSec Not XS_FILE_FUSE Type " + xsec_id );
     return pnt_vec;
 }
 
@@ -2116,7 +2124,7 @@ void ReadFileAirfoil( const string& xsec_id, const string& file_name )
         }
         else
         {
-            ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "ReadFileAirfoil::Error reading airfoil file" );
+            ErrorMgr.AddError( VSP_FILE_DOES_NOT_EXIST, "ReadFileAirfoil::Error reading airfoil file" );
             return;
         }
     }
