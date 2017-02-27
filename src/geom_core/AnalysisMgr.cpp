@@ -1084,6 +1084,7 @@ void VSPAEROSinglePointAnalysis::SetDefaults()
 
         //Case Setup
         m_Inputs.Add( NameValData( "GeomSet",           VSPAEROMgr.m_GeomSet.Get()           ) );
+        m_Inputs.Add( NameValData( "AnalysisMethod",    VSPAEROMgr.m_AnalysisMethod.Get()    ) );
         m_Inputs.Add( NameValData( "NCPU",              VSPAEROMgr.m_NCPU.Get()              ) );
         m_Inputs.Add( NameValData( "WakeNumIter",       VSPAEROMgr.m_WakeNumIter.Get()       ) );
         m_Inputs.Add( NameValData( "WakeAvgStartIter",  VSPAEROMgr.m_WakeAvgStartIter.Get()  ) );
@@ -1133,6 +1134,10 @@ string VSPAEROSinglePointAnalysis::Execute()
         int geomSetOrig    = VSPAEROMgr.m_GeomSet.Get();
         nvd = m_Inputs.FindPtr( "GeomSet", 0 );
         VSPAEROMgr.m_GeomSet.Set( nvd->GetInt(0) );
+
+        int analysisMethodOrig = VSPAEROMgr.m_AnalysisMethod.Get();
+        nvd = m_Inputs.FindPtr( "AnalysisMethod", 0 );
+        VSPAEROMgr.m_AnalysisMethod.Set( nvd->GetInt( 0 ) );
 
         //    Regerence area, length parameters
         int refFlagOrig    = VSPAEROMgr.m_RefFlag.Get();
@@ -1210,6 +1215,7 @@ string VSPAEROSinglePointAnalysis::Execute()
         //==== Restore Original Values ====//
         //    Geometry set
         VSPAEROMgr.m_GeomSet.Set( geomSetOrig );
+        VSPAEROMgr.m_AnalysisMethod.Set( analysisMethodOrig );
 
         //    Regerence area, length parameters
         VSPAEROMgr.m_RefFlag.Set( refFlagOrig );
@@ -1255,6 +1261,7 @@ void VSPAEROSweepAnalysis::SetDefaults()
 
         //Case Setup
         m_Inputs.Add( NameValData( "GeomSet",           VSPAEROMgr.m_GeomSet.Get()           ) );
+        m_Inputs.Add( NameValData( "AnalysisMethod",    VSPAEROMgr.m_AnalysisMethod.Get()    ) );
         m_Inputs.Add( NameValData( "NCPU",              VSPAEROMgr.m_NCPU.Get()              ) );
         m_Inputs.Add( NameValData( "WakeNumIter",       VSPAEROMgr.m_WakeNumIter.Get()       ) );
         m_Inputs.Add( NameValData( "WakeAvgStartIter",  VSPAEROMgr.m_WakeAvgStartIter.Get()  ) );
@@ -1311,6 +1318,10 @@ string VSPAEROSweepAnalysis::Execute()
         int geomSetOrig    = VSPAEROMgr.m_GeomSet.Get();
         nvd = m_Inputs.FindPtr( "GeomSet", 0 );
         VSPAEROMgr.m_GeomSet.Set( nvd->GetInt(0) );
+
+        int analysisMethodOrig = VSPAEROMgr.m_AnalysisMethod.Get();
+        nvd = m_Inputs.FindPtr( "AnalysisMethod", 0 );
+        VSPAEROMgr.m_AnalysisMethod.Set( nvd->GetInt( 0 ) );
 
         //    Regerence area, length parameters
         int refFlagOrig    = VSPAEROMgr.m_RefFlag.Get();
@@ -1405,6 +1416,7 @@ string VSPAEROSweepAnalysis::Execute()
         //==== Restore Original Values ====//
         //    Geometry set
         VSPAEROMgr.m_GeomSet.Set( geomSetOrig );
+        VSPAEROMgr.m_AnalysisMethod.Set( analysisMethodOrig );
 
         //    Regerence area, length parameters
         VSPAEROMgr.m_RefFlag.Set( refFlagOrig );

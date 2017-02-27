@@ -465,6 +465,12 @@ void APITestSuiteVSPAERO::TestVSPAeroComputeGeom()
     // Set defaults
     vsp::SetAnalysisInputDefaults(analysis_name);
 
+    // Change some input values
+    //    Analysis method
+    std::vector< int > analysis_method; analysis_method.push_back( vsp::VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE );
+    vsp::SetIntAnalysisInput( analysis_name, "AnalysisMethod", analysis_method, 0);
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
     // list inputs, type, and current values
     vsp::PrintAnalysisInputs(analysis_name);
 
@@ -511,7 +517,8 @@ void APITestSuiteVSPAERO::TestVSPAeroComputeGeomPanel()
     vsp::SetAnalysisInputDefaults(analysis_name);
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
-    // Set to panel method
+    // Change some input values
+    //    Analysis method
     std::vector< int > analysis_method; analysis_method.push_back( vsp::VSPAERO_ANALYSIS_METHOD::PANEL );
     vsp::SetIntAnalysisInput(analysis_name, "AnalysisMethod", analysis_method, 0);
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
@@ -562,6 +569,9 @@ void APITestSuiteVSPAERO::TestVSPAeroSinglePointPanel()
     vsp::SetAnalysisInputDefaults(analysis_name);
     
     // Change some input values
+    //    Analysis method
+    std::vector< int > analysis_method; analysis_method.push_back( vsp::VSPAERO_ANALYSIS_METHOD::PANEL );
+    vsp::SetIntAnalysisInput( analysis_name, "AnalysisMethod", analysis_method, 0);
     //    Reference geometry set
     std::vector< int > geom_set; geom_set.push_back(0);
     vsp::SetIntAnalysisInput(analysis_name, "GeomSet", geom_set, 0);
@@ -632,6 +642,9 @@ void APITestSuiteVSPAERO::TestVSPAeroSinglePoint()
     vsp::SetAnalysisInputDefaults(analysis_name);
     
     // Change some input values
+    //    Analysis method
+    std::vector< int > analysis_method; analysis_method.push_back( vsp::VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE );
+    vsp::SetIntAnalysisInput( analysis_name, "AnalysisMethod", analysis_method, 0);
     //    Reference geometry set
     std::vector< int > geom_set; geom_set.push_back(0);
     vsp::SetIntAnalysisInput(analysis_name, "GeomSet", geom_set, 0);
@@ -700,6 +713,9 @@ void APITestSuiteVSPAERO::TestVSPAeroSinglePointStab()
     vsp::SetAnalysisInputDefaults(analysis_name);
     
     // Change some input values
+    //    Analysis method
+    std::vector< int > analysis_method; analysis_method.push_back( vsp::VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE );
+    vsp::SetIntAnalysisInput( analysis_name, "AnalysisMethod", analysis_method, 0);
     //    Reference geometry set
     std::vector< int > geom_set; geom_set.push_back(0);
     vsp::SetIntAnalysisInput(analysis_name, "GeomSet", geom_set, 0);
@@ -771,6 +787,9 @@ void APITestSuiteVSPAERO::TestVSPAeroSweep()
     vsp::SetAnalysisInputDefaults(analysis_name);
     
     // Change some input values
+    //    Analysis method
+    std::vector< int > analysis_method; analysis_method.push_back( vsp::VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE );
+    vsp::SetIntAnalysisInput( analysis_name, "AnalysisMethod", analysis_method, 0);
     //    Reference geometry set
     std::vector< int > geom_set; geom_set.push_back(0);
     vsp::SetIntAnalysisInput(analysis_name, "GeomSet", geom_set, 0);
@@ -854,6 +873,9 @@ void APITestSuiteVSPAERO::TestVSPAeroSweepBatch()
     vsp::SetAnalysisInputDefaults(analysis_name);
     
     // Change some input values
+    //    Analysis method
+    std::vector< int > analysis_method; analysis_method.push_back( vsp::VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE );
+    vsp::SetIntAnalysisInput( analysis_name, "AnalysisMethod", analysis_method, 0);
     //    Reference geometry set
     std::vector< int > geom_set; geom_set.push_back(0);
     vsp::SetIntAnalysisInput(analysis_name, "GeomSet", geom_set, 0);

@@ -7,6 +7,11 @@ void TestVSPAeroComputeGeom()
     // Set defaults
     SetAnalysisInputDefaults(analysis_name);
 
+    // Analysis method
+    array< int > analysis_method = GetIntAnalysisInput(analysis_name,"AnalysisMethod");
+    analysis_method[0] = ( VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE );
+    SetIntAnalysisInput(analysis_name, "AnalysisMethod", analysis_method);
+
     // list inputs, type, and current values
     PrintAnalysisInputs( analysis_name );
     Print( "" );
@@ -29,7 +34,7 @@ void TestVSPAeroComputeGeomPanel()
     // Set defaults
     SetAnalysisInputDefaults(analysis_name);
     
-    // Set to panel method
+    // Analysis method
     array< int > analysis_method = GetIntAnalysisInput(analysis_name,"AnalysisMethod");
     analysis_method[0] = ( VSPAERO_ANALYSIS_METHOD::PANEL );
     SetIntAnalysisInput(analysis_name, "AnalysisMethod", analysis_method);
