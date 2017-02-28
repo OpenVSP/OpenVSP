@@ -194,6 +194,18 @@ public:
     void GetSkinDegreeVec( vector< int > & degvec )         { degvec = m_SkinDegreeVec; }
     void GetSkinParmVec( vector< double > & parmvec )       { parmvec = m_SkinParmVec; }
 
+    void SetClone( int index, const Matrix4d &mat )
+    {
+        m_CloneIndex = index;
+        m_CloneMat = mat;
+    }
+    bool IsClone()
+    {
+        return m_CloneIndex != -1;
+    }
+    int GetCloneIndex()                                     { return m_CloneIndex; }
+    void GetCloneMat( Matrix4d &mat )                       { mat = m_CloneMat; }
+
     int GetNumSectU() const;
     int GetNumSectW() const;
 
@@ -232,6 +244,9 @@ protected:
     vector< int > m_SkinDegreeVec;
     vector< double > m_SkinParmVec;
     int m_SkinClosedFlag;
+
+    int m_CloneIndex;
+    Matrix4d m_CloneMat;
 
 };
 #endif

@@ -42,6 +42,8 @@ VspSurf::VspSurf()
     m_SurfCfdType = vsp::CFD_NORMAL;
     m_SkinType = SKIN_NONE;
 
+    m_CloneIndex = -1;
+
     SetClustering( 1.0, 1.0 );
 }
 
