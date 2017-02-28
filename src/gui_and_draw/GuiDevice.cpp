@@ -186,7 +186,7 @@ bool GuiDevice::CheckValUpdate( double val )
         return true;
     }
 
-    if ( fabs( val - m_LastVal ) < DBL_EPSILON )
+    if ( std::abs( val - m_LastVal ) < DBL_EPSILON )
     {
         return false;
     }
@@ -527,11 +527,11 @@ void SliderAdjRange::SetValAndLimits( Parm* parm_ptr )
 
     if ( m_NewParmFlag || new_val < m_MinBound || new_val > m_MaxBound )
     {
-        if ( fabs( new_val - parm_ptr->GetLowerLimit() ) < m_Tol )
+        if ( std::abs( new_val - parm_ptr->GetLowerLimit() ) < m_Tol )
         {
             m_MinStopState = SAR_ABS_STOP;
         }
-        if ( fabs( new_val - parm_ptr->GetUpperLimit() ) < m_Tol )
+        if ( std::abs( new_val - parm_ptr->GetUpperLimit() ) < m_Tol )
         {
             m_MaxStopState = SAR_ABS_STOP;
         }
@@ -593,12 +593,12 @@ void SliderAdjRange::FindStopState( Parm* parm_ptr )
 {
     double val = parm_ptr->Get();
 
-    if ( fabs( val - parm_ptr->GetLowerLimit() ) < m_Tol )
+    if ( std::abs( val - parm_ptr->GetLowerLimit() ) < m_Tol )
     {
         m_MinStopState = SAR_ABS_STOP;
         m_MinButton->label( "|" );
     }
-    else if ( fabs( val - m_MinBound ) < m_Tol )
+    else if ( std::abs( val - m_MinBound ) < m_Tol )
     {
         m_MinStopState = SAR_STOP;
         m_MinButton->label( "<" );
@@ -608,12 +608,12 @@ void SliderAdjRange::FindStopState( Parm* parm_ptr )
         m_MinStopState = SAR_NO_STOP;
         m_MinButton->label( ">" );
     }
-    if ( fabs( val - parm_ptr->GetUpperLimit() ) < m_Tol )
+    if ( std::abs( val - parm_ptr->GetUpperLimit() ) < m_Tol )
     {
         m_MaxStopState = SAR_ABS_STOP;
         m_MaxButton->label( "|" );
     }
-    else if ( fabs( val - m_MaxBound ) < m_Tol )
+    else if ( std::abs( val - m_MaxBound ) < m_Tol )
     {
         m_MaxStopState = SAR_STOP;
         m_MaxButton->label( ">" );

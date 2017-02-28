@@ -252,7 +252,7 @@ void HingeGeom::UpdateSurf()
         // prim and sec must be unit vectors in global coordinates.
 
         vec3d norm = vec3d( 0, 0, 1 );
-        if ( fabs( dot( prim, sec ) ) >= 1.0 ) // Co-linear.  Force minor component.
+        if ( std::abs( dot( prim, sec ) ) >= 1.0 ) // Co-linear.  Force minor component.
         {
             sec.set_xyz( 0, 0, 0 );
             sec.v[ prim.minor_comp() ] = 1.0;

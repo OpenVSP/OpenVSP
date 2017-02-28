@@ -323,7 +323,7 @@ void StackGeom::InsertXSec( int type )
     {
         inserted_xs->CopyFrom( xs );
 
-        if ( fabs(inserted_xs->m_XDelta()) < 0.0000001 )
+        if ( std::abs(inserted_xs->m_XDelta()) < 0.0000001 )
             inserted_xs->m_XDelta = 1.0;
 
         inserted_xs->SetLateUpdateFlag( true );

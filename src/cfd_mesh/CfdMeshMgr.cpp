@@ -79,7 +79,7 @@ void Wake::MatchBorderCurve( ICurve* curve )
     double dist_p1 = DistToClosestLeadingEdgePnt( p1 );
 
     double tol = 1.0e-08;
-    if ( fabs( dist_p0 ) < tol && fabs( dist_p1 ) < tol )
+    if ( std::abs( dist_p0 ) < tol && std::abs( dist_p1 ) < tol )
     {
         m_LeadingCurves.push_back( curve );
     }
@@ -1673,7 +1673,7 @@ void CfdMeshMgrSingleton::WriteTetGen( const string &filename )
         vector< vec3d > tmpPntVec;
         for ( int i = 0 ; i < ( int )interiorPntVec.size() ; i++ )
         {
-            if ( fabs( interiorPntVec[i].y() ) < 1.0e-4 )
+            if ( std::abs( interiorPntVec[i].y() ) < 1.0e-4 )
             {
                 interiorPntVec[i].set_y( 1.0e-5 );
             }
@@ -2338,9 +2338,9 @@ int CfdMeshMgrSingleton::BuildIndMap( vector< vec3d* > & allPntVec, map< int, ve
             {
                 int testind = iter->second[j];
 
-                if ( fabs( allPntVec[i]->x() - allPntVec[testind]->x() ) < tol  &&
-                        fabs( allPntVec[i]->y() - allPntVec[testind]->y() ) < tol  &&
-                        fabs( allPntVec[i]->z() - allPntVec[testind]->z() ) < tol  )
+                if ( std::abs( allPntVec[i]->x() - allPntVec[testind]->x() ) < tol  &&
+                        std::abs( allPntVec[i]->y() - allPntVec[testind]->y() ) < tol  &&
+                        std::abs( allPntVec[i]->z() - allPntVec[testind]->z() ) < tol  )
                 {
                     addIndexFlag = false;
                 }
@@ -2395,9 +2395,9 @@ int  CfdMeshMgrSingleton::FindPntIndex(  vec3d& pnt, vector< vec3d* > & allPntVe
         {
             int testind = iter->second[j];
 
-            if ( fabs( pnt.x() - allPntVec[testind]->x() ) < tol  &&
-                    fabs( pnt.y() - allPntVec[testind]->y() ) < tol  &&
-                    fabs( pnt.z() - allPntVec[testind]->z() ) < tol  )
+            if ( std::abs( pnt.x() - allPntVec[testind]->x() ) < tol  &&
+                    std::abs( pnt.y() - allPntVec[testind]->y() ) < tol  &&
+                    std::abs( pnt.z() - allPntVec[testind]->z() ) < tol  )
             {
                 return testind;
             }
@@ -3288,10 +3288,10 @@ void CfdMeshMgrSingleton::BuildSubSurfIntChains()
                     new_chain = true;
                     continue; // Skip if either point has a value not on this surface
                 }
-                if ( ((fabs( uw_pnt0[0]-max_u ) < tol && fabs( uw_pnt1[0]-max_u ) < tol) ||
-                     (fabs( uw_pnt0[1]-max_w ) < tol && fabs( uw_pnt1[1]-max_w ) < tol) ||
-                     (fabs( uw_pnt0[0]-min_u ) < tol && fabs( uw_pnt1[0]-min_u ) < tol) ||
-                     (fabs( uw_pnt0[1]-min_w ) < tol && fabs( uw_pnt1[1]-min_w ) < tol))
+                if ( ((std::abs( uw_pnt0[0]-max_u ) < tol && std::abs( uw_pnt1[0]-max_u ) < tol) ||
+                     (std::abs( uw_pnt0[1]-max_w ) < tol && std::abs( uw_pnt1[1]-max_w ) < tol) ||
+                     (std::abs( uw_pnt0[0]-min_u ) < tol && std::abs( uw_pnt1[0]-min_u ) < tol) ||
+                     (std::abs( uw_pnt0[1]-min_w ) < tol && std::abs( uw_pnt1[1]-min_w ) < tol))
                      && is_poly  )
                 {
                     new_chain = true;

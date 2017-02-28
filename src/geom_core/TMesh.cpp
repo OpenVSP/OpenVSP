@@ -170,7 +170,7 @@ TetraMassProp::TetraMassProp( string id, double denIn, vec3d& p0, vec3d& p1, vec
     m_CG = ( m_CG * 0.25 ) + p0;
 
     m_Vol  = tetra_volume( m_v1, m_v2, m_v3 );
-    m_Mass = m_Density * fabs( m_Vol );
+    m_Mass = m_Density * std::abs( m_Vol );
 
     double Ix = m_Mass / 10.0 * ( m_v1.x() * m_v1.x() + m_v2.x() * m_v2.x() + m_v3.x() * m_v3.x() +
                                   m_v1.x() * m_v2.x() + m_v1.x() * m_v3.x() + m_v2.x() * m_v3.x() );
@@ -282,7 +282,7 @@ DegenGeomTetraMassProp::DegenGeomTetraMassProp( string id, vec3d& p0, vec3d& p1,
     m_CG = m_v1 + m_v2 + m_v3;
     m_CG = ( m_CG * 0.25 ) + p0;
 
-    m_Vol  = fabs( tetra_volume( m_v1, m_v2, m_v3 ) );
+    m_Vol  = std::abs( tetra_volume( m_v1, m_v2, m_v3 ) );
 
     double Ix = m_Vol / 10.0 * ( m_v1.x() * m_v1.x() + m_v2.x() * m_v2.x() + m_v3.x() * m_v3.x() +
                                  m_v1.x() * m_v2.x() + m_v1.x() * m_v3.x() + m_v2.x() * m_v3.x() );
@@ -1994,8 +1994,8 @@ void TTri::TriangulateSplit( int flattenAxis )
         for ( i = 0 ; i < in.numberofpoints ; i++ )
             for ( j = i + 1 ; j < in.numberofpoints ; j++ )
             {
-                double del = fabs( in.pointlist[i * 2] - in.pointlist[j * 2] ) +
-                             fabs( in.pointlist[i * 2 + 1] - in.pointlist[j * 2 + 1] );
+                double del = std::abs( in.pointlist[i * 2] - in.pointlist[j * 2] ) +
+                             std::abs( in.pointlist[i * 2 + 1] - in.pointlist[j * 2 + 1] );
 
                 if ( del < 1e-8 )
                 {
@@ -2593,7 +2593,7 @@ void  TBndBox::NumCrossXRay( vec3d & orig, vector<double> & tParmVec )
             int dupFlag = 0;
             for ( int j = 0 ; j < ( int )tParmVec.size() ; j++ )
             {
-                if ( fabs( tparm - tParmVec[j] ) < 0.0000001 )
+                if ( std::abs( tparm - tParmVec[j] ) < 0.0000001 )
                 {
                     dupFlag = 1;
                     break;
@@ -2644,7 +2644,7 @@ void  TBndBox::RayCast( vec3d & orig, vec3d & dir, vector<double> & tParmVec )
             int dupFlag = 0;
             for ( int j = 0 ; j < ( int )tParmVec.size() ; j++ )
             {
-                if ( fabs( tparm - tParmVec[j] ) < 0.0000001 )
+                if ( std::abs( tparm - tParmVec[j] ) < 0.0000001 )
                 {
                     dupFlag = 1;
                     break;

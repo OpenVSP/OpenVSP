@@ -281,7 +281,7 @@ void SurfPatch::find_closest_uw( vec3d& pnt_in, double guess_uw[2], double uw[2]
         norm_uw[1] -= del_uw[1];
 
         //==== Test To Stop Iteration ====//
-        if ( ( fabs( del_uw[0] ) + fabs( del_uw[1] ) ) < UW_Tol )
+        if ( ( std::abs( del_uw[0] ) + std::abs( del_uw[1] ) ) < UW_Tol )
         {
             stop_flag = true;
         }
@@ -428,7 +428,7 @@ void SurfPatch::comp_delta_uw( vec3d& pnt_in, vec3d& guess_pnt, double norm_uw[2
 
     double N = dot( norm, norm );
 
-    if( fabs( N ) > DBL_EPSILON )
+    if( std::abs( N ) > DBL_EPSILON )
     {
         delta_uw[0] = dot( A, norm ) / N;
         delta_uw[1] = dot( B, norm ) / N;
@@ -482,7 +482,7 @@ void SurfPatch::AddTVal( double t, vector< double > & t_vals )
     bool add_flag = true;
     for ( int i = 0 ; i < ( int )t_vals.size() ; i++ )
     {
-        if ( fabs( t - t_vals[i] ) < 1.0e-6 )
+        if ( std::abs( t - t_vals[i] ) < 1.0e-6 )
         {
             add_flag = false;
         }

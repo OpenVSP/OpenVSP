@@ -58,7 +58,7 @@ void Link::InitOffsetScale()
         //==== Initialize Offset and Scale ====//
         m_Offset = valB - valA;
         m_Scale  = 1.0;
-        if ( fabs( valA ) > 0.0000001 )
+        if ( std::abs( valA ) > 0.0000001 )
         {
             m_Scale = valB / valA;
         }

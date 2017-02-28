@@ -1846,7 +1846,7 @@ void FileXSec::Update()
         double y = m_UnityFilePnts[i].y() * m_Height();
         scaled_file_pnts.push_back( vec3d( x + m_Width() / 2.0, y, 0.0 ) );
 
-        if ( m_UnityFilePnts[i].y() < 0 && fabs( m_UnityFilePnts[i].x() ) < fabs(m_UnityFilePnts[ibot].x() ) )
+        if ( m_UnityFilePnts[i].y() < 0 && std::abs( m_UnityFilePnts[i].x() ) < std::abs(m_UnityFilePnts[ibot].x() ) )
         {
             ibot = i;
         }
@@ -1856,11 +1856,11 @@ void FileXSec::Update()
             ileft = i;
         }
 
-        if ( m_UnityFilePnts[i].x() < 0 && fabs( m_UnityFilePnts[i].y() ) < fabs(m_UnityFilePnts[ileft].y() ) )
+        if ( m_UnityFilePnts[i].x() < 0 && std::abs( m_UnityFilePnts[i].y() ) < std::abs(m_UnityFilePnts[ileft].y() ) )
         {
             ileft = i;
         }
-        if ( m_UnityFilePnts[i].y() > 0 && fabs( m_UnityFilePnts[i].x() ) < fabs(m_UnityFilePnts[itop].x() ) )
+        if ( m_UnityFilePnts[i].y() > 0 && std::abs( m_UnityFilePnts[i].x() ) < std::abs(m_UnityFilePnts[itop].x() ) )
         {
             itop = i;
         }
@@ -2025,15 +2025,15 @@ bool FileXSec::ReadOldXSecFile( FILE* file_id )
     //==== Find Height & Width ====//
     vec3d p0 = pnt_vec[0];
     vec3d pn = pnt_vec[pnt_vec.size() - 1];
-    m_Height.Set( max( fabs( p0.y() - pn.y() ), 1.0e-12 ) );
+    m_Height.Set( max( std::abs( p0.y() - pn.y() ), 1.0e-12 ) );
 
     double max_x = 0;
     for ( int i = 0 ; i < ( int )pnt_vec.size() ; i++ )
     {
         double x = pnt_vec[i].x();
-        if  ( fabs( y ) > max_x )
+        if  ( std::abs( y ) > max_x )
         {
-            max_x = fabs( x );
+            max_x = std::abs( x );
         }
     }
     m_Width.Set( max( 2.0 * max_x, 1.0e-12 ) );
@@ -2085,7 +2085,7 @@ bool FileXSec::ReadXSecFile( FILE* file_id )
         if ( fgets( buff, 255, file_id ) )
         {
             sscanf( buff, "%f %f", &x, &y );
-            if ( fabs( x ) < 1.0e12 && fabs( y ) <  1.0e12 )
+            if ( std::abs( x ) < 1.0e12 && std::abs( y ) <  1.0e12 )
             {
                 pnt_vec.push_back( vec3d( x, y, 0.0 ) );
                 more_data = true;
@@ -2104,9 +2104,9 @@ bool FileXSec::ReadXSecFile( FILE* file_id )
     //{
     //  for ( int j = 0 ; j < num_pnts ; j++ )
     //  {
-    //      double w = fabs( pnt_vec[i].y() - pnt_vec[j].y() );
+    //      double w = std::abs( pnt_vec[i].y() - pnt_vec[j].y() );
     //      if ( w > m_Width() )    m_Width = w;
-    //      double h = fabs( pnt_vec[i].z() - pnt_vec[j].z() );
+    //      double h = std::abs( pnt_vec[i].z() - pnt_vec[j].z() );
     //      if ( h > m_Height() )   m_Height = h;
     //  }
     //}
@@ -2142,12 +2142,12 @@ void FileXSec::SetPnts( vector< vec3d > & pnt_vec )
     {
         for ( int j = 0 ; j < num_pnts ; j++ )
         {
-            double w = fabs( pnt_vec[i].x() - pnt_vec[j].x() );
+            double w = std::abs( pnt_vec[i].x() - pnt_vec[j].x() );
             if ( w > m_Width() )
             {
                 m_Width = w;
             }
-            double h = fabs( pnt_vec[i].y() - pnt_vec[j].y() );
+            double h = std::abs( pnt_vec[i].y() - pnt_vec[j].y() );
             if ( h > m_Height() )
             {
                 m_Height = h;
@@ -2192,7 +2192,7 @@ void FileXSec::ReadV2FileFuse2( xmlNodePtr &root )
             for ( int i = 0; i < num_pnts; i++ )
             {
                 pnt_vec.push_back( vec3d( arry[i], arrz[i], 0.0 ) );
-                if ( std::abs( arrz[i] ) < abs( std::arrz[izzero] ) )
+                if ( std::abs( arrz[i] ) < std::abs( arrz[izzero] ) )
                 {
                     izzero = i;
                 }

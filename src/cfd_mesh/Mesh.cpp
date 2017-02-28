@@ -323,9 +323,9 @@ int Mesh::CheckDupOrAdd( int ind, map< int, vector< int > > & indMap, vector< ve
         {
             int testind = iter->second[i];
 
-            if ( fabs( pntVec[ind].x() - pntVec[testind].x() ) < tol  &&
-                    fabs( pntVec[ind].y() - pntVec[testind].y() ) < tol  &&
-                    fabs( pntVec[ind].z() - pntVec[testind].z() ) < tol  )
+            if ( std::abs( pntVec[ind].x() - pntVec[testind].x() ) < tol  &&
+                    std::abs( pntVec[ind].y() - pntVec[testind].y() ) < tol  &&
+                    std::abs( pntVec[ind].z() - pntVec[testind].z() ) < tol  )
             {
                 return testind;
             }

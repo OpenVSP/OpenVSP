@@ -259,7 +259,7 @@ void Matrix4d::xformvec( std::vector < vec3d > & in ) const
 vec3d Matrix4d::getAngles() const
 {
     vec3d angles;
-    if ( fabs( mat[8] ) != 1 )
+    if ( std::abs( mat[8] ) != 1 )
     {
         angles.set_y( asin( mat[8] ) );
         double cos_y = cos( angles.y() );

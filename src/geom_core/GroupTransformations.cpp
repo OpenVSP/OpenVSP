@@ -288,7 +288,7 @@ void GroupTransformations::SetColor( const vec3d & color )
 double GroupTransformations::MakeValidRotation( const double &rotation )
 {
     // get the angle to be between 0 and 360
-    double angle = fabs( rotation ) - floor( fabs( rotation / 360.0 ) )*360.0;
+    double angle = std::abs( rotation ) - floor( std::abs( rotation / 360.0 ) )*360.0;
     if ( rotation < 0 ) angle *= -1.0;
 
     // convert the angle to be between +/- 180

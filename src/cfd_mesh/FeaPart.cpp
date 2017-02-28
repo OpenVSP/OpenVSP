@@ -86,11 +86,11 @@ void FeaNode::WriteNASTRAN( FILE* fp )
     double y = m_Pnt.y();
     double z = m_Pnt.z();
 
-    if ( fabs( x ) < 10.0 )
+    if ( std::abs( x ) < 10.0 )
     {
         fprintf( fp, "%8.5f,", x );
     }
-    else if ( fabs( x ) < 100.0 )
+    else if ( std::abs( x ) < 100.0 )
     {
         fprintf( fp, "%8.4f,", x );
     }
@@ -99,11 +99,11 @@ void FeaNode::WriteNASTRAN( FILE* fp )
         fprintf( fp, "%8.3f,", x );
     }
 
-    if ( fabs( y ) < 10.0 )
+    if ( std::abs( y ) < 10.0 )
     {
         fprintf( fp, "%8.5f,", y );
     }
-    else if ( fabs( y ) < 100.0 )
+    else if ( std::abs( y ) < 100.0 )
     {
         fprintf( fp, "%8.4f,", y );
     }
@@ -112,11 +112,11 @@ void FeaNode::WriteNASTRAN( FILE* fp )
         fprintf( fp, "%8.3f,", y );
     }
 
-    if ( fabs( z ) < 10.0 )
+    if ( std::abs( z ) < 10.0 )
     {
         fprintf( fp, "%8.5f\n", z );
     }
-    else if ( fabs( z ) < 100.0 )
+    else if ( std::abs( z ) < 100.0 )
     {
         fprintf( fp, "%8.4f\n", z );
     }
@@ -548,7 +548,7 @@ FeaSplice* FeaSpliceLine::FindClosestSplice( double x, double y )
     double xc = MapMouseToChord( x );
     for ( int i = 0 ; i < ( int )m_SpliceVec.size() ; i++ )
     {
-        double d = fabs( xc - m_SpliceVec[i]->m_Pos() );
+        double d = std::abs( xc - m_SpliceVec[i]->m_Pos() );
         if ( d < close_dist )
         {
             close_dist = d;
@@ -762,12 +762,12 @@ void FeaSlice::Clean()
 void FeaSlice::SetEndPoints( vec2d & uwA, vec2d uwB )
 {
     //==== Adjust UWs - Splitting at Seams has Problems ====//
-    if ( fabs( uwA[0] - uwB[0] ) < 0.00001 )
+    if ( std::abs( uwA[0] - uwB[0] ) < 0.00001 )
     {
         uwA[0] += 0.00001;
         uwB[0] += 0.00001;
     }
-    if ( fabs( uwA[1] - uwB[1] ) < 0.00001 )
+    if ( std::abs( uwA[1] - uwB[1] ) < 0.00001 )
     {
         uwA[1] += 0.00001;
         uwB[1] += 0.00001;
@@ -1459,7 +1459,7 @@ bool FeaRib::IsCap()
 {
     if ( m_PerSpan() < 0.001 || m_PerSpan() > 0.999 )
     {
-        if ( m_AbsSweepFlag && fabs( m_Sweep() ) < 0.001 )
+        if ( m_AbsSweepFlag && std::abs( m_Sweep() ) < 0.001 )
         {
             if ( m_PerSpan() < 0.001 )
             {

@@ -1406,7 +1406,7 @@ void MeshGeom::Scale()
 
 void MeshGeom::ApplyScale()
 {
-    if ( fabs( m_LastScale() - m_Scale() ) < 0.0000001 )
+    if ( std::abs( m_LastScale() - m_Scale() ) < 0.0000001 )
     {
         return;
     }
@@ -3146,7 +3146,7 @@ void MeshGeom::MassSliceX( int numSlices, bool writefile )
     double totalVol = 0.0;
     for ( i = 0 ; i < ( int )tetraVec.size() ; i++ )
     {
-        totalVol += fabs( tetraVec[i]->m_Vol );
+        totalVol += std::abs( tetraVec[i]->m_Vol );
     }
 
     vec3d cg( 0, 0, 0 );
@@ -3229,7 +3229,7 @@ void MeshGeom::MassSliceX( int numSlices, bool writefile )
         {
             if ( !tetraVec[i]->m_CompId.compare( id ) )
             {
-                compVol += fabs( tetraVec[i]->m_Vol );
+                compVol += std::abs( tetraVec[i]->m_Vol );
             }
         }
 

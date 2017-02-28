@@ -125,8 +125,8 @@ void SCurve::BorderTesselate( )
     double du = uwend[0] - ust;
     double dw = uwend[1] - wst;
 
-    double uspan = fabs( du );
-    double wspan = fabs( dw );
+    double uspan = std::abs( du );
+    double wspan = std::abs( dw );
 
     double span = max( uspan, wspan );
 
@@ -374,7 +374,7 @@ bool SCurve::BisectFind( double starget, double &s, double &ireal, double &t, do
     double sold = s;
 
     double tol = 1e-3;
-    double ds = fabs( starget - sold );
+    double ds = std::abs( starget - sold );
 
     double slower, supper;
     double ilower, iupper;
@@ -399,7 +399,7 @@ bool SCurve::BisectFind( double starget, double &s, double &ireal, double &t, do
     imid = ( ilower + iupper ) / 2.0;
 
     int iter = 0;
-    while( fabs( supper - slower ) / ds > tol )
+    while( std::abs( supper - slower ) / ds > tol )
     {
         InterpDistTable( imid, tmid, umid, smid, dsdimid );
 
@@ -437,13 +437,13 @@ bool SCurve::NewtonFind( double starget, double &s, double &ireal, double &t, do
     double sold = s;
     double irorig = ireal;
 
-    double ds = fabs( starget - sold );
+    double ds = std::abs( starget - sold );
 
     int itermax = 10;
     double tol = 1e-3;
 
     int iter = 0;
-    while( fabs( s - starget ) / ds > tol && iter < itermax )
+    while( std::abs( s - starget ) / ds > tol && iter < itermax )
     {
         double irold = ireal;
         double di = - ( s - starget ) / dsdi;
@@ -455,7 +455,7 @@ bool SCurve::NewtonFind( double starget, double &s, double &ireal, double &t, do
         // Check to keep Newton's method from exploding.  If the solution is
         // diverging, just move one segment in the indicated direction and
         // continue with Newton's method from there.
-        if( fabs( s - starget ) > fabs( sold - starget ) )
+        if( std::abs( s - starget ) > std::abs( sold - starget ) )
         {
             if( di < 0 )
             {
@@ -474,7 +474,7 @@ bool SCurve::NewtonFind( double starget, double &s, double &ireal, double &t, do
         iter = iter + 1;
     }
 
-    if( fabs( s - starget ) > tol ) // Failed to converge.  Reset to start point and return failure.
+    if( std::abs( s - starget ) > tol ) // Failed to converge.  Reset to start point and return failure.
     {
         ireal = irorig;
         InterpDistTable( ireal, t, u, s, dsdi );

@@ -1668,7 +1668,7 @@ void FuseXSec::Update()
 
     //==== Apply Transform ====//
     m_TransformedCurve = baseCurve;
-    if ( fabs( m_Spin() ) > DBL_EPSILON )
+    if ( std::abs( m_Spin() ) > DBL_EPSILON )
     {
         std::cerr << "XSec spin not implemented." << std::endl;
     }
@@ -1687,7 +1687,7 @@ void FuseXSec::Update()
 //==== Set Ref Length ====//
 void FuseXSec::SetRefLength( double len )
 {
-    if ( fabs( len - m_RefLenVal ) < DBL_EPSILON )
+    if ( std::abs( len - m_RefLenVal ) < DBL_EPSILON )
     {
         return;
     }

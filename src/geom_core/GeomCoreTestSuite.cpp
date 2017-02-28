@@ -184,7 +184,7 @@ void GeomCoreTestSuite::XmlTest()
     TEST_ASSERT( dbl_vec.size() == dbl_ret_vec.size() );
     for ( int i = 0 ; i < ( int )dbl_vec.size() ; i++ )
     {
-        TEST_ASSERT( fabs( dbl_vec[i] - dbl_ret_vec[i] ) < DBL_EPSILON  );
+        TEST_ASSERT( std::abs( dbl_vec[i] - dbl_ret_vec[i] ) < DBL_EPSILON  );
     }
 
     xmlFreeNode( root );
@@ -274,9 +274,9 @@ void GeomCoreTestSuite::CompareVec3ds( const vec3d & v1, const vec3d & v2, const
 {
     char str[255];
     sprintf( str, "v1[0]: %10.16g v2[0]: %10.16g %s", v1[0], v2[0], msg );
-    TEST_ASSERT_MSG( fabs( v1[0] - v2[0] ) < 1e-5, str );
+    TEST_ASSERT_MSG( std::abs( v1[0] - v2[0] ) < 1e-5, str );
     sprintf( str, "v1[1]: %10.16g v2[1]: %10.16g %s", v1[1], v2[1], msg );
-    TEST_ASSERT_MSG( fabs( v1[1] - v2[1] ) < 1e-5, str );
+    TEST_ASSERT_MSG( std::abs( v1[1] - v2[1] ) < 1e-5, str );
     sprintf( str, "v1[2]: %10.16g v%10.16g %s", v1[2], v2[2], msg );
-    TEST_ASSERT_MSG( fabs( v1[2] - v2[2] ) < 1e-5, str );
+    TEST_ASSERT_MSG( std::abs( v1[2] - v2[2] ) < 1e-5, str );
 }
