@@ -141,6 +141,54 @@ string XSecCurve::GetName()
 void XSecCurve::SetScale( double scale )
 {
     SetWidthHeight( GetWidth()*scale, GetHeight()*scale );
+
+    if ( m_TECloseType() != XSEC_CLOSE_TYPE::CLOSE_NONE )
+    {
+        if ( m_TECloseAbsRel() == ABS )
+        {
+            m_TECloseThick.Set( m_TECloseThick() * scale );
+        }
+    }
+
+    if ( m_LECloseType() != XSEC_CLOSE_TYPE::CLOSE_NONE )
+    {
+        if ( m_LECloseAbsRel() == ABS )
+        {
+            m_LECloseThick.Set( m_LECloseThick() * scale );
+        }
+    }
+
+    if ( m_TETrimType() == XSEC_TRIM_TYPE::TRIM_THICK )
+    {
+        if ( m_TETrimAbsRel() == ABS )
+        {
+            m_TETrimThick.Set( m_TETrimThick() * scale );
+        }
+    }
+
+    if ( m_TETrimType() == XSEC_TRIM_TYPE::TRIM_X )
+    {
+        if ( m_TETrimAbsRel() == ABS )
+        {
+            m_TETrimX.Set( m_TETrimX() * scale );
+        }
+    }
+
+    if ( m_LETrimType() == XSEC_TRIM_TYPE::TRIM_THICK )
+    {
+        if ( m_LETrimAbsRel() == ABS )
+        {
+            m_LETrimThick.Set( m_LETrimThick() * scale );
+        }
+    }
+
+    if ( m_LETrimType() == XSEC_TRIM_TYPE::TRIM_X )
+    {
+        if ( m_LETrimAbsRel() == ABS )
+        {
+            m_LETrimX.Set( m_LETrimX() * scale );
+        }
+    }
 }
 
 //==== Parm Changed ====//

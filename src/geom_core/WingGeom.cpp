@@ -953,13 +953,19 @@ void WingGeom::Scale()
     {
         //==== Adjust Sections Area ====//
         vector< WingSect* > ws_vec = GetWingSectVec();
-        for ( int i = 1 ; i < (int)ws_vec.size() ; i++ )
+        for ( int i = 0 ; i < (int)ws_vec.size() ; i++ )
         {
             WingSect* ws = ws_vec[i];
             if ( ws )
             {
-                double area = ws->m_Area()*currentScale*currentScale;
-                ws->ForceAspectTaperArea( ws->m_Aspect(), ws->m_Taper(), area );
+                if (i > 0) // Don't operate on 0th section.
+                {
+                    double area = ws->m_Area() * currentScale * currentScale;
+                    ws->ForceAspectTaperArea(ws->m_Aspect(), ws->m_Taper(), area);
+                }
+
+                // Operate on all sections.
+                ws->SetScale( currentScale );
             }
         }
 
