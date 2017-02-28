@@ -955,6 +955,7 @@ void CustomGeom::CloneSurf( int index, Matrix4d & mat )
     {
         VspSurf clone = m_MainSurfVec[index];
         clone.Transform( mat );
+        clone.SetClone( index, mat );
         m_MainSurfVec.push_back( clone );
     }
 }
