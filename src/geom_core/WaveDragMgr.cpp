@@ -638,9 +638,9 @@ void WaveDragSingleton::EvalELCurve( const vector < double > & conpnts, const ve
         }
         S.push_back( Ssum );
 
-        if ( abs(S2sum) > S2max )
+        if ( std::abs(S2sum) > S2max )
         {
-            S2max = abs(S2sum);
+            S2max = std::abs(S2sum);
             xMaxDrag = x[i];
         }
     }
@@ -681,6 +681,6 @@ void WaveDragSingleton::Lighthill( const vector < double > &xvec, vector < doubl
     for ( int i = 0; i < n; i++ )
     {
         double x = xvec[i];
-        Svec[i] = Smax * ( 2.0 * sqrt( x * ( 1 - x ) ) - ( 1.0 - 2.0 * x ) * ( 1.0 - 2.0 * x ) * acosh( abs( 1.0 / ( 1.0 - 2.0 * x ) ) ) );
+        Svec[i] = Smax * ( 2.0 * sqrt( x * ( 1 - x ) ) - ( 1.0 - 2.0 * x ) * ( 1.0 - 2.0 * x ) * acosh( std::abs( 1.0 / ( 1.0 - 2.0 * x ) ) ) );
     }
 }

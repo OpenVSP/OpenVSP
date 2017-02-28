@@ -1128,7 +1128,7 @@ void CSTAirfoil::FitCurve( VspCurve c, int deg )
 
     double dte = cst.get_trailing_edge_thickness() * m_Scale();
 
-    if ( abs( dte ) > 1e-6 )
+    if ( std::abs( dte ) > 1e-6 )
     {
         m_TECloseType = CLOSE_SKEWBOTH;
         m_TECloseAbsRel = REL;

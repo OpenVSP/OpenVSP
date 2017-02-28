@@ -2192,7 +2192,7 @@ void FileXSec::ReadV2FileFuse2( xmlNodePtr &root )
             for ( int i = 0; i < num_pnts; i++ )
             {
                 pnt_vec.push_back( vec3d( arry[i], arrz[i], 0.0 ) );
-                if ( abs( arrz[i] ) < abs( arrz[izzero] ) )
+                if ( std::abs( arrz[i] ) < abs( std::arrz[izzero] ) )
                 {
                     izzero = i;
                 }

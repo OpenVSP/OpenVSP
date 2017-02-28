@@ -949,7 +949,7 @@ void WingGeom::Scale()
 {
     double currentScale = m_Scale() / m_LastScale();
 
-    if( abs( 1.0 - currentScale ) > 1e-6 )
+    if( std::abs( 1.0 - currentScale ) > 1e-6 )
     {
         //==== Adjust Sections Area ====//
         vector< WingSect* > ws_vec = GetWingSectVec();

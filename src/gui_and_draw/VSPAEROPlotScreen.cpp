@@ -1312,7 +1312,7 @@ void VSPAEROPlotScreen::PlotConvergence( string resultID, vector <string> yDataS
                             diffY = tempY[j] - tempY[j - 1];
                             if ( diffY != 0 ) // inf protection on log10()
                             {
-                                yDoubleData[j] = log10( abs( diffY ) );
+                                yDoubleData[j] = log10( std::abs( diffY ) );
                                 j++;
                             }
                             else
