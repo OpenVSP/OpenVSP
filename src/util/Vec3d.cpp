@@ -233,15 +233,15 @@ void vec3d::normalize()
 int vec3d::major_comp() const
 {
 	int i = 0;
-	double c = abs( v[i] );
+	double c = std::abs( v[i] );
 
-	if( abs(v[1]) > c )
+	if( std::abs(v[1]) > c )
 	{
 		i = 1;
-		c = abs( v[i] );
+		c = std::abs( v[i] );
 	}
 
-	if( abs(v[2]) > c )
+	if( std::abs(v[2]) > c )
 	{
 		i = 2;
 	}
@@ -251,18 +251,18 @@ int vec3d::major_comp() const
 int vec3d::minor_comp() const
 {
 	int i = 0;
-	double c = abs( v[i] );
+	double c = std::abs( v[i] );
 
-	if( abs(v[1]) < c )
+	if( std::abs(v[1]) < c )
 	{
 		i = 1;
-		c = abs( v[i] );
+		c = std::abs( v[i] );
 	}
 
-	if( abs(v[2]) < c )
+	if( std::abs(v[2]) < c )
 	{
 		i = 2;
-		c = abs( v[i] );
+		c = std::abs( v[i] );
 	}
 	return i;
 }

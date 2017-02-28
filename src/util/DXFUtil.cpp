@@ -199,19 +199,19 @@ void DXFShift( vector < vector < vec3d > > &allflines, vec3d shiftvec, int shift
         {
             if ( shift == vsp::VIEW_SHIFT::LEFT )
             {
-                allflines[l][j].offset_x( -abs( shiftvec.x() ) * 0.75 );
+                allflines[l][j].offset_x( -std::abs( shiftvec.x() ) * 0.75 );
             }
             else if ( shift == vsp::VIEW_SHIFT::RIGHT )
             {
-                allflines[l][j].offset_x( abs( shiftvec.x() ) * 0.75 );
+                allflines[l][j].offset_x( std::abs( shiftvec.x() ) * 0.75 );
             }
             else if ( shift == vsp::VIEW_SHIFT::UP )
             {
-                allflines[l][j].offset_y( abs( shiftvec.y() ) );
+                allflines[l][j].offset_y( std::abs( shiftvec.y() ) );
             }
             else if ( shift == vsp::VIEW_SHIFT::DOWN )
             {
-                allflines[l][j].offset_y( -abs( shiftvec.y() ) );
+                allflines[l][j].offset_y( -std::abs( shiftvec.y() ) );
             }
         }
     }
