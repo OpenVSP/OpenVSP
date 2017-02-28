@@ -29,6 +29,8 @@ public:
     ConformalGeom( Vehicle* vehicle_ptr );
     virtual ~ConformalGeom();
 
+    virtual void Scale();
+
     Parm m_Offset;                  // Offset to Conformal Surface
 
     BoolParm m_UTrimFlag;

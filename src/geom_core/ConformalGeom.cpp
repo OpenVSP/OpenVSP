@@ -73,6 +73,13 @@ ConformalGeom::~ConformalGeom()
 
 }
 
+void ConformalGeom::Scale()
+{
+    double currentScale = m_Scale() / m_LastScale();
+    m_Offset *= currentScale;
+    m_LastScale = m_Scale();
+}
+
 void ConformalGeom::UpdateSurf()
 {
     //===== Find Parent ====//
