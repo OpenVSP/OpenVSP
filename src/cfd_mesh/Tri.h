@@ -15,7 +15,7 @@
 #include "Vec3d.h"
 
 #define _USE_MATH_DEFINES
-#include <math.h>
+#include <cmath>
 #include <assert.h>
 
 #include <list>

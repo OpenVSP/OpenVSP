@@ -22,7 +22,7 @@
 #define DEFAULT_PLANE_TOL (1.0e-5)
 
 #include <assert.h>
-#include <math.h>
+#include <cmath>
 #include <float.h>
 
 #include <vector>

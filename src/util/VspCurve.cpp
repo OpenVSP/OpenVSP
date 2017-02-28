@@ -10,7 +10,7 @@
 
 
 #include <stdio.h>
-#include <math.h>
+#include <cmath>
 
 #include "VspCurve.h"
 #include "APIDefines.h"

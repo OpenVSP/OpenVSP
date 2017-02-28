@@ -25,7 +25,7 @@
 #include "DrawObj.h"
 
 #include <assert.h>
-#include <math.h>
+#include <cmath>
 
 #include <vector>
 #include <set>
