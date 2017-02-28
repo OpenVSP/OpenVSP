@@ -121,43 +121,55 @@ void ConformalGeom::UpdateSurf()
 
     for ( int i = 0 ; i < (int)m_MainSurfVec.size() ; i++ )
     {
-        int skin_type = m_MainSurfVec[i].GetSkinType();
-
-        //==== Only Works for Skin Ribs for Now ====//
-        if ( skin_type == VspSurf::SKIN_RIBS )
+        if ( m_MainSurfVec[i].IsClone() )
         {
-            //==== Check If Wing ====//
-            if ( m_WingParentFlag )
+            int clone_index = m_MainSurfVec[i].GetCloneIndex();
+            Matrix4d clone_mat;
+            m_MainSurfVec[i].GetCloneMat( clone_mat );
+
+            m_MainSurfVec[i] = m_MainSurfVec[ clone_index ];
+            m_MainSurfVec[i].Transform( clone_mat );
+        }
+        else
+        {
+            int skin_type = m_MainSurfVec[i].GetSkinType();
+
+            //==== Only Works for Skin Ribs for Now ====//
+            if (skin_type == VspSurf::SKIN_RIBS)
             {
-                //==== Set Wing Specific Trimming Parms ====//
-                SetWingTrimParms( m_MainSurfVec[i] );
-            }
+                //==== Check If Wing ====//
+                if (m_WingParentFlag)
+                {
+                    //==== Set Wing Specific Trimming Parms ====//
+                    SetWingTrimParms(m_MainSurfVec[i]);
+                }
 
-            //==== Make Sure Ribs Are Centered ====//
-            CenterRibCurves(  m_MainSurfVec[i], parent_surf_vec[i], offset );
+                //==== Make Sure Ribs Are Centered ====//
+                CenterRibCurves(m_MainSurfVec[i], parent_surf_vec[i], offset);
 
-            //==== Offset Ribs ====//
-            OffsetEndRibs( m_MainSurfVec[i], offset );
+                //==== Offset Ribs ====//
+                OffsetEndRibs(m_MainSurfVec[i], offset);
 
-            //==== Adjust Shape By Scaling Fp and Moving End Ribs ====//
-            if ( !m_WingParentFlag )
-            {
+                //==== Adjust Shape By Scaling Fp and Moving End Ribs ====//
+                if (!m_WingParentFlag)
+                {
 // Measure Error - Expensive
 //ComputeMaxOffsetError( m_MainSurfVec[i], parent_surf_vec[i], offset, 20, 8 );
-                AdjustShape( m_MainSurfVec[i], parent_surf_vec[i], offset );
+                    AdjustShape(m_MainSurfVec[i], parent_surf_vec[i], offset);
 //ComputeMaxOffsetError( m_MainSurfVec[i], parent_surf_vec[i], offset, 20, 8 );
-            }
+                }
 
-            //==== Trim U and V is Needed ====//
-            TrimU( m_MainSurfVec[i] );
-            TrimV( m_MainSurfVec[i] );
-        }
-        //==== To Do - Body of Rev (Pods) ====//
-        else if ( skin_type == VspSurf::SKIN_BODY_REV )
-        {
-            //==== Trim U and V is Needed ====//
-            TrimU( m_MainSurfVec[i] );
-            TrimV( m_MainSurfVec[i] );
+                //==== Trim U and V is Needed ====//
+                TrimU(m_MainSurfVec[i]);
+                TrimV(m_MainSurfVec[i]);
+            }
+                //==== To Do - Body of Rev (Pods) ====//
+            else if (skin_type == VspSurf::SKIN_BODY_REV)
+            {
+                //==== Trim U and V is Needed ====//
+                TrimU(m_MainSurfVec[i]);
+                TrimV(m_MainSurfVec[i]);
+            }
         }
     }
 
