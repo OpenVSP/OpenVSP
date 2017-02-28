@@ -32,7 +32,8 @@ enum ERROR_CODE {   VSP_OK,
                     VSP_CANT_SET_NOT_EQ_PARM,
                     VSP_AMBIGUOUS_SUBSURF,
                     VSP_INVALID_VARPRESET_SETNAME,
-                    VSP_INVALID_VARPRESET_GROUPNAME
+                    VSP_INVALID_VARPRESET_GROUPNAME,
+                    VSP_CONFORMAL_PARENT_UNSUPPORTED
                 };
 
 enum {  SYM_XY = ( 1 << 0 ),

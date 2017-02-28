@@ -509,6 +509,26 @@ string Vehicle::AddGeom( const GeomType & type )
         //==== Update Conformal After Attachment to Parent ====//
         else if ( type.m_Type == CONFORMAL_GEOM_TYPE )
         {
+            string parID = add_geom->GetParentID();
+            Geom* par = FindGeom( parID );
+
+            if ( par )
+            {
+                if ( par->GetType().m_Type == BLANK_GEOM_TYPE ||
+                     par->GetType().m_Type == MESH_GEOM_TYPE ||
+                     par->GetType().m_Type == PT_CLOUD_GEOM_TYPE ||
+                     par->GetType().m_Type == HINGE_GEOM_TYPE ||
+                     par->GetType().m_Type == CONFORMAL_GEOM_TYPE )
+                {
+                    MessageData errMsgData;
+                    errMsgData.m_String = "Error";
+                    errMsgData.m_IntVec.push_back( vsp::VSP_CONFORMAL_PARENT_UNSUPPORTED );
+                    errMsgData.m_StringVec.push_back( string( "Error:  Conformal component not supported for this parent type." ) );
+
+                    MessageMgr::getInstance().SendAll( errMsgData );
+                }
+            }
+
             add_geom->Update();
         }
     }
