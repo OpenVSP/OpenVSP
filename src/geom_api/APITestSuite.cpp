@@ -346,6 +346,54 @@ void APITestSuite::TestDXFExport()
     printf( "\n" );
 }
 
+void APITestSuite::TestFacetExport()
+{
+    printf( "APITestSuite::TestFacetExport()\n" );
+
+    // make sure setup works
+    vsp::VSPCheckSetup();
+    vsp::VSPRenew();
+
+    //==== Add Pod Geom and set some parameters =====//
+    string pod_id = vsp::AddGeom( "POD" );
+    TEST_ASSERT( pod_id.c_str() != NULL );
+
+
+    //==== Add SubSurfaces and set some parameters ====/
+    string subsurf_ellipse_id = vsp::AddSubSurf( pod_id, vsp::SS_ELLIPSE, 0 );
+    TEST_ASSERT( subsurf_ellipse_id.c_str() != NULL );
+
+    string subsurf_rectangle_id = vsp::AddSubSurf( pod_id, vsp::SS_RECTANGLE, 0 );
+    TEST_ASSERT( subsurf_rectangle_id.c_str() != NULL );
+
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( subsurf_rectangle_id, "Center_U", "SS_Rectangle" ), 0.6 ), 0.6, TEST_TOL );
+
+
+    vsp::Update();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    //==== CFDMesh Method Facet Export =====//
+    vsp::SetComputationFileName( vsp::CFD_FACET_TYPE, "TestCFDMeshFacet_API.facet" );
+
+    printf( "\tComputing CFDMesh..." );
+
+    vsp::ComputeCFDMesh( vsp::SET_ALL, vsp::CFD_FACET_TYPE );
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    printf( "COMPLETE\n" );
+
+    //==== MeshGeom Method Facet Export =====//
+    printf( "\tComputing MeshGeom..." );
+
+    ExportFile( "TestMeshGeomFacet_API.facet", vsp::SET_ALL, vsp::EXPORT_FACET );
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+    
+    printf( "COMPLETE\n" );
+
+    // Final check for errors
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+    printf( "\n" );
+}
 
 //=============================================================================//
 //========================== APITestSuiteVSPAERO ==============================//

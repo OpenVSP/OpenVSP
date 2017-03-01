@@ -31,7 +31,7 @@ public:
 
         // Export
         TEST_ADD( APITestSuite::TestDXFExport )
-
+        TEST_ADD( APITestSuite::TestFacetExport )
     }
 
 private:
@@ -46,6 +46,7 @@ private:
     void TestAnalysesWithPod();
     // Export
     void TestDXFExport();
+    void TestFacetExport();
 };
 
 class APITestSuiteVSPAERO : public Test::Suite
