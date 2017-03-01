@@ -834,6 +834,20 @@ int MeshGeom::WriteGMshNodes( FILE* fp, int node_offset )
     return node_offset + ( int )m_IndexedNodeVec.size();
 }
 
+void MeshGeom::WriteFacetNodes( FILE* fp )
+{
+    //==== Write Out Nodes ====//
+    vec3d v;
+    Matrix4d XFormMat = GetTotalTransMat();
+    for ( int i = 0; i < (int)m_IndexedNodeVec.size(); i++ )
+    {
+        TNode* tnode = m_IndexedNodeVec[i];
+        // Apply Transformations
+        v = XFormMat.xform( tnode->m_Pnt );
+        fprintf( fp, "%16.10g %16.10g %16.10g\n", v.x(), v.y(), v.z() );
+    }
+}
+
 int MeshGeom::WriteNascartTris( FILE* fp, int off )
 {
     //==== Write Out Tris ====//
@@ -878,6 +892,85 @@ int MeshGeom::WriteGMshTris( FILE* fp, int node_offset, int tri_offset )
         }
     }
     return ( tri_offset + m_IndexedTriVec.size() );
+}
+
+void MeshGeom::WriteFacetTriParts( FILE* fp, int &offset, int &tri_count, int &part_count )
+{
+    vector < string > geom_ID_vec;
+    geom_ID_vec.resize( m_TMeshVec.size() );
+
+    for ( unsigned int i = 0; i < m_TMeshVec.size(); i++ )
+    {
+        geom_ID_vec[i] = m_TMeshVec[i]->m_PtrID;
+    }
+
+    vector < int > tri_offset; // vector of number of tris for each tag
+
+    int materialID = 0; // Default Material ID of PEC (Referred to as "iCoat" in XPatch facet file documentation)
+
+    vector < int > all_tag_vec = SubSurfaceMgr.GetAllTags(); // vector of tags, where each tag identifies a part or group of facets
+
+    //==== Get # of facets for each part ====//
+    for ( unsigned int i = 0; i < all_tag_vec.size(); i++ )
+    {
+        int tag_count = 0;
+
+        for ( unsigned int j = 0; j < m_IndexedTriVec.size(); j++ )
+        {
+            if ( all_tag_vec[i] == SubSurfaceMgr.GetTag( m_IndexedTriVec[j]->m_Tags ) )
+            {
+                tag_count++;
+            }
+        }
+
+        tri_offset.push_back( tag_count );
+    }
+
+    // Remove indexes of tri_offset that contain no tris
+    for ( unsigned int j = 0; j < tri_offset.size(); j++ )
+    {
+        if ( tri_offset[j] == 0 ) // This indicates no tris for the tag index. 
+        {
+            // Erase to avoid writing and counting parts with no tris
+            tri_offset.erase( tri_offset.begin() + j );
+            all_tag_vec.erase( all_tag_vec.begin() + j );
+            j--;
+        }
+    }
+
+    fprintf( fp, "%d \n", tri_offset.size() ); // # of "Small" parts, based on the total number of tags
+
+    //==== Write Out Tris ====//
+    for ( unsigned int i = 0; i < all_tag_vec.size(); i++ )
+    {
+        int curr_tag = all_tag_vec[i];
+        bool new_section = true; // flag to write small part section header
+
+        for ( unsigned int j = 0; j < m_IndexedTriVec.size(); j++ )
+        {
+            if ( curr_tag == SubSurfaceMgr.GetTag( m_IndexedTriVec[j]->m_Tags ) ) // only write out current tris for surrent tag
+            {
+                if ( new_section ) // write small part header and get material ID for small part
+                {
+                    string name = SubSurfaceMgr.GetTagNames( m_IndexedTriVec[j]->m_Tags );
+                    fprintf( fp, "%s\n", name.c_str() ); // Write name of small part
+                    fprintf( fp, "%d 3\n", tri_offset[i] ); // Number of facets for the part, 3 nodes per facet
+
+                    new_section = false;
+                }
+
+                TTri* ttri = m_IndexedTriVec[j];
+
+                tri_count++; // counter for number of tris/facets
+
+                // 3 nodes of facet, material ID, component ID, running facet #:
+                fprintf( fp, "%d %d %d %d %d %d\n", ttri->m_N0->m_ID + 1 + offset, ttri->m_N1->m_ID + 1 + offset, ttri->m_N2->m_ID + 1 + offset, materialID, i + 1 + part_count, tri_count );
+            }
+        }
+    }
+
+    part_count += tri_offset.size();
+    offset += m_IndexedNodeVec.size();
 }
 
 int MeshGeom::WriteNascartParts( FILE* fp, int off )
