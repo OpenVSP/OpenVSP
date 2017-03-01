@@ -92,7 +92,6 @@ public:
     IntParm m_WakeAvgStartIter;
     IntParm m_WakeSkipUntilIter;
 
-    enum { MANUAL_REF = 0, COMPONENT_REF, };
 
     // Plotwindow settings
     BoolParm m_ConvergenceXMinIsManual;

@@ -40,7 +40,7 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_cref.Init( "cref", "VSPAERO", this, 1.0, 0.0, 1e6 );
     m_cref.SetDescript( "Reference chord" );
 
-    m_RefFlag.Init( "RefFlag", "VSPAERO", this, MANUAL_REF, MANUAL_REF, COMPONENT_REF );
+    m_RefFlag.Init( "RefFlag", "VSPAERO", this, vsp::VSPAERO_REF_WING_TYPE::MANUAL_REF, 0, vsp::VSPAERO_REF_WING_TYPE::NUM_REF_TYPES - 1 );
     m_RefFlag.SetDescript( "Reference quantity flag" );
 
     m_CGGeomSet.Init( "MassSet", "VSPAERO", this, 0, 0, 12 );
@@ -181,7 +181,7 @@ xmlNodePtr VSPAEROMgrSingleton::DecodeXml( xmlNodePtr & node )
 
 void VSPAEROMgrSingleton::Update()
 {
-    if( m_RefFlag() == MANUAL_REF )
+    if( m_RefFlag() == vsp::VSPAERO_REF_WING_TYPE::MANUAL_REF )
     {
         m_Sref.Activate();
         m_bref.Activate();
