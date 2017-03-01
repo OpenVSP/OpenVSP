@@ -1,0 +1,43 @@
+
+void main()
+{
+    Print( string( "Begin Facet Export Test" ) );
+    Print( string( "" ) );
+    TestFacet();
+    Print( string( "End Facet Export Test" ) );
+}
+
+void TestFacet()
+{
+    Print( string( "--> Generating Geometries" ) );
+    //Print( string( "" ) );
+
+    //==== Add Pod and set some parameters ====//
+    string pod_id = AddGeom( "POD", "" );
+
+    //==== Add SubSurfaces and set some parameters ====/
+    string subsurf_ellipse_id = AddSubSurf( pod_id, SS_ELLIPSE, 0 );
+
+    string subsurf_rectangle_id = AddSubSurf( pod_id, SS_RECTANGLE, 0 );
+
+    SetParmVal( FindParm( subsurf_rectangle_id, "Center_U", "SS_Rectangle" ), 0.6 );
+
+    Update();
+
+    //==== CFDMesh Method Facet Export =====//
+    SetComputationFileName( CFD_FACET_TYPE, "TestCFDMeshFacet.facet" );
+
+    Print( string( "---> Computing CFDMesh..." ), false );
+
+    ComputeCFDMesh( SET_ALL, CFD_FACET_TYPE );
+
+    Print( string( "COMPLETE" ) );
+
+    //==== MeshGeom Method Facet Export =====//
+    Print( string( "---> Computing MeshGeom..." ), false );
+
+    ExportFile( "TestMeshGeomFacet.facet", SET_ALL, EXPORT_FACET );
+    
+    Print( string( "COMPLETE \n" ) );
+
+}
