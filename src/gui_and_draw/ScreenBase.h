@@ -380,6 +380,52 @@ protected:
 
 };
 
+class BlendScreen : public GeomScreen
+{
+public:
+    BlendScreen( ScreenMgr* mgr, int w, int h, const string & title );
+    virtual ~BlendScreen()                               {}
+
+    virtual bool Update( );
+    virtual void CallBack( Fl_Widget *w );
+    virtual void GuiDeviceCallBack( GuiDevice* device );
+    static void staticScreenCB( Fl_Widget *w, void* data )
+    {
+        ( ( BlendScreen* )data )->CallBack( w );
+    }
+
+protected:
+
+    GroupLayout m_BlendLayout;
+
+    IndexSelector m_BlendIndexSelector;
+
+    GroupLayout m_InLELayout;
+    Choice m_InLEChoice;
+    SliderAdjRangeInput m_InLESweep;
+    SliderAdjRangeInput m_InLEDihedral;
+    SliderAdjRangeInput m_InLEStrength;
+
+    GroupLayout m_InTELayout;
+    Choice m_InTEChoice;
+    SliderAdjRangeInput m_InTESweep;
+    SliderAdjRangeInput m_InTEDihedral;
+    SliderAdjRangeInput m_InTEStrength;
+
+    GroupLayout m_OutLELayout;
+    Choice m_OutLEChoice;
+    SliderAdjRangeInput m_OutLESweep;
+    SliderAdjRangeInput m_OutLEDihedral;
+    SliderAdjRangeInput m_OutLEStrength;
+
+    GroupLayout m_OutTELayout;
+    Choice m_OutTEChoice;
+    SliderAdjRangeInput m_OutTESweep;
+    SliderAdjRangeInput m_OutTEDihedral;
+    SliderAdjRangeInput m_OutTEStrength;
+
+};
+
 class XSecViewScreen : public BasicScreen
 {
 public:

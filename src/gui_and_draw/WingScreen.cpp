@@ -13,11 +13,11 @@
 using namespace vsp;
 
 //==== Constructor ====//
-WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 335, 680, "Wing" )
+WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 400, 680, "Wing" )
 {
     m_CurrDisplayGroup = NULL;
 
-    Fl_Group* plan_tab = AddTab( "Plan" );
+    Fl_Group* plan_tab = AddTab( "Plan", 3 );
     Fl_Group* plan_group = AddSubGroup( plan_tab, 5 );
 
     m_PlanLayout.SetGroupAndScreen( plan_group, this );
@@ -79,7 +79,7 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 335, 680, "Wing" )
     m_PlanLayout.AddOutput( m_SmallPanelWOutput, "Minimum LE/TE Panel Width" );
     m_PlanLayout.AddOutput( m_MaxGrowthOutput, "Maximum Growth Ratio" );
 
-    Fl_Group* sect_tab = AddTab( "Sect" );
+    Fl_Group* sect_tab = AddTab( "Sect", 4 );
     Fl_Group* sect_group = AddSubGroup( sect_tab, 5 );
 
     m_SectionLayout.SetGroupAndScreen( sect_group, this );
@@ -195,7 +195,7 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 335, 680, "Wing" )
     m_SectionLayout.SetButtonWidth( 74 );
 
 
-    Fl_Group* af_tab = AddTab( "Airfoil" );
+    Fl_Group* af_tab = AddTab( "Airfoil", 5 );
     Fl_Group* af_group = AddSubGroup( af_tab, 5 );
 
     m_AfLayout.SetGroupAndScreen( af_group, this );
@@ -681,7 +681,7 @@ bool WingScreen::Update()
         return false;
     }
 
-    GeomScreen::Update();
+    BlendScreen::Update();
     m_NumUSlider.Deactivate();
 
     WingGeom* wing_ptr = dynamic_cast< WingGeom* >( geom_ptr );
@@ -1583,13 +1583,13 @@ void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         }
     }
 
-    GeomScreen::GuiDeviceCallBack( gui_device );
+    BlendScreen::GuiDeviceCallBack( gui_device );
 }
 
 //==== Fltk  Callbacks ====//
 void WingScreen::CallBack( Fl_Widget *w )
 {
-    GeomScreen::CallBack( w );
+    BlendScreen::CallBack( w );
 }
 
 void WingScreen::RebuildCSTGroup( CSTAirfoil* cst_xs)

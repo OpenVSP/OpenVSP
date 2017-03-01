@@ -18,7 +18,7 @@
 
 #include <FL/Fl.H>
 
-class WingScreen : public GeomScreen
+class WingScreen : public BlendScreen
 {
 public:
     WingScreen( ScreenMgr* mgr );
