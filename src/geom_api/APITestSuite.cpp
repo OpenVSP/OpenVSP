@@ -915,9 +915,6 @@ void APITestSuiteVSPAERO::TestVSPAeroSweep()
     //    Analysis method
     std::vector< int > analysis_method; analysis_method.push_back( vsp::VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE );
     vsp::SetIntAnalysisInput( analysis_name, "AnalysisMethod", analysis_method, 0);
-    //    Set Batch Mode
-    std::vector< int > batch_mode_flag; batch_mode_flag.push_back( 0 );
-    vsp::SetIntAnalysisInput( analysis_name, "BatchModeFlag", batch_mode_flag, 0 );
     //    Reference geometry set
     std::vector< int > geom_set; geom_set.push_back(0);
     vsp::SetIntAnalysisInput(analysis_name, "GeomSet", geom_set);
