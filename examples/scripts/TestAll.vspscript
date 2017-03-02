@@ -276,9 +276,8 @@ void TestAPIScript()
     if ( num_xsec_surfs != 1 )                Print( "---> Error: API GetNumXSecSurfs  " );
 
     string xsec_surf = GetXSecSurf( fuseid, 0 );
-    int num_xsecs = GetNumXSec( xsec_surf );
 
-    if ( num_xsecs < 1 )                    Print( "---> Error: API GetXSecSurf/GetNumXSec  " );
+    if ( GetNumXSec( xsec_surf ) < 1 )                    Print( "---> Error: API GetXSecSurf/GetNumXSec  " );
 
     Print(string("---> Test Get XSec"));
     string xsec = GetXSec( xsec_surf, 0 );
