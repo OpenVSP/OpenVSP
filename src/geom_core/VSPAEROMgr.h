@@ -127,7 +127,7 @@ public:
 protected:
     string m_LastPanelMeshGeomId;
 
-    void WaitForFile( string filename );  // function is used to wait for the result to show up on the file system
+    int WaitForFile( string filename );  // function is used to wait for the result to show up on the file system
     void GetSweepVectors( vector<double> &alphaVec, vector<double> &betaVec, vector<double> &machVec );
 
     void MonitorSolver( FILE * logFile );

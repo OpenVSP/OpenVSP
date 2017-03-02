@@ -999,7 +999,7 @@ ProcessUtil* VSPAEROMgrSingleton::GetSolverProcess()
 }
 
 // function is used to wait for the result to show up on the file system
-void VSPAEROMgrSingleton::WaitForFile( string filename )
+int VSPAEROMgrSingleton::WaitForFile( string filename )
 {
     // Wait until the results show up on the file system
     int n_wait = 0;
@@ -1010,6 +1010,15 @@ void VSPAEROMgrSingleton::WaitForFile( string filename )
         SleepForMilliseconds( 100 );
     }
     SleepForMilliseconds( 100 );  //additional wait for file
+
+    if ( FileExist( filename ) )
+    {
+        return vsp::ERROR_CODE::VSP_OK;
+    }
+    else
+    {
+        return vsp::ERROR_CODE::VSP_FILE_DOES_NOT_EXIST;
+    }
 }
 
 /*******************************************************
