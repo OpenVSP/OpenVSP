@@ -98,9 +98,9 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_StabilityCalcFlag.SetDescript( "Flag to calculate stability derivatives" );
     m_StabilityCalcFlag = false;
 
-    m_BatchModeFlag.Init( "BatchModeFlag", "VSPAERO", this, 0.0, 0.0, 1.0 );
+    m_BatchModeFlag.Init( "BatchModeFlag", "VSPAERO", this, true, false, true );
     m_BatchModeFlag.SetDescript( "Flag to calculate in batch mode" );
-    m_BatchModeFlag = false;
+    m_BatchModeFlag = true;
 
     m_ForceNewSetupfile.Init( "ForceNewSetupfile", "VSPAERO", this, 0.0, 0.0, 1.0 );
     m_ForceNewSetupfile.SetDescript( "Flag to creation of new setup file in ComputeSolver() even if one exists" );
