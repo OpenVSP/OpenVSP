@@ -1701,9 +1701,18 @@ void StringInput::Init( VspScreen* screen, Fl_Input* input )
 
     assert( input );
     m_Input = input;
-    //jrg - I changed this because of a crash when input does not callback until a Fl_Choice is pressed
-//    m_Input->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE );
-    m_Input->when(  FL_WHEN_CHANGED );
+    m_Input->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE );
+
+// JR changed the above line to the below (and added the following comment) between 2.9.7 and 2.9.8
+// in commit 7e27e2a8eb2b.
+//
+// FLTK was updated between 3.9.1 and 3.10.0, which may have changed the observed behavior.
+// GitHub issue #64 is resolved by reverting to the above line.  Though #64 mentions the problem
+// in 3.9.1, it is possible that version was actually compiled with the newer FLTK.
+
+//jrg - I changed this because of a crash when input does not callback until a Fl_Choice is pressed
+//    m_Input->when(  FL_WHEN_CHANGED );
+
     m_Input->callback( StaticDeviceCB, this );
 }
 
