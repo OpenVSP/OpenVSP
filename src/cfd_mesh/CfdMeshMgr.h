@@ -65,6 +65,7 @@
 #include "BezierCurve.h"
 #include "Vehicle.h"
 #include "CfdMeshSettings.h"
+#include "StructSettings.h"
 
 #include "Vec2d.h"
 #include "Vec3d.h"
@@ -349,10 +350,17 @@ public:
 
     stringstream m_OutStream;
 
-
-    CfdMeshSettings* GetCfdSettingsPtr()
+    virtual StructSettings* GetStructSettingsPtr()
+    {
+        return m_Vehicle->GetStructSettingsPtr();
+    }
+    virtual CfdMeshSettings* GetCfdSettingsPtr()
     {
         return m_Vehicle->GetCfdSettingsPtr();
+    }
+    virtual MeshCommonSettings* GetSettingsPtr()
+    {
+        return ( MeshCommonSettings* ) m_Vehicle->GetCfdSettingsPtr();
     }
 
     bool GetMeshInProgress()

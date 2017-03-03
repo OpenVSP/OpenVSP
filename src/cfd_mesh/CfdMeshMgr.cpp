@@ -1014,12 +1014,12 @@ void CfdMeshMgrSingleton::CleanMergeSurfs()
         Surf* surfPtr = surfs[s];
 
         bool addSurfFlag = true;
-        if ( GetCfdSettingsPtr()->GetHalfMeshFlag() && surfPtr->GetSurfCore()->LessThanY( 1e-6 ) )
+        if ( GetSettingsPtr()->GetHalfMeshFlag() && surfPtr->GetSurfCore()->LessThanY( 1e-6 ) )
         {
             addSurfFlag = false;
         }
 
-        if ( GetCfdSettingsPtr()->GetHalfMeshFlag() && surfPtr->GetSurfCore()->PlaneAtYZero() )
+        if ( GetSettingsPtr()->GetHalfMeshFlag() && surfPtr->GetSurfCore()->PlaneAtYZero() )
         {
             addSurfFlag = false;
         }
@@ -1345,7 +1345,7 @@ void CfdMeshMgrSingleton::Remesh( int output_type )
 
         m_SurfVec[i]->GetMesh()->LoadSimpTris();
         m_SurfVec[i]->GetMesh()->Clear();
-        m_SurfVec[i]->Subtag( GetCfdSettingsPtr()->GetIntersectSubSurfs() );
+        m_SurfVec[i]->Subtag( GetSettingsPtr()->GetIntersectSubSurfs() );
         m_SurfVec[i]->GetMesh()->CondenseSimpTris();
     }
 
@@ -4057,7 +4057,7 @@ bool CfdMeshMgrSingleton::SetDeleteTriFlag( int aType, bool symPlane, vector < b
             {
                 // Trim Symmetry plane
                 if ( symPlane && m_SurfVec[b]->GetFarFlag() &&
-                     GetCfdSettingsPtr()->GetFarCompFlag() )
+                     GetSettingsPtr()->GetFarCompFlag() )
                 {
                     return true;
                 }
@@ -4149,7 +4149,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
         {
             vector< vector< double > > t_vec_vec;
 
-            if (GetCfdSettingsPtr()->GetSymSplittingOnFlag())
+            if ( GetSettingsPtr()->GetSymSplittingOnFlag() )
             {
                 t_vec_vec.resize( m_NumComps + 10 );  // + 10 to handle possibility of outer domain and symmetry plane.
                 ( *t )->insideSurf.resize(m_NumComps + 10);
@@ -4176,7 +4176,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
                         m_SurfVec[i]->IntersectLineSeg( cp, ep, t_vec_vec[comp_id] );
                     }
                     else if ( m_SurfVec[i]->GetFarFlag() && m_SurfVec[s]->GetSymPlaneFlag() &&
-                              GetCfdSettingsPtr()->GetFarCompFlag() ) // Unless trimming sym plane by outer domain
+                              GetSettingsPtr()->GetFarCompFlag() ) // Unless trimming sym plane by outer domain
                     {
                         m_SurfVec[i]->IntersectLineSeg( cp, ep, t_vec_vec[comp_id] );
                     }
@@ -4192,7 +4192,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
                 if ( c >= 0 && c < ( *t )->insideSurf.size() )
                 {
                     if ( m_SurfVec[s]->GetSymPlaneFlag() && m_SurfVec[i]->GetFarFlag() &&
-                         GetCfdSettingsPtr()->GetFarCompFlag() )
+                         GetSettingsPtr()->GetFarCompFlag() )
                     {
                         if ( ( int )( t_vec_vec[c].size() + 1 ) % 2 == 1 ) // +1 Reverse action on sym plane wrt outer boundary.
                         {
@@ -4286,7 +4286,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
     }
 
     //==== Check For Half Mesh ====//
-    if ( GetCfdSettingsPtr()->GetHalfMeshFlag() )
+    if ( GetSettingsPtr()->GetHalfMeshFlag() )
     {
         for ( s = 0 ; s < ( int )m_SurfVec.size() ; s++ )
         {
@@ -4303,7 +4303,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
                 }
             }
 
-            if( !GetCfdSettingsPtr()->GetFarMeshFlag() ) // Don't keep symmetry plane.
+            if( !GetSettingsPtr()->GetFarMeshFlag() ) // Don't keep symmetry plane.
             {
                 if ( m_SurfVec[s]->GetSymPlaneFlag() )
                 {
