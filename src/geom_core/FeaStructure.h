@@ -336,4 +336,28 @@ protected:
     int m_FeaMaterialIndex;
 };
 
+class FeaMaterial : public ParmContainer
+{
+public:
+    FeaMaterial( );
+    virtual ~FeaMaterial();
+
+    virtual void ParmChanged( Parm* parm_ptr, int type );
+
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+
+    virtual void WriteNASTRAN( FILE* fp, int id );
+    virtual void WriteCalculix( FILE* fp, int id );
+
+    virtual double GetShearModulus();
+
+    Parm m_MassDensity;
+    Parm m_ElasticModulus;
+    Parm m_PoissonRatio;
+    Parm m_ThermalExpanCoeff;
+
+    bool m_UserFeaMaterial;
+};
+
 #endif // !defined(FEASTRUCTURE_INCLUDED_)

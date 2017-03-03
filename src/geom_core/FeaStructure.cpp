@@ -1217,3 +1217,74 @@ void FeaProperty::WriteCalculix( FILE* fp, string ELSET )
     }
 }
 
+////////////////////////////////////////////////////
+//================= FeaMaterial ==================//
+////////////////////////////////////////////////////
+
+FeaMaterial::FeaMaterial() : ParmContainer()
+{
+    m_MassDensity.Init( "MassDensity", "FeaMaterial", this, 1.0, 0.0, 1.0e12 );
+    m_MassDensity.SetDescript( "Mass Density of Material" );
+
+    m_ElasticModulus.Init( "ElasticModulus", "FeaMaterial", this, 0.0, 0.0, 1.0e12 );
+    m_ElasticModulus.SetDescript( "Elastic (Young's) Modulus for Material" );
+
+    m_PoissonRatio.Init( "PoissonRatio", "FeaMaterial", this, 0.0, 0.0, 1.0 );
+    m_PoissonRatio.SetDescript( "Poisson's Ratio for Material" );
+
+    m_ThermalExpanCoeff.Init( "ThermalExpanCoeff", "FeaMaterial", this, 0.0, 0.0, 1.0e12 );
+    m_ThermalExpanCoeff.SetDescript( "Thermal Expansion Coefficient for Material" );
+
+}
+
+FeaMaterial::~FeaMaterial()
+{
+
+}
+
+void FeaMaterial::ParmChanged( Parm* parm_ptr, int type )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        veh->ParmChanged( parm_ptr, type );
+    }
+}
+
+xmlNodePtr FeaMaterial::EncodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr mat_info = xmlNewChild( node, NULL, BAD_CAST "FeaMaterialInfo", NULL );
+
+    ParmContainer::EncodeXml( mat_info );
+
+    return mat_info;
+}
+
+xmlNodePtr FeaMaterial::DecodeXml( xmlNodePtr & node )
+{
+    ParmContainer::DecodeXml( node );
+
+    return node;
+}
+
+void FeaMaterial::WriteNASTRAN( FILE* fp, int mat_id )
+{
+    fprintf( fp, "MAT1,%d,%g,%g,%g,%g,%g\n", mat_id, m_ElasticModulus(), GetShearModulus(), m_PoissonRatio(), m_MassDensity(), m_ThermalExpanCoeff() );
+}
+
+void FeaMaterial::WriteCalculix( FILE* fp, int mat_id )
+{
+    fprintf( fp, "*MATERIAL, NAME=%s\n", GetName().c_str() );
+    fprintf( fp, "*DENSITY\n" );
+    fprintf( fp, "%g,\n", m_MassDensity() );
+    fprintf( fp, "*ELASTIC, TYPE=ISO\n" );
+    fprintf( fp, "%g,%g\n", m_ElasticModulus(), m_PoissonRatio() );
+    fprintf( fp, "*EXPANSION, TYPE=ISO\n" );
+    fprintf( fp, "%g,\n", m_ThermalExpanCoeff() );
+}
+
+double FeaMaterial::GetShearModulus()
+{
+    return ( m_ElasticModulus() / ( 2 * ( m_PoissonRatio() + 1 ) ) );
+}
