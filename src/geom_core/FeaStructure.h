@@ -184,4 +184,112 @@ protected:
     vector < DrawObj > m_FeaPartDO;
 };
 
+class FeaSpar : public FeaPart
+{
+public:
+
+    FeaSpar( string geomID, int type = vsp::FEA_SPAR );
+    virtual ~FeaSpar()    {};
+
+    virtual void Update();
+
+    virtual void ComputePlanarSurf();
+    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight );
+
+    Parm m_PerU; // Percent U Location
+    Parm m_Alpha;
+    Parm m_Theta;
+    //BoolParm m_TrimFlag;
+    //Parm m_PlaneSurfLengthScale;
+    //Parm m_PlaneSurfWidthScale;
+
+protected:
+
+};
+
+class FeaRib : public FeaPart
+{
+public:
+
+    FeaRib( string geomID, int type = vsp::FEA_RIB );
+    virtual ~FeaRib()    {};
+
+    virtual void Update();
+
+    virtual void ComputePlanarSurf();
+    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight );
+
+    Parm m_PerW; // Percent W Location
+    Parm m_Alpha;
+    Parm m_Theta;
+    //BoolParm m_TrimFlag;
+    //Parm m_PlaneSurfLengthScale;
+    //Parm m_PlaneSurfWidthScale;
+
+protected:
+
+
+};
+
+class FeaFixPoint : public FeaPart
+{
+public:
+
+    FeaFixPoint( string geomID, int type = vsp::FEA_FIX_POINT );
+    virtual ~FeaFixPoint()    {};
+
+    virtual void Update();
+
+    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight );
+
+    Parm m_PosU;
+    Parm m_PosW;
+
+protected:
+
+
+};
+
+enum
+{
+    CONST_U, CONST_W
+};
+
+class FeaStiffener : public FeaPart
+{
+public:
+
+    FeaStiffener( string geomID, int type = vsp::FEA_STIFFENER );
+    virtual ~FeaStiffener()    {};
+
+    virtual void Update();
+
+    virtual void ComputeEndPoints();
+    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight );
+
+    IntParm m_StiffenerConstType; // Either constant u or constant w line
+    Parm m_StiffenerConstVal; // Either the const u value or const w value of line
+
+protected:
+
+    SSLine* m_FeaStiffenerSubSurf;
+    vector < SSLineSeg > m_LVec;
+};
+
+class FeaSkin : public FeaPart
+{
+public:
+
+    FeaSkin( string geomID, int type = vsp::FEA_SKIN );
+    virtual ~FeaSkin()    {};
+
+    virtual void Update();
+
+    virtual void BuildSkinSurf();
+
+protected:
+
+
+};
+
 #endif // !defined(FEASTRUCTURE_INCLUDED_)

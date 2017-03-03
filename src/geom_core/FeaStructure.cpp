@@ -572,3 +572,540 @@ void FeaPart::SetFeaMaterialIndex( int index )
 
     fea_prop->SetFeaMaterialIndex( index );
 }
+
+//////////////////////////////////////////////////////
+//===================== FeaSpar ====================//
+//////////////////////////////////////////////////////
+
+FeaSpar::FeaSpar( string geomID, int type ) : FeaPart( geomID, type )
+{
+    m_PerU.Init( "PerU", "FeaSpar", this, 0.5, 0.0, 1.0 );
+    m_PerU.SetDescript( "Precent U Location" );
+    m_Alpha.Init( "Alpha", "FeaSpar", this, 0.0, -90.0, 90.0 );
+    m_Theta.Init( "Theta", "FeaSpar", this, 0.0, -90.0, 90.0 );
+    //m_TrimFlag.Init( "TrimFlag", "FeaSpar", this, true, 0, 1 );
+
+    //m_PlaneSurfLengthScale.Init( "PlaneSurfLengthScale", "FeaSpar", this, 1.0, 0.0, 1.0e12 );
+    //m_PlaneSurfWidthScale.Init( "PlaneSurfWidthScale", "FeaSpar", this, 1.0, 0.0, 1.0e12 );
+}
+
+void FeaSpar::Update()
+{
+    ComputePlanarSurf();
+}
+
+void FeaSpar::ComputePlanarSurf()
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        // TODO: Improve planar surface definition and determine intersections with geom.
+
+        for ( unsigned int i = 0; i < m_SymmIndexVec.size(); i++ )
+        {
+            m_FeaPartSurfVec[i] = VspSurf();
+            m_FeaPartSurfVec[i].SetSurfCfdType( vsp::CFD_STRUCTURE );
+
+            Geom* currgeom = veh->FindGeom( m_ParentGeomID );
+
+            vector< VspSurf > surf_vec;
+            currgeom->GetSurfVec( surf_vec );
+            VspSurf currsurf = surf_vec[m_SymmIndexVec[i]];
+
+            BndBox currsurfbbox;
+            currsurf.GetBoundingBox( currsurfbbox );
+            //vec3d center = currsurfbbox.GetCenter();
+
+            vec3d pointA = currsurf.CompPnt01( 0.0, m_PerU() );
+            vec3d pointB = currsurf.CompPnt01( 1.0, m_PerU() );
+
+            vec3d pointC, pointD;
+
+            int type = currgeom->GetType().m_Type;
+
+            if ( type == MS_WING_GEOM_TYPE )
+            {
+                // Approximate Leading and Trailing Edge at Wing Midsection
+                pointC = currsurf.CompPnt01( 0.5, 0.5 );
+                pointD = currsurf.CompPnt01( 0.5, 0.0 );
+            }
+            else
+            {
+                if ( m_PerU() >= 0.5 )
+                {
+                    pointC = currsurf.CompPnt01( 0.5, m_PerU() );
+                    pointD = currsurf.CompPnt01( 0.5, m_PerU() - 0.5 );
+                }
+                else
+                {
+                    pointC = currsurf.CompPnt01( 0.5, m_PerU() + 0.5 );
+                    pointD = currsurf.CompPnt01( 0.5, m_PerU() );
+                }
+            }
+
+            vec3d AtoBvec = pointB - pointA;
+            AtoBvec.normalize();
+
+            vec3d CtoDvec = pointD - pointC;
+            CtoDvec.normalize();
+
+            vec3d normalvec = cross( AtoBvec, CtoDvec );
+            normalvec.normalize();
+
+            double scale = 0.5 * currsurfbbox.GetSmallestDist();
+
+            vec3d cornerA = pointA + normalvec * scale;
+            vec3d cornerB = pointA + normalvec * scale * -1;
+            vec3d cornerC = pointB + normalvec * scale;
+            vec3d cornerD = pointB + normalvec * scale * -1;
+
+            VspSurf* tempsurf = new VspSurf();
+            tempsurf->MakePlaneSurf( cornerA, cornerB, cornerC, cornerD );
+            BndBox surfbbox;
+            tempsurf->GetBoundingBox( surfbbox );
+            vec3d surfcenter = surfbbox.GetCenter();
+
+            // Expand plane to be larger than geom at intersection. The Surface outside of the geometry will be ignored when meshed
+            double exmag = currsurfbbox.GetLargestDist() / 100.0;
+
+            vec3d expandA = exmag * ( cornerA - surfcenter ) + cornerA;
+            vec3d expandB = exmag * ( cornerB - surfcenter ) + cornerB;
+            vec3d expandC = exmag * ( cornerC - surfcenter ) + cornerC;
+            vec3d expandD = exmag * ( cornerD - surfcenter ) + cornerD;
+
+            //// Apply Scaling Factors
+            //vec3d midAB = ( expandA + expandB ) / 2.0;
+            //vec3d midCD = ( expandC + expandD ) / 2.0;
+
+            //expandA = ( m_PlaneSurfWidthScale() - 1.0 ) * ( expandA - midAB ) + expandA;
+            //expandB = ( m_PlaneSurfWidthScale() - 1.0 ) * ( expandB - midAB ) + expandB;
+            //expandC = ( m_PlaneSurfWidthScale() - 1.0 ) * ( expandC - midCD ) + expandC;
+            //expandD = ( m_PlaneSurfWidthScale() - 1.0 ) * ( expandD - midCD ) + expandD;
+
+            //vec3d midAC = ( expandA + expandC ) / 2.0;
+            //vec3d midBD = ( expandB + expandD ) / 2.0;
+
+            //expandA = ( m_PlaneSurfLengthScale() - 1.0 ) * ( expandA - midAC ) + expandA;
+            //expandC = ( m_PlaneSurfLengthScale() - 1.0 ) * ( expandC - midAC ) + expandC;
+            //expandB = ( m_PlaneSurfLengthScale() - 1.0 ) * ( expandB - midBD ) + expandB;
+            //expandD = ( m_PlaneSurfLengthScale() - 1.0 ) * ( expandD - midBD ) + expandD;
+
+            // Make Planar Surface
+            m_FeaPartSurfVec[i].MakePlaneSurf( expandA, expandB, expandC, expandD );
+
+            // Match flipnormal
+            bool geomflipnormal = currsurf.GetFlipNormal();
+            bool surfflipnormal = m_FeaPartSurfVec[i].GetFlipNormal();
+
+            if ( surfflipnormal != geomflipnormal )
+            {
+                //m_Theta = -1 * m_Theta;
+                m_Alpha = -1 * m_Alpha();
+                m_FeaPartSurfVec[i].FlipNormal();
+            }
+
+            // Build Patches?
+
+            //newsurf->GetPiecewiseSurf().BuildPatches( newsurf );
+
+            // Translate to orgin before rotation and then translate back
+
+            // Rotation Matrix
+            Matrix4d transMat1, transMat2, rotMat;
+            rotMat.loadIdentity();
+
+            if ( type == MS_WING_GEOM_TYPE )
+            {
+                rotMat.rotate( DEG_2_RAD * m_Theta(), normalvec );
+                rotMat.rotate( DEG_2_RAD * m_Alpha(), CtoDvec );
+            }
+            else
+            {
+                rotMat.rotate( DEG_2_RAD * m_Theta(), normalvec );
+                rotMat.rotate( DEG_2_RAD * m_Alpha(), CtoDvec );
+            }
+
+            transMat1.loadIdentity();
+            transMat1.translatef( surfcenter.x() * -1, surfcenter.y() * -1, surfcenter.z() * -1 );
+            transMat2.loadIdentity();
+            transMat2.translatef( surfcenter.x(), surfcenter.y(), surfcenter.z() );
+
+            m_FeaPartSurfVec[i].Transform( transMat1 );
+            m_FeaPartSurfVec[i].Transform( rotMat );
+            m_FeaPartSurfVec[i].Transform( transMat2 );
+
+            delete tempsurf;
+        }
+    }
+}
+
+void FeaSpar::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        FeaPart::LoadDrawObjs( draw_obj_vec, id, highlight );
+    }
+}
+
+//////////////////////////////////////////////////////
+//===================== FeaRib =====================//
+//////////////////////////////////////////////////////
+
+FeaRib::FeaRib( string geomID, int type ) : FeaPart( geomID, type )
+{
+    m_PerW.Init( "PerW", "FeaRib", this, 0.5, 0.0, 1.0 );
+    m_PerW.SetDescript( "Precent W Location" );
+    m_Alpha.Init( "Alpha", "FeaRib", this, 0.0, -90.0, 90.0 );
+    m_Theta.Init( "Theta", "FeaRib", this, 0.0, -90.0, 90.0 );
+    //m_TrimFlag.Init( "TrimFlag", "FeaRib", this, true, 0, 1 );
+
+    //m_PlaneSurfLengthScale.Init( "PlaneSurfLengthScale", "FeaRib", this, 1.0, 0.0, 1.0e12 );
+    //m_PlaneSurfWidthScale.Init( "PlaneSurfWidthScale", "FeaRib", this, 1.0, 0.0, 1.0e12 );
+}
+
+void FeaRib::Update()
+{
+    ComputePlanarSurf();
+}
+
+void FeaRib::ComputePlanarSurf()
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        // TODO: Improve planar surface definition and determine intersections with geom.
+
+        for ( unsigned int i = 0; i < m_SymmIndexVec.size(); i++ )
+        {
+            m_FeaPartSurfVec[i] = VspSurf();
+            m_FeaPartSurfVec[i].SetSurfCfdType( vsp::CFD_STRUCTURE );
+
+            Geom* currgeom = veh->FindGeom( m_ParentGeomID );
+
+            vector< VspSurf > surf_vec;
+            currgeom->GetSurfVec( surf_vec );
+            VspSurf currsurf = surf_vec[m_SymmIndexVec[i]];
+
+            vec3d pointA = currsurf.CompPnt01( m_PerW(), 0.0 );
+            vec3d pointB = currsurf.CompPnt01( m_PerW(), 0.5 );
+            vec3d pointC = currsurf.CompPnt01( m_PerW(), 0.25 );
+            vec3d pointD = currsurf.CompPnt01( m_PerW(), 0.75 );
+
+            VspSurf* tempsurf = new VspSurf();
+            tempsurf->MakePlaneSurf( pointA, pointC, pointD, pointB );
+            BndBox surfbbox;
+            tempsurf->GetBoundingBox( surfbbox );
+            vec3d surfcenter = surfbbox.GetCenter();
+
+            vec3d AtoBvec = pointB - pointA;
+            AtoBvec.normalize();
+
+            vec3d CtoDvec = pointD - pointC;
+            CtoDvec.normalize();
+
+            vec3d normal_vec = cross( AtoBvec, CtoDvec );
+
+            int type = currgeom->GetType().m_Type;
+            double scale;
+
+            if ( type == MS_WING_GEOM_TYPE )
+            {
+                scale = 0.5 * surfbbox.GetLargestDist(); // Changed from get middle distance
+            }
+            else
+            {
+                scale = 0.5 * surfbbox.GetLargestDist();
+            }
+
+            vec3d cornerA = pointA + CtoDvec * scale;
+            vec3d cornerB = pointA + CtoDvec * scale * -1;
+            vec3d cornerC = pointB + CtoDvec * scale;
+            vec3d cornerD = pointB + CtoDvec * scale * -1;
+
+            // Expand plane to be larger than geom at intersection. The Surface outside of the geometry will be ignored when meshed
+            double exmag = 0.1; // expand plane 10% 
+
+            vec3d expandA = exmag * ( cornerA - surfcenter ) + cornerA;
+            vec3d expandB = exmag * ( cornerB - surfcenter ) + cornerB;
+            vec3d expandC = exmag * ( cornerC - surfcenter ) + cornerC;
+            vec3d expandD = exmag * ( cornerD - surfcenter ) + cornerD;
+
+            //// Apply Scaling Factors
+            //vec3d midAB = ( expandA + expandB ) / 2.0;
+            //vec3d midCD = ( expandC + expandD ) / 2.0;
+
+            //expandA = ( m_PlaneSurfWidthScale() - 1.0 ) * ( expandA - midAB ) + expandA;
+            //expandB = ( m_PlaneSurfWidthScale() - 1.0 ) * ( expandB - midAB ) + expandB;
+            //expandC = ( m_PlaneSurfWidthScale() - 1.0 ) * ( expandC - midCD ) + expandC;
+            //expandD = ( m_PlaneSurfWidthScale() - 1.0 ) * ( expandD - midCD ) + expandD;
+
+            //vec3d midAC = ( expandA + expandC ) / 2.0;
+            //vec3d midBD = ( expandB + expandD ) / 2.0;
+
+            //expandA = ( m_PlaneSurfLengthScale() - 1.0 ) * ( expandA - midAC ) + expandA;
+            //expandC = ( m_PlaneSurfLengthScale() - 1.0 ) * ( expandC - midAC ) + expandC;
+            //expandB = ( m_PlaneSurfLengthScale() - 1.0 ) * ( expandB - midBD ) + expandB;
+            //expandD = ( m_PlaneSurfLengthScale() - 1.0 ) * ( expandD - midBD ) + expandD;
+
+            // Make Planar Surface
+            m_FeaPartSurfVec[i].MakePlaneSurf( expandA, expandB, expandC, expandD );
+
+            // Match flipnormal
+            bool geomflipnormal = currsurf.GetFlipNormal();
+            bool surfflipnormal = m_FeaPartSurfVec[i].GetFlipNormal();
+
+            if ( surfflipnormal != geomflipnormal )
+            {
+                m_Theta = -1 * m_Theta();
+                m_Alpha = -1 * m_Alpha();
+                m_FeaPartSurfVec[i].FlipNormal();
+            }
+
+            // Build Patches?
+
+            //newsurf->GetPiecewiseSurf().BuildPatches( newsurf );
+
+            // Translate to orgin before rotation and then translate back
+
+            // Rotation Matrix
+            Matrix4d transMat1, transMat2, rotMat;
+            rotMat.loadIdentity();
+
+            if ( type == MS_WING_GEOM_TYPE )
+            {
+                rotMat.rotate( DEG_2_RAD * m_Theta(), CtoDvec );
+                rotMat.rotate( DEG_2_RAD * m_Alpha(), AtoBvec );
+            }
+            else
+            {
+                rotMat.rotate( DEG_2_RAD * m_Theta(), AtoBvec );
+                rotMat.rotate( DEG_2_RAD * m_Alpha(), CtoDvec );
+            }
+
+            transMat1.loadIdentity();
+            transMat1.translatef( surfcenter.x() * -1, surfcenter.y() * -1, surfcenter.z() * -1 );
+            transMat2.loadIdentity();
+            transMat2.translatef( surfcenter.x(), surfcenter.y(), surfcenter.z() );
+
+            m_FeaPartSurfVec[i].Transform( transMat1 );
+            m_FeaPartSurfVec[i].Transform( rotMat );
+            m_FeaPartSurfVec[i].Transform( transMat2 );
+
+            delete tempsurf;
+        }
+    }
+}
+
+void FeaRib::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        FeaPart::LoadDrawObjs( draw_obj_vec, id, highlight );
+    }
+}
+
+////////////////////////////////////////////////////
+//================= FeaFixPoint ==================//
+////////////////////////////////////////////////////
+
+FeaFixPoint::FeaFixPoint( string compID, int type ) : FeaPart( compID, type )
+{
+    m_PosU.Init( "PosU", "FeaFixPoint", this, 0.0, 0.0, 1.0 );
+    m_PosU.SetDescript( "Precent U Location" );
+    m_PosW.Init( "PosW", "FeaFixPoint", this, 0.0, 0.0, 1.0 );
+    m_PosW.SetDescript( "Precent W Location" );
+}
+
+void FeaFixPoint::Update()
+{
+
+}
+
+void FeaFixPoint::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        Geom* currgeom = veh->FindGeom( m_ParentGeomID );
+
+        if ( currgeom )
+        {
+            m_FeaPartDO.resize( m_SymmIndexVec.size() );
+
+            for ( unsigned int i = 0; i < m_SymmIndexVec.size(); i++ )
+            {
+                vector< VspSurf > surf_vec;
+                currgeom->GetSurfVec( surf_vec );
+                VspSurf currsurf = surf_vec[m_SymmIndexVec[i]];
+
+                m_FeaPartDO[i].m_PntVec.clear();
+
+                m_FeaPartDO[i].m_GeomID = string( "FeaFixPoint_" + std::to_string( id ) + "_" + std::to_string( i ) );
+                m_FeaPartDO[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+                m_FeaPartDO[i].m_Type = DrawObj::VSP_POINTS;
+                m_FeaPartDO[i].m_PointSize = 8.0;
+
+                if ( highlight )
+                {
+                    m_FeaPartDO[i].m_PointColor = vec3d( 1.0, 0.0, 0.0 );
+                }
+                else
+                {
+                    m_FeaPartDO[i].m_PointColor = vec3d( 0.0, 0.0, 0.0 );
+                }
+
+                vec3d fixpt = currsurf.CompPnt01( m_PosU(), m_PosW() );
+                m_FeaPartDO[i].m_PntVec.push_back( fixpt );
+
+                m_FeaPartDO[i].m_GeomChanged = true;
+
+                draw_obj_vec.push_back( &m_FeaPartDO[i] );
+            }
+        }
+    }
+}
+
+
+////////////////////////////////////////////////////
+//================= FeaStiffener ==================//
+////////////////////////////////////////////////////
+
+FeaStiffener::FeaStiffener( string geomID, int type ) : FeaPart( geomID, type )
+{
+    m_StiffenerConstType.Init( "StiffenerConstType", "FeaNoDepth", this, CONST_U, 0, 1 );
+    m_StiffenerConstVal.Init( "StiffenerConstVal", "FeaNoDepth", this, 0.5, 0, 1 );
+    m_StiffenerConstVal.SetDescript( "Either the U or V value of the line depending on what constant line type is choosen." );
+
+    m_FeaStiffenerSubSurf = new SSLine( geomID );
+    m_LVec.push_back( SSLineSeg() );
+}
+
+void FeaStiffener::Update()
+{
+    m_FeaStiffenerSubSurf->m_ConstType.Set( m_StiffenerConstType() );
+    m_FeaStiffenerSubSurf->m_ConstVal.Set( m_StiffenerConstVal() );
+
+    m_FeaStiffenerSubSurf->Update();
+
+    ComputeEndPoints();
+}
+
+void FeaStiffener::ComputeEndPoints()
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        if ( m_StiffenerConstType() == CONST_U )
+        {
+            m_LVec[0].SetSP0( vec3d( m_StiffenerConstVal(), 1, 0 ) );
+            m_LVec[0].SetSP1( vec3d( m_StiffenerConstVal(), 0, 0 ) );
+        }
+        else if ( m_StiffenerConstType() == CONST_W )
+        {
+            m_LVec[0].SetSP0( vec3d( 0, m_StiffenerConstVal(), 0 ) );
+            m_LVec[0].SetSP1( vec3d( 1, m_StiffenerConstVal(), 0 ) );
+        }
+
+        Geom* currgeom = veh->FindGeom( m_ParentGeomID );
+
+        if ( currgeom )
+        {
+            m_LVec[0].Update( currgeom );
+        }
+    }
+}
+
+void FeaStiffener::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        Geom* currgeom = veh->FindGeom( m_ParentGeomID );
+
+        if ( currgeom )
+        {
+            m_FeaPartDO.resize( m_SymmIndexVec.size() );
+
+            for ( unsigned int i = 0; i < m_SymmIndexVec.size(); i++ )
+            {
+                vector< VspSurf > surf_vec;
+                currgeom->GetSurfVec( surf_vec );
+                VspSurf currsurf = surf_vec[m_SymmIndexVec[i]];
+
+                for ( int ls = 0; ls < (int)m_LVec.size(); ls++ )
+                {
+                    int num_pnts = 100;
+                    int *num_pnts_ptr = NULL;
+                    if ( num_pnts > 0 )
+                    {
+                        num_pnts_ptr = &num_pnts;
+                    }
+
+                    m_FeaPartDO[i].m_PntVec.clear();
+
+                    m_LVec[ls].UpdateDrawObj( &currsurf, currgeom, m_FeaPartDO[i], num_pnts_ptr );
+
+                    // Overwrite SSLineSeg settings
+                    m_FeaPartDO[i].m_GeomID = string( "FeaNoDepth_" + std::to_string( id ) + "_" + std::to_string( i ) );
+                    m_FeaPartDO[i].m_LineWidth = 2.0;
+
+                    if ( highlight )
+                    {
+                        m_FeaPartDO[i].m_LineColor = vec3d( 1.0, 0.0, 0.0 );
+                    }
+                    else
+                    {
+                        m_FeaPartDO[i].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
+                    }
+
+                    m_FeaPartDO[i].m_Type = DrawObj::VSP_LINES;
+                    m_FeaPartDO[i].m_GeomChanged = true;
+                    draw_obj_vec.push_back( &m_FeaPartDO[i] );
+                }
+            }
+        }
+    }
+}
+
+////////////////////////////////////////////////////
+//=================== FeaSkin ====================//
+////////////////////////////////////////////////////
+
+FeaSkin::FeaSkin( string geomID, int type ) : FeaPart( geomID, type )
+{
+
+}
+
+void FeaSkin::Update()
+{
+    BuildSkinSurf();
+}
+
+void FeaSkin::BuildSkinSurf()
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        Geom* currgeom = veh->FindGeom( m_ParentGeomID );
+
+        if ( currgeom )
+        {
+            for ( unsigned int i = 0; i < m_SymmIndexVec.size(); i++ )
+            {
+                vector< VspSurf > surf_vec;
+                currgeom->GetSurfVec( surf_vec );
+
+                m_FeaPartSurfVec[i] = VspSurf( surf_vec[m_SymmIndexVec[i]] );
+
+                m_FeaPartSurfVec[i].SetSurfCfdType( vsp::CFD_STRUCTURE );
+            }
+        }
+    }
+}
