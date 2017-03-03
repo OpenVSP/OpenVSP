@@ -68,6 +68,7 @@ ScriptMgr.cpp
 SnapTo.cpp
 StackGeom.cpp
 StructSettings.cpp
+StructureMgr.cpp
 SubSurface.cpp
 SubSurfaceMgr.cpp
 SVGUtil.cpp
@@ -137,6 +138,7 @@ ScriptMgr.h
 SnapTo.h
 StackGeom.h
 StructSettings.h
+StructureMgr.h
 SubSurface.h
 SubSurfaceMgr.h
 SWIGDefines.h
