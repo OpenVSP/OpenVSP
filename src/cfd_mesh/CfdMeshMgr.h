@@ -185,7 +185,7 @@ public:
 
     virtual void GenerateMesh();
 
-    virtual void addOutputText( const string &str, int output_type = CFD_OUTPUT );
+    virtual void addOutputText( const string &str, int output_type = VOCAL_OUTPUT );
 
     virtual void GUI_Val( string name, double val );
     virtual void GUI_Val( string name, int val );
@@ -263,7 +263,7 @@ public:
     virtual void DeleteDuplicateSurfs();
     virtual void BuildGrid();
 
-    enum { NO_OUTPUT, CFD_OUTPUT, FEA_OUTPUT, };
+    enum { QUIET_OUTPUT, VOCAL_OUTPUT, };
     virtual void Remesh( int output_type );
     virtual void RemeshSingleComp( int comp_id, int output_type );
 

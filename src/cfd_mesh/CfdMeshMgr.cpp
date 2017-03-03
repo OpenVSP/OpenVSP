@@ -433,7 +433,7 @@ void CfdMeshMgrSingleton::GenerateMesh()
     addOutputText( "Finished Intersect\n" );
 
     addOutputText( "Build Target Map\n" );
-    BuildTargetMap( CfdMeshMgrSingleton::CFD_OUTPUT );
+    BuildTargetMap( CfdMeshMgrSingleton::VOCAL_OUTPUT );
 
     addOutputText( "InitMesh\n" );
     InitMesh( );
@@ -441,7 +441,7 @@ void CfdMeshMgrSingleton::GenerateMesh()
     SubTagTris();
 
     addOutputText( "Remesh\n" );
-    Remesh( CfdMeshMgrSingleton::CFD_OUTPUT );
+    Remesh( CfdMeshMgrSingleton::VOCAL_OUTPUT );
 
     //addOutputText( "Triangle Quality\n");
     //Stringc qual = CfdMeshMgr.GetQualString();
@@ -554,7 +554,10 @@ void CfdMeshMgrSingleton::CleanUp()
 
 void CfdMeshMgrSingleton::addOutputText( const string &str, int output_type )
 {
-    m_OutStream << str;
+    if ( output_type != QUIET_OUTPUT )
+    {
+        m_OutStream << str;
+    }
 }
 
 void CfdMeshMgrSingleton::AdjustAllSourceLen( double mult )
@@ -1259,7 +1262,7 @@ void CfdMeshMgrSingleton::BuildTargetMap( int output_type )
 
     if( GetGridDensityPtr()->GetRigorLimit() )
     {
-        if ( output_type != CfdMeshMgrSingleton::NO_OUTPUT )
+        if ( output_type != CfdMeshMgrSingleton::QUIET_OUTPUT )
         {
             addOutputText( " Rigorous 3D Limiting\n", output_type );
         }
@@ -1327,7 +1330,7 @@ void CfdMeshMgrSingleton::Remesh( int output_type )
             num_tris += m_SurfVec[i]->GetMesh()->GetTriList().size();
 
             sprintf( str, "Surf %d/%d Iter %d/10 Num Tris = %d\n", i + 1, nsurf, iter + 1, num_tris );
-            if ( output_type != CfdMeshMgrSingleton::NO_OUTPUT )
+            if ( output_type != CfdMeshMgrSingleton::QUIET_OUTPUT )
             {
                 addOutputText( str, output_type );
             }
@@ -1337,7 +1340,7 @@ void CfdMeshMgrSingleton::Remesh( int output_type )
         if ( num_rev_removed > 0 )
         {
             sprintf( str, "%d Reversed tris collapsed in final iteration.\n", num_rev_removed );
-            if ( output_type != CfdMeshMgrSingleton::NO_OUTPUT )
+            if ( output_type != CfdMeshMgrSingleton::QUIET_OUTPUT )
             {
                 addOutputText( str, output_type );
             }
