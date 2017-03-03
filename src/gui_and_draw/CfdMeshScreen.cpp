@@ -946,6 +946,7 @@ void CfdMeshScreen::GuiDeviceCallBack( GuiDevice* device )
 
     if ( device == &m_MeshAndExport )
     {
+        CfdMeshMgr.SetMeshInProgress( true );
         m_CFDMeshProcess.StartThread( cfdmesh_thread_fun, NULL );
 
         m_MonitorProcess.StartThread( cfdmonitorfun, ( void* ) this );

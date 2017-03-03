@@ -359,6 +359,10 @@ public:
     {
         return m_MeshInProgress;
     }
+    virtual void SetMeshInProgress( bool progress_flag )
+    {
+        m_MeshInProgress = progress_flag;
+    }
 
 protected:
 
