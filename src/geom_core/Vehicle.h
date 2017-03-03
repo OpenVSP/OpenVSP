@@ -306,6 +306,13 @@ public:
 
     //==== DXF Export ====//
     IntParm m_DXFLenUnit;
+    BoolParm m_DXFGeomProjectionFlag;
+    Parm m_DXFTessFactor;
+    BoolParm m_DXFTotalProjectionFlag;
+    BoolParm m_DXFAllXSecFlag;
+    BoolParm m_DXFAppendIDFlag;
+    BoolParm m_DXFColorFlag;
+    int m_ColorCount;
     IntParm m_DXF2DView;
     IntParm m_DXF2D3DFlag;
     IntParm m_DXF4View1;

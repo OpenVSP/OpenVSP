@@ -57,6 +57,18 @@ Vehicle::Vehicle()
 
     m_DXFLenUnit.Init( "LenUnit", "DXFSettings", this, vsp::LEN_FT, vsp::LEN_MM, vsp::LEN_UNITLESS );
     m_DXFLenUnit.SetDescript( "Sets DXF Header Units; Numeric Values Unchanged" );
+    m_DXFGeomProjectionFlag.Init( "DXFGeomProjectionFlag", "DXFSettings", this , false, 0, 1 );
+    m_DXFGeomProjectionFlag.SetDescript( "Flag To Export Geom Projection Lines" );
+    m_DXFTotalProjectionFlag.Init( "DXFTotalProjectionFlag", "DXFSettings", this, false, 0, 1 );
+    m_DXFTotalProjectionFlag.SetDescript( "Flag To Export Vehicle Projection Lines" );
+    m_DXFTessFactor.Init( "DXFTessFactor", "DXFSettings", this, 2, 0, 100 );
+    m_DXFTessFactor.SetDescript( "DXF Tesselation Multiplier. Caution: May Slow Export" );
+    m_DXFAllXSecFlag.Init( "DXFAllXSecFlag", "DXFSettings", this, false, 0, 1 );
+    m_DXFAllXSecFlag.SetDescript( "Flag To Export XSec Feature Lines" );
+    m_DXFAppendIDFlag.Init( "DXFAppendIDFlag", "DXFSettings", this, false, 0, 1 );
+    m_DXFAppendIDFlag.SetDescript( "Flag To Append Geom ID To Layer Name" );
+    m_DXFColorFlag.Init( "DXFColorFlag", "DXFSettings", this, false, 0, 1 );
+    m_DXFColorFlag.SetDescript( "Flag To Make Each Layer A Different Color" );
     m_DXF2D3DFlag.Init( "DimFlag", "DXFSettings", this , vsp::SET_3D, vsp::SET_3D, vsp::SET_2D );
     m_DXF2DView.Init( "ViewType", "DXFSettings", this, vsp::VIEW_1, vsp::VIEW_1, vsp::VIEW_4 );
     m_DXF2DView.SetDescript( "Sets Number Of 2D Views" );
@@ -98,6 +110,7 @@ Vehicle::Vehicle()
 
     SetupPaths();
     m_VehProjectVec3d.resize( 3 );
+    m_ColorCount = 0;
 }
 
 //==== Destructor ====//
