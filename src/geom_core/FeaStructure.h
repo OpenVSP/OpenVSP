@@ -123,4 +123,65 @@ protected:
 
 };
 
+class FeaPart : public ParmContainer
+{
+public:
+
+    FeaPart( string geomID, int type );
+    virtual ~FeaPart();
+
+    virtual void Update();
+
+    virtual void ParmChanged( Parm* parm_ptr, int type );
+
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+
+    virtual void UpdateSymmetricSurfs();
+
+    static string GetTypeName( int type );
+
+    virtual void FetchFeaXFerSurf( vector< XferSurf > &xfersurfs );
+
+    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight );
+
+    virtual int GetType()
+    {
+        return m_FeaPartType;
+    }
+
+    virtual string GetParentGeomID()
+    {
+        return m_ParentGeomID;
+    }
+
+    virtual int GetFeaPropertyIndex()
+    {
+        return m_FeaPropertyIndex;
+    }
+    virtual void SetFeaPropertyIndex( int index )
+    {
+        m_FeaPropertyIndex = index;
+    }
+
+    virtual int GetFeaMaterialIndex();
+    virtual void SetFeaMaterialIndex( int index );
+
+    IntParm m_MainSurfIndx;
+
+protected:
+
+    int m_FeaPartType;
+
+    string m_ParentGeomID;
+
+    int m_FeaPropertyIndex;
+
+    vector < int > m_SymmIndexVec;
+
+    vector < VspSurf > m_FeaPartSurfVec; 
+
+    vector < DrawObj > m_FeaPartDO;
+};
+
 #endif // !defined(FEASTRUCTURE_INCLUDED_)

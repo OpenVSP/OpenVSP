@@ -382,3 +382,193 @@ int FeaStructure::GetFeaPartIndex( FeaPart* fea_prt )
     }
     return NULL;
 }
+
+//////////////////////////////////////////////////////
+//==================== FeaPart =====================//
+//////////////////////////////////////////////////////
+
+FeaPart::FeaPart( string geomID, int type )
+{
+    m_FeaPartType = type;
+    m_ParentGeomID = geomID;
+
+    m_MainSurfIndx.Init( "MainSurfIndx", "FeaStructure", this, -1, -1, 1e12 );
+    m_MainSurfIndx.SetDescript( "Surface Index for FeaStructure" );
+
+    m_FeaPropertyIndex = -1;
+}
+
+FeaPart::~FeaPart()
+{
+
+}
+
+void FeaPart::Update()
+{
+    UpdateSymmetricSurfs();
+}
+
+void FeaPart::ParmChanged( Parm* parm_ptr, int type )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        veh->ParmChanged( parm_ptr, type );
+    }
+}
+
+xmlNodePtr FeaPart::EncodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr part_info = xmlNewChild( node, NULL, BAD_CAST "FeaPartInfo", NULL );
+
+    ParmContainer::EncodeXml( part_info );
+
+    XmlUtil::AddIntNode( part_info, "FeaPartType", m_FeaPartType );
+    XmlUtil::AddIntNode( part_info, "FeaPropertyIndex", m_FeaPropertyIndex );
+
+    return part_info;
+}
+
+xmlNodePtr FeaPart::DecodeXml( xmlNodePtr & node )
+{
+    ParmContainer::DecodeXml( node );
+
+    return node;
+}
+
+void FeaPart::UpdateSymmetricSurfs()
+{
+    m_SymmIndexVec.clear();
+    m_FeaPartSurfVec.clear();
+
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( !veh )
+    {
+        return;
+    }
+
+    Geom* currgeom = veh->FindGeom( m_ParentGeomID );
+
+    if ( currgeom )
+    {
+        vector< VspSurf > surf_vec;
+        currgeom->GetSurfVec( surf_vec );
+
+        m_SymmIndexVec = currgeom->GetSymmIndexs( m_MainSurfIndx() );
+
+        int ncopy = currgeom->GetNumSymmCopies();
+
+        assert( ncopy == m_SymmIndexVec.size() );
+
+        m_FeaPartSurfVec.resize( m_SymmIndexVec.size() );
+    }
+}
+
+string FeaPart::GetTypeName( int type )
+{
+    if ( type == vsp::FEA_RIB )
+    {
+        return string( "FeaRib" );
+    }
+    if ( type == vsp::FEA_SPAR )
+    {
+        return string( "FeaSpar" );
+    }
+    if ( type == vsp::FEA_FIX_POINT )
+    {
+        return string( "FeaFixPoint" );
+    }
+    if ( type == vsp::FEA_STIFFENER )
+    {
+        return string( "FeaStiffener" );
+    }
+    if ( type == vsp::FEA_SUB_SURF )
+    {
+        return string( "FeaSubSurf" );
+    }
+    if ( type == vsp::FEA_SKIN )
+    {
+        return string( "FeaSkin" );
+    }
+
+    return string( "NONE" );
+}
+
+void FeaPart::FetchFeaXFerSurf( vector< XferSurf > &xfersurfs )
+{
+    for ( int p = 0; p < m_FeaPartSurfVec.size(); p++ )
+    {
+        // CFD_STRUCTURE type surfaces have m_CompID == -9999
+        m_FeaPartSurfVec[p].FetchXFerSurf( m_ParentGeomID, m_MainSurfIndx(), -9999, xfersurfs );
+    }
+}
+
+void FeaPart::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight )
+{
+    m_FeaPartDO.clear();
+    m_FeaPartDO.resize( m_FeaPartSurfVec.size() );
+
+    for ( unsigned int j = 0; j < m_FeaPartSurfVec.size(); j++ )
+    {
+        m_FeaPartDO[j].m_PntVec.clear();
+
+        m_FeaPartDO[j].m_GeomID = string( "FeaPart_" + std::to_string( id ) + "_" + std::to_string( j ) );
+        m_FeaPartDO[j].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+        m_FeaPartDO[j].m_LineWidth = 1.0;
+
+        if ( highlight )
+        {
+            m_FeaPartDO[j].m_LineColor = vec3d( 1.0, 0.0, 0.0 );
+        }
+        else
+        {
+            m_FeaPartDO[j].m_LineColor = vec3d( 96.0 / 255.0, 96.0 / 255.0, 96.0 / 255.0 );
+        }
+
+        m_FeaPartDO[j].m_Type = DrawObj::VSP_LINES;
+
+        vec3d p00 = m_FeaPartSurfVec[j].CompPnt01( 0, 0 );
+        vec3d p10 = m_FeaPartSurfVec[j].CompPnt01( 1, 0 );
+        vec3d p11 = m_FeaPartSurfVec[j].CompPnt01( 1, 1 );
+        vec3d p01 = m_FeaPartSurfVec[j].CompPnt01( 0, 1 );
+
+        for ( int i = 0; i < 4; i++ )
+        {
+            double fu = (double)i / 3.0;
+            vec3d p0 = p00 + ( p10 - p00 )*fu;
+            vec3d p1 = p01 + ( p11 - p01 )*fu;
+
+            m_FeaPartDO[j].m_PntVec.push_back( p0 );
+            m_FeaPartDO[j].m_PntVec.push_back( p1 );
+        }
+        for ( int i = 0; i < 4; i++ )
+        {
+            double fw = (double)i / 3.0;
+            vec3d p0 = p00 + ( p01 - p00 )*fw;
+            vec3d p1 = p10 + ( p11 - p10 )*fw;
+
+            m_FeaPartDO[j].m_PntVec.push_back( p0 );
+            m_FeaPartDO[j].m_PntVec.push_back( p1 );
+        }
+
+        m_FeaPartDO[j].m_GeomChanged = true;
+
+        draw_obj_vec.push_back( &m_FeaPartDO[j] );
+    }
+}
+
+int FeaPart::GetFeaMaterialIndex()
+{
+    FeaProperty* fea_prop = StructureMgr.GetFeaProperty( m_FeaPropertyIndex );
+
+    return fea_prop->GetFeaMaterialIndex();
+
+}
+
+void FeaPart::SetFeaMaterialIndex( int index )
+{
+    FeaProperty* fea_prop = StructureMgr.GetFeaProperty( m_FeaPropertyIndex );
+
+    fea_prop->SetFeaMaterialIndex( index );
+}
