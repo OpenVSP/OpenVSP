@@ -47,9 +47,16 @@ protected:
     Choice m_LenUnitChoice;
     Choice m_2DViewType;
 
+    ToggleButton m_GeomProjectionLineToggle;
+    ToggleButton m_TotalProjectionLineToggle;
+    SliderAdjRangeInput m_TessSlider;
+
     ToggleButton m_3DToggle;
     ToggleButton m_2DToggle;
     ToggleRadioGroup m_2D3DGroup;
+    ToggleButton m_XSecToggle;
+    ToggleButton m_AppendIDToggle;
+    ToggleButton m_ColorToggle;
 
     Choice m_4ViewChoice1;
     Choice m_4ViewChoice2;

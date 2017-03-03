@@ -14,7 +14,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-DXFOptionsScreen::DXFOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 365, "DXF Options" )
+DXFOptionsScreen::DXFOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 415, "DXF Options" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
 
@@ -36,14 +36,35 @@ DXFOptionsScreen::DXFOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 36
     m_LenUnitChoice.AddItem( "YD" );
     m_LenUnitChoice.AddItem( "Unitless" );
     m_GenLayout.AddChoice( m_LenUnitChoice, "Length Unit" );
+
+    m_GenLayout.SetSameLineFlag( true );
+    m_GenLayout.SetFitWidthFlag( false );
+    m_GenLayout.SetButtonWidth( m_GenLayout.GetRemainX() / 2 );
+
+    m_GenLayout.AddButton( m_3DToggle, "3D Export" );
+    m_GenLayout.AddButton( m_2DToggle, "2D Export" );
+
+    m_GenLayout.ForceNewLine();
+    m_GenLayout.SetSameLineFlag( false );
+    m_GenLayout.SetFitWidthFlag( true );
+
+    m_GenLayout.AddButton( m_XSecToggle, "Include XSec Feature Lines" );
+
+    m_GenLayout.SetSameLineFlag( true );
+    m_GenLayout.SetFitWidthFlag( false );
+
+    m_GenLayout.SetButtonWidth( m_GenLayout.GetRemainX() / 2 );
+
+    m_GenLayout.AddButton( m_AppendIDToggle, "Append Geom IDs" );
+    m_AppendIDToggle.GetFlButton()->copy_tooltip("Adds Each Geom ID to Layer Name");
+    m_GenLayout.AddButton( m_ColorToggle, "Color Layers" );
+    m_ColorToggle.GetFlButton()->copy_tooltip( "Makes Each Layer a Different Color" );
+    
+    m_GenLayout.ForceNewLine();
     m_GenLayout.AddYGap();
 
     m_GenLayout.SetSameLineFlag( false );
     m_GenLayout.SetFitWidthFlag( true );
-    m_GenLayout.AddButton( m_3DToggle, "3D Export" );
-    m_GenLayout.AddYGap();
-    m_GenLayout.AddButton( m_2DToggle, "2D Export" );
-    m_GenLayout.AddYGap();
 
     m_GenLayout.SetChoiceButtonWidth( 0 );
 
@@ -58,6 +79,25 @@ DXFOptionsScreen::DXFOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 36
     m_2DViewType.AddItem( "Two Vertical" );
     m_2DViewType.AddItem( "Four" );
     m_GenLayout.AddChoice( m_2DViewType, "2D View Type" );
+
+    m_GenLayout.SetSameLineFlag( true );
+    m_GenLayout.SetFitWidthFlag( false );
+
+    m_GenLayout.SetButtonWidth( m_GenLayout.GetRemainX() / 2 );
+
+    m_GenLayout.AddButton( m_GeomProjectionLineToggle, "Geom Projections" );
+    m_GenLayout.AddButton( m_TotalProjectionLineToggle, "Vehicle Projections" );
+    m_GenLayout.ForceNewLine();
+
+    m_GenLayout.SetSameLineFlag( false );
+    m_GenLayout.SetFitWidthFlag( true );
+
+    m_GenLayout.SetButtonWidth( m_GenLayout.GetW()/3 );
+
+    m_GenLayout.AddSlider( m_TessSlider, "Tess. Factor", 8, "%4.2f" );
+
+    // To Do: Add Tesselation Tool Tip?
+
     m_GenLayout.AddYGap();
     m_GenLayout.AddX( 20 );
 
@@ -207,14 +247,34 @@ bool DXFOptionsScreen::Update()
         m_4RotChoice3.Update( veh->m_DXF4View3_rot.GetID() );
         m_4RotChoice4.Update( veh->m_DXF4View4_rot.GetID() );
         m_2D3DGroup.Update( veh->m_DXF2D3DFlag.GetID() );
+        m_GeomProjectionLineToggle.Update( veh->m_DXFGeomProjectionFlag.GetID() );
+        m_TotalProjectionLineToggle.Update( veh->m_DXFTotalProjectionFlag.GetID() );
+        m_TessSlider.Update( veh->m_DXFTessFactor.GetID() );
+        m_XSecToggle.Update( veh->m_DXFAllXSecFlag.GetID() );
+        m_AppendIDToggle.Update( veh->m_DXFAppendIDFlag.GetID() );
+        m_ColorToggle.Update( veh->m_DXFColorFlag.GetID() );
 
         if ( veh->m_DXF2D3DFlag() == vsp::SET_2D )
         {
             m_2DViewType.Activate();
+            m_GeomProjectionLineToggle.Activate();
+            m_GeomProjectionLineToggle.Activate();
+
+            if ( veh->m_DXFGeomProjectionFlag() || veh->m_DXFTotalProjectionFlag() )
+            {
+                m_TessSlider.Activate();
+            }
+            else 
+            {
+                m_TessSlider.Deactivate();
+            }
         }
         else if ( veh->m_DXF2D3DFlag() == vsp::SET_3D )
         {
             m_2DViewType.Deactivate();
+            m_GeomProjectionLineToggle.Deactivate();
+            m_TotalProjectionLineToggle.Deactivate();
+            m_TessSlider.Deactivate();
             m_4ViewChoice1.Deactivate();
             m_4ViewChoice2.Deactivate();
             m_4ViewChoice3.Deactivate();
