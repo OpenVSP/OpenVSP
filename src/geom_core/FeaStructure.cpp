@@ -1109,3 +1109,111 @@ void FeaSkin::BuildSkinSurf()
         }
     }
 }
+
+////////////////////////////////////////////////////
+//================= FeaProperty ==================//
+////////////////////////////////////////////////////
+
+FeaProperty::FeaProperty() : ParmContainer()
+{
+    m_FeaPropertyType.Init( "FeaPropertyType", "FeaProperty", this, SHELL_PROPERTY, SHELL_PROPERTY, BEAM_PROPERTY );
+    m_FeaPropertyType.SetDescript( "FeaElement Property Type" );
+
+    m_Thickness.Init( "Thickness", "FeaProperty", this, 0.1, 0.0, 1.0e12 );
+    m_Thickness.SetDescript( "Thickness of FeaElement" );
+
+    m_CrossSecArea.Init( "CrossSecArea", "FeaProperty", this, 0.1, 0.0, 1.0e12 );
+    m_CrossSecArea.SetDescript( "Cross-Sectional Area of FeaElement" );
+
+    m_Izz.Init( "Izz", "FeaProperty", this, 0.1, -1.0e12, 1.0e12 );
+    m_Izz.SetDescript( "Area Moment of Inertia for Bending in XY Plane of FeaElement Neutral Axis (I1)" );
+
+    m_Iyy.Init( "Iyy", "FeaProperty", this, 0.1, -1.0e12, 1.0e12 );
+    m_Iyy.SetDescript( "Area Moment of Inertia for Bending in XZ Plane of FeaElement Neutral Axis (I2)" );
+
+    m_Izy.Init( "Izy", "FeaProperty", this, 0.0, -1.0e12, 1.0e12 );
+    m_Izy.SetDescript( "Area Product of Inertia of FeaElement (I12)" );
+
+    m_Ixx.Init( "Izz", "FeaProperty", this, 0.0, -1.0e12, 1.0e12 );
+    m_Ixx.SetDescript( "Torsional Constant About FeaElement Neutral Axis (J)" );
+
+    m_FeaMaterialIndex = -1;
+}
+
+FeaProperty::~FeaProperty()
+{
+
+}
+
+void FeaProperty::ParmChanged( Parm* parm_ptr, int type )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        veh->ParmChanged( parm_ptr, type );
+    }
+}
+
+xmlNodePtr FeaProperty::EncodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr prop_info = xmlNewChild( node, NULL, BAD_CAST "FeaPropertyInfo", NULL );
+
+    ParmContainer::EncodeXml( prop_info );
+
+    XmlUtil::AddIntNode( prop_info, "FeaMaterialIndex", m_FeaMaterialIndex );
+
+    return prop_info;
+}
+
+xmlNodePtr FeaProperty::DecodeXml( xmlNodePtr & node )
+{
+    ParmContainer::DecodeXml( node );
+
+    m_FeaMaterialIndex = XmlUtil::FindInt( node, "FeaMaterialIndex", m_FeaMaterialIndex );
+
+    return node;
+}
+
+string FeaProperty::GetTypeName( )
+{
+    if ( m_FeaPropertyType() == SHELL_PROPERTY )
+    {
+        return string( "Shell" );
+    }
+    if ( m_FeaPropertyType() == BEAM_PROPERTY )
+    {
+        return string( "Beam" );
+    }
+
+    return string( "NONE" );
+}
+
+void FeaProperty::WriteNASTRAN( FILE* fp, int prop_id )
+{
+    if ( m_FeaPropertyType() == SHELL_PROPERTY )
+    {
+        fprintf( fp, "PSHELL,%d,%d,%f\n", prop_id, m_FeaMaterialIndex, m_Thickness() );
+    }
+    if ( m_FeaPropertyType() == BEAM_PROPERTY )
+    {
+        fprintf( fp, "PBEAM,%d,%d,%f,%f,%f,%f,%f\n", prop_id, m_FeaMaterialIndex, m_CrossSecArea(), m_Izz(), m_Iyy(), m_Izy(), m_Ixx() );
+    }
+}
+
+void FeaProperty::WriteCalculix( FILE* fp, string ELSET )
+{
+    FeaMaterial* fea_mat = StructureMgr.GetFeaMaterial( m_FeaMaterialIndex );
+
+    if ( m_FeaPropertyType() == SHELL_PROPERTY )
+    {
+        fprintf( fp, "*SHELL GENERAL SECTION, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), fea_mat->GetName().c_str() );
+        fprintf( fp, "%g,\n", m_Thickness() );
+    }
+    if ( m_FeaPropertyType() == BEAM_PROPERTY )
+    {
+        fprintf( fp, "*BEAM GENERAL SECTION, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), fea_mat->GetName().c_str() );
+        fprintf( fp, "%g,%g,%g,%g,%g\n", m_CrossSecArea(), m_Izz(), m_Izy(), m_Iyy(), m_Ixx() );
+    }
+}
+

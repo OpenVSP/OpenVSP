@@ -292,4 +292,48 @@ protected:
 
 };
 
+enum
+{
+    SHELL_PROPERTY, BEAM_PROPERTY,
+};
+
+class FeaProperty : public ParmContainer
+{
+public:
+
+    FeaProperty();
+    virtual ~FeaProperty();
+
+    virtual void ParmChanged( Parm* parm_ptr, int type );
+
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+
+    virtual string GetTypeName( );
+
+    virtual void WriteNASTRAN( FILE* fp, int prop_id );
+    virtual void WriteCalculix( FILE* fp, string ELSET );
+
+    virtual int GetFeaMaterialIndex()
+    {
+        return m_FeaMaterialIndex;
+    }
+    virtual void SetFeaMaterialIndex( int index )
+    {
+        m_FeaMaterialIndex = index;
+    }
+
+    IntParm m_FeaPropertyType;
+    Parm m_Thickness;
+    Parm m_CrossSecArea;
+    Parm m_Izz;
+    Parm m_Iyy;
+    Parm m_Izy;
+    Parm m_Ixx;
+
+protected:
+
+    int m_FeaMaterialIndex;
+};
+
 #endif // !defined(FEASTRUCTURE_INCLUDED_)
