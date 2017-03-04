@@ -2045,8 +2045,7 @@ void CfdMeshMgrSingleton::WriteFacet( const string &facet_fn )
             fprintf( fp, "Exported from %s\n", VSPVERSION4 ); // Title/comment line
             fprintf( fp, "1 \n" ); // Number of "Big" parts (1 Vehicle broken into small parts by geom and subsurface)
 
-            fprintf( fp, m_Vehicle->GetName().c_str() ); // Name of "Big" part
-            fprintf( fp, "\n" );
+            fprintf( fp, "%s\n", m_Vehicle->GetName().c_str() ); // Name of "Big" part
 
             // mirror -> i, a b c d
             //     if i = 0 -> no mirror
@@ -2083,7 +2082,7 @@ void CfdMeshMgrSingleton::WriteFacet( const string &facet_fn )
                 tri_offset.push_back( tag_count );
             }
 
-            fprintf( fp, "%d \n", tri_offset.size() ); // # of "Small" parts
+            fprintf( fp, "%ld \n", tri_offset.size() ); // # of "Small" parts
 
             int facet_count = 0; // counter for number of tris/facets
 

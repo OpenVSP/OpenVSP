@@ -1355,7 +1355,7 @@ void VSPAEROPlotScreen::PlotConvergence( string resultID, vector <string> yDataS
                 }
                 else
                 {
-                    fprintf( stderr, "WARNING: xDoubleData.size() and yDoubleData.size() must be equal AND greater than 0\n\txDoubleData.size()=%d\n\tyDoubleData.size()=%d\n\tFile: %s \tLine:%d\n", xDoubleData.size(), yDoubleData.size(), __FILE__, __LINE__ );
+                    fprintf( stderr, "WARNING: xDoubleData.size() and yDoubleData.size() must be equal AND greater than 0\n\txDoubleData.size()=%ld\n\tyDoubleData.size()=%ld\n\tFile: %s \tLine:%d\n", xDoubleData.size(), yDoubleData.size(), __FILE__, __LINE__ );
                 }
 
                 expandOnly = true;

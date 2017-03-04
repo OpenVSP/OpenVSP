@@ -336,8 +336,6 @@ protected:
     bool m_UpdatingBBox;
     BndBox m_BBox;                              // Bounding Box Around All Geometries
 
-    void InsertIntoActiveDeque( const string & add_id, const string & parent_id );  // Insert Geom After Parent
-
     void SetApplyAbsIgnoreFlag( const vector< string > &g_vec, bool val );
 
     //==== Primary file name ====//

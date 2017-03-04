@@ -938,7 +938,7 @@ void MeshGeom::WriteFacetTriParts( FILE* fp, int &offset, int &tri_count, int &p
         }
     }
 
-    fprintf( fp, "%d \n", tri_offset.size() ); // # of "Small" parts, based on the total number of tags
+    fprintf( fp, "%ld \n", tri_offset.size() ); // # of "Small" parts, based on the total number of tags
 
     //==== Write Out Tris ====//
     for ( unsigned int i = 0; i < all_tag_vec.size(); i++ )

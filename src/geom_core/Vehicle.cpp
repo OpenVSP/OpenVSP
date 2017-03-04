@@ -1733,8 +1733,7 @@ void Vehicle::WriteFacetFile( const string & file_name, int write_set )
         fprintf( fid, "Exported from %s\n", VSPVERSION4 ); // Title/comment line
         fprintf( fid, "1\n" ); // Number of "Big" parts (1 Vehicle broken into small parts by geom and subsurface)
 
-        fprintf( fid, m_Name.c_str() ); // Name of "Big" part: Vehicle name
-        fprintf( fid, "\n" );
+        fprintf( fid, "%s\n", m_Name.c_str() ); // Name of "Big" part: Vehicle name
 
         // mirror -> i, a b c d
         //     if i = 0 -> no mirror

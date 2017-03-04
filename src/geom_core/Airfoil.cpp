@@ -148,7 +148,7 @@ double Airfoil::EstimateThick()
 
     p = box.get_max();
 
-    return sqrt( p(0) );
+    return sqrt( p.x() );
 }
 
 

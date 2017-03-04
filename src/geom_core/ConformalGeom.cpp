@@ -646,7 +646,7 @@ double ConformalGeom::AdjustForSurfaceDist( const VspSurf & surf, const Conforma
         {
             stop_u = u - del_u;
         }
-        vec3d center = spine.FindCenterGivenU( stop_u );
+        center = spine.FindCenterGivenU( stop_u );
         surf_d = surf.FindNearest( su, sw, center, stop_u, w );
 
         //==== Found U ====//
@@ -671,7 +671,7 @@ double ConformalGeom::AdjustForSurfaceDist( const VspSurf & surf, const Conforma
     for ( int i = 0 ; i < num_steps ; i++ )
     {
         double bi_u = 0.5 * ( start_u + stop_u );
-        vec3d center = spine.FindCenterGivenU( bi_u );
+        center = spine.FindCenterGivenU( bi_u );
         surf_d = surf.FindNearest( su, sw, center, bi_u, w );
 
         if ( surf_d > offset )
@@ -954,10 +954,9 @@ void ConformalGeom::TrimV( VspSurf & surf )
 //==== Cap Trimmed Surface In V Direction ====//
 void ConformalGeom::CapTrimmedSurf( piecewise_surface_type & psurf, int match_index, int stretch_index )
 {
-    piecewise_surface_type::index_type ip, jp, nupatch, nvpatch;
+    piecewise_surface_type::index_type nupatch;
 
     nupatch = psurf.number_u_patches();
-    nvpatch = psurf.number_v_patches();
     for ( int ip = 0 ; ip < nupatch ; ++ip )
     {
         surface_patch_type::index_type icp, nu, nv;
