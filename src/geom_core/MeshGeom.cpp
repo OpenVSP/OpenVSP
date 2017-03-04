@@ -1115,7 +1115,7 @@ void MeshGeom::UpdateDrawObj()
         m_DrawType = MeshGeom::DRAW_XYZ;
     }
 
-    if ( m_DrawSubSurfs() == true )
+    if ( m_DrawSubSurfs() )
     {
         m_TMeshVec.insert( m_TMeshVec.end(), m_SubSurfVec.begin(), m_SubSurfVec.end() );
     }
@@ -1201,7 +1201,7 @@ void MeshGeom::UpdateDrawObj()
             }
         }
 
-        if ( m_DrawType() == MeshGeom::DRAW_TAGS && m_DrawSubSurfs() == false )
+        if ( m_DrawType() == MeshGeom::DRAW_TAGS && ! m_DrawSubSurfs() )
         {
             // make map from tag to wire draw obj
 
@@ -1235,7 +1235,7 @@ void MeshGeom::UpdateDrawObj()
     }
 
     // Remove subsurfaces From TMeshVec
-    if ( m_DrawSubSurfs() == true )
+    if ( m_DrawSubSurfs() )
     {
         m_TMeshVec.erase( m_TMeshVec.begin() + num_meshes, m_TMeshVec.end() );
     }
@@ -2511,7 +2511,7 @@ void MeshGeom::WaveDragSlice( int numSlices, double sliceAngle, int coneSections
             // Populate vector of TMesh* for current subsurface
             vector< TMesh* > sub_surf_meshes;
             string subsurf_id = sub_surf_vec[ssv]->GetID();
-            if ( vector_contains_val( Flow_vec, subsurf_id ) == true )
+            if ( vector_contains_val( Flow_vec, subsurf_id ) )
             {
                 vector< TMesh* > tmp_vec = sub_surf_vec[ssv]->CreateTMeshVec();
                 sub_surf_meshes.insert( sub_surf_meshes.end(), tmp_vec.begin(), tmp_vec.end() );

@@ -2037,7 +2037,7 @@ bool FileXSec::ReadXsecFile( string file_name )
 //        return true;
 //    }
 //    else if ( ReadXSecFile( file_id ) == true )
-    if ( ReadXSecFile( file_id ) == true )
+    if ( ReadXSecFile( file_id ) )
     {
         fclose( file_id );
         return true;

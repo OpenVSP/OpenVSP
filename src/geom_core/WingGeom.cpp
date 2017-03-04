@@ -2543,7 +2543,7 @@ double WingGeom::GetSumDihedral( int sect_id )
     if ( sect_id < 1 || sect_id >= (int)m_XSecSurf.NumXSec() )
         return 0.0;
 
-    if ( m_RelativeDihedralFlag() == false )
+    if ( ! m_RelativeDihedralFlag() )
     {
         WingSect* ws = ( WingSect* ) m_XSecSurf.FindXSec( sect_id );
         return ws->m_Dihedral();

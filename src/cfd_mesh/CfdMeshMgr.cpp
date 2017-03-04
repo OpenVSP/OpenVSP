@@ -2380,7 +2380,7 @@ string CfdMeshMgrSingleton::CheckWaterTight()
                 }
                 triVec.push_back( tri );
 
-                if ( tri->debugFlag == true )
+                if ( tri->debugFlag )
                 {
                     m_BadTris.push_back( tri );
                 }
@@ -2411,7 +2411,7 @@ string CfdMeshMgrSingleton::CheckWaterTight()
     {
         for ( int i = 0 ; i < ( int )iter->second.size() ; i++ )
         {
-            if ( iter->second[i]->debugFlag == false )
+            if ( ! iter->second[i]->debugFlag )
             {
                 delete iter->second[i];
             }
@@ -2419,7 +2419,7 @@ string CfdMeshMgrSingleton::CheckWaterTight()
     }
     for ( int i = 0 ; i < ( int )triVec.size() ; i++ )
     {
-        if ( triVec[i]->debugFlag == false )
+        if ( ! triVec[i]->debugFlag )
         {
             delete triVec[i];
         }
@@ -4021,8 +4021,8 @@ bool CfdMeshMgrSingleton::SetDeleteTriFlag( int aType, bool symPlane, vector < b
         if ( aInThisB )
         {
             // Trim Symmetry plane
-            if ( symPlane && m_SurfVec[b]->GetFarFlag() == true &&
-                 GetCfdSettingsPtr()->GetFarCompFlag() == true )
+            if ( symPlane && m_SurfVec[b]->GetFarFlag() &&
+                 GetCfdSettingsPtr()->GetFarCompFlag() )
             {
                 return true;
             }
@@ -4122,8 +4122,8 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
                     {
                         m_SurfVec[i]->IntersectLineSeg( cp, ep, t_vec_vec[comp_id] );
                     }
-                    else if ( m_SurfVec[i]->GetFarFlag() == true && m_SurfVec[s]->GetSymPlaneFlag() == true &&
-                              GetCfdSettingsPtr()->GetFarCompFlag() == true ) // Unless trimming sym plane by outer domain
+                    else if ( m_SurfVec[i]->GetFarFlag() && m_SurfVec[s]->GetSymPlaneFlag() &&
+                              GetCfdSettingsPtr()->GetFarCompFlag() ) // Unless trimming sym plane by outer domain
                     {
                         m_SurfVec[i]->IntersectLineSeg( cp, ep, t_vec_vec[comp_id] );
                     }
@@ -4136,8 +4136,8 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
             {
                 int c = m_SurfVec[i]->GetCompID();
 
-                if ( m_SurfVec[s]->GetSymPlaneFlag() == true && m_SurfVec[i]->GetFarFlag() == true &&
-                     GetCfdSettingsPtr()->GetFarCompFlag() == true )
+                if ( m_SurfVec[s]->GetSymPlaneFlag() && m_SurfVec[i]->GetFarFlag() &&
+                     GetCfdSettingsPtr()->GetFarCompFlag() )
                 {
                     if ( ( int )( t_vec_vec[c].size() + 1 ) % 2 == 1 ) // +1 Reverse action on sym plane wrt outer boundary.
                     {
@@ -4226,7 +4226,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
     {
         for ( s = 0 ; s < ( int )m_SurfVec.size() ; s++ )
         {
-            if ( m_SurfVec[s]->GetSymPlaneFlag() == false )
+            if ( ! m_SurfVec[s]->GetSymPlaneFlag() )
             {
                 list <Tri*> triList = m_SurfVec[s]->GetMesh()->GetTriList();
                 for ( t = triList.begin() ; t != triList.end(); t++ )
@@ -4241,7 +4241,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
 
             if( !GetCfdSettingsPtr()->GetFarMeshFlag() ) // Don't keep symmetry plane.
             {
-                if ( m_SurfVec[s]->GetSymPlaneFlag() == true )
+                if ( m_SurfVec[s]->GetSymPlaneFlag() )
                 {
                     list <Tri*> triList = m_SurfVec[s]->GetMesh()->GetTriList();
                     for ( t = triList.begin() ; t != triList.end(); t++ )
@@ -4513,7 +4513,7 @@ void CfdMeshMgrSingleton::DebugWriteChains( const char* name, bool tessFlag )
                 }
 
 
-                if ( tessFlag == false )
+                if ( ! tessFlag )
                 {
                     for ( int j = 0 ; j < ( int )( *c )->m_ISegDeque.size() ; j++ )
                     {

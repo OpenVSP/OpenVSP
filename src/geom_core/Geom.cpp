@@ -160,7 +160,7 @@ void GeomBase::LoadIDAndChildren( vector< string > & id_vec, bool check_display_
 {
     id_vec.push_back( m_ID );
 
-    if ( check_display_flag && m_GuiDraw.GetDisplayChildrenFlag() == false )
+    if ( check_display_flag && ! m_GuiDraw.GetDisplayChildrenFlag() )
     {
         return;
     }
@@ -893,7 +893,7 @@ void Geom::UpdateSets()
 
     m_SetFlags[ SET_ALL ] = true;   // All
 
-    if ( m_GuiDraw.GetNoShowFlag() == false )
+    if ( ! m_GuiDraw.GetNoShowFlag() )
     {
         m_SetFlags[ SET_SHOWN ] = true; // Shown
         m_SetFlags[ SET_NOT_SHOWN ] = false;    // Not_Shown

@@ -696,7 +696,7 @@ void TMesh::MergeNonClosed( TMesh* tm )
                 break;
             }
         }
-        if ( match_flag == false )
+        if ( ! match_flag )
         {
             break;
         }

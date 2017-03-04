@@ -28,7 +28,7 @@ void GeomCoreTestSuite::ParmTest()
     p = 20.0;
     TEST_ASSERT_DELTA( 10.0, p.Get(), 1.0e-12 );
     p.Deactivate();
-    TEST_ASSERT( p.GetActiveFlag() == false );
+    TEST_ASSERT( ! p.GetActiveFlag() );
     p.SetLowerUpperLimits( -1.0e12, 1.0e12 );
     p *= 10;
     TEST_ASSERT_DELTA( 10.0, p.GetLastVal(), 1.0e-12 );
@@ -42,10 +42,10 @@ void GeomCoreTestSuite::ParmTest()
 
     BoolParm bp;
     bp.Set( false );
-    TEST_ASSERT( bp() == false );
+    TEST_ASSERT( ! bp() );
 
     bp.Set( ( bool )23.23 );
-    TEST_ASSERT( bp() == true );
+    TEST_ASSERT( bp() );
 }
 
 //==== Test Vehicle ====//

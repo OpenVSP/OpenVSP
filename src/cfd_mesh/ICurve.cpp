@@ -34,7 +34,7 @@ bool ICurve::Match( SCurve* crv_A, SCurve* crv_B )
     bool fmatch = xyzcrvA.MatchFwd( xyzcrvB, tol );
     bool bmatch = xyzcrvA.MatchBkwd( xyzcrvB, tol );
 
-    if ( (fmatch == true) || (bmatch == true) )
+    if ( fmatch || bmatch )
     {
         if ( bmatch )
         {

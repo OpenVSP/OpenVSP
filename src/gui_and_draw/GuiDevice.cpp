@@ -930,7 +930,7 @@ void CheckButton::SetValAndLimits( Parm* p )
 
     BoolParm* bparm = dynamic_cast< BoolParm* >( p );
     assert( bparm );
-    if ( bparm->Get() == true )
+    if ( bparm->Get() )
     {
         m_Button->value( 1 );
     }
