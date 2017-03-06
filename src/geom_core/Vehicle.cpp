@@ -586,6 +586,15 @@ string Vehicle::AddGeom( const GeomType & type )
                     MessageMgr::getInstance().SendAll( errMsgData );
                 }
             }
+            else
+            {
+                MessageData errMsgData;
+                errMsgData.m_String = "Error";
+                errMsgData.m_IntVec.push_back( vsp::VSP_CONFORMAL_PARENT_UNSUPPORTED );
+                errMsgData.m_StringVec.push_back( string( "Error:  Conformal component not supported for this parent type." ) );
+
+                MessageMgr::getInstance().SendAll( errMsgData );
+            }
 
             add_geom->Update();
         }
