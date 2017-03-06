@@ -1928,14 +1928,14 @@ void WingGeom::UpdateSurf()
             vector < double > ulocalvec;
             ulocalvec.reserve( nref + 2 );
 
-            double small = 0.02;
-            ulocalvec.push_back( small );
+            double tsmall = 0.02;
+            ulocalvec.push_back( tsmall );
             for ( int j = 0; j < nref; j++ )
             {
                 double ulocal = ((j + 1.0) / (nref + 1.0));
                 ulocalvec.push_back( ulocal );
             }
-            ulocalvec.push_back( 1.0 - small );
+            ulocalvec.push_back( 1.0 - tsmall );
 
             m_UMergeVec.push_back( ulocalvec.size() + 1 );
 
