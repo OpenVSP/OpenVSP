@@ -108,8 +108,8 @@ void SetEditorScreen::CallBack( Fl_Widget *w )
     }
     else if ( w == m_SetEditorUI->highlightSetButton )
     {
-//jrg fix??
-//      veh->HightlightSet( m_SelectedSetIndex );
+        vector < string > activate_geom_vec = veh->GetGeomSet( m_SelectedSetIndex );
+        veh->SetActiveGeomVec( activate_geom_vec );
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
