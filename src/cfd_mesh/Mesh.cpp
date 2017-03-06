@@ -7,6 +7,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#define _USE_MATH_DEFINES
 #include "Mesh.h"
 #include "Surf.h"
 #include "triangle.h"
