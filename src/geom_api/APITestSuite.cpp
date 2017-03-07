@@ -379,7 +379,6 @@ void APITestSuite::TestSVGExport()
     string geom_id = vsp::FindContainer( "Vehicle", 0 );
 
     //==== Manually Add Scale Bar ====//
-    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( geom_id, "ScaleFlag", "SVGSettings" ), vsp::MANUAL ), vsp::MANUAL, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( geom_id, "LenUnit", "SVGSettings" ), vsp::LEN_IN ), vsp::LEN_IN, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( geom_id, "Scale", "SVGSettings" ), 30.0 ), 30.0, TEST_TOL );
 

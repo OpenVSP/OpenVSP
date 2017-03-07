@@ -15,7 +15,7 @@ void TestSVG()
     string fid = AddGeom( "FUSELAGE", "" );
     SetParmVal( fid, "X_Rel_Location", "XForm", -9.0 );
     SetParmVal( fid, "Z_Rel_Location", "XForm", -1.0 );
-	Update();
+    Update();
 
     //==== Add Wing ====//
     string wid = AddGeom( "WING", "" );
@@ -38,47 +38,47 @@ void TestSVG()
     SetParmVal( wid, "Tip_Chord", "XSec_1", 3.0 );
     SetParmVal( wid, "Area", "XSec_1", 45.0 );
     SetParmVal( wid, "Sweep", "XSec_1", 40.0 );
-	Update();
+    Update();
 
     //===== Change Some Parameters 2nd Section ====//
     SetParmVal( wid, "Tip_Chord", "XSec_2", 2.0 );
     SetParmVal( wid, "Sweep", "XSec_2", 60.0 );
     SetParmVal( wid, "Dihedral", "XSec_2", 30.0 );
-	Update();
+    Update();
 
     //===== Change Some Parameters 3rd Section ====//
     SetParmVal( wid, "Sweep", "XSec_3", 60.0 );
     SetParmVal( wid, "Dihedral", "XSec_3", 80.0 );
-	Update();
+    Update();
 
     //==== Change Airfoil ====//
     SetParmVal( wid, "Camber", "XSecCurve_0", 0.02 );
-    
-	Update();
 
-    string geom_id = FindContainer( "Vehicle", 0 );	
-	
-	//==== Manually Add Scale Bar ====//
-	SetParmVal( FindParm( geom_id, "ScaleFlag", "SVGSettings" ), MANUAL );
-	SetParmVal( FindParm( geom_id, "LenUnit", "SVGSettings" ), LEN_FT );
-	SetParmVal( FindParm( geom_id, "Scale", "SVGSettings" ), 30.0 );		
-	
+    Update();
+
+    string geom_id = FindContainer( "Vehicle", 0 );
+
+    //==== Manually Add Scale Bar ====//
+    SetParmVal( FindParm( geom_id, "ScaleFlag", "SVGSettings" ), MANUAL );
+    SetParmVal( FindParm( geom_id, "LenUnit", "SVGSettings" ), LEN_FT );
+    SetParmVal( FindParm( geom_id, "Scale", "SVGSettings" ), 30.0 );
+
     //==== Default 4 View SVG Export ====//
 
     Print( string( "---> Test Write 4 View" ) );
     ExportFile( "TestSVG_4View.svg", SET_ALL, EXPORT_SVG );
     Print( string( "---> Default 4 View Export Success: Saved as TestSVG_4View.svg" ) );
     Print( string( "" ) );
-	
+
     //==== Default 2 View SVG Export ====//
     SetParmVal( FindParm( geom_id, "ViewType", "SVGSettings" ), VIEW_2HOR );
     SetParmVal( FindParm( geom_id, "TopLeftView", "SVGSettings" ), VIEW_RIGHT );
-	SetParmVal( FindParm( geom_id, "TopRightView", "SVGSettings" ), VIEW_LEFT );
+    SetParmVal( FindParm( geom_id, "TopRightView", "SVGSettings" ), VIEW_LEFT );
     SetParmVal( FindParm( geom_id, "TopLeftRotation", "SVGSettings" ), ROT_0 );
-	Update();
-	
+    Update();
+
     Print( string( "---> Test Write 2 Horizontal View" ) );
-	Print( string( "     Left: Right View, Right: Left View" ) );
+    Print( string( "     Left: Right View, Right: Left View" ) );
     ExportFile( "TestSVG_2HView.svg", SET_ALL, EXPORT_SVG );
     Print( string( "---> 2 Horizontal View Export Success: Saved as TestSVG_2HView.svg" ) );
     Print( string( "" ) );
@@ -96,7 +96,7 @@ void TestSVG()
     Print( string( "" ) );
 
     //==== 2 Vertical View SVG Export ====//
-    SetParmVal( FindParm( geom_id, "ViewType", "SVGSettings" ), VIEW_2VER );	
+    SetParmVal( FindParm( geom_id, "ViewType", "SVGSettings" ), VIEW_2VER );
     SetParmVal( FindParm( geom_id, "BottomLeftView", "SVGSettings" ), VIEW_REAR );
     SetParmVal( FindParm( geom_id, "BottomLeftRotation", "SVGSettings" ), ROT_0 );
     Update();
