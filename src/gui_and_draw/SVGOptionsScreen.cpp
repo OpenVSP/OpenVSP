@@ -15,19 +15,14 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-SVGOptionsScreen::SVGOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 415, "SVG Options" )
+SVGOptionsScreen::SVGOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 340, "SVG Options" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
 
     m_OkFlag = false;
-    m_ScaleFlag = true;
 
     m_GenLayout.SetGroupAndScreen( m_FLTK_Window, this );
-    m_GenLayout.AddY( 25 );
-
-    m_GenLayout.AddYGap();
-    m_GenLayout.AddDividerBox( "General" );
-    m_GenLayout.AddYGap();
+    m_GenLayout.AddY( 30 );
 
     m_GenLayout.SetChoiceButtonWidth( m_GenLayout.GetW() / 2 );
     m_LenUnitChoice.AddItem( "MM" );
@@ -36,19 +31,8 @@ SVGOptionsScreen::SVGOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 41
     m_LenUnitChoice.AddItem( "IN" );
     m_LenUnitChoice.AddItem( "FT" );
     m_LenUnitChoice.AddItem( "YD" );
-    m_LenUnitChoice.AddItem( "Unitless" );
+    m_LenUnitChoice.AddItem( "Dimensionless" );
     m_GenLayout.AddChoice( m_LenUnitChoice, "Length Unit" );
-
-    m_GenLayout.SetSameLineFlag( true );
-    m_GenLayout.SetFitWidthFlag( false );
-
-
-
-
-    m_GenLayout.SetSameLineFlag( false );
-    m_GenLayout.SetFitWidthFlag( true );
-
-    m_GenLayout.AddButton( m_XSecToggle, "Include XSec Feature Lines" );
 
     m_GenLayout.AddYGap();
 
@@ -56,20 +40,7 @@ SVGOptionsScreen::SVGOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 41
 
     int boxdim = m_GenLayout.GetW() / 2 - 20;
 
-    m_GenLayout.AddDividerBox( "2D Views" );
-    m_GenLayout.AddYGap();
-
-    m_GenLayout.SetChoiceButtonWidth( m_GenLayout.GetW() / 2 );
-    m_2DViewType.AddItem( "One" );
-    m_2DViewType.AddItem( "Two Horizontal" );
-    m_2DViewType.AddItem( "Two Vertical" );
-    m_2DViewType.AddItem( "Four" );
-    m_GenLayout.AddChoice( m_2DViewType, "2D View Type" );
-
-    m_GenLayout.SetSameLineFlag( true );
-    m_GenLayout.SetFitWidthFlag( false );
-
-    m_GenLayout.SetButtonWidth( m_GenLayout.GetRemainX() / 2 );
+    m_GenLayout.AddButton( m_XSecToggle, "Force XSecs" );
 
     m_GenLayout.AddYGap();
 
@@ -80,7 +51,16 @@ SVGOptionsScreen::SVGOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 41
 
     m_GenLayout.InitWidthHeightVals();
 
-    m_GenLayout.AddSlider( m_TessSlider, "Tess. Factor", 8, "%4.2f" );
+    m_GenLayout.AddSlider( m_TessSlider, "Refinement", 8, "%5.0f" );
+
+    m_GenLayout.AddYGap();
+
+    m_GenLayout.SetChoiceButtonWidth( m_GenLayout.GetW() / 2 );
+    m_2DViewType.AddItem( "One" );
+    m_2DViewType.AddItem( "Two Horizontal" );
+    m_2DViewType.AddItem( "Two Vertical" );
+    m_2DViewType.AddItem( "Four" );
+    m_GenLayout.AddChoice( m_2DViewType, "2D View Type" );
 
     m_GenLayout.AddYGap();
     m_GenLayout.AddX( 20 );
@@ -194,7 +174,6 @@ SVGOptionsScreen::SVGOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 41
     m_GenLayout.SetX( 0 );
     m_GenLayout.ForceNewLine();
 
-    m_GenLayout.AddYGap();
     m_GenLayout.SetFitWidthFlag( false );
     m_GenLayout.SetSameLineFlag( true );
     m_GenLayout.SetButtonWidth( 100 );
@@ -230,14 +209,14 @@ bool SVGOptionsScreen::Update()
         m_TessSlider.Update( veh->m_SVGTessFactor.GetID() );
         m_XSecToggle.Update( veh->m_SVGAllXSecFlag.GetID() );
 
-            if ( veh->m_SVGProjectionFlag() )
-            {
-                m_TessSlider.Activate();
-            }
-            else 
-            {
-                m_TessSlider.Deactivate();
-            }
+        if ( veh->m_SVGProjectionFlag() )
+        {
+            m_TessSlider.Activate();
+        }
+        else 
+        {
+            m_TessSlider.Deactivate();
+        }
 
         if ( veh->m_SVGLenUnit() == vsp::LEN_UNITLESS )
         {
