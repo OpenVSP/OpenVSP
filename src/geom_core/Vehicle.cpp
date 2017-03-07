@@ -222,7 +222,7 @@ void Vehicle::Init()
     m_IGESTrimTE.Set( false );
 
     //=== DXF Initial Conditions ===//
-    m_DXFLenUnit.Set( vsp::LEN_UNITLESS );
+    m_DXFLenUnit.Set( vsp::LEN_FT );
     m_DXF2DView.Set( vsp::VIEW_4 );
     m_DXF2D3DFlag.Set( vsp::SET_3D );
     m_DXF4View1.Set( vsp::VIEW_TOP );
@@ -235,7 +235,7 @@ void Vehicle::Init()
     m_DXF4View4_rot.Set( vsp::ROT_0 );
 
     //=== SVG Initial Conditions ===//
-    m_SVGLenUnit.Set( vsp::LEN_UNITLESS );
+    m_SVGLenUnit.Set( vsp::LEN_FT );
     m_SVGView.Set( vsp::VIEW_4 );
     m_SVGView1.Set( vsp::VIEW_TOP );
     m_SVGView2.Set( vsp::VIEW_NONE );
