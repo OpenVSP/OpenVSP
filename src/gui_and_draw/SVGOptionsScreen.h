@@ -34,7 +34,7 @@ public:
     virtual void CloseCallBack( Fl_Widget *w );
     virtual void GuiDeviceCallBack( GuiDevice* device );
 
-    bool ShowSVGOptionsScreen( int write_set );
+    bool ShowSVGOptionsScreen( );
 
     virtual void GetScale( int write_set );
 

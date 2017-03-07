@@ -348,7 +348,7 @@ void SVGOptionsScreen::GuiDeviceCallBack( GuiDevice* device )
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
-bool SVGOptionsScreen::ShowSVGOptionsScreen( int write_set )
+bool SVGOptionsScreen::ShowSVGOptionsScreen( )
 {
     Show();
 
@@ -371,6 +371,7 @@ void SVGOptionsScreen::CloseCallBack( Fl_Widget *w )
 
 void SVGOptionsScreen::GetScale( int write_set )
 {
+    bool foundgeom = false;
 
     Vehicle *veh = VehicleMgr.GetVehicle();
 
@@ -381,12 +382,27 @@ void SVGOptionsScreen::GetScale( int write_set )
         if ( geom_vec[i]->GetSetFlag( write_set ) )
         {
             svgbox.Update( geom_vec[i]->GetBndBox() );
+            foundgeom = true;
         }
     }
 
-    double scale = svgbox.GetLargestDist();
+    if ( !foundgeom )
+    {
+        veh->m_Scale.Set( 0 ); // Set to 0 if no geoms are in the set
+        return;
+    }
 
-    double convert_scale = floor2scale( scale, pow( 10.0, mag( scale ) - 1 ) );
+    double length = svgbox.DiagDist();
+    double convert_scale;
+
+    if ( length >= 1.0 )
+    {
+        convert_scale = floor2scale( length, pow( 10.0, mag( length ) ) );
+    }
+    else
+    {
+        convert_scale = floor2scale( length, pow( 10.0, mag( length ) - 1 ) );
+    }
+
     veh->m_Scale.Set( convert_scale );
-
 }

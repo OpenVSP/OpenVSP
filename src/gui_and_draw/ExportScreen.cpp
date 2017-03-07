@@ -160,7 +160,7 @@ void ExportScreen::ExportFile( string &newfile, int write_set, int type )
     }
     else if ( type == EXPORT_SVG )
     {
-        if ( (( SVGOptionsScreen* ) m_ScreenMgr->GetScreen( ScreenMgr::VSP_SVG_OPTIONS_SCREEN ))->ShowSVGOptionsScreen( write_set ) )
+        if ( (( SVGOptionsScreen* ) m_ScreenMgr->GetScreen( ScreenMgr::VSP_SVG_OPTIONS_SCREEN ))->ShowSVGOptionsScreen( ) )
         {
             newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write SVG File?", "*.svg" );
         }
@@ -250,6 +250,13 @@ void ExportScreen::GuiDeviceCallBack( GuiDevice* device )
     else if (  device == &m_ExportSetChoice )
     {
         m_SelectedSetIndex = m_ExportSetChoice.GetVal();
+
+        Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
+
+        if ( veh )
+        {
+            veh->m_SVGSet.Set( m_SelectedSetIndex );
+        }
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
