@@ -1450,12 +1450,12 @@ void Geom::WriteFeatureLinesDXF( FILE * file_name, const BndBox &dxfbox )
             {
                 allflines1 = allflines;
                 FeatureLinesManipulate( allflines1, m_Vehicle->m_DXF4View1(), m_Vehicle->m_DXF4View1_rot(), shiftvec );
-                FeatureLinesShift( allflines1, shiftvec, vsp::VIEW_SHIFT::LEFT, m_Vehicle->m_DXF4View1_rot(), NULL );
+                FeatureLinesShift( allflines1, shiftvec, vsp::VIEW_SHIFT::LEFT, m_Vehicle->m_DXF4View1_rot(), 0 );
                 string layer_v1 = layer + "_v1";
 
                 allflines2 = allflines;
                 FeatureLinesManipulate( allflines2, m_Vehicle->m_DXF4View2(), m_Vehicle->m_DXF4View2_rot(), shiftvec );
-                FeatureLinesShift( allflines2, shiftvec, vsp::VIEW_SHIFT::RIGHT, m_Vehicle->m_DXF4View2_rot(), NULL );
+                FeatureLinesShift( allflines2, shiftvec, vsp::VIEW_SHIFT::RIGHT, m_Vehicle->m_DXF4View2_rot(), 0 );
                 string layer_v2 = layer + "_v2";
 
                 WriteDXFPolylines2D( file_name, allflines1, layer_v1, color, m_Vehicle->m_ColorCount );
@@ -1468,11 +1468,11 @@ void Geom::WriteFeatureLinesDXF( FILE * file_name, const BndBox &dxfbox )
             {
                 allflines1 = allflines;
                 FeatureLinesManipulate( allflines1, m_Vehicle->m_DXF4View1(), m_Vehicle->m_DXF4View1_rot(), shiftvec );
-                FeatureLinesShift( allflines1, shiftvec, vsp::VIEW_SHIFT::UP, m_Vehicle->m_DXF4View1_rot(), NULL );
+                FeatureLinesShift( allflines1, shiftvec, vsp::VIEW_SHIFT::UP, m_Vehicle->m_DXF4View1_rot(), 0 );
 
                 allflines3 = allflines;
                 FeatureLinesManipulate( allflines3, m_Vehicle->m_DXF4View3(), m_Vehicle->m_DXF4View3_rot(), shiftvec );
-                FeatureLinesShift( allflines3, shiftvec, vsp::VIEW_SHIFT::DOWN, m_Vehicle->m_DXF4View3_rot(), NULL );
+                FeatureLinesShift( allflines3, shiftvec, vsp::VIEW_SHIFT::DOWN, m_Vehicle->m_DXF4View3_rot(), 0 );
 
                 string layer_v1 = layer + "_v1";
                 string layer_v2 = layer + "_v2";
@@ -1572,7 +1572,7 @@ void Geom::WriteProjectionLinesDXF( FILE * file_name, const BndBox &dxfbox )
             if ( projectionvec1.size() > 0 )
             {
                 FeatureLinesManipulate( projectionvec1, m_Vehicle->m_DXF4View1(), m_Vehicle->m_DXF4View1_rot(), shiftvec );
-                FeatureLinesShift( projectionvec1, shiftvec, vsp::VIEW_SHIFT::LEFT, m_Vehicle->m_DXF4View1_rot(), NULL );
+                FeatureLinesShift( projectionvec1, shiftvec, vsp::VIEW_SHIFT::LEFT, m_Vehicle->m_DXF4View1_rot(), 0 );
                 string projectionlayer_v1 = projectionlayer + "_v1";
 
                 WriteDXFPolylines2D( file_name, projectionvec1, projectionlayer_v1, color, m_Vehicle->m_ColorCount );
@@ -1584,7 +1584,7 @@ void Geom::WriteProjectionLinesDXF( FILE * file_name, const BndBox &dxfbox )
             if ( projectionvec2.size() > 0 )
             {
                 FeatureLinesManipulate( projectionvec2, m_Vehicle->m_DXF4View2(), m_Vehicle->m_DXF4View2_rot(), shiftvec );
-                FeatureLinesShift( projectionvec2, shiftvec, vsp::VIEW_SHIFT::RIGHT, m_Vehicle->m_DXF4View2_rot(), NULL );
+                FeatureLinesShift( projectionvec2, shiftvec, vsp::VIEW_SHIFT::RIGHT, m_Vehicle->m_DXF4View2_rot(), 0 );
                 string projectionlayer_v2 = projectionlayer + "_v2";
 
                 WriteDXFPolylines2D( file_name, projectionvec2, projectionlayer_v2, color, m_Vehicle->m_ColorCount );
@@ -1598,7 +1598,7 @@ void Geom::WriteProjectionLinesDXF( FILE * file_name, const BndBox &dxfbox )
             if ( projectionvec1.size() > 0 )
             {
                 FeatureLinesManipulate( projectionvec1, m_Vehicle->m_DXF4View1(), m_Vehicle->m_DXF4View1_rot(), shiftvec );
-                FeatureLinesShift( projectionvec1, shiftvec, vsp::VIEW_SHIFT::UP, m_Vehicle->m_DXF4View1_rot(), NULL );
+                FeatureLinesShift( projectionvec1, shiftvec, vsp::VIEW_SHIFT::UP, m_Vehicle->m_DXF4View1_rot(), 0 );
                 string projectionlayer_v1 = projectionlayer + "_v1";
 
                 WriteDXFPolylines2D( file_name, projectionvec1, projectionlayer_v1, color, m_Vehicle->m_ColorCount );
@@ -1610,7 +1610,7 @@ void Geom::WriteProjectionLinesDXF( FILE * file_name, const BndBox &dxfbox )
             if ( projectionvec3.size() > 0 )
             {
                 FeatureLinesManipulate( projectionvec3, m_Vehicle->m_DXF4View3(), m_Vehicle->m_DXF4View3_rot(), shiftvec );
-                FeatureLinesShift( projectionvec3, shiftvec, vsp::VIEW_SHIFT::DOWN, m_Vehicle->m_DXF4View3_rot(), NULL );
+                FeatureLinesShift( projectionvec3, shiftvec, vsp::VIEW_SHIFT::DOWN, m_Vehicle->m_DXF4View3_rot(), 0 );
                 string projectionlayer_v2 = projectionlayer + "_v2";
 
                 WriteDXFPolylines2D( file_name, projectionvec3, projectionlayer_v2, color, m_Vehicle->m_ColorCount );
@@ -1762,11 +1762,11 @@ void Geom::WriteFeatureLinesSVG( xmlNodePtr root, const BndBox &svgbox )
         {
             allflines1 = allflines;
             FeatureLinesManipulate( allflines1, m_Vehicle->m_SVGView1(), m_Vehicle->m_SVGView1_rot(), shiftvec );
-            FeatureLinesShift( allflines1, shiftvec, vsp::VIEW_SHIFT::LEFT, m_Vehicle->m_SVGView1_rot(), NULL );
+            FeatureLinesShift( allflines1, shiftvec, vsp::VIEW_SHIFT::LEFT, m_Vehicle->m_SVGView1_rot(), 0 );
 
             allflines2 = allflines;
             FeatureLinesManipulate( allflines2, m_Vehicle->m_SVGView2(), m_Vehicle->m_SVGView2_rot(), shiftvec );
-            FeatureLinesShift( allflines2, shiftvec, vsp::VIEW_SHIFT::RIGHT, m_Vehicle->m_SVGView2_rot(), NULL );
+            FeatureLinesShift( allflines2, shiftvec, vsp::VIEW_SHIFT::RIGHT, m_Vehicle->m_SVGView2_rot(), 0 );
 
             WriteSVGPolylines2D( root, allflines1, svgbox );
             WriteSVGPolylines2D( root, allflines2, svgbox );
@@ -1775,11 +1775,11 @@ void Geom::WriteFeatureLinesSVG( xmlNodePtr root, const BndBox &svgbox )
         {
             allflines1 = allflines;
             FeatureLinesManipulate( allflines1, m_Vehicle->m_SVGView1(), m_Vehicle->m_SVGView1_rot(), shiftvec );
-            FeatureLinesShift( allflines1, shiftvec, vsp::VIEW_SHIFT::UP, m_Vehicle->m_SVGView1_rot(), NULL );
+            FeatureLinesShift( allflines1, shiftvec, vsp::VIEW_SHIFT::UP, m_Vehicle->m_SVGView1_rot(), 0 );
 
             allflines3 = allflines;
             FeatureLinesManipulate( allflines3, m_Vehicle->m_SVGView3(), m_Vehicle->m_SVGView3_rot(), shiftvec );
-            FeatureLinesShift( allflines3, shiftvec, vsp::VIEW_SHIFT::DOWN, m_Vehicle->m_SVGView3_rot(), NULL );
+            FeatureLinesShift( allflines3, shiftvec, vsp::VIEW_SHIFT::DOWN, m_Vehicle->m_SVGView3_rot(), 0 );
 
             WriteSVGPolylines2D( root, allflines1, svgbox );
             WriteSVGPolylines2D( root, allflines3, svgbox );
@@ -1835,13 +1835,13 @@ void Geom::WriteProjectionLinesSVG( xmlNodePtr root, const BndBox &svgbox )
         vector < vector < vec3d > > projectionvec1 = GetGeomProjectionLines( m_Vehicle->m_SVGView1(), to_orgin );
 
         FeatureLinesManipulate( projectionvec1, m_Vehicle->m_SVGView1(), m_Vehicle->m_SVGView1_rot(), shiftvec );
-        FeatureLinesShift( projectionvec1, shiftvec, vsp::VIEW_SHIFT::LEFT, m_Vehicle->m_SVGView1_rot(), NULL );
+        FeatureLinesShift( projectionvec1, shiftvec, vsp::VIEW_SHIFT::LEFT, m_Vehicle->m_SVGView1_rot(), 0 );
         WriteSVGPolylines2D( root, projectionvec1, svgbox );
 
         vector < vector < vec3d > > projectionvec2 = GetGeomProjectionLines( m_Vehicle->m_SVGView2(), to_orgin );
 
         FeatureLinesManipulate( projectionvec2, m_Vehicle->m_SVGView2(), m_Vehicle->m_SVGView2_rot(), shiftvec );
-        FeatureLinesShift( projectionvec2, shiftvec, vsp::VIEW_SHIFT::RIGHT, m_Vehicle->m_SVGView2_rot(), NULL );
+        FeatureLinesShift( projectionvec2, shiftvec, vsp::VIEW_SHIFT::RIGHT, m_Vehicle->m_SVGView2_rot(), 0 );
         WriteSVGPolylines2D( root, projectionvec2, svgbox );
     }
     else if ( m_Vehicle->m_SVGView() == vsp::VIEW_NUM::VIEW_2VER )
@@ -1849,13 +1849,13 @@ void Geom::WriteProjectionLinesSVG( xmlNodePtr root, const BndBox &svgbox )
         vector < vector < vec3d > > projectionvec1 = GetGeomProjectionLines( m_Vehicle->m_SVGView1(), to_orgin );
 
         FeatureLinesManipulate( projectionvec1, m_Vehicle->m_SVGView1(), m_Vehicle->m_SVGView1_rot(), shiftvec );
-        FeatureLinesShift( projectionvec1, shiftvec, vsp::VIEW_SHIFT::UP, m_Vehicle->m_SVGView1_rot(), NULL );
+        FeatureLinesShift( projectionvec1, shiftvec, vsp::VIEW_SHIFT::UP, m_Vehicle->m_SVGView1_rot(), 0 );
         WriteSVGPolylines2D( root, projectionvec1, svgbox );
 
         vector < vector < vec3d > > projectionvec3 = GetGeomProjectionLines( m_Vehicle->m_SVGView3(), to_orgin );
 
         FeatureLinesManipulate( projectionvec3, m_Vehicle->m_SVGView3(), m_Vehicle->m_SVGView3_rot(), shiftvec );
-        FeatureLinesShift( projectionvec3, shiftvec, vsp::VIEW_SHIFT::DOWN, m_Vehicle->m_SVGView3_rot(), NULL );
+        FeatureLinesShift( projectionvec3, shiftvec, vsp::VIEW_SHIFT::DOWN, m_Vehicle->m_SVGView3_rot(), 0 );
         WriteSVGPolylines2D( root, projectionvec3, svgbox );
 
     }
