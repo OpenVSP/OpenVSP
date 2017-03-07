@@ -2759,8 +2759,7 @@ void Vehicle::WriteDXFFile( const string & file_name, int write_set )
     }
     else
     {
-        string export_error = "Error: File export failed\nFile: " + file_name + "\n";
-        fprintf( stderr, export_error.c_str() );
+        fprintf( stderr, "Error: File export failed\nFile: %s\n", file_name.c_str() );
     }
 }
 
@@ -2971,8 +2970,7 @@ void Vehicle::WriteSVGFile( const string & file_name, int write_set )
 
     if( err == -1 )  // Failure occurred
     {
-        string export_error = "Error: File export failed\nFile: " + file_name + "\n";
-        fprintf( stderr, export_error.c_str() );
+        fprintf( stderr, "Error: File export failed\nFile: %s\n", file_name.c_str() );
     }
 }
 
