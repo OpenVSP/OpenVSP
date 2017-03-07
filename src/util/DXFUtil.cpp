@@ -25,7 +25,7 @@ void WriteDXFHeader( FILE* dxf_file, int LenUnitChoice )
         //AutoCAD drawing database version number: AC1006 = R10, AC1009 = R11 and R12, AC1012 = R13, AC1014 = R14
         fprintf( dxf_file, "$ACADVER\n" );
         fprintf( dxf_file, "  1\n" );
-        fprintf( dxf_file, "AC1006s\n" );
+        fprintf( dxf_file, "AC1006\n" );
         fprintf( dxf_file, "  9\n" );
         // Insertion base:
         fprintf( dxf_file, "$INSBASE\n" );
@@ -250,18 +250,18 @@ void WriteDXFPolylines3D( FILE* dxf_file, const vector < vector < vec3d > > &all
             fprintf( dxf_file, "AcDbEntity\n" );
             fprintf( dxf_file, "  8\n" );
             fprintf( dxf_file, "%s\n", layer.c_str() );
-            fprintf( dxf_file, "  %d\n", 100 );
-            fprintf( dxf_file, "%s\n", "AcDb3dPolyline" );
-            fprintf( dxf_file, "  %d\n", 66 );
-            fprintf( dxf_file, "     %d\n", 1 );
-            fprintf( dxf_file, "  %d\n", 70 );
-            fprintf( dxf_file, "     %d\n", 8 );
-            fprintf( dxf_file, "  %d\n", 10 );
-            fprintf( dxf_file, "%f\n", 0.0 ); //x
-            fprintf( dxf_file, "  %d\n", 20 );
-            fprintf( dxf_file, "%f\n", 0.0 ); //y
-            fprintf( dxf_file, "  %d\n", 30 );
-            fprintf( dxf_file, "%f\n", 0.0 ); //z
+            fprintf( dxf_file, "  100\n" );
+            fprintf( dxf_file, "AcDb3dPolyline\n" );
+            fprintf( dxf_file, "  66\n" );
+            fprintf( dxf_file, "     1\n" );
+            fprintf( dxf_file, "  70\n" );
+            fprintf( dxf_file, "     8\n" );
+            fprintf( dxf_file, "  10\n" );
+            fprintf( dxf_file, "0.0\n" ); //x
+            fprintf( dxf_file, "  20\n" );
+            fprintf( dxf_file, "0.0\n" ); //y
+            fprintf( dxf_file, "  30\n" );
+            fprintf( dxf_file, "0.0\n" ); //z
             fprintf( dxf_file, "  62\n" );
             fprintf( dxf_file, "  %d\n", color );
             //Same Start/End Width:
@@ -278,11 +278,11 @@ void WriteDXFPolylines3D( FILE* dxf_file, const vector < vector < vec3d > > &all
                 fprintf( dxf_file, "AcDbEntity\n" );
                 fprintf( dxf_file, "  8\n" );
                 fprintf( dxf_file, "%s\n", layer.c_str() );
-                fprintf( dxf_file, "  %d\n", 100 );
+                fprintf( dxf_file, "  100\n" );
                 fprintf( dxf_file, "%s\n", "AcDbVertex" );
-                fprintf( dxf_file, "  %d\n", 100 );
+                fprintf( dxf_file, "  100\n" );
                 fprintf( dxf_file, "%s\n", "AcDb3dPolylineVertex" );
-                fprintf( dxf_file, "  %d\n", 10 );
+                fprintf( dxf_file, "  10\n" );
                 fprintf( dxf_file, "%f\n", allflines[l][j].x() ); //x
                 fprintf( dxf_file, "  20\n" );
                 fprintf( dxf_file, "%f\n", allflines[l][j].y() ); //y
@@ -324,16 +324,16 @@ void WriteDXFPolylines2D( FILE* dxf_file, const vector < vector < vec3d > > &all
             fprintf( dxf_file, "AcDbEntity\n" );
             fprintf( dxf_file, "  8\n" );
             fprintf( dxf_file, "%s\n", layer.c_str() );
-            fprintf( dxf_file, "  %d\n", 100 );
-            fprintf( dxf_file, "%s\n", "AcDb3dPolyline" );
-            fprintf( dxf_file, "  %d\n", 66 );
-            fprintf( dxf_file, "     %d\n", 1 );
-            fprintf( dxf_file, "  %d\n", 70 );
-            fprintf( dxf_file, "     %d\n", 8 );
-            fprintf( dxf_file, "  %d\n", 10 );
-            fprintf( dxf_file, "%f\n", 0.0 ); //x
-            fprintf( dxf_file, "  %d\n", 20 );
-            fprintf( dxf_file, "%f\n", 0.0 ); //y
+            fprintf( dxf_file, "  100\n" );
+            fprintf( dxf_file, "AcDb3dPolyline\n" );
+            fprintf( dxf_file, "  66\n" );
+            fprintf( dxf_file, "     1\n" );
+            fprintf( dxf_file, "  70\n" );
+            fprintf( dxf_file, "     8\n" );
+            fprintf( dxf_file, "  10\n" );
+            fprintf( dxf_file, "0.0\n" ); //x
+            fprintf( dxf_file, "  20\n" );
+            fprintf( dxf_file, "0.0\n" ); //y
             fprintf( dxf_file, "  62\n" );
             fprintf( dxf_file, "  %d\n", color );
             //Same Start/End Width:
@@ -350,11 +350,11 @@ void WriteDXFPolylines2D( FILE* dxf_file, const vector < vector < vec3d > > &all
                 fprintf( dxf_file, "AcDbEntity\n" );
                 fprintf( dxf_file, "  8\n" );
                 fprintf( dxf_file, "%s\n", layer.c_str() );
-                fprintf( dxf_file, "  %d\n", 100 );
-                fprintf( dxf_file, "%s\n", "AcDbVertex" );
-                fprintf( dxf_file, "  %d\n", 100 );
-                fprintf( dxf_file, "%s\n", "AcDb3dPolylineVertex" );
-                fprintf( dxf_file, "  %d\n", 10 );
+                fprintf( dxf_file, "  100\n" );
+                fprintf( dxf_file, "AcDbVertex\n" );
+                fprintf( dxf_file, "  100\n" );
+                fprintf( dxf_file, "AcDb3dPolylineVertex\n" );
+                fprintf( dxf_file, "  10\n" );
                 fprintf( dxf_file, "%f\n", allflines[l][j].x() ); //x
                 fprintf( dxf_file, "  20\n" );
                 fprintf( dxf_file, "%f\n", allflines[l][j].y() ); //y
@@ -376,10 +376,10 @@ void WriteDXFClose( FILE* dxf_file )
     if ( dxf_file )
     {
         //End of File
-        fprintf( dxf_file, "  %d\n", 0 );
-        fprintf( dxf_file, "%s\n", "ENDSEC" );
-        fprintf( dxf_file, "  %d\n", 0 );
-        fprintf( dxf_file, "%s\n", "EOF" );
+        fprintf( dxf_file, "  0\n" );
+        fprintf( dxf_file, "ENDSEC\n" );
+        fprintf( dxf_file, "  0\n" );
+        fprintf( dxf_file, "EOF\n" );
     }
 }
 
