@@ -283,13 +283,13 @@ void WriteDXFPolylines3D( FILE* dxf_file, const vector < vector < vec3d > > &all
                 fprintf( dxf_file, "  %d\n", 100 );
                 fprintf( dxf_file, "%s\n", "AcDb3dPolylineVertex" );
                 fprintf( dxf_file, "  %d\n", 10 );
-                fprintf( dxf_file, "  62\n" );
-                fprintf( dxf_file, "  %d\n", color );
                 fprintf( dxf_file, "%f\n", allflines[l][j].x() ); //x
                 fprintf( dxf_file, "  20\n" );
                 fprintf( dxf_file, "%f\n", allflines[l][j].y() ); //y
                 fprintf( dxf_file, "  30\n" );
                 fprintf( dxf_file, "%f\n", allflines[l][j].z() ); //z
+                fprintf( dxf_file, "  62\n" );
+                fprintf( dxf_file, "  %d\n", color );
                 fprintf( dxf_file, "  70\n" );
                 fprintf( dxf_file, "    32\n" );
             }
@@ -355,11 +355,11 @@ void WriteDXFPolylines2D( FILE* dxf_file, const vector < vector < vec3d > > &all
                 fprintf( dxf_file, "  %d\n", 100 );
                 fprintf( dxf_file, "%s\n", "AcDb3dPolylineVertex" );
                 fprintf( dxf_file, "  %d\n", 10 );
-                fprintf( dxf_file, "  62\n" );
-                fprintf( dxf_file, "  %d\n", color );
                 fprintf( dxf_file, "%f\n", allflines[l][j].x() ); //x
                 fprintf( dxf_file, "  20\n" );
                 fprintf( dxf_file, "%f\n", allflines[l][j].y() ); //y
+                fprintf( dxf_file, "  62\n" );
+                fprintf( dxf_file, "  %d\n", color );
                 fprintf( dxf_file, "  70\n" );
                 fprintf( dxf_file, "    32\n" );
             }
