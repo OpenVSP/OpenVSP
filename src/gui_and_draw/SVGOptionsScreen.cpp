@@ -83,14 +83,14 @@ SVGOptionsScreen::SVGOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 41
 
     m_GenLayout.SetButtonWidth( m_GenLayout.GetRemainX() / 2 );
 
-    m_GenLayout.AddButton( m_GeomProjectionLineToggle, "Geom Projections" );
-    m_GenLayout.AddButton( m_TotalProjectionLineToggle, "Vehicle Projections" );
-    m_GenLayout.ForceNewLine();
+    m_GenLayout.AddYGap();
 
     m_GenLayout.SetSameLineFlag( false );
     m_GenLayout.SetFitWidthFlag( true );
 
-    m_GenLayout.SetButtonWidth( m_GenLayout.GetW() / 3 );
+    m_GenLayout.AddButton( m_ProjectionLineToggle, "Outline" );
+
+    m_GenLayout.InitWidthHeightVals();
 
     m_GenLayout.AddSlider( m_TessSlider, "Tess. Factor", 8, "%4.2f" );
 
@@ -240,12 +240,11 @@ bool SVGOptionsScreen::Update()
         m_4RotChoice2.Update( veh->m_SVGView2_rot.GetID() );
         m_4RotChoice3.Update( veh->m_SVGView3_rot.GetID() );
         m_4RotChoice4.Update( veh->m_SVGView4_rot.GetID() );
-        m_GeomProjectionLineToggle.Update( veh->m_SVGGeomProjectionFlag.GetID() );
-        m_TotalProjectionLineToggle.Update( veh->m_SVGTotalProjectionFlag.GetID() );
+        m_ProjectionLineToggle.Update( veh->m_SVGProjectionFlag.GetID() );
         m_TessSlider.Update( veh->m_SVGTessFactor.GetID() );
         m_XSecToggle.Update( veh->m_SVGAllXSecFlag.GetID() );
 
-            if ( veh->m_SVGGeomProjectionFlag() || veh->m_SVGTotalProjectionFlag() )
+            if ( veh->m_SVGProjectionFlag() )
             {
                 m_TessSlider.Activate();
             }

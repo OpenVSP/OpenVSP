@@ -46,8 +46,7 @@ protected:
     Choice m_2DViewType;
     SliderAdjRangeInput m_ScaleSlider;
 
-    ToggleButton m_GeomProjectionLineToggle;
-    ToggleButton m_TotalProjectionLineToggle;
+    ToggleButton m_ProjectionLineToggle;
     SliderAdjRangeInput m_TessSlider;
 
     ToggleButton m_ManualToggle;

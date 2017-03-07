@@ -311,9 +311,8 @@ public:
 
     //==== DXF Export ====//
     IntParm m_DXFLenUnit;
-    BoolParm m_DXFGeomProjectionFlag;
+    BoolParm m_DXFProjectionFlag;
     Parm m_DXFTessFactor;
-    BoolParm m_DXFTotalProjectionFlag;
     BoolParm m_DXFAllXSecFlag;
     BoolParm m_DXFAppendIDFlag;
     BoolParm m_DXFColorFlag;
@@ -334,8 +333,7 @@ public:
     IntParm m_SVGSet;
     Parm m_Scale;
     IntParm m_ScaleFlag;
-    BoolParm m_SVGGeomProjectionFlag;
-    BoolParm m_SVGTotalProjectionFlag;
+    BoolParm m_SVGProjectionFlag;
     Parm m_SVGTessFactor;
     BoolParm m_SVGAllXSecFlag;
     IntParm m_SVGView;

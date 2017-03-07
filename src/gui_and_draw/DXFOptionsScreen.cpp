@@ -73,6 +73,12 @@ DXFOptionsScreen::DXFOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 41
     m_GenLayout.AddDividerBox( "2D Views" );
     m_GenLayout.AddYGap();
 
+    m_GenLayout.SetSameLineFlag( false );
+    m_GenLayout.SetFitWidthFlag( true );
+
+    m_GenLayout.AddButton( m_ProjectionLineToggle, "Outline" );
+
+    m_GenLayout.InitWidthHeightVals();
     m_GenLayout.SetChoiceButtonWidth( m_GenLayout.GetW() / 2 );
     m_2DViewType.AddItem( "One" );
     m_2DViewType.AddItem( "Two Horizontal" );
@@ -80,17 +86,6 @@ DXFOptionsScreen::DXFOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 41
     m_2DViewType.AddItem( "Four" );
     m_GenLayout.AddChoice( m_2DViewType, "2D View Type" );
 
-    m_GenLayout.SetSameLineFlag( true );
-    m_GenLayout.SetFitWidthFlag( false );
-
-    m_GenLayout.SetButtonWidth( m_GenLayout.GetRemainX() / 2 );
-
-    m_GenLayout.AddButton( m_GeomProjectionLineToggle, "Geom Projections" );
-    m_GenLayout.AddButton( m_TotalProjectionLineToggle, "Vehicle Projections" );
-    m_GenLayout.ForceNewLine();
-
-    m_GenLayout.SetSameLineFlag( false );
-    m_GenLayout.SetFitWidthFlag( true );
 
     m_GenLayout.SetButtonWidth( m_GenLayout.GetW()/3 );
 
@@ -247,8 +242,7 @@ bool DXFOptionsScreen::Update()
         m_4RotChoice3.Update( veh->m_DXF4View3_rot.GetID() );
         m_4RotChoice4.Update( veh->m_DXF4View4_rot.GetID() );
         m_2D3DGroup.Update( veh->m_DXF2D3DFlag.GetID() );
-        m_GeomProjectionLineToggle.Update( veh->m_DXFGeomProjectionFlag.GetID() );
-        m_TotalProjectionLineToggle.Update( veh->m_DXFTotalProjectionFlag.GetID() );
+        m_ProjectionLineToggle.Update( veh->m_DXFProjectionFlag.GetID() );
         m_TessSlider.Update( veh->m_DXFTessFactor.GetID() );
         m_XSecToggle.Update( veh->m_DXFAllXSecFlag.GetID() );
         m_AppendIDToggle.Update( veh->m_DXFAppendIDFlag.GetID() );
@@ -257,10 +251,9 @@ bool DXFOptionsScreen::Update()
         if ( veh->m_DXF2D3DFlag() == vsp::SET_2D )
         {
             m_2DViewType.Activate();
-            m_GeomProjectionLineToggle.Activate();
-            m_GeomProjectionLineToggle.Activate();
+            m_ProjectionLineToggle.Activate();
 
-            if ( veh->m_DXFGeomProjectionFlag() || veh->m_DXFTotalProjectionFlag() )
+            if ( veh->m_DXFProjectionFlag() )
             {
                 m_TessSlider.Activate();
             }
@@ -272,8 +265,7 @@ bool DXFOptionsScreen::Update()
         else if ( veh->m_DXF2D3DFlag() == vsp::SET_3D )
         {
             m_2DViewType.Deactivate();
-            m_GeomProjectionLineToggle.Deactivate();
-            m_TotalProjectionLineToggle.Deactivate();
+            m_ProjectionLineToggle.Deactivate();
             m_TessSlider.Deactivate();
             m_4ViewChoice1.Deactivate();
             m_4ViewChoice2.Deactivate();

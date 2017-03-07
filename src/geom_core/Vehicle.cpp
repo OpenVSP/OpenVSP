@@ -60,10 +60,8 @@ Vehicle::Vehicle()
 
     m_DXFLenUnit.Init( "LenUnit", "DXFSettings", this, vsp::LEN_FT, vsp::LEN_MM, vsp::LEN_UNITLESS );
     m_DXFLenUnit.SetDescript( "Sets DXF Header Units; Numeric Values Unchanged" );
-    m_DXFGeomProjectionFlag.Init( "DXFGeomProjectionFlag", "DXFSettings", this , false, 0, 1 );
-    m_DXFGeomProjectionFlag.SetDescript( "Flag To Export Geom Projection Lines" );
-    m_DXFTotalProjectionFlag.Init( "DXFTotalProjectionFlag", "DXFSettings", this, false, 0, 1 );
-    m_DXFTotalProjectionFlag.SetDescript( "Flag To Export Vehicle Projection Lines" );
+    m_DXFProjectionFlag.Init( "DXFProjectionFlag", "DXFSettings", this , false, 0, 1 );
+    m_DXFProjectionFlag.SetDescript( "Flag To Export Geom and Vehicle Projection Lines" );
     m_DXFTessFactor.Init( "DXFTessFactor", "DXFSettings", this, 2, 0, 100 );
     m_DXFTessFactor.SetDescript( "DXF Tesselation Multiplier. Caution: May Slow Export" );
     m_DXFAllXSecFlag.Init( "DXFAllXSecFlag", "DXFSettings", this, false, 0, 1 );
@@ -90,10 +88,8 @@ Vehicle::Vehicle()
     m_Scale.Init( "Scale", "SVGSettings", this, 0, 0, 1e12 );
     m_Scale.SetDescript( "Sets Scale Bar Size" );
     m_ScaleFlag.Init( "ScaleFlag", "SVGSettings", this, 1, vsp::MANUAL, vsp::NOSCALE );
-    m_SVGGeomProjectionFlag.Init( "SVGGeomProjectionFlag", "SVGSettings", this , false, 0, 1 );
-    m_SVGGeomProjectionFlag.SetDescript( "Flag To Export Geom Projection Lines" );
-    m_SVGTotalProjectionFlag.Init( "SVGTotalProjectionFlag", "SVGSettings", this, false, 0, 1 );
-    m_SVGTotalProjectionFlag.SetDescript( "Flag To Export Vehicle Projection Lines" );
+    m_SVGProjectionFlag.Init( "SVGProjectionFlag", "SVGSettings", this , false, 0, 1 );
+    m_SVGProjectionFlag.SetDescript( "Flag To Export Geom and Vehicle Projection Lines" );
     m_SVGTessFactor.Init( "SVGTessFactor", "SVGSettings", this, 2, 0, 100 );
     m_SVGTessFactor.SetDescript( "SVG Tesselation Multiplier. Caution: May Slow Export" );
     m_SVGAllXSecFlag.Init( "SVGAllXSecFlag", "SVGSettings", this, false, 0, 1 );
@@ -2600,7 +2596,7 @@ void Vehicle::WriteDXFFile( const string & file_name, int write_set )
                 // Clear Geom Projection Vec
                 geom_vec[i]->ClearGeomProjectVec3d();
 
-                if ( ( m_DXFGeomProjectionFlag() && m_DXFTessFactor.Get() != 1.0 ) || ( m_DXFTotalProjectionFlag() && tessfactor != 1.0 ) )
+                if ( ( m_DXFProjectionFlag() && m_DXFTessFactor.Get() != 1.0 ) )
                 {
                     // Increase tellelation:
                     geom_vec[i]->m_TessW.Set( geom_vec[i]->m_TessW() * tessfactor );
@@ -2641,7 +2637,7 @@ void Vehicle::WriteDXFFile( const string & file_name, int write_set )
                     geom_vec[i]->SetForceXSecFlag( true );
                 }
 
-                if ( ( m_DXFGeomProjectionFlag() && tessfactor != 1.0 ) || ( m_DXFTotalProjectionFlag() && tessfactor != 1.0 ) || m_DXFAllXSecFlag() )
+                if ( ( m_DXFProjectionFlag() && tessfactor != 1.0 ) || m_DXFAllXSecFlag() )
                 {
                     // Update Geom:
                     geom_vec[i]->Update( true );
@@ -2652,7 +2648,7 @@ void Vehicle::WriteDXFFile( const string & file_name, int write_set )
         // Write DXF Header
         WriteDXFHeader( dxf_file, m_DXFLenUnit.Get() );
 
-        if ( m_DXFGeomProjectionFlag() || m_DXFTotalProjectionFlag() )
+        if ( m_DXFProjectionFlag() )
         {
             // Generate Mesh for Projections:
             vector < TMesh* > TotalProjectMeshVec;
@@ -2684,7 +2680,7 @@ void Vehicle::WriteDXFFile( const string & file_name, int write_set )
             if ( geom_vec[i]->GetSetFlag( write_set ) )
             {
                 // Write Geom Projection Lines:
-                if ( m_DXFGeomProjectionFlag() )
+                if ( m_DXFProjectionFlag() )
                 {
                     geom_vec[i]->WriteProjectionLinesDXF( dxf_file, dxfbox );
                 }
@@ -2694,7 +2690,7 @@ void Vehicle::WriteDXFFile( const string & file_name, int write_set )
             }
         }
 
-        if ( m_DXFTotalProjectionFlag() )
+        if ( m_DXFProjectionFlag() )
         {
             // Write Total Projection Lines:
             WriteVehProjectionLinesDXF( dxf_file, dxfbox );
@@ -2707,7 +2703,7 @@ void Vehicle::WriteDXFFile( const string & file_name, int write_set )
                 // Clear Geom Projection Vec
                 geom_vec[i]->ClearGeomProjectVec3d();
 
-                if ( ( m_DXFGeomProjectionFlag() && tessfactor != 1.0 ) || ( m_DXFTotalProjectionFlag() && tessfactor != 1.0 ) )
+                if ( ( m_DXFProjectionFlag() && tessfactor != 1.0 ) )
                 {
                     // Restore tellelation and update:
                     geom_vec[i]->m_TessW.Set( geom_vec[i]->m_TessW.GetLastVal() );
@@ -2748,7 +2744,7 @@ void Vehicle::WriteDXFFile( const string & file_name, int write_set )
                     geom_vec[i]->SetForceXSecFlag( false );
                 }
 
-                if ( ( m_DXFGeomProjectionFlag() && tessfactor != 1.0 ) || ( m_DXFTotalProjectionFlag() && tessfactor != 1.0 ) || m_DXFAllXSecFlag() )
+                if ( ( m_DXFProjectionFlag() && tessfactor != 1.0 ) || m_DXFAllXSecFlag() )
                 {
                     // Update Geom:
                     geom_vec[i]->Update( true );
@@ -2807,7 +2803,7 @@ void Vehicle::WriteSVGFile( const string & file_name, int write_set )
             // Clear Geom Projection Vec
             geom_vec[i]->ClearGeomProjectVec3d();
 
-            if ( ( m_SVGGeomProjectionFlag() && tessfactor != 1.0 ) || ( m_SVGTotalProjectionFlag() && tessfactor != 1.0 ) )
+            if ( ( m_SVGProjectionFlag() && tessfactor != 1.0 ) )
             {
                 // Increase tellelation:
                 geom_vec[i]->m_TessW.Set( geom_vec[i]->m_TessW() * tessfactor );
@@ -2848,7 +2844,7 @@ void Vehicle::WriteSVGFile( const string & file_name, int write_set )
                 geom_vec[i]->SetForceXSecFlag( true );
             }
 
-            if ( ( m_SVGGeomProjectionFlag() && tessfactor != 1.0 ) || ( m_SVGTotalProjectionFlag() && tessfactor != 1.0 ) || m_SVGAllXSecFlag() )
+            if ( ( m_SVGProjectionFlag() && tessfactor != 1.0 ) || m_SVGAllXSecFlag() )
             {
                 // Update Geom:
                 geom_vec[i]->Update( true );
@@ -2859,7 +2855,7 @@ void Vehicle::WriteSVGFile( const string & file_name, int write_set )
     // Write SVG Header:
     WriteSVGHeader( root, svgbox );
 
-    if ( m_SVGGeomProjectionFlag() || m_SVGTotalProjectionFlag() )
+    if ( m_SVGProjectionFlag() )
     {
         // Generate Mesh for Projections:
         vector < TMesh* > TotalProjectMeshVec;
@@ -2891,7 +2887,7 @@ void Vehicle::WriteSVGFile( const string & file_name, int write_set )
     {
         if ( geom_vec[i]->GetSetFlag( write_set ) )
         {
-            if ( m_DXFGeomProjectionFlag() )
+            if ( m_SVGProjectionFlag() )
             {
                 // Write Geom Projection Lines
                 geom_vec[i]->WriteProjectionLinesSVG( root, svgbox );
@@ -2902,7 +2898,7 @@ void Vehicle::WriteSVGFile( const string & file_name, int write_set )
         }
     }
 
-    if ( m_SVGTotalProjectionFlag() )
+    if ( m_SVGProjectionFlag() )
     {
         // Write Vehicle Projection Lines
         WriteVehProjectionLinesSVG( root, svgbox );
@@ -2915,7 +2911,7 @@ void Vehicle::WriteSVGFile( const string & file_name, int write_set )
             // Clear Geom Projection Line Vec
             geom_vec[i]->ClearGeomProjectVec3d();
 
-            if ( ( m_SVGGeomProjectionFlag() && tessfactor != 1.0 ) || ( m_SVGTotalProjectionFlag() && tessfactor != 1.0 ) )
+            if ( ( m_SVGProjectionFlag() && tessfactor != 1.0 ) )
             {
                 // Restore tellelation and update:
                 geom_vec[i]->m_TessW.Set( geom_vec[i]->m_TessW.GetLastVal() );
@@ -2956,7 +2952,7 @@ void Vehicle::WriteSVGFile( const string & file_name, int write_set )
                 geom_vec[i]->SetForceXSecFlag( false );
             }
 
-            if ( ( m_SVGGeomProjectionFlag() && tessfactor != 1.0 ) || ( m_SVGTotalProjectionFlag() && tessfactor != 1.0 ) || m_SVGAllXSecFlag() )
+            if ( ( m_SVGProjectionFlag() && tessfactor != 1.0 ) || m_SVGAllXSecFlag() )
             {
                 // Update Geom:
                 geom_vec[i]->Update( true );
