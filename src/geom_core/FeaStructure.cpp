@@ -380,7 +380,7 @@ int FeaStructure::GetFeaPartIndex( FeaPart* fea_prt )
                 return i;
         }
     }
-    return NULL;
+    return -1;
 }
 
 //////////////////////////////////////////////////////
