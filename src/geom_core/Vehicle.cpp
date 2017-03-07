@@ -85,7 +85,6 @@ Vehicle::Vehicle()
     m_SVGSet.Init( "SVGSet", "SVGSettings", this, 0, 0, 12 );
     m_Scale.Init( "Scale", "SVGSettings", this, 0, 0, 1e12 );
     m_Scale.SetDescript( "Sets Scale Bar Size" );
-    m_ScaleFlag.Init( "ScaleFlag", "SVGSettings", this, 1, vsp::MANUAL, vsp::NOSCALE );
     m_SVGProjectionFlag.Init( "SVGProjectionFlag", "SVGSettings", this , false, 0, 1 );
     m_SVGProjectionFlag.SetDescript( "Flag To Export Geom and Vehicle Projection Lines" );
     m_SVGTessFactor.Init( "SVGTessFactor", "SVGSettings", this, 2, 0, 100 );
@@ -2959,7 +2958,7 @@ void Vehicle::WriteSVGFile( const string & file_name, int write_set )
     }
 
     // Add Scale Bar:
-    if ( m_ScaleFlag.Get() != vsp::NOSCALE )
+    if ( m_SVGLenUnit() != vsp::LEN_UNITLESS )
     {
         WriteSVGScaleBar( root, m_SVGView.Get(), svgbox, m_SVGLenUnit.Get(), m_Scale.Get() );
     }

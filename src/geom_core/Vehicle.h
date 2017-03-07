@@ -331,7 +331,6 @@ public:
     IntParm m_SVGLenUnit;
     IntParm m_SVGSet;
     Parm m_Scale;
-    IntParm m_ScaleFlag;
     BoolParm m_SVGProjectionFlag;
     Parm m_SVGTessFactor;
     BoolParm m_SVGAllXSecFlag;

@@ -42,24 +42,12 @@ SVGOptionsScreen::SVGOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 41
     m_GenLayout.SetSameLineFlag( true );
     m_GenLayout.SetFitWidthFlag( false );
 
-    m_GenLayout.SetButtonWidth( m_GenLayout.GetW()/3 );
 
-    m_GenLayout.AddButton( m_ManualToggle, "Manual" );
-    m_GenLayout.AddButton( m_ModelToggle, "From Model" );
-    m_GenLayout.AddButton( m_NoneToggle, "None" );
-    m_GenLayout.ForceNewLine();
 
-    m_ScaleToggle.Init( this );
-    m_ScaleToggle.AddButton( m_ManualToggle.GetFlButton() );
-    m_ScaleToggle.AddButton( m_ModelToggle.GetFlButton() );
-    m_ScaleToggle.AddButton( m_NoneToggle.GetFlButton() );
 
     m_GenLayout.SetSameLineFlag( false );
     m_GenLayout.SetFitWidthFlag( true );
 
-    m_GenLayout.AddSlider( m_ScaleSlider, "Scale", 1000.0, "%7.3f" );
-    m_ScaleSlider.Deactivate();
-    
     m_GenLayout.AddButton( m_XSecToggle, "Include XSec Feature Lines" );
 
     m_GenLayout.AddYGap();
@@ -229,8 +217,6 @@ bool SVGOptionsScreen::Update()
     if( veh )
     {
         m_LenUnitChoice.Update( veh->m_SVGLenUnit.GetID() );
-        m_ScaleSlider.Update( veh->m_Scale.GetID() );
-        m_ScaleToggle.Update( veh->m_ScaleFlag.GetID() );
         m_2DViewType.Update( veh->m_SVGView.GetID() );
         m_4ViewChoice1.Update( veh->m_SVGView1.GetID() );
         m_4ViewChoice2.Update( veh->m_SVGView2.GetID() );
@@ -253,19 +239,13 @@ bool SVGOptionsScreen::Update()
                 m_TessSlider.Deactivate();
             }
 
-        if ( veh->m_ScaleFlag.Get() == vsp::MANUAL )
-        {
-            m_ScaleSlider.Activate();
-        }
-        else if ( veh->m_ScaleFlag.Get() == vsp::REFERENCE )
-        {
-            GetScale( veh->m_SVGSet.Get() );
-            m_ScaleSlider.Deactivate();
-        }
-        else if ( veh->m_ScaleFlag.Get() == vsp::NOSCALE )
+        if ( veh->m_SVGLenUnit() == vsp::LEN_UNITLESS )
         {
             veh->m_Scale.Set( 0 );
-            m_ScaleSlider.Deactivate();
+        }
+        else 
+        {
+            GetScale( veh->m_SVGSet.Get() );
         }
 
         if ( veh->m_SVGView() == vsp::VIEW_1 )

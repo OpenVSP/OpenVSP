@@ -54,6 +54,11 @@ void WriteSVGScaleBar( xmlNodePtr root, const int View, const BndBox &svgbox, co
     vec3d scalevec = svgbox.GetMax() - svgbox.GetMin();
     double scale = svgbox.GetLargestDist();
 
+    if ( LenUnit == vsp::LEN_UNITLESS )
+    {
+        return; // Dimensionless drawing implies no scale bar
+    }
+
     string unit;
     switch ( LenUnit )
     {
@@ -74,9 +79,6 @@ void WriteSVGScaleBar( xmlNodePtr root, const int View, const BndBox &svgbox, co
         break;
     case vsp::LEN_YD:
         unit = "(yd)";
-        break;
-    case vsp::LEN_UNITLESS:
-        unit = "(unitless)";
         break;
     }
 
@@ -182,11 +184,7 @@ void WriteSVGScaleBar( xmlNodePtr root, const int View, const BndBox &svgbox, co
 
     // Align unit label
     double x_unit;
-    if ( LenUnit == vsp::LEN_UNITLESS )
-    {
-        x_unit = x_mid - font_size * 2;
-    }
-    else if ( LenUnit == vsp::LEN_M )
+    if ( LenUnit == vsp::LEN_M )
     {
         x_unit = x_mid - font_size * 0.75;
     }

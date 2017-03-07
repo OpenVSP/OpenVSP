@@ -44,15 +44,9 @@ protected:
 
     Choice m_LenUnitChoice;
     Choice m_2DViewType;
-    SliderAdjRangeInput m_ScaleSlider;
 
     ToggleButton m_ProjectionLineToggle;
     SliderAdjRangeInput m_TessSlider;
-
-    ToggleButton m_ManualToggle;
-    ToggleButton m_ModelToggle;
-    ToggleButton m_NoneToggle;
-    ToggleRadioGroup m_ScaleToggle;
 
     ToggleButton m_XSecToggle;
 
@@ -74,7 +68,6 @@ protected:
     TriggerButton m_CancelButton;
 
     bool m_OkFlag;
-    bool m_ScaleFlag;
 };
 
 #endif  // SVGOPTIONSSCREEN_H
