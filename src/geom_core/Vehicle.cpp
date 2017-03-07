@@ -3185,15 +3185,15 @@ vector< vector < vec3d > > Vehicle::GetVehProjectionLines( int view, vec3d offse
 
     if ( view == vsp::VIEW_TYPE::VIEW_LEFT || view == vsp::VIEW_TYPE::VIEW_RIGHT )
     {
-        PathVec = m_VehProjectVec3d[1];
+        PathVec = m_VehProjectVec3d[vsp::Y_DIR];
     }
     else if ( view == vsp::VIEW_TYPE::VIEW_FRONT || view == vsp::VIEW_TYPE::VIEW_REAR )
     {
-        PathVec = m_VehProjectVec3d[0];
+        PathVec = m_VehProjectVec3d[vsp::X_DIR];
     }
     else if ( view == vsp::VIEW_TYPE::VIEW_TOP || view == vsp::VIEW_TYPE::VIEW_BOTTOM )
     {
-        PathVec = m_VehProjectVec3d[2];
+        PathVec = m_VehProjectVec3d[vsp::Z_DIR];
     }
 
     for ( int j = 0; j < PathVec.size(); j++ )

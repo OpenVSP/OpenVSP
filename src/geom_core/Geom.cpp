@@ -1680,15 +1680,15 @@ vector< vector < vec3d > > Geom::GetGeomProjectionLines( int view, vec3d offset 
 
     if ( view == vsp::VIEW_TYPE::VIEW_LEFT || view == vsp::VIEW_TYPE::VIEW_RIGHT ) 
     {
-        PathVec = m_GeomProjectVec3d[1]; // Y axis projection
+        PathVec = m_GeomProjectVec3d[vsp::Y_DIR]; // Y axis projection
     }
     else if ( view == vsp::VIEW_TYPE::VIEW_FRONT || view == vsp::VIEW_TYPE::VIEW_REAR )
     {
-        PathVec = m_GeomProjectVec3d[0]; // X axis projection
+        PathVec = m_GeomProjectVec3d[vsp::X_DIR]; // X axis projection
     }
     else if ( view == vsp::VIEW_TYPE::VIEW_TOP || view == vsp::VIEW_TYPE::VIEW_BOTTOM )
     {
-        PathVec = m_GeomProjectVec3d[2]; // Z axis projection
+        PathVec = m_GeomProjectVec3d[vsp::Z_DIR]; // Z axis projection
     }
 
     for ( int j = 0; j < PathVec.size(); j++ )
