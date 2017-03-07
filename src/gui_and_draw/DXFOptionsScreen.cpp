@@ -55,8 +55,6 @@ DXFOptionsScreen::DXFOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 41
 
     m_GenLayout.SetButtonWidth( m_GenLayout.GetRemainX() / 2 );
 
-    m_GenLayout.AddButton( m_AppendIDToggle, "Append Geom IDs" );
-    m_AppendIDToggle.GetFlButton()->copy_tooltip("Adds Each Geom ID to Layer Name");
     m_GenLayout.AddButton( m_ColorToggle, "Color Layers" );
     m_ColorToggle.GetFlButton()->copy_tooltip( "Makes Each Layer a Different Color" );
     
@@ -245,7 +243,6 @@ bool DXFOptionsScreen::Update()
         m_ProjectionLineToggle.Update( veh->m_DXFProjectionFlag.GetID() );
         m_TessSlider.Update( veh->m_DXFTessFactor.GetID() );
         m_XSecToggle.Update( veh->m_DXFAllXSecFlag.GetID() );
-        m_AppendIDToggle.Update( veh->m_DXFAppendIDFlag.GetID() );
         m_ColorToggle.Update( veh->m_DXFColorFlag.GetID() );
 
         if ( veh->m_DXF2D3DFlag() == vsp::SET_2D )

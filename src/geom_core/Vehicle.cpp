@@ -66,8 +66,6 @@ Vehicle::Vehicle()
     m_DXFTessFactor.SetDescript( "DXF Tesselation Multiplier. Caution: May Slow Export" );
     m_DXFAllXSecFlag.Init( "DXFAllXSecFlag", "DXFSettings", this, false, 0, 1 );
     m_DXFAllXSecFlag.SetDescript( "Flag To Export XSec Feature Lines" );
-    m_DXFAppendIDFlag.Init( "DXFAppendIDFlag", "DXFSettings", this, false, 0, 1 );
-    m_DXFAppendIDFlag.SetDescript( "Flag To Append Geom ID To Layer Name" );
     m_DXFColorFlag.Init( "DXFColorFlag", "DXFSettings", this, false, 0, 1 );
     m_DXFColorFlag.SetDescript( "Flag To Make Each Layer A Different Color" );
     m_DXF2D3DFlag.Init( "DimFlag", "DXFSettings", this , vsp::SET_3D, vsp::SET_3D, vsp::SET_2D );

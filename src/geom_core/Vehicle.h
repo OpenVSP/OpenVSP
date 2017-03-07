@@ -314,7 +314,6 @@ public:
     BoolParm m_DXFProjectionFlag;
     Parm m_DXFTessFactor;
     BoolParm m_DXFAllXSecFlag;
-    BoolParm m_DXFAppendIDFlag;
     BoolParm m_DXFColorFlag;
     int m_ColorCount;
     IntParm m_DXF2DView;

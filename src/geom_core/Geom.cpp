@@ -1421,16 +1421,7 @@ void Geom::WriteFeatureLinesDXF( FILE * file_name, const BndBox &dxfbox )
         }
 
         // Add layers:
-        string layer;
-
-        if ( m_Vehicle->m_DXFAppendIDFlag() ) // Add GeomID if true
-        {
-            layer = m_Name + string( "[" ) + m_ID + string( "]_Surf[" ) + to_string( i ) + string( "]" );
-        }
-        else
-        {
-            layer = m_Name + string( "_Surf[" ) + to_string( i ) + string( "]" );
-        }
+        string layer = m_Name + string( "_Surf[" ) + to_string( i ) + string( "]" );
 
         if ( m_Vehicle->m_DXF2D3DFlag() == vsp::DIMENSION_SET::SET_3D )
         {
@@ -1537,16 +1528,7 @@ void Geom::WriteProjectionLinesDXF( FILE * file_name, const BndBox &dxfbox )
     vec3d to_orgin = GetVecToOrgin( dxfbox );
 
     // Add layers:
-    string projectionlayer;
-
-    if ( m_Vehicle->m_DXFAppendIDFlag() )
-    {
-        projectionlayer = m_Name + string( "[" ) + m_ID + string( "]_Projection" );
-    }
-    else
-    {
-        projectionlayer = m_Name + string( "_Projection" );
-    }
+    string projectionlayer  = m_Name + string( "_Projection" );
 
     if ( m_Vehicle->m_DXF2D3DFlag() == vsp::DIMENSION_SET::SET_3D )
     {

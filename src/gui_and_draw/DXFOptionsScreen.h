@@ -54,7 +54,6 @@ protected:
     ToggleButton m_2DToggle;
     ToggleRadioGroup m_2D3DGroup;
     ToggleButton m_XSecToggle;
-    ToggleButton m_AppendIDToggle;
     ToggleButton m_ColorToggle;
 
     Choice m_4ViewChoice1;
