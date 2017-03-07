@@ -14,14 +14,14 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-DXFOptionsScreen::DXFOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 415, "DXF Options" )
+DXFOptionsScreen::DXFOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 420, "DXF Options" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
 
     m_OkFlag = false;
 
     m_GenLayout.SetGroupAndScreen( m_FLTK_Window, this );
-    m_GenLayout.AddY( 25 );
+    m_GenLayout.AddY( 20 );
 
     m_GenLayout.AddYGap();
     m_GenLayout.AddDividerBox( "General" );
@@ -34,30 +34,29 @@ DXFOptionsScreen::DXFOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 41
     m_LenUnitChoice.AddItem( "IN" );
     m_LenUnitChoice.AddItem( "FT" );
     m_LenUnitChoice.AddItem( "YD" );
-    m_LenUnitChoice.AddItem( "Unitless" );
+    m_LenUnitChoice.AddItem( "Dimensionless" );
     m_GenLayout.AddChoice( m_LenUnitChoice, "Length Unit" );
+
+    m_GenLayout.AddYGap();
+
+    m_GenLayout.AddButton( m_XSecToggle, "Force XSecs" );
+
+    m_GenLayout.SetSameLineFlag( false );
+    m_GenLayout.SetFitWidthFlag( true );
+
+    m_GenLayout.SetButtonWidth( m_GenLayout.GetRemainX() );
+
+    m_GenLayout.AddButton( m_ColorToggle, "Color Layers" );
 
     m_GenLayout.SetSameLineFlag( true );
     m_GenLayout.SetFitWidthFlag( false );
     m_GenLayout.SetButtonWidth( m_GenLayout.GetRemainX() / 2 );
+
+    m_GenLayout.AddYGap();
 
     m_GenLayout.AddButton( m_3DToggle, "3D Export" );
     m_GenLayout.AddButton( m_2DToggle, "2D Export" );
 
-    m_GenLayout.ForceNewLine();
-    m_GenLayout.SetSameLineFlag( false );
-    m_GenLayout.SetFitWidthFlag( true );
-
-    m_GenLayout.AddButton( m_XSecToggle, "Include XSec Feature Lines" );
-
-    m_GenLayout.SetSameLineFlag( true );
-    m_GenLayout.SetFitWidthFlag( false );
-
-    m_GenLayout.SetButtonWidth( m_GenLayout.GetRemainX() / 2 );
-
-    m_GenLayout.AddButton( m_ColorToggle, "Color Layers" );
-    m_ColorToggle.GetFlButton()->copy_tooltip( "Makes Each Layer a Different Color" );
-    
     m_GenLayout.ForceNewLine();
     m_GenLayout.AddYGap();
 
@@ -77,17 +76,17 @@ DXFOptionsScreen::DXFOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 41
     m_GenLayout.AddButton( m_ProjectionLineToggle, "Outline" );
 
     m_GenLayout.InitWidthHeightVals();
+
+    m_GenLayout.AddSlider( m_TessSlider, "Refinement", 8, "%5.0f" );
+
+    m_GenLayout.AddYGap();
+
     m_GenLayout.SetChoiceButtonWidth( m_GenLayout.GetW() / 2 );
     m_2DViewType.AddItem( "One" );
     m_2DViewType.AddItem( "Two Horizontal" );
     m_2DViewType.AddItem( "Two Vertical" );
     m_2DViewType.AddItem( "Four" );
     m_GenLayout.AddChoice( m_2DViewType, "2D View Type" );
-
-
-    m_GenLayout.SetButtonWidth( m_GenLayout.GetW()/3 );
-
-    m_GenLayout.AddSlider( m_TessSlider, "Tess. Factor", 8, "%4.2f" );
 
     // To Do: Add Tesselation Tool Tip?
 
@@ -199,7 +198,6 @@ DXFOptionsScreen::DXFOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 41
     m_4RotChoice4.AddItem( "270" );
     m_4LayoutBR.AddChoice( m_4RotChoice4, "" );
 
-    m_GenLayout.AddYGap();
     m_GenLayout.SetX( 0 );
     m_GenLayout.ForceNewLine();
 
