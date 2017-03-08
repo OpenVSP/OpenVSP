@@ -80,7 +80,7 @@ void APITestSuiteMassProp::TestSolidCylinder()
     TEST_ASSERT( fus_id.c_str() != NULL );
 
     //  Adjust Fuselage length to 12:
-    int length = 12;
+    double length = 12;
     TEST_ASSERT_DELTA( vsp::SetParmVal( fus_id, "Length", "Design", length ), length, TEST_TOL );
     
     //  Change Type of Middle XSec to Circle and Ends to Points 
@@ -103,7 +103,7 @@ void APITestSuiteMassProp::TestSolidCylinder()
     TEST_ASSERT_DELTA( vsp::SetParmVal( xloc_id2, 1.0 ), 1.0, TEST_TOL );
 
     //  Set Radius to 2:
-    int radius = 2;
+    double radius = 2;
     string dia_id1 = vsp::GetXSecParm( xsec_id1, "Circle_Diameter" );
     string dia_id2 = vsp::GetXSecParm( xsec_id2, "Circle_Diameter" );
     TEST_ASSERT_DELTA( vsp::SetParmVal( dia_id1, radius * 2 ), radius * 2, TEST_TOL );
@@ -138,7 +138,7 @@ void APITestSuiteMassProp::TestSolidCylinder()
     TEST_ASSERT_DELTA( vsp::SetParmVal( Rstrength_id2, 0 ), 0, TEST_TOL );
 
     //  Set Density to 5:
-    int rho = 5;
+    double rho = 5;
     TEST_ASSERT_DELTA( vsp::SetParmVal( fus_id, "Density", "Mass_Props", rho ), rho, TEST_TOL );
 
     //  Increase W Tesselation:
@@ -272,7 +272,7 @@ void APITestSuiteMassProp::TestThickWallCylinder()
     string xsec_id4 = vsp::GetXSec( stackxsurf_id, 4 );
 
     //  Set Inner Radius to 1:
-    int r_in = 1;
+    double r_in = 1;
     string dia_id0 = vsp::GetXSecParm( xsec_id0, "Circle_Diameter" );
     string dia_id3 = vsp::GetXSecParm( xsec_id3, "Circle_Diameter" );
     string dia_id4 = vsp::GetXSecParm( xsec_id4, "Circle_Diameter" );
@@ -282,7 +282,7 @@ void APITestSuiteMassProp::TestThickWallCylinder()
     TEST_ASSERT_DELTA( vsp::SetParmVal( dia_id4, r_in * 2 ), r_in * 2, TEST_TOL );
 
     //  Set Outer Radius to 2:
-    int R_out = 2;
+    double R_out = 2;
     string dia_id1 = vsp::GetXSecParm( xsec_id1, "Circle_Diameter" );
     string dia_id2 = vsp::GetXSecParm( xsec_id2, "Circle_Diameter" );
 
@@ -290,7 +290,7 @@ void APITestSuiteMassProp::TestThickWallCylinder()
     TEST_ASSERT_DELTA( vsp::SetParmVal( dia_id2, R_out * 2 ), R_out * 2, TEST_TOL );
 
     //  Set Beginning and End of Cylinder
-    int length = 12;
+    double length = 12;
     string xloc_id1 = vsp::GetXSecParm( xsec_id1, "XDelta" );
     TEST_ASSERT_DELTA( vsp::SetParmVal( xloc_id1, 0.0 ), 0.0, TEST_TOL );
     string xloc_id2 = vsp::GetXSecParm( xsec_id2, "XDelta" );
@@ -331,7 +331,7 @@ void APITestSuiteMassProp::TestThickWallCylinder()
     TEST_ASSERT_DELTA( vsp::SetParmVal( Rstrength_id4, 0 ), 0, TEST_TOL );
 
     //  Set Density to 5:
-    int rho = 5;
+    double rho = 5;
     TEST_ASSERT_DELTA( vsp::SetParmVal( stack_id, "Density", "Mass_Props", rho ), rho, TEST_TOL );
 
     //  Increase W Tesselation:
@@ -471,7 +471,7 @@ void APITestSuiteMassProp::TestCylindricalShell()
     TEST_ASSERT_DELTA( vsp::SetParmVal( dia_id2, radius * 2 ), radius * 2, TEST_TOL );
 
     //  Set Beginning and End of Cylinder 
-    int length = 12;
+    double length = 12;
     string xloc_id0 = vsp::GetXSecParm( xsec_id0, "XDelta" );
     TEST_ASSERT_DELTA( vsp::SetParmVal( xloc_id0, 0.0 ), 0.0, TEST_TOL );
     string xloc_id1 = vsp::GetXSecParm( xsec_id1, "XDelta" );
@@ -820,7 +820,7 @@ void APITestSuiteMassProp::TestSolidCone()
     TEST_ASSERT_DELTA( vsp::SetParmVal( dia_id1, radius * 2 ), radius * 2, TEST_TOL );
 
     //  Set Beginning and End of Cone 
-    int length = 12;
+    double length = 12;
     string xloc_id1 = vsp::GetXSecParm( xsec_id1, "XDelta" );
     TEST_ASSERT_DELTA( vsp::SetParmVal( xloc_id1, length ), length, TEST_TOL );
     string xloc_id2 = vsp::GetXSecParm( xsec_id2, "XDelta" );
@@ -988,7 +988,7 @@ void APITestSuiteMassProp::TestShellCone()
     vsp::SetParmVal( dia_id1, radius * 2 );
 
     //  Set Beginning and End of Cone 
-    int length = 12;
+    double length = 12;
     string xloc_id1 = vsp::GetXSecParm( xsec_id1, "XDelta" );
     vsp::SetParmVal( xloc_id1, length );
 
@@ -1152,7 +1152,7 @@ void APITestSuiteMassProp::TestRectangularPrism()
     string xsec_id3 = vsp::GetXSec( stackxsurf_id, 3 );
 
     //  Set Height to 2:
-    int height = 2;
+    double height = 2;
     string height_id1 = vsp::GetXSecParm( xsec_id1, "RoundedRect_Height" );
     string height_id2 = vsp::GetXSecParm( xsec_id2, "RoundedRect_Height" );
 
@@ -1160,7 +1160,7 @@ void APITestSuiteMassProp::TestRectangularPrism()
     TEST_ASSERT_DELTA( vsp::SetParmVal( height_id2, height ), height, TEST_TOL );
 
     //  Set Width to 4:
-    int width = 4;
+    double width = 4;
     string width_id1 = vsp::GetXSecParm( xsec_id1, "RoundedRect_Width" );
     string width_id2 = vsp::GetXSecParm( xsec_id2, "RoundedRect_Width" );
 
@@ -1175,7 +1175,7 @@ void APITestSuiteMassProp::TestRectangularPrism()
     TEST_ASSERT_DELTA( vsp::SetParmVal( corner_id2, 0 ), 0, TEST_TOL );
 
     //  Set Beginning and End of Rectangular Prism
-    int length = 12;
+    double length = 12;
     string xloc_id1 = vsp::GetXSecParm( xsec_id1, "XDelta" );
     TEST_ASSERT_DELTA( vsp::SetParmVal( xloc_id1, 0.0 ), 0.0, TEST_TOL );
     string xloc_id2 = vsp::GetXSecParm( xsec_id2, "XDelta" );
@@ -1210,7 +1210,7 @@ void APITestSuiteMassProp::TestRectangularPrism()
     TEST_ASSERT_DELTA( vsp::SetParmVal( Rstrength_id3, 0 ), 0, TEST_TOL );
 
     //  Set Density to 5:
-    int rho = 5;
+    double rho = 5;
     TEST_ASSERT_DELTA( vsp::SetParmVal( stack_id, "Density", "Mass_Props", rho ), rho, TEST_TOL );
 
     //  Increase W Tesselation:
