@@ -64,6 +64,7 @@ ConformalGeom::ConformalGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_TessU = 41;
     m_TessW = 41;
 
+    m_MainSurfVec.clear();
 
 }
 
@@ -183,7 +184,7 @@ void ConformalGeom::UpdateSurf()
     //==== Delete Geom Copy ====//
     m_Vehicle->DeleteGeom( copy_geom->GetID() );
 
- }
+}
 
 
 void ConformalGeom::CopyDataFrom( Geom* geom_ptr )
