@@ -532,7 +532,7 @@ void APITestSuiteMassProp::TestCylindricalShell()
 
     printf( "   Cylinder Radius: %d \n", 2 );
     printf( "   Cylinder Length: %d \n", length );
-    printf( "   Cylinder Density: %d \n", rho );
+    printf( "   Cylinder Density: %7.3f \n", rho );
     printf( "   Cylinder Area Density: %7.3f \n", rho_A );
 
     //==== Save Vehicle to File ====//
@@ -1048,7 +1048,7 @@ void APITestSuiteMassProp::TestShellCone()
 
     printf( "   Cone Radius: %d \n", 2 );
     printf( "   Cone Length: %d \n", length );
-    printf( "   Cone Density: %d \n", rho );
+    printf( "   Cone Density: %7.3f \n", rho );
     printf( "   Cone Area Density: %7.3f \n", rho_A );
 
     //==== Save Vehicle to File ====//
