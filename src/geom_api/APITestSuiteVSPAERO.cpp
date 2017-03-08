@@ -330,6 +330,10 @@ void APITestSuiteVSPAERO::TestVSPAeroSinglePointPanel()
     // Case setup
     std::vector< int > force_new_setup_file; force_new_setup_file.push_back( 1 );
     vsp::SetIntAnalysisInput( analysis_name, "ForceNewSetupfile", force_new_setup_file );
+    // Reduce wake iteration for speed (force new setup file ensures wake iter setting is re-generated for this test)
+    std::vector< int > wakeNumIter; wakeNumIter.push_back( 2 );
+    vsp::SetIntAnalysisInput( analysis_name, "WakeNumIter", wakeNumIter );
+
     vsp::Update();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
@@ -799,6 +803,14 @@ void APITestSuiteVSPAERO::TestVSPAeroSharpTrailingEdge()
     mach.push_back( 0.1 );
     vsp::SetDoubleAnalysisInput( analysis_name, "Mach", mach, 0 );
 
+    // Reduce wake iteration for speed (force new setup file ensures wake iter setting is re-generated for this test)
+    std::vector< int > force_new_setup_file; force_new_setup_file.push_back( 1 );
+    vsp::SetIntAnalysisInput( analysis_name, "ForceNewSetupfile", force_new_setup_file );
+    std::vector< int > wakeNumIter; wakeNumIter.push_back( 1 );
+    vsp::SetIntAnalysisInput( analysis_name, "WakeNumIter", wakeNumIter );
+    std::vector< int > wakeSkipUntilIter; wakeSkipUntilIter.push_back( 2 );
+    vsp::SetIntAnalysisInput( analysis_name, "WakeSkipUntilIter", wakeSkipUntilIter );
+
     vsp::Update();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
@@ -956,6 +968,14 @@ void APITestSuiteVSPAERO::TestVSPAeroBluntTrailingEdge()
     vector< double > mach; 
     mach.push_back( 0.1 );
     vsp::SetDoubleAnalysisInput( analysis_name, "Mach", mach, 0 );
+
+    // Reduce wake iteration for speed (force new setup file ensures wake iter setting is re-generated for this test)
+    std::vector< int > force_new_setup_file; force_new_setup_file.push_back( 1 );
+    vsp::SetIntAnalysisInput( analysis_name, "ForceNewSetupfile", force_new_setup_file );
+    std::vector< int > wakeNumIter; wakeNumIter.push_back( 1 );
+    vsp::SetIntAnalysisInput( analysis_name, "WakeNumIter", wakeNumIter );
+    std::vector< int > wakeSkipUntilIter; wakeSkipUntilIter.push_back( 2 );
+    vsp::SetIntAnalysisInput( analysis_name, "WakeSkipUntilIter", wakeSkipUntilIter );
 
     vsp::Update();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
@@ -1115,6 +1135,14 @@ void APITestSuiteVSPAERO::TestVSPAeroSupersonicDeltaWing()
     vector< double > mach_end; 
     mach_end.push_back( 4.4 );
     vsp::SetDoubleAnalysisInput( analysis_name, "MachEnd", mach_end, 0 );
+
+    // Reduce wake iteration for speed (force new setup file ensures wake iter setting is re-generated for this test)
+    std::vector< int > force_new_setup_file; force_new_setup_file.push_back( 1 );
+    vsp::SetIntAnalysisInput( analysis_name, "ForceNewSetupfile", force_new_setup_file );
+    std::vector< int > wakeNumIter; wakeNumIter.push_back( 1 );
+    vsp::SetIntAnalysisInput( analysis_name, "WakeNumIter", wakeNumIter );
+    std::vector< int > wakeSkipUntilIter; wakeSkipUntilIter.push_back( 2 );
+    vsp::SetIntAnalysisInput( analysis_name, "WakeSkipUntilIter", wakeSkipUntilIter );
     
     // Set Batch Mode
     vector< int > batch_mode_flag; batch_mode_flag.push_back(1);
