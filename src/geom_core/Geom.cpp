@@ -783,8 +783,8 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_SymRotN.Init( "Sym_Rot_N", "Sym", this, 2, 2, 1000 );
 
     // Mass Properties
-    m_Density.Init( "Density", "Mass_Props", this, 1, 1e-12, 1e12 );
-    m_MassArea.Init( "Mass_Area", "Mass_Props", this, 1, 1e-12, 1e12 );
+    m_Density.Init( "Density", "Mass_Props", this, 1, 0.0, 1e12 );
+    m_MassArea.Init( "Mass_Area", "Mass_Props", this, 1, 0.0, 1e12 );
     m_MassPrior.Init( "Mass_Prior", "Mass_Props", this, 0, 0, 1e12 );
     m_ShellFlag.Init( "Shell_Flag", "Mass_Props", this, false, 0, 1 );
 
