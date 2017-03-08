@@ -1151,7 +1151,7 @@ string VSPAEROSinglePointAnalysis::Execute()
         nvd = m_Inputs.FindPtr( "WingID", 0 );
         if ( nvd ); VSPAEROMgr.m_RefGeomID = nvd->GetString(0) ;
 
-        if ( VSPAEROMgr.m_RefFlag.Get() == vsp::VSPAERO_COMP_REFERENCE_TYPE::MANUAL_REF )
+        if ( VSPAEROMgr.m_RefFlag.Get() == vsp::VSPAERO_REF_WING_TYPE::MANUAL_REF )
         {
             nvd = m_Inputs.FindPtr( "Sref", 0 );
             if ( nvd ); VSPAEROMgr.m_Sref.Set( nvd->GetDouble(0) );
@@ -1160,7 +1160,7 @@ string VSPAEROSinglePointAnalysis::Execute()
             nvd = m_Inputs.FindPtr( "cref", 0 );
             if ( nvd ); VSPAEROMgr.m_cref.Set( nvd->GetDouble(0) );        
         }
-        else if ( VSPAEROMgr.m_RefFlag.Get() == vsp::VSPAERO_COMP_REFERENCE_TYPE::COMPONENT_REF )
+        else if ( VSPAEROMgr.m_RefFlag.Get() == vsp::VSPAERO_REF_WING_TYPE::COMPONENT_REF )
         {
             VSPAEROMgr.Update();
             printf( "Wing Reference Parms: \n" );
@@ -1361,7 +1361,7 @@ string VSPAEROSweepAnalysis::Execute()
         nvd = m_Inputs.FindPtr( "WingID", 0 );
         if ( nvd ); VSPAEROMgr.m_RefGeomID = nvd->GetString(0) ;
 
-        if ( VSPAEROMgr.m_RefFlag.Get() == vsp::VSPAERO_COMP_REFERENCE_TYPE::MANUAL_REF )
+        if ( VSPAEROMgr.m_RefFlag.Get() == vsp::VSPAERO_REF_WING_TYPE::MANUAL_REF )
         {
             nvd = m_Inputs.FindPtr( "Sref", 0 );
             if ( nvd ); VSPAEROMgr.m_Sref.Set( nvd->GetDouble(0) );
@@ -1370,7 +1370,7 @@ string VSPAEROSweepAnalysis::Execute()
             nvd = m_Inputs.FindPtr( "cref", 0 );
             if ( nvd ); VSPAEROMgr.m_cref.Set( nvd->GetDouble(0) );        
         }
-        else if ( VSPAEROMgr.m_RefFlag.Get() == vsp::VSPAERO_COMP_REFERENCE_TYPE::COMPONENT_REF )
+        else if ( VSPAEROMgr.m_RefFlag.Get() == vsp::VSPAERO_REF_WING_TYPE::COMPONENT_REF )
         {
             VSPAEROMgr.Update();
             printf( "Wing Reference Parms: \n" );

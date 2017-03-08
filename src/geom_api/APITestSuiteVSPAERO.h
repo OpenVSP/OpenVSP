@@ -52,6 +52,8 @@ private:
     void TestVSPAeroBluntTrailingEdge();
     void TestVSPAeroSupersonicDeltaWing();
 
+    double calcTessWCheckVal( double t_tess_w );
+
     string m_vspfname_for_vspaerotests;
 };
 
