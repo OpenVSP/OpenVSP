@@ -3158,6 +3158,11 @@ SubSurface* Geom::AddSubSurf( int type, int surfindex )
 {
     SubSurface* ssurf = NULL;
 
+    if ( m_MainSurfVec.size() <= 0 )
+    {
+        return ssurf;
+    }
+
     if ( type == vsp::SS_LINE )
     {
         ssurf = new SSLine( m_ID );
