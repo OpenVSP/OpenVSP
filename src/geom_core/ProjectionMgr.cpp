@@ -507,9 +507,9 @@ void ProjectionMgrSingleton::ExportProjectLines( vector < TMesh* > targetTMeshVe
         // Project in X, Y, and Z directions:
         vector < vec2d > proj_dir_vec;
         proj_dir_vec.resize( 3 );
-        proj_dir_vec[vsp::X_DIR] = { 1, 2 };
-        proj_dir_vec[vsp::Y_DIR] = { 0, 2 };
-        proj_dir_vec[vsp::Z_DIR] = { 0, 1 };
+        proj_dir_vec[vsp::X_DIR] = vec2d( 1, 2 );
+        proj_dir_vec[vsp::Y_DIR] = vec2d( 0, 2 );
+        proj_dir_vec[vsp::Z_DIR] = vec2d( 0, 1 );
 
         for ( int k = 0; k < proj_dir_vec.size(); k++ )
         {
