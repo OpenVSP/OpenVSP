@@ -753,13 +753,14 @@ void VspSurf::MakeUTess( const vector<int> &num_u, vector<double> &u, const std:
 {
     if ( umerge.size() != 0 )
     {
-        if ( num_u.size() != umerge.size() )
+        const int nusect = num_u.size();
+        if ( nusect != umerge.size() )
         {
             printf( "Error.  num_u does not match umerge.\n" );
         }
 
         int nu = 1;
-        for ( int i = 0; i < umerge.size(); i++ )
+        for ( int i = 0; i < nusect; i++ )
         {
             nu += num_u[i] - 1;
         }
@@ -770,7 +771,7 @@ void VspSurf::MakeUTess( const vector<int> &num_u, vector<double> &u, const std:
         u.resize( nu );
         int iu = 0;
 
-        for ( int i = 0; i < umerge.size(); i++ )
+        for ( int i = 0; i < nusect; i++ )
         {
             double uend = ustart;
             for ( int j = 0; j < umerge[i]; j++ )
