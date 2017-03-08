@@ -162,8 +162,8 @@ void APITestSuiteMassProp::TestSolidCylinder()
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     printf( "   Cylinder Radius: %d \n", 2 );
-    printf( "   Cylinder length: %d \n", length );
-    printf( "   Cylinder Density: %d \n", rho );
+    printf( "   Cylinder length: %f \n", length );
+    printf( "   Cylinder Density: %f \n", rho );
 
     //==== Save Vehicle to File ====//
     printf( "-->Saving VSP model\n" );
@@ -354,10 +354,10 @@ void APITestSuiteMassProp::TestThickWallCylinder()
     vsp::Update();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
-    printf( "   Cylinder Outer Radius: %d \n", R_out );
-    printf( "   Cylinder Inner Radius: %d \n", r_in );
-    printf( "   Cylinder Length: %d \n", length );
-    printf( "   Cylinder Density: %d \n", rho );
+    printf( "   Cylinder Outer Radius: %f \n", R_out );
+    printf( "   Cylinder Inner Radius: %f \n", r_in );
+    printf( "   Cylinder Length: %f \n", length );
+    printf( "   Cylinder Density: %f \n", rho );
 
     //==== Save Vehicle to File ====//
     printf( "-->Saving VSP model\n" );
@@ -531,7 +531,7 @@ void APITestSuiteMassProp::TestCylindricalShell()
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     printf( "   Cylinder Radius: %d \n", 2 );
-    printf( "   Cylinder Length: %d \n", length );
+    printf( "   Cylinder Length: %f \n", length );
     printf( "   Cylinder Density: %7.3f \n", rho );
     printf( "   Cylinder Area Density: %7.3f \n", rho_A );
 
@@ -879,7 +879,7 @@ void APITestSuiteMassProp::TestSolidCone()
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     printf( "   Cone Radius: %d \n", 2 );
-    printf( "   Cone Length: %d \n", length );
+    printf( "   Cone Length: %f \n", length );
     printf( "   Cone Density: %d \n", 5 );
 
     //==== Save Vehicle to File ====//
@@ -1047,7 +1047,7 @@ void APITestSuiteMassProp::TestShellCone()
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     printf( "   Cone Radius: %d \n", 2 );
-    printf( "   Cone Length: %d \n", length );
+    printf( "   Cone Length: %f \n", length );
     printf( "   Cone Density: %7.3f \n", rho );
     printf( "   Cone Area Density: %7.3f \n", rho_A );
 
@@ -1243,10 +1243,10 @@ void APITestSuiteMassProp::TestRectangularPrism()
     vsp::Update();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
-    printf( "   Rectangular Prism Width: %d \n", width );
-    printf( "   Rectangular Prism Height: %d \n", height );
-    printf( "   Rectangular Prism Length: %d \n", length );
-    printf( "   Rectangular Prism Density: %d \n", rho );
+    printf( "   Rectangular Prism Width: %f \n", width );
+    printf( "   Rectangular Prism Height: %f \n", height );
+    printf( "   Rectangular Prism Length: %f \n", length );
+    printf( "   Rectangular Prism Density: %f \n", rho );
 
     //==== Save Vehicle to File ====//
     printf( "-->Saving VSP model\n" );
