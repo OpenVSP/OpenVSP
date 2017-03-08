@@ -459,6 +459,12 @@ void SSLineSeg::UpdateDrawObj( VspSurf* surf, Geom* geom, DrawObj& draw_obj, con
         num_pnts = CompNumDrawPnts( surf, geom );
     }
 
+    if ( num_pnts <=0 )
+    {
+        draw_obj.m_PntVec.clear();
+        return;
+    }
+
     draw_obj.m_PntVec.resize( num_pnts + 1 );
 
 
