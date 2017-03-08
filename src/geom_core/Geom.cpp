@@ -3005,10 +3005,11 @@ vector< TMesh* > Geom::CreateTMeshVec()
         m_SurfVec[i].ResetUWSkip(); // Done with skip flags.
 
         TMeshVec.push_back( new TMesh() );
-        TMeshVec[i]->LoadGeomAttributes( this );
-        TMeshVec[i]->m_SurfNum = i;
-        TMeshVec[i]->m_UWPnts = uw_pnts;
-        TMeshVec[i]->m_XYZPnts = pnts;
+        int itmesh = TMeshVec.size() - 1;
+        TMeshVec[itmesh]->LoadGeomAttributes( this );
+        TMeshVec[itmesh]->m_SurfNum = i;
+        TMeshVec[itmesh]->m_UWPnts = uw_pnts;
+        TMeshVec[itmesh]->m_XYZPnts = pnts;
         bool f_norm = m_SurfVec[i].GetFlipNormal();
 
         vec3d norm;
@@ -3046,11 +3047,11 @@ vector< TMesh* > Geom::CreateTMeshVec()
                         norm.normalize();
                         if ( f_norm )
                         {
-                            TMeshVec[i]->AddTri( v0, v2, v1, norm * -1, uw0, uw2, uw1 );
+                            TMeshVec[itmesh]->AddTri( v0, v2, v1, norm * -1, uw0, uw2, uw1 );
                         }
                         else
                         {
-                            TMeshVec[i]->AddTri( v0, v1, v2, norm, uw0, uw1, uw2 );
+                            TMeshVec[itmesh]->AddTri( v0, v1, v2, norm, uw0, uw1, uw2 );
                         }
                     }
 
@@ -3060,11 +3061,11 @@ vector< TMesh* > Geom::CreateTMeshVec()
                         norm.normalize();
                         if ( f_norm )
                         {
-                            TMeshVec[i]->AddTri( v0, v3, v2, norm * -1, uw0, uw3, uw2 );
+                            TMeshVec[itmesh]->AddTri( v0, v3, v2, norm * -1, uw0, uw3, uw2 );
                         }
                         else
                         {
-                            TMeshVec[i]->AddTri( v0, v2, v3, norm, uw0, uw2, uw3 );
+                            TMeshVec[itmesh]->AddTri( v0, v2, v3, norm, uw0, uw2, uw3 );
                         }
                     }
                 }
@@ -3077,11 +3078,11 @@ vector< TMesh* > Geom::CreateTMeshVec()
                         norm.normalize();
                         if ( f_norm )
                         {
-                            TMeshVec[i]->AddTri( v0, v3, v1, norm * -1, uw0, uw3, uw1 );
+                            TMeshVec[itmesh]->AddTri( v0, v3, v1, norm * -1, uw0, uw3, uw1 );
                         }
                         else
                         {
-                            TMeshVec[i]->AddTri( v0, v1, v3, norm, uw0, uw1, uw3 );
+                            TMeshVec[itmesh]->AddTri( v0, v1, v3, norm, uw0, uw1, uw3 );
                         }
                     }
 
@@ -3091,11 +3092,11 @@ vector< TMesh* > Geom::CreateTMeshVec()
                         norm.normalize();
                         if ( f_norm )
                         {
-                            TMeshVec[i]->AddTri( v1, v3, v2, norm * -1, uw1, uw3, uw2 );
+                            TMeshVec[itmesh]->AddTri( v1, v3, v2, norm * -1, uw1, uw3, uw2 );
                         }
                         else
                         {
-                            TMeshVec[i]->AddTri( v1, v2, v3, norm, uw1, uw2, uw3 );
+                            TMeshVec[itmesh]->AddTri( v1, v2, v3, norm, uw1, uw2, uw3 );
                         }
                     }
                 }
