@@ -738,9 +738,9 @@ void APITestSuiteVSPAERO::TestVSPAeroSharpTrailingEdge()
     string xutess_id1 = vsp::GetXSecParm( xsec_id1, "SectTess_U" );
     TEST_ASSERT_DELTA( vsp::SetParmVal( xutess_id1, 16 ), 16, TEST_TOL );
     string xrtcluster_id1 = vsp::GetXSecParm( xsec_id1, "InCluster" );
-    TEST_ASSERT_DELTA( vsp::SetParmVal( xrtcluster_id1, 0 ), 0, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( xrtcluster_id1, 0.1 ), 0.1, TEST_TOL );
     string xtipcluster_id1 = vsp::GetXSecParm( xsec_id1, "OutCluster" );
-    TEST_ASSERT_DELTA( vsp::SetParmVal( xtipcluster_id1, 0 ), 0, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( xtipcluster_id1, 0.1 ), 0.1, TEST_TOL );
 
     vsp::Update();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
@@ -896,9 +896,9 @@ void APITestSuiteVSPAERO::TestVSPAeroBluntTrailingEdge()
     string xutess_id1 = vsp::GetXSecParm( xsec_id1, "SectTess_U" );
     TEST_ASSERT_DELTA( vsp::SetParmVal( xutess_id1, 16 ), 16, TEST_TOL );
     string xrtcluster_id1 = vsp::GetXSecParm( xsec_id1, "InCluster" );
-    TEST_ASSERT_DELTA( vsp::SetParmVal( xrtcluster_id1, 0 ), 0, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( xrtcluster_id1, 0.1 ), 0.1, TEST_TOL );
     string xtipcluster_id1 = vsp::GetXSecParm( xsec_id1, "OutCluster" );
-    TEST_ASSERT_DELTA( vsp::SetParmVal( xtipcluster_id1, 0 ), 0, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( xtipcluster_id1, 0.1 ), 0.1, TEST_TOL );
 
     vsp::Update();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
