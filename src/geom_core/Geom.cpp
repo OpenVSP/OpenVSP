@@ -3001,6 +3001,8 @@ vector< TMesh* > Geom::CreateTMeshVec()
 
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
+        if ( m_SurfVec[i].GetNumSectU() != 0 && m_SurfVec[i].GetNumSectW() != 0 )
+        {
             UpdateTesselate( i, pnts, norms, uw_pnts, false );
             m_SurfVec[i].ResetUWSkip(); // Done with skip flags.
 
@@ -3102,6 +3104,7 @@ vector< TMesh* > Geom::CreateTMeshVec()
                     }
                 }
             }
+        }
     }
     return TMeshVec;
 }
