@@ -1507,6 +1507,12 @@ void SplitSurfsW( vector< piecewise_surface_type > &surfvec, const vector < doub
 // used to test patches from split surfaces.
 bool VspSurf::CheckValidPatch( const piecewise_surface_type &surf )
 {
+    if ( surf.number_u_patches() == 0 || surf.number_v_patches() == 0 )
+    {
+        // Empty surface.
+        return false;
+    }
+
     double umin, vmin, umax, vmax;
     surf.get_parameter_min( umin, vmin );
     surf.get_parameter_max( umax, vmax );
