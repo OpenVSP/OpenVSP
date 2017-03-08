@@ -758,22 +758,26 @@ void VspSurf::MakeUTess( const vector<int> &num_u, vector<double> &u, const std:
         {
             printf( "Error.  num_u does not match umerge.\n" );
         }
+        assert( m_USkip.size() == nusect );
 
         int nu = 1;
         for ( int i = 0; i < nusect; i++ )
         {
-            nu += num_u[i] - 1;
+            if ( !m_USkip[i] )
+            {
+                nu += num_u[i] - 1;
+            }
         }
 
         int iusect = 0;
         double ustart = m_Surface.get_u0();
+        double uend = ustart;
 
         u.resize( nu );
         int iu = 0;
 
         for ( int i = 0; i < nusect; i++ )
         {
-            double uend = ustart;
             for ( int j = 0; j < umerge[i]; j++ )
             {
                 double du, dv;
@@ -784,16 +788,21 @@ void VspSurf::MakeUTess( const vector<int> &num_u, vector<double> &u, const std:
                 iusect++;
             }
 
-
             double du = uend - ustart;
 
-            for ( int isecttess = 0; isecttess < num_u[i] - 1; ++isecttess )
+            if ( !m_USkip[i] )
             {
-                u[iu] = ustart + du * Cluster( static_cast<double>( isecttess ) / ( num_u[i] - 1 ), m_RootCluster[i], m_TipCluster[i] );
-                iu++;
+                for ( int isecttess = 0; isecttess < num_u[i] - 1; ++isecttess )
+                {
+                    u[iu] = ustart + du * Cluster(static_cast<double>( isecttess ) / (num_u[i] - 1), m_RootCluster[i], m_TipCluster[i]);
+                    iu++;
+                }
             }
-            ustart = uend;
 
+            if ( !( i == nusect - 1 && m_USkip[i] ) )
+            {
+                ustart = uend;
+            }
 
         }
         u.back() = ustart;
