@@ -9,7 +9,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "SVGUtil.h"
-#include <math.h> 
+#include <cmath>
 #include "Util.h"
 
 void WriteSVGHeader( xmlNodePtr root, const BndBox &svgbox )
