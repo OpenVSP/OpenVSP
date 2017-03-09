@@ -3964,6 +3964,11 @@ FeaStructure* Geom::AddFeaStruct( bool initskin, int surf_index )
 {
     FeaStructure* feastruct = NULL;
 
+    if ( m_MainSurfVec.size() <= 0 || surf_index > m_MainSurfVec.size() || surf_index < 0 )
+    {
+        return feastruct;
+    }
+
     if ( GetType().m_Type != BLANK_GEOM_TYPE && GetType().m_Type != PT_CLOUD_GEOM_TYPE && GetType().m_Type != HINGE_GEOM_TYPE )
     {
         feastruct = new FeaStructure( GetID(), surf_index );
