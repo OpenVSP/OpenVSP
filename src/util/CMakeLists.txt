@@ -30,7 +30,6 @@ STEPutil.cpp
 StlHelper.cpp
 StringUtil.cpp
 SuperEllipse.cpp
-SVGUtil.cpp
 Util.cpp
 UtilTestSuite.cpp
 Vec2d.cpp
@@ -56,7 +55,6 @@ STEPutil.h
 StreamUtil.h
 StringUtil.h
 SuperEllipse.h
-SVGUtil.h
 Util.h
 UtilTestSuite.h
 UsingCpp11.h

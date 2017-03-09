@@ -61,6 +61,7 @@ SnapTo.cpp
 StackGeom.cpp
 SubSurface.cpp
 SubSurfaceMgr.cpp
+SVGUtil.cpp
 Texture.cpp
 TextureMgr.cpp
 TMesh.cpp
@@ -124,6 +125,7 @@ StackGeom.h
 SubSurface.h
 SubSurfaceMgr.h
 SWIGDefines.h
+SVGUtil.h
 Texture.h
 TextureMgr.h
 TMesh.h
