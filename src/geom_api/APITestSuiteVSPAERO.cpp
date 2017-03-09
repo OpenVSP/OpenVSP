@@ -55,7 +55,7 @@ void APITestSuiteVSPAERO::TestVSPAeroCreateModel()
     xsec_index = 0;
     vsp::ChangeXSecShape( xsec_surf_id, xsec_index, vsp::XSEC_CRV_TYPE::XS_FOUR_SERIES );
     xsec_id = vsp::GetXSec( xsec_surf_id, xsec_index );
-    TEST_ASSERT_EQUALS( vsp::XSEC_CRV_TYPE::XS_FOUR_SERIES, vsp::GetXSecShape( xsec_id ) );
+    TEST_ASSERT( vsp::XSEC_CRV_TYPE::XS_FOUR_SERIES == vsp::GetXSecShape( xsec_id ) );
     parm_id = vsp::GetXSecParm( xsec_id, "Camber" );
     TEST_ASSERT_DELTA( vsp::SetParmVal( parm_id, 0.02 ), 0.02, TEST_TOL );
     parm_id = vsp::GetXSecParm( xsec_id, "CamberLoc" );
@@ -66,7 +66,7 @@ void APITestSuiteVSPAERO::TestVSPAeroCreateModel()
     xsec_index = 1;
     vsp::ChangeXSecShape( xsec_surf_id, xsec_index, vsp::XSEC_CRV_TYPE::XS_FOUR_SERIES );
     xsec_id = vsp::GetXSec( xsec_surf_id, xsec_index );
-    TEST_ASSERT_EQUALS( vsp::XSEC_CRV_TYPE::XS_FOUR_SERIES, vsp::GetXSecShape( xsec_id ) );
+    TEST_ASSERT( vsp::XSEC_CRV_TYPE::XS_FOUR_SERIES == vsp::GetXSecShape( xsec_id ) );
     parm_id = vsp::GetXSecParm( xsec_id, "Camber" );
     TEST_ASSERT_DELTA( vsp::SetParmVal( parm_id, 0.02 ), 0.02, TEST_TOL );
     parm_id = vsp::GetXSecParm( xsec_id, "CamberLoc" );
@@ -140,7 +140,7 @@ void APITestSuiteVSPAERO::TestVSPAeroCreateModel()
     //==== Set VSPAERO Reference lengths & areas ====//
     printf( "\tSetting reference wing..." );
     // Set as reference wing for VSPAERO
-    TEST_ASSERT_EQUALS( wing_id, vsp::SetVSPAERORefWingID( wing_id ) );
+    TEST_ASSERT( wing_id == vsp::SetVSPAERORefWingID( wing_id ) );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
     printf( "COMPLETE\n" );
 
