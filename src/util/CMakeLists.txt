@@ -69,5 +69,5 @@ XferSurf.h
 
 ADD_DEPENDENCIES( util
 STEPCODE
-xmlvsp
+
 )
