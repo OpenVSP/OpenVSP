@@ -224,6 +224,10 @@ FeaProperty* StructureMgrSingleton::GetFeaProperty( int index )
     {
         return m_FeaPropertyVec[index];
     }
+    else
+    {
+        return NULL;
+    }
 }
 
 //==== Add FeaMaterial =====//
@@ -270,6 +274,10 @@ FeaMaterial* StructureMgrSingleton::GetFeaMaterial( int index )
     if ( ValidFeaMaterialInd( index ) )
     {
         return m_FeaMaterialVec[index];
+    }
+    else
+    {
+        return NULL;
     }
 }
 
