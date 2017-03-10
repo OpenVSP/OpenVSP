@@ -234,6 +234,11 @@ protected:
 
 };
 
+enum
+{
+    PERPENDICULAR_NONE, PERPENDICULAR_LEAD_EDGE, PERPENDICULAR_TRAIL_EDGE
+};
+
 class FeaRib : public FeaPart
 {
 public:
@@ -246,12 +251,14 @@ public:
     virtual void ComputePlanarSurf();
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight );
 
-    Parm m_PerW; // Percent W Location
-    Parm m_Alpha;
+    Parm m_PerU; // Percent U Location
+    //Parm m_Alpha;
     Parm m_Theta;
     //BoolParm m_TrimFlag;
     //Parm m_PlaneSurfLengthScale;
     //Parm m_PlaneSurfWidthScale;
+
+    IntParm m_PerpendicularEdgeFlag;
 
 protected:
 

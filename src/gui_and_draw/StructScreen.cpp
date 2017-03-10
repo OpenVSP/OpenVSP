@@ -282,8 +282,13 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 620, "FEA Me
 
     m_RibEditLayout.AddChoice( m_RibPropertyChoice, "Property" );
 
+    m_RibPerpendicularEdgeChoice.AddItem( "None" );
+    m_RibPerpendicularEdgeChoice.AddItem( "Leading Edge" );
+    m_RibPerpendicularEdgeChoice.AddItem( "Trailing Edge" );
+    m_RibEditLayout.AddChoice( m_RibPerpendicularEdgeChoice, "Perpendicular Edge" );
+
     m_RibEditLayout.AddSlider( m_RibPosSlider, "Position", 1, "%5.3f" );
-    m_RibEditLayout.AddSlider( m_RibAlphaSlider, "Alpha", 25, "%5.3f" );
+    //m_RibEditLayout.AddSlider( m_RibAlphaSlider, "Alpha", 25, "%5.3f" );
     m_RibEditLayout.AddSlider( m_RibThetaSlider, "Theta", 25, "%5.3f" );
 
     //m_RibEditLayout.AddSlider( m_RibLengthScaleSlider, "Length Scale", 2, "%5.3f" );
@@ -1390,8 +1395,9 @@ bool StructScreen::Update()
 
                     m_CurrEditType = RIB_EDIT;
 
-                    m_RibPosSlider.Update( rib->m_PerW.GetID() );
-                    m_RibAlphaSlider.Update( rib->m_Alpha.GetID() );
+                    m_RibPerpendicularEdgeChoice.Update( rib->m_PerpendicularEdgeFlag.GetID() );
+                    m_RibPosSlider.Update( rib->m_PerU.GetID() );
+                    //m_RibAlphaSlider.Update( rib->m_Alpha.GetID() );
                     m_RibThetaSlider.Update( rib->m_Theta.GetID() );
                     //m_RibTrimButton.Update( rib->m_TrimFlag.GetID() );
 

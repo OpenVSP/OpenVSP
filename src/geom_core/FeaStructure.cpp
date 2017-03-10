@@ -746,7 +746,7 @@ void FeaSpar::ComputePlanarSurf()
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
 
-    if ( !veh )
+    if ( veh )
     {
         for ( unsigned int i = 0; i < m_SymmIndexVec.size(); i++ )
         {
@@ -843,14 +843,17 @@ void FeaSpar::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool high
 
 FeaRib::FeaRib( string geomID, int type ) : FeaPart( geomID, type )
 {
-    m_PerW.Init( "PerW", "FeaRib", this, 0.5, 0.0, 1.0 );
-    m_PerW.SetDescript( "Precent W Location" );
-    m_Alpha.Init( "Alpha", "FeaRib", this, 0.0, -90.0, 90.0 );
+    m_PerU.Init( "PerU", "FeaRib", this, 0.5, 0.0, 1.0 );
+    m_PerU.SetDescript( "Precent U Location" );
+    //m_Alpha.Init( "Alpha", "FeaRib", this, 0.0, -90.0, 90.0 );
     m_Theta.Init( "Theta", "FeaRib", this, 0.0, -90.0, 90.0 );
     //m_TrimFlag.Init( "TrimFlag", "FeaRib", this, true, 0, 1 );
 
     //m_PlaneSurfLengthScale.Init( "PlaneSurfLengthScale", "FeaRib", this, 1.0, 0.0, 1.0e12 );
     //m_PlaneSurfWidthScale.Init( "PlaneSurfWidthScale", "FeaRib", this, 1.0, 0.0, 1.0e12 );
+
+    m_PerpendicularEdgeFlag.Init( "PerpendicularEdgeFlag", "FeaRib", this, PERPENDICULAR_NONE, PERPENDICULAR_NONE, PERPENDICULAR_TRAIL_EDGE );
+    m_PerpendicularEdgeFlag.SetDescript( "Flag Indicating Perpendicular Alignment of FeaRib" );
 }
 
 void FeaRib::Update()
@@ -864,136 +867,117 @@ void FeaRib::ComputePlanarSurf()
 
     if ( veh )
     {
-        // TODO: Improve planar surface definition and determine intersections with geom.
-
         for ( unsigned int i = 0; i < m_SymmIndexVec.size(); i++ )
         {
             m_FeaPartSurfVec[i] = VspSurf();
             m_FeaPartSurfVec[i].SetSurfCfdType( vsp::CFD_STRUCTURE );
 
-            Geom* currgeom = veh->FindGeom( m_ParentGeomID );
+            Geom* current_wing = veh->FindGeom( m_ParentGeomID );
 
             vector< VspSurf > surf_vec;
-            currgeom->GetSurfVec( surf_vec );
-            VspSurf currsurf = surf_vec[m_SymmIndexVec[i]];
+            current_wing->GetSurfVec( surf_vec );
+            VspSurf wing_surf = surf_vec[m_SymmIndexVec[i]];
 
-            vec3d pointA = currsurf.CompPnt01( m_PerW(), 0.0 );
-            vec3d pointB = currsurf.CompPnt01( m_PerW(), 0.5 );
-            vec3d pointC = currsurf.CompPnt01( m_PerW(), 0.25 );
-            vec3d pointD = currsurf.CompPnt01( m_PerW(), 0.75 );
+            BndBox wing_bbox;
+            wing_surf.GetBoundingBox( wing_bbox );
 
-            VspSurf* tempsurf = new VspSurf();
-            tempsurf->MakePlaneSurf( pointA, pointC, pointD, pointB );
-            BndBox surfbbox;
-            tempsurf->GetBoundingBox( surfbbox );
-            vec3d surfcenter = surfbbox.GetCenter();
+            VspCurve constant_u_curve;
+            wing_surf.GetU01ConstCurve( constant_u_curve, m_PerU() );
 
-            vec3d AtoBvec = pointB - pointA;
-            AtoBvec.normalize();
+            piecewise_curve_type u_curve = constant_u_curve.GetCurve();
 
-            vec3d CtoDvec = pointD - pointC;
-            CtoDvec.normalize();
+            double v_min = u_curve.get_parameter_min(); // Really must be 0.0
+            double v_max = u_curve.get_parameter_max(); // Really should be 4.0
 
-            vec3d normal_vec = cross( AtoBvec, CtoDvec );
+            double v_leading_edge = ( v_min + v_max ) * 0.5;
 
-            int type = currgeom->GetType().m_Type;
-            double scale;
+            vec3d trail_edge, lead_edge;
+            trail_edge = u_curve.f( v_min );
+            lead_edge = u_curve.f( v_leading_edge );
 
-            if ( type == MS_WING_GEOM_TYPE )
-            {
-                scale = 0.5 * surfbbox.GetLargestDist(); // Changed from get middle distance
-            }
-            else
-            {
-                scale = 0.5 * surfbbox.GetLargestDist();
-            }
+            // Find two points slightly above and below the trailing edge
+            double v_trail_edge_low = v_min + 2 * TMAGIC;
+            double v_trail_edge_up = v_max - 2 * TMAGIC;
 
-            vec3d cornerA = pointA + CtoDvec * scale;
-            vec3d cornerB = pointA + CtoDvec * scale * -1;
-            vec3d cornerC = pointB + CtoDvec * scale;
-            vec3d cornerD = pointB + CtoDvec * scale * -1;
+            vec3d trail_edge_up, trail_edge_low;
+            trail_edge_up = u_curve.f( v_trail_edge_low );
+            trail_edge_low = u_curve.f( v_trail_edge_up );
 
-            // Expand plane to be larger than geom at intersection. The Surface outside of the geometry will be ignored when meshed
-            double exmag = 0.1; // expand plane 10% 
+            vec3d z_axis = trail_edge_up - trail_edge_low;
+            z_axis.normalize();
 
-            vec3d expandA = exmag * ( cornerA - surfcenter ) + cornerA;
-            vec3d expandB = exmag * ( cornerB - surfcenter ) + cornerB;
-            vec3d expandC = exmag * ( cornerC - surfcenter ) + cornerC;
-            vec3d expandD = exmag * ( cornerD - surfcenter ) + cornerD;
+            vec3d chord_dir_vec = trail_edge - lead_edge;
+            chord_dir_vec.normalize();
 
-            //// Apply Scaling Factors
-            //vec3d midAB = ( expandA + expandB ) / 2.0;
-            //vec3d midCD = ( expandC + expandD ) / 2.0;
+            // Identify corners of the plane and rotation axis
+            vec3d cornerA, cornerB, cornerC, cornerD;
 
-            //expandA = ( m_PlaneSurfWidthScale() - 1.0 ) * ( expandA - midAB ) + expandA;
-            //expandB = ( m_PlaneSurfWidthScale() - 1.0 ) * ( expandB - midAB ) + expandB;
-            //expandC = ( m_PlaneSurfWidthScale() - 1.0 ) * ( expandC - midCD ) + expandC;
-            //expandD = ( m_PlaneSurfWidthScale() - 1.0 ) * ( expandD - midCD ) + expandD;
+            double height = 0.5 * wing_bbox.GetSmallestDist();
 
-            //vec3d midAC = ( expandA + expandC ) / 2.0;
-            //vec3d midBD = ( expandB + expandD ) / 2.0;
-
-            //expandA = ( m_PlaneSurfLengthScale() - 1.0 ) * ( expandA - midAC ) + expandA;
-            //expandC = ( m_PlaneSurfLengthScale() - 1.0 ) * ( expandC - midAC ) + expandC;
-            //expandB = ( m_PlaneSurfLengthScale() - 1.0 ) * ( expandB - midBD ) + expandB;
-            //expandD = ( m_PlaneSurfLengthScale() - 1.0 ) * ( expandD - midBD ) + expandD;
+            cornerA = trail_edge + ( height * z_axis );
+            cornerB = trail_edge - ( height * z_axis );
+            cornerC = lead_edge + ( height * z_axis );
+            cornerD = lead_edge - ( height * z_axis );
 
             // Make Planar Surface
-            m_FeaPartSurfVec[i].MakePlaneSurf( expandA, expandB, expandC, expandD );
+            m_FeaPartSurfVec[i].MakePlaneSurf( cornerA, cornerB, cornerC, cornerD );
 
-            // Match flipnormal
-            bool geomflipnormal = currsurf.GetFlipNormal();
-            bool surfflipnormal = m_FeaPartSurfVec[i].GetFlipNormal();
-
-            if ( surfflipnormal != geomflipnormal )
+            if ( m_FeaPartSurfVec[i].GetFlipNormal() != wing_surf.GetFlipNormal() )
             {
-                m_Theta = -1 * m_Theta();
-                m_Alpha = -1 * m_Alpha();
+                z_axis = -1 * z_axis;
                 m_FeaPartSurfVec[i].FlipNormal();
             }
 
-            // Build Patches?
+            vec3d center = ( trail_edge + lead_edge ) / 2;
 
-            //newsurf->GetPiecewiseSurf().BuildPatches( newsurf );
+            double alpha = 0.0;
+            double u_edge_out = m_PerU() + 2 * FLT_EPSILON;
+            double u_edge_in = m_PerU() - 2 * FLT_EPSILON;
 
-            // Translate to orgin before rotation and then translate back
-
-            // Rotation Matrix
-            Matrix4d transMat1, transMat2, rotMat;
-            rotMat.loadIdentity();
-
-            if ( type == MS_WING_GEOM_TYPE )
+            if ( m_PerpendicularEdgeFlag() == PERPENDICULAR_TRAIL_EDGE )
             {
-                rotMat.rotate( DEG_2_RAD * m_Theta(), CtoDvec );
-                rotMat.rotate( DEG_2_RAD * m_Alpha(), AtoBvec );
+                vec3d trail_edge_out, trail_edge_in;
+                trail_edge_out = wing_surf.CompPnt01( u_edge_out, v_min );
+                trail_edge_in = wing_surf.CompPnt01( u_edge_in, v_min );
+
+                vec3d lead_edge_dir_vec = trail_edge_out - trail_edge_in;
+                lead_edge_dir_vec.normalize();
+
+                alpha = ( PI / 2 ) - acos( dot( lead_edge_dir_vec, chord_dir_vec ) );
             }
-            else
+            else if ( m_PerpendicularEdgeFlag() == PERPENDICULAR_LEAD_EDGE )
             {
-                rotMat.rotate( DEG_2_RAD * m_Theta(), AtoBvec );
-                rotMat.rotate( DEG_2_RAD * m_Alpha(), CtoDvec );
+                vec3d lead_edge_out, lead_edge_in;
+                lead_edge_out = wing_surf.CompPnt01( u_edge_out , v_leading_edge / v_max );
+                lead_edge_in = wing_surf.CompPnt01( u_edge_in, v_leading_edge / v_max );
+
+                vec3d trail_edge_dir_vec = lead_edge_out - lead_edge_in;
+                trail_edge_dir_vec.normalize();
+
+                alpha = ( PI / 2 ) - acos( dot( trail_edge_dir_vec, chord_dir_vec ) );
             }
 
-            transMat1.loadIdentity();
-            transMat1.translatef( surfcenter.x() * -1, surfcenter.y() * -1, surfcenter.z() * -1 );
-            transMat2.loadIdentity();
-            transMat2.translatef( surfcenter.x(), surfcenter.y(), surfcenter.z() );
+            // Translate to the origin, rotate, and translate back to m_CenterPerBBoxLocation
+            Matrix4d trans_mat_1, trans_mat_2, rot_mat;
 
-            m_FeaPartSurfVec[i].Transform( transMat1 );
-            m_FeaPartSurfVec[i].Transform( rotMat );
-            m_FeaPartSurfVec[i].Transform( transMat2 );
+            trans_mat_1.loadIdentity();
+            trans_mat_1.translatef( center.x() * -1, center.y() * -1, center.z() * -1 );
+            m_FeaPartSurfVec[i].Transform( trans_mat_1 );
 
-            delete tempsurf;
+            rot_mat.loadIdentity();
+            rot_mat.rotate( DEG_2_RAD * m_Theta() + alpha, z_axis );
+            m_FeaPartSurfVec[i].Transform( rot_mat );
+
+            trans_mat_2.loadIdentity();
+            trans_mat_2.translatef( center.x(), center.y(), center.z() );
+            m_FeaPartSurfVec[i].Transform( trans_mat_2 );
         }
     }
 }
 
 void FeaRib::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight )
 {
-    Vehicle* veh = VehicleMgr.GetVehicle();
-    if ( veh )
-    {
-        FeaPart::LoadDrawObjs( draw_obj_vec, id, highlight );
-    }
+    FeaPart::LoadDrawObjs( draw_obj_vec, id, highlight );
 }
 
 ////////////////////////////////////////////////////

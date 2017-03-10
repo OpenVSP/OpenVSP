@@ -179,8 +179,9 @@ private:
     //===== Rib =====//
     Choice m_RibPropertyChoice;
 
+    Choice m_RibPerpendicularEdgeChoice;
     SliderAdjRangeInput m_RibPosSlider;
-    SliderAdjRangeInput m_RibAlphaSlider;
+    //SliderAdjRangeInput m_RibAlphaSlider;
     SliderAdjRangeInput m_RibThetaSlider;
 
     //ToggleButton m_RibTrimButton;
