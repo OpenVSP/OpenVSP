@@ -192,7 +192,7 @@ private:
     Choice m_SparPropertyChoice;
 
     SliderAdjRangeInput m_SparPosSlider;
-    SliderAdjRangeInput m_SparAlphaSlider;
+    //SliderAdjRangeInput m_SparAlphaSlider;
     SliderAdjRangeInput m_SparThetaSlider;
 
     //ToggleButton m_SparTrimButton;

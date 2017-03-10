@@ -206,6 +206,11 @@ public:
     Parm m_Theta;
 };
 
+enum
+{
+    PARALLEL_NONE, PARALLEL_LEAD_EDGE, PARALLEL_TRAIL_EDGE
+};
+
 class FeaSpar : public FeaPart
 {
 public:
@@ -218,8 +223,8 @@ public:
     virtual void ComputePlanarSurf();
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight );
 
-    Parm m_PerU; // Percent U Location
-    Parm m_Alpha;
+    Parm m_PerV; // Percent V Location
+    //Parm m_Alpha;
     Parm m_Theta;
     //BoolParm m_TrimFlag;
     //Parm m_PlaneSurfLengthScale;

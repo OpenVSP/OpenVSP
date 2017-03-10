@@ -303,7 +303,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 620, "FEA Me
     m_SparEditLayout.AddChoice( m_SparPropertyChoice, "Property" );
 
     m_SparEditLayout.AddSlider( m_SparPosSlider, "Position", 1, "%5.3f" );
-    m_SparEditLayout.AddSlider( m_SparAlphaSlider, "Alpha", 25, "%5.3f" );
+    //m_SparEditLayout.AddSlider( m_SparAlphaSlider, "Alpha", 25, "%5.3f" );
     m_SparEditLayout.AddSlider( m_SparThetaSlider, "Theta", 25, "%5.3f" );
 
     //m_SparEditLayout.AddSlider( m_SparLengthScaleSlider, "Length Scale", 2, "%5.3f" );
@@ -1407,8 +1407,8 @@ bool StructScreen::Update()
 
                     m_CurrEditType = SPAR_EDIT;
 
-                    m_SparPosSlider.Update( spar->m_PerU.GetID() );
-                    m_SparAlphaSlider.Update( spar->m_Alpha.GetID() );
+                    m_SparPosSlider.Update( spar->m_PerV.GetID() );
+                    //m_SparAlphaSlider.Update( spar->m_Alpha.GetID() );
                     m_SparThetaSlider.Update( spar->m_Theta.GetID() );
                     //m_SparTrimButton.Update( spar->m_TrimFlag.GetID() );
 
