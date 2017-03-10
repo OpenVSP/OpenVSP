@@ -168,10 +168,15 @@ FeaPart* FeaStructure::AddFeaPart( int type )
         feaprt = new FeaFixPoint( m_ParentGeomID );
         feaprt->SetName( string( "FEA_FIX_POINT_" + std::to_string( m_FeaPartCount ) ) );
     }
-    else if ( type == vsp::FEA_STIFFENER )
+    else if ( type == vsp::FEA_STIFFENER_PLANE )
     {
-        feaprt = new FeaStiffener( m_ParentGeomID );
-        feaprt->SetName( string( "FEA_STIFFENER_" + std::to_string( m_FeaPartCount ) ) );
+        feaprt = new FeaStiffenerPlane( m_ParentGeomID );
+        feaprt->SetName( string( "FEA_STIFFENER_PLANE_" + std::to_string( m_FeaPartCount ) ) );
+    }
+    else if ( type == vsp::FEA_STIFFENER_SUB_SURF )
+    {
+        feaprt = new FeaStiffenerSubSurf( m_ParentGeomID );
+        feaprt->SetName( string( "FEA_STIFFENER_SUB_SURF_" + std::to_string( m_FeaPartCount ) ) );
     }
 
     if ( feaprt )
@@ -488,9 +493,13 @@ string FeaPart::GetTypeName( int type )
     {
         return string( "FeaFixPoint" );
     }
-    if ( type == vsp::FEA_STIFFENER )
+    if ( type == vsp::FEA_STIFFENER_PLANE )
     {
-        return string( "FeaStiffener" );
+        return string( "FeaStiffenerPlane" );
+    }
+    if ( type == vsp::FEA_STIFFENER_SUB_SURF )
+    {
+        return string( "FeaStiffenerSubSurf" );
     }
     if ( type == vsp::FEA_SUB_SURF )
     {
@@ -1042,105 +1051,185 @@ void FeaFixPoint::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool 
     }
 }
 
-
 ////////////////////////////////////////////////////
-//================= FeaStiffener ==================//
+//============== FeaStiffenerPlane ===============//
 ////////////////////////////////////////////////////
-
-FeaStiffener::FeaStiffener( string geomID, int type ) : FeaPart( geomID, type )
+FeaStiffenerPlane::FeaStiffenerPlane( string geomID, int type ) : FeaPart( geomID, type )
 {
-    m_StiffenerConstType.Init( "StiffenerConstType", "FeaNoDepth", this, CONST_U, 0, 1 );
-    m_StiffenerConstVal.Init( "StiffenerConstVal", "FeaNoDepth", this, 0.5, 0, 1 );
-    m_StiffenerConstVal.SetDescript( "Either the U or V value of the line depending on what constant line type is choosen." );
+    m_OrientationPlane.Init( "OrientationPlane", "FeaFullDepth", this, XY_PLANE, XY_PLANE, XZ_PLANE );
+    m_OrientationPlane.SetDescript( "Plane the FeaFullDepth Part will be Parallel to" );
 
-    m_FeaStiffenerSubSurf = new SSLine( geomID );
-    m_LVec.push_back( SSLineSeg() );
+    m_CenterPerBBoxLocation.Init( "CenterPerBBoxLocation", "FeaFullDepth", this, 0.5, 0.0, 1.0 );
+    m_CenterPerBBoxLocation.SetDescript( "The Location of the Center of the FeaFullDepth Part as a Percentage of the Total Bounding Box" );
+
+    m_Theta.Init( "Theta", "FeaFullDepth", this, 0.0, -90.0, 90.0 );
+
+    m_FeaPropertyIndex = 1; // Default beam property
 }
 
-void FeaStiffener::Update()
+void FeaStiffenerPlane::Update()
+{
+    ComputePlanarSurf();
+}
+
+void FeaStiffenerPlane::ComputePlanarSurf()
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        for ( unsigned int i = 0; i < m_SymmIndexVec.size(); i++ )
+        {
+            m_FeaPartSurfVec[i] = VspSurf();
+            m_FeaPartSurfVec[i].SetSurfCfdType( vsp::CFD_STRUCTURE );
+
+            Geom* current_geom = veh->FindGeom( m_ParentGeomID );
+
+            vector< VspSurf > surf_vec;
+            current_geom->GetSurfVec( surf_vec );
+            VspSurf current_surf = surf_vec[m_SymmIndexVec[i]];
+
+            BndBox geom_bbox;
+            current_surf.GetBoundingBox( geom_bbox );
+
+            vec3d geom_center = geom_bbox.GetCenter();
+
+            double del_x = geom_bbox.GetMax( 0 ) - geom_bbox.GetMin( 0 );
+            double del_y = geom_bbox.GetMax( 1 ) - geom_bbox.GetMin( 1 );
+            double del_z = geom_bbox.GetMax( 2 ) - geom_bbox.GetMin( 2 );
+
+            // Identify corners of the plane and rotation axis
+            vec3d cornerA, cornerB, cornerC, cornerD;
+            vec3d rot_axis;
+
+            if ( m_OrientationPlane() == XY_PLANE )
+            {
+                vec3d center_to_A = { -0.5 * del_x, -0.5 * del_y, 0.0 };
+                cornerA = geom_center + center_to_A;
+
+                vec3d center_to_B = { -0.5 * del_x, 0.5 * del_y, 0.0 };
+                cornerB = geom_center + center_to_B;
+
+                vec3d center_to_C = { 0.5 * del_x, -0.5 * del_y, 0.0 };
+                cornerC = geom_center + center_to_C;
+
+                vec3d center_to_D = { 0.5 * del_x, 0.5 * del_y, 0.0 };
+                cornerD = geom_center + center_to_D;
+
+                rot_axis.set_y( 1.0 ); // y-axis
+            }
+            else if ( m_OrientationPlane() == YZ_PLANE )
+            {
+                vec3d center_to_A = { 0.0, -0.5 * del_y, -0.5 * del_z };
+                cornerA = geom_center + center_to_A;
+
+                vec3d center_to_B = { 0.0, 0.5 * del_y, -0.5 * del_z };
+                cornerB = geom_center + center_to_B;
+
+                vec3d center_to_C = { 0.0, -0.5 * del_y, 0.5 * del_z };
+                cornerC = geom_center + center_to_C;
+
+                vec3d center_to_D = { 0.0, 0.5 * del_y, 0.5 * del_z };
+                cornerD = geom_center + center_to_D;
+
+                rot_axis.set_y( 1.0 ); // y-axis
+            }
+            else if ( m_OrientationPlane() == XZ_PLANE )
+            {
+                vec3d center_to_A = { -0.5 * del_x, 0.0, -0.5 * del_z };
+                cornerA = geom_center + center_to_A;
+
+                vec3d center_to_B = { 0.5 * del_x, 0.0, -0.5 * del_z };
+                cornerB = geom_center + center_to_B;
+
+                vec3d center_to_C = { -0.5 * del_x, 0.0, 0.5 * del_z };
+                cornerC = geom_center + center_to_C;
+
+                vec3d center_to_D = { 0.5 * del_x, 0.0, 0.5 * del_z };
+                cornerD = geom_center + center_to_D;
+
+                rot_axis.set_z( 1.0 ); // z-axis
+            }
+
+            // Make Planar Surface
+            m_FeaPartSurfVec[i].MakePlaneSurf( cornerA, cornerB, cornerC, cornerD );
+
+            // Translate to the origin, rotate, and translate back to m_CenterPerBBoxLocation
+            Matrix4d trans_mat_1, trans_mat_2, rot_mat;
+
+            trans_mat_1.loadIdentity();
+            trans_mat_1.translatef( geom_center.x() * -1, geom_center.y() * -1, geom_center.z() * -1 );
+            m_FeaPartSurfVec[i].Transform( trans_mat_1 );
+
+            rot_mat.loadIdentity();
+            rot_mat.rotate( DEG_2_RAD * m_Theta(), rot_axis );
+            m_FeaPartSurfVec[i].Transform( rot_mat );
+
+            trans_mat_2.loadIdentity();
+
+            if ( m_OrientationPlane() == XY_PLANE )
+            {
+                trans_mat_2.translatef( geom_center.x(), geom_center.y(), geom_bbox.GetMin( 2 ) + del_z * m_CenterPerBBoxLocation() );
+            }
+            else if ( m_OrientationPlane() == YZ_PLANE )
+            {
+                trans_mat_2.translatef( geom_bbox.GetMin( 0 ) + del_x * m_CenterPerBBoxLocation(), geom_center.y(), geom_center.z() );
+            }
+            else if ( m_OrientationPlane() == XZ_PLANE )
+            {
+                trans_mat_2.translatef( geom_center.x(), geom_bbox.GetMin( 1 ) + del_y * m_CenterPerBBoxLocation(), geom_center.z() );
+            }
+
+            m_FeaPartSurfVec[i].Transform( trans_mat_2 );
+        }
+    }
+}
+
+void FeaStiffenerPlane::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight )
+{
+    FeaPart::LoadDrawObjs( draw_obj_vec, id, highlight );
+}
+
+////////////////////////////////////////////////////
+//============= FeaStiffenerSubSurf ==============//
+////////////////////////////////////////////////////
+FeaStiffenerSubSurf::FeaStiffenerSubSurf( string geomID, int type ) : FeaPart( geomID, type )
+{
+    m_StiffenerConstType.Init( "StiffenerConstType", "FeaStiffener", this, CONST_U, CONST_U, CONST_V );
+
+    m_StiffenerConstVal.Init( "StiffenerConstVal", "FeaStiffener", this, 0.5, 0, 1 );
+    m_StiffenerConstVal.SetDescript( "Either the U or V value depending on what constant type is choosen." );
+
+    m_FeaPropertyIndex = 1; // Default beam property
+
+    m_FeaStiffenerSubSurf = new SSLine( m_ParentGeomID );
+}
+
+void FeaStiffenerSubSurf::Update()
 {
     m_FeaStiffenerSubSurf->m_ConstType.Set( m_StiffenerConstType() );
     m_FeaStiffenerSubSurf->m_ConstVal.Set( m_StiffenerConstVal() );
 
     m_FeaStiffenerSubSurf->Update();
-
-    ComputeEndPoints();
 }
 
-void FeaStiffener::ComputeEndPoints()
+void FeaStiffenerSubSurf::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight )
 {
-    Vehicle* veh = VehicleMgr.GetVehicle();
+    int begin_size = draw_obj_vec.size();
 
-    if ( veh )
+    m_FeaStiffenerSubSurf->LoadDrawObjs( draw_obj_vec );
+
+    int end_size = draw_obj_vec.size();
+
+    for ( unsigned int i = begin_size; i < end_size; i++ )
     {
-        if ( m_StiffenerConstType() == CONST_U )
+        if ( highlight )
         {
-            m_LVec[0].SetSP0( vec3d( m_StiffenerConstVal(), 1, 0 ) );
-            m_LVec[0].SetSP1( vec3d( m_StiffenerConstVal(), 0, 0 ) );
+            draw_obj_vec[i]->m_LineColor = vec3d( 1.0, 0.0, 0.0 );
         }
-        else if ( m_StiffenerConstType() == CONST_W )
+        else
         {
-            m_LVec[0].SetSP0( vec3d( 0, m_StiffenerConstVal(), 0 ) );
-            m_LVec[0].SetSP1( vec3d( 1, m_StiffenerConstVal(), 0 ) );
-        }
-
-        Geom* currgeom = veh->FindGeom( m_ParentGeomID );
-
-        if ( currgeom )
-        {
-            m_LVec[0].Update( currgeom );
-        }
-    }
-}
-
-void FeaStiffener::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight )
-{
-    Vehicle* veh = VehicleMgr.GetVehicle();
-    if ( veh )
-    {
-        Geom* currgeom = veh->FindGeom( m_ParentGeomID );
-
-        if ( currgeom )
-        {
-            m_FeaPartDO.resize( m_SymmIndexVec.size() );
-
-            for ( unsigned int i = 0; i < m_SymmIndexVec.size(); i++ )
-            {
-                vector< VspSurf > surf_vec;
-                currgeom->GetSurfVec( surf_vec );
-                VspSurf currsurf = surf_vec[m_SymmIndexVec[i]];
-
-                for ( int ls = 0; ls < (int)m_LVec.size(); ls++ )
-                {
-                    int num_pnts = 100;
-                    int *num_pnts_ptr = NULL;
-                    if ( num_pnts > 0 )
-                    {
-                        num_pnts_ptr = &num_pnts;
-                    }
-
-                    m_FeaPartDO[i].m_PntVec.clear();
-
-                    m_LVec[ls].UpdateDrawObj( &currsurf, currgeom, m_FeaPartDO[i], num_pnts_ptr );
-
-                    // Overwrite SSLineSeg settings
-                    m_FeaPartDO[i].m_GeomID = string( "FeaNoDepth_" + std::to_string( id ) + "_" + std::to_string( i ) );
-                    m_FeaPartDO[i].m_LineWidth = 2.0;
-
-                    if ( highlight )
-                    {
-                        m_FeaPartDO[i].m_LineColor = vec3d( 1.0, 0.0, 0.0 );
-                    }
-                    else
-                    {
-                        m_FeaPartDO[i].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
-                    }
-
-                    m_FeaPartDO[i].m_Type = DrawObj::VSP_LINES;
-                    m_FeaPartDO[i].m_GeomChanged = true;
-                    draw_obj_vec.push_back( &m_FeaPartDO[i] );
-                }
-            }
+            draw_obj_vec[i]->m_LineColor = vec3d( 96.0 / 255.0, 96.0 / 255.0, 96.0 / 255.0 );
         }
     }
 }

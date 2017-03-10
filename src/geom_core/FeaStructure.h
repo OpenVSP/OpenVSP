@@ -286,28 +286,49 @@ protected:
 
 enum
 {
-    CONST_U, CONST_W
+    CONST_U, CONST_V
 };
 
-class FeaStiffener : public FeaPart
+enum
+{
+    STIFFENER_PLANE, STIFFENER_SUBSURF
+};
+
+class FeaStiffenerPlane : public FeaPart
 {
 public:
 
-    FeaStiffener( string geomID, int type = vsp::FEA_STIFFENER );
-    virtual ~FeaStiffener()    {};
+    FeaStiffenerPlane( string geomID, int type = vsp::FEA_STIFFENER_PLANE );
+    virtual ~FeaStiffenerPlane()    {};
 
     virtual void Update();
 
-    virtual void ComputeEndPoints();
+    virtual void ComputePlanarSurf();
+
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight );
 
+    IntParm m_OrientationPlane;
+    Parm m_CenterPerBBoxLocation;
+    Parm m_Theta;
+};
+
+class FeaStiffenerSubSurf : public FeaPart
+{
+public:
+
+    FeaStiffenerSubSurf( string geomID, int type = vsp::FEA_STIFFENER_SUB_SURF );
+    virtual ~FeaStiffenerSubSurf()    {};
+
+    virtual void Update();
+
+    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight );
+
+    Parm m_StiffenerConstVal;
     IntParm m_StiffenerConstType; // Either constant u or constant w line
-    Parm m_StiffenerConstVal; // Either the const u value or const w value of line
 
 protected:
 
     SSLine* m_FeaStiffenerSubSurf;
-    vector < SSLineSeg > m_LVec;
 };
 
 class FeaSkin : public FeaPart

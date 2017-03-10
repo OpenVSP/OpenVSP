@@ -710,10 +710,17 @@ void FeaMeshMgrSingleton::AddStructureParts()
 
 
         }
-        else if ( FeaPartVec[i]->GetType() == vsp::FEA_STIFFENER )
+        else if ( FeaPartVec[i]->GetType() == vsp::FEA_STIFFENER_PLANE )
         {
-            FeaStiffener* stiffener = dynamic_cast<FeaStiffener*>( FeaPartVec[i] );
-            assert( stiffener );
+            FeaStiffenerPlane* stiffener_plane = dynamic_cast<FeaStiffenerPlane*>( FeaPartVec[i] );
+            assert( stiffener_plane );
+
+
+        }
+        else if ( FeaPartVec[i]->GetType() == vsp::FEA_STIFFENER_SUB_SURF )
+        {
+            FeaStiffenerSubSurf* stiffener_subsurf = dynamic_cast<FeaStiffenerSubSurf*>( FeaPartVec[i] );
+            assert( stiffener_subsurf );
 
 
         }
