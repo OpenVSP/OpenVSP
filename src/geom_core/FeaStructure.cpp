@@ -495,12 +495,12 @@ string FeaPart::GetTypeName( int type )
     return string( "NONE" );
 }
 
-void FeaPart::FetchFeaXFerSurf( vector< XferSurf > &xfersurfs )
+void FeaPart::FetchFeaXFerSurf( vector< XferSurf > &xfersurfs, int compid )
 {
     for ( int p = 0; p < m_FeaPartSurfVec.size(); p++ )
     {
         // CFD_STRUCTURE type surfaces have m_CompID == -9999
-        m_FeaPartSurfVec[p].FetchXFerSurf( m_ParentGeomID, m_MainSurfIndx(), -9999, xfersurfs );
+        m_FeaPartSurfVec[p].FetchXFerSurf( m_ParentGeomID, m_MainSurfIndx(), compid, xfersurfs );
     }
 }
 
@@ -1102,9 +1102,9 @@ void FeaSkin::BuildSkinSurf()
                 vector< VspSurf > surf_vec;
                 currgeom->GetSurfVec( surf_vec );
 
-                m_FeaPartSurfVec[i] = VspSurf( surf_vec[m_SymmIndexVec[i]] );
+                m_FeaPartSurfVec[i] = surf_vec[m_SymmIndexVec[i]];
 
-                m_FeaPartSurfVec[i].SetSurfCfdType( vsp::CFD_STRUCTURE );
+                m_FeaPartSurfVec[i].SetSurfCfdType( vsp::CFD_NORMAL );
             }
         }
     }

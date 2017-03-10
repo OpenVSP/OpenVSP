@@ -141,7 +141,7 @@ public:
 
     static string GetTypeName( int type );
 
-    virtual void FetchFeaXFerSurf( vector< XferSurf > &xfersurfs );
+    virtual void FetchFeaXFerSurf( vector< XferSurf > &xfersurfs, int compid );
 
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight );
 
