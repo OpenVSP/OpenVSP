@@ -209,6 +209,14 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 620, "FEA Me
 
     m_StructGroup.AddYGap();
 
+    m_StructWingGroup.SetGroupAndScreen( AddSubGroup( structTab, 5 ), this );
+    m_StructWingGroup.SetY( m_StructGroup.GetY() );
+
+    m_StructWingGroup.AddDividerBox( "Wing Functions" );
+
+    m_StructWingGroup.AddSlider( m_NumEvenlySpacedRibsInput, "Num Ribs", 10, "%5.0f" );
+    m_StructWingGroup.AddButton( m_AddEvenlySpacedRibsButton, "Add" );
+
     //=== Parts Tab ===//
     m_PartTabLayout.SetGroupAndScreen( partTabGroup, this );
 
@@ -1257,10 +1265,28 @@ void StructScreen::FeaPartDispGroup( GroupLayout* group )
     if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
     {
         m_StructGroup.Show();
+
+        FeaStructure* curr_struct = StructureMgr.GetAllFeaStructs()[m_SelectedStructIndex];
+
+        Vehicle*  veh = m_ScreenMgr->GetVehiclePtr();
+
+        if ( veh )
+        {
+            Geom* currgeom = veh->FindGeom( curr_struct->GetParentGeomID() );
+
+            if ( currgeom )
+            {
+                if ( currgeom->GetType().m_Type == MS_WING_GEOM_TYPE )
+                {
+                    m_StructWingGroup.Show();
+                }
+            }
+        }
     }
     else
     {
         m_StructGroup.Hide();
+        m_StructWingGroup.Hide();
     }
 
     m_FullDepthEditLayout.Hide();
@@ -1398,6 +1424,8 @@ bool StructScreen::Update()
             // Update Structure Name
             vector< FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
             m_FeaStructNameInput.Update( structVec[m_SelectedStructIndex]->GetFeaStructName() );
+
+            m_NumEvenlySpacedRibsInput.Update( veh->GetStructSettingsPtr()->m_NumEvenlySpacedPart.GetID() );
 
             // Update Current FeaPart
             FeaPart* feaprt = structVec[m_SelectedStructIndex]->GetFeaPart( m_SelectedPartIndex );
@@ -2002,6 +2030,17 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             FeaStructure* feastruct = structvec[m_SelectedStructIndex];
 
             feastruct->SetFeaStructName( m_FeaStructNameInput.GetString() );
+        }
+    }
+    else if ( device == &m_AddEvenlySpacedRibsButton )
+    {
+        if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
+        {
+            vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
+
+            FeaStructure* feastruct = structvec[m_SelectedStructIndex];
+
+            feastruct->AddEvenlySpacedRibs( veh->GetStructSettingsPtr()->m_NumEvenlySpacedPart.Get() );
         }
     }
     else if ( device == &m_FeaPartNameInput )

@@ -62,6 +62,8 @@ public:
         return m_FeaPartVec.size();
     }
 
+    virtual vector< FeaPart* > AddEvenlySpacedRibs( const int num_rib );
+
     virtual vector< FeaPart* > InitFeaSkin( );
     virtual FeaPart* GetFeaSkin( );
     virtual int GetNumFeaSkin();

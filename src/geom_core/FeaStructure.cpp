@@ -200,6 +200,47 @@ void FeaStructure::DelFeaPart( int ind )
 
 }
 
+vector < FeaPart* > FeaStructure::AddEvenlySpacedRibs( const int num_rib )
+{
+
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        Geom* current_wing = veh->FindGeom( m_ParentGeomID );
+
+        if ( current_wing )
+        {
+            vector< VspSurf > surf_vec;
+            current_wing->GetSurfVec( surf_vec );
+
+            VspSurf current_surf = surf_vec[m_MainSurfIndx];
+
+            double u_max = current_surf.GetUMax();
+
+            // TODO: Improve u_start and u_end assumption
+
+            double u_start = 1.0;
+            double u_end = u_max - 1.0;
+
+            double u_step = ( ( u_end - u_start ) / ( num_rib - 1 ) );
+
+            for ( unsigned int i = 0; i < num_rib; i++ )
+            {
+                FeaPart* part = AddFeaPart( vsp::FEA_RIB );
+
+                FeaRib* rib = dynamic_cast< FeaRib* >( part );
+
+                if ( rib )
+                {
+                    rib->m_PerU.Set( ( u_start + i * u_step ) / u_max );
+                    rib->Update();
+                }
+            }
+        }
+    }
+    return m_FeaPartVec;
+}
+
 //==== Highlight Active Subsurface ====//
 void FeaStructure::RecolorFeaSubSurfs( int active_ind )
 {

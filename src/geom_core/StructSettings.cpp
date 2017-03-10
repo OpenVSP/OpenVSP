@@ -38,6 +38,8 @@ StructSettings::StructSettings() : MeshCommonSettings()
     SetFarCompFlag( false );
     SetFarMeshFlag( false );
     SetSymSplittingOnFlag( false );
+
+    m_NumEvenlySpacedPart.Init( "NumEvenlySpacedPart", "StructSettings", this, 10, 0, 1000 );
 }
 
 StructSettings::~StructSettings()

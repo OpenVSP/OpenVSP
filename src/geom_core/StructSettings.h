@@ -49,6 +49,7 @@ public:
     void SetFileExportFlag( int type, bool flag );
 
     BoolParm m_ExportFileFlags[vsp::NUM_FEA_FILE_NAMES];
+    IntParm m_NumEvenlySpacedPart;
 
 protected:
 

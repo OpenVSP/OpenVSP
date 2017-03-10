@@ -86,6 +86,7 @@ private:
     GroupLayout m_BorderConsoleLayout;
     GroupLayout m_StructureTabLayout;
     GroupLayout m_StructGroup;
+    GroupLayout m_StructWingGroup;
     GroupLayout m_PartTabLayout;
     GroupLayout* m_CurFeaPartDispGroup;
     GroupLayout m_PartGroup;
@@ -160,6 +161,9 @@ private:
     StringInput m_FeaStructNameInput;
 
     Choice m_SkinPropertyChoice;
+
+    SliderAdjRangeInput m_NumEvenlySpacedRibsInput;
+    TriggerButton m_AddEvenlySpacedRibsButton;
 
     //===== FeaPart Tab Items =====//
 
