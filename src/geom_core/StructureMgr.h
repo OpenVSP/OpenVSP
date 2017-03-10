@@ -31,6 +31,9 @@ public:
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
+    virtual void Renew();
+    virtual void Wype();
+
     //==== FeaStructure Management ====//
     virtual vector < FeaStructure* > GetAllFeaStructs();
     virtual bool ValidTotalFeaStructInd( int index );

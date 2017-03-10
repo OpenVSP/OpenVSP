@@ -336,6 +336,7 @@ void Vehicle::Wype()
     ParasiteDragMgr.Renew();
     VSPAEROMgr.Renew();
     MeasureMgr.Renew();
+    StructureMgr.Renew();
 }
 
 void Vehicle::SetVSP3FileName( const string & f_name )

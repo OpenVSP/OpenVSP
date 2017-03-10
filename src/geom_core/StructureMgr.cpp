@@ -24,19 +24,7 @@ StructureMgrSingleton::StructureMgrSingleton()
 
 StructureMgrSingleton::~StructureMgrSingleton()
 {
-    // Delete FeaProperties
-    for ( int i = 0; i < (int)m_FeaPropertyVec.size(); i++ )
-    {
-        delete m_FeaPropertyVec[i];
-    }
-    m_FeaPropertyVec.clear();
 
-    // Delete FeaMaterials
-    for ( int i = 0; i < (int)m_FeaMaterialVec.size(); i++ )
-    {
-        delete m_FeaMaterialVec[i];
-    }
-    m_FeaMaterialVec.clear();
 }
 
 xmlNodePtr StructureMgrSingleton::EncodeXml( xmlNodePtr & node )
@@ -102,6 +90,30 @@ xmlNodePtr StructureMgrSingleton::DecodeXml( xmlNodePtr & node )
     }
 
     return node;
+}
+
+void StructureMgrSingleton::Renew()
+{
+    Wype();
+    InitFeaMaterials();
+    InitFeaProperties();
+}
+
+void StructureMgrSingleton::Wype()
+{
+    // Delete FeaProperties
+    for ( int i = 0; i < (int)m_FeaPropertyVec.size(); i++ )
+    {
+        delete m_FeaPropertyVec[i];
+    }
+    m_FeaPropertyVec.clear();
+
+    // Delete FeaMaterials
+    for ( int i = 0; i < (int)m_FeaMaterialVec.size(); i++ )
+    {
+        delete m_FeaMaterialVec[i];
+    }
+    m_FeaMaterialVec.clear();
 }
 
 //==== Get All FeaStructures ====//
