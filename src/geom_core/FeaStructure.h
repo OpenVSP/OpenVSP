@@ -331,6 +331,8 @@ public:
     Parm m_Izy;
     Parm m_Ixx;
 
+    bool m_UserFeaProperty;
+
 protected:
 
     int m_FeaMaterialIndex;

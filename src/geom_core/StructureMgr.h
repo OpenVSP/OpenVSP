@@ -56,6 +56,7 @@ public:
     {
         return m_FeaPropertyVec.size();
     }
+    virtual void InitFeaProperties();
 
     //==== FeaMaterial Management ====//
     virtual void AddFeaMaterial( FeaMaterial* fea_mat )

@@ -57,7 +57,7 @@ SubSurface::SubSurface( string compID, int type )
     m_TawTwRatio.Init("TawTwRatio", "ParasiteDragProps", this, -1, -1, 1e6 );
     m_TawTwRatio.SetDescript("Temperature Ratio of Ambient Wall to Wall" );
 
-    m_FeaPropertyIndex = -1;
+    m_FeaPropertyIndex = 0; // Shell Property Default
 }
 
 SubSurface::~SubSurface()

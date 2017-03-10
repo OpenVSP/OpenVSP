@@ -395,7 +395,7 @@ FeaPart::FeaPart( string geomID, int type )
     m_MainSurfIndx.Init( "MainSurfIndx", "FeaStructure", this, -1, -1, 1e12 );
     m_MainSurfIndx.SetDescript( "Surface Index for FeaStructure" );
 
-    m_FeaPropertyIndex = -1;
+    m_FeaPropertyIndex = 0; // Shell property default
 }
 
 FeaPart::~FeaPart()
@@ -1137,7 +1137,7 @@ FeaProperty::FeaProperty() : ParmContainer()
     m_Ixx.Init( "Izz", "FeaProperty", this, 0.0, -1.0e12, 1.0e12 );
     m_Ixx.SetDescript( "Torsional Constant About FeaElement Neutral Axis (J)" );
 
-    m_FeaMaterialIndex = -1;
+    m_FeaMaterialIndex = 0;
 }
 
 FeaProperty::~FeaProperty()
