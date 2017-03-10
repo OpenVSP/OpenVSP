@@ -1260,6 +1260,34 @@ void StructScreen::FeaPropertyDispGroup( GroupLayout* group )
     }
 }
 
+void StructScreen::UpdateFeaPartPropertyIndex( Choice* property_choice )
+{
+    if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
+    {
+        vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
+        FeaPart* feaprt = structvec[m_SelectedStructIndex]->GetFeaPart( m_SelectedPartIndex );
+
+        if ( feaprt )
+        {
+            feaprt->SetFeaPropertyIndex( property_choice->GetVal() );
+        }
+    }
+}
+
+void StructScreen::UpdateFeaSubSurfPropertyIndex( Choice* property_choice )
+{
+    if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
+    {
+        vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
+        SubSurface* subsurf = structvec[m_SelectedStructIndex]->GetFeaSubSurf( m_SelectedSubSurfIndex );
+
+        if ( subsurf )
+        {
+            subsurf->SetFeaPropertyIndex( property_choice->GetVal() );
+        }
+    }
+}
+
 bool StructScreen::Update()
 {
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
@@ -2062,29 +2090,11 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_RibPropertyChoice )
     {
-        if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
-        {
-            vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
-            FeaPart* feaprt = structvec[m_SelectedStructIndex]->GetFeaPart( m_SelectedPartIndex );
-
-            if ( feaprt )
-            {
-                feaprt->SetFeaPropertyIndex( m_RibPropertyChoice.GetVal() );
-            }
-        }
+        UpdateFeaPartPropertyIndex( &m_RibPropertyChoice );
     }
     else if ( device == &m_SparPropertyChoice )
     {
-        if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
-        {
-            vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
-            FeaPart* feaprt = structvec[m_SelectedStructIndex]->GetFeaPart( m_SelectedPartIndex );
-
-            if ( feaprt )
-            {
-                feaprt->SetFeaPropertyIndex( m_SparPropertyChoice.GetVal() );
-            }
-        }
+        UpdateFeaPartPropertyIndex( &m_SparPropertyChoice );
     }
     else if ( device == &m_StiffenerPropertyChoice )
     {
@@ -2101,55 +2111,19 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_FeaSSLinePropertyChoice )
     {
-        if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
-        {
-            vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
-            SubSurface* subsurf = structvec[m_SelectedStructIndex]->GetFeaSubSurf( m_SelectedSubSurfIndex );
-
-            if ( subsurf )
-            {
-                subsurf->SetFeaPropertyIndex( m_FeaSSLinePropertyChoice.GetVal() );
-            }
-        }
+        UpdateFeaSubSurfPropertyIndex( &m_FeaSSLinePropertyChoice );
     }
     else if ( device == &m_FeaSSRecPropertyChoice )
     {
-        if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
-        {
-            vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
-            SubSurface* subsurf = structvec[m_SelectedStructIndex]->GetFeaSubSurf( m_SelectedSubSurfIndex );
-
-            if ( subsurf )
-            {
-                subsurf->SetFeaPropertyIndex( m_FeaSSRecPropertyChoice.GetVal() );
-            }
-        }
+        UpdateFeaSubSurfPropertyIndex( &m_FeaSSRecPropertyChoice );
     }
     else if ( device == &m_FeaSSEllPropertyChoice )
     {
-        if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
-        {
-            vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
-            SubSurface* subsurf = structvec[m_SelectedStructIndex]->GetFeaSubSurf( m_SelectedSubSurfIndex );
-
-            if ( subsurf )
-            {
-                subsurf->SetFeaPropertyIndex( m_FeaSSEllPropertyChoice.GetVal() );
-            }
-        }
+        UpdateFeaSubSurfPropertyIndex( &m_FeaSSEllPropertyChoice );
     }
     else if ( device == &m_FeaSSConPropertyChoice )
     {
-        if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
-        {
-            vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
-            SubSurface* subsurf = structvec[m_SelectedStructIndex]->GetFeaSubSurf( m_SelectedSubSurfIndex );
-
-            if ( subsurf )
-            {
-                subsurf->SetFeaPropertyIndex( m_FeaSSConPropertyChoice.GetVal() );
-            }
-        }
+        UpdateFeaSubSurfPropertyIndex( &m_FeaSSConPropertyChoice );
     }
     else if ( device == &m_AddFeaMaterialButton )
     {

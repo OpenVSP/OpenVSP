@@ -42,6 +42,9 @@ public:
     virtual void UpdateFeaMaterialBrowser();
     virtual void UpdateFeaMaterialChoice();
 
+    virtual void UpdateFeaPartPropertyIndex( Choice* property_choice );
+    virtual void UpdateFeaSubSurfPropertyIndex( Choice* property_choice );
+
     virtual void Show();
 
     virtual void GuiDeviceCallBack( GuiDevice* device );
