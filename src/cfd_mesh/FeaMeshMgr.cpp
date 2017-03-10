@@ -569,11 +569,8 @@ void FeaMeshMgrSingleton::LoadSkins()
     // Load Skin XFerSurf to m_SurfVec
     LoadSurfs( skinxfersurfs );
 
-    // Identify the FeaPart Type and ID. Add to m_FeaSkinSurfVec
-    int begin = m_SurfVec.size() - skinxfersurfs.size();
-    int end = m_SurfVec.size();
-
-    for ( int j = begin; j < end; j++ )
+    // Not sure this is needed, could possibly be done in Fetch call above.
+    for ( int j = 0; j < m_SurfVec.size(); j++ )
     {
         Surf* ssurf = m_SurfVec[j];
         ssurf->SetFeaPartType( vsp::FEA_SKIN );
