@@ -654,43 +654,6 @@ void FeaMeshMgrSingleton::ExportFeaMesh()
     //AddFeaOutputText( "Finished\n" );
 }
 
-void FeaMeshMgrSingleton::Intersect()
-{
-    if ( GetStructSettingsPtr()->GetIntersectSubSurfs() ) BuildSubSurfIntChains();
-
-    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
-        for ( int j = i + 1 ; j < ( int )m_SurfVec.size() ; j++ )
-        {
-            m_SurfVec[i]->Intersect( m_SurfVec[j], this );
-        }
-
-    addOutputText( "Build Chains\n" );
-    BuildChains();
-//DebugWriteChains("Intersect_UW", false );
-    //if ( !m_BatchFlag )
-    //  m_Vehicle->getScreenMgr()->getFeaStructScreen()->addOutputText( "Merge Chains\n" );
-//  MergeChains();
-//DebugWriteChains("MergeChains_UW", false );
-
-    addOutputText( "Load Border Curves\n" );
-    LoadBorderCurves();
-
-    addOutputText( "Merge Interior Chains IPnts\n" );
-    MergeInteriorChainIPnts();
-//DebugWriteChains("MergeInterior_UW", false );
-
-    addOutputText( "Split Border Curves\n" );
-    SplitBorderCurves();
-//DebugWriteChains("BorderSplit_UW", false );
-
-    addOutputText( "Intersect Split Chains\n" );
-    IntersectSplitChains();
-//DebugWriteChains("IntersectSplit_UW", false );
-
-    addOutputText( "Build Curves\n" );
-    BuildCurves(); // Slows or gets into endless loop before here
-}
-
 void FeaMeshMgrSingleton::AddStructureParts()
 {
     vector < FeaPart* > FeaPartVec = m_FeaMeshStruct->GetFeaPartVec();

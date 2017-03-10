@@ -108,7 +108,6 @@ public:
     virtual void LoadSkins();
     virtual void GenerateFeaMesh();
     virtual void ExportFeaMesh();
-    virtual void Intersect();
 
     virtual void AddStructureParts();
 
