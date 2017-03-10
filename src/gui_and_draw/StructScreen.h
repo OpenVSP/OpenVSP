@@ -89,6 +89,7 @@ private:
     GroupLayout m_PartTabLayout;
     GroupLayout* m_CurFeaPartDispGroup;
     GroupLayout m_PartGroup;
+    GroupLayout m_FullDepthEditLayout;
     GroupLayout m_RibEditLayout;
     GroupLayout m_SparEditLayout;
     GroupLayout m_UpSkinEditLayout;
@@ -167,6 +168,13 @@ private:
 
     TriggerButton m_AddFeaPartButton;
     TriggerButton m_DelFeaPartButton;
+
+    //===== FullDepth =====//
+    Choice m_FullDepthPropertyChoice;
+
+    Choice m_FullDepthOrientationChoice;
+    SliderAdjRangeInput m_FullDepthCenterLocSlider;
+    SliderAdjRangeInput m_FullDepthThetaSlider;
 
     //===== Rib =====//
     Choice m_RibPropertyChoice;

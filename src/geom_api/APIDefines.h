@@ -328,7 +328,8 @@ enum SUBSURF_INOUT { INSIDE,
                      OUTSIDE
                    };
 
-enum FEA_STRUCT_TYPE { FEA_RIB,
+enum FEA_STRUCT_TYPE { FEA_FULL_DEPTH,
+                       FEA_RIB,
                        FEA_SPAR,
                        FEA_FIX_POINT,
                        FEA_STIFFENER,

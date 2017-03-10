@@ -252,6 +252,25 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 620, "FEA Me
     // Indivdual FeaPart Parameters:
     int start_y = m_PartGroup.GetY();
 
+    //==== FeaFullDepth ====//
+    m_FullDepthEditLayout.SetGroupAndScreen( AddSubGroup( partTab, 5 ), this );
+    m_FullDepthEditLayout.SetY( start_y );
+
+    m_FullDepthEditLayout.AddDividerBox( "FullDepth" );
+
+    m_FullDepthEditLayout.SetButtonWidth( buttonwidth );
+    m_FullDepthEditLayout.SetChoiceButtonWidth( buttonwidth );
+
+    m_FullDepthEditLayout.AddChoice( m_FullDepthPropertyChoice, "Property" );
+
+    m_FullDepthOrientationChoice.AddItem( "XY Plane" );
+    m_FullDepthOrientationChoice.AddItem( "YZ Plane" );
+    m_FullDepthOrientationChoice.AddItem( "XZ Plane" );
+    m_FullDepthEditLayout.AddChoice( m_FullDepthOrientationChoice, "Orientation" );
+
+    m_FullDepthEditLayout.AddSlider( m_FullDepthCenterLocSlider, "Position", 1, "%5.3f" );
+    m_FullDepthEditLayout.AddSlider( m_FullDepthThetaSlider, "Theta", 25, "%5.3f" );
+
     //==== FeaRib ====//
     m_RibEditLayout.SetGroupAndScreen( AddSubGroup( partTab, 5 ), this );
     m_RibEditLayout.SetY( start_y );
@@ -909,6 +928,7 @@ void StructScreen::UpdateFeaPartChoice()
 
             if ( currgeom )
             {
+                m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_FULL_DEPTH ) );
                 m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_RIB ) );
                 m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_SPAR ) );
                 m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_FIX_POINT ) );
@@ -1010,6 +1030,7 @@ void StructScreen::UpdateFeaPropertyChoice()
 {
     //==== Property Choice ====//
     m_SkinPropertyChoice.ClearItems();
+    m_FullDepthPropertyChoice.ClearItems();
     m_RibPropertyChoice.ClearItems();
     m_SparPropertyChoice.ClearItems();
     m_StiffenerPropertyChoice.ClearItems();
@@ -1029,6 +1050,7 @@ void StructScreen::UpdateFeaPropertyChoice()
             // TODO: Deactivate choices for incompatable property type to maintain indexing. 
 
             m_SkinPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
+            m_FullDepthPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_RibPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_SparPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_FeaSSLinePropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
@@ -1041,6 +1063,7 @@ void StructScreen::UpdateFeaPropertyChoice()
             if ( property_vec[i]->m_FeaPropertyType() == SHELL_PROPERTY )
             {
                 m_SkinPropertyChoice.SetFlag( i, 0 );
+                m_FullDepthPropertyChoice.SetFlag( i, 0 );
                 m_RibPropertyChoice.SetFlag( i, 0 );
                 m_SparPropertyChoice.SetFlag( i, 0 );
                 m_FeaSSLinePropertyChoice.SetFlag( i, 0 );
@@ -1053,6 +1076,7 @@ void StructScreen::UpdateFeaPropertyChoice()
             else if ( property_vec[i]->m_FeaPropertyType() == BEAM_PROPERTY )
             {
                 m_SkinPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
+                m_FullDepthPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_RibPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_SparPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_FeaSSLinePropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
@@ -1064,6 +1088,7 @@ void StructScreen::UpdateFeaPropertyChoice()
             }
         }
         m_SkinPropertyChoice.UpdateItems();
+        m_FullDepthPropertyChoice.UpdateItems();
         m_RibPropertyChoice.UpdateItems();
         m_SparPropertyChoice.UpdateItems();
         m_StiffenerPropertyChoice.UpdateItems();
@@ -1087,6 +1112,7 @@ void StructScreen::UpdateFeaPropertyChoice()
             if ( feaprt )
             {
                 // Update all FeaPart Property Choices ( Only Selected Part Visible )
+                m_FullDepthPropertyChoice.SetVal( feaprt->GetFeaPropertyIndex() );
                 m_RibPropertyChoice.SetVal( feaprt->GetFeaPropertyIndex() );
                 m_SparPropertyChoice.SetVal( feaprt->GetFeaPropertyIndex() );
                 m_StiffenerPropertyChoice.SetVal( feaprt->GetFeaPropertyIndex() );
@@ -1203,6 +1229,7 @@ void StructScreen::FeaPartDispGroup( GroupLayout* group )
         m_StructGroup.Hide();
     }
 
+    m_FullDepthEditLayout.Hide();
     m_RibEditLayout.Hide();
     m_SparEditLayout.Hide();
     m_FixPointEditLayout.Hide();
@@ -1343,7 +1370,20 @@ bool StructScreen::Update()
             if ( feaprt )
             {
                 m_FeaPartNameInput.Update( feaprt->GetName() );
-                if ( feaprt->GetType() == vsp::FEA_RIB )
+                if ( feaprt->GetType() == vsp::FEA_FULL_DEPTH )
+                {
+                    FeaFullDepth* fulldepth = dynamic_cast<FeaFullDepth*>( feaprt );
+                    assert( fulldepth );
+
+                    m_CurrEditType = FULL_DEPTH_EDIT;
+
+                    m_FullDepthOrientationChoice.Update( fulldepth->m_OrientationPlane.GetID() );
+                    m_FullDepthCenterLocSlider.Update( fulldepth->m_CenterPerBBoxLocation.GetID() );
+                    m_FullDepthThetaSlider.Update( fulldepth->m_Theta.GetID() );
+
+                    FeaPartDispGroup( &m_FullDepthEditLayout );
+                }
+                else if ( feaprt->GetType() == vsp::FEA_RIB )
                 {
                     FeaRib* rib = dynamic_cast<FeaRib*>( feaprt );
                     assert( rib );
@@ -1936,7 +1976,11 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
 
             FeaPart* feaprt = NULL;
-            if ( m_FeaPartChoice.GetVal() == vsp::FEA_RIB )
+            if ( m_FeaPartChoice.GetVal() == vsp::FEA_FULL_DEPTH )
+            {
+                feaprt = structvec[m_SelectedStructIndex]->AddFeaPart( vsp::FEA_FULL_DEPTH );
+            }
+            else if ( m_FeaPartChoice.GetVal() == vsp::FEA_RIB )
             {
                 feaprt = structvec[m_SelectedStructIndex]->AddFeaPart( vsp::FEA_RIB );
             }
@@ -2087,6 +2131,10 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
                 feaskin->SetFeaPropertyIndex( m_SkinPropertyChoice.GetVal() );
             }
         }
+    }
+    else if ( device == &m_FullDepthPropertyChoice )
+    {
+        UpdateFeaPartPropertyIndex( &m_FullDepthPropertyChoice );
     }
     else if ( device == &m_RibPropertyChoice )
     {
@@ -2265,7 +2313,18 @@ void StructScreen::UpdateDrawObjs( vector< DrawObj* > &draw_obj_vec )
             {
                 int type = partvec[i]->GetType();
 
-                if ( type == vsp::FEA_RIB )
+                if ( type == vsp::FEA_FULL_DEPTH )
+                {
+                    FeaFullDepth* fulldepth = dynamic_cast<FeaFullDepth*>( partvec[i] );
+                    assert( fulldepth );
+
+                    if ( m_CurrEditType == FULL_DEPTH_EDIT && partvec[i] == curr_part )
+                        fulldepth->LoadDrawObjs( draw_obj_vec, k, true );
+                    else
+                        fulldepth->LoadDrawObjs( draw_obj_vec, k, false );
+                    k++;
+                }
+                else if ( type == vsp::FEA_RIB )
                 {
                     FeaRib* rib = dynamic_cast<FeaRib*>( partvec[i] );
                     assert( rib );

@@ -184,6 +184,28 @@ protected:
     vector < DrawObj > m_FeaPartDO;
 };
 
+enum
+{
+    XY_PLANE, YZ_PLANE, XZ_PLANE
+};
+
+class FeaFullDepth : public FeaPart
+{
+public:
+
+    FeaFullDepth( string geomID, int type = vsp::FEA_FULL_DEPTH );
+    virtual ~FeaFullDepth()    {};
+
+    virtual void Update();
+
+    virtual void ComputePlanarSurf();
+    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight );
+
+    IntParm m_OrientationPlane;
+    Parm m_CenterPerBBoxLocation;
+    Parm m_Theta;
+};
+
 class FeaSpar : public FeaPart
 {
 public:
