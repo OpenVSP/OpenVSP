@@ -35,6 +35,7 @@ public:
     virtual void UpdateFeaPartBrowser();
     virtual void UpdateFeaSubSurfBrowser();
     virtual void UpdateMainSurfChoice();
+    virtual void UpdateFeaPartChoice();
     virtual void UpdateSubSurfChoice();
     virtual void UpdateFeaPropertyBrowser();
     virtual void UpdateFeaPropertyChoice();
@@ -331,6 +332,7 @@ private:
     int m_SelectedStructIndex;
     int m_SelectedPartIndex;
     int m_SelectedSubSurfIndex;
+    int m_SelectedFeaPartChoice;
     int m_SelectedSubSurfChoice;
     int m_SelectedMaterialIndex;
     int m_SelectedPropertyIndex;

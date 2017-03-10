@@ -221,11 +221,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 620, "FEA Me
     m_FeaPartSelectBrowser->textsize( 12 );
     m_FeaPartSelectBrowser->callback( staticScreenCB, this );
 
-    m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_RIB ) );
-    m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_SPAR ) );
-    m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_FIX_POINT ) );
-    m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_STIFFENER ) );
-
     m_PartTabLayout.SetChoiceButtonWidth( buttonwidth );
 
     m_PartTabLayout.AddChoice( m_FeaPartChoice, "Type" );
@@ -684,10 +679,12 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 620, "FEA Me
 
     m_MaterialEditSubGroup.AddYGap();
 
+    // Set initial values
     m_FeaCurrMainSurfIndx = 0;
     m_SelectedStructIndex = -1;
     m_SelectedPartIndex = -1;
     m_SelectedSubSurfIndex = -1;
+    m_SelectedFeaPartChoice = 0;
     m_SelectedSubSurfChoice = 0;
     m_SelectedMaterialIndex = -1;
     m_SelectedPropertyIndex = -1;
@@ -895,6 +892,46 @@ void StructScreen::UpdateMainSurfChoice()
     }
 }
 
+void StructScreen::UpdateFeaPartChoice()
+{
+    //==== FeaPart Type Choice ====//
+    m_FeaPartChoice.ClearItems();
+
+    Vehicle*  veh = m_ScreenMgr->GetVehiclePtr();
+
+    if ( veh )
+    {
+        if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
+        {
+            FeaStructure* curr_struct = StructureMgr.GetAllFeaStructs()[m_SelectedStructIndex];
+
+            Geom* currgeom = veh->FindGeom( curr_struct->GetParentGeomID() );
+
+            if ( currgeom )
+            {
+                m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_RIB ) );
+                m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_SPAR ) );
+                m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_FIX_POINT ) );
+
+                if ( currgeom->GetType().m_Type == MS_WING_GEOM_TYPE )
+                {
+                    m_FeaPartChoice.SetFlag( 1, 0 ); // FEA_RIB
+                    m_FeaPartChoice.SetFlag( 2, 0 ); // FEA_SPAR
+                }
+                else
+                {
+                    m_FeaPartChoice.SetFlag( 1, FL_MENU_INACTIVE );
+                    m_FeaPartChoice.SetFlag( 2, FL_MENU_INACTIVE );
+                }
+
+                m_FeaPartChoice.UpdateItems();
+
+                m_FeaPartChoice.SetVal( m_SelectedFeaPartChoice );
+            }
+        }
+    }
+}
+
 void StructScreen::UpdateSubSurfChoice()
 {
     //==== SubSurf Type Choice ====//
@@ -904,29 +941,33 @@ void StructScreen::UpdateSubSurfChoice()
 
     if ( veh )
     {
-        Geom* currgeom = veh->FindGeom( m_SelectedGeomID );
-
-        if ( currgeom )
+        if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
         {
-            m_FeaSubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_LINE ) );
-            m_FeaSubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_RECTANGLE ) );
-            m_FeaSubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_ELLIPSE ) );
+            FeaStructure* curr_struct = StructureMgr.GetAllFeaStructs()[m_SelectedStructIndex];
 
-            int nchoice = 3;
-
-            if ( currgeom->GetType().m_Type == MS_WING_GEOM_TYPE )
+            Geom* currgeom = veh->FindGeom( curr_struct->GetParentGeomID() );
+            if ( currgeom )
             {
-                m_FeaSubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_CONTROL ) );
-                nchoice++;
-            }
+                m_FeaSubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_LINE ) );
+                m_FeaSubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_RECTANGLE ) );
+                m_FeaSubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_ELLIPSE ) );
 
-            m_FeaSubSurfChoice.UpdateItems();
+                int nchoice = 3;
 
-            if ( m_SelectedSubSurfChoice < 0 || m_SelectedSubSurfChoice >= nchoice )
-            {
-                m_SelectedSubSurfChoice = 0;
+                if ( currgeom->GetType().m_Type == MS_WING_GEOM_TYPE )
+                {
+                    m_FeaSubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_CONTROL ) );
+                    nchoice++;
+                }
+
+                m_FeaSubSurfChoice.UpdateItems();
+
+                if ( m_SelectedSubSurfChoice < 0 || m_SelectedSubSurfChoice >= nchoice )
+                {
+                    m_SelectedSubSurfChoice = 0;
+                }
+                m_FeaSubSurfChoice.SetVal( m_SelectedSubSurfChoice );
             }
-            m_FeaSubSurfChoice.SetVal( m_SelectedSubSurfChoice );
         }
     }
 }
@@ -1252,6 +1293,9 @@ bool StructScreen::Update()
 
         //===== FeaPart Browser Update =====//
         UpdateFeaPartBrowser();
+
+        //==== Update FeaPart Choice ====//
+        UpdateFeaPartChoice();
 
         //==== Update SubSurface Choice ====//
         UpdateSubSurfChoice();
@@ -1852,6 +1896,10 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             feaprt->SetName( m_FeaPartNameInput.GetString() );
         }
+    }
+    else if ( device == &m_FeaPartChoice )
+    {
+        m_SelectedFeaPartChoice = m_FeaPartChoice.GetVal();
     }
     else if ( device == &m_AddFeaPartButton )
     {
