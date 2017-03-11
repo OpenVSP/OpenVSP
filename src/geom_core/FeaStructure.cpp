@@ -312,7 +312,6 @@ void FeaStructure::DelFeaSubSurf( int ind )
         delete m_FeaSubSurfVec[ind];
         m_FeaSubSurfVec.erase( m_FeaSubSurfVec.begin() + ind );
     }
-
 }
 
 SubSurface* FeaStructure::GetFeaSubSurf( int ind )
@@ -365,7 +364,6 @@ vector < FeaPart* > FeaStructure::InitFeaSkin()
                 feaskin->m_MainSurfIndx.Set( m_MainSurfIndx );
 
                 m_FeaPartVec.push_back( feaskin );
-                //m_FeaPartCount++; // ?
             }
         }
     }
@@ -456,7 +454,7 @@ FeaPart::~FeaPart()
 
 void FeaPart::Update()
 {
-    UpdateSymmetricSurfs();
+
 }
 
 void FeaPart::ParmChanged( Parm* parm_ptr, int type )
@@ -621,15 +619,24 @@ int FeaPart::GetFeaMaterialIndex()
 {
     FeaProperty* fea_prop = StructureMgr.GetFeaProperty( m_FeaPropertyIndex );
 
-    return fea_prop->GetFeaMaterialIndex();
-
+    if ( fea_prop )
+    {
+        return fea_prop->GetFeaMaterialIndex();
+    }
+    else
+    {
+        return -1;
+    }
 }
 
 void FeaPart::SetFeaMaterialIndex( int index )
 {
     FeaProperty* fea_prop = StructureMgr.GetFeaProperty( m_FeaPropertyIndex );
 
-    fea_prop->SetFeaMaterialIndex( index );
+    if ( fea_prop )
+    {
+        fea_prop->SetFeaMaterialIndex( index );
+    }
 }
 
 //////////////////////////////////////////////////////
@@ -664,6 +671,10 @@ void FeaFullDepth::ComputePlanarSurf()
             m_FeaPartSurfVec[i].SetSurfCfdType( vsp::CFD_STRUCTURE );
 
             Geom* current_geom = veh->FindGeom( m_ParentGeomID );
+            if ( !current_geom )
+            {
+                return;
+            }
 
             vector< VspSurf > surf_vec;
             current_geom->GetSurfVec( surf_vec );
@@ -805,6 +816,11 @@ void FeaSpar::ComputePlanarSurf()
 
             Geom* current_wing = veh->FindGeom( m_ParentGeomID );
 
+            if ( !current_wing )
+            {
+                return;
+            }
+
             vector< VspSurf > surf_vec;
             current_wing->GetSurfVec( surf_vec );
             VspSurf wing_surf = surf_vec[m_SymmIndexVec[i]];
@@ -923,6 +939,11 @@ void FeaRib::ComputePlanarSurf()
             m_FeaPartSurfVec[i].SetSurfCfdType( vsp::CFD_STRUCTURE );
 
             Geom* current_wing = veh->FindGeom( m_ParentGeomID );
+
+            if ( !current_wing )
+            {
+                return;
+            }
 
             vector< VspSurf > surf_vec;
             current_wing->GetSurfVec( surf_vec );
@@ -1126,6 +1147,11 @@ void FeaStiffenerPlane::ComputePlanarSurf()
 
             Geom* current_geom = veh->FindGeom( m_ParentGeomID );
 
+            if ( !current_geom )
+            {
+                return;
+            }
+
             vector< VspSurf > surf_vec;
             current_geom->GetSurfVec( surf_vec );
             VspSurf current_surf = surf_vec[m_SymmIndexVec[i]];
@@ -1248,17 +1274,23 @@ FeaStiffenerSubSurf::FeaStiffenerSubSurf( string geomID, int type ) : FeaPart( g
 
 void FeaStiffenerSubSurf::Update()
 {
-    m_FeaStiffenerSubSurf->m_ConstType.Set( m_StiffenerConstType() );
-    m_FeaStiffenerSubSurf->m_ConstVal.Set( m_StiffenerConstVal() );
+    if ( m_FeaStiffenerSubSurf )
+    {
+        m_FeaStiffenerSubSurf->m_ConstType.Set( m_StiffenerConstType() );
+        m_FeaStiffenerSubSurf->m_ConstVal.Set( m_StiffenerConstVal() );
 
-    m_FeaStiffenerSubSurf->Update();
+        m_FeaStiffenerSubSurf->Update();
+    }
 }
 
 void FeaStiffenerSubSurf::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight )
 {
     int begin_size = draw_obj_vec.size();
 
-    m_FeaStiffenerSubSurf->LoadDrawObjs( draw_obj_vec );
+    if ( m_FeaStiffenerSubSurf )
+    {
+        m_FeaStiffenerSubSurf->LoadDrawObjs( draw_obj_vec );
+    }
 
     int end_size = draw_obj_vec.size();
 
@@ -1407,15 +1439,18 @@ void FeaProperty::WriteCalculix( FILE* fp, string ELSET )
 {
     FeaMaterial* fea_mat = StructureMgr.GetFeaMaterial( m_FeaMaterialIndex );
 
-    if ( m_FeaPropertyType() == SHELL_PROPERTY )
+    if ( fea_mat )
     {
-        fprintf( fp, "*SHELL GENERAL SECTION, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), fea_mat->GetName().c_str() );
-        fprintf( fp, "%g,\n", m_Thickness() );
-    }
-    if ( m_FeaPropertyType() == BEAM_PROPERTY )
-    {
-        fprintf( fp, "*BEAM GENERAL SECTION, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), fea_mat->GetName().c_str() );
-        fprintf( fp, "%g,%g,%g,%g,%g\n", m_CrossSecArea(), m_Izz(), m_Izy(), m_Iyy(), m_Ixx() );
+        if ( m_FeaPropertyType() == SHELL_PROPERTY )
+        {
+            fprintf( fp, "*SHELL GENERAL SECTION, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), fea_mat->GetName().c_str() );
+            fprintf( fp, "%g,\n", m_Thickness() );
+        }
+        if ( m_FeaPropertyType() == BEAM_PROPERTY )
+        {
+            fprintf( fp, "*BEAM GENERAL SECTION, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), fea_mat->GetName().c_str() );
+            fprintf( fp, "%g,%g,%g,%g,%g\n", m_CrossSecArea(), m_Izz(), m_Izy(), m_Iyy(), m_Ixx() );
+        }
     }
 }
 

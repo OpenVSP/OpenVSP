@@ -65,10 +65,14 @@ xmlNodePtr StructureMgrSingleton::DecodeXml( xmlNodePtr & node )
             if ( prop_info )
             {
                 FeaProperty* fea_prop = new FeaProperty();
-                fea_prop->DecodeXml( prop_info );
-                fea_prop->m_UserFeaProperty = true;
 
-                AddFeaProperty( fea_prop );
+                if ( fea_prop )
+                {
+                    fea_prop->DecodeXml( prop_info );
+                    fea_prop->m_UserFeaProperty = true;
+
+                    AddFeaProperty( fea_prop );
+                }
             }
         }
 
@@ -81,10 +85,14 @@ xmlNodePtr StructureMgrSingleton::DecodeXml( xmlNodePtr & node )
             if ( mat_info )
             {
                 FeaMaterial* fea_mat = new FeaMaterial();
-                fea_mat->DecodeXml( mat_info );
-                fea_mat->m_UserFeaMaterial = true;
 
-                AddFeaMaterial( fea_mat );
+                if ( fea_mat )
+                {
+                    fea_mat->DecodeXml( mat_info );
+                    fea_mat->m_UserFeaMaterial = true;
+
+                    AddFeaMaterial( fea_mat );
+                }
             }
         }
     }
@@ -254,21 +262,27 @@ void StructureMgrSingleton::InitFeaProperties()
 {
     FeaProperty* default_shell = new FeaProperty();
 
-    default_shell->SetName( "Default_Shell" );
-    default_shell->SetFeaMaterialIndex( 0 ); // aluminum
-    default_shell->m_FeaPropertyType.Set( SHELL_PROPERTY );
-    default_shell->m_UserFeaProperty = false;
+    if ( default_shell )
+    {
+        default_shell->SetName( "Default_Shell" );
+        default_shell->SetFeaMaterialIndex( 0 ); // aluminum
+        default_shell->m_FeaPropertyType.Set( SHELL_PROPERTY );
+        default_shell->m_UserFeaProperty = false;
 
-    AddFeaProperty( default_shell );
+        AddFeaProperty( default_shell );
+    }
 
     FeaProperty* default_beam = new FeaProperty();
 
-    default_beam->SetName( "Default_Beam" );
-    default_beam->SetFeaMaterialIndex( 0 ); // aluminum
-    default_beam->m_FeaPropertyType.Set( BEAM_PROPERTY );
-    default_beam->m_UserFeaProperty = false;
+    if ( default_beam )
+    {
+        default_beam->SetName( "Default_Beam" );
+        default_beam->SetFeaMaterialIndex( 0 ); // aluminum
+        default_beam->m_FeaPropertyType.Set( BEAM_PROPERTY );
+        default_beam->m_UserFeaProperty = false;
 
-    AddFeaProperty( default_beam );
+        AddFeaProperty( default_beam );
+    }
 }
 
 //==== Add FeaMaterial =====//
@@ -328,21 +342,27 @@ void StructureMgrSingleton::InitFeaMaterials()
 
     FeaMaterial* aluminum = new FeaMaterial();
 
-    aluminum->SetName( "Aluminum" );
-    aluminum->m_MassDensity.Set( 0.0975 ); // lb/in^3
-    aluminum->m_ElasticModulus.Set( 10.2e6 ); // psi
-    aluminum->m_PoissonRatio.Set( 0.33 );
-    aluminum->m_ThermalExpanCoeff.Set( 1.33e-5 ); // in/(in-°F)
-    aluminum->m_UserFeaMaterial = false;
-    AddFeaMaterial( aluminum );
+    if ( aluminum )
+    {
+        aluminum->SetName( "Aluminum" );
+        aluminum->m_MassDensity.Set( 0.0975 ); // lb/in^3
+        aluminum->m_ElasticModulus.Set( 10.2e6 ); // psi
+        aluminum->m_PoissonRatio.Set( 0.33 );
+        aluminum->m_ThermalExpanCoeff.Set( 1.33e-5 ); // in/(in-°F)
+        aluminum->m_UserFeaMaterial = false;
+        AddFeaMaterial( aluminum );
+    }
 
     FeaMaterial* steel = new FeaMaterial();
 
-    steel->SetName( "Steel" );
-    steel->m_MassDensity.Set( 0.284 ); // lb/in^3
-    steel->m_ElasticModulus.Set( 29.0e6 ); // psi
-    steel->m_PoissonRatio.Set( 0.30 );
-    steel->m_ThermalExpanCoeff.Set( 6.67e-6 ); // in/(in-°F)
-    steel->m_UserFeaMaterial = false;
-    AddFeaMaterial( steel );
+    if ( steel )
+    {
+        steel->SetName( "Steel" );
+        steel->m_MassDensity.Set( 0.284 ); // lb/in^3
+        steel->m_ElasticModulus.Set( 29.0e6 ); // psi
+        steel->m_PoissonRatio.Set( 0.30 );
+        steel->m_ThermalExpanCoeff.Set( 6.67e-6 ); // in/(in-°F)
+        steel->m_UserFeaMaterial = false;
+        AddFeaMaterial( steel );
+    }
 }
