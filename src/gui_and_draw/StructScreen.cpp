@@ -98,7 +98,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 620, "FEA Me
     m_OutputTabLayout.SetButtonWidth(50);
     m_OutputTabLayout.SetInputWidth(305);
 
-
     m_OutputTabLayout.AddButton(m_StlFile, ".stl");
     m_OutputTabLayout.AddOutput(m_StlOutput);
     m_OutputTabLayout.AddButton(m_SelectStlFile, "...");
@@ -198,6 +197,8 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 620, "FEA Me
     m_StructureSelectBrowser->callback( staticScreenCB, this );
 
     m_StructGroup.AddButton( m_DelFeaStructButton, "Delete Structure" );
+
+    m_StructGroup.AddYGap();
 
     buttonwidth *= 2;
 
@@ -414,8 +415,8 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 620, "FEA Me
 
     m_SubSurfTabLayout.SetButtonWidth( m_StructGroup.GetRemainX() / 2 );
 
-    m_SubSurfTabLayout.AddButton( m_AddFeaSubSurfButton, "Add SubSurf" );
-    m_SubSurfTabLayout.AddButton( m_DelFeaSubSurfButton, "Delete SubSurf" );
+    m_SubSurfTabLayout.AddButton( m_AddFeaSubSurfButton, "Add Sub-Surface" );
+    m_SubSurfTabLayout.AddButton( m_DelFeaSubSurfButton, "Delete Sub-Surface" );
     m_SubSurfTabLayout.ForceNewLine();
 
     m_SubSurfTabLayout.SetSameLineFlag( false );
@@ -427,7 +428,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 620, "FEA Me
     m_FeaSSCommonGroup.SetY( m_SubSurfTabLayout.GetY() );
 
     m_FeaSSCommonGroup.SetButtonWidth( buttonwidth );
-    m_FeaSSCommonGroup.AddInput( m_FeaSubNameInput, "SubSurf Name" );
+    m_FeaSSCommonGroup.AddInput( m_FeaSubNameInput, "Sub-Surface Name" );
 
     m_FeaSSCommonGroup.AddYGap();
 
@@ -765,9 +766,7 @@ void StructScreen::LoadGeomChoice()
             string disp_geom_name = std::to_string( i ) + "_" + geom_vec[i]->GetName();
             int geom_type = geom_vec[i]->GetType().m_Type;
 
-            if ( geom_type == POD_GEOM_TYPE || geom_type == FUSELAGE_GEOM_TYPE ||
-                 geom_type == MS_WING_GEOM_TYPE || geom_type == STACK_GEOM_TYPE ||
-                 geom_type == CUSTOM_GEOM_TYPE )
+            if ( geom_type != BLANK_GEOM_TYPE && geom_type != PT_CLOUD_GEOM_TYPE && geom_type != HINGE_GEOM_TYPE )
             {
                 m_GeomChoice.AddItem( disp_geom_name );
                 CompIDMap[geom_vec[i]->GetID()] = icomp;
@@ -777,13 +776,11 @@ void StructScreen::LoadGeomChoice()
         }
         m_GeomChoice.UpdateItems();
 
-        //FL_MENU_ACTIVE;
-
         Geom* currgeom = veh->FindGeom( m_SelectedGeomID );
 
         if ( m_SelectedGeomID.length() == 0 && m_GeomIDVec.size() > 0 )
         {
-            // Handle case default case.
+            // Handle default case
             m_SelectedGeomID = m_GeomIDVec[0];
         }
         else if ( !currgeom && m_GeomIDVec.size() > 0 )
@@ -822,12 +819,6 @@ void StructScreen::UpdateStructBrowser()
             struct_surf_ind = structVec[i]->GetFeaStructMainSurfIndx();
             sprintf( str, "%s:Surf_%d", struct_name.c_str(), struct_surf_ind );
             m_StructureSelectBrowser->add( str );
-
-            // Do not update SimpleFeaParts if mesh is in progress
-            if ( FeaMeshMgr.GetFeaMeshInProgress() == false )
-            {
-                structVec[i]->Update();
-            }
         }
 
         if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
@@ -872,7 +863,7 @@ void StructScreen::UpdateFeaPartBrowser()
 
         if ( structVec[m_SelectedStructIndex]->ValidFeaPartInd( m_SelectedPartIndex ) )
         {
-            // Check number of skins, which are the first indexes in m_FeaPartVec
+            // Check number of skins, which should be always equal to 1 unless the skin has not been initialized
             int num_skin = structVec[m_SelectedStructIndex]->GetNumFeaSkin();
             m_FeaPartSelectBrowser->select( m_SelectedPartIndex + 2 - num_skin );
         }
@@ -958,31 +949,34 @@ void StructScreen::UpdateFeaPartChoice()
         {
             FeaStructure* curr_struct = StructureMgr.GetAllFeaStructs()[m_SelectedStructIndex];
 
-            Geom* currgeom = veh->FindGeom( curr_struct->GetParentGeomID() );
-
-            if ( currgeom )
+            if ( curr_struct )
             {
-                m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_FULL_DEPTH ) );
-                m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_RIB ) );
-                m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_SPAR ) );
-                m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_FIX_POINT ) );
-                m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_STIFFENER_PLANE ) );
-                m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_STIFFENER_SUB_SURF ) );
+                Geom* currgeom = veh->FindGeom( curr_struct->GetParentGeomID() );
 
-                if ( currgeom->GetType().m_Type == MS_WING_GEOM_TYPE )
+                if ( currgeom )
                 {
-                    m_FeaPartChoice.SetFlag( 1, 0 ); // FEA_RIB
-                    m_FeaPartChoice.SetFlag( 2, 0 ); // FEA_SPAR
-                }
-                else
-                {
-                    m_FeaPartChoice.SetFlag( 1, FL_MENU_INACTIVE );
-                    m_FeaPartChoice.SetFlag( 2, FL_MENU_INACTIVE );
-                }
+                    m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_FULL_DEPTH ) );
+                    m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_RIB ) );
+                    m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_SPAR ) );
+                    m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_FIX_POINT ) );
+                    m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_STIFFENER_PLANE ) );
+                    m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_STIFFENER_SUB_SURF ) );
 
-                m_FeaPartChoice.UpdateItems();
+                    if ( currgeom->GetType().m_Type == MS_WING_GEOM_TYPE )
+                    {
+                        m_FeaPartChoice.SetFlag( 1, 0 ); // FEA_RIB
+                        m_FeaPartChoice.SetFlag( 2, 0 ); // FEA_SPAR
+                    }
+                    else
+                    {
+                        m_FeaPartChoice.SetFlag( 1, FL_MENU_INACTIVE );
+                        m_FeaPartChoice.SetFlag( 2, FL_MENU_INACTIVE );
+                    }
 
-                m_FeaPartChoice.SetVal( m_SelectedFeaPartChoice );
+                    m_FeaPartChoice.UpdateItems();
+
+                    m_FeaPartChoice.SetVal( m_SelectedFeaPartChoice );
+                }
             }
         }
     }
@@ -1001,28 +995,32 @@ void StructScreen::UpdateSubSurfChoice()
         {
             FeaStructure* curr_struct = StructureMgr.GetAllFeaStructs()[m_SelectedStructIndex];
 
-            Geom* currgeom = veh->FindGeom( curr_struct->GetParentGeomID() );
-            if ( currgeom )
+            if ( curr_struct )
             {
-                m_FeaSubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_LINE ) );
-                m_FeaSubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_RECTANGLE ) );
-                m_FeaSubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_ELLIPSE ) );
+                Geom* currgeom = veh->FindGeom( curr_struct->GetParentGeomID() );
 
-                int nchoice = 3;
-
-                if ( currgeom->GetType().m_Type == MS_WING_GEOM_TYPE )
+                if ( currgeom )
                 {
-                    m_FeaSubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_CONTROL ) );
-                    nchoice++;
-                }
+                    m_FeaSubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_LINE ) );
+                    m_FeaSubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_RECTANGLE ) );
+                    m_FeaSubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_ELLIPSE ) );
 
-                m_FeaSubSurfChoice.UpdateItems();
+                    int nchoice = 3;
 
-                if ( m_SelectedSubSurfChoice < 0 || m_SelectedSubSurfChoice >= nchoice )
-                {
-                    m_SelectedSubSurfChoice = 0;
+                    if ( currgeom->GetType().m_Type == MS_WING_GEOM_TYPE )
+                    {
+                        m_FeaSubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_CONTROL ) );
+                        nchoice++;
+                    }
+
+                    m_FeaSubSurfChoice.UpdateItems();
+
+                    if ( m_SelectedSubSurfChoice < 0 || m_SelectedSubSurfChoice >= nchoice )
+                    {
+                        m_SelectedSubSurfChoice = 0;
+                    }
+                    m_FeaSubSurfChoice.SetVal( m_SelectedSubSurfChoice );
                 }
-                m_FeaSubSurfChoice.SetVal( m_SelectedSubSurfChoice );
             }
         }
     }
@@ -1084,8 +1082,6 @@ void StructScreen::UpdateFeaPropertyChoice()
 
         for ( int i = 0; i < property_vec.size(); ++i )
         {
-            // TODO: Deactivate choices for incompatable property type to maintain indexing. 
-
             m_SkinPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_FullDepthPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_RibPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
@@ -1270,7 +1266,7 @@ void StructScreen::FeaPartDispGroup( GroupLayout* group )
 
         Vehicle*  veh = m_ScreenMgr->GetVehiclePtr();
 
-        if ( veh )
+        if ( veh && curr_struct )
         {
             Geom* currgeom = veh->FindGeom( curr_struct->GetParentGeomID() );
 
@@ -1438,8 +1434,6 @@ bool StructScreen::Update()
                     FeaFullDepth* fulldepth = dynamic_cast<FeaFullDepth*>( feaprt );
                     assert( fulldepth );
 
-                    m_CurrEditType = FULL_DEPTH_EDIT;
-
                     m_FullDepthOrientationChoice.Update( fulldepth->m_OrientationPlane.GetID() );
                     m_FullDepthCenterLocSlider.Update( fulldepth->m_CenterPerBBoxLocation.GetID() );
                     m_FullDepthThetaSlider.Update( fulldepth->m_Theta.GetID() );
@@ -1450,8 +1444,6 @@ bool StructScreen::Update()
                 {
                     FeaRib* rib = dynamic_cast<FeaRib*>( feaprt );
                     assert( rib );
-
-                    m_CurrEditType = RIB_EDIT;
 
                     m_RibPerpendicularEdgeChoice.Update( rib->m_PerpendicularEdgeFlag.GetID() );
                     m_RibPosSlider.Update( rib->m_PerU.GetID() );
@@ -1469,8 +1461,6 @@ bool StructScreen::Update()
                     FeaSpar* spar = dynamic_cast<FeaSpar*>( feaprt );
                     assert( spar );
 
-                    m_CurrEditType = SPAR_EDIT;
-
                     m_SparPosSlider.Update( spar->m_PerV.GetID() );
                     //m_SparAlphaSlider.Update( spar->m_Alpha.GetID() );
                     m_SparThetaSlider.Update( spar->m_Theta.GetID() );
@@ -1486,8 +1476,6 @@ bool StructScreen::Update()
                     FeaFixPoint* fixpt = dynamic_cast<FeaFixPoint*>( feaprt );
                     assert( fixpt );
 
-                    m_CurrEditType = FIX_POINT_EDIT;
-
                     m_FixPointULocSlider.Update( fixpt->m_PosU.GetID() );
                     m_FixPointWLocSlider.Update( fixpt->m_PosW.GetID() );
 
@@ -1497,8 +1485,6 @@ bool StructScreen::Update()
                 {
                     FeaStiffenerPlane* stiffener_plane = dynamic_cast<FeaStiffenerPlane*>( feaprt );
                     assert( stiffener_plane );
-
-                    m_CurrEditType = STIFFENER_PLANE_EDIT;
 
                     m_StiffenerOrientationChoice.Update( stiffener_plane->m_OrientationPlane.GetID() );
                     m_StiffenerCenterLocSlider.Update( stiffener_plane->m_CenterPerBBoxLocation.GetID() );
@@ -1510,8 +1496,6 @@ bool StructScreen::Update()
                 {
                     FeaStiffenerSubSurf* stiffener_subsurf = dynamic_cast<FeaStiffenerSubSurf*>( feaprt );
                     assert( stiffener_subsurf );
-
-                    m_CurrEditType = STIFFENER_SUBSURF_EDIT;
 
                     m_StiffenerConstToggleGroup.Update( stiffener_subsurf->m_StiffenerConstType.GetID() );
                     m_StiffenerConstSlider.Update( stiffener_subsurf->m_StiffenerConstVal.GetID() );
@@ -1776,7 +1760,7 @@ void StructScreen::CallBack( Fl_Widget* w )
             {
                 vector< FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
 
-                // Check number of skins, which are the first indexes in m_FeaPartVec
+                // Check number of skins, which should be always equal to 1 unless the skin has not been initialized
                 int num_skin = structVec[m_SelectedStructIndex]->GetNumFeaSkin();
 
                 m_SelectedPartIndex = m_FeaPartSelectBrowser->value() - 2 + num_skin;
@@ -1908,6 +1892,11 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
 
     Vehicle*  veh = m_ScreenMgr->GetVehiclePtr();
 
+    if ( !veh )
+    {
+        return;
+    }
+
     if ( device == &m_FeaMeshExportButton )
     {
         // Identify which structure to mesh
@@ -1985,11 +1974,14 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             FeaStructure* newstruct = currgeom->AddFeaStruct( true, m_FeaCurrMainSurfIndx );
             vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
 
-            for ( unsigned int i = 0; i < structvec.size(); i++ )
+            if ( newstruct )
             {
-                if ( structvec[i]->GetFeaStructID() == newstruct->GetFeaStructID() )
+                for ( unsigned int i = 0; i < structvec.size(); i++ )
                 {
-                    m_SelectedStructIndex = i;
+                    if ( structvec[i]->GetFeaStructID() == newstruct->GetFeaStructID() )
+                    {
+                        m_SelectedStructIndex = i;
+                    }
                 }
             }
         }
@@ -2002,14 +1994,21 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             FeaStructure* delstruct = structvec[m_SelectedStructIndex];
 
-            Geom* currgeom = veh->FindGeom( delstruct->GetParentGeomID() );
-            vector < FeaStructure* > geomstructvec = currgeom->GetFeaStructVec();
-
-            for ( unsigned int i = 0; i < geomstructvec.size(); i++ )
+            if ( delstruct )
             {
-                if ( geomstructvec[i] == delstruct )
+                Geom* currgeom = veh->FindGeom( delstruct->GetParentGeomID() );
+
+                if ( currgeom )
                 {
-                    currgeom->DeleteFeaStruct( i );
+                    vector < FeaStructure* > geomstructvec = currgeom->GetFeaStructVec();
+
+                    for ( unsigned int i = 0; i < geomstructvec.size(); i++ )
+                    {
+                        if ( geomstructvec[i] == delstruct )
+                        {
+                            currgeom->DeleteFeaStruct( i );
+                        }
+                    }
                 }
             }
         }
@@ -2029,7 +2028,10 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
 
             FeaStructure* feastruct = structvec[m_SelectedStructIndex];
 
-            feastruct->SetFeaStructName( m_FeaStructNameInput.GetString() );
+            if ( feastruct )
+            {
+                feastruct->SetFeaStructName( m_FeaStructNameInput.GetString() );
+            }
         }
     }
     else if ( device == &m_AddEvenlySpacedRibsButton )
@@ -2040,7 +2042,10 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
 
             FeaStructure* feastruct = structvec[m_SelectedStructIndex];
 
-            feastruct->AddEvenlySpacedRibs( veh->GetStructSettingsPtr()->m_NumEvenlySpacedPart.Get() );
+            if ( feastruct )
+            {
+                feastruct->AddEvenlySpacedRibs( veh->GetStructSettingsPtr()->m_NumEvenlySpacedPart.Get() );
+            }
         }
     }
     else if ( device == &m_FeaPartNameInput )
@@ -2048,6 +2053,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
         vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
 
         FeaPart* feaprt = structvec[m_SelectedStructIndex]->GetFeaPart( m_SelectedPartIndex );
+
         if ( feaprt )
         {
             feaprt->SetName( m_FeaPartNameInput.GetString() );
@@ -2064,6 +2070,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
 
             FeaPart* feaprt = NULL;
+
             if ( m_FeaPartChoice.GetVal() == vsp::FEA_FULL_DEPTH )
             {
                 feaprt = structvec[m_SelectedStructIndex]->AddFeaPart( vsp::FEA_FULL_DEPTH );
@@ -2125,6 +2132,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
 
             SubSurface* ssurf = NULL;
+
             if ( m_FeaSubSurfChoice.GetVal() == vsp::SS_LINE )
             {
                 ssurf = structvec[m_SelectedStructIndex]->AddFeaSubSurf( vsp::SS_LINE );
@@ -2174,6 +2182,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
             SubSurface* sub_surf = structvec[m_SelectedStructIndex]->GetFeaSubSurf( m_SelectedSubSurfIndex );
+
             if ( sub_surf )
             {
                 sub_surf->SetName( m_FeaSubNameInput.GetString() );
@@ -2205,6 +2214,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             vector < FeaProperty* > property_vec = StructureMgr.GetFeaPropertyVec();
             FeaProperty* fea_prop = property_vec[m_SelectedPropertyIndex];
+
             if ( fea_prop )
             {
                 fea_prop->SetName( m_FeaPropertyNameInput.GetString() );
@@ -2285,6 +2295,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             vector < FeaMaterial* > material_vec = StructureMgr.GetFeaMaterialVec();
             FeaMaterial* fea_mat = material_vec[m_SelectedMaterialIndex];
+
             if ( fea_mat )
             {
                 fea_mat->SetName( m_FeaMaterialNameInput.GetString() );
@@ -2392,6 +2403,11 @@ void StructScreen::UpdateDrawObjs( vector< DrawObj* > &draw_obj_vec )
 
             FeaStructure* curr_struct = totalstructvec[m_SelectedStructIndex];
 
+            if ( !curr_struct )
+            {
+                return;
+            }
+
             FeaPart* curr_part = curr_struct->GetFeaPart( m_SelectedPartIndex );
 
             vector < FeaPart* > partvec = curr_struct->GetFeaPartVec();
@@ -2405,7 +2421,7 @@ void StructScreen::UpdateDrawObjs( vector< DrawObj* > &draw_obj_vec )
                     FeaFullDepth* fulldepth = dynamic_cast<FeaFullDepth*>( partvec[i] );
                     assert( fulldepth );
 
-                    if ( m_CurrEditType == FULL_DEPTH_EDIT && partvec[i] == curr_part )
+                    if ( partvec[i] == curr_part )
                         fulldepth->LoadDrawObjs( draw_obj_vec, k, true );
                     else
                         fulldepth->LoadDrawObjs( draw_obj_vec, k, false );
@@ -2416,7 +2432,7 @@ void StructScreen::UpdateDrawObjs( vector< DrawObj* > &draw_obj_vec )
                     FeaRib* rib = dynamic_cast<FeaRib*>( partvec[i] );
                     assert( rib );
 
-                    if ( m_CurrEditType == RIB_EDIT && partvec[i] == curr_part )
+                    if ( partvec[i] == curr_part )
                         rib->LoadDrawObjs( draw_obj_vec, k, true );
                     else
                         rib->LoadDrawObjs( draw_obj_vec, k, false );
@@ -2427,7 +2443,7 @@ void StructScreen::UpdateDrawObjs( vector< DrawObj* > &draw_obj_vec )
                     FeaSpar* spar = dynamic_cast<FeaSpar*>( partvec[i] );
                     assert( spar );
 
-                    if ( m_CurrEditType == SPAR_EDIT && partvec[i] == curr_part )
+                    if ( partvec[i] == curr_part )
                         spar->LoadDrawObjs( draw_obj_vec, k, true );
                     else
                         spar->LoadDrawObjs( draw_obj_vec, k, false );
@@ -2438,7 +2454,7 @@ void StructScreen::UpdateDrawObjs( vector< DrawObj* > &draw_obj_vec )
                     FeaFixPoint* fixpt = dynamic_cast<FeaFixPoint*>( partvec[i] );
                     assert( fixpt );
 
-                    if ( m_CurrEditType == FIX_POINT_EDIT && partvec[i] == curr_part )
+                    if ( partvec[i] == curr_part )
                         fixpt->LoadDrawObjs( draw_obj_vec, k, true );
                     else
                         fixpt->LoadDrawObjs( draw_obj_vec, k, false );
@@ -2449,7 +2465,7 @@ void StructScreen::UpdateDrawObjs( vector< DrawObj* > &draw_obj_vec )
                     FeaStiffenerPlane* stiffener_plane = dynamic_cast<FeaStiffenerPlane*>( partvec[i] );
                     assert( stiffener_plane );
 
-                    if ( m_CurrEditType == STIFFENER_PLANE_EDIT && partvec[i] == curr_part )
+                    if ( partvec[i] == curr_part )
                         stiffener_plane->LoadDrawObjs( draw_obj_vec, k, true );
                     else
                         stiffener_plane->LoadDrawObjs( draw_obj_vec, k, false );
@@ -2460,7 +2476,7 @@ void StructScreen::UpdateDrawObjs( vector< DrawObj* > &draw_obj_vec )
                     FeaStiffenerSubSurf* stiffener_subsurf = dynamic_cast<FeaStiffenerSubSurf*>( partvec[i] );
                     assert( stiffener_subsurf );
 
-                    if ( m_CurrEditType == STIFFENER_SUBSURF_EDIT && partvec[i] == curr_part )
+                    if ( partvec[i] == curr_part )
                         stiffener_subsurf->LoadDrawObjs( draw_obj_vec, k, true );
                     else
                         stiffener_subsurf->LoadDrawObjs( draw_obj_vec, k, false );

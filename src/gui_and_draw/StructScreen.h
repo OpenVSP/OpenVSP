@@ -19,7 +19,6 @@
 
 using namespace std;
 
-
 class StructScreen : public TabScreen
 {
 public:
@@ -57,14 +56,14 @@ public:
         ( ( StructScreen* )data )->CallBack( w );
     }
 
-    void AddOutputText( const string &text );
+    virtual void AddOutputText( const string &text );
 
     string truncateFileName( const string &fn, int len );
 
-    bool Update();
+    virtual bool Update();
 
-    void LoadDrawObjs( vector< DrawObj* > &draw_obj_vec );
-    void UpdateDrawObjs( vector< DrawObj* > &draw_obj_vec );
+    virtual void LoadDrawObjs( vector< DrawObj* > &draw_obj_vec );
+    virtual void UpdateDrawObjs( vector< DrawObj* > &draw_obj_vec );
 
     ProcessUtil* getFeaMeshProcess()
     {
@@ -72,11 +71,6 @@ public:
     }
 
 private:
-
-    enum
-    {
-        FULL_DEPTH_EDIT, RIB_EDIT, SPAR_EDIT, FIX_POINT_EDIT, STIFFENER_PLANE_EDIT, STIFFENER_SUBSURF_EDIT, SUBSURF_EDIT
-    };
 
     Fl_Text_Buffer m_TextBuffer;
 
@@ -344,7 +338,6 @@ private:
 
     //==== Private Variables ====//
 
-    int m_CurrEditType;
     bool m_DrawFeaPartFlag;
 
     string m_SelectedGeomID;
