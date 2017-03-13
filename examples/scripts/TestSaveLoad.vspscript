@@ -1,0 +1,41 @@
+
+void main()
+{
+    Print( string( "Begin Save and Load Test" ) );
+    Print( string( "" ) );
+    TestSaveLoad();
+    Print( string( "End Save and Load Test" ) );
+}
+
+void TestSaveLoad()
+{
+    Print( string( "--> Generating Geometries and Testing Save and Load Code" ) );
+    Print( string( "" ) );
+
+    //==== Add Wing Geom and set some parameters =====//
+    string wing_id = AddGeom( "WING" );
+    SetParmVal(  wing_id, "TotalSpan", "WingGeom", 30.0 );
+    SetParmVal(  wing_id, "LECluster", "WingGeom", 0.0 );
+    SetParmVal(  wing_id, "TECluster", "WingGeom", 2.0 );
+    Update();
+
+    //==== Add Fuselage Geom and set some parameters =====//
+    string fus_id = AddGeom( "FUSELAGE" );
+    SetParmVal(  fus_id, "X_Rel_Location", "XForm", -9.0 );
+    SetParmVal(  fus_id, "Z_Rel_Location", "XForm", -1.0 );
+    Update();
+
+    //==== Save Vehicle to File ====//
+    Print( string( "--->Saving VSP model\n" ) );
+    string fname = "TestSaveLoad.vsp3";
+    WriteVSPFile( fname, SET_ALL );
+
+    //==== Reset Geometry ====//
+    Print( string( "--->Resetting VSP model to blank slate\n" ) );
+    ClearVSPModel();
+
+    //==== Read Geometry From File ====//
+    Print( string( "--->Reading model from: " ) + fname + string( "\n") );
+    ReadVSPFile( fname );
+
+}

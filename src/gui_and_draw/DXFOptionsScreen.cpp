@@ -5,27 +5,23 @@
 
 // DXFOptionsScreen.cpp: implementation of the DXFOptionsScreen class.
 //
+// Justin Gravett
 //////////////////////////////////////////////////////////////////////
 
 #include "DXFOptionsScreen.h"
-
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-DXFOptionsScreen::DXFOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 365, "DXF Options" )
+DXFOptionsScreen::DXFOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 420, "DXF Options" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
 
     m_OkFlag = false;
-    m_PrevUnit = 0;
-    m_PrevView = 0;
-    m_PrevView4 = 0;
-    m_PrevRot4 = 0;
 
     m_GenLayout.SetGroupAndScreen( m_FLTK_Window, this );
-    m_GenLayout.AddY( 25 );
+    m_GenLayout.AddY( 20 );
 
     m_GenLayout.AddYGap();
     m_GenLayout.AddDividerBox( "General" );
@@ -38,16 +34,34 @@ DXFOptionsScreen::DXFOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 36
     m_LenUnitChoice.AddItem( "IN" );
     m_LenUnitChoice.AddItem( "FT" );
     m_LenUnitChoice.AddItem( "YD" );
-    m_LenUnitChoice.AddItem( "Unitless" );
+    m_LenUnitChoice.AddItem( "Dimensionless" );
     m_GenLayout.AddChoice( m_LenUnitChoice, "Length Unit" );
+
+    m_GenLayout.AddYGap();
+
+    m_GenLayout.AddButton( m_XSecToggle, "Force XSecs" );
+
+    m_GenLayout.SetSameLineFlag( false );
+    m_GenLayout.SetFitWidthFlag( true );
+
+    m_GenLayout.SetButtonWidth( m_GenLayout.GetRemainX() );
+
+    m_GenLayout.AddButton( m_ColorToggle, "Color Layers" );
+
+    m_GenLayout.SetSameLineFlag( true );
+    m_GenLayout.SetFitWidthFlag( false );
+    m_GenLayout.SetButtonWidth( m_GenLayout.GetRemainX() / 2 );
+
+    m_GenLayout.AddYGap();
+
+    m_GenLayout.AddButton( m_3DToggle, "3D Export" );
+    m_GenLayout.AddButton( m_2DToggle, "2D Export" );
+
+    m_GenLayout.ForceNewLine();
     m_GenLayout.AddYGap();
 
     m_GenLayout.SetSameLineFlag( false );
     m_GenLayout.SetFitWidthFlag( true );
-    m_GenLayout.AddButton( m_3DToggle, "3D Export" );
-    m_GenLayout.AddYGap();
-    m_GenLayout.AddButton( m_2DToggle, "2D Export" );
-    m_GenLayout.AddYGap();
 
     m_GenLayout.SetChoiceButtonWidth( 0 );
 
@@ -56,12 +70,26 @@ DXFOptionsScreen::DXFOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 36
     m_GenLayout.AddDividerBox( "2D Views" );
     m_GenLayout.AddYGap();
 
+    m_GenLayout.SetSameLineFlag( false );
+    m_GenLayout.SetFitWidthFlag( true );
+
+    m_GenLayout.AddButton( m_ProjectionLineToggle, "Outline" );
+
+    m_GenLayout.InitWidthHeightVals();
+
+    m_GenLayout.AddSlider( m_TessSlider, "Refinement", 8, "%5.0f" );
+
+    m_GenLayout.AddYGap();
+
     m_GenLayout.SetChoiceButtonWidth( m_GenLayout.GetW() / 2 );
     m_2DViewType.AddItem( "One" );
     m_2DViewType.AddItem( "Two Horizontal" );
     m_2DViewType.AddItem( "Two Vertical" );
     m_2DViewType.AddItem( "Four" );
     m_GenLayout.AddChoice( m_2DViewType, "2D View Type" );
+
+    // To Do: Add Tesselation Tool Tip?
+
     m_GenLayout.AddYGap();
     m_GenLayout.AddX( 20 );
 
@@ -170,7 +198,6 @@ DXFOptionsScreen::DXFOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 36
     m_4RotChoice4.AddItem( "270" );
     m_4LayoutBR.AddChoice( m_4RotChoice4, "" );
 
-    m_GenLayout.AddYGap();
     m_GenLayout.SetX( 0 );
     m_GenLayout.ForceNewLine();
 
@@ -201,25 +228,40 @@ bool DXFOptionsScreen::Update()
     if( veh )
     {
         m_LenUnitChoice.Update( veh->m_DXFLenUnit.GetID() );
-        m_2DViewType.Update( veh->m_2DView.GetID() );
-        m_4ViewChoice1.Update( veh->m_4View1.GetID() );
-        m_4ViewChoice2.Update( veh->m_4View2.GetID() );
-        m_4ViewChoice3.Update( veh->m_4View3.GetID() );
-        m_4ViewChoice4.Update( veh->m_4View4.GetID() );
-        m_4RotChoice1.Update( veh->m_4View1_rot.GetID() );
-        m_4RotChoice2.Update( veh->m_4View2_rot.GetID() );
-        m_4RotChoice3.Update( veh->m_4View3_rot.GetID() );
-        m_4RotChoice4.Update( veh->m_4View4_rot.GetID() );
-        m_2D3DGroup.Update( veh->m_2D3DFlag.GetID() );
+        m_2DViewType.Update( veh->m_DXF2DView.GetID() );
+        m_4ViewChoice1.Update( veh->m_DXF4View1.GetID() );
+        m_4ViewChoice2.Update( veh->m_DXF4View2.GetID() );
+        m_4ViewChoice3.Update( veh->m_DXF4View3.GetID() );
+        m_4ViewChoice4.Update( veh->m_DXF4View4.GetID() );
+        m_4RotChoice1.Update( veh->m_DXF4View1_rot.GetID() );
+        m_4RotChoice2.Update( veh->m_DXF4View2_rot.GetID() );
+        m_4RotChoice3.Update( veh->m_DXF4View3_rot.GetID() );
+        m_4RotChoice4.Update( veh->m_DXF4View4_rot.GetID() );
+        m_2D3DGroup.Update( veh->m_DXF2D3DFlag.GetID() );
+        m_ProjectionLineToggle.Update( veh->m_DXFProjectionFlag.GetID() );
+        m_TessSlider.Update( veh->m_DXFTessFactor.GetID() );
+        m_XSecToggle.Update( veh->m_DXFAllXSecFlag.GetID() );
+        m_ColorToggle.Update( veh->m_DXFColorFlag.GetID() );
 
-        if ( veh->m_2D3DFlag() == vsp::SET_2D )
+        if ( veh->m_DXF2D3DFlag() == vsp::SET_2D )
         {
             m_2DViewType.Activate();
+            m_ProjectionLineToggle.Activate();
 
+            if ( veh->m_DXFProjectionFlag() )
+            {
+                m_TessSlider.Activate();
+            }
+            else 
+            {
+                m_TessSlider.Deactivate();
+            }
         }
-        else if ( veh->m_2D3DFlag() == vsp::SET_3D )
+        else if ( veh->m_DXF2D3DFlag() == vsp::SET_3D )
         {
             m_2DViewType.Deactivate();
+            m_ProjectionLineToggle.Deactivate();
+            m_TessSlider.Deactivate();
             m_4ViewChoice1.Deactivate();
             m_4ViewChoice2.Deactivate();
             m_4ViewChoice3.Deactivate();
@@ -230,7 +272,7 @@ bool DXFOptionsScreen::Update()
             m_4RotChoice4.Deactivate();
         }
 
-        if ( veh->m_2DView() == vsp::VIEW_1 && veh->m_2D3DFlag() == vsp::SET_2D )
+        if ( veh->m_DXF2DView() == vsp::VIEW_1 && veh->m_DXF2D3DFlag() == vsp::SET_2D )
         {
             m_4ViewChoice1.Activate();
             m_4ViewChoice2.Deactivate();
@@ -241,7 +283,7 @@ bool DXFOptionsScreen::Update()
             m_4RotChoice3.Deactivate();
             m_4RotChoice4.Deactivate();
         }
-        else if ( veh->m_2DView() == vsp::VIEW_2HOR && veh->m_2D3DFlag() == vsp::SET_2D )
+        else if ( veh->m_DXF2DView() == vsp::VIEW_2HOR && veh->m_DXF2D3DFlag() == vsp::SET_2D )
         {
             m_4ViewChoice1.Activate();
             m_4ViewChoice2.Activate();
@@ -252,7 +294,7 @@ bool DXFOptionsScreen::Update()
             m_4RotChoice3.Deactivate();
             m_4RotChoice4.Deactivate();
         }
-        else if ( veh->m_2DView() == vsp::VIEW_2VER && veh->m_2D3DFlag() == vsp::SET_2D )
+        else if ( veh->m_DXF2DView() == vsp::VIEW_2VER && veh->m_DXF2D3DFlag() == vsp::SET_2D )
         {
             m_4ViewChoice1.Activate();
             m_4ViewChoice2.Deactivate();
@@ -263,7 +305,7 @@ bool DXFOptionsScreen::Update()
             m_4RotChoice3.Activate();
             m_4RotChoice4.Deactivate();
         }
-        else if ( veh->m_2DView() == vsp::VIEW_4 && veh->m_2D3DFlag() == vsp::SET_2D )
+        else if ( veh->m_DXF2DView() == vsp::VIEW_4 && veh->m_DXF2D3DFlag() == vsp::SET_2D )
         {
             m_4ViewChoice1.Activate();
             m_4ViewChoice2.Activate();
@@ -304,21 +346,6 @@ void DXFOptionsScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_CancelButton )
     {
-        Vehicle *veh = VehicleMgr.GetVehicle();
-
-        if( veh )
-        {
-            veh->m_DXFLenUnit.Set( m_PrevUnit );
-            veh->m_2DView.Set( m_PrevView );
-            veh->m_4View1.Set( m_PrevView4 );
-            veh->m_4View2.Set( m_PrevView4 );
-            veh->m_4View3.Set( m_PrevView4 );
-            veh->m_4View4.Set( m_PrevView4 );
-            veh->m_4View1_rot.Set( m_PrevRot4 );
-            veh->m_4View2_rot.Set( m_PrevRot4 );
-            veh->m_4View3_rot.Set( m_PrevRot4 );
-            veh->m_4View4_rot.Set( m_PrevRot4 );
-        }
         Hide();
     }
 
@@ -331,22 +358,6 @@ bool DXFOptionsScreen::ShowDXFOptionsScreen()
 
     m_OkFlag = false;
 
-    Vehicle *veh = VehicleMgr.GetVehicle();
-
-    if( veh )
-    {
-        m_PrevUnit = veh->m_DXFLenUnit();
-        m_PrevView = veh->m_2DView();
-        m_PrevView4 = veh->m_4View1();
-        m_PrevView4 = veh->m_4View2();
-        m_PrevView4 = veh->m_4View3();
-        m_PrevView4 = veh->m_4View4();
-        m_PrevRot4 = veh->m_4View1_rot();
-        m_PrevRot4 = veh->m_4View2_rot();
-        m_PrevRot4 = veh->m_4View3_rot();
-        m_PrevRot4 = veh->m_4View4_rot();
-    }
-
     while( m_FLTK_Window->shown() )
     {
         Fl::wait();
@@ -358,22 +369,6 @@ bool DXFOptionsScreen::ShowDXFOptionsScreen()
 void DXFOptionsScreen::CloseCallBack( Fl_Widget *w )
 {
     assert( m_ScreenMgr );
-
-    Vehicle *veh = VehicleMgr.GetVehicle();
-
-    if( veh )
-    {
-        veh->m_DXFLenUnit.Set( m_PrevUnit );
-        veh->m_2DView.Set( m_PrevView );
-        veh->m_4View1.Set( m_PrevView4 );
-        veh->m_4View2.Set( m_PrevView4 );
-        veh->m_4View3.Set( m_PrevView4 );
-        veh->m_4View4.Set( m_PrevView4 );
-        veh->m_4View1_rot.Set( m_PrevView4 );
-        veh->m_4View2_rot.Set( m_PrevView4 );
-        veh->m_4View3_rot.Set( m_PrevView4 );
-        veh->m_4View4_rot.Set( m_PrevView4 );
-    }
 
     Hide();
 }

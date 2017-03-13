@@ -296,6 +296,14 @@ void XSec::GetBasis( double t, Matrix4d &basis )
 // Given a position along a curve t, and a desired surfce angle theta, calculate
 // the tangent and normal unit vectors that will be required by the surface
 // skinning algorithm.
+
+// TODO: XSec::GetAngStrCrv and XSec::GetTanNormVec should be refactored
+// such that the core math performed by each is isolated (like GetTanNormVec) and they
+// could be unit tested to behave as perfect inverses of one another.
+//
+// Currently, they appear to give wrong results in cases with nonzero
+// theta and phi.
+
 void XSec::GetTanNormVec( double t, double theta, double phi, vec3d &tangent, vec3d &normal )
 {
     Matrix4d basis;
@@ -357,7 +365,8 @@ void XSec::GetTanNormCrv( const vector< double > &ts, const vector< double > &th
 
     // Parameters that define the XSecCurve
     vector< double > crvts;
-    m_TransformedCurve.GetCurve().get_pmap( crvts );
+
+    GetCurve().GetCurve().get_pmap( crvts );
 
     int ntcrv = crvts.size();
 
@@ -1668,7 +1677,7 @@ void FuseXSec::Update()
 
     //==== Apply Transform ====//
     m_TransformedCurve = baseCurve;
-    if ( fabs( m_Spin() ) > DBL_EPSILON )
+    if ( std::abs( m_Spin() ) > DBL_EPSILON )
     {
         std::cerr << "XSec spin not implemented." << std::endl;
     }
@@ -1687,7 +1696,7 @@ void FuseXSec::Update()
 //==== Set Ref Length ====//
 void FuseXSec::SetRefLength( double len )
 {
-    if ( fabs( len - m_RefLenVal ) < DBL_EPSILON )
+    if ( std::abs( len - m_RefLenVal ) < DBL_EPSILON )
     {
         return;
     }

@@ -48,7 +48,7 @@ class XSecSurf;
 //
 enum { BASE_GEOM_TYPE, XFORM_GEOM_TYPE, GEOM_GEOM_TYPE, POD_GEOM_TYPE, FUSELAGE_GEOM_TYPE,
        MS_WING_GEOM_TYPE, BLANK_GEOM_TYPE, MESH_GEOM_TYPE, STACK_GEOM_TYPE, CUSTOM_GEOM_TYPE,
-       PT_CLOUD_GEOM_TYPE, PROP_GEOM_TYPE, HINGE_GEOM_TYPE, NUM_GEOM_TYPE,
+       PT_CLOUD_GEOM_TYPE, PROP_GEOM_TYPE, HINGE_GEOM_TYPE, CONFORMAL_GEOM_TYPE, NUM_GEOM_TYPE,
      };
 
 class GeomType
@@ -360,6 +360,7 @@ public:
     {
         return m_MainSurfVec.size();
     }
+    virtual void GetMainSurfVec( vector<VspSurf> &surf_vec )    { surf_vec = m_MainSurfVec; }
     virtual int GetNumSymFlags();
     virtual int GetNumTotalSurfs();
     virtual int GetNumSymmCopies();
@@ -443,6 +444,7 @@ public:
     virtual void DelSubSurf( int ind );
     virtual SubSurface* GetSubSurf( int ind );
     virtual SubSurface* GetSubSurf( const string & id );
+    virtual int GetSubSurfIndex( const string & id );
     virtual vector< SubSurface* > GetSubSurfVec()
     {
         return m_SubSurfVec;
@@ -491,6 +493,29 @@ public:
 //Material
 //Display Flags
 //OtherData
+
+    virtual void SetGeomProjectVec3d( vector < vector < vec3d > > polyvec, int dir_index )
+    {
+        m_GeomProjectVec3d[dir_index] = polyvec;
+    }
+    virtual vector < vector < vec3d > > GetGeomProjectVec3d( int dir_index )
+    {
+        return m_GeomProjectVec3d[dir_index];
+    }
+    virtual void ClearGeomProjectVec3d()
+    {
+        m_GeomProjectVec3d.clear();
+        m_GeomProjectVec3d.resize( 3 );
+    }
+
+    virtual void SetForceXSecFlag( bool flag )
+    {
+        m_ForceXSecFlag = flag;
+    }
+    virtual bool GetForceXSecFlag( )
+    {
+        return m_ForceXSecFlag;
+    }
 
 //  //==== Structures ====//
 //  void SetCurrPartID( int pid )           { currPartID = pid; }
@@ -563,6 +588,12 @@ public:
     virtual void InsertXSec( int index, int type )  {}
 
     void WriteFeatureLinesDXF( FILE * file_name, const BndBox &dxfbox );
+    void WriteProjectionLinesDXF( FILE * file_name, const BndBox &dxfbox );
+    vector < vector< vec3d > > GetGeomProjectionLines( int view, vec3d offset );
+    void WriteFeatureLinesSVG( xmlNodePtr root, const BndBox &dxfbox );
+    void WriteProjectionLinesSVG( xmlNodePtr root, const BndBox &dxfbox );
+
+    virtual void OffsetXSecs( double off )          {}
 
 protected:
 
@@ -598,6 +629,9 @@ protected:
     vector< bool > m_SetFlags;
 
     vector<SubSurface*> m_SubSurfVec;
+
+    vector < vector < vector < vec3d > > > m_GeomProjectVec3d; // Vector of projection lines for each view direction (x, y, or z)
+    bool m_ForceXSecFlag; // Flag to force feature lines at xsecs
 
 //  //==== Structure Parts ====//
 //  int currPartID;
@@ -648,6 +682,8 @@ public:
 
     virtual XSec* GetXSec( int index );
     virtual void AddDefaultSourcesXSec( double base_len, double len_ref, int ixsec );
+
+    virtual void OffsetXSecs( double off );
 
 protected:
     virtual void UpdateDrawObj();

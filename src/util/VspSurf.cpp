@@ -10,7 +10,7 @@
 
 
 #include <stdio.h>
-#include <math.h>
+#include <cmath>
 #include <algorithm>
 #include <set>
 
@@ -18,6 +18,7 @@
 #include "StlHelper.h"
 #include "PntNodeMerge.h"
 #include "Cluster.h"
+#include "Util.h"
 
 #include "eli/geom/surface/piecewise_body_of_revolution_creator.hpp"
 #include "eli/geom/surface/piecewise_multicap_surface_creator.hpp"
@@ -39,6 +40,9 @@ VspSurf::VspSurf()
     m_MagicVParm = false;
     m_SurfType = vsp::NORMAL_SURF;
     m_SurfCfdType = vsp::CFD_NORMAL;
+    m_SkinType = SKIN_NONE;
+
+    m_CloneIndex = -1;
 
     SetClustering( 1.0, 1.0 );
 }
@@ -152,7 +156,13 @@ double VspSurf::FindNearest( double &u, double &w, const vec3d &pt, const double
     surface_point_type p;
     p << pt.x(), pt.y(), pt.z();
 
-    dist = eli::geom::intersect::minimum_distance( u, w, m_Surface, p, u0, w0 );
+    double u0in = u0;
+    double w0in = w0;
+
+    u0in = clamp( u0in, 0.0, GetUMax() );
+    w0in = clamp( w0in, 0.0, GetWMax() );
+
+    dist = eli::geom::intersect::minimum_distance( u, w, m_Surface, p, u0in, w0in );
 
     return dist;
 }
@@ -184,14 +194,22 @@ double VspSurf::FindNearest01( double &u, double &w, const vec3d &pt, const doub
 void VspSurf::GetUConstCurve( VspCurve &c, const double &u ) const
 {
     piecewise_curve_type pwc;
-    m_Surface.get_uconst_curve(pwc, u);
+
+    double uin = u;
+    uin = clamp( uin, 0.0, GetUMax() );
+
+    m_Surface.get_uconst_curve(pwc, uin);
     c.SetCurve(pwc);
 }
 
 void VspSurf::GetWConstCurve( VspCurve &c, const double &w ) const
 {
     piecewise_curve_type pwc;
-    m_Surface.get_vconst_curve(pwc, w);
+
+    double win = w;
+    win = clamp( win, 0.0, GetWMax() );
+
+    m_Surface.get_vconst_curve(pwc, win);
     c.SetCurve(pwc);
 }
 
@@ -289,9 +307,13 @@ void VspSurf::CreateBodyRevolution( const VspCurve &input_crv )
 
     ResetFlipNormal();
     ResetUWSkip();
+
+    //==== Store Skining Data ====//
+    m_SkinType = SKIN_BODY_REV;
+    m_BodyRevCurve = input_crv;
 }
 
-void VspSurf::SkinRibs( const vector<rib_data_type> &ribs, const vector < int > &degree, bool closed_flag )
+void VspSurf::SkinRibs( const vector<rib_data_type> &ribs, const vector < int > &degree, const vector < double > & param, bool closed_flag )
 {
     general_creator_type gc;
     surface_index_type nrib, i;
@@ -315,6 +337,13 @@ void VspSurf::SkinRibs( const vector<rib_data_type> &ribs, const vector < int > 
         printf( "Failure in SkinRibs set_conditions\n" );
     }
 
+    // set the delta u for each surface segment
+    gc.set_u0( param[0] );
+    for ( i = 0; i < gc.get_number_u_segments(); ++i )
+    {
+        gc.set_segment_du( param[i + 1] - param[i], i );
+    }
+
     m_Surface.clear();
     bool creat = gc.create( m_Surface );
 
@@ -325,6 +354,34 @@ void VspSurf::SkinRibs( const vector<rib_data_type> &ribs, const vector < int > 
 
     ResetFlipNormal();
     ResetUWSkip();
+
+    //==== Store Skining Data ====//
+    m_SkinType = SKIN_RIBS;
+    m_SkinRibVec = ribs;
+    m_SkinDegreeVec = degree;
+    m_SkinParmVec = param;
+    m_SkinClosedFlag = closed_flag;
+
+}
+
+void VspSurf::SkinRibs( const vector<rib_data_type> &ribs, const vector < double > & param, bool closed_flag )
+{
+    surface_index_type nrib;
+    nrib = ribs.size();
+    vector< int > degree( nrib - 1, 0 );
+    SkinRibs( ribs, degree, param, closed_flag );
+}
+
+void VspSurf::SkinRibs( const vector<rib_data_type> &ribs, const vector < int > &degree, bool closed_flag )
+{
+    surface_index_type nrib;
+    nrib = ribs.size();
+    vector< double > param( nrib );
+    for ( int i = 0; i < nrib; i++ )
+    {
+        param[i] = 1.0 * i;
+    }
+    SkinRibs( ribs, degree, param, closed_flag );
 }
 
 //==== Interpolate A Set Of Points =====//
@@ -696,35 +753,31 @@ void VspSurf::MakeUTess( const vector<int> &num_u, vector<double> &u, const std:
 {
     if ( umerge.size() != 0 )
     {
-        if ( num_u.size() != umerge.size() )
+        const int nusect = num_u.size();
+        if ( nusect != umerge.size() )
         {
             printf( "Error.  num_u does not match umerge.\n" );
         }
+        assert( m_USkip.size() == nusect );
 
-        const int nusect = GetNumSectU();
-
-        int sum = 0;
         int nu = 1;
-        for ( int i = 0; i < umerge.size(); i++ )
+        for ( int i = 0; i < nusect; i++ )
         {
-            sum += umerge[i];
-            nu += num_u[i] - 1;
-        }
-
-        if ( nusect != sum )
-        {
-            printf( "Error.  umerge does not match nsect.\n" );
+            if ( !m_USkip[i] )
+            {
+                nu += num_u[i] - 1;
+            }
         }
 
         int iusect = 0;
         double ustart = m_Surface.get_u0();
+        double uend = ustart;
 
         u.resize( nu );
         int iu = 0;
 
-        for ( int i = 0; i < umerge.size(); i++ )
+        for ( int i = 0; i < nusect; i++ )
         {
-            double uend = ustart;
             for ( int j = 0; j < umerge[i]; j++ )
             {
                 double du, dv;
@@ -735,16 +788,21 @@ void VspSurf::MakeUTess( const vector<int> &num_u, vector<double> &u, const std:
                 iusect++;
             }
 
-
             double du = uend - ustart;
 
-            for ( int isecttess = 0; isecttess < num_u[i] - 1; ++isecttess )
+            if ( !m_USkip[i] )
             {
-                u[iu] = ustart + du * Cluster( static_cast<double>( isecttess ) / ( num_u[i] - 1 ), m_RootCluster[i], m_TipCluster[i] );
-                iu++;
+                for ( int isecttess = 0; isecttess < num_u[i] - 1; ++isecttess )
+                {
+                    u[iu] = ustart + du * Cluster(static_cast<double>( isecttess ) / (num_u[i] - 1), m_RootCluster[i], m_TipCluster[i]);
+                    iu++;
+                }
             }
-            ustart = uend;
 
+            if ( !( i == nusect - 1 && m_USkip[i] ) )
+            {
+                ustart = uend;
+            }
 
         }
         u.back() = ustart;
@@ -754,11 +812,10 @@ void VspSurf::MakeUTess( const vector<int> &num_u, vector<double> &u, const std:
     else
     {
         surface_index_type i, j, nu;
-        double umin, umax;
+        double umin;
 
-        const int nusect = GetNumSectU();
+        const int nusect = num_u.size();
 
-        assert( num_u.size() == nusect );
         assert( m_USkip.size() == nusect );
 
         // calculate nu
@@ -773,7 +830,6 @@ void VspSurf::MakeUTess( const vector<int> &num_u, vector<double> &u, const std:
 
         // calculate the u and v parameterizations
         umin = m_Surface.get_u0();
-        umax = m_Surface.get_umax();
 
         u.resize( nu );
         double uumin( umin );
@@ -1041,7 +1097,7 @@ void VspSurf::SplitTesselate( const vector<double> &usplit, const vector<double>
         }
         for ( ; j < u.size(); j++ )
         {
-            double dnew = fabs( u[j] - usplit[i] );
+            double dnew = std::abs( u[j] - usplit[i] );
             if ( dnew < d )
             {
                 d = dnew;
@@ -1064,7 +1120,7 @@ void VspSurf::SplitTesselate( const vector<double> &usplit, const vector<double>
         }
         for ( ; j < v.size(); j++ )
         {
-            double dnew = fabs( v[j] - vsplit[i] );
+            double dnew = std::abs( v[j] - vsplit[i] );
             if ( dnew < d )
             {
                 d = dnew;
@@ -1184,7 +1240,7 @@ void VspSurf::TessAdaptLine( double umin, double umax, double wmin, double wmax,
     }
 }
 
-void VspSurf::BuildFeatureLines()
+void VspSurf::BuildFeatureLines( bool force_xsec_flag)
 {
     if ( m_Surface.number_u_patches() > 0 && m_Surface.number_v_patches() > 0 )
     {
@@ -1199,12 +1255,13 @@ void VspSurf::BuildFeatureLines()
         m_UFeature.push_back( umin );
         m_UFeature.push_back( umax );
 
-        if ( GetSurfType() == vsp::WING_SURF )
+        if ( GetSurfType() == vsp::WING_SURF || force_xsec_flag )
         {
             // Force all patch boundaries in u direction.
-            vector < double > pmap;
-            m_Surface.get_pmap_u( pmap );
-            m_UFeature.insert( m_UFeature.end(), pmap.begin(), pmap.end() );
+            for ( double u = umin; u <= umax; u++ )
+            {
+                m_UFeature.push_back( u );
+            }
         }
 
         // Add start/mid/end curves.
@@ -1373,11 +1430,15 @@ bool VspSurf::CapWMax(int CapType)
     return false;
 }
 
-void VspSurf::SplitSurfs( const piecewise_surface_type &basesurf, vector< piecewise_surface_type > &surfvec )
+void VspSurf::SplitSurfs( vector< piecewise_surface_type > &surfvec )
 {
-    surfvec.push_back( basesurf );
+    SplitSurfsU( surfvec, m_UFeature );
+    SplitSurfsW( surfvec, m_WFeature );
+}
 
-    for ( int i = 0; i < m_UFeature.size(); ++i )
+void SplitSurfsU( vector< piecewise_surface_type > &surfvec, const vector < double > &USplit )
+{
+    for ( int i = 0; i < USplit.size(); ++i )
     {
         vector < piecewise_surface_type > splitsurfvec;
         for ( int j = 0; j < surfvec.size(); j++ )
@@ -1386,9 +1447,9 @@ void VspSurf::SplitSurfs( const piecewise_surface_type &basesurf, vector< piecew
 
             s = surfvec[j];
 
-            if ( s.get_u0() < m_UFeature[i] && s.get_umax() > m_UFeature[i] )
+            if ( s.get_u0() < USplit[i] && s.get_umax() > USplit[i] )
             {
-                s.split_u( s1, s2, m_UFeature[i] );
+                s.split_u( s1, s2, USplit[i] );
 
                 if ( s1.number_u_patches() > 0 && s1.number_v_patches() > 0 )
                 {
@@ -1406,9 +1467,11 @@ void VspSurf::SplitSurfs( const piecewise_surface_type &basesurf, vector< piecew
         }
         surfvec = splitsurfvec;
     }
+}
 
-
-    for ( int i = 0; i < m_WFeature.size(); ++i )
+void SplitSurfsW( vector< piecewise_surface_type > &surfvec, const vector < double > &WSplit )
+{
+    for ( int i = 0; i < WSplit.size(); ++i )
     {
         vector < piecewise_surface_type > splitsurfvec;
         for ( int j = 0; j < surfvec.size(); j++ )
@@ -1417,9 +1480,9 @@ void VspSurf::SplitSurfs( const piecewise_surface_type &basesurf, vector< piecew
 
             s = surfvec[j];
 
-            if ( s.get_v0() < m_WFeature[i] && s.get_vmax() > m_WFeature[i] )
+            if ( s.get_v0() < WSplit[i] && s.get_vmax() > WSplit[i] )
             {
-                s.split_v( s1, s2, m_WFeature[i] );
+                s.split_v( s1, s2, WSplit[i] );
 
                 if ( s1.number_u_patches() > 0 && s1.number_v_patches() > 0 )
                 {
@@ -1444,6 +1507,12 @@ void VspSurf::SplitSurfs( const piecewise_surface_type &basesurf, vector< piecew
 // used to test patches from split surfaces.
 bool VspSurf::CheckValidPatch( const piecewise_surface_type &surf )
 {
+    if ( surf.number_u_patches() == 0 || surf.number_v_patches() == 0 )
+    {
+        // Empty surface.
+        return false;
+    }
+
     double umin, vmin, umax, vmax;
     surf.get_parameter_min( umin, vmin );
     surf.get_parameter_max( umax, vmax );
@@ -1496,7 +1565,8 @@ bool VspSurf::CheckValidPatch( const piecewise_surface_type &surf )
 void VspSurf::FetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_ind, vector< XferSurf > &xfersurfs )
 {
     vector < piecewise_surface_type > surfvec;
-    SplitSurfs( m_Surface, surfvec );
+    surfvec.push_back( m_Surface );
+    SplitSurfs( surfvec );
 
     int num_sections = surfvec.size();
 
@@ -1570,7 +1640,7 @@ void VspSurf::ExtractCPts( piecewise_surface_type &s, vector< vector< int > > &p
 }
 
 
-void VspSurf::ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface_with_knots *> &surfs, bool splitsurf, bool mergepts, bool tocubic, double tol, bool trimte )
+void VspSurf::ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface_with_knots *> &surfs, bool splitsurf, bool mergepts, bool tocubic, double tol, bool trimte, const vector < double > &USplit, const vector < double > &WSplit )
 {
     // Make copy for local changes.
     piecewise_surface_type s( m_Surface );
@@ -1594,14 +1664,14 @@ void VspSurf::ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface
     }
 
     vector < piecewise_surface_type > surfvec;
+    surfvec.push_back( s );
     if ( splitsurf )
     {
-        SplitSurfs( s, surfvec );
+        SplitSurfs( surfvec );
     }
-    else
-    {
-        surfvec.push_back( s );
-    }
+
+    SplitSurfsU( surfvec, USplit );
+    SplitSurfsW( surfvec, WSplit );
 
     for ( int isurf = 0; isurf < surfvec.size(); isurf++ )
     {
@@ -1791,7 +1861,7 @@ void VspSurf::ToSTEP_Bez_Patches( STEPutil * step, vector<SdaiBezier_surface *> 
     }
 }
 
-void VspSurf::ToIGES( DLL_IGES &model, bool splitsurf, bool tocubic, double tol, bool trimTE )
+void VspSurf::ToIGES( DLL_IGES &model, bool splitsurf, bool tocubic, double tol, bool trimTE, const vector < double > &USplit, const vector < double > &WSplit )
 {
     // Make copy for local changes.
     piecewise_surface_type s( m_Surface );
@@ -1815,14 +1885,14 @@ void VspSurf::ToIGES( DLL_IGES &model, bool splitsurf, bool tocubic, double tol,
     }
 
     vector < piecewise_surface_type > surfvec;
+    surfvec.push_back( s );
     if ( splitsurf )
     {
-        SplitSurfs( s, surfvec );
+        SplitSurfs( surfvec );
     }
-    else
-    {
-        surfvec.push_back( s );
-    }
+
+    SplitSurfsU( surfvec, USplit );
+    SplitSurfsW( surfvec, WSplit );
 
     for ( int is = 0; is < surfvec.size(); is++ )
     {

@@ -31,6 +31,7 @@ AnalysisMgr.cpp
 BlankGeom.cpp
 CfdMeshSettings.cpp
 ClippingMgr.cpp
+ConformalGeom.cpp
 CustomGeom.cpp
 DegenGeom.cpp
 DesignVarMgr.cpp
@@ -60,6 +61,7 @@ SnapTo.cpp
 StackGeom.cpp
 SubSurface.cpp
 SubSurfaceMgr.cpp
+SVGUtil.cpp
 Texture.cpp
 TextureMgr.cpp
 TMesh.cpp
@@ -87,6 +89,7 @@ CfdMeshSettings.h
 ClippingMgr.h
 Color.h
 ColorMgr.h
+ConformalGeom.h
 CustomGeom.h
 DegenGeom.h
 DesignVarMgr.h
@@ -122,6 +125,7 @@ StackGeom.h
 SubSurface.h
 SubSurfaceMgr.h
 SWIGDefines.h
+SVGUtil.h
 Texture.h
 TextureMgr.h
 TMesh.h

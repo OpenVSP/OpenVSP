@@ -470,14 +470,20 @@ void MeshGeom::WriteStl( FILE* file_id )
 {
     int m;
 
-    for ( m = 0 ; m < ( int )m_TMeshVec.size() ; m++ )
+    if ( m_ViewMeshFlag() )
     {
-        m_TMeshVec[m]->WriteSTLTris( file_id, GetTotalTransMat() );
+        for (m = 0; m < (int) m_TMeshVec.size(); m++)
+        {
+            m_TMeshVec[m]->WriteSTLTris(file_id, GetTotalTransMat());
+        }
     }
 
-    for ( m = 0 ; m < ( int )m_SliceVec.size() ; m++ )
+    if ( m_ViewSliceFlag() )
     {
-        m_SliceVec[m]->WriteSTLTris( file_id, GetTotalTransMat() );
+        for (m = 0; m < (int) m_SliceVec.size(); m++)
+        {
+            m_SliceVec[m]->WriteSTLTris(file_id, GetTotalTransMat());
+        }
     }
 }
 
@@ -704,6 +710,7 @@ void MeshGeom::BuildIndexedMesh( int partOffset )
 
     //==== Collect All Points ====//
     vector< TNode* > allNodeVec;
+    allNodeVec.reserve( m_IndexedTriVec.size() * 3 );
     for ( t = 0 ; t < ( int )m_IndexedTriVec.size() ; t++ )
     {
         m_IndexedTriVec[t]->m_N0->m_ID = ( int )allNodeVec.size();
@@ -713,10 +720,10 @@ void MeshGeom::BuildIndexedMesh( int partOffset )
         m_IndexedTriVec[t]->m_N2->m_ID = ( int )allNodeVec.size();
         allNodeVec.push_back( m_IndexedTriVec[t]->m_N2 );
     }
-    vector< vec3d > allPntVec;
+    vector< vec3d > allPntVec( allNodeVec.size() );
     for ( int i = 0 ; i < ( int )allNodeVec.size() ; i++ )
     {
-        allPntVec.push_back( allNodeVec[i]->m_Pnt );
+        allPntVec[i] = allNodeVec[i]->m_Pnt;
     }
 
     if ( allPntVec.size() == 0 )
@@ -736,6 +743,7 @@ void MeshGeom::BuildIndexedMesh( int partOffset )
     IndexPntNodes( pnCloud, tol );
 
     //==== Load Used Nodes ====//
+    m_IndexedNodeVec.reserve( pnCloud.m_NumUsedPts );
     for ( int i = 0 ; i < ( int )allNodeVec.size() ; i++ )
     {
         if ( pnCloud.UsedNode( i ) )
@@ -752,7 +760,7 @@ void MeshGeom::BuildIndexedMesh( int partOffset )
 
     //==== Remove Any Bogus Tris ====//
     vector< TTri* > goodTriVec;
-
+    goodTriVec.reserve( m_IndexedTriVec.size() );
     //==== Write Out Tris ====//
     for ( t = 0 ; t < ( int )m_IndexedTriVec.size() ; t++ )
     {
@@ -767,7 +775,9 @@ void MeshGeom::BuildIndexedMesh( int partOffset )
             }
         }
     }
-    m_IndexedTriVec = goodTriVec;
+    // Swap instead of assign to avoid copy.
+    // m_IndexedTriVec = goodTriVec;
+    swap( m_IndexedTriVec, goodTriVec );
 
     Update();
 }
@@ -824,6 +834,20 @@ int MeshGeom::WriteGMshNodes( FILE* fp, int node_offset )
     return node_offset + ( int )m_IndexedNodeVec.size();
 }
 
+void MeshGeom::WriteFacetNodes( FILE* fp )
+{
+    //==== Write Out Nodes ====//
+    vec3d v;
+    Matrix4d XFormMat = GetTotalTransMat();
+    for ( int i = 0; i < (int)m_IndexedNodeVec.size(); i++ )
+    {
+        TNode* tnode = m_IndexedNodeVec[i];
+        // Apply Transformations
+        v = XFormMat.xform( tnode->m_Pnt );
+        fprintf( fp, "%16.10g %16.10g %16.10g\n", v.x(), v.y(), v.z() );
+    }
+}
+
 int MeshGeom::WriteNascartTris( FILE* fp, int off )
 {
     //==== Write Out Tris ====//
@@ -868,6 +892,85 @@ int MeshGeom::WriteGMshTris( FILE* fp, int node_offset, int tri_offset )
         }
     }
     return ( tri_offset + m_IndexedTriVec.size() );
+}
+
+void MeshGeom::WriteFacetTriParts( FILE* fp, int &offset, int &tri_count, int &part_count )
+{
+    vector < string > geom_ID_vec;
+    geom_ID_vec.resize( m_TMeshVec.size() );
+
+    for ( unsigned int i = 0; i < m_TMeshVec.size(); i++ )
+    {
+        geom_ID_vec[i] = m_TMeshVec[i]->m_PtrID;
+    }
+
+    vector < int > tri_offset; // vector of number of tris for each tag
+
+    int materialID = 0; // Default Material ID of PEC (Referred to as "iCoat" in XPatch facet file documentation)
+
+    vector < int > all_tag_vec = SubSurfaceMgr.GetAllTags(); // vector of tags, where each tag identifies a part or group of facets
+
+    //==== Get # of facets for each part ====//
+    for ( unsigned int i = 0; i < all_tag_vec.size(); i++ )
+    {
+        int tag_count = 0;
+
+        for ( unsigned int j = 0; j < m_IndexedTriVec.size(); j++ )
+        {
+            if ( all_tag_vec[i] == SubSurfaceMgr.GetTag( m_IndexedTriVec[j]->m_Tags ) )
+            {
+                tag_count++;
+            }
+        }
+
+        tri_offset.push_back( tag_count );
+    }
+
+    // Remove indexes of tri_offset that contain no tris
+    for ( unsigned int j = 0; j < tri_offset.size(); j++ )
+    {
+        if ( tri_offset[j] == 0 ) // This indicates no tris for the tag index. 
+        {
+            // Erase to avoid writing and counting parts with no tris
+            tri_offset.erase( tri_offset.begin() + j );
+            all_tag_vec.erase( all_tag_vec.begin() + j );
+            j--;
+        }
+    }
+
+    fprintf( fp, "%ld \n", tri_offset.size() ); // # of "Small" parts, based on the total number of tags
+
+    //==== Write Out Tris ====//
+    for ( unsigned int i = 0; i < all_tag_vec.size(); i++ )
+    {
+        int curr_tag = all_tag_vec[i];
+        bool new_section = true; // flag to write small part section header
+
+        for ( unsigned int j = 0; j < m_IndexedTriVec.size(); j++ )
+        {
+            if ( curr_tag == SubSurfaceMgr.GetTag( m_IndexedTriVec[j]->m_Tags ) ) // only write out current tris for surrent tag
+            {
+                if ( new_section ) // write small part header and get material ID for small part
+                {
+                    string name = SubSurfaceMgr.GetTagNames( m_IndexedTriVec[j]->m_Tags );
+                    fprintf( fp, "%s\n", name.c_str() ); // Write name of small part
+                    fprintf( fp, "%d 3\n", tri_offset[i] ); // Number of facets for the part, 3 nodes per facet
+
+                    new_section = false;
+                }
+
+                TTri* ttri = m_IndexedTriVec[j];
+
+                tri_count++; // counter for number of tris/facets
+
+                // 3 nodes of facet, material ID, component ID, running facet #:
+                fprintf( fp, "%d %d %d %d %d %d\n", ttri->m_N0->m_ID + 1 + offset, ttri->m_N1->m_ID + 1 + offset, ttri->m_N2->m_ID + 1 + offset, materialID, i + 1 + part_count, tri_count );
+            }
+        }
+    }
+
+    part_count += tri_offset.size();
+    offset += m_IndexedNodeVec.size();
 }
 
 int MeshGeom::WriteNascartParts( FILE* fp, int off )
@@ -1012,7 +1115,7 @@ void MeshGeom::UpdateDrawObj()
         m_DrawType = MeshGeom::DRAW_XYZ;
     }
 
-    if ( m_DrawSubSurfs() == true )
+    if ( m_DrawSubSurfs() )
     {
         m_TMeshVec.insert( m_TMeshVec.end(), m_SubSurfVec.begin(), m_SubSurfVec.end() );
     }
@@ -1098,7 +1201,7 @@ void MeshGeom::UpdateDrawObj()
             }
         }
 
-        if ( m_DrawType() == MeshGeom::DRAW_TAGS && m_DrawSubSurfs() == false )
+        if ( m_DrawType() == MeshGeom::DRAW_TAGS && ! m_DrawSubSurfs() )
         {
             // make map from tag to wire draw obj
 
@@ -1132,7 +1235,7 @@ void MeshGeom::UpdateDrawObj()
     }
 
     // Remove subsurfaces From TMeshVec
-    if ( m_DrawSubSurfs() == true )
+    if ( m_DrawSubSurfs() )
     {
         m_TMeshVec.erase( m_TMeshVec.begin() + num_meshes, m_TMeshVec.end() );
     }
@@ -1396,7 +1499,7 @@ void MeshGeom::Scale()
 
 void MeshGeom::ApplyScale()
 {
-    if ( fabs( m_LastScale() - m_Scale() ) < 0.0000001 )
+    if ( std::abs( m_LastScale() - m_Scale() ) < 0.0000001 )
     {
         return;
     }
@@ -1746,6 +1849,39 @@ void MeshGeom::IntersectTrim( int halfFlag, int intSubsFlag )
         }
     }
 
+    int ntags = -1;
+    vector < double > tagTheoAreaVec;
+    vector < double > tagWetAreaVec;
+    vector < string > tagNameVec;
+
+    if ( intSubsFlag )
+    {
+        // Subtract off dummy tag.
+        ntags = SubSurfaceMgr.GetNumTags() - 1;
+
+        tagTheoAreaVec.resize( ntags, 0.0 );
+        tagWetAreaVec.resize( ntags, 0.0 );
+        tagNameVec.resize( ntags );
+
+        for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+        {
+            for ( j = 0; j < ntags; j++ )
+            {
+                tagTheoAreaVec[j] += m_TMeshVec[i]->m_TagTheoAreaVec[j];
+                tagWetAreaVec[j] += m_TMeshVec[i]->m_TagWetAreaVec[j];
+            }
+        }
+
+        vector < int > tags = SubSurfaceMgr.GetAllTags();
+
+        assert( tags.size() == ntags );
+
+        for ( j = 0; j < ntags; j++ )
+        {
+            tagNameVec[j] = SubSurfaceMgr.GetTagNames( j );
+        }
+    }
+
     //==== Add Results ====//
     vector< string > name_vec;
     vector< double > theo_area_vec;
@@ -1789,6 +1925,11 @@ void MeshGeom::IntersectTrim( int halfFlag, int intSubsFlag )
     res->Add( NameValData( "Wet_Area", wet_area_vec ) );
     res->Add( NameValData( "Theo_Vol", theo_vol_vec ) );
     res->Add( NameValData( "Wet_Vol", wet_vol_vec ) );
+
+    res->Add( NameValData( "Num_Tags", ntags ) );
+    res->Add( NameValData( "Tag_Name", tagNameVec ) );
+    res->Add( NameValData( "Tag_Theo_Area", tagTheoAreaVec ) );
+    res->Add( NameValData( "Tag_Wet_Area", tagWetAreaVec ) );
 
     res->Add( NameValData( "Total_Theo_Area", m_TotalTheoArea ) );
     res->Add( NameValData( "Total_Wet_Area", m_TotalWetArea ) );
@@ -2370,7 +2511,7 @@ void MeshGeom::WaveDragSlice( int numSlices, double sliceAngle, int coneSections
             // Populate vector of TMesh* for current subsurface
             vector< TMesh* > sub_surf_meshes;
             string subsurf_id = sub_surf_vec[ssv]->GetID();
-            if ( vector_contains_val( Flow_vec, subsurf_id ) == true )
+            if ( vector_contains_val( Flow_vec, subsurf_id ) )
             {
                 vector< TMesh* > tmp_vec = sub_surf_vec[ssv]->CreateTMeshVec();
                 sub_surf_meshes.insert( sub_surf_meshes.end(), tmp_vec.begin(), tmp_vec.end() );
@@ -3098,7 +3239,7 @@ void MeshGeom::MassSliceX( int numSlices, bool writefile )
     double totalVol = 0.0;
     for ( i = 0 ; i < ( int )tetraVec.size() ; i++ )
     {
-        totalVol += fabs( tetraVec[i]->m_Vol );
+        totalVol += std::abs( tetraVec[i]->m_Vol );
     }
 
     vec3d cg( 0, 0, 0 );
@@ -3181,7 +3322,7 @@ void MeshGeom::MassSliceX( int numSlices, bool writefile )
         {
             if ( !tetraVec[i]->m_CompId.compare( id ) )
             {
-                compVol += fabs( tetraVec[i]->m_Vol );
+                compVol += std::abs( tetraVec[i]->m_Vol );
             }
         }
 

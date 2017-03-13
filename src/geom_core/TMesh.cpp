@@ -24,6 +24,7 @@
 #include "triangle.h"
 #include "Geom.h"
 #include "SubSurfaceMgr.h"
+#include "PntNodeMerge.h"
 
 
 //===============================================//
@@ -169,7 +170,7 @@ TetraMassProp::TetraMassProp( string id, double denIn, vec3d& p0, vec3d& p1, vec
     m_CG = ( m_CG * 0.25 ) + p0;
 
     m_Vol  = tetra_volume( m_v1, m_v2, m_v3 );
-    m_Mass = m_Density * fabs( m_Vol );
+    m_Mass = m_Density * std::abs( m_Vol );
 
     double Ix = m_Mass / 10.0 * ( m_v1.x() * m_v1.x() + m_v2.x() * m_v2.x() + m_v3.x() * m_v3.x() +
                                   m_v1.x() * m_v2.x() + m_v1.x() * m_v3.x() + m_v2.x() * m_v3.x() );
@@ -281,7 +282,7 @@ DegenGeomTetraMassProp::DegenGeomTetraMassProp( string id, vec3d& p0, vec3d& p1,
     m_CG = m_v1 + m_v2 + m_v3;
     m_CG = ( m_CG * 0.25 ) + p0;
 
-    m_Vol  = fabs( tetra_volume( m_v1, m_v2, m_v3 ) );
+    m_Vol  = std::abs( tetra_volume( m_v1, m_v2, m_v3 ) );
 
     double Ix = m_Vol / 10.0 * ( m_v1.x() * m_v1.x() + m_v2.x() * m_v2.x() + m_v3.x() * m_v3.x() +
                                  m_v1.x() * m_v2.x() + m_v1.x() * m_v3.x() + m_v2.x() * m_v3.x() );
@@ -695,7 +696,7 @@ void TMesh::MergeNonClosed( TMesh* tm )
                 break;
             }
         }
-        if ( match_flag == false )
+        if ( ! match_flag )
         {
             break;
         }
@@ -902,9 +903,25 @@ void TMesh::WaveDeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec )
 double TMesh::ComputeTheoArea()
 {
     m_TheoArea = 0;
+    m_TagTheoAreaVec.clear();
+    int ntags = SubSurfaceMgr.GetNumTags() - 1;
+    if ( ntags > 0 )
+    {
+        m_TagTheoAreaVec.resize( ntags, 0.0);
+    }
+
     for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
     {
-        m_TheoArea += m_TVec[t]->ComputeArea();
+        double area = m_TVec[t]->ComputeArea();
+        m_TheoArea += area;
+        if ( ntags > 0 )
+        {
+            int itag = SubSurfaceMgr.GetTag(m_TVec[t]->m_Tags) - 1;
+            if ( itag >= 0 && itag < ntags )
+            {
+                m_TagTheoAreaVec[itag] += area;
+            }
+        }
     }
     return m_TheoArea;
 }
@@ -913,10 +930,20 @@ double TMesh::ComputeWetArea()
 {
     m_WetArea = 0;
     m_AreaCenter = vec3d(0,0,0);
+    m_TagWetAreaVec.clear();
+    int ntags = SubSurfaceMgr.GetNumTags() - 1;
+    if ( ntags > 0 )
+    {
+        m_TagWetAreaVec.resize( ntags, 0.0);
+    }
 
     for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
     {
         TTri* tri = m_TVec[t];
+
+        // TMesh::SubTag guarantees that split tris have same tags as normal tris.
+        // So, just look up tag index once per tri.
+        int itag = SubSurfaceMgr.GetTag( tri->m_Tags ) - 1;
 
         //==== Do Interior Tris ====//
         if ( tri->m_SplitVec.size() )
@@ -929,6 +956,10 @@ double TMesh::ComputeWetArea()
                     m_AreaCenter = m_AreaCenter + tri->m_SplitVec[s]->ComputeCenter()*area;
                     vec3d center = tri->m_SplitVec[s]->ComputeCenter();
                     m_WetArea += area;
+                    if ( itag >= 0 && itag < ntags )
+                    {
+                        m_TagWetAreaVec[itag] += area;
+                    }
                 }
             }
         }
@@ -938,6 +969,10 @@ double TMesh::ComputeWetArea()
             m_AreaCenter = m_AreaCenter + tri->ComputeCenter()*area;
             vec3d center = tri->ComputeCenter();
             m_WetArea += tri->ComputeArea();
+            if ( itag >= 0 && itag < ntags )
+            {
+                m_TagWetAreaVec[itag] += area;
+            }
         }
     }
     m_AreaCenter = m_AreaCenter/m_WetArea;
@@ -1959,8 +1994,8 @@ void TTri::TriangulateSplit( int flattenAxis )
         for ( i = 0 ; i < in.numberofpoints ; i++ )
             for ( j = i + 1 ; j < in.numberofpoints ; j++ )
             {
-                double del = fabs( in.pointlist[i * 2] - in.pointlist[j * 2] ) +
-                             fabs( in.pointlist[i * 2 + 1] - in.pointlist[j * 2 + 1] );
+                double del = std::abs( in.pointlist[i * 2] - in.pointlist[j * 2] ) +
+                             std::abs( in.pointlist[i * 2 + 1] - in.pointlist[j * 2 + 1] );
 
                 if ( del < 1e-8 )
                 {
@@ -2558,7 +2593,7 @@ void  TBndBox::NumCrossXRay( vec3d & orig, vector<double> & tParmVec )
             int dupFlag = 0;
             for ( int j = 0 ; j < ( int )tParmVec.size() ; j++ )
             {
-                if ( fabs( tparm - tParmVec[j] ) < 0.0000001 )
+                if ( std::abs( tparm - tParmVec[j] ) < 0.0000001 )
                 {
                     dupFlag = 1;
                     break;
@@ -2609,7 +2644,7 @@ void  TBndBox::RayCast( vec3d & orig, vec3d & dir, vector<double> & tParmVec )
             int dupFlag = 0;
             for ( int j = 0 ; j < ( int )tParmVec.size() ; j++ )
             {
-                if ( fabs( tparm - tParmVec[j] ) < 0.0000001 )
+                if ( std::abs( tparm - tParmVec[j] ) < 0.0000001 )
                 {
                     dupFlag = 1;
                     break;
@@ -2660,113 +2695,6 @@ void TBndBox::SegIntersect( vec3d & p0, vec3d & p1, vector< vec3d > & ipntVec )
         }
     }
 
-}
-
-
-//===============================================//
-//===============================================//
-//===============================================//
-//===============================================//
-//                  NBndBox
-//===============================================//
-//===============================================//
-//===============================================//
-//===============================================//
-NBndBox::NBndBox()
-{
-    for ( int i = 0 ; i < 8 ; i++ )
-    {
-        m_SBoxVec[i] = 0;
-    }
-}
-
-NBndBox::~NBndBox()
-{
-    for ( int i = 0 ; i < 8 ; i++ )
-    {
-        delete m_SBoxVec[i];
-    }
-}
-
-//==== Create Oct Tree of Overlaping BndBoxes ====//
-void NBndBox::SplitBox( double maxSize )
-{
-    int i;
-    if ( m_NodeVec.size() > 64 && m_Box.DiagDist() > maxSize  )
-    {
-        //==== Find Split Points ====//
-        double hx = 0.5 * ( m_Box.GetMax( 0 ) + m_Box.GetMin( 0 ) );
-        double hy = 0.5 * ( m_Box.GetMax( 1 ) + m_Box.GetMin( 1 ) );
-        double hz = 0.5 * ( m_Box.GetMax( 2 ) + m_Box.GetMin( 2 ) );
-
-        for ( i = 0 ; i < 8 ; i++ )
-        {
-            m_SBoxVec[i] = new NBndBox();
-        }
-
-        for ( i = 0 ; i < ( int )m_NodeVec.size() ; i++ )
-        {
-            int cnt = 0;
-            if ( m_NodeVec[i]->m_Pnt.x() > hx )
-            {
-                cnt += 1;
-            }
-            if ( m_NodeVec[i]->m_Pnt.y() > hy )
-            {
-                cnt += 2;
-            }
-            if ( m_NodeVec[i]->m_Pnt.z() > hz )
-            {
-                cnt += 4;
-            }
-            m_SBoxVec[cnt]->AddNode( m_NodeVec[i] );
-        }
-
-        int contSplitFlag = 1;
-        /* Not Needed for Nodes ???
-                for ( i = 0 ; i < 8 ; i++ )
-                {
-                    if ( triVec.size() == sBoxVec[i]->triVec.size() )
-                    {
-                        contSplitFlag = 0;
-                        break;
-                    }
-                }
-        */
-        if ( contSplitFlag )
-        {
-            for ( i = 0 ; i < 8 ; i++ )
-            {
-                m_SBoxVec[i]->SplitBox( maxSize );
-            }
-        }
-    }
-}
-
-void NBndBox::AddNode( TNode* n )
-{
-    m_NodeVec.push_back( n );
-    m_Box.Update( n->m_Pnt );
-}
-
-void NBndBox::AddLeafNodes( vector< NBndBox* > & leafVec )
-{
-    int i;
-
-    if ( m_SBoxVec[0] )     // Keep Moving Down
-    {
-        for ( i = 0 ; i < 8 ; i++ )
-        {
-            m_SBoxVec[i]->AddLeafNodes( leafVec );
-        }
-    }
-    else
-    {
-        if ( m_NodeVec.size() )
-        {
-            leafVec.push_back( this );
-        }
-    }
 }
 
 //===============================================//
@@ -3170,58 +3098,27 @@ void TMesh::BuildNodeMaps()
     // This method builds the map between a node and its aliases and a map between
     // each node to its master node
 
-    int i, n;
-
-    map< TNode*, list<TNode*> >::iterator mi;
+    int n;
 
     double tol = 1.0e-12;
-    double sqtol = sqrt( tol );
+
+    //==== Build Map ====//
+    PntNodeCloud pnCloud;
+    pnCloud.ReserveMorePntNodes( m_NVec.size() );
 
     for ( n = 0 ; n < ( int )m_NVec.size() ; n++ )
     {
         m_NVec[n]->m_MergeVec.clear();
+        pnCloud.AddPntNode( m_NVec[n]->m_Pnt );
     }
 
-    NBndBox nBox;
-    for ( n = 0 ; n < ( int )m_NVec.size() ; n++ )
-    {
-        nBox.AddNode( m_NVec[n] );
-    }
-    nBox.SplitBox( sqrt( tol ) );
-
-    //==== Find All Leaves of Oct Tree ====//
-    vector< NBndBox* > leafVec;
-    nBox.AddLeafNodes( leafVec );
-
-    for ( i = 0 ; i < ( int )leafVec.size() ; i++ )
-    {
-        leafVec[i]->m_Box.Expand( sqtol );
-    }
+    //==== Use NanoFlann to Find Close Points and Group ====//
+    IndexPntNodes( pnCloud, tol );
 
     for ( n = 0 ; n < ( int )m_NVec.size() ; n++ )
     {
-        if ( m_NSMMap.find( m_NVec[n] ) == m_NSMMap.end() ) // This node doesn't have a master so continue
+        if ( pnCloud.UsedNode( n ) ) // This point is a NanoFlann master.
         {
-            for ( i = 0 ; i < ( int )leafVec.size() ; i++ )
-            {
-
-                if ( leafVec[i]->m_Box.CheckPnt( m_NVec[n]->m_Pnt.x(), m_NVec[n]->m_Pnt.y(), m_NVec[n]->m_Pnt.z() ) )
-                {
-                    for ( int m = 0 ; m < ( int )leafVec[i]->m_NodeVec.size() ; m++ )
-                    {
-                        if ( m_NVec[n] != leafVec[i]->m_NodeVec[m] ) // If it is the same node skip
-                        {
-                            if ( dist_squared( m_NVec[n]->m_Pnt, leafVec[i]->m_NodeVec[m]->m_Pnt ) < tol )
-                            {
-                                m_NVec[n]->m_MergeVec.push_back( leafVec[i]->m_NodeVec[m] );
-                                m_NAMap[m_NVec[n]].push_back( leafVec[i]->m_NodeVec[m] ); // Add node m to n's list of aliases
-                                m_NSMMap[leafVec[i]->m_NodeVec[m]] = m_NVec[n]; // Set m's master to be n
-                            }
-                        }
-                    }
-                }
-            }
-
             // Set n to be its own master
             m_NSMMap[ m_NVec[n] ] = m_NVec[n];
 
@@ -3230,6 +3127,16 @@ void TMesh::BuildNodeMaps()
         }
     }
 
+    for ( int islave = 0 ; islave < ( int )m_NVec.size() ; islave++ )
+    {
+        if ( !(pnCloud.UsedNode( islave )) ) // This point is a NanoFlann slave.
+        {
+            int imaster = pnCloud.GetNodeBaseIndex( islave );
+            m_NVec[imaster]->m_MergeVec.push_back( m_NVec[islave] );
+            m_NAMap[m_NVec[imaster]].push_back( m_NVec[islave] ); // Add node islave to imaster's list of aliases
+            m_NSMMap[m_NVec[islave]] = m_NVec[imaster]; // Set islave's master to be imaster
+        }
+    }
 }
 
 void TMesh::DeleteDupNodes()

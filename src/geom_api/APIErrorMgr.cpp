@@ -116,7 +116,7 @@ void ErrorMgrSingleton::AddError( ERROR_CODE code, const string & desc )
 //==== Check For Error and Print to Stream if Found ====//
 bool ErrorMgrSingleton::PopErrorAndPrint( FILE* stream )
 {
-    if ( m_ErrorLastCallFlag == false || m_ErrorStack.size() == 0 )
+    if ( ! m_ErrorLastCallFlag || m_ErrorStack.size() == 0 )
     {
         return false;
     }

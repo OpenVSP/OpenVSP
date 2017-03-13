@@ -32,10 +32,11 @@ enum ERROR_CODE {   VSP_OK,
                     VSP_CANT_SET_NOT_EQ_PARM,
                     VSP_AMBIGUOUS_SUBSURF,
                     VSP_INVALID_VARPRESET_SETNAME,
-                    VSP_INVALID_VARPRESET_GROUPNAME
+                    VSP_INVALID_VARPRESET_GROUPNAME,
+                    VSP_CONFORMAL_PARENT_UNSUPPORTED
                 };
 
-enum {  SYM_XY = ( 1 << 0 ),
+enum SYM_FLAG {  SYM_XY = ( 1 << 0 ),
         SYM_XZ = ( 1 << 1 ),
         SYM_YZ = ( 1 << 2 ),
         SYM_ROT_X = ( 1 << 3 ),
@@ -96,6 +97,11 @@ enum VIEW_ROT { ROT_0,
                 ROT_90,
                 ROT_180,
                 ROT_270,
+};
+
+enum SCALE_FLAG { MANUAL,
+                  REFERENCE,
+                  NOSCALE
 };
 
 enum ANG_UNITS { ANG_RAD,
@@ -171,7 +177,9 @@ enum EXPORT_TYPE {  EXPORT_FELISA,
                     EXPORT_PLOT3D,
                     EXPORT_IGES,
                     EXPORT_BEM,
-                    EXPORT_DXF
+                    EXPORT_DXF,
+                    EXPORT_FACET,
+                    EXPORT_SVG
                  };
 
 enum COMPUTATION_FILE_TYPE  {   NO_FILE_TYPE        = 0,
@@ -185,15 +193,16 @@ enum COMPUTATION_FILE_TYPE  {   NO_FILE_TYPE        = 0,
                                 CFD_STL_TYPE        = 128,
                                 CFD_POLY_TYPE       = 256,
                                 CFD_TRI_TYPE        = 512,
-                                CFD_OBJ_TYPE        = 1024,
-                                CFD_DAT_TYPE        = 2048,
-                                CFD_KEY_TYPE        = 4096,
-                                CFD_GMSH_TYPE       = 8192,
-                                CFD_SRF_TYPE        = 16384,
-                                CFD_TKEY_TYPE       = 32768,
-                                PROJ_AREA_CSV_TYPE  = 65536,
-                                WAVE_DRAG_TXT_TYPE  = 131072,
-                                VSPAERO_PANEL_TRI_TYPE = 262144,
+                                VSPAERO_PANEL_TRI_TYPE = 1024,
+                                CFD_OBJ_TYPE        = 2048,
+                                CFD_DAT_TYPE        = 4096,
+                                CFD_KEY_TYPE        = 8192,
+                                CFD_GMSH_TYPE       = 16384,
+                                CFD_SRF_TYPE        = 32768,
+                                CFD_TKEY_TYPE       = 65536,
+                                PROJ_AREA_CSV_TYPE  = 131072,
+                                WAVE_DRAG_TXT_TYPE  = 262144,
+                                CFD_FACET_TYPE = 524288,
                             };
 
 enum SET_TYPE { SET_ALL = 0,
@@ -224,6 +233,7 @@ enum CFD_MESH_EXPORT_TYPE { CFD_STL_FILE_NAME,
                             CFD_GMSH_FILE_NAME,
                             CFD_SRF_FILE_NAME,
                             CFD_TKEY_FILE_NAME,
+                            CFD_FACET_FILE_NAME,
                             CFD_NUM_FILE_NAMES,
                         };
 
@@ -303,6 +313,17 @@ enum WING_DRIVERS { AR_WSECT_DRIVER,
                     SECSWEEPLOC_WSECT_DRIVER = SECSWEEP_WSECT_DRIVER + 3,
                   };
 
+enum WING_BLEND { BLEND_FREE,
+                  BLEND_ANGLES,
+                  BLEND_MATCH_IN_LE_TRAP,
+                  BLEND_MATCH_IN_TE_TRAP,
+                  BLEND_MATCH_OUT_LE_TRAP,
+                  BLEND_MATCH_OUT_TE_TRAP,
+                  BLEND_MATCH_IN_ANGLES,
+                  BLEND_MATCH_LE_ANGLES,
+                  BLEND_NUM_TYPES
+                };
+
 enum COLLISION_ERRORS { COLLISION_OK,
                         COLLISION_INTERSECT_NO_SOLUTION,
                         COLLISION_CLEAR_NO_SOLUTION,
@@ -351,6 +372,12 @@ enum PROP_PCURVE { PROP_CHORD,
 enum VSPAERO_ANALYSIS_METHOD { VORTEX_LATTICE,
                                PANEL
                              };
+
+// Aerodynamic reference area and length
+enum VSPAERO_REF_WING_TYPE { MANUAL_REF = 0,     // manually specify the reference areas and lengths
+                             COMPONENT_REF,      // use a particular wing to calculate the reference area and lengths
+                             NUM_REF_TYPES
+                           };
 
 }   // Namespace
 

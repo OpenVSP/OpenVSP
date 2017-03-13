@@ -416,6 +416,25 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "PARM_TYPE", "PARM_STRING_TYPE", PARM_STRING_TYPE );
     assert( r >= 0 );
 
+    r = se->RegisterEnum( "SYM_FLAG" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SYM_FLAG", "SYM_XY", SYM_XY );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SYM_FLAG", "SYM_XZ", SYM_XZ );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SYM_FLAG", "SYM_YZ", SYM_YZ );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SYM_FLAG", "SYM_ROT_X", SYM_ROT_X );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SYM_FLAG", "SYM_ROT_Y", SYM_ROT_Y );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SYM_FLAG", "SYM_ROT_Z", SYM_ROT_Z );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SYM_FLAG", "SYM_PLANAR_TYPES", SYM_PLANAR_TYPES );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SYM_FLAG", "SYM_NUM_TYPES", SYM_NUM_TYPES );
+    assert( r >= 0 );
+
     r = se->RegisterEnum( "GDEV" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GDEV", "GDEV_TAB", GDEV_TAB );
@@ -573,6 +592,15 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "VIEW_ROT", "ROT_270", ROT_270 );
     assert( r >= 0 );
 
+    r = se->RegisterEnum( "SCALE_FLAG" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SCALE_FLAG", "MANUAL", MANUAL );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SCALE_FLAG", "REFERENCE", REFERENCE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SCALE_FLAG", "NOSCALE", NOSCALE );
+    assert( r >= 0 );
+
     r = se->RegisterEnum( "ANG_UNITS" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "ANG_UNITS", "ANG_RAD", ANG_RAD );
@@ -725,6 +753,10 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "EXPORT_TYPE", "EXPORT_DXF", EXPORT_DXF );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "EXPORT_TYPE", "EXPORT_FACET", EXPORT_FACET );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "EXPORT_TYPE", "EXPORT_SVG", EXPORT_SVG );
+    assert( r >= 0 );
 
     r = se->RegisterEnum( "COMPUTATION_FILE_TYPE" );
     assert( r >= 0 );
@@ -749,6 +781,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "COMPUTATION_FILE_TYPE", "CFD_POLY_TYPE", CFD_POLY_TYPE );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "COMPUTATION_FILE_TYPE", "CFD_TRI_TYPE", CFD_TRI_TYPE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "COMPUTATION_FILE_TYPE", "CFD_FACET_TYPE", CFD_FACET_TYPE );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "COMPUTATION_FILE_TYPE", "CFD_OBJ_TYPE", CFD_OBJ_TYPE );
     assert( r >= 0 );
@@ -905,6 +939,27 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "CAP_TYPE", "NUM_END_CAP_OPTIONS", vsp::NUM_END_CAP_OPTIONS );
     assert( r >= 0 );
 
+    r = se->RegisterEnum( "WING_BLEND" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "WING_BLEND", "BLEND_FREE", vsp::BLEND_FREE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "WING_BLEND", "BLEND_ANGLES", vsp::BLEND_ANGLES );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "WING_BLEND", "BLEND_MATCH_IN_LE_TRAP", vsp::BLEND_MATCH_IN_LE_TRAP );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "WING_BLEND", "BLEND_MATCH_IN_TE_TRAP", vsp::BLEND_MATCH_IN_TE_TRAP );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "WING_BLEND", "BLEND_MATCH_OUT_LE_TRAP", vsp::BLEND_MATCH_OUT_LE_TRAP );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "WING_BLEND", "BLEND_MATCH_OUT_TE_TRAP", vsp::BLEND_MATCH_OUT_TE_TRAP );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "WING_BLEND", "BLEND_MATCH_IN_ANGLES", vsp::BLEND_MATCH_IN_ANGLES );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "WING_BLEND", "BLEND_MATCH_LE_ANGLES", vsp::BLEND_MATCH_LE_ANGLES );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "WING_BLEND", "BLEND_NUM_TYPES", vsp::BLEND_NUM_TYPES );
+    assert( r >= 0 );
+
     r = se->RegisterEnum( "ERROR_CODE" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "ERROR_CODE", "VSP_OK", vsp::VSP_OK );
@@ -1001,6 +1056,13 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "VSPAERO_ANALYSIS_METHOD", "PANEL", PANEL );
     assert( r >= 0 );
+
+    r = se->RegisterEnum( "VSPAERO_COMP_REFERENCE_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VSPAERO_COMP_REFERENCE_TYPE", "MANUAL_REF", MANUAL_REF );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VSPAERO_COMP_REFERENCE_TYPE", "COMPONENT_REF", COMPONENT_REF );
+
 
 }
 
@@ -2145,6 +2207,7 @@ void ScriptMgrSingleton::DeleteVarPresetSet( string group_name, string setting_n
     vsp::DeleteVarPresetSet( group_name, setting_name );
 }
 
+//==== PCurve Functions ====//
 void ScriptMgrSingleton::SetPCurve( const string& geom_id, const int & pcurveid, CScriptArray* t_arr, CScriptArray* val_arr, const int & newtype )
 {
     vector < double > t_vec;

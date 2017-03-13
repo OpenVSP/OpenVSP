@@ -864,7 +864,7 @@ void FitModelMgrSingleton::CalcMetricDeriv( const double *x, double *y, double *
     for (j = 0; j < nvar; ++j)
     {
         x0 = xp[xindx];
-        dx = eps * fabs(x0);
+        dx = eps * std::abs(x0);
         if (dx == 0.)
         {
             dx = eps;

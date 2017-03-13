@@ -276,9 +276,8 @@ void TestAPIScript()
     if ( num_xsec_surfs != 1 )                Print( "---> Error: API GetNumXSecSurfs  " );
 
     string xsec_surf = GetXSecSurf( fuseid, 0 );
-    int num_xsecs = GetNumXSec( xsec_surf );
 
-    if ( num_xsecs < 1 )                    Print( "---> Error: API GetXSecSurf/GetNumXSec  " );
+    if ( GetNumXSec( xsec_surf ) < 1 )                    Print( "---> Error: API GetXSecSurf/GetNumXSec  " );
 
     Print(string("---> Test Get XSec"));
     string xsec = GetXSec( xsec_surf, 0 );
@@ -303,13 +302,16 @@ void TestAPIScript()
     if ( !ValidParm( wid ) )                            Print( "---> Error: API GetXSecParm " );
 
     Print(string("---> Test Read Fuse File"));
-    ChangeXSecShape( xsec_surf, 0, XS_FILE_FUSE );
-    xsec = GetXSec( xsec_surf, 0 );
+    ChangeXSecShape( xsec_surf, 2, XS_FILE_FUSE );
+    xsec = GetXSec( xsec_surf, 2 );
     array< vec3d > @vec_array = ReadFileXSec( xsec, "../../TestXSec.fxs" );
-
-    vec_array[1] = vec_array[1]*2.0;
-    vec_array[3] = vec_array[3]*2.0;
-    SetXSecPnts( xsec, vec_array );
+    
+    if ( vec_array.size() > 0 )
+    {
+        vec_array[1] = vec_array[1]*2.0;
+        vec_array[3] = vec_array[3]*2.0;
+        SetXSecPnts( xsec, vec_array );
+    }
 
     double wh_ratio = GetXSecWidth( xsec )/GetXSecHeight( xsec );
     if ( ( abs( wh_ratio ) - 2.0 ) > tol )                Print( "---> Error: API Read/Set XSecPnts " );

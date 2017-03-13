@@ -3,7 +3,7 @@
 // version 1.3 as detailed in the LICENSE file which accompanies this software.
 //
 
-#include <math.h>
+#include <cmath>
 #include "StlHelper.h"
 using std::map;
 
@@ -86,7 +86,7 @@ double interpolate( const map< double, int > & val_map, double key, bool * in_ra
     {
         // value is greater than all values in vector
         double last_val =  val_map.rbegin()->first;
-        if ( fabs( last_val - key ) > tol && in_range )
+        if ( std::abs( last_val - key ) > tol && in_range )
         {
             *in_range = false;
         }
@@ -96,7 +96,7 @@ double interpolate( const map< double, int > & val_map, double key, bool * in_ra
     else if ( high == val_map.begin() )
     {
         double first_val =  val_map.begin()->first;
-        if ( fabs( first_val - key ) > tol && in_range )
+        if ( std::abs( first_val - key ) > tol && in_range )
         {
             *in_range = false;
         }

@@ -444,6 +444,11 @@ int SSLineSeg::CompNumDrawPnts( VspSurf* surf, Geom* geom )
 
 void SSLineSeg::UpdateDrawObj( VspSurf* surf, Geom* geom, DrawObj& draw_obj, const int *num_pnts_ptr )
 {
+    if ( !surf || !geom )
+    {
+        return;
+    }
+
     int num_pnts;
     if ( num_pnts_ptr )
     {
@@ -454,11 +459,18 @@ void SSLineSeg::UpdateDrawObj( VspSurf* surf, Geom* geom, DrawObj& draw_obj, con
         num_pnts = CompNumDrawPnts( surf, geom );
     }
 
+    if ( num_pnts <=0 )
+    {
+        draw_obj.m_PntVec.clear();
+        return;
+    }
+
     draw_obj.m_PntVec.resize( num_pnts + 1 );
 
-    for ( int i = 0 ; i <= num_pnts ; i ++ )
+
+    for ( int i = 0; i <= num_pnts; i++ )
     {
-        vec3d uw = ( m_P0 + m_line * ( ( double )i / num_pnts ) );
+        vec3d uw = ( m_P0 + m_line * ( (double)i / num_pnts ) );
         draw_obj.m_PntVec[i] = CompPnt( surf, uw );
     }
 

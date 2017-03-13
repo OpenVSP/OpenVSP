@@ -20,6 +20,7 @@
 #include "VarPresetMgr.h"
 #include "WingGeom.h"
 #include "PropGeom.h"
+#include "VSPAEROMgr.h"
 
 #ifdef VSP_USE_FLTK
 #include "GuiInterface.h"
@@ -356,6 +357,8 @@ void SetComputationFileName( int file_type, const string & file_name )
         CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_POLY_FILE_NAME );
     if ( file_type == CFD_TRI_TYPE )
         CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_TRI_FILE_NAME );
+    if ( file_type == CFD_FACET_TYPE )
+        CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_FACET_FILE_NAME );
     if ( file_type == CFD_OBJ_TYPE )
         CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_OBJ_FILE_NAME );
     if ( file_type == CFD_DAT_TYPE )
@@ -625,6 +628,8 @@ void ComputeCFDMesh( int set, int file_export_types )
         CfdMeshMgr.GetCfdSettingsPtr()->SetFileExportFlag( CFD_POLY_FILE_NAME, true );
     if ( file_export_types & CFD_TRI_TYPE )
         CfdMeshMgr.GetCfdSettingsPtr()->SetFileExportFlag( CFD_TRI_FILE_NAME, true );
+    if ( file_export_types & CFD_FACET_TYPE )
+        CfdMeshMgr.GetCfdSettingsPtr()->SetFileExportFlag( CFD_FACET_FILE_NAME, true );
     if ( file_export_types & CFD_OBJ_TYPE )
         CfdMeshMgr.GetCfdSettingsPtr()->SetFileExportFlag( CFD_OBJ_FILE_NAME, true );
     if ( file_export_types & CFD_DAT_TYPE )
@@ -641,6 +646,55 @@ void ComputeCFDMesh( int set, int file_export_types )
     CfdMeshMgr.GetCfdSettingsPtr()->m_SelectedSetIndex = set;
     CfdMeshMgr.GenerateMesh();
     ErrorMgr.NoError();
+}
+
+/// Get/Set reference wing
+string GetVSPAERORefWingID()
+{
+    Vehicle* veh = GetVehicle();
+    if ( !veh )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetVSPAERORefWingID::Can't Find Vehicle" );
+        return string();
+    }
+
+    if ( VSPAEROMgr.m_RefFlag.Get() != vsp::VSPAERO_REF_WING_TYPE::COMPONENT_REF )
+    {
+        return string();
+    }
+
+    Geom* geom_ptr = veh->FindGeom( VSPAEROMgr.m_RefGeomID );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetVSPAERORefWingID::Can't Find Geom" );
+        return string();
+    }
+
+    return VSPAEROMgr.m_RefGeomID;
+}
+
+string SetVSPAERORefWingID( const string & geom_id )
+{
+    Vehicle* veh = GetVehicle();
+    if (!veh)
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetVSPAERORefWingID::Can't Find Vehicle" );
+        return string();
+    }
+
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetVSPAERORefWingID::Can't Find Geom" );
+        return  string();
+    }
+
+    VSPAEROMgr.m_RefGeomID = geom_id;
+    VSPAEROMgr.m_RefFlag = vsp::VSPAERO_REF_WING_TYPE::COMPONENT_REF;
+
+    ErrorMgr.NoError();
+
+    return VSPAEROMgr.m_RefGeomID;
 }
 
 //===================================================================//
@@ -865,7 +919,7 @@ void SetVec3dAnalysisInput( const string & analysis, const string & name, const 
     AnalysisMgr.SetVec3dAnalysisInput( analysis, name, indata, index );
 }
 
-void PrintAnalysisInputs( const string analysis_name )
+void PrintAnalysisInputs( const string & analysis_name )
 {
     if ( !AnalysisMgr.ValidAnalysisName( analysis_name ) )
     {
@@ -1434,7 +1488,7 @@ string AddSubSurf( const string & geom_id, int type, int surfindex )
     ssurf = geom_ptr->AddSubSurf( type, surfindex );
     if ( !ssurf )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "AddSubSurface::Invalid Sub Surface Ptr "  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "AddSubSurf::Invalid Sub Surface Ptr "  );
         return string();
     }
     ssurf->Update();
@@ -1454,7 +1508,7 @@ string GetSubSurf( const string & geom_id, int index )
     }
     SubSurface* ssurf = NULL;
     ssurf = geom_ptr->GetSubSurf( index );
-     if ( !ssurf )
+    if ( !ssurf )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurf::Invalid Sub Surface Ptr "  );
         return string();
@@ -1469,26 +1523,60 @@ void DeleteSubSurf( const string & geom_id, const string & sub_id )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteSubSurf::Can't Find Geom " + geom_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteSubSurf::Can't Find Geom " + geom_id );
         return;
     }
-
-    int index = -1;
-    vector< SubSurface* > svec = geom_ptr->GetSubSurfVec();
-    for ( int i = 0 ; i < (int)svec.size() ; i++ )
-    {
-        if ( svec[i]->GetID() == sub_id )
-            index = i;
-    }
+    int index = geom_ptr->GetSubSurfIndex( sub_id );
     if ( index == -1 )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteSubSurf::Can't Find SubSurf " + geom_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteSubSurf::Can't Find SubSurf " + geom_id );
         return;
     }
     geom_ptr->DelSubSurf( index );
     ErrorMgr.NoError();
+    return;
 }
 
+void SetSubSurfName( const std::string & geom_id, const std::string & sub_id, const std::string & name )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetSubSurfName::Can't Find Geom " + geom_id );
+        return;
+    }
+    SubSurface* ssurf = NULL;
+    ssurf = geom_ptr->GetSubSurf( sub_id );
+    if ( !ssurf )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetSubSurfName::Invalid Sub Surface Ptr " );
+        return;
+    }
+    ssurf->SetName( name );
+    ErrorMgr.NoError();
+    return;
+}
+
+std::string GetSubSurfName( const std::string & geom_id, const std::string & sub_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurfName::Can't Find Geom " + geom_id );
+        return string();
+    }
+    SubSurface* ssurf = NULL;
+    ssurf = geom_ptr->GetSubSurf( sub_id );
+    if ( !ssurf )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurfName::Invalid Sub Surface Ptr " );
+        return string();
+    }
+    ErrorMgr.NoError();
+    return ssurf->GetName();
+}
 
 void CutXSec( const string & geom_id, int index )
 {
@@ -1496,7 +1584,7 @@ void CutXSec( const string & geom_id, int index )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "CutXSec::Can't Find Geom " + geom_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "CutXSec::Can't Find Geom " + geom_id );
         return;
     }
 
@@ -1505,20 +1593,21 @@ void CutXSec( const string & geom_id, int index )
 
     ErrorMgr.NoError();
 }
+
 void CopyXSec( const string & geom_id, int index )
 {
     Vehicle* veh = GetVehicle();
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "CopyXSec::Can't Find Geom " + geom_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "CopyXSec::Can't Find Geom " + geom_id );
         return;
     }
 
     geom_ptr->CopyXSec( index );
     ErrorMgr.NoError();
-
 }
+
 void PasteXSec( const string & geom_id, int index )
 {
     Vehicle* veh = GetVehicle();
@@ -1531,8 +1620,8 @@ void PasteXSec( const string & geom_id, int index )
 
     geom_ptr->PasteXSec( index );
     ErrorMgr.NoError();
-
 }
+
 void InsertXSec( const string & geom_id, int index, int type )
 {
     Vehicle* veh = GetVehicle();
@@ -1895,7 +1984,7 @@ string GetXSecParm( const string& xsec_id, const string& name )
         return xscparm;
     }
 
-    ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetXSecParm::Can't Find XSecCurve " + name  );
+    ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetXSecParm::Can't Find Parm " + name  );
     return string();
 }
 
@@ -1914,11 +2003,19 @@ vector<vec3d> ReadFileXSec( const string& xsec_id, const string& file_name )
     {
         FileXSec* file_xs = dynamic_cast<FileXSec*>( xs->GetXSecCurve() );
         assert( file_xs );
-        file_xs->ReadXsecFile( file_name );
-        return file_xs->GetUnityFilePnts();
+        if ( file_xs->ReadXsecFile( file_name ) )
+        {
+            ErrorMgr.NoError();
+            return file_xs->GetUnityFilePnts();
+        }
+        else
+        {
+            ErrorMgr.AddError( VSP_FILE_DOES_NOT_EXIST, "ReadFileXSec::Error reading fuselage file" );
+            return pnt_vec;
+        }
     }
 
-    ErrorMgr.NoError();
+    ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "ReadFileXSec::XSec Not XS_FILE_FUSE Type " + xsec_id );
     return pnt_vec;
 }
 
@@ -2116,7 +2213,7 @@ void ReadFileAirfoil( const string& xsec_id, const string& file_name )
         }
         else
         {
-            ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "ReadFileAirfoil::Error reading airfoil file" );
+            ErrorMgr.AddError( VSP_FILE_DOES_NOT_EXIST, "ReadFileAirfoil::Error reading airfoil file" );
             return;
         }
     }

@@ -28,11 +28,15 @@ public:
 
     virtual void ReadV2File( xmlNodePtr &root );
 
+    virtual void OffsetXSecs( double off );
+
     Parm m_Length;                  // Length of Pod
     Parm m_FineRatio;               // Fineness Ratio of Pod
 
 protected:
     virtual void UpdateSurf();
+
+    double m_Xoff;
 };
 
 

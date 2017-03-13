@@ -54,6 +54,7 @@ public:
     virtual double GetHeight();
     virtual void SetWidthHeight( double w, double h );
     virtual string GetWidthParmID()                                { return m_Chord.GetID(); }
+    virtual void OffsetCurve( double offset_val );
 
     virtual VspCurve& GetOrigCurve();
 
@@ -66,6 +67,9 @@ public:
     IntParm m_FitDegree;
 
 protected:
+
+    virtual double EstimateThick();
+
     VspCurve m_OrigCurve;
 };
 
@@ -189,6 +193,8 @@ public:
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
+    virtual void OffsetCurve( double offset_val );
+
     virtual bool ReadFile( string file_name );
 
     virtual string GetAirfoilName()
@@ -244,6 +250,8 @@ public:
     //==== Encode/Decode XML ====//
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+
+    virtual void OffsetCurve( double offset_val );
 
     virtual void PromoteUpper();
     virtual void PromoteLower();

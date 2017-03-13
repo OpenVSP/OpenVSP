@@ -211,13 +211,13 @@ void SnapTo::AdjParmToMinDist( const string & parm_id, bool inc_flag )
    //==== Check If Current Input Matches Last Input ====//
     if ( (parm_id == m_LastParmID) && (inc_flag == m_LastIncFlag)  )
     {
-        if ( fabs( m_LastTargetDist - m_CollisionTargetDist() ) < 1.0e-12 )
+        if ( std::abs( m_LastTargetDist - m_CollisionTargetDist() ) < 1.0e-12 )
         {
-            if ( fabs( m_LastParmVal - orig_val ) < 1.0e-12 )
+            if ( std::abs( m_LastParmVal - orig_val ) < 1.0e-12 )
             {
                 bool iflag;
                 double d = FindMinDistance( geom_id, other_tmesh_vec, iflag );
-                if ( !iflag && fabs( d - m_LastMinDist ) < 1.0e-12 )
+                if ( !iflag && std::abs( d - m_LastMinDist ) < 1.0e-12 )
                 {
                     //==== Nudge Parm In Inc Direction To Make Sure Collision ====//
                     double nudge = 2.0*m_LastMinDist*del_val/max_min;
@@ -239,10 +239,10 @@ void SnapTo::AdjParmToMinDist( const string & parm_id, bool inc_flag )
         limit = parm_ptr->GetUpperLimit();
 
     //==== Limits Near Zero Can Cause Incorrect Collision Results ====//
-    if ( fabs(limit) < 0.0001 ) limit = 0.0001;
+    if ( std::abs(limit) < 0.0001 ) limit = 0.0001;
 
     //==== Limit Range =====//
-    val_range = min( fabs(limit - orig_val), val_range );
+    val_range = min( std::abs(limit - orig_val), val_range );
 
     //==== Move Geom Close To Other Body In Correct Direction ====//
     int cnt = 0;
@@ -325,7 +325,7 @@ void SnapTo::AdjParmToMinDist( const string & parm_id, bool inc_flag )
             break;
 
         //==== Save Best Soln ====//
-        double err = fabs( d0 - m_CollisionTargetDist() );
+        double err = std::abs( d0 - m_CollisionTargetDist() );
         if ( err < closest_err )
         {
             v_out = v0;
@@ -349,7 +349,7 @@ void SnapTo::AdjParmToMinDist( const string & parm_id, bool inc_flag )
             break;
 
         double denom = d1 - d0;
-        if ( fabs( denom ) < 1.0e-12 )
+        if ( std::abs( denom ) < 1.0e-12 )
             break;
 
         double fract = ( m_CollisionTargetDist() - d0 )/denom;

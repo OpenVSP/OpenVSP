@@ -6,7 +6,7 @@
 #define VSPDEFINES_H
 
 #define _USE_MATH_DEFINES
-#include <math.h>
+#include <cmath>
 
 #ifdef __VSP_PLUGIN__
 //#define VSPDLL __declspec(dllexport)

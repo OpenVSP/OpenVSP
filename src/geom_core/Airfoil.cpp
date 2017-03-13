@@ -23,6 +23,8 @@ Airfoil::Airfoil( ) : XSecCurve( )
     m_Chord.Init( "Chord", m_GroupName, this, 1.0, 0.0, 1.0e12 );
     m_ThickChord.Init( "ThickChord", m_GroupName, this, 0.1, 0.0, 1.0 );
     m_FitDegree.Init( "FitDegree", m_GroupName, this, 7, 1, MAX_CST_DEG );
+
+    m_yscale = 1.0;
 }
 
 //==== Update ====//
@@ -83,6 +85,17 @@ VspCurve& Airfoil::GetOrigCurve()
     return m_OrigCurve;
 }
 
+void Airfoil::OffsetCurve( double offset_val )
+{
+    double c = m_Chord();
+    double t = m_Chord() * m_ThickChord();
+
+    double offset_c = c - 2.0*offset_val;
+    m_Chord = offset_c;
+    double offset_t = t - 2.0*offset_val;
+    m_ThickChord = offset_t/m_Chord();
+}
+
 void Airfoil::ReadV2File( xmlNodePtr &root )
 {
     m_Invert = XmlUtil::FindInt( root, "Inverted_Flag", m_Invert() );
@@ -100,6 +113,44 @@ void Airfoil::ReadV2File( xmlNodePtr &root )
 //    flap_angle = XmlUtil::FindDouble( node, "Flap_Angle", flap_angle() );
 
 }
+
+// This routine estimates the thickness of an airfoil from the curves directly.
+// It constructs the equiparameteric distance squared curve.  Rather than maximizing
+// that curve, it simply checks the bounding box of the control points.  For a well
+// behaved airfoil, this should be close to the curve.
+double Airfoil::EstimateThick()
+{
+    piecewise_curve_type crv , c1, c2, c3;
+    crv = m_Curve.GetCurve();
+
+    double tmid = ( crv.get_parameter_max() + crv.get_parameter_min() ) / 2.0;
+
+    crv.split( c1, c2, tmid );  // Split at LE
+    c2.reverse();
+
+    c1.scale( -1.0 );
+    c3.sum( c1, c2 );
+
+    c1.square( c3 );
+
+    typedef piecewise_curve_type::onedpiecewisecurve onedpwc;
+    onedpwc sumsq;
+
+    typedef onedpwc::bounding_box_type onedbox;
+    onedbox box;
+
+    typedef onedpwc::point_type onedpt;
+    onedpt p;
+
+    sumsq = c1.sumcompcurve();
+
+    sumsq.get_bounding_box( box );
+
+    p = box.get_max();
+
+    return sqrt( p.x() );
+}
+
 
 //==========================================================================//
 //==========================================================================//
@@ -613,6 +664,24 @@ xmlNodePtr FileAirfoil::DecodeXml( xmlNodePtr & node )
 //{
 //
 //}
+
+void FileAirfoil::OffsetCurve( double offset_val )
+{
+    double t = EstimateThick();
+    double c = m_Chord();
+
+    double offset_c = c - 2.0*offset_val;
+    m_Chord = offset_c;
+
+    double offset_t = t - 2.0 * offset_val;
+
+    if ( offset_t < 0 )
+    {
+        offset_t = 0;
+    }
+
+    m_yscale = ( offset_t / offset_c ) / ( t / c );
+}
 
 //==== Read Airfoil File ====//
 bool FileAirfoil::ReadFile( string file_name )
@@ -1128,7 +1197,7 @@ void CSTAirfoil::FitCurve( VspCurve c, int deg )
 
     double dte = cst.get_trailing_edge_thickness() * m_Scale();
 
-    if ( abs( dte ) > 1e-6 )
+    if ( std::abs( dte ) > 1e-6 )
     {
         m_TECloseType = CLOSE_SKEWBOTH;
         m_TECloseAbsRel = REL;
@@ -1419,4 +1488,22 @@ void CSTAirfoil::CheckLERad()
             m_LowCoeffParmVec[0]->Set( -m_UpCoeffParmVec[0]->Get() );
         }
     }
+}
+
+void CSTAirfoil::OffsetCurve( double offset_val )
+{
+    double t = EstimateThick();
+    double c = m_Chord();
+
+    double offset_c = c - 2.0*offset_val;
+    m_Chord = offset_c;
+
+    double offset_t = t - 2.0 * offset_val;
+
+    if ( offset_t < 0 )
+    {
+        offset_t = 0;
+    }
+
+    m_yscale = ( offset_t / offset_c ) / ( t / c );
 }

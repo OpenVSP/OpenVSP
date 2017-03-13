@@ -73,8 +73,8 @@ vector< vec3d > SuperEllipse::Build( int num_pnts, double a, double b, double m,
             b_sign = -b;
         }
 
-        z = pow( fabs( m_CosU[i] ), 1.0 / m ) * a_sign;
-        y = pow( fabs( m_SinU[i] ), 1.0 / n ) * b_sign;
+        z = pow( std::abs( m_CosU[i] ), 1.0 / m ) * a_sign;
+        y = pow( std::abs( m_SinU[i] ), 1.0 / n ) * b_sign;
         ret_pnts[i].set_xyz( 0.0, y, z );
     }
     ret_pnts.back() = ret_pnts[0];

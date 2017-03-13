@@ -159,7 +159,7 @@ public:
     void AddDriverGroupBank( DriverGroupBank & driver_group, const vector < string > &labels,
                              double range, const char* format );
     void AddSkinControl( SkinControl & skin_control, const char* label, double range, const char* format );
-    void AddSkinHeader( SkinHeader & skin_header );
+    void AddSkinHeader( SkinHeader & skin_header, bool addcontchoice = true );
     void AddGeomPicker( GeomPicker & geom_picker, int used_w = 0 );
     void AddPCurveEditor( PCurveEditor & curve_editor );
 

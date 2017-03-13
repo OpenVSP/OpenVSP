@@ -150,7 +150,7 @@ void PropXSec::Update()
 //==== Set Ref Length ====//
 void PropXSec::SetRefLength( double len )
 {
-    if ( fabs( len - m_RefLenVal ) < DBL_EPSILON )
+    if ( std::abs( len - m_RefLenVal ) < DBL_EPSILON )
     {
         return;
     }
@@ -516,7 +516,7 @@ bool aboutcomp(const double &a, const double &b)
 
 bool abouteq(const double &a, const double &b)
 {
-    return fabs( a - b ) < 0.001;
+    return std::abs( a - b ) < 0.001;
 }
 
 //==== Update Fuselage And Cross Section Placement ====//

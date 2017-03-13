@@ -83,7 +83,7 @@ double Surf::TargetLen( double u, double w, double gap, double radfrac )
 
     m_SurfCore.CompCurvature( u, w, k1, k2, ka, kg );
 
-    if( fabs( k1 ) < tol ) // If zero curvature
+    if( std::abs( k1 ) < tol ) // If zero curvature
     {
         double du = -tol;
         if( u <= umin + tol )
@@ -99,10 +99,10 @@ double Surf::TargetLen( double u, double w, double gap, double radfrac )
         m_SurfCore.CompCurvature( u + du, w + dw, k1, k2, ka, kg );
     }
 
-    if( fabs( k1 ) > tol )
+    if( std::abs( k1 ) > tol )
     {
         // Tightest radius of curvature
-        r = 1.0 / fabs( k1 );
+        r = 1.0 / std::abs( k1 );
 
         if( r > gap )
         {
@@ -707,7 +707,7 @@ void Surf::IntersectLineSegMesh( vec3d & p0, vec3d & p1, vector< double > & t_va
             int dupFlag = 0;
             for ( int j = 0 ; j < ( int )t_vals.size() ; j++ )
             {
-                if ( fabs( tparm - t_vals[j] ) < 1.0e-7 )
+                if ( std::abs( tparm - t_vals[j] ) < 1.0e-7 )
                 {
                     dupFlag = 1;
                     break;

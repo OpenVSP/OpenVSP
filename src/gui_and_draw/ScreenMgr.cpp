@@ -39,6 +39,7 @@
 #include "SetEditorScreen.h"
 #include "STEPOptionsScreen.h"
 #include "STLOptionsScreen.h"
+#include "SVGOptionsScreen.h"
 #include "TypeEditorScreen.h"
 #include "UserParmScreen.h"
 #include "VarPresetScreen.h"
@@ -163,6 +164,7 @@ void ScreenMgr::Init()
     m_ScreenVec[VSP_COR_SCREEN] = new ManageCORScreen( this );
     m_ScreenVec[VSP_DEGEN_GEOM_SCREEN] = new DegenGeomScreen( this );
     m_ScreenVec[VSP_DESIGN_VAR_SCREEN] = new DesignVarScreen( this );
+    m_ScreenVec[VSP_DXF_OPTIONS_SCREEN] = new DXFOptionsScreen( this);
     m_ScreenVec[VSP_EXPORT_SCREEN] = new ExportScreen( this );
     m_ScreenVec[VSP_FEA_MESH_SCREEN] = new FeaStructScreen( this );
     m_ScreenVec[VSP_FIT_MODEL_SCREEN] = new FitModelScreen( this );
@@ -183,9 +185,9 @@ void ScreenMgr::Init()
     m_ScreenVec[VSP_PSLICE_SCREEN] = new PSliceScreen( this );
     m_ScreenVec[VSP_SCREENSHOT_SCREEN] = new ScreenshotScreen( this );
     m_ScreenVec[VSP_SET_EDITOR_SCREEN] = new SetEditorScreen( this );
-    m_ScreenVec[VSP_DXF_OPTIONS_SCREEN] = new DXFOptionsScreen( this);
     m_ScreenVec[VSP_STEP_OPTIONS_SCREEN] = new STEPOptionsScreen( this );
     m_ScreenVec[VSP_STL_OPTIONS_SCREEN] = new STLOptionsScreen( this );
+    m_ScreenVec[VSP_SVG_OPTIONS_SCREEN] = new SVGOptionsScreen( this );
     m_ScreenVec[VSP_TYPE_EDITOR_SCREEN] = new TypeEditorScreen( this );
     m_ScreenVec[VSP_USER_PARM_SCREEN] = new UserParmScreen( this );
     m_ScreenVec[VSP_VIEW_SCREEN] = new ManageViewScreen( this );

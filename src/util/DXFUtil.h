@@ -1,3 +1,13 @@
+//
+// This file is released under the terms of the NASA Open Source Agreement (NOSA)
+// version 1.3 as detailed in the LICENSE file which accompanies this software.
+//
+
+// DXFUtil.h
+// Justin Gravett
+//
+//////////////////////////////////////////////////////////////////////
+
 #if !defined(VSP_DXFUtil_h)
 #define VSP_DXFUtil_h
 
@@ -13,10 +23,13 @@ using std::vector;
 using std::string;
 
 void WriteDXFHeader( FILE* dxf_file, int LenUnitChoice );
-void DXFManipulate( vector < vector < vec3d > > &allflines, const BndBox &dxfbox, int view, int ang );
-void DXFShift( vector < vector < vec3d > > &allflines, vec3d shiftvec, int shift, int ang1, int ang2 );
-void WriteDXFPolylines3D( FILE* dxf_file, const vector < vector < vec3d > > &allflines, string layer );
-void WriteDXFPolylines2D( FILE* dxf_file, const vector < vector < vec3d > > &allflines, string layer );
+void FeatureLinesManipulate( vector < vector < vec3d > > &allflines, int view, int ang, vec3d shiftvec );
+void FeatureLinesShift( vector < vector < vec3d > > &allflines, vec3d shiftvec, int shift, int ang1, int ang2 );
+void WriteDXFPolylines3D( FILE* dxf_file, const vector < vector < vec3d > > &allflines, string layer, bool colorflag, int color_count );
+void WriteDXFPolylines2D( FILE* dxf_file, const vector < vector < vec3d > > &allflines, string layer, bool colorflag, int color_count );
 void WriteDXFClose( FILE* dxf_file );
+
+vec3d GetVecToOrgin( const BndBox &bndbox );
+int DXFColorWheel( int count );
 
 #endif

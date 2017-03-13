@@ -16,7 +16,7 @@
 #include "Cartesian.H"
 #include "WaveDragMgr.h"
 
-#include <math.h>
+#include <cmath>
 
 using namespace std;
 

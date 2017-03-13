@@ -12,6 +12,7 @@
 //#include "feaStructScreen.h"
 #include "Util.h"
 #include "SubSurfaceMgr.h"
+#include "main.h"
 
 #ifdef DEBUG_CFD_MESH
 #include <direct.h>
@@ -79,7 +80,7 @@ void Wake::MatchBorderCurve( ICurve* curve )
     double dist_p1 = DistToClosestLeadingEdgePnt( p1 );
 
     double tol = 1.0e-08;
-    if ( fabs( dist_p0 ) < tol && fabs( dist_p1 ) < tol )
+    if ( std::abs( dist_p0 ) < tol && std::abs( dist_p1 ) < tol )
     {
         m_LeadingCurves.push_back( curve );
     }
@@ -404,6 +405,9 @@ void CfdMeshMgrSingleton::GenerateMesh()
     vector< XferSurf > xfersurfs;
     CfdMeshMgr.FetchSurfs( xfersurfs );
 
+    // Hide all geoms after fetching their surfaces
+    m_Vehicle->HideAll();
+
     CfdMeshMgr.CleanUp();
     CfdMeshMgr.addOutputText( "Loading Bezier Surfaces\n" );
     CfdMeshMgr.LoadSurfs( xfersurfs );
@@ -413,6 +417,7 @@ void CfdMeshMgrSingleton::GenerateMesh()
     if ( m_SurfVec.size() == 0 )
     {
         CfdMeshMgr.addOutputText( "No Surfaces To Mesh\n" );
+        m_MeshInProgress = false;
         return;
     }
 
@@ -1446,6 +1451,11 @@ void CfdMeshMgrSingleton::ExportFiles()
 
     WriteNASCART_Obj_Tri_Gmsh( dat_fn, key_fn, obj_fn, tri_fn, gmsh_fn );
 
+    if ( GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_FACET_FILE_NAME )->Get() )
+    {
+        WriteFacet( GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_FACET_FILE_NAME ) );
+    }
+
     if ( GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_SRF_FILE_NAME )->Get() )
     {
         WriteSurfsIntCurves( GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_SRF_FILE_NAME ) );
@@ -1673,7 +1683,7 @@ void CfdMeshMgrSingleton::WriteTetGen( const string &filename )
         vector< vec3d > tmpPntVec;
         for ( int i = 0 ; i < ( int )interiorPntVec.size() ; i++ )
         {
-            if ( fabs( interiorPntVec[i].y() ) < 1.0e-4 )
+            if ( std::abs( interiorPntVec[i].y() ) < 1.0e-4 )
             {
                 interiorPntVec[i].set_y( 1.0e-5 );
             }
@@ -1968,6 +1978,144 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
     }
 }
 
+void CfdMeshMgrSingleton::WriteFacet( const string &facet_fn )
+{
+    // Note: Wake mesh not included in Facet export
+
+    //==== Find All Points and Tri Counts ====//
+    vector< vec3d* > allPntVec;
+    for ( int i = 0; i < (int)m_SurfVec.size(); i++ )
+    {
+        vector< vec3d >& sPntVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
+        for ( int v = 0; v < (int)sPntVec.size(); v++ )
+        {
+            if ( !m_SurfVec[i]->GetWakeFlag() )
+            {
+                allPntVec.push_back( &sPntVec[v] );
+            }
+        }
+    }
+
+    //==== Build Map ====//
+    map< int, vector< int > > indMap;
+    vector< int > pntShift;
+    BuildIndMap( allPntVec, indMap, pntShift );
+
+    //==== Assemble Normal Tris ====//
+    vector< SimpTri > allTriVec;
+    for ( int i = 0; i < (int)m_SurfVec.size(); i++ )
+    {
+        if ( !m_SurfVec[i]->GetWakeFlag() )
+        {
+            vector < SimpTri >& sTriVec = m_SurfVec[i]->GetMesh()->GetSimpTriVec();
+            vector< vec3d >& sPntVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
+            for ( int t = 0; t < (int)sTriVec.size(); t++ )
+            {
+                int i0 = FindPntIndex( sPntVec[sTriVec[t].ind0], allPntVec, indMap );
+                int i1 = FindPntIndex( sPntVec[sTriVec[t].ind1], allPntVec, indMap );
+                int i2 = FindPntIndex( sPntVec[sTriVec[t].ind2], allPntVec, indMap );
+                SimpTri stri;
+                stri.ind0 = pntShift[i0] + 1;
+                stri.ind1 = pntShift[i1] + 1;
+                stri.ind2 = pntShift[i2] + 1;
+                stri.m_Tags = sTriVec[t].m_Tags;
+                allTriVec.push_back( stri );
+            }
+        }
+    }
+    //==== Assemble All Used Points ====//
+    vector< vec3d* > allUsedPntVec;
+    for ( int i = 0; i < (int)allPntVec.size(); i++ )
+    {
+        if ( pntShift[i] >= 0 )
+        {
+            allUsedPntVec.push_back( allPntVec[i] );
+        }
+    }
+
+    //=====================================================================================//
+    //==== Write Facet File for Xpatch ====================================================//
+    //=====================================================================================//
+    if ( facet_fn.length() != 0 )
+    {
+        FILE* fp = fopen( facet_fn.c_str(), "w" );
+
+        if ( fp )
+        {
+            fprintf( fp, "Exported from %s\n", VSPVERSION4 ); // Title/comment line
+            fprintf( fp, "1 \n" ); // Number of "Big" parts (1 Vehicle broken into small parts by geom and subsurface)
+
+            fprintf( fp, "%s\n", m_Vehicle->GetName().c_str() ); // Name of "Big" part
+
+            // mirror -> i, a b c d
+            //     if i = 0 -> no mirror
+            //     if i = 1 -> "Big" part is mirrored across plane defined by ax+by+cz-d=0
+            fprintf( fp, "0, 0.000 1.000 0.000 0.000 \n" );
+
+            fprintf( fp, "%d \n", (int)allUsedPntVec.size() ); // # of nodes in "Big" part
+
+            //==== Write All Pnts (Nodes) ====//
+            for ( int i = 0; i < (int)allUsedPntVec.size(); i++ )
+            {
+                fprintf( fp, "%16.10g %16.10g %16.10g\n", allUsedPntVec[i]->x(), allUsedPntVec[i]->y(), allUsedPntVec[i]->z() );
+            }
+
+            vector < int > tri_offset; // vector of number of tris for each tag
+
+            int materialID = 0; // Default Material ID of PEC (Referred to as "iCoat" in XPatch facet file documentation)
+
+            vector < int > all_tag_vec = SubSurfaceMgr.GetAllTags(); // vector of tags, where each tag identifies a part or group of facets
+
+            //==== Get # of facets for each part ====//
+            for ( unsigned int i = 0; i < all_tag_vec.size(); i++ )
+            {
+                int tag_count = 0;
+
+                for ( unsigned int j = 0; j < allTriVec.size(); j++ )
+                {
+                    if ( all_tag_vec[i] == SubSurfaceMgr.GetTag( allTriVec[j].m_Tags ) )
+                    {
+                        tag_count++;
+                    }
+                }
+
+                tri_offset.push_back( tag_count );
+            }
+
+            fprintf( fp, "%ld \n", tri_offset.size() ); // # of "Small" parts
+
+            int facet_count = 0; // counter for number of tris/facets
+
+                                 //==== Write Out Tris ====//
+            for ( unsigned int i = 0; i < all_tag_vec.size(); i++ )
+            {
+                int curr_tag = all_tag_vec[i];
+                bool new_section = true; // flag to write small part section header
+
+                for ( unsigned int j = 0; j < allTriVec.size(); j++ )
+                {
+                    if ( curr_tag == SubSurfaceMgr.GetTag( allTriVec[j].m_Tags ) ) // only write out current tris for surrent tag
+                    {
+                        if ( new_section ) // write small part header and get material ID for small part
+                        {
+                            string name = SubSurfaceMgr.GetTagNames( allTriVec[j].m_Tags );
+                            fprintf( fp, "%s\n", name.c_str() ); // Write name of small part
+                            fprintf( fp, "%d 3\n", tri_offset[i] ); // Number of facets for the part, 3 nodes per facet
+
+                            new_section = false;
+                        }
+
+                        facet_count++;
+
+                        // 3 nodes of facet, material ID, component ID, running facet #:
+                        fprintf( fp, "%d %d %d %d %d %d\n", allTriVec[j].ind0, allTriVec[j].ind1, allTriVec[j].ind2, materialID, i + 1, facet_count );
+                    }
+                }
+            }
+            fclose( fp );
+        }
+    }
+}
 
 void CfdMeshMgrSingleton::WriteSurfsIntCurves( const string &filename )
 {
@@ -2232,7 +2380,7 @@ string CfdMeshMgrSingleton::CheckWaterTight()
                 }
                 triVec.push_back( tri );
 
-                if ( tri->debugFlag == true )
+                if ( tri->debugFlag )
                 {
                     m_BadTris.push_back( tri );
                 }
@@ -2263,7 +2411,7 @@ string CfdMeshMgrSingleton::CheckWaterTight()
     {
         for ( int i = 0 ; i < ( int )iter->second.size() ; i++ )
         {
-            if ( iter->second[i]->debugFlag == false )
+            if ( ! iter->second[i]->debugFlag )
             {
                 delete iter->second[i];
             }
@@ -2271,7 +2419,7 @@ string CfdMeshMgrSingleton::CheckWaterTight()
     }
     for ( int i = 0 ; i < ( int )triVec.size() ; i++ )
     {
-        if ( triVec[i]->debugFlag == false )
+        if ( ! triVec[i]->debugFlag )
         {
             delete triVec[i];
         }
@@ -2338,9 +2486,9 @@ int CfdMeshMgrSingleton::BuildIndMap( vector< vec3d* > & allPntVec, map< int, ve
             {
                 int testind = iter->second[j];
 
-                if ( fabs( allPntVec[i]->x() - allPntVec[testind]->x() ) < tol  &&
-                        fabs( allPntVec[i]->y() - allPntVec[testind]->y() ) < tol  &&
-                        fabs( allPntVec[i]->z() - allPntVec[testind]->z() ) < tol  )
+                if ( std::abs( allPntVec[i]->x() - allPntVec[testind]->x() ) < tol  &&
+                        std::abs( allPntVec[i]->y() - allPntVec[testind]->y() ) < tol  &&
+                        std::abs( allPntVec[i]->z() - allPntVec[testind]->z() ) < tol  )
                 {
                     addIndexFlag = false;
                 }
@@ -2395,9 +2543,9 @@ int  CfdMeshMgrSingleton::FindPntIndex(  vec3d& pnt, vector< vec3d* > & allPntVe
         {
             int testind = iter->second[j];
 
-            if ( fabs( pnt.x() - allPntVec[testind]->x() ) < tol  &&
-                    fabs( pnt.y() - allPntVec[testind]->y() ) < tol  &&
-                    fabs( pnt.z() - allPntVec[testind]->z() ) < tol  )
+            if ( std::abs( pnt.x() - allPntVec[testind]->x() ) < tol  &&
+                    std::abs( pnt.y() - allPntVec[testind]->y() ) < tol  &&
+                    std::abs( pnt.z() - allPntVec[testind]->z() ) < tol  )
             {
                 return testind;
             }
@@ -3288,10 +3436,10 @@ void CfdMeshMgrSingleton::BuildSubSurfIntChains()
                     new_chain = true;
                     continue; // Skip if either point has a value not on this surface
                 }
-                if ( ((fabs( uw_pnt0[0]-max_u ) < tol && fabs( uw_pnt1[0]-max_u ) < tol) ||
-                     (fabs( uw_pnt0[1]-max_w ) < tol && fabs( uw_pnt1[1]-max_w ) < tol) ||
-                     (fabs( uw_pnt0[0]-min_u ) < tol && fabs( uw_pnt1[0]-min_u ) < tol) ||
-                     (fabs( uw_pnt0[1]-min_w ) < tol && fabs( uw_pnt1[1]-min_w ) < tol))
+                if ( ((std::abs( uw_pnt0[0]-max_u ) < tol && std::abs( uw_pnt1[0]-max_u ) < tol) ||
+                     (std::abs( uw_pnt0[1]-max_w ) < tol && std::abs( uw_pnt1[1]-max_w ) < tol) ||
+                     (std::abs( uw_pnt0[0]-min_u ) < tol && std::abs( uw_pnt1[0]-min_u ) < tol) ||
+                     (std::abs( uw_pnt0[1]-min_w ) < tol && std::abs( uw_pnt1[1]-min_w ) < tol))
                      && is_poly  )
                 {
                     new_chain = true;
@@ -3873,8 +4021,8 @@ bool CfdMeshMgrSingleton::SetDeleteTriFlag( int aType, bool symPlane, vector < b
         if ( aInThisB )
         {
             // Trim Symmetry plane
-            if ( symPlane && m_SurfVec[b]->GetFarFlag() == true &&
-                 GetCfdSettingsPtr()->GetFarCompFlag() == true )
+            if ( symPlane && m_SurfVec[b]->GetFarFlag() &&
+                 GetCfdSettingsPtr()->GetFarCompFlag() )
             {
                 return true;
             }
@@ -3974,8 +4122,8 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
                     {
                         m_SurfVec[i]->IntersectLineSeg( cp, ep, t_vec_vec[comp_id] );
                     }
-                    else if ( m_SurfVec[i]->GetFarFlag() == true && m_SurfVec[s]->GetSymPlaneFlag() == true &&
-                              GetCfdSettingsPtr()->GetFarCompFlag() == true ) // Unless trimming sym plane by outer domain
+                    else if ( m_SurfVec[i]->GetFarFlag() && m_SurfVec[s]->GetSymPlaneFlag() &&
+                              GetCfdSettingsPtr()->GetFarCompFlag() ) // Unless trimming sym plane by outer domain
                     {
                         m_SurfVec[i]->IntersectLineSeg( cp, ep, t_vec_vec[comp_id] );
                     }
@@ -3988,8 +4136,8 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
             {
                 int c = m_SurfVec[i]->GetCompID();
 
-                if ( m_SurfVec[s]->GetSymPlaneFlag() == true && m_SurfVec[i]->GetFarFlag() == true &&
-                     GetCfdSettingsPtr()->GetFarCompFlag() == true )
+                if ( m_SurfVec[s]->GetSymPlaneFlag() && m_SurfVec[i]->GetFarFlag() &&
+                     GetCfdSettingsPtr()->GetFarCompFlag() )
                 {
                     if ( ( int )( t_vec_vec[c].size() + 1 ) % 2 == 1 ) // +1 Reverse action on sym plane wrt outer boundary.
                     {
@@ -4078,7 +4226,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
     {
         for ( s = 0 ; s < ( int )m_SurfVec.size() ; s++ )
         {
-            if ( m_SurfVec[s]->GetSymPlaneFlag() == false )
+            if ( ! m_SurfVec[s]->GetSymPlaneFlag() )
             {
                 list <Tri*> triList = m_SurfVec[s]->GetMesh()->GetTriList();
                 for ( t = triList.begin() ; t != triList.end(); t++ )
@@ -4093,7 +4241,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
 
             if( !GetCfdSettingsPtr()->GetFarMeshFlag() ) // Don't keep symmetry plane.
             {
-                if ( m_SurfVec[s]->GetSymPlaneFlag() == true )
+                if ( m_SurfVec[s]->GetSymPlaneFlag() )
                 {
                     list <Tri*> triList = m_SurfVec[s]->GetMesh()->GetTriList();
                     for ( t = triList.begin() ; t != triList.end(); t++ )
@@ -4365,7 +4513,7 @@ void CfdMeshMgrSingleton::DebugWriteChains( const char* name, bool tessFlag )
                 }
 
 
-                if ( tessFlag == false )
+                if ( ! tessFlag )
                 {
                     for ( int j = 0 ; j < ( int )( *c )->m_ISegDeque.size() ; j++ )
                     {

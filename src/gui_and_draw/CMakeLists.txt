@@ -32,6 +32,7 @@ BEMOptionsScreen.cpp
 CfdMeshScreen.cpp
 ClippingScreen.cpp
 CompGeomScreen.cpp
+ConformalScreen.cpp
 CustomScreen.cpp
 DegenGeomScreen.cpp
 DesignVarScreen.cpp
@@ -79,6 +80,7 @@ StackScreen.cpp
 STEPOptionsScreen.cpp
 STLOptionsScreen.cpp
 SubGLWindow.cpp
+SVGOptionsScreen.cpp
 TypeEditorScreen.cpp
 UserParmScreen.cpp
 VarPresetScreen.cpp
@@ -93,6 +95,7 @@ BEMOptionsScreen.h
 CfdMeshScreen.h
 ClippingScreen.h
 CompGeomScreen.h
+ConformalScreen.h
 CustomScreen.h
 DegenGeomScreen.h
 DesignVarScreen.h
@@ -140,6 +143,7 @@ StackScreen.h
 STEPOptionsScreen.h
 STLOptionsScreen.h
 SubGLWindow.h
+SVGOptionsScreen.h
 TypeEditorScreen.h
 UserParmScreen.h
 VarPresetScreen.h

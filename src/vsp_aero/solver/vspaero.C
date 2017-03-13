@@ -912,7 +912,7 @@ void LoadCaseFile(void)
        
        else {
           
-          printf("Mach list over rided by command line -fs inputs \n");
+          printf("Mach list overridden by command line -fs inputs \n");
           
        }
        
@@ -934,7 +934,7 @@ void LoadCaseFile(void)
        
        else {
           
-          printf("Mach list over rided by command line -fs inputs \n");
+          printf("Mach list overridden by command line -fs inputs \n");
           
        }          
        
@@ -954,7 +954,7 @@ void LoadCaseFile(void)
              
               else {
                 
-                 printf("Mach list over rided by command line -fs inputs \n");
+                 printf("Mach list overridden by command line -fs inputs \n");
                 
               }   
                     
@@ -984,7 +984,7 @@ void LoadCaseFile(void)
        
        else {
           
-          printf("Alpha list over rided by command line -fs inputs \n");
+          printf("Alpha list overridden by command line -fs inputs \n");
           
        }   
               
@@ -1006,7 +1006,7 @@ void LoadCaseFile(void)
        
        else {
           
-          printf("Alpha list over rided by command line -fs inputs \n");
+          printf("Alpha list overridden by command line -fs inputs \n");
           
        }   
               
@@ -1026,7 +1026,7 @@ void LoadCaseFile(void)
              
               else {
                 
-                 printf("Alpha list over rided by command line -fs inputs \n");
+                 printf("Alpha list overridden by command line -fs inputs \n");
                 
               }   
                             
@@ -1056,7 +1056,7 @@ void LoadCaseFile(void)
 
        else {
           
-          printf("Beta list over rided by command line -fs inputs \n");
+          printf("Beta list overridden by command line -fs inputs \n");
           
        }   
               
@@ -1078,7 +1078,7 @@ void LoadCaseFile(void)
           
        else {
           
-          printf("Beta list over rided by command line -fs inputs \n");
+          printf("Beta list overridden by command line -fs inputs \n");
           
        }             
        
@@ -1098,7 +1098,7 @@ void LoadCaseFile(void)
               
               else {
                 
-                 printf("Beta list over rided by command line -fs inputs \n");
+                 printf("Beta list overridden by command line -fs inputs \n");
                 
               }                 
               

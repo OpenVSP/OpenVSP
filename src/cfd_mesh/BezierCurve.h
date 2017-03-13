@@ -22,7 +22,7 @@
 
 #include <vector>               //jrg windows?? 
 #include <stdio.h>
-#include <math.h>
+#include <cmath>
 
 #include "eli/code_eli.hpp"
 

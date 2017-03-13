@@ -75,6 +75,9 @@ extern void AddCFDSource( int type, const std::string & geom_id, int surf_index,
                           double l1, double r1, double u1, double w1,
                           double l2 = 0, double r2 = 0, double u2 = 0, double w2 = 0 );
 
+extern string GetVSPAERORefWingID();
+extern string SetVSPAERORefWingID( const std::string & geom_id );
+
 //======================== Analysis ================================//
 
 extern int GetNumAnalysis();
@@ -95,7 +98,7 @@ extern void SetDoubleAnalysisInput( const std::string & analysis, const std::str
 extern void SetStringAnalysisInput( const std::string & analysis, const std::string & name, const std::vector<std::string> & indata, int index = 0 );
 extern void SetVec3dAnalysisInput( const std::string & analysis, const std::string & name, const std::vector< vec3d > & indata, int index = 0 );
 
-extern void PrintAnalysisInputs( const std::string analysis_name );
+extern void PrintAnalysisInputs( const std::string & analysis_name );
 
 //======================== Results ================================//
 extern std::vector<std::string> GetAllResultsNames();
@@ -138,6 +141,8 @@ extern int GetNumMainSurfs( const std::string & geom_id );
 extern std::string AddSubSurf( const std::string & geom_id, int type, int surfindex = 0 );
 extern std::string GetSubSurf( const std::string & geom_id, int index );
 extern void DeleteSubSurf( const std::string & geom_id, const std::string & sub_id );
+extern void SetSubSurfName(const std::string & geom_id, const std::string & sub_id, const std::string & name);
+extern std::string GetSubSurfName( const std::string & geom_id, const std::string & sub_id );
 
 extern void CutXSec( const std::string & geom_id, int index );
 extern void CopyXSec( const std::string & geom_id, int index );

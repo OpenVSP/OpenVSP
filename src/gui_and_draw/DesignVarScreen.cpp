@@ -9,6 +9,7 @@
 
 #include "DesignVarScreen.h"
 #include "ParmMgr.h"
+#include "APIDefines.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -137,7 +138,7 @@ bool DesignVarScreen::Update()
     {
         DesignVar* dv = DesignVarMgr.GetVar( i );
         char vtype;
-        if( dv->m_XDDM_Type == false )
+        if( dv->m_XDDM_Type == vsp::XDDM_VAR )
         {
             vtype = 'V';
         }

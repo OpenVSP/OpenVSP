@@ -5,6 +5,7 @@
 
 // DXFOptionsScreen.h: interface for controlling DXF export options.
 //
+// Justin Gravett
 //////////////////////////////////////////////////////////////////////
 
 #ifndef DXFOPTIONSSCREEN_H
@@ -46,9 +47,14 @@ protected:
     Choice m_LenUnitChoice;
     Choice m_2DViewType;
 
+    ToggleButton m_ProjectionLineToggle;
+    SliderAdjRangeInput m_TessSlider;
+
     ToggleButton m_3DToggle;
     ToggleButton m_2DToggle;
     ToggleRadioGroup m_2D3DGroup;
+    ToggleButton m_XSecToggle;
+    ToggleButton m_ColorToggle;
 
     Choice m_4ViewChoice1;
     Choice m_4ViewChoice2;
@@ -58,11 +64,6 @@ protected:
     Choice m_4RotChoice2;
     Choice m_4RotChoice3;
     Choice m_4RotChoice4;
-
-    int m_PrevUnit;
-    int m_PrevView;
-    int m_PrevView4;
-    int m_PrevRot4;
 
     TriggerButton m_OkButton;
     TriggerButton m_CancelButton;

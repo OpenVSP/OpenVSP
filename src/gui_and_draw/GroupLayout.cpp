@@ -1002,15 +1002,10 @@ void GroupLayout::AddChoice( Choice & choice, const char* label, int used_w )
     m_Group->add( fl_choice );
     AddX( choice_w );
 
-    //==== Add Choice Text ===//
-    vector< string > choice_vec = choice.GetItems();
-    for ( int i = 0 ; i < ( int )choice_vec.size() ; i++ )
-    {
-        fl_choice->add( choice_vec[i].c_str() );
-    }
-    fl_choice->value( 0 );
-
     choice.Init( m_Screen, fl_choice, button );
+
+    //==== Add Choice Text ===//
+    choice.UpdateItems();
 
     if( strcmp( label, "AUTO_UPDATE" ) == 0 || strcmp( label, "" ) == 0 )
     {
@@ -1347,7 +1342,7 @@ void GroupLayout::AddSkinControl( SkinControl & skin_control, const char* label,
         range, format);
 }
 
-void GroupLayout::AddSkinHeader( SkinHeader & skin_header )
+void GroupLayout::AddSkinHeader( SkinHeader & skin_header, bool addcontchoice )
 {
     assert( m_Group && m_Screen );
     int oldBW = GetButtonWidth();
@@ -1375,11 +1370,20 @@ void GroupLayout::AddSkinHeader( SkinHeader & skin_header )
     m_FitWidthFlag = false;
     m_SameLineFlag = true;
 
-    Choice* cont_choice = new Choice();
-    cont_choice->AddItem( "C0" );
-    cont_choice->AddItem( "C1" );
-    cont_choice->AddItem( "C2" );
-    AddChoice( *cont_choice, "Enforce" );
+    Choice* cont_choice = NULL;
+
+    if( addcontchoice )
+    {
+        cont_choice = new Choice();
+        cont_choice->AddItem( "C0" );
+        cont_choice->AddItem( "C1" );
+        cont_choice->AddItem( "C2" );
+        AddChoice( *cont_choice, "Enforce" );
+    }
+    else
+    {
+        gw += cw;
+    }
 
     AddX( gw );
 

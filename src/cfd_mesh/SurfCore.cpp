@@ -24,7 +24,7 @@ void SurfCore::GetBorderCurve( const vec3d &uw0, const vec3d &uw1, Bezier_curve 
     int iborder = -1;
     double tol = 1.0e-12;
 
-    if ( fabs( uw0.x() - uw1.x() ) < tol ) // U const, UMIN or UMAX
+    if ( std::abs( uw0.x() - uw1.x() ) < tol ) // U const, UMIN or UMAX
     {
         double umid = ( m_Surface.get_umax() + m_Surface.get_u0() ) / 2.0;
 
@@ -33,7 +33,7 @@ void SurfCore::GetBorderCurve( const vec3d &uw0, const vec3d &uw1, Bezier_curve 
         else
             iborder = UMAX;
     }
-    else if ( fabs( uw0.y() - uw1.y() ) < tol )
+    else if ( std::abs( uw0.y() - uw1.y() ) < tol )
     {
         double vmid = ( m_Surface.get_vmax() + m_Surface.get_v0() ) / 2.0;
 
@@ -278,7 +278,7 @@ void SurfCore::CompCurvature( double u, double w, double& k1, double& k2, double
     double kmin = ka - b;
 
     // Ensure k1 has largest magnitude
-    if( fabs( kmax ) > fabs( kmin ) )
+    if( std::abs( kmax ) > std::abs( kmin ) )
     {
         k1 = kmax;
         k2 = kmin;
@@ -341,7 +341,7 @@ bool SurfCore::PlaneAtYZero() const
                 {
                     surface_point_type cp;
                     cp = patch->get_control_point( icp, jcp );
-                    if ( fabs( cp.y() ) > tol )
+                    if ( std::abs( cp.y() ) > tol )
                     {
                         return false;
                     }

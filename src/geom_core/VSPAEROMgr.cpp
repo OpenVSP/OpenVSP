@@ -7,11 +7,11 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "VSPAEROMgr.h"
+#include "MeshGeom.h"
 #include "ParmMgr.h"
 #include "StlHelper.h"
+#include "VSPAEROMgr.h"
 #include "WingGeom.h"
-#include "MeshGeom.h"
 
 #include "StringUtil.h"
 #include "FileUtil.h"
@@ -40,7 +40,7 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_cref.Init( "cref", "VSPAERO", this, 1.0, 0.0, 1e6 );
     m_cref.SetDescript( "Reference chord" );
 
-    m_RefFlag.Init( "RefFlag", "VSPAERO", this, MANUAL_REF, MANUAL_REF, COMPONENT_REF );
+    m_RefFlag.Init( "RefFlag", "VSPAERO", this, vsp::VSPAERO_REF_WING_TYPE::MANUAL_REF, 0, vsp::VSPAERO_REF_WING_TYPE::NUM_REF_TYPES - 1 );
     m_RefFlag.SetDescript( "Reference quantity flag" );
 
     m_CGGeomSet.Init( "MassSet", "VSPAERO", this, 0, 0, 12 );
@@ -98,9 +98,9 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_StabilityCalcFlag.SetDescript( "Flag to calculate stability derivatives" );
     m_StabilityCalcFlag = false;
 
-    m_BatchModeFlag.Init( "BatchModeFlag", "VSPAERO", this, 0.0, 0.0, 1.0 );
+    m_BatchModeFlag.Init( "BatchModeFlag", "VSPAERO", this, true, false, true );
     m_BatchModeFlag.SetDescript( "Flag to calculate in batch mode" );
-    m_BatchModeFlag = false;
+    m_BatchModeFlag = true;
 
     m_ForceNewSetupfile.Init( "ForceNewSetupfile", "VSPAERO", this, 0.0, 0.0, 1.0 );
     m_ForceNewSetupfile.SetDescript( "Flag to creation of new setup file in ComputeSolver() even if one exists" );
@@ -181,7 +181,7 @@ xmlNodePtr VSPAEROMgrSingleton::DecodeXml( xmlNodePtr & node )
 
 void VSPAEROMgrSingleton::Update()
 {
-    if( m_RefFlag() == MANUAL_REF )
+    if( m_RefFlag() == vsp::VSPAERO_REF_WING_TYPE::MANUAL_REF )
     {
         m_Sref.Activate();
         m_bref.Activate();
@@ -999,7 +999,7 @@ ProcessUtil* VSPAEROMgrSingleton::GetSolverProcess()
 }
 
 // function is used to wait for the result to show up on the file system
-void VSPAEROMgrSingleton::WaitForFile( string filename )
+int VSPAEROMgrSingleton::WaitForFile( string filename )
 {
     // Wait until the results show up on the file system
     int n_wait = 0;
@@ -1010,6 +1010,15 @@ void VSPAEROMgrSingleton::WaitForFile( string filename )
         SleepForMilliseconds( 100 );
     }
     SleepForMilliseconds( 100 );  //additional wait for file
+
+    if ( FileExist( filename ) )
+    {
+        return vsp::ERROR_CODE::VSP_OK;
+    }
+    else
+    {
+        return vsp::ERROR_CODE::VSP_FILE_DOES_NOT_EXIST;
+    }
 }
 
 /*******************************************************

@@ -455,11 +455,17 @@ public:
     {
         m_Items.push_back( item );
     }
+
+    virtual void SetFlag( int indx, int flag );
+    virtual int GetFlag( int indx );
+    virtual void ClearFlags();
+
     virtual vector< string > GetItems()
     {
         return m_Items;
     }
-    virtual void UpdateItems();
+    virtual void UpdateItems( bool keepsetting = false );
+
     virtual void SetButtonNameUpdate( bool flag )
     {
         m_ParmButton.SetButtonNameUpdate( flag );
@@ -481,6 +487,7 @@ protected:
     ParmButton m_ParmButton;
 
     vector< string > m_Items;
+    vector< int > m_Flags;
 
     int m_Offset;
 

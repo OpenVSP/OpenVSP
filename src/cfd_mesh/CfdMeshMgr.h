@@ -246,6 +246,7 @@ public:
     virtual void WriteTaggedSTL( const string &filename );
     virtual void WriteTetGen( const string &filename );
     virtual void WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const string &key_fn, const string &obj_fn, const string &tri_fn, const string &gmsh_fn );
+    virtual void WriteFacet( const string &facet_fn );
     virtual void WriteSurfsIntCurves( const string &filename  );
 
     virtual void ExportFiles();
@@ -357,6 +358,10 @@ public:
     bool GetMeshInProgress()
     {
         return m_MeshInProgress;
+    }
+    virtual void SetMeshInProgress( bool progress_flag )
+    {
+        m_MeshInProgress = progress_flag;
     }
 
 protected:

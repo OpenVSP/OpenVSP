@@ -61,6 +61,8 @@ public:
     virtual void SetScale( double scale );
     virtual string GetWidthParmID()                                    { return string(); }
 
+    virtual void OffsetCurve( double offset_val );
+
     // FakeWidth is introduced to provide a scale value for leading/trailing edge
     // modifications when a unit-chord is forced for a propeller.
     virtual double GetFakeWidth()                                      { return m_FakeWidth; }
@@ -130,6 +132,8 @@ protected:
     bool m_UseFakeWidth;
     double m_FakeWidth;
 
+    double m_yscale;
+
     int m_Type;
 
     string m_GroupName;
@@ -176,6 +180,7 @@ public:
     virtual void SetWidthHeight( double w, double h );
     virtual string GetWidthParmID()                                    { return m_Diameter.GetID(); }
 
+    virtual void OffsetCurve( double off );
 
     Parm m_Diameter;
 };

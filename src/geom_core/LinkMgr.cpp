@@ -409,7 +409,7 @@ void LinkMgrSingleton::ParmChanged( const string& pid, bool start_flag  )
         Link* pl = parm_link_vec[i];
         Parm* pB = ParmMgr.FindParm( pl->GetParmB() );
 
-        if ( pB && ( pB->GetLinkUpdateFlag() == false ) )       // Prevent Circular
+        if ( pB && ! pB->GetLinkUpdateFlag() )       // Prevent Circular
         {
             double offset = 0.0;
             if ( pl->GetOffsetFlag() )

@@ -67,6 +67,7 @@ public:
 
     virtual string MakeMeshGeom();
 
+    virtual void ExportProjectLines( vector < TMesh* > targetTMeshVec );
 
     int m_TargetSetIndex;
 
@@ -106,13 +107,13 @@ protected:
 
     virtual void MeshToPaths( const vector < TMesh* > & tmv, ClipperLib::Paths & pths );
 
-    virtual void MeshToPathsVec( const vector < TMesh* > & tmv, vector < ClipperLib::Paths > & pths, vector < string > & ids );
+    virtual void MeshToPathsVec( const vector < TMesh* > & tmv, vector < ClipperLib::Paths > & pths, vector < string > & ids, const int keepdir1 = 1, const int keepdir2 = 2 );
 
-    virtual void PathsToPolyVec( const ClipperLib::Paths & pths, vector < vector < vec3d > > & polyvec );
+    virtual void PathsToPolyVec( const ClipperLib::Paths & pths, vector < vector < vec3d > > & polyvec, const int keepdir1 = 1, const int keepdir2 = 2 );
 
     virtual void Poly3dToPoly2d( vector < vector < vec3d > > & invec, vector < vector < vec2d > > & outvec );
 
-    virtual double BuildToFromClipper( Matrix4d & toclip, Matrix4d & fromclip );
+    virtual double BuildToFromClipper( Matrix4d & toclip, Matrix4d & fromclip, bool translate_to_max = true );
 
     virtual void ClosePaths( ClipperLib::Paths & pths );
 

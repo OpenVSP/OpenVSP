@@ -16,6 +16,9 @@
 #include "XSec.h"
 #include "XSecSurf.h"
 
+typedef eli::geom::curve::piecewise_general_creator< double, 3, surface_tolerance_type > piecewise_general_curve_creator_type;
+typedef piecewise_general_curve_creator_type::joint_data joint_data_type;
+
 double CalcTanSweepAt( double loc, double sweep, double baseloc, double aspect, double taper );
 
 //==== Wing Driver Group ====//
@@ -29,8 +32,35 @@ public:
     virtual bool ValidDrivers( vector< int > choices );
 };
 
+class BlendWingSect : public XSec
+{
+public:
+    BlendWingSect( XSecCurve *xsc );
+
+    virtual void ValidateParms( bool first, bool last );
+
+    Parm m_InLESweep;
+    Parm m_InTESweep;
+    Parm m_InLEDihedral;
+    Parm m_InTEDihedral;
+    Parm m_InLEStrength;
+    Parm m_InTEStrength;
+
+    Parm m_OutLESweep;
+    Parm m_OutTESweep;
+    Parm m_OutLEDihedral;
+    Parm m_OutTEDihedral;
+    Parm m_OutLEStrength;
+    Parm m_OutTEStrength;
+
+    IntParm m_InLEMode;
+    IntParm m_OutLEMode;
+    IntParm m_InTEMode;
+    IntParm m_OutTEMode;
+};
+
 //==== Wing Section ====//
-class WingSect : public XSec
+class WingSect : public BlendWingSect
 {
 public:
 
@@ -52,6 +82,16 @@ public:
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
     virtual void ReadV2File( xmlNodePtr &root );
+
+    virtual void GetJoints( bool first, bool last,
+                            joint_data_type &te_joint, const curve_point_type &te_point, const curve_point_type &te_in, const curve_point_type &te_out,
+                            const double &te_in_str, const double &te_out_str,
+                            joint_data_type &le_joint, const curve_point_type &le_point, const curve_point_type &le_in, const curve_point_type &le_out,
+                            const double &le_in_str, const double &le_out_str );
+
+    virtual void GetPoints( curve_point_type &te_point, curve_point_type &le_point );
+
+    virtual void SetUnsetParms( int irib, const VspSurf &surf, const double &te_in_str, const double &te_out_str, const double &le_in_str, const double &le_out_str );
 
     WingDriverGroup m_DriverGroup;
 
@@ -157,6 +197,7 @@ public:
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
     virtual void ReadV2File( xmlNodePtr &root );
+    virtual void OffsetXSecs( double off );
 
     //==== Planform Parms ====//
     Parm m_TotalSpan;
@@ -213,6 +254,7 @@ protected:
     DrawObj m_HighlightWingSecDrawObj;
 
     vector<int> m_TessUVec;
+    vector<int> m_UMergeVec;
 
     vector < double > m_RootClusterVec;
     vector < double > m_TipClusterVec;

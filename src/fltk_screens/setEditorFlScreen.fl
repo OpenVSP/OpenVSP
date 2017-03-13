@@ -37,7 +37,7 @@ class SetEditorUI {open
       }
       Fl_Button highlightSetButton {
         label {Highlight Selected Set} selected
-        xywh {10 265 315 20} labelfont 1 labelsize 12 deactivate
+        xywh {10 265 315 20} labelfont 1 labelsize 12
       }
     }
   }

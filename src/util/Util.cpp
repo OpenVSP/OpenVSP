@@ -40,7 +40,7 @@ double mag( double x )
     }
     else
     {
-        double lx = log10( abs( x ) );
+        double lx = log10( std::abs( x ) );
         if ( lx < 0 )
         {
             return ceil( lx );

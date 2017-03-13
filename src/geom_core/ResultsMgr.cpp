@@ -261,9 +261,20 @@ void Results::WriteCSVFile( FILE* fid )
                 }
                 else if ( iter->second[i].GetType() == vsp::STRING_DATA )
                 {
-                    for ( int d = 0 ; d < ( int )iter->second[i].GetStringData().size() ; d++ )
+                    // If this is a "ResultsVec" wrapper result replace result UIDs with result names
+                    if ( strcmp( iter->second[i].GetName().c_str(), "ResultsVec" ) == 0 )
                     {
-                        fprintf( fid, ",%s", iter->second[i].GetStringData()[d].c_str() );
+                        for ( int d = 0; d < (int)iter->second[i].GetStringData().size(); d++ )
+                        {
+                            fprintf( fid, ",%s", ResultsMgr.FindResultsPtr(iter->second[i].GetStringData()[d])->GetName().c_str() );
+                        }
+                    }
+                    else
+                    {
+                        for ( int d = 0; d < (int)iter->second[i].GetStringData().size(); d++ )
+                        {
+                            fprintf( fid, ",%s", iter->second[i].GetStringData()[d].c_str() );
+                        }
                     }
                 }
                 else if ( iter->second[i].GetType() == vsp::VEC3D_DATA )
@@ -277,6 +288,26 @@ void Results::WriteCSVFile( FILE* fid )
                 fprintf( fid, "\n" );
             }
         }
+
+        // Loop again to recursively call WriteCSV() if this result contains a "ResultsVec" wrapper result
+        for ( iter = m_DataMap.begin(); iter != m_DataMap.end(); iter++ )
+        {
+            for ( int i = 0; i < (int)iter->second.size(); i++ )
+            {
+                if ( (iter->second[i].GetType() == vsp::STRING_DATA) && (strcmp( iter->second[i].GetName().c_str(), "ResultsVec" ) == 0) )
+                {
+                    for ( int d = 0; d < (int)iter->second[i].GetStringData().size(); d++ )
+                    {
+                        Results * res = ResultsMgr.FindResultsPtr( iter->second[i].GetStringData()[d] );
+                        if ( res )
+                        {
+                            res->WriteCSVFile( fid );
+                        }
+                    }
+                }
+            }
+        }   // end recursion
+
     }
 }
 
@@ -382,6 +413,19 @@ void Results::WriteCompGeomTxtFile( const string & file_name )
                  Find( "Total_Theo_Area" ).GetDouble( 0 ),   Find( "Total_Wet_Area" ).GetDouble( 0 ),
                  Find( "Total_Theo_Vol" ).GetDouble( 0 ),    Find( "Total_Wet_Vol" ).GetDouble( 0 ), "Totals" );
 
+        int num_tag = Find( "Num_Tags" ).GetInt( 0 );
+        if ( num_tag > 0 )
+        {
+            fprintf( fid, "\n" );
+            fprintf( fid, "Tag_Theo_Area   Tag_Wet_Area    Tag_Name\n" );
+
+            for ( int i = 0 ; i < num_tag ; i++ )
+            {
+                fprintf( fid, "    %9.3f      %9.3f    %-15s\n",
+                         Find( "Tag_Theo_Area" ).GetDouble( i ), Find( "Tag_Wet_Area" ).GetDouble( i ),
+                         Find( "Tag_Name" ).GetString( i ).c_str() );
+            }
+        }
 
         if ( Find( "Num_Degen_Tris_Removed" ).GetInt( 0 ) )
         {
@@ -419,6 +463,18 @@ void Results::WriteCompGeomCsvFile( const string & file_name )
         fprintf( fid, "%s,%f,%f,%f,%f\n", "Totals",
                  Find( "Total_Theo_Area" ).GetDouble( 0 ),   Find( "Total_Wet_Area" ).GetDouble( 0 ),
                  Find( "Total_Theo_Vol" ).GetDouble( 0 ),    Find( "Total_Wet_Vol" ).GetDouble( 0 ) );
+
+        int num_tag = Find( "Num_Tags" ).GetInt( 0 );
+        if ( num_tag > 0 )
+        {
+            fprintf( fid, "\nTag_Name, Tag_Theo_Area, Tag_Wet_Area\n" );
+            for ( int i = 0 ; i < num_tag ; i++ )
+            {
+                fprintf( fid, "%s,%f,%f\n",
+                         Find( "Tag_Name" ).GetString( i ).c_str(),
+                         Find( "Tag_Theo_Area" ).GetDouble( i ), Find( "Tag_Wet_Area" ).GetDouble( i ) );
+            }
+        }
 
         fclose( fid );
     }
@@ -1104,7 +1160,6 @@ int ResultsMgrSingleton::WriteCSVFile( const string & file_name, const vector < 
             Results* resptr = ResultsMgr.FindResultsPtr( resids[iRes] );
             if( resptr )
             {
-                // TODO print the name of the result to the file as a header for each result
                 resptr->WriteCSVFile( fid );    //append this result to the csv file
             }
         }

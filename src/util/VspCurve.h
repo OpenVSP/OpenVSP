@@ -107,6 +107,10 @@ public:
 
     void Scale( double s );
 
+    void ScaleX( double s );
+    void ScaleY( double s );
+    void ScaleZ( double s );
+
     void ReflectXY();
     void ReflectXZ();
     void ReflectYZ();

@@ -152,8 +152,8 @@ void CfdMeshScreen::CreateOutputTab()
     m_OutputTabLayout.SetFitWidthFlag( false );
     m_OutputTabLayout.SetSameLineFlag( true );
 
-    m_OutputTabLayout.SetButtonWidth(50);
-    m_OutputTabLayout.SetInputWidth(305);
+    m_OutputTabLayout.SetButtonWidth(55);
+    m_OutputTabLayout.SetInputWidth(300);
     m_OutputTabLayout.AddButton(m_StlFile, ".stl");
     m_OutputTabLayout.AddOutput(m_StlOutput);
     m_OutputTabLayout.AddButton(m_SelectStlFile, "...");
@@ -172,6 +172,10 @@ void CfdMeshScreen::CreateOutputTab()
     m_OutputTabLayout.AddButton(m_TriFile, ".tri");
     m_OutputTabLayout.AddOutput(m_TriOutput);
     m_OutputTabLayout.AddButton(m_SelectTriFile, "...");
+    m_OutputTabLayout.ForceNewLine();
+    m_OutputTabLayout.AddButton( m_FacFile, ".facet" );
+    m_OutputTabLayout.AddOutput( m_FacOutput );
+    m_OutputTabLayout.AddButton( m_SelectFacFile, "..." );
     m_OutputTabLayout.ForceNewLine();
     m_OutputTabLayout.AddButton(m_ObjFile, ".obj");
     m_OutputTabLayout.AddOutput(m_ObjOutput);
@@ -623,6 +627,8 @@ void CfdMeshScreen::UpdateOutputTab()
     m_PolyOutput.Update( truncateFileName( polyname, 40 ).c_str() );
     string triname = CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_TRI_FILE_NAME );
     m_TriOutput.Update( truncateFileName( triname, 40 ).c_str() );
+    string facname = CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_FACET_FILE_NAME );
+    m_FacOutput.Update( truncateFileName( facname, 40 ).c_str() );
     string objname = CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_OBJ_FILE_NAME );
     m_ObjOutput.Update( truncateFileName( objname, 40 ).c_str() );
     string gmshname = CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_GMSH_FILE_NAME );
@@ -641,6 +647,7 @@ void CfdMeshScreen::UpdateOutputTab()
     m_TaggedMultiSolid.Update( m_Vehicle->m_STLMultiSolid.GetID() );
     m_PolyFile.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_POLY_FILE_NAME )->GetID() );
     m_TriFile.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_TRI_FILE_NAME )->GetID() );
+    m_FacFile.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_FACET_FILE_NAME )->GetID() );
     m_ObjFile.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_OBJ_FILE_NAME )->GetID() );
     m_MshFile.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_GMSH_FILE_NAME )->GetID() );
     m_DatFile.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_DAT_FILE_NAME )->GetID() );
@@ -939,12 +946,10 @@ void CfdMeshScreen::GuiDeviceCallBack( GuiDevice* device )
 
     if ( device == &m_MeshAndExport )
     {
+        CfdMeshMgr.SetMeshInProgress( true );
         m_CFDMeshProcess.StartThread( cfdmesh_thread_fun, NULL );
 
         m_MonitorProcess.StartThread( cfdmonitorfun, ( void* ) this );
-
-        // Hide all geoms.
-        m_Vehicle->HideAll();
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
@@ -1016,6 +1021,14 @@ void CfdMeshScreen::GuiDeviceOutputTabCallback( GuiDevice* device )
         if ( newfile.compare( "" ) != 0 )
         {
             CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, vsp::CFD_TRI_FILE_NAME );
+        }
+    }
+    else if ( device == &m_SelectFacFile )
+    {
+        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .facet file.", "*.facet" );
+        if ( newfile.compare( "" ) != 0 )
+        {
+            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, vsp::CFD_FACET_FILE_NAME );
         }
     }
     else if ( device == &m_SelectObjFile  )

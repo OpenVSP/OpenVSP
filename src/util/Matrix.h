@@ -7,7 +7,7 @@
 #ifndef __MATRIX_H_
 #define __MATRIX_H_
 
-#include <math.h>
+#include <cmath>
 #include <string.h>
 #include "Defines.h"
 #include "Vec3d.h"

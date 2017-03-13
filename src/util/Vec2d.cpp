@@ -12,7 +12,7 @@
 //
 //******************************************************************************
 
-#include <math.h>
+#include <cmath>
 #include <float.h>  //For DBL_EPSILON
 #include "Vec2d.h"
 
@@ -310,7 +310,7 @@ void clip_seg_rect( double x_min, double y_min, double x_max, double y_max,
 
             // Vertical Line //
             //if ( pnt2.v[0] == pnt1.v[0] )
-            if( fabs( pnt2.v[0] - pnt1.v[0] ) <= DBL_EPSILON )
+            if( std::abs( pnt2.v[0] - pnt1.v[0] ) <= DBL_EPSILON )
             {
                 if ( c1[3] )
                 {

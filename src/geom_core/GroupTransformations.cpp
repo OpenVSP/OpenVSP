@@ -98,7 +98,7 @@ void GroupTransformations::Update()
 
         // Only apply transform (except scale) if either the geom has no active parent or its coordinate system
         // is not relative to another geometry's coordinate system
-        if ( parent_in_group == false || ( thisGeom->m_TransAttachFlag.Get() == GeomXForm::ATTACH_TRANS_NONE && !thisGeom->IsParentJoint() ) )
+        if ( ! parent_in_group || ( thisGeom->m_TransAttachFlag.Get() == GeomXForm::ATTACH_TRANS_NONE && !thisGeom->IsParentJoint() ) )
         {
             delta_x = m_GroupXLoc.Get();
             delta_y = m_GroupYLoc.Get();
@@ -288,7 +288,7 @@ void GroupTransformations::SetColor( const vec3d & color )
 double GroupTransformations::MakeValidRotation( const double &rotation )
 {
     // get the angle to be between 0 and 360
-    double angle = fabs( rotation ) - floor( fabs( rotation / 360.0 ) )*360.0;
+    double angle = std::abs( rotation ) - floor( std::abs( rotation / 360.0 ) )*360.0;
     if ( rotation < 0 ) angle *= -1.0;
 
     // convert the angle to be between +/- 180

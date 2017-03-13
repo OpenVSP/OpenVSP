@@ -1450,7 +1450,7 @@ void FeaMeshMgrSingleton::LoadCapChains( Surf* s0, double u, list< ISegChain* > 
             vector< vec3d > uwpnts = ( *c )->m_ACurve.GetUWTessPnts();
             for ( int i = 0 ; i < ( int )uwpnts.size() ; i++ )
             {
-                double del = fabs( u - uwpnts[i].x() );
+                double del = std::abs( u - uwpnts[i].x() );
                 if ( del > 0.001 )
                 {
                     matchFlag = false;

@@ -11,6 +11,7 @@
 #include "WingGeom.h"
 #include "BlankGeom.h"
 #include "MeshGeom.h"
+#include "ConformalGeom.h"
 #include "CustomGeom.h"
 #include "PtCloudGeom.h"
 #include "PropGeom.h"
@@ -26,11 +27,15 @@
 #include "SubSurfaceMgr.h"
 #include "DesignVarMgr.h"
 #include "DXFUtil.h"
+#include "SVGUtil.h"
 #include "FitModelMgr.h"
 #include "FileUtil.h"
 #include "VarPresetMgr.h"
 #include "VSPAEROMgr.h"
 #include "main.h"
+
+#include "ProjectionMgr.h"
+#include "DXFUtil.h"
 
 using namespace vsp;
 
@@ -40,6 +45,7 @@ Vehicle::Vehicle()
     m_STEPLenUnit.Init( "LenUnit", "STEPSettings", this, vsp::LEN_FT, vsp::LEN_MM, vsp::LEN_YD );
     m_STEPTol.Init( "Tolerance", "STEPSettings", this, 1e-6, 1e-12, 1e12 );
     m_STEPSplitSurfs.Init( "SplitSurfs", "STEPSettings", this, true, 0, 1 );
+    m_STEPSplitSubSurfs.Init( "SplitSubSurfs", "STEPSettings", this, false, 0, 1 );
     m_STEPMergePoints.Init( "MergePoints", "STEPSettings", this, true, 0, 1 );
     m_STEPToCubic.Init( "ToCubic", "STEPSettings", this, false, 0, 1 );
     m_STEPToCubicTol.Init( "ToCubicTol", "STEPSettings", this, 1e-6, 1e-12, 1e12 );
@@ -47,21 +53,54 @@ Vehicle::Vehicle()
 
     m_IGESLenUnit.Init( "LenUnit", "IGESSettings", this, vsp::LEN_FT, vsp::LEN_MM, vsp::LEN_FT );
     m_IGESSplitSurfs.Init( "SplitSurfs", "IGESSettings", this, true, 0, 1 );
+    m_IGESSplitSubSurfs.Init( "SplitSubSurfs", "IGESSettings", this, false, 0, 1 );
     m_IGESToCubic.Init( "ToCubic", "IGESSettings", this, false, 0, 1 );
     m_IGESToCubicTol.Init( "ToCubicTol", "IGESSettings", this, 1e-6, 1e-12, 1e12 );
     m_IGESTrimTE.Init( "TrimTE", "IGESSettings", this, false, 0, 1 );
 
     m_DXFLenUnit.Init( "LenUnit", "DXFSettings", this, vsp::LEN_FT, vsp::LEN_MM, vsp::LEN_UNITLESS );
-    m_2D3DFlag.Init( "DimFlag", "DXFSettings", this , vsp::SET_3D, vsp::SET_3D, vsp::SET_2D );
-    m_2DView.Init( "ViewType", "DXFSettings", this, vsp::VIEW_1, vsp::VIEW_1, vsp::VIEW_4 );
-    m_4View1.Init( "TopLeftView", "DXFSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
-    m_4View2.Init( "TopRightView", "DXFSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
-    m_4View3.Init( "BottomLeftView", "DXFSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
-    m_4View4.Init( "BottomRightView", "DXFSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
-    m_4View1_rot.Init( "TopLeftRotation", "DXFSettings", this, vsp::ROT_90, vsp::ROT_0, vsp::ROT_270 );
-    m_4View2_rot.Init( "TopRightRotation", "DXFSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
-    m_4View3_rot.Init( "BottomLeftRotation", "DXFSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
-    m_4View4_rot.Init( "BottomRightRotation", "DXFSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
+    m_DXFLenUnit.SetDescript( "Sets DXF Header Units; Numeric Values Unchanged" );
+    m_DXFProjectionFlag.Init( "DXFProjectionFlag", "DXFSettings", this , false, 0, 1 );
+    m_DXFProjectionFlag.SetDescript( "Flag To Export Geom and Vehicle Projection Lines" );
+    m_DXFTessFactor.Init( "DXFTessFactor", "DXFSettings", this, 2, 0, 100 );
+    m_DXFTessFactor.SetDescript( "DXF Tesselation Multiplier. Caution: May Slow Export" );
+    m_DXFAllXSecFlag.Init( "DXFAllXSecFlag", "DXFSettings", this, false, 0, 1 );
+    m_DXFAllXSecFlag.SetDescript( "Flag To Export XSec Feature Lines" );
+    m_DXFColorFlag.Init( "DXFColorFlag", "DXFSettings", this, false, 0, 1 );
+    m_DXFColorFlag.SetDescript( "Flag To Make Each Layer A Different Color" );
+    m_DXF2D3DFlag.Init( "DimFlag", "DXFSettings", this , vsp::SET_3D, vsp::SET_3D, vsp::SET_2D );
+    m_DXF2DView.Init( "ViewType", "DXFSettings", this, vsp::VIEW_1, vsp::VIEW_1, vsp::VIEW_4 );
+    m_DXF2DView.SetDescript( "Sets Number Of 2D Views" );
+    m_DXF4View1.Init( "TopLeftView", "DXFSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
+    m_DXF4View2.Init( "TopRightView", "DXFSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
+    m_DXF4View3.Init( "BottomLeftView", "DXFSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
+    m_DXF4View4.Init( "BottomRightView", "DXFSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
+    m_DXF4View1_rot.Init( "TopLeftRotation", "DXFSettings", this, vsp::ROT_90, vsp::ROT_0, vsp::ROT_270 );
+    m_DXF4View2_rot.Init( "TopRightRotation", "DXFSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
+    m_DXF4View3_rot.Init( "BottomLeftRotation", "DXFSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
+    m_DXF4View4_rot.Init( "BottomRightRotation", "DXFSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
+
+    m_SVGLenUnit.Init( "LenUnit", "SVGSettings", this, vsp::LEN_FT, vsp::LEN_MM, vsp::LEN_UNITLESS );
+    m_SVGLenUnit.SetDescript( "Sets Scale Bar Units; Numeric Values Unchanged" );
+    m_SVGSet.Init( "SVGSet", "SVGSettings", this, 0, 0, 12 );
+    m_Scale.Init( "Scale", "SVGSettings", this, 0, 0, 1e12 );
+    m_Scale.SetDescript( "Sets Scale Bar Size" );
+    m_SVGProjectionFlag.Init( "SVGProjectionFlag", "SVGSettings", this , false, 0, 1 );
+    m_SVGProjectionFlag.SetDescript( "Flag To Export Geom and Vehicle Projection Lines" );
+    m_SVGTessFactor.Init( "SVGTessFactor", "SVGSettings", this, 2, 0, 100 );
+    m_SVGTessFactor.SetDescript( "SVG Tesselation Multiplier. Caution: May Slow Export" );
+    m_SVGAllXSecFlag.Init( "SVGAllXSecFlag", "SVGSettings", this, false, 0, 1 );
+    m_SVGAllXSecFlag.SetDescript( "Flag To Export XSec Feature Lines" );
+    m_SVGView.Init( "ViewType", "SVGSettings", this, vsp::VIEW_1, vsp::VIEW_1, vsp::VIEW_4 );
+    m_SVGView.SetDescript( "Sets Number Of 2D Views" );
+    m_SVGView1.Init( "TopLeftView", "SVGSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
+    m_SVGView2.Init( "TopRightView", "SVGSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
+    m_SVGView3.Init( "BottomLeftView", "SVGSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
+    m_SVGView4.Init( "BottomRightView", "SVGSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
+    m_SVGView1_rot.Init( "TopLeftRotation", "SVGSettings", this, vsp::ROT_90, vsp::ROT_0, vsp::ROT_270 );
+    m_SVGView2_rot.Init( "TopRightRotation", "SVGSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
+    m_SVGView3_rot.Init( "BottomLeftRotation", "SVGSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
+    m_SVGView4_rot.Init( "BottomRightRotation", "SVGSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
 
     m_STLMultiSolid.Init( "MultiSolid", "STLSettings", this, false, 0, 1 );
 
@@ -91,6 +130,8 @@ Vehicle::Vehicle()
     m_GroupTransformations.Init( this );
 
     SetupPaths();
+    m_VehProjectVec3d.resize( 3 );
+    m_ColorCount = 0;
 }
 
 //==== Destructor ====//
@@ -141,6 +182,7 @@ void Vehicle::Init()
     m_GeomTypeVec.push_back( GeomType( BLANK_GEOM_TYPE, "BLANK", true ) );
     m_GeomTypeVec.push_back( GeomType( PROP_GEOM_TYPE, "PROP", true ) );
     m_GeomTypeVec.push_back( GeomType( HINGE_GEOM_TYPE, "HINGE", true ) );
+    m_GeomTypeVec.push_back( GeomType( CONFORMAL_GEOM_TYPE, "CONFORMAL", true ) );
 
     //==== Get Custom Geom Types =====//
     vector< GeomType > custom_types = CustomGeomMgr.GetCustomTypes();
@@ -165,6 +207,7 @@ void Vehicle::Init()
     m_STEPLenUnit.Set( vsp::LEN_FT );
     m_STEPTol.Set( 1e-6 );
     m_STEPSplitSurfs.Set( true );
+    m_STEPSplitSubSurfs.Set( false );
     m_STEPMergePoints.Set( true );
     m_STEPToCubic.Set( false );
     m_STEPToCubicTol.Set( 1e-6 );
@@ -172,21 +215,35 @@ void Vehicle::Init()
 
     m_IGESLenUnit.Set( vsp::LEN_FT );
     m_IGESSplitSurfs.Set( true );
+    m_IGESSplitSubSurfs.Set( false );
     m_IGESToCubic.Set( false );
     m_IGESToCubicTol.Set( 1e-6 );
     m_IGESTrimTE.Set( false );
 
-    m_DXFLenUnit.Set( vsp::LEN_UNITLESS );
-    m_2DView.Set( vsp::VIEW_4 );
-    m_2D3DFlag.Set( vsp::SET_3D );
-    m_4View1.Set( vsp::VIEW_TOP );
-    m_4View2.Set( vsp::VIEW_NONE );
-    m_4View3.Set( vsp::VIEW_FRONT );
-    m_4View4.Set( vsp::VIEW_LEFT );
-    m_4View1_rot.Set( vsp::ROT_270 );
-    m_4View2_rot.Set( vsp::ROT_0 );
-    m_4View3_rot.Set( vsp::ROT_0 );
-    m_4View4_rot.Set( vsp::ROT_0 );
+    //=== DXF Initial Conditions ===//
+    m_DXFLenUnit.Set( vsp::LEN_FT );
+    m_DXF2DView.Set( vsp::VIEW_4 );
+    m_DXF2D3DFlag.Set( vsp::SET_3D );
+    m_DXF4View1.Set( vsp::VIEW_TOP );
+    m_DXF4View2.Set( vsp::VIEW_NONE );
+    m_DXF4View3.Set( vsp::VIEW_FRONT );
+    m_DXF4View4.Set( vsp::VIEW_LEFT );
+    m_DXF4View1_rot.Set( vsp::ROT_90 );
+    m_DXF4View2_rot.Set( vsp::ROT_0 );
+    m_DXF4View3_rot.Set( vsp::ROT_0 );
+    m_DXF4View4_rot.Set( vsp::ROT_0 );
+
+    //=== SVG Initial Conditions ===//
+    m_SVGLenUnit.Set( vsp::LEN_FT );
+    m_SVGView.Set( vsp::VIEW_4 );
+    m_SVGView1.Set( vsp::VIEW_TOP );
+    m_SVGView2.Set( vsp::VIEW_NONE );
+    m_SVGView3.Set( vsp::VIEW_FRONT );
+    m_SVGView4.Set( vsp::VIEW_LEFT );
+    m_SVGView1_rot.Set( vsp::ROT_90 );
+    m_SVGView2_rot.Set( vsp::ROT_0 );
+    m_SVGView3_rot.Set( vsp::ROT_0 );
+    m_SVGView4_rot.Set( vsp::ROT_0 );
 
     m_STLMultiSolid.Set( false );
 
@@ -453,6 +510,10 @@ string Vehicle::CreateGeom( const GeomType & type )
     {
         new_geom = new HingeGeom( this );
     }
+    else if ( type.m_Type == CONFORMAL_GEOM_TYPE )
+    {
+        new_geom = new ConformalGeom( this );
+    }
 
     if ( !new_geom )
     {
@@ -496,7 +557,40 @@ string Vehicle::AddGeom( const GeomType & type )
             CustomGeomMgr.InitGeom( geom_id, type.m_ModuleName );
 //            add_geom->Update();
         }
-        add_geom->Update();
+        //==== Update Conformal After Attachment to Parent ====//
+        else if ( type.m_Type == CONFORMAL_GEOM_TYPE )
+        {
+            string parID = add_geom->GetParentID();
+            Geom* par = FindGeom( parID );
+
+            if ( par )
+            {
+                if ( par->GetType().m_Type == BLANK_GEOM_TYPE ||
+                     par->GetType().m_Type == MESH_GEOM_TYPE ||
+                     par->GetType().m_Type == PT_CLOUD_GEOM_TYPE ||
+                     par->GetType().m_Type == HINGE_GEOM_TYPE ||
+                     par->GetType().m_Type == CONFORMAL_GEOM_TYPE )
+                {
+                    MessageData errMsgData;
+                    errMsgData.m_String = "Error";
+                    errMsgData.m_IntVec.push_back( vsp::VSP_CONFORMAL_PARENT_UNSUPPORTED );
+                    errMsgData.m_StringVec.push_back( string( "Error:  Conformal component not supported for this parent type." ) );
+
+                    MessageMgr::getInstance().SendAll( errMsgData );
+                }
+            }
+            else
+            {
+                MessageData errMsgData;
+                errMsgData.m_String = "Error";
+                errMsgData.m_IntVec.push_back( vsp::VSP_CONFORMAL_PARENT_UNSUPPORTED );
+                errMsgData.m_StringVec.push_back( string( "Error:  Conformal component not supported for this parent type." ) );
+
+                MessageMgr::getInstance().SendAll( errMsgData );
+            }
+
+            add_geom->Update();
+        }
     }
     return geom_id;
 }
@@ -1664,6 +1758,103 @@ void Vehicle::WriteTaggedMSSTLFile( const string & file_name, int write_set )
     }
 }
 
+//==== Write Facet File ====//
+void Vehicle::WriteFacetFile( const string & file_name, int write_set )
+{
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    if ( !geom_vec[0] )
+    {
+        return;
+    }
+
+    // Note: If there is already a mesh geometry for the write_set, a new one is not created.
+    if ( !ExistMesh( write_set ) )
+    {
+        string mesh_id = AddMeshGeom( write_set );
+        if ( mesh_id.compare( "NONE" ) != 0 )
+        {
+            Geom* gPtr = FindGeom( mesh_id );
+            if ( gPtr )
+            {
+                MeshGeom* mg = dynamic_cast<MeshGeom*>( gPtr );
+                mg->SubTagTris( true );
+                geom_vec.push_back( gPtr );
+                gPtr->Update();
+            }
+            HideAllExcept( mesh_id );
+        }
+    }
+
+    // Open File
+    FILE* fid = fopen( file_name.c_str(), "w" );
+
+    if ( fid )
+    {
+        fprintf( fid, "Exported from %s\n", VSPVERSION4 ); // Title/comment line
+        fprintf( fid, "1\n" ); // Number of "Big" parts (1 Vehicle broken into small parts by geom and subsurface)
+
+        fprintf( fid, "%s\n", m_Name.c_str() ); // Name of "Big" part: Vehicle name
+
+        // mirror -> i, a b c d
+        //     if i = 0 -> no mirror
+        //     if i = 1 -> "Big" part is mirrored across plane defined by ax+by+cz-d=0
+        fprintf( fid, "0, 0.000 1.000 0.000 0.000\n" );
+
+        //==== Count Number of Points, Tris, and Parts ====//
+        int num_pnts = 0;
+        int num_parts = 0;
+
+        for ( int i = 0; i < (int)geom_vec.size(); i++ )
+        {
+            if ( geom_vec[i]->GetSetFlag( write_set ) && geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
+            {
+                MeshGeom* mg = (MeshGeom*)geom_vec[i];            // Cast
+                mg->BuildIndexedMesh( num_parts );
+                num_parts += mg->GetNumIndexedParts();
+                num_pnts += mg->GetNumIndexedPnts();
+            }
+        }
+
+        fprintf( fid, "%d \n", num_pnts ); // # of nodes in "Big" part
+
+        // List all points (nodes) in "Big" part
+        for ( int i = 0; i < (int)geom_vec.size(); i++ )
+        {
+            if ( geom_vec[i]->GetSetFlag( write_set ) && geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
+            {
+                MeshGeom* mg = (MeshGeom*)geom_vec[i];
+                mg->WriteFacetNodes( fid );
+            }
+        }
+
+        // Define each "Small" part by corresponding nodes for each facet
+        int offset = 0;
+        int tri_count = 0;
+        int part_count = 0;
+
+        // Note: offset, tri_count, and part_count have been implemented in the case of the existence
+        //      of multiple meshes. However, tagging is only supported for a single mesh at this time.
+        //      A facet export of more than one mesh will lead to tagging and naming errors.
+
+        for ( int i = 0; i < (int)geom_vec.size(); i++ )
+        {
+            if ( geom_vec[i]->GetSetFlag( write_set ) &&
+                 geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
+            {
+                MeshGeom* mg = (MeshGeom*)geom_vec[i];            // Cast
+                mg->WriteFacetTriParts( fid, offset, tri_count, part_count );
+            }
+        }
+
+        // Note: The mesh geom created during the export is not deleted.
+        //      If the mesh geometry is not manually deleted, it will be
+        //      used to generate the export regardless of changes to the
+        //      vehicle.
+
+        fclose( fid );
+    }
+}
+
 //==== Write Tri File ====//
 void Vehicle::WriteTRIFile( const string & file_name, int write_set )
 {
@@ -2232,7 +2423,41 @@ void Vehicle::WriteSTEPFile( const string & file_name, int write_set )
 
             for ( int j = 0; j < surf_vec.size(); j++ )
             {
-                step.AddSurf( &surf_vec[j], m_STEPSplitSurfs(), m_STEPMergePoints(), m_STEPToCubic(), m_STEPToCubicTol(), m_STEPTrimTE() );
+                int mainid = geom_vec[i]->GetMainSurfID( j );
+
+                vector < double > usplit;
+                vector < double > wsplit;
+
+                vector < SubSurface *> ssvec = geom_vec[i]->GetSubSurfVec();
+
+                if ( m_STEPSplitSubSurfs() )
+                {
+                    for ( int k = 0; k < ssvec.size(); k++ )
+                    {
+                        SubSurface *sub = ssvec[ k ];
+                        if ( sub )
+                        {
+                            if( sub->m_MainSurfIndx() == mainid )
+                            {
+                                if( sub->GetType() == vsp::SS_LINE )
+                                {
+                                    SSLine *subline = (SSLine*) sub;
+
+                                    if( subline->m_ConstType() == SSLine::CONST_U )
+                                    {
+                                        usplit.push_back( subline->m_ConstVal() * surf_vec[j].GetUMax() );
+                                    }
+                                    else
+                                    {
+                                        wsplit.push_back( subline->m_ConstVal() * surf_vec[j].GetWMax() );
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                step.AddSurf( &surf_vec[j], m_STEPSplitSurfs(), m_STEPMergePoints(), m_STEPToCubic(), m_STEPToCubicTol(), m_STEPTrimTE(), usplit, wsplit );
             }
         }
     }
@@ -2276,7 +2501,41 @@ void Vehicle::WriteIGESFile( const string & file_name, int write_set )
 
             for ( int j = 0; j < surf_vec.size(); j++ )
             {
-                surf_vec[j].ToIGES( model, m_IGESSplitSurfs(), m_IGESToCubic(), m_IGESToCubicTol(), m_IGESTrimTE() );
+                int mainid = geom_vec[i]->GetMainSurfID( j );
+
+                vector < double > usplit;
+                vector < double > wsplit;
+
+                vector < SubSurface *> ssvec = geom_vec[i]->GetSubSurfVec();
+
+                if ( m_IGESSplitSubSurfs() )
+                {
+                    for ( int k = 0; k < ssvec.size(); k++ )
+                    {
+                        SubSurface *sub = ssvec[ k ];
+                        if ( sub )
+                        {
+                            if( sub->m_MainSurfIndx() == mainid )
+                            {
+                                if( sub->GetType() == vsp::SS_LINE )
+                                {
+                                    SSLine *subline = (SSLine*) sub;
+
+                                    if( subline->m_ConstType() == SSLine::CONST_U )
+                                    {
+                                        usplit.push_back( subline->m_ConstVal() * surf_vec[j].GetUMax() );
+                                    }
+                                    else
+                                    {
+                                        wsplit.push_back( subline->m_ConstVal() * surf_vec[j].GetWMax()  );
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                surf_vec[j].ToIGES( model, m_IGESSplitSurfs(), m_IGESToCubic(), m_IGESToCubicTol(), m_IGESTrimTE(), usplit, wsplit );
             }
         }
     }
@@ -2304,30 +2563,644 @@ void Vehicle::WriteBEMFile( const string &file_name, int write_set )
 void Vehicle::WriteDXFFile( const string & file_name, int write_set )
 {
     FILE* dxf_file = fopen( file_name.c_str(), "w" );
-    WriteDXFHeader( dxf_file, m_DXFLenUnit.Get() );
 
+    if ( dxf_file )
+    {
+        vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+
+        if ( geom_vec.size() == 0 )
+        {
+            return;
+        }
+
+        BndBox dxfbox;
+
+        // Clear Vehicle Projection Line Vec and Reset Color Count
+        m_ColorCount = 0;
+        m_VehProjectVec3d.clear();
+        m_VehProjectVec3d.resize( 3 );
+
+        // Tesselation adjustment
+        double tessfactor = m_DXFTessFactor.Get();
+
+        for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+        {
+            if ( geom_vec[i]->GetSetFlag( write_set ) )
+            {
+                // Get Vehicle Bounding Box
+                dxfbox.Update( geom_vec[i]->GetBndBox() );
+
+                // Clear Geom Projection Vec
+                geom_vec[i]->ClearGeomProjectVec3d();
+
+                if ( ( m_DXFProjectionFlag() && m_DXFTessFactor.Get() != 1.0 ) )
+                {
+                    // Increase tellelation:
+                    geom_vec[i]->m_TessW.Set( geom_vec[i]->m_TessW() * tessfactor );
+
+                    int num_xsec_surf = geom_vec[i]->GetNumXSecSurfs();
+
+                    if ( num_xsec_surf > 0 ) // Increase U tesselation by section for segmented geoms
+                    {
+                        for ( unsigned int j = 0; j < num_xsec_surf; j++ )
+                        {
+                            XSecSurf* xsecsurf = geom_vec[i]->GetXSecSurf( j );
+
+                            if ( xsecsurf )
+                            {
+                                int num_xsec = xsecsurf->NumXSec();
+
+                                for ( unsigned int k = 0; k < num_xsec; k++ )
+                                {
+                                    XSec* curr_xsec = xsecsurf->FindXSec( k );
+
+                                    if ( curr_xsec )
+                                    {
+                                        curr_xsec->m_SectTessU.Set( curr_xsec->m_SectTessU() * tessfactor );
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        geom_vec[i]->m_TessU.Set( geom_vec[i]->m_TessU() * tessfactor );
+                    }
+                }
+
+                if ( m_DXFAllXSecFlag() )
+                {
+                    // Force XSec Feature Line Visibility:
+                    geom_vec[i]->SetForceXSecFlag( true );
+                }
+
+                if ( ( m_DXFProjectionFlag() && tessfactor != 1.0 ) || m_DXFAllXSecFlag() )
+                {
+                    // Update Geom:
+                    geom_vec[i]->Update( true );
+                }
+            }
+        }
+
+        // Write DXF Header
+        WriteDXFHeader( dxf_file, m_DXFLenUnit.Get() );
+
+        if ( m_DXFProjectionFlag() )
+        {
+            // Generate Mesh for Projections:
+            vector < TMesh* > TotalProjectMeshVec;
+
+            for ( int i = 0; i < (int)geom_vec.size(); i++ )
+            {
+                if ( geom_vec[i]->GetSetFlag( write_set ) )
+                {
+                    vector< TMesh* > tMeshVec = geom_vec[i]->CreateTMeshVec();
+                    for ( int j = 0; j < (int)tMeshVec.size(); j++ )
+                    {
+                        TotalProjectMeshVec.push_back( tMeshVec[j] );
+                    }
+                }
+            }
+            // Generate Geom and Vehicle Projection Line Vectors:
+            ProjectionMgr.ExportProjectLines( TotalProjectMeshVec );
+
+            // Delete TMesh Pointers
+            for ( unsigned int i = 0; i < TotalProjectMeshVec.size(); i++ )
+            {
+                delete TotalProjectMeshVec[i];
+            }
+            TotalProjectMeshVec.clear();
+        }
+
+        for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+        {
+            if ( geom_vec[i]->GetSetFlag( write_set ) )
+            {
+                // Write Geom Projection Lines:
+                if ( m_DXFProjectionFlag() )
+                {
+                    geom_vec[i]->WriteProjectionLinesDXF( dxf_file, dxfbox );
+                }
+
+                // Write Feature Lines:
+                geom_vec[i]->WriteFeatureLinesDXF( dxf_file, dxfbox );
+            }
+        }
+
+        if ( m_DXFProjectionFlag() )
+        {
+            // Write Total Projection Lines:
+            WriteVehProjectionLinesDXF( dxf_file, dxfbox );
+        }
+
+        for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+        {
+            if ( geom_vec[i]->GetSetFlag( write_set ) )
+            {
+                // Clear Geom Projection Vec
+                geom_vec[i]->ClearGeomProjectVec3d();
+
+                if ( ( m_DXFProjectionFlag() && tessfactor != 1.0 ) )
+                {
+                    // Restore tellelation and update:
+                    geom_vec[i]->m_TessW.Set( geom_vec[i]->m_TessW.GetLastVal() );
+
+                    int num_xsec_surf = geom_vec[i]->GetNumXSecSurfs();
+
+                    if ( num_xsec_surf > 0 ) // Restore U tesselation by section for segmented geoms
+                    {
+                        for ( unsigned int j = 0; j < num_xsec_surf; j++ )
+                        {
+                            XSecSurf* xsecsurf = geom_vec[i]->GetXSecSurf( j );
+
+                            if ( xsecsurf )
+                            {
+                                int num_xsec = xsecsurf->NumXSec();
+
+                                for ( unsigned int k = 0; k < num_xsec; k++ )
+                                {
+                                    XSec* curr_xsec = xsecsurf->FindXSec( k );
+
+                                    if ( curr_xsec )
+                                    {
+                                        curr_xsec->m_SectTessU.Set( curr_xsec->m_SectTessU.GetLastVal() );
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        geom_vec[i]->m_TessU.Set( geom_vec[i]->m_TessU.GetLastVal() );
+                    }
+                }
+
+                if ( m_DXFAllXSecFlag() )
+                {
+                    // Restore Feature Line Visibility:
+                    geom_vec[i]->SetForceXSecFlag( false );
+                }
+
+                if ( ( m_DXFProjectionFlag() && tessfactor != 1.0 ) || m_DXFAllXSecFlag() )
+                {
+                    // Update Geom:
+                    geom_vec[i]->Update( true );
+                }
+            }
+        }
+
+        WriteDXFClose( dxf_file );
+
+        fclose( dxf_file );
+
+        // Clear Projection Line Vec:
+        m_VehProjectVec3d.clear(); 
+
+        // Restore Color Counter:
+        m_ColorCount = 0;
+    }
+    else
+    {
+        fprintf( stderr, "Error: File export failed\nFile: %s\n", file_name.c_str() );
+    }
+}
+
+void Vehicle::WriteSVGFile( const string & file_name, int write_set )
+{
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
 
-    BndBox dxfbox;
+    if ( geom_vec.size() == 0 )
+    {
+        return;
+    }
+
+    xmlDocPtr doc = xmlNewDoc( ( const xmlChar * )"1.0" );
+
+    xmlNodePtr root = xmlNewNode( NULL, ( const xmlChar * )"svg" );
+    doc->standalone=0;
+    
+    xmlDocSetRootElement( doc, root );
+
+    // Tesselation adjustment
+    double tessfactor = m_SVGTessFactor.Get();
+
+    BndBox svgbox;
+
+    // Clear Vehicle Projection Line Vec
+    m_VehProjectVec3d.clear();
+    m_VehProjectVec3d.resize( 3 );
+
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
         if ( geom_vec[i]->GetSetFlag( write_set ) )
         {
-            dxfbox.Update( geom_vec[i]->GetBndBox() );
+            // Get Vehicle Bounding Box
+            svgbox.Update( geom_vec[i]->GetBndBox() );
+
+            // Clear Geom Projection Vec
+            geom_vec[i]->ClearGeomProjectVec3d();
+
+            if ( ( m_SVGProjectionFlag() && tessfactor != 1.0 ) )
+            {
+                // Increase tellelation:
+                geom_vec[i]->m_TessW.Set( geom_vec[i]->m_TessW() * tessfactor );
+
+                int num_xsec_surf = geom_vec[i]->GetNumXSecSurfs();
+
+                if ( num_xsec_surf > 0 ) // Increase U tesselation by section for segmented geoms
+                {
+                    for ( unsigned int j = 0; j < num_xsec_surf; j++ )
+                    {
+                        XSecSurf* xsecsurf = geom_vec[i]->GetXSecSurf( j );
+
+                        if ( xsecsurf )
+                        {
+                            int num_xsec = xsecsurf->NumXSec();
+
+                            for ( unsigned int k = 0; k < num_xsec; k++ )
+                            {
+                                XSec* curr_xsec = xsecsurf->FindXSec( k );
+
+                                if ( curr_xsec )
+                                {
+                                    curr_xsec->m_SectTessU.Set( curr_xsec->m_SectTessU() * tessfactor );
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    geom_vec[i]->m_TessU.Set( geom_vec[i]->m_TessU() * tessfactor );
+                }
+            }
+
+            if ( m_SVGAllXSecFlag() )
+            {
+                // Force XSec Feature Line Visibility:
+                geom_vec[i]->SetForceXSecFlag( true );
+            }
+
+            if ( ( m_SVGProjectionFlag() && tessfactor != 1.0 ) || m_SVGAllXSecFlag() )
+            {
+                // Update Geom:
+                geom_vec[i]->Update( true );
+            }
         }
+    }
+
+    // Write SVG Header:
+    WriteSVGHeader( root, svgbox );
+
+    if ( m_SVGProjectionFlag() )
+    {
+        // Generate Mesh for Projections:
+        vector < TMesh* > TotalProjectMeshVec;
+
+        for ( int i = 0; i < (int)geom_vec.size(); i++ )
+        {
+            if ( geom_vec[i]->GetSetFlag( write_set ) )
+            {
+                vector< TMesh* > tMeshVec = geom_vec[i]->CreateTMeshVec();
+                for ( int j = 0; j < (int)tMeshVec.size(); j++ )
+                {
+                    TotalProjectMeshVec.push_back( tMeshVec[j] );
+                }
+            }
+        }
+
+        // Generate Geom and Vehicle Projection Line Vectors:
+        ProjectionMgr.ExportProjectLines( TotalProjectMeshVec );
+
+        // Delete TMesh Pointers 
+        for ( unsigned int i = 0; i < TotalProjectMeshVec.size(); i++ )
+        {
+            delete TotalProjectMeshVec[i];
+        }
+        TotalProjectMeshVec.clear();
     }
 
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
         if ( geom_vec[i]->GetSetFlag( write_set ) )
         {
-            geom_vec[i]->WriteFeatureLinesDXF( dxf_file, dxfbox );
+            if ( m_SVGProjectionFlag() )
+            {
+                // Write Geom Projection Lines
+                geom_vec[i]->WriteProjectionLinesSVG( root, svgbox );
+            }
+
+            // Write Feature Lines
+            geom_vec[i]->WriteFeatureLinesSVG( root, svgbox );
         }
     }
 
-    WriteDXFClose( dxf_file );
+    if ( m_SVGProjectionFlag() )
+    {
+        // Write Vehicle Projection Lines
+        WriteVehProjectionLinesSVG( root, svgbox );
+    }
 
-    fclose( dxf_file );
+    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        if ( geom_vec[i]->GetSetFlag( write_set ) )
+        {
+            // Clear Geom Projection Line Vec
+            geom_vec[i]->ClearGeomProjectVec3d();
+
+            if ( ( m_SVGProjectionFlag() && tessfactor != 1.0 ) )
+            {
+                // Restore tellelation and update:
+                geom_vec[i]->m_TessW.Set( geom_vec[i]->m_TessW.GetLastVal() );
+
+                int num_xsec_surf = geom_vec[i]->GetNumXSecSurfs();
+
+                if ( num_xsec_surf > 0 ) // Restore U tesselation by section for segmented geoms
+                {
+                    for ( unsigned int j = 0; j < num_xsec_surf; j++ )
+                    {
+                        XSecSurf* xsecsurf = geom_vec[i]->GetXSecSurf( j );
+
+                        if ( xsecsurf )
+                        {
+                            int num_xsec = xsecsurf->NumXSec();
+
+                            for ( unsigned int k = 0; k < num_xsec; k++ )
+                            {
+                                XSec* curr_xsec = xsecsurf->FindXSec( k );
+
+                                if ( curr_xsec )
+                                {
+                                    curr_xsec->m_SectTessU.Set( curr_xsec->m_SectTessU.GetLastVal() );
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    geom_vec[i]->m_TessU.Set( geom_vec[i]->m_TessU.GetLastVal() );
+                }
+            }
+
+            if ( m_SVGAllXSecFlag() )
+            {
+                // Restore Feature Line Visibility:
+                geom_vec[i]->SetForceXSecFlag( false );
+            }
+
+            if ( ( m_SVGProjectionFlag() && tessfactor != 1.0 ) || m_SVGAllXSecFlag() )
+            {
+                // Update Geom:
+                geom_vec[i]->Update( true );
+            }
+        }
+    }
+
+    // Add Scale Bar:
+    if ( m_SVGLenUnit() != vsp::LEN_UNITLESS )
+    {
+        WriteSVGScaleBar( root, m_SVGView.Get(), svgbox, m_SVGLenUnit.Get(), m_Scale.Get() );
+    }
+
+    //===== Save XML Tree and Free Doc =====//
+    int err = xmlSaveFormatFile( file_name.c_str(), doc, 1 );
+    xmlFreeDoc( doc );
+
+    // Clear Vehicle Projection Line Vec:
+    m_VehProjectVec3d.clear();
+
+    if( err == -1 )  // Failure occurred
+    {
+        fprintf( stderr, "Error: File export failed\nFile: %s\n", file_name.c_str() );
+    }
+}
+
+void Vehicle::WriteVehProjectionLinesDXF( FILE * file_name, const BndBox &dxfbox )
+{
+    bool color = m_DXFColorFlag.Get();
+
+    // Bounding box diagonal, used to separate multi-view drawings
+    vec3d shiftvec = dxfbox.GetMax() - dxfbox.GetMin();
+
+    // Shift the vehicle bounding box to align with the +x, +y, +z axes at the orgin
+    vec3d to_orgin = GetVecToOrgin( dxfbox );
+
+    string vehiclelayer = "VehicleProjection";
+
+    if ( m_DXF2D3DFlag() == vsp::DIMENSION_SET::SET_2D )
+    {
+        if ( m_DXF2DView() == vsp::VIEW_NUM::VIEW_1 )
+        {
+            vector < vector < vec3d > > projectionvec = GetVehProjectionLines( m_DXF4View1(), to_orgin );
+            FeatureLinesManipulate( projectionvec, m_DXF4View1(), m_DXF4View1_rot(), shiftvec );
+            WriteDXFPolylines2D( file_name, projectionvec, vehiclelayer, color, m_ColorCount );
+            m_ColorCount++;
+        }
+        else if ( m_DXF2DView() == vsp::VIEW_NUM::VIEW_2HOR )
+        {
+            vector < vector < vec3d > > projectionvec1 = GetVehProjectionLines( m_DXF4View1(), to_orgin );
+
+            if ( projectionvec1.size() > 0 )
+            {
+                FeatureLinesManipulate( projectionvec1, m_DXF4View1(), m_DXF4View1_rot(), shiftvec );
+                FeatureLinesShift( projectionvec1, shiftvec, vsp::VIEW_SHIFT::LEFT, m_DXF4View1_rot(), 0 );
+                string vehiclelayer_v1 = vehiclelayer + "_v1";
+
+                WriteDXFPolylines2D( file_name, projectionvec1, vehiclelayer_v1, color, m_ColorCount );
+                m_ColorCount++;
+            }
+
+            vector < vector < vec3d > > projectionvec2 = GetVehProjectionLines( m_DXF4View2(), to_orgin );
+
+            if ( projectionvec2.size() > 0 )
+            {
+                FeatureLinesManipulate( projectionvec2, m_DXF4View2(), m_DXF4View2_rot(), shiftvec );
+                FeatureLinesShift( projectionvec2, shiftvec, vsp::VIEW_SHIFT::RIGHT, m_DXF4View2_rot(), 0 );
+                string vehiclelayer_v2 = vehiclelayer + "_v2";
+
+                WriteDXFPolylines2D( file_name, projectionvec2, vehiclelayer_v2, color, m_ColorCount );
+                m_ColorCount++;
+            }
+        }
+        else if ( m_DXF2DView() == vsp::VIEW_NUM::VIEW_2VER )
+        {
+            vector < vector < vec3d > > projectionvec1 = GetVehProjectionLines( m_DXF4View1(), to_orgin );
+
+            if ( projectionvec1.size() > 0 )
+            {
+                FeatureLinesManipulate( projectionvec1, m_DXF4View1(), m_DXF4View1_rot(), shiftvec );
+                FeatureLinesShift( projectionvec1, shiftvec, vsp::VIEW_SHIFT::UP, m_DXF4View1_rot(), 0 );
+                string vehiclelayer_v1 = vehiclelayer + "_v1";
+
+                WriteDXFPolylines2D( file_name, projectionvec1, vehiclelayer_v1, color, m_ColorCount );
+                m_ColorCount++;
+            }
+
+            vector < vector < vec3d > > projectionvec3 = GetVehProjectionLines( m_DXF4View3(), to_orgin );
+
+            if ( projectionvec3.size() > 0 )
+            {
+                FeatureLinesManipulate( projectionvec3, m_DXF4View3(), m_DXF4View3_rot(), shiftvec );
+                FeatureLinesShift( projectionvec3, shiftvec, vsp::VIEW_SHIFT::DOWN, m_DXF4View3_rot(), 0 );
+                string vehiclelayer_v2 = vehiclelayer + "_v2";
+
+                WriteDXFPolylines2D( file_name, projectionvec3, vehiclelayer_v2, color, m_ColorCount );
+                m_ColorCount++;
+            }
+        }
+        else if ( m_DXF2DView() == vsp::VIEW_NUM::VIEW_4 )
+        {
+            vector < vector < vec3d > > projectionvec1 = GetVehProjectionLines( m_DXF4View1(), to_orgin );
+
+            if ( projectionvec1.size() > 0 )
+            {
+                FeatureLinesManipulate( projectionvec1, m_DXF4View1(), m_DXF4View1_rot(), shiftvec );
+                FeatureLinesShift( projectionvec1, shiftvec, vsp::VIEW_SHIFT::UP, m_DXF4View1_rot(), m_DXF4View2_rot() );
+                FeatureLinesShift( projectionvec1, shiftvec, vsp::VIEW_SHIFT::LEFT, m_DXF4View1_rot(), m_DXF4View3_rot() );
+                string vehiclelayer_v1 = vehiclelayer + "_v1";
+
+                WriteDXFPolylines2D( file_name, projectionvec1, vehiclelayer_v1, color, m_ColorCount );
+                m_ColorCount++;
+            }
+
+            vector < vector < vec3d > > projectionvec2 = GetVehProjectionLines( m_DXF4View2(), to_orgin );
+
+            if ( projectionvec2.size() > 0 )
+            {
+                FeatureLinesManipulate( projectionvec2, m_DXF4View2(), m_DXF4View2_rot(), shiftvec );
+                FeatureLinesShift( projectionvec2, shiftvec, vsp::VIEW_SHIFT::UP, m_DXF4View2_rot(), m_DXF4View1_rot() );
+                FeatureLinesShift( projectionvec2, shiftvec, vsp::VIEW_SHIFT::RIGHT, m_DXF4View2_rot(), m_DXF4View4_rot() );
+                string vehiclelayer_v2 = vehiclelayer + "_v2";
+
+                WriteDXFPolylines2D( file_name, projectionvec2, vehiclelayer_v2, color, m_ColorCount );
+                m_ColorCount++;
+            }
+
+            vector < vector < vec3d > > projectionvec3 = GetVehProjectionLines( m_DXF4View3(), to_orgin );
+
+            if ( projectionvec3.size() > 0 )
+            {
+                FeatureLinesManipulate( projectionvec3, m_DXF4View3(), m_DXF4View3_rot(), shiftvec );
+                FeatureLinesShift( projectionvec3, shiftvec, vsp::VIEW_SHIFT::DOWN, m_DXF4View3_rot(), m_DXF4View4_rot() );
+                FeatureLinesShift( projectionvec3, shiftvec, vsp::VIEW_SHIFT::LEFT, m_DXF4View3_rot(), m_DXF4View1_rot() );
+                string vehiclelayer_v3 = vehiclelayer + "_v3";
+
+                WriteDXFPolylines2D( file_name, projectionvec3, vehiclelayer_v3, color, m_ColorCount );
+                m_ColorCount++;
+            }
+
+            vector < vector < vec3d > > projectionvec4 = GetVehProjectionLines( m_DXF4View4(), to_orgin );
+
+            if ( projectionvec4.size() > 0 )
+            {
+                FeatureLinesManipulate( projectionvec4, m_DXF4View4(), m_DXF4View4_rot(), shiftvec );
+                FeatureLinesShift( projectionvec4, shiftvec, vsp::VIEW_SHIFT::DOWN, m_DXF4View4_rot(), m_DXF4View3_rot() );
+                FeatureLinesShift( projectionvec4, shiftvec, vsp::VIEW_SHIFT::RIGHT, m_DXF4View4_rot(), m_DXF4View2_rot() );
+                string vehiclelayer_v4 = vehiclelayer + "_v4";
+
+                WriteDXFPolylines2D( file_name, projectionvec4, vehiclelayer_v4, color, m_ColorCount );
+                m_ColorCount++;
+            }
+        }
+    }
+}
+
+void Vehicle::WriteVehProjectionLinesSVG( xmlNodePtr root, const BndBox &svgbox )
+{
+    // Bounding box diagonal, used to separate multi-view drawings
+    vec3d shiftvec = svgbox.GetMax() - svgbox.GetMin();
+
+    // Shift the vehicle bounding box to align with the +x, +y, +z axes at the orgin
+    vec3d to_orgin = GetVecToOrgin( svgbox );
+
+    if ( m_SVGView() == vsp::VIEW_NUM::VIEW_1 )
+    {
+        vector < vector < vec3d > > projectionvec = GetVehProjectionLines( m_SVGView1(), to_orgin );
+        FeatureLinesManipulate( projectionvec, m_SVGView1(), m_SVGView1_rot(), shiftvec );
+        WriteSVGPolylines2D( root, projectionvec, svgbox );
+    }
+    else if ( m_SVGView() == vsp::VIEW_NUM::VIEW_2HOR )
+    {
+        vector < vector < vec3d > > projectionvec1 = GetVehProjectionLines( m_SVGView1(), to_orgin );
+        FeatureLinesManipulate( projectionvec1, m_SVGView1(), m_SVGView1_rot(), shiftvec );
+        FeatureLinesShift( projectionvec1, shiftvec, vsp::VIEW_SHIFT::LEFT,m_SVGView1_rot(), 0 );
+        WriteSVGPolylines2D( root, projectionvec1, svgbox );
+
+        vector < vector < vec3d > > projectionvec2 = GetVehProjectionLines( m_SVGView2(), to_orgin );
+        FeatureLinesManipulate( projectionvec2, m_SVGView2(), m_SVGView2_rot(), shiftvec );
+        FeatureLinesShift( projectionvec2, shiftvec, vsp::VIEW_SHIFT::RIGHT, m_SVGView2_rot(), 0 );
+        WriteSVGPolylines2D( root, projectionvec2, svgbox );
+    }
+    else if ( m_SVGView() == vsp::VIEW_NUM::VIEW_2VER )
+    {
+        vector < vector < vec3d > > projectionvec1 = GetVehProjectionLines( m_SVGView1(), to_orgin );
+        FeatureLinesManipulate( projectionvec1, m_SVGView1(), m_SVGView1_rot(), shiftvec );
+        FeatureLinesShift( projectionvec1, shiftvec, vsp::VIEW_SHIFT::UP, m_SVGView1_rot(), 0 );
+        WriteSVGPolylines2D( root, projectionvec1, svgbox );
+
+        vector < vector < vec3d > > projectionvec3 = GetVehProjectionLines( m_SVGView3(), to_orgin );
+        FeatureLinesManipulate( projectionvec3, m_SVGView3(), m_SVGView3_rot(), shiftvec );
+        FeatureLinesShift( projectionvec3, shiftvec, vsp::VIEW_SHIFT::DOWN, m_SVGView3_rot(), 0 );
+        WriteSVGPolylines2D( root, projectionvec3, svgbox );
+    }
+    else if ( m_SVGView() == vsp::VIEW_NUM::VIEW_4 )
+    {
+        vector < vector < vec3d > > projectionvec1 = GetVehProjectionLines( m_SVGView1(), to_orgin );
+        FeatureLinesManipulate( projectionvec1, m_SVGView1(), m_SVGView1_rot(), shiftvec );
+        FeatureLinesShift( projectionvec1, shiftvec, vsp::VIEW_SHIFT::UP, m_SVGView1_rot(), m_SVGView2_rot() );
+        FeatureLinesShift( projectionvec1, shiftvec, vsp::VIEW_SHIFT::LEFT,m_SVGView1_rot(), m_SVGView3_rot() );
+        WriteSVGPolylines2D( root, projectionvec1, svgbox );
+
+        vector < vector < vec3d > > projectionvec2 = GetVehProjectionLines( m_SVGView2(), to_orgin );
+        FeatureLinesManipulate( projectionvec2, m_SVGView2(), m_SVGView2_rot(), shiftvec );
+        FeatureLinesShift( projectionvec2, shiftvec, vsp::VIEW_SHIFT::UP, m_SVGView2_rot(), m_SVGView1_rot() );
+        FeatureLinesShift( projectionvec2, shiftvec, vsp::VIEW_SHIFT::RIGHT, m_SVGView2_rot(), m_SVGView4_rot() );
+        WriteSVGPolylines2D( root, projectionvec2, svgbox );
+
+        vector < vector < vec3d > > projectionvec3 = GetVehProjectionLines( m_SVGView3(), to_orgin );
+        FeatureLinesManipulate( projectionvec3, m_SVGView3(), m_SVGView3_rot(), shiftvec );
+        FeatureLinesShift( projectionvec3, shiftvec, vsp::VIEW_SHIFT::DOWN, m_SVGView3_rot(), m_SVGView4_rot() );
+        FeatureLinesShift( projectionvec3, shiftvec, vsp::VIEW_SHIFT::LEFT, m_SVGView3_rot(), m_SVGView1_rot() );
+        WriteSVGPolylines2D( root, projectionvec3, svgbox );
+
+        vector < vector < vec3d > > projectionvec4 = GetVehProjectionLines( m_SVGView4(), to_orgin );
+        FeatureLinesManipulate( projectionvec4, m_SVGView4(), m_SVGView4_rot(), shiftvec );
+        FeatureLinesShift( projectionvec4, shiftvec, vsp::VIEW_SHIFT::DOWN, m_SVGView4_rot(), m_SVGView3_rot() );
+        FeatureLinesShift( projectionvec4, shiftvec, vsp::VIEW_SHIFT::RIGHT, m_SVGView4_rot(), m_SVGView2_rot() );
+        WriteSVGPolylines2D( root, projectionvec4, svgbox );
+    }
+}
+
+vector< vector < vec3d > > Vehicle::GetVehProjectionLines( int view, vec3d offset )
+{
+    vector < vector < vec3d > > PathVec;
+
+    if ( view == vsp::VIEW_TYPE::VIEW_LEFT || view == vsp::VIEW_TYPE::VIEW_RIGHT )
+    {
+        PathVec = m_VehProjectVec3d[vsp::Y_DIR];
+    }
+    else if ( view == vsp::VIEW_TYPE::VIEW_FRONT || view == vsp::VIEW_TYPE::VIEW_REAR )
+    {
+        PathVec = m_VehProjectVec3d[vsp::X_DIR];
+    }
+    else if ( view == vsp::VIEW_TYPE::VIEW_TOP || view == vsp::VIEW_TYPE::VIEW_BOTTOM )
+    {
+        PathVec = m_VehProjectVec3d[vsp::Z_DIR];
+    }
+
+    for ( int j = 0; j < PathVec.size(); j++ )
+    {
+        // Shift Projection Lines back near the orgin:
+        for ( unsigned int k = 0; k < PathVec[j].size(); k++ )
+        {
+            PathVec[j][k].offset_x( -offset.x() );
+            PathVec[j][k].offset_y( -offset.y() );
+            PathVec[j][k].offset_z( -offset.z() );
+        }
+    }
+
+    return PathVec;
 }
 
 void Vehicle::AddLinkableContainers( vector< string > & linkable_container_vec )
@@ -3046,6 +3919,14 @@ void Vehicle::ExportFile( const string & file_name, int write_set, int file_type
     else if ( file_type == EXPORT_DXF )
     {
         WriteDXFFile( file_name, write_set  );
+    }
+    else if ( file_type == EXPORT_SVG )
+    {
+        WriteSVGFile( file_name, write_set  );
+    }
+    else if ( file_type == EXPORT_FACET )
+    {
+        WriteFacetFile(file_name, write_set);
     }
 }
 

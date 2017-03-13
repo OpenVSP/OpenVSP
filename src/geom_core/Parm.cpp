@@ -120,7 +120,7 @@ string Parm::GetDisplayGroupName()
 bool Parm::SetValCheckLimits( double val )
 {
     //==== Check If Val Has Changed ====//
-    if ( fabs( val - m_Val ) < DBL_EPSILON )
+    if ( std::abs( val - m_Val ) < DBL_EPSILON )
     {
         return false;
     }
@@ -356,7 +356,7 @@ int IntParm::Set( int val )
 bool IntParm::SetValCheckLimits( double val )
 {
     //==== Check If Val Has Changed ====//
-    if ( fabs( val - m_Val ) < 0.5 )
+    if ( std::abs( val - m_Val ) < 0.5 )
     {
         return false;
     }
@@ -448,7 +448,7 @@ bool NotEqParm::SetValCheckLimits( double val )
         Parm* oparm = ParmMgr.FindParm( m_OtherParmID );
         if( oparm )
         {
-            if( fabs( oparm->Get() - val ) < m_Tol )
+            if( std::abs( oparm->Get() - val ) < m_Tol )
             {
                 m_Val = tmp;
                 m_LastVal = tmp2;
@@ -526,7 +526,7 @@ FractionParm::FractionParm() : Parm()
 //==== Set Reference Val ====//
 void FractionParm::SetRefVal( double val )
 {
-    if ( fabs( val - m_RefVal ) < DBL_EPSILON )
+    if ( std::abs( val - m_RefVal ) < DBL_EPSILON )
     {
         return;
     }
@@ -606,7 +606,7 @@ void FractionParm::UpdateResultVal()
 //==== Set Result ====//
 double FractionParm::SetResult( double res_val )
 {
-    if ( fabs( m_RefVal ) > DBL_EPSILON )
+    if ( std::abs( m_RefVal ) > DBL_EPSILON )
     {
         Set( res_val / m_RefVal );
     }
@@ -617,7 +617,7 @@ double FractionParm::SetResult( double res_val )
 //==== Set Result From Link ====//
 double FractionParm::SetResultFromLink( double res_val )
 {
-    if ( fabs( m_RefVal ) > DBL_EPSILON )
+    if ( std::abs( m_RefVal ) > DBL_EPSILON )
     {
         SetFromLink( res_val / m_RefVal );
     }
@@ -628,7 +628,7 @@ double FractionParm::SetResultFromLink( double res_val )
 //==== Set Result From Device ====//
 double FractionParm::SetResultFromDevice( double res_val )
 {
-    if ( fabs( m_RefVal ) > DBL_EPSILON )
+    if ( std::abs( m_RefVal ) > DBL_EPSILON )
     {
         SetFromDevice( res_val / m_RefVal );
     }
@@ -734,7 +734,7 @@ void DriverGroup::Test( vector< string > parmIDs, double tol )
             for( int k = 0; k < m_Nvar; k++ )
             {
                 Parm* p = ParmMgr.FindParm( parmIDs[ k ] );
-                if( fabs( ovals[k] - p->Get() ) > tol )
+                if( std::abs( ovals[k] - p->Get() ) > tol )
                 {
                     failonce = true;
                     failever = true;

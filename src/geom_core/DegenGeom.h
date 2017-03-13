@@ -84,10 +84,10 @@ typedef struct
 
 typedef struct
 {
-    string                      name;       //!
-    int                         testType;   //!
-    string                      typeName;   //! used to identify the design intent of the surface
-    vsp::SUBSURF_TYPE           typeId;     //!
+    string                      name;       //! name displayed in the geom GUI
+    int                         testType;   //! "test" for subsurfaces to define which side of the boundary the subsurface is on (commonly used for LINE subsurface types)
+    string                      typeName;   //! used to identify the design intent of the surface (see vsp::SUBSURF_TYPE in APIDefines.h and std::string SubSurface::GetTypeName( int type ) for more info)
+    vsp::SUBSURF_TYPE           typeId;     //! enumeration for the typeName; vsp::SUBSURF_TYPE
     vector< double >            u;          //!
     vector< double >            w;          //!
 } DegenSubSurf;
@@ -109,9 +109,9 @@ typedef struct
 class DegenGeom
 {
 public:
-    enum { XY_PLANE, XZ_PLANE, YZ_PLANE };
+    enum GEOM_PLANE { XY_PLANE, XZ_PLANE, YZ_PLANE };
 
-    enum { SURFACE_TYPE, BODY_TYPE, DISK_TYPE };
+    enum DEGEN_GEOM_TYPE { SURFACE_TYPE, BODY_TYPE, DISK_TYPE };
 
     DegenGeom()
     {

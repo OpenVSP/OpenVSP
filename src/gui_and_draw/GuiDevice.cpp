@@ -186,7 +186,7 @@ bool GuiDevice::CheckValUpdate( double val )
         return true;
     }
 
-    if ( fabs( val - m_LastVal ) < DBL_EPSILON )
+    if ( std::abs( val - m_LastVal ) < DBL_EPSILON )
     {
         return false;
     }
@@ -527,11 +527,11 @@ void SliderAdjRange::SetValAndLimits( Parm* parm_ptr )
 
     if ( m_NewParmFlag || new_val < m_MinBound || new_val > m_MaxBound )
     {
-        if ( fabs( new_val - parm_ptr->GetLowerLimit() ) < m_Tol )
+        if ( std::abs( new_val - parm_ptr->GetLowerLimit() ) < m_Tol )
         {
             m_MinStopState = SAR_ABS_STOP;
         }
-        if ( fabs( new_val - parm_ptr->GetUpperLimit() ) < m_Tol )
+        if ( std::abs( new_val - parm_ptr->GetUpperLimit() ) < m_Tol )
         {
             m_MaxStopState = SAR_ABS_STOP;
         }
@@ -593,12 +593,12 @@ void SliderAdjRange::FindStopState( Parm* parm_ptr )
 {
     double val = parm_ptr->Get();
 
-    if ( fabs( val - parm_ptr->GetLowerLimit() ) < m_Tol )
+    if ( std::abs( val - parm_ptr->GetLowerLimit() ) < m_Tol )
     {
         m_MinStopState = SAR_ABS_STOP;
         m_MinButton->label( "|" );
     }
-    else if ( fabs( val - m_MinBound ) < m_Tol )
+    else if ( std::abs( val - m_MinBound ) < m_Tol )
     {
         m_MinStopState = SAR_STOP;
         m_MinButton->label( "<" );
@@ -608,12 +608,12 @@ void SliderAdjRange::FindStopState( Parm* parm_ptr )
         m_MinStopState = SAR_NO_STOP;
         m_MinButton->label( ">" );
     }
-    if ( fabs( val - parm_ptr->GetUpperLimit() ) < m_Tol )
+    if ( std::abs( val - parm_ptr->GetUpperLimit() ) < m_Tol )
     {
         m_MaxStopState = SAR_ABS_STOP;
         m_MaxButton->label( "|" );
     }
-    else if ( fabs( val - m_MaxBound ) < m_Tol )
+    else if ( std::abs( val - m_MaxBound ) < m_Tol )
     {
         m_MaxStopState = SAR_STOP;
         m_MaxButton->label( ">" );
@@ -930,7 +930,7 @@ void CheckButton::SetValAndLimits( Parm* p )
 
     BoolParm* bparm = dynamic_cast< BoolParm* >( p );
     assert( bparm );
-    if ( bparm->Get() == true )
+    if ( bparm->Get() )
     {
         m_Button->value( 1 );
     }
@@ -1432,17 +1432,65 @@ int Choice::GetVal()
     return m_Choice->value() + m_Offset;
 }
 
- void Choice::UpdateItems()
- {
+void Choice::SetFlag( int indx, int flag )
+{
+    if ( m_Flags.size() != m_Items.size() )
+    {
+        m_Flags.resize( m_Items.size(), 0 );
+    }
+
+    if ( indx < m_Flags.size() )
+    {
+        m_Flags[indx] = flag;
+    }
+}
+
+int Choice::GetFlag( int indx )
+{
+    if ( m_Flags.size() != m_Items.size() )
+    {
+        m_Flags.resize( m_Items.size(), 0 );
+    }
+
+    if ( indx < m_Flags.size() )
+    {
+        return m_Flags[indx];
+    }
+
+    return 0;
+}
+
+void Choice::ClearFlags()
+{
+    m_Flags.clear();
+    m_Flags.resize( m_Items.size(), 0 );
+}
+
+void Choice::UpdateItems( bool keepsetting )
+{
+    if ( m_Flags.size() != m_Items.size() )
+    {
+        m_Flags.resize( m_Items.size(), 0 );
+    }
+
+    int savesetting = m_Choice->value();
+
     //==== Add Choice Text ===//
     m_Choice->clear();
     for ( int i = 0 ; i < ( int )m_Items.size() ; i++ )
     {
-        m_Choice->add( m_Items[i].c_str() );
+        m_Choice->add( m_Items[i].c_str(), 0, 0, 0, m_Flags[i] );
     }
-    m_Choice->value( 0 );
- }
 
+    if( keepsetting )
+    {
+        m_Choice->value( savesetting );
+    }
+    else
+    {
+        m_Choice->value( 0 );
+    }
+}
 
 //==== CallBack ====//
 void Choice::DeviceCB( Fl_Widget* w )
@@ -1653,9 +1701,18 @@ void StringInput::Init( VspScreen* screen, Fl_Input* input )
 
     assert( input );
     m_Input = input;
-    //jrg - I changed this because of a crash when input does not callback until a Fl_Choice is pressed
-//    m_Input->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE );
-    m_Input->when(  FL_WHEN_CHANGED );
+    m_Input->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE );
+
+// JR changed the above line to the below (and added the following comment) between 2.9.7 and 2.9.8
+// in commit 7e27e2a8eb2b.
+//
+// FLTK was updated between 3.9.1 and 3.10.0, which may have changed the observed behavior.
+// GitHub issue #64 is resolved by reverting to the above line.  Though #64 mentions the problem
+// in 3.9.1, it is possible that version was actually compiled with the newer FLTK.
+
+//jrg - I changed this because of a crash when input does not callback until a Fl_Choice is pressed
+//    m_Input->when(  FL_WHEN_CHANGED );
+
     m_Input->callback( StaticDeviceCB, this );
 }
 
@@ -2855,6 +2912,11 @@ void SkinHeader::Init( VspScreen* screen,
 
 void SkinHeader::Activate()
 {
+    if ( !m_ContChoice )
+    {
+        return;
+    }
+
     assert( m_ContChoice );
     m_ContChoice->Activate();
 
@@ -2867,6 +2929,11 @@ void SkinHeader::Activate()
 
 void SkinHeader::Deactivate()
 {
+    if ( !m_ContChoice )
+    {
+        return;
+    }
+
     assert( m_ContChoice );
     m_ContChoice->Deactivate();
 
@@ -2879,6 +2946,11 @@ void SkinHeader::Deactivate()
 
 void SkinHeader::DeactiveContChoice()
 {
+    if ( !m_ContChoice )
+    {
+        return;
+    }
+
     assert( m_ContChoice );
     m_ContChoice->Deactivate();
 }

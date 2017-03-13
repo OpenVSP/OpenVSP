@@ -9,6 +9,7 @@
 #include "Vehicle.h"
 #include "StlHelper.h"
 #include "DXFUtil.h"
+#include "SVGUtil.h"
 #include "StringUtil.h"
 #include "ParmMgr.h"
 #include "SubSurfaceMgr.h"
@@ -160,7 +161,7 @@ void GeomBase::LoadIDAndChildren( vector< string > & id_vec, bool check_display_
 {
     id_vec.push_back( m_ID );
 
-    if ( check_display_flag && m_GuiDraw.GetDisplayChildrenFlag() == false )
+    if ( check_display_flag && ! m_GuiDraw.GetDisplayChildrenFlag() )
     {
         return;
     }
@@ -782,8 +783,8 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_SymRotN.Init( "Sym_Rot_N", "Sym", this, 2, 2, 1000 );
 
     // Mass Properties
-    m_Density.Init( "Density", "Mass_Props", this, 1, 1e-12, 1e12 );
-    m_MassArea.Init( "Mass_Area", "Mass_Props", this, 1, 1e-12, 1e12 );
+    m_Density.Init( "Density", "Mass_Props", this, 1, 0.0, 1e12 );
+    m_MassArea.Init( "Mass_Area", "Mass_Props", this, 1, 0.0, 1e12 );
     m_MassPrior.Init( "Mass_Prior", "Mass_Props", this, 0, 0, 1e12 );
     m_ShellFlag.Init( "Shell_Flag", "Mass_Props", this, false, 0, 1 );
 
@@ -830,6 +831,8 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
 
     currSourceID = 0;
 
+    m_GeomProjectVec3d.resize( 3 );
+    m_ForceXSecFlag = false;
 }
 //==== Destructor ====//
 Geom::~Geom()
@@ -893,7 +896,7 @@ void Geom::UpdateSets()
 
     m_SetFlags[ SET_ALL ] = true;   // All
 
-    if ( m_GuiDraw.GetNoShowFlag() == false )
+    if ( ! m_GuiDraw.GetNoShowFlag() )
     {
         m_SetFlags[ SET_SHOWN ] = true; // Shown
         m_SetFlags[ SET_NOT_SHOWN ] = false;    // Not_Shown
@@ -1147,11 +1150,11 @@ void Geom::UpdateEndCaps()
     }
 }
 
-void Geom::UpdateFeatureLines()
+void Geom::UpdateFeatureLines( )
 {
     for ( int i = 0; i < m_MainSurfVec.size(); i++ )
     {
-        m_MainSurfVec[i].BuildFeatureLines();
+        m_MainSurfVec[i].BuildFeatureLines( m_ForceXSecFlag );
     }
 }
 
@@ -1365,103 +1368,508 @@ void Geom::UpdateFlags( )
 
 void Geom::WriteFeatureLinesDXF( FILE * file_name, const BndBox &dxfbox )
 {
-    double tol = 10e-2;
+    double tol = 10e-2; // Feature line tesselation tolerance
 
-    Vehicle *veh = VehicleMgr.GetVehicle();
+    bool color = m_Vehicle->m_DXFColorFlag.Get();
 
+    // Bounding box diagonal, used to separate multi-view drawings
     vec3d shiftvec = dxfbox.GetMax() - dxfbox.GetMin();
+
+    // Shift the vehicle bounding box to align with the +x, +y, +z axes at the orgin
+    vec3d to_orgin = GetVecToOrgin( dxfbox );
+
+    for ( int i = 0; i < m_SurfVec.size(); i++ )
+    {
+        vector < vector < vec3d > > allflines, allflines1, allflines2, allflines3, allflines4;
+
+        if ( m_GuiDraw.GetDispFeatureFlag() )
+        {
+            int nu = m_SurfVec[i].GetNumUFeature();
+            int nw = m_SurfVec[i].GetNumWFeature();
+            allflines.resize( nu + nw );
+            for ( int j = 0; j < nu; j++ )
+            {
+                m_SurfVec[i].TessUFeatureLine( j, allflines[j], tol );
+
+                // Shift Feature Lines back near the orgin for multi-view case:
+                if ( m_Vehicle->m_DXF2D3DFlag() != vsp::DIMENSION_SET::SET_3D )
+                {
+                    for ( unsigned int k = 0; k < allflines[j].size(); k++ )
+                    {
+                        allflines[j][k].offset_x( -to_orgin.x() );
+                        allflines[j][k].offset_y( -to_orgin.y() );
+                        allflines[j][k].offset_z( -to_orgin.z() );
+                    }
+                }
+            }
+
+            for ( int j = 0; j < nw; j++ )
+            {
+                m_SurfVec[i].TessWFeatureLine( j, allflines[j + nu], tol );
+
+                // Shift Feature Lines back near the orgin for multi-view case:
+                if ( m_Vehicle->m_DXF2D3DFlag() != vsp::DIMENSION_SET::SET_3D )
+                {
+                    for ( unsigned int k = 0; k < allflines[j + nu].size(); k++ )
+                    {
+                        allflines[j + nu][k].offset_x( -to_orgin.x() );
+                        allflines[j + nu][k].offset_y( -to_orgin.y() );
+                        allflines[j + nu][k].offset_z( -to_orgin.z() );
+                    }
+                }
+            }
+        }
+
+        // Add layers:
+        string layer = m_Name + string( "_Surf[" ) + to_string( i ) + string( "]" );
+
+        if ( m_Vehicle->m_DXF2D3DFlag() == vsp::DIMENSION_SET::SET_3D )
+        {
+            WriteDXFPolylines3D( file_name, allflines, layer, color, m_Vehicle->m_ColorCount );
+            m_Vehicle->m_ColorCount++;
+        }
+        else if ( m_Vehicle->m_DXF2D3DFlag() == vsp::DIMENSION_SET::SET_2D )
+        {
+            if ( m_Vehicle->m_DXF2DView() == vsp::VIEW_NUM::VIEW_1 )
+            {
+                allflines1 = allflines;
+                FeatureLinesManipulate( allflines1, m_Vehicle->m_DXF4View1(), m_Vehicle->m_DXF4View1_rot(), shiftvec );
+                WriteDXFPolylines2D( file_name, allflines1, layer, color, m_Vehicle->m_ColorCount );
+                m_Vehicle->m_ColorCount++;
+            }
+            else if ( m_Vehicle->m_DXF2DView() == vsp::VIEW_NUM::VIEW_2HOR )
+            {
+                allflines1 = allflines;
+                FeatureLinesManipulate( allflines1, m_Vehicle->m_DXF4View1(), m_Vehicle->m_DXF4View1_rot(), shiftvec );
+                FeatureLinesShift( allflines1, shiftvec, vsp::VIEW_SHIFT::LEFT, m_Vehicle->m_DXF4View1_rot(), 0 );
+                string layer_v1 = layer + "_v1";
+
+                allflines2 = allflines;
+                FeatureLinesManipulate( allflines2, m_Vehicle->m_DXF4View2(), m_Vehicle->m_DXF4View2_rot(), shiftvec );
+                FeatureLinesShift( allflines2, shiftvec, vsp::VIEW_SHIFT::RIGHT, m_Vehicle->m_DXF4View2_rot(), 0 );
+                string layer_v2 = layer + "_v2";
+
+                WriteDXFPolylines2D( file_name, allflines1, layer_v1, color, m_Vehicle->m_ColorCount );
+                m_Vehicle->m_ColorCount++;
+
+                WriteDXFPolylines2D( file_name, allflines2, layer_v2, color, m_Vehicle->m_ColorCount );
+                m_Vehicle->m_ColorCount++;
+            }
+            else if ( m_Vehicle->m_DXF2DView() == vsp::VIEW_NUM::VIEW_2VER )
+            {
+                allflines1 = allflines;
+                FeatureLinesManipulate( allflines1, m_Vehicle->m_DXF4View1(), m_Vehicle->m_DXF4View1_rot(), shiftvec );
+                FeatureLinesShift( allflines1, shiftvec, vsp::VIEW_SHIFT::UP, m_Vehicle->m_DXF4View1_rot(), 0 );
+
+                allflines3 = allflines;
+                FeatureLinesManipulate( allflines3, m_Vehicle->m_DXF4View3(), m_Vehicle->m_DXF4View3_rot(), shiftvec );
+                FeatureLinesShift( allflines3, shiftvec, vsp::VIEW_SHIFT::DOWN, m_Vehicle->m_DXF4View3_rot(), 0 );
+
+                string layer_v1 = layer + "_v1";
+                string layer_v2 = layer + "_v2";
+
+                WriteDXFPolylines2D( file_name, allflines1, layer_v1, color, m_Vehicle->m_ColorCount );
+                m_Vehicle->m_ColorCount++;
+
+                WriteDXFPolylines2D( file_name, allflines3, layer_v2, color, m_Vehicle->m_ColorCount );
+                m_Vehicle->m_ColorCount++;
+            }
+            else if ( m_Vehicle->m_DXF2DView() == vsp::VIEW_NUM::VIEW_4 )
+            {
+                allflines1 = allflines;
+                FeatureLinesManipulate( allflines1, m_Vehicle->m_DXF4View1(), m_Vehicle->m_DXF4View1_rot(), shiftvec );
+                FeatureLinesShift( allflines1, shiftvec, vsp::VIEW_SHIFT::UP, m_Vehicle->m_DXF4View1_rot(), m_Vehicle->m_DXF4View2_rot() );
+                FeatureLinesShift( allflines1, shiftvec, vsp::VIEW_SHIFT::LEFT, m_Vehicle->m_DXF4View1_rot(), m_Vehicle->m_DXF4View3_rot() );
+
+                allflines2 = allflines;
+                FeatureLinesManipulate( allflines2, m_Vehicle->m_DXF4View2(), m_Vehicle->m_DXF4View2_rot(), shiftvec );
+                FeatureLinesShift( allflines2, shiftvec, vsp::VIEW_SHIFT::UP, m_Vehicle->m_DXF4View2_rot(), m_Vehicle->m_DXF4View1_rot() );
+                FeatureLinesShift( allflines2, shiftvec, vsp::VIEW_SHIFT::RIGHT, m_Vehicle->m_DXF4View2_rot(), m_Vehicle->m_DXF4View4_rot() );
+
+                allflines3 = allflines;
+                FeatureLinesManipulate( allflines3, m_Vehicle->m_DXF4View3(), m_Vehicle->m_DXF4View3_rot(), shiftvec );
+                FeatureLinesShift( allflines3, shiftvec, vsp::VIEW_SHIFT::DOWN, m_Vehicle->m_DXF4View3_rot(), m_Vehicle->m_DXF4View4_rot() );
+                FeatureLinesShift( allflines3, shiftvec, vsp::VIEW_SHIFT::LEFT, m_Vehicle->m_DXF4View3_rot(), m_Vehicle->m_DXF4View1_rot() );
+
+                allflines4 = allflines;
+                FeatureLinesManipulate( allflines4, m_Vehicle->m_DXF4View4(), m_Vehicle->m_DXF4View4_rot(), shiftvec );
+                FeatureLinesShift( allflines4, shiftvec, vsp::VIEW_SHIFT::DOWN, m_Vehicle->m_DXF4View4_rot(), m_Vehicle->m_DXF4View3_rot() );
+                FeatureLinesShift( allflines4, shiftvec, vsp::VIEW_SHIFT::RIGHT, m_Vehicle->m_DXF4View4_rot(), m_Vehicle->m_DXF4View2_rot() );
+
+                string layer_v1 = layer + "_v1";
+                string layer_v2 = layer + "_v2";
+                string layer_v3 = layer + "_v3";
+                string layer_v4 = layer + "_v4";
+
+                WriteDXFPolylines2D( file_name, allflines1, layer_v1, color, m_Vehicle->m_ColorCount );
+                m_Vehicle->m_ColorCount++;
+
+                WriteDXFPolylines2D( file_name, allflines2, layer_v2, color, m_Vehicle->m_ColorCount );
+                m_Vehicle->m_ColorCount++;
+
+                WriteDXFPolylines2D( file_name, allflines3, layer_v3, color, m_Vehicle->m_ColorCount );
+                m_Vehicle->m_ColorCount++;
+
+                WriteDXFPolylines2D( file_name, allflines4, layer_v4, color, m_Vehicle->m_ColorCount );
+                m_Vehicle->m_ColorCount++;
+            }
+        }
+    }
+}
+
+void Geom::WriteProjectionLinesDXF( FILE * file_name, const BndBox &dxfbox )
+{
+    bool color = m_Vehicle->m_DXFColorFlag.Get();
+
+    // Bounding box diagonal, used to separate multi-view drawings
+    vec3d shiftvec = dxfbox.GetMax() - dxfbox.GetMin();
+
+    // Shift the vehicle bounding box to align with the +x, +y, +z axes at the orgin
+    vec3d to_orgin = GetVecToOrgin( dxfbox );
+
+    // Add layers:
+    string projectionlayer  = m_Name + string( "_Projection" );
+
+    if ( m_Vehicle->m_DXF2D3DFlag() == vsp::DIMENSION_SET::SET_3D )
+    {
+        return; // Projection lines not valid for 3D view
+    }
+    else if ( m_Vehicle->m_DXF2D3DFlag() == vsp::DIMENSION_SET::SET_2D )
+    {
+        if ( m_Vehicle->m_DXF2DView() == vsp::VIEW_NUM::VIEW_1 )
+        {
+            vector < vector < vec3d > > projectionvec = GetGeomProjectionLines( m_Vehicle->m_DXF4View1(), to_orgin );
+
+            if ( projectionvec.size() > 0 )
+            {
+                FeatureLinesManipulate( projectionvec, m_Vehicle->m_DXF4View1(), m_Vehicle->m_DXF4View1_rot(), shiftvec );
+                WriteDXFPolylines2D( file_name, projectionvec, projectionlayer, color, m_Vehicle->m_ColorCount );
+                m_Vehicle->m_ColorCount++;
+            }
+        }
+        else if ( m_Vehicle->m_DXF2DView() == vsp::VIEW_NUM::VIEW_2HOR )
+        {
+            vector < vector < vec3d > > projectionvec1 = GetGeomProjectionLines( m_Vehicle->m_DXF4View1(), to_orgin );
+
+            if ( projectionvec1.size() > 0 )
+            {
+                FeatureLinesManipulate( projectionvec1, m_Vehicle->m_DXF4View1(), m_Vehicle->m_DXF4View1_rot(), shiftvec );
+                FeatureLinesShift( projectionvec1, shiftvec, vsp::VIEW_SHIFT::LEFT, m_Vehicle->m_DXF4View1_rot(), 0 );
+                string projectionlayer_v1 = projectionlayer + "_v1";
+
+                WriteDXFPolylines2D( file_name, projectionvec1, projectionlayer_v1, color, m_Vehicle->m_ColorCount );
+                m_Vehicle->m_ColorCount++;
+            }
+
+            vector < vector < vec3d > > projectionvec2 = GetGeomProjectionLines( m_Vehicle->m_DXF4View2(), to_orgin );
+
+            if ( projectionvec2.size() > 0 )
+            {
+                FeatureLinesManipulate( projectionvec2, m_Vehicle->m_DXF4View2(), m_Vehicle->m_DXF4View2_rot(), shiftvec );
+                FeatureLinesShift( projectionvec2, shiftvec, vsp::VIEW_SHIFT::RIGHT, m_Vehicle->m_DXF4View2_rot(), 0 );
+                string projectionlayer_v2 = projectionlayer + "_v2";
+
+                WriteDXFPolylines2D( file_name, projectionvec2, projectionlayer_v2, color, m_Vehicle->m_ColorCount );
+                m_Vehicle->m_ColorCount++;
+            }
+        }
+        else if ( m_Vehicle->m_DXF2DView() == vsp::VIEW_NUM::VIEW_2VER )
+        {
+            vector < vector < vec3d > > projectionvec1 = GetGeomProjectionLines( m_Vehicle->m_DXF4View1(), to_orgin );
+
+            if ( projectionvec1.size() > 0 )
+            {
+                FeatureLinesManipulate( projectionvec1, m_Vehicle->m_DXF4View1(), m_Vehicle->m_DXF4View1_rot(), shiftvec );
+                FeatureLinesShift( projectionvec1, shiftvec, vsp::VIEW_SHIFT::UP, m_Vehicle->m_DXF4View1_rot(), 0 );
+                string projectionlayer_v1 = projectionlayer + "_v1";
+
+                WriteDXFPolylines2D( file_name, projectionvec1, projectionlayer_v1, color, m_Vehicle->m_ColorCount );
+                m_Vehicle->m_ColorCount++;
+            }
+
+            vector < vector < vec3d > > projectionvec3 = GetGeomProjectionLines( m_Vehicle->m_DXF4View3(), to_orgin );
+
+            if ( projectionvec3.size() > 0 )
+            {
+                FeatureLinesManipulate( projectionvec3, m_Vehicle->m_DXF4View3(), m_Vehicle->m_DXF4View3_rot(), shiftvec );
+                FeatureLinesShift( projectionvec3, shiftvec, vsp::VIEW_SHIFT::DOWN, m_Vehicle->m_DXF4View3_rot(), 0 );
+                string projectionlayer_v2 = projectionlayer + "_v2";
+
+                WriteDXFPolylines2D( file_name, projectionvec3, projectionlayer_v2, color, m_Vehicle->m_ColorCount );
+                m_Vehicle->m_ColorCount++;
+            }
+        }
+        else if ( m_Vehicle->m_DXF2DView() == vsp::VIEW_NUM::VIEW_4 )
+        {
+            vector < vector < vec3d > > projectionvec1 = GetGeomProjectionLines( m_Vehicle->m_DXF4View1(), to_orgin );
+
+            if ( projectionvec1.size() > 0 )
+            {
+                FeatureLinesManipulate( projectionvec1, m_Vehicle->m_DXF4View1(), m_Vehicle->m_DXF4View1_rot(), shiftvec );
+                FeatureLinesShift( projectionvec1, shiftvec, vsp::VIEW_SHIFT::UP, m_Vehicle->m_DXF4View1_rot(), m_Vehicle->m_DXF4View2_rot() );
+                FeatureLinesShift( projectionvec1, shiftvec, vsp::VIEW_SHIFT::LEFT, m_Vehicle->m_DXF4View1_rot(), m_Vehicle->m_DXF4View3_rot() );
+                string projectionlayer_v1 = projectionlayer + "_v1";
+
+                WriteDXFPolylines2D( file_name, projectionvec1, projectionlayer_v1, color, m_Vehicle->m_ColorCount );
+                m_Vehicle->m_ColorCount++;
+            }
+
+            vector < vector < vec3d > > projectionvec2 = GetGeomProjectionLines( m_Vehicle->m_DXF4View2(), to_orgin );
+
+            if ( projectionvec2.size() > 0 )
+            {
+                FeatureLinesManipulate( projectionvec2, m_Vehicle->m_DXF4View2(), m_Vehicle->m_DXF4View2_rot(), shiftvec );
+                FeatureLinesShift( projectionvec2, shiftvec, vsp::VIEW_SHIFT::UP, m_Vehicle->m_DXF4View2_rot(), m_Vehicle->m_DXF4View1_rot() );
+                FeatureLinesShift( projectionvec2, shiftvec, vsp::VIEW_SHIFT::RIGHT, m_Vehicle->m_DXF4View2_rot(), m_Vehicle->m_DXF4View4_rot() );
+                string projectionlayer_v2 = projectionlayer + "_v2";
+
+                WriteDXFPolylines2D( file_name, projectionvec2, projectionlayer_v2, color, m_Vehicle->m_ColorCount );
+                m_Vehicle->m_ColorCount++;
+            }
+
+            vector < vector < vec3d > > projectionvec3 = GetGeomProjectionLines( m_Vehicle->m_DXF4View3(), to_orgin );
+
+            if ( projectionvec3.size() > 0 )
+            {
+                FeatureLinesManipulate( projectionvec3, m_Vehicle->m_DXF4View3(), m_Vehicle->m_DXF4View3_rot(), shiftvec );
+                FeatureLinesShift( projectionvec3, shiftvec, vsp::VIEW_SHIFT::DOWN, m_Vehicle->m_DXF4View3_rot(), m_Vehicle->m_DXF4View4_rot() );
+                FeatureLinesShift( projectionvec3, shiftvec, vsp::VIEW_SHIFT::LEFT, m_Vehicle->m_DXF4View3_rot(), m_Vehicle->m_DXF4View1_rot() );
+                string projectionlayer_v3 = projectionlayer + "_v3";
+
+                WriteDXFPolylines2D( file_name, projectionvec3, projectionlayer_v3, color, m_Vehicle->m_ColorCount );
+                m_Vehicle->m_ColorCount++;
+            }
+
+            vector < vector < vec3d > > projectionvec4 = GetGeomProjectionLines( m_Vehicle->m_DXF4View4(), to_orgin );
+
+            if ( projectionvec4.size() > 0 )
+            {
+                FeatureLinesManipulate( projectionvec4, m_Vehicle->m_DXF4View4(), m_Vehicle->m_DXF4View4_rot(), shiftvec );
+                FeatureLinesShift( projectionvec4, shiftvec, vsp::VIEW_SHIFT::DOWN, m_Vehicle->m_DXF4View4_rot(), m_Vehicle->m_DXF4View3_rot() );
+                FeatureLinesShift( projectionvec4, shiftvec, vsp::VIEW_SHIFT::RIGHT, m_Vehicle->m_DXF4View4_rot(), m_Vehicle->m_DXF4View2_rot() );
+                string projectionlayer_v4 = projectionlayer + "_v4";
+
+                WriteDXFPolylines2D( file_name, projectionvec4, projectionlayer_v4, color, m_Vehicle->m_ColorCount );
+                m_Vehicle->m_ColorCount++;
+            }
+        }
+    }
+}
+
+vector< vector < vec3d > > Geom::GetGeomProjectionLines( int view, vec3d offset )
+{
+    vector < vector < vec3d > > PathVec;
+
+    if ( view == vsp::VIEW_TYPE::VIEW_LEFT || view == vsp::VIEW_TYPE::VIEW_RIGHT ) 
+    {
+        PathVec = m_GeomProjectVec3d[vsp::Y_DIR]; // Y axis projection
+    }
+    else if ( view == vsp::VIEW_TYPE::VIEW_FRONT || view == vsp::VIEW_TYPE::VIEW_REAR )
+    {
+        PathVec = m_GeomProjectVec3d[vsp::X_DIR]; // X axis projection
+    }
+    else if ( view == vsp::VIEW_TYPE::VIEW_TOP || view == vsp::VIEW_TYPE::VIEW_BOTTOM )
+    {
+        PathVec = m_GeomProjectVec3d[vsp::Z_DIR]; // Z axis projection
+    }
+
+    for ( int j = 0; j < PathVec.size(); j++ )
+    {
+        // Shift Projection Lines back near the orgin:
+        for ( unsigned int k = 0; k < PathVec[j].size(); k++ )
+        {
+            PathVec[j][k].offset_x( -offset.x() );
+            PathVec[j][k].offset_y( -offset.y() );
+            PathVec[j][k].offset_z( -offset.z() );
+        }
+    }
+
+    return PathVec;
+}
+
+void Geom::WriteFeatureLinesSVG( xmlNodePtr root, const BndBox &svgbox )
+{
+    double tol = 10e-2; // Feature line tesselation tolerance
+    
+    // Bounding box diagonal, used to separate multi-view drawings
+    vec3d shiftvec = svgbox.GetMax() - svgbox.GetMin();
+
+    // Shift the vehicle bounding box to align with the +x, +y, +z axes at the orgin
+    vec3d to_orgin = GetVecToOrgin( svgbox );
 
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
-        vector < vector < vec3d > > allflines;
-        vector < vector < vec3d > > allflines1;
-        vector < vector < vec3d > > allflines2;
-        vector < vector < vec3d > > allflines3;
-        vector < vector < vec3d > > allflines4;
+        vector < vector < vec3d > > allflines, allflines1, allflines2, allflines3, allflines4;
 
         if( m_GuiDraw.GetDispFeatureFlag() )
         {
             int nu = m_SurfVec[i].GetNumUFeature();
             int nw = m_SurfVec[i].GetNumWFeature();
-            allflines.resize( nu + nw );
-            for( int j = 0; j < nu; j++ )
-            {
-                m_SurfVec[i].TessUFeatureLine( j, allflines[ j ], tol );
-            }
-
+            allflines.resize( nw + nu );
             for( int j = 0; j < nw; j++ )
             {
-                m_SurfVec[i].TessWFeatureLine( j, allflines[ j + nu ], tol );
+                m_SurfVec[i].TessWFeatureLine( j, allflines[ j ], tol );
+
+                // To Do: multiple view ports instead of shifting feature lines in a single view port
+
+                // Shift Feature Lines back near the orgin:
+                for ( unsigned int k = 0; k < allflines[j].size(); k++ )
+                {
+                    allflines[j][k].offset_x( -to_orgin.x() );
+                    allflines[j][k].offset_y( -to_orgin.y() );
+                    allflines[j][k].offset_z( -to_orgin.z() );
+                }
+            }
+            for( int j = 0; j < nu; j++ )
+            {
+                m_SurfVec[i].TessUFeatureLine( j, allflines[ j + nw ], tol );
+
+                // Shift Feature Lines back near the orgin :
+                for ( unsigned int k = 0; k < allflines[j + nw].size(); k++ )
+                {
+                    allflines[j + nw][k].offset_x( -to_orgin.x() );
+                    allflines[j + nw][k].offset_y( -to_orgin.y() );
+                    allflines[j + nw][k].offset_z( -to_orgin.z() );
+                }
             }
         }
-        string layer = m_Name + string ( "_" ) + to_string( i );
 
-        if ( veh->m_2D3DFlag() == vsp::DIMENSION_SET::SET_3D )
+        if ( m_Vehicle->m_SVGView() == vsp::VIEW_NUM::VIEW_1 )
         {
-            WriteDXFPolylines3D( file_name, allflines, layer );
+            allflines1 = allflines;
+            FeatureLinesManipulate( allflines1, m_Vehicle->m_SVGView1(), m_Vehicle->m_SVGView1_rot(), shiftvec );
+            WriteSVGPolylines2D( root, allflines1, svgbox );
         }
-        else if ( veh->m_2D3DFlag() == vsp::DIMENSION_SET::SET_2D )
+        else if ( m_Vehicle->m_SVGView() == vsp::VIEW_NUM::VIEW_2HOR )
         {
-            if ( veh->m_2DView() == vsp::VIEW_NUM::VIEW_1 )
-            {
-                allflines1 = allflines;
-                DXFManipulate( allflines1, dxfbox, veh->m_4View1(), veh->m_4View1_rot() );
-                WriteDXFPolylines2D( file_name, allflines1, layer );
-            }
-            else if ( veh->m_2DView() == vsp::VIEW_NUM::VIEW_2HOR )
-            {
-                allflines1 = allflines;
-                DXFManipulate( allflines1, dxfbox, veh->m_4View1(), veh->m_4View1_rot() );
-                DXFShift( allflines1, shiftvec, vsp::VIEW_SHIFT::LEFT, veh->m_4View1_rot(), 0 );
+            allflines1 = allflines;
+            FeatureLinesManipulate( allflines1, m_Vehicle->m_SVGView1(), m_Vehicle->m_SVGView1_rot(), shiftvec );
+            FeatureLinesShift( allflines1, shiftvec, vsp::VIEW_SHIFT::LEFT, m_Vehicle->m_SVGView1_rot(), 0 );
 
-                allflines2 = allflines;
-                DXFManipulate( allflines2, dxfbox, veh->m_4View2(), veh->m_4View2_rot() );
-                DXFShift( allflines2, shiftvec, vsp::VIEW_SHIFT::RIGHT, veh->m_4View2_rot(), 0 );
+            allflines2 = allflines;
+            FeatureLinesManipulate( allflines2, m_Vehicle->m_SVGView2(), m_Vehicle->m_SVGView2_rot(), shiftvec );
+            FeatureLinesShift( allflines2, shiftvec, vsp::VIEW_SHIFT::RIGHT, m_Vehicle->m_SVGView2_rot(), 0 );
 
-                WriteDXFPolylines2D( file_name, allflines1, layer );
-                WriteDXFPolylines2D( file_name, allflines2, layer );
-            }
-            else if ( veh->m_2DView() == vsp::VIEW_NUM::VIEW_2VER )
-            {
-                allflines1 = allflines;
-                DXFManipulate( allflines1, dxfbox, veh->m_4View1(), veh->m_4View1_rot() );
-                DXFShift( allflines1, shiftvec, vsp::VIEW_SHIFT::UP, veh->m_4View1_rot(), 0 );
-
-                allflines3 = allflines;
-                DXFManipulate( allflines3, dxfbox, veh->m_4View3(), veh->m_4View3_rot() );
-                DXFShift( allflines3, shiftvec, vsp::VIEW_SHIFT::DOWN, veh->m_4View3_rot(), 0 );
-
-                WriteDXFPolylines2D( file_name, allflines1, layer );
-                WriteDXFPolylines2D( file_name, allflines3, layer );
-            }
-            else if ( veh->m_2DView() == vsp::VIEW_NUM::VIEW_4 )
-            {
-                allflines1 = allflines;
-                DXFManipulate( allflines1, dxfbox, veh->m_4View1(), veh->m_4View1_rot() );
-                DXFShift( allflines1, shiftvec, vsp::VIEW_SHIFT::UP, veh->m_4View1_rot(), veh->m_4View2_rot() );
-                DXFShift( allflines1, shiftvec, vsp::VIEW_SHIFT::LEFT, veh->m_4View1_rot(), veh->m_4View3_rot() );
-
-                allflines2 = allflines;
-                DXFManipulate( allflines2, dxfbox, veh->m_4View2(), veh->m_4View2_rot() );
-                DXFShift( allflines2, shiftvec, vsp::VIEW_SHIFT::UP, veh->m_4View2_rot(), veh->m_4View1_rot() );
-                DXFShift( allflines2, shiftvec, vsp::VIEW_SHIFT::RIGHT, veh->m_4View2_rot(), veh->m_4View4_rot() );
-
-                allflines3 = allflines;
-                DXFManipulate( allflines3, dxfbox, veh->m_4View3(), veh->m_4View3_rot() );
-                DXFShift( allflines3, shiftvec, vsp::VIEW_SHIFT::DOWN, veh->m_4View3_rot(), veh->m_4View4_rot() );
-                DXFShift( allflines3, shiftvec, vsp::VIEW_SHIFT::LEFT, veh->m_4View3_rot(), veh->m_4View1_rot() );
-
-                allflines4 = allflines;
-                DXFManipulate( allflines4, dxfbox, veh->m_4View4(), veh->m_4View4_rot() );
-                DXFShift( allflines4, shiftvec, vsp::VIEW_SHIFT::DOWN, veh->m_4View4_rot(), veh->m_4View3_rot() );
-                DXFShift( allflines4, shiftvec, vsp::VIEW_SHIFT::RIGHT, veh->m_4View4_rot(), veh->m_4View2_rot() );
-
-                WriteDXFPolylines2D( file_name, allflines1, layer );
-                WriteDXFPolylines2D( file_name, allflines2, layer );
-                WriteDXFPolylines2D( file_name, allflines3, layer );
-                WriteDXFPolylines2D( file_name, allflines4, layer );
-            }
+            WriteSVGPolylines2D( root, allflines1, svgbox );
+            WriteSVGPolylines2D( root, allflines2, svgbox );
         }
+        else if ( m_Vehicle->m_SVGView() == vsp::VIEW_NUM::VIEW_2VER )
+        {
+            allflines1 = allflines;
+            FeatureLinesManipulate( allflines1, m_Vehicle->m_SVGView1(), m_Vehicle->m_SVGView1_rot(), shiftvec );
+            FeatureLinesShift( allflines1, shiftvec, vsp::VIEW_SHIFT::UP, m_Vehicle->m_SVGView1_rot(), 0 );
+
+            allflines3 = allflines;
+            FeatureLinesManipulate( allflines3, m_Vehicle->m_SVGView3(), m_Vehicle->m_SVGView3_rot(), shiftvec );
+            FeatureLinesShift( allflines3, shiftvec, vsp::VIEW_SHIFT::DOWN, m_Vehicle->m_SVGView3_rot(), 0 );
+
+            WriteSVGPolylines2D( root, allflines1, svgbox );
+            WriteSVGPolylines2D( root, allflines3, svgbox );
+        }
+        else if ( m_Vehicle->m_SVGView() == vsp::VIEW_NUM::VIEW_4 )
+        {
+            allflines1 = allflines;
+
+            FeatureLinesManipulate( allflines1, m_Vehicle->m_SVGView1(), m_Vehicle->m_SVGView1_rot(), shiftvec );
+            FeatureLinesShift( allflines1, shiftvec, vsp::VIEW_SHIFT::UP, m_Vehicle->m_SVGView1_rot(), m_Vehicle->m_SVGView2_rot() );
+            FeatureLinesShift( allflines1, shiftvec, vsp::VIEW_SHIFT::LEFT, m_Vehicle->m_SVGView1_rot(), m_Vehicle->m_SVGView3_rot() );
+
+            allflines2 = allflines;
+            FeatureLinesManipulate( allflines2, m_Vehicle->m_SVGView2(), m_Vehicle->m_SVGView2_rot(), shiftvec );
+            FeatureLinesShift( allflines2, shiftvec, vsp::VIEW_SHIFT::UP, m_Vehicle->m_SVGView2_rot(), m_Vehicle->m_SVGView1_rot() );
+            FeatureLinesShift( allflines2, shiftvec, vsp::VIEW_SHIFT::RIGHT, m_Vehicle->m_SVGView2_rot(), m_Vehicle->m_SVGView4_rot() );
+
+            allflines3 = allflines;
+            FeatureLinesManipulate( allflines3, m_Vehicle->m_SVGView3(), m_Vehicle->m_SVGView3_rot(), shiftvec );
+            FeatureLinesShift( allflines3, shiftvec, vsp::VIEW_SHIFT::DOWN, m_Vehicle->m_SVGView3_rot(), m_Vehicle->m_SVGView4_rot() );
+            FeatureLinesShift( allflines3, shiftvec, vsp::VIEW_SHIFT::LEFT, m_Vehicle->m_SVGView3_rot(), m_Vehicle->m_SVGView1_rot() );
+
+            allflines4 = allflines;
+            FeatureLinesManipulate( allflines4, m_Vehicle->m_SVGView4(), m_Vehicle->m_SVGView4_rot(), shiftvec );
+            FeatureLinesShift( allflines4, shiftvec, vsp::VIEW_SHIFT::DOWN, m_Vehicle->m_SVGView4_rot(), m_Vehicle->m_SVGView3_rot() );
+            FeatureLinesShift( allflines4, shiftvec, vsp::VIEW_SHIFT::RIGHT, m_Vehicle->m_SVGView4_rot(), m_Vehicle->m_SVGView2_rot() );
+
+            WriteSVGPolylines2D( root, allflines1, svgbox );
+            WriteSVGPolylines2D( root, allflines2, svgbox );
+            WriteSVGPolylines2D( root, allflines3, svgbox );
+            WriteSVGPolylines2D( root, allflines4, svgbox );
+        }
+    }
+}
+
+void Geom::WriteProjectionLinesSVG( xmlNodePtr root, const BndBox &svgbox )
+{
+    // Bounding box diagonal, used to separate multi-view drawings
+    vec3d shiftvec = svgbox.GetMax() - svgbox.GetMin();
+
+    // Shift the vehicle bounding box to align with the +x, +y, +z axes at the orgin
+    vec3d to_orgin = GetVecToOrgin( svgbox );
+
+    if ( m_Vehicle->m_SVGView() == vsp::VIEW_NUM::VIEW_1 )
+    {
+        vector < vector < vec3d > > projectionvec = GetGeomProjectionLines( m_Vehicle->m_SVGView1(), to_orgin );
+
+        FeatureLinesManipulate( projectionvec, m_Vehicle->m_SVGView1(), m_Vehicle->m_SVGView1_rot(), shiftvec );
+        WriteSVGPolylines2D( root, projectionvec, svgbox );
+    }
+    else if ( m_Vehicle->m_SVGView() == vsp::VIEW_NUM::VIEW_2HOR )
+    {
+        vector < vector < vec3d > > projectionvec1 = GetGeomProjectionLines( m_Vehicle->m_SVGView1(), to_orgin );
+
+        FeatureLinesManipulate( projectionvec1, m_Vehicle->m_SVGView1(), m_Vehicle->m_SVGView1_rot(), shiftvec );
+        FeatureLinesShift( projectionvec1, shiftvec, vsp::VIEW_SHIFT::LEFT, m_Vehicle->m_SVGView1_rot(), 0 );
+        WriteSVGPolylines2D( root, projectionvec1, svgbox );
+
+        vector < vector < vec3d > > projectionvec2 = GetGeomProjectionLines( m_Vehicle->m_SVGView2(), to_orgin );
+
+        FeatureLinesManipulate( projectionvec2, m_Vehicle->m_SVGView2(), m_Vehicle->m_SVGView2_rot(), shiftvec );
+        FeatureLinesShift( projectionvec2, shiftvec, vsp::VIEW_SHIFT::RIGHT, m_Vehicle->m_SVGView2_rot(), 0 );
+        WriteSVGPolylines2D( root, projectionvec2, svgbox );
+    }
+    else if ( m_Vehicle->m_SVGView() == vsp::VIEW_NUM::VIEW_2VER )
+    {
+        vector < vector < vec3d > > projectionvec1 = GetGeomProjectionLines( m_Vehicle->m_SVGView1(), to_orgin );
+
+        FeatureLinesManipulate( projectionvec1, m_Vehicle->m_SVGView1(), m_Vehicle->m_SVGView1_rot(), shiftvec );
+        FeatureLinesShift( projectionvec1, shiftvec, vsp::VIEW_SHIFT::UP, m_Vehicle->m_SVGView1_rot(), 0 );
+        WriteSVGPolylines2D( root, projectionvec1, svgbox );
+
+        vector < vector < vec3d > > projectionvec3 = GetGeomProjectionLines( m_Vehicle->m_SVGView3(), to_orgin );
+
+        FeatureLinesManipulate( projectionvec3, m_Vehicle->m_SVGView3(), m_Vehicle->m_SVGView3_rot(), shiftvec );
+        FeatureLinesShift( projectionvec3, shiftvec, vsp::VIEW_SHIFT::DOWN, m_Vehicle->m_SVGView3_rot(), 0 );
+        WriteSVGPolylines2D( root, projectionvec3, svgbox );
+
+    }
+    else if ( m_Vehicle->m_SVGView() == vsp::VIEW_NUM::VIEW_4 )
+    {
+        vector < vector < vec3d > > projectionvec1 = GetGeomProjectionLines( m_Vehicle->m_SVGView1(), to_orgin );
+
+        FeatureLinesManipulate( projectionvec1, m_Vehicle->m_SVGView1(), m_Vehicle->m_SVGView1_rot(), shiftvec );
+        FeatureLinesShift( projectionvec1, shiftvec, vsp::VIEW_SHIFT::UP, m_Vehicle->m_SVGView1_rot(), m_Vehicle->m_SVGView2_rot() );
+        FeatureLinesShift( projectionvec1, shiftvec, vsp::VIEW_SHIFT::LEFT, m_Vehicle->m_SVGView1_rot(), m_Vehicle->m_SVGView3_rot() );
+        WriteSVGPolylines2D( root, projectionvec1, svgbox );
+
+        vector < vector < vec3d > > projectionvec2 = GetGeomProjectionLines( m_Vehicle->m_SVGView2(), to_orgin );
+
+        FeatureLinesManipulate( projectionvec2, m_Vehicle->m_SVGView2(), m_Vehicle->m_SVGView2_rot(), shiftvec );
+        FeatureLinesShift( projectionvec2, shiftvec, vsp::VIEW_SHIFT::UP, m_Vehicle->m_SVGView2_rot(), m_Vehicle->m_SVGView1_rot() );
+        FeatureLinesShift( projectionvec2, shiftvec, vsp::VIEW_SHIFT::RIGHT, m_Vehicle->m_SVGView2_rot(), m_Vehicle->m_SVGView4_rot() );
+        WriteSVGPolylines2D( root, projectionvec2, svgbox );
+
+        vector < vector < vec3d > > projectionvec3 = GetGeomProjectionLines( m_Vehicle->m_SVGView3(), to_orgin );
+
+        FeatureLinesManipulate( projectionvec3, m_Vehicle->m_SVGView3(), m_Vehicle->m_SVGView3_rot(), shiftvec );
+        FeatureLinesShift( projectionvec3, shiftvec, vsp::VIEW_SHIFT::DOWN, m_Vehicle->m_SVGView3_rot(), m_Vehicle->m_SVGView4_rot() );
+        FeatureLinesShift( projectionvec3, shiftvec, vsp::VIEW_SHIFT::LEFT, m_Vehicle->m_SVGView3_rot(), m_Vehicle->m_SVGView1_rot() );
+        WriteSVGPolylines2D( root, projectionvec3, svgbox );
+
+        vector < vector < vec3d > > projectionvec4 = GetGeomProjectionLines( m_Vehicle->m_SVGView4(), to_orgin );
+
+        FeatureLinesManipulate( projectionvec4, m_Vehicle->m_SVGView4(), m_Vehicle->m_SVGView4_rot(), shiftvec );
+        FeatureLinesShift( projectionvec4, shiftvec, vsp::VIEW_SHIFT::DOWN, m_Vehicle->m_SVGView4_rot(), m_Vehicle->m_SVGView3_rot() );
+        FeatureLinesShift( projectionvec4, shiftvec, vsp::VIEW_SHIFT::RIGHT, m_Vehicle->m_SVGView4_rot(), m_Vehicle->m_SVGView2_rot() );
+        WriteSVGPolylines2D( root, projectionvec4, svgbox );
     }
 }
 
@@ -2593,101 +3001,105 @@ vector< TMesh* > Geom::CreateTMeshVec()
 
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
-        UpdateTesselate( i, pnts, norms, uw_pnts, false );
-        m_SurfVec[i].ResetUWSkip(); // Done with skip flags.
-
-        TMeshVec.push_back( new TMesh() );
-        TMeshVec[i]->LoadGeomAttributes( this );
-        TMeshVec[i]->m_SurfNum = i;
-        TMeshVec[i]->m_UWPnts = uw_pnts;
-        TMeshVec[i]->m_XYZPnts = pnts;
-        bool f_norm = m_SurfVec[i].GetFlipNormal();
-
-        vec3d norm;
-        vec3d v0, v1, v2, v3;
-        vec3d uw0, uw1, uw2, uw3;
-        vec3d d21, d01, d03, d23, d20, d31;
-
-        for ( int j = 0 ; j < ( int )pnts.size() - 1 ; j++ )
+        if ( m_SurfVec[i].GetNumSectU() != 0 && m_SurfVec[i].GetNumSectW() != 0 )
         {
-            for ( int k = 0 ; k < ( int )pnts[0].size() - 1 ; k++ )
+            UpdateTesselate( i, pnts, norms, uw_pnts, false );
+            m_SurfVec[i].ResetUWSkip(); // Done with skip flags.
+
+            TMeshVec.push_back( new TMesh() );
+            int itmesh = TMeshVec.size() - 1;
+            TMeshVec[itmesh]->LoadGeomAttributes( this );
+            TMeshVec[itmesh]->m_SurfNum = i;
+            TMeshVec[itmesh]->m_UWPnts = uw_pnts;
+            TMeshVec[itmesh]->m_XYZPnts = pnts;
+            bool f_norm = m_SurfVec[i].GetFlipNormal();
+
+            vec3d norm;
+            vec3d v0, v1, v2, v3;
+            vec3d uw0, uw1, uw2, uw3;
+            vec3d d21, d01, d03, d23, d20, d31;
+
+            for ( int j = 0 ; j < ( int )pnts.size() - 1 ; j++ )
             {
-                v0 = pnts[j][k];
-                v1 = pnts[j + 1][k];
-                v2 = pnts[j + 1][k + 1];
-                v3 = pnts[j][k + 1];
-
-                uw0 = uw_pnts[j][k];
-                uw1 = uw_pnts[j + 1][k];
-                uw2 = uw_pnts[j + 1][k + 1];
-                uw3 = uw_pnts[j][k + 1];
-
-                double quadrant = ( uw0.y() + uw1.y() + uw2.y() + uw3.y() ) / m_SurfVec[i].GetWMax(); // * 4 * 0.25 canceled.
-
-                d21 = v2 - v1;
-                d01 = v0 - v1;
-                d03 = v0 - v3;
-                d23 = v2 - v3;
-
-                if ( ( quadrant > 0 && quadrant < 1 ) || ( quadrant > 2 && quadrant < 3 ) )
+                for ( int k = 0 ; k < ( int )pnts[0].size() - 1 ; k++ )
                 {
-                    d20 = v2 - v0;
-                    if ( d21.mag() > tol && d01.mag() > tol && d20.mag() > tol )
-                    {
-                        norm = cross( d21, d01 );
-                        norm.normalize();
-                        if ( f_norm )
-                        {
-                            TMeshVec[i]->AddTri( v0, v2, v1, norm * -1, uw0, uw2, uw1 );
-                        }
-                        else
-                        {
-                            TMeshVec[i]->AddTri( v0, v1, v2, norm, uw0, uw1, uw2 );
-                        }
-                    }
+                    v0 = pnts[j][k];
+                    v1 = pnts[j + 1][k];
+                    v2 = pnts[j + 1][k + 1];
+                    v3 = pnts[j][k + 1];
 
-                    if ( d03.mag() > tol && d23.mag() > tol && d20.mag() > tol )
-                    {
-                        norm = cross( d03, d23 );
-                        norm.normalize();
-                        if ( f_norm )
-                        {
-                            TMeshVec[i]->AddTri( v0, v3, v2, norm * -1, uw0, uw3, uw2 );
-                        }
-                        else
-                        {
-                            TMeshVec[i]->AddTri( v0, v2, v3, norm, uw0, uw2, uw3 );
-                        }
-                    }
-                }
-                else
-                {
-                    d31 = v3 - v1;
-                    if ( d01.mag() > tol && d31.mag() > tol && d03.mag() > tol )
-                    {
-                        norm = cross( d01, d03 );
-                        norm.normalize();
-                        if ( f_norm )
-                        {
-                            TMeshVec[i]->AddTri( v0, v3, v1, norm * -1, uw0, uw3, uw1 );
-                        }
-                        else
-                        {
-                            TMeshVec[i]->AddTri( v0, v1, v3, norm, uw0, uw1, uw3 );
-                        }
-                    }
+                    uw0 = uw_pnts[j][k];
+                    uw1 = uw_pnts[j + 1][k];
+                    uw2 = uw_pnts[j + 1][k + 1];
+                    uw3 = uw_pnts[j][k + 1];
 
-                    if ( d21.mag() > tol && d23.mag() > tol && d31.mag() > tol )
+                    double quadrant = ( uw0.y() + uw1.y() + uw2.y() + uw3.y() ) / m_SurfVec[i].GetWMax(); // * 4 * 0.25 canceled.
+
+                    d21 = v2 - v1;
+                    d01 = v0 - v1;
+                    d03 = v0 - v3;
+                    d23 = v2 - v3;
+
+                    if ( ( quadrant > 0 && quadrant < 1 ) || ( quadrant > 2 && quadrant < 3 ) )
                     {
-                        norm = cross( d23, d21 );
-                        norm.normalize();
-                        if ( f_norm )
+                        d20 = v2 - v0;
+                        if ( d21.mag() > tol && d01.mag() > tol && d20.mag() > tol )
                         {
-                            TMeshVec[i]->AddTri( v1, v3, v2, norm * -1, uw1, uw3, uw2 );
+                            norm = cross( d21, d01 );
+                            norm.normalize();
+                            if ( f_norm )
+                            {
+                                TMeshVec[itmesh]->AddTri( v0, v2, v1, norm * -1, uw0, uw2, uw1 );
+                            }
+                            else
+                            {
+                                TMeshVec[itmesh]->AddTri( v0, v1, v2, norm, uw0, uw1, uw2 );
+                            }
                         }
-                        else
+
+                        if ( d03.mag() > tol && d23.mag() > tol && d20.mag() > tol )
                         {
-                            TMeshVec[i]->AddTri( v1, v2, v3, norm, uw1, uw2, uw3 );
+                            norm = cross( d03, d23 );
+                            norm.normalize();
+                            if ( f_norm )
+                            {
+                                TMeshVec[itmesh]->AddTri( v0, v3, v2, norm * -1, uw0, uw3, uw2 );
+                            }
+                            else
+                            {
+                                TMeshVec[itmesh]->AddTri( v0, v2, v3, norm, uw0, uw2, uw3 );
+                            }
+                        }
+                    }
+                    else
+                    {
+                        d31 = v3 - v1;
+                        if ( d01.mag() > tol && d31.mag() > tol && d03.mag() > tol )
+                        {
+                            norm = cross( d01, d03 );
+                            norm.normalize();
+                            if ( f_norm )
+                            {
+                                TMeshVec[itmesh]->AddTri( v0, v3, v1, norm * -1, uw0, uw3, uw1 );
+                            }
+                            else
+                            {
+                                TMeshVec[itmesh]->AddTri( v0, v1, v3, norm, uw0, uw1, uw3 );
+                            }
+                        }
+
+                        if ( d21.mag() > tol && d23.mag() > tol && d31.mag() > tol )
+                        {
+                            norm = cross( d23, d21 );
+                            norm.normalize();
+                            if ( f_norm )
+                            {
+                                TMeshVec[itmesh]->AddTri( v1, v3, v2, norm * -1, uw1, uw3, uw2 );
+                            }
+                            else
+                            {
+                                TMeshVec[itmesh]->AddTri( v1, v2, v3, norm, uw1, uw2, uw3 );
+                            }
                         }
                     }
                 }
@@ -2746,6 +3158,11 @@ SubSurface* Geom::AddSubSurf( int type, int surfindex )
 {
     SubSurface* ssurf = NULL;
 
+    if ( m_MainSurfVec.size() <= 0 )
+    {
+        return ssurf;
+    }
+
     if ( type == vsp::SS_LINE )
     {
         ssurf = new SSLine( m_ID );
@@ -2799,6 +3216,19 @@ SubSurface* Geom::GetSubSurf( const string & id )
         }
     }
     return NULL;
+}
+
+int Geom::GetSubSurfIndex( const string & id )
+{
+    for ( int i = 0; i < (int)m_SubSurfVec.size(); i++ )
+    {
+        if ( m_SubSurfVec[i]->GetID() == id )
+        {
+            if ( ValidSubSurfInd( i ) )
+                return i;
+        }
+    }
+    return -1;
 }
 
 //==== Highlight Active Subsurface ====//
@@ -3154,6 +3584,23 @@ void GeomXSec::AddDefaultSourcesXSec( double base_len, double len_ref, int ixsec
                     lsource->m_WLoc2 = w1;
                     AddCfdMeshSource( lsource );
                 }
+            }
+        }
+    }
+}
+
+void GeomXSec::OffsetXSecs( double off )
+{
+    int nxsec = m_XSecSurf.NumXSec();
+    for ( int i = 0 ; i < nxsec ; i++ )
+    {
+        XSec* xs = m_XSecSurf.FindXSec( i );
+        if ( xs )
+        {
+            XSecCurve* xsc = xs->GetXSecCurve();
+            if ( xsc )
+            {
+                xsc->OffsetCurve( off );
             }
         }
     }

@@ -130,7 +130,7 @@ void TypeEditorScreen::CallBack( Fl_Widget *w )
 
         int offset = veh->GetNumFixedGeomTypes();
         GeomType type = veh->GetGeomType( m_SelectedIndex + offset );
-        if ( type.m_FixedFlag == false )
+        if ( ! type.m_FixedFlag )
         {
             type.m_Name = name;
             veh->SetGeomType( m_SelectedIndex + offset, type );

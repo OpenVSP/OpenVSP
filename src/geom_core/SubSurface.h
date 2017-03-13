@@ -216,7 +216,7 @@ public:
     virtual void UpdateDrawObjs();
     virtual void LoadDrawObjs( std::vector< DrawObj* >& draw_obj_vec );
 
-    enum { UPPER_SURF, LOWER_SURF, BOTH_SURF };
+    enum SS_CONTROL_SUBTYPE { UPPER_SURF, LOWER_SURF, BOTH_SURF };
 
     Parm m_UStart; // U Starting location for control surface
     Parm m_UEnd;   // U End location for control surface

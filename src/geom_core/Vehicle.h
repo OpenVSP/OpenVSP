@@ -116,6 +116,7 @@ public:
     void RemoveGeomVecFromHierarchy( const vector<string> & cut_vec );
     void DeleteClipBoard();
     void PasteClipboard();
+    vector< string > CopyGeomVec( const vector<string> & geom_vec );
 
     vector< DrawObj* > GetDrawObjs();
 
@@ -185,6 +186,7 @@ public:
     void WritePLOT3DFile( const string & file_name, int write_set );
     void WriteSTLFile( const string & file_name, int write_set );
     void WriteTaggedMSSTLFile( const string & file_name, int write_set );
+    void WriteFacetFile( const string & file_name, int write_set );
     void WriteTRIFile( const string & file_name, int write_set );
     void WriteNascartFiles( const string & file_name, int write_set );
     void WriteGmshFile( const string & file_name, int write_set );
@@ -197,6 +199,21 @@ public:
     void WriteIGESFile( const string & file_name, int write_set );
     void WriteBEMFile( const string & file_name, int write_set );
     void WriteDXFFile( const string & file_name, int write_set );
+    void WriteSVGFile( const string & file_name, int write_set );
+
+    void WriteVehProjectionLinesDXF( FILE * file_name, const BndBox &dxfbox );
+    void WriteVehProjectionLinesSVG( xmlNodePtr root, const BndBox &svgbox );
+
+    vector< vector < vec3d > > GetVehProjectionLines( int view, vec3d offset );
+
+    virtual void SetVehProjectVec3d( vector < vector < vec3d > > polyvec, int dir_index )
+    {
+        m_VehProjectVec3d[dir_index] = polyvec;
+    }
+    virtual vector < vector < vec3d > >  GetVehProjectVec3d( int dir_index )
+    {
+        return m_VehProjectVec3d[dir_index];
+    }
 
     void FetchXFerSurfs( int write_set, vector< XferSurf > &xfersurfs );
     //==== Computation File Names ====//
@@ -279,6 +296,7 @@ public:
     IntParm m_STEPLenUnit;
     Parm m_STEPTol;
     BoolParm m_STEPSplitSurfs;
+    BoolParm m_STEPSplitSubSurfs;
     BoolParm m_STEPMergePoints;
     BoolParm m_STEPToCubic;
     Parm m_STEPToCubicTol;
@@ -286,21 +304,45 @@ public:
 
     IntParm m_IGESLenUnit;
     BoolParm m_IGESSplitSurfs;
+    BoolParm m_IGESSplitSubSurfs;
     BoolParm m_IGESToCubic;
     Parm m_IGESToCubicTol;
     BoolParm m_IGESTrimTE;
 
+    //==== DXF Export ====//
     IntParm m_DXFLenUnit;
-    IntParm m_2DView;
-    IntParm m_2D3DFlag;
-    IntParm m_4View1;
-    IntParm m_4View2;
-    IntParm m_4View3;
-    IntParm m_4View4;
-    IntParm m_4View1_rot;
-    IntParm m_4View2_rot;
-    IntParm m_4View3_rot;
-    IntParm m_4View4_rot;
+    BoolParm m_DXFProjectionFlag;
+    Parm m_DXFTessFactor;
+    BoolParm m_DXFAllXSecFlag;
+    BoolParm m_DXFColorFlag;
+    int m_ColorCount;
+    IntParm m_DXF2DView;
+    IntParm m_DXF2D3DFlag;
+    IntParm m_DXF4View1;
+    IntParm m_DXF4View2;
+    IntParm m_DXF4View3;
+    IntParm m_DXF4View4;
+    IntParm m_DXF4View1_rot;
+    IntParm m_DXF4View2_rot;
+    IntParm m_DXF4View3_rot;
+    IntParm m_DXF4View4_rot;
+
+    //==== SVG Export ====//
+    IntParm m_SVGLenUnit;
+    IntParm m_SVGSet;
+    Parm m_Scale;
+    BoolParm m_SVGProjectionFlag;
+    Parm m_SVGTessFactor;
+    BoolParm m_SVGAllXSecFlag;
+    IntParm m_SVGView;
+    IntParm m_SVGView1;
+    IntParm m_SVGView2;
+    IntParm m_SVGView3;
+    IntParm m_SVGView4;
+    IntParm m_SVGView1_rot;
+    IntParm m_SVGView2_rot;
+    IntParm m_SVGView3_rot;
+    IntParm m_SVGView4_rot;
 
     string m_BEMPropID;
 
@@ -320,6 +362,7 @@ protected:
     vector< DegenGeom > m_DegenGeomVec;         // Vector of components in degenerate representation
     vector< DegenPtMass > m_DegenPtMassVec;
 
+    vector < vector < vector < vec3d > > > m_VehProjectVec3d; // Vector of projection lines for each view direction (x, y, or z)
 
     vector< string > m_ActiveGeom;              // Currently Active Geoms
     vector< string > m_TopGeom;                 // Top (no Parent) Geom IDs
@@ -332,7 +375,6 @@ protected:
     bool m_UpdatingBBox;
     BndBox m_BBox;                              // Bounding Box Around All Geometries
 
-    vector< string > CopyGeomVec( const vector<string> & geom_vec );
     void SetApplyAbsIgnoreFlag( const vector< string > &g_vec, bool val );
 
     //==== Primary file name ====//

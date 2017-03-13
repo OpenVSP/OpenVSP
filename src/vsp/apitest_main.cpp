@@ -15,6 +15,9 @@
 #include "main.h"
 #include "VSP_Geom_API.h"
 #include "APITestSuite.h"
+#include "APITestSuiteMassProp.h"
+#include "APITestSuiteVSPAERO.h"
+#include "cpptest.h"
 
 
 void vsp_exit()
@@ -29,6 +32,7 @@ bool run_tests()
     Test::Suite ts;
     ts.add(std::auto_ptr<Test::Suite>(new APITestSuite));    //This line can be copied to add new test suites
     ts.add(std::auto_ptr<Test::Suite>(new APITestSuiteVSPAERO));
+    ts.add(std::auto_ptr<Test::Suite>(new APITestSuiteMassProp));
     
     // Test Suite run parameters
     Test::TextOutput output(Test::TextOutput::Verbose);
