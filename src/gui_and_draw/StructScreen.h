@@ -16,6 +16,8 @@
 #include "ScreenMgr.h"
 #include "FeaStructure.h"
 #include "ProcessUtil.h"
+#include "MainVSPScreen.h"
+#include "MainGLWindow.h"
 
 using namespace std;
 
@@ -43,6 +45,8 @@ public:
 
     virtual void UpdateFeaPartPropertyIndex( Choice* property_choice );
     virtual void UpdateFeaSubSurfPropertyIndex( Choice* property_choice );
+
+    virtual void OrientStructure( VSPGraphic::Common::VSPenum type );
 
     virtual void Show();
 
@@ -81,6 +85,7 @@ private:
     GroupLayout m_StructureTabLayout;
     GroupLayout m_StructGroup;
     GroupLayout m_StructWingGroup;
+    GroupLayout m_StructGeneralGroup;
     GroupLayout m_PartTabLayout;
     GroupLayout* m_CurFeaPartDispGroup;
     GroupLayout m_PartGroup;
@@ -156,8 +161,16 @@ private:
 
     Choice m_SkinPropertyChoice;
 
+    // Wing Functions
     SliderAdjRangeInput m_NumEvenlySpacedRibsInput;
     TriggerButton m_AddEvenlySpacedRibsButton;
+    TriggerButton m_OrientWingTopButton;
+    TriggerButton m_OrientWingSideButton;
+
+    // General Functions
+    TriggerButton m_OrientFrontButton;
+    TriggerButton m_OrientSideButton;
+    TriggerButton m_OrientTopButton;
 
     //===== FeaPart Tab Items =====//
 

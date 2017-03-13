@@ -11,6 +11,10 @@
 #include "FeaMeshMgr.h"
 #include "APIDefines.h"
 #include "StructureMgr.h"
+#include "ManageViewScreen.h"
+#include "GraphicEngine.h"
+#include "Display.h"
+#include "Camera.h"
 
 using namespace vsp;
 
@@ -210,6 +214,22 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 620, "FEA Me
 
     m_StructGroup.AddYGap();
 
+    m_StructGeneralGroup.SetGroupAndScreen( AddSubGroup( structTab, 5 ), this );
+    m_StructGeneralGroup.SetY( m_StructGroup.GetY() );
+
+    m_StructGeneralGroup.AddDividerBox( "Orientation" );
+
+    m_StructGeneralGroup.SetSameLineFlag( true );
+    m_StructGeneralGroup.SetFitWidthFlag( false );
+
+    m_StructGeneralGroup.SetButtonWidth( m_StructGeneralGroup.GetRemainX() / 3 );
+
+    m_StructGeneralGroup.AddButton( m_OrientFrontButton, "Front" );
+    m_StructGeneralGroup.AddButton( m_OrientTopButton, "Top" );
+    m_StructGeneralGroup.AddButton( m_OrientSideButton, "Side" );
+
+    m_StructGeneralGroup.ForceNewLine();
+
     m_StructWingGroup.SetGroupAndScreen( AddSubGroup( structTab, 5 ), this );
     m_StructWingGroup.SetY( m_StructGroup.GetY() );
 
@@ -217,6 +237,20 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 620, "FEA Me
 
     m_StructWingGroup.AddSlider( m_NumEvenlySpacedRibsInput, "Num Ribs", 10, "%5.0f" );
     m_StructWingGroup.AddButton( m_AddEvenlySpacedRibsButton, "Add" );
+
+    m_StructWingGroup.AddYGap();
+
+    m_StructWingGroup.AddDividerBox( "Orientation" );
+
+    m_StructWingGroup.SetSameLineFlag( true );
+    m_StructWingGroup.SetFitWidthFlag( false );
+
+    m_StructWingGroup.SetButtonWidth( m_StructWingGroup.GetRemainX() / 2 );
+
+    m_StructWingGroup.AddButton( m_OrientWingTopButton, "Top" );
+    m_StructWingGroup.AddButton( m_OrientWingSideButton, "Side" );
+
+    m_StructWingGroup.ForceNewLine();
 
     //=== Parts Tab ===//
     m_PartTabLayout.SetGroupAndScreen( partTabGroup, this );
@@ -1276,6 +1310,10 @@ void StructScreen::FeaPartDispGroup( GroupLayout* group )
                 {
                     m_StructWingGroup.Show();
                 }
+                else
+                {
+                    m_StructGeneralGroup.Show();
+                }
             }
         }
     }
@@ -1283,6 +1321,7 @@ void StructScreen::FeaPartDispGroup( GroupLayout* group )
     {
         m_StructGroup.Hide();
         m_StructWingGroup.Hide();
+        m_StructGeneralGroup.Hide();
     }
 
     m_FullDepthEditLayout.Hide();
@@ -2048,6 +2087,18 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             }
         }
     }
+    else if ( device == &m_OrientFrontButton )
+    {
+        OrientStructure( VSPGraphic::Common::VSP_CAM_FRONT );
+    }
+    else if ( device == &m_OrientSideButton || device == &m_OrientWingSideButton )
+    {
+        OrientStructure( VSPGraphic::Common::VSP_CAM_LEFT );
+    }
+    else if ( device == &m_OrientTopButton || device == &m_OrientWingTopButton )
+    {
+        OrientStructure( VSPGraphic::Common::VSP_CAM_TOP );
+    }
     else if ( device == &m_FeaPartNameInput )
     {
         vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
@@ -2368,6 +2419,58 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
+}
+
+void StructScreen::OrientStructure( VSPGraphic::Common::VSPenum type )
+{
+    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
+
+    if ( !veh )
+    {
+        return;
+    }
+
+    Geom* currgeom = veh->FindGeom( m_SelectedGeomID );
+
+    MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
+
+    if ( currgeom && main )
+    {
+        veh->HideAllExcept( m_SelectedGeomID );
+
+        currgeom->m_GuiDraw.SetDrawType( GeomGuiDraw::GEOM_DRAW_NONE );
+
+        VSPGUI::VspGlWindow * glwin = main->GetGLWindow();
+
+        if ( !glwin )
+        {
+            return;
+        }
+
+        glwin->setView( type );
+
+        BndBox bbox = currgeom->GetBndBox();
+
+        vec3d p = bbox.GetCenter();
+        double d = bbox.DiagDist();
+        int wid = glwin->pixel_w();
+        int ht = glwin->pixel_h();
+
+        float z = d * ( wid < ht ? 1.f / wid : 1.f / ht );
+
+        glwin->getGraphicEngine()->getDisplay()->setCOR( -p.x(), -p.y(), -p.z() );
+        glwin->getGraphicEngine()->getDisplay()->relativePan( 0.0f, 0.0f );
+        glwin->getGraphicEngine()->getDisplay()->getCamera()->relativeZoom( z );
+
+        ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+
+        if ( viewScreen )
+        {
+            viewScreen->UpdateCOR();
+            viewScreen->UpdatePan();
+            viewScreen->UpdateZoom();
+        }
+    }
 }
 
 void StructScreen::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
