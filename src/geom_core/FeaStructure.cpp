@@ -15,6 +15,8 @@
 #include "ParmMgr.h"
 #include "StructureMgr.h"
 
+#include <cfloat>
+
 //==== Generate Unique ID ====//
 string GenerateID()
 {
