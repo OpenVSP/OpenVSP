@@ -564,10 +564,13 @@ void FeaMeshMgrSingleton::LoadSkins()
     //===== Add FeaSkins ====//
     vector< XferSurf > skinxfersurfs;
 
-    FeaSkin->FetchFeaXFerSurf( skinxfersurfs, 0 );
+    if ( FeaSkin )
+    {
+        FeaSkin->FetchFeaXFerSurf( skinxfersurfs, 0 );
 
-    // Load Skin XFerSurf to m_SurfVec
-    LoadSurfs( skinxfersurfs );
+        // Load Skin XFerSurf to m_SurfVec
+        LoadSurfs( skinxfersurfs );
+    }
 
     // Not sure this is needed, could possibly be done in Fetch call above.
     for ( int j = 0; j < m_SurfVec.size(); j++ )

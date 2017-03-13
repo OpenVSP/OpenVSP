@@ -364,6 +364,9 @@ vector < FeaPart* > FeaStructure::InitFeaSkin()
             {
                 feaskin->SetName( string( "FEA_SKIN_" + std::to_string( m_FeaPartCount ) ) );
                 feaskin->m_MainSurfIndx.Set( m_MainSurfIndx );
+                
+                feaskin->UpdateSymmetricSurfs();
+                feaskin->Update();
 
                 m_FeaPartVec.push_back( feaskin );
             }
