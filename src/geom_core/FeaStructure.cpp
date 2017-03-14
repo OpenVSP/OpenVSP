@@ -798,113 +798,131 @@ void FeaFullDepth::ComputePlanarSurf()
 
     if ( veh )
     {
-        for ( unsigned int i = 0; i < m_SymmIndexVec.size(); i++ )
+        Geom* current_geom = veh->FindGeom( m_ParentGeomID );
+        if ( !current_geom )
         {
-            m_FeaPartSurfVec[i] = VspSurf();
-            m_FeaPartSurfVec[i].SetSurfCfdType( vsp::CFD_STRUCTURE );
+            return;
+        }
 
-            Geom* current_geom = veh->FindGeom( m_ParentGeomID );
-            if ( !current_geom )
-            {
-                return;
-            }
+        vector< VspSurf > surf_vec;
+        current_geom->GetSurfVec( surf_vec );
 
-            vector< VspSurf > surf_vec;
-            current_geom->GetSurfVec( surf_vec );
-            VspSurf current_surf = surf_vec[m_SymmIndexVec[i]];
+        VspSurf current_surf = surf_vec[m_MainSurfIndx()];
 
-            BndBox geom_bbox;
-            current_surf.GetBoundingBox( geom_bbox );
+        m_FeaPartSurfVec[0] = VspSurf();
+        m_FeaPartSurfVec[0].SetSurfCfdType( vsp::CFD_STRUCTURE );
 
-            vec3d geom_center = geom_bbox.GetCenter();
+        BndBox geom_bbox;
+        current_surf.GetBoundingBox( geom_bbox );
 
-            double del_x = geom_bbox.GetMax( 0 ) - geom_bbox.GetMin( 0 );
-            double del_y = geom_bbox.GetMax( 1 ) - geom_bbox.GetMin( 1 );
-            double del_z = geom_bbox.GetMax( 2 ) - geom_bbox.GetMin( 2 );
+        vec3d geom_center = geom_bbox.GetCenter();
 
-            // Identify corners of the plane and rotation axis
-            vec3d cornerA, cornerB, cornerC, cornerD;
-            vec3d rot_axis;
+        double del_x = geom_bbox.GetMax( 0 ) - geom_bbox.GetMin( 0 );
+        double del_y = geom_bbox.GetMax( 1 ) - geom_bbox.GetMin( 1 );
+        double del_z = geom_bbox.GetMax( 2 ) - geom_bbox.GetMin( 2 );
 
-            if ( m_OrientationPlane() == XY_PLANE )
-            {
-                vec3d center_to_A = { -0.5 * del_x, -0.5 * del_y, 0.0 };
-                cornerA = geom_center + center_to_A;
+        // Identify corners of the plane and rotation axis
+        vec3d cornerA, cornerB, cornerC, cornerD;
+        vec3d rot_axis;
 
-                vec3d center_to_B = { -0.5 * del_x, 0.5 * del_y, 0.0 };
-                cornerB = geom_center + center_to_B;
+        if ( m_OrientationPlane() == XY_PLANE )
+        {
+            vec3d center_to_A = { -0.5 * del_x, -0.5 * del_y, 0.0 };
+            cornerA = geom_center + center_to_A;
 
-                vec3d center_to_C = { 0.5 * del_x, -0.5 * del_y, 0.0 };
-                cornerC = geom_center + center_to_C;
+            vec3d center_to_B = { -0.5 * del_x, 0.5 * del_y, 0.0 };
+            cornerB = geom_center + center_to_B;
 
-                vec3d center_to_D = { 0.5 * del_x, 0.5 * del_y, 0.0 };
-                cornerD = geom_center + center_to_D;
+            vec3d center_to_C = { 0.5 * del_x, -0.5 * del_y, 0.0 };
+            cornerC = geom_center + center_to_C;
 
-                rot_axis.set_y( 1.0 ); // y-axis
-            }
-            else if ( m_OrientationPlane() == YZ_PLANE )
-            {
-                vec3d center_to_A = { 0.0, -0.5 * del_y, -0.5 * del_z };
-                cornerA = geom_center + center_to_A;
+            vec3d center_to_D = { 0.5 * del_x, 0.5 * del_y, 0.0 };
+            cornerD = geom_center + center_to_D;
 
-                vec3d center_to_B = { 0.0, 0.5 * del_y, -0.5 * del_z };
-                cornerB = geom_center + center_to_B;
+            rot_axis.set_y( 1.0 ); // y-axis
+        }
+        else if ( m_OrientationPlane() == YZ_PLANE )
+        {
+            vec3d center_to_A = { 0.0, -0.5 * del_y, -0.5 * del_z };
+            cornerA = geom_center + center_to_A;
 
-                vec3d center_to_C = { 0.0, -0.5 * del_y, 0.5 * del_z };
-                cornerC = geom_center + center_to_C;
+            vec3d center_to_B = { 0.0, 0.5 * del_y, -0.5 * del_z };
+            cornerB = geom_center + center_to_B;
 
-                vec3d center_to_D = { 0.0, 0.5 * del_y, 0.5 * del_z };
-                cornerD = geom_center + center_to_D;
+            vec3d center_to_C = { 0.0, -0.5 * del_y, 0.5 * del_z };
+            cornerC = geom_center + center_to_C;
 
-                rot_axis.set_y( 1.0 ); // y-axis
-            }
-            else if ( m_OrientationPlane() == XZ_PLANE )
-            {
-                vec3d center_to_A = { -0.5 * del_x, 0.0, -0.5 * del_z };
-                cornerA = geom_center + center_to_A;
+            vec3d center_to_D = { 0.0, 0.5 * del_y, 0.5 * del_z };
+            cornerD = geom_center + center_to_D;
 
-                vec3d center_to_B = { 0.5 * del_x, 0.0, -0.5 * del_z };
-                cornerB = geom_center + center_to_B;
+            rot_axis.set_y( 1.0 ); // y-axis
+        }
+        else if ( m_OrientationPlane() == XZ_PLANE )
+        {
+            vec3d center_to_A = { -0.5 * del_x, 0.0, -0.5 * del_z };
+            cornerA = geom_center + center_to_A;
 
-                vec3d center_to_C = { -0.5 * del_x, 0.0, 0.5 * del_z };
-                cornerC = geom_center + center_to_C;
+            vec3d center_to_B = { 0.5 * del_x, 0.0, -0.5 * del_z };
+            cornerB = geom_center + center_to_B;
 
-                vec3d center_to_D = { 0.5 * del_x, 0.0, 0.5 * del_z };
-                cornerD = geom_center + center_to_D;
+            vec3d center_to_C = { -0.5 * del_x, 0.0, 0.5 * del_z };
+            cornerC = geom_center + center_to_C;
 
-                rot_axis.set_z( 1.0 ); // z-axis
-            }
+            vec3d center_to_D = { 0.5 * del_x, 0.0, 0.5 * del_z };
+            cornerD = geom_center + center_to_D;
 
-            // Make Planar Surface
-            m_FeaPartSurfVec[i].MakePlaneSurf( cornerA, cornerB, cornerC, cornerD );
+            rot_axis.set_z( 1.0 ); // z-axis
+        }
 
-            // Translate to the origin, rotate, and translate back to m_CenterPerBBoxLocation
-            Matrix4d trans_mat_1, trans_mat_2, rot_mat;
+        // Make Planar Surface
+        m_FeaPartSurfVec[0].MakePlaneSurf( cornerA, cornerB, cornerC, cornerD );
 
-            trans_mat_1.loadIdentity();
-            trans_mat_1.translatef( geom_center.x() * -1, geom_center.y() * -1, geom_center.z() * -1 );
-            m_FeaPartSurfVec[i].Transform( trans_mat_1 );
+        //if ( m_FeaPartSurfVec[0].GetFlipNormal() != current_surf.GetFlipNormal() )
+        //{
+        //    m_FeaPartSurfVec[0].FlipNormal();
+        //}
 
-            rot_mat.loadIdentity();
-            rot_mat.rotate( DEG_2_RAD * m_Theta(), rot_axis );
-            m_FeaPartSurfVec[i].Transform( rot_mat );
+        // Translate to the origin, rotate, and translate back to m_CenterPerBBoxLocation
+        Matrix4d trans_mat_1, trans_mat_2, rot_mat;
 
-            trans_mat_2.loadIdentity();
+        trans_mat_1.loadIdentity();
+        trans_mat_1.translatef( geom_center.x() * -1, geom_center.y() * -1, geom_center.z() * -1 );
+        m_FeaPartSurfVec[0].Transform( trans_mat_1 );
 
-            if ( m_OrientationPlane() == XY_PLANE )
-            {
-                trans_mat_2.translatef( geom_center.x(), geom_center.y(), geom_bbox.GetMin( 2 ) + del_z * m_CenterPerBBoxLocation() );
-            }
-            else if ( m_OrientationPlane() == YZ_PLANE )
-            {
-                trans_mat_2.translatef( geom_bbox.GetMin( 0 ) + del_x * m_CenterPerBBoxLocation(), geom_center.y(), geom_center.z() );
-            }
-            else if ( m_OrientationPlane() == XZ_PLANE )
-            {
-                trans_mat_2.translatef( geom_center.x(), geom_bbox.GetMin( 1 ) + del_y * m_CenterPerBBoxLocation(), geom_center.z() );
-            }
+        rot_mat.loadIdentity();
+        rot_mat.rotate( DEG_2_RAD * m_Theta(), rot_axis );
+        m_FeaPartSurfVec[0].Transform( rot_mat );
 
-            m_FeaPartSurfVec[i].Transform( trans_mat_2 );
+        trans_mat_2.loadIdentity();
+
+        if ( m_OrientationPlane() == XY_PLANE )
+        {
+            trans_mat_2.translatef( geom_center.x(), geom_center.y(), geom_bbox.GetMin( 2 ) + del_z * m_CenterPerBBoxLocation() );
+        }
+        else if ( m_OrientationPlane() == YZ_PLANE )
+        {
+            trans_mat_2.translatef( geom_bbox.GetMin( 0 ) + del_x * m_CenterPerBBoxLocation(), geom_center.y(), geom_center.z() );
+        }
+        else if ( m_OrientationPlane() == XZ_PLANE )
+        {
+            trans_mat_2.translatef( geom_center.x(), geom_bbox.GetMin( 1 ) + del_y * m_CenterPerBBoxLocation(), geom_center.z() );
+        }
+
+        m_FeaPartSurfVec[0].Transform( trans_mat_2 );
+
+        // Using the primary m_FeaPartSurfVec (index 0) as a reference, calculate and transform the symmetric copies
+        for ( unsigned int j = 1; j < m_SymmIndexVec.size(); j++ )
+        {
+            m_FeaPartSurfVec[j] = m_FeaPartSurfVec[j - 1];
+        }
+
+        // Compute Symmetric Translation Matrix
+        vector<Matrix4d> transMats = CalculateSymmetricTransform();
+
+        //==== Apply Transformations ====//
+        for ( int i = 1; i < m_SymmIndexVec.size(); i++ )
+        {
+            m_FeaPartSurfVec[i].Transform( transMats[i] ); // Apply total transformation to main FeaPart surface
         }
     }
 }
@@ -1273,114 +1291,233 @@ void FeaStiffenerPlane::ComputePlanarSurf()
 
     if ( veh )
     {
-        for ( unsigned int i = 0; i < m_SymmIndexVec.size(); i++ )
+        Geom* current_geom = veh->FindGeom( m_ParentGeomID );
+        if ( !current_geom )
         {
-            m_FeaPartSurfVec[i] = VspSurf();
-            m_FeaPartSurfVec[i].SetSurfCfdType( vsp::CFD_STRUCTURE );
+            return;
+        }
 
-            Geom* current_geom = veh->FindGeom( m_ParentGeomID );
+        vector< VspSurf > surf_vec;
+        current_geom->GetSurfVec( surf_vec );
 
-            if ( !current_geom )
+        VspSurf current_surf = surf_vec[m_MainSurfIndx()];
+
+        m_FeaPartSurfVec[0] = VspSurf();
+        m_FeaPartSurfVec[0].SetSurfCfdType( vsp::CFD_STRUCTURE );
+
+        BndBox geom_bbox;
+        current_surf.GetBoundingBox( geom_bbox );
+
+        vec3d geom_center = geom_bbox.GetCenter();
+
+        double del_x = geom_bbox.GetMax( 0 ) - geom_bbox.GetMin( 0 );
+        double del_y = geom_bbox.GetMax( 1 ) - geom_bbox.GetMin( 1 );
+        double del_z = geom_bbox.GetMax( 2 ) - geom_bbox.GetMin( 2 );
+
+        // Identify corners of the plane and rotation axis
+        vec3d cornerA, cornerB, cornerC, cornerD;
+        vec3d rot_axis;
+
+        if ( m_OrientationPlane() == XY_PLANE )
+        {
+            vec3d center_to_A = { -0.5 * del_x, -0.5 * del_y, 0.0 };
+            cornerA = geom_center + center_to_A;
+
+            vec3d center_to_B = { -0.5 * del_x, 0.5 * del_y, 0.0 };
+            cornerB = geom_center + center_to_B;
+
+            vec3d center_to_C = { 0.5 * del_x, -0.5 * del_y, 0.0 };
+            cornerC = geom_center + center_to_C;
+
+            vec3d center_to_D = { 0.5 * del_x, 0.5 * del_y, 0.0 };
+            cornerD = geom_center + center_to_D;
+
+            rot_axis.set_y( 1.0 ); // y-axis
+        }
+        else if ( m_OrientationPlane() == YZ_PLANE )
+        {
+            vec3d center_to_A = { 0.0, -0.5 * del_y, -0.5 * del_z };
+            cornerA = geom_center + center_to_A;
+
+            vec3d center_to_B = { 0.0, 0.5 * del_y, -0.5 * del_z };
+            cornerB = geom_center + center_to_B;
+
+            vec3d center_to_C = { 0.0, -0.5 * del_y, 0.5 * del_z };
+            cornerC = geom_center + center_to_C;
+
+            vec3d center_to_D = { 0.0, 0.5 * del_y, 0.5 * del_z };
+            cornerD = geom_center + center_to_D;
+
+            rot_axis.set_y( 1.0 ); // y-axis
+        }
+        else if ( m_OrientationPlane() == XZ_PLANE )
+        {
+            vec3d center_to_A = { -0.5 * del_x, 0.0, -0.5 * del_z };
+            cornerA = geom_center + center_to_A;
+
+            vec3d center_to_B = { 0.5 * del_x, 0.0, -0.5 * del_z };
+            cornerB = geom_center + center_to_B;
+
+            vec3d center_to_C = { -0.5 * del_x, 0.0, 0.5 * del_z };
+            cornerC = geom_center + center_to_C;
+
+            vec3d center_to_D = { 0.5 * del_x, 0.0, 0.5 * del_z };
+            cornerD = geom_center + center_to_D;
+
+            rot_axis.set_z( 1.0 ); // z-axis
+        }
+
+        // Make Planar Surface
+        m_FeaPartSurfVec[0].MakePlaneSurf( cornerA, cornerB, cornerC, cornerD );
+
+        //if ( m_FeaPartSurfVec[0].GetFlipNormal() != current_surf.GetFlipNormal() )
+        //{
+        //    m_FeaPartSurfVec[0].FlipNormal();
+        //}
+
+        // Translate to the origin, rotate, and translate back to m_CenterPerBBoxLocation
+        Matrix4d trans_mat_1, trans_mat_2, rot_mat;
+
+        trans_mat_1.loadIdentity();
+        trans_mat_1.translatef( geom_center.x() * -1, geom_center.y() * -1, geom_center.z() * -1 );
+        m_FeaPartSurfVec[0].Transform( trans_mat_1 );
+
+        rot_mat.loadIdentity();
+        rot_mat.rotate( DEG_2_RAD * m_Theta(), rot_axis );
+        m_FeaPartSurfVec[0].Transform( rot_mat );
+
+        trans_mat_2.loadIdentity();
+
+        if ( m_OrientationPlane() == XY_PLANE )
+        {
+            trans_mat_2.translatef( geom_center.x(), geom_center.y(), geom_bbox.GetMin( 2 ) + del_z * m_CenterPerBBoxLocation() );
+        }
+        else if ( m_OrientationPlane() == YZ_PLANE )
+        {
+            trans_mat_2.translatef( geom_bbox.GetMin( 0 ) + del_x * m_CenterPerBBoxLocation(), geom_center.y(), geom_center.z() );
+        }
+        else if ( m_OrientationPlane() == XZ_PLANE )
+        {
+            trans_mat_2.translatef( geom_center.x(), geom_bbox.GetMin( 1 ) + del_y * m_CenterPerBBoxLocation(), geom_center.z() );
+        }
+
+        m_FeaPartSurfVec[0].Transform( trans_mat_2 );
+
+        // Using the primary m_FeaPartSurfVec (index 0) as a reference, calculate and transform the symmetric copies
+        for ( unsigned int j = 1; j < m_SymmIndexVec.size(); j++ )
+        {
+            m_FeaPartSurfVec[j] = m_FeaPartSurfVec[j - 1];
+        }
+
+        // Compute Relative Translation Matrix
+        Matrix4d symmOriginMat;
+        if ( current_geom->m_SymAncestOriginFlag() )
+        {
+            symmOriginMat = current_geom->GetAncestorAttachMatrix( current_geom->m_SymAncestor() - 1 );
+        }
+        else
+        {
+            symmOriginMat = current_geom->GetAncestorModelMatrix( current_geom->m_SymAncestor() - 1 );
+        }
+
+        vector<Matrix4d> transMats;
+        transMats.resize( m_SymmIndexVec.size(), Matrix4d() );
+
+        int symFlag = current_geom->GetSymFlag();
+        if ( symFlag != 0 )
+        {
+            int numShifts = -1;
+            Matrix4d Ref; // Reflection Matrix
+            Matrix4d Ref_Orig; // Original Reflection Matrix
+
+            double angle = ( 360 ) / (double)current_geom->m_SymRotN();
+            int currentIndex = m_MainSurfIndx() + 1;
+            bool radial = false;
+
+            for ( int i = 0; i < current_geom->GetNumSymFlags(); i++ ) // Loop through each of the set sym flags
             {
-                return;
+                // Find next set sym flag
+                while ( true )
+                {
+                    numShifts++;
+                    if ( ( ( symFlag >> numShifts ) & ( 1 << 0 ) ) || numShifts > vsp::SYM_NUM_TYPES )
+                    {
+                        break;
+                    }
+                }
+
+                // Create Reflection Matrix
+                if ( ( 1 << numShifts ) == vsp::SYM_XY )
+                {
+                    Ref.loadXYRef();
+                }
+                else if ( ( 1 << numShifts ) == vsp::SYM_XZ )
+                {
+                    Ref.loadXZRef();
+                }
+                else if ( ( 1 << numShifts ) == vsp::SYM_YZ )
+                {
+                    Ref.loadYZRef();
+                }
+                else if ( ( 1 << numShifts ) == vsp::SYM_ROT_X )
+                {
+                    Ref.loadIdentity();
+                    Ref.rotateX( angle );
+                    Ref_Orig = Ref;
+                    radial = true;
+                }
+                else if ( ( 1 << numShifts ) == vsp::SYM_ROT_Y )
+                {
+                    Ref.loadIdentity();
+                    Ref.rotateY( angle );
+                    Ref_Orig = Ref;
+                    radial = true;
+                }
+                else if ( ( 1 << numShifts ) == vsp::SYM_ROT_Z )
+                {
+                    Ref.loadIdentity();
+                    Ref.rotateZ( angle );
+                    Ref_Orig = Ref;
+                    radial = true;
+                }
+
+                int numAddSurfs = currentIndex;
+                int addIndex = 0;
+
+                for ( int j = currentIndex; j < currentIndex + numAddSurfs; j++ )
+                {
+                    if ( radial ) // rotational reflection
+                    {
+                        for ( int k = 0; k < current_geom->m_SymRotN() - 1; k++ )
+                        {
+                            transMats[j + k * numAddSurfs].initMat( transMats[j - currentIndex].data() );
+                            transMats[j + k * numAddSurfs].postMult( Ref.data() ); // Apply Reflection
+
+                                                                                   // Increment rotation by the angle
+                            Ref.postMult( Ref_Orig.data() );
+                            addIndex++;
+                        }
+                        // Reset reflection matrices to the beginning angle
+                        Ref = Ref_Orig;
+                    }
+                    else
+                    {
+                        transMats[j].initMat( transMats[j - currentIndex].data() );
+                        transMats[j].postMult( Ref.data() ); // Apply Reflection
+                        addIndex++;
+                    }
+                }
+
+                currentIndex += addIndex;
+                radial = false;
             }
+        }
 
-            vector< VspSurf > surf_vec;
-            current_geom->GetSurfVec( surf_vec );
-            VspSurf current_surf = surf_vec[m_SymmIndexVec[i]];
-
-            BndBox geom_bbox;
-            current_surf.GetBoundingBox( geom_bbox );
-
-            vec3d geom_center = geom_bbox.GetCenter();
-
-            double del_x = geom_bbox.GetMax( 0 ) - geom_bbox.GetMin( 0 );
-            double del_y = geom_bbox.GetMax( 1 ) - geom_bbox.GetMin( 1 );
-            double del_z = geom_bbox.GetMax( 2 ) - geom_bbox.GetMin( 2 );
-
-            // Identify corners of the plane and rotation axis
-            vec3d cornerA, cornerB, cornerC, cornerD;
-            vec3d rot_axis;
-
-            if ( m_OrientationPlane() == XY_PLANE )
-            {
-                vec3d center_to_A = { -0.5 * del_x, -0.5 * del_y, 0.0 };
-                cornerA = geom_center + center_to_A;
-
-                vec3d center_to_B = { -0.5 * del_x, 0.5 * del_y, 0.0 };
-                cornerB = geom_center + center_to_B;
-
-                vec3d center_to_C = { 0.5 * del_x, -0.5 * del_y, 0.0 };
-                cornerC = geom_center + center_to_C;
-
-                vec3d center_to_D = { 0.5 * del_x, 0.5 * del_y, 0.0 };
-                cornerD = geom_center + center_to_D;
-
-                rot_axis.set_y( 1.0 ); // y-axis
-            }
-            else if ( m_OrientationPlane() == YZ_PLANE )
-            {
-                vec3d center_to_A = { 0.0, -0.5 * del_y, -0.5 * del_z };
-                cornerA = geom_center + center_to_A;
-
-                vec3d center_to_B = { 0.0, 0.5 * del_y, -0.5 * del_z };
-                cornerB = geom_center + center_to_B;
-
-                vec3d center_to_C = { 0.0, -0.5 * del_y, 0.5 * del_z };
-                cornerC = geom_center + center_to_C;
-
-                vec3d center_to_D = { 0.0, 0.5 * del_y, 0.5 * del_z };
-                cornerD = geom_center + center_to_D;
-
-                rot_axis.set_y( 1.0 ); // y-axis
-            }
-            else if ( m_OrientationPlane() == XZ_PLANE )
-            {
-                vec3d center_to_A = { -0.5 * del_x, 0.0, -0.5 * del_z };
-                cornerA = geom_center + center_to_A;
-
-                vec3d center_to_B = { 0.5 * del_x, 0.0, -0.5 * del_z };
-                cornerB = geom_center + center_to_B;
-
-                vec3d center_to_C = { -0.5 * del_x, 0.0, 0.5 * del_z };
-                cornerC = geom_center + center_to_C;
-
-                vec3d center_to_D = { 0.5 * del_x, 0.0, 0.5 * del_z };
-                cornerD = geom_center + center_to_D;
-
-                rot_axis.set_z( 1.0 ); // z-axis
-            }
-
-            // Make Planar Surface
-            m_FeaPartSurfVec[i].MakePlaneSurf( cornerA, cornerB, cornerC, cornerD );
-
-            // Translate to the origin, rotate, and translate back to m_CenterPerBBoxLocation
-            Matrix4d trans_mat_1, trans_mat_2, rot_mat;
-
-            trans_mat_1.loadIdentity();
-            trans_mat_1.translatef( geom_center.x() * -1, geom_center.y() * -1, geom_center.z() * -1 );
-            m_FeaPartSurfVec[i].Transform( trans_mat_1 );
-
-            rot_mat.loadIdentity();
-            rot_mat.rotate( DEG_2_RAD * m_Theta(), rot_axis );
-            m_FeaPartSurfVec[i].Transform( rot_mat );
-
-            trans_mat_2.loadIdentity();
-
-            if ( m_OrientationPlane() == XY_PLANE )
-            {
-                trans_mat_2.translatef( geom_center.x(), geom_center.y(), geom_bbox.GetMin( 2 ) + del_z * m_CenterPerBBoxLocation() );
-            }
-            else if ( m_OrientationPlane() == YZ_PLANE )
-            {
-                trans_mat_2.translatef( geom_bbox.GetMin( 0 ) + del_x * m_CenterPerBBoxLocation(), geom_center.y(), geom_center.z() );
-            }
-            else if ( m_OrientationPlane() == XZ_PLANE )
-            {
-                trans_mat_2.translatef( geom_center.x(), geom_bbox.GetMin( 1 ) + del_y * m_CenterPerBBoxLocation(), geom_center.z() );
-            }
-
-            m_FeaPartSurfVec[i].Transform( trans_mat_2 );
+        //==== Apply Transformations ====//
+        for ( int i = 1; i < m_SymmIndexVec.size(); i++ )
+        {
+            transMats[i].postMult( symmOriginMat.data() );
+            m_FeaPartSurfVec[i].Transform( transMats[i] ); // Apply total transformation to main FeaPart surface
         }
     }
 }
