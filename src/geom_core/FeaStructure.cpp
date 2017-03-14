@@ -519,6 +519,134 @@ void FeaPart::UpdateSymmetricSurfs()
     }
 }
 
+vector < Matrix4d > FeaPart::CalculateSymmetricTransform()
+{
+    vector<Matrix4d> transMats;
+
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( !veh )
+    {
+        return transMats;
+    }
+
+    Geom* current_geom = veh->FindGeom( m_ParentGeomID );
+    if ( !current_geom )
+    {
+        return transMats;
+    }
+
+    // Compute Relative Translation Matrix
+    Matrix4d symmOriginMat;
+    if ( current_geom->m_SymAncestOriginFlag() )
+    {
+        symmOriginMat = current_geom->GetAncestorAttachMatrix( current_geom->m_SymAncestor() - 1 );
+    }
+    else
+    {
+        symmOriginMat = current_geom->GetAncestorModelMatrix( current_geom->m_SymAncestor() - 1 );
+    }
+
+    transMats.resize( m_SymmIndexVec.size(), Matrix4d() );
+
+    int symFlag = current_geom->GetSymFlag();
+    if ( symFlag != 0 )
+    {
+        int numShifts = -1;
+        Matrix4d Ref; // Reflection Matrix
+        Matrix4d Ref_Orig; // Original Reflection Matrix
+
+        double angle = ( 360 ) / (double)current_geom->m_SymRotN();
+        int currentIndex = m_MainSurfIndx() + 1;
+        bool radial = false;
+
+        for ( int i = 0; i < current_geom->GetNumSymFlags(); i++ ) // Loop through each of the set sym flags
+        {
+            // Find next set sym flag
+            while ( true )
+            {
+                numShifts++;
+                if ( ( ( symFlag >> numShifts ) & ( 1 << 0 ) ) || numShifts > vsp::SYM_NUM_TYPES )
+                {
+                    break;
+                }
+            }
+
+            // Create Reflection Matrix
+            if ( ( 1 << numShifts ) == vsp::SYM_XY )
+            {
+                Ref.loadXYRef();
+            }
+            else if ( ( 1 << numShifts ) == vsp::SYM_XZ )
+            {
+                Ref.loadXZRef();
+            }
+            else if ( ( 1 << numShifts ) == vsp::SYM_YZ )
+            {
+                Ref.loadYZRef();
+            }
+            else if ( ( 1 << numShifts ) == vsp::SYM_ROT_X )
+            {
+                Ref.loadIdentity();
+                Ref.rotateX( angle );
+                Ref_Orig = Ref;
+                radial = true;
+            }
+            else if ( ( 1 << numShifts ) == vsp::SYM_ROT_Y )
+            {
+                Ref.loadIdentity();
+                Ref.rotateY( angle );
+                Ref_Orig = Ref;
+                radial = true;
+            }
+            else if ( ( 1 << numShifts ) == vsp::SYM_ROT_Z )
+            {
+                Ref.loadIdentity();
+                Ref.rotateZ( angle );
+                Ref_Orig = Ref;
+                radial = true;
+            }
+
+            int numAddSurfs = currentIndex;
+            int addIndex = 0;
+
+            for ( int j = currentIndex; j < currentIndex + numAddSurfs; j++ )
+            {
+                if ( radial ) // rotational reflection
+                {
+                    for ( int k = 0; k < current_geom->m_SymRotN() - 1; k++ )
+                    {
+                        transMats[j + k * numAddSurfs].initMat( transMats[j - currentIndex].data() );
+                        transMats[j + k * numAddSurfs].postMult( Ref.data() ); // Apply Reflection
+
+                                                                               // Increment rotation by the angle
+                        Ref.postMult( Ref_Orig.data() );
+                        addIndex++;
+                    }
+                    // Reset reflection matrices to the beginning angle
+                    Ref = Ref_Orig;
+                }
+                else
+                {
+                    transMats[j].initMat( transMats[j - currentIndex].data() );
+                    transMats[j].postMult( Ref.data() ); // Apply Reflection
+                    addIndex++;
+                }
+            }
+
+            currentIndex += addIndex;
+            radial = false;
+        }
+    }
+
+    //==== Apply Transformations ====//
+    for ( int i = 1; i < m_SymmIndexVec.size(); i++ )
+    {
+        transMats[i].postMult( symmOriginMat.data() );
+    }
+
+    return transMats;
+}
+
 string FeaPart::GetTypeName( int type )
 {
     if ( type == vsp::FEA_FULL_DEPTH )

@@ -24,6 +24,7 @@
 #include "DrawObj.h"
 #include "APIDefines.h"
 #include "SubSurface.h"
+#include "Matrix.h"
 
 // Forward declaration
 class FeaPart;
@@ -140,6 +141,8 @@ public:
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
     virtual void UpdateSymmetricSurfs();
+
+    vector < Matrix4d > CalculateSymmetricTransform();
 
     static string GetTypeName( int type );
 
