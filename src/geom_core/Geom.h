@@ -473,6 +473,7 @@ public:
 
     //===== Degenerate Geometry =====//
     virtual void CreateDegenGeom( vector<DegenGeom> &dgs);
+    virtual void CreateDegenGeomPreview( vector<DegenGeom> &dgs );
 
     IntParm m_TessU;
     LimIntParm m_TessW;
