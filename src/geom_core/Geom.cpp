@@ -2666,88 +2666,92 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
     char str[256];
 
-    for ( int i = 0 ; i < ( int )m_WireShadeDrawObj_vec.size() ; i++ )
+    if ( m_GuiDraw.GetDisplayType() == GeomGuiDraw::DISPLAY_BEZIER )
     {
-        // Symmetry drawObjs have same m_ID. Make them unique by adding index
-        // at the end of m_ID.
-        sprintf( str, "_%d", i );
-        m_WireShadeDrawObj_vec[i].m_GeomID = m_ID + str;
-        m_WireShadeDrawObj_vec[i].m_Visible = !m_GuiDraw.GetNoShowFlag();
-
-        // Set Render Destination to Main VSP Window.
-        m_WireShadeDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
-
-        Material * material = m_GuiDraw.getMaterial();
-
-        for ( int j = 0; j < 4; j++ )
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[j] = (float)material->m_Ambi[j];
-
-        for ( int j = 0; j < 4; j++ )
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[j] = (float)material->m_Diff[j];
-
-        for ( int j = 0; j < 4; j++ )
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[j] = (float)material->m_Spec[j];
-
-        for ( int j = 0; j < 4; j++ )
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[j] = (float)material->m_Emis[j];
-
-        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Shininess = (float)material->m_Shininess;
-
-        vec3d lineColor = vec3d( m_GuiDraw.GetWireColor().x() / 255.0,
-            m_GuiDraw.GetWireColor().y() / 255.0,
-            m_GuiDraw.GetWireColor().z() / 255.0 );
-
-        switch( m_GuiDraw.GetDrawType() )
+        for ( int i = 0; i < (int)m_WireShadeDrawObj_vec.size(); i++ )
         {
-        case GeomGuiDraw::GEOM_DRAW_WIRE:
-            m_WireShadeDrawObj_vec[i].m_LineWidth = 1.0;
-            m_WireShadeDrawObj_vec[i].m_LineColor = lineColor;
-            m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_MESH;
-            draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
-            break;
+            // Symmetry drawObjs have same m_ID. Make them unique by adding index
+            // at the end of m_ID.
+            sprintf( str, "_%d", i );
+            m_WireShadeDrawObj_vec[i].m_GeomID = m_ID + str;
+            m_WireShadeDrawObj_vec[i].m_Visible = !m_GuiDraw.GetNoShowFlag();
 
-        case GeomGuiDraw::GEOM_DRAW_HIDDEN:
-            m_WireShadeDrawObj_vec[i].m_LineColor = lineColor;
-            m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_HIDDEN_MESH;
-            draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
-            break;
+            // Set Render Destination to Main VSP Window.
+            m_WireShadeDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
 
-        case GeomGuiDraw::GEOM_DRAW_SHADE:
-            m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_MESH;
-            draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
-            break;
+            Material * material = m_GuiDraw.getMaterial();
 
-        case GeomGuiDraw::GEOM_DRAW_NONE:
-            m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_MESH;
-            m_WireShadeDrawObj_vec[i].m_Visible = false;
-            draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
-            break;
+            for ( int j = 0; j < 4; j++ )
+                m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[j] = (float)material->m_Ambi[j];
 
-        case GeomGuiDraw::GEOM_DRAW_TEXTURE:
-            m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_TEXTURED_MESH;
+            for ( int j = 0; j < 4; j++ )
+                m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[j] = (float)material->m_Diff[j];
 
-            // Reload texture infos.
-            m_WireShadeDrawObj_vec[i].m_TextureInfos.clear();
-            vector<Texture*> texList = m_GuiDraw.getTextureMgr()->FindTextureVec( m_GuiDraw.getTextureMgr()->GetTextureVec() );
-            for( int j = 0; j < ( int )texList.size(); j++ )
+            for ( int j = 0; j < 4; j++ )
+                m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[j] = (float)material->m_Spec[j];
+
+            for ( int j = 0; j < 4; j++ )
+                m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[j] = (float)material->m_Emis[j];
+
+            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Shininess = (float)material->m_Shininess;
+
+            vec3d lineColor = vec3d( m_GuiDraw.GetWireColor().x() / 255.0,
+                m_GuiDraw.GetWireColor().y() / 255.0,
+                m_GuiDraw.GetWireColor().z() / 255.0 );
+
+            switch ( m_GuiDraw.GetDrawType() )
             {
-                DrawObj::TextureInfo info;
-                info.FileName = texList[j]->m_FileName;
-                info.UScale = ( float )texList[j]->m_UScale.Get();
-                info.WScale = ( float )texList[j]->m_WScale.Get();
-                info.U = ( float )texList[j]->m_U.Get();
-                info.W = ( float )texList[j]->m_W.Get();
-                info.Transparency = ( float )texList[j]->m_Transparency.Get();
-                info.UFlip = texList[j]->m_FlipU.Get();
-                info.WFlip = texList[j]->m_FlipW.Get();
-                info.ID = texList[j]->GetID();
-                m_WireShadeDrawObj_vec[i].m_TextureInfos.push_back( info );
+            case GeomGuiDraw::GEOM_DRAW_WIRE:
+                m_WireShadeDrawObj_vec[i].m_LineWidth = 1.0;
+                m_WireShadeDrawObj_vec[i].m_LineColor = lineColor;
+                m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_MESH;
+                draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
+                break;
+
+            case GeomGuiDraw::GEOM_DRAW_HIDDEN:
+                m_WireShadeDrawObj_vec[i].m_LineColor = lineColor;
+                m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_HIDDEN_MESH;
+                draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
+                break;
+
+            case GeomGuiDraw::GEOM_DRAW_SHADE:
+                m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_MESH;
+                draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
+                break;
+
+            case GeomGuiDraw::GEOM_DRAW_NONE:
+                m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_MESH;
+                m_WireShadeDrawObj_vec[i].m_Visible = false;
+                draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
+                break;
+
+            case GeomGuiDraw::GEOM_DRAW_TEXTURE:
+                m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_TEXTURED_MESH;
+
+                // Reload texture infos.
+                m_WireShadeDrawObj_vec[i].m_TextureInfos.clear();
+                vector<Texture*> texList = m_GuiDraw.getTextureMgr()->FindTextureVec( m_GuiDraw.getTextureMgr()->GetTextureVec() );
+                for ( int j = 0; j < (int)texList.size(); j++ )
+                {
+                    DrawObj::TextureInfo info;
+                    info.FileName = texList[j]->m_FileName;
+                    info.UScale = (float)texList[j]->m_UScale.Get();
+                    info.WScale = (float)texList[j]->m_WScale.Get();
+                    info.U = (float)texList[j]->m_U.Get();
+                    info.W = (float)texList[j]->m_W.Get();
+                    info.Transparency = (float)texList[j]->m_Transparency.Get();
+                    info.UFlip = texList[j]->m_FlipU.Get();
+                    info.WFlip = texList[j]->m_FlipW.Get();
+                    info.ID = texList[j]->GetID();
+                    m_WireShadeDrawObj_vec[i].m_TextureInfos.push_back( info );
+                }
+                draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
+                break;
             }
-            draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
-            break;
         }
     }
 
+    // Load BoundingBox and Axes
     if ( m_Vehicle->IsGeomActive( m_ID ) )
     {
         m_HighlightDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
@@ -2766,31 +2770,273 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
             m_AxisDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
             draw_obj_vec.push_back( &m_AxisDrawObj_vec[i] );
         }
-
     }
 
-    // Load Feature Lines
-    if ( m_GuiDraw.GetDispFeatureFlag() && !m_GuiDraw.GetNoShowFlag() )
+    if ( m_DegenSubSurfDrawObj_vec.size() != m_SubSurfVec.size() )
     {
-        for ( int i = 0; i < m_FeatureDrawObj_vec.size(); i++ )
+        UpdateDegenDrawObj();
+    }
+
+    if ( m_GuiDraw.GetDisplayType() == GeomGuiDraw::DISPLAY_BEZIER )
+    {
+        // Load Feature Lines
+        if ( m_GuiDraw.GetDispFeatureFlag() && !m_GuiDraw.GetNoShowFlag() )
         {
-            m_FeatureDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
-            sprintf( str, "_%d", i );
-            m_FeatureDrawObj_vec[i].m_GeomID = m_ID + "Feature_" + str;
-            m_FeatureDrawObj_vec[i].m_LineWidth = 1.0;
-            m_FeatureDrawObj_vec[i].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
-            m_FeatureDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
-            draw_obj_vec.push_back( &m_FeatureDrawObj_vec[i] );
+            for ( int i = 0; i < m_FeatureDrawObj_vec.size(); i++ )
+            {
+                m_FeatureDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+                sprintf( str, "_%d", i );
+                m_FeatureDrawObj_vec[i].m_GeomID = m_ID + "Feature_" + str;
+                m_FeatureDrawObj_vec[i].m_LineWidth = 1.0;
+                m_FeatureDrawObj_vec[i].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
+                m_FeatureDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
+                draw_obj_vec.push_back( &m_FeatureDrawObj_vec[i] );
+            }
+        }
+
+        // Load Subsurfaces
+        RecolorSubSurfs( SubSurfaceMgr.GetCurrSurfInd() );
+        if ( m_GuiDraw.GetDispSubSurfFlag() && !m_GuiDraw.GetNoShowFlag() )
+        {
+            for ( int i = 0; i < (int)m_SubSurfVec.size(); i++ )
+            {
+                m_SubSurfVec[i]->LoadDrawObjs( draw_obj_vec );
+            }
+        }
+    }
+    else if ( m_GuiDraw.GetDisplayType() == GeomGuiDraw::DISPLAY_DEGEN_SURF )
+    {
+        // Load DegenGeom
+        for ( int i = 0; i < m_DegenSurfDrawObj_vec.size(); i++ )
+        {
+            m_DegenSurfDrawObj_vec[i].m_GeomID = m_ID + "Degen_Surf_" + std::to_string( i );
+            m_DegenSurfDrawObj_vec[i].m_Visible = !m_GuiDraw.GetNoShowFlag();
+
+            // Set Render Destination to Main VSP Window.
+            m_DegenSurfDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+
+            Material * material = m_GuiDraw.getMaterial();
+
+            for ( int j = 0; j < 4; j++ )
+                m_DegenSurfDrawObj_vec[i].m_MaterialInfo.Ambient[j] = (float)material->m_Ambi[j];
+
+            for ( int j = 0; j < 4; j++ )
+                m_DegenSurfDrawObj_vec[i].m_MaterialInfo.Diffuse[j] = (float)material->m_Diff[j];
+
+            for ( int j = 0; j < 4; j++ )
+                m_DegenSurfDrawObj_vec[i].m_MaterialInfo.Specular[j] = (float)material->m_Spec[j];
+
+            for ( int j = 0; j < 4; j++ )
+                m_DegenSurfDrawObj_vec[i].m_MaterialInfo.Emission[j] = (float)material->m_Emis[j];
+
+            m_DegenSurfDrawObj_vec[i].m_MaterialInfo.Shininess = (float)material->m_Shininess;
+
+            vec3d lineColor = vec3d( m_GuiDraw.GetWireColor().x() / 255.0,
+                                        m_GuiDraw.GetWireColor().y() / 255.0,
+                                        m_GuiDraw.GetWireColor().z() / 255.0 );
+
+            switch ( m_GuiDraw.GetDrawType() )
+            {
+            case GeomGuiDraw::GEOM_DRAW_WIRE:
+                m_DegenSurfDrawObj_vec[i].m_LineWidth = 1.0;
+                m_DegenSurfDrawObj_vec[i].m_LineColor = lineColor;
+                m_DegenSurfDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_QUADS;
+                draw_obj_vec.push_back( &m_DegenSurfDrawObj_vec[i] );
+                break;
+
+            case GeomGuiDraw::GEOM_DRAW_HIDDEN:
+                m_DegenSurfDrawObj_vec[i].m_LineColor = lineColor;
+                m_DegenSurfDrawObj_vec[i].m_Type = DrawObj::VSP_HIDDEN_QUADS;
+                draw_obj_vec.push_back( &m_DegenSurfDrawObj_vec[i] );
+                break;
+
+            case GeomGuiDraw::GEOM_DRAW_SHADE:
+                m_DegenSurfDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_QUADS;
+                draw_obj_vec.push_back( &m_DegenSurfDrawObj_vec[i] );
+                break;
+
+            case GeomGuiDraw::GEOM_DRAW_NONE:
+                m_DegenSurfDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_QUADS;
+                m_DegenSurfDrawObj_vec[i].m_Visible = false;
+                draw_obj_vec.push_back( &m_DegenSurfDrawObj_vec[i] );
+                break;
+
+            case GeomGuiDraw::GEOM_DRAW_TEXTURE:
+                m_DegenSurfDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_QUADS;
+                draw_obj_vec.push_back( &m_DegenSurfDrawObj_vec[i] );
+                break;
+            }
+        }
+    }
+    else if ( m_GuiDraw.GetDisplayType() == GeomGuiDraw::DISPLAY_DEGEN_PLATE )
+    {
+        for ( int i = 0; i < m_DegenPlateDrawObj_vec.size(); i++ )
+        {
+            m_DegenPlateDrawObj_vec[i].m_GeomID = m_ID + "Degen_Plate_" + std::to_string( i );
+            m_DegenPlateDrawObj_vec[i].m_Visible = !m_GuiDraw.GetNoShowFlag();
+
+            // Set Render Destination to Main VSP Window.
+            m_DegenPlateDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+
+            Material * material = m_GuiDraw.getMaterial();
+
+            for ( int j = 0; j < 4; j++ )
+                m_DegenPlateDrawObj_vec[i].m_MaterialInfo.Ambient[j] = (float)material->m_Ambi[j];
+
+            for ( int j = 0; j < 4; j++ )
+                m_DegenPlateDrawObj_vec[i].m_MaterialInfo.Diffuse[j] = (float)material->m_Diff[j];
+
+            for ( int j = 0; j < 4; j++ )
+                m_DegenPlateDrawObj_vec[i].m_MaterialInfo.Specular[j] = (float)material->m_Spec[j];
+
+            for ( int j = 0; j < 4; j++ )
+                m_DegenPlateDrawObj_vec[i].m_MaterialInfo.Emission[j] = (float)material->m_Emis[j];
+
+            m_DegenPlateDrawObj_vec[i].m_MaterialInfo.Shininess = (float)material->m_Shininess;
+
+            vec3d lineColor = vec3d( m_GuiDraw.GetWireColor().x() / 255.0,
+                                        m_GuiDraw.GetWireColor().y() / 255.0,
+                                        m_GuiDraw.GetWireColor().z() / 255.0 );
+
+            switch ( m_GuiDraw.GetDrawType() )
+            {
+            case GeomGuiDraw::GEOM_DRAW_WIRE:
+                m_DegenPlateDrawObj_vec[i].m_LineWidth = 1.0;
+                m_DegenPlateDrawObj_vec[i].m_LineColor = lineColor;
+                m_DegenPlateDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_QUADS;
+                draw_obj_vec.push_back( &m_DegenPlateDrawObj_vec[i] );
+                break;
+
+            case GeomGuiDraw::GEOM_DRAW_HIDDEN:
+                m_DegenPlateDrawObj_vec[i].m_LineColor = lineColor;
+                m_DegenPlateDrawObj_vec[i].m_Type = DrawObj::VSP_HIDDEN_QUADS;
+                draw_obj_vec.push_back( &m_DegenPlateDrawObj_vec[i] );
+                break;
+
+            case GeomGuiDraw::GEOM_DRAW_SHADE:
+                m_DegenPlateDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_QUADS;
+                draw_obj_vec.push_back( &m_DegenPlateDrawObj_vec[i] );
+                break;
+
+            case GeomGuiDraw::GEOM_DRAW_NONE:
+                m_DegenPlateDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_QUADS;
+                m_DegenPlateDrawObj_vec[i].m_Visible = false;
+                draw_obj_vec.push_back( &m_DegenPlateDrawObj_vec[i] );
+                break;
+
+            case GeomGuiDraw::GEOM_DRAW_TEXTURE:
+                m_DegenPlateDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_QUADS;
+                draw_obj_vec.push_back( &m_DegenPlateDrawObj_vec[i] );
+                break;
+            }
+        }
+    }
+    else if ( m_GuiDraw.GetDisplayType() == GeomGuiDraw::DISPLAY_DEGEN_CAMBER )
+    {
+        for ( int i = 0; i < m_DegenCamberPlateDrawObj_vec.size(); i++ )
+        {
+            m_DegenCamberPlateDrawObj_vec[i].m_GeomID = m_ID + "Degen_Camber_Plate_" + std::to_string( i );
+            m_DegenCamberPlateDrawObj_vec[i].m_Visible = !m_GuiDraw.GetNoShowFlag();
+
+            // Set Render Destination to Main VSP Window.
+            m_DegenCamberPlateDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+
+            Material * material = m_GuiDraw.getMaterial();
+
+            for ( int j = 0; j < 4; j++ )
+                m_DegenCamberPlateDrawObj_vec[i].m_MaterialInfo.Ambient[j] = (float)material->m_Ambi[j];
+
+            for ( int j = 0; j < 4; j++ )
+                m_DegenCamberPlateDrawObj_vec[i].m_MaterialInfo.Diffuse[j] = (float)material->m_Diff[j];
+
+            for ( int j = 0; j < 4; j++ )
+                m_DegenCamberPlateDrawObj_vec[i].m_MaterialInfo.Specular[j] = (float)material->m_Spec[j];
+
+            for ( int j = 0; j < 4; j++ )
+                m_DegenCamberPlateDrawObj_vec[i].m_MaterialInfo.Emission[j] = (float)material->m_Emis[j];
+
+            m_DegenCamberPlateDrawObj_vec[i].m_MaterialInfo.Shininess = (float)material->m_Shininess;
+
+            vec3d lineColor = vec3d( m_GuiDraw.GetWireColor().x() / 255.0,
+                                        m_GuiDraw.GetWireColor().y() / 255.0,
+                                        m_GuiDraw.GetWireColor().z() / 255.0 );
+
+            switch ( m_GuiDraw.GetDrawType() )
+            {
+            case GeomGuiDraw::GEOM_DRAW_WIRE:
+                m_DegenCamberPlateDrawObj_vec[i].m_LineWidth = 1.0;
+                m_DegenCamberPlateDrawObj_vec[i].m_LineColor = lineColor;
+                m_DegenCamberPlateDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_QUADS;
+                draw_obj_vec.push_back( &m_DegenCamberPlateDrawObj_vec[i] );
+                break;
+
+            case GeomGuiDraw::GEOM_DRAW_HIDDEN:
+                m_DegenCamberPlateDrawObj_vec[i].m_LineColor = lineColor;
+                m_DegenCamberPlateDrawObj_vec[i].m_Type = DrawObj::VSP_HIDDEN_QUADS;
+                draw_obj_vec.push_back( &m_DegenCamberPlateDrawObj_vec[i] );
+                break;
+
+            case GeomGuiDraw::GEOM_DRAW_SHADE:
+                m_DegenCamberPlateDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_QUADS;
+                draw_obj_vec.push_back( &m_DegenCamberPlateDrawObj_vec[i] );
+                break;
+
+            case GeomGuiDraw::GEOM_DRAW_NONE:
+                m_DegenCamberPlateDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_QUADS;
+                m_DegenCamberPlateDrawObj_vec[i].m_Visible = false;
+                draw_obj_vec.push_back( &m_DegenCamberPlateDrawObj_vec[i] );
+                break;
+
+            case GeomGuiDraw::GEOM_DRAW_TEXTURE:
+                m_DegenCamberPlateDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_QUADS;
+                draw_obj_vec.push_back( &m_DegenCamberPlateDrawObj_vec[i] );
+                break;
+            }
         }
     }
 
-    // Load Subsurfaces
-    RecolorSubSurfs( SubSurfaceMgr.GetCurrSurfInd() );
-    if ( m_GuiDraw.GetDispSubSurfFlag() && !m_GuiDraw.GetNoShowFlag() )
+    //if ( m_GuiDraw.GetDispDegenStickFlag() )
+    //{
+    //    for ( int i = 0; i < m_DegenStickDrawObj_vec.size(); i++ )
+    //    {
+    //        sprintf( str, "_%d", i );
+    //        m_DegenStickDrawObj_vec[i].m_GeomID = m_ID + "Degen_Stick_" + str;
+
+    //        // Set Render Destination to Main VSP Window.
+    //        m_DegenStickDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+
+    //        vec3d lineColor = vec3d( m_GuiDraw.GetWireColor().x() / 255.0,
+    //                                 m_GuiDraw.GetWireColor().y() / 255.0,
+    //                                 m_GuiDraw.GetWireColor().z() / 255.0 );
+
+    //        m_DegenStickDrawObj_vec[i].m_LineWidth = 1.0;
+    //        m_DegenStickDrawObj_vec[i].m_LineColor = lineColor;
+
+    //        if ( m_GuiDraw.GetDegenDrawType() == m_GuiDraw.GEOM_DRAW_WIRE )
+    //        {
+    //            m_DegenStickDrawObj_vec[i].m_Type = DrawObj::VSP_LINE_STRIP;
+    //        }
+
+    //        draw_obj_vec.push_back( &m_DegenStickDrawObj_vec[i] );
+    //    }
+    //}
+
+    if ( m_GuiDraw.GetDispSubSurfFlag() && m_GuiDraw.GetDisplayType() != GeomGuiDraw::DISPLAY_BEZIER )
     {
-        for ( int i = 0 ; i < ( int )m_SubSurfVec.size() ; i++ )
+        for ( int i = 0; i < m_DegenSubSurfDrawObj_vec.size(); i++ )
         {
-            m_SubSurfVec[i]->LoadDrawObjs( draw_obj_vec );
+            m_DegenSubSurfDrawObj_vec[i].m_GeomID = m_ID + "Degen_SubSurf_" + std::to_string( i );
+            m_DegenSubSurfDrawObj_vec[i].m_Visible = !m_GuiDraw.GetNoShowFlag();
+
+            // Set Render Destination to Main VSP Window.
+            m_DegenSubSurfDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+
+            m_DegenSubSurfDrawObj_vec[i].m_LineWidth = 2.0;
+            m_DegenSubSurfDrawObj_vec[i].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
+
+            m_DegenSubSurfDrawObj_vec[i].m_Type = DrawObj::VSP_LINE_STRIP;
+
+            draw_obj_vec.push_back( &m_DegenSubSurfDrawObj_vec[i] );
         }
     }
 }
@@ -3773,7 +4019,7 @@ void GeomXSec::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     Geom::LoadDrawObjs( draw_obj_vec );
 
 
-    if ( m_Vehicle->IsGeomActive( m_ID ) )
+    if ( m_Vehicle->IsGeomActive( m_ID ) && m_GuiDraw.GetDisplayType() == GeomGuiDraw::DISPLAY_BEZIER )
     {
         char str[256];
 
