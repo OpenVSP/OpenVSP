@@ -595,6 +595,8 @@ public:
 
     virtual void OffsetXSecs( double off )          {}
 
+    virtual void UpdateDegenDrawObj();
+
 protected:
 
     bool m_UpdateBlock;
@@ -623,6 +625,11 @@ protected:
     vector<DrawObj> m_FeatureDrawObj_vec;
     DrawObj m_HighlightDrawObj;
     vector<DrawObj> m_AxisDrawObj_vec;
+    vector<DrawObj> m_DegenPlateDrawObj_vec;
+    vector<DrawObj> m_DegenSurfDrawObj_vec;
+    vector<DrawObj> m_DegenCamberPlateDrawObj_vec;
+    //vector<DrawObj> m_DegenStickDrawObj_vec;
+    vector<DrawObj> m_DegenSubSurfDrawObj_vec;
 
     BndBox m_BBox;
 

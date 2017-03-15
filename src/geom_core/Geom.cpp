@@ -962,6 +962,7 @@ void Geom::Update( bool fullupdate )
     if ( fullupdate )
     {
         UpdateDrawObj();
+        UpdateDegenDrawObj();
     }
 
     m_UpdatedParmVec.clear();
@@ -1969,7 +1970,292 @@ void Geom::UpdateDrawObj()
         m_AxisDrawObj_vec[i].m_LineColor = c;
         m_AxisDrawObj_vec[i].m_GeomChanged = true;
     }
+}
 
+void Geom::UpdateDegenDrawObj()
+{
+    //=== DegenGeom ===// 
+    vector< DegenGeom > DegenGeomVec; // Vector of geom in degenerate representation
+    CreateDegenGeom( DegenGeomVec );
+
+    m_DegenSurfDrawObj_vec.clear();
+    m_DegenPlateDrawObj_vec.clear();
+    m_DegenCamberPlateDrawObj_vec.clear();
+    //m_DegenStickDrawObj_vec.clear();
+    m_DegenSubSurfDrawObj_vec.clear();
+
+    for ( int i = 0; i < (int)m_SurfVec.size(); i++ )
+    {
+        //=== Degen Surface ===//
+        DegenSurface degen_surf = DegenGeomVec[i].getDegenSurf();
+
+        DrawObj degen_surf_draw_obj;
+        degen_surf_draw_obj.m_GeomChanged = true;
+
+        for ( int j = 0; j < degen_surf.x.size() - 1; j++ )
+        {
+            for ( int k = 0; k < degen_surf.x[j].size() - 1; k++ )
+            {
+                // Define Quads
+                vec3d corner1, corner2, corner3, corner4;
+
+                corner1 = degen_surf.x[j][k];
+                corner2 = degen_surf.x[j + 1][k];
+                corner3 = degen_surf.x[j + 1][k + 1];
+                corner4 = degen_surf.x[j][k + 1];
+
+                degen_surf_draw_obj.m_PntVec.push_back( corner1 );
+                degen_surf_draw_obj.m_PntVec.push_back( corner2 );
+                degen_surf_draw_obj.m_PntVec.push_back( corner3 );
+                degen_surf_draw_obj.m_PntVec.push_back( corner4 );
+
+                // Set Normal Vector
+                for ( int m = 0; m < 4; m++ )
+                {
+                    degen_surf_draw_obj.m_NormVec.push_back( degen_surf.nvec[j][k] );
+                }
+            }
+        }
+
+        if ( m_SurfVec[i].GetFlipNormal() )
+        {
+            degen_surf_draw_obj.m_FlipNormals = true;
+        }
+
+        m_DegenSurfDrawObj_vec.push_back( degen_surf_draw_obj );
+
+        //=== Degen Plate and Cambered Plate ===//
+        vector < DegenPlate > degen_plate_vec = DegenGeomVec[i].getDegenPlates();
+
+        for ( int j = 0; j < degen_plate_vec.size(); j++ )
+        {
+            DrawObj degen_plate_draw_obj;
+            DrawObj degen_camber_plate_draw_obj;
+
+            degen_plate_draw_obj.m_GeomChanged = true;
+            degen_camber_plate_draw_obj.m_GeomChanged = true;
+
+            for ( int k = 0; k < degen_plate_vec[j].x.size() - 1; k++ )
+            {
+                for ( int n = 0; n < degen_plate_vec[j].x[k].size() - 1; n++ )
+                {
+                    // Define Plate Quads
+                    vec3d corner1, corner2, corner3, corner4;
+
+                    corner1 = degen_plate_vec[j].x[k][n];
+                    corner2 = degen_plate_vec[j].x[k][n + 1];
+                    corner3 = degen_plate_vec[j].x[k + 1][n + 1];
+                    corner4 = degen_plate_vec[j].x[k + 1][n];
+
+                    degen_plate_draw_obj.m_PntVec.push_back( corner1 );
+                    degen_plate_draw_obj.m_PntVec.push_back( corner2 );
+                    degen_plate_draw_obj.m_PntVec.push_back( corner3 );
+                    degen_plate_draw_obj.m_PntVec.push_back( corner4 );
+
+                    vec3d norm = degen_plate_vec[j].nPlate[k];
+
+                    if ( norm.mag() == 0.0 ) // Handle collapsed normal vectors for shading 
+                    {
+                        vec3d cross1 = corner3 - corner1;
+                        vec3d cross2 = corner4 - corner2;
+                        norm = cross( cross1, cross2 );
+                        norm.normalize();
+                    }
+
+                    // Set Normal Vectors
+                    for ( int m = 0; m < 4; m++ )
+                    {
+                        degen_plate_draw_obj.m_NormVec.push_back( norm );
+                        degen_camber_plate_draw_obj.m_NormVec.push_back( norm );
+                    }
+
+                    // Define Cambered Plate Quads
+                    vec3d camber_corner1, camber_corner2, camber_corner3, camber_corner4;
+
+                    camber_corner1 = corner1 + ( degen_plate_vec[j].zcamber[k][n] * norm );
+                    camber_corner2 = corner2 + ( degen_plate_vec[j].zcamber[k][n + 1] * norm );
+                    camber_corner3 = corner3 + ( degen_plate_vec[j].zcamber[k + 1][n + 1] * norm );
+                    camber_corner4 = corner4 + ( degen_plate_vec[j].zcamber[k + 1][n] * norm );
+
+                    degen_camber_plate_draw_obj.m_PntVec.push_back( camber_corner1 );
+                    degen_camber_plate_draw_obj.m_PntVec.push_back( camber_corner2 );
+                    degen_camber_plate_draw_obj.m_PntVec.push_back( camber_corner3 );
+                    degen_camber_plate_draw_obj.m_PntVec.push_back( camber_corner4 );
+                }
+            }
+
+            if ( m_SurfVec[i].GetFlipNormal() )
+            {
+                degen_plate_draw_obj.m_FlipNormals = true;
+                degen_camber_plate_draw_obj.m_FlipNormals = true;
+            }
+
+            m_DegenPlateDrawObj_vec.push_back( degen_plate_draw_obj );
+            m_DegenCamberPlateDrawObj_vec.push_back( degen_camber_plate_draw_obj );
+        }
+
+        //=== Degen SubSurface ===//
+        vector < DegenSubSurf > degen_subsurf_vec = DegenGeomVec[i].getDegenSubSurfs();
+
+        for ( int j = 0; j < degen_subsurf_vec.size(); j++ )
+        {
+            DrawObj degen_subsurface_draw_obj;
+            degen_subsurface_draw_obj.m_GeomChanged = true;
+
+            for ( int k = 0; k < degen_subsurf_vec[j].u.size(); k++ )
+            {
+                vec2d uw_index_low, uw_index_high, uw_value_low, uw_value_high, uw_degen_subsurf;
+
+                // Check for u or w values outside of the min amd max u and w for the DegenSurface
+                if ( degen_subsurf_vec[j].u[k] < degen_surf.u[0][0] )
+                {
+                    uw_degen_subsurf.set_x( degen_surf.u[0][0] );
+                }
+                else if ( degen_subsurf_vec[j].u[k] > degen_surf.u[degen_surf.u.size() - 1][0] )
+                {
+                    uw_degen_subsurf.set_x( degen_surf.u[degen_surf.u.size() - 1][0] );
+                }
+                else
+                {
+                    uw_degen_subsurf.set_x( degen_subsurf_vec[j].u[k] );
+                }
+
+                if ( degen_subsurf_vec[j].w[k] < degen_surf.w[0][0] )
+                {
+                    uw_degen_subsurf.set_y( degen_surf.w[0][0] );
+                }
+                else if ( degen_subsurf_vec[j].w[k] > degen_surf.w[0][degen_surf.w[0].size() - 1] )
+                {
+                    uw_degen_subsurf.set_y( degen_surf.w[0][degen_surf.w[0].size() - 1] );
+                }
+                else
+                {
+                    uw_degen_subsurf.set_y( degen_subsurf_vec[j].w[k] );
+                }
+
+                // Find the uw indexes and values next to the DegenSubsurface uw value
+                for ( int m = 1; m < degen_surf.u.size(); m++ )
+                {
+                    if ( ( degen_surf.u[m][0] >= uw_degen_subsurf.x() ) && ( degen_surf.u[m - 1][0] <= uw_degen_subsurf.x() ) )
+                    {
+                        uw_index_low.set_x( m - 1 );
+                        uw_index_high.set_x( m );
+                        uw_value_low.set_x( degen_surf.u[m - 1][0] );
+                        uw_value_high.set_x( degen_surf.u[m][0] );
+
+                        for ( int m = 1; m < degen_surf.w[0].size(); m++ )
+                        {
+                            if ( ( degen_surf.w[0][m] >= uw_degen_subsurf.y() ) && ( degen_surf.w[0][m - 1] <= uw_degen_subsurf.y() ) )
+                            {
+                                uw_index_low.set_y( m - 1 );
+                                uw_index_high.set_y( m );
+                                uw_value_low.set_y( degen_surf.w[0][m - 1] );
+                                uw_value_high.set_y( degen_surf.w[0][m] );
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
+
+                // Linear Interpolation of DegenSurface uw indexes and values to DgenSubsurface uw index
+                vec2d degen_subsurf_index;
+                degen_subsurf_index.set_x( uw_index_low.x() + ( ( uw_index_high.x() - uw_index_low.x() ) * ( ( uw_degen_subsurf.x() - uw_value_low.x() ) / ( uw_value_high.x() - uw_value_low.x() ) ) ) );
+                degen_subsurf_index.set_y( uw_index_low.y() + ( ( uw_index_high.y() - uw_index_low.y() ) * ( ( uw_degen_subsurf.y() - uw_value_low.y() ) / ( uw_value_high.y() - uw_value_low.y() ) ) ) );
+
+                // Bilinear Interpolation of uw indexes to vec3d coordinates
+                vec3d uw_pnt_low_low = degen_surf.x[(int)uw_index_low.x()][(int)uw_index_low.y()];
+                vec3d uw_pnt_low_high = degen_surf.x[(int)uw_index_low.x()][(int)uw_index_high.y()];
+                vec3d uw_pnt_high_high = degen_surf.x[(int)uw_index_high.x()][(int)uw_index_high.y()];
+                vec3d uw_pnt_high_low = degen_surf.x[(int)uw_index_high.x()][(int)uw_index_low.y()];
+
+                // Horizontal interpolation
+                vec3d uw_mid_low = uw_pnt_low_low + ( ( degen_subsurf_index.x() - uw_index_low.x() ) * ( uw_pnt_high_low - uw_pnt_low_low ) );
+                vec3d uw_mid_high = uw_pnt_low_high + ( ( degen_subsurf_index.x() - uw_index_low.x() ) * ( uw_pnt_high_high - uw_pnt_low_high ) );
+
+                // Vertical interpolation
+                vec3d degen_subsurf_pnt = uw_mid_low + ( ( degen_subsurf_index.y() - uw_index_low.y() ) * ( uw_mid_high - uw_mid_low ) );
+
+                degen_subsurface_draw_obj.m_PntVec.push_back( degen_subsurf_pnt );
+            }
+
+            m_DegenSubSurfDrawObj_vec.push_back( degen_subsurface_draw_obj );
+
+
+            //if ( degen_subsurf_vec[j].u.size() == degen_subsurf_vec[j].w.size() )
+            //{
+            //    if ( degen_subsurf_vec[j].u.size() < 8 ) // Break up subsurface into line segments if not enough drawing points
+            //    {
+            //        int num_pts = 100; // default number of segments to create
+
+            //        for ( int k = 0; k < degen_subsurf_vec[j].u.size() - 1; k++ )
+            //        {
+            //            vec3d point1 = { degen_subsurf_vec[j].u[k], degen_subsurf_vec[j].w[k], 0.0 };
+            //            vec3d point2 = { degen_subsurf_vec[j].u[k + 1], degen_subsurf_vec[j].w[k + 1], 0.0 };
+            //            vec3d line = point2 - point1;
+
+            //            vec3d test_compare1 = m_SurfVec[i].CompPnt( point1.x(), point1.y() );
+            //            vec3d test_compare2 = m_SurfVec[i].CompPnt( point2.x(), point2.y() );
+
+            //            for ( int n = 0; n <= num_pts; n++ )
+            //            {
+            //                vec3d uw = ( point1 + line * ( (double)n / num_pts ) );
+
+            //                vec3d test_compare3 = m_SurfVec[i].CompPnt( uw.x(), uw.y() );
+
+            //                //degen_subsurface_draw_obj.m_PntVec.push_back( m_SurfVec[i].CompPnt( uw.x(), uw.y() ) );
+            //            }
+            //        }
+            //    }
+            //    else
+            //    {
+            //        for ( int k = 0; k < degen_subsurf_vec[j].u.size(); k++ )
+            //        {
+            //            //degen_subsurface_draw_obj.m_PntVec.push_back( m_SurfVec[i].CompPnt( degen_subsurf_vec[j].u[k], degen_subsurf_vec[j].w[k] ) );
+            //        }
+            //    }
+            //    //m_DegenSubSurfDrawObj_vec.push_back( degen_subsurface_draw_obj );
+            //}
+        }
+
+        // TODO: Add support for DegenDisks?
+
+        //=== Degen Disk ===//
+        //DegenDisk degen_disk = DegenGeomVec[i].getDegenDisk();
+
+        ////=== Degen Stick ===//
+        //vector < DegenStick > degen_stick_vec = DegenGeomVec[i].getDegenSticks();
+
+        //for ( int j = 0; j < degen_stick_vec.size(); j++ )
+        //{
+        //    // Leading Edge
+        //    DrawObj degen_stick_le_draw_obj;
+        //    degen_stick_le_draw_obj.m_GeomChanged = true;
+
+        //    for ( int k = 0; k < degen_stick_vec[j].xle.size(); k++ )
+        //    {
+        //        degen_stick_le_draw_obj.m_PntVec.push_back( degen_stick_vec[j].xle[k] );
+        //    }
+
+        //    // Trailing Edge
+        //    DrawObj degen_stick_te_draw_obj;
+        //    degen_stick_te_draw_obj.m_GeomChanged = true;
+
+        //    for ( int k = 0; k < degen_stick_vec[j].xte.size(); k++ )
+        //    {
+        //        degen_stick_te_draw_obj.m_PntVec.push_back( degen_stick_vec[j].xte[k] );
+        //    }
+
+        //    if ( m_SurfVec[i].GetFlipNormal() )
+        //    {
+        //        degen_stick_le_draw_obj.m_FlipNormals = true;
+        //        degen_stick_te_draw_obj.m_FlipNormals = true;
+        //    }
+
+        //    m_DegenStickDrawObj_vec.push_back( degen_stick_le_draw_obj );
+        //    m_DegenStickDrawObj_vec.push_back( degen_stick_te_draw_obj );
+        //}
+    }
 }
 
 //==== Encode Data Into XML Data Struct ====//
