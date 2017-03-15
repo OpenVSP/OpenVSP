@@ -558,6 +558,94 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
             }
             break;
 
+        case DrawObj::VSP_HIDDEN_QUADS:
+            if( id == 0xFFFFFFFF )
+            {
+                m_GEngine->getScene()->createObject( Common::VSP_OBJECT_ENTITY, &id );
+
+                ID idInfo;
+                idInfo.bufferID = id;
+                idInfo.geomID = objects[i]->m_GeomID;
+                m_ids.push_back( idInfo );
+            }
+            eObj = dynamic_cast<VSPGraphic::Entity*> ( m_GEngine->getScene()->getObject( id ) );
+            if( eObj )
+            {
+                eObj->setVisibility( objects[i]->m_Visible );
+                eObj->setPrimType( Common::VSP_QUADS );
+                eObj->setRenderStyle( Common::VSP_DRAW_WIRE_FRAME_SOLID );
+                eObj->setLineColor( red, green, blue );
+                eObj->setLineWidth( lineWidth );
+
+                eObj->setMaterial( objects[i]->m_MaterialInfo.Ambient, objects[i]->m_MaterialInfo.Diffuse,
+                    objects[i]->m_MaterialInfo.Specular, objects[i]->m_MaterialInfo.Emission,
+                    objects[i]->m_MaterialInfo.Shininess );
+
+                if( objects[i]->m_GeomChanged )
+                {
+                    _loadQuadsData( eObj, objects[i] );
+                }
+            }
+            break;
+
+        case DrawObj::VSP_SHADED_QUADS:
+            if ( id == 0xFFFFFFFF )
+            {
+                m_GEngine->getScene()->createObject( Common::VSP_OBJECT_ENTITY, &id );
+
+                ID idInfo;
+                idInfo.bufferID = id;
+                idInfo.geomID = objects[i]->m_GeomID;
+                m_ids.push_back( idInfo );
+            }
+            eObj = dynamic_cast<VSPGraphic::Entity*> ( m_GEngine->getScene()->getObject( id ) );
+            if ( eObj )
+            {
+                eObj->setVisibility( objects[i]->m_Visible );
+                eObj->setPrimType( Common::VSP_QUADS );
+                eObj->setRenderStyle( Common::VSP_DRAW_MESH_SHADED );
+
+                eObj->setMaterial( objects[i]->m_MaterialInfo.Ambient, objects[i]->m_MaterialInfo.Diffuse,
+                                   objects[i]->m_MaterialInfo.Specular, objects[i]->m_MaterialInfo.Emission,
+                                   objects[i]->m_MaterialInfo.Shininess );
+
+                if ( objects[i]->m_GeomChanged )
+                {
+                    _loadQuadsData( eObj, objects[i] );
+                }
+            }
+            break;
+
+        case DrawObj::VSP_WIRE_QUADS:
+            if ( id == 0xFFFFFFFF )
+            {
+                m_GEngine->getScene()->createObject( Common::VSP_OBJECT_ENTITY, &id );
+
+                ID idInfo;
+                idInfo.bufferID = id;
+                idInfo.geomID = objects[i]->m_GeomID;
+                m_ids.push_back( idInfo );
+            }
+            eObj = dynamic_cast<VSPGraphic::Entity*> ( m_GEngine->getScene()->getObject( id ) );
+            if ( eObj )
+            {
+                eObj->setVisibility( objects[i]->m_Visible );
+                eObj->setPrimType( Common::VSP_QUADS );
+                eObj->setRenderStyle( Common::VSP_DRAW_WIRE_FRAME );
+                eObj->setLineColor( red, green, blue );
+                eObj->setLineWidth( lineWidth );
+
+                eObj->setMaterial( objects[i]->m_MaterialInfo.Ambient, objects[i]->m_MaterialInfo.Diffuse,
+                                   objects[i]->m_MaterialInfo.Specular, objects[i]->m_MaterialInfo.Emission,
+                                   objects[i]->m_MaterialInfo.Shininess );
+
+                if ( objects[i]->m_GeomChanged )
+                {
+                    _loadQuadsData( eObj, objects[i] );
+                }
+            }
+            break;
+
         case DrawObj::VSP_SHADED_MESH:
             if( id == 0xFFFFFFFF )
             {

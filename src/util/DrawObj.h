@@ -56,6 +56,9 @@ public:
     * VSP_PICK_GEOM - This type drawObj enables geometry picking.
     * VSP_PICK_LOCATION - This type drawObj enables location picking.
     * VSP_CLIP - Add clipping plane.
+    * VSP_HIDDEN_QUADS - Render Quads to solid wire frame.
+    * VSP_SHADED_QUADS - Render Quads to mesh with lighting.
+    * VSP_WIRE_QUADS - Render Quads to wire frame.
     */
 
     vec3d ColorWheel( double angle ); // Returns rgb for an angle given in degrees
@@ -80,6 +83,8 @@ public:
         VSP_PICK_GEOM,
         VSP_PICK_LOCATION,
         VSP_CLIP,
+        VSP_SHADED_QUADS,
+        VSP_WIRE_QUADS,
     };
 
     /*
