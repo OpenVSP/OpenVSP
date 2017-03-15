@@ -111,6 +111,8 @@ protected:
     TriggerButton m_ShowOnlyButton;
     TriggerButton m_NoShowButton;
 
+    Choice m_DisplayChoice;
+
     TriggerButton m_WireGeomButton;
     TriggerButton m_HiddenGeomButton;
     TriggerButton m_ShadeGeomButton;
@@ -144,6 +146,7 @@ protected:
     void LoadActiveGeomOutput();
     void LoadSetChoice();
     void LoadTypeChoice();
+    void LoadDisplayChoice();
     void UpdateDrawType();
     void GeomBrowserCallback();
     void SelectGeomBrowser( string geom_id );
@@ -151,6 +154,7 @@ protected:
     void NoShowActiveGeoms( bool flag );
     void SelectAll();
     void SelectSet( int set );
+    void SetGeomDisplayChoice( int type );
     void SetGeomDisplayType( int type );
     void EditName( string name );
     void SetSubDrawFlag( bool f );
