@@ -124,6 +124,19 @@ public:
     };
     virtual ~DegenGeom() {};
 
+    DegenSurface getDegenSurf()
+    {
+        return degenSurface;
+    }
+    vector < DegenPlate > getDegenPlates()
+    {
+        return degenPlates;
+    }
+    vector < DegenSubSurf > getDegenSubSurfs()
+    {
+        return degenSubSurfs;
+    }
+
     DegenPoint   getDegenPoint()
     {
         return degenPoint;
