@@ -960,91 +960,103 @@ void FeaSpar::ComputePlanarSurf()
 
     if ( veh )
     {
-        for ( unsigned int i = 0; i < m_SymmIndexVec.size(); i++ )
+        Geom* current_wing = veh->FindGeom( m_ParentGeomID );
+
+        if ( !current_wing )
         {
-            m_FeaPartSurfVec[i] = VspSurf();
-            m_FeaPartSurfVec[i].SetSurfCfdType( vsp::CFD_STRUCTURE );
+            return;
+        }
 
-            Geom* current_wing = veh->FindGeom( m_ParentGeomID );
+        m_FeaPartSurfVec[0] = VspSurf();
+        m_FeaPartSurfVec[0].SetSurfCfdType( vsp::CFD_STRUCTURE );
 
-            if ( !current_wing )
-            {
-                return;
-            }
+        vector< VspSurf > surf_vec;
+        current_wing->GetSurfVec( surf_vec );
+        VspSurf wing_surf = surf_vec[m_MainSurfIndx()];
 
-            vector< VspSurf > surf_vec;
-            current_wing->GetSurfVec( surf_vec );
-            VspSurf wing_surf = surf_vec[m_SymmIndexVec[i]];
+        BndBox wing_bbox;
+        wing_surf.GetBoundingBox( wing_bbox );
 
-            BndBox wing_bbox;
-            wing_surf.GetBoundingBox( wing_bbox );
+        VspCurve constant_v_curve;
+        wing_surf.GetW01ConstCurve( constant_v_curve, m_PerV() );
 
-            VspCurve constant_v_curve;
-            wing_surf.GetW01ConstCurve( constant_v_curve, m_PerV() );
+        piecewise_curve_type v_curve = constant_v_curve.GetCurve();
 
-            piecewise_curve_type v_curve = constant_v_curve.GetCurve();
+        double u_min = v_curve.get_parameter_min();
+        double u_max = v_curve.get_parameter_max();
 
-            double u_min = v_curve.get_parameter_min();
-            double u_max = v_curve.get_parameter_max();
+        vec3d inside_edge, outside_edge;
+        inside_edge = v_curve.f( u_min );
+        outside_edge = v_curve.f( u_max );
 
-            vec3d inside_edge, outside_edge;
-            inside_edge = v_curve.f( u_min );
-            outside_edge = v_curve.f( u_max );
+        VspCurve constant_u_curve;
+        wing_surf.GetU01ConstCurve( constant_u_curve, 0.5 );
 
-            VspCurve constant_u_curve;
-            wing_surf.GetU01ConstCurve( constant_u_curve, 0.5 );
+        piecewise_curve_type u_curve = constant_u_curve.GetCurve();
 
-            piecewise_curve_type u_curve = constant_u_curve.GetCurve();
+        double v_min = u_curve.get_parameter_min(); // Really must be 0.0
+        double v_max = u_curve.get_parameter_max(); // Really should be 4.0
 
-            double v_min = u_curve.get_parameter_min(); // Really must be 0.0
-            double v_max = u_curve.get_parameter_max(); // Really should be 4.0
+        // Find two points slightly above and below the trailing edge
+        double v_trail_edge_low = v_min + 2 * TMAGIC;
+        double v_trail_edge_up = v_max - 2 * TMAGIC;
 
-            // Find two points slightly above and below the trailing edge
-            double v_trail_edge_low = v_min + 2 * TMAGIC;
-            double v_trail_edge_up = v_max - 2 * TMAGIC;
+        vec3d trail_edge_up, trail_edge_low;
+        trail_edge_up = u_curve.f( v_trail_edge_low );
+        trail_edge_low = u_curve.f( v_trail_edge_up );
 
-            vec3d trail_edge_up, trail_edge_low;
-            trail_edge_up = u_curve.f( v_trail_edge_low );
-            trail_edge_low = u_curve.f( v_trail_edge_up );
+        vec3d z_axis = trail_edge_up - trail_edge_low;
+        z_axis.normalize();
 
-            vec3d z_axis = trail_edge_up - trail_edge_low;
-            z_axis.normalize();
+        // Identify corners of the plane and rotation axis
+        vec3d cornerA, cornerB, cornerC, cornerD;
 
-            // Identify corners of the plane and rotation axis
-            vec3d cornerA, cornerB, cornerC, cornerD;
+        double height = 0.5 * wing_bbox.GetSmallestDist();
 
-            double height = 0.5 * wing_bbox.GetSmallestDist();
+        cornerA = inside_edge + ( height * z_axis );
+        cornerB = inside_edge - ( height * z_axis );
+        cornerC = outside_edge + ( height * z_axis );
+        cornerD = outside_edge - ( height * z_axis );
 
-            cornerA = inside_edge + ( height * z_axis );
-            cornerB = inside_edge - ( height * z_axis );
-            cornerC = outside_edge + ( height * z_axis );
-            cornerD = outside_edge - ( height * z_axis );
+        // Make Planar Surface
+        m_FeaPartSurfVec[0].MakePlaneSurf( cornerA, cornerB, cornerC, cornerD );
 
-            // Make Planar Surface
-            m_FeaPartSurfVec[i].MakePlaneSurf( cornerA, cornerB, cornerC, cornerD );
+        if ( m_FeaPartSurfVec[0].GetFlipNormal() != wing_surf.GetFlipNormal() )
+        {
+            z_axis = -1 * z_axis;
+            m_FeaPartSurfVec[0].FlipNormal();
+        }
 
-            if ( m_FeaPartSurfVec[i].GetFlipNormal() != wing_surf.GetFlipNormal() )
-            {
-                z_axis = -1 * z_axis;
-                m_FeaPartSurfVec[i].FlipNormal();
-            }
+        vec3d center = ( trail_edge_up + trail_edge_low ) / 2;
 
-            vec3d center = ( trail_edge_up + trail_edge_low ) / 2;
+        // Translate to the origin, rotate, and translate back to m_CenterPerBBoxLocation
+        Matrix4d trans_mat_1, trans_mat_2, rot_mat;
 
-            // Translate to the origin, rotate, and translate back to m_CenterPerBBoxLocation
-            Matrix4d trans_mat_1, trans_mat_2, rot_mat;
+        trans_mat_1.loadIdentity();
+        trans_mat_1.translatef( center.x() * -1, center.y() * -1, center.z() * -1 );
+        m_FeaPartSurfVec[0].Transform( trans_mat_1 );
 
-            trans_mat_1.loadIdentity();
-            trans_mat_1.translatef( center.x() * -1, center.y() * -1, center.z() * -1 );
-            m_FeaPartSurfVec[i].Transform( trans_mat_1 );
+        rot_mat.loadIdentity();
+        rot_mat.rotate( DEG_2_RAD * m_Theta(), z_axis );
+        m_FeaPartSurfVec[0].Transform( rot_mat );
 
-            rot_mat.loadIdentity();
-            rot_mat.rotate( DEG_2_RAD * m_Theta(), z_axis );
-            m_FeaPartSurfVec[i].Transform( rot_mat );
+        trans_mat_2.loadIdentity();
+        trans_mat_2.translatef( center.x(), center.y(), center.z() );
+        m_FeaPartSurfVec[0].Transform( trans_mat_2 );
 
-            trans_mat_2.loadIdentity();
-            trans_mat_2.translatef( center.x(), center.y(), center.z() );
-            m_FeaPartSurfVec[i].Transform( trans_mat_2 );
+        // Using the primary m_FeaPartSurfVec (index 0) as a reference, calculate and transform the symmetric copies
+        for ( unsigned int j = 1; j < m_SymmIndexVec.size(); j++ )
+        {
+            m_FeaPartSurfVec[j] = m_FeaPartSurfVec[j - 1];
+        }
+
+        // Compute Symmetric Translation Matrix
+        vector<Matrix4d> transMats = CalculateSymmetricTransform();
+
+        //==== Apply Transformations ====//
+        for ( int i = 1; i < m_SymmIndexVec.size(); i++ )
+        {
+            m_FeaPartSurfVec[i].Transform( transMats[i] ); // Apply total transformation to main FeaPart surface
         }
     }
 }
@@ -1084,115 +1096,127 @@ void FeaRib::ComputePlanarSurf()
 
     if ( veh )
     {
-        for ( unsigned int i = 0; i < m_SymmIndexVec.size(); i++ )
+        Geom* current_wing = veh->FindGeom( m_ParentGeomID );
+
+        if ( !current_wing )
         {
-            m_FeaPartSurfVec[i] = VspSurf();
-            m_FeaPartSurfVec[i].SetSurfCfdType( vsp::CFD_STRUCTURE );
+            return;
+        }
 
-            Geom* current_wing = veh->FindGeom( m_ParentGeomID );
+        m_FeaPartSurfVec[0] = VspSurf();
+        m_FeaPartSurfVec[0].SetSurfCfdType( vsp::CFD_STRUCTURE );
 
-            if ( !current_wing )
-            {
-                return;
-            }
+        vector< VspSurf > surf_vec;
+        current_wing->GetSurfVec( surf_vec );
+        VspSurf wing_surf = surf_vec[m_MainSurfIndx()];
 
-            vector< VspSurf > surf_vec;
-            current_wing->GetSurfVec( surf_vec );
-            VspSurf wing_surf = surf_vec[m_SymmIndexVec[i]];
+        BndBox wing_bbox;
+        wing_surf.GetBoundingBox( wing_bbox );
 
-            BndBox wing_bbox;
-            wing_surf.GetBoundingBox( wing_bbox );
+        VspCurve constant_u_curve;
+        wing_surf.GetU01ConstCurve( constant_u_curve, m_PerU() );
 
-            VspCurve constant_u_curve;
-            wing_surf.GetU01ConstCurve( constant_u_curve, m_PerU() );
+        piecewise_curve_type u_curve = constant_u_curve.GetCurve();
 
-            piecewise_curve_type u_curve = constant_u_curve.GetCurve();
+        double v_min = u_curve.get_parameter_min(); // Really must be 0.0
+        double v_max = u_curve.get_parameter_max(); // Really should be 4.0
 
-            double v_min = u_curve.get_parameter_min(); // Really must be 0.0
-            double v_max = u_curve.get_parameter_max(); // Really should be 4.0
+        double v_leading_edge = ( v_min + v_max ) * 0.5;
 
-            double v_leading_edge = ( v_min + v_max ) * 0.5;
+        vec3d trail_edge, lead_edge;
+        trail_edge = u_curve.f( v_min );
+        lead_edge = u_curve.f( v_leading_edge );
 
-            vec3d trail_edge, lead_edge;
-            trail_edge = u_curve.f( v_min );
-            lead_edge = u_curve.f( v_leading_edge );
+        // Find two points slightly above and below the trailing edge
+        double v_trail_edge_low = v_min + 2 * TMAGIC;
+        double v_trail_edge_up = v_max - 2 * TMAGIC;
 
-            // Find two points slightly above and below the trailing edge
-            double v_trail_edge_low = v_min + 2 * TMAGIC;
-            double v_trail_edge_up = v_max - 2 * TMAGIC;
+        vec3d trail_edge_up, trail_edge_low;
+        trail_edge_up = u_curve.f( v_trail_edge_low );
+        trail_edge_low = u_curve.f( v_trail_edge_up );
 
-            vec3d trail_edge_up, trail_edge_low;
-            trail_edge_up = u_curve.f( v_trail_edge_low );
-            trail_edge_low = u_curve.f( v_trail_edge_up );
+        vec3d z_axis = trail_edge_up - trail_edge_low;
+        z_axis.normalize();
 
-            vec3d z_axis = trail_edge_up - trail_edge_low;
-            z_axis.normalize();
+        vec3d chord_dir_vec = trail_edge - lead_edge;
+        chord_dir_vec.normalize();
 
-            vec3d chord_dir_vec = trail_edge - lead_edge;
-            chord_dir_vec.normalize();
+        // Identify corners of the plane and rotation axis
+        vec3d cornerA, cornerB, cornerC, cornerD;
 
-            // Identify corners of the plane and rotation axis
-            vec3d cornerA, cornerB, cornerC, cornerD;
+        double height = 0.5 * wing_bbox.GetSmallestDist();
 
-            double height = 0.5 * wing_bbox.GetSmallestDist();
+        cornerA = trail_edge + ( height * z_axis );
+        cornerB = trail_edge - ( height * z_axis );
+        cornerC = lead_edge + ( height * z_axis );
+        cornerD = lead_edge - ( height * z_axis );
 
-            cornerA = trail_edge + ( height * z_axis );
-            cornerB = trail_edge - ( height * z_axis );
-            cornerC = lead_edge + ( height * z_axis );
-            cornerD = lead_edge - ( height * z_axis );
+        // Make Planar Surface
+        m_FeaPartSurfVec[0].MakePlaneSurf( cornerA, cornerB, cornerC, cornerD );
 
-            // Make Planar Surface
-            m_FeaPartSurfVec[i].MakePlaneSurf( cornerA, cornerB, cornerC, cornerD );
+        if ( m_FeaPartSurfVec[0].GetFlipNormal() != wing_surf.GetFlipNormal() )
+        {
+            z_axis = -1 * z_axis;
+            m_FeaPartSurfVec[0].FlipNormal();
+        }
 
-            if ( m_FeaPartSurfVec[i].GetFlipNormal() != wing_surf.GetFlipNormal() )
-            {
-                z_axis = -1 * z_axis;
-                m_FeaPartSurfVec[i].FlipNormal();
-            }
+        vec3d center = ( trail_edge + lead_edge ) / 2;
 
-            vec3d center = ( trail_edge + lead_edge ) / 2;
+        double alpha = 0.0;
+        double u_edge_out = m_PerU() + 2 * FLT_EPSILON;
+        double u_edge_in = m_PerU() - 2 * FLT_EPSILON;
 
-            double alpha = 0.0;
-            double u_edge_out = m_PerU() + 2 * FLT_EPSILON;
-            double u_edge_in = m_PerU() - 2 * FLT_EPSILON;
+        if ( m_PerpendicularEdgeFlag() == PERPENDICULAR_TRAIL_EDGE )
+        {
+            vec3d trail_edge_out, trail_edge_in;
+            trail_edge_out = wing_surf.CompPnt01( u_edge_out, v_min );
+            trail_edge_in = wing_surf.CompPnt01( u_edge_in, v_min );
 
-            if ( m_PerpendicularEdgeFlag() == PERPENDICULAR_TRAIL_EDGE )
-            {
-                vec3d trail_edge_out, trail_edge_in;
-                trail_edge_out = wing_surf.CompPnt01( u_edge_out, v_min );
-                trail_edge_in = wing_surf.CompPnt01( u_edge_in, v_min );
+            vec3d lead_edge_dir_vec = trail_edge_out - trail_edge_in;
+            lead_edge_dir_vec.normalize();
 
-                vec3d lead_edge_dir_vec = trail_edge_out - trail_edge_in;
-                lead_edge_dir_vec.normalize();
+            alpha = ( PI / 2 ) - acos( dot( lead_edge_dir_vec, chord_dir_vec ) );
+        }
+        else if ( m_PerpendicularEdgeFlag() == PERPENDICULAR_LEAD_EDGE )
+        {
+            vec3d lead_edge_out, lead_edge_in;
+            lead_edge_out = wing_surf.CompPnt01( u_edge_out , v_leading_edge / v_max );
+            lead_edge_in = wing_surf.CompPnt01( u_edge_in, v_leading_edge / v_max );
 
-                alpha = ( PI / 2 ) - acos( dot( lead_edge_dir_vec, chord_dir_vec ) );
-            }
-            else if ( m_PerpendicularEdgeFlag() == PERPENDICULAR_LEAD_EDGE )
-            {
-                vec3d lead_edge_out, lead_edge_in;
-                lead_edge_out = wing_surf.CompPnt01( u_edge_out , v_leading_edge / v_max );
-                lead_edge_in = wing_surf.CompPnt01( u_edge_in, v_leading_edge / v_max );
+            vec3d trail_edge_dir_vec = lead_edge_out - lead_edge_in;
+            trail_edge_dir_vec.normalize();
 
-                vec3d trail_edge_dir_vec = lead_edge_out - lead_edge_in;
-                trail_edge_dir_vec.normalize();
+            alpha = ( PI / 2 ) - acos( dot( trail_edge_dir_vec, chord_dir_vec ) );
+        }
 
-                alpha = ( PI / 2 ) - acos( dot( trail_edge_dir_vec, chord_dir_vec ) );
-            }
+        // Translate to the origin, rotate, and translate back to m_CenterPerBBoxLocation
+        Matrix4d trans_mat_1, trans_mat_2, rot_mat;
 
-            // Translate to the origin, rotate, and translate back to m_CenterPerBBoxLocation
-            Matrix4d trans_mat_1, trans_mat_2, rot_mat;
+        trans_mat_1.loadIdentity();
+        trans_mat_1.translatef( center.x() * -1, center.y() * -1, center.z() * -1 );
+        m_FeaPartSurfVec[0].Transform( trans_mat_1 );
 
-            trans_mat_1.loadIdentity();
-            trans_mat_1.translatef( center.x() * -1, center.y() * -1, center.z() * -1 );
-            m_FeaPartSurfVec[i].Transform( trans_mat_1 );
+        rot_mat.loadIdentity();
+        rot_mat.rotate( DEG_2_RAD * m_Theta() + alpha, z_axis );
+        m_FeaPartSurfVec[0].Transform( rot_mat );
 
-            rot_mat.loadIdentity();
-            rot_mat.rotate( DEG_2_RAD * m_Theta() + alpha, z_axis );
-            m_FeaPartSurfVec[i].Transform( rot_mat );
+        trans_mat_2.loadIdentity();
+        trans_mat_2.translatef( center.x(), center.y(), center.z() );
+        m_FeaPartSurfVec[0].Transform( trans_mat_2 );
 
-            trans_mat_2.loadIdentity();
-            trans_mat_2.translatef( center.x(), center.y(), center.z() );
-            m_FeaPartSurfVec[i].Transform( trans_mat_2 );
+        // Using the primary m_FeaPartSurfVec (index 0) as a reference, calculate and transform the symmetric copies
+        for ( unsigned int j = 1; j < m_SymmIndexVec.size(); j++ )
+        {
+            m_FeaPartSurfVec[j] = m_FeaPartSurfVec[j - 1];
+        }
+
+        // Compute Symmetric Translation Matrix
+        vector<Matrix4d> transMats = CalculateSymmetricTransform();
+
+        //==== Apply Transformations ====//
+        for ( int i = 1; i < m_SymmIndexVec.size(); i++ )
+        {
+            m_FeaPartSurfVec[i].Transform( transMats[i] ); // Apply total transformation to main FeaPart surface
         }
     }
 }
