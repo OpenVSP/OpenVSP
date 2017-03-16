@@ -789,6 +789,7 @@ FeaFullDepth::FeaFullDepth( string geomID, int type ) : FeaPart( geomID, type )
 
 void FeaFullDepth::Update()
 {
+    UpdateSymmetricSurfs();
     ComputePlanarSurf();
 }
 
@@ -799,7 +800,7 @@ void FeaFullDepth::ComputePlanarSurf()
     if ( veh )
     {
         Geom* current_geom = veh->FindGeom( m_ParentGeomID );
-        if ( !current_geom )
+        if ( !current_geom || m_FeaPartSurfVec.size() == 0 )
         {
             return;
         }
@@ -951,6 +952,7 @@ FeaSpar::FeaSpar( string geomID, int type ) : FeaPart( geomID, type )
 
 void FeaSpar::Update()
 {
+    UpdateSymmetricSurfs();
     ComputePlanarSurf();
 }
 
@@ -962,7 +964,7 @@ void FeaSpar::ComputePlanarSurf()
     {
         Geom* current_wing = veh->FindGeom( m_ParentGeomID );
 
-        if ( !current_wing )
+        if ( !current_wing || m_FeaPartSurfVec.size() == 0 )
         {
             return;
         }
@@ -1087,6 +1089,7 @@ FeaRib::FeaRib( string geomID, int type ) : FeaPart( geomID, type )
 
 void FeaRib::Update()
 {
+    UpdateSymmetricSurfs();
     ComputePlanarSurf();
 }
 
@@ -1098,7 +1101,7 @@ void FeaRib::ComputePlanarSurf()
     {
         Geom* current_wing = veh->FindGeom( m_ParentGeomID );
 
-        if ( !current_wing )
+        if ( !current_wing || m_FeaPartSurfVec.size() == 0 )
         {
             return;
         }
@@ -1240,7 +1243,7 @@ FeaFixPoint::FeaFixPoint( string compID, int type ) : FeaPart( compID, type )
 
 void FeaFixPoint::Update()
 {
-
+    UpdateSymmetricSurfs();
 }
 
 void FeaFixPoint::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight )
@@ -1306,6 +1309,7 @@ FeaStiffenerPlane::FeaStiffenerPlane( string geomID, int type ) : FeaPart( geomI
 
 void FeaStiffenerPlane::Update()
 {
+    UpdateSymmetricSurfs();
     ComputePlanarSurf();
 }
 
@@ -1316,7 +1320,7 @@ void FeaStiffenerPlane::ComputePlanarSurf()
     if ( veh )
     {
         Geom* current_geom = veh->FindGeom( m_ParentGeomID );
-        if ( !current_geom )
+        if ( !current_geom || m_FeaPartSurfVec.size() == 0 )
         {
             return;
         }
@@ -1612,6 +1616,7 @@ FeaSkin::FeaSkin( string geomID, int type ) : FeaPart( geomID, type )
 
 void FeaSkin::Update()
 {
+    UpdateSymmetricSurfs();
     BuildSkinSurf();
 }
 
