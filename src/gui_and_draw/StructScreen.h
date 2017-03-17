@@ -46,6 +46,7 @@ public:
     virtual void UpdateFeaPartPropertyIndex( Choice* property_choice );
     virtual void UpdateFeaSubSurfPropertyIndex( Choice* property_choice );
 
+    virtual void OrientWing();
     virtual void OrientStructure( VSPGraphic::Common::VSPenum type );
 
     virtual void Show();
@@ -164,8 +165,7 @@ private:
     // Wing Functions
     SliderAdjRangeInput m_NumEvenlySpacedRibsInput;
     TriggerButton m_AddEvenlySpacedRibsButton;
-    TriggerButton m_OrientWingTopButton;
-    TriggerButton m_OrientWingSideButton;
+    TriggerButton m_OrientWingButton;
 
     // General Functions
     TriggerButton m_OrientFrontButton;

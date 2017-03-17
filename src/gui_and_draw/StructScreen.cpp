@@ -242,13 +242,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 620, "FEA Me
 
     m_StructWingGroup.AddDividerBox( "Orientation" );
 
-    m_StructWingGroup.SetSameLineFlag( true );
-    m_StructWingGroup.SetFitWidthFlag( false );
-
-    m_StructWingGroup.SetButtonWidth( m_StructWingGroup.GetRemainX() / 2 );
-
-    m_StructWingGroup.AddButton( m_OrientWingTopButton, "Top" );
-    m_StructWingGroup.AddButton( m_OrientWingSideButton, "Side" );
+    m_StructWingGroup.AddButton( m_OrientWingButton, "Orient Wing" );
 
     m_StructWingGroup.ForceNewLine();
 
@@ -1309,10 +1303,12 @@ void StructScreen::FeaPartDispGroup( GroupLayout* group )
                 if ( currgeom->GetType().m_Type == MS_WING_GEOM_TYPE )
                 {
                     m_StructWingGroup.Show();
+                    m_StructGeneralGroup.Hide();
                 }
                 else
                 {
                     m_StructGeneralGroup.Show();
+                    m_StructWingGroup.Hide();
                 }
             }
         }
@@ -2087,15 +2083,19 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             }
         }
     }
+    else if ( device == &m_OrientWingButton )
+    {
+        OrientWing();
+    }
     else if ( device == &m_OrientFrontButton )
     {
         OrientStructure( VSPGraphic::Common::VSP_CAM_FRONT );
     }
-    else if ( device == &m_OrientSideButton || device == &m_OrientWingSideButton )
+    else if ( device == &m_OrientSideButton )
     {
         OrientStructure( VSPGraphic::Common::VSP_CAM_LEFT );
     }
-    else if ( device == &m_OrientTopButton || device == &m_OrientWingTopButton )
+    else if ( device == &m_OrientTopButton )
     {
         OrientStructure( VSPGraphic::Common::VSP_CAM_TOP );
     }
@@ -2423,52 +2423,125 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
 
 void StructScreen::OrientStructure( VSPGraphic::Common::VSPenum type )
 {
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-
-    if ( !veh )
+    if ( !StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
     {
         return;
     }
 
-    Geom* currgeom = veh->FindGeom( m_SelectedGeomID );
+    FeaStructure* curr_struct = StructureMgr.GetAllFeaStructs()[m_SelectedStructIndex];
+    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
 
-    MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
-
-    if ( currgeom && main )
+    if ( veh && curr_struct )
     {
-        veh->HideAllExcept( m_SelectedGeomID );
+        Geom* curr_geom = veh->FindGeom( curr_struct->GetParentGeomID() );
 
-        currgeom->m_GuiDraw.SetDrawType( GeomGuiDraw::GEOM_DRAW_NONE );
+        MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
 
-        VSPGUI::VspGlWindow * glwin = main->GetGLWindow();
+        if ( curr_geom && main )
+        {
+            if ( type == VSPGraphic::Common::VSP_CAM_FRONT )
+            {
+                curr_geom->m_GuiDraw.SetDisplayType( GeomGuiDraw::DISPLAY_DEGEN_SURF );
+            }
+            else
+            {
+                curr_geom->m_GuiDraw.SetDisplayType( GeomGuiDraw::DISPLAY_DEGEN_CAMBER );
+            }
 
-        if ( !glwin )
+            curr_geom->m_GuiDraw.SetDrawType( GeomGuiDraw::GEOM_DRAW_SHADE );
+            curr_geom->m_GuiDraw.SetDispSubSurfFlag( true );
+
+            veh->ShowSet( 0 );
+            veh->HideAllExcept( curr_struct->GetParentGeomID() );
+            veh->ClearActiveGeom();
+
+            VSPGUI::VspGlWindow * glwin = main->GetGLWindow();
+
+            if ( !glwin )
+            {
+                return;
+            }
+
+            glwin->setView( type );
+
+            BndBox bbox = curr_geom->GetBndBox();
+
+            vec3d p = bbox.GetCenter();
+            double d = bbox.DiagDist();
+            int wid = glwin->pixel_w();
+            int ht = glwin->pixel_h();
+
+            float z = d * ( wid < ht ? 1.f / wid : 1.f / ht );
+
+            // Validate pointers
+            if ( !glwin->getGraphicEngine() )
+            {
+                return;
+            }
+            if ( !glwin->getGraphicEngine()->getDisplay() )
+            {
+                return;
+            }
+            if ( !glwin->getGraphicEngine()->getDisplay()->getCamera() )
+            {
+                return;
+            }
+
+            glwin->getGraphicEngine()->getDisplay()->setCOR( -p.x(), -p.y(), -p.z() );
+            glwin->getGraphicEngine()->getDisplay()->relativePan( 0.0f, 0.0f );
+            glwin->getGraphicEngine()->getDisplay()->getCamera()->relativeZoom( z );
+
+            ManageViewScreen * viewScreen = dynamic_cast<ManageViewScreen*>( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+
+            if ( viewScreen )
+            {
+                viewScreen->UpdateCOR();
+                viewScreen->UpdatePan();
+                viewScreen->UpdateZoom();
+            }
+        }
+    }
+}
+
+void StructScreen::OrientWing()
+{
+    if ( !StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
+    {
+        return;
+    }
+
+    FeaStructure* curr_struct = StructureMgr.GetAllFeaStructs()[m_SelectedStructIndex];
+    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
+
+    if ( veh && curr_struct )
+    {
+        Geom* current_wing = veh->FindGeom( curr_struct->GetParentGeomID() );
+
+        if ( !current_wing )
         {
             return;
         }
 
-        glwin->setView( type );
-
-        BndBox bbox = currgeom->GetBndBox();
-
-        vec3d p = bbox.GetCenter();
-        double d = bbox.DiagDist();
-        int wid = glwin->pixel_w();
-        int ht = glwin->pixel_h();
-
-        float z = d * ( wid < ht ? 1.f / wid : 1.f / ht );
-
-        glwin->getGraphicEngine()->getDisplay()->setCOR( -p.x(), -p.y(), -p.z() );
-        glwin->getGraphicEngine()->getDisplay()->relativePan( 0.0f, 0.0f );
-        glwin->getGraphicEngine()->getDisplay()->getCamera()->relativeZoom( z );
-
-        ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
-
-        if ( viewScreen )
+        if ( current_wing->GetType().m_Type == MS_WING_GEOM_TYPE )
         {
-            viewScreen->UpdateCOR();
-            viewScreen->UpdatePan();
-            viewScreen->UpdateZoom();
+            BndBox wing_bbox = current_wing->GetBndBox();
+
+            double del_y = wing_bbox.GetMax( 1 ) - wing_bbox.GetMin( 1 );
+            double del_z = wing_bbox.GetMax( 2 ) - wing_bbox.GetMin( 2 );
+
+            VSPGraphic::Common::VSPenum type;
+
+            // Select a side view if the wing geom is a vertical stabilizer
+            if ( del_z > del_y )
+            {
+                type = VSPGraphic::Common::VSP_CAM_LEFT;
+            }
+            else
+            {
+                type = VSPGraphic::Common::VSP_CAM_TOP;
+            }
+
+            OrientStructure( type );
         }
     }
 }
