@@ -58,6 +58,7 @@ void GeomType::CopyFrom( const GeomType & t )
 //==== Constructor ====//
 GeomGuiDraw::GeomGuiDraw()
 {
+    m_DisplayType = DISPLAY_BEZIER;
     m_DrawType = GEOM_DRAW_WIRE;
     m_NoShowFlag = false;
     m_DisplayChildrenFlag = true;
