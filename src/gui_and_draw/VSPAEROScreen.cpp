@@ -792,9 +792,7 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
                 int status = VSPAEROMgr.ExportResultsToCSV( fileName );
                 if ( status != vsp::VSP_OK )
                 {
-                    char strBuf[1000];
-                    sprintf( strBuf, "File export failed\nFile: %s", fileName.c_str() );
-                    fl_alert( strBuf );
+                    fl_alert( "File export failed\nFile: %s", fileName.c_str() );
                 }
             }
         }
