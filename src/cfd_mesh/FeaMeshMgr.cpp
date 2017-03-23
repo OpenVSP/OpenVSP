@@ -735,16 +735,6 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
     for ( int s = 0; s < (int)m_SurfVec.size(); s++ )
     {
         vector< FeaElement* > tempelementvec;
-        list< Tri* >::iterator t;
-        list <Tri*> tlist = m_SurfVec[s]->GetMesh()->GetTriList();
-
-        for ( t = tlist.begin(); t != tlist.end(); t++ )
-        {
-            FeaTri* tri = new FeaTri;
-            tri->Create( ( *t )->n0->pnt, ( *t )->n1->pnt, ( *t )->n2->pnt );
-            tri->SetFeaPartType( m_SurfVec[s]->GetFeaPartType() );
-            tempelementvec.push_back( tri );
-        }
 
         vector < vec3d >pvec = m_SurfVec[s]->GetMesh()->GetSimpPntVec();
         vector < SimpTri > tvec = m_SurfVec[s]->GetMesh()->GetSimpTriVec();
