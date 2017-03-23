@@ -2162,14 +2162,14 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 
         for ( int i = 0; i < (int)m_SurfVec.size(); i++ )
         {
-            vector< vec3d > pVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
-            vector < SimpTri > test = m_SurfVec[i]->GetMesh()->GetSimpTriVec();
+            vector < vec3d > pVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
+            vector < SimpTri > tVec = m_SurfVec[i]->GetMesh()->GetSimpTriVec();
 
-            for ( int t = 0; t < (int)m_SurfVec[i]->GetMesh()->GetSimpTriVec().size(); t++ )
+            for ( int t = 0; t < (int)tVec.size(); t++ )
             {
                 if ( ( !m_SurfVec[i]->GetWakeFlag() ) && ( !m_SurfVec[i]->GetFarFlag() ) && ( !m_SurfVec[i]->GetSymPlaneFlag() ) )
                 {
-                    SimpTri* stri = &m_SurfVec[i]->GetMesh()->GetSimpTriVec()[t];
+                    SimpTri* stri = &tVec[t];
                     dmit = tag_dobj_map.find( SubSurfaceMgr.GetTag( stri->m_Tags ) );
                     if ( dmit == tag_dobj_map.end() )
                     {
