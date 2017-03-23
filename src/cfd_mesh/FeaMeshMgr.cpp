@@ -734,7 +734,7 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
 {
     for ( int s = 0; s < (int)m_SurfVec.size(); s++ )
     {
-        vector< FeaElement* > tempelementvec;
+        int prop_index = StructureMgr.GetFeaPropertyIndex( m_SurfVec[s]->GetFeaPartID() );
 
         vector < vec3d >pvec = m_SurfVec[s]->GetMesh()->GetSimpPntVec();
         vector < SimpTri > tvec = m_SurfVec[s]->GetMesh()->GetSimpTriVec();
@@ -743,33 +743,9 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
             FeaTri* tri = new FeaTri;
             tri->Create( pvec[tvec[i].ind0], pvec[tvec[i].ind1], pvec[tvec[i].ind2] );
             tri->SetFeaPartType( m_SurfVec[s]->GetFeaPartType() );
-            tempelementvec.push_back( tri );
-        }
-
-        // Get Thickness and Density for Skin
-        int prop_index = StructureMgr.GetFeaPropertyIndex( m_SurfVec[s]->GetFeaPartID() );
-        //int mat_index = StructureMgr.GetFeaMaterialIndex( m_SurfVec[s]->GetFeaPartID() );
-
-        //double thick = StructureMgr.GetFeaPropertyVec()[prop_index]->m_Thickness();
-        //double density = StructureMgr.GetFeaMaterialVec()[mat_index]->m_MassDensity();
-
-        //==== Assign thickness and density to nodes before adding to m_FeaSkinElementVec ====//
-        for ( int i = 0; i < (int)tempelementvec.size(); i++ )
-        {
-            //for ( int j = 0; j < (int)tempelementvec[i]->m_Corners.size(); j++ )
-            //{
-            //    tempelementvec[i]->m_Corners[j]->m_Thick = thick;
-            //    tempelementvec[i]->m_Corners[j]->m_Dense = density;
-            //}
-            //for ( int j = 0; j < (int)tempelementvec[i]->m_Mids.size(); j++ )
-            //{
-            //    tempelementvec[i]->m_Mids[j]->m_Thick = thick;
-            //    tempelementvec[i]->m_Mids[j]->m_Dense = density;
-            //}
-            tempelementvec[i]->SetFeaPropertyIndex( prop_index );
-            tempelementvec[i]->SetFeaPartID( m_SurfVec[s]->GetFeaPartID() );
-
-            m_FeaElementVec.push_back( tempelementvec[i] );
+            tri->SetFeaPropertyIndex( prop_index );
+            tri->SetFeaPartID( m_SurfVec[s]->GetFeaPartID() );
+            m_FeaElementVec.push_back( tri );
         }
     }
 }
