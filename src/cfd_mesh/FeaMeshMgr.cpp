@@ -757,49 +757,43 @@ void FeaMeshMgrSingleton::ComputeWriteMass()
     FILE* fp = fopen( GetStructSettingsPtr()->GetExportFileName( vsp::MASS_FILE_NAME ).c_str(), "w" );
     if ( fp )
     {
-        double StructMass = 0.0;
-        double FeaSkinMass = 0.0;
-        double FeaRibMass = 0.0;
-        double FeaSparMass = 0.0;
+        fprintf( fp, "FeaStruct_Name: %s\n", m_FeaMeshStruct->GetFeaStructName().c_str() );
 
-        // Calculate FeaPart Mass
-        double ribmass = 0;
-        double sparmass = 0;
-        double skinmass = 0;
-
-        for ( int k = 0; k < m_FeaElementVec.size(); k++ )
+        vector < string > FeaPartIDVec; // vector of all FeaPartIDs
+        for ( unsigned int i = 0; i < m_FeaElementVec.size(); i++ )
         {
-            if ( m_FeaElementVec[k]->GetFeaPartType() == vsp::FEA_RIB )
-            {
-                ribmass += m_FeaElementVec[k]->ComputeMass();
-            }
-            else if ( m_FeaElementVec[k]->GetFeaPartType() == vsp::FEA_SPAR )
-            {
-                sparmass += m_FeaElementVec[k]->ComputeMass();
-            }
-            else if ( m_FeaElementVec[k]->GetFeaPartType() == vsp::FEA_SKIN )
-            {
-                skinmass += m_FeaElementVec[k]->ComputeMass();
-            }
+            FeaPartIDVec.push_back( m_FeaElementVec[i]->GetFeaPartID() );
         }
 
-        FeaRibMass += ribmass;
-        FeaSparMass += sparmass;
-        FeaSkinMass += skinmass;
+        // Keep only unique FeaPartIDs
+        set < string > FeaPartIDSet;
+        for ( unsigned int i = 0; i < FeaPartIDVec.size(); i++ )
+        {
+            FeaPartIDSet.insert( FeaPartIDVec[i] );
+        }
+        FeaPartIDVec.assign( FeaPartIDSet.begin(), FeaPartIDSet.end() );
 
-        StructMass += FeaRibMass + FeaSparMass + FeaSkinMass;
+        // Iterate over each unique FeaPartID and calculate mass of each FeaElement if it's ID matches the current FeaPartID
+        for ( unsigned int i = 0; i < FeaPartIDVec.size(); i++ )
+        {
+            double mass = 0;
 
-        m_TotalMass += StructMass;
+            for ( unsigned int j = 0; j < m_FeaElementVec.size(); j++ )
+            {
+                if ( strcmp( m_FeaElementVec[j]->GetFeaPartID().c_str(), FeaPartIDVec[i].c_str() ) == 0 )
+                {
+                    mass += m_FeaElementVec[j]->ComputeMass();
+                }
+            }
 
-        fprintf( fp, "FeaStruct_Name, Skin_Mass, Rib_Mass, Spar_Mass, Total_Struct_Mass\n" );
+            // TODO: Include FeaPart name or type?
 
-        fprintf( fp, "%s, %f, %f, %f, %f\n", m_FeaMeshStruct->GetFeaStructName().c_str(), FeaSkinMass, FeaRibMass, FeaSparMass, StructMass );
+            fprintf( fp, "\tFeaPartID: %s, Mass = %f\n", FeaPartIDVec[i].c_str(), mass );
+            m_TotalMass += mass;
+        }
 
-        // TODO: Improve/fix mass data for surfaces, structures, etc.
+        fprintf( fp, "Total Mass = %f\n", m_TotalMass );
     }
-
-
-    fprintf( fp, "Total Mass = %f \n", m_TotalMass );
 
     fclose( fp );
 }
