@@ -1998,7 +1998,7 @@ void Geom::UpdateDegenDrawObj()
             for ( int k = 0; k < degen_surf.x[j].size() - 1; k++ )
             {
                 // Define Quads
-                vec3d corner1, corner2, corner3, corner4;
+                vec3d corner1, corner2, corner3, corner4, norm;
 
                 corner1 = degen_surf.x[j][k];
                 corner2 = degen_surf.x[j + 1][k];
@@ -2010,10 +2010,22 @@ void Geom::UpdateDegenDrawObj()
                 degen_surf_draw_obj.m_PntVec.push_back( corner3 );
                 degen_surf_draw_obj.m_PntVec.push_back( corner4 );
 
+                if ( norm.mag() == 0.0 ) // Handle collapsed normal vectors for shading 
+                {
+                    vec3d cross1 = corner3 - corner1;
+                    vec3d cross2 = corner4 - corner2;
+                    norm = cross( cross1, cross2 );
+                    norm.normalize();
+                }
+                else
+                {
+                    norm = degen_surf.nvec[j][k];
+                }
+
                 // Set Normal Vector
                 for ( int m = 0; m < 4; m++ )
                 {
-                    degen_surf_draw_obj.m_NormVec.push_back( degen_surf.nvec[j][k] );
+                    degen_surf_draw_obj.m_NormVec.push_back( norm );
                 }
             }
         }
@@ -2041,7 +2053,7 @@ void Geom::UpdateDegenDrawObj()
                 for ( int n = 0; n < degen_plate_vec[j].x[k].size() - 1; n++ )
                 {
                     // Define Plate Quads
-                    vec3d corner1, corner2, corner3, corner4;
+                    vec3d corner1, corner2, corner3, corner4, norm;
 
                     corner1 = degen_plate_vec[j].x[k][n];
                     corner2 = degen_plate_vec[j].x[k][n + 1];
@@ -2053,14 +2065,16 @@ void Geom::UpdateDegenDrawObj()
                     degen_plate_draw_obj.m_PntVec.push_back( corner3 );
                     degen_plate_draw_obj.m_PntVec.push_back( corner4 );
 
-                    vec3d norm = degen_plate_vec[j].nPlate[k];
-
                     if ( norm.mag() == 0.0 ) // Handle collapsed normal vectors for shading 
                     {
                         vec3d cross1 = corner3 - corner1;
                         vec3d cross2 = corner4 - corner2;
                         norm = cross( cross1, cross2 );
                         norm.normalize();
+                    }
+                    else
+                    {
+                        norm = degen_plate_vec[j].nPlate[k];
                     }
 
                     // Set Normal Vectors
