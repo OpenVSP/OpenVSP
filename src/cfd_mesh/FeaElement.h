@@ -28,8 +28,7 @@ using namespace std;
 class FeaNodeTag
 {
     public:
-    int m_Type;
-    int m_ID;
+    int m_FeaPartTagIndex;
 };
 
 class FeaNode
@@ -58,10 +57,9 @@ class FeaNode
     //double m_Thick;
     //double m_Dense;
 
-    void AddTag( int type, int id );
-    bool HasTag( int type, int id );
-    bool HasTag( int type );
-    bool HasOnlyType( int type );
+    void AddTag( int ind );
+    bool HasTag( int ind );
+    bool HasOnlyIndex( int ind );
     vector< FeaNodeTag > m_Tags;
 
     void WriteNASTRAN( FILE* fp );

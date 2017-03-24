@@ -15,28 +15,27 @@
 //==================== FeaNode =====================//
 //////////////////////////////////////////////////////
 
-void FeaNode::AddTag( int type, int id )
+void FeaNode::AddTag( int index )
 {
     //==== Check For Duplicate Tags ====//
     for ( int i = 0; i < (int)m_Tags.size(); i++ )
     {
-        if ( m_Tags[i].m_ID == id && m_Tags[i].m_Type == type )
+        if ( m_Tags[i].m_FeaPartTagIndex == index )
         {
             return;
         }
     }
 
     FeaNodeTag tag;
-    tag.m_Type = type;
-    tag.m_ID = id;
+    tag.m_FeaPartTagIndex = index;
     m_Tags.push_back( tag );
 }
 
-bool FeaNode::HasTag( int type, int id )
+bool FeaNode::HasTag( int index )
 {
     for ( int i = 0; i < (int)m_Tags.size(); i++ )
     {
-        if ( m_Tags[i].m_ID == id && m_Tags[i].m_Type == type )
+        if ( m_Tags[i].m_FeaPartTagIndex == index )
         {
             return true;
         }
@@ -44,23 +43,11 @@ bool FeaNode::HasTag( int type, int id )
     return false;
 }
 
-bool FeaNode::HasTag( int type )
+bool FeaNode::HasOnlyIndex( int index )
 {
     for ( int i = 0; i < (int)m_Tags.size(); i++ )
     {
-        if ( m_Tags[i].m_Type == type )
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool FeaNode::HasOnlyType( int type )
-{
-    for ( int i = 0; i < (int)m_Tags.size(); i++ )
-    {
-        if ( m_Tags[i].m_Type != type )
+        if ( m_Tags[i].m_FeaPartTagIndex != index )
         {
             return false;
         }
