@@ -41,6 +41,8 @@ public:
     virtual int GetFeaPropertyIndex( string FeaPartID );
     virtual int GetFeaMaterialIndex( string FeaPartID );
     virtual int GetFeaStructIndex( FeaStructure* fea_struct );
+    virtual FeaPart* GetFeaPart( const string & feapart_id );
+    virtual string GetFeaPartName( const string & id );
 
     //==== FeaProperty Management ====//
     virtual void AddFeaProperty( FeaProperty* fea_prop )

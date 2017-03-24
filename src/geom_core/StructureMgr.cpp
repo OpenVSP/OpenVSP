@@ -184,6 +184,41 @@ int StructureMgrSingleton::GetFeaStructIndex( FeaStructure* fea_struct )
     return -1; // indicates an error
 }
 
+//==== Get FeaPart pointer from FeaPart ID ====//
+FeaPart* StructureMgrSingleton::GetFeaPart( const string & feapart_id )
+{
+    FeaPart* ret_ptr = NULL;
+
+    vector < FeaStructure* > fea_struct_vec = GetAllFeaStructs();
+
+    for ( unsigned int i = 0; i < fea_struct_vec.size(); i++ )
+    {
+        vector < FeaPart* > fea_part_vec = fea_struct_vec[i]->GetFeaPartVec();
+
+        for ( unsigned int j = 0; j < fea_part_vec.size(); j++ )
+        {
+            if ( fea_part_vec[j]->GetID() == feapart_id )
+            {
+                return fea_part_vec[j];
+            }
+        }
+    }
+
+    return ret_ptr;
+}
+
+string StructureMgrSingleton::GetFeaPartName( const string & id )
+{
+    string name;
+    FeaPart* fea_part = GetFeaPart( id );
+
+    if ( fea_part )
+    {
+        name = fea_part->GetName();
+    }
+    return name;
+}
+
 //==== Get FeaProperty Index =====//
 int StructureMgrSingleton::GetFeaPropertyIndex( string FeaPartID )
 {
