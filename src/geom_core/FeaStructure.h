@@ -41,9 +41,9 @@ public:
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
-    virtual void AddFeaPart( FeaPart* fea_struct )
+    virtual void AddFeaPart( FeaPart* fea_part )
     {
-        m_FeaPartVec.push_back( fea_struct );
+        m_FeaPartVec.push_back( fea_part );
     }
     virtual FeaPart* AddFeaPart( int type );
     virtual bool ValidFeaPartInd( int ind );
@@ -55,7 +55,7 @@ public:
     {
         return m_FeaPartVec;
     }
-    virtual int GetFeaPartIndex( FeaPart* fea_prt );
+    virtual int GetFeaPartIndex( FeaPart* fea_part );
     virtual int NumFeaParts()
     {
         return m_FeaPartVec.size();

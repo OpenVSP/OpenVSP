@@ -116,7 +116,6 @@ public:
     virtual void TagFeaNodes();
 
     //virtual vec3d GetNormal( int sectID );
-    //virtual FeaGeom* GetFeaGeom( int surfID );
 
     virtual int GetTotalNumSurfs()
     {
@@ -199,8 +198,6 @@ protected:
     //bool m_DrawAttachPoints;
     //int m_ClosestAttachPoint;
     //vector< vec3d > m_AttachPoints;
-
-    //vector< vec3d >debugPnts;
 
 private:
     DrawObj m_SkinElemDO;

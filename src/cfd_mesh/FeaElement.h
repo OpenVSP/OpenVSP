@@ -19,12 +19,6 @@
 
 using namespace std;
 
-// Node Classification
-//enum
-//{
-//    RIB, SPAR, SKIN,
-//};
-
 class FeaNodeTag
 {
     public:
@@ -37,13 +31,11 @@ class FeaNode
     FeaNode()
     {
         m_Index = -1;
-        //m_Thick = 0.1;
     };
     FeaNode( vec3d & p )
     {
         m_Pnt = p;
         m_Index = -1;
-        //m_Thick = 0.1;
     };
     virtual ~FeaNode()
     {
@@ -53,9 +45,6 @@ class FeaNode
 
     int m_Index;
     vec3d m_Pnt;
-
-    //double m_Thick;
-    //double m_Dense;
 
     void AddTag( int ind );
     bool HasTag( int ind );

@@ -190,12 +190,10 @@ void FeaStructure::DelFeaPart( int ind )
         delete m_FeaPartVec[ind];
         m_FeaPartVec.erase( m_FeaPartVec.begin() + ind );
     }
-
 }
 
 vector < FeaPart* > FeaStructure::AddEvenlySpacedRibs( const int num_rib )
 {
-
     Vehicle* veh = VehicleMgr.GetVehicle();
     if ( veh )
     {
@@ -1746,7 +1744,7 @@ void FeaProperty::WriteCalculix( FILE* fp, string ELSET )
         if ( m_FeaPropertyType() == SHELL_PROPERTY )
         {
             fprintf( fp, "*SHELL GENERAL SECTION, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), fea_mat->GetName().c_str() );
-            fprintf( fp, "%g,\n", m_Thickness() );
+            fprintf( fp, "%g\n", m_Thickness() );
         }
         if ( m_FeaPropertyType() == BEAM_PROPERTY )
         {
@@ -1816,11 +1814,11 @@ void FeaMaterial::WriteCalculix( FILE* fp, int mat_id )
 {
     fprintf( fp, "*MATERIAL, NAME=%s\n", GetName().c_str() );
     fprintf( fp, "*DENSITY\n" );
-    fprintf( fp, "%g,\n", m_MassDensity() );
+    fprintf( fp, "%g\n", m_MassDensity() );
     fprintf( fp, "*ELASTIC, TYPE=ISO\n" );
     fprintf( fp, "%g,%g\n", m_ElasticModulus(), m_PoissonRatio() );
     fprintf( fp, "*EXPANSION, TYPE=ISO\n" );
-    fprintf( fp, "%g,\n", m_ThermalExpanCoeff() );
+    fprintf( fp, "%g\n", m_ThermalExpanCoeff() );
 }
 
 double FeaMaterial::GetShearModulus()

@@ -611,7 +611,6 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
     addOutputText( "Build Target Map\n" );
     BuildTargetMap( CfdMeshMgrSingleton::VOCAL_OUTPUT );
 
-
     addOutputText( "InitMesh\n" );
     InitMesh();
 
@@ -638,23 +637,14 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
 
 void FeaMeshMgrSingleton::ExportFeaMesh()
 {
-    //AddFeaOutputText( "Write Results\n" );
-
     WriteNASTRAN( GetStructSettingsPtr()->GetExportFileName( vsp::NASTRAN_FILE_NAME ) );
     WriteCalculix();
     WriteSTL( GetStructSettingsPtr()->GetExportFileName( vsp::STL_FEA_NAME ) );
 
-    //AddFeaOutputText( "Wrote Calculix File: feageom.dat\n" );
-    //AddFeaOutputText( "Wrote Calculix File: feanodethick.dat\n" );
-    //AddFeaOutputText( "Wrote NASTRAN File: NASTRAN.dat\n" );
-    //AddFeaOutputText( "Wrote Mesh: feamesh.stl\n" );
-
     ComputeWriteMass();
-    //AddFeaOutputText( "Wrote Mass: feamass.dat\n" );
 
     string mass_output = "Total Mass = " + std::to_string( m_TotalMass ) + "\n";
     addOutputText( mass_output );
-    //AddFeaOutputText( "Finished\n" );
 }
 
 void FeaMeshMgrSingleton::AddStructureParts()
@@ -822,9 +812,6 @@ void FeaMeshMgrSingleton::TagFeaNodes()
 
 void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
 {
-    //Stringc fn( base_filename );
-    //fn.concatenate( "NASTRAN.dat" );
-
     FILE* fp = fopen( filename.c_str(), "w" );
     if ( fp )
     {
@@ -1134,7 +1121,6 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
             material_vec[i]->WriteNASTRAN( fp, i );
         }
 
-
         fprintf( fp, "END DATA\n" );
 
         fclose( fp );
@@ -1146,18 +1132,6 @@ void FeaMeshMgrSingleton::WriteCalculix()
     int rib_cnt = 0;
     int spar_cnt = 0;
     int skin_cnt = 0;
-
-//for ( int i = 0 ; i < (int)nodeVec.size() ; i++ )
-//{
-//  if ( nodeVec[i]->HasTag( SPAR_ALL ) &&  nodeVec[i]->HasTag( SKIN_UPPER ) )
-//  {
-//      debugPnts.push_back( nodeVec[i]->m_Pnt );
-//  }
-//}
-
-    //Stringc fn( base_filename );
-    //fn.concatenate( "geom.dat" );
-
     string fn = GetStructSettingsPtr()->GetExportFileName( vsp::GEOM_FILE_NAME );
     FILE* fp = fopen( fn.c_str(), "w" );
     if ( fp )
@@ -1491,30 +1465,6 @@ void FeaMeshMgrSingleton::WriteCalculix()
 
     //    fclose( fp );
     //}
-
-  ////==== Write Out All Nodes < YTol ====/
-  //double ytol = 0.01;
-  //fp = fopen( "fixed.nam", "w" );
-  //if ( fp )
-  //{
-  //    fprintf( fp, "**Fixed Nodes\n");
-  //    fprintf( fp, "*NSET,NSET=NFIXED\n");
-
-  //    int ncnt = 0;
-  //    for ( int i = 0 ; i < (int)unique_node_vec.size() ; i++ )
-  //    {
-  //        if ( unique_node_vec[i]->m_Pnt[1] < ytol )
-  //        {
-  //            fprintf(fp, "%d,", unique_node_vec[i]->m_Index );
-  //            ncnt++;
-  //            if ( ncnt%10 == 9 )
-  //                fprintf(fp, "\n" );
-  //        }
-  //    }
-  //    fprintf(fp, "\n" );
-  //    fclose(fp);
-  //}
-
 
 }
 
