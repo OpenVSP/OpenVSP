@@ -33,6 +33,7 @@ Surf::Surf()
     m_BaseTag = 1;
     m_MainSurfID = 0;
     m_FeaPartType = vsp::FEA_SKIN;
+    m_FeaPartIndex = -1;
 }
 
 Surf::~Surf()

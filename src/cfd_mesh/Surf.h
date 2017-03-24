@@ -137,13 +137,14 @@ public:
     {
         return m_FeaPartType;
     }
-    void SetFeaPartID( string id )
+
+    void SetFeaPartIndex( int ind )
     {
-        m_FeaPartID = id;
+        m_FeaPartIndex = ind;
     }
-    string  GetFeaPartID()
+    int GetFeaPartIndex()
     {
-        return m_FeaPartID;
+        return m_FeaPartIndex;
     }
 
     void Draw();
@@ -293,7 +294,7 @@ protected:
     vector< double > m_WScaleMap;
 
     int m_FeaPartType;
-    string m_FeaPartID;
+    int m_FeaPartIndex;
 
 };
 
