@@ -129,14 +129,6 @@ public:
     {
         return m_MainSurfID;
     }
-    void SetFeaPartType( int type )
-    {
-        m_FeaPartType = type;
-    }
-    int  GetFeaPartType()
-    {
-        return m_FeaPartType;
-    }
 
     void SetFeaPartIndex( int ind )
     {
@@ -293,7 +285,6 @@ protected:
     vector< double > m_UScaleMap;
     vector< double > m_WScaleMap;
 
-    int m_FeaPartType;
     int m_FeaPartIndex;
 
 };

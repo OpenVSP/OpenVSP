@@ -86,14 +86,6 @@ class FeaElement
     {
         return m_ElementType;
     }
-    virtual int GetFeaPartType()
-    {
-        return m_FeaPartType;
-    }
-    virtual void SetFeaPartType( int type )
-    {
-        m_FeaPartType = type;
-    }
     virtual int GetFeaPartIndex()
     {
         return m_FeaPartIndex;
@@ -124,7 +116,6 @@ class FeaElement
 
     protected:
     int m_ElementType;
-    int m_FeaPartType;
     int m_FeaPartIndex;
     int m_FeaPropertyIndex;
 };
