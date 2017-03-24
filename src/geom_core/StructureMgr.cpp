@@ -220,39 +220,29 @@ string StructureMgrSingleton::GetFeaPartName( const string & id )
 }
 
 //==== Get FeaProperty Index =====//
-int StructureMgrSingleton::GetFeaPropertyIndex( string FeaPartID )
+int StructureMgrSingleton::GetFeaPropertyIndex( const string & FeaPartID )
 {
-    vector < FeaStructure* > struct_vec = GetAllFeaStructs();
+    FeaPart* fea_part = GetFeaPart( FeaPartID );
 
-    for ( unsigned int i = 0; i < struct_vec.size(); i++ )
+    if ( fea_part )
     {
-        FeaPart* found_part = struct_vec[i]->GetFeaPart( FeaPartID );
-
-        if ( found_part )
-        {
-            return found_part->GetFeaPropertyIndex();
-        }
+        return fea_part->GetFeaPropertyIndex();
     }
 
-    return -1;
+    return -1; // indicates an error
 }
 
 //==== Get FeaMaterial Index =====//
-int StructureMgrSingleton::GetFeaMaterialIndex( string FeaPartID )
+int StructureMgrSingleton::GetFeaMaterialIndex( const string & FeaPartID )
 {
-    vector < FeaStructure* > struct_vec = GetAllFeaStructs();
+    FeaPart* fea_part = GetFeaPart( FeaPartID );
 
-    for ( unsigned int i = 0; i < struct_vec.size(); i++ )
+    if ( fea_part )
     {
-        FeaPart* found_part = struct_vec[i]->GetFeaPart( FeaPartID );
-
-        if ( found_part )
-        {
-            return found_part->GetFeaMaterialIndex();
-        }
+        return fea_part->GetFeaMaterialIndex();
     }
 
-    return -1;
+    return -1; // indicates an error
 }
 
 //==== Add FeaProperty =====//

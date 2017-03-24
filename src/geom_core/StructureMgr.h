@@ -38,11 +38,11 @@ public:
     virtual vector < FeaStructure* > GetAllFeaStructs();
     virtual bool ValidTotalFeaStructInd( int index );
     virtual int NumFeaStructures();
-    virtual int GetFeaPropertyIndex( string FeaPartID );
-    virtual int GetFeaMaterialIndex( string FeaPartID );
     virtual int GetFeaStructIndex( FeaStructure* fea_struct );
     virtual FeaPart* GetFeaPart( const string & feapart_id );
     virtual string GetFeaPartName( const string & id );
+    virtual int GetFeaPropertyIndex( const string & FeaPartID );
+    virtual int GetFeaMaterialIndex( const string & FeaPartID );
 
     //==== FeaProperty Management ====//
     virtual void AddFeaProperty( FeaProperty* fea_prop )
