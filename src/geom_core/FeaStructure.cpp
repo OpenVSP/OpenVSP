@@ -385,6 +385,18 @@ FeaPart* FeaStructure::GetFeaPart( int ind )
     return NULL;
 }
 
+string FeaStructure::GetFeaPartName( int ind )
+{
+    string name;
+    FeaPart* fea_part = GetFeaPart( ind );
+
+    if ( fea_part )
+    {
+        name = fea_part->GetName();
+    }
+    return name;
+}
+
 FeaPart* FeaStructure::GetFeaSkin()
 {
     for ( int i = 0; i < (int)m_FeaPartVec.size(); i++ )
@@ -411,17 +423,18 @@ int FeaStructure::GetNumFeaSkin()
     return num_skin;
 }
 
-FeaPart* FeaStructure::GetFeaPart( const string & id )
+//==== Get FeaProperty Index from FeaPart Index =====//
+int FeaStructure::GetFeaPropertyIndex( int fea_part_ind )
 {
-    for ( int i = 0; i < (int)m_FeaPartVec.size(); i++ )
+    if ( ValidFeaPartInd( fea_part_ind ) )
     {
-        if ( m_FeaPartVec[i]->GetID() == id )
+        FeaPart* fea_part = GetFeaPart( fea_part_ind );
+        if ( fea_part )
         {
-            if ( ValidFeaPartInd( i ) )
-                return m_FeaPartVec[i];
+            return fea_part->GetFeaPropertyIndex();
         }
     }
-    return NULL;
+    return -1; // indicates an error
 }
 
 int FeaStructure::GetFeaPartIndex( FeaPart* fea_prt )
@@ -430,11 +443,10 @@ int FeaStructure::GetFeaPartIndex( FeaPart* fea_prt )
     {
         if ( m_FeaPartVec[i] == fea_prt )
         {
-            if ( ValidFeaPartInd( i ) )
-                return i;
+            return i;
         }
     }
-    return -1;
+    return -1; // indicates an error
 }
 
 //////////////////////////////////////////////////////

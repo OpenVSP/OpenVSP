@@ -52,7 +52,7 @@ public:
     virtual void DelFeaPart( int ind );
     virtual void UpdateFeaParts();
     virtual FeaPart* GetFeaPart( int ind );
-    virtual FeaPart* GetFeaPart( const string & id );
+    virtual string GetFeaPartName( int ind );
     virtual vector< FeaPart* > GetFeaPartVec()
     {
         return m_FeaPartVec;
@@ -82,6 +82,8 @@ public:
     {
         return m_FeaSubSurfVec;
     }
+
+    virtual int GetFeaPropertyIndex( int fea_part_ind );
 
     virtual string GetParentGeomID()
     {
