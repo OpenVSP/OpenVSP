@@ -2007,17 +2007,10 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
         if ( currgeom )
         {
             FeaStructure* newstruct = currgeom->AddFeaStruct( true, m_FeaCurrMainSurfIndx );
-            vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
 
             if ( newstruct )
             {
-                for ( unsigned int i = 0; i < structvec.size(); i++ )
-                {
-                    if ( structvec[i]->GetFeaStructID() == newstruct->GetFeaStructID() )
-                    {
-                        m_SelectedStructIndex = i;
-                    }
-                }
+                m_SelectedStructIndex = StructureMgr.GetFeaStructIndex( newstruct );
             }
         }
     }

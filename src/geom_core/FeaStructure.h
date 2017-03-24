@@ -29,8 +29,6 @@
 // Forward declaration
 class FeaPart;
 
-string GenerateID();
-
 class FeaStructure
 {
 public:
@@ -90,15 +88,6 @@ public:
         return m_ParentGeomID;
     }
 
-    virtual string GetFeaStructID()
-    {
-        return m_FeaStructID;
-    }
-    virtual void SetFeaStructID( string structID )
-    {
-        m_FeaStructID = structID;
-    }
-
     virtual int GetFeaStructMainSurfIndx()
     {
         return m_MainSurfIndx;
@@ -119,7 +108,6 @@ protected:
     int m_MainSurfIndx;
     int m_FeaPartCount; // Counter used for creating unique name for parts
     int m_FeaSubSurfCount; // Counter used for creating unique name for subsurfaces
-    string m_FeaStructID;
     string m_FeaStructName;
 
     vector < FeaPart* > m_FeaPartVec;

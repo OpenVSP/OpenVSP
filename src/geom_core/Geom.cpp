@@ -2492,7 +2492,6 @@ xmlNodePtr Geom::DecodeXml( xmlNodePtr & node )
 
                 if ( structnode )
                 {
-                    string structID = XmlUtil::FindString( structnode, "FeaStructID", structID );
                     int surf_index = XmlUtil::FindInt( structnode, "MainSurfIndx", 0 );
 
                     // Provide a new structure to decode to. Do not initialize the skin because it will be decoded
@@ -2500,8 +2499,6 @@ xmlNodePtr Geom::DecodeXml( xmlNodePtr & node )
 
                     if ( feastruct )
                     {
-                        feastruct->SetFeaStructID( structID );
-                    
                         feastruct->DecodeXml( structnode );
                     }
                 }

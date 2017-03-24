@@ -17,12 +17,6 @@
 
 #include <cfloat>
 
-//==== Generate Unique ID ====//
-string GenerateID()
-{
-    return ParmMgr.GenerateID( 8 );
-}
-
 //////////////////////////////////////////////////////
 //================== FeaStructure ==================//
 //////////////////////////////////////////////////////
@@ -34,8 +28,6 @@ FeaStructure::FeaStructure( string geomID, int surf_index )
 
     m_FeaPartCount = 0;
     m_FeaSubSurfCount = 0;
-
-    m_FeaStructID = GenerateID();
 }
 
 FeaStructure::~FeaStructure()
@@ -65,7 +57,6 @@ xmlNodePtr FeaStructure::EncodeXml( xmlNodePtr & node )
     xmlNodePtr fea_info = xmlNewChild( node, NULL, BAD_CAST "FeaStructureInfo", NULL );
 
     XmlUtil::AddStringNode( fea_info, "ParentGeomID", m_ParentGeomID );
-    XmlUtil::AddStringNode( fea_info, "FeaStructID", m_FeaStructID );
     XmlUtil::AddIntNode( fea_info, "MainSurfIndx", m_MainSurfIndx );
 
     for ( unsigned int i = 0; i < m_FeaPartVec.size(); i++ )

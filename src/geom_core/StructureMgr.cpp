@@ -170,6 +170,20 @@ int StructureMgrSingleton::NumFeaStructures()
     return struct_vec.size();
 }
 
+int StructureMgrSingleton::GetFeaStructIndex( FeaStructure* fea_struct )
+{
+    vector < FeaStructure* > fea_struct_vec = GetAllFeaStructs();
+
+    for ( int i = 0; i < fea_struct_vec.size(); i++ )
+    {
+        if ( fea_struct_vec[i] == fea_struct )
+        {
+            return i;
+        }
+    }
+    return -1; // indicates an error
+}
+
 //==== Get FeaProperty Index =====//
 int StructureMgrSingleton::GetFeaPropertyIndex( string FeaPartID )
 {
