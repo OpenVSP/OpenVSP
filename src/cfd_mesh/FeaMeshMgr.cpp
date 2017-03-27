@@ -729,43 +729,31 @@ void FeaMeshMgrSingleton::ComputeWriteMass()
     {
         fprintf( fp, "FeaStruct_Name: %s\n", m_FeaMeshStruct->GetFeaStructName().c_str() );
 
-        vector < string > FeaPartIDVec; // vector of all FeaPartIDs
-        for ( unsigned int i = 0; i < m_FeaElementVec.size(); i++ )
-        {
-            FeaPartIDVec.push_back( m_FeaElementVec[i]->GetFeaPartID() );
-        }
+        int num_fea_parts = m_FeaMeshStruct->NumFeaParts();
 
-        // Keep only unique FeaPartIDs
-        set < string > FeaPartIDSet;
-        for ( unsigned int i = 0; i < FeaPartIDVec.size(); i++ )
-        {
-            FeaPartIDSet.insert( FeaPartIDVec[i] );
-        }
-        FeaPartIDVec.assign( FeaPartIDSet.begin(), FeaPartIDSet.end() );
-
-        // Iterate over each unique FeaPartID and calculate mass of each FeaElement if it's ID matches the current FeaPartID
-        for ( unsigned int i = 0; i < FeaPartIDVec.size(); i++ )
+        // Iterate over each FeaPart index and calculate mass of each FeaElement if the current indexes match
+        for ( unsigned int i = 0; i < num_fea_parts; i++ )
         {
             double mass = 0;
 
-            for ( unsigned int j = 0; j < m_FeaElementVec.size(); j++ )
+            for ( int j = 0; j < m_FeaElementVec.size(); j++ )
             {
-                if ( strcmp( m_FeaElementVec[j]->GetFeaPartID().c_str(), FeaPartIDVec[i].c_str() ) == 0 )
+                if ( m_FeaElementVec[j]->GetFeaPartIndex() == i )
                 {
                     mass += m_FeaElementVec[j]->ComputeMass();
                 }
             }
 
-            // TODO: Include FeaPart name or type?
+            string name = m_FeaMeshStruct->GetFeaPartName( i );
 
-            fprintf( fp, "\tFeaPartID: %s, Mass = %f\n", FeaPartIDVec[i].c_str(), mass );
+            fprintf( fp, "\tFeaPartName: %s, Mass = %f\n", name.c_str(), mass );
             m_TotalMass += mass;
         }
 
         fprintf( fp, "Total Mass = %f\n", m_TotalMass );
-    }
 
-    fclose( fp );
+        fclose( fp );
+    }
 }
 
 FeaNode* FeaMeshMgrSingleton::FindNode( vector< FeaNode* > nodeVec, int id )
