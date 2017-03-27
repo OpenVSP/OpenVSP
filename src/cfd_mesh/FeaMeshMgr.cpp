@@ -818,172 +818,86 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
         //fprintf( fp, "CEND\n" );
         fprintf( fp, "BEGIN BULK\n" );
 
-        //===== Write Ribs and Spars ====//
         int elem_id = 0;
-        int rib_cnt = 0;
-        int spar_cnt = 0;
-        int skin_cnt = 0;
+        int num_fea_parts = m_FeaMeshStruct->NumFeaParts();
 
-        for ( int s = 0; s < m_SurfVec.size(); s++ )
+        for ( unsigned int i = 0; i < num_fea_parts; i++ )
         {
-            if ( m_SurfVec[s]->GetFeaPartType() == vsp::FEA_RIB )
-            {
-                rib_cnt++;
-                fprintf( fp, "$Rib,%d\n", rib_cnt );
+            fprintf( fp, "\n" );
+            fprintf( fp, "$%s\n", m_FeaMeshStruct->GetFeaPartName( i ).c_str() );
 
-                for ( int i = 0; i < (int)m_FeaElementVec.size(); i++ )
+            for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+            {
+                if ( m_FeaElementVec[j]->GetFeaPartIndex() == i )
                 {
-                    if ( m_FeaElementVec[i]->GetFeaPartID() == m_SurfVec[s]->GetFeaPartID() )
+                    elem_id++;
+                    m_FeaElementVec[j]->WriteNASTRAN( fp, elem_id );
+                }
+            }
+        }
+
+        for ( unsigned int i = 0; i < num_fea_parts; i++ )
+        {
+            fprintf( fp, "\n" );
+            fprintf( fp, "$%s Gridpoints\n", m_FeaMeshStruct->GetFeaPartName( i ).c_str() );
+
+            for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
+            {
+                if ( m_PntShift[j] >= 0 )
+                {
+                    if ( m_FeaNodeVec[j]->HasOnlyIndex( i ) )
                     {
-                        elem_id++;
-                        m_FeaElementVec[i]->WriteNASTRAN( fp, elem_id );
+                        m_FeaNodeVec[j]->WriteNASTRAN( fp );
                     }
                 }
             }
-            else if ( m_SurfVec[s]->GetFeaPartType() == vsp::FEA_SPAR )
-            {
-                spar_cnt++;
-                fprintf( fp, "$Spar,%d\n", spar_cnt );
-
-                for ( int i = 0; i < (int)m_FeaElementVec.size(); i++ )
-                {
-                    if ( m_FeaElementVec[i]->GetFeaPartID() == m_SurfVec[s]->GetFeaPartID() )
-                    {
-                        elem_id++;
-                        m_FeaElementVec[i]->WriteNASTRAN( fp, elem_id );
-                    }
-                }
-            }
         }
 
-        vector < string > skin_id_vec;
-
-        //==== Get Unique Skin IDs ====//
-        for ( unsigned int i = 0; i < m_SurfVec.size(); i++ )
-        {
-            if ( m_SurfVec[i]->GetFeaPartType() == vsp::FEA_SKIN )
-            {
-                if ( std::find( skin_id_vec.begin(), skin_id_vec.end(), m_SurfVec[i]->GetFeaPartID() ) == skin_id_vec.end() )
-                {
-                    skin_id_vec.push_back( m_SurfVec[i]->GetFeaPartID() );
-                }
-            }
-        }
-
-        //===== Write Skin ====//
-        for ( int j = 0; j < skin_id_vec.size(); j++ )
-        {
-            bool found_skin = false;
-            for ( int s = 0; s < m_SurfVec.size(); s++ )
-            {
-                if ( m_SurfVec[s]->GetFeaPartID() == skin_id_vec[j] && !found_skin )
-                {
-                    skin_cnt++;
-                    fprintf( fp, "$Skin,%d\n", skin_cnt );
-
-                    for ( int i = 0; i < (int)m_FeaElementVec.size(); i++ )
-                    {
-                        if ( m_FeaElementVec[i]->GetFeaPartID() == m_SurfVec[s]->GetFeaPartID() )
-                        {
-                            elem_id++;
-                            m_FeaElementVec[i]->WriteNASTRAN( fp, elem_id );
-                        }
-                    }
-                    fprintf( fp, "\n" );
-
-                    found_skin = true;
-                }
-            }
-        }
-
-        fprintf( fp, "$Skin Gridpoints\n" );
-
-        //==== Skin Nodes ====//
-        for ( int i = 0; i < (int)m_FeaNodeVec.size(); i++ )
-        {
-            if ( m_PntShift[i] >= 0 )
-            {
-                if ( m_FeaNodeVec[i]->HasOnlyType( vsp::FEA_SKIN ) )
-                {
-                    m_FeaNodeVec[i]->WriteNASTRAN( fp );
-                }
-            }
-        }
+        // TODO: Write and improve intersection elements/nodes
 
         fprintf( fp, "\n" );
+        fprintf( fp, "$Intersections\n" );
 
-        rib_cnt = 0;
-        spar_cnt = 0;
-
-        //==== FeaParts ====//
-        for ( int s = 0; s < (int)m_SurfVec.size(); s++ )
+        for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
         {
-            //==== Spars ====//
-            if ( m_SurfVec[s]->GetFeaPartType() == vsp::FEA_SPAR )
+            if ( m_PntShift[j] >= 0 )
             {
-                spar_cnt++;
-                fprintf( fp, "$Spar %d Gridpoints\n", spar_cnt );
-
-                for ( int i = 0; i < (int)m_FeaNodeVec.size(); i++ )
+                if ( m_FeaNodeVec[j]->m_Tags.size() > 1 )
                 {
-                    if ( m_PntShift[i] >= 0 && m_FeaNodeVec[i]->HasTag( vsp::FEA_SPAR, s ) )
-                    {
-                        if ( !m_FeaNodeVec[i]->HasTag( vsp::FEA_RIB ) )
-                        {
-                            m_FeaNodeVec[i]->WriteNASTRAN( fp );
-                        }
-                    }
+                    m_FeaNodeVec[j]->WriteNASTRAN( fp );
                 }
-                fprintf( fp, "\n" );
-            }
-
-            //==== Ribs ====//
-            if ( m_SurfVec[s]->GetFeaPartType() == vsp::FEA_RIB )
-            {
-                rib_cnt++;
-                fprintf( fp, "$Rib %d Gridpoints\n", rib_cnt );
-
-                for ( int i = 0; i < (int)m_FeaNodeVec.size(); i++ )
-                {
-                    if ( m_PntShift[i] >= 0 && m_FeaNodeVec[i]->HasTag( vsp::FEA_RIB, s ) )
-                    {
-                        if ( !m_FeaNodeVec[i]->HasTag( vsp::FEA_SPAR ) )
-                        {
-                            m_FeaNodeVec[i]->WriteNASTRAN( fp );
-                        }
-                    }
-                }
-                fprintf( fp, "\n" );
             }
         }
 
-        //==== Write Rib Spar Intersections =====//
-        for ( int r = 0 ; r < m_SurfVec.size(); r++ )
-        {
-            if ( m_SurfVec[r]->GetFeaPartType() == vsp::FEA_RIB )
-            {
-                for ( int s = 0; s < m_SurfVec.size(); s++ )
-                {
-                    if ( m_SurfVec[s]->GetFeaPartType() == vsp::FEA_SPAR )
-                    {
-                        fprintf( fp, "\n" );
-                        fprintf( fp, "$Intersection,%d,%d\n", r, s );
 
-                        for ( int i = 0; i < (int)m_FeaNodeVec.size(); i++ )
-                        {
-                            if ( m_PntShift[i] >= 0 )
-                            {
-                                if ( m_FeaNodeVec[i]->HasTag( vsp::FEA_RIB, r ) && m_FeaNodeVec[i]->HasTag( vsp::FEA_SPAR, s ) )
-                                {
-                                    m_FeaNodeVec[i]->WriteNASTRAN( fp );
-                                }
-                            }
-                        }
-                        fprintf( fp, "\n" );
-                    }
-                }
-            }
-        }
+
+        ////==== Write Rib Spar Intersections =====//
+        //for ( int r = 0 ; r < m_SurfVec.size(); r++ )
+        //{
+        //    if ( m_SurfVec[r]->GetFeaPartType() == vsp::FEA_RIB )
+        //    {
+        //        for ( int s = 0; s < m_SurfVec.size(); s++ )
+        //        {
+        //            if ( m_SurfVec[s]->GetFeaPartType() == vsp::FEA_SPAR )
+        //            {
+        //                fprintf( fp, "\n" );
+        //                fprintf( fp, "$Intersection,%d,%d\n", r, s );
+
+        //                for ( int i = 0; i < (int)m_FeaNodeVec.size(); i++ )
+        //                {
+        //                    if ( m_PntShift[i] >= 0 )
+        //                    {
+        //                        if ( m_FeaNodeVec[i]->HasTag( vsp::FEA_RIB, r ) && m_FeaNodeVec[i]->HasTag( vsp::FEA_SPAR, s ) )
+        //                        {
+        //                            m_FeaNodeVec[i]->WriteNASTRAN( fp );
+        //                        }
+        //                    }
+        //                }
+        //                fprintf( fp, "\n" );
+        //            }
+        //        }
+        //    }
+        //}
 
         ////==== Write Out Rib LE/TE ====//
         //for ( int r = 0 ; r < rib_cnt ; r++ )
@@ -1129,203 +1043,105 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
 
 void FeaMeshMgrSingleton::WriteCalculix()
 {
-    int rib_cnt = 0;
-    int spar_cnt = 0;
-    int skin_cnt = 0;
     string fn = GetStructSettingsPtr()->GetExportFileName( vsp::GEOM_FILE_NAME );
     FILE* fp = fopen( fn.c_str(), "w" );
     if ( fp )
     {
-        int elem_id = 1;
+        int elem_id = 0;
         int property_id = 0;
-
-        //==== Skin Nodes ====//
-        fprintf( fp, "**%%Skin\n" );
-        fprintf( fp, "*NODE, NSET=Nskin\n" );
-        for ( int i = 0 ; i < ( int )m_FeaNodeVec.size() ; i++ )
-        {
-            if ( m_PntShift[i] >= 0 )
-            {
-                if ( m_FeaNodeVec[i]->HasOnlyType( vsp::FEA_SKIN ) )
-                {
-                    m_FeaNodeVec[i]->WriteCalculix( fp );
-                }
-            }
-        }
-        fprintf( fp, "\n" );
-        fprintf( fp, "*ELEMENT, TYPE=S6, ELSET=Eskin\n" );
-        for ( int s = 0 ; s < ( int )m_FeaElementVec.size() ; s++ )
-        {
-            if ( m_FeaElementVec[s]->GetFeaPartType() == vsp::FEA_SKIN )
-            {
-                if ( m_FeaElementVec[s]->GetElementType() == FeaElement::FEA_TRI_6 )
-                {
-                    m_FeaElementVec[s]->WriteCalculix( fp, elem_id );
-                    elem_id++;
-                    property_id = m_FeaElementVec[s]->GetFeaPropertyIndex();
-                }
-            }
-        }
-
-        fprintf( fp, "\n" );
-        StructureMgr.GetFeaProperty( property_id )->WriteCalculix( fp, "Eskin" );
-
         char str[256];
 
-        //==== FeaParts ====//
-        for ( int s = 0 ; s < ( int )m_SurfVec.size() ; s++ )
+        int num_fea_parts = m_FeaMeshStruct->NumFeaParts();
+
+        for ( unsigned int i = 0; i < num_fea_parts; i++ )
         {
-            //==== Spars ====//
-            if ( m_SurfVec[s]->GetFeaPartType() == vsp::FEA_SPAR )
+            fprintf( fp, "$**%%%s\n", m_FeaMeshStruct->GetFeaPartName( i ).c_str() );
+            fprintf( fp, "*NODE, NSET=N%s\n", m_FeaMeshStruct->GetFeaPartName( i ).c_str() );
+
+            for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
             {
-                spar_cnt++;
-
-                fprintf( fp, "\n" );
-                fprintf( fp, "**%%Spar %d\n", spar_cnt );
-                fprintf( fp, "*NODE, NSET=Nspar%d\n", spar_cnt );
-
-                for ( int i = 0; i < (int)m_FeaNodeVec.size(); i++ )
+                if ( m_PntShift[j] >= 0 )
                 {
-                    if ( m_PntShift[i] >= 0 && m_FeaNodeVec[i]->HasTag( vsp::FEA_SPAR, s ) )
+                    if ( m_FeaNodeVec[j]->HasOnlyIndex( i ) )
                     {
-                        if ( !m_FeaNodeVec[i]->HasTag( vsp::FEA_RIB ) )
-                        {
-                            m_FeaNodeVec[i]->WriteCalculix( fp );
-                        }
+                        m_FeaNodeVec[j]->WriteCalculix( fp );
                     }
                 }
-
-                fprintf( fp, "\n" );
-                fprintf( fp, "*ELEMENT, TYPE=S6, ELSET=Espartri%d\n", spar_cnt );
-                for ( int i = 0; i < (int)m_FeaElementVec.size(); i++ )
-                {
-                    if ( m_FeaElementVec[i]->GetFeaPartID() == m_SurfVec[s]->GetFeaPartID() )
-                    {
-                        if ( m_FeaElementVec[i]->GetElementType() == FeaElement::FEA_TRI_6 )
-                        {
-                            m_FeaElementVec[i]->WriteCalculix( fp, elem_id );
-                            elem_id++;
-                            property_id = m_FeaElementVec[i]->GetFeaPropertyIndex();
-                        }
-                    }
-                }
-
-                fprintf( fp, "\n" );
-                sprintf( str, "Espartri%d", spar_cnt );
-                StructureMgr.GetFeaProperty( property_id )->WriteCalculix( fp, str );
-
-                fprintf( fp, "\n" );
-                fprintf( fp, "*ELEMENT, TYPE=S8, ELSET=Esparquad%d\n", spar_cnt );
-                for ( int i = 0; i < (int)m_FeaElementVec.size(); i++ )
-                {
-                    if ( m_FeaElementVec[i]->GetFeaPartID() == m_SurfVec[s]->GetFeaPartID() )
-                    {
-                        if ( m_FeaElementVec[i]->GetElementType() == FeaElement::FEA_QUAD_8 )
-                        {
-                            m_FeaElementVec[i]->WriteCalculix( fp, elem_id );
-                            elem_id++;
-                            property_id = m_FeaElementVec[i]->GetFeaPropertyIndex();
-                        }
-                    }
-                }
-
-                fprintf( fp, "\n" );
-                sprintf( str, "Esparquad%d", spar_cnt );
-                StructureMgr.GetFeaProperty( property_id )->WriteCalculix( fp, str );
             }
-            //==== Ribs ====//
-            if ( m_SurfVec[s]->GetFeaPartType() == vsp::FEA_RIB )
+
+            fprintf( fp, "\n" );
+            fprintf( fp, "*ELEMENT, TYPE=S6, ELSET=E%s\n", m_FeaMeshStruct->GetFeaPartName( i ).c_str() );
+
+            for ( int j = 0; j < m_FeaElementVec.size(); j++ )
             {
-                rib_cnt++;
-
-                fprintf( fp, "\n" );
-                fprintf( fp, "**%%Rib %d\n", rib_cnt );
-                fprintf( fp, "*NODE, NSET=Nrib%d\n", rib_cnt );
-
-                for ( int i = 0; i < (int)m_FeaNodeVec.size(); i++ )
+                if ( m_FeaElementVec[j]->GetFeaPartIndex() == i )
                 {
-                    if ( m_PntShift[i] >= 0 && m_FeaNodeVec[i]->HasTag( vsp::FEA_RIB, s ) )
-                    {
-                        if ( !m_FeaNodeVec[i]->HasTag( vsp::FEA_SPAR ) )
-                        {
-                            m_FeaNodeVec[i]->WriteCalculix( fp );
-                        }
-                    }
+                    elem_id++;
+                    m_FeaElementVec[j]->WriteCalculix( fp, elem_id );
+                    property_id = m_FeaElementVec[j]->GetFeaPropertyIndex();
                 }
+            }
 
-                fprintf( fp, "\n" );
-                fprintf( fp, "*ELEMENT, TYPE=S6, ELSET=Eribtri%d\n", rib_cnt );
-                for ( int i = 0; i < (int)m_FeaElementVec.size(); i++ )
+            fprintf( fp, "\n" );
+            sprintf( str, "E%s", m_FeaMeshStruct->GetFeaPartName( i ).c_str() );
+
+            StructureMgr.GetFeaProperty( property_id )->WriteCalculix( fp, str );
+            fprintf( fp, "\n" );
+        }
+
+        // TODO: Identify and improve intersection elements and nodes
+
+        fprintf( fp, "**%%Intersections\n" );
+        fprintf( fp, "*NODE, NSET=Nintersections\n" );
+
+        for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
+        {
+            if ( m_PntShift[j] >= 0 )
+            {
+                if ( m_FeaNodeVec[j]->m_Tags.size() > 1 )
                 {
-                    if ( m_FeaElementVec[i]->GetFeaPartID() == m_SurfVec[s]->GetFeaPartID() )
-                    {
-                        if ( m_FeaElementVec[i]->GetElementType() == FeaElement::FEA_TRI_6 )
-                        {
-                            m_FeaElementVec[i]->WriteCalculix( fp, elem_id );
-                            elem_id++;
-                            property_id = m_FeaElementVec[i]->GetFeaPropertyIndex();
-                        }
-                    }
+                    m_FeaNodeVec[j]->WriteCalculix( fp );
                 }
-
-                fprintf( fp, "\n" );
-                sprintf( str, "Eribtri%d", rib_cnt );
-                StructureMgr.GetFeaProperty( property_id )->WriteCalculix( fp, str );
-
-                fprintf( fp, "\n" );
-                fprintf( fp, "*ELEMENT, TYPE=S8, ELSET=Eribquad%d\n", rib_cnt );
-                for ( int i = 0; i < (int)m_FeaElementVec.size(); i++ )
-                {
-                    if ( m_FeaElementVec[i]->GetFeaPartID() == m_SurfVec[s]->GetFeaPartID() )
-                    {
-                        if ( m_FeaElementVec[i]->GetElementType() == FeaElement::FEA_QUAD_8 )
-                        {
-                            m_FeaElementVec[i]->WriteCalculix( fp, elem_id );
-                            elem_id++;
-                            property_id = m_FeaElementVec[i]->GetFeaPropertyIndex();
-                        }
-                    }
-                }
-
-                fprintf( fp, "\n" );
-                sprintf( str, "Eribquad%d", rib_cnt );
-                StructureMgr.GetFeaProperty( property_id )->WriteCalculix( fp, str );
             }
         }
 
-        rib_cnt = 0;
 
-        //==== Rib Spar Intersections ====//
-        for ( int r = 0 ; r < ( int )m_SurfVec.size(); r++ )
-        {
-            if ( m_SurfVec[r]->GetFeaPartType() == vsp::FEA_RIB )
-            {
-                rib_cnt++;
-                spar_cnt = 0;
 
-                for ( int s = 0; s < (int)m_SurfVec.size(); s++ )
-                {
-                    if ( m_SurfVec[s]->GetFeaPartType() == vsp::FEA_SPAR )
-                    {
-                        spar_cnt++;
-                        fprintf( fp, "\n" );
-                        fprintf( fp, "**%%Rib-Spar connections %d %d\n", rib_cnt, spar_cnt );
-                        fprintf( fp, "*NODE, NSET=Nconnections%d%d\n", rib_cnt, spar_cnt );
-                        for ( int i = 0; i < (int)m_FeaNodeVec.size(); i++ )
-                        {
-                            if ( m_PntShift[i] >= 0 )
-                            {
-                                if ( m_FeaNodeVec[i]->HasTag( vsp::FEA_RIB, r ) && m_FeaNodeVec[i]->HasTag( vsp::FEA_SPAR, s ) )
-                                {
-                                    //nodeVec[i]->m_Thick = 0.5 * ( ribs[r]->m_Thickness + spars[s]->m_Thickness );
-                                    m_FeaNodeVec[i]->WriteCalculix( fp );
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+
+
+
+
+        ////==== Rib Spar Intersections ====//
+        //for ( int r = 0 ; r < ( int )m_SurfVec.size(); r++ )
+        //{
+        //    if ( m_SurfVec[r]->GetFeaPartType() == vsp::FEA_RIB )
+        //    {
+        //        rib_cnt++;
+        //        spar_cnt = 0;
+
+        //        for ( int s = 0; s < (int)m_SurfVec.size(); s++ )
+        //        {
+        //            if ( m_SurfVec[s]->GetFeaPartType() == vsp::FEA_SPAR )
+        //            {
+        //                spar_cnt++;
+        //                fprintf( fp, "\n" );
+        //                fprintf( fp, "**%%Rib-Spar connections %d %d\n", rib_cnt, spar_cnt );
+        //                fprintf( fp, "*NODE, NSET=Nconnections%d%d\n", rib_cnt, spar_cnt );
+        //                for ( int i = 0; i < (int)m_FeaNodeVec.size(); i++ )
+        //                {
+        //                    if ( m_PntShift[i] >= 0 )
+        //                    {
+        //                        if ( m_FeaNodeVec[i]->HasTag( vsp::FEA_RIB, r ) && m_FeaNodeVec[i]->HasTag( vsp::FEA_SPAR, s ) )
+        //                        {
+        //                            //nodeVec[i]->m_Thick = 0.5 * ( ribs[r]->m_Thickness + spars[s]->m_Thickness );
+        //                            m_FeaNodeVec[i]->WriteCalculix( fp );
+        //                        }
+        //                    }
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
 
         //==== Materials ====//
         fprintf( fp, "\n" );
@@ -1336,6 +1152,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
         for ( unsigned int i = 0; i < material_vec.size(); i++ )
         {
             material_vec[i]->WriteCalculix( fp, i );
+            fprintf( fp, "\n" );
         }
 
         fclose( fp );
