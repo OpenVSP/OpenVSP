@@ -705,7 +705,7 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
 {
     for ( int s = 0; s < (int)m_SurfVec.size(); s++ )
     {
-        int prop_index = StructureMgr.GetFeaPropertyIndex( m_SurfVec[s]->GetFeaPartID() );
+        int prop_index = m_FeaMeshStruct->GetFeaPropertyIndex( m_SurfVec[s]->GetFeaPartIndex() );
 
         vector < vec3d >pvec = m_SurfVec[s]->GetMesh()->GetSimpPntVec();
         vector < SimpTri > tvec = m_SurfVec[s]->GetMesh()->GetSimpTriVec();
@@ -713,9 +713,8 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
         {
             FeaTri* tri = new FeaTri;
             tri->Create( pvec[tvec[i].ind0], pvec[tvec[i].ind1], pvec[tvec[i].ind2] );
-            tri->SetFeaPartType( m_SurfVec[s]->GetFeaPartType() );
+            tri->SetFeaPartIndex( m_SurfVec[s]->GetFeaPartIndex() );
             tri->SetFeaPropertyIndex( prop_index );
-            tri->SetFeaPartID( m_SurfVec[s]->GetFeaPartID() );
             m_FeaElementVec.push_back( tri );
         }
     }
@@ -811,89 +810,24 @@ void FeaMeshMgrSingleton::TagFeaNodes()
         m_FeaNodeVec[i]->m_Index = m_PntShift[ind] + 1;
     }
 
-    vector < string > skin_id_vec;
+    int num_fea_parts = m_FeaMeshStruct->NumFeaParts();
 
-    //==== Get Unique Skin IDs ====//
-    for ( unsigned int i = 0; i < m_SurfVec.size(); i++ )
+    for ( unsigned int i = 0; i < num_fea_parts; i++ )
     {
-        if ( m_SurfVec[i]->GetFeaPartType() == vsp::FEA_SKIN )
+        vector< FeaNode* > temp_nVec;
+
+        for ( int j = 0; j < m_FeaElementVec.size(); j++ )
         {
-            if ( std::find( skin_id_vec.begin(), skin_id_vec.end(), m_SurfVec[i]->GetFeaPartID() ) == skin_id_vec.end() )
+            if ( m_FeaElementVec[j]->GetFeaPartIndex() == i )
             {
-                skin_id_vec.push_back( m_SurfVec[i]->GetFeaPartID() );
+                m_FeaElementVec[j]->LoadNodes( temp_nVec );
             }
         }
-    }
 
-    //==== Tag Nodes ====//
-    for ( int j = 0; j < skin_id_vec.size(); j++ )
-    {
-        bool found_skin = false;
-
-        for ( int s = 0; s < (int)m_SurfVec.size(); s++ )
+        for ( int j = 0; j < (int)temp_nVec.size(); j++ )
         {
-            //===== Tag Skin ====//
-            if ( m_SurfVec[s]->GetFeaPartID() == skin_id_vec[j] && !found_skin )
-            {
-                vector< FeaNode* > temp_nVec;
-
-                for ( int r = 0; r < m_FeaElementVec.size(); r++ )
-                {
-                    if ( m_FeaElementVec[r]->GetFeaPartID() == m_SurfVec[s]->GetFeaPartID() )
-                    {
-                        m_FeaElementVec[r]->LoadNodes( temp_nVec );
-                    }
-                }
-
-                for ( int i = 0; i < (int)temp_nVec.size(); i++ )
-                {
-                    int ind = FindPntIndex( temp_nVec[i]->m_Pnt, m_AllPntVec, m_IndMap );
-                    m_FeaNodeVec[ind]->AddTag( vsp::FEA_SKIN, s );
-                }
-                found_skin = true;
-            }
-        }
-    }
-
-    for ( int s = 0; s < (int)m_SurfVec.size(); s++ )
-    {
-        //===== Tag Ribs ====//
-        if ( m_SurfVec[s]->GetFeaPartType() == vsp::FEA_RIB )
-        {
-            vector< FeaNode* > temp_nVec;
-
-            for ( int r = 0; r < m_FeaElementVec.size(); r++ )
-            {
-                if ( m_FeaElementVec[r]->GetFeaPartID() == m_SurfVec[s]->GetFeaPartID() )
-                {
-                    m_FeaElementVec[r]->LoadNodes( temp_nVec );
-                }
-            }
-
-            for ( int i = 0; i < (int)temp_nVec.size(); i++ )
-            {
-                int ind = FindPntIndex( temp_nVec[i]->m_Pnt, m_AllPntVec, m_IndMap );
-                m_FeaNodeVec[ind]->AddTag( vsp::FEA_RIB, s );
-            }
-        }
-        //===== Tag Spars ====//
-        if ( m_SurfVec[s]->GetFeaPartType() == vsp::FEA_SPAR )
-        {
-            vector< FeaNode* > temp_nVec;
-
-            for ( int r = 0; r < m_FeaElementVec.size(); r++ )
-            {
-                if ( m_FeaElementVec[r]->GetFeaPartID() == m_SurfVec[s]->GetFeaPartID() )
-                {
-                    m_FeaElementVec[r]->LoadNodes( temp_nVec );
-                }
-            }
-
-            for ( int i = 0; i < (int)temp_nVec.size(); i++ )
-            {
-                int ind = FindPntIndex( temp_nVec[i]->m_Pnt, m_AllPntVec, m_IndMap );
-                m_FeaNodeVec[ind]->AddTag( vsp::FEA_SPAR, s );
-            }
+            int ind = FindPntIndex( temp_nVec[j]->m_Pnt, m_AllPntVec, m_IndMap );
+            m_FeaNodeVec[ind]->AddTag( i );
         }
     }
 }
