@@ -140,11 +140,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 620, "FEA Me
     m_OutputTabLayout.AddButton(m_SelectGeomFile, "...");
     m_OutputTabLayout.ForceNewLine();
 
-    m_OutputTabLayout.AddButton(m_ThickFile, ".thick");
-    m_OutputTabLayout.AddOutput(m_ThickOutput);
-    m_OutputTabLayout.AddButton(m_SelectThickFile, "...");
-    m_OutputTabLayout.ForceNewLine();
-
     //=== Create Console Area ===//
     m_ConsoleLayout.SetGroupAndScreen( m_FLTK_Window, this );
 
@@ -1739,8 +1734,6 @@ bool StructScreen::Update()
     m_NastOutput.Update( truncateFileName( nastranname, 40 ).c_str() );
     string geomname = veh->GetStructSettingsPtr()->GetExportFileName( vsp::GEOM_FILE_NAME );
     m_GeomOutput.Update( truncateFileName( geomname, 40 ).c_str() );
-    string thickname = veh->GetStructSettingsPtr()->GetExportFileName( vsp::THICK_FILE_NAME );
-    m_ThickOutput.Update( truncateFileName( thickname, 40 ).c_str() );
     string stlname = veh->GetStructSettingsPtr()->GetExportFileName( vsp::STL_FEA_NAME );
     m_StlOutput.Update( truncateFileName( stlname, 40 ).c_str() );
 
@@ -1748,7 +1741,6 @@ bool StructScreen::Update()
     m_MassFile.Update( veh->GetStructSettingsPtr()->GetExportFileFlag( vsp::MASS_FILE_NAME )->GetID() );
     m_NastFile.Update( veh->GetStructSettingsPtr()->GetExportFileFlag( vsp::NASTRAN_FILE_NAME )->GetID() );
     m_GeomFile.Update( veh->GetStructSettingsPtr()->GetExportFileFlag( vsp::GEOM_FILE_NAME )->GetID() );
-    m_ThickFile.Update( veh->GetStructSettingsPtr()->GetExportFileFlag( vsp::THICK_FILE_NAME )->GetID() );
     m_StlFile.Update( veh->GetStructSettingsPtr()->GetExportFileFlag( vsp::STL_FEA_NAME )->GetID() );
 
     if ( FeaMeshMgr.GetFeaMeshInProgress() )
@@ -2400,14 +2392,6 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
         if ( newfile.compare( "" ) != 0 )
         {
             veh->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::GEOM_FILE_NAME );
-        }
-    }
-    else if ( device == &m_SelectThickFile )
-    {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select Calculix thick .dat file.", "*.dat" );
-        if ( newfile.compare( "" ) != 0 )
-        {
-            veh->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::THICK_FILE_NAME );
         }
     }
 

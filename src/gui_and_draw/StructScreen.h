@@ -135,19 +135,16 @@ private:
     ToggleButton m_MassFile;
     ToggleButton m_NastFile;
     ToggleButton m_GeomFile;
-    ToggleButton m_ThickFile;
 
     TriggerButton m_SelectStlFile;
     TriggerButton m_SelectMassFile;
     TriggerButton m_SelectNastFile;
     TriggerButton m_SelectGeomFile;
-    TriggerButton m_SelectThickFile;
 
     StringOutput m_StlOutput;
     StringOutput m_MassOutput;
     StringOutput m_NastOutput;
     StringOutput m_GeomOutput;
-    StringOutput m_ThickOutput;
 
     //===== Structure Tab Items =====//
 
