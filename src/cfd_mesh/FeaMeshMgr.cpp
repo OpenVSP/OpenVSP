@@ -561,23 +561,23 @@ void FeaMeshMgrSingleton::LoadSkins()
 {
     FeaPart* FeaSkin = m_FeaMeshStruct->GetFeaSkin();
 
-    //===== Add FeaSkins ====//
-    vector< XferSurf > skinxfersurfs;
-
     if ( FeaSkin )
     {
+        //===== Add FeaSkins ====//
+        vector< XferSurf > skinxfersurfs;
+
+        int skin_index = m_FeaMeshStruct->GetFeaPartIndex( FeaSkin );
+
         FeaSkin->FetchFeaXFerSurf( skinxfersurfs, 0 );
 
         // Load Skin XFerSurf to m_SurfVec
         LoadSurfs( skinxfersurfs );
-    }
 
-    // Not sure this is needed, could possibly be done in Fetch call above.
-    for ( int j = 0; j < m_SurfVec.size(); j++ )
-    {
-        Surf* ssurf = m_SurfVec[j];
-        ssurf->SetFeaPartType( vsp::FEA_SKIN );
-        ssurf->SetFeaPartID( FeaSkin->GetID() );
+        // Not sure this is needed, could possibly be done in Fetch call above.
+        for ( int j = 0; j < m_SurfVec.size(); j++ )
+        {
+            m_SurfVec[j]->SetFeaPartIndex( skin_index );
+        }
     }
 }
 
@@ -664,69 +664,40 @@ void FeaMeshMgrSingleton::AddStructureParts()
     //===== Add FeaParts ====//
     int num_parts = FeaPartVec.size();
 
-    for ( int i = 0; i < num_parts; i++ )
+    for ( int i = 1; i < num_parts; i++ ) // FeaSkin is index 0 and has been added already
     {
-        if ( FeaPartVec[i]->GetType() == vsp::FEA_RIB )
+        int part_index = m_FeaMeshStruct->GetFeaPartIndex( FeaPartVec[i] );
+        vector< XferSurf > partxfersurfs;
+
+        FeaPartVec[i]->FetchFeaXFerSurf( partxfersurfs, -9999 );
+
+        // Load Rib XFerSurf to m_SurfVec
+        LoadSurfs( partxfersurfs );
+
+        // Identify the FeaPart Type and ID. Add to m_FeaPartSurfVec
+        int begin = m_SurfVec.size() - partxfersurfs.size();
+        int end = m_SurfVec.size();
+
+        for ( int j = begin; j < end; j++ )
         {
-            vector< XferSurf > ribxfersurfs;
-
-            FeaPartVec[i]->FetchFeaXFerSurf( ribxfersurfs, -9999 );
-
-            // Load Rib XFerSurf to m_SurfVec
-            LoadSurfs( ribxfersurfs );
-
-            // Identify the FeaPart Type and ID. Add to m_FeaPartSurfVec
-            int begin = m_SurfVec.size() - ribxfersurfs.size();
-            int end = m_SurfVec.size();
-
-            for ( int j = begin; j < end; j++ )
-            {
-                Surf* rsurf = m_SurfVec[j];
-                rsurf->SetFeaPartType( vsp::FEA_RIB );
-                rsurf->SetFeaPartID( FeaPartVec[i]->GetID() );
-            }
+            m_SurfVec[j]->SetFeaPartIndex( part_index );
         }
-        else if ( FeaPartVec[i]->GetType() == vsp::FEA_SPAR )
-        {
-            vector< XferSurf > sparxfersurfs;
 
-            FeaPartVec[i]->FetchFeaXFerSurf( sparxfersurfs, -9999 );
-
-            // Load Spar XFerSurf to m_SurfVec
-            LoadSurfs( sparxfersurfs );
-
-            // Identify the FeaPart Type and ID. Add to m_FeaPartSurfVec
-            int begin = m_SurfVec.size() - sparxfersurfs.size();
-            int end = m_SurfVec.size();
-
-            for ( int j = begin; j < end; j++ )
-            {
-                Surf* ssurf = m_SurfVec[j];
-                ssurf->SetFeaPartType( vsp::FEA_SPAR );
-                ssurf->SetFeaPartID( FeaPartVec[i]->GetID() );
-            }
-        }
-        else if ( FeaPartVec[i]->GetType() == vsp::FEA_FIX_POINT )
-        {
-            FeaFixPoint* fixpt = dynamic_cast<FeaFixPoint*>( FeaPartVec[i] );
-            assert( fixpt );
-
-
-        }
-        else if ( FeaPartVec[i]->GetType() == vsp::FEA_STIFFENER_PLANE )
-        {
-            FeaStiffenerPlane* stiffener_plane = dynamic_cast<FeaStiffenerPlane*>( FeaPartVec[i] );
-            assert( stiffener_plane );
-
-
-        }
-        else if ( FeaPartVec[i]->GetType() == vsp::FEA_STIFFENER_SUB_SURF )
-        {
-            FeaStiffenerSubSurf* stiffener_subsurf = dynamic_cast<FeaStiffenerSubSurf*>( FeaPartVec[i] );
-            assert( stiffener_subsurf );
-
-
-        }
+        //else if ( FeaPartVec[i]->GetType() == vsp::FEA_FIX_POINT )
+        //{
+        //    FeaFixPoint* fixpt = dynamic_cast<FeaFixPoint*>( FeaPartVec[i] );
+        //    assert( fixpt );
+        //}
+        //else if ( FeaPartVec[i]->GetType() == vsp::FEA_STIFFENER_PLANE )
+        //{
+        //    FeaStiffenerPlane* stiffener_plane = dynamic_cast<FeaStiffenerPlane*>( FeaPartVec[i] );
+        //    assert( stiffener_plane );
+        //}
+        //else if ( FeaPartVec[i]->GetType() == vsp::FEA_STIFFENER_SUB_SURF )
+        //{
+        //    FeaStiffenerSubSurf* stiffener_subsurf = dynamic_cast<FeaStiffenerSubSurf*>( FeaPartVec[i] );
+        //    assert( stiffener_subsurf );
+        //}
     }
 }
 
