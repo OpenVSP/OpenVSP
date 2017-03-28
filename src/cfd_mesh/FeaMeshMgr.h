@@ -20,56 +20,6 @@
 
 using namespace std;
 
-//class SectionEdge
-//{
-//public:
-//    SectionEdge()                   {}
-//    virtual ~SectionEdge()          {}
-//
-//    vector< double > m_LineFractVec;
-//    vector< vec2d  > m_UWVec;
-//    vector< vec3d  > m_PntVec;
-//};
-//
-//class FeaGeom
-//{
-//public:
-//
-//    FeaGeom();
-//    virtual ~FeaGeom();
-//
-//    void BuildClean();
-//    void Load( Surf* surf );
-//
-//    //void WriteData( xmlNodePtr root );
-//    //void ReadData(  xmlNodePtr root );
-//
-//
-//    vec2d GetUW( int edge_id, double fract );
-//    vec3d CompPnt( int edge_id, double fract );
-//    bool IntersectPlaneEdge( int edge_id, vec3d & orig, vec3d & norm, vec2d & result );
-//    void ComputePerUW( vec3d & pnt, double* per_U, double* per_W );
-////  void Draw( bool highlight );
-//
-//    Surf* m_GeomSurfPtr;
-//
-//    //vec3d m_Normal;
-//    //vec3d m_ChordNormal;
-//    //double m_SweepLE;
-//
-//    enum { UW00, UW10, UW01, UW11, NUM_CORNER_PNTS };
-//    vec3d m_CornerPnts[NUM_CORNER_PNTS];
-//
-//    enum { LEADEDGE, TRAILEDGE, INNERSIDE, OUTERSIDE, NUM_EDGES };
-//    SectionEdge m_Edges[NUM_EDGES];
-//
-//    //vector< FeaPart* > m_FeaPartVec;
-//
-//    //FeaSkin* m_GeomSurfSkin;
-//
-//    //vector< FeaElement* > m_FeaGeomElementVec;
-//};
-
 //////////////////////////////////////////////////////////////////////
 class FeaMeshMgrSingleton : public CfdMeshMgrSingleton
 {
@@ -115,8 +65,6 @@ public:
 
     virtual void TagFeaNodes();
 
-    //virtual vec3d GetNormal( int sectID );
-
     virtual int GetTotalNumSurfs()
     {
         return m_SurfVec.size();
@@ -128,13 +76,10 @@ public:
 
     virtual void ComputeWriteMass();
 
-//  virtual void Draw();
-
     virtual double GetTotalMass()
     {
         return m_TotalMass;
     }
-
 
     virtual FeaNode* FindNode( vector< FeaNode* > nodeVec, int id );
 
@@ -148,14 +93,6 @@ public:
         m_DrawMeshFlag = f;
     }
 
-    //virtual void SetDrawAttachPointsFlag( bool f )
-    //{
-    //    m_DrawAttachPoints = f;
-    //}
-    //virtual bool GetDrawAttachPointsFlag()
-    //{
-    //    return m_DrawAttachPoints;
-    //}
     virtual bool GetFeaMeshInProgress()
     {
         return m_FeaMeshInProgress;
@@ -165,24 +102,14 @@ public:
         m_FeaMeshInProgress = progress_flag;
     }
 
-    //virtual void SaveData();
-    //virtual void WriteFeaStructData( Geom* geom_ptr, xmlNodePtr root );
-    //virtual void SetFeaStructData( Geom* geom_ptr, xmlNodePtr root );
-    //virtual void ReadFeaStructData( );
-    //virtual void CopyGeomPtr( Geom* from_geom, Geom* to_geom );
-
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
-    //virtual void BuildFeaPartIntChains();
 
 protected:
 
     bool m_DrawMeshFlag;
 
     bool m_FeaMeshInProgress;
-
-    //xmlNodePtr m_XmlDataNode;
-    //vector< Geom* > m_DataGeomVec;
 
     double m_TotalMass;
 
@@ -196,24 +123,10 @@ protected:
     map< int, vector< int > > m_IndMap;
     vector< int > m_PntShift;
 
-    //bool m_DrawAttachPoints;
-    //int m_ClosestAttachPoint;
-    //vector< vec3d > m_AttachPoints;
-
 private:
-    DrawObj m_SkinElemDO;
-    DrawObj m_SliceElemDO;
     vector< DrawObj > m_SSTagDO;
 
-    DrawObj m_ISegChainDO;
-    DrawObj m_ISegChainPtsDO;
-
 };
-//FEAMesh:
-//feamass.dat        -> [modelname]_mass.dat
-//feaNASTRAN.dat -> [modelname]_NASTRAN.dat
-//feageom.dat        -> [modelname]_calculix_geom.dat
-//feanodethick.dat ->  [modelname]_calculix_thick.dat
 
 #define FeaMeshMgr FeaMeshMgrSingleton::getInstance()
 
