@@ -1044,7 +1044,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
 
 void FeaMeshMgrSingleton::WriteCalculix()
 {
-    string fn = GetStructSettingsPtr()->GetExportFileName( vsp::GEOM_FILE_NAME );
+    string fn = GetStructSettingsPtr()->GetExportFileName( vsp::CALCULIX_FILE_NAME );
     FILE* fp = fopen( fn.c_str(), "w" );
     if ( fp )
     {

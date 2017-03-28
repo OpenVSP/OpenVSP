@@ -140,9 +140,9 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 620, "FEA Me
     m_OutputTabLayout.ForceNewLine();
     m_OutputTabLayout.SetFitWidthFlag( false );
 
-    m_OutputTabLayout.AddButton(m_GeomFile, ".geom");
-    m_OutputTabLayout.AddOutput(m_GeomOutput);
-    m_OutputTabLayout.AddButton(m_SelectGeomFile, "...");
+    m_OutputTabLayout.AddButton(m_CalcFile, ".dat");
+    m_OutputTabLayout.AddOutput(m_CalcOutput);
+    m_OutputTabLayout.AddButton(m_SelectCalcFile, "...");
     m_OutputTabLayout.ForceNewLine();
 
     //=== Create Console Area ===//
@@ -1737,8 +1737,8 @@ bool StructScreen::Update()
     m_MassOutput.Update( truncateFileName( massname, 40 ).c_str() );
     string nastranname = veh->GetStructSettingsPtr()->GetExportFileName( vsp::NASTRAN_FILE_NAME );
     m_NastOutput.Update( truncateFileName( nastranname, 40 ).c_str() );
-    string geomname = veh->GetStructSettingsPtr()->GetExportFileName( vsp::GEOM_FILE_NAME );
-    m_GeomOutput.Update( truncateFileName( geomname, 40 ).c_str() );
+    string calculixname = veh->GetStructSettingsPtr()->GetExportFileName( vsp::CALCULIX_FILE_NAME );
+    m_CalcOutput.Update( truncateFileName( calculixname, 40 ).c_str() );
     string stlname = veh->GetStructSettingsPtr()->GetExportFileName( vsp::STL_FEA_NAME );
     m_StlOutput.Update( truncateFileName( stlname, 40 ).c_str() );
     string gmshname = veh->GetStructSettingsPtr()->GetExportFileName( vsp::GMSH_FEA_NAME );
@@ -1747,7 +1747,7 @@ bool StructScreen::Update()
     //==== Update File Output Flags ====//
     m_MassFile.Update( veh->GetStructSettingsPtr()->GetExportFileFlag( vsp::MASS_FILE_NAME )->GetID() );
     m_NastFile.Update( veh->GetStructSettingsPtr()->GetExportFileFlag( vsp::NASTRAN_FILE_NAME )->GetID() );
-    m_GeomFile.Update( veh->GetStructSettingsPtr()->GetExportFileFlag( vsp::GEOM_FILE_NAME )->GetID() );
+    m_CalcFile.Update( veh->GetStructSettingsPtr()->GetExportFileFlag( vsp::CALCULIX_FILE_NAME )->GetID() );
     m_StlFile.Update( veh->GetStructSettingsPtr()->GetExportFileFlag( vsp::STL_FEA_NAME )->GetID() );
     m_GmshFile.Update( veh->GetStructSettingsPtr()->GetExportFileFlag( vsp::GMSH_FEA_NAME )->GetID() );
 
@@ -2394,12 +2394,12 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             veh->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::NASTRAN_FILE_NAME );
         }
     }
-    else if ( device == &m_SelectGeomFile  )
+    else if ( device == &m_SelectCalcFile  )
     {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select Calculix geom .dat file.", "*.dat" );
+        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select Calculix .dat file.", "*.dat" );
         if ( newfile.compare( "" ) != 0 )
         {
-            veh->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::GEOM_FILE_NAME );
+            veh->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::CALCULIX_FILE_NAME );
         }
     }
     else if ( device == &m_SelectGmshFile )
