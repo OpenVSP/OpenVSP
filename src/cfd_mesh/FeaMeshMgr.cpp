@@ -696,8 +696,6 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
 {
     for ( int s = 0; s < (int)m_SurfVec.size(); s++ )
     {
-        int prop_index = m_FeaMeshStruct->GetFeaPropertyIndex( m_SurfVec[s]->GetFeaPartIndex() );
-
         vector < vec3d >pvec = m_SurfVec[s]->GetMesh()->GetSimpPntVec();
         vector < SimpTri > tvec = m_SurfVec[s]->GetMesh()->GetSimpTriVec();
         for ( int i = 0; i < (int)tvec.size(); i++ )
@@ -705,7 +703,6 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
             FeaTri* tri = new FeaTri;
             tri->Create( pvec[tvec[i].ind0], pvec[tvec[i].ind1], pvec[tvec[i].ind2] );
             tri->SetFeaPartIndex( m_SurfVec[s]->GetFeaPartIndex() );
-            tri->SetFeaPropertyIndex( prop_index );
             m_FeaElementVec.push_back( tri );
         }
     }
@@ -726,12 +723,13 @@ void FeaMeshMgrSingleton::ComputeWriteMass()
         for ( unsigned int i = 0; i < num_fea_parts; i++ )
         {
             double mass = 0;
+            int property_id = m_FeaMeshStruct->GetFeaPropertyIndex( i );
 
             for ( int j = 0; j < m_FeaElementVec.size(); j++ )
             {
                 if ( m_FeaElementVec[j]->GetFeaPartIndex() == i )
                 {
-                    mass += m_FeaElementVec[j]->ComputeMass();
+                    mass += m_FeaElementVec[j]->ComputeMass( property_id );
                 }
             }
 
@@ -827,12 +825,14 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
             fprintf( fp, "\n" );
             fprintf( fp, "$%s\n", m_FeaMeshStruct->GetFeaPartName( i ).c_str() );
 
+            int property_id = m_FeaMeshStruct->GetFeaPropertyIndex( i );
+
             for ( int j = 0; j < m_FeaElementVec.size(); j++ )
             {
                 if ( m_FeaElementVec[j]->GetFeaPartIndex() == i )
                 {
                     elem_id++;
-                    m_FeaElementVec[j]->WriteNASTRAN( fp, elem_id );
+                    m_FeaElementVec[j]->WriteNASTRAN( fp, elem_id, property_id );
                 }
             }
         }
@@ -1022,7 +1022,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
 
         for ( unsigned int i = 0; i < property_vec.size(); i++ )
         {
-            property_vec[i]->WriteNASTRAN( fp, i );
+            property_vec[i]->WriteNASTRAN( fp, i + 1 );
         }
 
         //==== Materials ====//
@@ -1033,7 +1033,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
 
         for ( unsigned int i = 0; i < material_vec.size(); i++ )
         {
-            material_vec[i]->WriteNASTRAN( fp, i );
+            material_vec[i]->WriteNASTRAN( fp, i + 1 );
         }
 
         fprintf( fp, "END DATA\n" );
@@ -1049,7 +1049,6 @@ void FeaMeshMgrSingleton::WriteCalculix()
     if ( fp )
     {
         int elem_id = 0;
-        int property_id = 0;
         char str[256];
 
         int num_fea_parts = m_FeaMeshStruct->NumFeaParts();
@@ -1058,6 +1057,8 @@ void FeaMeshMgrSingleton::WriteCalculix()
         {
             fprintf( fp, "$**%%%s\n", m_FeaMeshStruct->GetFeaPartName( i ).c_str() );
             fprintf( fp, "*NODE, NSET=N%s\n", m_FeaMeshStruct->GetFeaPartName( i ).c_str() );
+
+            int property_id = m_FeaMeshStruct->GetFeaPropertyIndex( i );
 
             for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
             {
@@ -1079,7 +1080,6 @@ void FeaMeshMgrSingleton::WriteCalculix()
                 {
                     elem_id++;
                     m_FeaElementVec[j]->WriteCalculix( fp, elem_id );
-                    property_id = m_FeaElementVec[j]->GetFeaPropertyIndex();
                 }
             }
 

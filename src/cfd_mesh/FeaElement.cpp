@@ -179,9 +179,9 @@ void FeaTri::WriteCalculix( FILE* fp, int id )
              m_Mids[0]->GetIndex(), m_Mids[1]->GetIndex(), m_Mids[2]->GetIndex() );
 }
 
-void FeaTri::WriteNASTRAN( FILE* fp, int id )
+void FeaTri::WriteNASTRAN( FILE* fp, int id, int property_index )
 {
-    fprintf( fp, "CTRIA6,%d,%d,%d,%d,%d,%d,%d,%d\n", id, m_FeaPropertyIndex,
+    fprintf( fp, "CTRIA6,%d,%d,%d,%d,%d,%d,%d,%d\n", id, property_index + 1,
              m_Corners[0]->GetIndex(), m_Corners[1]->GetIndex(), m_Corners[2]->GetIndex(),
              m_Mids[0]->GetIndex(), m_Mids[1]->GetIndex(), m_Mids[2]->GetIndex() );
 }
@@ -194,7 +194,7 @@ void FeaTri::WriteGmsh( FILE* fp, int id, int fea_part_index )
              m_Mids[0]->GetIndex(),m_Mids[1]->GetIndex(), m_Mids[2]->GetIndex() );
 }
 
-double FeaTri::ComputeMass()
+double FeaTri::ComputeMass( int property_index )
 {
     double mass = 0.0;
     if ( m_Corners.size() < 3 )
@@ -204,9 +204,21 @@ double FeaTri::ComputeMass()
 
     double a = area( m_Corners[0]->m_Pnt, m_Corners[1]->m_Pnt, m_Corners[2]->m_Pnt );
 
-    double avg_t = StructureMgr.GetFeaProperty( m_FeaPropertyIndex )->m_Thickness();
-    int mat_index = StructureMgr.GetFeaProperty( m_FeaPropertyIndex )->GetFeaMaterialIndex();
-    double avg_d = StructureMgr.GetFeaMaterial( mat_index )->m_MassDensity();
+    double avg_t = 0;
+    int mat_index = -1;
+
+    if ( StructureMgr.GetFeaProperty( property_index ) )
+    {
+        avg_t = StructureMgr.GetFeaProperty( property_index )->m_Thickness();
+        mat_index = StructureMgr.GetFeaProperty( property_index )->GetFeaMaterialIndex();
+    }
+
+    double avg_d = 0;
+
+    if ( StructureMgr.GetFeaMaterial( mat_index ) )
+    {
+        avg_d = StructureMgr.GetFeaMaterial( mat_index )->m_MassDensity();
+    }
 
     //double avg_t = ( m_Corners[0]->m_Thick + m_Corners[1]->m_Thick + m_Corners[2]->m_Thick ) / 3.0;
     //double avg_d = ( m_Corners[0]->m_Dense + m_Corners[1]->m_Dense + m_Corners[2]->m_Dense ) / 3.0;
@@ -245,9 +257,9 @@ void FeaQuad::WriteCalculix( FILE* fp, int id )
              m_Corners[0]->GetIndex(), m_Corners[1]->GetIndex(), m_Corners[2]->GetIndex(), m_Corners[3]->GetIndex(),
              m_Mids[0]->GetIndex(), m_Mids[1]->GetIndex(), m_Mids[2]->GetIndex(), m_Mids[3]->GetIndex() );
 }
-void FeaQuad::WriteNASTRAN( FILE* fp, int id )
+void FeaQuad::WriteNASTRAN( FILE* fp, int id, int property_index )
 {
-    fprintf( fp, "CQUAD8,%d,%d,%d,%d,%d,%d,%d,%d,+\n+,%d,%d\n", id, m_FeaPropertyIndex,
+    fprintf( fp, "CQUAD8,%d,%d,%d,%d,%d,%d,%d,%d,+\n+,%d,%d\n", id, property_index + 1,
              m_Corners[0]->GetIndex(), m_Corners[1]->GetIndex(), m_Corners[2]->GetIndex(), m_Corners[3]->GetIndex(),
              m_Mids[0]->GetIndex(), m_Mids[1]->GetIndex(), m_Mids[2]->GetIndex(), m_Mids[3]->GetIndex() );
 }
@@ -260,7 +272,7 @@ void FeaQuad::WriteGmsh( FILE* fp, int id, int fea_part_index )
              m_Mids[0]->GetIndex(), m_Mids[1]->GetIndex(), m_Mids[2]->GetIndex(), m_Mids[3]->GetIndex() );
 }
 
-double FeaQuad::ComputeMass()
+double FeaQuad::ComputeMass( int property_index )
 {
     double mass = 0.0;
     if ( m_Corners.size() < 4 )
@@ -272,9 +284,21 @@ double FeaQuad::ComputeMass()
     double a023 = area( m_Corners[0]->m_Pnt, m_Corners[2]->m_Pnt, m_Corners[3]->m_Pnt );
     double a = a012 + a023;
 
-    double avg_t = StructureMgr.GetFeaProperty( m_FeaPropertyIndex )->m_Thickness();
-    int mat_index = StructureMgr.GetFeaProperty( m_FeaPropertyIndex )->GetFeaMaterialIndex();
-    double avg_d = StructureMgr.GetFeaMaterial( mat_index )->m_MassDensity();
+    double avg_t = 0;
+    int mat_index = -1;
+
+    if ( StructureMgr.GetFeaProperty( property_index ) )
+    {
+        avg_t = StructureMgr.GetFeaProperty( property_index )->m_Thickness();
+        mat_index = StructureMgr.GetFeaProperty( property_index )->GetFeaMaterialIndex();
+    }
+
+    double avg_d = 0;
+
+    if ( StructureMgr.GetFeaMaterial( mat_index ) )
+    {
+        avg_d = StructureMgr.GetFeaMaterial( mat_index )->m_MassDensity();
+    }
 
     //double avg_t = ( m_Corners[0]->m_Thick + m_Corners[1]->m_Thick +
     //                 m_Corners[2]->m_Thick + m_Corners[3]->m_Thick ) / 4.0;

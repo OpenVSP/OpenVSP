@@ -81,18 +81,10 @@ class FeaElement
     {
         m_FeaPartIndex = fea_part_index;
     }
-    virtual int GetFeaPropertyIndex()
-    {
-        return m_FeaPropertyIndex;
-    }
-    virtual void SetFeaPropertyIndex( int index )
-    {
-        m_FeaPropertyIndex = index;
-    }
     virtual void WriteCalculix( FILE* fp, int id ) = 0;
-    virtual void WriteNASTRAN( FILE* fp, int id ) = 0;
+    virtual void WriteNASTRAN( FILE* fp, int id, int property_index ) = 0;
     virtual void WriteGmsh( FILE* fp, int id , int fea_part_index ) = 0;
-    virtual double ComputeMass() = 0;
+    virtual double ComputeMass( int property_index ) = 0;
     //  virtual void DrawPoly();
 
     enum
@@ -105,7 +97,6 @@ class FeaElement
     protected:
     int m_ElementType;
     int m_FeaPartIndex;
-    int m_FeaPropertyIndex;
 };
 
 //==== 6 Point Triangle Element ====//
@@ -121,9 +112,9 @@ class FeaTri : public FeaElement
 
     virtual void Create( vec3d & p0, vec3d & p1, vec3d & p2 );
     virtual void WriteCalculix( FILE* fp, int id );
-    virtual void WriteNASTRAN( FILE* fp, int id );
+    virtual void WriteNASTRAN( FILE* fp, int id, int property_index );
     virtual void WriteGmsh( FILE* fp, int id, int fea_part_index );
-    virtual double ComputeMass();
+    virtual double ComputeMass( int property_index );
 };
 
 //=== 8 Point Quad Element ====//
@@ -139,9 +130,9 @@ class FeaQuad : public FeaElement
 
     virtual void Create( vec3d & p0, vec3d & p1, vec3d & p2, vec3d & p3 );
     virtual void WriteCalculix( FILE* fp, int id );
-    virtual void WriteNASTRAN( FILE* fp, int id );
+    virtual void WriteNASTRAN( FILE* fp, int id, int property_index );
     virtual void WriteGmsh( FILE* fp, int id, int fea_part_index );
-    virtual double ComputeMass();
+    virtual double ComputeMass( int property_index );
 };
 
 //=== Beam Element ====//

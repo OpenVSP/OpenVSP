@@ -1727,11 +1727,11 @@ void FeaProperty::WriteNASTRAN( FILE* fp, int prop_id )
 {
     if ( m_FeaPropertyType() == SHELL_PROPERTY )
     {
-        fprintf( fp, "PSHELL,%d,%d,%f\n", prop_id, m_FeaMaterialIndex, m_Thickness() );
+        fprintf( fp, "PSHELL,%d,%d,%f\n", prop_id, m_FeaMaterialIndex + 1, m_Thickness() );
     }
     if ( m_FeaPropertyType() == BEAM_PROPERTY )
     {
-        fprintf( fp, "PBEAM,%d,%d,%f,%f,%f,%f,%f\n", prop_id, m_FeaMaterialIndex, m_CrossSecArea(), m_Izz(), m_Iyy(), m_Izy(), m_Ixx() );
+        fprintf( fp, "PBEAM,%d,%d,%f,%f,%f,%f,%f\n", prop_id, m_FeaMaterialIndex + 1, m_CrossSecArea(), m_Izz(), m_Iyy(), m_Izy(), m_Ixx() );
     }
 }
 
@@ -1743,12 +1743,12 @@ void FeaProperty::WriteCalculix( FILE* fp, string ELSET )
     {
         if ( m_FeaPropertyType() == SHELL_PROPERTY )
         {
-            fprintf( fp, "*SHELL GENERAL SECTION, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), fea_mat->GetName().c_str() );
+            fprintf( fp, "*SHELL SECTION, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), fea_mat->GetName().c_str() );
             fprintf( fp, "%g\n", m_Thickness() );
         }
         if ( m_FeaPropertyType() == BEAM_PROPERTY )
         {
-            fprintf( fp, "*BEAM GENERAL SECTION, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), fea_mat->GetName().c_str() );
+            fprintf( fp, "*BEAM SECTION, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), fea_mat->GetName().c_str() );
             fprintf( fp, "%g,%g,%g,%g,%g\n", m_CrossSecArea(), m_Izz(), m_Izy(), m_Iyy(), m_Ixx() );
         }
     }
