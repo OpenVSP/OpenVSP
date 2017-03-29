@@ -314,9 +314,69 @@ double FeaQuad::ComputeMass( int property_index )
 //=================== FeaBeam ======================//
 //////////////////////////////////////////////////////
 
-void FeaBeam::Create( vec3d & p0, vec3d & p1, vec3d & p2 )
+void FeaBeam::Create( vec3d & p0, vec3d & p1, vec3d & norm )
 {
     m_ElementType = FEA_BEAM;
     DeleteAllNodes();
+
+    m_Corners.push_back( new FeaNode( p0 ) );
+    m_Corners.push_back( new FeaNode( p1 ) );
+
+    vec3d p01 = ( p0 + p1 ) * 0.5;
+
+    m_Mids.push_back( new FeaNode( p01 ) );
+
+    m_DispVec = norm;
+}
+
+void FeaBeam::WriteCalculix( FILE* fp, int id )
+{
+    fprintf( fp, "%d,%d,%d\n", id,
+             m_Corners[0]->GetIndex(), m_Corners[1]->GetIndex() );
+}
+
+void FeaBeam::WriteNASTRAN( FILE* fp, int id, int property_index )
+{
+    fprintf( fp, "CBEAM,%d,%d,%d,%d,%f,%f,%f\n", id, property_index + 1,
+             m_Corners[0]->GetIndex(), m_Corners[1]->GetIndex(),
+             m_DispVec.x(), m_DispVec.y(), m_DispVec.z() );
+}
+void FeaBeam::WriteGmsh( FILE* fp, int id, int fea_part_index )
+{
+    // 2 node line line (1)
+    fprintf( fp, "%d 1 1 %d %d %d\n", id, fea_part_index,
+             m_Corners[0]->GetIndex(), m_Corners[1]->GetIndex() );
+}
+
+double FeaBeam::ComputeMass( int property_index )
+{
+    double mass = 0.0;
+
+    if ( m_Corners.size() < 2 )
+    {
+        return mass;
+    }
+
+    double length = dist( m_Corners[0]->m_Pnt, m_Corners[1]->m_Pnt );
+
+    double area = 0;
+    int mat_index = -1;
+
+    if ( StructureMgr.GetFeaProperty( property_index ) )
+    {
+        area = StructureMgr.GetFeaProperty( property_index )->m_CrossSecArea();
+        mat_index = StructureMgr.GetFeaProperty( property_index )->GetFeaMaterialIndex();
+    }
+
+    double avg_d = 0;
+
+    if ( StructureMgr.GetFeaMaterial( mat_index ) )
+    {
+        avg_d = StructureMgr.GetFeaMaterial( mat_index )->m_MassDensity();
+    }
+
+    mass = length * area * avg_d;
+
+    return mass;
 
 }
