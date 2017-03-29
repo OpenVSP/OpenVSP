@@ -640,6 +640,7 @@ void FeaMeshMgrSingleton::ExportFeaMesh()
     WriteNASTRAN( GetStructSettingsPtr()->GetExportFileName( vsp::NASTRAN_FILE_NAME ) );
     WriteCalculix();
     WriteSTL( GetStructSettingsPtr()->GetExportFileName( vsp::STL_FEA_NAME ) );
+    WriteGmsh();
 
     ComputeWriteMass();
 

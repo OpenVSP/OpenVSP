@@ -107,6 +107,11 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 620, "FEA Me
     m_OutputTabLayout.AddButton(m_SelectStlFile, "...");
     m_OutputTabLayout.ForceNewLine();
 
+    m_OutputTabLayout.AddButton( m_GmshFile, ".msh" );
+    m_OutputTabLayout.AddOutput( m_GmshOutput );
+    m_OutputTabLayout.AddButton( m_SelectGmshFile, "..." );
+    m_OutputTabLayout.ForceNewLine();
+
     m_OutputTabLayout.AddYGap();
     m_OutputTabLayout.SetFitWidthFlag( true );
     m_OutputTabLayout.AddDividerBox( "Mass" );
@@ -1736,12 +1741,15 @@ bool StructScreen::Update()
     m_GeomOutput.Update( truncateFileName( geomname, 40 ).c_str() );
     string stlname = veh->GetStructSettingsPtr()->GetExportFileName( vsp::STL_FEA_NAME );
     m_StlOutput.Update( truncateFileName( stlname, 40 ).c_str() );
+    string gmshname = veh->GetStructSettingsPtr()->GetExportFileName( vsp::GMSH_FEA_NAME );
+    m_GmshOutput.Update( truncateFileName( gmshname, 40 ).c_str() );
 
     //==== Update File Output Flags ====//
     m_MassFile.Update( veh->GetStructSettingsPtr()->GetExportFileFlag( vsp::MASS_FILE_NAME )->GetID() );
     m_NastFile.Update( veh->GetStructSettingsPtr()->GetExportFileFlag( vsp::NASTRAN_FILE_NAME )->GetID() );
     m_GeomFile.Update( veh->GetStructSettingsPtr()->GetExportFileFlag( vsp::GEOM_FILE_NAME )->GetID() );
     m_StlFile.Update( veh->GetStructSettingsPtr()->GetExportFileFlag( vsp::STL_FEA_NAME )->GetID() );
+    m_GmshFile.Update( veh->GetStructSettingsPtr()->GetExportFileFlag( vsp::GMSH_FEA_NAME )->GetID() );
 
     if ( FeaMeshMgr.GetFeaMeshInProgress() )
     {
@@ -2392,6 +2400,14 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
         if ( newfile.compare( "" ) != 0 )
         {
             veh->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::GEOM_FILE_NAME );
+        }
+    }
+    else if ( device == &m_SelectGmshFile )
+    {
+        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .msh file.", "*.msh" );
+        if ( newfile.compare( "" ) != 0 )
+        {
+            veh->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::GMSH_FEA_NAME );
         }
     }
 

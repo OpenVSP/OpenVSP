@@ -289,6 +289,7 @@ enum FEA_EXPORT_TYPE { MASS_FILE_NAME,
                        NASTRAN_FILE_NAME,
                        GEOM_FILE_NAME,
                        STL_FEA_NAME,
+                       GMSH_FEA_NAME,
                        NUM_FEA_FILE_NAMES
 };
 

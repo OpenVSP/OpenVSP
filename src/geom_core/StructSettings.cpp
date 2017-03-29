@@ -31,6 +31,7 @@ StructSettings::StructSettings() : MeshCommonSettings()
     m_ExportFileFlags[ vsp::NASTRAN_FILE_NAME ].Init( "NASTRAN_Export", "ExportFEA", this, true, 0, 1 );
     m_ExportFileFlags[ vsp::GEOM_FILE_NAME ].Init( "GEOM_Export", "ExportFEA", this, true, 0, 1 );
     m_ExportFileFlags[ vsp::STL_FEA_NAME ].Init( "STL_Export", "ExportFEA", this, true, 0, 1 );
+    m_ExportFileFlags[vsp::GMSH_FEA_NAME].Init( "GMSH_Export", "ExportFEA", this, true, 0, 1 );
 
     InitCommonParms();
 
@@ -75,7 +76,7 @@ void StructSettings::ResetExportFileNames()
 void StructSettings::ResetExportFileNames( string basename )
 {
     int pos;
-    const char *suffix[] = {"_mass.dat", "_NASTRAN.dat", "_calculix_geom.dat", ".stl" };
+    const char *suffix[] = {"_mass.dat", "_NASTRAN.dat", "_calculix_geom.dat", ".stl", ".msh" };
 
     for ( int i = 0 ; i < vsp::NUM_FEA_FILE_NAMES ; i++ )
     {
