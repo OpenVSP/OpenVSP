@@ -114,6 +114,10 @@ void FeaNode::WriteCalculix( FILE* fp )
     fprintf( fp, "%d,%f,%f,%f\n", m_Index, m_Pnt.x(), m_Pnt.y(), m_Pnt.z() );
 }
 
+void FeaNode::WriteGmsh( FILE* fp )
+{
+    fprintf( fp, "%d %16.10f %16.10f %16.10f\n", m_Index, m_Pnt.x(), m_Pnt.y(), m_Pnt.z() );
+}
 
 //////////////////////////////////////////////////////
 //================== FeaElement ====================//
@@ -182,6 +186,14 @@ void FeaTri::WriteNASTRAN( FILE* fp, int id )
              m_Mids[0]->GetIndex(), m_Mids[1]->GetIndex(), m_Mids[2]->GetIndex() );
 }
 
+void FeaTri::WriteGmsh( FILE* fp, int id, int fea_part_index )
+{
+    // 6-node second order triangle element type (9)
+    fprintf( fp, "%d 9 1 %d %d %d %d %d %d %d\n", id, fea_part_index,
+             m_Corners[0]->GetIndex(), m_Corners[1]->GetIndex(), m_Corners[2]->GetIndex(),
+             m_Mids[0]->GetIndex(),m_Mids[1]->GetIndex(), m_Mids[2]->GetIndex() );
+}
+
 double FeaTri::ComputeMass()
 {
     double mass = 0.0;
@@ -236,6 +248,14 @@ void FeaQuad::WriteCalculix( FILE* fp, int id )
 void FeaQuad::WriteNASTRAN( FILE* fp, int id )
 {
     fprintf( fp, "CQUAD8,%d,%d,%d,%d,%d,%d,%d,%d,+\n+,%d,%d\n", id, m_FeaPropertyIndex,
+             m_Corners[0]->GetIndex(), m_Corners[1]->GetIndex(), m_Corners[2]->GetIndex(), m_Corners[3]->GetIndex(),
+             m_Mids[0]->GetIndex(), m_Mids[1]->GetIndex(), m_Mids[2]->GetIndex(), m_Mids[3]->GetIndex() );
+}
+
+void FeaQuad::WriteGmsh( FILE* fp, int id, int fea_part_index )
+{
+    // 8-node second order quadrangle element type (16)
+    fprintf( fp, "%d 16 1 %d %d %d %d %d %d %d %d %d\n", id, fea_part_index,
              m_Corners[0]->GetIndex(), m_Corners[1]->GetIndex(), m_Corners[2]->GetIndex(), m_Corners[3]->GetIndex(),
              m_Mids[0]->GetIndex(), m_Mids[1]->GetIndex(), m_Mids[2]->GetIndex(), m_Mids[3]->GetIndex() );
 }

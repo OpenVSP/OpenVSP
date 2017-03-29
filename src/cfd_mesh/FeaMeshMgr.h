@@ -124,6 +124,7 @@ public:
 
     virtual void WriteCalculix( );
     virtual void WriteNASTRAN( const string &base_filename );
+    virtual void WriteGmsh();
 
     virtual void ComputeWriteMass();
 

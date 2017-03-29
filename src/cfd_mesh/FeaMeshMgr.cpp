@@ -1159,6 +1159,78 @@ void FeaMeshMgrSingleton::WriteCalculix()
     }
 }
 
+void FeaMeshMgrSingleton::WriteGmsh()
+{
+    string fn = GetStructSettingsPtr()->GetExportFileName( vsp::GMSH_FEA_NAME );
+    FILE* fp = fopen( fn.c_str(), "w" );
+    if ( fp )
+    {
+        //=====================================================================================//
+        //============== Write Gmsh File ======================================================//
+        //=====================================================================================//
+        int num_fea_parts = m_FeaMeshStruct->NumFeaParts();
+
+        fprintf( fp, "$MeshFormat\n" );
+        fprintf( fp, "2.2 0 %d\n", ( int )sizeof( double ) );
+        fprintf( fp, "$EndMeshFormat\n" );
+
+        // Count FeaNodes
+        int node_count = 0;
+        for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
+        {
+            if ( m_PntShift[j] >= 0 )
+            {
+                node_count++;
+            }
+        }
+
+        //==== Group and Name FeaParts ====//
+        fprintf( fp, "$PhysicalNames\n" );
+        fprintf( fp, "%d\n", num_fea_parts );
+        for ( unsigned int i = 0; i < num_fea_parts; i++ )
+        {
+            fprintf( fp, "9 %d \"%s\"\n", i + 1, m_FeaMeshStruct->GetFeaPartName( i ).c_str() );
+        }
+        fprintf( fp, "$EndPhysicalNames\n" );
+
+        //==== Write Nodes ====//
+        fprintf( fp, "$Nodes\n" );
+        fprintf( fp, "%d\n", node_count );
+
+        for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
+        {
+            if ( m_PntShift[j] >= 0 )
+            {
+                m_FeaNodeVec[j]->WriteGmsh( fp );
+            }
+        }
+
+        fprintf( fp, "$EndNodes\n" );
+
+        //==== Write FeaElements ====//
+        fprintf( fp, "$Elements\n" );
+        fprintf( fp, "%d\n", (int)m_FeaElementVec.size() );
+
+        int ele_cnt = 1;
+
+        for ( unsigned int j = 0; j < num_fea_parts; j++ )
+        {
+            for ( int i = 0; i < (int)m_FeaElementVec.size(); i++ )
+            {
+                if ( m_FeaElementVec[i]->GetFeaPartIndex() == j )
+                {
+                    m_FeaElementVec[i]->WriteGmsh( fp, ele_cnt, j + 1 );
+                    ele_cnt++;
+                }
+            }
+        }
+
+        fprintf( fp, "$EndElements\n" );
+        fclose( fp );
+
+        // Note: Material properties are not supported in *.msh file
+    }
+}
 
 //void FeaMeshMgrSingleton::WriteCalculix( const char* base_filename )
 //{

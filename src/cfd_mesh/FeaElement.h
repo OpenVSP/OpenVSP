@@ -53,7 +53,7 @@ class FeaNode
 
     void WriteNASTRAN( FILE* fp );
     void WriteCalculix( FILE* fp );
-
+    void WriteGmsh( FILE* fp );
 };
 
 class FeaElement
@@ -91,6 +91,7 @@ class FeaElement
     }
     virtual void WriteCalculix( FILE* fp, int id ) = 0;
     virtual void WriteNASTRAN( FILE* fp, int id ) = 0;
+    virtual void WriteGmsh( FILE* fp, int id , int fea_part_index ) = 0;
     virtual double ComputeMass() = 0;
     //  virtual void DrawPoly();
 
@@ -121,6 +122,7 @@ class FeaTri : public FeaElement
     virtual void Create( vec3d & p0, vec3d & p1, vec3d & p2 );
     virtual void WriteCalculix( FILE* fp, int id );
     virtual void WriteNASTRAN( FILE* fp, int id );
+    virtual void WriteGmsh( FILE* fp, int id, int fea_part_index );
     virtual double ComputeMass();
 };
 
@@ -138,6 +140,7 @@ class FeaQuad : public FeaElement
     virtual void Create( vec3d & p0, vec3d & p1, vec3d & p2, vec3d & p3 );
     virtual void WriteCalculix( FILE* fp, int id );
     virtual void WriteNASTRAN( FILE* fp, int id );
+    virtual void WriteGmsh( FILE* fp, int id, int fea_part_index );
     virtual double ComputeMass();
 };
 
