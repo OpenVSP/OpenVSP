@@ -450,6 +450,9 @@ FeaPart::FeaPart( string geomID, int type )
     m_MainSurfIndx.Init( "MainSurfIndx", "FeaPart", this, -1, -1, 1e12 );
     m_MainSurfIndx.SetDescript( "Surface Index for FeaPart" );
 
+    m_DrawElementsFlag.Init( "DrawElementsFlag", "FeaPart", this, true, false, true );
+    m_DrawElementsFlag.SetDescript( "Flag to Draw FeaElements" );
+
     m_FeaPropertyIndex = 0; // Shell property default
 }
 

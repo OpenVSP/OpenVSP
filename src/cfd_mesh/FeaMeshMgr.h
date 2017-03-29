@@ -124,8 +124,9 @@ protected:
     vector< int > m_PntShift;
 
 private:
-    vector< DrawObj > m_SSTagDO;
 
+    vector< DrawObj > m_FeaElementDO;
+    vector< DrawObj > m_FeaNodeDO;
 };
 
 #define FeaMeshMgr FeaMeshMgrSingleton::getInstance()

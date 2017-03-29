@@ -729,8 +729,10 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     {
         // Render Tag Colors
         int num_tags = SubSurfaceMgr.GetNumTags();
-        m_SSTagDO.resize( num_tags );
-        map<int, DrawObj*> tag_dobj_map;
+        m_FeaNodeDO.resize( num_tags );
+        m_FeaElementDO.resize( num_tags );
+        map<int, DrawObj*> node_dobj_map;
+        map<int, DrawObj*> element_dobj_map;
         map< std::vector<int>, int >::const_iterator mit;
         map< int, DrawObj* >::const_iterator dmit;
         map< std::vector<int>, int > tagMap = SubSurfaceMgr.GetSingleTagMap();
@@ -744,32 +746,43 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
         char str[256];
         for ( mit = tagMap.begin(); mit != tagMap.end(); mit++ )
         {
-            m_SSTagDO[cnt] = DrawObj();
-            tag_dobj_map[mit->second] = &m_SSTagDO[cnt];
-            sprintf( str, "%s_TAG_%d", GetID().c_str(), cnt );
-            m_SSTagDO[cnt].m_GeomID = string( str );
+            m_FeaNodeDO[cnt] = DrawObj();
+            m_FeaElementDO[cnt] = DrawObj();
 
-            m_SSTagDO[cnt].m_Type = DrawObj::VSP_SHADED_TRIS;
-            m_SSTagDO[cnt].m_Visible = false;
+            node_dobj_map[mit->second] = &m_FeaNodeDO[cnt];
+            element_dobj_map[mit->second] = &m_FeaElementDO[cnt];
+
+            sprintf( str, "%s_Node_Tag_%d", GetID().c_str(), cnt );
+            m_FeaNodeDO[cnt].m_GeomID = string( str );
+            sprintf( str, "%s_Element_Tag_%d", GetID().c_str(), cnt );
+            m_FeaElementDO[cnt].m_GeomID = string( str );
+
+            m_FeaNodeDO[cnt].m_Type = DrawObj::VSP_POINTS;
+            m_FeaNodeDO[cnt].m_Visible = false;
+            m_FeaNodeDO[cnt].m_PointSize = 3.0;
+            m_FeaElementDO[cnt].m_Type = DrawObj::VSP_SHADED_TRIS;
+            m_FeaElementDO[cnt].m_Visible = false;
+
             if ( GetStructSettingsPtr()->m_DrawMeshFlag.Get() ||
                  GetStructSettingsPtr()->m_ColorTagsFlag.Get() )   // At least mesh or tags are visible.
             {
-                m_SSTagDO[cnt].m_Visible = true;
+                m_FeaNodeDO[cnt].m_Visible = true;
+                m_FeaElementDO[cnt].m_Visible = true;
 
                 if ( GetStructSettingsPtr()->m_DrawMeshFlag.Get() &&
                      GetStructSettingsPtr()->m_ColorTagsFlag.Get() ) // Both are visible.
                 {
-                    m_SSTagDO[cnt].m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
-                    m_SSTagDO[cnt].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
+                    m_FeaElementDO[cnt].m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
+                    m_FeaElementDO[cnt].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
                 }
                 else if ( GetStructSettingsPtr()->m_DrawMeshFlag.Get() ) // Mesh only
                 {
-                    m_SSTagDO[cnt].m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
-                    m_SSTagDO[cnt].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
+                    m_FeaElementDO[cnt].m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
+                    m_FeaElementDO[cnt].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
                 }
                 else // Tags only
                 {
-                    m_SSTagDO[cnt].m_Type = DrawObj::VSP_SHADED_TRIS;
+                    m_FeaElementDO[cnt].m_Type = DrawObj::VSP_SHADED_TRIS;
                 }
             }
 
@@ -779,29 +792,33 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 // offset from ncgrp basic colors.
                 // Note, (cnt/ncgrp) uses integer division resulting in floor.
                 double deg = ( ( cnt % ncgrp ) * ncstep + ( cnt / ncgrp ) ) * nctodeg;
-                vec3d rgb = m_SSTagDO[cnt].ColorWheel( deg );
+                vec3d rgb = m_FeaElementDO[cnt].ColorWheel( deg );
                 rgb.normalize();
+
+                m_FeaNodeDO[cnt].m_PointColor = rgb;
 
                 for ( int i = 0; i < 3; i++ )
                 {
-                    m_SSTagDO[cnt].m_MaterialInfo.Ambient[i] = (float)rgb.v[i] / 5.0f;
-                    m_SSTagDO[cnt].m_MaterialInfo.Diffuse[i] = 0.4f + (float)rgb.v[i] / 10.0f;
-                    m_SSTagDO[cnt].m_MaterialInfo.Specular[i] = 0.04f + 0.7f * (float)rgb.v[i];
-                    m_SSTagDO[cnt].m_MaterialInfo.Emission[i] = (float)rgb.v[i] / 20.0f;
+                    m_FeaElementDO[cnt].m_MaterialInfo.Ambient[i] = (float)rgb.v[i] / 5.0f;
+                    m_FeaElementDO[cnt].m_MaterialInfo.Diffuse[i] = 0.4f + (float)rgb.v[i] / 10.0f;
+                    m_FeaElementDO[cnt].m_MaterialInfo.Specular[i] = 0.04f + 0.7f * (float)rgb.v[i];
+                    m_FeaElementDO[cnt].m_MaterialInfo.Emission[i] = (float)rgb.v[i] / 20.0f;
                 }
-                m_SSTagDO[cnt].m_MaterialInfo.Ambient[3] = 1.0f;
-                m_SSTagDO[cnt].m_MaterialInfo.Diffuse[3] = 1.0f;
-                m_SSTagDO[cnt].m_MaterialInfo.Specular[3] = 1.0f;
-                m_SSTagDO[cnt].m_MaterialInfo.Emission[3] = 1.0f;
+                m_FeaElementDO[cnt].m_MaterialInfo.Ambient[3] = 1.0f;
+                m_FeaElementDO[cnt].m_MaterialInfo.Diffuse[3] = 1.0f;
+                m_FeaElementDO[cnt].m_MaterialInfo.Specular[3] = 1.0f;
+                m_FeaElementDO[cnt].m_MaterialInfo.Emission[3] = 1.0f;
 
-                m_SSTagDO[cnt].m_MaterialInfo.Shininess = 32.0f;
+                m_FeaElementDO[cnt].m_MaterialInfo.Shininess = 32.0f;
             }
             else
             {
                 // No color needed for mesh only.
+                m_FeaNodeDO[cnt].m_PointColor = vec3d( 0.0, 0.0, 0.0 );
             }
 
-            draw_obj_vec.push_back( &m_SSTagDO[cnt] );
+            draw_obj_vec.push_back( &m_FeaNodeDO[cnt] );
+            draw_obj_vec.push_back( &m_FeaElementDO[cnt] );
             cnt++;
         }
 
@@ -814,22 +831,40 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
             {
                 if ( ( !m_SurfVec[i]->GetWakeFlag() ) && ( !m_SurfVec[i]->GetFarFlag() ) && ( !m_SurfVec[i]->GetSymPlaneFlag() ) )
                 {
-                    SimpTri* stri = &tVec[t];
-                    dmit = tag_dobj_map.find( SubSurfaceMgr.GetTag( stri->m_Tags ) );
-                    if ( dmit == tag_dobj_map.end() )
+                    if ( m_FeaMeshStruct->GetFeaPart( m_SurfVec[i]->GetFeaPartIndex() )->m_DrawNodesFlag() )
                     {
-                        continue;
+                        SimpTri* stri = &tVec[t];
+                        dmit = node_dobj_map.find( SubSurfaceMgr.GetTag( stri->m_Tags ) );
+                        if ( dmit == node_dobj_map.end() )
+                        {
+                            continue;
+                        }
+
+                        DrawObj* obj = dmit->second;
+                        obj->m_PntVec.push_back( pVec[stri->ind0] );
+                        obj->m_PntVec.push_back( pVec[stri->ind1] );
+                        obj->m_PntVec.push_back( pVec[stri->ind2] );
                     }
 
-                    DrawObj* obj = dmit->second;
-                    vec3d norm = cross( pVec[stri->ind1] - pVec[stri->ind0], pVec[stri->ind2] - pVec[stri->ind0] );
-                    norm.normalize();
-                    obj->m_PntVec.push_back( pVec[stri->ind0] );
-                    obj->m_PntVec.push_back( pVec[stri->ind1] );
-                    obj->m_PntVec.push_back( pVec[stri->ind2] );
-                    obj->m_NormVec.push_back( norm );
-                    obj->m_NormVec.push_back( norm );
-                    obj->m_NormVec.push_back( norm );
+                    if ( m_FeaMeshStruct->GetFeaPart( m_SurfVec[i]->GetFeaPartIndex() )->m_DrawElementsFlag() )
+                    {
+                        SimpTri* stri = &tVec[t];
+                        dmit = element_dobj_map.find( SubSurfaceMgr.GetTag( stri->m_Tags ) );
+                        if ( dmit == element_dobj_map.end() )
+                        {
+                            continue;
+                        }
+
+                        DrawObj* obj = dmit->second;
+                        vec3d norm = cross( pVec[stri->ind1] - pVec[stri->ind0], pVec[stri->ind2] - pVec[stri->ind0] );
+                        norm.normalize();
+                        obj->m_PntVec.push_back( pVec[stri->ind0] );
+                        obj->m_PntVec.push_back( pVec[stri->ind1] );
+                        obj->m_PntVec.push_back( pVec[stri->ind2] );
+                        obj->m_NormVec.push_back( norm );
+                        obj->m_NormVec.push_back( norm );
+                        obj->m_NormVec.push_back( norm );
+                    }
                 }
             }
         }

@@ -163,6 +163,7 @@ public:
     virtual void SetFeaMaterialIndex( int index );
 
     IntParm m_MainSurfIndx;
+    BoolParm m_DrawElementsFlag;
 
 protected:
 
