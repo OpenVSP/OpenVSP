@@ -725,7 +725,7 @@ void FeaMeshMgrSingleton::WriteGmsh()
 
 void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 {
-    if ( GetStructSettingsPtr()->m_DrawMeshFlag() && !GetFeaMeshInProgress() )
+    if ( !GetFeaMeshInProgress() )
     {
         // Render Tag Colors
         int num_tags = SubSurfaceMgr.GetNumTags();
@@ -831,7 +831,7 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
             {
                 if ( ( !m_SurfVec[i]->GetWakeFlag() ) && ( !m_SurfVec[i]->GetFarFlag() ) && ( !m_SurfVec[i]->GetSymPlaneFlag() ) )
                 {
-                    if ( m_FeaMeshStruct->GetFeaPart( m_SurfVec[i]->GetFeaPartIndex() )->m_DrawNodesFlag() )
+                    if ( GetStructSettingsPtr()->m_DrawNodesFlag() )
                     {
                         SimpTri* stri = &tVec[t];
                         dmit = node_dobj_map.find( SubSurfaceMgr.GetTag( stri->m_Tags ) );

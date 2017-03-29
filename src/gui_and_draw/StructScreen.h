@@ -34,6 +34,7 @@ public:
     virtual void LoadGeomChoice();
     virtual void UpdateStructBrowser();
     virtual void UpdateFeaPartBrowser();
+    virtual void UpdateDrawPartBrowser();
     virtual void UpdateFeaSubSurfBrowser();
     virtual void UpdateMainSurfChoice();
     virtual void UpdateFeaPartChoice();
@@ -143,10 +144,18 @@ private:
     StringOutput m_CalcOutput;
 
     //===== Draw Tab Items =====//
+    ToggleButton m_DrawFeaPartsButton;
     ToggleButton m_DrawMeshButton;
     ToggleButton m_ColorTagsButton;
     ToggleButton m_ShowBadEdgeTriButton;
 
+    Fl_Check_Browser * m_DrawPartSelectBrowser;
+
+    ToggleButton m_DrawNodesToggle;
+    ToggleButton m_DrawElementsToggle;
+
+    TriggerButton m_DrawAllButton;
+    TriggerButton m_HideAllButton;
 
     //===== Structure Tab Items =====//
     Choice m_GeomChoice;

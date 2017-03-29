@@ -155,15 +155,39 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 620, "FEA Me
     m_DisplayTabLayout.AddDividerBox( "Display" );
 
     m_DisplayTabLayout.AddYGap();
+    m_DisplayTabLayout.AddButton( m_DrawFeaPartsButton, "Draw FeaParts" );
+
+    m_DisplayTabLayout.AddYGap();
     m_DisplayTabLayout.AddButton( m_DrawMeshButton, "Draw Mesh" );
 
     m_DisplayTabLayout.AddYGap();
     m_DisplayTabLayout.AddButton( m_ColorTagsButton, "Color Tags" );
 
     m_DisplayTabLayout.AddYGap();
+    m_DisplayTabLayout.AddButton( m_DrawNodesToggle, "Draw Nodes" );
+
+    m_DisplayTabLayout.AddYGap();
     m_DisplayTabLayout.AddButton( m_ShowBadEdgeTriButton, "Show Bad Edges and Triangles" );
 
     m_DisplayTabLayout.AddYGap();
+
+    m_DisplayTabLayout.AddDividerBox( "Display FeaElement Sets" );
+
+    m_DrawPartSelectBrowser = m_DisplayTabLayout.AddCheckBrowser( 150 );
+    m_DrawPartSelectBrowser->callback( staticScreenCB, this );
+
+    m_DisplayTabLayout.AddY( 125 );
+    m_DisplayTabLayout.AddYGap();
+
+    m_DisplayTabLayout.SetSameLineFlag( true );
+    m_DisplayTabLayout.SetFitWidthFlag( false );
+
+    m_DisplayTabLayout.SetButtonWidth( m_DisplayTabLayout.GetW() / 2 );
+
+    m_DisplayTabLayout.AddButton( m_DrawAllButton, "Draw All Elements" );
+    m_DisplayTabLayout.AddButton( m_HideAllButton, "Hide All Elements" );
+    m_DisplayTabLayout.ForceNewLine();
+
     //=== Structures Tab ===//
     m_StructureTabLayout.SetGroupAndScreen( structTabGroup, this );
 
@@ -896,6 +920,24 @@ void StructScreen::UpdateFeaPartBrowser()
     }
 }
 
+void StructScreen::UpdateDrawPartBrowser()
+{
+    //==== Draw Part Browser ====//
+    m_DrawPartSelectBrowser->clear();
+    char str[256];
+
+    if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
+    {
+        vector< FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
+        vector<FeaPart*> feaprt_vec = structVec[m_SelectedStructIndex]->GetFeaPartVec();
+        for ( int i = 0; i < (int)feaprt_vec.size(); i++ )
+        {
+            sprintf( str, "%s:  %s", structVec[m_SelectedStructIndex]->GetFeaStructName().c_str(), feaprt_vec[i]->GetName().c_str() );
+            m_DrawPartSelectBrowser->add( str, feaprt_vec[i]->m_DrawElementsFlag() );
+        }
+    }
+}
+
 void StructScreen::UpdateFeaSubSurfBrowser()
 {
     //==== SubSurfBrowser ====//
@@ -1430,9 +1472,11 @@ bool StructScreen::Update()
         m_HalfMeshButton.Update( veh->GetStructSettingsPtr()->m_HalfMeshFlag.GetID() );
 
         //===== Display Tab Toggle Update =====//
+        m_DrawFeaPartsButton.Update( veh->GetStructSettingsPtr()->m_DrawFeaPartsFlag.GetID() );
         m_DrawMeshButton.Update( veh->GetStructSettingsPtr()->m_DrawMeshFlag.GetID() );
         m_ShowBadEdgeTriButton.Update( veh->GetStructSettingsPtr()->m_DrawBadFlag.GetID() );
         m_ColorTagsButton.Update( veh->GetStructSettingsPtr()->m_ColorTagsFlag.GetID() );
+        m_DrawNodesToggle.Update( veh->GetStructSettingsPtr()->m_DrawNodesFlag.GetID() );
 
         //===== Geom Choice Update =====//
         LoadGeomChoice();
@@ -1442,6 +1486,9 @@ bool StructScreen::Update()
 
         //===== Structure Browser Update =====//
         UpdateStructBrowser();
+
+        //===== Draw Part Browser Update =====//
+        UpdateDrawPartBrowser();
 
         //===== FeaPart Browser Update =====//
         UpdateFeaPartBrowser();
@@ -1820,6 +1867,26 @@ void StructScreen::CallBack( Fl_Widget* w )
                 }
             }
         }
+        else if ( w == m_DrawPartSelectBrowser )
+        {
+            int selected_index = m_DrawPartSelectBrowser->value();
+            bool flag = !!m_DrawPartSelectBrowser->checked( selected_index );
+
+            if ( flag != m_DrawPartSelectBrowser->checked( selected_index ) )
+            {
+                int test = 1;
+            }
+
+            if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
+            {
+                vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
+
+                if ( structvec[m_SelectedStructIndex]->ValidFeaPartInd( selected_index - 1 ) )
+                {
+                    structvec[m_SelectedStructIndex]->GetFeaPart( selected_index - 1 )->m_DrawElementsFlag.Set( flag );
+                }
+            }
+        }
         else if ( w == m_FeaSubSurfBrowser )
         {
             if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
@@ -2162,6 +2229,30 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             if ( !structvec[m_SelectedStructIndex]->ValidFeaPartInd( m_SelectedPartIndex ) )
             {
                 m_SelectedPartIndex = -1;
+            }
+        }
+    }
+    else if ( device == &m_DrawAllButton )
+    {
+        if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
+        {
+            vector < FeaPart* > fea_part_vec = StructureMgr.GetAllFeaStructs()[m_SelectedStructIndex]->GetFeaPartVec();
+
+            for ( unsigned int i = 0; i < fea_part_vec.size(); i++ )
+            {
+                fea_part_vec[i]->m_DrawElementsFlag.Set( true );
+            }
+        }
+    }
+    else if ( device == &m_HideAllButton )
+    {
+        if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
+        {
+            vector < FeaPart* > fea_part_vec = StructureMgr.GetAllFeaStructs()[m_SelectedStructIndex]->GetFeaPartVec();
+
+            for ( unsigned int i = 0; i < fea_part_vec.size(); i++ )
+            {
+                fea_part_vec[i]->m_DrawElementsFlag.Set( false );
             }
         }
     }
