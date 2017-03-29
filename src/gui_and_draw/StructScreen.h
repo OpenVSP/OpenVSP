@@ -149,11 +149,9 @@ private:
     ToggleButton m_DrawMeshButton;
     ToggleButton m_ColorTagsButton;
     ToggleButton m_ShowBadEdgeTriButton;
+    ToggleButton m_DrawNodesToggle;
 
     Fl_Check_Browser * m_DrawPartSelectBrowser;
-
-    ToggleButton m_DrawNodesToggle;
-    ToggleButton m_DrawElementsToggle;
 
     TriggerButton m_DrawAllButton;
     TriggerButton m_HideAllButton;

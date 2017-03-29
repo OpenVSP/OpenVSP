@@ -36,7 +36,7 @@ using namespace std;
 class StructSettings : public MeshCommonSettings
 {
 public:
-	StructSettings();
+    StructSettings();
     virtual ~StructSettings();
 
     string GetExportFileName( int type );

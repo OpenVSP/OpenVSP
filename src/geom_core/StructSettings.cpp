@@ -40,6 +40,8 @@ StructSettings::StructSettings() : MeshCommonSettings()
     SetSymSplittingOnFlag( false );
 
     m_NumEvenlySpacedPart.Init( "NumEvenlySpacedPart", "StructSettings", this, 10, 0, 1000 );
+    m_NumEvenlySpacedPart.SetDescript( "Number of Evenly Spaced FeaParts to Add" );
+
     m_DrawFeaPartsFlag.Init( "DrawFeaPartsFlag", "FeaPart", this, true, false, true );
     m_DrawFeaPartsFlag.SetDescript( "Flag to Draw FeaParts" );
 
@@ -106,12 +108,12 @@ void StructSettings::SetAllFileExportFlags( bool flag )
 {
     for ( int i = 0 ; i < vsp::NUM_FEA_FILE_NAMES ; i++ )
     {
-		m_ExportFileFlags[i] = flag;
-	}
+        m_ExportFileFlags[i] = flag;
+    }
 }
 
 void StructSettings::SetFileExportFlag( int type, bool flag )
 {
-	if ( type >= 0 && type < vsp::NUM_FEA_FILE_NAMES )
-		m_ExportFileFlags[type] = flag;
+    if ( type >= 0 && type < vsp::NUM_FEA_FILE_NAMES )
+        m_ExportFileFlags[type] = flag;
 }

@@ -85,7 +85,6 @@ class FeaElement
     virtual void WriteNASTRAN( FILE* fp, int id, int property_index ) = 0;
     virtual void WriteGmsh( FILE* fp, int id , int fea_part_index ) = 0;
     virtual double ComputeMass( int property_index ) = 0;
-    //  virtual void DrawPoly();
 
     enum
     {
