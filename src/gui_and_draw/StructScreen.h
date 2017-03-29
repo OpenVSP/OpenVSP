@@ -80,9 +80,9 @@ private:
     Fl_Text_Buffer m_TextBuffer;
 
     GroupLayout m_GlobalTabLayout;
-    GroupLayout m_OutputTabLayout;
     GroupLayout m_ConsoleLayout;
     GroupLayout m_BorderConsoleLayout;
+    GroupLayout m_DisplayTabLayout;
     GroupLayout m_StructureTabLayout;
     GroupLayout m_StructGroup;
     GroupLayout m_StructWingGroup;
@@ -123,12 +123,7 @@ private:
 
     ToggleButton m_HalfMeshButton;
 
-    ToggleButton m_DrawMeshButton;
-    ToggleButton m_ColorTagsButton;
-    ToggleButton m_ShowBadEdgeTriButton;
-
-    //===== Output Tab Items =====//
-
+    //===== Output Items =====//
     ToggleButton m_StlFile;
     ToggleButton m_GmshFile;
     ToggleButton m_MassFile;
@@ -147,8 +142,13 @@ private:
     StringOutput m_NastOutput;
     StringOutput m_CalcOutput;
 
-    //===== Structure Tab Items =====//
+    //===== Draw Tab Items =====//
+    ToggleButton m_DrawMeshButton;
+    ToggleButton m_ColorTagsButton;
+    ToggleButton m_ShowBadEdgeTriButton;
 
+
+    //===== Structure Tab Items =====//
     Choice m_GeomChoice;
     TriggerButton m_AddFeaStructButton;
     TriggerButton m_DelFeaStructButton;

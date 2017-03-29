@@ -32,8 +32,8 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 620, "FEA Me
 
     Fl_Group* globalTab = AddTab( "Global" );
     Fl_Group* globalTabGroup = AddSubGroup( globalTab, 5 );
-    Fl_Group* outputTab = AddTab( "Output" );
-    Fl_Group* outputTabGroup = AddSubGroup( outputTab, 5 );
+    Fl_Group* displayTab = AddTab( "Display" );
+    Fl_Group* displayTabGroup = AddSubGroup( displayTab, 5 );
     Fl_Group* structTab = AddTab( "Structure" );
     Fl_Group* structTabGroup = AddSubGroup( structTab, 5 );
     Fl_Group* partTab = AddTab( "Part" );
@@ -75,75 +75,58 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 620, "FEA Me
     m_GlobalTabLayout.AddButton( m_HalfMeshButton, "Generate Half Mesh" );
     m_GlobalTabLayout.AddYGap();
 
-    m_GlobalTabLayout.AddYGap();
-    m_GlobalTabLayout.AddDividerBox( "Display" );
-
-    m_GlobalTabLayout.AddYGap();
-    m_GlobalTabLayout.AddButton( m_DrawMeshButton, "Draw Mesh" );
-
-    m_GlobalTabLayout.AddYGap();
-    m_GlobalTabLayout.AddButton( m_ColorTagsButton, "Color Tags" );
-
-    m_GlobalTabLayout.AddYGap();
-    m_GlobalTabLayout.AddButton( m_ShowBadEdgeTriButton, "Show Bad Edges and Triangles" );
-
     globalTab->show();
 
     // TODO: Add more CFD Mesh Export file options?
 
-    m_OutputTabLayout.SetGroupAndScreen( outputTabGroup, this );
+    m_GlobalTabLayout.AddDividerBox("File Export");
+    m_GlobalTabLayout.AddYGap();
 
-    m_OutputTabLayout.AddDividerBox("Export File Names");
-    m_OutputTabLayout.AddYGap();
+    m_GlobalTabLayout.SetFitWidthFlag( false );
+    m_GlobalTabLayout.SetSameLineFlag( true );
 
-    m_OutputTabLayout.SetFitWidthFlag( false );
-    m_OutputTabLayout.SetSameLineFlag( true );
+    m_GlobalTabLayout.SetButtonWidth( 75 );
+    m_GlobalTabLayout.SetInputWidth( m_GlobalTabLayout.GetW() - 125 );
 
-    m_OutputTabLayout.SetButtonWidth(50);
-    m_OutputTabLayout.SetInputWidth(305);
+    m_GlobalTabLayout.AddButton(m_StlFile, ".stl");
+    m_GlobalTabLayout.AddOutput(m_StlOutput);
+    m_GlobalTabLayout.SetButtonWidth( m_GlobalTabLayout.GetRemainX() );
+    m_GlobalTabLayout.AddButton(m_SelectStlFile, "...");
+    m_GlobalTabLayout.ForceNewLine();
 
-    m_OutputTabLayout.AddButton(m_StlFile, ".stl");
-    m_OutputTabLayout.AddOutput(m_StlOutput);
-    m_OutputTabLayout.AddButton(m_SelectStlFile, "...");
-    m_OutputTabLayout.ForceNewLine();
+    m_GlobalTabLayout.SetButtonWidth( 75 );
+    m_GlobalTabLayout.AddButton( m_GmshFile, ".msh" );
+    m_GlobalTabLayout.AddOutput( m_GmshOutput );
+    m_GlobalTabLayout.SetButtonWidth( m_GlobalTabLayout.GetRemainX() );
+    m_GlobalTabLayout.AddButton( m_SelectGmshFile, "..." );
+    m_GlobalTabLayout.ForceNewLine();
 
-    m_OutputTabLayout.AddButton( m_GmshFile, ".msh" );
-    m_OutputTabLayout.AddOutput( m_GmshOutput );
-    m_OutputTabLayout.AddButton( m_SelectGmshFile, "..." );
-    m_OutputTabLayout.ForceNewLine();
+    m_GlobalTabLayout.AddYGap();
 
-    m_OutputTabLayout.AddYGap();
-    m_OutputTabLayout.SetFitWidthFlag( true );
-    m_OutputTabLayout.AddDividerBox( "Mass" );
-    m_OutputTabLayout.ForceNewLine();
-    m_OutputTabLayout.SetFitWidthFlag( false );
+    m_GlobalTabLayout.SetButtonWidth( 75 );
+    m_GlobalTabLayout.AddButton(m_MassFile, "Mass");
+    m_GlobalTabLayout.AddOutput(m_MassOutput);
+    m_GlobalTabLayout.SetButtonWidth( m_GlobalTabLayout.GetRemainX() );
+    m_GlobalTabLayout.AddButton(m_SelectMassFile, "...");
+    m_GlobalTabLayout.ForceNewLine();
 
-    m_OutputTabLayout.AddButton(m_MassFile, ".mass");
-    m_OutputTabLayout.AddOutput(m_MassOutput);
-    m_OutputTabLayout.AddButton(m_SelectMassFile, "...");
-    m_OutputTabLayout.ForceNewLine();
+    m_GlobalTabLayout.AddYGap();
 
-    m_OutputTabLayout.AddYGap();
-    m_OutputTabLayout.SetFitWidthFlag( true );
-    m_OutputTabLayout.AddDividerBox( "NASTRAN" );
-    m_OutputTabLayout.ForceNewLine();
-    m_OutputTabLayout.SetFitWidthFlag( false );
+    m_GlobalTabLayout.SetButtonWidth( 75 );
+    m_GlobalTabLayout.AddButton(m_NastFile, "NASTRAN");
+    m_GlobalTabLayout.AddOutput(m_NastOutput);
+    m_GlobalTabLayout.SetButtonWidth( m_GlobalTabLayout.GetRemainX() );
+    m_GlobalTabLayout.AddButton(m_SelectNastFile, "...");
+    m_GlobalTabLayout.ForceNewLine();
 
-    m_OutputTabLayout.AddButton(m_NastFile, ".nast");
-    m_OutputTabLayout.AddOutput(m_NastOutput);
-    m_OutputTabLayout.AddButton(m_SelectNastFile, "...");
-    m_OutputTabLayout.ForceNewLine();
+    m_GlobalTabLayout.AddYGap();
 
-    m_OutputTabLayout.AddYGap();
-    m_OutputTabLayout.SetFitWidthFlag( true );
-    m_OutputTabLayout.AddDividerBox( "Calculix" );
-    m_OutputTabLayout.ForceNewLine();
-    m_OutputTabLayout.SetFitWidthFlag( false );
-
-    m_OutputTabLayout.AddButton(m_CalcFile, ".dat");
-    m_OutputTabLayout.AddOutput(m_CalcOutput);
-    m_OutputTabLayout.AddButton(m_SelectCalcFile, "...");
-    m_OutputTabLayout.ForceNewLine();
+    m_GlobalTabLayout.SetButtonWidth( 75 );
+    m_GlobalTabLayout.AddButton(m_CalcFile, "Calculix");
+    m_GlobalTabLayout.AddOutput(m_CalcOutput);
+    m_GlobalTabLayout.SetButtonWidth( m_GlobalTabLayout.GetRemainX() );
+    m_GlobalTabLayout.AddButton(m_SelectCalcFile, "...");
+    m_GlobalTabLayout.ForceNewLine();
 
     //=== Create Console Area ===//
     m_ConsoleLayout.SetGroupAndScreen( m_FLTK_Window, this );
@@ -166,6 +149,21 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 620, "FEA Me
 
     m_BorderConsoleLayout.AddButton( m_FeaMeshExportButton, "Mesh and Export" );
 
+    //=== Display Tab ===//
+    m_DisplayTabLayout.SetGroupAndScreen( displayTabGroup, this );
+
+    m_DisplayTabLayout.AddDividerBox( "Display" );
+
+    m_DisplayTabLayout.AddYGap();
+    m_DisplayTabLayout.AddButton( m_DrawMeshButton, "Draw Mesh" );
+
+    m_DisplayTabLayout.AddYGap();
+    m_DisplayTabLayout.AddButton( m_ColorTagsButton, "Color Tags" );
+
+    m_DisplayTabLayout.AddYGap();
+    m_DisplayTabLayout.AddButton( m_ShowBadEdgeTriButton, "Show Bad Edges and Triangles" );
+
+    m_DisplayTabLayout.AddYGap();
     //=== Structures Tab ===//
     m_StructureTabLayout.SetGroupAndScreen( structTabGroup, this );
 
