@@ -40,6 +40,9 @@ StructSettings::StructSettings() : MeshCommonSettings()
     SetSymSplittingOnFlag( false );
 
     m_NumEvenlySpacedPart.Init( "NumEvenlySpacedPart", "StructSettings", this, 10, 0, 1000 );
+    m_DrawFeaPartsFlag.Init( "DrawFeaPartsFlag", "FeaPart", this, true, false, true );
+    m_DrawFeaPartsFlag.SetDescript( "Flag to Draw FeaParts" );
+
 }
 
 StructSettings::~StructSettings()

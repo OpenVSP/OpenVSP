@@ -50,6 +50,7 @@ public:
 
     BoolParm m_ExportFileFlags[vsp::NUM_FEA_FILE_NAMES];
     IntParm m_NumEvenlySpacedPart;
+    BoolParm m_DrawFeaPartsFlag;
 
 protected:
 

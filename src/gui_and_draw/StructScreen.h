@@ -348,8 +348,6 @@ private:
     TriggerButton m_FeaMeshExportButton;
 
     //==== Private Variables ====//
-    bool m_DrawFeaPartFlag;
-
     string m_SelectedGeomID;
     vector < string > m_GeomIDVec;
     vector < string > m_SubSurfIDVec;

@@ -1261,7 +1261,11 @@ void StructScreen::UpdateFeaMaterialChoice()
 void StructScreen::CloseCallBack( Fl_Widget *w )
 {
     FeaMeshMgr.SetDrawMeshFlag( false );
-    m_DrawFeaPartFlag = false;
+
+    if ( m_ScreenMgr->GetVehiclePtr() )
+    {
+        m_ScreenMgr->GetVehiclePtr()->GetStructSettingsPtr()->m_DrawFeaPartsFlag.Set( false );
+    }
 
     Hide();
 
@@ -1270,7 +1274,10 @@ void StructScreen::CloseCallBack( Fl_Widget *w )
 
 void StructScreen::Show()
 {
-    m_DrawFeaPartFlag = true;
+    if ( m_ScreenMgr->GetVehiclePtr() )
+    {
+        m_ScreenMgr->GetVehiclePtr()->GetStructSettingsPtr()->m_DrawFeaPartsFlag.Set( true );
+    }
 
     m_FLTK_Window->show();
 
@@ -2555,7 +2562,12 @@ void StructScreen::UpdateDrawObjs( vector< DrawObj* > &draw_obj_vec )
 
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
 
-    if ( veh && m_DrawFeaPartFlag )
+    if ( !veh )
+    {
+        return;
+    }
+
+    if ( veh->GetStructSettingsPtr()->m_DrawFeaPartsFlag() )
     {
         if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
         {
