@@ -90,7 +90,7 @@ void FeaMeshMgrSingleton::LoadSkins()
 
 void FeaMeshMgrSingleton::GenerateFeaMesh()
 {
-    m_OutStream.clear();
+    //m_OutStream.clear();
     m_FeaMeshInProgress = true;
 
     addOutputText( "Load Surfaces\n" );
@@ -545,7 +545,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
 
         for ( unsigned int i = 0; i < num_fea_parts; i++ )
         {
-            fprintf( fp, "$**%%%s\n", m_FeaMeshStruct->GetFeaPartName( i ).c_str() );
+            fprintf( fp, "**%s\n", m_FeaMeshStruct->GetFeaPartName( i ).c_str() );
             fprintf( fp, "*NODE, NSET=N%s\n", m_FeaMeshStruct->GetFeaPartName( i ).c_str() );
 
             int property_id = m_FeaMeshStruct->GetFeaPropertyIndex( i );
@@ -582,7 +582,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
 
         // TODO: Identify and improve intersection elements and nodes
 
-        fprintf( fp, "**%%Intersections\n" );
+        fprintf( fp, "**Intersections\n" );
         fprintf( fp, "*NODE, NSET=Nintersections\n" );
 
         for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
@@ -636,7 +636,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
 
         //==== Materials ====//
         fprintf( fp, "\n" );
-        fprintf( fp, "$Materials\n" );
+        fprintf( fp, "Materials\n" );
 
         vector < FeaMaterial* > material_vec = StructureMgr.GetFeaMaterialVec();
 

@@ -447,8 +447,8 @@ FeaPart::FeaPart( string geomID, int type )
     m_FeaPartType = type;
     m_ParentGeomID = geomID;
 
-    m_MainSurfIndx.Init( "MainSurfIndx", "FeaStructure", this, -1, -1, 1e12 );
-    m_MainSurfIndx.SetDescript( "Surface Index for FeaStructure" );
+    m_MainSurfIndx.Init( "MainSurfIndx", "FeaPart", this, -1, -1, 1e12 );
+    m_MainSurfIndx.SetDescript( "Surface Index for FeaPart" );
 
     m_FeaPropertyIndex = 0; // Shell property default
 }
@@ -619,7 +619,7 @@ vector < Matrix4d > FeaPart::CalculateSymmetricTransform()
                         transMats[j + k * numAddSurfs].initMat( transMats[j - currentIndex].data() );
                         transMats[j + k * numAddSurfs].postMult( Ref.data() ); // Apply Reflection
 
-                                                                               // Increment rotation by the angle
+                        // Increment rotation by the angle
                         Ref.postMult( Ref_Orig.data() );
                         addIndex++;
                     }

@@ -105,7 +105,6 @@ private:
     GroupLayout m_MaterialEditGroup;
 
     //===== Console Items =====//
-
     Fl_Text_Display *m_ConsoleDisplay;
     Fl_Text_Buffer *m_ConsoleBuffer;
 
@@ -113,7 +112,6 @@ private:
     ProcessUtil m_MonitorProcess;
 
     //===== Global Tab Items =====//
-
     SliderAdjRangeInput m_MaxEdgeLen;
     SliderAdjRangeInput m_MinEdgeLen;
     SliderAdjRangeInput m_MaxGap;
@@ -156,7 +154,6 @@ private:
     TriggerButton m_DelFeaStructButton;
 
     Fl_Browser * m_StructureSelectBrowser;
-    Fl_Browser * m_FeaPartSelectBrowser;
 
     StringInput m_FeaStructNameInput;
 
@@ -173,6 +170,8 @@ private:
     TriggerButton m_OrientTopButton;
 
     //===== FeaPart Tab Items =====//
+
+    Fl_Browser * m_FeaPartSelectBrowser;
 
     Choice m_FeaPartChoice;
     Choice m_SurfSel;
@@ -346,16 +345,13 @@ private:
     SliderAdjRangeInput m_MatThermalExCoeffSlider;
 
     //===== Common buttons =====//
-
     TriggerButton m_FeaMeshExportButton;
 
     //==== Private Variables ====//
-
     bool m_DrawFeaPartFlag;
 
     string m_SelectedGeomID;
     vector < string > m_GeomIDVec;
-
     vector < string > m_SubSurfIDVec;
 
     int m_FeaCurrMainSurfIndx;

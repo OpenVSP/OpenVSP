@@ -1460,7 +1460,6 @@ bool StructScreen::Update()
 
             // Update Current FeaPart
             FeaPart* feaprt = structVec[m_SelectedStructIndex]->GetFeaPart( m_SelectedPartIndex );
-            
             if ( feaprt )
             {
                 m_FeaPartNameInput.Update( feaprt->GetName() );
@@ -1555,7 +1554,6 @@ bool StructScreen::Update()
 
             //===== SubSurface =====//
             SubSurface* subsurf = structVec[m_SelectedStructIndex]->GetFeaSubSurf( m_SelectedSubSurfIndex );
-
             if ( subsurf )
             {
                 m_FeaSubNameInput.Update( subsurf->GetName() );
@@ -1568,7 +1566,6 @@ bool StructScreen::Update()
                     m_FeaSSLineTestToggleGroup.Update( ssline->m_TestType.GetID() );
                     m_FeaSSLineConstSlider.Update( ssline->m_ConstVal.GetID() );
                     FeaSubSurfDispGroup( &m_FeaSSLineGroup );
-
                 }
                 else if ( subsurf->GetType() == vsp::SS_RECTANGLE )
                 {
@@ -1665,7 +1662,6 @@ bool StructScreen::Update()
         if ( StructureMgr.ValidFeaPropertyInd( m_SelectedPropertyIndex ) )
         {
             FeaProperty* fea_prop = StructureMgr.GetFeaPropertyVec()[m_SelectedPropertyIndex];
-
             if ( fea_prop )
             {
                 m_FeaPropertyNameInput.Update( fea_prop->GetName() );
@@ -1704,7 +1700,6 @@ bool StructScreen::Update()
         if ( StructureMgr.ValidFeaMaterialInd( m_SelectedMaterialIndex ) )
         {
             FeaMaterial* fea_mat = StructureMgr.GetFeaMaterialVec()[m_SelectedMaterialIndex];
-
             if ( fea_mat )
             {
                 m_FeaMaterialNameInput.Update( fea_mat->GetName() );
