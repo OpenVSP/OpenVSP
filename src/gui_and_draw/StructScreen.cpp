@@ -847,7 +847,7 @@ void StructScreen::UpdateStructBrowser()
     //==== Structure Browser ====//
     m_StructureSelectBrowser->clear();
 
-    static int widths[] = { 200, 200 };
+    static int widths[] = { 220, 220 };
     m_StructureSelectBrowser->column_widths( widths );
     m_StructureSelectBrowser->column_char( ':' );
 
@@ -882,7 +882,7 @@ void StructScreen::UpdateFeaPartBrowser()
 {
     //==== FeaPart Browser ====//
     m_FeaPartSelectBrowser->clear();
-    static int widths[] = { 125, 125, 125 };
+    static int widths[] = { 150, 150, 150 };
     m_FeaPartSelectBrowser->column_widths( widths );
     m_FeaPartSelectBrowser->column_char( ':' );
 
@@ -942,7 +942,7 @@ void StructScreen::UpdateFeaSubSurfBrowser()
 {
     //==== SubSurfBrowser ====//
     m_FeaSubSurfBrowser->clear();
-    static int widths[] = { 125, 125, 125 };
+    static int widths[] = { 150, 150, 150 };
     m_FeaSubSurfBrowser->column_widths( widths );
     m_FeaSubSurfBrowser->column_char( ':' );
 
@@ -1099,7 +1099,7 @@ void StructScreen::UpdateFeaPropertyBrowser()
     //==== FeaPart Browser ====//
     m_FeaPropertySelectBrowser->clear();
 
-    static int widths[] = { 175, 175 };
+    static int widths[] = { 210, 210 };
     m_FeaPropertySelectBrowser->column_widths( widths );
     m_FeaPropertySelectBrowser->column_char( ':' );
 
