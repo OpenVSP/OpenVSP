@@ -45,6 +45,7 @@ public:
     virtual void UpdateFeaMaterialChoice();
 
     virtual void UpdateFeaPartPropertyIndex( Choice* property_choice );
+    virtual void UpdateCapPropertyIndex( Choice* property_choice );
     virtual void UpdateFeaSubSurfPropertyIndex( Choice* property_choice );
 
     virtual void OrientWing();
@@ -196,6 +197,9 @@ private:
     SliderAdjRangeInput m_FullDepthCenterLocSlider;
     SliderAdjRangeInput m_FullDepthThetaSlider;
 
+    ToggleButton m_FullDepthCapToggle;
+    Choice m_FullDepthCapPropertyChoice;
+
     //===== Rib =====//
     Choice m_RibPropertyChoice;
 
@@ -204,10 +208,12 @@ private:
     //SliderAdjRangeInput m_RibAlphaSlider;
     SliderAdjRangeInput m_RibThetaSlider;
 
+    ToggleButton m_RibCapToggle;
     //ToggleButton m_RibTrimButton;
 
     //SliderAdjRangeInput m_RibLengthScaleSlider;
     //SliderAdjRangeInput m_RibWidthScaleSlider;
+    Choice m_RibCapPropertyChoice;
 
     //===== Spar =====//
     Choice m_SparPropertyChoice;
@@ -216,10 +222,12 @@ private:
     //SliderAdjRangeInput m_SparAlphaSlider;
     SliderAdjRangeInput m_SparThetaSlider;
 
+    ToggleButton m_SparCapToggle;
     //ToggleButton m_SparTrimButton;
 
     //SliderAdjRangeInput m_SparLengthScaleSlider;
     //SliderAdjRangeInput m_SparWidthScaleSlider;
+    Choice m_SparCapPropertyChoice;
 
     //===== StiffenerPlane =====//
     Choice m_StiffenerPlanePropertyChoice;
@@ -360,6 +368,8 @@ private:
     string m_SelectedGeomID;
     vector < string > m_GeomIDVec;
     vector < string > m_SubSurfIDVec;
+    vector < string > m_DrawBrowserNameVec;
+    vector < int > m_DrawBrowserPartIndexVec;
 
     int m_FeaCurrMainSurfIndx;
     int m_SelectedStructIndex;

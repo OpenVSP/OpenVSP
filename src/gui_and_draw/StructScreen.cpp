@@ -330,6 +330,11 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 620, "FEA Me
     m_FullDepthEditLayout.AddSlider( m_FullDepthCenterLocSlider, "Position", 1, "%5.3f" );
     m_FullDepthEditLayout.AddSlider( m_FullDepthThetaSlider, "Theta", 25, "%5.3f" );
 
+    m_FullDepthEditLayout.AddYGap();
+
+    m_FullDepthEditLayout.AddButton( m_FullDepthCapToggle, "Cap Intersections" );
+    m_FullDepthEditLayout.AddChoice( m_FullDepthCapPropertyChoice, "Cap Property" );
+
     //==== FeaRib ====//
     m_RibEditLayout.SetGroupAndScreen( AddSubGroup( partTab, 5 ), this );
     m_RibEditLayout.SetY( start_y );
@@ -352,8 +357,12 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 620, "FEA Me
 
     //m_RibEditLayout.AddSlider( m_RibLengthScaleSlider, "Length Scale", 2, "%5.3f" );
     //m_RibEditLayout.AddSlider( m_RibWidthScaleSlider, "Width Scale", 2, "%5.3f" );
+    m_RibEditLayout.AddYGap();
+
+    m_RibEditLayout.AddButton( m_RibCapToggle, "Cap Intersections" );
 
     //m_RibEditLayout.AddButton( m_RibTrimButton, "Trim at Border" );
+    m_RibEditLayout.AddChoice( m_RibCapPropertyChoice, "Cap Property" );
 
     //==== FeaSpar ====//
     m_SparEditLayout.SetGroupAndScreen( AddSubGroup( partTab, 5 ), this );
@@ -372,8 +381,12 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 620, "FEA Me
 
     //m_SparEditLayout.AddSlider( m_SparLengthScaleSlider, "Length Scale", 2, "%5.3f" );
     //m_SparEditLayout.AddSlider( m_SparWidthScaleSlider, "Width Scale", 2, "%5.3f" );
+    m_SparEditLayout.AddYGap();
+
+    m_SparEditLayout.AddButton( m_SparCapToggle, "Cap Intersections" );
 
     //m_SparEditLayout.AddButton( m_SparTrimButton, "Trim at Border" );
+    m_SparEditLayout.AddChoice( m_SparCapPropertyChoice, "Cap Property" );
 
     //==== FeaFixPoint ====//
     m_FixPointEditLayout.SetGroupAndScreen( AddSubGroup( partTab, 5 ), this );
@@ -924,6 +937,8 @@ void StructScreen::UpdateDrawPartBrowser()
 {
     //==== Draw Part Browser ====//
     m_DrawPartSelectBrowser->clear();
+    m_DrawBrowserNameVec.clear();
+    m_DrawBrowserPartIndexVec.clear();
     char str[256];
 
     if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
@@ -934,6 +949,16 @@ void StructScreen::UpdateDrawPartBrowser()
         {
             sprintf( str, "%s:  %s", structVec[m_SelectedStructIndex]->GetFeaStructName().c_str(), feaprt_vec[i]->GetName().c_str() );
             m_DrawPartSelectBrowser->add( str, feaprt_vec[i]->m_DrawElementsFlag() );
+            m_DrawBrowserNameVec.push_back( str );
+            m_DrawBrowserPartIndexVec.push_back( i );
+
+            if ( feaprt_vec[i]->m_IntersectionCapFlag() )
+            {
+                sprintf( str, "%s:  %s_CAP", structVec[m_SelectedStructIndex]->GetFeaStructName().c_str(), feaprt_vec[i]->GetName().c_str() );
+                m_DrawPartSelectBrowser->add( str, feaprt_vec[i]->m_DrawCapElementsFlag() );
+                m_DrawBrowserNameVec.push_back( str );
+                m_DrawBrowserPartIndexVec.push_back( i );
+            }
         }
     }
 }
@@ -1142,6 +1167,10 @@ void StructScreen::UpdateFeaPropertyChoice()
     m_FeaSSEllPropertyChoice.ClearItems();
     m_FeaSSConPropertyChoice.ClearItems();
 
+    m_SparCapPropertyChoice.ClearItems();
+    m_FullDepthCapPropertyChoice.ClearItems();
+    m_RibCapPropertyChoice.ClearItems();
+
     Vehicle*  veh = m_ScreenMgr->GetVehiclePtr();
 
     if ( veh )
@@ -1162,6 +1191,10 @@ void StructScreen::UpdateFeaPropertyChoice()
             m_StiffenerPlanePropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_StiffenerSubSurfPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
 
+            m_SparCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
+            m_FullDepthCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
+            m_RibCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
+
             if ( property_vec[i]->m_FeaPropertyType() == SHELL_PROPERTY )
             {
                 m_SkinPropertyChoice.SetFlag( i, 0 );
@@ -1175,6 +1208,10 @@ void StructScreen::UpdateFeaPropertyChoice()
 
                 m_StiffenerPlanePropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_StiffenerSubSurfPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
+
+                m_SparCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
+                m_FullDepthCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
+                m_RibCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
             }
             else if ( property_vec[i]->m_FeaPropertyType() == BEAM_PROPERTY )
             {
@@ -1189,6 +1226,10 @@ void StructScreen::UpdateFeaPropertyChoice()
 
                 m_StiffenerPlanePropertyChoice.SetFlag( i, 0 );
                 m_StiffenerSubSurfPropertyChoice.SetFlag( i, 0 );
+
+                m_SparCapPropertyChoice.SetFlag( i, 0 );
+                m_FullDepthCapPropertyChoice.SetFlag( i, 0 );
+                m_RibCapPropertyChoice.SetFlag( i, 0 );
             }
         }
         m_SkinPropertyChoice.UpdateItems();
@@ -1201,6 +1242,10 @@ void StructScreen::UpdateFeaPropertyChoice()
         m_FeaSSRecPropertyChoice.UpdateItems();
         m_FeaSSEllPropertyChoice.UpdateItems();
         m_FeaSSConPropertyChoice.UpdateItems();
+
+        m_SparCapPropertyChoice.UpdateItems();
+        m_FullDepthCapPropertyChoice.UpdateItems();
+        m_RibCapPropertyChoice.UpdateItems();
 
         if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
         {
@@ -1222,6 +1267,10 @@ void StructScreen::UpdateFeaPropertyChoice()
                 m_SparPropertyChoice.SetVal( feaprt->GetFeaPropertyIndex() );
                 m_StiffenerPlanePropertyChoice.SetVal( feaprt->GetFeaPropertyIndex() );
                 m_StiffenerSubSurfPropertyChoice.SetVal( feaprt->GetFeaPropertyIndex() );
+
+                m_SparCapPropertyChoice.SetVal( feaprt->GetCapFeaPropertyIndex() );
+                m_FullDepthCapPropertyChoice.SetVal( feaprt->GetCapFeaPropertyIndex() );
+                m_RibCapPropertyChoice.SetVal( feaprt->GetCapFeaPropertyIndex() );
             }
 
             SubSurface* subsurf = structvec[m_SelectedStructIndex]->GetFeaSubSurf( m_SelectedSubSurfIndex );
@@ -1440,6 +1489,20 @@ void StructScreen::UpdateFeaPartPropertyIndex( Choice* property_choice )
     }
 }
 
+void StructScreen::UpdateCapPropertyIndex( Choice* property_choice )
+{
+    if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
+    {
+        vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
+        FeaPart* feaprt = structvec[m_SelectedStructIndex]->GetFeaPart( m_SelectedPartIndex );
+
+        if ( feaprt )
+        {
+            feaprt->SetCapFeaPropertyIndex( property_choice->GetVal() );
+        }
+    }
+}
+
 void StructScreen::UpdateFeaSubSurfPropertyIndex( Choice* property_choice )
 {
     if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
@@ -1523,6 +1586,16 @@ bool StructScreen::Update()
                     m_FullDepthOrientationChoice.Update( fulldepth->m_OrientationPlane.GetID() );
                     m_FullDepthCenterLocSlider.Update( fulldepth->m_CenterPerBBoxLocation.GetID() );
                     m_FullDepthThetaSlider.Update( fulldepth->m_Theta.GetID() );
+                    m_FullDepthCapToggle.Update( fulldepth->m_IntersectionCapFlag.GetID() );
+
+                    if ( fulldepth->m_IntersectionCapFlag() )
+                    {
+                        m_FullDepthCapPropertyChoice.Activate();
+                    }
+                    else
+                    {
+                        m_FullDepthCapPropertyChoice.Deactivate();
+                    }
 
                     FeaPartDispGroup( &m_FullDepthEditLayout );
                 }
@@ -1535,10 +1608,19 @@ bool StructScreen::Update()
                     m_RibPosSlider.Update( rib->m_PerU.GetID() );
                     //m_RibAlphaSlider.Update( rib->m_Alpha.GetID() );
                     m_RibThetaSlider.Update( rib->m_Theta.GetID() );
+                    m_RibCapToggle.Update( rib->m_IntersectionCapFlag.GetID() );
                     //m_RibTrimButton.Update( rib->m_TrimFlag.GetID() );
 
                     //m_RibLengthScaleSlider.Update( rib->m_PlaneSurfLengthScale.GetID() );
                     //m_RibWidthScaleSlider.Update( rib->m_PlaneSurfWidthScale.GetID() );
+                    if ( rib->m_IntersectionCapFlag() )
+                    {
+                        m_RibCapPropertyChoice.Activate();
+                    }
+                    else
+                    {
+                        m_RibCapPropertyChoice.Deactivate();
+                    }
 
                     FeaPartDispGroup( &m_RibEditLayout );
                 }
@@ -1550,10 +1632,19 @@ bool StructScreen::Update()
                     m_SparPosSlider.Update( spar->m_PerV.GetID() );
                     //m_SparAlphaSlider.Update( spar->m_Alpha.GetID() );
                     m_SparThetaSlider.Update( spar->m_Theta.GetID() );
+                    m_SparCapToggle.Update( spar->m_IntersectionCapFlag.GetID() );
                     //m_SparTrimButton.Update( spar->m_TrimFlag.GetID() );
 
                     //m_SparLengthScaleSlider.Update( spar->m_PlaneSurfLengthScale.GetID() );
                     //m_SparWidthScaleSlider.Update( spar->m_PlaneSurfWidthScale.GetID() );
+                    if ( spar->m_IntersectionCapFlag() )
+                    {
+                        m_SparCapPropertyChoice.Activate();
+                    }
+                    else
+                    {
+                        m_SparCapPropertyChoice.Deactivate();
+                    }
 
                     FeaPartDispGroup( &m_SparEditLayout );
                 }
@@ -1881,9 +1972,16 @@ void StructScreen::CallBack( Fl_Widget* w )
             {
                 vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
 
-                if ( structvec[m_SelectedStructIndex]->ValidFeaPartInd( selected_index - 1 ) )
+                if ( structvec[m_SelectedStructIndex]->ValidFeaPartInd( m_DrawBrowserPartIndexVec[selected_index - 1] ) )
                 {
-                    structvec[m_SelectedStructIndex]->GetFeaPart( selected_index - 1 )->m_DrawElementsFlag.Set( flag );
+                    if ( m_DrawBrowserNameVec[selected_index - 1].find( "CAP" ) != std::string::npos )
+                    {
+                        structvec[m_SelectedStructIndex]->GetFeaPart( m_DrawBrowserPartIndexVec[selected_index - 1] )->m_DrawCapElementsFlag.Set( flag );
+                    }
+                    else
+                    {
+                        structvec[m_SelectedStructIndex]->GetFeaPart( m_DrawBrowserPartIndexVec[selected_index - 1] )->m_DrawElementsFlag.Set( flag );
+                    }
                 }
             }
         }
@@ -2373,13 +2471,25 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         UpdateFeaPartPropertyIndex( &m_FullDepthPropertyChoice );
     }
+    else if ( device == &m_FullDepthCapPropertyChoice )
+    {
+        UpdateCapPropertyIndex( &m_FullDepthCapPropertyChoice );
+    }
     else if ( device == &m_RibPropertyChoice )
     {
         UpdateFeaPartPropertyIndex( &m_RibPropertyChoice );
     }
+    else if ( device == &m_RibCapPropertyChoice )
+    {
+        UpdateCapPropertyIndex( &m_RibCapPropertyChoice );
+    }
     else if ( device == &m_SparPropertyChoice )
     {
         UpdateFeaPartPropertyIndex( &m_SparPropertyChoice );
+    }
+    else if ( device == &m_SparCapPropertyChoice )
+    {
+        UpdateCapPropertyIndex( &m_SparCapPropertyChoice );
     }
     else if ( device == &m_StiffenerPlanePropertyChoice )
     {
