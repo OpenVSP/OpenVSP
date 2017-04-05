@@ -150,6 +150,7 @@ private:
     ToggleButton m_ColorTagsButton;
     ToggleButton m_ShowBadEdgeTriButton;
     ToggleButton m_DrawNodesToggle;
+    ToggleButton m_DrawElementNormToggle;
 
     Fl_Check_Browser * m_DrawPartSelectBrowser;
 

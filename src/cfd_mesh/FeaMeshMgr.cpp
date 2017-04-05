@@ -848,10 +848,11 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
         m_FeaNodeDO.resize( m_NumFeaParts );
         m_FeaElementDO.resize( m_NumFeaParts );
         m_CapFeaElementDO.resize( m_NumFeaParts );
+        m_ElementNormDO.clear();
 
         // Calculate constants for color sequence.
         const int ncgrp = 6; // Number of basic colors
-        const int ncstep = (int)ceil( (double)m_NumFeaParts / (double)ncgrp );
+        const int ncstep = (int)ceil( (double)( 2 * m_NumFeaParts ) / (double)ncgrp );
         const double nctodeg = 360.0 / ( ncgrp*ncstep );
 
         char str[256];
@@ -905,11 +906,12 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 // offset from ncgrp basic colors.
                 // Note, (cnt/ncgrp) uses integer division resulting in floor.
                 double deg = ( ( cnt % ncgrp ) * ncstep + ( cnt / ncgrp ) ) * nctodeg;
+                double deg2 = ( ( ( m_NumFeaParts + cnt ) % ncgrp ) * ncstep + ( ( m_NumFeaParts + cnt ) / ncgrp ) ) * nctodeg;
                 vec3d rgb = m_FeaElementDO[cnt].ColorWheel( deg );
                 rgb.normalize();
 
                 m_FeaNodeDO[cnt].m_PointColor = rgb;
-                m_CapFeaElementDO[cnt].m_LineColor = m_CapFeaElementDO[cnt].ColorWheel( 10 * deg );
+                m_CapFeaElementDO[cnt].m_LineColor = m_CapFeaElementDO[cnt].ColorWheel( deg2 );
 
                 for ( int i = 0; i < 3; i++ )
                 {
@@ -930,6 +932,7 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 // No color needed for mesh only.
                 m_FeaNodeDO[cnt].m_PointColor = vec3d( 0.0, 0.0, 0.0 );
                 m_CapFeaElementDO[cnt].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
+                m_ElementNormDO[cnt].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
             }
 
             draw_obj_vec.push_back( &m_FeaNodeDO[cnt] );
@@ -989,6 +992,51 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                         m_CapFeaElementDO[i].m_NormVec.push_back( m_FeaElementVec[j]->m_Corners[1]->m_Pnt );
                     }
                 }
+            }
+        }
+
+        int beam_cnt = 0;
+        double line_length = 0.075;
+
+        if ( GetStructSettingsPtr()->m_DrawElementNormsFlag() )
+        {
+            for ( unsigned int j = 0; j < m_FeaElementVec.size(); j++ )
+            {
+                if ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM )
+                {
+                    DrawObj obj = DrawObj();
+
+                    sprintf( str, "%s_Beam_Norm_%d", GetID().c_str(), beam_cnt );
+                    obj.m_GeomID = string( str );
+
+                    obj.m_Type = DrawObj::VSP_LINES;
+                    obj.m_Visible = false;
+                    obj.m_LineWidth = 1.0;
+
+                    // Set line color and visibility the same as the FeaBeam cap DrawObj
+                    obj.m_LineColor = m_CapFeaElementDO[m_FeaElementVec[j]->GetFeaPartIndex()].m_LineColor;
+                    obj.m_Visible = m_CapFeaElementDO[m_FeaElementVec[j]->GetFeaPartIndex()].m_Visible;
+
+                    FeaBeam* beam = dynamic_cast<FeaBeam*>( m_FeaElementVec[j] );
+                    assert( beam );
+
+                    vec3d norm_pnt = m_FeaElementVec[j]->m_Corners[0]->m_Pnt + line_length * beam->m_DispVec;
+
+                    obj.m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[0]->m_Pnt );
+                    obj.m_PntVec.push_back( norm_pnt );
+
+                    obj.m_NormVec.push_back( m_FeaElementVec[j]->m_Corners[0]->m_Pnt );
+                    obj.m_NormVec.push_back( norm_pnt );
+
+                    m_ElementNormDO.push_back( obj );
+
+                    beam_cnt++;
+                }
+            }
+
+            for ( unsigned int k = 0; k < m_ElementNormDO.size(); k++ )
+            {
+                draw_obj_vec.push_back( &m_ElementNormDO[k] );
             }
         }
     }

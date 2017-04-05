@@ -52,6 +52,7 @@ public:
     IntParm m_NumEvenlySpacedPart;
     BoolParm m_DrawFeaPartsFlag;
     BoolParm m_DrawNodesFlag;
+    BoolParm m_DrawElementNormsFlag;
 
 protected:
 

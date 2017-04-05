@@ -47,6 +47,9 @@ StructSettings::StructSettings() : MeshCommonSettings()
 
     m_DrawNodesFlag.Init( "DrawNodesFlag", "FeaPart", this, true, false, true );
     m_DrawNodesFlag.SetDescript( "Flag to Draw FeaNodes" );
+
+    m_DrawElementNormsFlag.Init( "DrawElementNormsFlag", "FeaPart", this, false, false, true );
+    m_DrawElementNormsFlag.SetDescript( "Flag to Draw FeaElement Normals" );
 }
 
 StructSettings::~StructSettings()

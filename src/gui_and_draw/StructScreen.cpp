@@ -167,6 +167,9 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 620, "FEA Me
     m_DisplayTabLayout.AddButton( m_DrawNodesToggle, "Draw Nodes" );
 
     m_DisplayTabLayout.AddYGap();
+    m_DisplayTabLayout.AddButton( m_DrawElementNormToggle, "Draw Element Normal Vectors" );
+
+    m_DisplayTabLayout.AddYGap();
     m_DisplayTabLayout.AddButton( m_ShowBadEdgeTriButton, "Show Bad Edges and Triangles" );
 
     m_DisplayTabLayout.AddYGap();
@@ -1529,6 +1532,7 @@ bool StructScreen::Update()
         m_ShowBadEdgeTriButton.Update( veh->GetStructSettingsPtr()->m_DrawBadFlag.GetID() );
         m_ColorTagsButton.Update( veh->GetStructSettingsPtr()->m_ColorTagsFlag.GetID() );
         m_DrawNodesToggle.Update( veh->GetStructSettingsPtr()->m_DrawNodesFlag.GetID() );
+        m_DrawElementNormToggle.Update( veh->GetStructSettingsPtr()->m_DrawElementNormsFlag.GetID() );
 
         //===== Geom Choice Update =====//
         LoadGeomChoice();
