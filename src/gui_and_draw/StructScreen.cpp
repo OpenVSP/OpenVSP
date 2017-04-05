@@ -850,6 +850,7 @@ void StructScreen::LoadGeomChoice()
 void StructScreen::UpdateStructBrowser()
 {
     //==== Structure Browser ====//
+    int scroll_pos = m_StructureSelectBrowser->position();
     m_StructureSelectBrowser->clear();
 
     static int widths[] = { 220, 220 };
@@ -881,11 +882,14 @@ void StructScreen::UpdateStructBrowser()
             m_StructureSelectBrowser->select( m_SelectedStructIndex + 2 );
         }
     }
+
+    m_StructureSelectBrowser->position( scroll_pos );
 }
 
 void StructScreen::UpdateFeaPartBrowser()
 {
     //==== FeaPart Browser ====//
+    int scroll_pos = m_FeaPartSelectBrowser->position();
     m_FeaPartSelectBrowser->clear();
     static int widths[] = { 150, 150, 150 };
     m_FeaPartSelectBrowser->column_widths( widths );
@@ -923,11 +927,14 @@ void StructScreen::UpdateFeaPartBrowser()
             m_FeaPartSelectBrowser->select( m_SelectedPartIndex + 2 - num_skin );
         }
     }
+
+    m_FeaPartSelectBrowser->position( scroll_pos );
 }
 
 void StructScreen::UpdateDrawPartBrowser()
 {
     //==== Draw Part Browser ====//
+    int scroll_pos = m_DrawPartSelectBrowser->position();
     m_DrawPartSelectBrowser->clear();
 
     vector < int > draw_browser_index_vec = FeaMeshMgr.GetDrawBrowserIndexVec();
@@ -946,11 +953,14 @@ void StructScreen::UpdateDrawPartBrowser()
             m_DrawPartSelectBrowser->add( draw_browser_name_vec[i].c_str(), draw_element_flag_vec[draw_browser_index_vec[i]] );
         }
     }
+
+    m_DrawPartSelectBrowser->position( scroll_pos );
 }
 
 void StructScreen::UpdateFeaSubSurfBrowser()
 {
     //==== SubSurfBrowser ====//
+    int scroll_pos = m_FeaSubSurfBrowser->position();
     m_FeaSubSurfBrowser->clear();
     static int widths[] = { 150, 150, 150 };
     m_FeaSubSurfBrowser->column_widths( widths );
@@ -983,6 +993,8 @@ void StructScreen::UpdateFeaSubSurfBrowser()
             m_FeaSubSurfBrowser->select( m_SelectedSubSurfIndex + 2 );
         }
     }
+
+    m_FeaSubSurfBrowser->position( scroll_pos );
 }
 
 void StructScreen::UpdateMainSurfChoice()
@@ -1107,6 +1119,7 @@ void StructScreen::UpdateSubSurfChoice()
 void StructScreen::UpdateFeaPropertyBrowser()
 {
     //==== FeaPart Browser ====//
+    int scroll_pos = m_FeaPropertySelectBrowser->position();
     m_FeaPropertySelectBrowser->clear();
 
     static int widths[] = { 210, 210 };
@@ -1136,6 +1149,8 @@ void StructScreen::UpdateFeaPropertyBrowser()
     {
         m_FeaPropertySelectBrowser->select( m_SelectedPropertyIndex + 2 );
     }
+
+    m_FeaPropertySelectBrowser->position( scroll_pos );
 }
 
 void StructScreen::UpdateFeaPropertyChoice()
@@ -1275,6 +1290,7 @@ void StructScreen::UpdateFeaPropertyChoice()
 void StructScreen::UpdateFeaMaterialBrowser()
 {
     //==== FeaPart Browser ====//
+    int scroll_pos = m_FeaMaterialSelectBrowser->position();
     m_FeaMaterialSelectBrowser->clear();
 
     vector< FeaMaterial* > material_vec = StructureMgr.GetFeaMaterialVec();
@@ -1298,6 +1314,8 @@ void StructScreen::UpdateFeaMaterialBrowser()
     {
         m_MaterialEditSubGroup.Show();
     }
+
+    m_FeaMaterialSelectBrowser->position( scroll_pos );
 }
 
 void StructScreen::UpdateFeaMaterialChoice()
