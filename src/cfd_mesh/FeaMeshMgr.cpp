@@ -21,6 +21,7 @@ FeaMeshMgrSingleton::FeaMeshMgrSingleton() : CfdMeshMgrSingleton()
     m_TotalMass = 0.0;
     m_DrawMeshFlag = false;
     m_FeaMeshInProgress = false;
+    m_NumFeaParts = 0;
 }
 
 FeaMeshMgrSingleton::~FeaMeshMgrSingleton()
@@ -39,6 +40,8 @@ void FeaMeshMgrSingleton::CleanUp()
     }
     m_FeaElementVec.clear();
 
+    m_NumFeaParts = 0;
+
     CfdMeshMgrSingleton::CleanUp();
 }
 
@@ -56,6 +59,8 @@ bool FeaMeshMgrSingleton::LoadSurfaces()
     // Identify the structure to mesh (m_FeaMeshStructIndex must be set) 
     vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
     m_FeaMeshStruct = structvec[m_FeaMeshStructIndex];
+
+    m_NumFeaParts = m_FeaMeshStruct->NumFeaParts();
 
     LoadSkins();
 
@@ -163,9 +168,7 @@ void FeaMeshMgrSingleton::AddStructureParts()
     vector < FeaPart* > FeaPartVec = m_FeaMeshStruct->GetFeaPartVec();
 
     //===== Add FeaParts ====//
-    int num_parts = FeaPartVec.size();
-
-    for ( int i = 1; i < num_parts; i++ ) // FeaSkin is index 0 and has been added already
+    for ( int i = 1; i < m_NumFeaParts; i++ ) // FeaSkin is index 0 and has been added already
     {
         int part_index = m_FeaMeshStruct->GetFeaPartIndex( FeaPartVec[i] );
         vector< XferSurf > partxfersurfs;
@@ -211,10 +214,8 @@ void FeaMeshMgrSingleton::ComputeWriteMass()
     {
         fprintf( fp, "FeaStruct_Name: %s\n", m_FeaMeshStruct->GetFeaStructName().c_str() );
 
-        int num_fea_parts = m_FeaMeshStruct->NumFeaParts();
-
         // Iterate over each FeaPart index and calculate mass of each FeaElement if the current indexes match
-        for ( unsigned int i = 0; i < num_fea_parts; i++ )
+        for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
         {
             double mass = 0;
             int property_id = m_FeaMeshStruct->GetFeaPropertyIndex( i );
@@ -281,9 +282,7 @@ void FeaMeshMgrSingleton::TagFeaNodes()
         m_FeaNodeVec[i]->m_Index = m_PntShift[ind] + 1;
     }
 
-    int num_fea_parts = m_FeaMeshStruct->NumFeaParts();
-
-    for ( unsigned int i = 0; i < num_fea_parts; i++ )
+    for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
     {
         vector< FeaNode* > temp_nVec;
 
@@ -311,9 +310,8 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
         fprintf( fp, "BEGIN BULK\n" );
 
         int elem_id = 0;
-        int num_fea_parts = m_FeaMeshStruct->NumFeaParts();
 
-        for ( unsigned int i = 0; i < num_fea_parts; i++ )
+        for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
         {
             fprintf( fp, "\n" );
             fprintf( fp, "$%s\n", m_FeaMeshStruct->GetFeaPartName( i ).c_str() );
@@ -330,7 +328,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
             }
         }
 
-        for ( unsigned int i = 0; i < num_fea_parts; i++ )
+        for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
         {
             fprintf( fp, "\n" );
             fprintf( fp, "$%s Gridpoints\n", m_FeaMeshStruct->GetFeaPartName( i ).c_str() );
@@ -544,9 +542,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
         int elem_id = 0;
         char str[256];
 
-        int num_fea_parts = m_FeaMeshStruct->NumFeaParts();
-
-        for ( unsigned int i = 0; i < num_fea_parts; i++ )
+        for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
         {
             fprintf( fp, "**%s\n", m_FeaMeshStruct->GetFeaPartName( i ).c_str() );
             fprintf( fp, "*NODE, NSET=N%s\n", m_FeaMeshStruct->GetFeaPartName( i ).c_str() );

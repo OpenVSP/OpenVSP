@@ -116,6 +116,8 @@ protected:
     FeaStructure* m_FeaMeshStruct;
     int m_FeaMeshStructIndex;
 
+    int m_NumFeaParts;
+
     vector< FeaElement* > m_FeaElementVec;
 
     vector< FeaNode* > m_FeaNodeVec;
