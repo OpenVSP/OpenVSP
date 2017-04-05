@@ -727,29 +727,19 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     if ( !GetFeaMeshInProgress() )
     {
         // Render Tag Colors
-        int num_tags = SubSurfaceMgr.GetNumTags();
-        m_FeaNodeDO.resize( num_tags );
-        m_FeaElementDO.resize( num_tags );
-        map<int, DrawObj*> node_dobj_map;
-        map<int, DrawObj*> element_dobj_map;
-        map< std::vector<int>, int >::const_iterator mit;
-        map< int, DrawObj* >::const_iterator dmit;
-        map< std::vector<int>, int > tagMap = SubSurfaceMgr.GetSingleTagMap();
-        int cnt = 0;
+        m_FeaNodeDO.resize( m_NumFeaParts );
+        m_FeaElementDO.resize( m_NumFeaParts );
 
         // Calculate constants for color sequence.
         const int ncgrp = 6; // Number of basic colors
-        const int ncstep = (int)ceil( (double)num_tags / (double)ncgrp );
+        const int ncstep = (int)ceil( (double)m_NumFeaParts / (double)ncgrp );
         const double nctodeg = 360.0 / ( ncgrp*ncstep );
 
         char str[256];
-        for ( mit = tagMap.begin(); mit != tagMap.end(); mit++ )
+        for ( int cnt = 0; cnt <  m_NumFeaParts; cnt++ )
         {
             m_FeaNodeDO[cnt] = DrawObj();
             m_FeaElementDO[cnt] = DrawObj();
-
-            node_dobj_map[mit->second] = &m_FeaNodeDO[cnt];
-            element_dobj_map[mit->second] = &m_FeaElementDO[cnt];
 
             sprintf( str, "%s_Node_Tag_%d", GetID().c_str(), cnt );
             m_FeaNodeDO[cnt].m_GeomID = string( str );
@@ -765,7 +755,6 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
             if ( GetStructSettingsPtr()->m_DrawMeshFlag.Get() ||
                  GetStructSettingsPtr()->m_ColorTagsFlag.Get() )   // At least mesh or tags are visible.
             {
-                m_FeaNodeDO[cnt].m_Visible = true;
                 m_FeaElementDO[cnt].m_Visible = true;
 
                 if ( GetStructSettingsPtr()->m_DrawMeshFlag.Get() &&
@@ -818,51 +807,46 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 
             draw_obj_vec.push_back( &m_FeaNodeDO[cnt] );
             draw_obj_vec.push_back( &m_FeaElementDO[cnt] );
-            cnt++;
         }
 
-        for ( int i = 0; i < (int)m_SurfVec.size(); i++ )
+        for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
         {
-            vector < vec3d > pVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
-            vector < SimpTri > tVec = m_SurfVec[i]->GetMesh()->GetSimpTriVec();
-
-            for ( int t = 0; t < (int)tVec.size(); t++ )
+            if ( GetStructSettingsPtr()->m_DrawNodesFlag() )
             {
-                if ( ( !m_SurfVec[i]->GetWakeFlag() ) && ( !m_SurfVec[i]->GetFarFlag() ) && ( !m_SurfVec[i]->GetSymPlaneFlag() ) )
+                m_FeaNodeDO[i].m_Visible = true;
+
+                for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
                 {
-                    if ( GetStructSettingsPtr()->m_DrawNodesFlag() )
+                    if ( m_PntShift[j] >= 0 )
                     {
-                        SimpTri* stri = &tVec[t];
-                        dmit = node_dobj_map.find( SubSurfaceMgr.GetTag( stri->m_Tags ) );
-                        if ( dmit == node_dobj_map.end() )
+                        if ( m_FeaNodeVec[j]->HasOnlyIndex( i ) )
                         {
-                            continue;
+                            m_FeaNodeDO[i].m_PntVec.push_back( m_FeaNodeVec[j]->m_Pnt );
                         }
-
-                        DrawObj* obj = dmit->second;
-                        obj->m_PntVec.push_back( pVec[stri->ind0] );
-                        obj->m_PntVec.push_back( pVec[stri->ind1] );
-                        obj->m_PntVec.push_back( pVec[stri->ind2] );
                     }
+                }
+            }
 
-                    if ( m_FeaMeshStruct->GetFeaPart( m_SurfVec[i]->GetFeaPartIndex() )->m_DrawElementsFlag() )
+            if ( m_FeaMeshStruct->GetFeaPart( i )->m_DrawElementsFlag() ) // TODO: LoadDrawObj should not rely on pointers
+            {
+                for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+                {
+                    if ( m_FeaElementVec[j]->GetFeaPartIndex() == i && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 )
                     {
-                        SimpTri* stri = &tVec[t];
-                        dmit = element_dobj_map.find( SubSurfaceMgr.GetTag( stri->m_Tags ) );
-                        if ( dmit == element_dobj_map.end() )
-                        {
-                            continue;
-                        }
-
-                        DrawObj* obj = dmit->second;
-                        vec3d norm = cross( pVec[stri->ind1] - pVec[stri->ind0], pVec[stri->ind2] - pVec[stri->ind0] );
+                        vec3d norm = cross( m_FeaElementVec[j]->m_Corners[1]->m_Pnt - m_FeaElementVec[j]->m_Corners[0]->m_Pnt, m_FeaElementVec[j]->m_Corners[2]->m_Pnt - m_FeaElementVec[j]->m_Corners[0]->m_Pnt );
                         norm.normalize();
-                        obj->m_PntVec.push_back( pVec[stri->ind0] );
-                        obj->m_PntVec.push_back( pVec[stri->ind1] );
-                        obj->m_PntVec.push_back( pVec[stri->ind2] );
-                        obj->m_NormVec.push_back( norm );
-                        obj->m_NormVec.push_back( norm );
-                        obj->m_NormVec.push_back( norm );
+                        m_FeaElementDO[i].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[0]->m_Pnt );
+                        m_FeaElementDO[i].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[1]->m_Pnt );
+                        m_FeaElementDO[i].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[2]->m_Pnt );
+                        m_FeaElementDO[i].m_NormVec.push_back( norm );
+                        m_FeaElementDO[i].m_NormVec.push_back( norm );
+                        m_FeaElementDO[i].m_NormVec.push_back( norm );
+                    }
+                }
+            }
+
+                    {
+
                     }
                 }
             }
