@@ -82,6 +82,7 @@ public:
     }
 
     virtual int GetFeaPropertyIndex( int fea_part_ind );
+    virtual int GetCapFeaPropertyIndex( int fea_part_ind );
 
     virtual string GetParentGeomID()
     {
@@ -159,11 +160,22 @@ public:
         m_FeaPropertyIndex = index;
     }
 
+    virtual int GetCapFeaPropertyIndex()
+    {
+        return m_CapFeaPropertyIndex;
+    }
+    virtual void SetCapFeaPropertyIndex( int index )
+    {
+        m_CapFeaPropertyIndex = index;
+    }
+
     virtual int GetFeaMaterialIndex();
     virtual void SetFeaMaterialIndex( int index );
 
     IntParm m_MainSurfIndx;
     BoolParm m_DrawElementsFlag;
+    BoolParm m_IntersectionCapFlag;
+    BoolParm m_DrawCapElementsFlag;
 
 protected:
 
@@ -172,6 +184,7 @@ protected:
     string m_ParentGeomID;
 
     int m_FeaPropertyIndex;
+    int m_CapFeaPropertyIndex;
 
     vector < int > m_SymmIndexVec;
 

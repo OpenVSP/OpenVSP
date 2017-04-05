@@ -89,12 +89,14 @@ xmlNodePtr FeaStructure::DecodeXml( xmlNodePtr & node )
         {
             int type = XmlUtil::FindInt( part_info, "FeaPartType", 0 );
             int prop_index = XmlUtil::FindInt( part_info, "FeaPropertyIndex", 0 );
+            int cap_prop_index = XmlUtil::FindInt( part_info, "CapFeaPropertyIndex", 0 );
 
             if ( type != vsp::FEA_SKIN )
             {
                 FeaPart* feapart = AddFeaPart( type );
 
                 feapart->SetFeaPropertyIndex( prop_index );
+                feapart->SetCapFeaPropertyIndex( cap_prop_index );
 
                 feapart->DecodeXml( part_info );
             }
@@ -104,6 +106,7 @@ xmlNodePtr FeaStructure::DecodeXml( xmlNodePtr & node )
                 feaskin->DecodeXml( part_info );
 
                 feaskin->SetFeaPropertyIndex( prop_index );
+                feaskin->SetCapFeaPropertyIndex( cap_prop_index );
 
                 m_FeaPartVec.push_back( feaskin );
             }
@@ -426,6 +429,20 @@ int FeaStructure::GetFeaPropertyIndex( int fea_part_ind )
     return -1; // indicates an error
 }
 
+//==== Get Cap FeaProperty Index from FeaPart Index =====//
+int FeaStructure::GetCapFeaPropertyIndex( int fea_part_ind )
+{
+    if ( ValidFeaPartInd( fea_part_ind ) )
+    {
+        FeaPart* fea_part = GetFeaPart( fea_part_ind );
+        if ( fea_part )
+        {
+            return fea_part->GetCapFeaPropertyIndex();
+        }
+    }
+    return -1; // indicates an error
+}
+
 int FeaStructure::GetFeaPartIndex( FeaPart* fea_prt )
 {
     for ( int i = 0; i < (int)m_FeaPartVec.size(); i++ )
@@ -453,7 +470,14 @@ FeaPart::FeaPart( string geomID, int type )
     m_DrawElementsFlag.Init( "DrawElementsFlag", "FeaPart", this, true, false, true );
     m_DrawElementsFlag.SetDescript( "Flag to Draw FeaElements" );
 
+    m_IntersectionCapFlag.Init( "IntersectionCapFlag", "FeaPart", this, false, false, true );
+    m_IntersectionCapFlag.SetDescript( "Flag to Identify FeaElements at Intersections" );
+
+    m_DrawElementsFlag.Init( "DrawCapElementsFlag", "FeaPart", this, false, false, true );
+    m_DrawElementsFlag.SetDescript( "Flag to Draw Cap FeaElements" );
+
     m_FeaPropertyIndex = 0; // Shell property default
+    m_CapFeaPropertyIndex = 1; // Beam property default
 }
 
 FeaPart::~FeaPart()
@@ -484,6 +508,7 @@ xmlNodePtr FeaPart::EncodeXml( xmlNodePtr & node )
 
     XmlUtil::AddIntNode( part_info, "FeaPartType", m_FeaPartType );
     XmlUtil::AddIntNode( part_info, "FeaPropertyIndex", m_FeaPropertyIndex );
+    XmlUtil::AddIntNode( part_info, "CapFeaPropertyIndex", m_CapFeaPropertyIndex );
 
     return part_info;
 }
@@ -1307,6 +1332,8 @@ FeaStiffenerPlane::FeaStiffenerPlane( string geomID, int type ) : FeaPart( geomI
     m_CenterPerBBoxLocation.SetDescript( "The Location of the Center of the FeaFullDepth Part as a Percentage of the Total Bounding Box" );
 
     m_Theta.Init( "Theta", "FeaFullDepth", this, 0.0, -90.0, 90.0 );
+
+    m_IntersectionCapFlag.Set( true );
 
     m_FeaPropertyIndex = 1; // Default beam property
 }
