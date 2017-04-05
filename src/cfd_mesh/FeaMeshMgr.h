@@ -128,6 +128,7 @@ protected:
 private:
 
     vector< DrawObj > m_FeaElementDO;
+    vector< DrawObj > m_CapFeaElementDO;
     vector< DrawObj > m_FeaNodeDO;
 };
 

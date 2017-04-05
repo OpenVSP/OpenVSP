@@ -729,6 +729,7 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
         // Render Tag Colors
         m_FeaNodeDO.resize( m_NumFeaParts );
         m_FeaElementDO.resize( m_NumFeaParts );
+        m_CapFeaElementDO.resize( m_NumFeaParts );
 
         // Calculate constants for color sequence.
         const int ncgrp = 6; // Number of basic colors
@@ -740,17 +741,23 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
         {
             m_FeaNodeDO[cnt] = DrawObj();
             m_FeaElementDO[cnt] = DrawObj();
+            m_CapFeaElementDO[cnt] = DrawObj();
 
             sprintf( str, "%s_Node_Tag_%d", GetID().c_str(), cnt );
             m_FeaNodeDO[cnt].m_GeomID = string( str );
             sprintf( str, "%s_Element_Tag_%d", GetID().c_str(), cnt );
             m_FeaElementDO[cnt].m_GeomID = string( str );
+            sprintf( str, "%s_Cap_Element_Tag_%d", GetID().c_str(), cnt );
+            m_CapFeaElementDO[cnt].m_GeomID = string( str );
 
             m_FeaNodeDO[cnt].m_Type = DrawObj::VSP_POINTS;
             m_FeaNodeDO[cnt].m_Visible = false;
             m_FeaNodeDO[cnt].m_PointSize = 3.0;
             m_FeaElementDO[cnt].m_Type = DrawObj::VSP_SHADED_TRIS;
             m_FeaElementDO[cnt].m_Visible = false;
+            m_CapFeaElementDO[cnt].m_Type = DrawObj::VSP_LINES;
+            m_CapFeaElementDO[cnt].m_Visible = false;
+            m_CapFeaElementDO[cnt].m_LineWidth = 2.0;
 
             if ( GetStructSettingsPtr()->m_DrawMeshFlag.Get() ||
                  GetStructSettingsPtr()->m_ColorTagsFlag.Get() )   // At least mesh or tags are visible.
@@ -784,6 +791,7 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 rgb.normalize();
 
                 m_FeaNodeDO[cnt].m_PointColor = rgb;
+                m_CapFeaElementDO[cnt].m_LineColor = m_CapFeaElementDO[cnt].ColorWheel( 10 * deg );
 
                 for ( int i = 0; i < 3; i++ )
                 {
@@ -803,10 +811,12 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
             {
                 // No color needed for mesh only.
                 m_FeaNodeDO[cnt].m_PointColor = vec3d( 0.0, 0.0, 0.0 );
+                m_CapFeaElementDO[cnt].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
             }
 
             draw_obj_vec.push_back( &m_FeaNodeDO[cnt] );
             draw_obj_vec.push_back( &m_FeaElementDO[cnt] );
+            draw_obj_vec.push_back( &m_CapFeaElementDO[cnt] );
         }
 
         for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
@@ -845,8 +855,20 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 }
             }
 
-                    {
+            if ( m_FeaMeshStruct->GetFeaPart( i )->m_DrawCapElementsFlag() ) // TODO: LoadDrawObj should not rely on pointers
+            {
+                m_CapFeaElementDO[i].m_Visible = true;
 
+                for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+                {
+                    if ( m_FeaElementVec[j]->GetFeaPartIndex() == i && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM )
+                    {
+                        m_CapFeaElementDO[i].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[0]->m_Pnt );
+                        m_CapFeaElementDO[i].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[1]->m_Pnt );
+
+                        // Normal Vec is not required, load placeholder
+                        m_CapFeaElementDO[i].m_NormVec.push_back( m_FeaElementVec[j]->m_Corners[0]->m_Pnt );
+                        m_CapFeaElementDO[i].m_NormVec.push_back( m_FeaElementVec[j]->m_Corners[1]->m_Pnt );
                     }
                 }
             }
