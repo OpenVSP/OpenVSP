@@ -405,13 +405,22 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
             fprintf( fp, "$%s\n", m_FeaMeshStruct->GetFeaPartName( i ).c_str() );
 
             int property_id = m_FeaMeshStruct->GetFeaPropertyIndex( i );
+            int cap_property_id = m_FeaMeshStruct->GetCapFeaPropertyIndex( i );
 
             for ( int j = 0; j < m_FeaElementVec.size(); j++ )
             {
                 if ( m_FeaElementVec[j]->GetFeaPartIndex() == i )
                 {
                     elem_id++;
-                    m_FeaElementVec[j]->WriteNASTRAN( fp, elem_id, property_id );
+
+                    if ( m_FeaElementVec[j]->GetElementType() != FeaElement::FEA_BEAM )
+                    {
+                        m_FeaElementVec[j]->WriteNASTRAN( fp, elem_id, property_id );
+                    }
+                    else
+                    {
+                        m_FeaElementVec[j]->WriteNASTRAN( fp, elem_id, cap_property_id );
+                    }
                 }
             }
         }
@@ -636,6 +645,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
             fprintf( fp, "*NODE, NSET=N%s\n", m_FeaMeshStruct->GetFeaPartName( i ).c_str() );
 
             int property_id = m_FeaMeshStruct->GetFeaPropertyIndex( i );
+            int cap_property_id = m_FeaMeshStruct->GetCapFeaPropertyIndex( i );
 
             for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
             {
@@ -653,7 +663,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
 
             for ( int j = 0; j < m_FeaElementVec.size(); j++ )
             {
-                if ( m_FeaElementVec[j]->GetFeaPartIndex() == i )
+                if ( m_FeaElementVec[j]->GetFeaPartIndex() == i && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 )
                 {
                     elem_id++;
                     m_FeaElementVec[j]->WriteCalculix( fp, elem_id );
@@ -664,7 +674,27 @@ void FeaMeshMgrSingleton::WriteCalculix()
             sprintf( str, "E%s", m_FeaMeshStruct->GetFeaPartName( i ).c_str() );
 
             StructureMgr.GetFeaProperty( property_id )->WriteCalculix( fp, str );
-            fprintf( fp, "\n" );
+
+            if ( m_FeaMeshStruct->GetFeaPart( i )->m_IntersectionCapFlag() )
+            {
+                fprintf( fp, "\n" );
+                fprintf( fp, "*ELEMENT, TYPE=B31, ELSET=E%s_CAP\n", m_FeaMeshStruct->GetFeaPartName( i ).c_str() );
+
+                for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+                {
+                    if ( m_FeaElementVec[j]->GetFeaPartIndex() == i && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM )
+                    {
+                        elem_id++;
+                        m_FeaElementVec[j]->WriteCalculix( fp, elem_id );
+                    }
+                }
+
+                fprintf( fp, "\n" );
+                sprintf( str, "E%s_CAP", m_FeaMeshStruct->GetFeaPartName( i ).c_str() );
+
+                StructureMgr.GetFeaProperty( cap_property_id )->WriteCalculix( fp, str );
+                fprintf( fp, "\n" );
+            }
         }
 
         // TODO: Identify and improve intersection elements and nodes

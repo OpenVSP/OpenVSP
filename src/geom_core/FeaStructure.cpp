@@ -1676,7 +1676,9 @@ void FeaProperty::WriteCalculix( FILE* fp, string ELSET )
         }
         if ( m_FeaPropertyType() == BEAM_PROPERTY )
         {
-            fprintf( fp, "*BEAM SECTION, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), fea_mat->GetName().c_str() );
+            // Note: *BEAM GENERAL SECTION is supported by Abaqus but not Calculix. Calculix depends on BEAM SECTION properties
+            //  where the cross-section dimensions must be explicitly defined. 
+            fprintf( fp, "*BEAM GENERAL SECTION, SECTION=GENERAL, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), fea_mat->GetName().c_str() );
             fprintf( fp, "%g,%g,%g,%g,%g\n", m_CrossSecArea(), m_Izz(), m_Izy(), m_Iyy(), m_Ixx() );
         }
     }
