@@ -233,11 +233,7 @@ public:
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight );
 
     Parm m_PerV; // Percent V Location
-    //Parm m_Alpha;
     Parm m_Theta;
-    //BoolParm m_TrimFlag;
-    //Parm m_PlaneSurfLengthScale;
-    //Parm m_PlaneSurfWidthScale;
 
 protected:
 
@@ -261,11 +257,7 @@ public:
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight );
 
     Parm m_PerU; // Percent U Location
-    //Parm m_Alpha;
     Parm m_Theta;
-    //BoolParm m_TrimFlag;
-    //Parm m_PlaneSurfLengthScale;
-    //Parm m_PlaneSurfWidthScale;
 
     IntParm m_PerpendicularEdgeFlag;
 

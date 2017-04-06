@@ -970,12 +970,7 @@ FeaSpar::FeaSpar( string geomID, int type ) : FeaPart( geomID, type )
 {
     m_PerV.Init( "PerV", "FeaSpar", this, 0.5, 0.0, 1.0 );
     m_PerV.SetDescript( "Precent V Location" );
-    //m_Alpha.Init( "Alpha", "FeaSpar", this, 0.0, -90.0, 90.0 );
     m_Theta.Init( "Theta", "FeaSpar", this, 0.0, -90.0, 90.0 );
-    //m_TrimFlag.Init( "TrimFlag", "FeaSpar", this, true, 0, 1 );
-
-    //m_PlaneSurfLengthScale.Init( "PlaneSurfLengthScale", "FeaSpar", this, 1.0, 0.0, 1.0e12 );
-    //m_PlaneSurfWidthScale.Init( "PlaneSurfWidthScale", "FeaSpar", this, 1.0, 0.0, 1.0e12 );
 
 }
 
@@ -1105,12 +1100,7 @@ FeaRib::FeaRib( string geomID, int type ) : FeaPart( geomID, type )
 {
     m_PerU.Init( "PerU", "FeaRib", this, 0.5, 0.0, 1.0 );
     m_PerU.SetDescript( "Precent U Location" );
-    //m_Alpha.Init( "Alpha", "FeaRib", this, 0.0, -90.0, 90.0 );
     m_Theta.Init( "Theta", "FeaRib", this, 0.0, -90.0, 90.0 );
-    //m_TrimFlag.Init( "TrimFlag", "FeaRib", this, true, 0, 1 );
-
-    //m_PlaneSurfLengthScale.Init( "PlaneSurfLengthScale", "FeaRib", this, 1.0, 0.0, 1.0e12 );
-    //m_PlaneSurfWidthScale.Init( "PlaneSurfWidthScale", "FeaRib", this, 1.0, 0.0, 1.0e12 );
 
     m_PerpendicularEdgeFlag.Init( "PerpendicularEdgeFlag", "FeaRib", this, PERPENDICULAR_NONE, PERPENDICULAR_NONE, PERPENDICULAR_TRAIL_EDGE );
     m_PerpendicularEdgeFlag.SetDescript( "Flag Indicating Perpendicular Alignment of FeaRib" );

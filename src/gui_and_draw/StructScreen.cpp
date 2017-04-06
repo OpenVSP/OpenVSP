@@ -352,16 +352,11 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 620, "FEA Me
     m_RibEditLayout.AddChoice( m_RibPerpendicularEdgeChoice, "Perpendicular Edge" );
 
     m_RibEditLayout.AddSlider( m_RibPosSlider, "Position", 1, "%5.3f" );
-    //m_RibEditLayout.AddSlider( m_RibAlphaSlider, "Alpha", 25, "%5.3f" );
     m_RibEditLayout.AddSlider( m_RibThetaSlider, "Theta", 25, "%5.3f" );
 
-    //m_RibEditLayout.AddSlider( m_RibLengthScaleSlider, "Length Scale", 2, "%5.3f" );
-    //m_RibEditLayout.AddSlider( m_RibWidthScaleSlider, "Width Scale", 2, "%5.3f" );
     m_RibEditLayout.AddYGap();
 
     m_RibEditLayout.AddButton( m_RibCapToggle, "Cap Intersections" );
-
-    //m_RibEditLayout.AddButton( m_RibTrimButton, "Trim at Border" );
     m_RibEditLayout.AddChoice( m_RibCapPropertyChoice, "Cap Property" );
 
     //==== FeaSpar ====//
@@ -376,16 +371,11 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 620, "FEA Me
     m_SparEditLayout.AddChoice( m_SparPropertyChoice, "Property" );
 
     m_SparEditLayout.AddSlider( m_SparPosSlider, "Position", 1, "%5.3f" );
-    //m_SparEditLayout.AddSlider( m_SparAlphaSlider, "Alpha", 25, "%5.3f" );
     m_SparEditLayout.AddSlider( m_SparThetaSlider, "Theta", 25, "%5.3f" );
 
-    //m_SparEditLayout.AddSlider( m_SparLengthScaleSlider, "Length Scale", 2, "%5.3f" );
-    //m_SparEditLayout.AddSlider( m_SparWidthScaleSlider, "Width Scale", 2, "%5.3f" );
     m_SparEditLayout.AddYGap();
 
     m_SparEditLayout.AddButton( m_SparCapToggle, "Cap Intersections" );
-
-    //m_SparEditLayout.AddButton( m_SparTrimButton, "Trim at Border" );
     m_SparEditLayout.AddChoice( m_SparCapPropertyChoice, "Cap Property" );
 
     //==== FeaFixPoint ====//
@@ -791,7 +781,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 620, "FEA Me
     m_MaterialEditSubGroup.AddSlider( m_MatDensitySlider, "Mass Density", 1, "%5.3f" );
     m_MaterialEditSubGroup.AddSlider( m_MatElasticModSlider, "Elestic Modulus", 10e5, "%g" );
     m_MaterialEditSubGroup.AddSlider( m_MatPoissonSlider, "Poisson Ratio", 1, "%5.3f" );
-    //m_MaterialEditSubGroup.AddSlider( m_MatShearModSlider, "Shear Modulus", 1, "%5.3f" );
     m_MaterialEditSubGroup.AddSlider( m_MatThermalExCoeffSlider, "Thermal Expansion Coeff", 10e-5, "%g" );
 
     m_MaterialEditSubGroup.AddYGap();
@@ -1606,13 +1595,9 @@ bool StructScreen::Update()
 
                     m_RibPerpendicularEdgeChoice.Update( rib->m_PerpendicularEdgeFlag.GetID() );
                     m_RibPosSlider.Update( rib->m_PerU.GetID() );
-                    //m_RibAlphaSlider.Update( rib->m_Alpha.GetID() );
                     m_RibThetaSlider.Update( rib->m_Theta.GetID() );
                     m_RibCapToggle.Update( rib->m_IntersectionCapFlag.GetID() );
-                    //m_RibTrimButton.Update( rib->m_TrimFlag.GetID() );
 
-                    //m_RibLengthScaleSlider.Update( rib->m_PlaneSurfLengthScale.GetID() );
-                    //m_RibWidthScaleSlider.Update( rib->m_PlaneSurfWidthScale.GetID() );
                     if ( rib->m_IntersectionCapFlag() )
                     {
                         m_RibCapPropertyChoice.Activate();
@@ -1630,13 +1615,9 @@ bool StructScreen::Update()
                     assert( spar );
 
                     m_SparPosSlider.Update( spar->m_PerV.GetID() );
-                    //m_SparAlphaSlider.Update( spar->m_Alpha.GetID() );
                     m_SparThetaSlider.Update( spar->m_Theta.GetID() );
                     m_SparCapToggle.Update( spar->m_IntersectionCapFlag.GetID() );
-                    //m_SparTrimButton.Update( spar->m_TrimFlag.GetID() );
 
-                    //m_SparLengthScaleSlider.Update( spar->m_PlaneSurfLengthScale.GetID() );
-                    //m_SparWidthScaleSlider.Update( spar->m_PlaneSurfWidthScale.GetID() );
                     if ( spar->m_IntersectionCapFlag() )
                     {
                         m_SparCapPropertyChoice.Activate();

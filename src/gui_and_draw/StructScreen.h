@@ -205,28 +205,18 @@ private:
 
     Choice m_RibPerpendicularEdgeChoice;
     SliderAdjRangeInput m_RibPosSlider;
-    //SliderAdjRangeInput m_RibAlphaSlider;
     SliderAdjRangeInput m_RibThetaSlider;
 
     ToggleButton m_RibCapToggle;
-    //ToggleButton m_RibTrimButton;
-
-    //SliderAdjRangeInput m_RibLengthScaleSlider;
-    //SliderAdjRangeInput m_RibWidthScaleSlider;
     Choice m_RibCapPropertyChoice;
 
     //===== Spar =====//
     Choice m_SparPropertyChoice;
 
     SliderAdjRangeInput m_SparPosSlider;
-    //SliderAdjRangeInput m_SparAlphaSlider;
     SliderAdjRangeInput m_SparThetaSlider;
 
     ToggleButton m_SparCapToggle;
-    //ToggleButton m_SparTrimButton;
-
-    //SliderAdjRangeInput m_SparLengthScaleSlider;
-    //SliderAdjRangeInput m_SparWidthScaleSlider;
     Choice m_SparCapPropertyChoice;
 
     //===== StiffenerPlane =====//
@@ -358,7 +348,6 @@ private:
     SliderAdjRangeInput m_MatDensitySlider;
     SliderAdjRangeInput m_MatElasticModSlider;
     SliderAdjRangeInput m_MatPoissonSlider;
-    //SliderAdjRangeInput m_MatShearModSlider;
     SliderAdjRangeInput m_MatThermalExCoeffSlider;
 
     //===== Common buttons =====//
