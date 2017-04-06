@@ -96,6 +96,9 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
     addOutputText( "Load Surfaces\n" );
     LoadSurfaces();
 
+    // Hide all geoms after loading surfaces
+    m_Vehicle->HideAll();
+
     if ( m_SurfVec.size() <= 0 )
     {
         m_FeaMeshInProgress = false;
