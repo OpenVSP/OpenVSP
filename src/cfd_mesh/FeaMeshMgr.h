@@ -102,8 +102,33 @@ public:
         m_FeaMeshInProgress = progress_flag;
     }
 
+    virtual void UpdateDrawObjData();
+
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
+    virtual vector < string > GetDrawBrowserNameVec()
+    {
+        return m_DrawBrowserNameVec;
+    }
+
+    virtual vector < int > GetDrawBrowserIndexVec()
+    {
+        return m_DrawBrowserPartIndexVec;
+    }
+
+    virtual vector < bool > GetDrawElementFlagVec()
+    {
+        return m_DrawElementFlagVec;
+    }
+
+    virtual void SetDrawElementFlag( int index, bool flag );
+
+    virtual vector < bool > GetDrawCapFlagVec()
+    {
+        return m_DrawCapFlagVec;
+    }
+
+    virtual void SetDrawCapFlag( int index, bool flag );
 
 protected:
 
@@ -117,6 +142,11 @@ protected:
     int m_FeaMeshStructIndex;
 
     int m_NumFeaParts;
+
+    vector < string > m_DrawBrowserNameVec;
+    vector < int > m_DrawBrowserPartIndexVec;
+    vector < bool > m_DrawElementFlagVec;
+    vector < bool > m_DrawCapFlagVec;
 
     vector< FeaElement* > m_FeaElementVec;
 

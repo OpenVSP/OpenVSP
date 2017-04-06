@@ -929,28 +929,21 @@ void StructScreen::UpdateDrawPartBrowser()
 {
     //==== Draw Part Browser ====//
     m_DrawPartSelectBrowser->clear();
-    m_DrawBrowserNameVec.clear();
-    m_DrawBrowserPartIndexVec.clear();
-    char str[256];
 
-    if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
+    vector < int > draw_browser_index_vec = FeaMeshMgr.GetDrawBrowserIndexVec();
+    vector < string > draw_browser_name_vec = FeaMeshMgr.GetDrawBrowserNameVec();
+    vector < bool > draw_element_flag_vec = FeaMeshMgr.GetDrawElementFlagVec();
+    vector < bool > draw_cap_flag_vec = FeaMeshMgr.GetDrawCapFlagVec();
+
+    for ( unsigned int i = 0; i < draw_browser_name_vec.size(); i++ )
     {
-        vector< FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
-        vector<FeaPart*> feaprt_vec = structVec[m_SelectedStructIndex]->GetFeaPartVec();
-        for ( int i = 0; i < (int)feaprt_vec.size(); i++ )
+        if ( draw_browser_name_vec[i].find( "CAP" ) != std::string::npos )
         {
-            sprintf( str, "%s:  %s", structVec[m_SelectedStructIndex]->GetFeaStructName().c_str(), feaprt_vec[i]->GetName().c_str() );
-            m_DrawPartSelectBrowser->add( str, feaprt_vec[i]->m_DrawElementsFlag() );
-            m_DrawBrowserNameVec.push_back( str );
-            m_DrawBrowserPartIndexVec.push_back( i );
-
-            if ( feaprt_vec[i]->m_IntersectionCapFlag() )
-            {
-                sprintf( str, "%s:  %s_CAP", structVec[m_SelectedStructIndex]->GetFeaStructName().c_str(), feaprt_vec[i]->GetName().c_str() );
-                m_DrawPartSelectBrowser->add( str, feaprt_vec[i]->m_DrawCapElementsFlag() );
-                m_DrawBrowserNameVec.push_back( str );
-                m_DrawBrowserPartIndexVec.push_back( i );
-            }
+            m_DrawPartSelectBrowser->add( draw_browser_name_vec[i].c_str(), draw_cap_flag_vec[draw_browser_index_vec[i]] );
+        }
+        else
+        {
+            m_DrawPartSelectBrowser->add( draw_browser_name_vec[i].c_str(), draw_element_flag_vec[draw_browser_index_vec[i]] );
         }
     }
 }
@@ -1948,26 +1941,16 @@ void StructScreen::CallBack( Fl_Widget* w )
             int selected_index = m_DrawPartSelectBrowser->value();
             bool flag = !!m_DrawPartSelectBrowser->checked( selected_index );
 
-            if ( flag != m_DrawPartSelectBrowser->checked( selected_index ) )
+            vector < string > draw_browser_name_vec = FeaMeshMgr.GetDrawBrowserNameVec();
+            vector < int > draw_browser_index_vec = FeaMeshMgr.GetDrawBrowserIndexVec();
+
+            if ( draw_browser_name_vec[selected_index - 1].find( "CAP" ) != std::string::npos )
             {
-                int test = 1;
+                FeaMeshMgr.SetDrawCapFlag( draw_browser_index_vec[selected_index - 1], flag );
             }
-
-            if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
+            else
             {
-                vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
-
-                if ( structvec[m_SelectedStructIndex]->ValidFeaPartInd( m_DrawBrowserPartIndexVec[selected_index - 1] ) )
-                {
-                    if ( m_DrawBrowserNameVec[selected_index - 1].find( "CAP" ) != std::string::npos )
-                    {
-                        structvec[m_SelectedStructIndex]->GetFeaPart( m_DrawBrowserPartIndexVec[selected_index - 1] )->m_DrawCapElementsFlag.Set( flag );
-                    }
-                    else
-                    {
-                        structvec[m_SelectedStructIndex]->GetFeaPart( m_DrawBrowserPartIndexVec[selected_index - 1] )->m_DrawElementsFlag.Set( flag );
-                    }
-                }
+                FeaMeshMgr.SetDrawElementFlag( draw_browser_index_vec[selected_index - 1], flag );
             }
         }
         else if ( w == m_FeaSubSurfBrowser )
@@ -2317,26 +2300,30 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_DrawAllButton )
     {
-        if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
+        vector < bool > draw_element_flag_vec = FeaMeshMgr.GetDrawElementFlagVec();
+        for ( unsigned int i = 0; i < draw_element_flag_vec.size(); i++ )
         {
-            vector < FeaPart* > fea_part_vec = StructureMgr.GetAllFeaStructs()[m_SelectedStructIndex]->GetFeaPartVec();
+            FeaMeshMgr.SetDrawElementFlag( i, true );
+        }
 
-            for ( unsigned int i = 0; i < fea_part_vec.size(); i++ )
-            {
-                fea_part_vec[i]->m_DrawElementsFlag.Set( true );
-            }
+        vector < bool > draw_cap_flag_vec = FeaMeshMgr.GetDrawCapFlagVec();
+        for ( unsigned int i = 0; i < draw_cap_flag_vec.size(); i++ )
+        {
+            FeaMeshMgr.SetDrawCapFlag( i, true );
         }
     }
     else if ( device == &m_HideAllButton )
     {
-        if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
+        vector < bool > draw_element_flag_vec = FeaMeshMgr.GetDrawElementFlagVec();
+        for ( unsigned int i = 0; i < draw_element_flag_vec.size(); i++ )
         {
-            vector < FeaPart* > fea_part_vec = StructureMgr.GetAllFeaStructs()[m_SelectedStructIndex]->GetFeaPartVec();
+            FeaMeshMgr.SetDrawElementFlag( i, false );
+        }
 
-            for ( unsigned int i = 0; i < fea_part_vec.size(); i++ )
-            {
-                fea_part_vec[i]->m_DrawElementsFlag.Set( false );
-            }
+        vector < bool > draw_cap_flag_vec = FeaMeshMgr.GetDrawCapFlagVec();
+        for ( unsigned int i = 0; i < draw_cap_flag_vec.size(); i++ )
+        {
+            FeaMeshMgr.SetDrawCapFlag( i, false );
         }
     }
     else if ( device == &m_FeaSubSurfChoice )

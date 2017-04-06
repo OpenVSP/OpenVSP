@@ -173,9 +173,7 @@ public:
     virtual void SetFeaMaterialIndex( int index );
 
     IntParm m_MainSurfIndx;
-    BoolParm m_DrawElementsFlag;
     BoolParm m_IntersectionCapFlag;
-    BoolParm m_DrawCapElementsFlag;
 
 protected:
 

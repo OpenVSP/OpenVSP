@@ -467,14 +467,8 @@ FeaPart::FeaPart( string geomID, int type )
     m_MainSurfIndx.Init( "MainSurfIndx", "FeaPart", this, -1, -1, 1e12 );
     m_MainSurfIndx.SetDescript( "Surface Index for FeaPart" );
 
-    m_DrawElementsFlag.Init( "DrawElementsFlag", "FeaPart", this, true, false, true );
-    m_DrawElementsFlag.SetDescript( "Flag to Draw FeaElements" );
-
     m_IntersectionCapFlag.Init( "IntersectionCapFlag", "FeaPart", this, false, false, true );
     m_IntersectionCapFlag.SetDescript( "Flag to Identify FeaElements at Intersections" );
-
-    m_DrawElementsFlag.Init( "DrawCapElementsFlag", "FeaPart", this, false, false, true );
-    m_DrawElementsFlag.SetDescript( "Flag to Draw Cap FeaElements" );
 
     m_FeaPropertyIndex = 0; // Shell property default
     m_CapFeaPropertyIndex = 1; // Beam property default

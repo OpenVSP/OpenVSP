@@ -41,6 +41,10 @@ void FeaMeshMgrSingleton::CleanUp()
     m_FeaElementVec.clear();
 
     m_NumFeaParts = 0;
+    m_DrawBrowserNameVec.clear();
+    m_DrawBrowserPartIndexVec.clear();
+    m_DrawElementFlagVec.clear();
+    m_DrawCapFlagVec.clear();
 
     CfdMeshMgrSingleton::CleanUp();
 }
@@ -144,6 +148,8 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
 
     addOutputText( "Exporting Files\n" );
     ExportFeaMesh();
+
+    UpdateDrawObjData();
 
     addOutputText( "Finished\n" );
 
@@ -840,6 +846,45 @@ void FeaMeshMgrSingleton::WriteGmsh()
     }
 }
 
+void FeaMeshMgrSingleton::UpdateDrawObjData()
+{
+    for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
+    {
+        if ( m_FeaMeshStruct->GetFeaPart( i ) )
+        {
+            string name = m_FeaMeshStruct->GetFeaStructName() + ":  " + m_FeaMeshStruct->GetFeaPartName( i );
+            m_DrawBrowserNameVec.push_back( name );
+            m_DrawBrowserPartIndexVec.push_back( i );
+            m_DrawElementFlagVec.push_back( false );
+
+            if ( m_FeaMeshStruct->GetFeaPart( i )->m_IntersectionCapFlag() )
+            {
+                name += "_CAP";
+                m_DrawBrowserNameVec.push_back( name );
+                m_DrawBrowserPartIndexVec.push_back( i );
+            }
+
+            m_DrawCapFlagVec.push_back( false );
+        }
+    }
+}
+
+void FeaMeshMgrSingleton::SetDrawElementFlag( int index, bool flag )
+{
+    if ( index >= 0 && index < m_DrawElementFlagVec.size() && m_DrawElementFlagVec.size() > 0 )
+    {
+        m_DrawElementFlagVec[index] = flag;
+    }
+}
+
+void FeaMeshMgrSingleton::SetDrawCapFlag( int index, bool flag )
+{
+    if ( index >= 0 && index < m_DrawCapFlagVec.size() && m_DrawCapFlagVec.size() > 0 )
+    {
+        m_DrawCapFlagVec[index] = flag;
+    }
+}
+
 void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 {
     if ( !GetFeaMeshInProgress() )
@@ -958,7 +1003,7 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 }
             }
 
-            if ( m_FeaMeshStruct->GetFeaPart( i )->m_DrawElementsFlag() ) // TODO: LoadDrawObj should not rely on pointers
+            if ( m_DrawElementFlagVec[i] )
             {
                 for ( int j = 0; j < m_FeaElementVec.size(); j++ )
                 {
@@ -976,7 +1021,7 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 }
             }
 
-            if ( m_FeaMeshStruct->GetFeaPart( i )->m_DrawCapElementsFlag() ) // TODO: LoadDrawObj should not rely on pointers
+            if ( m_DrawCapFlagVec[i] ) 
             {
                 m_CapFeaElementDO[i].m_Visible = true;
 
