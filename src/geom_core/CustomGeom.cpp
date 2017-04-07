@@ -50,7 +50,7 @@ void CustomGeomMgrSingleton::ReadCustomScripts( Vehicle* veh )
         {
             if( m_ModuleGeomIDMap.find( mod_vec[i] ) == m_ModuleGeomIDMap.end() )
             {
-                m_CustomTypeVec.push_back( GeomType( CUSTOM_GEOM_TYPE, mod_vec[i], false, mod_vec[i] ) );
+                m_CustomTypeVec.push_back( GeomType( CUSTOM_GEOM_TYPE, mod_vec[i], false, mod_vec[i], mod_vec[i] ) );
                 m_ModuleGeomIDMap[ mod_vec[i] ] = string();
             }
         }
@@ -58,7 +58,7 @@ void CustomGeomMgrSingleton::ReadCustomScripts( Vehicle* veh )
 }
 
 //==== Init Custom Geom ====//
-void CustomGeomMgrSingleton::InitGeom( const string& id, const string& module_name )
+void CustomGeomMgrSingleton::InitGeom( const string& id, const string& module_name, const string& display_name )
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
     Geom* gptr = veh->FindGeom( id );
@@ -69,6 +69,7 @@ void CustomGeomMgrSingleton::InitGeom( const string& id, const string& module_na
         m_CurrGeom = id;
         CustomGeom* custom_geom = dynamic_cast<CustomGeom*>( gptr );
         custom_geom->SetScriptModuleName( module_name );
+        custom_geom->SetDisplayName( display_name );
         custom_geom->InitGeom();
 
         m_ModuleGeomIDMap[ module_name ] = id;
@@ -1027,7 +1028,7 @@ xmlNodePtr CustomGeom::DecodeXml( xmlNodePtr & node )
         string file_contents = XmlUtil::ConvertFromXMLSafeChars( safe_file_contents );
 
         string new_module_name = ScriptMgr.ReadScriptFromMemory( module_name, file_contents );
-        CustomGeomMgr.InitGeom( GetID(), new_module_name );
+        CustomGeomMgr.InitGeom( GetID(), new_module_name, module_name );
 
         for ( int i = 0 ; i < (int)m_ParmVec.size() ; i++ )
         {

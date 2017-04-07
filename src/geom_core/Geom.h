@@ -56,7 +56,7 @@ class GeomType
 public:
 
     GeomType();
-    GeomType( int id, string name, bool fixed_flag = false, string module_name = string()  );
+    GeomType( int id, string name, bool fixed_flag = false, string module_name = string(), string display_type = string() );
     ~GeomType();
 
     void CopyFrom( const GeomType & t );
@@ -67,6 +67,7 @@ public:
 
     string m_GeomID;
     string m_ModuleName;
+    string m_DisplayName;
 
 };
 

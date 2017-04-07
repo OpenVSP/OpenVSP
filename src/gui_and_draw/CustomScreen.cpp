@@ -25,7 +25,12 @@ CustomScreen::CustomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 640, "Custo
 
 void CustomScreen::InitGui( Geom* geom_ptr )
 {
-    string custom_type_name =  geom_ptr->GetType().m_Name;
+    //==== Cast To Custom Geom ====//
+    CustomGeom* custom_geom = dynamic_cast<CustomGeom*>( geom_ptr );
+    if ( !custom_geom )
+        return;
+
+    string custom_type_name = custom_geom->GetScriptModuleName();
 
     //==== Check The Gui Is Already Defined For This Type ====//
     map< string, vector< GuiDevice* > >::iterator iter = m_DeviceVecMap.find( custom_type_name );
@@ -38,6 +43,11 @@ void CustomScreen::InitGui( Geom* geom_ptr )
 
 void CustomScreen::InitGuiDeviceVec( Geom* geom_ptr )
 {
+    //==== Cast To Custom Geom ====//
+    CustomGeom* custom_geom = dynamic_cast<CustomGeom*>( geom_ptr );
+    if ( !custom_geom )
+        return;
+
     vector< GuiDef > gui_def_vec = CustomGeomMgr.GetGuiDefVec( geom_ptr->GetID() );
 
     for ( int i = 0 ; i < ( int )gui_def_vec.size() ; i++ )
@@ -46,7 +56,7 @@ void CustomScreen::InitGuiDeviceVec( Geom* geom_ptr )
         if ( gd )
             gd->SetIndex( i );
 
-        string custom_type_name =  geom_ptr->GetType().m_Name;
+        string custom_type_name = custom_geom->GetScriptModuleName();
         m_DeviceVecMap[custom_type_name].push_back( gd );
     }
 }
@@ -298,9 +308,17 @@ bool CustomScreen::Update()
     //==== Make Sure Gui Devices Are Created - Only Once ====//
     InitGui( geom_ptr );
 
+    //==== Cast To Custom Geom ====//
+    CustomGeom* custom_geom = dynamic_cast<CustomGeom*>( geom_ptr );
+    if ( !custom_geom )
+    {
+        return false;
+    }
+
     //==== Set Title Tabs Window ====//
-    string custom_type_name = geom_ptr->GetType().m_Name;
-    TabScreen::SetTitle( custom_type_name );
+    string custom_type_name = custom_geom->GetScriptModuleName();
+    string display_name = custom_geom->GetDisplayName();
+    TabScreen::SetTitle( display_name );
 
     GeomScreen::Update();
 
@@ -313,7 +331,7 @@ bool CustomScreen::Update()
     for ( int i = 0 ; i < ( int )update_vec.size() ; i++ )
     {
         int gui_index = update_vec[i].m_GuiID;
-        GuiDevice* gui_dev = FindGuiDevice( geom_ptr->GetType().m_Name, gui_index );
+        GuiDevice* gui_dev = FindGuiDevice( custom_type_name, gui_index );
 
         if ( gui_dev )
         {

@@ -26,12 +26,13 @@ GeomType::GeomType()
 }
 
 //==== Constructor ====//
-GeomType::GeomType( int id, string name, bool fixed_flag, string module_name )
+GeomType::GeomType( int id, string name, bool fixed_flag, string module_name, string display_name )
 {
     m_Type = id;
     m_Name = name;
     m_FixedFlag = fixed_flag;
     m_ModuleName = module_name;
+    m_DisplayName = display_name;
 }
 
 //==== Destructor ====//
@@ -45,6 +46,7 @@ void GeomType::CopyFrom( const GeomType & t )
     m_Name = t.m_Name;
     m_FixedFlag = t.m_FixedFlag;
     m_ModuleName = t.m_ModuleName;
+    m_DisplayName = t.m_DisplayName;
     m_GeomID = t.m_GeomID;
 }
 

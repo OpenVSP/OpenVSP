@@ -558,7 +558,7 @@ string Vehicle::AddGeom( const GeomType & type )
         if ( type.m_Type == CUSTOM_GEOM_TYPE )
         {
             add_geom->SetType( type );
-            CustomGeomMgr.InitGeom( geom_id, type.m_ModuleName );
+            CustomGeomMgr.InitGeom( geom_id, type.m_ModuleName, type.m_DisplayName );
 //            add_geom->Update();
         }
         //==== Update Conformal After Attachment to Parent ====//
@@ -1270,7 +1270,7 @@ void Vehicle::AddType( const string & geom_id )
     Geom* gptr = FindGeom( geom_id );
     if ( gptr && gptr->GetType().m_Type != CUSTOM_GEOM_TYPE )
     {
-        GeomType type( gptr->GetType().m_Type, gptr->GetName(), false, gptr->GetType().m_ModuleName );
+        GeomType type( gptr->GetType().m_Type, gptr->GetName(), false, gptr->GetType().m_ModuleName, gptr->GetType().m_DisplayName );
 
         //===== Create Geom ====//
         GeomType t = gptr->GetType();
