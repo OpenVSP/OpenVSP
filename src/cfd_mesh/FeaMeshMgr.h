@@ -159,6 +159,8 @@ private:
     vector< DrawObj > m_CapFeaElementDO;
     vector< DrawObj > m_FeaNodeDO;
     vector< DrawObj > m_ElementNormDO;
+    DrawObj m_MeshBadEdgeDO;
+    DrawObj m_MeshBadTriDO;
 };
 
 #define FeaMeshMgr FeaMeshMgrSingleton::getInstance()
