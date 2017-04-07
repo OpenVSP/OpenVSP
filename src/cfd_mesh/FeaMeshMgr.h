@@ -81,8 +81,6 @@ public:
         return m_TotalMass;
     }
 
-    virtual FeaNode* FindNode( vector< FeaNode* > nodeVec, int id );
-
     virtual void SetFeaMeshStructIndex( int index )
     {
         m_FeaMeshStructIndex = index;

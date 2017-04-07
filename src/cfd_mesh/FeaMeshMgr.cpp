@@ -334,20 +334,6 @@ void FeaMeshMgrSingleton::ComputeWriteMass()
     }
 }
 
-FeaNode* FeaMeshMgrSingleton::FindNode( vector< FeaNode* > nodeVec, int id )
-{
-    //==== jrg Brute Force for Now ====//
-    for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
-    {
-        if ( nodeVec[i]->m_Index == id )
-        {
-            return nodeVec[i];
-        }
-    }
-
-    return NULL;
-}
-
 void FeaMeshMgrSingleton::TagFeaNodes()
 {
     //==== Collect All FeaNodes ====//
