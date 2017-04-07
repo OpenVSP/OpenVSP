@@ -158,7 +158,8 @@ private:
     vector< DrawObj > m_FeaElementDO;
     vector< DrawObj > m_CapFeaElementDO;
     vector< DrawObj > m_FeaNodeDO;
-    vector< DrawObj > m_ElementNormDO;
+    vector< DrawObj > m_TriNormDO;
+    vector< DrawObj > m_CapNormDO;
     DrawObj m_MeshBadEdgeDO;
     DrawObj m_MeshBadTriDO;
 };
