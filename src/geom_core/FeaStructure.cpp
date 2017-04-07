@@ -901,10 +901,11 @@ void FeaFullDepth::ComputePlanarSurf()
         // Make Planar Surface
         m_FeaPartSurfVec[0].MakePlaneSurf( cornerA, cornerB, cornerC, cornerD );
 
-        //if ( m_FeaPartSurfVec[0].GetFlipNormal() != current_surf.GetFlipNormal() )
-        //{
-        //    m_FeaPartSurfVec[0].FlipNormal();
-        //}
+        if ( m_FeaPartSurfVec[0].GetFlipNormal() != current_surf.GetFlipNormal() )
+        {
+            m_FeaPartSurfVec[0].FlipNormal();
+            rot_axis = -1 * rot_axis;
+        }
 
         // Translate to the origin, rotate, and translate back to m_CenterPerBBoxLocation
         Matrix4d trans_mat_1, trans_mat_2, rot_mat;
@@ -947,6 +948,11 @@ void FeaFullDepth::ComputePlanarSurf()
         for ( int i = 1; i < m_SymmIndexVec.size(); i++ )
         {
             m_FeaPartSurfVec[i].Transform( transMats[i] ); // Apply total transformation to main FeaPart surface
+
+            if ( surf_vec[i].GetFlipNormal() != m_FeaPartSurfVec[i].GetFlipNormal() )
+            {
+                m_FeaPartSurfVec[i].FlipNormal();
+            }
         }
     }
 }
@@ -1077,6 +1083,11 @@ void FeaSpar::ComputePlanarSurf()
         for ( int i = 1; i < m_SymmIndexVec.size(); i++ )
         {
             m_FeaPartSurfVec[i].Transform( transMats[i] ); // Apply total transformation to main FeaPart surface
+
+            if ( surf_vec[i].GetFlipNormal() != m_FeaPartSurfVec[i].GetFlipNormal() )
+            {
+                m_FeaPartSurfVec[i].FlipNormal();
+            }
         }
     }
 }
@@ -1233,6 +1244,11 @@ void FeaRib::ComputePlanarSurf()
         for ( int i = 1; i < m_SymmIndexVec.size(); i++ )
         {
             m_FeaPartSurfVec[i].Transform( transMats[i] ); // Apply total transformation to main FeaPart surface
+
+            if ( surf_vec[i].GetFlipNormal() != m_FeaPartSurfVec[i].GetFlipNormal() )
+            {
+                m_FeaPartSurfVec[i].FlipNormal();
+            }
         }
     }
 }
@@ -1413,10 +1429,11 @@ void FeaStiffenerPlane::ComputePlanarSurf()
         // Make Planar Surface
         m_FeaPartSurfVec[0].MakePlaneSurf( cornerA, cornerB, cornerC, cornerD );
 
-        //if ( m_FeaPartSurfVec[0].GetFlipNormal() != current_surf.GetFlipNormal() )
-        //{
-        //    m_FeaPartSurfVec[0].FlipNormal();
-        //}
+        if ( m_FeaPartSurfVec[0].GetFlipNormal() != current_surf.GetFlipNormal() )
+        {
+            m_FeaPartSurfVec[0].FlipNormal();
+            rot_axis = -1 * rot_axis;
+        }
 
         // Translate to the origin, rotate, and translate back to m_CenterPerBBoxLocation
         Matrix4d trans_mat_1, trans_mat_2, rot_mat;
@@ -1459,6 +1476,11 @@ void FeaStiffenerPlane::ComputePlanarSurf()
         for ( int i = 1; i < m_SymmIndexVec.size(); i++ )
         {
             m_FeaPartSurfVec[i].Transform( transMats[i] ); // Apply total transformation to main FeaPart surface
+
+            if ( surf_vec[i].GetFlipNormal() != m_FeaPartSurfVec[i].GetFlipNormal() )
+            {
+                m_FeaPartSurfVec[i].FlipNormal();
+            }
         }
     }
 }
