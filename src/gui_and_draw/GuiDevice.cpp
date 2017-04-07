@@ -1419,6 +1419,11 @@ void Choice::SetValAndLimits( Parm* p )
 
     IntParm* iparm = dynamic_cast< IntParm* >( p );
     assert( iparm );
+    if ( !iparm )
+    {
+        return;
+    }
+
     int val = iparm->Get();
 
     m_Choice->value( val - m_Offset );
