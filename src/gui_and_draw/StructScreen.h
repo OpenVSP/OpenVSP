@@ -147,10 +147,10 @@ private:
     //===== Draw Tab Items =====//
     ToggleButton m_DrawFeaPartsButton;
     ToggleButton m_DrawMeshButton;
-    ToggleButton m_ColorTagsButton;
+    ToggleButton m_ColorElementsButton;
     ToggleButton m_ShowBadEdgeTriButton;
     ToggleButton m_DrawNodesToggle;
-    ToggleButton m_DrawElementNormToggle;
+    ToggleButton m_DrawElementOrientVecToggle;
 
     Fl_Check_Browser * m_DrawPartSelectBrowser;
 
