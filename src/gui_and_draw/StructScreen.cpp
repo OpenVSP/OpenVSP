@@ -1532,6 +1532,7 @@ bool StructScreen::Update()
         m_MaxGap.Update( veh->GetFeaGridDensityPtr()->m_MaxGap.GetID() );
         m_NumCircleSegments.Update( veh->GetFeaGridDensityPtr()->m_NCircSeg.GetID() );
         m_GrowthRatio.Update( veh->GetFeaGridDensityPtr()->m_GrowRatio.GetID() );
+        m_Rig3dGrowthLimit.Update( veh->GetFeaGridDensityPtr()->m_RigorLimit.GetID() );
 
         //===== Geometry Control =====//
         m_IntersectSubsurfaces.Update( veh->GetStructSettingsPtr()->m_IntersectSubSurfs.GetID() );
