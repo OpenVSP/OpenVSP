@@ -4084,6 +4084,11 @@ bool CfdMeshMgrSingleton::SetDeleteTriFlag( int aType, bool symPlane, vector < b
                 {
                     return true;
                 }
+                // Always delete Stiffener tris
+                else if ( aType == vsp::CFD_STIFFENER )
+                {
+                    return true;
+                }
             }
             else  // Triangle is outside.
             {
@@ -4091,7 +4096,10 @@ bool CfdMeshMgrSingleton::SetDeleteTriFlag( int aType, bool symPlane, vector < b
                 {
                     return true;
                 }
-
+                else if ( aType == vsp::CFD_STIFFENER && bType == vsp::CFD_NORMAL )
+                {
+                    return true;
+                }
             }
         }
     }
@@ -4174,7 +4182,8 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
                 if ( i != s && comp_id != tri_comp_id ) // Don't check self intersection.
                 {
                     if ( m_SurfVec[i]->GetSurfaceCfdType() != vsp::CFD_TRANSPARENT &&
-                         m_SurfVec[i]->GetSurfaceCfdType() != vsp::CFD_STRUCTURE ) // Don't check against transparent surf.
+                         m_SurfVec[i]->GetSurfaceCfdType() != vsp::CFD_STRUCTURE &&
+                         m_SurfVec[i]->GetSurfaceCfdType() != vsp::CFD_STIFFENER ) // Don't check against transparent, structure, or stiffener surf.
                     {
                         m_SurfVec[i]->IntersectLineSeg( cp, ep, t_vec_vec[comp_id] );
                     }

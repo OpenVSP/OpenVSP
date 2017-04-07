@@ -636,7 +636,7 @@ void Surf::Intersect( Surf* surfPtr, CfdMeshMgrSingleton *MeshMgr )
 {
     int i;
 
-    // CFD_STRUCTURE type surfaces have m_CompID == -9999.
+    // CFD_STRUCTURE and CFD_STIFFENER type surfaces have m_CompID == -9999.
     if ( surfPtr->GetCompID() == m_CompID && m_CompID >= 0 )
     {
         return;

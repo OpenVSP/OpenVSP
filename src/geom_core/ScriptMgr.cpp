@@ -906,6 +906,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "VSP_SURF_CFD_TYPE", "CFD_STRUCTURE", CFD_STRUCTURE );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "VSP_SURF_CFD_TYPE", "CFD_STIFFENER", CFD_STIFFENER );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "VSP_SURF_CFD_TYPE", "CFD_NUM_TYPES", CFD_NUM_TYPES );
     assert( r >= 0 );
 
