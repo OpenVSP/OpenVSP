@@ -109,11 +109,13 @@ class FeaTri : public FeaElement
     {
     };
 
-    virtual void Create( vec3d & p0, vec3d & p1, vec3d & p2 );
+    virtual void Create( vec3d & p0, vec3d & p1, vec3d & p2, vec3d & orientation );
     virtual void WriteCalculix( FILE* fp, int id );
     virtual void WriteNASTRAN( FILE* fp, int id, int property_index );
     virtual void WriteGmsh( FILE* fp, int id, int fea_part_index );
     virtual double ComputeMass( int property_index );
+
+    vec3d m_Orientation;
 };
 
 //=== 8 Point Quad Element ====//

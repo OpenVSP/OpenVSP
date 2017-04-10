@@ -204,12 +204,24 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
     // Build FeaTris
     for ( int s = 0; s < (int)m_SurfVec.size(); s++ )
     {
+        vector < vec2d > uwvec = m_SurfVec[s]->GetMesh()->GetSimpUWPntVec();
         vector < vec3d >pvec = m_SurfVec[s]->GetMesh()->GetSimpPntVec();
         vector < SimpTri > tvec = m_SurfVec[s]->GetMesh()->GetSimpTriVec();
+
         for ( int i = 0; i < (int)tvec.size(); i++ )
         {
+            // Determine tangent u-direction for orientation vector at tri midpoint
+            vec2d uw0 = uwvec[tvec[i].ind0];
+            vec2d uw1 = uwvec[tvec[i].ind1];
+            vec2d uw2 = uwvec[tvec[i].ind2];
+
+            vec2d avg_uw = ( uw0 + uw1 + uw2 ) / 3.0;
+
+            vec3d orient_vec = m_SurfVec[s]->GetSurfCore()->CompTanU( avg_uw[0], avg_uw[1] );
+            orient_vec.normalize();
+
             FeaTri* tri = new FeaTri;
-            tri->Create( pvec[tvec[i].ind0], pvec[tvec[i].ind1], pvec[tvec[i].ind2] );
+            tri->Create( pvec[tvec[i].ind0], pvec[tvec[i].ind1], pvec[tvec[i].ind2], orient_vec );
             tri->SetFeaPartIndex( m_SurfVec[s]->GetFeaPartIndex() );
             m_FeaElementVec.push_back( tri );
         }
@@ -1071,6 +1083,14 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                         tri_orient_pnt_vec.push_back( center );
                         tri_orient_pnt_vec.push_back( norm_pnt );
 
+                        // Define orientation vec:
+                        FeaTri* tri = dynamic_cast<FeaTri*>( m_FeaElementVec[j] );
+                        assert( tri );
+
+                        vec3d orient_pnt = center + line_length * tri->m_Orientation;
+
+                        tri_orient_pnt_vec.push_back( center );
+                        tri_orient_pnt_vec.push_back( orient_pnt );
                     }
                     else if ( m_FeaElementVec[j]->GetFeaPartIndex() == i && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM )
                     {
