@@ -149,11 +149,13 @@ class FeaBeam : public FeaElement
 
     virtual void Create( vec3d & p0, vec3d & p1 , vec3d & norm );
     virtual void WriteCalculix( FILE* fp, int id );
+    virtual void WriteCalculixNormal( FILE* fp );
     virtual void WriteNASTRAN( FILE* fp, int id, int property_index );
     virtual void WriteGmsh( FILE* fp, int id, int fea_part_index );
     virtual double ComputeMass( int property_index );
 
     vec3d m_DispVec; // Vector from end point in the displacement coordinate system at the end point
+    int m_ElementIndex;
 };
 
 #endif // !defined(FEAELEMENT_INCLUDED_)

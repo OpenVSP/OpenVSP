@@ -341,6 +341,13 @@ void FeaBeam::WriteCalculix( FILE* fp, int id )
 {
     fprintf( fp, "%d,%d,%d\n", id,
              m_Corners[0]->GetIndex(), m_Corners[1]->GetIndex() );
+
+    m_ElementIndex = id; // Save element index 
+}
+
+void FeaBeam::WriteCalculixNormal( FILE* fp )
+{
+    fprintf( fp, "%d,%d,%8.5f,%8.5f,%8.5f\n", m_ElementIndex, m_Corners[0]->GetIndex(), m_DispVec.x(), m_DispVec.y(), m_DispVec.z() );
 }
 
 void FeaBeam::WriteNASTRAN( FILE* fp, int id, int property_index )

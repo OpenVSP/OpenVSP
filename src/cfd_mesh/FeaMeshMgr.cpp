@@ -702,6 +702,21 @@ void FeaMeshMgrSingleton::WriteCalculix()
 
                 StructureMgr.GetFeaProperty( cap_property_id )->WriteCalculix( fp, str );
                 fprintf( fp, "\n" );
+
+                // Write Normal Vectors
+                fprintf( fp, "*NORMAL\n" );
+
+                for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+                {
+                    if ( m_FeaElementVec[j]->GetFeaPartIndex() == i && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM )
+                    {
+                        FeaBeam* beam = dynamic_cast<FeaBeam*>( m_FeaElementVec[j] );
+                        assert( beam );
+                        beam->WriteCalculixNormal( fp );
+                    }
+                }
+
+                fprintf( fp, "\n" );
             }
         }
 
