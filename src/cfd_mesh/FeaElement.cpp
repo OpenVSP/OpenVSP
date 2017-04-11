@@ -183,9 +183,15 @@ void FeaTri::WriteCalculix( FILE* fp, int id )
 
 void FeaTri::WriteNASTRAN( FILE* fp, int id, int property_index )
 {
-    fprintf( fp, "CTRIA6,%d,%d,%d,%d,%d,%d,%d,%d\n", id, property_index + 1,
+    vec3d x_element = m_Corners[1]->m_Pnt - m_Corners[0]->m_Pnt;
+    x_element.normalize();
+    vec3d x_axis = vec3d( 1.0, 0.0, 0.0 );
+
+    double theta_material = RAD_2_DEG * signed_angle( x_element, m_Orientation, x_axis );
+
+    fprintf( fp, "CTRIA6,%d,%d,%d,%d,%d,%d,%d,%d,\n,%8.3f,,,,,,,\n", id, property_index + 1,
              m_Corners[0]->GetIndex(), m_Corners[1]->GetIndex(), m_Corners[2]->GetIndex(),
-             m_Mids[0]->GetIndex(), m_Mids[1]->GetIndex(), m_Mids[2]->GetIndex() );
+             m_Mids[0]->GetIndex(), m_Mids[1]->GetIndex(), m_Mids[2]->GetIndex(), theta_material );
 }
 
 void FeaTri::WriteGmsh( FILE* fp, int id, int fea_part_index )
