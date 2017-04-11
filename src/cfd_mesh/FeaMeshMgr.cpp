@@ -1067,7 +1067,7 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 m_CapNormDO[i].m_LineColor = m_CapFeaElementDO[i].m_LineColor;
                 m_CapNormDO[i].m_Visible = m_CapFeaElementDO[i].m_Visible;
 
-                double line_length = 0.075;
+                double line_length = GetGridDensityPtr()->m_MinLen() / 3.0;
                 vector < vec3d > tri_orient_pnt_vec, cap_norm_pnt_vec;
 
                 for ( int j = 0; j < m_FeaElementVec.size(); j++ )
