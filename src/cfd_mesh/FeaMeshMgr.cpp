@@ -64,6 +64,7 @@ bool FeaMeshMgrSingleton::LoadSurfaces()
     vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
     m_FeaMeshStruct = structvec[m_FeaMeshStructIndex];
 
+    // Identify number of FeaParts
     m_NumFeaParts = m_FeaMeshStruct->NumFeaParts();
 
     LoadSkins();
@@ -776,7 +777,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
 
         //==== Materials ====//
         fprintf( fp, "\n" );
-        fprintf( fp, "Materials\n" );
+        fprintf( fp, "**Materials\n" );
 
         vector < FeaMaterial* > material_vec = StructureMgr.GetFeaMaterialVec();
 
@@ -1089,7 +1090,7 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 {
                     if ( m_FeaElementVec[j]->GetFeaPartIndex() == i && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 )
                     {
-                        // Define normal vec;
+                        // Define normal vec:
                         vec3d norm = cross( m_FeaElementVec[j]->m_Corners[1]->m_Pnt - m_FeaElementVec[j]->m_Corners[0]->m_Pnt, m_FeaElementVec[j]->m_Corners[2]->m_Pnt - m_FeaElementVec[j]->m_Corners[0]->m_Pnt );
                         norm.normalize();
                         vec3d center = ( m_FeaElementVec[j]->m_Corners[0]->m_Pnt + m_FeaElementVec[j]->m_Corners[1]->m_Pnt + m_FeaElementVec[j]->m_Corners[2]->m_Pnt ) / 3.0;
