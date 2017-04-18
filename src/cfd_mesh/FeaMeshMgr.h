@@ -64,6 +64,7 @@ public:
     virtual void BuildFeaMesh();
 
     virtual void BuildSubSurfIntChains();
+    virtual void SubTagTris();
     virtual void Remesh();
 
     virtual void TagFeaNodes();

@@ -583,6 +583,60 @@ void FeaMeshMgrSingleton::Remesh()
     addOutputText( str );
 }
 
+void FeaMeshMgrSingleton::SubTagTris()
+{
+    SubSurfaceMgr.ClearTagMaps();
+    map< string, int > tag_map;
+    map< string, set<int> > geom_comp_map;
+    map< int, int >  comp_num_map; // map from an unmerged component number to the surface number of geom
+    int tag_number = 0;
+    int fea_part_cnt = 1;
+
+    for ( int i = 0; i < (int)m_SurfVec.size(); i++ )
+    {
+        Surf* surf = m_SurfVec[i];
+        string geom_id = surf->GetGeomID();
+        string id = geom_id + to_string( (long long)surf->GetUnmergedCompID() );
+        string name;
+
+        geom_comp_map[geom_id].insert( surf->GetUnmergedCompID() );
+
+        comp_num_map[surf->GetUnmergedCompID()] = geom_comp_map[geom_id].size();
+
+        if ( tag_map.find( id ) == tag_map.end() )
+        {
+            tag_number++;
+            tag_map[id] = tag_number;
+
+            Geom* geom_ptr = m_Vehicle->FindGeom( geom_id );
+
+            if ( surf->GetCompID() < 0 )
+            {
+                name = geom_ptr->GetName() + "_FeaPart_" + to_string( fea_part_cnt );
+            }
+            else if ( geom_ptr ) 
+            {
+                name = geom_ptr->GetName() + to_string( (long long)geom_comp_map[geom_id].size() );
+            }
+
+            SubSurfaceMgr.m_CompNames.push_back( name );
+        }
+
+        surf->SetBaseTag( tag_map[id] );
+    }
+
+    // Add FeaSubSurface Tags
+    vector< SubSurface* > ss_vec = m_FeaMeshStruct->GetFeaSubSurfVec();
+    for ( int i = 0; i < m_NumFeaSubSurfs; i++ )
+    {
+        ss_vec[i]->m_Tag = tag_number + i + 1;
+        // map tag number to surface name
+        SubSurfaceMgr.m_TagNames[ss_vec[i]->m_Tag] = ss_vec[i]->GetName();
+    }
+
+    SubSurfaceMgr.BuildCompNameMap();
+}
+
 void FeaMeshMgrSingleton::TagFeaNodes()
 {
     //==== Collect All FeaNodes ====//
