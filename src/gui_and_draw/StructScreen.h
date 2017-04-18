@@ -47,6 +47,7 @@ public:
     virtual void UpdateFeaPartPropertyIndex( Choice* property_choice );
     virtual void UpdateCapPropertyIndex( Choice* property_choice );
     virtual void UpdateFeaSubSurfPropertyIndex( Choice* property_choice );
+    virtual void UpdateFeaSubSurfCapPropertyIndex( Choice* property_choice );
 
     virtual void OrientWing();
     virtual void OrientStructure( VSPGraphic::Common::VSPenum type );
@@ -243,6 +244,9 @@ private:
     ToggleButton m_FeaSSLineNoneToggle;
     ToggleRadioGroup m_FeaSSLineTestToggleGroup;
 
+    ToggleButton m_FeaSSLineCapToggle;
+    Choice m_FeaSSLineCapPropertyChoice;
+
     // SS_Rectangle
     GroupLayout m_FeaSSRecGroup;
     Choice m_FeaSSRecPropertyChoice;
@@ -255,6 +259,9 @@ private:
     ToggleButton m_FeaSSRecOutsideButton;
     ToggleButton m_FeaSSRecNoneButton;
     ToggleRadioGroup m_FeaSSRecTestToggleGroup;
+
+    ToggleButton m_FeaSSRecCapToggle;
+    Choice m_FeaSSRecCapPropertyChoice;
 
     // SS_Ellipse
     GroupLayout m_FeaSSEllGroup;
@@ -269,6 +276,9 @@ private:
     ToggleButton m_FeaSSEllOutsideButton;
     ToggleButton m_FeaSSEllNoneButton;
     ToggleRadioGroup m_FeaSSEllTestToggleGroup;
+
+    ToggleButton m_FeaSSEllCapToggle;
+    Choice m_FeaSSEllCapPropertyChoice;
 
     // SS_Control
     GroupLayout m_FeaSSConGroup;
@@ -293,6 +303,9 @@ private:
     ToggleButton m_FeaSSConNoneButton;
     ToggleRadioGroup m_FeaSSConTestToggleGroup;
     Choice m_FeaSSConSurfTypeChoice;
+
+    ToggleButton m_FeaSSConCapToggle;
+    Choice m_FeaSSConCapPropertyChoice;
 
     //===== Property Tab =====//
     GroupLayout* m_CurFeaPropDispGroup;

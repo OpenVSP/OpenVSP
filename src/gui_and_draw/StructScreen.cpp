@@ -485,6 +485,11 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
     m_FeaSSLineGroup.SetButtonWidth( buttonwidth );
     m_FeaSSLineGroup.AddSlider( m_FeaSSLineConstSlider, "Value", 1, "%5.4f" );
 
+    m_FeaSSLineGroup.AddYGap();
+
+    m_FeaSSLineGroup.AddButton( m_FeaSSLineCapToggle, "Cap Intersections" );
+    m_FeaSSLineGroup.AddChoice( m_FeaSSLineCapPropertyChoice, "Cap Property" );
+
     //==== SSRectangle ====//
     m_FeaSSRecGroup.SetGroupAndScreen( AddSubGroup( subTab, 5 ), this );
     m_FeaSSRecGroup.SetY( start_y );
@@ -523,6 +528,11 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
     m_FeaSSRecGroup.AddSlider( m_FeaSSRecULenSlider, "U Length", 1, "%5.4f" );
     m_FeaSSRecGroup.AddSlider( m_FeaSSRecWLenSlider, "W Length", 1, "%5.4f" );
     m_FeaSSRecGroup.AddSlider( m_FeaSSRecThetaSlider, "Theta", 25, "%5.4f" );
+
+    m_FeaSSRecGroup.AddYGap();
+
+    m_FeaSSRecGroup.AddButton( m_FeaSSRecCapToggle, "Cap Intersections" );
+    m_FeaSSRecGroup.AddChoice( m_FeaSSRecCapPropertyChoice, "Cap Property" );
 
     //==== SS_Ellipse ====//
     m_FeaSSEllGroup.SetGroupAndScreen( AddSubGroup( subTab, 5 ), this );
@@ -563,6 +573,11 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
     m_FeaSSEllGroup.AddSlider( m_FeaSSEllULenSlider, "U Length", 1, "%5.4f" );
     m_FeaSSEllGroup.AddSlider( m_FeaSSEllWLenSlider, "W Length", 1, "%5.4f" );
     m_FeaSSEllGroup.AddSlider( m_FeaSSEllThetaSlider, "Theta", 25, "%5.4f" );
+
+    m_FeaSSEllGroup.AddYGap();
+
+    m_FeaSSEllGroup.AddButton( m_FeaSSEllCapToggle, "Cap Intersections" );
+    m_FeaSSEllGroup.AddChoice( m_FeaSSEllCapPropertyChoice, "Cap Property" );
 
     //===== SSControl ====//
     m_FeaSSConGroup.SetGroupAndScreen( AddSubGroup( subTab, 5 ), this );
@@ -644,6 +659,11 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
     m_FeaSSConGroup.AddSlider( m_FeaSSConSFracSlider, "Start Length/C", 1.0, "%5.4f" );
     m_FeaSSConGroup.AddSlider( m_FeaSSConELenSlider, "End Length", 10.0, "%5.4f" );
     m_FeaSSConGroup.AddSlider( m_FeaSSConEFracSlider, "End Length/C", 1.0, "%5.4f" );
+
+    m_FeaSSConGroup.AddYGap();
+
+    m_FeaSSConGroup.AddButton( m_FeaSSConCapToggle, "Cap Intersections" );
+    m_FeaSSConGroup.AddChoice( m_FeaSSConCapPropertyChoice, "Cap Property" );
 
     //=== Property Tab ===//
     m_PropertyTabLayout.SetGroupAndScreen( propTabGroup, this );
@@ -1140,6 +1160,11 @@ void StructScreen::UpdateFeaPropertyChoice()
     m_FullDepthCapPropertyChoice.ClearItems();
     m_RibCapPropertyChoice.ClearItems();
 
+    m_FeaSSLineCapPropertyChoice.ClearItems();
+    m_FeaSSRecCapPropertyChoice.ClearItems();
+    m_FeaSSEllCapPropertyChoice.ClearItems();
+    m_FeaSSConCapPropertyChoice.ClearItems();
+
     Vehicle*  veh = m_ScreenMgr->GetVehiclePtr();
 
     if ( veh )
@@ -1161,6 +1186,11 @@ void StructScreen::UpdateFeaPropertyChoice()
             m_FullDepthCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_RibCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
 
+            m_FeaSSLineCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
+            m_FeaSSRecCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
+            m_FeaSSEllCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
+            m_FeaSSConCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
+
             if ( property_vec[i]->m_FeaPropertyType() == SHELL_PROPERTY )
             {
                 m_SkinPropertyChoice.SetFlag( i, 0 );
@@ -1175,6 +1205,11 @@ void StructScreen::UpdateFeaPropertyChoice()
                 m_SparCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_FullDepthCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_RibCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
+
+                m_FeaSSLineCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
+                m_FeaSSRecCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
+                m_FeaSSEllCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
+                m_FeaSSConCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
             }
             else if ( property_vec[i]->m_FeaPropertyType() == BEAM_PROPERTY )
             {
@@ -1190,6 +1225,11 @@ void StructScreen::UpdateFeaPropertyChoice()
                 m_SparCapPropertyChoice.SetFlag( i, 0 );
                 m_FullDepthCapPropertyChoice.SetFlag( i, 0 );
                 m_RibCapPropertyChoice.SetFlag( i, 0 );
+
+                m_FeaSSLineCapPropertyChoice.SetFlag( i, 0 );
+                m_FeaSSRecCapPropertyChoice.SetFlag( i, 0 );
+                m_FeaSSEllCapPropertyChoice.SetFlag( i, 0 );
+                m_FeaSSConCapPropertyChoice.SetFlag( i, 0 );
             }
         }
         m_SkinPropertyChoice.UpdateItems();
@@ -1204,6 +1244,11 @@ void StructScreen::UpdateFeaPropertyChoice()
         m_SparCapPropertyChoice.UpdateItems();
         m_FullDepthCapPropertyChoice.UpdateItems();
         m_RibCapPropertyChoice.UpdateItems();
+
+        m_FeaSSLineCapPropertyChoice.UpdateItems();
+        m_FeaSSRecCapPropertyChoice.UpdateItems();
+        m_FeaSSEllCapPropertyChoice.UpdateItems();
+        m_FeaSSConCapPropertyChoice.UpdateItems();
 
         if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
         {
@@ -1233,11 +1278,16 @@ void StructScreen::UpdateFeaPropertyChoice()
 
             if ( subsurf )
             {
-                // Update all FeaPart Property Choices ( Only Selected Part Visible )
+                // Update all FeaSubSurface Property Choices ( Only Selected Part Visible )
                 m_FeaSSLinePropertyChoice.SetVal( subsurf->GetFeaPropertyIndex() );
                 m_FeaSSRecPropertyChoice.SetVal( subsurf->GetFeaPropertyIndex() );
                 m_FeaSSEllPropertyChoice.SetVal( subsurf->GetFeaPropertyIndex() );
                 m_FeaSSConPropertyChoice.SetVal( subsurf->GetFeaPropertyIndex() );
+
+                m_FeaSSLineCapPropertyChoice.SetVal( subsurf->GetCapFeaPropertyIndex() );
+                m_FeaSSRecCapPropertyChoice.SetVal( subsurf->GetCapFeaPropertyIndex() );
+                m_FeaSSEllCapPropertyChoice.SetVal( subsurf->GetCapFeaPropertyIndex() );
+                m_FeaSSConCapPropertyChoice.SetVal( subsurf->GetCapFeaPropertyIndex() );
             }
         }
     }
@@ -1474,6 +1524,20 @@ void StructScreen::UpdateFeaSubSurfPropertyIndex( Choice* property_choice )
     }
 }
 
+void StructScreen::UpdateFeaSubSurfCapPropertyIndex( Choice* property_choice )
+{
+    if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
+    {
+        vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
+        SubSurface* subsurf = structvec[m_SelectedStructIndex]->GetFeaSubSurf( m_SelectedSubSurfIndex );
+
+        if ( subsurf )
+        {
+            subsurf->SetCapFeaPropertyIndex( property_choice->GetVal() );
+        }
+    }
+}
+
 bool StructScreen::Update()
 {
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
@@ -1648,6 +1712,8 @@ bool StructScreen::Update()
                     m_FeaSSLineConstToggleGroup.Update( ssline->m_ConstType.GetID() );
                     m_FeaSSLineTestToggleGroup.Update( ssline->m_TestType.GetID() );
                     m_FeaSSLineConstSlider.Update( ssline->m_ConstVal.GetID() );
+                    m_FeaSSLineCapToggle.Update( ssline->m_IntersectionCapFlag.GetID() );
+
                     if ( ssline->m_TestType() == vsp::NONE )
                     {
                         m_FeaSSLinePropertyChoice.Deactivate();
@@ -1656,6 +1722,16 @@ bool StructScreen::Update()
                     {
                         m_FeaSSLinePropertyChoice.Activate();
                     }
+
+                    if ( ssline->m_IntersectionCapFlag() )
+                    {
+                        m_FeaSSLineCapPropertyChoice.Activate();
+                    }
+                    else
+                    {
+                        m_FeaSSLineCapPropertyChoice.Deactivate();
+                    }
+
                     FeaSubSurfDispGroup( &m_FeaSSLineGroup );
                 }
                 else if ( subsurf->GetType() == vsp::SS_RECTANGLE )
@@ -1669,6 +1745,8 @@ bool StructScreen::Update()
                     m_FeaSSRecULenSlider.Update( ssrec->m_ULength.GetID() );
                     m_FeaSSRecWLenSlider.Update( ssrec->m_WLength.GetID() );
                     m_FeaSSRecThetaSlider.Update( ssrec->m_Theta.GetID() );
+                    m_FeaSSRecCapToggle.Update( ssrec->m_IntersectionCapFlag.GetID() );
+
                     if ( ssrec->m_TestType() == vsp::NONE )
                     {
                         m_FeaSSRecPropertyChoice.Deactivate();
@@ -1677,6 +1755,16 @@ bool StructScreen::Update()
                     {
                         m_FeaSSRecPropertyChoice.Activate();
                     }
+
+                    if ( ssrec->m_IntersectionCapFlag() )
+                    {
+                        m_FeaSSRecCapPropertyChoice.Activate();
+                    }
+                    else
+                    {
+                        m_FeaSSRecCapPropertyChoice.Deactivate();
+                    }
+
                     FeaSubSurfDispGroup( &m_FeaSSRecGroup );
                 }
                 else if ( subsurf->GetType() == vsp::SS_ELLIPSE )
@@ -1691,6 +1779,8 @@ bool StructScreen::Update()
                     m_FeaSSEllULenSlider.Update( ssell->m_ULength.GetID() );
                     m_FeaSSEllWLenSlider.Update( ssell->m_WLength.GetID() );
                     m_FeaSSEllThetaSlider.Update( ssell->m_Theta.GetID() );
+                    m_FeaSSEllCapToggle.Update( ssell->m_IntersectionCapFlag.GetID() );
+
                     if ( ssell->m_TestType() == vsp::NONE )
                     {
                         m_FeaSSEllPropertyChoice.Deactivate();
@@ -1699,6 +1789,16 @@ bool StructScreen::Update()
                     {
                         m_FeaSSEllPropertyChoice.Activate();
                     }
+
+                    if ( ssell->m_IntersectionCapFlag() )
+                    {
+                        m_FeaSSEllCapPropertyChoice.Activate();
+                    }
+                    else
+                    {
+                        m_FeaSSEllCapPropertyChoice.Deactivate();
+                    }
+
                     FeaSubSurfDispGroup( &m_FeaSSEllGroup );
                 }
                 else if ( subsurf->GetType() == vsp::SS_CONTROL )
@@ -1716,6 +1816,8 @@ bool StructScreen::Update()
                     m_FeaSSConSAbsRelToggleGroup.Update( sscon->m_AbsRelFlag.GetID() );
                     m_FeaSSConSEConstButton.Update( sscon->m_ConstFlag.GetID() );
                     m_FeaSSConLEFlagButton.Update( sscon->m_LEFlag.GetID() );
+                    m_FeaSSConCapToggle.Update( sscon->m_IntersectionCapFlag.GetID() );
+
                     if ( sscon->m_TestType() == vsp::NONE )
                     {
                         m_FeaSSConPropertyChoice.Deactivate();
@@ -1724,6 +1826,16 @@ bool StructScreen::Update()
                     {
                         m_FeaSSConPropertyChoice.Activate();
                     }
+
+                    if ( sscon->m_IntersectionCapFlag() )
+                    {
+                        m_FeaSSConCapPropertyChoice.Activate();
+                    }
+                    else
+                    {
+                        m_FeaSSConCapPropertyChoice.Deactivate();
+                    }
+
                     m_FeaSSConSFracSlider.Deactivate();
                     m_FeaSSConSLenSlider.Deactivate();
                     m_FeaSSConEFracSlider.Deactivate();
@@ -2445,6 +2557,22 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
     else if ( device == &m_FeaSSConPropertyChoice )
     {
         UpdateFeaSubSurfPropertyIndex( &m_FeaSSConPropertyChoice );
+    }
+    else if ( device == &m_FeaSSLineCapPropertyChoice )
+    {
+        UpdateFeaSubSurfCapPropertyIndex( &m_FeaSSLineCapPropertyChoice );
+    }
+    else if ( device == &m_FeaSSRecCapPropertyChoice )
+    {
+        UpdateFeaSubSurfCapPropertyIndex( &m_FeaSSRecCapPropertyChoice );
+    }
+    else if ( device == &m_FeaSSEllCapPropertyChoice )
+    {
+        UpdateFeaSubSurfCapPropertyIndex( &m_FeaSSEllCapPropertyChoice );
+    }
+    else if ( device == &m_FeaSSConCapPropertyChoice )
+    {
+        UpdateFeaSubSurfCapPropertyIndex( &m_FeaSSConCapPropertyChoice );
     }
     else if ( device == &m_AddFeaMaterialButton )
     {
