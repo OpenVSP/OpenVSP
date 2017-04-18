@@ -2469,11 +2469,13 @@ xmlNodePtr Geom::DecodeXml( xmlNodePtr & node )
                     xmlNodePtr ss_info_node = XmlUtil::GetNode( ss_node, "SubSurfaceInfo", 0 );
                     if ( ss_info_node )
                     {
+                        int cap_prop_index = XmlUtil::FindInt( ss_info_node, "CapFeaPropertyIndex", 0 );
                         int type = XmlUtil::FindInt( ss_info_node, "Type", vsp::SS_LINE );
                         SubSurface* ssurf = AddSubSurf( type, -1 );
                         if ( ssurf )
                         {
                             ssurf->DecodeXml( ss_node );
+                            ssurf->SetCapFeaPropertyIndex( cap_prop_index );
                         }
                     }
                 }

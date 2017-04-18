@@ -229,6 +229,15 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
             FeaTri* tri = new FeaTri;
             tri->Create( pvec[tvec[i].ind0], pvec[tvec[i].ind1], pvec[tvec[i].ind2], orient_vec );
             tri->SetFeaPartIndex( m_SurfVec[s]->GetFeaPartIndex() );
+
+            // Check for subsurface:
+            int tag = SubSurfaceMgr.GetTag( tvec[i].m_Tags );
+
+            if ( tvec[i].m_Tags.size() > 1 )
+            {
+                tri->SetFeaSSIndex( SubSurfaceMgr.GetTag( tvec[i].m_Tags ) - m_NumFeaParts - 1 );
+            }
+
             m_FeaElementVec.push_back( tri );
         }
     }
@@ -253,10 +262,15 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
                 FeaPartCapB = m_FeaMeshStruct->GetFeaPart( ( *c )->m_SurfB->GetFeaPartIndex() )->m_IntersectionCapFlag();
             }
 
+            vector< vec3d > ipntVec;
+            vector< vec3d > inormVec;
+            vector < int > ssindexVec;
+            Surf* NormSurf;
+            int FeaPartIndex = -1;
+
             // Check if one surface is a skin and one is an FeaPart (m_CompID = -9999)
             if ( ( FeaPartCapA || FeaPartCapB ) && ( ( ( *c )->m_SurfA->GetCompID() < 0 && ( *c )->m_SurfB->GetCompID() >= 0 ) || ( ( *c )->m_SurfB->GetCompID() < 0 && ( *c )->m_SurfA->GetCompID() >= 0 ) ) )
             {
-                int FeaPartIndex = -1;
                 vec3d center;
 
                 if ( ( *c )->m_SurfA->GetCompID() < 0 && FeaPartCapA )
@@ -269,10 +283,6 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
                     FeaPartIndex = ( *c )->m_SurfB->GetFeaPartIndex();
                     center = ( *c )->m_SurfB->GetBBox().GetCenter();
                 }
-
-                vector< vec3d > ipntVec;
-                vector< vec3d > inormVec;
-                Surf* NormSurf;
 
                 // Identify the normal surface as the skin surface
                 if ( ( *c )->m_SurfA->GetCompID() >= 0 )
@@ -298,6 +308,7 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
 
                     inormVec.push_back( norm );
                     ipntVec.push_back( ( *c )->m_TessVec[j]->m_Pnt );
+                    ssindexVec.push_back( -1 ); // Indicates not a subsurface intersection
                 }
 
                 // Check if the direction of ipntVec. Reverse point and norm vec order if negative
@@ -307,15 +318,41 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
                     reverse( inormVec.begin(), inormVec.end() );
                     reverse( ipntVec.begin(), ipntVec.end() );
                 }
-
-                // Define FeaBeam elements
-                for ( int j = 1; j < (int)ipntVec.size(); j++ )
+            }
+            // Check for an intersection with the same component ID -> indicates a subsurface intersection
+            else if ( ( *c )->m_SurfA->GetCompID() == ( *c )->m_SurfB->GetCompID() && ( *c )->m_SurfA->GetCompID() >= 0 )
+            {
+                if ( ( *c )->m_SSIntersectIndex >= 0 )
                 {
-                    FeaBeam* beam = new FeaBeam;
-                    beam->Create( ipntVec[j - 1], ipntVec[j], inormVec[j - 1] );
-                    beam->SetFeaPartIndex( FeaPartIndex );
-                    m_FeaElementVec.push_back( beam );
+                    FeaPartIndex = ( *c )->m_SurfA->GetFeaPartIndex();
+                    NormSurf = ( *c )->m_SurfA;
+
+                    // Get points and compute normals
+                    for ( int j = 0; j < (int)( *c )->m_TessVec.size(); j++ )
+                    {
+                        Puw* Puw = ( *c )->m_TessVec[j]->GetPuw( NormSurf );
+                        vec3d norm = NormSurf->GetSurfCore()->CompNorm( Puw->m_UW[0], Puw->m_UW[1] );
+                        norm.normalize();
+
+                        if ( NormSurf->GetFlipFlag() )
+                        {
+                            norm = -1 * norm;
+                        }
+
+                        inormVec.push_back( norm );
+                        ipntVec.push_back( ( *c )->m_TessVec[j]->m_Pnt );
+                        ssindexVec.push_back( ( *c )->m_SSIntersectIndex );
+                    }
                 }
+            }
+            // Define FeaBeam elements
+            for ( int j = 1; j < (int)ipntVec.size(); j++ )
+            {
+                FeaBeam* beam = new FeaBeam;
+                beam->Create( ipntVec[j - 1], ipntVec[j], inormVec[j - 1] );
+                beam->SetFeaPartIndex( FeaPartIndex );
+                beam->SetFeaSSIndex( ssindexVec[j] );
+                m_FeaElementVec.push_back( beam );
             }
         }
     }

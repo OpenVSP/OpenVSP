@@ -140,6 +140,14 @@ public:
     {
         m_FeaPropertyIndex = index;
     }
+    virtual int GetCapFeaPropertyIndex()
+    {
+        return m_CapFeaPropertyIndex;
+    }
+    virtual void SetCapFeaPropertyIndex( int index )
+    {
+        m_CapFeaPropertyIndex = index;
+    }
 
     virtual int GetFeaMaterialIndex();
     virtual void SetFeaMaterialIndex( int index );
@@ -159,6 +167,7 @@ public:
     Parm m_TeTwRatio;
     Parm m_TawTwRatio;
 
+    BoolParm m_IntersectionCapFlag;
 
 protected:
     string m_CompID; // Component ID used to match Subsurface to a specific geom
@@ -171,6 +180,7 @@ protected:
     vec3d m_LineColor; // Line Color Displayed when drawn on screen
 
     int m_FeaPropertyIndex;
+    int m_CapFeaPropertyIndex;
 
     //std::vector< vec2d > m_PolyPnts;
     std::vector< std::vector< vec2d > > m_PolyPntsVec;
