@@ -189,7 +189,7 @@ void FeaMeshMgrSingleton::AddStructureParts()
         int part_index = m_FeaMeshStruct->GetFeaPartIndex( FeaPartVec[i] );
         vector< XferSurf > partxfersurfs;
 
-        FeaPartVec[i]->FetchFeaXFerSurf( partxfersurfs, -9999 );
+        FeaPartVec[i]->FetchFeaXFerSurf( partxfersurfs, -9999 + ( i - 1 ) );
 
         // Load Rib XFerSurf to m_SurfVec
         LoadSurfs( partxfersurfs );
