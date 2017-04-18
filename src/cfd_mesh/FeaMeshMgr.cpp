@@ -142,7 +142,7 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
     SubTagTris();
 
     addOutputText( "Remesh\n" );
-    Remesh( CfdMeshMgrSingleton::VOCAL_OUTPUT );
+    Remesh();
 
     SubSurfaceMgr.BuildSingleTagMap();
 
@@ -516,6 +516,73 @@ void FeaMeshMgrSingleton::BuildSubSurfIntChains()
         }
     }
 }
+
+void FeaMeshMgrSingleton::Remesh()
+{
+    char str[256];
+    int total_num_tris = 0;
+    int nsurf = (int)m_SurfVec.size();
+    for ( int i = 0; i < nsurf; ++i )
+    {
+        int num_tris = 0;
+        int num_rev_removed = 0;
+
+        for ( int iter = 0; iter < 10; ++iter )
+        {
+            num_tris = 0;
+            m_SurfVec[i]->GetMesh()->Remesh();
+
+            num_rev_removed = m_SurfVec[i]->GetMesh()->RemoveRevTris();
+
+            num_tris += m_SurfVec[i]->GetMesh()->GetTriList().size();
+
+            sprintf( str, "Surf %d/%d Iter %d/10 Num Tris = %d\n", i + 1, nsurf, iter + 1, num_tris );
+            addOutputText( str );
+
+        }
+        total_num_tris += num_tris;
+
+        if ( num_rev_removed > 0 )
+        {
+            sprintf( str, "%d Reversed tris collapsed in final iteration.\n", num_rev_removed );
+            addOutputText( str );
+        }
+
+        m_SurfVec[i]->GetMesh()->LoadSimpTris();
+        m_SurfVec[i]->GetMesh()->Clear();
+
+        // This is similar to calling m_SurfVec[i]->Subtag( GetSettingsPtr()->GetIntersectSubSurfs() ), but uses FeaSubSurfaces
+        if ( GetSettingsPtr()->GetIntersectSubSurfs() )
+        {
+            vector< SimpTri >& tri_vec = m_SurfVec[i]->GetMesh()->GetSimpTriVec();
+            vector< vec2d >& pnts = m_SurfVec[i]->GetMesh()->GetSimpUWPntVec();
+            vector< SubSurface* > s_surfs = m_FeaMeshStruct->GetFeaSubSurfVec();
+
+            for ( int t = 0; t < (int)tri_vec.size(); t++ )
+            {
+                SimpTri& tri = tri_vec[t];
+                tri.m_Tags.push_back( m_SurfVec[i]->GetBaseTag() );
+                vec2d center = ( pnts[tri.ind0] + pnts[tri.ind1] + pnts[tri.ind2] ) * 1 / 3.0;
+                vec2d cent2d = center;
+
+                for ( int s = 0; s < (int)s_surfs.size(); s++ )
+                {
+                    if ( s_surfs[s]->Subtag( vec3d( cent2d.x(), cent2d.y(), 0 ) ) && m_SurfVec[i]->GetCompID() >= 0 )
+                    {
+                        tri.m_Tags.push_back( s_surfs[s]->m_Tag );
+                    }
+                }
+                SubSurfaceMgr.m_TagCombos.insert( tri.m_Tags );
+            }
+        }
+
+        m_SurfVec[i]->GetMesh()->CondenseSimpTris();
+    }
+
+    sprintf( str, "Total Num Tris = %d\n", total_num_tris );
+    addOutputText( str );
+}
+
 void FeaMeshMgrSingleton::TagFeaNodes()
 {
     //==== Collect All FeaNodes ====//

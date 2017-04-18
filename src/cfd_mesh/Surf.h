@@ -243,6 +243,10 @@ public:
     {
         m_BaseTag = tag;
     }
+    int GetBaseTag()
+    {
+        return m_BaseTag;
+    }
 
     void Subtag( bool tag_subs );
 

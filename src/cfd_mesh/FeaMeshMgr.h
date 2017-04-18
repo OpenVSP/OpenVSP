@@ -64,6 +64,8 @@ public:
     virtual void BuildFeaMesh();
 
     virtual void BuildSubSurfIntChains();
+    virtual void Remesh();
+
     virtual void TagFeaNodes();
 
     virtual int GetTotalNumSurfs()
