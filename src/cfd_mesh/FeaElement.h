@@ -102,7 +102,7 @@ class FeaElement
 
     protected:
     int m_ElementType;
-    int m_FeaPartIndex;
+    int m_FeaPartIndex; // Corresponds to index in FeaStructure m_FeaPartVec
     int m_FeaSSIndex; // Corresponds to index in FeaStructure m_FeaSubSurfVec
 };
 

@@ -125,6 +125,7 @@ void FeaNode::WriteGmsh( FILE* fp )
 
 FeaElement::FeaElement()
 {
+    m_FeaPartIndex = -1;
     m_FeaSSIndex = -1;
 }
 
