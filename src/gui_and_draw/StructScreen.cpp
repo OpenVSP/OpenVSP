@@ -26,7 +26,7 @@ using namespace vsp;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 620, "FEA Mesh", 150 )
+StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Mesh", 150 )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
 
@@ -491,11 +491,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 620, "FEA Me
 
     m_FeaSSRecGroup.AddDividerBox( "Rectangle Sub-Surface" );
 
-    m_FeaSSRecGroup.SetButtonWidth( buttonwidth );
-    m_FeaSSRecGroup.SetChoiceButtonWidth( buttonwidth );
-
-    m_FeaSSRecGroup.AddChoice( m_FeaSSRecPropertyChoice, "Property" );
-
     m_FeaSSRecGroup.SetFitWidthFlag( false );
     m_FeaSSRecGroup.SetSameLineFlag( true );
     m_FeaSSRecGroup.AddLabel( "Include Tris", buttonwidth );
@@ -513,9 +508,13 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 620, "FEA Me
     m_FeaSSRecGroup.SetFitWidthFlag( true );
     m_FeaSSRecGroup.SetSameLineFlag( false );
 
+    m_FeaSSRecGroup.SetButtonWidth( buttonwidth );
+    m_FeaSSRecGroup.SetChoiceButtonWidth( buttonwidth );
+
+    m_FeaSSRecGroup.AddChoice( m_FeaSSRecPropertyChoice, "Property" );
+
     m_FeaSSRecGroup.SetFitWidthFlag( true );
     m_FeaSSRecGroup.SetSameLineFlag( false );
-    m_FeaSSRecGroup.ForceNewLine();
 
     m_FeaSSRecGroup.SetButtonWidth( buttonwidth );
 
@@ -530,11 +529,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 620, "FEA Me
     m_FeaSSEllGroup.SetY( start_y );
 
     m_FeaSSEllGroup.AddDividerBox( "Ellipse Sub-Surface" );
-
-    m_FeaSSEllGroup.SetButtonWidth( buttonwidth );
-    m_FeaSSEllGroup.SetChoiceButtonWidth( buttonwidth );
-
-    m_FeaSSEllGroup.AddChoice( m_FeaSSEllPropertyChoice, "Property" );
 
     m_FeaSSEllGroup.SetFitWidthFlag( false );
     m_FeaSSEllGroup.SetSameLineFlag( true );
@@ -553,9 +547,13 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 620, "FEA Me
     m_FeaSSEllGroup.SetFitWidthFlag( true );
     m_FeaSSEllGroup.SetSameLineFlag( false );
 
+    m_FeaSSEllGroup.SetButtonWidth( buttonwidth );
+    m_FeaSSEllGroup.SetChoiceButtonWidth( buttonwidth );
+
+    m_FeaSSEllGroup.AddChoice( m_FeaSSEllPropertyChoice, "Property" );
+
     m_FeaSSEllGroup.SetFitWidthFlag( true );
     m_FeaSSEllGroup.SetSameLineFlag( false );
-    m_FeaSSEllGroup.ForceNewLine();
 
     m_FeaSSEllGroup.SetButtonWidth( buttonwidth );
 
@@ -569,14 +567,8 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 620, "FEA Me
     //===== SSControl ====//
     m_FeaSSConGroup.SetGroupAndScreen( AddSubGroup( subTab, 5 ), this );
     m_FeaSSConGroup.SetY( start_y );
-    remain_x = m_FeaSSConGroup.GetRemainX();
 
     m_FeaSSConGroup.AddDividerBox( "Control Sub-Surface" );
-
-    m_FeaSSConGroup.SetButtonWidth( buttonwidth );
-    m_FeaSSConGroup.SetChoiceButtonWidth( buttonwidth );
-
-    m_FeaSSConGroup.AddChoice( m_FeaSSConPropertyChoice, "Property" );
 
     m_FeaSSConGroup.SetFitWidthFlag( false );
     m_FeaSSConGroup.SetSameLineFlag( true );
@@ -594,8 +586,15 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 620, "FEA Me
     m_FeaSSConGroup.ForceNewLine();
     m_FeaSSConGroup.SetFitWidthFlag( true );
     m_FeaSSConGroup.SetSameLineFlag( false );
+
+    m_FeaSSConGroup.SetButtonWidth( buttonwidth );
+    m_FeaSSConGroup.SetChoiceButtonWidth( buttonwidth );
+
+    m_FeaSSConGroup.AddChoice( m_FeaSSConPropertyChoice, "Property" );
+
+    m_FeaSSConGroup.SetFitWidthFlag( false );
     m_FeaSSConGroup.SetSameLineFlag( true );
-    m_FeaSSConGroup.ForceNewLine();
+
     m_FeaSSConGroup.SetChoiceButtonWidth( buttonwidth );
 
     m_FeaSSConSurfTypeChoice.AddItem( "Upper" );
@@ -607,6 +606,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 620, "FEA Me
 
     m_FeaSSConGroup.AddButton( m_FeaSSConLEFlagButton, "Leading Edge" );
 
+    m_FeaSSConGroup.SetFitWidthFlag( true );
     m_FeaSSConGroup.SetSameLineFlag( false );
     m_FeaSSConGroup.ForceNewLine();
 
@@ -2066,25 +2066,6 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
 
         // Set m_FeaMeshInProgress to ensure m_MonitorProcess does not terminate prematurely
         FeaMeshMgr.SetFeaMeshInProgress( true );
-
-        // SubSurface Debugging:
-        //Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-
-        //if ( veh )
-        //{
-        //    vector < FeaStructure* > totalstructvec = veh->GetAllFeaStructs();
-
-        //    Geom* curr_geom =veh->FindGeom( m_SelectedGeomID );
-
-        //    FeaStructure* curr_struct = totalstructvec[m_SelectedStructIndex];
-
-        //    vector < SubSurface* > subsurf_vec = curr_struct->GetFeaSubSurfVec();
-
-        //    for ( unsigned int i = 0; i < (int)subsurf_vec.size(); i++ )
-        //    {
-        //        curr_geom->AddSubSurf( subsurf_vec[i] );
-        //    }
-        //}
 
         m_FeaMeshProcess.StartThread( feamesh_thread_fun, NULL );
 

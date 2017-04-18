@@ -95,8 +95,6 @@ private:
     GroupLayout m_FullDepthEditLayout;
     GroupLayout m_RibEditLayout;
     GroupLayout m_SparEditLayout;
-    GroupLayout m_UpSkinEditLayout;
-    GroupLayout m_LowSkinEditLayout;
     GroupLayout m_FixPointEditLayout;
     GroupLayout m_SubSurfTabLayout;
     GroupLayout m_PropertyTabLayout;
