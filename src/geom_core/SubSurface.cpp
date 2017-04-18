@@ -221,6 +221,11 @@ bool SubSurface::Subtag( const vec3d & center )
 {
     UpdatePolygonPnts(); // Update polygon vector
 
+    if ( m_TestType() == vsp::NONE )
+    {
+        return false;
+    }
+
     for ( int p = 0; p < ( int )m_PolyPntsVec.size(); p++ )
     {
         bool inPoly = PointInPolygon( vec2d( center.x(), center.y() ), m_PolyPntsVec[p] );
@@ -452,6 +457,11 @@ bool SSLineSeg::Subtag( const vec3d & center ) const
     vec3d v0c = center - m_P0;
     vec3d c_prod = cross( m_line, v0c );
 
+    if ( m_TestType == NO )
+    {
+        return false;
+    }
+
     if ( m_TestType == GT && c_prod.z() > 0 )
     {
         return true;
@@ -638,7 +648,7 @@ SSLine::SSLine( string comp_id, int type ) : SubSurface( comp_id, type )
     m_ConstType.Init( "Const_Line_Type", "SS_Line", this, vsp::CONST_U, 0, 1 );
     m_ConstVal.Init( "Const_Line_Value", "SS_Line", this, 0.5, 0, 1 );
     m_ConstVal.SetDescript( "Either the U or V value of the line depending on what constant line type is choosen." );
-    m_TestType.Init( "Test_Type", "SS_Line", this, SSLineSeg::GT, SSLineSeg::GT, SSLineSeg::LT );
+    m_TestType.Init( "Test_Type", "SS_Line", this, SSLineSeg::GT, SSLineSeg::GT, SSLineSeg::NO );
     m_TestType.SetDescript( "Tag surface as being either greater than or less than const value line" );
 
     m_LVec.resize( 1 );
@@ -721,7 +731,7 @@ SSRectangle::SSRectangle( string comp_id, int type ) : SubSurface( comp_id, type
     m_WLength.SetDescript( "Defines length of rectangle in W direction before rotation" );
     m_Theta.Init( "Theta", "SS_Rectangle", this, 0, -90, 90 );
     m_Theta.SetDescript( "Defines angle in degrees from U axis to rotate the rectangle" );
-    m_TestType.Init( "Test_Type", "SS_Rectangle", this, vsp::INSIDE, vsp::INSIDE, vsp::OUTSIDE );
+    m_TestType.Init( "Test_Type", "SS_Rectangle", this, vsp::INSIDE, vsp::INSIDE, vsp::NONE );
     m_TestType.SetDescript( "Determines whether or not the inside or outside of the region is tagged" );
 
     m_LVec.resize(4);
@@ -801,7 +811,7 @@ SSEllipse::SSEllipse( string comp_id, int type ) : SubSurface( comp_id, type )
     m_Theta.SetDescript( "Defines angle in degrees from U axis to rotate the rectangle" );
     m_Tess.Init( "Tess_Num", "SS_Ellipse", this, 15, 3, 1000 );
     m_Tess.SetDescript( " Number of points to discretize curve" );
-    m_TestType.Init( "Test_Type", "SS_Ellipse", this, vsp::INSIDE, vsp::INSIDE, vsp::OUTSIDE );
+    m_TestType.Init( "Test_Type", "SS_Ellipse", this, vsp::INSIDE, vsp::INSIDE, vsp::NONE );
     m_TestType.SetDescript( "Determines whether or not the inside or outside of the region is tagged" );
 
     m_PolyFlag = false;
@@ -889,7 +899,7 @@ SSControlSurf::SSControlSurf( string compID, int type ) : SubSurface( compID, ty
     m_UEnd.Init( "UEnd", "SS_Control", this, 0.6, 0, 1 );
     m_UEnd.SetDescript( "The U ending location of the control surface" );
 
-    m_TestType.Init( "Test_Type", "SS_Control", this, vsp::INSIDE, vsp::INSIDE, vsp::OUTSIDE );
+    m_TestType.Init( "Test_Type", "SS_Control", this, vsp::INSIDE, vsp::INSIDE, vsp::NONE );
     m_TestType.SetDescript( "Determines whether or not the inside or outside of the region is tagged" );
 
     m_SurfType.Init( "Surf_Type", "SS_Control", this, BOTH_SURF, UPPER_SURF, BOTH_SURF );

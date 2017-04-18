@@ -446,6 +446,23 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 620, "FEA Me
 
     m_FeaSSLineGroup.AddDividerBox( "Line Sub-Surface" );
 
+    m_FeaSSLineGroup.SetFitWidthFlag( false );
+    m_FeaSSLineGroup.SetSameLineFlag( true );
+    m_FeaSSLineGroup.AddLabel( "Include Tris", buttonwidth );
+    m_FeaSSLineGroup.SetButtonWidth( m_FeaSSLineGroup.GetRemainX() / 3 );
+    m_FeaSSLineGroup.AddButton( m_FeaSSLineGreaterToggle, "Greater" );
+    m_FeaSSLineGroup.AddButton( m_FeaSSLineLessToggle, "Less" );
+    m_FeaSSLineGroup.AddButton( m_FeaSSLineNoneToggle, "None" );
+
+    m_FeaSSLineTestToggleGroup.Init( this );
+    m_FeaSSLineTestToggleGroup.AddButton( m_FeaSSLineGreaterToggle.GetFlButton() );
+    m_FeaSSLineTestToggleGroup.AddButton( m_FeaSSLineLessToggle.GetFlButton() );
+    m_FeaSSLineTestToggleGroup.AddButton( m_FeaSSLineNoneToggle.GetFlButton() );
+
+    m_FeaSSLineGroup.ForceNewLine();
+    m_FeaSSLineGroup.SetFitWidthFlag( true );
+    m_FeaSSLineGroup.SetSameLineFlag( false );
+
     m_FeaSSLineGroup.SetButtonWidth( buttonwidth );
     m_FeaSSLineGroup.SetChoiceButtonWidth( buttonwidth );
 
@@ -461,15 +478,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 620, "FEA Me
     m_FeaSSLineConstToggleGroup.Init( this );
     m_FeaSSLineConstToggleGroup.AddButton( m_FeaSSLineConstUButton.GetFlButton() );
     m_FeaSSLineConstToggleGroup.AddButton( m_FeaSSLineConstWButton.GetFlButton() );
-
-    m_FeaSSLineGroup.ForceNewLine();
-    m_FeaSSLineGroup.AddLabel( "Test", buttonwidth );
-    m_FeaSSLineGroup.AddButton( m_FeaSSLineGreaterToggle, "Greater" );
-    m_FeaSSLineGroup.AddButton( m_FeaSSLineLessToggle, "Less" );
-
-    m_FeaSSLineTestToggleGroup.Init( this );
-    m_FeaSSLineTestToggleGroup.AddButton( m_FeaSSLineGreaterToggle.GetFlButton() );
-    m_FeaSSLineTestToggleGroup.AddButton( m_FeaSSLineLessToggle.GetFlButton() );
 
     m_FeaSSLineGroup.SetFitWidthFlag( true );
     m_FeaSSLineGroup.SetSameLineFlag( false );
@@ -490,14 +498,20 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 620, "FEA Me
 
     m_FeaSSRecGroup.SetFitWidthFlag( false );
     m_FeaSSRecGroup.SetSameLineFlag( true );
-    m_FeaSSRecGroup.AddLabel( "Tag", buttonwidth );
-    m_FeaSSRecGroup.SetButtonWidth( m_FeaSSRecGroup.GetRemainX() / 2 );
+    m_FeaSSRecGroup.AddLabel( "Include Tris", buttonwidth );
+    m_FeaSSRecGroup.SetButtonWidth( m_FeaSSRecGroup.GetRemainX() / 3 );
     m_FeaSSRecGroup.AddButton( m_FeaSSRecInsideButton, "Inside" );
     m_FeaSSRecGroup.AddButton( m_FeaSSRecOutsideButton, "Outside" );
+    m_FeaSSRecGroup.AddButton( m_FeaSSRecNoneButton, "None" );
 
     m_FeaSSRecTestToggleGroup.Init( this );
     m_FeaSSRecTestToggleGroup.AddButton( m_FeaSSRecInsideButton.GetFlButton() );
     m_FeaSSRecTestToggleGroup.AddButton( m_FeaSSRecOutsideButton.GetFlButton() );
+    m_FeaSSRecTestToggleGroup.AddButton( m_FeaSSRecNoneButton.GetFlButton() );
+
+    m_FeaSSRecGroup.ForceNewLine();
+    m_FeaSSRecGroup.SetFitWidthFlag( true );
+    m_FeaSSRecGroup.SetSameLineFlag( false );
 
     m_FeaSSRecGroup.SetFitWidthFlag( true );
     m_FeaSSRecGroup.SetSameLineFlag( false );
@@ -524,14 +538,20 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 620, "FEA Me
 
     m_FeaSSEllGroup.SetFitWidthFlag( false );
     m_FeaSSEllGroup.SetSameLineFlag( true );
-    m_FeaSSEllGroup.AddLabel( "Tag", buttonwidth );
-    m_FeaSSEllGroup.SetButtonWidth( m_FeaSSEllGroup.GetRemainX() / 2 );
+    m_FeaSSEllGroup.AddLabel( "Include Tris", buttonwidth );
+    m_FeaSSEllGroup.SetButtonWidth( m_FeaSSEllGroup.GetRemainX() / 3 );
     m_FeaSSEllGroup.AddButton( m_FeaSSEllInsideButton, "Inside" );
     m_FeaSSEllGroup.AddButton( m_FeaSSEllOutsideButton, "Outside" );
+    m_FeaSSEllGroup.AddButton( m_FeaSSEllNoneButton, "None" );
 
     m_FeaSSEllTestToggleGroup.Init( this );
     m_FeaSSEllTestToggleGroup.AddButton( m_FeaSSEllInsideButton.GetFlButton() );
     m_FeaSSEllTestToggleGroup.AddButton( m_FeaSSEllOutsideButton.GetFlButton() );
+    m_FeaSSEllTestToggleGroup.AddButton( m_FeaSSEllNoneButton.GetFlButton() );
+
+    m_FeaSSEllGroup.ForceNewLine();
+    m_FeaSSEllGroup.SetFitWidthFlag( true );
+    m_FeaSSEllGroup.SetSameLineFlag( false );
 
     m_FeaSSEllGroup.SetFitWidthFlag( true );
     m_FeaSSEllGroup.SetSameLineFlag( false );
@@ -560,16 +580,20 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 620, "FEA Me
 
     m_FeaSSConGroup.SetFitWidthFlag( false );
     m_FeaSSConGroup.SetSameLineFlag( true );
-    m_FeaSSConGroup.AddLabel( "Tag", buttonwidth );
-    m_FeaSSConGroup.SetButtonWidth( m_FeaSSConGroup.GetRemainX() / 2 );
+    m_FeaSSConGroup.AddLabel( "Include Tris", buttonwidth );
+    m_FeaSSConGroup.SetButtonWidth( m_FeaSSConGroup.GetRemainX() / 3 );
     m_FeaSSConGroup.AddButton( m_FeaSSConInsideButton, "Inside" );
     m_FeaSSConGroup.AddButton( m_FeaSSConOutsideButton, "Outside" );
+    m_FeaSSConGroup.AddButton( m_FeaSSConNoneButton, "None" );
 
     m_FeaSSConTestToggleGroup.Init( this );
     m_FeaSSConTestToggleGroup.AddButton( m_FeaSSConInsideButton.GetFlButton() );
     m_FeaSSConTestToggleGroup.AddButton( m_FeaSSConOutsideButton.GetFlButton() );
+    m_FeaSSConTestToggleGroup.AddButton( m_FeaSSConNoneButton.GetFlButton() );
 
+    m_FeaSSConGroup.ForceNewLine();
     m_FeaSSConGroup.SetFitWidthFlag( true );
+    m_FeaSSConGroup.SetSameLineFlag( false );
     m_FeaSSConGroup.SetSameLineFlag( true );
     m_FeaSSConGroup.ForceNewLine();
     m_FeaSSConGroup.SetChoiceButtonWidth( buttonwidth );
@@ -1624,6 +1648,14 @@ bool StructScreen::Update()
                     m_FeaSSLineConstToggleGroup.Update( ssline->m_ConstType.GetID() );
                     m_FeaSSLineTestToggleGroup.Update( ssline->m_TestType.GetID() );
                     m_FeaSSLineConstSlider.Update( ssline->m_ConstVal.GetID() );
+                    if ( ssline->m_TestType() == vsp::NONE )
+                    {
+                        m_FeaSSLinePropertyChoice.Deactivate();
+                    }
+                    else
+                    {
+                        m_FeaSSLinePropertyChoice.Activate();
+                    }
                     FeaSubSurfDispGroup( &m_FeaSSLineGroup );
                 }
                 else if ( subsurf->GetType() == vsp::SS_RECTANGLE )
@@ -1637,6 +1669,14 @@ bool StructScreen::Update()
                     m_FeaSSRecULenSlider.Update( ssrec->m_ULength.GetID() );
                     m_FeaSSRecWLenSlider.Update( ssrec->m_WLength.GetID() );
                     m_FeaSSRecThetaSlider.Update( ssrec->m_Theta.GetID() );
+                    if ( ssrec->m_TestType() == vsp::NONE )
+                    {
+                        m_FeaSSRecPropertyChoice.Deactivate();
+                    }
+                    else
+                    {
+                        m_FeaSSRecPropertyChoice.Activate();
+                    }
                     FeaSubSurfDispGroup( &m_FeaSSRecGroup );
                 }
                 else if ( subsurf->GetType() == vsp::SS_ELLIPSE )
@@ -1651,6 +1691,14 @@ bool StructScreen::Update()
                     m_FeaSSEllULenSlider.Update( ssell->m_ULength.GetID() );
                     m_FeaSSEllWLenSlider.Update( ssell->m_WLength.GetID() );
                     m_FeaSSEllThetaSlider.Update( ssell->m_Theta.GetID() );
+                    if ( ssell->m_TestType() == vsp::NONE )
+                    {
+                        m_FeaSSEllPropertyChoice.Deactivate();
+                    }
+                    else
+                    {
+                        m_FeaSSEllPropertyChoice.Activate();
+                    }
                     FeaSubSurfDispGroup( &m_FeaSSEllGroup );
                 }
                 else if ( subsurf->GetType() == vsp::SS_CONTROL )
@@ -1668,6 +1716,14 @@ bool StructScreen::Update()
                     m_FeaSSConSAbsRelToggleGroup.Update( sscon->m_AbsRelFlag.GetID() );
                     m_FeaSSConSEConstButton.Update( sscon->m_ConstFlag.GetID() );
                     m_FeaSSConLEFlagButton.Update( sscon->m_LEFlag.GetID() );
+                    if ( sscon->m_TestType() == vsp::NONE )
+                    {
+                        m_FeaSSConPropertyChoice.Deactivate();
+                    }
+                    else
+                    {
+                        m_FeaSSConPropertyChoice.Activate();
+                    }
                     m_FeaSSConSFracSlider.Deactivate();
                     m_FeaSSConSLenSlider.Deactivate();
                     m_FeaSSConEFracSlider.Deactivate();

@@ -29,7 +29,7 @@ public:
 
     virtual void Update( Geom* geom );
 
-    enum { GT, LT };
+    enum { GT, LT, NO };
     int m_TestType;
 
     virtual ~SSLineSeg();

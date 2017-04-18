@@ -242,6 +242,7 @@ private:
 
     ToggleButton m_FeaSSLineGreaterToggle;
     ToggleButton m_FeaSSLineLessToggle;
+    ToggleButton m_FeaSSLineNoneToggle;
     ToggleRadioGroup m_FeaSSLineTestToggleGroup;
 
     // SS_Rectangle
@@ -254,6 +255,7 @@ private:
     SliderAdjRangeInput m_FeaSSRecThetaSlider;
     ToggleButton m_FeaSSRecInsideButton;
     ToggleButton m_FeaSSRecOutsideButton;
+    ToggleButton m_FeaSSRecNoneButton;
     ToggleRadioGroup m_FeaSSRecTestToggleGroup;
 
     // SS_Ellipse
@@ -267,6 +269,7 @@ private:
     SliderAdjRangeInput m_FeaSSEllThetaSlider;
     ToggleButton m_FeaSSEllInsideButton;
     ToggleButton m_FeaSSEllOutsideButton;
+    ToggleButton m_FeaSSEllNoneButton;
     ToggleRadioGroup m_FeaSSEllTestToggleGroup;
 
     // SS_Control
@@ -289,6 +292,7 @@ private:
 
     ToggleButton m_FeaSSConInsideButton;
     ToggleButton m_FeaSSConOutsideButton;
+    ToggleButton m_FeaSSConNoneButton;
     ToggleRadioGroup m_FeaSSConTestToggleGroup;
     Choice m_FeaSSConSurfTypeChoice;
 

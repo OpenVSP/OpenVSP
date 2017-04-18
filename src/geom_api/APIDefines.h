@@ -326,8 +326,9 @@ enum SUBSURF_LINE_TYPE { CONST_U,
                        };
 
 enum SUBSURF_INOUT { INSIDE,
-                     OUTSIDE
-                   };
+                     OUTSIDE,
+                     NONE
+};
 
 enum FEA_STRUCT_TYPE { FEA_FULL_DEPTH,
                        FEA_RIB,
