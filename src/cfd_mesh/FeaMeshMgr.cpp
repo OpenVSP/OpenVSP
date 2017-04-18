@@ -1330,13 +1330,30 @@ void FeaMeshMgrSingleton::WriteGmsh()
 
 void FeaMeshMgrSingleton::UpdateDrawObjData()
 {
+    // FeaParts:
     for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
     {
         if ( m_FeaMeshStruct->GetFeaPart( i ) )
         {
             string name = m_FeaMeshStruct->GetFeaStructName() + ":  " + m_FeaMeshStruct->GetFeaPartName( i );
-            m_DrawBrowserNameVec.push_back( name );
-            m_DrawBrowserPartIndexVec.push_back( i );
+
+            if ( m_FeaMeshStruct->GetFeaPart( i )->GetType() == vsp::FEA_FULL_DEPTH )
+            {
+                FeaFullDepth* fulldepth = dynamic_cast<FeaFullDepth*>( m_FeaMeshStruct->GetFeaPart( i ) );
+                assert( fulldepth );
+
+                if ( fulldepth->m_IncludeTrisFlag() )
+                {
+                    m_DrawBrowserNameVec.push_back( name );
+                    m_DrawBrowserPartIndexVec.push_back( i );
+                }
+            }
+            else
+            {
+                m_DrawBrowserNameVec.push_back( name );
+                m_DrawBrowserPartIndexVec.push_back( i );
+            }
+
             m_DrawElementFlagVec.push_back( false );
 
             if ( m_FeaMeshStruct->GetFeaPart( i )->m_IntersectionCapFlag() )
@@ -1348,6 +1365,30 @@ void FeaMeshMgrSingleton::UpdateDrawObjData()
 
             m_DrawCapFlagVec.push_back( false );
         }
+    }
+
+    // FeaSubSurfaces:
+    vector < SubSurface* > ss_vec = m_FeaMeshStruct->GetFeaSubSurfVec();
+    for ( unsigned int i = 0; i < ss_vec.size(); i++ )
+    {
+        string name = m_FeaMeshStruct->GetFeaStructName() + ":  " + ss_vec[i]->GetName();
+
+        if ( ss_vec[i]->m_TestType() != vsp::NONE )
+        {
+            m_DrawBrowserNameVec.push_back( name );
+            m_DrawBrowserPartIndexVec.push_back( m_NumFeaParts + i );
+        }
+
+        m_DrawElementFlagVec.push_back( false );
+
+        if ( ss_vec[i]->m_IntersectionCapFlag() )
+        {
+            name += "_CAP";
+            m_DrawBrowserNameVec.push_back( name );
+            m_DrawBrowserPartIndexVec.push_back( m_NumFeaParts + i );
+        }
+
+        m_DrawCapFlagVec.push_back( false );
     }
 }
 
