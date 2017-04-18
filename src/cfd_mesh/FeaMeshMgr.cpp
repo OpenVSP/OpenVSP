@@ -1053,7 +1053,82 @@ void FeaMeshMgrSingleton::WriteCalculix()
 
                 for ( int j = 0; j < m_FeaElementVec.size(); j++ )
                 {
-                    if ( m_FeaElementVec[j]->GetFeaPartIndex() == i && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM )
+                    if ( m_FeaElementVec[j]->GetFeaPartIndex() == i && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM && m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
+                    {
+                        FeaBeam* beam = dynamic_cast<FeaBeam*>( m_FeaElementVec[j] );
+                        assert( beam );
+                        beam->WriteCalculixNormal( fp );
+                    }
+                }
+
+                fprintf( fp, "\n" );
+            }
+        }
+
+        vector < SubSurface* > ss_vec = m_FeaMeshStruct->GetFeaSubSurfVec();
+
+        for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
+        {
+            fprintf( fp, "**%s\n", ss_vec[i]->GetName().c_str() );
+            fprintf( fp, "*NODE, NSET=N%s\n", ss_vec[i]->GetName().c_str() );
+
+            int property_id = ss_vec[i]->GetFeaPropertyIndex();
+            int cap_property_id = ss_vec[i]->GetCapFeaPropertyIndex();
+
+            for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
+            {
+                if ( m_PntShift[j] >= 0 )
+                {
+                    if ( m_FeaNodeVec[j]->HasOnlyIndex( i + m_NumFeaParts ) )
+                    {
+                        m_FeaNodeVec[j]->WriteCalculix( fp );
+                    }
+                }
+            }
+
+            fprintf( fp, "\n" );
+            fprintf( fp, "*ELEMENT, TYPE=S6, ELSET=E%s\n", ss_vec[i]->GetName().c_str() );
+
+            for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+            {
+                if ( m_FeaElementVec[j]->GetFeaSSIndex() == i && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 )
+                {
+                    elem_id++;
+                    m_FeaElementVec[j]->WriteCalculix( fp, elem_id );
+                }
+            }
+
+            fprintf( fp, "\n" );
+            sprintf( str, "E%s", ss_vec[i]->GetName().c_str() );
+
+            StructureMgr.GetFeaProperty( property_id )->WriteCalculix( fp, str );
+
+            if ( ss_vec[i]->m_IntersectionCapFlag() )
+            {
+                fprintf( fp, "\n" );
+                fprintf( fp, "*ELEMENT, TYPE=B31, ELSET=E%s_CAP\n", ss_vec[i]->GetName().c_str() );
+
+                for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+                {
+                    if ( m_FeaElementVec[j]->GetFeaSSIndex() == i && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM )
+                    {
+                        elem_id++;
+                        m_FeaElementVec[j]->WriteCalculix( fp, elem_id );
+                    }
+                }
+
+                fprintf( fp, "\n" );
+                sprintf( str, "E%s_CAP", ss_vec[i]->GetName().c_str() );
+
+                StructureMgr.GetFeaProperty( cap_property_id )->WriteCalculix( fp, str );
+                fprintf( fp, "\n" );
+
+                // Write Normal Vectors
+                fprintf( fp, "*NORMAL\n" );
+
+                for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+                {
+                    if ( m_FeaElementVec[j]->GetFeaSSIndex() == i && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM )
                     {
                         FeaBeam* beam = dynamic_cast<FeaBeam*>( m_FeaElementVec[j] );
                         assert( beam );
