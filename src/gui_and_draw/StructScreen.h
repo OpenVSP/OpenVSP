@@ -188,6 +188,8 @@ private:
     TriggerButton m_DelFeaPartButton;
 
     //===== FullDepth =====//
+    ToggleButton m_FullDepthIncludeTrisToggle;
+
     Choice m_FullDepthPropertyChoice;
 
     Choice m_FullDepthOrientationChoice;

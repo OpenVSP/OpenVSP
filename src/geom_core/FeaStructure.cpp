@@ -783,6 +783,9 @@ void FeaPart::SetFeaMaterialIndex( int index )
 
 FeaFullDepth::FeaFullDepth( string geomID, int type ) : FeaPart( geomID, type )
 {
+    m_IncludeTrisFlag.Init( "IncludeTrisFlag", "FeaFullDepth", this, true, false, true );
+    m_IncludeTrisFlag.SetDescript( "Flag to Include Interior Tris" );
+
     m_OrientationPlane.Init( "OrientationPlane", "FeaFullDepth", this, XY_PLANE, XY_PLANE, XZ_PLANE );
     m_OrientationPlane.SetDescript( "Plane the FeaFullDepth Part will be Parallel to" );
 
@@ -816,7 +819,15 @@ void FeaFullDepth::ComputePlanarSurf()
         VspSurf current_surf = surf_vec[m_MainSurfIndx()];
 
         m_FeaPartSurfVec[0] = VspSurf();
-        m_FeaPartSurfVec[0].SetSurfCfdType( vsp::CFD_STRUCTURE );
+
+        if ( m_IncludeTrisFlag() )
+        {
+            m_FeaPartSurfVec[0].SetSurfCfdType( vsp::CFD_STRUCTURE );
+        }
+        else
+        {
+            m_FeaPartSurfVec[0].SetSurfCfdType( vsp::CFD_STIFFENER );
+        }
 
         BndBox geom_bbox;
         current_surf.GetBoundingBox( geom_bbox );

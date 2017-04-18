@@ -208,6 +208,7 @@ public:
     virtual void ComputePlanarSurf();
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight );
 
+    BoolParm m_IncludeTrisFlag;
     IntParm m_OrientationPlane;
     Parm m_CenterPerBBoxLocation;
     Parm m_Theta;

@@ -320,6 +320,8 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 620, "FEA Me
 
     m_FullDepthEditLayout.AddDividerBox( "FullDepth" );
 
+    m_FullDepthEditLayout.AddButton( m_FullDepthIncludeTrisToggle, "Include Interior Tris" );
+
     m_FullDepthEditLayout.SetButtonWidth( buttonwidth );
     m_FullDepthEditLayout.SetChoiceButtonWidth( buttonwidth );
 
@@ -1516,10 +1518,20 @@ bool StructScreen::Update()
                     FeaFullDepth* fulldepth = dynamic_cast<FeaFullDepth*>( feaprt );
                     assert( fulldepth );
 
+                    m_FullDepthIncludeTrisToggle.Update( fulldepth->m_IncludeTrisFlag.GetID() );
                     m_FullDepthOrientationChoice.Update( fulldepth->m_OrientationPlane.GetID() );
                     m_FullDepthCenterLocSlider.Update( fulldepth->m_CenterPerBBoxLocation.GetID() );
                     m_FullDepthThetaSlider.Update( fulldepth->m_Theta.GetID() );
                     m_FullDepthCapToggle.Update( fulldepth->m_IntersectionCapFlag.GetID() );
+
+                    if ( !fulldepth->m_IncludeTrisFlag() )
+                    {
+                        m_FullDepthPropertyChoice.Deactivate();
+                    }
+                    else
+                    {
+                        m_FullDepthPropertyChoice.Activate();
+                    }
 
                     if ( fulldepth->m_IntersectionCapFlag() )
                     {
