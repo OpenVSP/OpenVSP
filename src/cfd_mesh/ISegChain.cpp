@@ -519,7 +519,7 @@ ISegChain::ISegChain()
     m_SurfA = m_SurfB = NULL;
     m_BorderFlag = false;
     m_WakeAttachChain = NULL;
-
+    m_SSIntersectIndex = -1;
 }
 
 ISegChain::~ISegChain()

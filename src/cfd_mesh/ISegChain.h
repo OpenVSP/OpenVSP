@@ -212,6 +212,7 @@ public:
     bool Valid();
 
     bool m_BorderFlag;
+    int m_SSIntersectIndex; // Corresponds to index in FeaStructure m_FeaSubSurfVec
 
     ISegChain* m_WakeAttachChain;
 
