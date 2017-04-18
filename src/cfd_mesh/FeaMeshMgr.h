@@ -140,6 +140,7 @@ protected:
     int m_FeaMeshStructIndex;
 
     int m_NumFeaParts;
+    int m_NumFeaSubSurfs;
 
     vector < string > m_DrawBrowserNameVec;
     vector < int > m_DrawBrowserPartIndexVec;

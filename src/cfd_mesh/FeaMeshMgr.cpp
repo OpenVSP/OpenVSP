@@ -22,6 +22,7 @@ FeaMeshMgrSingleton::FeaMeshMgrSingleton() : CfdMeshMgrSingleton()
     m_DrawMeshFlag = false;
     m_FeaMeshInProgress = false;
     m_NumFeaParts = 0;
+    m_NumFeaSubSurfs = 0;
 }
 
 FeaMeshMgrSingleton::~FeaMeshMgrSingleton()
@@ -41,6 +42,7 @@ void FeaMeshMgrSingleton::CleanUp()
     m_FeaElementVec.clear();
 
     m_NumFeaParts = 0;
+    m_NumFeaSubSurfs = 0;
     m_DrawBrowserNameVec.clear();
     m_DrawBrowserPartIndexVec.clear();
     m_DrawElementFlagVec.clear();
@@ -66,6 +68,9 @@ bool FeaMeshMgrSingleton::LoadSurfaces()
 
     // Identify number of FeaParts
     m_NumFeaParts = m_FeaMeshStruct->NumFeaParts();
+
+    // Identify number of FeaSubSurfaces
+    m_NumFeaSubSurfs = m_FeaMeshStruct->NumFeaSubSurfs();
 
     LoadSkins();
 
