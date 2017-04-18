@@ -702,13 +702,14 @@ void FeaMeshMgrSingleton::TagFeaNodes()
         m_FeaNodeVec[i]->m_Index = m_PntShift[ind] + 1;
     }
 
+    // Tag FeaPart Nodes with FeaPart Index
     for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
     {
         vector< FeaNode* > temp_nVec;
 
         for ( int j = 0; j < m_FeaElementVec.size(); j++ )
         {
-            if ( m_FeaElementVec[j]->GetFeaPartIndex() == i )
+            if ( m_FeaElementVec[j]->GetFeaPartIndex() == i && m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
             {
                 m_FeaElementVec[j]->LoadNodes( temp_nVec );
             }
@@ -718,6 +719,26 @@ void FeaMeshMgrSingleton::TagFeaNodes()
         {
             int ind = FindPntIndex( temp_nVec[j]->m_Pnt, m_AllPntVec, m_IndMap );
             m_FeaNodeVec[ind]->AddTag( i );
+        }
+    }
+
+    // Tag FeaSubSurface Nodes with FeaSubSurface Index, beginning at the last FeaPart index (m_NumFeaParts)
+    for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
+    {
+        vector< FeaNode* > temp_nVec;
+
+        for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+        {
+            if ( ( m_FeaElementVec[j]->GetFeaSSIndex() == i )  && m_FeaElementVec[j]->GetFeaSSIndex() >= 0 )
+            {
+                m_FeaElementVec[j]->LoadNodes( temp_nVec );
+            }
+        }
+
+        for ( int j = 0; j < (int)temp_nVec.size(); j++ )
+        {
+            int ind = FindPntIndex( temp_nVec[j]->m_Pnt, m_AllPntVec, m_IndMap );
+            m_FeaNodeVec[ind]->AddTag( i + m_NumFeaParts );
         }
     }
 }
