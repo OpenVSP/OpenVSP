@@ -97,8 +97,6 @@ private:
     GroupLayout m_SparEditLayout;
     GroupLayout m_UpSkinEditLayout;
     GroupLayout m_LowSkinEditLayout;
-    GroupLayout m_StiffenerPlaneEditLayout;
-    GroupLayout m_StiffenerSubSurfEditLayout;
     GroupLayout m_FixPointEditLayout;
     GroupLayout m_SubSurfTabLayout;
     GroupLayout m_PropertyTabLayout;
@@ -217,21 +215,6 @@ private:
 
     ToggleButton m_SparCapToggle;
     Choice m_SparCapPropertyChoice;
-
-    //===== StiffenerPlane =====//
-    Choice m_StiffenerPlanePropertyChoice;
-
-    Choice m_StiffenerOrientationChoice;
-    SliderAdjRangeInput m_StiffenerCenterLocSlider;
-    SliderAdjRangeInput m_StiffenerThetaSlider;
-
-    //===== StiffenerSubSurf =====//
-    Choice m_StiffenerSubSurfPropertyChoice;
-
-    SliderInput m_StiffenerConstSlider; // Either Constant U or W
-    ToggleButton m_StiffenerConstUButton;
-    ToggleButton m_StiffenerConstVButton;
-    ToggleRadioGroup m_StiffenerConstToggleGroup;
 
     //===== Fix Point =====//
     SliderAdjRangeInput m_FixPointULocSlider;

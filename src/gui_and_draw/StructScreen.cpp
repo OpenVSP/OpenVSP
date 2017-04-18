@@ -393,59 +393,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 620, "FEA Me
     m_FixPointEditLayout.AddSlider( m_FixPointULocSlider, "U Location", 1, "%5.3f" );
     m_FixPointEditLayout.AddSlider( m_FixPointWLocSlider, "W Location", 1, "%5.3f" );
 
-    //==== FeaStiffenerPlane ====//
-    m_StiffenerPlaneEditLayout.SetGroupAndScreen( AddSubGroup( partTab, 5 ), this );
-    m_StiffenerPlaneEditLayout.SetY( start_y );
-
-    m_StiffenerPlaneEditLayout.AddDividerBox( "Stiffener Plane" );
-
-    m_StiffenerPlaneEditLayout.SetButtonWidth( buttonwidth );
-    m_StiffenerPlaneEditLayout.SetChoiceButtonWidth( buttonwidth );
-
-    m_StiffenerPlaneEditLayout.AddChoice( m_StiffenerPlanePropertyChoice, "Property" );
-
-    m_StiffenerOrientationChoice.AddItem( "XY Plane" );
-    m_StiffenerOrientationChoice.AddItem( "YZ Plane" );
-    m_StiffenerOrientationChoice.AddItem( "XZ Plane" );
-    m_StiffenerPlaneEditLayout.AddChoice( m_StiffenerOrientationChoice, "Orientation" );
-
-    m_StiffenerPlaneEditLayout.AddSlider( m_StiffenerCenterLocSlider, "Position", 1, "%5.3f" );
-    m_StiffenerPlaneEditLayout.AddSlider( m_StiffenerThetaSlider, "Theta", 25, "%5.3f" );
-
-    //==== FeaStiffenerSubSurf ====//
-    m_StiffenerSubSurfEditLayout.SetGroupAndScreen( AddSubGroup( partTab, 5 ), this );
-
-    m_StiffenerSubSurfEditLayout.SetY( start_y );
-
-    m_StiffenerSubSurfEditLayout.AddDividerBox( "Stiffener" );
-
-    m_StiffenerSubSurfEditLayout.SetButtonWidth( buttonwidth );
-    m_StiffenerSubSurfEditLayout.SetChoiceButtonWidth( buttonwidth );
-
-    m_StiffenerSubSurfEditLayout.AddChoice( m_StiffenerSubSurfPropertyChoice, "Property" );
-
-    m_StiffenerSubSurfEditLayout.SetFitWidthFlag( false );
-    m_StiffenerSubSurfEditLayout.SetSameLineFlag( true );
-
-    m_StiffenerSubSurfEditLayout.AddLabel( "Value Type", buttonwidth );
-
-    int remain_x = m_StiffenerSubSurfEditLayout.GetRemainX();
-
-    m_StiffenerSubSurfEditLayout.SetButtonWidth( remain_x / 2 );
-    m_StiffenerSubSurfEditLayout.AddButton( m_StiffenerConstUButton, "U" );
-    m_StiffenerSubSurfEditLayout.AddButton( m_StiffenerConstVButton, "V" );
-
-    m_StiffenerConstToggleGroup.Init( this );
-    m_StiffenerConstToggleGroup.AddButton( m_StiffenerConstUButton.GetFlButton() );
-    m_StiffenerConstToggleGroup.AddButton( m_StiffenerConstVButton.GetFlButton() );
-
-    m_StiffenerSubSurfEditLayout.SetButtonWidth( buttonwidth );
-    m_StiffenerSubSurfEditLayout.SetFitWidthFlag( true );
-    m_StiffenerSubSurfEditLayout.SetSameLineFlag( false );
-    m_StiffenerSubSurfEditLayout.ForceNewLine();
-
-    m_StiffenerSubSurfEditLayout.AddSlider( m_StiffenerConstSlider, "Value", 1, "%5.4f" );
-
     //=== SubSurface Tab ===//
     m_CurFeaSubDispGroup = NULL;
 
@@ -1049,8 +996,6 @@ void StructScreen::UpdateFeaPartChoice()
                     m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_RIB ) );
                     m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_SPAR ) );
                     m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_FIX_POINT ) );
-                    m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_STIFFENER_PLANE ) );
-                    m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_STIFFENER_SUB_SURF ) );
 
                     if ( currgeom->GetType().m_Type == MS_WING_GEOM_TYPE )
                     {
@@ -1160,8 +1105,6 @@ void StructScreen::UpdateFeaPropertyChoice()
     m_FullDepthPropertyChoice.ClearItems();
     m_RibPropertyChoice.ClearItems();
     m_SparPropertyChoice.ClearItems();
-    m_StiffenerPlanePropertyChoice.ClearItems();
-    m_StiffenerSubSurfPropertyChoice.ClearItems();
     m_FeaSSLinePropertyChoice.ClearItems();
     m_FeaSSRecPropertyChoice.ClearItems();
     m_FeaSSEllPropertyChoice.ClearItems();
@@ -1188,9 +1131,6 @@ void StructScreen::UpdateFeaPropertyChoice()
             m_FeaSSEllPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_FeaSSConPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
 
-            m_StiffenerPlanePropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-            m_StiffenerSubSurfPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-
             m_SparCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_FullDepthCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_RibCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
@@ -1205,9 +1145,6 @@ void StructScreen::UpdateFeaPropertyChoice()
                 m_FeaSSRecPropertyChoice.SetFlag( i, 0 );
                 m_FeaSSEllPropertyChoice.SetFlag( i, 0 );
                 m_FeaSSConPropertyChoice.SetFlag( i, 0 );
-
-                m_StiffenerPlanePropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
-                m_StiffenerSubSurfPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
 
                 m_SparCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_FullDepthCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
@@ -1224,9 +1161,6 @@ void StructScreen::UpdateFeaPropertyChoice()
                 m_FeaSSEllPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_FeaSSConPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
 
-                m_StiffenerPlanePropertyChoice.SetFlag( i, 0 );
-                m_StiffenerSubSurfPropertyChoice.SetFlag( i, 0 );
-
                 m_SparCapPropertyChoice.SetFlag( i, 0 );
                 m_FullDepthCapPropertyChoice.SetFlag( i, 0 );
                 m_RibCapPropertyChoice.SetFlag( i, 0 );
@@ -1236,8 +1170,6 @@ void StructScreen::UpdateFeaPropertyChoice()
         m_FullDepthPropertyChoice.UpdateItems();
         m_RibPropertyChoice.UpdateItems();
         m_SparPropertyChoice.UpdateItems();
-        m_StiffenerPlanePropertyChoice.UpdateItems();
-        m_StiffenerSubSurfPropertyChoice.UpdateItems();
         m_FeaSSLinePropertyChoice.UpdateItems();
         m_FeaSSRecPropertyChoice.UpdateItems();
         m_FeaSSEllPropertyChoice.UpdateItems();
@@ -1265,8 +1197,6 @@ void StructScreen::UpdateFeaPropertyChoice()
                 m_FullDepthPropertyChoice.SetVal( feaprt->GetFeaPropertyIndex() );
                 m_RibPropertyChoice.SetVal( feaprt->GetFeaPropertyIndex() );
                 m_SparPropertyChoice.SetVal( feaprt->GetFeaPropertyIndex() );
-                m_StiffenerPlanePropertyChoice.SetVal( feaprt->GetFeaPropertyIndex() );
-                m_StiffenerSubSurfPropertyChoice.SetVal( feaprt->GetFeaPropertyIndex() );
 
                 m_SparCapPropertyChoice.SetVal( feaprt->GetCapFeaPropertyIndex() );
                 m_FullDepthCapPropertyChoice.SetVal( feaprt->GetCapFeaPropertyIndex() );
@@ -1423,8 +1353,6 @@ void StructScreen::FeaPartDispGroup( GroupLayout* group )
     m_RibEditLayout.Hide();
     m_SparEditLayout.Hide();
     m_FixPointEditLayout.Hide();
-    m_StiffenerPlaneEditLayout.Hide();
-    m_StiffenerSubSurfEditLayout.Hide();
     m_PartGroup.Hide();
 
     m_CurFeaPartDispGroup = group;
@@ -1654,27 +1582,6 @@ bool StructScreen::Update()
                     m_FixPointWLocSlider.Update( fixpt->m_PosW.GetID() );
 
                     FeaPartDispGroup( &m_FixPointEditLayout );
-                }
-                else if ( feaprt->GetType() == vsp::FEA_STIFFENER_PLANE )
-                {
-                    FeaStiffenerPlane* stiffener_plane = dynamic_cast<FeaStiffenerPlane*>( feaprt );
-                    assert( stiffener_plane );
-
-                    m_StiffenerOrientationChoice.Update( stiffener_plane->m_OrientationPlane.GetID() );
-                    m_StiffenerCenterLocSlider.Update( stiffener_plane->m_CenterPerBBoxLocation.GetID() );
-                    m_StiffenerThetaSlider.Update( stiffener_plane->m_Theta.GetID() );
-
-                    FeaPartDispGroup( &m_StiffenerPlaneEditLayout );
-                }
-                else if ( feaprt->GetType() == vsp::FEA_STIFFENER_SUB_SURF )
-                {
-                    FeaStiffenerSubSurf* stiffener_subsurf = dynamic_cast<FeaStiffenerSubSurf*>( feaprt );
-                    assert( stiffener_subsurf );
-
-                    m_StiffenerConstToggleGroup.Update( stiffener_subsurf->m_StiffenerConstType.GetID() );
-                    m_StiffenerConstSlider.Update( stiffener_subsurf->m_StiffenerConstVal.GetID() );
-
-                    FeaPartDispGroup( &m_StiffenerSubSurfEditLayout );
                 }
                 else
                 {
@@ -2283,14 +2190,6 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             {
                 feaprt = structvec[m_SelectedStructIndex]->AddFeaPart( vsp::FEA_FIX_POINT );
             }
-            else if ( m_FeaPartChoice.GetVal() == vsp::FEA_STIFFENER_PLANE )
-            {
-                feaprt = structvec[m_SelectedStructIndex]->AddFeaPart( vsp::FEA_STIFFENER_PLANE );
-            }
-            else if ( m_FeaPartChoice.GetVal() == vsp::FEA_STIFFENER_SUB_SURF)
-            {
-                feaprt = structvec[m_SelectedStructIndex]->AddFeaPart( vsp::FEA_STIFFENER_SUB_SURF );
-            }
 
             structvec[m_SelectedStructIndex]->Update();
 
@@ -2481,14 +2380,6 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
     else if ( device == &m_SparCapPropertyChoice )
     {
         UpdateCapPropertyIndex( &m_SparCapPropertyChoice );
-    }
-    else if ( device == &m_StiffenerPlanePropertyChoice )
-    {
-        UpdateFeaPartPropertyIndex( &m_StiffenerPlanePropertyChoice );
-    }
-    else if ( device == &m_StiffenerSubSurfPropertyChoice )
-    {
-        UpdateFeaPartPropertyIndex( &m_StiffenerSubSurfPropertyChoice );
     }
     else if ( device == &m_FeaSSLinePropertyChoice )
     {
@@ -2824,28 +2715,6 @@ void StructScreen::UpdateDrawObjs( vector< DrawObj* > &draw_obj_vec )
                         fixpt->LoadDrawObjs( draw_obj_vec, k, true );
                     else
                         fixpt->LoadDrawObjs( draw_obj_vec, k, false );
-                    k++;
-                }
-                else if ( type == vsp::FEA_STIFFENER_PLANE )
-                {
-                    FeaStiffenerPlane* stiffener_plane = dynamic_cast<FeaStiffenerPlane*>( partvec[i] );
-                    assert( stiffener_plane );
-
-                    if ( partvec[i] == curr_part )
-                        stiffener_plane->LoadDrawObjs( draw_obj_vec, k, true );
-                    else
-                        stiffener_plane->LoadDrawObjs( draw_obj_vec, k, false );
-                    k++;
-                }
-                else if ( type == vsp::FEA_STIFFENER_SUB_SURF )
-                {
-                    FeaStiffenerSubSurf* stiffener_subsurf = dynamic_cast<FeaStiffenerSubSurf*>( partvec[i] );
-                    assert( stiffener_subsurf );
-
-                    if ( partvec[i] == curr_part )
-                        stiffener_subsurf->LoadDrawObjs( draw_obj_vec, k, true );
-                    else
-                        stiffener_subsurf->LoadDrawObjs( draw_obj_vec, k, false );
                     k++;
                 }
             }

@@ -333,8 +333,6 @@ enum FEA_STRUCT_TYPE { FEA_FULL_DEPTH,
                        FEA_RIB,
                        FEA_SPAR,
                        FEA_FIX_POINT,
-                       FEA_STIFFENER_PLANE,
-                       FEA_STIFFENER_SUB_SURF,
                        FEA_SUB_SURF,
                        FEA_SKIN,
                        FEA_NUM_TYPES };

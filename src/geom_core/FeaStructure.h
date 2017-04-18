@@ -283,53 +283,6 @@ protected:
 
 };
 
-enum
-{
-    CONST_U, CONST_V
-};
-
-enum
-{
-    STIFFENER_PLANE, STIFFENER_SUBSURF
-};
-
-class FeaStiffenerPlane : public FeaPart
-{
-public:
-
-    FeaStiffenerPlane( string geomID, int type = vsp::FEA_STIFFENER_PLANE );
-    virtual ~FeaStiffenerPlane()    {};
-
-    virtual void Update();
-
-    virtual void ComputePlanarSurf();
-
-    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight );
-
-    IntParm m_OrientationPlane;
-    Parm m_CenterPerBBoxLocation;
-    Parm m_Theta;
-};
-
-class FeaStiffenerSubSurf : public FeaPart
-{
-public:
-
-    FeaStiffenerSubSurf( string geomID, int type = vsp::FEA_STIFFENER_SUB_SURF );
-    virtual ~FeaStiffenerSubSurf()    {};
-
-    virtual void Update();
-
-    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight );
-
-    Parm m_StiffenerConstVal;
-    IntParm m_StiffenerConstType; // Either constant u or constant w line
-
-protected:
-
-    SSLine* m_FeaStiffenerSubSurf;
-};
-
 class FeaSkin : public FeaPart
 {
 public:
