@@ -60,9 +60,7 @@ class FeaElement
 {
     public:
 
-    FeaElement()
-    {
-    };
+    FeaElement();
     virtual ~FeaElement()
     {
     };
@@ -86,6 +84,15 @@ class FeaElement
     virtual void WriteGmsh( FILE* fp, int id , int fea_part_index ) = 0;
     virtual double ComputeMass( int property_index ) = 0;
 
+    virtual int GetFeaSSIndex()
+    {
+        return m_FeaSSIndex;
+    }
+    virtual void SetFeaSSIndex( int fea_ss_index )
+    {
+        m_FeaSSIndex = fea_ss_index;
+    }
+
     enum
     {
         FEA_TRI_6, FEA_QUAD_8, FEA_BEAM
@@ -96,6 +103,7 @@ class FeaElement
     protected:
     int m_ElementType;
     int m_FeaPartIndex;
+    int m_FeaSSIndex; // Corresponds to index in FeaStructure m_FeaSubSurfVec
 };
 
 //==== 6 Point Triangle Element ====//

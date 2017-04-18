@@ -123,6 +123,11 @@ void FeaNode::WriteGmsh( FILE* fp )
 //================== FeaElement ====================//
 //////////////////////////////////////////////////////
 
+FeaElement::FeaElement()
+{
+    m_FeaSSIndex = -1;
+}
+
 void FeaElement::DeleteAllNodes()
 {
     int i;
