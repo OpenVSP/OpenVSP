@@ -762,7 +762,35 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
 
             for ( int j = 0; j < m_FeaElementVec.size(); j++ )
             {
-                if ( m_FeaElementVec[j]->GetFeaPartIndex() == i )
+                if ( m_FeaElementVec[j]->GetFeaPartIndex() == i && m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
+                {
+                    elem_id++;
+
+                    if ( m_FeaElementVec[j]->GetElementType() != FeaElement::FEA_BEAM )
+                    {
+                        m_FeaElementVec[j]->WriteNASTRAN( fp, elem_id, property_id );
+                    }
+                    else
+                    {
+                        m_FeaElementVec[j]->WriteNASTRAN( fp, elem_id, cap_property_id );
+                    }
+                }
+            }
+        }
+
+        vector < SubSurface* > ss_vec = m_FeaMeshStruct->GetFeaSubSurfVec();
+
+        for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
+        {
+            fprintf( fp, "\n" );
+            fprintf( fp, "$%s\n", ss_vec[i]->GetName().c_str() );
+
+            int property_id = ss_vec[i]->GetFeaPropertyIndex();
+            int cap_property_id = ss_vec[i]->GetCapFeaPropertyIndex();
+
+            for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+            {
+                if ( m_FeaElementVec[j]->GetFeaSSIndex() == i )
                 {
                     elem_id++;
 
@@ -788,6 +816,23 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
                 if ( m_PntShift[j] >= 0 )
                 {
                     if ( m_FeaNodeVec[j]->HasOnlyIndex( i ) )
+                    {
+                        m_FeaNodeVec[j]->WriteNASTRAN( fp );
+                    }
+                }
+            }
+        }
+
+        for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
+        {
+            fprintf( fp, "\n" );
+            fprintf( fp, "$%s Gridpoints\n", ss_vec[i]->GetName().c_str() );
+
+            for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
+            {
+                if ( m_PntShift[j] >= 0 )
+                {
+                    if ( m_FeaNodeVec[j]->HasOnlyIndex( i + m_NumFeaParts ) )
                     {
                         m_FeaNodeVec[j]->WriteNASTRAN( fp );
                     }
@@ -1016,7 +1061,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
 
             for ( int j = 0; j < m_FeaElementVec.size(); j++ )
             {
-                if ( m_FeaElementVec[j]->GetFeaPartIndex() == i && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 )
+                if ( m_FeaElementVec[j]->GetFeaPartIndex() == i && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 && m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
                 {
                     elem_id++;
                     m_FeaElementVec[j]->WriteCalculix( fp, elem_id );
@@ -1027,15 +1072,15 @@ void FeaMeshMgrSingleton::WriteCalculix()
             sprintf( str, "E%s", m_FeaMeshStruct->GetFeaPartName( i ).c_str() );
 
             StructureMgr.GetFeaProperty( property_id )->WriteCalculix( fp, str );
+            fprintf( fp, "\n" );
 
             if ( m_FeaMeshStruct->GetFeaPart( i )->m_IntersectionCapFlag() )
             {
-                fprintf( fp, "\n" );
                 fprintf( fp, "*ELEMENT, TYPE=B31, ELSET=E%s_CAP\n", m_FeaMeshStruct->GetFeaPartName( i ).c_str() );
 
                 for ( int j = 0; j < m_FeaElementVec.size(); j++ )
                 {
-                    if ( m_FeaElementVec[j]->GetFeaPartIndex() == i && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM )
+                    if ( m_FeaElementVec[j]->GetFeaPartIndex() == i && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM && m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
                     {
                         elem_id++;
                         m_FeaElementVec[j]->WriteCalculix( fp, elem_id );
