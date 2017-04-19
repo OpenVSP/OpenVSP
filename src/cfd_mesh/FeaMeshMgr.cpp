@@ -1412,16 +1412,18 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 {
     if ( !GetFeaMeshInProgress() )
     {
-        // Render Tag Colors
+        // Parts:
         m_FeaNodeDO.resize( m_NumFeaParts );
         m_FeaElementDO.resize( m_NumFeaParts );
         m_CapFeaElementDO.resize( m_NumFeaParts );
         m_TriOrientationDO.resize( m_NumFeaParts );
         m_CapNormDO.resize( m_NumFeaParts );
 
+        double line_length = GetGridDensityPtr()->m_MinLen() / 3.0; // Length of orientation vectors
+
         // Calculate constants for color sequence.
         const int ncgrp = 6; // Number of basic colors
-        const int ncstep = (int)ceil( (double)( 2 * m_NumFeaParts ) / (double)ncgrp );
+        const double ncstep = (int)ceil( (double)( 4 * ( m_NumFeaParts + m_NumFeaSubSurfs ) ) / (double)ncgrp );
         const double nctodeg = 360.0 / ( ncgrp*ncstep );
 
         char str[256];
@@ -1445,7 +1447,7 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
             m_FeaElementDO[cnt].m_Visible = false;
             m_CapFeaElementDO[cnt].m_Type = DrawObj::VSP_LINES;
             m_CapFeaElementDO[cnt].m_Visible = false;
-            m_CapFeaElementDO[cnt].m_LineWidth = 2.0;
+            m_CapFeaElementDO[cnt].m_LineWidth = 3.0;
 
             if ( GetStructSettingsPtr()->m_DrawMeshFlag.Get() ||
                  GetStructSettingsPtr()->m_ColorTagsFlag.Get() )   // At least mesh or tags are visible.
@@ -1505,7 +1507,6 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 
             draw_obj_vec.push_back( &m_FeaNodeDO[cnt] );
             draw_obj_vec.push_back( &m_FeaElementDO[cnt] );
-            draw_obj_vec.push_back( &m_CapFeaElementDO[cnt] );
         }
 
         for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
@@ -1588,7 +1589,6 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 m_CapNormDO[i].m_LineColor = m_CapFeaElementDO[i].m_LineColor;
                 m_CapNormDO[i].m_Visible = m_CapFeaElementDO[i].m_Visible;
 
-                double line_length = GetGridDensityPtr()->m_MinLen() / 3.0;
                 vector < vec3d > tri_orient_pnt_vec, cap_norm_pnt_vec;
 
                 for ( int j = 0; j < m_FeaElementVec.size(); j++ )
@@ -1627,9 +1627,6 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 
                 m_TriOrientationDO[i].m_PntVec = tri_orient_pnt_vec;
                 m_CapNormDO[i].m_PntVec = cap_norm_pnt_vec;
-
-                draw_obj_vec.push_back( &m_TriOrientationDO[i] );
-                draw_obj_vec.push_back( &m_CapNormDO[i] );
             }
         }
 
@@ -1660,7 +1657,7 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
             m_SSFeaElementDO[cnt].m_Visible = false;
             m_SSCapFeaElementDO[cnt].m_Type = DrawObj::VSP_LINES;
             m_SSCapFeaElementDO[cnt].m_Visible = false;
-            m_SSCapFeaElementDO[cnt].m_LineWidth = 2.0;
+            m_SSCapFeaElementDO[cnt].m_LineWidth = 3.0;
 
             if ( GetStructSettingsPtr()->m_DrawMeshFlag.Get() ||
                  GetStructSettingsPtr()->m_ColorTagsFlag.Get() )   // At least mesh or tags are visible.
@@ -1690,7 +1687,7 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 // offset from ncgrp basic colors.
                 // Note, (cnt/ncgrp) uses integer division resulting in floor.
                 double deg = ( ( ( m_NumFeaParts + cnt ) % ncgrp ) * ncstep + ( ( m_NumFeaParts + cnt ) / ncgrp ) ) * nctodeg;
-                double deg2 = ( ( ( m_NumFeaParts + m_NumFeaSubSurfs + cnt ) % ncgrp ) * ncstep + ( ( m_NumFeaParts + m_NumFeaSubSurfs + cnt ) / ncgrp ) ) * nctodeg;
+                double deg2 = ( ( ( 1 + m_NumFeaParts + m_NumFeaSubSurfs + cnt ) % ncgrp ) * ncstep + ( ( 1 + m_NumFeaParts + m_NumFeaSubSurfs + cnt ) / ncgrp ) ) * nctodeg; 
                 vec3d rgb = m_SSFeaElementDO[cnt].ColorWheel( deg );
                 rgb.normalize();
 
@@ -1720,7 +1717,6 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 
             draw_obj_vec.push_back( &m_SSFeaNodeDO[cnt] );
             draw_obj_vec.push_back( &m_SSFeaElementDO[cnt] );
-            draw_obj_vec.push_back( &m_SSCapFeaElementDO[cnt] );
         }
 
         for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
@@ -1845,6 +1841,20 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 draw_obj_vec.push_back( &m_SSTriOrientationDO[i] );
                 draw_obj_vec.push_back( &m_SSCapNormDO[i] );
             }
+        }
+
+        // Add cap and orientation DrawObjs last so they are drawn over surfaces
+        for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
+        {
+            draw_obj_vec.push_back( &m_CapFeaElementDO[i] );
+            draw_obj_vec.push_back( &m_TriOrientationDO[i] );
+            draw_obj_vec.push_back( &m_CapNormDO[i] );
+        }
+        for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
+        {
+            draw_obj_vec.push_back( &m_SSCapFeaElementDO[i] );
+            draw_obj_vec.push_back( &m_SSTriOrientationDO[i] );
+            draw_obj_vec.push_back( &m_SSCapNormDO[i] );
         }
 
         // Render bad edges
