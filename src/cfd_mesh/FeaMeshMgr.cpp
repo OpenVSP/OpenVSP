@@ -370,21 +370,55 @@ void FeaMeshMgrSingleton::ComputeWriteMass()
         // Iterate over each FeaPart index and calculate mass of each FeaElement if the current indexes match
         for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
         {
-            double mass = 0;
+            double tri_mass = 0;
+            double beam_mass = 0;
             int property_id = m_FeaMeshStruct->GetFeaPropertyIndex( i );
+            int cap_property_id = m_FeaMeshStruct->GetCapFeaPropertyIndex( i );
 
             for ( int j = 0; j < m_FeaElementVec.size(); j++ )
             {
-                if ( m_FeaElementVec[j]->GetFeaPartIndex() == i )
+                if ( m_FeaElementVec[j]->GetFeaPartIndex() == i && m_FeaElementVec[j]->GetFeaSSIndex() < 0 && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 )
                 {
-                    mass += m_FeaElementVec[j]->ComputeMass( property_id );
+                    tri_mass += m_FeaElementVec[j]->ComputeMass( property_id );
+                }
+                else if ( m_FeaElementVec[j]->GetFeaPartIndex() == i && m_FeaElementVec[j]->GetFeaSSIndex() < 0 && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM )
+                {
+                    beam_mass += m_FeaElementVec[j]->ComputeMass( cap_property_id );
                 }
             }
 
             string name = m_FeaMeshStruct->GetFeaPartName( i );
 
-            fprintf( fp, "\tFeaPartName: %s, Mass = %f\n", name.c_str(), mass );
-            m_TotalMass += mass;
+            fprintf( fp, "\tFeaPartName: %s, Mass_Tris = %f, Mass_Beams = %f\n", name.c_str(), tri_mass, beam_mass );
+            m_TotalMass += tri_mass + beam_mass;
+        }
+
+        // Iterate over each FeaSubSurface index and calculate mass of each FeaElement if the subsurface indexes match
+        vector < SubSurface* > ss_vec = m_FeaMeshStruct->GetFeaSubSurfVec();
+
+        for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
+        {
+            double tri_mass = 0;
+            double beam_mass = 0;
+            int property_id = ss_vec[i]->GetFeaPropertyIndex();
+            int cap_property_id = ss_vec[i]->GetCapFeaPropertyIndex();
+
+            for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+            {
+                if ( m_FeaElementVec[j]->GetFeaSSIndex() == i && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 )
+                {
+                    tri_mass += m_FeaElementVec[j]->ComputeMass( property_id );
+                }
+                else if ( m_FeaElementVec[j]->GetFeaSSIndex() == i && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM )
+                {
+                    beam_mass += m_FeaElementVec[j]->ComputeMass( cap_property_id );
+                }
+            }
+
+            string name = ss_vec[i]->GetName();
+
+            fprintf( fp, "\tFeaPartName: %s, Mass_Tris = %f, Mass_Beams = %f\n", name.c_str(), tri_mass, beam_mass );
+            m_TotalMass += tri_mass + beam_mass;
         }
 
         fprintf( fp, "Total Mass = %f\n", m_TotalMass );
