@@ -97,7 +97,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     // Case Setup Layout
     m_LeftColumnLayout.AddSubGroupLayout( m_CaseSetupLayout,
         m_LeftColumnLayout.GetW(),
-        4 * m_LeftColumnLayout.GetStdHeight() );
+        5 * m_LeftColumnLayout.GetStdHeight() );
     m_LeftColumnLayout.AddY( m_CaseSetupLayout.GetH() );
 
     m_CaseSetupLayout.AddDividerBox( "Case Setup" );
@@ -127,6 +127,11 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_CaseSetupLayout.AddChoice( m_GeomSetChoice, "Geometry Set:" );
     m_CaseSetupLayout.AddButton( m_StabilityCalcToggle, "Stability Calculation" );
 
+    m_CaseSetupLayout.AddYGap();
+
+    m_CaseSetupLayout.AddButton( m_PreviewDegenButton, "Preview VLM Geometry" );
+
+    m_LeftColumnLayout.AddYGap();
     m_LeftColumnLayout.AddYGap();
 
     // Reference Quantities
@@ -514,15 +519,6 @@ bool VSPAEROScreen::Update()
 
         UpdateCaseSetupDevices();
 
-        if (m_SolverThreadIsRunning)
-        {
-            m_ComputeGeometryButton.Deactivate();
-        }
-        else
-        {
-            m_ComputeGeometryButton.Activate();
-        }
-
         UpdateReferenceQuantitiesDevices();
 
         UpdateCGDevices();
@@ -744,6 +740,20 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             m_ScreenMgr->m_ShowPlotScreenOnce = true;   //deferred show of plot screen
         }
+        else if ( device == &m_AeroMethodToggleGroup )
+        {
+            if ( VSPAEROMgr.m_AnalysisMethod.Get() == vsp::VSPAERO_ANALYSIS_METHOD::PANEL )
+            {
+                ResetDegenCamberPreview();
+            }
+        }
+        else if ( device == &m_PreviewDegenButton )
+        {
+            if ( !VSPAEROMgr.m_DegenPreviewFlag() )
+            {
+                ResetDegenCamberPreview();
+            }
+        }
         else if( device == &m_RefWingChoice )
         {
             int id = m_RefWingChoice.GetVal();
@@ -752,10 +762,6 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
         else if( device == &m_GeomSetChoice )
         {
             VSPAEROMgr.m_GeomSet = m_GeomSetChoice.GetVal();
-        }
-        else if( device == &m_ComputeGeometryButton )
-        {
-            VSPAEROMgr.ComputeGeometry();
         }
         else if( device == &m_DegenFileButton )
         {
@@ -945,6 +951,7 @@ void VSPAEROScreen::UpdateSetChoiceLists()
 
 void VSPAEROScreen::UpdateCaseSetupDevices()
 {
+    m_PreviewDegenButton.Update(VSPAEROMgr.m_DegenPreviewFlag.GetID());
     m_AeroMethodToggleGroup.Update(VSPAEROMgr.m_AnalysisMethod.GetID());
     switch (VSPAEROMgr.m_AnalysisMethod.Get())
     {
@@ -952,6 +959,7 @@ void VSPAEROScreen::UpdateCaseSetupDevices()
 
         m_DegenFileName.Activate();
         m_DegenFileButton.Activate();
+        m_PreviewDegenButton.Activate();
 
         m_CompGeomFileName.Deactivate();
         m_CompGeomFileButton.Deactivate();
@@ -962,6 +970,8 @@ void VSPAEROScreen::UpdateCaseSetupDevices()
 
         m_DegenFileName.Deactivate();
         m_DegenFileButton.Deactivate();
+        VSPAEROMgr.m_DegenPreviewFlag.Set(false);
+        m_PreviewDegenButton.Deactivate();
 
         m_CompGeomFileName.Activate();
         m_CompGeomFileButton.Activate();
@@ -973,6 +983,11 @@ void VSPAEROScreen::UpdateCaseSetupDevices()
         break;
     }
     m_StabilityCalcToggle.Update(VSPAEROMgr.m_StabilityCalcFlag.GetID());
+
+    if (VSPAEROMgr.m_DegenPreviewFlag())
+    {
+        DisplayDegenCamberPreview();
+    }
 }
 
 void VSPAEROScreen::UpdateReferenceQuantitiesDevices()
@@ -1462,5 +1477,74 @@ void VSPAEROScreen::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     if( m_FLTK_Window->visible() )
     {
         VSPAEROMgr.LoadDrawObjs( draw_obj_vec );
+    }
+}
+
+void VSPAEROScreen::DisplayDegenCamberPreview()
+{
+    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
+
+    if ( !veh )
+    {
+        return;
+    }
+
+    vector< Geom* > geom_vec = veh->FindGeomVec( veh->GetGeomVec( false ) );
+    for ( size_t i = 0; i < (int)geom_vec.size(); i++ )
+    {
+        if ( geom_vec[i]->GetSetFlag( VSPAEROMgr.m_GeomSet() ) )
+        {
+            vector < VspSurf > surf_vec;
+            geom_vec[i]->GetMainSurfVec( surf_vec );
+
+            for ( size_t j = 0; j < surf_vec.size(); j++ )
+            {
+                int surf_type = surf_vec[j].GetSurfType();
+
+                if ( surf_type == vsp::DISK_SURF )
+                {
+                    geom_vec[i]->m_GuiDraw.SetDisplayType( GeomGuiDraw::DISPLAY_DEGEN_SURF );
+                }
+                else
+                {
+                    geom_vec[i]->m_GuiDraw.SetDisplayType( GeomGuiDraw::DISPLAY_DEGEN_CAMBER );
+                }
+            }
+
+            geom_vec[i]->m_GuiDraw.SetDrawType( GeomGuiDraw::GEOM_DRAW_SHADE );
+            geom_vec[i]->m_GuiDraw.SetDispSubSurfFlag( true );
+        }
+        else
+        {
+            // Do not show geoms not in VSPAEROMgr.m_GeomSet() (hiding will move it to the "No Show" set)
+            geom_vec[i]->m_GuiDraw.SetDisplayType( GeomGuiDraw::DISPLAY_BEZIER );
+            geom_vec[i]->m_GuiDraw.SetDrawType( GeomGuiDraw::GEOM_DRAW_NONE );
+            geom_vec[i]->m_GuiDraw.SetDispSubSurfFlag( false );
+            geom_vec[i]->m_GuiDraw.SetDispFeatureFlag( false );
+        }
+
+        // Update Main VSP Screen to display DegenGeom previews
+        VspScreen* main = m_ScreenMgr->GetScreen( ScreenMgr::VSP_MAIN_SCREEN );
+        main->Update();
+    }
+}
+
+void VSPAEROScreen::ResetDegenCamberPreview()
+{
+    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
+
+    if ( !veh )
+    {
+        return;
+    }
+
+    vector< Geom* > geom_vec = veh->FindGeomVec( veh->GetGeomVec( false ) );
+    for ( size_t i = 0; i < (int)geom_vec.size(); i++ )
+    {
+        geom_vec[i]->m_GuiDraw.SetDispSubSurfFlag( true );
+        geom_vec[i]->m_GuiDraw.SetDispFeatureFlag( true );
+        geom_vec[i]->m_GuiDraw.SetDisplayType( GeomGuiDraw::DISPLAY_BEZIER );
+        geom_vec[i]->m_GuiDraw.SetDrawType( GeomGuiDraw::GEOM_DRAW_WIRE );
+        geom_vec[i]->Update();
     }
 }

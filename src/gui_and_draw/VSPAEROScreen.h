@@ -85,6 +85,9 @@ public:
     void UpdateControlSurfaceGroupNames();
     void UpdateDeflectionGainScrollGroup();
 
+    void DisplayDegenCamberPreview();
+    void ResetDegenCamberPreview();
+
     void LoadDrawObjs( vector < DrawObj* > & draw_obj_vec );
 
 protected:
@@ -117,6 +120,7 @@ protected:
     Choice m_GeomSetChoice;
     // Additional options
     ToggleButton m_StabilityCalcToggle;
+    ToggleButton m_PreviewDegenButton;
 
     // Ref Length Layout
     // Reference lengths & areas
@@ -145,7 +149,6 @@ protected:
     Input m_MachStartInput, m_MachEndInput, m_MachNptsInput;
 
     // Execute Layout
-    TriggerButton m_ComputeGeometryButton;
     TriggerButton m_SolverButton;
     TriggerButton m_KillSolverButton;
     TriggerButton m_PlotButton;
