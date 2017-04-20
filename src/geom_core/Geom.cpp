@@ -2022,17 +2022,17 @@ void Geom::UpdateDegenDrawObj()
                     norm = degen_surf.nvec[j][k];
                 }
 
+                if ( m_SurfVec[i].GetFlipNormal() )
+                {
+                    norm = -1 * norm;
+                }
+
                 // Set Normal Vector
                 for ( int m = 0; m < 4; m++ )
                 {
                     degen_surf_draw_obj.m_NormVec.push_back( norm );
                 }
             }
-        }
-
-        if ( m_SurfVec[i].GetFlipNormal() )
-        {
-            degen_surf_draw_obj.m_FlipNormals = true;
         }
 
         m_DegenSurfDrawObj_vec.push_back( degen_surf_draw_obj );
@@ -2077,6 +2077,11 @@ void Geom::UpdateDegenDrawObj()
                         norm = degen_plate_vec[j].nPlate[k];
                     }
 
+                    if ( m_SurfVec[i].GetFlipNormal() )
+                    {
+                        norm = -1 * norm;
+                    }
+
                     // Set Normal Vectors
                     for ( int m = 0; m < 4; m++ )
                     {
@@ -2097,12 +2102,6 @@ void Geom::UpdateDegenDrawObj()
                     degen_camber_plate_draw_obj.m_PntVec.push_back( camber_corner3 );
                     degen_camber_plate_draw_obj.m_PntVec.push_back( camber_corner4 );
                 }
-            }
-
-            if ( m_SurfVec[i].GetFlipNormal() )
-            {
-                degen_plate_draw_obj.m_FlipNormals = true;
-                degen_camber_plate_draw_obj.m_FlipNormals = true;
             }
 
             m_DegenPlateDrawObj_vec.push_back( degen_plate_draw_obj );
