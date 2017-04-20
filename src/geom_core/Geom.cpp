@@ -1982,7 +1982,6 @@ void Geom::UpdateDegenDrawObj()
     m_DegenSurfDrawObj_vec.clear();
     m_DegenPlateDrawObj_vec.clear();
     m_DegenCamberPlateDrawObj_vec.clear();
-    //m_DegenStickDrawObj_vec.clear();
     m_DegenSubSurfDrawObj_vec.clear();
 
     for ( int i = 0; i < (int)m_SurfVec.size(); i++ )
@@ -2194,81 +2193,7 @@ void Geom::UpdateDegenDrawObj()
             }
 
             m_DegenSubSurfDrawObj_vec.push_back( degen_subsurface_draw_obj );
-
-
-            //if ( degen_subsurf_vec[j].u.size() == degen_subsurf_vec[j].w.size() )
-            //{
-            //    if ( degen_subsurf_vec[j].u.size() < 8 ) // Break up subsurface into line segments if not enough drawing points
-            //    {
-            //        int num_pts = 100; // default number of segments to create
-
-            //        for ( int k = 0; k < degen_subsurf_vec[j].u.size() - 1; k++ )
-            //        {
-            //            vec3d point1 = { degen_subsurf_vec[j].u[k], degen_subsurf_vec[j].w[k], 0.0 };
-            //            vec3d point2 = { degen_subsurf_vec[j].u[k + 1], degen_subsurf_vec[j].w[k + 1], 0.0 };
-            //            vec3d line = point2 - point1;
-
-            //            vec3d test_compare1 = m_SurfVec[i].CompPnt( point1.x(), point1.y() );
-            //            vec3d test_compare2 = m_SurfVec[i].CompPnt( point2.x(), point2.y() );
-
-            //            for ( int n = 0; n <= num_pts; n++ )
-            //            {
-            //                vec3d uw = ( point1 + line * ( (double)n / num_pts ) );
-
-            //                vec3d test_compare3 = m_SurfVec[i].CompPnt( uw.x(), uw.y() );
-
-            //                //degen_subsurface_draw_obj.m_PntVec.push_back( m_SurfVec[i].CompPnt( uw.x(), uw.y() ) );
-            //            }
-            //        }
-            //    }
-            //    else
-            //    {
-            //        for ( int k = 0; k < degen_subsurf_vec[j].u.size(); k++ )
-            //        {
-            //            //degen_subsurface_draw_obj.m_PntVec.push_back( m_SurfVec[i].CompPnt( degen_subsurf_vec[j].u[k], degen_subsurf_vec[j].w[k] ) );
-            //        }
-            //    }
-            //    //m_DegenSubSurfDrawObj_vec.push_back( degen_subsurface_draw_obj );
-            //}
         }
-
-        // TODO: Add support for DegenDisks?
-
-        //=== Degen Disk ===//
-        //DegenDisk degen_disk = DegenGeomVec[i].getDegenDisk();
-
-        ////=== Degen Stick ===//
-        //vector < DegenStick > degen_stick_vec = DegenGeomVec[i].getDegenSticks();
-
-        //for ( int j = 0; j < degen_stick_vec.size(); j++ )
-        //{
-        //    // Leading Edge
-        //    DrawObj degen_stick_le_draw_obj;
-        //    degen_stick_le_draw_obj.m_GeomChanged = true;
-
-        //    for ( int k = 0; k < degen_stick_vec[j].xle.size(); k++ )
-        //    {
-        //        degen_stick_le_draw_obj.m_PntVec.push_back( degen_stick_vec[j].xle[k] );
-        //    }
-
-        //    // Trailing Edge
-        //    DrawObj degen_stick_te_draw_obj;
-        //    degen_stick_te_draw_obj.m_GeomChanged = true;
-
-        //    for ( int k = 0; k < degen_stick_vec[j].xte.size(); k++ )
-        //    {
-        //        degen_stick_te_draw_obj.m_PntVec.push_back( degen_stick_vec[j].xte[k] );
-        //    }
-
-        //    if ( m_SurfVec[i].GetFlipNormal() )
-        //    {
-        //        degen_stick_le_draw_obj.m_FlipNormals = true;
-        //        degen_stick_te_draw_obj.m_FlipNormals = true;
-        //    }
-
-        //    m_DegenStickDrawObj_vec.push_back( degen_stick_le_draw_obj );
-        //    m_DegenStickDrawObj_vec.push_back( degen_stick_te_draw_obj );
-        //}
     }
 }
 
@@ -3008,32 +2933,6 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         }
     }
 
-    //if ( m_GuiDraw.GetDispDegenStickFlag() )
-    //{
-    //    for ( int i = 0; i < m_DegenStickDrawObj_vec.size(); i++ )
-    //    {
-    //        sprintf( str, "_%d", i );
-    //        m_DegenStickDrawObj_vec[i].m_GeomID = m_ID + "Degen_Stick_" + str;
-
-    //        // Set Render Destination to Main VSP Window.
-    //        m_DegenStickDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
-
-    //        vec3d lineColor = vec3d( m_GuiDraw.GetWireColor().x() / 255.0,
-    //                                 m_GuiDraw.GetWireColor().y() / 255.0,
-    //                                 m_GuiDraw.GetWireColor().z() / 255.0 );
-
-    //        m_DegenStickDrawObj_vec[i].m_LineWidth = 1.0;
-    //        m_DegenStickDrawObj_vec[i].m_LineColor = lineColor;
-
-    //        if ( m_GuiDraw.GetDegenDrawType() == m_GuiDraw.GEOM_DRAW_WIRE )
-    //        {
-    //            m_DegenStickDrawObj_vec[i].m_Type = DrawObj::VSP_LINE_STRIP;
-    //        }
-
-    //        draw_obj_vec.push_back( &m_DegenStickDrawObj_vec[i] );
-    //    }
-    //}
-
     if ( m_GuiDraw.GetDispSubSurfFlag() && m_GuiDraw.GetDisplayType() != GeomGuiDraw::DISPLAY_BEZIER )
     {
         for ( int i = 0; i < m_DegenSubSurfDrawObj_vec.size(); i++ )
@@ -3207,8 +3106,6 @@ void Geom::CreateDegenGeomPreview( vector<DegenGeom> &dgs )
         else if ( m_SurfVec[i].GetSurfType() == vsp::DISK_SURF )
         {
             degenGeom.setType( DegenGeom::DISK_TYPE );
-
-            //degenGeom.createDegenDisk( pnts, m_SurfVec[i].GetFlipNormal() );
         }
         else
         {
