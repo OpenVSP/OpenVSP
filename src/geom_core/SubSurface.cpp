@@ -48,6 +48,12 @@ void SubSurface::ParmChanged( Parm* parm_ptr, int type )
     {
         veh->ParmChanged( parm_ptr, type );
     }
+
+    Geom* geom = veh->FindGeom( m_CompID );
+    if ( geom )
+    {
+        geom->UpdateDegenDrawObj(); // Update DegenSubSurfaces to reflect parm changes
+    }
 }
 
 void SubSurface::SetDisplaySuffix( int num )
@@ -128,8 +134,6 @@ void SubSurface::UpdateDrawObjs()
     m_DrawObjVec.clear();
     if ( geom )
     {
-        geom->UpdateDegenDrawObj(); // Update DegenSubSurfaces to reflect parm changes
-
         vector< VspSurf > surf_vec;
         geom->GetSurfVec( surf_vec );
         int ncopy = geom->GetNumSymmCopies();
