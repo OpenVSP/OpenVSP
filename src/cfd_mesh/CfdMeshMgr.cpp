@@ -3589,6 +3589,7 @@ void CfdMeshMgrSingleton::SplitBorderCurves()
             new_chains[j]->m_BorderFlag = true;
             if ( new_chains[j]->Valid() )
             {
+                new_chains[j]->m_SSIntersectIndex = chains[i]->m_SSIntersectIndex; // Track SubSurface Index
                 m_ISegChainList.push_back( new_chains[j] );
             }
         }
@@ -3706,6 +3707,7 @@ void CfdMeshMgrSingleton::IntersectSplitChains()
         {
             if ( new_chains[j]->Valid() )
             {
+                new_chains[j]->m_SSIntersectIndex = chains[i]->m_SSIntersectIndex; // Track SubSurface Index
                 m_ISegChainList.push_back( new_chains[j] );
             }
 
