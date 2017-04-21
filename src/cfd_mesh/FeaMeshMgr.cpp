@@ -1597,71 +1597,76 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 }
             }
 
-            if ( GetStructSettingsPtr()->m_DrawElementOrientVecFlag() )
+            sprintf( str, "%s_Tri_Norm_%d", GetID().c_str(), i );
+            m_TriOrientationDO[i].m_GeomID = string( str );
+            sprintf( str, "%s_Cap_Norm_%d", GetID().c_str(), i );
+            m_CapNormDO[i].m_GeomID = string( str );
+
+            m_TriOrientationDO[i].m_Type = DrawObj::VSP_LINES;
+            m_TriOrientationDO[i].m_LineWidth = 1.0;
+            m_CapNormDO[i].m_Type = DrawObj::VSP_LINES;
+            m_CapNormDO[i].m_LineWidth = 1.0;
+
+            if ( GetStructSettingsPtr()->m_DrawElementOrientVecFlag() && m_DrawElementFlagVec[i] )
             {
-                sprintf( str, "%s_Tri_Norm_%d", GetID().c_str(), i );
-                m_TriOrientationDO[i].m_GeomID = string( str );
-                sprintf( str, "%s_Cap_Norm_%d", GetID().c_str(), i );
-                m_CapNormDO[i].m_GeomID = string( str );
-
-                m_TriOrientationDO[i].m_Type = DrawObj::VSP_LINES;
-                m_TriOrientationDO[i].m_LineWidth = 1.0;
-                m_CapNormDO[i].m_Type = DrawObj::VSP_LINES;
-                m_CapNormDO[i].m_LineWidth = 1.0;
-
-                if ( m_DrawElementFlagVec[i] )
-                {
-                    m_TriOrientationDO[i].m_Visible = true;
-                }
-                else
-                {
-                    m_TriOrientationDO[i].m_Visible = false;
-                }
-
-                m_TriOrientationDO[i].m_LineColor = m_FeaNodeDO[i].m_PointColor;
-
-                m_CapNormDO[i].m_LineColor = m_CapFeaElementDO[i].m_LineColor;
-                m_CapNormDO[i].m_Visible = m_CapFeaElementDO[i].m_Visible;
-
-                vector < vec3d > tri_orient_pnt_vec, cap_norm_pnt_vec;
-
-                for ( int j = 0; j < m_FeaElementVec.size(); j++ )
-                {
-                    if ( m_FeaElementVec[j]->GetFeaPartIndex() == i && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 && m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
-                    {
-                        // Define normal vec:
-                        vec3d norm = cross( m_FeaElementVec[j]->m_Corners[1]->m_Pnt - m_FeaElementVec[j]->m_Corners[0]->m_Pnt, m_FeaElementVec[j]->m_Corners[2]->m_Pnt - m_FeaElementVec[j]->m_Corners[0]->m_Pnt );
-                        norm.normalize();
-                        vec3d center = ( m_FeaElementVec[j]->m_Corners[0]->m_Pnt + m_FeaElementVec[j]->m_Corners[1]->m_Pnt + m_FeaElementVec[j]->m_Corners[2]->m_Pnt ) / 3.0;
-                        vec3d norm_pnt = center + line_length * norm;
-
-                        tri_orient_pnt_vec.push_back( center );
-                        tri_orient_pnt_vec.push_back( norm_pnt );
-
-                        // Define orientation vec:
-                        FeaTri* tri = dynamic_cast<FeaTri*>( m_FeaElementVec[j] );
-                        assert( tri );
-
-                        vec3d orient_pnt = center + line_length * tri->m_Orientation;
-
-                        tri_orient_pnt_vec.push_back( center );
-                        tri_orient_pnt_vec.push_back( orient_pnt );
-                    }
-                    else if ( m_FeaElementVec[j]->GetFeaPartIndex() == i && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM && m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
-                    {
-                        FeaBeam* beam = dynamic_cast<FeaBeam*>( m_FeaElementVec[j] );
-                        assert( beam );
-
-                        vec3d norm_pnt = m_FeaElementVec[j]->m_Corners[0]->m_Pnt + line_length * beam->m_DispVec;
-
-                        cap_norm_pnt_vec.push_back( m_FeaElementVec[j]->m_Corners[0]->m_Pnt );
-                        cap_norm_pnt_vec.push_back( norm_pnt );
-                    }
-                }
-
-                m_TriOrientationDO[i].m_PntVec = tri_orient_pnt_vec;
-                m_CapNormDO[i].m_PntVec = cap_norm_pnt_vec;
+                m_TriOrientationDO[i].m_Visible = true;
             }
+            else
+            {
+                m_TriOrientationDO[i].m_Visible = false;
+            }
+
+            if ( GetStructSettingsPtr()->m_DrawElementOrientVecFlag() && m_DrawCapFlagVec[i] )
+            {
+                m_CapNormDO[i].m_Visible = true;
+            }
+            else
+            {
+                m_CapNormDO[i].m_Visible = false;
+            }
+
+            m_TriOrientationDO[i].m_LineColor = m_FeaNodeDO[i].m_PointColor;
+
+            m_CapNormDO[i].m_LineColor = m_CapFeaElementDO[i].m_LineColor;
+
+            vector < vec3d > tri_orient_pnt_vec, cap_norm_pnt_vec;
+
+            for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+            {
+                if ( m_FeaElementVec[j]->GetFeaPartIndex() == i && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 && m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
+                {
+                    // Define normal vec:
+                    vec3d norm = cross( m_FeaElementVec[j]->m_Corners[1]->m_Pnt - m_FeaElementVec[j]->m_Corners[0]->m_Pnt, m_FeaElementVec[j]->m_Corners[2]->m_Pnt - m_FeaElementVec[j]->m_Corners[0]->m_Pnt );
+                    norm.normalize();
+                    vec3d center = ( m_FeaElementVec[j]->m_Corners[0]->m_Pnt + m_FeaElementVec[j]->m_Corners[1]->m_Pnt + m_FeaElementVec[j]->m_Corners[2]->m_Pnt ) / 3.0;
+                    vec3d norm_pnt = center + line_length * norm;
+
+                    tri_orient_pnt_vec.push_back( center );
+                    tri_orient_pnt_vec.push_back( norm_pnt );
+
+                    // Define orientation vec:
+                    FeaTri* tri = dynamic_cast<FeaTri*>( m_FeaElementVec[j] );
+                    assert( tri );
+
+                    vec3d orient_pnt = center + line_length * tri->m_Orientation;
+
+                    tri_orient_pnt_vec.push_back( center );
+                    tri_orient_pnt_vec.push_back( orient_pnt );
+                }
+                else if ( m_FeaElementVec[j]->GetFeaPartIndex() == i && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM && m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
+                {
+                    FeaBeam* beam = dynamic_cast<FeaBeam*>( m_FeaElementVec[j] );
+                    assert( beam );
+
+                    vec3d norm_pnt = m_FeaElementVec[j]->m_Corners[0]->m_Pnt + line_length * beam->m_DispVec;
+
+                    cap_norm_pnt_vec.push_back( m_FeaElementVec[j]->m_Corners[0]->m_Pnt );
+                    cap_norm_pnt_vec.push_back( norm_pnt );
+                }
+            }
+
+            m_TriOrientationDO[i].m_PntVec = tri_orient_pnt_vec;
+            m_CapNormDO[i].m_PntVec = cap_norm_pnt_vec;
         }
 
         // FeaSubSurfaces:
@@ -1807,74 +1812,79 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 }
             }
 
-            if ( GetStructSettingsPtr()->m_DrawElementOrientVecFlag() )
+            sprintf( str, "%s_SSTri_Norm_%d", GetID().c_str(), i );
+            m_SSTriOrientationDO[i].m_GeomID = string( str );
+            sprintf( str, "%s_SSCap_Norm_%d", GetID().c_str(), i );
+            m_SSCapNormDO[i].m_GeomID = string( str );
+
+            m_SSTriOrientationDO[i].m_Type = DrawObj::VSP_LINES;
+            m_SSTriOrientationDO[i].m_LineWidth = 1.0;
+            m_SSCapNormDO[i].m_Type = DrawObj::VSP_LINES;
+            m_SSCapNormDO[i].m_LineWidth = 1.0;
+
+            if ( GetStructSettingsPtr()->m_DrawElementOrientVecFlag() && m_DrawElementFlagVec[i + m_NumFeaParts] )
             {
-                sprintf( str, "%s_SSTri_Norm_%d", GetID().c_str(), i );
-                m_SSTriOrientationDO[i].m_GeomID = string( str );
-                sprintf( str, "%s_SSCap_Norm_%d", GetID().c_str(), i );
-                m_SSCapNormDO[i].m_GeomID = string( str );
-
-                m_SSTriOrientationDO[i].m_Type = DrawObj::VSP_LINES;
-                m_SSTriOrientationDO[i].m_LineWidth = 1.0;
-                m_SSCapNormDO[i].m_Type = DrawObj::VSP_LINES;
-                m_SSCapNormDO[i].m_LineWidth = 1.0;
-
-                if ( m_DrawElementFlagVec[i + m_NumFeaParts] )
-                {
-                    m_SSTriOrientationDO[i].m_Visible = true;
-                }
-                else
-                {
-                    m_SSTriOrientationDO[i].m_Visible = false;
-                }
-
-                m_SSTriOrientationDO[i].m_LineColor = m_SSFeaNodeDO[i].m_PointColor;
-
-                m_SSCapNormDO[i].m_LineColor = m_SSCapFeaElementDO[i].m_LineColor;
-                m_SSCapNormDO[i].m_Visible = m_SSCapFeaElementDO[i].m_Visible;
-
-                vector < vec3d > ss_tri_orient_pnt_vec, ss_cap_norm_pnt_vec;
-
-                for ( int j = 0; j < m_FeaElementVec.size(); j++ )
-                {
-                    if ( ( m_FeaElementVec[j]->GetFeaSSIndex() == i ) && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 )
-                    {
-                        // Define normal vec:
-                        vec3d norm = cross( m_FeaElementVec[j]->m_Corners[1]->m_Pnt - m_FeaElementVec[j]->m_Corners[0]->m_Pnt, m_FeaElementVec[j]->m_Corners[2]->m_Pnt - m_FeaElementVec[j]->m_Corners[0]->m_Pnt );
-                        norm.normalize();
-                        vec3d center = ( m_FeaElementVec[j]->m_Corners[0]->m_Pnt + m_FeaElementVec[j]->m_Corners[1]->m_Pnt + m_FeaElementVec[j]->m_Corners[2]->m_Pnt ) / 3.0;
-                        vec3d norm_pnt = center + line_length * norm;
-
-                        ss_tri_orient_pnt_vec.push_back( center );
-                        ss_tri_orient_pnt_vec.push_back( norm_pnt );
-
-                        // Define orientation vec:
-                        FeaTri* tri = dynamic_cast<FeaTri*>( m_FeaElementVec[j] );
-                        assert( tri );
-
-                        vec3d orient_pnt = center + line_length * tri->m_Orientation;
-
-                        ss_tri_orient_pnt_vec.push_back( center );
-                        ss_tri_orient_pnt_vec.push_back( orient_pnt );
-                    }
-                    else if ( ( m_FeaElementVec[j]->GetFeaSSIndex() == i ) && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM )
-                    {
-                        FeaBeam* beam = dynamic_cast<FeaBeam*>( m_FeaElementVec[j] );
-                        assert( beam );
-
-                        vec3d norm_pnt = m_FeaElementVec[j]->m_Corners[0]->m_Pnt + line_length * beam->m_DispVec;
-
-                        ss_cap_norm_pnt_vec.push_back( m_FeaElementVec[j]->m_Corners[0]->m_Pnt );
-                        ss_cap_norm_pnt_vec.push_back( norm_pnt );
-                    }
-                }
-
-                m_SSTriOrientationDO[i].m_PntVec = ss_tri_orient_pnt_vec;
-                m_SSCapNormDO[i].m_PntVec = ss_cap_norm_pnt_vec;
-
-                draw_obj_vec.push_back( &m_SSTriOrientationDO[i] );
-                draw_obj_vec.push_back( &m_SSCapNormDO[i] );
+                m_SSTriOrientationDO[i].m_Visible = true;
             }
+            else
+            {
+                m_SSTriOrientationDO[i].m_Visible = false;
+            }
+
+            if ( GetStructSettingsPtr()->m_DrawElementOrientVecFlag() && m_DrawCapFlagVec[i + m_NumFeaParts] )
+            {
+                m_SSCapNormDO[i].m_Visible = true;
+            }
+            else
+            {
+                m_SSCapNormDO[i].m_Visible = false;
+            }
+
+            m_SSTriOrientationDO[i].m_LineColor = m_SSFeaNodeDO[i].m_PointColor;
+
+            m_SSCapNormDO[i].m_LineColor = m_SSCapFeaElementDO[i].m_LineColor;
+
+            vector < vec3d > ss_tri_orient_pnt_vec, ss_cap_norm_pnt_vec;
+
+            for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+            {
+                if ( ( m_FeaElementVec[j]->GetFeaSSIndex() == i ) && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 )
+                {
+                    // Define normal vec:
+                    vec3d norm = cross( m_FeaElementVec[j]->m_Corners[1]->m_Pnt - m_FeaElementVec[j]->m_Corners[0]->m_Pnt, m_FeaElementVec[j]->m_Corners[2]->m_Pnt - m_FeaElementVec[j]->m_Corners[0]->m_Pnt );
+                    norm.normalize();
+                    vec3d center = ( m_FeaElementVec[j]->m_Corners[0]->m_Pnt + m_FeaElementVec[j]->m_Corners[1]->m_Pnt + m_FeaElementVec[j]->m_Corners[2]->m_Pnt ) / 3.0;
+                    vec3d norm_pnt = center + line_length * norm;
+
+                    ss_tri_orient_pnt_vec.push_back( center );
+                    ss_tri_orient_pnt_vec.push_back( norm_pnt );
+
+                    // Define orientation vec:
+                    FeaTri* tri = dynamic_cast<FeaTri*>( m_FeaElementVec[j] );
+                    assert( tri );
+
+                    vec3d orient_pnt = center + line_length * tri->m_Orientation;
+
+                    ss_tri_orient_pnt_vec.push_back( center );
+                    ss_tri_orient_pnt_vec.push_back( orient_pnt );
+                }
+                else if ( ( m_FeaElementVec[j]->GetFeaSSIndex() == i ) && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM )
+                {
+                    FeaBeam* beam = dynamic_cast<FeaBeam*>( m_FeaElementVec[j] );
+                    assert( beam );
+
+                    vec3d norm_pnt = m_FeaElementVec[j]->m_Corners[0]->m_Pnt + line_length * beam->m_DispVec;
+
+                    ss_cap_norm_pnt_vec.push_back( m_FeaElementVec[j]->m_Corners[0]->m_Pnt );
+                    ss_cap_norm_pnt_vec.push_back( norm_pnt );
+                }
+            }
+
+            m_SSTriOrientationDO[i].m_PntVec = ss_tri_orient_pnt_vec;
+            m_SSCapNormDO[i].m_PntVec = ss_cap_norm_pnt_vec;
+
+            draw_obj_vec.push_back( &m_SSTriOrientationDO[i] );
+            draw_obj_vec.push_back( &m_SSCapNormDO[i] );
         }
 
         // Add cap and orientation DrawObjs last so they are drawn over surfaces
