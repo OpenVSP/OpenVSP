@@ -231,11 +231,13 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
             tri->SetFeaPartIndex( m_SurfVec[s]->GetFeaPartIndex() );
 
             // Check for subsurface:
-            int tag = SubSurfaceMgr.GetTag( tvec[i].m_Tags );
-
-            if ( tvec[i].m_Tags.size() > 1 )
+            if ( tvec[i].m_Tags.size() == 2 )
             {
-                tri->SetFeaSSIndex( SubSurfaceMgr.GetTag( tvec[i].m_Tags ) - m_NumFeaParts - 1 );
+                tri->SetFeaSSIndex( tvec[i].m_Tags[1] - m_NumFeaParts - 1 ); 
+            }
+            else if ( tvec[i].m_Tags.size() > 2 )
+            {
+                //TODO: Develop Approach for Multiple SubSurfaces Overlap
             }
 
             m_FeaElementVec.push_back( tri );
