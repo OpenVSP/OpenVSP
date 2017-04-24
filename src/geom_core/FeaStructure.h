@@ -277,14 +277,19 @@ public:
     virtual ~FeaFixPoint()    {};
 
     virtual void Update();
+    virtual void IdentifySplitSurfIndex();
+    virtual vector < vec3d > GetPntVec(); // Returns the FeaFixPoint 3D coordinate on each parent surface
+    virtual vec2d GetUW(); // Returns the FeaFixPoint UW coordinate on main parent surface
 
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight );
 
     Parm m_PosU;
     Parm m_PosW;
 
-protected:
+    vector < int > m_SplitSurfIndex; // Identifies which surface FixPoint lies on after calling FetchFeaXFerSurf for the parent surface
+    string m_ParentFeaPartID; // Parent FeaPart ID
 
+protected:
 
 };
 

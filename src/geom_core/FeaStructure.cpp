@@ -1308,26 +1308,112 @@ FeaFixPoint::FeaFixPoint( string compID, int type ) : FeaPart( compID, type )
 void FeaFixPoint::Update()
 {
     UpdateSymmetricSurfs();
+    IdentifySplitSurfIndex();
+
+    m_FeaPartSurfVec.clear(); // FeaFixPoints are not a VspSurf
+}
+
+void FeaFixPoint::IdentifySplitSurfIndex()
+{
+    // This function is called instead of FeaPart::FetchFeaXFerSurf when the FeaPart type is FEA_FIX_POINT, since 
+    //  FeaFixPoints are not surfaces. This function determines the number of split surfaces for the FeaFixPoint 
+    //  Parent Surface, and determines which split surface the FeaFixPoint lies on.
+
+    FeaPart* parent_part = StructureMgr.GetFeaPart( m_ParentFeaPartID );
+
+    if ( !parent_part )
+    {
+        return;
+    }
+
+    vector < VspSurf* > parent_surf_vec = parent_part->GetFeaPartSurfPtrVec();
+
+    m_SplitSurfIndex.resize( parent_surf_vec.size() );
+
+    for ( size_t i = 0; i < parent_surf_vec.size(); i++ )
+    {
+        // Get U/W values
+        vec2d uw = GetUW();
+
+        // Split the parent surface
+        vector< XferSurf > tempxfersurfs; 
+        parent_surf_vec[i]->FetchXFerSurf( m_ParentGeomID, m_MainSurfIndx(), 0, tempxfersurfs );
+
+        for ( size_t j = 0; j < tempxfersurfs.size(); j++ )
+        {
+            double umax = tempxfersurfs[j].m_Surface.get_umax();
+            double umin = tempxfersurfs[j].m_Surface.get_u0();
+            double vmax = tempxfersurfs[j].m_Surface.get_vmax();
+            double vmin = tempxfersurfs[j].m_Surface.get_v0();
+
+            // Check if FeaFixPoint is on XferSurf (border points ignored)
+            if ( uw.x() > umin && uw.x() < umax && uw.y() > vmin && uw.y() < vmax )
+            {
+                m_SplitSurfIndex[i] = j;
+            }
+            else if ( uw.x() == umin || uw.x() == umax || uw.y() == vmin || uw.y() == vmax )
+            {
+                // TODO: Develop support for Fixed Points on border
+            }
+        }
+    }
+}
+
+vector < vec3d > FeaFixPoint::GetPntVec()
+{
+    vector < vec3d > pnt_vec;
+
+    FeaPart* parent_part = StructureMgr.GetFeaPart( m_ParentFeaPartID );
+
+    if ( parent_part )
+    {
+        vector < VspSurf* > parent_surf_vec = parent_part->GetFeaPartSurfPtrVec();
+        pnt_vec.resize( parent_surf_vec.size() );
+
+        for ( size_t i = 0; i < parent_surf_vec.size(); i++ )
+        {
+            if ( parent_surf_vec[i] )
+            {
+                pnt_vec[i] = parent_surf_vec[i]->CompPnt01( m_PosU(), m_PosW() );
+            }
+        }
+    }
+    return pnt_vec;
+}
+
+vec2d FeaFixPoint::GetUW()
+{
+    vec2d uw;
+
+    FeaPart* parent_part = StructureMgr.GetFeaPart( m_ParentFeaPartID );
+
+    if ( parent_part )
+    {
+        vector < VspSurf* > parent_surf_vec = parent_part->GetFeaPartSurfPtrVec();
+
+        if ( parent_surf_vec[0] ) // Only consider main parent surface (same UW for symmetric copies)
+        { 
+            uw.set_x( parent_surf_vec[0]->GetUMax() * m_PosU() );
+            uw.set_y( parent_surf_vec[0]->GetWMax() * m_PosW() );
+        }
+    }
+    return uw;
 }
 
 void FeaFixPoint::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight )
 {
-    Vehicle* veh = VehicleMgr.GetVehicle();
+    FeaPart* parent_part = StructureMgr.GetFeaPart( m_ParentFeaPartID );
 
-    if ( veh )
+    if ( parent_part )
     {
-        Geom* currgeom = veh->FindGeom( m_ParentGeomID );
+        vector < VspSurf* > parent_surf_vec = parent_part->GetFeaPartSurfPtrVec();
 
-        if ( currgeom )
+        for ( size_t i = 0; i < parent_surf_vec.size(); i++ )
         {
-            m_FeaPartDO.resize( m_SymmIndexVec.size() );
+            m_FeaPartDO.resize( parent_surf_vec.size() );
 
-            for ( unsigned int i = 0; i < m_SymmIndexVec.size(); i++ )
+            if ( parent_surf_vec[i] )
             {
-                vector< VspSurf > surf_vec;
-                currgeom->GetSurfVec( surf_vec );
-                VspSurf currsurf = surf_vec[m_SymmIndexVec[i]];
-
                 m_FeaPartDO[i].m_PntVec.clear();
 
                 m_FeaPartDO[i].m_GeomID = string( "FeaFixPoint_" + std::to_string( id ) + "_" + std::to_string( i ) );
@@ -1344,7 +1430,7 @@ void FeaFixPoint::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool 
                     m_FeaPartDO[i].m_PointColor = vec3d( 0.0, 0.0, 0.0 );
                 }
 
-                vec3d fixpt = currsurf.CompPnt01( m_PosU(), m_PosW() );
+                vec3d fixpt = parent_surf_vec[i]->CompPnt01( m_PosU(), m_PosW() );
                 m_FeaPartDO[i].m_PntVec.push_back( fixpt );
 
                 m_FeaPartDO[i].m_GeomChanged = true;
