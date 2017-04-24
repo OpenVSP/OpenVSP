@@ -146,6 +146,11 @@ protected:
     int m_NumFeaParts;
     int m_NumFeaSubSurfs;
 
+    vector < vec3d > m_FixPntVec; // Vector 3D coordinates for FeaFixPoints 
+    vector < vec2d > m_FixUWVec; // Vector UW coordinates for FeaFixPoints
+    vector < int > m_FixPntFeaPartIndexVec; // Vector of FixPoint FeaPart indexes
+    vector < vector < int > > m_FixPntSurfIndVec; // Vector of FeaFixPoint parent surface index, corresponding to index in m_SurfVec
+
     vector < string > m_DrawBrowserNameVec;
     vector < int > m_DrawBrowserPartIndexVec;
     vector < bool > m_DrawElementFlagVec;

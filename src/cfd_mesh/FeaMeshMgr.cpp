@@ -43,6 +43,12 @@ void FeaMeshMgrSingleton::CleanUp()
 
     m_NumFeaParts = 0;
     m_NumFeaSubSurfs = 0;
+
+    m_FixPntVec.clear();
+    m_FixUWVec.clear();
+    m_FixPntFeaPartIndexVec.clear();
+    m_FixPntSurfIndVec.clear();
+
     m_DrawBrowserNameVec.clear();
     m_DrawBrowserPartIndexVec.clear();
     m_DrawElementFlagVec.clear();
@@ -189,6 +195,7 @@ void FeaMeshMgrSingleton::AddStructureParts()
         int part_index = m_FeaMeshStruct->GetFeaPartIndex( FeaPartVec[i] );
         vector< XferSurf > partxfersurfs;
 
+        // Note: FeaFixPoint FeaParts are not surfaces, so FetchFeaXFerSurf will return an empty vector of XferSurf
         FeaPartVec[i]->FetchFeaXFerSurf( partxfersurfs, -9999 + ( i - 1 ) );
 
         // Load Rib XFerSurf to m_SurfVec
@@ -201,6 +208,46 @@ void FeaMeshMgrSingleton::AddStructureParts()
         for ( int j = begin; j < end; j++ )
         {
             m_SurfVec[j]->SetFeaPartIndex( part_index );
+        }
+    }
+
+    //===== Add FixedPoint Data ====//
+    for ( int i = 0; i < m_NumFeaParts; i++ ) // Fixed Points are added after all surfaces have been added to m_SurfVec 
+    {
+        if ( m_FeaMeshStruct->FeaPartIsFixPoint( i ) )
+        {
+            FeaFixPoint* fixpnt = dynamic_cast<FeaFixPoint*>( FeaPartVec[i] );
+            assert( fixpnt );
+
+            int part_index = m_FeaMeshStruct->GetFeaPartIndex( FeaPartVec[i] );
+            vector < vec3d > pnt_vec = fixpnt->GetPntVec();
+            vec2d uw = fixpnt->GetUW();
+
+            for ( size_t j = 0; j < pnt_vec.size(); j++ )
+            {
+                // Identify the surface index and coordinate points for the fixed point
+                vector < int > surf_index;
+                surf_index.resize( fixpnt->m_SplitSurfIndex.size() );
+
+                for ( size_t m = 0; m < fixpnt->m_SplitSurfIndex.size(); m++ )
+                {
+                    for ( size_t k = 0; k < m_SurfVec.size(); k++ )
+                    {
+                        if ( m_SurfVec[k]->GetSurfID() == fixpnt->m_SplitSurfIndex[m] && m_SurfVec[k]->GetFeaPartIndex() == StructureMgr.GetFeaPartIndex( fixpnt->m_ParentFeaPartID ) )
+                        {
+                            surf_index[m] = k;
+                        }
+                    }
+                }
+
+                if ( surf_index.size() > 0 )
+                {
+                    m_FixPntVec.push_back( pnt_vec[j] );
+                    m_FixUWVec.push_back( uw );
+                    m_FixPntSurfIndVec.push_back( surf_index );
+                    m_FixPntFeaPartIndexVec.push_back( part_index );
+                }
+            }
         }
     }
 }
