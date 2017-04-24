@@ -268,6 +268,8 @@ void FeaMeshMgrSingleton::AddStructureParts()
 
 void FeaMeshMgrSingleton::BuildFeaMesh()
 {
+    int num_fix_points = m_FeaMeshStruct->GetNumFeaFixPoints();
+
     // Build FeaTris
     for ( int s = 0; s < (int)m_SurfVec.size(); s++ )
     {
@@ -294,7 +296,7 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
             // Check for subsurface:
             if ( tvec[i].m_Tags.size() == 2 )
             {
-                tri->SetFeaSSIndex( tvec[i].m_Tags[1] - m_NumFeaParts - 1 ); 
+                tri->SetFeaSSIndex( tvec[i].m_Tags[1] - ( m_NumFeaParts - num_fix_points ) - 1 );
             }
             else if ( tvec[i].m_Tags.size() > 2 )
             {
@@ -824,6 +826,15 @@ void FeaMeshMgrSingleton::TagFeaNodes()
         m_FeaNodeVec[i]->m_Tags.clear();
         int ind = FindPntIndex( m_FeaNodeVec[i]->m_Pnt, m_AllPntVec, m_IndMap );
         m_FeaNodeVec[i]->m_Index = m_PntShift[ind] + 1;
+
+        for ( size_t j = 0; j < m_FixPntVec.size(); j++ )
+        {
+            if ( ( m_FeaNodeVec[i]->m_Pnt - m_FixPntVec[j] ).mag() <= FLT_EPSILON )
+            {
+                m_FeaNodeVec[i]->AddTag( m_FixPntFeaPartIndexVec[j] );
+                m_FeaNodeVec[i]->m_FixedPointFlag = true;
+            }
+        }
     }
 
     // Tag FeaPart Nodes with FeaPart Index

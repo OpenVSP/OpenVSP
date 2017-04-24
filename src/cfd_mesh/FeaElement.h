@@ -31,11 +31,13 @@ class FeaNode
     FeaNode()
     {
         m_Index = -1;
+        m_FixedPointFlag = false;
     };
     FeaNode( vec3d & p )
     {
         m_Pnt = p;
         m_Index = -1;
+        m_FixedPointFlag = false;
     };
     virtual ~FeaNode()
     {
@@ -45,6 +47,7 @@ class FeaNode
 
     int m_Index;
     vec3d m_Pnt;
+    bool m_FixedPointFlag;
 
     void AddTag( int ind );
     bool HasTag( int ind );
