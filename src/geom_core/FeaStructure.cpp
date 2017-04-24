@@ -768,6 +768,19 @@ void FeaPart::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool high
     }
 }
 
+vector < VspSurf* > FeaPart::GetFeaPartSurfPtrVec()
+{
+    vector < VspSurf* > ptr_vec;
+    ptr_vec.resize( m_FeaPartSurfVec.size() );
+
+    for ( size_t i = 0; i < m_FeaPartSurfVec.size(); i++ )
+    {
+        ptr_vec[i] = &m_FeaPartSurfVec[i];
+    }
+
+    return ptr_vec;
+}
+
 int FeaPart::GetFeaMaterialIndex()
 {
     FeaProperty* fea_prop = StructureMgr.GetFeaProperty( m_FeaPropertyIndex );
