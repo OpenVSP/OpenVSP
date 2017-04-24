@@ -40,6 +40,7 @@ public:
     virtual int NumFeaStructures();
     virtual int GetFeaStructIndex( FeaStructure* fea_struct );
     virtual FeaPart* GetFeaPart( const string & feapart_id );
+    virtual int GetFeaPartIndex( const string & feapart_id );
     virtual string GetFeaPartName( const string & id );
     virtual int GetFeaPropertyIndex( const string & FeaPartID );
     virtual int GetFeaMaterialIndex( const string & FeaPartID );
