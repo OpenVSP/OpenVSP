@@ -19,10 +19,10 @@
 FeaMeshMgrSingleton::FeaMeshMgrSingleton() : CfdMeshMgrSingleton()
 {
     m_TotalMass = 0.0;
-    m_DrawMeshFlag = false;
     m_FeaMeshInProgress = false;
     m_NumFeaParts = 0;
     m_NumFeaSubSurfs = 0;
+    m_FeaMeshStruct = NULL;
 }
 
 FeaMeshMgrSingleton::~FeaMeshMgrSingleton()
@@ -40,7 +40,18 @@ void FeaMeshMgrSingleton::CleanUp()
         delete m_FeaElementVec[i];
     }
     m_FeaElementVec.clear();
+    m_FeaNodeVec.clear();
 
+    for ( unsigned int i = 0; i < m_AllPntVec.size(); i++ )
+    {
+        delete m_AllPntVec[i];
+    }
+    m_AllPntVec.clear();
+
+    m_IndMap.clear();
+    m_PntShift.clear();
+
+    m_FeaMeshStruct = NULL;
     m_NumFeaParts = 0;
     m_NumFeaSubSurfs = 0;
 
@@ -204,7 +215,7 @@ void FeaMeshMgrSingleton::AddStructureParts()
         // Load Rib XFerSurf to m_SurfVec
         LoadSurfs( partxfersurfs );
 
-        // Identify the FeaPart Type and ID. Add to m_FeaPartSurfVec
+        // Identify the FeaPart index and add to m_FeaPartSurfVec
         int begin = m_SurfVec.size() - partxfersurfs.size();
         int end = m_SurfVec.size();
 
@@ -953,8 +964,6 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
             }
         }
 
-        // TODO: Write and improve intersection elements/nodes
-
         fprintf( fp, "\n" );
         fprintf( fp, "$Intersections\n" );
 
@@ -970,137 +979,6 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
         }
 
 
-
-        ////==== Write Rib Spar Intersections =====//
-        //for ( int r = 0 ; r < m_SurfVec.size(); r++ )
-        //{
-        //    if ( m_SurfVec[r]->GetFeaPartType() == vsp::FEA_RIB )
-        //    {
-        //        for ( int s = 0; s < m_SurfVec.size(); s++ )
-        //        {
-        //            if ( m_SurfVec[s]->GetFeaPartType() == vsp::FEA_SPAR )
-        //            {
-        //                fprintf( fp, "\n" );
-        //                fprintf( fp, "$Intersection,%d,%d\n", r, s );
-
-        //                for ( int i = 0; i < (int)m_FeaNodeVec.size(); i++ )
-        //                {
-        //                    if ( m_PntShift[i] >= 0 )
-        //                    {
-        //                        if ( m_FeaNodeVec[i]->HasTag( vsp::FEA_RIB, r ) && m_FeaNodeVec[i]->HasTag( vsp::FEA_SPAR, s ) )
-        //                        {
-        //                            m_FeaNodeVec[i]->WriteNASTRAN( fp );
-        //                        }
-        //                    }
-        //                }
-        //                fprintf( fp, "\n" );
-        //            }
-        //        }
-        //    }
-        //}
-
-        ////==== Write Out Rib LE/TE ====//
-        //for ( int r = 0 ; r < rib_cnt ; r++ )
-        //{
-        //    vector< FeaNode* > letenodes;
-        //    for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
-        //    {
-        //        if ( nodeVec[i]->m_Tags.size() == 2 )
-        //        {
-        //            if ( nodeVec[i]->HasTag( RIB_LOWER, r + 1 ) && nodeVec[i]->HasTag( RIB_UPPER, r + 1 ) )
-        //            {
-        //                letenodes.push_back( nodeVec[i] );
-        //            }
-        //        }
-        //    }
-        //    if ( letenodes.size() == 2 )
-        //    {
-        //        if ( letenodes[1]->m_Pnt.x() < letenodes[0]->m_Pnt.x() )
-        //        {
-        //            FeaNode* temp = letenodes[0];
-        //            letenodes[0]  = letenodes[1];
-        //            letenodes[1]  = temp;
-        //        }
-        //        fprintf( fp, "\n" );
-        //        fprintf( fp, "$RibLE,%d\n", r + 1 );
-        //        letenodes[0]->WriteNASTRAN( fp );
-
-        //        fprintf( fp, "\n" );
-        //        fprintf( fp, "$RibTE,%d\n", r + 1 );
-        //        letenodes[1]->WriteNASTRAN( fp );
-        //    }
-        //}
-
-        ////==== Write Rib Upper Boundary =====//
-        //for ( int r = 0 ; r < rib_cnt ; r++ )
-        //{
-        //    fprintf( fp, "\n" );
-        //    fprintf( fp, "$RibUpperBoundary,%d\n", r + 1 );
-        //    for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
-        //    {
-        //        if ( nodeVec[i]->HasTag( RIB_UPPER, r + 1 ) && nodeVec[i]->m_Tags.size() == 1 )
-        //        {
-        //            nodeVec[i]->WriteNASTRAN( fp );
-        //        }
-        //    }
-        //}
-        ////==== Write Spar Upper Boundary =====//
-        //for ( int s = 0 ; s < spar_cnt ; s++ )
-        //{
-        //    fprintf( fp, "\n" );
-        //    fprintf( fp, "$SparUpperBoundary,%d\n", s + 1 );
-        //    for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
-        //    {
-        //        if ( nodeVec[i]->HasTag( SPAR_UPPER, s + 1 ) && nodeVec[i]->m_Tags.size() == 1 )
-        //        {
-        //            nodeVec[i]->WriteNASTRAN( fp );
-        //        }
-        //    }
-        //}
-        ////==== Write Rib Lower Boundary  =====//
-        //for ( int r = 0 ; r < rib_cnt ; r++ )
-        //{
-        //    fprintf( fp, "\n" );
-        //    fprintf( fp, "$RibLowerBoundary,%d\n", r + 1 );
-        //    for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
-        //    {
-        //        if ( nodeVec[i]->HasTag( RIB_LOWER, r + 1 ) && nodeVec[i]->m_Tags.size() == 1 )
-        //        {
-        //            nodeVec[i]->WriteNASTRAN( fp );
-        //        }
-        //    }
-        //}
-        ////==== Write Spar Lower Boundary =====//
-        //for ( int s = 0 ; s < spar_cnt ; s++ )
-        //{
-        //    fprintf( fp, "\n" );
-        //    fprintf( fp, "$SparLowerBoundary,%d\n", s + 1 );
-        //    for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
-        //    {
-        //        if ( nodeVec[i]->HasTag( SPAR_LOWER, s + 1 ) && nodeVec[i]->m_Tags.size() == 1 )
-        //        {
-        //            nodeVec[i]->WriteNASTRAN( fp );
-        //        }
-        //    }
-        //}
-        ////==== Write Point Masses =====//
-        //for ( int p = 0 ; p < ( int )m_PointMassVec.size() ; p++ )
-        //{
-        //    //==== Snap To Nearest Attach Point ====//
-        //    int close_ind  = 0;
-        //    double close_d = 1.0e12;
-
-        //    FeaNode node;
-        //    node.m_Pnt = vec3d( m_PointMassVec[p]->m_PosX(), m_PointMassVec[p]->m_PosY(), m_PointMassVec[p]->m_PosZ() );
-        //    node.m_Index = numPnts + p + 1;
-        //    fprintf( fp, "\n" );
-        //    fprintf( fp, "$Pointmass,%d\n", p + 1 );
-        //    node.WriteNASTRAN( fp );
-
-        //    //==== Find Attach Point Index ====//
-        //    int ind = FindPntIndex( m_PointMassVec[p]->m_AttachPos, allPntVec, indMap );
-        //    fprintf( fp, "$Connects,%d\n", pntShift[ind] + 1 );
-        //}
 
         //==== Remaining Nodes ====//
         fprintf( fp, "\n" );
@@ -1298,8 +1176,6 @@ void FeaMeshMgrSingleton::WriteCalculix()
             }
         }
 
-        // TODO: Identify and improve intersection elements and nodes
-
         fprintf( fp, "**Intersections\n" );
         fprintf( fp, "*NODE, NSET=Nintersections\n" );
 
@@ -1316,41 +1192,6 @@ void FeaMeshMgrSingleton::WriteCalculix()
 
 
 
-
-
-
-
-        ////==== Rib Spar Intersections ====//
-        //for ( int r = 0 ; r < ( int )m_SurfVec.size(); r++ )
-        //{
-        //    if ( m_SurfVec[r]->GetFeaPartType() == vsp::FEA_RIB )
-        //    {
-        //        rib_cnt++;
-        //        spar_cnt = 0;
-
-        //        for ( int s = 0; s < (int)m_SurfVec.size(); s++ )
-        //        {
-        //            if ( m_SurfVec[s]->GetFeaPartType() == vsp::FEA_SPAR )
-        //            {
-        //                spar_cnt++;
-        //                fprintf( fp, "\n" );
-        //                fprintf( fp, "**%%Rib-Spar connections %d %d\n", rib_cnt, spar_cnt );
-        //                fprintf( fp, "*NODE, NSET=Nconnections%d%d\n", rib_cnt, spar_cnt );
-        //                for ( int i = 0; i < (int)m_FeaNodeVec.size(); i++ )
-        //                {
-        //                    if ( m_PntShift[i] >= 0 )
-        //                    {
-        //                        if ( m_FeaNodeVec[i]->HasTag( vsp::FEA_RIB, r ) && m_FeaNodeVec[i]->HasTag( vsp::FEA_SPAR, s ) )
-        //                        {
-        //                            //nodeVec[i]->m_Thick = 0.5 * ( ribs[r]->m_Thickness + spars[s]->m_Thickness );
-        //                            m_FeaNodeVec[i]->WriteCalculix( fp );
-        //                        }
-        //                    }
-        //                }
-        //            }
-        //        }
-        //    }
-        //}
 
         //==== Materials ====//
         fprintf( fp, "\n" );
@@ -1523,7 +1364,7 @@ void FeaMeshMgrSingleton::SetDrawCapFlag( int index, bool flag )
 
 void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 {
-    if ( !GetFeaMeshInProgress() )
+    if ( !GetFeaMeshInProgress() && ( m_DrawElementFlagVec.size() == m_NumFeaParts + m_NumFeaSubSurfs ) )
     {
         // Parts:
         m_FeaNodeDO.resize( m_NumFeaParts );

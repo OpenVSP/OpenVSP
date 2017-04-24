@@ -1360,11 +1360,10 @@ void StructScreen::UpdateFeaMaterialChoice()
 
 void StructScreen::CloseCallBack( Fl_Widget *w )
 {
-    FeaMeshMgr.SetDrawMeshFlag( false );
-
     if ( m_ScreenMgr->GetVehiclePtr() )
     {
         m_ScreenMgr->GetVehiclePtr()->GetStructSettingsPtr()->m_DrawFeaPartsFlag.Set( false );
+        m_ScreenMgr->GetVehiclePtr()->GetStructSettingsPtr()->m_DrawMeshFlag.Set( false );
     }
 
     Hide();

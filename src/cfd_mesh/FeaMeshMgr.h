@@ -91,11 +91,6 @@ public:
         m_FeaMeshStructIndex = index;
     }
 
-    virtual void SetDrawMeshFlag( bool f )
-    {
-        m_DrawMeshFlag = f;
-    }
-
     virtual bool GetFeaMeshInProgress()
     {
         return m_FeaMeshInProgress;
@@ -134,8 +129,6 @@ public:
     virtual void SetDrawCapFlag( int index, bool flag );
 
 protected:
-
-    bool m_DrawMeshFlag;
 
     bool m_FeaMeshInProgress;
 
