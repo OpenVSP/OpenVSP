@@ -1296,6 +1296,84 @@ void Mesh::OptSmooth( int num_iter )
     }
 }
 
+bool Mesh::SetFixPoint( vec3d fix_pnt, vec2d fix_uw )
+{
+    double min_dist = FLT_MAX;
+    Node* closest_node = NULL;
+    double tol = m_GridDensity->m_MinLen();
+
+    list< Node* >::iterator n;
+    for ( n = nodeList.begin(); n != nodeList.end(); n++ )
+    {
+        if ( !( *n )->fixed )
+        {
+            double space = dist( fix_pnt, ( *n )->pnt );
+            if ( space < min_dist )
+            {
+                min_dist = space;
+                closest_node = ( *n );
+            }
+        }
+    }
+
+    if ( closest_node && m_Surf->ValidUW( fix_uw ) )
+    {
+        // Move closest node to fixed point location
+        closest_node->uw = m_Surf->ClosestUW( fix_pnt, fix_uw.x(), fix_uw.y() );
+        closest_node->pnt = m_Surf->CompPnt( closest_node->uw.x(), closest_node->uw.y() );
+
+        // Check lengths of connected edges and split if longer than tolerance
+        vector < Edge* > check_edge_vec = closest_node->edgeVec;
+        bool long_edge = false;
+
+        for ( size_t i = 0; i < check_edge_vec.size(); i++ )
+        {
+            if ( !check_edge_vec[i]->border )
+            {
+                if ( check_edge_vec[i]->ComputeLength() > tol )
+                {
+                    long_edge = true;
+                }
+            }
+        }
+
+        if ( !long_edge )
+        {
+            closest_node->fixed = true;
+            return true;
+        }
+    }
+
+    int num_long_edges = 0;
+    list< Edge* >::iterator e;
+
+    //===== Split if no nodes found ====//
+    vector < Edge* > split_edge_vec;
+    split_edge_vec.reserve( edgeList.size() );
+    for ( e = edgeList.begin(); e != edgeList.end(); e++ )
+    {
+        if ( !( *e )->border )
+        {
+            split_edge_vec.push_back( ( *e ) );
+        }
+    }
+
+    int num_split = split_edge_vec.size();
+
+    for ( int i = 0; i < num_split; i++ )
+    {
+        SplitEdge( split_edge_vec[i] );
+    }
+
+    DumpGarbage();
+
+    if ( num_split > 0 )
+    {
+        return SetFixPoint( fix_pnt, fix_uw );
+    }
+
+    return false; // Indicates no closest node was found
+}
 
 void Mesh::AdjustEdgeLengths()
 {
