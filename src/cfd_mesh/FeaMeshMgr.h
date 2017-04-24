@@ -148,6 +148,7 @@ protected:
     vector < string > m_DrawBrowserNameVec;
     vector < int > m_DrawBrowserPartIndexVec;
     vector < bool > m_DrawElementFlagVec;
+    vector < bool > m_FixPointFeaPartFlagVec;
     vector < bool > m_DrawCapFlagVec;
 
     vector< FeaElement* > m_FeaElementVec;
