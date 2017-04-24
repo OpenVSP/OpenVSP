@@ -394,6 +394,20 @@ bool FeaStructure::FeaPartIsFixPoint( int ind )
     return fixpoint;
 }
 
+int FeaStructure::GetNumFeaFixPoints()
+{
+    int fix_point_count = 0;
+
+    for ( int i = 0; i < (int)m_FeaPartVec.size(); i++ )
+    {
+        if ( FeaPartIsFixPoint( i ) )
+        {
+            fix_point_count++;
+        }
+    }
+    return fix_point_count;
+}
+
 FeaPart* FeaStructure::GetFeaSkin()
 {
     for ( int i = 0; i < (int)m_FeaPartVec.size(); i++ )

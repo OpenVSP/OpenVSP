@@ -63,6 +63,7 @@ public:
 
     virtual vector< FeaPart* > AddEvenlySpacedRibs( const int num_rib );
     virtual bool FeaPartIsFixPoint( int ind );
+    virtual int GetNumFeaFixPoints();
 
     virtual vector< FeaPart* > InitFeaSkin( );
     virtual FeaPart* GetFeaSkin( );
