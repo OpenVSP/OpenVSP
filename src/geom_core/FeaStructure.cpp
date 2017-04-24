@@ -379,6 +379,21 @@ string FeaStructure::GetFeaPartName( int ind )
     return name;
 }
 
+bool FeaStructure::FeaPartIsFixPoint( int ind )
+{
+    bool fixpoint = false;
+    FeaPart* fea_part = GetFeaPart( ind );
+
+    if ( fea_part )
+    {
+        if ( fea_part->GetType() == vsp::FEA_FIX_POINT )
+        {
+            fixpoint = true;
+        }
+    }
+    return fixpoint;
+}
+
 FeaPart* FeaStructure::GetFeaSkin()
 {
     for ( int i = 0; i < (int)m_FeaPartVec.size(); i++ )
