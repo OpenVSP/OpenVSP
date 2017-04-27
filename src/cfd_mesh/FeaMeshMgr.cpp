@@ -261,6 +261,7 @@ void FeaMeshMgrSingleton::AddStructureParts()
                     m_FixUWVec.push_back( uw );
                     m_FixPntSurfIndVec.push_back( surf_index );
                     m_FixPntFeaPartIndexVec.push_back( part_index );
+                    m_FixPntBorderFlagVec.push_back( fixpnt->m_BorderFlag );
                 }
             }
         }
@@ -681,6 +682,40 @@ void FeaMeshMgrSingleton::SetFixPointSurfaceNodes()
         }
     }
 }
+
+void FeaMeshMgrSingleton::SetFixPointBorderNodes()
+{
+    // Idenitfy and set FeaFixPoints on border curves
+    for ( size_t j = 0; j < m_FixPntSurfIndVec.size(); j++ )
+    {
+        // Only check for FeaFixPoints on two surfaces. Nodes are automatically set for more than two surface intersections
+        if ( m_FixPntBorderFlagVec[j] && m_FixPntSurfIndVec[j].size() == 2 ) 
+        {
+            list< ISegChain* >::iterator c;
+            for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); c++ )
+            {
+                if ( ( ( *c )->m_SurfA == m_SurfVec[m_FixPntSurfIndVec[j][1]] && ( *c )->m_SurfB == m_SurfVec[m_FixPntSurfIndVec[j][0]] ) ||
+                    ( ( *c )->m_SurfA == m_SurfVec[m_FixPntSurfIndVec[j][0]] && ( *c )->m_SurfB == m_SurfVec[m_FixPntSurfIndVec[j][1]] ) )
+                {
+                    Puw* p0 = new Puw( ( *c )->m_SurfA, m_FixUWVec[j] );
+                    Puw* p1 = new Puw( ( *c )->m_SurfB, m_FixUWVec[j] );
+
+                    IPnt* split_pnt = new IPnt( p0, p1 );
+
+                    if ( p0 )
+                    {
+                        ( *c )->AddBorderSplit( split_pnt, p0 );
+                    }
+                    else if ( p1 )
+                    {
+                        ( *c )->AddBorderSplit( split_pnt, p1 );
+                    }
+                }
+            }
+        }
+    }
+}
+
 void FeaMeshMgrSingleton::Remesh()
 {
     char str[256];

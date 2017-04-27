@@ -326,6 +326,8 @@ public:
     void AddPossCoPlanarSurf( Surf* surfA, Surf* surfB );
     vector< Surf* > GetPossCoPlanarSurfs( Surf* surfPtr );
 
+    virtual void SetFixPointBorderNodes()    {}; // Only for FeaMesh; do nothing for CfdMesh
+
     void TestStuff();
     vector< vec3d > debugPnts;
     vector< vec2d > debugUWs;

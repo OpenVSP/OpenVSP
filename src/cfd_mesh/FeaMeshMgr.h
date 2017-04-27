@@ -61,6 +61,7 @@ public:
 
     virtual void AddStructureParts();
     virtual void SetFixPointSurfaceNodes();
+    virtual void SetFixPointBorderNodes();
 
     virtual void BuildFeaMesh();
 
@@ -143,6 +144,7 @@ protected:
     vector < vec3d > m_FixPntVec; // Vector 3D coordinates for FeaFixPoints 
     vector < vec2d > m_FixUWVec; // Vector UW coordinates for FeaFixPoints
     vector < int > m_FixPntFeaPartIndexVec; // Vector of FixPoint FeaPart indexes
+    vector < bool > m_FixPntBorderFlagVec;
     vector < vector < int > > m_FixPntSurfIndVec; // Vector of FeaFixPoint parent surface index, corresponding to index in m_SurfVec
 
     vector < string > m_DrawBrowserNameVec;
