@@ -1328,16 +1328,24 @@ void FeaFixPoint::IdentifySplitSurfIndex()
 
     vector < VspSurf* > parent_surf_vec = parent_part->GetFeaPartSurfPtrVec();
 
-    m_SplitSurfIndex.resize( parent_surf_vec.size() );
+    m_SplitSurfIndex.clear();
+    m_BorderFlag = false;
 
-    for ( size_t i = 0; i < parent_surf_vec.size(); i++ )
+    if ( parent_surf_vec.size() > 0 )
     {
         // Get U/W values
         vec2d uw = GetUW();
 
+        double parent_Umax = parent_surf_vec[0]->GetUMax();
+        double parent_Wmax = parent_surf_vec[0]->GetWMax();
+
+        // Check if U/W is closed, in which case the minimum and maximum U/W will be at the same point
+        bool closedU = parent_surf_vec[0]->IsClosedU();
+        bool closedW = parent_surf_vec[0]->IsClosedW();
+
         // Split the parent surface
-        vector< XferSurf > tempxfersurfs; 
-        parent_surf_vec[i]->FetchXFerSurf( m_ParentGeomID, m_MainSurfIndx(), 0, tempxfersurfs );
+        vector< XferSurf > tempxfersurfs;
+        parent_surf_vec[0]->FetchXFerSurf( m_ParentGeomID, m_MainSurfIndx(), 0, tempxfersurfs );
 
         for ( size_t j = 0; j < tempxfersurfs.size(); j++ )
         {
@@ -1346,14 +1354,46 @@ void FeaFixPoint::IdentifySplitSurfIndex()
             double vmax = tempxfersurfs[j].m_Surface.get_vmax();
             double vmin = tempxfersurfs[j].m_Surface.get_v0();
 
-            // Check if FeaFixPoint is on XferSurf (border points ignored)
-            if ( uw.x() > umin && uw.x() < umax && uw.y() > vmin && uw.y() < vmax )
+            // Check if FeaFixPoint is on XferSurf or border curve
+            if ( uw.x() > umin && uw.x() < umax && uw.y() > vmin && uw.y() < vmax ) // FeaFixPoint on surface
             {
-                m_SplitSurfIndex[i] = j;
+                m_SplitSurfIndex.push_back( j );
+                m_BorderFlag = false;
             }
-            else if ( uw.x() == umin || uw.x() == umax || uw.y() == vmin || uw.y() == vmax )
+            else if ( ( uw.x() > umin && uw.x() < umax ) && ( uw.y() == vmin || uw.y() == vmax ) ) // FeaFixPoint on constant W border
             {
-                // TODO: Develop support for Fixed Points on border
+                m_SplitSurfIndex.push_back( j );
+                m_BorderFlag = true;
+            }
+            else if ( ( uw.x() == umin || uw.x() == umax ) && ( uw.y() > vmin && uw.y() < vmax ) ) // FeaFixPoint on constant U border
+            {
+                m_SplitSurfIndex.push_back( j );
+                m_BorderFlag = true;
+            }
+            else if ( ( closedU && umax == parent_Umax && uw.x() == 0.0 ) && ( uw.y() > vmin && uw.y() < vmax ) ) // FeaFixPoint on constant U border
+            {
+                m_SplitSurfIndex.push_back( j );
+                m_BorderFlag = true;
+            }
+            else if ( ( uw.x() > umin && uw.x() < umax ) && ( closedW && vmax == parent_Wmax && uw.y() == 0.0 ) ) // FeaFixPoint on constant W border
+            {
+                m_SplitSurfIndex.push_back( j );
+                m_BorderFlag = true;
+            }
+            else if ( ( uw.x() == umin || uw.x() == umax ) && ( uw.y() == vmin || uw.y() == vmax ) ) // FeaFixPoint on constant UW intersection (already a node)
+            {
+                m_SplitSurfIndex.push_back( j );
+                m_BorderFlag = true;
+            }
+            else if ( ( closedU && umax == parent_Umax && uw.x() == 0.0 ) && ( uw.y() == vmin || uw.y() == vmax ) ) // FeaFixPoint on constant UW intersection (already a node)
+            {
+                m_SplitSurfIndex.push_back( j );
+                m_BorderFlag = true;
+            }
+            else if ( ( uw.x() == umin || uw.x() == umax ) && ( closedW && vmax == parent_Wmax && uw.y() == 0.0 ) ) // FeaFixPoint on constant UW intersection (already a node)
+            {
+                m_SplitSurfIndex.push_back( j );
+                m_BorderFlag = true;
             }
         }
     }

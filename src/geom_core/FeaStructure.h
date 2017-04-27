@@ -288,6 +288,7 @@ public:
 
     vector < int > m_SplitSurfIndex; // Identifies which surface FixPoint lies on after calling FetchFeaXFerSurf for the parent surface
     string m_ParentFeaPartID; // Parent FeaPart ID
+    bool m_BorderFlag;
 
 protected:
 
