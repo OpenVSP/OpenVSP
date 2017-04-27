@@ -286,7 +286,7 @@ public:
     Parm m_PosU;
     Parm m_PosW;
 
-    vector < int > m_SplitSurfIndex; // Identifies which surface FixPoint lies on after calling FetchFeaXFerSurf for the parent surface
+    vector< vector < int > > m_SplitSurfIndex; // Identifies which surface FixPoint lies on after calling FetchFeaXFerSurf for each parent surface
     string m_ParentFeaPartID; // Parent FeaPart ID
     bool m_BorderFlag;
 

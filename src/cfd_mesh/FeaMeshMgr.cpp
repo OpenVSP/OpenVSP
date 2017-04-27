@@ -242,13 +242,13 @@ void FeaMeshMgrSingleton::AddStructureParts()
             {
                 // Identify the surface index and coordinate points for the fixed point
                 vector < int > surf_index;
-                surf_index.resize( fixpnt->m_SplitSurfIndex.size() );
+                surf_index.resize( fixpnt->m_SplitSurfIndex[j].size() );
 
-                for ( size_t m = 0; m < fixpnt->m_SplitSurfIndex.size(); m++ )
+                for ( size_t m = 0; m < fixpnt->m_SplitSurfIndex[j].size(); m++ )
                 {
                     for ( size_t k = 0; k < m_SurfVec.size(); k++ )
                     {
-                        if ( m_SurfVec[k]->GetSurfID() == fixpnt->m_SplitSurfIndex[m] && m_SurfVec[k]->GetFeaPartIndex() == StructureMgr.GetFeaPartIndex( fixpnt->m_ParentFeaPartID ) )
+                        if ( m_SurfVec[k]->GetSurfID() == fixpnt->m_SplitSurfIndex[j][m] && m_SurfVec[k]->GetFeaPartIndex() == StructureMgr.GetFeaPartIndex( fixpnt->m_ParentFeaPartID ) )
                         {
                             surf_index[m] = k;
                         }
