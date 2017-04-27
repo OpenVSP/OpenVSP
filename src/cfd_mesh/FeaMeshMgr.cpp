@@ -147,6 +147,9 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
 
     SubTagTris();
 
+    addOutputText( "Set Fixed Points\n" );
+    SetFixPointSurfaceNodes();
+
     addOutputText( "Remesh\n" );
     Remesh();
 
@@ -637,6 +640,30 @@ void FeaMeshMgrSingleton::BuildSubSurfIntChains()
     }
 }
 
+void FeaMeshMgrSingleton::SetFixPointSurfaceNodes()
+{
+    for ( size_t j = 0; j < m_FixPntSurfIndVec.size(); j++ )
+    {
+        if ( !m_FixPntBorderFlagVec[j] )
+        {
+            for ( size_t k = 0; k < m_FixPntSurfIndVec[j].size(); k++ )
+            {
+                for ( size_t i = 0; i < m_SurfVec.size(); i++ )
+                {
+                    if ( m_FixPntSurfIndVec[j][k] == i )
+                    {
+                        if ( !m_SurfVec[i]->GetMesh()->SetFixPoint( m_FixPntVec[j], m_FixUWVec[j] ) )
+                        {
+                            string fix_point_name = m_FeaMeshStruct->GetFeaPartName( m_FixPntFeaPartIndexVec[j] );
+                            string message = "Error: No node found for " + fix_point_name + ". Adjust GridDensity.\n";
+                            addOutputText( message );
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 void FeaMeshMgrSingleton::Remesh()
 {
     char str[256];

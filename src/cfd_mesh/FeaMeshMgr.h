@@ -60,6 +60,7 @@ public:
     virtual void ExportFeaMesh();
 
     virtual void AddStructureParts();
+    virtual void SetFixPointSurfaceNodes();
 
     virtual void BuildFeaMesh();
 
