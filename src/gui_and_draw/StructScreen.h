@@ -38,6 +38,7 @@ public:
     virtual void UpdateFeaSubSurfBrowser();
     virtual void UpdateMainSurfChoice();
     virtual void UpdateFeaPartChoice();
+    virtual void UpdateFixPointParentChoice();
     virtual void UpdateSubSurfChoice();
     virtual void UpdateFeaPropertyBrowser();
     virtual void UpdateFeaPropertyChoice();
@@ -218,6 +219,7 @@ private:
     Choice m_SparCapPropertyChoice;
 
     //===== Fix Point =====//
+    Choice m_FixPointParentSurfChoice;
     SliderAdjRangeInput m_FixPointULocSlider;
     SliderAdjRangeInput m_FixPointWLocSlider;
 

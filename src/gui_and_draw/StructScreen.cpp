@@ -390,7 +390,10 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
 
     m_FixPointEditLayout.AddDividerBox( "Fixed Point" );
 
+    m_FixPointEditLayout.SetChoiceButtonWidth( buttonwidth );
     m_FixPointEditLayout.SetButtonWidth( buttonwidth );
+
+    m_FixPointEditLayout.AddChoice( m_FixPointParentSurfChoice, "Parent Surface" );
 
     m_FixPointEditLayout.AddSlider( m_FixPointULocSlider, "U Location", 1, "%5.3f" );
     m_FixPointEditLayout.AddSlider( m_FixPointWLocSlider, "W Location", 1, "%5.3f" );
@@ -908,7 +911,18 @@ void StructScreen::UpdateFeaPartBrowser()
                 fea_name = feaprt_vec[i]->GetName();
                 fea_type = FeaPart::GetTypeName( feaprt_vec[i]->GetType() );
                 fea_surf_ind = feaprt_vec[i]->m_MainSurfIndx.Get();
-                sprintf( str, "%s:%s:Surf_%d", fea_name.c_str(), fea_type.c_str(), fea_surf_ind );
+                if ( feaprt_vec[i]->GetType() == vsp::FEA_FIX_POINT )
+                {
+                    FeaFixPoint* fixpt = dynamic_cast<FeaFixPoint*>( feaprt_vec[i] );
+                    assert( fixpt );
+
+                    string parent_surf = StructureMgr.GetFeaPartName( fixpt->m_ParentFeaPartID );
+                    sprintf( str, "%s:%s:%s", fea_name.c_str(), fea_type.c_str(), parent_surf.c_str() );
+                }
+                else
+                {
+                    sprintf( str, "%s:%s:Surf_%d", fea_name.c_str(), fea_type.c_str(), fea_surf_ind );
+                }
                 m_FeaPartSelectBrowser->add( str );
             }
         }
@@ -1057,6 +1071,64 @@ void StructScreen::UpdateFeaPartChoice()
                     m_FeaPartChoice.UpdateItems();
 
                     m_FeaPartChoice.SetVal( m_SelectedFeaPartChoice );
+                }
+            }
+        }
+    }
+}
+
+void StructScreen::UpdateFixPointParentChoice()
+{
+    //==== FixPoint Parent Surf Choice ====//
+    m_FixPointParentSurfChoice.ClearItems();
+
+    if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
+    {
+        vector< FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
+        vector<FeaPart*> feaprt_vec = structVec[m_SelectedStructIndex]->GetFeaPartVec();
+
+        for ( size_t i = 0; i < feaprt_vec.size(); i++ )
+        {
+            if ( !FeaMeshMgr.GetFeaMeshInProgress() )
+            {
+                feaprt_vec[i]->Update();
+            }
+
+            if ( !structVec[m_SelectedStructIndex]->FeaPartIsFixPoint( i ) )
+            {
+                m_FixPointParentSurfChoice.AddItem( string( feaprt_vec[i]->GetName() + "_Surf" ) );
+            }
+        }
+
+        m_FixPointParentSurfChoice.UpdateItems();
+
+        FeaPart* feaprt = structVec[m_SelectedStructIndex]->GetFeaPart( m_SelectedPartIndex );
+
+        if ( feaprt )
+        {
+            if ( feaprt->GetType() == vsp::FEA_FIX_POINT )
+            {
+                FeaFixPoint* fixpt = dynamic_cast<FeaFixPoint*>( feaprt );
+                assert( fixpt );
+
+                FeaPart* parent_feaprt = StructureMgr.GetFeaPart( fixpt->m_ParentFeaPartID );
+
+                if ( parent_feaprt )
+                {
+                    int parent_index = structVec[m_SelectedStructIndex]->GetFeaPartIndex( parent_feaprt );
+
+                    if ( structVec[m_SelectedStructIndex]->ValidFeaPartInd( parent_index ) )
+                    {
+                        m_FixPointParentSurfChoice.SetVal( parent_index );
+                    }
+                }
+                else
+                {
+                    // Set skin as parent surface if undefined
+                    if ( structVec[m_SelectedStructIndex]->GetFeaSkin() )
+                    {
+                        fixpt->m_ParentFeaPartID = structVec[m_SelectedStructIndex]->GetFeaSkin()->GetID();
+                    }
                 }
             }
         }
@@ -1580,6 +1652,9 @@ bool StructScreen::Update()
 
         //==== Update FeaPart Choice ====//
         UpdateFeaPartChoice();
+
+        //==== Update FixPoint Parent Surf Choice ====//
+        UpdateFixPointParentChoice();
 
         //==== Update SubSurface Choice ====//
         UpdateSubSurfChoice();
@@ -2402,6 +2477,27 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
         for ( unsigned int i = 0; i < draw_cap_flag_vec.size(); i++ )
         {
             FeaMeshMgr.SetDrawCapFlag( i, false );
+        }
+    }
+    else if ( device == &m_FixPointParentSurfChoice )
+    {
+        if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
+        {
+            vector < FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
+
+            FeaPart* parent_feaprt = structVec[m_SelectedStructIndex]->GetFeaPart( m_FixPointParentSurfChoice.GetVal() );
+            FeaPart* feaprt = structVec[m_SelectedStructIndex]->GetFeaPart( m_SelectedPartIndex );
+
+            if ( feaprt && parent_feaprt )
+            {
+                if ( feaprt->GetType() == vsp::FEA_FIX_POINT )
+                {
+                    FeaFixPoint* fixpt = dynamic_cast<FeaFixPoint*>( feaprt );
+                    assert( fixpt );
+
+                    fixpt->m_ParentFeaPartID = parent_feaprt->GetID();
+                }
+            }
         }
     }
     else if ( device == &m_FeaSubSurfChoice )
