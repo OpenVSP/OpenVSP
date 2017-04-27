@@ -835,6 +835,7 @@ FeaSlice::FeaSlice( string geomID, int type ) : FeaPart( geomID, type )
     m_CenterPerBBoxLocation.SetDescript( "The Location of the Center of the FeaFullDepth Part as a Percentage of the Total Bounding Box" );
 
     m_Theta.Init( "Theta", "FeaFullDepth", this, 0.0, -90.0, 90.0 );
+    m_Alpha.Init( "Alpha", "FeaFullDepth", this, 0.0, -90.0, 90.0 );
 }
 
 void FeaSlice::Update()
@@ -882,10 +883,28 @@ void FeaSlice::ComputePlanarSurf()
 
         // Identify corners of the plane and rotation axis
         vec3d cornerA, cornerB, cornerC, cornerD;
-        vec3d rot_axis;
+        vec3d theta_rot_axis, alpha_rot_axis;
 
         if ( m_OrientationPlane() == XY_PLANE )
         {
+            if ( ( DEG_2_RAD * m_Theta() > atan( del_z / del_x ) ) || ( -1 *DEG_2_RAD * m_Theta() > atan( del_z / del_x ) ) )
+            {
+                del_x = del_z / sin( DEG_2_RAD * m_Theta() );
+            }
+            else
+            {
+                del_x = del_x / cos( DEG_2_RAD * m_Theta() );
+            }
+
+            if ( ( DEG_2_RAD * m_Alpha() > atan( del_z / del_y ) ) || ( -1 * DEG_2_RAD * m_Alpha() > atan( del_z / del_y ) ) )
+            {
+                del_y = del_z / sin( DEG_2_RAD * m_Alpha() );
+            }
+            else
+            {
+                del_y = del_y / cos( DEG_2_RAD * m_Alpha() );
+            }
+
             vec3d center_to_A = { -0.5 * del_x, -0.5 * del_y, 0.0 };
             cornerA = geom_center + center_to_A;
 
@@ -898,10 +917,29 @@ void FeaSlice::ComputePlanarSurf()
             vec3d center_to_D = { 0.5 * del_x, 0.5 * del_y, 0.0 };
             cornerD = geom_center + center_to_D;
 
-            rot_axis.set_y( 1.0 ); // y-axis
+            theta_rot_axis.set_y( 1.0 ); // y-axis
+            alpha_rot_axis.set_x( 1.0 ); // x-axis
         }
         else if ( m_OrientationPlane() == YZ_PLANE )
         {
+            if ( ( DEG_2_RAD * m_Theta() > atan( del_x / del_z ) ) || ( -1 * DEG_2_RAD * m_Theta() > atan( del_x / del_z ) ) )
+            {
+                del_z = del_x / sin( DEG_2_RAD * m_Theta() );
+            }
+            else
+            {
+                del_z = del_z / cos( DEG_2_RAD * m_Theta() );
+            }
+
+            if ( ( DEG_2_RAD * m_Alpha() > atan( del_x / del_y ) ) || ( -1 * DEG_2_RAD * m_Alpha() > atan( del_x / del_y ) ) )
+            {
+                del_y = del_x / sin( DEG_2_RAD * m_Alpha() );
+            }
+            else
+            {
+                del_y = del_y / cos( DEG_2_RAD * m_Alpha() );
+            }
+
             vec3d center_to_A = { 0.0, -0.5 * del_y, -0.5 * del_z };
             cornerA = geom_center + center_to_A;
 
@@ -914,10 +952,29 @@ void FeaSlice::ComputePlanarSurf()
             vec3d center_to_D = { 0.0, 0.5 * del_y, 0.5 * del_z };
             cornerD = geom_center + center_to_D;
 
-            rot_axis.set_y( 1.0 ); // y-axis
+            theta_rot_axis.set_y( 1.0 ); // y-axis
+            alpha_rot_axis.set_z( 1.0 ); // z-axis
         }
         else if ( m_OrientationPlane() == XZ_PLANE )
         {
+            if ( ( DEG_2_RAD * m_Theta() > atan( del_y / del_x ) ) || ( -1 * DEG_2_RAD * m_Theta() > atan( del_y / del_x ) ) )
+            {
+                del_x = del_y / sin( DEG_2_RAD * m_Theta() );
+            }
+            else
+            {
+                del_x = del_x / cos( DEG_2_RAD * m_Theta() );
+            }
+
+            if ( ( DEG_2_RAD * m_Alpha() > atan( del_y / del_z ) ) || ( -1 * DEG_2_RAD * m_Alpha() > atan( del_y / del_z ) ) )
+            {
+                del_z = del_y / sin( DEG_2_RAD * m_Alpha() );
+            }
+            else
+            {
+                del_z = del_z / cos( DEG_2_RAD * m_Alpha() );
+            }
+
             vec3d center_to_A = { -0.5 * del_x, 0.0, -0.5 * del_z };
             cornerA = geom_center + center_to_A;
 
@@ -930,7 +987,8 @@ void FeaSlice::ComputePlanarSurf()
             vec3d center_to_D = { 0.5 * del_x, 0.0, 0.5 * del_z };
             cornerD = geom_center + center_to_D;
 
-            rot_axis.set_z( 1.0 ); // z-axis
+            theta_rot_axis.set_z( 1.0 ); // z-axis
+            alpha_rot_axis.set_x( 1.0 ); // x-axis
         }
 
         // Make Planar Surface
@@ -939,19 +997,24 @@ void FeaSlice::ComputePlanarSurf()
         if ( m_FeaPartSurfVec[0].GetFlipNormal() != current_surf.GetFlipNormal() )
         {
             m_FeaPartSurfVec[0].FlipNormal();
-            rot_axis = -1 * rot_axis;
+            theta_rot_axis = -1 * theta_rot_axis;
+            alpha_rot_axis = -1 * alpha_rot_axis;
         }
 
         // Translate to the origin, rotate, and translate back to m_CenterPerBBoxLocation
-        Matrix4d trans_mat_1, trans_mat_2, rot_mat;
+        Matrix4d trans_mat_1, trans_mat_2, rot_mat_theta, rot_mat_alpha;
 
         trans_mat_1.loadIdentity();
         trans_mat_1.translatef( geom_center.x() * -1, geom_center.y() * -1, geom_center.z() * -1 );
         m_FeaPartSurfVec[0].Transform( trans_mat_1 );
 
-        rot_mat.loadIdentity();
-        rot_mat.rotate( DEG_2_RAD * m_Theta(), rot_axis );
-        m_FeaPartSurfVec[0].Transform( rot_mat );
+        rot_mat_theta.loadIdentity();
+        rot_mat_theta.rotate( DEG_2_RAD * m_Theta(), theta_rot_axis );
+        m_FeaPartSurfVec[0].Transform( rot_mat_theta );
+
+        rot_mat_alpha.loadIdentity();
+        rot_mat_alpha.rotate( DEG_2_RAD * m_Alpha(), alpha_rot_axis );
+        m_FeaPartSurfVec[0].Transform( rot_mat_alpha );
 
         trans_mat_2.loadIdentity();
 

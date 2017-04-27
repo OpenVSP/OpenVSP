@@ -216,6 +216,7 @@ public:
     IntParm m_OrientationPlane;
     Parm m_CenterPerBBoxLocation;
     Parm m_Theta;
+    Parm m_Alpha;
 };
 
 enum

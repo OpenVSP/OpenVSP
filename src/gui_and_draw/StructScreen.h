@@ -195,6 +195,7 @@ private:
     Choice m_SliceOrientationChoice;
     SliderAdjRangeInput m_SliceCenterLocSlider;
     SliderAdjRangeInput m_SliceThetaSlider;
+    SliderAdjRangeInput m_SliceAlphaSlider;
 
     ToggleButton m_SliceCapToggle;
     Choice m_SliceCapPropertyChoice;

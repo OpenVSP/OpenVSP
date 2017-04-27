@@ -334,6 +334,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
 
     m_SliceEditLayout.AddSlider( m_SliceCenterLocSlider, "Position", 1, "%5.3f" );
     m_SliceEditLayout.AddSlider( m_SliceThetaSlider, "Theta", 25, "%5.3f" );
+    m_SliceEditLayout.AddSlider( m_SliceAlphaSlider, "Alpha", 25, "%5.3f" );
 
     m_SliceEditLayout.AddYGap();
 
@@ -1684,6 +1685,7 @@ bool StructScreen::Update()
                     m_SliceOrientationChoice.Update( slice->m_OrientationPlane.GetID() );
                     m_SliceCenterLocSlider.Update( slice->m_CenterPerBBoxLocation.GetID() );
                     m_SliceThetaSlider.Update( slice->m_Theta.GetID() );
+                    m_SliceAlphaSlider.Update( slice->m_Alpha.GetID() );
                     m_SliceCapToggle.Update( slice->m_IntersectionCapFlag.GetID() );
 
                     if ( !slice->m_IncludeTrisFlag() )
