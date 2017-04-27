@@ -887,7 +887,7 @@ void StructScreen::UpdateFeaPartBrowser()
     //==== FeaPart Browser ====//
     int scroll_pos = m_FeaPartSelectBrowser->position();
     m_FeaPartSelectBrowser->clear();
-    static int widths[] = { 150, 150, 150 };
+    static int widths[] = { 150, 120, 170 };
     m_FeaPartSelectBrowser->column_widths( widths );
     m_FeaPartSelectBrowser->column_char( ':' );
 
@@ -1185,7 +1185,7 @@ void StructScreen::UpdateFeaPropertyBrowser()
     int scroll_pos = m_FeaPropertySelectBrowser->position();
     m_FeaPropertySelectBrowser->clear();
 
-    static int widths[] = { 210, 210 };
+    static int widths[] = { 200, 190 };
     m_FeaPropertySelectBrowser->column_widths( widths );
     m_FeaPropertySelectBrowser->column_char( ':' );
 
@@ -1367,7 +1367,7 @@ void StructScreen::UpdateFeaPropertyChoice()
 
 void StructScreen::UpdateFeaMaterialBrowser()
 {
-    //==== FeaPart Browser ====//
+    //==== FeaMaterial Browser ====//
     int scroll_pos = m_FeaMaterialSelectBrowser->position();
     m_FeaMaterialSelectBrowser->clear();
 
@@ -1762,7 +1762,7 @@ bool StructScreen::Update()
                     FeaPartDispGroup( NULL );
                 }
 
-                // Do not update SimpleFeaParts if mesh is in progress
+                // Do not update FeaParts if mesh is in progress
                 if ( FeaMeshMgr.GetFeaMeshInProgress() == false )
                 {
                     structVec[m_SelectedStructIndex]->Update();
@@ -2247,17 +2247,28 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
 
     if ( device == &m_FeaMeshExportButton )
     {
-        // Identify which structure to mesh
-        FeaMeshMgr.SetFeaMeshStructIndex( m_SelectedStructIndex );
+        vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
+        if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
+        {
+            FeaStructure* curr_struct = structvec[m_SelectedStructIndex];
+            curr_struct->Update();
 
-        // Set m_FeaMeshInProgress to ensure m_MonitorProcess does not terminate prematurely
-        FeaMeshMgr.SetFeaMeshInProgress( true );
+            // Set m_FeaMeshInProgress to ensure m_MonitorProcess does not terminate prematurely
+            FeaMeshMgr.SetFeaMeshInProgress( true );
 
-        m_FeaMeshProcess.StartThread( feamesh_thread_fun, NULL );
+            // Identify which structure to mesh
+            FeaMeshMgr.SetFeaMeshStructIndex( m_SelectedStructIndex );
 
-        m_MonitorProcess.StartThread( feamonitorfun, ( void* ) this );
+            m_FeaMeshProcess.StartThread( feamesh_thread_fun, NULL );
 
-        veh->GetStructSettingsPtr()->m_DrawMeshFlag = true;
+            m_MonitorProcess.StartThread( feamonitorfun, ( void* ) this );
+
+            veh->GetStructSettingsPtr()->m_DrawMeshFlag = true;
+        }
+        else
+        {
+            AddOutputText( "FeaMesh Failed: Invalid FeaStructure Selection\n" );
+        }
     }
     else if ( device == &m_GeomChoice )
     {
@@ -2943,52 +2954,11 @@ void StructScreen::UpdateDrawObjs( vector< DrawObj* > &draw_obj_vec )
 
             for ( unsigned int i = 0; i < (int)partvec.size(); i++ )
             {
-                int type = partvec[i]->GetType();
-
-                if ( type == vsp::FEA_FULL_DEPTH )
-                {
-                    FeaFullDepth* fulldepth = dynamic_cast<FeaFullDepth*>( partvec[i] );
-                    assert( fulldepth );
-
-                    if ( partvec[i] == curr_part )
-                        fulldepth->LoadDrawObjs( draw_obj_vec, k, true );
-                    else
-                        fulldepth->LoadDrawObjs( draw_obj_vec, k, false );
-                    k++;
-                }
-                else if ( type == vsp::FEA_RIB )
-                {
-                    FeaRib* rib = dynamic_cast<FeaRib*>( partvec[i] );
-                    assert( rib );
-
-                    if ( partvec[i] == curr_part )
-                        rib->LoadDrawObjs( draw_obj_vec, k, true );
-                    else
-                        rib->LoadDrawObjs( draw_obj_vec, k, false );
-                    k++;
-                }
-                else if ( type == vsp::FEA_SPAR )
-                {
-                    FeaSpar* spar = dynamic_cast<FeaSpar*>( partvec[i] );
-                    assert( spar );
-
-                    if ( partvec[i] == curr_part )
-                        spar->LoadDrawObjs( draw_obj_vec, k, true );
-                    else
-                        spar->LoadDrawObjs( draw_obj_vec, k, false );
-                    k++;
-                }
-                else if ( type == vsp::FEA_FIX_POINT )
-                {
-                    FeaFixPoint* fixpt = dynamic_cast<FeaFixPoint*>( partvec[i] );
-                    assert( fixpt );
-
-                    if ( partvec[i] == curr_part )
-                        fixpt->LoadDrawObjs( draw_obj_vec, k, true );
-                    else
-                        fixpt->LoadDrawObjs( draw_obj_vec, k, false );
-                    k++;
-                }
+                if ( partvec[i] == curr_part )
+                    partvec[i]->LoadDrawObjs( draw_obj_vec, k, true );
+                else
+                    partvec[i]->LoadDrawObjs( draw_obj_vec, k, false );
+                k++;
             }
 
             vector < SubSurface* > subsurf_vec = curr_struct->GetFeaSubSurfVec();

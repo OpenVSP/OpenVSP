@@ -305,6 +305,8 @@ public:
 
     virtual void BuildSkinSurf();
 
+    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight )    {}; // Do nothing for skins
+
 protected:
 
 
