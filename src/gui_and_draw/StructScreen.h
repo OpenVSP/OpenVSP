@@ -94,7 +94,7 @@ private:
     GroupLayout m_PartTabLayout;
     GroupLayout* m_CurFeaPartDispGroup;
     GroupLayout m_PartGroup;
-    GroupLayout m_FullDepthEditLayout;
+    GroupLayout m_SliceEditLayout;
     GroupLayout m_RibEditLayout;
     GroupLayout m_SparEditLayout;
     GroupLayout m_FixPointEditLayout;
@@ -187,17 +187,17 @@ private:
     TriggerButton m_AddFeaPartButton;
     TriggerButton m_DelFeaPartButton;
 
-    //===== FullDepth =====//
-    ToggleButton m_FullDepthIncludeTrisToggle;
+    //===== Slice =====//
+    ToggleButton m_SliceIncludeTrisToggle;
 
-    Choice m_FullDepthPropertyChoice;
+    Choice m_SlicePropertyChoice;
 
-    Choice m_FullDepthOrientationChoice;
-    SliderAdjRangeInput m_FullDepthCenterLocSlider;
-    SliderAdjRangeInput m_FullDepthThetaSlider;
+    Choice m_SliceOrientationChoice;
+    SliderAdjRangeInput m_SliceCenterLocSlider;
+    SliderAdjRangeInput m_SliceThetaSlider;
 
-    ToggleButton m_FullDepthCapToggle;
-    Choice m_FullDepthCapPropertyChoice;
+    ToggleButton m_SliceCapToggle;
+    Choice m_SliceCapPropertyChoice;
 
     //===== Rib =====//
     Choice m_RibPropertyChoice;

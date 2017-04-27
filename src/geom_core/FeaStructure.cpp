@@ -144,10 +144,10 @@ FeaPart* FeaStructure::AddFeaPart( int type )
 {
     FeaPart* feaprt = new FeaPart( m_ParentGeomID, type );
 
-    if ( type == vsp::FEA_FULL_DEPTH )
+    if ( type == vsp::FEA_SLICE )
     {
-        feaprt = new FeaFullDepth( m_ParentGeomID );
-        feaprt->SetName( string( "FEA_FULL_DEPTH_" + std::to_string( m_FeaPartCount ) ) );
+        feaprt = new FeaSlice( m_ParentGeomID );
+        feaprt->SetName( string( "FEA_SLICE_" + std::to_string( m_FeaPartCount ) ) );
     }
     else if ( type == vsp::FEA_RIB )
     {
@@ -691,9 +691,9 @@ vector < Matrix4d > FeaPart::CalculateSymmetricTransform()
 
 string FeaPart::GetTypeName( int type )
 {
-    if ( type == vsp::FEA_FULL_DEPTH )
+    if ( type == vsp::FEA_SLICE )
     {
-        return string( "FeaFullDepth" );
+        return string( "FeaSlice" );
     }
     if ( type == vsp::FEA_RIB )
     {
@@ -823,7 +823,7 @@ void FeaPart::SetFeaMaterialIndex( int index )
 //================== FeaFullDepth ==================//
 //////////////////////////////////////////////////////
 
-FeaFullDepth::FeaFullDepth( string geomID, int type ) : FeaPart( geomID, type )
+FeaSlice::FeaSlice( string geomID, int type ) : FeaPart( geomID, type )
 {
     m_IncludeTrisFlag.Init( "IncludeTrisFlag", "FeaFullDepth", this, true, false, true );
     m_IncludeTrisFlag.SetDescript( "Flag to Include Interior Tris" );
@@ -837,13 +837,13 @@ FeaFullDepth::FeaFullDepth( string geomID, int type ) : FeaPart( geomID, type )
     m_Theta.Init( "Theta", "FeaFullDepth", this, 0.0, -90.0, 90.0 );
 }
 
-void FeaFullDepth::Update()
+void FeaSlice::Update()
 {
     UpdateSymmetricSurfs();
     ComputePlanarSurf();
 }
 
-void FeaFullDepth::ComputePlanarSurf()
+void FeaSlice::ComputePlanarSurf()
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
 
@@ -992,7 +992,7 @@ void FeaFullDepth::ComputePlanarSurf()
     }
 }
 
-void FeaFullDepth::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight )
+void FeaSlice::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight )
 {
     FeaPart::LoadDrawObjs( draw_obj_vec, id, highlight );
 }

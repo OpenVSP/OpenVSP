@@ -314,31 +314,31 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
     // Indivdual FeaPart Parameters:
     int start_y = m_PartGroup.GetY();
 
-    //==== FeaFullDepth ====//
-    m_FullDepthEditLayout.SetGroupAndScreen( AddSubGroup( partTab, 5 ), this );
-    m_FullDepthEditLayout.SetY( start_y );
+    //==== FeaSlice ====//
+    m_SliceEditLayout.SetGroupAndScreen( AddSubGroup( partTab, 5 ), this );
+    m_SliceEditLayout.SetY( start_y );
 
-    m_FullDepthEditLayout.AddDividerBox( "FullDepth" );
+    m_SliceEditLayout.AddDividerBox( "Slice" );
 
-    m_FullDepthEditLayout.AddButton( m_FullDepthIncludeTrisToggle, "Include Interior Tris" );
+    m_SliceEditLayout.AddButton( m_SliceIncludeTrisToggle, "Include Interior Tris" );
 
-    m_FullDepthEditLayout.SetButtonWidth( buttonwidth );
-    m_FullDepthEditLayout.SetChoiceButtonWidth( buttonwidth );
+    m_SliceEditLayout.SetButtonWidth( buttonwidth );
+    m_SliceEditLayout.SetChoiceButtonWidth( buttonwidth );
 
-    m_FullDepthEditLayout.AddChoice( m_FullDepthPropertyChoice, "Property" );
+    m_SliceEditLayout.AddChoice( m_SlicePropertyChoice, "Property" );
 
-    m_FullDepthOrientationChoice.AddItem( "XY Plane" );
-    m_FullDepthOrientationChoice.AddItem( "YZ Plane" );
-    m_FullDepthOrientationChoice.AddItem( "XZ Plane" );
-    m_FullDepthEditLayout.AddChoice( m_FullDepthOrientationChoice, "Orientation" );
+    m_SliceOrientationChoice.AddItem( "XY Plane" );
+    m_SliceOrientationChoice.AddItem( "YZ Plane" );
+    m_SliceOrientationChoice.AddItem( "XZ Plane" );
+    m_SliceEditLayout.AddChoice( m_SliceOrientationChoice, "Orientation" );
 
-    m_FullDepthEditLayout.AddSlider( m_FullDepthCenterLocSlider, "Position", 1, "%5.3f" );
-    m_FullDepthEditLayout.AddSlider( m_FullDepthThetaSlider, "Theta", 25, "%5.3f" );
+    m_SliceEditLayout.AddSlider( m_SliceCenterLocSlider, "Position", 1, "%5.3f" );
+    m_SliceEditLayout.AddSlider( m_SliceThetaSlider, "Theta", 25, "%5.3f" );
 
-    m_FullDepthEditLayout.AddYGap();
+    m_SliceEditLayout.AddYGap();
 
-    m_FullDepthEditLayout.AddButton( m_FullDepthCapToggle, "Cap Intersections" );
-    m_FullDepthEditLayout.AddChoice( m_FullDepthCapPropertyChoice, "Cap Property" );
+    m_SliceEditLayout.AddButton( m_SliceCapToggle, "Cap Intersections" );
+    m_SliceEditLayout.AddChoice( m_SliceCapPropertyChoice, "Cap Property" );
 
     //==== FeaRib ====//
     m_RibEditLayout.SetGroupAndScreen( AddSubGroup( partTab, 5 ), this );
@@ -1052,7 +1052,7 @@ void StructScreen::UpdateFeaPartChoice()
 
                 if ( currgeom )
                 {
-                    m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_FULL_DEPTH ) );
+                    m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_SLICE ) );
                     m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_RIB ) );
                     m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_SPAR ) );
                     m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_FIX_POINT ) );
@@ -1220,7 +1220,7 @@ void StructScreen::UpdateFeaPropertyChoice()
 {
     //==== Property Choice ====//
     m_SkinPropertyChoice.ClearItems();
-    m_FullDepthPropertyChoice.ClearItems();
+    m_SlicePropertyChoice.ClearItems();
     m_RibPropertyChoice.ClearItems();
     m_SparPropertyChoice.ClearItems();
     m_FeaSSLinePropertyChoice.ClearItems();
@@ -1229,7 +1229,7 @@ void StructScreen::UpdateFeaPropertyChoice()
     m_FeaSSConPropertyChoice.ClearItems();
 
     m_SparCapPropertyChoice.ClearItems();
-    m_FullDepthCapPropertyChoice.ClearItems();
+    m_SliceCapPropertyChoice.ClearItems();
     m_RibCapPropertyChoice.ClearItems();
 
     m_FeaSSLineCapPropertyChoice.ClearItems();
@@ -1246,7 +1246,7 @@ void StructScreen::UpdateFeaPropertyChoice()
         for ( int i = 0; i < property_vec.size(); ++i )
         {
             m_SkinPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-            m_FullDepthPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
+            m_SlicePropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_RibPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_SparPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_FeaSSLinePropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
@@ -1255,7 +1255,7 @@ void StructScreen::UpdateFeaPropertyChoice()
             m_FeaSSConPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
 
             m_SparCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-            m_FullDepthCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
+            m_SliceCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_RibCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
 
             m_FeaSSLineCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
@@ -1266,7 +1266,7 @@ void StructScreen::UpdateFeaPropertyChoice()
             if ( property_vec[i]->m_FeaPropertyType() == SHELL_PROPERTY )
             {
                 m_SkinPropertyChoice.SetFlag( i, 0 );
-                m_FullDepthPropertyChoice.SetFlag( i, 0 );
+                m_SlicePropertyChoice.SetFlag( i, 0 );
                 m_RibPropertyChoice.SetFlag( i, 0 );
                 m_SparPropertyChoice.SetFlag( i, 0 );
                 m_FeaSSLinePropertyChoice.SetFlag( i, 0 );
@@ -1275,7 +1275,7 @@ void StructScreen::UpdateFeaPropertyChoice()
                 m_FeaSSConPropertyChoice.SetFlag( i, 0 );
 
                 m_SparCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
-                m_FullDepthCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
+                m_SliceCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_RibCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
 
                 m_FeaSSLineCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
@@ -1286,7 +1286,7 @@ void StructScreen::UpdateFeaPropertyChoice()
             else if ( property_vec[i]->m_FeaPropertyType() == BEAM_PROPERTY )
             {
                 m_SkinPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
-                m_FullDepthPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
+                m_SlicePropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_RibPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_SparPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_FeaSSLinePropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
@@ -1295,7 +1295,7 @@ void StructScreen::UpdateFeaPropertyChoice()
                 m_FeaSSConPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
 
                 m_SparCapPropertyChoice.SetFlag( i, 0 );
-                m_FullDepthCapPropertyChoice.SetFlag( i, 0 );
+                m_SliceCapPropertyChoice.SetFlag( i, 0 );
                 m_RibCapPropertyChoice.SetFlag( i, 0 );
 
                 m_FeaSSLineCapPropertyChoice.SetFlag( i, 0 );
@@ -1305,7 +1305,7 @@ void StructScreen::UpdateFeaPropertyChoice()
             }
         }
         m_SkinPropertyChoice.UpdateItems();
-        m_FullDepthPropertyChoice.UpdateItems();
+        m_SlicePropertyChoice.UpdateItems();
         m_RibPropertyChoice.UpdateItems();
         m_SparPropertyChoice.UpdateItems();
         m_FeaSSLinePropertyChoice.UpdateItems();
@@ -1314,7 +1314,7 @@ void StructScreen::UpdateFeaPropertyChoice()
         m_FeaSSConPropertyChoice.UpdateItems();
 
         m_SparCapPropertyChoice.UpdateItems();
-        m_FullDepthCapPropertyChoice.UpdateItems();
+        m_SliceCapPropertyChoice.UpdateItems();
         m_RibCapPropertyChoice.UpdateItems();
 
         m_FeaSSLineCapPropertyChoice.UpdateItems();
@@ -1337,12 +1337,12 @@ void StructScreen::UpdateFeaPropertyChoice()
             if ( feaprt )
             {
                 // Update all FeaPart Property Choices ( Only Selected Part Visible )
-                m_FullDepthPropertyChoice.SetVal( feaprt->GetFeaPropertyIndex() );
+                m_SlicePropertyChoice.SetVal( feaprt->GetFeaPropertyIndex() );
                 m_RibPropertyChoice.SetVal( feaprt->GetFeaPropertyIndex() );
                 m_SparPropertyChoice.SetVal( feaprt->GetFeaPropertyIndex() );
 
                 m_SparCapPropertyChoice.SetVal( feaprt->GetCapFeaPropertyIndex() );
-                m_FullDepthCapPropertyChoice.SetVal( feaprt->GetCapFeaPropertyIndex() );
+                m_SliceCapPropertyChoice.SetVal( feaprt->GetCapFeaPropertyIndex() );
                 m_RibCapPropertyChoice.SetVal( feaprt->GetCapFeaPropertyIndex() );
             }
 
@@ -1496,7 +1496,7 @@ void StructScreen::FeaPartDispGroup( GroupLayout* group )
         m_StructGeneralGroup.Hide();
     }
 
-    m_FullDepthEditLayout.Hide();
+    m_SliceEditLayout.Hide();
     m_RibEditLayout.Hide();
     m_SparEditLayout.Hide();
     m_FixPointEditLayout.Hide();
@@ -1675,36 +1675,36 @@ bool StructScreen::Update()
             if ( feaprt )
             {
                 m_FeaPartNameInput.Update( feaprt->GetName() );
-                if ( feaprt->GetType() == vsp::FEA_FULL_DEPTH )
+                if ( feaprt->GetType() == vsp::FEA_SLICE )
                 {
-                    FeaFullDepth* fulldepth = dynamic_cast<FeaFullDepth*>( feaprt );
-                    assert( fulldepth );
+                    FeaSlice* slice = dynamic_cast<FeaSlice*>( feaprt );
+                    assert( slice );
 
-                    m_FullDepthIncludeTrisToggle.Update( fulldepth->m_IncludeTrisFlag.GetID() );
-                    m_FullDepthOrientationChoice.Update( fulldepth->m_OrientationPlane.GetID() );
-                    m_FullDepthCenterLocSlider.Update( fulldepth->m_CenterPerBBoxLocation.GetID() );
-                    m_FullDepthThetaSlider.Update( fulldepth->m_Theta.GetID() );
-                    m_FullDepthCapToggle.Update( fulldepth->m_IntersectionCapFlag.GetID() );
+                    m_SliceIncludeTrisToggle.Update( slice->m_IncludeTrisFlag.GetID() );
+                    m_SliceOrientationChoice.Update( slice->m_OrientationPlane.GetID() );
+                    m_SliceCenterLocSlider.Update( slice->m_CenterPerBBoxLocation.GetID() );
+                    m_SliceThetaSlider.Update( slice->m_Theta.GetID() );
+                    m_SliceCapToggle.Update( slice->m_IntersectionCapFlag.GetID() );
 
-                    if ( !fulldepth->m_IncludeTrisFlag() )
+                    if ( !slice->m_IncludeTrisFlag() )
                     {
-                        m_FullDepthPropertyChoice.Deactivate();
+                        m_SlicePropertyChoice.Deactivate();
                     }
                     else
                     {
-                        m_FullDepthPropertyChoice.Activate();
+                        m_SlicePropertyChoice.Activate();
                     }
 
-                    if ( fulldepth->m_IntersectionCapFlag() )
+                    if ( slice->m_IntersectionCapFlag() )
                     {
-                        m_FullDepthCapPropertyChoice.Activate();
+                        m_SliceCapPropertyChoice.Activate();
                     }
                     else
                     {
-                        m_FullDepthCapPropertyChoice.Deactivate();
+                        m_SliceCapPropertyChoice.Deactivate();
                     }
 
-                    FeaPartDispGroup( &m_FullDepthEditLayout );
+                    FeaPartDispGroup( &m_SliceEditLayout );
                 }
                 else if ( feaprt->GetType() == vsp::FEA_RIB )
                 {
@@ -2420,9 +2420,9 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
 
             FeaPart* feaprt = NULL;
 
-            if ( m_FeaPartChoice.GetVal() == vsp::FEA_FULL_DEPTH )
+            if ( m_FeaPartChoice.GetVal() == vsp::FEA_SLICE )
             {
-                feaprt = structvec[m_SelectedStructIndex]->AddFeaPart( vsp::FEA_FULL_DEPTH );
+                feaprt = structvec[m_SelectedStructIndex]->AddFeaPart( vsp::FEA_SLICE );
             }
             else if ( m_FeaPartChoice.GetVal() == vsp::FEA_RIB )
             {
@@ -2624,13 +2624,13 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             }
         }
     }
-    else if ( device == &m_FullDepthPropertyChoice )
+    else if ( device == &m_SlicePropertyChoice )
     {
-        UpdateFeaPartPropertyIndex( &m_FullDepthPropertyChoice );
+        UpdateFeaPartPropertyIndex( &m_SlicePropertyChoice );
     }
-    else if ( device == &m_FullDepthCapPropertyChoice )
+    else if ( device == &m_SliceCapPropertyChoice )
     {
-        UpdateCapPropertyIndex( &m_FullDepthCapPropertyChoice );
+        UpdateCapPropertyIndex( &m_SliceCapPropertyChoice );
     }
     else if ( device == &m_RibPropertyChoice )
     {

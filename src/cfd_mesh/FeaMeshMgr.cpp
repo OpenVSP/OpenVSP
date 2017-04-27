@@ -1388,12 +1388,12 @@ void FeaMeshMgrSingleton::UpdateDrawObjData()
     {
         string name = m_FeaMeshStruct->GetFeaStructName() + ":  " + m_FeaMeshStruct->GetFeaPartName( i );
 
-        if ( m_FeaMeshStruct->GetFeaPart( i )->GetType() == vsp::FEA_FULL_DEPTH )
+        if ( m_FeaMeshStruct->GetFeaPart( i )->GetType() == vsp::FEA_SLICE )
         {
-            FeaFullDepth* fulldepth = dynamic_cast<FeaFullDepth*>( m_FeaMeshStruct->GetFeaPart( i ) );
-            assert( fulldepth );
+            FeaSlice* slice = dynamic_cast<FeaSlice*>( m_FeaMeshStruct->GetFeaPart( i ) );
+            assert( slice );
 
-            if ( fulldepth->m_IncludeTrisFlag() )
+            if ( slice->m_IncludeTrisFlag() )
             {
                 m_DrawBrowserNameVec.push_back( name );
                 m_DrawBrowserPartIndexVec.push_back( i );

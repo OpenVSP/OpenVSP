@@ -200,12 +200,12 @@ enum
     XY_PLANE, YZ_PLANE, XZ_PLANE
 };
 
-class FeaFullDepth : public FeaPart
+class FeaSlice : public FeaPart
 {
 public:
 
-    FeaFullDepth( string geomID, int type = vsp::FEA_FULL_DEPTH );
-    virtual ~FeaFullDepth()    {};
+    FeaSlice( string geomID, int type = vsp::FEA_SLICE );
+    virtual ~FeaSlice()    {};
 
     virtual void Update();
 
