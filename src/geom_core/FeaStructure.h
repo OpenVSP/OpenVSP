@@ -282,6 +282,9 @@ public:
     virtual vector < vec3d > GetPntVec(); // Returns the FeaFixPoint 3D coordinate on each parent surface
     virtual vec2d GetUW(); // Returns the FeaFixPoint UW coordinate on main parent surface
 
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight );
 
     Parm m_PosU;

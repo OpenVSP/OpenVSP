@@ -517,20 +517,16 @@ xmlNodePtr FeaPart::EncodeXml( xmlNodePtr & node )
 {
     xmlNodePtr part_info = xmlNewChild( node, NULL, BAD_CAST "FeaPartInfo", NULL );
 
-    ParmContainer::EncodeXml( part_info );
-
     XmlUtil::AddIntNode( part_info, "FeaPartType", m_FeaPartType );
     XmlUtil::AddIntNode( part_info, "FeaPropertyIndex", m_FeaPropertyIndex );
     XmlUtil::AddIntNode( part_info, "CapFeaPropertyIndex", m_CapFeaPropertyIndex );
 
-    return part_info;
+    return ParmContainer::EncodeXml( part_info );
 }
 
 xmlNodePtr FeaPart::DecodeXml( xmlNodePtr & node )
 {
-    ParmContainer::DecodeXml( node );
-
-    return node;
+    return ParmContainer::DecodeXml( node );
 }
 
 void FeaPart::UpdateSymmetricSurfs()
@@ -1517,6 +1513,30 @@ vec2d FeaFixPoint::GetUW()
         }
     }
     return uw;
+}
+
+xmlNodePtr FeaFixPoint::EncodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr fea_prt_node = FeaPart::EncodeXml( node );
+
+    if ( fea_prt_node )
+    {
+        XmlUtil::AddStringNode( fea_prt_node, "ParentFeaPartID", m_ParentFeaPartID );
+    }
+
+    return fea_prt_node;
+}
+
+xmlNodePtr FeaFixPoint::DecodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr fea_prt_node = FeaPart::DecodeXml( node );
+
+    if ( fea_prt_node )
+    {
+        m_ParentFeaPartID = XmlUtil::FindString( fea_prt_node, "ParentFeaPartID", m_ParentFeaPartID );
+    }
+
+    return fea_prt_node;
 }
 
 void FeaFixPoint::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight )
