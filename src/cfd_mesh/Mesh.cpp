@@ -37,6 +37,8 @@ Mesh::Mesh()
 
     m_Surf = NULL;
     m_GridDensity = NULL;
+
+    m_NumFixPointIter = 0;
 }
 
 Mesh::~Mesh()
@@ -71,7 +73,7 @@ void Mesh::Clear()
 
     nodeList.clear();
 
-
+    m_NumFixPointIter = 0;
 }
 
 void Mesh::LimitTargetEdgeLength( Node* n )
@@ -1301,6 +1303,8 @@ bool Mesh::SetFixPoint( vec3d fix_pnt, vec2d fix_uw )
     double min_dist = FLT_MAX;
     Node* closest_node = NULL;
     double tol = m_GridDensity->m_MinLen();
+
+    m_NumFixPointIter++;
 
     list< Node* >::iterator n;
     for ( n = nodeList.begin(); n != nodeList.end(); n++ )
