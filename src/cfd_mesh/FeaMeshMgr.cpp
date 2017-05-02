@@ -240,10 +240,6 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
     addOutputText( "Exporting Files\n" );
     ExportFeaMesh();
 
-    addOutputText( "Check Water Tight\n" );
-    string resultTxt = CheckWaterTight();
-    addOutputText( resultTxt.c_str() );
-
     addOutputText( "Finished\n" );
 
     m_FeaMeshInProgress = false;
