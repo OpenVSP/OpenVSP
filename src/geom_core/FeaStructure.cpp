@@ -1366,6 +1366,7 @@ FeaFixPoint::FeaFixPoint( string compID, int type ) : FeaPart( compID, type )
     m_IntersectionCapFlag.Set( false );
     m_FeaPropertyIndex = -1; // No property
     m_CapFeaPropertyIndex = -1; // No property
+    m_MagicVParent = false;
 }
 
 void FeaFixPoint::Update()
@@ -1383,8 +1384,9 @@ void FeaFixPoint::IdentifySplitSurfIndex()
     //  Parent Surface, and determines which split surface the FeaFixPoint lies on.
 
     FeaPart* parent_part = StructureMgr.GetFeaPart( m_ParentFeaPartID );
+    Vehicle* veh = VehicleMgr.GetVehicle();
 
-    if ( !parent_part )
+    if ( !parent_part || !veh )
     {
         return;
     }
@@ -1408,6 +1410,9 @@ void FeaFixPoint::IdentifySplitSurfIndex()
         bool closedU = parent_surf_vec[0]->IsClosedU();
         bool closedW = parent_surf_vec[0]->IsClosedW();
 
+        // Check if TMAGIC needs to be considered
+        m_MagicVParent = parent_surf_vec[0]->IsMagicVParm();
+
         // Split the parent surface
         vector< XferSurf > tempxfersurfs;
         parent_surf_vec[0]->FetchXFerSurf( m_ParentGeomID, m_MainSurfIndx(), 0, tempxfersurfs );
@@ -1418,6 +1423,12 @@ void FeaFixPoint::IdentifySplitSurfIndex()
             double umin = tempxfersurfs[j].m_Surface.get_u0();
             double vmax = tempxfersurfs[j].m_Surface.get_vmax();
             double vmin = tempxfersurfs[j].m_Surface.get_v0();
+
+            if ( m_MagicVParent )
+            {
+                vmax = vmax + TMAGIC;
+                vmin = vmin - TMAGIC;
+            }
 
             // Check if FeaFixPoint is on XferSurf or border curve
             if ( uw.x() > umin && uw.x() < umax && uw.y() > vmin && uw.y() < vmax ) // FeaFixPoint on surface

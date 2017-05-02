@@ -326,6 +326,7 @@ void FeaMeshMgrSingleton::AddStructureParts()
                         m_FixUWVec.push_back( uw );
                         m_FixPntSurfIndVec.push_back( surf_index );
                         m_FixPntFeaPartIndexVec.push_back( part_index );
+                        m_FixPntMagicVVec.push_back( fixpnt->m_MagicVParent );
 
                         if ( fixpnt->m_BorderFlag )
                         {
@@ -781,6 +782,19 @@ void FeaMeshMgrSingleton::SetFixPointBorderNodes()
                 {
                     Puw* p0 = new Puw( ( *c )->m_SurfA, m_FixUWVec[j] );
                     Puw* p1 = new Puw( ( *c )->m_SurfB, m_FixUWVec[j] );
+                    if ( m_FixPntMagicVVec[j] )
+                    {
+                        if ( ( m_FixUWVec[j].y() == ( *c )->m_SurfA->GetSurfCore()->GetMaxW() + TMAGIC ) ||
+                            ( m_FixUWVec[j].y() == ( *c )->m_SurfB->GetSurfCore()->GetMaxW() + TMAGIC ) )
+                        {
+                            m_FixUWVec[j].set_y( m_FixUWVec[j].y() - TMAGIC );
+                        }
+                        else if ( ( m_FixUWVec[j].y() == ( *c )->m_SurfA->GetSurfCore()->GetMinW() - TMAGIC ) ||
+                            ( m_FixUWVec[j].y() == ( *c )->m_SurfB->GetSurfCore()->GetMinW() - TMAGIC ) )
+                        {
+                            m_FixUWVec[j].set_y( m_FixUWVec[j].y() + TMAGIC );
+                        }
+                    }
 
                     IPnt* split_pnt = new IPnt( p0, p1 );
 
