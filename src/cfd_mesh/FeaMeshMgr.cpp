@@ -361,7 +361,13 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
 
             vec2d avg_uw = ( uw0 + uw1 + uw2 ) / 3.0;
 
-            vec3d orient_vec = m_SurfVec[s]->GetSurfCore()->CompTanU( avg_uw[0], avg_uw[1] );
+            vec3d orient_vec;
+
+            if ( m_SurfVec[s]->ValidUW( avg_uw ) )
+            {
+                vec3d orient_vec = m_SurfVec[s]->GetSurfCore()->CompTanU( avg_uw[0], avg_uw[1] );
+            }
+
             orient_vec.normalize();
 
             FeaTri* tri = new FeaTri;
@@ -780,8 +786,6 @@ void FeaMeshMgrSingleton::SetFixPointBorderNodes()
                 if ( ( ( *c )->m_SurfA == m_SurfVec[m_FixPntSurfIndVec[j][1]] && ( *c )->m_SurfB == m_SurfVec[m_FixPntSurfIndVec[j][0]] ) ||
                     ( ( *c )->m_SurfA == m_SurfVec[m_FixPntSurfIndVec[j][0]] && ( *c )->m_SurfB == m_SurfVec[m_FixPntSurfIndVec[j][1]] ) )
                 {
-                    Puw* p0 = new Puw( ( *c )->m_SurfA, m_FixUWVec[j] );
-                    Puw* p1 = new Puw( ( *c )->m_SurfB, m_FixUWVec[j] );
                     if ( m_FixPntMagicVVec[j] )
                     {
                         if ( ( m_FixUWVec[j].y() == ( *c )->m_SurfA->GetSurfCore()->GetMaxW() + TMAGIC ) ||
@@ -794,6 +798,18 @@ void FeaMeshMgrSingleton::SetFixPointBorderNodes()
                         {
                             m_FixUWVec[j].set_y( m_FixUWVec[j].y() + TMAGIC );
                         }
+                    }
+
+                    Puw* p0 = NULL;
+                    Puw* p1 = NULL;
+
+                    if ( ( *c )->m_SurfA->ValidUW( m_FixUWVec[j] ) )
+                    {
+                        p0 = new Puw( ( *c )->m_SurfA, m_FixUWVec[j] );
+                    }
+                    if ( ( *c )->m_SurfB->ValidUW( m_FixUWVec[j] ) )
+                    {
+                        p1 = new Puw( ( *c )->m_SurfB, m_FixUWVec[j] );
                     }
 
                     IPnt* split_pnt = new IPnt( p0, p1 );
@@ -1046,7 +1062,7 @@ void FeaMeshMgrSingleton::TagFeaNodes()
 
         for ( size_t j = 0; j < m_FixPntVec.size(); j++ )
         {
-            if ( ( m_FeaNodeVec[i]->m_Pnt - m_FixPntVec[j] ).mag() <= FLT_EPSILON )
+            if ( dist( m_FeaNodeVec[i]->m_Pnt, m_FixPntVec[j] ) <= FLT_EPSILON )
             {
                 m_FeaNodeVec[i]->AddTag( m_FixPntFeaPartIndexVec[j] );
                 m_FeaNodeVec[i]->m_FixedPointFlag = true;
