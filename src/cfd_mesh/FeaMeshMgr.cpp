@@ -839,7 +839,7 @@ void FeaMeshMgrSingleton::CheckFixPointIntersects()
         list< ISegChain* >::iterator c;
         for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); c++ )
         {
-            if ( !( *c )->m_BorderFlag && m_FixPntSurfIndVec[j].size() == 1 )
+            if ( !( *c )->m_BorderFlag && m_FixPntSurfIndVec[j].size() == 1 && ( ( *c )->m_SurfA != ( *c )->m_SurfB ) )
             {
                 if ( ( *c )->m_SurfA == m_SurfVec[m_FixPntSurfIndVec[j][0]] )
                 {
