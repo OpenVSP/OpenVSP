@@ -149,6 +149,20 @@ vector < FeaStructure* > StructureMgrSingleton::GetAllFeaStructs()
     return feastructvec;
 }
 
+//==== Get FeaStructure from Index ====//
+FeaStructure* StructureMgrSingleton::GetFeaStruct( int ind )
+{
+    FeaStructure* fea_struct = NULL;
+
+    vector < FeaStructure* > struct_vec = GetAllFeaStructs();
+
+    if ( ValidTotalFeaStructInd( ind ) )
+    {
+        fea_struct = struct_vec[ind];
+    }
+    return fea_struct;
+}
+
 //==== Validate FeaStructure Index ====//
 bool StructureMgrSingleton::ValidTotalFeaStructInd( int index )
 {

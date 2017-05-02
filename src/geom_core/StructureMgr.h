@@ -36,6 +36,7 @@ public:
 
     //==== FeaStructure Management ====//
     virtual vector < FeaStructure* > GetAllFeaStructs();
+    virtual FeaStructure* GetFeaStruct( int struct_ind );
     virtual bool ValidTotalFeaStructInd( int index );
     virtual int NumFeaStructures();
     virtual int GetFeaStructIndex( FeaStructure* fea_struct );
