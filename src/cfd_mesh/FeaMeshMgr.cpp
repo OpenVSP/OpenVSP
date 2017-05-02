@@ -326,7 +326,15 @@ void FeaMeshMgrSingleton::AddStructureParts()
                         m_FixUWVec.push_back( uw );
                         m_FixPntSurfIndVec.push_back( surf_index );
                         m_FixPntFeaPartIndexVec.push_back( part_index );
-                        m_FixPntBorderFlagVec.push_back( fixpnt->m_BorderFlag );
+
+                        if ( fixpnt->m_BorderFlag )
+                        {
+                            m_FixPntBorderFlagVec.push_back( BORDER_FIX_POINT );
+                        }
+                        else
+                        {
+                            m_FixPntBorderFlagVec.push_back( SURFACE_FIX_POINT );
+                        }
                     }
                 }
             }
@@ -728,7 +736,7 @@ void FeaMeshMgrSingleton::SetFixPointSurfaceNodes()
 {
     for ( size_t j = 0; j < m_FixPntSurfIndVec.size(); j++ )
     {
-        if ( !m_FixPntBorderFlagVec[j] && m_FixPntSurfIndVec[j].size() == 1 )
+        if ( m_FixPntBorderFlagVec[j] == SURFACE_FIX_POINT && m_FixPntSurfIndVec[j].size() == 1 )
         {
             for ( size_t k = 0; k < m_FixPntSurfIndVec[j].size(); k++ )
             {
@@ -763,7 +771,7 @@ void FeaMeshMgrSingleton::SetFixPointBorderNodes()
     for ( size_t j = 0; j < m_FixPntSurfIndVec.size(); j++ )
     {
         // Only check for FeaFixPoints on two surfaces. Nodes are automatically set for more than two surface intersections
-        if ( m_FixPntBorderFlagVec[j] && m_FixPntSurfIndVec[j].size() == 2 ) 
+        if ( m_FixPntBorderFlagVec[j] == BORDER_FIX_POINT && m_FixPntSurfIndVec[j].size() == 2 ) 
         {
             list< ISegChain* >::iterator c;
             for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); c++ )

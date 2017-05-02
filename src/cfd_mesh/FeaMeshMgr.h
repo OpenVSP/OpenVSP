@@ -20,6 +20,11 @@
 
 using namespace std;
 
+enum
+{
+    SURFACE_FIX_POINT, BORDER_FIX_POINT, INTERSECT_FIX_POINT
+};
+
 //////////////////////////////////////////////////////////////////////
 class FeaMeshMgrSingleton : public CfdMeshMgrSingleton
 {
@@ -155,7 +160,7 @@ protected:
     vector < vec3d > m_FixPntVec; // Vector 3D coordinates for FeaFixPoints 
     vector < vec2d > m_FixUWVec; // Vector UW coordinates for FeaFixPoints
     vector < int > m_FixPntFeaPartIndexVec; // Vector of FixPoint FeaPart indexes
-    vector < bool > m_FixPntBorderFlagVec;
+    vector < int > m_FixPntBorderFlagVec; // Indicates if the FixPoint lies on a surface, border, or intersection
     vector < vector < int > > m_FixPntSurfIndVec; // Vector of FeaFixPoint parent surface index, corresponding to index in m_SurfVec
 
     vector < string > m_DrawBrowserNameVec;
