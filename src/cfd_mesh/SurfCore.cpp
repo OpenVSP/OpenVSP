@@ -795,3 +795,14 @@ double SurfCore::FindNearest( double &u, double &w, const vec3d &pt, double u0, 
 
     return dist;
 }
+
+double SurfCore::FindNearest( double &u, double &w, const vec3d &pt ) const
+{
+    double dist;
+    surface_point_type p;
+    pt.get_pnt( p );
+
+    dist = eli::geom::intersect::minimum_distance( u, w, m_Surface, p );
+
+    return dist;
+}

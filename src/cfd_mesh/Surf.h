@@ -71,7 +71,7 @@ public:
     void ApplyES( vec3d uw, double t );
 
     vec2d ClosestUW( vec3d & pnt_in, double guess_u, double guess_w ) const;
-
+    vec2d ClosestUW( vec3d & pnt_in ) const;
 
     void FindBorderCurves();
 

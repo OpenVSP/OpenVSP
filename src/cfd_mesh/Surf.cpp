@@ -508,6 +508,13 @@ vec2d Surf::ClosestUW( vec3d & pnt_in, double guess_u, double guess_w ) const
     return vec2d( u, w );
 }
 
+vec2d Surf::ClosestUW( vec3d & pnt_in ) const
+{
+    double u, w;
+    m_SurfCore.FindNearest( u, w, pnt_in );
+    return vec2d( u, w );
+}
+
 void Surf::FindBorderCurves()
 {
     double degen_tol = 1.0e-6;
