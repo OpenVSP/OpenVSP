@@ -362,11 +362,19 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
 
             vec2d avg_uw = ( uw0 + uw1 + uw2 ) / 3.0;
 
+            vec3d pnt0 = pvec[tvec[i].ind0];
+            vec3d pnt1 = pvec[tvec[i].ind1];
+            vec3d pnt2 = pvec[tvec[i].ind2];
+
+            vec3d avg_pnt = ( pnt0 + pnt1 + pnt2 ) / 3.0;
+
+            vec2d closest_uw = m_SurfVec[s]->ClosestUW( avg_pnt, avg_uw[0], avg_uw[1] );
+
             vec3d orient_vec;
 
-            if ( m_SurfVec[s]->ValidUW( avg_uw ) )
+            if ( m_SurfVec[s]->ValidUW( closest_uw ) )
             {
-                vec3d orient_vec = m_SurfVec[s]->GetSurfCore()->CompTanU( avg_uw[0], avg_uw[1] );
+                orient_vec = m_SurfVec[s]->GetSurfCore()->CompTanU( closest_uw[0], closest_uw[1] );
             }
 
             orient_vec.normalize();
@@ -1921,9 +1929,9 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                     FeaBeam* beam = dynamic_cast<FeaBeam*>( m_FeaElementVec[j] );
                     assert( beam );
 
-                    vec3d norm_pnt = m_FeaElementVec[j]->m_Corners[0]->m_Pnt + line_length * beam->m_DispVec;
+                    vec3d norm_pnt = m_FeaElementVec[j]->m_Mids[0]->m_Pnt + line_length * beam->m_DispVec;
 
-                    cap_norm_pnt_vec.push_back( m_FeaElementVec[j]->m_Corners[0]->m_Pnt );
+                    cap_norm_pnt_vec.push_back( m_FeaElementVec[j]->m_Mids[0]->m_Pnt );
                     cap_norm_pnt_vec.push_back( norm_pnt );
                 }
             }
