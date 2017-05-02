@@ -45,7 +45,7 @@ StructSettings::StructSettings() : MeshCommonSettings()
     m_DrawFeaPartsFlag.Init( "DrawFeaPartsFlag", "FeaPart", this, true, false, true );
     m_DrawFeaPartsFlag.SetDescript( "Flag to Draw FeaParts" );
 
-    m_DrawNodesFlag.Init( "DrawNodesFlag", "FeaPart", this, true, false, true );
+    m_DrawNodesFlag.Init( "DrawNodesFlag", "FeaPart", this, false, false, true );
     m_DrawNodesFlag.SetDescript( "Flag to Draw FeaNodes" );
 
     m_DrawElementOrientVecFlag.Init( "DrawElementOrientVecFlag", "FeaPart", this, false, false, true );

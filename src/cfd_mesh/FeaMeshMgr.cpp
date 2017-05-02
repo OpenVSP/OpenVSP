@@ -189,14 +189,15 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
     addOutputText( "Load Surfaces\n" );
     LoadSurfaces();
 
-    // Hide all geoms after loading surfaces
-    m_Vehicle->HideAll();
-
     if ( m_SurfVec.size() <= 0 )
     {
         m_FeaMeshInProgress = false;
         return;
     }
+
+    // Hide all geoms and FeaParts after loading surfaces
+    m_Vehicle->HideAll();
+    GetStructSettingsPtr()->m_DrawFeaPartsFlag.Set( false );
 
     TransferFeaData();
     TransferDrawObjData();
@@ -1613,16 +1614,19 @@ void FeaMeshMgrSingleton::TransferDrawObjData()
                 m_FixPointFeaPartFlagVec.push_back( false );
             }
 
-            m_DrawElementFlagVec.push_back( false );
+            m_DrawElementFlagVec.push_back( true );
 
             if ( m_FeaPartIntersectCapFlagVec[i] )
             {
                 name += "_CAP";
                 m_DrawBrowserNameVec.push_back( name );
                 m_DrawBrowserPartIndexVec.push_back( i );
+                m_DrawCapFlagVec.push_back( true );
             }
-
-            m_DrawCapFlagVec.push_back( false );
+            else
+            { 
+                m_DrawCapFlagVec.push_back( false );
+            }
         }
 
         // FeaSubSurfaces:
@@ -1638,16 +1642,19 @@ void FeaMeshMgrSingleton::TransferDrawObjData()
                 m_DrawBrowserPartIndexVec.push_back( m_NumFeaParts + i );
             }
 
-            m_DrawElementFlagVec.push_back( false );
+            m_DrawElementFlagVec.push_back( true );
 
             if ( m_SSIntersectCapFlagVec[i] )
             {
                 name += "_CAP";
                 m_DrawBrowserNameVec.push_back( name );
                 m_DrawBrowserPartIndexVec.push_back( m_NumFeaParts + i );
+                m_DrawCapFlagVec.push_back( true );
             }
-
-            m_DrawCapFlagVec.push_back( false );
+            else
+            {
+                m_DrawCapFlagVec.push_back( false );
+            }
         }
     }
 }
