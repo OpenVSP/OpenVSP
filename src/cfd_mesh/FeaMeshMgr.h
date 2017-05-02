@@ -67,7 +67,7 @@ public:
     virtual void AddStructureParts();
     virtual void SetFixPointSurfaceNodes();
     virtual void SetFixPointBorderNodes();
-
+    virtual void CheckFixPointIntersects();
     virtual void BuildFeaMesh();
 
     virtual void BuildSubSurfIntChains();
