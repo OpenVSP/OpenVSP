@@ -58,7 +58,7 @@ public:
     virtual void LoadSkins();
     virtual void GenerateFeaMesh();
     virtual void ExportFeaMesh();
-
+    virtual void TransferFeaData();
     virtual void AddStructureParts();
     virtual void SetFixPointSurfaceNodes();
     virtual void SetFixPointBorderNodes();
@@ -101,7 +101,7 @@ public:
         m_FeaMeshInProgress = progress_flag;
     }
 
-    virtual void UpdateDrawObjData();
+    virtual void TransferDrawObjData();
 
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
@@ -135,11 +135,22 @@ protected:
 
     double m_TotalMass;
 
-    FeaStructure* m_FeaMeshStruct;
+    string m_StructName;
     int m_FeaMeshStructIndex;
 
     int m_NumFeaParts;
     int m_NumFeaSubSurfs;
+    int m_NumFeaFixPoints;
+
+    vector < string > m_FeaPartNameVec;
+    vector < int > m_FeaPartTypeVec;
+    vector < bool > m_FeaPartIntersectCapFlagVec;
+    vector < int > m_FeaPartPropertyIndexVec;
+    vector < int > m_FeaPartCapPropertyIndexVec;
+    vector < string > m_SSNameVec;
+    vector < bool > m_SSIntersectCapFlagVec;
+    vector < int > m_SSPropertyIndexVec;
+    vector < int > m_SSCapPropertyIndexVec;
 
     vector < vec3d > m_FixPntVec; // Vector 3D coordinates for FeaFixPoints 
     vector < vec2d > m_FixUWVec; // Vector UW coordinates for FeaFixPoints
@@ -154,6 +165,7 @@ protected:
     vector < bool > m_DrawCapFlagVec;
 
     vector< FeaElement* > m_FeaElementVec;
+    vector< SubSurface* > m_FeaSubSurfVec;
 
     vector< FeaNode* > m_FeaNodeVec;
     vector< vec3d* > m_AllPntVec;

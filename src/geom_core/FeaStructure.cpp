@@ -1362,6 +1362,10 @@ FeaFixPoint::FeaFixPoint( string compID, int type ) : FeaPart( compID, type )
     m_PosU.SetDescript( "Precent U Location" );
     m_PosW.Init( "PosW", "FeaFixPoint", this, 0.0, 0.0, 1.0 );
     m_PosW.SetDescript( "Precent W Location" );
+
+    m_IntersectionCapFlag.Set( false );
+    m_FeaPropertyIndex = -1; // No property
+    m_CapFeaPropertyIndex = -1; // No property
 }
 
 void FeaFixPoint::Update()
