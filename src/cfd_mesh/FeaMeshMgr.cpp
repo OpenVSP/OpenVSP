@@ -1874,7 +1874,7 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
             m_CapNormDO[cnt].m_Type = DrawObj::VSP_LINES;
             m_CapNormDO[cnt].m_LineWidth = 1.0;
 
-            if ( GetStructSettingsPtr()->m_DrawElementOrientVecFlag() && m_DrawElementFlagVec[cnt] )
+            if ( GetStructSettingsPtr()->m_DrawElementOrientVecFlag() )
             {
                 m_TriOrientationDO[cnt].m_Visible = true;
             }
@@ -1883,7 +1883,7 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 m_TriOrientationDO[cnt].m_Visible = false;
             }
 
-            if ( GetStructSettingsPtr()->m_DrawElementOrientVecFlag() && m_DrawCapFlagVec[cnt] )
+            if ( GetStructSettingsPtr()->m_DrawElementOrientVecFlag() )
             {
                 m_CapNormDO[cnt].m_Visible = true;
             }
@@ -2089,7 +2089,7 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
             m_SSCapNormDO[i].m_Type = DrawObj::VSP_LINES;
             m_SSCapNormDO[i].m_LineWidth = 1.0;
 
-            if ( GetStructSettingsPtr()->m_DrawElementOrientVecFlag() && m_DrawElementFlagVec[i + m_NumFeaParts] )
+            if ( GetStructSettingsPtr()->m_DrawElementOrientVecFlag() )
             {
                 m_SSTriOrientationDO[i].m_Visible = true;
             }
@@ -2098,7 +2098,7 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 m_SSTriOrientationDO[i].m_Visible = false;
             }
 
-            if ( GetStructSettingsPtr()->m_DrawElementOrientVecFlag() && m_DrawCapFlagVec[i + m_NumFeaParts] )
+            if ( GetStructSettingsPtr()->m_DrawElementOrientVecFlag() )
             {
                 m_SSCapNormDO[i].m_Visible = true;
             }
