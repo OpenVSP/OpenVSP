@@ -59,10 +59,6 @@ void FeaMeshMgrSingleton::CleanUp()
     m_FeaPartIntersectCapFlagVec.clear();
     m_FeaPartPropertyIndexVec.clear();
     m_FeaPartCapPropertyIndexVec.clear();
-    m_SSNameVec.clear();
-    m_SSIntersectCapFlagVec.clear();
-    m_SSPropertyIndexVec.clear();
-    m_SSCapPropertyIndexVec.clear();
 
     m_FixPntVec.clear();
     m_FixUWVec.clear();
@@ -99,13 +95,8 @@ bool FeaMeshMgrSingleton::LoadSurfaces()
     // Identify number of FeaParts
     m_NumFeaParts = fea_struct->NumFeaParts();
 
-    // Identify number of FeaSubSurfaces
-    m_NumFeaSubSurfs = fea_struct->NumFeaSubSurfs();
-
     // Identify number of FeaFixPoints
     m_NumFeaFixPoints = fea_struct->GetNumFeaFixPoints();
-
-    m_FeaSubSurfVec = fea_struct->GetFeaSubSurfVec();
 
     LoadSkins();
 
@@ -164,21 +155,27 @@ void FeaMeshMgrSingleton::TransferFeaData()
             m_FeaPartPropertyIndexVec[i] = fea_part_vec[i]->GetFeaPropertyIndex();
             m_FeaPartCapPropertyIndexVec[i] = fea_part_vec[i]->GetCapFeaPropertyIndex();
         }
+    }
+}
 
+void FeaMeshMgrSingleton::TransferSubSurfData()
+{
+    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex );
+
+    if ( fea_struct )
+    {
         vector < SubSurface* > fea_ss_vec = fea_struct->GetFeaSubSurfVec();
-        m_SSNameVec.resize( m_NumFeaSubSurfs );
-        m_SSIntersectCapFlagVec.resize( m_NumFeaSubSurfs );
-        m_SSPropertyIndexVec.resize( m_NumFeaSubSurfs );
-        m_SSCapPropertyIndexVec.resize( m_NumFeaSubSurfs );
+        m_SimpleSubSurfaceVec.resize( fea_ss_vec.size() );
 
         for ( size_t i = 0; i < fea_ss_vec.size(); i++ )
         {
-            m_SSNameVec[i] = fea_ss_vec[i]->GetName();
-            m_SSIntersectCapFlagVec[i] = fea_ss_vec[i]->m_IntersectionCapFlag.Get();
-            m_SSPropertyIndexVec[i] = fea_ss_vec[i]->GetFeaPropertyIndex();
-            m_SSCapPropertyIndexVec[i] = fea_ss_vec[i]->GetCapFeaPropertyIndex();
+            m_SimpleSubSurfaceVec[i] = SimpleSubSurface();
+            m_SimpleSubSurfaceVec[i].CopyFrom( fea_ss_vec[i] );
         }
     }
+
+    // Identify number of FeaSubSurfaces
+    m_NumFeaSubSurfs = m_SimpleSubSurfaceVec.size();
 }
 
 void FeaMeshMgrSingleton::GenerateFeaMesh()
@@ -200,6 +197,7 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
     GetStructSettingsPtr()->m_DrawFeaPartsFlag.Set( false );
 
     TransferFeaData();
+    TransferSubSurfData();
     TransferDrawObjData();
 
     addOutputText( "Add Structure Parts\n" );
@@ -556,8 +554,8 @@ void FeaMeshMgrSingleton::ComputeWriteMass()
         {
             double tri_mass = 0;
             double beam_mass = 0;
-            int property_id = m_SSPropertyIndexVec[i];
-            int cap_property_id = m_SSCapPropertyIndexVec[i];
+            int property_id = m_SimpleSubSurfaceVec[i].GetFeaPropertyIndex();
+            int cap_property_id = m_SimpleSubSurfaceVec[i].GetCapFeaPropertyIndex();
 
             for ( int j = 0; j < m_FeaElementVec.size(); j++ )
             {
@@ -571,7 +569,7 @@ void FeaMeshMgrSingleton::ComputeWriteMass()
                 }
             }
 
-            string name = m_SSNameVec[i];
+            string name = m_SimpleSubSurfaceVec[i].GetName();
 
             fprintf( fp, "\tFeaPartName: %s, Mass_Tris = %f, Mass_Beams = %f\n", name.c_str(), tri_mass, beam_mass );
             m_TotalMass += tri_mass + beam_mass;
@@ -892,10 +890,10 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
         for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
         {
             fprintf( fp, "\n" );
-            fprintf( fp, "$%s\n", m_SSNameVec[i].c_str() );
+            fprintf( fp, "$%s\n", m_SimpleSubSurfaceVec[i].GetName().c_str() );
 
-            int property_id = m_SSPropertyIndexVec[i];
-            int cap_property_id = m_SSCapPropertyIndexVec[i];
+            int property_id = m_SimpleSubSurfaceVec[i].GetFeaPropertyIndex();
+            int cap_property_id = m_SimpleSubSurfaceVec[i].GetCapFeaPropertyIndex();
 
             for ( int j = 0; j < m_FeaElementVec.size(); j++ )
             {
@@ -938,7 +936,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
         for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
         {
             fprintf( fp, "\n" );
-            fprintf( fp, "$%s Gridpoints\n", m_SSNameVec[i].c_str() );
+            fprintf( fp, "$%s Gridpoints\n", m_SimpleSubSurfaceVec[i].GetName().c_str() );
 
             for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
             {
@@ -1108,11 +1106,11 @@ void FeaMeshMgrSingleton::WriteCalculix()
         //==== Write SubSurfaces ====//
         for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
         {
-            fprintf( fp, "**%s\n", m_SSNameVec[i].c_str() );
-            fprintf( fp, "*NODE, NSET=N%s\n", m_SSNameVec[i].c_str() );
+            fprintf( fp, "**%s\n", m_SimpleSubSurfaceVec[i].GetName().c_str() );
+            fprintf( fp, "*NODE, NSET=N%s\n", m_SimpleSubSurfaceVec[i].GetName().c_str() );
 
-            int property_id = m_SSPropertyIndexVec[i];
-            int cap_property_id = m_SSCapPropertyIndexVec[i];
+            int property_id = m_SimpleSubSurfaceVec[i].GetFeaPropertyIndex();
+            int cap_property_id = m_SimpleSubSurfaceVec[i].GetCapFeaPropertyIndex();
 
             for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
             {
@@ -1126,7 +1124,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
             }
 
             fprintf( fp, "\n" );
-            fprintf( fp, "*ELEMENT, TYPE=S6, ELSET=E%s\n", m_SSNameVec[i].c_str() );
+            fprintf( fp, "*ELEMENT, TYPE=S6, ELSET=E%s\n", m_SimpleSubSurfaceVec[i].GetName().c_str() );
 
             for ( int j = 0; j < m_FeaElementVec.size(); j++ )
             {
@@ -1138,14 +1136,14 @@ void FeaMeshMgrSingleton::WriteCalculix()
             }
 
             fprintf( fp, "\n" );
-            sprintf( str, "E%s", m_SSNameVec[i].c_str() );
+            sprintf( str, "E%s", m_SimpleSubSurfaceVec[i].GetName().c_str() );
 
             StructureMgr.GetFeaProperty( property_id )->WriteCalculix( fp, str );
 
-            if ( m_SSIntersectCapFlagVec[i] )
+            if ( m_SimpleSubSurfaceVec[i].m_IntersectionCapFlag )
             {
                 fprintf( fp, "\n" );
-                fprintf( fp, "*ELEMENT, TYPE=B31, ELSET=E%s_CAP\n", m_SSNameVec[i].c_str() );
+                fprintf( fp, "*ELEMENT, TYPE=B31, ELSET=E%s_CAP\n", m_SimpleSubSurfaceVec[i].GetName().c_str() );
 
                 for ( int j = 0; j < m_FeaElementVec.size(); j++ )
                 {
@@ -1157,7 +1155,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
                 }
 
                 fprintf( fp, "\n" );
-                sprintf( str, "E%s_CAP", m_SSNameVec[i].c_str() );
+                sprintf( str, "E%s_CAP", m_SimpleSubSurfaceVec[i].GetName().c_str() );
 
                 StructureMgr.GetFeaProperty( cap_property_id )->WriteCalculix( fp, str );
                 fprintf( fp, "\n" );
@@ -1367,13 +1365,11 @@ void FeaMeshMgrSingleton::TransferDrawObjData()
         }
 
         // FeaSubSurfaces:
-        vector < SubSurface* > ss_vec = fea_struct->GetFeaSubSurfVec();
-
         for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
         {
-            string name = m_StructName + ":  " + m_SSNameVec[i];
+            string name = m_StructName + ":  " + m_SimpleSubSurfaceVec[i].GetName();
 
-            if ( ss_vec[i]->m_TestType() != vsp::NONE )
+            if ( m_SimpleSubSurfaceVec[i].m_TestType != vsp::NONE )
             {
                 m_DrawBrowserNameVec.push_back( name );
                 m_DrawBrowserPartIndexVec.push_back( m_NumFeaParts + i );
@@ -1381,7 +1377,7 @@ void FeaMeshMgrSingleton::TransferDrawObjData()
 
             m_DrawElementFlagVec.push_back( true );
 
-            if ( m_SSIntersectCapFlagVec[i] )
+            if ( m_SimpleSubSurfaceVec[i].m_IntersectionCapFlag )
             {
                 name += "_CAP";
                 m_DrawBrowserNameVec.push_back( name );

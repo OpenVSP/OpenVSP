@@ -412,6 +412,8 @@ void CfdMeshMgrSingleton::GenerateMesh()
     addOutputText( "Loading Bezier Surfaces\n" );
     LoadSurfs( xfersurfs );
 
+    TransferSubSurfData();
+
     CleanMergeSurfs();
 
     if ( m_SurfVec.size() == 0 )
@@ -548,6 +550,19 @@ void CfdMeshMgrSingleton::CleanUp()
 
     debugPnts.clear();
 
+    m_SimpleSubSurfaceVec.clear();
+}
+
+void CfdMeshMgrSingleton::TransferSubSurfData()
+{
+    vector < SubSurface* > ss_vec = SubSurfaceMgr.GetSubSurfs();
+    m_SimpleSubSurfaceVec.resize( ss_vec.size() );
+
+    for ( size_t i = 0; i < ss_vec.size(); i++ )
+    {
+        m_SimpleSubSurfaceVec[i] = SimpleSubSurface();
+        m_SimpleSubSurfaceVec[i].CopyFrom( ss_vec[i] );
+    }
 }
 
 
@@ -1348,7 +1363,10 @@ void CfdMeshMgrSingleton::Remesh( int output_type )
 
         m_SurfVec[i]->GetMesh()->LoadSimpTris();
         m_SurfVec[i]->GetMesh()->Clear();
-        m_SurfVec[i]->Subtag( GetSettingsPtr()->GetIntersectSubSurfs() );
+        if ( GetSettingsPtr()->GetIntersectSubSurfs() )
+        {
+            Subtag( m_SurfVec[i] );
+        }
         m_SurfVec[i]->GetMesh()->CondenseSimpTris();
     }
 
@@ -1383,7 +1401,10 @@ void CfdMeshMgrSingleton::RemeshSingleComp( int comp_id, int output_type )
 
         m_SurfVec[i]->GetMesh()->LoadSimpTris();
         m_SurfVec[i]->GetMesh()->Clear();
-        m_SurfVec[i]->Subtag( GetCfdSettingsPtr()->GetIntersectSubSurfs() );
+        if ( GetSettingsPtr()->GetIntersectSubSurfs() )
+        {
+            Subtag( m_SurfVec[i] );
+        }
         m_SurfVec[i]->GetMesh()->CondenseSimpTris();
     }
 
@@ -3395,20 +3416,20 @@ void CfdMeshMgrSingleton::BuildSubSurfIntChains()
     // components near a forced subsurface line, try increasing num_sects especially for highly
     // curved surfaces
 
-    SubSurfaceMgr.PrepareToSplit(); // Prepare All SubSurfaces for Split
     for ( int s = 0 ; s < ( int )m_SurfVec.size() ; s++ )
     {
-        // Get all SubSurfaces for the specified geom
         Surf* surf = m_SurfVec[s];
-        vector< SubSurface* > ss_vec = SubSurfaceMgr.GetSubSurfs( surf->GetGeomID(), surf->GetMainSurfID() );
+
+        // Get all SubSurfaces for the specified geom
+        vector < SimpleSubSurface > ss_vec = GetSimpSubSurfs( surf->GetGeomID(), surf->GetMainSurfID() );
 
         // Split SubSurfs
         for ( int ss = 0 ; ss < ( int ) ss_vec.size(); ss++ )
         {
-            ss_vec[ss]->SplitSegsU( surf->GetSurfCore()->GetMinU() );
-            ss_vec[ss]->SplitSegsU( surf->GetSurfCore()->GetMaxU() );
-            ss_vec[ss]->SplitSegsW( surf->GetSurfCore()->GetMinW() );
-            ss_vec[ss]->SplitSegsW( surf->GetSurfCore()->GetMaxW() );
+            ss_vec[ss].SplitSegsU( surf->GetSurfCore()->GetMinU() );
+            ss_vec[ss].SplitSegsU( surf->GetSurfCore()->GetMaxU() );
+            ss_vec[ss].SplitSegsW( surf->GetSurfCore()->GetMinW() );
+            ss_vec[ss].SplitSegsW( surf->GetSurfCore()->GetMaxW() );
 
             vector < vector< SSLineSeg > >& segsvec = ss_vec[ss]->GetSplitSegs();
 
@@ -3428,6 +3449,11 @@ void CfdMeshMgrSingleton::BuildSubSurfIntChains()
                     {
                         if ( chain->Valid() )
                         {
+                            if ( ss_vec[ss].m_IntersectionCapFlag )
+                            {
+                                chain->m_SSIntersectIndex = ss; // Identify FeaSubSurfaceIndex
+                            }
+
                             m_ISegChainList.push_back( chain );
                         }
                         else
@@ -3526,6 +3552,11 @@ void CfdMeshMgrSingleton::BuildSubSurfIntChains()
                 {
                     if ( chain->Valid() )
                     {
+                        if ( ss_vec[ss].m_IntersectionCapFlag )
+                        {
+                            chain->m_SSIntersectIndex = ss; // Identify FeaSubSurfaceIndex
+                        }
+
                         m_ISegChainList.push_back( chain );
                     }
                     else
@@ -5442,6 +5473,7 @@ void CfdMeshMgrSingleton::SubTagTris()
     map< string, set<int> > geom_comp_map;
     map< int, int >  comp_num_map; // map from an unmerged component number to the surface number of geom
     int tag_number = 0;
+    int fea_part_cnt = 1;
 
     for ( int i = 0; i < (int)m_SurfVec.size(); i++ )
     {
@@ -5479,7 +5511,12 @@ void CfdMeshMgrSingleton::SubTagTris()
             if ( surf->GetWakeFlag() )
                 geom_ptr = m_Vehicle->FindGeom( surf->GetRefGeomID() );
 
-            if ( geom_ptr )
+            if ( surf->GetCompID() < 0 )
+            {
+                name = geom_ptr->GetName() + "_FeaPart_" + to_string( fea_part_cnt );
+                fea_part_cnt++;
+            }
+            else if ( geom_ptr )
             {
                 name = geom_ptr->GetName() + to_string( (long long)geom_comp_map[geom_id].size() );
                 if ( surf->GetWakeFlag() ) name = geom_ptr->GetName()
@@ -5494,7 +5531,7 @@ void CfdMeshMgrSingleton::SubTagTris()
 
     }
 
-    SubSurfaceMgr.SetSubSurfTags( tag_number );
+    SetSimpSubSurfTags( tag_number );
     SubSurfaceMgr.BuildCompNameMap();
 }
 

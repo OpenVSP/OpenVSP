@@ -66,6 +66,7 @@
 #include "Vehicle.h"
 #include "CfdMeshSettings.h"
 #include "StructSettings.h"
+#include "SimpleSubSurface.h"
 
 #include "Vec2d.h"
 #include "Vec3d.h"
@@ -185,6 +186,7 @@ public:
 
     virtual void GenerateMesh();
 
+    virtual void TransferSubSurfData();
     virtual void addOutputText( const string &str, int output_type = VOCAL_OUTPUT );
 
     virtual void GUI_Val( string name, double val );
@@ -392,6 +394,7 @@ protected:
     string m_WakeGeomID;
 
     vector< Surf* > m_SurfVec;
+    vector < SimpleSubSurface > m_SimpleSubSurfaceVec;
 
     //==== Wakes ====//
     WakeMgr m_WakeMgr;

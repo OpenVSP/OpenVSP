@@ -64,6 +64,7 @@ public:
     virtual void GenerateFeaMesh();
     virtual void ExportFeaMesh();
     virtual void TransferFeaData();
+    virtual void TransferSubSurfData();
     virtual void AddStructureParts();
     virtual void SetFixPointSurfaceNodes();
     virtual void SetFixPointBorderNodes();
@@ -148,10 +149,6 @@ protected:
     vector < bool > m_FeaPartIntersectCapFlagVec;
     vector < int > m_FeaPartPropertyIndexVec;
     vector < int > m_FeaPartCapPropertyIndexVec;
-    vector < string > m_SSNameVec;
-    vector < bool > m_SSIntersectCapFlagVec;
-    vector < int > m_SSPropertyIndexVec;
-    vector < int > m_SSCapPropertyIndexVec;
 
     vector < vec3d > m_FixPntVec; // Vector 3D coordinates for FeaFixPoints 
     vector < vec2d > m_FixUWVec; // Vector UW coordinates for FeaFixPoints
@@ -167,7 +164,6 @@ protected:
     vector < bool > m_DrawCapFlagVec;
 
     vector< FeaElement* > m_FeaElementVec;
-    vector< SubSurface* > m_FeaSubSurfVec;
 
     vector< FeaNode* > m_FeaNodeVec;
     vector< vec3d* > m_AllPntVec;
